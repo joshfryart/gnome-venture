@@ -95,7 +95,7 @@ def build(p):
             for xx in range(cx - rr, cx + rr + 1):
                 if (xx - cx) ** 2 + (yy - cy) ** 2 <= rr * rr:
                     p.recolor((xx, yy, xx, yy), lamp)
-    GLOW = {hx(h) for h in ('#b96a55', '#96554f', '#a1584e', '#c26a53')}
+    GLOW = {hx(h) for h in ('#b96a55', '#96554f', '#a1584e', '#c26a53', '#b26956', '#ac5b4e')}
 
     def wall(y):
         return hx('#a86858') if y < 150 else hx('#895250')
@@ -165,6 +165,9 @@ def build(p):
     for yy in range(142, 158):
         for xx in range(14, 27):
             px[xx, yy] = px[27, yy]
+    for yy in range(126, 142):                                               # the whole left string is gone
+        for xx in range(14, 28):
+            px[xx, yy] = px[30, yy]
     for xx in range(47, 99):                                                 # the string rail goes with them
         for yy in range(125, 129):
             px[xx, yy] = px[xx, 130]
@@ -253,6 +256,8 @@ def build(p):
     C_CREAM, C_CREAM2, C_RED, C_RED2 = rm('#fff1d4'), rm('#e0b0a0'), rm('#f46d62'), rm('#a02c4c')
     G_SH, G_SH2 = rm('#b88068'), rm('#a06c5c')
     WEB = hx('#d4d0dc')
+    WEB_L = hx('#f4f0f6')
+    BACK = hx('#4a3c4a')
 
     # ================= C. damage =========================================================================
     # C1 cocoa house: ridge beam snapped, roof and awning caved in
@@ -300,7 +305,6 @@ def build(p):
         put(sx + d, v + 1, INK)
         put(sx + d, v + 3, INK)
         put(sx + 2 * d, v + 4, INK)
-    BACK = hx('#4a3c4a')
     for (x, y) in mask:                                                      # the back wall of the loft, dimly
         if col(x, y) == VD and y >= 118 + (x - 200) // 4 and x >= 204:
             put(x, y, BACK)
@@ -319,13 +323,31 @@ def build(p):
                 put(tx, ty + k, C_CREAM2)
 
     # smaller tear in the cocoa house awning
+    def deep(m, threads=None):
+        """shade a hole: shadow under the top/left lip, the far side lit dimly, a rim of light at the bottom-right"""
+        tops, bots = {}, {}
+        for (x, y) in m:
+            tops[x] = min(tops.get(x, 999), y)
+            bots[x] = max(bots.get(x, -1), y)
+        for (x, y) in m:
+            t, b_ = tops[x], bots[x]
+            if y - t <= 1 or (x - 1, y) not in m:
+                c = VD2
+            elif (x + 1, y) not in m or b_ - y == 0:
+                c = RIM
+            elif y - t > (b_ - t) * .55 and (x + y) % 9 != 0:
+                c = BACK
+            else:
+                c = VD
+            put(x, y, c)
+        if threads:
+            for x in sorted(tops)[1:-1:3]:
+                for k in range(1 + (x * 7) % 3):
+                    if (x, tops[x] + k) in m:
+                        put(x, tops[x] + k, threads)
     m = ragged(302, 120, 8, 5, 37)
     cut(m, lambda x, y: VD)
-    for (x, y) in m:
-        if (x - 1, y) not in m or (x, y - 1) not in m or (x - 1, y - 1) not in m:
-            put(x, y, VD2)
-        elif (x + 1, y) not in m or (x, y + 1) not in m:
-            put(x, y, RIM)
+    deep(m, C_CREAM2)
 
     # C2 side awnings shredded: sky shows through
     for (cx, cy, rx, ry, sd) in ((432, 99, 12, 10, 3), (397, 91, 6, 5, 8), (22, 103, 8, 7, 5), (70, 104, 5, 6, 12)):
@@ -372,19 +394,18 @@ def build(p):
             if col(100, yy) == W_MID:
                 put(100, yy, W_LT)
         # the upper half still dangles from the sagging awning
-        p.poly([(100, 141), (106, 142), (101, 157), (99, 154), (97, 157), (95, 155)], W_MID)
-        p.line([(101, 142), (96, 154)], W_LT)
-        p.line([(105, 143), (101, 155)], W_DK)
+        p.poly([(101, 133), (106, 133), (101, 154), (99, 157), (97, 154), (95, 156), (96, 152)], W_MID)
+        p.line([(101, 134), (96, 153)], W_LT)
+        p.line([(105, 134), (100, 154)], W_DK)
     inked(post)
 
     # C4 counters: a stove-in board, cracks, a fallen plank
     m = ragged(58, 196, 10, 6, 44)
     cut(m, lambda x, y: VD)
-    for (x, y) in m:
-        if (x - 1, y) not in m or (x, y - 1) not in m:
-            put(x, y, VD2)
-        elif (x + 1, y) not in m or (x, y + 1) not in m:
-            put(x, y, RIM)
+    deep(m)
+    for (x, y) in ((52, 193), (53, 194), (54, 195), (63, 192), (63, 193)):     # splinters poking into the hole
+        if (x, y) in m:
+            put(x, y, W_MID)
     for (x0, y0, n, k) in ((10, 186, 30, -26), (72, 189, 26, -26), (14, 205, 20, -22), (384, 187, 40, -26),
                            (430, 200, 34, -24), (170, 195, 44, -24), (250, 197, 50, -24), (392, 206, 22, -20)):
         r4 = random.Random(x0)
@@ -442,7 +463,27 @@ def build(p):
     inked(counter_husks)
 
     # C6 the dark doorway: cobweb, a board fallen across
-    p.web(321, 148, 9, WEB)
+    def web2(x, y, sx, sy, size, c=WEB):
+        """corner cobweb: spokes from the corner, sagging threads across them"""
+        angs = (0.0, 0.52, 1.05, 1.5708)
+        spokes = []
+        for a in angs:
+            pts = []
+            for r in range(size + 1):
+                pts.append((x + sx * int(round(r * math.cos(a))), y + sy * int(round(r * math.sin(a)))))
+            spokes.append(pts)
+            for q in pts[1:]:
+                put(q[0], q[1], c)
+        for rad in range(5, size + 1, 4):
+            for i in range(len(angs) - 1):
+                a0, a1 = spokes[i][rad], spokes[i + 1][rad]
+                n = max(abs(a1[0] - a0[0]), abs(a1[1] - a0[1]), 1)
+                for k in range(n + 1):
+                    t = k / float(n)
+                    sag = int(round(math.sin(t * math.pi) * rad / 6.0))
+                    put(int(round(a0[0] + (a1[0] - a0[0]) * t)) - sx * sag,
+                        int(round(a0[1] + (a1[1] - a0[1]) * t)) - sy * sag, c)
+    web2(330, 141, -1, 1, 10)
 
     def doorboard():
         p.poly([(320, 208), (323, 209), (333, 190), (330, 189)], W_MID)
@@ -450,11 +491,8 @@ def build(p):
     inked(doorboard)
 
     # cobweb across the left stall corner, another under the green awning
-    p.web(15, 129, 13, WEB)
-    for k in range(0, 12, 3):                                                # mirrored web, corner at (466,127)
-        p.line([(466 - k, 127), (466, 127 + k)], WEB)
-    p.line([(466, 127), (455, 131)], WEB)
-    p.line([(466, 127), (461, 138)], WEB)
+    web2(14, 128, 1, 1, 12, WEB_L)
+    web2(466, 128, -1, 1, 11, WEB_L)
 
     # C7 sacks: one split, cocoa beans spilled
     def spill():
@@ -501,7 +539,6 @@ def build(p):
     for xx in range(221, 238):
         if col(xx, 237) != INK:
             tone(xx, 237, -24)
-    p.web(225, 232, 4, WEB)
 
     def ash():
         for (x0, x1, y) in ((243, 249, 234), (241, 252, 235), (240, 253, 236)):
@@ -575,15 +612,29 @@ def build(p):
 
     # fallen husks under the strings, a broken string lying in the dust
     def fallen():
-        for i, (x, y) in enumerate(((62, 219), (84, 221), (74, 224), (118, 222), (140, 219), (186, 222), (198, 219),
+        for i, (x, y) in enumerate(((62, 219), (118, 222), (140, 219), (186, 222), (198, 219),
                                     (340, 218), (356, 222), (408, 219), (430, 221), (436, 226), (352, 250),
                                     (136, 246), (18, 240))):
             husk_at(x, y, i % 2 == 1)
     inked(fallen)
-    for (x, y) in ((62, 219), (84, 221), (74, 224), (118, 222), (140, 219), (186, 222), (198, 219), (340, 218),
+    for (x, y) in ((62, 219), (118, 222), (140, 219), (186, 222), (198, 219), (340, 218),
                    (356, 222), (408, 219), (430, 221), (436, 226), (352, 250), (136, 246), (18, 240)):
         for i in range(0, 5):
             tone(x + i, y + 3, -22)
+
+    # a whole string fallen from the left stall, lying in the dust
+    ROPE = hx('#8c7466')
+    def fallen_string():
+        for i in range(0, 32):
+            x, y = 76 + i, 220 + (i * 3) // 31
+            put(x, y, ROPE)
+        for i, x in enumerate(range(77, 105, 5)):
+            husk_at(x, 218 + (x - 76) * 3 // 31 + (i % 2), i % 2 == 1)
+    inked(fallen_string)
+    for xx in range(75, 110):
+        yy = 223 + (xx - 76) * 3 // 31
+        if col(xx, yy) != INK:
+            tone(xx, yy, -22)
 
     # a seedling in the abandoned box of chilies
     put(166, 219, M_MID); put(166, 218, M_MID); put(165, 217, M_LT); put(167, 216, M_LT); put(166, 217, M_MID)

@@ -413,51 +413,65 @@ def build(p):
         if col(x, y) in (PU_MID, PU_HI, PU_LT):
             p.dot(x, y, PU_HI)
 
-    def root_piece(pts, w=2):
-        """a snapped root lying on the floor: thick polyline, light on top, shadow under"""
+    def root_piece(pts, w=2, twig=None):
+        """a snapped root lying on the floor: tapering polyline, light on top, splintered end, contact shadow"""
         body = set()
-        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        segs = list(zip(pts, pts[1:]))
+        tot = sum(max(abs(b[0] - a[0]), abs(b[1] - a[1])) for a, b in segs)
+        done = 0
+        for (x0, y0), (x1, y1) in segs:
             n = max(abs(x1 - x0), abs(y1 - y0))
             for i in range(n + 1):
                 x, y = round(x0 + (x1 - x0) * i / n), round(y0 + (y1 - y0) * i / n)
-                for k in range(w + 1):
+                ww = w if (done + i) < tot * 0.7 else max(1, w - 1)
+                for k in range(ww + 1):
                     body.add((x, y + k))
-        for (x, y) in body:
-            for k in (1, 2):
-                if (x + 1, y + k) not in body and col(x + 1, y + k) not in (INK, None) and (x, y + k) not in body:
-                    pass
+            done += n
+        if twig:
+            (ax, ay), (bx, by) = twig
+            n = max(abs(bx - ax), abs(by - ay))
+            for i in range(n + 1):
+                body.add((round(ax + (bx - ax) * i / n), round(ay + (by - ay) * i / n)))
         lo = {}
         for (x, y) in body:
             lo[x] = max(lo.get(x, 0), y)
         for x, y in lo.items():                                    # contact shadow
-            for k in (2, 3):
-                if col(x + 1, y + k) not in (INK, None):
+            for k in (1, 2):
+                if (x + 1, y + k) not in body and col(x + 1, y + k) not in (INK, None):
                     p.dot(x + 1, y + k, F_VD)
         for (x, y) in body:
             top = (x, y - 1) not in body
             bot = (x, y + 1) not in body
-            p.dot(x, y, R_LT if top else (R_DK if bot else R_MID))
-            if not top and not bot and (x + y * 2) % 7 == 0:
-                p.dot(x, y, R_DK)
+            p.dot(x, y, R_LT if top else (R_SH if bot else R_MID))
+        for (x0, y0), (x1, y1) in segs:                            # bark grooves along the length
+            for i in range(2, max(abs(x1 - x0), 1) - 1, 4):
+                x = x0 + (i if x1 > x0 else -i)
+                y = round(y0 + (y1 - y0) * i / max(abs(x1 - x0), 1)) + 1
+                if (x, y) in body and (x + 1, y) in body and (x, y - 1) in body and (x, y + 1) in body:
+                    p.dot(x, y, R_DK)
+                    p.dot(x + 1, y, R_DK)
         inked(body)
-        e = pts[-1]
-        p.dot(e[0], e[1], R_LT)
-    root_piece([(128, 236), (136, 233), (146, 234), (153, 238)])
-    root_piece([(186, 254), (196, 257), (208, 255), (214, 251)], w=1)
+        e = pts[-1]                                                # pale snapped face + splinters
+        for k in range(w + 1):
+            if (e[0], e[1] + k) in body:
+                p.dot(e[0], e[1] + k, hx('c8bca8') if k < w else R_LT)
+        p.dot(e[0] + 1, e[1], R_LT)
+        p.dot(e[0] + 2, e[1] - 1, INK)
+        p.dot(e[0] + 1, e[1] - 1, INK)
+    root_piece([(128, 236), (136, 233), (146, 234), (153, 238)], twig=((138, 233), (141, 229)))
+    root_piece([(184, 254), (196, 257), (208, 255), (214, 251)], w=2, twig=((200, 256), (203, 262)))
     root_piece([(330, 252), (340, 249), (352, 251)], w=1)
     root_piece([(18, 240), (27, 243), (34, 241)], w=1)
 
     def torch(x, y, lying=True):
-        if lying:
-            rows = [".kww...........",
-                    "kkkkbbbbbbbbbb.",
-                    "KkkkbBBbbBBBBd.",
-                    "KKkkBBBBBBBdd..",
-                    ".KK............"]
-        else:
-            rows = ["kw.", "kk.", "KK.", "bB.", "bB.", "bB.", "bd."]
-        return stamp(x, y, rows, {'w': hx('a09aa0'), 'k': hx('4a3e46'), 'K': hx('2e2434'), 'b': R_LT, 'B': R_MID,
-                                  'd': R_DK})
+        rows = ["..kk...........",
+                ".kKkw..........",
+                "kkKkkbbbbbbbbbb",
+                "KKkkiBBbBBBBBBd",
+                ".KKkidBdddddddd"]
+        return stamp(x, y, rows, {'w': hx('8f8a90'), 'k': hx('4a3e46'), 'K': hx('2e2434'), 'b': R_LT,
+                                  'B': R_MID, 'd': R_DK, 'i': hx('6c6880')})
+
     for (tx, ty) in ((64, 255), (438, 238)):
         for k in range(1, 15):
             if col(tx + k, ty + 5) not in (INK, None):
@@ -481,22 +495,25 @@ def build(p):
     for (sx, sy) in ((66, 150), (310, 140)):
         soot(sx + 1, sy - 3, 40, 8)
         soot(sx + 1, sy - 3, 22, 5)
-        stamp(sx - 3, sy - 3,
-              ["...kkw....",
-               "..kkkkw...",
-               "..KkkkK...",
-               "..KKkKK...",
-               "...bbB....",
-               "...bbB....",
-               "iiibbBiii.",
-               "i..bbB..i.",
-               "ii.bbB.ii.",
-               ".iibbBii..",
-               "...bBd....",
-               "...bBd....",
-               "....d....."],
-              {'w': hx('a09aa0'), 'k': hx('4a3e46'), 'K': hx('2e2434'), 'b': R_LT, 'B': R_MID, 'd': R_DK,
-               'i': hx('7c7890')})
+        stamp(sx - 4, sy - 6,
+              ["...kKk...",
+               "..kkwkk..",
+               "..KkkkK..",
+               "...KkK...",
+               "...bBd...",
+               "...bBd...",
+               "...bBd...",
+               ".iiIIIii.",
+               ".i.bBd.i.",
+               ".ii.Bd.i.",
+               "..iiIii..",
+               "...bBd...",
+               "...bBd...",
+               "...bBd...",
+               "....d....",
+               "....n...."],
+              {'w': hx('8a8490'), 'k': hx('4a3e46'), 'K': hx('2e2434'), 'b': R_LT, 'B': R_MID, 'd': R_DK,
+               'i': hx('7c7890'), 'I': hx('5c5870'), 'n': hx('5c5870')})
 
     # dust and grit drifted against things (flat lumps, no outline)
     def drift(cx, cy, rx, ry, seed):
@@ -532,8 +549,13 @@ def build(p):
                          (32, 208, CAP_D), (452, 214, CAP_D)):
         stamp(x, y, rows, FP)
     # shelf fungus up the wall, grey and curled
-    for (x, y) in ((44, 96), (47, 104), (42, 111), (300, 108), (304, 116), (112, 150), (116, 157)):
-        stamp(x, y, ["llmmm..", "mmmdddd", ".ddd..."], FP)
+    SHELF_A = ["k.......", "kslllm..", "kmmmmmmd", "kddddddd", "k..ddd.."]
+    SHELF_B = ["k.....", "klllm.", "kmmmmd", "kdddd.", "k....."]
+    for (x, y, rows) in ((42, 93, SHELF_A), (44, 102, SHELF_B), (41, 110, SHELF_B), (298, 105, SHELF_A),
+                         (300, 114, SHELF_B)):
+        pts = [(x + i, y + j) for j, r in enumerate(rows) for i, ch in enumerate(r) if ch in 'slmd']
+        stamp(x, y, rows, dict(FP, k=W_VD))
+
     # one tiny cap still holds a last faint glow
     stamp(88, 206, [".hg.", "hggG", ".s.."], {'h': hx('a9d2c2'), 'g': hx('82b4a6'), 'G': hx('5e8c86'), 's': FU_ST})
 
@@ -574,3 +596,112 @@ def build(p):
     for (a, b, sg) in (((91, 14), (99, 16), 2), ((90, 26), (99, 30), 3), ((90, 40), (97, 42), 2),
                        ((15, 44), (24, 46), 3), ((14, 60), (25, 58), 3), ((134, 48), (141, 50), 2)):
         web_line(a, b, sg)
+
+    # ---- 13. a collapsed root tunnel in the back wall, choked with rubble and dead roots ----------------------
+    TCX, TTOP, TBOT, TRX = 116, 146, 203, 17
+    T_VOID, T_DEEP = hx('1c1424'), hx('281e30')
+    r_ = random.Random(77)
+    tun = set()
+    wob = 0
+    for y in range(TTOP, TBOT + 1):
+        t = (y - TTOP) / 13.0
+        hw = TRX * math.sqrt(max(0.0, 1 - (1 - t) ** 2)) if t < 1 else TRX
+        if y % 3 == 0:
+            wob = max(-2, min(2, wob + r_.choice((-1, 0, 1))))
+        lw = wob if y > TTOP + 4 else 0
+        rw = (wob * -1 + (1 if (y // 5) % 3 == 0 else 0)) if y > TTOP + 4 else 0
+        for x in range(int(TCX - hw) - lw, int(TCX + hw) + 1 + rw):
+            tun.add((x, y))
+    for (x, y) in tun:
+        nx = [(x - dx, y - dy) not in tun for (dx, dy) in ((1, 0), (0, 1), (2, 0), (0, 2))]
+        rd = min([k for k in range(1, 6) if (x + k, y) not in tun] or [6])
+        bd = min([k for k in range(1, 4) if (x, y + k) not in tun] or [4])
+        if nx[0] or nx[1]:
+            c = T_VOID                                             # shadowed upper-left lip
+        elif rd <= 1 and y > TTOP + 5:
+            c = W_DK                                               # far inner wall catches a little light
+        elif rd <= 3 and y > TTOP + 3:
+            c = W_SH
+        elif rd <= 5 and y > TTOP + 8:
+            c = T_DEEP
+        else:
+            c = T_VOID if y + (TCX - x) * 0.6 < TTOP + 30 else T_DEEP
+        p.dot(x, y, c)
+    for (x, y) in list(tun):                                       # rim light on the outer right lip
+        if (x + 1, y) not in tun and col(x + 2, y) in WALLS and TTOP + 3 < y < TBOT - 2:
+            p.dot(x + 2, y, W_LT)
+    inked(tun)
+    TR = (hx('7c6c78'), hx('64546a'), hx('4e4058'), hx('3e3248'), hx('30263a'))     # rubble in the gloom
+    rk(104, 204, 9, 8, 61, TR, shadow=False)
+    rk(126, 204, 10, 9, 62, TR, shadow=False)
+    rk(116, 192, 6, 5, 63, TR, shadow=False)
+    rk(111, 205, 5, 3, 64, ROCK, shadow=False)
+    # dead roots fallen in with the roof: one slumped across, one hanging snapped from the crown
+    def thick_root(pts, w=3):
+        rp = set()
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            n = max(abs(x1 - x0), abs(y1 - y0))
+            for i in range(n + 1):
+                x, y = round(x0 + (x1 - x0) * i / n), round(y0 + (y1 - y0) * i / n)
+                for k in range(w):
+                    rp.add((x, y + k) if abs(x1 - x0) >= abs(y1 - y0) else (x + k, y))
+        for (x, y) in rp:
+            up, lf = (x, y - 1) not in rp, (x - 1, y) not in rp
+            dn, rt = (x, y + 1) not in rp, (x + 1, y) not in rp
+            p.dot(x, y, R_LT if up or (lf and not dn) else (R_DK if dn or rt else R_MID))
+        inked(rp)
+        return rp
+    thick_root([(98, 158), (106, 163), (116, 170), (126, 171), (134, 166)])
+    thick_root([(117, 145), (118, 152), (120, 160), (119, 167)], w=2)
+    for (x, y, c) in ((119, 167, hx('c8bca8')), (120, 167, R_LT), (118, 168, INK), (121, 168, INK), (119, 168, INK),
+                      (120, 168, INK)):
+        p.dot(x, y, c)
+    # a little spill of grit out of the tunnel onto the seat
+    for (x0, x1, y) in ((100, 134, 204), (103, 130, 205)):
+        for x in range(x0, x1):
+            if col(x, y) in (SL_LT, SL_MID, hx('c4bcc0')) and (x * 7) % 5 < 3:
+                p.dot(x, y, hx('8f8580') if y == 205 else hx('a09384'))
+
+    # ---- 14. dead roots dangling through the roof hole -------------------------------------------------------
+    thick_root([(207, 0), (209, 6), (213, 12), (215, 19)], w=2)
+    thick_root([(252, 0), (250, 8), (246, 15), (245, 23)], w=2)
+    thick_root([(232, 0), (233, 5), (231, 9)], w=2)
+    for (x, y) in ((215, 20), (245, 24), (231, 10)):
+        p.dot(x, y, hx('c8bca8'))
+
+    # ---- 15. the crystals in the floor have lost their glow ------------------------------------------------------
+    def dull(r, g, b):
+        hh, s_, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+        if s_ > 0.18 and (hh < 0.05 or 0.42 < hh < 0.98):
+            c = colorsys.hsv_to_rgb(hh, s_ * 0.5, v * 0.84)
+            return tuple(round(k * 255) for k in c)
+        return None
+    p.recolor((44, 222, 98, 262), dull)
+
+    # ---- 16. a chunk broken out of the arch crown, lying at its foot -------------------------------------------
+    chunk = set()
+    for (x, y) in ((396, 66), (397, 66), (398, 66), (399, 66), (400, 66), (401, 66), (402, 66), (397, 67), (398, 67),
+                   (399, 67), (400, 67), (401, 67), (398, 68), (399, 68), (400, 68), (399, 69)):
+        if col(x, y) in WALLS:
+            chunk.add((x, y))
+    for (x, y) in chunk:
+        p.dot(x, y, W_SH if (x, y + 1) in chunk else W_VD)
+    rk(436, 214, 4, 3, 66, ROCK2, shadow=True)
+
+    # ---- 17. gravel spilled around the rock falls (little clustered stones with contact shadows) -------------
+    def pebble(x, y, big):
+        cells = [(0, 0), (1, 0), (0, 1), (1, 1)] + ([(2, 0), (2, 1), (1, -1)] if big else [])
+        if any(col(x + a, y + b) in (INK, None) or (x + a, y + b) in rock_px or y + b < 213 for a, b in cells):
+            return
+        for (a, b) in cells:
+            p.dot(x + a, y + b, ROCK[1] if b < 0 or (a, b) == (0, 0) else (ROCK[3] if b == 1 else ROCK[2]))
+        for a in range(0, 3 if big else 2):
+            if col(x + a + 1, y + 2) not in (INK, None):
+                p.dot(x + a + 1, y + 2, F_VD)
+    gr = random.Random(5)
+    for (cx, cy, n) in ((372, 222, 9), (300, 226, 7), (246, 250, 6), (200, 238, 5), (420, 220, 5), (150, 240, 4)):
+        for _ in range(n):
+            pebble(cx + gr.randint(-16, 16), cy + gr.randint(-3, 4), gr.random() < 0.35)
+
+    # a web in the tunnel's upper corner
+    web(TCX - 13, TTOP + 4, [(TCX - 4, TTOP + 2), (TCX - 6, TTOP + 9), (TCX - 12, TTOP + 13)], (0.5, 1.0))

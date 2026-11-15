@@ -80,8 +80,8 @@ def build(p):
                         break
     sky_heal(202, 21, 219, 43, allbad=True)          # yellow note above the fall
     sky_heal(257, 25, 275, 47, allbad=True)          # pink note
-    sky_heal(0, 48, 149, 150)                        # rainbow, left
-    sky_heal(329, 48, 479, 150)                      # rainbow, right
+    sky_heal(0, 48, 158, 150)                        # rainbow, left
+    sky_heal(322, 48, 479, 150)                      # rainbow, right
     # green note sitting on the cliff's right shoulder
     for y in range(86, 105):
         for x in range(328, 316, -1):
@@ -165,7 +165,7 @@ def build(p):
     # =====================================================================================================
     # 2. sky: grey clouds, heavy banks
     # =====================================================================================================
-    cl = {rm('#f8f0e0'): hx('#aeb0bc'), rm('#c8e6f0'): hx('#9698a8')}
+    cl = {rm('#f8f0e0'): hx('#8c90a2'), rm('#c8e6f0'): hx('#6c7187')}
     p.recolor((0, 4, 479, 75), lambda r, g, b: cl.get((r, g, b)))
     SKYSET = {rm(c) for c in SKY_L} | set(cl.values())
 
@@ -239,70 +239,81 @@ def build(p):
     # =====================================================================================================
     ST_DK, ST_GR, ST_GR2, LIME = hx('#4d485c'), hx('#5f6c58'), hx('#75806a'), hx('#aaa8b6')
     WT_LT, WT_MID = hx('#c3d2da'), hx('#8fa6b6')
-    ledges = [(74, 216, 240), (79, 246, 266), (97, 222, 262), (112, 214, 232), (121, 236, 266), (141, 216, 250),
-              (150, 252, 266), (166, 226, 266), (178, 214, 236)]
+    # bare rock where the water used to run, broken into big soft facets
+    for (x, y) in FALL:
+        n = nz(x * .55 + 17, y * .8)
+        c = R_DK
+        if n > 1.0:
+            c = R_MID
+        elif n < -1.3:
+            c = R_DD
+        if n > 2.1 and nz2(x * .7, y * .7) > 0:
+            c = R_LT
+        px[x, y] = c + (255,)
+    # damp streaks where the water used to run: wavy, tapering, not ruler-straight
+    r = random.Random(11)
+    for sx, w, y0, ln, c, ph in ((221, 3, 62, 70, ST_DK, 0.3), (231, 4, 62, 122, ST_GR, 1.7), (240, 3, 64, 96, ST_DK, 2.9),
+                                (250, 4, 62, 116, ST_GR, 4.1), (259, 2, 62, 58, ST_DK, 5.3), (226, 2, 130, 50, ST_GR, 0.9)):
+        for y in range(y0, y0 + ln):
+            t = (y - y0) / float(ln)
+            ww = max(1, int(round(w * (1 - t * .7))))
+            ox = int(round(1.6 * math.sin(y * .06 + ph) + .8 * math.sin(y * .17 + ph * 2)))
+            for k in range(ww):
+                if (sx + ox + k, y) in FALL:
+                    cc = c
+                    if c == ST_GR and k == 0 and nz2(sx, y * .5) > .6:
+                        cc = ST_GR2
+                    px[sx + ox + k, y] = cc + (255,)
+    # pale lime scale in a few clustered blotches
+    for (cx, cy, rx, ry) in ((223, 70, 3, 5), (253, 78, 3, 4), (246, 112, 3, 6), (262, 134, 2, 5), (220, 156, 3, 4)):
+        for y in range(cy - ry, cy + ry + 1):
+            for x in range(cx - rx, cx + rx + 1):
+                if ((x - cx) / (rx + .5)) ** 2 + ((y - cy) / (ry + .5)) ** 2 <= 1 and (x, y) in FALL \
+                        and nz(x * 1.3, y * 1.3) > -.6:
+                    px[x, y] = LIME + (255,)
+    # shadow under the lintel and down the left wall (ragged, not a ruler line)
+    for (x, y) in FALL:
+        lim = 62 + (1 if x > 243 else 0) + (1 if x > 252 else 0) + (1 if (x // 3) % 4 == 1 else 0)
+        wl = 215 + (1 if (y // 6) % 3 == 0 else 0) + (1 if (y // 13) % 2 else 0)
+        if y <= lim or x <= wl:
+            px[x, y] = (R_VD if y <= lim - 1 or x <= wl - 1 else R_DD) + (255,)
+    # a few broken shelves of rock, staggered: lit lip, dark undercut
+    ledges = [(84, 219, 231), (93, 247, 262), (118, 228, 244), (131, 252, 264), (152, 217, 230), (163, 238, 250),
+              (176, 254, 264)]
 
     def ledge_y(ly, x):
-        return ly + (1 if (x // 7) % 3 == 0 else 0) + (1 if (x // 11) % 2 == 0 else 0)
+        return ly
 
-    for (x, y) in FALL:
-        n = nz(x * 1.0, y * 1.9)
-        c = R_DK
-        if n > 1.25:
-            c = R_MID
-        elif n < -1.5:
-            c = R_DD
-        px[x, y] = c + (255,)
-    # damp streaks where the water used to run
-    r = random.Random(11)
-    for sx, w, y0, ln, c in ((219, 3, 61, 46, ST_DK), (225, 2, 61, 118, ST_DK), (231, 2, 70, 60, ST_GR),
-                             (236, 5, 61, 128, ST_GR), (243, 2, 61, 90, ST_DK), (249, 3, 61, 100, ST_DK),
-                             (255, 3, 61, 124, ST_GR), (261, 2, 61, 52, ST_DK), (229, 2, 140, 48, ST_DK),
-                             (245, 3, 150, 38, ST_GR), (217, 2, 120, 60, ST_GR)):
-        for k in range(w):
-            l2 = ln - r.randint(0, 14)
-            for y in range(y0 + r.randint(0, 3), y0 + l2):
-                if (sx + k, y) in FALL:
-                    px[sx + k, y] = c + (255,)
-    for sx, y0, ln in ((237, 66, 30), (238, 96, 44), (256, 70, 22), (226, 84, 18), (239, 150, 30)):
-        for y in range(y0, y0 + ln):                         # brighter algae core
-            if (sx, y) in FALL:
-                px[sx, y] = ST_GR2 + (255,)
-    for sx, y0, ln in ((222, 64, 14), (247, 62, 20), (252, 100, 12), (233, 122, 10), (259, 126, 16), (221, 146, 12)):
-        for y in range(y0, y0 + ln):                         # pale lime scale
-            if (sx, y) in FALL:
-                px[sx, y] = LIME + (255,)
-    # shadow under the lintel and down the left wall
-    for (x, y) in FALL:
-        if y <= 63 + (1 if x > 243 else 0) + (1 if x > 252 else 0) or x <= 216:
-            px[x, y] = (R_VD if y <= 61 or x <= 214 else R_DD) + (255,)
-    # ledges: lit lip, shadow under
     for (ly, x0, x1) in ledges:
         for x in range(x0, x1 + 1):
             y = ledge_y(ly, x)
+            end = x in (x0, x1)
             if (x, y) in FALL and (x, y + 3) in FALL:
-                p.dot(x, y, R_LT if x < x1 - 3 else R_MID)
+                p.dot(x, y - 1, R_MID if not end else R_DK)
+                p.dot(x, y, R_LT if x < x1 - 2 and not end else R_MID)
                 p.dot(x, y + 1, R_VD)
-                if (x + ly) % 5 != 0:
+                if not end and x0 + 1 < x < x1 - 1:
                     p.dot(x, y + 2, R_DD)
-    # trickles
-    def trickle(x, y0, y1, wide_until, gaps, seed):
+    # trickles: thin, wavering, broken into drops
+    def trickle(x, y0, y1, gaps, seed, wide=()):
         rr = random.Random(seed)
         y = y0
         while y <= y1:
             for (ly, lx0, lx1) in ledges:
-                if lx0 <= x <= lx1 and ledge_y(ly, x) == y:
+                if lx0 <= x <= lx1 and ledge_y(ly, x) == y - 1:
                     x += rr.choice((-2, -1, 1, 2))            # the water finds another way over the lip
             if not any(a <= y <= b for a, b in gaps) and (x, y) in FALL:
                 p.dot(x, y, WT_LT)
-                if y < wide_until and (x + 1, y) in FALL:
+                if any(a <= y <= b for a, b in wide) and (x + 1, y) in FALL:
                     p.dot(x + 1, y, WT_MID)
+            if rr.random() < .06:
+                x += rr.choice((-1, 1))
             y += 1
         return x
-    tx = trickle(238, 60, 189, 100, ((118, 120), (160, 163)), 3)
-    trickle(226, 60, 126, 0, ((84, 87), (104, 108), (116, 121)), 5)
-    trickle(256, 60, 96, 0, ((72, 75), (86, 91)), 8)
-    for (x, y) in ((226, 131), (226, 137), (227, 146), (256, 100), (256, 107), (257, 118)):   # drips
+    tx = trickle(237, 63, 189, ((101, 103), (140, 141), (168, 170)), 3, ((63, 80), (120, 132)))
+    trickle(226, 63, 112, ((80, 83), (94, 99)), 5)
+    trickle(255, 64, 92, ((74, 76), (84, 88)), 8)
+    for (x, y) in ((226, 118), (227, 125), (226, 134), (255, 97), (256, 104), (255, 113)):   # drips
         p.dot(x, y, WT_MID)
     p.web(217, 62, 9, hx('#b6b6c4'))
 
@@ -470,11 +481,16 @@ def build(p):
             d = ((x - tx) / 21.0) ** 2 + ((y - 192) / 4.2) ** 2
             if d < 1 and (x, y) in POND:
                 p.dot(x, y, MUD5 if d < .45 else MUD4)
-    for x in range(tx - 6, tx + 6):
-        p.dot(x, 192, WA2)
-    for x in range(tx - 3, tx + 4):
-        p.dot(x, 193, WA3)
-        p.dot(x, 191, WA1 if abs(x - tx) < 3 else WA2)
+    for y in range(190, 196):                          # a small splash pool where the trickle lands
+        for x in range(tx - 11, tx + 12):
+            d = ((x - tx) / 10.5) ** 2 + ((y - 192.5) / 2.0) ** 2
+            if d <= 1 and (x, y) in POND:
+                c = WA2
+                if y == 191 and x < tx + 3:
+                    c = WA1
+                if y >= 194 or (y == 193 and x > tx + 3):
+                    c = WA3
+                p.dot(x, y, c)
     rx_ = tx
     for y in range(194, 222):
         if y % 4 == 0:
@@ -540,8 +556,9 @@ def build(p):
             rr_ = random.Random(seed)
             for yy in range(y - ry, y + ry + 1):
                 for xx in range(x - rx, x + rx + 1):
-                    dx, dy = (xx - x) / float(rx), (yy - y) / float(ry)
-                    if abs(dx) ** 1.6 + abs(dy) ** 1.6 <= 1 + rr_.uniform(-.08, .08):
+                    dx, dy = (xx - x) / (rx + .5), (yy - y) / (ry + .5)
+                    ang = math.atan2(dy, dx)
+                    if abs(dx) ** 2.2 + abs(dy) ** 2.2 <= 1 + .05 * math.sin(ang * 2 + seed):
                         t = dx + dy * 1.2
                         p.dot(xx, yy, R_LT if t < -.55 else (R_DD if t > .7 else (R_DK if t > .15 else R_MID)))
         inked(draw)
@@ -558,8 +575,7 @@ def build(p):
             p.dot(x, 229, WA1)
     # chunks from the two broken tall pipes, at the foot of the cliff
     for (x, y, rx, ry, s) in ((204, 196, 6, 4, 1), (214, 199, 4, 3, 2), (196, 200, 3, 2, 3), (288, 196, 7, 4, 4),
-                              (299, 199, 4, 3, 5), (279, 200, 3, 2, 6), (226, 204, 3, 2, 7), (334, 194, 5, 3, 8),
-                              (328, 199, 3, 2, 9)):
+                              (299, 199, 4, 3, 5), (279, 200, 3, 2, 6), (226, 204, 3, 2, 7), (314, 196, 5, 3, 8)):
         rubble(x, y, rx, ry, s)
         shadow(x - rx + 1, x + rx + 2, y + ry + 2)
     # exposed stones in and around the puddle
@@ -598,38 +614,39 @@ def build(p):
     shadow(354, 376, 238)
 
     # dry reeds
-    RD1, RD2, RD3, CAT = hx('#b7a67c'), hx('#93835f'), hx('#6f6048'), hx('#5c4238')
+    RD1, RD2, RD3, CAT = hx('#b7a67c'), hx('#93835f'), hx('#6f6048'), hx('#86603f')
 
     def reed(x, y, h, bend=0, cat=True, snap=None):
+        cx = x
+        for k in range(h):
+            if snap and k == snap[0]:
+                # the stalk has snapped: the top hangs down at a steep angle
+                for m in range(snap[1]):
+                    p.dot(cx + ((m + 1) // 2) * snap[2], y - k + m + 1, RD2)
+                return
+            if bend and k and k % bend == 0:
+                cx += 1 if bend > 0 else -1
+            p.dot(cx, y - k, RD1 if k > h // 2 else RD2)
+        if cat:
+            for m in range(5):
+                p.dot(cx, y - h - m, CAT)
+                p.dot(cx + 1, y - h - m, hx('#6a4a36') if m > 1 else CAT)
+            p.dot(cx, y - h - 5, RD3)
+
+    def clump(x, y, spec):
         def draw():
-            cx = x
-            for k in range(h):
-                if snap and k == snap[0]:
-                    # the stalk has snapped: the top hangs down
-                    for m in range(snap[1]):
-                        p.dot(cx + (m + 1) * snap[2], y - k + m // 2 + 1, RD2)
-                    if cat:
-                        mx, my = cx + (snap[1] + 1) * snap[2], y - k + snap[1] // 2 + 1
-                        for m in range(4):
-                            p.dot(mx + m * snap[2], my + m // 2, CAT)
-                            p.dot(mx + m * snap[2], my + m // 2 + 1, CAT)
-                    return
-                if bend and k and k % bend == 0:
-                    cx += 1 if bend > 0 else -1
-                p.dot(cx, y - k, RD1 if k > h // 2 else RD2)
-            if cat:
-                for m in range(5):
-                    p.dot(cx, y - h - m, CAT)
-                    p.dot(cx + 1, y - h - m, CAT)
-                p.dot(cx, y - h - 5, RD3)
+            for (dx, h, b, c, s_) in spec:
+                reed(x + dx, y - abs(dx) // 3, h, b, c, s_)
+            for k in range(-4, 6):                        # the clump's own little base of dead blades
+                p.dot(x + k, y + 1, RD3)
+                if -3 <= k <= 4:
+                    p.dot(x + k, y, RD2)
         inked(draw)
-    for (x, y, h, b, c, s) in ((137, 226, 22, 9, True, None), (142, 228, 17, -7, False, None),
-                               (146, 227, 20, 0, True, (11, 5, 1)), (133, 229, 13, 0, False, None),
-                               (336, 222, 21, -8, True, None), (341, 224, 16, 6, False, None),
-                               (345, 223, 19, 0, True, (10, 5, -1)), (332, 225, 12, -5, False, None),
-                               (108, 212, 14, 6, True, None), (112, 214, 10, 0, False, None)):
-        if (x, y) in POND:
-            reed(x, y, h, b, c, s)
+        shadow(x - 4, x + 7, y + 2)
+    clump(168, 235, ((-3, 8, -4, False, None), (-1, 13, 7, True, None), (1, 11, 0, False, (6, 5, 1)),
+                     (3, 14, -9, True, None), (5, 9, 5, False, None)))
+    clump(340, 222, ((-3, 11, -5, False, None), (-1, 19, -8, True, None), (1, 22, 0, True, None),
+                     (3, 15, 7, False, (8, 6, 1)), (5, 12, 5, False, None)))
     # a couple of dead leaves on the water
     for (x, y) in ((214, 231), (270, 235), (246, 226), (306, 238)):
         if col(x, y) in (WA1, WA2, WA3):
@@ -655,8 +672,8 @@ def build(p):
                         p.dot(x + i, y + k, M_DK if k > 1 else M_MID)
     for (x, y, w, s) in ((214, 49, 12, 1), (228, 49, 6, 2), (251, 52, 9, 3), (181, 96, 7, 4), (271, 89, 9, 5),
                          (156, 104, 8, 6), (199, 126, 7, 7), (289, 143, 8, 8), (146, 177, 8, 9), (322, 180, 7, 10),
-                         (135, 189, 9, 11), (338, 189, 8, 12), (218, 97, 6, 13), (252, 121, 7, 14),
-                         (230, 141, 8, 15), (166, 108, 6, 16), (306, 104, 6, 17), (300, 78, 8, 18),
+                         (135, 189, 9, 11), (338, 189, 8, 12), (221, 83, 7, 13), (253, 130, 6, 14),
+                         (219, 151, 7, 15), (166, 108, 6, 16), (306, 104, 6, 17), (300, 78, 8, 18),
                          (176, 78, 7, 19)):
         moss_tuft(x, y, w, True, s)
     # moss creeping over the rock of the cliff itself, in drifts
@@ -670,7 +687,7 @@ def build(p):
     # vines from the lintel and the cliff top
     V1, V2 = hx('#55653f'), hx('#7d8c58')
     p.rng = random.Random(5)
-    for (x, y, ln) in ((216, 60, 26), (233, 60, 11), (262, 63, 34), (247, 63, 8), (172, 70, 22), (305, 68, 26),
+    for (x, y, ln) in ((216, 60, 26), (262, 64, 30), (172, 70, 22), (305, 68, 26),
                        (150, 96, 18), (330, 120, 20), (282, 90, 16), (207, 132, 12)):
         p.vine(x, y, ln, (V1, V2), sway=1, leaf=.4)
     # a seedling has taken root in the tall broken pipe
@@ -682,11 +699,24 @@ def build(p):
 
     # bare twigs standing out of the dead bushes, fallen leaves in the grass
     TW = hx('#4a3a38')
-    for pts in (((36, 172), (38, 164), (36, 158)), ((38, 164), (42, 160)), ((70, 180), (72, 172), (76, 168)),
-                ((72, 172), (70, 167)), ((418, 160), (420, 152), (418, 147)), ((420, 152), (424, 149)),
-                ((442, 162), (441, 155), (444, 150)), ((104, 216), (106, 210), (104, 206)), ((106, 210), (109, 207)),
-                ((395, 188), (394, 181), (397, 177))):
-        p.line(list(pts), TW)
+    for (x, dx, h, fork) in ((36, 1, 9, 1), (70, 1, 8, -1), (418, -1, 9, 1), (442, 1, 8, -1), (104, 1, 7, 1),
+                             (395, -1, 7, 1), (458, 0, 6, -1), (12, 0, 6, 1)):
+        y = 140
+        while y < 268 and col(x, y) != INK:
+            y += 1
+        y += 2                                        # rooted just inside the bush
+        top = (x + dx * 2, y - h)
+        p.line([(x, y), (x + dx, y - h // 2), top], TW)
+        p.line([(x + dx, y - h // 2), (x + dx + fork * 3, y - h // 2 - 3)], TW)
+    # the meadow flowers have dried to brown heads on bent stalks
+    for (x, y) in ((140, 222), (430, 232), (20, 236), (96, 244), (452, 250)):
+        for k in range(-1, 2):
+            for m in range(-1, 2):
+                if abs(k) + abs(m) <= 1 and col(x + k, y + m) in ((202, 198, 192), (202, 191, 161)):
+                    px[x + k, y + m] = px[x + 3, y + m] if col(x + 3, y + m) != INK else px[x - 3, y + m]
+        p.dot(x, y + 2, hx('#7d6c52')); p.dot(x, y + 3, hx('#7d6c52'))
+        p.dot(x + 1, y + 1, hx('#7d6c52'))
+        p.dot(x + 2, y + 1, hx('#8a6e50')); p.dot(x + 2, y + 2, hx('#6a5442'))
     rr = random.Random(9)
     for _ in range(70):
         x, y = rr.randint(4, 474), rr.randint(246, 262)

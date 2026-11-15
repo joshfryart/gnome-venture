@@ -139,6 +139,15 @@ def build(p):
         if c in SEA[:4] and all(col(x + i, y) == c for i in range(-1, L + 1)):
             for i in range(L):
                 p.dot(x + i, y, SEA[SEA.index(c) + 1])
+    for _ in range(22):                                         # slow dark swells, two-row clusters
+        x, y, L = r.randint(0, 460), r.randint(156, 194), r.randint(10, 26)
+        c = col(x, y)
+        if c in SEA[1:] and all(col(x + i, y) == c for i in range(L)):
+            for i in range(L):
+                p.dot(x + i, y, SEA[SEA.index(c) - 1])
+            for i in range(3, L - 4):
+                if col(x + i, y + 1) == c:
+                    p.dot(x + i, y + 1, SEA[SEA.index(c) - 1])
     for y in (2, 267):                                          # frame dashes stay
         for x in range(480):
             if spx[x, y][:3] == hx('#f5b82e'):
@@ -346,15 +355,49 @@ def build(p):
         if (x * 37) % 11 < 3:
             L = 2 + (x * 13) % 6
             y0 = 174 + dy(x)
+            if (x, y0 - 1) not in hut or (x, y0 - 2) not in hut:
+                continue
             for i in range(L):
                 if col(x, y0 + i) != INK or i == 0:
                     p.dot(x, y0 + i, TH[3] if i < L - 1 else TH[2])
 
     # ---- windows: broken panes, a board, the door hangs open ----------------------------------------------
     def shard_hole(pts, glints):
-        p.poly(pts, VD2)
+        """broken pane: dark room behind, a lit sill on the far lower-right inside, bright glass rim, cracks."""
+        from PIL import Image as _I, ImageDraw as _D
+        m = _I.new('L', (480, 270), 0)
+        _D.Draw(m).polygon(pts, fill=255)
+        mp = m.load()
+        xs = [q[0] for q in pts]
+        ys = [q[1] for q in pts]
+        cells = [(x, y) for y in range(min(ys), max(ys) + 1) for x in range(min(xs), max(xs) + 1) if mp[x, y]]
+        S = set(cells)
+        cx = sum(xs) / len(xs)
+        cy = sum(ys) / len(ys)
+        for (x, y) in cells:
+            c = VD2
+            if (x + 1, y) not in S or (x, y + 1) not in S:
+                c = VD                                          # inner far edge picks up a little light
+            if (x - 1, y) not in S or (x, y - 1) not in S:
+                c = VD2
+            p.dot(x, y, c)
+        RIM, RIM2 = hx('#9a9cb2'), hx('#6c6e88')
+        for (x, y) in cells:                                    # glass edge: lit where the break faces up-left
+            for (nx, ny, c) in ((x + 1, y, RIM2), (x, y + 1, RIM2), (x - 1, y, RIM), (x, y - 1, RIM)):
+                if (nx, ny) not in S and col(nx, ny) in (G1, G2, G3, hx('#7c7e96')):
+                    if (nx - cx) + (ny - cy) > 0:
+                        p.dot(nx, ny, c)
         for (x, y) in glints:
             p.dot(x, y, hx('#7c7e96'))
+        r = random.Random(len(pts) * 7 + pts[0][0])
+        for (vx, vy) in pts[::2]:                               # hairline cracks running out of the points
+            dx, dy_ = (1 if vx > cx else -1), (1 if vy > cy else -1)
+            x, y = vx, vy
+            for i in range(r.randint(2, 4)):
+                x += dx if i % 2 == 0 else 0
+                y += dy_ if i % 2 == 1 or r.random() < .4 else 0
+                if col(x, y) in (G1, G2, G3):
+                    p.dot(x, y, RIM2)
     d1 = dy(365)
     shard_hole([(366, 187 + d1), (372, 185 + d1), (375, 190 + d1), (381, 191 + d1), (377, 196 + d1), (379, 201 + d1),
                 (372, 198 + d1), (367, 200 + d1), (369, 194 + d1)], [(367, 201 + d1), (380, 192 + d1), (371, 186 + d1)])
@@ -374,7 +417,21 @@ def build(p):
         p.dot(x, y + dy(x), VD2)                                # nails
     d2 = dy(430)
     p.poly([(413, 196 + d2), (429, 190 + d2), (429, 228 + d2), (413, 228 + d2)], VD2)   # left door leaf gone: dark inside
-    p.poly([(414, 214 + d2), (428, 208 + d2), (428, 228 + d2), (414, 228 + d2)], VD)
+    for x in range(414, 429):                                   # back wall planks and a floor catching grey light
+        for y in range(197 + d2, 229 + d2):
+            if col(x, y) != VD2:
+                continue
+            if y >= 224 + d2:
+                p.dot(x, y, hx('#4e4658') if y == 224 + d2 else VD)
+            elif (x - 414) % 5 == 4:
+                p.dot(x, y, hx('#221a28'))
+            elif x > 421 and y > 206 + d2 + (x - 421) // 2:
+                p.dot(x, y, VD)
+    for x in range(415, 427):                                   # a toppled stool inside
+        if 3 <= x - 415 <= 9:
+            p.dot(x, 220 + d2, hx('#5a4a52'))
+    for (x, y) in ((419, 221), (419, 222), (419, 223), (423, 221), (423, 222), (423, 223)):
+        p.dot(x, y + d2, hx('#4a3e48'))
     shard_hole([(434, 199 + d2), (440, 196 + d2), (446, 201 + d2), (443, 207 + d2), (446, 212 + d2), (437, 210 + d2),
                 (433, 205 + d2)], [(441, 196 + d2), (447, 212 + d2)])
 
@@ -406,6 +463,31 @@ def build(p):
     p.rng = random.Random(3)
     for (x, y, L) in ((329, 178, 22), (387, 181, 16), (404, 183, 30), (458, 186, 24), (341, 179, 9)):
         p.vine(x, y + dy(x), L, (M_DK, M_MID))
+
+    # the left wall lantern: cold, sooty glass, a crack, cap knocked askew
+    def dead_lantern(cx, cy):
+        for y in range(cy - 7, cy + 8):
+            for x in range(cx - 7, cx + 8):
+                d = math.hypot(x - cx, y - cy)
+                if d < 4.6:
+                    u = (x - cx) + (y - cy)
+                    c = hx('#8a889e') if u < -3 else (hx('#55536a') if u > 2 else hx('#6c6a82'))
+                    if (y - cy) > 1 and abs(x - cx) < 3:
+                        c = hx('#4a4458')                          # soot settled in the bottom
+                    p.dot(x, y, c)
+                elif d < 5.6:
+                    p.dot(x, y, INK)
+                elif d < 9.6 and x >= 326 and sum(col(x, y)) < 200 and (x, y) in hut:
+                    p.dot(x, y, rm(spx[x, 183][:3]))               # the old lamp's spikes go
+        for (x, y) in ((cx - 2, cy - 3), (cx - 3, cy - 2)):
+            p.dot(x, y, hx('#9a9cb2'))
+        for (x, y) in ((cx + 1, cy - 4), (cx + 1, cy - 3), (cx + 2, cy - 2), (cx + 2, cy - 1)):
+            p.dot(x, y, hx('#2e2c3a'))                              # crack in the glass
+        for (x, y) in ((cx, cy - 6), (cx, cy + 6), (cx - 6, cy), (cx + 6, cy)):
+            p.dot(x, y, INK)                                        # the frame studs, like the live lamp
+        for (x, y) in ((cx - 1, cy + 4), (cx + 1, cy + 4)):
+            p.dot(x, y, hx('#4c4a60'))
+    dead_lantern(333, 195)
 
     # ================= 5. the beach ==========================================================================
     def shadow(x0, x1, y, rows=2, skew=1):
@@ -615,24 +697,24 @@ def build(p):
 
     # ---- broken eggshells --------------------------------------------------------------------------------------
     EP = {'W': E_W, 'w': E_L, 's': E_S, 'd': E_D}
-    CUP = ["..dd.dd..",
-           ".WdWdWdw.",
-           "WWWWWWwws",
-           "WWWWWwwss",
-           "WWWWwwwss",
-           ".WWwwwss.",
-           "..wwsss.."]
-    TIP = ["..WWWw....",
-           ".WWWWWdd..",
-           "WWWWWdddw.",
-           "WWWWwdddds",
-           "WWWwwddds.",
-           ".wwwsss...",
-           "..sss....."]
-    CAP = ["..WWw..",
-           ".WWWws.",
-           "WWWWwss",
-           "W.Ww.ws"]
+    EP['i'] = hx('#7e7088')                                    # inside of a shell, in shadow
+    CUP = [".W..Ww.w.",
+           "WiiiiissW",
+           "WWiiissws",
+           "WWWWWwwws",
+           ".WWWwwss.",
+           "..wwss..."]
+    TIP = ["..WWw....",
+           ".WWWwW...",
+           "WWWwiiw..",
+           "WWwiiidW.",
+           "WWwiidds.",
+           ".wwsss.s.",
+           "..sss...."]
+    CAP = [".W.Ww..",
+           "WWiiisw",
+           ".Wwwss.",
+           "..ss..."]
     BIT = ["W.W",
            "Wws"]
     BIT2 = ["Ww",
@@ -645,10 +727,10 @@ def build(p):
         for (kind, x, y) in items:
             shadow(x + 2, x + len(kind[0]) + 1, y + len(kind), 1)
         inked(draw)
-    shells([(CUP, 24, 238), (TIP, 38, 241), (CUP, 53, 237), (CAP, 33, 247), (BIT2, 19, 246), (BIT, 62, 247),
-            (BIT, 48, 248), (BIT2, 45, 239)])
-    shells([(TIP, 140, 238), (CUP, 154, 237), (BIT2, 150, 246), (BIT, 166, 249), (CAP, 126, 246)])
-    shells([(CUP, 212, 246), (BIT, 225, 253), (TIP, 229, 248), (BIT2, 206, 255)])
+    shells([(CUP, 26, 239), (TIP, 44, 241), (CAP, 33, 247), (BIT2, 19, 246), (BIT, 62, 247),
+            (BIT, 54, 249), (CAP, 56, 238)])
+    shells([(TIP, 142, 238), (CAP, 155, 239), (BIT2, 150, 246), (BIT, 166, 249), (CAP, 126, 246)])
+    shells([(CUP, 214, 247), (BIT, 225, 253), (BIT2, 230, 249), (BIT2, 206, 255)])
     shells([(BIT, 101, 258), (CAP, 108, 256), (BIT2, 122, 262)])
     shells([(BIT, 314, 258), (BIT2, 324, 260), (BIT2, 248, 230), (BIT, 190, 234), (BIT2, 96, 242), (CAP, 197, 240)])
 
@@ -728,17 +810,17 @@ def build(p):
 
     # ---- the hut's step, fallen and half buried; the lantern that dropped off the wall ------------------------
     def step():
-        for i in range(34):
+        for i in range(30):
             x = 384 + i
             y = 252 + i // 8
-            p.dot(x, y, W_LT)
-            p.dot(x, y + 1, W_MID)
-            p.dot(x, y + 2, W_MID if i % 12 else W_SH)
-            p.dot(x, y + 3, W_DK)
-            p.dot(x, y + 4, W_DK)
-    shadow(386, 421, 258, 2)
+            snap = {27: 1, 28: 2, 29: 3}.get(i, 0)              # splintered end
+            for j, c in enumerate((W_LT, W_MID, W_MID if i % 12 else W_SH, W_DK, W_DK)):
+                if j >= snap and not (i == 29 and j > 3):
+                    p.dot(x, y + j, c)
+        p.dot(384, 253, hx('#cdb39c'))
+        p.dot(384, 254, hx('#cdb39c'))
+    shadow(386, 416, 257, 2)
     inked(step)
-    drift(414, 261, 24, 6, over=True)
 
     LP = {'k': hx('#4a4554'), 'm': hx('#6a6474'), 'g': hx('#7a7c92'), 'h': hx('#a3a5b8'), 'd': hx('#5a5c72'),
           'x': VD2}

@@ -50,6 +50,12 @@ def build(p):
                         if c and c != BUB:
                             px[x, y] = c + (255,)
                             break
+    # 2b. the lit glow disc behind the old bubbles goes dark; the sparkle by the chest goes out
+    for y in range(86, 104):
+        for x in range(70, 94):
+            if (x - 81) ** 2 + (y - 95) ** 2 <= 81 and col(x, y) == BANDS[1] and y >= 89:
+                px[x, y] = BANDS[2] + (255,)
+    p.recolor((396, 208, 408, 216), lambda r, g, b: hx('#1c5c94') if (r, g, b) == hx('#fff4d6') else None)
     # 3. where each water band starts in each column (hidden stretches are bridged in a straight line)
     bnd = []
     for k in range(1, 5):
@@ -92,11 +98,35 @@ def build(p):
         drown(box)
     drown((132, 30, 300, 102))
     drown((241, 103, 300, 113))
+    for y in range(68, 84):                                            # the blue sail hole left a disc behind
+        for x in range(254, 272):
+            px[x, y] = water(x, y) + (255,)
+    # the lower sail curl in front of the stump goes too; the stump is repainted whole underneath
+    mast_row = [col(235 + i, 118) for i in range(6)]
+    for y in range(98, 137):
+        ml = int(233.5 + (y - 110) * .267)
+        for x in range(214, 251):
+            if y >= 103 and ml <= x <= ml + 5:
+                px[x, y] = mast_row[x - ml] + (255,)
+            elif col(x, y) not in band_of:
+                px[x, y] = water(x, y) + (255,)
     # 5. the hatted octopus is gone: bare planks where it sat (the breach is cut there below)
     OCT = {hx(h) for h in ('#e0647a', '#f07f91', '#c8406a', '#a04060', '#7d3454', '#ff9aa8', '#d83a3a', '#e0443a',
                             '#ff6a8a', '#ff9ac0', '#5a2848', '#ffa6b9', '#2b1c26')}
     WOOD = hx('#a9714a')
     p.recolor((286, 148, 318, 204), lambda r, g, b: WOOD if (r, g, b) in OCT else None)
+    # 5b. the chest is repainted from scratch below: clear the old lid and the gold to silt
+    GLD = {hx(h) for h in ('#ffd060', '#fff0c0', '#f5b82e', '#ffe38a', '#ffb03a')}
+    for y in range(214, 262):
+        for x in range(356, 436):
+            c = col(x, y)
+            if 379 <= x <= 425 and 221 <= y <= 227:
+                px[x, y] = hx('#f4d490' if (x * 3 + y) % 23 > 4 else '#e8c078') + (255,)
+            elif c in GLD and not (380 <= x <= 424 and 228 <= y <= 250):
+                q = x - 1
+                while col(q, y) in GLD:
+                    q -= 1
+                px[x, y] = px[q, y]
     # 6. the bow has broken off and sagged 3 px
     SHIP = {hx(h) for h in ('#a9714a', '#8a5a3c', '#5a3a34', '#4a2f32', '#3a2430', '#c88858', '#e8b060', '#2b1c26',
                             '#ffd060', '#8fe8f0', '#4a3020', '#c08550', '#c08856', '#a8704a', '#7a4a34', '#623b30',
@@ -466,7 +496,6 @@ def build(p):
                 elif col(x, y) in CORAL and (x * 3 + y) % 11 == 0 and col(x - 1, y) in CORAL:
                     p.dot(x, y, B_DK)
     plank(68, 240, 10, 0.2, th=3, cols=(B_LT, B_MID, B_DK))
-    plank(428, 250, 9, -0.15, th=3, cols=(B_LT, B_MID, B_DK))
 
     am = {rm('#58d878'): hx('#86a078'), rm('#38a858'): hx('#5f7a58')}
     p.recolor((0, 180, 479, 262), lambda r_, g, b: am.get((r_, g, b)))
@@ -488,46 +517,99 @@ def build(p):
                                      (123, 236, 24))):
         strand(sx, yb, h, 50 + i)
 
-    # ---- the burst chest ------------------------------------------------------------------------------------------
-    p.copy_block((335, 227), (379, 221), 44, 5)
-    for y in range(221, 226):
-        for x in range(423, 428):
-            px[x, y] = px[428, y]
+    # ---- the burst chest: lid torn off, front board split, the hoard spilled into the silt -------------------------
     C_W, C_WD, C_WL = rm('#a9714a'), rm('#8a5a3c'), rm('#c88858')
-    for x in range(379, 427):                                        # the lid tore away: new open top
-        p.dot(x, 226, INK)
-        if 380 <= x <= 425:
-            p.dot(x, 227, C_WD)
-            p.dot(x, 228, C_WD if x % 11 < 7 else C_W)
-    for y in range(229, 241):                                        # the lock is gone, bare board
-        for x in range(396, 406):
-            if col(x, y) not in (INK,):
-                p.dot(x, y, C_W)
-    stamp(393, 230, ["....x.....x....",
-                     "...xxx...xxx...",
-                     "x..xxxxxxxxx..x",
-                     "xxxxxxxxxxxxxxx",
-                     ".xxxxxxxxxxxxx.",
-                     "..xxxxxxxxxxxx.",
-                     ".xxxxxxxxxxxxxx",
-                     "xxxxxxxxxxxxxx.",
-                     ".xxxxxxxxxxxx..",
-                     "..xxxxxxxxxxxx.",
-                     ".xxxxxxxxxxxxxx",
-                     "xxxxxxxxxxxxxxx",
-                     "xxxxxxxxxxxxxxx",
-                     ".xxxxxxxxxxxxx.",
-                     ".xxxxxxxxxxxxx."], {'x': VD})
-    for y in range(229, 246):                                        # depth inside, lit splintered rim
-        for x in range(390, 410):
-            if col(x, y) == VD:
-                if col(x, y - 1) not in (VD, VD2) or col(x - 1, y) not in (VD, VD2):
-                    p.dot(x, y, VD2)
-                if col(x + 1, y) not in (VD, VD2, INK):
-                    p.dot(x + 1, y, C_WL)
-                if col(x, y + 1) not in (VD, VD2, INK) and y < 244:
-                    p.dot(x, y + 1, C_WL)
+    C_SD = rm('#623b30')
+    GOLD = (G_LT, G_MID, G_DK)
 
+    def chest():
+        x0, x1, xs, y0, y1 = 380, 418, 424, 228, 250            # front face x0..x1, side face to xs
+        vb = {}                                                   # the V break in the front board
+        for x in range(390, 407):
+            d = abs(x - 397.5)
+            vb[x] = 236 - int(d * 0.9) + (1 if x in (393, 401) else 0) - (1 if x == 404 else 0)
+        for y in range(222, y1 + 1):
+            for x in range(x0, xs + 1):
+                if x > x1:                                        # side face, its top slants up to the back
+                    top = 228 - (x - x1)
+                    if y < top:
+                        continue
+                    c = C_SD if (y - 228) % 7 else INK
+                    if x == x1 + 1:
+                        c = C_WD
+                    p.dot(x, y, c)
+                    continue
+                if y < 222 + 1:
+                    continue
+                if y <= 227:                                       # the open mouth: back rim, inner wall, dark well
+                    if x < x0 + 1 or x > x1:
+                        continue
+                    c = C_WL if y == 223 else (C_WD if y <= 225 else VD2)
+                    if y == 224 and x % 9 == 3:
+                        c = C_SD
+                    p.dot(x, y, c)
+                    continue
+                if x in vb and y <= vb[x]:                         # through the split: the dark inside
+                    p.dot(x, y, VD2 if y < vb[x] - 2 else VD)
+                    continue
+                k = (y - y0) % 7                                    # three boards, lit top row, seam below
+                c = C_WL if k == 0 else (C_WD if k == 6 else C_W)
+                if (x * 5 + (y - y0) // 7 * 7) % 17 == 0 and 0 < k < 6:
+                    c = C_WD                                        # a grain knot
+                if x == x0:
+                    c = C_WL if k < 6 else C_W
+                if y == y1:
+                    c = C_SD
+                p.dot(x, y, c)
+            # lit splinter lip on the break
+        for x in vb:
+            if col(x, vb[x] + 1) not in (VD, VD2):
+                p.dot(x, vb[x] + 1, C_WL)
+        for (x, y) in ((391, 233), (403, 232), (395, 236), (400, 236)):
+            p.dot(x, y, C_WL)
+        # tarnished iron straps with rivets
+        for sx in (384, 412):
+            for y in range(228, 251):
+                if col(sx, y) in (VD, VD2):
+                    continue
+                p.dot(sx, y, RIM)
+                p.dot(sx + 1, y, I_MID)
+                p.dot(sx + 2, y, I_DK)
+                if y in (230, 240, 248):
+                    p.dot(sx + 1, y, I_LT)
+            for y in (232, 243):
+                p.dot(sx + 1, y, hx('#74907c'))                     # verdigris
+        for y in range(222, 251):                                   # strap round the side
+            if y >= 228 - 3:
+                p.dot(421, y, I_DK)
+        # coins glint in the well and drip over the split
+        for (x, y) in ((386, 227), (392, 226), (408, 227), (414, 226), (396, 234), (399, 235), (397, 237)):
+            p.dot(x, y, G_DK if y < 230 else G_MID)
+    inked(chest)
+    for x in range(379, 428):                                       # contact shadow under the chest
+        for y in (251, 252):
+            if is_sand(x, y):
+                p.dot(x, y, S5 if y == 251 else S4)
+
+    def coins():
+        heap = ["......gGGg..........",
+                ".....gGggGg.........",
+                "....ggGGgggg........",
+                "...gGGgggGGgd.......",
+                "..ggggGGggggdd......",
+                ".gGGgggggGGggdd.....",
+                "ggggGGgggggGgddd....",
+                "gGggggggGGgggdddd...",
+                "ggGGgggGgggGGgddddd.",
+                "gggggGGggggggddddddd",
+                ".ddggdddggdddddddd.."]
+        shadow([(x, 252 + k) for x in range(378, 402) for k in (0, 1)])
+        stamp(380, 242, heap, {'g': G_MID, 'G': G_LT, 'd': G_DK})
+        # the trickle from the split down the front board
+        for (x, y) in ((396, 238), (397, 239), (395, 240), (396, 241)):
+            p.dot(x, y, G_MID); p.dot(x + 1, y, G_DK)
+        p.dot(396, 238, G_LT)
+    inked(coins)
     def lid():
         shadow([(x, 249 + k) for x in range(432, 458) for k in (0, 1)])
         for i in range(24):
@@ -538,32 +620,6 @@ def build(p):
                     c = RIM_D if j > 1 else RIM
                 p.dot(432 + i, y + j, c)
     inked(lid)
-
-    gm = {rm('#ffd060'): G_MID, rm('#f5b82e'): G_DK, rm('#ffe38a'): G_LT, rm('#ffb03a'): G_DK}
-    p.recolor((366, 244, 396, 259), lambda r_, g, b: gm.get((r_, g, b)))
-    GOLD = (G_LT, G_MID, G_DK)
-    for y in range(244, 260):
-        for x in range(366, 397):
-            if col(x, y) == G_MID:
-                if col(x, y - 1) not in GOLD:
-                    p.dot(x, y, G_LT)
-                elif col(x, y + 1) not in GOLD or col(x + 1, y) not in GOLD:
-                    p.dot(x, y, G_DK)
-
-    def coins():
-        heap = ["......gGGg........",
-                ".....gGggGg.......",
-                "....ggGGgggg......",
-                "...gGGgggGGgd.....",
-                "..ggggGGggggdd....",
-                ".gGGgggggGGggdd...",
-                "ggggGGgggggGgddd..",
-                "gGggggggGGgggdddd.",
-                "ggGGgggGgggGGgdddd",
-                "gggggGGggggggddddd",
-                ".ddggdddggddddddd."]
-        stamp(390, 242, heap, {'g': G_MID, 'G': G_LT, 'd': G_DK})
-    inked(coins)
 
     def loose():
         for (x, y) in ((362, 259), (374, 262), (384, 260), (398, 258), (355, 252), (428, 256), (406, 262)):
