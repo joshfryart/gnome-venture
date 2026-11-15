@@ -67,13 +67,24 @@ def hem_points(im):
             if mat(x, y) and mat(x, y - 1) and mat(x, y - 2) and (mat(x - 1, y) or mat(x + 1, y)):
                 pts[x] = y - 1
                 break
-    # keep only the main hem: drop columns whose y jumps far from both neighbours (stray bits)
+    if not pts:
+        return {}
+    # keep only the main hem: near the object's bottom, no stray bits (jumps), runs of 4+ columns
+    low = max(pts.values())
     keep = {}
     for x in sorted(pts):
         nb = [pts[n] for n in (x - 1, x + 1) if n in pts]
-        if nb and min(abs(pts[x] - v) for v in nb) <= 2:
+        if pts[x] >= low - 10 and nb and min(abs(pts[x] - v) for v in nb) <= 2:
             keep[x] = pts[x]
-    return keep
+    runs, cur = [], []
+    for x in sorted(keep):
+        if cur and x != cur[-1] + 1:
+            runs.append(cur)
+            cur = []
+        cur.append(x)
+    if cur:
+        runs.append(cur)
+    return {x: keep[x] for run in runs if len(run) >= 4 for x in run}
 
 
 def add_lined(im):

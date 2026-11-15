@@ -23,7 +23,7 @@ pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   post adventure.php -d do=$d -d nonce=$n -d turn=$t "$@"; }
 # a page without what differs from load to load (tokens, clocks, the version stamp on assets)
-norm() { sed -e 's/name="csrf" value="[^"]*"/CSRF/g' -e 's/name="_n" value="[^"]*"/N/g' -e 's/name="nonce" value="[^"]*"/NONCE/g' -e 's/[0-9][0-9]:[0-9][0-9]/HH:MM/g' -e 's/Almanac <b>\([0-9]*\)<\/b>\/[0-9]*/Almanac <b>\1<\/b>\/N/g' -e 's/2\.6\.[0-9][0-9]*/VER/g' "$1"; }   # VER: the old copy is 2.6.73, the working copy a later version (asset links carry it)
+norm() { sed -e 's/name="csrf" value="[^"]*"/CSRF/g' -e 's/name="_n" value="[^"]*"/N/g' -e 's/name="nonce" value="[^"]*"/NONCE/g' -e 's/[0-9][0-9]:[0-9][0-9]/HH:MM/g' -e 's/Almanac <b>\([0-9]*\)<\/b>\/[0-9]*/Almanac <b>\1<\/b>\/N/g' -e 's/ of [0-9][0-9]* \(pages\|·\)/ of N \1/g' -e 's/<progress max="[0-9]*"/<progress max="N"/g' -e 's/2\.6\.[0-9][0-9]*/VER/g' "$1"; }   # VER: the old copy is 2.6.73, the working copy a later version (asset links carry it)
 install() {   # install, register sprout, onboard: on the server at $1 with the game copy $2
   local B=$BASE G=$GAME; BASE=$1; GAME=$2
   get install.php >/dev/null

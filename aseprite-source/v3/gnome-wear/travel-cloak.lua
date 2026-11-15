@@ -29,7 +29,7 @@ lay(top, 1, { .22, .4, .58, .74, .9 })
 for x = 10, 53 do if top:has(x, 35) then c:put(x, 34, R.cloak[3]) c:put(x, 35, R.cloak[2]) end end
 for x = 11, 52 do c:put(x, 44, R.cloak[1]) end
 -- hood folded flat on top as a triangle, its point flopped over the front edge; tan lining rim
-local hood = c:poly{ {15,19}, {49,19}, {45,27}, {37,38}, {33,43}, {31,43}, {27,38}, {19,27} }
+local hood = c:poly{ {18,20}, {46,20}, {43,27}, {37,37}, {33,43}, {31,43}, {27,37}, {21,27} }
 W.sep(c, hood, top:copy():add(L2), R.cloak[1])
 local hb = {} hood:each(function(x, y) hb[K(x, y)] = (y > 35) and -1 or 0 end)
 local hi = W.lit(c, hood, R.cloak, { R = 4, bias = hb, cuts = { .2, .36, .54, .7, .86 } })

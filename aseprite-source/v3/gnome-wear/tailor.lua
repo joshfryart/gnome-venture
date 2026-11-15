@@ -67,13 +67,17 @@ local function draw(level)
   pane:each(function(x, y) c:put(x, y, (y < wy0 + 3) and glass[3] or glass[2]) end)
   -- warm lamp glow lower-left inside
   W.put(c, { {wx0,wy1}, {wx0+1,wy1}, {wx0,wy1-1} }, "#6a4a4a")
-  -- dress form: neck knob, torso hourglass, skirt, pole + tripod
-  local torso = c:poly{ {29,41}, {35,41}, {34,43}, {35,46}, {29,46}, {30,43} }
-  W.lit(c, torso, { "#7d2c5e", "#a33c6a", "#c94f84", "#e06e96", "#f5809f", "#ffc4d8" }, { R = 2 })
-  c:fillMask(c:rect(31, 39, 33, 40), "#c9b2a0") c:put(31, 39, "#efe2d0")
-  W.hline(c, 30, 34, 44, "#d98322") -- tape measure sash
-  c:put(30, 44, "#f5b82e") c:put(32, 44, "#f5b82e") c:put(34, 44, "#f5b82e")
-  W.vline(c, 32, 47, 48, R.wood[4])
+  -- dress form: linen torso on a stand with a half-pinned pink dress, tape measure round the neck
+  local linen = { "#7a6458", "#a08a76", "#c4ae94", "#dcc8aa", "#ecdcc0", "#f8eed8" }
+  local torso = c:poly{ {29,40}, {35,40}, {34.5,42}, {33.5,44}, {34.5,46}, {29.5,46}, {30.5,44}, {29.5,42} }
+  W.lit(c, torso, linen, { R = 2 })
+  local dress = c:poly{ {29.5,43}, {34.5,43}, {35.5,47}, {28.5,47} }
+  W.lit(c, dress, { "#7d2c5e", "#a33c6a", "#c94f84", "#e06e96", "#f5809f", "#ffc4d8" }, { R = 1 })
+  W.hline(c, 29, 35, 43, "#ffc4d8")
+  c:fillMask(c:rect(31, 38, 33, 39), linen[3]) c:put(31, 38, linen[6]) c:put(32, 38, linen[5])
+  W.put(c, { {30,40}, {31,41}, {33,41}, {34,40} }, "#f5b82e") c:put(32, 41, "#d98322") -- tape measure
+  c:put(30, 41, linen[6])
+  W.vline(c, 32, 48, 48, R.wood[3])
   -- glass glint
   W.put(c, { {wx1-1,wy0+1}, {wx1,wy0+1}, {wx1,wy0+2} }, glass[6])
   -- sill
