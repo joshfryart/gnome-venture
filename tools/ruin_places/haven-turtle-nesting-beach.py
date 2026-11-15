@@ -478,7 +478,7 @@ def build(p):
                 elif d < 5.6:
                     p.dot(x, y, INK)
                 elif d < 9.6 and x >= 326 and sum(col(x, y)) < 200 and (x, y) in hut:
-                    p.dot(x, y, rm(spx[x, 183][:3]))               # the old lamp's spikes go
+                    p.dot(x, y, rm(spx[x, 208][:3]))               # the old lamp's spikes go
         for (x, y) in ((cx - 2, cy - 3), (cx - 3, cy - 2)):
             p.dot(x, y, hx('#9a9cb2'))
         for (x, y) in ((cx + 1, cy - 4), (cx + 1, cy - 3), (cx + 2, cy - 2), (cx + 2, cy - 1)):

@@ -548,14 +548,6 @@ def build(p):
                          (468, 199, CAP_A), (475, 204, CAP_B),
                          (32, 208, CAP_D), (452, 214, CAP_D)):
         stamp(x, y, rows, FP)
-    # shelf fungus up the wall, grey and curled
-    SHELF_A = ["k.......", "kslllm..", "kmmmmmmd", "kddddddd", "k..ddd.."]
-    SHELF_B = ["k.....", "klllm.", "kmmmmd", "kdddd.", "k....."]
-    for (x, y, rows) in ((42, 93, SHELF_A), (44, 102, SHELF_B), (41, 110, SHELF_B), (298, 105, SHELF_A),
-                         (300, 114, SHELF_B)):
-        pts = [(x + i, y + j) for j, r in enumerate(rows) for i, ch in enumerate(r) if ch in 'slmd']
-        stamp(x, y, rows, dict(FP, k=W_VD))
-
     # one tiny cap still holds a last faint glow
     stamp(88, 206, [".hg.", "hggG", ".s.."], {'h': hx('a9d2c2'), 'g': hx('82b4a6'), 'G': hx('5e8c86'), 's': FU_ST})
 
@@ -699,9 +691,9 @@ def build(p):
             if col(x + a + 1, y + 2) not in (INK, None):
                 p.dot(x + a + 1, y + 2, F_VD)
     gr = random.Random(5)
-    for (cx, cy, n) in ((372, 222, 9), (300, 226, 7), (246, 250, 6), (200, 238, 5), (420, 220, 5), (150, 240, 4)):
+    for (cx, cy, n) in ((372, 222, 7), (300, 226, 6), (246, 250, 4), (420, 220, 4)):
         for _ in range(n):
-            pebble(cx + gr.randint(-16, 16), cy + gr.randint(-3, 4), gr.random() < 0.35)
+            pebble(cx + gr.randint(-16, 16), cy + gr.randint(-3, 4), gr.random() < 0.6)
 
     # a web in the tunnel's upper corner
     web(TCX - 13, TTOP + 4, [(TCX - 4, TTOP + 2), (TCX - 6, TTOP + 9), (TCX - 12, TTOP + 13)], (0.5, 1.0))
