@@ -19,8 +19,7 @@ const RK_BOOTS_MIN = 5;          // the same with Flood Boots
 const RK_TOLL_MIN = 5;           // game minutes a section on a toll road once the toll is paid (10 on the old road)
 const RK_TOLL_ENC = 0.5;         // the share of the random-fight chance left on a paid toll road
 const RK_KINDS = ['ferry', 'tunnel', 'pass', 'toll', 'overgrown', 'flooded'];
-const RK_ITEMS = [   // slug => [name, category, rarity, price, description]
-    'flood-boots' => ['Flood Boots', 'supply', 18, 80, 'Tall waxed boots that keep the water out. Flooded roads slow you by half as much.'],
+const RK_ITEMS = [   // slug => [name, category, rarity, price, description] (Flood Boots are a wearable now)
     'toll-receipt' => ['Toll Receipt', 'other', 4, 1, 'A stamped scrap that says you paid the toll. It has a very small drawing of a bridge on it.'],
 ];
 
@@ -117,8 +116,8 @@ function rk_start_costs(array $u, array $route): array
         return [RK_SLOW_MIN, 0, '🌿 The road is overgrown: it takes longer.'];
     }
     if ($k['kind'] === 'flooded') {
-        rk_ensure_items();
-        if (rk_has_item($uid, 'flood-boots')) return [RK_BOOTS_MIN, 0, '👢 Your flood boots keep you drier: the flooded road is only a little slower.'];
+        require_once __DIR__ . '/wearables.php'; wear_ensure_items();
+        if (wear_has_boots($uid)) return [RK_BOOTS_MIN, 0, '👢 Your flood boots keep you drier: the flooded road is only a little slower.'];
         return [RK_SLOW_MIN, 0, '💧 The road is flooded: it takes longer.'];
     }
     return [0, 0, ''];
@@ -141,7 +140,7 @@ function rk_enc_base(array $st): ?float
     return (function_exists('setting') ? (float)setting('trail_enc_pct') : 3.0) * RK_TOLL_ENC;
 }
 
-/** Make the road-kind items (Flood Boots, Toll Receipt) if missing, and put Flood Boots on sale in the Home & curios shops. Safe to call often. */
+/** Make the road-kind items (the Toll Receipt; the Flood Boots are a wearable: includes/wearables.php) if missing. Safe to call often. */
 function rk_ensure_items(): void
 {
     static $done = false;
@@ -149,14 +148,10 @@ function rk_ensure_items(): void
     $done = true;
     try {
         foreach (RK_ITEMS as $slug => [$name, $cat, $rar, $price, $desc]) {
-            if (!item_id_by_slug($slug)) db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => $cat, 'rarity' => $rar, 'base_price' => $price, 'description' => $desc, 'edible' => 0, 'tradable' => $slug === 'toll-receipt' ? 0 : 1]);
+            if (!item_id_by_slug($slug)) db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => $cat, 'rarity' => $rar, 'base_price' => $price, 'description' => $desc, 'edible' => 0, 'tradable' => 0]);
         }
-        $boots = (int)item_id_by_slug('flood-boots');
-        if (!$boots) return;
-        foreach (q("SELECT id FROM shops WHERE open = 1 AND shop_type = 'decor'")->fetchAll(PDO::FETCH_COLUMN) as $shopId) {
-            if (q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shopId, $boots])) continue;
-            db_insert('shop_stock', ['shop_id' => $shopId, 'item_id' => $boots, 'price_min' => 80, 'price_max' => 80, 'max_stock' => 3, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => 80]);
-        }
+        require_once __DIR__ . '/wearables.php';
+        wear_ensure_items();
     } catch (Throwable $e) { error_log('rk_ensure_items: ' . $e->getMessage()); }
 }
 

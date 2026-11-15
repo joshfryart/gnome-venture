@@ -82,7 +82,7 @@ function wear_items(): array
 
 /**
  * The piece rows of the wearables a gnome owns: $owned = [item slug => qty] (any wearable item). One row per wearable BASE (their best rank of that cut is worn:
- * two copies of the same cut are one piece; the two cuts are two pieces). Row: key w:<slug>, k, n, src 'wear', ref = the item slug, t, v, r 'body', tag, mod, rank.
+ * two copies of the same cut are one piece; the two cuts are two pieces). Row: key w:<base>[-b] (the same at every rank), k, n, src 'wear', ref = the item slug, t, v, r 'body', tag, mod, rank.
  */
 function wear_pieces(array $owned): array
 {
@@ -95,8 +95,10 @@ function wear_pieces(array $owned): array
     $out = [];
     foreach ($best as $k => [$rank, $slug]) {
         [$base, $cut] = explode('|', $k); $c = WEAR_DEFS[$base]['cuts'][$cut];
-        $out[] = ['key' => 'w:' . $slug, 'k' => 'w:' . $slug, 'n' => $c[0], 'src' => 'wear', 'ref' => $slug, 't' => $c[1], 'v' => $c[2], 'r' => 'body', 'tag' => $c[3], 'mod' => $c[4], 'rank' => $rank,
+        $key = 'w:' . $base . ($cut === 'b' ? '-b' : '');   // the piece keeps its key when the wearable is lined or finished (its switch stays as the gnome set it)
+        $out[] = ['key' => $key, 'k' => $key, 'n' => $c[0], 'src' => 'wear', 'ref' => $slug, 't' => $c[1], 'v' => $c[2], 'r' => 'body', 'tag' => $c[3], 'mod' => $c[4], 'rank' => $rank,
             'life' => 0, 'blurb' => WEAR_DEFS[$base]['name'] . ': ' . $c[5]];
+        if ($c[4] === '') unset($out[count($out) - 1]['mod']);   // no knack: no 'mod' field at all
     }
     return $out;
 }
@@ -109,9 +111,8 @@ function tailor_power_of(array $levels): int { return (int)array_sum(array_map(f
 /** The levels of every Tailor a gnome owns (one entry per garden with one). */
 function tailor_levels(int $uid): array
 {
-    require_once __DIR__ . '/gardens.php';
     $o = [];
-    foreach (q('SELECT p.id FROM plots p WHERE p.user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN) as $pid) if (($l = building_level((int)$pid, 'tailor')) > 0) $o[] = $l;
+    foreach (q("SELECT gb.level FROM garden_buildings gb JOIN plots p ON p.id = gb.plot_id WHERE p.user_id = ? AND gb.building = 'tailor' ORDER BY gb.level DESC", [$uid])->fetchAll(PDO::FETCH_COLUMN) as $l) $o[] = max(1, min(3, (int)$l));
     return $o;
 }
 
@@ -141,6 +142,12 @@ function wear_ensure_items(): void
         foreach (wear_items() as $slug => $it) {
             if (item_id_by_slug($slug)) continue;
             db_insert('items', ['name' => $it['name'], 'slug' => $slug, 'category' => 'supply', 'rarity' => $it['rarity'], 'base_price' => $it['price'], 'description' => $it['desc'], 'edible' => 0, 'tradable' => 1]);
+        }
+        $shop = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'");   // the Hat and the Pack are sold at Twigg's (Common, first cut)
+        foreach (WEAR_DEFS as $base => $d) {
+            if (($d['get'] ?? '') !== 'shop' || !$shop) continue;
+            $id = item_id_by_slug(wear_slug($base, 'a', 1)); $price = (int)$d['price'];
+            if ($id && !q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $id])) db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)round($price * 1.1), 'max_stock' => 2, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
         }
         if (!item_id_by_slug(WEAR_THREAD)) { [$n, $cat, $rar, $pr, $ds] = WEAR_THREAD_ITEM; db_insert('items', ['name' => $n, 'slug' => WEAR_THREAD, 'category' => $cat, 'rarity' => $rar, 'base_price' => $pr, 'description' => $ds, 'edible' => 0, 'tradable' => 1]); }
     } catch (Throwable $e) { error_log('wear_ensure_items: ' . $e->getMessage()); }

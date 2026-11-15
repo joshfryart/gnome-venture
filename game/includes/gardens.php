@@ -22,6 +22,7 @@ const BUILDINGS = [
     'silk_shelf' => ['Silkworm Shelf', '🐛', 7, 2000, 'Leafy trays for silkworms. They eat Mulberry Leaves (from a mulberry tree or Twigg’s shop) and leave empty Silk Cocoons: peace silk. Two homes.'],
     'tortoise_run' => ['Tortoise Run', '🐢', 8, 2800, 'A grassy run for a slow tortoise. It grazes leafy greens, sheds a Tortoise Scute now and then, and makes the yard prettier. One home.'],
     'snail_jar' => ['Snail Jar', '🐌', 3, 300, 'A glass jar of damp soil for rescued snails. Pick slugs and snails off your beds and one may ask to stay. They eat Food Scraps or lettuce and leave Snail Trail Glaze. Three homes.'],   // v1.4.0: more animals
+    'tailor' => ['Tailor', '🧵', 6, 1800, 'A little workshop for wearables. You need one in at least one garden to make Flood Boots, Work Gloves and a Travel Cloak, to line a wearable, and to re-cut one. Every level of every Tailor you own makes a lining likelier to take. Open it from the Crafting page or the Tailor page.'],   // 2.7.00 wearables (includes/wearables.php)
     'butterfly_bush' => ['Butterfly Bush', '🦋', 4, 1100, 'A purple-flowered bush for butterflies. No feeding. Flowers within 2 squares sometimes give an extra stem, and butterflies leave shimmering Wing Scales. Two homes.'],
 ];
 
@@ -56,6 +57,8 @@ const BUILDING_UPGRADES = [
                       3 => 'Room for a 4th quail, and the eggs come 30% faster.'],
     'silk_shelf'  => [2 => 'Room for a 3rd silkworm tray, and cocoons come 15% faster.',
                       3 => 'Room for a 4th silkworm tray, and cocoons come 30% faster.'],
+    'tailor'      => [2 => 'Better stitching: +8% a lining takes (and a re-cut costs no Thread).',
+                      3 => 'Master stitching: another +8%, and the first lining or craft each day costs no energy.'],   // 2.7.00
     'tortoise_run' => [2 => 'Room for a 2nd tortoise, and scutes come 15% faster.',
                        3 => 'Room for a 3rd tortoise, and scutes come 30% faster.'],
     'snail_jar'   => [2 => 'Snail Trail Glaze comes 15% faster.',
