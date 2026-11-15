@@ -419,7 +419,7 @@
         mine.block += val + (m === 'hardy' ? 2 : 0);
         if (tile.tag === 'hold') mine.keep += val + (m === 'hardy' ? 2 : 0);
         if (tile.tag === 'thorns') mine.thorns = true;
-        if (tile.tag === 'evade') mine.evade = 1;
+        if (tile.tag === 'evade') { mine.evade = 1; if (who === 'me') mine.evd = 1; }   // 2.7.01: evd = you played an Evade this round
         if (tile.tag === 'mend' && who === 'me') mine.hp = Math.min(mine.max, mine.hp + 2);
         if (m === 'spiky' && who === 'me') { pr = 2 * s.hm; s.fh.now += pr; }
         if (seam && prev && prev.t === 'hurt' && prevBy === other) {
@@ -1542,7 +1542,7 @@
     var slow = 0;
     if (s.v1 && truthy(s.v1.tags)) {   // creature tags: its poison works on you, a trip costs you one draw
       if (toInt(s.me.poison) > 0) {
-        var pv = Math.max(1, toInt(s.me.poison_v)); if (toInt(s.me.evade) > 0) pv = 0;   // 2.6.988: Evade stops the poison tick
+        var pv = Math.max(1, toInt(s.me.poison_v)); if (toInt(s.me.evade) > 0 || truthy(s.me.evd)) pv = 0;   // 2.6.988: Evade stops the poison tick; 2.7.01: also when its Hurt already used the Evade up (evd)
         s.me.hp = Math.max(0, s.me.hp - pv); s.me.poison--;
         s.envlog.push({ k: 'poison', x: null, y: null, me: pv, foe: 0.0 });
         if (s.me.poison === 0) s.me.poison_v = 0;
@@ -1559,7 +1559,7 @@
     s.turn++; s.round++;
     if (s.v1 && truthy(s.v1)) { var kept = Math.min(toInt(s.me.keep), toInt(s.me.block)); s.me.faded = Math.max(0, toInt(s.me.block) - kept); s.me.kept = kept; s.me.block = kept; s.me.keep = 0; }   // 2.6.77: your guard fades when your turn starts; only a Hold guard still standing carries over, once
     else { s.me.block = s.me.keep; s.me.keep = 0; }
-    s.me.thorns = false; s.me.evade = 0;
+    s.me.thorns = false; s.me.evade = 0; delete s.me.evd;
     var more = toInt(nn(s.me.more, 0)); s.me.more = 0;   // 2.6.990 Plenty
     if (v1r(s, 'redraw')) { var kept = []; s.me.hand.forEach(function (ht) { if (nn(ht.tag, '') === 'keep') { kept.push(ht); return; } var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = kept; draw(s, 'me', PF_HAND_CAP - slow + more); }   // 2.6.990 Keeper   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else draw(s, 'me', Math.min(PF_HAND_CAP + more, s.me.hand.length + PF_DRAW - slow));

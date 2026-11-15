@@ -1408,7 +1408,7 @@ function pfb_end_round(array &$s): void
     $slow = 0;
     if (!empty($s['v1']['tags'])) {   // creature tags: its poison works on you (after the terrain), and a trip costs you one draw
         if ((int)$s['me']['poison'] > 0) {
-            $pv = max(1, (int)$s['me']['poison_v']); if ((int)$s['me']['evade'] > 0) $pv = 0;   // 2.6.988: Evade stops the poison tick (it still counts down)
+            $pv = max(1, (int)$s['me']['poison_v']); if ((int)$s['me']['evade'] > 0 || !empty($s['me']['evd'])) $pv = 0;   // 2.6.988: Evade stops the poison tick (it still counts down); 2.7.01: also when its Hurt already used the Evade up (evd)
             $s['me']['hp'] = max(0, $s['me']['hp'] - $pv); $s['me']['poison']--;
             $s['envlog'][] = ['k' => 'poison', 'x' => null, 'y' => null, 'me' => $pv, 'foe' => 0.0];
             if ($s['me']['poison'] === 0) $s['me']['poison_v'] = 0;
@@ -1427,7 +1427,7 @@ function pfb_end_round(array &$s): void
         $kept = min((int)$s['me']['keep'], (int)$s['me']['block']); $s['me']['faded'] = max(0, (int)$s['me']['block'] - $kept); $s['me']['kept'] = $kept;
         $s['me']['block'] = $kept; $s['me']['keep'] = 0;
     } else { $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; }   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
-    $s['me']['thorns'] = false; $s['me']['evade'] = 0;
+    $s['me']['thorns'] = false; $s['me']['evade'] = 0; unset($s['me']['evd']);
     $more = (int)($s['me']['more'] ?? 0); $s['me']['more'] = 0;   // 2.6.990 Plenty: one more piece this round
     if (pfb_v1r($s, 'redraw')) { $kept = []; foreach ($s['me']['hand'] as $ht) { if (($ht['tag'] ?? '') === 'keep') { $kept[] = $ht; continue; } unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = $kept; pf_draw($s, 'me', PF_HAND_CAP - $slow + $more); }   // 2.6.990 Keeper: a Keeper piece stays in the hand   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else pf_draw($s, 'me', min(PF_HAND_CAP + $more, count($s['me']['hand']) + PF_DRAW - $slow));

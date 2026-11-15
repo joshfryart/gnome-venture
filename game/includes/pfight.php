@@ -493,7 +493,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             $mine['block'] += $val + ($m === 'hardy' ? 2 : 0);
             if ($tile['tag'] === 'hold') $mine['keep'] += $val + ($m === 'hardy' ? 2 : 0);
             if ($tile['tag'] === 'thorns') $mine['thorns'] = true;
-            if ($tile['tag'] === 'evade') $mine['evade'] = 1;
+            if ($tile['tag'] === 'evade') { $mine['evade'] = 1; if ($who === 'me') $mine['evd'] = 1; }   // 2.7.01: evd = you played an Evade this round (its poison tick does nothing even after the Evade made a Hurt miss)
             if ($tile['tag'] === 'mend' && $who === 'me') $mine['hp'] = min($mine['max'], $mine['hp'] + 2);
             if ($m === 'spiky' && $who === 'me') { $pr = 2 * $s['hm']; $s['fh']['now'] += $pr; }
             if ($seam && $prev && $prev['t'] === 'hurt' && $prevBy === $other) {   // Riposte across the seam: reflect part of the hit

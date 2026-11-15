@@ -121,6 +121,12 @@ $s = $k19('Beast'); $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $s['me']['
 chk('Evade stops the poison tick (no health lost, the tick still counts down)', $s['me']['hp'] === $hp && $s['me']['poison'] === 1, [$s['me']['hp'] - $hp, $s['me']['poison']]);
 $s = $k19('Beast'); $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $hp = $s['me']['hp']; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_end_round($s);
 chk('without Evade the tick lands as before', $s['me']['hp'] === $hp - 3 && $s['me']['poison'] === 1, $s['me']['hp'] - $hp);
+// 2.7.01 (Tailor sim 8): an Evade the creature's Hurt used up in its turn still stops that round's tick (it used to be spent first, so Puddle Hop never cut poison)
+$s = $k19('Reptile'); $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $s['me']['block'] = 0;
+$ev1 = v1_place($s, 'me', ['tag' => 'evade', 'ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'w:flood-boots', 'guard', 3, 'body', 'wear'), 1, 3); $hp = $s['me']['hp'];
+$s['aimforce'] = 1; $ev2 = v1_place($s, 'foe', $ft19($s, 'f:bite', 'hurt', 6), 3, 0); unset($s['aimforce']); $hp2 = $s['me']['hp']; pfb_end_round($s);   // its Hurt lands far from your piece, so its chain does not fire your Evade again
+chk('Evade: its Hurt misses AND the poison tick that round does nothing', $ev1 && $ev2 && $hp2 === $hp && $s['me']['hp'] === $hp && $s['me']['poison'] === 1, [$hp - $hp2, $hp2 - $s['me']['hp'], $s['me']['poison']]);
+pfb_end_round($s); chk('the next round, with no Evade played, the tick lands again', $s['me']['hp'] === $hp - 3, $hp - $s['me']['hp']);
 
 // ---- venom never takes the poison above the cap (found by the deck whole-fight test)
 $s = $k19('Reptile'); $s['me']['poison'] = PF_POISON_CAP; $s['ven']['1,3'] = 3; $s['me']['hand'] = [$ft19($s, 'p1', 'charm', 3)]; $evv = pfb_place($s, 'me', 0, 1, 3);
