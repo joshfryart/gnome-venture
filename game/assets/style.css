@@ -7938,3 +7938,32 @@ details.sgq summary{cursor:pointer}
 .cwbar i.now{outline:2px solid var(--gold, #e8a317);outline-offset:0;z-index:1}
 /* Trail map families (2.7.01): the layer above the map */
 .trailfam{display:grid;gap:6px;margin:0 0 6px}
+
+/* Forest family (2.7.01): glow-moss dusk filter, the lantern row above a forest Trail map (includes/trail_fam_forest.php) */
+.tfforest{--tff-bg:#2a2a1e;--tff-ink:#f2e4c0;--tff-dim:#c9a96e;--tff-glow:#f5cf6a;--tff-moss:#9bbd6a;margin:0;padding:8px 10px;background:var(--tff-bg);color:var(--tff-ink);border:2px solid var(--line-2);box-shadow:inset 0 0 18px rgba(20,40,20,.55)}
+:root[data-theme="dark"] .tfforest{--tff-bg:#161d14;--tff-dim:#a8957a;border-color:var(--line)}
+.tfforest.tff-night{--tff-bg:#1b2318}
+:root[data-theme="dark"] .tfforest.tff-night{--tff-bg:#0f150d}
+.tfforest p{margin:0}
+.tff-h{font-size:.9rem;font-weight:600}
+.tff-row{list-style:none;margin:6px 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.tff-l{position:relative;display:grid;grid-template-columns:auto 1fr;column-gap:6px;align-items:center;flex:1 1 120px;max-width:100%;padding:4px 6px;border:1px solid var(--tff-dim);font-size:.8rem;line-height:1.2}
+.tff-ico{grid-row:1 / span 2;font-size:1.4rem;opacity:.55;filter:grayscale(.7)}
+.tff-nm{font-weight:600;overflow-wrap:anywhere}
+.tff-st{color:var(--tff-dim);font-size:.72rem}
+.tff-l.lit{border-color:var(--tff-glow);box-shadow:0 0 8px 1px rgba(245,207,106,.45)}
+.tff-l.lit .tff-ico{opacity:1;filter:none;text-shadow:0 0 8px var(--tff-glow);animation:tff-glow 3.2s ease-in-out infinite alternate}
+.tff-l.lit .tff-st{color:var(--tff-glow)}
+.tff-l.relay{border-style:dashed}
+.tff-l.lit.relay{border-style:solid}
+.tff-fly{position:absolute;right:4px;top:2px;width:26px;height:16px;pointer-events:none}
+.tff-fly i{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--tff-moss);box-shadow:0 0 6px 2px var(--tff-moss);animation:tff-fly 4s ease-in-out infinite alternate}
+.tff-fly i:nth-child(1){left:2px;top:8px}
+.tff-fly i:nth-child(2){left:12px;top:2px;animation-delay:-1.3s}
+.tff-fly i:nth-child(3){left:20px;top:10px;animation-delay:-2.6s}
+.tff-relay{font-size:.78rem;color:var(--tff-dim)}
+.tff-chip{margin-top:4px;font-size:.82rem;color:var(--tff-ink)}
+.tff-chip.now{color:var(--tff-moss);font-weight:600}
+@keyframes tff-glow{from{text-shadow:0 0 4px var(--tff-glow)}to{text-shadow:0 0 12px var(--tff-glow)}}
+@keyframes tff-fly{from{transform:translate(0,0);opacity:.55}to{transform:translate(4px,-4px);opacity:1}}
+@media (prefers-reduced-motion: reduce){.tff-l.lit .tff-ico,.tff-fly i{animation:none}}
