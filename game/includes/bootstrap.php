@@ -548,19 +548,21 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 q("UPDATE encyclopedia_entries SET body = REPLACE(body, 'Silverback Spider, level 30.', 'Silverback Spider, level 20.') WHERE unlock_key = ?", ['landmark:' . $loc['slug']]);
             }
         });
-        boot_step('medium_lair_levels_1115', function () {   // 2026-11-15 (Josh): the 4 late-region medium-zone lairs at region level + 4 (LAIR_LEVEL_1115 in includes/roads.php; a fresh world: link_hidden_places()). Only the old Lv 16 values are changed
+        boot_step('medium_lair_levels_1115', function () {   // 2026-11-15 (Josh): every lair at region level + 4 (LAIR_LEVEL_1115 in includes/roads.php; a fresh world: link_hidden_places()). Whatever level the lair has now (16 medium, 30 hard) becomes the new one, fought or charmed or not
             require_once __DIR__ . '/roads.php';
             foreach (LAIR_LEVEL_1115 as $name => $lv) {
                 $loc = q_one('SELECT id, slug FROM locations WHERE name = ?', [$name]);
                 if (!$loc) continue;
-                q('UPDATE routes SET level = ?, min_level = ?, max_level = ? WHERE (a_id = ? OR b_id = ?) AND level = 16', [$lv, $lv - 2, $lv + 2, $loc['id'], $loc['id']]);
+                $old = (int)q_val("SELECT MAX(level) FROM routes WHERE kind = 'side' AND (a_id = ? OR b_id = ?)", [$loc['id'], $loc['id']]);
+                q('UPDATE routes SET level = ?, min_level = ?, max_level = ? WHERE (a_id = ? OR b_id = ?) AND level = ?', [$lv, $lv - 2, $lv + 2, $loc['id'], $loc['id'], $old]);
                 $slug = 'boss-' . $loc['slug'];
                 $c = q_one('SELECT name, level FROM creatures WHERE slug = ?', [$slug]);
-                if (!$c || (int)$c['level'] !== 16) continue;   // same build as ensure_lair_bosses() at the new level
+                if (!$c || (int)$c['level'] === $lv) continue;
+                $was = (int)$c['level'];   // same build as ensure_lair_bosses() at the new level
                 q('UPDATE creatures SET level = ?, hp = ?, attack = ?, defense = ?, dmg_bonus = ?, xp = ? WHERE slug = ?',
                   [$lv, (int)round((5 + $lv * 3) * 2.4), 3 + intdiv($lv, 3), 12 + intdiv($lv, 3), intdiv($lv, 4), (int)round($lv * 6 * 2.4), $slug]);
-                q("UPDATE encyclopedia_entries SET body = REPLACE(body, '[b]Level:[/b] 16', ?), sort_order = ? WHERE unlock_key = ?", ['[b]Level:[/b] ' . $lv, $lv, 'creature:' . $slug]);
-                q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?) WHERE unlock_key = ?', [$c['name'] . ', level 16.', $c['name'] . ', level ' . $lv . '.', 'landmark:' . $loc['slug']]);
+                q("UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?), sort_order = ? WHERE unlock_key = ?", ['[b]Level:[/b] ' . $was, '[b]Level:[/b] ' . $lv, $lv, 'creature:' . $slug]);
+                q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?) WHERE unlock_key = ?', [$c['name'] . ', level ' . $was . '.', $c['name'] . ', level ' . $lv . '.', 'landmark:' . $loc['slug']]);
             }
         });
         boot_step('sleep_days_start_2609', function () {   // v2.6.09: sleep-days goes live; every gnome starts on today's game day, once

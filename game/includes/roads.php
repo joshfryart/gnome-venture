@@ -1,9 +1,14 @@
 <?php
 declare(strict_types=1);
 
-/** 2026-11-15 (Josh): the medium-zone lairs of the late regions were Lv 16 (the medium-zone lair rule), far under their region. Now region level + 4, as Condor's Crag
- *  (SA, region Lv 12, lair 16) sits: CSA 23 -> 27, SEA 26 -> 30, ESA 32 -> 36, OC 35 -> 39. Route = level - 2 .. level + 2. Existing worlds: boot step medium_lair_levels_1115. */
-const LAIR_LEVEL_1115 = ['Temple of the Tiger Moth' => 27, 'Dragonlizard Den' => 30, 'Snowcrown Peak' => 36, 'Reef of the Box Jelly Queen' => 39];
+/** 2026-11-15 (Josh): lairs at region level + 4 (route = level - 2 .. level + 2), as Condor's Crag (SA, region Lv 12, lair 16) sits.
+ *  Medium-zone lairs of the late regions were Lv 16: CSA 23 -> 27, SEA 26 -> 30, ESA 32 -> 36, OC 35 -> 39 -> 37 (Josh: no creature in the data is above Lv 37).
+ *  Hard-zone lairs of the early regions were Lv 30: CA 4 -> 8, NWE 6 -> 10, CB 8 -> 12, SE 10 -> 14, EE 14 -> 18, MENA 17 -> 21, EA 20 -> 24.
+ *  Kept: Den of the Great White Owl Lv 10, Hollow of the Silverback Spider Lv 20 (boot step silverback_lair_level_1114).
+ *  Existing worlds: boot step medium_lair_levels_1115 (every lair takes the new level, fought or charmed ones too). */
+const LAIR_LEVEL_1115 = ['Temple of the Tiger Moth' => 27, 'Dragonlizard Den' => 30, 'Snowcrown Peak' => 36, 'Reef of the Box Jelly Queen' => 37,
+    'Smokecap Caldera' => 8, 'Barrow of the Frost Toad' => 10, 'Lair of the Hurricane Crab' => 12, 'Forge of the Cinder Wyrm' => 14,
+    'Lair of the Grey Wolf King' => 18, 'Tomb of the Sand Scarab' => 21, 'Lair of the Jade Dragon-fly' => 24];
 /**
  * Roads (v0.7.24).
  * The mycelium network is laid out as roads: town → three villages → a neighbouring region's town.
