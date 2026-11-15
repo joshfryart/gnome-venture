@@ -26,22 +26,19 @@ echo "== the url\n";
 $url = trim((string)shell_exec('php -d error_reporting=0 -r \'$_SERVER["SCRIPT_NAME"]="/adventure.php"; require "' . $argv[1] . '/includes/bootstrap.php"; require_once "' . $argv[1] . '/includes/gnome25.php"; echo gnome25_url(q_one("SELECT * FROM users WHERE id = ' . $uid . '"), "front");\' 2>/dev/null'));
 ok('gnome25_url carries the worn codes as w=', str_contains($url, 'w=bch'), $url);
 
-echo "== the layers (art made up for the test)\n";
-$mk = function (string $file, array $rgb) { $im = imagecreatetruecolor(512, 80); imagealphablending($im, false); imagesavealpha($im, true); imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127)); imagefilledrectangle($im, 1, 1, 5, 5, imagecolorallocatealpha($im, $rgb[0], $rgb[1], $rgb[2], 0)); imagepng($im, $file); imagedestroy($im); };
-$made = [];
-foreach (['front', 'back'] as $v) foreach (['cape' => [255, 0, 0], 'brim' => [0, 255, 0]] as $l => $rgb) { $f = $dir . "$v-$l.png"; if (!is_file($f)) { $mk($f, $rgb); $made[] = $f; } }
-$px = function (string $png, int $x, int $y): array { $im = imagecreatefromstring($png); $c = imagecolorat($im, $x, $y); imagedestroy($im); return [($c >> 16) & 255, ($c >> 8) & 255, $c & 255, ($c >> 24) & 127]; };
+echo "== the layers (the real art)\n";
+$npx = function (string $png): int { $im = imagecreatefromstring($png); $n = 0; for ($x = 0; $x < 512; $x++) for ($y = 0; $y < 80; $y++) if (((imagecolorat($im, $x, $y) >> 24) & 127) === 0) $n++; imagedestroy($im); return $n; };
 $plain = gnome25_compose('front', []);
-ok('no wearables: the strip is the one it always was (a PNG)', $plain !== '' && str_starts_with($plain, "\x89PNG"));
-$withCape = gnome25_compose('front', [], [], 'c');
-ok('the cloak layer is drawn (its pixel is there), and the plain strip has no such pixel', $px($withCape, 3, 3)[0] === 255 && $px($withCape, 3, 3)[3] === 0 && $px($plain, 3, 3)[0] !== 255 || $px($plain, 3, 3)[3] === 127, json_encode([$px($withCape, 3, 3), $px($plain, 3, 3)]));
-$onlyHat = gnome25_compose('front', [], [], 'h');
-ok('the brim layer is drawn over the hat', $px($onlyHat, 3, 3)[1] === 255, json_encode($px($onlyHat, 3, 3)));
-ok('a code with no art (the pack, the boots) changes nothing: the strip is byte for byte the plain one', gnome25_compose('front', [], [], 'pb') === $plain);
+ok('no wearables: the strip is a PNG', $plain !== '' && str_starts_with($plain, "\x89PNG"));
+foreach (['front', 'back', 'side'] as $v) {
+    $p0 = gnome25_compose($v, []);
+    foreach (GNOME25_WEAR as $code => $layer) {
+        ok("$v-$layer.png exists, 512x80", is_file($dir . "$v-$layer.png") && getimagesize($dir . "$v-$layer.png")[0] === 512 && getimagesize($dir . "$v-$layer.png")[1] === 80);
+        ok("$v: wearing '$code' ($layer) changes the strip", gnome25_compose($v, [], [], $code) !== $p0);
+    }
+}
 ok('wear codes in any order give the same strip', gnome25_compose('front', [], [], 'ch') === gnome25_compose('front', [], [], 'hc'));
-ok('the back view draws it too', $px(gnome25_compose('back', [], [], 'c'), 3, 3)[0] === 255);
-ok('side view has no cape art made for this test: unchanged', gnome25_compose('side', [], [], 'c') === gnome25_compose('side', []));
-foreach ($made as $f) @unlink($f);
+ok('all five worn: more pixels than the plain strip', $npx(gnome25_compose('front', [], [], 'bcghp')) > $npx($plain));
 q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);
