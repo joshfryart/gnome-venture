@@ -15,6 +15,7 @@ foreach ($P as $k => $p) {
 }
 chk('data: Mud is flat on every side; every other piece has two knobs, two holes and all three families (no flat, no wild)', $okE);
 chk('data: life 2-3 rounds, a name, a blurb, key e:KEY', $okL);
+chk('data: the Bramble blurb says what the engine does in a one-bar fight (your chain: the creature\'s Yield bar fills a tenth; its chain: you lose a tenth of your health) (2.7.01)', (bool)preg_match('/Yield bar fills a tenth.*If the creature fires it, you lose a tenth of your health/', $P['bramble']['blurb']), $P['bramble']['blurb']);
 chk('data: copies by size for the four sizes, 0-4 each; every deck has 8-12 pieces', $okW && !array_filter(array_keys(PFB_SIZE), fn($z) => count(pfb_env_deck($z)) < 8 || count(pfb_env_deck($z)) > 12), array_map(fn($z) => count(pfb_env_deck($z)), array_keys(PFB_SIZE)));
 $codes = []; foreach (pf_data_lines('pf_region_pieces.txt') as $r) $codes[$r[0]] = 1; ksort($codes); $rk = $T['regions']; ksort($rk);
 chk('data: every region (the 14 of pf_region_pieces.txt) leans the deck, by 1 or 2 pieces of known kinds', array_keys($rk) === array_keys($codes) && !array_filter($rk, fn($b) => !$b || array_diff(array_keys($b), PFB_ENV_KINDS) || array_sum(array_map('abs', $b)) > 2), array_keys($rk));
