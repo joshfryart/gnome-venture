@@ -108,6 +108,14 @@ function wear_pieces(array $owned, array $lined = []): array
 
 // ---------------------------------------------------------------- the Tailor (a garden building)
 
+/** Wearables are behind the same admin setting as the v1 Puzzle combat (pfight_v1: Off / Admins only): live for this gnome? $u null = the setting alone (is it on for anyone). */
+function wear_live(?array $u = null): bool
+{
+    $v = (string)setting('pfight_v1');
+    if ($v === '1') return true;
+    return $v === 'admin' && ($u === null || ($u['role'] ?? '') === 'admin');
+}
+
 /** Tailor power of a list of Tailor levels (one per garden that has one): the sum. */
 function tailor_power_of(array $levels): int { return (int)array_sum(array_map(fn($l) => max(0, min(3, (int)$l)), $levels)); }
 
@@ -187,15 +195,15 @@ const WEAR_THREAD_ITEM = ['Tailor’s Thread', 'part', 8, 5, 'A length of strong
 /** Make the wearable items and the Thread if missing. Safe to call often; an item an admin edited is left alone. */
 function wear_ensure_items(): void
 {
-    static $done = false;
-    if ($done) return;
-    $done = true;
+    static $done = false, $stocked = false;
+    if ($done && ($stocked || !wear_live())) return;   // the items once; the shelf once the setting is on
+    $done = true; $stocked = wear_live();
     try {
         foreach (wear_items() as $slug => $it) {
             if (item_id_by_slug($slug)) continue;
             db_insert('items', ['name' => $it['name'], 'slug' => $slug, 'category' => 'supply', 'rarity' => $it['rarity'], 'base_price' => $it['price'], 'description' => $it['desc'], 'edible' => 0, 'tradable' => 1]);
         }
-        $shop = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'");   // the Hat and the Pack are sold at Twigg's (Common, first cut)
+        $shop = wear_live() ? (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'") : 0;   // the shop stocks them only while the setting is on   // the Hat and the Pack are sold at Twigg's (Common, first cut)
         foreach (WEAR_DEFS as $base => $d) {
             if (($d['get'] ?? '') !== 'shop' || !$shop) continue;
             $id = item_id_by_slug(wear_slug($base, 'a', 1)); $price = (int)$d['price'];

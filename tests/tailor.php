@@ -11,6 +11,7 @@ $fails = 0;
 set_exception_handler(function (Throwable $e) { echo '  EXCEPTION ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine() . "\n"; exit(1); });
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
 $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'];
+set_setting('pfight_v1', '1'); setting('__reload__');   // wearables are behind the Puzzle combat setting
 q('UPDATE users SET energy = 90, level = 30 WHERE id = ?', [$uid]); $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
 $plot = (int)q_val('SELECT id FROM plots WHERE user_id = ? ORDER BY id LIMIT 1', [$uid]);
 $give = function (string $slug, int $n) use ($uid) { give_item($uid, item_id_by_slug($slug), $n); };
@@ -126,5 +127,13 @@ $pc = array_column(wear_pieces(wear_owned($uid), wear_lined_set($uid)), null, 'k
 ok('switched to Lined: the piece is rank 2, same key', $a && ($pc['rank'] ?? 0) === 2 && ($pc['v'] ?? 0) < 8 && ($pc['ref'] ?? '') === 'work-gloves-b-lined', json_encode($pc));
 [$a, $m] = wear_lined_toggle($u, 'work-gloves-b-fine');
 ok('switched back to Fine', $a && (array_column(wear_pieces(wear_owned($uid), wear_lined_set($uid)), null, 'key')['w:work-gloves-b']['rank'] ?? 0) === 3);
+echo "== behind the Puzzle combat setting\n";
+set_setting('pfight_v1', '0'); setting('__reload__');
+ok('setting Off: wearables are not live, for anyone', !wear_live() && !wear_live($u));
+set_setting('pfight_v1', 'admin'); setting('__reload__');
+ok('Admins only: live for an admin, not for a player', wear_live() && wear_live(['role' => 'admin']) && !wear_live(['role' => 'player']));
+[$a, $m] = build_building($u, $plot, 'tailor');
+ok('Admins only: a player cannot build the Tailor', !$a, $m);
+set_setting('pfight_v1', '1'); setting('__reload__'); ok('On: live for all', wear_live(['role' => 'player']));
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

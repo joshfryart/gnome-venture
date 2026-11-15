@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/wearables.php';
 $u = require_login();
 $uid = (int)$u['id'];
+if (!wear_live($u)) { flash('Nothing here yet.', 'err'); redirect('index.php'); }
 wear_ensure_items();
 require_once __DIR__ . '/includes/almanac_pages.php'; almanac_unlock_wearables_2700($uid);   // the Almanac page opens on the first visit
 

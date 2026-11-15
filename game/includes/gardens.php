@@ -471,6 +471,7 @@ function buy_land_deed(array $u, array $village): array
 function build_building(array $u, int $plotId, string $b): array
 {
     if (!isset(BUILDINGS[$b])) return [false, 'Unknown building.'];
+    if ($b === 'tailor') { require_once __DIR__ . '/wearables.php'; if (!wear_live($u)) return [false, 'Unknown building.']; }
     [$name, , $level, $cost] = BUILDINGS[$b];
     $plot = q_one('SELECT * FROM plots WHERE id = ? AND user_id = ?', [$plotId, $u['id']]);
     if (!$plot) return [false, 'That isn’t your garden.'];

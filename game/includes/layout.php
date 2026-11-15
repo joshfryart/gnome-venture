@@ -591,7 +591,7 @@ function nav_sheet(array $u, string $page): string
         require_once __DIR__ . '/pfight_game.php';
         if (pfight_on($u) && pfight_v1_on($u) && !is_guest($u)) $groups['Hobbies'][] = ['puzzlebox.php', '🧩', 'Puzzle box', '', 'puzzlebox'];   // 2.6.75: under Hobbies
     }
-    if (!is_guest($u)) { try { require_once __DIR__ . '/wearables.php'; if (tailor_has($uid)) $groups['You'][] = ['tailor.php', '🧵', 'Tailor', '', 'tailor']; } catch (Throwable $e) {} }   // 2.7.00: the Tailor's page once a Tailor is built in one of your gardens
+    if (!is_guest($u)) { try { require_once __DIR__ . '/wearables.php'; if (wear_live($u) && tailor_has($uid)) $groups['You'][] = ['tailor.php', '🧵', 'Tailor', '', 'tailor']; } catch (Throwable $e) {} }   // 2.7.00: the Tailor's page once a Tailor is built in one of your gardens
     require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
     if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
     if (gclock_on() && !home_slim_menu()) array_splice($groups['You'], 0, 0, [['hovel.php', '🛏️', 'Hovel', '', 'hovel']]);   // sleep-days: the Rest page (sleep, nap, inn) is a menu tile (slim home: the Home entry is the hovel)
