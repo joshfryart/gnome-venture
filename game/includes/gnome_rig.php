@@ -89,9 +89,9 @@ function gnome_rig_sheet(array $cols): string
             if (in_array($name, GNOME_RIG_NOINK, true)) continue;
             if (gnome_rig_has($im, $x + 1, $y) || gnome_rig_has($im, $x - 1, $y) || gnome_rig_has($im, $x, $y + 1) || gnome_rig_has($im, $x, $y - 1)) gnome_rig_px($out, $i * 64 + $x, 80 + $y, [43, 28, 38]);
         }
-        imagedestroy($im);
+       
     }
-    ob_start(); imagepng($out); $png = (string)ob_get_clean(); imagedestroy($out);
+    ob_start(); imagepng($out); $png = (string)ob_get_clean();
     return $png;
 }
 

@@ -365,7 +365,7 @@ function trail_art_edge_colour(array $art): string
             if (!imageistruecolor($im)) { $q = imagecolorsforindex($im, $p); $p = ($q['red'] << 16) | ($q['green'] << 8) | $q['blue']; }
             $r += ($p >> 16) & 255; $g += ($p >> 8) & 255; $b += $p & 255; $n++;
         }
-        imagedestroy($im);
+        
         if ($n) $c = sprintf('#%02x%02x%02x', (int)($r / $n * .72), (int)($g / $n * .72), (int)($b / $n * .72));
     }
     return $memo[$f] = $c;

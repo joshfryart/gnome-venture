@@ -43,7 +43,7 @@ if (is_post()) {
         @chmod($dir . '/' . $hex . '.gif', 0644);
         $im = @imagecreatefromgif($dir . '/' . $hex . '.gif');
         if (!$im || !@imagepng($im, $dir . '/' . $hex . '-still.png')) { @unlink($dir . '/' . $hex . '.gif'); $fail('Couldn’t read the GIF’s first frame.'); }
-        imagedestroy($im);
+       
         @chmod($dir . '/' . $hex . '-still.png', 0644);
         $slug = puzzle_slug($title);
         $id = db_insert('puzzle_pics', ['slug' => $slug, 'title' => $title, 'file' => $hex . '.gif', 'still' => $hex . '-still.png', 'w' => $info['w'], 'h' => $info['h'], 'frames' => $info['frames'], 'bytes' => $info['bytes'],

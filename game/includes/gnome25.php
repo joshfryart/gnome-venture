@@ -107,10 +107,10 @@ function gnome25_compose(string $view, array $cols, array $skip = [], string $we
         }
         imagealphablending($out, true);
         imagecopy($out, $im, 0, 0, 0, 0, $w, $h);
-        imagedestroy($im);
+       
     }
     imagesavealpha($out, true);
-    ob_start(); imagepng($out); $png = (string)ob_get_clean(); imagedestroy($out);
+    ob_start(); imagepng($out); $png = (string)ob_get_clean();
     return $png;
 }
 
