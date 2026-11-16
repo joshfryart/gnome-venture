@@ -73,5 +73,5 @@ function trail_fam_coast(array $ctx): string
     }
     usort($chips, fn($a, $b) => [$b['now'], $b['near']] <=> [$a['now'], $a['near']]);
     foreach (array_slice($chips, 0, 2) as $c) $h .= '<p class="tfc-chip' . ($c['now'] ? ' now' : '') . '"><span aria-hidden="true">🎣</span> ' . e($c['text']) . '</p>';
-    return $h . '</section>';
+    return moon_pill_section($h . '</section>', (string)$tide['moon']['icon'], 'Tide · ' . $tide['moon']['name']);
 }

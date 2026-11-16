@@ -566,5 +566,7 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pf-v1 .pfv-guide[data-k=hint] { background: #e6f2ff; border-color: #6a9fd8; color: #10283f; }
 .pf-v1 .pfb-cell.pfb-lit.pfv-hint { outline: 3px solid #ffd54a; outline-offset: -3px; box-shadow: 0 0 0 3px rgba(255, 213, 74, .5); }
 .pf-v1 .pf-tile.pfv-hinted { outline: 3px solid #ffd54a; outline-offset: 1px; }
-.pf-v1 .pfv-hintb small { margin-left: .2rem; opacity: .8; }
+.pf-v1 .pfv-hintb small { margin-left: .1rem; opacity: .8; font-size: 10px; }
+/* hint is a small corner bulb, not a full button */
+.pf-v1 .pf-buttons .pfv-hintb { flex: none; order: 9; min-height: 32px; min-width: 32px; padding: 0 6px; font-size: 14px; line-height: 1; border-radius: 16px; align-self: flex-start; }
 .pfv .pfv-recap { margin: .4rem 0; }
