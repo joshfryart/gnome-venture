@@ -1,7 +1,8 @@
--- Ember Flake (pl-cwy-1), perch sprite 36x36. Opus second pass (c11/opus2), hand-built at this size.
+-- Ember Flake (pl-cwy-1), perch sprite 36x36. Opus richness pass (c11/opus3), hand-built at this size.
 -- A cinder scale: pale ash face plate (so the pill eyes read), ash-grey crust on top, charcoal plates cracked apart by glowing ember seams that get hotter toward
 -- its pointed tip, red-hot lower edge. 2x3 pill eyes on the big face plate, small glowing open mouth.
 -- quirk: it stayed warm: two heat ripples rising off its top and a spark.
+-- opus3: lit ash lips beside the upper cracks and a warm red cast beside the lower ones (kept simple at 36 px).
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
@@ -28,6 +29,7 @@ sc:each(function(x, y)
   -- the face plate is a paler ash so the pill eyes read
   if k1 == 1 then c.pix[q] = CHAR[math.min(6, (sI[K(x, y)] or 3) + 2)]:lower() end
   local heat = (y - 7) / 24
+  if k1 ~= 1 and d2 - d1 < 2.2 and d2 - d1 >= 1 then c.pix[q] = (heat > .4 and "#5a2a26" or CHAR[4]):lower() end
   if d2 - d1 < 1 then c.pix[q] = (heat > .6 and EMBR[4] or (heat > .3 and EMBR[3] or EMBR[2])):lower() end
   if y > 22 and (not sc:has(x, y + 1) or not sc:has(x + 1, y)) then c.pix[q] = EMBR[3]:lower() end
 end)

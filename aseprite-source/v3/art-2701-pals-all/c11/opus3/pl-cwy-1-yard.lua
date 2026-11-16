@@ -1,9 +1,12 @@
--- Ember Flake (pl-cwy-1), yard sprite 64x64. Opus second pass (c11/opus2), built on c11/haiku.
+-- Ember Flake (pl-cwy-1), yard sprite 64x64. Opus richness pass (c11/opus3), built on c11/opus2.
 -- Thornblade, common, Forge of the Cinder Wyrm. "A cinder that drifted off the wyrm's back and stayed warm."
 -- haiku drew a flat red hexagon with a face: no cinder or scale read, no glow. Now a single wyrm scale gone to
 -- cinder: a charcoal shield shape with a pointed tip, its top edge curled forward like a flake of bark, crackled
 -- with glowing ember veins, the lower edge still red-hot from inside. It hovers over a warm-lit shadow.
 -- quirk: it stayed warm: heat ripples curl up off its top, the tip glows from within, a few sparks drift.
+-- opus3: every crust plate is bevelled (ash-lit upper-left lip, dark lower-right lip), plates near a crack pick up
+-- a warm red cast, white-hot cores at crack junctions, ash flecks, warm ember bounce on the lower-right edge.
+-- closer look: one tiny flame flickers out of a crack on the crown, like a candle it forgot to blow out.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
@@ -21,7 +24,7 @@ c:groundShadow(32, 59, 14, 2)
 local sc = c:ellipse(31, 28, 17, 15)
 sc:add(c:poly{ { 15, 32 }, { 47, 30 }, { 44, 46 }, { 41, 54 }, { 39, 55 } })
 sc:cut(c:ellipse(15, 20, 2.5, 2.5)) -- a chipped corner
-local sI, sT = O.shade(c, sc, CHAR, { sphere = { 24, 18, 26 }, amb = .2, wrap = .35, rim = true })
+local sI, sT = O.shade(c, sc, CHAR, { sphere = { 24, 18, 26 }, amb = .2, wrap = .35, rim = true, bounce = "#a8401c", bmax = 3 })
 -- ash grain
 O.tex(c, sI, sT, CHAR, function(x, y, i) if H(x, y, 4) > .82 then return -1 end if H(x, y, 5) > .9 and i >= 3 then return 1 end end)
 -- crackle: the crust breaks into plates (voronoi), ember glow showing in every crack; hotter toward the tip.
@@ -37,12 +40,26 @@ sc:each(function(x, y)
     if d < d1 then d2 = d1 d1 = d k1 = k elseif d < d2 then d2 = d end
   end
   local heat = (y - 14) / 40 -- 0 top .. 1 tip
+  -- bevel each plate: probe the plate owner one step up-left and down-right
+  local function owner(px, py)
+    local b1, kk = 1e9, 0
+    for k, sd in ipairs(seeds) do local d = math.sqrt((px - sd[1]) ^ 2 + (py - sd[2]) ^ 2) * ((k == 1) and .48 or 1) if d < b1 then b1, kk = d, k end end
+    return kk
+  end
+  local i0 = sI[K(x, y)] or 3
+  if owner(x - 2, y - 2) ~= k1 then c.pix[q] = CHAR[math.min(6, i0 + 1)]:lower()
+  elseif owner(x + 2, y + 2) ~= k1 then c.pix[q] = CHAR[math.max(1, i0 - 1)]:lower() end
+  if d2 - d1 < 2.6 and d2 - d1 >= 1.1 and heat > .15 and heat <= .45 then c.pix[q] = "#5a2a26" end -- warm cast by the cracks
   if d2 - d1 < 1.1 then
     c.pix[q] = (heat > .55 and EMBR[4] or (heat > .25 and EMBR[3] or EMBR[2])):lower()
   elseif d2 - d1 < 2.1 and heat > .45 then
     c.pix[q] = EMBR[1]:lower() -- plate edges glowing red near the tip
   end
 end)
+-- white-hot cores where three cracks meet (approximate: brightest crack pixels near the tip)
+O.mark(c, { { 31, 47 }, { 38, 45 }, { 33, 51 } }, EMBR[5])
+-- ash flecks on the upper crust
+O.mark(c, { { 22, 15 }, { 27, 12 }, { 36, 13 }, { 19, 24 }, { 44, 22 } }, CHAR[6])
 -- red-hot rim along the lower edge
 sc:each(function(x, y)
   local q = y * c.w + x
@@ -56,6 +73,9 @@ c:cheek(21, 31) c:cheek(41, 31)
 -- small happy open mouth, glowing inside
 O.flat(c, c:rect(30, 31, 34, 32), EMBR[2], "mouth") O.dots(c, { { 31, 32 }, { 32, 32 }, { 33, 32 } }, EMBR[4])
 O.dots(c, { { 29, 30 }, { 30, 30 }, { 31, 30 }, { 32, 30 }, { 33, 30 }, { 34, 30 }, { 35, 30 }, { 29, 31 }, { 35, 31 }, { 30, 33 }, { 31, 33 }, { 32, 33 }, { 33, 33 }, { 34, 33 } }, P.ink)
+
+-- the forgotten candle flame on the crown crack
+O.dots(c, { { 25, 13 }, { 25, 12 }, { 26, 13 } }, EMBR[3]) O.dot(c, 26, 12, EMBR[4]) O.dot(c, 25, 11, EMBR[5]) O.dot(c, 26, 10, EMBR[4])
 
 O.done(c, "pl-cwy-1-yard", function(c)
   -- heat ripples (un-outlined) and drifting sparks
