@@ -39,7 +39,7 @@ end)
 
 -- body, low and wide
 local body = c:ellipse(26, 41, 13, 7.5)
-local bI, bT = O.shade(c, body, GECK, { sphere = { 22, 32, 22 }, amb = .42, wrap = .5, rim = true, bounce = "#5a6a9a", bmax = 2, sep = GECK[1] })
+local bI, bT = O.shade(c, body, GECK, { sphere = { 22, 32, 22 }, amb = .36, wrap = .46, rim = true, bounce = "#5a6a9a", bmax = 2, sep = GECK[1] })
 -- leopard spots
 for _, q in ipairs({ { 22, 39 }, { 27, 38 }, { 32, 40 }, { 18, 43 }, { 25, 43 }, { 30, 45 }, { 35, 42 }, { 21, 46 } }) do
   O.mark(c, { { q[1], q[2] }, { q[1] + 1, q[2] } }, SPOT[2]) O.mark(c, { { q[1], q[2] + 1 } }, SPOT[1])
@@ -55,7 +55,7 @@ end
 
 -- head, broad and turned to us
 local head = c:ellipse(16, 31, 11, 8.5)
-local hI, hT = O.shade(c, head, GECK, { sphere = { 12, 25, 18 }, amb = .42, wrap = .5, rim = true, bounce = "#5a6a9a", bmax = 2, sep = GECK[1] })
+local hI, hT = O.shade(c, head, GECK, { sphere = { 12, 25, 18 }, amb = .36, wrap = .46, rim = true, bounce = "#5a6a9a", bmax = 2, sep = GECK[1] })
 O.mark(c, { { 15, 24 }, { 16, 24 }, { 13, 26 }, { 25, 30 }, { 24, 35 }, { 7, 31 } }, SPOT[2])
 -- wide gecko smile
 for x = 9, 23 do O.dot(c, x, 35 + ((x == 9 or x == 23) and -1 or 0), P.ink) end
