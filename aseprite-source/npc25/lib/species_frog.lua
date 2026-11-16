@@ -140,20 +140,19 @@ function S.draw_figure(img, view, frame, species)
   -- lily-pad hat with a pink water-lily bud; cx,cy = pad centre
   local function pad(cx, cy, rx, notchdir)
     part(INK)
-    ell(cx, cy, rx, 2.3, function(x, y, nx, ny)
+    ell(cx, cy + 0.3, rx, 2.3, function(x, y, nx, ny)
       -- V notch cut out of the pad
-      if notchdir ~= 0 and ny > -0.2 and abs(nx - 0.15 * notchdir) < 0.12 + (ny + 0.2) * 0.25 then return end
-      if ny < -0.3 then return nx < 0.3 and SHI or SBA end
-      if ny > 0.45 then return SDP end
-      if abs(ny) < 0.3 and abs(nx) < 0.75 and (x % 3 == 0) then return SBA end  -- veins
-      return SSH
+      if false and ny > -0.4 and abs(nx - 0.2 * notchdir) < 0.1 + (ny + 0.4) * 0.18 then return end
+      if ny > 0.5 then return SSH end
+      if abs(nx) > 0.82 then return SBA end
+      if ny < -0.2 and (x + floor(cx)) % 4 == 0 then return SBA end  -- veins
+      return SHI
     end)
-    -- bud: 2x2 petal + cream heart
-    local fx = floor(cx) - 2
-    local fy = floor(cy) - 5
+    -- bud: petals around a cream heart
+    local fx = floor(cx) - 3 * (notchdir == 0 and 0 or notchdir) - 1
+    local fy = floor(cy) - 3
     P(fx, fy + 1, PETAL); P(fx + 1, fy + 1, PETAL); P(fx + 2, fy + 1, PETAL)
     P(fx, fy, PETAL); P(fx + 1, fy, CREAM); P(fx + 2, fy, PETAL)
-    P(fx + 1, fy + 2, SSH); P(fx + 1, fy + 3, SSH)
   end
   local function eyeball(cx, cy, r, back)
     ell(cx, cy, r, r, SKIN)
@@ -189,7 +188,7 @@ function S.draw_figure(img, view, frame, species)
     end
     -- torso
     part(SDP)
-    ell(CX, 51 + b, 10.5, 11, function(x, y, nx, ny)
+    ell(CX, 51 + b, 10.5, 11.5, function(x, y, nx, ny)
       local yy = y - b
       if front then
         if yy >= 49 then return lit(nx, ny, OV) end                     -- overall pants
@@ -232,13 +231,13 @@ function S.draw_figure(img, view, frame, species)
     end
     -- head
     part(SDP)
-    ell(CX, 28 + hd, 13.5, 11, function(x, y, nx, ny)
-      if front and ny > 0.45 and abs(nx) < 0.7 then return BELLY end   -- pale chin
+    ell(CX, 29 + hd, 13.5, 11.5, function(x, y, nx, ny)
+      if front and ny > 0.62 and abs(nx) < 0.6 then return BELLY end   -- pale chin
       local c = lit(nx, ny, SKIN)
       if not front and ((x == 26 and y - hd == 25) or (x == 37 and y - hd == 28) or (x == 31 and y - hd == 22)) then c = SSH end
       return c
     end)
-    for s = -1, 1, 2 do eyeball(X(s, 7.5), 19 + hd, 4.4, not front) end
+    for s = -1, 1, 2 do eyeball(X(s, 7.5), 20 + hd, 4.4, not front) end
     if front then
       for x = 21, 42 do
         local yy = 32 - ((x <= 22 or x >= 41) and 1 or 0)
@@ -248,7 +247,7 @@ function S.draw_figure(img, view, frame, species)
       P(30, 27 + hd, SDP); P(33, 27 + hd, SDP)                 -- nostrils
       P(22, 29 + hd, PETAL); P(23, 29 + hd, PETAL); P(40, 29 + hd, PETAL); P(41, 29 + hd, PETAL)
     end
-    pad(CX + sway, 15.5 + hd, 7.5, front and 1 or -1)
+    pad(CX + sway, 13.5 + hd, 8, front and 1 or -1)
   else
     -- side, facing right
     -- far leg + far arm
@@ -257,7 +256,7 @@ function S.draw_figure(img, view, frame, species)
     cap(37, 46 + b, 40 + arm, 54 + b, 1.8, SKINF)
     -- torso
     part(SDP)
-    ell(31, 52 + b, 9.5, 10, function(x, y, nx, ny)
+    ell(30.5, 50 + b, 11, 12, function(x, y, nx, ny)
       local yy = y - b
       if yy >= 50 then return lit(nx, ny, OV) end
       if nx > 0.35 and yy >= 46 then return lit(nx, ny, OV) end
@@ -289,17 +288,17 @@ function S.draw_figure(img, view, frame, species)
     ell(ax + 1, ay + 0.5, 2.5, 1.5, function(x, y, nx, ny) return ny > 0.3 and SSH or SBA end)
     -- head: wide snout right, throat bulge, eye bulge on top
     part(SDP)
-    ell(34, 28 + hd, 11.5, 10.5, function(x, y, nx, ny)
+    ell(34, 29 + hd, 11.5, 11, function(x, y, nx, ny)
       if ny > 0.5 and nx > -0.3 then return BELLY end
       return lit(nx, ny, SKIN)
     end)
-    ell(38.5, 36 + hd, 6, 3, function(x, y, nx, ny) return ny < -0.3 and CREAM or BELLY end)  -- throat bulge
-    eyeball(36.5, 19.5 + hd, 4.2, false)
+    ell(38, 37.5 + hd, 3.6, 2.4, function(x, y, nx, ny) return (ny < -0.2 and nx < 0.3) and CREAM or BELLY end)  -- throat bulge
+    eyeball(36.5, 20 + hd, 4.2, false)
     for x = 35, 44 do P(x, 32 + hd - (x >= 44 and 1 or 0), SDP) end
     P(34, 31 + hd, SDP)
     P(44, 27 + hd, SDP)                                   -- nostril
     P(38, 30 + hd, PETAL); P(39, 30 + hd, PETAL)
-    pad(30.5 + sway, 15.5 + hd, 7, -1)
+    pad(31.5 + sway, 13.5 + hd, 7.5, -1)
   end
   finish()
 end

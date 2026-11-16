@@ -40,6 +40,7 @@ function S.draw_figure(img, view, frame, species)
   local F = {hl = CREAM, hi = H"#e0b480", base = H"#c99a62", shade = H"#946a58", deep = H"#76503e"}
   local FF = {hl = F.base, hi = F.base, base = F.shade, shade = F.deep, deep = F.deep}
   local OV = {hl = H"#6e9e5a", hi = H"#6e9e5a", base = H"#4a6e54", shade = H"#2f4448", deep = H"#2f4448"}
+  local OVL = {hl = OV.hi, hi = OV.hi, base = OV.hi, shade = OV.base, deep = OV.deep}
   local HAT = {hl = CREAM, hi = H"#e0b858", base = H"#e0b858", shade = H"#ae8044", deep = F.deep}
   local WOOD, WOODS = H"#ae8044", H"#76503e"
   local SHL, SHD = H"#aaa9b8", H"#74758c"
@@ -154,10 +155,10 @@ function S.draw_figure(img, view, frame, species)
     -- legs + hind feet (big ovals)
     for _, s in ipairs({-1, 1}) do
       local ft = s < 0 and (front and o.footR or o.footL) or (front and o.footL or o.footR)
-      local fx = s < 0 and 25 or mx(25)
-      cap(s < 0 and 26 or mx(26), 58 + b, fx, 66 + ft, 2.6, function(x, y, nx, ny) return lit(nx, ny, F) end)
+      local fx = s < 0 and 24.5 or mx(24.5)
+      cap(s < 0 and 26.5 or mx(26.5), 60 + b, fx, 66 + ft, 2.8, function(x, y, nx, ny) return lit(nx, ny, F) end)
       local up = ft < 0
-      local cy, rx, ry = 67.6 + ft, up and 3.2 or 3.9, up and 3.0 or 2.6
+      local cy, rx, ry = 67.6 + ft, up and 3.6 or 4.6, up and 3.1 or 2.7
       if up then cy = 67.3 + ft end
       ell(fx, cy, rx, ry, function(x, y, nx, ny)
         if front then
@@ -170,25 +171,24 @@ function S.draw_figure(img, view, frame, species)
       end)
     end
     -- torso with overalls
-    ell(CX, 51.5 + b, 8.6, 9.8, function(x, y, nx, ny)
+    ell(CX, 52 + b, 9.6, 10.4, function(x, y, nx, ny)
       local yy = y - b
       local ax = abs(x - CX)
       if front then
         if yy >= 47 and ax <= 4.5 and yy <= 53 then
-          if x == 27 then return OV.hi end
-          if x == 36 then return OV.shade end
-          if yy == 49 and ax <= 2 then return OV.shade end
-          return yy == 47 and OV.hi or OV.base
+          if x == 36 then return OV.base end
+          if yy == 50 and ax <= 2 then return OV.base end
+          if yy == 47 and x > 27 and x < 35 then return HAT.hi end
+          return OV.hi
         end
         if yy >= 53 then
           if yy >= 59 and x == 32 then return OV.deep end
-          return lit(nx, ny, OV)
+          return lit(nx, ny, OVL)
         end
         return lit(nx, ny, F)
       end
       if yy >= 51 then
-        if yy == 51 then return OV.hi end
-        return lit(nx, ny, OV)
+        return lit(nx, ny, OVL)
       end
       return lit(nx, ny, F)
     end)
@@ -217,10 +217,10 @@ function S.draw_figure(img, view, frame, species)
     for _, s in ipairs({-1, 1}) do
       local a = (s < 0) == front and o.armR or o.armL
       local spread = math.max(a, 0)
-      local px = s < 0 and (22 - spread * 0.8) or mx(22 - spread * 0.8)
-      local py = 53 + b - a * 1.5
-      local sx = s < 0 and 24 or mx(24)
-      if s == stickSide then stick(px - s * 0.5, py - 6, py + 17, s) end
+      local px = s < 0 and (21.5 - spread * 0.8) or mx(21.5 - spread * 0.8)
+      local py = 54 + b - a * 1.5
+      local sx = s < 0 and 23.5 or mx(23.5)
+      if s == stickSide then stick(px + s * 2, py - 7, py + 17, s) end
       cap(sx, 45 + b, px, py - 1, 2.3, function(x, y, nx, ny) return lit(nx, ny, F) end)
       ell(px, py, 2.5, 2.3, function(x, y, nx, ny)
         if not front and ny < 0.2 then return F.base end
@@ -229,21 +229,23 @@ function S.draw_figure(img, view, frame, species)
       end)
     end
     -- head
-    ell(CX, 31 + hd, 9.6, 7.2, function(x, y, nx, ny) return lit(nx, ny, F) end)
-    ell(22.4, 34 + hd, 2.2, 2.4, function(x, y, nx, ny) return lit(nx, ny, F) end)
-    ell(mx(22.4), 34 + hd, 2.2, 2.4, function(x, y, nx, ny) return lit(nx, ny, F) end)
+    ell(CX, 32 + hd, 10.4, 8.2, function(x, y, nx, ny) return lit(nx, ny, F) end)
+    ell(21.6, 35.5 + hd, 2.3, 2.5, function(x, y, nx, ny) return lit(nx, ny, F) end)
+    ell(mx(21.6), 35.5 + hd, 2.3, 2.5, function(x, y, nx, ny) return lit(nx, ny, F) end)
     if front then
-      ell(CX, 34.9 + hd, 3.7, 2.1, function() return CREAM end)
-      for x = 30, 33 do P(x, 33 + hd, PINK) end
-      P(31, 34 + hd, F.deep); P(32, 34 + hd, F.deep)
-      P(30, 35 + hd, F.deep); P(33, 35 + hd, F.deep)
+      ell(CX, 36.4 + hd, 4.1, 2.3, function() return CREAM end)
+      for x = 30, 33 do P(x, 34 + hd, PINK) end
+      P(31, 35 + hd, PINK); P(32, 35 + hd, PINK)
+      P(31, 36 + hd, F.deep); P(32, 36 + hd, F.deep)
+      P(30, 37 + hd, F.deep); P(33, 37 + hd, F.deep)
       for _, ex in ipairs({26, 36}) do
-        for y = 29, 31 do P(ex, y + hd, INK); P(ex + 1, y + hd, INK) end
-        P(ex, 29 + hd, CREAM)
+        for y = 30, 32 do P(ex, y + hd, INK); P(ex + 1, y + hd, INK) end
+        P(ex, 30 + hd, CREAM)
+        P(ex, 29 + hd, F.hi); P(ex + 1, 29 + hd, F.hi)
       end
-      P(24, 34 + hd, PINK); P(25, 34 + hd, PINK); P(38, 34 + hd, PINK); P(39, 34 + hd, PINK)
+      P(23, 35 + hd, PINK); P(24, 35 + hd, PINK); P(39, 35 + hd, PINK); P(40, 35 + hd, PINK)
     else
-      for x = 25, 38 do P(x, 37 + hd, F.shade) end
+      for x = 24, 39 do P(x, 39 + hd, F.shade) end
     end
     -- ears, then the hat over their roots
     local top = 8 + hd
@@ -273,23 +275,23 @@ function S.draw_figure(img, view, frame, species)
       return CREAM
     end)
     -- torso
-    ell(30.5, 51.5 + b, 7.4, 9.6, function(x, y, nx, ny)
+    ell(30.5, 52 + b, 8.6, 10.2, function(x, y, nx, ny)
       local yy = y - b
-      if yy >= 53 then return lit(nx, ny, OV) end
-      if x >= 33 and yy >= 47 then
+      if yy >= 53 then return lit(nx, ny, OVL) end
+      if x >= 34 and yy >= 47 then
         if yy == 47 then return OV.hi end
-        return x >= 37 and OV.shade or OV.base
+        return x >= 38 and OV.base or OV.hi
       end
       return lit(nx, ny, F)
     end)
-    ell(35.2, 44.8 + b, 2.2, 2.6, function() return CREAM end)
-    for i = 0, 4 do P(33 - i, 47 - i + b, OV.base) end
-    P(33, 47 + b, HAT.base)
+    ell(36, 45.5 + b, 2.4, 2.8, function() return CREAM end)
+    for i = 0, 4 do P(34 - i, 47 - i + b, OV.hi) end
+    P(34, 47 + b, HAT.base)
     -- haunch in the overalls
     ell(27.5, 59 + b, 5.6, 4.8, function(x, y, nx, ny)
       if nx * 0.55 + ny * 0.83 > 0.86 then return OV.deep end
       if y - b == 56 and x <= 26 then return OV.hi end
-      return lit(nx, ny, OV)
+      return lit(nx, ny, OVL)
     end)
     hind(0, 0, F)
     -- near arm + stick
@@ -302,18 +304,18 @@ function S.draw_figure(img, view, frame, species)
       return lit(nx, ny, F)
     end)
     -- neck + head
-    ell(33.5, 40 + hd, 4.4, 3, function(x, y, nx, ny) return lit(nx, ny, F) end)
-    ell(35, 31 + hd, 8, 6.9, function(x, y, nx, ny) return lit(nx, ny, F) end)
-    ell(41.2, 34 + hd, 3.9, 2.9, function(x, y, nx, ny)
+    ell(33.5, 41 + hd, 4.8, 3, function(x, y, nx, ny) return lit(nx, ny, F) end)
+    ell(35, 32 + hd, 8.8, 7.6, function(x, y, nx, ny) return lit(nx, ny, F) end)
+    ell(41.6, 35 + hd, 4.1, 3.0, function(x, y, nx, ny)
       if ny > 0.35 then return CREAM end
       return lit(nx, ny, F)
     end)
-    P(45, 32 + hd, PINK); P(44, 32 + hd, PINK); P(45, 33 + hd, PINK)
-    P(43, 35 + hd, F.deep); P(44, 34 + hd, F.deep)
-    for y = 29, 31 do P(38, y + hd, INK); P(39, y + hd, INK) end
-    P(38, 29 + hd, CREAM)
-    P(39, 33 + hd, PINK); P(40, 33 + hd, PINK)
-    P(30, 31 + hd, F.shade); P(30, 32 + hd, F.shade); P(31, 33 + hd, F.shade)
+    P(45, 33 + hd, PINK); P(44, 33 + hd, PINK); P(45, 34 + hd, PINK)
+    P(43, 36 + hd, F.deep); P(44, 35 + hd, F.deep)
+    for y = 30, 32 do P(38, y + hd, INK); P(39, y + hd, INK) end
+    P(38, 30 + hd, CREAM); P(38, 29 + hd, F.hi); P(39, 29 + hd, F.hi)
+    P(39, 34 + hd, PINK); P(40, 34 + hd, PINK)
+    P(30, 32 + hd, F.shade); P(30, 33 + hd, F.shade); P(31, 34 + hd, F.shade)
     -- ears laid back, far ear first
     local top = 8 + hd
     ear(35.4, 22 + hd, top + 1, -0.32 - lag, FF, false)
