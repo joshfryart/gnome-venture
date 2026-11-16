@@ -1,4 +1,9 @@
--- Fang Chip (pl-gwk-1), yard sprite 64x64. Opus second pass (c13/opus2), built on c13/haiku.
+-- Fang Chip (pl-gwk-1), yard sprite 64x64. Opus richness pass (c13/opus3), built on c13/opus2.
+-- opus3: opus2's dusky root read as a cap. The root is now a long amber cone tapering to a blunt apex with a tiny
+-- dark canal dot, lengthwise cementum striations, and the enamel line bowed up in the middle (a real tooth neck,
+-- not a hat brim); lighter warm ramp so it reads as more tooth. Enamel ramp hue-shifted (plum shadow to cool
+-- pearl top), hairline craze cracks off the chip, crater flecks on the moon.
+-- closer-look: the shine on the enamel is a tiny crescent moon of its own.
 -- Thornblade, common, Lair of the Grey Wolf King. "A chipped wolf fang that only growls when the moon is out."
 -- Haiku weakness fixed: a flat beige triangle (read as a pizza slice / carrot) with a dotted mouth. Now a real wolf
 -- canine: a curved ivory crown tapering to a point that it balances on, a warmer root above an enamel line, faint
@@ -10,28 +15,35 @@ local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("pl-gwk-1-yard", 64)
 
-local IVORY = { "#5a3a30", "#8e6a4e", "#bf9e78", "#e2c99f", "#f4e5c4", "#fdf6e4" }
-local ROOT  = { "#4a2c2c", "#74504a", "#9c7a68", "#bfa088", "#d8bea2", "#e8d4ba" }
-local MOON  = { "#7a5a2a", "#c09a42", "#ecd070", "#fff0b0" }
+local IVORY = { "#4e3440", "#86645a", "#b8987a", "#dec8a2", "#f2e6c8", "#fbf6ea" }
+local ROOT  = { "#5a3a2c", "#8e6648", "#bc9468", "#dcbc88", "#ecd4a4", "#f6e6c0" }
+local MOON  = { "#7a4e2e", "#c0903e", "#ecc862", "#fbeaa8" }
 
 c:groundShadow(30, 59, 9, 1.5)
--- the fang: a tapering curved tube, root up, tip down
-local fang, fn = O.tube({ { 35, 18 }, { 39, 33 }, { 36, 47 }, { 23, 58 } }, function(t) return 11.5 * (1 - t) ^ .8 + .4 end)
--- the root above it: a narrower cone with a waist at the enamel line, so it reads as a tooth, not a blob
-local root, rn = O.tube({ { 39, 5 }, { 38, 9 }, { 36, 13 }, { 35, 17 } }, function(t) return 2.5 + t * 5.5 end)
-root:each(function(x, y) if not fang:has(x, y) then fang:set(x, y) fn[K(x, y)] = rn[K(x, y)] end end)
+-- the whole tooth as ONE continuous spindle (no step at the neck, so the root can't read as a cap): the root
+-- tapers up from the widest point to a blunt apex, the crown tapers down to the point it balances on
+local NECK = .3
+local fang, fn, FT = O.tube({ { 37, 1 }, { 36, 22 }, { 40, 42 }, { 23, 58 } }, function(t)
+  if t < NECK then return 2 + (t / NECK) ^ .6 * 9.8 end
+  return 11.8 * ((1 - t) / (1 - NECK)) ^ .85 + .4
+end)
 -- the chip: a notch out of the right edge near the tip
 local chip = c:poly{ { 41, 40 }, { 34, 45 }, { 38, 49 }, { 44, 45 } }
 fang:cut(chip)
 local fI, fT = O.shadeN(c, fang, fn, IVORY, { amb = .3, wrap = .5, rim = true, bounce = "#8a8ab0", bmax = 3 })
 -- root above the enamel line (wavy), enamel streaks lower down
 O.tex(c, fI, fT, IVORY, function(x, y, i)
-  local line = 15 + math.floor(math.sin(x * .5) * 1.2 + .5)
+  -- tooth neck: bowed up in the middle (convex towards the root)
+  local t = FT[K(x, y)] or 1
+  local line = 16 - math.floor((x - 37) * .3 + .5) + ((x % 5 == 0) and 1 or 0)
   if y < line then
-    c.pix[y * c.w + x] = ROOT[math.max(1, i - 1)]
+    t = i
+    if O.H(x, y, 3) > .82 and t >= 3 then t = t - 1 end -- worn cementum flecks
+    if x == 38 - (y // 6) and y >= 3 and y <= line - 3 and t >= 2 then t = t - 1 end -- the root's long groove
+    c.pix[y * c.w + x] = ROOT[t]
     return 0
   end
-  if y == line then c.pix[y * c.w + x] = ROOT[math.max(1, i - 1)] return 0 end
+  if y == line then c.pix[y * c.w + x] = ROOT[math.max(1, i - 2)] return 0 end
   if y > 34 and (x * 2 + y) % 7 == 0 and i >= 3 and i <= 5 then return 1 end
 end)
 -- the broken face of the chip: dark rough edge along the cut, lit lip on top
@@ -42,6 +54,13 @@ chip:grow(1):each(function(x, y)
   end
 end)
 
+-- root apex: the tiny canal opening
+O.mark(c, { { 37, 1 } }, ROOT[2])
+-- hairline craze cracks running up from the chip
+O.mark(c, { { 40, 39 }, { 41, 38 }, { 41, 37 }, { 42, 36 }, { 36, 44 }, { 35, 43 } }, IVORY[3])
+-- closer-look: the enamel shine is a tiny crescent moon
+O.mark(c, { { 27, 37 }, { 26, 38 }, { 26, 39 }, { 26, 40 }, { 27, 41 }, { 28, 41 } }, IVORY[6])
+O.mark(c, { { 27, 38 }, { 27, 40 } }, IVORY[5])
 -- face: cross little brows, growl
 c:eyeLocked(28, 21)
 c:eyeLocked(38, 21)
@@ -56,7 +75,8 @@ O.shift(c, 0, 0)
 -- the moon (drawn on top later as its own outlined part)
 local moon = c:ellipse(11, 11, 6, 6)
 moon:cut(c:ellipse(15, 8, 5, 5))
-O.shade(c, moon, MOON, { sphere = { 8, 8, 8 }, amb = .35, wrap = .5, cuts = { .3, .55, .8 } })
+local mI, mT = O.shade(c, moon, MOON, { sphere = { 8, 8, 8 }, amb = .35, wrap = .5, cuts = { .3, .55, .8 }, rim = true })
+O.mark(c, { { 7, 13 }, { 9, 15 }, { 6, 9 } }, MOON[2])
 O.done(c, "pl-gwk-1-yard", function(c)
   -- growl ticks off its right side: three short jagged marks
   for _, p in ipairs({ { 51, 20 }, { 52, 19 }, { 53, 20 }, { 54, 19 },

@@ -1,4 +1,7 @@
--- Silverback Spool (pl-sbs-6), yard sprite 64x64. Opus second pass (c13/opus2), built on c13/haiku.
+-- Silverback Spool (pl-sbs-6), yard sprite 64x64. Opus richness pass (c13/opus3), built on c13/opus2.
+-- opus3: warmer hue-shifted wood with end grain and a nail head, silk winds with an odd brighter strand, bristly
+-- silver hairs on the legs, the humming notes now real silver notes with ink edges (they read at 1x), and a small
+-- paper tag tied to the peg with red thread (closer look: "8", one for every leg).
 -- Seedkeeper, rare, Hollow of the Silverback Spider (whimsy-spider). "The big spider's spare spool, still humming
 -- its old web song."
 -- Haiku weakness fixed: a sideways log with 1 px stick legs read as a bug on a barrel and the face was squashed
@@ -12,9 +15,9 @@ local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("pl-sbs-6-yard", 64)
 
-local WOOD = { "#3a2018", "#5e3426", "#8a5232", "#b47844", "#d9a066", "#f2c890" }
+local WOOD = { "#3a1c1e", "#62302a", "#904e30", "#ba7a40", "#dca462", "#f6d294" }
 local SILK = { "#3e3f58", "#5e6484", "#8b93b0", "#b6bfd4", "#dae1f0", "#f1f4fb" }
-local LEG  = { "#1c1824", "#2c2838", "#433e58", "#5f5a7a", "#8a86a6" }
+local LEG  = { "#1e1828", "#2e283c", "#463e5a", "#625a7e", "#8e88aa" }
 
 c:groundShadow(32, 57, 21, 2.5)
 -- eight legs, behind the spool (left side mirrored to the right)
@@ -35,6 +38,7 @@ for side = -1, 1, 2 do
       local t = T[K(x, y)]
       if t and math.abs(t - .42) < .035 then return 2 end
       if t and t > .9 then return 1 end
+      if i >= 2 and i <= 3 and O.H(x, y, 7) > .78 then return 1 end -- bristly silver hairs
     end)
   end
 end
@@ -51,6 +55,7 @@ O.tex(c, bI, bT, SILK, function(x, y, i)
   local d = (y - 17) - (x - 20) * .55
   if d >= 0 and d < 2 and not (x >= 23 and x <= 41 and y >= 25 and y <= 40) then return 1 end
   if y % 2 == 0 and i >= 2 then return -1 end
+  if y % 7 == 3 and i >= 3 and i <= 5 then return 1 end -- an odd brighter strand in the wind
 end)
 -- wood flanges: rim band + lit end face, end grain rings
 local function flange(cy, top)
@@ -72,12 +77,28 @@ flange(11, true)
 -- the peg on top
 O.shade(c, c:rrect(30, 5, 34, 12, 1), WOOD, { R = 2, amb = .35, wrap = .45, sep = WOOD[1], rim = true })
 O.shade(c, c:ellipse(32, 5, 2, 1), WOOD, { R = 1, amb = .5, sep = WOOD[2] })
+-- nail heads on the lower flange rim
+for _, q in ipairs({ { 22, 50 }, { 42, 50 } }) do O.dot(c, q[1], q[2], "#c8c6d6") O.dot(c, q[1] + 1, q[2] + 1, "#6e6a84") end
+-- closer-look: a paper tag tied to the peg with red thread, marked "8"
+O.dots(c, { { 35, 6 }, { 36, 5 }, { 37, 5 }, { 38, 4 } }, "#c0383a")
+local tag = c:poly{ { 38, 2 }, { 43, 1 }, { 44, 6 }, { 39, 7 } }
+local gI, gT = O.shade(c, tag, { "#8a7058", "#c0a882", "#e6d6b2", "#f8eed2" }, { R = 1, amb = .45, cuts = { .3, .55, .8 }, sep = "#8a7058" })
+O.dots(c, { { 41, 3 }, { 41, 5 } }, "#5e3c3a")
 -- loose silk end trailing down and curling at the foot
 local tail = O.tube({ { 44, 44 }, { 51, 46 }, { 50, 55 }, { 56, 55 } }, function() return .55 end)
 O.flat(c, tail, SILK[5], "loose")
 local curl = O.tube({ { 56, 55 }, { 60, 55 }, { 60, 51 }, { 57, 52 } }, function() return .55 end)
 O.flat(c, curl, SILK[5], "curl")
 
+-- two silver humming notes drifting off the top left (solid, so they get an ink edge)
+local function note(x, y)
+  -- 2x2 head at (x, y), stem up 4, flag curling right
+  local pts = { { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 }, { 1, -1 }, { 1, -2 }, { 1, -3 }, { 1, -4 }, { 2, -4 }, { 3, -3 } }
+  for _, q in ipairs(pts) do O.dot(c, x + q[1], y + q[2], SILK[4]) end
+  O.dot(c, x, y, SILK[6]) O.dot(c, x + 2, y - 4, SILK[6])
+end
+note(2, 12)
+note(9, 6)
 -- face: humming
 c:eyeLocked(24, 26)
 c:eyeLocked(35, 26)
@@ -87,14 +108,8 @@ O.dots(c, { { 31, 36 }, { 32, 36 }, { 31, 37 }, { 32, 37 } }, "#8a3a5a")
 
 O.done(c, "pl-sbs-6-yard", function(c)
   -- two notes and a fading third drifting off the top right, each a little higher and smaller
-  local function note(x, y, h, col)
-    c:put(x, y, col) c:put(x + 1, y, col) c:put(x, y + 1, col) c:put(x + 1, y + 1, col)
-    for k = 1, h do c:put(x + 2, y + 1 - k, col) end
-    c:put(x + 3, y + 2 - h, col) c:put(x + 4, y + 3 - h, col)
-  end
-  note(3, 9, 5, P.ink)
-  note(9, 3, 5, P.ink)
-  c:put(15, 2, SILK[2]) c:put(16, 2, SILK[2]) c:put(17, 1, SILK[2]) c:put(17, 0, SILK[2])
+  -- the fading third note (un-outlined, small)
+  c:put(16, 2, SILK[3]) c:put(17, 2, SILK[3]) c:put(18, 1, SILK[3]) c:put(18, 0, SILK[3])
   c:sparkle(52, 4)
   c:sparkle(59, 10)
 end)

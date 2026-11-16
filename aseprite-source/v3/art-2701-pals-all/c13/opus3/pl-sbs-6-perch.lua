@@ -1,4 +1,6 @@
--- Silverback Spool (pl-sbs-6), perch sprite 36x36. Opus second pass (c13/opus2), hand-built at this size.
+-- Silverback Spool (pl-sbs-6), perch sprite 36x36. Opus richness pass (c13/opus3), hand-built at this size.
+-- opus3: warmer hue-shifted wood, a brighter strand in the silk wind, notes with the stem on the head (clear 1x
+-- read), a red-thread tie round the peg.
 -- Upright spool of wound silver silk between two wood flanges with a peg, eight jointed charcoal spider legs
 -- splaying from behind, 2x3 pill eyes on the silk, humming "o" mouth.
 -- quirk: still humming: two notes drifting up off the top left. Rare: one sparkle.
@@ -7,7 +9,7 @@ local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("pl-sbs-6-perch", 36)
 
-local WOOD = { "#3a2018", "#5e3426", "#8a5232", "#b47844", "#d9a066", "#f2c890" }
+local WOOD = { "#3a1c1e", "#62302a", "#904e30", "#ba7a40", "#dca462", "#f6d294" }
 local SILK = { "#3e3f58", "#5e6484", "#8b93b0", "#b6bfd4", "#dae1f0", "#f1f4fb" }
 local LEG  = { "#1c1824", "#2c2838", "#433e58", "#5f5a7a", "#8a86a6" }
 
@@ -33,7 +35,8 @@ barrel:each(function(x, y)
   bn[K(x, y)] = { sx, -.15, math.sqrt(1 - sx * sx) }
 end)
 local bI, bT = O.shadeN(c, barrel, bn, SILK, { amb = .28, wrap = .45, rim = true, bounce = "#7a8ab8", bmax = 3 })
-O.tex(c, bI, bT, SILK, function(x, y, i) if y % 2 == 0 and i >= 2 and not (y >= 13 and y <= 20 and x >= 13 and x <= 22) then return -1 end end)
+O.tex(c, bI, bT, SILK, function(x, y, i) if y % 2 == 0 and i >= 2 and not (y >= 13 and y <= 20 and x >= 13 and x <= 22) then return -1 end
+  if y % 5 == 1 and i >= 3 and i <= 5 then return 1 end end)
 local function flange(cy, top)
   local rimm = HP.mask()
   for dy = 0, 2 do rimm:add(c:ellipse(17.5, cy + dy, 9.5, 2.2)) end
@@ -46,6 +49,7 @@ end
 flange(26, false)
 flange(6, true)
 O.shade(c, c:rect(16, 2, 19, 6), WOOD, { R = 1, amb = .35, wrap = .45, sep = WOOD[1], rim = true })
+O.dots(c, { { 16, 4 }, { 17, 4 }, { 18, 4 }, { 19, 4 } }, "#c0383a")
 O.flat(c, (O.tube({ { 24, 25 }, { 28, 26 }, { 27, 31 }, { 31, 31 } }, function() return .45 end)), SILK[5], "loose")
 
 c:eyeSmall(13, 14)
@@ -57,10 +61,10 @@ O.dots(c, { { 17, 20 }, { 18, 20 } }, "#8a3a5a")
 O.done(c, "pl-sbs-6-perch", function(c)
   local function note(x, y, h)
     c:put(x, y, P.ink) c:put(x + 1, y, P.ink) c:put(x, y + 1, P.ink) c:put(x + 1, y + 1, P.ink)
-    for k = 1, h do c:put(x + 2, y + 1 - k, P.ink) end
-    c:put(x + 3, y + 2 - h, P.ink)
+    for k = 1, h do c:put(x + 1, y - k, P.ink) end
+    c:put(x + 2, y - h, P.ink) c:put(x + 3, y + 1 - h, P.ink)
   end
-  note(2, 5, 4)
-  note(7, 1, 3)
+  note(2, 6, 3)
+  note(7, 3, 2)
   c:sparkle(31, 3)
 end)
