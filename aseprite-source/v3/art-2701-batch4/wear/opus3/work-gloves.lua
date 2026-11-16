@@ -1,4 +1,4 @@
--- work-gloves: Work Gloves, common cut a (Opus second pass, full redraw). 64x64 Hearth Pop.
+-- work-gloves: Work Gloves, common cut a (Opus richness pass opus3, built on opus2). 64x64 Hearth Pop.
 -- Same item as the game base: a pair of tan leather work gloves, fingers up, the front glove's
 -- thumb out to the left, the back glove stepped right with its thumb out to the right, darker
 -- leather cuffs with a cream stitch row.
@@ -46,7 +46,14 @@ local function glove(o)
     if y == o.knuckle + 2 then W.addBias(pb, x, y, -1) end
   end)
   W.ao(pb, palm, cuff, 2, -1)
+  -- pebbled leather grain: small staggered pits
+  palm:each(function(x, y) if (x + (y % 2) * 2) % 4 == 0 and y % 2 == 0 and X.hash(x, y, 9 + o.seed) < 0.7 then W.addBias(pb, x, y, -1) end end)
   W.lit(c, palm, pn, LEA, { bias = pb })
+  -- reinforcing palm patch: a darker leather panel with a cream running stitch round it
+  local pp = c:rrect(o.palm[1] + 3, o.knuckle + 4, o.palm[3] - 3, o.palm[4] - 4, 2)
+  pp:each(function(x, y) W.step(c, x, y, LEA, -1) end)
+  pp:edge():each(function(x, y) if (x + y) % 2 == 0 then c:put(x, y, back < 0 and "#d8bc90" or STITCH) end end)
+  pp:each(function(x, y) if not pp:has(x + 1, y + 1) then W.step(c, x, y, LEA, -1) end end)
   W.sep(c, palm, thumb:copy():cut(palm), LEA[2])
   -- fingers, left to right; a deep seam between neighbours
   for i, f in ipairs(fingers) do
@@ -77,6 +84,8 @@ local function glove(o)
   end
   for x = o.cuff[1] + 1, o.cuff[3] - 1 do if x % 4 == 0 then c:put(x, o.cuff[4], CUF[2]) end end
   all:add(palm):add(thumb):add(cuff)
+  W.rimb(c, all, LEA, { rimMax = 6 })
+  W.rimb(c, cuff, CUF, {})
   return all, cuff
 end
 
@@ -98,9 +107,11 @@ W.sep(c, F, B:copy():cut(F), "#3a2020")
 
 -- quirk: an earthworm draped over the back glove's little finger, one end dangling
 local WORM = { "#5e2048", "#7d2c5e", "#b04e74", "#d8768e", "#f2a0ac", "#ffccd0" }
-local wm, wn = W.tube({ { 43.5, 15 }, { 44.5, 7.5 }, { 50.5, 7.5 }, { 51, 20 } }, function(t) return (t > 0.93) and 0.6 or 1.05 end)
+local wm, wn = W.tube({ { 43.5, 15 }, { 44.5, 7.5 }, { 50.5, 7.5 }, { 51, 20 } }, function(t) return (t > 0.93) and 1.0 or 1.55 end)
 local wb = {}
 wm:each(function(x, y) if (x + y) % 3 == 0 then W.addBias(wb, x, y, -1) end end)   -- segment rings
 W.lit(c, wm, wn, WORM, { bias = wb, amb = 0.2, wrap = 0.3 })
-c:put(45, 8, WORM[6])
+c:put(45, 8, WORM[6]) c:put(44, 9, WORM[6])
+-- worm's little face at the dangling end: two ink dots
+c:put(50, 20, W.INK)
 W.save(c, "work-gloves")

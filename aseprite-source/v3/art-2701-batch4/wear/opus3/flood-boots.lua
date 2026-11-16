@@ -1,4 +1,4 @@
--- flood-boots: Flood Boots, common cut a (Opus second pass, full redraw). 64x64 Hearth Pop.
+-- flood-boots: Flood Boots, common cut a (Opus richness pass opus3, built on opus2). 64x64 Hearth Pop.
 -- Same item as the game base: a pair of green rubber wellies with tan turned-down cuffs, the back
 -- boot stepped right, toes pointing right, brown soles, wet from a puddle.
 -- Redraw: glossy rubber lit per pixel (6-tone hue-shifted green, cool shade, warm lights), a
@@ -12,7 +12,7 @@ local HP, X, K = W.HP, W.X, W.K
 local c = W.new("flood-boots")
 
 local RUB = { "#132e2c", "#1e4a3a", "#2c6a46", "#3f8a4c", "#5cab55", "#98d078" }
-local TAN = { "#4e2e24", "#7c4e36", "#a8744c", "#c99862", "#e4b880", "#f6d8a6" }
+local TAN = { "#462a2e", "#764a36", "#a2703e", "#c69656", "#e2ba78", "#f8dca4" }
 local SOLE = { "#2e1c22", "#4a2a26", "#6a3e2e", "#8a5638", "#a8704a", "#c48e62" }
 local SEA = { "#2a4a7a", "#3a86b0", "#5fc4c8", "#b6f0e0" }
 local GLINT = "#d8f2b0"
@@ -63,7 +63,17 @@ local function boot(o)
     if y == o.cy + 8 then W.addBias(cb, x, y, -1) end  -- lip tucked under
   end)
   if o.back then cuff:each(function(x, y) W.addBias(cb, x, y, -1) end) end
+  -- canvas twill on the turned-down cuff: diagonal ribs plus a few slubs
+  cuff:each(function(x, y)
+    if (x + y) % 3 == 0 and y > o.cy + 1 and y < o.cy + 6 then W.addBias(cb, x, y, -1) end
+    if X.hash(x, y, 77) < 0.05 then W.addBias(cb, x, y, 1) end
+    if y == o.cy + 2 then W.addBias(cb, x, y, 1) end   -- top of the roll catches the light
+  end)
   W.lit(c, cuff, nc, TAN, { bias = cb, amb = 0.12 })
+  -- cream saddle stitch along the cuff fold
+  for x = o.x0, o.x1, 3 do c:put(x, o.cy + 5, (x < o.x0 + 9) and TAN[6] or TAN[5]) end
+  -- brass rivet at the cuff side
+  c:put(o.x1, o.cy + 3, "#ffe38a") c:put(o.x1 + 1, o.cy + 3, "#d98322") c:put(o.x1, o.cy + 4, "#a8581e")
   -- mouth: the dark opening along the top of the cuff
   for x = o.x0, o.x1 do c:put(x, o.cy, (x < o.x0 + 3) and TAN[2] or "#3a2028") end
   for x = o.x0 + 1, o.x1 - 1 do c:put(x, o.cy + 1, TAN[3]) end
@@ -75,12 +85,18 @@ local function boot(o)
   for i, p in ipairs(o.crinkles) do
     c:put(p[1], p[2], RUB[2]) c:put(p[1] + 1, p[2] - 1, RUB[5])
   end
+  -- moulded toe-cap bumper: a seam 3 px inside the toe outline, lit lip above it
+  local inner = foot:shrink(3)
+  inner:edge():each(function(x, y)
+    if x >= o.toe - 13 and y < o.sy - 1 and foot:has(x, y) then W.step(c, x, y, RUB, -2) if foot:has(x - 1, y - 1) then W.step(c, x - 1, y - 1, RUB, 1) end end
+  end)
+  W.rimb(c, body, RUB, { rimMax = 5 })
   return body, cuff, sole
 end
 
 -- back boot first (stepped right and up)
 local Bb, Bc, Bs = boot{ back = true, x0 = 23, x1 = 38, ytop = 15, ybot = 44, cy = 7, ankle = 35, toe = 53, sy = 45,
-  foot = { { 23, 35 }, { 33, 33 }, { 42, 35 }, { 48, 38 }, { 52, 41 }, { 53, 45 }, { 23, 45 } },
+  foot = { { 23, 35 }, { 33, 33.5 }, { 41, 35 }, { 46.5, 37.6 }, { 50.5, 40.6 }, { 52.6, 43.4 }, { 53, 45 }, { 23, 45 } },
   crinkles = { { 40, 37 }, { 43, 38 } } }
 -- front boot
 local Fm = c:rect(9, 11, 31, 55):add(c:poly{ { 12, 38 }, { 26, 37 }, { 34, 40 }, { 40, 43 }, { 44, 47 }, { 44, 55 }, { 12, 55 } })
@@ -90,7 +106,7 @@ Fm:shift(2, 1):cut(Fm):each(function(x, y)
   for _, R in ipairs{ RUB, TAN, SOLE } do for i, v in ipairs(R) do if v == h then c:put(x, y, R[math.max(1, i - 2)]) end end end
 end)
 local Fb, Fc, Fs = boot{ x0 = 12, x1 = 29, ytop = 19, ybot = 50, cy = 11, ankle = 40, toe = 44, sy = 51,
-  foot = { { 12, 40 }, { 26, 38 }, { 34, 41 }, { 40, 44 }, { 43, 47 }, { 44, 51 }, { 12, 51 } },
+  foot = { { 12, 40 }, { 24, 38.5 }, { 31, 39.2 }, { 36.5, 41.2 }, { 40.5, 44 }, { 43, 47 }, { 44.4, 50 }, { 44, 51 }, { 12, 51 } },
   crinkles = { { 30, 41 }, { 33, 42 } } }
 -- separation where the front boot overlaps the back one
 W.sep(c, Fb:copy():add(Fc):add(Fs), Bb:copy():add(Bc):add(Bs):cut(Fb):cut(Fc):cut(Fs), "#132e2c")
@@ -122,5 +138,7 @@ c:put(37, 6, DUCK[2]) c:put(37, 7, DUCK[2]) c:put(36, 6, DUCK[3])  -- tail flick
 -- beak and eye
 W.paint(c, 26, 4, { "ab", "cc" }, { a = "#ff9c5a", b = "#f07a3a", c = "#c85a2e" })
 c:put(30, 3, W.INK) c:put(31, 2, DUCK[5])
+-- duck's lit rim and a glint
+c:put(29, 3, DUCK[5])
 W.shift(c, 0, 3)
 W.save(c, "flood-boots")

@@ -1,4 +1,4 @@
--- trail-pack: Trail Pack, common cut a (Opus second pass, full redraw). 64x64 Hearth Pop.
+-- trail-pack: Trail Pack, common cut a (Opus richness pass opus3, built on opus2). 64x64 Hearth Pop.
 -- Same item as the game base: an oat canvas rucksack with a striped red bedroll strapped on top,
 -- a leather carry loop, a flap with a leather strap and brass buckle, two side pockets, a sprig
 -- of lavender tucked in at the top right.
@@ -18,11 +18,12 @@ local LEA = { "#3a2020", "#5e3428", "#80492c", "#a0603a", "#c07e4c", "#dca066" }
 local GOLD = W.GOLD
 local ENAM = { "#1e2c58", "#2c4a8e", "#3c6ab8", "#5a90d8", "#8ab8ee", "#c8e4ff" }
 
+-- canvas weave: a calm plain-weave grid (2 px over/under), lightly slubbed; quieter than opus2
 local function weave(b, m, seed)
   m:each(function(x, y)
     local h = X.hash(x, y, seed)
-    if x % 2 == 0 and y % 2 == 0 and h < 0.55 then W.addBias(b, x, y, -1)
-    elseif (x + y) % 2 == 1 and h > 0.86 then W.addBias(b, x, y, 1) end
+    if (x % 4 == 0 and y % 4 == 0) or (x % 4 == 2 and y % 4 == 2) then W.addBias(b, x, y, -1) end
+    if h > 0.95 then W.addBias(b, x, y, 1) end
   end)
 end
 
@@ -143,7 +144,9 @@ W.lit(c, mug, W.vcylN(mug, 50, 55), ENAM, { amb = 0.12 })
 for x = 50, 55 do c:put(x, 46, "#e8eef4") end            -- rolled white enamel rim (off-white)
 for x = 51, 54 do c:put(x, 47, ENAM[2]) end              -- inside the mug
 c:put(51, 50, "#e8eef4") c:put(53, 52, ENAM[1])          -- a chip in the enamel shows the dark iron
-W.paint(c, 49, 43, { ".aa.", "a..a", "a..." }, { a = "#9aa0b4" })   -- wire handle hooked over the pocket top
+W.paint(c, 49, 42, { ".aaa.", "a...b", "a...b", "c...." }, { a = "#c8d0dc", b = "#6e7488", c = "#9aa0b4" })   -- wire handle hooked over the pocket top   -- wire handle hooked over the pocket top
 c:put(51, 49, ENAM[6])
+W.rimb(c, body, CAN, { rimMax = 6 })
+W.rimb(c, roll, ROLL, { rimMax = 6 })
 W.shift(c, 0, 1)
 W.save(c, "trail-pack")
