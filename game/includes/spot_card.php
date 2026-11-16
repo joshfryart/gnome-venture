@@ -12,9 +12,13 @@ function spot_face(array $n): string
 {
     $slug = function_exists('scene_key') ? scene_key((string)($n['slug'] ?? '')) : preg_replace('/[^a-z0-9-]/', '', (string)($n['slug'] ?? ''));
     $rel = 'assets/img/sprite/npc-' . $slug . '.png';
-    $pic = ($slug !== '' && is_file(APP_ROOT . '/' . $rel))
+    require_once __DIR__ . '/npc25.php';
+    $st25 = npc25_for($n, 'front');
+    $pic = $st25
+        ? '<svg class="sfpic" viewBox="8 4 48 46" width="44" height="42" aria-hidden="true" overflow="hidden"><image href="' . e($st25[0]) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></svg>'
+        : (($slug !== '' && is_file(APP_ROOT . '/' . $rel))
         ? '<svg class="sfpic" viewBox="8 6 48 46" width="44" height="42" aria-hidden="true" overflow="hidden"><image href="' . e(url($rel)) . '" x="0" y="0" width="256" height="96" image-rendering="pixelated"/></svg>'
-        : '<span class="sfpic sfemo" aria-hidden="true">' . e(npc_icon($n['species'] ?? null)) . '</span>';
+        : '<span class="sfpic sfemo" aria-hidden="true">' . e(npc_icon($n['species'] ?? null)) . '</span>');
     return '<a class="sface" href="' . e(url('villagers.php?id=' . (int)$n['id'])) . '" data-nid="' . (int)$n['id'] . '">' . $pic . '<span>' . e(preg_replace('/^(Old|Auntie|Grandmother|Captain|Nonna|Abuela|Babka)\s+/u', '', (string)$n['name'])) . '</span></a>';
 }
 

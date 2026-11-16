@@ -1,29 +1,13 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/npc25.php';
+
 /**
  * Walkers on the Trail map (2.7.01): a villager whose weekly clockwork has them on the road between two stops (an errand or a market trip: npc_clockwork.php) is drawn walking on
  * the section of that road the gnome is on, at the place along it that their hour of walking has reached, in their 2.5D walk sprite (assets/img/npc25/<species>-<view>.png, 8 frames of 64 x 80:
  * 1-2 idle, 3-8 walk; see aseprite-source/npc25/PATHWAY.md). A species with no strip yet falls back to its idle folk sprite. Same entries as trail_sights_folk_on_map():
  * [x, y, picture url, name, frames, 's'|'n', id, anim, slug, who, ['cell' => [w, h], 'walk' => bool, 'dir' => 1|-1, 'label' => string]]. Tap = their card (chat, gift), as for a villager at a Sight.
  */
-
-/** 'Field mouse' / 'Stag beetle' / 'Wood Mouse' => 'field-mouse' ... (the file names of the npc25 strips and the folk sprites). */
-function npc25_species_key(string $species): string
-{
-    $sp = strtolower(trim($species));
-    if ($sp === 'mouse') $sp = 'field-mouse';
-    if ($sp === 'dormouse') return 'dormouse';
-    return str_replace(' ', '-', $sp);
-}
-
-/** The strip of a species and view (front back side) as [url, [64, 80]], or null while that species is not drawn yet. */
-function npc25_strip(string $species, string $view = 'front'): ?array
-{
-    static $memo = [];
-    $k = npc25_species_key($species) . '-' . $view;
-    if (!array_key_exists($k, $memo)) { $rel = 'assets/img/npc25/' . $k . '.png'; $memo[$k] = is_file(APP_ROOT . '/' . $rel) ? [url($rel), [64, 80]] : null; }
-    return $memo[$k];
-}
 
 /** The walk the gnome is on: [route row, display direction reversed?, sections, this section (0-based as shown)] or null. */
 function trail_walkers_route(array $sc): ?array

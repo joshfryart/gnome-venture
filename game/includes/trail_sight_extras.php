@@ -952,6 +952,7 @@ function trail_sight_folk_pic(string $who): ?array
         }
         [$name] = trail_sight_split_who($who);
         $npc = q_one('SELECT * FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
+        if ($npc && function_exists('npc25_for') && ($st25 = npc25_for($npc, 'front'))) return [$st25[0], 8, 'n', (int)$npc['id'], $st25[1]];   // 2.7.01: the 2.5D strip (gnome NPCs too)
         if ($npc) { require_once __DIR__ . '/here_view.php'; $sp = here_sprite($npc); if ($sp['src'] !== '') return [$sp['src'], (int)($sp['frames'] ?? 1), 'n', (int)$npc['id']]; }
     } catch (Throwable $e) {}
     return null;
