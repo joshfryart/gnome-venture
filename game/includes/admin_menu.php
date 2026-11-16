@@ -115,6 +115,44 @@ function admin_menu_def(): array
     ];
 }
 
+
+/** Admin SVG icons (2px square-cap strokes, currentColor). One per menu section; the "ok/warn/err" glyphs are for status chips. */
+function admin_icon(string $id): string
+{
+    static $d = [
+        'system' => '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+        'players' => '<rect x="8" y="3" width="8" height="8"/><path d="M4 21v-4h16v4"/>',
+        'world' => '<path d="M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16"/>',
+        'folk' => '<path d="M3 9l2-5h14l2 5M3 9h18M4 9v11h16V9M10 20v-6h4v6"/>',
+        'stops' => '<path d="M2 20 12 4l10 16zM12 20v-6"/>',
+        'items' => '<path d="M5 8h14l1 13H4zM9 8V5a3 3 0 0 1 6 0v3"/>',
+        'garden' => '<path d="M12 21V11M12 11C12 6 8 4 4 4c0 5 3 7 8 7M12 13c0-4 3-6 8-6 0 4-3 6-8 6"/>',
+        'trade' => '<path d="M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4"/>',
+        'progress' => '<path d="M3 3v18h18M7 15l4-4 3 3 6-7"/>',
+        'content' => '<path d="M5 3h10l4 4v14H5zM15 3v4h4M8 12h8M8 16h8"/>',
+        'art' => '<rect x="3" y="4" width="18" height="16"/><path d="M3 16l5-5 4 4 3-3 6 6"/>',
+        'ok' => '<rect x="3" y="3" width="18" height="18"/><path d="M7 12l4 4 6-8"/>',
+        'warn' => '<path d="M12 3 22 21H2zM12 10v5M12 18v.01"/>',
+        'err' => '<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8zM9 9l6 6M15 9l-6 6"/>',
+        'info' => '<rect x="3" y="3" width="18" height="18"/><path d="M12 11v6M12 7v.01"/>',
+    ];
+    return '<svg class="aico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . ($d[$id] ?? $d['info']) . '</svg>';
+}
+
+/** Dashboard "Needs a look": each item is [level ok|warn|err|info, text HTML, action HTML or '']. Every row says its level in words, not colour alone. */
+function admin_triage_render(array $items): void
+{
+    $words = ['err' => 'Problem', 'warn' => 'Check', 'info' => 'Note', 'ok' => 'Fine'];
+    $open = count(array_filter($items, fn($i) => $i[0] !== 'ok'));
+    echo '<section class="apanel" aria-labelledby="triage-h"><div class="aph"><h2 id="triage-h">Needs a look</h2><small>' . ($open ? $open . ' open' : 'nothing open') . '</small></div>';
+    if (!$items) { echo '<p class="atri-none">' . admin_icon('ok') . ' Nothing needs you right now.</p></section>'; return; }
+    echo '<ul class="atri">';
+    foreach ($items as [$lv, $html, $act]) {
+        echo '<li class="atri-' . e($lv) . '"><span class="ast ' . e($lv) . '">' . admin_icon($lv) . e($words[$lv] ?? 'Note') . '</span><span class="atri-msg">' . $html . '</span>' . ($act !== '' ? '<span class="atri-act">' . $act . '</span>' : '') . '</li>';
+    }
+    echo '</ul></section>';
+}
+
 /** Where is this page/editor in the menu? ['section id','section title','entry name'] or null. $key is 'images.php' or 'r:items'. */
 function admin_menu_find(string $key): ?array
 {
@@ -200,12 +238,12 @@ function admin_menu_render(): void
     echo '<div class="acols">';
     foreach (admin_menu_def() as [$sid, $sico, $stitle, $entries]) {
         $open = in_array($sid, ['players', 'system'], true) ? ' open' : '';
-        echo '<details class="asec"' . $open . ' id="sec-' . e($sid) . '" data-sec="' . e($sid) . '"><summary><span class="asec-ico" aria-hidden="true">' . $sico . '</span><b>' . e($stitle) . '</b><small>' . count($entries) . '</small></summary><div class="arows">';
+        echo '<details class="asec"' . $open . ' id="sec-' . e($sid) . '" data-sec="' . e($sid) . '"><summary><span class="asec-ico" aria-hidden="true">' . admin_icon($sid) . '</span><b>' . e($stitle) . '</b><small>' . count($entries) . '</small></summary><div class="arows">';
         foreach ($entries as [$key, $ico, $name, $sub, $ck]) {
             if ($name === null) $name = (string)($res[substr($key, 2)]['label'] ?? $key);
             [$btxt, $bcls] = $b[$ck] ?? ['', ''];
             $find = strtolower($name . ' ' . $sub . ' ' . $stitle);
-            echo '<a class="choice" href="' . e(admin_menu_url($key)) . '" data-find="' . e($find) . '"><span class="choice-ico" aria-hidden="true">' . $ico . '</span><span class="choice-body"><b class="choice-title">' . e($name) . '</b><small class="choice-sub">' . e($sub) . '</small></span>';
+            echo '<a class="choice" href="' . e(admin_menu_url($key)) . '" data-find="' . e($find) . '"><span class="choice-ico" aria-hidden="true">' . admin_icon($sid) . '</span><span class="choice-body"><b class="choice-title">' . e($name) . '</b><small class="choice-sub">' . e($sub) . '</small></span>';
             if ($btxt !== '') echo '<b class="choice-badge' . ($bcls !== '' ? ' ' . $bcls : '') . '">' . e($btxt) . '</b>';
             echo '</a>';
         }

@@ -103,3 +103,25 @@ body.admin .side .navtile .ntl { white-space: normal; overflow: visible; text-ov
 .codesrc, .codeview { display: block; width: 100%; max-width: none; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.45; tab-size: 4; white-space: pre; overflow: auto; }
 .codesrc { min-height: 60vh; resize: vertical; }
 .codeview { max-height: 70vh; }
+
+/* v2.8: "Stitched Toy, grown up" admin (mockup A). SVG icons, triage panel, status chips with icon and word. */
+svg.aico { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; stroke-linejoin: miter; vertical-align: middle; }
+.asec-ico, .choice-ico { display: inline-flex; align-items: center; justify-content: center; font-size: 0; color: var(--brand); }
+.apanel { background: var(--surface); border: 0; border-radius: 0; box-shadow: var(--frame); margin: 2px 4px 16px 2px; }
+.aph { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border-bottom: 2px dashed var(--line); }
+.aph h2 { margin: 0; font-size: 16px; font-weight: 800; }
+.aph small { margin-left: auto; color: var(--muted); font-size: 13px; }
+.atri { list-style: none; margin: 0; padding: 0; }
+.atri li { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 8px 12px; border-bottom: 2px dashed var(--line); }
+.atri li:last-child { border-bottom: 0; }
+.atri-msg { min-width: 0; font-size: 15px; }
+.atri-act { grid-column: 1 / -1; }
+.atri-act form { margin: 0; }
+.atri-none { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px; color: var(--muted); }
+@media (min-width: 721px) { .atri li { grid-template-columns: auto 1fr auto; } .atri-act { grid-column: auto; } }
+.ast { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 2px 8px 2px 6px; border: 2px solid currentColor; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.ast svg.aico { width: 16px; height: 16px; }
+.ast.err { color: var(--danger); background: var(--danger-soft); }
+.ast.warn { color: var(--accent-ink); background: var(--surface-2); }
+.ast.info { color: var(--info-ink); background: var(--info-soft); }
+.ast.ok { color: var(--brand); background: var(--brand-soft); }

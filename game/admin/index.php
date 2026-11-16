@@ -60,28 +60,23 @@ $newToday = (int)q_val('SELECT COUNT(*) FROM users WHERE created_at > ?', [gmdat
 
 page_header('Dashboard', true);
 ?>
-<?php if (setting('site_url') === ''): ?><div class="flash err">Set <b>site_url</b> in <a href="<?= e(url('admin/settings.php')) ?>">Game settings</a> (the game’s full web address) so password-reset emails have working links.</div><?php endif; ?>
 <h1>Dashboard</h1>
-<?php if (setting('maintenance_mode') === '1'): ?>
-  <div class="flash err">Maintenance mode is ON. Players can’t use the site. <a href="<?= e(url('admin/settings.php')) ?>">Change</a></div>
-<?php endif; ?>
-<?php foreach (upgrade_100_failed() as $stepName => [$stepLabel, $stepErr]): ?>
-  <div class="flash err">⚠️ Upgrade step <b><?= e($stepName) ?></b> failed (<?= e($stepLabel) ?>): <?= e((string)substr((string)strstr($stepErr, '|'), 1)) ?>
-    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="retry_step"><input type="hidden" name="step" value="<?= e($stepName) ?>"><button class="btn small">Retry</button></form></div>
-<?php endforeach; ?>
-<?php if (setting('boot_failed_steps') !== ''): ?>
-  <div class="flash err">⚠️ Some automatic upgrade steps failed (<?= e(setting('boot_failed_steps')) ?>). The game keeps running; see Admin → Tools → Error log for details, fix the cause, then re-upload the files to try again.</div>
-<?php endif; ?>
-<?php if (is_file(APP_ROOT . '/install.php')): ?>
-  <div class="flash err">Security: delete <code>install.php</code> from your server.</div>
-<?php endif; ?>
-
-<?php $errN = admin_error_count(); if ($errN): ?>
-  <div class="flash err">⚠️ The error log has <?= $errN ?> entr<?= $errN === 1 ? 'y' : 'ies' ?>. <a href="<?= e(url('admin/tools.php#errors')) ?>">Look</a></div>
-<?php endif;   // v2.6.37 ?>
-<?php $fbNew = (int)q_val("SELECT COUNT(*) FROM feedback WHERE status = 'new'"); if ($fbNew): ?>
-  <div class="flash ok">💬 <?= $fbNew ?> message<?= $fbNew === 1 ? '' : 's' ?> from players waiting for you. <a href="<?= e(url('admin/feedback.php')) ?>">Read and reply</a></div>
-<?php endif;   // v0.8.6; v2.6.37: messages ?>
+<?php
+$tri = [];
+if (setting('site_url') === '') $tri[] = ['warn', 'Set <b>site_url</b> so password-reset emails have working links.', '<a class="btn small" href="' . e(url('admin/settings.php')) . '">Game settings</a>'];
+if (setting('maintenance_mode') === '1') $tri[] = ['err', 'Maintenance mode is ON. Players can’t use the site.', '<a class="btn small" href="' . e(url('admin/settings.php')) . '">Change</a>'];
+foreach (upgrade_100_failed() as $stepName => [$stepLabel, $stepErr]) {
+    $tri[] = ['err', 'Upgrade step <b>' . e($stepName) . '</b> failed (' . e($stepLabel) . '): ' . e((string)substr((string)strstr($stepErr, '|'), 1)),
+        '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="retry_step"><input type="hidden" name="step" value="' . e($stepName) . '"><button class="btn small">Retry</button></form>'];   // v1.0.0
+}
+if (setting('boot_failed_steps') !== '') $tri[] = ['err', 'Some automatic upgrade steps failed (' . e(setting('boot_failed_steps')) . '). The game keeps running. Fix the cause, then re-upload the files to try again.', '<a class="btn small" href="' . e(url('admin/tools.php#errors')) . '">Error log</a>'];
+if (is_file(APP_ROOT . '/install.php')) $tri[] = ['err', 'Delete <code>install.php</code> from your server.', ''];
+$errN = admin_error_count();   // v2.6.37
+if ($errN) $tri[] = ['warn', 'The error log has ' . $errN . ' entr' . ($errN === 1 ? 'y' : 'ies') . '.', '<a class="btn small" href="' . e(url('admin/tools.php#errors')) . '">Look</a>'];
+$fbNew = (int)q_val("SELECT COUNT(*) FROM feedback WHERE status = 'new'");   // v0.8.6
+if ($fbNew) $tri[] = ['info', $fbNew . ' message' . ($fbNew === 1 ? '' : 's') . ' from players waiting for you.', '<a class="btn small" href="' . e(url('admin/feedback.php')) . '">Read and reply</a>'];
+admin_triage_render($tri);
+?>
 <?php admin_menu_render();   // v1.6.3: sections of .choice rows ?>
 <h2>At a glance</h2>
 <div class="stats">
