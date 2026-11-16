@@ -80,12 +80,12 @@ function pf_first_seed(): int
  * 2.7.01: the creature a learner meets. A new gnome's first fight is the Garden Snail; in the other learner fights (pfight_learner_n) nothing above the gnome's own level
  * (learn.md: a level 1 gnome met a level 3 Sand Flea Pack, 27% wins). Called where a road, a wild step or a Trail tile picks a random creature; bosses and fixed spots are left alone.
  */
-function pf_learner_creature(array $u, ?array $c, string $land, int $level): ?array
+function pf_learner_creature(array $u, ?array $c, string $land, int $level, string $region = ''): ?array
 {
     if (!$c || ($c['size'] ?? '') === 'boss' || !pfight_on($u) || !pfight_v1_on($u) || is_guest($u)) return $c;
     if (pf_first_due($u) && ($snail = q_one('SELECT * FROM creatures WHERE slug = ?', [PF_FIRST_CREATURE]))) return $snail;
     $cap = max(1, (int)$u['level']);
-    if (pf_learner_left((int)$u['id']) && (int)$c['level'] > $cap) return pick_creature($land, $level, false, false, $cap) ?? $c;
+    if (pf_learner_left((int)$u['id']) && (int)$c['level'] > $cap) return pick_creature($land, $level, false, false, $cap, $region) ?? $c;
     return $c;
 }
 

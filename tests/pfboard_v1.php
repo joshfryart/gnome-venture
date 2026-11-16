@@ -457,7 +457,7 @@ $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
 foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
 $s = json_decode(json_encode($s), true);
 $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
-chk('a 2.6.94 state with none of the new keys resolves every key to PRE (18 keys: nothorn added in 2.7.01, abil and style for the creature pass)', !$bad16 && count(PFB_V1_PRE) === 17, $bad16);
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE (18 keys: nothorn added in 2.7.01, abil and style for the creature pass)', !$bad16 && count(PFB_V1_PRE) === 18, $bad16);
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;

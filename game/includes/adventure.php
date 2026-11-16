@@ -345,11 +345,11 @@ function encounter_creature(array $enc): ?array
 }
 
 /** 2.7.01: the creature a puzzle-combat learner meets (pf_learner_creature: the fixed first fight, then nothing above the gnome's level); anyone else keeps the pick. */
-function learner_creature(array $u, ?array $c, string $land, int $level): ?array
+function learner_creature(array $u, ?array $c, string $land, int $level, string $region = ''): ?array
 {
     if (!$c) return $c;
     require_once __DIR__ . '/pfight_game.php';
-    return pf_learner_creature($u, $c, $land, $level);
+    return pf_learner_creature($u, $c, $land, $level, $region);
 }
 
 /** 2.7.01: the region code (NA, CA, NWE ...) of a scene, '' when it has none: what pick_creature filters the variants by. */
@@ -488,7 +488,7 @@ function next_step(array $u, array &$exp): void
     $cap = exp_easy_cap($u, $exp);   // v0.9.7
     $rb = road_roll_bands();   // v2.0.16: the split is a setting (defaults 40 / 22 / 14 / 24)
     $rr = $roll * $rb['total'];
-    if ($rr <= $rb['creature'] * 100 && ($c = learner_creature($u, pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap, scene_region_code($scene)), $scene['land'], (int)$scene['level']))) {   // 2.7.01: a learner's creature
+    if ($rr <= $rb['creature'] * 100 && ($c = learner_creature($u, pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap, scene_region_code($scene)), $scene['land'], (int)$scene['level'], scene_region_code($scene)))) {   // 2.7.01: a learner's creature
         $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
             'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
         exp_log($exp, '⚔️ ' . (preg_match('/^[AEIOU]/i', $c['name']) ? 'An ' : 'A ') . $c['name'] . ' blocks your way!');
