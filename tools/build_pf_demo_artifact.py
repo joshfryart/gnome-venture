@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Builds the three pages of the demo ARTIFACT (https://claude.ai/artifact/SCVTp8FLRTbibtA7vNWC2S) into one folder:
+"""Builds the three pages of the demo ARTIFACT (https://claude.ai/artifact/KLYTtavrpBhpTNje2E1kfe, 2026-11-16, built at PFDEMO_GAME_REF=df0577d5 = 2.7.00 + the committed 2.7.01 learner rules; the old one, SCVTp8FLRTbibtA7vNWC2S, was not updated) into one folder:
   index.html  the playable demo at the current rules (tools/build_pf_demo_v1.py, game files from PFDEMO_GAME_REF, default HEAD) + notes (tools/pfdemo_v1/notes.html)
   rules.html  the quick rules (claude/reviews-2026-11-13/rulebook/puzzle-combat-quick-rules.html, built by its build_short.py) as a screen page
-  old.html    the 2.6.78 demo, taken as it is from OLD_HTML (the current tools cannot build it any more: read it from the published artifact, path index.html before
-              2026-11-15, old.html after); only its tab row is replaced
+  old.html    the 2.6.78 demo, taken as it is from OLD_HTML (the current tools cannot build it any more: read it from a published artifact: SCVTp8FLRTbibtA7vNWC2S index.html,
+              or old.html of the new one); only its tab row is replaced
 Each page gets the same tab row (tools/pfdemo_v1/tabs.css).
 Usage: PFDEMO_GAME_REF=HEAD python3 tools/build_pf_demo_artifact.py OUT_DIR OLD_HTML      then publish OUT_DIR/index.html with files rules.html and old.html"""
 import os, re, subprocess, sys
