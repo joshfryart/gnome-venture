@@ -1,4 +1,8 @@
--- Wing Jot (pl-jdf-1), yard sprite 64x64. Opus second pass (c14/opus2), built on c14/haiku.
+-- Wing Jot (pl-jdf-1), yard sprite 64x64. Opus third pass (c14/opus3, richness), built on c14/opus2.
+-- opus3 fixes the crackle-glass read: a thick dark costa with a lit glass edge under it, long veins
+-- (two long veins) running parallel from root to tip and converging there, regular ladder cross-veins between them (tighter in
+-- the costal field), a pale membrane margin, a faint rainbow sheen streak, a nodus notch and a dark-rimmed
+-- amber pterostigma.
 -- Thornblade, common, Lair of the Jade Dragon-fly. "A jade flake that falls off a wing and hums while it drifts."
 -- Haiku drew a faceted blue gem (it read as a crystal). Now it is a real piece of dragonfly wing in jade glass:
 -- a long rounded wing tip tilted as it drifts, a dark leading-edge vein along the top, cross-veins making the
@@ -7,7 +11,7 @@
 -- quirk: it hums as it drifts: sound rings ripple off the tip and a dotted drift trail curls behind it.
 -- closer look: the pterostigma, the small dark amber cell near the tip on the leading edge, like on a real wing.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local O = dofile(dir .. "/_opus.lua")
+local O = dofile(dir .. "/_c14.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("pl-jdf-1-yard", 64)
@@ -27,44 +31,56 @@ local ANG = math.atan(DY, DX)
 
 c:groundShadow(31, 57, 11, 2)
 local I, T = O.shade(c, wing, JADE, { R = 6, amb = .42, wrap = .55, bounce = "#5a7ab0", bmax = 3 })
--- the face sits in one big clear central cell
-local function fd(x, y) return ((x - 31.5) / 10.5) ^ 2 + ((y - 34) / 7.5) ^ 2 end
--- membrane: amber tint at the root, a pale clear band along the trailing edge, a glassy glint streak
-O.tex(c, I, T, JADE, function(x, y, i)
-  if fd(x, y) < 1.1 then return 0 end
-  local u = (x - 9) * DX + (y - 43) * DY
-  if not wing:has(x + 1, y + 2) and i <= 4 and u > 8 then return 1 end
-  if math.abs((x - 9) * -DY + (y - 43) * DX + 1 - (u - 30) * .05) < .8 and u > 34 and u < 46 then return 2 end
+-- opus3 venation: everything is laid out in wing coordinates (u along the leading edge, f = 0 at the costa,
+-- 1 at the trailing edge), so the long veins run parallel root -> tip and converge at the tip, and the
+-- cross-veins are short regular ladder rungs between them. That reads as a wing, not as crackle glass.
+local NX, NY = -DY, DX -- perpendicular, pointing down-right into the wing
+local function UV(x, y) return (x - 9) * DX + (y - 37) * DY, (x - 9) * NX + (y - 37) * NY end
+local vmin, vmax = {}, {}
+wing:each(function(x, y) local u, v = UV(x, y) local b = floor(u + .5)
+  vmin[b] = math.min(vmin[b] or 99, v) vmax[b] = math.max(vmax[b] or -99, v) end)
+local function F(x, y) local u, v = UV(x, y) local b = floor(u + .5)
+  local w = math.max(1, (vmax[b] or v) - (vmin[b] or v)) return u, (v - (vmin[b] or v)) / w, w, v - (vmin[b] or v) end
+local function fd(x, y) return ((x - 31.5) / 10.5) ^ 2 + ((y - 34) / 7.5) ^ 2 end -- the face's clear cell
+local LONG = { .25, .5, .75 }
+local long, rung, costa, costaLit, edge, sheen = {}, {}, {}, {}, {}, {}
+-- membrane: clean two-tone glass (lit costal half, cel shade toward the trailing edge, lower right)
+local memL, memD = {}, {}
+wing:each(function(x, y) local u, f = F(x, y) if f < .5 + (u - 30) * .006 then memL[#memL+1] = { x, y } else memD[#memD+1] = { x, y } end end)
+O.mark(c, memL, JADE[6]) O.mark(c, memD, JADE[5])
+wing:each(function(x, y)
+  local u, f, w, dv = F(x, y)
+  if dv < 1.3 and u > 2 then costa[#costa+1] = { x, y } return end
+  if dv < 2.3 and u > 2 then costaLit[#costaLit+1] = { x, y } return end
+  if fd(x, y) < 1.15 then return end
+  if f > .93 and u > 6 then edge[#edge+1] = { x, y } return end
+  for li, lf in ipairs(LONG) do
+    if math.abs(f - lf) * w < .55 then long[#long+1] = { x, y } return end
+  end
+  -- ladder rungs: closer in the costal field, wider and staggered further back
+  local band = f < LONG[1] and 1 or f < LONG[2] and 2 or f < LONG[3] and 3 or 4
+  local sp = ({ 3, 4, 4, 5 })[band]
+  local off = ({ 0, 2, 0, 2.5 })[band]
+  if ((u + off) % sp) < .9 and u > 3 then rung[#rung+1] = { x, y } end
+  -- iridescent sheen: a soft diagonal streak across the outer half
+  local sd = (x - 44) + (y - 24) * 1.4
+  if sd > -1 and sd < 1.6 and y >= 22 and y <= 27 and f > .3 then sheen[#sheen+1] = { x, y } end
 end)
--- veins: costa along the leading edge, three long veins root -> tip, cross-veins between them
-local function bez(p, t) return O.bez(p, t) end
-local LV = { { { 11, 40 }, { 24, 31 }, { 40, 22 }, { 56, 15 } }, { { 11, 44 }, { 26, 37 }, { 42, 28 }, { 57, 19 } },
-             { { 13, 47 }, { 28, 44 }, { 44, 36 }, { 55, 25 } } }
-local vpx = {}
-for li, p in ipairs(LV) do
-  for k = 0, 80 do local x, y = bez(p, k / 80) vpx[#vpx+1] = { floor(x + .5), floor(y + .5) } end
-  if li < 3 then
-    for k = 1, 9 do
-      local t = k / 10 + (li == 2 and .05 or 0)
-      local x1, y1 = bez(p, t) local x2, y2 = bez(LV[li + 1], t + .02)
-      for s = 0, 6 do local q = s / 6 vpx[#vpx+1] = { floor(x1 + (x2 - x1) * q + .5), floor(y1 + (y2 - y1) * q + .5) } end
-    end
-  end
-end
-for _, q in ipairs(vpx) do
-  if wing:has(q[1], q[2]) and fd(q[1], q[2]) >= 1 then
-    O.mark(c, { q }, fd(q[1], q[2]) < 1.35 and JADE[3] or JADE[2])
-  end
-end
--- face cell ring
-wing:each(function(x, y) local d = fd(x, y) if d >= 1 and d < 1.22 then O.mark(c, { { x, y } }, JADE[3]) end end)
--- costa: the dark leading-edge vein
-local cst = {}
-wing:each(function(x, y) if wing:has(x, y - 1) and not wing:has(x, y - 2) and (x - 9) * DX + (y - 43) * DY > 3 then cst[#cst+1] = { x, y } end end)
-for _, q in ipairs(cst) do O.mark(c, { q }, VEIN) end
--- pterostigma: a small amber cell just behind the leading edge near the tip
-O.mark(c, { { 48, 18 }, { 49, 17 }, { 50, 17 }, { 51, 16 } }, STIG[2]) O.mark(c, { { 49, 18 }, { 50, 18 }, { 51, 17 } }, STIG[3])
-O.dots(c, { { 21, 31 }, { 22, 30 } }, JADE[6]) -- glint on the glass
+O.mark(c, rung, JADE[3])
+O.mark(c, long, JADE[2])
+O.mark(c, costa, VEIN)
+O.mark(c, costaLit, JADE[6])
+O.mark(c, edge, JADE[4])
+for i, q in ipairs(sheen) do O.mark(c, { q }, i % 2 == 0 and "#f0dcec" or "#f6eecc") end -- a hint of rainbow on the glass
+-- the face's clear cell: brighter glass, ringed by a vein
+wing:each(function(x, y) local d = fd(x, y)
+  if d < 1 then O.mark(c, { { x, y } }, (x - 31.5) + (y - 34) * 1.3 < 2 and JADE[6] or JADE[5]) elseif d < 1.15 then O.mark(c, { { x, y } }, JADE[2]) end end)
+-- nodus: the little kink in the costa halfway along (a lit notch)
+O.mark(c, { { 31, 24 }, { 32, 24 } }, JADE[5])
+-- pterostigma: a dark-rimmed amber cell between the costa and the first vein near the tip
+O.mark(c, { { 47, 19 }, { 48, 18 }, { 49, 18 }, { 50, 17 }, { 51, 17 }, { 52, 16 } }, STIG[1])
+O.mark(c, { { 48, 19 }, { 49, 19 }, { 50, 18 }, { 51, 18 } }, STIG[3]) O.mark(c, { { 52, 17 } }, STIG[2])
+O.dots(c, { { 20, 33 }, { 21, 32 } }, JADE[6]) -- glint on the glass
 
 c:eyeLocked(25, 30)
 c:eyeLocked(34, 29)

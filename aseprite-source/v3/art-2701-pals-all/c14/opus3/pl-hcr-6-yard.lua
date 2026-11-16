@@ -1,4 +1,7 @@
--- Gale Islander (pl-hcr-6), yard sprite 64x64. Opus second pass (c14/opus2), built on c14/haiku.
+-- Gale Islander (pl-hcr-6), yard sprite 64x64. Opus third pass (c14/opus3, richness), built on c14/opus2.
+-- opus3: dark-tipped claws with tubercles, pebbled shell bumps, rim light on claws and legs, a seam line under
+-- the shell edge, a grass tuft on the dune, and a tiny message bottle washed up on the beach (closer look,
+-- wayfinder).
 -- Wayfinder, rare, Lair of the Hurricane Crab. "A pocket crab with a whole tiny island on its back, palm trees and all."
 -- Haiku drew a red crab wearing a gold-and-green hat with two stick palms. Now a coral pocket crab (wide
 -- carapace, two raised claws, three legs a side) carrying a real sand island: a domed mound with wet sand and a
@@ -7,7 +10,7 @@
 -- quirk: the island's palms are mid-gale: everything blows to the right and the crab braces under it.
 -- closer look: a tiny starfish washed up on the island's beach.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local O = dofile(dir .. "/_opus.lua")
+local O = dofile(dir .. "/_c14.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("pl-hcr-6-yard", 64)
@@ -26,7 +29,7 @@ c:groundShadow(32, 58, 20, 2.5)
 for _, L in ipairs({ { { 22, 48 }, { 17, 50 }, { 14, 53 }, { 13, 57 } }, { { 25, 50 }, { 21, 53 }, { 19, 55 }, { 19, 58 } }, { { 28, 51 }, { 26, 54 }, { 25, 56 }, { 25, 58 } },
                      { { 42, 48 }, { 47, 50 }, { 50, 53 }, { 51, 57 } }, { { 39, 50 }, { 43, 53 }, { 45, 55 }, { 45, 58 } }, { { 36, 51 }, { 38, 54 }, { 39, 56 }, { 39, 58 } } }) do
   local m, n, T = O.tube(L, function(t) return 1.5 - .5 * t end)
-  local I, Tk = O.shadeN(c, m, n, CRAB, { amb = .3, wrap = .4, sep = CRAB[1], bounce = "#7a5a8a", bmax = 2 })
+  local I, Tk = O.shadeN(c, m, n, CRAB, { amb = .3, wrap = .4, sep = CRAB[1], rim = true, bounce = "#7a5a8a", bmax = 2 })
   O.tex(c, I, Tk, CRAB, function(x, y, i) local t = T[K(x, y)] if t and math.abs(t - .45) < .05 then return -2 end end) -- knee joint
 end
 
@@ -36,7 +39,10 @@ for _, d in ipairs({ -1, 1 }) do
   O.shadeN(c, arm, an, CRAB, { amb = .3, wrap = .4, sep = CRAB[1] })
   local cl = c:ellipse(32 + d * 21, 35, 4, 4)
   cl:cut(c:poly{ { 32 + d * 21, 34 }, { 32 + d * 20, 29 }, { 32 + d * 23, 29 } }) -- pincer gap at the top
-  O.shade(c, cl, CRAB, { sphere = { 32 + d * 21 - 2, 33, 6 }, amb = .3, wrap = .45, rim = true, sep = CRAB[1] })
+  local cI, cT = O.shade(c, cl, CRAB, { sphere = { 32 + d * 21 - 2, 33, 6 }, amb = .3, wrap = .45, rim = true, bounce = "#7a5a8a", bmax = 2, sep = CRAB[1] })
+  -- dark claw tips on the two fingers, a tubercle on the palm
+  O.tex(c, cI, cT, CRAB, function(x, y, i) if y <= 32 then return -(i - 1) elseif y == 33 then return -2 end end)
+  O.bump(c, 32 + d * 21 - 1, 35, CRAB, 2)
 end
 
 -- carapace
@@ -44,6 +50,9 @@ local body = c:ellipse(32, 45, 14, 7.5)
 local bI, bT = O.shade(c, body, CRAB, { sphere = { 28, 40, 16 }, amb = .3, wrap = .45, rim = true, bounce = "#7a5a8a", bmax = 2 })
 O.tex(c, bI, bT, CRAB, function(x, y, i) if y > 47 and H(x, y, 5) > .85 then return 1 end end) -- pebbly lower shell
 O.mark(c, { { 19, 44 }, { 45, 44 } }, CRAB[2]) -- carapace side notches
+for _, b in ipairs({ { 21, 40 }, { 43, 40 }, { 19, 46 }, { 44, 47 }, { 27, 51 }, { 37, 51 } }) do O.bump(c, b[1], b[2], CRAB, 2) end
+-- seam under the shell edge, lower right (cel shade)
+c:ellipse(32, 45, 12.6, 6.2):edge():each(function(x, y) if y > 48 and x > 34 then O.nudge(c, { { x, y } }, -1, CRAB) end end)
 
 -- the island: sand mound with a ring of sea lapping its edge (sits on the back of the shell)
 local sea = c:ellipse(32, 36, 13, 2.5)
@@ -56,6 +65,11 @@ mound:each(function(x, y) if y == 35 then O.mark(c, { { x, y } }, SAND[2]) end e
 O.tex(c, mI, mT, SAND, function(x, y, i) if H(x, y, 9) > .88 then return -1 end end) -- grains
 -- tiny starfish on the beach
 O.dots(c, { { 39, 33 }, { 38, 34 }, { 40, 34 }, { 39, 34 }, { 39, 32 } }, "#f07a6a") O.dot(c, 39, 33, "#fcb090")
+-- message bottle washed up on the left beach (closer look): green glass, cork, rolled note inside
+O.rows(c, 22, 34, { "cggG" }, { c = "#b07e50", g = "#5ab08a", G = "#2e7a62" }, "bottle")
+O.dots(c, { { 24, 34 } }, "#f8f0d8")
+-- grass tuft on the dune crest, blown right
+O.dots(c, { { 31, 28 }, { 32, 27 }, { 33, 28 }, { 34, 27 } }, FRND[4])
 
 -- palms: ringed trunks bending right in the wind
 local crowns = {}

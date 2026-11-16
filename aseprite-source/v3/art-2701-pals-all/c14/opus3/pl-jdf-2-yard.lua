@@ -1,4 +1,7 @@
--- Reedleg Cling (pl-jdf-2), yard sprite 64x64. Opus second pass (c14/opus2), built on c14/haiku.
+-- Reedleg Cling (pl-jdf-2), yard sprite 64x64. Opus third pass (c14/opus3, richness), built on c14/opus2.
+-- opus3: pond-camouflage mottling on head, thorax and abdomen, little side spines on each abdomen segment,
+-- veined wing pads, fibre streaks along the reeds, a ragged leaf blade on the left reed, and water ripples
+-- where the reeds stand in the pond (closer look: the nymph is still a water creature).
 -- Seedkeeper, common, Lair of the Jade Dragon-fly. "Holds onto the reeds with six tiny legs and will not let go."
 -- Haiku drew a brown egg with stick legs between two green poles. It is now a jade dragonfly nymph (the young
 -- dragonfly, before it has wings): a broad head with big bulging eyes, a thorax with two little wing pads, a
@@ -8,7 +11,7 @@
 -- effort sweat on its brow.
 -- closer look: a dewdrop sliding down the left reed.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local O = dofile(dir .. "/_opus.lua")
+local O = dofile(dir .. "/_c14.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("pl-jdf-2-yard", 64)
@@ -24,11 +27,18 @@ c:groundShadow(32, 58, 22, 2)
 -- the two reeds, bowed in toward the nymph
 local reeds = {}
 for _, R in ipairs({ { { 15, 58 }, { 17, 40 }, { 15, 22 }, { 9, 6 } }, { { 49, 58 }, { 47, 40 }, { 49, 24 }, { 53, 12 } } }) do
-  local m, n, T = O.tube(R, function(t) return 2.3 - .6 * t end)
+  local m, n, T, S = O.tube(R, function(t) return 2.3 - .6 * t end)
   local I, Tk = O.shadeN(c, m, n, REED, { amb = .32, wrap = .45, rim = true, bounce = "#7a6a90", bmax = 2, sep = REED[1] })
-  O.tex(c, I, Tk, REED, function(x, y, i) local t = T[K(x, y)] if t and (t * 6) % 1 < .06 then return -2 end end) -- reed nodes
+  O.tex(c, I, Tk, REED, function(x, y, i) local t = T[K(x, y)] if t and (t * 6) % 1 < .06 then return -2 end
+    local sv = S[K(x, y)] if sv and math.abs(sv - .35) < .2 and (t * 40) % 1 < .6 then return -1 end end) -- nodes, fibres
   reeds[#reeds+1] = m
 end
+-- a ragged leaf blade peeling off the left reed, blown out to the left
+local SAGE = { "#2e3a22", "#4a5a2e", "#6e7e3a", "#98a24e", "#c4c070", "#e4dc9c" }
+local lb, ln, lT, lS = O.tube({ { 15, 41 }, { 8, 34 }, { 4, 25 }, { 3, 30 } }, function(t) return 1.5 * (1 - t) ^ .6 + .3 end)
+local lI, lTk = O.shadeN(c, lb, ln, SAGE, { amb = .3, wrap = .45, rim = true, sep = SAGE[1] })
+O.tex(c, lI, lTk, SAGE, function(x, y, i) local sv = lS[K(x, y)] if sv and math.abs(sv) < .25 then return 1 end
+  local t = lT[K(x, y)] if t and t > .85 then return -1 end end) -- midrib, browned tip
 -- cattail head on the right reed
 local cat = c:rrect(50, 9, 55, 20, 2)
 local cI, cT = O.shade(c, cat, CAT, { R = 2, amb = .35, wrap = .45, sep = CAT[1], cuts = { .25, .45, .65, .85 } })
@@ -53,14 +63,25 @@ abd:add(c:poly{ { 29, 52 }, { 35, 52 }, { 32, 57 } })
 local aI, aT = O.shade(c, abd, NYM, { sphere = { 30, 43, 11 }, amb = .3, wrap = .45, rim = true, bounce = "#5a6a9a", bmax = 2, sep = NYM[1] })
 O.tex(c, aI, aT, NYM, function(x, y, i) if (y - 40) % 3 == 0 and y > 40 then return -2 end if (y - 40) % 3 == 1 and y > 40 and i >= 3 then return 1 end end)
 O.dots(c, { { 30, 57 }, { 29, 58 }, { 34, 57 }, { 35, 58 }, { 32, 58 }, { 32, 59 } }, NYM[2]) -- tail spikes
+-- side spines: one small point at the edge of each abdomen segment
+for y = 42, 51, 3 do
+  local x0, x1 = 99, -1
+  abd:each(function(x, yy) if yy == y then x0 = math.min(x0, x) x1 = math.max(x1, x) end end)
+  if x1 >= 0 then O.dot(c, x0 - 1, y, NYM[3]) O.dot(c, x1 + 1, y, NYM[2]) end
+end
+-- pond camouflage mottling
+O.tex(c, aI, aT, NYM, function(x, y, i) if H(x, y, 11) > .87 and i >= 3 then return -1 end end)
 -- thorax with two wing pads
 local thx = c:ellipse(32, 36, 7, 5.5)
 local tI, tT = O.shade(c, thx, NYM, { sphere = { 29, 33, 9 }, amb = .32, wrap = .45, rim = true, sep = NYM[1] })
+O.tex(c, tI, tT, NYM, function(x, y, i) if H(x, y, 13) > .86 and i >= 3 then return -1 end end)
 O.shade(c, c:poly{ { 28, 36 }, { 31, 35 }, { 31, 43 }, { 29, 42 } }, NYM, { R = 1, amb = .45, wrap = .5, sep = NYM[1] })
 O.shade(c, c:poly{ { 33, 35 }, { 36, 36 }, { 35, 42 }, { 33, 43 } }, NYM, { R = 1, amb = .45, wrap = .5, sep = NYM[1] })
+O.mark(c, { { 30, 37 }, { 30, 38 }, { 30, 39 }, { 30, 40 }, { 34, 37 }, { 34, 38 }, { 34, 39 }, { 34, 40 } }, NYM[3]) -- wing-pad veins
 -- head: broad, with the bulging eyes on top
 local head = c:ellipse(32, 25, 10, 7)
 local hI, hT = O.shade(c, head, NYM, { sphere = { 28, 20, 13 }, amb = .32, wrap = .45, rim = true, bounce = "#5a6a9a", bmax = 2, sep = NYM[1] })
+O.tex(c, hI, hT, NYM, function(x, y, i) if H(x, y, 17) > .88 and i >= 3 and y > 24 then return -1 end end)
 for _, e in ipairs({ { 25, 19 }, { 39, 19 } }) do
   O.shade(c, c:ellipse(e[1], e[2], 4, 3.5), NYM, { sphere = { e[1] - 2, e[2] - 2, 6 }, amb = .4, wrap = .5, sep = NYM[1] })
 end
@@ -79,4 +100,7 @@ O.dot(c, 15, 50, DEW[1]) O.dot(c, 15, 49, DEW[2]) O.dot(c, 14, 49, DEW[3])
 O.done(c, "pl-jdf-2-yard", function(c)
   O.dots(c, { { 43, 14 }, { 43, 15 }, { 44, 15 }, { 42, 16 }, { 43, 16 }, { 44, 16 }, { 43, 17 } }, DEW[2]) -- bead of effort sweat
   O.dot(c, 42, 15, DEW[3]) O.dot(c, 44, 17, DEW[1])
+  -- pond ripples round the reed feet
+  O.dots(c, { { 10, 60 }, { 11, 61 }, { 12, 61 }, { 13, 61 }, { 18, 61 }, { 19, 61 }, { 20, 60 } }, DEW[2])
+  O.dots(c, { { 44, 60 }, { 45, 61 }, { 46, 61 }, { 52, 61 }, { 53, 61 }, { 54, 60 } }, DEW[2])
 end)

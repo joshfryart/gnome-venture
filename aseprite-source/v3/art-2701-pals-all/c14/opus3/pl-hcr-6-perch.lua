@@ -1,9 +1,10 @@
--- Gale Islander (pl-hcr-6), perch sprite 36x36. Opus second pass (c14/opus2), hand-built at this size.
+-- Gale Islander (pl-hcr-6), perch sprite 36x36. Opus third pass (c14/opus3), hand-built at this size.
+-- opus3: claws moved out and up with air between them and the shell, dark claw tips, foam flecks, a grass tuft.
 -- Coral pocket crab with raised claws and three legs a side, a sand island with a foam ring on its back and
 -- one big wind-bent palm (ringed trunk, fronds streaming right, coconuts); 2x3 pill eyes on the shell front.
 -- quirk: the palm blowing over in the gale.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local O = dofile(dir .. "/_opus.lua")
+local O = dofile(dir .. "/_c14.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("pl-hcr-6-perch", 36)
 
@@ -21,18 +22,21 @@ for _, L in ipairs({ { { 12, 27 }, { 9, 28 }, { 7, 30 }, { 7, 32 } }, { { 14, 28
   O.shadeN(c, m, n, CRAB, { amb = .35, wrap = .4, sep = CRAB[1] })
 end
 for _, d in ipairs({ -1, 1 }) do
-  local arm, an = O.tube({ { 18 + d * 7, 26 }, { 18 + d * 9.5, 26 }, { 18 + d * 11, 24.5 }, { 18 + d * 11, 22.5 } }, function() return 1.1 end)
+  local arm, an = O.tube({ { 18 + d * 7, 26 }, { 18 + d * 10.5, 26.5 }, { 18 + d * 12.5, 24.5 }, { 18 + d * 12.5, 21.5 } }, function() return 1.1 end)
   O.shadeN(c, arm, an, CRAB, { amb = .35, wrap = .4, sep = CRAB[1] })
-  local cl = c:ellipse(18 + d * 11, 20.5, 2.3, 2.3)
-  cl:cut(c:poly{ { 18 + d * 11, 20 }, { 18 + d * 10, 17.5 }, { 18 + d * 12.3, 17.5 } })
-  O.shade(c, cl, CRAB, { sphere = { 18 + d * 11 - 1, 19, 4 }, amb = .35, wrap = .45, sep = CRAB[1] })
+  local cl = c:ellipse(18 + d * 12.5, 19.5, 2.4, 2.4)
+  cl:cut(c:poly{ { 18 + d * 12.5, 19 }, { 18 + d * 11.5, 16.5 }, { 18 + d * 13.8, 16.5 } })
+  local cI, cT = O.shade(c, cl, CRAB, { sphere = { 18 + d * 12.5 - 1, 18, 4 }, amb = .35, wrap = .45, rim = true, sep = CRAB[1] })
+  O.tex(c, cI, cT, CRAB, function(x, y, i) if y <= 17 then return -(i - 2) end end)
 end
 local body = c:ellipse(18, 25, 8.5, 4.8)
 O.shade(c, body, CRAB, { sphere = { 15, 22, 10 }, amb = .32, wrap = .45, rim = true, bounce = "#7a5a8a", bmax = 2 })
 local sea = c:ellipse(18, 20, 7.5, 1.6)
 O.shade(c, sea, SEA, { R = 1, amb = .4, wrap = .5, cuts = { .25, .45, .65, .85 }, sep = CRAB[1] })
+O.mark(c, { { 12, 20 }, { 15, 21 }, { 22, 21 }, { 25, 20 } }, SEA[5])
 local mound = c:ellipse(18, 19, 6, 3.5) mound:cut(c:rect(0, 20, 35, 35))
 O.shade(c, mound, SAND, { sphere = { 16, 16, 7 }, amb = .35, wrap = .5, rim = true })
+O.dots(c, { { 21, 16 }, { 22, 15 }, { 23, 16 } }, FRND[4])
 local tm, tn, tT = O.tube({ { 16, 19 }, { 15, 14 }, { 17, 10 }, { 20, 8 } }, function(t) return 1.2 - .3 * t end)
 local tI, tTk = O.shadeN(c, tm, tn, BARK, { amb = .35, wrap = .45, sep = BARK[1], cuts = { .25, .45, .65, .85 } })
 O.tex(c, tI, tTk, BARK, function(x, y, i) local t = tT[K(x, y)] if t and (t * 6) % 1 < .2 then return -1 end end)
