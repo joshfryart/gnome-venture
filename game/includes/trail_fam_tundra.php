@@ -35,7 +35,7 @@ function trail_fam_tundra(array $ctx): string
     $lvl = (int)ceil($a['bright'] * 4);   // 1..4 brightness step for the CSS
     $h = '<section class="tftundra ' . ($a['on'] ? 'tft-on tft-b' . $lvl : 'tft-off') . '" aria-label="Aurora overlay">'
         . ($a['on'] ? '<div class="tft-sky" aria-hidden="true"><i></i><i></i><i></i></div>' : '')
-        . '<p class="tft-h"><span aria-hidden="true">🌌</span> <b>' . e($a['text']) . '</b> <span class="tft-moon" title="The aurora is brightest near the new moon">' . e($ph['icon']) . ' ' . e($ph['name']) . ' · day ' . ((int)$ph['age'] + 1) . ' of ' . MOON_DAYS . '</span></p>';
+        . '<div class="tft-h"><span aria-hidden="true">🌌</span> <b>' . e($a['text']) . '</b> ' . moon_pill((string)$ph['icon'], (string)$ph['name'], 'Day ' . ((int)$ph['age'] + 1) . ' of ' . MOON_DAYS . '. The aurora is brightest near the new moon.') . '</div>';
     $tl = (int)(($now['tl'] ?? [])['hut-warmth'] ?? 0);
     $huts = '';
     $nh = 0;

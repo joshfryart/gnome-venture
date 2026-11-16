@@ -53,5 +53,5 @@ function trail_fam_delve(array $ctx): string
     }
     usort($chips, fn($a, $b) => [$b['now'], $b['near']] <=> [$a['now'], $a['near']]);
     foreach (array_slice($chips, 0, 2) as $c) $h .= '<p class="tfd-chip' . ($c['now'] ? ' now' : '') . '"><span aria-hidden="true">🧑‍🔧</span> ' . e($c['text']) . '</p>';
-    return $h . '</section>';
+    return moon_pill_section($h . '</section>', (string)$mo['icon'], 'Torch bar · ' . $mo['name']);
 }

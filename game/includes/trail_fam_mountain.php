@@ -67,7 +67,7 @@ function trail_fam_mountain(array $ctx): string
     $hasWall = (bool)array_filter($marks, fn($m) => $m['slug'] === TRAIL_FAM_MOUNTAIN_WALL);
     $rep = trail_fam_mountain_replies($marks);
     $h = '<section class="tfmountain tfm-a' . $alt['lvl'] . ($alt['mist'] ? ' tfm-mist' : '') . '" aria-label="Echo chain">'
-        . '<p class="tfm-h"><span aria-hidden="true">🏔️</span> <b>' . e($alt['text']) . '</b> <span class="tfm-moon" title="The moon and the echo">' . e($moon['icon']) . ' ' . e($moon['name']) . '</span></p>'
+        . '<div class="tfm-h"><span aria-hidden="true">🏔️</span> <b>' . e($alt['text']) . '</b> ' . moon_pill((string)$moon['icon'], (string)$moon['name'], 'A new or full moon makes the echo clearest: a second pebble may fall.') . '</div>'
         . trail_fam_mountain_svg($rep, $hasWall, $moon);
     if ($hasWall) {
         $tl = (int)(($now['tl'] ?? [])['echo-cheeks'] ?? 0);

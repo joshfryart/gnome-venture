@@ -8326,3 +8326,11 @@ details.sgq summary{cursor:pointer}
 .tfd-ring.tfd-r5{--tfd-r:5}
 .tfd-ring.tfd-r6{--tfd-r:6}
 .tfd-ring.tfd-r7{--tfd-r:7}
+
+/* Moon pills: every moon-related strip is a collapsed <details> pill */
+.moonpill{margin:4px 0}
+.moonpill>summary{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:2px 12px;border:1px solid var(--line,#b98f5e);border-radius:999px;font-size:.8rem;cursor:pointer;list-style:none;background:rgba(0,0,0,.08)}
+.moonpill>summary::-webkit-details-marker{display:none}
+.moonpill>summary::after{content:"▾";opacity:.7}
+.moonpill[open]>summary::after{content:"▴"}
+.moonpill-body{margin-top:6px}
