@@ -286,6 +286,7 @@ function hub_street_pill_layout(array $hotspots, array $L): array
             if ($at === null) {   // last resort: shorten with an ellipsis on the last row
                 $cy = $rows[2] ?? end($rows);
                 $t = $text;
+                $cx = max(intdiv($w, 2) + 2, min($W - intdiv($w, 2) - 2, $bcx));   // start from the shop's own spot, not the last slide try
                 while (mb_strlen($t) > 6) {
                     $t = rtrim(mb_substr($t, 0, mb_strlen($t) - 2)) . '…';
                     $w = (int)ceil(hub_text_units($t) * 5.6) + 30;
