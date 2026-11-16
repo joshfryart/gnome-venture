@@ -1,4 +1,6 @@
--- Canyon Crown (dw-canyon-crown), perch sprite 36x36. Opus second pass, hand-built at this size.
+-- Canyon Crown (dw-canyon-crown), perch sprite 36x36. Opus richness pass (c03/opus3), hand-built at this size.
+-- Richness pass: a pale salmon and a rust layer across the crown, lit ledge lips, two varnish streaks, a shaded
+-- inner arch wall, curved strata and a crack on the boulder (kept off the face).
 -- Sandstone boulder with pill eyes and a smile; rose-red cliff-band crown with a mesa, a butte with a clear
 -- 3x4 arch hole and a spire, thick enough to hold at 36 px. quirk: the tiny cactus on the mesa.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
@@ -15,7 +17,13 @@ c:groundShadow(18, 32, 11, 1.5)
 for _, fx in ipairs({ 13, 23 }) do O.shade(c, c:ellipse(fx, 31, 2.5, 1.2), SND, { R = 1, amb = .25, sep = SND[1] }) end
 local body = c:ellipse(18, 24.5, 10, 6.5)
 local bI, bT = O.shade(c, body, SND, { sphere = { 15, 21, 11 }, amb = .2, wrap = .4, sep = SND[1], rim = true, bounce = "#8a7ab0", bmax = 2 })
-O.tex(c, bI, bT, SND, function(x, y, i) if (x < 12 or x > 24) and y % 3 == 0 and i >= 2 then return -1 end end)
+O.tex(c, bI, bT, SND, function(x, y, i)
+  if x >= 11 and x <= 25 then return 0 end
+  local yy = y + math.floor(((x - 18) / 6)^2)
+  if yy % 3 == 0 and i >= 2 then return -1 end
+  if yy % 3 == 1 and i <= 5 and H(x, y, 5) > .5 then return 1 end
+end)
+O.mark(c, { { 26, 23 }, { 27, 24 }, { 27, 25 } }, SND[1])
 
 local crown = c:poly{ { 7, 20 }, { 8, 13 }, { 12, 13 }, { 13, 16 } }
 crown:add(c:poly{ { 12, 20 }, { 14, 9 }, { 15, 8 }, { 21, 8 }, { 22, 9 }, { 24, 20 } })
@@ -23,7 +31,18 @@ crown:add(c:poly{ { 23, 20 }, { 25, 12 }, { 26, 9 }, { 27, 9 }, { 29, 14 }, { 30
 crown:add(c:rect(7, 17, 30, 20))
 crown:cut(c:rect(17, 12, 19, 15))
 local cI, cT = O.shade(c, crown, ROSE, { R = 2, amb = .22, wrap = .4, sep = ROSE[1], rim = true })
-O.tex(c, cI, cT, ROSE, function(x, y, i) if y % 3 == 0 and y < 17 and i >= 2 then return -1 end end)
+O.tex(c, cI, cT, ROSE, function(x, y, i)
+  if y % 4 == 0 and y < 17 and i >= 2 then return -1 end
+  if y % 4 == 1 and y < 17 and i <= 5 then return 1 end
+  if (x == 10 or x == 27) and y < 17 and y % 4 >= 2 and i >= 2 then return -1 end
+end)
+crown:each(function(x, y)
+  local p = y * c.w + x
+  if c.own[p] ~= cT then return end
+  if y == 10 or y == 11 then c.pix[p] = (c.pix[p] == ROSE[5]:lower() or c.pix[p] == ROSE[6]:lower()) and "#f6d4b0" or "#e0a07a" end
+  if y == 14 then c.pix[p] = (c.pix[p] == ROSE[1]:lower() or c.pix[p] == ROSE[2]:lower()) and "#5e2418" or "#9a3e26" end
+end)
+O.mark(c, { { 19, 12 }, { 19, 13 }, { 19, 14 }, { 19, 15 } }, ROSE[1])
 for x = 7, 30 do if crown:has(x, 17) then c:put(x, 17, ROSE[2], cT) end end
 O.dots(c, { { 10, 19 }, { 15, 19 }, { 20, 19 }, { 25, 19 } }, ROSE[5])
 local cac = c:rect(9, 8, 10, 12) cac:add(c:rect(7, 9, 7, 10)) cac:add(c:rect(8, 10, 8, 10))

@@ -55,7 +55,7 @@ crown:each(function(x, y)
   local p = y * c.w + x
   if c.own[p] ~= cT or y >= 32 then return end
   if y == 16 or y == 17 or y == 28 or y == 29 then c.pix[p] = (c.pix[p] == ROSE[5]:lower() or c.pix[p] == ROSE[6]:lower()) and "#f6d4b0" or "#e0a07a" end
-  if y == 22 or y == 23 then c.pix[p] = (c.pix[p] == ROSE[1]:lower() or c.pix[p] == ROSE[2]:lower()) and "#6a2a1e" or "#a4482c" end
+  if y == 22 or y == 23 then c.pix[p] = (c.pix[p] == ROSE[1]:lower() or c.pix[p] == ROSE[2]:lower()) and "#5e2418" or "#9a3e26" end
 end)
 -- shaded inner wall of the arch (right side and top inside face the light away)
 O.mark(c, { { 36, 25 }, { 36, 26 }, { 36, 27 }, { 36, 28 }, { 36, 29 }, { 28, 21 }, { 29, 20 }, { 30, 20 }, { 31, 20 } }, ROSE[1])
