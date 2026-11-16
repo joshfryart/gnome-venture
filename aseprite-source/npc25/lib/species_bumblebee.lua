@@ -104,7 +104,7 @@ function S.draw_figure(img, view, frame, species)
     E(cx, cy, rx, ry, function(nx, ny, edge, x, y)
       local yy = y - b
       local sy = yy + (side and math.floor((x - cx) * -0.25) or 0)
-      local striped = (sy >= 43 and sy <= 45) or (sy >= 51 and sy <= 53) or (sy >= 58 and sy <= 59)
+      local striped = (sy >= 44 and sy <= 46) or (sy >= 52 and sy <= 54) or (sy >= 59 and sy <= 60)
       if striped then return lit(nx, ny, ST) end
       if edge and ny > 0.55 then return Y.deep end
       return lit(nx, ny, Y)
@@ -118,15 +118,15 @@ function S.draw_figure(img, view, frame, species)
   local function hat(cx, cy, crx, brx, side)
     -- crown
     local x1, x2 = math.floor(cx - crx + 0.5), math.floor(cx + crx - 0.5)
-    for y = cy - 5, cy - 1 do
+    for y = cy - 4, cy - 1 do
       for x = x1, x2 do
-        local yy = y - (cy - 5)
+        local yy = y - (cy - 4)
         if not (yy == 0 and (x == x1 or x == x2)) then
           local c = Y.hi
           if x >= x2 - 1 then c = Y.deep end
-          if (x + y) % 3 == 0 and yy < 3 and x < x2 - 1 then c = Y.deep end
-          if yy == 3 then c = (x >= x2 - 1) and AP.shade or AP.base end
-          if yy == 4 then c = AP.deep end
+          if (x * 2 + y) % 5 == 0 and yy < 2 and x < x2 - 1 and x > x1 then c = Y.deep end
+          if yy == 2 then c = (x >= x2 - 1) and AP.shade or AP.base end
+          if yy == 3 then c = AP.deep end
           P(x, y, c)
         end
       end
@@ -134,7 +134,7 @@ function S.draw_figure(img, view, frame, species)
     E(cx + (side or 0), cy + 0.5, brx, 1.8, function(nx, ny, edge, x, y)
       if ny > 0.3 then return Y.shade end
       if nx > 0.6 then return Y.deep end
-      if (x + y) % 3 == 0 then return Y.deep end
+      if (x * 2 + y) % 5 == 0 and ny < 0.3 then return Y.deep end
       return Y.hi
     end)
   end
@@ -143,75 +143,75 @@ function S.draw_figure(img, view, frame, species)
   if view == "front" or view == "back" then
     local front = view == "front"
     -- wings behind: big forewing raised, small hindwing; ws = spread (flap)
-    local wt = 0.45 + ws * 0.22
-    local wcx, wcy = CX - 10.5 - ws * 0.6, 35 + b - ws * 1.3
-    local hwt = -0.35 - ws * 0.12
+    local wt = 0.42 + ws * 0.32
+    local wcx, wcy = CX - 11.5 - ws * 0.5, 36 + b - ws * 1.8
+    local hwt = -0.35 - ws * 0.15
     for _, m in ipairs({false, true}) do
-      RE(CX - 9.5 - ws * 0.3, 43 + b - ws * 0.4, 4.6, 2.6, hwt, m, hwingcol)
+      RE(CX - 11 - ws * 0.3, 45 + b - ws * 0.5, 4.6, 2.6, hwt, m, hwingcol)
       RE(wcx, wcy, 7.2, 3.9, wt, m, wingcol)
     end
     -- legs (front: viewer-left = creature right foot; back: viewer-left = creature left)
     local fVL, fVR = o.footR, o.footL
     if not front then fVL, fVR = o.footL, o.footR end
-    leg(27, 58 + b, 70 + fVL, false); leg(35, 58 + b, 70 + fVR, false)
-    body(CX, 48 + b, 10.5, 13)
+    leg(27, 60 + b, 70 + fVL, false); leg(35, 60 + b, 70 + fVR, false)
+    body(CX, 50 + b, 12, 12.6)
     if front then
       -- apron bib over the belly
-      for y = 43 + b, 62 + b do for x = 27, 36 do
-        local nx, ny = (x - CX) / 10.5, (y - 48 - b) / 13
+      for y = 44 + b, 63 + b do for x = 26, 37 do
+        local nx, ny = (x - CX) / 12, (y - 50 - b) / 12.6
         if nx * nx + ny * ny <= 0.8 then
           local c = AP.base
-          if x >= 35 then c = AP.shade end
-          if y == 43 + b then c = AP.hi end
+          if x >= 36 then c = AP.shade end
+          if y == 44 + b then c = AP.hi end
           if nx * nx + ny * ny > 0.62 then c = AP.deep end
           P(x, y, c)
         end
       end end
-      for y = 49, 53 do P(29, y + b, AP.shade); P(34, y + b, AP.shade) end
-      for x = 29, 34 do P(x, 53 + b, AP.shade) end
-      P(30, 49 + b, AP.shade); P(33, 49 + b, AP.shade)
+      for y = 51, 55 do P(29, y + b, AP.shade); P(34, y + b, AP.shade) end
+      for x = 29, 34 do P(x, 55 + b, AP.shade) end
+      P(30, 51 + b, AP.shade); P(33, 51 + b, AP.shade)
       -- straps to the shoulders
-      for y = 36, 42 do
-        local off = math.floor((42 - y) / 3)
-        P(27 - off, y + b, AP.base); P(36 + off, y + b, AP.shade)
+      for y = 37, 43 do
+        local off = math.floor((43 - y) / 3)
+        P(26 - off, y + b, AP.base); P(37 + off, y + b, AP.shade)
       end
     else
       -- back: crossed straps and a waist bow
-      for t = 0, 9 do
-        P(25 + t, 37 + t + b, AP.base); P(38 - t, 37 + t + b, AP.shade)
+      for t = 0, 10 do
+        P(24 + t, 38 + t + b, AP.base); P(39 - t, 38 + t + b, AP.shade)
       end
-      for x = 22, 41 do
-        local nx = (x - CX) / 10.5
+      for x = 20, 43 do
+        local nx = (x - CX) / 12
         if nx * nx <= 0.92 then P(x, 47 + b, x > 35 and AP.shade or AP.base) end
       end
       P(30, 46 + b, AP.hi); P(29, 47 + b, AP.hi); P(30, 48 + b, AP.base); P(29, 48 + b, AP.shade)
       P(33, 46 + b, AP.base); P(34, 47 + b, AP.base); P(33, 48 + b, AP.shade); P(34, 48 + b, AP.deep)
       P(31, 47 + b, AP.deep); P(32, 47 + b, AP.deep)
       -- stinger
-      P(31, 62 + b, ST.shade); P(32, 62 + b, ST.deep); P(31, 63 + b, ST.deep)
+      P(31, 63 + b, ST.shade); P(32, 63 + b, ST.deep); P(31, 64 + b, ST.deep)
     end
     -- little arms (front legs)
     for _, s in ipairs({-1, 1}) do
-      local ax = s < 0 and 21 or 42
+      local ax = s < 0 and 20 or 43
       local dy = (ws < 0) and 1 or 0
-      E(ax, 46 + b + dy, 1.6, 3.2, function(nx, ny) return lit(nx, ny, ST) end)
-      if front then P(ax, 49 + b + dy, ST.shade) end
+      E(ax, 48 + b + dy, 1.6, 3.2, function(nx, ny) return lit(nx, ny, ST) end)
+      if front then P(ax, 51 + b + dy, ST.shade) end
     end
     -- honey pot on the strap (front: viewer-left; back: viewer-right, same strap)
     if front then
-      pot(17, 52 + b)
-      P(23, 50 + b, AP.deep); P(22, 51 + b, AP.deep); P(25, 45 + b, AP.deep); P(24, 47 + b, AP.deep); P(23, 49 + b, AP.deep)
+      pot(15, 54 + b)
+      for t = 0, 6 do P(25 - t, 45 + t + b, AP.deep) end
     else
-      pot(43, 52 + b)
-      P(40, 50 + b, AP.deep); P(41, 51 + b, AP.deep)
+      pot(45, 54 + b)
+      P(41, 51 + b, AP.deep); P(42, 52 + b, AP.deep)
     end
     -- head
-    E(CX, 25 + hd, 11.5, 9.6, function(nx, ny, edge)
+    E(CX, 25.5 + hd, 12.5, 9.8, function(nx, ny, edge)
       if edge and ny > 0.6 then return Y.deep end
-      if not front and ny > 0.25 and ny < 0.55 then return lit(nx, ny, ST) end
+            if not front and ny > 0.55 and ny < 0.85 then return (nx > 0.3) and ST.shade or ST.base end
       return lit(nx, ny, Y)
     end)
-    for x = 23, 40 do if get(x, 20 + hd) then P(x, 20 + hd, x > 34 and Y.deep or Y.shade) end end
+    for x = 22, 41 do if get(x, 20 + hd) then P(x, 20 + hd, x > 34 and Y.deep or Y.shade) end end
     if front then
       for _, ex in ipairs({26, 36}) do
         for y = 23, 25 do P(ex, y + hd, INK); P(ex + 1, y + hd, INK) end
@@ -227,7 +227,7 @@ function S.draw_figure(img, view, frame, species)
       P(x0 - 2 * s + (s > 0 and 1 or 0), 9 + hd, s > 0 and WBA or ST.base)
     end
     ant(29, 1); ant(34, -1)
-    hat(CX, 17 + hd, 6, 11.5)
+    hat(CX, 17 + hd, 6.5, 12)
   else
     -- side, facing right; near side = creature right
     local wt = -0.9 - ws * 0.25
