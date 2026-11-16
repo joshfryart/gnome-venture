@@ -19,6 +19,7 @@ function admin_menu_def(): array
             ['feedback.php', '💬', 'Messages', 'Player notes and bug reports, and your replies', 'fb'],   // v2.6.37: was Feedback; first, it is the daily job
             ['r:users', '👤', null, 'Accounts, roles, coins, stats, bans', 't:users'],
             ['grant.php', '🎁', 'Give / take items', 'Hand a player items or coins, or take them back', ''],
+            ['puzzlebox.php', '🧩', 'Reset Puzzle box', 'Put a player\'s Puzzle box back to the starter box; their unlocks stay', ''],
             ['mentors.php', '🎓', 'Mentors', 'Who guides new gnomes, and their pairings', ''],
             ['r:npc_friends', '🤝', null, 'How well each player knows each NPC', 't:npc_friends'],
             ['r:gotm_entries', '🏆', null, 'Garden of the Month entries and winners', 't:gotm_entries'],
