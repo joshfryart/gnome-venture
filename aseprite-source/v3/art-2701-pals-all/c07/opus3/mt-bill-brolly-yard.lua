@@ -1,4 +1,7 @@
--- Bill Brolly (mt-bill-brolly), yard sprite 64x64. Opus second pass (art-2701-pals-all/c07/opus2), from the Haiku pass.
+-- Bill Brolly (mt-bill-brolly), yard sprite 64x64. Opus richness pass (art-2701-pals-all/c07/opus3), built on opus2.
+-- opus3: scalloped breast/back feathers, separated primaries with pale tips, violet-teal sheen on the crown, serrated
+-- bill edge, horn streaks and a nostril on the bill, banded casque, rain beads on the leaf with a wet dark rim,
+-- spotted frog with a pale throat; closer look: a little brass wayfinder compass hung at its neck (red needle).
 -- Monsoontangle, rare, wayfinder. "Carries a giant leaf for an umbrella and shares it with the nearest frog."
 -- A hornbill in true colours: charcoal-plum body, cream belly and tail band, a big curved gold beak with an
 -- ember casque, long lashes. One wing holds the stalk of a giant arched leaf (midrib, paired veins, a dripping
@@ -36,25 +39,45 @@ O.shadeN(c, stalk, sn, LEAF, { amb = .3, sep = LEAF[1] })
 
 -- body
 local body = c:ellipse(29, 41, 10, 11)
-O.shade(c, body, CHAR, { sphere = { 25, 34, 16 }, amb = .3, wrap = .45, sep = CHAR[1], rim = true, bounce = "#5a6a9a", bmax = 2 })
+local bI, bT = O.shade(c, body, CHAR, { sphere = { 25, 34, 16 }, amb = .3, wrap = .45, sep = CHAR[1], rim = true, bounce = "#5a6a9a", bmax = 2 })
+-- scalloped feathers: little arcs in staggered rows (dark arc, lit pixel above)
+O.tex(c, bI, bT, CHAR, function(x, y, i)
+  local row = y // 3
+  local xx = (x + (row % 2) * 2) % 4
+  if y % 3 == 2 and xx ~= 0 and i >= 2 then return -1 end
+  if y % 3 == 0 and xx == 2 and i <= 4 then return 1 end
+end)
 local bel = c:ellipse(30, 45, 6, 6.5) bel:clip(body)
-O.shade(c, bel, CRM, { R = 3, amb = .4, wrap = .5, cuts = { .3, .55, .8 } })
+local eI, eT = O.shade(c, bel, CRM, { R = 3, amb = .4, wrap = .5, cuts = { .3, .55, .8 } })
+O.tex(c, eI, eT, CRM, function(x, y, i) if y % 4 == 3 and (x + (y // 4) * 2) % 5 == 0 and i >= 2 then return -1 end end) -- soft down flecks
 -- wing raised forward, holding the stalk
 local wing = c:poly{ { 31, 34 }, { 37, 35 }, { 41, 39 }, { 39, 42 }, { 33, 44 }, { 29, 41 } }
 local wb = {} wing:each(function(x, y) if (x - y) % 3 == 0 then wb[K(x, y)] = -1 end end) -- feather rows
 O.shade(c, wing, CHAR, { R = 2, amb = .3, wrap = .45, bias = wb, sep = CHAR[1], rim = true })
-O.dots(c, { { 38, 41 }, { 39, 40 } }, CRM[3]) -- pale wing tips
+-- closer look: a brass wayfinder compass on a cord at its neck
+O.dots(c, { { 24, 32 }, { 24, 33 }, { 25, 34 } }, "#c8a060")
+local cmp = c:ellipse(26, 37, 2.2, 2.2)
+O.shade(c, cmp, BEAK, { R = 1, amb = .4, cuts = { .25, .45, .65, .85 }, sep = "#2b1c26" })
+O.dot(c, 26, 37, "#efe6cc") O.dot(c, 26, 36, "#e8493b") O.dot(c, 26, 38, "#54465e")
+-- separated primaries with pale tips
+for k = 0, 2 do O.dots(c, { { 34 + k * 2, 43 - k }, { 35 + k * 2, 43 - k } }, CHAR[1]) end
+O.dots(c, { { 38, 41 }, { 39, 40 }, { 36, 42 }, { 34, 43 } }, CRM[3])
 
 -- head
 local head = c:ellipse(30, 27, 7.5, 7)
 O.shade(c, head, CHAR, { sphere = { 27, 23, 11 }, amb = .32, wrap = .45, sep = CHAR[1], rim = true })
+O.dots(c, { { 26, 21 }, { 27, 20 }, { 28, 20 } }, "#7a6aa8") O.dots(c, { { 29, 20 }, { 30, 20 } }, "#4f8a96") -- crown sheen
 -- beak: big curved gold bill pointing right, casque on top
 local beak = c:poly{ { 35, 25 }, { 44, 24 }, { 51, 26 }, { 55, 30 }, { 52, 30 }, { 46, 30 }, { 36, 30 } }
 local bk = {} beak:each(function(x, y) if y == 28 then bk[K(x, y)] = -2 end end) -- mouth line
-O.shade(c, beak, BEAK, { R = 2, amb = .32, wrap = .45, bias = bk, sep = BEAK[1], rim = true })
+local kI, kT = O.shade(c, beak, BEAK, { R = 2, amb = .32, wrap = .45, bias = bk, sep = BEAK[1], rim = true })
+O.tex(c, kI, kT, BEAK, function(x, y, i) if y ~= 28 and x % 5 == 0 and y < 28 and i >= 3 then return -1 end end) -- horn streaks
+for x = 38, 50, 3 do O.dot(c, x, 29, BEAK[1]) end -- serrated cutting edge
+O.dot(c, 37, 26, BEAK[1]) -- nostril
 local casq = c:poly{ { 34, 22 }, { 38, 18 }, { 46, 19 }, { 49, 23 }, { 45, 24 }, { 36, 25 } }
 O.shade(c, casq, CASQ, { R = 2, amb = .32, wrap = .45, cuts = { .3, .55, .8 }, sep = CASQ[1], rim = true })
 O.dots(c, { { 39, 19 }, { 40, 19 }, { 41, 19 } }, CASQ[4])
+O.dots(c, { { 43, 20 }, { 43, 21 }, { 42, 22 }, { 42, 23 } }, CASQ[1]) O.dots(c, { { 44, 20 }, { 44, 21 } }, "#f5b82e") -- casque band
 -- face: eyes with long lashes (hornbills have them)
 c:eyeLocked(24, 24)
 c:eyeLocked(31, 24)
@@ -79,6 +102,12 @@ leaf:each(function(x, y)
   if math.abs(y - mid) >= .6 and (x + math.floor(math.abs(y - mid) * 1.3)) % 6 == 0 then lb[K(x, y)] = -1 end
 end)
 O.shade(c, leaf, LEAF, { R = 2, amb = .3, wrap = .45, bias = lb, sep = LEAF[1], rim = true, bounce = "#3a6a8a", bmax = 2 })
+-- rain beads on the leaf (lit top, dark foot)
+for _, b in ipairs({ { 9, 10 }, { 22, 6 }, { 30, 6 }, { 44, 8 }, { 52, 12 } }) do
+  if leaf:has(b[1], b[2]) and leaf:has(b[1], b[2] + 1) then O.dot(c, b[1], b[2], "#e4f6ff") O.dot(c, b[1], b[2] + 1, LEAF[2]) end
+end
+-- wet dark lower edge
+leaf:each(function(x, y) if not leaf:has(x, y + 1) and x % 2 == 0 and x > 6 then O.dot(c, x, y, LEAF[2]) end end)
 
 -- quirk: the frog sitting dry under the leaf's edge
 local fr = c:ellipse(51, 54, 5, 3)
@@ -88,6 +117,8 @@ O.flat(c, c:rect(48, 50, 49, 51), "#2b1c26", "eye") O.dot(c, 48, 50, "#fff4d6")
 O.flat(c, c:rect(53, 50, 54, 51), "#2b1c26", "eye") O.dot(c, 53, 50, "#fff4d6")
 O.dots(c, { { 49, 54 }, { 50, 55 }, { 51, 55 }, { 52, 55 }, { 53, 54 } }, FROG[1]) -- grin
 O.dots(c, { { 46, 56 }, { 47, 56 }, { 55, 56 }, { 56, 56 } }, FROG[2]) -- feet
+O.dots(c, { { 50, 56 }, { 51, 56 }, { 52, 56 } }, "#e6eeb0") -- pale throat
+O.dots(c, { { 47, 53 }, { 55, 53 }, { 54, 55 } }, FROG[1]) O.dot(c, 52, 52, FROG[4]) -- spots
 
 O.done(c, "mt-bill-brolly-yard", function(c)
   c:sparkle(10, 4)
