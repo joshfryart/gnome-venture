@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.7.04
+- **Admin look: "Stitched Toy, grown up" (mockup A, `admin_mockups_A_felt.html`).** Drawn SVG icons (`admin_icon()`, 2 px square-cap strokes; one per section, and admin pages such as Update, Messages, Admin log, Give / take items, Code and Usage get their own via `admin_entry_icon()`) replace the emoji in the Admin menu, the side menu / menu sheet, the breadcrumbs and the status messages. Admin > Dashboard opens with a "Needs a look" panel (`admin_triage_render()`): site_url, maintenance, failed upgrade steps, install.php, error log and new messages are rows with a Problem / Check / Note chip (icon and word, never colour alone) and an action button; the red and green banners are gone.
+- **Workshop "!" marks only when you can really make something.** `craft_map_ready()` counted any recipe you held the ingredients for, so the "!" and "N ready" sat on the workshop picture and the crafting map while you were too tired, the pots were full, the feast fee was out of reach or a feast needed a bigger Kitchen. It now uses the same test as the shelf's Ready tab (ingredients, energy, free pot, cooking fee, Kitchen level). `workshop.php` refreshes energy before drawing. A jar that is done in the Pantry still shows "!" (that is a real job to collect). Checked: with every ingredient held, energy 100 gave 6 areas ready, energy 0 gave 1 (a free recipe).
+- **Player post (Release notes tab, `update_news.php`):** the workshop fix only; the Admin changes get no post.
+- **Recent and Pinned (admin.js).** The last pages you opened and the pages you pinned (pin button in the breadcrumb bar) show on the Dashboard. Stored in this browser only (`gv-admin-recent`, `gv-admin-pins`); nothing on the server.
+- **Game settings and data editors.** Settings you have changed since the page loaded get a "Changed" mark and the Save bar sticks to the bottom with a count; list tables get a sticky header, calmer hover and a 44 px pager (`admin.css`).
+
 ## 2.7.03
 - **Moon text is a collapsed pill.** New `moon_pill()` / `moon_pill_section()` (`includes/moon.php`, style `.moonpill`): the Trail strips for haven, delve, lair and desert night are one collapsed pill each; the moon label in the mountain, rainforest, tundra, wetland and wonder headers is a pill with its explanation inside. (The coast strip keeps its own folded design from 2.7.01.)
 - **Hint is a small bulb.** The fight Hint button is 💡 with the hints-left count, a 32 px round button at the end of the button row.

@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gnome Venture Admin, Direction C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0f1d;          /* near-black blue: read on a phone at night after an update */
+  --f1:#111a30;          /* flat field 1 */
+  --f2:#18233f;          /* flat field 2 (inputs, hover) */
+  --line:#2b3860;
+  --ink:#f3f6ff;
+  --mut:#a3b0d0;
+  --sig:#ff7a1a;         /* the one signal: tangerine */
+  --on-sig:#0a0f1d;
+  --focus:#ffffff;
+  --tap:44px;
+  --f-sans:"Archivo",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:#05080f}
+body{margin:0;background:#05080f;color:var(--ink);font:400 16px/1.45 var(--f-sans);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+::selection{background:var(--sig);color:var(--on-sig)}
+input,select,button,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px}
+input,textarea{caret-color:var(--sig)}
+*{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:square;stroke-linejoin:miter;flex:none}
+
+/* ---------- presentation sheet (not part of the product) ---------- */
+.sheet{max-width:1180px;margin:0 auto;padding:40px 16px 80px}
+.sheet>header{margin-bottom:48px;max-width:68ch}
+.sheet h1{font-size:clamp(2.25rem,7vw,3.5rem);font-weight:800;font-stretch:112%;letter-spacing:-.03em;line-height:1;margin:0 0 16px;text-wrap:balance}
+.sheet p{color:var(--mut);margin:0 0 8px}
+.sheet h2{font-size:1.375rem;font-weight:700;letter-spacing:-.02em;margin:56px 0 4px}
+.sheet .note{font-size:.875rem;max-width:70ch;margin-bottom:20px}
+.row{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.fw{min-width:0;max-width:100%}
+.fw figcaption{font-size:.875rem;color:var(--mut);margin-top:8px}
+.fw{margin:0}
+.scrollx{overflow-x:auto;max-width:100%;padding-bottom:4px}
+.frame{border:1px solid var(--line);background:var(--bg);overflow:hidden}
+.frame.ph{width:412px;max-width:100%;height:800px}
+.frame.ph.short{height:420px}
+.frame.dk{width:1100px;height:720px}
+
+/* ---------- the product ---------- */
+.app{container:app/inline-size;height:100%;display:flex;flex-direction:column;position:relative;background:var(--bg);color:var(--ink)}
+.app .scroller{flex:1;min-height:0;overflow:auto;position:relative}
+.shell{flex:1;min-height:0;display:flex}
+.side{display:none}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:8px;padding:0 8px 0 16px;height:56px;border-bottom:1px solid var(--line);flex:none;background:var(--bg)}
+.top .crumb{display:none;font-size:.875rem;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.top .crumb b{color:var(--ink);font-weight:600}
+.top .sp{flex:1}
+.brand{font-weight:800;font-stretch:118%;letter-spacing:-.02em;font-size:1.0625rem;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand i{width:16px;height:16px;background:var(--sig);display:block;flex:none}
+.btn{min-height:var(--tap);min-width:var(--tap);padding:0 16px;border:1px solid var(--line);background:var(--f1);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:.9375rem;border-radius:2px;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--f2);border-color:var(--mut)}
+.btn.pri{background:var(--sig);border-color:var(--sig);color:var(--on-sig)}
+.btn.pri:hover{background:#ff9444;border-color:#ff9444}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--f2)}
+.btn.ic{padding:0}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.kbd{font-family:var(--f-mono);font-size:.75rem;border:1px solid var(--line);padding:1px 6px;color:var(--mut)}
+.search-trigger{display:none}
+
+/* bottom nav (phone) */
+.bnav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--bg);z-index:5}
+.bnav a,.bnav button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.75rem;font-weight:600;color:var(--mut);text-decoration:none;background:none;border:0;border-top:3px solid transparent;position:relative;padding:0}
+.bnav [aria-current]{color:var(--ink);border-top-color:var(--sig)}
+.bnav .cnt{position:absolute;top:4px;left:calc(50% + 6px);background:var(--sig);color:var(--on-sig);font-size:.6875rem;font-weight:800;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center}
+
+/* sheet (menu + palette) */
+.nsheet{position:absolute;inset:0;z-index:20;background:var(--bg);display:none;flex-direction:column}
+.nsheet.open{display:flex}
+.nsheet .qbar{display:flex;gap:8px;padding:8px 8px 8px 16px;border-bottom:1px solid var(--line);align-items:center}
+.qin{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--f2);padding:0 12px;min-height:var(--tap);border-bottom:2px solid var(--sig)}
+.qin input{flex:1;min-width:0;background:none;border:0;outline:0;min-height:var(--tap);font-size:1rem}
+.qin:focus-within{outline:3px solid var(--focus);outline-offset:2px}
+.nsheet .res{flex:1;overflow:auto}
+.grp{padding:16px 16px 4px;font-size:.8125rem;font-weight:700;color:var(--mut);display:flex;justify-content:space-between}
+.hit{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:6px 16px;text-decoration:none;border-top:1px solid transparent}
+.hit:hover,.hit[aria-selected=true]{background:var(--f2)}
+.hit[aria-selected=true]{box-shadow:inset 3px 0 0 var(--sig)}
+.hit small{display:block;color:var(--mut);font-size:.8125rem;line-height:1.3}
+.hit .nm{font-weight:600}
+.hit .go{margin-left:auto}
+mark{background:none;color:var(--sig);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+
+/* page content */
+.page{padding:20px 16px 24px}
+.page h1{font-size:2.5rem;line-height:1;letter-spacing:-.035em;font-weight:800;font-stretch:108%;margin:0 0 4px;text-wrap:balance}
+.page .sub{color:var(--mut);margin:0 0 20px;font-size:.9375rem}
+.page h2{font-size:1.375rem;letter-spacing:-.02em;font-weight:700;margin:32px 0 8px;display:flex;align-items:baseline;gap:12px}
+.page h2 .n{font-size:.9375rem;color:var(--mut);font-weight:500;letter-spacing:0}
+.rule{border:0;border-top:2px solid var(--ink);margin:0}
+
+/* status = shape + label + colour */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;font-weight:700;white-space:nowrap}
+.st svg{width:16px;height:16px;flex:none;stroke-width:2;stroke:currentColor;fill:none}
+.st.fail{background:var(--sig);color:var(--on-sig);padding:2px 8px 2px 6px}
+.st.warn{color:var(--sig);border:1.5px solid var(--sig);padding:1px 8px 1px 5px}
+.st.ok{color:var(--mut)}
+.st.info{color:var(--ink)}
+
+/* triage */
+.tri{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink)}
+.tri li{display:grid;grid-template-columns:1fr;gap:6px;padding:14px 0;border-bottom:1px solid var(--line)}
+.tri .t{font-size:1.1875rem;font-weight:700;letter-spacing:-.015em;line-height:1.2}
+.tri .d{color:var(--mut);font-size:.9375rem;overflow-wrap:anywhere}
+.tri .d code,.mono{font-family:var(--f-mono);font-size:.8125rem}
+.tri .meta{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:4px}
+.tri .when{color:var(--mut);font-size:.8125rem}
+.tri .acts{display:flex;gap:8px;flex-wrap:wrap}
+.tri .clear{padding:20px 0;color:var(--mut)}
+
+/* plain key/value + count tables */
+table{border-collapse:collapse;width:100%}
+.plain th,.plain td{text-align:left;padding:10px 0;border-bottom:1px solid var(--line);vertical-align:baseline;font-weight:400}
+.plain th{color:var(--mut);font-weight:500;width:46%;padding-right:12px}
+.plain td.num,.plain th.num{text-align:right}
+.plain thead th{font-size:.8125rem;font-weight:700;color:var(--mut);border-bottom:2px solid var(--ink);padding-top:0}
+.plain tbody tr:hover{background:var(--f1)}
+.plain a{display:inline-block;min-height:var(--tap);line-height:var(--tap);font-weight:600}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+.dash-cols{display:block}
+
+/* toolbar + data table */
+.tb{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.tb .f{display:flex;gap:8px}
+.fld{min-height:var(--tap);background:var(--f2);border:0;border-bottom:2px solid var(--line);padding:0 12px;min-width:0;width:100%;border-radius:0}
+.fld:hover{border-bottom-color:var(--mut)}
+.fld:focus{outline:0;border-bottom-color:var(--sig);box-shadow:0 0 0 3px var(--focus)}
+.fld::placeholder{color:#8896ba}
+select.fld{appearance:none;background:var(--f2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23a3b0d0' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{min-height:var(--tap);display:inline-flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--line);background:none;font-size:.875rem;font-weight:600}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip svg{width:16px;height:16px}
+
+.bulk{display:none;align-items:center;gap:8px;background:var(--sig);color:var(--on-sig);padding:6px 8px 6px 16px;position:sticky;top:0;z-index:4;flex-wrap:wrap;margin:0 -16px}
+.bulk.on{display:flex}
+.bulk b{font-weight:800;margin-right:auto}
+.bulk .btn{background:var(--on-sig);color:var(--ink);border-color:var(--on-sig)}
+.bulk .btn:hover{background:#000}
+.bulk .btn.txt{background:transparent;color:var(--on-sig);border-color:transparent;text-decoration:underline;text-underline-offset:3px}
+
+.dt{--cols:1fr}
+.dt thead{display:none}
+.dt tbody{display:block}
+.dt tr{display:grid;grid-template-columns:var(--tap) 1fr auto;grid-template-areas:"sel name act" ". meta meta" ". price stack";gap:0 8px;padding:8px 0;border-bottom:1px solid var(--line);position:relative}
+.dt tr:hover{background:var(--f1)}
+.dt tr[data-sel=true]{background:#1d2540;box-shadow:inset 3px 0 0 var(--sig)}
+.dt td{padding:0;min-width:0;display:block}
+.dt .c-sel{grid-area:sel;display:grid;place-items:center}
+.dt .c-name{grid-area:name;align-self:center;padding:6px 0}
+.dt .c-act{grid-area:act;display:flex}
+.c-act .cp{display:none}
+.dt .c-meta{grid-area:meta;color:var(--mut);font-size:.875rem;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;padding-bottom:6px}
+.dt .c-price{grid-area:price}
+.dt .c-stack{grid-area:stack}
+.dt .c-cat,.dt .c-rar,.dt .c-trade{display:none}
+.nm2{font-weight:700;font-size:1.0625rem;letter-spacing:-.01em}
+.slug{font-family:var(--f-mono);font-size:.75rem;color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis}
+.chk{width:var(--tap);height:var(--tap);display:grid;place-items:center;cursor:pointer}
+.chk input{appearance:none;width:22px;height:22px;border:2px solid var(--mut);background:none;margin:0;display:grid;place-items:center;border-radius:0;cursor:pointer}
+.chk input:checked{background:var(--sig);border-color:var(--sig)}
+.chk input:checked::after{content:"";width:10px;height:5px;border-left:3px solid var(--on-sig);border-bottom:3px solid var(--on-sig);transform:rotate(-45deg) translate(1px,-1px)}
+.chk input:indeterminate{border-color:var(--sig)}
+.chk input:indeterminate::after{content:"";width:10px;height:3px;background:var(--sig)}
+.cell{position:relative;display:block}
+.cell label{display:block;font-size:.75rem;color:var(--mut);font-weight:600;margin-bottom:0}
+.cell input{width:100%;min-height:var(--tap);background:transparent;border:0;border-bottom:1px dashed var(--line);padding:0 8px 0 0;font:inherit;font-variant-numeric:tabular-nums;border-radius:0}
+.cell input:hover{background:var(--f2);border-bottom:1px solid var(--mut);padding-left:6px}
+.cell input:focus{outline:0;background:var(--f2);border-bottom:2px solid var(--sig);box-shadow:0 0 0 3px var(--focus);padding-left:6px}
+.cell.dirty input{border-bottom:2px solid var(--sig);font-weight:700}
+.cell.dirty::after{content:"Edited";position:absolute;right:0;top:0;font-size:.6875rem;font-weight:800;color:var(--sig)}
+.cell.err input{border-bottom:2px solid var(--sig);background:#2a1a1c;padding-left:6px}
+.cell .em{display:flex;gap:4px;align-items:center;font-size:.75rem;font-weight:700;color:var(--sig);padding:2px 0}
+.cell .em svg{width:14px;height:14px;stroke-width:2.2}
+.tick{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem}
+.tick svg{width:14px;height:14px;stroke-width:2.4}
+.pager{display:flex;align-items:center;gap:8px;padding:12px 0;flex-wrap:wrap;color:var(--mut);font-size:.875rem}
+.pager .sp{flex:1}
+.pager .btn{min-width:var(--tap)}
+.empty{padding:32px 0;border-top:2px solid var(--ink)}
+.empty h3{font-size:1.375rem;letter-spacing:-.02em;margin:0 0 6px}
+.empty p{margin:0 0 16px;color:var(--mut);max-width:44ch}
+
+/* settings form */
+.set{margin-top:8px}
+.sg{border-top:2px solid var(--ink);padding:12px 0 8px;margin-top:20px}
+.sg>h2{margin:0 0 8px}
+.sf{padding:10px 0 14px;border-bottom:1px solid var(--line);display:block}
+.sf>label,.sf>.lab{display:block;font-weight:600;margin-bottom:2px}
+.sf .help{color:var(--mut);font-size:.8125rem;margin:0 0 6px;max-width:60ch}
+.sf .key{font-family:var(--f-mono);font-size:.75rem;color:var(--mut)}
+.sf.dirty>label::after,.sf.dirty>.lab::after{content:" Edited";color:var(--sig);font-size:.75rem;font-weight:800;margin-left:6px}
+.sf.err .fld{border-bottom-color:var(--sig);background:#2a1a1c}
+.sf .em{display:flex;gap:6px;align-items:center;color:var(--sig);font-weight:700;font-size:.875rem;padding-top:4px}
+.sf .em svg,.cell .em svg,.hint svg{stroke:currentColor;fill:none;width:16px;height:16px;stroke-width:2.2}
+.sf>label.sw,.sw{display:flex;align-items:center;gap:12px;min-height:var(--tap);cursor:pointer}
+.sw input{appearance:none;width:52px;height:28px;border:2px solid var(--mut);background:none;position:relative;margin:0;flex:none;border-radius:0;cursor:pointer}
+.sw input::before{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;background:var(--mut);transition:transform .15s}
+.sw input:checked{background:var(--sig);border-color:var(--sig)}
+.sw input:checked::before{background:var(--on-sig);transform:translateX(24px)}
+.sw .state{font-weight:800;min-width:2.5ch}
+details.adv{border-top:2px solid var(--ink);margin-top:28px}
+details.adv>summary{min-height:56px;display:flex;align-items:center;gap:10px;font-size:1.375rem;font-weight:700;letter-spacing:-.02em;cursor:pointer;list-style:none}
+details.adv>summary::-webkit-details-marker{display:none}
+details.adv>summary svg{transition:transform .15s}
+details.adv[open]>summary svg{transform:rotate(90deg)}
+details.adv>summary small{font-size:.9375rem;color:var(--mut);font-weight:500;letter-spacing:0;margin-left:auto}
+.savebar{position:sticky;bottom:0;z-index:6;margin:24px -16px 0;background:var(--ink);color:var(--bg);display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px}
+.savebar b{font-weight:800;margin-right:auto;line-height:1.2}
+.savebar .btn{border-color:var(--bg);background:transparent;color:var(--bg)}
+.savebar .btn:hover{background:#dfe5f7}
+.savebar .btn.pri{background:var(--sig);border-color:var(--sig);color:var(--on-sig)}
+.hint{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);padding:10px 12px;margin:12px 0;font-size:.875rem}
+.hint svg{margin-top:1px}
+.hint a{font-weight:700}
+
+/* ---------- desktop shell inside container >= 820 ---------- */
+@container app (min-width:820px){
+  .side{display:flex;flex-direction:column;width:244px;flex:none;border-right:1px solid var(--line);background:var(--bg);overflow:auto}
+  .side .brand{height:56px;padding:0 20px;border-bottom:1px solid var(--line);flex:none}
+  .side nav{padding:8px 0 16px}
+  .side nav a{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:0 20px;text-decoration:none;font-weight:600;color:var(--mut);position:relative}
+  .side nav a:hover{background:var(--f1);color:var(--ink)}
+  .side nav a[aria-current]{color:var(--ink);background:var(--f2);box-shadow:inset 3px 0 0 var(--sig)}
+  .side nav a .cnt{margin-left:auto;font-size:.75rem;font-weight:800;background:var(--sig);color:var(--on-sig);min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px}
+  .side .who{margin-top:auto;border-top:1px solid var(--line);padding:12px 20px;font-size:.8125rem;color:var(--mut)}
+  .bnav{display:none}
+  .top{padding:0 20px;gap:12px}
+  .top .brand{display:none}
+  .top .crumb{display:block;font-size:.9375rem}
+  .search-trigger{display:flex;align-items:center;gap:10px;min-height:var(--tap);width:300px;background:var(--f2);border:0;border-bottom:2px solid var(--line);padding:0 12px;color:var(--mut);text-align:left}
+  .search-trigger:hover{border-bottom-color:var(--mut)}
+  .search-trigger span{flex:1}
+  .top .phone-search{display:none}
+  .page{padding:28px 32px 40px}
+  .page h1{font-size:3.5rem;letter-spacing:-.04em}
+  .page .sub{font-size:1rem}
+  .dash-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 48px}
+  .tri li{grid-template-columns:150px 1fr auto;align-items:start;gap:16px}
+  .tri .meta{margin:0;grid-column:3;grid-row:1;flex-direction:column;align-items:flex-end}
+  .tri .body{grid-column:2}
+  .tri li .st{align-self:start;justify-self:start}
+  .nsheet{inset:56px 0 0 244px;left:50%;right:auto;top:96px;bottom:auto;transform:translateX(-50%);width:600px;max-height:460px;border:1px solid var(--ink);box-shadow:0 24px 48px rgb(0 0 0/.6),0 4px 12px rgb(0 0 0/.5)}
+  .nsheet .grp.menu-only{display:none}
+
+  .bulk{margin:0;position:sticky;top:0}
+  .tb{flex-direction:row;align-items:center}
+  .tb .fld.s{width:240px}
+  .tb .fld.sel{width:150px}
+  .tb .f{flex:none}.tb .chips{flex-wrap:nowrap}
+  .dt .c-rar,.dt .c-trade,.dt .c-cat{white-space:nowrap}
+  .dt .c-act .cp{display:inline-flex}
+  .dt thead{display:table-header-group}
+  .dt thead th{position:sticky;top:0;background:var(--bg);z-index:3;text-align:left;font-size:.8125rem;font-weight:700;color:var(--mut);padding:0 8px;height:44px;border-bottom:2px solid var(--ink);white-space:nowrap}
+  .dt thead th button{background:none;border:0;font-weight:700;color:inherit;display:inline-flex;align-items:center;gap:4px;min-height:var(--tap);padding:0}
+  .dt thead th button:hover{color:var(--ink)}
+  .dt thead th[aria-sort] {color:var(--ink)}
+  .dt tbody{display:table-row-group}
+  .dt tr{display:table-row;padding:0}
+  .dt td{display:table-cell;padding:0 8px;vertical-align:middle;border-bottom:1px solid var(--line);height:52px}
+  .dt .c-sel{width:52px;padding:0}
+  .dt .c-cat,.dt .c-rar,.dt .c-trade{display:table-cell}
+  .dt .c-meta{display:none}
+  .dt .c-act{display:table-cell;white-space:nowrap;text-align:right}
+  .dt .c-act .btn{opacity:0}
+  .dt tr:hover .c-act .btn,.dt tr:focus-within .c-act .btn,.dt tr[data-sel=true] .c-act .btn{opacity:1}
+  .dt tr[data-sel=true]{box-shadow:none}
+  .dt tr[data-sel=true] td:first-child{box-shadow:inset 3px 0 0 var(--sig)}
+  .dt .c-price,.dt .c-stack{width:112px}
+  .dt .c-price .cell label,.dt .c-stack .cell label{display:none}
+  .cell input{text-align:right}
+  .dt .c-name{min-width:200px}
+  .rtag{display:inline-flex;gap:3px;vertical-align:middle;margin-right:8px}
+  .rtag i{width:8px;height:8px;border:1.5px solid var(--mut);display:block}
+  .rtag i.f{background:var(--ink);border-color:var(--ink)}
+}
+.rtag{display:none}
+@container app (min-width:820px){.rtag{display:inline-flex}}
+.rarw{color:var(--mut)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-triage" viewBox="0 0 24 24"><path d="M3 5h18M3 12h12M3 19h7"/></symbol>
+    <symbol id="i-update" viewBox="0 0 24 24"><path d="M12 20V6M6 12l6-6 6 6M4 20h16"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><path d="M14 4v6h4V4zM6 14v6h4v-6z"/></symbol>
+    <symbol id="i-tools" viewBox="0 0 24 24"><path d="M4 20l9-9M14 4l6 6-3 3-6-6zM4 20l-1 1"/></symbol>
+    <symbol id="i-log" viewBox="0 0 24 24"><path d="M5 3h14v18H5zM9 8h6M9 12h6M9 16h3"/></symbol>
+    <symbol id="i-players" viewBox="0 0 24 24"><path d="M12 11a4 4 0 100-8 4 4 0 000 8zM4 21v-2a5 5 0 015-5h6a5 5 0 015 5v2"/></symbol>
+    <symbol id="i-world" viewBox="0 0 24 24"><path d="M3 4l6 2 6-2 6 2v14l-6-2-6 2-6-2zM9 6v14M15 4v14"/></symbol>
+    <symbol id="i-folk" viewBox="0 0 24 24"><path d="M3 10l2-6h14l2 6M3 10h18v10H3zM9 20v-6h6v6"/></symbol>
+    <symbol id="i-stops" viewBox="0 0 24 24"><path d="M2 20L12 4l10 16zM12 20v-7"/></symbol>
+    <symbol id="i-items" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"/></symbol>
+    <symbol id="i-garden" viewBox="0 0 24 24"><path d="M12 21V10M12 10C12 6 9 4 5 4c0 4 2 6 7 6zM12 13c0-3 2-5 7-5 0 4-2 5-7 5z"/></symbol>
+    <symbol id="i-trade" viewBox="0 0 24 24"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></symbol>
+    <symbol id="i-progress" viewBox="0 0 24 24"><path d="M3 21h18M5 21v-6M11 21V9M17 21V4"/></symbol>
+    <symbol id="i-content" viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></symbol>
+    <symbol id="i-art" viewBox="0 0 24 24"><path d="M3 4h18v16H3zM3 16l5-5 4 4 3-3 6 6M15 9h.01"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15zM16 16l5 5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><path d="M8 8h12v12H8zM4 16V4h12"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01" stroke-width="3"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M4 4h13l3 3v13H4zM8 4v6h8V4M8 20v-6h8v6"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 6l9 7 9-7"/></symbol>
+    <symbol id="s-fail" viewBox="0 0 16 16"><path d="M2 2h12v12H2z" fill="currentColor"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="var(--sig)" fill="none"/></symbol>
+    <symbol id="s-warn" viewBox="0 0 16 16"><path d="M8 2l7 12H1zM8 7v3M8 12h.01" fill="none"/></symbol>
+    <symbol id="s-ok" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none"/><path d="M5 8.2l2.2 2.2L11 6" fill="none"/></symbol>
+    <symbol id="s-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none"/><path d="M8 7v4M8 4.8h.01" fill="none"/></symbol>
+  </defs>
+</svg>
+
+<main class="sheet">
+  <header>
+    <h1>Gnome Venture admin: control room</h1>
+    <p>Direction C. Near-black blue ground for a phone at night after an update; flat fields, no texture, one signal colour (tangerine) that means "this needs you" or "this is selected". Failure is a filled square, warning an outlined triangle, ok a ring, and each carries its word, so colour is never the only cue.</p>
+    <p>Type is Archivo, tight scale (12 / 14 / 16 / 22 / 40 / 56). Tables are the hero. The frames are live: Ctrl-K or the search field opens the palette, rows select, cells edit, the settings fold opens.</p>
+  </header>
+
+  <h2>1. Dashboard</h2>
+  <p class="note">Triage queue first (failed step, error log, messages), then system status, then counts as a plain table.</p>
+  <div class="row">
+    <figure class="fw"><div class="frame ph"><div class="app" id="a-dash-ph" data-page="dash" data-cur="triage"></div></div><figcaption>Phone, 412 px. Bottom nav; Menu opens the sheet with search.</figcaption></figure>
+    <figure class="fw"><div class="frame ph"><div class="app" id="a-sheet-ph" data-page="sheet" data-cur="triage"></div></div><figcaption>Phone, Menu sheet open with a palette query. Arrow keys and Enter work.</figcaption></figure>
+  </div>
+  <figure class="fw" style="margin-top:32px"><div class="scrollx"><div class="frame dk"><div class="app" id="a-dash-dk" data-page="dash" data-cur="triage"></div></div></div><figcaption>Desktop, 1100 px. Sidebar plus Ctrl-K palette (press it inside the frame).</figcaption></figure>
+
+  <h2>2. Items data editor</h2>
+  <p class="note">Filter, sticky header, inline cells (dashed = editable, "Edited" marks unsaved, one invalid price), bulk bar, row actions, pager. Phone folds each row to two lines instead of scrolling sideways.</p>
+  <div class="row">
+    <figure class="fw"><div class="frame ph"><div class="app" id="a-items-ph" data-page="items" data-cur="items"></div></div><figcaption>Phone, 412 px, two rows selected.</figcaption></figure>
+    <figure class="fw"><div class="frame ph short"><div class="app" id="a-empty-ph" data-page="empty" data-cur="items"></div></div><figcaption>Empty state: filter matches nothing, with the recovery.</figcaption></figure>
+  </div>
+  <figure class="fw" style="margin-top:32px"><div class="scrollx"><div class="frame dk"><div class="app" id="a-items-dk" data-page="items" data-cur="items"></div></div></div><figcaption>Desktop, 1100 px. Hover a row for actions; tab into a row and they appear too.</figcaption></figure>
+
+  <h2>3. Game settings</h2>
+  <p class="note">Search, groups, an Advanced fold, switches that say On or Off, an error with its recovery, and a sticky save bar that counts changes.</p>
+  <div class="row">
+    <figure class="fw"><div class="frame ph"><div class="app" id="a-set-ph" data-page="settings" data-cur="settings"></div></div><figcaption>Phone, 412 px.</figcaption></figure>
+  </div>
+</main>
+
+<script>
+(function(){
+const SECTIONS=[
+ ['triage','Triage','triage',[]],
+ ['system','Update & system','update',[['Update the game','Upload a new version, check and install it'],['Game settings','Site name, rules, limits, maintenance mode'],['Tools & backups','Backups, error log, mail log, repair tools'],['Admin log','Everything admins have done']]],
+ ['players','Players','players',[['Messages','Player notes and bug reports, and your replies'],['Users','Accounts, roles, coins, stats, bans'],['Give / take items','Hand a player items or coins, or take them back'],['Mentors','Who guides new gnomes']]],
+ ['world','World & places','world',[['Regions','The big regions and their climate'],['Landmarks','Landmarks and visitable sights'],['Locations','Villages, stops and places to visit'],['Routes','Roads between places']]],
+ ['folk','Folk & shops','folk',[['NPCs','Characters who live in the world'],['Shops','Shops, opening and staffing'],['Shop stock','What each shop sells, and for how much'],['Helpers','Helpers players can hire']]],
+ ['stops','Rest stops','stops',[['Stop types','Kinds of rest stop'],['Stop tiers','Upgrade steps for adopted stops'],['Passport rewards','Rewards for stamp sets']]],
+ ['items','Items & crafting','items',[['Items','Every item: seeds, produce, tools, goods'],['Recipes','What can be cooked or crafted'],['Gatherables','Things found when foraging'],['Creature drops','What each creature leaves behind']]],
+ ['garden','Garden & creatures','garden',[['Plants','Crops, flowers and trees: grow times, yields'],['Hybrids','Cross-breeding results'],['Pest kinds','Seasons, weather, counters'],['Creatures','Creatures met while adventuring']]],
+ ['trade','Trade & jobs','trade',[['Stall listings','Items on market stalls'],['Trade offers','Open trades between players'],['Job templates','Jobs the board can offer']]],
+ ['progress','Progress & quests','progress',[['Quest chapters','Wren’s Journey, chapter by chapter'],['Retention','Do new players finish the tour and come back?'],['XP sources','Where players earn XP']]],
+ ['content','Content & text','content',[['Page text','Edit the wording of game pages'],['News','News posts on the front page'],['Random events','Surprises that can happen as players play']]],
+ ['art','Images & art','art',[['Images','Upload pictures and see which are still missing'],['Picture layouts','Place exits, spots and villagers']]]
+];
+const I=(n,c)=>`<svg class="i ${c||''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const S=(k)=>`<svg aria-hidden="true"><use href="#s-${k}"/></svg>`;
+const BADGE={triage:3,players:2};
+
+function sideNav(cur){return SECTIONS.map(s=>`<a href="#" ${s[0]===cur?'aria-current="page"':''}>${I(s[2])}<span>${s[1]}</span>${BADGE[s[0]]?`<span class="cnt" aria-label="${BADGE[s[0]]} waiting">${BADGE[s[0]]}</span>`:''}</a>`).join('');}
+function shell(cur,crumb,body,opts={}){
+ const titleCrumb=crumb;
+ return `
+ <div class="shell">
+  <aside class="side" aria-label="Admin sections"><div class="brand"><i></i>Gnome Venture</div><nav>${sideNav(cur)}</nav><div class="who">Signed in as Joshua<br>v2.7.14 on gnomeventure.ca</div></aside>
+  <div class="main">
+   <header class="top">
+    <div class="brand"><i></i>Admin</div>
+    <div class="crumb">${titleCrumb}</div><div class="sp"></div>
+    <button class="search-trigger" data-open="pal">${I('search')}<span>Search admin</span><span class="kbd">Ctrl K</span></button>
+    <button class="btn ic ghost phone-search" data-open="pal" aria-label="Search admin">${I('search')}</button>
+   </header>
+   <div class="scroller">${body}</div>
+   <nav class="bnav" aria-label="Main">
+    <a href="#" ${cur==='triage'?'aria-current="page"':''}>${I('triage')}Triage<span class="cnt" aria-label="3 waiting">3</span></a>
+    <a href="#" ${cur==='players'?'aria-current="page"':''}>${I('players')}Players</a>
+    <a href="#" ${cur==='items'?'aria-current="page"':''}>${I('items')}Items</a>
+    <a href="#" ${cur==='settings'?'aria-current="page"':''}>${I('settings')}Settings</a>
+    <button data-open="menu" aria-haspopup="dialog">${I('menu')}Menu</button>
+   </nav>
+  </div>
+ </div>
+ <div class="nsheet" role="dialog" aria-label="Menu and search" data-sheet>
+  <div class="qbar"><label class="qin">${I('search')}<span class="sr">Search admin pages</span><input data-q placeholder="Search pages, players, settings" autocomplete="off"></label><button class="btn ic ghost" data-close aria-label="Close">${I('x')}</button></div>
+  <div class="res" data-res></div>
+ </div>`;
+}
+
+/* ---------------- page bodies ---------------- */
+function dash(){
+ return `<div class="page">
+  <h1>Triage</h1>
+  <p class="sub">3 things need you. Last checked 21:48.</p>
+  <ul class="tri" aria-label="Triage queue">
+   <li><span class="st fail">${S('fail')}Failed step</span><div class="body"><div class="t">Upgrade step failed on v2.7.14</div><div class="d">Step 4 of 9, <code>garden_objects</code>: <code>no such column: rot</code>. Gardens still load; fences placed after the update won’t turn.</div></div><div class="meta"><span class="when">Today, 21:31</span><div class="acts"><a class="btn pri" href="#">Retry step</a><a class="btn" href="#">Details</a></div></div></li>
+   <li><span class="st fail">${S('fail')}14 errors</span><div class="body"><div class="t">Error log has new entries</div><div class="d">9× <code>PDOException</code> in <code>shop_stock.php:212</code>, 5× <code>Undefined array key "tier"</code> in <code>stops.php:88</code>.</div></div><div class="meta"><span class="when">Since 21:31</span><div class="acts"><a class="btn" href="#">Open error log</a></div></div></li>
+   <li><span class="st warn">${S('warn')}Waiting</span><div class="body"><div class="t">2 new messages from players</div><div class="d">Oldest is 2 days old: “The Moonpetal Tea won’t sell at Pomeroy’s.”</div></div><div class="meta"><span class="when">Oldest 2 days</span><div class="acts"><a class="btn" href="#">${I('mail')}Open messages</a></div></div></li>
+  </ul>
+
+  <div class="dash-cols">
+  <section><h2>System status</h2>
+  <table class="plain"><tbody>
+   <tr><th>Game version</th><td>2.7.14 installed; <b>2.7.15</b> uploaded, not installed</td></tr>
+   <tr><th>Upgrade</th><td><span class="st fail">${S('fail')}Failed, step 4</span></td></tr>
+   <tr><th>Maintenance mode</th><td><span class="st ok">${S('ok')}Off</span></td></tr>
+   <tr><th>Database</th><td><span class="st ok">${S('ok')}MySQL 8.0, 212 tables</span></td></tr>
+   <tr><th>Last backup</th><td><span class="st warn">${S('warn')}38 hours ago</span></td></tr>
+   <tr><th>Disk free</th><td><span class="st ok">${S('ok')}412 MB of 1.5 GB</span></td></tr>
+   <tr><th>Mail</th><td><span class="st ok">${S('ok')}Last sent 20:02</span></td></tr>
+  </tbody></table></section>
+
+  <section><h2>At a glance <span class="n">rows per table</span></h2>
+  <table class="plain"><thead><tr><th scope="col" style="width:auto">Table</th><th scope="col" class="num" style="width:auto">Rows</th><th scope="col" class="num" style="width:auto">Today</th><th scope="col" style="width:auto"><span class="sr">Open</span></th></tr></thead><tbody>
+   <tr><th scope="row" style="width:auto">Users</th><td class="num">128</td><td class="num">+4</td><td class="num"><a href="#">Open</a></td></tr>
+   <tr><th scope="row" style="width:auto">Items</th><td class="num">412</td><td class="num">0</td><td class="num"><a href="#">Open</a></td></tr>
+   <tr><th scope="row" style="width:auto">Plants</th><td class="num">96</td><td class="num">0</td><td class="num"><a href="#">Open</a></td></tr>
+   <tr><th scope="row" style="width:auto">Locations</th><td class="num">57</td><td class="num">0</td><td class="num"><a href="#">Open</a></td></tr>
+   <tr><th scope="row" style="width:auto">Plots</th><td class="num">131</td><td class="num">+2</td><td class="num"><a href="#">Open</a></td></tr>
+   <tr><th scope="row" style="width:auto">Stall listings</th><td class="num">37</td><td class="num">+9</td><td class="num"><a href="#">Open</a></td></tr>
+  </tbody></table></section>
+  </div>
+ </div>`;
+}
+
+const ITEMS=[
+ ['Acorn Cap Bowl','acorn-cap-bowl','Goods',1,6,99,1,0],
+ ['Brass Trowel','brass-trowel','Tool',3,135,1,0,0,'dirty'],
+ ['Cloudberry Jam','cloudberry-jam','Food',2,24,50,1,1],
+ ['Felt Needle','felt-needle','Tool',2,40,10,1,0],
+ ['Frostmint Seed','frostmint-seed','Seed',1,8,999,1,0],
+ ['Honeycomb','honeycomb','Produce',2,22,99,1,1],
+ ['Lantern Moss','lantern-moss','Forage',2,12,200,1,0],
+ ['Moonpetal Tea','moonpetal-tea','Food',2,18,99,0,1,'','sel'],
+ ['Mulch Sack','mulch-sack','Goods',1,-5,20,1,0,'err'],
+ ['Pip’s Whistle','pips-whistle','Misc',4,310,1,0,0],
+ ['Quillfeather','quillfeather','Drop',3,54,99,1,0,'','sel'],
+ ['Rainwater Jar','rainwater-jar','Goods',1,10,50,1,0],
+ ['Sunroot','sunroot','Produce',1,9,999,1,1],
+ ['Thimble Kettle','thimble-kettle','Tool',3,95,1,0,0]
+];
+function rowHtml(r,i){
+ const [n,slug,cat,rar,price,stack,trade,edible,flag,sel]=r;
+ const RW=['','Common','Uncommon','Rare','Very rare'];
+ const pErr=flag==='err', pDirty=flag==='dirty';
+ const pf=`<div class="cell ${pErr?'err':''} ${pDirty?'dirty':''}"><label for="p${i}">Price</label><input id="p${i}" inputmode="numeric" value="${price}" ${pErr?'aria-invalid="true" aria-describedby="e'+i+'"':''}>${pErr?`<div class="em" id="e${i}">${S('warn')}Must be 0 or more</div>`:''}</div>`;
+ return `<tr data-sel="${sel?'true':'false'}"><td class="c-sel"><label class="chk"><input type="checkbox" ${sel?'checked':''}><span class="sr">Select ${n}</span></label></td>
+ <td class="c-name"><span class="nm2">${n}</span><span class="slug">${slug}</span></td>
+ <td class="c-cat">${cat}</td>
+ <td class="c-rar"><span class="rtag" aria-hidden="true">${[1,2,3,4].map(k=>`<i class="${k<=rar?'f':''}"></i>`).join('')}</span>${RW[rar]}</td>
+ <td class="c-price">${pf}</td>
+ <td class="c-stack"><div class="cell"><label for="s${i}">Stack</label><input id="s${i}" inputmode="numeric" value="${stack}"></div></td>
+ <td class="c-trade">${trade?`<span class="tick">${I('check')}Tradable</span>`:`<span class="tick" style="color:var(--mut)">${I('x')}No</span>`}</td>
+ <td class="c-meta"><span>${cat}</span><span>${RW[rar]}</span><span>${trade?'Tradable':'Not tradable'}</span>${edible?'<span>Edible</span>':''}</td>
+ <td class="c-act"><button class="btn ic ghost" aria-label="Edit ${n}" title="Edit">${I('edit')}</button><button class="btn ic ghost cp" aria-label="Duplicate ${n}" title="Duplicate">${I('copy')}</button><button class="btn ic ghost" aria-label="Delete ${n}" title="Delete">${I('trash')}</button></td></tr>`;
+}
+function items(){
+ const th=(l,s)=>`<th scope="col" ${s?`aria-sort="${s}"`:''}><button>${l}${s?I('down'):''}</button></th>`;
+ return `<div class="page">
+  <h1>Items</h1>
+  <p class="sub">412 items. Edit price and stack in place; changes save when you press Save.</p>
+  <div class="tb" role="search">
+   <input class="fld s" type="search" placeholder="Filter by name or slug" aria-label="Filter items" value="">
+   <div class="f"><select class="fld sel" aria-label="Category"><option>All categories</option><option>Tool</option><option>Food</option></select><select class="fld sel" aria-label="Rarity"><option>Any rarity</option></select></div>
+   <div class="chips"><button class="chip" aria-pressed="true">${I('check')}Tradable</button><button class="chip" aria-pressed="false">Edible</button></div>
+  </div>
+  <div class="bulk" data-bulk role="region" aria-label="Bulk actions"><b data-bn></b><button class="btn">Tradable</button><button class="btn">Price</button><button class="btn">Delete</button><button class="btn txt" data-clear>Clear</button></div>
+  <table class="dt" aria-label="Items">
+   <thead><tr><th scope="col" class="c-sel"><label class="chk"><input type="checkbox" data-all><span class="sr">Select all rows</span></label></th>${th('Name','ascending')}${th('Category')}${th('Rarity')}<th scope="col" class="num"><button style="margin-left:auto">Price</button></th><th scope="col" class="num"><button style="margin-left:auto">Stack</button></th>${th('Trade')}<th scope="col"><span class="sr">Actions</span></th></tr></thead>
+   <tbody>${ITEMS.map(rowHtml).join('')}</tbody>
+  </table>
+  <div class="pager"><span>1–14 of 412</span><span class="sp"></span><button class="btn" disabled>Prev</button><span>Page 1 of 30</span><button class="btn">Next</button></div>
+  <div class="savebar" style="margin-bottom:-24px"><b>2 unsaved changes<br><span style="font-weight:500;font-size:.8125rem">1 needs fixing: Mulch Sack price</span></b><button class="btn">Discard</button><button class="btn pri">${I('save')}Save</button></div>
+ </div>`;
+}
+function empty(){
+ return `<div class="page">
+  <h1>Items</h1>
+  <div class="tb" role="search"><input class="fld s" type="search" value="zzq tin" aria-label="Filter items"><div class="chips"><button class="chip" aria-pressed="true">${I('check')}Tradable</button></div></div>
+  <div class="empty"><h3>No items match “zzq tin”</h3><p>Nothing in 412 items is tradable and matches that name. Check the spelling, or drop the Tradable filter.</p><div class="acts" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri">Clear filters</button><button class="btn">Add item</button></div></div>
+ </div>`;
+}
+function settings(){
+ const sw=(id,l,help,key,on,dirty)=>`<div class="sf ${dirty?'dirty':''}"><span class="lab" id="l-${id}">${l}</span><p class="help">${help}</p><label class="sw"><input type="checkbox" role="switch" aria-labelledby="l-${id}" ${on?'checked':''} data-sw><span class="state" aria-hidden="true">${on?'On':'Off'}</span></label><span class="key">${key}</span></div>`;
+ const num=(id,l,help,key,v,extra)=>`<div class="sf ${extra==='err'?'err':''} ${extra==='dirty'?'dirty':''}"><label for="${id}">${l}</label><p class="help">${help}</p><input class="fld" id="${id}" inputmode="numeric" value="${v}" ${extra==='err'?`aria-invalid="true" aria-describedby="${id}-e"`:''}>${extra==='err'?`<div class="em" id="${id}-e">${S('warn')}Max stack must be at most 9999. Try 999.</div>`:''}<span class="key">${key}</span></div>`;
+ return `<div class="page">
+  <h1>Game settings</h1>
+  <p class="sub">33 settings. Search by label or key.</p>
+  <label class="qin" style="display:flex"><span class="sr">Search settings</span>${I('search')}<input class="" data-ss placeholder="Search settings" value="" style="flex:1;min-width:0;background:none;border:0;outline:0;min-height:44px;font-size:1rem"></label>
+  <div class="hint">${I('info')?'':''}<svg class="i" aria-hidden="true"><use href="#s-info"/></svg><span>Maintenance mode locks players out. <a href="#">Read what it does</a> first.</span></div>
+  <form class="set" onsubmit="return false">
+   <section class="sg"><h2>Site</h2>
+    <div class="sf"><label for="sn">Site name</label><p class="help">Shown in the title bar and emails.</p><input class="fld" id="sn" value="Gnome Venture"><span class="key">site_name</span></div>
+    ${sw('mm','Maintenance mode','Players see a friendly closed sign. Admins still get in.','maintenance',false)}
+   </section>
+   <section class="sg"><h2>Economy</h2>
+    ${num('sc','Starting coins','Coins a new gnome begins with.','start_coins','50','dirty')}
+    ${num('ms','Max item stack','Largest stack in one satchel slot.','max_stack','99999','err')}
+    ${sw('tr','Trading open','Stalls, offers and gifts between players.','trade_open',true)}
+   </section>
+   <section class="sg"><h2>Features</h2>
+    ${sw('tk','Treks open','OFF until checked on a phone.','trek_open',false,true)}
+    ${sw('cf','Cat Fish open','The mini-game page and its menu link.','catfish_open',false)}
+   </section>
+   <details class="adv"><summary>${I('chev')}Advanced<small>9 settings</small></summary>
+    ${num('ses','Session length (days)','How long a login lasts.','session_days','30')}
+    ${num('lim','Feedback per day','Messages one player may send.','feedback_daily','5')}
+    <div class="sf"><label for="ck">Cookie domain</label><p class="help">Leave blank unless the site moves.</p><input class="fld" id="ck" value=""><span class="key">cookie_domain</span></div>
+   </details>
+  </form>
+  <div class="savebar" role="region" aria-label="Save changes"><b>2 unsaved changes<br><span style="font-weight:500;font-size:.8125rem">1 needs fixing</span></b><button class="btn">Discard</button><button class="btn pri">${I('save')}Save settings</button></div>
+ </div>`;
+}
+
+/* ---------------- palette ---------------- */
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function hl(t,q){if(!q)return esc(t);const i=t.toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(t);return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length));}
+function renderRes(app,q,sel){
+ const res=app.querySelector('[data-res]');let n=0,out='';
+ const all=[];
+ SECTIONS.forEach(s=>{
+  if(!q&&s[3].length===0&&s[0]!=='triage')return;
+  const hits=s[3].filter(e=>!q||(e[0]+' '+e[1]+' '+s[1]).toLowerCase().includes(q.toLowerCase()));
+  if(q&&!hits.length)return;
+  if(!q&&s[0]==='triage')return;
+  all.push([s,hits]);
+ });
+ if(!all.length){res.innerHTML=`<div style="padding:24px 16px"><b style="font-size:1.375rem;letter-spacing:-.02em">No page matches “${esc(q)}”</b><p style="color:var(--mut);margin:6px 0 0">Try a table name such as items, or a setting key such as trek_open.</p></div>`;app._hits=0;return;}
+ all.forEach(([s,hits])=>{
+  out+=`<div class="grp"><span>${s[1]}</span></div>`;
+  hits.forEach(e=>{out+=`<a href="#" class="hit" role="option" aria-selected="${n===sel}" data-i="${n}">${I(s[2])}<span><span class="nm">${hl(e[0],q)}</span><small>${esc(e[1])}</small></span><span class="go">${I('chev')}</span></a>`;n++;});
+ });
+ res.innerHTML=out;app._hits=n;
+}
+function wirePalette(app,startOpen,q0){
+ const sheet=app.querySelector('[data-sheet]'),inp=app.querySelector('[data-q]');let sel=0;
+ const upd=()=>renderRes(app,inp.value.trim(),sel);
+ const open=()=>{sheet.classList.add('open');inp.value='';sel=0;upd();setTimeout(()=>inp.focus({preventScroll:true}),0)};
+ const close=()=>sheet.classList.remove('open');
+ app.addEventListener('click',e=>{
+  if(e.target.closest('[data-open]')){e.preventDefault();open();}
+  else if(e.target.closest('[data-close]'))close();
+  else if(e.target.closest('a.hit,a[href="#"]'))e.preventDefault();
+ });
+ inp.addEventListener('input',()=>{sel=0;upd()});
+ inp.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){sel=Math.min(sel+1,(app._hits||1)-1);upd();e.preventDefault();}
+  if(e.key==='ArrowUp'){sel=Math.max(sel-1,0);upd();e.preventDefault();}
+  if(e.key==='Escape')close();
+  if(e.key==='Enter'){close();}
+ });
+ app.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();open();}});
+ if(startOpen){sheet.classList.add('open');inp.value=q0||'';upd();}
+ else upd();
+}
+
+/* ---------------- items/settings behaviours ---------------- */
+function wireItems(app){
+ const bulk=app.querySelector('[data-bulk]'),bn=app.querySelector('[data-bn]');
+ const rows=()=>[...app.querySelectorAll('.dt tbody tr')];
+ const all=app.querySelector('[data-all]');
+ function sync(){
+  const r=rows(),c=r.filter(x=>x.querySelector('.c-sel input').checked);
+  r.forEach(x=>x.dataset.sel=x.querySelector('.c-sel input').checked);
+  bulk.classList.toggle('on',c.length>0);bn.textContent=c.length+' selected';
+  all.checked=c.length===r.length;all.indeterminate=c.length>0&&c.length<r.length;
+ }
+ app.addEventListener('change',e=>{
+  if(e.target===all){rows().forEach(x=>x.querySelector('.c-sel input').checked=all.checked);}
+  sync();
+ });
+ app.querySelector('[data-clear]').addEventListener('click',()=>{rows().forEach(x=>x.querySelector('.c-sel input').checked=false);sync();});
+ sync();
+}
+function wireSettings(app){
+ app.addEventListener('change',e=>{
+  if(e.target.matches('[data-sw]')){e.target.parentNode.querySelector('.state').textContent=e.target.checked?'On':'Off';}
+ });
+ const ss=app.querySelector('[data-ss]');
+ ss&&ss.addEventListener('input',()=>{
+  const q=ss.value.toLowerCase();
+  app.querySelectorAll('.sf').forEach(f=>{f.hidden=q&&!f.textContent.toLowerCase().includes(q)});
+  app.querySelectorAll('.sg').forEach(g=>{g.hidden=q&&![...g.querySelectorAll('.sf')].some(f=>!f.hidden)});
+ });
+}
+
+/* ---------------- build ---------------- */
+document.querySelectorAll('.app').forEach(app=>{
+ const p=app.dataset.page,cur=app.dataset.cur;
+ let body,crumb;
+ if(p==='dash'||p==='sheet'){body=dash();crumb='<b>Triage</b>';}
+ if(p==='items'){body=items();crumb='Admin / Items &amp; crafting / <b>Items</b>';}
+ if(p==='empty'){body=empty();crumb='Admin / Items &amp; crafting / <b>Items</b>';}
+ if(p==='settings'){body=settings();crumb='Admin / Update &amp; system / <b>Game settings</b>';}
+ app.innerHTML=shell(cur,crumb,body);
+ wirePalette(app,p==='sheet',p==='sheet'?'item':'');
+ if(p==='items')wireItems(app);
+ if(p==='settings')wireSettings(app);
+});
+/* the Items page puts its save bar inside .page; keep it sticky to the scroller bottom */
+document.querySelectorAll('.app .savebar').forEach(b=>{b.style.bottom='0'});
+})();
+</script>
+</body>
+</html>
