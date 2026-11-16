@@ -33,7 +33,7 @@ body:add(hump)
 -- parotoid glands behind the eyes
 body:add(c:ellipse(15, 31, 4, 3)):add(c:ellipse(47, 31, 4, 3))
 body:cut(c:rect(0, 51, 63, 63))
-local bI, bT = O.shade(c, body, TOAD, { sphere = { 26, 25, 22 }, amb = .25, wrap = .4, sep = TOAD[1], rim = true, bounce = BNC, bmax = 2 })
+local bI, bT = O.shade(c, body, TOAD, { sphere = { 26, 25, 22 }, amb = .3, wrap = .4, sep = TOAD[1], rim = true, bounce = BNC, bmax = 2 })
 -- warts: frosted tips upper-left, shadow pit lower-right
 local warts = {}
 for y = 22, 50 do for x = 12, 52 do
@@ -50,7 +50,7 @@ end
 O.mark(c, { { 14, 30 }, { 16, 31 }, { 46, 30 }, { 48, 31 } }, TOAD[3])
 
 -- pale throat/belly showing above the water
-local bel = c:ellipse(31, 45, 10, 5) bel:cut(c:rect(0, 50, 63, 63))
+local bel = c:ellipse(31, 46, 8, 4.5) bel:cut(c:rect(0, 50, 63, 63))
 O.shade(c, bel, BELY, { R = 2, amb = .45, cuts = { .3, .6, .85 } })
 
 -- forelegs planted in the water
@@ -90,10 +90,10 @@ local function note(x, y, two)
     O.flat(c, c:line({ { x + 3, y - 6 }, { x + 5, y - 4 }, { x + 5, y - 2 } }, 1), GOLD[4], "flag")
   end
 end
-note(48, 19, true)
-note(53, 8, false)
+note(47, 18, true)
+note(8, 18, false)
 
 O.shift(c, 0, 1)
 O.done(c, "pl-frt-2-yard", function(c)
-  c:put(45, 12, "#ffe38a") c:put(59, 16, "#ffe38a")
+  c:put(44, 9, "#ffe38a") c:put(16, 9, "#ffe38a")
 end)
