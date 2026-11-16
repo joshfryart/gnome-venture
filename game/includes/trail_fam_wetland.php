@@ -40,7 +40,7 @@ function trail_fam_wetland(array $ctx): string
         $rip .= '<li class="tfw-r ' . ($isOpen ? 'open' : 'rest') . '"><span class="tfw-ring" aria-hidden="true"></span> ' . e(trail_sight_label($m['slug'])[0]) . ' <b>' . ($isOpen ? 'rippling' : 'still') . '</b></li>';
     }
     $h = '<section class="tfwetland' . ($ff['out'] ? ' tfw-dusk' : '') . '" aria-label="Reed-line ripples">'
-        . '<p class="tfw-h"><span aria-hidden="true">🪷</span> <b>Reed-line ripples</b> <span class="tfw-moon" title="The moon sets the fireflies">' . e($ph['icon']) . ' ' . e($ph['name']) . ' · day ' . ((int)$ph['age'] + 1) . ' of ' . MOON_DAYS . '</span></p>'
+        . '<div class="tfw-h"><span aria-hidden="true">🪷</span> <b>Reed-line ripples</b> ' . moon_pill((string)$ph['icon'], (string)$ph['name'], 'Day ' . ((int)$ph['age'] + 1) . ' of ' . MOON_DAYS . '. The moon sets the fireflies: brightest near the new moon.') . '</div>'
         . '<ul class="tfw-rips">' . $rip . '</ul>';
     if ($hasFord) {
         $st = (int)(($now['tl'] ?? [])['stones'] ?? 0);

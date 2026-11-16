@@ -41,7 +41,7 @@ function trail_fam_rainforest(array $ctx): string
     }
     $tally = (int)(($now['tl'] ?? [])['mist-pools'] ?? 0);
     $h = '<section class="tfrain' . ($night ? ' tfr-night' : '') . '" aria-label="Canopy layers and mist pools">'
-        . '<p class="tfr-h"><span aria-hidden="true">🌴</span> <b>Canopy layers</b> <span class="tfr-moon" title="Night and a full moon: the orchid opens wider">' . e($moon['icon']) . ' ' . e($moon['name']) . ($night ? ($moon['key'] === 'full' ? ' · a full moon tonight: more to find' : ' · night') : '') . '</span></p>'
+        . '<div class="tfr-h"><span aria-hidden="true">🌴</span> <b>Canopy layers</b> ' . moon_pill((string)$moon['icon'], (string)$moon['name'], 'Night and a full moon: the orchid opens wider.' . ($night ? ($moon['key'] === 'full' ? ' A full moon tonight: more to find.' : ' It is night.') : '')) . '</div>'
         . '<details class="tfr-layer" name="tfr-layer" open><summary>Forest floor (' . $nf . ')</summary>' . ($nf ? '<ul class="tfr-list">' . $floor . '</ul>' : '<p class="tfr-note">Nothing on the floor here.</p>') . '</details>'
         . '<details class="tfr-layer" name="tfr-layer"><summary>Canopy (' . $nc . ')</summary>' . ($nc ? '<ul class="tfr-list">' . $canopy . '</ul>' : '<p class="tfr-note">Nothing in the canopy here.</p>') . '</details>';
     if ($np) {
