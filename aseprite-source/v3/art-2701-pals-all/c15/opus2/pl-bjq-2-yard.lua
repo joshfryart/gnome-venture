@@ -18,7 +18,7 @@ local STR  = { "#b8a0a8", "#e4d6d0", "#fff4e6" }
 local BRN  = { "#3c2a62", "#5a4490", "#8068c0", "#a690de", "#c8b6f0", "#e6dcfa" }
 local STAG = { "#1f4a5a", "#2a6a78", "#3a9298", "#5fc4c8", "#94e0d8", "#c8f4e8" }
 
-c:groundShadow(32, 56, 22, 2)
+c:groundShadow(32, 53, 23, 2)
 
 -- staghorn branches behind (left and right)
 for _, br in ipairs({
@@ -62,15 +62,18 @@ c:cheek(24, 29) c:cheek(38, 29)
 O.flat(c, c:rect(30, 30, 33, 31), P.ink, "mouth") O.dots(c, { { 31, 31 }, { 32, 31 } }, "#c94f84")
 
 -- brain coral ridge in front, low and wide, maze grooves
-local ridge = c:ellipse(32, 44, 21, 8)
-ridge:add(c:rect(12, 44, 52, 51))
-ridge:cut(c:rect(0, 52, 63, 63))
-local bI, bT = O.shade(c, ridge, BRN, { R = 5, amb = .3, wrap = .45, rim = true, bounce = "#4a7aa0", bmax = 2, sep = BRN[1] })
-O.tex(c, bI, bT, BRN, function(x, y, i)
-  local w = math.sin(x * .55 + math.sin(y * .7) * 2.2) + math.sin(y * .9 + x * .12)
-  if math.abs(w) < .28 then return -1 end
-end)
-O.mark(c, { { 20, 38 }, { 21, 37 }, { 22, 37 } }, BRN[6])
+-- three brain-coral heads (side ones first, middle one in front), each with wavy concentric grooves
+for _, d in ipairs({ { 20, 45, 9, 7 }, { 44, 45, 9, 7 }, { 32, 44, 11, 8 } }) do
+  local dm = c:ellipse(d[1], d[2], d[3], d[4])
+  dm:cut(c:rect(0, 52, 63, 63))
+  local bI, bT = O.shade(c, dm, BRN, { sphere = { d[1] - 4, d[2] - 5, d[3] + 5 }, amb = .3, wrap = .45, rim = true, bounce = "#4a7aa0", bmax = 2, sep = BRN[1] })
+  O.tex(c, bI, bT, BRN, function(x, y, i)
+    local u, v = (x + .5 - d[1]) / d[3], (y + .5 - d[2]) / d[4]
+    local r = math.sqrt(u * u + v * v) * 4.2 + .35 * math.sin(math.atan(v, u) * 7)
+    if r % 1 < .3 then return -1 end
+  end)
+  O.mark(c, { { d[1] - 5, d[2] - 5 }, { d[1] - 4, d[2] - 6 } }, BRN[6])
+end
 -- pectoral fins hooked over the coral edge
 for _, f in ipairs({ { 18, 36, 1 }, { 46, 36, -1 } }) do
   local fx, fy, s = f[1], f[2], f[3]
