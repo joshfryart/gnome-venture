@@ -13,8 +13,8 @@ local MOUTH = "#3a1e4a"
 
 c:groundShadow(17, 33, 9, 1)
 for _, sg in ipairs({
-  { { { 21, 25 }, { 28, 29 }, { 34, 23 }, { 32, 15 } }, function(t) return 2.4 - t * .5 end },
-  { { { 32, 15 }, { 30, 7 }, { 23, 3 }, { 16, 4 } }, function(t) return 1.9 - t * .5 end },
+  { { { 21, 25 }, { 28, 29 }, { 32, 23 }, { 31, 15 } }, function(t) return 2.4 - t * .5 end },
+  { { { 31, 15 }, { 30, 7 }, { 23, 3 }, { 16, 4 } }, function(t) return 1.9 - t * .5 end },
   { { { 16, 4 }, { 12, 4 }, { 9, 6 }, { 7, 8 } }, function(t) return 1.4 end },
 }) do
   local m, n = O.tube(sg[1], sg[2])

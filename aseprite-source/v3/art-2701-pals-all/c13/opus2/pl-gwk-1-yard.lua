@@ -18,7 +18,7 @@ c:groundShadow(30, 59, 9, 1.5)
 -- the fang: a tapering curved tube, root up, tip down
 local fang, fn = O.tube({ { 35, 18 }, { 39, 33 }, { 36, 47 }, { 23, 58 } }, function(t) return 11.5 * (1 - t) ^ .8 + .4 end)
 -- the root above it: a narrower cone with a waist at the enamel line, so it reads as a tooth, not a blob
-local root, rn = O.tube({ { 39, 3 }, { 38, 8 }, { 36, 12 }, { 35, 17 } }, function(t) return 3 + t * 5 end)
+local root, rn = O.tube({ { 39, 5 }, { 38, 9 }, { 36, 13 }, { 35, 17 } }, function(t) return 2.5 + t * 5.5 end)
 root:each(function(x, y) if not fang:has(x, y) then fang:set(x, y) fn[K(x, y)] = rn[K(x, y)] end end)
 -- the chip: a notch out of the right edge near the tip
 local chip = c:poly{ { 41, 40 }, { 34, 45 }, { 38, 49 }, { 44, 45 } }
@@ -28,7 +28,7 @@ local fI, fT = O.shadeN(c, fang, fn, IVORY, { amb = .3, wrap = .5, rim = true, b
 O.tex(c, fI, fT, IVORY, function(x, y, i)
   local line = 15 + math.floor(math.sin(x * .5) * 1.2 + .5)
   if y < line then
-    c.pix[y * c.w + x] = ROOT[i]
+    c.pix[y * c.w + x] = ROOT[math.max(1, i - 1)]
     return 0
   end
   if y == line then c.pix[y * c.w + x] = ROOT[math.max(1, i - 1)] return 0 end

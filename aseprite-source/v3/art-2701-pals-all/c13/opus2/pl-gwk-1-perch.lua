@@ -13,14 +13,14 @@ local MOON  = { "#7a5a2a", "#c09a42", "#ecd070", "#fff0b0" }
 
 c:groundShadow(16, 33, 6, 1)
 local fang, fn = O.tube({ { 20, 11 }, { 24, 20 }, { 22, 27 }, { 13, 32 } }, function(t) return 8.5 * (1 - t) ^ .8 + .3 end)
-local root, rn = O.tube({ { 22, 2 }, { 21, 5 }, { 20, 8 }, { 20, 11 } }, function(t) return 2.5 + t * 3.5 end)
+local root, rn = O.tube({ { 22, 3 }, { 21, 6 }, { 20, 8 }, { 20, 11 } }, function(t) return 2 + t * 4 end)
 root:each(function(x, y) if not fang:has(x, y) then fang:set(x, y) fn[K(x, y)] = rn[K(x, y)] end end)
 local chip = c:poly{ { 26, 22 }, { 21, 25 }, { 23, 28 }, { 28, 25 } }
 fang:cut(chip)
 local fI, fT = O.shadeN(c, fang, fn, IVORY, { amb = .3, wrap = .5, rim = true, bounce = "#8a8ab0", bmax = 3 })
 O.tex(c, fI, fT, IVORY, function(x, y, i)
   local line = 9 + ((x % 4 < 2) and 0 or 1)
-  if y < line then c.pix[y * c.w + x] = ROOT[i] return 0 end
+  if y < line then c.pix[y * c.w + x] = ROOT[math.max(1, i - 1)] return 0 end
 end)
 
 c:eyeSmall(15, 13)
