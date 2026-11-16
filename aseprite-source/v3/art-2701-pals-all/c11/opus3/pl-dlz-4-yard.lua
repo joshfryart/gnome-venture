@@ -1,8 +1,11 @@
--- Diamond Spur (pl-dlz-4), yard sprite 64x64. Opus second pass (c11/opus2), built on c11/haiku.
+-- Diamond Spur (pl-dlz-4), yard sprite 64x64. Opus richness pass (c11/opus3), built on c11/opus2.
 -- Thornblade, uncommon, Dragonlizard Den. "Four diamond bumps off the lizard's back, very proud of their pattern."
 -- haiku drew a brown bean with four gold blobs on top. Now a horned lizard: wide, flat, dusty-rose body with a fringe
 -- of little side spines, a crown of horns behind the head, short stubby tail, chin lifted proudly.
 -- quirk: four tall gold-rimmed jade diamonds standing up in a row along its back, each with a lit facet.
+-- opus3: pebbly bead scales (lit dot + lower-right shade), a fringe of pale side spines each with its own shadow,
+-- growth rings on the horns, pale brow spikes, beads on the tail, gem sockets of darker skin, rim + cool bounce.
+-- closer look: it has copied its pattern: three tiny pale diamonds run down the tail tip.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
@@ -20,6 +23,7 @@ c:groundShadow(33, 57, 24, 2.5)
 -- stubby tail
 local tail, tn = O.tube({ { 46, 46 }, { 52, 47 }, { 56, 50 }, { 59, 53 } }, function(t) return 3.6 * (1 - .8 * t) + .3 end)
 local tI, tT = O.shadeN(c, tail, tn, MAUV, { amb = .25, wrap = .4, rim = true, bounce = "#5a6a9a", bmax = 2 })
+O.bumps(c, tI, tT, MAUV, 61, .85, 3)
 -- back legs
 for _, L in ipairs({ { 44, 48, 47, 54 }, { 22, 48, 19, 54 } }) do
   local m, n = O.tube({ { L[1], L[2] }, { L[1], L[2] + 3 }, { L[3], L[4] - 1 }, { L[3], L[4] } }, function(t) return 2.3 - .5 * t end)
@@ -51,11 +55,13 @@ end
 local body = c:ellipse(34, 44, 17, 8)
 local bI, bT = O.shade(c, body, MAUV, { sphere = { 28, 37, 20 }, amb = .25, wrap = .4, rim = true, bounce = "#5a6a9a", bmax = 2, sep = MAUV[1] })
 -- pebbly texture + a row of pale side spines
-O.tex(c, bI, bT, MAUV, function(x, y, i) if (x * 5 + y * 3) % 7 == 0 and i >= 3 then return -1 end end)
+O.bumps(c, bI, bT, MAUV, 63, .84, 3)
 for x = 20, 50, 3 do
   local y = 44 + math.floor(math.sqrt(math.max(0, 1 - ((x - 34) / 17) ^ 2)) * 6)
-  O.mark(c, { { x, y - 1 } }, SAND[3]) O.mark(c, { { x, y - 2 } }, SAND[4])
+  O.mark(c, { { x, y - 1 } }, SAND[3]) O.mark(c, { { x, y - 2 } }, SAND[4]) O.mark(c, { { x + 1, y - 1 } }, MAUV[2])
 end
+-- darker skin sockets where the gems sit
+for _, d in ipairs(dia) do O.mark(c, { { d[1] - 2, d[2] + d[4] + 1 }, { d[1] - 1, d[2] + d[4] + 1 }, { d[1] + 1, d[2] + d[4] + 1 }, { d[1] + 2, d[2] + d[4] + 1 } }, MAUV[3]) end
 -- belly stripe of sand
 for x = 24, 44 do O.mark(c, { { x, 50 } }, SAND[2]) end
 -- front legs
@@ -68,20 +74,28 @@ end
 
 -- crown of horns behind the head
 for _, h in ipairs({ { { 12, 24 }, { 14, 15 }, { 17, 23 } }, { { 17, 25 }, { 21, 17 }, { 22, 27 } }, { { 7, 26 }, { 7, 18 }, { 11, 24 } } }) do
-  O.shade(c, c:poly(h), HORN, { R = 1, amb = .3, wrap = .45, cuts = { .25, .5, .78 }, sep = HORN[1] })
+  local hm = c:poly(h)
+  local hi, ht = O.shade(c, hm, HORN, { R = 1, amb = .3, wrap = .45, cuts = { .25, .5, .78 }, sep = HORN[1], rim = true })
+  O.tex(c, hi, ht, HORN, function(x, y, i) if y % 3 == 0 then return -1 end end) -- growth rings
 end
 -- head, chin up
 local head = c:ellipse(14, 33, 10, 8)
 local hI, hT = O.shade(c, head, MAUV, { sphere = { 10, 27, 13 }, amb = .3, wrap = .4, rim = true, bounce = "#5a6a9a", bmax = 2, sep = MAUV[1] })
+O.bumps(c, hI, hT, MAUV, 65, .92, 4)
 -- pale chin, lifted
 local chin = c:ellipse(14, 38.5, 7, 2.5) chin:clip(head)
 O.shade(c, chin, SAND, { R = 1, amb = .35, wrap = .45, cuts = { .25, .5, .78 }, sep = MAUV[2] })
 -- smug closed smile, curling up at one end
 O.dots(c, { { 9, 36 }, { 10, 37 }, { 11, 37 }, { 12, 37 }, { 13, 37 }, { 14, 37 }, { 15, 37 }, { 16, 37 }, { 17, 36 }, { 18, 35 } }, P.ink)
 O.dots(c, { { 12, 33 }, { 16, 33 } }, MAUV[1])
+-- tiny pale brow spikes over each eye
+O.mark(c, { { 6, 26 }, { 8, 25 }, { 16, 25 }, { 18, 25 }, { 20, 26 } }, HORN[4])
 c:eyeLocked(6, 27)
 c:eyeLocked(16, 27)
 c:cheek(5, 33) c:cheek(20, 33)
+
+-- the copied pattern: three tiny pale diamonds down the tail
+for _, q in ipairs({ { 50, 47 }, { 53, 49 }, { 56, 51 } }) do O.mark(c, { { q[1], q[2] - 1 }, { q[1] - 1, q[2] }, { q[1] + 1, q[2] }, { q[1], q[2] + 1 } }, SAND[4]) O.mark(c, { { q[1], q[2] } }, MAUV[3]) end
 
 O.done(c, "pl-dlz-4-yard", function(c)
   c:sparkle(57, 22)

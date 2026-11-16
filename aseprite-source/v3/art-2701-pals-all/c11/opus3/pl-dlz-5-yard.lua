@@ -1,9 +1,11 @@
--- Karst Yawn (pl-dlz-5), yard sprite 64x64. Opus second pass (c11/opus2), built on c11/haiku.
+-- Karst Yawn (pl-dlz-5), yard sprite 64x64. Opus richness pass (c11/opus3), built on c11/opus2.
 -- Rootwarden, uncommon, Dragonlizard Den. "A scrap of the dark den mouth that yawns whenever the lizard does."
 -- haiku drew a grey bottle with a hole: flat grey, no stone read. Now a lumpy limestone boulder (layered strata,
 -- ochre mineral streaks, moss and a fern on top, a root dangling down its side) on stubby stone feet; its whole
 -- front is the den mouth, stretched in a huge yawn with stalactite and stalagmite teeth.
 -- quirk: the yawn itself; closer look: a tiny sleepy bat hanging upside down from the roof of the mouth.
+-- opus3: the scratchy fern is now one clean tapering frond cut into paired leaflets (lit upper side, pale rachis); solution pits and lit ledges on the strata, a water drop on a stalactite,
+-- wet sheen on the lower lip, lichen dots, and the root has root hairs. Rim + cool bounce on boulder and feet.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
@@ -21,7 +23,7 @@ c:groundShadow(32, 58, 21, 2.5)
 
 -- stubby stone feet
 for _, fx in ipairs({ 21, 43 }) do
-  O.shade(c, c:ellipse(fx, 54, 5, 3), LIME, { sphere = { fx - 2, 52, 6 }, amb = .25, wrap = .4, sep = LIME[1] })
+  O.shade(c, c:ellipse(fx, 54, 5, 3), LIME, { sphere = { fx - 2, 52, 6 }, amb = .25, wrap = .4, sep = LIME[1], rim = true, bounce = "#5a6a9a", bmax = 2 })
 end
 -- boulder: lumpy outline (main mass + bumps)
 local rock = c:ellipse(32, 36, 20, 17)
@@ -34,7 +36,10 @@ O.tex(c, rI, rT, LIME, function(x, y, i)
   if (y + wob) % 6 == 0 then return -1 end
   if (y + wob) % 6 == 1 and i >= 3 and x % 4 == 0 then return 1 end
   if H(x, y, 7) > .93 then return -1 end
+  if H(x - 1, y - 1, 7) > .93 and i <= 4 then return 1 end -- each pit has a lit lower-right lip
 end)
+-- lichen dots
+O.mark(c, { { 18, 44 }, { 19, 44 }, { 47, 47 }, { 12, 37 } }, "#9aa85a") O.mark(c, { { 18, 43 }, { 47, 46 } }, "#c8cc7a")
 -- ochre mineral streaks running down
 for _, s in ipairs({ { 14, 30, 6 }, { 49, 28, 8 }, { 46, 40, 5 } }) do
   for j = 0, s[3] do O.mark(c, { { s[1] + (j // 3), s[2] + j } }, OCHR[j % 2 + 1]) end
@@ -55,6 +60,9 @@ end
 for _, t in ipairs({ { 25, 50, 4 }, { 38, 50, 4 } }) do
   O.shade(c, c:poly{ { t[1] - 1, t[2] }, { t[1] + 2, t[2] }, { t[1] + 1, t[2] - t[3] } }, LIME, { R = 1, amb = .45, wrap = .5, cuts = { .1, .2, .3, .5, .75 } })
 end
+-- a water drop gathering on the tip of a stalactite, wet sheen on the lower lip
+O.dot(c, 41, 39, "#8ab8d0") O.dot(c, 41, 40, "#c8e4ec")
+O.mark(c, { { 26, 51 }, { 27, 51 }, { 36, 51 }, { 37, 51 } }, "#7a6a8a")
 -- tiny bat hanging from the roof, asleep (wings wrapped, ears down)
 O.flat(c, c:rect(31, 37, 33, 41), BAT[2], "bat")
 O.dots(c, { { 30, 38 }, { 30, 39 }, { 30, 40 }, { 34, 38 }, { 34, 39 }, { 34, 40 } }, BAT[1])
@@ -72,20 +80,26 @@ for x = 15, 50 do
 end
 moss:cut(c:rect(0, 0, 25, 63)) -- just the right bump
 local mI, mT = O.shade(c, moss, MOSS, { R = 1, amb = .35, wrap = .45, cuts = { .25, .5, .78 } })
--- one fern frond arching over to the right, leaflets along it
-local fr, fn, FT = O.tube({ { 40, 15 }, { 40, 7 }, { 48, 4 }, { 52, 9 } }, function(t) return 1 end)
-O.shadeN(c, fr, fn, MOSS, { amb = .4, wrap = .45, cuts = { .25, .5, .78 } })
-for k = 1, 6 do
-  local t = k / 7
-  local x, y = O.bez({ { 40, 15 }, { 40, 7 }, { 48, 4 }, { 52, 9 } }, t)
-  x, y = math.floor(x + .5), math.floor(y + .5)
-  local len = 3 - math.floor(t * 2)
-  for j = 1, len do O.dot(c, x - j, y - j + (t > .5 and 2 * j or 0), MOSS[3]) O.dot(c, x + j, y - j + (t > .5 and 0 or j), MOSS[4]) end
-end
+-- one fern frond arching over to the right: a tapering blade cut into paired leaflets (notched edge), lit
+-- upper side, darker under side, pale rachis down the middle
+local FP = { { 40, 16 }, { 38, 6 }, { 48, 1 }, { 55, 8 } }
+local fr, fn, FT, FS = O.tube(FP, function(t) return 2.8 * (1 - t) + .9 end)
+local cutm = HP.mask()
+fr:each(function(x, y)
+  local t, sd = FT[K(x, y)], FS[K(x, y)]
+  if t and sd and math.abs(sd) > .45 and math.floor(t * 16) % 2 == 1 then cutm:set(x, y) end
+end)
+fr:cut(cutm)
+local fI, fT = O.shadeN(c, fr, fn, MOSS, { amb = .35, wrap = .45, cuts = { .25, .5, .78 }, rim = true })
+fr:each(function(x, y)
+  local sd = FS[K(x, y)]
+  if sd and math.abs(sd) < .25 and (FT[K(x, y)] or 0) < .9 then O.mark(c, { { x, y } }, MOSS[4]) end
+end)
 
 -- a root dangling down the left side
 local root, rn = O.tube({ { 15, 26 }, { 11, 32 }, { 12, 40 }, { 9, 45 } }, function(t) return 1.1 - .3 * t end)
 O.shadeN(c, root, rn, ROOT, { amb = .3, wrap = .45, cuts = { .3, .65 } })
+O.dots(c, { { 9, 35 }, { 14, 38 }, { 7, 42 } }, ROOT[2]) -- root hairs
 
 -- face: eyes above the mouth, sleepy cheeks
 c:eyeLocked(21, 21)

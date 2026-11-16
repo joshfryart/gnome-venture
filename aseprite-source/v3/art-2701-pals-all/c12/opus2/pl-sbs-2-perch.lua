@@ -19,7 +19,6 @@ local cone = c:poly{ { 26, 20 }, { 31, 31 }, { 21, 31 } }
 cone:add(c:ellipse(26, 31, 5.5, 1.2))
 O.shade(c, cone, HAT, { R = 3, amb = .2, wrap = .4, rim = true })
 O.mark(c, { { 25, 25 }, { 25, 26 } }, HAT[2])
-O.flat(c, c:rect(21, 29, 31, 29):clip(cone), "#d98322")
 local knot = c:ellipse(14, 18, 7, 6.5)
 local kI, kT = O.shade(c, knot, SILK, { sphere = { 11, 15, 10 }, amb = .3, wrap = .45, rim = true, bounce = "#6a7ab8", bmax = 2 })
 O.dot(c, 8, 21, P.petal.base) O.dot(c, 19, 21, P.petal.base)

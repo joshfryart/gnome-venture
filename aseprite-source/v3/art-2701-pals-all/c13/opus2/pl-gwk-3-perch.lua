@@ -35,7 +35,7 @@ c:eyeSmall(18, 16)
 O.dot(c, 9, 20, P.petal.base) O.dot(c, 21, 20, P.petal.base)
 O.dots(c, { { 14, 21 }, { 15, 22 }, { 16, 22 }, { 17, 21 } }, P.ink)
 
-O.shade(c, c:ellipse(31, 4, 3, 3), MOON, { sphere = { 30, 3, 4 }, amb = .4, wrap = .5, cuts = { .3, .55, .8 } })
+O.shade(c, c:ellipse(30.5, 3.5, 2.5, 2.5), MOON, { sphere = { 29.5, 2.5, 3.5 }, amb = .4, wrap = .5, cuts = { .3, .55, .8 } })
 O.done(c, "pl-gwk-3-perch", function(c)
   local add = {}
   for y = 1, 34 do for x = 17, 34 do
