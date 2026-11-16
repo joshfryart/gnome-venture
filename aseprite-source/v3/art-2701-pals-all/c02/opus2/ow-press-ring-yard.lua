@@ -18,9 +18,9 @@ local OIL  = { "#8a5a10", "#c08a18", "#e8b420", "#f8d84a", "#fff2a0" }
 
 c:groundShadow(31, 57, 21, 2.5)
 -- gold puddle on the ground (part of the quirk)
-local pud = c:ellipse(35, 58.5, 4, 0.8)
+local pud = c:ellipse(37, 58.5, 4, 0.8)
 O.flat(c, pud, OIL[3], "puddle")
-O.dots(c, { { 33, 58 }, { 34, 58 } }, OIL[5]) O.dots(c, { { 37, 59 }, { 38, 59 } }, OIL[2])
+O.dots(c, { { 35, 58 }, { 36, 58 } }, OIL[5]) O.dots(c, { { 39, 59 }, { 40, 59 } }, OIL[2])
 
 -- lever behind the stone: from inside the hole out past the rim, upper right
 local lev = c:line({ { 26, 28 }, { 56, 7 } }, 4)
@@ -41,9 +41,10 @@ ring:cut(hole)
 local k1, k2 = c:ellipse(21, 15.5, 3.5, 3), c:ellipse(39, 15.5, 3.5, 3)
 local rb = {}
 ring:each(function(x, y)
-  if y > 48 then rb[K(x, y)] = -1 end
+  rb[K(x, y)] = -1 -- weathered, mid-tone face so the cream eyes pop
+  if y > 48 then rb[K(x, y)] = -2 end
   -- chisel marks: short diagonal ticks
-  if (x * 5 + y * 3) % 23 == 0 and y > 20 then rb[K(x, y)] = -1 end
+  if (x * 5 + y * 3) % 23 == 0 and y > 20 then rb[K(x, y)] = -2 end
 end)
 for _, k in ipairs({ k1, k2 }) do O.shade(c, k, STN, { R = 2, amb = .25, wrap = .35, rim = true }) end
 local sI, sT = O.shade(c, ring, STN, { R = 5, bias = rb, amb = .22, wrap = .35, rim = true, bounce = "#6a7aa0", bmax = 2, sep = STN[2] })
@@ -61,8 +62,8 @@ O.dots(c, { { 27, 44 }, { 28, 45 }, { 29, 45 }, { 30, 45 }, { 31, 45 }, { 32, 44
 O.flat(c, c:rect(31, 46, 32, 50), OIL[3], "oil")
 O.dots(c, { { 31, 46 }, { 31, 47 }, { 31, 48 } }, OIL[4])
 O.dots(c, { { 32, 49 }, { 32, 50 } }, OIL[2])
--- the falling drop, clear of the rim
-O.flat(c, c:rect(32, 54, 33, 55), OIL[3], "drop") O.dot(c, 32, 54, OIL[5]) O.dot(c, 33, 55, OIL[2])
+-- the fat drop hanging off the rim, about to fall
+O.flat(c, c:rect(31, 51, 33, 53), OIL[3], "drop") O.dot(c, 31, 51, OIL[5]) O.dots(c, { { 33, 53 }, { 32, 53 } }, OIL[2])
 
 O.shift(c, -3, 0)
 O.done(c, "ow-press-ring-yard")
