@@ -3,7 +3,7 @@
 -- A slim, leaning shard of wyrm scale: three hard facets (wide lit front, narrow dark right flank, small
 -- bevel low left) meeting at a bright ridge, so it reads as a cut sliver and not a leaf or pepper (haiku).
 -- The lower third is scorched to soot-dark with a few warm char flecks; the face sits on the clean front.
--- quirk: a slow curl of smoke still rising off its point (three puffs, cool grey, curling to the left).
+-- quirk: a slow curl of smoke still rising off its point (cool grey puffs growing as they curl left).
 -- closer look: a single hot crack glowing low on the char.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
