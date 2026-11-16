@@ -1,4 +1,8 @@
--- Kite Knot (mm-kite-knot), yard sprite 64x64. Opus second pass (art-2701-pals-all/c01/opus2), from the Haiku idea.
+-- Kite Knot (mm-kite-knot), yard sprite 64x64. Opus third pass (art-2701-pals-all/c01/opus3), richness pass over
+-- opus2: the dotted weave (it read as dither) is now a ripstop grid of fine darker threads kept off the face, a
+-- lit fold ridge beside each spar, a stitched hem, wooden spar tips poking out at three corners, and a teal
+-- patch sewn over an old tear on the gold panel.
+
 -- Thornblade, uncommon, Mistmoor. "Ties its tail in a bow and flies off in a huff."
 -- A diamond kite tilted up and away (it is leaving), four cloth panels (ember red / gold, quartered by
 -- wooden spars), each panel billowing on its own with a weave and a hemmed edge. Cross brows, pouting mouth,
@@ -62,7 +66,9 @@ kite:each(function(x, y)
   local vv = v[K(x, y)] or .5
   local i = 1
   for k = 1, 5 do if vv > CUT[k] then i = k + 1 end end
-  if math.floor(lx + 40) % 3 == 0 and math.floor(ly + 40) % 2 == 0 and i > 2 then i = i - 1 end -- weave
+  local face = math.abs(lx) < 12 and ly > -9 and ly < 11
+  if not face and (math.floor(lx + 40) % 6 == 0 or math.floor(ly + 40) % 6 == 0) and i > 2 then i = i - 1 end -- ripstop
+  if (math.abs(lx) >= 1 and math.abs(lx) < 2) or (math.abs(ly + 5) >= 1 and math.abs(ly + 5) < 2) then i = math.min(6, i + 1) end -- fold ridge by the spars
   c:put(x, y, R[i], ktok)
 end)
 -- hem just inside the edge
@@ -71,6 +77,25 @@ kite:edge():each(function(x, y)
   local red = (lx < 0) == (ly < -5)
   c:put(x, y, red and EMB[2] or GOLD[2], ktok)
 end)
+-- stitched hem: light dashes one pixel inside the hem
+kite:copy():shrink(1):edge():each(function(x, y)
+  local lx, ly = unrot(x, y)
+  local red = (lx < 0) == (ly < -5)
+  if (x + 2 * y) % 4 == 0 then c:put(x, y, red and EMB[5] or GOLD[5], ktok) end
+end)
+-- spar tips poking out at the corners
+for _, p in ipairs({ { 0, -20.5 }, { 16.5, -5 }, { -16.5, -5 } }) do
+  local x, y = rot(p[1], p[2])
+  O.dot(c, math.floor(x), math.floor(y), WOOD[3])
+end
+-- a teal patch sewn over a tear on the gold panel (upper right), cross stitches at its corners
+do
+  local px, py = rot(6, -10)
+  px, py = math.floor(px), math.floor(py)
+  O.flat(c, c:rect(px, py, px + 3, py + 2), "#2f9a8a", "patch")
+  O.dots(c, { { px, py }, { px + 1, py } }, "#5cc8a8") O.dots(c, { { px + 3, py + 2 }, { px + 2, py + 2 } }, "#1f6a6a")
+  O.dots(c, { { px - 1, py - 1 }, { px + 4, py - 1 }, { px - 1, py + 3 }, { px + 4, py + 3 } }, GOLD[6])
+end
 -- spars
 local sx0, sy0 = rot(0, -18) local sx1, sy1 = rot(0, 17)
 local hx0, hy0 = rot(-14, -5) local hx1, hy1 = rot(14, -5)
@@ -110,7 +135,9 @@ O.shade(c, bow, PINK, { R = 1, amb = .3, cuts = { .3, .55, .8 }, sep = PINK[1] }
 O.dots(c, { { qx - 1, qy + 2 }, { qx - 2, qy + 3 }, { qx + 1, qy + 2 }, { qx + 2, qy + 4 } }, PINK[2]) -- streamers
 O.flat(c, c:rect(qx - 1, qy - 1, qx + 1, qy + 1), PINK[2], "knot") O.dot(c, qx - 1, qy - 1, PINK[4])
 
+
 -- huff puff blown out to the left
+
 local hp = O.unionCircles{ { 13, 22, 2.5, 2 }, { 16, 20, 2, 1.8 } }
 O.shade(c, hp, CLD, { R = 1, amb = .4, cuts = { .35, .6, .85 }, rim = true })
 O.flat(c, c:rect(11, 26, 12, 27), CLD[3], "puff2")

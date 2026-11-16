@@ -62,10 +62,14 @@ roof:cut(ch:copy():cut(c:rect(0, 23, 63, 63)))
 local tI, tT = O.shade(c, roof, TURF, { R = 4, amb = .2, wrap = .35, sep = TURF[1], rim = true })
 O.tex(c, tI, tT, TURF, function(x, y, i)
   if y >= 32 then return nil end
-  local h = H(x, 0, 51)
-  local ph = (y + math.floor(h * 4)) % 4
-  if ph == 0 and h > .3 then return 1 end           -- lit blade tip
-  if ph == 2 and h > .3 and i >= 2 then return -1 end -- dark between blades
+  -- scattered grass tufts on a jittered grid: a lit blade tip with a dark root under it, and a side blade
+  local gx, gy = x // 4, y // 3
+  local jx, jy = math.floor(H(gx, gy, 52) * 3), math.floor(H(gx, gy, 53) * 2)
+  local cx, cy = gx * 4 + jx, gy * 3 + jy
+  if H(gx, gy, 54) < .25 then return nil end
+  if x == cx and y == cy then return 1 end
+  if x == cx and y == cy + 1 and i >= 2 then return -1 end
+  if x == cx + 1 and y == cy + 1 and i >= 3 then return (cx < 32) and 1 or -1 end
 end)
 -- sod edge at the eaves: the cut turf shows earth and roots
 for x = 11, 53 do
@@ -87,9 +91,10 @@ note:add(c:ellipse(52.5, 11.5, 1.5, 1)):add(c:rect(55, 6, 56, 7)):add(c:rect(56,
 O.shade(c, note, SMK, { R = 1, amb = .35, cuts = { .35, .6, .85 } })
 O.dot(c, 52, 11, SMK[4])
 -- a tiny steaming teacup on the right foundation stone
-O.flat(c, c:rect(46, 50, 49, 51), "#e8e0d4", "cup") O.dot(c, 46, 50, "#f8f0e4") O.dot(c, 49, 51, "#b0a8a8")
-O.dot(c, 50, 50, "#e8e0d4") O.dot(c, 47, 51, "#d06a6a") -- handle, a painted rose dot
-O.dots(c, { { 47, 50 }, { 48, 50 } }, "#8a5a3a") -- tea
+O.flat(c, c:rect(52, 52, 55, 54), "#e8e0d4", "cup") O.dot(c, 52, 53, "#f8f0e4") O.dots(c, { { 55, 53 }, { 55, 54 } }, "#b0a8a8")
+O.dot(c, 56, 53, "#d8d0c4") O.dot(c, 53, 54, "#d06a6a") -- handle, a painted rose dot
+O.dots(c, { { 53, 52 }, { 54, 52 } }, "#8a5a3a") O.dot(c, 52, 52, "#c8c0b4") -- tea
+O.dot(c, 53, 49, SMK[3]) O.dot(c, 54, 50, SMK[2]) -- steam wisp
 
 
 -- face on the front wall

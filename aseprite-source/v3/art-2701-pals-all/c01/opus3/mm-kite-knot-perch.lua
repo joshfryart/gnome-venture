@@ -1,4 +1,6 @@
--- Kite Knot (mm-kite-knot), perch sprite 36x36. Opus second pass (c01/opus2), hand-built at this size.
+-- Kite Knot (mm-kite-knot), perch sprite 36x36. Opus third pass (c01/opus3), richness pass over opus2.
+-- Fix: the huff puff moved left and down so a clear gap of air (and both outlines) separates it from the kite.
+-- Richness: a lit fold ridge beside the spars, a few hem stitches, spar tips at the corners, a 2x2 teal patch.
 -- Tilted diamond kite in four panels (ember / gold, two tones each plus a hem), spars as dark creases,
 -- pill eyes under bold ink cross brows, a pout; tail swinging down. Huff puff as one 4 px cloud.
 -- quirk: the pink bow tied in the tail.
@@ -28,9 +30,17 @@ kite:each(function(x, y)
   local red = (lx < 0) == (ly < -3)
   local R = red and EMB or GOLD
   local i = (lx + ly < -6) and 5 or ((lx + ly < 4) and 4 or 3)
+  if (math.abs(lx) >= 1 and math.abs(lx) < 2) or (math.abs(ly + 3) >= 1 and math.abs(ly + 3) < 2) then i = math.min(6, i + 1) end
   c:put(x, y, R[i], ktok)
 end)
 kite:edge():each(function(x, y) local lx, ly = unrot(x, y) c:put(x, y, ((lx < 0) == (ly < -3)) and EMB[2] or GOLD[2], ktok) end)
+kite:copy():shrink(1):edge():each(function(x, y)
+  local lx, ly = unrot(x, y)
+  if (x + 2 * y) % 5 == 0 then c:put(x, y, ((lx < 0) == (ly < -3)) and EMB[5] or GOLD[6], ktok) end
+end)
+for _, p in ipairs({ { 0, -12.3 }, { 12.3, -3 }, { -12.3, -3 } }) do local x, y = rot(p[1], p[2]) O.dot(c, math.floor(x), math.floor(y), "#86563a") end
+do local px, py = rot(4, -6) px, py = math.floor(px), math.floor(py)
+  O.flat(c, c:rect(px, py, px + 1, py + 1), "#2f9a8a", "patch") O.dot(c, px, py, "#5cc8a8") end
 local function crease(a, b)
   local x0, y0 = rot(a[1], a[2]) local x1, y1 = rot(b[1], b[2])
   local nn = math.floor(math.max(math.abs(x1 - x0), math.abs(y1 - y0)))
@@ -55,5 +65,6 @@ local bow = c:poly{ { qx, qy }, { qx - 3, qy - 2 }, { qx - 3, qy + 2 } }:add(c:p
 O.shade(c, bow, PINK, { R = 1, amb = .3, cuts = { .3, .55, .8 } })
 O.dot(c, qx, qy, PINK[2]) O.dot(c, qx - 2, qy - 1, PINK[4])
 -- huff
-O.shade(c, O.unionCircles{ { 5, 13, 2, 1.5 }, { 7, 12, 1.5, 1.2 } }, CLD, { R = 1, amb = .4, cuts = { .35, .6, .85 } })
+O.shade(c, O.unionCircles{ { 4, 16, 2, 1.5 }, { 6, 15.5, 1.5, 1.2 } }, CLD, { R = 1, amb = .4, cuts = { .35, .6, .85 }, rim = true })
+
 O.done(c, "mm-kite-knot-perch")
