@@ -4,14 +4,19 @@
 -- heavy-lidded eyes) sitting low in a cold puddle with a crust of ice round its rim and ripple rings at its sides.
 -- Fixes: the Haiku green gumdrop frog in a flat pond is now a warty toad with a body shape (head, parotoids,
 -- planted forelegs) half sunk in an icy puddle; the notes are proper eighth notes, outlined.
+-- Richness: hue-shifted ramps (navy shadows, mossy-teal mids, frosty mint lights); darker toad blotches, frosted
+-- wart caps with shadow pits, a thin frost crust along the top of the head and eye bumps, belly speckle, toes
+-- splayed at the waterline, the toad's dark reflection in the puddle, a faceted ice crust with crystal glints.
+-- closer look: a tiny tadpole asleep in the puddle (the lullaby is for it).
 -- quirk: humming with its mouth closed in a sleepy smile, a lullaby of gold notes drifting up.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, P = O.HP, O.P
 local c = O.canvas("pl-frt-2-yard", 64)
 
-local TOAD = { "#1c2a3a", "#2c4252", "#46646e", "#6a8a88", "#9ab4a6", "#cadcc8" }
-local BELY = { "#8a9a8a", "#b4c2ae", "#d8e2cc", "#eef4e2" }
+local TOAD = { "#1a2438", "#283e52", "#3e5e6a", "#5e8682", "#8eb4a0", "#cce4c8" }
+local BELY = { "#8a9a8e", "#b2c2ae", "#d6e2ca", "#eef4e0" }
+local FROST = "#e2f2f2"
 local POOL = { "#1e3466", "#2c5294", "#3a7ab0", "#5fa8cc", "#9ad2e4" }
 local GOLD = { "#7a3a1c", "#b85c1f", "#e08a26", "#f5b82e", "#ffd970", "#fff0b0" }
 local BNC = "#3a6a9a"
@@ -24,6 +29,15 @@ local rimPx = {}
 pool:edge():each(function(x, y) if y <= 52 then rimPx[#rimPx+1] = { x, y } end end)
 O.mark(c, rimPx, "#d4eef8")
 O.mark(c, { { 7, 53 }, { 8, 54 }, { 55, 54 }, { 54, 55 }, { 12, 56 } }, "#d4eef8")
+-- crystal glints in the crust: a few brighter facets and darker joins
+for k, q in ipairs(rimPx) do if k % 5 == 0 then O.mark(c, { q }, "#f4fbf6") elseif k % 5 == 2 then O.mark(c, { q }, "#9ad2e4") end end
+-- the toad's dark reflection in the water
+local refl = {}
+for x = 15, 47 do for y = 52, 55 do if pool:has(x, y) and y <= 54 and math.abs(x - 31) < 16 - (y - 52) * 3 then refl[#refl+1] = { x, y } end end end
+O.mark(c, refl, POOL[2])
+-- closer look: tiny tadpole asleep in the puddle
+O.dots(c, { { 9, 52 }, { 10, 52 }, { 9, 53 }, { 10, 53 } }, "#283e52") O.dot(c, 9, 52, "#5e8682")
+O.dots(c, { { 11, 53 }, { 12, 53 }, { 13, 54 } }, "#3e5e6a")
 
 -- body
 local body = c:ellipse(31, 41, 17, 10)
@@ -34,6 +48,17 @@ body:add(hump)
 body:add(c:ellipse(15, 31, 4, 3)):add(c:ellipse(47, 31, 4, 3))
 body:cut(c:rect(0, 51, 63, 63))
 local bI, bT = O.shade(c, body, TOAD, { sphere = { 26, 25, 22 }, amb = .3, wrap = .4, sep = TOAD[1], rim = true, bounce = BNC, bmax = 2 })
+-- toad blotches: soft 2x2 darker patches on the back and flanks (off the face)
+O.tex(c, bI, bT, TOAD, function(x, y, i)
+  if y >= 30 and y <= 38 and x > 17 and x < 46 then return 0 end
+  if O.H(x // 2, y // 2, 12) > .82 and i >= 3 and i <= 5 then return -1 end
+end)
+-- frost crust along the top silhouette (head and eye bumps)
+do
+  local fl = {}
+  body:each(function(x, y) if y < 31 and not body:has(x, y - 1) and (x + y) % 3 ~= 0 then fl[#fl+1] = { x, y } end end)
+  O.mark(c, fl, FROST)
+end
 -- warts: frosted tips upper-left, shadow pit lower-right
 local warts = {}
 for y = 22, 50 do for x = 12, 52 do
@@ -51,12 +76,16 @@ O.mark(c, { { 14, 30 }, { 16, 31 }, { 46, 30 }, { 48, 31 } }, TOAD[3])
 
 -- pale throat/belly showing above the water
 local bel = c:ellipse(31, 46, 8, 4.5) bel:cut(c:rect(0, 50, 63, 63))
-O.shade(c, bel, BELY, { R = 2, amb = .45, cuts = { .3, .6, .85 } })
+local eI, eT = O.shade(c, bel, BELY, { R = 2, amb = .45, cuts = { .3, .6, .85 } })
+O.tex(c, eI, eT, BELY, function(x, y, i) if O.H(x, y, 44) > .88 then return -1 end end)
 
 -- forelegs planted in the water
 for _, s in ipairs({ { 18, -1 }, { 44, 1 } }) do
   local m, n = O.tube({ { s[1] - s[2] * 2, 40 }, { s[1], 43 }, { s[1] + s[2], 46 }, { s[1] + s[2], 50 } }, function() return 2.2 end)
-  O.shadeN(c, m, n, TOAD, { amb = .3, sep = TOAD[1] })
+  O.shadeN(c, m, n, TOAD, { amb = .3, sep = TOAD[1], rim = true })
+  -- splayed toes at the waterline
+  local tx = s[1] + s[2]
+  O.dots(c, { { tx - 2, 50 }, { tx + 2, 50 } }, TOAD[4]) O.dot(c, tx - 2, 49, TOAD[5])
 end
 
 -- ripple rings either side, drawn over the pool
@@ -81,10 +110,12 @@ O.dots(c, { { 25, 37 }, { 26, 37 }, { 36, 37 }, { 37, 37 } }, TOAD[3])
 -- lullaby notes (outlined by finish)
 local function note(x, y, two)
   O.shade(c, c:ellipse(x, y, 2, 1.5), GOLD, { R = 1, amb = .4, sep = GOLD[1] })
+  O.dot(c, x - 1, y - 1, GOLD[6])
   O.flat(c, c:rect(x + 2, y - 7, x + 2, y), GOLD[3], "stem")
   if two then
     O.flat(c, c:rect(x + 9, y - 9, x + 9, y - 2), GOLD[3], "stem")
     O.shade(c, c:ellipse(x + 7, y - 2, 2, 1.5), GOLD, { R = 1, amb = .4, sep = GOLD[1] })
+    O.dot(c, x + 6, y - 3, GOLD[6])
     O.flat(c, c:line({ { x + 2, y - 7 }, { x + 9, y - 9 } }, 2), GOLD[4], "beam")
   else
     O.flat(c, c:line({ { x + 3, y - 6 }, { x + 5, y - 4 }, { x + 5, y - 2 } }, 1), GOLD[4], "flag")
@@ -96,4 +127,6 @@ note(8, 18, false)
 O.shift(c, 0, 1)
 O.done(c, "pl-frt-2-yard", function(c)
   c:put(44, 9, "#ffe38a") c:put(16, 9, "#ffe38a")
+  -- a tiny "z" over the sleeping tadpole
+  for _, q in ipairs({ { 4, 44 }, { 5, 44 }, { 6, 44 }, { 7, 44 }, { 6, 45 }, { 5, 46 }, { 4, 47 }, { 5, 47 }, { 6, 47 }, { 7, 47 } }) do c:put(q[1], q[2], "#5fa8cc") end
 end)

@@ -5,26 +5,36 @@
 -- weed, a pale plastron edge, long paddle flippers (far pair darker), teal-green scaly skin.
 -- Fixes: the Haiku flat green dome on land legs is now a real sea turtle (paddle flippers, scutes, plastron);
 -- the head faces the viewer so the wink reads (one locked eye, one closed arc), and the shell shows its age.
+-- Richness: hue-shifted ramps (olive shell into cool umber shadows, teal skin with yellow-green lights); concentric
+-- growth rings inside every scute, moss stains and weathering on the old carapace; reticulated scales on the
+-- flippers with pale leading edges; head plates.
+-- Fix (opus2 weakness: plain plastron band): the plastron is now hinged plates with dark seams, lit plate edges
+-- and a shaded underside.
+-- closer look: a little striped remora hitching a ride under the plastron.
 -- quirk: the slow wink.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, P = O.HP, O.P
 local c = O.canvas("cs-keel-drift-yard", 64)
 
-local SHEL = { "#2e2418", "#4a3a20", "#6e5a2a", "#94803a", "#b8a65a", "#dccf8c" }
-local SKIN = { "#16343a", "#215650", "#337a66", "#52a27e", "#86c896", "#c0e8b8" }
-local SKNB = { "#16343a", "#215650", "#2a6a5c", "#3a8a6a", "#52a27e" }
+local SHEL = { "#2a2020", "#463624", "#6a5628", "#927e36", "#b8a858", "#e0d494" }
+local SKIN = { "#14303e", "#1e5252", "#307866", "#4ea27a", "#86c88e", "#c8ecb0" }
+local SKNB = { "#14303e", "#1e5252", "#286a5e", "#38886a", "#4ea27a" }
+local MOSS = { "#3f6a3a", "#5e8a40" }
 local GOLD = { "#7a3a1c", "#b85c1f", "#e08a26", "#f5b82e", "#ffd970", "#fff0b0" }
-local PLAS = { "#8a6a3a", "#c4a060", "#e8cc8a", "#f8ecc0" }
+local PLAS = { "#7a5a3a", "#b89058", "#e2c482", "#f8ecc0" }
 local BNC = "#2a6a8a"
 
 c:groundShadow(30, 59, 21, 2)
 
 local function flip(p, w0, ramp, o)
   local m, n = O.tube(p, function(t) return w0 * (.65 + math.sin(math.pi * t) * .55) * (1 - t * .45) end)
-  local I, T = O.shadeN(c, m, n, ramp, { amb = .25, wrap = .35, sep = SKIN[1], bounce = o and BNC, bmax = 2 })
-  -- scale spots
-  O.tex(c, I, T, ramp, function(x, y, i) if O.H(x, y, 17) > .9 and i >= 3 then return 1 end end)
+  local I, T = O.shadeN(c, m, n, ramp, { amb = .25, wrap = .35, sep = SKIN[1], bounce = o and BNC, bmax = 2, rim = o })
+  -- reticulated scales: dark grid between plates, a lit speck on some plates
+  O.tex(c, I, T, ramp, function(x, y, i)
+    if o and i >= 3 and (x % 3 == 0 or (y + (x // 3)) % 3 == 0) then return -1 end
+    if O.H(x, y, 17) > .9 and i >= 3 then return 1 end
+  end)
   return m
 end
 -- far flippers (behind the shell, darker)
@@ -36,8 +46,23 @@ local neck = O.tube({ { 42, 34 }, { 46, 33 }, { 48, 31 }, { 50, 30 } }, function
 O.shade(c, neck, SKIN, { R = 3, amb = .25, wrap = .35, sep = SKIN[1] })
 
 -- plastron edge, peeking under the carapace
+-- closer look: a striped remora riding under the plastron (drawn first, plastron overlaps its back)
+do
+  local rm = c:ellipse(24, 45.5, 4, 1.5)
+  O.shade(c, rm, { "#3a4a6a", "#6a7a96", "#a6b4c4", "#d8e0e4" }, { R = 1, amb = .4, cuts = { .3, .6, .85 } })
+  O.mark(c, { { 21, 45 }, { 22, 45 }, { 23, 45 }, { 24, 45 }, { 25, 45 }, { 26, 45 } }, "#3a4a6a")
+  O.flat(c, c:poly{ { 20, 44 }, { 18, 43 }, { 18, 46 } }, "#6a7a96", "tail")
+  O.dot(c, 27, 44, P.ink)
+end
 local plas = c:ellipse(28, 41, 15, 3)
-O.shade(c, plas, PLAS, { R = 2, amb = .35, cuts = { .3, .55, .8 }, sep = SHEL[1] })
+local pI, pT = O.shade(c, plas, PLAS, { R = 2, amb = .35, cuts = { .3, .55, .8 }, sep = SHEL[1] })
+-- hinged plates: dark seam every 6 px, lit edge just left of it, shaded lower row
+O.tex(c, pI, pT, PLAS, function(x, y, i)
+  local k = (x - 14) % 6
+  if k == 0 then return -2 end
+  if k == 1 and y <= 41 then return 1 end
+  if y >= 43 then return -1 end
+end)
 
 -- carapace
 local shell = c:ellipse(28, 30, 19, 13)
@@ -69,7 +94,27 @@ for _, q in ipairs(seamPx) do
 end
 O.mark(c, bev, SHEL[5])
 O.mark(c, seamPx, SHEL[1])
--- growth rings: pale inner outline in two scutes
+-- growth rings: a darker ring 3 px inside every scute seam, moss stains on the old shell
+do
+  local ring = {}
+  shell:each(function(x, y)
+    if isSeam[x .. "," .. y] then return end
+    local dmin = 9
+    for _, q in ipairs(seamPx) do
+      local d = math.max(math.abs(q[1] - x), math.abs(q[2] - y))
+      if d < dmin then dmin = d end
+    end
+    if dmin == 3 and y < 38 and shell:has(x, y + 2) then ring[#ring+1] = { x, y } end
+  end)
+  local l = {}
+  for _, q in ipairs(ring) do local col = c:get(q[1], q[2]) if col then l[#l+1] = q end end
+  O.tex(c, sI, sT, SHEL, function(x, y, i)
+    for _, q in ipairs(ring) do if q[1] == x and q[2] == y then return -1 end end
+  end)
+  O.tex(c, sI, sT, SHEL, function(x, y, i)
+    if y < 33 and O.H(x // 2, y // 2, 29) > .93 and i >= 3 and i <= 5 and not isSeam[x .. "," .. y] then local q = y * c.w + x c.pix[q] = MOSS[i <= 3 and 1 or 2] end
+  end)
+end
 O.mark(c, { { 22, 22 }, { 23, 21 }, { 24, 21 }, { 25, 22 }, { 30, 21 }, { 31, 21 }, { 32, 22 }, { 33, 22 } }, SHEL[5])
 -- gold-trimmed marginal rim
 local rim = shell:copy():cut(c:ellipse(28, 28.5, 18, 10.5))

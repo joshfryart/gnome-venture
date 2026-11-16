@@ -1,15 +1,18 @@
--- Claw Sail (cs-claw-sail), perch sprite 36x36. Opus second pass, hand-built at this size: red crab in a slim
+-- Claw Sail (cs-claw-sail), perch sprite 36x36. Opus richness pass (c08/opus3), hand-built at this size: red crab in a slim
 -- wooden canoe on a strip of sea, eyes on stalks (2x3 pills), claws up, a sky-blue crab-claw sail with a concave
 -- top and one seam, wooden spars.
+-- Fix (opus2 weakness: eyes sat low on short stalks): stalks are now 6 px tall and splay outward, the eye bulbs
+-- sit high and clear of the grin with 2x3 pills in them. Bold extras: dark claw tips, lit granules, a plank seam
+-- on the hull, a patch on the sail, foam flecks.
 -- quirk: the very large grin with a row of cream teeth.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, P = O.HP, O.P
 local c = O.canvas("cs-claw-sail-perch", 36)
 
-local RED  = { "#5a1830", "#94263a", "#c83a3a", "#e8603e", "#ff9268", "#ffc4a0" }
-local WOOD = { "#3e2420", "#5e3428", "#864c33", "#b97a4a", "#d89a62", "#f0c48c" }
-local SAIL = { "#3a5a9a", "#5f9ad0", "#8bc4ea", "#b9e2f5", "#e4f6ff" }
+local RED  = { "#4e1834", "#8c2440", "#c43a3c", "#e8623e", "#ff9466", "#ffcc9a" }
+local WOOD = { "#3a2224", "#5a3228", "#864c33", "#b47848", "#d89e64", "#f2c88e" }
+local SAIL = { "#36528e", "#5a94cc", "#88c0e8", "#b8e0f4", "#e4f6fc" }
 local SEA  = { "#2a4a7a", "#3a86b0", "#5fc4c8", "#b6f0e0" }
 
 c:groundShadow(18, 33, 12, 1.5)
@@ -30,14 +33,17 @@ do
     if rx - lx < 3 then return end
     if math.abs((x - lx) / (rx - lx) - .5) < .08 then return -2 end
   end)
+  O.flat(c, c:rect(29, 10, 30, 11), "#f6e8c4", "patch") O.dot(c, 29, 10, "#fff4d6")
   O.flat(c, (O.tube({ { ax, ay }, { 23, 16 }, { 22, 9 }, { 21, 3 } }, function() return .7 end)), WOOD[3], "spar")
   O.flat(c, (O.tube({ { ax, ay }, { 29, 16 }, { 31, 10 }, { 33, 5 } }, function() return .7 end)), WOOD[3], "spar")
 end
 -- crab
-O.shade(c, c:ellipse(14, 22, 8, 5), RED, { sphere = { 12, 19, 9 }, amb = .28, wrap = .4, sep = RED[1], rim = true, bounce = "#5a6ab0", bmax = 2 })
-O.flat(c, c:rect(10, 15, 10, 18), RED[3], "stalk") O.flat(c, c:rect(17, 15, 17, 18), RED[3], "stalk")
-O.shade(c, c:ellipse(10.5, 14, 2, 2), RED, { R = 1, amb = .4, sep = RED[1] })
-O.shade(c, c:ellipse(17.5, 14, 2, 2), RED, { R = 1, amb = .4, sep = RED[1] })
+local bI, bT = O.shade(c, c:ellipse(14, 22, 8, 5), RED, { sphere = { 12, 19, 9 }, amb = .28, wrap = .4, sep = RED[1], rim = true, bounce = "#5a6ab0", bmax = 2 })
+O.tex(c, bI, bT, RED, function(x, y, i) if y < 20 and O.H(x, y, 21) > .85 and i >= 3 then return 1 end end)
+-- tall splayed stalks, high eye bulbs
+O.flat(c, c:line({ { 11, 18 }, { 10, 13 } }, 1), RED[3], "stalk") O.flat(c, c:line({ { 17, 18 }, { 18, 13 } }, 1), RED[4], "stalk")
+O.shade(c, c:ellipse(9.5, 10.5, 2.5, 2.5), RED, { sphere = { 8.5, 9.5, 3 }, amb = .4, sep = RED[1], rim = true })
+O.shade(c, c:ellipse(18.5, 10.5, 2.5, 2.5), RED, { sphere = { 17.5, 9.5, 3 }, amb = .4, sep = RED[1], rim = true })
 -- claws
 for _, s in ipairs({ { 5, 17, 8, 22 }, { 24, 17, 21, 22 } }) do
   local m, n = O.tube({ { s[3], s[4] }, { (s[1] + s[3]) / 2, s[4] }, { s[1], s[4] - 2 }, { s[1], s[2] + 1 } }, function() return 1.1 end)
@@ -45,19 +51,22 @@ for _, s in ipairs({ { 5, 17, 8, 22 }, { 24, 17, 21, 22 } }) do
   O.shade(c, c:ellipse(s[1], s[2], 2, 2), RED, { R = 1, amb = .35, sep = RED[1] })
   O.shade(c, c:rect(s[1] - 1, s[2] - 4, s[1] - 1, s[2] - 2), RED, { R = 1, amb = .45 })
   O.shade(c, c:rect(s[1] + 1, s[2] - 3, s[1] + 1, s[2] - 2), RED, { R = 1, amb = .45 })
+  O.dots(c, { { s[1] - 1, s[2] - 4 }, { s[1] + 1, s[2] - 3 } }, "#4a2a36")
 end
 -- hull
 local hull = c:poly{ { 2, 23 }, { 5, 25 }, { 30, 25 }, { 33, 22 }, { 31, 27 }, { 28, 30 }, { 7, 30 }, { 4, 27 } }
-O.shade(c, hull, WOOD, { R = 2, amb = .28, wrap = .35, sep = WOOD[1], rim = true })
+local hI, hT = O.shade(c, hull, WOOD, { R = 2, amb = .28, wrap = .35, sep = WOOD[1], rim = true })
+O.tex(c, hI, hT, WOOD, function(x, y, i) if y == 28 and x % 5 ~= 0 then return -1 end end)
 O.flat(c, c:rect(4, 25, 30, 25), WOOD[5], "gunwale")
 for x = 8, 28, 5 do O.dots(c, { { x, 27 }, { x + 1, 26 }, { x + 2, 27 } }, "#fff4d6") end
 -- sea
 local sea = HP.mask()
 for x = 3, 32 do local top = 29 + ((x // 3) % 2) for y = top, 31 do sea:set(x, y) end end
 O.shade(c, sea, SEA, { R = 1, amb = .4, cuts = { .3, .55, .8 } })
+O.dots(c, { { 32, 28 }, { 3, 28 } }, "#e4f6ff")
 -- face
-c:eyeSmall(10, 13)
-c:eyeSmall(17, 13)
+c:eyeSmall(9, 9)
+c:eyeSmall(18, 9)
 O.dots(c, { { 8, 20 }, { 20, 20 } }, "#f5809f")
 O.dots(c, { { 9, 21 }, { 10, 21 }, { 11, 21 }, { 12, 21 }, { 13, 21 }, { 14, 21 }, { 15, 21 }, { 16, 21 }, { 17, 21 }, { 18, 21 }, { 19, 21 },
             { 9, 22 }, { 19, 22 }, { 10, 23 }, { 11, 23 }, { 12, 23 }, { 13, 23 }, { 14, 23 }, { 15, 23 }, { 16, 23 }, { 17, 23 }, { 18, 23 } }, P.ink)
