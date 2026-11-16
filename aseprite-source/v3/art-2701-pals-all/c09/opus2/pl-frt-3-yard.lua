@@ -36,15 +36,15 @@ for y = top, cy + r do
     if math.abs(x + .5 - cx - .5) <= w then drop:set(x, y) end
   end
 end
-local dI, dT = O.shade(c, drop, WATER, { sphere = { 28, 32, 20 }, amb = .2, wrap = .5, rim = true, bounce = "#7a6fc0", bmax = 3 })
+local dI, dT = O.shade(c, drop, WATER, { sphere = { 28, 32, 20 }, amb = .28, wrap = .6, rim = true, bounce = "#7a6fc0", bmax = 3 })
 -- caustic crescent: light through the drop lands inside the lower-right edge
 local ring = drop:edge()
 local inner = drop:copy():cut(ring)
 local ring2 = inner:edge()
 O.tex(c, dI, dT, WATER, function(x, y, i)
   local dx, dy = x - 32, y - 40
-  if dy > 2 and dx > -6 and ring2:has(x, y) and (dx + dy) > 8 then return 2 end
-  if dy > 0 and dx > -2 and ring:has(x, y) and i <= 3 then return 1 end
+  if dy > 1 and dx > -8 and ring2:has(x, y) and (dx + dy) > 6 then return 3 end
+  if dy > 3 and dx > -9 and inner:shrink(1):edge():has(x, y) and (dx + dy) > 9 then return 1 end
 end)
 -- window highlight: a curved streak upper-left and a round spec
 O.dots(c, { { 21, 30 }, { 21, 31 }, { 21, 32 }, { 22, 28 }, { 22, 29 }, { 23, 27 }, { 24, 26 } }, WATER[6])
@@ -52,17 +52,18 @@ O.dots(c, { { 22, 33 }, { 25, 25 } }, WATER[5])
 O.dots(c, { { 27, 29 }, { 26, 29 } }, WATER[6])
 
 -- frost fleck melting on the crown
-O.dots(c, { { 34, 14 }, { 35, 14 }, { 34, 15 } }, FROST[3])
-O.dots(c, { { 33, 15 }, { 35, 15 }, { 34, 16 } }, FROST[2])
+O.dots(c, { { 40, 24 }, { 38, 26 }, { 42, 26 }, { 40, 28 } }, FROST[3])
+O.dots(c, { { 40, 25 }, { 39, 26 }, { 41, 26 }, { 40, 27 } }, FROST[2])
+O.dot(c, 40, 26, "#5f8fd0")
 
 -- face: sleepy-wide eyes and the yawn
 c:eyeLocked(22, 33)
 c:eyeLocked(37, 33)
 c:cheek(21, 40) c:cheek(42, 40)
-local mouth = c:ellipse(32, 44, 3, 4)
+local mouth = c:ellipse(32, 44.5, 2.5, 4.5)
 O.flat(c, mouth, "#5a2a4a", "mouth")
-O.flat(c, c:ellipse(32, 46.5, 2, 1.2), P.petal.base, "tongue")
-O.dots(c, { { 31, 46 } }, P.petal.hi)
+O.flat(c, c:ellipse(32, 47, 1.5, 1.2), P.petal.base, "tongue")
+O.dots(c, { { 31, 47 } }, P.petal.hi)
 mouth:edge():each(function(x, y) c:put(x, y, P.ink, { r = { name = "lip" } }) end)
 O.dots(c, { { 30, 41 }, { 31, 41 } }, "#3a2a50") -- top palate shade
 

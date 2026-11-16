@@ -34,7 +34,8 @@ for a = 0, 330, 30 do
 end
 body:cut(c:rect(0, 53, 63, 63))
 -- cowlick on the crown
-body:add(c:poly{ { 29, 21 }, { 31, 15 }, { 34, 14 }, { 33, 17 }, { 33, 21 } })
+local curl = O.tube({ { 31, 22 }, { 30, 17 }, { 33, 13 }, { 36, 15 } }, function(t) return 1.7 - t * 0.9 end)
+body:add(curl)
 local bI, bT = O.shade(c, body, DOWN, { sphere = { 26, 29, 21 }, amb = .2, wrap = .4, rim = true, bounce = BNC, bmax = 2 })
 -- down texture: soft wisps (1 tone darker short ticks) all over, lighter flecks on the lit side
 O.tex(c, bI, bT, DOWN, function(x, y, i)
@@ -42,13 +43,17 @@ O.tex(c, bI, bT, DOWN, function(x, y, i)
   if h > .86 and i >= 3 then return -1 end
   if h < .06 and i <= 4 then return 1 end
 end)
-O.mark(c, { { 32, 15 }, { 33, 15 } }, DOWN[6]) O.mark(c, { { 31, 17 } }, DOWN[3])
+O.mark(c, { { 31, 16 }, { 31, 17 } }, DOWN[6])
 
 -- belly: paler, with faint grey chevrons
 local belly = c:ellipse(31, 44, 9, 8)
 belly:cut(c:rect(0, 53, 63, 63))
 local blb = {}
-belly:each(function(x, y) if (y - 40) % 3 == 0 and y > 39 and ((x + y) % 4 == 0 or (x - y) % 4 == 0) then blb[K(x, y)] = -2 end end)
+belly:each(function(x, y)
+  local r = y - 40
+  if r >= 0 and r % 4 == 0 and (x + (r // 4) * 2) % 4 ~= 0 and (x + (r // 4) * 2) % 4 ~= 2 then blb[K(x, y)] = -2 end
+  if r >= 0 and r % 4 == 1 and (x + (r // 4) * 2) % 4 == 2 then blb[K(x, y)] = -2 end
+end)
 O.shade(c, belly, DOWN, { R = 3, bias = blb, amb = .55, wrap = .6 })
 
 -- wings: right one folded, left one flopped out in a bored stretch
@@ -92,9 +97,10 @@ O.shift(c, 0, 1)
 O.done(c, "pl-owl-4-yard", function(c)
   -- peep ticks off the beak (not outlined)
   for _, p in ipairs({ { 39, 30 }, { 40, 29 }, { 41, 28 }, { 41, 33 }, { 42, 33 }, { 43, 33 }, { 40, 36 }, { 41, 37 }, { 42, 38 } }) do
-    c:put(p[1] + 7, p[2], P.ink)
+    c:put(p[1] + 11, p[2], P.ink)
   end
   -- a tiny cream note floating up from the peep
-  for _, p in ipairs({ { 53, 24 }, { 54, 24 }, { 53, 25 }, { 54, 25 }, { 55, 20 }, { 55, 21 }, { 55, 22 }, { 55, 23 }, { 55, 24 }, { 56, 20 }, { 57, 21 } }) do c:put(p[1], p[2], P.cream) end
-  for _, p in ipairs({ { 52, 24 }, { 52, 25 }, { 53, 26 }, { 54, 26 }, { 56, 22 }, { 56, 23 }, { 56, 24 }, { 54, 20 }, { 54, 19 }, { 55, 19 }, { 56, 19 }, { 57, 20 }, { 58, 21 }, { 57, 22 } }) do c:put(p[1], p[2], P.ink) end
+  local nx, ny = -4, -4
+  for _, p in ipairs({ { 53, 24 }, { 54, 24 }, { 53, 25 }, { 54, 25 }, { 55, 20 }, { 55, 21 }, { 55, 22 }, { 55, 23 }, { 55, 24 }, { 56, 20 }, { 57, 21 } }) do c:put(p[1] + nx, p[2] + ny, P.cream) end
+  for _, p in ipairs({ { 52, 24 }, { 52, 25 }, { 53, 26 }, { 54, 26 }, { 56, 22 }, { 56, 23 }, { 56, 24 }, { 54, 20 }, { 54, 19 }, { 55, 19 }, { 56, 19 }, { 57, 20 }, { 58, 21 }, { 57, 22 } }) do c:put(p[1] + nx, p[2] + ny, P.ink) end
 end)
