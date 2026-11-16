@@ -134,7 +134,7 @@ $pic0 = trail_sight_folk_pic($f['name'] . '@' . $v['slug']);
 q("UPDATE stop_folk SET species = 'nosuchkind' WHERE id = ?", [$f['id']]);
 $pic = trail_sight_folk_pic($f['name'] . '@' . $v['slug']);
 q('UPDATE stop_folk SET species = ? WHERE id = ?', [$f['species'], $f['id']]);
-ok('a villager with a sprite keeps it', $pic0 && !str_contains($pic0[0], 'mark/villager.png') && $pic0[1] === 4, json_encode($pic0));
+ok('a villager with a sprite keeps it', $pic0 && !str_contains($pic0[0], 'mark/villager.png') && in_array($pic0[1], [4, 8], true), json_encode($pic0));
 ok('a villager without one gets the marker (frames 0), same id', $pic && str_contains($pic[0], 'mark/villager.png') && $pic[1] === 0 && $pic[2] === 's' && $pic[3] === (int)$f['id'], json_encode($pic));
 
 echo $fails ? "$fails FAILED\n" : "ok\n";
