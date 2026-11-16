@@ -135,12 +135,31 @@ function admin_icon(string $id): string
         'update' => '<path d="M12 20V5M5 11l7-7 7 7"/>',
         'mail' => '<rect x="3" y="5" width="18" height="14"/><path d="M3 6l9 8 9-8"/>',
         'close' => '<path d="M6 6l12 12M18 6 6 18"/>',
+        'log' => '<path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/>',
+        'gift' => '<path d="M4 9h16v4H4zM6 13v8h12v-8M12 9v12M12 9c-3 0-5-1-5-3s3-2 5 3c2-5 5-3 5-3s-2 3-5 3"/>',
+        'puzzle' => '<path d="M4 4h6v3a2 2 0 1 0 4 0V4h6v6h-3a2 2 0 1 0 0 4h3v6H4z"/>',
+        'cap' => '<path d="M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5"/>',
+        'code' => '<path d="M8 6l-6 6 6 6M16 6l6 6-6 6M14 4l-4 16"/>',
+        'pen' => '<path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/>',
+        'clock' => '<rect x="3" y="3" width="18" height="18"/><path d="M12 7v5l3 3"/>',
+        'dna' => '<path d="M7 3c0 6 10 6 10 12s-10 6-10 6M17 3c0 6-10 6-10 12s10 6 10 6M8 8h8M8 16h8"/>',
+        'boot' => '<path d="M6 3h6v8l7 3v5H6z"/>',
         'ok' => '<rect x="3" y="3" width="18" height="18"/><path d="M7 12l4 4 6-8"/>',
         'warn' => '<path d="M12 3 22 21H2zM12 10v5M12 18v.01"/>',
         'err' => '<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8zM9 9l6 6M15 9l-6 6"/>',
         'info' => '<rect x="3" y="3" width="18" height="18"/><path d="M12 11v6M12 7v.01"/>',
     ];
     return '<svg class="aico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . ($d[$id] ?? $d['info']) . '</svg>';
+}
+
+/** Icon for one menu entry: a page file gets its own glyph where there is one, a data editor (r:...) keeps its section's. */
+function admin_entry_icon(string $key, string $sid): string
+{
+    static $m = ['update.php' => 'update', 'settings.php' => 'system', 'tools.php' => 'items', 'log.php' => 'log', 'feedback.php' => 'mail', 'grant.php' => 'gift', 'puzzlebox.php' => 'puzzle',
+        'mentors.php' => 'cap', 'gourmand.php' => 'folk', 'livingstops.php' => 'garden', 'hybrids.php' => 'dna', 'callings.php' => 'log', 'treks.php' => 'boot', 'trek_text.php' => 'pen',
+        'xp.php' => 'progress', 'retention.php' => 'progress', 'usage.php' => 'progress', 'gameclock.php' => 'clock', 'texts.php' => 'content', 'road_text.php' => 'pen', 'code.php' => 'code',
+        'trailsights.php' => 'world', 'trail_decor.php' => 'garden', 'images.php' => 'art', 'artguide.php' => 'content', 'here_layout.php' => 'world', 'puzzles.php' => 'puzzle', 'jigsaw.php' => 'puzzle'];
+    return admin_icon($m[$key] ?? $sid);
 }
 
 /** Dashboard "Needs a look": each item is [level ok|warn|err|info, text HTML, action HTML or '']. Every row says its level in words, not colour alone. */
@@ -247,7 +266,7 @@ function admin_menu_render(): void
             if ($name === null) $name = (string)($res[substr($key, 2)]['label'] ?? $key);
             [$btxt, $bcls] = $b[$ck] ?? ['', ''];
             $find = strtolower($name . ' ' . $sub . ' ' . $stitle);
-            echo '<a class="choice" href="' . e(admin_menu_url($key)) . '" data-find="' . e($find) . '"><span class="choice-ico" aria-hidden="true">' . admin_icon($sid) . '</span><span class="choice-body"><b class="choice-title">' . e($name) . '</b><small class="choice-sub">' . e($sub) . '</small></span>';
+            echo '<a class="choice" href="' . e(admin_menu_url($key)) . '" data-find="' . e($find) . '"><span class="choice-ico" aria-hidden="true">' . admin_entry_icon($key, $sid) . '</span><span class="choice-body"><b class="choice-title">' . e($name) . '</b><small class="choice-sub">' . e($sub) . '</small></span>';
             if ($btxt !== '') echo '<b class="choice-badge' . ($bcls !== '' ? ' ' . $bcls : '') . '">' . e($btxt) . '</b>';
             echo '</a>';
         }
@@ -284,7 +303,7 @@ function admin_nav_sheet(): string
         $tl = '';
         foreach ($entries as [$key, $ico, $name]) {
             if ($name === null) $name = (string)($res[substr($key, 2)]['label'] ?? $key);
-            $tl .= $tile(admin_menu_url($key), $key, admin_icon($sid), $name);
+            $tl .= $tile(admin_menu_url($key), $key, admin_entry_icon($key, $sid), $name);
         }
         $cur = str_contains($tl, 'navtile on');
         $h .= '<details class="navgroupt anavsec' . ($cur ? ' cur' : '') . '"' . ($cur ? ' open' : '') . '><summary><h3>' . admin_icon($sid) . ' ' . e($stitle) . ' <small>' . count($entries) . '</small></h3></summary><div class="navtiles">' . $tl . '</div></details>';

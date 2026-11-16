@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.7.04
-- **Admin look: "Stitched Toy, grown up" (mockup A, `admin_mockups_A_felt.html`).** Drawn SVG icons (`admin_icon()`, 2 px square-cap strokes, one per section) replace the emoji in the Admin menu, the side menu / menu sheet, the breadcrumbs and the status messages. Admin > Dashboard opens with a "Needs a look" panel (`admin_triage_render()`): site_url, maintenance, failed upgrade steps, install.php, error log and new messages are rows with a Problem / Check / Note chip (icon and word, never colour alone) and an action button; the red and green banners are gone.
+- **Admin look: "Stitched Toy, grown up" (mockup A, `admin_mockups_A_felt.html`).** Drawn SVG icons (`admin_icon()`, 2 px square-cap strokes; one per section, and admin pages such as Update, Messages, Admin log, Give / take items, Code and Usage get their own via `admin_entry_icon()`) replace the emoji in the Admin menu, the side menu / menu sheet, the breadcrumbs and the status messages. Admin > Dashboard opens with a "Needs a look" panel (`admin_triage_render()`): site_url, maintenance, failed upgrade steps, install.php, error log and new messages are rows with a Problem / Check / Note chip (icon and word, never colour alone) and an action button; the red and green banners are gone.
 - **Recent and Pinned (admin.js).** The last pages you opened and the pages you pinned (pin button in the breadcrumb bar) show on the Dashboard. Stored in this browser only (`gv-admin-recent`, `gv-admin-pins`); nothing on the server.
 - **Game settings and data editors.** Settings you have changed since the page loaded get a "Changed" mark and the Save bar sticks to the bottom with a count; list tables get a sticky header, calmer hover and a 44 px pager (`admin.css`).
 

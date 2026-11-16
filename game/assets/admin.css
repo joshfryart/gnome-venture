@@ -157,3 +157,4 @@ body.admin .chips.jump a { display: inline-flex; align-items: center; min-height
 body.admin .arows .choice { text-align: left; }
 body.admin .arows .choice-body { align-items: flex-start; }
 body.admin main table.grid td a { min-height: 44px; }
+.aqcol a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 3px; }
