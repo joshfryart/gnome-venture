@@ -787,5 +787,5 @@ function meal_tiers_boot(): void
     foreach (['smoked-trout', 'grilled-sardines', 'falafel', 'kangkong-stir-fry', 'fiddlehead-fry', 'goat-milk-porridge', ...$more] as $slug) {
         q("UPDATE recipes SET tier = 'meal', cook_minutes = 15, batch_max = 1, energy = ? WHERE slug = ? AND category = 'cooking' AND tier = 'snack' AND cook_minutes = 3", [$cost['meal'], $slug]);
     }
-    set_setting('upg_meal_tiers', '1');
+    set_setting('upg_meal_tiers2', '1');
 }
