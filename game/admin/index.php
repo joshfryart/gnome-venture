@@ -77,6 +77,7 @@ $fbNew = (int)q_val("SELECT COUNT(*) FROM feedback WHERE status = 'new'");   // 
 if ($fbNew) $tri[] = ['info', $fbNew . ' message' . ($fbNew === 1 ? '' : 's') . ' from players waiting for you.', '<a class="btn small" href="' . e(url('admin/feedback.php')) . '">Read and reply</a>'];
 admin_triage_render($tri);
 ?>
+<section class="apanel aquick" id="aquick" hidden></section>
 <?php admin_menu_render();   // v1.6.3: sections of .choice rows ?>
 <h2>At a glance</h2>
 <div class="stats">

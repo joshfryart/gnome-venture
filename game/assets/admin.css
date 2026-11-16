@@ -125,3 +125,35 @@ svg.aico { width: 20px; height: 20px; flex: none; fill: none; stroke: currentCol
 .ast.warn { color: var(--accent-ink); background: var(--surface-2); }
 .ast.info { color: var(--info-ink); background: var(--info-soft); }
 .ast.ok { color: var(--brand); background: var(--brand-soft); }
+
+/* 2.7.04: pin button, Jump back in, Changed marks, sticky save bar, list tables */
+body.admin .acrumbs a.aback { gap: 6px; }
+body.admin .acrumbs .apin { margin-left: auto; min-height: 44px; padding: 0 12px; border: 2px solid var(--line-2); background: transparent; color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 0; }
+body.admin .acrumbs .apin:hover { background: var(--surface-2); }
+body.admin .acrumbs .apin[aria-pressed=true] { background: var(--brand-soft); border-color: var(--brand-line); }
+.aqbody { display: grid; gap: 4px 24px; padding: 8px 12px 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.aqcol h3 { margin: 4px 0; font-size: 14px; color: var(--muted); }
+.aqcol ul { list-style: none; margin: 0; padding: 0; }
+.aqcol a { display: flex; align-items: center; min-height: 44px; color: var(--ink); text-decoration: none; border-bottom: 2px dashed var(--line); }
+.aqcol a:hover { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 3px; }
+.aqcol li:last-child a { border-bottom: 0; }
+body.admin label.chg { box-shadow: -4px 0 0 0 var(--accent); padding-left: 6px; }
+body.admin label.chg::after { content: 'Changed'; margin-left: 8px; font-size: 12px; font-weight: 700; color: var(--accent-ink); background: var(--surface-2); padding: 0 6px; box-shadow: 0 0 0 2px var(--line); }
+body.admin .savebar { position: sticky; bottom: calc(var(--bar, 56px) + env(safe-area-inset-bottom, 0px)); z-index: 4; display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--surface); box-shadow: var(--frame); margin: 8px 4px 8px 2px; }
+@media (min-width: 721px) { body.admin .savebar { bottom: 0; } }
+body.admin .savebar .savecount { flex: 1; color: var(--muted); font-size: 14px; }
+body.admin .savebar.dirty .savecount { color: var(--accent-ink); font-weight: 700; }
+body.admin table.grid tbody tr:hover td { background: var(--surface-2); }
+body.admin table.grid th { background: var(--surface-2); color: var(--ink); text-align: left; box-shadow: 0 2px 0 0 var(--line-2); font-variant-numeric: tabular-nums; }
+body.admin table.grid td { font-variant-numeric: tabular-nums; }
+body.admin .pager a, body.admin .pager strong { min-width: 44px; min-height: 44px; }
+body.admin .setfind { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+body.admin .setfind input[type=search] { flex: 1 1 220px; min-height: 44px; }
+body.admin .chips.jump { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+body.admin .chips.jump a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; background: var(--surface); box-shadow: var(--frame-lite); color: var(--ink); text-decoration: none; }
+@media (prefers-reduced-motion: reduce) { body.admin * { transition: none !important; } }
+.choice-ico { width: 24px; height: 24px; }
+.choice-ico svg.aico { width: 22px; height: 22px; }
+body.admin .arows .choice { text-align: left; }
+body.admin .arows .choice-body { align-items: flex-start; }
+body.admin main table.grid td a { min-height: 44px; }

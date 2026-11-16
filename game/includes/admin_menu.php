@@ -16,7 +16,7 @@ function admin_menu_def(): array
             ['log.php', '🗒️', 'Admin log', 'Everything admins have done', ''],
         ]],
         ['players', '👤', 'Players', [
-            ['feedback.php', '💬', 'Messages', 'Player notes and bug reports, and your replies', 'fb'],   // v2.6.37: was Feedback; first, it is the daily job
+            ['feedback.php', admin_icon('mail'), 'Messages', 'Player notes and bug reports, and your replies', 'fb'],   // v2.6.37: was Feedback; first, it is the daily job
             ['r:users', '👤', null, 'Accounts, roles, coins, stats, bans', 't:users'],
             ['grant.php', '🎁', 'Give / take items', 'Hand a player items or coins, or take them back', ''],
             ['puzzlebox.php', '🧩', 'Reset Puzzle box', 'Put a player\'s Puzzle box back to the starter box; their unlocks stay', ''],
@@ -106,7 +106,7 @@ function admin_menu_def(): array
             ['r:random_events', '🎲', null, 'Surprises that can happen as players play', 't:random_events'],
         ]],
         ['art', '🖼️', 'Images & art', [
-            ['images.php', '🖼️', 'Images', 'Upload pictures and see which are still missing', 'img'],
+            ['images.php', admin_icon('art'), 'Images', 'Upload pictures and see which are still missing', 'img'],
             ['artguide.php', '🎨', 'Art & style guide', 'Download the style sheet and icon guide as a PDF', ''],
             ['here_layout.php', '📍', 'Picture layouts', 'Place exits, spots and villagers on the Here pictures', ''],
             ['puzzles.php', '🧩', 'GIFsaw', 'GIF pictures, uploads and tournaments', ''],   // v2.0.68; v2.0.69 renamed GIFsaw
@@ -131,6 +131,10 @@ function admin_icon(string $id): string
         'progress' => '<path d="M3 3v18h18M7 15l4-4 3 3 6-7"/>',
         'content' => '<path d="M5 3h10l4 4v14H5zM15 3v4h4M8 12h8M8 16h8"/>',
         'art' => '<rect x="3" y="4" width="18" height="16"/><path d="M3 16l5-5 4 4 3-3 6 6"/>',
+        'home' => '<path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5"/>',
+        'update' => '<path d="M12 20V5M5 11l7-7 7 7"/>',
+        'mail' => '<rect x="3" y="5" width="18" height="14"/><path d="M3 6l9 8 9-8"/>',
+        'close' => '<path d="M6 6l12 12M18 6 6 18"/>',
         'ok' => '<rect x="3" y="3" width="18" height="18"/><path d="M7 12l4 4 6-8"/>',
         'warn' => '<path d="M12 3 22 21H2zM12 10v5M12 18v.01"/>',
         'err' => '<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8zM9 9l6 6M15 9l-6 6"/>',
@@ -177,7 +181,7 @@ function admin_menu_url(string $key): string
 function admin_crumbs(string $key, string $leaf = ''): void
 {
     $f = admin_menu_find($key);
-    echo '<nav class="acrumbs" aria-label="Breadcrumb"><a class="aback" href="' . e(url('admin/index.php')) . '">← Admin</a>';
+    echo '<nav class="acrumbs" aria-label="Breadcrumb"><a class="aback" href="' . e(url('admin/index.php')) . '">' . admin_icon('home') . ' Admin</a>';
     if ($f) echo '<span class="asep" aria-hidden="true">›</span><a href="' . e(url('admin/index.php#sec-' . $f[0])) . '">' . e($f[1]) . '</a>';
     if ($f) {
         echo '<span class="asep" aria-hidden="true">›</span>';
@@ -222,7 +226,7 @@ function admin_menu_badges(): array
     $bits = [];
     if ($errs) $bits[] = $errs . ' error' . ($errs === 1 ? '' : 's');
     if ($boot !== '' || $up) $bits[] = ($up + ($boot !== '' ? 1 : 0)) . ' failed';
-    $b['boot'] = $bits ? ['⚠ ' . implode(', ', $bits), 'poor'] : ['ok', 'good'];
+    $b['boot'] = $bits ? ['Check: ' . implode(', ', $bits), 'poor'] : ['ok', 'good'];
     $b['ver'] = ['v' . APP_VERSION, ''];
     $b['maint'] = $try(fn() => setting('maintenance_mode')) === '1' ? ['maintenance', 'poor'] : ['', ''];
     return $b;
@@ -266,24 +270,24 @@ function admin_nav_sheet(): string
         return '<a class="navtile' . ($mine ? ' on' : '') . '" href="' . e($href) . '"' . ($mine ? ' aria-current="page"' : '') . '><span class="nti">' . $icon . '</span><span class="ntl">' . e($label) . '</span>'
             . ($badge !== '' ? '<span class="ntb">' . e($badge) . '</span>' : '') . '</a>';
     };
-    $h = '<div class="navhead"><b>🛠️ Admin</b><button type="button" class="navx" aria-label="Close the menu">✕</button></div>';
+    $h = '<div class="navhead"><b>Admin</b><button type="button" class="navx" aria-label="Close the menu">' . admin_icon('close') . '</button></div>';
     $h .= '<div class="navtiles anavtop">'
-        . $tile(url('admin/index.php'), 'index.php', '🏠', 'Dashboard')
-        . $tile(url('admin/update.php'), 'update.php', '⬆️', 'Update')
-        . $tile(url('admin/settings.php'), 'settings.php', '⚙️', 'Settings')
-        . $tile(url('admin/feedback.php'), 'feedback.php', '💬', 'Messages', $fbNew ? $fbNew . ' new' : '')
-        . $tile(url('admin/tools.php#errors'), 'tools.php', '🧰', 'Tools', $errs ? $errs . ' error' . ($errs === 1 ? '' : 's') : '')   // v2.6.37
-        . $tile(url('admin/images.php'), 'images.php', '🖼️', 'Images')
-        . $tile(url('index.php'), '', '🌱', 'Back to game')
+        . $tile(url('admin/index.php'), 'index.php', admin_icon('home'), 'Dashboard')
+        . $tile(url('admin/update.php'), 'update.php', admin_icon('update'), 'Update')
+        . $tile(url('admin/settings.php'), 'settings.php', admin_icon('system'), 'Settings')
+        . $tile(url('admin/feedback.php'), 'feedback.php', admin_icon('mail'), 'Messages', $fbNew ? $fbNew . ' new' : '')
+        . $tile(url('admin/tools.php#errors'), 'tools.php', admin_icon('items'), 'Tools', $errs ? $errs . ' error' . ($errs === 1 ? '' : 's') : '')   // v2.6.37
+        . $tile(url('admin/images.php'), 'images.php', admin_icon('art'), 'Images')
+        . $tile(url('index.php'), '', admin_icon('garden'), 'Back to game')
         . '</div>';
     foreach (admin_menu_def() as [$sid, $sico, $stitle, $entries]) {
         $tl = '';
         foreach ($entries as [$key, $ico, $name]) {
             if ($name === null) $name = (string)($res[substr($key, 2)]['label'] ?? $key);
-            $tl .= $tile(admin_menu_url($key), $key, $ico, $name);
+            $tl .= $tile(admin_menu_url($key), $key, admin_icon($sid), $name);
         }
         $cur = str_contains($tl, 'navtile on');
-        $h .= '<details class="navgroupt anavsec' . ($cur ? ' cur' : '') . '"' . ($cur ? ' open' : '') . '><summary><h3>' . $sico . ' ' . e($stitle) . ' <small>' . count($entries) . '</small></h3></summary><div class="navtiles">' . $tl . '</div></details>';
+        $h .= '<details class="navgroupt anavsec' . ($cur ? ' cur' : '') . '"' . ($cur ? ' open' : '') . '><summary><h3>' . admin_icon($sid) . ' ' . e($stitle) . ' <small>' . count($entries) . '</small></h3></summary><div class="navtiles">' . $tl . '</div></details>';
     }
     $h .= '<form method="post" action="' . e(url('logout.php')) . '" class="navlogout">' . csrf_field() . '<button class="linkbtn">Log out</button></form>';
     return $h;
