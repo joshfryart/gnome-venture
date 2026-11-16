@@ -1,4 +1,8 @@
--- Skerry Seal (mm-skerry-seal), yard sprite 64x64. Opus second pass (art-2701-pals-all/c01/opus2), from the Haiku idea.
+-- Skerry Seal (mm-skerry-seal), yard sprite 64x64. Opus third pass (art-2701-pals-all/c01/opus3), richness pass
+-- over opus2. Fix: the uninvented fish now reads at 1x: a bigger dashed outline (2 on, 1 off) with a forked
+-- tail, a fin and an eye dot, nothing inside. Richness: ringed harbour-seal spots, a wet sheen streak along the
+-- back, pale whiskers, cracks and a wet band on the skerry, a mussel clump and a limpet, ripple lines and foam
+-- in the sea, a door at the lighthouse foot and two lamp-beam ticks.
 -- Wayfinder, common, Mistmoor. "Barks at the lighthouse and waits for a fish to be invented."
 -- A spotted harbour seal hauled out on a wet skerry (dark rock, barnacles, wrack weed, sea lapping round it),
 -- head up and mouth open mid-bark, two bark ticks flying toward a small red-and-cream lighthouse on the rock's
@@ -28,6 +32,7 @@ sea:each(function(x, y)
   local col = y <= 54 and SEA[4] or SEA[3]
   if y >= 57 then col = SEA[2] end
   if y == 54 and H(x, y, 5) > .6 then col = SEA[6] end
+  if y == 56 and (x // 3) % 3 == 0 then col = SEA[4] end -- ripple dashes
   c:put(x, y, col, { r = { name = "sea" } })
 end)
 
@@ -41,6 +46,16 @@ end)
 for _, b in ipairs({ { 12, 49 }, { 15, 51 }, { 46, 49 }, { 51, 48 }, { 53, 51 } }) do -- barnacles
   O.dot(c, b[1], b[2], CRM[2]) O.dot(c, b[1] + 1, b[2], CRM[1]) O.dot(c, b[1], b[2] + 1, ROCK[2])
 end
+-- cracks across the rock face
+for _, p in ipairs({ { 20, 46 }, { 21, 47 }, { 21, 48 }, { 22, 49 }, { 41, 46 }, { 42, 47 }, { 42, 48 } }) do
+  if c.own[p[2] * 64 + p[1]] == rT then c.pix[p[2] * 64 + p[1]] = ROCK[2] end
+  if c.own[p[2] * 64 + p[1] + 1] == rT then c.pix[p[2] * 64 + p[1] + 1] = ROCK[5]:lower() end
+end
+-- mussel clump and a limpet
+for _, m in ipairs({ { 25, 49 }, { 27, 50 }, { 24, 51 } }) do
+  O.dots(c, { { m[1], m[2] }, { m[1] + 1, m[2] } }, "#2a2e4a") O.dot(c, m[1], m[2], "#6a78a8")
+end
+O.dots(c, { { 36, 48 }, { 37, 48 } }, "#c8b8a0") O.dot(c, 36, 47, "#e8dcc8") O.dot(c, 37, 49, "#7a6a60")
 for x = 9, 55, 2 do -- wrack weed fringe at the waterline
   if H(x, 0, 6) > .35 then O.dot(c, x, 53, WRK[2]) O.dot(c, x, 52, WRK[3]) O.dot(c, x + 1, 53, WRK[1]) end
 end
@@ -58,6 +73,7 @@ tower:each(function(x, y)
   c:put(x, y, R[i], ttok)
 end)
 O.dots(c, { { 50, 35 }, { 50, 36 } }, ROCK[1]) -- window
+O.flat(c, c:rect(50, 41, 51, 43), "#4a2c2a", "door") O.dot(c, 50, 41, "#7a4a34")
 O.shade(c, c:rect(46, 22, 55, 23), ROCK, { R = 1, amb = .3, sep = ROCK[1] }) -- gallery
 local lamp = c:rect(48, 18, 53, 21)
 lamp:each(function(x, y) c:put(x, y, (x == 49 or x == 50) and LAMP[3] or LAMP[2], { r = { name = "lamp" } }) end)
@@ -79,7 +95,10 @@ O.tex(c, sI, sT, SEAL, function(x, y, i)
   if y > 41 then return end
   local h = H(x // 2, y // 2, 33)
   if h > .78 and i >= 2 then return -1 end
+  if h > .72 and i >= 2 and i <= 5 then return 1 end -- pale ring round each spot
 end)
+-- wet sheen streak along the back
+O.dots(c, { { 17, 36 }, { 18, 36 }, { 19, 35 }, { 20, 35 }, { 21, 35 }, { 24, 35 }, { 25, 35 } }, SEAL[6])
 -- pale belly along the bottom of the body/neck
 local bel = c:ellipse(30, 43, 9, 2)
 bel:add(c:poly{ { 34, 31 }, { 39, 31 }, { 39, 41 }, { 33, 42 } })
@@ -108,9 +127,25 @@ c:cheek(28, 26)
 O.done(c, "mm-skerry-seal-yard", function(c)
   -- bark ticks flying toward the lighthouse (un-outlined)
   for _, p in ipairs({ { 43, 25 }, { 44, 24 }, { 43, 28 }, { 44, 28 }, { 45, 28 } }) do c:put(p[1], p[2], "#eef3f8") end
-  -- the uninvented fish: a dotted pencil outline, nothing inside
-  local fish = { { 14, 21 }, { 16, 20 }, { 18, 19 }, { 20, 19 }, { 22, 20 }, { 23, 22 }, { 22, 24 }, { 20, 25 }, { 18, 25 },
-                 { 16, 24 }, { 14, 23 }, { 12, 21 }, { 11, 19 }, { 11, 25 }, { 12, 24 } }
-  for _, p in ipairs(fish) do c:put(p[1], p[2], "#d9e3ee") end
-  c:put(20, 21, "#d9e3ee")
+  -- whiskers
+  for _, p in ipairs({ { 32, 28 }, { 31, 29 }, { 42, 28 }, { 43, 29 } }) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], "#d8d2d4") end end
+  -- lamp beam ticks
+  for _, p in ipairs({ { 56, 19 }, { 57, 19 }, { 59, 18 }, { 60, 18 } }) do c:put(p[1], p[2], "#ffe38a") end
+  -- the uninvented fish: a dashed pencil outline (2 on, 1 off), forked tail, fin and eye, nothing inside
+  local PEN = "#e2e8f2"
+  local pts, n = {}, 0
+  for a = 0, 359, 9 do
+    local r = math.rad(a)
+    local x, y = math.floor(15.5 + math.cos(r) * 6.5 + .5), math.floor(16 + math.sin(r) * 3.5 + .5)
+    if math.cos(r) > -.82 or math.abs(math.sin(r)) > .55 then pts[#pts+1] = { x, y } end
+  end
+  local seen = {}
+  for _, p in ipairs(pts) do
+    local key = p[1] * 100 + p[2]
+    if not seen[key] then seen[key] = true n = n + 1 if n % 3 ~= 0 then c:put(p[1], p[2], PEN) end end
+  end
+  for _, p in ipairs({ { 8, 15 }, { 7, 14 }, { 5, 12 }, { 5, 14 }, { 5, 18 }, { 5, 20 }, { 8, 17 }, { 7, 18 } }) do c:put(p[1], p[2], PEN) end -- tail
+  for _, p in ipairs({ { 14, 11 }, { 15, 10 }, { 16, 10 } }) do c:put(p[1], p[2], PEN) end -- dorsal fin
+  c:put(19, 15, PEN) -- eye
 end)
+

@@ -1,4 +1,8 @@
--- Peat Sip (mm-peat-sip), yard sprite 64x64. Opus second pass (art-2701-pals-all/c01/opus2), from the Haiku idea.
+-- Peat Sip (mm-peat-sip), yard sprite 64x64. Opus third pass (art-2701-pals-all/c01/opus3), richness pass over
+-- opus2: each peat brick gets its own tone and fibre streaks, a dark eave shadow under the roof, the turf roof
+-- grows blades (lit tips, dark roots) with a sod edge showing at the eaves and a fringe of drooping grass,
+-- the chimney has soot at the top and an ember glow in the flue, the smoke rises in three growing puffs, and
+-- a tiny steaming teacup waits on the right foundation stone.
 -- Brewroot, common, Mistmoor. "Puffs warm smoke over the cottage roof and hums about tea."
 -- The pal is a little peat croft: walls of stacked, fibrous cut-peat bricks (staggered joints), a mounded turf
 -- roof with grass tufts and two tormentil flowers, a fieldstone chimney puffing warm smoke, two flat
@@ -25,19 +29,29 @@ end
 -- chimney (behind the roof)
 local ch = c:rect(40, 14, 46, 28)
 local cI, cT = O.shade(c, ch, STN, { R = 2, amb = .2, wrap = .35, sep = STN[1], rim = true })
-O.tex(c, cI, cT, STN, function(x, y, i) if (y % 3 == 0) or ((x + (y // 3) * 3) % 4 == 0 and y % 3 ~= 0 and H(x, y, 2) > .5) then return -1 end end)
+O.tex(c, cI, cT, STN, function(x, y, i)
+  if y <= 16 then return -2 end -- soot
+  if (y % 3 == 0) or ((x + (y // 3) * 3) % 4 == 0 and y % 3 ~= 0 and H(x, y, 2) > .5) then return -1 end
+end)
 O.flat(c, c:rect(41, 14, 45, 14), STN[1], "flue")
+O.dots(c, { { 42, 14 }, { 43, 14 } }, "#e0702a") O.dot(c, 44, 14, "#9a3a2a") -- ember glow in the flue
 
 -- peat walls
 local wall = c:rrect(15, 30, 49, 53, 2)
-local wI, wT = O.shade(c, wall, PEAT, { R = 6, amb = .15, wrap = .3, sep = PEAT[1], rim = true, bounce = "#5a5a7a", bmax = 2 })
+local wb = {}
+wall:each(function(x, y) if y <= 35 then wb[K(x, y)] = (y <= 33) and -2 or -1 end end) -- eave shadow
+local wI, wT = O.shade(c, wall, PEAT, { R = 6, bias = wb, amb = .15, wrap = .3, sep = PEAT[1], rim = true, bounce = "#5a5a7a", bmax = 2 })
 O.tex(c, wI, wT, PEAT, function(x, y, i)
   local face = x > 19 and x < 45 and y > 35 and y < 49
   local row = (y - 30) // 5
   if (y - 30) % 5 == 4 then return -1 end                                -- bed joint
   if (x + row * 4) % 9 == 0 then return -1 end                            -- staggered head joint
-  if (y - 30) % 5 == 0 and i <= 5 then return 1 end                       -- lit top edge of each brick
-  if not face and H(x, y, 8) > .88 then return (H(x, y, 9) > .5) and 1 or -1 end -- fibres
+  local brick = H((x + row * 4) // 9, row, 3)                              -- each brick its own tone
+  local d = (brick > .72) and 1 or ((brick < .25) and -1 or 0)
+  if (y - 30) % 5 == 0 and i <= 5 then return 1 + d end                   -- lit top edge of each brick
+  if not face and (y - 30) % 5 == 2 and H(x // 2, y, 8) > .7 then return d - 1 end -- fibre streak
+  if not face and H(x, y, 8) > .9 then return (H(x, y, 9) > .5) and 1 or -1 end
+  return d
 end)
 
 -- turf roof
@@ -47,23 +61,36 @@ roof:add(c:rect(11, 31, 53, 33))
 roof:cut(ch:copy():cut(c:rect(0, 23, 63, 63)))
 local tI, tT = O.shade(c, roof, TURF, { R = 4, amb = .2, wrap = .35, sep = TURF[1], rim = true })
 O.tex(c, tI, tT, TURF, function(x, y, i)
-  if H(x, y, 51) > .8 and i <= 5 then return 1 end
-  if y >= 32 then return -1 end
+  if y >= 32 then return nil end
+  local h = H(x, 0, 51)
+  local ph = (y + math.floor(h * 4)) % 4
+  if ph == 0 and h > .3 then return 1 end           -- lit blade tip
+  if ph == 2 and h > .3 and i >= 2 then return -1 end -- dark between blades
 end)
+-- sod edge at the eaves: the cut turf shows earth and roots
+for x = 11, 53 do
+  if c.own[32 * 64 + x] == tT then c.pix[32 * 64 + x] = (x % 4 == 0) and PEAT[3] or PEAT[2] end
+  if c.own[33 * 64 + x] == tT then c.pix[33 * 64 + x] = (x % 3 == 1) and PEAT[4] or PEAT[2] end
+end
 -- grass tufts on the ridge and hanging fringe at the eaves
 O.dots(c, { { 22, 19 }, { 23, 18 }, { 27, 18 }, { 28, 17 }, { 34, 18 } }, TURF[5])
-for x = 12, 52, 3 do O.dot(c, x, 34, TURF[2]) end
+for x = 12, 52, 3 do O.dot(c, x, 34, TURF[3]) if H(x, 3, 3) > .5 then O.dot(c, x, 35, TURF[2]) end end -- drooping fringe
 -- tormentil flowers
 O.dots(c, { { 19, 25 }, { 21, 25 }, { 20, 24 }, { 20, 26 } }, "#f0c43a") O.dot(c, 20, 25, "#d0802a")
 O.dots(c, { { 33, 22 }, { 35, 22 }, { 34, 21 }, { 34, 23 } }, "#f0c43a") O.dot(c, 34, 22, "#d0802a")
 
 -- smoke curls + the music-note puff
-local sm = O.unionCircles{ { 44, 10, 2.5, 2 }, { 47.5, 7.5, 2, 1.8 } }
+local sm = O.unionCircles{ { 43.5, 11, 2, 1.5 }, { 46.5, 8, 2.5, 2 } }
 O.shade(c, sm, SMK, { R = 1, amb = .35, cuts = { .35, .6, .85 }, rim = true })
 local note = c:rect(54, 6, 54, 11)
 note:add(c:ellipse(52.5, 11.5, 1.5, 1)):add(c:rect(55, 6, 56, 7)):add(c:rect(56, 8, 56, 8))
 O.shade(c, note, SMK, { R = 1, amb = .35, cuts = { .35, .6, .85 } })
 O.dot(c, 52, 11, SMK[4])
+-- a tiny steaming teacup on the right foundation stone
+O.flat(c, c:rect(46, 50, 49, 51), "#e8e0d4", "cup") O.dot(c, 46, 50, "#f8f0e4") O.dot(c, 49, 51, "#b0a8a8")
+O.dot(c, 50, 50, "#e8e0d4") O.dot(c, 47, 51, "#d06a6a") -- handle, a painted rose dot
+O.dots(c, { { 47, 50 }, { 48, 50 } }, "#8a5a3a") -- tea
+
 
 -- face on the front wall
 c:eyeLocked(21, 37)
