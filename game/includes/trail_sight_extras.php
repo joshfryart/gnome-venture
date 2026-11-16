@@ -917,20 +917,23 @@ function trail_sight_tile_in_gate(array $art, int $x, int $y): bool
     return false;
 }
 
-/** A named villager's map picture: [url, frames, kind 's' stop villager | 'n' town NPC, id] (a 4-frame sprite sheet shows its first frame), or null. */
+/** A named villager's map picture: [url, frames, kind 's' stop villager | 'n' town NPC, id] (a 4-frame sprite sheet shows its first frame; frames 0 = the villager marker), or null. */
 function trail_sight_folk_pic(string $who): ?array
 {
+    $mark = trail_mark_file('', 'villager') !== '' ? trail_art_url('mark/villager.png') : '';   // 2.7.01: no sprite of their own: the villager marker (frames 0 = a 32x32 marker, trail_art_svg)
     try {
         $fid = trail_sight_folk_id($who);
         if ($fid) {
             require_once __DIR__ . '/stop_folk.php';
             $folk = q_one('SELECT * FROM stop_folk WHERE id = ?', [$fid]);
             $rel = $folk ? stop_folk_art($folk, 'sprite') : '';
-            return $rel !== '' ? [url($rel), 4, 's', $fid] : null;
+            if ($rel !== '') return [url($rel), 4, 's', $fid];
+            return $folk && $mark ? [$mark, 0, 's', $fid] : null;
         }
         [$name] = trail_sight_split_who($who);
         $npc = q_one('SELECT * FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
         if ($npc) { require_once __DIR__ . '/here_view.php'; $sp = here_sprite($npc); if ($sp['src'] !== '') return [$sp['src'], (int)($sp['frames'] ?? 1), 'n', (int)$npc['id']]; }
+        if ($npc && $mark) return [$mark, 0, 'n', (int)$npc['id']];
     } catch (Throwable $e) {}
     return null;
 }

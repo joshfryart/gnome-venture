@@ -58,7 +58,7 @@ for n in ('mini-blight-mother', 'mini-paper-wasp', 'mini-bog-leech', 'mini-dew-l
 for n in ('folk-butterfly-1', 'folk-moth-1', 'folk-tortoise-1'):
     INSTALL.append((B3 + '/creatures/opus3/%s.png' % n, 'folk/portrait/%s.png' % n, None))
 
-# Trail markers 32x32: trail/mark/<name>.png (trail_art.php draws fight and camp; the rest wait for a place on the map, see the MANIFESTs)
+# Trail markers 32x32: trail/mark/<name>.png (all drawn on the Trail map by trail_art.php / trail_tiles.php; tests/trail_marks.php)
 for n in ('camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight'):
     INSTALL.append((OPUS + '/trail/%s.png' % n, 'trail/mark/%s.png' % n, None))
 for n in ('haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market'):

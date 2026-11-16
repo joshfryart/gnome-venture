@@ -21,3 +21,5 @@ Still emoji / not placed (no map token for them yet):
 - `sight`: a ready Sight is the gold "!" circle over the landmark sprite (`trail_art.php`, class `tmsight`); kept, because it says "ready", not "a Sight".
 - `villager`: villagers at a Sight are drawn with their own folk sprite (`tmfolk`), so no marker is needed.
 - The fallback look (`tm_render_svg()` in `tilemap.php`, sections with no baked picture) still draws ⚔️ / 🏕️ as text; it is shared with the delve maps, so it was left alone. The 🚪 way-on, 🔒 / 🔓 gate marks have no drawn marker.
+
+Wired since (2.7.01, `tests/trail_marks.php`): road kinds stand beside the way in of the stretch they apply to (`trail_road_mark()`); `sight` is the spyglass over a Sight's landmark (gold ! corner while ready, faded when used up); `villager` stands in for a villager with no sprite; haven / wonder / delve / lair / market (art-2701-rest) mark the way on of the last stretch into such a place. The fallback look draws their emoji.

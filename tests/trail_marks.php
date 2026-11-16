@@ -38,7 +38,7 @@ $walk = function (int $rid) use ($uid) {
     $exp = active_expedition($uid); $exp['encounter'] = null;
     return [q_one('SELECT * FROM users WHERE id = ?', [$uid]), $exp];
 };
-$atSec = function (array $exp, int $sec): array { $sc = trail_scene($exp); $sc['st']['sec'] = $sec; trail_save($sc); $sc = trail_scene($exp); return $sc; };
+$atSec = function (array $exp, int $sec): array { $sc = trail_scene($exp); $sc['st']['sec'] = $sec; trail_save($sc); $sc = trail_scene($exp); [$sc['x'], $sc['y']] = $sc['map']['entry']; trail_save($sc); return trail_scene($exp); };   // at that stretch's way in
 
 echo "== a ferry road (route 308)\n";
 [$u, $exp] = $walk(308);
@@ -74,7 +74,7 @@ $h240 = trail_view_html($u, $exp, $sc, false);
 ok('no road-kind marker', !preg_match('~mark/(ferry|tunnel|pass|toll|overgrown|flooded)\.png~', $h240) && trail_road_mark($sc) === null);
 
 echo "== the place the last stretch leads into\n";
-$last = $sc; $last['st']['sec'] = (int)$sc['st']['S'] - 1;   // in memory: the exit of the last stretch
+$last = $sc; $last['st']['sec'] = (int)$sc['st']['S'] - 1; $last['x'] = $sc['map']['spots']['9'][0] - 1; $last['y'] = $sc['map']['spots']['9'][1];   // in memory: the last stretch, beside its way on (in the view)
 require_once $argv[1] . '/includes/destination.php';
 foreach (['lair', 'haven', 'wonder', 'delve', 'market'] as $k) {
     $loc = null;
@@ -82,7 +82,7 @@ foreach (['lair', 'haven', 'wonder', 'delve', 'market'] as $k) {
     if (!$loc) { ok("a $k exists in the world", false); continue; }
     $e2 = $exp; $e2['to_id'] = (int)$loc['id'];
     $h = trail_view_html($u, $e2, $last, false);
-    ok("into a $k: its marker on the way on, and the tile names the place", str_contains($h, 'mark/' . $k . '.png') && str_contains($h, 'aria-label="The way on to ' . e((string)$loc['name']) . '"'));
+    ok("into a $k: its marker on the way on, and the tile names the place", str_contains($h, 'mark/' . $k . '.png') && str_contains($h, 'aria-label="The way on to ' . e((string)$loc['name']) . '"'), $loc['name'] . ' ' . (preg_match('~aria-label="The way on[^"]*"~', $h, $mm) ? $mm[0] : '-') . ' ' . (int)str_contains($h, 'mark/' . $k . '.png'));
 }
 $vil = q_one("SELECT * FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1");
 $e2 = $exp; $e2['to_id'] = (int)$vil['id'];
@@ -95,7 +95,7 @@ echo "== the Sight spyglass\n";
 $art = trail_authored_section(240, 0);
 [$map] = trail_map_authored($art);
 $lm = null; foreach ($art['objs'] as $ob) if (str_starts_with((string)$ob[2], 'lm-')) { $lm = $ob; break; }
-$st = ['px' => 0, 'py' => 0, 'x0' => max(0, $lm[0] - 3), 'y0' => max(0, $lm[1] - 3), 'cols' => 7, 'rows' => 7, 'tokens' => [], 'folk' => []];
+$st = ['px' => 0, 'py' => 0, 'x0' => max(0, $lm[0] - 3), 'y0' => max(0, $lm[1] - 3), 'cols' => 7, 'rows' => 7, 'tokens' => []];   // (no 'folk' key: + would keep it over the one a case adds)
 $ready = trail_art_svg($map, $st + ['sights' => [$lm[0] . ',' . $lm[1] => true]]);
 $spent = trail_art_svg($map, $st + ['sights' => [$lm[0] . ',' . $lm[1] => false]]);
 ok('a ready Sight: the spyglass with the gold ! (tmsight)', str_contains($ready, 'class="tmsight"') && str_contains($ready, 'mark/sight.png') && str_contains($ready, '>!</text>'));

@@ -309,12 +309,15 @@ function trail_art_obj_size(string $key): array
     return $cache[$key];
 }
 
-/** 2.7.01: the drawn marker for a map token (assets/img/trail/mark/<name>.png, 32x32), or '' to keep the emoji tile. Only the tokens the Trail map draws today:
- *  ⚔️ fight, 🏕️ camp. The other markers in mark/ (ferry tunnel pass toll sight villager haven wonder delve lair overgrown flooded market) have no map token yet. */
+/** 2.7.01: the drawn marker for a map token (assets/img/trail/mark/<name>.png, 32x32), or '' to keep the emoji. A token names its marker ($name: a road kind on its stretch,
+ *  the place the last stretch leads into, 'sight', 'villager'); without a name the emoji says it: ⚔️ fight, 🏕️ camp. */
 const TRAIL_MARKS = ['⚔️' => 'fight', '🏕️' => 'camp'];
-function trail_mark_file(string $icon): string
+const TRAIL_MARK_NAMES = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market'];
+/** The places whose marker stands on the way on of a walk's last stretch, with the emoji of the no-picture look (the World map's, but 🌟 for a wonder: ✨ is a find on the Trail). */
+const TRAIL_DEST_MARKS = ['haven' => '🏕️', 'wonder' => '🌟', 'delve' => '🕳️', 'lair' => '🐉', 'market' => '🏘️'];
+function trail_mark_file(string $icon, string $name = ''): string
 {
-    $k = TRAIL_MARKS[$icon] ?? '';
+    $k = $name !== '' ? (in_array($name, TRAIL_MARK_NAMES, true) ? $name : '') : (TRAIL_MARKS[$icon] ?? '');
     return $k !== '' && is_file(__DIR__ . '/../assets/img/trail/mark/' . $k . '.png') ? $k : '';
 }
 
@@ -434,12 +437,22 @@ function trail_art_svg(array $map, array $state): string
         }
         if (!$in($X, $Y, $bw * $k, $bh * $k)) continue;
         $items[] = [$oy + .5 + $jy / TRAIL_ART_PX, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
-        if (isset($state['sights'][$ox . ',' . $oy]) && strncmp((string)$key, 'lm-', 3) === 0) {   // v2.6.68: a Sight is ready here: a small gold ! over the sprite (Trail Sights)
+        if (isset($state['sights'][$ox . ',' . $oy]) && strncmp((string)$key, 'lm-', 3) === 0) {   // v2.6.68: a Sight here (Trail Sights); true = ready, false = used up for now
+            $ready = !empty($state['sights'][$ox . ',' . $oy]);
             $mx = $X + $bw * $k / 2; $my = max(14.0, $Y - 4);
-            $items[] = [$oy + .9, $ox, '<g class="tmsight"><circle cx="' . $n($mx) . '" cy="' . $n($my) . '" r="11" fill="#f5b82e" stroke="#2b1c26" stroke-width="2"/><text x="' . $n($mx) . '" y="' . $n($my + 5.5) . '" text-anchor="middle" font-size="16" font-weight="700" fill="#2b1c26">!</text></g>'];
+            if (trail_mark_file('', 'sight') !== '') {   // 2.7.01: the drawn spyglass over the sprite, a small gold ! on its corner while ready, faded when used up
+                $s = 26;
+                $items[] = [$oy + .9, $ox, '<g class="' . ($ready ? 'tmsight' : 'tmsightx') . '"' . ($ready ? '' : ' opacity=".55"') . '><image href="' . e(trail_art_url('mark/sight.png')) . '" x="' . $n($mx - $s / 2) . '" y="' . $n($my - $s / 2) . '" width="' . $s . '" height="' . $s . '" image-rendering="pixelated"/>'
+                    . ($ready ? '<circle cx="' . $n($mx + $s / 2 - 2) . '" cy="' . $n($my - $s / 2 + 3) . '" r="6.5" fill="#f5b82e" stroke="#2b1c26" stroke-width="1.5"/><text x="' . $n($mx + $s / 2 - 2) . '" y="' . $n($my - $s / 2 + 6.5) . '" text-anchor="middle" font-size="10" font-weight="700" fill="#2b1c26">!</text>' : '') . '</g>'];
+            } elseif ($ready) $items[] = [$oy + .9, $ox, '<g class="tmsight"><circle cx="' . $n($mx) . '" cy="' . $n($my) . '" r="11" fill="#f5b82e" stroke="#2b1c26" stroke-width="2"/><text x="' . $n($mx) . '" y="' . $n($my + 5.5) . '" text-anchor="middle" font-size="16" font-weight="700" fill="#2b1c26">!</text></g>'];
         }
     }
     foreach ((array)($state['folk'] ?? []) as [$fx, $fy, $fpic, $fname, $fframes, , , $fanim]) {   // v2.6.68: a villager out and about at a Sight stands beside the landmark (the first frame of a sprite sheet)
+        if ((int)$fframes === 0) {   // 2.7.01: a villager with no sprite of their own: the villager marker on their tile (trail_sight_folk_pic)
+            $FX = ($fx - $x0) * $C; $FY = ($fy - $y0) * $C;
+            if ($in($FX, $FY, $C, $C)) $items[] = [$fy + .55, $fx, '<g class="tmfolk tmfolkmark' . (!empty($fanim) ? ' tmfolk-in' : '') . '"><title>' . e((string)$fname) . '</title><image href="' . e((string)$fpic) . '" x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $C . '" height="' . $C . '" image-rendering="pixelated"/></g>'];
+            continue;
+        }
         $fw = 46 * $k; $fh = 69 * $k; $FX = ($fx - $x0) * $C + $C / 2 - $fw / 2; $FY = ($fy - $y0) * $C + $C - $fh + 6 * $k;
         if (!$in($FX, $FY, $fw, $fh)) continue;
         $items[] = [$fy + .55, $fx, '<g class="tmfolk' . (!empty($fanim) ? ' tmfolk-in' : '') . '"><title>' . e((string)$fname) . '</title><svg x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $n($fw) . '" height="' . $n($fh) . '" viewBox="0 0 ' . (64) . ' 96" overflow="hidden" preserveAspectRatio="xMidYMax meet"><image href="' . e((string)$fpic) . '" x="0" y="0" width="' . (64 * max(1, (int)$fframes)) . '" height="96" image-rendering="pixelated"/></svg></g>'];
@@ -450,7 +463,7 @@ function trail_art_svg(array $map, array $state): string
         $X = ($tx - $x0) * $C;
         $Y = ($ty - $y0) * $C;
         if (!$in($X, $Y, $C, $C)) continue;
-        if ($icon === '✨') {
+        if ($icon === '✨' && (string)($tk[6] ?? '') === '') {
             $items[] = [$ty + .45, $tx, '<image href="' . e(trail_art_url('find-' . $fland . ($done ? '-done' : '') . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $C . '" height="' . $C . '"/>'];
         } elseif ($icon === '🔒') {   // v2.6.46: a shut tool gate: amber-outlined tile with a lock
             $marks .= '<g class="tmgatemark"><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(60,40,10,.55)" stroke="#e8a21c" stroke-width="2.5" stroke-dasharray="6 3"/>'
@@ -458,8 +471,11 @@ function trail_art_svg(array $map, array $state): string
         } elseif ($icon === '🔓') {   // an open tool gate: a small green-outlined tile with an open lock (no inline styles; attributes only)
             $marks .= '<g class="tmgateopen"><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(20,60,20,.25)" stroke="#6bbf59" stroke-width="2" stroke-dasharray="2 4"/>'
                 . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 5) . '" font-size="14" text-anchor="middle">' . e($icon) . '</text></g>';
-        } elseif (($mk = trail_mark_file($icon)) !== '') {   // 2.7.01: a drawn 32x32 marker (art-2701 Opus): the fight and the camp spot
+        } elseif (($mk = trail_mark_file($icon, (string)($tk[6] ?? ''))) !== '') {   // 2.7.01: a drawn 32x32 marker (art-2701 Opus): fight, camp, a road kind, the place ahead
             $items[] = [$ty + .45, $tx, '<image class="tmmark"' . ($done ? ' opacity=".5"' : '') . ' href="' . e(trail_art_url('mark/' . $mk . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $C . '" height="' . $C . '" image-rendering="pixelated"/>'];
+        } elseif ((string)($tk[6] ?? '') !== '') {   // a named marker whose picture is missing: its emoji on a small cream disc (same box, no red placeholder)
+            $items[] = [$ty + .45, $tx, '<g class="tmmarkx"' . ($done ? ' opacity=".5"' : '') . '><circle cx="' . $n($X + $C / 2) . '" cy="' . $n($Y + $C / 2) . '" r="15" fill="#fff4d6" stroke="#2b1c26" stroke-width="2"/>'
+                . '<text x="' . $n($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 6) . '" font-size="17" text-anchor="middle">' . e($icon) . '</text></g>'];
         } else {   // the way on: a red-outlined placeholder tile until its art is drawn
             $marks .= '<g' . ($done ? ' opacity=".5"' : '') . '><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(255,255,255,.18)" stroke="#e02020" stroke-width="2.5"/>'
                 . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 6) . '" font-size="17" text-anchor="middle">' . e($icon) . '</text></g>';
