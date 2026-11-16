@@ -15,9 +15,10 @@ $markDir = $argv[1] . '/assets/img/trail/mark/';
 $away = function (string $f, callable $fn) { rename($f, $f . '.away'); clearstatcache(); try { return $fn(); } finally { rename($f . '.away', $f); clearstatcache(); } };
 
 echo "== the marker files\n";
-$names = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market'];
+$names = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market', 'rest', 'signpost'];
 ok('every installed marker can be asked for by name', array_filter($names, fn($n) => trail_mark_file('', $n) !== $n) === [], json_encode(array_map(fn($n) => trail_mark_file('', $n), $names)));
 ok('an unknown name is no marker; the fight and camp emoji still map', trail_mark_file('', 'nope') === '' && trail_mark_file('⚔️') === 'fight' && trail_mark_file('🏕️') === 'camp' && trail_mark_file('🚪') === '');
+ok('hazard is installed but no Trail token asks for it (no data has a hazard)', is_file($markDir . 'hazard.png') && trail_mark_file('', 'hazard') === '');
 ok('a missing picture is no marker', $away($markDir . 'ferry.png', fn() => trail_mark_file('', 'ferry')) === '');
 
 echo "== road kinds: which stretch\n";
@@ -87,9 +88,28 @@ foreach (['lair', 'haven', 'wonder', 'delve', 'market'] as $k) {
 $vil = q_one("SELECT * FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1");
 $e2 = $exp; $e2['to_id'] = (int)$vil['id'];
 $h = trail_view_html($u, $e2, $last, false);
-ok('into a village: the way on keeps its door', !preg_match('~mark/(haven|wonder|delve|lair|market)\.png~', $h) && str_contains($h, '🚪'));
+ok('into a rest stop (village): the rest marker on the way on, and the tile names it', str_contains($h, 'mark/rest.png') && str_contains($h, 'aria-label="The way on to ' . e((string)$vil['name']) . '"'), (int)str_contains($h, 'mark/rest.png') . ' ' . (preg_match('~aria-label="The way on[^"]*"~', $h, $mm) ? $mm[0] : '-') . ' ' . (int)str_contains($h, '🚪'));
+$noRest = $away($markDir . 'rest.png', fn() => trail_view_html($u, $e2, $last, false));
+ok('...without its picture: an emoji disc', !str_contains($noRest, 'mark/rest.png') && (bool)preg_match('~<g class="tmmarkx"><circle[^>]*/><text[^>]*>🛖</text></g>~u', $noRest));
+$hub = q_one("SELECT * FROM locations WHERE kind NOT IN ('village', 'market', 'wonder', 'lair', 'haven', 'delve') ORDER BY id LIMIT 1");
+$e2['to_id'] = (int)$hub['id'];
+$h = trail_view_html($u, $e2, $last, false);
+ok('into a ' . $hub['kind'] . ': the way on keeps its door', !preg_match('~mark/(haven|wonder|delve|lair|market|rest)\.png~', $h) && str_contains($h, '🚪'));
+$e2['to_id'] = (int)$vil['id'];
 $e2['to_id'] = (int)q_val("SELECT id FROM locations WHERE id IN (SELECT location_id FROM landmarks WHERE kind = 'lair') LIMIT 1");
 ok('not the last stretch: the way on keeps its door', !str_contains(trail_view_html($u, $e2, $sc, false), 'mark/lair.png'));
+
+echo "== a side path: the signpost beside the way in, first stretch only\n";
+$side = 0;
+foreach (q("SELECT id FROM routes WHERE kind = 'side' ORDER BY id")->fetchAll() as $r) if (rk_of((int)$r['id']) === null) { $side = (int)$r['id']; break; }   // a side path with no road kind (a road kind keeps its own marker)
+ok('the world has a side path with no road kind', $side > 0);
+[$u, $exp] = $walk($side);
+$sc = trail_scene($exp);
+$hs = trail_view_html($u, $exp, $sc, false);
+$spot = trail_road_mark($sc);
+ok('stretch 1 draws the signpost on floor beside the way in, and its tile says what it is', $spot && $spot[2] === 'side' && str_contains($hs, 'mark/signpost.png') && str_contains($hs, 'aria-label="A side path, off the road"'), json_encode($spot));
+if ((int)$sc['st']['S'] > 1) { $sc2 = $atSec($exp, 1); ok('stretch 2 has no signpost', !str_contains(trail_view_html($u, $exp, $sc2, false), 'mark/signpost.png') && trail_road_mark($sc2) === null); }
+ok('a road (route 240) has no signpost', !str_contains($h240, 'mark/signpost.png'));
 
 echo "== the Sight spyglass\n";
 $art = trail_authored_section(240, 0);

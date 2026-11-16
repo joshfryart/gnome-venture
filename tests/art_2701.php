@@ -18,7 +18,7 @@ $img = $argv[1] . '/assets/img/';
 
 echo "== every installed file (tools/install_art_2701.py --list)\n";
 $rows = array_filter(explode("\n", trim((string)shell_exec('python3 ' . escapeshellarg($repo . '/tools/install_art_2701.py') . ' --list'))));
-ok('the install table has 105 rows', count($rows) === 105, (string)count($rows));
+ok('the install table has 386 rows (105 of the first install + step 2: 256 pal files, 19 wearable icons, 3 markers, 3 stop looks)', count($rows) === 386, (string)count($rows));
 $bad = [];
 foreach ($rows as $r) {
     [$src, $dst, $w, $h] = explode('|', $r);
@@ -47,7 +47,25 @@ $other = null;
 foreach (glob($img . 'pals/*.png') as $f) { $k = basename($f, '.png'); if (!is_file($img . 'pals/perch/' . $k . '.png')) { $other = $k; break; } }
 $p = $other ? treehouse_pal_pic(['key' => $other], true) : [];
 ok('a pal with no perch picture keeps its yard picture on a perch (' . $other . ')', $other && str_contains((string)($p['src'] ?? ''), 'assets/img/pals/' . $other . '.png'), json_encode($p));
-ok('14 pals have a perch picture, each with a yard picture too', count(glob($img . 'pals/perch/*.png')) === 14 && !array_filter(glob($img . 'pals/perch/*.png'), fn($f) => !is_file($img . 'pals/' . basename($f))));
+ok('142 pals have a perch picture (14 + the 128 of art-2701-pals-all), each with a yard picture too', count(glob($img . 'pals/perch/*.png')) === 142 && !array_filter(glob($img . 'pals/perch/*.png'), fn($f) => !is_file($img . 'pals/' . basename($f))), (string)count(glob($img . 'pals/perch/*.png')));
+
+echo "== pals: the 128 of art-2701-pals-all (step 2), by the key the game looks up\n";
+$wl = json_decode((string)file_get_contents($repo . '/aseprite-source/v3/art-2701-pals-all/worklist.json'), true);
+$byKey = [];
+foreach (file($argv[1] . '/includes/data/puzzle_pals.txt', FILE_IGNORE_NEW_LINES) as $l) { if ($l === '' || $l[0] === '#') continue; $c = explode('|', $l); $byKey[$c[1]] = $c; }
+$miss = [];
+$n = 0;
+for ($c = 0; $c < 16; $c++) foreach ($wl[$c] as $p) {
+    $n++;
+    $row = $byKey[$p['key']] ?? null;
+    if (!$row || $row[0] !== $p['pic'] || $row[2] !== $p['name']) { $miss[] = $p['key'] . ' is not pic|key|name ' . $p['pic'] . '|' . $p['name'] . ' in puzzle_pals.txt'; continue; }
+    $y = treehouse_pal_pic(['key' => $p['key']]); $q = treehouse_pal_pic(['key' => $p['key']], true);
+    if (!str_contains((string)($y['src'] ?? ''), 'assets/img/pals/' . $p['key'] . '.png') || !str_contains((string)($q['src'] ?? ''), 'assets/img/pals/perch/' . $p['key'] . '.png')) $miss[] = $p['key'] . ' ' . json_encode([$y, $q]);
+    elseif (md5_file($img . 'pals/' . $p['key'] . '.png') !== md5_file(sprintf('%s/aseprite-source/v3/art-2701-pals-all/c%02d/opus3/%s-yard.png', $repo, $c, $p['key']))) $miss[] = $p['key'] . ' yard is not the opus3 file';
+    elseif (art_path('assets/img/pals/perch/' . $p['key'] . '.png') === '' || art_path('assets/img/pals/' . $p['key'] . '.png') === '') $miss[] = $p['key'] . ' not found by art_path()';
+}
+ok('128 pals: in puzzle_pals.txt under the same picture and name, yard (64) and perch (36) picked by treehouse_pal_pic(), the opus3 bytes, art_path() finds both', $n === 128 && !$miss, $n . ' ' . implode('; ', array_slice($miss, 0, 4)));
+foreach (['pl-frt-1', 'ss-palm-fidget', 'pl-bjq-4'] as $k) { $a = @getimagesize($img . 'pals/' . $k . '.png'); $b = @getimagesize($img . 'pals/perch/' . $k . '.png'); ok("$k: yard 64x64, perch 36x36", $a && $a[0] === 64 && $a[1] === 64 && $b && $b[0] === 36 && $b[1] === 36); }
 
 echo "== gnome: front Flood Boots over the tunic\n";
 ok('front wboots is drawn after the tunic', GNOME25_WEAR_AFTER['front']['wboots'] === 'tunic');
@@ -71,19 +89,25 @@ echo "== Trail markers\n";
 ok('the fight token draws mark/fight.png', trail_mark_file('⚔️') === 'fight');
 ok('the camp token draws mark/camp.png', trail_mark_file('🏕️') === 'camp');
 ok('the way on keeps its emoji tile (no marker drawn)', trail_mark_file('🚪') === '' && trail_mark_file('✨') === '');
+ok('step 2: the rest stop and the side path markers can be asked for by name', trail_mark_file('', 'rest') === 'rest' && trail_mark_file('', 'signpost') === 'signpost');
+ok('step 2: the hazard marker is installed but not wired (no Trail data has a hazard)', is_file($img . 'trail/mark/hazard.png') && trail_mark_file('', 'hazard') === '');
+ok('a rest stop (village) is a place the last stretch shows on its way on', (TRAIL_DEST_MARKS['village'] ?? '') !== '' && trail_dest_mark_name('village') === 'rest' && trail_dest_mark_name('lair') === 'lair');
 
 echo "== stop looks (Maplewold)\n";
 $all = here_layouts_shipped();
-foreach (['market', 'mill', 'shrine', 'jetty', 'herb', 'workshop', 'orchard', 'tower', 'camp'] as $t) {
+foreach (['market', 'mill', 'shrine', 'jetty', 'herb', 'workshop', 'orchard', 'tower', 'camp', 'inn', 'ferry', 'spring'] as $t) {
     $f = here_layout_find($all, 'stop', 'grassland', 'some-stop', ['type' => $t, 'style' => 'maplewold']);
     $key = 'stop-' . $t . '-grassland_maplewold';
     $file = $img . 'scenes/' . here_layout_file($key);
     $sz = @getimagesize($file);
     ok("$t: layout $key, picture 480x270, lint clean", $f && $f[0] === $key && $sz && $sz[0] === 480 && $sz[1] === 270 && !here_lint_layout($f[1]), json_encode([$f[0] ?? null, $sz ? [$sz[0], $sz[1]] : null, $f ? here_lint_layout($f[1]) : null]));
 }
-foreach (['inn', 'ferry', 'spring'] as $t) {
-    $f = here_layout_find($all, 'stop', 'grassland', 'some-stop', ['type' => $t, 'style' => 'maplewold']);
-    ok("$t (no Maplewold look): falls back to stop-$t", $f && $f[0] === 'stop-' . $t);
+foreach (['inn', 'ferry', 'spring'] as $t) {   // step 2: drawn now (batch4); each layout has the five spots of a stop and six stand slots, on the picture
+    $L = $all['stop-' . $t . '-grassland_maplewold'] ?? null;
+    $ks = $L ? array_column($L['spots'], 'k') : [];
+    sort($ks);
+    ok("$t: the Maplewold layout has do / homes / people / stop / wild with boxes, and 6 stand slots", $L && $ks === ['do', 'homes', 'people', 'stop', 'wild'] && count(array_filter($L['spots'], fn($s) => isset($s['box']))) === 5 && count($L['stand']) === 6, json_encode($ks));
+    ok("$t: it is not the plain look's layout (spots placed on the new picture)", $L && $L['spots'] !== ($all['stop-' . $t]['spots'] ?? null));
 }
 $f = here_layout_find($all, 'stop', 'forest', 'some-stop', ['type' => 'mill', 'style' => 'maplewold']);
 ok('a Maplewold mill in another landscape: its stop-mill picture', $f && $f[0] === 'stop-mill');
