@@ -1,4 +1,6 @@
--- Acacia Antler (th-acacia-antler), perch sprite 36x36. Opus second pass (c05/opus2), hand-built at this size.
+-- Acacia Antler (th-acacia-antler), perch sprite 36x36. Opus richness pass (c05/opus3), hand-built at this size.
+-- Richness pass: hue-shifted olive ramp with leaflet chevrons, bark ticks, thorn pairs, woven nest rows, one
+-- yellow puffball blossom. Inner-tine nests dropped at this size (fewer, bolder: one big nest per antler). Fix vs opus2: outer tines pulled in by one pixel so the nests sit 3 px in from the canvas edge.
 -- Bold and few: leafy olive ball with leaf ears, pill eyes and a bark nose; two forked twig antlers, a straw
 -- weaver nest hanging from each outer tine and one from each inner tine.
 -- quirk: the yellow weaver bird peeking out of the right outer nest.
@@ -7,7 +9,8 @@ local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("th-acacia-antler-perch", 36)
 
-local LEAF  = { "#1f3a2a", "#2f5a35", "#4a7d3c", "#6fa047", "#9cc25a", "#c8e080" }
+local LEAF  = { "#1c3530", "#2a5538", "#46783c", "#6c9c44", "#9cc256", "#cce27e" }
+local PUFF  = { "#b07a14", "#eec22a", "#fae678" }
 local BARK  = { "#2e1f1f", "#4d3326", "#704a32", "#946a45", "#b88c5c", "#d6ae7c" }
 local STRAW = { "#5a3e1a", "#8a6428", "#b88f3a", "#dcb85a", "#f2dc8a" }
 local BIRD  = { "#8a6a12", "#e0b820", "#f8e060" }
@@ -19,18 +22,20 @@ for _, lx in ipairs({ 15, 21 }) do
   O.mark(c, { { lx - 1, 31 }, { lx, 31 }, { lx + 1, 31 } }, BARK[1])
 end
 for _, b in ipairs({
-  { { 15, 19 }, { 13, 14 }, { 11, 10 }, { 10, 5 } }, { { 12, 12 }, { 9, 11 }, { 6, 10 }, { 5, 8 } },
-  { { 21, 19 }, { 23, 14 }, { 25, 10 }, { 26, 5 } }, { { 24, 12 }, { 27, 11 }, { 30, 10 }, { 31, 8 } } }) do
+  { { 15, 19 }, { 13, 14 }, { 11, 10 }, { 10, 5 } }, { { 12, 12 }, { 9, 11 }, { 7, 10 }, { 6, 8 } },
+  { { 21, 19 }, { 23, 14 }, { 25, 10 }, { 26, 5 } }, { { 24, 12 }, { 27, 11 }, { 29, 10 }, { 30, 8 } } }) do
   local m, n = O.tube(b, function(t) return .9 - t * .3 end)
   O.shadeN(c, m, n, BARK, { amb = .3, cuts = { .3, .5, .7, .85 }, sep = BARK[1] })
 end
+O.dots(c, { { 12, 15 }, { 24, 15 }, { 9, 7 }, { 27, 7 } }, "#efe4c8") -- thorns
 local spout = {}
-for i, n in ipairs({ { 5, 8, 5, 13 }, { 31, 8, 31, 13 }, { 10, 5, 7, 6 }, { 26, 5, 29, 6 } }) do
+for i, n in ipairs({ { 6, 8, 6, 13 }, { 30, 8, 30, 13 } }) do
   local tx, ty, cx, cy = n[1], n[2], n[3], n[4]
   if i <= 2 then O.dot(c, tx, ty + 1, STRAW[2]) else O.dot(c, (tx + cx) // 2, ty, STRAW[2]) end
   local m = c:ellipse(cx, cy, 1.5, 2)
   if i > 2 then m = c:ellipse(cx, cy + 1, 1, 1.5) end
-  O.shade(c, m, STRAW, { R = 1, amb = .35, cuts = { .25, .5, .75, .9 }, sep = STRAW[1] })
+  local nI, nT = O.shade(c, m, STRAW, { R = 1, amb = .35, cuts = { .25, .5, .75, .9 }, sep = STRAW[1] })
+  O.tex(c, nI, nT, STRAW, function(x, y, k) if (x + y) % 2 == 0 and y % 2 == 0 and k >= 2 then return -1 end end)
   spout[i] = { cx, (i > 2) and cy + 3 or cy + 3 }
   O.dot(c, cx, spout[i][2], STRAW[2])
 end
@@ -40,7 +45,10 @@ local bI, bT = O.shade(c, body, LEAF, { sphere = { 16, 20, 9 }, amb = .3, wrap =
 O.tex(c, bI, bT, LEAF, function(x, y, i)
   if y > 19 and y < 27 and x > 12 and x < 24 then return nil end
   if (x * 2 + y) % 5 == 0 and y % 2 == 0 and i <= 5 then return 1 end
+  if (x * 2 + y) % 5 == 2 and y % 2 == 1 and i >= 2 and i <= 4 then return -1 end
 end)
+O.shade(c, c:ellipse(23, 27, 1.5, 1.5), PUFF, { R = 1, amb = .4, cuts = { .35, .7 }, sep = LEAF[1] })
+O.mark(c, { { 22, 26 } }, PUFF[3])
 O.shade(c, c:poly{ { 12, 19 }, { 8, 17 }, { 7, 18 }, { 10, 21 } }, LEAF, { R = 1, amb = .4, sep = LEAF[1] })
 O.shade(c, c:poly{ { 24, 19 }, { 28, 17 }, { 29, 18 }, { 26, 21 } }, LEAF, { R = 1, amb = .35, sep = LEAF[1] })
 

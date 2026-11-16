@@ -1,4 +1,8 @@
--- Tall Tiptoe (th-tall-tiptoe), yard sprite 64x64. Opus second pass (art-2701-pals-all/c05/opus2) over the Haiku pass.
+-- Tall Tiptoe (th-tall-tiptoe), yard sprite 64x64. Opus richness pass (c05/opus3), built on c05/opus2.
+-- Richness pass: hue-shifted cream (olive-brown shadow -> warm ivory light) and chestnut ramps; each coat patch
+-- darkens toward its edge and keeps the body's light; fine fur ticks on the cream; a two-tone mane; lit hooves;
+-- the acacia sprig gets feathery leaflet pairs and a pale thorn.
+-- closer-look detail: a red-billed oxpecker riding on its back.
 -- Wayfinder, rare, Thornacre. "Reaches the top leaves before anybody else is out of bed."
 -- A young giraffe stretched up on the tips of its hooves: slim legs ending in tiny dark hooves with the heels
 -- lifted, a long neck rising on the diagonal to a round head turned to face you (locked eyes, pale muzzle,
@@ -13,7 +17,8 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("th-tall-tiptoe-yard", 64)
 
-local CRM   = { "#7a5230", "#ad7a40", "#d6a85c", "#ecc98a", "#f6e2b4", "#fcf0d6" }
+local CRM   = { "#6e4c34", "#a8783e", "#d4a65a", "#eac88a", "#f6e2b4", "#fcf2da" }
+local OXP   = { "#3a2622", "#6a4a36", "#9a7652" }
 local PAT   = { "#3a1f1a", "#5c2f1f", "#7e4128", "#a05630", "#bc6c3a", "#d4844a" }
 local MUZ   = { "#a07c62", "#cfae8e", "#ead2b4", "#f8e8d2" }
 local HOOF  = { "#2e2230", "#4a3a44", "#6a5660" }
@@ -33,13 +38,20 @@ local function patch(x, y)
     local d = (x - s[1]) ^ 2 + (y - s[2]) ^ 2
     if d < d1 then d2 = d1 d1 = d elseif d < d2 then d2 = d end
   end
-  return math.sqrt(d2) - math.sqrt(d1) > 1.3
+  local g = math.sqrt(d2) - math.sqrt(d1)
+  if g > 2.6 then return 2 elseif g > 1.3 then return 1 end
+  return false
 end
 local function coat(idx, tok, keep)
   for k, i in pairs(idx) do
     local x, y = k % 1024 - 256, k // 1024 - 256
     local p = y * c.w + x
-    if c.own[p] == tok and patch(x, y) and not (keep and keep(x, y)) then c.pix[p] = PAT[i]:lower() end
+    local q = patch(x, y)
+    if c.own[p] == tok and q and not (keep and keep(x, y)) then
+      c.pix[p] = PAT[q == 2 and i or math.max(1, i - 1)]:lower() -- patch edge one tone darker
+    elseif c.own[p] == tok and not q and H(x, y, 31) > .9 and i >= 3 and i <= 5 then
+      c.pix[p] = CRM[i - 1]:lower() -- fur ticks on the cream net
+    end
   end
 end
 
@@ -54,7 +66,7 @@ for _, L in ipairs(legs) do
   O.shadeN(c, m, n, CRM, { amb = .25, wrap = .35, bias = bias, sep = CRM[1] })
   O.shade(c, c:ellipse(L[3], L[4] - 7, 1.5, 1), CRM, { R = 1, amb = .35, bias = bias }) -- knee
   O.flat(c, c:rect(L[3] - 1, L[4] - 1, L[3] + 1, L[4]), HOOF[2], "hoof")
-  O.dot(c, L[3] - 1, L[4] - 1, HOOF[3]) O.dot(c, L[3] + 1, L[4], HOOF[1])
+  O.dot(c, L[3] - 1, L[4] - 1, HOOF[3]) O.dot(c, L[3] + 1, L[4], HOOF[1]) O.dot(c, L[3], L[4] - 1, "#8a7480")
 end
 
 -- tail with tuft
@@ -74,6 +86,7 @@ coat(nI, nT)
 for t = .1, .9, .1 do
   local x, y = O.bez({ { 25, 34 }, { 30, 26 }, { 35, 19 }, { 39, 12 } }, t)
   O.dot(c, math.floor(x), math.floor(y), (t * 10) % 2 < 1 and PAT[2] or PAT[3])
+  O.dot(c, math.floor(x) - 1, math.floor(y), (t * 10) % 2 < 1 and PAT[4] or PAT[2]) -- two-tone mane
 end
 
 -- head turned to face you
@@ -111,6 +124,16 @@ O.flat(c, tw, TWIG[2], "twig")
 for _, lf in ipairs({ { 56, 4, 1.5, 1 }, { 59, 7, 1.5, 1 }, { 55, 8, 1.5, 1 }, { 59, 3, 1.5, 1 } }) do
   O.shade(c, c:ellipse(lf[1], lf[2], lf[3], lf[4]), LEAF, { R = 1, amb = .35, cuts = { .25, .45, .65, .85 }, sep = LEAF[1] })
 end
+-- feathery leaflet pairs along the twig and a pale thorn
+O.dots(c, { { 58, 6 }, { 57, 5 }, { 60, 5 }, { 61, 3 } }, LEAF[5])
+O.dot(c, 56, 7, "#efe4c8")
+-- closer-look detail: a red-billed oxpecker riding on its back
+O.shade(c, c:ellipse(15, 30.5, 2.5, 1.5), OXP, { R = 1, amb = .35, cuts = { .35, .7 }, sep = CRM[1] })
+O.flat(c, c:rect(17, 29, 18, 30), OXP[2], "oxhead") O.dot(c, 17, 29, OXP[3])
+O.dot(c, 18, 29, "#f4c83a") -- yellow eye-ring
+O.dot(c, 19, 30, "#d8382a") -- red bill
+O.dot(c, 12, 30, OXP[1]) -- tail
+
 -- quirk: tongue curling out of the mouth corner up to hook the leaves
 local tg, tgn = O.tube({ { 45, 18 }, { 50, 19 }, { 53, 15 }, { 54, 10 } }, function(t) return .9 - t * .3 end)
 O.shadeN(c, tg, tgn, TONG, { amb = .3, cuts = { .3, .55, .8 }, sep = TONG[1] })

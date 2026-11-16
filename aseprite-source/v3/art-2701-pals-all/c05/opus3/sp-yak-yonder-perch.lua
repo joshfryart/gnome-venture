@@ -1,4 +1,6 @@
--- Yak Yonder (sp-yak-yonder), perch sprite 36x36. Opus second pass (c05/opus2), hand-built at this size.
+-- Yak Yonder (sp-yak-yonder), perch sprite 36x36. Opus richness pass (c05/opus3), hand-built at this size.
+-- Richness pass: hue-shifted fur ramp, lit strand tips on the fringe, a gold diamond on the blanket, a horn ring,
+-- a brass chin bell (3 px), a lit edge on the pole.
 -- Bold and few: shaggy dark yak heading left, jagged fringe skirt over short legs, big head with cream
 -- forelock, pale curved horns, pill eyes and a pale muzzle; a red/teal striped blanket and one burlap bundle.
 -- quirk: the orange pennant on its pole, streaming forward (left), pointing yonder.
@@ -8,7 +10,8 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("sp-yak-yonder-perch", 36)
 
-local FUR  = { "#21161a", "#3a2622", "#5a3a2c", "#7a5238", "#9c6e48", "#bc8e62" }
+local FUR  = { "#20141e", "#3a2426", "#5c3a30", "#7e5440", "#a07250", "#c4946a" }
+local GOLD = { "#8f4a1f", "#d98322", "#f5b82e", "#ffe38a" }
 local LOCK = { "#7a6450", "#ad9474", "#d4be98", "#ecdcba", "#f6ecd4" }
 local HORN = { "#6a5a48", "#a8987a", "#d8ccb0", "#f2ead6" }
 local MUZ  = { "#4a3430", "#6e5248", "#957264", "#b89282" }
@@ -31,7 +34,10 @@ for x = 11, 31 do for y = 22, 27 + (x % 3 == 0 and 1 or 0) do hem:set(x, y) end 
 hem:clip(c:ellipse(21, 24, 11, 6))
 body:add(hem)
 local bI, bT = O.shade(c, body, FUR, { R = 3, amb = .22, wrap = .35, rim = true, bounce = BNC, bmax = 2 })
-O.tex(c, bI, bT, FUR, function(x, y, i) if y >= 24 and x % 3 == 0 and i >= 2 then return -1 end end)
+O.tex(c, bI, bT, FUR, function(x, y, i)
+  if y >= 24 and x % 3 == 0 and i >= 2 then return -1 end
+  if y >= 25 and x % 3 == 1 and y % 2 == 0 and i <= 4 then return 1 end
+end)
 O.flat(c, c:line({ { 31, 20 }, { 33, 23 }, { 33, 25 } }, 1), FUR[3], "tail")
 
 local bl = c:poly{ { 16, 18 }, { 20, 16 }, { 27, 16 }, { 29, 18 }, { 29, 23 }, { 16, 23 } }
@@ -41,10 +47,11 @@ for k, p in pairs(blI) do
   local pi = y * c.w + x
   if c.own[pi] == blT and (x - 16) % 5 == 2 then c.pix[pi] = TEAL[math.min(4, p)]:lower() end
 end
+O.mark(c, { { 25, 18 }, { 24, 19 }, { 26, 19 }, { 25, 20 } }, GOLD[3]) -- diamond motif
 local sk = c:ellipse(25, 13.5, 3.5, 2.5)
 O.shade(c, sk, SACK, { R = 1, amb = .35, wrap = .4, sep = SACK[1] })
 -- pennant pole + flag forward
-O.flat(c, c:rect(20, 3, 20, 16), WOOD[3], "pole")
+O.flat(c, c:rect(20, 3, 20, 16), WOOD[3], "pole") O.dot(c, 20, 8, WOOD[4]) O.dot(c, 20, 12, WOOD[4])
 local flag = c:poly{ { 19, 3 }, { 13, 5 }, { 19, 7 } }
 O.shade(c, flag, PEN, { R = 1, amb = .4, cuts = { .3, .55, .8 }, sep = WOOD[1] })
 
@@ -64,6 +71,9 @@ for _, ex in ipairs({ 7, 12 }) do
   c:eyeSmall(ex, 19)
 end
 O.dot(c, 5, 22, "#f5809f") O.dot(c, 15, 22, "#f5809f")
+O.mark(c, { { 4, 12 }, { 16, 12 } }, HORN[1]) -- horn rings
+-- chin bell
+O.flat(c, c:rect(9, 26, 11, 27), GOLD[3], "bell") O.dot(c, 9, 26, GOLD[4]) O.dot(c, 11, 27, GOLD[2]) O.dot(c, 10, 28, HOOF[1])
 
 O.shift(c, 0, 0)
 O.done(c, "sp-yak-yonder-perch")

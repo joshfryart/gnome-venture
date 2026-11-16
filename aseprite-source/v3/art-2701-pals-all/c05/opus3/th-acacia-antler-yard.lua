@@ -1,4 +1,8 @@
--- Acacia Antler (th-acacia-antler), yard sprite 64x64. Opus second pass (art-2701-pals-all/c05/opus2) over the Haiku pass.
+-- Acacia Antler (th-acacia-antler), yard sprite 64x64. Opus richness pass (c05/opus3), built on c05/opus2.
+-- Richness pass: hue-shifted olive ramp (blue-green shadow -> yellow-green light) with leaflet clusters (lit tips,
+-- dark gaps) and a cool bounce; bark grain ticks along the antlers, thorns in pale pairs with dark bases;
+-- nests woven in offset rows with loose straw ends hanging under them; darker hooves with a lit toe.
+-- closer-look detail: two yellow acacia puffball blossoms tucked in its leaves.
 -- Rootwarden, uncommon, Thornacre. "Grows antler-like twigs and hangs weaver nests from every one."
 -- A round acacia-bush critter: a ball of fine olive leaflets (feathery texture, rim light, cool bounce) with two
 -- leaf ears, a little bark nose and stubby bark legs. Out of its crown grow two branching twig antlers with pale
@@ -14,7 +18,8 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("th-acacia-antler-yard", 64)
 
-local LEAF  = { "#1f3a2a", "#2f5a35", "#4a7d3c", "#6fa047", "#9cc25a", "#c8e080" }
+local LEAF  = { "#1c3530", "#2a5538", "#46783c", "#6c9c44", "#9cc256", "#cce27e" }
+local PUFF  = { "#b07a14", "#eec22a", "#fae678" }
 local BARK  = { "#2e1f1f", "#4d3326", "#704a32", "#946a45", "#b88c5c", "#d6ae7c" }
 local STRAW = { "#5a3e1a", "#8a6428", "#b88f3a", "#dcb85a", "#f2dc8a" }
 local BIRD  = { "#8a6a12", "#e0b820", "#f8e060" }
@@ -25,6 +30,7 @@ c:groundShadow(32, 58, 14, 2.5)
 for _, lx in ipairs({ 26, 38 }) do
   O.shade(c, c:rrect(lx - 2, 50, lx + 2, 56, 1), BARK, { R = 1, amb = .3, sep = BARK[1], rim = true })
   O.mark(c, { { lx - 2, 56 }, { lx - 1, 56 }, { lx, 56 }, { lx + 1, 56 }, { lx + 2, 56 } }, BARK[1]) -- hooves
+  O.mark(c, { { lx - 1, 55 } }, BARK[3]) O.mark(c, { { lx - 1, 52 }, { lx + 1, 53 } }, BARK[3])
 end
 
 -- antlers: trunk + two tines each (drawn before the body so the body overlaps the roots)
@@ -38,10 +44,15 @@ local branches = {
 }
 for i, b in ipairs(branches) do
   local m, n = O.tube(b, function(t) return (i % 3 == 1) and (1.6 - t * .7) or (1.1 - t * .4) end)
-  O.shadeN(c, m, n, BARK, { amb = .25, wrap = .35, sep = BARK[1], rim = true })
+  local aI, aT = O.shadeN(c, m, n, BARK, { amb = .25, wrap = .35, sep = BARK[1], rim = true })
+  O.tex(c, aI, aT, BARK, function(x, y, k) if (x * 3 + y) % 5 == 0 and k >= 3 then return -1 end end) -- bark grain
 end
 -- thorns: pale paired spikes
-O.dots(c, { { 23, 28 }, { 19, 13 }, { 15, 16 }, { 29, 18 }, { 41, 28 }, { 45, 13 }, { 49, 16 }, { 35, 18 } }, THORN)
+for _, t in ipairs({ { 23, 28, -1 }, { 19, 13, -1 }, { 15, 16, 0 }, { 29, 18, 1 }, { 41, 28, 1 }, { 45, 13, 1 }, { 49, 16, 0 }, { 35, 18, -1 } }) do
+  O.dot(c, t[1], t[2], THORN)
+  if t[3] ~= 0 then O.dot(c, t[1] + t[3], t[2] - 1, THORN) else O.dot(c, t[1], t[2] - 1, THORN) end
+  O.mark(c, { { t[1] - t[3], t[2] + 1 } }, BARK[2])
+end
 
 -- nests hanging from the tips: fibre, woven pouch, spout
 local nests = { { 8, 14, 8, 20 }, { 29, 12, 30, 17 }, { 56, 14, 56, 20 }, { 17, 8, 14, 12 }, { 35, 12, 34, 17 }, { 47, 8, 50, 12 } }
@@ -54,7 +65,12 @@ for i, n in ipairs(nests) do
   local m = c:ellipse(cx, cy, big and 2.5 or 1.5, ry)
   local nI, nT = O.shade(c, m, STRAW, { R = 1, amb = .3, wrap = .4, cuts = { .22, .42, .62, .82 }, sep = STRAW[1], rim = true })
   -- weave: alternating dark ticks
-  O.tex(c, nI, nT, STRAW, function(x, y, k) if (x + y * 2) % 3 == 0 and k >= 2 then return -1 end end)
+  O.tex(c, nI, nT, STRAW, function(x, y, k)
+    if (x + (y % 2) * 2) % 3 == 0 and k >= 2 then return -1 end
+    if (x + (y % 2) * 2) % 3 == 1 and y % 2 == 0 and k <= 4 then return 1 end
+  end)
+  -- loose straw ends under the pouch
+  if big then O.dot(c, cx - 2, math.floor(cy + ry), STRAW[3]) O.dot(c, cx + 2, math.floor(cy + ry), STRAW[2]) end
   -- entrance spout under the pouch
   local sy = math.floor(cy + ry) + 1
   O.flat(c, c:rect(cx, sy, cx, sy + 1), STRAW[3], "spout")
@@ -68,8 +84,11 @@ local bI, bT = O.shade(c, body, LEAF, { sphere = { 29, 37, 14 }, amb = .25, wrap
 O.tex(c, bI, bT, LEAF, function(x, y, i)
   local face = x > 22 and x < 42 and y > 34 and y < 47
   if face then return nil end
-  if (x * 2 + y) % 5 == 0 and y % 2 == 0 and i <= 5 then return 1 end   -- lit leaflet tips
-  if (x * 2 + y) % 5 == 2 and y % 2 == 1 and i >= 2 then return -1 end -- leaflet gaps
+  -- leaflet clusters: little chevrons, lit tip above a dark gap
+  local cx, cy = (x + (y // 3 % 2) * 2) % 4, y % 3
+  if cy == 0 and cx == 1 and i <= 5 then return 1 end
+  if cy == 1 and (cx == 0 or cx == 2) and i <= 4 and i >= 2 then return 1 end
+  if cy == 2 and cx == 1 and i >= 2 then return -1 end
 end)
 -- leaf ears
 for _, e in ipairs({ { { 23, 36 }, { 18, 33 }, { 15, 33 }, { 19, 38 }, { 22, 39 } }, { { 41, 36 }, { 46, 33 }, { 49, 33 }, { 45, 38 }, { 42, 39 } } }) do
@@ -77,6 +96,12 @@ for _, e in ipairs({ { { 23, 36 }, { 18, 33 }, { 15, 33 }, { 19, 38 }, { 22, 39 
   O.shade(c, m, LEAF, { R = 1, amb = .35, wrap = .4, sep = LEAF[1], rim = true })
 end
 O.mark(c, { { 17, 34 }, { 18, 35 } }, LEAF[2]) O.mark(c, { { 47, 34 }, { 46, 35 } }, LEAF[2]) -- midribs
+
+-- closer-look detail: two yellow acacia puffball blossoms in the leaves
+for _, f in ipairs({ { 25, 50 }, { 41, 48 } }) do
+  O.shade(c, c:ellipse(f[1], f[2], 1.5, 1.5), PUFF, { R = 1, amb = .4, cuts = { .35, .7 }, sep = LEAF[1] })
+  O.mark(c, { { f[1] - 1, f[2] - 1 } }, PUFF[3])
+end
 
 -- face
 c:eyeLocked(24, 36) c:eyeLocked(35, 36)

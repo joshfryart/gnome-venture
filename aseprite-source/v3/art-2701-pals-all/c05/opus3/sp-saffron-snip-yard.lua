@@ -1,4 +1,10 @@
--- Saffron Snip (sp-saffron-snip), yard sprite 64x64. Opus second pass (art-2701-pals-all/c05/opus2) over the Haiku pass.
+-- Saffron Snip (sp-saffron-snip), yard sprite 64x64. Opus richness pass (c05/opus3), built on c05/opus2.
+-- Richness pass / fix (opus2 cap could read as a purple crown): the crocus is now a real goblet bloom set at a
+-- tilt on the head: narrow at the base, rounded overlapping petals with the dark crocus veins, a green
+-- receptacle and two slim crocus leaves (pale midstripe) fanning out from under it; the three crimson
+-- stigma threads droop over the petal lip with flared tips. Body: hue-shifted gold ramp with pollen freckles;
+-- scissors get a bevel line, rivet glint and an engraved loop.
+-- closer-look detail: a tiny woven basket at its foot with the threads it has already picked.
 -- Seedkeeper, common, Spicepeak. "Snips saffron threads with tiny scissors and hums while picking."
 -- A round saffron-gold sprite wearing a lilac crocus bloom as a cap (three cupped petals, veined), with three
 -- crimson saffron threads standing up out of the bloom. It holds a pair of tiny scissors (brass finger loops,
@@ -13,12 +19,14 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("sp-saffron-snip-yard", 64)
 
-local GLD   = { "#5e2e14", "#93501e", "#c97a24", "#eaa431", "#f6c95a", "#fbe49a" }
+local GLD   = { "#5a2a1c", "#93501e", "#cc7a22", "#eca62e", "#f8cc56", "#fce69c" }
 local PET   = { "#3a2556", "#5a3a82", "#7f5aae", "#a582d0", "#c8aae6", "#e6d6f6" }
 local THR   = { "#5a1218", "#9a1e22", "#d23a2a", "#f06a3a" }
 local STEEL = { "#3a3e52", "#6a7088", "#a4aabc", "#dde0e8" }
 local BRASS = { "#6a3a12", "#b0701e", "#e6aa3a", "#f8d27a" }
 local NOTE  = { "#3a2244", "#6a3e78", "#9a6aac" }
+local GRN   = { "#1f3f2e", "#2f6a3a", "#4f9a48", "#8acb6a", "#d0ecb0" }
+local WCK   = { "#4a2e1a", "#7a5230", "#a87c48", "#d0a86a" }
 local BNC   = "#7a5a8a"
 
 c:groundShadow(31, 58, 14, 2.5)
@@ -35,29 +43,49 @@ O.tex(c, bI, bT, GLD, function(x, y, i) -- faint pollen freckles
 end)
 O.shade(c, c:ellipse(17.5, 44, 2.5, 4), GLD, { R = 1, amb = .3, sep = GLD[1], rim = true }) -- left arm
 
--- threads out of the bloom (drawn first; petals overlap the roots)
-for _, t in ipairs({ { 29, 26, 25, 12 }, { 31, 24, 31, 9 }, { 33, 26, 37, 12 } }) do
-  local m, n = O.tube({ { t[1], t[2] }, { (t[1] * 2 + t[3]) / 3, t[2] - 5 }, { (t[1] + t[3] * 2) / 3, t[4] + 4 }, { t[3], t[4] } }, function() return .7 end)
-  O.shadeN(c, m, n, THR, { amb = .3, cuts = { .3, .55, .8 }, sep = THR[1] })
-  O.flat(c, c:rect(t[3] - 1, t[4] - 1, t[3] + 1, t[4] - 1), THR[3], "tip") -- flared tip
-  O.dot(c, t[3] - 1, t[4] - 1, THR[4])
+-- rotated ellipse mask
+local function rell(cx, cy, rx, ry, deg)
+  local m, a = HP.mask(), math.rad(deg)
+  local ca, sa = math.cos(a), math.sin(a)
+  for y = math.floor(cy - 12), math.floor(cy + 12) do for x = math.floor(cx - 12), math.floor(cx + 12) do
+    local dx, dy = x + .5 - cx, y + .5 - cy
+    local u, v = dx * ca + dy * sa, -dx * sa + dy * ca
+    if (u / rx) ^ 2 + (v / ry) ^ 2 <= 1 then m:set(x, y) end
+  end end
+  return m
 end
--- crocus cap: three cupped petals
-local petals = {
-  { c:poly{ { 20, 31 }, { 19, 25 }, { 21, 19 }, { 25, 22 }, { 28, 31 } }, 0 },
-  { c:poly{ { 34, 31 }, { 37, 22 }, { 41, 19 }, { 43, 25 }, { 42, 31 } }, -1 },
-  { c:poly{ { 26, 31 }, { 27, 22 }, { 31, 16 }, { 35, 22 }, { 36, 31 } }, 0 },
-}
-for _, pe in ipairs(petals) do
-  local m = pe[1]
-  m:cut(c:rect(0, 31, 63, 63))
-  local bias = {} m:each(function(x, y) bias[K(x, y)] = pe[2] end)
+-- crocus leaves: two slim blades with a pale midstripe, fanning from under the bloom
+for _, L in ipairs({ { { 30, 30 }, { 25, 27 }, { 21, 25 }, { 18, 21 } }, { { 34, 30 }, { 39, 29 }, { 43, 27 }, { 46, 23 } } }) do
+  local m, n = O.tube(L, function(t) return 1.9 - t * 1.3 end)
+  O.shadeN(c, m, n, GRN, { amb = .3, wrap = .4, cuts = { .25, .45, .65, .85 }, sep = GRN[1], rim = true })
+  for t = .15, .75, .15 do local x, y = O.bez(L, t) O.mark(c, { { math.floor(x + .5), math.floor(y + .5) } }, GRN[5]) end
+end
+-- green receptacle on the crown of the head
+O.shade(c, c:ellipse(32, 29, 3, 2), GRN, { R = 1, amb = .3, cuts = { .25, .45, .65, .85 }, sep = GLD[1] })
+-- the goblet: back petals, then the front petal; whole bloom tilted to the right
+local PB = { rell(27.5, 20, 4, 8, -14), rell(37, 19.5, 4, 8, 26) }
+for i, m in ipairs(PB) do
+  m:cut(c:rect(0, 29, 63, 63))
+  local bias = {} m:each(function(x, y) bias[K(x, y)] = (i == 2) and -1 or 0 end)
   local pI, pT = O.shade(c, m, PET, { R = 2, bias = bias, amb = .25, wrap = .4, sep = PET[1], rim = true })
 end
--- petal veins and the cup's rim on the head
-O.mark(c, { { 31, 19 }, { 31, 21 }, { 31, 23 }, { 31, 25 }, { 31, 27 }, { 22, 23 }, { 23, 25 }, { 23, 27 }, { 40, 23 }, { 39, 25 }, { 39, 27 } }, PET[3])
-for x = 20, 42 do if c:get(x, 30) then O.mark(c, { { x, 30 } }, PET[2]) end end
-for x = 22, 40 do if c:get(x, 31) then O.mark(c, { { x, 31 } }, GLD[2]) end end -- cap shadow on the brow
+-- threads: three stigmas rising out of the cup and drooping over the right lip, flared tips
+for _, t in ipairs({ { { 32, 16 }, { 33, 8 }, { 39, 6 }, { 42, 11 } }, { { 31, 16 }, { 29, 8 }, { 24, 7 }, { 22, 11 } }, { { 33, 16 }, { 35, 9 }, { 44, 4 }, { 47, 9 } } }) do
+  local m, n = O.tube(t, function() return .75 end)
+  O.shadeN(c, m, n, THR, { amb = .3, cuts = { .3, .55, .8 }, sep = THR[1] })
+  local ex, ey = t[4][1], t[4][2]
+  O.flat(c, c:rect(ex - 1, ey, ex + 1, ey + 1), THR[3], "tip") O.dot(c, ex - 1, ey, THR[4]) O.dot(c, ex + 1, ey + 1, THR[2])
+end
+local front = rell(32, 21.5, 5, 8.5, 6)
+front:cut(c:rect(0, 29, 63, 63))
+local fI, fT = O.shade(c, front, PET, { R = 3, amb = .25, wrap = .4, sep = PET[1], rim = true, bounce = BNC, bmax = 2 })
+-- crocus veins: dark feathered lines up each petal from the base
+O.mark(c, { { 32, 27 }, { 32, 25 }, { 32, 23 }, { 33, 21 }, { 31, 24 }, { 33, 26 } }, PET[2])
+O.mark(c, { { 26, 24 }, { 27, 22 }, { 38, 23 }, { 39, 21 } }, PET[3])
+O.mark(c, { { 30, 15 }, { 31, 14 } }, PET[6]) -- lit rounded tip
+-- petal tips of the back petals curl slightly outward: lit rim pixels
+O.mark(c, { { 25, 13 }, { 39, 12 } }, PET[6])
+for x = 22, 40 do if c:get(x, 31) and not c:get(x, 29) then O.mark(c, { { x, 31 } }, GLD[3]) end end
 
 -- face: humming "o"
 c:eyeLocked(24, 34) c:eyeLocked(34, 34)
@@ -71,6 +99,7 @@ for _, bl in ipairs({ { { 49, 37 }, { 51, 34 }, { 54, 30 }, { 57, 26 } }, { { 49
   O.shadeN(c, m, n, STEEL, { amb = .35, wrap = .4, cuts = { .3, .55, .8 }, sep = STEEL[1] })
 end
 O.dots(c, { { 52, 32 }, { 54, 35 } }, STEEL[4]) -- edge glints
+O.mark(c, { { 53, 31 }, { 55, 29 }, { 53, 36 }, { 56, 35 } }, STEEL[2]) -- bevel line
 for _, L in ipairs({ { 44.5, 41.5 }, { 49.5, 43.5 } }) do
   local ring = c:ellipse(L[1], L[2], 2.5, 2.5)
   ring:cut(c:ellipse(L[1], L[2], 1, 1))
@@ -78,9 +107,18 @@ for _, L in ipairs({ { 44.5, 41.5 }, { 49.5, 43.5 } }) do
 end
 O.flat(c, c:line({ { 46, 39 }, { 48, 37 } }, 1), BRASS[2], "shank") O.flat(c, c:line({ { 49, 40 }, { 49, 38 } }, 1), BRASS[2], "shank")
 O.flat(c, c:rect(48, 36, 49, 37), STEEL[1], "rivet") O.dot(c, 48, 36, STEEL[4])
+O.mark(c, { { 51, 42 }, { 50, 45 } }, BRASS[4]) -- engraved loop glints
 O.shade(c, c:ellipse(43, 44, 2.5, 2.5), GLD, { R = 1, amb = .3, sep = GLD[1] }) -- hand through the loop
 -- the snipped thread drifting off the blade tips
 O.flat(c, c:line({ { 59, 29 }, { 58, 26 } }, 1), THR[3], "cut") O.dot(c, 58, 26, THR[4]) O.dot(c, 59, 29, THR[2])
+
+-- closer-look detail: tiny woven basket at its left foot holding the threads already picked
+local bk = c:rrect(12, 50, 18, 55, 1)
+local kI, kT = O.shade(c, bk, WCK, { R = 1, amb = .3, cuts = { .3, .55, .8 }, sep = WCK[1] })
+O.tex(c, kI, kT, WCK, function(x, y, i) if x % 3 == 0 and i >= 2 then return -1 elseif y % 2 == 0 and x % 3 == 1 and i <= 3 then return 1 end end)
+O.mark(c, { { 12, 50 }, { 13, 50 }, { 14, 50 }, { 15, 50 }, { 16, 50 }, { 17, 50 }, { 18, 50 } }, WCK[4])
+O.flat(c, c:line({ { 14, 49 }, { 13, 46 } }, 1), THR[3], "picked") O.flat(c, c:line({ { 16, 49 }, { 17, 46 } }, 1), THR[2], "picked")
+O.dot(c, 13, 46, THR[4]) O.dot(c, 17, 46, THR[3])
 
 -- quirk: the hum, a music note floating off to the left
 O.flat(c, c:rect(13, 22, 13, 27), NOTE[2], "note")
