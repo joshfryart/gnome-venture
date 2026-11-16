@@ -502,14 +502,17 @@ function trail_strip_html(array $u, array $exp, array $sc): string
 }
 
 /**
- * 2.7.01: the road-kind marker of this stretch, [x, y, kind], or null (a plain road, or a kind that is not met on this stretch: rk_on_stretch). It stands on the first floor
+ * 2.7.01: the road-kind marker of this stretch, [x, y, kind], or null (a plain road, or a kind that is not met on this stretch: rk_on_stretch). A side path (routes.kind
+ * 'side') with no road kind gets kind 'side' on its first stretch walked: the signpost marker (trail_road_mark_name). It stands on the first floor
  * tile round the way in (nearest first, fixed order) that has no token, camp, gate or way on, so it does not move while the gnome walks. Pure but for the road-kind list.
  */
 function trail_road_mark(array $sc): ?array
 {
     require_once __DIR__ . '/road_kinds.php';
-    $rk = rk_of((int)substr((string)($sc['row']['map_key'] ?? ''), 6));
-    if (!$rk || !rk_on_stretch($rk['kind'], (int)$sc['st']['sec'])) return null;
+    $rid = (int)substr((string)($sc['row']['map_key'] ?? ''), 6);
+    $rk = rk_of($rid);
+    if (!$rk && (int)$sc['st']['sec'] === 0 && (string)q_val('SELECT kind FROM routes WHERE id = ?', [$rid]) === 'side') $rk = ['kind' => 'side'];
+    if (!$rk || ($rk['kind'] !== 'side' && !rk_on_stretch($rk['kind'], (int)$sc['st']['sec']))) return null;
     $map = $sc['map'];
     [$enx, $eny] = $map['entry'];
     $taken = [];
@@ -526,6 +529,13 @@ function trail_road_mark(array $sc): ?array
         if (!isset($taken[$x . ',' . $y]) && in_array(tm_tile($map, $x, $y), ['.', ','], true)) return [$x, $y, $rk['kind']];
     }
     return null;
+}
+
+/** 2.7.01: [marker name, emoji, tile label] of a trail_road_mark() kind: a road kind is its own marker, a side path ('side') the signpost. */
+function trail_road_mark_name(string $kind, int $rid): array
+{
+    if ($kind === 'side') return ['signpost', '🪧', 'A side path, off the road'];
+    return [$kind, RK_ICON[$kind] ?? '❔', (string)preg_replace('/^\S+\s/u', '', rk_label(rk_of($rid)))];
 }
 
 /** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */
@@ -545,19 +555,20 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $tokens[] = [$tx, $ty, $fight ? '⚔️' : '✨', $fight ? 'ember' : 'gold', (bool)$done];
     }
     [$ex, $ey] = $map['spots']['9'];
-    $dest = null;   // 2.7.01: the last stretch's way on shows the marker of the place it leads into (haven, wonder, delve, lair, market)
+    $dest = null;   // 2.7.01: the last stretch's way on shows the marker of the place it leads into (haven, wonder, delve, lair, market; a rest stop draws 'rest')
     if ((int)$sc['st']['sec'] + 1 >= (int)$sc['st']['S'] && ($toLoc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($exp['to_id'] ?? 0)]))) {
         require_once __DIR__ . '/destination.php';
         $dk = loc_real_kind($toLoc);
         if (isset(TRAIL_DEST_MARKS[$dk])) $dest = [$dk, (string)$toLoc['name']];
     }
-    if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = $dest ? [$ex, $ey, TRAIL_DEST_MARKS[$dest[0]], 'gold', false, false, $dest[0]] : [$ex, $ey, '🚪', 'gold', false];
+    if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = $dest ? [$ex, $ey, TRAIL_DEST_MARKS[$dest[0]], 'gold', false, false, trail_dest_mark_name($dest[0])] : [$ex, $ey, '🚪', 'gold', false];
     require_once __DIR__ . '/trail_camps.php';   // 2.7.00: the camp tile of this route (when this is its stretch)
     $campSpot = tc_spot((array)($map['art'] ?? []));
     if ($campSpot && ($campSpot[0] !== $sc['x'] || $campSpot[1] !== $sc['y'])) $tokens[] = [$campSpot[0], $campSpot[1], '🏕️', 'gold', false];
     require_once __DIR__ . '/road_kinds.php';   // 2.7.01: the road kind's marker beside the way in, on the stretch it applies to
     $rkSpot = trail_road_mark($sc);
-    if ($rkSpot && ($rkSpot[0] !== $sc['x'] || $rkSpot[1] !== $sc['y'])) $tokens[] = [$rkSpot[0], $rkSpot[1], RK_ICON[$rkSpot[2]], 'gold', false, false, $rkSpot[2]];
+    $rkMark = $rkSpot ? trail_road_mark_name($rkSpot[2], (int)substr((string)$sc['row']['map_key'], 6)) : null;   // [name, emoji, label]: a road kind, or the signpost of a side path
+    if ($rkSpot && ($rkSpot[0] !== $sc['x'] || $rkSpot[1] !== $sc['y'])) $tokens[] = [$rkSpot[0], $rkSpot[1], $rkMark[1], 'gold', false, false, $rkMark[0]];
     // 2026-11-10: a tool gate that is still shut for this gnome gets a 🔒 mark on its middle tile, and every tile of it says what it needs
     $shut = function_exists('tool_tier') && !empty($map['art']['gates']) ? trail_gates_closed($map['art'], fn(string $type): int => tool_tier((int)$u['id'], $type)) : [];
     $shutSeen = [];
@@ -640,7 +651,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
             elseif (isset($shut[$x . ',' . $y])) { $cls .= ' gate'; $label = trail_gate_message($shut, [[$x, $y]]) ?? 'A shut gate'; }
             elseif (isset($openMid[$x . ',' . $y])) $label = $openMid[$x . ',' . $y];
             elseif ($campSpot && $campSpot[0] === $x && $campSpot[1] === $y) { $cls .= ' spot'; $label = 'A camp spot: sleep, nap or wait'; }
-            elseif ($rkSpot && $rkSpot[0] === $x && $rkSpot[1] === $y) $label = preg_replace('/^\S+\s/u', '', rk_label(rk_of((int)substr((string)$sc['row']['map_key'], 6))));
+            elseif ($rkSpot && $rkSpot[0] === $x && $rkSpot[1] === $y) $label = $rkMark[2];
             elseif ($t === '9') { $cls .= ' spot'; $label = $dest ? 'The way on to ' . $dest[1] : 'The way on'; }
             elseif ($t === 'S') $label = (int)$sc['st']['sec'] > 0 ? 'The way back' : 'Where this stretch begins';
         }

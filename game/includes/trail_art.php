@@ -310,11 +310,17 @@ function trail_art_obj_size(string $key): array
 }
 
 /** 2.7.01: the drawn marker for a map token (assets/img/trail/mark/<name>.png, 32x32), or '' to keep the emoji. A token names its marker ($name: a road kind on its stretch,
- *  the place the last stretch leads into, 'sight', 'villager'); without a name the emoji says it: ⚔️ fight, 🏕️ camp. */
+ *  'signpost' on the first stretch of a side path, the place the last stretch leads into ('rest' for a rest stop), 'sight', 'villager'); without a name the emoji says it:
+ *  ⚔️ fight, 🏕️ camp. mark/hazard.png is installed but not a name here: no Trail data has a hazard yet. */
 const TRAIL_MARKS = ['⚔️' => 'fight', '🏕️' => 'camp'];
-const TRAIL_MARK_NAMES = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market'];
+const TRAIL_MARK_NAMES = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market', 'rest', 'signpost'];
 /** The places whose marker stands on the way on of a walk's last stretch, with the emoji of the no-picture look (the World map's, but 🌟 for a wonder: ✨ is a find on the Trail). */
-const TRAIL_DEST_MARKS = ['haven' => '🏕️', 'wonder' => '🌟', 'delve' => '🕳️', 'lair' => '🐉', 'market' => '🏘️'];
+const TRAIL_DEST_MARKS = ['haven' => '🏕️', 'wonder' => '🌟', 'delve' => '🕳️', 'lair' => '🐉', 'market' => '🏘️', 'village' => '🛖'];
+/** The marker name of a place kind in TRAIL_DEST_MARKS: its own name, but a rest stop (village) draws the 'rest' marker (step 2 of the 2.7.01 art). */
+function trail_dest_mark_name(string $kind): string
+{
+    return $kind === 'village' ? 'rest' : $kind;
+}
 function trail_mark_file(string $icon, string $name = ''): string
 {
     $k = $name !== '' ? (in_array($name, TRAIL_MARK_NAMES, true) ? $name : '') : (TRAIL_MARKS[$icon] ?? '');
