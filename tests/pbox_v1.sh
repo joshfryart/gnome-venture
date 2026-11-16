@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2.6.74 stage C, the v1 PAGES (setting pfight_v1): flag-off parity of the old pages, the Puzzle box page (kit, belt, pals), the starter pick and the carry-over of an old box,
+# 2.6.74 stage C, the v1 PAGES (setting pfight_v1): flag-off parity of the old pages, the Puzzle box page (kit, belt, pals), the fixed starter box packed on the first visit (2.7.01; was the starter pick and the carry-over of an old box),
 # the POST actions through the pages (starter, toggle, auto-use, equip, fix), the gate and the pre-fight screen, flip, the v1 fight page, the result card,
 # JS syntax, the built fork (tools/build_pfboardv1.py --check), and a browser pass at 390px, light and dark, over every new screen (tests/pbox_v1_shots.js; SHOT=dir keeps the pictures).
 # Usage: tests/pbox_v1.sh [GAME_COPY_DIR] [PORT] [ROUTER]   (default: copies src/game to a temp dir; never writes a DB into src)
@@ -79,16 +79,21 @@ get 'gnome.php?tab=gnome' >/dev/null; ck "a player: no Puzzle box tile in the Ho
 post puzzlebox.php -d do=save -d 'tile[]=swing' -d 'tile[]=dodge' -d 'tile[]=rest' -d 'tile[]=charm' -d 'tile[]=hide' -d 'tile[]=snack' -d 'tile[]=taunt' >/dev/null
 ck "a player packs an old box (7 pieces, kept for the carry-over)" "$(db "SELECT COUNT(*) FROM user_pbox")" "1"
 
-echo "== the starter pick (an admin)"
+echo "== the starter box (an admin)"
 db "UPDATE users SET role='admin' WHERE username='sprout'" >/dev/null
 get 'gnome.php?tab=gnome' >/dev/null; ck "an admin: the Puzzle box tile in the Hovel and in the menu" "$(grep -c 'gvtl">Puzzle box' $H) $(grep -c 'ntl">Puzzle box' $H)" "1 1"
 ck "2.6.75: the menu link is under Hobbies, with the same markup as its siblings" "$(grep -o 'data-g="Hobbies">.*</details>' $H | sed 's/<\/details>.*//' | grep -c 'class="navtile[^"]*" href="/puzzlebox.php"') $(grep -o 'data-g="You">.*data-g="Hobbies"' $H | grep -c 'puzzlebox.php')" "1 0"
-ck "puzzlebox.php: the starter pick, 4 core pieces locked, 12 on offer, three kits" "$(get puzzlebox.php) $(grep -c 'id="pfv-starter"' $H) $(grep -o 'class="pc lock"' $H | wc -l | tr -d ' ') $(grep -o 'data-a="spick"' $H | wc -l | tr -d ' ') $(grep -o 'name="kit"' $H | wc -l | tr -d ' ')" "200 1 4 12 3"
-ck "the old box's pieces that are on offer start picked (hide, snack)" "$(grep -o 'sel" data-a="spick"' $H | wc -l | tr -d ' ')" "2"
-ck "starter: 5 picks are refused, nothing saved" "$(post puzzlebox.php -d do=pfd_starter -d 'pick[]=jab' -d 'pick[]=snack' -d 'pick[]=hide' -d 'pick[]=brace' -d 'pick[]=hum') $(db "SELECT COUNT(*) FROM pf_deck_pieces")" "302 0"
-get puzzlebox.php >/dev/null
-ck "starter: 6 picks are packed (10 rows)" "$(post puzzlebox.php -d do=pfd_starter -d 'pick[]=jab' -d 'pick[]=snack' -d 'pick[]=brace' -d 'pick[]=hum' -d 'pick[]=pierce' -d 'pick[]=swing#2') $(db "SELECT COUNT(*) FROM pf_deck_pieces WHERE starter=1")" "302 10"
-ck "carry-over: the old box's Hide (owned, not picked) is switched on; Taunt is not owned without the pick" "$(db "SELECT piece_key || ':' || active FROM pf_deck_pieces WHERE starter=0 ORDER BY piece_key" | tr '\n' ' ')" "hide:1 "
+# 2.7.01: no pick screen any more: the first visit packs the same fixed starter box for every gnome (4 core + jab, swing#2, pierce, snack, brace, soothe)
+FIXED="swing dodge rest charm jab swing#2 pierce snack brace soothe"
+ck "puzzlebox.php for a new gnome: no pick screen, the box opens with the fixed starter packed (10 rows, the chosen flag)" "$(get puzzlebox.php) $(grep -c 'id="pfv-starter"' $H) $(grep -c 'id="pfv-sgo"' $H) $(grep -c 'id="pfv-box"' $H) $(db "SELECT COUNT(*) FROM pf_deck_pieces WHERE starter=1 AND active=1") $(db "SELECT starter FROM pf_decks")" "200 0 0 1 10 1"
+ck "the fixed starter: 10 pieces, 4 Hurt including the core Swing, nothing else in the box (the old box is not carried over)" "$(php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" starter sprout)" "$FIXED | hurt 4 | swing yes | rows 10"
+SNAP=$(db "SELECT piece_key || ':' || starter || ':' || active || ':' || pos FROM pf_deck_pieces ORDER BY piece_key" | tr '\n' ' ')
+ck "a second visit changes nothing" "$(get puzzlebox.php) $(grep -c 'id="pfv-box"' $H) $(db "SELECT piece_key || ':' || starter || ':' || active || ':' || pos FROM pf_deck_pieces ORDER BY piece_key" | tr '\n' ' ' | cmp -s - <(echo -n "$SNAP") && echo same)" "200 1 same"
+ck "starter: a pick posted after the box was packed is refused (once only), nothing changes" "$(post puzzlebox.php -d do=pfd_starter -d 'pick[]=jab' -d 'pick[]=snack' -d 'pick[]=hide' -d 'pick[]=brace' -d 'pick[]=hum' -d 'pick[]=pierce') $(db "SELECT COUNT(*) FROM pf_deck_pieces") $(db "SELECT piece_key || ':' || starter || ':' || active || ':' || pos FROM pf_deck_pieces ORDER BY piece_key" | tr '\n' ' ' | cmp -s - <(echo -n "$SNAP") && echo same)" "302 10 same"
+php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" gnome2 bud bloomcaller | tail -1
+C2=$C; C=$(mktemp); get login.php >/dev/null; post login.php -d username=bud -d password=TestPass123! >/dev/null
+ck "a second gnome with another calling: the same box on the first visit" "$(get puzzlebox.php) $(grep -c 'id="pfv-box"' $H) $(php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" starter bud)" "200 1 $FIXED | hurt 4 | swing yes | rows 10"
+C=$C2; db "DELETE FROM pf_deck_pieces WHERE user_id=(SELECT id FROM users WHERE username='bud')" >/dev/null; db "DELETE FROM pf_decks WHERE user_id=(SELECT id FROM users WHERE username='bud')" >/dev/null; db "DELETE FROM users WHERE username='bud'" >/dev/null   # the rest of the suite reads one gnome's rows
 
 echo "== the Puzzle box page"
 php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" box | tail -1
@@ -112,14 +117,14 @@ php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" fight medium | tail -1
 get adventure.php >/dev/null
 ck "a creature appears: the pre-fight screen, nothing dealt, the deck not locked" "$(grep -c 'id="pfv-pre"' $H) $(grep -c 'id="pfb-board"' $H) $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 0 not dealt"
 ck "the creature card: class, size and board, layers (base 4, region, unique 3), 8 pieces" "$(grep -c 'class="foecard"' $H) $(grep -c 'medium · 4×4' $H) $(grep -o 'class="L-[a-z]*" data-f="[0-9]"' $H | tr '\n' ' ') $(grep -o 'class="pc L-[a-z]*"' $H | wc -l | tr -d ' ')" "1 1 class=\"L-base\" data-f=\"4\" class=\"L-reg\" data-f=\"1\" class=\"L-uni\" data-f=\"3\"  8"
-ck "auto off: the deck with a bench, swaps allowed (toggle on the adventure page)" "$(grep -c '>Bench <' $H) $(post adventure.php -d do=pfd_toggle -d key=hum -d on=0) $(db "SELECT active FROM pf_deck_pieces WHERE piece_key='hum'") $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 302 0 not dealt"
+ck "auto off: the deck with a bench, swaps allowed (toggle on the adventure page)" "$(grep -c '>Bench <' $H) $(post adventure.php -d do=pfd_toggle -d key=soothe -d on=0) $(db "SELECT active FROM pf_deck_pieces WHERE piece_key='soothe'") $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 302 0 not dealt"
 get adventure.php >/dev/null; post adventure.php -d do=pfd_auto -d on=1 >/dev/null; get adventure.php >/dev/null
 ck "auto on: the card is still shown, the deck is read-only, the note and Turn off and edit" "$(grep -c 'class="foecard"' $H) $(grep -c '>Bench <' $H) $(grep -c 'Auto deck is active' $H) $(grep -c 'Turn off and edit' $H) $(grep -o 'data-a="tog"' $H | wc -l | tr -d ' ')" "1 0 1 1 0"
 ck "2.6.75 auto on: one strip with the piece count, the deck in a fold that is closed, Let's fight above the fold" "$(grep -c 'pfv-autostrip' $H) $(grep -o 'Auto deck is active:</b> [0-9]* pieces' $H | wc -l | tr -d ' ') $(grep -c '<details class="pfv-deckfold" id="pfv-deckfold"><summary>Show deck' $H) $(grep -c '<details class="pfv-deckfold"[^>]*open' $H) $(awk 'BEGIN{RS="\001"} {print (index($0,"id=\"pfv-go\"") < index($0,"id=\"pfv-deckfold\"")) ? "before" : "after"}' $H)" "1 1 1 0 before"
 post adventure.php -d do=pfd_auto -d on=0 >/dev/null; get adventure.php >/dev/null
 ck "Turn off and edit: the bench is back" "$(grep -c '>Bench <' $H)" "1"
 ck "Let's fight: the fight is dealt (a v1 board of the creature's size)" "$(post adventure.php -d do=pfv_go) $(get adventure.php >/dev/null; grep -c 'id="pfb-board"' $H) $(encq '$s["w"] . "x" . $s["h"] . " " . (isset($s["v1"]) ? "v1" : "old")')" "302 1 4x4 v1"
-ck "once the fight has started the deck is locked (toggle on the adventure page and in the box)" "$(post adventure.php -d do=pfd_toggle -d key=hum -d on=1 >/dev/null; db "SELECT active FROM pf_deck_pieces WHERE piece_key='hum'") $(get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_toggle -d key=hum -d on=1 >/dev/null; db "SELECT active FROM pf_deck_pieces WHERE piece_key='hum'") $(get puzzlebox.php >/dev/null; grep -c 'data-locked="1"' $H) $(grep -o 'data-a="tog"' $H | wc -l | tr -d ' ')" "0 0 1 0"
+ck "once the fight has started the deck is locked (toggle on the adventure page and in the box)" "$(post adventure.php -d do=pfd_toggle -d key=soothe -d on=1 >/dev/null; db "SELECT active FROM pf_deck_pieces WHERE piece_key='soothe'") $(get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_toggle -d key=soothe -d on=1 >/dev/null; db "SELECT active FROM pf_deck_pieces WHERE piece_key='soothe'") $(get puzzlebox.php >/dev/null; grep -c 'data-locked="1"' $H) $(grep -o 'data-a="tog"' $H | wc -l | tr -d ' ')" "0 0 1 0"
 
 echo "== the v1 fight page"
 get adventure.php >/dev/null

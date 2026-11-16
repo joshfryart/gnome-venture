@@ -54,8 +54,7 @@ ck "pfight_v1 = admin: a player who is not an admin still gets the old rules" "$
 db "UPDATE users SET role='admin' WHERE username='sprout'" >/dev/null; set_ pfight_mode chain
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight grass-snake 2>&1 | tail -1
 get adventure.php >/dev/null
-ck "stage C: an admin first packs a box (the starter pick), nothing is dealt" "$(grep -c 'id="pfv-starter"' $H) $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 not dealt"
-post adventure.php -d do=pfd_starter -d kit=steady >/dev/null; get adventure.php >/dev/null
+ck "2.7.01: no starter pick: the fixed starter box is packed on the way (10 pieces), nothing is dealt" "$(grep -c 'id="pfv-starter"' $H) $(db "SELECT GROUP_CONCAT(piece_key, ' ') FROM (SELECT piece_key FROM pf_deck_pieces WHERE starter=1 AND active=1 ORDER BY pos)") $(encq 'isset($s) ? "dealt" : "not dealt"')" "0 swing dodge rest charm jab swing#2 pierce snack brace soothe not dealt"
 ck "stage C: then the pre-fight screen (creature card, Let's fight), still nothing dealt" "$(grep -c 'id="pfv-pre"' $H) $(grep -c 'class="foecard"' $H) $(grep -c 'value="pfv_go"' $H) $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 1 1 not dealt"
 letsfight
 ck "pfight_v1 = admin, an admin: a v1 fight, on the board even when pfight_mode is chain" "$(encq '(isset($s["v1"]) ? "v1" : "old") . " " . $s["mode"]')" "v1 board"

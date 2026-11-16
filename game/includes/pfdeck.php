@@ -679,13 +679,15 @@ function pfd_ensure_starter(int|array $u): bool
 }
 
 /**
- * Admin: put a gnome's Puzzle box back to its first state: the fixed starter, no switched-on extras, an empty belt, auto-use off.
+ * Admin: put a gnome's Puzzle box back to its first state: the fixed starter, no switched-on extras, auto-use off, and the belt back to
+ * "never set" (no saved slots: like a new gnome's, it shows the best usable tools the gnome owns).
  * Kept: everything the account unlocked (pieces come from crops, crafts, regions, wearables, tools and pals, so they are untouched),
  * earned puzzle upgrades, tool wear and repair kits. Refused while the gnome is in a fight. Returns an error or null.
  */
 function pfd_admin_reset(int $uid): ?string
 {
     if (!pfd_ensure()) return 'The Puzzle box tables are not ready.';
+    if (!q_val('SELECT 1 FROM users WHERE id = ?', [$uid])) return 'There is no such gnome.';   // never make deck rows for an id with no account
     if (pfd_locked($uid)) return 'That gnome is in a fight; the box is locked until it ends.';
     q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]);
     q('DELETE FROM pf_belts WHERE user_id = ?', [$uid]);
@@ -834,7 +836,7 @@ function pfd_start_fight(array $u, array $stats, array $typeBonus, bool $canSnac
 function pfd_first_tiles(array $u, array $stats): array
 {
     $src = pfd_sources($u);
-    $kit = array_values(array_filter(pfd_build(['starter' => null, 'state' => [], 'calling' => ''] + $src)['pieces'], fn($p) => !empty($p['starter'])));   // no calling: the Taunt piece, as for any gnome without one
+    $kit = array_values(array_filter(pfd_build(['starter' => array_merge(PFD_CORE, pfd_offer_keys('', (string)$src['home'], PFD_KITS[PFD_KIT_DEFAULT])), 'state' => [], 'calling' => ''] + $src)['pieces'], fn($p) => !empty($p['starter'])));   // no calling: the Taunt piece, as for any gnome without one. 2.7.01: the Bold kit named here, since an unchosen deck is now the fixed starter (the first fight's deal is tuned for the Bold kit)
     return pfd_tiles($kit, $stats, [], '', 1, false);
 }
 

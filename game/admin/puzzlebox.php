@@ -28,7 +28,7 @@ page_header('Reset Puzzle box', true);
 <form method="post" class="form box">
   <?= csrf_field() ?>
   <label>Player username <input name="username" value="<?= e($prefill) ?>" required></label>
-  <p class="help"><b>Reset:</b> the kit goes back to the starter box (<?= count(PFD_CORE) + count(PFD_STARTER_FIXED) ?> pieces, the same for everyone), pieces they switched on are switched off, the fight belt is emptied and auto-use is turned off.<br>
+  <p class="help"><b>Reset:</b> the kit goes back to the starter box (<?= count(PFD_CORE) + count(PFD_STARTER_FIXED) ?> pieces, the same for everyone), pieces they switched on are switched off, the fight belt goes back to its default (their best usable tools, like a new gnome’s) and auto-use is turned off.<br>
   <b>Kept:</b> every unlock (crops, crafts, regions, wearables, tools, pals), earned puzzle upgrades, tool wear and repair kits. They can switch pieces back on in the Puzzle box.<br>
   Refused while the player is in a fight.</p>
   <label><input type="checkbox" name="confirm" value="1"> Yes, reset this player’s Puzzle box</label>
