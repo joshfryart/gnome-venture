@@ -1,15 +1,15 @@
--- Scorch Sliver (pl-cwy-3), perch sprite 36x36. Opus second pass (c12/opus2), hand-built at this size.
+-- Scorch Sliver (pl-cwy-3), perch sprite 36x36. Opus richness pass (c12/opus3), hand-built at this size.
 -- Leaning red shard: lit front facet, narrow dark flank, bright ridge; soot-dark scorched base.
 -- Face: 2x3 pills on the wide front with cheeks and a small open smile.
--- quirk: two small smoke puffs curling off the point.
+-- quirk: two small smoke puffs curling off the point. richness: heat band above the soot, flank ripple, ember.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("pl-cwy-3-perch", 36)
 
-local RED   = { "#4a1426", "#7e1f30", "#b52e3f", "#e0483b", "#ff7a52", "#ffb47a" }
-local SMOKE = { "#5a5468", "#7c768c", "#a29db0", "#c6c2cf", "#e2dfe6" }
+local RED   = { "#43132e", "#7a1c34", "#b02a40", "#dc4436", "#ff7448", "#ffb879" }
+local SMOKE = { "#4f4a63", "#6f6a85", "#958fa8", "#bcb6c9", "#ddd8e3" }
 local CHAR  = { "#2e1d29", "#3c2530", "#4d2e36", "#633a3c" }
 
 local function facet(m, nx, ny, nz, o)
@@ -31,10 +31,14 @@ for _, L in ipairs({ { fI, fT, 0 }, { kI, kT, -1 } }) do
     local x, y = k % 1024 - 256, k // 1024 - 256
     local p = y * c.w + x
     local edge = 27 + math.floor(math.sin(x * 1.1) + .5)
-    if c.own[p] == L[2] and y >= edge then c.pix[p] = CHAR[math.min(4, math.max(1, i - 1 + L[3]))] end
+    if c.own[p] == L[2] and y >= edge then c.pix[p] = CHAR[math.min(4, math.max(1, i - 1 + L[3]))]
+    elseif c.own[p] == L[2] and y == edge - 1 then c.pix[p] = "#ff8a3c" end -- heat-tempered band
   end
 end
 O.mark(c, { { 16, 30 }, { 17, 29 } }, "#ff8a3c")
+-- conchoidal ripple on the flank, one lit glint on the front
+O.tex(c, kI, kT, RED, function(x, y, i) if math.sqrt((x - 27) ^ 2 + (y - 9) ^ 2) % 5 < 1 then return -1 end end)
+O.mark(c, { { 18, 10 }, { 17, 12 } }, RED[6])
 
 O.dots(c, { { 15, 23 }, { 16, 24 }, { 17, 24 }, { 18, 23 } }, P.ink)
 O.dot(c, 12, 22, P.petal.base) O.dot(c, 21, 22, P.petal.base)
@@ -47,4 +51,5 @@ end
 O.done(c, "pl-cwy-3-perch", function(c)
   c:eyeSmall(13, 18)
   c:eyeSmall(19, 18)
+  c:put(24, 3, "#ffc070") -- an ember drifting up
 end)

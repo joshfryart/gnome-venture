@@ -1,27 +1,47 @@
--- Silkthread Tuft (pl-sbs-1), yard sprite 64x64. Opus second pass (c12/opus2), built on c12/haiku.
+-- Silkthread Tuft (pl-sbs-1), yard sprite 64x64. Opus richness pass (c12/opus3), built on c12/opus2.
 -- Seedkeeper, common, Hollow of the Silverback Spider. "Spun from the spider's worries and still a little bit sticky."
 -- Haiku was a flat grey cloud with antennae (read as a bug or a cloud). Now a wide, fluffy tuft of cool
 -- silver-lilac silk, its fluff spun in visible spiral strands, a loose loop of thread and a curled end on top and a
 -- few at the edge, and a worried face (brows up in the middle, a wobbly mouth): it was spun from
 -- worries.
 -- quirk: still sticky: a little green leaf has stuck to its flank.
--- closer look: a sticky thread hangs from its underside with a glossy bead on the end.
+-- closer look: a sticky thread hangs from its underside with a glossy bead on the end; tiny glossy sticky
+-- beads dot its fluff.
+-- richness (opus3): the closed thread loop on top (opus2 weak spot: read as a bag handle) is now one open
+-- strand springing up out of the fluff and curling over like a question mark: a worry-cowlick. The second
+-- curl was dropped (it read as an ear).
+-- Plum-to-pearl hue-shifted silk, finer spun fibres, a few stray wisps at the edge, cool bounce underneath.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("pl-sbs-1-yard", 64)
 
-local SILK = { "#4a4466", "#6e6890", "#9a94b8", "#c2bed8", "#e2e0ee", "#f4f2fa" }
+local SILK = { "#463c66", "#6a6290", "#9890ba", "#c2bcda", "#e2def0", "#f6f2f8" }
 local LEAF = { "#24544a", "#2f6e4e", "#3f9150", "#7cc35a", "#c4e07a", "#e2f0a8" }
 
 c:groundShadow(31, 56, 17, 2)
 
--- a loose loop of thread and a curled end on top (behind the fluff, roots buried in it)
-for _, w in ipairs({ { { 23, 32 }, { 21, 17 }, { 36, 15 }, { 33, 29 } }, { { 39, 31 }, { 42, 25 }, { 47, 25 }, { 46, 29 } } }) do
-  local m, n = O.tube(w, function(t) return 1.1 end)
-  O.shadeN(c, m, n, SILK, { amb = .35, wrap = .45 })
+-- an open worry-cowlick: one strand springs up out of the fluff and coils into a loose spiral (open end, so it
+-- never closes into a handle); its root is buried in the fluff
+local spiral = HP.mask()
+local sn = {}
+local function strand(pts, w)
+  for i = 1, #pts - 1 do
+    local a, b = pts[i], pts[i + 1]
+    local m, n = O.tube({ a, { a[1] + (b[1] - a[1]) / 3, a[2] + (b[2] - a[2]) / 3 }, { a[1] + (b[1] - a[1]) * 2 / 3, a[2] + (b[2] - a[2]) * 2 / 3 }, b }, function() return w end)
+    spiral:add(m) for k, v in pairs(n) do sn[k] = v end
+  end
 end
+local pts = {}
+for i = 0, 40 do -- from the fluff (t=0) up and round into a spiral that tightens inward
+  local t = i / 40
+  local a = math.pi * .55 - t * math.pi * 2.6
+  local r = 6.5 * (1 - t * .75)
+  pts[#pts + 1] = { 29 + math.cos(a) * r - (1 - t) * 0, 18 - math.sin(a) * r + (1 - t) ^ 2 * 12 }
+end
+strand(pts, .9)
+O.shadeN(c, spiral, sn, SILK, { amb = .35, wrap = .45 })
 
 -- the fluff: a lumpy tuft (union of puffs), scalloped edge
 local fluff = O.unionCircles({ { 31, 43, 18, 10 }, { 21, 36, 8 }, { 41, 36, 8.5 }, { 31, 32, 8 }, { 14, 45, 5.5 }, { 48, 45, 5.5 } })
@@ -35,9 +55,14 @@ O.tex(c, fI, fT, SILK, function(x, y, i)
   local w = (r * .55 + a * 2.2) % 3.2
   if w < .8 then return -1 end
   if w > 2.7 and i >= 3 and i <= 5 then return 1 end
+  if w > 1.6 and w < 1.9 and i >= 2 and H(x, y, 17) > .5 then return -1 end -- finer fibres
 end)
+-- tiny glossy sticky beads caught in the fluff (still a little bit sticky)
+for _, b in ipairs({ { 16, 41 }, { 45, 47 }, { 27, 31 }, { 37, 50 } }) do
+  O.mark(c, { { b[1], b[2] } }, "#dceef8") O.mark(c, { { b[1] + 1, b[2] + 1 } }, "#7f9cc8")
+end
 -- loose fibres poking off the edge (one-pixel curls, outlined)
-O.dots(c, { { 13, 36 }, { 12, 35 }, { 50, 37 }, { 51, 36 }, { 52, 36 } }, SILK[4])
+O.dots(c, { { 13, 36 }, { 12, 35 }, { 50, 37 }, { 51, 36 }, { 52, 36 }, { 10, 49 }, { 9, 48 } }, SILK[4])
 
 -- closer look: sticky thread from the underside with a glossy bead
 for y = 53, 56 do O.dot(c, 22, y, SILK[3]) end

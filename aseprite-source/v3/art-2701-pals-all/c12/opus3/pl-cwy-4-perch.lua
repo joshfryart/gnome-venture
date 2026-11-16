@@ -1,13 +1,14 @@
--- Spine Spark (pl-cwy-4), perch sprite 36x36. Opus second pass (c12/opus2), hand-built at this size.
+-- Spine Spark (pl-cwy-4), perch sprite 36x36. Opus richness pass (c12/opus3), hand-built at this size.
 -- Quenched-steel ball on two stubby feet, four short spikes with temper colours (blue root, violet, gold tip).
 -- Face: 2x3 pills, cheeks, a small surprised "o" mouth.
--- quirk: the upper-right spike pops in a little sparkler burst.
+-- quirk: the upper-right spike pops in a little sparkler burst. richness: hue-shifted steel, forge-scale flecks,
+-- dark collar on each spike.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("pl-cwy-4-perch", 36)
 
-local STEEL  = { "#262848", "#383e6c", "#525f98", "#7488c2", "#a6bce2", "#dce8f6" }
+local STEEL  = { "#221f46", "#33386a", "#4b5a96", "#6c86c0", "#9fc0e4", "#d8eef8" }
 local VIOLET = { "#2e1f48", "#4a2d6a", "#6e4290", "#9566b4", "#bb92d2", "#dcc4ea" }
 local STRAW  = { "#6a4022", "#a0682a", "#d39a32", "#f2c248", "#ffe07a", "#fff3b8" }
 
@@ -27,11 +28,17 @@ for _, s in ipairs({
     local x, y = k % 1024 - 256, k // 1024 - 256
     local t = T[k] or 0
     local R = t < .35 and STEEL or t < .62 and VIOLET or STRAW
+    if t > .2 and t < .3 then i = math.max(1, i - 2) end -- collar
     if c.own[y * c.w + x] == Tk then c.pix[y * c.w + x] = R[i]:lower() end
   end
 end
 local body = c:ellipse(17, 20, 9.5, 9)
-O.shade(c, body, STEEL, { sphere = { 13, 16, 13 }, amb = .2, wrap = .4, rim = true, bounce = "#6a5aa0", bmax = 2, sep = STEEL[2] })
+local bI, bT = O.shade(c, body, STEEL, { sphere = { 13, 16, 13 }, amb = .2, wrap = .4, rim = true, bounce = "#6a5aa0", bmax = 2, sep = STEEL[2] })
+-- forge scale flecks low right (face kept clean)
+O.tex(c, bI, bT, STEEL, function(x, y, i)
+  if y >= 17 and y <= 26 and x >= 11 and x <= 24 then return 0 end
+  if (x - 17) + (y - 20) > 4 and O.H(x, y, 21) > .6 and i <= 4 then return -1 end
+end)
 O.mark(c, { { 11, 15 }, { 12, 14 }, { 13, 14 } }, STEEL[6])
 O.mark(c, { { 22, 26 } }, STEEL[2]) O.mark(c, { { 23, 27 } }, STEEL[4])
 
