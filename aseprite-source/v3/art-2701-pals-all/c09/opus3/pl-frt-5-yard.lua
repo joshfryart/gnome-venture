@@ -1,4 +1,7 @@
--- Barrow Peephole (pl-frt-5), yard sprite 64x64. Opus second pass (c09/opus2), built on the c09/haiku concept.
+-- Barrow Peephole (pl-frt-5), yard sprite 64x64. Opus richness pass (c09/opus3), built on c09/opus2.
+-- opus3 adds: hue-shifted stone (violet deep -> warm grey light) with lichen and a crack, plank knots and a split,
+-- iron hinge straps, frost ferns creeping up the lower planks, icicles off the snow crust, a snow drift on the
+-- threshold. Peephole eyes now have a dark-gold lower lid (they read as peeking, not as lights).
 -- Rootwarden, uncommon, Barrow of the Frost Toad. "A peephole in the old barrow door, frosty round the edges."
 -- A small arched barrow door of old grey-brown planks (grain, dark seams, one iron strap with rivets) set in a
 -- frame of mossy barrow stones, a crust of snow on top of the arch. High in the door: a round iron-rimmed
@@ -15,7 +18,7 @@ local H = O.H
 local c = O.canvas("pl-frt-5-yard", 64)
 
 local WOOD = { "#3e2526", "#5e3a2e", "#86583a", "#a87a52", "#c89c6e", "#e2c094" }
-local STONE = { "#35314a", "#4f4c68", "#74758c", "#9a9aae", "#c4c4d0", "#e2e0e6" }
+local STONE = { "#342c4a", "#4d4866", "#6f6f88", "#9696a6", "#c2bfc6", "#e2ddd8" }
 local MOSS = { "#24544a", "#3f9150", "#7cc35a" }
 local IRON = { "#2e2a3e", "#4a4660", "#6e6a86", "#9a96b0", "#c4c2d6" }
 local SNOW = { "#8bc4ea", "#b9e2f5", "#dff2fb", "#f4fcff" }
@@ -42,8 +45,15 @@ end)
 for id, m in pairs(stones) do
   local core = m:copy()
   local I, T = O.shade(c, m, STONE, { R = 2, amb = .35, wrap = .45, rim = true, sep = STONE[1] })
-  O.tex(c, I, T, STONE, function(x, y, i) if H(x, y, 5) > .9 then return -1 end end)
+  O.tex(c, I, T, STONE, function(x, y, i)
+    if H(x, y, 5) > .9 then return -1 end
+    if i >= 3 and H(x, y, 6) > .93 then return 1 end
+  end)
 end
+-- a crack in the right stone and pale lichen rosettes
+O.dots(c, { { 47, 33 }, { 48, 34 }, { 48, 35 }, { 47, 36 } }, STONE[1])
+O.dots(c, { { 16, 37 }, { 17, 37 }, { 16, 38 } }, "#c8c890") O.dot(c, 17, 38, "#9a9a6a")
+O.dots(c, { { 46, 46 }, { 47, 46 } }, "#c8c890")
 -- moss in the lower stone joints
 O.dots(c, { { 16, 46 }, { 17, 47 }, { 16, 52 }, { 47, 41 }, { 48, 40 }, { 47, 52 }, { 48, 53 } }, MOSS[2])
 O.dots(c, { { 17, 46 }, { 48, 41 }, { 47, 53 } }, MOSS[3])
@@ -57,7 +67,27 @@ O.tex(c, dI, dT, WOOD, function(x, y, i)
   if x == 26 or x == 33 or x == 40 then return 1 end             -- lit plank edge
   local g = H(x, y // 4 + x * 3, 2)
   if g > .82 then return -1 end                                    -- grain streaks
+  if i >= 4 and H(x, y // 3, 4) > .9 then return 1 end             -- lit grain
 end)
+-- knot on the left plank and a split running down from it
+O.dots(c, { { 28, 49 }, { 29, 49 }, { 27, 50 }, { 30, 50 }, { 28, 51 }, { 29, 51 } }, WOOD[2])
+O.dots(c, { { 28, 50 }, { 29, 50 } }, WOOD[1])
+O.dots(c, { { 37, 48 }, { 37, 49 }, { 36, 50 }, { 36, 51 } }, WOOD[1])
+O.dots(c, { { 38, 49 }, { 37, 50 } }, WOOD[5])
+-- hinge straps on the left (iron, pointed tips)
+for _, hy in ipairs({ 28, 49 }) do
+  O.shade(c, c:poly{ { 19, hy }, { 24, hy }, { 26, hy + 1 }, { 24, hy + 2 }, { 19, hy + 2 } }, IRON, { R = 1, amb = .35, cuts = { .3, .5, .7, .85 }, sep = IRON[1] })
+  O.dot(c, 21, hy + 1, IRON[5])
+end
+-- frost ferns creeping up the lower planks from the corners
+for _, fr in ipairs({ { 20, 53, 1 }, { 44, 53, -1 } }) do
+  local x, y, d = fr[1], fr[2], fr[3]
+  for k = 0, 4 do
+    O.dot(c, x + d * (k // 2), y - k, SNOW[2])
+    if k % 2 == 1 then O.dot(c, x + d * (k // 2 + 1), y - k, SNOW[3]) end
+  end
+  O.dot(c, x + d * 2, y - 5, SNOW[3])
+end
 -- iron strap with rivets
 local strap = c:rect(19, 44, 45, 46)
 O.shade(c, strap, IRON, { R = 1, amb = .35, wrap = .4, cuts = { .3, .5, .7, .85 }, sep = IRON[1] })
@@ -71,7 +101,7 @@ O.flat(c, hole, "#221a30", "hole")
 O.dots(c, { { 30, 20 }, { 31, 20 }, { 29, 21 } }, "#3a2e4a") -- inner lip shade
 -- the eyes peeking out
 O.dots(c, { { 30, 23 }, { 34, 23 } }, "#ffd75a")
-O.dots(c, { { 30, 24 }, { 34, 24 } }, "#d98a22")
+O.dots(c, { { 30, 24 }, { 34, 24 }, { 29, 23 }, { 35, 23 } }, "#d98a22")
 -- frost: spiky crystals all round the rim
 for a = 0, 11 do
   local ang = a * math.pi / 6 + .2
@@ -87,7 +117,15 @@ for y = 0, 63 do for x = 0, 63 do
   if inArch(x, y, 5) and not inArch(x, y, 1) and y <= 9 + math.floor(math.abs(x - 32) * .7) + ((H(x, 0, 9) > .5) and 1 or 0) and y < 26 then snow:set(x, y) end
 end end
 local sI, sT = O.shade(c, snow, SNOW, { R = 2, amb = .45, wrap = .5, cuts = { .35, .6, .82 } })
-O.dots(c, { { 15, 25 }, { 15, 26 }, { 49, 25 } }, SNOW[2]) O.dot(c, 15, 27, SNOW[1])
+-- icicles hanging off the crust over the side stones
+for _, ic in ipairs({ { 14, 22, 5 }, { 16, 24, 3 }, { 50, 22, 4 }, { 48, 24, 2 } }) do
+  for k = 0, ic[3] - 1 do O.dot(c, ic[1], ic[2] + k, k == 0 and SNOW[3] or (k == ic[3] - 1 and SNOW[1] or SNOW[2])) end
+end
+-- snow drift heaped on the threshold
+local drift = c:ellipse(32, 54, 13, 2):cut(c:rect(0, 55, 63, 63))
+drift:add(c:ellipse(24, 53.5, 4, 1.5)) drift:add(c:ellipse(41, 53.5, 3, 1.5))
+drift:cut(c:rect(0, 55, 63, 63))
+O.shade(c, drift, SNOW, { R = 1, amb = .45, wrap = .5, cuts = { .35, .6, .82 } })
 
 -- face on the lower planks
 c:eyeLocked(23, 33)

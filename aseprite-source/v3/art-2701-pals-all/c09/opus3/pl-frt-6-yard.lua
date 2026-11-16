@@ -1,4 +1,7 @@
--- Barrow Icecrown (pl-frt-6), yard sprite 64x64. Opus second pass (c09/opus2), built on the c09/haiku concept.
+-- Barrow Icecrown (pl-frt-6), yard sprite 64x64. Opus richness pass (c09/opus3), built on c09/opus2.
+-- opus3 adds: faceted points (a lit left face and a shaded right face split by a pale ridge), hairline cracks
+-- and rime specks in the band, bigger cut gems in pale ice prong settings, freckled throat sac with a stretch
+-- crease, and in the tallest point a frozen fly (the toad's lost snack) instead of the plain bubble.
 -- Thornblade, rare, Barrow of the Frost Toad. "The frost toad's spare crown of ice, still croaking when nobody looks."
 -- A chunky crown carved from clear ice: a curved band and five icicle points (the middle one tallest), glass cues
 -- (bright rim, pale core streak down each point, deep blue where the band turns away), a row of frost-violet gems
@@ -15,7 +18,7 @@ local H = O.H
 local c = O.canvas("pl-frt-6-yard", 64)
 
 local ICE = { "#2a3f7a", "#3a63a8", "#5f9ad0", "#8bc4ea", "#c4ecfa", "#eefaff" }
-local GEM = { "#35295f", "#5a459e", "#8a6fd0", "#c9b2f0" }
+local GEM = { "#2f2257", "#55409a", "#8668d0", "#c4a8f2" }
 local SAC = { "#2e5a48", "#4a7d52", "#76a35e", "#a8c97a", "#d4e6a6", "#eef6cc" }
 
 c:groundShadow(32, 54, 18, 2)
@@ -34,10 +37,15 @@ O.tex(c, kI, kT, ICE, function(x, y, i)
   for _, p in ipairs(pts) do
     local cx = p[1] + p[3] * (33 - y) / (33 - p[2])
     if y > p[2] + 2 and math.abs(x - (cx - 1)) < .6 and y < 31 then return 2 end
+    -- right facet: one tone darker beyond the ridge
+    if y > p[2] + 2 and x > cx and x <= p[1] + 5 and x >= cx + .5 and y < 33 and math.abs(x - p[1]) < 5 and i >= 3 then return -1 end
   end
 end)
--- frozen bubble inside the tallest point
-O.dots(c, { { 32, 19 }, { 31, 20 }, { 33, 20 }, { 32, 21 } }, ICE[6]) O.dot(c, 32, 20, ICE[3])
+-- frozen fly inside the tallest point (closer look): dark body, pale wings, a frost halo
+O.dots(c, { { 30, 21 }, { 31, 21 }, { 33, 21 }, { 34, 21 }, { 30, 22 }, { 34, 22 } }, ICE[3])
+O.dots(c, { { 31, 22 }, { 33, 22 } }, ICE[2])
+O.dots(c, { { 32, 21 }, { 32, 22 }, { 32, 23 }, { 32, 24 } }, "#3a2e4a")
+O.dot(c, 32, 20, "#5a4a6a") O.dot(c, 32, 21, "#c45a50")
 
 -- the band, curved: top edge dips at the middle
 local band = HP.mask()
@@ -54,17 +62,26 @@ O.tex(c, bI, bT, ICE, function(x, y, i)
   local y0 = 31 + math.floor(d * d * -3 + .5) + 1
   if y == y0 then return 2 end
   if y == y0 + 1 then return 1 end
+  -- rime specks along the lower lip
+  local y1 = 45 - math.floor(d * d * 5 + .5)
+  if y == y1 - 1 and H(x, y, 4) > .6 then return 2 end
 end)
+-- hairline cracks in the band
+O.dots(c, { { 14, 39 }, { 15, 40 }, { 15, 41 }, { 16, 42 }, { 47, 41 }, { 48, 42 }, { 49, 42 }, { 50, 41 } }, ICE[2])
+O.dots(c, { { 15, 39 }, { 16, 41 } }, ICE[5])
 -- gems along the band sides
-for _, g in ipairs({ { 16, 37 }, { 48, 37 } }) do
-  local m = c:ellipse(g[1], g[2], 2, 2.5)
+for _, g in ipairs({ { 16, 36 }, { 48, 36 } }) do
+  -- pale ice prong setting
+  local m = c:poly({ { g[1], g[2] - 4 }, { g[1] + 3, g[2] }, { g[1], g[2] + 4 }, { g[1] - 3, g[2] } })
+  m:grow(1):cut(m):each(function(x, y) if (x + y) % 2 == 0 then O.dot(c, x, y, ICE[6]) end end)
   O.shade(c, m, GEM, { sphere = { g[1] - 1, g[2] - 1, 3 }, amb = .3, wrap = .5, cuts = { .3, .55, .8 }, sep = GEM[1] })
-  O.dot(c, g[1] - 1, g[2] - 1, "#f0e6ff")
+  O.dots(c, { { g[1] - 1, g[2] - 1 }, { g[1], g[2] - 2 } }, "#f0e6ff")
+  O.dots(c, { { g[1] + 1, g[2] + 1 } }, GEM[1])
 end
 -- centre gem at the base of the tallest point
-local cg = c:poly({ { 32, 30 }, { 35, 33 }, { 32, 36 }, { 29, 33 } })
+local cg = c:poly({ { 32, 29 }, { 36, 33 }, { 32, 37 }, { 28, 33 } })
 O.shade(c, cg, GEM, { R = 2, amb = .3, wrap = .5, cuts = { .3, .55, .8 }, sep = GEM[1] })
-O.dot(c, 31, 32, "#f0e6ff")
+O.dots(c, { { 31, 32 }, { 31, 31 }, { 30, 32 } }, "#f0e6ff") O.dots(c, { { 33, 34 }, { 32, 35 } }, GEM[1])
 
 -- face on the band
 c:eyeLocked(21, 37)
@@ -73,6 +90,8 @@ c:cheek(20, 43) c:cheek(42, 43)
 -- croak sac: ballooning out of the chin, over the band's lower edge
 local sac = c:ellipse(32, 47, 6.5, 4.5)
 local sI, sT = O.shade(c, sac, SAC, { sphere = { 29, 44, 9 }, sep = SAC[1], amb = .3, wrap = .5, rim = true, bounce = "#5f8fd0", bmax = 2 })
+O.tex(c, sI, sT, SAC, function(x, y, i) if H(x, y, 8) > .86 and i >= 3 then return -1 end end)
+O.dots(c, { { 29, 49 }, { 30, 50 }, { 31, 50 }, { 32, 50 }, { 33, 50 }, { 34, 50 }, { 35, 49 } }, SAC[2])
 O.dots(c, { { 28, 44 }, { 29, 44 }, { 27, 45 } }, SAC[6])
 
 -- croaking mouth: a wide toad line just above the sac

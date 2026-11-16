@@ -53,13 +53,13 @@ O.tex(c, dI, dT, WATER, function(x, y, i)
 end)
 
 -- frozen ice sliver floating in the core (lower right, in the dark water): a little faceted shard
-local shard = c:poly{ { 37, 48 }, { 40, 44 }, { 43, 45 }, { 42, 49 }, { 39, 50 } }
+local shard = c:poly{ { 40, 48 }, { 42, 45 }, { 45, 46 }, { 44, 49 }, { 42, 50 } }
 shard:each(function(x, y)
   local t = (x - 37) + (y - 44)
   O.dot(c, x, y, (shard:has(x - 1, y) and shard:has(x, y - 1)) and ICE[2] or ICE[3])
 end)
 shard:edge():each(function(x, y) if not shard:has(x + 1, y) or not shard:has(x, y + 1) then O.dot(c, x, y, ICE[1]) end end)
-O.dots(c, { { 40, 46 }, { 41, 47 } }, ICE[3])
+O.dots(c, { { 42, 46 }, { 43, 47 } }, ICE[3])
 
 -- trapped air bubbles: lit rim upper-left, dark core
 local function bubble(x, y)
@@ -131,7 +131,7 @@ O.done(c, "pl-frt-3-yard", function(c)
     if not c:get(p[1], p[2]) then c:put(p[1], p[2], "#c4ecfa") end
   end
   -- sleepy z drifting off the tip
-  for _, p in ipairs({ { 47, 8 }, { 48, 8 }, { 49, 8 }, { 48, 9 }, { 47, 10 }, { 48, 10 }, { 49, 10 }, { 51, 4 }, { 52, 4 }, { 52, 5 }, { 51, 6 }, { 52, 6 } }) do
+  for _, p in ipairs({ { 48, 5 }, { 49, 5 }, { 50, 5 }, { 51, 5 }, { 52, 5 }, { 51, 6 }, { 50, 7 }, { 49, 8 }, { 48, 9 }, { 49, 9 }, { 50, 9 }, { 51, 9 }, { 52, 9 } }) do
     if not c:get(p[1], p[2]) then c:put(p[1], p[2], "#9ec4e8") end
   end
 end)

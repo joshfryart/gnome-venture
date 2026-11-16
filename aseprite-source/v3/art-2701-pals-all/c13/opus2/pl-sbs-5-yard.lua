@@ -39,7 +39,7 @@ O.tex(c, rI, rT, SILK, function(x, y, i)
   return -2
 end)
 -- the dense silk pad on the lower band that holds the face
-local pad = c:ellipse(32, 44, 14, 8.5)
+local pad = c:ellipse(32, 43, 14.5, 9.5)
 pad:clip(ring)
 local pI, pT = O.shade(c, pad, SILK, { sphere = { 27, 39, 17 }, amb = .35, wrap = .5, sep = SILK[2] })
 O.tex(c, pI, pT, SILK, function(x, y, i) if (x * 3 + y * 5) % 11 == 0 and i >= 4 then return -1 end end)
@@ -72,9 +72,13 @@ O.dots(c, { { 31, 48 }, { 32, 48 } }, PET[2])
 
 O.shift(c, 0, 0)
 O.done(c, "pl-sbs-5-yard", function(c)
-  -- quirk: the top-left bead flashes a big star glint
-  local gx, gy = 22, 15
-  for d = 1, 3 do c:put(gx - d, gy, DEW[6]) c:put(gx + d, gy, DEW[6]) c:put(gx, gy - d, DEW[6]) c:put(gx, gy + d, DEW[6]) end
+  -- quirk: the upper-left bead flashes a big star glint
+  local gx, gy = 20, 20
+  for d = 1, 4 do
+    local col = d <= 2 and "#fff6d6" or DEW[5]
+    c:put(gx - d, gy, col) c:put(gx + d, gy, col) c:put(gx, gy - d, col) c:put(gx, gy + d, col)
+  end
+  c:put(gx - 1, gy - 1, DEW[5]) c:put(gx + 1, gy + 1, DEW[5]) c:put(gx + 1, gy - 1, DEW[5]) c:put(gx - 1, gy + 1, DEW[5])
   c:put(gx, gy, "#fffbe8")
   c:sparkle(58, 30)
   c:sparkle(6, 40)
