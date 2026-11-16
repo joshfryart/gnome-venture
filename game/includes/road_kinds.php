@@ -19,6 +19,7 @@ const RK_BOOTS_MIN = 5;          // the same with Flood Boots
 const RK_TOLL_MIN = 5;           // game minutes a section on a toll road once the toll is paid (10 on the old road)
 const RK_TOLL_ENC = 0.5;         // the share of the random-fight chance left on a paid toll road
 const RK_KINDS = ['ferry', 'tunnel', 'pass', 'toll', 'overgrown', 'flooded'];
+const RK_ICON = ['ferry' => '⛴️', 'tunnel' => '🔦', 'pass' => '⛰️', 'toll' => '🪙', 'overgrown' => '🌿', 'flooded' => '💧'];   // 2.7.01: the emoji of the map token (rk_label's), when its drawn marker trail/mark/<kind>.png is missing
 const RK_ITEMS = [   // slug => [name, category, rarity, price, description] (Flood Boots are a wearable now)
     'toll-receipt' => ['Toll Receipt', 'other', 4, 1, 'A stamped scrap that says you paid the toll. It has a very small drawing of a bridge on it.'],
 ];
@@ -40,6 +41,9 @@ function rk_all(): array
 
 /** The kind of a route (['kind', 'tier']) or null for a plain road. */
 function rk_of(int $routeId): ?array { return rk_all()[$routeId] ?? null; }
+
+/** 2.7.01: does the kind's map marker stand on this stretch (0 = the first one walked)? Ferry, tunnel, pass and toll are met where the walk starts; overgrown and flooded slow every stretch. */
+function rk_on_stretch(string $kind, int $sec): bool { return in_array($kind, ['overgrown', 'flooded'], true) || ($sec === 0 && in_array($kind, RK_KINDS, true)); }
 
 /** Tool type the kind asks for. */
 function rk_tool(string $kind): string { return $kind === 'tunnel' ? 'lantern' : ($kind === 'pass' ? 'staff' : ''); }

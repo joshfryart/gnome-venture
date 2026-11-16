@@ -96,7 +96,7 @@ function pfv_cap_pips(int $n, int $max, string $cls, string $lab): string
 function pfv_durbar(int $left, int $max): string
 {
     $f = $max > 0 ? $left / $max : 0;
-    return '<span class="dur' . ($left <= 0 ? ' zero' : ($f <= .25 ? ' crit' : ($f <= .5 ? ' low' : ''))) . '" role="img" aria-label="Durability ' . $left . ' of ' . $max . '"><i data-w="' . (int)round($f * 100) . '"></i></span>';
+    return '<span class="dur' . ($left <= 0 ? ' zero' : ($f <= .25 ? ' crit' : ($f <= .5 ? ' low' : ''))) . '" role="img" aria-label="Durability ' . $left . ' of ' . $max . '"><i data-w="' . (int)pf_round($f * 100) . '"></i></span>';
 }
 
 /** The deck bar: size with stacked sources and one line with the Hurt count (a hint when under 3 in 10). */
@@ -244,7 +244,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
 function pfv_foe_v(array $c, int $v): int
 {
     $size = (string)($c['size'] ?? 'small');
-    return max(1, (int)round($v * (PFB_V1_FOE_MULT[$size] ?? 1.0) * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0)));
+    return max(1, (int)pf_round($v * (PFB_V1_FOE_MULT[$size] ?? 1.0) * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0)));
 }
 
 /** The creature card: picture, class, region, size and board, temper; its pieces by layer (4 base / region / size or boss / 3 unique). */
@@ -348,6 +348,7 @@ function pfv_result_html(array $r, string $actions = ''): string
     $name = e((string)$r['name']);
     $T = ['seen_off' => ['win', 'You won', 'The ' . $name . ' backs off.'], 'charmed' => ['charm', 'Charmed', 'You won the ' . $name . ' over: a better reward.'], 'defeat' => ['lose', 'Worn out', 'The ' . $name . ' sends you home to rest.'],
         'stall' => ['lose', 'It slipped away', 'The fight ran out of turns.'], 'run' => ['lose', 'You walked away', 'No reward this time.']][(string)$r['how']] ?? ['lose', 'Over', ''];
+    if ($r['how'] === 'defeat' && !empty($r['learn'])) $T[2] = 'The ' . $name . ' wins this one, then wanders off. No harm done: in your first fights you keep walking, at full health.';   // 2.7.01 learner fights: no knock-out
     $cim = creature_image((string)($r['slug'] ?? ''), true);
     $img = $cim !== '' ? art_img($cim, 'lg', (string)$r['name']) : creature_icon((string)$r['name'], (string)($r['size'] ?? 'small'));
     $w = '';
@@ -359,8 +360,9 @@ function pfv_result_html(array $r, string $actions = ''): string
     $broke = (bool)array_filter((array)$r['wear'], fn($x) => $x['broke']);
     $hp = max(0, (int)$r['hp']); $max = max(1, (int)$r['max']);
     return '<div class="box res pfv" id="pfv-res"><span class="resbadge badge-' . $T[0] . '">' . ($T[0] === 'lose' ? 'lost' : $T[0]) . '</span><h2>' . $T[1] . '</h2><div class="pic">' . $img . '</div><p class="big">' . $T[2] . '</p>'
-        . '<div class="rows"><div class="row"><b>You</b><span class="gvbar"><i data-w="' . (int)round(100 * $hp / $max) . '"></i><span>' . $hp . '/' . $max . '</span></span></div>'
+        . '<div class="rows"><div class="row"><b>You</b><span class="gvbar"><i data-w="' . (int)pf_round(100 * $hp / $max) . '"></i><span>' . $hp . '/' . $max . '</span></span></div>'
         . '<div class="row"><b>Fight</b><span>' . (int)$r['turns'] . ' turn' . ((int)$r['turns'] === 1 ? '' : 's') . '</span></div></div>'
+        . (!empty($r['recap']) ? '<p class="hint pfv-recap" id="pfv-recap">' . e((string)$r['recap']) . '</p>' : '')   // 2.7.01 defeat recap: where your health went
         . '<div class="sl">Tool wear <span>' . PFB_TOOL_WEAR . ' durability each time its piece is played</span></div>' . ($w !== '' ? '<ul class="tools">' . $w . '</ul>' : '<p class="hint">No tool piece was played.</p>')
         . '<div class="actrow"><a class="btn' . ($broke ? ' gold' : ' ghost') . '" href="' . e(url('puzzlebox.php?t=belt')) . '">' . ($broke ? '🔧 Fix in the box' : '🧩 Puzzle box') . '</a>' . $actions . '</div></div>';
 }

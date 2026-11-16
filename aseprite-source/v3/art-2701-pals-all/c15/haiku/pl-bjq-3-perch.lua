@@ -1,0 +1,15 @@
+-- Bell Bead (pl-bjq-3), perch 36x36. Hand-drawn at size: small blue bell hanging over the perch.
+local H = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/_h.lua")
+local c, P = H.canvas("pl-bjq-3-perch", 36), H.P
+H.ledge(c)
+c:part(c:line({ {18,2},{18,6} }, 1), "stone")
+c:part(c:poly{ {13,8},{23,8},{27,16},{28,26},{8,26},{9,16} }, "sea", { sep = true })
+c:part(c:rrect(6, 24, 30, 28, 1), "sky", { sep = true })
+c:part(c:ellipse(18, 29, 2, 2), "gold")
+c:eyeSmall(14, 15)
+c:eyeSmall(20, 15)
+c:px(17, 19, P.ink)
+c:px(18, 19, P.ink)
+c:fillMask(c:line({ {4,12},{3,17} }, 1), P.cream)
+c:fillMask(c:line({ {32,12},{33,17} }, 1), P.cream)
+H.done(c, "pl-bjq-3-perch")

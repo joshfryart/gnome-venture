@@ -16,7 +16,7 @@ $wear = (string)($_GET['w'] ?? '');   // 2.7.00: worn wearables as codes (b g c 
 if ($wear !== '' && !preg_match('/^[bgchp]{1,5}$/', $wear)) { http_response_code(400); exit; }
 $wear = count_chars($wear, 3);   // sorted, no repeats: one cache file per set
 $dir = APP_ROOT . '/data/gnome25';
-$file = $dir . '/' . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . ($wear !== '' ? '-w' . $wear : '') . '.png';
+$file = $dir . '/' . (defined('GNOME25_ART_REV') ? 'r' . GNOME25_ART_REV . '-' : '') . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . ($wear !== '' ? '-w' . $wear : '') . '.png';
 if (!in_array($view, ['front', 'back', 'side'], true)) { http_response_code(400); exit; }
 $png = is_file($file) ? (string)file_get_contents($file) : '';
 if ($png === '') {

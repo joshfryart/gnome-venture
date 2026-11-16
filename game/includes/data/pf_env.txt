@@ -8,7 +8,7 @@
 #          Every piece that fires carries all three families, so most decks can link to it from some side.
 #   life: rounds on the board, 2-4 (it counts from the round after it is placed).
 sun|Sun|sun|hb,km,kc,hc|2|2/2/2/2|Fire it in your chain: your pieces in that chain count double.
-bramble|Bramble|bramble|hm,kc,kb,hb|3|1/2/2/3|Fire it in your chain: the other side loses a tenth of its health.
+bramble|Bramble|bramble|hm,kc,kb,hb|3|1/2/2/3|Fire it in your chain: the creature's Yield bar fills a tenth. If the creature fires it, you lose a tenth of your health.
 rain|Rain|rain|hc,kb,km,hm|2|2/2/2/2|Fire it in your chain: you get guard.
 wind|Wind|wind|hb,kc,hm,km|2|1/1/1/1|Fire it in your chain: the piece its arrow points at slides one cell.
 mud|Mud|mud|f,f,f,f|3|1/1/1/1|Nothing links to it, and a piece next to it counts a quarter less.

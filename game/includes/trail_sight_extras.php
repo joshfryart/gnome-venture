@@ -58,6 +58,8 @@ function trail_sight_label(string $slug): array
 function trail_sight_item_known(string $slug): bool
 {
     if (isset(trail_sight_items_file()[$slug])) return true;
+    require_once __DIR__ . '/wearables.php';
+    if (isset(wear_items()[$slug])) return true;   // 2.7.01: wearables can be Sight rewards
     try { return (bool)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); } catch (Throwable $e) { return false; }
 }
 
@@ -937,10 +939,11 @@ function trail_sight_tile_in_gate(array $art, int $x, int $y): bool
     return false;
 }
 
-/** A named villager's map picture: [url, frames, kind 's' stop villager | 'n' town NPC, id] (a 4-frame sprite sheet shows its first frame), or null. */
+/** A named villager's map picture: [url, frames, kind 's' stop villager | 'n' town NPC, id] (a 4-frame sprite sheet shows its first frame; frames 0 = the villager marker), or null. */
 function trail_sight_folk_pic(string $who): ?array
 {
     require_once __DIR__ . '/trail_walkers.php';
+    $mark = trail_mark_file('', 'villager') !== '' ? trail_art_url('mark/villager.png') : '';   // 2.7.01: no sprite of their own: the villager marker (frames 0 = a 32x32 marker, trail_art_svg)
     try {
         $fid = trail_sight_folk_id($who);
         if ($fid) {
@@ -948,12 +951,14 @@ function trail_sight_folk_pic(string $who): ?array
             $folk = q_one('SELECT * FROM stop_folk WHERE id = ?', [$fid]);
             $rel = $folk ? stop_folk_art($folk, 'sprite') : '';
             if ($folk && function_exists('npc25_strip') && ($st = npc25_strip((string)$folk['species'], 'front'))) return [$st[0], 8, 's', $fid, $st[1]];   // 2.7.01: the 2.5D strip once the species is drawn
-            return $rel !== '' ? [url($rel), 4, 's', $fid] : null;
+            if ($rel !== '') return [url($rel), 4, 's', $fid];
+            return $folk && $mark ? [$mark, 0, 's', $fid] : null;
         }
         [$name] = trail_sight_split_who($who);
         $npc = q_one('SELECT * FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
         if ($npc && function_exists('npc25_for') && ($st25 = npc25_for($npc, 'front'))) return [$st25[0], 8, 'n', (int)$npc['id'], $st25[1]];   // 2.7.01: the 2.5D strip (gnome NPCs too)
         if ($npc) { require_once __DIR__ . '/here_view.php'; $sp = here_sprite($npc); if ($sp['src'] !== '') return [$sp['src'], (int)($sp['frames'] ?? 1), 'n', (int)$npc['id']]; }
+        if ($npc && $mark) return [$mark, 0, 'n', (int)$npc['id']];
     } catch (Throwable $e) {}
     return null;
 }

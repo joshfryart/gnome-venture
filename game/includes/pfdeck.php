@@ -132,7 +132,7 @@ function pfd_region_pieces(): array
 /** The archetype value of a creature ($v in pf_foe_deck): its piece values are multiples of this. */
 function pfd_foe_v(array $c): int
 {
-    return max(1, (int)round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
+    return max(1, (int)pf_round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
 }
 
 /**
@@ -147,7 +147,7 @@ function pfd_foe_pieces(array $c, string $region = ''): array
     $out = []; $n = [];
     $add = function (string $layer, array $q) use (&$out, &$n, $v, $lean) {
         $i = count($out); $n[$layer] = ($n[$layer] ?? -1) + 1;
-        $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
+        $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)pf_round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
             'col' => $i % 5 < 3 ? $lean : (PF_HOLE[$q['t']] ?? 'body'), 'layer' => $layer];
     };
     foreach ($K['classes'][$cl]['P'] as $q) $add('base', $q);
@@ -301,12 +301,14 @@ function pfd_build(array $src): array
         $pieces[] = $entry($key, ['k' => $key, 'n' => $nm, 't' => (string)$q['t'], 'v' => (int)$q['v'], 'r' => $q['r'] ?? null, 'tag' => 'pal', 'src' => 'pal', 'ref' => (string)($q['ref'] ?? ''), 'life' => 0], max(1, min(3, (int)($q['rank'] ?? 1))), ['gear' => true, 'on' => true]);
     }
     $sl = pfd_slots($lvl); $cnt = ['n' => 0, 'kit' => 0, 'belt' => 0, 'pals' => 0, 'hurt' => 0, 'rare' => 0, 'mw' => 0, 'larder' => 0, 'larder_max' => $sl['larder'], 'keeps' => 0, 'keeps_max' => $sl['keeps'], 'src' => ['pal' => 0, 'tool' => 0, 'crop' => 0]];
+    $capOut = pfd_cap_out($pieces);
     foreach ($pieces as $i => $e) {
         if (!$e['on']) continue;
         if (in_array($e['src'], PFD_LARDER_SRC, true) && ++$cnt['larder'] > $sl['larder']) $pieces[$i]['out'] = 'slots';   // 2.6.989: more crop pieces on than the Larder holds: the extra ones stay out
         if (in_array($e['src'], PFD_KEEP_SRC, true) && ++$cnt['keeps'] > $sl['keeps']) $pieces[$i]['out'] = 'slots';
-        if ($e['rank'] === 3 && ++$cnt['rare'] > PFD_RARE_CAP) $pieces[$i]['out'] = 'cap';
-        if ($e['rank'] === 4 && ++$cnt['mw'] > PFD_MW_CAP) $pieces[$i]['out'] = 'cap';
+        if ($e['rank'] === 3) $cnt['rare']++;
+        if ($e['rank'] === 4) $cnt['mw']++;
+        if (!empty($capOut[$i])) $pieces[$i]['out'] = 'cap';
         $cnt['n']++; if (!$e['gear']) $cnt['kit']++; if ($e['t'] === 'hurt') $cnt['hurt']++;
         if ($e['src'] === 'tool') $cnt['belt']++; if ($e['src'] === 'pal') $cnt['pals']++;
         if (isset($cnt['src'][$e['src']])) $cnt['src'][$e['src']]++;
@@ -316,6 +318,20 @@ function pfd_build(array $src): array
     return ['pieces' => $pieces, 'deck' => array_values(array_filter($pieces, fn($e) => $e['on'] && $e['out'] === '')), 'counts' => $cnt, 'err' => $err,
         'starter' => $chosen, 'offer' => pfd_offer_keys($cal, (string)$src['home']), 'kits' => array_map(fn($k) => pfd_offer_keys($cal, (string)$src['home'], $k), PFD_KITS),
         'belt' => $belt, 'slots' => (int)$src['slots'], 'auto' => !empty($src['auto'])];
+}
+
+/** 2.7.01 (Josh): which pieces (by index) the Rare / Masterwork cap leaves out. Pieces count in list order, except wearables (key w:...) which count LAST, so they never push a belt tool out of the deck. */
+function pfd_cap_out(array $pieces): array
+{
+    $out = []; $rr = 0; $mm = 0;
+    $order = array_keys($pieces);
+    usort($order, fn($x, $y) => (int)str_starts_with((string)$pieces[$x]['key'], 'w:') <=> (int)str_starts_with((string)$pieces[$y]['key'], 'w:'));
+    foreach ($order as $i) {
+        if (!$pieces[$i]['on']) continue;
+        if ($pieces[$i]['rank'] === 3 && ++$rr > PFD_RARE_CAP) $out[$i] = 1;
+        if ($pieces[$i]['rank'] === 4 && ++$mm > PFD_MW_CAP) $out[$i] = 1;
+    }
+    return $out;
 }
 
 /** Why a deck may not be used, or null. $counts = pfd_build()['counts'] (or a whole build). */
@@ -418,7 +434,7 @@ function pfd_ensure_content(): void
         $id = item_id_by_slug($slug);
         if (!$id) $id = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'supply', 'rarity' => $rarity, 'base_price' => $price, 'description' => $desc, 'edible' => 0, 'effects' => json_encode(['fight_belt' => (int)array_search($slug, array_column(PFD_BELTS, 1), true) + 1]), 'tradable' => 0, 'max_stack' => 1]);
         if ($shop && $id && !q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $id])) {
-            db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)round($price * 1.1), 'max_stock' => 1, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
+            db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)pf_round($price * 1.1), 'max_stock' => 1, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
         }
     }
     if (!item_id_by_slug(PFD_REPAIR)) {
@@ -478,7 +494,7 @@ function pfd_pal_pieces(array $u): array
         arsort($score);
         $t = (string)array_key_first($score);
         $rar = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity'] ?? 'common'] ?? 0;
-        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? '')];
+        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)pf_round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? '')];
     }
     return $out;
 }
@@ -723,6 +739,14 @@ function pfd_start_fight(array $u, array $stats, array $typeBonus, bool $canSnac
 {
     $src = pfd_sources($u);
     return pfd_tiles(pfd_fight_entries($src), $stats, $typeBonus, (string)$src['calling'], (int)$src['ctier'], $canSnack);
+}
+
+/** 2.7.01 fixed first fight: the default kit's 10 pieces (PFD_CORE + PFD_KIT_DEFAULT), whatever the gnome packed, without gear (tools, pals, wearables); the Snack piece is the Breather and the calling piece is Taunt, so every new gnome gets the same deal. */
+function pfd_first_tiles(array $u, array $stats): array
+{
+    $src = pfd_sources($u);
+    $kit = array_values(array_filter(pfd_build(['starter' => null, 'state' => [], 'calling' => ''] + $src)['pieces'], fn($p) => !empty($p['starter'])));   // no calling: the Taunt piece, as for any gnome without one
+    return pfd_tiles($kit, $stats, [], '', 1, false);
 }
 
 /** A fight is over: its tool wear is saved. Returns a line for the log for each tool that broke. */

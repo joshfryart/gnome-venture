@@ -450,13 +450,14 @@ require __DIR__ . '/pfboard_v1_guard.php';   // 15: your guard fades when your t
 require __DIR__ . '/pfboard_v1_lasting.php';   // 17: a board that lasts (2.6.98)
 require __DIR__ . '/pfboard_v1_order.php';   // 18: activation order and no free creature piece (next release)
 require __DIR__ . '/pfboard_v1_kinds.php';   // 19: class rules (2.6.98)
+require __DIR__ . '/pfboard_v1_costly.php';   // 30: costly cell names its cause (2.7.01)
 
 echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
 foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
 $s = json_decode(json_encode($s), true);
 $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
-chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad16 && count(PFB_V1_PRE) === 15, $bad16);
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE (16 keys: nothorn added in 2.7.01)', !$bad16 && count(PFB_V1_PRE) === 16, $bad16);
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;

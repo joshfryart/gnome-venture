@@ -419,7 +419,7 @@
         mine.block += val + (m === 'hardy' ? 2 : 0);
         if (tile.tag === 'hold') mine.keep += val + (m === 'hardy' ? 2 : 0);
         if (tile.tag === 'thorns') mine.thorns = true;
-        if (tile.tag === 'evade') mine.evade = 1;
+        if (tile.tag === 'evade') { mine.evade = 1; if (who === 'me') mine.evd = 1; }   // 2.7.01: evd = you played an Evade this round
         if (tile.tag === 'mend' && who === 'me') mine.hp = Math.min(mine.max, mine.hp + 2);
         if (m === 'spiky' && who === 'me') { pr = 2 * s.hm; s.fh.now += pr; }
         if (seam && prev && prev.t === 'hurt' && prevBy === other) {
@@ -519,7 +519,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1 };
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1 };
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -537,7 +537,7 @@
   var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
   var PFB_ENV_ROWS = [
     ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 2, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
-    ['bramble', 'Bramble', 'bramble', 'hm,kc,kb,hb', 3, [1, 2, 2, 3], 'Fire it in your chain: the other side loses a tenth of its health.'],
+    ['bramble', 'Bramble', 'bramble', 'hm,kc,kb,hb', 3, [1, 2, 2, 3], 'Fire it in your chain: the creature\'s Yield bar fills a tenth. If the creature fires it, you lose a tenth of your health.'],
     ['rain', 'Rain', 'rain', 'hc,kb,km,hm', 2, [2, 2, 2, 2], 'Fire it in your chain: you get guard.'],
     ['wind', 'Wind', 'wind', 'hb,kc,hm,km', 2, [1, 1, 1, 1], 'Fire it in your chain: the piece its arrow points at slides one cell.'],
     ['mud', 'Mud', 'mud', 'f,f,f,f', 3, [1, 1, 1, 1], 'Nothing links to it, and a piece next to it counts a quarter less.'],
@@ -553,9 +553,9 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -582,11 +582,12 @@
     });
     return ENV_TABLE = T;
   }
-  function envDeck(size, region, nowm) {
+  function envDeck(size, region, nowm, nothorn) {
     if (!has(PFB_SIZE, size)) size = 'medium';
     var T = envTable(), bias = (region && has(T.regions, region)) ? T.regions[region] : {}, deck = [];
     for (var key in T.pieces) {
       var p = T.pieces[key];
+      if (nothorn && p.env === 'thorn') continue;
       if (nowm && (p.env === 'wind' || p.env === 'mud')) continue;
       var n = Math.max(0, toInt(p.w[size]) + toInt(nn(bias[p.env], 0)));
       for (var i = 0; i < n; i++) deck.push({ k: p.k, n: p.n, t: 'env', v: 0, r: null, tag: '', m: '', src: 'env', env: p.env, life: p.life, ed: clone(p.ed) });
@@ -1474,7 +1475,7 @@
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
       s.foe.kind = truthy(v1.kinds) ? kindOf(c, s.size) : ''; s.foe.grudge = 0; s.foe.nextk = null; s.ven = {};   // 2.6.98 class rules
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
-      if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
+      if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'), !!v1r(s, 'nothorn'))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
       if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.me.tripped = 0; s.foe.bashnext = 0; s.foe.again = 0; }
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
@@ -1541,7 +1542,7 @@
     var slow = 0;
     if (s.v1 && truthy(s.v1.tags)) {   // creature tags: its poison works on you, a trip costs you one draw
       if (toInt(s.me.poison) > 0) {
-        var pv = Math.max(1, toInt(s.me.poison_v)); if (toInt(s.me.evade) > 0) pv = 0;   // 2.6.988: Evade stops the poison tick
+        var pv = Math.max(1, toInt(s.me.poison_v)); if (toInt(s.me.evade) > 0 || truthy(s.me.evd)) pv = 0;   // 2.6.988: Evade stops the poison tick; 2.7.01: also when its Hurt already used the Evade up (evd)
         s.me.hp = Math.max(0, s.me.hp - pv); s.me.poison--;
         s.envlog.push({ k: 'poison', x: null, y: null, me: pv, foe: 0.0 });
         if (s.me.poison === 0) s.me.poison_v = 0;
@@ -1558,7 +1559,7 @@
     s.turn++; s.round++;
     if (s.v1 && truthy(s.v1)) { var kept = Math.min(toInt(s.me.keep), toInt(s.me.block)); s.me.faded = Math.max(0, toInt(s.me.block) - kept); s.me.kept = kept; s.me.block = kept; s.me.keep = 0; }   // 2.6.77: your guard fades when your turn starts; only a Hold guard still standing carries over, once
     else { s.me.block = s.me.keep; s.me.keep = 0; }
-    s.me.thorns = false; s.me.evade = 0;
+    s.me.thorns = false; s.me.evade = 0; delete s.me.evd;
     var more = toInt(nn(s.me.more, 0)); s.me.more = 0;   // 2.6.990 Plenty
     if (v1r(s, 'redraw')) { var kept = []; s.me.hand.forEach(function (ht) { if (nn(ht.tag, '') === 'keep') { kept.push(ht); return; } var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = kept; draw(s, 'me', PF_HAND_CAP - slow + more); }   // 2.6.990 Keeper   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else draw(s, 'me', Math.min(PF_HAND_CAP + more, s.me.hand.length + PF_DRAW - slow));
@@ -1659,10 +1660,12 @@
     cs.forEach(function (c) {
       var r = play(clone(s), [[handIdx === 'c' ? 'c' : handIdx, c[0], c[1]]], s.turn, true);
       if (r.err) return;
-      var n = 0, tw = 1.0, sun = 0, mud = 0;
-      r.ev.forEach(function (e) { if (e.barnow === undefined) return; n++; if (e.tw !== undefined) tw = Number(e.tw); if (truthy(e.sun) && e.by === 'me') sun++; if (truthy(e.mud) && e.by === 'me') mud++; });
+      var n = 0, tw = 1.0, sun = 0, mud = 0, hw = [], hpp = hp0;
+      r.ev.forEach(function (e) { if (e.barnow === undefined) return; n++; if (e.tw !== undefined) tw = Number(e.tw); if (truthy(e.sun) && e.by === 'me') sun++; if (truthy(e.mud) && e.by === 'me') mud++;
+        if (toInt(e.hpnow) < hpp) hw.push([String(e.n), String(e.by), hpp - toInt(e.hpnow)]); hpp = toInt(e.hpnow); });   // 2.7.01 costly cell (pfb_cell_preview)
       o[c[0] + ',' + c[1]] = { dmg: iround(r.fh - fh0), ch: iround(r.bar - b0), hp: Math.max(0, hp0 - toInt(r.hp)), n: n, used: !!(r.ev[0] && r.ev[0].used && r.ev[0].used.length), tw: tw, sun: sun, end: truthy(r.over) };
       if (truthy(s.v1.env)) o[c[0] + ',' + c[1]].mud = mud;
+      if (hp0 > toInt(r.hp) && hw.length) o[c[0] + ',' + c[1]].hw = hw;
     });
     return o;
   }

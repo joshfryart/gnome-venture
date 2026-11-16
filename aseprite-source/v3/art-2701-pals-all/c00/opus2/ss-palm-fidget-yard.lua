@@ -1,0 +1,83 @@
+-- Palm Fidget (ss-palm-fidget), yard sprite 64x64. Opus second pass (c00/opus2), built from the Haiku first pass.
+-- Bloomcaller, common, Sunsprinkle. "Cannot sit still when the breeze is fresh."
+-- A hairy coconut with a crown of three real palm fronds (a curved rachis with leaflets both sides, not bare
+-- sticks), all swept to the right by the breeze; coir hair strokes over the husk, rim light and a cool bounce.
+-- quirk: it cannot sit still: one stubby foot is up mid-tap, two tap ticks under it, breeze swooshes behind.
+local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
+local O = dofile(dir .. "/_opus.lua")
+local HP, X, P, K = O.HP, O.X, O.P, O.K
+local H = O.H
+local c = O.canvas("ss-palm-fidget-yard", 64)
+
+local NUT  = { "#2e1c1e", "#4e2e26", "#74472f", "#9a6640", "#bf8a58", "#dcae7a" }
+local FROND = { "#1f4438", "#2a6a42", "#3f9150", "#62b257", "#9ccf6a", "#d0eb96" }
+local FOOT = { "#4e2e26", "#74472f", "#9a6640", "#bf8a58" }
+
+-- frond: a broad blade along bezier p, slit from the edges toward the rachis into leaflets that point to the tip
+local function frond(p, w)
+  local wf = function(t) return w * math.sin(math.pi * (.15 + .85 * t)) ^ .6 * (1 - .35 * t) + .6 end
+  local m, n, T, S = O.tube(p, wf)
+  -- slits: from near the spine out to the edge, angled toward the tip, both sides
+  for k = 1, 7 do
+    local t0 = .1 + k * .11
+    local t1 = math.min(1, t0 + .07)
+    local x0, y0 = O.bez(p, t0)
+    local x1, y1 = O.bez(p, t1)
+    local xa, ya = O.bez(p, math.min(1, t1 + .01))
+    local tx, ty = xa - x1, ya - y1
+    local l = math.sqrt(tx * tx + ty * ty) if l == 0 then l = 1 end
+    tx, ty = tx / l, ty / l
+    for _, sd in ipairs({ -1, 1 }) do
+      local px, py = -ty * sd, tx * sd
+      local e = wf(t1) + 1
+      local sx, sy = x0 + px * 1.6, y0 + py * 1.6
+      m:cut(c:line({ { math.floor(sx + .5), math.floor(sy + .5) }, { math.floor(x1 + px * e + .5), math.floor(y1 + py * e + .5) } }, 1))
+    end
+  end
+  local I, Tk = O.shadeN(c, m, n, FROND, { amb = .2, wrap = .4, rim = true })
+  -- spine one tone down
+  m:each(function(x, y)
+    local sd = S[K(x, y)]
+    if sd and math.abs(sd) < .16 then local q = y * c.w + x if c.own[q] == Tk then c.pix[q] = FROND[math.max(2, (I[K(x, y)] or 3) - 1)] end end
+  end)
+end
+
+c:groundShadow(31, 57, 14, 2.5)
+
+-- fronds behind the nut, all leaning right in the breeze
+frond({ { 30, 28 }, { 24, 20 }, { 14, 18 }, { 7, 26 } }, 5)
+frond({ { 33, 28 }, { 42, 18 }, { 53, 17 }, { 58, 28 } }, 5.5)
+frond({ { 31, 27 }, { 27, 12 }, { 38, 4 }, { 52, 9 } }, 6)
+
+-- feet: left planted, right lifted mid-tap
+O.shade(c, c:ellipse(25, 53, 4, 2), FOOT, { R = 1, amb = .3, wrap = .4, cuts = { .3, .55, .8 } })
+
+-- the coconut
+local nut = c:ellipse(32, 39, 14, 13)
+local nI, nT = O.shade(c, nut, NUT, { sphere = { 27, 33, 20 }, amb = .3, wrap = .45, rim = true, bounce = "#7a5a72", bmax = 2 })
+-- coir hair: short diagonal strokes, light and dark
+O.tex(c, nI, nT, NUT, function(x, y, i)
+  if x >= 22 and x <= 42 and y >= 34 and y <= 46 then return 0 end -- keep the face clean
+  local h = H(x - y, y, 5)
+  if (x + y * 2) % 5 == 0 and h > .4 then return -1 end
+  if (x + y * 2) % 5 == 2 and h > .7 and i >= 3 then return 1 end
+end)
+-- tuft of fibre where the fronds join
+O.dots(c, { { 30, 26 }, { 31, 26 }, { 33, 26 }, { 34, 27 }, { 29, 27 } }, NUT[5])
+
+-- the lifted, tapping foot (in front)
+O.shade(c, c:ellipse(43, 50, 3.5, 2), FOOT, { R = 1, amb = .3, wrap = .4, cuts = { .3, .55, .8 }, sep = NUT[1] })
+
+-- face
+c:eyeLocked(24, 36)
+c:eyeLocked(35, 36)
+c:cheek(22, 43) c:cheek(40, 43)
+O.dots(c, { { 29, 44 }, { 30, 45 }, { 31, 45 }, { 32, 45 }, { 33, 45 }, { 34, 44 } }, P.ink)
+O.dots(c, { { 31, 46 }, { 32, 46 } }, NUT[2])
+
+O.shift(c, 0, 0)
+O.done(c, "ss-palm-fidget-yard", function(c)
+  -- tap ticks under the lifted foot, breeze swooshes behind (not outlined)
+  for _, p in ipairs({ { 39, 55 }, { 38, 56 }, { 45, 55 }, { 46, 56 } }) do c:put(p[1], p[2], P.ink) end
+  for _, p in ipairs({ { 3, 38 }, { 4, 38 }, { 5, 38 }, { 6, 37 }, { 7, 37 }, { 5, 44 }, { 6, 44 }, { 7, 44 }, { 8, 43 }, { 9, 43 } }) do c:put(p[1], p[2], "#8bc4ea") end
+end)

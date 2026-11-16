@@ -1,0 +1,22 @@
+/* The tab row the three pages of the demo artifact share (index.html, rules.html, old.html). Colours are the game's tokens (style.css :root); rules.html defines the same names. */
+#gvtabs { display: flex; gap: 6px; align-items: stretch; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); background: var(--bg); font: 600 14px/1.2 var(--font); }
+#gvtabs a { flex: 1 1 0; min-width: 0; text-align: center; padding: 10px 8px; text-decoration: none; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); border-bottom: 0; }
+#gvtabs a small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+#gvtabs a[aria-current="page"] { background: var(--brand-fill); color: var(--on-fill); border-color: var(--edge-dk); }
+#gvtabs a[aria-current="page"] small { color: var(--on-fill); opacity: .85; }
+#gvtabs a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gvnotes { max-width: 760px; margin: 0 auto; padding: 14px max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px)); font: 400 15px/1.5 var(--font); color: var(--ink); }
+.gvnotes h1 { font-size: 22px; margin: 6px 0 4px; text-wrap: balance; }
+.gvnotes h2 { font-size: 16px; margin: 14px 0 4px; }
+.gvnotes p, .gvnotes li { max-width: 68ch; }
+.gvnotes ul { padding-left: 20px; margin: 6px 0; }
+.gvnotes li { margin: 3px 0; }
+.gvnotes .lede { color: var(--muted); }
+.gvnotes table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.gvnotes th, .gvnotes td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.gvnotes th { background: var(--surface-2); font-weight: 600; }
+.gvnotes .scroll { overflow-x: auto; }
+.gvnotes details { margin: 8px 0; }
+.gvnotes summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+.gvnotes code { font-family: var(--mono); font-size: 13px; }
+@media (max-width: 420px) { #gvtabs { font-size: 13px; gap: 4px; } #gvtabs a { padding: 9px 4px; } #gvtabs a small { font-size: 11px; } }
