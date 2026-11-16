@@ -68,11 +68,18 @@ head:each(function(x, y)
   if math.abs(math.sin(a * 2 + r * .55)) < .24 and r > 5 then hb[K(x, y)] = -1 end -- spiral twist grain
 end)
 local hI, hT = O.shade(c, head, BARK, { sphere = { 27, 15, 17 }, amb = .3, wrap = .45, bias = hb, sep = BARK[1], rim = true, bounce = "#6a6a9a", bmax = 2 })
--- bark fissures (short dark vertical cracks) outside the face
+-- the knot: outside a smooth heartwood face oval, the head is twisted root bands with dark gaps between them
+-- (lit top edge on each band); the face oval is one tone paler so the eyes sit on clean wood
 O.tex(c, hI, hT, BARK, function(x, y, i)
-  if (x - 32)^2 / 64 + (y - 22)^2 / 42 < 1 then return end
-  if H(x, y // 3, 17) > .8 and i >= 2 then return -1 end
+  local dx, dy = x - 32, y - 22
+  if dx * dx / 90 + dy * dy / 52 < 1 then return (i <= 5) and 1 or 0 end
+  local u = dy + .45 * dx * (dx > 0 and -1 or 1) + .03 * dx * dx
+  local m = u % 5
+  if m < 1 then return -3 elseif m < 2 and i <= 5 then return 1 end
+  if H(x, y // 3, 17) > .85 and i >= 3 then return -1 end -- fissures
 end)
+-- knot whorl low on the right cheek (closer look: the wood's own eye)
+O.dots(c, { { 40, 26 }, { 41, 25 }, { 42, 26 }, { 41, 27 } }, BARK[3]) O.dot(c, 41, 26, BARK[2])
 -- thin aerial roots dangling from the sides of the head
 for _, a in ipairs({ { 19, 22, 18, 38 }, { 45, 22, 46, 37 }, { 21, 31, 22, 39 } }) do
   for y = a[2], a[4] do
@@ -134,6 +141,11 @@ local function strand(p) local m, n = O.tube(p, function() return 1.3 end) O.sha
 strand({ { 20, 21 }, { 22, 13 }, { 30, 10 }, { 40, 15 } })
 strand({ { 44, 21 }, { 42, 13 }, { 34, 10 }, { 24, 15 } })
 
+-- a root lock curling down over the brow and a thin root tucked under the chin
+local function lock(p, w) local m, n = O.tube(p, w) O.shadeN(c, m, n, BARK, { amb = .35, wrap = .45, sep = BARK[1], rim = true }) end
+lock({ { 26, 11 }, { 29, 13 }, { 32, 13 }, { 33, 17 } }, function(t) return 1.2 - t * .5 end)
+O.dot(c, 33, 17, BARK[6])
+lock({ { 37, 31 }, { 34, 32 }, { 30, 32 }, { 27, 31 } }, function(t) return .9 end)
 -- face on the knot
 c:eyeLocked(25, 18)
 c:eyeLocked(35, 18)

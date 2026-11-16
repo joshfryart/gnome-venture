@@ -1,4 +1,9 @@
--- Canopy Loop (gc-canopy-loop), yard sprite 64x64. Opus second pass (art-2701-pals-all/c04/opus2), from the Haiku pass.
+-- Canopy Loop (gc-canopy-loop), yard sprite 64x64. Opus richness pass (c04/opus3), built on c04/opus2.
+-- Richness pass: the clump is now layered overlapping leaves (each with a lit upper lip and a dark lower edge) plus
+-- rim midribs, hue-shifted greens going teal in shade, a twisted rope with fibre stripes, plank grain and nail heads,
+-- vine bark ticks, a bigger open vine loop with the rope running through its hole and a curling tendril tail,
+-- two small leaves on the vine, a dew drop on the hibiscus. Closer look: the parrot raises a blue wing to wave back,
+-- and one rim leaf has a little bite taken out of it.
 -- Bloomcaller, uncommon, Great Canopy. "Swings from bridge to bridge and says good morning to every parrot."
 -- A round, scalloped bundle of canopy leaves hanging from a rope bridge by its own vine, which it has tied into a
 -- loop over the rope; a pink hibiscus behind one ear (bloomcaller), a leaf-hand raised in a wave, swing arcs.
@@ -11,7 +16,7 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("gc-canopy-loop-yard", 64)
 
-local LEAF  = { "#173a2c", "#1f5a3a", "#2f7a3e", "#4f9e46", "#82c25a", "#bde28a" }
+local LEAF  = { "#143834", "#1c5640", "#2c7842", "#4c9c46", "#84c45a", "#c2e48c" }
 local VINE  = { "#3a2a1e", "#5e4a2a", "#86703a", "#a89a52" }
 local ROPE  = { "#6a4a2a", "#a8804e", "#d4b47a" }
 local WOOD  = { "#3e2a22", "#6a4630", "#94683e", "#b88c56" }
@@ -21,28 +26,38 @@ local FLOW  = { "#7a1e4a", "#c83a6a", "#f0709a", "#fbb0c4" }
 -- bridge: rope with a plank at the left end
 local rope, rn = O.tube({ { 4, 8 }, { 20, 11 }, { 44, 11 }, { 59, 8 } }, function() return 1 end)
 local rI, rT = O.shadeN(c, rope, rn, ROPE, { amb = .4, wrap = .5, cuts = { .45, .8 } })
-O.tex(c, rI, rT, ROPE, function(x, y, i) if x % 3 == 0 then return -1 end end) -- twist
+O.tex(c, rI, rT, ROPE, function(x, y, i) if (x + y) % 3 == 0 then return -1 end end) -- twisted fibre stripes
 local plank = c:rect(3, 11, 17, 13)
 local pI, pT = O.shade(c, plank, WOOD, { R = 1, amb = .3, wrap = .4, sep = WOOD[1] })
-O.mark(c, { { 7, 12 }, { 8, 12 }, { 13, 12 } }, WOOD[2])
+O.mark(c, { { 6, 12 }, { 7, 12 }, { 8, 12 }, { 12, 12 }, { 13, 12 }, { 14, 12 } }, WOOD[2]) -- grain
+O.mark(c, { { 4, 12 }, { 16, 12 } }, "#c8c8d0") -- nail heads
 
 -- quirk: little parrot on the plank
 local bird = c:ellipse(10.5, 7.5, 2.6, 3.4)
 bird:add(c:ellipse(10.5, 3.5, 2.2, 2.2))
 O.shade(c, bird, BIRD, { R = 2, amb = .3, wrap = .4, cuts = { .3, .55, .8 } })
 O.flat(c, c:rect(13, 3, 13, 4), "#f5dc9a", "beak") O.dot(c, 14, 4, "#e8bc66")
-O.flat(c, c:rect(8, 6, 9, 9), "#2f63a8", "wing") O.dot(c, 9, 6, "#7cbde8")
+-- closer look: the parrot raises its blue wing to wave back
+local wing = c:poly{ { 8, 7 }, { 6, 2 }, { 5, 1 }, { 4, 3 }, { 7, 8 } }
+O.flat(c, wing, "#2f63a8", "wing") O.dots(c, { { 6, 3 }, { 5, 2 } }, "#7cbde8") O.dot(c, 4, 3, "#f0be38")
 O.dots(c, { { 7, 10 }, { 6, 11 } }, "#f0be38") -- tail
 O.dot(c, 11, 3, P.ink)
 
 -- vine up from the head, looped over the rope
-local vine, vn = O.tube({ { 31, 26 }, { 30, 20 }, { 33, 15 }, { 35, 14 } }, function() return 1.2 end)
-O.shadeN(c, vine, vn, VINE, { amb = .3, wrap = .4, cuts = { .35, .6, .85 }, sep = VINE[1] })
-local loop = c:ellipse(36.5, 10.5, 4, 4) loop:cut(c:ellipse(36.5, 10.5, 2, 2))
-loop:cut(c:rect(30, 12, 35, 16))
-O.shade(c, loop, VINE, { R = 1, amb = .35, wrap = .4, cuts = { .35, .6, .85 }, sep = VINE[1] })
--- rope passes in front of the bottom of the loop
-rope:each(function(x, y) if x >= 33 and x <= 40 then c:put(x, y, (x % 3 == 0) and ROPE[1] or ROPE[2], rT) end end)
+local vine, vn = O.tube({ { 31, 26 }, { 30, 21 }, { 32, 17 }, { 33, 15 } }, function() return 1.2 end)
+local vI, vT = O.shadeN(c, vine, vn, VINE, { amb = .3, wrap = .4, cuts = { .35, .6, .85 }, sep = VINE[1] })
+-- an open loop of vine round the rope: the rope runs through its hole
+local loop = c:ellipse(36, 10, 4.6, 5.6) loop:cut(c:ellipse(36, 10, 2.2, 3.2))
+local lI, lT = O.shade(c, loop, VINE, { R = 1, amb = .35, wrap = .4, cuts = { .35, .6, .85 }, sep = VINE[1] })
+O.tex(c, lI, lT, VINE, function(x, y, i) if (x * 2 + y) % 5 == 0 and i >= 3 then return -1 end end) -- bark ticks
+-- the rope passes through: drawn over the loop's back half only (left side stays in front)
+rope:each(function(x, y) if x >= 34 and x <= 41 then c:put(x, y, ((x + y) % 3 == 0) and ROPE[1] or ROPE[2], rT) end end)
+loop:each(function(x, y) if x <= 33 and rope:has(x, y) then c:put(x, y, VINE[3], lT) end end)
+-- curling tendril tail off the loop's right side
+for _, p in ipairs({ { 41, 13 }, { 42, 14 }, { 43, 15 }, { 44, 15 }, { 45, 14 }, { 45, 13 }, { 44, 12 } }) do O.dot(c, p[1], p[2], VINE[3]) end
+-- two small leaves on the vine
+O.shade(c, c:ellipse(28.5, 21, 2, 1.2), LEAF, { R = 1, amb = .35, wrap = .4, sep = LEAF[1] })
+O.shade(c, c:ellipse(35.5, 18, 2, 1.2), LEAF, { R = 1, amb = .35, wrap = .4, sep = LEAF[1] })
 
 -- leafy body: scalloped clump
 local CX, CY = 31, 40
@@ -62,7 +77,17 @@ for k = 0, 11 do
     if i then O.mark(c, { { x, y } }, LEAF[math.max(1, i - 1)]) end
   end
 end
-O.tex(c, bI, bT, LEAF, function(x, y, i) if H(x, y, 23) > .95 and i >= 3 then return 1 end end)
+-- layered overlapping leaves: each tile has a lit upper lip and a dark lower edge (off the face)
+O.tex(c, bI, bT, LEAF, function(x, y, i)
+  if y >= 34 and y <= 47 and x >= 22 and x <= 43 then return 0 end
+  local row = y // 4
+  local u = (x + (row % 2) * 3) % 6
+  local v = y % 4
+  if v == 3 and u >= 1 and u <= 4 and i >= 2 then return -1 end
+  if v == 0 and (u == 1 or u == 2) and i >= 3 then return 1 end
+end)
+-- closer look: a bite out of one rim leaf (lower left)
+c.pix[50 * 64 + 21] = nil c.own[50 * 64 + 21] = nil c.pix[50 * 64 + 22] = nil c.own[50 * 64 + 22] = nil c.pix[49 * 64 + 21] = nil c.own[49 * 64 + 21] = nil
 
 -- waving leaf-hand
 local arm, an = O.tube({ { 43, 40 }, { 48, 38 }, { 51, 33 }, { 52, 28 } }, function() return 1.3 end)
@@ -76,6 +101,7 @@ O.mark(c, { { 52, 21 }, { 52, 22 }, { 52, 23 }, { 52, 24 }, { 52, 25 } }, LEAF[3
 local pet = O.unionCircles{ { 18, 28, 2.5, 2.5 }, { 22, 27, 2.5, 2.5 }, { 23, 31, 2.5, 2.5 }, { 19.5, 33, 2.5, 2.5 }, { 16.5, 31.5, 2.5, 2.5 } }
 O.shade(c, pet, FLOW, { sphere = { 18, 28, 7 }, amb = .35, wrap = .4, sep = FLOW[1], cuts = { .3, .55, .8 } })
 O.flat(c, c:rect(19, 30, 20, 31), "#f0be38", "pistil") O.dot(c, 21, 29, "#fbe07a") O.dot(c, 22, 28, "#fbe07a")
+O.mark(c, { { 17, 27 } }, "#c6eedc") O.mark(c, { { 17, 28 } }, "#4cb0b2") -- dew drop
 
 -- face
 c:eyeLocked(25, 37)
