@@ -5,6 +5,8 @@ Each row of INSTALL is (source PNG under aseprite-source/v3/, game path under ga
 size None = copied byte for byte (the source is already the size of the game file); a size = a box downscale of the 64x64 master
 (alpha snapped to 0/255, so it stays hard-pixel) for the puzzle-fight tag icons (32x32 hand, 20x20 strip).
 The final pass of each batch is used: opus3 where there is one, else the single Opus pass.
+Step 2 (2.7.01, after the first install): the 128 pals of art-2701-pals-all (c00..c15), the rest of the wearable icons (batch4, batch4b, batch5: all 33 are hand-drawn now),
+the rest / signpost / hazard Trail markers and the Maplewold inn / ferry / spring stop looks (batch4).
 
 usage: python3 tools/install_art_2701.py [--check]   (--check: only report rows whose game file differs from what this would write)
 tests/art_2701.sh reads the same table (python3 tools/install_art_2701.py --list) to check every file is in place.
@@ -33,8 +35,15 @@ for src, g in TAGS:
 WEAR = [(OPUS + '/wear/' + n, n) for n in ('travel-cloak', 'flood-boots-b', 'work-gloves-b')]
 WEAR += [(B3 + '/wear/opus3/' + n, n) for n in ('travel-cloak-lined', 'travel-cloak-fine', 'flood-boots-lined', 'flood-boots-fine',
                                                  'work-gloves-lined', 'work-gloves-fine', 'trail-pack-lined', 'trail-pack-fine')]
-WEAR += [('art-2701-next8/opus3/' + n, n) for n in ('trail-pack-b', 'travel-cloak-b')]
+WEAR += [('art-2701-next8/opus3/' + n, n) for n in ('trail-pack-b',)]
 WEAR += [('art-2701-rest/opus3/wayfarers-hat-b', 'wayfarers-hat-b')]
+# step 2 (after the first install): every other base / Lined / Fine and every cut b Lined / Fine is hand-drawn too (33 in all: derive_icons.py makes none of them now).
+# batch5 redrew the cut b travel cloak (the hanging cloak): its -b, -b-lined and -b-fine REPLACE next8's travel-cloak-b and batch4b's -b-lined / -b-fine.
+WEAR += [('art-2701-batch4/wear/opus3/' + n, n) for n in ('flood-boots', 'work-gloves', 'trail-pack', 'yarn-scarf', 'wayfarers-hat', 'wayfarers-hat-lined',
+                                                          'wayfarers-hat-fine', 'yarn-scarf-lined')]
+WEAR += [('art-2701-batch4b/wear/opus3/' + n, n) for n in ('flood-boots-b-lined', 'flood-boots-b-fine', 'work-gloves-b-lined', 'work-gloves-b-fine', 'trail-pack-b-lined',
+                                                           'trail-pack-b-fine', 'wayfarers-hat-b-lined', 'wayfarers-hat-b-fine', 'yarn-scarf-fine')]
+WEAR += [('art-2701-batch5/wear/opus3/' + n, n) for n in ('travel-cloak-b', 'travel-cloak-b-lined', 'travel-cloak-b-fine')]
 for src, g in WEAR:
     INSTALL.append((src + '.png', 'ph/%s.png' % g, None))
 
@@ -48,6 +57,14 @@ PALS = [(OPUS + '/pals/', 'acorn-nip', 'mw-acorn-nip'), (OPUS + '/pals/', 'husk-
 PALS += [(B3 + '/pals/opus3/', s, k) for s, k in (('toadstool-tuck', 'mm-toadstool-tuck'), ('kapok-nook', 'rr-kapok-nook'), ('shell-skip', 'ss-shell-skip'),
                                                     ('stone-sentry', 'mm-stone-sentry'), ('mate-mumble', 'rr-mate-mumble'), ('glimmer-frog', 'rr-glimmer-frog'),
                                                     ('cocopaddle', 'ss-cocopaddle'), ('gatepost-hoot', 'mm-gatepost-hoot'))]
+# step 2: the 128 pals of art-2701-pals-all chunks c00..c15 (opus3 = the final pass). Their files are already named by the game key (<key>-yard.png, <key>-perch.png:
+# the key of puzzle_pals.txt, pic_slug|key|name, which treehouse_pal_pic() looks up), so slug = key here. worklist.json lists them in chunks of 8.
+PALS_ALL = 'art-2701-pals-all'
+def _pals_all():
+    import json
+    wl = json.load(open(os.path.join(V3, PALS_ALL, 'worklist.json')))
+    return [('%s/c%02d/opus3/' % (PALS_ALL, c), p['key'], p['key']) for c in range(16) for p in wl[c]]
+PALS += _pals_all()
 for d, s, k in PALS:
     INSTALL.append((d + s + '-yard.png', 'pals/%s.png' % k, None))
     INSTALL.append((d + s + '-perch.png', 'pals/perch/%s.png' % k, None))
@@ -63,10 +80,15 @@ for n in ('camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight
     INSTALL.append((OPUS + '/trail/%s.png' % n, 'trail/mark/%s.png' % n, None))
 for n in ('haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market'):
     INSTALL.append(('art-2701-rest/opus3/trail-%s.png' % n, 'trail/mark/%s.png' % n, None))
+# step 2: batch4 rest (the way on into a rest stop), signpost (the first stretch of a side path), hazard (installed, not drawn on the map: no Trail data has a hazard yet)
+for n in ('rest', 'signpost', 'hazard'):
+    INSTALL.append(('art-2701-batch4/trail/opus3/%s.png' % n, 'trail/mark/%s.png' % n, None))
 
 # stop looks 480x270, Maplewold style (layouts: stop-<type>-grassland_maplewold in includes/data/here_layouts.json)
 for t in ('mill', 'shrine', 'jetty', 'herb', 'workshop', 'orchard', 'tower', 'camp'):
     INSTALL.append((B3 + '/stops/opus3/%s.png' % t, 'scenes/here-stop-%s-grassland_maplewold.png' % t, None))
+for t in ('inn', 'ferry', 'spring'):   # step 2: batch4 (its opus3 builds on batch3's frame)
+    INSTALL.append(('art-2701-batch4/stops/opus3/%s.png' % t, 'scenes/here-stop-%s-grassland_maplewold.png' % t, None))
 
 
 def render(src, size):
