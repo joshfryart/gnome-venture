@@ -1,13 +1,18 @@
--- Tentacle Wisp (pl-bjq-1), perch sprite 36x36. Opus second pass (c15/opus2), hand-built at this size.
+-- Tentacle Wisp (pl-bjq-1), perch sprite 36x36. Opus richness pass (c15/opus3), hand-built at this size.
 -- A glassy pink jelly bulb holding the face (2x3 pill eyes, small smile) with one ringed tentacle rising in an
 -- S-sway and rolling into a spiral curl on top.
+-- richness: hue-shifted jelly ramp, lit ring shoulders, rim light and lilac bounce; three bold 2x2 lilac stinger
+-- beads (fixes the subtle opus2 beads) and the seed it keeps tucked in its curl.
 -- quirk: it sways to a music note only it hears.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("pl-bjq-1-perch", 36)
 
-local JEL = { "#6a2252", "#a83a72", "#d85a8e", "#f2829f", "#ffb4c8", "#ffe2ea" }
+local JEL = { "#5a1e56", "#9c3474", "#d4568c", "#f2809c", "#ffb2bc", "#ffe4e2" }
+local function bead(x, y)
+  O.dot(c, x, y, "#f0e2fa") O.dot(c, x + 1, y, "#b89ae8") O.dot(c, x, y + 1, "#b89ae8") O.dot(c, x + 1, y + 1, "#7a5ab8")
+end
 
 c:groundShadow(17, 32, 9, 1)
 local spans = {
@@ -18,13 +23,19 @@ local spans = {
 local w0, w1 = { 3.4, 2.2, 1.4 }, { 2.2, 1.4, .7 }
 for si = #spans, 1, -1 do
   local m, n, T = O.tube(spans[si], function(t) return w0[si] + (w1[si] - w0[si]) * t end)
-  local I, Tk = O.shadeN(c, m, n, JEL, { amb = .36, wrap = .5, rim = true, sep = JEL[2] })
-  O.tex(c, I, Tk, JEL, function(x, y, i) if ((T[K(x, y)] or 0) * (5 - si)) % 1 < .14 then return -1 end end)
+  local I, Tk = O.shadeN(c, m, n, JEL, { amb = .36, wrap = .5, rim = true, sep = JEL[2], bounce = "#8a7ad0", bmax = 2 })
+  O.tex(c, I, Tk, JEL, function(x, y, i)
+    local ph = ((T[K(x, y)] or 0) * (5 - si)) % 1
+    if ph < .14 then return -1 end
+    if ph > .16 and ph < .3 and i >= 3 and i <= 5 then return 1 end
+  end)
 end
 O.mark(c, { { 14, 12 }, { 15, 9 } }, JEL[6])
 local hI, hT = O.shade(c, c:ellipse(17, 25, 8.5, 6.5), JEL, { sphere = { 14, 21, 11 }, amb = .38, wrap = .5, rim = true, bounce = "#8a7ad0", bmax = 2, sep = JEL[2] })
 O.mark(c, { { 11, 21 }, { 12, 20 } }, JEL[6])
 
+bead(15, 14) bead(16, 6) bead(23, 21)
+O.flat(c, c:rect(22, 8, 23, 9), "#b0662a", "seed") O.dot(c, 22, 8, "#e0a050")
 c:eyeSmall(13, 23)
 c:eyeSmall(20, 23)
 O.dot(c, 11, 27, P.petal.base) O.dot(c, 23, 27, P.petal.base)
