@@ -66,4 +66,21 @@ function O.cord(img, pts, pat, map, ok)
   end
 end
 function O.hpts(x0, x1, y) local t = {} for x = x0, x1 do t[#t + 1] = { x, y } end return t end
+-- felt / leather nap: a scatter of single pixels one tone lighter or darker, from a fixed hash (repeatable)
+function O.nap(img, R, x0, y0, x1, y1, ok, rate)
+  rate = rate or 9
+  O.texture(img, R, x0, y0, x1, y1, function(x, y, i)
+    local h = (x * 73 + y * 151 + x * y * 7) % (rate * 2)
+    if h == 0 and i > 1 then return -1 elseif h == rate and i < #R.list then return 1 end
+  end, ok)
+end
+-- 4-step distance to the outside (transparent or ink), capped at m
+function O.dist(img, x, y, m)
+  for d = 1, m do
+    for dy = -d, d do for dx = -d, d do
+      if math.abs(dx) + math.abs(dy) == d and not O.isBody(img, x + dx, y + dy) then return d end
+    end end
+  end
+  return m + 1
+end
 return O
