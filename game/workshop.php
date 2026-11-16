@@ -28,6 +28,8 @@ if (isset($_GET['frag'])) {   // one crafting section as html for the popover (a
     exit;
 }
 $open = preg_match('/^[A-Za-z0-9_-]{1,40}$/', (string)($_GET['o'] ?? '')) ? (string)$_GET['o'] : '';
+refresh_energy($u);   // 2.7.04: the "!" marks need today's energy
+$u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
 page_header('Crafting');
 ?>
 <h1>The workshop</h1>

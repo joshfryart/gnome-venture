@@ -43,10 +43,34 @@ function craft_obj_line(array $obj, string $clearUrl, int $n): string
  * on the landing). The pass also saves newly discovered recipes, so it runs before the known counts. No cross-request cache on purpose:
  * the satchel changes from many places and a stale "3 ready" would mislead.
  */
-function craft_map_ready(int $uid): array
+function craft_map_ready(int $uid, ?array $u = null): array
 {
     $n = [];
-    foreach (craft_recipes($uid) as $r) if ($r['known'] && $r['can']) $n[$r['category']] = ($n[$r['category']] ?? 0) + 1;
+    $u ??= q_one('SELECT * FROM users WHERE id = ?', [$uid]) ?: [];
+    // 2.7.04: "ready" means you can really make it now (the same test as the shelf's Ready tab): ingredients AND energy AND a free pot AND the cooking fee.
+    // It used to count anything you held the ingredients for, so the workshop "!" sat there while you were too tired, the pots were full or a feast needed a bigger Kitchen.
+    $energy = (int)($u['energy'] ?? 0);
+    $coins = (int)($u['coins'] ?? 0);
+    $feastsOk = null;
+    $potsFree = null;
+    foreach (craft_recipes($uid) as $r) {
+        if (!$r['known'] || !$r['can']) continue;
+        $cat = (string)$r['category'];
+        $slug = (string)($r['slug'] ?? '');
+        if (str_starts_with($slug, 'feast-')) {
+            $feastsOk ??= (bool)user_building_bonus($uid, 'kitchen')['feasts'];
+            if (!$feastsOk) continue;
+        }
+        $tier = $cat === 'cooking' ? (string)($r['tier'] ?: 'meal') : '';
+        $cost = craft_energy_cost($u, $cat, (int)$r['energy'], $tier, $slug);
+        $fit = craft_fit($r['ings'], $cost, $energy);
+        if ($tier === 'feast') { $fee = max(0, (int)setting('feast_petal_fee')); if ($fee > 0) $fit = min($fit, intdiv($coins, $fee)); }
+        if ($cat === 'cooking' && cook_pots_on()) {
+            $potsFree ??= max(0, cook_pot_limit($u) - cook_pots_busy($uid));
+            $fit = min($fit, $potsFree);
+        }
+        if ($fit >= 1) $n[$cat] = ($n[$cat] ?? 0) + 1;
+    }
     return $n;
 }
 
@@ -55,7 +79,7 @@ function craft_map_facts(array $u): array
 {
     $uid = (int)$u['id'];
     $stations = craft_stations($uid);
-    $readyN = craft_map_ready($uid);
+    $readyN = craft_map_ready($uid, $u);
     $counts = [];
     foreach (q('SELECT r.category, COUNT(*) AS total, COUNT(ur.id) AS have FROM recipes r
                 LEFT JOIN user_recipes ur ON ur.recipe_id = r.id AND ur.user_id = ? GROUP BY r.category', [$uid])->fetchAll() as $c) $counts[$c['category']] = $c;
