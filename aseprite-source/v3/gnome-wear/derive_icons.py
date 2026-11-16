@@ -9,6 +9,7 @@ usage: python3 derive_icons.py [ph_dir]   (default: <repo>/game/assets/img/ph)
 
 2.7.01: the icons in PROTECTED are hand-drawn (Opus art, tools/install_art_2701.py) and are never written here. A protected cut b
 (<base>-b) is read from ph_dir and its -lined/-fine are derived from it, so the ranks keep the drawn patch. Test: tests/derive_icons.sh.
+Since step 2 of that install (batch4, batch4b, batch5) all 33 icons are hand-drawn and PROTECTED: a run derives nothing (tests/art_2701.sh checks it).
 """
 import os
 import sys
@@ -43,6 +44,10 @@ PROTECTED = {
     "travel-cloak", "flood-boots-b", "work-gloves-b", "trail-pack-b", "travel-cloak-b", "wayfarers-hat-b",
     "travel-cloak-lined", "travel-cloak-fine", "flood-boots-lined", "flood-boots-fine",
     "work-gloves-lined", "work-gloves-fine", "trail-pack-lined", "trail-pack-fine",
+    # step 2 of the 2.7.01 install (art-2701-batch4, batch4b, batch5): every other icon is hand-drawn too, so this script derives none of the 33 now
+    "flood-boots", "work-gloves", "trail-pack", "yarn-scarf", "wayfarers-hat", "wayfarers-hat-lined", "wayfarers-hat-fine", "yarn-scarf-lined",
+    "flood-boots-b-lined", "flood-boots-b-fine", "work-gloves-b-lined", "work-gloves-b-fine", "trail-pack-b-lined", "trail-pack-b-fine",
+    "wayfarers-hat-b-lined", "wayfarers-hat-b-fine", "yarn-scarf-fine", "travel-cloak-b-lined", "travel-cloak-b-fine",
 }
 
 
