@@ -46,8 +46,7 @@ function trail_fam_haven(array $ctx): string
     }
     $moonSay = $mo['key'] === 'full' ? 'Full moon: nobody wants to go to bed, bedtimes are an hour late'
         : ($mo['key'] === 'new' ? 'New moon: it is dark early, bedtimes are an hour early' : 'Bedtimes are the usual hours');
-    $h = '<section class="tfhaven" aria-label="Haven guest book and bedtime round">'
-        . '<p class="tfh-h"><span aria-hidden="true">' . e($mo['icon']) . '</span> <b>' . e($mo['name']) . '</b> · ' . e($moonSay) . '</p>';
+    $h = '<p class="tfh-h"><b>' . e($mo['name']) . '</b> · ' . e($moonSay) . '</p>';
     $book = ''; $signed = 0; $rows = [];
     foreach ($seen as $nm => [$who, $slug]) {
         $sig = $uid > 0 && trail_sight_friend_known($uid, $who);
@@ -67,5 +66,5 @@ function trail_fam_haven(array $ctx): string
     }
     $tl = (int)((($ctx['now'] ?? [])['tl'] ?? [])['tucked'] ?? 0);
     $h .= '<p class="tfh-tally">Tucked in so far: ' . $tl . ' (use a haven Sight at dusk or night to tuck in; coins from the 3rd, a title at 10)</p>';
-    return $h . '</section>';
+    return '<section class="tfhaven" aria-label="Haven guest book and bedtime round">' . moon_pill((string)$mo['icon'], $mo['name'] . ' · guest book and bedtimes', $h) . '</section>';
 }

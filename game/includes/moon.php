@@ -67,3 +67,17 @@ function moon_tide(float $hour, int $dayIndex): array
     }
     return ['h' => $h, 'state' => $state, 'next' => $want, 'in' => $in, 'text' => $text, 'lows' => $lows, 'highs' => $highs, 'moon' => $ph, 'range' => $ph['range']];
 }
+
+/** A collapsed pill (a <details>, no JS) for anything moon related: the summary is a short label, the body shows when tapped. */
+function moon_pill(string $icon, string $label, string $inner): string
+{
+    return '<details class="moonpill"><summary><span aria-hidden="true">' . htmlspecialchars($icon, ENT_QUOTES) . '</span> ' . htmlspecialchars($label, ENT_QUOTES) . '</summary><div class="moonpill-body">' . $inner . '</div></details>';
+}
+
+/** Wrap the inside of a finished "<section ...>...</section>" in a collapsed moon pill. */
+function moon_pill_section(string $sectionHtml, string $icon, string $label): string
+{
+    $i = strpos($sectionHtml, '>');
+    if ($i === false || !str_ends_with($sectionHtml, '</section>')) return $sectionHtml;
+    return substr($sectionHtml, 0, $i + 1) . moon_pill($icon, $label, substr($sectionHtml, $i + 1, -strlen('</section>'))) . '</section>';
+}

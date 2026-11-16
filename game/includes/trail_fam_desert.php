@@ -45,7 +45,7 @@ function trail_fam_desert(array $ctx): string
         $h .= '<p class="tfd-h"><span class="tfd-sun" aria-hidden="true">☀️</span> <b>' . e($word) . '</b> <span class="tfd-st">(sun ' . $sun . ' of 5' . ($we === 'heat' ? ', heat wave' : '') . ' · ' . e(hour_label((int)floor($hour))) . ')</span></p>'
             . '<p class="tfd-gauge" role="img" aria-label="Water gauge: ' . $water . ' of 5. The sun drains it, shade and the well top it up."><span class="tfd-gl">Water</span><span class="tfd-pips" aria-hidden="true">' . $pips . '</span><span class="tfd-gt">' . $water . ' of 5</span></p>';
     } else {
-        $h .= '<p class="tfd-h"><span aria-hidden="true">' . e($moon['icon']) . '</span> <b>Cool ' . ($dp === 'dusk' ? 'dusk' : 'night') . '</b> <span class="tfd-st">(' . e($moon['name']) . ' · day ' . ($moon['age'] + 1) . ' of ' . MOON_DAYS . ')</span></p>';
+        $nh = '<p class="tfd-h"><span aria-hidden="true">' . e($moon['icon']) . '</span> <b>Cool ' . ($dp === 'dusk' ? 'dusk' : 'night') . '</b> <span class="tfd-st">(' . e($moon['name']) . ' · day ' . ($moon['age'] + 1) . ' of ' . MOON_DAYS . ')</span></p>';
         $bonus = '';
         foreach ($marks as $m) {
             if (!in_array($m['slug'], TRAIL_FAM_DESERT_COOL, true)) continue;
@@ -53,7 +53,8 @@ function trail_fam_desert(array $ctx): string
                 || $dp === 'night' && $moon['key'] === 'full' && $m['slug'] === 'desert-the-mirage-pool';
             $bonus .= '<li class="tfd-b ' . ($on ? 'on' : 'off') . '"><span aria-hidden="true">' . ($on ? '🌙' : '·') . '</span> ' . e(trail_sight_label($m['slug'])[0]) . ' <b>' . ($on ? 'cool-night bonus tonight' : 'no bonus tonight') . '</b></li>';
         }
-        if ($bonus) $h .= '<ul class="tfd-bl">' . $bonus . '</ul>';
+        if ($bonus) $nh .= '<ul class="tfd-bl">' . $bonus . '</ul>';
+        $h .= moon_pill((string)$moon['icon'], 'Cool ' . ($dp === 'dusk' ? 'dusk' : 'night') . ' · ' . $moon['name'], $nh);
     }
     $shade = '';
     foreach ($marks as $m) {

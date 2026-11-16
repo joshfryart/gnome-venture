@@ -57,8 +57,8 @@ chk "no scraps from dishes" "$(qty food-scrap)" 6
 
 echo "== cooking energy by tier (snack 0, meal 1, feast 2)"
 dbx "INSERT INTO garden_buildings (plot_id,building,built_at,last_collect) VALUES ($P,'kitchen',datetime('now'),datetime('now'))"
-give chanterelle 2; give wheat 1; give pea 3; give onion 1
-R1=$(db "SELECT id FROM recipes WHERE slug='mushroom-toast'"); R2=$(db "SELECT id FROM recipes WHERE slug='green-pea-soup'")
+give corn 3; give pea 3; give onion 1
+R1=$(db "SELECT id FROM recipes WHERE slug='cornbread'"); R2=$(db "SELECT id FROM recipes WHERE slug='green-pea-soup'")
 dbx "INSERT OR IGNORE INTO user_recipes (user_id,recipe_id,learned_at) VALUES ($UID_,$R1,datetime('now')),($UID_,$R2,datetime('now'))"
 setE 6; post crafting.php "inventory.php?tab=craft&c=cooking" -d recipe_id=$R1 -d qty=1; chk "snack cost 0" "$(energy)" 6
 post crafting.php "inventory.php?tab=craft&c=cooking" -d recipe_id=$R2 -d qty=1;       chk "meal cost 1" "$(energy)" 5

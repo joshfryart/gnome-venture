@@ -52,7 +52,7 @@ function trail_fam_wonder(array $ctx): string
             . '<div class="tfw-pic" aria-hidden="true">' . $ico . '</div>'
             . '<figcaption><b>' . e(trail_sight_label($m['slug'])[0]) . '</b>'
             . '<span class="tfw-sub">' . ($kind === 'gate' ? 'a gate to look at' : 'a hush to listen to') . ' · ' . e(ucfirst($land)) . '</span>'
-            . '<span class="tfw-post" title="The moon of the day">Postmark: ' . e($mo['icon']) . ' ' . e($mo['name']) . ', day ' . ((int)$mo['age'] + 1) . ' of ' . MOON_DAYS . '</span></figcaption>'
+            . '' . moon_pill((string)$mo['icon'], 'Postmark: ' . $mo['name'], 'The moon of the day, day ' . ((int)$mo['age'] + 1) . ' of ' . MOON_DAYS . '. It is the light the wonder is seen in.') . '</figcaption>'
             . '<span class="tfw-stk ' . ($has ? 'on' : 'off') . '">' . ($has ? '<span aria-hidden="true">' . $ico . '</span> sticker stuck' : '<span aria-hidden="true">▫️</span> empty sticker slot') . '</span>'
             . '</figure>';
     }

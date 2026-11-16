@@ -777,3 +777,15 @@ function strip_raw_food_energy(): void
         q('UPDATE items SET effects = ? WHERE id = ?', [$fx ? json_encode($fx) : null, $it['id']]);
     }
 }
+
+
+/** 2.7.03: hearty dishes that were filed as snacks count as home-cooked Meals (rest stop upkeep, job boards, calling chapters). One time; recipes an admin changed (cook minutes not 3) are left alone. */
+function meal_tiers_boot(): void
+{
+    $more = ['garden-salad', 'goat-cheese-salad', 'samphire-salad', 'mushroom-toast', 'peanut-toast', 'quail-egg-toast', 'pancakes', 'tropical-fruit-bowl', 'devilled-eggs', 'scrambled-eggs'];
+    $cost = tier_setting('cook_energy_tiers', [0, 1, 2]);
+    foreach (['smoked-trout', 'grilled-sardines', 'falafel', 'kangkong-stir-fry', 'fiddlehead-fry', 'goat-milk-porridge', ...$more] as $slug) {
+        q("UPDATE recipes SET tier = 'meal', cook_minutes = 15, batch_max = 1, energy = ? WHERE slug = ? AND category = 'cooking' AND tier = 'snack' AND cook_minutes = 3", [$cost['meal'], $slug]);
+    }
+    set_setting('upg_meal_tiers2', '1');
+}
