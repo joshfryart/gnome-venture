@@ -1,11 +1,15 @@
--- Lotus Perch (pl-jdf-6), yard sprite 64x64. Opus second pass (c15/opus2), built on the Haiku idea.
+-- Lotus Perch (pl-jdf-6), yard sprite 64x64. Opus richness pass (c15/opus3), built on c15/opus2.
 -- Bloomcaller, rare, Lair of the Jade Dragon-fly. "A pink lotus where the jade dragon-fly naps, humming with
 -- its wingbeat."
 -- A true lotus: pointed petals in three layers (four back petals fanned up, two side petals, one broad front
 -- petal that holds the face), pale at the base and deeper pink at the tips, fine lengthwise veins, a gold stamen
 -- fringe in the cup, sitting on a notched lily pad on a ring of ripples.
 -- Haiku weakness fixed: round paw-like blobs read as a pink paw print; now pointed, veined, layered petals.
--- quirk: a little jade dragonfly naps on the tip of a back petal, wings folded, eyes shut, "z" floating up.
+-- quirk: a little jade dragonfly naps on its head, wings folded, eye shut, "z" floating up; its wings still hum
+-- (tiny hum ticks off the wing tips: "humming with its wingbeat").
+-- richness: lilac bounce and rim light on every petal, paler petal bases, waxy pale flecks and radial veins on the
+-- pad with a lit rim and cool bounce, gold-ringed dragonfly tail, glassy wing glints.
+-- closer look: a round dewdrop resting on the left side petal (glint upper-left, dark edge lower-right).
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
@@ -20,10 +24,11 @@ local JADE = { "#16403a", "#1f6650", "#2f9460", "#55bf6a", "#9ae07c", "#d8f6aa" 
 -- lily pad with a notch
 local pad = c:ellipse(32, 50, 24, 6)
 pad:cut(c:poly{ { 44, 50 }, { 60, 45 }, { 60, 48 } })
-local pI, pT = O.shade(c, pad, PAD, { R = 4, amb = .3, wrap = .4, rim = true, bounce = "#3a6a8a", bmax = 2 })
+local pI, pT = O.shade(c, pad, PAD, { R = 4, amb = .3, wrap = .4, rim = true, bounce = "#4f8eaa", bmax = 2 })
 O.tex(c, pI, pT, PAD, function(x, y, i) -- radial veins from the centre
   local a = math.atan((y - 50) * 4, x - 32)
   if math.abs(((a / math.pi) * 9) % 1 - .5) < .06 and i >= 3 then return -1 end
+  if H(x, y, 31) > .93 and i >= 3 and i <= 5 then return 1 end -- waxy pale flecks
 end)
 
 local function petal(base, tip, W, o)
@@ -77,12 +82,19 @@ for _, w in ipairs({ { { 29, 16 }, { 32, 14 }, { 35, 13 }, { 39, 12 } }, { { 29,
   O.shadeN(c, wm, wn, { "#4c8aa6", "#7ab8c8", "#a6dcd8", "#cdf0e6", "#eefcf2" }, { amb = .5, wrap = .5, cuts = { .2, .4, .6, .8 }, sep = "#4c8aa6" })
 end
 O.dots(c, { { 38, 12 }, { 40, 15 } }, "#f5b82e") -- pterostigma
+O.dots(c, { { 31, 14 }, { 32, 15 } }, "#eefcf2") -- wing glints
+
+-- dewdrop on the left side petal
+O.shade(c, c:ellipse(16, 35, 1.6, 1.6), { "#3a6a8a", "#7ab8c8", "#b9e2f5", "#e4f6ff" }, { sphere = { 15, 34, 2.5 }, amb = .35, cuts = { .3, .55, .8 }, sep = "#3a6a8a" })
+O.dot(c, 15, 34, "#e4f6ff")
 
 O.done(c, "pl-jdf-6-yard", function(c)
   local function put(x, y, h) if not c:get(x, y) then c:put(x, y, h) end end
   -- z z floating up from the napper
   for _, p in ipairs({ { 27, 6 }, { 28, 6 }, { 29, 6 }, { 28, 7 }, { 27, 8 }, { 28, 8 }, { 29, 8 } }) do put(p[1], p[2], P.ink) end
   for _, p in ipairs({ { 25, 11 }, { 26, 11 }, { 25, 12 }, { 26, 12 } }) do put(p[1], p[2], P.ink) end
+  -- hum ticks off the napping dragonfly's wing tips
+  for _, p in ipairs({ { 43, 11 }, { 44, 10 }, { 44, 14 }, { 45, 13 }, { 45, 16 }, { 46, 16 } }) do put(p[1], p[2], P.ink) end
   -- ripples around the pad
   for _, r in ipairs({ { 6, 52, 3 }, { 55, 54, 3 }, { 10, 57, 3 }, { 50, 58, 4 } }) do
     for x = r[1], r[1] + r[3] - 1 do put(x, r[2], "#8bc4ea") end
