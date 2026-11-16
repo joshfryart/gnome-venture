@@ -15,12 +15,12 @@ local PRIM = { "#2f1f33", "#4a2f4c", "#6e4668" }
 local WAT  = { "#1d4866", "#2c6f8f", "#4598b0", "#6fc2c8", "#a8e2d8", "#d4f4e8" }
 local BNC  = "#7a5a8a"
 
-local pool = c:ellipse(17, 31.5, 12, 2)
+local pool = c:ellipse(17, 31, 12, 1.5)
 local wb = {} pool:each(function(x, y) if y <= 30 then wb[K(x, y)] = 2 end end)
 O.shade(c, pool, WAT, { R = 1, bias = wb, amb = .3, wrap = .4 })
-O.mark(c, { { 13, 32 }, { 14, 32 }, { 19, 32 }, { 20, 32 } }, WAT[6])
+O.mark(c, { { 13, 31 }, { 14, 31 }, { 19, 31 }, { 20, 31 } }, WAT[6])
 
-O.flat(c, c:rect(16, 24, 16, 31), LEG[3], "leg") O.flat(c, c:rect(17, 24, 17, 31), LEG[2], "leg")
+O.flat(c, c:rect(16, 24, 16, 30), LEG[3], "leg") O.flat(c, c:rect(17, 24, 17, 30), LEG[2], "leg")
 O.dot(c, 16, 27, LEG[4]) O.dot(c, 17, 27, LEG[3])
 -- folded leg
 O.flat(c, c:line({ { 19, 23 }, { 21, 26 } }, 1), LEG[3], "leg2") O.flat(c, c:line({ { 21, 26 }, { 18, 27 } }, 1), LEG[2], "leg2")
@@ -50,5 +50,5 @@ for _, f in ipairs({ { 9, 11, 7, 8 }, { 11, 12, 10, 8 }, { 13, 13, 14, 9 } }) do
   O.dot(c, f[3], f[4], PRIM[3])
 end
 
-O.shift(c, 1, 1)
+O.shift(c, 1, 0)
 O.done(c, "th-flamingo-flick-perch")

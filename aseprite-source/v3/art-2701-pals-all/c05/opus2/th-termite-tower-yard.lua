@@ -13,7 +13,7 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("th-termite-tower-yard", 64)
 
-local LAT = { "#3d1a1d", "#68251f", "#94392a", "#bd5536", "#dc7b4a", "#f0a56c" }
+local LAT = { "#3a161d", "#621e22", "#8e2c2a", "#b43f33", "#d4614a", "#ec8f6c" }
 local TRM = { "#7a4a2e", "#c99a64", "#ecd2a4", "#f8ead0" }
 local TH  = { "#5a2e1c", "#a65a2a", "#d88a3c" }
 local BNC = "#6a4a6e"
@@ -53,10 +53,6 @@ for _, v in ipairs({ { 31, 13, 2 }, { 17, 25, 1 }, { 47, 32, 1 }, { 29, 25, 1 },
   O.mark(c, pts, LAT[1]) O.mark(c, lip, LAT[6])
 end
 
--- stubby mud arms
-O.shade(c, c:ellipse(21.5, 46, 2.5, 3.5), LAT, { R = 1, amb = .3, sep = LAT[1], rim = true })
-O.shade(c, c:ellipse(42.5, 46, 2.5, 3.5), LAT, { R = 1, amb = .25, sep = LAT[1], bounce = BNC, bmax = 2 })
-
 -- smug face
 c:eyeLocked(25, 36) c:eyeLocked(34, 36)
 O.mark(c, { { 24, 34 }, { 25, 34 }, { 26, 34 }, { 27, 35 }, { 28, 35 }, { 29, 35 } }, LAT[1]) -- brows slope in: smug
@@ -66,15 +62,16 @@ O.mark(c, { { 29, 44 }, { 30, 44 }, { 31, 44 }, { 32, 44 }, { 33, 43 }, { 34, 42
 O.mark(c, { { 35, 42 } }, LAT[2])
 
 -- quirk: tiny termite on the right shoulder of the spire, heaving one red grain up
-local tx, ty = 38, 18
-O.flat(c, c:rect(tx, ty, tx + 1, ty + 1), TRM[2], "termite")      -- abdomen
-O.flat(c, c:rect(tx + 2, ty - 1, tx + 2, ty), TRM[3], "termite")   -- thorax
-O.flat(c, c:rect(tx + 3, ty - 2, tx + 4, ty - 1), TH[2], "thead")  -- head
-O.dot(c, tx, ty, TRM[3]) O.dot(c, tx + 3, ty - 2, TH[3])
-O.dots(c, { { tx, ty + 2 }, { tx + 2, ty + 1 } }, TRM[1])           -- legs on the mound
--- the grain, held up in front of its head
-local g = c:ellipse(tx + 5.5, ty - 4.5, 1.5, 1.5)
+local tx, ty = 37, 19
+O.flat(c, c:rect(tx, ty, tx + 2, ty + 1), TRM[3], "termite")       -- pale abdomen
+O.dot(c, tx, ty + 1, TRM[2]) O.dot(c, tx + 1, ty + 1, TRM[2]) O.dot(c, tx, ty, TRM[4])
+O.flat(c, c:rect(tx + 3, ty - 1, tx + 3, ty), TRM[2], "termite")   -- thorax
+O.flat(c, c:rect(tx + 4, ty - 2, tx + 5, ty - 1), TH[2], "thead")  -- head
+O.dot(c, tx + 4, ty - 2, TH[3])
+-- the grain, held up over its head
+local g = c:ellipse(tx + 5.5, ty - 5.5, 1.5, 1.5)
 O.shade(c, g, LAT, { R = 1, amb = .45, sep = LAT[1] })
-O.dot(c, tx + 5, ty - 5, LAT[6])
+O.dot(c, tx + 5, ty - 6, LAT[6])
+O.dot(c, tx + 5, ty - 3, TH[1])                                      -- mandible up to the grain
 
 O.done(c, "th-termite-tower-yard")

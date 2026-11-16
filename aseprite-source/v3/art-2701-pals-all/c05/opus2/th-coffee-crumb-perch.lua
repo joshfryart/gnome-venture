@@ -43,9 +43,9 @@ c:cheek(11, 22) c:cheek(23, 22)
 O.dots(c, { { 16, 22 }, { 17, 23 }, { 18, 23 }, { 19, 22 } }, P.ink)
 
 local function wisps(c)
-  local W = { { 18, 4 }, { 17, 3 }, { 17, 2 }, { 18, 1 }, { 18, 0 } }
+  local W = { { 18, 3 }, { 17, 2 }, { 17, 1 } }
   for i, p in ipairs(W) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], i < 3 and STM[4] or STM[2]) end end
-  for _, p in ipairs({ { 20, 3 }, { 21, 2 }, { 20, 1 } }) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], STM[3]) end end
+  for _, p in ipairs({ { 20, 3 }, { 21, 2 } }) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], STM[3]) end end
 end
-O.shift(c, 0, 1)
+O.shift(c, 0, 0)
 O.done(c, "th-coffee-crumb-perch", wisps)

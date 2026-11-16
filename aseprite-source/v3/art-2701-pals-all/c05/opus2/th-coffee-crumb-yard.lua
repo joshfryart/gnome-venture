@@ -101,10 +101,10 @@ O.dot(c, 31, 40, "#c2463f") O.dot(c, 32, 40, "#c2463f")
 
 -- quirk: roasting steam curling up out of the crown dent: soft un-outlined wisps (drawn after the outline)
 local function wisps(c)
-  local W1 = { { 31, 8 }, { 30, 7 }, { 30, 6 }, { 31, 5 }, { 32, 4 }, { 32, 3 }, { 31, 2 }, { 30, 1 }, { 30, 0 } }
-  local W2 = { { 34, 8 }, { 35, 7 }, { 35, 6 }, { 34, 5 }, { 34, 4 }, { 35, 3 }, { 36, 2 } }
+  local W1 = { { 31, 7 }, { 30, 6 }, { 30, 5 }, { 31, 4 }, { 32, 3 }, { 32, 2 }, { 31, 1 } }
+  local W2 = { { 34, 7 }, { 35, 6 }, { 35, 5 }, { 34, 4 }, { 34, 3 }, { 35, 2 } }
   for i, p in ipairs(W1) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], i < 4 and STM[4] or (i < 7 and STM[3] or STM[2])) end end
   for i, p in ipairs(W2) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], i < 3 and STM[3] or STM[2]) end end
 end
-O.shift(c, -1, 2)
+O.shift(c, -1, 1)
 O.done(c, "th-coffee-crumb-yard", wisps)
