@@ -1,0 +1,15 @@
+-- Lotus Perch (pl-jdf-6), perch 36x36. Hand-drawn at size: a small pink lotus standing on the perch.
+local H = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/_h.lua")
+local c, P = H.canvas("pl-jdf-6-perch", 36), H.P
+H.ledge(c)
+c:part(c:line({ {18,25},{18,31} }, 2), "moss")
+c:part(c:ellipse(18, 8, 4, 5), "petal", { sep = true })
+c:part(c:ellipse(11, 14, 4, 4), "petal", { sep = true })
+c:part(c:ellipse(25, 14, 4, 4), "petal", { sep = true })
+c:part(c:ellipse(18, 20, 8, 5), "petal", { sep = true })
+c:eyeSmall(14, 18)
+c:eyeSmall(20, 18)
+c:px(17, 22, P.ink)
+c:px(18, 22, P.ink)
+c:part(c:line({ {25,5},{30,5} }, 1), "moss")
+H.done(c, "pl-jdf-6-perch")
