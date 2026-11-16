@@ -1,7 +1,7 @@
 <?php
 // 2.6.74 stage C: seed the test gnome (sprout) for the v1 Puzzle box pages and their screenshots (tests/pbox_v1.sh, tests/pbox_v1_shots.js).
 // php tests/pbox_v1_seed.php GAME box            tools of four ranks, a worn and a broken tool, repair kits, crops grown, a craft made, guides read, two pals along, level 12
-// php tests/pbox_v1_seed.php GAME fight SIZE [auto]   a creature of that size in front of the gnome (small | medium | large | boss), the fight not dealt yet (the pre-fight screen)
+// php tests/pbox_v1_seed.php GAME fight SIZE [auto] [SLUG]   a creature of that size in front of the gnome (small | medium | large | boss), the fight not dealt yet (the pre-fight screen)
 // php tests/pbox_v1_seed.php GAME midfight SEED  deal the fight and play turns (a greedy player) until the board shows ground, a forecast and an aim and the hand has a piece that cannot be played
 // php tests/pbox_v1_seed.php GAME win|lose       play the fight under way to its end (win: the creature's health is set to 1 hit; lose: your health to 1)
 $_SERVER['SCRIPT_NAME'] = '/adventure.php';
@@ -49,7 +49,7 @@ if (!active_expedition($uid)) { [$ok, $msg] = explore_start($u); }
 $exp = active_expedition($uid);
 if ($what === 'fight') {
     $size = $argv[3] ?? 'small';
-    $c = q_one('SELECT * FROM creatures WHERE size = ? ORDER BY level, id LIMIT 1', [$size]);
+    $c = ($argv[5] ?? '') !== '' ? q_one('SELECT * FROM creatures WHERE slug = ?', [$argv[5]]) : q_one('SELECT * FROM creatures WHERE size = ? ORDER BY level, id LIMIT 1', [$size]);   // 2.7.01: argv[5] = a creature slug
     $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
     save_exp($exp); q('UPDATE expeditions SET hp = 60, max_hp = 60 WHERE id = ?', [$exp['id']]);   // a sturdy gnome, so the seeded fights last
     pfd_ensure(); pfd_row($uid); q('UPDATE pf_decks SET auto_use = ? WHERE user_id = ?', [($argv[4] ?? '') === 'auto' ? 1 : 0, $uid]);

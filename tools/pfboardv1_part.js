@@ -591,7 +591,65 @@
     if (!COSTW || costOk || !planFree || !costPlaced()) return;
     ev.preventDefault(); ev.stopImmediatePropagation(); costOk = true; render();
   }
+  // ---- 2.7.01 guided first turns (learn.md item 4): one line of coaching on the first turns of a gnome's first fights, never in the way; the close button switches it off for good (pfb_guideoff).
+  //      Also the stall nudge (learn.md item 11: from turn data.stall while the bar is under half) and the Hint button (item 10: the server's pick from public information; a free hint, data.hints a fight)
+  var GUIDE = !!data.guide, guideEl = null, guideTx = null, guideGone = false, stallGone = false, hintBtn = document.getElementById('pf-hint'), hintAt = null, hintMsg = '', hintBusy = false, hintLeft = +data.hints || 0;
+  function turnNo() { return +((form.querySelector('[name=turn]') || {}).value || 0); }
+  function barFill() { var f = (+data.fh || 0) / Math.max(0.1, +data.fhmax || 1); if (!ONE && data.charmable && data.barmax) f = Math.max(f, (+data.bar || 0) / data.barmax); return f; }
+  function guideText() {
+    if (playing || submitted || data.won || rewind) return ['', ''];
+    if (hintMsg) return ['hint', hintMsg];
+    if (GUIDE && !guideGone) {
+      if (data.start) return ['guide', moves.length ? 'Tap Confirm start. The ' + (data.foe || 'creature') + ' picks its side of the blank too, hidden.' : selected !== null ? 'Now tap a lit spot beside the blank \u2726: that side of the blank is where you start.' : 'Your first move: tap a piece in your hand.'];
+      if (turnNo() <= 2) return ['guide', moves.length ? 'Your piece fires, then every piece linked to it: that is your chain. Tap End turn.' : selected !== null ? 'Tap a lit spot. Its numbers are what your chain does there: \u2694 hurt, \u273F charm, \u2764\u2212 health you lose.' : 'Tap a piece in your hand. Put it where it links to other pieces, so they fire in your chain.'];
+    }
+    if (+data.stall && turnNo() >= +data.stall && !stallGone && !data.start && barFill() < 0.5) return ['stall', 'Stuck? Link to a Bramble or to your own pieces for a longer chain' + (hintBtn && hintLeft > 0 ? ', or tap Hint.' : '.')];
+    return ['', ''];
+  }
+  function guideDraw() {
+    if (!guideEl) return;
+    var g = guideText(); guideEl.hidden = !g[1]; guideEl.dataset.k = g[0]; if (guideTx.textContent !== g[1]) guideTx.textContent = g[1];
+    if (hintAt && selected === hintAt.i) { var c = boardEl.querySelector('.pfb-lit[data-x="' + hintAt.x + '"][data-y="' + hintAt.y + '"]'); if (c) c.classList.add('pfv-hint'); }
+    tiles.forEach(function (t, i) { t.classList.toggle('pfv-hinted', !!hintAt && i === hintAt.i && !moves.length); });
+    if (hintBtn) { hintBtn.disabled = playing || submitted || !!data.won || !!data.start || hintBusy || (hintLeft <= 0 && !hintAt); var hl = hintBtn.querySelector('small'); if (hl) hl.textContent = String(hintLeft); }
+  }
+  function guideClose() {
+    var k = guideEl.dataset.k;
+    if (k === 'hint') { hintMsg = ''; hintAt = null; }
+    else if (k === 'stall') stallGone = true;
+    else if (k === 'guide') {
+      guideGone = true;
+      var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };
+      fd.append('csrf', qs('csrf')); fd.append('do', 'pfb_guideoff'); fd.append('nonce', qs('nonce'));
+      if (typeof fetch === 'function') fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'pfguide' } }).catch(function () {});
+    }
+    render();
+  }
+  function askHint() {
+    if (hintBusy || playing || submitted || data.won || data.start) return;
+    if (hintAt) { if (selected !== hintAt.i && usable(hintAt.i)) select(hintAt.i); else render(); return; }   // the same turn: the same hint, nothing counted
+    hintBusy = true; render();
+    var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };
+    fd.append('csrf', qs('csrf')); fd.append('do', 'pfb_hint'); fd.append('nonce', qs('nonce')); fd.append('turn', qs('turn'));
+    fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'pfhint' } })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        hintBusy = false;
+        if (!j || !j.ok) { hintMsg = (j && j.err) || 'No hint this time.'; render(); return; }
+        hintAt = { i: j.i, x: j.x, y: j.y }; hintMsg = '\uD83D\uDCA1 ' + j.why; hintLeft = j.left;
+        if (selected !== j.i && usable(j.i)) select(j.i); else render();
+      })
+      .catch(function () { hintBusy = false; hintMsg = 'No hint: the server did not answer.'; render(); });
+  }
+  function guideBoot() {
+    guideEl = document.createElement('div'); guideEl.className = 'pfv-guide'; guideEl.id = 'pfv-guide'; guideEl.setAttribute('role', 'status'); guideEl.hidden = true;
+    guideTx = document.createElement('span'); guideTx.className = 'gt'; guideEl.appendChild(guideTx);
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'gx'; x.textContent = '\u2715'; x.setAttribute('aria-label', 'Hide this tip'); x.title = 'Hide this tip'; x.addEventListener('click', guideClose); guideEl.appendChild(x);
+    var at = rowEl || boardEl; at.parentNode.insertBefore(guideEl, at);
+    if (hintBtn) hintBtn.addEventListener('click', askHint);
+  }
   function v1Boot() {
+    guideBoot();
     if (go) go.addEventListener('click', costAsk, true);
     if (pform && FREEP) pform.addEventListener('submit', function (e) { if (submitted || playing) { e.preventDefault(); return; } submitted = true; go.disabled = true; undo.disabled = true; });
     root.addEventListener('submit', ghostSnap, true);

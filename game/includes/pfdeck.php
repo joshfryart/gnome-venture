@@ -741,6 +741,14 @@ function pfd_start_fight(array $u, array $stats, array $typeBonus, bool $canSnac
     return pfd_tiles(pfd_fight_entries($src), $stats, $typeBonus, (string)$src['calling'], (int)$src['ctier'], $canSnack);
 }
 
+/** 2.7.01 fixed first fight: the default kit's 10 pieces (PFD_CORE + PFD_KIT_DEFAULT), whatever the gnome packed, without gear (tools, pals, wearables); the Snack piece is the Breather and the calling piece is Taunt, so every new gnome gets the same deal. */
+function pfd_first_tiles(array $u, array $stats): array
+{
+    $src = pfd_sources($u);
+    $kit = array_values(array_filter(pfd_build(['starter' => null, 'state' => [], 'calling' => ''] + $src)['pieces'], fn($p) => !empty($p['starter'])));   // no calling: the Taunt piece, as for any gnome without one
+    return pfd_tiles($kit, $stats, [], '', 1, false);
+}
+
 /** A fight is over: its tool wear is saved. Returns a line for the log for each tool that broke. */
 function pfd_end_fight(array $u, array $s): array
 {

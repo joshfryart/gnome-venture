@@ -278,7 +278,7 @@ function trail_token_event(array $u, array &$exp, string $kind, string $boss = '
         $cap = exp_easy_cap($u, $exp);
         $c = $kind === 'E' ? trail_pick_fixed($scene, $cap, $boss)
             : ($kind === 'M' ? ($cap > 0 || !$mini ? null : trail_extra_mini_creature($mini))   // an easy road never meets it: a find instead
-            : pick_creature($scene['land'], $scene['level'], false, false, $cap));
+            : learner_creature($u, pick_creature($scene['land'], $scene['level'], false, false, $cap), (string)$scene['land'], (int)$scene['level']));   // 2.7.01: a learner's creature (random fights only)
         if ($c) {
             $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
                 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);

@@ -1,0 +1,47 @@
+<div class="gvnotes">
+<h1>Puzzle combat as it plays now</h1>
+<p class="lede">Game 2.7.00 with the 2.7.01 learner rules, playable below on the real rules engine. In the game these rules are still behind the <code>pfight_v1</code> setting (Off / Admins only), and only fights started after an update get them. Tuning (top right of the demo) switches the rules on and off and changes their numbers.</p>
+<details open><summary>New since the last demo (2.6.985)</summary>
+<h2>The chain</h2>
+<ul>
+<li><b>A chain fires in a fixed order:</b> environment pieces, then Guard and Soothe, then Trick, then Hurt and Charm, then Heal. Pieces of the same kind keep their link order. The piece you placed shows up when its chain starts.</li>
+<li><b>No free creature piece.</b> The board no longer puts a piece out for the creature at the end of your turn.</li>
+<li><b>Swarm grows</b> (Critters): one piece a turn again, and its Hurt hits +1 for every 2 of its other pieces on the board (up to +2).</li>
+<li><b>Poison ticks are flat</b> (the piece's own value over 2 or 3), and Evade up at the end of the round stops the tick.</li>
+<li><b>A creature's heal empties its Yield bar</b>, the Hurt part first, then the Charm part.</li>
+</ul>
+<h2>Your first fights</h2>
+<ul>
+<li><b>Learner rules</b> for a gnome's first 3 finished fights: creature pieces ×0.8, no creature tags, no Thornburst. The 4th fight opens with a <b>New today</b> line. Tuning has a <i>Learner fights</i> slider (0 turns it off) and counts the fights you have finished.</li>
+<li><b>Costly spots.</b> A lit spot whose chain costs you health has a red edge and says why. In your first 5 fights, End turn asks once before such a move when a free spot was open.</li>
+<li>The <b>?</b> sheet says how a fight ends, what the lit-spot numbers mean and what a combo is.</li>
+</ul>
+<h2>The Puzzle box</h2>
+<ul>
+<li><b>New pieces arrive switched off</b> until you pack them. The sample gnome's crop, craft and region pieces start in the Collection for that reason.</li>
+<li><b>Slots.</b> The Larder holds crop pieces (3, 4 from level 10, 5 from 20). Keepsakes hold wearables (1, 2 from level 15, 3 from 25, 4 from 40). The pips beside the box title count them.</li>
+<li><b>Wearables</b> (the 🧵 filter): the sample gnome owns Work Gloves (Firm Grip, Hurt with the Leech knack), a Lined Travel Cloak (Wrap Up, Guard with Mend and Spiky), the Wayfarer's Hat cut b (Tip Back, Soothe) and Flood Boots (Puddle Hop, Guard with Evade and Spiky). It is level 15, so it can pack two. The Rare cap counts wearables last, so a Fine wearable never pushes a belt tool out.</li>
+</ul>
+</details>
+<details><summary>One rule per creature class</summary>
+<div class="scroll"><table>
+<tr><th>Class</th><th>Rule</th></tr>
+<tr><td>Critter</td><td><b>Swarm.</b> Its Hurt hits +1 for every 2 of its other pieces on the board, up to +2. Use up or outlast its pieces to shrink it.</td></tr>
+<tr><td>Bird</td><td><b>Two aims.</b> A second aim on another cell. Take the first cell and it plays the second; take both and it picks again.</td></tr>
+<tr><td>Beast</td><td><b>Grudge.</b> Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands clears it.</td></tr>
+<tr><td>Water</td><td><b>Current.</b> After its piece lands, one of your touching pieces slides a cell away.</td></tr>
+<tr><td>Plant / Fungus</td><td><b>Grows.</b> A Bramble appears beside its piece (one of its own at a time).</td></tr>
+<tr><td>Reptile / Amphibian</td><td><b>Venom trail.</b> A cell its piece left is venom for 2 turns. Your piece there poisons you.</td></tr>
+<tr><td>Boss</td><td><b>Two turns.</b> It also shows the piece it plays next round.</td></tr>
+</table></div>
+<p>Try the Aphid Swarm (Critter), the Carrion Crow (Bird) and the Grass Snake (Reptile) from Creatures.</p>
+</details>
+<details><summary>About this demo</summary>
+<ul>
+<li>The rules are <code>tools/pfengine.js</code>, the JS port the tests check against the PHP engine. The page scripts and stylesheets are the game's own; the demo plays the server.</li>
+<li>Not here yet: the fixed first fight, guided first turns, the Hint button and the defeat recap (being built for 2.7.01), the legendary crop pieces, loot and the map.</li>
+<li>Pieces still use the older piece art (<code>pfparts.js</code>), not the jigsaw art the game now draws.</li>
+<li>Fixed in this rebuild: after End turn a frozen copy of the last turn covered the board for 8 seconds, hiding the replay. The stylesheet is also cut to the rules the demo uses, so each step of the replay is quicker.</li>
+</ul>
+</details>
+</div>

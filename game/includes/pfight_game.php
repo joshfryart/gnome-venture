@@ -58,6 +58,144 @@ function pf_new_today_html(array $s): string
     if (empty($s['newt']) || (int)$s['turn'] > 1) return '';
     return '<div class="pfv-new" id="pfv-new" role="status"><b>New today:</b> ' . implode(' ', array_map('e', (array)$s['newt'])) . '</div>';
 }
+/** 2.7.01 fixed first fight (learn.md item 12): the creature, the kit and the deal of a new gnome's first fight are always the same, so the coaching can point at real cells. */
+const PF_FIRST_CREATURE = 'garden-snail';   // learn.md: Garden Snail and Aphid Swarm both 97% for a careless level 1 player; the Snail has no class rule (the Swarm grows)
+/** Is the next fight of this gnome the fixed first fight? (setting pfight_first_fixed, v1 rules, no finished v1 fight yet, not a guest) */
+function pf_first_due(array $u): bool
+{
+    return setting('pfight_first_fixed') !== '0' && pfight_on($u) && pfight_v1_on($u) && !is_guest($u) && pf_learn_fights((int)$u['id']) === 0;
+}
+/** Is this creature the gnome's fixed first fight? */
+function pf_first_fight(array $u, array $c): bool
+{
+    return (string)($c['slug'] ?? '') === PF_FIRST_CREATURE && pf_first_due($u);
+}
+/** The deal of the fixed first fight (setting pfight_first_seed). */
+function pf_first_seed(): int
+{
+    $v = (int)setting('pfight_first_seed');
+    return $v > 0 ? $v : 4;
+}
+/**
+ * 2.7.01: the creature a learner meets. A new gnome's first fight is the Garden Snail; in the other learner fights (pfight_learner_n) nothing above the gnome's own level
+ * (learn.md: a level 1 gnome met a level 3 Sand Flea Pack, 27% wins). Called where a road, a wild step or a Trail tile picks a random creature; bosses and fixed spots are left alone.
+ */
+function pf_learner_creature(array $u, ?array $c, string $land, int $level): ?array
+{
+    if (!$c || ($c['size'] ?? '') === 'boss' || !pfight_on($u) || !pfight_v1_on($u) || is_guest($u)) return $c;
+    if (pf_first_due($u) && ($snail = q_one('SELECT * FROM creatures WHERE slug = ?', [PF_FIRST_CREATURE]))) return $snail;
+    $cap = max(1, (int)$u['level']);
+    if (pf_learner_left((int)$u['id']) && (int)$c['level'] > $cap) return pick_creature($land, $level, false, false, $cap) ?? $c;
+    return $c;
+}
+
+/** 2.7.01 guided first turns: one-line coaching in a gnome's first fights (setting pfight_guide_n, default 2), until the gnome switches it off (pf_learn.guide_off). */
+function pf_guide_on(int $uid): bool
+{
+    $n = setting('pfight_guide_n'); $n = $n === '' ? 2 : (int)$n;
+    if ($n <= 0) return false;
+    try { $r = q_one('SELECT fights, guide_off FROM pf_learn WHERE user_id = ?', [$uid]); } catch (Throwable $e) { return pf_learn_fights($uid) < $n; }
+    return !$r || ((int)$r['fights'] < $n && (int)$r['guide_off'] === 0);
+}
+/** The gnome tapped the coaching line's close button: no more coaching, in this fight or the next. */
+function pf_guide_off(int $uid): void
+{
+    try {
+        if (q_val('SELECT 1 FROM pf_learn WHERE user_id = ?', [$uid])) q('UPDATE pf_learn SET guide_off = 1 WHERE user_id = ?', [$uid]);
+        else db_insert('pf_learn', ['user_id' => $uid, 'fights' => 0, 'guide_off' => 1]);
+    } catch (Throwable $e) { /* the column arrives with the upgrade */ }
+}
+
+/** 2.7.01 hint button: free hints a fight (setting pfight_hint_n, default 3; 0 = no button). */
+function pf_hint_n(): int
+{
+    $n = setting('pfight_hint_n');
+    return $n === '' ? 3 : max(0, (int)$n);
+}
+/**
+ * The hint for the turn: the placement the learner bot would pick (pfb_search for your side: your chain on a copy, scored by what it does to the bar, your health and guard,
+ * plus the bramble under it and the announced environment), and why in one line. Public information only: the board, your hand, the creature's shown aim, the forecast.
+ * The creature's real reply, its hand and both draw piles are never looked at (pfb_search for 'me' places your piece and fires your chain; nothing of the creature's turn runs).
+ * Returns ['i' => hand index, 'x', 'y', 'why'] or null (the opening, a fight that is over, nothing fits).
+ */
+function pf_hint(array $s, string $foe): ?array
+{
+    if (!empty($s['over']) || !empty($s['start']) || empty($s['v1'])) return null;
+    $pub = $s;   // the hint's copy: the creature's hand and the draw piles emptied, so nothing hidden can reach the choice
+    $pub['foe']['hand'] = []; $pub['foe']['draw'] = []; $pub['me']['draw'] = [];
+    $m = pfb_search($pub, 'me');
+    if ($m === null) return null;
+    [$i, $x, $y] = $m;
+    $q = pfb_cell_preview($s, $i)["$x,$y"] ?? null;
+    $nm = (string)($s['me']['hand'][$i]['n'] ?? 'this piece');
+    $bits = [];
+    if ($q) {
+        if (!empty($q['end'])) $bits[] = 'it ends the fight';
+        if ((int)$q['n'] >= 2) $bits[] = 'your chain fires ' . (int)$q['n'] . ' pieces';
+        if ((int)$q['dmg'] > 0) $bits[] = 'it hurts the ' . $foe . ' ' . (int)$q['dmg'];
+        if ((int)$q['ch'] > 0) $bits[] = 'it charms the ' . $foe . ' ' . (int)$q['ch'];
+        $bits[] = (int)$q['hp'] > 0 ? 'it costs you ' . (int)$q['hp'] . ' health (every other spot is worse)' : 'it costs you no health';
+    }
+    $aim = $s['foe']['plan'] ?? null;
+    if ($aim && (int)($aim['x'] ?? -1) === $x && (int)($aim['y'] ?? -1) === $y) $bits[] = 'it takes the red-marked spot the ' . $foe . ' wanted';
+    return ['i' => (int)$i, 'x' => (int)$x, 'y' => (int)$y, 'why' => $nm . ' here: ' . ($bits ? implode(', ', $bits) : 'the best spot on the board') . '.'];
+}
+/** The hint, answered as JSON (assets/pfboardv1.js posts do=pfb_hint). Counts one of the fight's free hints the first time a turn asks; asking again in the same turn is free. Echoes JSON and exits. */
+function pfight_hint_out(array $u, array $exp): void
+{
+    $out = function (array $o) { header('Content-Type: application/json'); header('Cache-Control: no-store'); echo json_encode($o); exit; };
+    $bad = function (string $why) use ($out) { if (db()->inTransaction()) db()->rollBack(); $out(['ok' => false, 'err' => $why]); };
+    $enc = json_decode((string)$exp['encounter'], true); $c = $enc ? encounter_creature($enc) : null; $s = $enc['pf'] ?? null;
+    if (!$c || !is_array($s) || ($s['mode'] ?? '') !== 'board' || empty($s['v1'])) $bad('There is no fight to give a hint in.');
+    if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) $bad('That page is from another fight. Reload it.');
+    if ((int)($_POST['turn'] ?? -1) !== (int)$s['turn']) $bad('That turn has already passed. Reload the page.');
+    $max = pf_hint_n(); $used = (int)($enc['hints'] ?? 0); $again = (int)($enc['hintturn'] ?? 0) === (int)$s['turn'];
+    if ($max <= 0) $bad('Hints are switched off.');
+    if (!$again && $used >= $max) $bad('No hints left in this fight.');
+    $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));
+    $h = pf_hint($s, (string)$c['name']);
+    if (!$h) $bad(!empty($s['start']) ? 'Any side of the blank is fine to start with.' : 'Nothing fits this turn.');
+    if (!$again) { $enc['hints'] = ++$used; $enc['hintturn'] = (int)$s['turn']; q("UPDATE expeditions SET encounter = ? WHERE id = ? AND status = 'active'", [json_encode($enc), $exp['id']]); }
+    if (db()->inTransaction()) db()->commit();
+    $out(['ok' => true, 'left' => max(0, $max - $used)] + $h);
+}
+
+/** 2.7.01 free retry: after a defeat in a gnome's first fights (setting pfight_retry_n, default 5) "Try again" deals the same creature again. pf_learn already counts the lost fight. */
+function pf_retry_ok(int $uid): bool
+{
+    $n = setting('pfight_retry_n'); $n = $n === '' ? 5 : (int)$n;
+    return $n > 0 && pf_learn_fights($uid) <= $n;   // the lost fight is already counted: the 5th fight lost reads 5
+}
+
+/** 2.7.01 defeat recap (learn.md item 11): where your health went, from the fight's events (hpnow before and after each one). Keys: chain (your own chains firing creature pieces or Thornburst), foe (its turn), poison, env. */
+function pf_loss_add(array &$loss, array $events, int $hp0): void
+{
+    $hp = $hp0;
+    foreach ($events as $e) {
+        if (isset($e['env'])) {   // the environment's turn: each event says what it took from you (hpnow is the health after the whole turn)
+            if ((int)($e['me'] ?? 0) > 0) { $k = $e['env'] === 'poison' ? 'poison' : 'env'; $loss[$k] = ($loss[$k] ?? 0) + (int)$e['me']; }
+            if (isset($e['hpnow'])) $hp = (int)$e['hpnow'];
+            continue;
+        }
+        if (!isset($e['hpnow'])) continue;
+        $d = $hp - (int)$e['hpnow']; $hp = (int)$e['hpnow'];
+        if ($d <= 0) continue;
+        $k = ($e['ta'] ?? $e['by']) === 'me' ? 'chain' : 'foe';
+        $loss[$k] = ($loss[$k] ?? 0) + $d;
+    }
+}
+/** The recap line for the result card ('' when nothing was lost). */
+function pf_loss_line(array $loss, string $foe): string
+{
+    $w = ['foe' => 'to the ' . $foe . '’s pieces', 'chain' => 'to your own chains (creature pieces or a Thornburst you linked)', 'poison' => 'to poison', 'env' => 'to the environment'];
+    $bits = [];
+    arsort($loss);
+    foreach ($loss as $k => $n) if ((int)$n > 0 && isset($w[$k])) $bits[] = (int)$n . ($bits ? ' ' : ' health ') . $w[$k];
+    if (!$bits) return '';
+    $last = array_pop($bits);
+    return 'You lost ' . ($bits ? implode(', ', $bits) . ' and ' . $last : $last) . '.' . (!empty($loss['chain']) ? ' A red-edged spot costs you health: pick another when you can.' : '');
+}
+
 /** One more finished fight for the gnome (called once per fight). */
 function pf_learner_bump(int $uid): void
 {
@@ -88,7 +226,7 @@ function pfight_calc(array $u): array
 }
 
 /** The player side of a fight: stats modifiers, the Puzzle box they packed (plus pals swapping in), HP carried in the expedition. */
-function pfight_me(array $u, array $exp, array $enc = []): array
+function pfight_me(array $u, array $exp, array $enc = [], bool $first = false): array
 {
     [$st, $pals, $bonus] = pfight_calc($u);
     $cal = (string)($u['calling'] ?? '');
@@ -96,6 +234,7 @@ function pfight_me(array $u, array $exp, array $enc = []): array
     $canSnack = snacks_left($u, $enc) > 0 && fight_snacks($u) !== [];   // no snack to eat = a weak Breather instead of a dead Snack tile
     if (pfight_v1_on($u)) {   // 2.6.74, the v1 deck model: the deck the gnome built (starter kit + what they switched on + fight-belt tools + party pals); pals add a piece, they no longer swap one out
         require_once __DIR__ . '/pfdeck.php';
+        if ($first) return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfd_first_tiles($u, $st), 'luck' => max(0, $st['luck'])];   // 2.7.01 fixed first fight: the Bold kit only (no tools, pals, wearables, snacks or upgrades), so the deal is the same for every new gnome
         return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfight_apply_mods(pfd_start_fight($u, $st, $bonus, $canSnack), pfight_mods((int)$u['id'])), 'luck' => max(0, $st['luck'])];
     }
     $deck = pfight_apply_mods(pf_player_deck($st, $cal, max(1, min(3, (int)calling_tier($u))), $pals, [], $bonus, $canSnack, $box), pfight_mods((int)$u['id']));
@@ -164,14 +303,19 @@ function pfight_pal_tiles(array $u): array
 }
 
 /** The fight state inside the encounter ($enc['pf']); created on first sight. Returns the state (also stored in $enc). */
-function pfight_state(array $u, array $exp, array &$enc, array $c): array
+function pfight_state(array $u, array &$exp, array &$enc, array $c): array
 {
     if (empty($enc['pf'])) {   // a new fight starts in the mode the setting says; a fight already under way keeps its own
         $v1 = pfight_v1_on($u);   // the v1 board rules: always a board fight; the state carries $s['v1'], so a fight under way keeps the rules it started with
         $new = $v1 || setting('pfight_mode') === 'board' ? 'pfb_new' : 'pf_new';
-        if ($v1 && pf_learner_left((int)$u['id'])) $v1 = ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1];   // 2.7.01 learner rules: the first fights
-        if ($v1) { require_once __DIR__ . '/pfdeck.php'; $c = pfd_foe_row($c, pfd_exp_region($exp)); }   // the creature's layered deck: 4 base (class) + region + size extras + 3 unique
-        $enc['pf'] = $new(pfight_me($u, $exp, $enc), $c, random_int(1, 0x7FFFFFFE), ['v1' => $v1, 'blank' => setting('pfight_blank') !== '0', 'can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
+        $learn = $v1 && pf_learner_left((int)$u['id']);
+        $first = $v1 && pf_first_fight($u, $c);   // 2.7.01 fixed first fight: fixed kit, fixed deal
+        if ($learn) { $v1 = ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1]; $exp['hp'] = (int)$exp['max_hp']; }   // 2.7.01 learner rules: the first fights (and they start at full health; pfight_html saves it)
+        if ($v1) { require_once __DIR__ . '/pfdeck.php'; $c = pfd_foe_row($c, $first ? '' : pfd_exp_region($exp)); }   // the creature's layered deck: 4 base (class) + region + size extras + 3 unique (the fixed first fight: no region piece)
+        $enc['pf'] = $new(pfight_me($u, $exp, $enc, $first), $c, $first ? pf_first_seed() : random_int(1, 0x7FFFFFFE), ['v1' => $v1, 'blank' => $first || setting('pfight_blank') !== '0', 'can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
+        if ($learn) $enc['pf']['learn'] = 1;
+        if ($first) $enc['pf']['first'] = 1;
+        $enc['hp0'] = (int)$exp['hp'];   // 2.7.01: your health when the fight was dealt (a free retry starts there again)
         if ($v1 && ($nt = pf_new_today((int)$u['id']))) $enc['pf']['newt'] = $nt;   // 2.7.01: the first fight after the learner fights says what is new
     }
     return $enc['pf'];
@@ -200,6 +344,15 @@ function pfight_do(array $u, array &$exp, string $do): bool
     $s = pfight_state($u, $exp, $enc, $c);
     if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) { flash('That page is from another fight. Here is the current one.', 'err'); $exp['encounter'] = json_encode($enc); return false; }   // a stale page can never play into a different fight
     $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));   // the expedition's health is the truth (the flag may have been flipped mid-fight)
+    if ($do === 'pf_retry') {   // 2.7.01 free retry: a lost fight in the first fights is dealt again (same creature, a new deal, your health as it was when the last one was dealt)
+        if (($s['mode'] ?? '') !== 'board' || empty($s['v1']) || ($enc['lost'] ?? '') !== 'defeat' || $s['over'] !== 'defeat' || !pf_retry_ok((int)$u['id'])) return false;
+        $exp['hp'] = max(1, min((int)$exp['max_hp'], (int)($enc['hp0'] ?? $exp['max_hp'])));
+        foreach (['pf', 'lost', 'won', 'replay', 'replay0', 'prev', 'hist', 'histnew', 'snaps', 'snapn', 'snaplast', 'last', 'note', 'loss', 'hints', 'hintturn', 'learnsaved', 'wearsaved', 'stolen', 'snacks'] as $k) unset($enc[$k]);
+        $enc['pfgo'] = 1; $enc['retry'] = (int)($enc['retry'] ?? 0) + 1;
+        exp_log($exp, '🔁 You dust yourself off and face the ' . $c['name'] . ' again.');
+        $exp['encounter'] = json_encode($enc);
+        return false;
+    }
     if ($do === 'pf_finish' && ($s['mode'] ?? '') === 'board' && !empty($s['v1']) && !empty($enc['lost']) && in_array($s['over'], ['defeat', 'stall'], true)) {   // 2.6.78: a LOST fight waited for this button too (its last turn was replayed first): now it ends
         return pfight_lost_end($u, $exp, $c, $s, $enc);
     }
@@ -260,6 +413,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         usort($snacks, fn($a, $b) => $a['heal'] <=> $b['heal']);
         foreach (array_slice($snacks, 0, 1) as $sn) for ($i = 0; $i < $ate; $i++) if (give_item((int)$u['id'], (int)$sn['id'], -1)) $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
         $won = in_array($s['over'], ['seen_off', 'charmed'], true);
+        if (!empty($s['v1'])) { $loss = (array)($enc['loss'] ?? []); pf_loss_add($loss, $r['ev'], (int)$rp0['hp']); $enc['loss'] = $loss; }   // 2.7.01 defeat recap: where your health went
         pfight_unlock((int)$u['id'], array_values(array_filter($r['ev'], fn($e) => empty($e['connect']))), $won);
         $enc['last'] = []; $enc['replay'] = []; $enc['replay0'] = $rp0;
         if ($prev) $enc['prev'] = $prev;
@@ -323,6 +477,13 @@ function pfight_do(array $u, array &$exp, string $do): bool
 /** A fight that did not end in a win: you are knocked out, you slip away, or it loses interest. (2.6.78: a v1 board fight gets here from the Continue button, after its last turn has been replayed.) */
 function pfight_lost_end(array $u, array &$exp, array $c, array $s, array $enc): bool
 {
+    if ($s['over'] === 'defeat' && !empty($s['learn'])) {   // 2.7.01: no knock-out in the learner fights (learn.md item 3): the creature wanders off, the walk goes on, your health is back to full
+        exp_log($exp, '🍂 The ' . $c['name'] . ' has had its fun and wanders off. You sit down, catch your breath and feel yourself again.');
+        $exp['hp'] = (int)$exp['max_hp'];
+        $exp['encounter'] = null;
+        unlock_entries((int)$u['id'], 'creature:' . $c['slug']);
+        return true;
+    }
     if ($s['over'] === 'defeat') {
         fight_ev(['end' => 'ko']);
         knock_out($u, $exp, $c);
@@ -551,12 +712,13 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     $fresh = empty($enc['pf']);
     if ($fresh && pfight_v1_on($u) && !is_guest($u)) {   // 2.6.74 v1 (stage C): nothing is dealt until the gnome has packed a first box and pressed Let's fight on the pre-fight screen
         require_once __DIR__ . '/pfdeck_view.php';
-        if (!pfd_deck($u)['starter']) return pfv_starter_html($u, pfd_deck($u), true) . pfv_assets();
-        if (empty($enc['pfgo'])) return pfv_prefight_html($u, $exp, $c);
+        $first = pf_first_fight($u, $c) || !empty($enc['retry']);   // 2.7.01 fixed first fight: fight first, box later (no box, no pre-fight screen; the box is offered from the next fight); a free retry goes straight back in too
+        if (!$first && !pfd_deck($u)['starter']) return pfv_starter_html($u, pfd_deck($u), true) . pfv_assets();
+        if (!$first && empty($enc['pfgo'])) return pfv_prefight_html($u, $exp, $c);
     }
     $s = pfight_state($u, $exp, $enc, $c);
     if ($fresh) {   // the hand you see must be the hand the server plays: write it only if the row is still exactly what this page read (compare-and-swap)
-        $n = q("UPDATE expeditions SET encounter = ? WHERE id = ? AND status = 'active' AND encounter = ?", [json_encode($enc), $exp['id'], (string)$exp['encounter']])->rowCount();
+        $n = q("UPDATE expeditions SET encounter = ?, hp = ? WHERE id = ? AND status = 'active' AND encounter = ?", [json_encode($enc), (int)$exp['hp'], $exp['id'], (string)$exp['encounter']])->rowCount();   // hp: a learner fight starts at full health (pfight_state)
         if ($n !== 1) {   // another request got there first: show what it stored (or nothing if the fight is already over)
             $row = q_one("SELECT encounter FROM expeditions WHERE id = ? AND status = 'active'", [$exp['id']]);
             $e2 = $row && $row['encounter'] ? json_decode((string)$row['encounter'], true) : null;
@@ -674,8 +836,10 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $lost = isset($v['v1']) && !empty($enc['lost']) && in_array($s['over'], ['defeat', 'stall'], true);   // 2.6.78: a lost v1 fight waits for its Continue button, after the replay
     if ($lost) {
         require_once __DIR__ . '/pfdeck_view.php';
-        $h .= pfv_result_html(['how' => (string)$s['over'], 'name' => (string)$c['name'], 'slug' => (string)($c['slug'] ?? ''), 'size' => (string)($c['size'] ?? 'small'), 'hp' => $s['over'] === 'defeat' ? 0 : (int)$v['hp'], 'max' => (int)$v['max'], 'turns' => (int)$v['turn'], 'wear' => pfv_wear_rows($u, $s)],
-            '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="pf_finish"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn primary" id="pf-end">' . ($s['over'] === 'defeat' ? '🏠 Go home to rest' : 'Continue') . '</button></form>');
+        $retry = $s['over'] === 'defeat' && pf_retry_ok((int)$u['id']);   // 2.7.01 free retry in the first fights
+        $h .= pfv_result_html(['how' => (string)$s['over'], 'name' => (string)$c['name'], 'slug' => (string)($c['slug'] ?? ''), 'size' => (string)($c['size'] ?? 'small'), 'hp' => $s['over'] === 'defeat' ? 0 : (int)$v['hp'], 'max' => (int)$v['max'], 'turns' => (int)$v['turn'], 'wear' => pfv_wear_rows($u, $s), 'learn' => !empty($s['learn']), 'recap' => $s['over'] === 'defeat' ? pf_loss_line((array)($enc['loss'] ?? []), (string)$c['name']) : ''],
+            ($retry ? '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="pf_retry"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn primary" id="pf-retry">🔁 Try again</button></form>' : '')
+            . '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="pf_finish"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn' . ($retry ? '' : ' primary') . '" id="pf-end">' . ($s['over'] === 'defeat' && empty($s['learn']) ? '🏠 Go home to rest' : 'Continue') . '</button></form>');
         $h .= '<button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
     } elseif ($won && isset($v['v1'])) {   // v1 (stage C): the result card (win or charm, tool wear, a link to the box) with the End fight button
         require_once __DIR__ . '/pfdeck_view.php';
@@ -687,6 +851,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $h .= '<button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
     } else {
         $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>' . (!empty($s['start']) ? 'Confirm start' : 'End turn') . '</button>'
+            . (isset($v['v1']) && empty($s['start']) && pf_hint_n() > 0 ? '<button type="button" class="btn pfv-hintb" id="pf-hint" title="A free hint: the spot a careful player would pick, from what you can see" aria-label="Hint: light the spot a careful player would pick (free; hints left in this fight shown)">💡 Hint <small>' . max(0, pf_hint_n() - (int)($enc['hints'] ?? 0)) . '</small></button>' : '')   // 2.7.01
             . (isset($v['v1']) && !empty($v['flip']['on']) ? '<button type="button" class="btn pfv-flipb" id="pf-flip" disabled aria-label="Flip: swap the top and bottom edges of the piece you picked (' . (!empty($v['v1']['flip1']) ? 'once a turn, free' : 'free, as often as you like') . ')">⇅ Flip</button>' : '')
             . ($v['can_run'] && !$s['over'] ? '<form method="post" class="inline pf-runf">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn" title="Run away" aria-label="Run away">🏃</button></form>' : '') . '</div>';
     }
@@ -718,6 +883,9 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $data['tripped'] = (int)($s['me']['tripped'] ?? 0);   // 2.6.76: you drew one fewer this turn
         if ((int)$s['turn'] === 1 && empty($s['start'])) $data['opened'] = count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));   // the creature's opening pieces
         $data['costwarn'] = pf_cost_warn((int)$u['id']);   // 2.7.01: End turn asks once before a move that costs health (first fights)
+        $data['guide'] = pf_guide_on((int)$u['id']);   // 2.7.01 guided first turns (the script shows them on the opening and turns 1-2)
+        $data['hints'] = max(0, pf_hint_n() - (int)($enc['hints'] ?? 0)); $data['hintmax'] = pf_hint_n();   // 2.7.01 the Hint button: free hints left in this fight
+        $st = setting('pfight_stall_turn'); $data['stall'] = $st === '' ? 8 : max(0, (int)$st);   // 2.7.01 the stall nudge: from this turn while the bar is under half (0 = never)
         $data['box'] = url('puzzlebox.php'); $data['turncap'] = PF_TURN_CAP; $data['toolwear'] = PFB_TOOL_WEAR; $data['fires'] = PFB_FOE_FIRES;
         $data['tools'] = (object)[];
         if (!empty((array)$v['wear']) || array_filter(array_column($data['hand'], 'tool'))) {

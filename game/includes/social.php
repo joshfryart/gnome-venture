@@ -117,6 +117,7 @@ function social100_schema(string $PK, string $ID, string $END): array
     $t[] = "CREATE TABLE IF NOT EXISTS pf_learn (
         user_id $ID NOT NULL,
         fights INT NOT NULL DEFAULT 0,
+        guide_off INT NOT NULL DEFAULT 0,
         PRIMARY KEY (user_id)
     )$END";
     $t[] = "CREATE TABLE IF NOT EXISTS wear_lined (
@@ -157,6 +158,7 @@ function social100_schema(string $PK, string $ID, string $END): array
         ['users', 'fw_start', 'VARCHAR(10) NULL'],      // v1.0.0: the Hollow date Wren's First Week began
         ['users', 'pulse_show', 'INT NOT NULL DEFAULT 1'],  // v1.0.0: 1 = may be named in the Hollow Pulse "About now" line (still needs an open garden)
         ['users', 'away_from', 'DATETIME NULL'],        // v1.0.0: when the gnome was last seen before a long absence (cleared by the welcome-back page)
+        ['pf_learn', 'guide_off', 'INT NOT NULL DEFAULT 0'],   // 2.7.01: 1 = the gnome closed the fight coaching (pfight_game.php pf_guide_on)
     ];
     return [$t, $i, $c];
 }
