@@ -59,7 +59,7 @@ end
 
 -- quirk: two sleeping owlets in the hollow
 for _, o in ipairs({ { 26, 29 }, { 37, 29 } }) do
-  local h = c:ellipse(o[1], o[2] - 1, 4, 3.5)
+  local h = c:ellipse(o[1], o[2] - 2, 4.5, 4)
   h:cut(c:rect(0, o[2] + 2, 63, 63))
   O.shade(c, h, OWL, { sphere = { o[1] - 1, o[2] - 2, 5 }, amb = .3, wrap = .5, cuts = { .25, .45, .65, .85 }, sep = OWL[1] })
   O.dots(c, { { o[1] - 3, o[2] - 1 }, { o[1] - 2, o[2] }, { o[1] - 1, o[2] - 1 }, { o[1] + 1, o[2] - 1 }, { o[1] + 2, o[2] }, { o[1] + 3, o[2] - 1 } }, OWL[1]) -- shut eyes
