@@ -240,15 +240,17 @@ function trail_pick_fixed(array $scene, int $cap, string $boss): ?array
 {
     $land = (string)$scene['land'];
     $level = (int)$scene['level'];
-    if ($cap > 0 || $boss === '') return pick_creature($land, $level, false, false, $cap);
+    require_once __DIR__ . '/pfdeck.php';
+    $rc = scene_region_code($scene);   // 2.7.01: the variants of a creature turn up only in their regions
+    if ($cap > 0 || $boss === '') return pick_creature($land, $level, false, false, $cap, $rc);
     $want = $boss === 'boss' ? 'boss' : 'large';
     $pool = array_values(array_filter(road_rows('creatures'), fn($c) => ($c['landscapes'] === 'any' || in_array($land, array_map('trim', explode(',', (string)$c['landscapes'])), true))
-        && $c['size'] === $want && (int)$c['level'] <= $level + ($want === 'boss' ? 8 : 4)));
+        && $c['size'] === $want && (int)$c['level'] <= $level + ($want === 'boss' ? 8 : 4) && pfd_creature_in_region((string)$c['slug'], $rc)));
     if ($pool) {
         $b = $pool[array_rand($pool)];
         return (int)$b['level'] < $level ? scale_creature($b, $level) : $b;
     }
-    return pick_creature($land, $level, $boss === 'boss', false, $cap);
+    return pick_creature($land, $level, $boss === 'boss', false, $cap, $rc);
 }
 
 /** v2.6.40: the 'extra_minibosses' entry of an authored section standing on this tile, or null. */
@@ -278,7 +280,7 @@ function trail_token_event(array $u, array &$exp, string $kind, string $boss = '
         $cap = exp_easy_cap($u, $exp);
         $c = $kind === 'E' ? trail_pick_fixed($scene, $cap, $boss)
             : ($kind === 'M' ? ($cap > 0 || !$mini ? null : trail_extra_mini_creature($mini))   // an easy road never meets it: a find instead
-            : pick_creature($scene['land'], $scene['level'], false, false, $cap));
+            : pick_creature($scene['land'], $scene['level'], false, false, $cap, scene_region_code($scene)));
         if ($c) {
             $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
                 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);

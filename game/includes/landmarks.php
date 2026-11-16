@@ -342,7 +342,7 @@ function delve_next(array $u, array &$exp): void
     exp_log($exp, '🚪 Room ' . $room . ' of ' . DELVE_ROOMS . ' (danger level ' . $lvl . ').' . ($rl !== '' ? ' ' . $rl : ''));
     if ($lantern && ($wear = tool_use((int)$u['id'], 'lantern'))) exp_log($exp, $wear);   // v0.7.86: a lit room wears the lantern (Glowcap: never)
     if ($room === DELVE_ROOMS || $roll <= 45) {
-        $c = pick_creature($land, $lvl + ($room === DELVE_ROOMS ? 2 : 0), false);
+        $c = pick_creature($land, $lvl + ($room === DELVE_ROOMS ? 2 : 0), false, false, 0, scene_region_code(['region_id' => $lm['region_id'] ?? 0]));
         if ($c) {
             $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100), 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
             exp_log($exp, ($room === DELVE_ROOMS ? '🛡️ The chest is guarded by ' : '⚔️ ') . (preg_match('/^[AEIOU]/i', $c['name']) ? 'an ' : 'a ') . $c['name'] . '!');

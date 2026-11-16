@@ -965,21 +965,51 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     return false;
 }
 
+/** 2.7.01: may this drop row roll here? Gates: `reg` (region codes joined by /), `lvmin`, `lvmax` (the creature's fight level). A row with no gate columns is open. */
+function creature_drop_open(array $dr, string $region, int $level): bool
+{
+    $reg = (string)($dr['reg'] ?? '');
+    if ($reg !== '' && !in_array($region, explode('/', $reg), true)) return false;
+    if (isset($dr['lvmin']) && $dr['lvmin'] !== '' && $level < (int)$dr['lvmin']) return false;
+    if (isset($dr['lvmax']) && $dr['lvmax'] !== '' && $level > (int)$dr['lvmax']) return false;
+    return true;
+}
+
+/** 2.7.01: [min, max] Petals a win over this creature gives (data/pf_creatures.txt; [0, 0] for a creature the file does not list). */
+function creature_petal_range(array $c): array
+{
+    require_once __DIR__ . '/pfdeck.php';
+    $r = pfd_creature_rows()[(string)($c['slug'] ?? '')] ?? null;
+    return $r ? [(int)$r['petals'][0], (int)$r['petals'][1]] : [0, 0];
+}
+
+/** 2.7.01: the XP of a win before outgrown-area scaling: the creature's xp times the row's exp multiplier (1.0 for a creature the file does not list). */
+function creature_win_xp(array $c): int
+{
+    require_once __DIR__ . '/pfdeck.php';
+    $r = pfd_creature_rows()[(string)($c['slug'] ?? '')] ?? null;
+    return $r ? (int)round((int)$c['xp'] * (float)$r['expm']) : (int)$c['xp'];
+}
+
 function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full = false, array $stolen = []): void   // $full (puzzle combat Charm): full XP and a gift instead of drops
 {
     $exp['_won'] = true;   // this request won a fight (not saved): the lair check in adventure.php reads it instead of counting on the log
     $uid = (int)$u['id'];
     $ps = ppal_boons_on() ? ppal_skills($u) : [];   // v2.3.8: Boons spoils (drop chance) and lesson (Fighting XP); [] with no pals along
-    $xp = $peaceful && !$full ? intdiv((int)$c['xp'], 2) : (int)$c['xp'];
+    $cxp = creature_win_xp($c);   // 2.7.01: x the exp multiplier of the creature's row
+    $xp = $peaceful && !$full ? intdiv($cxp, 2) : $cxp;
     $pct = outlevel_percent($u, max((int)($exp['level'] ?? 0), (int)$c['level']));   // v0.7.75: outgrown areas give less XP (drops unchanged); judged by the area, not a weaker creature in it
     $xp = outlevel_scale($xp, $pct);
+    [$pMin, $pMax] = creature_petal_range($c);   // 2.7.01: Petals from the row: half when befriended (not a puzzle Charm), cut in an outgrown area like XP
+    $petals = $pMax > 0 ? random_int($pMin, $pMax) : 0;
+    if ($petals > 0) { if ($peaceful && !$full) $petals = max(1, intdiv($petals, 2)); give_petals($uid, outlevel_scale($petals, $pct), 'creature'); $petals = outlevel_scale($petals, $pct); }
     if (!empty($ps['lesson'])) $xp = intdiv($xp * (100 + (int)$ps['lesson']), 100);
     [$xp, $lvl] = add_action_xp($uid, $xp, 'Fighting', (int)$u['level']);   // v0.9.7: action XP grows with the gnome's level (after the outgrown-area cut)
     require_once __DIR__ . '/jobs.php';
     $fx = ['size' => (string)($c['size'] ?? 'small'), 'peaceful' => $peaceful ? 1 : 0];
     job_event($uid, 'defeat', (string)$c['slug'], 1, $fx);   // v0.9.4 N9: creature slug + size (defeat counts befriended too; peaceful=0 for fights only)
     if ($peaceful) calling_event($uid, 'befriend', (string)$c['slug'], 1, $fx);
-    exp_log($exp, ($peaceful ? '🌸' : '🏆') . ' The ' . $c['name'] . ' is ' . ($peaceful ? 'befriended' : 'defeated') . '! +' . $xp . ' XP' . outlevel_note($pct));
+    exp_log($exp, ($peaceful ? '🌸' : '🏆') . ' The ' . $c['name'] . ' is ' . ($peaceful ? 'befriended' : 'defeated') . '! +' . $xp . ' XP' . ($petals > 0 ? ', +' . $petals . ' Petals' : '') . outlevel_note($pct));
     if ($lvl) exp_log($exp, '🎉 Gnome level ' . $lvl . '! New stat points to spend.');
     if (unlock_entries($uid, 'creature:' . $c['slug'])) {
         exp_log($exp, '📖 New Almanac page: ' . $c['name'] . '!');
@@ -988,7 +1018,9 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full =
     if (!$peaceful || $full) {   // 2.6.63: a puzzle Charm ($full) also rolls the species' special drops (seed, Gardening Guide), which the gift alone skipped; ordinary drops stay for a win
         $scene = exp_scene($exp);
         $luckBonus = max(0, luck_mod($u)) * 2;
+        $dropReg = scene_region_code($scene);   // 2.7.01: @reg and @lv gates are checked before the roll
         foreach (q('SELECT * FROM creature_drops WHERE creature_id = ?', [$c['id']])->fetchAll() as $dr) {
+            if (!creature_drop_open($dr, $dropReg, (int)$c['level'])) continue;
             if ($peaceful && !in_array($dr['special'], ['seed', 'guide'], true)) continue;
             if (random_int(1, 100) > min(100, (int)$dr['chance'] + $luckBonus + (int)($ps['spoils'] ?? 0))) continue;
             if ($dr['special'] === 'seed') {
@@ -1017,7 +1049,7 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full =
         require_once __DIR__ . '/pfight_data.php';
         $g = PF_GIFT[(string)$c['slug']] ?? null;
         $gid = $g ? item_id_by_slug(slugify((string)$g[($u['calling'] ?? '') === 'bloomcaller' ? 1 : 0])) : 0;
-        if (!$gid) $gid = (int)q_val('SELECT cd.item_id FROM creature_drops cd WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL ORDER BY cd.chance DESC, cd.id LIMIT 1', [$c['id']]);
+        if (!$gid) $gid = (int)q_val('SELECT cd.item_id FROM creature_drops cd WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL AND cd.reg IS NULL AND cd.lvmin IS NULL AND cd.lvmax IS NULL ORDER BY cd.chance DESC, cd.id LIMIT 1', [$c['id']]);
         if ($gid) {
             $gname = (string)q_val('SELECT name FROM items WHERE id = ?', [$gid]);
             give_item($uid, $gid, 1);
