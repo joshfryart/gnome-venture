@@ -87,14 +87,73 @@ function pfd_classes(): array
     return $C;
 }
 
-/** data/pf_creature_class.txt: slug => Class. */
-function pfd_class_map(): array
+/** data/pf_creature_class.txt: slug => Class. 2.7.01: a variant of data/pf_creatures.txt has the class of its family's base. */
+function pfd_class_map(bool $reload = false): array
 {
     static $M = null;
-    if ($M !== null) return $M;
+    if ($M !== null && !$reload) return $M;
     $M = [];
     foreach (pf_data_lines('pf_creature_class.txt') as $r) { $p = explode('=', $r[0], 2); if (count($p) === 2) $M[trim($p[0])] = trim($p[1]); }
+    foreach (pfd_creature_rows($reload) as $slug => $r) if (!isset($M[$slug]) && isset($M[$r['family']])) $M[$slug] = $M[$r['family']];
     return $M;
+}
+
+/** The file of the creature pass (tests point $GLOBALS['PF_CREATURES_FILE'] at a fixture). */
+function pfd_creature_path(): string { return (string)($GLOBALS['PF_CREATURES_FILE'] ?? (__DIR__ . '/data/pf_creatures.txt')); }
+
+/**
+ * data/pf_creatures.txt (2.7.01, claude/creature-pass/SPEC.md sec 1): slug => the row's cells, parsed. The old data/creatures.txt rows are never touched; this file adds the variants and gives every row
+ * (base too) its ability, ai style, regions, petals and exp. Keys: slug, family, base (bool: a base row), name, size, lands, regions (list; ['*'] = every region), level, cond, ab (ability ids), abp (id => overrides),
+ * ai (style id), aip (style overrides), deck (null = the base's own), lean (''), drops, petals [min, max], expm, art, desc, new_items (list). A line with fewer than 17 cells is skipped.
+ */
+function pfd_creature_rows(bool $reload = false): array
+{
+    static $R = null, $path = null;
+    $now = pfd_creature_path();
+    if ($R !== null && !$reload && $path === $now) return $R;
+    $R = []; $path = $now;
+    if (!is_file($now)) return $R;
+    foreach (file($now, FILE_IGNORE_NEW_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') continue;
+        $c = array_map('trim', explode('|', $line));
+        if (count($c) < 17 || $c[0] === '') continue;
+        $ab = pfb_ab_parse($c[8]);
+        $ai = $c[9]; $aip = [];
+        if (preg_match('/^([^(]+)\((.*)\)$/', $ai, $m)) { $ai = trim($m[1]); foreach (explode(';', $m[2]) as $kv) { $kv = explode('=', $kv, 2); if (count($kv) === 2 && is_numeric(trim($kv[1]))) $aip[trim($kv[0])] = (float)trim($kv[1]); } }
+        $deck = null; $lean = '';
+        if ($c[10] !== '=' && $c[10] !== '' && $c[10] !== '-') {
+            $dp = explode('/', $c[10], 3);
+            if (count($dp) === 3) {
+                $lean = in_array($dp[1], PFD_FAM, true) ? $dp[1] : '';
+                $deck = [];
+                foreach (explode(';', $dp[2]) as $pc) { $pc = trim($pc); if ($pc === '') continue; $q = explode(':', $pc); if (count($q) >= 6) $deck[] = pfd_foe_cells(array_map('trim', $q)); }
+            }
+        }
+        $pt = array_map('intval', explode('-', $c[12] . '-' . $c[12]));
+        $R[$c[0]] = ['slug' => $c[0], 'family' => $c[1] !== '' ? $c[1] : $c[0], 'base' => $c[2] === '=', 'name' => $c[2] === '=' ? null : $c[2], 'size' => $c[3] === '=' ? null : $c[3], 'lands' => $c[4] === '=' ? null : $c[4],
+            'regions' => ($c[5] === '*' || $c[5] === '') ? ['*'] : array_values(array_filter(array_map('trim', explode(',', $c[5])))), 'level' => $c[6] === '=' ? null : (int)$c[6], 'cond' => $c[7],
+            'ab' => $ab['ids'], 'abp' => $ab['p'], 'ai' => $ai, 'aip' => $aip, 'deck' => $deck, 'lean' => $lean, 'drops' => $c[11], 'petals' => [$pt[0], max($pt[0], $pt[1])],
+            'expm' => is_numeric($c[13]) ? (float)$c[13] : 1.0, 'art' => $c[14], 'desc' => $c[15] === '=' ? null : $c[15], 'new_items' => $c[16] === '-' || $c[16] === '' ? [] : array_values(array_filter(array_map('trim', explode(',', $c[16]))))];
+    }
+    return $R;
+}
+
+/** The creature row with what data/pf_creatures.txt adds: family, regions, ab / abp (abilities), ai / aip (style), petals, expm, and a cond when the row has none. A creature the file does not list is returned as it is. */
+function pfd_creature_overlay(array $c): array
+{
+    $r = pfd_creature_rows()[(string)($c['slug'] ?? '')] ?? null;
+    if (!$r) return $c;
+    if (empty($c['cond']) && $r['cond'] !== '' && $r['cond'] !== '-' && $r['cond'] !== '=') $c['cond'] = $r['cond'];
+    return ['family' => $r['family'], 'regions' => $r['regions'], 'ab' => $r['ab'], 'abp' => $r['abp'], 'ai' => $r['ai'], 'aip' => $r['aip'], 'petals' => $r['petals'], 'expm' => $r['expm']] + $c;
+}
+
+/** Does this creature turn up in this region? '' = no region given (everything fits); a creature the file does not list, or with regions '*', fits everywhere. */
+function pfd_creature_in_region(string $slug, string $region): bool
+{
+    if ($region === '') return true;
+    $r = pfd_creature_rows()[$slug] ?? null;
+    return !$r || in_array('*', $r['regions'], true) || in_array($region, $r['regions'], true);
 }
 
 /** The class of a creature (its row's 'class', else the class file, else Beast). */
@@ -105,15 +164,16 @@ function pfd_class(array $c): string
 }
 
 /** data/pf_creature_pieces.txt: slug => ['lean' => family, 'P' => [piece, x3]]. */
-function pfd_uniques(): array
+function pfd_uniques(bool $reload = false): array
 {
     static $U = null;
-    if ($U !== null) return $U;
+    if ($U !== null && !$reload) return $U;
     $U = [];
     foreach (pf_data_lines('pf_creature_pieces.txt') as $r) {
         if (count($r) < 8) continue;
         $U[$r[0]]['lean'] = $r[1]; $U[$r[0]]['P'][] = pfd_foe_cells(array_slice($r, 2));
     }
+    foreach (pfd_creature_rows($reload) as $slug => $r) if ($r['deck'] && !isset($U[$slug])) $U[$slug] = ['lean' => $r['lean'], 'P' => $r['deck']];   // 2.7.01: the unique 3 of a variant (a base row's deck is `=`: its pieces stay in pf_creature_pieces.txt)
     return $U;
 }
 
@@ -132,7 +192,7 @@ function pfd_region_pieces(): array
 /** The archetype value of a creature ($v in pf_foe_deck): its piece values are multiples of this. */
 function pfd_foe_v(array $c): int
 {
-    return max(1, (int)round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
+    return max(1, (int)pf_round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
 }
 
 /**
@@ -147,7 +207,7 @@ function pfd_foe_pieces(array $c, string $region = ''): array
     $out = []; $n = [];
     $add = function (string $layer, array $q) use (&$out, &$n, $v, $lean) {
         $i = count($out); $n[$layer] = ($n[$layer] ?? -1) + 1;
-        $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
+        $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)pf_round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
             'col' => $i % 5 < 3 ? $lean : (PF_HOLE[$q['t']] ?? 'body'), 'layer' => $layer];
     };
     foreach ($K['classes'][$cl]['P'] as $q) $add('base', $q);
@@ -161,6 +221,7 @@ function pfd_foe_pieces(array $c, string $region = ''): array
 /** The creature row with its layered deck ('deck', read by pf_foe_deck), its class and lean. A boss plays in a set order: one set-up piece (trick, guard, heal), then two Hurt pieces, and again. */
 function pfd_foe_row(array $c, string $region = ''): array
 {
+    $c = pfd_creature_overlay($c);   // 2.7.01: abilities, style, regions, petals from data/pf_creatures.txt
     $deck = pfd_foe_pieces($c, $region);
     if (($c['size'] ?? '') === 'boss') {
         $soft = array_values(array_filter($deck, fn($x) => $x['t'] !== 'hurt')); $hard = array_values(array_filter($deck, fn($x) => $x['t'] === 'hurt')); $deck = [];
@@ -301,12 +362,14 @@ function pfd_build(array $src): array
         $pieces[] = $entry($key, ['k' => $key, 'n' => $nm, 't' => (string)$q['t'], 'v' => (int)$q['v'], 'r' => $q['r'] ?? null, 'tag' => 'pal', 'src' => 'pal', 'ref' => (string)($q['ref'] ?? ''), 'life' => 0], max(1, min(3, (int)($q['rank'] ?? 1))), ['gear' => true, 'on' => true]);
     }
     $sl = pfd_slots($lvl); $cnt = ['n' => 0, 'kit' => 0, 'belt' => 0, 'pals' => 0, 'hurt' => 0, 'rare' => 0, 'mw' => 0, 'larder' => 0, 'larder_max' => $sl['larder'], 'keeps' => 0, 'keeps_max' => $sl['keeps'], 'src' => ['pal' => 0, 'tool' => 0, 'crop' => 0]];
+    $capOut = pfd_cap_out($pieces);
     foreach ($pieces as $i => $e) {
         if (!$e['on']) continue;
         if (in_array($e['src'], PFD_LARDER_SRC, true) && ++$cnt['larder'] > $sl['larder']) $pieces[$i]['out'] = 'slots';   // 2.6.989: more crop pieces on than the Larder holds: the extra ones stay out
         if (in_array($e['src'], PFD_KEEP_SRC, true) && ++$cnt['keeps'] > $sl['keeps']) $pieces[$i]['out'] = 'slots';
-        if ($e['rank'] === 3 && ++$cnt['rare'] > PFD_RARE_CAP) $pieces[$i]['out'] = 'cap';
-        if ($e['rank'] === 4 && ++$cnt['mw'] > PFD_MW_CAP) $pieces[$i]['out'] = 'cap';
+        if ($e['rank'] === 3) $cnt['rare']++;
+        if ($e['rank'] === 4) $cnt['mw']++;
+        if (!empty($capOut[$i])) $pieces[$i]['out'] = 'cap';
         $cnt['n']++; if (!$e['gear']) $cnt['kit']++; if ($e['t'] === 'hurt') $cnt['hurt']++;
         if ($e['src'] === 'tool') $cnt['belt']++; if ($e['src'] === 'pal') $cnt['pals']++;
         if (isset($cnt['src'][$e['src']])) $cnt['src'][$e['src']]++;
@@ -316,6 +379,20 @@ function pfd_build(array $src): array
     return ['pieces' => $pieces, 'deck' => array_values(array_filter($pieces, fn($e) => $e['on'] && $e['out'] === '')), 'counts' => $cnt, 'err' => $err,
         'starter' => $chosen, 'offer' => pfd_offer_keys($cal, (string)$src['home']), 'kits' => array_map(fn($k) => pfd_offer_keys($cal, (string)$src['home'], $k), PFD_KITS),
         'belt' => $belt, 'slots' => (int)$src['slots'], 'auto' => !empty($src['auto'])];
+}
+
+/** 2.7.01 (Josh): which pieces (by index) the Rare / Masterwork cap leaves out. Pieces count in list order, except wearables (key w:...) which count LAST, so they never push a belt tool out of the deck. */
+function pfd_cap_out(array $pieces): array
+{
+    $out = []; $rr = 0; $mm = 0;
+    $order = array_keys($pieces);
+    usort($order, fn($x, $y) => (int)str_starts_with((string)$pieces[$x]['key'], 'w:') <=> (int)str_starts_with((string)$pieces[$y]['key'], 'w:'));
+    foreach ($order as $i) {
+        if (!$pieces[$i]['on']) continue;
+        if ($pieces[$i]['rank'] === 3 && ++$rr > PFD_RARE_CAP) $out[$i] = 1;
+        if ($pieces[$i]['rank'] === 4 && ++$mm > PFD_MW_CAP) $out[$i] = 1;
+    }
+    return $out;
 }
 
 /** Why a deck may not be used, or null. $counts = pfd_build()['counts'] (or a whole build). */
@@ -418,7 +495,7 @@ function pfd_ensure_content(): void
         $id = item_id_by_slug($slug);
         if (!$id) $id = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'supply', 'rarity' => $rarity, 'base_price' => $price, 'description' => $desc, 'edible' => 0, 'effects' => json_encode(['fight_belt' => (int)array_search($slug, array_column(PFD_BELTS, 1), true) + 1]), 'tradable' => 0, 'max_stack' => 1]);
         if ($shop && $id && !q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $id])) {
-            db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)round($price * 1.1), 'max_stock' => 1, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
+            db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)pf_round($price * 1.1), 'max_stock' => 1, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
         }
     }
     if (!item_id_by_slug(PFD_REPAIR)) {
@@ -478,7 +555,7 @@ function pfd_pal_pieces(array $u): array
         arsort($score);
         $t = (string)array_key_first($score);
         $rar = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity'] ?? 'common'] ?? 0;
-        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? '')];
+        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)pf_round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? '')];
     }
     return $out;
 }
@@ -723,6 +800,14 @@ function pfd_start_fight(array $u, array $stats, array $typeBonus, bool $canSnac
 {
     $src = pfd_sources($u);
     return pfd_tiles(pfd_fight_entries($src), $stats, $typeBonus, (string)$src['calling'], (int)$src['ctier'], $canSnack);
+}
+
+/** 2.7.01 fixed first fight: the default kit's 10 pieces (PFD_CORE + PFD_KIT_DEFAULT), whatever the gnome packed, without gear (tools, pals, wearables); the Snack piece is the Breather and the calling piece is Taunt, so every new gnome gets the same deal. */
+function pfd_first_tiles(array $u, array $stats): array
+{
+    $src = pfd_sources($u);
+    $kit = array_values(array_filter(pfd_build(['starter' => null, 'state' => [], 'calling' => ''] + $src)['pieces'], fn($p) => !empty($p['starter'])));   // no calling: the Taunt piece, as for any gnome without one
+    return pfd_tiles($kit, $stats, [], '', 1, false);
 }
 
 /** A fight is over: its tool wear is saved. Returns a line for the log for each tool that broke. */

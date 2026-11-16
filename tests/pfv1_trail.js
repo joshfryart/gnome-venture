@@ -65,7 +65,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       for (let j = 0; j < 5; j++) { if (j === i) continue; await p.locator('#pf-hand .pf-tile').nth(j).tap(); await p.waitForTimeout(350); if (await p.locator('#pfb-board .pfb-lit').count()) return; await p.locator('#pf-hand .pf-tile').nth(j).tap(); await p.waitForTimeout(150); }
     };
     const cell = async () => { await p.locator('#pfb-board .pfb-lit').first().tap(); await p.waitForTimeout(200); };
-    const start = async (kind, ...more) => { seed('fight', 'small'); seed(kind === 'nofit' ? 'nofit' : 'charm', ...(kind === 'nofit' ? ['7'] : ['7', more[0] || 'plain'])); await p.evaluate(() => localStorage.setItem('pfvspd', '2')).catch(() => {}); const o = await open(); ck(`[${tag}] fight is in the modal Trail dialog`, [o.modal, await p.locator('#trailpop #pfight').count()], [true, 1]); };
+    const start = async (kind, ...more) => { seed('fight', 'large', 'manual', 'grass-snake'); seed(kind === 'nofit' ? 'nofit' : 'charm', ...(kind === 'nofit' ? ['7'] : ['7', more[0] || 'plain'])); await p.evaluate(() => localStorage.setItem('pfvspd', '2')).catch(() => {}); const o = await open(); ck(`[${tag}] fight is in the modal Trail dialog`, [o.modal, await p.locator('#trailpop #pfight').count()], [true, 1]); };
     const shot = async (n) => { if (SHOTS) await p.screenshot({ path: `${SHOTS}/${n}-${vw}-${scheme}.png` }); };
 
     await start('charm'); await hand(0); await cell(); await shot('before'); await p.locator('#pf-go').tap(); await p.waitForTimeout(60); await shot('mid'); await quiet(); await done('End turn');

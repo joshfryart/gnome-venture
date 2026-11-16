@@ -75,7 +75,7 @@ const VERBOSE = !!process.env.VERBOSE;
   }
   const nav = () => ({ navs: L.navs.length, docPosts: L.reqs.filter(r => /^POST document/.test(r)).length, bad: L.bad.filter(x => !/^302 /.test(x)), errs: L.errs });
   const quietOk = (w) => ck(w + ': no navigation, no plain POST, no failed request, no console error', nav(), { navs: 0, docPosts: 0, bad: [], errs: [] });
-  const start = async (var_, sd, sp) => { seed('fight', 'small'); seed('charm', sd, var_); await speed(sp); await open(); reset(); };
+  const start = async (var_, sd, sp) => { seed('fight', 'large', 'manual', 'grass-snake'); seed('charm', sd, var_); await speed(sp); await open(); reset(); };
   const SD = process.env.SEED || '7';
 
   // 1. charm pieces turn after turn (the creature answers each time): the page is swapped in place, the replay plays, nothing reloads

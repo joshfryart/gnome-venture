@@ -1,0 +1,1 @@
+# NPC clockwork data. fixed|Name = never leaves their place (calling mentors are always fixed).

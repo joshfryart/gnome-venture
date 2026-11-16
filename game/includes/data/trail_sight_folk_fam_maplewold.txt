@@ -1,0 +1,15 @@
+# Maplewold family (2.7.01): "Pantry Round" and the Opening Day Parade finale. claude/sights/family-maplewold.md
+# Pantry Round: nine villagers in three groups. A row with `gd=3:R` asks on the game days where (game day mod 3) = R, so each game day THREE villagers want one thing.
+# They stand at their Sight by their weekly clockwork (the row makes the Sight an appointment); `give=` = the Give button. Keep each of these villagers to TWO rows in all (both show up every week).
+# sight slug | villager | when | chance % | line | rewards
+232-crossroads|Yarrow Mossgrove@v-na-3-1|gd=3:0|100|Yarrow Mossgrove is propping a pancake recipe against the signpost. "Everything is here except the flour. Could you spare a scoop?"|give=flour:1,fp=2,c=30,xp=4
+236-dandelions|Basil Teaspoon@v-na-1-3|gd=3:0|100|Basil Teaspoon is sitting among the clocks with an empty teapot. "Blueberry tea for the bees, two handfuls, and they will hum you a tune."|give=blueberry:2,fp=2,c=25,xp=4
+haybales|Rue Wickerby@v-na-2-1|gd=3:0|100|Rue Wickerby is mending a hay fork and rubbing a rumbling tummy. "One egg and I could finish before lunch. Just one."|give=hen-egg:1,fp=2,c=25,xp=4
+232-logbridge|Willa Gillyflower@v-na-3-1|gd=3:1|100|Willa Gillyflower is clearing her throat on the log bridge. "A story needs a spoonful of honey first. It is the rule, I did not make it."|give=garden-honey:1,fp=2,c=35,xp=4
+apple|Nettle Cobblefield@v-na-1-3|gd=3:1|100|Nettle Cobblefield has a tea cupboard with one empty shelf. "Meadowsweet, two sprigs, and I will tell you which shelf the next one goes on."|give=meadowsweet:2,fp=2,c=25,xp=4
+236-beanpoles|Elm Crumblewick@v-na-2-2|gd=3:1|100|Elm Crumblewick is counting bean pods in his notebook and coming up short. "Two green beans for the stew pot, and I will stop counting."|give=green-bean:2,fp=2,c=25,xp=4
+236-haywagon|Moss Windlass@v-na-4-1|gd=3:2|100|Moss Windlass is sniffing the air beside the hay wagon. "Waffles for the bath-house at noon, and not a drop of syrup. Tragic. Do you have a jar?"|give=maple-syrup:1,fp=2,c=45,xp=5
+pondmill|Elm Wickerby@v-na-4-2|gd=3:2|100|Elm Wickerby is tinkering with a tiny waterwheel and eyeing the apple tree. "Two apples for the pie. The wheel can wait."|give=apple:2,fp=2,c=25,xp=4
+236-stonebridge|Beaver Foreman@v-na-2-1|gd=3:2|100|The Beaver Foreman is inspecting the bridge joints with a flat tail. "A scoop of flour makes a splendid paste. Do not ask what for."|give=flour:1,fp=2,c=30,xp=4
+# The Opening Day Parade ends at dusk with Bramble (quest beat needs npc=Bramble Mossfoot). Her Picnic Rise row (day) stays in trail_sight_folk_maplewold.txt; her dusk appointment is on its own Sight so the forecast is true.
+236-dandelions|Bramble Mossfoot|dp=dusk|100|Bramble Mossfoot is waiting among the dandelion clocks with the last paper lantern, humming the parade tune, a sandwich in her other hand.|fp=1,xp=3

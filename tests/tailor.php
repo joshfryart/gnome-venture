@@ -135,5 +135,13 @@ ok('Admins only: live for an admin, not for a player', wear_live() && wear_live(
 [$a, $m] = build_building($u, $plot, 'tailor');
 ok('Admins only: a player cannot build the Tailor', !$a, $m);
 set_setting('pfight_v1', '1'); setting('__reload__'); ok('On: live for all', wear_live(['role' => 'player']));
+
+echo "== 2.7.01: the Rare cap counts wearables last\n";
+$mk = fn(string $key, int $rank) => ['key' => $key, 'rank' => $rank, 'on' => true];
+$ps = [$mk('w:flood-boots', 3), $mk('w:work-gloves', 3), $mk('w:travel-cloak', 3), $mk('t:chop', 3), $mk('t:hoe', 3), $mk('kit:a', 3)];   // 3 Fine wearables listed first, then 3 Rare belt / kit pieces
+$co = pfd_cap_out($ps);
+ok('the three non-wearable Rares stay in', !isset($co[3]) && !isset($co[4]) && !isset($co[5]), json_encode($co));
+ok('the wearables are the ones left out', isset($co[0]) && isset($co[1]) && isset($co[2]), json_encode($co));
+ok('with room for all, nothing is left out', pfd_cap_out(array_slice($ps, 3)) === []);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

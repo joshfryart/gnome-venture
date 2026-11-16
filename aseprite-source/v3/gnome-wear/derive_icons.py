@@ -6,6 +6,10 @@
   -fine  : lined + a tiny pearl-white sparkle (cream plus, 2 px arms) in the upper right
 
 usage: python3 derive_icons.py [ph_dir]   (default: <repo>/game/assets/img/ph)
+
+2.7.01: the icons in PROTECTED are hand-drawn (Opus art, tools/install_art_2701.py) and are never written here. A protected cut b
+(<base>-b) is read from ph_dir and its -lined/-fine are derived from it, so the ranks keep the drawn patch. Test: tests/derive_icons.sh.
+Since step 2 of that install (batch4, batch4b, batch5) all 33 icons are hand-drawn and PROTECTED: a run derives nothing (tests/art_2701.sh checks it).
 """
 import os
 import sys
@@ -35,6 +39,16 @@ PATCH = {
 }
 BASES = ["flood-boots", "wayfarers-hat", "work-gloves", "travel-cloak", "trail-pack", "yarn-scarf"]
 CUT_B = set(PATCH)
+# hand-drawn icons (2.7.01, Opus art): never overwritten; a protected <base>-b is the base of its own -lined/-fine
+PROTECTED = {
+    "travel-cloak", "flood-boots-b", "work-gloves-b", "trail-pack-b", "travel-cloak-b", "wayfarers-hat-b",
+    "travel-cloak-lined", "travel-cloak-fine", "flood-boots-lined", "flood-boots-fine",
+    "work-gloves-lined", "work-gloves-fine", "trail-pack-lined", "trail-pack-fine",
+    # step 2 of the 2.7.01 install (art-2701-batch4, batch4b, batch5): every other icon is hand-drawn too, so this script derives none of the 33 now
+    "flood-boots", "work-gloves", "trail-pack", "yarn-scarf", "wayfarers-hat", "wayfarers-hat-lined", "wayfarers-hat-fine", "yarn-scarf-lined",
+    "flood-boots-b-lined", "flood-boots-b-fine", "work-gloves-b-lined", "work-gloves-b-fine", "trail-pack-b-lined", "trail-pack-b-fine",
+    "wayfarers-hat-b-lined", "wayfarers-hat-b-fine", "yarn-scarf-fine", "travel-cloak-b-lined", "travel-cloak-b-fine",
+}
 
 
 def solid(px, w, h, x, y):
@@ -204,13 +218,19 @@ def add_sparkle(im):
 
 
 def main():
-    made = []
+    made, kept = [], []
     for base in BASES:
         src = Image.open(os.path.join(PH, base + ".png")).convert("RGBA")
         check(src, base)
         cuts = [("", src)]
         if base in CUT_B:
-            cuts.append(("-b", add_patch(src.copy(), base)))
+            bf = os.path.join(PH, base + "-b.png")
+            if base + "-b" in PROTECTED and os.path.isfile(bf):
+                cut = Image.open(bf).convert("RGBA")   # the hand-drawn patch
+                check(cut, base + "-b")
+            else:
+                cut = add_patch(src.copy(), base)
+            cuts.append(("-b", cut))
         for suffix, im in cuts:
             out = {}
             if suffix:
@@ -219,10 +239,14 @@ def main():
             out[base + suffix + "-lined"] = lined
             out[base + suffix + "-fine"] = add_sparkle(lined.copy())
             for slug, img in out.items():
+                if slug in PROTECTED:
+                    kept.append(slug)
+                    continue
                 check(img, slug)
                 img.save(os.path.join(PH, slug + ".png"))
                 made.append(slug)
     print(len(made), "derived:", " ".join(made))
+    print(len(kept), "hand-drawn, kept:", " ".join(kept))
 
 
 if __name__ == "__main__":

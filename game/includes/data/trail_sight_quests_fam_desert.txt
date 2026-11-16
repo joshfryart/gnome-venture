@@ -1,0 +1,8 @@
+# Desert family quest line (2.7.01): the sequel to "The Trader Who Went Home" (gate). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# Three dusk beats need a free villager by their weekly clockwork (npc=); Tobias (a traveller) keeps his own circuit, so the finale only wants dusk and the 7th day.
+Q|trader-dusk-lanterns|Lanterns for the Long Way Home|Tobias Trundle|🏮|seq|xp=60,c=50,item=desert-glass:2,fp=2,title=Caravan Friend|Tobias would like the road to Marrowby's farm lit, so the next trader who loses the way at dusk can follow the lights home.|Every pole, ripple and well has a friendly light now. On the seventh day Tobias sets up his shell-shop under the tent poles, hangs the last lantern himself, and says the desert has never looked so well looked-after.|quest:trader-went-home
+B|trader-dusk-lanterns|desert-the-trader-s-tent-poles|Hang the first dusk lantern between the tent poles|dp=dusk|
+B|trader-dusk-lanterns|desert-the-red-rock-arch|Ivy Brambleby watches the arch glow and points out where the light should go|dp=dusk|npc=Ivy Brambleby
+B|trader-dusk-lanterns|desert-the-sand-ripple-lane|Yarrow Lanternby marks the ripple line the carts took|dp=dusk|npc=Yarrow Lanternby
+B|trader-dusk-lanterns|desert-the-well-and-its-rope|Orla Teaspoon holds the lantern while you lower the bucket|dp=dusk|npc=Orla Teaspoon
+B|trader-dusk-lanterns|desert-the-trader-s-tent-poles|On the seventh day, hang the last lantern beside Tobias|dp=dusk/gd=7:0|

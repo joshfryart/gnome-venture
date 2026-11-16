@@ -20,6 +20,7 @@ walkto() { # route id
     if grep -q 'value="auto"' /tmp/r.html; then D="-d do=auto"; elif grep -q 'value="attack"' /tmp/r.html; then D="-d do=attack"
     elif grep -q 'value="solve"' /tmp/r.html; then D="-d do=solve -d option=0"; elif grep -q 'value="choose"' /tmp/r.html; then D="-d do=choose -d option=0"
     elif grep -q 'value="continue"' /tmp/r.html; then D="-d do=continue"
+    elif grep -q 'value="meet"' /tmp/r.html; then D="-d do=meet -d option=1"   # 2.7.01: more villagers are out on the road (Clockwork): wave and walk on
     elif grep -q 'is in sight' /tmp/r.html; then dbx "UPDATE expeditions SET arrive_at = datetime('now','-1 minute') WHERE user_id=$SID AND status='active'"; curl -s -b $C -c $C $BASE/adventure.php > /tmp/r.html; D="-d do=arrive"
     else break; fi
     curl -s -b $C -c $C -X POST $BASE/adventure.php --data-urlencode "csrf=$(csrf /tmp/r.html)" $D -o /dev/null

@@ -1,0 +1,7 @@
+# Forest family quest line (2.7.01). npc= beats: the villager must be at the Sight by his weekly clockwork (his rows are in trail_sight_folk_fam_forest.txt); a miss says when he is next, no penalty.
+Q|who-lit-the-wood|Who Lit the Wood?|Willa Marrowby|🏮|seq|xp=60,item=tin-lantern:1,c=40,fp=2,fpto=Alder Thistledown:3,title=Friend of the Lamplighter|Willa Marrowby swears the lanterns of the wood light themselves every dusk, and somebody very slow and very sleepy is doing it. She would love to know who.|You sit with Alder Thistledown and his taper under the last lit lantern. He was only trying to be useful. Willa makes tea for three.
+B|who-lit-the-wood|forest-the-mossy-stair|Find the cold wax drips on the stair at dusk or night|dp=dusk,night
+B|who-lit-the-wood|forest-the-lantern-branch|Meet the lamplighter at the lantern branch at dusk|dp=dusk|npc=Alder Thistledown
+B|who-lit-the-wood|forest-the-owl-watch-bough|Catch him under the owl bough at night|dp=night|npc=Alder Thistledown
+B|who-lit-the-wood|forest-the-glow-moss-grotto|Share his last taper in the grotto at night|dp=night|npc=Alder Thistledown
+B|who-lit-the-wood|forest-the-lantern-branch|Light the last lantern of the round with him at dusk|dp=dusk|npc=Alder Thistledown

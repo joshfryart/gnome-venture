@@ -1,0 +1,7 @@
+# Maplewold family (2.7.01): The Opening Day Parade. Five lanterns, dawn to dusk; the first with Clover, the last with Bramble (npc= beats: they must be at the Sight by their weekly clockwork; a miss says when they are next; no penalty).
+Q|opening-day-parade|The Opening Day Parade|Clover Puddlejump|🏮|seq|xp=90,c=60,item=toffee:2,item=maple-syrup:1,fp=2,fpto=Bramble Mossfoot:2,title=Parade Marshal|Clover Puddlejump says the Maplewold's Opening Day Parade has five lanterns, one hour for each, and she does not intend to light them herself. Dawn to dusk, in order, please.|The last lantern flickers on among the dandelion clocks, Bramble starts the parade tune, and Clover claps exactly once. She says it was a draft. It was not a draft.|quest:picnic-list
+B|opening-day-parade|hedgerow|Light the first lantern on the hedgerow beside Clover, at dawn|dp=dawn|npc=Clover Puddlejump
+B|opening-day-parade|apple|Hang the second lantern in the apple tree, by day|dp=day|
+B|opening-day-parade|232-crossroads|Hook the third lantern on the signpost, by day|dp=day|
+B|opening-day-parade|232-berrypatch|Set the fourth lantern among the berries as the light turns gold|dp=dusk|
+B|opening-day-parade|236-dandelions|Light the last lantern among the dandelion clocks beside Bramble, at dusk|dp=dusk|npc=Bramble Mossfoot

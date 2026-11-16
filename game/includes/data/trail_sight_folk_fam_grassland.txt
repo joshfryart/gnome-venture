@@ -1,0 +1,5 @@
+# Grassland family folk rows (2.7.01, claude/sights/family-grassland.md). sight|villager|when|chance %|line|rewards
+# Mabel Pennywhistle (free villager, kite-flyer) keeps appointments at the daisy ring and the footbridge (quest "Mabel's Sky Letters"), and flies a kite at the meadow on wind days.
+grassland-the-wind-combed-meadow|Mabel Pennywhistle@v-na-1-2|we=wind/dp=day|60|Mabel Pennywhistle has a kite in each hand and the wind is exactly right. She lets you fly the red one and says you have the knack.|fp=1,xp=4,buff=sense:1:60
+grassland-the-daisy-ring|Mabel Pennywhistle@v-na-1-2|dp=day|60|Mabel Pennywhistle sits in the middle of the daisy ring with a letter on her knee, reading the clouds like a page.|fp=1
+grassland-the-plank-footbridge|Mabel Pennywhistle@v-na-1-2|dp=day|60|Mabel Pennywhistle holds an umbrella over a letter and over you, and does not mind which gets wetter.|fp=1

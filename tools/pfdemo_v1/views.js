@@ -5,7 +5,7 @@
   var C = D.consts, TAGS = D.tags;
   var TYPE = { hurt: 'Hurt', guard: 'Guard', heal: 'Heal', charm: 'Charm', soothe: 'Soothe', trick: 'Trick', item: 'Item' };
   var CLASS_ICON = { 'Critter': '🐛', 'Bird': '🐦', 'Beast': '🐾', 'Reptile/Amphibian': '🦎', 'Water': '🐟', 'Plant/Fungus': '🍄' };
-  var SRC_ICON = { basic: '🧩', knack: '🧩', calling: '🎩', crop: '🌾', craft: '🛠️', region: '🗺️', tool: '🔧', pal: '🐾' };
+  var SRC_ICON = { basic: '🧩', knack: '🧩', calling: '🎩', crop: '🌾', craft: '🛠️', region: '🗺️', tool: '🔧', pal: '🐾', legend: '👑', wear: '🧵' };
   var FOE_TAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
     trip: 'Trip: you draw 1 fewer next round', heal: 'Recovers a little', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var BOSS_MULT = 1.2, FIRE_MULT = 1.15;
@@ -24,8 +24,9 @@
   var lastExtra = '';
   function desc(p, extra) {
     lastExtra = extra || ''; var t = tg(p.tag);
-    return (TYPE[p.t] || ucfirst(p.t)) + ' ' + (p.v | 0) + (p.rank ? ' · ' + C.rankName[p.rank] : '') + ' · stays ' + (p.life | 0) + ' rounds'
-      + (['pal', 'tool', 'crop'].indexOf(p.src) >= 0 ? ' · Teamwork: ' + p.src : '') + (extra ? ' · ' + extra : '') + (t ? '. ' + t[1] : '') + (p.blurb ? '. ' + String(p.blurb).replace(/\.+$/, '') : '') + '.';
+    var md = p.mod && D.mods && D.mods[p.mod] ? D.mods[p.mod] : null;   // a built-in knack (wearables, legendary crops)
+    return (TYPE[p.t] || ucfirst(p.t)) + ' ' + (p.v | 0) + (p.rank ? ' · ' + (p.src === 'wear' ? ['', 'Common', 'Lined', 'Fine'][p.rank] || C.rankName[p.rank] : C.rankName[p.rank]) : '')   // 2.6.96: no "stays N rounds", no Teamwork (both off in a new fight)
+      + (extra ? ' · ' + extra : '') + (md ? '. Knack ' + md[0] + ': ' + md[2] : '') + (t ? '. ' + t[1] : '') + (p.blurb ? '. ' + String(p.blurb).replace(/\.+$/, '') : '') + '.';
   }
   /** One piece cell (.pc): art (drawn by pfv1box.js from data-p), value, tag icon, name, expiry pips. o: cls, a, arg, owner, name (false = none), d, x, g, dur. */
   function pc(p, o) {
@@ -91,7 +92,8 @@
     if (!d.starter) return starterHtml(ctx, false);
     if (['kit', 'belt', 'pals'].indexOf(tab) < 0) tab = 'kit';
     var c = d.counts, P = entries(d.pieces, g, src.calling, src.ctier), back = '<input type="hidden" name="t" value="' + tab + '">';
-    var h = '<div class="box pbox pfv" id="pfv-box"' + (locked ? ' data-locked="1"' : '') + '><div class="hrow"><h2>🧩 Puzzle box</h2>' + capPips2(c.rare, C.rareCap, '', 'Rare') + capPips2(c.mw, C.mwCap, 'mw', 'Masterwork') + '</div>';
+    var h = '<div class="box pbox pfv" id="pfv-box"' + (locked ? ' data-locked="1"' : '') + '><div class="hrow"><h2>🧩 Puzzle box</h2>' + capPips2(c.rare, C.rareCap, '', 'Rare') + capPips2(c.mw, C.mwCap, 'mw', 'Masterwork')
+      + capPips2(Math.min(c.larder, c.larder_max), c.larder_max, 'lard', 'Larder (crop pieces)') + (P.some(function (q) { return PFD.KEEP_SRC.indexOf(q.src) >= 0; }) ? capPips2(Math.min(c.keeps, c.keeps_max), c.keeps_max, 'keep', 'Keepsakes') : '') + '</div>';   // 2.6.989 / 2.7.00 slots
     h += '<nav class="tabs" aria-label="Puzzle box">';
     [['kit', 'Kit'], ['belt', 'Belt'], ['pals', 'Pals']].forEach(function (k) { h += '<a href="puzzlebox.php' + (k[0] === 'kit' ? '' : '?t=' + k[0]) + '"' + (k[0] === tab ? ' class="on" aria-current="page"' : '') + '>' + k[1] + '</a>'; });
     h += '</nav>' + deckbar(d, false);
@@ -100,13 +102,13 @@
     if (tab === 'kit') {
       var grp = function (p) { return p.src === 'knack' || p.src === 'calling' ? 'basic' : p.src; };
       h += '<nav class="chips fbar" id="pfv-filt" aria-label="Filter by source">';
-      [['all', 'All'], ['basic', '🧩'], ['crop', '🌾'], ['craft', '🛠️'], ['region', '🗺️']].forEach(function (k) { h += '<button type="button" data-g="' + k[0] + '"' + (k[0] === 'all' ? ' class="on"' : '') + ' aria-label="' + (k[0] === 'all' ? 'All pieces' : ucfirst(k[0]) + ' pieces') + '" aria-pressed="' + (k[0] === 'all' ? 'true' : 'false') + '">' + k[1] + '</button>'; });
+      [['all', 'All'], ['basic', '🧩'], ['crop', '🌾'], ['craft', '🛠️'], ['region', '🗺️'], ['wear', '🧵']].forEach(function (k) { h += '<button type="button" data-g="' + k[0] + '"' + (k[0] === 'all' ? ' class="on"' : '') + ' aria-label="' + (k[0] === 'all' ? 'All pieces' : ucfirst(k[0]) + ' pieces') + '" aria-pressed="' + (k[0] === 'all' ? 'true' : 'false') + '">' + k[1] + '</button>'; });
       h += '</nav>';
       var inn = '', col = '';
       P.forEach(function (p) {
         if (p.gear) return;
-        if (p.on) inn += pc(p, { cls: 'sel' + (p.out !== '' ? ' out' : ''), a: locked ? 'info' : 'tog', g: grp(p), d: desc(p, (p.out !== '' ? 'left out: over the rarity cap' : (p.core ? 'core' : ''))), x: ' data-on="1"' });
-        else col += pc(p, { a: locked ? 'info' : 'tog', g: grp(p), d: desc(p, ''), x: ' data-on="0"' });
+        if (p.on) inn += pc(p, { cls: 'sel' + (p.out !== '' ? ' out' : ''), a: locked ? 'info' : 'tog', g: grp(p), d: desc(p, (p.out === 'slots' ? 'left out: your ' + (PFD.KEEP_SRC.indexOf(p.src) >= 0 ? 'Keepsake slots are' : 'Larder is') + ' full' : (p.out !== '' ? 'left out: over the rarity cap' : (p.core ? 'core' : '')))), x: ' data-on="1"' });
+        else col += pc(p, { cls: p['new'] ? 'isnew' : '', a: locked ? 'info' : 'tog', g: grp(p), d: desc(p, p['new'] ? 'new: switched off until you pack it' : ''), x: ' data-on="0"' });   // 2.6.989: a piece just earned arrives off, marked New
       });
       h += '<div class="sl">In the kit <span>' + (c.kit < C.kitMin ? c.kit + ' · need ' + C.kitMin : c.kit + ' · no maximum') + '</span></div><ul class="pcg pfv-g">' + (inn || slot('none')) + '</ul>'
         + '<div class="sl">Collection <span>' + (locked ? 'locked' : 'tap to pack') + '</span></div><ul class="pcg pfv-g">' + (col || slot('none')) + '</ul>';
@@ -159,7 +161,7 @@
     pieces.forEach(function (p) {
       by[p.layer] = (by[p.layer] || 0) + 1; var v = foeV(c, p.v, ctx.tune);
       var q = { n: p.n, t: p.t, v: v, tag: p.tag, life: p.life, src: 'creature', e: PFE.edges ? foeEdges(p) : null };
-      var d = (TYPE[p.t] || p.t) + ' ' + v + ' · ' + C.layers[p.layer] + ' · stays ' + p.life + ' rounds · plays ×' + C.foeFires + (FOE_TAG[p.tag] ? '. ' + FOE_TAG[p.tag] : '') + '.';
+      var d = (TYPE[p.t] || p.t) + ' ' + v + ' · ' + C.layers[p.layer] + ' · stays 3 rounds · plays ×' + C.foeFires + (FOE_TAG[p.tag] ? '. ' + FOE_TAG[p.tag] : '') + '.';
       cells += pc(q, { owner: 'foe', cls: 'L-' + p.layer, a: 'info', d: d, x: ' data-info="pfv-cinfo"' });
     });
     var tally = '', total = 0; Object.keys(C.layers).forEach(function (L) { if (by[L]) { total += by[L]; tally += '<span class="L-' + L + '" data-f="' + by[L] + '" title="' + e(C.layers[L]) + ' ' + by[L] + '">' + (by[L] < 2 ? '+' + by[L] : e(C.layers[L].split(' ')[0]) + ' ' + by[L]) + '</span>'; } });
@@ -273,6 +275,7 @@
       + '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' + e(v.foe.intent) + '">' + sm(String(v.foe.intent || 'hurt')) + '</span></span></div></div>';
     h += top + hh;
     h += '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
+    if (v1 && s.newt && s.newt.length && (s.turn | 0) <= 1) h += '<div class="pfv-new" id="pfv-new" role="status"><b>New today:</b> ' + s.newt.map(e).join(' ') + '</div>';   // 2.7.01 pf_new_today_html: the first fight after the learner fights
     if (v1) h += '<div class="pfv-row" id="pfv-row"></div>';
     h += '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';
     if (v1) h += '<div class="pfv-legend" id="pfv-legend" role="group" aria-label="' + (v.v1.env ? 'The environment: its next pieces' : 'Terrain legend') + '"></div>';
@@ -308,6 +311,7 @@
       v.hand.forEach(function (t, i) { data.hand[i].life = t.life; data.hand[i].src = t.src; data.hand[i].flip = t.flip; data.hand[i].canflip = t.canflip; data.hand[i].tool = String(t.tool || ''); data.hand[i].rank = t.rank | 0; });
       data.prev = enc.replay && enc.replay.length ? (enc.prev || null) : null;
       data.tripped = (s.me.tripped | 0);
+      data.costwarn = !!ctx.costwarn;   // 2.7.01: End turn asks once before a move that costs health (a gnome's first 5 fights)
       if (s.turn === 1 && !s.start) { var n = 0; for (var id in s.pcs) if (s.pcs[id].by === 'foe') n++; data.opened = n; }
       data.box = 'puzzlebox.php'; data.turncap = PFE.TURN_CAP; data.toolwear = C.toolWear; data.fires = C.foeFires; data.tools = {};
       var tw = PFD.wearAll(ctx.src), have = Object.keys(v.wear || {}).length || v.hand.some(function (t) { return t.tool; });

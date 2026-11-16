@@ -1,0 +1,6 @@
+# Desert family folk rows (2.7.01, claude/sights/family-desert.md). sight|villager|when|chance|line|rewards
+# Caravan Stop: Tobias Trundle (a traveller: his own circuit, never npc=) sets up at the tent poles on every 7th game day and swaps a seed for a flask of well water.
+desert-the-trader-s-tent-poles|Tobias Trundle|gd=7:0|60|Tobias Trundle has pitched his shell-shop between the tent poles for the day. He eyes your flask of well water the way other people eye cake.|give=well-water:1,seed=1,tally=caravan-trades,fp=1
+# The Trader Who Went Home, dusk beats: free villagers (their weekly clockwork, npc=) at the desert Sights at dusk.
+desert-the-sand-ripple-lane|Yarrow Lanternby|dp=dusk|60|Yarrow Lanternby kneels at the ripples with a lantern and swears one wobbly line is a cart that went home, not away.|fp=1,xp=3
+desert-the-well-and-its-rope|Orla Teaspoon|dp=dusk|60|Orla Teaspoon is drawing the evening bucket and says the trader always stopped for a drink here after dark.|fp=1,xp=3

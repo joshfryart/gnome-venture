@@ -227,6 +227,14 @@ function staff_on_duty(int $shopId): array
             $out[$r['id']] = $r;
         }
     }
+    // 2.7.01 clockwork: a keeper who is out on one of their doings (or away today) is spelled by a free neighbour from the same town
+    require_once __DIR__ . '/npc_clockwork.php';
+    foreach ($out as $id => $r) {
+        if (!npc_cw_on() || (!npc_cw_out('n' . $id) && !(function_exists('gclock_npc_away') && gclock_npc_away('n' . $id)))) continue;
+        unset($out[$id]);
+        if (($c = npc_cw_shop_cover($shopId, $day, (float)$hour)) && !isset($out[$c['id']])) $out[$c['id']] = ['id' => $c['id'], 'name' => $c['name'], 'slug' => $c['slug'], 'species' => $c['species'], 'personality' => $c['personality'],
+            'days' => 'all', 'start_hour' => 0, 'end_hour' => 0, 'covering' => $r['name']];
+    }
     return array_values($out);
 }
 
@@ -305,6 +313,43 @@ function shop_reachable(array $u, array $shop): bool
     if ($loc['region'] === HUB_REGION || $loc['kind'] === 'hub') return true;
     require_once __DIR__ . '/adventure.php';
     return (int)player_node($u)['id'] === (int)$loc['id'];
+}
+
+/** Is this shop one of Mossbottom's (the hub market: reachable from anywhere)? Takes a shops row (a 'loc_region' column saves the lookup). */
+function shop_is_hub(array $shop): bool
+{
+    if (isset($shop['loc_region'])) return (string)$shop['loc_region'] === HUB_REGION;
+    $loc = !empty($shop['location_id']) ? q_one('SELECT region, kind FROM locations WHERE id = ?', [$shop['location_id']]) : null;
+    return $loc && ((string)$loc['region'] === HUB_REGION || (string)$loc['kind'] === 'hub');
+}
+
+/**
+ * v2.7.01: what a shop is like for this gnome right now (Shop Street picture and its list). Takes a shops row (open_minute / close_minute are read from it).
+ * Returns ['state' => 'open'|'closed'|'away', 'why' => a sentence, 'chip' => a few words, 'staff' => [names]].
+ * away = not reachable from where the gnome stands (a town shop while elsewhere); closed = the game clock says shut, or nobody is on shift; else open.
+ */
+function shop_state(array $u, array $shop): array
+{
+    $staff = array_column(staff_on_duty((int)$shop['id']), 'name');
+    if (!shop_reachable($u, $shop)) {
+        $where = (string)($shop['loc_name'] ?? '');
+        return ['state' => 'away', 'why' => $where !== '' ? 'Walk to ' . $where . ' to shop here.' : 'You need to be in that town to shop here.', 'chip' => 'away', 'staff' => $staff];
+    }
+    // The same rules each shop's buy path uses: ordinary shops clock then staff (buy_from_shop), pet shops only the admin switch (petshop_buy), Dye Pot / Curio Cabinet staff only (sink_shop_post).
+    if (($shop['shop_type'] ?? '') === 'pets') {
+        require_once __DIR__ . '/catfish_pets.php';
+        if (catfish_pet_cfg('catfish_pet_shops_open', 1) < 1) return ['state' => 'closed', 'why' => 'The pet shops are closed for now.', 'chip' => 'closed for now', 'staff' => $staff];
+        return ['state' => 'open', 'why' => 'Open.', 'chip' => 'open', 'staff' => $staff];
+    }
+    $sink = sink_shop_kind($shop) !== '';
+    if (!$sink && ($why = gclock_closed_reason($u, $shop))) return ['state' => 'closed', 'why' => $why, 'chip' => 'closed for now', 'staff' => $staff];
+    if (!$staff) return ['state' => 'closed', 'why' => 'Closed, nobody on shift.', 'chip' => 'nobody on shift', 'staff' => []];
+    $hours = '';
+    if (!$sink && gclock_on()) {
+        [$o, $c] = gclock_place_hours($shop);
+        $hours = sprintf('%02d:%02d-%02d:%02d', intdiv($o, 60) % 24, $o % 60, $c >= 1440 ? 24 : intdiv($c, 60) % 24, $c >= 1440 ? 0 : $c % 60);
+    }
+    return ['state' => 'open', 'why' => 'At the counter: ' . implode(', ', $staff) . ($hours !== '' ? ' (open ' . $hours . ')' : ''), 'chip' => $hours !== '' ? $hours : 'open', 'staff' => $staff];
 }
 
 /** Returns [ok, message, cost, item name]. */

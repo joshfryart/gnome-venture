@@ -39,7 +39,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     for (let j = 0; j < 5; j++) { if (j === i) continue; await p.locator('#pf-hand .pf-tile').nth(j).tap(); await p.waitForTimeout(350); if (await p.locator('#pfb-board .pfb-lit').count()) return; await p.locator('#pf-hand .pf-tile').nth(j).tap(); await p.waitForTimeout(150); }
   };
   const cell = async () => { await p.locator('#pfb-board .pfb-lit').first().tap(); await p.waitForTimeout(200); };
-  const start = async (kind) => { seed('fight', 'small'); seed(kind === 'nofit' ? 'nofit' : 'charm', ...(kind === 'nofit' ? ['7'] : ['7', 'plain'])); await p.evaluate(() => localStorage.setItem('pfvspd', '2')).catch(() => {}); await open(); };
+  const start = async (kind) => { seed('fight', 'large', 'manual', 'grass-snake'); seed(kind === 'nofit' ? 'nofit' : 'charm', ...(kind === 'nofit' ? ['7'] : ['7', 'plain'])); await p.evaluate(() => localStorage.setItem('pfvspd', '2')).catch(() => {}); await open(); };
 
   // pink pieces: Charm, Offer, Hum, Lull, Bond, then End turn
   for (const [i, nm] of [[0, 'Charm'], [1, 'Offer'], [2, 'Hum'], [3, 'Lull'], [4, 'Bond']]) {
@@ -58,6 +58,6 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
   // nothing fits: pass with End turn
   await start('nofit'); await p.locator('#pf-pass').tap(); await quiet(); await done('pass (nothing fits)');
   // a charm piece that wins the fight, then the result
-  seed('fight', 'small'); seed('charm', '7', 'near'); await p.evaluate(() => localStorage.setItem('pfvspd', '2')); await open(); await hand(0); await cell(); await p.locator('#pf-go').tap(); await p.waitForSelector('#pfv-res', { state: 'visible', timeout: 25000 }).catch(() => {}); await done('charm win');
+  seed('fight', 'large', 'manual', 'grass-snake'); seed('charm', '7', 'near'); await p.evaluate(() => localStorage.setItem('pfvspd', '2')); await open(); await hand(0); await cell(); await p.locator('#pf-go').tap(); await p.waitForSelector('#pfv-res', { state: 'visible', timeout: 25000 }).catch(() => {}); await done('charm win');
   console.log('endturn: done'); await b.close(); process.exit(fails ? 1 : 0);
 })();

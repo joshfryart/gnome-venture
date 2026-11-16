@@ -4,7 +4,7 @@ its layout under <key> in game/includes/data/here_layouts.json (round-trips with
 
 Keys: town-<region code lower> (main towns; 'hub' = Mossbottom) and stop-<type>-<landscape>_<style> (rest stops). A layout spot has its own 'k' (an id) and an
 optional 'as' = the behaviour the Here page gives it (green teahouse board library special1 special2 shops wild homes / do people stop). Several fronts
-can share one behaviour. Run from the repo root:  python3 tools/import_gate_layouts.py [--dry]
+can share one behaviour. Run from the repo root:  python3 tools/import_gate_layouts.py [--dry] [--shops-street]
 """
 import json, os, shutil, sys
 
@@ -67,8 +67,27 @@ def resolve_overlaps(o):
     else: print('  WARNING: fewer than 4 clear stand slots, kept all')
     return o
 
+def import_shop_street(all_, dry):
+    """The Shop Street picture (aseprite-source/v3/shop-street): 14 regional finals + one layout with view 'street' (hub-*/loc-* slots, no compass exits).
+    final/<REGION>.png -> scenes/here-shops-street-<region lower>.png; the NA one is also the default here-shops-street.png (layout key 'shops-street')."""
+    d = os.path.join(ROOT, 'aseprite-source/v3/shop-street')
+    lay = json.load(open(os.path.join(d, 'shop-street.layout.json')))
+    all_['shops-street'] = resolve_overlaps({**lay, 'view': 'street'})
+    print(('would add ' if dry else 'added '), 'shops-street')
+    for f in sorted(os.listdir(os.path.join(d, 'final'))):
+        if not f.endswith('.png'): continue
+        code = f[:-4].lower()
+        names = ['here-shops-street-' + code + '.png'] + (['here-shops-street.png'] if code == 'na' else [])
+        for n in names:
+            if not dry: shutil.copyfile(os.path.join(d, 'final', f), os.path.join(SCENES, n))
+
 def main():
     dry = '--dry' in sys.argv
+    if '--shops-street' in sys.argv:   # only the Shop Street, leave every other layout and picture alone
+        all_ = json.load(open(JSON_F))
+        import_shop_street(all_, dry)
+        if not dry: open(JSON_F, 'w').write(json.dumps(all_, indent=1, ensure_ascii=False))
+        return
     all_ = json.load(open(JSON_F))
     jobs = []   # (key, png, layout json, as-map)
     for art, code in TOWNS.items():
@@ -88,6 +107,7 @@ def main():
         all_[key] = resolve_overlaps(clean(json.load(open(os.path.join(ART, lay))), amap))
         print(('would add ' if dry else 'added '), key)
         if not dry: shutil.copyfile(src_png, os.path.join(SCENES, 'here-' + key + '.png'))
+    import_shop_street(all_, dry)
     if not dry:
         open(JSON_F, 'w').write(json.dumps(all_, indent=1, ensure_ascii=False))
 

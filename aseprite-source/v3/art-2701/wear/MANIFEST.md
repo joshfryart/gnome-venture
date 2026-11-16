@@ -1,0 +1,14 @@
+# art-2701 wear redo (test batch, 6 pieces). One pass, nothing copied into game/.
+Run any script: `/tmp/claude-0/ase/squashfs-root/AppRun -b --script-param out=<dir>/ --script <abs path>/<name>.lua`
+Helpers: `_patch.lua` (cut-b patch), `_strip.lua` (gnome25 strip layers). Each piece has .lua/.aseprite/.png and `<name>.before.png` (current game art).
+
+| New file | Replaces | Size | What changed |
+|---|---|---|---|
+| front-wboots.png | game/assets/img/gnome25/front-wboots.png | 512x80 (8 x 64x80) | Flood Boots front layer. Tan collar removed, so the green shaft runs on up under the tunic hem instead of ending in a cuff; straight tube, long lit stripe, side wall, ankle creases, toe cap, brown tread sole; red repair patch kept. Silhouette footprint and per-frame lift (ly/ry) unchanged. Limit: the layer sits under the tunic, so only rows 64-70 show; a taller read needs a stack change in gnome25.php or a tunic mask. |
+| front-pack.png | game/assets/img/gnome25/front-pack.png | 512x80 | Trail Pack front layer. Was only two shoulder corners. Now a wider bag with leather flap, a stitched side pocket each flank (sky-blue patch on the right), leather side straps with brass buckles, and the striped blanket roll sticking out both sides under the arms. Bob and one-frame sway as before. Check the roll width (about 7 px past the body each side) in game. |
+| ph/travel-cloak.png | game/assets/img/ph/travel-cloak.png | 64x64 | Travel Cloak icon. Was a boxy stack of folded rectangles. Now a hooded cloak: pointed hood with dark opening and tan lining rim, sloped shoulders flaring to a scalloped hem, fold creases, front lap, wood toggle on a cord, autumn-leaf quirk kept. The -lined/-fine/-b cloak icons are NOT redone here (derive_icons.py would need re-running on the new base). |
+| back-gloves.png | game/assets/img/gnome25/back-gloves.png | 512x80 | Work Gloves back layer. Added a thumb on the inner side of each glove (tucked against the tunic), stitched cuff dashes, knuckle bumps, finger seams; stitched leather patch on the right glove. Same silhouette and swing otherwise. |
+| flood-boots-b.png | game/assets/img/ph/flood-boots-b.png | 64x64 | Cut b: the gem-like orange block on the toe is replaced by a stitched mustard cloth patch on the boot shaft (flat woven two-tone cloth, dark raw edge, cream thread dashes round it, cross stitch, clipped corners, no bevel or highlight). Base is the plain game flood-boots.png. |
+| work-gloves-b.png | game/assets/img/ph/work-gloves-b.png | 64x64 | Cut b: the green gem-like block on the cuff is replaced by a stitched denim patch on the front glove palm, same patch recipe. Base is the plain game work-gloves.png. |
+
+The other -b icons (trail-pack-b, travel-cloak-b, wayfarers-hat-b) still use the old gem patch; `_patch.lua` can redo them. Pixels are hard, ink #2b1c26, no semi-transparent, no pure black/white (assertClean passed on icons).

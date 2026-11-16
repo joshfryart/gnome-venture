@@ -7,6 +7,7 @@
   var YIELD = data.yieldw || 'Yield';   // the creature's bar in a new-rule fight (PF_YIELD in pfboard.php sends it); a 2.6.94 fight keeps its health and charm bars
   var ONETIP = 'The ' + YIELD + ' bar: both ways to win fill it. Hurt pieces fill it red, Charm pieces fill it pink. When it is full the creature yields: with more charm than hurt you win it over for a better reward, otherwise it backs off. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
+  var costOk = false, planFree = false, COSTW = !!data.costwarn;   // 2.7.01 costly cell: End turn asked once (costOk); a lit spot that costs nothing was open for the placed piece (planFree); the ask is on (first fights)
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
   var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
@@ -23,7 +24,13 @@
     rain: '<path d="M4.4 9.2A2.9 2.9 0 0 1 4.9 3.6a3.6 3.6 0 0 1 6.9 1.1 2.5 2.5 0 0 1-.5 4.5z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M5 11.2v2.6M8 11v3.4M11 11.2v2.6" stroke="currentColor" stroke-width="1.6" fill="none"/>',
     wind: '<path d="M1.5 5.5h8.2a2 2 0 1 0-2-2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M1.5 8.6h11.2a2 2 0 1 1-2 2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M1.5 11.7h5.5" stroke="currentColor" stroke-width="1.7" fill="none"/>',
     env: '<path d="M1 13.5l4.6-7.6 3 4.6 2-2.9L15 13.5z" fill="currentColor"/><circle cx="12" cy="3.6" r="1.8" fill="currentColor"/>',
-    aim: '<circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M8 0v3.4M8 12.6V16M0 8h3.4M12.6 8H16" stroke="currentColor" stroke-width="1.8"/>'
+    aim: '<circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M8 0v3.4M8 12.6V16M0 8h3.4M12.6 8H16" stroke="currentColor" stroke-width="1.8"/>',
+    win: '<path d="M8 1l2.1 4.4 4.8.6-3.5 3.3.9 4.7L8 11.7 3.7 14l.9-4.7L1.1 6l4.8-.6z" fill="currentColor"/>',   // 2.7.01 help sheet: its own mark for each row (Chains, Guard and Flip all used the gust arrow)
+    chain: '<rect x="1" y="5" width="7" height="6" rx="3" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="8" y="5" width="7" height="6" rx="3" stroke="currentColor" stroke-width="1.8" fill="none"/>',
+    guard: '<path d="M8 1l6 2.2v4.3c0 3.6-2.6 6.2-6 7.5-3.4-1.3-6-3.9-6-7.5V3.2z" stroke="currentColor" stroke-width="1.7" fill="none"/>',
+    flip: '<path d="M4 2v11M1.5 10.5L4 13l2.5-2.5M12 14V3M9.5 5.5L12 3l2.5 2.5" stroke="currentColor" stroke-width="1.8" fill="none"/>',
+    num: '<path d="M5.5 1.5L4 14.5M12 1.5l-1.5 13M1.5 5.5h13M1 10.5h13" stroke="currentColor" stroke-width="1.7" fill="none"/>',
+    combo: '<path d="M1 12l4-4 3 3 6-8" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/>'
   };
   function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function svg(k, rot) { return '<svg viewBox="0 0 16 16" aria-hidden="true"' + (rot ? ' class="pfv-r' + rot + '"' : '') + '>' + SVG[k] + '</svg>'; }
@@ -383,12 +390,16 @@
     sheetEl = document.createElement('div');
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
+      + '<div class="sl">Win and lose</div><ul class="helpl">' + row({ n: 'How a fight ends', g: 'win', l: [ONE ? 'You win when the ' + YIELD + ' bar is full: Hurt and Charm both fill it.' : 'You win when the creature\u2019s health is empty (Hurt) or its charm bar is full (Charm).', 'You lose when your health reaches 0. After ' + (data.turncap || 24) + ' turns the creature loses interest and wanders off (a boss does not).'], who: '' }) + '</ul>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
       + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
       + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
-      + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
-      + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
-      + row({ n: 'Flip', g: 'gust', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
+      + row({ n: 'Chains', g: 'chain', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
+      + row({ n: 'Numbers on a lit spot', g: 'num', l: ['Pick a piece and every spot it can go shows what your chain would do there: \u2694 hurt to the creature, \u273F charm, \u2764\u2212 health YOU lose (a creature piece or a Thornburst in your chain). A spot with a red edge costs you health; tap it to see why.', '\u00d7N used: the chain is long enough to use its pieces up. \u2013 nothing counted. \u2605 the fight ends.'], who: '' })
+      + row({ n: 'Combos', g: 'combo', l: ['Two of your pieces linked in a set pair fire stronger: Trick then Hurt (Ambush), Guard then Hurt (Riposte), Hurt then Hurt (Double Swing), Soothe then Charm (Calm Charm), Charm then Item (Win Over), Trick then Guard (Bait). The second piece of the pair gets the bonus; its name shows with a sparkle in the plan.'], who: '' })
+      + (ASIDE ? row({ n: 'Set aside', g: 'chain', l: ['Instead of placing a piece you can set two hand pieces aside, joined; play the group on a later turn and it fires for more.'], who: '' }) : '')
+      + row({ n: 'Guard', g: 'guard', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
+      + row({ n: 'Flip', g: 'flip', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
       + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].filter(function (k) { return !(NOWM && (k === 'wind' || k === 'mud')); }).map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
@@ -565,7 +576,81 @@
     go.setAttribute('form', pm ? 'pf-pform' : 'pf-form'); go.disabled = busy || (!pm && moves.length === 0);
     go.title = pm ? 'Skip your turn: no piece is played, the round goes on' : ''; go.classList.toggle('pfv-pass', pm);
   }
+  // ---- 2.7.01 costly cell (learn.md item 1): a lit spot whose chain costs your health has a red edge and names the cause; once placed, the line above End turn says it; in the first fights End turn asks once
+  function costNames(q) {
+    var out = [];
+    (q && q.hw || []).forEach(function (w) { var t = w[1] === 'foe' ? 'the ' + (data.foe || 'creature') + '\u2019s ' + w[0] : w[1] === 'me' ? 'your ' + w[0] : w[0]; if (out.indexOf(t) < 0) out.push(t); });
+    return out.join(' and ');
+  }
+  function costPlaced() {
+    if (!planQ || !planQ.hp || !moves.length || (moves[0].k !== 'p' && moves[0].k !== 'c') || playing || submitted) return '';
+    var nm = costNames(planQ), t = (nm ? 'This fires ' + nm + '. ' : 'This move costs health. ') + 'You lose ' + planQ.hp + ' health.';
+    return costOk ? t + (planFree ? ' A lit spot that costs nothing was open.' : '') + ' Tap End turn again to play it anyway.' : t;
+  }
+  function costAsk(ev) {   // a capture listener on End turn: the first tap on a costly move (with a free spot open) only asks
+    if (!COSTW || costOk || !planFree || !costPlaced()) return;
+    ev.preventDefault(); ev.stopImmediatePropagation(); costOk = true; render();
+  }
+  // ---- 2.7.01 guided first turns (learn.md item 4): one line of coaching on the first turns of a gnome's first fights, never in the way; the close button switches it off for good (pfb_guideoff).
+  //      Also the stall nudge (learn.md item 11: from turn data.stall while the bar is under half) and the Hint button (item 10: the server's pick from public information; a free hint, data.hints a fight)
+  var GUIDE = !!data.guide, guideEl = null, guideTx = null, guideGone = false, stallGone = false, hintBtn = document.getElementById('pf-hint'), hintAt = null, hintMsg = '', hintBusy = false, hintLeft = +data.hints || 0;
+  function turnNo() { return +((form.querySelector('[name=turn]') || {}).value || 0); }
+  function barFill() { var f = (+data.fh || 0) / Math.max(0.1, +data.fhmax || 1); if (!ONE && data.charmable && data.barmax) f = Math.max(f, (+data.bar || 0) / data.barmax); return f; }
+  function guideText() {
+    if (playing || submitted || data.won || rewind) return ['', ''];
+    if (hintMsg) return ['hint', hintMsg];
+    if (GUIDE && !guideGone) {
+      if (data.start) return ['guide', moves.length ? 'Tap Confirm start. The ' + (data.foe || 'creature') + ' picks its side of the blank too, hidden.' : selected !== null ? 'Now tap a lit spot beside the blank \u2726: that side of the blank is where you start.' : 'Your first move: tap a piece in your hand.'];
+      if (turnNo() <= 2) return ['guide', moves.length ? 'Your piece fires, then every piece linked to it: that is your chain. Tap End turn.' : selected !== null ? 'Tap a lit spot. Its numbers are what your chain does there: \u2694 hurt, \u273F charm, \u2764\u2212 health you lose.' : 'Tap a piece in your hand. Put it where it links to other pieces, so they fire in your chain.'];
+    }
+    if (+data.stall && turnNo() >= +data.stall && !stallGone && !data.start && barFill() < 0.5) return ['stall', 'Stuck? Link to a Bramble or to your own pieces for a longer chain' + (hintBtn && hintLeft > 0 ? ', or tap Hint.' : '.')];
+    return ['', ''];
+  }
+  function guideDraw() {
+    if (!guideEl) return;
+    var g = guideText(); guideEl.hidden = !g[1]; guideEl.dataset.k = g[0]; if (guideTx.textContent !== g[1]) guideTx.textContent = g[1];
+    if (hintAt && selected === hintAt.i) { var c = boardEl.querySelector('.pfb-lit[data-x="' + hintAt.x + '"][data-y="' + hintAt.y + '"]'); if (c) c.classList.add('pfv-hint'); }
+    tiles.forEach(function (t, i) { t.classList.toggle('pfv-hinted', !!hintAt && i === hintAt.i && !moves.length); });
+    if (hintBtn) { hintBtn.disabled = playing || submitted || !!data.won || !!data.start || hintBusy || (hintLeft <= 0 && !hintAt); var hl = hintBtn.querySelector('small'); if (hl) hl.textContent = String(hintLeft); }
+  }
+  function guideClose() {
+    var k = guideEl.dataset.k;
+    if (k === 'hint') { hintMsg = ''; hintAt = null; }
+    else if (k === 'stall') stallGone = true;
+    else if (k === 'guide') {
+      guideGone = true;
+      var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };
+      fd.append('csrf', qs('csrf')); fd.append('do', 'pfb_guideoff'); fd.append('nonce', qs('nonce'));
+      if (typeof fetch === 'function') fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'pfguide' } }).catch(function () {});
+    }
+    render();
+  }
+  function askHint() {
+    if (hintBusy || playing || submitted || data.won || data.start) return;
+    if (hintAt) { if (selected !== hintAt.i && usable(hintAt.i)) select(hintAt.i); else render(); return; }   // the same turn: the same hint, nothing counted
+    hintBusy = true; render();
+    var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };
+    fd.append('csrf', qs('csrf')); fd.append('do', 'pfb_hint'); fd.append('nonce', qs('nonce')); fd.append('turn', qs('turn'));
+    fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'pfhint' } })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        hintBusy = false;
+        if (!j || !j.ok) { hintMsg = (j && j.err) || 'No hint this time.'; render(); return; }
+        hintAt = { i: j.i, x: j.x, y: j.y }; hintMsg = '\uD83D\uDCA1 ' + j.why; hintLeft = j.left;
+        if (selected !== j.i && usable(j.i)) select(j.i); else render();
+      })
+      .catch(function () { hintBusy = false; hintMsg = 'No hint: the server did not answer.'; render(); });
+  }
+  function guideBoot() {
+    guideEl = document.createElement('div'); guideEl.className = 'pfv-guide'; guideEl.id = 'pfv-guide'; guideEl.setAttribute('role', 'status'); guideEl.hidden = true;
+    guideTx = document.createElement('span'); guideTx.className = 'gt'; guideEl.appendChild(guideTx);
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'gx'; x.textContent = '\u2715'; x.setAttribute('aria-label', 'Hide this tip'); x.title = 'Hide this tip'; x.addEventListener('click', guideClose); guideEl.appendChild(x);
+    var at = rowEl || boardEl; at.parentNode.insertBefore(guideEl, at);
+    if (hintBtn) hintBtn.addEventListener('click', askHint);
+  }
   function v1Boot() {
+    guideBoot();
+    if (go) go.addEventListener('click', costAsk, true);
     if (pform && FREEP) pform.addEventListener('submit', function (e) { if (submitted || playing) { e.preventDefault(); return; } submitted = true; go.disabled = true; undo.disabled = true; });
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();

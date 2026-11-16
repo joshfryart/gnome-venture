@@ -1,0 +1,15 @@
+-- Jadewing Quartet (pl-jdf-4), perch 36x36. Hand-drawn at size: head with four wings, on the perch.
+local H = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/_h.lua")
+local c, P = H.canvas("pl-jdf-4-perch", 36), H.P
+H.ledge(c)
+c:part(c:poly{ {14,12},{5,4},{4,9},{13,15} }, "sky")
+c:part(c:poly{ {22,12},{31,4},{32,9},{23,15} }, "sky")
+c:part(c:poly{ {14,17},{7,26},{11,28},{17,19} }, "sky")
+c:part(c:poly{ {22,17},{29,26},{25,28},{19,19} }, "sky")
+c:part(c:line({ {18,18},{18,30} }, 2), "moss")
+c:part(c:ellipse(18, 14, 5, 5), "moss", { sep = true })
+c:eyeSmall(15, 12)
+c:eyeSmall(20, 12)
+c:px(17, 16, P.ink)
+c:px(18, 16, P.ink)
+H.done(c, "pl-jdf-4-perch")

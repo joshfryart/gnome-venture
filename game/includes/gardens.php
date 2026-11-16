@@ -58,7 +58,7 @@ const BUILDING_UPGRADES = [
     'silk_shelf'  => [2 => 'Room for a 3rd silkworm tray, and cocoons come 15% faster.',
                       3 => 'Room for a 4th silkworm tray, and cocoons come 30% faster.'],
     'tailor'      => [2 => 'Better stitching: +8% a lining takes (and a re-cut costs no Thread).',
-                      3 => 'Master stitching: another +8%, and the first lining or craft each day costs no energy.'],   // 2.7.00
+                      3 => 'Master stitching: another +8%, and the first craft each day costs no energy.'],   // 2.7.00
     'tortoise_run' => [2 => 'Room for a 2nd tortoise, and scutes come 15% faster.',
                        3 => 'Room for a 3rd tortoise, and scutes come 30% faster.'],
     'snail_jar'   => [2 => 'Snail Trail Glaze comes 15% faster.',

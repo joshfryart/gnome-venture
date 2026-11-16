@@ -539,6 +539,8 @@ function here_sprite(array $npc): array
     static $size = [];
     $slug = scene_key((string)$npc['slug']);
     $emoji = npc_icon($npc['species'] ?? null);
+    require_once __DIR__ . '/npc25.php';
+    if (($st = npc25_for($npc, 'front'))) return ['src' => $st[0], 'w' => 64, 'h' => 80, 'emoji' => $emoji, 'frames' => 8, 'fw' => 64, 'fh' => 80];   // 2.7.01: the 2.5D strip (first frame is the idle)
     foreach (['assets/img/sprite/npc-' . $slug . '.png', 'assets/img/mini/mini-npc-' . $slug . '.png', 'assets/img/ph/npc-' . $slug . '.png'] as $rel) {
         if ($slug === '' || !is_file(APP_ROOT . '/' . $rel)) continue;
         if (!isset($size[$rel])) { $sz = @getimagesize(APP_ROOT . '/' . $rel); $size[$rel] = $sz ? [$sz[0], $sz[1]] : [64, 80]; }
@@ -591,7 +593,9 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
     foreach ($pairs as [$slot, $n]) {
         if (!empty($n['stop_folk'])) {
             $sp = ['src' => '', 'w' => 56, 'h' => 56, 'emoji' => npc_icon($n['species'])];
-            if (($art = stop_folk_art($n, 'sprite')) !== '') $sp = ['src' => url($art), 'w' => 64, 'h' => 96, 'fw' => 64, 'fh' => 96, 'frames' => 4, 'emoji' => $sp['emoji']];
+            require_once __DIR__ . '/npc25.php';
+            if (($st25 = npc25_for($n, 'front'))) $sp = ['src' => $st25[0], 'w' => 64, 'h' => 80, 'fw' => 64, 'fh' => 80, 'frames' => 8, 'emoji' => $sp['emoji']];
+            elseif (($art = stop_folk_art($n, 'sprite')) !== '') $sp = ['src' => url($art), 'w' => 64, 'h' => 96, 'fw' => 64, 'fh' => 96, 'frames' => 4, 'emoji' => $sp['emoji']];
             else {   // no v3 art for this species: the old small icon
                 $sl = strtolower($n['species']);
                 foreach (['mouse', 'bee', 'hedgehog', 'snail', 'frog', 'beetle', 'butterfly', 'cricket', 'ladybird'] as $k) if ($sp['src'] === '' && str_contains($sl, $k) && is_file(APP_ROOT . '/assets/img/ico/ico-' . $k . '.png')) $sp['src'] = url('assets/img/ico/ico-' . $k . '.png');

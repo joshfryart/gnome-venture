@@ -1,0 +1,135 @@
+<?php
+// 2.7.01 learner rules: a gnome's first fights (pfight_learner_n, default 3) have no Thornburst, no creature tags and creature pieces x0.8; then the full rules.
+// php tests/pf_learner.php GAME_DIR   (an installed game, player "sprout"; walk.sh installs one)
+$_SERVER['SCRIPT_NAME'] = '/adventure.php';
+require $argv[1] . '/includes/bootstrap.php';
+require_once $argv[1] . '/includes/pfight_game.php';
+$fails = 0;
+function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
+$u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'];
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+ok('a new gnome has learner rules left', pf_learner_left($uid));
+pf_learner_bump($uid); pf_learner_bump($uid);
+ok('still after 2 fights', pf_learner_left($uid));
+pf_learner_bump($uid);
+ok('not after 3 fights', !pf_learner_left($uid), (string)q_val('SELECT fights FROM pf_learn WHERE user_id = ?', [$uid]));
+set_setting('pfight_learner_n', '0'); setting('__reload__'); q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+ok('pfight_learner_n = 0 switches them off', !pf_learner_left($uid));
+set_setting('pfight_learner_n', '3'); setting('__reload__');
+$kinds = fn(array $d) => array_unique(array_map(fn($t) => $t['env'], $d));
+ok('the normal deck has Thornburst', in_array('thorn', $kinds(pfb_env_deck('medium')), true));
+ok('the learner deck has none', !in_array('thorn', $kinds(pfb_env_deck('medium', '', true, true)), true) && count(pfb_env_deck('medium', '', true, true)) > 0);
+$cfg = pfb_v1_cfg('small', ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1], 1); $base = pfb_v1_cfg('small', [], 1);
+ok('learner cfg: tags off, nothorn on, creature pieces x0.8', $cfg['tags'] === 0 && $cfg['nothorn'] === 1 && abs($cfg['foe'] - 0.8 * $base['foe']) < 0.001, json_encode([$cfg['tags'], $cfg['nothorn'], $cfg['foe'], $base['foe']]));
+// 2.7.01 learner UI: End turn asks before a costly move in the first 5 fights; "New today" on the first fight after the learner fights
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+ok('costly-move ask is on for a new gnome', function_exists('pf_cost_warn') && pf_cost_warn($uid));
+ok('no "New today" for a new gnome', function_exists('pf_new_today') && pf_new_today($uid) === []);
+for ($i = 0; $i < 3; $i++) pf_learner_bump($uid);
+$nt = function_exists('pf_new_today') ? pf_new_today($uid) : [];
+ok('"New today" after the 3 learner fights names Thornburst and creature tags', (bool)preg_grep('/^Thornburst\./', $nt) && (bool)preg_grep('/^Creature tags\./', $nt), json_encode($nt));
+$h = function_exists('pf_new_today_html') ? pf_new_today_html(['newt' => $nt, 'turn' => 1]) : '';
+ok('the card shows on turn 1', str_contains($h, 'id="pfv-new"') && str_contains($h, 'New today:') && str_contains($h, 'Thornburst'), $h);
+ok('the card is gone from turn 2', function_exists('pf_new_today_html') && pf_new_today_html(['newt' => $nt, 'turn' => 2]) === '');
+ok('a fight without new rules has no card', function_exists('pf_new_today_html') && pf_new_today_html(['turn' => 1]) === '');
+pf_learner_bump($uid);
+ok('no "New today" from the 5th fight', pf_new_today($uid) === []);
+ok('costly-move ask still on in fight 5', pf_cost_warn($uid));
+pf_learner_bump($uid);
+ok('costly-move ask off after 5 fights', !pf_cost_warn($uid));
+set_setting('pfight_costwarn_n', '0'); setting('__reload__'); q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+ok('pfight_costwarn_n = 0 switches the ask off', !pf_cost_warn($uid));
+set_setting('pfight_costwarn_n', '5'); setting('__reload__');
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+
+// ---- 2.7.01 the rest of learn.md: fixed first fight, guided turns, hint, learner creature cap, no knock-out, defeat recap, free retry
+require_once $argv[1] . '/includes/adventure.php';
+require_once $argv[1] . '/includes/explore.php';
+require_once $argv[1] . '/includes/pfdeck.php';
+set_setting('pfight_open', '1'); set_setting('pfight_mode', 'board'); set_setting('pfight_v1', '1'); setting('__reload__');
+$fx = fn() => function_exists('pf_first_due');
+$crow = fn(string $slug) => q_one('SELECT * FROM creatures WHERE slug = ?', [$slug]);
+q('UPDATE users SET level = 1 WHERE id = ?', [$uid]); $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+ok('first fight: due for a new gnome', $fx() && pf_first_due($u));
+ok('first fight: a random level 3 Sand Flea Pack becomes the Garden Snail', $fx() && (learner_creature($u, $crow('sand-fleas'), 'coast', 1)['slug'] ?? '') === 'garden-snail');
+ok('first fight: a boss is left alone', $fx() && (learner_creature($u, ['size' => 'boss', 'level' => 9, 'slug' => 'x'], 'coast', 1)['slug'] ?? '') === 'x');
+set_setting('pfight_first_fixed', '0'); setting('__reload__');
+ok('pfight_first_fixed = 0: no fixed first fight', $fx() && !pf_first_due($u));
+set_setting('pfight_first_fixed', '1'); setting('__reload__');
+// the deal: two new gnomes' first fights (here: the same gnome twice, with a different kit packed in between) are the same
+if (!active_expedition($uid)) explore_start($u);
+$deal = function () use ($uid, $crow) {
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]); $exp = active_expedition($uid); $exp['hp'] = 5;
+    $c = $crow('garden-snail'); $enc = ['type' => 'creature', 'id' => (int)$c['id'], 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false];
+    $s = pfight_state($u, $exp, $enc, $c);
+    return [$s, $exp, $enc];
+};
+[$s1, $e1] = $deal();
+pfd_ensure(); pfd_set_starter($uid, 'kind');
+[$s2] = $deal();
+$hand = fn($s) => implode(',', array_map(fn($t) => $t['k'] . ':' . json_encode($t['ed'] ?? $t['e'] ?? null), $s['me']['hand']));
+ok('first fight: marked first and learner', !empty($s1['first']) && !empty($s1['learn']));
+ok('first fight: the same hand both times, whatever kit was packed', $hand($s1) === $hand($s2), $hand($s1) . ' / ' . $hand($s2));
+ok('first fight: the same board both times', json_encode($s1['pcs']) === json_encode($s2['pcs']));
+$kit = array_column(array_merge($s1['me']['hand'], $s1['me']['draw'] ?? [], $s1['me']['discard'] ?? []), 'k'); sort($kit);
+ok('first fight: the deck is the Bold kit with Taunt (10 pieces)', $kit === ['breather', 'c:grain', 'charm', 'dodge', 'jab', 'pierce', 'rest', 'swing', 'swing', 'taunt'], json_encode($kit));
+ok('first fight: the blank opening is on', !empty($s1['start']));
+ok('a learner fight starts at full health', (int)$e1['hp'] === (int)$e1['max_hp'] && (int)$s1['me']['hp'] === (int)$e1['max_hp'], $e1['hp'] . '/' . $e1['max_hp']);
+pf_learner_bump($uid);
+ok('first fight: not due after one fight', !pf_first_due($u));
+ok('learner fight 2: a level 3 creature is swapped for one no higher than the gnome', (int)(learner_creature($u, $crow('sand-fleas'), 'coast', 1)['level'] ?? 99) <= 1);
+[$s3] = $deal();
+ok('learner fight 2: a Garden Snail now is an ordinary fight (no fixed deal)', empty($s3['first']) && !empty($s3['learn']));
+pf_learner_bump($uid); pf_learner_bump($uid);
+ok('after the learner fights: the creature is kept', (learner_creature($u, $crow('sand-fleas'), 'coast', 1)['slug'] ?? '') === 'sand-fleas');
+q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]); q('UPDATE pf_decks SET starter = 0 WHERE user_id = ?', [$uid]);
+// guided first turns
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+ok('guide: on for a new gnome', function_exists('pf_guide_on') && pf_guide_on($uid));
+pf_learner_bump($uid);
+ok('guide: still on in fight 2', function_exists('pf_guide_on') && pf_guide_on($uid));
+pf_guide_off($uid);
+ok('guide: off once the gnome closes it', !pf_guide_on($uid));
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]); pf_learner_bump($uid); pf_learner_bump($uid);
+ok('guide: off after 2 fights', function_exists('pf_guide_on') && !pf_guide_on($uid));
+set_setting('pfight_guide_n', '0'); setting('__reload__'); q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+ok('pfight_guide_n = 0: no guide', function_exists('pf_guide_on') && !pf_guide_on($uid));
+set_setting('pfight_guide_n', '2'); setting('__reload__');
+// the hint: public information only
+$h0 = function_exists('pf_hint') ? pf_hint($s1, 'Garden Snail') : 'x';
+ok('hint: none in the opening', $h0 === null);
+$sh = $s1; pfb_start($sh, 0, 'L');
+$h = function_exists('pf_hint') ? pf_hint($sh, 'Garden Snail') : null;
+ok('hint: a hand piece and a lit spot of it', $h && isset(pfb_cell_preview($sh, $h['i'])[$h['x'] . ',' . $h['y']]), json_encode($h));
+$m = pfb_search($sh, 'me');
+ok('hint: the learner bot\'s pick (pfb_search)', $h && $m && [$h['i'], $h['x'], $h['y']] === [$m[0], $m[1], $m[2]], json_encode([$h, $m]));
+ok('hint: says why in one line', $h && preg_match('/^[A-Z][^.]* here: .*\.$/u', $h['why']) && !str_contains($h['why'], "\n"), $h['why'] ?? '');
+$sx = $sh; $sx['foe']['hand'] = array_reverse($sx['foe']['hand']); foreach ($sx['foe']['hand'] as &$ft) $ft['v'] = 30; unset($ft); $sx['foe']['draw'] = []; $sx['me']['draw'] = array_reverse($sx['me']['draw']);
+ok('hint: the same when the hidden hand and piles change', $h && pf_hint($sx, 'Garden Snail') === $h);
+// defeat recap
+$loss = [];
+if (function_exists('pf_loss_add')) pf_loss_add($loss, [['by' => 'me', 'ta' => 'me', 'hpnow' => 20], ['by' => 'foe', 'ta' => 'me', 'hpnow' => 16], ['by' => 'foe', 'ta' => 'foe', 'hpnow' => 10], ['by' => 'env', 'ta' => 'env', 'env' => 'poison', 'me' => 2, 'hpnow' => 7], ['by' => 'env', 'ta' => 'env', 'env' => 'bramble', 'me' => 1, 'hpnow' => 7]], 20);
+ok('recap: health lost by cause', $loss == ['chain' => 4, 'foe' => 6, 'poison' => 2, 'env' => 1], json_encode($loss));
+$ln = function_exists('pf_loss_line') ? pf_loss_line($loss, 'Garden Snail') : '';
+ok('recap: one line, biggest first', str_starts_with($ln, 'You lost 6 health to the Garden Snail’s pieces, 4 to your own chains') && str_contains($ln, '2 to poison and 1 to the environment.') && str_contains($ln, 'red-edged'), $ln);
+ok('recap: nothing lost, no line', function_exists('pf_loss_line') && pf_loss_line([], 'X') === '');
+// free retry and no knock-out
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]); for ($i = 0; $i < 5; $i++) pf_learner_bump($uid);
+ok('retry: offered after a defeat in fight 5', function_exists('pf_retry_ok') && pf_retry_ok($uid));
+pf_learner_bump($uid);
+ok('retry: not after fight 6', function_exists('pf_retry_ok') && !pf_retry_ok($uid));
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+[$sd, $ed, $encd] = $deal(); pfb_start($sd, 0, 'L'); $sd['over'] = 'defeat'; $sd['me']['hp'] = 0;
+$ed = active_expedition($uid); $ed['hp'] = 0; $encd['pf'] = $sd; $encd['lost'] = 'defeat'; $encd['hp0'] = 17; $encd['hist'] = [['x' => 1]]; $ed['encounter'] = json_encode($encd);
+$_POST = ['nonce' => $sd['nonce']]; $r = pfight_do($u, $ed, 'pf_retry'); $e2 = json_decode((string)$ed['encounter'], true);
+ok('retry: the fight is dealt again (no fight state, nothing ended)', $r === false && empty($e2['pf']) && empty($e2['lost']) && empty($e2['hist']) && !empty($e2['pfgo']), json_encode(array_keys((array)$e2)));
+ok('retry: your health as it was when the fight was dealt', (int)$ed['hp'] === 17, (string)$ed['hp']);
+$ed = active_expedition($uid); $ed['hp'] = 0; $encd['pf'] = $sd + ['learn' => 1]; $ed['encounter'] = json_encode($encd);
+pfight_lost_end($u, $ed, $crow('garden-snail'), $sd + ['learn' => 1], $encd);
+ok('learner defeat: no knock-out (the walk goes on at full health)', $ed['status'] === 'active' && (int)$ed['hp'] === (int)$ed['max_hp'] && $ed['encounter'] === null, $ed['status'] . ' ' . $ed['hp']);
+$ed = active_expedition($uid); $s9 = $sd; unset($s9['learn']);
+pfight_lost_end($u, $ed, $crow('garden-snail'), $s9, $encd);
+ok('a later defeat still knocks you out', $ed['status'] === 'ko');
+q('DELETE FROM pf_learn WHERE user_id = ?', [$uid]);
+echo $fails ? "$fails FAILED\n" : "ok\n";
+exit($fails ? 1 : 0);

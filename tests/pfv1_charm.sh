@@ -42,7 +42,7 @@ if [ -d /opt/node-tools/node_modules/playwright ] || node -e "require('playwrigh
   [ -z "$ONLYREPLAY" ] || { FAILS=$(grep -c '^FAIL' $H.out); [ "$(grep -c '^replay: done' $H.out)" = 1 ] || FAILS=$((FAILS+1)); [ "$FAILS" -eq 0 ] && echo "pfv1_replay ok" || echo "$FAILS FAILED"; exit $([ "$FAILS" -eq 0 ]; echo $?); }
   [ -n "$ONLYEND" ] || NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node "$HERE/pfv1_charm.js" "$BASE" "$GAME" "$HERE" 2>&1 | tee -a $H.out | cut -c1-400
   NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node "$HERE/pfv1_endturn.js" "$BASE" "$GAME" "$HERE" 2>&1 | tee -a $H.out | cut -c1-400   # 2.6.79: End turn on an emulated phone
-  php "$HERE/pbox_v1_seed.php" "$GAME" fight small >/dev/null; php -d display_errors=1 "$HERE/pfv1_finalturn.php" "$GAME" 2>&1 | tee -a $H.out | cut -c1-400   # 2.6.88: the turn that ends the fight replays only itself
+  php "$HERE/pbox_v1_seed.php" "$GAME" fight large manual grass-snake >/dev/null; php -d display_errors=1 "$HERE/pfv1_finalturn.php" "$GAME" 2>&1 | tee -a $H.out | cut -c1-400   # 2.6.88: the turn that ends the fight replays only itself
   # 2.6.80: the same turns inside the MODAL Trail dialog (a tile walk, the fight in #trailpop): the dialog must stay the same open modal element
   php "$HERE/here.php" "$GAME" cli tilewalk >/dev/null
   NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node "$HERE/pfv1_trail.js" "$BASE" "$GAME" "$HERE" 2>&1 | tee -a $H.out | cut -c1-400

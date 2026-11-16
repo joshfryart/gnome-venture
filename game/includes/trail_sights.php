@@ -11,7 +11,7 @@ require_once __DIR__ . '/trail_sight_extras.php';
 
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
 const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'check', 'choose', 'disc'];
-const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal)=[a-z0-9,]+|(tl|tn)=[a-z0-9-]+:\d+|qd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
+const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti)=[a-z0-9,]+|mo=[a-z,-]+|(tl|tn)=[a-z0-9-]+:\d+|qd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
 function trail_sight_row(array $p): ?array
@@ -357,6 +357,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             if ($t['cond'] !== '' && !trail_sight_cond_ok($t['cond'], $now)) continue;
             $tok = $t['tok'];
             if (str_starts_with($tok, 'take=') || str_starts_with($tok, 'tally=')) continue;
+            if (str_starts_with($tok, 'item=')) { require_once __DIR__ . '/wearables.php'; if (wear_parse(explode(':', substr($tok, 5))[0]) !== null && !wear_live($u)) continue; }   // 2.7.01: wearables drop only while puzzle combat (pfight_v1) is on for this gnome
             if (str_starts_with($tok, 'choose=')) { $tok = $choose[(int)$opt['reward']][0]; if (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) { $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); continue; } $plain[] = $tok; continue; }
             $tok = trail_sight_flat_scale($tok, stop_level($loc));   // 2.7.00 rewards pass (off until approved)
             if ($row['tool'] !== '-' && str_contains($tok, '@')) $tok = trail_sight_tier_chance($tok, tool_tier((int)$u['id'], explode(':', $row['tool'])[0]));   // 2.7.00 tool-tier odds

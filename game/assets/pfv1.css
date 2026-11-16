@@ -553,3 +553,18 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pfv .pcg li.isnew::after { content: 'NEW'; position: absolute; top: -6px; right: -4px; padding: 0 4px; font: 700 9px/13px var(--font, system-ui, sans-serif); background: #e8a317; color: #2a1a10; }
 .pfv .capp.lard i.on { background: #7ab55c; }
 .pfv .capp.keep i.on { background: #c3b2ea; }
+/* 2.7.01 costly cell: a lit spot whose chain costs your health has a solid red edge (not only the dark red number); the line above End turn says what it fires */
+.pf-v1 .pfb-cell.pfb-lit.pfv-costly { border: 3px solid #e0402f; background: rgba(224, 64, 47, .2); }
+.pf-v1 .pf-preview.pfv-costwarn { color: #fff; background: #a8261b; border-radius: .4rem; padding: .2rem .5rem; font-weight: 600; }
+/* 2.7.01 "New today": one line at the start of the first fight with the full rules */
+.pf-v1 .pfv-new { margin: .3rem 0; padding: .35rem .6rem; border-radius: .5rem; background: #2d4a2a; color: #f2f7e8; border: 1px solid #7fb069; font-size: .92em; }
+/* 2.7.01 guided first turns, the stall nudge and the hint (one line above the board, never over it; the close button hides it) */
+.pf-v1 .pfv-guide { display: flex; align-items: center; gap: .4rem; margin: .25rem 0; padding: .3rem .3rem .3rem .6rem; border-radius: .5rem; background: #f6edc9; color: #3b2f12; border: 1px solid #c9a94a; font-size: .92em; line-height: 1.3; }
+.pf-v1 .pfv-guide[hidden] { display: none; }
+.pf-v1 .pfv-guide .gt { flex: 1; }
+.pf-v1 .pfv-guide .gx { flex: none; min-width: 32px; min-height: 32px; border: 0; background: transparent; color: inherit; font-size: 1rem; cursor: pointer; border-radius: .4rem; }
+.pf-v1 .pfv-guide[data-k=hint] { background: #e6f2ff; border-color: #6a9fd8; color: #10283f; }
+.pf-v1 .pfb-cell.pfb-lit.pfv-hint { outline: 3px solid #ffd54a; outline-offset: -3px; box-shadow: 0 0 0 3px rgba(255, 213, 74, .5); }
+.pf-v1 .pf-tile.pfv-hinted { outline: 3px solid #ffd54a; outline-offset: 1px; }
+.pf-v1 .pfv-hintb small { margin-left: .2rem; opacity: .8; }
+.pfv .pfv-recap { margin: .4rem 0; }

@@ -40,7 +40,7 @@ set_() { db "INSERT OR REPLACE INTO settings (name,value) VALUES ('$1','$2')" >/
 letsfight() { get adventure.php >/dev/null; if grep -q 'id="pfv-starter"' $H; then post adventure.php -d do=pfd_starter -d kit=steady >/dev/null; get adventure.php >/dev/null; fi; if grep -q 'id="pfv-pre"' $H; then post adventure.php -d do=pfv_go >/dev/null; fi; get adventure.php >/dev/null; }
 set_ pfight_open 1; set_ pfight_mode board
 echo "== gating"
-php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight grass-snake 2>&1 | tail -1
 get adventure.php >/dev/null
 ck "pfight_v1 unset: an old board fight (no v1 data in the page)" "$(grep -c '"v1":{' $H)" "0"
 ck "pfight_v1 unset: the fight state has no v1 key" "$(encq 'isset($s["v1"]) ? "v1" : "old"')" "old"
@@ -48,11 +48,11 @@ set_ pfight_v1 admin
 get adventure.php >/dev/null
 ck "the fight under way keeps its old rules when the flag is turned on" "$(encq 'isset($s["v1"]) ? "v1" : "old"')" "old"
 ck "flip is refused in an old fight" "$(pf pfb_flip -d hand=0)" "302"; ck "old fight: no piece flipped" "$(encq 'json_encode(array_filter($s["me"]["hand"], fn($t) => !empty($t["flip"])))')" "[]"
-php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight grass-snake 2>&1 | tail -1
 get adventure.php >/dev/null
 ck "pfight_v1 = admin: a player who is not an admin still gets the old rules" "$(encq 'isset($s["v1"]) ? "v1" : "old"')" "old"
 db "UPDATE users SET role='admin' WHERE username='sprout'" >/dev/null; set_ pfight_mode chain
-php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight grass-snake 2>&1 | tail -1
 get adventure.php >/dev/null
 ck "stage C: an admin first packs a box (the starter pick), nothing is dealt" "$(grep -c 'id="pfv-starter"' $H) $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 not dealt"
 post adventure.php -d do=pfd_starter -d kit=steady >/dev/null; get adventure.php >/dev/null
@@ -62,7 +62,7 @@ ck "pfight_v1 = admin, an admin: a v1 fight, on the board even when pfight_mode 
 echo "== the page of a v1 fight"
 ck "board page" "$(grep -c 'data-mode="board"' $H)" "1"
 ck "page data: rule numbers, ground, forecast, aim, flip" "$(grep -c '"v1":{"limit":3.*"ter":.*"envs":.*"aim":.*"flip":{"on":true,"used":false}' $H)" "1"
-ck "T12 page data: the week-1 rules, resolved (no set-aside, free pass, one bar, no Teamwork, the aim total)" "$(grep -c '"v1":{.*"team2":1.*"aside":0,"must":0,"freepass":1,"flip1":0,"nowm":1,"redraw":1,"onebar":1,"aimtot":1' $H)" "1"
+ck "T12 page data: the week-1 rules, resolved (no set-aside, free pass, one bar, no Teamwork, the aim total)" "$(grep -c '"v1":{.*"team2":1.*"aside":0,"must":0,"freepass":1,"flip1":0,"nowm":1,"nothorn":[01],"redraw":1,"onebar":1,"aimtot":1' $H)" "1"
 ck "T12 one bar: a single bar with a damage and a charm segment and the words 'Yield N of M: hurt D, charm C'" "$(grep -c 'class="pf-fhp pf-one" role="img" aria-label="Yield 0 of [0-9]*: hurt 0, charm 0\.' $H) $(grep -c 'class="pfx-fill fhfill"' $H) $(grep -c 'class="pfx-fill chfill"' $H) $(grep -c 'class="pf-bar ' $H)" "1 1 1 0"
 ck "Yield: the creature's bar reads 'Yield 0/M' and says 'Yield bar'; the page script gets the word; no creature health, HP or 'Bar N of M'" "$(grep -c '<b>0/[0-9]*</b>' $H) $(grep -c 'title="Yield 0/[0-9]*: hurt 0, charm 0"' $H) $(grep -c '"yieldw":"Yield"' $H) $(grep -o 'class="pf-bars">.*' $H | head -1 | grep -ciE 'Creature health|Bar [0-9]+ of|damage bar')" "1 1 1 0"
 ck "Yield: the page script and tests say Yield bar for a new fight (pfboardv1.js has no 'Bar N of M')" "$(grep -c "Yield bar" "$GAME/assets/pfboardv1.js" | awk '{print ($1>0)?"yes":"no"}') $(grep -c "'Bar ' + tn" "$GAME/assets/pfboardv1.js")" "yes 0"
@@ -70,7 +70,7 @@ ck "T12 free pass: no Pass (nothing fits) button, End turn does the passing" "$(
 ck "T12 flip is free any number of times: no 'once a turn' on the button" "$(grep -o 'id="pf-flip"[^>]*>' $H | grep -c 'once a turn')" "0"
 ck "page data (2.6.75): the environment's two face-up pieces (a list), no ground cells, no forecast" "$(grep -c '"env":true.*"ter":{}.*"envs":\[\].*"env":{"next":\[{"k":"e:[a-z]*","n":"[A-Za-z]*","kind":"[a-z]*","life":[23],"e":{' $H)" "1"
 ck "page (2.6.75): the legend row is the environment strip (no terrain legend)" "$(grep -c 'id="pfv-legend" role="group" aria-label="The environment: its next pieces"' $H) $(grep -c 'aria-label="Terrain legend"' $H)" "1 0"
-ck "page data: the board size of the creature (small: 4x4 since 2.6.94, every size is 4x4)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "small 4x4"; ck "page data carries that size" "$(grep -c '"w":4,"h":4' $H)" "1"
+ck "page data: the board size of the creature (large here: 4x4 since 2.6.94, every size is 4x4)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "large 4x4"; ck "page data carries that size" "$(grep -c '"w":4,"h":4' $H)" "1"
 ck "page data: hand pieces carry life, source, flip" "$(grep -c '"life":[234],"src":"[a-z]*","flip":false,"canflip":true' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
 ck "no draw pile or seed in the page" "$(grep -c '"rng"\|"draw"' $H)" "0"
 BL=$(encq '$s["pcs"][1]["x"] . "," . $s["pcs"][1]["y"]'); BX=${BL%,*}; BY=${BL#*,}
@@ -117,7 +117,7 @@ ck "2.6.75: environment history chips say Environment, never Terrain" "$([ $ENVL
 ck "the environment's turn showed as history chips" "$([ $ENVN -ge 1 ] && echo yes || echo no)" "yes"
 ck "2.6.75: the replay carries the environment's placements (env place, cell) and its pieces firing in chains (env fire, kind, for)" "$([ $PLN -ge 1 ] && [ $FIN -ge 1 ] && echo yes || echo "no ($PLN placed, $FIN fired)")" "yes"
 ck "2.6.75: no 2.6.74 terrain event in a new fight" "$OLDT" "0"
-php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight grass-snake 2>&1 | tail -1
 get adventure.php >/dev/null
 ck "flag off again: the next fight is an old one (pfight_mode chain: the strip)" "$(encq '(isset($s["v1"]) ? "v1" : "old") . " " . ($s["mode"] ?? "strip")')" "old strip"
 ck "no errors in the game error log" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"

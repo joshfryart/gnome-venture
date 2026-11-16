@@ -123,9 +123,10 @@ function treehouse_game_card(array $u, string $key): string
 }
 
 /** The pal's picture for a perch: its own sprite file, else the sticker, else a crop of its picture's piece, else a silhouette. Returns the sprite keys to merge. */
-function treehouse_pal_pic(array $p): array
+function treehouse_pal_pic(array $p, bool $perch = false): array
 {
     $key = preg_replace('/[^a-z0-9_-]/i', '', (string)$p['key']);
+    if ($perch && $key !== '' && is_file(APP_ROOT . '/assets/img/pals/perch/' . $key . '.png')) return ['src' => url('assets/img/pals/perch/' . $key . '.png')];   // 2.7.01: a pal drawn at perch size (36x36, art-2701 Opus); every other pal keeps the yard picture below
     $f = '/assets/img/pals/' . $key . '.png';
     if ($key !== '' && is_file(APP_ROOT . $f)) return ['src' => url(ltrim($f, '/'))];
     $url = ppal_art_url((string)$p['key']);
@@ -265,7 +266,7 @@ function treehouse_view(array $u, string $open = ''): string
                    'href' => url('treehouse.php?o=p' . substr($p['uid'], 0, 8)), 'card' => treehouse_pal_card($u, $p, $fi, $job, 'treehouse'), 'new' => $isNew, 'mark' => $p['active'] ? '🎒' : ''];
             $sp['label'] = $p['name'];
             if ($away) $sp += ['away' => 'away ' . ($job ? pj_ago(max(0, pj_ts((string)$job['ends_at']) - time())) : '')];
-            else $sp += treehouse_pal_pic($p);
+            else $sp += treehouse_pal_pic($p, true);   // a perch: the 36 px perch picture when the pal has one
             $sprites[] = $sp;
         }
         if ($overflow > 0) $more = ['label' => '+' . $overflow . ' in the yard', 'href' => url($pjOn ? 'palyard.php' : 'puzzlepals.php')];

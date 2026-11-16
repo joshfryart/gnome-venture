@@ -1,0 +1,8 @@
+# Mountain family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# One speckle-eared goat shows up on three ledges. Two beats need Hazel Dewdrop, the goat herder, by her weekly clockwork (npc=); she works the high ledges at dawn.
+Q|goat-ledge-census|The Goat Ledge Census|Hazel Dewdrop|🐐|seq|xp=60,c=40,item=goat-hair:2,fp=2,title=Ledge Counter|Hazel Dewdrop herds the goats of the high ledges and swears one speckle-eared goat is on every ledge at once. She would like you to count it, three ledges, and tell her at dawn.|At dawn you give Hazel your count: one goat, three ledges, no twins. She nods slowly. "Pebble. She knows a shortcut." She hands you a handful of wool for the trouble.|
+B|goat-ledge-census|mountain-the-goat-ledge|Count the speckle-eared goat on the first ledge|-|
+B|goat-ledge-census|mountain-the-echo-wall|Call the goat and listen for which way her bell answers|-|
+B|goat-ledge-census|mountain-the-eagle-s-rest|Count her again on the high ledge beside the eagle|-|
+B|goat-ledge-census|mountain-the-pine-shelf|Hazel Dewdrop, at dawn on the pine shelf, checks your count against hers|dp=dawn|npc=Hazel Dewdrop
+B|goat-ledge-census|mountain-the-goat-ledge|Give Hazel the final count at the goat ledge at dawn|dp=dawn|npc=Hazel Dewdrop

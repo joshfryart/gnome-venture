@@ -18,6 +18,11 @@ php "$HERE/pf_play.php" new "$T/o.json" grass-snake 14 7 v1 '' old >/dev/null 2>
 if has "$T/o.json" foe '"n":"Lunge"'; then ok "(c) 'old' keeps the archetype Lunge"; else bad "(c) 'old' keeps the archetype Lunge"; fi
 if has "$T/o.json" me '"src":"tool"'; then bad "(c) 'old' keeps the stage A player deck (no tool)"; else ok "(c) 'old' keeps the stage A player deck (no tool)"; fi
 
+# 2.7.01: the harness prints the creature's class rule (name and sentence), as the page's chip does
+OUT=$(php "$HERE/pf_play.php" new "$T/k.json" grass-snake 14 7 v1 2>&1)
+if echo "$OUT" | grep -q "^CLASS RULE: Venom trail: When one of its pieces leaves the board"; then ok "(d) class rule line printed (Reptile: Venom trail)"; else bad "(d) class rule line printed (Reptile: Venom trail)"; fi
+if php "$HERE/pf_play.php" new "$T/c.json" grass-snake 14 7 classic 2>&1 | grep -q "^CLASS RULE"; then bad "(d) no class rule line in a fight without class rules (classic)"; else ok "(d) no class rule line in a fight without class rules (classic)"; fi
+
 # every creature of the old playtest assignments still starts
 ASSIGN=${ASSIGN:-}
 if [ -n "$ASSIGN" ] && [ -f "$ASSIGN" ]; then

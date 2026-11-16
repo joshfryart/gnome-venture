@@ -52,8 +52,8 @@ const PFB_MUD = 0.25;                         // Mud's teeth: a piece standing n
 const PFB_RAIN = 0.15;                        // Rain: guard for the side that fires it, a share of its maximum (your health, the creature's bar)
 const PFB_THORN_FOE = 0.5;                    // Thornburst fired by the creature: x this (Josh, after Sim 5: 5% for the creature, 10% for you)
 const PFB_ENV_EDGE = ['h' => 'hole', 'k' => 'knob', 'b' => 'body', 'm' => 'mind', 'c' => 'craft'];
-const PFB_V1_FOE_MULT = ['small' => 0.855, 'medium' => 0.48, 'large' => 0.378, 'boss' => 0.585];   // week-1 retune (T13): was 0.95 / 0.60 / 0.42 / 0.585 (one shared bar, aim total, redraw and free pass made the chain bot too strong: 95 / 92 / 90 / 91%; now 79 / 80 / 82 / 78%). After 2.6.94 (AIMSTICK): boss x1.3 (was 0.45) with its bar x0.8, so a boss hits harder in a shorter fight: chain bot at level 88 -> 88-90% (94% with AIMSTICK alone), 4 under 76 -> 73-75%, 8 under 50%, fights 8.7 -> 7.6 turns. Medium and large also take the level curve PFB_V1_LEVEL.   // 2.6.79 retune for isolated environment pieces (the creature fires them more): was 1.0 / 0.67 / 0.53 / 0.66.   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5" (second retune: 2 environment pieces a round, Mud's teeth, Thornburst halved on the creature; with 1 piece a round it was 1.0 / 0.70 / 0.53 / 0.66 and bars 0.75 / 0.92 / 1.05 / 0.66). 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
-const PFB_V1_BAR_MULT = ['small' => 1.325, 'medium' => 1.491, 'large' => 1.495, 'boss' => 0.825];   // week-1 retune (T13): was 0.828 / 0.994 / 1.15 / 0.611, longer bars for 6-8 turn fights, see PFB_V1_FOE_MULT. After 2.6.94: boss x0.8 (was 0.764), see PFB_V1_FOE_MULT.   // 2.6.79: x0.92 (was 0.90 / 1.08 / 1.25 / 0.83)   // the creature's bars by size (replaces PFB_BAR_MULT)
+const PFB_V1_FOE_MULT = ['small' => 0.93, 'medium' => 0.735, 'large' => 0.428, 'boss' => 0.60];   // 2.7.01 (policy D, claude/creature-pass/balance-report.md): 2.7.00 values x option A (chain bot about 80% at level for every size; the 2.7.00 values gave 85 / 95 / 93 / 90): was 0.855 / 0.48 / 0.378 / 0.585.   // week-1 retune (T13): was 0.95 / 0.60 / 0.42 / 0.585 (one shared bar, aim total, redraw and free pass made the chain bot too strong: 95 / 92 / 90 / 91%; now 79 / 80 / 82 / 78%). After 2.6.94 (AIMSTICK): boss x1.3 (was 0.45) with its bar x0.8, so a boss hits harder in a shorter fight: chain bot at level 88 -> 88-90% (94% with AIMSTICK alone), 4 under 76 -> 73-75%, 8 under 50%, fights 8.7 -> 7.6 turns. Medium and large also take the level curve PFB_V1_LEVEL.   // 2.6.79 retune for isolated environment pieces (the creature fires them more): was 1.0 / 0.67 / 0.53 / 0.66.   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5" (second retune: 2 environment pieces a round, Mud's teeth, Thornburst halved on the creature; with 1 piece a round it was 1.0 / 0.70 / 0.53 / 0.66 and bars 0.75 / 0.92 / 1.05 / 0.66). 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
+const PFB_V1_BAR_MULT = ['small' => 1.378, 'medium' => 1.7743, 'large' => 1.7193, 'boss' => 0.9158];   // 2.7.01 (policy D): was 1.325 / 1.491 / 1.495 / 0.825.   // week-1 retune (T13): was 0.828 / 0.994 / 1.15 / 0.611, longer bars for 6-8 turn fights, see PFB_V1_FOE_MULT. After 2.6.94: boss x0.8 (was 0.764), see PFB_V1_FOE_MULT.   // 2.6.79: x0.92 (was 0.90 / 1.08 / 1.25 / 0.83)   // the creature's bars by size (replaces PFB_BAR_MULT)
 
 // LEVEL CURVE (after 2.6.94, AIMSTICK retune; claude/design-board-strategy.md targets, sims in tests/pfboard_tune_v1.php): one factor f by the creature's size and level,
 // f = clamp(1 + slope x (level - ref), lo, hi), as [slope, ref, lo, hi]. Its piece values are x f; its bar is x min(1, f), so a weak creature is also shorter, a strong one only hits harder.
@@ -62,15 +62,273 @@ const PFB_V1_BAR_MULT = ['small' => 1.325, 'medium' => 1.491, 'large' => 1.495, 
 // Medium: 0.85 at lv 9 or less, 1.0 at 12, 1.35 from 19. Large: 0.85 at lv 16 or less, 1.0 at 22, 1.10 from 26 (a steeper large curve cost too much at 8 under).
 // Small (lv 1-5) and bosses (all lv 26-35) are flat: the boss retune is in PFB_V1_FOE_MULT / PFB_V1_BAR_MULT. Reconciles two sim reviews (balance "r4": medium lv 5-9 only;
 // difficulty "Proposal A": medium, large and boss by level) into this one curve; chain bot at level is then 76-87% in nearly every size x 5-level band (was 57-96%; left: medium lv 1-5 = orb-spider alone 62%, bosses lv 26-30 92%).
-const PFB_V1_LEVEL = ['small' => [0.0, 1, 1.0, 1.0], 'medium' => [0.05, 12, 0.85, 1.35], 'large' => [0.025, 22, 0.85, 1.10], 'boss' => [0.0, 1, 1.0, 1.0]];
+// 2.7.01 (policy D): small creatures now run to level 40 (variants), so small has a curve: x1.0 up to level 6, then +5% a level to x1.8 (a small at level 25 was 100% for the chain bot at level and 4 under).
+const PFB_V1_LEVEL = ['small' => [0.05, 6, 1.0, 1.8], 'medium' => [0.05, 12, 0.85, 1.25], 'large' => [0.025, 22, 0.85, 1.10], 'boss' => [0.0, 1, 1.0, 1.0]];
+// 2.7.01 (policy D): the Yield bar of a MEDIUM creature is eased at low levels so a gnome 4 levels under it does not fall off a cliff: bar x clamp(floor + (1 - floor) x (L - from) / (to - from), floor, 1).
+const PFB_V1_BAR_EASE_MEDIUM = [0.30, 12, 26];   // [floor, level it starts to rise, level it is 1.0]
+const PFB_V1_BAR_EASE_SMALL = [0.30, 14, 30];    // 2.7.01 balance pass 2: the same ease for the small creatures (they now run to level 40, so a gnome 4 levels under a lv 6-20 small fell off a cliff)
+/** The bar factor of PFB_V1_BAR_EASE_MEDIUM / _SMALL for a size and creature level (1.0 for every other size, and with no level). */
+function pfb_bar_ease(string $size, int $lv): float
+{
+    if (($size !== 'medium' && $size !== 'small') || $lv <= 0) return 1.0;
+    [$f, $a, $b] = $size === 'small' ? PFB_V1_BAR_EASE_SMALL : PFB_V1_BAR_EASE_MEDIUM;
+    return pf_round(max($f, min(1.0, $f + (1.0 - $f) * ($lv - $a) / ($b - $a))), 4);
+}
+/** data/pf_creature_tune.txt (slug|foe_x|bar_x): the per-creature multipliers of piece value and bar, [] for a creature with no row. $GLOBALS['PFB_TUNE'] (slug => ['foe_x' =>, 'bar_x' =>]) replaces the file (sims). */
+function pfb_v1_tune(string $slug): array
+{
+    static $T = null;
+    if (isset($GLOBALS['PFB_TUNE'])) return $GLOBALS['PFB_TUNE'][$slug] ?? [];
+    if ($T === null) {
+        $T = [];
+        foreach (pf_data_lines('pf_creature_tune.txt') as $r) if (count($r) >= 2 && is_numeric($r[1])) $T[$r[0]] = ['foe_x' => (float)$r[1], 'bar_x' => (isset($r[2]) && is_numeric($r[2])) ? (float)$r[2] : 1.0];
+    }
+    return $T[$slug] ?? [];
+}
+/** The sim overrides of pfb_v1_cfg with the creature's tune row folded in (foe_x, bar_x multiply). */
+function pfb_v1_over(array $c, array $over = []): array
+{
+    $t = pfb_v1_tune((string)($c['slug'] ?? ''));
+    if ($t) { $over['foe_x'] = (float)($over['foe_x'] ?? 1.0) * $t['foe_x']; $over['bar_x'] = (float)($over['bar_x'] ?? 1.0) * $t['bar_x']; }
+    return $over;
+}
 /** The 2.6.94 rule set for the keys added after it (compat: a saved fight without a key plays as before). Every new rule reads its key through pfb_v1r(), never $s['v1'][k] directly.
  *  aside = the set-aside group may be joined, must = a placed piece must connect, freepass = passing is free, flip1 = one flip a turn, nowm = Wind and Mud out of the environment deck,
  *  redraw = the hand is redrawn each round, onebar = one shared bar, aimtot = the aim shows its total, keepmine = your pieces survive use-up, aimhit = the aimed cell can be struck,
  *  useroot, kinds = class rules (later tasks). A NEW fight takes its defaults from pfb_v1_cfg (each task flips its own default); an old state falls back to this. */
 const PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health (rules.md: large 7.7 against 7.8 turns)
-const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0, 'blankrand' => 0, 'order' => 0, 'spawn' => 1];
+const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'nothorn' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0, 'blankrand' => 0, 'order' => 0, 'spawn' => 1, 'abil' => 0, 'style' => 0];
 /** 2.6.98 class rules (switch kinds): one readable rule per creature class. Swarm: Critter plays 2 pieces a turn at x0.6. Grudge: Beast Hurt +25% per block (max 3). Venom: Reptile leaves venom 2 rounds, poison 2 x 2. */
 const PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;
+/**
+ * 2.7.01 creature abilities (data/pf_creatures.txt column `ability`, claude/creature-pass/SPEC.md sec 2), behind the compat key `abil` (0 for fights saved before 2.7.01, 1 in new fights).
+ * id => [group, base kind (E) or effect (N) or '' (D), tier, default params, name, card text (max 80)]. E = a class-rule kind with other numbers, N = a new engine effect, D = a deck signature (no engine work).
+ * The creature row carries `ab` (the ids) and `abp` (id => overrides); pfb_new keeps the ids in $s['foe']['ab'] and the resolved numbers in $s['foe']['abp'].
+ */
+const PFB_ABIL = [
+    'swarm' => ['E', 'critter', 0, [], 'Swarm', 'Its Hurt hits +1 for every 2 of its other pieces on board, up to +2'],
+    'swarm-dense' => ['E', 'critter', 1, ['smax' => 3], 'Dense Swarm', 'Its Hurt hits +1 for every 2 of its other pieces on board, up to +3'],
+    'two-aims' => ['E', 'bird', 0, [], 'Two aims', 'It shows two cells; take the first and it plays the second'],
+    'grudge' => ['E', 'beast', 0, [], 'Grudge', 'Each block of its aim makes its Hurt 25% harder, up to 3 times'],
+    'grudge-fury' => ['E', 'beast', 1, ['gpct' => 0.35, 'gmax' => 2], 'Fury grudge', 'Each block of its aim makes its Hurt 35% harder, up to 2 times'],
+    'grudge-slow' => ['E', 'beast', 1, ['gpct' => 0.15, 'gmax' => 5], 'Slow grudge', 'Each block of its aim makes its Hurt 15% harder, up to 5 times'],
+    'current' => ['E', 'water', 0, [], 'Current', 'After its piece lands, one of your touching pieces slides 1 cell'],
+    'current-hard' => ['E', 'water', 1, ['slide' => 2], 'Strong current', 'After its piece lands, one of your touching pieces slides up to 2 cells'],
+    'grows' => ['E', 'plant', 0, [], 'Grows', 'After its turn a Bramble grows beside its piece (one of its own at a time)'],
+    'grows-twin' => ['E', 'plant', 1, ['gcap' => 2], 'Twin growth', 'After its turn a Bramble grows beside its piece (up to 2 of its own)'],
+    'venom-trail' => ['E', 'reptile', 0, [], 'Venom trail', 'Where its piece leaves is venom 2 rounds; your piece there poisons you 2 a round'],
+    'venom-long' => ['E', 'reptile', 1, ['vrnds' => 3, 'vpoison' => 1], 'Long venom', 'Where its piece leaves is venom 3 rounds; your piece there poisons you 1 a round'],
+    'two-turns' => ['E', 'boss', 0, [], 'Two turns', 'It also shows the piece it plays next round; that piece is forced'],
+    'drain1' => ['N', 'drain', 1, ['pct' => 0.25], 'Drain', 'A hit that lands heals it by a quarter of the damage'],
+    'drain2' => ['N', 'drain', 2, ['pct' => 0.5], 'Drain', 'A hit that lands heals it by half of the damage'],
+    'plated1' => ['N', 'plated', 1, ['pct' => 0.03], 'Plated', 'Starts each turn with some guard'],
+    'plated2' => ['N', 'plated', 2, ['pct' => 0.05], 'Plated', 'Starts each turn with a good deal of guard'],
+    'enrage1' => ['N', 'enrage', 1, ['at' => 0.5, 'mult' => 1.15], 'Enrage', 'Past half its resolve, its Hurt hits 15% harder'],
+    'enrage2' => ['N', 'enrage', 2, ['at' => 0.4, 'mult' => 1.25], 'Enrage', 'Past 40% of its resolve, its Hurt hits 25% harder'],
+    'wary1' => ['N', 'wary', 1, ['mult' => 0.85], 'Wary', 'Your Charm fills 15% less'],
+    'wary2' => ['N', 'wary', 2, ['mult' => 0.75], 'Wary', 'Your Charm fills 25% less'],
+    'toughhide1' => ['N', 'toughhide', 1, ['cut' => 2], 'Tough hide', 'Your first Hurt each turn is 2 weaker'],
+    'toughhide2' => ['N', 'toughhide', 2, ['cut' => 3], 'Tough hide', 'Your first Hurt each turn is 3 weaker'],
+    'ambush1' => ['N', 'ambush', 1, ['mult' => 1.4, 'pierce' => 0], 'Ambush', 'Its first hit of the fight is 40% harder'],
+    'ambush2' => ['N', 'ambush', 2, ['mult' => 1.7, 'pierce' => 1], 'Ambush', 'Its first hit of the fight is 70% harder and ignores guard'],
+    'stagger1' => ['N', 'stagger', 1, ['pct' => 0.2], 'Stagger', 'A big hit leaves you one piece short next round'],
+    'stagger2' => ['N', 'stagger', 2, ['pct' => 0.12], 'Stagger', 'Even a middling hit leaves you one piece short next round'],
+    'regrow1' => ['N', 'regrow', 1, ['pct' => 0.02, 'turns' => 5], 'Regrow', 'Heals a little each turn at the start of a fight'],
+    'regrow2' => ['N', 'regrow', 2, ['pct' => 0.03, 'turns' => 5], 'Regrow', 'Heals some each turn at the start of a fight'],
+    'D1' => ['D', '', 0, [], 'Sharp', 'Its hits go through guard'],
+    'D2' => ['D', '', 0, [], 'Venom spit', 'Its hits keep working'],
+    'D3' => ['D', '', 0, [], 'Snare', 'It makes you lose pieces'],
+    'D4' => ['D', '', 0, [], 'Flurry', 'It often plays twice'],
+    'D5' => ['D', '', 0, [], 'Ram', 'Its guard becomes damage'],
+    'D6' => ['D', '', 0, [], 'Shell', 'Its guard lasts'],
+    'D7' => ['D', '', 0, [], 'Prickles', 'Blocked hits prick you'],
+    'D8' => ['D', '', 0, [], 'Slip', 'It dodges your first hits'],
+    'D9' => ['D', '', 0, [], 'Mender', 'It heals itself'],
+    'D10' => ['D', '', 0, [], 'Bruiser', 'Heavy hits'],
+    'D11' => ['D', '', 0, [], 'Wall', 'Lots of guard'],
+    'D12' => ['D', '', 0, [], 'Mixed', 'A bit of everything'],
+];
+/** The allowed range of each overridable number (SPEC sec 2): base kind or effect => name => [lo, hi]. */
+const PFB_AB_RANGE = [
+    'critter' => ['smax' => [1, 4]], 'beast' => ['gpct' => [0.05, 0.5], 'gmax' => [1, 6]], 'water' => ['slide' => [1, 2]], 'plant' => ['gcap' => [1, 3]], 'reptile' => ['vrnds' => [1, 4], 'vpoison' => [1, 3]],
+    'drain' => ['pct' => [0.15, 0.60]], 'plated' => ['pct' => [0.02, 0.07]], 'enrage' => ['at' => [0.35, 0.70], 'mult' => [1.10, 1.35]], 'wary' => ['mult' => [0.65, 0.92]], 'toughhide' => ['cut' => [1, 4]],
+    'ambush' => ['mult' => [1.2, 2.0], 'pierce' => [0, 1]], 'stagger' => ['pct' => [0.08, 0.25]], 'regrow' => ['pct' => [0.01, 0.04], 'turns' => [3, 6]],
+];
+/** 'drain1+D1(a=b)' -> ['ids' => [...], 'p' => [id => [k => v]]] (unknown ids are dropped; an override outside its range is clamped; unknown names are dropped). */
+function pfb_ab_parse(string $str): array
+{
+    $ids = []; $p = [];
+    foreach (explode('+', $str) as $part) {
+        $part = trim($part); if ($part === '' || $part === '-') continue;
+        $o = [];
+        if (preg_match('/^([^(]+)\((.*)\)$/', $part, $m)) { $part = trim($m[1]); foreach (explode(';', $m[2]) as $kv) { $kv = explode('=', $kv, 2); if (count($kv) === 2 && is_numeric(trim($kv[1]))) $o[trim($kv[0])] = (float)trim($kv[1]); } }
+        if (!isset(PFB_ABIL[$part]) || in_array($part, $ids, true)) continue;
+        $ids[] = $part;
+        $a = PFB_ABIL[$part]; $rng = PFB_AB_RANGE[$a[1]] ?? [];
+        foreach ($o as $k => $v) { if (!isset($a[3][$k])) continue; $r = $rng[$k] ?? null; $p[$part][$k] = $r ? max($r[0], min($r[1], $v)) : $v; }
+    }
+    return ['ids' => $ids, 'p' => $p];
+}
+/** The resolved numbers of an ability in this fight ($s['foe']['abp'][id]) for an effect name ('drain' ...), or null. Off unless the fight has the `abil` rule. */
+function pfb_ab(array $s, string $fx): ?array
+{
+    if (empty($s['foe']['ab']) || pfb_v1r($s, 'abil') !== 1) return null;
+    foreach ($s['foe']['ab'] as $id) if ((PFB_ABIL[$id][1] ?? '') === $fx && PFB_ABIL[$id][0] === 'N') return $s['foe']['abp'][$id] ?? PFB_ABIL[$id][3];
+    return null;
+}
+/** One number of the class-rule ability (E) of this fight: its override, else $d (the constant the 2.7.00 rule used). */
+function pfb_abp(array $s, string $k, $d)
+{
+    if (empty($s['foe']['ab']) || pfb_v1r($s, 'abil') !== 1) return $d;
+    foreach ($s['foe']['ab'] as $id) if ((PFB_ABIL[$id][0] ?? '') === 'E' && isset($s['foe']['abp'][$id][$k])) return $s['foe']['abp'][$id][$k];
+    return $d;
+}
+/** pfb_new: the creature's abilities into the state (ids, resolved numbers; the E id replaces the class rule). Only when the fight has `abil` and the row carries `ab`. */
+function pfb_ab_init(array &$s, array $c): void
+{
+    $ids = []; $abp = []; $po = (array)($c['abp'] ?? []);
+    foreach ((array)$c['ab'] as $id) {
+        if (!isset(PFB_ABIL[$id]) || in_array($id, $ids, true)) continue;
+        $ids[] = $id; $a = PFB_ABIL[$id];
+        if ($a[0] === 'D') continue;
+        $abp[$id] = $a[3]; foreach ((array)($po[$id] ?? []) as $k => $v) if (isset($a[3][$k])) { $r = PFB_AB_RANGE[$a[1]][$k] ?? null; $abp[$id][$k] = $r ? max($r[0], min($r[1], (float)$v)) : $v; }
+        if ($a[0] === 'E' && !empty($s['v1']['kinds'])) $s['foe']['kind'] = $a[1];
+    }
+    if (!$ids) return;
+    $s['foe']['ab'] = $ids; $s['foe']['abp'] = $abp; $s['foe']['enr'] = 0; $s['foe']['amb'] = pfb_ab($s, 'ambush') ? 1 : 0; $s['foe']['turns'] = 0; $s['me']['tough'] = 0;
+}
+/** A notice for an ability (drain, stagger, regrow, plated): the page shows it as a chip and a log line, with the bars as they stand. */
+function pfb_abnote(array $s, string $kind, string $n): array
+{
+    $e = pfb_note($kind, $n);
+    $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
+    return $e;
+}
+/** After one of its Hurt pieces landed $dmg on you (pf_apply): Drain heals it, Stagger shortens your next draw. $e gets 'drained' / 'staggered' for the notices. */
+function pfb_ab_hit(array &$s, array &$e, int $dmg): void
+{
+    if ($dmg <= 0) return;
+    if ($d = pfb_ab($s, 'drain')) { $h = $dmg * (float)$d['pct']; pf_foe_heal($s, $h); $e['drained'] = pf_round($h, 1); }
+    if (($g = pfb_ab($s, 'stagger')) && $dmg >= (float)$g['pct'] * (float)$s['me']['max']) { $s['me']['slowdraw'] = 1; $e['staggered'] = 1; }
+}
+/** The start of its turn, after the poison tick: its turn count, Regrow, Plated. */
+function pfb_ab_turn(array &$s, array &$ev): void
+{
+    $s['foe']['turns'] = (int)($s['foe']['turns'] ?? 0) + 1;
+    $y = (float)$s['fh']['max'];
+    if (($r = pfb_ab($s, 'regrow')) && $s['foe']['turns'] <= (int)$r['turns']) {
+        $b = (float)$s['fh']['now'] + (float)$s['bar']['now']; pf_foe_heal($s, $y * (float)$r['pct']); $a = (float)$s['fh']['now'] + (float)$s['bar']['now'];
+        if ($a < $b) $ev[] = pfb_abnote($s, 'regrow', (string)pf_round($b - $a, 1));
+    }
+    if ($p = pfb_ab($s, 'plated')) {
+        $g = (int)ceil($y * (float)$p['pct']);
+        if ($g > (int)$s['foe']['block']) { $s['foe']['block'] = $g; $ev[] = pfb_abnote($s, 'plated', (string)$g); }
+    }
+}
+/** Enrage: set (once, never cleared) the first time the Yield bar is at or past its share of the bar (called from pf_check_end). */
+function pfb_ab_enrage(array &$s): void
+{
+    if (!empty($s['foe']['enr']) || !($en = pfb_ab($s, 'enrage'))) return;
+    $prog = !empty($s['v1']['onebar']) ? (float)$s['fh']['now'] + (float)$s['bar']['now'] : (float)$s['fh']['now'];
+    if ($prog >= (float)$en['at'] * (float)$s['fh']['max']) $s['foe']['enr'] = 1;
+}
+/**
+ * 2.7.01 creature AI (SPEC sec 3), behind the compat key `style` (0 = fights saved before 2.7.01 and the 2.7.00 scorer; 1 in new fights). One shared scorer (pfb_ai_score) with a weight vector per play style.
+ * id => [dmg, bar, heal, guard, strip, setup, tempo, control, deny, force, early, late, name, text]. `early` / `late` multiply the dmg weight on its turns 1-2 / from turn 3 (state round). `balanced` is the 2.7.00 scorer
+ * (a creature with it and no override keeps no weights in its state: pfb_score takes the 2.7.00 path, bit for bit). A creature row names its style in `ai` and up to 2 overrides in `aip` (each clamped to -2.5..2.5).
+ */
+const PFB_AI_KEYS = ['dmg', 'bar', 'heal', 'guard', 'strip', 'setup', 'tempo', 'control', 'deny', 'force', 'early', 'late'];
+const PFB_AI = [
+    'balanced'  => [1.0, -0.8, 0.0, 0.4, 0.3, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 'Balanced', 'Plays the best trade each turn'],
+    'crowd'     => [0.8, -0.6, 0.0, 0.2, 0.2, 0.6, 0.8, 1.2, 1.0, 0.8, 1.0, 1.0, 'Crowd', 'Fills the board and shrinks your cells'],
+    'blocker'   => [0.6, -0.8, 0.0, 1.0, 0.6, 0.8, 0.6, 0.3, 1.2, 0.2, 1.0, 1.0, 'Blocker', 'Sits where you want to play and strips your guard'],
+    'burst'     => [1.5, -0.5, 0.0, 0.1, 0.1, 0.3, 0.5, 0.0, 0.0, 1.0, 1.6, 0.8, 'Burst', 'Biggest hit now, and pushes you into its pieces'],
+    'stall'     => [0.5, -1.0, 0.3, 0.8, 0.5, 1.0, 2.0, 0.2, 0.6, 0.0, 0.6, 1.0, 'Stall', 'Delays you: a short draw, an extra piece, guard'],
+    'healer'    => [0.7, -1.0, 1.2, 0.5, 0.3, 0.6, 0.6, 0.0, 0.0, 0.0, 1.0, 1.0, 'Healer', 'Prefers to recover and trades slowly'],
+    'trickster' => [0.8, -0.8, 0.0, 0.3, 0.3, 1.8, 1.8, 0.2, 0.4, 0.2, 1.0, 1.0, 'Trickster', 'Trips, dodges and bashes before it hurts'],
+    'poisoner'  => [0.9, -0.8, 0.0, 0.3, 0.2, 2.0, 1.0, 0.3, 0.0, 0.3, 1.0, 1.0, 'Poisoner', 'Poison and long set-ups first'],
+    'guardian'  => [0.5, -0.9, 0.4, 1.5, 0.8, 0.8, 0.5, 0.1, 0.6, 0.0, 1.0, 1.0, 'Guardian', 'Big guard, Thorns and Hold, slow trades'],
+    'ambusher'  => [0.9, -0.7, 0.0, 0.2, 0.1, 0.8, 0.6, 0.4, 0.2, 1.2, 0.4, 1.6, 'Ambusher', 'Quiet first turns, then hits hard'],
+];
+/** A style as weights by name (['id' => id, 'dmg' => ..., 'late' => ...]), with up to 2 overrides clamped to -2.5..2.5; null for an unknown id and for plain `balanced` (the 2.7.00 scorer). */
+function pfb_ai_make(string $id, array $o = []): ?array
+{
+    if (!isset(PFB_AI[$id])) return null;
+    $w = ['id' => $id]; foreach (PFB_AI_KEYS as $i => $k) $w[$k] = (float)PFB_AI[$id][$i];
+    $n = 0;
+    foreach ($o as $k => $v) { if ($n >= 2) break; if (!in_array($k, PFB_AI_KEYS, true) || !is_numeric($v)) continue; $w[$k] = max(-2.5, min(2.5, (float)$v)); $n++; }
+    return ($id === 'balanced' && $n === 0) ? null : $w;
+}
+/** Every legal (hand piece, cell) of yours: [handIdx, x, y, joints] (the same cells as pfb_cells; the must-link test is made once). */
+function pfb_my_moves(array $s): array
+{
+    $o = []; $must = pfb_must_link($s, 'me');
+    foreach ($s['me']['hand'] as $i => $t) for ($y = 0; $y < pfb_h($s); $y++) for ($x = 0; $x < pfb_w($s); $x++) { $j = pfb_check($s, $t, $x, $y); if ($j !== null && (!$must || pfb_has_link($j))) $o[] = [$i, $x, $y, $j]; }
+    return $o;
+}
+/** The distinct cells where one of your hand pieces may go. */
+function pfb_reach(array $s): int { $c = []; foreach (pfb_my_moves($s) as $m) $c[$m[1] . ',' . $m[2]] = 1; return count($c); }
+/** The features of one creature placement, after ($a) minus before ($b) (SPEC 3.2). $ctx caches the before-side numbers across one search. deny / force are computed only when the weight in $ctx['w'] is not 0 (else 0.0). Keys x_* are for the reason line. */
+function pfb_feat(array $b, array $a, array &$ctx): array
+{
+    $w = $ctx['w'] ?? null;
+    $barD = ($a['bar']['now'] - $b['bar']['now']) + ($a['fh']['now'] - $b['fh']['now']);
+    $u = 0.05 * $a['me']['max']; $setup = 0.0; $tempo = 0.0; $dPz = 0; $dEv = 0; $dTh = 0; $dBa = 0; $dSl = 0; $dAg = 0;
+    if (!empty($a['v1']['tags'])) {
+        $pz = fn(array $z) => (int)($z['me']['poison'] ?? 0) * (int)($z['me']['poison_v'] ?? 0);
+        $dPz = $pz($a) - $pz($b); $dEv = (int)$a['foe']['evade'] - (int)$b['foe']['evade']; $dTh = (int)$a['foe']['thorns'] - (int)$b['foe']['thorns'];
+        $dBa = (int)($a['foe']['bashnext'] ?? 0) - (int)($b['foe']['bashnext'] ?? 0); $dSl = (int)($a['me']['slowdraw'] ?? 0) - (int)($b['me']['slowdraw'] ?? 0); $dAg = (int)($a['foe']['again'] ?? 0) - (int)($b['foe']['again'] ?? 0);
+        $setup = $dPz + $u * (1.5 * $dEv + 0.6 * $dTh + 1.0 * $dBa); $tempo = $u * (1.0 * $dSl + 1.5 * $dAg);
+    }
+    $nf = fn(array $z) => min(4, count(array_filter($z['pcs'], fn($p) => $p['by'] === 'foe')));
+    $deny = 0.0; $force = 0.0; $dReach = 0;
+    if ($w !== null && (($w['deny'] ?? 0) != 0)) {
+        $ctx['rb'] ??= pfb_reach($b); $dReach = $ctx['rb'] - pfb_reach($a); $deny = 0.1 * $a['me']['max'] * $dReach / max(1, $ctx['rb']);
+    }
+    if ($w !== null && (($w['force'] ?? 0) != 0)) {
+        $mv = pfb_my_moves($a); $k = 0;
+        foreach ($mv as $m) foreach ($m[3] as $j) if ($j[2] && ($a['pcs'][$j[1]]['by'] ?? '') === 'foe' && ($a['pcs'][$j[1]]['tile']['t'] ?? '') === 'hurt') { $k++; break; }
+        $force = 0.1 * $a['me']['max'] * $k / max(1, count($mv));
+    }
+    return ['dmg' => (float)($b['me']['hp'] - $a['me']['hp']), 'bar' => (float)$barD, 'heal' => max(0.0, -$barD), 'guard' => (float)($a['foe']['block'] - $b['foe']['block']), 'strip' => (float)-($a['me']['block'] - $b['me']['block']),
+        'setup' => (float)$setup, 'tempo' => (float)$tempo, 'control' => $u * ($nf($a) - $nf($b)), 'deny' => $deny, 'force' => $force,
+        'x_pz' => $dPz, 'x_ev' => $dEv, 'x_th' => $dTh, 'x_ba' => $dBa, 'x_sl' => $dSl, 'x_ag' => $dAg, 'x_reach' => $dReach, 'x_n' => $nf($a)];
+}
+/** The dot product of the features with a weight vector (12 numbers by name); the dmg weight is x early on its turns 1-2 and x late from turn 3 (the state's round); a defeat is worth 50. */
+function pfb_ai_score(array $b, array $a, array $w, array &$ctx): float
+{
+    $ctx['w'] = $w; $f = pfb_feat($b, $a, $ctx);
+    $ramp = (int)$b['round'] <= 2 ? $w['early'] : $w['late'];
+    return $w['dmg'] * $ramp * $f['dmg'] + $w['bar'] * $f['bar'] + $w['heal'] * $f['heal'] + $w['guard'] * $f['guard'] + $w['strip'] * $f['strip'] + $w['setup'] * $f['setup'] + $w['tempo'] * $f['tempo']
+        + $w['control'] * $f['control'] + $w['deny'] * $f['deny'] + $w['force'] * $f['force'] + ($a['over'] === 'defeat' ? 50 : 0);
+}
+/** The state its next search starts from. With a style (foe.ai) the turn it will really play: its guard, Thorns and Evade are reset as its turn begins (a stale guard no longer counts for a Bash) and Plated and Regrow have run. Without: the state as it is (2.7.00). */
+function pfb_foe_base(array $s): array
+{
+    if (empty($s['foe']['ai'])) return $s;
+    pfb_begin($s, 'foe');
+    if (!empty($s['foe']['ab'])) { $tmp = []; pfb_ab_turn($s, $tmp); }
+    return $s;
+}
+/** The reason of a creature move, one line: 'Burst: hits you for 6, takes ground'. $m = [handIdx, x, y, ...] on the state $s as pfb_search saw it. */
+function pfb_why(array $s, array $m): string
+{
+    $name = PFB_AI[(string)($s['foe']['aid'] ?? 'balanced')][12] ?? 'Balanced'; $w = $s['foe']['ai'] ?? null;
+    if (!$w) { $w = ['id' => 'balanced']; foreach (PFB_AI_KEYS as $i => $k) $w[$k] = (float)PFB_AI['balanced'][$i]; }
+    $b = pfb_foe_base($s); $a = $b; if (!empty($b['foe']['ab'])) $a['infoe'] = 1;
+    if (pfb_place($a, 'foe', (int)$m[0], (int)$m[1], (int)$m[2]) === null) return $name . ': no move';
+    if ($a['over'] === 'defeat') return $name . ': finishes you';
+    $ctx = ['w' => $w]; $f = pfb_feat($b, $a, $ctx); $ramp = (int)$b['round'] <= 2 ? $w['early'] : $w['late'];
+    $c = []; foreach (['dmg', 'heal', 'guard', 'strip', 'setup', 'tempo', 'control', 'deny', 'force'] as $k) { $v = $w[$k] * $f[$k] * ($k === 'dmg' ? $ramp : 1.0); if ($v > 1e-9) $c[$k] = $v; }
+    $tx = [
+        'dmg' => 'hits you for ' . (int)pf_round($f['dmg']), 'heal' => 'recovers ' . (int)pf_round($f['heal']), 'guard' => 'builds ' . (int)pf_round($f['guard']) . ' guard', 'strip' => 'strips ' . (int)pf_round($f['strip']) . ' of your guard',
+        'setup' => $f['x_pz'] > 0 ? 'poisons you' : ($f['x_ev'] > 0 ? 'readies a dodge' : ($f['x_th'] > 0 ? 'raises thorns' : ($f['x_ba'] > 0 ? 'lends its guard to a bash' : 'sets up a lasting effect'))),
+        'tempo' => $f['x_sl'] > 0 ? 'leaves you a piece short' : 'plays again', 'control' => 'takes ground, ' . (int)$f['x_n'] . ' out', 'deny' => 'fills ' . (int)$f['x_reach'] . ' of your cells', 'force' => 'pushes you into its Hurt pieces'];
+    if (!$c) return $name . ': ' . ($f['bar'] > 0.05 ? 'the safest play, it gives ' . (int)pf_round($f['bar']) : 'the safest play');
+    $k1 = null; foreach ($c as $k => $v) if ($k1 === null || $v > $c[$k1]) $k1 = $k;   // the largest contribution (the first on a tie), then the next if it is at least half as large
+    $k2 = null; foreach ($c as $k => $v) if ($k !== $k1 && ($k2 === null || $v > $c[$k2])) $k2 = $k;
+    return $name . ': ' . $tx[$k1] . ($k2 !== null && $c[$k2] >= 0.5 * $c[$k1] ? ', ' . $tx[$k2] : '');
+}
 /** The class rule a creature plays by: critter | bird | beast | water | plant | reptile, or boss (a boss plays the boss rule whatever its class); '' = none. */
 function pfb_kind_of(array $c, string $size): string
 {
@@ -98,9 +356,9 @@ const PF_YIELD = 'Yield';
 function pfb_yield_max(array $c): int
 {
     $size = (string)($c['size'] ?? 'small'); $boss = $size === 'boss'; $lv = max(1, (int)($c['level'] ?? 1));
-    $base = max(6.0, round(pf_pace($size) * ($boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * $lv), 1));
-    $cfg = pfb_v1_cfg($size, [], $lv);   // the same rule numbers pfb_new gives a new fight (the level curve shortens the bar of a weak creature)
-    return (int)round(round(round($base * $cfg['bar'], 1) * PFB_V1_ONEBAR_BAR, 1));
+    $base = max(6.0, pf_round(pf_pace($size) * ($boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * $lv), 1));
+    $cfg = pfb_v1_cfg($size, pfb_v1_over($c), $lv);   // the same rule numbers pfb_new gives a new fight (the level curve shortens the bar of a weak creature)
+    return (int)pf_round(pf_round(pf_round($base * $cfg['bar'], 1) * PFB_V1_ONEBAR_BAR, 1));
 }
 /** 'Yield bar 52': the almanac's words for a creature that is not in a fight. */
 function pf_yield_phrase(array $c): string { return PF_YIELD . ' bar ' . pfb_yield_max($c); }
@@ -114,7 +372,7 @@ function pf_foe_numbers(array $c, bool $newRules): string
 function pfb_v1r(array $s, string $k): int { return (int)($s['v1'][$k] ?? PFB_V1_PRE[$k] ?? 0); }
 
 /** The level factor of a curve [slope, ref, lo, hi] at a creature level (see PFB_V1_LEVEL). */
-function pfb_v1_lvx(array $c, int $lv): float { return round(max((float)$c[2], min((float)$c[3], 1 + (float)$c[0] * ($lv - (int)$c[1]))), 4); }
+function pfb_v1_lvx(array $c, int $lv): float { return pf_round(max((float)$c[2], min((float)$c[3], 1 + (float)$c[0] * ($lv - (int)$c[1]))), 4); }
 
 /** The rule numbers of a v1 fight for a creature size and level; $over replaces single values (tests and sims: ['events' => 0] switches a rule off, 'foe_x' / 'bar_x' scale the creature,
  *  'lv' => [slope, ref, lo, hi] replaces the level curve). $level 0 = no level factor (lvx 1). */
@@ -126,12 +384,13 @@ function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
     $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => 1.0, 'team3' => 1.0,   // 2.6.95: Teamwork off (2.6.94 fights carry 1.3 / 1.6 in their saved cfg)
         'edges' => 1, 'flip' => 1, 'life' => 0, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
-        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 0, 'kinds' => 1, 'blankrand' => 1, 'order' => 1, 'spawn' => 0] + PFB_V1_PRE;   // aimhit 0 (2.6.984, owner: a piece on its planned spot must not be removed: it picks somewhere else)   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
+        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'nothorn' => 0, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 0, 'kinds' => 1, 'blankrand' => 1, 'order' => 1, 'spawn' => 0, 'abil' => 1, 'style' => 1] + PFB_V1_PRE;   // aimhit 0 (2.6.984, owner: a piece on its planned spot must not be removed: it picks somewhere else)   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
-    if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
-    if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
+    if (isset($over['foe_x'])) $cfg['foe'] = pf_round($cfg['foe'] * (float)$over['foe_x'], 4);
+    if (isset($over['bar_x'])) $cfg['bar'] = pf_round($cfg['bar'] * (float)$over['bar_x'], 4);
     $cfg['lvx'] = $level > 0 ? pfb_v1_lvx(is_array($over['lv'] ?? null) ? $over['lv'] : PFB_V1_LEVEL[$size], $level) : 1.0;   // the level curve: piece values x f, bar x min(1, f)
-    $cfg['foe'] = round($cfg['foe'] * $cfg['lvx'], 4); $cfg['bar'] = round($cfg['bar'] * min(1.0, $cfg['lvx']), 4);
+    $cfg['foe'] = pf_round($cfg['foe'] * $cfg['lvx'], 4); $cfg['bar'] = pf_round($cfg['bar'] * min(1.0, $cfg['lvx']), 4);
+    if (!isset($over['ease']) || $over['ease']) $cfg['bar'] = pf_round($cfg['bar'] * pfb_bar_ease($size, $level), 4);   // 2.7.01: the medium low-level bar ease (sims: 'ease' => 0 switches it off)
     // 2.6.93 (Josh: "give me a version with a 4x4 board to test"): a test board. adventure.php?pfboard=4x4 (the session) or the setting pfight_board_test = 4x4 gives every fight that STARTS from then on that board, whatever the creature's size; ?pfboard=off clears it. Rules that name cells (ground, environment pieces) keep working on the smaller board.
     $bt = (string)($_SESSION['pfb_test'] ?? '') !== '' ? (string)$_SESSION['pfb_test'] : (function_exists('setting') ? (string)setting('pfight_board_test') : '');
     if ($bt !== '' && !isset($over['w']) && !isset($over['h']) && preg_match('/^([3-9])x([3-9])$/', $bt, $bm)) { $cfg['w'] = (int)$bm[1]; $cfg['h'] = (int)$bm[2]; }
@@ -172,11 +431,12 @@ function pfb_env_table(): array
 }
 
 /** The environment's deck for a creature size in a region, in file order (pfb_new shuffles it): each piece as often as its weight for the size, plus the region's lean by kind. */
-function pfb_env_deck(string $size, string $region = '', bool $nowm = false): array
+function pfb_env_deck(string $size, string $region = '', bool $nowm = false, bool $nothorn = false): array
 {
     if (!isset(PFB_SIZE[$size])) $size = 'medium';
     $T = pfb_env_table(); $bias = $T['regions'][$region] ?? []; $deck = [];
     foreach ($T['pieces'] as $p) {
+        if ($nothorn && $p['env'] === 'thorn') continue;   // 2.7.01 learner rules: no Thornburst in a gnome's first fights
         if ($nowm && ($p['env'] === 'wind' || $p['env'] === 'mud')) continue;   // 2.6.95: the lean comes first in the table, then these two kinds go
         $n = max(0, (int)$p['w'][$size] + (int)($bias[$p['env']] ?? 0));
         for ($i = 0; $i < $n; $i++) $deck[] = ['k' => $p['k'], 'n' => $p['n'], 't' => 'env', 'v' => 0, 'r' => null, 'tag' => '', 'm' => '', 'src' => 'env', 'env' => $p['env'], 'life' => $p['life'], 'ed' => $p['ed']];
@@ -264,7 +524,7 @@ function pfb_env_place(array &$s): void
 function pfb_env_cost(array &$s, string $who, float $frac): float
 {
     if ($frac <= 0) return 0.0;
-    if ($who === 'me') { $d = max(1, (int)round($frac * $s['me']['max'])); $s['me']['hp'] = max(0, $s['me']['hp'] - $d); return (float)$d; }
+    if ($who === 'me') { $d = max(1, (int)pf_round($frac * $s['me']['max'])); $s['me']['hp'] = max(0, $s['me']['hp'] - $d); return (float)$d; }
     $a = $frac * $s['fh']['max']; $s['fh']['now'] += $a; return $a;
 }
 
@@ -279,7 +539,7 @@ function pfb_env_fire(array &$s, array $p, string $rb): array
         'env' => 'fire', 'kind' => $kind, 'for' => $rb, 'x' => $p['x'], 'y' => $p['y'], 'me' => 0, 'foe' => 0.0];
     if ($kind === 'bramble') $e[$ot] = pfb_env_cost($s, $ot, (float)$v1['bramble'] * ($ot === 'foe' ? (float)$v1['br_foe'] : 1.0));
     elseif ($kind === 'thorn') $e[$rb] = pfb_env_cost($s, $rb, (float)$v1['thorn'] * ($rb === 'foe' ? (float)$v1['th_foe'] : 1.0));
-    elseif ($kind === 'rain') { $g = max(1, (int)round((float)$v1['rain'] * ($rb === 'me' ? $s['me']['max'] : $s['fh']['max']))); $s[$rb]['block'] += $g; $e['guard'] = $g; $e['v'] = $g; }
+    elseif ($kind === 'rain') { $g = max(1, (int)pf_round((float)$v1['rain'] * ($rb === 'me' ? $s['me']['max'] : $s['fh']['max']))); $s[$rb]['block'] += $g; $e['guard'] = $g; $e['v'] = $g; }
     elseif ($kind === 'wind') {   // the piece next to it on the arrow's side slides one cell further along the arrow, if that cell is on the board and free (the blank never moves)
         $d = (string)($t['dir'] ?? 'R'); [$dx, $dy] = PFB_SIDE[$d]; $e['dir'] = $d;
         $x = $p['x'] + $dx; $y = $p['y'] + $dy; $nx = $x + $dx; $ny = $y + $dy; $q = pfb_at($s, $x, $y);
@@ -288,7 +548,7 @@ function pfb_env_fire(array &$s, array $p, string $rb): array
             $e['moved'] = ['id' => $q['id'], 'by' => $q['by'], 'n' => $q['tile']['n'], 'x' => $nx, 'y' => $ny];
         }
     }
-    $e['me'] = (int)$e['me']; $e['foe'] = round((float)$e['foe'], 1);
+    $e['me'] = (int)$e['me']; $e['foe'] = pf_round((float)$e['foe'], 1);
     return $e;
 }
 function pfb_w(array $s): int { return $s['w'] ?? PFB_W; }
@@ -387,7 +647,7 @@ function pfb_ground_set(array &$s, int $x, int $y, string $kind): void
 function pfb_env_hurt(array &$s, string $who, float $frac, string $tag): float
 {
     if ($frac <= 0) return 0.0;
-    if ($who === 'me') { $d = max(1, (int)round($frac * $s['me']['max'])); $s['me']['hp'] = max(0, $s['me']['hp'] - $d); return (float)$d; }
+    if ($who === 'me') { $d = max(1, (int)pf_round($frac * $s['me']['max'])); $s['me']['hp'] = max(0, $s['me']['hp'] - $d); return (float)$d; }
     if ($who === 'foe') { $a = $frac * (float)$s['v1'][$tag === 'thorn' ? 'ev_foe' : 'br_foe'] * $s['fh']['max']; $s['fh']['now'] += $a; return $a; }
     return 0.0;
 }
@@ -421,13 +681,13 @@ function pfb_env_turn(array &$s): void
             pfb_ground_set($s, $e['x'], $e['y'], ['sunbeam' => 'sun', 'creep' => 'br', 'puddle' => 'mud'][$e['kind']]);
             if ($ob) $L['on'] = ['id' => $on['id'], 'by' => $ob, 'n' => $on['tile']['n']];
         }
-        $L['me'] = (int)$L['me']; $L['foe'] = round($L['foe'], 1);
+        $L['me'] = (int)$L['me']; $L['foe'] = pf_round($L['foe'], 1);
         $s['envlog'][] = $L;
     }
     if ($s['v1']['ground']) {
         $B = ['k' => 'bramble', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => []];
         foreach ($s['pcs'] as $p) if ($p['by'] !== 'none' && pfb_ter($s, $p['x'], $p['y']) === 'br') { $B[$p['by']] += pfb_env_hurt($s, $p['by'], (float)$s['v1']['bramble'], 'br'); $B['ids'][] = $p['id']; }
-        $B['me'] = (int)$B['me']; $B['foe'] = round($B['foe'], 1);
+        $B['me'] = (int)$B['me']; $B['foe'] = pf_round($B['foe'], 1);
         if ($B['ids']) $s['envlog'][] = $B;
     }
     pf_check_end($s);
@@ -442,7 +702,7 @@ function pfb_env_events(array $s): array
             'x' => $L['x'], 'y' => $L['y'], 'me' => $L['me'], 'foe' => $L['foe']];
         foreach (['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full'] as $k) if (isset($L[$k])) $e[$k] = $L[$k];
         if (isset($L['n'])) $e['n'] = $L['n'];   // 2.6.75: an environment piece placed (or kept back): its name
-        $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
+        $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
         $ev[] = $e;
     }
     return $ev;
@@ -453,7 +713,7 @@ function pfb_env_line(array $e, string $foe): string
 {
     $cost = [];
     if (!empty($e['me'])) $cost[] = 'you lose ' . (int)$e['me'] . ' health';
-    if (!empty($e['foe'])) $cost[] = 'the ' . $foe . ' loses ' . (int)round((float)$e['foe']);
+    if (!empty($e['foe'])) $cost[] = 'the ' . $foe . ' loses ' . (int)pf_round((float)$e['foe']);
     $c = $cost ? ': ' . implode(', ', $cost) : '';
     $whose = fn(array $p) => ($p['by'] === 'me' ? 'your ' : 'the ' . $foe . '’s ') . $p['n'];
     switch ($e['env']) {
@@ -687,31 +947,42 @@ function pfb_fire(array &$s, int $root): array
         if ($who === 'env') {   // 2.6.75: an environment piece: its effect goes to the side whose chain this is; it counts for the chain's length and is used up like any piece
             $e = pfb_env_fire($s, $p, $rb); $s['fired'][] = $id;
             $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;
-            $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
+            $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
             $ev[] = $e; pf_check_end($s); continue;
         }
         $pt = $par !== null ? $s['pcs'][$par] : null;
         if ($pt && ($pt['by'] === 'none' || $pt['by'] === 'env')) $pt = null;   // and a piece after it (or after an environment piece) has no combo parent
         [$val, , $ck] = pf_value($pt['tile'] ?? null, $tile, $pt !== null && $pt['by'] === $who, false);   // combos only off your own piece; no fit bonus (every link fits)
-        $val = (int)round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
-        if ($who === 'foe' && $tile['t'] === 'hurt' && ($gr = (int)($s['foe']['grudge'] ?? 0)) > 0 && pfb_kind($s) === 'beast') $val = (int)round($val * (1 + PFB_KIND_GRUDGE * $gr));   // 2.6.98 Grudge
-        if ($who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'critter') { $others = 0; foreach ($s['pcs'] as $q) if ($q['by'] === 'foe' && (int)$q['id'] !== $id) $others++; $val += min(PFB_KIND_SWARM_MAX, intdiv($others, 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows: +1 Hurt for each other creature piece out
+        $val = (int)pf_round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
+        if ($who === 'foe' && $tile['t'] === 'hurt' && ($gr = (int)($s['foe']['grudge'] ?? 0)) > 0 && pfb_kind($s) === 'beast') $val = (int)pf_round($val * (1 + (float)pfb_abp($s, 'gpct', PFB_KIND_GRUDGE) * $gr));   // 2.6.98 Grudge (2.7.01: Fury / Slow grudge change the number)
+        if ($who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'critter') { $others = 0; foreach ($s['pcs'] as $q) if ($q['by'] === 'foe' && (int)$q['id'] !== $id) $others++; $val += min((int)pfb_abp($s, 'smax', PFB_KIND_SWARM_MAX), intdiv($others, 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows: +1 Hurt for each other creature piece out
+        $ambp = false; $ambd = false;
+        if ($who === 'foe' && $tile['t'] === 'hurt' && !empty($s['foe']['ab'])) {   // 2.7.01 Enrage (past its share of the bar) and Ambush (its first Hurt in its first turn)
+            if (!empty($s['foe']['enr']) && ($en = pfb_ab($s, 'enrage'))) $val = (int)pf_round($val * (float)$en['mult']);
+            if (!empty($s['foe']['amb']) && !empty($s['infoe']) && ($am = pfb_ab($s, 'ambush'))) { $val = (int)pf_round($val * (float)$am['mult']); $s['foe']['amb'] = 0; $ambd = true; $ambp = !empty($am['pierce']); }
+        }
         $sunny = $v1 && in_array($tile['t'], ['hurt', 'charm'], true) && pfb_ter($s, $p['x'], $p['y']) === 'sun';
-        if ($sunny) $val = (int)round($val * (float)$v1['sun']);
-        if ($esun > 1 && $who === $rb) { $val = (int)round($val * $esun); $sunny = true; }
+        if ($sunny) $val = (int)pf_round($val * (float)$v1['sun']);
+        if ($esun > 1 && $who === $rb) { $val = (int)pf_round($val * $esun); $sunny = true; }
         $muddy = $v1 && !empty($v1['env']) && (float)($v1['mud'] ?? 0) > 0 && pfb_mud_near($s, $p['x'], $p['y']);   // Mud's teeth: a piece next to a Mud counts less (where it stands when it fires)
-        if ($muddy) $val = (int)round($val * (1 - (float)$v1['mud']));
-        if ($tw > 1 && $who === $rb) $val = (int)round($val * $tw);
+        if ($muddy) $val = (int)pf_round($val * (1 - (float)$v1['mud']));
+        if ($tw > 1 && $who === $rb) $val = (int)pf_round($val * $tw);
+        $toughed = false;
+        if ($who === 'me' && $rb === 'me' && $tile['t'] === 'hurt' && empty($s['me']['tough']) && ($th = pfb_ab($s, 'toughhide'))) { $val = max(1, $val - (int)$th['cut']); $s['me']['tough'] = 1; $toughed = true; }   // 2.7.01 Tough hide: your first Hurt of the turn counts less
         if ($v1) $s['fired'][] = $id;
         $isRoot = $id === $root;
         $e = ['by' => $who, 'id' => $id, 'root' => $isRoot, 'tag' => $tile['tag'], 'mod' => (string)($tile['m'] ?? ''), 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => false, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         if ($sunny) $e['sun'] = 1;
         if ($muddy) $e['mud'] = 1;
         if ($tw > 1 && $who === $rb) $e['tw'] = $tw;
+        if ($ambd) $e['amb'] = 1;
+        if ($ambp) $e['ambp'] = 1;
+        if ($toughed) $e['tough'] = 1;
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
         $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;   // fire budget: one more firing used (the placement counts as the first)
-        $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
+        $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
         $ev[] = $e;
+        foreach (['drained' => 'drain', 'staggered' => 'stagger'] as $ek => $nk) if (!empty($e[$ek])) $ev[] = pfb_abnote($s, $nk, $nk === 'drain' ? (string)$e[$ek] : '');   // 2.7.01 notices
         pf_check_end($s);
     }
     return $ev;
@@ -762,7 +1033,8 @@ function pfb_spend(array &$s): array
 /** The start of a side's turn: its guard from last turn is spent (a Hold guard carries over once). */
 function pfb_begin(array &$s, string $who): void
 {
-    if ($who === 'me') return;   // your guard is reset when your turn starts (pfb_end_round), so it stays up through the creature's turn
+    if ($who === 'me') { if (!empty($s['foe']['ab'])) $s['me']['tough'] = 0; return; }   // 2.7.01 Tough hide: a new turn of yours (the flag is reset on the copy of a played turn)
+    // your guard is reset when your turn starts (pfb_end_round), so it stays up through the creature's turn
     $s[$who]['block'] = $s[$who]['keep']; $s[$who]['keep'] = 0; $s[$who]['thorns'] = false; $s[$who]['evade'] = 0;
 }
 
@@ -784,8 +1056,9 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     $used = pfb_spend($s);
     if ($used && $ev) $ev[0]['used'] = $used;   // v1: the ids this chain used up
     if ($ev && $who === 'me' && isset($s['ven']["$x,$y"]) && pfb_kind($s) === 'reptile' && !empty($s['v1']['tags'])) {   // 2.6.98 Venom trail: you stepped on it
-        $s['me']['poison'] = min(PF_POISON_CAP, (int)$s['me']['poison'] + PFB_KIND_VENOM_RNDS); $s['me']['poison_v'] = max((int)$s['me']['poison_v'], PFB_KIND_VENOM_POISON);
-        $vn = pfb_note('venom', (string)$tile['n']); $vn['by'] = 'me'; $ev[] = $vn;
+        $vr = (int)pfb_abp($s, 'vrnds', PFB_KIND_VENOM_RNDS); $vp = (int)pfb_abp($s, 'vpoison', PFB_KIND_VENOM_POISON);
+        $s['me']['poison'] = min(PF_POISON_CAP, (int)$s['me']['poison'] + $vr); $s['me']['poison_v'] = max((int)$s['me']['poison_v'], $vp);
+        $vn = pfb_note('venom', (string)$tile['n']); $vn['by'] = 'me'; if ($vr !== PFB_KIND_VENOM_RNDS || $vp !== PFB_KIND_VENOM_POISON) { $vn['pr'] = $vr; $vn['pv'] = $vp; } $ev[] = $vn;
     }
     return $ev;
 }
@@ -934,7 +1207,7 @@ function pfb_check_after(array $s, int $id): int
 /** 2.6.98 Venom trail: a Reptile's piece that leaves the board leaves venom on its cell (a piece of yours put there poisons you). Stored as rounds + 1: it decays after the round's expiry. */
 function pfb_venom(array &$s, array $p): void
 {
-    if ($p['by'] === 'foe' && pfb_kind($s) === 'reptile') $s['ven'][$p['x'] . ',' . $p['y']] = PFB_KIND_VENOM_RNDS + 1;
+    if ($p['by'] === 'foe' && pfb_kind($s) === 'reptile') $s['ven'][$p['x'] . ',' . $p['y']] = (int)pfb_abp($s, 'vrnds', PFB_KIND_VENOM_RNDS) + 1;
 }
 
 function pfb_expire(array &$s): array
@@ -978,8 +1251,9 @@ function pfb_spawn(array &$s): ?int
 
 // ---------------------------------------------------------------- the creature's play
 
-function pfb_score(array $b, array $a, string $who): float
+function pfb_score(array $b, array $a, string $who, ?array &$ctx = null): float
 {
+    if ($who === 'foe' && !empty($a['foe']['ai'])) { if ($ctx === null) $ctx = []; return pfb_ai_score($b, $a, $a['foe']['ai'], $ctx); }   // 2.7.01: a creature with a play style (none or balanced: the 2.7.00 scorer below, bit for bit)
     $barD = ($a['bar']['now'] - $b['bar']['now']) + ($a['fh']['now'] - $b['fh']['now']);   // charm and damage both move the creature toward losing
     $hpD = $a['me']['hp'] - $b['me']['hp'];
     $tg = 0.0;
@@ -995,15 +1269,17 @@ function pfb_score(array $b, array $a, string $who): float
 /** The best single placement for $who by trying every tile in every legal cell on a copy. [handIdx, x, y, score] or null. Ties: first found (deterministic). */
 function pfb_search(array $s, string $who, bool $allowHeavy = true, ?string $onlyK = null, ?array $avoid = null): ?array
 {
-    $best = null;
+    $best = null; $ctx = [];
+    if ($who === 'foe') { $s = pfb_foe_base($s); $infoe = !empty($s['foe']['ab']); } else $infoe = false;   // 2.7.01: with a play style it searches the turn it will play; Ambush is live in its first turn
     foreach ($s[$who]['hand'] as $i => $tile) {
         if (!$allowHeavy && $tile['tag'] === 'heavy' && ($tile['m'] ?? '') !== 'steady') continue;
         if ($onlyK !== null && $tile['k'] !== $onlyK) continue;   // 2.6.98: a boss's committed piece
         foreach (pfb_cells($s, $tile, $who) as [$x, $y]) {
             if ($avoid !== null && $x === $avoid[0] && $y === $avoid[1]) continue;   // 2.6.98: a Bird's second aim is on another cell
-            $w = $s;
+            $w = $s; if ($infoe) $w['infoe'] = 1;
             if (pfb_place($w, $who, $i, $x, $y) === null) continue;
-            $sc = pfb_score($s, $w, $who);
+            unset($w['infoe']);
+            $sc = pfb_score($s, $w, $who, $ctx);
             if (!empty($s['v1']) && isset($w['cell']["$x,$y"])) {   // v1: a piece that stays out pays for bramble under it, and for what the announced events will do to it
                 if (pfb_ter($s, $x, $y) === 'br') $sc -= 2 * (float)$s['v1']['bramble'] * ($who === 'foe' ? (float)$s['v1']['br_foe'] * 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max']);
                 $sc += pfb_env_bias($s, $who, $x, $y, $tile);
@@ -1028,7 +1304,7 @@ function pfb_guard_notes(array &$s, array &$ev): void
     foreach ([['fade', (int)($s['me']['faded'] ?? 0)], ['hold', (int)($s['me']['kept'] ?? 0)], ['simmer', (int)($s['me']['simmer'] ?? 0)]] as [$k, $n]) {
         if ($n <= 0) continue;
         $e = pfb_note($k, (string)$n); $e['by'] = 'me'; $e['ta'] = $ta;
-        $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
+        $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
         $ev[] = $e;
     }
 }
@@ -1059,9 +1335,10 @@ function pfb_foe_turn(array &$s, int $extra): array
         $add = $s['foe']['poison_v'] * $s['hm'];
         $s['fh']['now'] += $add; $s['foe']['poison']--;
         if ($s['foe']['poison'] === 0) $s['foe']['poison_v'] = 0;
-        $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)round($add), 'fit' => false, 'combo' => null, 'tick' => true];
+        $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)pf_round($add), 'fit' => false, 'combo' => null, 'tick' => true];
         if (pf_check_end($s)) return $ev;
     }
+    if (!empty($s['foe']['ab'])) { pfb_ab_turn($s, $ev); $s['infoe'] = 1; }   // 2.7.01: its turn count, Regrow, Plated; Ambush is live for this turn
     if (!empty($s['v1']['tags']) && (int)$s['foe']['slow'] > 0 && $s['foe']['hand']) $ev[] = pfb_note('slow');   // 2.6.76: it loses its turn
     $n = pfb_foe_len($s); $s['lastfoe'] = []; $again = false; $hp0 = (int)$s['me']['hp']; $kind = pfb_kind($s);
     if (!empty($s['v1']['tags'])) $s['foe']['again'] = 0;
@@ -1071,27 +1348,31 @@ function pfb_foe_turn(array &$s, int $extra): array
         if ($plan && ($plan['t'] ?? '') === 'hurt' && pfb_v1r($s, 'aimhit') === 1) {   // 2.6.98 AIMHIT: YOUR piece on the cell its Hurt aim wanted is struck instead of the creature picking again
             $cid = $s['cell'][$plan['x'] . ',' . $plan['y']] ?? null;
             if ($cid !== null && ($s['pcs'][$cid]['by'] ?? '') === 'me') {
-                foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $ev[] = pfb_strike($s, $hi, (int)$cid); $r = []; if ($kind === 'beast') $s['foe']['grudge'] = min(PFB_KIND_GRUDGE_MAX, (int)($s['foe']['grudge'] ?? 0) + 1); break; }
+                foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $ev[] = pfb_strike($s, $hi, (int)$cid); $r = []; if ($kind === 'beast') $s['foe']['grudge'] = min((int)pfb_abp($s, 'gmax', PFB_KIND_GRUDGE_MAX), (int)($s['foe']['grudge'] ?? 0) + 1); break; }
                 if ($r !== null) continue;
             }
         }
         if ($plan && isset($s['cell'][$plan['x'] . ',' . $plan['y']])) {   // its cell is taken
             if ($kind === 'bird' && !empty($plan['alt']) && !isset($s['cell'][$plan['alt']['x'] . ',' . $plan['alt']['y']])) $plan = $plan['alt'];   // 2.6.98 Two aims: it plays the second one
-            elseif ($kind === 'beast') $s['foe']['grudge'] = min(PFB_KIND_GRUDGE_MAX, (int)($s['foe']['grudge'] ?? 0) + 1);   // 2.6.98 Grudge: you blocked it
+            elseif ($kind === 'beast') $s['foe']['grudge'] = min((int)pfb_abp($s, 'gmax', PFB_KIND_GRUDGE_MAX), (int)($s['foe']['grudge'] ?? 0) + 1);   // 2.6.98 Grudge: you blocked it
         }
-        if ($plan) { foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $s['aimforce'] = true; $r = pfb_place($s, 'foe', $hi, $plan['x'], $plan['y']); unset($s['aimforce']); break; } }   // v1 AIM: it plays the piece and the cell it showed
+        $why = '';
+        if ($plan) { foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $s['aimforce'] = true; $r = pfb_place($s, 'foe', $hi, $plan['x'], $plan['y']); unset($s['aimforce']); $why = (string)($plan['why'] ?? ''); break; } }   // v1 AIM: it plays the piece and the cell it showed
         if ($r === null) {   // no aim, or its cell is taken (or its piece is gone): it picks again at full value (no fumble)
             if ($plan) $s['reaim'] = 1;
             $m = pfb_search($s, 'foe');
             if ($m === null) break;
+            if (pfb_v1r($s, 'style') === 1) $why = $plan ? preg_replace('/^([^:]+): /', '$1: re-aim, ', pfb_why($s, $m), 1) : pfb_why($s, $m);   // 2.7.01: the reason of the move it picks
             $r = pfb_place($s, 'foe', $m[0], $m[1], $m[2]);
         }
+        if ($r && $why !== '') $r[0]['why'] = $why;
         if ($r) { $ev = array_merge($ev, $r); $s['lastfoe'][] = $s['pid']; if ($kind === 'water') pfb_current($s, (int)$s['pid'], $ev); }
         if (!empty($s['foe']['again'])) { if (!$again) { $again = true; $n++; if (!empty($s['v1']['tags']) && $r) $ev[] = pfb_note('quick', (string)($r[0]['rid'] ?? 0) && isset($s['pcs'][$r[0]['rid']]) ? (string)$s['pcs'][$r[0]['rid']]['tile']['n'] : (string)($r[0]['n'] ?? '')); } $s['foe']['again'] = 0; }   // a Quick piece it placed: one more piece this turn (once)
     }
     if ($kind === 'beast' && (int)$s['me']['hp'] < $hp0) $s['foe']['grudge'] = 0;   // 2.6.98 Grudge: a hit that lands clears it
     if ($kind === 'plant' && !$s['over']) pfb_grow($s, $ev);
     $s['foe']['agg'] = 0; $s['foe']['slow'] = 0;
+    if (!empty($s['foe']['ab'])) { unset($s['infoe']); $s['foe']['amb'] = 0; }   // 2.7.01: Ambush is for its first turn only
     return $ev;
 }
 
@@ -1103,6 +1384,7 @@ function pfb_current(array &$s, int $id, array &$ev): void
         $q = pfb_at($s, $p['x'] + $dx, $p['y'] + $dy); if (!$q || $q['by'] !== 'me') continue;
         $nx = $q['x'] + $dx; $ny = $q['y'] + $dy;
         if ($nx < 0 || $ny < 0 || $nx >= pfb_w($s) || $ny >= pfb_h($s) || isset($s['cell']["$nx,$ny"])) continue;
+        if ((int)pfb_abp($s, 'slide', 1) >= 2) { $x2 = $nx + $dx; $y2 = $ny + $dy; if ($x2 >= 0 && $y2 >= 0 && $x2 < pfb_w($s) && $y2 < pfb_h($s) && !isset($s['cell']["$x2,$y2"])) { $nx = $x2; $ny = $y2; } }   // 2.7.01 Strong current: a second cell if it is free and on the board
         unset($s['cell'][$q['x'] . ',' . $q['y']]); $s['cell']["$nx,$ny"] = $q['id']; $s['pcs'][$q['id']]['x'] = $nx; $s['pcs'][$q['id']]['y'] = $ny;
         $e = pfb_note('current', (string)$q['tile']['n']); $e['moved'] = ['id' => $q['id'], 'by' => 'me', 'n' => $q['tile']['n'], 'x' => $nx, 'y' => $ny, 'fx' => (int)$q['x'], 'fy' => (int)$q['y']]; $ev[] = $e;
         return;
@@ -1113,7 +1395,8 @@ function pfb_current(array &$s, int $id, array &$ev): void
 function pfb_grow(array &$s, array &$ev): void
 {
     if (empty($s['v1']['env'])) return;   // no environment pieces in this fight (a 2.6.74 fight): nothing grows
-    foreach ($s['pcs'] as $q) if ($q['by'] === 'env' && !empty($q['tile']['own'])) return;
+    $own = 0; foreach ($s['pcs'] as $q) if ($q['by'] === 'env' && !empty($q['tile']['own'])) $own++;
+    if ($own >= (int)pfb_abp($s, 'gcap', 1)) return;   // 2.7.01 Twin growth: up to 2 of its own
     $last = end($s['lastfoe']); $p = $last ? ($s['pcs'][$last] ?? null) : null; if (!$p) return;
     $tile = null; foreach (pfb_env_deck('boss') as $et) if ($et['env'] === 'bramble') { $tile = $et; break; } if (!$tile) return;
     $tile['ed'] = ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]]; $tile['own'] = 1;
@@ -1134,19 +1417,21 @@ function pfb_grow(array &$s, array &$ev): void
 function pfb_new(array $me, array $c, int $seed, array $opt = []): array
 {
     $s = pf_new($me, $c, $seed, $opt);
-    $v1 = !empty($opt['v1']) ? pfb_v1_cfg($s['size'], is_array($opt['v1']) ? $opt['v1'] : [], max(1, (int)($c['level'] ?? 1))) : null;   // v1 rules (admin setting pfight_v1): this fight's rule numbers, kept in the state
+    $v1 = !empty($opt['v1']) ? pfb_v1_cfg($s['size'], pfb_v1_over($c, is_array($opt['v1']) ? $opt['v1'] : []), max(1, (int)($c['level'] ?? 1))) : null;   // v1 rules (admin setting pfight_v1): this fight's rule numbers, kept in the state
     $fm = ($v1 ? $v1['foe'] : PFB_FOE_MULT) * ($s['size'] === 'boss' ? PFB_BOSS_MULT : 1.0) * (!empty($opt['blank']) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0);
-    foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * $fm));
-    $s['bar']['max'] = round($s['bar']['max'] * ($v1 ? $v1['bar'] : PFB_BAR_MULT), 1);
-    if ($v1 && !empty($v1['onebar'])) { $s['bar']['max'] = round($s['bar']['max'] * PFB_V1_ONEBAR_BAR, 1); if ($s['cm'] <= 0 && $s['boss']) $s['cm'] = PF_HOSTILE_CM; }   // 2.6.95 (one shared bar): the bar is 1.15 x as long; a boss takes Charm too (it still ends seen off)
+    foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)pf_round($t['v'] * $fm));
+    $s['bar']['max'] = pf_round($s['bar']['max'] * ($v1 ? $v1['bar'] : PFB_BAR_MULT), 1);
+    if ($v1 && !empty($v1['onebar'])) { $s['bar']['max'] = pf_round($s['bar']['max'] * PFB_V1_ONEBAR_BAR, 1); if ($s['cm'] <= 0 && $s['boss']) $s['cm'] = PF_HOSTILE_CM; }   // 2.6.95 (one shared bar): the bar is 1.15 x as long; a boss takes Charm too (it still ends seen off)
     $s['fh']['max'] = $s['bar']['max'];
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
     if ($v1) {
         $s['w'] = $v1['w']; $s['h'] = $v1['h']; unset($v1['w'], $v1['h']); $s['v1'] = $v1;
         $s['foe']['kind'] = !empty($v1['kinds']) ? pfb_kind_of($c, $s['size']) : ''; $s['foe']['grudge'] = 0; $s['foe']['nextk'] = null; $s['ven'] = [];   // 2.6.98 class rules
         pfb_v1_tiles($s, $c); pfb_seed_ground($s); $s['envs'] = []; $s['envlog'] = []; $s['reaim'] = 0; $s['me']['flipt'] = 0;
-        if ($v1['env']) { $s['env'] = ['draw' => pf_shuffle($s, pfb_env_deck($s['size'], (string)($c['region'] ?? ''), (bool)pfb_v1r($s, 'nowm'))), 'discard' => [], 'next' => []]; pfb_env_draw($s); }   // 2.6.75: the environment's deck; its next pieces lie face up
+        if ($v1['env']) { $s['env'] = ['draw' => pf_shuffle($s, pfb_env_deck($s['size'], (string)($c['region'] ?? ''), (bool)pfb_v1r($s, 'nowm'), (bool)pfb_v1r($s, 'nothorn'))), 'discard' => [], 'next' => []]; pfb_env_draw($s); }   // 2.6.75: the environment's deck; its next pieces lie face up
         if ($v1['tags']) { $s['me']['poison'] = 0; $s['me']['poison_v'] = 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = 0; $s['foe']['bashnext'] = 0; $s['foe']['again'] = 0; }
+        if (!empty($c['ab']) && pfb_v1r($s, 'abil') === 1) pfb_ab_init($s, $c);   // 2.7.01 abilities (an E id replaces the class rule)
+        if (pfb_v1r($s, 'style') === 1 && !empty($c['ai']) && isset(PFB_AI[(string)$c['ai']])) { $s['foe']['aid'] = (string)$c['ai']; if ($ai = pfb_ai_make((string)$c['ai'], (array)($c['aip'] ?? []))) $s['foe']['ai'] = $ai; }   // 2.7.01 play style
     }
     if (!empty($opt['blank'])) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see pfb_start)
         $s['pid'] = 1; $s['seq'] = 1; $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2);
@@ -1220,9 +1505,9 @@ function pfb_intent(array &$s): void
     $s['foe']['nextk'] = null;
     if ($m === null) $m = pfb_search($s, 'foe');
     $s['foe']['intent'] = $m ? $s['foe']['hand'][$m[0]]['t'] : null;
-    if (!empty($s['v1']['aim'])) { $h = $m ? $s['foe']['hand'][$m[0]] : null; $s['foe']['plan'] = $h && pfb_foe_len($s) > 0 ? ['k' => $h['k'], 'n' => $h['n'], 't' => $h['t'], 'v' => $h['v'], 'tag' => $h['tag'], 'x' => $m[1], 'y' => $m[2]] : null; }   // v1 AIM: the piece and the cell of its next move, shown to the player and committed
+    if (!empty($s['v1']['aim'])) { $h = $m ? $s['foe']['hand'][$m[0]] : null; $s['foe']['plan'] = $h && pfb_foe_len($s) > 0 ? ['k' => $h['k'], 'n' => $h['n'], 't' => $h['t'], 'v' => $h['v'], 'tag' => $h['tag'], 'x' => $m[1], 'y' => $m[2]] : null; if ($s['foe']['plan'] && pfb_v1r($s, 'style') === 1) $s['foe']['plan']['why'] = pfb_why($s, $m); }   // v1 AIM: the piece and the cell of its next move, shown to the player and committed (2.7.01: with its reason)
     if ($kind !== '' && !empty($s['foe']['plan'])) {   // 2.6.98 class rules that add to the aim
-        if ($kind === 'bird') { $am = pfb_search($s, 'foe', true, null, [(int)$m[1], (int)$m[2]]); if ($am) { $ah = $s['foe']['hand'][$am[0]]; $s['foe']['plan']['alt'] = ['k' => $ah['k'], 'n' => $ah['n'], 't' => $ah['t'], 'v' => $ah['v'], 'tag' => $ah['tag'], 'x' => $am[1], 'y' => $am[2]]; } }   // Two aims
+        if ($kind === 'bird') { $am = pfb_search($s, 'foe', true, null, [(int)$m[1], (int)$m[2]]); if ($am) { $ah = $s['foe']['hand'][$am[0]]; $s['foe']['plan']['alt'] = ['k' => $ah['k'], 'n' => $ah['n'], 't' => $ah['t'], 'v' => $ah['v'], 'tag' => $ah['tag'], 'x' => $am[1], 'y' => $am[2]]; if (pfb_v1r($s, 'style') === 1) $s['foe']['plan']['alt']['why'] = pfb_why($s, $am); } }   // Two aims
         if ($kind === 'boss') {   // Two turns: the piece after this one, chosen on the board as it will stand once the aim has landed
             $w = $s;
             if (pfb_place($w, 'foe', $m[0], (int)$m[1], (int)$m[2]) !== null) { $nm = pfb_search($w, 'foe'); if ($nm) { $nh = $w['foe']['hand'][$nm[0]]; $s['foe']['plan']['next'] = ['k' => $nh['k'], 'n' => $nh['n'], 't' => $nh['t'], 'v' => $nh['v'], 'tag' => $nh['tag']]; $s['foe']['nextk'] = $nh['k']; } }
@@ -1254,15 +1539,15 @@ function pfb_aim_total(array $s): ?array
     }
     $hi = null; foreach ($s['foe']['hand'] as $i => $ht) if ($ht['k'] === $plan['k']) { $hi = $i; break; }
     if ($hi === null) return ['broken' => 'edge'];
-    $w = $s; $w['spent'] = []; $w['lastfoe'] = []; $w['gone'] = []; pfb_begin($w, 'foe');
-    $hp0 = (int)$w['me']['hp']; $w['aimforce'] = true; $ev = pfb_place($w, 'foe', $hi, $x, $y); unset($w['aimforce']);
+    $w = $s; $w['spent'] = []; $w['lastfoe'] = []; $w['gone'] = []; pfb_begin($w, 'foe'); if (!empty($w['foe']['ab'])) { $tmp = []; pfb_ab_turn($w, $tmp); }   // 2.7.01: Plated and Regrow run before it plays (a Plated guard is a Bash's damage)
+    $hp0 = (int)$w['me']['hp']; $w['aimforce'] = true; if (!empty($w['foe']['ab'])) $w['infoe'] = 1; $ev = pfb_place($w, 'foe', $hi, $x, $y); unset($w['aimforce'], $w['infoe']);   // 2.7.01: Ambush shows in the number
     if ($ev === null) return ['broken' => 'edge'];
     $g = 0; $bait = 0.0; $heal = 0; $n = 0; $why = []; $sun = false; $mud = false; $combo = []; $fires = []; $quick = !empty($w['foe']['again']); $ids = [];
     foreach ($ev as $e) {
         if (!isset($e['id'])) continue;
         $n++;
         if (empty($e['root'])) { $q = ['id' => (int)$e['id'], 'by' => $e['by'] === 'foe' ? 'foe' : ($e['by'] === 'env' ? 'env' : 'me')];   // after 2.6.96: which pieces fire, in order (the page lights the environment's and yours)
-            if ($q['by'] === 'env') { $q['kind'] = (string)($e['kind'] ?? ''); $q['v'] = $q['kind'] === 'sun' ? round((float)$s['v1']['sun'], 2) : ($q['kind'] === 'rain' ? (int)($e['guard'] ?? 0) : ($q['kind'] === 'bramble' ? (int)$e['me'] : ($q['kind'] === 'thorn' ? (int)round((float)$e['foe']) : 0))); }
+            if ($q['by'] === 'env') { $q['kind'] = (string)($e['kind'] ?? ''); $q['v'] = $q['kind'] === 'sun' ? pf_round((float)$s['v1']['sun'], 2) : ($q['kind'] === 'rain' ? (int)($e['guard'] ?? 0) : ($q['kind'] === 'bramble' ? (int)$e['me'] : ($q['kind'] === 'thorn' ? (int)pf_round((float)$e['foe']) : 0))); }
             $ids[] = $q; }
         if (($e['by'] ?? '') === 'env') { if (($e['kind'] ?? '') !== 'sun') $fires[] = 'fires ' . $e['n']; continue; }   // a Sun says 'Sun x2' instead
         if ($e['by'] === 'foe') {
@@ -1277,11 +1562,11 @@ function pfb_aim_total(array $s): ?array
     foreach (array_keys($combo) as $c) $why[] = 'combo ' . $c;
     foreach ($fires as $f) $why[] = $f;
     if ($quick) $why[] = 'Quick: plays again';
-    if ($mud) $why[] = 'Mud -' . (int)round(100 * (float)($s['v1']['mud'] ?? 0)) . '%';
+    if ($mud) $why[] = 'Mud -' . (int)pf_round(100 * (float)($s['v1']['mud'] ?? 0)) . '%';
     if (!empty($usedAlt)) array_unshift($why, 'its second aim');
     $hpTot = $hp0 - (int)$w['me']['hp'];
     if ($quick) { $w3 = $s; $h3 = (int)$w3['me']['hp']; pfb_foe_turn($w3, 0); $more = $h3 - (int)$w3['me']['hp']; if ($more !== $hpTot) { $hpTot = $more; $why[] = 'Quick: its second piece is in the number'; } }   // 2.6.986: the whole turn, not just the first piece
-    return ['hp' => $hpTot, 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
+    return ['hp' => $hpTot, 'g' => $g, 'bait' => pf_round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
 }
 
 /**
@@ -1336,7 +1621,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
         $ev = [['snap' => pfb_snap($w), 'by' => 'me', 'connect' => true, 'n' => implode(' + ', $names), 'types' => array_map(fn($gp) => (string)$gp['tile']['t'], $w['me']['held']['pcs']), 'size' => count($names)]];
     } else return $bad;
     foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'me';   // whose turn the event happened in (a chain can run through the other side's pieces; the page groups by this)
-    if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']] + ($withAim && pfb_v1r($w, 'aimtot') ? ['aim' => pfb_aim_total($w)] : []);
+    if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => pf_round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => pf_round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']] + ($withAim && pfb_v1r($w, 'aimtot') ? ['aim' => pfb_aim_total($w)] : []);
     if (!$w['over']) { $fe = pfb_foe_turn($w, 0); foreach ($fe as $i => $e0) $fe[$i]['ta'] = 'foe'; $ev = array_merge($ev, $fe); }
     $trip = !$w['over'] && !empty($w['v1']['tags']) && !empty($w['me']['slowdraw']);
     if (!$w['over']) pfb_end_round($w);
@@ -1368,9 +1653,10 @@ function pfb_cell_preview(array $s, $handIdx, bool $flip = false): array
         foreach ($cells as $c) {
             $w = $s; $r = pfb_play($w, [[$handIdx === 'c' ? 'c' : (int)$handIdx, $c[0], $c[1]]], $s['turn'], null, true);
             if ($r['err']) continue;
-            $n = 0; $tw = 1.0; $sun = 0; $mud = 0;
-            foreach ($r['ev'] as $e) { if (!isset($e['barnow'])) continue; $n++; if (isset($e['tw'])) $tw = (float)$e['tw']; if (!empty($e['sun']) && $e['by'] === 'me') $sun++; if (!empty($e['mud']) && $e['by'] === 'me') $mud++; }
-            $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)round($r['fh'] - $fh0), 'ch' => (int)round($r['bar'] - $b0), 'hp' => max(0, $hp0 - (int)$r['hp']), 'n' => $n, 'used' => !empty($r['ev'][0]['used']), 'tw' => $tw, 'sun' => $sun, 'end' => (bool)$r['over']] + (!empty($s['v1']['env']) ? ['mud' => $mud] : []);   // mud: your pieces in the chain that a Mud weakens
+            $n = 0; $tw = 1.0; $sun = 0; $mud = 0; $hw = []; $hpp = $hp0;
+            foreach ($r['ev'] as $e) { if (!isset($e['barnow'])) continue; $n++; if (isset($e['tw'])) $tw = (float)$e['tw']; if (!empty($e['sun']) && $e['by'] === 'me') $sun++; if (!empty($e['mud']) && $e['by'] === 'me') $mud++;
+                if ((int)$e['hpnow'] < $hpp) $hw[] = [(string)$e['n'], (string)$e['by'], $hpp - (int)$e['hpnow']]; $hpp = (int)$e['hpnow']; }   // 2.7.01 costly cell: each piece of the chain that took your health (name, whose, how much)
+            $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)pf_round($r['fh'] - $fh0), 'ch' => (int)pf_round($r['bar'] - $b0), 'hp' => max(0, $hp0 - (int)$r['hp']), 'n' => $n, 'used' => !empty($r['ev'][0]['used']), 'tw' => $tw, 'sun' => $sun, 'end' => (bool)$r['over']] + (!empty($s['v1']['env']) ? ['mud' => $mud] : []) + ($hp0 > (int)$r['hp'] && $hw ? ['hw' => $hw] : []);   // mud: your pieces in the chain that a Mud weakens; hw (2.7.01): only on a cell that costs health
         }
         return $o;
     }
@@ -1383,7 +1669,7 @@ function pfb_cell_preview(array $s, $handIdx, bool $flip = false): array
             $fh = (float)$e['fhnow']; $b = (float)$e['barnow']; $hp = (int)$e['hpnow'];
             if (($e['ta'] ?? '') === 'me') { $hpMe = $hp; $n++; }
         }
-        $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)round($fh - $fh0), 'ch' => (int)round($b - $b0), 'hp' => max(0, $hp0 - $hpMe), 'n' => $n, 'rp' => max(0, $hpMe - $hp), 'end' => (bool)$w['over']];
+        $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)pf_round($fh - $fh0), 'ch' => (int)pf_round($b - $b0), 'hp' => max(0, $hp0 - $hpMe), 'n' => $n, 'rp' => max(0, $hpMe - $hp), 'end' => (bool)$w['over']];
     }
     return $o;
 }
@@ -1406,7 +1692,7 @@ function pfb_end_round(array &$s): void
     $slow = 0;
     if (!empty($s['v1']['tags'])) {   // creature tags: its poison works on you (after the terrain), and a trip costs you one draw
         if ((int)$s['me']['poison'] > 0) {
-            $pv = max(1, (int)$s['me']['poison_v']); if ((int)$s['me']['evade'] > 0) $pv = 0;   // 2.6.988: Evade stops the poison tick (it still counts down)
+            $pv = max(1, (int)$s['me']['poison_v']); if ((int)$s['me']['evade'] > 0 || !empty($s['me']['evd'])) $pv = 0;   // 2.6.988: Evade stops the poison tick (it still counts down); 2.7.01: also when its Hurt already used the Evade up (evd)
             $s['me']['hp'] = max(0, $s['me']['hp'] - $pv); $s['me']['poison']--;
             $s['envlog'][] = ['k' => 'poison', 'x' => null, 'y' => null, 'me' => $pv, 'foe' => 0.0];
             if ($s['me']['poison'] === 0) $s['me']['poison_v'] = 0;
@@ -1425,7 +1711,7 @@ function pfb_end_round(array &$s): void
         $kept = min((int)$s['me']['keep'], (int)$s['me']['block']); $s['me']['faded'] = max(0, (int)$s['me']['block'] - $kept); $s['me']['kept'] = $kept;
         $s['me']['block'] = $kept; $s['me']['keep'] = 0;
     } else { $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; }   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
-    $s['me']['thorns'] = false; $s['me']['evade'] = 0;
+    $s['me']['thorns'] = false; $s['me']['evade'] = 0; unset($s['me']['evd']);
     $more = (int)($s['me']['more'] ?? 0); $s['me']['more'] = 0;   // 2.6.990 Plenty: one more piece this round
     if (pfb_v1r($s, 'redraw')) { $kept = []; foreach ($s['me']['hand'] as $ht) { if (($ht['tag'] ?? '') === 'keep') { $kept[] = $ht; continue; } unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = $kept; pf_draw($s, 'me', PF_HAND_CAP - $slow + $more); }   // 2.6.990 Keeper: a Keeper piece stays in the hand   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else pf_draw($s, 'me', min(PF_HAND_CAP + $more, count($s['me']['hand']) + PF_DRAW - $slow));
@@ -1485,6 +1771,8 @@ function pfb_view(array $s): array
         }
         $v['aim'] = $s['foe']['plan'] ?? null;   // the creature's next piece and cell (null: it shows none, or it is tripped)
         if (pfb_kind($s) !== '') { $v['kind'] = pfb_kind($s); $v['grudge'] = (int)($s['foe']['grudge'] ?? 0); $v['ven'] = array_map(fn($k, $r) => ['x' => (int)explode(',', $k)[0], 'y' => (int)explode(',', $k)[1], 'r' => $r - 1], array_keys($s['ven'] ?? []), array_values($s['ven'] ?? [])); }   // 2.6.98 class rules
+        if (!empty($s['foe']['aid'])) $v['ai'] = ['id' => $s['foe']['aid'], 'n' => PFB_AI[$s['foe']['aid']][12], 't' => PFB_AI[$s['foe']['aid']][13]];   // 2.7.01: its play style for the card
+        if (!empty($s['foe']['ab'])) $v['abil'] = array_map(fn($id) => ['id' => $id, 'n' => PFB_ABIL[$id][4], 't' => PFB_ABIL[$id][5]], $s['foe']['ab']);   // 2.7.01: the creature's abilities for its card
         $v['reaim'] = !empty($s['reaim']);   // last turn it could not play its aim and picked again
         $v['flip'] = ['on' => (bool)$c['flip'], 'used' => (int)($s['me']['flipt'] ?? 0) === (int)$s['turn']];
         if (!empty($c['tags'])) $v['status'] = ['poison' => (int)$s['me']['poison'], 'poison_v' => (int)$s['me']['poison_v'], 'slowdraw' => (int)$s['me']['slowdraw'], 'evade' => (int)$s['me']['evade'],

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/stops.php';
 require_once __DIR__ . '/npc_life.php';   // npc_icon
+require_once __DIR__ . '/npc_clockwork.php';
 
 const STOP_FIRST_NAMES = ['Bramwick', 'Pip', 'Thimble', 'Marigold', 'Hazel', 'Tuck', 'Fennel', 'Cobb', 'Dilly', 'Nettle', 'Wick', 'Posy', 'Burdock', 'Sorrel', 'Quill', 'Moss', 'Tansy', 'Rook', 'Clover', 'Basil',
     'Pebble', 'Yarrow', 'Alder', 'Bunty', 'Ferrin', 'Gorse', 'Juniper', 'Linden', 'Mabel', 'Orla', 'Perrin', 'Rue', 'Sage', 'Tilly', 'Ulric', 'Willa', 'Barnaby', 'Dorrit', 'Elm', 'Fig'];
@@ -69,7 +70,7 @@ function stop_folk_of(array $loc, bool $presentOnly = false): array
     stop_folk_ensure($loc);
     $all = q('SELECT * FROM stop_folk WHERE location_id = ? AND active = 1 ORDER BY slot', [(int)$loc['id']])->fetchAll();
     // 2.6.28: $presentOnly leaves out villagers who are away today (pictures, Villagers tab, panel); errand givers still use the full list so they stay stable
-    return $presentOnly ? array_values(array_filter($all, fn($f) => !gclock_npc_away('s' . (int)$f['id']))) : $all;
+    return $presentOnly ? array_values(array_filter($all, fn($f) => !gclock_npc_away('s' . (int)$f['id']) && !npc_cw_out('s' . (int)$f['id']))) : $all;
 }
 
 /** One of the stop's villagers, picked by a seed (the same seed always gives the same one). */

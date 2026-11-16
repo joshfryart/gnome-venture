@@ -240,15 +240,17 @@ function trail_pick_fixed(array $scene, int $cap, string $boss): ?array
 {
     $land = (string)$scene['land'];
     $level = (int)$scene['level'];
-    if ($cap > 0 || $boss === '') return pick_creature($land, $level, false, false, $cap);
+    require_once __DIR__ . '/pfdeck.php';
+    $rc = scene_region_code($scene);   // 2.7.01: the variants of a creature turn up only in their regions
+    if ($cap > 0 || $boss === '') return pick_creature($land, $level, false, false, $cap, $rc);
     $want = $boss === 'boss' ? 'boss' : 'large';
     $pool = array_values(array_filter(road_rows('creatures'), fn($c) => ($c['landscapes'] === 'any' || in_array($land, array_map('trim', explode(',', (string)$c['landscapes'])), true))
-        && $c['size'] === $want && (int)$c['level'] <= $level + ($want === 'boss' ? 8 : 4)));
+        && $c['size'] === $want && (int)$c['level'] <= $level + ($want === 'boss' ? 8 : 4) && pfd_creature_in_region((string)$c['slug'], $rc)));
     if ($pool) {
         $b = $pool[array_rand($pool)];
         return (int)$b['level'] < $level ? scale_creature($b, $level) : $b;
     }
-    return pick_creature($land, $level, $boss === 'boss', false, $cap);
+    return pick_creature($land, $level, $boss === 'boss', false, $cap, $rc);
 }
 
 /** v2.6.40: the 'extra_minibosses' entry of an authored section standing on this tile, or null. */
@@ -278,7 +280,7 @@ function trail_token_event(array $u, array &$exp, string $kind, string $boss = '
         $cap = exp_easy_cap($u, $exp);
         $c = $kind === 'E' ? trail_pick_fixed($scene, $cap, $boss)
             : ($kind === 'M' ? ($cap > 0 || !$mini ? null : trail_extra_mini_creature($mini))   // an easy road never meets it: a find instead
-            : pick_creature($scene['land'], $scene['level'], false, false, $cap));
+            : learner_creature($u, pick_creature($scene['land'], $scene['level'], false, false, $cap, scene_region_code($scene)), (string)$scene['land'], (int)$scene['level'], scene_region_code($scene)));   // 2.7.01: a learner's creature (random fights only)
         if ($c) {
             $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
                 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
@@ -501,6 +503,43 @@ function trail_strip_html(array $u, array $exp, array $sc): string
     return $o . tc_card_html($u, $exp, $sc);   // 2.7.00: the camp card while you stand on the camp tile
 }
 
+/**
+ * 2.7.01: the road-kind marker of this stretch, [x, y, kind], or null (a plain road, or a kind that is not met on this stretch: rk_on_stretch). A side path (routes.kind
+ * 'side') with no road kind gets kind 'side' on its first stretch walked: the signpost marker (trail_road_mark_name). It stands on the first floor
+ * tile round the way in (nearest first, fixed order) that has no token, camp, gate or way on, so it does not move while the gnome walks. Pure but for the road-kind list.
+ */
+function trail_road_mark(array $sc): ?array
+{
+    require_once __DIR__ . '/road_kinds.php';
+    $rid = (int)substr((string)($sc['row']['map_key'] ?? ''), 6);
+    $rk = rk_of($rid);
+    if (!$rk && (int)$sc['st']['sec'] === 0 && (string)q_val('SELECT kind FROM routes WHERE id = ?', [$rid]) === 'side') $rk = ['kind' => 'side'];
+    if (!$rk || ($rk['kind'] !== 'side' && !rk_on_stretch($rk['kind'], (int)$sc['st']['sec']))) return null;
+    $map = $sc['map'];
+    [$enx, $eny] = $map['entry'];
+    $taken = [];
+    foreach ((array)$sc['st']['tokens'] as $t) $taken[(int)$t[0] . ',' . (int)$t[1]] = true;
+    if ($ex = $map['spots']['9'] ?? null) $taken[$ex[0] . ',' . $ex[1]] = true;
+    require_once __DIR__ . '/trail_camps.php';
+    if ($cs = tc_spot((array)($map['art'] ?? []))) $taken[$cs[0] . ',' . $cs[1]] = true;
+    foreach ((array)($map['art']['gates'] ?? []) as $g) foreach ((array)($g['tiles'] ?? []) as $gt) $taken[(int)$gt[0] . ',' . (int)$gt[1]] = true;
+    $cand = [];
+    for ($dy = -3; $dy <= 3; $dy++) for ($dx = -3; $dx <= 3; $dx++) if ($dx || $dy) $cand[] = [abs($dx) + abs($dy), max(abs($dx), abs($dy)), $dy, $dx];
+    sort($cand);
+    foreach ($cand as [, , $dy, $dx]) {
+        $x = $enx + $dx; $y = $eny + $dy;
+        if (!isset($taken[$x . ',' . $y]) && in_array(tm_tile($map, $x, $y), ['.', ','], true)) return [$x, $y, $rk['kind']];
+    }
+    return null;
+}
+
+/** 2.7.01: [marker name, emoji, tile label] of a trail_road_mark() kind: a road kind is its own marker, a side path ('side') the signpost. */
+function trail_road_mark_name(string $kind, int $rid): array
+{
+    if ($kind === 'side') return ['signpost', '🪧', 'A side path, off the road'];
+    return [$kind, RK_ICON[$kind] ?? '❔', (string)preg_replace('/^\S+\s/u', '', rk_label(rk_of($rid)))];
+}
+
 /** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */
 function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $fightOver = false, ?array $fightExp = null): string
 {
@@ -518,10 +557,20 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $tokens[] = [$tx, $ty, $fight ? '⚔️' : '✨', $fight ? 'ember' : 'gold', (bool)$done];
     }
     [$ex, $ey] = $map['spots']['9'];
-    if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = [$ex, $ey, '🚪', 'gold', false];
+    $dest = null;   // 2.7.01: the last stretch's way on shows the marker of the place it leads into (haven, wonder, delve, lair, market; a rest stop draws 'rest')
+    if ((int)$sc['st']['sec'] + 1 >= (int)$sc['st']['S'] && ($toLoc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($exp['to_id'] ?? 0)]))) {
+        require_once __DIR__ . '/destination.php';
+        $dk = loc_real_kind($toLoc);
+        if (isset(TRAIL_DEST_MARKS[$dk])) $dest = [$dk, (string)$toLoc['name']];
+    }
+    if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = $dest ? [$ex, $ey, TRAIL_DEST_MARKS[$dest[0]], 'gold', false, false, trail_dest_mark_name($dest[0])] : [$ex, $ey, '🚪', 'gold', false];
     require_once __DIR__ . '/trail_camps.php';   // 2.7.00: the camp tile of this route (when this is its stretch)
     $campSpot = tc_spot((array)($map['art'] ?? []));
     if ($campSpot && ($campSpot[0] !== $sc['x'] || $campSpot[1] !== $sc['y'])) $tokens[] = [$campSpot[0], $campSpot[1], '🏕️', 'gold', false];
+    require_once __DIR__ . '/road_kinds.php';   // 2.7.01: the road kind's marker beside the way in, on the stretch it applies to
+    $rkSpot = trail_road_mark($sc);
+    $rkMark = $rkSpot ? trail_road_mark_name($rkSpot[2], (int)substr((string)$sc['row']['map_key'], 6)) : null;   // [name, emoji, label]: a road kind, or the signpost of a side path
+    if ($rkSpot && ($rkSpot[0] !== $sc['x'] || $rkSpot[1] !== $sc['y'])) $tokens[] = [$rkSpot[0], $rkSpot[1], $rkMark[1], 'gold', false, false, $rkMark[0]];
     // 2026-11-10: a tool gate that is still shut for this gnome gets a 🔒 mark on its middle tile, and every tile of it says what it needs
     $shut = function_exists('tool_tier') && !empty($map['art']['gates']) ? trail_gates_closed($map['art'], fn(string $type): int => tool_tier((int)$u['id'], $type)) : [];
     $shutSeen = [];
@@ -542,8 +591,8 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     }
     $sightMarks = [];   // v2.6.68 Trail Sights: where a Sight is ready (a gold ! over the landmark)
     $sightAll = function_exists('trail_sights_marks') && !$busy ? trail_sights_marks($u, $sc) : [];
-    foreach ($sightAll as $sm) if ($sm['left'] > 0) $sightMarks[$sm['x'] . ',' . $sm['y']] = true;
-    $folkMap = $sightAll && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
+    foreach ($sightAll as $sm) $sightMarks[$sm['x'] . ',' . $sm['y']] = $sm['left'] > 0;   // 2.7.01: a used-up Sight keeps a faded spyglass (false)
+    $folkMap = !$busy && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
     $folkTiles = []; foreach ($folkMap as $fi => $fe) $folkTiles[$fe[0] . ',' . $fe[1]] = $fi;   // tap a villager: their card   // villagers out and about at a Sight now
     $gate = trail_gate($sc);
     $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);
@@ -604,7 +653,8 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
             elseif (isset($shut[$x . ',' . $y])) { $cls .= ' gate'; $label = trail_gate_message($shut, [[$x, $y]]) ?? 'A shut gate'; }
             elseif (isset($openMid[$x . ',' . $y])) $label = $openMid[$x . ',' . $y];
             elseif ($campSpot && $campSpot[0] === $x && $campSpot[1] === $y) { $cls .= ' spot'; $label = 'A camp spot: sleep, nap or wait'; }
-            elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
+            elseif ($rkSpot && $rkSpot[0] === $x && $rkSpot[1] === $y) $label = $rkMark[2];
+            elseif ($t === '9') { $cls .= ' spot'; $label = $dest ? 'The way on to ' . $dest[1] : 'The way on'; }
             elseif ($t === 'S') $label = (int)$sc['st']['sec'] > 0 ? 'The way back' : 'Where this stretch begins';
         }
         if ($me) { $cls .= ' here'; $label = 'You are here'; }

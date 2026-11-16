@@ -1,0 +1,15 @@
+{"w":480,"h":300,"horizon":96,"view":"street","spots":[
+{"k":"loc-1","name":"Local shop 1","x":30,"y":140,"box":[4,30,56,250]},
+{"k":"loc-2","name":"Local shop 2","x":86,"y":155,"box":[60,60,112,250]},
+{"k":"loc-3","name":"Local shop 3","x":140,"y":170,"box":[116,90,164,250]},
+{"k":"loc-4","name":"Local shop 4","x":184,"y":185,"box":[168,120,200,250]},
+{"k":"loc-more","name":"More local shops","x":240,"y":220,"box":[206,190,274,250]},
+{"k":"hub-seeds","name":"Seed shop","x":308,"y":200,"box":[286,150,330,250]},
+{"k":"hub-food","name":"Kitchen","x":356,"y":200,"box":[334,150,378,250]},
+{"k":"hub-florist","name":"Florist","x":404,"y":200,"box":[382,150,426,250]},
+{"k":"hub-decor","name":"Home and curios","x":452,"y":200,"box":[430,150,474,250]},
+{"k":"hub-dyes","name":"Dye shop","x":330,"y":90,"box":[300,40,360,140]},
+{"k":"hub-pets","name":"Pet shop","x":395,"y":90,"box":[366,40,424,140]},
+{"k":"hub-more","name":"More Mossbottom shops","x":453,"y":90,"box":[430,40,476,140]}],
+"stand":[{"x":214,"y":272},{"x":250,"y":282},{"x":280,"y":268},{"x":300,"y":280}],
+"compass_clear":[380,262,480,300]}

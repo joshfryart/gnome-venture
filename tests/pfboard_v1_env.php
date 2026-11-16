@@ -15,6 +15,7 @@ foreach ($P as $k => $p) {
 }
 chk('data: Mud is flat on every side; every other piece has two knobs, two holes and all three families (no flat, no wild)', $okE);
 chk('data: life 2-3 rounds, a name, a blurb, key e:KEY', $okL);
+chk('data: the Bramble blurb says what the engine does in a one-bar fight (your chain: the creature\'s Yield bar fills a tenth; its chain: you lose a tenth of your health) (2.7.01)', (bool)preg_match('/Yield bar fills a tenth.*If the creature fires it, you lose a tenth of your health/', $P['bramble']['blurb']), $P['bramble']['blurb']);
 chk('data: copies by size for the four sizes, 0-4 each; every deck has 8-12 pieces', $okW && !array_filter(array_keys(PFB_SIZE), fn($z) => count(pfb_env_deck($z)) < 8 || count(pfb_env_deck($z)) > 12), array_map(fn($z) => count(pfb_env_deck($z)), array_keys(PFB_SIZE)));
 $codes = []; foreach (pf_data_lines('pf_region_pieces.txt') as $r) $codes[$r[0]] = 1; ksort($codes); $rk = $T['regions']; ksort($rk);
 chk('data: every region (the 14 of pf_region_pieces.txt) leans the deck, by 1 or 2 pieces of known kinds', array_keys($rk) === array_keys($codes) && !array_filter($rk, fn($b) => !$b || array_diff(array_keys($b), PFB_ENV_KINDS) || array_sum(array_map('abs', $b)) > 2), array_keys($rk));
@@ -227,8 +228,9 @@ foreach (['sun' => 'count double', 'rain' => 'guard', 'thorn' => 'you lose'] as 
 // ---- the creature and the environment
 [$s, $a, $e] = $mk('bramble', 'foe'); $s['foe']['hand'] = [v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature')]; $m = pfb_search($s, 'foe');
 chk('the creature\'s search may link to an environment piece (it is a legal, linking cell for it)', $m !== null && in_array([$m[1], $m[2]], [[3, 2], [2, 1], [2, 3]], true), $m);
+$GLOBALS['v1_foe_lv'] = 30;   // a medium of level 24+ has its full bar (PFB_V1_BAR_EASE_MEDIUM): Thornburst is 5% of that bar, so it costs more than the 1.8 a Charm of yours would give; at level 8 the eased bar makes it cost 1.3 and the search rightly does not mind
 [$s, $a, $e] = $mk('thorn', 'foe'); v1_put($s, 'me', v1_tile($s, 'c9', 'charm', 3, 'body'), 4, 0); $s['foe']['hand'] = [v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature')]; $m = pfb_search($s, 'foe');
-chk('the creature\'s search avoids Thornburst when another linking cell is as good', $m !== null && !in_array([$m[1], $m[2]], [[3, 2], [2, 1], [2, 3]], true), $m);
+chk('the creature\'s search avoids Thornburst when another linking cell is as good', $m !== null && !in_array([$m[1], $m[2]], [[3, 2], [2, 1], [2, 3]], true), $m); unset($GLOBALS['v1_foe_lv']);
 
 // ---- a fight started under 2.6.74
 $s = pfb_new(v1_me(), v1_foe('large'), 12, ['v1' => V1_OLD, 'blank' => true]); unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe'], $s['v1']['mud'], $s['v1']['envcap']); $s = json_decode(json_encode($s), true);

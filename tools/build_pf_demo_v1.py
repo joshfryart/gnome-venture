@@ -60,6 +60,40 @@ def css_urls(css, base):
     return re.sub(r'url\(([^)]*)\)', sub, css)
 css = '\n'.join(css_urls(rd(G + f), G) for f in ['style.css', 'pfight.css', 'pfv1.css'])
 
+# ---- css: keep only the rules the demo can use. style.css is the whole game's stylesheet (650 KB); every turn of the replay measures the board (pfboardv1.js fitBoard), and each of those
+# forced style passes ran through all of it: at phone speed a turn's page took about 2x as long with the full sheet. A selector stays when every class and id in it is a word that appears
+# in the demo's markup or scripts (or starts with a 'prefix-' those scripts build class names from); rules with no class or id (tags, :root, attributes) always stay.
+def prune_css(css, used, prefixes):
+    def sel_ok(sel):   # only the classes and ids outside brackets count (:is(.a, .b), :where(), :has(), :not() and [attr] lists keep the rule)
+        sel = re.sub(r'\[[^\]]*\]|"[^"]*"|\'[^\']*\'', ' ', sel)
+        while '(' in sel: sel2 = re.sub(r'\([^()]*\)', ' ', sel); sel = sel2 if sel2 != sel else sel.replace('(', ' ')
+        for tok in re.findall(r'[.#](-?[A-Za-z_][\w-]*)', sel):
+            if tok not in used and not any(tok.startswith(p) for p in prefixes): return False
+        return True
+    css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)   # comments first (their words and braces are not selectors; base64 has no '*')
+    out, i, n = [], 0, len(css)
+    while i < n:
+        j = css.find('{', i)
+        if j < 0: break
+        head = css[i:j].strip(); depth, k = 1, j + 1
+        while k < n and depth:
+            depth += {'{': 1, '}': -1}.get(css[k], 0); k += 1
+        body = css[j + 1:k - 1]
+        if head.startswith('@media') or head.startswith('@supports') or head.startswith('@layer'):
+            inner = prune_css(body, used, prefixes)
+            if inner.strip(): out.append(head + '{' + inner + '}')
+        elif head.startswith('@'): out.append(head + '{' + body + '}')   # @keyframes, @font-face
+        else:
+            parts, dep, cur = [], 0, ''
+            for ch in head:   # split the selector list on the commas outside brackets (.chips:has(> a, > button) is one selector)
+                dep += {'(': 1, '[': 1, ')': -1, ']': -1}.get(ch, 0)
+                if ch == ',' and dep == 0: parts.append(cur); cur = ''
+                else: cur += ch
+            sels = [x for x in (y.strip() for y in parts + [cur]) if x and sel_ok(x)]
+            if sels: out.append(','.join(sels) + '{' + body.strip() + '}')
+        i = k
+    return '\n'.join(out)
+
 src = {'pfx': rd(G + 'pfx.js'), 'pfparts': rd(G + 'pfparts.js'), 'pfv1box': rd(G + 'pfv1box.js'), 'pfboardv1': rd(G + 'pfboardv1.js')}
 page = rd(D + 'page.html')
 def put(mark, text):
@@ -69,5 +103,11 @@ put('/*DATA*/{}', js(data)); put('/*ART*/{}', js(art)); put('/*ATLAS*/{}', js(at
 for k, v in src.items(): put('/*SRC_%s*/' % k, esc(v))
 
 put('/*ENGINE*/', esc(rd(TMP + '/tools/pfengine.js'))); put('/*PFD*/', esc(rd(D + 'pfd.js'))); put('/*VIEWS*/', esc(rd(D + 'views.js'))); put('/*GLUE*/', esc(rd(D + 'glue.js')))
+scripts = ''.join(src.values()) + rd(D + 'pfd.js') + rd(D + 'views.js') + rd(D + 'glue.js') + rd(D + 'page.html') + rd(TMP + '/tools/pfengine.js')
+used = set(re.findall(r'[A-Za-z_][\w-]*', scripts)) | {'game', 'dark'}
+prefixes = tuple(sorted(set(re.findall(r'[\'"\s.]([A-Za-z][\w-]*)[\'"]\s*\+', scripts)) | set(re.findall(r'[\'"\s]([A-Za-z][\w]*(?:-[\w]+)*-)[\'"]', scripts))))   # 'L-' + layer, ' r' + rank: a class built by joining
+css0 = len(css)
+if not os.environ.get('PFDEMO_FULLCSS'): css = prune_css(css, used, prefixes)   # PFDEMO_FULLCSS=1: keep every rule (to compare the look)
+print('css', css0 // 1024, '->', len(css) // 1024, 'KB')
 put('/*CSS*/', css)
 open(OUT, 'w', encoding='utf-8').write(page); print(OUT, len(page) // 1024, 'KB')

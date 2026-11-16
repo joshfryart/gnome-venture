@@ -550,36 +550,127 @@ function town_place_card(array $s, int $uid, array $uses, string $q): string
         . '<span class="gcard__meta">' . $chip . ($folk !== '' ? '<span class="pfolk">' . $folk . '</span>' : '') . '</span></a>';
 }
 
-/** v2.0.67: the Shops tab of a main stop (mockup3): this town's shops, then Mossbottom's (reachable from anywhere). Same rules as world.php's Shops tab. */
-function town_shops_html(array $u, string $town): string
+/** Shop Street slots for Mossbottom's shops, by shops.shop_type; any other type (and a second of the same type) goes to hub-more. */
+const SHOP_STREET_HUB_SLOTS = ['seeds', 'food', 'florist', 'decor', 'dyes', 'pets'];
+
+/** The open shops of a region (shops row + loc_name, loc_id, loc_region), each with 'st' = shop_state(). */
+function shop_street_list(array $u, string $region): array
 {
     require_once __DIR__ . '/world.php';
-    $list = fn(string $region): array => q('SELECT s.*, l.name AS loc_name, l.id AS loc_id FROM shops s JOIN locations l ON l.id = s.location_id
-              WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$region])->fetchAll();
-    $h = '';
-    if ($town !== HUB_REGION) {
-        $shops = $list($town);
-        $h .= '<h3 class="gx-h">🏪 Shops in ' . e($town) . '</h3>' . ($shops ? '<ul class="scards">' . town_shop_cards($shops, $u) . '</ul>' : '<p class="gx-note">No shops here yet.</p>');
-    }
-    $hubShops = $list(HUB_REGION);
-    $h .= '<h3 class="gx-h">🍄 Mossbottom hub <span class="gx-h__sub">reachable from anywhere</span></h3>'
-        . ($hubShops ? '<ul class="scards">' . town_shop_cards($hubShops, $u) . '</ul>' : '<p class="gx-note">No shops here yet.</p>');
-    return $h;
+    $rows = q('SELECT s.*, l.name AS loc_name, l.id AS loc_id, l.region AS loc_region FROM shops s JOIN locations l ON l.id = s.location_id
+               WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$region])->fetchAll();
+    foreach ($rows as &$r) $r['st'] = shop_state($u, $r);
+    return $rows;
 }
 
-/** Shop cards: vignette per shop type, the name on a sign, the description, who is at the counter. Whole card = the link; closed shops stay links. */
+/** Where a shop's tap goes: the shop when reachable, else the walk-there panel. */
+function shop_street_href(array $s): string
+{
+    return $s['st']['state'] === 'away' ? url('world.php?go=' . (int)$s['loc_id'] . '#gopanel') : url('shop.php?id=' . (int)$s['id']);
+}
+
+/** Which Shop Street picture file (as a here-<key> scene key) a town uses: its region's own, else the default. */
+function shop_street_art_key(string $town): string
+{
+    require_once __DIR__ . '/world.php';
+    require_once __DIR__ . '/scene.php';
+    $r = $town !== HUB_REGION ? region_by_name($town) : null;
+    $code = $r ? strtolower((string)$r['code']) : '';
+    if ($code !== '' && preg_match('/^[a-z0-9]+$/', $code) && scene_path('here', 'shops-street-' . $code) !== '') return 'shops-street-' . $code;
+    return 'shops-street';
+}
+
+/**
+ * The picture's hotspots (chrome mode, tags are code): Mossbottom's shops on the hub-<type> slots (others and overflow on hub-more), the town's shops
+ * on loc-1..4 in order (overflow on loc-more), free slots as closed shutters "To let" (not in Mossbottom itself, which has no town row).
+ */
+function shop_street_hotspots(array $L, array $local, array $hub, string $town): array
+{
+    $spots = [];
+    foreach ($L['spots'] ?? [] as $sp) if (isset($sp['k'])) $spots[(string)$sp['k']] = $sp;
+    $put = [];   // slot => [shops]
+    $used = [];
+    foreach ($hub as $s) {
+        $t = (string)($s['shop_type'] ?? '');
+        $k = in_array($t, SHOP_STREET_HUB_SLOTS, true) ? 'hub-' . $t : 'hub-more';
+        if ($k !== 'hub-more' && isset($used[$k])) $k = 'hub-more';
+        $used[$k] = 1;
+        $put[$k][] = $s;
+    }
+    $i = 0;
+    foreach ($local as $s) $put[++$i <= 4 ? 'loc-' . $i : 'loc-more'][] = $s;
+    $hot = [];
+    foreach ($spots as $k => $sp) {
+        $isHub = str_starts_with($k, 'hub-');
+        $mark = $isHub ? '🍄 ' : '📍 ';
+        if ($k === 'hub-pets' && !isset($put[$k])) continue;   // Mossbottom has no pet shop: no front for that slot at all
+        $h = ['id' => $k, 'x' => (int)$sp['x'], 'y' => (int)$sp['y']] + (isset($sp['box']) ? ['box' => $sp['box']] : []);
+        $list = $put[$k] ?? [];
+        if (!$list) {
+            if (!$isHub && $town === HUB_REGION) continue;   // Mossbottom has no town row of its own
+            $hot[] = $h + ['label' => 'To let', 'href' => '#shops-list', 'chip' => '', 'cls' => 'locked', 'nopill' => true, 'inert' => true];
+            continue;
+        }
+        if (count($list) === 1 || !str_ends_with($k, '-more')) $s = $list[0];
+        if (str_ends_with($k, '-more') && count($list) > 1) {
+            $hot[] = $h + ['label' => $mark . '+' . count($list) . ' more', 'href' => '#shops-list-' . ($isHub ? 'hub' : 'local'), 'chip' => count($list) . ' more shops'];
+            continue;
+        }
+        $hot[] = $h + ['label' => $mark . preg_replace('/^The\s+/u', '', (string)$s['name']), 'href' => shop_street_href($s), 'chip' => $s['st']['chip'],
+                       'cls' => $s['st']['state'] === 'away' ? 'is-away' : ($s['st']['state'] === 'closed' ? 'is-closed' : ''), 'state' => $s['st']['state'] === 'away' ? 'away' : ($s['st']['state'] === 'closed' ? 'closed' : 'open')];
+    }
+    return $hot;
+}
+
+/**
+ * v2.7.01: Shop Street. The picture (when the picture navigation is on and the layout exists; art missing = drawn sky and ground) with the town's
+ * shops and Mossbottom's on it, then ONE text list in two sections: "Here in <town>" and "Mossbottom, open from anywhere". Used by the town
+ * Shops view (town.php?view=shops) and the World page's Shops tab.
+ */
+function shop_street_html(array $u, string $town): string
+{
+    require_once __DIR__ . '/world.php';
+    require_once __DIR__ . '/hub_scene.php';
+    $inHub = $town === HUB_REGION;
+    $local = $inHub ? [] : shop_street_list($u, $town);
+    $hub = shop_street_list($u, HUB_REGION);
+    $h = '';
+    $L = here_layouts_all()['shops-street'] ?? null;
+    if ($L && (is_admin() || gnav_on())) {
+        $key = shop_street_art_key($town);
+        $h .= hub_scene($key, shop_street_hotspots($L, $local, $hub, $town), [], ['layout' => $L, 'art' => 'here', 'alt' => 'Shop Street in ' . $town, 'chrome' => true, 'pills' => 'street', 'noleg' => true, 'twin' => false, 'title' => 'Shops']);
+    }
+    $h .= '<div id="shops-list">';
+    if (!$inHub) {
+        $h .= '<h3 class="gx-h" id="shops-list-local">📍 Here in ' . e($town) . '</h3>'
+            . ($local ? '<ul class="scards">' . town_shop_cards($local, $u) . '</ul>' : '<p class="gx-note">No shops here yet.</p>');
+    }
+    $h .= '<h3 class="gx-h" id="shops-list-hub">🍄 ' . e(HUB_REGION) . ', open from anywhere</h3>'
+        . ($hub ? '<ul class="scards">' . town_shop_cards($hub, $u) . '</ul>' : '<p class="gx-note">No shops here yet.</p>');
+    return $h . '</div>';
+}
+
+/** v2.0.67: the Shops tab of a main stop (mockup3): Shop Street, then this town's shops and Mossbottom's (reachable from anywhere) as one list. */
+function town_shops_html(array $u, string $town): string
+{
+    return shop_street_html($u, $town);
+}
+
+/** Shop cards: vignette per shop type, the name on a sign, the description, a 📍 / 🍄 badge and the state. Whole card = the link; closed shops stay links; away shops get a walk link. */
 function town_shop_cards(array $shops, array $u): string
 {
+    require_once __DIR__ . '/world.php';
     $out = '';
     foreach ($shops as $s) {
-        $staff = staff_on_duty((int)$s['id']);
-        $reach = shop_reachable($u, $s);
+        $st = $s['st'] ?? shop_state($u, $s);
+        $hub = shop_is_hub($s);
+        $badge = $hub ? '<span class="sbadge sbadge--hub">🍄 ' . e(HUB_REGION) . '</span>' : '<span class="sbadge sbadge--here">📍 ' . e((string)($s['loc_name'] ?? 'Here')) . '</span>';
         $inner = '<span class="scard__art">' . felt_art_img(town_shop_art((string)($s['shop_type'] ?? ''))) . '</span>'
             . '<span class="scard__ribbon"><span class="scard__name">' . e($s['name']) . '</span></span>'
-            . '<span class="scard__desc">' . e((string)$s['description']) . '</span>'
-            . '<span class="scard__staff">' . ($staff ? 'At the counter: ' . e(implode(', ', array_column($staff, 'name'))) : 'Closed — nobody on shift') . '</span>';
-        $cls = 'scard' . ($staff ? '' : ' is-closed');
-        $out .= '<li>' . ($reach
+            . '<span class="scard__desc">' . $badge . ' ' . e((string)$s['description']) . '</span>'
+            . '<span class="scard__staff">' . ($st['state'] === 'open' ? e($st['why']) : ($st['state'] === 'closed' ? e($st['why']) : '🚶 Away from here')) . '</span>';
+        $cls = 'scard' . ($st['state'] === 'closed' ? ' is-closed' : ($st['state'] === 'away' ? ' is-away' : ''));
+        $out .= '<li>' . ($st['state'] !== 'away'
             ? '<a class="' . $cls . '" href="' . e(url('shop.php?id=' . (int)$s['id'])) . '">' . $inner . '</a>'
             : '<div class="' . $cls . '">' . $inner . '<a class="scard__walk" href="' . e(url('world.php?go=' . (int)$s['loc_id'] . '#gopanel')) . '">🚶 Walk to ' . e((string)$s['loc_name']) . ' to shop here</a></div>') . '</li>';
     }

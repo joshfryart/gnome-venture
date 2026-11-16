@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.7.00');
+define('APP_VERSION', '2.7.01');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -248,6 +248,12 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
         boot_step('market176_almanac', function () {
             require_once __DIR__ . '/market100.php';
             market176_almanac();   // v1.7.6: Orders page wording (food quality off)
+        });
+        boot_step('creatures_2701', function () {
+            require_once __DIR__ . '/catalog.php';
+            require_once __DIR__ . '/adventure_data.php';
+            $stats = ['items' => 0, 'pages' => 0];
+            import_pf_creatures($stats);   // 2.7.01: the creature pass: variants and extra drops from data/pf_creatures.txt (adds only what is missing)
         });
         boot_step('ensure_treks', function () {
             require_once __DIR__ . '/trek_data.php';

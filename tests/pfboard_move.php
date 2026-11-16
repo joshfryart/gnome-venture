@@ -23,7 +23,14 @@ if ($mode === 'add') {   // a legal "h,b,anc,SIDE" onto the set-aside group, or 
 if ($mode === 'group') {   // "c,x,y" for the set-aside group, or NONE
     $g = $s['me']['held'] ?? null; $sp = $g ? pfb_group_spots($s, $g) : []; echo $sp ? "c,{$sp[0][0]},{$sp[0][1]}\n" : "NONE\n"; exit;
 }
-$m = pfb_search($s, 'me');
+$m = null;
+if (!empty($s['v1']) && empty($s['wear'])) {   // 2.7.01: until a tool piece has been played, prefer one (keeps pfdeck_v1's wear check deterministic)
+    foreach ($s['me']['hand'] as $i => $tile) {
+        if (($tile['src'] ?? '') !== 'tool') continue;
+        foreach (pfb_cells($s, $tile, 'me') as [$x, $y]) { $w = $s; if (pfb_place($w, 'me', $i, $x, $y) !== null) { $m = [$i, $x, $y]; break 2; } }
+    }
+}
+if (!$m) $m = pfb_search($s, 'me');
 if (!$m && !empty($s['v1'])) foreach (array_keys($s['me']['hand']) as $i) {   // v1: nothing fits as dealt; "FLIP i" when flipping hand piece i gives a move
     if (!pfb_can_flip($s, $i)) continue; $w = $s; pfb_flip($w, $i, $w['turn']); if (pfb_search($w, 'me')) { echo "FLIP $i\n"; exit; }
 }

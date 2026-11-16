@@ -6,7 +6,10 @@
   if (isNode) module.exports = api; else root.PFD = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (PFE, D) {
   'use strict';
-  var C = D.consts, FAM = ['body', 'mind', 'craft'], PLAYER_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'region'];
+  var C = D.consts, FAM = ['body', 'mind', 'craft'], PLAYER_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'region', 'legend', 'wear'];
+  var LARDER_SRC = ['crop', 'legend', 'food'], KEEP_SRC = ['friend', 'gourmand', 'trophy', 'wear'];   // 2.6.989 / 2.7.00 slots (PFD_LARDER_SRC, PFD_KEEP_SRC)
+  /** pfd_slots: the Larder 3 (4 from level 10, 5 from 20), the Keepsakes 1 (2 from 15, 3 from 25, 4 from 40). */
+  function slots(level) { return { larder: level >= 20 ? 5 : (level >= 10 ? 4 : 3), keeps: level >= 40 ? 4 : (level >= 25 ? 3 : (level >= 15 ? 2 : 1)) }; }
   var SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, UP = { hurt: 1, charm: 1, trick: 1 }, HOLE = PFE.HOLE;
   var PFB_LIFE = 3, TEAM_SRC = ['pal', 'tool', 'crop'];
 
@@ -25,9 +28,9 @@
   }
   /** The sample gnome's sources (the shape of pfd_sources_blank): what it owns. level = the level its pieces were unlocked at (values use the fight's level). */
   function blank() {
-    return { level: 14, calling: 'thornblade', ctier: 1, home: 'NA', starter: null, state: {}, tools: { till: 3, staff: 2, lantern: 4, rod: 1, axe: 2, net: 1, prune: 3 }, belt: null, slots: 2, wear: { lantern: 6, axe: 14 },
+    return { level: 15, calling: 'thornblade', ctier: 1, home: 'NA', starter: null, state: {}, tools: { till: 3, staff: 2, lantern: 4, rod: 1, axe: 2, net: 1, prune: 3 }, belt: null, slots: 2, wear: { lantern: 6, axe: 14 },
       pals: [{ n: 'Bark Badger', t: 'guard', v: 8, r: 'craft', rank: 2, ref: 'badger' }, { n: 'Acorn Nip', t: 'heal', v: 6, r: 'mind', rank: 1, ref: 'acorn' }],
-      crops: { grain: 2, herb: 1, fruit: 2, spice: 3, nut: 1, legume: 2 }, crafts: { cooking: 2, garden: 3, potions: 2 }, regions: { NA: 2, SE: 2, MENA: 2 }, auto: false, repair: 3, beltTier: 1 };
+      crops: { grain: 2, herb: 1, fruit: 2, spice: 3, nut: 1, legume: 2 }, crafts: { cooking: 2, garden: 3, potions: 2 }, regions: { NA: 2, SE: 2, MENA: 2 }, legends: {}, wears: Object.assign({}, D.wearOwned || {}), auto: false, repair: 3, beltTier: 1 };   // 2.7.00: a few wearables in the satchel (dump_data.php)
   }
   function belt(src) {
     var b = src.belt;
@@ -46,6 +49,8 @@
     if (c.hurt < 1) return 'Bring at least one Hurt piece (the great creatures cannot be charmed).';
     if (c.rare > C.rareCap) return 'At most ' + C.rareCap + ' Rare pieces a deck. Take one out first.';
     if (c.mw > C.mwCap) return 'At most ' + C.mwCap + ' Masterwork piece a deck. Take the other one out first.';
+    if ((c.larder || 0) > (c.larder_max === undefined ? 99 : c.larder_max)) return 'Your Larder holds ' + c.larder_max + ' crop pieces. Take one out first.';
+    if ((c.keeps || 0) > (c.keeps_max === undefined ? 99 : c.keeps_max)) return 'You have ' + c.keeps_max + ' Keepsake slots. Take one out first.';
     return null;
   }
   /** pfd_build: every piece the gnome could bring (kit first, then gear), the deck a fight uses, counts, the error. */
@@ -54,20 +59,21 @@
     var starter = chosen ? src.starter.slice() : C.core.concat(offerKeys(cal, src.home, C.kits.bold));
     var rankOf = function (p) {
       if (p.rar !== 'src') return +p.rar;
-      var have = { crop: src.crops, craft: src.crafts, region: src.regions, tool: src.tools }[p.src] || {};
+      var have = { crop: src.crops, craft: src.crafts, region: src.regions, tool: src.tools, legend: src.legends || {} }[p.src] || {};
       return Math.max(1, Math.min(4, have[p.ref] || 1));
     };
     var owned = function (p) {
       switch (p.src) {
         case 'basic': return p.k !== 'breather'; case 'knack': return lvl >= +p.ref; case 'calling': return p.ref !== '' && p.ref === cal;
         case 'crop': return !!src.crops[p.ref]; case 'craft': return !!src.crafts[p.ref]; case 'region': return !!src.regions[p.ref];
+        case 'legend': return !!(src.legends || {})[p.ref];
       }
       return false;
     };
     var entry = function (key, p, rank, x) {
       var e = { key: key, k: p.k, n: p.n, t: p.t, v: +p.v, r: p.r, tag: p.tag || '', src: p.src, ref: p.ref || '', rank: rank,
         life: (p.life | 0) || (rank >= 4 ? 4 : (p.tag === 'quick' ? 2 : (p.tag === 'hold' ? 4 : PFB_LIFE))), blurb: p.blurb || '', gear: false, tool: '', starter: false, core: false, on: false, out: '' };
-      if (p.col !== undefined && p.col !== null) e.col = p.col; if (p.up !== undefined && p.up !== null) e.up = p.up;
+      if (p.col !== undefined && p.col !== null) e.col = p.col; if (p.up !== undefined && p.up !== null) e.up = p.up; if (p.mod) e.mod = p.mod;
       for (var f in x) e[f] = x[f]; return e;
     };
     var pieces = [], seen = {};
@@ -77,7 +83,11 @@
     });
     Object.keys(D.catalog).forEach(function (key) {
       var p = D.catalog[key]; if (seen[key] || PLAYER_SRC.indexOf(p.src) < 0 || !owned(p)) return;
-      pieces.push(entry(key, p, rankOf(p), { on: src.state[key] === undefined ? ['crop', 'craft', 'region'].indexOf(p.src) >= 0 : !!src.state[key] }));
+      pieces.push(entry(key, p, rankOf(p), { on: !!src.state[key], 'new': src.state[key] === undefined }));   // 2.6.989: a piece the gnome has just earned arrives switched off, marked New
+    });
+    (D.wearPieces || []).forEach(function (wp) {   // 2.7.00 wearables (wear_pieces, dumped at build time for the sample satchel): each a Keepsake piece, off until switched on
+      if (!(src.wears || {})[wp.ref] || seen[wp.key]) return; seen[wp.key] = 1;
+      pieces.push(entry(wp.key, wp, +wp.rank, { on: !!src.state[wp.key], 'new': src.state[wp.key] === undefined }));
     });
     var bl = belt(src);
     bl.forEach(function (b) { var p = D.catalog['t:' + b.type]; if (!p || b.state !== 'ok') return; pieces.push(entry('t:' + b.type, p, rankOf(p), { gear: true, tool: b.type, on: true })); });
@@ -85,10 +95,17 @@
       var key = 'pal:' + q.n; if (seen[key]) return; seen[key] = 1;
       pieces.push(entry(key, { k: key, n: q.n, t: q.t, v: q.v, r: q.r || null, tag: 'pal', src: 'pal', ref: q.ref || '', life: 0 }, Math.max(1, Math.min(3, q.rank || 1)), { gear: true, on: true }));
     });
-    var cnt = { n: 0, kit: 0, belt: 0, pals: 0, hurt: 0, rare: 0, mw: 0, src: { pal: 0, tool: 0, crop: 0 } };
-    pieces.forEach(function (e) {
+    var sl = slots(lvl), cnt = { n: 0, kit: 0, belt: 0, pals: 0, hurt: 0, rare: 0, mw: 0, larder: 0, larder_max: sl.larder, keeps: 0, keeps_max: sl.keeps, src: { pal: 0, tool: 0, crop: 0 } };
+    var capOut = {}, rr = 0, mm = 0;   // pfd_cap_out (2.7.01): the Rare / Masterwork cap counts pieces in list order, wearables (w:...) last
+    pieces.map(function (e, i) { return i; }).sort(function (a, b) { return ((pieces[a].key.indexOf('w:') === 0) - (pieces[b].key.indexOf('w:') === 0)) || (a - b); }).forEach(function (i) {
+      var e = pieces[i]; if (!e.on) return; if (e.rank === 3 && ++rr > C.rareCap) capOut[i] = 1; if (e.rank === 4 && ++mm > C.mwCap) capOut[i] = 1;
+    });
+    pieces.forEach(function (e, i) {
       if (!e.on) return;
-      if (e.rank === 3 && ++cnt.rare > C.rareCap) e.out = 'cap'; if (e.rank === 4 && ++cnt.mw > C.mwCap) e.out = 'cap';
+      if (LARDER_SRC.indexOf(e.src) >= 0 && ++cnt.larder > sl.larder) e.out = 'slots';   // more crop pieces on than the Larder holds: the extra ones stay out
+      if (KEEP_SRC.indexOf(e.src) >= 0 && ++cnt.keeps > sl.keeps) e.out = 'slots';
+      if (e.rank === 3) cnt.rare++; if (e.rank === 4) cnt.mw++;
+      if (capOut[i]) e.out = 'cap';
       cnt.n++; if (!e.gear) cnt.kit++; if (e.t === 'hurt') cnt.hurt++; if (e.src === 'tool') cnt.belt++; if (e.src === 'pal') cnt.pals++;
       if (cnt.src[e.src] !== undefined) cnt.src[e.src]++;
     });
@@ -116,7 +133,9 @@
       if (e.src !== 'pal') b += C.rankBonus[e.rank] || 0;
       var over = { n: e.n, t: e.t, v: e.v, r: e.r, tag: e.tag, src: e.src, life: e.life, rank: e.rank };
       if (e.col !== undefined) over.col = e.col; if (e.up !== undefined) over.up = e.up; if (e.tool) over.tool = e.tool;
-      return PFE.makeTile(e.k, stats, b, over);
+      var t = PFE.makeTile(e.k, stats, b, over);
+      if (e.mod) t.m = String(e.mod);   // pf_make_tile (2.6.990): a built-in knack (wearables, legendary crops); the JS port's makeTile does not copy it yet
+      return t;
     });
   }
   // ---- the gnome in memory (the demo's "database"): sources + the deck + locks
@@ -194,5 +213,5 @@
   function creature(slug) { for (var i = 0; i < D.creatures.length; i++) if (D.creatures[i].slug === slug) return D.creatures[i]; return D.creatures[0]; }
 
   return { D: D, C: C, piece: piece, durMax: durMax, offerKeys: offerKeys, starterCheck: starterCheck, blank: blank, belt: belt, build: build, deck: deck, fightEntries: fightEntries, edges: edges, tiles: tiles,
-    post: post, wearAll: wearAll, wearAdd: wearAdd, wearRows: wearRows, gnome: gnome, creature: creature, validate: validate };
+    slots: slots, LARDER_SRC: LARDER_SRC, KEEP_SRC: KEEP_SRC, post: post, wearAll: wearAll, wearAdd: wearAdd, wearRows: wearRows, gnome: gnome, creature: creature, validate: validate };
 });

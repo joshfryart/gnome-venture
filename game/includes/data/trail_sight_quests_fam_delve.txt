@@ -1,0 +1,8 @@
+# Delve family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# The Book of Hushes, delve variant: Sorrel Inkcap is a calling mentor, so he only GIVES the line (he never travels). Four beats need a villager by their weekly clockwork (npc=), each at a delve mouth: a hush is a place about to speak.
+Q|delve-hushes|The Book of Hushes: Doorways Down|Sorrel Inkcap|🔥|seq|xp=70,c=40,fp=2,title=Keeper of Hushes Below|Sorrel Inkcap says every doorway down holds its breath before it speaks, and wants the hush at five of them written down, quietly, with four helpers to keep you honest.|Sorrel reads your five hushes with his nose almost touching the page, says nothing at all for a good long while, and then writes one word in the margin: yes.
+B|delve-hushes|end-delve-1-mountain|Drop a pebble and hold your breath until it lands|-|
+B|delve-hushes|end-delve-1-desert|Mabel Tumblethorn hums her songline at dawn and leaves the last note out for you|dp=dawn|npc=Mabel Tumblethorn
+B|delve-hushes|end-delve-2-forest|Ulric Acorncap sits with you at dusk and neither of you says anything by the lantern|dp=dusk|npc=Ulric Acorncap
+B|delve-hushes|end-delve-2-rainforest|Ferrin Sedgemoor shushes the fireflies at night and you write down what they nearly say|dp=night|npc=Ferrin Sedgemoor
+B|delve-hushes|end-delve-2-desert|Juniper Windlass reads the page at dusk by the last trimmed wick|dp=dusk|npc=Juniper Windlass

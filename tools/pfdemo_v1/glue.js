@@ -23,8 +23,8 @@
   Object.defineProperty(HTMLImageElement.prototype, 'src', { configurable: true, enumerable: true, get: function () { return isrc.get.call(this); }, set: function (v) { var k = String(v).replace(/^art\//, ''); isrc.set.call(this, (String(v).indexOf('art/') === 0 && ART[k]) ? ART[k] : v); } });
 
   // ---- the game in memory
-  var TUNE0 = { foe_x: 1, bar_x: 1, env_x: 1, sun: 2, bramble: 0.10, rain: 0.15, thorn: 0.10, mud: 0.25, limit: 3, envn: 1, kinds: 1, aimhit: 0, keepmine: 0, lvl: 0, belt: 1, anim: '1' };
-  var S = { src: PFD.blank(), cr: null, screen: 'box', tab: 'kit', enc: null, flash: null, seed: ((Date.now() % 100000) | 0) * 7919 + 13, tune: Object.assign({}, TUNE0), res: null, fights: 0 };
+  var TUNE0 = { foe_x: 1, bar_x: 1, env_x: 1, sun: 2, bramble: 0.10, rain: 0.15, thorn: 0.10, mud: 0.25, limit: 3, envn: 1, kinds: 1, aimhit: 0, keepmine: 0, lvl: 0, belt: 1, anim: '1', learn: 3 };   // learn: pfight_learner_n (2.7.01), the first fights use the learner rules
+  var S = { src: PFD.blank(), cr: null, screen: 'box', tab: 'kit', enc: null, flash: null, seed: ((Date.now() % 100000) | 0) * 7919 + 13, tune: Object.assign({}, TUNE0), res: null, fights: 0, learned: 0 };   // learned: finished fights (the table pf_learn)
   safe(function () { var a = localStorage.getItem('pfvspd'); if (a === '0' || a === '2') S.tune.anim = a; });
   var scrollMem = 0;
 
@@ -42,7 +42,11 @@
   function newState() {
     var c = creature(S.enc.slug), g = PFD.gnome(fightLevel(c)), src = S.src;
     var me = { hp: g.max, max_hp: g.max, stats: g.stats, deck: PFD.tiles(PFD.fightEntries(src), g.stats, {}, src.calling, src.ctier), luck: 0 };
-    var s = PFE.newFight(me, PFE.clone(c), (S.seed += 7919), { blank: true, v1: v1tune() });
+    var n = S.tune.learn | 0, v1 = v1tune();
+    if (n > 0 && S.learned < n) { v1.foe_x = v1.foe_x * 0.8; v1.tags = 0; v1.nothorn = 1; }   // 2.7.01 learner rules (pfight_state): creature pieces x0.8, no creature tags, no Thornburst
+    var s = PFE.newFight(me, PFE.clone(c), (S.seed += 7919), { blank: true, v1: v1 });
+    s.learner = n > 0 && S.learned < n;
+    if (n > 0 && S.learned === n) s.newt = ['Thornburst. It hurts whoever fires it: keep it out of your own chains.', 'Creature tags. Some creature pieces carry one (Quick, Poison, Evade ...): tap a creature piece to read it.', 'Creature pieces hit at full strength now.'];   // pf_new_today
     s.decksize = me.deck.length;
     S.enc.pf = s; S.enc.hist = []; S.enc.replay = []; S.enc.snaps = {}; S.enc.snapn = 0; S.enc.snaplast = null; S.enc.histnew = 0; S.enc.note = '';
     S.fights++;
@@ -94,12 +98,14 @@
         var ln = PFE.line(e, c.name), rp = { id: (e.id !== undefined && e.id !== null) ? +e.id : null, by: String(e.by), ta: String(e.ta || e.by), ln: ln, bar: e.barnow !== undefined ? e.barnow : null, fh: e.fhnow !== undefined ? e.fhnow : null, hp: e.hpnow !== undefined ? e.hpnow : null, g: e.gnow !== undefined ? e.gnow : null, n: String(e.n || ''), t: String(e.t || '') };
         if (e.env !== undefined) { rp.env = String(e.env); rp.x = e.x !== undefined ? e.x : null; rp.y = e.y !== undefined ? e.y : null; rp.dir = e.dir !== undefined ? e.dir : null; rp.moved = e.moved !== undefined ? e.moved : null; rp.ids = e.ids !== undefined ? e.ids : null; rp.me = e.me || 0; rp.foe = e.foe || 0; if (e.kind !== undefined) rp.kind = String(e.kind); if (e['for'] !== undefined) rp['for'] = String(e['for']); if (e.guard !== undefined) rp.guard = e.guard | 0; }
         if (e.strike) { rp.strike = 1; rp.broke = !!e.broke; }   // 2.6.98 aimhit
+        if (e.cs) { rp.cs = 1; rp.rid = e.rid | 0; }   // 2.7.00 chain order: the placed piece appears when its chain starts
         if (e.note !== undefined) { rp.note = String(e.note); if (e.moved !== undefined) rp.moved = e.moved; } if (e.used && e.used.length) rp.used = e.used; if (e.tw) rp.tw = e.tw; if (e.sun) rp.sun = 1; if (e.mud) rp.mud = 1; if (e.full) rp.full = 1;
         enc.replay.push(rp);
       });
       var keys = Object.keys(snaps).map(Number).sort(function (a, b) { return a - b; }).slice(-14), ns = {}; keys.forEach(function (k) { ns[k] = snaps[k]; });
       enc.snaps = ns; enc.snapn = sn; enc.snaplast = cur; enc.histnew = r.ev.length; enc.hist = enc.hist.slice(-30);
     } else return false;
+    if (s.over && !enc.learnsaved) { enc.learnsaved = 1; S.learned++; }   // 2.7.01 pf_learner_bump: one more finished fight
     if (s.over && s.wear && !enc.wearsaved) {   // the fight is over, however it ended: the wear of the fight tools is saved, once
       enc.wearsaved = 1; enc.broke = PFD.wearAdd(S.src, s.wear);
     }
@@ -149,7 +155,8 @@
   // ---------------------------------------------------------------- pages
   function pickerHtml() {
     var cur = S.cr, h = '<div class="box pfv pfv-pick" id="pfv-pick"><div class="hrow"><h2>🐾 Meet a creature</h2><span class="chip">' + (S.fights) + ' fight' + (S.fights === 1 ? '' : 's') + '</span></div>'
-      + '<p class="hint">Pick a creature. You see its pieces first, then fight on a board of its size. Your gnome is the same level as the creature unless you change it in Tuning.</p><ul class="crgrid">';
+      + '<p class="hint">Pick a creature. You see its pieces first, then fight on a board of its size. Your gnome is the same level as the creature unless you change it in Tuning.'
+      + (S.tune.learn > S.learned ? ' Your first ' + S.tune.learn + ' fights use the learner rules (' + (S.tune.learn - S.learned) + ' left): creature pieces ×0.8, no creature tags, no Thornburst.' : '') + '</p><ul class="crgrid">';
     D.creatures.forEach(function (q) {
       h += '<li><button type="button" class="crb' + (cur === q.slug ? ' on' : '') + '" data-meet="' + esc(q.slug) + '"><img src="' + (ART['mini-' + q.slug + '.png'] || '') + '" alt=""><b>' + esc(q.name) + '</b><small><i class="szd ' + esc(q.size) + '"></i>' + esc(q.size) + ' · lv ' + q.level + '</small></button></li>';
     });
@@ -171,7 +178,7 @@
     if (!S.enc.pfgo) return { html: PFV.prefightHtml(x, c) + artData(), fight: false };
     if (!S.enc.pf) newState();
     var wear = S.enc.pf.over ? PFD.wearRows(S.src, S.enc.pf) : [];
-    return { html: PFV.fightHtml({ c: c, s: S.enc.pf, enc: S.enc, src: S.src, g: x.g, wear: wear }), fight: true };
+    return { html: PFV.fightHtml({ c: c, s: S.enc.pf, enc: S.enc, src: S.src, g: x.g, wear: wear, costwarn: S.learned < 5 }), fight: true };   // pf_cost_warn: pfight_costwarn_n = 5
   }
 
   // ---- the site swaps emoji for its own drawn icons in every page it renders (includes/emoji_icons.php): the same here, over the text nodes of the markup built by views.js
@@ -198,6 +205,10 @@
   function themeSync() { var t = document.documentElement.getAttribute('data-theme'); document.body.classList.toggle('dark', t === 'dark'); }
   function render(keepScroll) {
     if (window.__pfbOff) safe(window.__pfbOff); if (window.__pfvOff) safe(window.__pfvOff);
+    // The board script freezes a copy of the old fight when a turn is sent (pfboardv1.js ghostSnap) and lays it over the new fight until the new board is drawn, to hide the empty moment of the site's page swap.
+    // Here the swap and the drawing are one synchronous step, so the copy's MutationObserver fired only AFTER the new script had looked for it: the frozen old turn then covered the replay for 8 s
+    // (the demo's "slow load between moves" and "no animation"). There is no empty moment to hide: drop the copy before the swap.
+    if (window.__pfbGhostObs) safe(function () { window.__pfbGhostObs.disconnect(); }); window.__pfbGhost = null;
     var y = keepScroll ? window.scrollY : 0, p = page();
     var fm = S.flash; S.flash = null;
     var fl = fm ? '<div class="flash ' + (fm.kind === 'err' ? 'err' : 'ok') + '" role="' + (fm.kind === 'err' ? 'alert' : 'status') + '">' + esc(fm.msg) + '</div>' : '';
@@ -263,6 +274,7 @@
       + slider('rain', 'Rain guard', 0, 0.4, 0.01, fp) + slider('thorn', 'Thornburst', 0, 0.3, 0.01, fp) + slider('mud', 'Mud teeth', 0, 0.5, 0.05, fp, 'A piece next to a Mud counts this much less.')
       + slider('limit', 'Use-up limit', 2, 6, 1, function (x) { return x + '+'; }, 'A chain this long uses its pieces up.') + slider('envn', 'Environment pieces a round', 1, 3, 1, function (x) { return x; })
       + slider('kinds', 'Class rules (Swarm, Two aims, Grudge ...)', 0, 1, 1, function (x) { return x ? 'on' : 'off'; }, 'One rule per creature class.') + slider('aimhit', 'Aim strike', 0, 1, 1, function (x) { return x ? 'on' : 'off'; }, 'A Hurt aim on your piece breaks it (a Guard at least as strong holds).') + slider('keepmine', 'Keep my pieces (off: the old use-up)', 0, 1, 1, function (x) { return x ? 'on' : 'off'; }, 'Your pieces are never used up. Built and measured; too easy at the current bar.')
+      + slider('learn', 'Learner fights', 0, 5, 1, function (x) { return x ? 'first ' + x : 'off'; }, 'A gnome’s first fights: creature pieces ×0.8, no creature tags, no Thornburst. Fights finished so far: ' + S.learned + '.')
       + slider('lvl', 'Your level vs the creature', -8, 4, 1, function (x) { return x > 0 ? '+' + x : x; }, 'Below 0 makes it harder.')
       + '<div class="tsel"><label for="t-belt">Fight belt (bought in the game)</label><select id="t-belt" data-k="belt"><option value="1">I · 2 slots</option><option value="2">II · 3 slots</option><option value="3">III · 4 slots</option></select></div>'
       + '<div class="tsel"><label for="t-anim">Animation</label><select id="t-anim" data-k="anim"><option value="1">Normal</option><option value="2">Fast</option><option value="0">Skip</option></select></div>'
@@ -271,7 +283,7 @@
   }
   sheetEl.addEventListener('input', function (ev) {
     var k = ev.target.getAttribute && ev.target.getAttribute('data-k'); if (!k || ev.target.tagName !== 'INPUT') return;
-    S.tune[k] = +ev.target.value; var o = sheetEl.querySelector('#o-' + k); if (o) o.textContent = (k === 'bramble' || k === 'rain' || k === 'thorn' || k === 'mud') ? fp(S.tune[k]) : (k === 'lvl' ? (S.tune[k] > 0 ? '+' + S.tune[k] : S.tune[k]) : (k === 'sun' ? '×' + S.tune[k] : (k === 'limit' ? S.tune[k] + '+' : (k === 'envn' ? S.tune[k] : (k === 'kinds' || k === 'aimhit' || k === 'keepmine' ? (S.tune[k] ? 'on' : 'off') : fx(S.tune[k]))))));
+    S.tune[k] = +ev.target.value; var o = sheetEl.querySelector('#o-' + k); if (o) o.textContent = (k === 'bramble' || k === 'rain' || k === 'thorn' || k === 'mud') ? fp(S.tune[k]) : (k === 'lvl' ? (S.tune[k] > 0 ? '+' + S.tune[k] : S.tune[k]) : (k === 'sun' ? '×' + S.tune[k] : (k === 'limit' ? S.tune[k] + '+' : (k === 'envn' ? S.tune[k] : (k === 'kinds' || k === 'aimhit' || k === 'keepmine' ? (S.tune[k] ? 'on' : 'off') : (k === 'learn' ? (S.tune[k] ? 'first ' + S.tune[k] : 'off') : fx(S.tune[k])))))));
   });
   sheetEl.addEventListener('change', function (ev) {
     var k = ev.target.getAttribute && ev.target.getAttribute('data-k'); if (!k || ev.target.tagName !== 'SELECT') return;
@@ -280,7 +292,7 @@
   });
   sheetEl.addEventListener('click', function (ev) {
     if (ev.target.closest('[data-close]')) { sheetEl.hidden = true; sheetEl.innerHTML = ''; if (!(window.__demoState && window.__demoState.fight)) render(true); return; }   // a fight on screen is left alone (a replay must not restart)
-    if (ev.target.closest('#t-new')) { S.src = PFD.blank(); S.enc = null; S.res = null; S.screen = 'box'; S.tab = 'kit'; S.fights = 0; setBelt(); sheetEl.hidden = true; sheetEl.innerHTML = ''; flash('A new gnome: pack a first Puzzle box.', 'ok'); render(); return; }
+    if (ev.target.closest('#t-new')) { S.src = PFD.blank(); S.enc = null; S.res = null; S.screen = 'box'; S.tab = 'kit'; S.fights = 0; S.learned = 0; setBelt(); sheetEl.hidden = true; sheetEl.innerHTML = ''; flash('A new gnome: pack a first Puzzle box.', 'ok'); render(); return; }
     if (ev.target.closest('#t-reset')) { S.tune = Object.assign({}, TUNE0); if (!locked()) setBelt(); tuning(); }
   });
   document.getElementById('b-tune').addEventListener('click', tuning);

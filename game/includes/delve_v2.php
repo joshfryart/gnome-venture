@@ -264,7 +264,7 @@ function dv2_touch(array $u, array &$exp, array &$sc, string $t, int $x, int $y)
 function dv2_fight(array $u, array &$exp, int $lvl, string $intro): bool
 {
     $exp['level'] = $lvl;
-    $c = pick_creature((string)(exp_scene($exp)['land'] ?? 'forest'), $lvl, false);
+    $c = pick_creature((string)(exp_scene($exp)['land'] ?? 'forest'), $lvl, false, false, 0, scene_region_code(exp_scene($exp)));
     if (!$c) return false;
     $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100), 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
     exp_log($exp, $intro . (preg_match('/^[AEIOU]/i', $c['name']) ? 'an ' : 'a ') . $c['name'] . '!');

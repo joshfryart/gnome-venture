@@ -1,0 +1,18 @@
+# Puzzle Pals chunk c03, Opus richness pass (art-2701-pals-all/c03/opus3)
+
+Richness pass on chunk 3 of `../../worklist.json`, built on `../opus2/`. 8 pals, each a yard sprite (64x64, `c:eyeLocked`) and a perch sprite (36x36, drawn by hand at that size, `c:eyeSmall` pills). That makes 16 sprites, each as `.lua` + `.aseprite` + `.png`. Keys, callings and concepts are unchanged. Siblings of `art-2701-batch3/pals/opus3` and `c00/opus3`: 5-6 tone hue-shifted ramps, light from the upper left with one lower-right shade, rim light and bounce, material texture via `O.tex`, one quirk plus a smaller detail you find on a closer look. `_opus.lua` is the opus2 helper, copied unchanged (tools only). `_tools/run.sh` renders sprites and makes a preview sheet in the scratchpad.
+`HP.assertClean` passes on all 16 (0 semi-transparent, 0 pure black/white, 1px ink `#2b1c26`). Nothing was copied into game/.
+Run: `AppRun -b --script-param out=<dir>/ --script <key>-yard.lua`.
+
+| key | richness added | opus2 weakness fixed | closer-look detail |
+|---|---|---|---|
+| bb-samovar-puff | hue-shifted brass, specular streak, lit flute ridges, hammered glints, patina flecks, stamped medals on the band, curlier steam, Gzhel-blue cup | - | a poppy-seed bublik (bagel) hung on its left ring handle |
+| bb-catkin-crown | irregular cushion-moss clumps (lit crown, root shadow), moss capsules, scale marks on the catkins, peeling birch curls, second leaf | - | a pollen-dusted bumblebee asleep on the top catkin (the cause of the sneeze) |
+| bb-chimney-nest | per-brick tones with lit lips, recessed mortar, soot streak, chipped and cracked cap, slate tiles with lit lips, moss on the roof, coverts and primaries on the stork, darned sock | twig texture read as noise and the nest was a flat ellipse. Now it is a deep bowl woven from single sticks (lit by the light direction, dark gaps, pale cut ends, crossing sticks, strays poking out). The perch has three bold strands | a curl of chimney smoke sneaking out under the nest (yard only) |
+| bb-homing-stork | breast scallops, pale covert edges, primary splits and sheen, scaled legs, knitted scarf rib with fringe, timbered cottage with a door knob | - | a cream luggage tag (tiny red roof on it) tied to its scarf |
+| dw-sherbet-sip | glaze sheen streak with glints, gold dot row, pierced lid, rope-twist handle, glints down the pour | - | a mint leaf floating in the glass, with bubbles |
+| dw-scarab-roll | iridescent elytra (teal to green, violet underside rim), striae with lit ridges, specular arc, punctate pronotum, ball with grit, pebbles and a straw bit, tibial teeth | the yard was wide and low with empty space on top. It now has a pushing stance with the rear raised, a taller dome, a bigger ball and a taller antenna. The perch matches it | an even line of tiny footprints trailing behind (a steady pace) |
+| dw-lantern-lark | mantle streaks, V breast streaks, pale tertial edges and tail tips, warm lantern bounce on its underside, hot candle cores and gold caps on the lanterns | - | a little pale moth at the left lantern |
+| dw-canyon-crown | crown strata as hue-shifted layers (pale salmon, rust), lit ledge lips, desert-varnish streaks, shaded inner arch wall; cross-bedded strata, wind pits, crack and lichen on the boulder | - | a tiny lizard basking on the cliff band by the spire |
+
+Weak spots left: the closer-look details (moth, lizard, bee, footprints) are only a few pixels, by design. The sherbet-sip belly gained the least (only the sheen and glints). The scarab's shovel head is a small teal wedge where it meets the ball. The salmon/rust crown layers are subtle in the lit areas.
