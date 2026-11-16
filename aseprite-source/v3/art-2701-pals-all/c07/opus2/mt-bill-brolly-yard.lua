@@ -64,17 +64,17 @@ c:cheek(23, 30) c:cheek(32, 30)
 
 -- the giant leaf brolly: arched, midrib, paired veins, drip tip on the right
 local leaf = HP.mask()
-for x = 4, 61 do
-  local t = (x - 4) / 57
+for x = 4, 59 do
+  local t = (x - 4) / 55
   local top = 14 - math.sin(t * math.pi) * 9 + t * 3
-  local th = 2.5 + math.sin(t * math.pi) * 3.5
+  local th = 3 + math.sin(t * math.pi) * 4.5
   for y = math.floor(top), math.floor(top + th) do leaf:set(x, y) end
 end
 leaf:cut(c:poly{ { 13, 15 }, { 15, 11 }, { 17, 15 } }) -- a rain tear
 local lb = {}
 leaf:each(function(x, y)
-  local t = (x - 4) / 57
-  local mid = 14 - math.sin(t * math.pi) * 9 + t * 3 + 1.5 + math.sin(t * math.pi) * 1.2
+  local t = (x - 4) / 55
+  local mid = 14 - math.sin(t * math.pi) * 9 + t * 3 + 1.5 + math.sin(t * math.pi) * 1.8
   if math.abs(y - mid) < .6 then lb[K(x, y)] = 2 end
   if math.abs(y - mid) >= .6 and (x + math.floor(math.abs(y - mid) * 1.3)) % 6 == 0 then lb[K(x, y)] = -1 end
 end)
@@ -91,5 +91,5 @@ O.dots(c, { { 46, 56 }, { 47, 56 }, { 55, 56 }, { 56, 56 } }, FROG[2]) -- feet
 
 O.done(c, "mt-bill-brolly-yard", function(c)
   c:sparkle(10, 4)
-  for _, p in ipairs({ { 61, 21 }, { 61, 23 }, { 61, 24 } }) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], SKY[1], { r = { name = "drip" } }) end end
+  for _, p in ipairs({ { 59, 21 }, { 59, 23 }, { 59, 24 } }) do if not c:get(p[1], p[2]) then c:put(p[1], p[2], SKY[1], { r = { name = "drip" } }) end end
 end)
