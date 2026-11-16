@@ -516,13 +516,13 @@
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft', wear: 'body' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
-  var PFB_V1_FOE_MULT = { small: 0.855, medium: 0.48, large: 0.378, boss: 0.585 }, PFB_V1_BAR_MULT = { small: 1.325, medium: 1.491, large: 1.495, boss: 0.825 };   // week-1 retune (T13): was 0.95 / 0.60 / 0.42 / 0.585 and 0.828 / 0.994 / 1.15 / 0.611;   // after 2.6.94 (AIMSTICK): boss x1.3 with its bar x0.8 (was 0.45 / 0.764)
+  var PFB_V1_FOE_MULT = { small: 0.8807, medium: 0.65, large: 0.415, boss: 0.585 }, PFB_V1_BAR_MULT = { small: 1.378, medium: 1.7743, large: 1.7193, boss: 0.9158 };   // 2.7.01 policy D (balance-report.md): was 0.855 / 0.48 / 0.378 / 0.585 and 1.325 / 1.491 / 1.495 / 0.825;   // week-1 retune (T13): was 0.95 / 0.60 / 0.42 / 0.585 and 0.828 / 0.994 / 1.15 / 0.611;   // after 2.6.94 (AIMSTICK): boss x1.3 with its bar x0.8 (was 0.45 / 0.764)
   // after 2.6.94: the LEVEL CURVE (PFB_V1_LEVEL in pfboard.php, where the why is): f = clamp(1 + slope x (level - ref), lo, hi) as [slope, ref, lo, hi]; piece values x f, bar x min(1, f)
-  var PFB_V1_LEVEL = { small: [0.0, 1, 1.0, 1.0], medium: [0.05, 12, 0.85, 1.35], large: [0.025, 22, 0.85, 1.10], boss: [0.0, 1, 1.0, 1.0] };
+  var PFB_V1_LEVEL = { small: [0.05, 6, 1.0, 1.8], medium: [0.05, 12, 0.85, 1.25], large: [0.025, 22, 0.85, 1.10], boss: [0.0, 1, 1.0, 1.0] };
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0 };
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0, style: 0 };
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -650,15 +650,21 @@
   var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
 
   function isNumeric(v) { return (typeof v === 'number' && isFinite(v)) || (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v))); }
+  var PFB_V1_BAR_EASE_MEDIUM = [0.50, 12, 24];   // 2.7.01 (policy D): [floor, level it starts to rise, level it is 1.0]
+  function barEase(size, lv) {
+    if (size !== 'medium' || lv <= 0) return 1.0;
+    var f = PFB_V1_BAR_EASE_MEDIUM[0], a = PFB_V1_BAR_EASE_MEDIUM[1], b = PFB_V1_BAR_EASE_MEDIUM[2];
+    return round(Math.max(f, Math.min(1.0, f + (1.0 - f) * (lv - a) / (b - a))), 4);
+  }
   function v1Cfg(size, over, level) {
     if (!has(PFB_SIZE, size)) size = 'medium';
     var g = PFB_GROUND[size];
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -666,6 +672,7 @@
     level = toInt(level || 0);
     cfg.lvx = level > 0 ? v1Lvx(Array.isArray(over.lv) ? over.lv : PFB_V1_LEVEL[size], level) : 1.0;   // the level curve: piece values x f, bar x min(1, f)
     cfg.foe = round(cfg.foe * cfg.lvx, 4); cfg.bar = round(cfg.bar * Math.min(1.0, cfg.lvx), 4);
+    if (over.ease === undefined || over.ease === null || Number(over.ease)) cfg.bar = round(cfg.bar * barEase(size, level), 4);   // 2.7.01: the medium low-level bar ease (PFB_V1_BAR_EASE_MEDIUM)
     if (!cfg.edges) cfg.flip = 0;
     return cfg;
   }
@@ -1373,7 +1380,87 @@
   }
 
   // ------------------------------------------------------------------ the creature's play
-  function score(b, a, who) {
+
+  // ------------------------------------------------------------------ 2.7.01 creature AI (PFB_AI, pfb_ai_make, pfb_feat, pfb_ai_score, pfb_why in pfboard.php; SPEC sec 3)
+  var PFB_AI_KEYS = ['dmg', 'bar', 'heal', 'guard', 'strip', 'setup', 'tempo', 'control', 'deny', 'force', 'early', 'late'];
+  var PFB_AI = {
+    balanced: [1.0, -0.8, 0.0, 0.4, 0.3, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 'Balanced', 'Plays the best trade each turn'],
+    crowd: [0.8, -0.6, 0.0, 0.2, 0.2, 0.6, 0.8, 1.2, 1.0, 0.8, 1.0, 1.0, 'Crowd', 'Fills the board and shrinks your cells'],
+    blocker: [0.6, -0.8, 0.0, 1.0, 0.6, 0.8, 0.6, 0.3, 1.2, 0.2, 1.0, 1.0, 'Blocker', 'Sits where you want to play and strips your guard'],
+    burst: [1.5, -0.5, 0.0, 0.1, 0.1, 0.3, 0.5, 0.0, 0.0, 1.0, 1.6, 0.8, 'Burst', 'Biggest hit now, and pushes you into its pieces'],
+    stall: [0.5, -1.0, 0.3, 0.8, 0.5, 1.0, 2.0, 0.2, 0.6, 0.0, 0.6, 1.0, 'Stall', 'Delays you: a short draw, an extra piece, guard'],
+    healer: [0.7, -1.0, 1.2, 0.5, 0.3, 0.6, 0.6, 0.0, 0.0, 0.0, 1.0, 1.0, 'Healer', 'Prefers to recover and trades slowly'],
+    trickster: [0.8, -0.8, 0.0, 0.3, 0.3, 1.8, 1.8, 0.2, 0.4, 0.2, 1.0, 1.0, 'Trickster', 'Trips, dodges and bashes before it hurts'],
+    poisoner: [0.9, -0.8, 0.0, 0.3, 0.2, 2.0, 1.0, 0.3, 0.0, 0.3, 1.0, 1.0, 'Poisoner', 'Poison and long set-ups first'],
+    guardian: [0.5, -0.9, 0.4, 1.5, 0.8, 0.8, 0.5, 0.1, 0.6, 0.0, 1.0, 1.0, 'Guardian', 'Big guard, Thorns and Hold, slow trades'],
+    ambusher: [0.9, -0.7, 0.0, 0.2, 0.1, 0.8, 0.6, 0.4, 0.2, 1.2, 0.4, 1.6, 'Ambusher', 'Quiet first turns, then hits hard']
+  };
+  function aiMake(id, o) {
+    if (!has(PFB_AI, id)) return null;
+    var w = { id: id }; PFB_AI_KEYS.forEach(function (k, i) { w[k] = Number(PFB_AI[id][i]); });
+    var n = 0; o = o || {};
+    for (var k in o) { if (n >= 2) break; if (PFB_AI_KEYS.indexOf(k) < 0 || !isNumeric(o[k])) continue; w[k] = Math.max(-2.5, Math.min(2.5, Number(o[k]))); n++; }
+    return (id === 'balanced' && n === 0) ? null : w;
+  }
+  function myMoves(s) {
+    var o = [], must = mustLink(s, 'me');
+    s.me.hand.forEach(function (t, i) { for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var j = check(s, t, x, y); if (j !== null && (!must || hasLink(j))) o.push([i, x, y, j]); } });
+    return o;
+  }
+  function reach(s) { var c = {}; myMoves(s).forEach(function (m) { c[m[1] + ',' + m[2]] = 1; }); return Object.keys(c).length; }
+  function foeCount4(z) { var n = 0; for (var id in z.pcs) if (z.pcs[id].by === 'foe') n++; return Math.min(4, n); }
+  function feat(b, a, ctx) {
+    var w = nn(ctx.w, null), barD = (a.bar.now - b.bar.now) + (a.fh.now - b.fh.now);
+    var u = 0.05 * a.me.max, setup = 0.0, tempo = 0.0, dPz = 0, dEv = 0, dTh = 0, dBa = 0, dSl = 0, dAg = 0;
+    var I = function (x) { return x === true ? 1 : toInt(nn(x, 0)); };
+    if (a.v1 && truthy(a.v1.tags)) {
+      var pz = function (z) { return toInt(nn(z.me.poison, 0)) * toInt(nn(z.me.poison_v, 0)); };
+      dPz = pz(a) - pz(b); dEv = I(a.foe.evade) - I(b.foe.evade); dTh = I(a.foe.thorns) - I(b.foe.thorns);
+      dBa = I(a.foe.bashnext) - I(b.foe.bashnext); dSl = I(a.me.slowdraw) - I(b.me.slowdraw); dAg = I(a.foe.again) - I(b.foe.again);
+      setup = dPz + u * (1.5 * dEv + 0.6 * dTh + 1.0 * dBa); tempo = u * (1.0 * dSl + 1.5 * dAg);
+    }
+    var deny = 0.0, force = 0.0, dReach = 0;
+    if (w !== null && nn(w.deny, 0) != 0) { if (ctx.rb === undefined) ctx.rb = reach(b); dReach = ctx.rb - reach(a); deny = 0.1 * a.me.max * dReach / Math.max(1, ctx.rb); }
+    if (w !== null && nn(w.force, 0) != 0) {
+      var mv = myMoves(a), k = 0;
+      mv.forEach(function (m) { for (var q = 0; q < m[3].length; q++) { var j = m[3][q], pc = a.pcs[j[1]]; if (j[2] && pc && pc.by === 'foe' && pc.tile.t === 'hurt') { k++; break; } } });
+      force = 0.1 * a.me.max * k / Math.max(1, mv.length);
+    }
+    return { dmg: b.me.hp - a.me.hp, bar: barD, heal: Math.max(0.0, -barD), guard: a.foe.block - b.foe.block, strip: -(a.me.block - b.me.block), setup: setup, tempo: tempo,
+      control: u * (foeCount4(a) - foeCount4(b)), deny: deny, force: force, x_pz: dPz, x_ev: dEv, x_th: dTh, x_ba: dBa, x_sl: dSl, x_ag: dAg, x_reach: dReach, x_n: foeCount4(a) };
+  }
+  function aiScore(b, a, w, ctx) {
+    ctx.w = w; var f = feat(b, a, ctx), ramp = toInt(b.round) <= 2 ? w.early : w.late;
+    return w.dmg * ramp * f.dmg + w.bar * f.bar + w.heal * f.heal + w.guard * f.guard + w.strip * f.strip + w.setup * f.setup + w.tempo * f.tempo
+      + w.control * f.control + w.deny * f.deny + w.force * f.force + (a.over === 'defeat' ? 50 : 0);
+  }
+  function foeBase(s) {
+    if (!s.foe.ai) return s;
+    s = clone(s); begin(s, 'foe');
+    if (hasAb(s)) abTurn(s, []);
+    return s;
+  }
+  function why(s, m) {
+    var name = has(PFB_AI, String(nn(s.foe.aid, 'balanced'))) ? PFB_AI[String(nn(s.foe.aid, 'balanced'))][12] : 'Balanced', w = nn(s.foe.ai, null);
+    if (!w) { w = { id: 'balanced' }; PFB_AI_KEYS.forEach(function (k, i) { w[k] = Number(PFB_AI.balanced[i]); }); }
+    var b = foeBase(s), a = clone(b); if (hasAb(b)) a.infoe = 1;
+    if (place(a, 'foe', toInt(m[0]), toInt(m[1]), toInt(m[2])) === null) return name + ': no move';
+    if (a.over === 'defeat') return name + ': finishes you';
+    var ctx = { w: w }, f = feat(b, a, ctx), ramp = toInt(b.round) <= 2 ? w.early : w.late, c = {}, ck = [];
+    ['dmg', 'heal', 'guard', 'strip', 'setup', 'tempo', 'control', 'deny', 'force'].forEach(function (k) { var v = w[k] * f[k] * (k === 'dmg' ? ramp : 1.0); if (v > 1e-9) { c[k] = v; ck.push(k); } });
+    var tx = {
+      dmg: 'hits you for ' + iround(f.dmg), heal: 'recovers ' + iround(f.heal), guard: 'builds ' + iround(f.guard) + ' guard', strip: 'strips ' + iround(f.strip) + ' of your guard',
+      setup: f.x_pz > 0 ? 'poisons you' : (f.x_ev > 0 ? 'readies a dodge' : (f.x_th > 0 ? 'raises thorns' : (f.x_ba > 0 ? 'lends its guard to a bash' : 'sets up a lasting effect'))),
+      tempo: f.x_sl > 0 ? 'leaves you a piece short' : 'plays again', control: 'takes ground, ' + toInt(f.x_n) + ' out', deny: 'fills ' + toInt(f.x_reach) + ' of your cells', force: 'pushes you into its Hurt pieces' };
+    if (!ck.length) return name + ': ' + (f.bar > 0.05 ? 'the safest play, it gives ' + iround(f.bar) : 'the safest play');
+    var k1 = null, k2 = null;
+    ck.forEach(function (k) { if (k1 === null || c[k] > c[k1]) k1 = k; });
+    ck.forEach(function (k) { if (k !== k1 && (k2 === null || c[k] > c[k2])) k2 = k; });
+    return name + ': ' + tx[k1] + (k2 !== null && c[k2] >= 0.5 * c[k1] ? ', ' + tx[k2] : '');
+  }
+
+  function score(b, a, who, ctx) {
+    if (who === 'foe' && a.foe.ai) { if (ctx === undefined || ctx === null) ctx = {}; return aiScore(b, a, a.foe.ai, ctx); }   // 2.7.01: a creature with a play style
     var barD = (a.bar.now - b.bar.now) + (a.fh.now - b.fh.now), hpD = a.me.hp - b.me.hp;
     var tg = 0.0;
     if (a.v1 && truthy(a.v1.tags)) {
@@ -1389,17 +1476,21 @@
   function search(s, who, allowHeavy, onlyK, avoid) {
     if (allowHeavy === undefined) allowHeavy = true;
     if (onlyK === undefined) onlyK = null; if (avoid === undefined) avoid = null;
-    var best = null, hand = s[who].hand;
+    var best = null, ctx = {}, infoe = false;
+    if (who === 'foe') { s = foeBase(s); infoe = hasAb(s); }   // 2.7.01: with a play style it searches the turn it will play; Ambush is live in its first turn
+    var hand = s[who].hand;
     for (var i = 0; i < hand.length; i++) {
       var tile = hand[i];
       if (!allowHeavy && tile.tag === 'heavy' && nn(tile.m, '') !== 'steady') continue;
       if (onlyK !== null && tile.k !== onlyK) continue;
       var cs = cells(s, tile, who);
       for (var c = 0; c < cs.length; c++) {
-        var x = cs[c][0], y = cs[c][1], w = clone(s);
+        var x = cs[c][0], y = cs[c][1];
         if (avoid !== null && x === avoid[0] && y === avoid[1]) continue;
+        var w = clone(s); if (infoe) w.infoe = 1;
         if (place(w, who, i, x, y) === null) continue;
-        var sc = score(s, w, who);
+        delete w.infoe;
+        var sc = score(s, w, who, ctx);
         if (s.v1 && has(w.cell, x + ',' + y)) {   // v1: bramble under a piece that stays out, and what the announced events will do to it
           if (ter(s, x, y) === 'br') sc -= 2 * Number(s.v1.bramble) * (who === 'foe' ? Number(s.v1.br_foe) * 0.8 * s.fh.max : 0.7 * s.me.max);
           sc += envBias(s, who, x, y, tile);
@@ -1462,13 +1553,16 @@
         if (kind === 'bird' && plan.alt && !(has(s.cell, plan.alt.x + ',' + plan.alt.y) && s.cell[plan.alt.x + ',' + plan.alt.y] !== null)) plan = plan.alt;   // 2.6.98 Two aims
         else if (kind === 'beast') s.foe.grudge = Math.min(toInt(abp(s, 'gmax', PFB_KIND_GRUDGE_MAX)), toInt(nn(s.foe.grudge, 0)) + 1);   // Grudge
       }
-      if (plan) for (var hi = 0; hi < s.foe.hand.length; hi++) if (s.foe.hand[hi].k === plan.k) { s.aimforce = true; r = place(s, 'foe', hi, plan.x, plan.y); delete s.aimforce; break; }   // v1 AIM
+      var whyS = '';
+      if (plan) for (var hi = 0; hi < s.foe.hand.length; hi++) if (s.foe.hand[hi].k === plan.k) { s.aimforce = true; r = place(s, 'foe', hi, plan.x, plan.y); delete s.aimforce; whyS = String(nn(plan.why, '')); break; }   // v1 AIM
       if (r === null) {   // no fumble: it picks again at full value
         if (plan) s.reaim = 1;
         var m = search(s, 'foe');
         if (m === null) break;
+        if (v1r(s, 'style') === 1) { whyS = why(s, m); if (plan) whyS = whyS.replace(/^([^:]+): /, '$1: re-aim, '); }   // 2.7.01: the reason of the move it picks
         r = place(s, 'foe', m[0], m[1], m[2]);
       }
+      if (r && r.length && whyS !== '') r[0].why = whyS;
       if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); if (kind === 'water') current(s, s.pid, ev); }
       if (truthy(s.foe.again)) { if (!again) { again = true; n++; if (s.v1 && truthy(s.v1.tags) && r && r.length) ev.push(note('quick', String(r[0].rid && s.pcs[r[0].rid] ? s.pcs[r[0].rid].tile.n : nn(r[0].n, '')))); } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
     }
@@ -1522,9 +1616,9 @@
     s.foe.nextk = null;
     if (m === null) m = search(s, 'foe');
     s.foe.intent = m ? s.foe.hand[m[0]].t : null;
-    if (s.v1 && truthy(s.v1.aim)) { var h = m ? s.foe.hand[m[0]] : null; s.foe.plan = h && foeLen(s) > 0 ? { k: h.k, n: h.n, t: h.t, v: h.v, tag: h.tag, x: m[1], y: m[2] } : null; }
+    if (s.v1 && truthy(s.v1.aim)) { var h = m ? s.foe.hand[m[0]] : null; s.foe.plan = h && foeLen(s) > 0 ? { k: h.k, n: h.n, t: h.t, v: h.v, tag: h.tag, x: m[1], y: m[2] } : null; if (s.foe.plan && v1r(s, 'style') === 1) s.foe.plan.why = why(s, m); }
     if (kind !== '' && s.foe.plan) {   // 2.6.98 class rules that add to the aim
-      if (kind === 'bird') { var am = search(s, 'foe', true, null, [toInt(m[1]), toInt(m[2])]); if (am) { var ah = s.foe.hand[am[0]]; s.foe.plan.alt = { k: ah.k, n: ah.n, t: ah.t, v: ah.v, tag: ah.tag, x: am[1], y: am[2] }; } }
+      if (kind === 'bird') { var am = search(s, 'foe', true, null, [toInt(m[1]), toInt(m[2])]); if (am) { var ah = s.foe.hand[am[0]]; s.foe.plan.alt = { k: ah.k, n: ah.n, t: ah.t, v: ah.v, tag: ah.tag, x: am[1], y: am[2] }; if (v1r(s, 'style') === 1) s.foe.plan.alt.why = why(s, am); } }
       if (kind === 'boss') {
         var w2 = clone(s);
         if (place(w2, 'foe', m[0], toInt(m[1]), toInt(m[2])) !== null) { var nm = search(w2, 'foe'); if (nm) { var nh = w2.foe.hand[nm[0]]; s.foe.plan.next = { k: nh.k, n: nh.n, t: nh.t, v: nh.v, tag: nh.tag }; s.foe.nextk = nh.k; } }
@@ -1550,7 +1644,7 @@
     }
     var hi = -1; for (var i = 0; i < s.foe.hand.length; i++) if (s.foe.hand[i].k === plan.k) { hi = i; break; }
     if (hi < 0) return { broken: 'edge' };
-    var w = clone(s); w.spent = []; w.lastfoe = []; w.gone = []; begin(w, 'foe');
+    var w = clone(s); w.spent = []; w.lastfoe = []; w.gone = []; begin(w, 'foe'); if (hasAb(w)) abTurn(w, []);
     var hp0 = toInt(w.me.hp); w.aimforce = true; if (hasAb(w)) w.infoe = 1; var ev = place(w, 'foe', hi, x, y); delete w.aimforce; delete w.infoe;   // 2.7.01: Ambush shows in the number
     if (ev === null) return { broken: 'edge' };
     var g = 0, bait = 0, heal = 0, n = 0, sun = false, mud = false, combo = [], fires = [], quick = truthy(w.foe.again), ids = [];
@@ -1597,6 +1691,7 @@
       if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
       if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.me.tripped = 0; s.foe.bashnext = 0; s.foe.again = 0; }
       if (Array.isArray(c.ab) && c.ab.length && v1r(s, 'abil') === 1) abInit(s, c);   // 2.7.01 abilities (an E id replaces the class rule)
+      if (v1r(s, 'style') === 1 && truthy(c.ai) && has(PFB_AI, String(c.ai))) { s.foe.aid = String(c.ai); var aiw = aiMake(String(c.ai), nn(c.aip, {})); if (aiw) s.foe.ai = aiw; }   // 2.7.01 play style
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
       s.pid = 1; s.seq = 1; var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2);
@@ -1818,6 +1913,7 @@
       if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: truthy(nn(s.v1.life, 0)) ? toInt(nx.life) : PFB_LIFE, e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
       v.aim = clone(nn(s.foe.plan, null));
       if (kindNow(s) !== '') { v.kind = kindNow(s); v.grudge = toInt(nn(s.foe.grudge, 0)); v.ven = Object.keys(nn(s.ven, {})).map(function (k) { var a = k.split(','); return { x: toInt(a[0]), y: toInt(a[1]), r: s.ven[k] - 1 }; }); }   // 2.6.98 class rules
+      if (nn(s.foe.aid, '') !== '') v.ai = { id: s.foe.aid, n: PFB_AI[s.foe.aid][12], t: PFB_AI[s.foe.aid][13] };   // 2.7.01: its play style for the card
       if (hasAb(s)) v.abil = s.foe.ab.map(function (id) { return { id: id, n: PFB_ABIL[id][4], t: PFB_ABIL[id][5] }; });   // 2.7.01: the creature's abilities for its card
       v.reaim = truthy(s.reaim);
       v.flip = { on: truthy(c.flip), used: toInt(nn(s.me.flipt, 0)) === toInt(s.turn) };
@@ -1867,11 +1963,7 @@
       case 'simmer': return '\uD83C\uDF75 Simmer: you heal ' + toInt(e.n) + ' as your turn starts.';
       case 'current': return '\uD83C\uDF0A The current pushes your ' + e.n + ' one cell.';
       case 'grows': return '\uD83C\uDF3F The ' + foe + ' grows a Bramble beside its piece.';
-      case 'venom': return '\u2620\uFE0F Venom: your ' + e.n + ' poisons you (' + toInt(nn(e.pv, 2)) + ' a round, ' + toInt(nn(e.pr, 2)) + ' rounds).';
-      case 'drain': return '\uD83E\uDE78 Drain: the ' + foe + ' heals ' + e.n + '.';
-      case 'stagger': return '\uD83D\uDCAB Stagger: you draw 1 fewer piece next turn.';
-      case 'regrow': return '\uD83C\uDF31 Regrow: the ' + foe + ' recovers ' + e.n + '.';
-      case 'plated': return '\uD83D\uDEE1\uFE0F Plated: the ' + foe + ' starts its turn with ' + e.n + ' guard.';
+      case 'venom': return '\u2620\uFE0F Venom: your ' + e.n + ' poisons you (2 a round, 2 rounds).';
       default: return '\uD83E\uDDB6 Tripped: you draw 1 fewer piece next turn.';
     }
   }
@@ -1886,7 +1978,7 @@
       var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
       return ext({ by: 'env', types: ['env'], tags: [String(nn(e.kind, e.env))], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
     }
-    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : e.note === 'simmer' ? '\uD83C\uDF75 Simmer +' + toInt(e.n) : e.note === 'current' ? '\uD83C\uDF0A pushed ' + e.n : e.note === 'grows' ? '\uD83C\uDF3F grows a Bramble' : e.note === 'venom' ? '\u2620\uFE0F venom: poisoned' : e.note === 'drain' ? '\uD83E\uDE78 drain +' + e.n : e.note === 'stagger' ? '\uD83D\uDCAB staggered' : e.note === 'regrow' ? '\uD83C\uDF31 regrow +' + e.n : e.note === 'plated' ? '\uD83D\uDEE1\uFE0F plated ' + e.n : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
+    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : e.note === 'simmer' ? '\uD83C\uDF75 Simmer +' + toInt(e.n) : e.note === 'current' ? '\uD83C\uDF0A pushed ' + e.n : e.note === 'grows' ? '\uD83C\uDF3F grows a Bramble' : e.note === 'venom' ? '\u2620\uFE0F venom: poisoned' :  '\uD83E\uDDB6 you draw 1 fewer', tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {
@@ -1941,7 +2033,7 @@
     // more of the PHP functions
     check: check, chain: chain, links: links, place: place, placeGroup: placeGroup, connect: connect, groupCells: groupCells, score: score, expire: expire,
     flip: flip, canFlip: canFlip, cellPreview: cellPreview, v1Cfg: v1Cfg, v1r: v1r, PFB_V1_PRE: PFB_V1_PRE, ABIL: PFB_ABIL, AB_RANGE: PFB_AB_RANGE, ter: ter, envLine: envLine, forecast: forecast, envTurn: envTurn, lifeOf: lifeOf,
-    spawn: spawn, endRound: endRound, foeTurn: foeTurn, intent: intent, snap: snap, fx: fx, begin: begin, fire: fire,
+    spawn: spawn, aiMake: aiMake, AI: PFB_AI, AI_KEYS: PFB_AI_KEYS, why: why, feat: feat, myMoves: myMoves, endRound: endRound, foeTurn: foeTurn, intent: intent, snap: snap, fx: fx, begin: begin, fire: fire,
     makeTile: makeTile, foeDeck: foeDeck, temper: temper, value: value, apply: apply, checkEnd: checkEnd, draw: draw, rand: rand, shuffle: shuffle,
     collection: collection, box: box, boxCheck: boxCheck, boxCapacity: boxCapacity, unlocks: unlocks,
     round: round, crc32: crc32, clone: clone,

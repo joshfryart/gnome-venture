@@ -5,6 +5,7 @@
 //        | smart (two turns: top 6 by look, then its best own chain next turn; uses set-aside). All may flip (one flip a turn).
 //   OFFSETS: gnome level minus creature level, e.g. 0,-4,-8.   MULT 1 = about 200 fights per size and offset (0.25 for a quick look).
 //   env CHOICE=1 (bot look only): also count the real-choice and ply-flip turns (tv_real; costs about a smart run). CLASS=1 (agg): group by creature class instead of size. Every row has slug, class, clv; the table adds real / dead / ply-flip / own-piece-at-start %.
+//   env TV=old (the 2.7.00 bot value) | full (adds reach and force: slower). The default bot also values poison on you, Simmer / Plenty / Keeper, its set-ups and Enrage, the cells you hold (tv_extra).
 //   env V1='{"foe_x":1.1,"limit":4}' (pfb_v1_cfg overrides; a value may be a map by size: {"foe":{"small":0.7,"medium":0.5,"large":0.4,"boss":0.45}}; {"lv":{"medium":[0.05,12,0.85,1.35]}} replaces a level curve, PFB_V1_LEVEL), SRC=mixed|built|thirds|none (made-up sources for Teamwork).
 // Targets (claude/design-board-strategy.md): chain about 70% at level, smart 90% or more, fights 6-8 turns (small 4-5). The bots are tools/pfsim/v1bundle/run.php's, plus the flip.
 require_once __DIR__ . '/../game/includes/pfboard.php';
@@ -105,7 +106,27 @@ function tv_value(array $s): float
     else { $p = $s['fh']['now'] / $s['fh']['max']; if ($s['cm'] > 0) $p = max($p, $s['bar']['now'] / $s['bar']['max']); }
     $v = min(1.0, $p) + 1.2 * $s['me']['hp'] / $s['me']['max'] + 0.3 * min($s['me']['block'] + $s['me']['keep'], 0.3 * $s['me']['max']) / $s['me']['max'] - 0.15 * $s['foe']['block'] / $s['fh']['max'];
     if ($s['over']) $v += $s['over'] === 'defeat' ? -3 : ($s['over'] === 'stall' ? -1 : 3);
-    return $v;
+    return $v + (getenv('TV') === 'old' ? 0.0 : tv_extra($s));
+}
+/** 2.7.01: the bot values what the creature's scorer values (pfb_feat: setup, tempo, control, deny, force) and what its own tags give (Keeper, Plenty, Simmer), in the units of tv_value (a fraction of your health = 1/1.2).
+ *  Cheap terms always; env TV=full adds reach (deny) and force (they cost a pass over every legal cell). env TV=old: the 2.7.00 value (to compare tunings). */
+function tv_extra(array $s): float
+{
+    $max = max(1, (int)$s['me']['max']); $f = $s['foe']; $m = $s['me']; $x = 0.0;
+    $x -= 0.6 * (int)($m['poison'] ?? 0) * (int)($m['poison_v'] ?? 0) / $max;   // poison waiting on you
+    $x -= 0.08 * (int)($m['slowdraw'] ?? 0);                                         // you draw one fewer
+    $x -= 0.04 * (int)$f['evade'] + 0.03 * (int)(bool)$f['thorns'] + 0.05 * (int)($f['bashnext'] ?? 0) + 0.06 * (int)($f['enr'] ?? 0);   // its set-ups, and Enrage
+    $x += 1.2 * 2 * (int)($m['regen'] ?? 0) / $max;                                  // Simmer: 2 health on each of its remaining turns
+    $x += 0.05 * (int)($m['more'] ?? 0);                                             // Plenty: one more piece next round
+    foreach ($m['hand'] as $t) if (($t['tag'] ?? '') === 'keep') $x += 0.02;          // Keeper: a piece you hold on to
+    $mine = 0; foreach ($s['pcs'] as $p) if ($p['by'] === 'me') $mine++;
+    $x += 0.01 * min(4, $mine);                                                       // control: your own pieces out (they are cells the creature cannot take)
+    if (getenv('TV') === 'full' && function_exists('pfb_my_moves') && empty($s['over'])) {
+        $mv = pfb_my_moves($s); $cells = []; $link = 0;
+        foreach ($mv as $q) { $cells[$q[1] . ',' . $q[2]] = 1; foreach ($q[3] as $j) if ($j[2] && ($s['pcs'][$j[1]]['by'] ?? '') === 'foe' && ($s['pcs'][$j[1]]['tile']['t'] ?? '') === 'hurt') { $link++; break; } }
+        $x += 0.03 * count($cells) / max(1, pfb_w($s) * pfb_h($s)) - 0.05 * $link / max(1, count($mv));   // deny: cells left to you; force: how many of your moves run into its Hurt pieces
+    }
+    return $x;
 }
 function tv_ranked(array $s, array $acts): array
 {

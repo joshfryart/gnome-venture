@@ -1,0 +1,7 @@
+# Fixture for tests/pfboard_v1_abil.php (the loader of game/includes/data/pf_creatures.txt). Same 17 columns as the real file.
+# slug|family|name|size|landscapes|regions|level|cond|ability|ai|deck|drops|petals|exp|art|description|new_items
+grass-snake|grass-snake|=|=|=|*|=|=|venom-trail|balanced|=|=+Snake Eggs:3%|18-33|1.0|-|=|Snake Eggs
+marsh-adder|grass-snake|Marsh Adder|large|wetland,grassland|NA,CA|14|dp=night|venom-long+D2|stall(tilt=1)|-/mind/Fang Flick:hurt:0.9:craft:poison:3;Coil Up:guard:0.6:body:hold:4;Hiss:trick:0.4:mind:evade:3|Snake Skin:60%,Adder Venom:20%|18-33|1.1|darker, banded|A marsh snake that waits in the reeds.|Adder Venom
+aphid-swarm|aphid-swarm|=|=|=||=|=|swarm|balanced|=|=|1-1|1.0|-|=|-
+fly-swarm|aphid-swarm|Fly Swarm|small|any|EE,MENA|3|-|drain1(pct=0.9)+bogus|crowd|-/body/Buzz:hurt:0.7:body:quick:2;Dart:hurt:0.6:craft:-:2;Hover:guard:0.5:mind:evade:3|Fly Wings:50%|1-2|1.0|-|A buzzing crowd.|-
+short|row

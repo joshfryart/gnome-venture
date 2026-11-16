@@ -344,11 +344,33 @@ function encounter_creature(array $enc): ?array
     return $c;
 }
 
+/** 2.7.01: the region code (NA, CA, NWE ...) of a scene, '' when it has none: what pick_creature filters the variants by. */
+function scene_region_code(array $scene): string
+{
+    static $codes = [];
+    $rid = (int)($scene['region_id'] ?? 0);
+    if (!$rid) return '';
+    return $codes[$rid] ??= (string)q_val('SELECT code FROM regions WHERE id = ?', [$rid]);
+}
+
 /** v0.7.74: $full = full strength (wild country); otherwise the strong ordinary ones are eased by the settings. */
-function pick_creature(string $land, int $level, bool $allowBoss = true, bool $full = false, int $cap = 0): ?array
+function pick_creature(string $land, int $level, bool $allowBoss = true, bool $full = false, int $cap = 0, string $region = '', ?array $rows = null): ?array
 {   // v0.9.7: $cap > 0 = easy road: nothing above that level, no bosses
+    // 2.7.01: $region = the region code of the walk ('' = none given: every creature fits, as before). A creature of data/pf_creatures.txt turns up only in its `regions` ('*' = everywhere; a creature the file does not list fits everywhere).
+    // If the region leaves no creature at all for the landscape and level, the pick is made again without it (a variant never empties a road).
     if ($cap > 0) { $allowBoss = false; $level = min($level, $cap); }
-    $all = road_rows('creatures');   // v1.9.3: read once per request
+    $all = $rows ?? road_rows('creatures');   // v1.9.3: read once per request ($rows: the tests hand in their own)
+    if ($region !== '') {
+        require_once __DIR__ . '/pfdeck.php';
+        $inRegion = array_values(array_filter($all, fn($c) => pfd_creature_in_region((string)$c['slug'], $region)));
+        if (count($inRegion) < count($all) && ($pick = pick_creature_from($inRegion, $land, $level, $allowBoss, $full, $cap, true))) return $pick;
+    }
+    return pick_creature_from($all, $land, $level, $allowBoss, $full, $cap);
+}
+
+/** pick_creature on a given list of creature rows (the region has already been applied). $strict: null when no creature of the list is in the level band (the caller then picks from the whole list). */
+function pick_creature_from(array $all, string $land, int $level, bool $allowBoss, bool $full, int $cap, bool $strict = false): ?array
+{
     $fits = fn($c) => $c['landscapes'] === 'any' || in_array($land, array_map('trim', explode(',', $c['landscapes'])), true);
     $hi = $cap > 0 ? $cap : $level + 2;
     // v1.4.0: the band is "level-6 .. level+2" among this landscape's ordinary creatures. If it is empty, the strongest ones up to
@@ -361,6 +383,7 @@ function pick_creature(string $land, int $level, bool $allowBoss = true, bool $f
     $ord = array_values(array_filter($all, fn($c) => $fits($c) && $c['size'] !== 'boss' && (int)$c['level'] <= $hi));
     $pool = array_values(array_filter($ord, fn($c) => (int)$c['level'] >= $level - 6));
     if ($pool && ($pick = road_pick($pool, 'cr', 'slug'))) return $pick;
+    if ($strict) return null;
     if (!$ord) {   // nothing this weak on this landscape: take the weakest there is
         $any = array_values(array_filter($all, fn($c) => $fits($c) && $c['size'] !== 'boss'));
         if (!$any) return null;
@@ -457,7 +480,7 @@ function next_step(array $u, array &$exp): void
     $cap = exp_easy_cap($u, $exp);   // v0.9.7
     $rb = road_roll_bands();   // v2.0.16: the split is a setting (defaults 40 / 22 / 14 / 24)
     $rr = $roll * $rb['total'];
-    if ($rr <= $rb['creature'] * 100 && ($c = pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap))) {
+    if ($rr <= $rb['creature'] * 100 && ($c = pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap, scene_region_code($scene)))) {
         $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
             'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
         exp_log($exp, '⚔️ ' . (preg_match('/^[AEIOU]/i', $c['name']) ? 'An ' : 'A ') . $c['name'] . ' blocks your way!');

@@ -44,6 +44,10 @@ fail('header tiles', hdr.tiles, PFE.tiles(), 'tiles');
 fail('header combos', hdr.combos, PFE.COMBOS, 'combos');
 fail('header tags', hdr.tags, PFE.TAGS, 'tags');
 fail('header mods', hdr.mods, PFE.MODS, 'mods');
+fail('header abilities (PFB_ABIL in tools/pfengine.js)', hdr.abil, PFE.ABIL, 'abil');
+fail('header ability ranges', hdr.abrange, PFE.AB_RANGE, 'abrange');
+fail('header AI styles (PFB_AI in tools/pfengine.js)', hdr.ai, PFE.AI, 'ai');
+fail('header AI weight names', hdr.aikeys, PFE.AI_KEYS, 'aikeys');
 fail('header env table (data/pf_env.txt = PFB_ENV_ROWS in tools/pfengine.js)', hdr.env, PFE.envTable(), 'env');
 hdr.envdecks.forEach(([a, d]) => fail('header env deck ' + a.join('/'), d, PFE.envDeck(a[0], a[1]), 'envdeck'));
 hdr.rounds.forEach(([x, r1, r0]) => { if (PFE.round(x, 1) !== r1 || PFE.round(x, 0) !== r0) { bad++; if (bad <= 12) console.log('FAIL round(' + x + '): php ' + r1 + ' / ' + r0 + ', js ' + PFE.round(x, 1) + ' / ' + PFE.round(x, 0)); } });
@@ -64,6 +68,7 @@ const queries = s => {
     q.cp = s.me.hand.map((t, i) => [PFE.cellPreview(s, i), PFE.cellPreview(s, i, true)]);
     if (g) q.cpc = PFE.cellPreview(s, 'c');
   }
+  if (s.v1 && PFE.v1r(s, 'style') === 1) { const m = PFE.search(s, 'foe'); if (m) q.why = PFE.why(s, m); }   // 2.7.01
   return q;
 };
 let nf = 0, na = 0, done = null;
