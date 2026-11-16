@@ -45,6 +45,18 @@ if ($what === 'box') {
     exit;
 }
 
+if ($what === 'starter') {   // 2.7.01: php tests/pbox_v1_seed.php GAME starter [USERNAME]: the gnome's saved starter box (keys in order), its Hurt count, whether Swing is in it, and the deck rows
+    $w = q_one('SELECT * FROM users WHERE username = ?', [$argv[3] ?? 'sprout']); $src = pfd_sources($w); $st = is_array($src['starter']) ? $src['starter'] : [];
+    $hurt = count(array_filter($st, fn($k) => (pfd_piece($k)['t'] ?? '') === 'hurt'));
+    echo implode(' ', $st) . ' | hurt ' . $hurt . ' | swing ' . (in_array('swing', $st, true) ? 'yes' : 'no') . ' | rows ' . (int)q_val('SELECT COUNT(*) FROM pf_deck_pieces WHERE user_id = ?', [(int)$w['id']]) . "\n";
+    exit;
+}
+if ($what === 'gnome2') {   // 2.7.01: php tests/pbox_v1_seed.php GAME gnome2 NAME CALLING: a second gnome (a copy of sprout's account: same password, an admin) with another calling and no Puzzle box yet
+    $row = $u; unset($row['id']); $row['username'] = $argv[3]; $row['email'] = $argv[3] . '@b.local'; $row['calling'] = $argv[4]; $row['role'] = 'admin';
+    q('DELETE FROM users WHERE username = ?', [$argv[3]]); db_insert('users', $row);
+    echo 'gnome2: ' . $argv[3] . ' (' . $argv[4] . '), sprout is ' . ($u['calling'] ?: 'no calling') . "\n";
+    exit;
+}
 if (!active_expedition($uid)) { [$ok, $msg] = explore_start($u); }
 $exp = active_expedition($uid);
 if ($what === 'fight') {

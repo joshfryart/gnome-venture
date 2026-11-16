@@ -713,6 +713,7 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     if ($fresh && pfight_v1_on($u) && !is_guest($u)) {   // 2.6.74 v1 (stage C): nothing is dealt until the gnome has packed a first box and pressed Let's fight on the pre-fight screen
         require_once __DIR__ . '/pfdeck_view.php';
         $first = pf_first_fight($u, $c) || !empty($enc['retry']);   // 2.7.01 fixed first fight: fight first, box later (no box, no pre-fight screen; the box is offered from the next fight); a free retry goes straight back in too
+        if (!$first && !pfd_deck($u)['starter']) pfd_ensure_starter($u);   // 2.7.01: the same starter box for everyone, packed here when the gnome has none
         if (!$first && !pfd_deck($u)['starter']) return pfv_starter_html($u, pfd_deck($u), true) . pfv_assets();
         if (!$first && empty($enc['pfgo'])) return pfv_prefight_html($u, $exp, $c);
     }

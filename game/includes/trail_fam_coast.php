@@ -57,7 +57,9 @@ function trail_fam_coast(array $ctx): string
         if ($isOpen) $open++;
         $pools .= '<li class="tfc-p ' . ($isOpen ? 'open' : 'shut') . '"><span aria-hidden="true">' . ($isOpen ? '🦀' : '🌊') . '</span> ' . e(trail_sight_label($m['slug'])[0]) . ' <b>' . ($isOpen ? 'open' : 'under water') . '</b></li>';
     }
-    $h = '<section class="tfcoast tfc-' . e($tide['state']) . '" aria-label="Tide strip">'
+    // 2.7.01: folded by default. One moon-button row says the tide in a line; a tap opens the arc, the moon, the pools and the fishers.
+    $h = '<details class="tfcoast tfc-' . e($tide['state']) . '" aria-label="Tide strip"><summary class="tfc-sum"><span class="tfc-mi" aria-hidden="true">' . e($tide['moon']['icon']) . '</span>'
+        . '<span class="tfc-sl"><b>' . e($tide['text']) . '</b><small>' . e($tide['state']) . ' · ' . e($tide['moon']['name']) . '</small></span><span class="tfc-car" aria-hidden="true"></span></summary>'
         . '<p class="tfc-h"><span aria-hidden="true">🌊</span> <b>' . e($tide['text']) . '</b> <span class="tfc-st">(' . e($tide['state']) . ' now · ' . e(hour_label((int)floor($hour))) . ')</span> <span class="tfc-moon" title="The moon sets the tide">' . e($tide['moon']['icon']) . ' ' . e($tide['moon']['name']) . ' · ' . e($tide['range']) . ' tides · day ' . ((int)$tide['moon']['age'] + 1) . ' of ' . MOON_DAYS . '</span></p>'
         . trail_fam_coast_svg($hour, $di, $tide);
     if ($np) {
@@ -73,5 +75,5 @@ function trail_fam_coast(array $ctx): string
     }
     usort($chips, fn($a, $b) => [$b['now'], $b['near']] <=> [$a['now'], $a['near']]);
     foreach (array_slice($chips, 0, 2) as $c) $h .= '<p class="tfc-chip' . ($c['now'] ? ' now' : '') . '"><span aria-hidden="true">🎣</span> ' . e($c['text']) . '</p>';
-    return $h . '</section>';
+    return $h . '</details>';
 }

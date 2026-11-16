@@ -800,6 +800,11 @@ function post_update_news(string $from): void
         . "[*][b]Tools[/b] (Satchel): every tool has a card with a wear bar that turns red when it is nearly worn out.\n"
         . "[*][b]Almanac[/b]: the front page starts with big section tiles showing your progress and what is new, and the chapter menus are now a row of buttons.\n"
         . "[*][b]Grand Harvest Fair[/b]: one square for each class. Tap it to see your entry, enter it and read the top three.[/list]"],
+    '2.7.02' => ['🌫️ Update 2.7.02: easier to read on the Trail',
+        "[list][*][b]Trail buttons[/b] wrap onto a second row when there are too many for one, so every label is readable.\n"
+        . "[*][b]Tide strip[/b]: on a coast Trail the tide is now one moon button under the map. Tap it for the tide chart, the moon and the tide pools.\n"
+        . "[*][b]Gather scene[/b]: fog is a soft mist now instead of a blotchy dither.\n"
+        . "[*][b]First-fight hints[/b] are darker and easier to read.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

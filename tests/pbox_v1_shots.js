@@ -26,17 +26,11 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
     ck(T('the site theme is ' + theme), await p.evaluate(() => document.documentElement.getAttribute('data-theme')), theme);
 
-    // ---- 1. the starter pick (the deck is forgotten first), through the page
+    // ---- 1. the starter box (the deck is forgotten first): 2.7.01 no pick screen, the first visit packs the same fixed box for everyone
     sql('UPDATE expeditions SET encounter=NULL'); sql('DELETE FROM pf_deck_pieces'); sql('DELETE FROM pf_decks'); sql('DELETE FROM pf_belts');
     await open('/puzzlebox.php');
-    ck(T('starter: 12 pieces on offer are drawn (canvas), Pack is off until 6 are picked'), [await n('#pfv-offer .pc canvas'), await p.isDisabled('#pfv-sgo')], [12, true]);
-    await p.click(theme === 'light' ? '[data-kit]:nth-of-type(1)' : '[data-kit]:nth-of-type(2)'); await p.waitForTimeout(150);
-    ck(T('starter: a kit in one tap fills the 6 slots; the Hurt chip is good; Pack is on'), [await n('#pfv-tray .pfv-ps .pc'), await n('#pfv-hurt.good'), await p.isDisabled('#pfv-sgo'), await p.locator('#pfv-n').innerText()], [6, 1, false, '10']);
-    await p.locator('#pfv-offer .pc.off').first().click();
-    ck(T('starter: a seventh piece is refused with a line'), /box is full/.test(await p.locator('#pfv-info').innerText()), true);
+    ck(T('starter: no pick screen, the Puzzle box opens with the fixed starter packed (4 Hurt with Swing)'), [await n('#pfv-starter'), await n('#pfv-sgo'), await n('#pfv-box'), seed('starter', 'sprout')], [0, 0, 1, 'swing dodge rest charm jab swing#2 pierce snack brace soothe | hurt 4 | swing yes | rows 10']);
     await shot('1-starter');
-    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-sgo')]); await p.waitForTimeout(900);
-    ck(T('starter: packed, the Puzzle box opens'), await n('#pfv-box'), 1);
 
     // ---- 2. the Puzzle box
     await open('/puzzlebox.php');
@@ -280,15 +274,15 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       sql('UPDATE expeditions SET encounter=NULL');
       // 2.6.76: the piece detail sheet: tap the LAST piece of a long collection and the detail is in view at once (bottom sheet, or a side panel on a wide screen)
       seed('box'); await q.goto(base + '/puzzlebox.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(500);
-      const nPc = await q.locator('.pfv-g .pc').count(), lastPc = q.locator('.pfv-g .pc').nth(nPc - 1); await lastPc.scrollIntoViewIfNeeded(); const kit0 = await q.locator('.pfv-g').first().locator('.pc').count();
+      const nPc = await q.locator('.pfv-g .pc').count(), lastPc = q.locator('.pfv-g .pc').nth(nPc - 1), nNav = await q.locator('#pfv-box .pc[data-pc]').count(); await lastPc.scrollIntoViewIfNeeded(); const kit0 = await q.locator('.pfv-g').first().locator('.pc').count();   // nNav (R3): the Kit tab also shows the belt and pals trays, and the sheet steps through every piece on the page
       await lastPc.click(); await q.waitForTimeout(350);
       const sh = await q.evaluate(() => { const e = document.querySelector('.pfv-dsheet'); if (!e) return null; const r = e.getBoundingClientRect(), t = document.querySelector('.pfv-g .pc.pick'), tr = t ? t.getBoundingClientRect() : null, b = e.querySelector('.dacts .btn'), br = b ? b.getBoundingClientRect() : null;
-        return { inside: r.top >= 0 && r.bottom <= innerHeight + 1 && r.left >= 0 && r.right <= innerWidth + 1, tall: innerWidth >= 900 || r.height <= innerHeight * 0.46, btnIn: !!br && br.bottom <= innerHeight && br.top >= 0, marked: !!t, pieceSeen: !!tr && tr.bottom > 0 && tr.top < innerHeight && (innerWidth >= 900 || tr.top < r.top), art: !!e.querySelector('.dart canvas'), name: e.querySelector('.dn').textContent.length > 0, chips: e.querySelectorAll('.dch .ch').length >= 2, life: e.querySelectorAll('.lp i').length >= 1, edges: e.querySelectorAll('.edg .ed').length === 4, docw: document.documentElement.scrollWidth <= innerWidth + 1 }; });
+        return { inside: r.top >= 0 && r.bottom <= innerHeight + 1 && r.left >= 0 && r.right <= innerWidth + 1, tall: innerWidth >= 900 || r.height <= innerHeight * 0.46, btnIn: !!br && br.bottom <= innerHeight && br.top >= 0, marked: !!t, pieceSeen: !!tr && tr.bottom > 0 && tr.top < innerHeight && (innerWidth >= 900 || tr.top < r.top), art: !!e.querySelector('.dart canvas'), name: e.querySelector('.dn').textContent.length > 0, facts: e.querySelectorAll('.dch .ch, .dfacts li').length >= 2, life: e.querySelectorAll('.lp i, .dfacts li').length >= 1,   /* R3 Puzzle box: the chips and life pips became one row per fact (.dfacts) */ edges: e.querySelectorAll('.edg .ed').length === 4, docw: document.documentElement.scrollWidth <= innerWidth + 1 }; });
       ck(V('piece detail: the sheet is fully inside the window after tapping the last piece of the collection, at most 46% high, the action button in view'), sh && [sh.inside, sh.tall, sh.btnIn], [true, true, true]);
-      ck(V('piece detail: the tapped piece stays marked and in sight; art, name, chips, life pips and the four edges are there; no sideways scroll'), sh && [sh.marked, sh.pieceSeen, sh.art, sh.name, sh.chips, sh.life, sh.edges, sh.docw], [true, true, true, true, true, true, true, true]);
+      ck(V('piece detail: the tapped piece stays marked and in sight; art, name, the fact rows (chips and life pips on other pages) and the four edges are there; no sideways scroll'), sh && [sh.marked, sh.pieceSeen, sh.art, sh.name, sh.facts, sh.life, sh.edges, sh.docw], [true, true, true, true, true, true, true, true]);
       await q.screenshot({ path: `${out}/8-detail-${vp[0]}x${vp[1]}-${theme}.png` });
       await q.keyboard.press('ArrowLeft'); await q.waitForTimeout(200);
-      ck(V('piece detail: the arrow key steps to the neighbouring piece without closing'), [await q.locator('.pfv-dsheet .dpos').innerText(), await q.locator('.pfv-dsheet').count()], [`${nPc - 1} of ${nPc}`, 1]);
+      ck(V('piece detail: the arrow key steps to the neighbouring piece without closing'), [await q.locator('.pfv-dsheet .dpos').innerText(), await q.locator('.pfv-dsheet').count()], [`${nNav - 1} of ${nNav}`, 1]);
       await q.click('.pfv-dsheet [data-dn="1"]'); await q.waitForTimeout(150);
       await Promise.all([q.waitForResponse(r => r.request().method() === 'POST'), q.click('.pfv-dsheet [data-pfv-act]')]); await q.waitForTimeout(1000);
       ck(V('piece detail: Pack in deck works from the sheet; the kit grows by one piece in place and the sheet is gone'), [await q.locator('.pfv-g').first().locator('.pc').count(), await q.locator('.pfv-dsheet').count()], [kit0 + 1, 0]);

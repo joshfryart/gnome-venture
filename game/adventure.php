@@ -351,8 +351,8 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc, $overMap) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($trailSc): ?>
-<?= empty($exp['encounter']) ? trail_fam_html($u, $exp, $trailSc, trail_sights_marks($u, $trailSc)) : '' ?>
 <?= trail_view_html($u, $exp, $trailSc, (bool)$enc, $overMap) ?>
+<?php /* 2.7.01: below the map, so the picture comes first; the tide folds into one moon row */ ?><?= empty($exp['encounter']) ? trail_fam_html($u, $exp, $trailSc, trail_sights_marks($u, $trailSc)) : '' ?>
 <?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
