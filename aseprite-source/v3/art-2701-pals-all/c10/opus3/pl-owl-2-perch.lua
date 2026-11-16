@@ -1,4 +1,5 @@
--- Nightglow Fleck (pl-owl-2), perch sprite 36x36. Opus second pass (c10/opus2), hand-built at this size.
+-- Nightglow Fleck (pl-owl-2), perch sprite 36x36. Opus richness pass (c10/opus3), built on c10/opus2, hand-built at this size.
+-- Richness pass: strata on the slab, a soft maria patch, a crater ray splash, moondust glints.
 -- A round chip of moon in cool moonlight tones with a zigzag snap across its lower right (the slab of the break
 -- shows below it), two craters, a glow streak on the rim, pill eyes on the lit middle.
 -- quirk: two moon crumbs trailing in behind it from the upper right.
@@ -16,7 +17,8 @@ local keep = c:poly{ { 0, 0 }, { 20, 0 }, zig[1], zig[2], zig[3], zig[4], zig[5]
 local disc = c:ellipse(16, 17, 13, 13)
 local chip = disc:copy():clip(keep)
 local slab = chip:copy():shift(1, 2):clip(disc):cut(chip)
-O.shade(c, slab, SLAB, { R = 1, amb = .3, cuts = { .3, .55, .8 } })
+local slI, slT = O.shade(c, slab, SLAB, { R = 1, amb = .3, cuts = { .3, .55, .8 } })
+O.tex(c, slI, slT, SLAB, function(x, y, i) if (x + y * 2) % 4 == 0 then return -1 end end)
 local mI, mT = O.shade(c, chip, MOON, { sphere = { 12, 12, 19 }, amb = .5, wrap = .65, rim = true, bounce = "#7a6aa8", bmax = 2, sep = SLAB[1] })
 for _, cr in ipairs({ { 8, 11, 1.5 }, { 14, 26, 1.5 } }) do
   c:ellipse(cr[1], cr[2], cr[3], cr[3]):each(function(x, y)
@@ -24,10 +26,15 @@ for _, cr in ipairs({ { 8, 11, 1.5 }, { 14, 26, 1.5 } }) do
     if c.own[p] == mT then
       local i = mI[K(x, y)] or 3
       local dx, dy = x - cr[1], y - cr[2]
-      c.pix[p] = MOON[math.max(1, math.min(6, i + ((dx + dy) < 0 and -1 or 1)))]:lower()
+      c.pix[p] = MOON[math.max(1, math.min(6, i + ((dx + dy) < 0 and -2 or 1)))]:lower()
     end
   end)
 end
+O.tex(c, mI, mT, MOON, function(x, y, i)
+  if x >= 8 and x <= 20 and y >= 13 and y <= 22 then return 0 end
+  if math.sin(x * .55 + .7) + math.sin(y * .5 + 1.9) > 1.3 and i >= 3 then return -1 end
+end)
+O.mark(c, { { 6, 9 }, { 10, 9 }, { 6, 13 } }, MOON[6])
 O.mark(c, { { 4, 15 }, { 4, 16 }, { 5, 12 }, { 6, 10 } }, MOON[6])
 
 c:eyeSmall(10, 15)

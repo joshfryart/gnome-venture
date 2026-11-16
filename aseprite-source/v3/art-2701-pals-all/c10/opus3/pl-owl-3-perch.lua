@@ -1,4 +1,5 @@
--- Aurora Thread (pl-owl-3), perch sprite 36x36. Opus second pass (c10/opus2), hand-built at this size.
+-- Aurora Thread (pl-owl-3), perch sprite 36x36. Opus richness pass (c10/opus3), built on c10/opus2, hand-built at this size.
+-- Richness pass: lit ply-twist slants on the strands, darker scarf hem rows, a gold bead on the loose thread end.
 -- A ball of aurora yarn, strands wound two ways in green and violet with dark grooves, a loose curl of thread on
 -- top, pill eyes on a smooth green patch.
 -- quirk: its own thread knitted into a scarf round its middle, knotted on the right, one tail flicking out.
@@ -25,13 +26,17 @@ for k, i in pairs(bI) do
     local band = math.floor(s / 2.6)
     local R = (band % 2 == 0) and GRN or VIO
     local f = s / 2.6 - band
-    c.pix[p] = R[math.max(1, math.min(6, f < .35 and i - 2 or i))]:lower()
+    local along = -(x - cx) * math.sin(a) + (y - cy) * math.cos(a)
+    local ii = f < .35 and i - 2 or i
+    if f >= .45 and math.floor(along + f * 2) % 3 == 0 then ii = ii + 1 end
+    c.pix[p] = R[math.max(1, math.min(6, ii))]:lower()
   end
 end
 local face = c:ellipse(15, 15, 5.5, 3.5)
 face:each(function(x, y) c.pix[y * c.w + x] = GRN[math.max(3, math.min(6, (bI[K(x, y)] or 4)))]:lower() end)
 local loop = O.tube({ { 18, 9 }, { 19, 3 }, { 25, 2 }, { 24, 6 } }, function(t) return .8 end)
 O.shade(c, loop, VIO, { R = 1, amb = .45, wrap = .5, nopop = true, sep = VIO[1] })
+O.dots(c, { { 24, 5 }, { 25, 5 } }, "#f5b82e") O.dot(c, 24, 5, "#ffe38a")
 c:eyeSmall(11, 13)
 c:eyeSmall(17, 13)
 O.dot(c, 9, 17, "#f5809f") O.dot(c, 21, 17, "#f5809f")
@@ -49,6 +54,7 @@ local function scarfPaint(m, ofs)
     local x, y = k % 1024 - 256, k // 1024 - 256
     local p = y * c.w + x
     if c.own[p] == T and math.floor((x + ofs) / 2) % 2 == 1 then c.pix[p] = VIO[i]:lower() end
+    if c.own[p] == T and not m:has(x, y + 1) and x % 2 == 0 then c.pix[p] = ((math.floor((x + ofs) / 2) % 2 == 1) and VIO or GRN)[math.max(1, i - 1)]:lower() end
   end
 end
 scarfPaint(band, 0)

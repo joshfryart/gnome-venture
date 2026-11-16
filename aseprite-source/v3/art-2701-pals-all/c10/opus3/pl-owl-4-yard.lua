@@ -1,4 +1,8 @@
--- Owlet Peep (pl-owl-4), yard sprite 64x64. Opus second pass (c10/opus2), built on c10/haiku.
+-- Owlet Peep (pl-owl-4), yard sprite 64x64. Opus richness pass (c10/opus3), built on c10/opus2.
+-- Richness pass: crossing straw stalks with lit ridges and dark gaps in the den pad, a scalloped downy belly,
+-- pale-tipped flight-feather stubs on both wings, a darker disc rim round the heart face, dark claw tips on the
+-- gold toes, rim light + cool bounce on the down.
+-- closer look: a curl of its own eggshell left in the straw beside it (it has not long hatched).
 -- Thornblade, uncommon. "A sleepy owlet in the den who peeps when it is bored."
 -- A great white owl chick: a round ball of cool grey down with a scruffy fluff edge and no ear tufts (so it
 -- cannot be confused with the tawny gatepost owl), a pale heart-shaped face, big locked eyes in grey sockets,
@@ -24,7 +28,17 @@ local pad = c:ellipse(31, 54, 16, 3)
 local sb = {}
 pad:each(function(x, y) if (x * 2 + y * 3) % 5 == 0 then sb[K(x, y)] = -1 elseif (x - y * 2) % 7 == 0 then sb[K(x, y)] = 1 end end)
 O.shade(c, pad, STRAW, { R = 1, bias = sb, amb = .3, wrap = .4, cuts = { .25, .45, .65, .85 } })
+for _, st in ipairs({ { { 16, 53 }, { 27, 51 } }, { { 22, 56 }, { 36, 52 } }, { { 34, 55 }, { 46, 51 } }, { { 40, 56 }, { 30, 52 } }, { { 19, 52 }, { 11, 51 } }, { { 44, 53 }, { 50, 51 } } }) do
+  local m = c:line(st, 1)
+  m:each(function(x, y) if pad:has(x, y) then O.mark(c, { { x, y } }, STRAW[5]) if pad:has(x, y + 1) then O.mark(c, { { x, y + 1 } }, STRAW[2]) end end end)
+end
 O.dots(c, { { 13, 52 }, { 12, 51 }, { 48, 53 }, { 49, 52 }, { 50, 51 } }, STRAW[3]) -- loose stalks poking out
+O.dots(c, { { 12, 51 }, { 50, 51 } }, STRAW[4])
+-- closer look: a curl of eggshell in the straw
+local shell = c:poly{ { 42, 54 }, { 42, 50 }, { 43, 51 }, { 44, 49 }, { 45, 51 }, { 46, 49 }, { 47, 51 }, { 48, 50 }, { 48, 54 } }
+local shI, shT = O.shade(c, shell, { "#a49a94", "#d6ccc0", "#efe6d8", "#f8f2e6" }, { R = 1, amb = .4, wrap = .5, cuts = { .3, .55, .8 }, nopop = true })
+O.dots(c, { { 43, 53 }, { 44, 53 }, { 45, 53 }, { 46, 53 }, { 47, 53 } }, "#c2b4a8")
+O.dots(c, { { 44, 52 }, { 46, 52 } }, "#7a8fb0")
 
 -- body: one round mass, scruffy down along the edge
 local body = c:ellipse(31, 36, 15, 16)
@@ -50,9 +64,10 @@ local belly = c:ellipse(31, 44, 9, 8)
 belly:cut(c:rect(0, 53, 63, 63))
 local blb = {}
 belly:each(function(x, y)
-  local r = y - 40
-  if r >= 0 and r % 4 == 0 and (x + (r // 4) * 2) % 4 ~= 0 and (x + (r // 4) * 2) % 4 ~= 2 then blb[K(x, y)] = -2 end
-  if r >= 0 and r % 4 == 1 and (x + (r // 4) * 2) % 4 == 2 then blb[K(x, y)] = -2 end
+  local r = y - 39
+  local q = (x + (r // 3) * 2) % 4
+  if r >= 0 and r % 3 == 0 and (q == 0 or q == 3) then blb[K(x, y)] = -2 end -- scallop sides
+  if r >= 0 and r % 3 == 1 and (q == 1 or q == 2) then blb[K(x, y)] = -2 end -- scallop bottoms
 end)
 O.shade(c, belly, DOWN, { R = 3, bias = blb, amb = .55, wrap = .6 })
 
@@ -60,17 +75,18 @@ O.shade(c, belly, DOWN, { R = 3, bias = blb, amb = .55, wrap = .6 })
 local wr = c:poly{ { 42, 34 }, { 46, 36 }, { 47, 44 }, { 44, 50 }, { 41, 46 } }
 local wrb = {} wr:each(function(x, y) wrb[K(x, y)] = -1 end)
 local rI, rT = O.shade(c, wr, DOWN, { R = 2, bias = wrb, amb = .25, sep = DOWN[2], bounce = BNC, bmax = 2 })
-O.tex(c, rI, rT, DOWN, function(x, y, i) if y > 44 and x % 2 == 0 then return -1 end end)
+O.tex(c, rI, rT, DOWN, function(x, y, i) if y > 44 and x % 2 == 0 then return -1 end if y > 47 and x % 2 == 1 then return 2 end end)
 local wl = c:poly{ { 18, 37 }, { 13, 37 }, { 7, 41 }, { 6, 45 }, { 9, 45 }, { 11, 47 }, { 14, 46 }, { 20, 44 } }
 local wlb = {} wl:each(function(x, y) wlb[K(x, y)] = 0 end)
 local lI, lT = O.shade(c, wl, DOWN, { R = 2, amb = .25, sep = DOWN[2], rim = true })
 O.tex(c, lI, lT, DOWN, function(x, y, i) if x < 13 and (x + y) % 3 == 0 then return -1 end end) -- downy fingers
 O.dots(c, { { 9, 44 }, { 12, 45 } }, DOWN[2])
+O.mark(c, { { 7, 44 }, { 8, 45 }, { 10, 46 }, { 11, 46 }, { 13, 46 } }, DOWN[5]) -- pale feather-stub tips
 
 -- heart-shaped facial disc
 local disc = O.unionCircles{ { 25.5, 30, 6, 5.5 }, { 37.5, 30, 6, 5.5 } }
 disc:add(c:poly{ { 20, 32 }, { 43, 32 }, { 31, 40 } })
-O.shade(c, disc, FACE, { R = 3, amb = .4, wrap = .5, cuts = { .3, .55, .8 }, sep = DOWN[2] })
+O.shade(c, disc, FACE, { R = 3, amb = .4, wrap = .5, cuts = { .3, .55, .8 }, sep = DOWN[1] })
 -- grey sockets so the cream eyes read on the pale face
 for _, ex in ipairs({ 22, 35 }) do
   local ring = c:ellipse(ex + 2, 29, 3.5, 3.5)
@@ -91,6 +107,7 @@ for _, tx in ipairs({ 25, 34 }) do
   O.dots(c, { { tx, 52 }, { tx + 1, 52 }, { tx + 2, 52 }, { tx + 3, 52 } }, GOLD[2])
   O.dots(c, { { tx, 52 }, { tx + 2, 52 } }, GOLD[3])
   O.dots(c, { { tx + 1, 53 }, { tx + 3, 53 } }, GOLD[1])
+  O.dots(c, { { tx, 53 }, { tx + 2, 53 } }, "#4a3040") -- claw tips
 end
 
 O.shift(c, 0, 1)

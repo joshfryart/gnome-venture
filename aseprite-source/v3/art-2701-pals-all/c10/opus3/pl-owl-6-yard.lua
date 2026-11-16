@@ -1,4 +1,8 @@
--- Great White Plumelet (pl-owl-6), yard sprite 64x64. Opus second pass (c10/opus2), built on c10/haiku.
+-- Great White Plumelet (pl-owl-6), yard sprite 64x64. Opus richness pass (c10/opus3), built on c10/opus2.
+-- Richness pass: barb lines sweep back from the shaft with pale lit ridges between them, the aurora dip has a
+-- ragged wicking edge and light flecks glinting in it, a pale ivory shaft runs on through the dip, the
+-- wisps on the outer edge are lilac-shaded, and a lavender bounce sits under the arch.
+-- closer look: one barb has wicked a thin streak of mint up the plume, far above the dip.
 -- Wayfinder, rare. "The great white owl's finest feather, dipped in aurora light."
 -- A long, soft white plume that rises from its quill, arches over and droops down at the tip like a fountain.
 -- Cool lavender shading on the white, fluffy barb wisps along the edge, a pale shaft. The droop is dipped in
@@ -52,22 +56,33 @@ O.tex(c, wI, wT, WHT, function(x, y, i)
   local t = tOf(x, y)
   if t > .36 and t < .56 then return 0 end
   local sd = PS[K(x, y)] or 1
-  if math.floor(t * 90 + math.abs(sd) * 7) % 4 == 0 and i >= 3 then return -1 end
+  local ph = math.floor(t * 90 + math.abs(sd) * 7) % 4
+  if ph == 0 and i >= 3 then return -1 end
+  if ph == 2 and i >= 4 and i <= 5 and math.abs(sd) > .3 then return 1 end -- lit barb ridge
 end)
 -- aurora dip on the drooping end: mint, teal, then violet at the tip
 for k, i in pairs(wI) do
   local x, y = k % 1024 - 256, k // 1024 - 256
   local p = y * c.w + x
   if c.own[p] == wT then
-    local t = tOf(x, y) + (H(x, y, 9) - .5) * .03
+    local t0 = tOf(x, y)
+    local sd = math.abs(PS[K(x, y)] or 0)
+    local t = t0 + (H(x, y, 9) - .5) * .05 + (math.floor(t0 * 90 + sd * 7) % 4 == 1 and .02 or 0) -- ragged wicking edge
     local R = t > .93 and VIOL or (t > .86 and TEAL or (t > .76 and MINT or nil))
-    if R then c.pix[p] = R[math.max(2, math.min(6, i))]:lower() end
+    -- closer look: one barb wicks a thin mint streak far up the plume
+    if not R and t0 > .62 and t0 < .76 and (PS[K(x, y)] or 0) > .25 and math.abs(t0 - .64 - ((PS[K(x, y)] or 0) - .25) * .08) < .008 then R = MINT end
+    if R then
+      local ii = math.max(2, math.min(6, i))
+      if H(x, y, 37) > .93 and ii >= 3 then ii = 6 end -- light flecks glinting in the dip
+      c.pix[p] = R[ii]:lower()
+    end
   end
 end
 -- shaft
 plume:each(function(x, y)
   local t, sd = PT[K(x, y)], math.abs(PS[K(x, y)] or 1)
   if t and sd < .1 and (t < .34 or (t > .58 and t < .74)) then O.mark(c, { { x, y } }, QUIL[3]) end
+  if t and sd < .1 and t >= .74 and t < .95 then O.mark(c, { { x, y } }, QUIL[4]) end
 end)
 
 -- face on the crown of the arch, eyes in lavender sockets

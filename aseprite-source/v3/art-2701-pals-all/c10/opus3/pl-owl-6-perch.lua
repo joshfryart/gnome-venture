@@ -1,4 +1,5 @@
--- Great White Plumelet (pl-owl-6), perch sprite 36x36. Opus second pass (c10/opus2), hand-built at this size.
+-- Great White Plumelet (pl-owl-6), perch sprite 36x36. Opus richness pass (c10/opus3), built on c10/opus2, hand-built at this size.
+-- Richness pass: soft barb lines, a pale shaft line, a ragged edge on the aurora dip with two light flecks.
 -- The white plume arching over from its quill, fluffy wisps on the edge, the drooping tip dipped in aurora
 -- (mint, teal, violet). Pill eyes in lavender sockets on the crown of the arch. One sparkle.
 -- quirk: a violet drop of aurora dripping off the tip.
@@ -35,10 +36,17 @@ for k, i in pairs(wI) do
   local p = y * c.w + x
   local t = PT[K(x, y)] or (x > 22 and y > 8 and .9 or 0)
   if c.own[p] == wT then
+    local sd = math.abs(PS[K(x, y)] or 0)
+    t = t + ((x + y) % 3 == 0 and .02 or 0)
     local R = t > .92 and VIOL or (t > .84 and TEAL or (t > .74 and MINT or nil))
-    if R then c.pix[p] = R[math.max(2, math.min(6, i))]:lower() end
+    if R then c.pix[p] = R[math.max(2, math.min(6, i))]:lower()
+    elseif PT[K(x, y)] and sd > .3 and math.floor(t * 50 + sd * 4) % 4 == 0 and i >= 3 and not (t > .3 and t < .6) then c.pix[p] = WHT[i - 1]:lower() end
   end
 end
+plume:each(function(x, y)
+  local t, sd = PT[K(x, y)], math.abs(PS[K(x, y)] or 1)
+  if t and sd < .12 and (t < .32 or (t > .6 and t < .74)) then O.mark(c, { { x, y } }, QUIL[3]) end
+end)
 for _, ex in ipairs({ 12, 18 }) do
   O.mark(c, { { ex - 1, 9 }, { ex - 1, 10 }, { ex - 1, 11 }, { ex + 2, 9 }, { ex + 2, 10 }, { ex + 2, 11 }, { ex, 12 }, { ex + 1, 12 } }, WHT[3])
   c:eyeSmall(ex, 9)
