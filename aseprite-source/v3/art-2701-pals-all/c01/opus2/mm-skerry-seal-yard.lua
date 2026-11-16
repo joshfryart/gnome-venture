@@ -13,7 +13,7 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("mm-skerry-seal-yard", 64)
 
-local SEAL = { "#2e2a3c", "#4a4458", "#6c6474", "#928a96", "#b8b0b6", "#dcd4d2" }
+local SEAL = { "#262234", "#3c3648", "#565062", "#77707e", "#9a929c", "#c2b8bc" }
 local BELY = { "#8a8494", "#b4aeb8", "#d8d2d4", "#ece6e2" }
 local ROCK = { "#1e1e2e", "#2e3044", "#454a60", "#62687e", "#8288a0", "#a8aec0" }
 local SEA  = { "#1d3f63", "#25628a", "#2f8fae", "#4fbcc4", "#8ee0d4", "#d2f6ea" }
@@ -23,7 +23,7 @@ local CRM  = { "#a8a0a0", "#d8d0c8", "#f4ece0" }
 local LAMP = { "#c98322", "#f5b82e", "#ffe38a" }
 
 -- sea around the foot of the skerry
-local sea = c:ellipse(32, 55, 26, 3)
+local sea = c:ellipse(32, 55, 25, 3)
 sea:each(function(x, y)
   local col = y <= 54 and SEA[4] or SEA[3]
   if y >= 57 then col = SEA[2] end
@@ -32,7 +32,7 @@ sea:each(function(x, y)
 end)
 
 -- the skerry
-local rock = c:poly{ { 7, 54 }, { 10, 48 }, { 16, 45 }, { 26, 44 }, { 40, 44 }, { 48, 43 }, { 54, 45 }, { 57, 50 }, { 56, 54 } }
+local rock = c:poly{ { 7, 54 }, { 10, 48 }, { 16, 45 }, { 26, 44 }, { 40, 44 }, { 48, 43 }, { 54, 45 }, { 56, 50 }, { 55, 54 } }
 local rI, rT = O.shade(c, rock, ROCK, { R = 3, amb = .15, wrap = .3, sep = ROCK[1], rim = true })
 O.tex(c, rI, rT, ROCK, function(x, y, i)
   if H(x, y, 9) > .9 and i >= 2 and i <= 5 then return 1 end
@@ -73,12 +73,12 @@ local tail = c:poly{ { 9, 38 }, { 14, 41 }, { 17, 44 }, { 12, 44 }, { 8, 43 } }
 O.shade(c, tail, SEAL, { R = 1, amb = .2, sep = SEAL[1], rim = true })
 local body = c:ellipse(26, 40, 14, 5.5)
 body:add(c:poly{ { 26, 36 }, { 30, 28 }, { 40, 28 }, { 41, 40 }, { 34, 45 } })
-local sI, sT = O.shade(c, body, SEAL, { R = 5, amb = .15, wrap = .35, sep = SEAL[1], rim = true, bounce = "#4f7a9a", bmax = 2 })
+local sI, sT = O.shade(c, body, SEAL, { R = 5, amb = .04, wrap = .25, sep = SEAL[1], rim = true, bounce = "#4f7a9a", bmax = 2 })
 -- harbour-seal spots
 O.tex(c, sI, sT, SEAL, function(x, y, i)
   if y > 41 then return end
   local h = H(x // 2, y // 2, 33)
-  if h > .82 and i >= 2 then return -1 end
+  if h > .78 and i >= 2 then return -1 end
 end)
 -- pale belly along the bottom of the body/neck
 local bel = c:ellipse(30, 43, 9, 2)
@@ -91,7 +91,7 @@ O.shade(c, fl, SEAL, { R = 1, amb = .2, sep = SEAL[1] })
 
 -- head (3/4, tilted up toward the lighthouse)
 local head = c:ellipse(35, 23, 8.5, 7)
-local hI, hT = O.shade(c, head, SEAL, { R = 4, amb = .2, wrap = .35, sep = SEAL[1], rim = true, bounce = "#4f7a9a", bmax = 2 })
+local hI, hT = O.shade(c, head, SEAL, { R = 4, amb = .08, wrap = .28, sep = SEAL[1], rim = true, bounce = "#4f7a9a", bmax = 2 })
 local muz = c:ellipse(37, 28, 4.5, 2.5)
 O.shade(c, muz, BELY, { R = 1, amb = .4, cuts = { .3, .55, .8 } })
 -- whisker dots
