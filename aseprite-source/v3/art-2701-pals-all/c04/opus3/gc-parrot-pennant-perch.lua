@@ -2,7 +2,7 @@
 -- Richness pass: hue-shifted red, a green covert band under the yellow shoulder, two dark covert lines on each wing,
 -- breast scallops, a lit beak ridge, bark grain with lit thorns, a rain drop on the crest. Fixed from opus2: the
 -- pennant tail showed only 4 rows below the twig; the whole bird now sits 2 px higher on the branch and the tail is
--- a longer swallow-tail (8 rows below the twig, three clear bands with a dark seam, lit left half). From opus2:
+-- a longer swallow-tail (7 rows below the twig with a notched end: red, yellow, blue bands, lit left half). From opus2:
 -- front-on scarlet macaw on a thorny twig: round red head with 2x3 pill eyes and cheeks, a pale hooked beak with
 -- a dark tip, blue wings with a yellow shoulder band, and a short red/yellow/blue striped pennant tail.
 -- quirk: two sound arcs of its shout, the bigger one further out.
@@ -18,14 +18,13 @@ local BEAK = { "#3a3442", "#6a6476", "#bcb6c4", "#e4e0ea" }
 local BARK = { "#2e1e1c", "#4a3026", "#6e4a32", "#94683e", "#b88c56" }
 
 -- tail pennant: long swallow-tail, three bands with dark seams, lit left half
-local pen = c:poly{ { 14, 27 }, { 19, 27 }, { 25, 37.5 }, { 21.5, 34 }, { 18, 37.5 } }
+local pen = c:poly{ { 14, 27 }, { 19, 27 }, { 26, 36.4 }, { 21.5, 34.2 }, { 17, 36.4 } }
 pen:each(function(x, y)
   local lit = x < 18 + (y - 27) * .35
   local col
-  if y <= 31 then col = lit and RED[4] or RED[3]
-  elseif y == 32 then col = RED[2]
-  elseif y <= 34 then col = lit and YEL[3] or YEL[2]
-  elseif y == 35 then col = YEL[1]
+  if y <= 30 then col = lit and RED[4] or RED[3]
+  elseif y == 31 then col = RED[2]
+  elseif y <= 33 then col = lit and YEL[3] or YEL[2]
   else col = lit and BLUE[4] or BLUE[3] end
   c:put(x, y, col, { r = { name = "pennant" } })
 end)
@@ -57,7 +56,7 @@ O.shade(c, up, BEAK, { R = 1, amb = .45, wrap = .5, sep = BEAK[1], cuts = { .35,
 O.dots(c, { { 18, 16 }, { 18, 15 } }, BEAK[1])
 O.dots(c, { { 15, 14 }, { 16, 14 }, { 16, 15 } }, "#5a1e2a") O.dot(c, 15, 15, BEAK[2])
 O.dots(c, { { 15, 11 }, { 16, 11 }, { 17, 11 } }, BEAK[4])
-O.dot(c, 18, 2, "#b6f0e0") O.dot(c, 18, 3, "#5fc4c8") -- rain drop on the crest
+O.dot(c, 19, 3, "#b6f0e0") O.dot(c, 19, 4, "#5fc4c8") -- rain drop on the crest
 
 c:eyeSmall(12, 8)
 c:eyeSmall(21, 8)
