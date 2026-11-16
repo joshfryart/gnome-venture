@@ -77,10 +77,10 @@ function pfv_pc(array $p, array $o = []): string
     // 2.6.76: everything the detail sheet shows for this piece (assets/pfv1box.js, PFSheet); the tag's words come from PF_TAGS, the one table
     $pcd = ['n' => (string)$p['n'], 't' => (string)$p['t'], 'ty' => PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t']), 'v' => (int)$p['v'], 'rk' => (int)($p['rank'] ?? 0), 'rn' => !empty($p['rank']) ? PFD_RANK_NAME[(int)$p['rank']] : '', 'src' => (string)($p['src'] ?? ''), 'life' => $life,
         'tag' => $tg ? (string)$p['tag'] : '', 'ti' => $tx ? $tx[0] : '', 'tt' => $tx ? $tx[1] : '', 'tx' => pf_type_text((string)$p['t'], (int)$p['v']), 'e' => $p['e'], 'bl' => (string)($p['blurb'] ?? ''), 'note' => isset($o['d']) ? pfv_last_extra() : '', 'own' => $own]
-        + (isset($o['dur']) ? ['dur' => $o['dur']] : []);
+        + (isset($o['dur']) ? ['dur' => $o['dur']] : []) + (array)($o['pcx'] ?? []);   // pcx: what the Puzzle box sheet adds (source, where from, limit, why it is blocked)
     return '<li' . (isset($o['g']) ? ' data-g="' . e((string)$o['g']) . '"' : '') . '><button type="button" class="pc' . (!empty($p['rank']) ? ' r' . (int)$p['rank'] : '') . (!empty($p['gear']) ? ' gear' : '') . (($o['cls'] ?? '') !== '' ? ' ' . e((string)$o['cls']) : '') . '"'
         . (isset($o['a']) ? ' data-a="' . e((string)$o['a']) . '" data-arg="' . e((string)($o['arg'] ?? $p['key'] ?? '')) . '"' : '') . ' data-n="' . e((string)$p['n']) . '" data-d="' . e((string)($o['d'] ?? '')) . '" data-t="' . e((string)$p['t']) . '" data-pc="' . e(json_encode($pcd, JSON_UNESCAPED_UNICODE)) . '"' . ($o['x'] ?? '')
-        . ' aria-label="' . e($label) . '"><i class="cvh" data-p="' . e($art) . '"></i><span class="pc-v" aria-hidden="true">' . (int)$p['v'] . '</span>'
+        . ' aria-label="' . e($label . ($o['al'] ?? '')) . '"><i class="cvh" data-p="' . e($art) . '"></i><span class="pc-v" aria-hidden="true">' . (int)$p['v'] . '</span>' . ($o['in'] ?? '')   // in: extra marks (the Puzzle box: source badge, rank mark, pal perch), already HTML
         . ($tg ? '<span class="pc-t" aria-hidden="true">' . $tg[0] . '</span>' : (isset(PFV_SRC_ICON[$p['src'] ?? '']) && in_array($p['src'], ['pal', 'tool', 'crop'], true) ? '<span class="pc-t" aria-hidden="true">' . PFV_SRC_ICON[$p['src']] . '</span>' : ''))
         . (($o['name'] ?? true) === false ? '' : '<span class="pc-n">' . e((string)$p['n']) . '</span>') . '<span class="pc-x' . ($life < 3 ? ' few' : '') . '" aria-hidden="true">' . $px . '</span></button></li>';
 }
@@ -159,6 +159,99 @@ function pfv_starter_html(array $u, array $d, bool $inFight = false): string
 }
 
 // ================================================================= 2. the Puzzle box page
+// R3 (approved mockup, round 3): a wooden box with a lid of limit gauges and three felt trays (Kit, Belt, Pals), a compact ready strip with fix buttons above it,
+// the spares shelf under it (search, source filter with counts and a legend), and a bottom sheet per piece (assets/pfv1box.js). The tabs choose the shelf: Kit = spare pieces, Belt = the tools, Pals = the Pal Book.
+
+/** Where a piece comes from, for the filter and the badges: [label, icon (assets/img/...), what it means]. knack and calling count as basic, the Keepsake sources as wear. */
+const PFV_SRC_META = [
+    'basic' => ['Basic', 'ico/ico-gnome-hat.png', 'Starter pieces, knacks and your calling'],
+    'crop' => ['Crop', 'ico/ico-sprout.png', 'Grown in your garden. Uses a Larder spot'],
+    'legend' => ['Legend', 'ico/ico-crown.png', 'Earned by ' . PFD_LEGEND_HARVESTS . ' harvests of a legendary crop. Uses a Larder spot'],
+    'craft' => ['Craft', 'ico/ico-hammer.png', 'Made at a crafting bench'],
+    'region' => ['Region', 'ico/ico-world-map.png', 'Found on the roads of a region'],
+    'wear' => ['Wear', 'ico/ico-gloves.png', 'Clothes you wear. Uses a Keepsake spot'],
+    'tool' => ['Tool', 'ico/ico-shears.png', 'A tool on your fight belt. Wears out as you play it'],
+    'pal' => ['Pal', 'ico/ico-paw.png', 'A pal in your party adds its piece'],
+];
+const PFV_TYPE_ORDER = ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item'];
+
+function pfv_src_group(string $src): string
+{
+    if (in_array($src, ['basic', 'knack', 'calling'], true)) return 'basic';
+    if (in_array($src, PFD_KEEP_SRC, true)) return 'wear';
+    return isset(PFV_SRC_META[$src]) ? $src : 'basic';
+}
+
+/** An <img> of the game's own art (assets/img/...), decorative unless $alt is given. */
+function pfv_img(string $rel, int $px, string $alt = '', string $cls = ''): string
+{
+    return '<img' . ($cls !== '' ? ' class="' . e($cls) . '"' : '') . ' src="' . e(url('assets/img/' . $rel)) . '" width="' . $px . '" height="' . $px . '" alt="' . e($alt) . '" decoding="async">';
+}
+
+/** The source badge on a piece (icon on its source colour). */
+function pfv_srcb(string $g, string $cls = 'pc-s'): string
+{
+    return '<span class="' . $cls . ' s-' . e($g) . '" aria-hidden="true">' . pfv_img(PFV_SRC_META[$g][1], 32) . '</span>';
+}
+
+/** One line on where a piece comes from (the sheet). */
+function pfv_from(array $u, array $p): string
+{
+    $ref = (string)($p['ref'] ?? ''); $nice = ucwords(str_replace(['-', '_'], ' ', $ref));
+    switch ((string)$p['src']) {
+        case 'basic': return 'Every gnome starts with it';
+        case 'knack': return 'Knack, learned at level ' . (int)$ref;
+        case 'calling': return 'Your ' . ucfirst((string)($u['calling'] ?? '')) . ' calling';
+        case 'crop': return 'Grown in your garden' . ($nice !== '' ? ' (' . $nice . ')' : '');
+        case 'legend': return 'Yours after ' . PFD_LEGEND_HARVESTS . ' harvests of ' . ($nice !== '' ? $nice : 'a legendary crop');
+        case 'craft': return 'Crafting' . ($nice !== '' ? ': ' . $nice : '');
+        case 'region': $rn = $ref !== '' ? (string)(q_val('SELECT gnomish_name FROM regions WHERE code = ?', [$ref]) ?: $ref) : ''; return 'Found on the roads' . ($rn !== '' ? ' of ' . $rn : '');
+        case 'tool': return (TOOL_TYPES[(string)($p['tool'] ?? '')][0] ?? 'A tool') . ' on your fight belt';
+        case 'pal': return (string)$p['n'] . ', in your party';
+    }
+    return in_array($p['src'], PFD_KEEP_SRC, true) ? 'Something you wear' : '';
+}
+
+/** The limit a piece counts toward: larder | keeps | rare | mw | ''. */
+function pfv_limit(array $p): string
+{
+    if (in_array($p['src'], PFD_LARDER_SRC, true)) return 'larder';
+    if (in_array($p['src'], PFD_KEEP_SRC, true)) return 'keeps';
+    return (int)$p['rank'] === 3 ? 'rare' : ((int)$p['rank'] === 4 ? 'mw' : '');
+}
+
+/** Why a spare piece cannot be packed as the deck is now (a full limit), or ''. */
+function pfv_blocked(array $p, array $c): string
+{
+    if (in_array($p['src'], PFD_LARDER_SRC, true) && (int)$c['larder'] >= (int)$c['larder_max']) return 'Larder full';
+    if (in_array($p['src'], PFD_KEEP_SRC, true) && (int)$c['keeps'] >= (int)$c['keeps_max']) return 'Keepsakes full';
+    if ((int)$p['rank'] === 3 && (int)$c['rare'] >= PFD_RARE_CAP) return 'Rare limit reached';
+    if ((int)$p['rank'] === 4 && (int)$c['mw'] >= PFD_MW_CAP) return 'Masterwork spot taken';
+    return '';
+}
+
+/** A piece in the box or on the shelf: pfv_pc with the source badge, the rank mark, the pal perch and what the sheet needs. */
+function pfv_box_pc(array $u, array $p, array $c, array $o): string
+{
+    $g = pfv_src_group((string)$p['src']); $rk = (int)($p['rank'] ?? 0);
+    $in = pfv_srcb($g);
+    if ($rk === 3) $in .= pfv_img('items/gem-r.png', 28, '', 'pc-r');
+    elseif ($rk === 4) $in .= pfv_img('ico/ico-medal-gold.png', 32, '', 'pc-r');
+    if ($p['src'] === 'pal' && ($ref = (string)($p['ref'] ?? '')) !== '' && preg_match('/^[a-z0-9-]+$/', $ref) && is_file(__DIR__ . '/../assets/img/pals/perch/' . $ref . '.png')) $in .= pfv_img('pals/perch/' . $ref . '.png', 36, '', 'pc-perch');
+    $why = !$p['on'] && !$p['gear'] ? pfv_blocked($p, $c) : '';
+    $o['in'] = $in . ($o['in'] ?? '') . ($why !== '' ? '<small class="pc-why">' . e($why) . '</small>' : '');
+    $o['al'] = ', ' . PFV_SRC_META[$g][0] . ($why !== '' ? ', ' . $why : '');
+    $o['pcx'] = ['g' => $g, 'sn' => PFV_SRC_META[$g][0], 'fr' => pfv_from($u, $p), 'lg' => pfv_limit($p), 'why' => $why, 'in' => $p['on'] ? 1 : 0, 'key' => (string)$p['key']];
+    if ($why !== '') $o['cls'] = trim(($o['cls'] ?? '') . ' blk');
+    return pfv_pc($p, $o);
+}
+
+/** One cell of the ready strip: icon with a check or warning mark, a word and a number, a small meter. */
+function pfv_stc(bool $ok, string $icon, string $big, string $small, int $pct, string $label): string
+{
+    return '<div class="stc' . ($ok ? '' : ' bad') . '" role="img" aria-label="' . e($label) . '"><span class="ic">' . $icon . '<i>' . pfv_img($ok ? 'ico/ico-check.png' : 'ico/ico-warning.png', 64) . '</i></span>'
+        . '<b>' . $big . '</b><small>' . $small . '</small><span class="meter' . ($ok ? '' : ' low') . '"><i data-w="' . max(0, min(100, $pct)) . '"></i></span></div>';
+}
 
 /** The whole Puzzle box page body (puzzlebox.php, v1 on). $tab: kit | belt | pals. */
 function pfv_box_html(array $u, string $tab = 'kit'): string
@@ -168,73 +261,151 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
     if (!in_array($tab, ['kit', 'belt', 'pals'], true)) $tab = 'kit';
     $c = $d['counts']; $locked = !empty($d['locked']); $P = pfv_entries($u, $d['pieces']); $mods = pfight_mods($uid);
     $back = '<input type="hidden" name="t" value="' . $tab . '">';
-    $h = '<div class="box pbox pfv" id="pfv-box"' . ($locked ? ' data-locked="1"' : '') . '><div class="hrow"><h2>🧩 Puzzle box</h2>' . pfv_cap_pips((int)$c['rare'], PFD_RARE_CAP, '', 'Rare') . pfv_cap_pips((int)$c['mw'], PFD_MW_CAP, 'mw', 'Masterwork') . pfv_cap_pips((int)min($c['larder'], $c['larder_max']), (int)$c['larder_max'], 'lard', 'Larder (crop pieces)') . (array_filter($P, fn($q) => in_array($q['src'], PFD_KEEP_SRC, true)) ? pfv_cap_pips((int)min($c['keeps'], $c['keeps_max']), (int)$c['keeps_max'], 'keep', 'Keepsakes') : '') . '</div>';
+    $kitUrl = url('puzzlebox.php'); $beltUrl = url('puzzlebox.php?t=belt');
+    $n = (int)$c['n']; $hu = (int)$c['hurt']; $kit = (int)$c['kit']; $aim = max(1, (int)ceil(0.3 * $n));
+    $kitOk = $kit >= PFD_KIT_MIN; $hurtOk = $hu >= $aim; $limOk = (int)$c['rare'] <= PFD_RARE_CAP && (int)$c['mw'] <= PFD_MW_CAP && (int)$c['larder'] <= (int)$c['larder_max'] && (int)$c['keeps'] <= (int)$c['keeps_max'];
+    $ready = $d['err'] === null && $hurtOk;
+    $caps = ['rare' => [(int)$c['rare'], PFD_RARE_CAP], 'mw' => [(int)$c['mw'], PFD_MW_CAP], 'larder' => [(int)$c['larder'], (int)$c['larder_max']], 'keeps' => [(int)$c['keeps'], (int)$c['keeps_max']]];
+
+    // ---- the top: chest, title, ready pill; the tabs
+    $pill = $locked ? '<span class="pill lock">' . pfv_img('ico/ico-lock.png', 64) . 'Locked</span>'
+        : ($ready ? '<span class="pill ok">' . pfv_img('ico/ico-check.png', 64) . 'Ready</span>'
+        : '<a class="pill bad" href="' . e($kitUrl . (!$hurtOk && $d['err'] === null ? '?show=hurt' : '')) . '#pbx-shelf" data-fix="' . (!$hurtOk && $d['err'] === null ? 'hurt' : 'add') . '">' . pfv_img('ico/ico-warning.png', 64) . ($d['err'] === null ? 'Weak' : 'Not ready') . '</a>');
+    $h = '<div class="box pbox pfv pbx" id="pfv-box" data-tab="' . $tab . '" data-caps="' . e(json_encode($caps)) . '"' . ($locked ? ' data-locked="1"' : '') . '>'
+        . '<div class="hrow pbx-top"><span class="pbx-chest" aria-hidden="true">' . pfv_img('chest-body.png', 64, '', 'cb') . pfv_img('chest-lid.png', 64, '', 'cl') . '</span><h2>Puzzle box</h2>' . $pill . '</div>';
     $h .= '<nav class="tabs" aria-label="Puzzle box">';
     foreach (['kit' => 'Kit', 'belt' => 'Belt', 'pals' => 'Pals'] as $k => $l) $h .= '<a href="' . e(url('puzzlebox.php' . ($k === 'kit' ? '' : '?t=' . $k))) . '"' . ($k === $tab ? ' class="on" aria-current="page"' : '') . '>' . $l . '</a>';
-    $h .= '</nav>' . pfv_deckbar($d);
-    if ($locked) $h .= '<p class="note">🔒 You are in a fight. The deck is locked until it is over. <a href="' . e(url('adventure.php')) . '">Back to the fight</a></p>';
+    $h .= '</nav>';
+
+    // ---- locked banner, or the ready strip and what to fix
+    if ($locked) {
+        $who = '';
+        try { if (function_exists('active_expedition') && ($ex = active_expedition($uid)) && ($en = json_decode((string)($ex['encounter'] ?? ''), true)) && function_exists('encounter_creature') && ($cr = encounter_creature($en))) $who = (string)($cr['name'] ?? ''); } catch (Throwable $e) { $who = ''; }
+        $h .= '<div class="pbx-banner" role="status">' . pfv_img('ico/ico-lock.png', 64) . '<span><b>' . ($who !== '' ? 'You are fighting ' . e(preg_match('/^[AEIOU]/i', $who) ? 'an ' : 'a ') . e($who) : 'You are in a fight') . '</b><small>Your deck is locked until the fight is over. Tap a piece to read it.</small></span>'
+            . '<a class="btn" href="' . e(url('adventure.php')) . '">Back to the fight</a></div>';
+    } else {
+        $h .= '<section class="pbx-status" aria-label="Is my deck ready?">'
+            . pfv_stc($kitOk, pfv_img('ico/ico-jigsaw-box.png', 64), 'Kit ' . $kit, 'need ' . PFD_KIT_MIN, (int)round(100 * $kit / PFD_KIT_MIN), 'Kit pieces: ' . $kit . ', ' . PFD_KIT_MIN . ' needed')
+            . pfv_stc($hurtOk, pfv_img('pfight/ico-hurt.png', 32), 'Hurt ' . $hu, 'aim ' . $aim . '+', (int)round(100 * $hu / $aim), 'Hurt pieces: ' . $hu . ' of ' . $n . ', aim for ' . $aim . ' or more')
+            . pfv_stc($limOk, pfv_img('items/gem-r.png', 28), 'Limits', $limOk ? 'all OK' : 'over', 100, $limOk ? 'Limits all OK' : 'Over a limit')
+            . '</section>';
+        if ($d['err'] !== null) $h .= '<div class="pbx-fix"><span><b>' . e((string)$d['err']) . '</b><small>Until then a fight uses the standard kit.</small></span>'
+            . ($kit < PFD_KIT_MIN ? '<a class="btn gold" href="' . e($kitUrl) . '#pbx-shelf" data-fix="add">Add</a>' : '') . '</div>';
+        if (!$hurtOk) $h .= '<div class="pbx-fix"><span><b>Only ' . $hu . ' of ' . $n . ' pieces hit</b><small>Fights will drag on. Add ' . ($aim - $hu) . ' more Hurt piece' . ($aim - $hu === 1 ? '' : 's') . '.</small></span><a class="btn gold" href="' . e($kitUrl) . '?show=hurt#pbx-shelf" data-fix="hurt">Show Hurt</a></div>';
+    }
+
+    // ---- the box: the lid (limits), then the Kit, Belt and Pals trays
+    $lim = function (string $cls, string $icon, string $name, int $have, int $max): string {
+        $full = $have >= $max;
+        return '<div class="capp lim ' . $cls . ($full ? ' full' : '') . ($have > $max ? ' over' : '') . '" role="img" aria-label="' . $name . ' ' . $have . ' of ' . $max . ($full ? ', full' : '') . '">' . $icon . '<em>' . $have . ' of ' . $max . '</em><span>' . $name . '</span></div>';
+    };
+    $h .= '<section class="pbx-box" aria-label="Your Puzzle box"><div class="pbx-lid">'
+        . $lim('rare', pfv_img('items/gem-r.png', 28), 'Rare', (int)$c['rare'], PFD_RARE_CAP) . $lim('mw', pfv_img('ico/ico-medal-gold.png', 64), 'Masterwork', (int)$c['mw'], PFD_MW_CAP)
+        . $lim('lard', pfv_img('ico/ico-jar.png', 64), 'Larder', (int)$c['larder'], (int)$c['larder_max']) . $lim('keep', pfv_img('ico/ico-ribbon.png', 64), 'Keepsakes', (int)$c['keeps'], (int)$c['keeps_max']) . '</div>';
+    // Kit
+    $kitP = array_values(array_filter($P, fn($p) => $p['on'] && !$p['gear']));
+    usort($kitP, fn($a, $b) => (array_search($a['t'], PFV_TYPE_ORDER, true) <=> array_search($b['t'], PFV_TYPE_ORDER, true)));
+    $tally = '';
+    foreach (PFV_TYPE_ORDER as $t) { $k = count(array_filter($kitP, fn($p) => $p['t'] === $t)); if ($k) $tally .= '<i title="' . PFV_TYPE[$t] . ' ' . $k . '">' . pfv_img('pfight/ico-' . $t . '-s.png', 20, PFV_TYPE[$t]) . $k . '</i>'; }
+    $kitHead = pfv_img('pfight/parts/deck-book.png', 32) . '<b>Kit</b><span class="tally">' . $tally . '<em>' . $kit . '</em></span>';
+    if ($tab === 'kit') {
+        $in = '';
+        foreach ($kitP as $p) {
+            $md = isset($mods[$p['k']]) ? (PF_MODS[$mods[$p['k']]] ?? null) : null; $x = ($md ? 'upgrade ' . $md[0] : '');
+            $in .= pfv_box_pc($u, $p, $c, ['cls' => 'sel' . ($p['out'] !== '' ? ' out' : ''), 'a' => $locked ? 'info' : 'tog', 'd' => pfv_desc($p, trim(($p['out'] === 'slots' ? 'left out: your ' . (in_array($p['src'], PFD_KEEP_SRC, true) ? 'Keepsake slots are' : 'Larder is') . ' full' : ($p['out'] !== '' ? 'left out: over the rarity cap' : ($p['core'] ? 'core' : ''))) . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="1"']);
+        }
+        if (!$locked) $in .= '<li class="pbx-add"><a class="slot" href="#pbx-shelf" data-fix="add">' . pfv_img('ico/ico-plus.png', 64) . 'Add</a></li>';
+        $h .= '<div class="comp pbx-kit"><div class="ch">' . $kitHead . '</div><ul class="pcg pfv-g tray">' . ($in ?: pfv_slot('none')) . '</ul></div>';
+    } else {
+        $h .= '<div class="comp pbx-kit shut"><a class="ch" href="' . e($kitUrl) . '">' . $kitHead . '<span class="more">Open</span></a></div>';
+    }
+    // Belt
+    $tier = (int)($d['belt_tier'] ?? 1); $slots = (int)$d['slots']; $onBelt = []; $wear = pfd_wear($u);
+    $rk = item_id_by_slug(PFD_REPAIR); $kits = $rk ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rk]) : 0;
+    $bs = '';
+    foreach ($d['belt'] as $i => $b) { if ($i >= 4) break;
+        $onBelt[$b['type']] = $b['state'];
+        $p = null; foreach ($P as $q) if ($q['tool'] === $b['type']) $p = $q;
+        if ($p && $b['state'] === 'ok') {
+            $w = $wear[$b['type']] ?? ['wear' => 0, 'broken' => false];
+            $acts = [];   // the sheet's buttons for a tool in the tray (fix = Fix, fix0 = Fix with no kit, off = Take off): pfv1box.js
+            if (!$locked && (int)($w['wear'] ?? 0) > 0) $acts[] = $kits < 1 ? 'fix0' : 'fix';
+            if (!$locked) $acts[] = 'off';
+            $bs .= str_replace(['<li>', '</li>'], ['<li class="bslot">', '<span class="durr">' . pfv_durbar((int)$b['left'], (int)$b['max']) . '<small>' . (int)$b['left'] . '/' . (int)$b['max'] . '</small></span></li>'],
+                pfv_box_pc($u, $p, $c, ['a' => 'info', 'dur' => [(int)$b['left'], (int)$b['max']], 'd' => pfv_desc($p, 'durability ' . (int)$b['left'] . '/' . (int)$b['max'] . ', −' . PFB_TOOL_WEAR . ' a play'), 'x' => ' data-tool="' . e($b['type']) . '" data-bacts="' . e(implode(',', $acts)) . '"']));
+        } elseif (in_array($b['state'], ['broken', 'none'], true) && !$locked) $bs .= pfv_slot('<span class="pfv-bn">' . e((TOOL_TYPES[$b['type']][0] ?? ucfirst($b['type']))) . '<br>' . ($b['state'] === 'broken' ? 'broken' : 'gone') . '</span>'
+            . '<form method="post" class="pfv-rm">' . csrf_field() . '<input type="hidden" name="do" value="pfd_remove"><input type="hidden" name="tool" value="' . e($b['type']) . '">' . $back . '<button class="btn small ghost" aria-label="Remove the ' . e((TOOL_TYPES[$b['type']][0] ?? $b['type'])) . ' from the belt">Remove</button></form>');
+        else $bs .= pfv_slot($b['state'] === 'broken' ? 'broken' : ($b['state'] === 'over' ? 'no slot' : 'gone'));
+    }
+    if (!$locked) for ($i = count($d['belt']); $i < $slots; $i++) $bs .= '<li class="pbx-add"><a class="slot" href="' . e($beltUrl) . '#pbx-shelf">' . pfv_img('ico/ico-plus.png', 64) . 'Add</a></li>';
+    $next = $tier < 3 ? PFD_BELTS[$tier + 1] : null;
+    $h .= '<div class="comp pbx-belt"><div class="ch">' . pfv_img('ico/ico-toolbox.png', 64) . '<b>Belt ' . ['', 'I', 'II', 'III'][$tier] . '</b><span>' . (int)$c['belt'] . ' of ' . $slots . ' loop' . ($slots === 1 ? '' : 's') . '</span></div>'
+        . '<ul class="pcg tray">' . ($bs ?: pfv_slot('no tools')) . '</ul>'
+        . '<p class="beltnote">' . ($next ? pfv_img('ico/ico-lock.png', 64) . '<span>Belt ' . ['', 'I', 'II', 'III'][$tier + 1] . ': ' . $next[0] . ' loops, from level ' . $next[2] . '. Tools lose ' . PFB_TOOL_WEAR . ' each play.</span>' : '<span>Tools lose ' . PFB_TOOL_WEAR . ' durability each play.</span>') . '</p></div>';
+    // Pals
+    $pl = '';
+    foreach ($P as $p) if ($p['src'] === 'pal') $pl .= pfv_box_pc($u, $p, $c, ['cls' => 'sel' . ($p['out'] !== '' ? ' out' : ''), 'a' => 'info', 'd' => pfv_desc($p, 'in your party')]);
+    $h .= '<div class="comp pbx-pals"><div class="ch">' . pfv_img('ico/ico-paw.png', 64) . '<b>Pals</b><span>' . (int)$c['pals'] . ' in your party</span></div>'
+        . ($pl !== '' ? '<ul class="pcg tray pals">' . $pl . '</ul>' : '<p class="beltnote"><span>No pals along. Each pal in your party adds one piece.</span></p>') . '</div></section>';
+
+    // ---- under the box: the shelf of the tab
     $hint = 'Tap a piece to read it.';
     if ($tab === 'kit') {
-        $grp = fn(array $p): string => in_array($p['src'], ['knack', 'calling'], true) ? 'basic' : (string)$p['src'];
-        $h .= '<nav class="chips fbar" id="pfv-filt" aria-label="Filter by source">';
-        foreach (['all' => 'All', 'basic' => '🧩', 'crop' => '🌾', 'legend' => '👑', 'craft' => '🛠️', 'region' => '🗺️', 'wear' => '🧵'] as $k => $l) $h .= '<button type="button" data-g="' . $k . '"' . ($k === 'all' ? ' class="on"' : '') . ' aria-label="' . ($k === 'all' ? 'All pieces' : ucfirst($k) . ' pieces') . '" aria-pressed="' . ($k === 'all' ? 'true' : 'false') . '">' . $l . '</button>';
-        $h .= '</nav>';
-        $in = ''; $col = '';
-        foreach ($P as $p) {
-            if ($p['gear']) continue;
-            $md = isset($mods[$p['k']]) ? (PF_MODS[$mods[$p['k']]] ?? null) : null;
-            $x = ($md ? 'upgrade ' . $md[0] : '');
-            if ($p['on']) $in .= pfv_pc($p, ['cls' => 'sel' . ($p['out'] !== '' ? ' out' : ''), 'a' => $locked ? 'info' : 'tog', 'g' => $grp($p), 'd' => pfv_desc($p, trim(($p['out'] === 'slots' ? 'left out: your ' . (in_array($p['src'], PFD_KEEP_SRC, true) ? 'Keepsake slots are' : 'Larder is') . ' full' : ($p['out'] !== '' ? 'left out: over the rarity cap' : ($p['core'] ? 'core' : ''))) . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="1"']);
-            else $col .= pfv_pc($p, ['cls' => !empty($p['new']) ? 'isnew' : '', 'a' => $locked ? 'info' : 'tog', 'g' => $grp($p), 'd' => pfv_desc($p, trim((!empty($p['new']) ? 'new: switched off until you pack it' : '') . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="0"']);
+        if (!$locked) {
+        $spare = array_values(array_filter($P, fn($p) => !$p['on'] && !$p['gear']));
+        $cnt = []; foreach ($spare as $p) { $g = pfv_src_group((string)$p['src']); $cnt[$g] = ($cnt[$g] ?? 0) + 1; }
+        $col = '';
+        foreach ($spare as $p) {
+            $md = isset($mods[$p['k']]) ? (PF_MODS[$mods[$p['k']]] ?? null) : null; $x = ($md ? 'upgrade ' . $md[0] : '');
+            $col .= pfv_box_pc($u, $p, $c, ['cls' => !empty($p['new']) ? 'isnew' : '', 'a' => $locked ? 'info' : 'tog', 'g' => pfv_src_group((string)$p['src']), 'd' => pfv_desc($p, trim((!empty($p['new']) ? 'new: switched off until you pack it' : '') . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="0"']);
         }
-        $h .= '<div class="sl">In the kit <span>' . ((int)$c['kit'] < PFD_KIT_MIN ? (int)$c['kit'] . ' · need ' . PFD_KIT_MIN : (int)$c['kit'] . ' · no maximum') . '</span></div><ul class="pcg pfv-g">' . ($in ?: pfv_slot('none')) . '</ul>'
-            . '<div class="sl">Collection <span>' . ($locked ? 'locked' : 'tap to pack') . '</span></div><ul class="pcg pfv-g">' . ($col ?: pfv_slot('none')) . '</ul>';
+        $fb = '';
+        foreach (['basic', 'crop', 'legend', 'craft', 'region', 'wear'] as $g) $fb .= '<button type="button" class="s-' . $g . '" data-g="' . $g . '" aria-pressed="false" aria-label="' . PFV_SRC_META[$g][0] . ' pieces: ' . (int)($cnt[$g] ?? 0) . '"' . (empty($cnt[$g]) ? ' disabled' : '') . '>' . pfv_img(PFV_SRC_META[$g][1], 64) . '<span>' . PFV_SRC_META[$g][0] . '</span><em>' . (int)($cnt[$g] ?? 0) . '</em></button>';
+        $leg = '';
+        foreach (PFV_SRC_META as $g => [$lbl, , $what]) $leg .= '<li>' . pfv_srcb($g, 'srcb') . '<span><b>' . $lbl . '</b>' . e($what) . '</span></li>';
+        $h .= '<section class="pbx-shelf" id="pbx-shelf" aria-label="Spare pieces"><h3>' . pfv_img('ico/ico-satchel.png', 64) . 'On the shelf<span>' . count($spare) . ' spare</span></h3>'
+            . '<div class="srow"><label class="search">' . pfv_img('ico/ico-search.png', 64) . '<input type="search" id="pbx-q" placeholder="Search spare pieces" aria-label="Search spare pieces" autocomplete="off"></label><button type="button" class="btn ghost" id="pbx-all" hidden>All</button></div>'
+            . '<nav class="pbx-fbar" id="pfv-filt" aria-label="Filter by source">' . $fb . '</nav>'
+            . '<p class="pbx-kind" id="pbx-kind" hidden></p>'
+            . '<details class="pbx-legend"><summary>' . pfv_img('ico/ico-info.png', 64) . 'What the source icons mean</summary><ul>' . $leg . '</ul></details>'
+            . '<ul class="pcg pfv-g shelfg">' . ($col ?: pfv_slot('none')) . '</ul><p class="pbx-empty" id="pbx-empty" hidden>No spare pieces match.</p></section>';
+        }
         $hint = $locked ? 'Tap a piece to read it.' : 'Tap a piece, then pack it or take it out.';
     } elseif ($tab === 'belt') {
-        $wear = pfd_wear($u); $tier = (int)($d['belt_tier'] ?? 1); $slots = (int)$d['slots']; $onBelt = [];
-        $kit = item_id_by_slug(PFD_REPAIR); $kits = $kit ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $kit]) : 0;
+        $h .= '<section class="pbx-shelf" id="pbx-shelf" aria-label="Your tools"><h3>' . pfv_img('ico/ico-toolbox.png', 64) . 'Tools<span>repair kits: ' . $kits . '</span></h3>';
         $h .= '<div class="chips seg pfv-tier" role="img" aria-label="Fight belt tier ' . $tier . ': ' . $slots . ' tool slots">';
-        foreach (PFD_BELTS as $t => [$n]) $h .= '<span' . ($t === $tier ? ' class="on"' : '') . '>Belt ' . ['', 'I', 'II', 'III'][$t] . ' · ' . $n . '</span>';
-        $h .= '</div>';
-        $bs = '';
-        foreach ($d['belt'] as $i => $b) { if ($i >= 4) break;
-            $onBelt[$b['type']] = $b['state'];
-            $p = null; foreach ($P as $q) if ($q['tool'] === $b['type']) $p = $q;
-            if ($p && $b['state'] === 'ok') $bs .= str_replace(['<li>', '</li>'], ['<li class="bslot">', pfv_durbar((int)$b['left'], (int)$b['max']) . '<small>' . (int)$b['left'] . '/' . (int)$b['max'] . '</small></li>'], pfv_pc($p, ['a' => 'info', 'dur' => [(int)$b['left'], (int)$b['max']], 'd' => pfv_desc($p, 'durability ' . (int)$b['left'] . '/' . (int)$b['max'] . ', −' . PFB_TOOL_WEAR . ' a play')]));
-            elseif (in_array($b['state'], ['broken', 'none'], true) && !$locked) $bs .= pfv_slot('<span class="pfv-bn">' . e((TOOL_TYPES[$b['type']][0] ?? ucfirst($b['type']))) . '<br>' . ($b['state'] === 'broken' ? 'broken' : 'gone') . '</span>'
-                . '<form method="post" class="pfv-rm">' . csrf_field() . '<input type="hidden" name="do" value="pfd_remove"><input type="hidden" name="tool" value="' . e($b['type']) . '">' . $back . '<button class="btn small ghost" aria-label="Remove the ' . e((TOOL_TYPES[$b['type']][0] ?? $b['type'])) . ' from the belt">Remove</button></form>');
-            else $bs .= pfv_slot($b['state'] === 'broken' ? 'broken' : ($b['state'] === 'over' ? 'no slot' : 'gone'));
-        }
-        for ($i = count($d['belt']); $i < 4; $i++) $bs .= pfv_slot($i >= $slots ? 'locked<br>Belt ' . ($i === 2 ? 'II' : 'III') : '＋');
-        $h .= '<div class="sl">On the belt <span>each adds its piece · −' . PFB_TOOL_WEAR . ' durability a play</span></div><ul class="pcg">' . $bs . '</ul>';
-        // 2.6.75: the tools are buttons (icon, name, a small durability bar, rank border), not a long list; a tap shows the tool's line with Put on / Take off / Fix
-        $h .= '<div class="sl">Tools <span>🧰 repair kits: ' . $kits . '</span></div><ul class="toolg" id="pfv-tools">';
+        foreach (PFD_BELTS as $t => [$nn]) $h .= '<span' . ($t === $tier ? ' class="on"' : '') . '>Belt ' . ['', 'I', 'II', 'III'][$t] . ' · ' . $nn . '</span>';
+        $h .= '</div><ul class="toolg" id="pfv-tools">';
         $full = count(array_filter($onBelt, fn($s) => $s === 'ok')) >= $slots; $any = false;
         foreach ($wear as $type => $w) {
             if ((int)$w['tier'] < 1 || !isset(pfd_catalog()['t:' . $type])) continue; $any = true;
             $pn = (string)pfd_catalog()['t:' . $type]['n']; $tt = TOOL_TYPES[$type] ?? [ucfirst($type), '🔧']; $on = ($onBelt[$type] ?? '') === 'ok'; $bk = !empty($w['broken']);
-            $acts = [];   // what the detail line offers: do|label|class|disabled
-            if (!$locked && ($bk || (int)$w['wear'] > 0)) $acts[] = 'pfd_fix|🔧 Fix|gold|' . ($kits < 1 ? '1' : '0');
+            $acts = [];   // what the sheet offers: do|label|class|disabled
+            if (!$locked && ($bk || (int)$w['wear'] > 0)) $acts[] = 'pfd_fix|Fix (1 kit)|gold|' . ($kits < 1 ? '1' : '0');
             if (!$locked && $bk && ($onBelt[$type] ?? '') === 'broken') $acts[] = 'pfd_remove|Remove|ghost|0';
-            if (!$locked && !$bk) $acts[] = $on ? 'pfd_unequip|Take off|ghost|0' : 'pfd_equip|' . ($full ? 'Belt full' : 'Put on') . '|primary|' . ($full ? '1' : '0');
+            if (!$locked && !$bk) $acts[] = $on ? 'pfd_unequip|Take off|ghost|0' : 'pfd_equip|' . ($full ? 'Belt full' : 'Put on belt') . '|primary|' . ($full ? '1' : '0');
             $td = $tt[0] . ' tool · ' . PFD_RANK_NAME[(int)$w['tier']] . ' · durability ' . (int)$w['left'] . '/' . (int)$w['max'] . ($bk ? ' · worn out: fix it with a Tool Repair Kit' . ($kits < 1 ? ' (you have none)' : '') : ($on ? ' · on the belt' : '')) . '.';
             $h .= '<li><button type="button" class="tb t' . (int)$w['tier'] . ($bk ? ' broken' : '') . ($on ? ' on' : '') . '" data-a="tool" data-arg="' . e($type) . '" data-n="' . e($pn) . '" data-d="' . e($td) . '" data-acts="' . e(implode(';', $acts)) . '" data-dur="' . (int)$w['left'] . '/' . (int)$w['max'] . '" data-rk="' . (int)$w['tier'] . '" data-ico="' . e($tt[1]) . '" aria-pressed="' . ($on ? 'true' : 'false') . '" aria-label="' . e($pn . ', ' . $td) . '">'
                 . '<span class="ti" aria-hidden="true">' . $tt[1] . '</span><span class="tn">' . e($pn) . '</span>' . pfv_durbar((int)$w['left'], (int)$w['max']) . '</button></li>';
         }
         $h .= ($any ? '' : '<li class="hint">No tools yet. A garden or gathering tool in your satchel can go on the belt.</li>') . '</ul>';
         $h .= '<p class="hint">' . ($tier < 3 ? 'A bigger belt holds more tools: <a href="' . e(url('shop.php')) . '">buy one at Twigg’s</a> (Belt II from level ' . PFD_BELTS[2][2] . ', Belt III from level ' . PFD_BELTS[3][2] . ').' : 'Your belt holds the most tools a belt can.')
-            . ' A worn-out tool leaves the deck until you fix it with a Tool Repair Kit (crafted: flint, pine resin, coir fibre). Remove takes a broken tool off the belt: keep it to repair later.</p>';
+            . ' A worn-out tool leaves the deck until you fix it with a Tool Repair Kit (crafted: flint, pine resin, coir fibre). Remove takes a broken tool off the belt: keep it to repair later.</p></section>';
         $hint = $locked ? 'Tap a tool to read it.' : 'Tap a tool, then put it on, take it off or fix it.';
     } else {
-        $pl = '';
-        foreach ($P as $p) if ($p['src'] === 'pal') $pl .= pfv_pc($p, ['cls' => 'sel' . ($p['out'] !== '' ? ' out' : ''), 'a' => 'info', 'd' => pfv_desc($p, 'in your party')]);
-        $h .= '<div class="sl">Puzzle Pals <span>your party: ' . (int)$c['pals'] . ' · 1 piece each</span></div><ul class="pcg">' . ($pl ?: pfv_slot('none')) . '</ul>';
         require_once __DIR__ . '/puzzle_pals.php';
-        $h .= '<p class="hint">' . (ppal_open() ? 'The pals you take along each add one piece. <a href="' . e(url('puzzlepals.php')) . '">Change your party in the Pal Book</a>' . ($locked ? ' (after the fight).' : '.') : 'Puzzle Pals are not open yet.') . '</p>';
+        $h .= '<section class="pbx-shelf" id="pbx-shelf" aria-label="Puzzle Pals"><h3>' . pfv_img('ico/ico-paw.png', 64) . 'Puzzle Pals<span>' . (int)$c['pals'] . ' along · 1 piece each</span></h3>'
+            . '<p class="hint">' . (ppal_open() ? 'The pals you take along each add one piece. <a href="' . e(url('puzzlepals.php')) . '">Change your party in the Pal Book</a>' . ($locked ? ' (after the fight).' : '.') : 'Puzzle Pals are not open yet.') . '</p></section>';
         $hint = 'Tap a pal piece to read it.';
     }
-    $h .= '<div class="pinfo" id="pfv-info" aria-live="polite" data-hint="' . e($hint) . '">' . ($d['err'] !== null ? '<span><b>' . e((string)$d['err']) . '</b> Until then a fight uses the standard kit.</span>' : '<span>' . e($hint) . '</span>') . '</div>';
-    $h .= pfv_auto_html(!empty($d['auto']), $back) . '<p class="hint">' . (!empty($d['auto']) ? 'Auto deck is on: this deck goes into every fight as it is. You still see the creature first.' : 'Before each fight you can swap pieces. Nothing changes once the fight starts.') . '</p>';
+    $h .= '<div class="pinfo" id="pfv-info" aria-live="polite" data-hint="' . e($hint) . '"><span>' . e($hint) . '</span></div>';
+    if (!$locked) {
+        $on = !empty($d['auto']);
+        $h .= '<form method="post" class="pfv-autof pbx-auto">' . csrf_field() . '<input type="hidden" name="do" value="pfd_auto"><input type="hidden" name="on" value="' . ($on ? '0' : '1') . '">' . $back
+            . '<label class="sw"><span><b>Use this deck in every fight</b><small>' . ($on ? 'Auto deck is on: this deck goes into every fight as it is. You still see the creature first.' : 'Off: before each fight you can swap pieces.') . '</small></span><input type="checkbox" id="pfv-auto"' . ($on ? ' checked' : '') . '></label>'
+            . '<noscript><button class="btn small">' . ($on ? 'Turn off' : 'Turn on') . '</button></noscript></form>';
+    }
+    $h .= '<p class="pbx-toast" id="pbx-toast" role="status" hidden></p>';
     return $h . pfv_form($back) . '</div>' . pfv_assets();
 }
 
