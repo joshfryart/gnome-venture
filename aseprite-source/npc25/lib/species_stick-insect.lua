@@ -33,15 +33,44 @@ S.quirk = {w = 5, h = 3, anchor = "crown", hex = "#6e4a44"}
 function S.draw_figure(img, view, frame, species)
   local o = N.offsets(species, frame)
   local b, hd = o.body, o.head
+  local fL, fR, aL, aR = o.footL, o.footR, o.armL, o.armR
   local floor, abs = math.floor, math.abs
   local K = h(species.outline)
-  local HI, BA, SH, DP = h"#a88ae0", h"#7f5cc4", h"#5c4196", h"#3f2c6a"
+  local PU = {hi = h"#a88ae0", base = h"#7f5cc4", shade = h"#5c4196", deep = h"#3f2c6a"}
   local FACE, BARK = h"#9a6e48", h"#6e4a44"
   local PINK, PINKS, LEAF = h"#d9668a", h"#a8496e", h"#7cc35a"
   local SL, SD = h"#aaa9b8", h"#74758c"
-  local function P(x, y, c) N.px(img, floor(x), floor(y), c) end
-  local function R(x, y, w, hh, c) N.rect(img, x, y, w, hh, c) end
-  local function E(x, y, w, hh, c) N.ellipse(img, x, y, w, hh, c) end
+  local wi = frame - 2
+  local walking = frame >= 3
+  -- body sway on x with the walk (whole upper body), twig sways the other way a beat later
+  local SWAY = {[0] = 0, 0, 1, 1, 0, -1, -1}
+  local sw = walking and SWAY[wi] or 0
+  local tsw = walking and ({0, 0, 1, 1, 0, -1})[wi] * -1 or 0
+  local G = {}
+  local function P(x, y, c)
+    x, y = floor(x), floor(y)
+    if c and x >= 0 and x <= 63 and y >= 0 and y <= 79 then G[y * 64 + x] = c end
+  end
+  local function get(x, y) return G[floor(y) * 64 + floor(x)] end
+  local function ell(cx, cy, rx, ry, fn)
+    for y = floor(cy - ry - 1), floor(cy + ry + 1) do
+      for x = floor(cx - rx - 1), floor(cx + rx + 1) do
+        local nx, ny = (x - cx) / rx, (y - cy) / ry
+        if nx * nx + ny * ny <= 1 then P(x, y, fn(x, y, nx, ny)) end
+      end
+    end
+  end
+  local function lit(nx, ny, r)
+    local s = nx * 0.6 + ny * 0.8
+    if s > 0.8 and r.deep then return r.deep end
+    if s > 0.4 then return r.shade end
+    if s < -0.5 then return r.hi end
+    return r.base
+  end
+  local function line(x0, y0, x1, y1, c)
+    local n = math.max(abs(x1 - x0), abs(y1 - y0), 1)
+    for i = 0, n do P(floor(x0 + (x1 - x0) * i / n + 0.5), floor(y0 + (y1 - y0) * i / n + 0.5), c) end
+  end
   local function rows(x0, y0, t, map)
     for j, row in ipairs(t) do
       for i = 1, #row do
@@ -50,154 +79,174 @@ function S.draw_figure(img, view, frame, species)
       end
     end
   end
-  local function line(x0, y0, x1, y1, c)
-    local n = math.max(abs(x1 - x0), abs(y1 - y0), 1)
-    for i = 0, n do P(floor(x0 + (x1 - x0) * i / n + 0.5), floor(y0 + (y1 - y0) * i / n + 0.5), c) end
-  end
-  -- twig leg: hip -> knee (2 px thigh) -> foot (1 px shin), knee knob, toe at the sole
+  -- a spindly leg: hip -> high knee (lit femur) -> foot (shaded tibia), knee knob, bark tarsus
   local function leg(hx, hy, kx, ky, fx, lift, dir, far)
     local fy = 70 + lift
-    local lit = far and BARK or FACE
-    line(hx, hy + 1, kx, ky + 1, BARK); line(hx, hy, kx, ky, lit)
-    line(kx, ky, fx, fy, lit)
-    if not far then line(kx + 1, ky + 1, fx + 1, fy - 1, BARK) end
-    P(kx, ky - 1, lit)
-    P(fx + dir, fy, BARK)
+    local fem, tib = PU.base, PU.base
+    if far then fem, tib = PU.shade, PU.shade end
+    line(hx, hy, kx, ky, fem)
+    line(kx, ky, fx, fy - 1, tib)
+    P(kx, ky, far and PU.base or PU.hi)
+    P(fx, fy, BARK); P(fx + dir, fy, BARK)
   end
-  -- foreleg held like an arm: shoulder -> elbow -> hand (2 px nub)
-  local function arm(sx, sy, ex, ey, hx, hy, far)
-    local lit = far and BARK or FACE
-    line(sx, sy + 1, ex, ey + 1, BARK); line(sx, sy, ex, ey, lit)
-    line(ex, ey, hx, hy, lit)
-    P(hx, hy + 1, BARK); P(hx + 1, hy, lit)
-  end
-  -- quirk: twig hat (twig + two 2x1 leaves), sways on x with the walk
-  local sway = (frame == 4 or frame == 5) and 1 or ((frame == 7 or frame == 8) and -1 or 0)
+  -- quirk: twig-hat: a 5 px twig with a knot and two 2x1 leaves
   local function twig(x, y)
-    rows(x + sway, y, {
-      "LL...LL",
-      "LLT.TLL",
-      "..TTT..",
-      "TTTTTTT",
+    rows(x + tsw, y, {
+      "LL..LL.",
+      ".LTTL..",
+      "TTTTTT.",
+      ".T..T..",
     }, {T = BARK, L = LEAF})
   end
-  local function hood(x, y, w, hh)
-    E(x, y, w, hh, SH)
-    E(x, y, w - 1, hh - 1, BA)
-    E(x + 2, y + 1, w - 8, hh - 8, HI)
-    E(x + 3, y + 2, w - 7, hh - 7, BA)
+  local function ant(x0, y0, pts, c)
+    local px, py = x0, y0
+    for _, p in ipairs(pts) do line(px, py, x0 + p[1], y0 + p[2], c); px, py = x0 + p[1], y0 + p[2] end
   end
-  E(17, 65, 30, 6, SD)
-  E(19, 65, 26, 4, SL)
-  local fL, fR, aL, aR = o.footL, o.footR, o.armL, o.armR
-  local wi = frame - 2                     -- walk index 1..6 (<= 0 idle)
+
+  -- ground shadow (rows 65-70; the outline lands on 71)
+  ell(32, 67.5, 14.5, 3, function(x, y, nx, ny) return ny < -0.2 and SL or SD end)
 
   if view == "front" or view == "back" then
     local front = view == "front"
-    local function M(x) return 63 - x end
-    -- walking legs: middle pair = tripod-split (L mid with B, R mid with A), rear pair the other way
-    local inL = fL < 0 and 1 or 0
-    local inR = fR < 0 and 1 or 0
-    leg(28, 48 + b, 23, 45 + b, 22 + inL, fL, -1)                  -- L rear (A)
-    leg(M(28), 48 + b, M(23), 45 + b, M(22) - inL, fL, 1)          -- R rear mirrored, tripod A
-    leg(28, 44 + b, 20, 38 + b, 17 + inR, fR, -1)                  -- L middle (B)
-    leg(M(28), 44 + b, M(20), 38 + b, M(17) - inR, fR, 1)      -- R middle (B)
-    -- body: thorax, then a long ringed abdomen
-    for y = 30, 57 do
-      local w = y < 43 and 8 or (y < 51 and 6 or (y < 55 and 4 or 2))
-      local x0 = 32 - w // 2
+    local CX = 31.5 + sw
+    local function M(x) return 63 - x + 2 * sw end    -- mirror about the swayed centre
+    -- tripods (front view: viewer-left = creature right)
+    -- A: L front, R middle, L rear -> footL ; B: R front, L middle, R rear -> footR
+    local vl_mid, vr_mid, vl_rear, vr_rear = fL, fR, fR, fL
+    if not front then vl_mid, vr_mid, vl_rear, vr_rear = fR, fL, fL, fR end
+    local function pair(hy, ky, kxo, fxo, liftL, liftR)
+      -- viewer-left leg, then mirrored viewer-right leg; a lifted foot tucks in and the knee rises
+      local inl, inr = liftL < 0 and 2 or 0, liftR < 0 and 2 or 0
+      leg(29 + sw, hy + b, kxo + sw, ky + b + liftL, fxo + inl, liftL, -1, false)
+      leg(M(29), hy + b, M(kxo), ky + b + liftR, 63 - fxo - inr, liftR, 1, false)
+    end
+    pair(47, 40, 24, 22, vl_rear, vr_rear)    -- rear pair, inner stance
+    pair(41, 32, 19, 17, vl_mid, vr_mid)      -- middle pair, wide knees above the body
+    -- long body: thorax then ringed abdomen tapering to a tip
+    for y = 28, 62 do
+      local w = y < 44 and 6 or (y < 52 and 5 or (y < 58 and 4 or (y < 61 and 3 or 2)))
       local yy = y + b
-      R(x0, yy, w, 1, BA)
-      P(x0, yy, HI)
-      P(x0 + w - 1, yy, SH)
-      if w > 4 then P(x0 + 1, yy, front and HI or BA); P(x0 + w - 2, yy, SH) end
-      if y > 42 and (y - 43) % 4 == 0 and w > 2 then R(x0, yy, w, 1, DP) end
+      local x0 = floor(CX - w / 2 + 0.5)
+      for x = x0, x0 + w - 1 do
+        local c = PU.base
+        if x == x0 then c = PU.hi elseif x == x0 + w - 1 then c = PU.deep elseif x == x0 + w - 2 and w > 3 then c = PU.shade end
+        if front and x == x0 + 1 and w > 4 and y < 44 then c = PU.hi end
+        P(x, yy, c)
+      end
+      if y >= 44 and (y - 44) % 4 == 3 then for x = x0 + 1, x0 + w - 1 do P(x, yy, PU.deep) end end
     end
+    if not front then  -- wing-case seam and tiny folded wings
+      for y = 30, 46 do P(floor(CX), y + b, PU.deep) end
+      for y = 32, 37 do P(floor(CX) - 2, y + b, PU.hi) end
+    end
+    -- forelegs held like arms: shoulder -> elbow out -> hands folded at the middle
+    local function arm(side, a)
+      local sx = side < 0 and floor(CX) - 3 or floor(CX) + 3
+      local ex = side < 0 and floor(CX) - 8 or floor(CX) + 8
+      local hx = side < 0 and floor(CX) - 1 or floor(CX) + 1
+      local hy = 45 + b - 2 * a
+      line(sx, 31 + b, ex, 38 + b - a, PU.base)
+      line(ex, 38 + b - a, hx, hy, PU.shade)
+      P(ex, 38 + b - a, PU.hi)
+      P(hx, hy, BARK); P(hx, hy + 1, BARK)
+    end
+    if front then arm(-1, aR); arm(1, aL) else arm(-1, aL); arm(1, aR) end
+    -- bow at the collar (front) or between the shoulders (back)
+    rows(floor(CX) - 3, 28 + b, {
+      "dD.Dd",
+      "dDkDd",
+      "d...d",
+    }, {d = PINKS, D = PINK, k = PINKS})
+    -- head: small purple capsule, face
+    local hcx, hcy = CX, 19 + hd
+    -- antennae: long, curling outward, tips at y 8
+    ant(floor(CX) - 2, 14 + hd, {{-1, -2}, {-2, -4}, {-3, -6}, {-5, -6}, {-6, -5}}, BARK)
+    ant(floor(CX) + 3, 14 + hd, {{1, -2}, {2, -4}, {3, -6}, {5, -6}, {6, -5}}, BARK)
+    ell(hcx, hcy, 6.2, 7.2, function(x, y, nx, ny) return lit(nx, ny, PU) end)
+    -- neck
+    P(floor(CX) - 1, 26 + hd, PU.base); P(floor(CX), 26 + hd, PU.shade); P(floor(CX) - 1, 27 + hd, PU.base); P(floor(CX), 27 + hd, PU.shade)
     if front then
-      for y = 32, 41 do P(31, y + b, HI); P(32, y + b, HI) end     -- chest plate
-      P(31, 42 + b, BA); P(32, 42 + b, BA)
+      ell(hcx, hcy + 1.5, 4.4, 5, function(x, y, nx, ny)
+        if nx * 0.6 + ny * 0.8 > 0.78 then return BARK end
+        return FACE
+      end)
+      local ex = floor(CX)
+      -- eyes: 2x3 ink pills with a lilac glint
+      for _, e in ipairs({ex - 3, ex + 2}) do
+        P(e, 19 + hd, PU.hi); P(e + 1, 19 + hd, K)
+        P(e, 20 + hd, K); P(e + 1, 20 + hd, K)
+        P(e, 21 + hd, K); P(e + 1, 21 + hd, K)
+      end
+      -- button nose, smile, cheeks
+      P(ex, 22 + hd, BARK); P(ex + 1, 22 + hd, BARK)
+      P(ex - 1, 24 + hd, K); P(ex, 25 + hd, K); P(ex + 1, 25 + hd, K); P(ex + 2, 24 + hd, K)
+      P(ex - 3, 23 + hd, PINK); P(ex + 4, 23 + hd, PINK)
+      -- hood rim (brow line)
+      for x = ex - 3, ex + 4 do if get(x, 15 + hd) == FACE then P(x, 15 + hd, PU.deep) end end
     else
-      for y = 31, 42 do P(31, y + b, SH); P(32, y + b, DP) end     -- wing-case seam
-      R(29, 33 + b, 2, 5, HI)
+      for y = 14, 25 do P(floor(CX), y + hd, PU.shade) end
+      P(floor(CX) - 2, 15 + hd, PU.hi); P(floor(CX) - 3, 16 + hd, PU.hi)
     end
-    -- forelegs held like arms, swinging with the arms column
-    local yl, yr = 42 + b - aL, 42 + b - aR
-    arm(28, 33 + b, 24, 38 + b, 29, yl, false)
-    arm(M(28), 33 + b, M(24), 38 + b, M(29) - 1, yr, false)
-    -- antennae
-    local function ant(x0, dir)
-      line(x0, 16 + hd, x0 + 2 * dir, 12 + hd, BARK)
-      line(x0 + 2 * dir, 12 + hd, x0 + 4 * dir, 9 + hd, BARK)
-      P(x0 + 5 * dir, 8 + hd, BARK); P(x0 + 6 * dir, 8 + hd, BARK); P(x0 + 7 * dir, 9 + hd, BARK)
-    end
-    ant(27, -1); ant(36, 1)
-    hood(22, 13 + hd, 20, 17)
-    if front then
-      E(25, 17 + hd, 14, 13, FACE)
-      R(27, 17 + hd, 10, 1, DP); P(26, 18 + hd, DP); P(37, 18 + hd, DP)
-      R(28, 18 + hd, 8, 1, BARK)
-      for y = 21, 26 do P(37, y + hd, BARK) end
-      P(36, 27 + hd, BARK); P(35, 28 + hd, BARK)
-      rows(28, 21 + hd, {"gK", "KK", "KK"}, {K = K, g = HI})
-      rows(34, 21 + hd, {"gK", "KK", "KK"}, {K = K, g = HI})
-      P(31, 24 + hd, FACE); P(32, 24 + hd, FACE); P(31, 25 + hd, BARK); P(32, 25 + hd, BARK)
-      P(30, 26 + hd, K); P(31, 27 + hd, K); P(32, 27 + hd, K); P(33, 26 + hd, K)
-      R(27, 25 + hd, 2, 1, PINK); R(35, 25 + hd, 2, 1, PINK)
-    else
-      for y = 17, 28 do P(31, y + hd, SH) end
-      R(25, 27 + hd, 14, 1, SH)
-      R(27, 28 + hd, 10, 1, DP)
-    end
-    rows(27, 29 + b, {
-      "dD....Dd",
-      "dDDppDDd",
-      "dD.pp.Dd",
-    }, {d = PINKS, D = PINK, p = front and PINKS or PINK})
-    twig(28, 9 + hd)
+    twig(floor(CX) - 3, 9 + hd)
 
   else -- side, facing right
-    -- stride: tripod A foot x shift (+ = forward); tripod B opposite
-    local SA = {[1] = 2, [2] = 1, [3] = -1, [4] = -2, [5] = 0, [6] = 1}
-    local sa = wi >= 1 and SA[wi] or 0
+    -- stride: tripod A swings forward on frames 4-6, tripod B on 7-8-3
+    local SA = {-3, -1, 1, 3, 1, -1}
+    local sa = walking and SA[wi] or 0
     local sb = -sa
-    local function bx(y) return floor(33 - (y - 30) * 0.25 + 0.5) end
-    -- far legs (bark): mid = A, rear = B
-    leg(31, 41 + b, 36, 38 + b, 37 + sa, fL, 1, true)
-    leg(28, 47 + b, 25, 43 + b, 23 + sb, fR, -1, true)
-    arm(33, 33 + b, 37, 39 + b, 41 + aR, 36 + b, true)
-    -- body
-    for y = 30, 57 do
-      local cx = bx(y)
-      local w = y < 43 and 6 or (y < 51 and 5 or (y < 55 and 4 or 2))
-      local x0 = cx - w // 2
-      local yy = y + b
-      R(x0, yy, w, 1, BA)
-      P(x0, yy, HI)
-      P(x0 + w - 1, yy, SH)
-      if w > 4 then P(x0 + w - 2, yy, SH) end
-      if y > 42 and (y - 43) % 4 == 0 and w > 2 then R(x0, yy, w, 1, DP) end
+    local lean = 0
+    -- body axis: neck (36,27) down to the abdomen tip (27,62)
+    local function bx(y) return 36 - (y - 27) * 0.26 + sw * 0 end
+    -- far legs (deep): middle = tripod B (footR), rear = tripod A (footL)
+    leg(floor(bx(41)), 41 + b, floor(bx(41)) + 5 + floor(sb / 2), 35 + b + fR, 39 + sb, fR, 1, true)
+    leg(floor(bx(47)), 47 + b, floor(bx(47)) - 6 + floor(sa / 2), 41 + b + fL, 23 + sa, fL, -1, true)
+    -- far foreleg (arm) reaching forward
+    local function arm(a, far)
+      local sx = floor(bx(31))
+      local ex, ey = sx + 4, 38 + b
+      local hx, hy = sx + 8 + a, 33 + b - a
+      line(sx, 31 + b, ex, ey, far and PU.shade or PU.base)
+      line(ex, ey, hx, hy, far and PU.deep or PU.shade)
+      P(ex, ey, far and PU.base or PU.hi)
+      P(hx + 1, hy, BARK)
     end
-    for y = 31, 41 do P(bx(y) - 2, y + b, HI); P(bx(y) - 1, y + b, HI) end
-    -- near legs: mid = B, rear = A
-    leg(32, 42 + b, 38, 38 + b, 40 + sb, fR, 1)
-    leg(29, 48 + b, 23, 44 + b, 20 + sa, fL, -1)
-    arm(34, 33 + b, 38, 40 + b, 43 + aL, 37 + b, false)
-    -- antennae (far, then near), sweeping forward
-    line(37, 14 + hd, 39, 10 + hd, BARK); P(40, 9 + hd, BARK); P(41, 9 + hd, BARK)
-    line(41, 14 + hd, 44, 11 + hd, BARK); line(44, 11 + hd, 45, 9 + hd, BARK)
-    P(46, 8 + hd, BARK); P(47, 8 + hd, BARK); P(48, 9 + hd, BARK)
-    hood(28, 13 + hd, 18, 17)
-    E(35, 17 + hd, 11, 13, FACE)
-    R(36, 17 + hd, 8, 1, DP); P(35, 18 + hd, DP)
-    R(37, 18 + hd, 6, 1, BARK)
-    rows(41, 21 + hd, {"gK", "KK", "KK"}, {K = K, g = HI})
-    P(46, 23 + hd, FACE); P(46, 24 + hd, BARK)         -- button nose
-    P(43, 26 + hd, K); P(44, 27 + hd, K); P(45, 26 + hd, K)
-    R(38, 25 + hd, 2, 1, PINK)
-    P(36, 28 + hd, BARK); P(37, 29 + hd, BARK)
-    rows(34, 29 + b, {"dDd", "dpD", "d.d"}, {d = PINKS, D = PINK, p = PINKS})
-    twig(30, 9 + hd)
+    arm(aL, true)
+    -- body
+    for y = 27, 62 do
+      local w = y < 44 and 4 or (y < 54 and 3 or 2)
+      local x0 = floor(bx(y) - w / 2 + 0.5)
+      local yy = y + b
+      for x = x0, x0 + w - 1 do
+        local c = PU.base
+        if x == x0 then c = PU.hi elseif x == x0 + w - 1 then c = (w > 2) and PU.shade or PU.deep end
+        P(x, yy, c)
+      end
+      if y >= 44 and (y - 44) % 4 == 3 then P(x0 + w - 1, yy, PU.deep); if w > 2 then P(x0 + 1, yy, PU.shade) end end
+    end
+    -- near legs: middle = tripod A (footL), rear = tripod B (footR)
+    leg(floor(bx(41)) + 1, 41 + b, floor(bx(41)) + 6 + floor(sa / 2), 35 + b + fL, 40 + sa, fL, 1, false)
+    leg(floor(bx(47)), 47 + b, floor(bx(47)) - 7 + floor(sb / 2), 42 + b + fR, 24 + sb, fR, -1, false)
+    -- bow at the collar
+    rows(floor(bx(28)) - 1, 27 + b, {"dDd", "dkD", "d.d"}, {d = PINKS, D = PINK, k = PINKS})
+    -- near foreleg (arm)
+    arm(aR, false)
+    -- head: capsule, face on the right
+    local hcx, hcy = 39.5, 19 + hd
+    ant(40, 14 + hd, {{1, -2}, {3, -4}, {5, -6}, {7, -6}, {9, -5}}, BARK)
+    ell(hcx, hcy, 5.8, 6.8, function(x, y, nx, ny) return lit(nx, ny, PU) end)
+    ell(hcx + 2.2, hcy + 1.5, 3.8, 4.8, function(x, y, nx, ny)
+      if ny > 0.7 then return BARK end
+      return FACE
+    end)
+    for x = 39, 44 do if get(x, 15 + hd) == FACE then P(x, 15 + hd, PU.deep) end end
+    P(42, 19 + hd, PU.hi); P(43, 19 + hd, K); P(42, 20 + hd, K); P(43, 20 + hd, K); P(42, 21 + hd, K); P(43, 21 + hd, K)
+    P(46, 21 + hd, FACE); P(46, 22 + hd, BARK)      -- button nose
+    P(43, 24 + hd, K); P(44, 24 + hd, K); P(45, 23 + hd, K)
+    P(40, 22 + hd, PINK)
+    P(37, 26 + hd, PU.shade); P(38, 26 + hd, PU.base)
+    twig(34, 9 + hd)
   end
+  for k, c in pairs(G) do img:putPixel(k % 64, k // 64, c) end
   N.outline(img, K)
 end
 return S
