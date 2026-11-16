@@ -779,7 +779,7 @@ function strip_raw_food_energy(): void
 }
 
 
-/** 2.7.02: hearty dishes that were filed as snacks count as home-cooked Meals (rest stop upkeep, job boards, calling chapters). One time; recipes an admin changed (cook minutes not 3) are left alone. */
+/** 2.7.03: hearty dishes that were filed as snacks count as home-cooked Meals (rest stop upkeep, job boards, calling chapters). One time; recipes an admin changed (cook minutes not 3) are left alone. */
 function meal_tiers_boot(): void
 {
     $more = ['garden-salad', 'goat-cheese-salad', 'samphire-salad', 'mushroom-toast', 'peanut-toast', 'quail-egg-toast', 'pancakes', 'tropical-fruit-bowl', 'devilled-eggs', 'scrambled-eggs'];

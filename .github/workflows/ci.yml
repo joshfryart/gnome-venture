@@ -49,7 +49,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Playwright + Chromium (browser suites: fight_scene, fight_scene_trail, here)   # 2.7.01
+      - name: 'Playwright + Chromium (browser suites: fight_scene, fight_scene_trail, here)'   # 2.7.01
         run: |
           npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
           npx --prefix "$RUNNER_TEMP/pw" playwright install --with-deps chromium
@@ -66,7 +66,7 @@ jobs:
         run: bash tests/ci_suites.sh
         env:
           DEFAULT_SUITES: >-
-            adventure pfight pfight_sim pfight_js pfboard_sim pfboard_v1 pfboard_v1_page pfdeck_v1 pf_creatures_import pfboard_v1_abil pfboard_v1_ai pbox_v1 pfv1_charm pfv1_costly pfv1_guide pf_play_decks pfboard pfboard_js pfengine_js pfmap fight_events fight_scene fight_scene_trail trail_back trail_mini lair_levels road_kinds trail_camps trail_marks trail_decor_edit trail_decor_page wearables tailor tailor_page art_2701 gnome_wear ruin_scene pf_learner trail_sights_270 trail_sights here_bang trail_reverse landing_home animals120 animals140 beds breeding110 calling clock contest craft eggs110 events explore fix100
+            adventure pfight pfight_sim pfight_js pfboard_sim pfboard_v1 pfboard_v1_page pfdeck_v1 pfdeck_reset pf_creatures_import pfboard_v1_abil pfboard_v1_ai pbox_v1 pfv1_charm pfv1_costly pfv1_guide pf_play_decks pfboard pfboard_js pfengine_js pfmap fight_events fight_scene fight_scene_trail trail_back trail_mini lair_levels road_kinds trail_camps trail_marks trail_decor_edit trail_decor_page wearables tailor tailor_page art_2701 gnome_wear ruin_scene pf_learner trail_sights_270 trail_sights here_bang trail_reverse landing_home animals120 animals140 beds breeding110 calling clock contest craft eggs110 events explore fix100
             fresh_hold friends fun games140 games2 garden100 gear help jobs landmarks market100 pest148 rebuild buildplans rewards
             roadlife roads roads097 roadtext scenes social tools town trade gourmand
             comm cook delvemap flowers gather099 gather150 images mentors120 modr pantry pjobs prog security190
@@ -86,7 +86,7 @@ jobs:
           extensions: pdo, pdo_sqlite, mbstring, gd
           coverage: none
           ini-values: opcache.jit=off, opcache.jit_buffer_size=0
-      - name: Fresh install vs upgrade from an older commit (2.7.01: the source zips are no longer in git, so the old game/ comes from git history)
+      - name: 'Fresh install vs upgrade from an older commit (2.7.01: the source zips are no longer in git, so the old game/ comes from git history)'
         run: |
           rev=$(git rev-list --first-parent HEAD | sed -n '31p'); [ -n "$rev" ] || rev=$(git rev-list --max-parents=0 HEAD | tail -1)
           echo "upgrading from $rev"

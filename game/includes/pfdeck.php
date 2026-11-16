@@ -28,6 +28,8 @@ const PFD_PICKS = 6;                          // the starter: 4 core + 6 of the 
 const PFD_OFFER = ['CALLING', 'jab', 'snack', 'hide', 'brace', 'soothe', 'hum', 'pierce', 'swing#2', 'c:grain', 'c:herb', 'r:HOME'];
 /** The one-tap kits (each 6 of the offer; with the core Swing every kit holds 4 Hurt: the offer has exactly 4, so a pick of 4 would leave no choice). */
 const PFD_KITS = ['bold' => ['CALLING', 'jab', 'swing#2', 'pierce', 'snack', 'c:grain'], 'steady' => ['CALLING', 'jab', 'swing#2', 'pierce', 'brace', 'r:HOME'], 'kind' => ['CALLING', 'jab', 'swing#2', 'pierce', 'hum', 'soothe']];
+/** 2.7.01: the starter box is the same for every gnome: the 4 core pieces + these 6 (no calling or home piece; 4 Hurt with the core Swing). Packed on the first visit; an admin reset packs it again. */
+const PFD_STARTER_FIXED = ['jab', 'swing#2', 'pierce', 'snack', 'brace', 'soothe'];
 const PFD_KIT_DEFAULT = 'bold';               // played while no starter is chosen yet (nothing is saved)
 /** The fight belt: tier => [tool slots, item slug (null = every gnome has it), gnome level needed, price]. Bought only (Twigg's); the best belt the gnome owns and is old enough for counts. */
 const PFD_BELTS = [1 => [2, null, 1, 0], 2 => [3, 'stitched-fight-belt', 8, 600], 3 => [4, 'masterwork-fight-belt', 18, 2500]];
@@ -311,7 +313,7 @@ function pfd_build(array $src): array
     $src += pfd_sources_blank();
     $C = pfd_catalog(); $lvl = (int)$src['level']; $cal = (string)$src['calling'];
     $chosen = is_array($src['starter']);
-    $starter = $chosen ? array_values($src['starter']) : array_merge(PFD_CORE, pfd_offer_keys($cal, (string)$src['home'], PFD_KITS[PFD_KIT_DEFAULT]));
+    $starter = $chosen ? array_values($src['starter']) : array_merge(PFD_CORE, PFD_STARTER_FIXED);
     $rankOf = function (array $p) use ($src): int {   // the rank of a piece: fixed in the file, or the rank of the gnome's source (at least Common)
         if ($p['rar'] !== 'src') return (int)$p['rar'];
         $have = ['crop' => $src['crops'], 'craft' => $src['crafts'], 'region' => $src['regions'], 'tool' => $src['tools'], 'legend' => $src['legends'] ?? []][$p['src']] ?? [];
@@ -654,7 +656,8 @@ function pfd_set_starter(int|array $u, array|string $picks): ?string
     if ($why = pfd_guard($u)) return $why;
     $src = pfd_sources($u);
     if (is_array($src['starter'])) return 'You have already packed your first Puzzle box.';
-    if (is_string($picks)) { if (!isset(PFD_KITS[$picks])) return 'There is no such kit.'; $picks = pfd_offer_keys((string)$src['calling'], (string)$src['home'], PFD_KITS[$picks]); }
+    if ($picks === 'fixed') $picks = PFD_STARTER_FIXED;   // 2.7.01: the same box for everyone
+    elseif (is_string($picks)) { if (!isset(PFD_KITS[$picks])) return 'There is no such kit.'; $picks = pfd_offer_keys((string)$src['calling'], (string)$src['home'], PFD_KITS[$picks]); }
     $picks = array_values(array_map('strval', $picks));
     if ($why = pfd_starter_check($picks, (string)$src['calling'], (string)$src['home'])) return $why;
     pfd_row($uid);
@@ -664,6 +667,33 @@ function pfd_set_starter(int|array $u, array|string $picks): ?string
     }
     q('UPDATE pf_decks SET starter = 1 WHERE user_id = ?', [$uid]);
     return null;
+}
+
+/** 2.7.01: a gnome with no starter box yet gets the fixed one (no pick screen). True when the deck has a starter afterwards. */
+function pfd_ensure_starter(int|array $u): bool
+{
+    $u = pfd_user($u);
+    if (!pfd_ensure()) return false;
+    if (is_array(pfd_sources($u)['starter'])) return true;
+    return pfd_set_starter($u, 'fixed') === null;
+}
+
+/**
+ * Admin: put a gnome's Puzzle box back to its first state: the fixed starter, no switched-on extras, auto-use off, and the belt back to
+ * "never set" (no saved slots: like a new gnome's, it shows the best usable tools the gnome owns).
+ * Kept: everything the account unlocked (pieces come from crops, crafts, regions, wearables, tools and pals, so they are untouched),
+ * earned puzzle upgrades, tool wear and repair kits. Refused while the gnome is in a fight. Returns an error or null.
+ */
+function pfd_admin_reset(int $uid): ?string
+{
+    if (!pfd_ensure()) return 'The Puzzle box tables are not ready.';
+    if (!q_val('SELECT 1 FROM users WHERE id = ?', [$uid])) return 'There is no such gnome.';   // never make deck rows for an id with no account
+    if (pfd_locked($uid)) return 'That gnome is in a fight; the box is locked until it ends.';
+    q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]);
+    q('DELETE FROM pf_belts WHERE user_id = ?', [$uid]);
+    pfd_row($uid);
+    q('UPDATE pf_decks SET starter = 0, auto_use = 0, belt_set = 0 WHERE user_id = ?', [$uid]);
+    return pfd_set_starter($uid, 'fixed');
 }
 
 /** Switch a kit piece on or off ($on null = the other way). Refused when the deck would not be legal (kit size, a Hurt piece, the rarity caps) or in a fight. Returns an error or null. */
@@ -806,7 +836,7 @@ function pfd_start_fight(array $u, array $stats, array $typeBonus, bool $canSnac
 function pfd_first_tiles(array $u, array $stats): array
 {
     $src = pfd_sources($u);
-    $kit = array_values(array_filter(pfd_build(['starter' => null, 'state' => [], 'calling' => ''] + $src)['pieces'], fn($p) => !empty($p['starter'])));   // no calling: the Taunt piece, as for any gnome without one
+    $kit = array_values(array_filter(pfd_build(['starter' => array_merge(PFD_CORE, pfd_offer_keys('', (string)$src['home'], PFD_KITS[PFD_KIT_DEFAULT])), 'state' => [], 'calling' => ''] + $src)['pieces'], fn($p) => !empty($p['starter'])));   // no calling: the Taunt piece, as for any gnome without one. 2.7.01: the Bold kit named here, since an unchosen deck is now the fixed starter (the first fight's deal is tuned for the Bold kit)
     return pfd_tiles($kit, $stats, [], '', 1, false);
 }
 
