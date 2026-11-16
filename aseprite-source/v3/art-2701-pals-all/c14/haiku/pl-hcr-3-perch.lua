@@ -5,6 +5,7 @@ local c = HP.canvas{ w = 36, h = 36, scale = 1, name = "pl-hcr-3-perch" }
 local ring = c:ellipse(18, 17, 11, 10)
 ring:cut(c:ellipse(18, 17, 6, 5))
 c:part(ring, "moss", {})
+c:part(c:ellipse(18, 17, 6, 5), "sky", { noshade = true })
 c:part(c:poly{ {6,24},{10,22},{12,30},{8,33},{4,29} }, "moss", {})
 c:eyeSmall(15, 15)
 c:eyeSmall(20, 15)
