@@ -39,7 +39,7 @@ function trail_fam_delve(array $ctx): string
     $why = $dp === 'night' ? 'night, ' . e($mo['name']) . ' gives ' . (1 + (int)round($mo['light'] * 3)) . ' of 4' : e($dp) . ' light';
     $h = '<section class="tfdelve" aria-label="Torch bar">'
         . '<p class="tfd-h"><span aria-hidden="true">' . e($mo['icon']) . '</span> <b>' . $lit . ' of ' . count($marks) . ' delve mouths lit</b> · ' . e($mo['name']) . '</p>'
-        . '<p class="tfd-reach"><span class="tfd-ring" style="--tfd-r:' . $r . '" aria-hidden="true"></span><span>Torch reach ' . $r . ' of 5 steps ' . $pips . '<br><small>(' . $why . ($lit ? ', +' . $lit . ' for lit mouths' : '') . ')</small></span></p>'
+        . '<p class="tfd-reach"><span class="tfd-ring tfd-r' . (int)$r . '" aria-hidden="true"></span><span>Torch reach ' . $r . ' of 5 steps ' . $pips . '<br><small>(' . $why . ($lit ? ', +' . $lit . ' for lit mouths' : '') . ')</small></span></p>'
         . '<ul class="tfd-torches">' . $li . '</ul>';
     if ($lamps) $h .= '<p class="tfd-tally">Lamplighter\'s Round here: ' . $lampsLit . ' of ' . $lamps . ' lantern mouths lit this round.</p>';
     $tl = (int)((($ctx['now'] ?? [])['tl'] ?? [])['delve-torches'] ?? 0);

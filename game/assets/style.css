@@ -8265,3 +8265,33 @@ details.sgq summary{cursor:pointer}
 .tfl-hint,.tfl-tally,.tfl-chip{margin-top:4px;font-size:.78rem;color:var(--tfl-dim)}
 .tfl-hint{color:var(--tfl-ink);font-weight:600}
 .tfl-chip.now{color:var(--tfl-ink);font-weight:600}
+/* strict CSP: no inline style attributes (fixes for the ledger bar and the torch ring) */
+.mwl-bar .mwl-w0{width:0%}
+.mwl-bar .mwl-w5{width:5%}
+.mwl-bar .mwl-w10{width:10%}
+.mwl-bar .mwl-w15{width:15%}
+.mwl-bar .mwl-w20{width:20%}
+.mwl-bar .mwl-w25{width:25%}
+.mwl-bar .mwl-w30{width:30%}
+.mwl-bar .mwl-w35{width:35%}
+.mwl-bar .mwl-w40{width:40%}
+.mwl-bar .mwl-w45{width:45%}
+.mwl-bar .mwl-w50{width:50%}
+.mwl-bar .mwl-w55{width:55%}
+.mwl-bar .mwl-w60{width:60%}
+.mwl-bar .mwl-w65{width:65%}
+.mwl-bar .mwl-w70{width:70%}
+.mwl-bar .mwl-w75{width:75%}
+.mwl-bar .mwl-w80{width:80%}
+.mwl-bar .mwl-w85{width:85%}
+.mwl-bar .mwl-w90{width:90%}
+.mwl-bar .mwl-w95{width:95%}
+.mwl-bar .mwl-w100{width:100%}
+.tfd-ring.tfd-r0{--tfd-r:0}
+.tfd-ring.tfd-r1{--tfd-r:1}
+.tfd-ring.tfd-r2{--tfd-r:2}
+.tfd-ring.tfd-r3{--tfd-r:3}
+.tfd-ring.tfd-r4{--tfd-r:4}
+.tfd-ring.tfd-r5{--tfd-r:5}
+.tfd-ring.tfd-r6{--tfd-r:6}
+.tfd-ring.tfd-r7{--tfd-r:7}

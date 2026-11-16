@@ -99,7 +99,7 @@ function trail_fam_maplewold(array $ctx): string
     foreach ((array)$ctx['marks'] as $m) $here[(string)$m['slug']] = (int)$m['left'] > 0;
 
     $h = '<section class="mwl" aria-label="Sugar-shack ledger"><div class="mwl-h"><b>🧵 Sugar-shack ledger</b> <span class="mwl-n">' . $n . '/' . $total . ' patches</span></div>'
-        . '<div class="mwl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' . $total . '" aria-valuenow="' . $n . '" aria-label="Patches stitched"><i style="width:' . ($total ? round(100 * $n / $total) : 0) . '%"></i></div>';
+        . '<div class="mwl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' . $total . '" aria-valuenow="' . $n . '" aria-label="Patches stitched"><i class="mwl-w' . ($total ? (int)(round(20 * $n / $total)) * 5 : 0) . '"></i></div>';
 
     if ($here) {   // the patches of this stretch: lit when ready
         $h .= '<ul class="mwl-row" aria-label="Sights on this stretch">';

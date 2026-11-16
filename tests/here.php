@@ -307,7 +307,7 @@ if ($withDb) {
 
     echo "== villagers\n";
     ok('here_npcs on a plain village does not fail', is_array(here_npcs(put((int)q_val("SELECT id FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1")), player_node(me()), 'village')));
-    $npc = ['slug' => 'zz-nosuchvillager', 'species' => 'frog'];
+    $npc = ['slug' => 'zz-nosuchvillager', 'species' => 'Nosuchbeast'];
     $sp = here_sprite($npc);
     ok('no file at all: circle + species emoji', $sp['src'] === '' && $sp['emoji'] !== '');
     $sp = here_sprite(['slug' => 'abuela-quilla', 'species' => 'donkey']);
