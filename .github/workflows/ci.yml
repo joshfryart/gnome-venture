@@ -49,7 +49,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Playwright + Chromium (browser suites: fight_scene, fight_scene_trail, here)   # 2.7.01
+      - name: 'Playwright + Chromium (browser suites: fight_scene, fight_scene_trail, here)'   # 2.7.01
         run: |
           npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
           npx --prefix "$RUNNER_TEMP/pw" playwright install --with-deps chromium
@@ -86,7 +86,7 @@ jobs:
           extensions: pdo, pdo_sqlite, mbstring, gd
           coverage: none
           ini-values: opcache.jit=off, opcache.jit_buffer_size=0
-      - name: Fresh install vs upgrade from an older commit (2.7.01: the source zips are no longer in git, so the old game/ comes from git history)
+      - name: 'Fresh install vs upgrade from an older commit (2.7.01: the source zips are no longer in git, so the old game/ comes from git history)'
         run: |
           rev=$(git rev-list --first-parent HEAD | sed -n '31p'); [ -n "$rev" ] || rev=$(git rev-list --max-parents=0 HEAD | tail -1)
           echo "upgrading from $rev"
