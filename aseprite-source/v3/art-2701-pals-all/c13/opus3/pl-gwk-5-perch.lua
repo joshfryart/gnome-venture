@@ -1,4 +1,6 @@
--- Howl Echo (pl-gwk-5), perch sprite 36x36. Opus second pass (c13/opus2), hand-built at this size.
+-- Howl Echo (pl-gwk-5), perch sprite 36x36. Opus richness pass (c13/opus3), hand-built at this size.
+-- opus3: hue-shifted twilight ramps, a few bold sound-pulse grooves across the ring, the echo gets eyes-dot and a
+-- clearer little howl, deeper rim on the head.
 -- A round twilight-blue sound wisp with a flame tip, 2x3 pill eyes and a big "O" howl; its tail rings once round
 -- behind it.
 -- quirk: the end of the ring comes back as a small echo wisp with a tiny howl, upper left.
@@ -7,8 +9,8 @@ local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local c = O.canvas("pl-gwk-5-perch", 36)
 
-local WISP = { "#1c2458", "#2c4486", "#3d6cb0", "#58a0d2", "#8ccde8", "#cdeef6" }
-local RING = { "#2a2a66", "#3e4e96", "#5a7cc0", "#80aedc", "#b0d8ee", "#e0f4fa" }
+local WISP = { "#1e1e56", "#2a3e86", "#3466b0", "#4c9cd0", "#84cce6", "#ccf0f2" }
+local RING = { "#2c2866", "#3e4a96", "#5878c0", "#7eaadc", "#acd6ee", "#def4f6" }
 local MOUTH = "#3a1e4a"
 
 c:groundShadow(17, 33, 9, 1)
@@ -17,15 +19,18 @@ for _, sg in ipairs({
   { { { 31, 15 }, { 30, 7 }, { 23, 3 }, { 16, 4 } }, function(t) return 1.9 - t * .5 end },
   { { { 16, 4 }, { 12, 4 }, { 9, 6 }, { 7, 8 } }, function(t) return 1.4 end },
 }) do
-  local m, n = O.tube(sg[1], sg[2])
-  O.shadeN(c, m, n, RING, { amb = .32, wrap = .5, rim = true })
+  local m, n, T = O.tube(sg[1], sg[2])
+  local I, Tk = O.shadeN(c, m, n, RING, { amb = .32, wrap = .5, rim = true })
+  O.tex(c, I, Tk, RING, function(x, y, i) local t = T[K(x, y)] if t and (t * 3) % 1 < .12 and i >= 3 then return -1 end end)
 end
 local echo = c:ellipse(6, 10, 3.5, 3)
 O.shade(c, echo, WISP, { sphere = { 4, 8, 5 }, amb = .35, wrap = .5, rim = true, sep = RING[1] })
-O.dot(c, 6, 11, MOUTH)
+O.dot(c, 5, 9, P.ink) O.dot(c, 7, 9, P.ink)
+O.dots(c, { { 6, 11 }, { 6, 12 } }, MOUTH)
 local head = c:ellipse(15, 21, 9, 8.5)
 head:add(c:poly{ { 10, 14 }, { 17, 13 }, { 11, 8 }, { 13, 12 } })
-O.shade(c, head, WISP, { sphere = { 11, 17, 13 }, amb = .3, wrap = .5, rim = true, bounce = "#9a7ad0", bmax = 3, sep = RING[1] })
+local hI, hT = O.shade(c, head, WISP, { sphere = { 11, 17, 13 }, amb = .3, wrap = .5, rim = true, bounce = "#9a7ad0", bmax = 3, sep = RING[1] })
+O.tex(c, hI, hT, WISP, function(x, y, i) if not head:has(x + 1, y + 1) and i <= 3 then return -1 end end)
 
 c:eyeSmall(10, 18)
 c:eyeSmall(17, 17)

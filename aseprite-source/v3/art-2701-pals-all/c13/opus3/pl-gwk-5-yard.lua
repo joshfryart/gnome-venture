@@ -34,7 +34,7 @@ for si, sg in ipairs(seg) do
   local N = ({ 5, 7, 6 })[si]
   O.tex(c, I, Tk, RING, function(x, y, i)
     local t = T[K(x, y)]
-    if t and math.floor(t * N * 2) % 2 == 0 and (t * N * 2) % 1 < .35 and i >= 2 and i <= 5 then return 1 end
+    if t and (t * N) % 1 < .14 and i >= 3 then return -1 end
   end)
 end
 -- the echo: a smaller wisp at the end of the ring
@@ -59,8 +59,8 @@ O.tex(c, hI, hT, WISP, function(x, y, i)
   if not head:has(x + 1, y + 1) and i <= 3 then return -1 end
 end)
 -- closer-look: tiny stars twinkling in the shaded side of the wisp
-O.mark(c, { { 39, 44 }, { 35, 48 }, { 41, 39 } }, WISP[6])
-O.mark(c, { { 38, 44 }, { 40, 44 }, { 39, 43 }, { 39, 45 } }, WISP[4])
+O.mark(c, { { 39, 44 }, { 35, 48 }, { 41, 39 } }, "#f4f0d6")
+O.mark(c, { { 38, 44 }, { 40, 44 }, { 39, 43 }, { 39, 45 } }, WISP[5])
 -- wisp tail flick at the bottom left
 local flick = O.tube({ { 16, 44 }, { 12, 48 }, { 11, 52 }, { 14, 54 } }, function(t) return 2.5 - t * 2 end)
 O.shade(c, flick, WISP, { R = 1, amb = .35, wrap = .5, sep = WISP[2] })
