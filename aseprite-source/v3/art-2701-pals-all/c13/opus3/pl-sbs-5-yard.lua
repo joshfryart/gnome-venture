@@ -31,8 +31,8 @@ for y = CY - 23, CY + 23 do for x = CX - 23, CX + 23 do
   local dx, dy = x - CX, y - CY
   local a = math.atan(y - HY, x - HX)
   -- sag between the 8 spokes: radius dips by up to 1.8 px midway between them
-  local sag = math.abs(math.sin((a - math.pi / 8) * 4)) * 1.8
-  if dx * dx + dy * dy <= (22.4 - sag) ^ 2 then ring:set(x, y) end
+  local sag = math.abs(math.sin((a - math.pi / 8) * 4)) * 1.1
+  if dx * dx + dy * dy <= (22.3 - sag) ^ 2 then ring:set(x, y) end
 end end
 ring:cut(c:ellipse(HX, HY, 8.5, 8.5))
 local rI, rT = O.shade(c, ring, SILK, { sphere = { 24, 22, 30 }, amb = .3, wrap = .5, rim = true, bounce = "#6c88b0", bmax = 3 })
@@ -89,10 +89,9 @@ local drop = c:ellipse(32, 59, 2, 2.2) drop:add(c:rect(32, 56, 32, 57))
 O.shade(c, drop, DEW, { sphere = { 31, 58, 3 }, amb = .35, wrap = .5, sep = DEW[1] })
 O.dot(c, 31, 58, DEW[6]) O.dot(c, 33, 60, "#f2e6a8")
 -- closer-look: a tiny spiderling abseiling down the right anchor thread
-local sp = c:ellipse(51, 13, 1.5, 1.2)
-O.flat(c, sp, "#3a3442", "spiderling")
-O.dot(c, 50, 13, "#6a6478") O.dot(c, 51, 12, "#8a8498")
-O.dots(c, { { 49, 14 }, { 53, 14 }, { 49, 12 }, { 53, 12 } }, "#3a3442")
+O.flat(c, c:rect(55, 4, 57, 6), "#8e8aa2", "spiderling")
+O.dot(c, 55, 4, "#c4c2d4") O.dot(c, 57, 6, "#5e5a72") O.dot(c, 56, 7, "#5e5a72")
+O.dots(c, { { 54, 5 }, { 58, 5 }, { 54, 7 }, { 58, 7 } }, "#4a4458")
 
 -- face on the lower band
 c:eyeLocked(24, 38)
