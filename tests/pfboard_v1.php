@@ -328,7 +328,7 @@ $s0 = v1_bare('medium', ['life' => 0]); chk('rule switch life = 0: every piece l
 echo "== 10. creature values and bars by size\n";
 foreach (['small', 'medium', 'large', 'boss'] as $size) {
     $c = v1_foe($size, 12); $base = pf_new(v1_me(12), $c, 5); $s = pfb_new(v1_me(12), $c, 5, ['v1' => V1_294]);   // 2.6.95: the size numbers are the 2.6.94 two-bar ones (one bar x1.15: section 20)
-    $lf = pfb_v1_lvx(PFB_V1_LEVEL[$size], 12); $fmul = round(PFB_V1_FOE_MULT[$size] * $lf, 4); $bmul = round(PFB_V1_BAR_MULT[$size] * min(1.0, $lf), 4);   // after 2.6.94: the level curve (a lv 12 creature)
+    $lf = pfb_v1_lvx(PFB_V1_LEVEL[$size], 12); $fmul = round(PFB_V1_FOE_MULT[$size] * $lf, 4); $bmul = round(round(PFB_V1_BAR_MULT[$size] * min(1.0, $lf), 4) * pfb_bar_ease($size, 12), 4);   // after 2.6.94: the level curve (a lv 12 creature); 2.7.01: x the medium low-level bar ease
     $fm = $fmul * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * PFB_FOE_FIRE_MULT; $want = []; foreach (pf_foe_deck($c) as $t) $want[$t['k']] = max(1, (int)round($t['v'] * $fm));
     $got = []; foreach (array_merge($s['foe']['hand'], $s['foe']['draw'], array_column($s['pcs'], 'tile')) as $t) $got[$t['k']] = $t['v']; ksort($want); ksort($got);
     chk("$size lv 12: bar x$bmul, creature piece values x$fmul (size numbers x level curve $lf)", $s['v1']['lvx'] === $lf && $s['bar']['max'] === round($base['bar']['max'] * $bmul, 1) && $s['fh']['max'] === $s['bar']['max'] && $got === $want, [$s['bar']['max'], $got, $want]);
@@ -337,9 +337,9 @@ $s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5
 chk('sim knobs foe_x / bar_x scale the size numbers (then the level curve)', $lf === 0.85 && abs($s['v1']['foe'] - round(2 * PFB_V1_FOE_MULT['large'] * $lf, 4)) < 1e-9 && abs($s['v1']['bar'] - round(0.5 * PFB_V1_BAR_MULT['large'] * $lf, 4)) < 1e-9, $s['v1']);
 // the level curve itself: f = clamp(1 + slope x (level - ref), lo, hi); piece values x f, the bar x min(1, f)
 $lc = []; foreach ([['medium', 5], ['medium', 9], ['medium', 12], ['medium', 16], ['medium', 30], ['large', 14], ['large', 22], ['large', 40], ['small', 3], ['boss', 30]] as [$sz, $lv]) $lc["$sz $lv"] = pfb_v1_cfg($sz, [], $lv)['lvx'];
-chk('level curve: medium 0.85 up to lv 9, 1 at 12, 1.2 at 16, 1.35 cap; large 0.85 low, 1 at 22, 1.1 cap; small and boss flat', $lc === ['medium 5' => 0.85, 'medium 9' => 0.85, 'medium 12' => 1.0, 'medium 16' => 1.2, 'medium 30' => 1.35, 'large 14' => 0.85, 'large 22' => 1.0, 'large 40' => 1.1, 'small 3' => 1.0, 'boss 30' => 1.0], $lc);
+chk('level curve: medium 0.85 up to lv 9, 1 at 12, 1.2 at 16, 1.25 cap (2.7.01; was 1.35); large 0.85 low, 1 at 22, 1.1 cap; small and boss flat', $lc === ['medium 5' => 0.85, 'medium 9' => 0.85, 'medium 12' => 1.0, 'medium 16' => 1.2, 'medium 30' => 1.25, 'large 14' => 0.85, 'large 22' => 1.0, 'large 40' => 1.1, 'small 3' => 1.0, 'boss 30' => 1.0], $lc);
 $hi = pfb_v1_cfg('medium', [], 30); $lo = pfb_v1_cfg('medium', [], 5); $no = pfb_v1_cfg('medium');
-chk('level curve: a strong creature only hits harder (bar unchanged), a weak one hits softer AND has a shorter bar; no level = no curve', $hi['bar'] === PFB_V1_BAR_MULT['medium'] && $hi['foe'] === round(PFB_V1_FOE_MULT['medium'] * 1.35, 4) && $lo['bar'] === round(PFB_V1_BAR_MULT['medium'] * 0.85, 4) && $lo['foe'] === round(PFB_V1_FOE_MULT['medium'] * 0.85, 4) && $no['lvx'] === 1.0 && $no['foe'] === PFB_V1_FOE_MULT['medium'], [$hi, $lo]);
+chk('level curve: a strong creature only hits harder (bar unchanged; the 2.7.01 ease is 1 from lv 24), a weak one hits softer AND has a shorter bar; no level = no curve', $hi['bar'] === PFB_V1_BAR_MULT['medium'] && $hi['foe'] === round(PFB_V1_FOE_MULT['medium'] * 1.25, 4) && $lo['bar'] === round(round(PFB_V1_BAR_MULT['medium'] * 0.85, 4) * pfb_bar_ease('medium', 5), 4) && $lo['foe'] === round(PFB_V1_FOE_MULT['medium'] * 0.85, 4) && $no['lvx'] === 1.0 && $no['foe'] === PFB_V1_FOE_MULT['medium'], [$hi, $lo]);
 chk('level curve: \'lv\' => [slope, ref, lo, hi] replaces it (sims)', pfb_v1_cfg('large', ['lv' => [0.1, 10, 0.5, 2]], 15)['lvx'] === 1.5);
 
 echo "== 11. whole fights: invariants, save and load\n";
@@ -457,11 +457,11 @@ $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
 foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
 $s = json_decode(json_encode($s), true);
 $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
-chk('a 2.6.94 state with none of the new keys resolves every key to PRE (16 keys: nothorn added in 2.7.01)', !$bad16 && count(PFB_V1_PRE) === 16, $bad16);
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE (18 keys: nothorn added in 2.7.01, abil and style for the creature pass)', !$bad16 && count(PFB_V1_PRE) === 17, $bad16);
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98; order, spawn: next release)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand', 'order', 'spawn']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98; order, spawn: next release; abil, style: 2.7.01)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand', 'order', 'spawn', 'abil', 'style']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);

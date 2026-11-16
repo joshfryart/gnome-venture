@@ -87,14 +87,73 @@ function pfd_classes(): array
     return $C;
 }
 
-/** data/pf_creature_class.txt: slug => Class. */
-function pfd_class_map(): array
+/** data/pf_creature_class.txt: slug => Class. 2.7.01: a variant of data/pf_creatures.txt has the class of its family's base. */
+function pfd_class_map(bool $reload = false): array
 {
     static $M = null;
-    if ($M !== null) return $M;
+    if ($M !== null && !$reload) return $M;
     $M = [];
     foreach (pf_data_lines('pf_creature_class.txt') as $r) { $p = explode('=', $r[0], 2); if (count($p) === 2) $M[trim($p[0])] = trim($p[1]); }
+    foreach (pfd_creature_rows($reload) as $slug => $r) if (!isset($M[$slug]) && isset($M[$r['family']])) $M[$slug] = $M[$r['family']];
     return $M;
+}
+
+/** The file of the creature pass (tests point $GLOBALS['PF_CREATURES_FILE'] at a fixture). */
+function pfd_creature_path(): string { return (string)($GLOBALS['PF_CREATURES_FILE'] ?? (__DIR__ . '/data/pf_creatures.txt')); }
+
+/**
+ * data/pf_creatures.txt (2.7.01, claude/creature-pass/SPEC.md sec 1): slug => the row's cells, parsed. The old data/creatures.txt rows are never touched; this file adds the variants and gives every row
+ * (base too) its ability, ai style, regions, petals and exp. Keys: slug, family, base (bool: a base row), name, size, lands, regions (list; ['*'] = every region), level, cond, ab (ability ids), abp (id => overrides),
+ * ai (style id), aip (style overrides), deck (null = the base's own), lean (''), drops, petals [min, max], expm, art, desc, new_items (list). A line with fewer than 17 cells is skipped.
+ */
+function pfd_creature_rows(bool $reload = false): array
+{
+    static $R = null, $path = null;
+    $now = pfd_creature_path();
+    if ($R !== null && !$reload && $path === $now) return $R;
+    $R = []; $path = $now;
+    if (!is_file($now)) return $R;
+    foreach (file($now, FILE_IGNORE_NEW_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') continue;
+        $c = array_map('trim', explode('|', $line));
+        if (count($c) < 17 || $c[0] === '') continue;
+        $ab = pfb_ab_parse($c[8]);
+        $ai = $c[9]; $aip = [];
+        if (preg_match('/^([^(]+)\((.*)\)$/', $ai, $m)) { $ai = trim($m[1]); foreach (explode(';', $m[2]) as $kv) { $kv = explode('=', $kv, 2); if (count($kv) === 2 && is_numeric(trim($kv[1]))) $aip[trim($kv[0])] = (float)trim($kv[1]); } }
+        $deck = null; $lean = '';
+        if ($c[10] !== '=' && $c[10] !== '' && $c[10] !== '-') {
+            $dp = explode('/', $c[10], 3);
+            if (count($dp) === 3) {
+                $lean = in_array($dp[1], PFD_FAM, true) ? $dp[1] : '';
+                $deck = [];
+                foreach (explode(';', $dp[2]) as $pc) { $pc = trim($pc); if ($pc === '') continue; $q = explode(':', $pc); if (count($q) >= 6) $deck[] = pfd_foe_cells(array_map('trim', $q)); }
+            }
+        }
+        $pt = array_map('intval', explode('-', $c[12] . '-' . $c[12]));
+        $R[$c[0]] = ['slug' => $c[0], 'family' => $c[1] !== '' ? $c[1] : $c[0], 'base' => $c[2] === '=', 'name' => $c[2] === '=' ? null : $c[2], 'size' => $c[3] === '=' ? null : $c[3], 'lands' => $c[4] === '=' ? null : $c[4],
+            'regions' => ($c[5] === '*' || $c[5] === '') ? ['*'] : array_values(array_filter(array_map('trim', explode(',', $c[5])))), 'level' => $c[6] === '=' ? null : (int)$c[6], 'cond' => $c[7],
+            'ab' => $ab['ids'], 'abp' => $ab['p'], 'ai' => $ai, 'aip' => $aip, 'deck' => $deck, 'lean' => $lean, 'drops' => $c[11], 'petals' => [$pt[0], max($pt[0], $pt[1])],
+            'expm' => is_numeric($c[13]) ? (float)$c[13] : 1.0, 'art' => $c[14], 'desc' => $c[15] === '=' ? null : $c[15], 'new_items' => $c[16] === '-' || $c[16] === '' ? [] : array_values(array_filter(array_map('trim', explode(',', $c[16]))))];
+    }
+    return $R;
+}
+
+/** The creature row with what data/pf_creatures.txt adds: family, regions, ab / abp (abilities), ai / aip (style), petals, expm, and a cond when the row has none. A creature the file does not list is returned as it is. */
+function pfd_creature_overlay(array $c): array
+{
+    $r = pfd_creature_rows()[(string)($c['slug'] ?? '')] ?? null;
+    if (!$r) return $c;
+    if (empty($c['cond']) && $r['cond'] !== '' && $r['cond'] !== '-' && $r['cond'] !== '=') $c['cond'] = $r['cond'];
+    return ['family' => $r['family'], 'regions' => $r['regions'], 'ab' => $r['ab'], 'abp' => $r['abp'], 'ai' => $r['ai'], 'aip' => $r['aip'], 'petals' => $r['petals'], 'expm' => $r['expm']] + $c;
+}
+
+/** Does this creature turn up in this region? '' = no region given (everything fits); a creature the file does not list, or with regions '*', fits everywhere. */
+function pfd_creature_in_region(string $slug, string $region): bool
+{
+    if ($region === '') return true;
+    $r = pfd_creature_rows()[$slug] ?? null;
+    return !$r || in_array('*', $r['regions'], true) || in_array($region, $r['regions'], true);
 }
 
 /** The class of a creature (its row's 'class', else the class file, else Beast). */
@@ -105,15 +164,16 @@ function pfd_class(array $c): string
 }
 
 /** data/pf_creature_pieces.txt: slug => ['lean' => family, 'P' => [piece, x3]]. */
-function pfd_uniques(): array
+function pfd_uniques(bool $reload = false): array
 {
     static $U = null;
-    if ($U !== null) return $U;
+    if ($U !== null && !$reload) return $U;
     $U = [];
     foreach (pf_data_lines('pf_creature_pieces.txt') as $r) {
         if (count($r) < 8) continue;
         $U[$r[0]]['lean'] = $r[1]; $U[$r[0]]['P'][] = pfd_foe_cells(array_slice($r, 2));
     }
+    foreach (pfd_creature_rows($reload) as $slug => $r) if ($r['deck'] && !isset($U[$slug])) $U[$slug] = ['lean' => $r['lean'], 'P' => $r['deck']];   // 2.7.01: the unique 3 of a variant (a base row's deck is `=`: its pieces stay in pf_creature_pieces.txt)
     return $U;
 }
 
@@ -161,6 +221,7 @@ function pfd_foe_pieces(array $c, string $region = ''): array
 /** The creature row with its layered deck ('deck', read by pf_foe_deck), its class and lean. A boss plays in a set order: one set-up piece (trick, guard, heal), then two Hurt pieces, and again. */
 function pfd_foe_row(array $c, string $region = ''): array
 {
+    $c = pfd_creature_overlay($c);   // 2.7.01: abilities, style, regions, petals from data/pf_creatures.txt
     $deck = pfd_foe_pieces($c, $region);
     if (($c['size'] ?? '') === 'boss') {
         $soft = array_values(array_filter($deck, fn($x) => $x['t'] !== 'hurt')); $hard = array_values(array_filter($deck, fn($x) => $x['t'] === 'hurt')); $deck = [];

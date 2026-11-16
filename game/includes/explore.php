@@ -230,7 +230,7 @@ function explore_deeper(array $u, array &$exp, int $delta = 1): void
     }
     if ($roll > 62) $roll -= 22;   // the rest share out as before
     $easyCap = $depth <= 2 && easy_roads_on($u) && near_home($u, (int)$exp['from_id']) ? (int)$exp['level'] : 0;   // v0.9.7: the first steps off an easy road stay at or under its level, no bosses
-    if ($roll <= 27 && ($c = learner_creature($u, pick_creature($land, (int)$exp['level'], $depth >= $wild, $depth >= $wild, $easyCap), $land, (int)$exp['level']))) {   // 2.7.01: a learner's creature
+    if ($roll <= 27 && ($c = learner_creature($u, pick_creature($land, (int)$exp['level'], $depth >= $wild, $depth >= $wild, $easyCap, scene_region_code(exp_scene($exp))), $land, (int)$exp['level']))) {   // 2.7.01: a learner's creature
         $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
             'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
         exp_log($exp, '⚔️ ' . (preg_match('/^[AEIOU]/i', $c['name']) ? 'An ' : 'A ') . $c['name'] . ' blocks your way!');

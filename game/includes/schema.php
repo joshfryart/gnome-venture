@@ -1548,6 +1548,9 @@ function schema_statements(string $driver): array
         ['users', 'road_recent', 'TEXT NULL'],                        // v1.9.3: the last picks on the road (tiny JSON), so the road does not repeat itself
         ['problems', 'cond', 'VARCHAR(190) NULL'],                    // v1.9.3: optional time/season/weather tag (rest-stop syntax; "!" = must hold)
         ['creatures', 'cond', 'VARCHAR(190) NULL'],
+        ['creature_drops', 'reg', 'VARCHAR(80) NULL'],                // 2.7.01: drop gate: region codes joined by / (NULL = anywhere)
+        ['creature_drops', 'lvmin', 'INT NULL'],                      // 2.7.01: drop gate: fight level at least
+        ['creature_drops', 'lvmax', 'INT NULL'],                      // 2.7.01: drop gate: fight level at most
         ['gatherables', 'cond', 'VARCHAR(190) NULL'],
     ];
     require_once __DIR__ . '/social.php';   // v1.0.0 wave 3: friends, goals, festivals, first week

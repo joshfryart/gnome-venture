@@ -287,6 +287,7 @@ function import_adventure(array $regions, array $regionIds, array $regionById, a
 
     // ----- Creatures and their drop tables (landscape-based; v0.9.7: its own function so an upgrade can add new ones)
     import_creatures_txt($stats);
+    import_pf_creatures($stats);   // 2.7.01: the variants and extra drops of the creature pass
 
     // ----- Problems
     import_problems_txt();
@@ -387,6 +388,105 @@ function import_creatures_txt(array &$stats, string $file = 'creatures.txt'): vo
     }
 }
 
+/**
+ * 2.7.01: one drop list of data/pf_creatures.txt (SPEC sec 5.1) as entries. `=` and `=+` heads (a base row) are skipped. Entry: `Item Name:chance%` with gates `@reg=EE/MENA`, `@lv>=N`, `@lv<=N`, `@lv>N`, `@lv<N`,
+ * or a special `*seed:N` / `*guide:N`. Returns [['name', 'chance', 'special' (''|seed|guide), 'reg' (null|'EE/MENA'), 'lvmin', 'lvmax'], ...].
+ */
+function pfc_parse_drops(string $drops): array
+{
+    $out = [];
+    $drops = trim($drops);
+    if ($drops === '' || $drops === '=' || $drops === '-') return $out;
+    if (str_starts_with($drops, '=+')) $drops = substr($drops, 2);
+    foreach (explode(',', $drops) as $d) {
+        $d = trim($d);
+        if ($d === '' || $d === '=') continue;
+        $gates = explode('@', $d); $head = trim(array_shift($gates));
+        $pos = strrpos($head, ':');
+        $name = $pos === false ? $head : trim(substr($head, 0, $pos));
+        $chance = $pos === false ? 50 : (int)rtrim(trim(substr($head, $pos + 1)), '%');
+        $e = ['name' => $name, 'chance' => max(1, min(100, $chance)), 'special' => '', 'reg' => null, 'lvmin' => null, 'lvmax' => null];
+        if ($name !== '' && $name[0] === '*') { $e['special'] = substr($name, 1); $e['name'] = ''; }
+        foreach ($gates as $g) {
+            $g = trim($g);
+            if (preg_match('/^reg=(.+)$/', $g, $m)) $e['reg'] = trim($m[1]);
+            elseif (preg_match('/^lv(>=|<=|>|<)(\d+)$/', $g, $m)) {
+                $v = (int)$m[2];
+                if ($m[1] === '>=') $e['lvmin'] = $v; elseif ($m[1] === '>') $e['lvmin'] = $v + 1;
+                elseif ($m[1] === '<=') $e['lvmax'] = $v; else $e['lvmax'] = $v - 1;
+            }
+        }
+        if ($e['name'] === '' && $e['special'] === '') continue;
+        $out[] = $e;
+    }
+    return $out;
+}
+
+/**
+ * 2.7.01: the creatures of data/pf_creatures.txt (claude/creature-pass/SPEC.md sec 1). A variant row whose slug the world does not have is added (stats from size and level exactly as import_creatures_txt,
+ * drops with their gates, Almanac page); an existing slug is never rewritten. A base row (name `=`) adds the `=+` extra drops it lists that the creature does not have yet. Safe to run again. Returns the creatures added.
+ */
+function import_pf_creatures(array &$stats): int
+{
+    require_once __DIR__ . '/pfdeck.php';
+    $sizeMult = ['small' => 0.8, 'medium' => 1.1, 'large' => 1.6, 'boss' => 2.4];
+    $sizeAtk = ['small' => 0, 'medium' => 0, 'large' => 2, 'boss' => 2];
+    $sizeDef = ['small' => 0, 'medium' => 1, 'large' => 2, 'boss' => 3];
+    $sizeDie = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
+    $added = 0;
+    $give = function (int $cid, array $e, int $level, string $cname) use (&$stats): void {
+        $row = ['creature_id' => $cid, 'chance' => $e['chance'], 'reg' => $e['reg'], 'lvmin' => $e['lvmin'], 'lvmax' => $e['lvmax']];
+        if ($e['special'] !== '') {
+            if (q_val('SELECT 1 FROM creature_drops WHERE creature_id = ? AND special = ?', [$cid, $e['special']])) return;
+            db_insert('creature_drops', $row + ['special' => $e['special']]);
+            return;
+        }
+        $iid = item_id_by_slug(slugify($e['name']));
+        if (!$iid) {
+            $iid = db_insert('items', ['name' => $e['name'], 'slug' => slugify($e['name']), 'category' => 'part',
+                'rarity' => min(95, max(5, 100 - (int)$e['chance'] + $level)), 'base_price' => max(5, (int)round($level * 4 * (110 - (int)$e['chance']) / 60)),
+                'description' => 'Dropped by the ' . $cname . '.']);
+            $stats['items'] = ($stats['items'] ?? 0) + 1;
+        }
+        if (q_val('SELECT 1 FROM creature_drops WHERE creature_id = ? AND item_id = ?', [$cid, $iid])) return;
+        db_insert('creature_drops', $row + ['item_id' => $iid]);
+    };
+    foreach (pfd_creature_rows(true) as $slug => $r) {
+        $have = q_one('SELECT id, name, level FROM creatures WHERE slug = ?', [$slug]);
+        if ($r['base']) {   // a base row: the old creature stays, only the extra drops are added
+            if (!$have) continue;
+            foreach (pfc_parse_drops($r['drops']) as $e) $give((int)$have['id'], $e, (int)$have['level'], (string)$have['name']);
+            continue;
+        }
+        if ($have || !$r['name'] || !$r['size'] || !$r['lands']) continue;
+        $size = (string)$r['size']; $level = max(1, (int)$r['level']); $m = $sizeMult[$size] ?? 1.0;
+        $cond = (string)$r['cond'];
+        $cid = db_insert('creatures', [
+            'slug' => $slug, 'name' => $r['name'], 'size' => $size, 'landscapes' => $r['lands'], 'level' => $level,
+            'hp' => (int)round((5 + $level * 3) * $m), 'attack' => 1 + intdiv($level, 3) + ($sizeAtk[$size] ?? 0),
+            'defense' => 9 + intdiv($level, 3) + ($sizeDef[$size] ?? 0),
+            'dmg_die' => $sizeDie[$size] ?? 6, 'dmg_bonus' => intdiv($level, 4),
+            'xp' => (int)round($level * 6 * $m), 'description' => (string)$r['desc'], 'cond' => ($cond !== '' && $cond !== '-' && $cond !== '=') ? $cond : null,
+        ]);
+        $names = [];
+        foreach (pfc_parse_drops($r['drops']) as $e) {
+            $give($cid, $e, $level, (string)$r['name']);
+            $names[] = $e['special'] === 'seed' ? 'a local seed' : ($e['special'] === 'guide' ? 'a gardening guide' : $e['name']);
+        }
+        $sizeLabel = ['small' => 'Small Creatures', 'medium' => 'Medium Creatures', 'large' => 'Large Creatures', 'boss' => 'Legendary Creatures'][$size] ?? 'Creatures';
+        if (!q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['creature:' . $slug])) {
+            db_insert('encyclopedia_entries', ['chapter' => 'Creatures', 'category' => $sizeLabel, 'title' => $r['name'],
+                'body' => $r['desc'] . "\n\n[b]Found in:[/b] " . ($r['lands'] === 'any' ? 'every landscape' : str_replace(',', ', ', $r['lands']))
+                    . " · [b]Level:[/b] $level" . ($names ? "\n[b]Can drop:[/b] " . implode(', ', array_unique($names)) . '.' : ''),
+                'unlock_key' => 'creature:' . $slug, 'hint' => 'Defeat or befriend it on an adventure.', 'sort_order' => $level]);
+            $stats['pages'] = ($stats['pages'] ?? 0) + 1;
+        }
+        $stats['creatures'] = ($stats['creatures'] ?? 0) + 1;
+        $added++;
+    }
+    return $added;
+}
+
 /** Thread villages inside a zone together, starting from an outside location (usually the market). */
 function thread_through_zone(int $from, int $zoneId, array $zoneInfo, array $villageByZone, bool $gentle = false): void
 {
@@ -434,6 +534,7 @@ function smooth_creatures(): void
     require_once __DIR__ . '/catalog.php';
     $stats = ['items' => 0, 'pages' => 0];
     import_creatures_txt($stats);
+    import_pf_creatures($stats);   // 2.7.01
     $fix = ['grass-snake' => [75, 7, 15, 8, 3, 58, 6, 15, 6, 3], 'grey-heron' => [80, 8, 16, 8, 3, 66, 6, 15, 8, 3],
             'mischief-monkey' => [80, 8, 16, 8, 3, 66, 6, 15, 8, 3], 'red-fox' => [85, 8, 16, 8, 4, 76, 7, 16, 8, 3], 'raccoon' => [85, 8, 16, 8, 4, 76, 7, 16, 8, 3]];
     foreach ($fix as $slug => [$h0, $a0, $d0, $die0, $b0, $h, $a, $d, $die, $b]) {

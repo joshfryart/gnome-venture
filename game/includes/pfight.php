@@ -466,10 +466,11 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             if ($who === 'foe') { $cut = min($s['foe']['agg'], $dmg); $s['foe']['agg'] -= $cut; $dmg -= $cut; $e['soothed'] = $cut; }   // Soothe cuts the foe's next Hurt by its value
             if ($who === 'foe') {   // against the player's HP
                 if ($theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // Roll: the first Hurt misses completely
-                $abs = $ft && $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;   // creature Pierce: ignores your guard
+                $abs = ($ft && $tile['tag'] === 'pierce') || !empty($e['ambp']) ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;   // creature Pierce: ignores your guard (2.7.01 Ambush II too)
                 if ($abs > 0 && $theirs['thorns']) { $pr = 2 * $s['hm']; $s['fh']['now'] += $pr; $e['pricked'] = pf_round($pr, 1); }   // Thorn Hide: a blocked hit pricks back
                 $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
                 $e['dmg'] = $dmg; $e['blocked'] = $abs;
+                if (!empty($s['foe']['ab'])) pfb_ab_hit($s, $e, $dmg);   // 2.7.01 Drain, Stagger
                 if ($ft) {
                     if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil((!empty($s['v1']) ? (int)$tile['v'] : $val) / 3))); $e['poisoned'] = $theirs['poison']; }   // 2 ticks on your health, at most PF_POISON_CAP waiting
                     if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }   // you draw one piece fewer next round (once a round however many trips land)
@@ -512,7 +513,8 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             break;
         case 'charm':
             if ($who === 'me') {
-                $add = $val * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = pf_round($add, 1);
+                $add = $val * $s['cm']; if (!empty($s['foe']['ab']) && ($wy = pfb_ab($s, 'wary'))) $add *= (float)$wy['mult'];   // 2.7.01 Wary
+                $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = pf_round($add, 1);
                 if ($tile['tag'] === 'hum') $s['foe']['agg'] += 2;
                 if ($tile['tag'] === 'lull') $s['foe']['slow'] = 1;
                 if ($tile['tag'] === 'bond' && $s['cm'] > 0 && $s['bond'] < 3) { $s['bond']++; $s['cm'] = min(1.0, $s['cm'] + 0.1); $e['bonded'] = 1; }
@@ -548,7 +550,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
     if ($root && $who === 'me' && $m === 'sticky' && $fit) pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1));
     if ($root && $who === 'me' && $m === 'lucky' && empty($s['lucky_used'][$tile['k']])) { $s['lucky_used'][$tile['k']] = 1; $mine['redraws'] = min(3, $mine['redraws'] + 1); }
     if (!empty($ck) && !empty(PF_COMBOS[$ck]['barPct']) && $who === 'me') {   // Win Over: a slice of bar
-        $add = $val * PF_COMBOS[$ck]['barPct'] / 100 * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = pf_round(($e['bar'] ?? 0) + $add, 1);
+        $add = $val * PF_COMBOS[$ck]['barPct'] / 100 * $s['cm']; if (!empty($s['foe']['ab']) && ($wy = pfb_ab($s, 'wary'))) $add *= (float)$wy['mult']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = pf_round(($e['bar'] ?? 0) + $add, 1);
     }
     unset($mine, $theirs);
 }
@@ -577,6 +579,7 @@ function pf_resolve(array &$s, string $who, array $tiles): array
 function pf_check_end(array &$s): bool
 {
     if ($s['over']) return true;
+    if (!empty($s['foe']['ab'])) pfb_ab_enrage($s);   // 2.7.01 Enrage: checked wherever the bars can have moved
     // 2.6.78 (v1): the bars are compared as they are SHOWN (one decimal, like the replay's barnow / fhnow and the page), so a bar that reads full always ends the fight (Josh: "the charm bar fills but the game does not end until you play another charm")
     $v1 = !empty($s['v1']); $fn = $v1 ? pf_round((float)$s['fh']['now'], 1) : $s['fh']['now']; $bn = $v1 ? pf_round((float)$s['bar']['now'], 1) : $s['bar']['now'];
     if ($v1 && !empty($s['v1']['onebar'])) {   // 2.6.95 (one shared bar): Hurt and Charm fill the same bar; the larger share names the ending (bosses are always seen off)
