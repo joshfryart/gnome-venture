@@ -17,10 +17,10 @@ function v1_me(int $lv = 8): array
 }
 function v1_foe(string $size, int $lv = 8, string $slug = 'test-thing'): array { return ['slug' => $slug, 'name' => 'Test Thing', 'size' => $size, 'level' => $lv, 'dmg_die' => ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10][$size], 'dmg_bonus' => intdiv($lv, 4)]; }
 /** A v1 fight with an empty board, no ground, no forecast and no aim: the checks put down exactly what they need. */
-function v1_bare(string $size = 'medium', array $over = [], int $seed = 7): array
+function v1_bare(string $size = 'medium', array $over = [], int $seed = 7, ?int $lv = null): array
 {
     $over += ['order' => 0, 'spawn' => 1];   // the helpers keep the rules their positional checks were written for (link-order firing, the board's free creature piece); the new rules have their own section (14b)
-    $s = pfb_new(v1_me(), v1_foe($size), $seed, ['v1' => $over]);
+    $s = pfb_new(v1_me(), v1_foe($size, $lv ?? ($GLOBALS['v1_foe_lv'] ?? 8)), $seed, ['v1' => $over]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = [];
     return $s;
 }

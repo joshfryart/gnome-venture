@@ -63,7 +63,7 @@ ck "the database checks ran to the end" "$(grep -c 'database checks: all ok' $H.
 echo "== a fight on the page with the deck model"
 set_ pfight_blank 1; set_ pfight_learner_n 0   # 2.7.01: the full rules (learner rules are tested in pf_learner)
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
-MID=$(db "SELECT id FROM creatures WHERE slug='tunnel-mole'"); MHP=$(db "SELECT hp FROM creatures WHERE slug='tunnel-mole'")   # a level 9 creature for the level 9 gnome: a fight long enough for tool pieces to be played
+MID=$(db "SELECT id FROM creatures WHERE slug='grass-snake'"); MHP=$(db "SELECT hp FROM creatures WHERE slug='grass-snake'")   # 2.7.01: a large creature (no low-level bar ease, so the fight stays long enough for tool pieces to be played)
 db "UPDATE expeditions SET encounter='{\"type\":\"creature\",\"id\":$MID,\"lv\":0,\"sp\":100,\"hpp\":100,\"hp\":$MHP,\"max\":$MHP,\"bark\":0,\"poison\":0,\"used\":false}', hp=max_hp WHERE status='active'" >/dev/null
 # stage C: with pfight_v1 on, a fight is dealt only after the starter is packed and "Let's fight" is pressed on the pre-fight screen
 letsfight() { get adventure.php >/dev/null; if grep -q 'id="pfv-starter"' $H; then post adventure.php -d do=pfd_starter -d kit=steady >/dev/null; get adventure.php >/dev/null; fi; if grep -q 'id="pfv-pre"' $H; then post adventure.php -d do=pfv_go >/dev/null; fi; get adventure.php >/dev/null; }

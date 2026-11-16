@@ -228,8 +228,9 @@ foreach (['sun' => 'count double', 'rain' => 'guard', 'thorn' => 'you lose'] as 
 // ---- the creature and the environment
 [$s, $a, $e] = $mk('bramble', 'foe'); $s['foe']['hand'] = [v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature')]; $m = pfb_search($s, 'foe');
 chk('the creature\'s search may link to an environment piece (it is a legal, linking cell for it)', $m !== null && in_array([$m[1], $m[2]], [[3, 2], [2, 1], [2, 3]], true), $m);
+$GLOBALS['v1_foe_lv'] = 30;   // a medium of level 24+ has its full bar (PFB_V1_BAR_EASE_MEDIUM): Thornburst is 5% of that bar, so it costs more than the 1.8 a Charm of yours would give; at level 8 the eased bar makes it cost 1.3 and the search rightly does not mind
 [$s, $a, $e] = $mk('thorn', 'foe'); v1_put($s, 'me', v1_tile($s, 'c9', 'charm', 3, 'body'), 4, 0); $s['foe']['hand'] = [v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature')]; $m = pfb_search($s, 'foe');
-chk('the creature\'s search avoids Thornburst when another linking cell is as good', $m !== null && !in_array([$m[1], $m[2]], [[3, 2], [2, 1], [2, 3]], true), $m);
+chk('the creature\'s search avoids Thornburst when another linking cell is as good', $m !== null && !in_array([$m[1], $m[2]], [[3, 2], [2, 1], [2, 3]], true), $m); unset($GLOBALS['v1_foe_lv']);
 
 // ---- a fight started under 2.6.74
 $s = pfb_new(v1_me(), v1_foe('large'), 12, ['v1' => V1_OLD, 'blank' => true]); unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe'], $s['v1']['mud'], $s['v1']['envcap']); $s = json_decode(json_encode($s), true);
