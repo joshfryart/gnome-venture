@@ -1,5 +1,5 @@
--- ferry.lua : "Ferry crossing" stop look, Maplewold (480x270 gate view). Opus second pass (art-2701 batch 4).
--- Builds on ../haiku/ferry.lua. Shared frame: ../../../art-2701-batch3/stops/opus3/_frame.lua (read-only).
+-- ferry.lua : "Ferry crossing" stop look, Maplewold (480x270 gate view). Opus third pass, richness (art-2701 batch 4).
+-- Builds on ../opus2/ferry.lua. Shared frame: ../../../art-2701-batch3/stops/opus3/_frame.lua (read-only).
 -- Read: a wide river runs across the whole view and the road stops at it on a plank landing. The ferry raft is the
 -- centre hero, mid-river and coming in: a ferryman poles it, a traveller with a bundle and cargo ride it, and a gnome
 -- on the landing hauls it in by the tow rope. Far bank: the road goes on from a far landing past the ferryman's house
@@ -132,20 +132,50 @@ do -- the ferryman's house: shingle roof, lantern pole and a bell post
 end
 -- a small gnome waving from the far landing
 F.gnome(242, 128, { small = true, hat = L.awnA, coat = L.leaf, arm = "up" })
-do -- the weeping willow, strands hanging into the water
-  local tr = rect(424, 100, 428, 128)
+do -- opus3: the weeping willow, rebuilt. A forked trunk, a domed head of layered hanging curtains (back strands dark,
+   -- front strands lit from the upper left), leaf ticks off every strand, autumn-gold flecks, tips trailing in the water
+  local WX, WT = 426, 80
+  local wl = F.rp("#e4ec9a #b4cc66 #86a84a #5e8040 #3a5630")
+  local tr = rect(424, 98, 428, 128):add(line({ { 426, 104 }, { 414, 90 } }, 2)):add(line({ { 427, 102 }, { 440, 88 } }, 2))
   rimOf(tr, L.timber) part(tr, L.timber, { nopop = true })
-  F.crown(426, 84, 30, 18, L.leaf, 21)
-  for i = 0, 26 do
-    local sx = 398 + i * 2 + floor(hash(i, 1, 22) * 2)
-    local top = 86 + floor(abs(sx - 426) * .45)
-    local bot = 120 + floor(hash(i, 2, 22) * 12)
-    for y = top, bot do
-      local xx = sx + floor((y - top) * .08)
-      px(xx, y, (y + i) % 5 == 0 and L.leaf.hi or (i % 3 == 0 and L.leaf.shade or L.leaf.base))
+  for y = 100, 127, 3 do px(425, y, L.timber.deep) px(427, y + 1, L.timber.hi) end
+  local function dome(x) local t = (x - WX) / 36 return WT - 4 + floor(22 * t * t - 4 * math.abs(sin(x / 5.5)) + 3 * hash(x // 3, 1, 28)) end
+  local function strands(layer, x0, x1, step, seed)
+    for sx = x0, x1, step do
+      local top = dome(sx) + (layer == 1 and 0 or 3)
+      local bot = 108 + floor(hash(sx, layer, seed) * 22) - floor(math.abs(sx - WX) * .15) - (layer == 1 and floor(hash(sx // 4, 9, seed) * 10) or 0)
+      local sway = (sx - WX) * .06
+      for y = top, bot do
+        local xx = sx + floor((y - top) * sway * .3 + sin(y / 5 + sx) * .6)
+        local lit = (layer == 2) and ((sx < WX + 6) and 1 or 0) or -1
+        local t = (y - top) / math.max(1, bot - top)
+        local col
+        if layer == 1 then col = ((sx + floor(y / 7)) % 3 == 0) and wl.shade or wl.deep
+        else col = (lit > 0 and t < .5) and wl.hi or (t < .7 and wl.base or wl.shade) end
+        if hash(xx, y, seed) < .06 then col = L.roof.hi end
+        px(xx, y, col)
+        if y % 3 == (sx % 3) then -- leaf ticks either side
+          px(xx - 1, y + 1, layer == 1 and wl.deep or (lit > 0 and wl.base or wl.shade))
+          if layer == 2 then px(xx + 1, y + 1, wl.shade) end
+        end
+      end
+      if bot >= yF(sx) then px(sx + 1, bot + 1, Wt.hi) px(sx + 2, bot + 1, Wt.hi) end
     end
-    if bot > yF(sx) then px(sx + 1, bot + 1, Wt.hi) end
   end
+  strands(1, 391, 463, 1, 23)
+  -- the crown mass: a dome of clumps on top
+  local cm = HP.mask()
+  for x = 392, 462 do for y = dome(x), dome(x) + 6 + floor(4 * hash(x // 4, 2, 29)) do cm:set(x, y) end end
+  rimOf(cm, wl)
+  cm:each(function(x, y)
+    local lit = -((x - WX) / 36 * .7 + (y - WT) / 12 * .6) + (hash(x, y, 24) - .5) * .5
+    px(x, y, lit > .5 and wl.hi or (lit > -.1 and wl.base or (lit > -.6 and wl.shade or wl.deep)))
+    if hash(x, y, 25) < .04 then px(x, y, L.roof.hi) end
+  end)
+  for x = 396, 456, 5 do px(x, dome(x) - 1, wl.hi) px(x + 1, dome(x) - 1, wl.hi) end
+  strands(2, 393, 461, 4, 26) strands(2, 395, 455, 7, 30)
+  -- its reflection in the water
+  for x = 394, 460 do for y = yF(x) + 2, yF(x) + 12 do if river:has(x, y) and (y + x // 4) % 3 == 0 and hash(x, y, 27) < .7 then px(x, y, mix(wl.shade, Wt.base, .5)) end end end
 end
 -- reflections of the far bank in the water (broken dashes)
 for x = 0, 479 do
@@ -185,7 +215,8 @@ do
 end
 
 ---------------------------------------------------------------- the ferry raft (centre hero)
-local RX0, RX1, RY0, RY1 = 270, 366, 138, 150
+local RX0, RX1, RY0, RY1 = 270, 366, 137, 152
+local FY = RY1 - 6 -- where figures stand: the front of the deck stays visible
 local function hen(x0, y0)
   F.sprite({
     "..........RR.....",
@@ -216,6 +247,11 @@ local function hen(x0, y0)
     y = L.roof.base, Y = L.roof.shade, k = L.apple.base, e = L.timber.edge, l = L.roof.shade })
 end
 do
+  -- opus3: the raft's broken reflection under it (logs and figures as dark dashes) and a wider bow wave
+  for x = RX0, RX1 do for y = RY1 + 5, RY1 + 14 do
+    if river:has(x, y) and (y % 2 == 0) and hash(x // 2, y, 41) < .55 - (y - RY1) * .03 then px(x, y, mix(L.timber.shade, Wt.base, .45)) end
+  end end
+  for k = 0, 2 do px(RX0 - 3 - k, RY0 + 6 + k * 3, "#fff0d0") hline(RX0 - 6 - k * 3, RX0 - 3 - k * 2, RY0 + 8 + k * 3, Wt.hi) end
   -- wake and ripples around the raft
   for k = 0, 3 do hline(RX0 - 8 - k * 5, RX0 - 2 - k * 2, RY1 + 6 + k * 2, Wt.hi) hline(RX1 + 2 + k * 2, RX1 + 8 + k * 5, RY1 + 6 + k * 2, Wt.hi) end
   for x = RX0 - 2, RX1 + 2 do if (x // 3) % 2 == 0 then px(x, RY1 + 5, Wt.deep) px(x, RY1 + 6, Wt.shade) end end
@@ -246,14 +282,14 @@ do
   fill(rect(T0 + 8, RY0 + 4, T0 + 10, RY0 + 6), L.roof.base) px(T0 + 8, RY0 + 4, L.roof.hi)
   -- the traveller with a big bundle on a stick
   local gx = RX0 + 28
-  fill(line({ { gx + 7, RY1 - 18 }, { gx - 9, RY1 - 24 } }), L.board.base)
-  local bun = c:ellipse(gx - 11, RY1 - 24, 4, 4) c:rim(bun, L.timber.edge) part(bun, L.awnA, { nopop = true })
-  bun:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.awnB.hi) end end) px(gx - 11, RY1 - 28, L.awnA.deep)
-  F.gnome(gx, RY1 - 1, { hat = L.lav, coat = L.roof, arm = "up", noShadow = true })
+  fill(line({ { gx + 7, FY - 17 }, { gx - 9, FY - 23 } }), L.board.base)
+  local bun = c:ellipse(gx - 11, FY - 23, 4, 4) c:rim(bun, L.timber.edge) part(bun, L.awnA, { nopop = true })
+  bun:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.awnB.hi) end end) px(gx - 11, FY - 27, L.awnA.deep)
+  F.gnome(gx, FY, { hat = L.lav, coat = L.roof, arm = "up", noShadow = true })
   -- QUIRK: the hen in the red gnome hat, riding on the trunk
   hen(T0 + 1, RY0 - 23)
   -- the ferryman, poling from the back right corner
-  local _, fx, fy = F.gnome(RX1 - 14, RY1 - 1, { hat = L.leaf, coat = L.accent, arm = "up", flip = false, noShadow = true, hatBand = L.roof.base })
+  local _, fx, fy = F.gnome(RX1 - 14, FY, { hat = L.leaf, coat = L.accent, arm = "up", flip = false, noShadow = true, hatBand = L.roof.base })
   local pole = line({ { fx - 3, fy - 10 }, { fx + 14, RY1 + 16 } }, 1)
   fill(pole, L.board.shade) line({ { fx - 2, fy - 10 }, { fx + 15, RY1 + 16 } }):each(function(x, y) if y < RY1 + 4 then px(x, y, L.board.hi) end end)
   for k = 0, 2 do hline(fx + 10 - k * 3, fx + 18 + k * 3, RY1 + 17 + k * 2, Wt.hi) end
@@ -268,11 +304,17 @@ end
 F.depth(3)
 do
   local _, hx, hy = F.gnome(244, 200, { hat = L.roof2, coat = L.board, arm = "up" })
-  -- tow rope from the raft's front corner, sagging over the water, into the hauler's hands and down to a coil
-  local x0, y0 = RX0 + 2, RY1 + 3
-  for xx = hx, x0 do local t = (xx - hx) / (x0 - hx) px(xx, floor(hy + (y0 - hy) * t + 5 * 4 * t * (1 - t) + .5), L.board.deep) end
+  -- opus3: a thick 2 px laid rope (twist marks, a lit top strand, ink rim) from the raft's front post, sagging to the
+  -- water and up into the hauler's hands, then down to the coil. The opus2 rope was a 1 px line lost at 50%.
+  local x0, y0 = RX0 + 2, RY1 - 8
+  local pts = {}
+  for xx = hx, x0 do local t = (xx - hx) / (x0 - hx) pts[#pts + 1] = { xx, floor(hy + (y0 - hy) * t + 9 * 4 * t * (1 - t) + .5) } end
+  local rope = line(pts, 2)
+  c:rim(rope, L.timber.edge)
+  rope:each(function(x, y) local top = not rope:has(x, y - 1) px(x, y, top and L.board.hi or L.board.base) if (x + y) % 3 == 0 then px(x, y, L.board.shade) end end)
+  for _, p in ipairs(pts) do if p[2] > yN(p[1]) - 3 and p[1] % 5 == 0 then px(p[1], p[2] + 2, "#fff0d0") end end -- drips where it skims the water
   local coil = c:ellipse(232, 200, 6, 2) c:rim(coil, L.timber.edge) part(coil, L.board, { nopop = true }) c:ellipse(232, 200, 3, 1):edge():each(function(x, y) px(x, y, L.board.deep) end)
-  fill(line({ { hx - 9, hy + 4 }, { 236, 199 } }), L.board.shade)
+  local tail = line({ { hx - 1, hy + 1 }, { 236, 198 } }, 2) c:rim(tail, L.timber.edge) fill(tail, L.board.base) tail:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.board.shade) end end)
 end
 
 DY = 10
@@ -407,6 +449,49 @@ do
 end
 F.rock(160, 254, 9, 6) F.rock(172, 257, 5, 4)
 F.rock(70, 254, 6, 4)
+
+---------------------------------------------------------------- opus3: bank grass, a fisher gnome, a goose after the apple
+DY = 0
+F.depth(3)
+-- grass overhanging the near bank lip, with pebbles in the wet sand
+for x = 0, 479 do
+  local yn = yN(x)
+  if hash(x, 1, 91) < .45 and not F.roadM:has(x, yn + 1) and not (x > 190 and x < 290) then
+    local h = 2 + floor(hash(x, 2, 91) * 4)
+    vline(x, yn + 4 - h, yn + 4, L.ground.shade) px(x, yn + 4 - h, L.leaf.base) if h > 3 then px(x, yn + 3 - h, L.leaf.hi) end
+  end
+  if hash(x, 3, 91) < .05 then px(x, yn + 5, L.stone.base) px(x + 1, yn + 5, L.stone.shade) px(x, yn + 4, L.stone.hi) end
+end
+-- a fisher gnome on an upturned bucket at the right bank, rod out over the reeds, a catch in the creel
+do
+  local bk = poly{ { 410, 210 }, { 422, 210 }, { 420, 220 }, { 412, 220 } }
+  F.shadowM(c:ellipse(418, 222, 10, 1))
+  rimOf(bk, L.timber) part(bk, L.board) hline(410, 422, 213, L.iron.shade) hline(411, 421, 218, L.iron.shade)
+  local _, hx, hy = F.gnome(416, 210, { hat = L.awnA, coat = L.wall2, arm = "up", flip = true, noShadow = true, hatBand = L.glow.base })
+  local rod = line({ { hx, hy + 2 }, { 380, 176 } })
+  fill(rod, L.timber.shade) px(380, 176, L.timber.deep)
+  for y = 177, 190 do px(380 - floor((y - 177) * .2), y, L.awnB.shade) end
+  px(377, 191, L.apple.base) px(377, 190, "#fff0d0") hline(372, 382, 192, Wt.hi)
+  -- creel with a fish tail sticking out
+  local cr = c:rrect(428, 212, 442, 222, 2) rimOf(cr, L.timber) part(cr, L.roof)
+  cr:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.roof.shade) end end)
+  F.sprite({ "s..s", "sSSs", ".SS.", ".ss." }, 433, 206, { s = L.iron.hi, S = L.iron.base })
+end
+-- a goose stretching its neck at the gnome's apple
+F.sprite({
+  "..........kk.",
+  ".........kWWo",
+  "..........Ww.",
+  "..........W..",
+  ".........WW..",
+  "........WW...",
+  "..WWWWWWWw...",
+  ".WWWWwwwww...",
+  "WWWwwwwwws...",
+  ".swwwwwss....",
+  "...ss.ss.....",
+  "....o..o.....",
+}, 340, 228, { W = "#fff6e0", w = L.awnB.base, s = L.awnB.shade, k = L.iron.deep, o = L.roof.base })
 
 DY = 0
 F.depth(0)

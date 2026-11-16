@@ -1,5 +1,5 @@
--- spring.lua : "Spring" stop look, Maplewold (480x270 gate view). Opus second pass (art-2701 batch 4).
--- Builds on ../haiku/spring.lua. Shared frame: ../../../art-2701-batch3/stops/opus3/_frame.lua (read-only).
+-- spring.lua : "Spring" stop look, Maplewold (480x270 gate view). Opus third pass, richness (art-2701 batch 4).
+-- Builds on ../opus2/spring.lua. Shared frame: ../../../art-2701-batch3/stops/opus3/_frame.lua (read-only).
 -- Read: the right is a big mossy rock outcrop with a dressed-stone face and a carved stone gnome head; spring water
 -- arcs from its mouth into a wide stone basin and a second trickle runs from a crack into a gnome's pail. The basin
 -- overflows into a brook that winds down-left, under a little stone bridge on the road, into a lily pond in the
@@ -53,6 +53,8 @@ local function birchTree(x, yb, h, seed)
   F.crown(x + 6, yb - h * .7, 7, 6, L.foliage, seed + 2)
 end
 birchTree(92, 150, 56, 31)
+-- opus3: washing strung from the cottage gable to the birch (the washer at the pond has more to do)
+F.washing(70, 118, 91, 120, { { "shirt", L.awnA }, { "sock", L.accent }, { "trousers", L.lav } }, 3)
 birchTree(160, 140, 44, 34)
 F.tree(124, 146, 40, 6)
 
@@ -107,6 +109,18 @@ for _, b in ipairs(boulders) do
     px(x, y, h)
   end)
   c:edgeIn(b.m, rock.edge)
+  -- opus3: cracks (dark zig-zag with a lit lower-left lip) and lichen rosettes, so the boulders read as split stone
+  for k = 1, 2 do
+    local x, y = floor(b[1] + (hash(k, b[5], 81) - .5) * b[3]), floor(b[2] - b[4] * .1 + (hash(k, b[5], 82) - .2) * b[4] * .6)
+    for t = 0, floor(b[4] * .5) do
+      if b.m:has(x, y) and b.m:has(x, y + 1) then px(x, y, rock.edge) if b.m:has(x - 1, y) then px(x - 1, y, rock.hi) end end
+      y = y + 1 x = x + ((hash(t, k, b[5]) < .5) and 1 or -1) * ((t % 2) == 0 and 1 or 0)
+    end
+  end
+  for k = 1, 3 do
+    local x, y = floor(b[1] + (hash(k, b[5], 83) - .5) * b[3] * 1.2), floor(b[2] + (hash(k, b[5], 84) - .3) * b[4] * .8)
+    if b.m:has(x, y) then px(x, y, "#e8d48a") px(x + 1, y, "#c8b46c") px(x, y + 1, "#c8b46c") px(x - 1, y + 1, "#e8d48a") end
+  end
   -- a thick moss cushion on the top, with a ragged hanging lower edge
   b.m:each(function(x, y)
     local nx, ny = (x - b[1]) / b[3], (y - b[2]) / b[4]
@@ -222,11 +236,13 @@ end
 -- overflow notch and the brook winding down-left under the road into the pond
 local brook = HP.mask()
 do
-  local pts = { { 356, 208 }, { 330, 216 }, { 300, 224 }, { 268, 232 }, { 236, 238 }, { 200, 242 }, { 168, 246 }, { 140, 248 } }
+  -- opus3: a wider brook that winds down through the foreground and crosses the road low, under a real bridge
+  local pts = { { 356, 208 }, { 340, 218 }, { 318, 226 }, { 296, 232 }, { 270, 238 }, { 240, 242 }, { 210, 244 }, { 180, 247 }, { 150, 250 } }
   for i = 1, #pts - 1 do
     local a, b = pts[i], pts[i + 1]
-    local w = 6 + floor(i * 1.2)
+    local w = 12 + floor(i * 1.6)
     brook:add(line({ a, b }, w))
+    brook:add(c:ellipse(b[1], b[2], w // 2, w // 2))
   end
   local pond = c:ellipse(84, 252, 76, 18):clip(rect(19, 230, 200, 269))
   brook:add(pond)
@@ -239,25 +255,56 @@ do
   bank:each(function(x, y) px(x, y, hash(x, y, 51) < .5 and L.stone.base or moss.base) end)
   brook:edge():each(function(x, y) if hash(x, y, 52) < .3 then px(x, y, L.stone.hi) end end)
   F.water(brook, Wt, { step = 3 })
+  -- opus3: the brook runs: long lit current lines following the flow, foam ticks round stones, cream glints
+  brook:each(function(x, y)
+    if y % 3 == 1 and hash(x // 5, y, 54) < .3 and brook:has(x - 2, y) and brook:has(x + 2, y) and brook:has(x, y + 2) then px(x, y, Wt.hi) end
+    if hash(x, y, 55) < .012 and brook:has(x, y - 2) then px(x, y, "#fff0d0") end
+  end)
+  -- stones in the stream with a foam lip on the upstream side
+  for _, s in ipairs({ { 334, 220 }, { 310, 228 }, { 290, 234 }, { 186, 247 } }) do
+    local m = c:ellipse(s[1], s[2], 3, 2) rimOf(m, L.stone) part(m, L.stone, { nopop = true }) px(s[1] - 1, s[2] - 1, L.stone.hi)
+    px(s[1] - 2, s[2] - 2, moss.base)
+    for k = 0, 3 do px(s[1] + 3 + k, s[2] - 2 + (k % 2), "#fff0d0") end hline(s[1] - 4, s[1] - 1, s[2] + 3, Wt.hi)
+  end
+  -- reeds and a mossy bank along the brook's foreground side
   -- spill over the basin lip
-  for y = 204, 210 do px(354 + (y - 204) // 3, y, Wt.hi) px(355 + (y - 204) // 3, y, Wt.base) end
+  for y = 204, 212 do px(354 + (y - 204) // 3, y, Wt.hi) px(355 + (y - 204) // 3, y, Wt.base) px(356 + (y - 204) // 3, y, "#fff0d0") end
 end
--- the little bridge: stone parapets along both road edges over the brook
+-- opus3: a proper little stone bridge where the road crosses the brook (the opus2 bridge was a slim pair of parapets
+-- over a narrow trickle). Parapets with coping along both road edges, side walls with arched mouths, water in/out.
 do
-  local par = HP.mask()
-  for y = 228, 252 do
+  local Y0, Y1 = 226, 258
+  local par, cope = HP.mask(), HP.mask()
+  for y = Y0, Y1 do
     local xl, xr = floor(F.xl(y)), floor(F.xr(y) + .99)
-    par:add(rect(xl - 5, y - 8, xl + 1, y)):add(rect(xr - 1, y - 8, xr + 5, y))
+    par:add(rect(xl - 7, y - 10, xl + 1, y)):add(rect(xr - 1, y - 10, xr + 7, y))
   end
-  par:clip(rect(0, 222, 479, 252))
-  rimOf(par, L.stone) part(par, L.stone, { nopop = true })
-  F.courses(par, 220, 4, 6, L.stone)
-  par:each(function(x, y) if not par:has(x, y - 1) then px(x, y, L.stone.hi) end end)
-  -- dark arch mouths where the brook passes under
-  for _, a in ipairs({ { floor(F.xl(246)) - 4, 250 }, { floor(F.xr(238)) + 2, 242 } }) do
-    local arch = c:ellipse(a[1], a[2], 4, 4):clip(rect(a[1] - 4, a[2] - 4, a[1] + 4, a[2]))
-    fill(arch, Wt.deep) arch:edge():each(function(x, y) if y < a[2] then px(x, y, L.stone.deep) end end)
+  par:clip(rect(0, Y0 - 10, 479, Y1))
+  par:each(function(x, y) if not par:has(x, y - 2) then cope:set(x, y) end end)
+  -- side walls dropping to the water outside each parapet, with an arch over the brook
+  local wallL = poly{ { floor(F.xl(234)) - 22, 236 }, { floor(F.xl(234)) - 6, 230 }, { floor(F.xl(256)) - 6, 258 }, { floor(F.xl(256)) - 24, 258 } }
+  local wallR = poly{ { floor(F.xr(226)) + 6, 224 }, { floor(F.xr(226)) + 22, 228 }, { floor(F.xr(244)) + 22, 248 }, { floor(F.xr(244)) + 6, 248 } }
+  local walls = union(wallL, wallR)
+  rimOf(union(par, walls), L.stone)
+  part(walls, L.stone, { nopop = true }) F.courses(walls, 236, 4, 8, L.stone)
+  local mouths = {}
+  for _, a in ipairs({ { floor(F.xl(244)) - 15, 251, wallL }, { floor(F.xr(236)) + 14, 242, wallR } }) do
+    local arch = c:ellipse(a[1], a[2], 7, 9):clip(rect(a[1] - 7, a[2] - 9, a[1] + 7, a[2] + 4)):clip(a[3])
+    fill(arch, Wt.edge)
+    arch:each(function(x, y) if y > a[2] - 2 then px(x, y, (x + y) % 3 == 0 and Wt.shade or Wt.deep) end end)
+    -- voussoirs
+    c:ellipse(a[1], a[2], 9, 11):cut(c:ellipse(a[1], a[2], 7, 9)):clip(rect(a[1] - 9, a[2] - 11, a[1] + 9, a[2])):clip(a[3]):each(function(x, y)
+      px(x, y, (math.atan(y - a[2], x - a[1]) * 4 // 1) % 2 == 0 and L.stone.hi or L.stone.base) end)
+    for k = 0, 4 do px(a[1] - 4 + k * 2, a[2] + 3, "#fff0d0") end
+    mouths[#mouths + 1] = arch
   end
+  part(par, L.stone, { nopop = true })
+  F.courses(par, Y0 - 10, 4, 7, L.stone)
+  par:each(function(x, y) if hash(x, y, 57) < .05 then px(x, y, moss.base) end end)
+  cope:each(function(x, y) px(x, y, cope:has(x, y - 1) and L.stone.base or L.stone.hi) end)
+  -- moss and a fern on the parapet feet, lichen spots
+  for _, p in ipairs({ { floor(F.xl(254)) - 6, 254 }, { floor(F.xr(250)) + 4, 250 } }) do for k = -3, 3 do px(p[1] + k, p[2] - (k % 2), moss.base) px(p[1] + k, p[2] - 1 - (k % 2), moss.hi) end end
+  for i = 0, 6 do local x, y = floor(F.xr(238)) + floor(hash(i, 1, 58) * 7), 232 + floor(hash(i, 2, 58) * 18) if par:has(x, y) then px(x, y, L.roof.hi) end end
 end
 
 ---------------------------------------------------------------- left: well-head with a gnome winding the bucket
@@ -411,11 +458,11 @@ local function fern(x, yb, s, seed)
     end
   end
 end
-fern(292, 214, 12, 1) fern(306, 222, 10, 2) fern(452, 214, 12, 3) fern(346, 220, 9, 4) fern(120, 208, 10, 5)
+fern(292, 214, 12, 1) fern(306, 222, 10, 2) fern(452, 214, 12, 3) fern(376, 222, 9, 4) fern(120, 208, 10, 5)
 -- forget-me-not clumps: leaves then blue five-dot flowers
 for i = 0, 9 do
   local x, y = 300 + floor(hash(i, 1, 71) * 160), 220 + floor(hash(i, 2, 71) * 12)
-  if not F.roadM:has(x, y) then
+  if not F.roadM:has(x, y) and not brook:grow(3):has(x, y) then
     for k = -3, 3 do px(x + k, y + 1, L.leaf.shade) if k % 2 == 0 then px(x + k, y, L.leaf.base) end end
     for _, d in ipairs({ { -2, -1 }, { 1, -2 }, { 3, -1 } }) do
       local fx, fy = x + d[1], y + d[2]
@@ -433,6 +480,57 @@ for i, s in ipairs({ { 292, 206 }, { 306, 202 }, { 322, 204 } }) do
   local m = c:ellipse(s[1], s[2], 5, 2) rimOf(m, L.stone) part(m, L.stone, { nopop = true }) px(s[1] - 2, s[2] - 1, L.stone.hi)
 end
 
+---------------------------------------------------------------- opus3 foreground life: brook reeds, a water cart, dragonflies
+F.depth(3)
+local function reeds(x, yb, n, hmax, seed)
+  local m, heads = HP.mask(), {}
+  for i = 1, n do
+    local bx = x + floor((hash(i, 1, seed) - .5) * n * 1.4)
+    local h = floor(hmax * (.55 + .45 * hash(i, 2, seed)))
+    local lean = (hash(i, 3, seed) - .5) * 7
+    m:add(line({ { bx, yb }, { bx + lean * .3, yb - h * .5 }, { bx + lean, yb - h } }, 2))
+    if hash(i, 4, seed) < .4 then heads[#heads + 1] = { floor(bx + lean * .85), yb - h - 1 } end
+  end
+  c:rim(m, L.leaf.edge)
+  m:each(function(xx, yy)
+    local t = (yb - yy) / hmax
+    local col = t > .6 and L.leaf.hi or (t > .25 and L.leaf.base or L.leaf.shade)
+    if hash(xx, yy, seed) < .2 then col = L.leaf.shade elseif hash(xx, yy, seed) > .92 then col = L.roof.base end
+    if yy >= yb - 1 then col = L.leaf.deep end
+    px(xx, yy, col)
+  end)
+  for _, hd in ipairs(heads) do
+    local hx, hy = hd[1], hd[2]
+    local cm = rect(hx - 1, hy - 5, hx + 1, hy) c:rim(cm, L.timber.edge)
+    fill(cm, L.timber.base) vline(hx - 1, hy - 5, hy - 1, L.timber.hi) vline(hx + 1, hy - 4, hy, L.timber.deep) px(hx, hy - 6, L.leaf.shade)
+  end
+end
+reeds(352, 236, 9, 18, 21) reeds(374, 262, 9, 20, 22) reeds(156, 268, 8, 16, 23)
+-- a gnome hauling a little water cart: a barrel on two wheels, slopping over
+do
+  local x, yb = 322, 266
+  local bar = c:rrect(330, 242, 354, 260, 5)
+  local shaft = line({ { 332, 256 }, { 326, 258 } }, 2)
+  local wh = c:ellipse(342, 262, 6, 6)
+  F.shadowM(c:ellipse(346, 268, 16, 1))
+  rimOf(union(bar, shaft, wh), L.timber)
+  part(bar, L.timber) F.planks(bar, L.timber, 4, true, 12)
+  for _, hy in ipairs({ 245, 256 }) do hline(330, 354, hy, L.iron.shade) hline(331, 353, hy - 1, L.iron.hi) end
+  part(shaft, L.board, { nopop = true, noshade = true })
+  part(wh, L.timber, { nopop = true }) fill(c:ellipse(342, 262, 3, 3), L.timber.shade)
+  vline(342, 257, 267, L.timber.deep) hline(337, 347, 262, L.timber.deep) px(342, 262, L.iron.hi)
+  fill(rect(339, 240, 345, 241), Wt.base) px(340, 240, Wt.hi) -- water slopping at the bung
+  for _, p in ipairs({ { 348, 239 }, { 351, 238 }, { 355, 241 }, { 357, 245 }, { 336, 239 } }) do px(p[1], p[2], Wt.hi) end
+  F.gnome(x, yb, { hat = L.roof2, coat = L.board, arm = "out" })
+end
+-- a robin on the bridge coping and dragonflies over the water
+F.sprite({ ".bb..", "bBBb.", "rRBBt", ".rr..", ".l.l." }, floor(F.xr(230)) + 1, 211, { b = L.timber.base, B = L.timber.shade, r = L.apple.base, R = L.apple.hi, t = L.timber.deep, l = L.timber.edge })
+for _, d in ipairs({ { 296, 226 }, { 228, 236 }, { 120, 236 } }) do
+  local x, y = d[1], d[2]
+  hline(x - 3, x + 3, y, Wt.hi) px(x - 2, y - 1, "#fff0d0") px(x + 2, y - 1, "#fff0d0")
+  vline(x, y - 1, y + 4, L.accent.shade) px(x, y - 1, L.accent.hi)
+end
+
 F.depth(0)
-F.birds({ { 330, 44, 2 }, { 340, 50, 1 }, { 168, 60, 2 }, { 186, 54, 2, L.awnB.hi } })
+F.birds({ { 330, 44, 2 }, { 340, 50, 1 }, { 168, 60, 2 }, { 186, 54, 2, L.awnB.hi }, { 410, 56, 2 }, { 420, 62, 1 }, { 236, 70, 1 } })
 F.finish()

@@ -1,5 +1,5 @@
--- inn.lua : "Inn" stop look, Maplewold (480x270 gate view). Opus second pass (art-2701 batch 4).
--- Builds on ../haiku/inn.lua. Shared frame: ../../../art-2701-batch3/stops/opus3/_frame.lua (read-only).
+-- inn.lua : "Inn" stop look, Maplewold (480x270 gate view). Opus third pass, richness (art-2701 batch 4).
+-- Builds on ../opus2/inn.lua. Shared frame: ../../../art-2701-batch3/stops/opus3/_frame.lua (read-only).
 -- Read: a big two-storey coaching inn fills the left (thatch roof with dormers, timber-framed upper floor
 -- jettied over a plaster ground floor, glowing bay windows, porch, two smoking chimneys). A gallows sign post
 -- by the road hangs a big tankard board. Right: a beer garden under a maple, a long trestle table with three
@@ -28,6 +28,9 @@ F.building{ x0 = 416, x1 = 456, yb = 126, wh = 13, rh = 10, wall = L.plaster, ro
 F.window(424, 117, 428, 120, L.timber) F.window(446, 117, 450, 120, L.timber)
 F.smoke(447, 98, 4, .5, 2)
 F.fenceP(300, 132, 410, 129, 10)
+-- opus3: the barn's washing line: aprons and tea towels (the inn's laundry), hazed with the back row
+do local wp = rect(318, 112, 319, 130) rimOf(wp, L.timber) part(wp, L.timber, { nopop = true, noshade = true }) end
+F.washing(293, 114, 318, 113, { { "sheet", L.awnB }, { "shirt", L.awnA }, { "sock", L.accent } }, 3)
 
 ---------------------------------------------------------------- mid right: maple, hay cart, festoon pole
 F.depth(2)
@@ -88,6 +91,19 @@ local function inn()
     if x < lx + 6 and (y - 66) % 4 ~= 3 and hash(x, y, 10) < .5 then px(x, y, L.roof.hi) end
   end)
   hline(36, 178, 66, L.roof.hi)
+  -- opus3: moss cushions on the old thatch (shady lower slope), and a pigeon on the ridge
+  local mossR = F.rp("#d4e080 #a4c05a #78983e #56743a #36502c")
+  for i, b in ipairs({ { 52, 98, 9 }, { 100, 90, 6 }, { 126, 100, 10 }, { 168, 94, 7 }, { 150, 78, 5 }, { 64, 80, 5 }, { 30, 104, 6 } }) do
+    roof:each(function(x, y)
+      local d = ((x - b[1]) / b[3]) ^ 2 + ((y - b[2]) / (b[3] * .6)) ^ 2
+      if d < 1 and hash(x, y, 30 + i) < .85 then
+        local h = (y - b[2]) < -b[3] * .2 and mossR.hi or (d > .6 and mossR.shade or mossR.base)
+        if (y - 66) % 4 == 3 then h = mossR.deep end
+        px(x, y, h)
+      end
+    end)
+  end
+  F.sprite({ "..gg...", ".gGgk..", "gGGGGGo", ".gGGGg.", "..o.o.." }, 118, 61, { g = L.iron.base, G = L.iron.hi, k = L.timber.edge, o = L.apple.base })
   hline(16, 198, UTOP + 1, L.roof.edge) hline(17, 197, UTOP, L.roof.deep)
   for x = 18, 196, 3 do px(x, UTOP + 2, L.roof.deep) if x % 2 == 0 then px(x, UTOP + 3, L.roof.edge) end end
   -- dormers in the thatch
@@ -171,6 +187,13 @@ local function inn()
     if i % 6 == 3 then px(x + 1, y, L.awnA.hi) px(x + 1, y - 1, L.awnA.base) end
   end
   F.smoke(57, 44, 7, .5, 2) F.smoke(156, 40, 8, .8, 3)
+  -- opus3: a gnome leaning out of the upstairs window, beating a striped rug, dust flying
+  F.gnome(108, 139, { small = true, hat = L.leaf, coat = L.awnA, arm = "out" })
+  local rug = rect(112, 135, 124, 151)
+  c:rim(rug, L.timber.edge) fill(rug, L.awnA.base)
+  rug:each(function(x, y) if ((y - 135) // 3) % 2 == 1 then px(x, y, L.awnB.base) end if x == 124 then px(x, y, L.awnA.deep) end if y == 135 then px(x, y, L.awnA.hi) end end)
+  for x = 112, 124, 2 do px(x, 152, L.awnB.shade) end
+  for _, p in ipairs({ { 127, 140 }, { 129, 137 }, { 128, 144 }, { 131, 141 }, { 126, 148 }, { 130, 146 } }) do px(p[1], p[2], "#e8d6c8") px(p[1] + 1, p[2], "#dcc4b8") end
 end
 inn()
 -- the innkeeper in her apron with a mug, on the step
@@ -268,10 +291,10 @@ do -- the beer-garden maple: a lumpy cluster crown on a forked trunk
   F.crown(452, 112, 14, 12, L.foliage2, 15)
 end
 do -- festoon lantern string from the maple to a pole by the road
-  local pole = rect(288, 128, 289, 196)
+  local pole = rect(288, 116, 289, 196)
   rimOf(pole, L.timber) part(pole, L.timber, { nopop = true, noshade = true })
-  local x0, y0, x1, y1 = 289, 130, 410, 136
-  local function ly(x) local t = (x - x0) / (x1 - x0) return floor(y0 + (y1 - y0) * t + 14 * 4 * t * (1 - t) * .5 + .5) end
+  local x0, y0, x1, y1 = 289, 117, 410, 124
+  local function ly(x) local t = (x - x0) / (x1 - x0) return floor(y0 + (y1 - y0) * t + 6 * 4 * t * (1 - t) * .5 + .5) end
   for x = x0, x1 do px(x, ly(x), L.timber.deep) end
   local cols = { L.awnA, L.glow, L.accent, L.glow, L.roof2 }
   local i = 0
@@ -300,21 +323,20 @@ do
   end
   -- clinking mugs: a few spark pixels between the raised mugs
   for _, p in ipairs({ { 356, 186 }, { 352, 184 }, { 358, 182 } }) do px(p[1], p[2], L.awnB.hi) end
-  local top = rect(322, 206, 414, 210)
-  local legs = rect(328, 211, 330, 226):add(rect(406, 211, 408, 226)):add(line({ { 329, 220 }, { 407, 220 } }))
-  local bench = rect(318, 222, 418, 224):add(rect(322, 225, 323, 230)):add(rect(413, 225, 414, 230))
-  F.shadow(324, 414, 230, 10, 3)
+  local top = rect(322, 209, 414, 213)
+  local legs = rect(328, 214, 330, 228):add(rect(406, 214, 408, 228)):add(line({ { 329, 222 }, { 407, 222 } }))
+  local bench = rect(318, 224, 418, 226):add(rect(322, 227, 323, 231)):add(rect(413, 227, 414, 231))
+  F.shadow(324, 414, 231, 10, 3)
   rimOf(union(top, legs, bench), L.timber)
   part(legs, L.timber, { nopop = true, noshade = true })
   part(bench, L.board, { nopop = true }) F.planks(bench, L.board, 7, false, 5)
-  part(top, L.board) F.planks(top, L.board, 9, false, 7) hline(322, 414, 206, L.board.hi)
+  part(top, L.board) F.planks(top, L.board, 9, false, 7) hline(322, 414, 209, L.board.hi)
   -- on the table: mugs, a loaf, a cheese wedge, a pie
-  mugAt(348, 205) mugAt(380, 205)
-  local loaf = c:ellipse(362, 203, 5, 3) rimOf(loaf, L.soil) part(loaf, L.produce) px(360, 202, L.produce.hi) hline(359, 365, 203, L.produce.shade)
-  local ch = poly{ { 389, 205 }, { 400, 205 }, { 400, 199 } } rimOf(ch, L.roof) part(ch, L.roof, { nopop = true }) px(397, 203, L.roof.shade) px(398, 201, L.roof.shade)
-  local plate = c:ellipse(334, 205, 6, 1) fill(plate, L.awnB.base) fill(c:ellipse(334, 203, 4, 2), L.produce.shade) hline(331, 337, 202, L.produce.hi)
+  mugAt(348, 208) mugAt(380, 208)
+  local loaf = c:ellipse(362, 206, 5, 3) rimOf(loaf, L.soil) part(loaf, L.produce) px(360, 205, L.produce.hi) hline(359, 365, 206, L.produce.shade) for k = 0, 2 do px(359 + k * 3, 204, L.produce.deep) end
+  local ch = poly{ { 389, 208 }, { 400, 208 }, { 400, 202 } } rimOf(ch, L.roof) part(ch, L.roof, { nopop = true }) px(397, 206, L.roof.shade) px(398, 204, L.roof.shade)
+  local plate = c:ellipse(334, 208, 6, 1) fill(plate, L.awnB.base) fill(c:ellipse(334, 206, 4, 2), L.produce.shade) hline(331, 337, 205, L.produce.hi)
 end
--- a dog under the table end, nose on paws
 -- the waiter crossing the road with a tray of mugs
 F.depth(3)
 do
@@ -391,6 +413,35 @@ for _, g in ipairs({ { 326, 254 }, { 332, 256 }, { 336, 251 }, { 350, 255 }, { 3
 -- a spare cart wheel leaning on the barrels
 do local w = c:ellipse(290, 214, 7, 8) rimOf(w, L.timber) part(w, L.timber, { nopop = true })
   fill(c:ellipse(290, 214, 4, 5), L.ground.shade) vline(290, 207, 221, L.timber.deep) hline(284, 296, 214, L.timber.deep) fill(rect(289, 213, 291, 215), L.iron.base) end
+-- opus3: a goat tied to the hitching rail, chewing the rope
+F.depth(3)
+F.sprite({
+  "...h.h..............",
+  "..hWhW..............",
+  ".WWWWWW.............",
+  "WkWWWWWw............",
+  "WWWWWWWWWWWWWWWw..t.",
+  ".pWWw.WWWWWWWWWWWtt.",
+  "..bb..WWWWWWWWWWWw..",
+  "..b...WWwWWWWWWwWw..",
+  "......sWwwwwwwwwws..",
+  "......sWw.....wWs...",
+  "......sw......ws....",
+  "......ss......ss....",
+  "......oo......oo....",
+}, 106, 214, { W = L.awnB.hi, w = L.awnB.base, s = L.awnB.shade, h = L.timber.hi, k = L.timber.edge, p = "#f2a0a0", b = L.awnB.shade, t = L.awnB.shade, o = L.timber.deep })
+for x = 100, 106 do px(x, 218 + (x - 100) // 3, L.board.deep) end -- the tether in its mouth
+F.shadowM(c:ellipse(118, 228, 10, 1))
+-- the dog asleep under the table between the legs
+F.sprite({
+  "....bb..........",
+  "...bBBb.....bb..",
+  "..bBkBBBBBBBBBb.",
+  "dbBBBBBBBBBBBBBb",
+  ".dddBBbbBBBBbbBt",
+  "...ddd..ddddd.tt",
+}, 364, 217, { b = L.soil.base, B = L.soil.hi, d = L.soil.shade, k = L.timber.edge, t = L.soil.shade })
+
 F.depth(0)
 F.birds({ { 330, 52, 2 }, { 342, 46, 1 }, { 120, 52, 2 }, { 380, 78, 2, L.awnB.hi } })
 F.finish()
