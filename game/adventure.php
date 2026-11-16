@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.3.8: pal actives on 
 require_once __DIR__ . '/includes/pfight_game.php';   // puzzle combat (flag pfight_open)
 require_once __DIR__ . '/includes/fight_scene.php';   // fight_scene: the animated fight stage
 require_once __DIR__ . '/includes/trail_tiles.php';
+require_once __DIR__ . '/includes/trail_families.php';
 require_once __DIR__ . '/includes/trail_sights.php';   // v2.6.68 Trail Sights (spike)   // graphical navigation 2d: the Trail as tile sections (gnav_tiles)
 $u = require_login();
 if (!is_post() && isset($_GET['pfboard'])) {   // 2.6.93: a test board for the puzzle fight: ?pfboard=4x4 (any 3x3 to 9x9), ?pfboard=off. It applies to fights that start after it.
@@ -348,6 +349,7 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc, $overMap) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($trailSc): ?>
+<?= empty($exp['encounter']) ? trail_fam_html($u, $exp, $trailSc, trail_sights_marks($u, $trailSc)) : '' ?>
 <?= trail_view_html($u, $exp, $trailSc, (bool)$enc, $overMap) ?>
 <?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
   <div class="trailfoot">
@@ -367,7 +369,7 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
   <?php if (!empty($sgMarks)): ?><dialog class="picker hubpop" id="hubpop-tsights" aria-labelledby="hubpop-tsights-t"<?= !empty($_GET['sg']) ? ' open' : '' ?>><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tsights-t">🔎 Sights here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
     <div class="hubcard sgcards"><?= trail_sights_cards_html($u, $trailSc, $sgMarks, $exp) ?></div></div></dialog><?php endif; ?>
-  <?php foreach (!empty($sgMarks) ? trail_sights_folk_on_map($u, $exp, $trailSc, $sgMarks) : [] as $fi => $fe): /* v2.6.68: tap a villager out and about at a Sight: their card (chat, gift) */ ?><dialog class="picker hubpop" id="hubpop-tfolk-<?= (int)$fi ?>" aria-labelledby="hubpop-tfolk-<?= (int)$fi ?>-t"><div class="pickbox">
+  <?php foreach (empty($exp['encounter']) ? trail_sights_folk_on_map($u, $exp, $trailSc, $sgMarks) : [] as $fi => $fe): /* v2.6.68: tap a villager out and about at a Sight: their card (chat, gift) */ ?><dialog class="picker hubpop" id="hubpop-tfolk-<?= (int)$fi ?>" aria-labelledby="hubpop-tfolk-<?= (int)$fi ?>-t"><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tfolk-<?= (int)$fi ?>-t">💬 <?= e((string)$fe[3]) ?></h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
     <div class="hubcard sgcards"><?= trail_sight_folk_card_html($u, $fe, $trailSc) ?></div></div></dialog><?php endforeach; ?>
   <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">

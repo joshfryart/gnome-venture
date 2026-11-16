@@ -1,0 +1,7 @@
+# Grassland family quest line (2.7.01). Five sky letters, one for each weather: the beat's `when` is the weather (we=), so the line takes a week or more. Any order. Two beats need Mabel by her weekly clockwork (npc=); a miss says when she is next, no penalty.
+Q|mabels-sky-letters|Mabel's Sky Letters|Mabel Pennywhistle@v-na-1-2|💌|any|xp=60,item=storm-feather:2,c=40,fp=2,title=Sky Postman|Mabel Pennywhistle writes to the sky and the sky writes back, but only one letter for each kind of weather, and it never says which day. She would love a gnome to collect all five.|You lay the five letters out on the grass and Mabel reads them aloud, one for every weather. Together they say: thank you for looking up. She ties them to a kite and lets you fly it.|
+B|mabels-sky-letters|grassland-the-picnic-knoll|The sun letter, warm from the cloth, only on a sunny day|we=sun|
+B|mabels-sky-letters|grassland-the-daisy-ring|The cloud letter: Mabel reads it out in the daisy ring, on a cloudy day|we=cloud|npc=Mabel Pennywhistle@v-na-1-2
+B|mabels-sky-letters|grassland-the-wind-combed-meadow|The wind letter, on the kite string, only on a windy day|we=wind|
+B|mabels-sky-letters|grassland-the-plank-footbridge|The rain letter, which Mabel keeps dry under her umbrella, on a rainy day|we=rain|npc=Mabel Pennywhistle@v-na-1-2
+B|mabels-sky-letters|grassland-the-shepherd-s-wall|The fog letter, pinned to the gate and only readable in fog|we=fog|

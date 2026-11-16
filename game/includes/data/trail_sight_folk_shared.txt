@@ -14,7 +14,7 @@ grassland-the-daisy-ring|Granny Tapewell|tl=daisy-measures:3|35|Granny Tapewell 
 grassland-the-clover-patch|Dorrit Rushworth|we=rain|45|Dorrit Rushworth has a clipboard of checked clover leaves and asks you to recheck the wet ones. She gives you a copy of her ledger.|fp=2,item=clover-ledger:1@30,page=clover-ledger
 grassland-the-lonely-scarecrow|Alder Windlass|dp=dusk|40|Alder Windlass is telling the scarecrow their worries, so you sit and listen too.|fp=2
 grassland-the-hay-cart-ruts|Mabel Mossgrove|se=autumn/dp=day|45|Mabel Mossgrove gives you a bumpy hay-ride to the next bend, singing the whole way.|fp=1,xp=3
-forest-the-lantern-branch|Alder Thistledown|dp=dusk/tl=wicks-trimmed:2|35|Alder Thistledown, the sleepy wick-keeper, yawns, sees you have kept the lantern trimmed, and leaves you a spare lantern.|fp=2,item=tin-lantern:1@15
+forest-the-lantern-branch|Alder Thistledown|dp=dusk|35|Alder Thistledown, the sleepy wick-keeper and the wood's lamplighter, yawns over his taper. If you have kept the lantern trimmed, he leaves you a spare lantern.|fp=2,item=tin-lantern:1@15?tl=wicks-trimmed:2
 forest-the-root-tangle-crossing|Bramwick Honeycomb|dp=day|40|Bramwick Honeycomb races you over the roots, loses by a whisker, and pins a ribbon on you anyway.|fp=2,item=root-race-ribbon:1@30
 forest-the-spring-and-the-pebbles|Wren Thimblewick|dp=dawn|35|Wren Thimblewick is testing the spring water and swaps you a seed for your prettiest pebble.|fp=1,seed=1
 forest-the-spring-and-the-pebbles|Wren Thimblewick|dp=dawn,day|30|Wren Thimblewick is collecting singing pebbles from the spring and would swap two seeds for one of yours.|give=singing-pebble:1,seed=2,fp=1
@@ -48,12 +48,12 @@ mountain-the-cairn-pass|Tuck Gillyflower|we=snow|45|Tuck Gillyflower insists his
 coast-the-lighthouse-shadow|Keeper Loamwick|dp=night/we=fog|40|Keeper Loamwick, the lighthouse mole, flashes you where the fish are shoaling, and you catch one.|fp=2,fish=1
 coast-the-kelp-line|Pomeroy Crumbworth|se=summer/dp=dusk|35|Pomeroy Crumbworth is reviewing kelp crisps and needs two fresh bladderwrack. He gives your kelp two spoons out of three.|give=bladderwrack:2,xp=40,fp=2
 coast-the-rope-and-net-rack|Sorrel Dewdrop|dp=dawn|45|Sorrel Dewdrop is mending nets, grumbles that your knot is wrong, and gives you two sardines anyway.|fp=1,item=sardine:2@50
-coast-the-tide-pool-steps|Rook Rushworth|dp=day|40|Rook Rushworth is counting crabs in the pools and you count too. You both get a different number.|fp=2
+coast-the-tide-pool-steps|Rook Rushworth|dp=dawn,dusk|40|Rook Rushworth is counting crabs in the pools and you count too. You both get a different number.|fp=2
 coast-the-stranded-rowboat|Ferrin Pennywhistle|we=storm|45|Ferrin Pennywhistle says the boat is his and the sea owes him. You help push, and he softens a bit.|fp=2
 coast-the-sandbar-causeway|Orla Lanternby|dp=dusk|40|Orla Lanternby times you across the sandbar with a shell-clock and declares it a record.|fp=2
 coast-the-dune-grass-sweep|Lyra Fiddlewing|we=wind/dp=dusk|45|Lyra Fiddlewing is practising for the dune grass audience, so you clap along too.|fp=1,xp=3
 coast-the-driftwood-arch|Ulric Puddlefoot|we=wind|40|Ulric Puddlefoot is resting in the arch's shade and shares a snack with you.|fp=2
-coast-the-sea-stack-gap|Alder Puddlefoot|se=summer|40|Alder Puddlefoot dares you to paddle one stack further, and pays up a pretty pebble when you do.|fp=1,item=dare-pebble:1@40
+coast-the-sea-stack-gap|Alder Puddlefoot|dp=dusk|40|Alder Puddlefoot dares you to paddle one stack further, and pays up a pretty pebble when you do.|fp=1,item=dare-pebble:1@40
 coast-the-shell-heap|Ulric Crumblewick|dp=day|40|Ulric Crumblewick inspects your shell sorting and finds it perfect, which never happens.|fp=2
 desert-the-sun-bleached-bones|Yarrow Lanternby|dp=day|40|Yarrow Lanternby is bursting to ask about the bones, so you sit and wonder about them together.|fp=2
 desert-the-salt-flat|Pomeroy Crumbworth|we=heat|35|Pomeroy Crumbworth wants a pinch of real sea salt for a recipe and rates your crunching one spoon, which is high praise.|give=sea-salt:1,xp=30,fp=2
@@ -74,7 +74,7 @@ rainforest-the-fallen-giant|Juniper Puddlefoot|dp=dusk|40|Juniper Puddlefoot is 
 rainforest-the-rain-drum-leaf|Rue Hollowell|we=rain/dp=day|45|Rue Hollowell is dancing to the rain drum, and you dance too, very splashily.|fp=2
 rainforest-the-lantern-fruit|Posy Marrowby|dp=night|40|Posy Marrowby only dares walk the dark Trail with a lantern fruit, and has not got one. Could you spare yours?|give=lantern-fruit:1,fp=4
 rainforest-the-mist-pool|Pomeroy Crumbworth|we=fog/dp=dawn|40|Pomeroy Crumbworth insists the mist smells of soup and asks you to describe the flavour. Leek, you say. He writes it down.|fp=2,xp=20
-island-the-hammock-palms|Pinchwell|dp=day|35|Pinchwell, the crab who writes letters, tells the hammock crab you are a friend, so of course you may share. There is a letter for you too.|nocheck,fp=1,item=cowrie-shell:1@40
+island-the-hammock-palms|Pinchwell|dp=dawn,dusk|35|Pinchwell, the crab who writes letters, tells the hammock crab you are a friend, so of course you may share. There is a letter for you too.|nocheck,fp=1,item=cowrie-shell:1@40
 island-the-tide-cave|Willa Thistledown|we=cloud|40|Willa Thistledown is napping to the cave's breathing, so you breathe very quietly too.|fp=2
 island-the-shell-bell-tree|Lyra Fiddlewing|dp=dusk|40|Lyra Fiddlewing plays a duet with the shell bells, and you get to ring the high one.|fp=1,xp=3
 island-the-sand-spit|Tansy Thistledown|dp=dawn|40|Tansy Thistledown wonders what the sand spit points at, so you look together and spot a sea-bird.|fp=2,page=sand-spit-seabird

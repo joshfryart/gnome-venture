@@ -1,0 +1,8 @@
+# Lair family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# The Scout's Field Notes, lair variant "Sideways Tracks": Captain Bracken Spurwing is a calling mentor (never travels): he only GIVES the line. Four beats need a villager at a lair mouth by their weekly clockwork (npc=).
+Q|lair-field-notes|Field Notes: Sideways Tracks|Captain Bracken Spurwing|🐾|seq|xp=75,c=45,fp=2,title=Tracker of Big Friends|Captain Spurwing says a scout reads tracks before he reads anything else, and wants five pages of them, with four helpers who know the ground to check your sums.|The Captain turns your five pages sideways, then right way up, nods three times, and says you track like somebody who has been walked around by a crab.
+B|lair-field-notes|end-lair-1-mountain|Peek over the ridge and sketch the first set of prints|-|
+B|lair-field-notes|end-lair-2-desert|Basil Barleycorn measures the rut with you and you copy his numbers|-|npc=Basil Barleycorn
+B|lair-field-notes|end-lair-2-rainforest|Gorse Oakenpot lifts a web thread at dawn and you sketch the eight-footed prints beneath|dp=dawn|npc=Gorse Oakenpot
+B|lair-field-notes|end-lair-2-wetland|Pip Pinchkin shows you the sideways tracks at dawn and which way the crab went|dp=dawn|npc=Pip Pinchkin
+B|lair-field-notes|end-lair-1-island|Dozy Driftmoss half-wakes, points at the tail-drag, and falls back asleep mid-sentence|-|npc=Dozy Driftmoss

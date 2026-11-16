@@ -179,6 +179,8 @@ function npc_now(array $npc): array
         $green = q_one("SELECT * FROM town_spots WHERE region = ? AND kind = 'green' AND active = 1", [$s['town']]);
         return ['what' => 'on the Green in ' . $s['town'], 'town' => $s['town'], 'spot' => $green ?: null];
     }
+    require_once __DIR__ . '/npc_clockwork.php';
+    if (($ov = npc_cw_overlay($npc))) return $ov;   // 2.7.01: their week has them elsewhere (or minding a shop)
     $h = gclock_my_hour();
     $d = gclock_my_dow();
     foreach (q('SELECT s.*, sh.name AS shop_name, sh.location_id AS shop_loc FROM npc_schedules s LEFT JOIN shops sh ON sh.id = s.shop_id WHERE s.npc_id = ?', [$npc['id']])->fetchAll() as $s) {

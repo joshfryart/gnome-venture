@@ -227,6 +227,14 @@ function staff_on_duty(int $shopId): array
             $out[$r['id']] = $r;
         }
     }
+    // 2.7.01 clockwork: a keeper who is out on one of their doings (or away today) is spelled by a free neighbour from the same town
+    require_once __DIR__ . '/npc_clockwork.php';
+    foreach ($out as $id => $r) {
+        if (!npc_cw_on() || (!npc_cw_out('n' . $id) && !(function_exists('gclock_npc_away') && gclock_npc_away('n' . $id)))) continue;
+        unset($out[$id]);
+        if (($c = npc_cw_shop_cover($shopId, $day, (float)$hour)) && !isset($out[$c['id']])) $out[$c['id']] = ['id' => $c['id'], 'name' => $c['name'], 'slug' => $c['slug'], 'species' => $c['species'], 'personality' => $c['personality'],
+            'days' => 'all', 'start_hour' => 0, 'end_hour' => 0, 'covering' => $r['name']];
+    }
     return array_values($out);
 }
 

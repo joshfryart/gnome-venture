@@ -489,7 +489,16 @@ function local_panel(array $u, array $loc): string
         }
         $h .= '<h3 class="st-h gx-h">👥 Who’s about</h3><ul class="vlcards st-folks">';   // v2.0.67: felt villager rows
         foreach ($folk as $f) $h .= local_folk_card($u, $loc, $f, $deliver);
-        return $h . '</ul>' . folk_overlay_html() . '</section>';
+        $h .= '</ul>';
+        require_once __DIR__ . '/npc_clockwork.php';   // 2.7.01: what the villagers are up to this week (strolls, errands, visits to Trail Sights)
+        $up = '';
+        foreach (stop_folk_of($loc) as $f) {
+            if (gclock_npc_away('s' . (int)$f['id'])) continue;
+            $t = npc_cw_doing_text('s' . (int)$f['id']);
+            if ($t !== '') $up .= '<li>' . (npc_cw_out('s' . (int)$f['id']) ? '🧭' : '🚶') . ' <b>' . e((string)$f['name']) . '</b> ' . (npc_cw_out('s' . (int)$f['id']) ? 'is out: ' : '') . e(lcfirst($t)) . '</li>';
+        }
+        if ($up !== '') $h .= '<h3 class="st-h">🕰️ Right now</h3><ul class="st-now">' . $up . '</ul>';
+        return $h . folk_overlay_html() . '</section>';
     }
 
     // activities

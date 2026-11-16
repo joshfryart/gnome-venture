@@ -1,0 +1,3 @@
+# Wetland family folk rows (2.7.01, claude/sights/family-wetland.md). sight|villager|when|chance|line|rewards
+# The Dragonfly Bend Count finale: Pip Oakenpot rates the list at dusk only.
+wetland-the-dragonfly-bend|Pip Oakenpot|dp=dusk|100|Pip Oakenpot has lit a reed-lamp and is ruling lines in a very small notebook. He reads your count aloud, tuts at one comma, and rates it with a grunt that is, for Pip, a standing ovation.|fp=2

@@ -1,0 +1,8 @@
+# Haven family quest line (2.7.01): the guest book. npc= beats: the villager must be at the Sight by their weekly clockwork (their folk rows are in trail_sight_folk_end.txt); a miss says when they are next, no penalty.
+# Tobias Trundle is a traveller (no clockwork), so he is only the giver of the line this one extends and never an npc= beat.
+Q|haven-guestbook|The Guest Book|Tobias Trundle|📖|seq|xp=70,c=60,fp=2,fpto=Sorrel Acorncap:2,title=Guest of Every Haven|Tobias says a bright new sign wants a bright new guest book, and every haven villager should sign it by hand, early or late.|Tobias reads every name aloud, slowly, and sets the book on the Rest Here shelf. It will be signed by a lot more feet before it is full.|quest:rest-here-repainted
+B|haven-guestbook|end-haven-2-grassland|Find the old guest book on the back of the sign|-
+B|haven-guestbook|end-haven-1-coast|Take it to the stall and have Alder Barleycorn sign at dawn|dp=dawn|npc=Alder Barleycorn
+B|haven-guestbook|end-haven-2-coast|Have Sorrel Acorncap sign with the level pen at dawn|dp=dawn|npc=Sorrel Acorncap
+B|haven-guestbook|end-haven-1-island|Carry it to the kava circle for Posy Oakenpot at night|dp=night|npc=Posy Oakenpot
+B|haven-guestbook|end-haven-1-grassland|Close the book with Tilly Puddlefoot at dusk|dp=dusk|npc=Tilly Puddlefoot

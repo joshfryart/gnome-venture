@@ -1,0 +1,7 @@
+# Rainforest family quest line (2.7.01). Every beat is at night (dp=night). Three beats need a villager by their weekly clockwork (npc=); a full moon (mo=full) pays a bonus at the Sights (orchid tree, mist pool, lantern fruit rows).
+Q|orchid-that-opens-at-night|The Orchid That Opens at Night|Quill Thistledown|🌺|seq|xp=60,c=40,item=cut-moth-orchid:1,fp=2,title=Night Orchid Watcher|Quill Thistledown has heard of an orchid in the rainforest that opens only in the dark, once in a long while, and would very much like company on the watch. Bring a light. Come at night.|The great orchid opens above you, pale as the moon, and the whole canopy holds its breath. Quill does not write one word down. The two of you just watch, and it is enough.
+B|orchid-that-opens-at-night|rainforest-the-giant-fern-glade|Find the fat bud, tucked under the tall ferns, in the dark|dp=night
+B|orchid-that-opens-at-night|rainforest-the-lantern-fruit|Posy Marrowby has a lantern fruit to spare for the watch|dp=night|npc=Posy Marrowby
+B|orchid-that-opens-at-night|rainforest-the-mist-pool|Swirl the mist pool to see the bud's reflection|dp=night
+B|orchid-that-opens-at-night|rainforest-the-fallen-giant|Juniper Puddlefoot keeps the lamp low on the fallen trunk|dp=night|npc=Juniper Puddlefoot
+B|orchid-that-opens-at-night|rainforest-the-orchid-tree|Watch it open with Quill Thistledown|dp=night|npc=Quill Thistledown

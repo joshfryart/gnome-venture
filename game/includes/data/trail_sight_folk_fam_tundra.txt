@@ -1,0 +1,5 @@
+# Tundra family folk rows (2.7.01, claude/sights/family-tundra.md). sight|villager|when|chance|line|rewards
+# Ferrin's Long Night: Ferrin Pennywhistle waits at the snow sights by his weekly clockwork; the finale is a winter night under the aurora.
+tundra-the-snow-fort|Ferrin Pennywhistle|we=snow|100|Ferrin Pennywhistle is stamping about the snow fort in three scarves, counting the long nights out loud. "Forty-one," he says. "Maybe forty-two."|fp=1
+tundra-the-frozen-stream|Ferrin Pennywhistle|we=snow|100|Ferrin Pennywhistle is kneeling at the ice with a tin whistle, trying to play something the fish will like. They are not impressed.|fp=1
+tundra-the-aurora-rise|Ferrin Pennywhistle|se=winter/dp=night|100|Ferrin Pennywhistle has been lying on the rise since dusk with his hat over his chest. "Do not talk," he whispers, and points up at the green.|fp=2

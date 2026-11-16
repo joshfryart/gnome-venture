@@ -1,0 +1,4 @@
+# Forest family (2.7.01): Alder Thistledown, the sleepy wick-keeper (Windburrow storyteller), makes the lamplighter's round: dusk and night at three Sights.
+# Each row's dp= gives the clockwork its window (dusk 6-8 pm, night 9-11 pm); with the lantern branch (shared file) that is three Sights. He cycles two of the three each week, so every Sight comes round within two weeks.
+forest-the-glow-moss-grotto|Alder Thistledown|dp=night|100|Alder Thistledown, the lamplighter, is lighting the moss with a very slow taper and humming off-key. "Nobody asked me to," he says, "but it looked sad dark."|fp=1
+forest-the-owl-watch-bough|Alder Thistledown|dp=night|100|Alder Thistledown tiptoes under the bough with his taper held high. The owl pretends not to look, and so does Alder.|fp=1

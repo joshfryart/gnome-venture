@@ -181,7 +181,7 @@ $test = stopOfType('inn');
 q('UPDATE locations SET stop_type = ? WHERE id = ?', ['ferry', $test['id']]);
 ok('admin override of the stop type wins', stop_type_of(q_one('SELECT * FROM locations WHERE id = ?', [$test['id']])) === 'ferry');
 q('UPDATE locations SET stop_type = ? WHERE id = ?', ['inn', $test['id']]);
-ok('2-3 villagers everywhere', !q_val("SELECT COUNT(*) FROM (SELECT l.id, COUNT(f.id) c FROM locations l LEFT JOIN stop_folk f ON f.location_id = l.id WHERE l.kind = 'village' GROUP BY l.id) t WHERE c < 2 OR c > 3"));
+ok('2-3 villagers everywhere', !q_val("SELECT COUNT(*) FROM (SELECT l.id, COUNT(f.id) c FROM locations l LEFT JOIN stop_folk f ON f.location_id = l.id AND f.slot < 9 WHERE l.kind = 'village' GROUP BY l.id) t WHERE c < 2 OR c > 3"));
 ok('villagers have names, species, personalities, roles', !q_val("SELECT COUNT(*) FROM stop_folk WHERE name = '' OR species = '' OR personality = '' OR role = ''"));
 // every item slug in the data exists
 $missing = [];

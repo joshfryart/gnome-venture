@@ -1,0 +1,2 @@
+# Wetland family items (2.7.01). slug | Name | category | rarity 1-30 | base_price | edible | description | effects (optional JSON). Art: claude/sights/family-wetland.md
+firefly-light|Firefly Light|misc|12|14|0|A single firefly's glow, cupped in a reed twist. It shines brightest around the new moon, when the sky is dark.

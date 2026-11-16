@@ -430,9 +430,16 @@ function trail_art_svg(array $map, array $state): string
             $items[] = [$oy + .9, $ox, '<g class="tmsight"><circle cx="' . $n($mx) . '" cy="' . $n($my) . '" r="11" fill="#f5b82e" stroke="#2b1c26" stroke-width="2"/><text x="' . $n($mx) . '" y="' . $n($my + 5.5) . '" text-anchor="middle" font-size="16" font-weight="700" fill="#2b1c26">!</text></g>'];
         }
     }
-    foreach ((array)($state['folk'] ?? []) as [$fx, $fy, $fpic, $fname, $fframes, , , $fanim]) {   // v2.6.68: a villager out and about at a Sight stands beside the landmark (the first frame of a sprite sheet)
-        $fw = 46 * $k; $fh = 69 * $k; $FX = ($fx - $x0) * $C + $C / 2 - $fw / 2; $FY = ($fy - $y0) * $C + $C - $fh + 6 * $k;
+    foreach ((array)($state['folk'] ?? []) as $fe_) { [$fx, $fy, $fpic, $fname, $fframes, , , $fanim] = $fe_; $f25 = $fe_[10] ?? null;   // v2.6.68: a villager out and about at a Sight stands beside the landmark (the first frame of a sprite sheet)
+        if ($f25) { $fw = 51 * $k; $fh = 64 * $k; } else { $fw = 46 * $k; $fh = 69 * $k; } $FX = ($fx - $x0) * $C + $C / 2 - $fw / 2; $FY = ($fy - $y0) * $C + $C - $fh + 6 * $k;
         if (!$in($FX, $FY, $fw, $fh)) continue;
+        if ($f25) {   // 2.7.01: a 2.5D strip (8 frames of 64 x 80): idle = frames 1-2, walking = frames 3-8, flipped when they head left
+            $FX = ($fx - $x0) * $C + $C / 2 - $fw / 2; $FY = ($fy - $y0) * $C + $C - $fh + 6 * $k;
+            $img = '<image class="' . (!empty($f25['walk']) ? 'tmwalk' : 'tmidle') . '" href="' . e((string)$fpic) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/>';
+            if (($f25['dir'] ?? 1) < 0) $img = '<g transform="translate(64 0) scale(-1 1)">' . $img . '</g>';
+            $items[] = [$fy + .55, $fx, '<g class="tmfolk"><title>' . e((string)$fname . (!empty($f25['label']) ? ': ' . $f25['label'] : '')) . '</title><svg x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $n($fw) . '" height="' . $n($fh) . '" viewBox="0 0 64 80" overflow="hidden" preserveAspectRatio="xMidYMax meet">' . $img . '</svg></g>'];
+            continue;
+        }
         $items[] = [$fy + .55, $fx, '<g class="tmfolk' . (!empty($fanim) ? ' tmfolk-in' : '') . '"><title>' . e((string)$fname) . '</title><svg x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $n($fw) . '" height="' . $n($fh) . '" viewBox="0 0 ' . (64) . ' 96" overflow="hidden" preserveAspectRatio="xMidYMax meet"><image href="' . e((string)$fpic) . '" x="0" y="0" width="' . (64 * max(1, (int)$fframes)) . '" height="96" image-rendering="pixelated"/></svg></g>'];
     }
     $marks = '';
