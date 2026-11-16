@@ -805,6 +805,11 @@ function post_update_news(string $from): void
         . "[*][b]Tide strip[/b]: on a coast Trail the tide is now one moon button under the map. Tap it for the tide chart, the moon and the tide pools.\n"
         . "[*][b]Gather scene[/b]: fog is a soft mist now instead of a blotchy dither.\n"
         . "[*][b]First-fight hints[/b] are darker and easier to read.[/list]"],
+    '2.7.03' => ['🌙 Update 2.7.03: tidier Trail, more real meals',
+        "[list][*][b]Moon pills[/b]: anything about the moon on the Trail is now a small pill that starts closed. Tap it to read more.\n"
+        . "[*][b]Hint[/b] in a fight is a small 💡 with the hints you have left.\n"
+        . "[*][b]Mentor[/b] button only shows in towns that have a mentor, not at rest stops.\n"
+        . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
