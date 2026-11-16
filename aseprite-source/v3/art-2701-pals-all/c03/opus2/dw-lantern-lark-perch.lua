@@ -30,9 +30,11 @@ O.shade(c, c:poly{ { 12, 17 }, { 17, 16 }, { 18, 20 }, { 11, 22 } }, LRK, { R = 
 O.dots(c, { { 13, 19 }, { 15, 18 }, { 17, 18 } }, LRK[6])
 O.shade(c, c:ellipse(20, 10, 5.5, 4.5), LRK, { sphere = { 18, 8, 6 }, amb = .25, wrap = .4, sep = LRK[1], rim = true })
 O.shade(c, c:poly{ { 16, 7 }, { 13, 2 }, { 15, 3 }, { 19, 6 } }, LRK, { R = 1, amb = .3, sep = LRK[1] })
-O.flat(c, c:poly{ { 25, 9 }, { 28, 9 }, { 25, 10 } }, LAN[3], "beak") O.flat(c, c:poly{ { 25, 12 }, { 27, 13 }, { 25, 12 } }, LAN[2], "beak")
+O.flat(c, c:rect(25, 9, 27, 9), LAN[3], "beak") O.dot(c, 28, 9, LAN[3]) O.dots(c, { { 25, 11 }, { 26, 11 }, { 27, 12 } }, LAN[2])
+O.flat(c, c:ellipse(19.5, 10.5, 4, 2.5), BRS[3], "face") O.dots(c, { { 16, 12 }, { 23, 12 }, { 17, 13 }, { 22, 13 } }, BRS[2]) -- pale face mask
 c:eyeSmall(17, 9) c:eyeSmall(21, 9)
 O.dot(c, 16, 12, "#f5809f") O.dot(c, 23, 12, "#f5809f")
 local note = c:rect(29, 5, 30, 6) note:add(c:rect(30, 1, 30, 4)) note:add(c:rect(31, 1, 32, 1))
 O.shade(c, note, VIO, { R = 1, amb = .45, cuts = { .3, .55, .8 } })
+O.shift(c, 0, 1)
 O.done(c, "dw-lantern-lark-perch")
