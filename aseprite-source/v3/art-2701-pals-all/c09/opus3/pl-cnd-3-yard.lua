@@ -1,4 +1,8 @@
--- Updraft Fluff (pl-cnd-3), yard sprite 64x64. Opus second pass (c09/opus2), built on the c09/haiku concept.
+-- Updraft Fluff (pl-cnd-3), yard sprite 64x64. Opus richness pass (c09/opus3), built on c09/opus2.
+-- opus3: warmer hue-shifted ramp (plum shade -> peach mid -> cream light), a dark crease between neighbouring
+-- tufts so each one reads, lit strand flecks, a pale down-ring round the face, a dark lip line on the open mouth
+-- with a tongue, short lift streaks beside the curls, and (closer look) a loose wisp of down blowing
+-- off behind it next to the caught seed, which has a tiny green sprout.
 -- Seedkeeper, common, Condor's Crag. "A puff of cream neck fluff that rides the wind to see the view."
 -- A round puff of the condor's cream neck ruff: a soft body ringed with pointed down tufts that all comb the same
 -- way (blown up and to the right by the updraft), strand texture, warm cream lit side and lilac shade.
@@ -14,7 +18,7 @@ local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("pl-cnd-3-yard", 64)
 
-local FLUFF = { "#7a5a78", "#a88a98", "#d0b4a8", "#ead6bc", "#f8ead2", "#fff6e6" }
+local FLUFF = { "#6e4e70", "#a0808f", "#cfae9f", "#ebd2b4", "#f8e8cc", "#fdf4e2" }
 local WIND = { "#8bc4ea", "#b9e2f5", "#e4f6ff" }
 
 c:groundShadow(31, 58, 7, 1)
@@ -49,8 +53,18 @@ local function face(x, y) return x >= 20 and x <= 42 and y >= 25 and y <= 40 end
 O.tex(c, wI, wT, FLUFF, function(x, y, i)
   if face(x, y) then return 0 end
   local h = H((x + y) // 2, (x - y) // 3, 5)
+  -- crease between tufts: near the rim, at the angle half-way between two tuft roots
+  local r = math.sqrt((x - cx) ^ 2 + ((y - cy) * 1.07) ^ 2)
+  local ang = (math.atan(y - cy, x - cx) - .15) % (math.pi * 2)
+  local ph = (ang / (math.pi * 2 / 22)) % 1
+  if r > R - 3 and r < R + 2 and math.abs(ph - .5) < .09 then return -2 end
   if h > .8 then return -1 end
-  if h < .1 and i >= 3 then return 1 end
+  if h < .12 and i >= 3 then return 1 end
+end)
+-- a pale down-ring around the face (softer, finer fluff there)
+O.tex(c, wI, wT, FLUFF, function(x, y, i)
+  local d = ((x - 31) / 12) ^ 2 + ((y - 32) / 9) ^ 2
+  if d > .85 and d < 1.05 and i <= 4 and (x + y) % 2 == 0 then return 1 end
 end)
 -- tuft roots: a darker crease where each tuft leaves the body
 for _, t in ipairs(tufts) do
@@ -62,6 +76,7 @@ end
 O.dots(c, { { 39, 20 }, { 40, 20 }, { 41, 21 }, { 39, 21 }, { 40, 21 } }, "#864c33")
 O.dots(c, { { 38, 21 }, { 41, 22 }, { 40, 22 } }, "#51302b")
 O.dot(c, 39, 20, "#d89c62")
+O.dots(c, { { 38, 19 }, { 37, 18 } }, "#6a9a4a") O.dot(c, 37, 17, "#9ac85a") -- sprout
 
 -- face: happy wow
 c:eyeLocked(23, 27)
@@ -70,7 +85,7 @@ c:cheek(22, 34) c:cheek(39, 34)
 local mouth = c:ellipse(31, 35.5, 2, 2)
 O.flat(c, mouth, "#5a2a4a", "mouth")
 mouth:edge():each(function(x, y) c:put(x, y, P.ink, { r = { name = "lip" } }) end)
-O.dots(c, { { 31, 36 }, { 30, 36 } }, P.petal.base)
+O.dots(c, { { 31, 36 }, { 30, 36 }, { 32, 36 } }, P.petal.base) O.dot(c, 31, 35, "#3a1e36")
 
 O.done(c, "pl-cnd-3-yard", function(c)
   -- updraft: two wind curls rising under it, plus lift ticks (1 px, un-outlined)
@@ -89,4 +104,10 @@ O.done(c, "pl-cnd-3-yard", function(c)
   end
   curl(14, 54, 1) curl(48, 54, -1)
   O.dots(c, { { 27, 50 }, { 27, 51 }, { 31, 52 }, { 31, 53 }, { 35, 50 }, { 35, 51 } }, WIND[1])
+  -- short lift streaks rising past its flanks
+  O.dots(c, { { 9, 40 }, { 9, 39 }, { 10, 37 }, { 10, 36 }, { 53, 40 }, { 53, 39 }, { 52, 37 }, { 52, 36 } }, WIND[2])
+  -- a loose wisp of down blowing off behind (closer look)
+  for _, p in ipairs({ { 8, 13 }, { 9, 12 }, { 10, 12 }, { 11, 13 }, { 7, 14 } }) do
+    if not c:get(p[1], p[2]) then c:put(p[1], p[2], p[1] == 7 and FLUFF[3] or FLUFF[5]) end
+  end
 end)

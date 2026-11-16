@@ -1,4 +1,6 @@
--- Updraft Fluff (pl-cnd-3), perch sprite 36x36. Opus second pass (c09/opus2), hand-built at this size.
+-- Updraft Fluff (pl-cnd-3), perch sprite 36x36. Opus richness pass (c09/opus3), hand-built at this size.
+-- opus3: warmer plum -> peach -> cream ramp, dark creases between tufts, lit strand flecks, the caught seed,
+-- a tongue in the wow. Fewer, bolder details than the yard (no streamlines, no loose wisp).
 -- Cream downy puff with short combed tufts, strand texture, lilac shade; a lookout tuft curling off its crown.
 -- quirk: riding the updraft for the view, open "wow" mouth, wind curls rising under it.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
@@ -6,7 +8,7 @@ local O = dofile(dir .. "/_opus.lua")
 local HP, X, P, K = O.HP, O.X, O.P, O.K
 local H = O.H
 local c = O.canvas("pl-cnd-3-perch", 36)
-local FLUFF = { "#7a5a78", "#a88a98", "#d0b4a8", "#ead6bc", "#f8ead2", "#fff6e6" }
+local FLUFF = { "#6e4e70", "#a0808f", "#cfae9f", "#ebd2b4", "#f8e8cc", "#fdf4e2" }
 local WIND = { "#8bc4ea", "#b9e2f5" }
 c:groundShadow(18, 32, 4, 1)
 local cx, cy, R = 17, 16, 8
@@ -22,7 +24,14 @@ for a = 0, 15 do
 end
 m:add(O.tube({ { 17, 8 }, { 17, 4 }, { 20, 3 }, { 23, 4 } }, function(u) return 1.1 * (1 - u) + .3 end))
 local I, T = O.shade(c, m, FLUFF, { sphere = { 14, 13, 11 }, amb = .3, wrap = .5, rim = true, bounce = "#8fb0d8", bmax = 2 })
-O.tex(c, I, T, FLUFF, function(x, y, i) if (x < 11 or x > 23 or y < 13) and H((x + y) // 2, (x - y) // 2, 5) > .8 then return -1 end end)
+O.tex(c, I, T, FLUFF, function(x, y, i)
+  local r = math.sqrt((x - cx) ^ 2 + (y - cy) ^ 2)
+  local ph = (((math.atan(y - cy, x - cx) - .2) % (math.pi * 2)) / (math.pi * 2 / 16)) % 1
+  if r > R - 1.5 and r < R + 2 and math.abs(ph - .5) < .12 then return -2 end
+  if (x < 11 or x > 23 or y < 13) and H((x + y) // 2, (x - y) // 2, 5) > .8 then return -1 end
+  if (x < 11 or x > 23 or y < 13) and H((x + y) // 2, (x - y) // 2, 5) < .1 and i >= 3 then return 1 end
+end)
+O.dots(c, { { 21, 10 }, { 22, 10 } }, "#864c33") O.dot(c, 21, 10, "#d89c62") O.dot(c, 22, 11, "#51302b")
 c:eyeSmall(13, 15) c:eyeSmall(20, 15)
 O.dot(c, 11, 19, P.petal.base) O.dot(c, 23, 19, P.petal.base)
 O.flat(c, c:rect(16, 19, 18, 21), P.ink, "mouth") O.dot(c, 17, 20, "#5a2a4a") O.dot(c, 17, 21, P.petal.base)

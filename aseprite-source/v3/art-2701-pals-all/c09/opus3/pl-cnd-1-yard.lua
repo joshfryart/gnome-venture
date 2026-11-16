@@ -1,4 +1,8 @@
--- Crag Quill (pl-cnd-1), yard sprite 64x64. Opus second pass (c09/opus2), built on the c09/haiku concept.
+-- Crag Quill (pl-cnd-1), yard sprite 64x64. Opus richness pass (c09/opus3), built on c09/opus2.
+-- opus3: opus2's two afterfeather wisps read as legs; now the quill is planted like a spear in a cracked crag
+-- stone (with pebbles) and the afterfeather is one soft downy tuft hugging the quill. Vane adds a darker condor
+-- margin toward the tip, two more barb splits, iridescent violet glints on the shade side, and the twine
+-- lashing gets a knot. closer look: red-ochre war paint under each eye (it really does think it is a spear).
 -- Thornblade, common, Condor's Crag. "A bronze quill the condor dropped, and it thinks it is a spear."
 -- A long bronze flight feather standing on its quill, leaning right like a held spear. Real feather build: a pale
 -- rachis running the full length, a wide lit vane on the left (where the face is) and a narrow vane on the right,
@@ -18,7 +22,7 @@ local FLINT = { "#2f2a44", "#444663", "#5f6680", "#8a8fa8", "#b8bccc", "#dfe0ea"
 local TWINE = { "#5e3a2e", "#a07a52", "#d4b07a" }
 local QUILL = { "#8a6a52", "#c9a882", "#ecd8b4", "#faf0d8" }
 
-c:groundShadow(23, 55, 11, 2)
+c:groundShadow(20, 57, 11, 1.5)
 
 -- axis Q (quill foot) -> T (vane tip)
 local Qx, Qy, Tx, Ty = 17, 55, 44, 16
@@ -38,7 +42,7 @@ for y = 0, 63 do for x = 0, 63 do
   local w = wid(t, s)
   if w > 0 and math.abs(s) <= w + .3 then
     -- the split: a notch in the wide vane
-    if not (s < -4 and t > .74 and t < .77) then
+    if not ((s < -4 and t > .74 and t < .77) or (s < -5.5 and t > .5 and t < .52) or (s > 3.5 and t > .62 and t < .645)) then
       vane:set(x, y)
       local sn = math.max(-.9, math.min(.9, s / (w + .8)))
       vn[K(x, y)] = { px * sn, py * sn, math.sqrt(1 - sn * sn) }
@@ -55,17 +59,43 @@ O.tex(c, vI, vTk, BRZ, function(x, y, i)
   if math.abs(s) < .7 then return 5 end                              -- pale rachis (clamped to top tone)
   if s > .7 and s < 1.7 then return -2 end                            -- rachis shadow
   local ph = t * L - math.abs(s) * .9                            -- barbs sweep toward the tip
-  if math.abs(s) > 2 and math.floor(ph) % 3 == 0 then return -1 end
+  if math.abs(s) > 2 and math.floor(ph) % 3 == 0 then return (i >= 4) and -2 or -1 end
+  if s < -2 and math.floor(ph) % 3 == 1 and i >= 3 and i <= 4 then return 1 end      -- lit barb ridge
   if s < -2 and s > -3.5 and t > .25 and t < .85 and math.floor(ph) % 3 ~= 0 then return 1 end    -- shine streak
+  local w = wid(t, s)
+  if t > .6 and math.abs(s) > w - 1.3 then return -1 end                -- darker condor margin
+  if s > 2.5 and i <= 2 and H(x, y, 9) > .82 then return 0 end
+end)
+-- rachis painted as a cream quill shaft (dark line beside it on the shade side)
+vane:each(function(x, y)
+  local t, sv = VT[K(x, y)], VS[K(x, y)]
+  if t and not face(x, y) and c.own[y * c.w + x] == vTk then
+    if math.abs(sv) < .75 then c.pix[y * c.w + x] = (t > .7 and QUILL[2] or QUILL[3]):lower() end
+  end
+end)
+-- iridescent glints on the shade side
+O.tex(c, vI, vTk, { "#4a3a6a", "#6a5a9a" }, function(x, y, i)
+  local t, s = VT[K(x, y)], VS[K(x, y)]
+  if t and s > 2.5 and i <= 2 and H(x, y, 9) > .8 then return 0 end
 end)
 
 -- bare quill below the vane
 local q, qn = O.tube({ { Qx, Qy }, { Qx + dx * 4, Qy + dy * 4 }, { Qx + dx * 8, Qy + dy * 8 }, { Qx + dx * 12, Qy + dy * 12 } }, function(t) return 1.2 end)
 O.shadeN(c, q, qn, QUILL, { amb = .35, wrap = .5, cuts = { .3, .55, .8 }, sep = QUILL[1] })
--- afterfeather wisps at the base of the vane
-for wi, d in ipairs({ { { 21, 49 }, { 18, 49 }, { 15, 48 }, { 13, 45 } }, { { 22, 50 }, { 24, 52 }, { 27, 52 }, { 29, 50 } } }) do
-  local m, n = O.tube(d, function(t) return 1.3 * (1 - t) + .35 end)
-  O.shadeN(c, m, n, QUILL, { amb = .35, wrap = .5, cuts = { .3, .55, .8 }, sep = QUILL[1] })
+-- afterfeather: one soft downy tuft hugging the quill at the base of the vane
+local tuft = O.unionCircles({ { 19.5, 47.5, 2.5 }, { 22, 49, 2 }, { 18, 49.5, 1.8 } })
+local tI, tT = O.shade(c, tuft, QUILL, { sphere = { 18, 46, 4 }, amb = .4, wrap = .5, cuts = { .3, .55, .8 }, sep = QUILL[1] })
+O.tex(c, tI, tT, QUILL, function(x, y, i) if (x + 2 * y) % 4 == 0 and i >= 2 then return -1 end end)
+O.dots(c, { { 16, 47 }, { 17, 45 } }, QUILL[3])
+-- cracked crag stone the quill is planted in, with pebbles
+local CRAG = { "#2e2440", "#463a5c", "#665a7a", "#8c829e", "#b4aac2" }
+local rock = c:poly({ { 9, 57 }, { 11, 53 }, { 15, 51 }, { 21, 51 }, { 25, 53 }, { 28, 57 } })
+local rI, rT = O.shade(c, rock, CRAG, { sphere = { 16, 53, 7 }, amb = .3, wrap = .45, cuts = { .3, .5, .7, .86 }, rim = true, sep = CRAG[1] })
+O.tex(c, rI, rT, CRAG, function(x, y, i) if H(x, y, 3) > .85 then return -1 end end)
+O.dots(c, { { 16, 53 }, { 17, 54 }, { 18, 54 }, { 19, 55 }, { 19, 56 } }, CRAG[1]) -- the crack it is wedged in
+O.dots(c, { { 12, 54 }, { 13, 53 }, { 14, 52 }, { 22, 52 } }, CRAG[5]) O.dots(c, { { 24, 55 }, { 25, 56 } }, CRAG[2])
+for _, pb in ipairs({ { 28, 56 }, { 9, 56 } }) do
+  O.shade(c, c:rect(pb[1], pb[2], pb[1] + 1, pb[2]), CRAG, { R = 1, amb = .4, cuts = { .3, .5, .7, .86 }, sep = CRAG[1] })
 end
 
 -- flint spearhead lashed on the tip
@@ -85,6 +115,7 @@ for _, tt in ipairs({ .9, .94, .98 }) do
 end
 local lx, ly = at(.9, 4.5)
 O.dots(c, { { math.floor(lx + 1), math.floor(ly + 1) }, { math.floor(lx + 1), math.floor(ly + 2) }, { math.floor(lx + 2), math.floor(ly + 3) } }, TWINE[1]) -- loose tail
+O.dots(c, { { math.floor(lx), math.floor(ly) }, { math.floor(lx + 1), math.floor(ly) } }, TWINE[3]) -- knot
 
 -- face across the vane (the rachis stops above and below it): fierce, brows in a V
 c:eyeLocked(24, 33)
@@ -92,6 +123,8 @@ c:eyeLocked(32, 32)
 O.dots(c, { { 24, 31 }, { 25, 31 }, { 26, 32 }, { 27, 32 } }, P.ink)
 O.dots(c, { { 36, 30 }, { 35, 30 }, { 34, 31 }, { 33, 31 } }, P.ink)
 c:cheek(23, 39) c:cheek(36, 38)
+-- war paint: two red-ochre stripes under the eyes
+O.dots(c, { { 24, 39 }, { 25, 39 }, { 25, 40 }, { 26, 40 } }, "#a8283a") O.dots(c, { { 33, 38 }, { 34, 38 }, { 34, 39 }, { 35, 39 } }, "#a8283a")
 O.dots(c, { { 28, 40 }, { 29, 39 }, { 30, 39 }, { 31, 39 }, { 32, 39 } }, P.ink) -- scowl
 
 O.done(c, "pl-cnd-1-yard")

@@ -86,15 +86,15 @@ end
 local bub = O.unionCircles({ { 52, 9, 7.5, 6.5 }, { 47, 11, 4, 3.5 }, { 57, 12, 4, 3.5 } })
 local bI, bTk = O.shade(c, bub, BUB, { sphere = { 49, 6, 11 }, amb = .55, wrap = .5, cuts = { .3, .5, .7, .85 } })
 c:paint({
-  "......aa..",
-  ".a...aba..",
-  "abb.abbb..",
-  ".abbbbbbbc",
-  "..bbbbbcbb",
-  "..bbbbb.cb",
-  ".bb..bb...",
-}, 47, 6, { a = DUSK.hi, b = DUSK.base, c = DUSK.shade })
-O.dot(c, 55, 9, P.ink)
+  ".....a......",
+  "....aa......",
+  "...abb....c.",
+  "..abbb...bbb",
+  "c..bbbbbbbb.",
+  ".cbbbbbbb...",
+  "...c.c..c.c.",
+}, 46, 4, { a = DUSK.base, b = DUSK.shade, c = DUSK.deep })
+O.dot(c, 56, 7, P.ink)
 
 O.done(c, "pl-cwy-6-yard", function(c)
   -- drowsy half-lidded eyes: locked eyes with the top two rows closed by a flame-coloured lid and an ink lash line
@@ -106,6 +106,4 @@ O.done(c, "pl-cwy-6-yard", function(c)
   end
   c:sparkle(10, 12)
   c:sparkle(58, 30)
-  -- a tiny "z" in the bubble trail
-  for _, p in ipairs({ { 38, 13 }, { 39, 13 }, { 40, 13 }, { 39, 14 }, { 38, 15 }, { 39, 15 }, { 40, 15 } }) do c:put(p[1], p[2], DUSK.shade) end
 end)
