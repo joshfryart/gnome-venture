@@ -54,14 +54,14 @@ O.shadeN(c, arm, an, WOOD, { amb = .3, wrap = .4, sep = WOOD[1] })
 O.flat(c, c:rect(8, 3, 10, 5), WOOD[5], "hand") O.dot(c, 8, 3, WOOD[6])
 
 -- quirk: rain drop splash
-O.flat(c, c:rect(25, 1, 25, 2), DROP[2], "drop") O.flat(c, c:rect(24, 3, 26, 4), DROP[2], "drop") O.dot(c, 24, 3, DROP[3])
+O.flat(c, c:rect(25, 2, 25, 3), DROP[2], "drop") O.flat(c, c:rect(24, 4, 26, 4), DROP[2], "drop") O.dot(c, 24, 4, DROP[3])
 
 c:eyeSmall(13, 12)
 c:eyeSmall(21, 12)
 O.dot(c, 11, 15, "#f5809f") O.dot(c, 25, 15, "#f5809f")
 O.dots(c, { { 16, 15 }, { 17, 16 }, { 18, 16 }, { 19, 15 } }, P.ink)
 
-O.shift(c, 0, 1)
+O.shift(c, 0, 0)
 O.done(c, "gc-drum-tap-perch", function(c)
   c:put(22, 6, DROP[2]) c:put(28, 6, DROP[2]) c:put(21, 5, DROP[3]) c:put(29, 5, DROP[3])
 end)
