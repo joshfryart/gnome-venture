@@ -72,9 +72,9 @@ do
 end
 -- the gold ring
 do
-  local ring = c:ellipse(52, 15, 4.5, 4.5)
-  ring:cut(c:ellipse(52, 15, 2.2, 2.2))
-  O.shade(c, ring, GOLD, { sphere = { 50, 12, 6 }, amb = .25, wrap = .4, sep = GOLD[1] })
+  local ring = c:ellipse(52, 15, 4, 4)
+  ring:cut(c:ellipse(52, 15, 2.5, 2.5))
+  O.shade(c, ring, GOLD, { sphere = { 50, 12, 6 }, amb = .42, wrap = .4, sep = GOLD[1] })
   -- teal gem on top
   local gem = c:ellipse(52, 10, 2, 1.5)
   O.shade(c, gem, { "#173f4f", "#1f6a72", "#2f9a94", "#4fc4b0", "#8ae6c8", "#c8f7e2" }, { R = 1, amb = .4, sep = GOLD[1] })

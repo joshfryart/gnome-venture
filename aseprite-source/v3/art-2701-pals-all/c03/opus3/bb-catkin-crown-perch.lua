@@ -1,4 +1,6 @@
--- Catkin Crown (bb-catkin-crown), perch sprite 36x36. Opus second pass, hand-built at this size.
+-- Catkin Crown (bb-catkin-crown), perch sprite 36x36. Opus richness pass (c03/opus3), hand-built at this size.
+-- Richness pass: cushion-moss clumps (lit crown, root shadow) kept off the face, scale marks on the catkins,
+-- a pale peeling curl on the birch band, bead seams on the catkins.
 -- Round moss body, a birch-bark band and three bold beaded catkins (centre one upright, two splayed),
 -- pill eyes and a smile. quirk: two gold pollen puffs from a pleased sneeze.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
@@ -17,8 +19,13 @@ for _, fx in ipairs({ 12, 20 }) do O.shade(c, c:ellipse(fx, 31, 2.5, 1.2), MOSS,
 local body = c:ellipse(16, 23, 9, 7.5)
 local bI, bT = O.shade(c, body, MOSS, { sphere = { 13, 20, 11 }, amb = .2, wrap = .4, sep = MOSS[1], rim = true, bounce = "#4a7a8a", bmax = 2 })
 O.tex(c, bI, bT, MOSS, function(x, y, i)
-  local face = x > 10 and x < 23 and y > 19 and y < 28
-  if not face and H(x, y, 7) > .86 and i <= 5 then return 1 end
+  local face = x > 9 and x < 23 and y > 18 and y < 28
+  if face then return 0 end
+  local row = y // 3
+  local off = math.floor(H(row, 0, 41) * 4)
+  local cx, cy = (x + off) % 4, y % 3
+  if cy == 0 and (cx == 1 or cx == 2) then return 1 end
+  if cy == 2 and cx == 0 and i >= 2 then return -1 end
 end)
 
 local function catkin(p, r)
@@ -29,11 +36,12 @@ local function catkin(p, r)
     beads[#beads+1] = { x, y }
     m:add(c:ellipse(x, y, r * (1 - .3 * t), r * (1 - .3 * t)))
   end
-  local idx, tok = O.shade(c, m, CAT, { R = 1, amb = .3, wrap = .4, sep = CAT[1] })
+  local idx, tok = O.shade(c, m, CAT, { R = 1, amb = .25, wrap = .35, sep = CAT[1] })
   O.tex(c, idx, tok, CAT, function(x, y, i)
     local best, bk = 1e9, 0
     for k, b in ipairs(beads) do local d = (x - b[1])^2 + (y - b[2])^2 if d < best then best, bk = d, k end end
     if bk % 2 == 0 and i >= 3 and i <= 5 then return -1 end
+    if bk % 2 == 1 and i == 6 then return -1 end
   end)
 end
 catkin({ { 16, 13 }, { 16, 9 }, { 17, 6 }, { 19, 4.5 } }, 1.9)
@@ -43,6 +51,7 @@ catkin({ { 21, 14 }, { 23, 11 }, { 25, 9 }, { 27, 10 } }, 1.8)
 local band = c:poly{ { 8, 17 }, { 12, 14.5 }, { 16, 14 }, { 20, 14.5 }, { 24, 17 }, { 24, 18 }, { 20, 16 }, { 16, 15.5 }, { 12, 16 }, { 8, 19 } }
 O.shade(c, band, BIR, { R = 1, amb = .35, cuts = { .3, .55, .8 }, sep = BIR[1] })
 O.mark(c, { { 10, 17 }, { 14, 15 }, { 18, 15 }, { 22, 16 } }, BIR[1])
+O.mark(c, { { 12, 15 }, { 20, 15 } }, BIR[4])
 
 c:eyeSmall(12, 20) c:eyeSmall(19, 20)
 O.dot(c, 10, 24, "#f5809f") O.dot(c, 22, 24, "#f5809f")

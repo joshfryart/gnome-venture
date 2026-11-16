@@ -1,4 +1,6 @@
--- Lantern Lark (dw-lantern-lark), perch sprite 36x36. Opus second pass, hand-built at this size.
+-- Lantern Lark (dw-lantern-lark), perch sprite 36x36. Opus richness pass (c03/opus3), hand-built at this size.
+-- Richness pass: a hot candle core and gold top cap on each lantern, a warm lantern bounce on the lark's underside,
+-- two breast streaks and pale tail tips; the pale face mask stays so the pill eyes read.
 -- The lark sits on the sagging lantern string: big head with pill eyes, crest, open orange beak, cream breast,
 -- a wing with one pale feather row, a glowing lantern each side. quirk: the violet note it sings.
 local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
@@ -19,13 +21,16 @@ O.flat(c, str, STR, "string")
 for _, L in ipairs({ { 5, 21 }, { 30, 21 } }) do
   local m = c:ellipse(L[1], L[2] + 4, 2.5, 3)
   O.shade(c, m, LAN, { R = 1, amb = .45, wrap = .5, cuts = { .25, .5, .72, .9 }, sep = LAN[1] })
+  O.mark(c, { { L[1], L[2] + 3 }, { L[1], L[2] + 4 } }, LAN[5]) O.mark(c, { { L[1] - 1, L[2] + 5 } }, LAN[3])
+  O.flat(c, c:rect(L[1] - 1, L[2] + 1, L[1] + 1, L[2] + 1), "#c08a2a", "topcap")
   O.flat(c, c:rect(L[1] - 1, L[2] + 8, L[1] + 1, L[2] + 8), "#5e4848", "cap")
   O.flat(c, c:rect(L[1], L[2] + 9, L[1], L[2] + 10), LAN[2], "tassel")
 end
 O.shade(c, c:poly{ { 12, 20 }, { 7, 26 }, { 9, 27 }, { 14, 22 } }, LRK, { R = 1, amb = .3, sep = LRK[1] })
-O.shade(c, c:ellipse(17, 19, 6, 5), LRK, { sphere = { 15, 17, 7 }, amb = .2, wrap = .4, sep = LRK[1], rim = true, bounce = "#7a6aa8", bmax = 2 })
+O.shade(c, c:ellipse(17, 19, 6, 5), LRK, { sphere = { 15, 17, 7 }, amb = .2, wrap = .4, sep = LRK[1], rim = true, bounce = "#c8703a", bmax = 2 })
 O.shade(c, c:ellipse(20, 20, 3, 3.5), BRS, { R = 1, amb = .4, cuts = { .35, .7 } })
-O.dots(c, { { 19, 19 }, { 21, 21 } }, LRK[3])
+O.dots(c, { { 19, 19 }, { 21, 21 }, { 20, 22 } }, LRK[3])
+O.dots(c, { { 8, 26 }, { 7, 25 } }, LRK[6])
 O.shade(c, c:poly{ { 12, 17 }, { 17, 16 }, { 18, 20 }, { 11, 22 } }, LRK, { R = 1, amb = .25, sep = LRK[1] })
 O.dots(c, { { 13, 19 }, { 15, 18 }, { 17, 18 } }, LRK[6])
 O.shade(c, c:ellipse(20, 10, 5.5, 4.5), LRK, { sphere = { 18, 8, 6 }, amb = .25, wrap = .4, sep = LRK[1], rim = true })

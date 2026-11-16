@@ -1,4 +1,8 @@
--- Drum Tap (gc-drum-tap), yard sprite 64x64. Opus second pass (art-2701-pals-all/c04/opus2), from the Haiku pass.
+-- Drum Tap (gc-drum-tap), yard sprite 64x64. Opus richness pass (c04/opus3), built on c04/opus2.
+-- Richness pass: hue-shifted red-wood ramp, long vertical carving grain with a knot (kept off the face), mottled
+-- goatskin with a hairline edge, tension knots and wooden pegs on the top rope ring, lacing with lit/shaded twists,
+-- a tiny painted leaf motif on the foot. Closer look: a darker worn patch on the skin exactly where its hand always
+-- taps, and the splash crown answered by two smaller drops, like a rhythm.
 -- Bloomcaller, common, Great Canopy. "Taps a rhythm on the pavilion and gets the rain to join in."
 -- A goblet hand drum: pale goatskin head, a rope ring under the rim, the face on the round red-wood bowl,
 -- zigzag rope lacing round the lower bowl down to a waist ring, a flared foot with carved notches, and one little
@@ -41,7 +45,13 @@ for y = 18, 56 do
   end
 end
 local bI, bT = O.shadeN(c, body, bn, WOOD, { amb = .15, wrap = .4, rim = true, bounce = "#7a5a9a", bmax = 2 })
-O.tex(c, bI, bT, WOOD, function(x, y, i) if (x * 3 + y) % 11 == 0 and H(x, y, 3) > .6 and i >= 3 then return -1 end end) -- wood grain
+-- long vertical carving grain (each column its own streak pattern) and a knot, off the face
+O.tex(c, bI, bT, WOOD, function(x, y, i)
+  if y >= 21 and y <= 32 and ((x >= 20 and x <= 29) or (x >= 35 and x <= 44) or (x >= 28 and x <= 36 and y >= 28)) then return 0 end
+  if H(x, 0, 3) > .6 and (y + math.floor(H(x, 1, 4) * 9)) % 9 < 6 and i >= 3 then return -1 end
+  if H(x, 2, 5) > .85 and i >= 2 and i <= 4 and (y + x) % 5 == 0 then return 1 end
+end)
+O.mark(c, { { 44, 38 }, { 45, 38 }, { 44, 39 } }, WOOD[2]) O.mark(c, { { 45, 39 } }, WOOD[5]) -- knot
 
 -- foot: darker band with carved notches
 for y = 50, 56 do for x = 0, 63 do if body:has(x, y) then
@@ -50,6 +60,8 @@ for y = 50, 56 do for x = 0, 63 do if body:has(x, y) then
 end end end
 for x = 22, 42, 4 do O.mark(c, { { x, 52 }, { x + 1, 52 }, { x, 53 } }, WOOD[1]) end
 O.mark(c, (function() local t = {} for x = 20, 44 do t[#t+1] = { x, 50 } end return t end)(), WOOD[1])
+-- painted leaf motif on the foot (pale green, between the notches)
+for x = 24, 40, 4 do O.mark(c, { { x, 54 }, { x + 1, 54 }, { x + 1, 53 } }, "#7fb25e") end
 
 -- rope rings and zigzag lacing
 local function ring(y, x0, x1)
@@ -69,13 +81,26 @@ for k = 0, 9 do
   end
 end
 ring(34, 0, 63)
+-- tension knots on the top ring with little wooden pegs under them
+for x = 19, 45, 5 do
+  O.mark(c, { { x, 19 }, { x + 1, 19 } }, ROPE[3]) O.mark(c, { { x, 20 }, { x + 1, 20 } }, ROPE[1])
+  O.mark(c, { { x, 21 }, { x, 22 } }, WOOD[2]) O.mark(c, { { x + 1, 21 } }, WOOD[5])
+end
 
 -- skin head
 local head = c:ellipse(CX, 17, 17, 3.6)
 local hv = {}
 head:each(function(x, y) hv[K(x, y)] = .55 + (16 - y) * .08 - (x - CX) * .012 end)
 X.tone(c, head, hv, SKIN, { cuts = { .25, .4, .55, .75 } })
-O.dots(c, { { 22, 15 }, { 23, 15 }, { 24, 15 } }, SKIN[5])
+-- mottled goatskin, a darker hairline edge on the near rim
+head:each(function(x, y)
+  if O.H(x // 2, y, 8) > .78 and y >= 15 then O.mark(c, { { x, y } }, SKIN[3]) end
+  if not head:has(x, y + 1) and x > 22 then O.mark(c, { { x, y } }, SKIN[2]) end
+end)
+O.dots(c, { { 28, 15 }, { 29, 15 }, { 30, 15 } }, SKIN[5])
+-- closer look: a darker worn patch where its hand always taps
+O.mark(c, { { 20, 16 }, { 21, 16 }, { 22, 16 }, { 21, 17 }, { 22, 17 }, { 23, 17 }, { 21, 15 } }, SKIN[2])
+O.mark(c, { { 23, 16 }, { 20, 17 } }, SKIN[3])
 
 -- the tapping arm on the left
 local arm, an = O.tube({ { 17, 28 }, { 11, 26 }, { 9, 17 }, { 14, 9 } }, function(t) return 1.7 end)
@@ -97,5 +122,7 @@ O.dots(c, { { 31, 31 }, { 32, 31 }, { 33, 31 } }, "#c8404a")
 O.shift(c, 0, 0)
 O.done(c, "gc-drum-tap-yard", function(c)
   -- tap ticks by the hand (not outlined)
+  -- two smaller drops keep the beat (not outlined)
+  c:put(52, 9, DROP[2]) c:put(52, 10, DROP[1]) c:put(55, 5, DROP[3]) c:put(55, 6, DROP[2])
   for _, p in ipairs({ { 19, 11 }, { 20, 12 }, { 22, 10 }, { 23, 10 }, { 12, 6 }, { 11, 5 } }) do c:put(p[1], p[2] + 1, "#f5d0a0") end
 end)

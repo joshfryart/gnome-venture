@@ -1,5 +1,7 @@
--- Lantern Lark (dw-lantern-lark), yard sprite 64x64. Opus second pass (art-2701-pals-all/c03/opus3), built on the
--- Haiku first pass. Common, seedkeeper, Dunewhisper. "Sings to the lantern strings until the sky turns violet."
+-- Lantern Lark (dw-lantern-lark), yard sprite 64x64. Opus richness pass (c03/opus3), built on c03/opus2.
+-- Richness pass: streaked crown and mantle, V-shaped breast streaks, pale-edged tertials and pale tail tips, a
+-- warm lantern-glow bounce on the lark's underside, lantern paper ribs with a hot core and gold caps, a twist on
+-- the string. closer look: a little pale moth fluttering at the left lantern. Common, seedkeeper, Dunewhisper. "Sings to the lantern strings until the sky turns violet."
 -- A plump crested desert lark perched right on a sagging lantern string (the string is its perch now, the first
 -- pass had a branch and one lantern hanging off its beak). Big 3/4 head so both locked eyes fit, open singing beak,
 -- pointed crest, streaked cream breast, a folded wing with clear feather rows and pale edges (no longer a smear),
@@ -28,11 +30,14 @@ local function strY(x) local best, by = 1e9, 0 for i = 0, 80 do local bx, yy = O
 -- paper lanterns hanging from the string
 local function lantern(cx, top)
   O.flat(c, c:rect(cx, top, cx, top + 2), STR, "hang")
-  O.flat(c, c:rect(cx - 2, top + 3, cx + 2, top + 3), CAPS[2], "cap")
+  O.flat(c, c:rect(cx - 2, top + 3, cx + 2, top + 3), "#c08a2a", "cap") O.dot(c, cx - 2, top + 3, "#f0c860")
   local m = c:ellipse(cx, top + 8.5, 4.5, 5)
   local idx, tok = O.shade(c, m, LAN, { sphere = { cx - 1, top + 7, 6 }, amb = .45, wrap = .5, cuts = { .25, .5, .72, .9 }, sep = LAN[1] })
-  O.tex(c, idx, tok, LAN, function(x, y, i) if (y - top) % 3 == 0 and i >= 2 then return -1 end end) -- paper ribs
-  O.flat(c, c:rect(cx - 2, top + 14, cx + 2, top + 14), CAPS[2], "cap")
+  O.tex(c, idx, tok, LAN, function(x, y, i)
+    if (y - top) % 3 == 0 and i >= 2 then return -1 end                                   -- paper ribs
+    if math.abs(x - cx) <= 1 and math.abs(y - top - 8.5) <= 1.5 and i >= 3 then return 5 - i end -- hot candle core
+  end)
+  O.flat(c, c:rect(cx - 2, top + 14, cx + 2, top + 14), "#8a5a1e", "cap")
   O.flat(c, c:rect(cx, top + 15, cx, top + 17), LAN[2], "tassel")
 end
 lantern(10, strY(10) + 1)
@@ -41,14 +46,18 @@ lantern(54, strY(54) + 1)
 -- tail dipping behind the string
 O.shade(c, c:poly{ { 23, 34 }, { 14, 44 }, { 17, 46 }, { 27, 38 } }, LRK, { R = 1, amb = .3, sep = LRK[1] })
 O.dots(c, { { 17, 43 }, { 19, 41 }, { 21, 39 } }, LRK[1])
+O.dots(c, { { 15, 44 }, { 16, 45 } }, LRK[6]) -- pale tail tips
 
 -- body
 local body = c:ellipse(30, 32, 9.5, 8)
-local bI, bT = O.shade(c, body, LRK, { sphere = { 27, 28, 12 }, amb = .2, wrap = .4, sep = LRK[1], rim = true, bounce = "#7a6aa8", bmax = 2 })
+local bI, bT = O.shade(c, body, LRK, { sphere = { 27, 28, 12 }, amb = .2, wrap = .4, sep = LRK[1], rim = true, bounce = "#c8703a", bmax = 2 })
+O.tex(c, bI, bT, LRK, function(x, y, i) if y < 30 and (x * 2 + y) % 5 == 0 and i >= 3 then return -1 end end) -- mantle streaks
 -- streaked cream breast
 local brs = c:ellipse(34, 34, 5, 5.5)
 local rI, rT = O.shade(c, brs, BRS, { R = 2, amb = .4, cuts = { .35, .7 } })
-O.dots(c, { { 33, 31 }, { 35, 32 }, { 32, 34 }, { 34, 35 }, { 36, 34 }, { 33, 37 }, { 35, 38 } }, LRK[3])
+for _, v in ipairs({ { 33, 31 }, { 36, 32 }, { 32, 35 }, { 35, 35 }, { 34, 38 }, { 37, 37 } }) do -- V-shaped breast streaks
+  O.dots(c, { { v[1], v[2] }, { v[1] + 1, v[2] + 1 } }, LRK[3]) O.dot(c, v[1] + 2, v[2], LRK[4])
+end
 -- folded wing with feather rows
 local wing = c:poly{ { 21, 29 }, { 30, 27 }, { 32, 32 }, { 28, 37 }, { 19, 36 } }
 local wI, wT = O.shade(c, wing, LRK, { R = 2, amb = .25, sep = LRK[1] })
@@ -56,6 +65,7 @@ for _, row in ipairs({ { { 23, 31 }, { 25, 30 }, { 27, 30 }, { 29, 30 } }, { { 2
   O.mark(c, row, LRK[6])
 end
 O.mark(c, { { 22, 35 }, { 24, 35 }, { 26, 35 }, { 24, 32 }, { 26, 32 }, { 28, 32 } }, LRK[1])
+O.mark(c, { { 20, 36 }, { 22, 36 }, { 25, 36 } }, LRK[5]) -- pale tertial edges
 -- claws gripping the string
 O.dots(c, { { 28, strY(28) - 1 }, { 33, strY(33) - 1 } }, LRK[2])
 
@@ -69,6 +79,11 @@ O.shade(c, c:poly{ { 42, 17 }, { 47, 16 }, { 42, 19 } }, LAN, { R = 1, amb = .4,
 O.shade(c, c:poly{ { 42, 20 }, { 46, 22 }, { 42, 21 } }, LAN, { R = 1, amb = .4, cuts = { .25, .5, .72, .9 } }) -- lower beak
 c:eyeLocked(30, 15) c:eyeLocked(37, 15)
 c:cheek(29, 21) c:cheek(39, 21)
+
+-- closer look: a little pale moth at the left lantern
+local moth = c:poly{ { 1, 36 }, { 4, 37 }, { 1, 39 } } moth:add(c:poly{ { 4, 37 }, { 6, 35 }, { 7, 38 } })
+O.shade(c, moth, { "#8a7a78", "#cdbfb0", "#ede2d0" }, { R = 1, amb = .45, cuts = { .35, .7 } })
+O.dots(c, { { 4, 36 } }, "#5a4848")
 
 -- quirk: a violet music note
 local note = c:ellipse(48.5, 10.5, 2, 1.5)

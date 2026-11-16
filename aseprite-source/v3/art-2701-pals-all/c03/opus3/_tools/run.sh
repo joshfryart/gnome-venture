@@ -8,4 +8,4 @@ for n in "$@"; do
   $A -b --script-param out=$D/ --script $D/$n.lua 2>&1 | grep -i "error\|semi\|black\|traceback\|attempt" | head -5
   F+=("$D/$n.png")
 done
-python3 $D/_tools/sheet.py $S/$T.png 6 "${F[@]}"
+N=$S/$T-$(date +%s).png; python3 $D/_tools/sheet.py $N 6 "${F[@]}"; echo $N

@@ -1,4 +1,6 @@
--- Drum Tap (gc-drum-tap), perch sprite 36x36. Opus second pass (c04/opus2), hand-built at this size:
+-- Drum Tap (gc-drum-tap), perch sprite 36x36. Opus richness pass (c04/opus3), hand-built at this size.
+-- Richness pass: grain streaks on the bowl flanks, rope knots on the top ring, a mottled skin head with a darker
+-- worn tap patch on the left, a red tongue in the open smile, a painted leaf row on the foot. From opus2:
 -- the goblet drum (skin head, rope ring, red-wood bowl, a short zigzag of lacing, flared dark foot),
 -- face on the bowl (2x3 pills, open ink smile, cheeks), the tapping arm raised on the left.
 -- quirk: a rain drop splashing on the skin.
@@ -31,7 +33,10 @@ for y = 10, 31 do
     end
   end
 end
-local bI = O.shadeN(c, body, bn, WOOD, { amb = .15, wrap = .4, rim = true, bounce = "#7a5a9a", bmax = 2 })
+local bI, bT = O.shadeN(c, body, bn, WOOD, { amb = .15, wrap = .4, rim = true, bounce = "#7a5a9a", bmax = 2 })
+O.tex(c, bI, bT, WOOD, function(x, y, i) -- grain streaks on the flanks only
+  if (x == 10 or x == 26 or x == 24) and y >= 11 and y <= 17 and (y + x) % 4 ~= 0 and i >= 3 then return -1 end
+end)
 for y = 28, 31 do for x = 0, 35 do if body:has(x, y) then c.pix[y * 36 + x] = WOOD[math.max(1, bI[K(x, y)] - 1)]:lower() end end end
 for x = 13, 23 do if body:has(x, 28) then O.mark(c, { { x, 28 } }, WOOD[1]) end end
 -- rope ring and lacing
@@ -43,10 +48,14 @@ for _, p in ipairs({ { 12, 19 }, { 13, 20 }, { 14, 21 }, { 15, 22 }, { 16, 21 },
   if body:has(p[1], p[2]) then O.mark(c, { p }, ROPE[3]) end
 end
 for x = 0, 35 do if body:has(x, 18) then O.mark(c, { { x, 18 } }, ROPE[2]) end end
+for x = 11, 25, 4 do O.mark(c, { { x, 10 } }, ROPE[1]) O.mark(c, { { x, 11 } }, ROPE[2]) end -- rope knots
+for x = 14, 22, 4 do O.mark(c, { { x, 30 } }, "#7fb25e") end -- painted leaves on the foot
 
 -- skin head
 local head = c:ellipse(CX, 9, 10, 2.2)
 head:each(function(x, y) c:put(x, y, (y <= 8 and x < 22) and SKIN[5] or (y <= 9 and SKIN[4] or SKIN[3]), { r = { name = "skin" } }) end)
+O.mark(c, { { 10, 9 }, { 11, 9 }, { 11, 8 } }, SKIN[2]) -- worn tap patch
+O.mark(c, { { 19, 8 }, { 24, 9 } }, SKIN[3]) -- mottle
 
 -- arm raised to tap
 local arm, an = O.tube({ { 10, 15 }, { 6, 14 }, { 5, 9 }, { 8, 5 } }, function() return 1.2 end)
@@ -59,7 +68,9 @@ O.flat(c, c:rect(25, 2, 25, 3), DROP[2], "drop") O.flat(c, c:rect(24, 4, 26, 4),
 c:eyeSmall(13, 12)
 c:eyeSmall(21, 12)
 O.dot(c, 11, 15, "#f5809f") O.dot(c, 25, 15, "#f5809f")
-O.dots(c, { { 16, 15 }, { 17, 16 }, { 18, 16 }, { 19, 15 } }, P.ink)
+O.dots(c, { { 16, 15 }, { 17, 16 }, { 18, 16 }, { 19, 15 }, { 17, 15 }, { 18, 15 } }, P.ink)
+O.dots(c, { { 17, 16 }, { 18, 16 } }, "#c8404a")
+O.dots(c, { { 17, 17 }, { 18, 17 } }, P.ink)
 
 O.shift(c, 0, 0)
 O.done(c, "gc-drum-tap-perch", function(c)

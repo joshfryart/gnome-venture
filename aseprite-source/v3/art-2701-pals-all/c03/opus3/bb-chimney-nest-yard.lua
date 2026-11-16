@@ -36,8 +36,9 @@ O.tex(c, rI, rT, SLT, function(x, y, i)
   if (x + row * 3) % 7 == 0 and i >= 2 then return -1 end                   -- tile joints
 end)
 -- moss patch and lichen on the slates (right of the chimney, catching the light)
-for _, p in ipairs({ { 46, 53 }, { 47, 53 }, { 48, 52 }, { 49, 52 }, { 50, 52 }, { 47, 52 }, { 51, 53 } }) do O.mark(c, { p }, MOSS[2]) end
-O.mark(c, { { 48, 51 }, { 49, 51 } }, MOSS[3]) O.mark(c, { { 50, 53 }, { 46, 54 } }, MOSS[1])
+local moss = c:ellipse(49, 52, 3, 1)
+moss:each(function(x, y) if roof:has(x, y) then O.mark(c, { { x, y } }, (x + y) % 2 == 0 and MOSS[3] or MOSS[2]) end end)
+O.mark(c, { { 47, 53 }, { 51, 53 }, { 53, 52 } }, MOSS[1]) O.mark(c, { { 48, 51 }, { 50, 51 } }, MOSS[3])
 O.mark(c, { { 12, 58 }, { 55, 57 }, { 9, 59 } }, "#b8b47a")
 
 -- chimney stack: per-brick tone, lit top lip, recessed mortar
@@ -52,7 +53,7 @@ for k, i in pairs(sI) do
     local col = bx // 6
     local face = x >= 23 and x <= 39 and y >= 36 and y <= 46
     if (y - 33) % 3 == 2 or bx % 6 == 5 then
-      c.pix[p] = MOR[max(1, min(6, i))]:lower()
+      c.pix[p] = MOR[max(1, min(6, i - 1))]:lower()
     else
       local d = 0
       local hb = H(col, row, 21)
@@ -60,7 +61,9 @@ for k, i in pairs(sI) do
       if face then d = max(0, d) end
       if (y - 33) % 3 == 0 and bx % 6 <= 2 and i >= 3 then d = d + 1 end   -- lit lip on the brick's upper-left
       if not face and H(x, y, 3) > .92 then d = d - 1 end                 -- pits
-      c.pix[p] = BRK[max(1, min(6, i + d))]:lower()
+      local t = i + d
+      if face then t = min(t, 5) end
+      c.pix[p] = BRK[max(1, min(6, t))]:lower()
     end
   end
 end
@@ -171,9 +174,9 @@ local tw = c:line({ { 48, 24 }, { 57, 26 } }, 1)
 local twk = { r = { name = "twig" } }
 tw:each(function(x, y) c:put(x, y, TWG[4], twk) end) c:put(57, 26, TWG[6], twk) c:put(48, 24, TWG[3], twk)
 
-O.done(c, "bb-chimney-nest-yard", function(c)
-  -- closer look: a little curl of chimney smoke sneaking out from under the nest (un-outlined wisp)
-  for _, d in ipairs({ { 15, 30, 2 }, { 14, 29, 2 }, { 13, 28, 3 }, { 13, 27, 3 }, { 14, 26, 2 }, { 11, 27, 1 }, { 10, 26, 2 }, { 10, 25, 3 } }) do
-    if not c:get(d[1], d[2]) then c:put(d[1], d[2], SMK[d[3]]) end
-  end
-end)
+-- closer look: a curl of chimney smoke sneaking out from under the nest, warming the stork's toes
+for _, q in ipairs({ { 13, 31, 1.4 }, { 9.5, 29.5, 1.6 }, { 6.5, 27, 1.2 }, { 5, 24, .8 } }) do
+  O.shade(c, c:ellipse(q[1], q[2], q[3], q[3]), SMK, { R = 1, amb = .45, wrap = .5, cuts = { .35, .7 } })
+end
+O.dots(c, { { 10, 30 }, { 9, 30 } }, SMK[1])
+O.done(c, "bb-chimney-nest-yard")

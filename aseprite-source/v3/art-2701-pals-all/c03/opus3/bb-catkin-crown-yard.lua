@@ -1,5 +1,8 @@
--- Catkin Crown (bb-catkin-crown), yard sprite 64x64. Opus second pass (art-2701-pals-all/c03/opus3), built on the
--- Haiku first pass. Uncommon, rootwarden, Birchbramble. "Wears a crown of catkins and sneezes gold when pleased."
+-- Catkin Crown (bb-catkin-crown), yard sprite 64x64. Opus richness pass (c03/opus3), built on c03/opus2.
+-- Richness pass: the moss body is drawn as clumped cushion tufts (lit crown, dark root crescent per clump) with a few
+-- sporophyte stalks, catkins get scale rows, the birch band peels (pale curl, dark lenticels), a second leaf.
+-- closer look: a pollen-dusted bumblebee asleep on the top catkin (the reason for the sneeze).
+-- Uncommon, rootwarden, Birchbramble. "Wears a crown of catkins and sneezes gold when pleased."
 -- A round moss-tufted body wearing a band of twisted birch twig (white bark, dark lenticel dashes, two birch leaves);
 -- five soft catkins spring from the band and droop outward like a fountain, beaded so they read as catkins
 -- (the first pass drew straight gold prongs). quirk: a pleased little sneeze, a puff of gold pollen off to the right.
@@ -14,6 +17,7 @@ local CAT  = { "#4e3e1a", "#7a6a1e", "#a8962a", "#cdb83a", "#e6d660", "#f6ee9e" 
 local BIR  = { "#4a3a44", "#8a7f8e", "#c6c0c8", "#ebe6e3" }
 local LEAF = { "#2a5a32", "#4a8a3a", "#7cbc4a", "#b4e070" }
 local GOLD = { "#8a5a14", "#c8901e", "#f0c040", "#fbe68a" }
+local BEE  = { "#2b1c26", "#e8a828", "#f8d860", "#dfe4f0" }
 
 c:groundShadow(30, 58, 17, 2.5)
 for _, fx in ipairs({ 23, 37 }) do O.shade(c, c:ellipse(fx, 55, 4, 2), MOSS, { R = 1, amb = .25, sep = MOSS[1] }) end
@@ -21,12 +25,25 @@ for _, fx in ipairs({ 23, 37 }) do O.shade(c, c:ellipse(fx, 55, 4, 2), MOSS, { R
 -- body
 local body = c:ellipse(30, 41, 16, 13)
 local bI, bT = O.shade(c, body, MOSS, { sphere = { 26, 36, 18 }, amb = .2, wrap = .4, sep = MOSS[1], rim = true, bounce = "#4a7a8a", bmax = 2 })
-O.tex(c, bI, bT, MOSS, function(x, y, i) -- moss tufts: lit tips and dark roots
-  local h = H(x, y, 7)
-  local face = x > 19 and x < 42 and y > 34 and y < 48
-  if not face and h > .88 and i <= 5 then return 1 end
-  if not face and h < .07 and i >= 2 then return -1 end
+O.tex(c, bI, bT, MOSS, function(x, y, i) -- cushion moss: irregular clumps, lit crown, dark root crescent
+  local face = x > 18 and x < 43 and y > 34 and y < 49
+  local row = y // 4
+  local off = math.floor(H(row, 0, 41) * 5)
+  local col = (x + off) // 5
+  local cx, cy = (x + off) % 5, y % 4
+  local d = 0
+  if cy == 0 and cx >= 1 and cx <= 3 and H(col, row, 43) > .2 then d = 1 end
+  if cy == 1 and cx == 2 and H(col, row, 47) > .5 then d = 1 end
+  if cy == 3 and (cx == 0 or cx == 4) then d = -1 end
+  if cy == 3 and cx == 1 and H(col, row, 53) > .5 then d = -1 end
+  if face then d = (d > 0 and H(col, row, 59) > .5) and 1 or 0 end
+  if i == 1 and d < 0 then d = 0 end
+  return d
 end)
+-- sporophyte stalks: tiny capsules standing up off the moss
+for _, sp in ipairs({ { 18, 32 }, { 42, 32 }, { 46, 37 } }) do
+  O.dots(c, { { sp[1], sp[2] }, { sp[1], sp[2] - 1 } }, MOSS[2]) O.dot(c, sp[1], sp[2] - 2, "#b8643a")
+end
 
 -- catkins: soft beaded tassels springing up and drooping outward
 local function catkin(p, r)
@@ -41,10 +58,11 @@ local function catkin(p, r)
     m:add(c:ellipse(x, y, rr, rr))
   end
   local idx, tok = O.shade(c, m, CAT, { R = 2, amb = .3, wrap = .4, sep = CAT[1] })
-  O.tex(c, idx, tok, CAT, function(x, y, i) -- seam between beads, lit fuzz dots
+  O.tex(c, idx, tok, CAT, function(x, y, i) -- scale rows on each bead, lit fuzz dots
     local best, bk = 1e9, 0
     for k, b in ipairs(beads) do local d = (x - b[1])^2 + (y - b[2])^2 if d < best then best, bk = d, k end end
     if bk % 2 == 0 and i >= 3 and i <= 5 then return -1 end
+    if (x + y) % 3 == 0 and i >= 4 then return -1 end
     if H(x, y, 5) > .85 and i <= 5 then return 1 end
   end)
 end
@@ -59,12 +77,20 @@ local band = c:poly{ { 14, 31 }, { 20, 27 }, { 30, 25.5 }, { 40, 27 }, { 46, 31 
 local wI, wT = O.shade(c, band, BIR, { R = 1, amb = .35, cuts = { .3, .55, .8 }, sep = BIR[1] })
 O.mark(c, { { 17, 31 }, { 22, 28 }, { 27, 27 }, { 33, 27 }, { 38, 28 }, { 43, 31 } }, BIR[1]) -- lenticels
 O.mark(c, { { 18, 31 }, { 34, 27 } }, BIR[1])
+O.mark(c, { { 25, 27 }, { 26, 27 }, { 40, 29 } }, BIR[4]) -- peeling bark curls
 -- two birch leaves on the band
-for _, L in ipairs({ { 14, 33, -1 } }) do
+for _, L in ipairs({ { 14, 33, -1 }, { 46, 32, 1 } }) do
   local lf = c:poly{ { L[1], L[2] }, { L[1] + 3 * L[3], L[2] - 3 }, { L[1] + 7 * L[3], L[2] - 2 }, { L[1] + 4 * L[3], L[2] + 1 } }
   O.shade(c, lf, LEAF, { R = 1, amb = .35, cuts = { .3, .55, .8 }, sep = LEAF[1] })
   O.mark(c, { { L[1] + 2 * L[3], L[2] - 1 }, { L[1] + 3 * L[3], L[2] - 1 }, { L[1] + 4 * L[3], L[2] - 2 }, { L[1] + 5 * L[3], L[2] - 2 } }, LEAF[2])
 end
+
+-- closer look: a pollen-dusted bumblebee asleep on the top catkin
+local bee = c:ellipse(35.5, 7.5, 2.5, 1.8)
+O.shade(c, bee, { BEE[2], BEE[3] }, { R = 1, amb = .4, cuts = { .5 }, sep = BEE[1] })
+O.mark(c, { { 35, 6 }, { 35, 7 }, { 35, 8 }, { 37, 7 }, { 37, 8 } }, BEE[1]) -- stripes
+O.dots(c, { { 34, 5 }, { 35, 5 } }, BEE[4]) -- folded wing
+O.mark(c, { { 33, 7 } }, GOLD[4])
 
 -- face
 c:eyeLocked(22, 37) c:eyeLocked(34, 37)

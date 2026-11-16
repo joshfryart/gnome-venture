@@ -1,5 +1,7 @@
--- Sherbet Sip (dw-sherbet-sip), yard sprite 64x64. Opus second pass (art-2701-pals-all/c03/opus3), built on the
--- Haiku first pass. Common, brewroot, Dunewhisper. "Pours mint tea from very high up and hopes nobody spills."
+-- Sherbet Sip (dw-sherbet-sip), yard sprite 64x64. Opus richness pass (c03/opus3), built on c03/opus2.
+-- Richness pass: a glazed sheen streak with glints and pits and engraved gold dot row under the lid, pierced lid holes,
+-- a twisted rope handle, light glints running down the pour, the glass's painted band and a darker tea body.
+-- closer look: a fresh mint leaf floating in the glass, with two tiny bubbles. Common, brewroot, Dunewhisper. "Pours mint tea from very high up and hopes nobody spills."
 -- A sherbet-peach Moroccan teapot: pear belly with gold bands and a scalloped engraved trim, foot ring, a domed lid
 -- with a stacked finial and a mint sprig, a looped handle. Its long spout swoops up above its own head and a
 -- 2 px stream of mint tea falls the whole height into a gold-rimmed tea glass (the first pass had an arm and a
@@ -21,7 +23,8 @@ c:groundShadow(34, 58, 22, 2.5)
 -- looped handle
 local hnd = c:ellipse(12, 42, 4.5, 6.5)
 hnd:cut(c:ellipse(12, 42, 2, 4))
-O.shade(c, hnd, GOLD, { R = 1, amb = .3, cuts = { .25, .5, .72, .9 }, rim = true })
+local hI, hT = O.shade(c, hnd, GOLD, { R = 1, amb = .3, cuts = { .25, .5, .72, .9 }, rim = true })
+O.tex(c, hI, hT, GOLD, function(x, y, i) if (x + y) % 4 == 0 and i >= 3 then return -1 end end) -- twisted rope
 
 -- foot ring
 O.shade(c, c:poly{ { 19, 52 }, { 33, 52 }, { 35, 56 }, { 17, 56 } }, GOLD, { R = 1, amb = .3, cuts = { .25, .5, .72, .9 }, sep = GOLD[1] })
@@ -36,10 +39,18 @@ for x = 14, 38 do
   if body:has(x, 49) and x % 3 == 0 then c:put(x, 49, GOLD[3], bT) end
 end
 for x = 18, 34 do if body:has(x, 35) then c:put(x, 35, GOLD[3], bT) end end
+-- glazed sheen streak (upper-left) and an engraved arabesque under the face
+O.tex(c, bI, bT, PCH, function(x, y, i) if (x == 15 or x == 16) and y >= 39 and y <= 45 and i >= 3 then return 6 - i end
+  local face = x > 16 and x < 35 and y > 36 and y < 47
+  if not face and y < 47 and H(x, y, 61) > .88 and i >= 3 and i <= 5 then return 1 end   -- glaze glints
+  if not face and y < 47 and H(x, y, 67) < .06 and i >= 2 then return -1 end           -- glaze pits
+end)
+O.dots(c, { { 20, 36 }, { 23, 36 }, { 26, 36 }, { 29, 36 }, { 32, 36 } }, GOLD[2])
 
 -- domed lid, stacked finial, mint sprig
 O.shade(c, c:ellipse(26, 30, 6.5, 3.5):add(c:rect(20, 30, 32, 32)), GOLD, { R = 2, amb = .3, cuts = { .25, .5, .72, .9 }, sep = GOLD[1], rim = true })
 O.shade(c, c:ellipse(26, 24.5, 2, 2), GOLD, { R = 1, amb = .35, cuts = { .25, .5, .72, .9 }, sep = GOLD[1] })
+O.mark(c, { { 23, 29 }, { 26, 28 }, { 29, 29 } }, GOLD[1]) -- pierced lid holes
 O.flat(c, c:rect(26, 20, 26, 22), GOLD[3], "spire") O.dot(c, 26, 19, GOLD[5])
 for _, L in ipairs({ { 29, 25, 1 }, { 30, 22, 1 } }) do
   local lf = c:poly{ { L[1], L[2] }, { L[1] + 3, L[2] - 2 }, { L[1] + 5, L[2] - 1 }, { L[1] + 2, L[2] + 1 } }
@@ -65,11 +76,15 @@ O.dots(c, { { 48, 51 }, { 49, 52 }, { 50, 51 }, { 51, 52 }, { 52, 51 }, { 53, 52
 for y = 53, 55 do for x = 49, 54 do if gl:has(x, y) then c:put(x, y, (x + y) % 2 == 0 and TEA[1] or TEA[2]) end end end
 O.dots(c, { { 47, 48 }, { 48, 48 }, { 49, 48 }, { 50, 48 }, { 51, 48 }, { 52, 48 }, { 53, 48 }, { 54, 48 }, { 55, 48 }, { 56, 48 } }, GOLD[4])
 O.dots(c, { { 49, 49 }, { 51, 49 }, { 52, 49 }, { 53, 49 } }, TEA[3])
+-- closer look: a mint leaf floating in the glass, two bubbles
+O.dots(c, { { 53, 49 }, { 54, 49 }, { 55, 49 } }, MINT[3]) O.dot(c, 54, 49, MINT[4]) O.dot(c, 55, 50, MINT[2])
+O.dots(c, { { 50, 54 }, { 52, 53 } }, TEA[3])
 
 O.shift(c, 0, -2)
 O.done(c, "dw-sherbet-sip-yard", function(c)
   -- (drawn after the -2 px shift) the long pour: a 2 px stream, lit left, shaded right, straight down into the glass
   for y = 15, 45 do c:put(51, y, TEA[3]) c:put(52, y, TEA[2]) end
+  for _, y in ipairs({ 19, 26, 33, 40 }) do c:put(51, y, "#f4f0b8") end -- light glints running down the pour
   c:put(50, 45, TEA[3]) c:put(53, 45, TEA[2])
   -- quirk: one hopping drop above the rim
   c:put(58, 42, P.ink) c:put(57, 43, P.ink) c:put(59, 43, P.ink) c:put(58, 44, P.ink) c:put(58, 43, TEA[3])
