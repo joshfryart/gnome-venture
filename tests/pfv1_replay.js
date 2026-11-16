@@ -11,7 +11,7 @@ const seed = (...a) => execSync(`php -d display_errors=1 ${here}/pbox_v1_seed.ph
 let fails = 0;
 const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.stringify(want); if (g === w) console.log('ok   ' + what); else { console.log(`FAIL ${what} (got ${g}, want ${w})`); fails++; } };
 const le = (what, got, max) => { if (got !== null && got <= max) console.log(`ok   ${what} (${got} ms <= ${max})`); else { console.log(`FAIL ${what} (got ${got} ms, want <= ${max})`); fails++; } };
-const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 9 4 soft').split(' ');
+const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 8 4 soft').split(' ');
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
   const mk = async (opts) => {
@@ -26,7 +26,7 @@ const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 9 4 soft').split(' ');
       window.__tl.push({ at: performance.now(), pl: !!f && f.classList.contains('pf-playing'), turn: f ? f.dataset.turn : null, ban: t ? t.firstChild.textContent : null, hp: hp(), res: !!r && getComputedStyle(r).display !== 'none' && r.getBoundingClientRect().height > 0, wait: !!f && f.classList.contains('pfv-endwait') }); }, 25); };
   // open the seeded fight, wait until the page is quiet, play the first piece on its first lit cell up to End turn (not yet pressed)
   const ready = async (p, speed, args = SEEDARGS) => {
-    seed('fight', process.env.REPLAY_SIZE || 'medium'); seed(...args);
+    seed('fight', process.env.REPLAY_SIZE || 'medium', 'manual', process.env.REPLAY_CREATURE || 'spice-monitor');   /* 2.7.01: a level 27 medium (no low-level bar ease), so the seeded fight stays long */ seed(...args);
     await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await p.evaluate((s) => { try { s === null ? localStorage.removeItem('pfvspd') : localStorage.setItem('pfvspd', s); } catch (e) {} }, speed === null ? null : String(speed));
     await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
     await p.waitForFunction(() => { const f = document.getElementById('pfight'); return f && !f.classList.contains('pf-playing'); }, null, { timeout: 30000 }); await p.waitForTimeout(1200);

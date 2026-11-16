@@ -53,6 +53,31 @@ $ck('second run adds no creature', $added, 0);
 $ck('second run changes no table', [$n('creatures'), $n('creature_drops'), $n('items'), $n('encyclopedia_entries')], $c0);
 import_pf_creatures($stats); import_pf_creatures($stats);
 $ck('five runs, still the same drops', $n('creature_drops'), $c0[1]);
+
+// ---- 3b. 2.7.02: a drop binds to the item that already exists; fresh install = upgrade, no twins
+$twins = q("SELECT LOWER(a.name) AS nm FROM items a JOIN items b ON LOWER(b.name) = LOWER(a.name) AND b.id > a.id WHERE a.category = 'part' OR b.category = 'part' GROUP BY LOWER(a.name)")->fetchAll(PDO::FETCH_COLUMN);
+$ck('no part item shares a display name with another item (no twins made by the import)', $twins, []);
+$ck('no gatherable is bound to a drop-made part item', (int)q_val("SELECT COUNT(*) FROM gatherables g JOIN items i ON i.id = g.item_id WHERE i.category = 'part'"), 0);
+$badBind = [];
+foreach (file($argv[1] . '/includes/data/gatherables.txt', FILE_IGNORE_NEW_LINES) as $ln) {
+    $ln = trim($ln); if ($ln === '' || $ln[0] === '#') continue;
+    $f = array_map('trim', explode('|', $ln)); if (count($f) < 8) continue;
+    $iid = item_id_by_slug($f[0]);
+    if (!$iid || !q_val('SELECT 1 FROM gatherables WHERE item_id = ?', [$iid]) || q_val('SELECT category FROM items WHERE id = ?', [$iid]) !== 'forage') $badBind[] = $f[0];
+    if ($iid !== pfc_item_for_drop($f[1]) && $iid !== pfc_item_for_drop($f[0])) $badBind[] = $f[0] . '(resolver)';
+}
+$ck('every gatherable item is the forage item the importer resolves its name to', $badBind, []);
+$pairs = ['Brook Trout' => 'trout', 'Flint Nodule' => 'flint', 'Shed Dragonfly Wing' => 'dragonfly-wing', 'Sphagnum Moss' => 'sphagnum', 'Urchin Shell' => 'urchin-test', 'Shed Butterfly Scales' => 'butterfly-scales', 'Water Spinach' => 'kangkong'];
+$badPair = []; foreach ($pairs as $nm => $sl) if (pfc_item_for_drop($nm) !== item_id_by_slug($sl) || !item_id_by_slug($sl)) $badPair[] = $nm;
+$ck('the 7 drop names that used to make a twin resolve to the real item', $badPair, []);
+$ck('a name nothing has resolves to 0 (a new part is made)', pfc_item_for_drop('Zz Nothing Called This'), 0);
+$ck('a drop whose slug is a crop item binds to it', pfc_item_for_drop('Kangkong') ?: 0, item_id_by_slug('kangkong'));
+$dropNames = []; foreach ($rows as $r) foreach (pfc_parse_drops($r['drops']) as $e) if ($e['name'] !== '') $dropNames[$e['name']] = 1;
+$mis = []; foreach (array_keys($dropNames) as $nm) { $iid = pfc_item_for_drop($nm); if (!$iid) $mis[] = $nm; }
+$ck('every drop name of the file has an item after the import', $mis, []);
+$i0 = $n('items'); import_pf_creatures($stats); import_creatures_txt($stats);
+$ck('the import twice makes no item', $n('items'), $i0);
+
 // a world from before 2.7.01: the variants are not there, the base rows have only their old drops
 $fly = q_one("SELECT * FROM creatures WHERE slug = 'fly-swarm'");
 $ck('variant: stats of a small level 12 (hp)', [(int)$fly['hp'], $fly['size'], (int)$fly['level'], $fly['landscapes']], [(int)round((5 + 12 * 3) * 0.8), 'small', 12, 'grassland,wetland']);

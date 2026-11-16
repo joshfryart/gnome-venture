@@ -366,7 +366,7 @@ function import_creatures_txt(array &$stats, string $file = 'creatures.txt'): vo
                 $names[] = $dname === '*seed' ? 'a local seed' : 'a gardening guide';
                 continue;
             }
-            $iid = item_id_by_slug(slugify($dname));
+            $iid = pfc_item_for_drop($dname);
             if (!$iid) {
                 $iid = db_insert('items', ['name' => $dname, 'slug' => slugify($dname), 'category' => 'part',
                     'rarity' => min(95, max(5, 100 - (int)$chance + $level)), 'base_price' => max(5, (int)round($level * 4 * (110 - (int)$chance) / 60)),
@@ -386,6 +386,34 @@ function import_creatures_txt(array &$stats, string $file = 'creatures.txt'): vo
         }
         $stats['creatures'] = ($stats['creatures'] ?? 0) + 1;
     }
+}
+
+/**
+ * 2.7.02: the item a drop name means. An EXISTING item first (slug, then exact name), so a drop never makes a twin of a gatherable, crop, flower or Sight item.
+ * The items that ship with other parts of the game (gatherables, Sight items) are made first (adds only), so a fresh install and an upgrade bind the same way
+ * whatever order the install runs in. 0 = nothing of that name exists: the caller makes a new 'part' item.
+ */
+function pfc_item_for_drop(string $name): int
+{
+    $look = function () use ($name): int {
+        $id = item_id_by_slug(slugify($name));
+        return $id ?: (int)q_val('SELECT id FROM items WHERE LOWER(name) = LOWER(?) ORDER BY id LIMIT 1', [$name]);
+    };
+    if ($id = $look()) return $id;
+    static $shipped = false;
+    if (!$shipped) {
+        $shipped = true;
+        try {
+            require_once __DIR__ . '/tools.php';
+            require_once __DIR__ . '/gathering.php';
+            ensure_gatherables();
+        } catch (Throwable $e) { /* not installed far enough yet: the later boot steps make them */ }
+        try {
+            require_once __DIR__ . '/trail_sight_extras.php';
+            trail_sights_ensure_items();
+        } catch (Throwable $e) {}
+    }
+    return $look();
 }
 
 /**
@@ -441,7 +469,7 @@ function import_pf_creatures(array &$stats): int
             db_insert('creature_drops', $row + ['special' => $e['special']]);
             return;
         }
-        $iid = item_id_by_slug(slugify($e['name']));
+        $iid = pfc_item_for_drop($e['name']);
         if (!$iid) {
             $iid = db_insert('items', ['name' => $e['name'], 'slug' => slugify($e['name']), 'category' => 'part',
                 'rarity' => min(95, max(5, 100 - (int)$e['chance'] + $level)), 'base_price' => max(5, (int)round($level * 4 * (110 - (int)$e['chance']) / 60)),

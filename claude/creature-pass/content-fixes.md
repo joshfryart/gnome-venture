@@ -9,3 +9,12 @@ Rows: 318 -> 319 (-3 removed, +4 added). Batches A-D and the merged file are con
 5. Black Truffle declared once (piglet-squeal; removed from wild-boar new_items).
 
 Not fixable here (listed): 13 rows of level 38-40 (ratel-pair, emu-mob, lava-beetle, gorse-beast, old-brock, conger-brute, elder-tiger, mangrove-crab-emperor, musk-ox, reef-eel-tyrant, alpha-dingo, kraken-spawn, ibex-patriarch) and goliath-heron 35, elder-mire-toad 36 have no region window (highest region level 35, window top 37): only an outgrown walk meets them. 8 base rows have no region window ('*', level fixed by creatures.txt): leafcutter-column, mischief-monkey, arctic-fox, reef-turtle, desert-tortoise, glacier-bear, lichen-reindeer, snow-owl-monarch. tests/pf_creatures_import.php asserts 318 rows (2 checks) and must become 319.
+
+## 2.7.02 drop items bind to existing items
+
+- Bug: on a fresh install the creature import ran before `ensure_gatherables()` and the Sight items, so a drop named like a gatherable (Samphire, Morel, Minnow, ...) created a non-edible `part` item and the gatherable then bound to it. Fresh and upgraded installs got different items, and preserve prices (pantry) drifted.
+- Fix (`game/includes/adventure_data.php`): `pfc_item_for_drop($name)` looks up an existing item by slug, then by exact (case-insensitive) name; if none, it first makes the shipped gatherables and Sight items (adds only), looks again, and only then does the importer create a new `part`. Used by `import_pf_creatures` and `import_creatures_txt`.
+- The 7 name pairs (Brook Trout/`trout`, Flint Nodule/`flint`, Shed Dragonfly Wing/`dragonfly-wing`, Sphagnum Moss/`sphagnum`, Urchin Shell/`urchin-test`, Shed Butterfly Scales/`butterfly-scales`, Water Spinach/`kangkong`) already use the real item's display name in pf_creatures.txt, so the name lookup binds them; no rename of the data was needed.
+
+## Gate decision (owner: b)
+The 85 `@lv>=N` gates with N at or below the row level (always open) are removed from pf_creatures.txt and batches A-D. Real gates kept: `@reg` gates and `@lv<=` (garden-snail Lettuce @lv<=8).

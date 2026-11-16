@@ -110,7 +110,7 @@ ok('time curve: 1 day = x1.8 (jams unchanged)', preserve_price(['strawberry' => 
 ok('time curve: 14 days = 1 + 0.8 x 14^0.6 (x4.8)', preserve_price(['strawberry' => 10], 20160, 1, $FL) === (int)ceil($v1 * 10 * (1 + 0.8 * 14 ** 0.6) / 0.6));
 ok('a missing crop prices nothing', preserve_price(['no-such-crop' => 1], 1440, 3, $FL) === null);
 // the one-off re-price for worlds that already have the bad prices
-$bugged = ['jostaberry-jam', 'pluot-jam', 'pickled-fiddleheads'];
+$bugged = ['jostaberry-jam', 'pluot-jam'];
 $good = []; foreach ($bugged as $sl) $good[$sl] = (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$sl]);
 foreach ($bugged as $sl) q('UPDATE items SET base_price = ? WHERE slug = ?', [(int)round($good[$sl] * 2.6), $sl]);   // as the old import left them
 q("UPDATE items SET base_price = 7 WHERE slug = 'nectaplum-jam'");                                                  // an admin set this one low: never touched
