@@ -48,7 +48,7 @@ local bI, bT = O.shade(c, body, PINK, { sphere = { 27, 35, 17 }, amb = .27, wrap
 -- soft skin: pore speckles in the mid tones, a few pale wet glints in the light
 O.tex(c, bI, bT, PINK, function(x, y, i)
   local h = H(x, y, 11)
-  if h > .93 and i >= 3 and i <= 5 then return -1 end
+  if h > .95 and i >= 3 and i <= 5 then return -1 end
   if h < .03 and i >= 4 and y < 40 then return 1 end
 end)
 -- belly
@@ -62,8 +62,6 @@ local strap = c:rect(18, 29, 46, 30)
 strap:clip(body)
 local sI, sT = O.shade(c, strap, TEAL, { R = 1, amb = .3 })
 O.tex(c, sI, sT, TEAL, function(x, y) if x % 3 == 0 then return -1 end end) -- strap weave
--- buckle on the left strap
-O.flat(c, c:rect(20, 29, 21, 30), "#d98322", "buckle") O.dot(c, 20, 29, "#ffe38a")
 local frame = c:rrect(24, 25, 40, 31, 2)
 O.shade(c, frame, TEAL, { R = 1, amb = .3, sep = TEAL[1], rim = true })
 for _, gx in ipairs({ 26, 33 }) do
@@ -87,13 +85,6 @@ O.dot(c, 37, 45, TEAL[5]) O.dot(c, 40, 47, TEAL[2])
 O.mark(c, { { 47, 24 }, { 48, 24 }, { 49, 24 }, { 47, 33 }, { 48, 33 }, { 49, 33 } }, ORNG[2])
 O.mark(c, { { 47, 25 }, { 47, 34 } }, ORNG[3])
 
--- closer look: seaweed strand snagged on the snorkel, draped over and trailing down the right
-do
-  local wm, wn = O.tube({ { 46, 19 }, { 50, 17 }, { 53, 22 }, { 52, 28 } }, function(t) return t < .15 and .9 or (1.1 - t * .5) end)
-  local wI, wT = O.shadeN(c, wm, wn, WEED, { amb = .3, cuts = { .3, .55, .8 } })
-  O.dot(c, 53, 25, WEED[2]) O.dot(c, 52, 22, WEED[4])
-end
-
 -- left hand: scallop shell (ribbed fan with colour bands)
 do
   local cx, cy = 12, 20
@@ -102,7 +93,7 @@ do
   fan:add(c:poly{ { cx - 6, cy + 1 }, { cx + 6, cy + 1 }, { cx + 1, cy + 6 }, { cx - 1, cy + 6 } })
   local ears = c:rect(cx - 3, cy + 5, cx + 3, cy + 7)
   O.shade(c, ears, SCAL, { R = 1, amb = .3, sep = SCAL[1] })
-  local fI, fT = O.shade(c, fan, SCAL, { sphere = { cx - 2, cy - 3, 8 }, amb = .25, wrap = .4, sep = SCAL[1], rim = true, bounce = BNC })
+  local fI, fT = O.shade(c, fan, SCAL, { sphere = { cx - 2, cy - 3, 8 }, amb = .25, wrap = .4, sep = SCAL[1], rim = true })
   O.tex(c, fI, fT, SCAL, function(x, y, i)
     local a = math.atan(x - cx, cy + 7 - y)
     local k = math.floor(a * 7 + 100.5)
@@ -134,6 +125,13 @@ do
   O.mark(c, { { cx - 3, cy + 2 }, { cx - 2, cy + 3 }, { cx - 1, cy + 3 }, { cx, cy + 3 } }, "#a06058")
   O.mark(c, { { cx - 3, cy + 4 }, { cx - 2, cy + 5 } }, "#c08a7a")
   O.shade(c, c:ellipse(cx - 1, cy + 8, 2.5, 2), PINK, { R = 1, amb = .3, sep = PINK[1] })
+end
+
+-- closer look: seaweed strand snagged on the snorkel, flopped over the tube and hanging down its left side
+do
+  local wm, wn = O.tube({ { 50, 17 }, { 47, 15 }, { 44, 18 }, { 45, 25 } }, function(t) return t < .1 and .8 or (1.15 - t * .45) end)
+  O.shadeN(c, wm, wn, WEED, { amb = .3, cuts = { .3, .55, .8 }, sep = WEED[1] })
+  O.dot(c, 45, 21, WEED[2]) O.dot(c, 46, 16, WEED[4])
 end
 
 -- face
