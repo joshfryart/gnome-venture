@@ -7,11 +7,11 @@ herb-flatbread|Herb Flatbread|wheat:2,basil:1,parsley:1|lore:2,sense:2|180|9|War
 rice-and-beans|Rice and Beans|rice:2,black-bean:2|grit:2,hardiness:2|240|9|Simple, filling, and loved the world over.|meal|15
 potato-leek-soup|Potato and Leek Soup|potato:2,leek:2|hardiness:3,sense:1|240|9|Silky soup for a damp day.|meal|15
 pickled-radishes|Pickled Radishes|radish:2,dill:1|sense:2,luck:1|180|6|Crunchy, tangy and bright pink.|snack|3
-garden-salad|Garden Salad|lettuce:2,cucumber:1,tomato:1|nimble:2,hardiness:1|120|8|Crisp leaves picked minutes ago.|snack|3
+garden-salad|Garden Salad|lettuce:2,cucumber:1,tomato:1|nimble:2,hardiness:1|120|8|Crisp leaves picked minutes ago.|meal|15
 mint-tea|Mint Tea|mint:2|sense:2|120|4|Steaming and sweet. Clears the head.|snack|3
 carrot-cake|Carrot Cake|carrot:3,wheat:2|charm:2,luck:1|240|11|Everyone suddenly wants to be your friend.|meal|15
 lentil-dal|Lentil Dal|lentil:3,onion:1,turmeric:1|lore:2,hardiness:2|300|12|Golden, gently spiced and deeply comforting.|meal|15
-tropical-fruit-bowl|Tropical Fruit Bowl|mango:1,pineapple:1,banana:1|nimble:3,luck:1|180|5|Sunshine in a bowl.|snack|3
+tropical-fruit-bowl|Tropical Fruit Bowl|mango:1,pineapple:1,banana:1|nimble:3,luck:1|180|5|Sunshine in a bowl.|meal|15
 roasted-roots|Roasted Roots|beet:2,carrot:2,turnip:1|grit:2,hardiness:2|240|11|Caramelised at the edges, sweet in the middle.|meal|15
 chickpea-stew|Chickpea Stew|chickpea:3,tomato:2|grit:2,lore:1|240|11|Hearty enough for a long walk.|meal|15
 coconut-curry|Coconut Curry|coconut:1,rice:2,chili-pepper:1|charm:2,grit:2|300|8|Creamy, fiery and fragrant.|meal|15
@@ -19,11 +19,11 @@ apple-crumble|Apple Crumble|apple:3,oats:2|hardiness:2,charm:2|240|9|Warm apples
 cornbread|Cornbread|corn:3|grit:1|120|6|Golden squares, still warm.|snack|3
 sunflower-snack|Toasted Sunflower Seeds|sunflower:3|nimble:1,sense:1|120|6|A pocketful of crunch for the road.|snack|3
 fiery-pickled-cabbage|Fiery Pickled Cabbage|napa-cabbage:2,chili-pepper:1,garlic:1|grit:3,luck:1|300|9|Fermented, spicy and good for your insides.|meal|15
-peanut-toast|Peanut Toast|peanut:2,wheat:1|lore:2|180|6|Sticky, salty and surprisingly brain-boosting.|snack|3
+peanut-toast|Peanut Toast|peanut:2,wheat:1|lore:2|180|6|Sticky, salty and surprisingly brain-boosting.|meal|15
 hot-cocoa|Hot Cocoa|cacao:2,sugarcane:1|charm:3,luck:1|180|6|A mug of happiness.|snack|3
 green-pea-soup|Green Pea Soup|pea:3,onion:1|hardiness:2,sense:1|180|9|Bright green and sweet.|meal|15
 # Foraged dishes (v0.7.5): gathered on adventures plus your own crops
-mushroom-toast|Mushroom Toast|chanterelle:2,wheat:1|lore:2,grit:1|180|4|Golden chanterelles fried in butter on thick toast.|snack|3
+mushroom-toast|Mushroom Toast|chanterelle:2,wheat:1|lore:2,grit:1|180|4|Golden chanterelles fried in butter on thick toast.|meal|15
 ramson-pesto|Ramson Pesto|ramsons:2,basil:1,garlic:1|sense:2,charm:1|180|6|Wild garlic leaves pounded green and glossy.|snack|3
 morel-risotto|Morel Risotto|morel:1,rice:2,onion:1|lore:3,luck:2|300|8|A rare mushroom makes an ordinary pot of rice unforgettable.|meal|15
 wild-berry-jam|Wild Berry Jam|wild-strawberries:2,bilberries:2|nimble:2,luck:1|240|4|Two kinds of tiny berry, boiled down to a jar of summer.|snack|3
@@ -33,7 +33,7 @@ mesquite-flatbread|Mesquite Flatbread|mesquite-pods:2,wheat:1|grit:2,hardiness:1
 fiddlehead-fry|Fiddlehead Fry|fiddleheads:2,garlic:1|nimble:2,sense:1|180|4|Curled fern tips, crisp and green.|meal|15
 cattail-fritters|Cattail Fritters|cattail-root:2,wheat:1|hardiness:2,grit:1|180|4|Crunchy little fritters from marsh roots.|snack|3
 mussel-broth|Mussel Broth|blue-mussels:3,sea-salt:1,onion:1|hardiness:3,charm:1|240|7|A steaming bowl that tastes of the sea.|meal|15
-samphire-salad|Samphire Salad|samphire:2,lettuce:1,tomato:1|sense:2,nimble:1|150|6|Salty, crunchy sea asparagus over crisp leaves.|snack|3
+samphire-salad|Samphire Salad|samphire:2,lettuce:1,tomato:1|sense:2,nimble:1|150|6|Salty, crunchy sea asparagus over crisp leaves.|meal|15
 sea-grape-sorbet|Sea Grape Sorbet|sea-grapes:3,mint:1|nimble:2,charm:2|150|5|Icy, sweet and a little sharp.|snack|3
 crowberry-cordial|Crowberry Cordial|crowberries:3,mint:1|hardiness:2,luck:1|180|5|A dark, warming drink for cold evenings.|snack|3
 # v0.7.81: fish from the rod (gatherables work as ingredients, the same as mussel broth's blue mussels)
@@ -76,9 +76,9 @@ elderberry-cordial|Elderberry Cordial|elderberry:5,mint:1|hardiness:2,sense:1|14
 mixed-berry-cordial|Mixed Berry Cordial|blueberry:3,raspberry:3,mint:1|charm:2,luck:1|1440|4|A ruby cordial that tastes of every hedgerow at once.|preserve|20160|3
 ginger-apple-cordial|Ginger and Apple Cordial|ginger:3,apple:2|nimble:2,grit:1|1440|4|Sharp ginger over sweet apple. It wakes you right up.|preserve|20160|3
 # v1.1.0 egg dishes: Hen Eggs come from Biddy the hen (trade her Food Scraps at the garden fence). Holding or ever trading for an egg counts as "collected" for discovery.
-scrambled-eggs|Scrambled Eggs|hen-egg:2,parsley:1|nimble:1,sense:1|120|7|Soft, buttery and quick. A proper start to the day.|snack|3
-pancakes|Pancakes|hen-egg:1,wheat:2|nimble:2,charm:1|150|8|A tall stack, golden on both sides.|snack|3
-devilled-eggs|Devilled Eggs|hen-egg:3,dill:1|charm:2,luck:1|150|7|Boiled, mashed, piped back in and finished with a sprig of dill.|snack|3
+scrambled-eggs|Scrambled Eggs|hen-egg:2,parsley:1|nimble:1,sense:1|120|7|Soft, buttery and quick. A proper start to the day.|meal|15
+pancakes|Pancakes|hen-egg:1,wheat:2|nimble:2,charm:1|150|8|A tall stack, golden on both sides.|meal|15
+devilled-eggs|Devilled Eggs|hen-egg:3,dill:1|charm:2,luck:1|150|7|Boiled, mashed, piped back in and finished with a sprig of dill.|meal|15
 egg-fried-rice|Egg Fried Rice|hen-egg:2,rice:2,onion:1,pea:1|nimble:2,grit:2|240|11|Day-old rice, hot pan, a swirl of egg. Done in minutes.|meal|15
 spanish-tortilla|Spanish Tortilla|hen-egg:3,potato:3,onion:1|hardiness:3,grit:1|240|12|A thick potato omelette, flipped on a plate and cut in wedges.|meal|15
 shakshuka|Shakshuka|hen-egg:2,tomato:3,bell-pepper:1,onion:1|grit:2,sense:2|240|12|Eggs poached in a bubbling pan of spiced tomato and peppers.|meal|15
@@ -89,8 +89,8 @@ feast-egg-pie|Savoury Egg Pie|hen-egg:6,wheat:3,leek:2,potato:2,spinach:2,thyme:
 pickled-eggs|Pickled Eggs|hen-egg:4,beet:2,dill:1|sense:1|720|4|Pink-stained and tangy, from a jar of beet brine. A pub favourite.|preserve|4320|3
 # v1.2.0 quail egg and goat dishes: Quail Eggs come from the Quail Coop, Goat Milk from Clementine the goat over the fence (goat cheese is made in the Pantry from milk). Holding or ever receiving one counts as "collected".
 goat-cheese|Goat Cheese|goat-milk:4||0|4|Soft, tangy rounds of cheese, set in a jar from a day or two of patience and warm milk.|preserve|2880|3
-quail-egg-toast|Quail Egg Toast|quail-egg:4,wheat:1,parsley:1|nimble:1,charm:1|120|7|Little fried eggs on buttered toast, each one a single bite.|snack|3
-goat-cheese-salad|Goat Cheese Salad|goat-cheese:1,lettuce:2,tomato:1|charm:1,sense:1|120|8|Crisp leaves and a crumble of tangy cheese.|snack|3
+quail-egg-toast|Quail Egg Toast|quail-egg:4,wheat:1,parsley:1|nimble:1,charm:1|120|7|Little fried eggs on buttered toast, each one a single bite.|meal|15
+goat-cheese-salad|Goat Cheese Salad|goat-cheese:1,lettuce:2,tomato:1|charm:1,sense:1|120|8|Crisp leaves and a crumble of tangy cheese.|meal|15
 goat-milk-porridge|Goat Milk Porridge|goat-milk:2,oats:2|hardiness:2,grit:1|180|8|Oats simmered slow in creamy goat milk. A cold-morning bowl.|meal|15
 quail-egg-rice-bowl|Quail Egg Rice Bowl|quail-egg:4,rice:2,spinach:1|nimble:2,grit:1|240|10|Steamed rice, wilted spinach and a row of tiny jammy eggs.|meal|15
 scotch-quail-eggs|Scotch Quail Eggs|quail-egg:6,wheat:2,thyme:1|grit:2,hardiness:2|240|11|Soft-boiled quail eggs wrapped in a crisp herby crust.|meal|15
