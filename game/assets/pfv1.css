@@ -562,6 +562,9 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pf-v1 .pfv-guide { display: flex; align-items: center; gap: .4rem; margin: .25rem 0; padding: .3rem .3rem .3rem .6rem; border-radius: .5rem; background: #f6edc9; color: #3b2f12; border: 1px solid #c9a94a; font-size: .92em; line-height: 1.3; }
 .pf-v1 .pfv-guide[hidden] { display: none; }
 .pf-v1 .pfv-guide .gt { flex: 1; }
+/* the text never takes a colour from a parent rule (it read pale on the cream card); a hint stays dark on light */
+#pfight.pf-v1 .pfv-guide, #pfight.pf-v1 .pfv-guide .gt, #pfight.pf-v1 .pfv-guide .gx { color: #3b2f12; opacity: 1; text-shadow: none; font-weight: 600; font-size: 14px; }
+#pfight.pf-v1 .pfv-guide[data-k=hint], #pfight.pf-v1 .pfv-guide[data-k=hint] .gt, #pfight.pf-v1 .pfv-guide[data-k=hint] .gx { color: #10283f; }
 .pf-v1 .pfv-guide .gx { flex: none; min-width: 32px; min-height: 32px; border: 0; background: transparent; color: inherit; font-size: 1rem; cursor: pointer; border-radius: .4rem; }
 .pf-v1 .pfv-guide[data-k=hint] { background: #e6f2ff; border-color: #6a9fd8; color: #10283f; }
 .pf-v1 .pfb-cell.pfb-lit.pfv-hint { outline: 3px solid #ffd54a; outline-offset: -3px; box-shadow: 0 0 0 3px rgba(255, 213, 74, .5); }
