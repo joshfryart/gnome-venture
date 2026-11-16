@@ -1,0 +1,17 @@
+-- Frostwart Bumps (pl-frt-4), perch sprite 36x36, hand-built at this size. Quirk: three frost warts on top.
+local dir = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
+local H = dofile(dir .. "/_h.lua")
+local c = H.canvas("pl-frt-4-perch", 36)
+
+c:groundShadow(18, 32, 9, 1.5)
+c:part(c:rect(15, 27, 16, 29), "stone")
+c:part(c:rect(20, 27, 21, 29), "stone")
+c:part(c:ellipse(18, 22, 8, 6), "sky")
+local warts = c:ellipse(12, 18, 2, 2)
+warts:add(c:ellipse(18, 16, 2, 2))
+warts:add(c:ellipse(24, 18, 2, 2))
+c:part(warts, "dusk")
+c:eyeSmall(14, 21)
+c:eyeSmall(20, 21)
+c:sparkle(18, 11)
+H.save(c, "pl-frt-4-perch")
