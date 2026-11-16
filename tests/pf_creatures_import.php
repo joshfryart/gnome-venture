@@ -44,8 +44,8 @@ $ck('gate: a bare string row (no gate columns at all, old rows) is open', creatu
 
 // ---- 3. the importer (DB). A fresh install has imported the file already.
 $rows = pfd_creature_rows(true);
-$ck('file: 318 rows', count($rows), 318);
-$ck('all rows in the world', (int)q_val('SELECT COUNT(*) FROM creatures WHERE slug IN (' . implode(',', array_map(fn($s) => db()->quote($s), array_keys($rows))) . ')'), 318);
+$ck('file: 319 rows', count($rows), 319);
+$ck('all rows in the world', (int)q_val('SELECT COUNT(*) FROM creatures WHERE slug IN (' . implode(',', array_map(fn($s) => db()->quote($s), array_keys($rows))) . ')'), 319);
 $stats = ['items' => 0, 'pages' => 0];
 $c0 = [$n('creatures'), $n('creature_drops'), $n('items'), $n('encyclopedia_entries')];
 $added = import_pf_creatures($stats);
