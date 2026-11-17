@@ -129,6 +129,18 @@ ok('past the limit (day 54 > 50 + 3) the quest times out instead of counting', (
 $o4 = trail_sight_quest_hook($u, $slugs[0], $locq, $nowq(55));
 ok('the next first beat starts it again from the beginning', (bool)array_filter($o4, fn($x) => str_contains($x, 'A quest begins')), json_encode($o4));
 q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], 'zz-limit-quest']); file_put_contents($qfile, $qorig); trail_sight_quests();
+echo "== take any (2.7.06)\n";
+$nuts = trail_sight_any_items('nut'); ok('take=any-nut finds the nut crops\' produce (at least two kinds)', count($nuts) >= 2, json_encode($nuts));
+if (count($nuts) >= 2) {
+    q('DELETE FROM user_items WHERE user_id = ? AND item_id IN (' . implode(',', $nuts) . ')', [$u['id']]);
+    give_item((int)$u['id'], $nuts[0], 1);
+    $put(['when' => '-', 'energy' => 0, 'rewards' => 'take=any-nut:2,xp=1:1', 'check' => '-']); $fresh();
+    [$t1, $tm1] = $go(); ok('with only one nut it says what is missing', !$t1 && str_contains((string)$tm1, 'any nut'), (string)$tm1);
+    give_item((int)$u['id'], $nuts[1], 1); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
+    [$t2] = $go(); $left = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id IN (' . implode(',', $nuts) . ')', [$u['id']]);
+    ok('two different nuts are enough and both are used up', $t2 && $left === 0, json_encode([$t2, $left]));
+    ok('the lint accepts take=any-nut:2', !array_filter(trail_sight_lint(['rewards' => 'take=any-nut:2,xp=1:1', 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'no item') || str_contains($p, 'unknown')), json_encode(trail_sight_lint(['rewards' => 'take=any-nut:2,xp=1:1', 'lose' => 'x'] + $base)));
+}
 echo "== choose your reward\n";
 $put(['energy' => 0, 'rewards' => 'choose=c=40:1;en=4', 'check' => '-']); $fresh();
 $ci = trail_sight_choose_info(trail_sights_all()[$base['slug']]);

@@ -140,7 +140,7 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($k === 'fpto' && !preg_match('/^[^:@]+(@[a-z0-9-]+)?(:\d+)?$/', $v)) $bad[] = 'fpto= needs Name[@village][:points]';
         if ($k === 'take' && ($t['cond'] !== '' || $t['first'] || str_contains($t['tok'], '@'))) $bad[] = 'take= is a cost: it cannot have a condition, first: or a chance';
         if ($k === 'give') { $gs = explode(':', $v)[0]; if (!trail_sight_item_known($gs)) $bad[] = 'give= item "' . $gs . '" does not exist'; }
-        if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; if (!trail_sight_item_known($slug)) $bad[] = 'no item "' . $slug . '"'; }
+        if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; if (!($k === 'take' && preg_match('/^any-[a-z]+$/', $slug)) && !trail_sight_item_known($slug)) $bad[] = 'no item "' . $slug . '"'; }
     }
     return $bad;
 }
@@ -339,7 +339,13 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     }
     $takes = [];   // take=slug:qty: needed in the satchel (checked before any energy goes), used up on a win
     foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'take=')) {
-        [$tslug, $tqty] = array_pad(explode(':', substr($t['tok'], 5), 2), 2, '1'); $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$tslug]); $tq = max(1, (int)$tqty);
+        [$tslug, $tqty] = array_pad(explode(':', substr($t['tok'], 5), 2), 2, '1'); $tq = max(1, (int)$tqty);
+        if (preg_match('/^any-([a-z]+)$/', $tslug, $anm)) {   // 2.7.06: take=any-nut:2 / any-feather:1 = any items of that kind (a crop kind, else a slug ending in it), several kinds of item allowed
+            $cand = trail_sight_any_items($anm[1]); $have = 0; foreach ($cand as $cid) $have += (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $cid]);
+            if ($have < $tq) return [false, 'You need ' . $tq . ' × any ' . $anm[1] . ' for that.'];
+            $takes[] = [-1, $tq, $cand]; continue;
+        }
+        $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$tslug]);
         if (!$tid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $tid]) < $tq) return [false, 'You need ' . $tq . ' × ' . ($tid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$tid]) : $tslug) . ' for that.'];
         $takes[] = [$tid, $tq];
     }
@@ -387,7 +393,13 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             elseif (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) { if (trail_sight_chance_pass($tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); }   // 2.7.06: @chance now works on these too
             else $plain[] = $tok;
         }
-        foreach ($takes as [$tid, $tq]) give_item((int)$u['id'], $tid, -$tq);
+        foreach ($takes as $tk) {
+            [$tid, $tq] = $tk;
+            if ($tid !== -1) { give_item((int)$u['id'], $tid, -$tq); continue; }
+            $left = $tq;   // any-<kind>: use up the biggest stacks first
+            $stk = []; foreach ($tk[2] as $cid) { $qy = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $cid]); if ($qy > 0) $stk[$cid] = $qy; }
+            arsort($stk); foreach ($stk as $cid => $qy) { $use = min($left, $qy); give_item((int)$u['id'], (int)$cid, -$use); $left -= $use; if ($left <= 0) break; }
+        }
         foreach ($lends as [$lid, $lq]) { give_item((int)$u['id'], $lid, -$lq); trail_sight_tally_set((int)$u['id'], $loanKey, max(1, (int)($now['gd'] ?? 0))); $lines[] = '📚 lent out ' . $lq . ' × ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$lid]) . ' (it comes back the next time you use this)'; }
         if ($loanOpen) foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'repay=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) {
             [$rslug, $rqty] = array_pad(explode(':', substr($t['tok'], 6), 2), 2, '1'); $rid2 = (int)q_val('SELECT id FROM items WHERE slug = ?', [$rslug]);
@@ -439,6 +451,14 @@ function trail_sight_chance_pass(string &$tok): bool
     if (!preg_match('/^(.*)@(\d{1,3})$/', $tok, $m)) return true;
     $tok = $m[1];
     return random_int(1, 100) <= (int)$m[2];
+}
+
+/** 2.7.06: the item ids that count as "any <kind>" for take=any-<kind>: the produce of every plant of that kind (nut, fruit, vegetable ...), else every item whose slug ends with it (feather). */
+function trail_sight_any_items(string $kind): array
+{
+    $ids = array_map('intval', q('SELECT i.id FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.kind = ?', [$kind])->fetchAll(PDO::FETCH_COLUMN));
+    if (!$ids) $ids = array_map('intval', q("SELECT id FROM items WHERE slug = ? OR slug LIKE ?", [$kind, '%-' . $kind])->fetchAll(PDO::FETCH_COLUMN));
+    return array_values(array_unique($ids));
 }
 
 /**
