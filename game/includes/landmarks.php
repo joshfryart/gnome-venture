@@ -572,7 +572,12 @@ function ensure_lair_bosses(): void
             'dmg_die' => 10, 'dmg_bonus' => intdiv($level, 4), 'xp' => (int)round($level * 6 * 2.4),
             'description' => 'The legendary keeper of ' . $lm['name'] . '. ' . $lm['description'], 'active' => 0,
         ]);
+        $lairReg = (int)($lm['region_id'] ?? 0) ? (string)q_val('SELECT code FROM regions WHERE id = ?', [(int)$lm['region_id']]) : '';
         foreach (q('SELECT * FROM creature_drops WHERE creature_id = ?', [$tpl['id']])->fetchAll() as $d) {
+            // 2.7.06: a drop gated to other regions stays with the template (it used to be copied and rolled in the wrong region); the guardian is its own level, so the level gate goes too
+            if ($lairReg !== '' && (string)($d['reg'] ?? '') !== '' && !in_array($lairReg, explode('/', (string)$d['reg']), true)) continue;
+            if ($lairReg === '' && (string)($d['reg'] ?? '') !== '') continue;
+            $d['lvmin'] = null; $d['lvmax'] = null;
             unset($d['id']);
             $d['creature_id'] = $cid;
             db_insert('creature_drops', $d);

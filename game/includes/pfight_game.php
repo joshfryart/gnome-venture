@@ -45,12 +45,43 @@ function pf_cost_warn(int $uid): bool
     $n = setting('pfight_costwarn_n'); $n = $n === '' ? 5 : (int)$n;
     return $n > 0 && pf_learn_fights($uid) < $n;
 }
-/** 2.7.01 "New today": the rules the learner fights held back, said once at the start of the first fight that has them ([] for any other fight). */
-function pf_new_today(int $uid): array
+/**
+ * 2.7.06 staged rules (learn.md item 8). 0 = the learner fights (stage A: creature tags off, pieces x0.8, no Thornburst), 1 = stage B (creature tags on at full strength, still no Thornburst),
+ * 2 = stage C (everything: Thornburst joins at gnome level pfight_thorn_level, default 5). Wind, Mud and set aside are already out of the v1 rules (stage D has nothing left to hold back).
+ * pfight_staged = 0 gives the old behaviour: full rules as soon as the learner fights are over.
+ */
+function pf_stage(array $u): int
 {
-    $n = setting('pfight_learner_n'); $n = $n === '' ? 3 : (int)$n;
-    if ($n <= 0 || pf_learn_fights($uid) !== $n) return [];
-    return ['Thornburst. It hurts whoever fires it: keep it out of your own chains.', 'Creature tags. Some creature pieces carry one (Quick, Poison, Evade ...): tap a creature piece to read it.', 'Creature pieces hit at full strength now.'];
+    if (!pfight_v1_on($u) || pf_learner_left((int)$u['id'])) return 0;
+    if (setting('pfight_staged') === '0') return 2;
+    $lv = setting('pfight_thorn_level'); $lv = $lv === '' ? 5 : max(1, (int)$lv);
+    return (int)$u['level'] >= $lv ? 2 : 1;
+}
+/** The v1 config keys of a stage (merged into the fight's v1 options). */
+function pf_stage_cfg(int $stage): array
+{
+    return match ($stage) { 0 => ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1], 1 => ['nothorn' => 1], default => [] };
+}
+/** The highest stage whose card this gnome has seen. */
+function pf_stage_seen(int $uid): int
+{
+    try { return (int)q_val('SELECT stage FROM pf_learn WHERE user_id = ?', [$uid]); } catch (Throwable $e) { return 0; }
+}
+function pf_stage_mark(int $uid, int $stage): void
+{
+    try {
+        if (q_val('SELECT 1 FROM pf_learn WHERE user_id = ?', [$uid])) q('UPDATE pf_learn SET stage = ? WHERE user_id = ? AND stage < ?', [$stage, $uid, $stage]);
+        else db_insert('pf_learn', ['user_id' => $uid, 'fights' => 0, 'stage' => $stage]);
+    } catch (Throwable $e) { /* table or column missing before the upgrade */ }
+}
+/** 2.7.01 "New today": the rules held back so far, said once at the start of the first fight that has them ([] for any other fight). $stage: the fight's stage (null = work it out from the gnome). */
+function pf_new_today(int $uid, ?int $stage = null): array
+{
+    if ($stage === null) { $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]); $stage = $u ? pf_stage($u) : 0; }
+    $seen = pf_stage_seen($uid); $out = [];
+    if ($stage >= 1 && $seen < 1) { $out[] = 'Creature tags. Some creature pieces carry one (Quick, Poison, Evade ...): tap a creature piece to read it.'; $out[] = 'Creature pieces hit at full strength now.'; }
+    if ($stage >= 2 && $seen < 2) $out[] = 'Thornburst. It hurts whoever fires it: keep it out of your own chains.';
+    return $out;
 }
 /** The one-line card for those rules, on the fight's first turn only. */
 function pf_new_today_html(array $s): string
@@ -310,13 +341,15 @@ function pfight_state(array $u, array &$exp, array &$enc, array $c): array
         $new = $v1 || setting('pfight_mode') === 'board' ? 'pfb_new' : 'pf_new';
         $learn = $v1 && pf_learner_left((int)$u['id']);
         $first = $v1 && pf_first_fight($u, $c);   // 2.7.01 fixed first fight: fixed kit, fixed deal
-        if ($learn) { $v1 = ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1]; $exp['hp'] = (int)$exp['max_hp']; }   // 2.7.01 learner rules: the first fights (and they start at full health; pfight_html saves it)
+        $stage = $v1 ? pf_stage($u) : 2;   // 2.7.06 staged rules
+        if ($learn) $exp['hp'] = (int)$exp['max_hp'];
+        if ($v1 && $stage < 2) $v1 = pf_stage_cfg($stage);   // 2.7.01 learner rules: the first fights (and they start at full health; pfight_html saves it)
         if ($v1) { require_once __DIR__ . '/pfdeck.php'; $c = pfd_foe_row($c, $first ? '' : pfd_exp_region($exp)); }   // the creature's layered deck: 4 base (class) + region + size extras + 3 unique (the fixed first fight: no region piece)
         $enc['pf'] = $new(pfight_me($u, $exp, $enc, $first), $c, $first ? pf_first_seed() : random_int(1, 0x7FFFFFFE), ['v1' => $v1, 'blank' => $first || setting('pfight_blank') !== '0', 'can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
         if ($learn) $enc['pf']['learn'] = 1;
         if ($first) $enc['pf']['first'] = 1;
         $enc['hp0'] = (int)$exp['hp'];   // 2.7.01: your health when the fight was dealt (a free retry starts there again)
-        if ($v1 && ($nt = pf_new_today((int)$u['id']))) $enc['pf']['newt'] = $nt;   // 2.7.01: the first fight after the learner fights says what is new
+        if ($v1 && ($nt = pf_new_today((int)$u['id'], $stage))) { $enc['pf']['newt'] = $nt; pf_stage_mark((int)$u['id'], $stage); }   // 2.7.01: the first fight after the learner fights says what is new
     }
     return $enc['pf'];
 }
@@ -430,7 +463,9 @@ function pfight_do(array $u, array &$exp, string $do): bool
         foreach ($r['ev'] as $e) {
             $ln = pfight_line($e, (string)$c['name']);
             if (($e['pluck'] ?? '') === 'got') {   // Pluck worked: lift one item this creature could drop (weighted by its drop chances)
-                $rows = q('SELECT cd.item_id, cd.chance, i.name FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL', [$c['id']])->fetchAll();
+                $rows = q('SELECT cd.item_id, cd.chance, cd.reg, cd.lvmin, cd.lvmax, i.name FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL', [$c['id']])->fetchAll();
+                $pReg = scene_region_code(exp_scene($exp));   // 2.7.06: Pluck honours the same region / level gates as the win drops
+                $rows = array_values(array_filter($rows, fn($x) => creature_drop_open($x, $pReg, (int)$c['level'])));
                 if ($rows) {
                     $tot = array_sum(array_map(fn($x) => max(1, (int)$x['chance']), $rows)); $roll = random_int(1, $tot); $pick = $rows[0];
                     foreach ($rows as $x) { $roll -= max(1, (int)$x['chance']); if ($roll <= 0) { $pick = $x; break; } }
@@ -830,7 +865,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
     if (isset($v['v1'])) $h .= '<div class="pfv-legend" id="pfv-legend" role="group" aria-label="' . (!empty($v['v1']['env']) ? 'The environment: its next pieces' : 'Terrain legend') . '"></div>';
     $h .= '<div class="pf-opts" id="pf-opts" hidden></div>';
-    $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.</p>';
+    $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. One piece a turn.</p>';
     $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     $won = !empty($enc['won']) && in_array($s['over'], ['seen_off', 'charmed'], true);

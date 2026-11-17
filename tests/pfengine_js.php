@@ -206,6 +206,7 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
             $fl = function (int $i) use (&$s, &$emit, $tn) { $e = pfb_flip($s, $i, $tn); $emit(['op' => 'flip', 'hand' => $i, 'turn' => $tn, 'res' => ['err' => $e]]); return $e; };
             if ($mode0 === 'v1chaos' && $nh && mt_rand(0, 3) === 0) { $fl(mt_rand(0, $nh)); if (mt_rand(0, 1)) $fl(mt_rand(0, $nh - 1)); }
             if (!pfb_search($s, 'me')) foreach (array_keys($s['me']['hand']) as $i) { if (!pfb_can_flip($s, $i)) continue; if ($fl($i)) continue; if (pfb_search($s, 'me')) break; $fl($i); }
+            if ($mode0 === 'v1chaos' && $nh && ($s['me']['redraws'] ?? 0) > 0 && mt_rand(0, 4) === 0) { $ri = mt_rand(0, $nh); $rok = pf_redraw($s, $ri, $tn); $emit(['op' => 'redraw', 'hand' => $ri, 'turn' => $tn, 'res' => ['ok' => $rok]]); }   // 2.7.06 Luck redraw (an out-of-range index is refused)
             if ($mode0 === 'v1chaos' && $nh && mt_rand(0, 5) === 0) { $dr = (bool)mt_rand(0, 1); $r = pfb_play($s, [['f', 0]], $tn, null, $dr); $emit(['op' => 'play', 'moves' => [['f', 0]], 'turn' => $tn, 'dry' => $dr, 'res' => $r]); }
         }
         foreach (candidates($s, $mode) as $mv) {

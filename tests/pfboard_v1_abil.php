@@ -195,6 +195,8 @@ $s = ab_fight('medium', ['ab' => ['stagger1']]); $s['me']['evade'] = 1; ab_place
 chk('Stagger: an Evaded hit does nothing', empty($s['me']['slowdraw']));
 $s = ab_fight('medium', ['ab' => ['stagger1']]); ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big), 1, 1); $hand0 = count($s['me']['hand']); pfb_end_round($s);
 chk('Stagger: next round you draw one fewer (4 pieces, as after a Trip)', count($s['me']['hand']) === 4 && empty($s['me']['slowdraw']), count($s['me']['hand']));
+$s = ab_fight('medium', ['ab' => ['stagger1']], ['tags' => 0, 'nothorn' => 1]); ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big), 1, 1); pfb_end_round($s);
+chk('Stagger (2.7.06): works in a learner fight (tags 0) too: 4 pieces next round, flag cleared, tripped shown', count($s['me']['hand']) === 4 && empty($s['me']['slowdraw']) && (int)$s['me']['tripped'] === 1, [count($s['me']['hand']), $s['me']['tripped'] ?? null]);
 $s = ab_fight('medium'); ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big + 5), 1, 1);
 chk('(2.7.00 engine: no Stagger)', empty($s['me']['slowdraw']));
 

@@ -1431,7 +1431,8 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
         $s['foe']['kind'] = !empty($v1['kinds']) ? pfb_kind_of($c, $s['size']) : ''; $s['foe']['grudge'] = 0; $s['foe']['nextk'] = null; $s['ven'] = [];   // 2.6.98 class rules
         pfb_v1_tiles($s, $c); pfb_seed_ground($s); $s['envs'] = []; $s['envlog'] = []; $s['reaim'] = 0; $s['me']['flipt'] = 0;
         if ($v1['env']) { $s['env'] = ['draw' => pf_shuffle($s, pfb_env_deck($s['size'], (string)($c['region'] ?? ''), (bool)pfb_v1r($s, 'nowm'), (bool)pfb_v1r($s, 'nothorn'))), 'discard' => [], 'next' => []]; pfb_env_draw($s); }   // 2.6.75: the environment's deck; its next pieces lie face up
-        if ($v1['tags']) { $s['me']['poison'] = 0; $s['me']['poison_v'] = 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = 0; $s['foe']['bashnext'] = 0; $s['foe']['again'] = 0; }
+        $s['me']['slowdraw'] = 0; $s['me']['tripped'] = 0;
+        if ($v1['tags']) { $s['me']['poison'] = 0; $s['me']['poison_v'] = 0; $s['foe']['bashnext'] = 0; $s['foe']['again'] = 0; }
         if (!empty($c['ab']) && pfb_v1r($s, 'abil') === 1) pfb_ab_init($s, $c);   // 2.7.01 abilities (an E id replaces the class rule)
         if (pfb_v1r($s, 'style') === 1 && !empty($c['ai']) && isset(PFB_AI[(string)$c['ai']])) { $s['foe']['aid'] = (string)$c['ai']; if ($ai = pfb_ai_make((string)$c['ai'], (array)($c['aip'] ?? []))) $s['foe']['ai'] = $ai; }   // 2.7.01 play style
     }
@@ -1625,7 +1626,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
     foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'me';   // whose turn the event happened in (a chain can run through the other side's pieces; the page groups by this)
     if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => pf_round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => pf_round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']] + ($withAim && pfb_v1r($w, 'aimtot') ? ['aim' => pfb_aim_total($w)] : []);
     if (!$w['over']) { $fe = pfb_foe_turn($w, 0); foreach ($fe as $i => $e0) $fe[$i]['ta'] = 'foe'; $ev = array_merge($ev, $fe); }
-    $trip = !$w['over'] && !empty($w['v1']['tags']) && !empty($w['me']['slowdraw']);
+    $trip = !$w['over'] && !empty($w['v1']) && !empty($w['me']['slowdraw']);
     if (!$w['over']) pfb_end_round($w);
     if (!empty($w['v1'])) $ev = array_merge($ev, pfb_env_events($w));   // v1: the terrain turn, as events after the creature's (ta 'env')
     if ($trip && !$w['over']) { $tn = pfb_note('trip'); $tn['ta'] = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe'; $ev[] = $tn; }   // 2.6.76: you draw one fewer
@@ -1702,8 +1703,8 @@ function pfb_end_round(array &$s): void
         }
         $s['me']['simmer'] = 0;
         if ((int)($s['me']['regen'] ?? 0) > 0) { $hh = min(2, (int)$s['me']['max'] - (int)$s['me']['hp']); $s['me']['hp'] += max(0, $hh); $s['me']['regen']--; $s['me']['simmer'] = max(0, $hh); }   // 2.6.990 Simmer
-        $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = $slow;   // 2.6.76: the hand area says so
     }
+    $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = $slow;   // 2.6.76: the hand area says so; 2.7.06: also in learner fights (tags 0), where Stagger set the flag and nothing used it
     $gone = pfb_expire($s);
     foreach ($s['ven'] ?? [] as $vk => $vr) { if ($vr <= 1) unset($s['ven'][$vk]); else $s['ven'][$vk] = $vr - 1; }   // 2.6.98 venom fades
     if (!empty($s['v1']['env'])) { $eg = array_values(array_map(fn($p) => $p['id'], array_filter($gone, fn($p) => $p['by'] === 'env'))); if ($eg) $s['envlog'][] = ['k' => 'expire', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => $eg]; }   // 2.6.75: environment pieces whose time is up
@@ -1737,7 +1738,7 @@ function pfb_pass(array &$s, int $turn): array
     if (!empty($w['v1'])) $w['envlog'] = [];
     $ev = pfb_foe_turn($w, 0); foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'foe';
     $w['fx'] = pfb_fx($ev);
-    $trip = !$w['over'] && !empty($w['v1']['tags']) && !empty($w['me']['slowdraw']);
+    $trip = !$w['over'] && !empty($w['v1']) && !empty($w['me']['slowdraw']);
     if (!$w['over']) pfb_end_round($w);
     if (!empty($w['v1'])) $ev = array_merge($ev, pfb_env_events($w));
     if ($trip && !$w['over']) { $tn = pfb_note('trip'); $tn['ta'] = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe'; $ev[] = $tn; }

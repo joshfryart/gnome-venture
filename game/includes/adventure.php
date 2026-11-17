@@ -371,20 +371,24 @@ function pick_creature(string $land, int $level, bool $allowBoss = true, bool $f
     if ($region !== '') {
         require_once __DIR__ . '/pfdeck.php';
         $inRegion = array_values(array_filter($all, fn($c) => pfd_creature_in_region((string)$c['slug'], $region)));
-        if (count($inRegion) < count($all) && ($pick = pick_creature_from($inRegion, $land, $level, $allowBoss, $full, $cap, true))) return $pick;
+        if (count($inRegion) < count($all)) {
+            if ($pick = pick_creature_from($inRegion, $land, $level, $allowBoss, $full, $cap, true)) return $pick;
+            $rolled = $allowBoss && (bool)array_filter($inRegion, fn($c) => $c['size'] === 'boss' && ($c['landscapes'] === 'any' || in_array($land, array_map('trim', explode(',', $c['landscapes'])), true)) && (int)$c['level'] <= $level + 8);   // 2.7.06: the 6% boss roll was made in the region pass already: no second roll in the fallback
+            return pick_creature_from($all, $land, $level, $allowBoss, $full, $cap, false, $rolled);
+        }
     }
     return pick_creature_from($all, $land, $level, $allowBoss, $full, $cap);
 }
 
 /** pick_creature on a given list of creature rows (the region has already been applied). $strict: null when no creature of the list is in the level band (the caller then picks from the whole list). */
-function pick_creature_from(array $all, string $land, int $level, bool $allowBoss, bool $full, int $cap, bool $strict = false): ?array
+function pick_creature_from(array $all, string $land, int $level, bool $allowBoss, bool $full, int $cap, bool $strict = false, bool $bossRolled = false): ?array
 {
     $fits = fn($c) => $c['landscapes'] === 'any' || in_array($land, array_map('trim', explode(',', $c['landscapes'])), true);
     $hi = $cap > 0 ? $cap : $level + 2;
     // v1.4.0: the band is "level-6 .. level+2" among this landscape's ordinary creatures. If it is empty, the strongest ones up to
     // level+2 are grown to fit (never something far below; the old code used the landscape's top level and fell back to level-1 bugs)
     $bosses = array_values(array_filter($all, fn($c) => $fits($c) && $c['size'] === 'boss' && (int)$c['level'] <= $level + 8));
-    if ($allowBoss && $bosses && random_int(1, 100) <= 6) {
+    if ($allowBoss && !$bossRolled && $bosses && random_int(1, 100) <= 6) {
         $b = road_pick($bosses, 'cr', 'slug');   // v1.9.3: not the same boss again and again; weather/time tags lean the pick
         if ($b) return (int)$b['level'] < $level ? scale_creature($b, $level) : $b;   // v0.7.64: bosses roam a little below their level too
     }

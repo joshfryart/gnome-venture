@@ -817,6 +817,7 @@ function pfd_remove_broken(int|array $u, string $type): ?string
     if (!in_array($e['state'], ['broken', 'none'], true)) return 'Only a worn-out or missing tool can be removed. Use Take off for the others.';
     $belt = array_column(pfd_belt(pfd_sources($u)), 'type');
     pfd_belt_save($uid, array_values(array_diff($belt, [$type])));
+    if ($e['state'] === 'none') q('DELETE FROM pf_tool_wear WHERE user_id = ? AND tool_type = ?', [$uid, $type]);   // 2.7.06: the tool is gone, so its wear goes with it (a new tool of this type must not start worn)
     return null;
 }
 

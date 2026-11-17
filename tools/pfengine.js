@@ -342,6 +342,17 @@
     }
   }
 
+  /** 2.7.06: Luck redraw (pf_redraw): swap one hand piece for a fresh draw; costs one of the redraws. A flipped piece goes back the right way up. */
+  function redraw(s, handIdx, turn) {
+    if (truthy(s.over) || turn !== s.turn || s.me.redraws < 1 || handIdx < 0 || handIdx >= s.me.hand.length) return false;
+    var t = clone(s.me.hand.splice(handIdx, 1)[0]);
+    delete t.flip; delete t.ft;
+    s.me.discard.push(t);
+    s.me.redraws--;
+    draw(s, 'me', s.me.hand.length + 1);
+    return true;
+  }
+
   function fits(a, b) {
     if (!a) return false;
     if (a.r === null || a.r === undefined) return true;
@@ -1704,7 +1715,8 @@
       s.foe.kind = truthy(v1.kinds) ? kindOf(c, s.size) : ''; s.foe.grudge = 0; s.foe.nextk = null; s.ven = {};   // 2.6.98 class rules
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
       if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'), !!v1r(s, 'nothorn'))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
-      if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.me.tripped = 0; s.foe.bashnext = 0; s.foe.again = 0; }
+      s.me.slowdraw = 0; s.me.tripped = 0;
+      if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.foe.bashnext = 0; s.foe.again = 0; }
       if (Array.isArray(c.ab) && c.ab.length && v1r(s, 'abil') === 1) abInit(s, c);   // 2.7.01 abilities (an E id replaces the class rule)
       if (v1r(s, 'style') === 1 && truthy(c.ai) && has(PFB_AI, String(c.ai))) { s.foe.aid = String(c.ai); var aiw = aiMake(String(c.ai), nn(c.aip, {})); if (aiw) s.foe.ai = aiw; }   // 2.7.01 play style
     }
@@ -1780,8 +1792,8 @@
       }
       s.me.simmer = 0;
       if (toInt(nn(s.me.regen, 0)) > 0) { var hh = Math.min(2, toInt(s.me.max) - toInt(s.me.hp)); s.me.hp += Math.max(0, hh); s.me.regen--; s.me.simmer = Math.max(0, hh); }   // 2.6.990 Simmer
-      slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;
     }
+    slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;   // 2.7.06: also in learner fights (tags 0)
     var gone = expire(s);
     if (s.ven) Object.keys(s.ven).forEach(function (vk) { if (s.ven[vk] <= 1) delete s.ven[vk]; else s.ven[vk] = s.ven[vk] - 1; });   // 2.6.98 venom fades
     if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg }); }   // 2.6.75
@@ -1845,7 +1857,7 @@
     ev.forEach(function (e0) { e0.ta = 'me'; });
     if (dry) { var dr = { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over }; if (withAim && v1r(w, 'aimtot')) dr.aim = aimTotal(w); return dr; }
     if (!w.over) { var fe = foeTurn(w); fe.forEach(function (e0) { e0.ta = 'foe'; }); ev = ev.concat(fe); }
-    var trip = !w.over && w.v1 && truthy(w.v1.tags) && truthy(w.me.slowdraw);
+    var trip = !w.over && w.v1 && truthy(w.v1) && truthy(w.me.slowdraw);
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
     if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
@@ -1870,7 +1882,7 @@
     if (w.v1) w.envlog = [];
     var ev = foeTurn(w); ev.forEach(function (e0) { e0.ta = 'foe'; });
     w.fx = fx(ev);
-    var trip = !w.over && w.v1 && truthy(w.v1.tags) && truthy(w.me.slowdraw);
+    var trip = !w.over && w.v1 && truthy(w.v1) && truthy(w.me.slowdraw);
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
     if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
@@ -2048,7 +2060,7 @@
 
   return {
     // the public API
-    envTable: envTable, envDeck: envDeck, tiles: tiles, playerDeck: playerDeck, newFight: newFight, start: start, play: play, pass: pass, view: view,
+    envTable: envTable, envDeck: envDeck, tiles: tiles, playerDeck: playerDeck, newFight: newFight, start: start, play: play, pass: pass, redraw: redraw, view: view,
     cells: cells, edges: edges, joint: joint, groupSpots: groupSpots, groupFit: groupFit, groupOptions: groupOptions, search: search,
     line: line, chipEvent: chipEvent, chipsBoard: chipsBoard,
     // more of the PHP functions
