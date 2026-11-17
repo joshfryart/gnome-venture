@@ -360,6 +360,7 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
                 JOIN shops sh ON sh.id = st.shop_id JOIN items i ON i.id = st.item_id WHERE st.id = ?', [$stockId]);
     if (!$s || !(int)$s['open']) return [false, 'That shop is closed.'];
     require_once __DIR__ . '/pfdeck.php';   // 2.7.05: a fight belt is sold only to a gnome old enough to use it
+    if (pfd_gear_slug((string)q_val('SELECT slug FROM items WHERE id = ?', [$s['item_id']])) && !pfd_gear_open($u)) return [false, 'That is not on the shelf.'];   // 2.7.08
     $slugB = (string)q_val('SELECT slug FROM items WHERE id = ?', [(int)$s['item_id']]);
     if (($needB = pfd_belt_level_need($slugB)) > (int)($u['level'] ?? 1)) return [false, 'The ' . $s['name'] . ' needs gnome level ' . $needB . '. Come back when you are old enough to wear it.'];
     if (!shop_reachable($u, ['location_id' => $s['location_id']])) return [false, 'You need to be in that town first.'];

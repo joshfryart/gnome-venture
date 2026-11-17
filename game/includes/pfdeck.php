@@ -486,6 +486,16 @@ function pfd_live(): bool
     return !in_array((string)setting('pfight_v1'), ['', '0'], true);
 }
 
+/** 2.7.08 (Josh): the fight belts on Twigg's shelf and the Tool Repair Kit recipe are seen by a gnome only when the setting is on for everyone ('1'), or the gnome is an admin (the test with 'admin'). $u = user row or null (the setting alone). */
+function pfd_gear_open(?array $u = null): bool
+{
+    $v = (string)setting('pfight_v1');
+    if ($v === '1') return true;
+    return $v === 'admin' && $u !== null && ($u['role'] ?? '') === 'admin';
+}
+/** Is this item slug part of that gear (a belt or the repair kit)? */
+function pfd_gear_slug(string $slug): bool { return $slug === PFD_REPAIR || isset(PFD_BELT_ITEMS[$slug]); }
+
 /** The first v1 use after the setting was switched on: make the belts, the repair kit and its recipe (once; marker setting `pfd_content`). */
 function pfd_content_once(): void
 {

@@ -125,6 +125,8 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
     $stock = q('SELECT st.*, i.id AS iid, i.name, i.slug, i.category, i.description, i.rarity, i.effects, i.base_price, p.id AS plant_id, p.seasons AS plant_seasons FROM shop_stock st
                 JOIN items i ON i.id = st.item_id LEFT JOIN plants p ON p.seed_item_id = i.id
                 WHERE st.shop_id = ? AND st.current_stock > 0 ORDER BY i.category, i.name', [$sid])->fetchAll();
+    require_once __DIR__ . '/includes/pfdeck.php';
+    if (!pfd_gear_open($u)) $stock = array_values(array_filter($stock, fn($r) => !pfd_gear_slug((string)$r['slug'])));   // 2.7.08: belts only for admins (or everyone once pfight_v1 is on for all)
     usort($stock, fn($a, $b) => [shop_cat_rank($a), $a['name']] <=> [shop_cat_rank($b), $b['name']]);   // v0.7.83: grouped in chip order ?>
   <div class="shopwrap">
   <?= $open ? shop_basket_html('buy', url('shop.php?id=' . $sid)) : '' ?>
