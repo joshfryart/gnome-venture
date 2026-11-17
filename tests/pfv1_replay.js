@@ -63,7 +63,7 @@ const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 8 4 soft').split(' ');
   let before = await ready(p, 1); let r = await endTurn(p, before);
   console.log(`replay: ${r.n} events; control after ${r.tc} ms at 1x (playing ${r.play} ms, from ${r.tPlay0} ms); banners ${JSON.stringify(r.bans)}`);
   if (process.env.REPLAY_PROBE) { await b.close(); console.log('replay: done'); process.exit(0); }
-  ck('the replay seed has a long replay (about 9 events since 2.6.98 (one environment piece a round); the turn-flow review measured 9 to 13 with two)', r.n >= 8, true);
+  ck('the replay seed has a long replay (about 9 events since 2.6.98 (one environment piece a round); the turn-flow review measured 9 to 13 with two; 2.7.06 set combos and two opening environment pieces change this seed\'s deal, so 6 is the floor)', r.n >= 6, true);
   ck('the replay does not start by itself before End turn was pressed (the page was quiet)', r.tPlay0 !== null, true);
   le('1x: control is back after End turn', r.tc, 9300);   // cap 8.46 s of replay + the End turn round trip
   ck('1x: the replay really plays (at least 2.5 s, every event walked, not just skipped)', r.play >= 4000, true);

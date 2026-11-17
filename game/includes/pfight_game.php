@@ -998,12 +998,12 @@ const PF_PAGES = [
         "Guards and Charms differ by how they work too.\n\n[b]Guards:[/b] ⚓ [b]Brace[/b] lasts through your next turn. 💨 [b]Roll[/b] makes the creature's first Hurt next turn miss completely. 🌵 [b]Thorn Hide[/b] pricks the creature when it hits your guard. 🩹 [b]Mending[/b] heals you 2.\n\n[b]Charms:[/b] 🎵 [b]Hum[/b] also calms the creature. 🌙 [b]Lull[/b] makes it play a tile fewer. 🤝 [b]Bond[/b] warms it to Charm for the rest of the fight (up to three times).\n\n[b]Stealing:[/b] 🤏 [b]Pluck[/b] is a Trick with a small chance to lift an item the creature could drop. Luck raises the chance, a legendary creature is harder to rob, and you can lift one thing a fight."],
     'Puzzle upgrades' => ['pfight:mods', 'Finish a puzzle to earn an upgrade.',
         "Finishing a puzzle in [b]any game and any mode[/b] can earn a [b]Puzzle upgrade[/b]: a secondary effect for one of your tiles. Open your Puzzle box and choose one of three. A bigger puzzle gives rarer upgrades.\n\nYou can earn [b]3 a day[/b] (a new day starts at midnight, server time), and up to 3 can wait unopened. Each tile holds one upgrade; it stays until you remove it, or choose another for the same tile.\n\n🧲 Sticky, 🪶 Swift, 🧱 Hardy, 💗 Tender are common. 🩸 Leech, 🦔 Spiky, 🪽 Soft touch are uncommon. 🔥 Warm, 🎯 Finisher, 🍀 Lucky, ⚖️ Steady are rare."],
-    'Ambush' => ['pfight:combo:trick>hurt', 'Play a Trick, then a Hurt.', "🎭 then ⚔️. The Hurt counts one and a half times, plus the Trick's own value. Set it up, then strike."],
-    'Riposte' => ['pfight:combo:guard>hurt', 'Play a Guard, then a Hurt, or Guard right after a creature hits.', "🛡️ then ⚔️: the Hurt counts one and a half times. A Guard played straight after the creature's Hurt also turns half its value back on it."],
-    'Double Swing' => ['pfight:combo:hurt>hurt', 'Play two Hurts in a row.', "⚔️ then ⚔️: the second gets +2."],
-    'Calm Charm' => ['pfight:combo:soothe>charm', 'Play a Soothe, then a Charm.', "😌 then 🌸: the Charm counts one and a half times."],
-    'Win Over' => ['pfight:combo:charm>item', 'Play a Charm, then an Item or Snack.', "🌸 then 🎒: the offering also fills part of the charm bar."],
-    'Bait' => ['pfight:combo:trick>guard', 'Play a Trick, then a Guard.', "🎭 then 🛡️: the Guard gets the Trick's value added."],
+    'Ambush' => ['pfight:combo:trick>hurt', 'Have a Trick and a Hurt in the same chain.', "🎭 and ⚔️ in one chain, in any order: the Hurt counts one and a half times, plus the Trick's own value."],
+    'Riposte' => ['pfight:combo:guard>hurt', 'Have a Guard and a Hurt in the same chain.', "🛡️ and ⚔️ in one chain, in any order: the Hurt counts one and a half times."],
+    'Double Swing' => ['pfight:combo:hurt>hurt', 'Have two Hurts in the same chain.', "⚔️ and ⚔️ in one chain: the one that fires second gets +2."],
+    'Calm Charm' => ['pfight:combo:soothe>charm', 'Have a Soothe and a Charm in the same chain.', "😌 and 🌸 in one chain, in any order: the Charm counts one and a half times."],
+    'Win Over' => ['pfight:combo:charm>item', 'Have a Charm and an Item or Snack in the same chain.', "🌸 and 🎒 in one chain, in any order: the offering also fills part of the charm bar."],
+    'Bait' => ['pfight:combo:trick>guard', 'Have a Trick and a Guard in the same chain.', "🎭 and 🛡️ in one chain, in any order: the Guard gets the Trick's value added."],
 ];
 
 function pfight_pages(): void
