@@ -23,7 +23,7 @@ pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   post adventure.php -d do=$d -d nonce=$n -d turn=$t "$@"; }
 # a page without what differs from load to load (tokens, clocks, the version stamp on assets)
-norm() { sed -e 's/name="csrf" value="[^"]*"/CSRF/g' -e 's/name="_n" value="[^"]*"/N/g' -e 's/name="nonce" value="[^"]*"/NONCE/g' -e 's/[0-9][0-9]:[0-9][0-9]/HH:MM/g' -e 's/Almanac <b>\([0-9]*\)<\/b>\/[0-9]*/Almanac <b>\1<\/b>\/N/g' -e 's/ of [0-9][0-9]* \(pages\|·\)/ of N \1/g' -e 's/open=[0-9][0-9]*#e[0-9][0-9]*/open=ID#eID/g' -e 's/pages (\([0-9]*\)%)/pages (P%)/g' -e 's/<small>\([0-9]*\) of [0-9]*<\/small>/<small>\1 of N<\/small>/g' -e 's/\(class="rtime">\)[^<]*…</\1WANTED…</g' -e 's/<progress max="[0-9]*"/<progress max="N"/g' -e 's/2\.[0-9]\.[0-9][0-9]*/VER/g' "$1"; }   # VER: the old copy is 2.6.73, the working copy a later version (asset links carry it)
+norm() { sed -e 's/msglog top hasnew/msglog top/g' -e 's/name="csrf" value="[^"]*"/CSRF/g' -e 's/name="_n" value="[^"]*"/N/g' -e 's/name="nonce" value="[^"]*"/NONCE/g' -e 's/[0-9][0-9]:[0-9][0-9]/HH:MM/g' -e 's/Almanac <b>\([0-9]*\)<\/b>\/[0-9]*/Almanac <b>\1<\/b>\/N/g' -e 's/ of [0-9][0-9]* \(pages\|·\)/ of N \1/g' -e 's/open=[0-9][0-9]*#e[0-9][0-9]*/open=ID#eID/g' -e 's/pages (\([0-9]*\)%)/pages (P%)/g' -e 's/<small>\([0-9]*\) of [0-9]*<\/small>/<small>\1 of N<\/small>/g' -e 's/\(class="rtime">\)[^<]*…</\1WANTED…</g' -e 's/<progress max="[0-9]*"/<progress max="N"/g' -e 's/2\.[0-9]\.[0-9][0-9]*/VER/g' "$1"; }   # VER: the old copy is 2.6.73, the working copy a later version (asset links carry it)
 install() {   # install, register sprout, onboard: on the server at $1 with the game copy $2
   local B=$BASE G=$GAME; BASE=$1; GAME=$2
   get install.php >/dev/null
@@ -74,7 +74,7 @@ get puzzlebox.php >/dev/null; cp $H $H.off
 ck "flag unset: the old Puzzle box form, nothing of v1 on the page" "$(grep -c 'id="pbox"' $H) $(grep -c 'pfv\|pfboardv1' $H)" "1 0"
 set_ pfight_v1 admin
 get puzzlebox.php >/dev/null
-norm $H | diff - <(norm $H.off) | cut -c1-300 | head -10 | sed "s/^/diag /"   # what differs, when it does
+diff <(norm $H | fold -w 120) <(norm $H.off | fold -w 120) | head -16 | sed "s/^/diag /"   # what differs, when it does
 ck "pfight_v1 = admin, a player who is not an admin: the same old page" "$(norm $H | diff - <(norm $H.off) | wc -l | tr -d ' ')" "0"
 get 'gnome.php?tab=gnome' >/dev/null; ck "a player: no Puzzle box tile in the Hovel, none in the menu" "$(grep -c 'gvtl">Puzzle box\|ntl">Puzzle box' $H)" "0"
 post puzzlebox.php -d do=save -d 'tile[]=swing' -d 'tile[]=dodge' -d 'tile[]=rest' -d 'tile[]=charm' -d 'tile[]=hide' -d 'tile[]=snack' -d 'tile[]=taunt' >/dev/null
