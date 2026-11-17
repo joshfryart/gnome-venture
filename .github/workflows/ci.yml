@@ -54,6 +54,8 @@ jobs:
           npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
           npx --prefix "$RUNNER_TEMP/pw" playwright install --with-deps chromium
           echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
+      - name: Python art tools (catfish layers need numpy + Pillow)
+        run: python3 -m pip install --quiet numpy pillow
       - name: db_migrate / give_item error handling
         run: php tests/db_errors.php
       - name: Install and playthrough
