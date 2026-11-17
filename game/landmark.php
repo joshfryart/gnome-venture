@@ -36,6 +36,7 @@ try {
     'repair_start' => repair_start($u, $lm),       // v0.7.77
     'repair_hand' => repair_hand($u, $repair),
     'repair_work' => repair_work($u, $repair),     // v2.0.76
+    'repair_vigil' => repair_vigil($u, $repair),    // 2.7.06
     'repair_drop' => repair_drop($u, $repair),
     default => [false, 'Unknown action.'],
 };

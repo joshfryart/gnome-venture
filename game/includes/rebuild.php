@@ -80,6 +80,7 @@ function rebuild_supply(int $uid, array $need): array
         'item' => 'i.slug = ' . db()->quote($slug),
         'meal' => "i.category = 'food' AND i.slug NOT LIKE 'bought-%' AND i.id IN (SELECT output_item_id FROM recipes WHERE category = 'cooking' AND tier IN ('meal', 'feast'))",   // v0.9.4: Meal and Feast only, not snacks
         'fine' => "i.id IN (SELECT item_id FROM gatherables WHERE rarity IN ('uncommon', 'rare'))",
+        'deco' => "i.category = 'decor'",   // 2.7.06 decorate: any decor item
         default => '1 = 0',
     };
     return q("SELECT i.id, i.name, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND $where ORDER BY i.base_price, i.name", [$uid])->fetchAll();
@@ -95,11 +96,14 @@ function rebuild_need_rows(array $u, array $needs, int $prog = 0): array
             $out[] = ['days of clearing (' . (int)$slug . '⚡ each)', $qty, min($prog, $qty)];
             continue;
         }
+        if ($type === 'wait') { $out[] = ['game days to pass (they pass when you sleep)', $qty, min($prog, $qty)]; continue; }   // 2.7.06
+        if ($type === 'vigil') { $out[] = ['game hours keeping vigil here', $qty, min($prog, $qty)]; continue; }
         $have = $type === 'coins' ? (int)$u['coins'] : array_sum(array_column(rebuild_supply((int)$u['id'], $need), 'qty'));
         $label = match ($type) {
             'item' => BUILDING_ITEMS[$slug][0] ?? ((string)q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug),
             'meal' => 'home-cooked meals or feasts (not snacks)',
             'fine' => 'uncommon or rare finds (any)',
+            'deco' => 'decor items (any)',
             'coins' => setting('currency_name'),
         };
         $out[] = [$label, $qty, $have];
@@ -212,7 +216,10 @@ function landmark_safe_note(array $lm): string
 
 const BUILD_VERBS = [
     'haul' => 'Haul', 'gather' => 'Gather', 'feed' => 'Feed the crew', 'light' => 'Light up', 'clear' => 'Clear',
+    'carry' => 'Carry', 'decorate' => 'Decorate', 'wait' => 'Wait', 'vigil' => 'Keep vigil',   // 2.7.06: carry = haul by another name (heavy things), decorate = deco:N decor items, wait = wait:N game days pass, vigil = vigil:H game hours at the place
 ];
+/** 2.7.06: until the pictures for the new verbs are drawn they borrow an old one (assets/img/steps/stage-<verb>.png). */
+const BUILD_VERB_ART = ['carry' => 'haul', 'decorate' => 'haul', 'wait' => 'light', 'vigil' => 'light'];
 
 /** Parse a needs string ("item:rope:3,coins:250,meal:4,fine:2,days:3:3") into need tuples. Bad parts are dropped. */
 function build_parse_needs(string $s): array
@@ -223,7 +230,7 @@ function build_parse_needs(string $s): array
         $qty = (int)($f[count($f) - 1] ?? 0);
         $out[] = match ($f[0]) {
             'item' => count($f) === 3 && $f[1] !== '' && $qty > 0 ? ['item', $f[1], $qty] : null,
-            'coins', 'meal', 'fine' => count($f) === 2 && $qty > 0 ? [$f[0], '', $qty] : null,
+            'coins', 'meal', 'fine', 'deco', 'wait', 'vigil' => count($f) === 2 && $qty > 0 ? [$f[0], '', $qty] : null,   // 2.7.06: deco:N, wait:N (game days), vigil:H (game hours)
             'days' => count($f) === 3 && (int)$f[1] > 0 && (int)$f[2] > 0 ? ['days', (string)(int)$f[2], (int)$f[1]] : null,   // [days, energy each, days needed]
             default => null,
         };
@@ -291,7 +298,7 @@ function repair_ready(array $u, array $repair): bool
 {
     $repair = repair_full($repair);
     [, $st] = repair_current($repair);
-    if (!$st || ($st['needs'][0][0] ?? '') === 'days') return false;
+    if (!$st || in_array($st['needs'][0][0] ?? '', ['days', 'wait', 'vigil'], true)) return false;
     return !array_filter(rebuild_need_rows($u, $st['needs']), fn($x) => $x[2] < $x[1]);
 }
 
@@ -346,10 +353,11 @@ function repair_start(array $u, int $lmId): array
         return [true, '🔨 You pick up making ' . $lm['name'] . ' safe where you left off (' . (int)$old['stage'] . ' of 4 stages done).'];
     }
     try {
-        db_insert('landmark_repairs', ['user_id' => $uid, 'landmark_id' => $lmId, 'stage' => 0, 'started_at' => now(), 'plan' => build_plan_of($lm) ? 'v1' : null]);
+        $newId = db_insert('landmark_repairs', ['user_id' => $uid, 'landmark_id' => $lmId, 'stage' => 0, 'started_at' => now(), 'plan' => build_plan_of($lm) ? 'v1' : null]);
     } catch (PDOException $e) {
         return [false, 'You’re already repairing this.'];   // a double click
     }
+    if (!empty($newId)) repair_arm_wait($uid, (int)$newId, ['id' => $newId, 'plan' => build_plan_of($lm) ? 'v1' : null, 'name' => $lm['name']], 1);
     return [true, '🔨 You start making ' . $lm['name'] . ' safe for yourself: clearing your own path in, shoring up your corner, earning the keeper’s trust. Hand in each stage when you have the materials, here, from the Job Board or from Tasks → Journey. Each one pays ' . money($coins) . ' and ' . $xp . ' XP.'];
 }
 
@@ -364,6 +372,7 @@ function repair_advance(array $fresh, array $r, array $lm, int $stage, array $de
     if (q('UPDATE landmark_repairs SET stage = stage + 1, prog = 0, settle_day = NULL WHERE id = ? AND user_id = ? AND stage = ? AND done_at IS NULL AND dropped_at IS NULL', [(int)$r['id'], $uid, $stage - 1])->rowCount() !== 1) {
         return [false, 'That stage is already done.'];
     }
+    repair_arm_wait($uid, (int)$r['id'], $r + ['name' => $lm['name']], $stage + 1);   // 2.7.06: a wait stage starts counting its game days now
     [$coins, $xp] = repair_rewards($lm);
     q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
     add_xp($uid, $xp, 'Repairs');   // v0.9.1: named source for the XP log
@@ -387,7 +396,7 @@ function repair_settle(int $uid): void
         $lm = q_one('SELECT * FROM landmarks WHERE id = ?', [$r['landmark_id']]);
         if (!$lm) continue;
         [$stage, $def] = repair_current($r + ['name' => $lm['name']]);
-        if (!$def || ($def['needs'][0][0] ?? '') !== 'days') { q('UPDATE landmark_repairs SET settle_day = NULL WHERE id = ?', [$r['id']]); continue; }
+        if (!$def || !in_array($def['needs'][0][0] ?? '', ['days', 'wait'], true)) { q('UPDATE landmark_repairs SET settle_day = NULL WHERE id = ?', [$r['id']]); continue; }
         $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
         db()->beginTransaction();
         [$ok, $msg] = repair_advance($fresh, $r, $lm, $stage, $def);
@@ -395,6 +404,43 @@ function repair_settle(int $uid): void
         db()->commit();
         notify($uid, '🪓 ' . $msg);
     }
+}
+
+/**
+ * 2.7.06 `wait` stages: when stage $stageNo (1-4) of this repair is a wait of N game days, it is armed to finish on game day (today + N) through settle_day, which repair_settle() pays on a later page load.
+ * Returns the day it will finish, or null when the stage is not a wait. (A wait stage of 0 days finishes at the next settle.)
+ */
+function repair_arm_wait(int $uid, int $repairId, array $repair, int $stageNo): ?int
+{
+    $st = repair_stages(repair_full($repair))[$stageNo] ?? null;
+    if (!$st || ($st['needs'][0][0] ?? '') !== 'wait') return null;
+    $day = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) + max(1, (int)$st['needs'][0][2]);
+    q('UPDATE landmark_repairs SET settle_day = ? WHERE id = ?', [$day - 1, $repairId]);   // repair_settle pays when settle_day < today, so day - 1 = on game day `day`
+    return $day;
+}
+
+/** 2.7.06: keep vigil at the place for the stage's game hours (no energy; the time is spent like any long job). Returns [ok, message]. */
+function repair_vigil(array $u, int $repairId): array
+{
+    $uid = (int)$u['id'];
+    repair_settle($uid);
+    $r = q_one('SELECT * FROM landmark_repairs WHERE id = ? AND user_id = ? AND done_at IS NULL AND dropped_at IS NULL', [$repairId, $uid]);
+    if (!$r) return [false, 'That repair is finished or gone.'];
+    $lm = q_one('SELECT * FROM landmarks WHERE id = ?', [$r['landmark_id']]);
+    if (!$lm) return [false, 'That repair is gone.'];
+    [$stage, $def] = repair_current($r + ['name' => $lm['name']]);
+    if (!$def || ($def['needs'][0][0] ?? '') !== 'vigil') return [false, 'This stage is not a vigil.'];
+    if ((int)$u['location_id'] !== (int)$lm['location_id']) return [false, 'You need to be there to keep vigil.'];
+    if (!function_exists('gclock_on') || !gclock_on()) return [false, 'A vigil needs the game clock.'];
+    $hours = max(1, (int)$def['needs'][0][2]);
+    if (($busy = gclock_busy_minutes($uid)) > 0) return [false, 'You are still busy with a long job. Sleep, and finish it in the morning (' . round($busy / 60, 1) . ' h left).'];
+    if (!game_spend($uid, $hours * 60)) return [false, 'There is not enough of the day left for a ' . $hours . ' hour vigil.'];
+    $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    db()->beginTransaction();
+    [$ok, $msg] = repair_advance($fresh, $r, $lm, $stage, $def);
+    if (!$ok) { db()->rollBack(); return [false, $msg]; }
+    db()->commit();
+    return [true, '🕯️ You keep vigil for ' . $hours . ' hour' . ($hours === 1 ? '' : 's') . '. ' . $msg];
 }
 
 /** Hand in the next stage of a repair. Returns [ok, message]. */
@@ -410,6 +456,8 @@ function repair_hand(array $u, int $repairId): array
     [$stage, $def] = repair_current($r + ['name' => $lm['name']]);
     if (!$def) return [false, 'This repair is finished.'];
     if (($def['needs'][0][0] ?? '') === 'days') return [false, 'This stage is done by working here on different days: use “Work here today”.'];
+    if (($def['needs'][0][0] ?? '') === 'wait') return [false, 'This stage is done by waiting: it finishes by itself when enough game days have passed.'];
+    if (($def['needs'][0][0] ?? '') === 'vigil') return [false, 'This stage is done by keeping vigil here: use “Keep vigil”.'];
     $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
     foreach (rebuild_need_rows($fresh, $def['needs']) as [$label, $need, $have]) {
         if ($have < $need) return [false, 'Stage ' . $stage . ' needs ' . $need . ' ' . $label . ' (you have ' . $have . ').'];
@@ -506,6 +554,7 @@ function repair_box(array $u, array $repair, string $back): string
     [$stage, $def] = repair_current($repair);
     if (!$def) return '';
     $isClear = ($def['needs'][0][0] ?? '') === 'days';
+    $isWait = ($def['needs'][0][0] ?? '') === 'wait'; $isVigil = ($def['needs'][0][0] ?? '') === 'vigil';   // 2.7.06
     $st = rebuild_need_rows($u, $def['needs'], (int)$repair['prog']);
     $ready = repair_ready($u, $repair);
     $today = gclock_my_date();
@@ -526,12 +575,19 @@ function repair_box(array $u, array $repair, string $back): string
     $usesTools = false;   // build plans can ask for tools (lanterns, trugs, baskets): they are handed in for good
     foreach ($def['needs'] as $nd) if (($nd[0] ?? '') === 'item' && (string)q_val('SELECT category FROM items WHERE slug = ?', [(string)$nd[1]]) === 'tool') $usesTools = true;
     $h .= '</ul>' . ($usesTools ? '<p class="help">🔧 Tools you hand in are used up.</p>' : '') . '<p class="help">Each stage pays ' . money($coins) . ' and ' . $xp . ' XP.</p>';
-    $h .= $isClear
-        ? '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_work">' . $hidden
+    if ($isWait) {
+        $left = max(0, (int)q_val('SELECT settle_day FROM landmark_repairs WHERE id = ?', [(int)$repair['id']]) + 1 - (int)q_val('SELECT game_day FROM users WHERE id = ?', [(int)$u['id']]));
+        $h .= '<p class="help">⏳ Nothing to hand in: this stage finishes by itself. ' . ($left > 0 ? $left . ' more game day' . ($left === 1 ? '' : 's') . ' (sleep to let them pass).' : 'It finishes the next time you look.') . '</p>';
+    }
+    $h .= $isWait ? ''
+        : ($isVigil
+        ? '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_vigil">' . $hidden
+            . '<button class="btn small">' . build_verb_img('vigil') . 'Keep vigil <span class="cost">' . (int)$def['needs'][0][2] . ' h</span></button></form> '
+        : ($isClear        ? '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_work">' . $hidden
             . '<button class="btn small"' . ($workedToday ? ' disabled' : '') . '>' . build_verb_img('clear') . 'Work here today <span class="cost">' . (int)$def['needs'][0][1] . '⚡' . e(gclock_cost_tag(null, null, 'repair')) . '</span></button></form> '
         : '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_hand">' . $hidden
-            . '<button class="btn small"' . ($ready ? '' : ' disabled') . '>' . build_verb_img($def['verb']) . 'Hand in stage ' . $stage . '</button></form> ';
-    if (!$isClear && $def['verb'] === 'haul') $h .= '<a class="btn small alt" href="' . e(url('inventory.php?tab=craft&c=building')) . '">Craft materials →</a> ';
+            . '<button class="btn small"' . ($ready ? '' : ' disabled') . '>' . build_verb_img($def['verb']) . 'Hand in stage ' . $stage . '</button></form> '));
+    if (!$isClear && !$isWait && !$isVigil && in_array($def['verb'], ['haul', 'carry'], true)) $h .= '<a class="btn small alt" href="' . e(url('inventory.php?tab=craft&c=building')) . '">Craft materials →</a> ';
     $h .= '<form method="post" class="inline" action="' . e(url('landmark.php')) . '" data-confirm="Give up this repair? The materials you’ve handed in are not returned.">' . csrf_field() . '<input type="hidden" name="do" value="repair_drop">' . $hidden
         . '<button class="btn small alt">Give up</button></form></div>';
     return $h;
@@ -541,5 +597,6 @@ function repair_box(array $u, array $repair, string $back): string
 function build_verb_img(string $verb): string
 {
     $verb = isset(BUILD_VERBS[$verb]) ? $verb : 'haul';
-    return '<img class="ico pix buildverb" src="' . e(art_url('assets/img/steps/stage-' . $verb)) . '" alt="' . e(BUILD_VERBS[$verb]) . '" title="' . e(BUILD_VERBS[$verb]) . '" width="20" height="20" loading="lazy" decoding="async"> ';
+    $file = BUILD_VERB_ART[$verb] ?? $verb;   // 2.7.06: borrowed picture until the new ones are drawn
+    return '<img class="ico pix buildverb" src="' . e(art_url('assets/img/steps/stage-' . $file)) . '" alt="' . e(BUILD_VERBS[$verb]) . '" title="' . e(BUILD_VERBS[$verb]) . '" width="20" height="20" loading="lazy" decoding="async"> ';
 }
