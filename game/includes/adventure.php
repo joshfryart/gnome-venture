@@ -1024,10 +1024,12 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full =
     $ps = ppal_boons_on() ? ppal_skills($u) : [];   // v2.3.8: Boons spoils (drop chance) and lesson (Fighting XP); [] with no pals along
     $cxp = creature_win_xp($c);   // 2.7.01: x the exp multiplier of the creature's row
     $xp = $peaceful && !$full ? intdiv($cxp, 2) : $cxp;
+    if ($full && $peaceful) $xp = intdiv($xp * 125, 100);   // 2.7.08 (Josh: buff Charm): a puzzle Charm win pays 25% more XP and Petals
     $pct = outlevel_percent($u, max((int)($exp['level'] ?? 0), (int)$c['level']));   // v0.7.75: outgrown areas give less XP (drops unchanged); judged by the area, not a weaker creature in it
     $xp = outlevel_scale($xp, $pct);
     [$pMin, $pMax] = creature_petal_range($c);   // 2.7.01: Petals from the row: half when befriended (not a puzzle Charm), cut in an outgrown area like XP
     $petals = $pMax > 0 ? random_int($pMin, $pMax) : 0;
+    if ($full && $peaceful) $petals = intdiv($petals * 125 + 99, 100);
     if ($petals > 0) { if ($peaceful && !$full) $petals = max(1, intdiv($petals, 2)); give_petals($uid, outlevel_scale($petals, $pct), 'creature'); $petals = outlevel_scale($petals, $pct); }
     if (!empty($ps['lesson'])) $xp = intdiv($xp * (100 + (int)$ps['lesson']), 100);
     [$xp, $lvl] = add_action_xp($uid, $xp, 'Fighting', (int)$u['level']);   // v0.9.7: action XP grows with the gnome's level (after the outgrown-area cut)

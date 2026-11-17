@@ -51,9 +51,9 @@ $s = pfb_new(fx_me(5), $ants, 3, ['blank' => true]);
 $r = pfb_pass($s, $s['turn']);
 chk('pass before the start piece is picked: refused with the start message', $r['err'] === 'Pick your start piece first.', (string)$r['err']);
 
-// 5. hostile creatures: charm counts PF_HOSTILE_CM (0.6); gentle unchanged
+// 5. hostile creatures: charm counts PF_HOSTILE_CM (0.8); gentle unchanged
 $s = pfb_new(fx_me(5), $ants, 3);
-chk('hostile creature: charm multiplier is 0.6', abs($s['cm'] - 0.6) < 1e-9, (string)$s['cm']);
+chk('hostile creature: charm multiplier is 0.8', abs($s['cm'] - 0.8) < 1e-9, (string)$s['cm']);
 $s = pfb_new(fx_me(5), ['slug' => 'garden-snail', 'name' => 'Snail', 'size' => 'small', 'level' => 1, 'dmg_die' => 4, 'dmg_bonus' => 0], 3);
 chk('gentle creature: charm multiplier stays 1.0', abs($s['cm'] - 1.0) < 1e-9, (string)$s['cm']);
 

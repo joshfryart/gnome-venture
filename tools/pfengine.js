@@ -305,7 +305,7 @@
   function pfNew(me, c, seed, opt) {
     opt = opt || {};
     var size = String(nn(c.size, 'small')), boss = size === 'boss', tp = temper(c);
-    var hm = tp === 'hostile' ? 1.0 : PF_GENTLE_HM, cm = tp === 'hostile' ? 0.6 : 1.0;
+    var hm = tp === 'hostile' ? 1.0 : PF_GENTLE_HM, cm = tp === 'hostile' ? PF_HOSTILE_CM : 1.0;
     if (boss && !truthy(opt.boss_charm)) { hm = 1.0; cm = 0.0; }
     var luck = toInt(nn(me.luck, 0));
     var s = {
@@ -531,7 +531,7 @@
   // after 2.6.94: the LEVEL CURVE (PFB_V1_LEVEL in pfboard.php, where the why is): f = clamp(1 + slope x (level - ref), lo, hi) as [slope, ref, lo, hi]; piece values x f, bar x min(1, f)
   var PFB_V1_LEVEL = { small: [0.05, 6, 1.0, 1.8], medium: [0.05, 12, 0.85, 1.25], large: [0.025, 22, 0.85, 1.10], boss: [0.0, 1, 1.0, 1.0] };
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
-  var PF_HOSTILE_CM = 0.6;
+  var PF_HOSTILE_CM = 0.8;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
   var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 0, abil: 0, style: 0, cset: 0, envopen: 0, tagfx: 0 };
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)

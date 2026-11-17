@@ -556,7 +556,7 @@ chk('onebar: a creature with cm 0 ends seen_off', $r && $ge['over'] === 'seen_of
 $ge = $mk(4.0, 17.0, 0.6, true); $r = pf_check_end($ge);
 chk('onebar: a boss with bar > fh ends seen_off, never charmed', $r && $ge['over'] === 'seen_off', $ge['over']);
 $bs = pfb_new(v1_me(), v1_foe('boss', 12), 3, ['v1' => true]); $bo = pfb_new(v1_me(), v1_foe('boss', 12), 3, ['v1' => V1_294]);
-chk('onebar: a boss fight has cm 0.6 (Charm counts), a 2.6.94 boss has cm 0', abs($bs['cm'] - PF_HOSTILE_CM) < 1e-9 && $bo['cm'] === 0.0 && $bs['boss'], [$bs['cm'], $bo['cm']]);
+chk('onebar: a boss fight has cm 0.8 (Charm counts), a 2.6.94 boss has cm 0', abs($bs['cm'] - PF_HOSTILE_CM) < 1e-9 && $bo['cm'] === 0.0 && $bs['boss'], [$bs['cm'], $bo['cm']]);
 chk('onebar: the view of a boss says it is not charmable, a gentle creature is; the view says onebar and a 2.6.94 one does not', pfb_view($bs)['charmable'] === false && pfb_view($on)['charmable'] === true && !empty(pfb_view($on)['onebar']) && empty(pfb_view($old)['onebar']), [pfb_view($bs)['charmable']]);
 $bs['me']['hand'][0] = pfb_v1_tile(pf_make_tile('charm', ['level' => 10]), $bs['v1']); $b0 = $bs['bar']['now']; $ch = null;
 foreach (pfb_cell_preview($bs, 0) as $key => $q) { $ch = [$key, $q]; break; }
