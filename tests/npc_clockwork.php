@@ -119,7 +119,7 @@ echo "== off switch\n";
 // 2.7.06: the forecast honours the foreseeable parts of a row's `when` (a dusk row never promises a morning visit)
 foreach (trail_sight_folk() as $slug => $rows) foreach ($rows as $r) { $k = npc_cw_who_key($r['who']); if (!$k || npc_cw_profile($k)['mode'] !== 'free') continue;
     $f0 = npc_cw_forecast($r['who'], $slug); if (!$f0) continue;
-    ok('forecast with a never-true dp and the plain one: the plain visit is not later than the filtered one', ($fx = npc_cw_forecast($r['who'], $slug, 'dp=nosuchpart')) === null || $fx['in'] > $f0['in'] || ($fx['in'] === $f0['in'] && $fx['from'] >= $f0['from']));
+    ok('forecast with a dp no hour has: no visit qualifies (null)', npc_cw_forecast($r['who'], $slug, 'dp=nosuchpart') === null);
     ok('a visit it returns for dp=dusk,night reaches dusk or night', !($fd = npc_cw_forecast($r['who'], $slug, 'dp=dusk,night')) || (function () use ($fd) { for ($h = (int)floor($fd['from']); $h < (int)ceil($fd['to']); $h++) if (in_array(hollow_daypart($h % 24), ['dusk', 'night'], true)) return true; return false; })());
     break 2; }
 require_once $argv[1] . '/includes/moon.php';

@@ -326,6 +326,9 @@ chk('region EE: both turn up', isset($got['EE']['aphid-swarm'], $got['EE']['fly-
 chk('no region given: both (the old behaviour)', isset($got['']['aphid-swarm'], $got['']['fly-swarm']), array_keys($got['']));
 $rows = [$row('fly-swarm', 3)]; $p = pick_creature('grassland', 4, false, false, 0, 'NA', $rows);
 chk('the region leaves nothing in the band: it picks again without the region (never null)', $p !== null && $p['slug'] === 'fly-swarm', $p);
+$rows = [$row('aphid-swarm', 4, 'boss'), $row('fly-swarm', 3)]; $nb = 0; $N = 8000; mt_srand(5);
+for ($i = 0; $i < $N; $i++) { $p = pick_creature('grassland', 4, true, false, 0, 'NA', $rows); if ($p && $p['size'] === 'boss') $nb++; }
+chk('2.7.06 boss chance is 6% once, not rolled again in the fallback pass (about 6%, not 11-12%): ' . round(100 * $nb / $N, 1) . '%', $nb / $N > 0.04 && $nb / $N < 0.085, $nb / $N);
 $rows = [$row('aphid-swarm', 3), $row('fly-swarm', 3), $row('marsh-adder', 14, 'large', 'wetland')]; $p = pick_creature('wetland', 15, false, false, 0, 'NA', $rows);
 chk('a variant of the right region and band is picked over a base out of band', $p !== null && $p['slug'] === 'marsh-adder', $p['slug'] ?? null);
 $GLOBALS['PF_CREATURES_FILE'] = '/nonexistent/pf_creatures.txt'; pfd_creature_rows(true);
