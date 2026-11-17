@@ -94,8 +94,13 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($c[0] === 'pick') {   // pick:N or pick:N:label;label;label : choose one of N, one is right (fixed per gnome and game day)
             if (!ctype_digit($c[1] ?? '') || (int)$c[1] < 2 || (int)$c[1] > 5 || (isset($c[2]) && count(explode(';', $c[2])) !== (int)$c[1])) $bad[] = 'pick must be pick:N[:N labels joined by ;] with N 2 to 5';
             if ($r['lose'] === '') $bad[] = 'a pick needs a lose line';
-        } elseif (count($c) !== 2 || !array_key_exists($c[0], GNOME_STATS) || !ctype_digit($c[1]) || (int)$c[1] > 25) $bad[] = 'check must be stat:difficulty or pick:N (' . implode(', ', array_keys(GNOME_STATS)) . ')';
-        elseif ($r['lose'] === '') $bad[] = 'a check needs a lose line';
+        } else {
+            foreach (explode('+', $r['check']) as $alt) {   // 2.7.06 either / or: stat:dc+stat:dc (any one pass wins)
+                $ac = explode(':', $alt);
+                if (count($ac) !== 2 || !array_key_exists($ac[0], GNOME_STATS) || !ctype_digit($ac[1]) || (int)$ac[1] > 25) { $bad[] = 'check must be stat:difficulty (or stat:dc+stat:dc: either one) or pick:N (' . implode(', ', array_keys(GNOME_STATS)) . ')'; break; }
+            }
+            if ($r['lose'] === '') $bad[] = 'a check needs a lose line';
+        }
     }
     if ($r['when'] !== '-') foreach (array_filter(array_map('trim', explode('/', $r['when']))) as $part) if (!preg_match(TRAIL_SIGHT_COND_RE, $part)) $bad[] = 'bad condition "' . $part . '"';
     if ($r['tool'] !== '-') {
@@ -343,7 +348,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     if (!spend_energy((int)$u['id'], $row['energy'], 'sight')) return [false, 'You need ' . $row['energy'] . ' energy for that.'];   // time: setting time_sight (10 game minutes); an energy-free Sight still takes the time
     $ok = true;
     if ($pick && !$sure) $ok = (int)($opt['pick'] ?? -1) === trail_sight_pick_right($u, $sc, $row);
-    elseif ($row['check'] !== '-' && str_contains($row['check'], ':') && !$sure) { [$stat, $dc] = explode(':', $row['check'], 2); [$ok] = stop_check($u, $stat, (int)$dc); }
+    elseif ($row['check'] !== '-' && str_contains($row['check'], ':') && !$sure) { $ok = false; foreach (explode('+', $row['check']) as $alt) { [$stat, $dc] = explode(':', $alt, 2); [$one] = stop_check($u, $stat, (int)$dc); if ($one) { $ok = true; break; } } }   // 2.7.06: stat:dc+stat:dc = either passes
     $lines = [];
     $first = false;
     try { $first = !q_val('SELECT 1 FROM trail_sight_first WHERE user_id = ? AND slug = ?', [(int)$u['id'], $slug]); } catch (Throwable $e) { /* table missing: no first-time bonus */ }

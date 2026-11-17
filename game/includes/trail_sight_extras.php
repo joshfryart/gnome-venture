@@ -135,7 +135,7 @@ function trail_sights_ensure_almanac(): void
             [$name, $cap] = trail_sight_label($r['slug']);
             $body = $r['icon'] . ' ' . ($cap !== '' ? $cap : $name) . "\n\n[b]What you can do:[/b] " . $r['verb'] . '.'
                 . ($r['tool'] !== '-' ? ' You need a ' . (GATHER_TOOL_NOUN[explode(':', $r['tool'])[0]] ?? 'tool') . '.' : '')
-                . ($r['check'] !== '-' ? ' It takes a steady hand (a ' . explode(':', $r['check'])[0] . ' check).' : '')
+                . ($r['check'] !== '-' ? ' It takes a steady hand (a ' . implode(' or ', array_map(fn($a) => explode(':', $a)[0], explode('+', $r['check']))) . ' check).' : '')
                 . "\n\nStand next to it on the Trail to try.";
             db_insert('encyclopedia_entries', ['chapter' => 'Sights', 'category' => trail_sight_category($r['slug']), 'title' => $name, 'body' => $body,
                 'unlock_key' => 'sight:' . $r['slug'], 'hint' => 'A big landmark on the Trail. Use it to learn about it.', 'sort_order' => $sort]);
@@ -815,7 +815,7 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
         $near = max(abs($m['x'] - (int)$sc['x']), abs($m['y'] - (int)$sc['y'])) <= 1;
         $bits = ['⚡' . (int)$row['energy'], gclock_on() ? gclock_time_cost('sight') . ' min' : ''];
         if ($row['tool'] !== '-') { [$tt, $tr] = explode(':', $row['tool']); $bits[] = '🧰 ' . (TOOL_TIERS[(int)$tr] ?? '') . ' ' . (GATHER_TOOL_NOUN[$tt] ?? $tt); }
-        if ($row['check'] !== '-') $bits[] = '🎲 ' . ucfirst(explode(':', $row['check'])[0]);
+        if ($row['check'] !== '-') $bits[] = '🎲 ' . ucfirst(implode(' or ', array_map(fn($a) => explode(':', $a)[0], explode('+', $row['check']))));
         if ($row['when'] !== '-') $bits[] = '🕰️ ' . trail_sight_cond_text($row['when']);
         $notes = '';
         foreach (trail_sight_quest_notes((int)$u['id'], $m['slug']) as [$qt, $n, $of, $st]) {

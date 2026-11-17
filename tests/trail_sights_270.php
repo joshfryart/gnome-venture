@@ -123,6 +123,8 @@ $put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fr
 [$a] = $go(); ok('with puzzle combat off a wearable does not drop', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
 $put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('pfight_v1', '1'); setting('__reload__');
 [$a] = $go(); ok('with puzzle combat on it drops', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0 + 1, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
+$ncl = fn(string $chk) => array_values(array_filter(trail_sight_lint(['check' => $chk, 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'check')));
+if (!$ncl('nimble:9+grit:11') && !$ncl('grit:12') && $ncl('nimble:9+bogus:3') && $ncl('nimble:9+grit:99')) echo "  ok   2.7.06 either / or check: nimble:9+grit:11 lints clean, a bad half is refused\n"; else { echo "  FAIL 2.7.06 either / or check lint " . json_encode([$ncl('nimble:9+grit:11'), $ncl('nimble:9+bogus:3')]) . "\n"; $fails++; }
 $t0 = 'hint=old-ruin@0'; $t100 = 'title=Lantern Runner@100'; $tn = 'page=the-stump';
 $n0 = 0; for ($i = 0; $i < 200; $i++) { $x = $t0; if (trail_sight_chance_pass($x)) $n0++; }
 $x100 = $t100; $x1 = $tn; $r100 = trail_sight_chance_pass($x100); $r1 = trail_sight_chance_pass($x1);

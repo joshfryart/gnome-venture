@@ -52,3 +52,5 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 - **Tool-tier odds** `item=x:1@5/15/30/50`: the chance by the tier of the row's `tool` (tier 1 = first number ... a tier past the list repeats the last). The row needs a tool column.
 - **`check=stat:dc`** (a reward token on a VILLAGER row, `trail_sight_folk_*.txt`): the villager only pays if the gnome passes that stat check; otherwise their line says they ask for more.
 - Rewards pass: `trail_sight_flat_scale` (setting `sights_flat_pct_per_level`, 0 = off): see `claude/sights-rewards-2.7.00.md`.
+
+- 2.7.06: `check` may be either / or: `nimble:9+grit:11` (any one passing wins; the card says "Nimble or Grit"). `@chance` also works on `hint=` `title=` `page=` `fpto=` `disc=`.
