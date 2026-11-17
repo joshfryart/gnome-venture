@@ -141,6 +141,11 @@ function apply_event_effect(array $u, string $effect): array
                 break;
             case 'buff':
                 if (isset(GNOME_STATS[$p[1] ?? ''])) {
+                    if (($p[3] ?? '') === 'section' && function_exists('gnome_walk_section') && ($wk = gnome_walk_section($uid)) !== null) {   // 2.7.06: lasts until the walk crosses into the next Trail section
+                        q('UPDATE users SET ev_stat = ?, ev_amt = ?, ev_until = ?, ev_day = ?, ev_scope = ? WHERE id = ?', [$p[1], (int)($p[2] ?? 1), gmdate('Y-m-d H:i:s', time() + 30 * 86400), $wk, 'section', $uid]);
+                        $lines[] = GNOME_STATS[$p[1]][1] . ' +' . (int)($p[2] ?? 1) . ' ' . GNOME_STATS[$p[1]][0] . ' until the next section';
+                        break;
+                    }
                     if (($p[3] ?? '') === 'delve') {   // 2.7.06: only counts while a delve or lair run is active (30 real days at most)
                         q('UPDATE users SET ev_stat = ?, ev_amt = ?, ev_until = ?, ev_day = NULL, ev_scope = ? WHERE id = ?', [$p[1], (int)($p[2] ?? 1), gmdate('Y-m-d H:i:s', time() + 30 * 86400), 'delve', $uid]);
                         $lines[] = GNOME_STATS[$p[1]][1] . ' +' . (int)($p[2] ?? 1) . ' ' . GNOME_STATS[$p[1]][0] . ' in delves and lairs';

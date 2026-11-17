@@ -175,9 +175,24 @@ function ts_gnome(?string $dt): int
     return $dt ? (int)strtotime($dt . ' UTC') : 0;
 }
 
+/** 2.7.06: where this gnome's active Trail walk is: expedition id * 1000 + section number, or null when they are not on a Trail walk. Cached per request ($GLOBALS['gv_walk_sec']; a test clears it). */
+function gnome_walk_section(int $uid): ?int
+{
+    $c = &$GLOBALS['gv_walk_sec'];
+    if (array_key_exists($uid, (array)$c)) return $c[$uid];
+    $r = null;
+    try {
+        $row = q_one("SELECT w.exp_id, w.state FROM walk_scene w JOIN expeditions e ON e.id = w.exp_id WHERE e.user_id = ? AND e.status = 'active' ORDER BY w.id DESC LIMIT 1", [$uid]);
+        if ($row && is_array($st = json_decode((string)$row['state'], true)) && isset($st['sec'])) $r = (int)$row['exp_id'] * 1000 + (int)$st['sec'];
+    } catch (Throwable $e) { $r = null; }
+    $c[$uid] = $r;
+    return $r;
+}
+
 /** 2.7.06: a "until you sleep" lucky moment (ev_day = the game day it was given) is over once the gnome's game day has moved on. */
 function gnome_ev_slept(array $u): bool
 {
+    if (($u['ev_scope'] ?? '') === 'section') return gnome_walk_section((int)($u['id'] ?? 0)) !== (int)($u['ev_day'] ?? -1);   // 2.7.06: over once the walk is in another Trail section (or none)
     if (($u['ev_scope'] ?? '') === 'delve') {   // 2.7.06: a delve / lair buff only counts during a run (cached per request: eff_stat is called a lot)
         $uid = (int)($u['id'] ?? 0); $run = &$GLOBALS['gv_ev_run'];   // per request; a test clears it
         if (!isset($run[$uid])) { try { $run[$uid] = (bool)q_val("SELECT 1 FROM expeditions WHERE user_id = ? AND status = 'active' AND kind IN ('delve', 'lair') LIMIT 1", [$uid]); } catch (Throwable $e) { $run[$uid] = false; } }

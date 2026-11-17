@@ -62,3 +62,4 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 - 2.7.06: condition `fd=yes` (any festival is on today) or `fd=<festival slug>[,..]` (that festival). **Villager stat check** was already there: a `check=stat:dc` token in a folk row's rewards (2.7.01); a miss pays none of that row's other rewards.
 - 2.7.06: reward `time=N` = N more game minutes pass after a win (1-480; a long sit-down, a slow walk). Needs the sleep-days clock.
 - 2.7.06: `buff=stat:amount:delve` is a lucky moment that only counts while a delve or lair run is active (users.ev_scope = 'delve'); it stays until replaced (30 real days at most).
+- 2.7.06: `buff=stat:amount:section` is a lucky moment that lasts until the Trail walk crosses into the next section (users.ev_scope = 'section', ev_day = expedition id * 1000 + section); without a Trail walk it falls back to the usual minutes.

@@ -110,6 +110,18 @@ $bl = apply_event_effect($ub, 'buff:luck:2:sleep'); $ub = q_one('SELECT * FROM u
 ok('a buff:luck:2:sleep gives +2 now and says until you sleep', eff_stat($ub, 'luck') === $base0 + 2 && str_contains(implode(' ', $bl), 'until you sleep') && (int)$ub['ev_day'] === 20, json_encode([$bl, $ub['ev_day'], eff_stat($ub, 'luck'), $base0]));
 q('UPDATE users SET game_day = 21 WHERE id = ?', [$u['id']]); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
 ok('after a sleep (next game day) the lucky moment is over', eff_stat($ub, 'luck') === $base0, (string)eff_stat($ub, 'luck'));
+// next-section buff: lasts until the walk is in another Trail section
+unset($GLOBALS['gv_walk_sec']); $wkNow = gnome_walk_section((int)$u['id']);
+if ($wkNow !== null) {
+    q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL WHERE id = ?', [$u['id']]);
+    $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $bs = apply_event_effect($ub, 'buff:luck:2:section'); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+    ok('a section buff gives +2 in this Trail section and says until the next', eff_stat($ub, 'luck') === $base0 + 2 && str_contains(implode(' ', $bs), 'until the next section'), json_encode([$bs, eff_stat($ub, 'luck'), $base0]));
+    $wrow = q_one('SELECT * FROM walk_scene WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$u['id']]); $wst = json_decode((string)$wrow['state'], true); $wst['sec'] = (int)$wst['sec'] + 1;
+    q('UPDATE walk_scene SET state = ? WHERE id = ?', [json_encode($wst), $wrow['id']]); unset($GLOBALS['gv_walk_sec']); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+    ok('once the walk is in the next section the buff is over', eff_stat($ub, 'luck') === $base0, (string)eff_stat($ub, 'luck'));
+    $wst['sec'] = (int)$wst['sec'] - 1; q('UPDATE walk_scene SET state = ? WHERE id = ?', [json_encode($wst), $wrow['id']]); unset($GLOBALS['gv_walk_sec']);
+} else echo "  (no Trail walk here: section buff check skipped)\n";
+q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL WHERE id = ?', [$u['id']]);
 // delve / lair scoped buff
 q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL, game_day = 10 WHERE id = ?', [$u['id']]);
 unset($GLOBALS['gv_ev_run']);   // (the walk the later checks use is a 'walk', not a delve: it does not count)
