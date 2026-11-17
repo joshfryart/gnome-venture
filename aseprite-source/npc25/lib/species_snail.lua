@@ -180,33 +180,39 @@ function S.draw_figure(img, view, frame, species)
         P(x, y, c)
       end
       -- wet gloss streak: a broken cream line inside the lit edge
-      if gloss and t > 0.08 and t < 0.75 and (y % 5 ~= 0) then
-        P(floor(cx - hw * 0.5 + 0.5), y, (y % 5 == 1) and CREAM or SK.hi)
+      if gloss and y - y0 >= gloss and y - y0 <= gloss + 3 then
+        P(floor(cx - hw * 0.45 + 0.5), y, (y - y0 == gloss) and CREAM or SK.hi)
       end
     end
   end
   -- frilled foot skirt on the ground, ripple waves while walking
-  local function skirt(cx, rx, x0, x1)
-    for y = 63, 70 do
-      local ny = (y - 70.5) / 7.5
+  local function skirt(cx, rx)
+    -- a soft wavy-edged foot: rounded lip lit on top, darker sole where it meets the ground
+    for y = 62, 70 do
+      local ny = (y - 70.5) / 8.5
       local hw = rx * sqrt(max(0, 1 - ny * ny * ny * ny))
-      for x = max(x0, floor(cx - hw + 0.5)), min(x1, floor(cx + hw + 0.5) - 1) do
+      local wav = ((y + wi) % 3 == 0) and 1 or 0
+      for x = floor(cx - hw + 0.5) - wav, floor(cx + hw + 0.5) - 1 + wav do
         local c = SK.base
         local nx = (x + 0.5 - cx) / hw
-        if y >= 70 then c = SK.deep
-        elseif y == 69 then c = SK.shade
-        elseif nx > 0.82 then c = SK.shade
-        elseif y == floor(70.5 - 7.5 * sqrt(sqrt(max(0, 1 - nx * nx)))) + 1 and nx < 0.4 then c = SK.hi end
+        if y >= 70 then c = SK.shade
+        elseif nx > 0.78 then c = SK.shade
+        elseif nx < -0.8 then c = SK.hi end
         P(x, y, c)
       end
     end
-    -- frill scallops along the rim
-    for x = floor(cx - rx) + 2, floor(cx + rx) - 2, 4 do
-      if get(x, 69) then P(x, 68, SK.shade) end
+    -- lit top lip of the foot
+    for x = floor(cx - rx) + 1, floor(cx + rx) - 1 do
+      for y = 62, 70 do
+        if get(x, y) then
+          if (x + 0.5 - cx) < rx * 0.5 then P(x, y, SK.hi) end
+          break
+        end
+      end
     end
     if walking then
       for x = floor(cx - rx), floor(cx + rx) do
-        if (x + wi * 2) % 6 == 0 and get(x, 67) and get(x + 1, 68) then P(x, 67, SK.shade); P(x + 1, 68, SK.shade) end
+        if (x + wi * 2) % 6 == 0 and get(x, 68) and get(x + 1, 69) then P(x, 68, SK.shade); P(x + 1, 69, SK.shade) end
       end
     end
   end
@@ -216,145 +222,158 @@ function S.draw_figure(img, view, frame, species)
       if get(x, y) == SK.base then P(x, y, SK.shade) end
     end
   end
+  -- soft glossy blob (head, body mound): lit upper-left, wet cream glint, shade lower-right
+  local function blob(cx, cy, rx, ry, glint, wx, wy)
+    wx, wy = wx or 0.6, wy or 0.7
+    ell(cx, cy, rx, ry, function(x, y, nx, ny)
+      local sv = nx * wx + ny * wy
+      if sv > 0.9 then return SK.deep end
+      if sv > 0.5 then return SK.shade end
+      if sv < -0.58 then return SK.hi end
+      return SK.base
+    end)
+    if glint then
+      local gx, gy = floor(cx - rx * 0.5), floor(cy - ry * 0.55)
+      P(gx, gy, CREAM); P(gx + 1, gy, SK.hi); P(gx, gy + 1, SK.hi)
+    end
+  end
+  -- head blob with face (front)
+  local function face(cx, cy)
+    E(cx, cy + 3, 4.2, 2.2, SK.hi)
+    local x = floor(cx)
+    P(x, cy + 2, SHL.deep); P(x + 1, cy + 2, SHL.deep); P(x, cy + 2, CREAM)
+    P(x - 2, cy + 5, K); P(x - 1, cy + 6, K); P(x, cy + 6, K); P(x + 1, cy + 6, K); P(x + 2, cy + 6, K); P(x + 3, cy + 5, K)
+    P(x - 7, cy + 3, SHL.base); P(x - 6, cy + 3, SHL.base); P(x + 7, cy + 3, SHL.base); P(x + 8, cy + 3, SHL.base)
+  end
 
+  local HY = 36 -- head centre row (body y 0)
   if view == "front" or view == "back" then
     local front = view == "front"
     local wide = (walking and b == 1) and 1 or 0
     ell(32, 67.5, 17, 3, function(x, y, nx, ny) return ny < -0.2 and SL or SD end)
     if front then
-      -- big shell behind the body on the left, whorl turned toward us
-      shell(23, 44 + b, 13.5, 2.3, 1, -3, -1)
-      skirt(32, 18 + wide, 13, 50)
-      -- pear-shaped soft body leaning right, flowing into the foot
-      local top = 33 + b
-      slug(top, 65, function(t) return 33.5 - 1.5 * t end, function(t) return 6.5 + 8 * t * t + wide * 0.5 end, true)
-      spots({{36, 46}, {39, 52}, {34, 56}, {41, 58}, {30, 60}}, b)
-      -- head: round soft blob
-      E(33.5, 27 + hd, 10.5, 8.2, SK)
-      -- face
-      E(33.5, 30.5 + hd, 4.2, 2.2, SK.hi)
-      P(33, 29 + hd, SHL.deep); P(34, 29 + hd, SHL.deep); P(33, 29 + hd, CREAM)
-      P(31, 32 + hd, K); P(32, 33 + hd, K); P(33, 33 + hd, K); P(34, 33 + hd, K); P(35, 33 + hd, K); P(36, 32 + hd, K)
-      P(26, 30 + hd, SHL.base); P(27, 30 + hd, SHL.base); P(40, 30 + hd, SHL.base); P(41, 30 + hd, SHL.base)
-      for x = 24, 43 do if get(x, 22 + hd) then P(x, 22 + hd, SK.shade) end end
-      -- green spotted kerchief knotted under the chin
-      for j = 0, 5 do
-        local w = 16 - j * 3
+      local HY = 42
+      local FX = 35
+      -- big shell dome behind, set to the left, whorl turned toward us
+      shell(25, 41 + b, 16, 2.5, 1, -4, -1)
+      skirt(31.5, 17 + wide)
+      -- low soft body: the head sits right on a short rounded front that flows into the foot
+      -- soft neck into a round body mound on the foot
+      slug(HY + 3 + b, 54 + b, function(t) return FX - 0.5 - t end, function(t) return 7 + 2 * t end, nil)
+      blob(FX - 2, 60 + b, 14 + wide, 9.5, true, 0.95, 0.3)
+      -- head
+      blob(FX, HY + hd, 10.5, 7, true)
+      face(FX, HY + hd - 2)
+      for x = FX - 11, FX + 11 do if get(x, HY - 5 + hd) then P(x, HY - 5 + hd, SK.shade) end end
+      -- kerchief knotted under the chin
+      for j = 0, 4 do
+        local w = 15 - j * 3
         if w < 2 then w = 2 end
-        local x0 = floor(33.5 - w / 2 + 0.5)
+        local x0 = floor(FX - w / 2 + 0.5)
         for x = x0, x0 + w - 1 do
           local c = GREEN
           if (x * 2 + j * 3) % 7 == 0 then c = SK.hi end
-          if j == 0 then c = SK.deep elseif x == x0 + w - 1 and w > 2 then c = SK.shade end
-          P(x, 35 + j + b, c)
+          if x == x0 + w - 1 and w > 2 then c = SK.shade end
+          P(x, HY + 6 + j + b, c)
         end
       end
       -- satchel strap from the far shoulder down to the satchel on the shell
-      line(40, 36 + b, 17 + sway, 51 + b, SHL.deep)
-      satchel(10, 50 + b)
-      hat(33.5, 21 + hd, 9, 7, false, false)
-      -- eyestalks rising from the head through the brim
-      stalk(29, 22 + hd, 27 + aL, 14 + hd, false)
-      stalk(37, 22 + hd, 39 + aR, 14 + hd, false)
-      bulb(27 + aL, 12 + hd, 0, false)
-      bulb(40 + aR, 12 + hd, -1, false)
+      line(FX + 10, HY + 7 + b, 17 + sway, 47 + b, SHL.deep)
+      satchel(11, 46 + b)
+      -- long eyestalks rising from the head behind the hat crown
+      stalk(FX - 5, HY - 6 + hd, FX - 8 + aL, 15 + hd, false)
+      stalk(FX + 4, HY - 6 + hd, FX + 6 + aR, 15 + hd, false)
+      hat(FX, HY - 6 + hd, 9.5, 7, false, false)
+      bulb(FX - 8 + aL, 12 + hd, 0, false)
+      bulb(FX + 7 + aR, 12 + hd, -1, false)
     else
-      -- back: stalks behind the hat, body hidden by the big shell dome
-      stalk(27, 22 + hd, 25 + aL, 14 + hd, true)
-      stalk(35, 22 + hd, 37 + aR, 14 + hd, true)
+      local HY = 40
+      stalk(28, HY - 6 + hd, 25 + aL, 15 + hd, true)
+      stalk(34, HY - 6 + hd, 37 + aR, 15 + hd, true)
       bulb(25 + aL, 12 + hd, nil, false)
       bulb(38 + aR, 12 + hd, nil, false)
-      skirt(31.5, 18 + wide, 13, 50)
-      local top = 33 + b
-      slug(top, 65, function(t) return 31.5 end, function(t) return 6.5 + 8 * t * t + wide * 0.5 end, true)
-      E(31.5, 27 + hd, 10.5, 8.2, SK)
-      for x = 22, 41 do if get(x, 22 + hd) then P(x, 22 + hd, SK.shade) end end
-      -- scarf band round the neck
-      for x = 24, 39 do P(x, 34 + b, GREEN); P(x, 35 + b, (x % 4 == 0) and SK.hi or GREEN) end
-      shell(31.5, 48 + b, 15.5, 2.6, -1, 1, 0)
-      -- scarf tails over the shell top
+      skirt(31.5, 17 + wide)
+      slug(HY + 3 + b, 54 + b, function(t) return 31.5 end, function(t) return 7 + 2 * t end, nil)
+      blob(31.5, 60 + b, 14 + wide, 9.5, false, 0.95, 0.3)
+      blob(31.5, HY + hd, 10.5, 7, false)
+      for x = 22, 41 do if get(x, HY - 5 + hd) then P(x, HY - 5 + hd, SK.shade) end end
+      shell(31.5, 50 + b, 16, 2.7, -1, 1, 0)
+      -- scarf knot and tails draped over the shell top
       local t = sway
-      rows(25, 36 + b, {"gg", "ggg", ".gg", ".gg", "..g"}, {g = GREEN})
-      rows(28 + t, 36 + b, {"gg", "gg", "gg", "g.", "g."}, {g = GREEN})
-      P(26, 37 + b, SK.hi); P(29 + t, 38 + b, SK.hi)
+      for x = 25, 33 do P(x, 36 + b, GREEN) end
+      rows(25, 37 + b, {"gg", "ggg", ".gg", ".gg", "..g"}, {g = GREEN})
+      rows(29 + t, 37 + b, {"gg", "gg", "gg", "g.", "g."}, {g = GREEN})
+      P(26, 38 + b, SK.hi); P(30 + t, 39 + b, SK.hi)
       -- strap across the dome to the satchel
-      line(21, 39 + b, 37 + sway, 54 + b, SHL.deep)
-      line(22, 39 + b, 38 + sway, 54 + b, SHL.deep)
-      satchel(36, 53 + b)
-      hat(31.5, 21 + hd, 9, 7, true, false)
+      line(30, 39 + b, 40 + sway, 47 + b, SHL.deep)
+      line(31, 39 + b, 41 + sway, 47 + b, SHL.deep)
+      satchel(39, 46 + b)
+      hat(31.5, HY - 6 + hd, 9.5, 7, true, false)
     end
 
   else -- side, facing right
     local stretch = walking and b == 0
     local L = stretch and 1 or 0
-    ell(31, 67.5, 19, 3, function(x, y, nx, ny) return ny < -0.2 and SL or SD end)
+    local HY = 42
+    ell(30, 67.5, 19, 3, function(x, y, nx, ny) return ny < -0.2 and SL or SD end)
+    local hx = 45 + L
     -- far eyestalk behind everything
-    local hx = 44 + L
-    stalk(hx, 21 + hd, hx + 1 + aL, 14 + hd, true)
-    bulb(hx + 2 + aL, 12 + hd, 1, true)
+    stalk(hx - 1, HY - 6 + hd, hx + 1 + aL, 15 + hd, true)
+    bulb(hx + 1 + aL, 12 + hd, 1, true)
     -- long foot: tapered tail left, rounded nose right
-    local tip = 51 + L
+    local tip = 50 + L
     for x = 11, tip do
       local t = 62
-      if x < 22 then t = 62 + (22 - x) // 2 end
+      if x < 21 then t = 62 + (21 - x) // 2 end
       if x >= tip - 1 then t = 64 end
       if x == tip then t = 66 end
-      for y = t, 70 do
+      local wv = (x + wi) % 5 == 0 and 1 or 0
+      for y = t + wv, 70 do
         local c = SK.base
-        if y == t and x < 40 then c = SK.hi end
+        if y == t + wv and x < 40 then c = SK.hi end
         if y >= 69 then c = SK.shade end
-        if y == 70 and x > 12 and x < tip then c = SK.deep end
         P(x, y, c)
       end
-      if x % 4 == 1 and x > 13 and x < tip - 1 then P(x, 68, SK.shade) end
     end
     if walking then
-      for x = 14, tip - 3 do if (x + wi * 2) % 6 == 0 then P(x, 66, SK.shade); P(x + 1, 67, SK.shade) end end
+      for x = 12, tip - 3 do if (x + wi * 2) % 6 == 0 then P(x, 66, SK.shade); P(x + 1, 67, SK.shade) end end
     end
-    -- neck: soft and curving forward and up out of the foot
-    local top = 32 + b
-    slug(top, 64, function(t) return 46 + L - 4 * t end, function(t) return 5 + 4 * t * t end, true)
-    spots({{44, 44}, {47, 50}, {43, 55}, {48, 58}}, b)
+    -- short neck curving up and forward out of the foot
+    local top = HY + 3 + b
+    slug(top, 64, function(t) return 44 + L - 4 * t end, function(t) return 4.5 + 5.5 * t * t * t end, 2)
     -- mantle under the shell
-    E(27, 60 + b, 13, 3.4, SK)
+    E(25, 60 + b, 13, 3.4, SK)
     -- head: round, snout forward
-    ell(hx + 0.5, 26.5 + hd, 7.2, 7, function(x, y, nx, ny)
-      local sv = nx * 0.5 + ny * 0.85
-      if sv > 0.72 then return SK.shade end
-      if sv < -0.55 then return SK.hi end
-      return SK.base
-    end)
+    blob(hx + 0.5, HY + hd, 7, 6.2, true)
     local sx = hx
-    for y = 27, 30 do for x = sx + 4, sx + 8 do
-      if not (y == 30 and x == sx + 8) and not (y == 27 and x == sx + 8) then
-        P(x, y + hd, y == 27 and SK.hi or ((y == 30 or x == sx + 8) and SK.shade or SK.hi))
-      end
-    end end
-    P(sx + 7, 28 + hd, SHL.deep); P(sx + 8, 28 + hd, SHL.deep); P(sx + 7, 28 + hd, CREAM)
-    P(sx + 3, 31 + hd, K); P(sx + 4, 32 + hd, K); P(sx + 5, 32 + hd, K); P(sx + 6, 31 + hd, K)
-    P(sx + 1, 29 + hd, SHL.base); P(sx + 2, 29 + hd, SHL.base)
-    for x = 36, 53 do if get(x, 22 + hd) then P(x, 22 + hd, SK.shade) end end
+    local sy = HY + hd
+    -- muzzle, nose, smile, cheek
+    for x = sx + 3, sx + 6 do P(x, sy + 1, SK.hi); P(x, sy + 2, SK.hi) end
+    P(sx + 6, sy, SHL.deep); P(sx + 7, sy, SHL.deep); P(sx + 6, sy, CREAM)
+    P(sx + 2, sy + 3, K); P(sx + 3, sy + 4, K); P(sx + 4, sy + 4, K); P(sx + 5, sy + 4, K); P(sx + 6, sy + 3, K)
+    P(sx - 1, sy + 1, SHL.base); P(sx, sy + 1, SHL.base)
+    for x = 36, 53 do if get(x, sy - 5) then P(x, sy - 5, SK.shade) end end
     -- big shell on the back, spiral facing us
-    shell(25.5, 45 + b, 14.5, 2.5, 1, 0, 0)
+    shell(25, 46 + b, 14.5, 2.5, 1, 0, 0)
     -- strap from the neck to the satchel on the shell flank
-    line(42, 36 + b, 19 + sway, 52 + b, SHL.deep)
-    satchel(13, 52 + b)
+    line(40, HY + 7 + b, 17 + sway, 53 + b, SHL.deep)
+    satchel(11, 53 + b)
     -- scarf at the neck, tail streaming back over the shell
-    for y = 34, 36 do
+    for y = HY + 6, HY + 8 do
       local yy = y + b
       local t = (yy - top) / (64 - top)
-      local cx, hw = 46 + L - 4 * t, 5 + 4 * t * t
+      local cx, hw = 44 + L - 4 * t, 4.5 + 5.5 * t * t * t
       for x = floor(cx - hw + 0.5), floor(cx + hw + 0.5) - 1 do
-        P(x, yy, y == 36 and SK.deep or ((y == 35 and x % 4 == 1) and SK.hi or GREEN))
+        P(x, yy, y == HY + 8 and SK.deep or ((y == HY + 7 and x % 4 == 1) and SK.hi or GREEN))
       end
     end
     local tw = (wi >= 1 and wi % 2 == 0) and 1 or 0
-    rows(33, 33 + b + tw, {"..ggggg", ".gggg..", "gg.g...", "g......"}, {g = GREEN})
-    P(36, 34 + b + tw, SK.hi)
-    hat(hx - 0.5, 21 + hd, 8, 6, false, true)
+    rows(32, HY + 5 + b + tw, {"..ggggg", ".gggg..", "gg.g...", "g......"}, {g = GREEN})
+    P(35, HY + 6 + b + tw, SK.hi)
+    hat(hx - 0.5, sy - 5, 7.5, 6, false, true)
     -- near eyestalk leaning forward, eye looking ahead
-    stalk(sx + 3, 21 + hd, sx + 4 + aL, 14 + hd, false)
-    bulb(sx + 5 + aL, 12 + hd, 1, false)
+    stalk(sx + 2, sy - 5, sx + 4 + aL, 15 + hd, false)
+    bulb(sx + 4 + aL, 12 + hd, 1, false)
   end
   for k, c in pairs(G) do img:putPixel(k % 64, k // 64, c) end
   N.outline(img, K)

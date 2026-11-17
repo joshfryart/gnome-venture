@@ -17,7 +17,7 @@
 | ladybird | PASS | redrawn: grey highlight ramp on head, belly and legs, light feet, neck gap and cream pronotum marks now separate the body from the ground shadow; back-view head is still a fairly flat dark disc |
 | stag-beetle | PASS | shield is hidden in back view by design (QUIRK_HIDDEN) |
 | stick-insect | PASS | stage-3 redraw: 2 px limbs with knee knobs, brighter lilac body (+#c9b6f2 highlight) with dashed centre stripe and rings; front thorax still busy where forelegs cross middle femurs |
-| snail | PASS | body reads more like a stone pillar than a snail; shell is small in front view |
+| snail | PASS | redrawn (stage 3 rework): soft glossy body on a frilled foot, big spiral shell in all views, long eyestalks; front face is small and the front body mound is still a bit lumpy |
 | bumblebee | PASS | none |
 | butterfly | PASS | none |
 | dragonfly | PASS | none |
