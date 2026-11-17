@@ -55,3 +55,4 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 
 - 2.7.06: `check` may be either / or: `nimble:9+grit:11` (any one passing wins; the card says "Nimble or Grit"). `@chance` also works on `hint=` `title=` `page=` `fpto=` `disc=`.
 - 2.7.06: **streaks**: reward token `streak=<key>` counts consecutive game days the Sight (or any Sight with that key) is used; a missed game day starts again at 1; the same day twice changes nothing. Condition `sk=<key>:N` = a streak of at least N days (checked after this use's bump, so it pays on the use that reaches N).
+- 2.7.06: **loans**: `lend=item:qty` hands an item over on the first use (needs it in the satchel); the next use of the same Sight pays `repay=item:qty` (usually more) and the loan is closed; then it can be lent again. Stored as the tally `lend#<sight slug>`.

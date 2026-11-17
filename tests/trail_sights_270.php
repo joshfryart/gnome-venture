@@ -91,6 +91,16 @@ ok('a streak counts consecutive game days, the same day twice changes nothing, a
 ok('the sk=key:3 reward pays only on the use that reaches 3 days in a row', array_column($res, 2) === [false, false, false, true, false, false], json_encode($res));
 ok('the lint accepts sk= and streak=', !array_filter(trail_sight_lint(['rewards' => 'streak=a,xp=1:1?sk=a:3', 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'streak') || str_contains($p, 'condition') || str_contains($p, 'unknown reward')), json_encode(trail_sight_lint(['rewards' => 'streak=a,xp=1:1?sk=a:3', 'lose' => 'x'] + $base)));
 q('UPDATE users SET game_day = 10 WHERE id = ?', [$u['id']]); $fresh();
+echo "== loans (2.7.06)\n";
+$hid = (int)q_val("SELECT id FROM items WHERE slug = 'garden-honey'"); $hq = fn() => (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $hid]);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $hid]); give_item((int)$u['id'], $hid, 3); q('DELETE FROM trail_sight_tally WHERE user_id = ?', [$u['id']]);
+$put(['when' => '-', 'energy' => 0, 'rewards' => 'lend=garden-honey:1,repay=garden-honey:2,xp=1:1', 'check' => '-']); $fresh();
+$h0 = $hq(); [$l1] = $go(); $h1 = $hq(); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
+[$l2] = $go(); $h2 = $hq(); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
+[$l3] = $go(); $h3 = $hq();
+ok('first use lends 1 honey, the next use gives 2 back, the third lends again', $l1 && $l2 && $l3 && [$h0, $h1, $h2, $h3] === [3, 2, 4, 3], json_encode([$h0, $h1, $h2, $h3]));
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $hid]); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey LIKE 'lend#%'", [$u['id']]); $fresh();
+[$l4, $m4] = $go(); ok('with nothing to lend the first use says what is needed', !$l4 && str_contains((string)$m4, 'to lend here'), (string)$m4);
 echo "== choose your reward\n";
 $put(['energy' => 0, 'rewards' => 'choose=c=40:1;en=4', 'check' => '-']); $fresh();
 $ci = trail_sight_choose_info(trail_sights_all()[$base['slug']]);

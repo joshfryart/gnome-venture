@@ -10,7 +10,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/trail_sight_extras.php';
 
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
-const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'streak', 'check', 'choose', 'disc'];
+const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'streak', 'lend', 'repay', 'check', 'choose', 'disc'];
 const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti)=[a-z0-9,]+|mo=[a-z,-]+|(tl|tn|sk)=[a-z0-9-]+(@today)?:\d+|qd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
@@ -343,6 +343,13 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
         if (!$tid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $tid]) < $tq) return [false, 'You need ' . $tq . ' × ' . ($tid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$tid]) : $tslug) . ' for that.'];
         $takes[] = [$tid, $tq];
     }
+    $loanKey = 'lend#' . $slug; $loanOpen = false; $lends = [];   // 2.7.06 lend=slug:qty hands an item over for a while; the next use of the Sight repay=slug:qty gives it back
+    try { $loanOpen = (int)(trail_sight_tallies((int)$u['id'])[$loanKey] ?? 0) > 0; } catch (Throwable $e) {}
+    foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'lend=') && !$loanOpen) {
+        [$lslug, $lqty] = array_pad(explode(':', substr($t['tok'], 5), 2), 2, '1'); $lid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$lslug]); $lq = max(1, (int)$lqty);
+        if (!$lid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $lid]) < $lq) return [false, 'You need ' . $lq . ' × ' . ($lid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$lid]) : $lslug) . ' to lend here.'];
+        $lends[] = [$lid, $lq];
+    }
     trail_sights_ensure_items();   // a Sight can hand out an item only Sights give (data/trail_sight_items.txt): make them before the first use
     trail_sights_ensure_newfolk();
     if (!spend_energy((int)$u['id'], $row['energy'], 'sight')) return [false, 'You need ' . $row['energy'] . ' energy for that.'];   // time: setting time_sight (10 game minutes); an energy-free Sight still takes the time
@@ -366,7 +373,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             if ($t['first'] && !$first) continue;
             if ($t['cond'] !== '' && !trail_sight_cond_ok($t['cond'], $now)) continue;
             $tok = $t['tok'];
-            if (str_starts_with($tok, 'take=') || str_starts_with($tok, 'tally=') || str_starts_with($tok, 'streak=')) continue;
+            if (str_starts_with($tok, 'take=') || str_starts_with($tok, 'tally=') || str_starts_with($tok, 'streak=') || str_starts_with($tok, 'lend=') || str_starts_with($tok, 'repay=')) continue;
             if (str_starts_with($tok, 'item=')) { require_once __DIR__ . '/wearables.php'; if (wear_parse(explode(':', substr($tok, 5))[0]) !== null && !wear_live($u)) continue; }   // 2.7.01: wearables drop only while puzzle combat (pfight_v1) is on for this gnome
             if (str_starts_with($tok, 'choose=')) { $tok = $choose[(int)$opt['reward']][0]; if (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) { $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); continue; } $plain[] = $tok; continue; }
             $tok = trail_sight_flat_scale($tok, stop_level($loc));   // 2.7.00 rewards pass (off until approved)
@@ -381,6 +388,12 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             else $plain[] = $tok;
         }
         foreach ($takes as [$tid, $tq]) give_item((int)$u['id'], $tid, -$tq);
+        foreach ($lends as [$lid, $lq]) { give_item((int)$u['id'], $lid, -$lq); trail_sight_tally_set((int)$u['id'], $loanKey, max(1, (int)($now['gd'] ?? 0))); $lines[] = '📚 lent out ' . $lq . ' × ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$lid]) . ' (it comes back the next time you use this)'; }
+        if ($loanOpen) foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'repay=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) {
+            [$rslug, $rqty] = array_pad(explode(':', substr($t['tok'], 6), 2), 2, '1'); $rid2 = (int)q_val('SELECT id FROM items WHERE slug = ?', [$rslug]);
+            if ($rid2) { give_item((int)$u['id'], $rid2, max(1, (int)$rqty)); $lines[] = '📗 returned: ' . max(1, (int)$rqty) . ' × ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$rid2]); }
+            trail_sight_tally_set((int)$u['id'], $loanKey, 0);
+        }
         $lines = array_merge($plain ? stop_rewards($u, $loc, implode(',', $plain), 1.0) : [], $lines);
     } elseif ($row['fail_en'] > 0) {   // a slip costs a little energy (never below 0)
         q('UPDATE users SET energy = CASE WHEN energy >= ? THEN energy - ? ELSE 0 END WHERE id = ?', [$row['fail_en'], $row['fail_en'], (int)$u['id']]);
