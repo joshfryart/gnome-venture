@@ -31,7 +31,7 @@ function ai_put(array &$s, string $who, array $tile, int $x, int $y): int
 /** An empty-ish v1 fight (4x5 test board): one foe Guard in a corner, no terrain, no events, the creature has the style in its row. */
 function ai_fight(string $size = 'medium', array $row = [], array $over = [], int $seed = 7): array
 {
-    $s = pfb_new(ai_me(), ai_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1]]);
+    $s = pfb_new(ai_me(), ai_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0]]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = []; $s['ven'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
     $s['me']['hand'] = []; $s['foe']['hand'] = [];
     ai_put($s, 'foe', ai_tile($s, 'f:base', 'guard', 1), 0, 3);

@@ -17,7 +17,7 @@ function ab_foe(string $size, array $x = []): array { return $x + ['slug' => 'te
 /** A v1 fight with an empty board and the creature's abilities in; $row adds to the creature row (class, ab, abp), $over to the rule numbers. */
 function ab_fight(string $size = 'medium', array $row = [], array $over = [], int $seed = 7): array
 {
-    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1]]);
+    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0]]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = []; $s['ven'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
     ab_put($s, 'foe', ab_tile($s, 'f:base', 'guard', 1), 0, 3);   // a far corner piece, so the board is not empty (a cell needs a neighbour; an aimed cell does not)
     return $s;
@@ -38,7 +38,7 @@ function ab_place(array &$s, string $who, array $tile, int $x, int $y): ?array {
 function combo_of(array $ev, string $n): ?string { foreach ($ev as $e) if (($e['n'] ?? '') === $n && isset($e['id'])) return $e['combo'] ?? null; return '(not fired)'; }
 function chain3(int $cset, array $order): array
 {   // Trick (0,0), Guard (1,0), Hurt (2,0) in a row; the pieces are put down in $order, the last one is the one placed (the chain root)
-    $s = ab_fight('medium', [], ['cset' => $cset]); $s['me']['hp'] = $s['me']['max'];
+    $s = ab_fight('medium', [], ['cset' => $cset, 'envopen' => 0]); $s['me']['hp'] = $s['me']['max'];
     $t = ['T' => ab_tile($s, 'T', 'trick', 4, 'body', 'basic'), 'G' => ab_tile($s, 'G', 'guard', 4, 'body', 'basic'), 'H' => ab_tile($s, 'H', 'hurt', 6, 'body', 'basic')]; $x = ['T' => 0, 'G' => 1, 'H' => 2];
     $last = array_pop($order);
     foreach ($order as $k) ab_put($s, 'me', $t[$k], $x[$k], 0);
@@ -65,4 +65,10 @@ chk('two Hurts in one chain: exactly one gets Double Swing (the one that fires s
 $s = ab_fight('medium', [], ['cset' => 1]); $ft = ab_tile($s, 'FT', 'trick', 4); $h = ab_tile($s, 'H', 'hurt', 6, 'body', 'basic');
 ab_put($s, 'foe', $ft, 0, 0); $ev = ab_place($s, 'me', $h, 1, 0);
 chk('the creature\'s Trick in your chain gives you no combo', combo_of($ev, 'H') === null, combo_of($ev, 'H'));
+echo "== events matter more (2.7.06)\n";
+foreach (['small', 'large'] as $sz) {
+    $a = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => true]); $b = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => ['envopen' => 0]]);
+    chk("$sz: a new fight opens with TWO environment pieces face up (the first round places two)", count($a['env']['next']) === 2 && count($b['env']['next']) === 1, [count($a['env']['next']), count($b['env']['next'])]);
+}
+chk('Rain guards 20% (was 15%), event damage on the creature 70% (was 50%)', PFB_RAIN === 0.20 && PFB_EVENT_FOE === 0.7, [PFB_RAIN, PFB_EVENT_FOE]);
 echo $bad ? "$bad FAILED\n" : "all ok\n"; exit($bad ? 1 : 0);

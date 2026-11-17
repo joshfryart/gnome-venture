@@ -83,6 +83,8 @@ function pb_edge(): int
     $bad = 0; $ok = function (string $n, bool $c, $x = '') use (&$bad) { echo ($c ? '  ok   ' : '  FAIL ') . $n . ($c ? '' : '  ' . (is_string($x) ? $x : json_encode($x))) . "\n"; if (!$c) $bad++; };
     $cr = tv_creatures(); $by = []; foreach ($cr as $c) $by[$c['size']][] = $c;
     $fin = fn(array $r) => $r['over'] !== 'err' && $r['over'] !== '' && $r['turns'] > 0;
+    echo "== the playing board is 4x4 for every creature size (Josh 2026-11-17: always, for now)\n";
+    foreach (['small', 'medium', 'large', 'boss'] as $sz) { $cf = pfb_v1_cfg($sz); $ok("$sz board is 4x4", $cf['w'] === 4 && $cf['h'] === 4, [$cf['w'], $cf['h']]); }
     echo "== level mismatch +/-8: every size, every bot finishes\n";
     foreach (['small', 'medium', 'large', 'boss'] as $sz) foreach ([-8, 8] as $d) foreach (PB_BOTS as $b) {
         $c = $by[$sz][0]; $r = pb_fight($c, max(1, $c['level'] + $d), $b, 'std', 11);

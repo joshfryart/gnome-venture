@@ -24,7 +24,7 @@ chk('deck: a medium creature with no region gets the copies of the file', $cnt(p
 $base = $cnt(pfb_env_deck('large')); $sea = $cnt(pfb_env_deck('large', 'SEA'));
 chk('deck: region SEA adds one Rain and one Mud; an unknown region or size changes nothing', $sea['rain'] === $base['rain'] + 1 && $sea['mud'] === $base['mud'] + 1 && $sea['sun'] === $base['sun'] && pfb_env_deck('large', 'XX') === pfb_env_deck('large') && pfb_env_deck('odd') === pfb_env_deck('medium'), $sea);
 $d0 = pfb_env_deck('small')[0];
-chk('deck: a piece is a real tile (type env, source env, value 0, its life and four edges)', $d0['t'] === 'env' && $d0['src'] === 'env' && $d0['v'] === 0 && $d0['k'] === 'e:sun' && $d0['life'] === 2 && count($d0['ed']) === 4 && pfb_edges($d0) === $d0['ed'], $d0);
+chk('deck: a piece is a real tile (type env, source env, value 0, its life and four edges)', $d0['t'] === 'env' && $d0['src'] === 'env' && $d0['v'] === 0 && $d0['k'] === 'e:sun' && $d0['life'] === 3 && count($d0['ed']) === 4 && pfb_edges($d0) === $d0['ed'], $d0);
 $any = 0; $stats = ['level' => 1];
 foreach ($P as $p) { if ($p['env'] === 'mud') continue; $s0 = v1_bare(); $e0 = ['k' => $p['k'], 'n' => $p['n'], 't' => 'env', 'v' => 0, 'r' => null, 'tag' => '', 'src' => 'env', 'env' => $p['env'], 'life' => $p['life'], 'ed' => $p['ed']]; v1_put($s0, 'env', $e0, 2, 2);
     $sides = [];
@@ -212,7 +212,7 @@ chk('Mud: chains stop at it: the piece on its far side does not fire, Mud itself
 
 // ---- life, expiry, the replay notes
 $s = v1_bare('medium', V1_294); $s['foe']['hand'] = []; $s['foe']['draw'] = []; $s['foe']['discard'] = []; v1_put($s, 'me', v1_tile($s, 'a', 'guard', 1, 'body', 'knack', ['life' => 4]), 2, 2);
-$s['env'] = ['draw' => [], 'discard' => [], 'next' => [v1_env('sun', null, false)]]; $r0 = $s['round']; pfb_end_round($s); $eid = null; foreach ($s['pcs'] as $p) if ($p['by'] === 'env') $eid = $p['id'];
+$s['env'] = ['draw' => [], 'discard' => [], 'next' => [['life' => 2] + v1_env('sun', null, false)]]; $r0 = $s['round']; pfb_end_round($s); $eid = null; foreach ($s['pcs'] as $p) if ($p['by'] === 'env') $eid = $p['id'];
 $seen = [$s['round'] => isset($s['pcs'][$eid])]; $s['env']['next'] = []; $s['env']['draw'] = [];
 pfb_end_round($s); $seen[$s['round']] = isset($s['pcs'][$eid]); $log2 = $s['envlog']; pfb_end_round($s); $seen[$s['round']] = isset($s['pcs'][$eid]); $log3 = $s['envlog'];
 chk('life: a Sun (2 rounds) placed at the end of round 1 is there in rounds 2 and 3 and gone in round 4', $eid !== null && $seen === [$r0 + 1 => true, $r0 + 2 => true, $r0 + 3 => false], $seen);
