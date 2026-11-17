@@ -54,3 +54,4 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 - Rewards pass: `trail_sight_flat_scale` (setting `sights_flat_pct_per_level`, 0 = off): see `claude/sights-rewards-2.7.00.md`.
 
 - 2.7.06: `check` may be either / or: `nimble:9+grit:11` (any one passing wins; the card says "Nimble or Grit"). `@chance` also works on `hint=` `title=` `page=` `fpto=` `disc=`.
+- 2.7.06: **streaks**: reward token `streak=<key>` counts consecutive game days the Sight (or any Sight with that key) is used; a missed game day starts again at 1; the same day twice changes nothing. Condition `sk=<key>:N` = a streak of at least N days (checked after this use's bump, so it pays on the use that reaches N).

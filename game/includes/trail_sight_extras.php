@@ -633,6 +633,12 @@ function trail_sight_cond_ok(string $cond, array $now): bool
     if (trim($cond) === '' || trim($cond) === '-') return true;
     foreach (explode('/', $cond) as $part) {
         [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
+        if ($k === 'sk') {   // 2.7.06: sk=<key>:N = a streak of at least N consecutive game days (a streak is broken when a game day is missed)
+            [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $gdc = (int)($now['gd'] ?? 0);
+            $last = (int)(($now['tl'] ?? [])[$tk . '#last'] ?? -99); $eff = $last >= $gdc - 1 ? (int)(($now['tl'] ?? [])[$tk . '#streak'] ?? 0) : 0;
+            if ($eff < (int)$tn) return false;
+            continue;
+        }
         if ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); if (str_ends_with($tk, '@today')) $tk = substr($tk, 0, -6) . '@' . (int)($now['gd'] ?? 0);   // 2.7.06: key@today = the tally of this game day only
             $have = (int)(($now['tl'] ?? [])[$tk] ?? 0); if ($k === 'tl' ? $have < (int)$tn : $have !== (int)$tn) return false; continue; }   // tl=<key>:N = a tally is at least N; tn=<key>:N = exactly N (pays once, on the use that reaches it)
         if ($k === 'gd') { $okd = false; foreach (explode(',', $v) as $mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); if ((int)$gm > 0 && ((int)($now['gd'] ?? 0)) % (int)$gm === (int)$gr) $okd = true; } if (!$okd) return false; continue; }   // 2.7.00: every Mth game day (day mod M = R)
@@ -648,6 +654,27 @@ function trail_sight_tallies(int $uid): array
 {
     try { return array_map('intval', array_column(q('SELECT tkey, n FROM trail_sight_tally WHERE user_id = ?', [$uid])->fetchAll(), 'n', 'tkey')); } catch (Throwable $e) { return []; }
 }
+/** Set a tally to an exact number (streaks). */
+function trail_sight_tally_set(int $uid, string $key, int $n): void
+{
+    try {
+        if (q('UPDATE trail_sight_tally SET n = ? WHERE user_id = ? AND tkey = ?', [$n, $uid, $key])->rowCount() < 1) {
+            if (!q_val('SELECT 1 FROM trail_sight_tally WHERE user_id = ? AND tkey = ?', [$uid, $key])) db_insert('trail_sight_tally', ['user_id' => $uid, 'tkey' => $key, 'n' => $n]);
+        }
+    } catch (Throwable $e) { /* table missing */ }
+}
+
+/** 2.7.06 streak=<key>: one more game day in a row (same day again changes nothing; a gap starts over at 1). Returns the streak. */
+function trail_sight_streak_bump(int $uid, string $key, int $gd): int
+{
+    $t = trail_sight_tallies($uid);
+    $has = array_key_exists($key . '#last', $t); $last = (int)($t[$key . '#last'] ?? 0); $cur = (int)($t[$key . '#streak'] ?? 0);
+    if ($has && $last === $gd) return max(1, $cur);
+    $new = ($has && $last === $gd - 1) ? $cur + 1 : 1;
+    trail_sight_tally_set($uid, $key . '#streak', $new); trail_sight_tally_set($uid, $key . '#last', $gd);
+    return $new;
+}
+
 function trail_sight_tally_add(int $uid, string $key, int $n = 1): int
 {
     try {
@@ -665,6 +692,7 @@ function trail_sight_cond_text(string $cond): string
         [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
         if ($k === 'pal') $bits[] = $v === '1' ? 'with a Puzzle Pal along' : 'on your own';
         elseif ($k === 'st') $bits[] = implode(' or ', array_map(fn($x) => $x === 'sneak' ? 'sneaking' : ($x === 'hunt' ? 'hunting' : 'walking normally'), explode(',', $v)));
+        elseif ($k === 'sk') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = 'on a ' . $tn . '-day streak of ' . $tk; }   // 2.7.06
         elseif ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = str_ends_with($tk, '@today') ? 'after ' . $tn . ' ' . substr($tk, 0, -6) . ' in one day' : 'after ' . $tn . ' ' . $tk; }
         elseif ($k === 'gd') $bits[] = implode(' or ', array_map(function ($mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); return 'every ' . (int)$gm . 'th game day' . ((int)$gm > 1 ? ' (day ' . (int)$gr . ' of ' . (int)$gm . ')' : ''); }, explode(',', $v)));
         elseif ($k === 'mo') $bits[] = 'at ' . implode(' or ', array_map(fn($x) => strtolower(MOON_PHASES[trim($x)][1] ?? $x), explode(',', $v)));

@@ -81,6 +81,16 @@ $put(['energy' => 0, 'rewards' => 'xp=3:1,c=7:1', 'check' => '-']); $fresh();
 [$pa] = $go();
 ok('a Sight that gives something also raises the event popup with its lines', $pa && !empty($_SESSION['event_box']) && !empty($_SESSION['event_box']['lines']) && (string)$_SESSION['event_box']['title'] === (string)$base['verb'], json_encode($_SESSION['event_box'] ?? null));
 unset($_SESSION['event_box']);
+echo "== streaks (2.7.06)\n";
+$put(['when' => '-', 'energy' => 0, 'rewards' => 'streak=sk-test,xp=1:1,c=9:1?sk=sk-test:3', 'check' => '-']); $fresh();
+q('DELETE FROM trail_sight_tally WHERE user_id = ?', [$u['id']]);
+$cl = fn() => (int)q_val('SELECT coins FROM users WHERE id = ?', [$u['id']]);
+$days = [10, 10, 11, 12, 14, 15];   // two uses on day 10, then 11, 12 (streak 3 pays), a gap, then 14, 15
+$res = []; foreach ($days as $d) { q('UPDATE users SET game_day = ?, game_minute = 360 WHERE id = ?', [$d, $u['id']]); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh(); $c0 = $cl(); $go(); $res[] = [$d, (int)q_val("SELECT n FROM trail_sight_tally WHERE user_id = ? AND tkey = 'sk-test#streak'", [$u['id']]), $cl() - $c0 > 0]; }
+ok('a streak counts consecutive game days, the same day twice changes nothing, a gap starts over', array_column($res, 1) === [1, 1, 2, 3, 1, 2], json_encode($res));
+ok('the sk=key:3 reward pays only on the use that reaches 3 days in a row', array_column($res, 2) === [false, false, false, true, false, false], json_encode($res));
+ok('the lint accepts sk= and streak=', !array_filter(trail_sight_lint(['rewards' => 'streak=a,xp=1:1?sk=a:3', 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'streak') || str_contains($p, 'condition') || str_contains($p, 'unknown reward')), json_encode(trail_sight_lint(['rewards' => 'streak=a,xp=1:1?sk=a:3', 'lose' => 'x'] + $base)));
+q('UPDATE users SET game_day = 10 WHERE id = ?', [$u['id']]); $fresh();
 echo "== choose your reward\n";
 $put(['energy' => 0, 'rewards' => 'choose=c=40:1;en=4', 'check' => '-']); $fresh();
 $ci = trail_sight_choose_info(trail_sights_all()[$base['slug']]);
