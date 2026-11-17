@@ -16,6 +16,10 @@ local FL = { flat = true, contour = false, contact = false }
 
 local function canvas() return GV.canvas{ w = 96, h = 96, mode = "icon", cres = 6, deep = 2, ol = 2, olx = 1 } end
 local function save(c, name)
+  c:finish() -- then: 1 px #000000 border -> ink, any #ffffff -> cream (Hearth Pop: no pure B/W)
+  for k, v in pairs(c.pix) do
+    if v == "#000000" then c.pix[k] = "#2b1c26" elseif v == "#ffffff" then c.pix[k] = "#fff4d6" end
+  end
   local t = c:save(OUT .. "/stage-" .. name .. ".aseprite", PNG .. "/stage-" .. name .. ".png")
   print(name .. " " .. GV.report(t))
 end
@@ -31,26 +35,43 @@ end
 
 ----------------------------------------------------------------- vigil: candle on a stool, moon and stars
 local function vigil(c)
-  -- crescent moon (upper right)
-  local moon = c:ellipse(72, 24, 15, 15):cut(c:ellipse(79, 19, 12, 12))
+  local WAX = GV.ramp("#f1ece0", { shade = "#d8c49a", bounce = "#e6d4ac", deep = "#b08a5a", rim = "#fff4d6", dot = "#fff4d6" })
+  local GLOW = { base = "#ffe38a", rim = "#fff1c8", shade = "#f5cf6a", deep = "#f5b82e", bounce = "#f5cf6a", gloss = "#fff1c8", dot = "#fff4d6" }
+  -- crescent moon (upper right), clear of the flame
+  local moon = c:ellipse(76, 22, 13, 13):cut(c:ellipse(83, 17, 11, 11))
   c:part(moon, "gold", { cres = 4, deep = 1, gloss = false })
-  star(c, 18, 20, 4); star(c, 30, 40, 3); star(c, 82, 52, 3)
+  star(c, 16, 22, 4); star(c, 86, 50, 3); star(c, 22, 46, 2)
   -- stool: legs, rung, seat
   c:part(c:poly({ { 28, 76 }, { 35, 76 }, { 31, 91 }, { 24, 91 } }), DWOOD, { cres = 3, deep = 1, gloss = false })
   c:part(c:poly({ { 61, 76 }, { 68, 76 }, { 72, 91 }, { 65, 91 } }), DWOOD, { cres = 3, deep = 1, gloss = false })
   c:part(c:rect(29, 84, 67, 86), "soil", { cres = 2, deep = 1, gloss = false })
-  c:part(c:rrect(20, 70, 76, 79, 3), "wood", { cres = 5, deep = 2 })
+  c:part(c:rrect(18, 70, 78, 79, 3), "wood", { cres = 5, deep = 2 })
   -- holder dish
   c:part(c:ellipse(48, 69, 17, 4), "gold", { cres = 3, deep = 1, gloss = false })
-  -- candle
-  c:part(c:rrect(41, 40, 55, 68, 3), CREAM, { cres = 5, deep = 2, gloss = false })
-  c:part(c:rect(50, 46, 51, 52):add(c:rect(44, 44, 45, 47)), GV.ramp("#d8c49a"), FL)
+  -- flame glow: a two-step halo hugging the flame (drawn behind it)
+  local flp = { { 49, 9 }, { 54, 19 }, { 57, 28 }, { 53, 37 }, { 44, 37 }, { 40, 29 }, { 43, 20 } }
+  local halo = c:poly(flp):grow(4):cut(c:rect(0, 41, 95, 95))
+  c:part(halo, GLOW, { flat = true, rim = false, contact = false })
+  c:fill(halo:copy():cut(c:poly(flp):grow(2)), "#f5cf6a")
+  -- candle: uneven melted top, side drips that break the silhouette
+  local cand = c:rrect(41, 42, 55, 68, 2):add(c:rect(41, 40, 45, 44)):add(c:rect(52, 41, 55, 44))
+  cand:add(c:rrect(39, 43, 41, 53, 1)):add(c:rrect(55, 43, 57, 49, 1))
+  c:part(cand, WAX, { cres = 5, deep = 2, gloss = false })
+  -- melt pool in the dip, front drips with a shade edge
+  c:fill(c:rect(46, 41, 51, 42), "#d8c49a")
+  for _, d in ipairs({ { 44, 43, 57 }, { 49, 43, 50 } }) do
+    c:fill(c:rect(d[1], d[2], d[1] + 1, d[3]), "#fff4d6")
+    c:fill(c:rect(d[1] + 2, d[2] + 1, d[1] + 2, d[3]), "#d8c49a")
+    c:fill(c:rect(d[1], d[3] + 1, d[1] + 1, d[3] + 1), "#d8c49a")
+  end
+  -- wax puddle on the dish
+  c:part(c:rrect(37, 65, 59, 68, 1), WAX, { cres = 2, deep = 1, gloss = false })
   -- wick
-  c:part(c:rect(47, 35, 48, 40), GV.ramp("#4e2a16"), FL)
-  -- flame (teardrop)
-  local fl = c:poly({ { 48, 12 }, { 53, 22 }, { 56, 30 }, { 52, 37 }, { 44, 37 }, { 40, 30 }, { 43, 22 } })
-  c:part(fl, "flame", { cres = 5, deep = 1 })
-  c:part(c:poly({ { 48, 22 }, { 51, 28 }, { 51, 34 }, { 45, 34 }, { 45, 28 } }), "gold", { cres = 2, deep = 1, gloss = false })
+  c:part(c:rect(47, 34, 48, 41), GV.ramp("#4e2a16"), FL)
+  -- flame (teardrop, slight lean) + gold core + cream heart
+  c:part(c:poly(flp), "flame", { cres = 5, deep = 1, gloss = false, contact = false, contour = false })
+  c:part(c:poly({ { 49, 19 }, { 53, 28 }, { 52, 35 }, { 45, 35 }, { 44, 28 } }), GLOW, { flat = true, rim = false, contour = false, contact = false })
+  c:fill(c:rect(47, 28, 49, 33), "#fff4d6")
   save(c, "vigil")
 end
 
@@ -78,28 +99,32 @@ end
 
 ----------------------------------------------------------------- trial: notched shield over crossed swords
 local function trial(c)
+  local BLADE = GV.ramp("#b4bcc8", { rim = "#e6ecf2", gloss = "#eef3f7", dot = "#f4f7fa", shade = "#7d8596", deep = "#545a6e", bounce = "#8c93a3" })
   local function sword(x0, y0, x1, y1)
-    -- tip at (x0,y0), pommel at (x1,y1)
+    -- tip at (x0,y0), pommel end at (x1,y1); guard sits just outside the shield's lower edge
     local function lerp(t) return { x0 + (x1 - x0) * t, y0 + (y1 - y0) * t } end
-    c:part(c:poly(band(lerp(0.02), lerp(0.62), 4)), STEEL, { cres = 3, deep = 1, gloss = false })
-    c:part(c:poly(band(lerp(0.60), lerp(0.67), 9)), "gold", { cres = 3, deep = 1, gloss = false })
-    c:part(c:poly(band(lerp(0.66), lerp(0.88), 3)), DWOOD, { cres = 2, deep = 1, gloss = false })
-    c:part(c:ellipse(lerp(0.92)[1], lerp(0.92)[2], 4, 4), "gold", { cres = 2, deep = 1, gloss = false })
+    local b = band(lerp(0.07), lerp(0.76), 4.5)
+    local tip = c:poly({ lerp(0.0), b[1], b[4] }):add(c:poly(band(lerp(0.065), lerp(0.76), 4.5)))
+    c:part(tip, BLADE, { cres = 3, deep = 1, gloss = false })
+    -- fuller: dark groove down the blade middle
+    c:part(c:line({ lerp(0.09), lerp(0.74) }, 1), flatr("#7d8596"), FL)
+    c:part(c:poly(band(lerp(0.745), lerp(0.79), 11)), "gold", { cres = 2, deep = 1, gloss = false })
+    c:part(c:poly(band(lerp(0.79), lerp(0.91), 2.6)), DWOOD, { cres = 2, deep = 1, gloss = false })
+    local pm = lerp(0.935)
+    c:part(c:ellipse(pm[1], pm[2], 4, 4), "gold", { cres = 2, deep = 1, gloss = false })
   end
-  sword(10, 6, 80, 86)
-  sword(86, 6, 16, 86)
-  -- shield
-  local sh = c:poly({ { 22, 18 }, { 74, 18 }, { 76, 46 }, { 66, 68 }, { 48, 88 }, { 30, 68 }, { 20, 46 } })
-  sh:cut(c:poly({ { 70, 14 }, { 80, 14 }, { 80, 38 }, { 68, 30 } }))
+  sword(6, 4, 86, 88)
+  sword(90, 4, 10, 88)
+  -- shield (hero): iron rim with a battle notch, red face, wooden cross, gold boss
+  local sh = c:poly({ { 26, 19 }, { 70, 19 }, { 72, 46 }, { 64, 66 }, { 48, 85 }, { 32, 66 }, { 24, 46 } })
+  sh:cut(c:poly({ { 64, 15 }, { 74, 15 }, { 74, 34 }, { 63, 26 } }))
   c:part(sh, IRON, { cres = 6, deep = 2 })
-  local face = c:poly({ { 27, 24 }, { 69, 24 }, { 70, 45 }, { 62, 64 }, { 48, 80 }, { 34, 64 }, { 26, 45 } })
-  face:cut(c:poly({ { 62, 22 }, { 76, 22 }, { 76, 40 }, { 64, 32 } }))
+  local face = c:poly({ { 31, 25 }, { 65, 25 }, { 66, 45 }, { 59, 62 }, { 48, 77 }, { 37, 62 }, { 30, 45 } })
+  face:cut(c:poly({ { 60, 22 }, { 72, 22 }, { 72, 38 }, { 60, 30 } }))
   c:part(face, "red", { cres = 6, deep = 2 })
-  -- cross band
-  c:part(c:rect(45, 24, 51, 80):clip(face), "wood", { cres = 3, deep = 1, gloss = false })
-  c:part(c:rect(26, 42, 70, 48):clip(face), "wood", { cres = 3, deep = 1, gloss = false })
-  -- boss
-  c:part(c:ellipse(48, 45, 8, 8), "gold", { cres = 4, deep = 1 })
+  c:part(c:rect(45, 25, 51, 78):clip(face), "wood", { cres = 3, deep = 1, gloss = false })
+  c:part(c:rect(30, 41, 66, 47):clip(face), "wood", { cres = 3, deep = 1, gloss = false })
+  c:part(c:ellipse(48, 44, 7, 7), "gold", { cres = 4, deep = 1 })
   save(c, "trial")
 end
 
