@@ -150,6 +150,26 @@ function admin_icon(string $id): string
         'warn' => '<path d="M12 3 22 21H2zM12 10v5M12 18v.01"/>',
         'err' => '<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8zM9 9l6 6M15 9l-6 6"/>',
         'info' => '<rect x="3" y="3" width="18" height="18"/><path d="M12 11v6M12 7v.01"/>',
+        // 2.7.06: glyphs for the data editors (each editor has its own picture, not its section's)
+        'person' => '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7"/>',
+        'people' => '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 14c3 0 6 1 6 5"/>',
+        'pin' => '<path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>',
+        'route' => '<path d="M5 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM19 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM7 18h6a4 4 0 0 0 0-8h-2a4 4 0 0 1 0-8h6"/>',
+        'shop' => '<path d="M3 9l2-5h14l2 5M4 9v11h16V9M3 9c0 2 4 2 4.5 0 .5 2 4 2 4.5 0 .5 2 4 2 4.5 0 .5 2 4 2 4.5 0M9 20v-5h6v5"/>',
+        'paw' => '<circle cx="6" cy="10" r="2"/><circle cx="10" cy="5.5" r="2"/><circle cx="15" cy="5.5" r="2"/><circle cx="19" cy="10" r="2"/><path d="M12 12c-4 0-6 3-6 5.5 0 2 2 2.5 3.5 2 1-.4 1.7-.7 2.5-.7s1.5.3 2.5.7c1.5.5 3.5 0 3.5-2C18 15 16 12 12 12z"/>',
+        'leaf' => '<path d="M12 21V11M12 11C12 6 8 4 4 4c0 5 3 7 8 7M12 13c0-4 3-6 8-6 0 4-3 6-8 6"/>',
+        'jar' => '<path d="M8 3h8v3H8zM6 6h12v3l1 2v10H5V11l1-2zM8 14h8"/>',
+        'pot' => '<path d="M4 10h16v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM2 10h20M9 6c0-2 2-2 2-4M14 6c0-2 2-2 2-4"/>',
+        'bug' => '<ellipse cx="12" cy="14" rx="5" ry="6"/><path d="M12 8V5M9 4l3 1 3-1M7 12H3M7 16H3M17 12h4M17 16h4M12 8v12"/>',
+        'scroll' => '<path d="M7 4h11a2 2 0 0 1 2 2v10H9v2a2 2 0 0 1-4 0V6a2 2 0 0 1 2-2zM9 16V6M12 8h5M12 11h5"/>',
+        'news' => '<path d="M4 4h13v16H4zM17 8h3v10a2 2 0 0 1-3 2M7 8h7M7 12h7M7 16h5"/>',
+        'star' => '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1L3.2 9.4l6.1-.8z"/>',
+        'dice' => '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8v.01M16 8v.01M12 12v.01M8 16v.01M16 16v.01"/>',
+        'coin' => '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5C9.5 8 14.5 8 14.5 9.8c0 2.2-5 1.6-5 3.9 0 1.7 5 1.7 5 .1"/>',
+        'sprout' => '<path d="M12 21v-8M12 13C12 9 9 7 5 7c0 4 2 6 7 6M12 13c0-3 2-5 6-5 0 3-2 5-6 5"/>',
+        'door' => '<path d="M6 21V4h12v17M3 21h18M15 12v.01"/>',
+        'tent' => '<path d="M2 20 12 4l10 16zM12 4v16M9 20l3-6 3 6"/>',
+        'gate' => '<path d="M4 21V8h3v13M17 21V8h3v13M7 10h10M7 15h10M12 5l-5 3M12 5l5 3"/>',
     ];
     return '<svg class="aico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . ($d[$id] ?? $d['info']) . '</svg>';
 }
@@ -161,6 +181,15 @@ function admin_entry_icon(string $key, string $sid): string
         'mentors.php' => 'cap', 'gourmand.php' => 'folk', 'livingstops.php' => 'garden', 'hybrids.php' => 'dna', 'callings.php' => 'log', 'treks.php' => 'boot', 'trek_text.php' => 'pen',
         'xp.php' => 'progress', 'retention.php' => 'progress', 'usage.php' => 'progress', 'gameclock.php' => 'clock', 'texts.php' => 'content', 'road_text.php' => 'pen', 'roadlines.php' => 'pen', 'code.php' => 'code',
         'buildplans.php' => 'world', 'trailsights.php' => 'world', 'trail_decor.php' => 'garden', 'images.php' => 'art', 'artguide.php' => 'content', 'here_layout.php' => 'world', 'puzzles.php' => 'puzzle', 'jigsaw.php' => 'puzzle'];
+    static $ed = [   // 2.7.06 (Josh): a data editor (r:<table>) has its own glyph
+        'users' => 'person', 'npc_friends' => 'people', 'gotm_entries' => 'star', 'regions' => 'world', 'zones' => 'world', 'landmarks' => 'pin', 'landmark_runs' => 'route', 'locations' => 'pin', 'routes' => 'route',
+        'town_spots' => 'door', 'town_actions' => 'dice', 'town_lore' => 'scroll', 'npcs' => 'people', 'npc_schedules' => 'clock', 'shops' => 'shop', 'shop_stock' => 'coin', 'helpers' => 'person',
+        'stop_types' => 'tent', 'stop_acts' => 'dice', 'stop_folk' => 'people', 'stop_tiers' => 'progress', 'stop_tier_themes' => 'art', 'stop_sets' => 'gate', 'stop_adoptions' => 'gift',
+        'items' => 'items', 'recipes' => 'pot', 'gatherables' => 'sprout', 'creature_drops' => 'gift', 'plants' => 'leaf', 'plant_regions' => 'pin', 'plots' => 'garden', 'garden_buildings' => 'folk',
+        'garden_objects' => 'garden', 'cellar_plants' => 'jar', 'problems' => 'warn', 'pest_kinds' => 'bug', 'companion_plants' => 'leaf', 'critter_kinds' => 'paw', 'creatures' => 'paw',
+        'stall_listings' => 'shop', 'trade_offers' => 'trade', 'gifts' => 'gift', 'job_templates' => 'log', 'user_jobs' => 'log', 'player_jobs' => 'people', 'garden_hires' => 'person',
+        'quest_chapters' => 'scroll', 'quest_tasks' => 'log', 'almanac_milestones' => 'star', 'encyclopedia_entries' => 'content', 'news' => 'news', 'pages' => 'content', 'random_events' => 'dice'];
+    if (str_starts_with($key, 'r:') && isset($ed[substr($key, 2)])) return admin_icon($ed[substr($key, 2)]);
     return admin_icon($m[$key] ?? $sid);
 }
 

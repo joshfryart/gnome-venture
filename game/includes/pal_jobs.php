@@ -25,6 +25,7 @@ const PJ_POTION_HEAL = 12;
 const PJ_TRIP_HOURS = [1, 3, 8];
 const PJ_GARDEN_DAYS = [1, 3, 7];
 const PJ_TOOLS = ['forage', 'pick', 'net', 'bucket', 'axe', 'rod'];
+const PJ_FULL_SECS = 315360000;   // 2.7.06: a "full time" shift (hours = 0) ends 10 years out: it runs until you call the pal home
 const PJ_EQUIP_XP_MAX = 24; // hours of equipped XP that can pile up before it is settled
 
 // ---------------- gates + settings ----------------
@@ -682,6 +683,7 @@ function pj_station_list(): array
 /** Send a pal to tend the whole Pantry: while the shift lasts it collects every ready jar and fills every free jar it has ingredients for (never-made preserves first). No energy. */
 function pj_pantry_send(array $u, string $palUid, int $hours, bool $unequip): array
 {
+    $full = $hours === 0;   // 2.7.06 (Josh): full time = until you call the pal home
     $uid = (int)$u['id'];
     require_once __DIR__ . '/pantry.php';
     if (pantry_jar_limit($uid) < 1) return [false, 'You need a 🫙 Pantry on a Kitchen first.'];
@@ -692,12 +694,12 @@ function pj_pantry_send(array $u, string $palUid, int $hours, bool $unequip): ar
     db()->beginTransaction();
     if (!pj_claim_pal($uid, $palUid, 'station')) { db()->rollBack(); return [false, $p['name'] . ' is already out.']; }
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => 'pantry:all', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'jars',
-        'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $hours * 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active',
-        'result' => json_encode(['jars' => true, 'hp' => (int)$p['hp'], 'rounds' => 0, 'area' => 'pantry', 'obj' => 'Pantry', 'started' => 0, 'collected' => 0])]);
+        'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + ($full ? PJ_FULL_SECS : $hours * 3600)), 'last_tick' => now(), 'potions' => 0, 'state' => 'active',
+        'result' => json_encode(['full' => $full, 'jars' => true, 'hp' => (int)$p['hp'], 'rounds' => 0, 'area' => 'pantry', 'obj' => 'Pantry', 'started' => 0, 'collected' => 0])]);
     db()->commit();
     $j = q_one("SELECT * FROM ppal_jobs WHERE user_id = ? AND pal_uid = ? AND state = 'active' ORDER BY id DESC LIMIT 1", [$uid, $palUid]);
     if ($j) pj_pantry_tick($uid, $j);
-    return [true, $p['name'] . ' takes over the Pantry for ' . $hours . ' h: it fills free jars from your satchel (new preserves first) and collects the ready ones, on game days.'];
+    return [true, $p['name'] . ' takes over the Pantry ' . ($full ? 'full time' : 'for ' . $hours . ' h') . ': it fills free jars from your satchel (new preserves first) and collects the ready ones, on game days.'];
 }
 
 /** One look at the Pantry for a tending pal: collect what is ready, then start jars (one of each recipe per pass, never-made first) until the jars or the ingredients run out. */
@@ -762,11 +764,12 @@ function pj_station_recipes(int $uid, string $area, array $globs): array
  * pj_station_minutes(). No energy is spent. Ingredients are taken NOW (one ledger, so recipes that share an item cannot both spend it); the output is
  * fixed now and arrives when the shift is collected. Cooking holds one of your pots. Pantry is not included yet.
  */
-function pj_station_send(array $u, string $palUid, string $area, string $obj, string $mode, array $recipeIds, int $hours, bool $unequip = false): array
+function pj_station_send(array $u, string $palUid, string $area, string $obj, string $mode, array $recipeIds, int $hours, bool $unequip = false, int $keep = 0): array
 {
     $uid = (int)$u['id'];
     require_once __DIR__ . '/crafting.php';
-    if (!in_array($hours, PJ_TRIP_HOURS, true)) return [false, 'Pick 1, 3 or 8 hours.'];
+    $fullOk = $area === 'pantry' || ($area === 'cooking' && ($obj === 'all' || $obj === ''));   // 2.7.06 (Josh): full time (hours 0) for a pal that keeps tending: the whole kitchen, the pantry
+    if (!in_array($hours, PJ_TRIP_HOURS, true) && !($hours === 0 && $fullOk)) return [false, $fullOk ? 'Pick 1, 3 or 8 hours, or full time.' : 'Pick 1, 3 or 8 hours.'];
     if (!isset(CRAFT_CATEGORIES[$area])) return [false, 'Pals cannot work that area yet.'];
     if ($area === 'pantry') return pj_pantry_send($u, $palUid, $hours, $unequip);   // 2.7.06 (Josh): a pal tends the Pantry's jars
     $whole = ($obj === 'all' || $obj === '');   // 2.7.06 (Josh): one pal tends the WHOLE station, every recipe category it has; no object to pick
@@ -795,6 +798,22 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     } else $plan = pj_station_order($uid, array_values($all));   // 2.7.06: what you have not made yet comes first
     if (!$plan) return [false, 'You know no recipes for the ' . $o['label'] . ' yet.'];
     $cookingArea = $area === 'cooking';
+    if ($passive && $whole) {   // 2.7.06 (Josh): a whole-kitchen pal mans EVERY pot that is free (not one), whenever one frees up; full time or timed
+        if (q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target = 'cooking:all' AND state IN ('active','ready')", [$uid])) return [false, 'A pal is already working the whole Kitchen.'];
+        if ((int)($stations['cooking'] ?? 0) === 0 || cook_pot_limit($u) < 1) return [false, 'You need a Kitchen with a pot first.'];
+        $keep = max(0, min(cook_pot_limit($u) - 1, $keep));
+        $full = $hours === 0;
+        $res = ['passive' => true, 'allpots' => true, 'full' => $full, 'keep' => $keep, 'hp' => (int)$p['hp'], 'rounds' => 0, 'area' => $area, 'obj' => $o['label'], 'served' => 0, 'cooks' => 0, 'skipped' => 0];
+        if ($mode === 'chosen') $res['plans'] = array_map(fn($r) => (int)$r['id'], $plan);
+        db()->beginTransaction();
+        if (!pj_claim_pal($uid, $palUid, 'station')) { db()->rollBack(); return [false, $p['name'] . ' is already out.']; }
+        db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => 'cooking:all', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'passive',
+            'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + ($full ? PJ_FULL_SECS : $hours * 3600)), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => json_encode($res)]);
+        db()->commit();
+        $jn = q_one("SELECT * FROM ppal_jobs WHERE user_id = ? AND pal_uid = ? AND state = 'active' ORDER BY id DESC LIMIT 1", [$uid, $palUid]);
+        if ($jn) { $GLOBALS['pj_allpots_plan'] = null; pj_allpots_step($u, $jn, $res, time()); pj_passive_save($jn['id'], $res); }
+        return [true, $p['name'] . ' takes over the Kitchen ' . ($full ? 'full time' : 'for ' . $hours . ' h') . ': it keeps every pot' . ($keep > 0 ? ' but ' . $keep : '') . ' cooking (new dishes first, from anything in your satchel), checking every ' . intdiv(PJ_PASSIVE_TICK, 60) . ' game minutes. Call it home any time.'];
+    }
     if ($passive) {   // one pal per pot: the pal holds it until the shift ends. The first recipe it can make now (else the first chosen) is its starting choice.
         if ((int)($stations['cooking'] ?? 0) === 0 || cook_pots_busy($uid) >= cook_pot_limit($u)) return [false, 'All your pots are busy. A pal needs a free pot.'];
         $kitchen3 = user_building_bonus($uid, 'kitchen')['feasts'];
@@ -882,6 +901,7 @@ function pj_ts(string $d): int { return (int)strtotime($d . ' UTC'); }
  */
 function pj_passive_step(array $u, array $j, array &$r, int $t): void
 {
+    if ((string)$j['target'] === 'cooking:all') { pj_allpots_step($u, $j, $r, $t); return; }   // 2.7.06: the whole-kitchen pal
     $uid = (int)$u['id'];
     require_once __DIR__ . '/crafting.php';
     $pot = q_one('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']]);
@@ -907,6 +927,60 @@ function pj_passive_step(array $u, array $j, array &$r, int $t): void
     db()->commit();
 }
 
+/**
+ * 2.7.06 (Josh): one check of a whole-kitchen pal at time $t. It serves every one of ITS pots that is done, then starts a make in each pot that is free
+ * (the gnome's own pots are left alone; "keep" pots stay free for the gnome). Dishes: first the ones you have never made, then the ones made least, from
+ * anything in the satchel; a pin set on a pot (r.plan) goes first; "chosen" recipes (r.plans) limit the list. Two pots in one check start different dishes when they can.
+ */
+function pj_allpots_step(array $u, array $j, array &$r, int $t): void
+{
+    $uid = (int)$u['id'];
+    require_once __DIR__ . '/crafting.php';
+    require_once __DIR__ . '/gourmand.php';
+    $palUid = (string)$j['pal_uid'];
+    foreach (q('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $palUid])->fetchAll() as $pot) {
+        if (pj_ts((string)$pot['ready_at']) > $t) continue;
+        [$ok, , $info] = cook_collect_one($u, (int)$pot['id'], true);
+        if ($ok) { $r['served'] = (int)($r['served'] ?? 0) + (int)$info['dishes']; $r['cooks'] = (int)($r['cooks'] ?? 0) + 1; $r['pal_xp'] = (int)($r['pal_xp'] ?? 0) + 3; $r['last'] = (string)$info['name']; }
+    }
+    $free = cook_pot_limit($u) - cook_pots_busy($uid) - max(0, (int)($r['keep'] ?? 0));
+    if ($free < 1) return;
+    $plan = $GLOBALS['pj_allpots_plan'] ?? null;
+    if ($plan === null) {
+        $all = pj_station_all_recipes($uid, 'cooking');
+        $plan = !empty($r['plans']) ? array_values(array_filter(array_map(fn($id) => $all[(int)$id] ?? null, (array)$r['plans']))) : pj_station_order($uid, array_values($all));
+        $pin = (int)($r['plan'] ?? 0);
+        if ($pin > 0) usort($plan, fn($a, $b) => ((int)$b['id'] === $pin) <=> ((int)$a['id'] === $pin));   // stable enough: the pin first
+        $GLOBALS['pj_allpots_plan'] = $plan;
+    }
+    $feasts = user_building_bonus($uid, 'kitchen')['feasts'];
+    $pal = pj_pal($uid, $palUid);
+    $used = [];
+    for ($i = 0; $i < $free; $i++) {
+        $pick = null; $stock = null;
+        foreach ([false, true] as $again) {
+            foreach ($plan as $rc) {
+                if (!$again && isset($used[(int)$rc['id']])) continue;
+                if (str_starts_with((string)$rc['slug'], 'feast-') && !$feasts) continue;
+                $st = craft_stock($uid, (string)$rc['ingredients'], (int)$rc['id']);
+                if (craft_fit($st, 0, 0) < 1) continue;
+                $pick = $rc; $stock = $st; break 2;
+            }
+        }
+        if (!$pick) { $r['skipped'] = (int)($r['skipped'] ?? 0) + 1; return; }
+        $rec = q_one('SELECT * FROM recipes WHERE id = ?', [(int)$pick['id']]);
+        if (!$rec) return;
+        $score = gourmand_dish_score($u, $stock);
+        db()->beginTransaction();
+        foreach ($stock as $s) if ($s['id'] < 1 || !give_item($uid, $s['id'], -$s['qty'])) { db()->rollBack(); $r['skipped'] = (int)($r['skipped'] ?? 0) + 1; return; }
+        $dishes = pj_make_units($uid, 'cooking', (int)$rec['output_qty'], $pal ? (int)$pal['c'] : 1);
+        db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => (int)$rec['id'], 'makes' => 1, 'dishes' => $dishes, 'started_at' => gmdate('Y-m-d H:i:s', $t),
+            'ready_at' => gmdate('Y-m-d H:i:s', $t + cook_seconds($u, $rec)), 'score' => $score, 'pal_uid' => $palUid]);
+        db()->commit();
+        $used[(int)$pick['id']] = true;
+    }
+}
+
 /** Catch a passive job up on its 10-minute checks (never past its end). The last_tick claim makes two tabs run each check once. */
 function pj_passive_tick(int $uid, array $j): void
 {
@@ -917,6 +991,7 @@ function pj_passive_tick(int $uid, array $j): void
     $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
     if (!$u) return;
     $r = json_decode((string)$j['result'], true) ?: [];
+    $GLOBALS['pj_allpots_plan'] = null;   // 2.7.06: the whole-kitchen pal works out its dish list once per catch-up
     for ($k = 1; $k <= $n; $k++) pj_passive_step($u, $j, $r, $last + $k * PJ_PASSIVE_TICK);
     pj_passive_save($j['id'], $r);
 }
@@ -937,16 +1012,16 @@ function pj_passive_finish(int $uid, int $jobId, bool $recall = false): void
     if (!$j || !$u) return;
     require_once __DIR__ . '/crafting.php';
     $r = json_decode((string)$j['result'], true) ?: [];
-    $pot = q_one('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']]);
-    if ($pot && pj_ts((string)$pot['ready_at']) <= time()) {
+    foreach (q('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']])->fetchAll() as $pot) {   // 2.7.06: a whole-kitchen pal has several
+        if (pj_ts((string)$pot['ready_at']) > time()) continue;
         [$ok, , $info] = cook_collect_one($u, (int)$pot['id'], true);
         if ($ok) { $r['served'] = (int)($r['served'] ?? 0) + (int)$info['dishes']; $r['cooks'] = (int)($r['cooks'] ?? 0) + 1; $r['pal_xp'] = (int)($r['pal_xp'] ?? 0) + 3; $r['last'] = (string)$info['name']; }
     }
-    if ($recall && ($pot = q_one('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']]))) {   // recalled mid-cook: half the dishes are lost
+    if ($recall) foreach (q('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']])->fetchAll() as $pot) {   // recalled mid-cook: half the dishes of each pot are lost
         $half = intdiv((int)$pot['dishes'], 2);
         if ($half < 1) q('UPDATE cook_pots SET collected_at = ? WHERE id = ?', [now(), $pot['id']]);
         else q('UPDATE cook_pots SET dishes = ? WHERE id = ?', [$half, $pot['id']]);
-        $r['lost'] = (int)$pot['dishes'] - $half;
+        $r['lost'] = (int)($r['lost'] ?? 0) + (int)$pot['dishes'] - $half;
     }
     q('UPDATE cook_pots SET pal_uid = NULL WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']]);
     pj_passive_save($jobId, $r);
@@ -961,8 +1036,17 @@ function pj_pot_set_recipe(array $u, int $jobId, int $recipeId): array
     $j = q_one("SELECT * FROM ppal_jobs WHERE id = ? AND user_id = ? AND kind = 'station' AND tool = 'passive' AND state = 'active'", [$jobId, $uid]);
     if (!$j) return [false, 'That pal is not tending a pot any more.'];
     [$ar, $ob] = array_pad(explode(':', (string)$j['target'], 2), 2, '');
-    $o = pj_station_object($ar, $ob);
     require_once __DIR__ . '/crafting.php';
+    if ($ob === 'all') {   // 2.7.06: the whole-kitchen pal: a pick is the dish it starts first, not its only dish
+        $allr = pj_station_all_recipes($uid, $ar);
+        if (!isset($allr[$recipeId])) return [false, 'You can only pick a recipe you know.'];
+        $cur = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$jobId]), true) ?: [];
+        $cur['plan'] = $recipeId;
+        q('UPDATE ppal_jobs SET result = ? WHERE id = ?', [json_encode($cur), $jobId]);
+        $p = pj_pal($uid, (string)$j['pal_uid']);
+        return [true, ($p['name'] ?? 'Your pal') . ' will start ' . (string)$allr[$recipeId]['out_name'] . ' first in any free pot.'];
+    }
+    $o = pj_station_object($ar, $ob);
     $all = $o ? pj_station_recipes($uid, $ar, $o['globs']) : [];
     if (!isset($all[$recipeId])) return [false, 'You can only pick a recipe you know that this station makes.'];
     $cur = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$jobId]), true) ?: [];

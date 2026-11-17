@@ -338,8 +338,11 @@ function cook_pots_busy(int $uid): int
 {
     $n = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL', [$uid]);
     try {
-        $n += (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%'
+        $n += (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%' AND target <> 'cooking:all'
             AND ((tool = 'passive' AND state = 'active') OR (tool IS NULL AND state IN ('active','ready')))", [$uid]);
+        // 2.7.06: a whole-kitchen pal (target cooking:all) holds exactly the pots it has started, not one
+        $n += (int)q_val("SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IN
+            (SELECT pal_uid FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target = 'cooking:all' AND tool = 'passive' AND state = 'active')", [$uid, $uid]);
     } catch (Throwable $e) {}
     return $n;
 }
@@ -369,8 +372,8 @@ function cook_pots_list(int $uid): array
         require_once __DIR__ . '/pal_jobs.php';
         foreach (pj_pals($uid) as $pu => $pp) $names[(string)$pu] = (string)$pp['name'];
     }
-    $byPal = [];
-    foreach ($jobs as $j) if ($j['tool'] === 'passive') $byPal[(string)$j['pal_uid']] = $j;
+    $byPal = []; $allPal = [];
+    foreach ($jobs as $j) if ($j['tool'] === 'passive') { if ((string)$j['target'] === 'cooking:all') $allPal[(string)$j['pal_uid']] = $j; else $byPal[(string)$j['pal_uid']] = $j; }
     $planName = function (array $j): array {
         $pid = (int)(json_decode((string)$j['result'], true)['plan'] ?? 0);
         return [$pid, $pid > 0 ? (string)q_val('SELECT i.name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pid]) : ''];
@@ -380,13 +383,22 @@ function cook_pots_list(int $uid): array
             ? max(0, ((int)$r['ready_tick'] - gclock_user_tick($uid)) * 60)   // game clock: game seconds left
             : max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
         $r['name'] = (string)($r['name'] ?? 'Dish');
-        if ($r['pal_uid'] && isset($byPal[(string)$r['pal_uid']])) {
+        if ($r['pal_uid'] && isset($allPal[(string)$r['pal_uid']])) {   // 2.7.06: every pot of a whole-kitchen pal carries its name
+            $j = $allPal[(string)$r['pal_uid']]; [$pid, $pn] = $planName($j);
+            $r += ['pal' => $names[(string)$r['pal_uid']] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => $pid, 'plan_name' => $pn, 'allpots' => true];
+        } elseif ($r['pal_uid'] && isset($byPal[(string)$r['pal_uid']])) {
             $j = $byPal[(string)$r['pal_uid']]; [$pid, $pn] = $planName($j);
             $r += ['pal' => $names[(string)$r['pal_uid']] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => $pid, 'plan_name' => $pn];
             unset($byPal[(string)$r['pal_uid']]);
         }
     }
     unset($r);
+    foreach ($allPal as $pu => $j) {   // a whole-kitchen pal with no pot of its own cooking right now: one waiting row
+        if (array_filter($rows, fn($x) => (string)($x['pal_uid'] ?? '') === (string)$pu)) continue;
+        [$pid, $pn] = $planName($j);
+        $rows[] = ['id' => 0, 'makes' => 0, 'dishes' => 0, 'ready_at' => '', 'pal_uid' => $pu, 'name' => 'Waiting for a free pot or ingredients', 'item_id' => 0, 'left' => 0, 'idle' => true,
+            'pal' => $names[$pu] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => $pid, 'plan_name' => $pn, 'allpots' => true];
+    }
     foreach ($byPal as $pu => $j) {   // a tending pal with no pot cooking right now
         [$pid, $pn] = $planName($j);
         $rows[] = ['id' => 0, 'makes' => 0, 'dishes' => 0, 'ready_at' => '', 'pal_uid' => $pu, 'name' => $pn !== '' ? $pn : 'Nothing chosen', 'item_id' => 0, 'left' => 0, 'idle' => true,

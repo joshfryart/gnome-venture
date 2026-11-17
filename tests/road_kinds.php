@@ -12,7 +12,7 @@ function ok(string $what, bool $cond, string $extra = ''): void { global $fails;
 
 echo "== the data file\n";
 $all = rk_all(); $cnt = array_count_values(array_column($all, 'kind'));
-ok('84 routes: 14 of each of the six kinds', count($all) === 84 && $cnt === array_fill_keys(['ferry', 'tunnel', 'pass', 'toll', 'overgrown', 'flooded'], 14), json_encode($cnt));
+ok('87 routes: 14 of each of the six kinds, plus 3 hazard roads (2.7.06)', count($all) === 87 && $cnt === array_fill_keys(['ferry', 'tunnel', 'pass', 'toll', 'overgrown', 'flooded'], 14) + ['hazard' => 3], json_encode($cnt));
 ok('tier is 2 or 3 for tunnel and pass, 0 for the rest', !array_filter($all, fn($k) => in_array($k['kind'], ['tunnel', 'pass'], true) ? !in_array($k['tier'], [2, 3], true) : $k['tier'] !== 0));
 $missing = array_filter(array_keys($all), fn($id) => !q_val('SELECT 1 FROM routes WHERE id = ?', [$id]));
 ok('every route of the list exists in the world', !$missing, json_encode(array_values($missing)));

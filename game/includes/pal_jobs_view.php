@@ -79,7 +79,7 @@ $jobLine = fn(array $j): string => match ($j['kind']) {
     'garden' => ($plotName[(int)$j['plot_id']] ?? 'a garden') . ' · ' . strtolower(pj_garden_task_text((int)$j['plot_id'])),   // v2.3.3: works after your hired help
     'trip' => (LANDSCAPES[(string)$j['target']][1] ?? $j['target']) . ' · ' . (TOOL_TYPES[(string)$j['tool']][0] ?? $j['tool']) . ' · ' . pj_ago(ts($j['ends_at']) - ts($j['started_at'])),
     'delve' => ($delveName[(int)$j['target']] ?? 'a delve') . ((int)$j['potions'] ? ' · ' . (int)$j['potions'] . ' potion' . ((int)$j['potions'] > 1 ? 's' : '') : ''),
-    'station' => (($stationList[(string)$j['target']][0] ?? '') . ' · ' . ($stationList[(string)$j['target']][1] ?? 'station') . ' · ' . (($j['tool'] ?? '') === 'passive' ? 'tends a pot' : (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes')),
+    'station' => (($stationList[(string)$j['target']][0] ?? '') . ' · ' . ($stationList[(string)$j['target']][1] ?? 'station') . ' · ' . (($j['tool'] ?? '') === 'passive' ? ((string)$j['target'] === 'cooking:all' ? 'keeps every pot going' . (!empty(json_decode((string)$j['result'], true)['full']) ? ' · full time' : '') : 'tends a pot') : (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes')),
     default => '',
 };
 $nextBack = null;
@@ -90,7 +90,7 @@ $anyReady = (bool)array_filter($jobs, fn($j) => $j['state'] === 'ready');
 $posts = [
     'garden' => ['🪴', 'Tend a garden', gclock_on() ? '1, 3 or 7 sleeps, or full time' : '1, 3 or 7 days', gclock_on() ? 'Pick a job (water, weed, pests, harvest, plant). The pal works while you sleep.' : 'Waters, weeds and harvests while you are away. Works after your hired help, on whatever is still undone.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Higher Gardening: more visits and extra crops.'],
     'trip' => ['🧺', 'Gathering trip', '1, 3 or 8 hours', 'Pick a land and a tool. The pal brings back what it finds.', 'Pays finds and Adventuring XP', 'a', '🧭 Adventuring', 'Higher Adventuring: more finds, more rares. Unused potions come back.'],
-    'station' => ['🍳', 'Man a station', '1, 3 or 8 hours', 'One pal tends a whole crafting station (Kitchen, Tool Shed ...): it starts whatever it can, favouring recipes you have not made yet, or only the recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking is passive: the pal holds one of your pots (you cannot use it meanwhile) and checks it every 10 minutes, cooking one batch at a time from your satchel. Pick the dish on the pot in your Kitchen.', 'Ingredients taken now (other stations); XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'Other stations: one pal each. Cooking: one pal per free pot. Only recipes you know.'],
+    'station' => ['🍳', 'Man a station', '1, 3 or 8 hours, or full time (Kitchen, Pantry)', 'One pal tends a whole crafting station (Kitchen, Tool Shed ...): it starts whatever it can, favouring recipes you have not made yet, or only the recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking is passive and runs on game time: a pal on the whole Kitchen keeps every free pot cooking (new dishes first, from anything in your satchel), checking every 10 game minutes, for 1, 3 or 8 hours or full time until you call it home; “pots to leave free” keeps some for you. A pal on one object holds just one pot. Pick the dish on a pot in your Kitchen.', 'Ingredients taken now (other stations); XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'Other stations: one pal each. Cooking: one pal per free pot. Only recipes you know.'],
     'delve' => ['🕳️', 'Re-run a cleared delve', 'Once a day per delve', 'Five rooms against the delve’s level. The chest pays about 60% of a real clear.', 'No first-clear bonus', 'a', '🧭 Adventuring', 'Risky below Adventuring ' . PJ_DELVE_SAFE . ': pack potions. Unused potions come back.'],
 ];
 $stSt = craft_stations($uid);
@@ -188,7 +188,7 @@ function pjv_ledger(array $c): string
           $t0 = ts($j['started_at']); $t1 = ts($j['ends_at']);
           $ready = $j['state'] === 'ready';
           $pct = $ready ? 100 : max(2, min(100, (int)round(100 * ($now - $t0) / max(1, $t1 - $t0)))); ?>
-        <li class="pjrow pj-<?= e($j['kind']) ?><?= $ready ? ' is-ready' : '' ?>"<?= !$ready && $j['kind'] !== 'garden' ? ' data-pj-start="' . $t0 . '" data-pj-end="' . $t1 . '"' : '' ?>>
+        <li class="pjrow pj-<?= e($j['kind']) ?><?= $ready ? ' is-ready' : '' ?>"<?= !$ready && $j['kind'] !== 'garden' && empty($r['full']) ? ' data-pj-start="' . $t0 . '" data-pj-end="' . $t1 . '"' : '' ?>>
           <?= ppal_img($p['key'], '', 'ppalimg pjimg', 44) ?>
           <div class="pjwho"><b><?= e($p['name']) ?></b>
             <small><?= $kindTxt[$j['kind']] ?? '' ?> · <?= $ready ? 'back home' . (!empty($r['fainted']) ? ' (ran out of HP)' : '') : e($jobLine($j)) ?></small></div>
@@ -198,6 +198,10 @@ function pjv_ledger(array $c): string
             <form method="post" action="<?= e(url('paljobs.php')) ?>"><?= csrf_field() ?><?= $bk ?><input type="hidden" name="job" value="<?= (int)$j['id'] ?>"><button class="btn small" name="do" value="collect">Collect</button></form>
             <?php elseif ($j['kind'] === 'garden'): ?>
             <span class="pjeta pjeta-date">until <?= e(puzzle_local((string)$j['ends_at'], 'j M, H:i')) ?></span>
+            <?= $recallBox($j) ?>
+            <?php elseif (!empty($r['full'])): ?>
+            <span class="pjeta">Full time</span>
+            <small class="muted"><?= (int)($r['served'] ?? 0) ?> dish<?= (int)($r['served'] ?? 0) === 1 ? '' : 'es' ?> so far · works while you sleep</small>
             <?= $recallBox($j) ?>
             <?php else: ?>
             <span class="pjeta" data-pj-eta><?= e(pj_ago($t1 - $now)) ?></span>
@@ -328,7 +332,9 @@ function pjv_post(array $c, string $kind): string
               <div class="pjrlist"><?php foreach ($stRecipes as $rid => $rx): ?><label class="pjrecipe" data-st="<?= e(implode(' ', $rx['st'])) ?>" data-name="<?= e(mb_strtolower((string)$rx['r']['name'])) ?>"><input type="checkbox" name="recipes[]" value="<?= (int)$rid ?>"> <span><?= e((string)$rx['r']['name']) ?></span></label>
               <?php endforeach; ?><?php if (!$stRecipes): ?><small class="muted">You know no recipes for these stations yet.</small><?php endif; ?></div>
               <p class="muted pjrnone" hidden>No recipe matches.</p></details>
-            <?= $seg('hours', 'Hours', PJ_TRIP_HOURS, 3, fn($h) => $h . ' h') ?>
+            <fieldset class="pjfield pjseg"><legend>Hours</legend><div class="pjsegs"><?php foreach (PJ_TRIP_HOURS as $hh): ?><label><input type="radio" name="hours" value="<?= $hh ?>"<?= $hh === 3 ? ' checked' : '' ?>><span><?= $hh ?> h</span></label><?php endforeach; ?><label><input type="radio" name="hours" value="0"><span>Full time</span></label></div></fieldset>
+            <p class="muted pjhint2">Full time works for the whole Kitchen or the whole Pantry (target “Whole station”): the pal keeps cooking on game time until you call it home. A whole-Kitchen pal runs every free pot.</p>
+            <label class="pjfield">Pots to leave free for me <select name="keep"><option value="0">None: every pot</option><option value="1">1 pot</option><option value="2">2 pots</option></select></label>
             <?php else: ?>
             <div class="pjfield"><label for="pjdelve">Delve</label><select id="pjdelve" name="delve"><?php foreach ($delves as $d): $ran = in_array((int)$d['id'], $ranToday, true); ?><option value="<?= (int)$d['id'] ?>"<?= $ran ? ' disabled' : '' ?>><?= e($delveName[(int)$d['id']]) ?><?= $ran ? ' · re-run today' : '' ?></option><?php endforeach; ?></select></div>
             <?= $potionField('delve') ?>

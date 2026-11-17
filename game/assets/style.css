@@ -8334,3 +8334,8 @@ details.sgq summary{cursor:pointer}
 .moonpill>summary::after{content:"▾";opacity:.7}
 .moonpill[open]>summary::after{content:"▴"}
 .moonpill-body{margin-top:6px}
+
+/* 2.7.06 (Josh): on a Trail map the toasts (Milestone box, new Almanac pages, prizes) sit small in the bottom-right corner so they never cover the scene or the end scene */
+body.game:has(svg.tmbg) .toasts { left: auto; right: 10px; transform: none; width: min(60vw, 300px); font-size: 13px; }
+body.game:has(svg.tmbg) .toasts .prizebox, body.game:has(svg.tmbg) .toasts .newpages { padding: 8px 10px; }
+body.game:has(svg.tmbg) .toasts.phone { right: 8px; left: auto; width: min(70vw, 300px); }

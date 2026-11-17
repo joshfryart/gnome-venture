@@ -91,3 +91,21 @@ Tripod gait: the legs move in two alternating tripods. Arms column = the two fro
 - 1 px outline `#2b1c26` outside only.
 - Light from the upper left, one shade side (lower right).
 - Keep the silhouette recognisable as a stick-insect at 16 px.
+
+## Redraw 2026-11-17
+Stage 3 art redrawn (Opus) in `lib/species_stick-insect.lua` (`S.draw_figure`); old version in `stick-insect/before/`. New palette hexes added in `S.palette_list` for this redraw.
+- Body: bright lilac slender body with a dashed dorsal stripe; sturdy 2 px limbs with knee knobs; clear hooded head with two antennae; shadow ellipse at the feet line.
+- Front: tall narrow body, head and antennae at the top, forelegs folded down across the middle legs, legs splayed to the feet line.
+- Side (right-facing): head forward on the right, body leaning with long bent legs under it, twig hat on the crown.
+- Back: narrow tapering abdomen with dashed stripe, legs splayed either side, head and antennae on top.
+- Palette hexes now used (`S.palette_list`): `#2b1c26`, `#c9b6f2`, `#a88ae0`, `#7f5cc4`, `#5c4196`, `#3f2c6a` (lilac ramp, light to deep), `#9a6e48` (face), `#d9668a`, `#a8496e` (pink accent), `#6e4a44` (bark), `#7cc35a` (leaf), `#aaa9b8`, `#74758c` (shadow).
+- Quirk: twig hat on the crown, `S.quirk.hex` `#6e4a44`, 5x3, follows body y.
+- Remaining weaknesses: thorax is busy where the forelegs cross the middle legs; the dashed stripe vanishes at 1x.
+- Stage 2 results: tables S.ramps, S.palette_list, S.idle, S.walk, S.c, S.quirk present; S.T = 7 and S.W = 34 present in the `local S = {...}` header. Palette check: PASS, all 13 PNG colours in `S.palette_list`, none missing. `check.py stick-insect`: RESULT PASS.
+
+## Round 2 plan
+Fixes for the four weaknesses (first-pass implemented in `S.draw_figure`; before-state in `stick-insect/before-r2/`).
+- Busy thorax (front/back): forelegs no longer fold across the middle legs. Shoulder (cx-3, y31) goes out to an elbow at (cx-8, y28) above the middle knee, then down-out to a short hand at (cx-11, y36) with a 2 px bark tip. Forelegs sit outside the body column and above the middle legs; nothing crosses the thorax.
+- Boxed-in legs: knees tucked in, feet splayed. Middle pair hip (cx-3, y42), knee (cx-9, y38), foot cx-13. Rear pair hip y47, knee (cx-6, y43), foot cx-10. Lower legs slant about 4 px over 30 rows, giving an A-shaped stance. Side view: near middle foot x46 (knee +5), near rear foot x24 (knee -5), so lower legs slant fore and aft.
+- Square knee knobs: knob is now 2 px on top (top-left pixel dropped) over 3 px, a rounded dome instead of a 3x2 block.
+- Vanishing stripe: dashes are 3 on, 1 off, 2 px wide in `#3f2c6a` (deep) on the lilac body, front and back (down to y56); side uses `#5c4196` dashes 3 on, 2 off one column in from the back edge. Back view wing-case centre line shortened to a 3 px dark dash.

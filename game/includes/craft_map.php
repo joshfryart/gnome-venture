@@ -190,11 +190,11 @@ function craft_pop_html(string $tab, array $all, array $slugOf): string
             if (!$rows) $h .= '<p class="muted cpempty">' . ['can' => 'Nothing you can make right now.', 'miss' => 'Nothing missing.', 'unk' => 'Nothing left to discover here.'][$k] . '</p>';
             foreach ($rows as $e) {
                 $ico = $k === 'unk' ? '❔' : ($e['item'] ? str_replace(' alt="-"', ' alt=""', item_icon($e['item'], 'lg', '-')) : '');
-                $h .= '<div class="cprow"><span class="cpico" aria-hidden="true">' . $ico . '</span><div class="cpin"><b>' . e($k === 'unk' ? '???' : $e['name']) . '</b>';
+                $h .= '<div class="cprow"><span class="cpico" aria-hidden="true">' . $ico . '</span><div class="cpin"><b>' . e($e['name']) . '</b>';
                 if ($k !== 'unk' && $e['food'] !== '') $h .= '<span class="cpfx">' . e($e['food']) . '</span>';
                 if ($k !== 'unk' && $e['desc'] !== '') $h .= '<span class="cpdesc muted">' . e($e['desc']) . '</span>';
                 if ($k === 'miss') $h .= '<span class="cpneed">' . e($e['why']) . '</span>';
-                if ($k === 'unk') $h .= '<span class="cpneed muted">' . e($e['found']) . '. Collect them all to discover it.</span>';
+                if ($k === 'unk') { if (!empty($e['ings'])) { require_once __DIR__ . '/shelves.php'; $h .= '<span class="cpneed">' . sh_unk_ing_html($e['ings'], $e['icons'] ?? []) . '</span>'; } $h .= '<span class="cpneed muted">' . e($e['found']) . '. Collect them all to discover it.</span>'; }
                 $h .= '</div>' . ($k === 'can' ? '<div class="cpact">' . $e['acts'] . '</div>' : '') . '</div>';
             }
             $h .= '</div>';

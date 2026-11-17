@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.7.07
+- **Mentor button fixed.** Every town with a calling mentor (Birchbramble Steppe, Maizehollow, Mistmoor, Olivewhistle, Rainroot Reaches, Sunsprinkle Isles) shows the Mentor button again; it had been hidden in all towns since 2.7.03. Rest stops and villages still show none.
+- **Pals in the Kitchen.** A pal on the whole Kitchen now keeps every free pot cooking (new dishes first, from anything in the satchel), not just one. New **Full time** option for the whole Kitchen and the Pantry: the pal keeps working on game time until you call it home. "Pots to leave free" keeps some pots for you. Checks run every 10 game minutes (sleeps move the pal clocks).
+- **Recipes you have not found yet now show their name and what they need** ("2 × Carrot, found / not found yet"): crafting list, scene popovers, Pantry, the Almanac hint for an undiscovered recipe, and an ingredient's "used in" line.
+- **Hazard road kind.** Three roads (ids 242, 245, 249) are hazardous: +10 game minutes a stretch, +5 with any walking staff. Draws the hazard marker. New worlds get a Hazard line on the Almanac road-kinds page.
+- **Trail toasts** (Milestone box, new Almanac pages, prizes) sit small in the bottom-right corner on a Trail map, so they no longer cover the scene.
+- **Boon tag.** A pal's puzzle piece shaped by a Boon carries a "Boon" tag with its own text.
+- **Admin:** every data editor in the menu has its own icon.
+- **Art (separate image zips).** 9 new icons: build verbs carry, decorate, wait, vigil, befriend, trial and road kinds toll, beat, weather (Aseprite + Lua; Sonnet scaffold, Opus polish). Three NPC sprites redrawn: snail, stick-insect, ladybird. The build verbs use their own pictures now.
+- **Tests:** `mentor_nav`, `unk_recipes`, `admin_icons`, `pf_boon_tag` added; `paljobs`, `trail_marks`, `road_kinds`, `build_verbs` extended.
+
 ## 2.7.06
 - **Puzzle fights (new fights only; a fight already under way keeps its old rules).**
   - **Board is 4x4 always.** Two environment pieces per turn; environment events matter a bit more (rain 0.20, creature events 0.7).

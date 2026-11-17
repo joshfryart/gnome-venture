@@ -382,7 +382,7 @@ function pfd_build(array $src): array
     }
     foreach ($src['pals'] as $q) {   // gear: the active party's pals (generated, not authored: the value already carries the rarity)
         $nm = (string)($q['n'] ?? 'Pal'); $key = 'pal:' . $nm; if (isset($seen[$key])) continue; $seen[$key] = 1;
-        $pieces[] = $entry($key, ['k' => $key, 'n' => $nm, 't' => (string)$q['t'], 'v' => (int)$q['v'], 'r' => $q['r'] ?? null, 'tag' => 'pal', 'src' => 'pal', 'ref' => (string)($q['ref'] ?? ''), 'life' => 0], max(1, min(3, (int)($q['rank'] ?? 1))), ['gear' => true, 'on' => true]);
+        $pieces[] = $entry($key, ['k' => $key, 'n' => $nm, 't' => (string)$q['t'], 'v' => (int)$q['v'], 'r' => $q['r'] ?? null, 'tag' => !empty($q['boon']) ? 'boon' : 'pal', 'src' => 'pal', 'ref' => (string)($q['ref'] ?? ''), 'life' => 0], max(1, min(3, (int)($q['rank'] ?? 1))), ['gear' => true, 'on' => true]);
     }
     $sl = pfd_slots($lvl); $cnt = ['n' => 0, 'kit' => 0, 'belt' => 0, 'pals' => 0, 'hurt' => 0, 'rare' => 0, 'mw' => 0, 'larder' => 0, 'larder_max' => $sl['larder'], 'keeps' => 0, 'keeps_max' => $sl['keeps'], 'src' => ['pal' => 0, 'tool' => 0, 'crop' => 0]];
     $capOut = pfd_cap_out($pieces);
@@ -585,7 +585,7 @@ function pfd_pal_pieces(array $u): array
         arsort($score);
         $t = (string)array_key_first($score);
         $rar = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity'] ?? 'common'] ?? 0;
-        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)pf_round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? '')];
+        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)pf_round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? ''), 'boon' => !empty($b)];
     }
     return $out;
 }

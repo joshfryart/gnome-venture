@@ -234,7 +234,7 @@ function here_routes_card(array $u, array $node, string $back): string
 /** The calling mentor of a town node's region (one of CALLING_MENTORS), or null. */
 function here_mentor_of(array $node): ?array
 {
-    if (($node['kind'] ?? '') !== 'town' || (int)($node['region_id'] ?? 0) <= 0) return null;
+    if (here_kind($node) !== 'town' || (int)($node['region_id'] ?? 0) <= 0) return null;   // 2.7.06: a town is a 'market' or 'hub' location (here_kind); the raw kind is never 'town', so the 2.7.03 check hid every Mentor button
     require_once __DIR__ . '/calling_quests.php';
     $code = (string)q_val('SELECT code FROM regions WHERE id = ?', [(int)$node['region_id']]);
     foreach (CALLING_MENTORS as $calling => $m) if ($m[5] === $code) return ['calling' => $calling, 'name' => $m[0], 'slug' => $m[1], 'lodge' => $m[8], 'icon' => $m[7], 'spot' => (int)q_val('SELECT id FROM town_spots WHERE slug = ? AND active = 1', [$m[6]])];

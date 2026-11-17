@@ -9,6 +9,7 @@ declare(strict_types=1);
  *   toll       at section 1: pay 10 Petals (safer: random fights at half the chance; faster: 5 game minutes a section instead of 10) or take the old road
  *   overgrown  +10 game minutes a section; an axe (any tier) in the satchel = no slowdown
  *   flooded    +10 game minutes a section; Flood Boots in the satchel halve it (+5)
+ *   hazard     2.7.06 (Josh): loose scree, thorns or a washed-out stretch: +10 game minutes a section; a walking staff (any tier) in the satchel halves it (+5)
  * Everything here is a plain function: no state of its own except the toll choice, kept in the Trail scene ('toll' 1 paid, 0 refused, missing = not asked yet).
  */
 
@@ -18,8 +19,8 @@ const RK_SLOW_MIN = 10;          // game minutes added per section on an overgro
 const RK_BOOTS_MIN = 5;          // the same with Flood Boots
 const RK_TOLL_MIN = 5;           // game minutes a section on a toll road once the toll is paid (10 on the old road)
 const RK_TOLL_ENC = 0.5;         // the share of the random-fight chance left on a paid toll road
-const RK_KINDS = ['ferry', 'tunnel', 'pass', 'toll', 'overgrown', 'flooded'];
-const RK_ICON = ['ferry' => '⛴️', 'tunnel' => '🔦', 'pass' => '⛰️', 'toll' => '🪙', 'overgrown' => '🌿', 'flooded' => '💧'];   // 2.7.01: the emoji of the map token (rk_label's), when its drawn marker trail/mark/<kind>.png is missing
+const RK_KINDS = ['ferry', 'tunnel', 'pass', 'toll', 'overgrown', 'flooded', 'hazard'];
+const RK_ICON = ['ferry' => '⛴️', 'tunnel' => '🔦', 'pass' => '⛰️', 'toll' => '🪙', 'overgrown' => '🌿', 'flooded' => '💧', 'hazard' => '⚠️'];   // 2.7.01: the emoji of the map token (rk_label's), when its drawn marker trail/mark/<kind>.png is missing
 const RK_ITEMS = [   // slug => [name, category, rarity, price, description] (Flood Boots are a wearable now)
     'toll-receipt' => ['Toll Receipt', 'other', 4, 1, 'A stamped scrap that says you paid the toll. It has a very small drawing of a bridge on it.'],
 ];
@@ -43,7 +44,7 @@ function rk_all(): array
 function rk_of(int $routeId): ?array { return rk_all()[$routeId] ?? null; }
 
 /** 2.7.01: does the kind's map marker stand on this stretch (0 = the first one walked)? Ferry, tunnel, pass and toll are met where the walk starts; overgrown and flooded slow every stretch. */
-function rk_on_stretch(string $kind, int $sec): bool { return in_array($kind, ['overgrown', 'flooded'], true) || ($sec === 0 && in_array($kind, RK_KINDS, true)); }
+function rk_on_stretch(string $kind, int $sec): bool { return in_array($kind, ['overgrown', 'flooded', 'hazard'], true) || ($sec === 0 && in_array($kind, RK_KINDS, true)); }
 
 /** Tool type the kind asks for. */
 function rk_tool(string $kind): string { return $kind === 'tunnel' ? 'lantern' : ($kind === 'pass' ? 'staff' : ''); }
@@ -59,6 +60,7 @@ function rk_label(?array $k): string
         'toll' => '🪙 Toll road · ' . RK_TOLL_PETALS . ' Petals',
         'overgrown' => '🌿 Overgrown · slow',
         'flooded' => '💧 Flooded · slow',
+        'hazard' => '⚠️ Hazard · slow',
         default => '',
     };
 }
@@ -73,6 +75,7 @@ function rk_text(string $kind, int $tier = 0): string
         'toll' => 'A toll road. Pay ' . RK_TOLL_PETALS . ' Petals at the first stretch and the road is safer (half the surprise fights) and quicker (' . RK_TOLL_MIN . ' game minutes a stretch instead of ' . gclock_time_cost_or('travel', 10) . '). Or take the old road.',
         'overgrown' => 'The road is overgrown: each stretch takes ' . RK_SLOW_MIN . ' game minutes longer. An axe in your satchel clears the way.',
         'flooded' => 'The road is flooded: each stretch takes ' . RK_SLOW_MIN . ' game minutes longer, or ' . RK_BOOTS_MIN . ' with Flood Boots in your satchel.',
+        'hazard' => 'A hazardous stretch (scree, thorns, a washed-out bank): each stretch takes ' . RK_SLOW_MIN . ' game minutes longer, or ' . RK_BOOTS_MIN . ' with a walking staff in your satchel.',
         default => '',
     };
 }
@@ -123,6 +126,10 @@ function rk_start_costs(array $u, array $route): array
         require_once __DIR__ . '/wearables.php'; wear_ensure_items();
         if (wear_has_boots($uid)) return [RK_BOOTS_MIN, 0, '👢 Your flood boots keep you drier: the flooded road is only a little slower.'];
         return [RK_SLOW_MIN, 0, '💧 The road is flooded: it takes longer.'];
+    }
+    if ($k['kind'] === 'hazard') {   // 2.7.06
+        if (function_exists('tool_tier') && tool_tier($uid, 'staff') >= 1) return [RK_BOOTS_MIN, 0, '🦯 Your staff tests the ground: the hazardous road is only a little slower.'];
+        return [RK_SLOW_MIN, 0, '⚠️ A hazardous road: it takes longer.'];
     }
     return [0, 0, ''];
 }

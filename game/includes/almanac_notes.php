@@ -336,7 +336,7 @@ function almanac_gather_notes(array $u, string $slug): string
     $L[] = '👜 You have ' . $have . '.';
     $uses = [];
     foreach (q('SELECT r.id, r.name, r.ingredients, (SELECT 1 FROM user_recipes ur WHERE ur.recipe_id = r.id AND ur.user_id = ?) AS known FROM recipes r', [$uid])->fetchAll() as $r) {
-        if (isset((json_decode((string)$r['ingredients'], true) ?: [])[$slug])) $uses[] = $r['known'] ? e($r['name']) : '???';
+        if (isset((json_decode((string)$r['ingredients'], true) ?: [])[$slug])) $uses[] = e($r['name']) . ($r['known'] ? '' : ' (not found yet)');
     }
     if ($uses) $L[] = '🔨 Used in ' . count($uses) . ' recipe' . (count($uses) === 1 ? '' : 's') . ': ' . implode(', ', array_slice($uses, 0, 8)) . (count($uses) > 8 ? '…' : '') . '.';
     $L[] = '💰 Shops pay about ' . money(sell_price($it, $u)) . ' each.';
@@ -381,6 +381,10 @@ function almanac_locked_hint(array $entry): string
         $home = plant_home_name((int)$p['id']);
         $shop = q_val('SELECT s.name FROM shop_stock st JOIN shops s ON s.id = st.shop_id WHERE st.item_id = ? AND s.open = 1 ORDER BY s.id LIMIT 1', [$p['seed_item_id']]);
         $h = 'Grow and harvest it.' . ($home ? ' Native to ' . $home . '.' : '') . ($shop ? ' Seeds at ' . $shop . '.' : '');
+    } elseif (str_starts_with($key, 'recipe:') && ($rr = q_one('SELECT name, ingredients FROM recipes WHERE slug = ?', [substr($key, 7)]))) {   // 2.7.06 (Josh): an undiscovered recipe still says what it needs
+        $bits = [];
+        foreach (json_decode((string)$rr['ingredients'], true) ?: [] as $is => $n) $bits[] = (int)$n . ' × ' . (string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is);
+        $h = 'Needs ' . implode(', ', $bits) . '. Collect them all and it is yours.';
     } elseif (str_starts_with($key, 'creature:') && ($c = q_one('SELECT level, landscapes FROM creatures WHERE slug = ?', [substr($key, 9)]))) {
         $h = 'Defeat or befriend it. Found in ' . ($c['landscapes'] === 'any' ? 'every landscape' : str_replace(',', ', ', (string)$c['landscapes'])) . ', around level ' . (int)$c['level'] . '.';
     } elseif (str_starts_with($key, 'gather:') && ($g = q_one('SELECT g.landscapes, g.tool FROM gatherables g JOIN items i ON i.id = g.item_id WHERE i.slug = ?', [substr($key, 7)]))) {

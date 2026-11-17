@@ -91,3 +91,29 @@ Slow glide, no legs: the body squashes (body y +1) and stretches (body y 0). Fee
 - 1 px outline `#2b1c26` outside only.
 - Light from the upper left, one shade side (lower right).
 - Keep the silhouette recognisable as a snail at 16 px.
+
+## Redraw 2026-11-17
+Stage 3 art redrawn (Opus) in `lib/species_snail.lua` (`S.draw_figure`); old version in `snail/before/`.
+- Body: soft slug body on a frilled foot, flat wide base on the feet line; big spiral shell on the back.
+- Front: shell spiral shows at the left edge, head with two eyestalks (ink tips, cream glint) rising above a straw hat with green scarf; satchel on the shell. Frame 1 face is small.
+- Side (right-facing): large orange spiral shell on the back (left), head and eyestalk forward on the right, long flat foot, satchel strap and satchel on the shell, scarf tail at the neck.
+- Back: round shell dome with spiral, two eyestalks above it, hat back and scarf tails, wide foot base.
+- Palette hexes now used (`S.palette_list`, unchanged): `#2b1c26`, `#d2cb94`, `#a09e6e`, `#726c60`, `#4a4256`, `#d48e3e`, `#9e5c3c`, `#5e3446`, `#dab65c`, `#5ca24c`, `#ecdab2`, `#aaa9b8`, `#74758c` (`#aaa9b8` is listed but not used in the PNGs).
+- Quirk: mail satchel, `S.quirk.hex` `#9e5c3c`, 4x4 on the shell, follows body y and sways with the walk.
+- Remaining weaknesses: front face is small; hat brims are small at 1x.
+- Stage 2 results: tables S.ramps, S.palette_list, S.idle, S.walk, S.c, S.quirk present; S.T = 8 and S.W = 44 present in the `local S = {...}` header. Palette check (all opaque PNG colours in `S.palette_list`): PASS, 12 of 13 listed colours used, none missing. `check.py snail`: RESULT PASS.
+
+## Round 2 plan
+Weaknesses: small front face, hard dark right edge on the front body mound, small hat brims at 1x.
+- front face: head blob 10.5x7 -> 11.5x8 with soft shading; cream muzzle ellipse 4.2x2.2 -> 6.2x3.4 plus a 7 px cream highlight row; two nostril pixels (deep plum) and one chin dot instead of one nose; smile widened to 9 px (curl up at both ends); 2-px-tall rosy cheek patches at x +-7..9 so face fills the head.
+- front body mound: `blob(..., soft=true)` - no `#4a4256` deep band, shade starts at light-dot 0.62 (was 0.5), light weights 0.7/0.55 (was 0.95/0.3) so the right edge is a base-to-shade gradient, not a dark wall. Same on the back view mound.
+- hat brims: front brim rx 9.5 -> 13, crown 7 -> 8 wide, lifted 1 px; back brim 9.5 -> 12.5, crown 8; side brim 7.5 -> 9 (crown 7). Side kept at 9 because idle-1 width must stay <= 44.
+- side face: unchanged this round (width budget); candidate for round 3.
+- Status: first-pass code in `S.draw_figure`, `check.py snail` RESULT PASS. Backup in `snail/before-r2/`.
+
+## Round 2 result (Opus)
+- Front face: head 12x8.5, muzzle 6.6x3.9; cream glint upper left, 3 px plum nose, open 9 px smile with plum inside, cheeks at +-7..8. Head and face no longer crowd.
+- Front/back body: stepped neck + mound replaced by one smooth bell (cylinder shading, shade band only, no deep wall); ground shadow narrowed to rx 16.5 (stray pixel gone).
+- Hats: plum (`#5e3446`) contour behind brim and crown; brims front 14, back 13, side 9 (width budget 44). Front strap now runs across the chest to the satchel at the lower left.
+- Still weak: side face small; front bell lower half is plain.
+- `check.py snail`: RESULT PASS. PNGs copied to `game/assets/img/npc25/`.

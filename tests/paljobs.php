@@ -591,11 +591,45 @@ ok('the station list offers a whole station per area, listed first', isset(pj_st
 $plan = pj_station_all_recipes($uid, 'cooking'); ok('a whole station knows every known recipe of the area, whatever object makes it', count($plan) >= 1 && isset($plan[(int)$rec['id']]), count($plan));
 q('UPDATE user_recipes SET made = 7 WHERE user_id = ? AND recipe_id = ?', [$uid, $rec['id']]);
 $ord = pj_station_order($uid, array_values($plan)); $firstMade = (int)q_val('SELECT COALESCE(made,0) FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, (int)$ord[0]['id']]);
-ok('recipes never made come first (the one made 7 times is not first when another exists)', count($ord) < 2 || (int)$ord[0]['id'] !== (int)$rec['id'] || $firstMade === 0, array_column($ord, 'id'));
+ok('recipes never made come first (the one made 7 times is not first when another exists)', count($ord) < 2 || (int)$ord[0]['id'] !== (int)$rec['id'] || $firstMade === 0, json_encode(array_column($ord, 'id')));
 foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 5);
 [$wo, $wm] = pj_station_send($u, $sp1, 'cooking', 'all', 'all', [], 3); ok('one pal takes the whole cooking station with nothing picked', $wo === true, $wm);
 $wj = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'"); ok('its job is the whole station (target cooking:all)', $wj && $wj['target'] === 'cooking:all', $wj['target'] ?? null);
 [$wo2] = pj_station_send($u, $sp2, 'cooking', 'stove', 'all', [], 3); ok('a second pal cannot take an object of a station that already has its pal', $wo2 === false);
+q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]);
+// 2.7.06 (Josh): the whole-kitchen pal mans EVERY free pot, runs full time on game time, and "keep" leaves pots for the gnome
+q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]); q("UPDATE ppal_found SET status = 'home', hp = 30");
+foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 8);
+$lim = cook_pot_limit($u);
+[$fo, $fm] = pj_station_send($u, $sp1, 'cooking', 'all', 'all', [], 0); ok('full time (hours 0) is allowed for the whole Kitchen', $fo === true, (string)$fm);
+$fj = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active' AND pal_uid = ?", [$sp1]);
+ok('a full-time shift ends years away and is marked full', $fj && pj_ts((string)$fj['ends_at']) > time() + 86400 * 365 * 5 && !empty(json_decode((string)$fj['result'], true)['full']), (string)($fj['ends_at'] ?? ''));
+$own = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $sp1]);
+ok('the pal started a pot in every free pot it could (' . $lim . ' pots)', $own === $lim, (string)$own);
+ok('those pots count as busy, one each', cook_pots_busy($uid) === $own, (string)cook_pots_busy($uid));
+ok('every pot row carries the pal and the whole-kitchen flag', count(array_filter(cook_pots_list($uid), fn($r) => !empty($r['allpots']) && !empty($r['pal']))) === $own);
+[$fo2] = pj_station_send($u, $sp2, 'cooking', 'all', 'all', [], 3); ok('only one pal can man the whole Kitchen', $fo2 === false);
+// game time: the pots ripen, the next check serves them and fills the pots again (ticks run on game time: sleeps move the pal clocks, gclock_freeze_pals holds them otherwise)
+q('UPDATE cook_pots SET ready_at = ? WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [gmdate('Y-m-d H:i:s', time() - 60), $uid, $sp1]);
+foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 8);
+$GLOBALS['pj_allpots_plan'] = null; $rr = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$fj['id']]), true);
+pj_allpots_step(q_one('SELECT * FROM users WHERE id = ?', [$uid]), $fj, $rr, time());
+ok('the check served the ripe pots', (int)($rr['cooks'] ?? 0) === $own && (int)($rr['served'] ?? 0) >= $own, json_encode($rr));
+ok('and started new ones in the freed pots', (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $sp1]) === $lim);
+$tickBefore = $fj['last_tick'];
+q("UPDATE ppal_jobs SET last_tick = ? WHERE id = ?", [gmdate('Y-m-d H:i:s', time() - 3 * PJ_PASSIVE_TICK), $fj['id']]);
+pj_passive_tick($uid, q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$fj['id']]));
+ok('the catch-up runs the pal\'s 10-minute checks (last_tick moved on)', pj_ts((string)q_val('SELECT last_tick FROM ppal_jobs WHERE id = ?', [$fj['id']])) > time() - 3 * PJ_PASSIVE_TICK + 100);
+[$rc] = pj_recall($u, (int)$fj['id']); ok('a full-time pal can be called home', $rc === true && pj_pal($uid, $sp1)['status'] === 'home');
+ok('its pots are the gnome\'s again after the recall', (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND pal_uid IS NOT NULL AND collected_at IS NULL', [$uid]) === 0);
+// keep: leave a pot free for the gnome
+q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]); q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q("UPDATE ppal_found SET status = 'home', hp = 30");
+foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 8);
+if ($lim >= 2) {
+    [$ko] = pj_station_send($u, $sp1, 'cooking', 'all', 'all', [], 3, false, 1); ok('send with 1 pot kept free', $ko === true);
+    ok('the pal left that pot free', (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $sp1]) === $lim - 1);
+}
+[$po] = pj_station_send($u, $sp2, 'pantry', 'all', 'all', [], 7); ok('7 hours is not a station length', $po === false);
 q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]);
 echo $fails ? "$fails FAILED\n" : "all pal job tests passed\n";
 exit($fails ? 1 : 0);
