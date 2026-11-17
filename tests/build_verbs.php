@@ -37,5 +37,17 @@ if ($decor) { give_item($uid, (int)$decor, 1); $u = q_one('SELECT * FROM users W
 else echo "  (no decor item in this world: decorate hand-in skipped)\n";
 $box = repair_box(q_one('SELECT * FROM users WHERE id = ?', [$uid]), q_one('SELECT lr.*, l.name FROM landmark_repairs lr JOIN landmarks l ON l.id = lr.landmark_id WHERE lr.id = ?', [$rid]), 'x');
 ok('the repair box draws a stage list for the new verbs without errors', str_contains($box, 'Keep watch') && str_contains($box, 'Carry the last stones'), substr($box, 0, 200));
+// befriend and trial are conditions, not hand-ins
+ok('needs parse: befriend:2, trial:1', build_parse_needs('befriend:2') === [['befriend', '', 2]] && build_parse_needs('trial:1') === [['trial', '', 1]]);
+$u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+$r0 = rebuild_need_rows($u, [['befriend', '', 1], ['trial', '', 1]], 0, $lm);
+ok('before anything: friendship 0 and no clears', $r0[0][2] === 0 && $r0[1][2] === 0, json_encode($r0));
+$folk = q_one('SELECT f.id FROM stop_folk f JOIN locations l ON l.id = f.location_id WHERE l.region_id = ? ORDER BY f.id LIMIT 1', [$lm['region_id']]);
+if ($folk) { require_once $argv[1] . '/includes/stop_folk.php'; q('DELETE FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, $folk['id']]); stop_friend_ensure($uid, (int)$folk['id']); $need1 = STOP_FRIEND_LEVELS[1][0]; q('UPDATE stop_friend SET points = ? WHERE user_id = ? AND folk_id = ?', [$need1, $uid, $folk['id']]);
+    ok('with a friendly villager of the region the befriend row reads level 1', rebuild_need_rows($u, [['befriend', '', 1]], 0, $lm)[0][2] >= 1); }
+else echo "  (no stop villager in the region: befriend check skipped)\n";
+q('DELETE FROM landmark_runs WHERE user_id = ? AND landmark_id = ?', [$uid, $lm['id']]);
+try { db_insert('landmark_runs', ['user_id' => $uid, 'landmark_id' => $lm['id'], 'exp_id' => 987001, 'kind' => 'delve', 'outcome' => 'cleared', 'level' => 3, 'depth' => 4, 'stages' => 5, 'started_at' => '2026-01-01 00:00:00', 'ended_at' => '2026-01-01 00:10:00']);
+    ok('one cleared run of the place counts as a trial', rebuild_need_rows($u, [['trial', '', 1]], 0, $lm)[0][2] === 1); } catch (Throwable $e) { echo "  (landmark_runs not writable here: trial check skipped)\n"; }
 file_put_contents($file, $orig); build_plans(true);
 echo $fails ? "$fails FAILED\n" : "ok\n"; exit($fails ? 1 : 0);

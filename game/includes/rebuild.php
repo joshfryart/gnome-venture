@@ -86,12 +86,31 @@ function rebuild_supply(int $uid, array $need): array
     return q("SELECT i.id, i.name, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND $where ORDER BY i.base_price, i.name", [$uid])->fetchAll();
 }
 
+/** 2.7.06 befriend: the highest stop-friend level (STOP_FRIEND_LEVELS index) this gnome has with any stop villager whose stop lies in the region. */
+function rebuild_friend_level(int $uid, int $regionId): int
+{
+    if ($regionId <= 0) return 0;
+    require_once __DIR__ . '/stop_folk.php';
+    $best = 0;
+    foreach (q('SELECT sf.points FROM stop_friend sf JOIN stop_folk f ON f.id = sf.folk_id JOIN locations l ON l.id = f.location_id WHERE sf.user_id = ? AND l.region_id = ?', [$uid, $regionId])->fetchAll(PDO::FETCH_COLUMN) as $pts) $best = max($best, stop_friend_level((int)$pts)['index']);
+    return $best;
+}
+
+/** 2.7.06 trial: how many times this gnome has cleared this place's own delve or lair (landmark_runs). */
+function rebuild_trial_clears(int $uid, int $lmId): int
+{
+    if ($lmId <= 0) return 0;
+    try { return (int)q_val("SELECT COUNT(*) FROM landmark_runs WHERE user_id = ? AND landmark_id = ? AND outcome = 'cleared'", [$uid, $lmId]); } catch (Throwable $e) { return 0; }
+}
+
 /** v2.0.76: what a list of needs asks for, with how much this gnome has: [[label, need, have], …]. $prog = days worked, for a `days` need. */
-function rebuild_need_rows(array $u, array $needs, int $prog = 0): array
+function rebuild_need_rows(array $u, array $needs, int $prog = 0, ?array $lm = null): array
 {
     $out = [];
     foreach ($needs as $need) {
         [$type, $slug, $qty] = $need;
+        if ($type === 'befriend') { $out[] = ['friendship level with a villager of this region (talk, give gifts)', $qty, rebuild_friend_level((int)$u['id'], (int)($lm['region_id'] ?? 0))]; continue; }   // 2.7.06
+        if ($type === 'trial') { $out[] = ['clears of this place’s own delve or lair (win the fights there)', $qty, rebuild_trial_clears((int)$u['id'], (int)($lm['id'] ?? 0))]; continue; }
         if ($type === 'days') {
             $out[] = ['days of clearing (' . (int)$slug . '⚡ each)', $qty, min($prog, $qty)];
             continue;
@@ -216,10 +235,10 @@ function landmark_safe_note(array $lm): string
 
 const BUILD_VERBS = [
     'haul' => 'Haul', 'gather' => 'Gather', 'feed' => 'Feed the crew', 'light' => 'Light up', 'clear' => 'Clear',
-    'carry' => 'Carry', 'decorate' => 'Decorate', 'wait' => 'Wait', 'vigil' => 'Keep vigil',   // 2.7.06: carry = haul by another name (heavy things), decorate = deco:N decor items, wait = wait:N game days pass, vigil = vigil:H game hours at the place
+    'carry' => 'Carry', 'decorate' => 'Decorate', 'wait' => 'Wait', 'vigil' => 'Keep vigil', 'befriend' => 'Befriend', 'trial' => 'Face the trial',   // 2.7.06: carry = haul by another name (heavy things), decorate = deco:N decor items, wait = wait:N game days pass, vigil = vigil:H game hours at the place
 ];
 /** 2.7.06: until the pictures for the new verbs are drawn they borrow an old one (assets/img/steps/stage-<verb>.png). */
-const BUILD_VERB_ART = ['carry' => 'haul', 'decorate' => 'haul', 'wait' => 'light', 'vigil' => 'light'];
+const BUILD_VERB_ART = ['carry' => 'haul', 'decorate' => 'haul', 'wait' => 'light', 'vigil' => 'light', 'befriend' => 'feed', 'trial' => 'clear'];
 
 /** Parse a needs string ("item:rope:3,coins:250,meal:4,fine:2,days:3:3") into need tuples. Bad parts are dropped. */
 function build_parse_needs(string $s): array
@@ -230,7 +249,7 @@ function build_parse_needs(string $s): array
         $qty = (int)($f[count($f) - 1] ?? 0);
         $out[] = match ($f[0]) {
             'item' => count($f) === 3 && $f[1] !== '' && $qty > 0 ? ['item', $f[1], $qty] : null,
-            'coins', 'meal', 'fine', 'deco', 'wait', 'vigil' => count($f) === 2 && $qty > 0 ? [$f[0], '', $qty] : null,   // 2.7.06: deco:N, wait:N (game days), vigil:H (game hours)
+            'coins', 'meal', 'fine', 'deco', 'wait', 'vigil', 'befriend', 'trial' => count($f) === 2 && $qty > 0 ? [$f[0], '', $qty] : null,   // 2.7.06: deco:N, wait:N (game days), vigil:H (game hours)
             'days' => count($f) === 3 && (int)$f[1] > 0 && (int)$f[2] > 0 ? ['days', (string)(int)$f[2], (int)$f[1]] : null,   // [days, energy each, days needed]
             default => null,
         };
@@ -299,7 +318,7 @@ function repair_ready(array $u, array $repair): bool
     $repair = repair_full($repair);
     [, $st] = repair_current($repair);
     if (!$st || in_array($st['needs'][0][0] ?? '', ['days', 'wait', 'vigil'], true)) return false;
-    return !array_filter(rebuild_need_rows($u, $st['needs']), fn($x) => $x[2] < $x[1]);
+    return !array_filter(rebuild_need_rows($u, $st['needs'], 0, q_one('SELECT * FROM landmarks WHERE id = ?', [(int)($repair['landmark_id'] ?? 0)]) ?: null), fn($x) => $x[2] < $x[1]);
 }
 
 // ---------------- Repairs (v0.7.77) ----------------
@@ -459,12 +478,13 @@ function repair_hand(array $u, int $repairId): array
     if (($def['needs'][0][0] ?? '') === 'wait') return [false, 'This stage is done by waiting: it finishes by itself when enough game days have passed.'];
     if (($def['needs'][0][0] ?? '') === 'vigil') return [false, 'This stage is done by keeping vigil here: use “Keep vigil”.'];
     $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
-    foreach (rebuild_need_rows($fresh, $def['needs']) as [$label, $need, $have]) {
+    foreach (rebuild_need_rows($fresh, $def['needs'], 0, $lm) as [$label, $need, $have]) {
         if ($have < $need) return [false, 'Stage ' . $stage . ' needs ' . $need . ' ' . $label . ' (you have ' . $have . ').'];
     }
     db()->beginTransaction();
     foreach ($def['needs'] as $need) {
         [$type, , $qty] = $need;
+        if (in_array($type, ['befriend', 'trial'], true)) continue;   // 2.7.06: a condition, nothing is handed over
         if ($type === 'coins') {
             if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$qty, $uid, $qty])->rowCount() !== 1) { db()->rollBack(); return [false, 'You need ' . money($qty) . '.']; }
             continue;
@@ -555,7 +575,7 @@ function repair_box(array $u, array $repair, string $back): string
     if (!$def) return '';
     $isClear = ($def['needs'][0][0] ?? '') === 'days';
     $isWait = ($def['needs'][0][0] ?? '') === 'wait'; $isVigil = ($def['needs'][0][0] ?? '') === 'vigil';   // 2.7.06
-    $st = rebuild_need_rows($u, $def['needs'], (int)$repair['prog']);
+    $st = rebuild_need_rows($u, $def['needs'], (int)$repair['prog'], q_one('SELECT * FROM landmarks WHERE id = ?', [(int)$repair['landmark_id']]) ?: null);
     $ready = repair_ready($u, $repair);
     $today = gclock_my_date();
     $workedToday = $isClear && (string)($repair['prog_day'] ?? '') === $today;
