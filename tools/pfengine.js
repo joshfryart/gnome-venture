@@ -533,7 +533,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0, style: 0 };
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0, style: 0, cset: 0 };
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -685,9 +685,9 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -1107,6 +1107,26 @@
     return idx.map(function (i) { return ch[i]; });
   }
 
+  /** 2.7.06 (Josh) set combos: the partner anywhere in the same chain (own side); same type (Double Swing): the partner must fire before. Best resulting value wins (ties: table order). [value, key|null] */
+  function setCombo(s, ch, ci, who, tile) {
+    var v = Number(tile.v), best = null, bk = null;
+    Object.keys(PF_COMBOS).forEach(function (key) {
+      var ab = key.split('>'), a = ab[0], b = ab[1];
+      if (b !== tile.t) return;
+      var pv = null;
+      for (var cj = 0; cj < ch.length; cj++) {
+        var q = s.pcs[ch[cj][0]];
+        if (!q || q.by !== who || nn(q.tile.t, '') !== a) continue;
+        if (a === b && cj >= ci) continue;
+        pv = Math.max(pv === null ? 0 : pv, toInt(q.tile.v));
+      }
+      if (pv === null) return;
+      var cb = PF_COMBOS[key], r = v * cb.mul / 100 + (cb.flat === 'prev' ? pv : toInt(cb.flat));
+      if (best === null || r > best + 1e-9) { best = r; bk = key; }
+    });
+    return [iround(best === null ? v : best), bk];
+  }
+
   function fire(s, root) {
     var ev = [], ch = fireOrder(s, root);
     var v1 = nn(s.v1, null), rb = s.pcs[root].by, tw = 1.0;
@@ -1116,6 +1136,7 @@
       var ns = Object.keys(srcs).length;
       if (rb === 'me' && ns >= 3) tw = Number(v1.team3); else if (rb === 'me' && ns === 2) tw = Number(v1.team2);
     }
+    var cset = !!(v1 && v1r(s, 'cset') === 1);
     var esun = 1.0;   // 2.6.75: a Sun piece in the chain: the pieces of the side that started it count x sun
     if (v1 && truthy(v1.env)) ch.forEach(function (c) { var cp = s.pcs[c[0]]; if (cp.by === 'env' && cp.tile.env === 'sun') esun = Number(v1.sun); });
     for (var i = 0; i < ch.length; i++) {
@@ -1132,6 +1153,7 @@
       var pt = par !== null ? s.pcs[par] : null;
       if (pt && (pt.by === 'none' || pt.by === 'env')) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
+      if (cset) { var sc = setCombo(s, ch, i, who, tile); vv = [sc[0]]; ck = sc[1]; }   // 2.7.06 set combos
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + Number(abp(s, 'gpct', PFB_KIND_GRUDGE)) * toInt(s.foe.grudge)));   // 2.6.98 Grudge
       if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); val += Math.min(toInt(abp(s, 'smax', PFB_KIND_SWARM_MAX)), Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows
