@@ -1477,7 +1477,7 @@ from PIL import Image
 d, css = sys.argv[1:]; css = open(css).read(); bad = []
 grey = {}
 for f in ('idleA', 'pounce', 'catch', 'nap'):
-    g = np.array(Image.open('/home/user/gnome-venture/aseprite-source/catfish/art22/out/cf-collar-%s.png' % f).convert('RGBA'))
+    g = np.array(Image.open('aseprite-source/catfish/art22/out/cf-collar-%s.png' % f).convert('RGBA'))
     for c in ('rose', 'mint', 'sky', 'gold', 'violet', 'red'):
         o = np.array(Image.open('%s/cf-collar-%s-%s.png' % (d, c, f)).convert('RGBA'))
         if o.shape != (64, 64, 4) or (o[..., 3] != g[..., 3]).any(): bad.append('%s %s alpha/size' % (c, f)); continue

@@ -111,7 +111,7 @@ foreach ([[$st, 'bloomcaller', 2, [], ['soothe', 'jab', 'nonexistent', 'swing'],
           [$st, '', 1, $pals, [], [], true, ['swing', 'pierce', 'dodge', 'rest', 'charm', 'snack', 'bark', 'nothing']], [$st, 'wayfinder', 1, [], pf_unlocks(16), [], true, null]] as $a) {
     $decks[] = ['args' => $a, 'deck' => pf_player_deck(...$a)];
 }
-out(['hdr' => true, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks, 'abil' => PFB_ABIL, 'abrange' => PFB_AB_RANGE, 'ai' => PFB_AI, 'aikeys' => PFB_AI_KEYS, 'env' => pfb_env_table(), 'envdecks' => array_map(fn($a) => [$a, pfb_env_deck(...$a)], [['small', ''], ['medium', 'SEA'], ['large', 'NA'], ['boss', 'ESA'], ['odd', 'nowhere']])]);
+out(['hdr' => true, 'phpv' => PHP_VERSION_ID, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks, 'abil' => PFB_ABIL, 'abrange' => PFB_AB_RANGE, 'ai' => PFB_AI, 'aikeys' => PFB_AI_KEYS, 'env' => pfb_env_table(), 'envdecks' => array_map(fn($a) => [$a, pfb_env_deck(...$a)], [['small', ''], ['medium', 'SEA'], ['large', 'NA'], ['boss', 'ESA'], ['odd', 'nowhere']])]);
 
 // ---- fights
 $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
