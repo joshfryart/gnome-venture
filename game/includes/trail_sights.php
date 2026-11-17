@@ -414,7 +414,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             if ($rid2) { give_item((int)$u['id'], $rid2, max(1, (int)$rqty)); $lines[] = '📗 returned: ' . max(1, (int)$rqty) . ' × ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$rid2]); }
             trail_sight_tally_set((int)$u['id'], $loanKey, 0);
         }
-        $lines = array_merge($plain ? stop_rewards($u, $loc, implode(',', $plain), 1.0) : [], $lines);
+        $lines = array_merge($plain ? stop_rewards($u, $loc, implode(',', $plain), max(0.25, (int)setting('sights_reward_pct') / 100)) : [], $lines);
     } elseif ($row['fail_en'] > 0) {   // a slip costs a little energy (never below 0)
         q('UPDATE users SET energy = CASE WHEN energy >= ? THEN energy - ? ELSE 0 END WHERE id = ?', [$row['fail_en'], $row['fail_en'], (int)$u['id']]);
         $lines[] = '-' . $row['fail_en'] . ' energy';
