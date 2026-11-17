@@ -138,5 +138,12 @@ ok('regions 23-35 (levels 23-32): no scaled wolves on any landscape', !$scaledHi
 $wolf = 0; for ($i = 0; $i < 200; $i++) { $c = pick_creature('wetland', 28, false); if ($c && $c['slug'] === 'bramble-wolf') $wolf++; }
 ok('level 28 wetland never a bramble wolf', $wolf === 0);
 
+// 2.7.06 road card kinds: toll, beat, weather
+$rk = road_events()['ev'];
+ok('the new kinds are known', in_array('toll', ROAD_EVENT_KINDS, true) && in_array('beat', ROAD_EVENT_KINDS, true) && in_array('weather', ROAD_EVENT_KINDS, true) && !empty(ROAD_KIND_LABEL['toll']) && !empty(ROAD_KIND_LABEL['beat']) && !empty(ROAD_KIND_LABEL['weather']));
+foreach (['toll-plank-bridge', 'toll-hill-gate'] as $id) ok("$id loads as a toll and has an option that pays", isset($rk[$id]) && $rk[$id]['kind'] === 'toll' && (bool)array_filter($rk[$id]['opts'], fn($o) => str_contains((string)$o['win'], 'pay:')), json_encode($rk[$id] ?? null));
+foreach (['rain-puddle-road', 'fog-lantern-road'] as $id) ok("$id loads as weather and its cond names a weather", isset($rk[$id]) && $rk[$id]['kind'] === 'weather' && str_contains((string)$rk[$id]['cond'], 'we='), json_encode($rk[$id] ?? null));
+$chainOk = isset($rk['beat-tune-whistle'], $rk['chain-beat-tune-2'], $rk['chain-beat-tune-3']) && $rk['beat-tune-whistle']['kind'] === 'beat' && (bool)array_filter($rk['beat-tune-whistle']['opts'], fn($o) => str_contains((string)$o['win'], 'next:chain-beat-tune-2')) && (bool)array_filter($rk['chain-beat-tune-2']['opts'], fn($o) => str_contains((string)$o['win'], 'next:chain-beat-tune-3'));
+ok('the beat story is three cards, each leading to the next', $chainOk);
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

@@ -88,7 +88,7 @@ for (const ln of lines.slice(1)) {
     if (stop) return;
     const c = ctx + ' step ' + i + ' (turn ' + st.turn + ', ' + st.op + (st.dry ? ' dry' : '') + ' ' + JSON.stringify(st.moves || '') + ')'; na++;
     if (st.q && fail(c + ' queries', st.q, queries(s), 'q')) { stop = true; return; }
-    const res = st.op === 'flip' ? { err: PFE.flip(s, st.hand, st.turn) } : st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry, undefined, st.dry);
+    const res = st.op === 'redraw' ? { ok: PFE.redraw(s, st.hand, st.turn) } : st.op === 'flip' ? { err: PFE.flip(s, st.hand, st.turn) } : st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry, undefined, st.dry);
     if (fail(c + ' result', st.res, res, 'res')) { stop = true; return; }
     { const ai = res.aim && res.aim.ids; if (ai) { nIds++; if (ai.some(q => q.by === 'env')) nEnvIds++; if (ai.some(q => q.by === 'me')) nMeIds++; } }   // after 2.6.96: the aim's ids are inside 'res' above (compared with PHP's)
     if (st.lines) {

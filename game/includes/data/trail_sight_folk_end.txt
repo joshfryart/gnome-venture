@@ -26,7 +26,6 @@ end-wonder-1-wetland|Plume Rosewader|-|35|Plume Rosewader makes hats from fallen
 end-wonder-2-coast|Dilly Teaspoon|dp=day/we=sun|45|Dilly Teaspoon is drying off on the rocks after a dive and tells you all the latest gossip.|fp=1,item=seed-pearl:1@10
 end-wonder-2-desert|Juniper Peppercorn|dp=dusk|45|Juniper Peppercorn follows the Oasis wherever it wanders and shares a spoon of date syrup.|fp=1,item=date-syrup:1@40
 end-wonder-2-forest|Fig Oakenpot|dp=day|40|Fig Oakenpot is napping by the path. You do not wake them, and later find a bamboo shoot left for you.|fp=1,item=bamboo-shoot:1@40
-end-wonder-2-forest|Sorrel Inkcap|-|25|Sorrel Inkcap is sitting on a stump with a very quiet notebook, puts a finger to her lips, and tears you out a page.|fp=1,item=hush-page:1
 end-wonder-2-grassland|Orla Cobblefield|-|35|Orla Cobblefield is walking the silk road with a caravan and swaps you a handful of dried figs.|fp=1,item=dried-figs:1@50
 end-wonder-2-island|Juniper Honeycomb|dp=dusk|45|Juniper Honeycomb paddles in at dusk, points at the right bit of sky, and kindly lets you say the name first.|nocheck,fp=1,xp=4
 end-wonder-2-mountain|Mabel Burrowby|dp=dawn|45|Mabel Burrowby walks down at dawn with a flask of cold coffee and pours you a cup.|fp=1,item=cold-brew-coffee:1@40
@@ -36,9 +35,7 @@ end-delve-1-coast|Gaffer Brineworth|dp=dusk|40|Gaffer Brineworth, a retired smug
 end-delve-1-desert|Mabel Tumblethorn|dp=dawn|40|Mabel Tumblethorn hums a songline at dawn and teaches you one verse of it.|fp=1,xp=4
 end-delve-1-mountain|Rook Windlass|-|35|Rook Windlass, a proud mountain guide, will walk the first ledge with you for a bit of goat cheese, and points out every good foothold.|give=goat-cheese:1,buff=nimble:1:120,fp=2
 end-delve-1-rainforest|Tilly Barleycorn|dp=dawn|40|Tilly Barleycorn climbs up at dawn to mend the bridges and could really use a coil of rope carried up.|give=rope:1,xp=10,fp=2
-end-delve-1-rainforest|Tumble Waymarsh|-|15|Tumble Waymarsh's voice comes back with your echo, then Tumble himself, covered in moss and grinning.|fp=1,xp=4
 end-delve-2-forest|Ulric Acorncap|dp=dusk|40|Ulric Acorncap comes out of the mine at dusk to sit by your lantern and leaves you a pinch of rock dust.|fp=1,item=rock-dust:1@40
-end-delve-2-forest|Burdock Deepdelve|-|20|Burdock Deepdelve is polishing the lantern glass and hands you a spare taper with great ceremony.|fp=1,item=taper:1
 end-delve-2-wetland|Ulric Bumbleby|-|35|Ulric Bumbleby collects the floated candles at the far side and paddles back a wick, saying it is a lucky one.|fp=1,item=lucky-wick:1@40
 end-delve-2-rainforest|Ferrin Sedgemoor|dp=night|45|Ferrin Sedgemoor is counting fireflies, calls one over for your lantern, and lets you name it. You name it Ferrin, which they love.|nocheck,fp=2
 end-delve-2-desert|Juniper Windlass|dp=dusk|45|Juniper Windlass inspects your wick trimming and gives it three flames out of three.|fp=1,c=10
@@ -49,7 +46,6 @@ end-lair-1-mountain|Orla Wickerby|-|35|Orla Wickerby lost a sock to the wolf and
 end-lair-2-coast|Thimble Crumblewick|dp=dusk|40|Thimble Crumblewick, the reef warden, warns you about the jellies, then gives you samphire for courage.|fp=1,item=samphire:1@50
 end-lair-2-desert|Basil Barleycorn|-|35|Basil Barleycorn is measuring the rut too, and you compare notes very seriously.|fp=1,xp=8
 end-lair-2-forest|Lumen Mothglow|dp=night|40|Lumen Mothglow is watching for moths with a little lantern and shares the light with you.|fp=1,xp=3
-end-lair-2-mountain|Captain Bracken Spurwing|-|15|Captain Bracken Spurwing is checking the circle on his rounds and gives you a free tip: look before you leap.|fp=1,xp=5
 end-lair-2-rainforest|Gorse Oakenpot|dp=dawn|45|Gorse Oakenpot collects loose web threads at dawn and fussily gives you one for helping.|fp=1,item=silk-thread:1@40
 end-lair-2-tundra|Willa Bumbleby|we=snow|45|Willa Bumbleby brings the Frost Toad a blanket on snow days. He is an old friend, she says.|fp=1,xp=3
 end-lair-2-wetland|Pip Pinchkin|dp=dawn|45|Pip Pinchkin waits at low tide to feed the crab and would love two blue mussels to toss in.|give=blue-mussels:2,c=25,fp=1

@@ -311,9 +311,9 @@ function trail_art_obj_size(string $key): array
 
 /** 2.7.01: the drawn marker for a map token (assets/img/trail/mark/<name>.png, 32x32), or '' to keep the emoji. A token names its marker ($name: a road kind on its stretch,
  *  'signpost' on the first stretch of a side path, the place the last stretch leads into ('rest' for a rest stop), 'sight', 'villager'); without a name the emoji says it:
- *  ⚔️ fight, 🏕️ camp. mark/hazard.png is installed but not a name here: no Trail data has a hazard yet. */
+ *  ⚔️ fight, 🏕️ camp. 2.7.06: 'hazard' is a name now (a token named 'hazard' draws mark/hazard.png); no Trail data names one yet. */
 const TRAIL_MARKS = ['⚔️' => 'fight', '🏕️' => 'camp'];
-const TRAIL_MARK_NAMES = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market', 'rest', 'signpost'];
+const TRAIL_MARK_NAMES = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market', 'rest', 'signpost', 'hazard'];
 /** The places whose marker stands on the way on of a walk's last stretch, with the emoji of the no-picture look (the World map's, but 🌟 for a wonder: ✨ is a find on the Trail). */
 const TRAIL_DEST_MARKS = ['haven' => '🏕️', 'wonder' => '🌟', 'delve' => '🕳️', 'lair' => '🐉', 'market' => '🏘️', 'village' => '🛖'];
 /** The marker name of a place kind in TRAIL_DEST_MARKS: its own name, but a rest stop (village) draws the 'rest' marker (step 2 of the 2.7.01 art). */
@@ -506,6 +506,7 @@ function trail_art_svg(array $map, array $state): string
         $px = [-50, 20, -38][$i]; $py = [-6, -6, -34][$i]; $sz = $i === 2 ? 24 : 30;
         $palsSvg .= '<image class="tmpal" href="' . e((string)$pu) . '" x="' . $n($px * $k) . '" y="' . $n($py * $k) . '" width="' . $n($sz * $k) . '" height="' . $n($sz * $k) . '" image-rendering="pixelated"/>';
     }
+    if (!empty($state['escort'])) $palsSvg .= '<svg class="tmpal tmescort" x="' . $n(-58 * $k) . '" y="' . $n(-40 * $k) . '" width="' . $n(52 * $k) . '" height="' . $n(65 * $k) . '" viewBox="0 0 64 80"><image href="' . e((string)$state['escort']) . '" width="512" height="80" image-rendering="pixelated"/></svg>';   // 2.7.06: a villager walking with you (first frame of the strip)
     $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . $palsSvg . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
         . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/>') . '</g>'];
     usort($items, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);

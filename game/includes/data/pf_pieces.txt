@@ -16,7 +16,7 @@ hide|Hide|basic|-|trick|3|body|-|-|0|Duck out of sight.
 soothe|Soothe|knack|4|soothe|2|mind|-|-|0|Calms the creature: its next hit is softer.
 offer|Offer|knack|12|charm|6|-|-|-|0|A gift held out. Flat right edge.
 taunt|Taunt|knack|10|trick|3|body|-|-|0|Draw it in.
-jab|Jab|knack|5|hurt|2|craft|quick|-|0|A quick poke.
+jab|Jab|knack|5|hurt|3|craft|quick|-|0|A quick poke.
 pierce|Pierce|knack|8|hurt|3|mind|pierce|-|0|Goes through guard.
 sting|Sting|knack|13|hurt|2|body|poison|-|0|Keeps working.
 trip|Trip|knack|11|hurt|2|craft|trip|-|0|It loses its next move.

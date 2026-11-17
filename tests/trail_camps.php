@@ -73,6 +73,14 @@ ok('sleep: ok, a new day, energy full, no Petals taken', $sa && (int)$a['game_da
 [$na, $nm] = trail_camp($u, $exp, 'nap'); $a = $row();
 ok('nap: ok, 2 game hours later, energy up', $na && (int)$a['energy'] > (int)$b['energy'] && ((int)$a['game_day'] * 1440 + (int)$a['game_minute']) - ((int)$b['game_day'] * 1440 + (int)$b['game_minute']) === 120, (string)$nm . json_encode([$b, $a]));
 
+echo "== resting heals the walk (2.7.06: sleep, nap and wait healed the database but the saved walk put the old health back)\n";
+foreach (['sleep', 'nap', 'wait'] as $hm) {
+    [$u, $exp] = $walk(true, 5); $mx = (int)$exp['max_hp']; q('UPDATE expeditions SET hp = 3 WHERE id = ?', [$exp['id']]); q('UPDATE users SET hp = 3 WHERE id = ?', [$uid]); $exp['hp'] = 3;
+    [$ha] = $hm === 'wait' ? trail_camp($u, $exp, 'wait', 60, fn($p) => false) : trail_camp($u, $exp, $hm);
+    save_exp($exp); $dbhp = (int)q_val('SELECT hp FROM expeditions WHERE id = ?', [$exp['id']]);
+    ok("$hm at the camp: the walk's health goes up and stays up after the walk is saved (3 -> $dbhp of $mx)", $ha && $dbhp > 3 && (int)$exp["hp"] === $dbhp, json_encode([$ha, $dbhp, $exp["hp"]]));
+    if ($hm === 'sleep') ok('a full night heals to full', $dbhp === $mx, json_encode([$dbhp, $mx]));
+}
 echo "== wait\n";
 [$u, $exp] = $walk(true, 10); $b = $row();   // (the walk itself took 1 energy)
 [$wa, $wm] = trail_camp($u, $exp, 'wait', 30, fn($p) => false);

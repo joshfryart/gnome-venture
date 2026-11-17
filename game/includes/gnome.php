@@ -151,7 +151,7 @@ function active_effects(array $u): array
         $b = array_filter(json_decode((string)$u[$bk], true) ?: [], fn($s) => isset(GNOME_STATS[$s]), ARRAY_FILTER_USE_KEY);
         if ($b) $out[] = ['🍽️', 'Meal', $stats($b), $left($u[$uk])];
     }
-    if (!empty($u['ev_stat']) && isset(GNOME_STATS[$u['ev_stat']]) && $left($u['ev_until'] ?? null) > 0) $out[] = ['🍀', 'A lucky moment', $stats([$u['ev_stat'] => $u['ev_amt']]), $left($u['ev_until'])];
+    if (!empty($u['ev_stat']) && isset(GNOME_STATS[$u['ev_stat']]) && $left($u['ev_until'] ?? null) > 0 && !gnome_ev_slept($u)) $out[] = ['🍀', 'A lucky moment', $stats([$u['ev_stat'] => $u['ev_amt']]), $left($u['ev_until'])];
     if (!empty($u['town_stat']) && isset(GNOME_STATS[$u['town_stat']]) && $left($u['town_until'] ?? null) > 0) $out[] = ['🏘️', 'Town outing', $stats([$u['town_stat'] => $u['town_amt']]), $left($u['town_until'])];
     if ($left($u['ev_gather_until'] ?? null) > 0) $out[] = ['🌈', 'Rainbow', 'Double gathering', $left($u['ev_gather_until'])];
     if ($left($u['ev_sale_until'] ?? null) > 0) $out[] = ['🐓', 'Shop sale', '20% off in every shop', $left($u['ev_sale_until'])];
@@ -175,10 +175,36 @@ function ts_gnome(?string $dt): int
     return $dt ? (int)strtotime($dt . ' UTC') : 0;
 }
 
+/** 2.7.06: where this gnome's active Trail walk is: expedition id * 1000 + section number, or null when they are not on a Trail walk. Cached per request ($GLOBALS['gv_walk_sec']; a test clears it). */
+function gnome_walk_section(int $uid): ?int
+{
+    $c = &$GLOBALS['gv_walk_sec'];
+    if (array_key_exists($uid, (array)$c)) return $c[$uid];
+    $r = null;
+    try {
+        $row = q_one("SELECT w.exp_id, w.state FROM walk_scene w JOIN expeditions e ON e.id = w.exp_id WHERE e.user_id = ? AND e.status = 'active' ORDER BY w.id DESC LIMIT 1", [$uid]);
+        if ($row && is_array($st = json_decode((string)$row['state'], true)) && isset($st['sec'])) $r = (int)$row['exp_id'] * 1000 + (int)$st['sec'];
+    } catch (Throwable $e) { $r = null; }
+    $c[$uid] = $r;
+    return $r;
+}
+
+/** 2.7.06: a "until you sleep" lucky moment (ev_day = the game day it was given) is over once the gnome's game day has moved on. */
+function gnome_ev_slept(array $u): bool
+{
+    if (($u['ev_scope'] ?? '') === 'section') return gnome_walk_section((int)($u['id'] ?? 0)) !== (int)($u['ev_day'] ?? -1);   // 2.7.06: over once the walk is in another Trail section (or none)
+    if (($u['ev_scope'] ?? '') === 'delve') {   // 2.7.06: a delve / lair buff only counts during a run (cached per request: eff_stat is called a lot)
+        $uid = (int)($u['id'] ?? 0); $run = &$GLOBALS['gv_ev_run'];   // per request; a test clears it
+        if (!isset($run[$uid])) { try { $run[$uid] = (bool)q_val("SELECT 1 FROM expeditions WHERE user_id = ? AND status = 'active' AND kind IN ('delve', 'lair') LIMIT 1", [$uid]); } catch (Throwable $e) { $run[$uid] = false; } }
+        return !$run[$uid];
+    }
+    return isset($u['ev_day']) && $u['ev_day'] !== '' && $u['ev_day'] !== null && (int)($u['game_day'] ?? 0) > (int)$u['ev_day'];
+}
+
 /** A stat including the current meal's buff. */
 function eff_stat(array $u, string $stat): int
 {
-    $ev = (!empty($u['ev_stat']) && $u['ev_stat'] === $stat && ts_gnome($u['ev_until'] ?? null) > time()) ? (int)$u['ev_amt'] : 0;   // a random event's little boost
+    $ev = (!empty($u['ev_stat']) && $u['ev_stat'] === $stat && ts_gnome($u['ev_until'] ?? null) > time() && !gnome_ev_slept($u)) ? (int)$u['ev_amt'] : 0;   // a random event's little boost
     $tw = (!empty($u['town_stat']) && $u['town_stat'] === $stat && ts_gnome($u['town_until'] ?? null) > time()) ? (int)$u['town_amt'] : 0;   // a town drink or outing (v0.7.20)
     return (int)($u['stat_' . $stat] ?? 10) + (int)(active_buff($u)[$stat] ?? 0) + $ev + $tw;
 }

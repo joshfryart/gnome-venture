@@ -45,12 +45,43 @@ function pf_cost_warn(int $uid): bool
     $n = setting('pfight_costwarn_n'); $n = $n === '' ? 5 : (int)$n;
     return $n > 0 && pf_learn_fights($uid) < $n;
 }
-/** 2.7.01 "New today": the rules the learner fights held back, said once at the start of the first fight that has them ([] for any other fight). */
-function pf_new_today(int $uid): array
+/**
+ * 2.7.06 staged rules (learn.md item 8). 0 = the learner fights (stage A: creature tags off, pieces x0.8, no Thornburst), 1 = stage B (creature tags on at full strength, still no Thornburst),
+ * 2 = stage C (everything: Thornburst joins at gnome level pfight_thorn_level, default 5). Wind, Mud and set aside are already out of the v1 rules (stage D has nothing left to hold back).
+ * pfight_staged = 0 gives the old behaviour: full rules as soon as the learner fights are over.
+ */
+function pf_stage(array $u): int
 {
-    $n = setting('pfight_learner_n'); $n = $n === '' ? 3 : (int)$n;
-    if ($n <= 0 || pf_learn_fights($uid) !== $n) return [];
-    return ['Thornburst. It hurts whoever fires it: keep it out of your own chains.', 'Creature tags. Some creature pieces carry one (Quick, Poison, Evade ...): tap a creature piece to read it.', 'Creature pieces hit at full strength now.'];
+    if (!pfight_v1_on($u) || pf_learner_left((int)$u['id'])) return 0;
+    if (setting('pfight_staged') === '0') return 2;
+    $lv = setting('pfight_thorn_level'); $lv = $lv === '' ? 5 : max(1, (int)$lv);
+    return (int)$u['level'] >= $lv ? 2 : 1;
+}
+/** The v1 config keys of a stage (merged into the fight's v1 options). */
+function pf_stage_cfg(int $stage): array
+{
+    return match ($stage) { 0 => ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1], 1 => ['nothorn' => 1], default => [] };
+}
+/** The highest stage whose card this gnome has seen. */
+function pf_stage_seen(int $uid): int
+{
+    try { return (int)q_val('SELECT stage FROM pf_learn WHERE user_id = ?', [$uid]); } catch (Throwable $e) { return 0; }
+}
+function pf_stage_mark(int $uid, int $stage): void
+{
+    try {
+        if (q_val('SELECT 1 FROM pf_learn WHERE user_id = ?', [$uid])) q('UPDATE pf_learn SET stage = ? WHERE user_id = ? AND stage < ?', [$stage, $uid, $stage]);
+        else db_insert('pf_learn', ['user_id' => $uid, 'fights' => 0, 'stage' => $stage]);
+    } catch (Throwable $e) { /* table or column missing before the upgrade */ }
+}
+/** 2.7.01 "New today": the rules held back so far, said once at the start of the first fight that has them ([] for any other fight). $stage: the fight's stage (null = work it out from the gnome). */
+function pf_new_today(int $uid, ?int $stage = null): array
+{
+    if ($stage === null) { $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]); $stage = $u ? pf_stage($u) : 0; }
+    $seen = pf_stage_seen($uid); $out = [];
+    if ($stage >= 1 && $seen < 1) { $out[] = 'Creature tags. Some creature pieces carry one (Quick, Poison, Evade ...): tap a creature piece to read it.'; $out[] = 'Creature pieces hit at full strength now.'; }
+    if ($stage >= 2 && $seen < 2) $out[] = 'Thornburst. It hurts whoever fires it: keep it out of your own chains.';
+    return $out;
 }
 /** The one-line card for those rules, on the fight's first turn only. */
 function pf_new_today_html(array $s): string
@@ -310,13 +341,15 @@ function pfight_state(array $u, array &$exp, array &$enc, array $c): array
         $new = $v1 || setting('pfight_mode') === 'board' ? 'pfb_new' : 'pf_new';
         $learn = $v1 && pf_learner_left((int)$u['id']);
         $first = $v1 && pf_first_fight($u, $c);   // 2.7.01 fixed first fight: fixed kit, fixed deal
-        if ($learn) { $v1 = ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1]; $exp['hp'] = (int)$exp['max_hp']; }   // 2.7.01 learner rules: the first fights (and they start at full health; pfight_html saves it)
+        $stage = $v1 ? pf_stage($u) : 2;   // 2.7.06 staged rules
+        if ($learn) $exp['hp'] = (int)$exp['max_hp'];
+        if ($v1 && $stage < 2) $v1 = pf_stage_cfg($stage);   // 2.7.01 learner rules: the first fights (and they start at full health; pfight_html saves it)
         if ($v1) { require_once __DIR__ . '/pfdeck.php'; $c = pfd_foe_row($c, $first ? '' : pfd_exp_region($exp)); }   // the creature's layered deck: 4 base (class) + region + size extras + 3 unique (the fixed first fight: no region piece)
         $enc['pf'] = $new(pfight_me($u, $exp, $enc, $first), $c, $first ? pf_first_seed() : random_int(1, 0x7FFFFFFE), ['v1' => $v1, 'blank' => $first || setting('pfight_blank') !== '0', 'can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
         if ($learn) $enc['pf']['learn'] = 1;
         if ($first) $enc['pf']['first'] = 1;
         $enc['hp0'] = (int)$exp['hp'];   // 2.7.01: your health when the fight was dealt (a free retry starts there again)
-        if ($v1 && ($nt = pf_new_today((int)$u['id']))) $enc['pf']['newt'] = $nt;   // 2.7.01: the first fight after the learner fights says what is new
+        if ($v1 && ($nt = pf_new_today((int)$u['id'], $stage))) { $enc['pf']['newt'] = $nt; pf_stage_mark((int)$u['id'], $stage); }   // 2.7.01: the first fight after the learner fights says what is new
     }
     return $enc['pf'];
 }
@@ -430,7 +463,9 @@ function pfight_do(array $u, array &$exp, string $do): bool
         foreach ($r['ev'] as $e) {
             $ln = pfight_line($e, (string)$c['name']);
             if (($e['pluck'] ?? '') === 'got') {   // Pluck worked: lift one item this creature could drop (weighted by its drop chances)
-                $rows = q('SELECT cd.item_id, cd.chance, i.name FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL', [$c['id']])->fetchAll();
+                $rows = q('SELECT cd.item_id, cd.chance, cd.reg, cd.lvmin, cd.lvmax, i.name FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL', [$c['id']])->fetchAll();
+                $pReg = scene_region_code(exp_scene($exp));   // 2.7.06: Pluck honours the same region / level gates as the win drops
+                $rows = array_values(array_filter($rows, fn($x) => creature_drop_open($x, $pReg, (int)$c['level'])));
                 if ($rows) {
                     $tot = array_sum(array_map(fn($x) => max(1, (int)$x['chance']), $rows)); $roll = random_int(1, $tot); $pick = $rows[0];
                     foreach ($rows as $x) { $roll -= max(1, (int)$x['chance']); if ($roll <= 0) { $pick = $x; break; } }
@@ -566,7 +601,7 @@ function pfight_line(array $e, string $foe): string
     if (!empty($e['fit'])) $bits[] = 'snug fit';
     if (($e['pluck'] ?? '') === 'missed') return '🤏 You try to pluck something from the ' . $foe . ', but it notices.';
     if (($e['pluck'] ?? '') === 'none') return '🤏 You reach for the ' . $foe . ', but it has nothing to lift (or you already took something).';
-    $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) : ' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => ' (+' . (int)$e['v'] . ' health)', 'charm' => ' (' . (int)$e['v'] . ')', default => '' };
+    $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) : ' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => (($e['by'] ?? '') === 'foe' && isset($e['healed']) ? ' (its yield bar back ' . (float)$e['healed'] . ')' : ' (+' . (int)$e['v'] . ' health)'), 'charm' => ' (' . (int)$e['v'] . ')', default => '' };
     return ($e['by'] === 'me' ? '🧩 ' : '💥 ') . $who . ' ' . $e['n'] . $tail . ($bits ? ' · ' . implode(', ', $bits) : '') . '.';
 }
 
@@ -963,12 +998,12 @@ const PF_PAGES = [
         "Guards and Charms differ by how they work too.\n\n[b]Guards:[/b] ⚓ [b]Brace[/b] lasts through your next turn. 💨 [b]Roll[/b] makes the creature's first Hurt next turn miss completely. 🌵 [b]Thorn Hide[/b] pricks the creature when it hits your guard. 🩹 [b]Mending[/b] heals you 2.\n\n[b]Charms:[/b] 🎵 [b]Hum[/b] also calms the creature. 🌙 [b]Lull[/b] makes it play a tile fewer. 🤝 [b]Bond[/b] warms it to Charm for the rest of the fight (up to three times).\n\n[b]Stealing:[/b] 🤏 [b]Pluck[/b] is a Trick with a small chance to lift an item the creature could drop. Luck raises the chance, a legendary creature is harder to rob, and you can lift one thing a fight."],
     'Puzzle upgrades' => ['pfight:mods', 'Finish a puzzle to earn an upgrade.',
         "Finishing a puzzle in [b]any game and any mode[/b] can earn a [b]Puzzle upgrade[/b]: a secondary effect for one of your tiles. Open your Puzzle box and choose one of three. A bigger puzzle gives rarer upgrades.\n\nYou can earn [b]3 a day[/b] (a new day starts at midnight, server time), and up to 3 can wait unopened. Each tile holds one upgrade; it stays until you remove it, or choose another for the same tile.\n\n🧲 Sticky, 🪶 Swift, 🧱 Hardy, 💗 Tender are common. 🩸 Leech, 🦔 Spiky, 🪽 Soft touch are uncommon. 🔥 Warm, 🎯 Finisher, 🍀 Lucky, ⚖️ Steady are rare."],
-    'Ambush' => ['pfight:combo:trick>hurt', 'Play a Trick, then a Hurt.', "🎭 then ⚔️. The Hurt counts one and a half times, plus the Trick's own value. Set it up, then strike."],
-    'Riposte' => ['pfight:combo:guard>hurt', 'Play a Guard, then a Hurt, or Guard right after a creature hits.', "🛡️ then ⚔️: the Hurt counts one and a half times. A Guard played straight after the creature's Hurt also turns half its value back on it."],
-    'Double Swing' => ['pfight:combo:hurt>hurt', 'Play two Hurts in a row.', "⚔️ then ⚔️: the second gets +2."],
-    'Calm Charm' => ['pfight:combo:soothe>charm', 'Play a Soothe, then a Charm.', "😌 then 🌸: the Charm counts one and a half times."],
-    'Win Over' => ['pfight:combo:charm>item', 'Play a Charm, then an Item or Snack.', "🌸 then 🎒: the offering also fills part of the charm bar."],
-    'Bait' => ['pfight:combo:trick>guard', 'Play a Trick, then a Guard.', "🎭 then 🛡️: the Guard gets the Trick's value added."],
+    'Ambush' => ['pfight:combo:trick>hurt', 'Have a Trick and a Hurt in the same chain.', "🎭 and ⚔️ in one chain, in any order: the Hurt counts one and a half times, plus the Trick's own value."],
+    'Riposte' => ['pfight:combo:guard>hurt', 'Have a Guard and a Hurt in the same chain.', "🛡️ and ⚔️ in one chain, in any order: the Hurt counts one and a half times."],
+    'Double Swing' => ['pfight:combo:hurt>hurt', 'Have two Hurts in the same chain.', "⚔️ and ⚔️ in one chain: the one that fires second gets +2."],
+    'Calm Charm' => ['pfight:combo:soothe>charm', 'Have a Soothe and a Charm in the same chain.', "😌 and 🌸 in one chain, in any order: the Charm counts one and a half times."],
+    'Win Over' => ['pfight:combo:charm>item', 'Have a Charm and an Item or Snack in the same chain.', "🌸 and 🎒 in one chain, in any order: the offering also fills part of the charm bar."],
+    'Bait' => ['pfight:combo:trick>guard', 'Have a Trick and a Guard in the same chain.', "🎭 and 🛡️ in one chain, in any order: the Guard gets the Trick's value added."],
 ];
 
 function pfight_pages(): void

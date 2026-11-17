@@ -116,6 +116,14 @@ foreach (npc_cw_keepers() as $shopId => $ks) {
 ok('shops exist', $shops > 0, (string)$shops);
 echo "  info: cover hours found across the week: $cov\n";
 echo "== off switch\n";
+// 2.7.06: the forecast honours the foreseeable parts of a row's `when` (a dusk row never promises a morning visit)
+foreach (trail_sight_folk() as $slug => $rows) foreach ($rows as $r) { $k = npc_cw_who_key($r['who']); if (!$k || npc_cw_profile($k)['mode'] !== 'free') continue;
+    $f0 = npc_cw_forecast($r['who'], $slug); if (!$f0) continue;
+    ok('forecast with a dp no hour has: no visit qualifies (null)', npc_cw_forecast($r['who'], $slug, 'dp=nosuchpart') === null);
+    ok('a visit it returns for dp=dusk,night reaches dusk or night', !($fd = npc_cw_forecast($r['who'], $slug, 'dp=dusk,night')) || (function () use ($fd) { for ($h = (int)floor($fd['from']); $h < (int)ceil($fd['to']); $h++) if (in_array(hollow_daypart($h % 24), ['dusk', 'night'], true)) return true; return false; })());
+    break 2; }
+require_once $argv[1] . '/includes/moon.php';
+ok('2.7.06 moon line: phase name, tide size and tide text', preg_match('/moon.* · (big|small|middling) tides · (low|high) tide now|tide in \d+ h/i', moon_line()) === 1, moon_line());
 set_setting('npc_clockwork', '0');
 ok('off: nobody is out', !npc_cw_out('s' . $folk[0]) && npc_cw_sight_check('Anyone', 'x') === null);
 set_setting('npc_clockwork', '1');

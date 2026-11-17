@@ -54,7 +54,7 @@ function trail_fam_maplewold_chips(array $marks, int $max = 5): array
             $k = $l['who'] . '|' . $slug;
             if (isset($seen[$k]) || isset($gdWho[$l['who']])) continue;
             $seen[$k] = true;
-            $f = npc_cw_forecast($l['who'], $slug);
+            $f = npc_cw_forecast($l['who'], $slug, (string)($l['when'] ?? ''));
             if (!$f) continue;
             $out[] = ['text' => trail_fam_maplewold_first($l['who']) . ' at ' . trail_sight_label($slug)[0] . ', ' . trail_fam_maplewold_when($f), 'now' => !empty($f['now']), 'in' => (int)$f['in'], 'from' => (int)$f['from']];
         }

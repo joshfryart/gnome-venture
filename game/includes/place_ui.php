@@ -119,6 +119,7 @@ $sRegions = q('SELECT code, gnomish_name AS name, real_name FROM regions ORDER B
 <details class="fold box seasonfold" id="seasons"<?= ($_GET['tab'] ?? '') === 'seasons' ? ' open' : '' ?>>
   <summary><?= $sn['season_emoji'] ?> Seasons &amp; weather <small class="muted"><?= e($sn['season_label']) ?> · <?= $sn['weather_emoji'] ?> <?= e($sn['weather_label']) ?></small></summary><?php /* v2.3.x: name, then the state as a muted note (as the Road Journal fold), so it breaks between them, not mid-phrase */ ?>
   <p><b><?= e(hollow_line($sRegion)) ?></b></p>
+  <?php require_once __DIR__ . '/moon.php'; if ($moonL = moon_line()): ?><p class="muted"><?= e($moonL) ?></p><?php endif; ?>
   <p class="muted"><?= e(HOLLOW_SEASONS[$sn['season']][3]) ?> <?= e(HOLLOW_WEATHER[$sn['weather']][3]) ?>
     <?= $sn['mode'] === 'game' ? 'Day ' . $sn['season_day'] . ' of ' . $sn['season_length'] . '.' : 'Following the real calendar.' ?>
     <?= e(HOLLOW_SEASONS[$sNext['season']][0] . ' ' . HOLLOW_SEASONS[$sNext['season']][1]) ?> begins in <?= (int)$sNext['in_days'] ?> day<?= $sNext['in_days'] === 1 ? '' : 's' ?>.

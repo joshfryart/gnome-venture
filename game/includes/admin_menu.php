@@ -52,6 +52,7 @@ function admin_menu_def(): array
             ['r:stop_sets', '🎫', null, 'Passport rewards', 't:stop_sets'],
             ['r:stop_adoptions', '🏡', null, 'Which player looks after which stop', 't:stop_adoptions'],
             ['livingstops.php', '🌱', 'Living stops', 'Today’s happenings, the calendar, stories and meter rules (read-only)', ''],
+            ['buildplans.php', '🧱', 'Build plans', 'How each ruined haven, wonder and delve is made safe: four stages each (read-only)', ''],
         ]],
         ['items', '🎒', 'Items & crafting', [
             ['r:items', '🎒', null, 'Every item: seeds, produce, tools, goods', 't:items'],
@@ -97,6 +98,7 @@ function admin_menu_def(): array
         ['content', '📝', 'Content & text', [
             ['texts.php', '📝', 'Page text', 'Edit the wording of game pages', ''],
             ['road_text.php', '🛣️', 'Road text', 'Edit road lines, scenes, wonder and delve wording', ''],
+            ['roadlines.php', '🛤️', 'Road lines', 'The one-line ambience of each road space: coverage and every row (read-only)', ''],
             ['trailsights.php', '🔎', 'Trail sights', 'What a gnome can do next to a big set piece on a Trail map', ''],   // v2.6.68
             ['trail_decor.php', '🌿', 'Trail decor', 'Edit how a section of a Trail map is dressed (looks, zones, props)', ''],   // 2.7.00
             ['code.php', '🧑‍💻', 'Page code', 'See or edit the code of a game page', ''],   // v2.6.37
@@ -157,8 +159,8 @@ function admin_entry_icon(string $key, string $sid): string
 {
     static $m = ['update.php' => 'update', 'settings.php' => 'system', 'tools.php' => 'items', 'log.php' => 'log', 'feedback.php' => 'mail', 'grant.php' => 'gift', 'puzzlebox.php' => 'puzzle',
         'mentors.php' => 'cap', 'gourmand.php' => 'folk', 'livingstops.php' => 'garden', 'hybrids.php' => 'dna', 'callings.php' => 'log', 'treks.php' => 'boot', 'trek_text.php' => 'pen',
-        'xp.php' => 'progress', 'retention.php' => 'progress', 'usage.php' => 'progress', 'gameclock.php' => 'clock', 'texts.php' => 'content', 'road_text.php' => 'pen', 'code.php' => 'code',
-        'trailsights.php' => 'world', 'trail_decor.php' => 'garden', 'images.php' => 'art', 'artguide.php' => 'content', 'here_layout.php' => 'world', 'puzzles.php' => 'puzzle', 'jigsaw.php' => 'puzzle'];
+        'xp.php' => 'progress', 'retention.php' => 'progress', 'usage.php' => 'progress', 'gameclock.php' => 'clock', 'texts.php' => 'content', 'road_text.php' => 'pen', 'roadlines.php' => 'pen', 'code.php' => 'code',
+        'buildplans.php' => 'world', 'trailsights.php' => 'world', 'trail_decor.php' => 'garden', 'images.php' => 'art', 'artguide.php' => 'content', 'here_layout.php' => 'world', 'puzzles.php' => 'puzzle', 'jigsaw.php' => 'puzzle'];
     return admin_icon($m[$key] ?? $sid);
 }
 

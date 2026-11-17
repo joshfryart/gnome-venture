@@ -150,7 +150,7 @@
       soothe: { n: 'Soothe', t: 'soothe', v: 2, r: 'mind' },
       offer: { n: 'Offer', t: 'charm', v: 6, r: null },
       taunt: { n: 'Taunt', t: 'trick', v: 3, r: 'body' },
-      jab: { n: 'Jab', t: 'hurt', v: 2, r: 'craft', tag: 'quick' },
+      jab: { n: 'Jab', t: 'hurt', v: 3, r: 'craft', tag: 'quick' },
       pierce: { n: 'Pierce', t: 'hurt', v: 3, r: 'mind', tag: 'pierce' },
       sting: { n: 'Sting', t: 'hurt', v: 2, r: 'body', tag: 'poison' },
       trip: { n: 'Trip', t: 'hurt', v: 2, r: 'craft', tag: 'trip' },
@@ -342,6 +342,17 @@
     }
   }
 
+  /** 2.7.06: Luck redraw (pf_redraw): swap one hand piece for a fresh draw; costs one of the redraws. A flipped piece goes back the right way up. */
+  function redraw(s, handIdx, turn) {
+    if (truthy(s.over) || turn !== s.turn || s.me.redraws < 1 || handIdx < 0 || handIdx >= s.me.hand.length) return false;
+    var t = clone(s.me.hand.splice(handIdx, 1)[0]);
+    delete t.flip; delete t.ft;
+    s.me.discard.push(t);
+    s.me.redraws--;
+    draw(s, 'me', s.me.hand.length + 1);
+    return true;
+  }
+
   function fits(a, b) {
     if (!a) return false;
     if (a.r === null || a.r === undefined) return true;
@@ -436,7 +447,7 @@
         break;
       case 'heal':
         if (who === 'me') { mine.hp = Math.max(mine.hp, Math.min(mine.max, mine.hp + val + (m === 'tender' ? 2 : 0))); if (m === 'soft') s.foe.agg += 2; }
-        else foeHeal(s, Number(val));
+        else e.healed = round(foeHeal(s, Number(val)), 1);
         break;
       case 'charm':
         if (who === 'me') {
@@ -459,7 +470,7 @@
           if (tile.tag === 'thorns') mine.thorns = true;
           if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil((s.v1 ? toInt(tile.v) : val) / 2)))); e.poisoned = theirs.poison; }
           if (tile.tag === 'trip') { theirs.slowdraw = 1; e.tripped = 1; }
-          if (tile.tag === 'heal') foeHeal(s, Number(val));
+          if (tile.tag === 'heal') e.healed = round(foeHeal(s, Number(val)), 1);
         }
         if (root && who === 'me' && tile.tag === 'pluck') {
           if (!s.can_pluck || truthy(s.plucked)) e.pluck = 'none';
@@ -511,8 +522,8 @@
   var PFB_GROUND = { small: [2, 2, 1], medium: [3, 2, 1], large: [3, 3, 1], boss: [4, 3, 1] }, PFB_GROUND_DIST = [1, 2];
   var PFB_EVENTS = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];
   var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble', poison: 'Poison', place: 'Environment', pass: 'Environment', expire: 'Environment' };
-  var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 1.0, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
-  var PFB_TEAM_SRC = ['pal', 'tool', 'crop'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'wear', 'creature', 'env'];
+  var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.7, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
+  var PFB_TEAM_SRC = ['pal', 'tool', 'crop', 'craft', 'region', 'knack', 'calling'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'wear', 'creature', 'env'];
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft', wear: 'body' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
@@ -522,7 +533,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0, style: 0 };
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0, style: 0, cset: 0, envopen: 0, tagfx: 0 };
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -636,12 +647,12 @@
   function v1Lvx(c, lv) { return round(Math.max(Number(c[2]), Math.min(Number(c[3]), 1 + Number(c[0]) * (lv - toInt(c[1])))), 4); }   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
-  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 1, medium: 1, large: 1, boss: 1 }, PFB_RAIN = 0.15, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
+  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 2, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.20, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
   var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
   var PFB_ENV_ROWS = [
-    ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 2, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
+    ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 3, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
     ['bramble', 'Bramble', 'bramble', 'hm,kc,kb,hb', 3, [1, 2, 2, 3], 'Fire it in your chain: the creature\'s Yield bar fills a tenth. If the creature fires it, you lose a tenth of your health.'],
-    ['rain', 'Rain', 'rain', 'hc,kb,km,hm', 2, [2, 2, 2, 2], 'Fire it in your chain: you get guard.'],
+    ['rain', 'Rain', 'rain', 'hc,kb,km,hm', 3, [2, 2, 2, 2], 'Fire it in your chain: you get guard.'],
     ['wind', 'Wind', 'wind', 'hb,kc,hm,km', 2, [1, 1, 1, 1], 'Fire it in your chain: the piece its arrow points at slides one cell.'],
     ['mud', 'Mud', 'mud', 'f,f,f,f', 3, [1, 1, 1, 1], 'Nothing links to it, and a piece next to it counts a quarter less.'],
     ['thorn', 'Thornburst', 'thorn', 'hm,kb,hc,kc', 3, [1, 2, 2, 2], 'Fire it in your chain and you lose a tenth of your health. The creature loses half as much.']
@@ -658,7 +669,7 @@
     return round(Math.max(f, Math.min(1.0, f + (1.0 - f) * (lv - a) / (b - a))), 4);
   }
   // 2.7.01 (policy D): data/pf_creature_tune.txt, slug -> [foe_x, bar_x] (rebuild this line from the file when it changes; tests/pfengine_js.sh fails on a drift)
-  var PFB_V1_TUNE = {'aardvark':[0.987,0.938],'albatross':[0.837,1],'alligator-snapper':[1.732,0.5],'alpha-dingo':[0.654,1.362],'ancient-snapper':[1.13,0.822],'ant-scouts':[3.2,1],'aphid-swarm':[3.2,1.327],'arctic-fox':[1.387,0.525],'arctic-fox-kit':[1.336,1],'army-ant-column':[1.267,1],'badger':[0.64,1.139],'badger-cub-gang':[2.25,1],'banana-slug':[3.2,1],'bark-scorpion':[0.861,1],'barn-rat':[1.601,1],'basilisk-runner':[1.138,1],'beach-hopper-horde':[1.453,0.774],'beaded-lizard':[0.953,1],'bear-cub-tumble':[1.202,0.975],'bearded-pig':[0.803,1],'beaver-foreman':[0.866,1],'bison-calf-stampede':[0.854,1],'black-bear':[1.271,0.797],'blue-ring-octopus':[1.078,1],'bog-leech':[1.966,1],'bog-pike':[1.972,0.5],'bombardier-beetle':[0.862,1.083],'booby-colony':[1.11,0.953],'bramble-pup-pack':[1.554,0.878],'bramble-wolf':[0.88,1],'bullfrog':[2.939,1],'burrowing-owl':[1.112,0.839],'cactus-beast':[1.406,1.141],'camel-calf':[0.893,1.202],'cane-toad':[1.376,0.735],'capuchin-pickpocket':[2.364,0.678],'capybara-herd':[0.709,1.345],'caracal':[0.706,1],'caribou-bull':[1.191,0.723],'carpenter-ant-gang':[1.597,0.844],'carpenter-bee':[0.827,1],'carrion-beetle-crew':[1.401,1],'carrion-crow':[1.382,1],'cassowary-chick-creche':[0.766,1.065],'cave-centipede':[1.203,0.863],'cave-glowworm':[2.782,1],'clam-lurker':[0.838,1.366],'cliff-ram':[0.873,1.076],'cloud-kite':[1.16,0.725],'cloud-leopard':[0.882,1],'coati-band':[1.131,1.129],'cockle-bed':[2.487,0.789],'coconut-crab-youngster':[1.066,1.003],'coconut-hermit':[0.879,1.474],'condor':[0.667,1],'conger-brute':[0.983,0.858],'coral-golem':[1.305,1.362],'cormorant-line':[0.4,2.132],'crab-eating-raccoon':[0.675,0.984],'croc-hatchling-scatter':[1.349,1],'dawn-skipper-flutter':[2.87,0.818],'deep-octopus':[0.719,1.362],'delta-gharial':[0.546,1.543],'desert-camel':[1.452,0.665],'desert-gila-dragon':[0.617,1.473],'desert-spadefoot':[0.784,1.39],'desert-tortoise':[1.21,0.832],'dingo-pup-pack':[1.109,1],'dune-racer':[0.898,0.841],'dune-scorpion':[2.283,1],'dune-snail':[2.018,1],'dune-wyrm':[1.175,0.831],'dune-wyrmling':[1.882,0.5],'dung-beetle':[2.652,1],'dusk-moth':[2.859,1],'dust-sidewinder':[1.014,1.237],'eagle-owl':[0.828,0.797],'earwig':[2.348,1],'earwig-matron':[1.01,0.964],'egret-flock':[0.937,0.84],'elder-bramble-wolf':[0.574,1],'elder-mire-toad':[1.315,1],'elder-tiger':[1.413,0.606],'elephant-seal-bull':[1.16,0.832],'ember-beetle':[1.681,1],'emerald-python':[1.087,1],'emperor-scorpion':[1.302,0.797],'emu-mob':[1.115,0.688],'fennec':[1.265,0.751],'fern-cassowary':[0.44,1.429],'fiddler-crab-band':[3.056,1],'fire-ant-raiders':[2.283,1],'firefly-flicker':[1.874,1],'fisher':[0.843,1.074],'fishing-cat':[1.201,0.779],'fishing-spider':[2.918,1],'fly-swarm':[2.628,1],'fox-kit-pair':[2.157,1],'foxfire-wisp':[1.468,0.754],'frigatebird':[1.418,0.5],'frilled-lizard':[1.062,1],'frost-beetle':[1.804,1],'frost-hare':[2.372,0.658],'frost-owl-regent':[0.586,1],'garden-eel-colony':[1.5,0.826],'garden-snail':[3.2,1.371],'garfish':[1.32,1],'ghost-crab':[1.178,1],'ghost-leopard':[0.74,1],'ghost-slug':[1.391,0.794],'giant-anteater':[1.267,0.737],'giant-banded-snail':[1.632,0.759],'giant-bumblebee':[1.458,0.931],'giant-centipede':[2.649,0.7],'giant-clam':[1.306,0.907],'giant-millipede':[0.726,1.238],'giant-mire-leech':[1.153,1],'giant-otter-gang':[0.934,1.137],'glacier-bear':[0.598,1.635],'glacier-cub':[1.299,1],'glass-frog':[1.354,1],'glass-wyrm':[0.648,1.003],'glow-grub-cluster':[1.164,1],'gnat-cloud':[2.615,1],'goat-kid-gang':[1.779,1],'golden-mantella':[1.008,0.816],'golden-mole':[0.898,1],'golden-orb-weaver':[0.889,1.327],'goliath-frog':[1.053,1],'goliath-heron':[0.979,0.832],'gorse-beast':[1.312,1.367],'grass-snake':[1.712,0.5],'great-hawk':[1.355,0.62],'grey-heron':[1.181,1],'griffon-vulture':[0.918,1],'grumpy-lemming':[1.775,1.184],'gyrfalcon':[0.733,1],'hermit-crab-convoy':[3.2,1],'hermit-crab-hoarder':[1.903,0.941],'herring-gull':[1.862,0.7],'honey-badger-brute':[0.43,1.664],'honeybee-swarm':[1.565,1],'horned-viper':[0.883,1],'house-centipede-skitter':[3.2,1.596],'hyena-pup-cackle':[1.178,1],'ibex-patriarch':[0.913,1],'ice-bear':[0.538,1.444],'ice-floe-seal':[2.442,0.839],'jackrabbit':[0.881,1],'jade-jaguar':[0.725,1.437],'jaguar-cub-pair':[1.461,0.983],'jaguarundi':[0.795,0.896],'jumping-spider':[3.2,1],'jungle-crow':[0.689,1.474],'jungle-tiger':[1.471,0.538],'kelp-fly-swarm':[1.204,1],'kestrel-hoverer':[1.29,1],'komodo-pup':[1.406,0.774],'kraken-spawn':[1.437,0.832],'lammergeier':[0.884,1.043],'land-crab-march':[1.34,0.953],'lantern-glowworm-queen':[0.851,1.345],'lava-beetle':[1.051,1],'leafcutter-column':[1.131,1.078],'leatherback':[1.255,0.876],'lemming-kit-scurry':[3.197,1],'leopard-slug':[3.2,1],'lichen-golem':[1.714,1.047],'luna-moth':[0.8,1.474],'macaque-troop':[1.267,1],'magpie-mob':[1.266,0.839],'mandrill-boss':[0.809,1],'mangrove-crab-court':[1.044,1],'mangrove-crab-emperor':[1.091,0.737],'mangrove-crab-king':[1.065,0.966],'marmot-bruiser':[1.299,0.682],'marsh-harrier':[0.967,1.13],'marsh-spark-swarm':[2.213,1],'midge-cloud':[3.2,1.596],'mire-toad':[1.807,0.5],'mischief-monkey':[1.703,0.591],'mite-swarm':[1.899,1],'mole-rat-gang':[1.027,0.672],'moray-lurker':[0.888,1],'mosquito-storm':[1.346,1],'moss-golem':[2.217,0.737],'mountain-buzzard':[0.853,1],'mountain-hare':[0.579,1.737],'mud-crab-brawler':[1.022,0.964],'mud-dauber':[2.455,1],'mudskipper-troop':[1.817,1],'musk-ox':[1.078,1.358],'muskrat-crew':[2.682,0.861],'natterjack-chorus':[2.231,1],'nettle-lurker':[3.2,0.7],'night-adder':[0.801,1],'night-heron':[0.807,1.057],'ocelot':[1.042,1],'old-bramblehorn':[1.415,0.733],'old-brock':[0.687,0.797],'orb-spider':[1.282,1.267],'outback-dingo':[0.878,0.897],'pack-rat':[1.126,1],'palm-thief-crab':[1.441,1],'pangolin':[0.842,0.941],'paper-wasp':[1.73,1.214],'peat-golem':[1.776,1.714],'pelican-parliament':[1.199,0.982],'piglet-squeal':[3.2,1],'pika-sentry':[1.882,1.25],'poison-dart-frog':[1,1.345],'prairie-bison':[1.196,0.784],'ptarmigan-flock':[0.987,0.884],'raccoon':[1.036,1.086],'ramshorn-pond-snail':[2.312,1],'ratel-pair':[0.697,1.345],'raven-pair':[2.496,0.605],'red-fox':[0.607,1.479],'red-stag':[1.165,0.953],'reef-eel-lord':[1.055,0.804],'reef-eel-tyrant':[0.861,1.133],'reef-turtle':[1.287,0.832],'reindeer-calf-herd':[1.524,1],'river-otter':[0.985,1.14],'robber-crab-baron':[0.764,1],'rock-agama':[1.594,1],'rock-crab-pincher':[1.041,0.941],'rock-earwig':[2.129,1],'rock-partridge-covey':[0.549,1.345],'rock-python':[0.921,1],'rock-viper':[1.04,0.964],'roebuck':[2.272,0.987],'salt-mite-swarm':[1.61,1],'salt-sea-lion':[2.098,0.5],'saltmarsh-leech':[1.852,0.537],'saltwater-gharial':[1.224,0.797],'sand-fleas':[2.258,1],'sand-viper-matriarch':[1.992,0.5],'sandfish-skink-shoal':[3.119,1],'sandfly-cloud':[3.2,1],'savanna-hyena':[1.044,0.747],'scarab-roller':[1.353,1],'sea-otter-bandit':[2.419,1],'sea-slug-drift':[2.327,0.825],'sea-urchin-bed':[3.2,1],'seal-pup-raft':[1.735,0.774],'ship-rat-crew':[0.406,1.46],'shore-crab':[1.95,1.5],'shore-earwig':[2.513,1],'silver-fox':[0.758,0.913],'skua-raider':[1.091,0.896],'sloth-bear':[1.378,0.5],'smooth-snake':[1.198,0.981],'snapper-hatchling-bask':[1.377,1.505],'snow-bunting-flurry':[1.689,1],'snow-flea-swarm':[2.291,1],'snow-leopard-cub':[0.94,0.865],'snow-lynx':[0.43,1.367],'snow-moth':[2.477,1],'snow-owl-fledgling':[1.24,0.666],'snow-owl-monarch':[1.191,0.804],'snowshoe-leveret-dash':[3.2,1],'snowy-owl-scout':[1.268,0.7],'spice-monitor':[0.957,0.839],'spurred-tortoise':[0.956,1],'star-nosed-mole':[1.885,1],'stickleback-shoal':[3.2,1],'stink-badger':[0.939,0.82],'stoat':[1.539,1],'storm-eagle':[0.759,1],'storm-wisp':[1.338,1.237],'striped-hyena':[1.079,0.794],'sun-bear':[0.93,0.816],'sun-lizard':[1.364,1],'tamandua':[0.586,1.465],'tanuki':[1.042,1.031],'tawny-owl':[1.058,0.966],'termite-column':[1.726,1],'tern-squadron':[0.4,2.189],'thistle-beast':[1.947,1.45],'thorn-jackal':[0.863,1.111],'thorny-devil':[1.156,1.342],'thunder-yak':[0.71,1],'tide-crab-paladin':[1.385,0.966],'tide-crab-squire':[2.056,0.5],'tiger-leech':[2.226,1.004],'tortoise-hatchling-trundle':[3.2,1],'tree-frog-chorus':[1.45,1],'tree-monitor':[1.221,0.682],'tree-snake':[0.818,1],'tufted-lynx':[0.805,1.092],'tumblebug-troupe':[1.161,1],'tundra-fox':[0.826,1.056],'tundra-vole-swarm':[2.504,1],'tunnel-mole':[2.296,0.804],'turkey-vulture':[1.241,0.794],'turtle-hatchling-dash':[1.838,1],'vine-snake':[0.927,0.794],'warthog':[1.22,0.839],'water-monitor':[1.035,0.794],'water-snake':[1.498,0.655],'weaver-ant-nest':[1.615,1],'whip-scorpion':[1.537,0.699],'whiteout-fox':[1.863,1],'wild-bactrian':[1.4,0.596],'wild-boar':[0.457,1.362],'wildcat':[1.366,0.754],'will-o-wisp':[3.2,1],'willow-grouse-covey':[1.953,1],'wolverine':[0.68,1.311],'wolverine-cub':[1.511,1],'wood-bison':[1.769,0.579],'yak-calf-herd':[0.919,0.839],'yellowjacket-mob':[1.136,1],'zorilla-stink-squad':[0.714,1]};
+  var PFB_V1_TUNE = {'aardvark':[0.987,0.938],'albatross':[0.837,1],'alligator-snapper':[1.626,0.5],'alpha-dingo':[0.551,1.362],'ancient-snapper':[1.061,0.822],'ant-scouts':[3.2,1],'aphid-swarm':[3.2,1.327],'arctic-fox':[1.623,0.525],'arctic-fox-kit':[1.336,1],'army-ant-column':[1.483,1],'badger':[0.539,1.139],'badger-cub-gang':[2.25,1],'banana-slug':[3.2,1],'bark-scorpion':[0.861,1],'barn-rat':[1.601,1],'basilisk-runner':[1.138,1],'beach-hopper-horde':[1.926,0.774],'beaded-lizard':[0.953,1],'bear-cub-tumble':[0.885,0.975],'bearded-pig':[0.803,1],'beaver-foreman':[0.866,1],'bison-calf-stampede':[0.628,1],'black-bear':[1.271,0.797],'black-jaguar':[0.673,1],'blue-ring-octopus':[0.907,1],'bog-leech':[2.301,1],'bog-pike':[1.972,0.5],'bombardier-beetle':[0.862,1.083],'booby-colony':[0.817,0.953],'bramble-pup-pack':[1.308,0.878],'bramble-wolf':[0.88,1],'bullfrog':[2.939,1],'burrowing-owl':[1.112,0.839],'cactus-beast':[1.406,1.141],'camel-calf':[0.657,1.202],'cane-toad':[1.611,0.735],'capuchin-pickpocket':[2.364,0.678],'capybara-herd':[0.709,1.345],'caracal':[0.52,1],'caribou-bull':[1.002,0.723],'carpenter-ant-gang':[1.597,0.844],'carpenter-bee':[0.776,1],'carrion-beetle-crew':[1.401,1],'carrion-crow':[1.382,1],'cassowary-chick-creche':[0.564,1.065],'cave-centipede':[1.595,0.863],'cave-glowworm':[2.782,1],'clam-lurker':[0.838,1.366],'cliff-ram':[0.643,1.076],'cloud-kite':[0.854,0.725],'cloud-leopard':[0.743,1],'coati-band':[1.131,1.129],'cockle-bed':[2.334,0.789],'coconut-crab-titan':[0.845,1],'coconut-crab-youngster':[0.785,1.003],'coconut-hermit':[0.879,1.474],'condor':[0.667,1],'conger-brute':[1.041,0.858],'coral-golem':[1.305,1.362],'cormorant-line':[0.337,2.132],'crab-eating-raccoon':[0.79,0.984],'croc-hatchling-scatter':[0.993,1],'dawn-skipper-flutter':[2.87,0.818],'deep-octopus':[0.605,1.362],'delta-gharial':[0.46,1.543],'desert-camel':[1.452,0.665],'desert-gila-dragon':[0.454,1.473],'desert-spadefoot':[0.577,1.39],'desert-tortoise':[1.21,0.832],'dingo-pup-pack':[1.109,1],'dune-racer':[1.051,0.841],'dune-scorpion':[2.283,1],'dune-snail':[2.018,1],'dune-wyrm':[1.175,0.831],'dune-wyrmling':[1.882,0.5],'dung-beetle':[2.652,1],'dusk-moth':[2.859,1],'dust-sidewinder':[1.014,1.237],'eagle-owl':[0.828,0.797],'earwig':[2.348,1],'earwig-matron':[1.01,0.964],'egret-flock':[0.937,0.84],'elder-bramble-wolf':[0.574,1],'elder-mire-toad':[1.539,1],'elder-tiger':[1.496,0.606],'elephant-seal-bull':[1.16,0.832],'ember-beetle':[2.229,1],'emerald-python':[1.087,1],'emperor-scorpion':[1.726,0.797],'emu-mob':[0.938,0.688],'fennec':[1.265,0.751],'fern-cassowary':[0.37,1.429],'fiddler-crab-band':[3.056,1],'fire-ant-raiders':[2.672,1],'firefly-flicker':[2.193,1],'fisher':[0.709,1.074],'fishing-cat':[1.201,0.779],'fishing-spider':[2.918,1],'fly-swarm':[2.628,1],'fox-kit-pair':[2.157,1],'foxfire-wisp':[1.946,0.754],'frigatebird':[1.66,0.5],'frilled-lizard':[1.243,1],'frost-beetle':[1.804,1],'frost-hare':[2.372,0.658],'frost-owl-regent':[0.432,1],'garden-eel-colony':[1.262,0.826],'garden-snail':[3.2,1.371],'garfish':[1.32,1],'ghost-crab':[1.562,1],'ghost-leopard':[0.74,1],'ghost-slug':[1.844,0.794],'giant-anteater':[1.267,0.737],'giant-banded-snail':[2.164,0.759],'giant-bumblebee':[1.458,0.931],'giant-centipede':[2.967,0.7],'giant-clam':[1.306,0.907],'giant-millipede':[0.726,1.238],'giant-mire-leech':[1.529,1],'giant-otter-gang':[1.238,1.137],'glacier-bear':[0.504,1.635],'glacier-cub':[0.956,1],'glass-frog':[1.354,1],'glass-wyrm':[0.648,1.003],'glow-grub-cluster':[1.543,1],'gnat-cloud':[2.615,1],'goat-kid-gang':[1.497,1],'golden-mantella':[1.008,0.816],'golden-mole':[0.898,1],'golden-orb-weaver':[0.889,1.327],'goliath-frog':[1.396,1],'goliath-heron':[1.146,0.832],'gorse-beast':[1.312,1.367],'grass-snake':[2.004,0.5],'great-hawk':[1.355,0.62],'grey-heron':[1.181,1],'griffon-vulture':[0.918,1],'grumpy-lemming':[1.775,1.184],'gyrfalcon':[0.733,1],'hermit-crab-convoy':[3.2,1],'hermit-crab-hoarder':[2.523,0.941],'herring-gull':[1.862,0.7],'honey-badger-brute':[0.346,1.664],'honeybee-swarm':[1.317,1],'horned-viper':[0.65,1],'hornet-sentry':[1.683,1],'house-centipede-skitter':[3.2,1.596],'hyena-pup-cackle':[1.178,1],'ibex-patriarch':[0.913,1],'ice-bear':[0.538,1.444],'ice-floe-seal':[1.797,0.839],'jackrabbit':[0.881,1],'jade-jaguar':[0.534,1.437],'jaguar-cub-pair':[1.076,0.983],'jaguarundi':[0.669,0.896],'jumping-spider':[3.2,1],'jungle-crow':[0.807,1.474],'jungle-tiger':[1.722,0.538],'kelp-fly-swarm':[1.204,1],'kestrel-hoverer':[0.949,1],'komodo-pup':[1.183,0.774],'kraken-spawn':[1.437,0.832],'lammergeier':[0.744,1.043],'land-crab-march':[1.777,0.953],'lantern-glowworm-queen':[0.996,1.345],'lava-beetle':[1.051,1],'leafcutter-column':[1.131,1.078],'leatherback':[1.329,0.876],'lemming-kit-scurry':[2.353,1],'leopard-slug':[3.2,1],'lichen-golem':[1.443,1.047],'lichen-reindeer':[1.15,1],'luna-moth':[0.8,1.474],'macaque-troop':[1.267,1],'magpie-mob':[1.266,0.839],'mandrill-boss':[1.072,1],'mangrove-crab-court':[1.044,1],'mangrove-crab-emperor':[1.091,0.737],'mangrove-crab-king':[1.065,0.966],'marmot-bruiser':[1.722,0.682],'marsh-harrier':[0.712,1.13],'marsh-rat':[1.3,1],'marsh-spark-swarm':[2.213,1],'midge-cloud':[3.2,1.596],'mire-toad':[1.914,0.5],'mischief-monkey':[1.993,0.591],'mite-swarm':[1.899,1],'mole-rat-gang':[1.361,0.672],'moray-lurker':[0.654,1],'mosquito-storm':[1.785,1],'moss-golem':[2.217,0.737],'mountain-buzzard':[0.628,1],'mountain-hare':[0.579,1.737],'mud-crab-brawler':[1.022,0.964],'mud-dauber':[2.874,1],'mudskipper-troop':[1.817,1],'musk-ox':[0.794,1.358],'muskrat-crew':[2.682,0.861],'natterjack-chorus':[1.642,1],'nettle-lurker':[3.2,0.7],'night-adder':[0.801,1],'night-heron':[0.807,1.057],'ocelot':[1.042,1],'old-bramblehorn':[1.329,0.733],'old-brock':[0.911,0.797],'orb-spider':[1.282,1.267],'outback-dingo':[0.646,0.897],'pack-rat':[1.318,1],'palm-thief-crab':[1.441,1],'pangolin':[0.891,0.941],'paper-wasp':[1.73,1.214],'peat-golem':[1.776,1.714],'pelican-parliament':[1.009,0.982],'piglet-squeal':[3.2,1],'pika-sentry':[2.495,1.25],'poison-dart-frog':[1,1.345],'prairie-bison':[1.196,0.784],'ptarmigan-flock':[0.987,0.884],'raccoon':[1.036,1.086],'ramshorn-pond-snail':[2.312,1],'ratel-pair':[0.587,1.345],'raven-pair':[2.643,0.605],'red-fox':[0.511,1.479],'red-stag':[1.165,0.953],'reef-eel-lord':[1.055,0.804],'reef-eel-tyrant':[0.861,1.133],'reef-leviathan':[0.968,1],'reef-turtle':[1.287,0.832],'reindeer-calf-herd':[1.121,1],'river-otter':[0.985,1.14],'robber-crab-baron':[0.764,1],'rock-agama':[1.594,1],'rock-crab-pincher':[0.766,0.941],'rock-earwig':[2.129,1],'rock-partridge-covey':[0.549,1.345],'rock-python':[0.921,1],'rock-viper':[1.04,0.964],'roebuck':[1.672,0.987],'salt-mite-swarm':[2.135,1],'salt-sea-lion':[2.098,0.5],'saltmarsh-leech':[2.455,0.537],'saltwater-gharial':[1.433,0.797],'sand-fleas':[2.258,1],'sand-viper-matriarch':[1.992,0.5],'sandfish-skink-shoal':[3.167,1],'sandfly-cloud':[3.2,1],'savanna-hyena':[1.044,0.747],'scarab-roller':[1.794,1],'sea-otter-bandit':[2.419,1],'sea-slug-drift':[2.327,0.825],'sea-urchin-bed':[3.2,1],'seal-pup-raft':[1.277,0.774],'ship-rat-crew':[0.339,1.46],'shore-crab':[1.95,1.5],'shore-earwig':[2.513,1],'silver-fox':[1.005,0.913],'skua-raider':[1.091,0.896],'sloth-bear':[1.378,0.5],'smooth-snake':[1.008,0.981],'snapper-hatchling-bask':[1.013,1.505],'snow-bunting-flurry':[1.421,1],'snow-flea-swarm':[2.291,1],'snow-leopard-cub':[0.791,0.865],'snow-lynx':[0.43,1.367],'snow-moth':[2.477,1],'snow-owl-fledgling':[0.913,0.666],'snow-owl-monarch':[1.191,0.804],'snowshoe-leveret-dash':[2.355,1],'snowy-owl-scout':[1.067,0.7],'spice-monitor':[0.957,0.839],'spurred-tortoise':[0.956,1],'star-nosed-mole':[2.499,1],'stickleback-shoal':[2.693,1],'stink-badger':[0.939,0.82],'stoat':[1.132,1],'storm-eagle':[0.759,1],'storm-wisp':[1.338,1.237],'striped-hyena':[1.013,0.794],'sun-bear':[0.93,0.816],'sun-lizard':[1.364,1],'tamandua':[0.432,1.465],'tanuki':[0.978,1.031],'tawny-owl':[1.058,0.966],'termite-column':[1.62,1],'tern-squadron':[0.337,2.189],'thistle-beast':[1.947,1.45],'thorn-jackal':[0.635,1.111],'thorny-devil':[0.973,1.342],'thunder-yak':[0.71,1],'tide-crab-knight':[0.968,1],'tide-crab-paladin':[1.621,0.966],'tide-crab-squire':[2.056,0.5],'tiger-leech':[2.768,1.004],'tortoise-hatchling-trundle':[2.355,1],'tree-frog-chorus':[1.697,1],'tree-monitor':[1.293,0.682],'tree-snake':[0.818,1],'tufted-lynx':[0.678,1.092],'tumblebug-troupe':[1.161,1],'tundra-fox':[0.826,1.056],'tundra-vole-swarm':[1.843,1],'tunnel-mole':[2.688,0.804],'turkey-vulture':[0.914,0.794],'turtle-hatchling-dash':[1.838,1],'vine-snake':[0.87,0.794],'warthog':[1.22,0.839],'water-monitor':[1.035,0.794],'water-snake':[1.498,0.655],'weaver-ant-nest':[1.615,1],'whip-scorpion':[1.799,0.699],'whiteout-fox':[1.863,1],'wild-bactrian':[1.856,0.596],'wild-boar':[0.385,1.362],'wildcat':[1.366,0.754],'will-o-wisp':[3.2,1],'willow-grouse-covey':[1.644,1],'wolverine':[0.68,1.311],'wolverine-cub':[1.271,1],'wood-bison':[2.071,0.579],'yak-calf-herd':[0.676,0.839],'yellowjacket-mob':[1.136,1],'zorilla-stink-squad':[0.671,1]};
   function v1Over(c, over) {   // pfb_v1_over: the creature's tune row multiplies foe_x / bar_x
     var t = PFB_V1_TUNE[String((c && c.slug) || '')];
     over = over || {};
@@ -672,11 +683,11 @@
     if (!has(PFB_SIZE, size)) size = 'medium';
     var g = PFB_GROUND[size];
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
-      events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
+      events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,   // 2.7.06: Teamwork on again
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1, envopen: 0, tagfx: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, envopen: 1, tagfx: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -841,7 +852,8 @@
   }
   function lifeOf(s, p) {
     if (p.by === 'none') return 1;
-    return (s.v1 && truthy(s.v1.life)) ? toInt(nn(p.tile.life, PFB_LIFE)) : PFB_LIFE;
+    var base = (s.v1 && truthy(s.v1.life)) ? toInt(nn(p.tile.life, PFB_LIFE)) : PFB_LIFE;
+    return base + (v1r(s, 'tagfx') === 1 && p.by === 'me' && nn(p.tile.m, '') === 'sticky' ? 1 : 0);
   }
   function discardPiece(s, p) {
     if (p.by === 'none') return;
@@ -1083,8 +1095,9 @@
   }
 
   // next release (Josh's vote): the order a chain's pieces take effect in: environment, defence (guard, soothe), augments (trick), hurt / charm, healing. Same rank keeps the link order; fights from before keep the link order.
-  function rank(p) {
+  function rank(p, tagfx) {
     if (p.by === 'env') return 1;
+    if (tagfx && p.by === 'me') { var tg0 = nn(p.tile.tag, ''); if (tg0 === 'quick') return 0; if (tg0 === 'heavy') return 6; }
     var t = nn(p.tile.t, '');
     return t === 'guard' || t === 'soothe' ? 2 : t === 'trick' ? 3 : (t === 'heal' || t === 'item') ? 5 : 4;
   }
@@ -1092,8 +1105,29 @@
     var ch = chain(s, root);
     if (v1r(s, 'order') !== 1) return ch;
     var idx = ch.map(function (c, i) { return i; });
-    idx.sort(function (a, b) { var ra = rank(s.pcs[ch[a][0]]), rb = rank(s.pcs[ch[b][0]]); return ra !== rb ? ra - rb : a - b; });
+    var tfx = v1r(s, 'tagfx') === 1;
+    idx.sort(function (a, b) { var ra = rank(s.pcs[ch[a][0]], tfx), rb = rank(s.pcs[ch[b][0]], tfx); return ra !== rb ? ra - rb : a - b; });
     return idx.map(function (i) { return ch[i]; });
+  }
+
+  /** 2.7.06 (Josh) set combos: the partner anywhere in the same chain (own side); same type (Double Swing): the partner must fire before. Best resulting value wins (ties: table order). [value, key|null] */
+  function setCombo(s, ch, ci, who, tile) {
+    var v = Number(tile.v), best = null, bk = null;
+    Object.keys(PF_COMBOS).forEach(function (key) {
+      var ab = key.split('>'), a = ab[0], b = ab[1];
+      if (b !== tile.t) return;
+      var pv = null;
+      for (var cj = 0; cj < ch.length; cj++) {
+        var q = s.pcs[ch[cj][0]];
+        if (!q || q.by !== who || nn(q.tile.t, '') !== a) continue;
+        if (a === b && cj >= ci) continue;
+        pv = Math.max(pv === null ? 0 : pv, toInt(q.tile.v));
+      }
+      if (pv === null) return;
+      var cb = PF_COMBOS[key], r = v * cb.mul / 100 + (cb.flat === 'prev' ? pv : toInt(cb.flat));
+      if (best === null || r > best + 1e-9) { best = r; bk = key; }
+    });
+    return [iround(best === null ? v : best), bk];
   }
 
   function fire(s, root) {
@@ -1105,6 +1139,7 @@
       var ns = Object.keys(srcs).length;
       if (rb === 'me' && ns >= 3) tw = Number(v1.team3); else if (rb === 'me' && ns === 2) tw = Number(v1.team2);
     }
+    var cset = !!(v1 && v1r(s, 'cset') === 1);
     var esun = 1.0;   // 2.6.75: a Sun piece in the chain: the pieces of the side that started it count x sun
     if (v1 && truthy(v1.env)) ch.forEach(function (c) { var cp = s.pcs[c[0]]; if (cp.by === 'env' && cp.tile.env === 'sun') esun = Number(v1.sun); });
     for (var i = 0; i < ch.length; i++) {
@@ -1121,6 +1156,7 @@
       var pt = par !== null ? s.pcs[par] : null;
       if (pt && (pt.by === 'none' || pt.by === 'env')) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
+      if (cset) { var sc = setCombo(s, ch, i, who, tile); vv = [sc[0]]; ck = sc[1]; }   // 2.7.06 set combos
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + Number(abp(s, 'gpct', PFB_KIND_GRUDGE)) * toInt(s.foe.grudge)));   // 2.6.98 Grudge
       if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); val += Math.min(toInt(abp(s, 'smax', PFB_KIND_SWARM_MAX)), Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows
@@ -1157,7 +1193,7 @@
     return ev;
   }
 
-  function fireLimit(p) { return p.by === 'foe' ? Math.max(0, PFB_FOE_FIRES) : 0; }
+  function fireLimit(p, tagfx) { if (tagfx && p.by === 'me' && nn(p.tile.tag, '') === 'heavy') return 1; return p.by === 'foe' ? Math.max(0, PFB_FOE_FIRES) : 0; }
   function goneEntry(s, p, fell) {
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
@@ -1184,7 +1220,7 @@
     }
     var ids = Object.keys(s.pcs);
     for (var i = 0; i < ids.length; i++) {
-      var p = s.pcs[ids[i]], lim = fireLimit(p);
+      var p = s.pcs[ids[i]], lim = fireLimit(p, v1r(s, 'tagfx') === 1);
       if (lim > 0 && toInt(nn(p.f, 0)) >= lim) {
         discardPiece(s, p);
         if (!Array.isArray(s.spent)) s.spent = [];
@@ -1432,7 +1468,7 @@
       var pz = function (z) { return toInt(nn(z.me.poison, 0)) * toInt(nn(z.me.poison_v, 0)); };
       dPz = pz(a) - pz(b); dEv = I(a.foe.evade) - I(b.foe.evade); dTh = I(a.foe.thorns) - I(b.foe.thorns);
       dBa = I(a.foe.bashnext) - I(b.foe.bashnext); dSl = I(a.me.slowdraw) - I(b.me.slowdraw); dAg = I(a.foe.again) - I(b.foe.again);
-      setup = dPz + u * (1.5 * dEv + 0.6 * dTh + 1.0 * dBa); tempo = u * (1.0 * dSl + 1.5 * dAg);
+      setup = dPz + u * (1.5 * dEv + 0.6 * dTh + dBa * Math.max(1.0, Number(nn(a.foe.block, 0)) / Math.max(1.0, u))); tempo = u * (1.0 * dSl + 1.5 * dAg);
     }
     var deny = 0.0, force = 0.0, dReach = 0;
     if (w !== null && nn(w.deny, 0) != 0) { if (ctx.rb === undefined) ctx.rb = reach(b); dReach = ctx.rb - reach(a); deny = 0.1 * a.me.max * dReach / Math.max(1, ctx.rb); }
@@ -1481,7 +1517,7 @@
     if (a.v1 && truthy(a.v1.tags)) {
       var u = 0.05 * a.me.max, pz = function (z) { return toInt(nn(z.me.poison, 0)) * toInt(nn(z.me.poison_v, 0)); }, I = function (x) { return x === true ? 1 : toInt(nn(x, 0)); };
       tg = (pz(a) - pz(b)) + u * (1.0 * (I(a.me.slowdraw) - I(b.me.slowdraw)) + 1.5 * (I(a.foe.evade) - I(b.foe.evade)) + 0.6 * (I(a.foe.thorns) - I(b.foe.thorns))
-        + 1.0 * (I(a.foe.bashnext) - I(b.foe.bashnext)) + 1.5 * (I(a.foe.again) - I(b.foe.again)));
+        + (I(a.foe.bashnext) - I(b.foe.bashnext)) * Math.max(1.0, Number(nn(a.foe.block, 0)) / Math.max(1.0, u)) + 1.5 * (I(a.foe.again) - I(b.foe.again)));
     }
     if (who === 'me') return -0.7 * tg + barD + 0.7 * hpD + 0.3 * (a.me.block - b.me.block) - 0.3 * (a.foe.block - b.foe.block) + (truthy(a.over) && (a.over === 'seen_off' || a.over === 'charmed') ? 50 : 0);
     return tg - 0.8 * barD - hpD + 0.4 * (a.foe.block - b.foe.block) - 0.3 * (a.me.block - b.me.block) + (a.over === 'defeat' ? 50 : 0);
@@ -1517,10 +1553,11 @@
   }
 
   /** 2.6.989: the creature recovers val. One shared bar: the Yield bar goes down, the Hurt part first, then the Charm part; two bars: only the health bar. */
-  function foeHeal(s, val) {
-    if (!(s.v1 && truthy(s.v1.onebar))) { s.fh.now = Math.max(0.0, s.fh.now - val); return; }
-    var d = Math.min(Number(s.fh.now), val); s.fh.now -= d; var rest = val - d;
-    if (rest > 0) { var c = Math.min(Number(s.bar.now), rest); s.bar.now -= c; s.bar.charm = Math.max(0.0, Number(s.bar.charm) - c); }
+  function foeHeal(s, val) {   // returns what it actually took back (never more than the bar held)
+    if (!(s.v1 && truthy(s.v1.onebar))) { var d0 = Math.min(Number(s.fh.now), val); s.fh.now = Math.max(0.0, s.fh.now - val); return Math.max(0.0, d0); }
+    var d = Math.min(Number(s.fh.now), val); s.fh.now -= d; var rest = val - d, c = 0.0;
+    if (rest > 0) { c = Math.min(Number(s.bar.now), rest); s.bar.now -= c; s.bar.charm = Math.max(0.0, Number(s.bar.charm) - c); }
+    return Math.max(0.0, d + c);
   }
   function foeLen(s) { return Math.max(0, Math.min(s.foe.hand.length, 1 - toInt(s.foe.slow))); }
 
@@ -1672,7 +1709,7 @@
       if (e.by === 'env') { if (e.kind !== 'sun') fires.push('fires ' + e.n); return; }
       if (e.by === 'foe') {
         if (e.t === 'hurt') g += toInt(nn(e.blocked, 0));
-        if (e.t === 'heal' || (e.t === 'trick' && e.tag === 'heal')) heal += toInt(e.v);
+        if (e.t === 'heal' || (e.t === 'trick' && e.tag === 'heal')) heal += iround(Number(e.healed !== undefined ? e.healed : e.v));
         if (truthy(e.sun)) sun = true;
         if (truthy(e.mud)) mud = true;
         if (truthy(e.combo) && combo.indexOf(e.combo) < 0) combo.push(e.combo);
@@ -1703,8 +1740,9 @@
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
       s.foe.kind = truthy(v1.kinds) ? kindOf(c, s.size) : ''; s.foe.grudge = 0; s.foe.nextk = null; s.ven = {};   // 2.6.98 class rules
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
-      if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'), !!v1r(s, 'nothorn'))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
-      if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.me.tripped = 0; s.foe.bashnext = 0; s.foe.again = 0; }
+      if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'), !!v1r(s, 'nothorn'))), discard: [], next: [] }; envDraw(s); if (v1r(s, 'envopen') === 1) { s.v1.envn++; envDraw(s); s.v1.envn--; } }   // 2.6.75: the environment's deck
+      s.me.slowdraw = 0; s.me.tripped = 0;
+      if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.foe.bashnext = 0; s.foe.again = 0; }
       if (Array.isArray(c.ab) && c.ab.length && v1r(s, 'abil') === 1) abInit(s, c);   // 2.7.01 abilities (an E id replaces the class rule)
       if (v1r(s, 'style') === 1 && truthy(c.ai) && has(PFB_AI, String(c.ai))) { s.foe.aid = String(c.ai); var aiw = aiMake(String(c.ai), nn(c.aip, {})); if (aiw) s.foe.ai = aiw; }   // 2.7.01 play style
     }
@@ -1780,8 +1818,8 @@
       }
       s.me.simmer = 0;
       if (toInt(nn(s.me.regen, 0)) > 0) { var hh = Math.min(2, toInt(s.me.max) - toInt(s.me.hp)); s.me.hp += Math.max(0, hh); s.me.regen--; s.me.simmer = Math.max(0, hh); }   // 2.6.990 Simmer
-      slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;
     }
+    slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;   // 2.7.06: also in learner fights (tags 0)
     var gone = expire(s);
     if (s.ven) Object.keys(s.ven).forEach(function (vk) { if (s.ven[vk] <= 1) delete s.ven[vk]; else s.ven[vk] = s.ven[vk] - 1; });   // 2.6.98 venom fades
     if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg }); }   // 2.6.75
@@ -1845,7 +1883,7 @@
     ev.forEach(function (e0) { e0.ta = 'me'; });
     if (dry) { var dr = { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over }; if (withAim && v1r(w, 'aimtot')) dr.aim = aimTotal(w); return dr; }
     if (!w.over) { var fe = foeTurn(w); fe.forEach(function (e0) { e0.ta = 'foe'; }); ev = ev.concat(fe); }
-    var trip = !w.over && w.v1 && truthy(w.v1.tags) && truthy(w.me.slowdraw);
+    var trip = !w.over && w.v1 && truthy(w.v1) && truthy(w.me.slowdraw);
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
     if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
@@ -1870,7 +1908,7 @@
     if (w.v1) w.envlog = [];
     var ev = foeTurn(w); ev.forEach(function (e0) { e0.ta = 'foe'; });
     w.fx = fx(ev);
-    var trip = !w.over && w.v1 && truthy(w.v1.tags) && truthy(w.me.slowdraw);
+    var trip = !w.over && w.v1 && truthy(w.v1) && truthy(w.me.slowdraw);
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
     if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
@@ -1963,7 +2001,7 @@
     switch (e.t) {
       case 'hurt': tail = e.by === 'me' ? ' for ' + toInt(nn(e.dmg, e.v)) : ' for ' + toInt(nn(e.dmg, e.v)) + ' damage'; break;
       case 'guard': tail = ' (+' + toInt(e.v) + ' guard)'; break;
-      case 'heal': case 'item': tail = ' (+' + toInt(e.v) + ' health)'; break;
+      case 'heal': case 'item': tail = (e.by === 'foe' && e.healed !== undefined) ? ' (its yield bar back ' + String(Number(e.healed)) + ')' : ' (+' + toInt(e.v) + ' health)'; break;
       case 'charm': tail = ' (' + toInt(e.v) + ')'; break;
       default: tail = '';
     }
@@ -2048,7 +2086,7 @@
 
   return {
     // the public API
-    envTable: envTable, envDeck: envDeck, tiles: tiles, playerDeck: playerDeck, newFight: newFight, start: start, play: play, pass: pass, view: view,
+    envTable: envTable, envDeck: envDeck, tiles: tiles, playerDeck: playerDeck, newFight: newFight, start: start, play: play, pass: pass, redraw: redraw, view: view,
     cells: cells, edges: edges, joint: joint, groupSpots: groupSpots, groupFit: groupFit, groupOptions: groupOptions, search: search,
     line: line, chipEvent: chipEvent, chipsBoard: chipsBoard,
     // more of the PHP functions

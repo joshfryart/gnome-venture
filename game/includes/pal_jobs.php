@@ -235,8 +235,10 @@ function pj_settle(int $uid): void
     gclock_freeze_pals($uid);   // sleep-days: pal work waits for sleeps, real time does not move it
     pj_settle_equip($uid);
     foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND kind = 'station' AND tool = 'passive'", [$uid])->fetchAll() as $j) pj_passive_tick($uid, $j);
+    foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND kind = 'station' AND tool = 'jars'", [$uid])->fetchAll() as $j) pj_pantry_tick($uid, $j);   // 2.7.06: collects ready jars, fills free ones
     foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND ends_at <= ?", [$uid, now()])->fetchAll() as $j) {
         if ($j['kind'] === 'garden') { pj_garden_close($j); continue; }
+        if ($j['kind'] === 'station' && $j['tool'] === 'jars') pj_pantry_tick($uid, $j);   // the last look before the pal goes home
         if (q("UPDATE ppal_jobs SET state = 'ready' WHERE id = ? AND state = 'active'", [$j['id']])->rowCount() !== 1) continue;
         if ($j['kind'] === 'station' && $j['tool'] === 'passive') pj_passive_finish($uid, (int)$j['id']);
         $r = json_decode((string)$j['result'], true) ?: [];
@@ -503,6 +505,7 @@ function pj_recall_preview(array $j): array
     if ($j['state'] !== 'active') return [false, ''];
     $r = json_decode((string)$j['result'], true) ?: [];
     if ($j['kind'] === 'garden') return [true, 'Your pal comes home now. Nothing is lost.'];
+    if (($j['tool'] ?? '') === 'jars') return [true, 'Your pal comes home now. Jars already started stay yours; nothing is lost.'];
     if (($j['tool'] ?? '') === 'passive') {
         $served = (int)($r['served'] ?? 0);
         return [true, 'Dishes already served (' . $served . ') stay in your satchel. A dish still cooking loses half its dishes (rounded down) and the pot is yours again.'];
@@ -526,7 +529,8 @@ function pj_recall(array $u, int $jobId): array
     if ($j['kind'] === 'garden') { pj_garden_close($j); return [true, $name . ' comes home from the garden.']; }
     $r = json_decode((string)$j['result'], true) ?: [];
     $passive = $j['kind'] === 'station' && ($j['tool'] ?? '') === 'passive';
-    if (!$passive) {
+    $jars = $j['kind'] === 'station' && ($j['tool'] ?? '') === 'jars';
+    if (!$passive && !$jars) {
         [$can, $why] = pj_recall_preview($j);
         if (!$can) return [false, $why];
         $r = pj_recall_scale($r, pj_job_frac($j), (int)$j['potions']);
@@ -663,10 +667,86 @@ function pj_station_list(): array
     require_once __DIR__ . '/craft_map.php';
     $out = [];
     foreach (CRAFT_CATEGORIES as $area => [$label]) {
-        if ($area === 'pantry') continue;
-        foreach (craft_scenes()[$area]['hot'] ?? [] as [$id, $ol, , , , , $to]) if (is_array($to)) $out[$area . ':' . $id] = [$label, $ol];
+        if ($area === 'pantry') { $out['pantry:all'] = [$label, 'Whole station']; continue; }   // 2.7.06: the Pantry has jars, not objects: one pal for the whole room
+        $first = true;
+        foreach (craft_scenes()[$area]['hot'] ?? [] as [$id, $ol, , , , , $to]) if (is_array($to)) {
+            if ($first) { $out[$area . ':all'] = [$label, 'Whole station']; $first = false; }   // 2.7.06: one pal for the whole station (every recipe category), listed first
+            $out[$area . ':' . $id] = [$label, $ol];
+        }
     }
     return $out;
+}
+
+// ---------------- the Pantry (2.7.06): a pal tends the jars ----------------
+
+/** Send a pal to tend the whole Pantry: while the shift lasts it collects every ready jar and fills every free jar it has ingredients for (never-made preserves first). No energy. */
+function pj_pantry_send(array $u, string $palUid, int $hours, bool $unequip): array
+{
+    $uid = (int)$u['id'];
+    require_once __DIR__ . '/pantry.php';
+    if (pantry_jar_limit($uid) < 1) return [false, 'You need a 🫙 Pantry on a Kitchen first.'];
+    [$p, $err] = pj_can_send($u, $palUid, $unequip);
+    if (!$p) return [false, $err];
+    if (q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'pantry:%' AND state IN ('active','ready')", [$uid])) return [false, 'A pal is already working at the Pantry.'];
+    if (!pj_station_all_recipes($uid, 'pantry')) return [false, 'You know no Pantry recipes yet.'];
+    db()->beginTransaction();
+    if (!pj_claim_pal($uid, $palUid, 'station')) { db()->rollBack(); return [false, $p['name'] . ' is already out.']; }
+    db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => 'pantry:all', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'jars',
+        'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $hours * 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active',
+        'result' => json_encode(['jars' => true, 'hp' => (int)$p['hp'], 'rounds' => 0, 'area' => 'pantry', 'obj' => 'Pantry', 'started' => 0, 'collected' => 0])]);
+    db()->commit();
+    $j = q_one("SELECT * FROM ppal_jobs WHERE user_id = ? AND pal_uid = ? AND state = 'active' ORDER BY id DESC LIMIT 1", [$uid, $palUid]);
+    if ($j) pj_pantry_tick($uid, $j);
+    return [true, $p['name'] . ' takes over the Pantry for ' . $hours . ' h: it fills free jars from your satchel (new preserves first) and collects the ready ones, on game days.'];
+}
+
+/** One look at the Pantry for a tending pal: collect what is ready, then start jars (one of each recipe per pass, never-made first) until the jars or the ingredients run out. */
+function pj_pantry_tick(int $uid, array $j): void
+{
+    require_once __DIR__ . '/pantry.php';
+    require_once __DIR__ . '/crafting.php';
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    if (!$u) return;
+    $collected = 0; $started = 0;
+    foreach (pantry_jars_list($uid) as $jar) {
+        if ($jar['left'] > 0) continue;
+        [$ok, , $info] = pantry_collect_one($u, (int)$jar['id']);
+        if ($ok) $collected += max(1, (int)($info['dishes'] ?? 1));
+    }
+    $plan = pj_station_order($uid, array_values(pj_station_all_recipes($uid, 'pantry')));
+    for ($pass = 0; $pass < 30; $pass++) {
+        $did = false;
+        foreach ($plan as $rec) {
+            if (pantry_free($uid, pantry_kind($rec)) < 1) continue;
+            if (craft_fit(craft_stock($uid, (string)$rec['ingredients'], (int)$rec['id']), 0, 0) < 1) continue;
+            [$ok] = pantry_start($u, $rec, 1, true);
+            if ($ok) { $started++; $did = true; }
+        }
+        if (!$did) break;
+    }
+    if ($collected || $started) {
+        $cur = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$j['id']]), true) ?: [];
+        $cur['started'] = (int)($cur['started'] ?? 0) + $started; $cur['collected'] = (int)($cur['collected'] ?? 0) + $collected;
+        q('UPDATE ppal_jobs SET result = ? WHERE id = ?', [json_encode($cur), $j['id']]);
+    }
+}
+
+/** 2.7.06: every known recipe of an area, whatever object makes it (a whole-station shift). id => recipe row. */
+function pj_station_all_recipes(int $uid, string $area): array
+{
+    $out = [];
+    foreach (craft_recipes($uid, $area) as $r) if ($r['known']) $out[(int)$r['id']] = $r;
+    return $out;
+}
+
+/** 2.7.06: the order a pal tries recipes in: first the ones the gnome has never made (a new dish, a new preserve), then the rest by how little has been made, the list order breaking ties. */
+function pj_station_order(int $uid, array $plan): array
+{
+    $made = [];
+    foreach (q('SELECT recipe_id, made FROM user_recipes WHERE user_id = ?', [$uid])->fetchAll() as $m) $made[(int)$m['recipe_id']] = (int)$m['made'];
+    $idx = array_keys($plan);
+    usort($idx, fn($a, $b) => [$made[(int)$plan[$a]['id']] ?? 0, $a] <=> [$made[(int)$plan[$b]['id']] ?? 0, $b]);
+    return array_map(fn($i) => $plan[$i], $idx);
 }
 
 /** Known recipes of an area that an object makes (rows from craft_recipes with 'ings'). */
@@ -687,26 +767,32 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     $uid = (int)$u['id'];
     require_once __DIR__ . '/crafting.php';
     if (!in_array($hours, PJ_TRIP_HOURS, true)) return [false, 'Pick 1, 3 or 8 hours.'];
-    if ($area === 'pantry' || !isset(CRAFT_CATEGORIES[$area])) return [false, 'Pals cannot work that area yet.'];
-    $o = pj_station_object($area, $obj);
+    if (!isset(CRAFT_CATEGORIES[$area])) return [false, 'Pals cannot work that area yet.'];
+    if ($area === 'pantry') return pj_pantry_send($u, $palUid, $hours, $unequip);   // 2.7.06 (Josh): a pal tends the Pantry's jars
+    $whole = ($obj === 'all' || $obj === '');   // 2.7.06 (Josh): one pal tends the WHOLE station, every recipe category it has; no object to pick
+    $o = $whole ? ['id' => 'all', 'label' => CRAFT_CATEGORIES[$area][0], 'globs' => null] : pj_station_object($area, $obj);
     if (!$o) return [false, 'Pick a station.'];
     $stations = craft_stations($uid);
     if (($stations[$area] ?? 0) === 0) return [false, 'You need the building for that area first.'];
     [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
-    $target = $area . ':' . $obj;
+    $target = $area . ':' . ($whole ? 'all' : $obj);
     $passive = $area === 'cooking';   // pals only cook passively, in a pot of their own
     if ($passive && !cook_pots_on()) return [false, 'Pals cook in pots, and pots are switched off.'];
-    if (!$passive && q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target = ? AND state IN ('active','ready')", [$uid, $target])) return [false, 'A pal is already working at the ' . $o['label'] . '.'];
+    if (!$passive) {   // a whole-station pal blocks the station's objects and the other way round
+        $clash = $whole ? q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE ? AND state IN ('active','ready')", [$uid, $area . ':%'])
+            : q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target IN (?, ?) AND state IN ('active','ready')", [$uid, $target, $area . ':all']);
+        if ($clash) return [false, 'A pal is already working at the ' . $o['label'] . '.'];
+    }
     if (!$passive && (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND day = ?", [$uid, landmark_day()]) >= pj_stations_per_day()) return [false, 'Your pals have worked enough shifts today (' . pj_stations_per_day() . ').'];
-    $all = pj_station_recipes($uid, $area, $o['globs']);
+    $all = $whole ? pj_station_all_recipes($uid, $area) : pj_station_recipes($uid, $area, $o['globs']);
     if ($mode === 'chosen') {
         $ids = array_values(array_unique(array_map('intval', $recipeIds)));
         if (!$ids) return [false, 'Tick the recipes the pal should make, or pick "everything".'];
         if (count($ids) > 5) return [false, 'Pick up to 5 recipes.'];
         $plan = array_values(array_filter(array_map(fn($id) => $all[$id] ?? null, $ids)));
         if (count($plan) !== count($ids)) return [false, 'You can only pick recipes you know that this station makes.'];
-    } else $plan = array_values($all);
+    } else $plan = pj_station_order($uid, array_values($all));   // 2.7.06: what you have not made yet comes first
     if (!$plan) return [false, 'You know no recipes for the ' . $o['label'] . ' yet.'];
     $cookingArea = $area === 'cooking';
     if ($passive) {   // one pal per pot: the pal holds it until the shift ends. The first recipe it can make now (else the first chosen) is its starting choice.
@@ -1087,6 +1173,10 @@ function pj_collect(array $u, int $jobId): array
     if ($fainted) $lines[] = '😵 Out of HP, so ' . $name . ' turned back. Let them rest or give a potion.';
     if (!empty($r['coins'])) { give_petals($uid, (int)$r['coins'], 'pal delve'); $tot['coins'] += (int)$r['coins']; $lines[] = '💰 ' . money((int)$r['coins']); }
     foreach ($r['items'] ?? [] as [$iid, $qty, $iname]) { give_item($uid, (int)$iid, (int)$qty); $tot['items'][(int)$iid] = ($tot['items'][(int)$iid] ?? 0) + (int)$qty; $lines[] = '🎁 ' . $iname . ' ×' . (int)$qty; }
+    if ($isStation && ($j['tool'] ?? '') === 'jars') {   // 2.7.06: a pal that tended the Pantry's jars (what it collected is already in the satchel)
+        $lines[] = '🫙 ' . $name . ' started ' . (int)($r['started'] ?? 0) . ' jar' . ((int)($r['started'] ?? 0) === 1 ? '' : 's') . ' and collected ' . (int)($r['collected'] ?? 0) . ' preserve' . ((int)($r['collected'] ?? 0) === 1 ? '' : 's') . ' (already in your satchel). Jars still ripening are yours to collect.';
+        return [true, $lines, $head, $tot];
+    }
     if ($isPassive) {
         $tot['served'] = (int)($r['served'] ?? 0);
         $lines[] = !empty($r['cooks']) ? '🍲 ' . $name . ' served ' . (int)$r['served'] . ' dish' . ((int)$r['served'] === 1 ? '' : 'es') . ' from ' . (int)$r['cooks'] . ' cook' . ((int)$r['cooks'] === 1 ? '' : 's') . ' (already in your satchel).' : '🍃 Nothing was cooked.';

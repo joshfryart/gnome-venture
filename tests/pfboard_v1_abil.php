@@ -19,7 +19,7 @@ function ab_foe(string $size, array $x = []): array { return $x + ['slug' => 'te
 /** A v1 fight with an empty board and the creature's abilities in; $row adds to the creature row (class, ab, abp), $over to the rule numbers. */
 function ab_fight(string $size = 'medium', array $row = [], array $over = [], int $seed = 7): array
 {
-    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1]]);
+    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0, 'tagfx' => 0]]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = []; $s['ven'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
     ab_put($s, 'foe', ab_tile($s, 'f:base', 'guard', 1), 0, 3);   // a far corner piece, so the board is not empty (a cell needs a neighbour; an aimed cell does not)
     return $s;
@@ -181,6 +181,22 @@ chk('Ambush: the aim total shows the boosted number (14 against 10)', $tot['hp']
 $s = ab_fight('medium', ['ab' => ['ambush1']]); $ev = ab_turn($s, [ab_tile($s, 'f:g', 'guard', 4), ab_tile($s, 'f:h', 'hurt', 10), ab_tile($s, 'f:i', 'hurt', 10)], 1, 1); $s['foe']['again'] = 0;
 chk('Ambush: only its FIRST Hurt piece (a guard first does not use it)', ($h = $hurtOf(ab_turn($s, [ab_tile($s, 'f:h', 'hurt', 10)], 2, 2))) && $h[0]['v'] === 10, $h);
 
+echo "== 7a. Creature healing on the yield bar (2.7.06)\n";
+$s = ab_fight('medium'); $s['fh']['now'] = 3.0; $s['bar']['now'] = 5.0; $s['bar']['charm'] = 5.0; $tot0 = $s['fh']['now'] + $s['bar']['now'];
+$ev = ab_place($s, 'foe', ab_tile($s, 'f:hl', 'heal', 6), 1, 1); $he = array_values(array_filter($ev, fn($e) => ($e['t'] ?? '') === 'heal'));
+chk('a creature Heal of 6 takes back 3 damage first, then 3 charm: the yield bar loses 6 in all', abs(($s['fh']['now'] + $s['bar']['now']) - ($tot0 - 6)) < 1e-9 && abs($s['fh']['now']) < 1e-9 && abs($s['bar']['now'] - 2.0) < 1e-9 && abs($s['bar']['charm'] - 2.0) < 1e-9, [$s['fh']['now'], $s['bar']['now'], $s['bar']['charm']]);
+chk('the event says how much it really took back (healed 6)', $he && abs(($he[0]['healed'] ?? -1) - 6.0) < 1e-9, $he[0] ?? null);
+$s = ab_fight('medium'); $s['fh']['now'] = 1.0; $s['bar']['now'] = 2.0; $s['bar']['charm'] = 2.0;
+$ev = ab_place($s, 'foe', ab_tile($s, 'f:hl', 'heal', 20), 1, 1); $he = array_values(array_filter($ev, fn($e) => ($e['t'] ?? '') === 'heal'));
+chk('a Heal bigger than the bar holds takes back only what is there (3) and leaves nothing negative', $he && abs(($he[0]['healed'] ?? -1) - 3.0) < 1e-9 && $s['fh']['now'] >= 0 && $s['bar']['now'] >= 0 && $s['bar']['charm'] >= 0, [$he[0]['healed'] ?? null, $s['fh']['now'], $s['bar']['now']]);
+chk('its line says the yield bar, not "+N health"', $he && str_contains(pfight_line($he[0], 'Owl'), 'yield bar back 3'), $he ? pfight_line($he[0], 'Owl') : null);
+echo "== 7b. Barge planning (2.7.06)\n";
+$s = ab_fight('medium', [], ['tags' => 1]); $s['foe']['block'] = 8; $a0 = $s; $a1 = $s; $a1['foe']['bashnext'] = 1; $u = 0.05 * $s['me']['max'];
+$d = pfb_score($s, $a1, 'foe') - pfb_score($s, $a0, 'foe');
+chk('Barge planning: a lent guard of 8 is worth that guard (about 8 health), not a flat 1 unit (' . round($u, 2) . ')', $d > 0.9 * 8 && $d > 2 * $u, [round($d, 2), $u]);
+$a1['foe']['block'] = 0; $a0['foe']['block'] = 0; $d0 = pfb_score($s, $a1, 'foe') - pfb_score($s, $a0, 'foe');
+chk('Barge with no guard standing: still the flat unit (never worth less than before)', abs($d0 - $u) < 1e-6, [round($d0, 3), $u]);
+
 echo "== 8. Stagger\n";
 $s = ab_fight('medium', ['ab' => ['stagger1']]); $max = $s['me']['max']; $big = (int)ceil(0.2 * $max);
 $ev = ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big), 1, 1);
@@ -195,6 +211,8 @@ $s = ab_fight('medium', ['ab' => ['stagger1']]); $s['me']['evade'] = 1; ab_place
 chk('Stagger: an Evaded hit does nothing', empty($s['me']['slowdraw']));
 $s = ab_fight('medium', ['ab' => ['stagger1']]); ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big), 1, 1); $hand0 = count($s['me']['hand']); pfb_end_round($s);
 chk('Stagger: next round you draw one fewer (4 pieces, as after a Trip)', count($s['me']['hand']) === 4 && empty($s['me']['slowdraw']), count($s['me']['hand']));
+$s = ab_fight('medium', ['ab' => ['stagger1']], ['tags' => 0, 'nothorn' => 1]); ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big), 1, 1); pfb_end_round($s);
+chk('Stagger (2.7.06): works in a learner fight (tags 0) too: 4 pieces next round, flag cleared, tripped shown', count($s['me']['hand']) === 4 && empty($s['me']['slowdraw']) && (int)$s['me']['tripped'] === 1, [count($s['me']['hand']), $s['me']['tripped'] ?? null]);
 $s = ab_fight('medium'); ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big + 5), 1, 1);
 chk('(2.7.00 engine: no Stagger)', empty($s['me']['slowdraw']));
 
@@ -324,6 +342,9 @@ chk('region EE: both turn up', isset($got['EE']['aphid-swarm'], $got['EE']['fly-
 chk('no region given: both (the old behaviour)', isset($got['']['aphid-swarm'], $got['']['fly-swarm']), array_keys($got['']));
 $rows = [$row('fly-swarm', 3)]; $p = pick_creature('grassland', 4, false, false, 0, 'NA', $rows);
 chk('the region leaves nothing in the band: it picks again without the region (never null)', $p !== null && $p['slug'] === 'fly-swarm', $p);
+$rows = [$row('aphid-swarm', 4, 'boss'), $row('fly-swarm', 3)]; $nb = 0; $N = 8000; mt_srand(5);
+for ($i = 0; $i < $N; $i++) { $p = pick_creature('grassland', 4, true, false, 0, 'NA', $rows); if ($p && $p['size'] === 'boss') $nb++; }
+chk('2.7.06 boss chance is 6% once, not rolled again in the fallback pass (about 6%, not 11-12%): ' . round(100 * $nb / $N, 1) . '%', $nb / $N > 0.04 && $nb / $N < 0.085, $nb / $N);
 $rows = [$row('aphid-swarm', 3), $row('fly-swarm', 3), $row('marsh-adder', 14, 'large', 'wetland')]; $p = pick_creature('wetland', 15, false, false, 0, 'NA', $rows);
 chk('a variant of the right region and band is picked over a base out of band', $p !== null && $p['slug'] === 'marsh-adder', $p['slug'] ?? null);
 $GLOBALS['PF_CREATURES_FILE'] = '/nonexistent/pf_creatures.txt'; pfd_creature_rows(true);

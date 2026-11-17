@@ -38,7 +38,7 @@
     trip: 'Trip: you draw 1 fewer next round', heal: 'Heal: empties some of its Yield bar', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
   var EVG = { sunbeam: 'sun', creep: 'br', puddle: 'mud', gust: 'gust', thorn: 'thorn' }, EVT = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GRN = { sun: 'Sunny patch', br: 'Bramble', mud: 'Mud' }, ROT = { R: 0, B: 90, L: 180, T: 270 };
-  var SRCI = { tool: '🔧', pal: '🐾', crop: '🌾' };
+  var SRCI = { tool: '🔧', pal: '🐾', crop: '🌾', craft: '🔨', region: '🗺️', knack: '✨', calling: '🎓' };
   var SVG = {
     sun: '<circle cx="8" cy="8" r="3.2" fill="currentColor"/><path d="M8 1v2.4M8 12.6V15M1 8h2.4M12.6 8H15M3 3l1.7 1.7M11.3 11.3L13 13M13 3l-1.7 1.7M4.7 11.3L3 13" stroke="currentColor" stroke-width="1.6" fill="none"/>',
     br: '<path d="M2 13C5 11 6 6 9 5s4-2 5-3" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M5 10l-3-2M7 7L5 3M10 5l3 3M12 3l-1-2" stroke="currentColor" stroke-width="1.6" fill="none"/>',
@@ -193,7 +193,9 @@
   function mudAt(x, y) { return ((data.ter || {})[x + ',' + y] || '') === 'mud'; }   // the rules use the ground as it is now
   function terAt(x, y) { var k = x + ',' + y; return phase === 'pre' && PREV ? (terOver[k] !== undefined ? terOver[k] : ((PREV.ter || {})[k] || '')) : ((data.ter || {})[k] || ''); }   // what is drawn (the replay starts from the ground before the turn)
   function dispEnvs() { return (phase === 'pre' && PREV ? PREV.envs : data.envs) || []; }
-  function dispAim() { return phase === 'pre' && PREV ? (aimHide ? null : PREV.aim) : data.aim; }
+  var qAim = null;   // 2.7.06: the aim marker of Quick's second piece during the replay
+  function setQuickAim(a) { if (a === null && qAim === null) return; qAim = a; render(); }
+  function dispAim() { if (qAim) return qAim; return phase === 'pre' && PREV ? (aimHide ? null : PREV.aim) : data.aim; }
   function pipsEl(n, max) { var s = document.createElement('span'); s.className = 'xp' + (n <= 1 && max > 1 ? ' last' : ''); s.setAttribute('aria-hidden', 'true'); for (var i = 0; i < max; i++) { var d = document.createElement('i'); if (i >= n) d.className = 'e'; s.appendChild(d); } return s; }
   function flipE(e) { return { L: e.L, R: e.R, T: e.B, B: e.T }; }
 
@@ -338,7 +340,7 @@
     h += '<span class="tg step on" title="Every round goes: you, the creature, then the ' + (ENV ? 'environment' : 'terrain') + '">R' + (data.round || 1) + ' \u00B7 ' + (data.won ? 'over' : stepNow === 1 ? '<span class="fn">' + esc(foe) + '</span>' : stepNow === 2 ? (ENV ? 'Environment' : 'Terrain') : 'You') + '</span>';
     for (i = 1; i <= Math.max(lim, 3); i++) dots += '<i class="' + (n >= i ? (lim > 0 && n >= lim ? 'over' : 'on') : '') + '"></i>';
     h += '<span class="tg" role="img" aria-label="Pieces that fire in your chain: ' + n + '. ' + (lim > 0 ? lim + ' or more: every piece that fired is used up.' : '') + '" title="' + (lim > 0 ? 'A chain of ' + lim + ' or more uses up every piece that fired.' : 'Chain') + '"><span class="dots">' + dots + '</span></span>';   // 2.6.90 (Josh: "very busy"): no word, the dots say it
-    if (TEAM && tw > 1) h += '<span class="tg team on" title="Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%">Teamwork +' + Math.round((tw - 1) * 100) + '%</span>';   // 2.6.90: only when the chain has it (the rule is in the help sheet)
+    if (TEAM && tw > 1) h += '<span class="tg team on" title="Pieces from different sources in one chain (pal, tool, crop, craft, region, knack, calling): 2 kinds +30%, 3 or more +60%">Teamwork +' + Math.round((tw - 1) * 100) + '%</span>';   // 2.6.90: only when the chain has it (the rule is in the help sheet)
     if (!data.won) {
       var aim = dispAim();
       if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? aimChip(aim) : '<span class="tg aim">no aim</span>';
@@ -416,9 +418,9 @@
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">Win and lose</div><ul class="helpl">' + row({ n: 'How a fight ends', g: 'win', l: [ONE ? 'You win when the ' + YIELD + ' bar is full: Hurt and Charm both fill it.' : 'You win when the creature\u2019s health is empty (Hurt) or its charm bar is full (Charm).', 'You lose when your health reaches 0. After ' + (data.turncap || 24) + ' turns the creature loses interest and wanders off (a boss does not).'], who: '' }) + '</ul>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
-      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
+      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell, or put a piece beside it that no longer fits, and it has to pick again (the chip then says \u201cpicked again\u201d: that is normal, about once every few turns).' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
       + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
-      + row({ n: 'Chains', g: 'chain', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
+      + row({ n: 'Chains', g: 'chain', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pieces from different sources in one chain (pal, tool, crop, craft, region, knack, calling): 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, 3 or more +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'Resolve order: environment pieces, then Guard and Soothe, then Trick, then Hurt and Charm, then Heal and Item. Pieces of one type fire in the order they linked.', 'Tags on your pieces: Quick fires first in its chain, Heavy fires last and then falls away; a Sticky upgrade keeps the piece on the board one round longer.', 'Combos: a piece gets its combo when a partner of your own is anywhere in the same chain, whatever order you put them down in. Trick + Hurt = Ambush, Guard + Hurt = Riposte, Hurt + Hurt = Double Swing (the second Hurt), Soothe + Charm = Calm Charm, Charm + Item = Win Over, Trick + Guard = Bait.', 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Numbers on a lit spot', g: 'num', l: ['Pick a piece and every spot it can go shows what your chain would do there: \u2694 hurt to the creature, \u273F charm, \u2764\u2212 health YOU lose (a creature piece or a Thornburst in your chain). A spot with a red edge costs you health; tap it to see why.', '\u00d7N used: the chain is long enough to use its pieces up. \u2013 nothing counted. \u2605 the fight ends.'], who: '' })
       + row({ n: 'Combos', g: 'combo', l: ['Two of your pieces linked in a set pair fire stronger: Trick then Hurt (Ambush), Guard then Hurt (Riposte), Hurt then Hurt (Double Swing), Soothe then Charm (Calm Charm), Charm then Item (Win Over), Trick then Guard (Bait). The second piece of the pair gets the bonus; its name shows with a sparkle in the plan.'], who: '' })
       + (ASIDE ? row({ n: 'Set aside', g: 'chain', l: ['Instead of placing a piece you can set two hand pieces aside, joined; play the group on a later turn and it fires for more.'], who: '' }) : '')
@@ -460,7 +462,7 @@
     Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
     (data.replay || []).forEach(function (ev) { if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined && typeof ev.moved.fx === 'number') movedBack[ev.moved.id] = { x: ev.moved.fx, y: ev.moved.fy }; });   // 2.6.985: a Water current pushes your piece at its own step, not before
   }
-  function replayDone() { banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
+  function replayDone() { qAim = null; root.classList.remove('pf-turnhold'); banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
     fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
   function envStepE(ev) {   // one step of the environment's own events: a piece fires in a chain, the environment places, finds no place, pieces fade
     var K = envKind(ev.kind);
@@ -1250,7 +1252,8 @@
     turnEl.style.animationDuration = ((banMs - 50) / 1000 / Math.max(1, SPD)) + 's';
     turnEl.style.top = Math.max(4, boardEl.offsetTop + boardEl.offsetHeight / 2 - 18) + 'px';
     void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
-    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, banMs / Math.max(1, SPD));
+    root.classList.toggle('pf-turnhold', who === 'me');   // 2.7.06 (Josh): the hand and board ignore taps while "Your turn" shows
+    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; root.classList.remove('pf-turnhold'); }, banMs / Math.max(1, SPD));
   }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
   function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
@@ -1315,6 +1318,8 @@
         if (side === 'foe') tt += BAN;
       }
       playTimers.push(setTimeout(function () {
+        if (ev.note === 'quick') { var nx = data.replay[k + 1], qp = nx && nx.id ? pieceById(nx.id) : null; if (qp) setQuickAim({ x: qp.x, y: qp.y, n: qp.n || nx.n, t: qp.t || nx.t, v: nx.v }); }
+        else if (ev.id) setQuickAim(null);
         if ((ev.ta || ev.by) === 'foe') aimHide = true;   // its aim was on the board while its banner showed
         if (ev.cs && ev.rid && hiddenIds[ev.rid]) { delete hiddenIds[ev.rid]; revealId = ev.rid; render(); revealId = null; }   // next release: the placed piece appears when its chain starts, even when other pieces of the chain (environment, guard, trick) fire before it
         if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores

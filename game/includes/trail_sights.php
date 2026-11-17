@@ -10,8 +10,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/trail_sight_extras.php';
 
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
-const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'check', 'choose', 'disc'];
-const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti)=[a-z0-9,]+|mo=[a-z,-]+|(tl|tn)=[a-z0-9-]+:\d+|qd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
+const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'streak', 'lend', 'repay', 'time', 'escort', 'check', 'choose', 'disc'];
+const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti|fd)=[a-z0-9,_-]+|mo=[a-z,-]+|(tl|tn|sk)=[a-z0-9-]+(@today)?:\d+|qd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
 function trail_sight_row(array $p): ?array
@@ -94,8 +94,13 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($c[0] === 'pick') {   // pick:N or pick:N:label;label;label : choose one of N, one is right (fixed per gnome and game day)
             if (!ctype_digit($c[1] ?? '') || (int)$c[1] < 2 || (int)$c[1] > 5 || (isset($c[2]) && count(explode(';', $c[2])) !== (int)$c[1])) $bad[] = 'pick must be pick:N[:N labels joined by ;] with N 2 to 5';
             if ($r['lose'] === '') $bad[] = 'a pick needs a lose line';
-        } elseif (count($c) !== 2 || !array_key_exists($c[0], GNOME_STATS) || !ctype_digit($c[1]) || (int)$c[1] > 25) $bad[] = 'check must be stat:difficulty or pick:N (' . implode(', ', array_keys(GNOME_STATS)) . ')';
-        elseif ($r['lose'] === '') $bad[] = 'a check needs a lose line';
+        } else {
+            foreach (explode('+', $r['check']) as $alt) {   // 2.7.06 either / or: stat:dc+stat:dc (any one pass wins)
+                $ac = explode(':', $alt);
+                if (count($ac) !== 2 || !array_key_exists($ac[0], GNOME_STATS) || !ctype_digit($ac[1]) || (int)$ac[1] > 25) { $bad[] = 'check must be stat:difficulty (or stat:dc+stat:dc: either one) or pick:N (' . implode(', ', array_keys(GNOME_STATS)) . ')'; break; }
+            }
+            if ($r['lose'] === '') $bad[] = 'a check needs a lose line';
+        }
     }
     if ($r['when'] !== '-') foreach (array_filter(array_map('trim', explode('/', $r['when']))) as $part) if (!preg_match(TRAIL_SIGHT_COND_RE, $part)) $bad[] = 'bad condition "' . $part . '"';
     if ($r['tool'] !== '-') {
@@ -135,7 +140,7 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($k === 'fpto' && !preg_match('/^[^:@]+(@[a-z0-9-]+)?(:\d+)?$/', $v)) $bad[] = 'fpto= needs Name[@village][:points]';
         if ($k === 'take' && ($t['cond'] !== '' || $t['first'] || str_contains($t['tok'], '@'))) $bad[] = 'take= is a cost: it cannot have a condition, first: or a chance';
         if ($k === 'give') { $gs = explode(':', $v)[0]; if (!trail_sight_item_known($gs)) $bad[] = 'give= item "' . $gs . '" does not exist'; }
-        if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; if (!trail_sight_item_known($slug)) $bad[] = 'no item "' . $slug . '"'; }
+        if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; if (!($k === 'take' && preg_match('/^any-[a-z]+$/', $slug)) && !trail_sight_item_known($slug)) $bad[] = 'no item "' . $slug . '"'; }
     }
     return $bad;
 }
@@ -334,21 +339,39 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     }
     $takes = [];   // take=slug:qty: needed in the satchel (checked before any energy goes), used up on a win
     foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'take=')) {
-        [$tslug, $tqty] = array_pad(explode(':', substr($t['tok'], 5), 2), 2, '1'); $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$tslug]); $tq = max(1, (int)$tqty);
+        [$tslug, $tqty] = array_pad(explode(':', substr($t['tok'], 5), 2), 2, '1'); $tq = max(1, (int)$tqty);
+        if (preg_match('/^any-([a-z]+)$/', $tslug, $anm)) {   // 2.7.06: take=any-nut:2 / any-feather:1 = any items of that kind (a crop kind, else a slug ending in it), several kinds of item allowed
+            $cand = trail_sight_any_items($anm[1]); $have = 0; foreach ($cand as $cid) $have += (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $cid]);
+            if ($have < $tq) return [false, 'You need ' . $tq . ' × any ' . $anm[1] . ' for that.'];
+            $takes[] = [-1, $tq, $cand]; continue;
+        }
+        $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$tslug]);
         if (!$tid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $tid]) < $tq) return [false, 'You need ' . $tq . ' × ' . ($tid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$tid]) : $tslug) . ' for that.'];
         $takes[] = [$tid, $tq];
+    }
+    $loanKey = 'lend#' . $slug; $loanOpen = false; $lends = [];   // 2.7.06 lend=slug:qty hands an item over for a while; the next use of the Sight repay=slug:qty gives it back
+    try { $loanOpen = (int)(trail_sight_tallies((int)$u['id'])[$loanKey] ?? 0) > 0; } catch (Throwable $e) {}
+    foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'lend=') && !$loanOpen) {
+        [$lslug, $lqty] = array_pad(explode(':', substr($t['tok'], 5), 2), 2, '1'); $lid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$lslug]); $lq = max(1, (int)$lqty);
+        if (!$lid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $lid]) < $lq) return [false, 'You need ' . $lq . ' × ' . ($lid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$lid]) : $lslug) . ' to lend here.'];
+        $lends[] = [$lid, $lq];
     }
     trail_sights_ensure_items();   // a Sight can hand out an item only Sights give (data/trail_sight_items.txt): make them before the first use
     trail_sights_ensure_newfolk();
     if (!spend_energy((int)$u['id'], $row['energy'], 'sight')) return [false, 'You need ' . $row['energy'] . ' energy for that.'];   // time: setting time_sight (10 game minutes); an energy-free Sight still takes the time
     $ok = true;
     if ($pick && !$sure) $ok = (int)($opt['pick'] ?? -1) === trail_sight_pick_right($u, $sc, $row);
-    elseif ($row['check'] !== '-' && str_contains($row['check'], ':') && !$sure) { [$stat, $dc] = explode(':', $row['check'], 2); [$ok] = stop_check($u, $stat, (int)$dc); }
+    elseif ($row['check'] !== '-' && str_contains($row['check'], ':') && !$sure) { $ok = false; foreach (explode('+', $row['check']) as $alt) { [$stat, $dc] = explode(':', $alt, 2); [$one] = stop_check($u, $stat, (int)$dc); if ($one) { $ok = true; break; } } }   // 2.7.06: stat:dc+stat:dc = either passes
     $lines = [];
     $first = false;
     try { $first = !q_val('SELECT 1 FROM trail_sight_first WHERE user_id = ? AND slug = ?', [(int)$u['id'], $slug]); } catch (Throwable $e) { /* table missing: no first-time bonus */ }
     if ($ok) {   // tally=<key> counts this use for the gnome (a private cairn, a collection); conditions tl=<key>:N see the new count
-        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'tally=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) { trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6)); $now['tl'] = trail_sight_tallies((int)$u['id']); $lines[] = '🪨 ' . substr($t['tok'], 6) . ' ' . ($now['tl'][substr($t['tok'], 6)] ?? 0); }
+        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'tally=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) { trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6)); trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6) . '@' . (int)($now['gd'] ?? 0)); try { q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey LIKE '%@%' AND tkey NOT LIKE ?", [(int)$u['id'], '%@' . (int)($now['gd'] ?? 0)]); } catch (Throwable $e) { } $now['tl'] = trail_sight_tallies((int)$u['id']); $lines[] = '🪨 ' . substr($t['tok'], 6) . ' ' . ($now['tl'][substr($t['tok'], 6)] ?? 0); }
+    }
+    if ($ok) {   // 2.7.06 streak=<key>: using the Sight on consecutive game days builds a streak (a missed day starts again at 1); conditions sk=<key>:N see it
+        $gdNow = (int)($now['gd'] ?? 0); $bumped = false;
+        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'streak=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) { trail_sight_streak_bump((int)$u['id'], substr($t['tok'], 7), $gdNow); $bumped = true; }
+        if ($bumped) $now['tl'] = trail_sight_tallies((int)$u['id']);
     }
     if ($ok) {
         $plain = [];   // the rest-stop reward grammar for most tokens; gather= runs the gather table; hint= title= page= unlock= are ours; take= is paid below
@@ -356,7 +379,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             if ($t['first'] && !$first) continue;
             if ($t['cond'] !== '' && !trail_sight_cond_ok($t['cond'], $now)) continue;
             $tok = $t['tok'];
-            if (str_starts_with($tok, 'take=') || str_starts_with($tok, 'tally=')) continue;
+            if (str_starts_with($tok, 'take=') || str_starts_with($tok, 'tally=') || str_starts_with($tok, 'streak=') || str_starts_with($tok, 'lend=') || str_starts_with($tok, 'repay=') || str_starts_with($tok, 'escort=')) continue;
             if (str_starts_with($tok, 'item=')) { require_once __DIR__ . '/wearables.php'; if (wear_parse(explode(':', substr($tok, 5))[0]) !== null && !wear_live($u)) continue; }   // 2.7.01: wearables drop only while puzzle combat (pfight_v1) is on for this gnome
             if (str_starts_with($tok, 'choose=')) { $tok = $choose[(int)$opt['reward']][0]; if (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) { $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); continue; } $plain[] = $tok; continue; }
             $tok = trail_sight_flat_scale($tok, stop_level($loc));   // 2.7.00 rewards pass (off until approved)
@@ -367,10 +390,30 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
                 if ($found) gather_reveal_set($found);
                 $lines[] = $gl ?? 'You find nothing this time.';
             } elseif (str_starts_with($tok, 'unlock=')) { if (unlock_entries((int)$u['id'], substr($tok, 7)) > 0) $lines[] = '📖 A new Almanac page'; }
-            elseif (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now));
+            elseif (str_starts_with($tok, 'time=')) {   // 2.7.06: time=N = N more game minutes pass (a long sit-down, a slow walk): needs the sleep-days clock
+                $tm = max(1, min(480, (int)substr($tok, 5)));
+                if (function_exists('gclock_on') && gclock_on() && game_spend((int)$u['id'], $tm)) $lines[] = '⏱️ ' . ($tm >= 60 ? round($tm / 60, 1) . ' h' : $tm . ' min') . ' pass';
+            }
+            elseif (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) { if (trail_sight_chance_pass($tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); }   // 2.7.06: @chance now works on these too
             else $plain[] = $tok;
         }
-        foreach ($takes as [$tid, $tq]) give_item((int)$u['id'], $tid, -$tq);
+        foreach ($takes as $tk) {
+            [$tid, $tq] = $tk;
+            if ($tid !== -1) { give_item((int)$u['id'], $tid, -$tq); continue; }
+            $left = $tq;   // any-<kind>: use up the biggest stacks first
+            $stk = []; foreach ($tk[2] as $cid) { $qy = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $cid]); if ($qy > 0) $stk[$cid] = $qy; }
+            arsort($stk); foreach ($stk as $cid => $qy) { $use = min($left, $qy); give_item((int)$u['id'], (int)$cid, -$use); $left -= $use; if ($left <= 0) break; }
+        }
+        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'escort=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) {   // 2.7.06: a villager walks with you for the rest of this walk (drawn beside the gnome)
+            $ename = substr($t['tok'], 7);
+            if (trail_escort_pic($ename) !== '') { $sc2 = trail_scene($exp); if ($sc2) { $sc2['st']['escort'] = $ename; if (trail_save($sc2)) $lines[] = '🚶 ' . trail_sight_split_who($ename)[0] . ' walks with you for the rest of the way'; } }
+        }
+        foreach ($lends as [$lid, $lq]) { give_item((int)$u['id'], $lid, -$lq); trail_sight_tally_set((int)$u['id'], $loanKey, max(1, (int)($now['gd'] ?? 0))); $lines[] = '📚 lent out ' . $lq . ' × ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$lid]) . ' (it comes back the next time you use this)'; }
+        if ($loanOpen) foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'repay=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) {
+            [$rslug, $rqty] = array_pad(explode(':', substr($t['tok'], 6), 2), 2, '1'); $rid2 = (int)q_val('SELECT id FROM items WHERE slug = ?', [$rslug]);
+            if ($rid2) { give_item((int)$u['id'], $rid2, max(1, (int)$rqty)); $lines[] = '📗 returned: ' . max(1, (int)$rqty) . ' × ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$rid2]); }
+            trail_sight_tally_set((int)$u['id'], $loanKey, 0);
+        }
         $lines = array_merge($plain ? stop_rewards($u, $loc, implode(',', $plain), 1.0) : [], $lines);
     } elseif ($row['fail_en'] > 0) {   // a slip costs a little energy (never below 0)
         q('UPDATE users SET energy = CASE WHEN energy >= ? THEN energy - ? ELSE 0 END WHERE id = ?', [$row['fail_en'], $row['fail_en'], (int)$u['id']]);
@@ -392,6 +435,9 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     $text = $row['icon'] . ' ' . trail_sight_line($ok ? $row['win'] : $row['lose']) . ($lines ? ' (' . implode(', ', array_filter($lines)) . ')' : '');
     exp_log($exp, $text);
     foreach ($qlines as $ql) exp_log($exp, $ql);
+    if ($ok && array_filter($lines) && function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['event_box'])) {   // 2.7.06 (Josh): what a Sight gives (items, prizes, titles) shows as its own popup, not only a log line
+        $_SESSION['event_box'] = ['icon' => (string)$row['icon'], 'title' => (string)$row['verb'], 'text' => trail_sight_line($row['win']), 'lines' => array_values(array_filter(array_map('strval', array_merge($lines, $qlines))))];
+    }
     $route = (int)substr((string)$sc['row']['map_key'], 6);
     $sec = trail_phys_sec($route, (int)$sc['st']['sec'], $sc['st']);
     try {
@@ -405,6 +451,22 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     trail_sight_state_reset();
     if (random_int(1, 40) === 1) { try { q('DELETE FROM trail_sight_uses WHERE got_at < ?', [time() - 120 * 86400]); } catch (Throwable $e) {} }   // old cooldown rows (the longest cooldown is 40 days)
     return [true, ''];
+}
+
+/** 2.7.06: a token's trailing `@N` (percent chance) on hint= title= page= fpto= disc=: true when it pays this time; $tok loses the `@N`. No `@N` = always. */
+function trail_sight_chance_pass(string &$tok): bool
+{
+    if (!preg_match('/^(.*)@(\d{1,3})$/', $tok, $m)) return true;
+    $tok = $m[1];
+    return random_int(1, 100) <= (int)$m[2];
+}
+
+/** 2.7.06: the item ids that count as "any <kind>" for take=any-<kind>: the produce of every plant of that kind (nut, fruit, vegetable ...), else every item whose slug ends with it (feather). */
+function trail_sight_any_items(string $kind): array
+{
+    $ids = array_map('intval', q('SELECT i.id FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.kind = ?', [$kind])->fetchAll(PDO::FETCH_COLUMN));
+    if (!$ids) $ids = array_map('intval', q("SELECT id FROM items WHERE slug = ? OR slug LIKE ?", [$kind, '%-' . $kind])->fetchAll(PDO::FETCH_COLUMN));
+    return array_values(array_unique($ids));
 }
 
 /**

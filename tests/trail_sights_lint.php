@@ -32,5 +32,7 @@ foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) if (!trail_
 foreach (trail_sight_quests() as $q) if (!trail_sight_folk_id($q['giver']) && !q_val('SELECT 1 FROM npcs WHERE name = ?', [trail_sight_split_who($q['giver'])[0]])) { echo "BAD quest {$q['slug']}: no villager named giver {$q['giver']}\n"; $bad++; }
 $info = trail_sight_info(); foreach (array_keys($all) as $s) if (!isset($info[$s])) { echo "BAD no name/caption row for $s in trail_sight_info.txt\n"; $bad++; }
 foreach (trail_sight_items_file() as $slug => $it) if (!in_array($it[1], ['forage', 'part', 'misc', 'produce', 'flower', 'food', 'decor', 'supply', 'other', 'soil'], true)) { echo "BAD item $slug category {$it[1]}\n"; $bad++; }
+require_once $argv[1] . '/includes/npc_clockwork.php';
+foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) if (in_array(trail_sight_split_who($f['who'])[0], npc_cw_fixed_names(), true)) { echo "BAD folk row $slug: {$f['who']} is a mentor / fixed villager: the clockwork never lets them travel, so the row would never show (2.7.06)\n"; $bad++; }
 echo count($all) . " rows, $bad problems\n";
 exit($bad ? 1 : 0);

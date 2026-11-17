@@ -288,12 +288,32 @@ function npc_cw_sight_check(string $who, string $slug): ?bool
     return npc_cw_at_sight($k, $slug);
 }
 
+/** 2.7.06: do the foreseeable parts of a Sight row's `when` (dp, mo, ti) hold at some hour of a visit from $from to $to on day index $dayIdx? Other keys are not foretold and pass. */
+function npc_cw_when_ok(string $when, float $from, float $to, int $dayIdx): bool
+{
+    if (trim($when) === '' || trim($when) === '-') return true;
+    foreach (explode('/', $when) as $part) {
+        [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
+        if (!in_array($k, ['dp', 'mo', 'ti'], true) || $v === '') continue;
+        $want = array_filter(array_map('trim', explode(',', $v)));
+        if ($k === 'mo') { require_once __DIR__ . '/moon.php'; if (!in_array(moon_phase($dayIdx)['key'], $want, true)) return false; continue; }
+        $okp = false;
+        for ($h = (int)floor($from); $h < (int)ceil($to) && !$okp; $h++) {
+            $hh = $h % 24;
+            if ($k === 'dp') { $okp = in_array(hollow_daypart($hh), $want, true); }
+            else { require_once __DIR__ . '/moon.php'; $okp = in_array(moon_tide((float)$hh, $dayIdx)['state'], $want, true); }
+        }
+        if (!$okp) return false;
+    }
+    return true;
+}
+
 /**
  * The next time this villager is at a Sight (from now, up to 28 game days ahead), by the schedule only (season and weather rows are not foretold):
  * ['in' => game days from today, 'dow', 'from', 'to' (hours at the Sight), 'now' => bool (they are there now), 'text'] or null.
  */
-function npc_cw_forecast(string $who, string $slug): ?array
-{
+function npc_cw_forecast(string $who, string $slug, string $when = ''): ?array
+{   // 2.7.06: $when = the Sight row's condition ("dp=dusk/mo=full"): the parts the schedule can foretell (dp, mo, ti) must hold at the visit, so a row for dusk never promises a morning visit; season, weather and the rest are not foretold
     $k = npc_cw_who_key($who);
     if ($k === '' || !npc_cw_profile($k) || !npc_cw_on()) return null;
     [$dow, $hour, $di] = npc_cw_clock();
@@ -303,6 +323,7 @@ function npc_cw_forecast(string $who, string $slug): ?array
             if (!in_array($dw, $dg['days'], true) || ($dg['stops'][0]['slug'] ?? '') !== $slug) continue;
             $from = $dg['start'] + 1; $to = $from + $dg['dwell'];
             if ($d === 0 && $hour >= $to) continue;
+            if ($when !== '' && !npc_cw_when_ok($when, $from, $to, $di + $d)) continue;
             $now = $d === 0 && $hour >= $from;
             return ['in' => $d, 'dow' => $dw, 'from' => $from, 'to' => $to, 'now' => $now, 'text' => $now ? 'here now, until ' . hour_label($to)
                 : ($d === 0 ? 'today' : ($d === 1 ? 'tomorrow' : NPC_CW_DOW[$dw] . ', in ' . $d . ' game days')) . ' ' . hour_label($from) . ' – ' . hour_label($to)];
@@ -319,8 +340,8 @@ function npc_cw_sight_lines(string $slug): array
     foreach (trail_sight_folk()[$slug] ?? [] as $r) {
         $k = npc_cw_who_key($r['who']);
         if ($k === '' || !($p = npc_cw_profile($k)) || $p['mode'] !== 'free') continue;
-        $f = npc_cw_forecast($r['who'], $slug);
-        $out[] = ['who' => $r['who'], 'name' => trail_sight_split_who($r['who'])[0], 'text' => $f ? $f['text'] : 'not for a while', 'now' => (bool)($f['now'] ?? false)];
+        $f = npc_cw_forecast($r['who'], $slug, (string)($r['when'] ?? ''));
+        $out[] = ['who' => $r['who'], 'name' => trail_sight_split_who($r['who'])[0], 'text' => $f ? $f['text'] : 'not for a while', 'now' => (bool)($f['now'] ?? false), 'when' => (string)($r['when'] ?? '')];
     }
     return $out;
 }

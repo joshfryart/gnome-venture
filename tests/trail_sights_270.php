@@ -74,6 +74,129 @@ q('UPDATE users SET game_day = 11 WHERE id = ?', [$u['id']]); $put(['when' => 'g
 [$a, $m] = $go(); ok('on game day 11 it is not the right time, and says every 7th game day', !$a && str_contains((string)$m, 'every 7th game day'), (string)$m);
 q('UPDATE users SET game_day = 10 WHERE id = ?', [$u['id']]);
 
+echo "== popup (2.7.06)\n";
+if (session_status() !== PHP_SESSION_ACTIVE) { @session_id('trailsights270'); @session_start(); }
+unset($_SESSION['event_box']);
+$put(['energy' => 0, 'rewards' => 'xp=3:1,c=7:1', 'check' => '-']); $fresh();
+[$pa] = $go();
+ok('a Sight that gives something also raises the event popup with its lines', $pa && !empty($_SESSION['event_box']) && !empty($_SESSION['event_box']['lines']) && (string)$_SESSION['event_box']['title'] === (string)$base['verb'], json_encode($_SESSION['event_box'] ?? null));
+unset($_SESSION['event_box']);
+echo "== streaks (2.7.06)\n";
+$put(['when' => '-', 'energy' => 0, 'rewards' => 'streak=sk-test,xp=1:1,c=9:1?sk=sk-test:3', 'check' => '-']); $fresh();
+q('DELETE FROM trail_sight_tally WHERE user_id = ?', [$u['id']]);
+$cl = fn() => (int)q_val('SELECT coins FROM users WHERE id = ?', [$u['id']]);
+$days = [10, 10, 11, 12, 14, 15];   // two uses on day 10, then 11, 12 (streak 3 pays), a gap, then 14, 15
+$res = []; foreach ($days as $d) { q('UPDATE users SET game_day = ?, game_minute = 360 WHERE id = ?', [$d, $u['id']]); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh(); $c0 = $cl(); $go(); $res[] = [$d, (int)q_val("SELECT n FROM trail_sight_tally WHERE user_id = ? AND tkey = 'sk-test#streak'", [$u['id']]), $cl() - $c0 > 0]; }
+ok('a streak counts consecutive game days, the same day twice changes nothing, a gap starts over', array_column($res, 1) === [1, 1, 2, 3, 1, 2], json_encode($res));
+ok('the sk=key:3 reward pays only on the use that reaches 3 days in a row', array_column($res, 2) === [false, false, false, true, false, false], json_encode($res));
+ok('the lint accepts sk= and streak=', !array_filter(trail_sight_lint(['rewards' => 'streak=a,xp=1:1?sk=a:3', 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'streak') || str_contains($p, 'condition') || str_contains($p, 'unknown reward')), json_encode(trail_sight_lint(['rewards' => 'streak=a,xp=1:1?sk=a:3', 'lose' => 'x'] + $base)));
+q('UPDATE users SET game_day = 10 WHERE id = ?', [$u['id']]); $fresh();
+echo "== loans (2.7.06)\n";
+$hid = (int)q_val("SELECT id FROM items WHERE slug = 'garden-honey'"); $hq = fn() => (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $hid]);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $hid]); give_item((int)$u['id'], $hid, 3); q('DELETE FROM trail_sight_tally WHERE user_id = ?', [$u['id']]);
+$put(['when' => '-', 'energy' => 0, 'rewards' => 'lend=garden-honey:1,repay=garden-honey:2,xp=1:1', 'check' => '-']); $fresh();
+$h0 = $hq(); [$l1] = $go(); $h1 = $hq(); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
+[$l2] = $go(); $h2 = $hq(); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
+[$l3] = $go(); $h3 = $hq();
+ok('first use lends 1 honey, the next use gives 2 back, the third lends again', $l1 && $l2 && $l3 && [$h0, $h1, $h2, $h3] === [3, 2, 4, 3], json_encode([$h0, $h1, $h2, $h3]));
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $hid]); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey LIKE 'lend#%'", [$u['id']]); $fresh();
+[$l4, $m4] = $go(); ok('with nothing to lend the first use says what is needed', !$l4 && str_contains((string)$m4, 'to lend here'), (string)$m4);
+echo "== buff until sleep (2.7.06)\n";
+require_once $argv[1] . '/includes/events.php'; require_once $argv[1] . '/includes/gnome.php';
+set_setting('game_clock_on', '1'); setting('__reload__');
+q('UPDATE users SET game_day = 20, ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL WHERE id = ?', [$u['id']]);
+$ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $base0 = eff_stat($ub, 'luck');
+$bl = apply_event_effect($ub, 'buff:luck:2:sleep'); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('a buff:luck:2:sleep gives +2 now and says until you sleep', eff_stat($ub, 'luck') === $base0 + 2 && str_contains(implode(' ', $bl), 'until you sleep') && (int)$ub['ev_day'] === 20, json_encode([$bl, $ub['ev_day'], eff_stat($ub, 'luck'), $base0]));
+q('UPDATE users SET game_day = 21 WHERE id = ?', [$u['id']]); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('after a sleep (next game day) the lucky moment is over', eff_stat($ub, 'luck') === $base0, (string)eff_stat($ub, 'luck'));
+// next-section buff: lasts until the walk is in another Trail section
+unset($GLOBALS['gv_walk_sec']); $wkNow = gnome_walk_section((int)$u['id']);
+if ($wkNow !== null) {
+    q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL WHERE id = ?', [$u['id']]);
+    $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $bs = apply_event_effect($ub, 'buff:luck:2:section'); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+    ok('a section buff gives +2 in this Trail section and says until the next', eff_stat($ub, 'luck') === $base0 + 2 && str_contains(implode(' ', $bs), 'until the next section'), json_encode([$bs, eff_stat($ub, 'luck'), $base0]));
+    $wrow = q_one('SELECT * FROM walk_scene WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$u['id']]); $wst = json_decode((string)$wrow['state'], true); $wst['sec'] = (int)$wst['sec'] + 1;
+    q('UPDATE walk_scene SET state = ? WHERE id = ?', [json_encode($wst), $wrow['id']]); unset($GLOBALS['gv_walk_sec']); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+    ok('once the walk is in the next section the buff is over', eff_stat($ub, 'luck') === $base0, (string)eff_stat($ub, 'luck'));
+    $wst['sec'] = (int)$wst['sec'] - 1; q('UPDATE walk_scene SET state = ? WHERE id = ?', [json_encode($wst), $wrow['id']]); unset($GLOBALS['gv_walk_sec']);
+} else echo "  (no Trail walk here: section buff check skipped)\n";
+q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL WHERE id = ?', [$u['id']]);
+// delve / lair scoped buff
+q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL, game_day = 10 WHERE id = ?', [$u['id']]);
+unset($GLOBALS['gv_ev_run']);   // (the walk the later checks use is a 'walk', not a delve: it does not count)
+$ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $bd = apply_event_effect($ub, 'buff:luck:2:delve'); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('a delve buff says where it works and does nothing outside a run', str_contains(implode(' ', $bd), 'delves and lairs') && eff_stat($ub, 'luck') === $base0, json_encode([$bd, eff_stat($ub, 'luck'), $base0]));
+$lmx = (int)q_val('SELECT id FROM locations ORDER BY id LIMIT 1');
+$eid = db_insert('expeditions', ['user_id' => $u['id'], 'from_id' => $lmx, 'to_id' => $lmx, 'kind' => 'delve', 'status' => 'active', 'step' => 0, 'steps_total' => 3, 'hp' => 10, 'max_hp' => 10, 'level' => 3, 'log' => '[]', 'route_id' => 1, 'started_at' => now(), 'arrive_at' => now()]);
+unset($GLOBALS['gv_ev_run']); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('while a delve run is active the buff counts (+2)', eff_stat($ub, 'luck') === $base0 + 2, (string)eff_stat($ub, 'luck'));
+q("UPDATE expeditions SET status = 'done' WHERE id = ?", [$eid]); unset($GLOBALS['gv_ev_run']);
+q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL, game_day = 10 WHERE id = ?', [$u['id']]);
+echo "== quest time limit (2.7.06)\n";
+$qfile = $argv[1] . '/includes/data/trail_sight_quests.txt'; $qorig = file_get_contents($qfile);
+$slugs = array_slice(array_keys(trail_sights_all()), 0, 3);
+file_put_contents($qfile, $qorig . "\nQ|zz-limit-quest|Hurry Up|Test Giver|⌛|seq|xp=1:1|The clock starts.|Done in time.||3\nB|zz-limit-quest|{$slugs[0]}|first step|-\nB|zz-limit-quest|{$slugs[1]}|second step|-\nB|zz-limit-quest|{$slugs[2]}|third step|-\n");
+$qs = trail_sight_quests(); $qq = $qs['zz-limit-quest'] ?? null;
+ok('a quest row with a 11th column limit loads with limit 3', $qq && $qq['limit'] === 3 && count($qq['beats']) === 3, json_encode($qq));
+q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], 'zz-limit-quest']); q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey = 'qstart#zz-limit-quest'", [$u['id']]);
+$locq = ['id' => (int)$u['location_id'], 'region_id' => 0, 'landscape' => 'forest', 'kind' => 'village', 'name' => 'x'];
+$nowq = fn(int $gd) => ['gd' => $gd, 'dp' => 'day', 'se' => 'summer', 'we' => 'clear', 'hp' => '', 'st' => 'normal', 'pal' => '0', 'mo' => 'full', 'ti' => 'low', 'tl' => trail_sight_tallies((int)$u['id']), 'qd' => [], 'towns' => []];
+$o1 = trail_sight_quest_hook($u, $slugs[0], $locq, $nowq(50));
+ok('the first beat starts the quest and says how long it has', (bool)array_filter($o1, fn($x) => str_contains($x, 'A quest begins') && str_contains($x, '3 game days')), json_encode($o1));
+$o2 = trail_sight_quest_hook($u, $slugs[1], $locq, $nowq(52));
+ok('within the limit (day 52 of 50 + 3) the second beat counts', (bool)array_filter($o2, fn($x) => str_contains($x, 'second step')), json_encode($o2));
+$o3 = trail_sight_quest_hook($u, $slugs[2], $locq, $nowq(54));
+ok('past the limit (day 54 > 50 + 3) the quest times out instead of counting', (bool)array_filter($o3, fn($x) => str_contains($x, 'Time ran out')) && !q_val('SELECT 1 FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], 'zz-limit-quest']), json_encode($o3));
+$o4 = trail_sight_quest_hook($u, $slugs[0], $locq, $nowq(55));
+ok('the next first beat starts it again from the beginning', (bool)array_filter($o4, fn($x) => str_contains($x, 'A quest begins')), json_encode($o4));
+q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], 'zz-limit-quest']); file_put_contents($qfile, $qorig); trail_sight_quests();
+echo "== take any (2.7.06)\n";
+$nuts = trail_sight_any_items('nut'); ok('take=any-nut finds the nut crops\' produce (at least two kinds)', count($nuts) >= 2, json_encode($nuts));
+if (count($nuts) >= 2) {
+    q('DELETE FROM user_items WHERE user_id = ? AND item_id IN (' . implode(',', $nuts) . ')', [$u['id']]);
+    give_item((int)$u['id'], $nuts[0], 1);
+    $put(['when' => '-', 'energy' => 0, 'rewards' => 'take=any-nut:2,xp=1:1', 'check' => '-']); $fresh();
+    [$t1, $tm1] = $go(); ok('with only one nut it says what is missing', !$t1 && str_contains((string)$tm1, 'any nut'), (string)$tm1);
+    give_item((int)$u['id'], $nuts[1], 1); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
+    [$t2] = $go(); $left = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id IN (' . implode(',', $nuts) . ')', [$u['id']]);
+    ok('two different nuts are enough and both are used up', $t2 && $left === 0, json_encode([$t2, $left]));
+    ok('the lint accepts take=any-nut:2', !array_filter(trail_sight_lint(['rewards' => 'take=any-nut:2,xp=1:1', 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'no item') || str_contains($p, 'unknown')), json_encode(trail_sight_lint(['rewards' => 'take=any-nut:2,xp=1:1', 'lose' => 'x'] + $base)));
+}
+echo "== festival days (2.7.06)\n";
+$base0 = ['dp' => 'day', 'se' => 'summer', 'we' => 'clear', 'hp' => '', 'st' => 'normal', 'pal' => '0', 'mo' => 'full', 'ti' => 'low', 'gd' => 5, 'tl' => [], 'qd' => []];
+ok('fd=yes holds on a festival day, fd=<slug> only for that festival, neither without one', trail_sight_cond_ok('fd=yes', ['fd' => 'spring-fair'] + $base0) && trail_sight_cond_ok('fd=spring-fair,harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=yes', ['fd' => ''] + $base0));
+ok('the lint accepts fd= and the card text says festival day', preg_match(TRAIL_SIGHT_COND_RE, 'fd=yes') === 1 && preg_match(TRAIL_SIGHT_COND_RE, 'fd=spring-fair') === 1 && trail_sight_cond_text('fd=yes') === 'on a festival day');
+
+echo "== escort (2.7.06)\n";
+$ef = q_one("SELECT name FROM stop_folk WHERE active = 1 ORDER BY id LIMIT 1");
+if ($ef && trail_escort_pic((string)$ef['name']) !== '') {
+    $put(['when' => '-', 'energy' => 0, 'rewards' => 'xp=1:1,escort=' . $ef['name'], 'check' => '-']); $fresh();
+    $scE = trail_scene($exp); $scE['st'] = array_diff_key($scE['st'], ['escort' => 1]); trail_save($scE);
+    [$eo] = $go(); $scE = trail_scene($exp);
+    ok('a Sight with escort=Name puts the villager in the walk state', $eo && ($scE['st']['escort'] ?? '') === $ef['name'], json_encode($scE['st']['escort'] ?? null));
+    $html = trail_view_html($u, $exp, $scE, false);
+    ok('the Trail map draws the companion beside the gnome (tmescort picture)', str_contains($html, 'tmescort'), substr($html, 0, 120));
+    $scE['st'] = array_diff_key($scE['st'], ['escort' => 1]); trail_save($scE); $scE = trail_scene($exp);
+    ok('without an escort nothing extra is drawn', !str_contains(trail_view_html($u, $exp, $scE, false), 'tmescort'));
+} else echo "  (no villager with a picture here: escort check skipped)\n";
+q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
+echo "== find popup (2.7.06)\n";
+if (session_status() !== PHP_SESSION_ACTIVE) { @session_id('trailsights270'); @session_start(); }
+unset($_SESSION['event_box']);
+$fl = find_popup('🪙 You find 12 Petals glinting in the dirt.'); find_popup('✨ You find Acorn.');
+ok('a wander find raises the popup and returns the line unchanged; a second find joins it', $fl === '🪙 You find 12 Petals glinting in the dirt.' && ($_SESSION['event_box']['title'] ?? '') === 'You found something!' && count($_SESSION['event_box']['lines'] ?? []) === 2, json_encode($_SESSION['event_box'] ?? null));
+$_SESSION['event_box'] = ['icon' => 'x', 'title' => 'Other', 'text' => '', 'lines' => ['a']]; find_popup('🪙 You find 3 Petals.');
+ok('a popup that something else raised is not overwritten or mixed into', ($_SESSION['event_box']['title'] ?? '') === 'Other' && count($_SESSION['event_box']['lines']) === 1);
+unset($_SESSION['event_box']); find_popup('👀 You spot something shiny but cannot reach it.');
+ok('a hint ("👀 ...") is not a find and raises nothing', empty($_SESSION['event_box']));
+echo "== time= (2.7.06)\n";
+q('UPDATE users SET game_day = 10, game_minute = 360 WHERE id = ?', [$u['id']]);
+$put(['when' => '-', 'energy' => 0, 'rewards' => 'xp=1:1', 'check' => '-']); $fresh(); [$tA] = $go(); $mA = (int)q_val('SELECT game_minute FROM users WHERE id = ?', [$u['id']]);
+q('UPDATE users SET game_day = 10, game_minute = 360 WHERE id = ?', [$u['id']]); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]);
+$put(['when' => '-', 'energy' => 0, 'rewards' => 'xp=1:1,time=90', 'check' => '-']); $fresh(); [$tB] = $go(); $mB = (int)q_val('SELECT game_minute FROM users WHERE id = ?', [$u['id']]);
+ok('time=90 makes the Sight take 90 game minutes longer than the same Sight without it', $tA && $tB && $mB - $mA === 90, json_encode([$mA, $mB]));
+q('UPDATE users SET game_day = 10, game_minute = 360 WHERE id = ?', [$u['id']]); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]);
 echo "== choose your reward\n";
 $put(['energy' => 0, 'rewards' => 'choose=c=40:1;en=4', 'check' => '-']); $fresh();
 $ci = trail_sight_choose_info(trail_sights_all()[$base['slug']]);
@@ -123,6 +246,13 @@ $put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fr
 [$a] = $go(); ok('with puzzle combat off a wearable does not drop', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
 $put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('pfight_v1', '1'); setting('__reload__');
 [$a] = $go(); ok('with puzzle combat on it drops', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0 + 1, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
+$ncl = fn(string $chk) => array_values(array_filter(trail_sight_lint(['check' => $chk, 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'check')));
+if (!$ncl('nimble:9+grit:11') && !$ncl('grit:12') && $ncl('nimble:9+bogus:3') && $ncl('nimble:9+grit:99')) echo "  ok   2.7.06 either / or check: nimble:9+grit:11 lints clean, a bad half is refused\n"; else { echo "  FAIL 2.7.06 either / or check lint " . json_encode([$ncl('nimble:9+grit:11'), $ncl('nimble:9+bogus:3')]) . "\n"; $fails++; }
+$t0 = 'hint=old-ruin@0'; $t100 = 'title=Lantern Runner@100'; $tn = 'page=the-stump';
+$n0 = 0; for ($i = 0; $i < 200; $i++) { $x = $t0; if (trail_sight_chance_pass($x)) $n0++; }
+$x100 = $t100; $x1 = $tn; $r100 = trail_sight_chance_pass($x100); $r1 = trail_sight_chance_pass($x1);
+$n50 = 0; for ($i = 0; $i < 1000; $i++) { $x = 'fpto=Pip:5@50'; if (trail_sight_chance_pass($x)) $n50++; }
+if ($n0 === 0 && $r100 && $x100 === 'title=Lantern Runner' && $r1 && $x1 === $tn && $n50 > 400 && $n50 < 600) echo "  ok   2.7.06 @chance on hint / title / page / fpto: 0 never, 100 always, none = always, 50 about half, the @N is stripped\n"; else { echo "  FAIL 2.7.06 @chance on hint/title/page/fpto " . json_encode([$n0, $r100, $x100, $r1, $n50]) . "\n"; $fails++; }
 set_setting('pfight_v1', '0'); setting('__reload__');
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]);
 echo $fails ? "$fails FAILED\n" : "ok\n";

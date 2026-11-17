@@ -119,7 +119,7 @@ const VERBOSE = !!process.env.VERBOSE;
   r = await playAndWatch(0);
   ck('speed skip: the card shows at once', [r.tRes !== null && r.tRes < 1500, r.mark], [true, true]);
   await start('near', SD, 1);
-  await p.locator('#pf-hand .pf-tile').nth(0).click(); await p.waitForTimeout(250); await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(150); await p.click('#pf-go');
+  await p.locator('#pf-hand .pf-tile:not([aria-disabled="true"])').first().click(); await p.waitForTimeout(250); await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(150); await p.click('#pf-go');   // 2.7.06: the first piece of this deal can be unplayable (faded), so the first playable one
   await p.waitForSelector('#pf-skip:not([hidden])', { timeout: 5000 }); await p.click('#pf-skip'); await p.waitForTimeout(1500);
   ck('Skip during the replay of the last turn: the card shows (the replay can be shortened by the player only)', await sample().then(s => [s.res, s.playing]), [true, false]);
 

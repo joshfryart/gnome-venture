@@ -23,3 +23,11 @@ shrine_day|🕊️|A quiet pilgrimage|Walkers in grey cloaks have come to {place
 mill_busy|🌾|The wheel is turning|The mill at {place} is grinding flat out, and flour hangs in the air like a mild snow.|mill,market|se=autumn,winter|cook,trade,craft|3
 fiddler|🎻|A fiddler passes through|A fiddler has settled on a barrel at {place} and cannot be persuaded to stop.|any|dp=dusk,night|play,cook,lore|3
 swarm|🐝|A swarm of bees|A swarm has settled on a gatepost at {place}. Everyone is being very calm and very far away.|orchard,herb,camp,market,spring|se=spring,summer|gather,tend,lore|2
+bread_day|🥖|Bread day|Every oven at {place} is lit at once, and the whole lane smells of warm crust.|any|dp=dawn,day|cook,trade,rest|3
+kite_wind|🪁|A kite wind|A steady wind has come to {place}, and every child (and a few grown gnomes) has a kite up.|any|we=wind,cloud,sun|play,craft,rest|3
+sleepy_noon|😴|A sleepy afternoon|It is so warm at {place} that even the hens have stopped arguing.|any|dp=day/we=sun,heat|rest,tend,lore|3
+swap_shelf|📚|The swap shelf is full|Someone has stocked the swap shelf at {place}: books, buttons, a single boot.|any|-|trade,lore,play|3
+bee_swarm|🐝|A swarm of bees|A swarm has landed on a fence post at {place}. Everyone is being very calm about it, from a distance.|any|se=spring,summer|tend,gather,lore|2
+mushroom_rain|🍄|Mushroom morning|After the rain the edges of {place} are dotted with mushrooms, and baskets are out.|any|we=rain,fog/dp=dawn,day|gather,cook,tend|3
+snow_gnome|⛄|Snow-gnome contest|Snow has fallen on {place}, and a snow-gnome building contest has broken out in the lane.|any|we=snow,frost|play,craft,cook|3
+lantern_walk|🏮|A lantern walk|After dark, folk at {place} walk the lanes with paper lanterns and no particular destination.|any|dp=dusk,night|lore,rest,play|3

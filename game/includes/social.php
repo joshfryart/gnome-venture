@@ -158,6 +158,7 @@ function social100_schema(string $PK, string $ID, string $END): array
         ['users', 'fw_start', 'VARCHAR(10) NULL'],      // v1.0.0: the Hollow date Wren's First Week began
         ['users', 'pulse_show', 'INT NOT NULL DEFAULT 1'],  // v1.0.0: 1 = may be named in the Hollow Pulse "About now" line (still needs an open garden)
         ['users', 'away_from', 'DATETIME NULL'],        // v1.0.0: when the gnome was last seen before a long absence (cleared by the welcome-back page)
+        ['pf_learn', 'stage', 'INT NOT NULL DEFAULT 0'],   // 2.7.06: the highest rule stage whose "New today" card the gnome has seen (0 = none; 1 = creature tags; 2 = Thornburst)
         ['pf_learn', 'guide_off', 'INT NOT NULL DEFAULT 0'],   // 2.7.01: 1 = the gnome closed the fight coaching (pfight_game.php pf_guide_on)
     ];
     return [$t, $i, $c];

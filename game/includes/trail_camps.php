@@ -53,6 +53,13 @@ function tc_wait_chance(int $minutes, bool $tollPaid = false): float
 /** Energy a wait of $minutes gives (before the cap). */
 function tc_wait_energy(int $minutes): int { return intdiv($minutes, TC_WAIT_MIN_PER_ENERGY); }
 
+/** 2.7.06: take the walk's health from the database into $exp (a sleep, nap or wait healed it there; the caller saves $exp afterwards). */
+function tc_refresh_hp(array &$exp): void
+{
+    $hp = q_val('SELECT hp FROM expeditions WHERE id = ?', [(int)$exp['id']]);
+    if ($hp !== null && $hp !== false) $exp['hp'] = (int)$hp;
+}
+
 /**
  * Use the camp: $mode 'sleep' | 'nap' | 'wait' ($minutes only for wait). [ok, message]. $roll(float $percent): bool is the dice (tests pass their own).
  * Changes the expedition (a fight may start); the caller saves it as for every Trail action.
@@ -67,10 +74,12 @@ function trail_camp(array $u, array &$exp, string $mode, int $minutes = 0, ?call
     if (!function_exists('gclock_on') || !gclock_on()) return [false, 'Camping needs the game clock.'];
     if ($mode === 'sleep') {
         if (!game_sleep($uid)) return [false, 'Something stirred. Try again.'];
+        tc_refresh_hp($exp);   // 2.7.06: the sleep healed the walk's health in the database; the walk in memory must take it, or saving it puts the old health back
         return [true, '🏕️ You sleep at the camp under the stars. A new day: energy full.'];
     }
     if ($mode === 'nap') {
         if (!game_nap($uid)) return [false, 'Something stirred. Try again.'];
+        tc_refresh_hp($exp);
         return [true, '🏕️ You nap at the camp and feel a little better.'];
     }
     if ($mode !== 'wait' || !in_array($minutes, TC_WAITS, true)) return [false, 'Pick how long to wait.'];
@@ -79,7 +88,9 @@ function trail_camp(array $u, array &$exp, string $mode, int $minutes = 0, ?call
     $gain = tc_wait_energy($minutes);
     $cur = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
     if ($cur < $max) q('UPDATE users SET energy = ? WHERE id = ? AND energy = ?', [min($max, $cur + $gain), $uid, $cur]);   // portable (no LEAST on SQLite)
-    $msg = '🏕️ You wait ' . $minutes . ' minutes at the camp and catch your breath (+' . $gain . ' energy).';
+    $healed = 0;
+    if ($max > 0 && $gain > 0) { $healed = gclock_heal(q_one('SELECT * FROM users WHERE id = ?', [$uid]) ?: $u, (int)ceil(100 * $gain / $max)); tc_refresh_hp($exp); }   // 2.7.06: resting at a camp heals as much (of your health) as it restores (of your energy)
+    $msg = '🏕️ You wait ' . $minutes . ' minutes at the camp and catch your breath (+' . $gain . ' energy' . ($healed > 0 ? ', +' . $healed . ' health' : '') . ').';
     require_once __DIR__ . '/road_kinds.php';
     $roll ??= fn(float $pct): bool => random_int(1, 1000) <= (int)round($pct * 10);
     if ($roll(tc_wait_chance($minutes, rk_toll_paid((array)$sc['st'])))) {

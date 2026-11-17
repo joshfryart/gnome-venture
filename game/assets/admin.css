@@ -158,3 +158,12 @@ body.admin .arows .choice { text-align: left; }
 body.admin .arows .choice-body { align-items: flex-start; }
 body.admin main table.grid td a { min-height: 44px; }
 .aqcol a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* 2.7.06 admin polish: the native file picker matches the felt buttons (it was the one grey browser control on Tools, Images and Update) */
+body.admin input[type="file"] { color: var(--ink); font: inherit; }
+body.admin input[type="file"]::file-selector-button { min-height: 40px; margin-right: 10px; padding: 6px 14px; font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 2px solid var(--line-2); border-radius: 0; cursor: pointer; }
+body.admin input[type="file"]::file-selector-button:hover, body.admin input[type="file"]:focus-visible::file-selector-button { border-color: var(--brand-ink); color: var(--brand-ink); }
+/* plain data tables inside panels (Tools > Trail maps check and the like) use the same quiet header as the grid tables */
+body.admin main table:not(.grid):not(.cover) { width: 100%; border-collapse: collapse; }
+body.admin main table:not(.grid):not(.cover) th { text-align: left; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); border-bottom: 2px dashed var(--line-2); padding: 6px 8px; }
+body.admin main table:not(.grid):not(.cover) td { border-bottom: 1px dashed var(--line-2); padding: 6px 8px; font-size: 13px; }

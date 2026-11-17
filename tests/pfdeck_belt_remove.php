@@ -47,7 +47,10 @@ chk('after removal, Fix still works and the fixed axe goes back on', pfd_fix($ui
 // a tool that is gone ("none") also clogs a slot
 pfd_unequip($uid, 'axe'); pfd_equip_tool($uid, 'rod'); give_item($uid, item_id_by_slug('willow-fishing-rod'), -1); tool_cache_reset();
 chk('a tool that left the satchel is "none" and holds its slot', ($states()['rod'] ?? '') === 'none' && pfd_equip_tool($uid, 'axe') === 'Your belt is full (2 tools). Take one off first.', $states());
+pfd_wear_add($uid, ['rod' => 3]);
+chk('2.7.06 setup: the gone rod still has wear on record', (int)q_val('SELECT wear FROM pf_tool_wear WHERE user_id = ? AND tool_type = ?', [$uid, 'rod']) > 0);
 chk('remove the gone tool: the slot frees for the next one', pfd_remove_broken($uid, 'rod') === null && $belt() === ['till'] && pfd_equip_tool($uid, 'axe') === null, $belt());
+chk('2.7.06: removing a GONE tool clears its old wear (a new rod starts fresh); a broken tool keeps it', (int)q_val('SELECT COUNT(*) FROM pf_tool_wear WHERE user_id = ? AND tool_type = ?', [$uid, 'rod']) === 0 && (int)q_val('SELECT COUNT(*) FROM pf_tool_wear WHERE user_id = ? AND tool_type = ?', [$uid, 'axe']) === 1);
 
 // the POST action
 pfd_wear_add($uid, ['axe' => 20]);

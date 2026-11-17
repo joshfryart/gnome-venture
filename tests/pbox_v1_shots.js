@@ -68,7 +68,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
     await p.waitForSelector('#pfb-board .gc', { timeout: 8000 }).catch(() => {});
-    ck(T('Let\'s fight: the board of a boss (4 by 4 cells, every board is 4 x 4 since 2.6.94), no ground cells, one face-up environment piece in the strip (2.6.98: 1 a round)'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [16, 0, 1, 0]);
+    ck(T('Let\'s fight: the board of a boss (4 by 4 cells, every board is 4 x 4 since 2.6.94), no ground cells, two face-up environment pieces in the strip (2.7.06: 2 a round)'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [16, 0, 2, 0]);
     await shot('4-fight-opening');
 
     // ---- 4. the fight: a seeded position with ground, a forecast, the aim and hand pieces that cannot be played
@@ -88,8 +88,8 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       envp: document.querySelectorAll('#pfv-legend .envp').length, envOnBoard: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env').length, envBadge: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .pfv-eb').length, envPips: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .xp').length,
       aim: document.querySelectorAll('#pfb-board .mk.aim').length, off: document.querySelectorAll('#pf-hand .pfv-off').length, pips: document.querySelectorAll('#pf-hand .pf-tile .xp').length, aimchip: document.querySelectorAll('#pfv-row .tg.aim').length,
       team: document.querySelectorAll('#pfv-row .tg.team').length, envchips: document.querySelectorAll('.pf-chip.env').length, lifepips: document.querySelectorAll('#pfb-board .pfb-cell .xp').length > 0 })); }
-    ck(T('fight: no ground cells, legend or forecast marks; the Next strip shows 1 face-up environment piece; environment pieces on the board with a badge and life pips; the aim marker, no Teamwork chip until a chain has it, life pips'),
-      [st.ground, st.marks, st.legendTer, st.evchips, st.envp, st.envOnBoard >= 1, st.envBadge === st.envOnBoard, st.envPips === st.envOnBoard, st.aim, st.aimchip, st.team, st.pips > 0], [0, 0, 0, 0, 1, true, true, true, 1, 1, 0, true]);   // 2.6.90: the Teamwork chip shows only when the planned chain has it (none planned here)
+    ck(T('fight: no ground cells, legend or forecast marks; the Next strip shows 2 face-up environment pieces (2.7.06); environment pieces on the board with a badge and life pips; the aim marker, no Teamwork chip until a chain has it, life pips'),
+      [st.ground, st.marks, st.legendTer, st.evchips, st.envp, st.envOnBoard >= 1, st.envBadge === st.envOnBoard, st.envPips === st.envOnBoard, st.aim, st.aimchip, st.team, st.pips > 0], [0, 0, 0, 0, 2, true, true, true, 1, 1, 0, true]);   // 2.6.90: the Teamwork chip shows only when the planned chain has it (none planned here)
     ck(T('fight: some hand pieces cannot be played here and are faded'), st.off >= 1 && st.off < 5, true);
     ck(T('fight: a faded piece is 38% and grey'), await p.evaluate(() => { const s = getComputedStyle(document.querySelector('#pf-hand .pfv-off')); return [s.opacity, /grayscale/.test(s.filter)]; }), ['0.38', true]);
     // the faded pieces are exactly the ones the server has no lit cell for (flipped or not)
@@ -143,7 +143,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     // ---- T12 (2.6.95): a NEW fight: one bar (damage + charm), no set-aside row, no Teamwork, End turn says Pass with nothing placed, the aim chip says what it does, the help sheet matches
     seedNew('fight', 'large'); seedNew('midfight', '6', '2', 'soft'); await speed(0); await open('/adventure.php');
     ck(T('T12 new fight: one bar with a hurt and a charm segment, words "Yield N of M: hurt D, charm C"'), await p.evaluate(() => { const e = document.querySelector('.pf-fhp.pf-one'); return [!!e, !!(e && e.querySelector('.fhfill')) && !!(e && e.querySelector('.chfill')), /^Yield \d+ of \d+: hurt \d+, charm \d+/.test(e ? e.getAttribute('aria-label') : ''), document.querySelectorAll('.pf-bar').length]; }), [true, true, true, 0]);
-    ck(T('T12 new fight: no set-aside row, no Teamwork chip, no hand source icon, no Pass (nothing fits) button; End turn says Pass and is on'), [await p.locator('#pf-opts').isHidden(), await n('#pfv-row .tg.team'), await n('#pf-hand .src'), await n('#pf-pass'), (await p.locator('#pf-go').innerText()).trim(), await p.isDisabled('#pf-go')], [true, 0, 0, 0, 'Pass', false]);
+    ck(T('T12 new fight: no set-aside row, no Teamwork chip before a team chain, the hand shows source icons (Teamwork is on since 2.7.06: 2 on this deal), no Pass (nothing fits) button; End turn says Pass and is on'), [await p.locator('#pf-opts').isHidden(), await n('#pfv-row .tg.team'), await n('#pf-hand .src'), await n('#pf-pass'), (await p.locator('#pf-go').innerText()).trim(), await p.isDisabled('#pf-go')], [true, 0, 2, 0, 'Pass', false]);
     ck(T('T12 new fight: the aim chip says what it would do ("Aims Snap: hits you for 9"), the reasons are behind a tap'), await p.evaluate(() => { const c = document.querySelector('#pfv-row .tg.aim'); return c ? /^(Aims )?.+: .+/.test(c.textContent.trim()) && /^Aims /.test(c.getAttribute('aria-label') || 'Aims ') && (!c.matches('button') || c.getAttribute('aria-label').endsWith('Press for the reasons')) : false; }), true);
     const aimBtn = p.locator('#pfv-row button.tg.aim'); if (await aimBtn.count()) { await aimBtn.click(); await p.waitForTimeout(200); ck(T('T12 new fight: the aim reasons open in a popover'), await n('.pfv-pop'), 1); await shot('4-fight-aim-reasons', false); await p.click('.pfv-popx'); }
     await p.locator('#pf-hand .pf-tile:not(.pfv-off)').first().click(); await p.waitForTimeout(500);
@@ -210,7 +210,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('6-result-win');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-end')]); await p.waitForTimeout(1200);
     seed('fight', 'medium'); await open('/adventure.php'); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1200);
-    await p.locator('#pf-hand .pf-tile').first().click(); await p.waitForTimeout(300); await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(200);
+    await p.locator('#pf-hand .pf-tile:not([aria-disabled="true"])').first().click(); await p.waitForTimeout(300); await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(200);
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1200);
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('.pf-runf button')]); await p.waitForTimeout(1500);
     ck(T('result: a fight that was left shows the lost card on the next page'), [await n('#pfv-res .badge-lose'), /walked away/.test(await p.locator('#pfv-res').innerText().catch(() => ''))], [1, true]);

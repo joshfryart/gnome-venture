@@ -17,3 +17,8 @@ range:11-01..11-07|first_snow_week|🌨️|Hearth week|The nights have turned. A
 range:07-01..07-07|long_days|🌞|Long days|The evenings at {place} go on and on. People forget to go home.|any|||play,gather,rest|Fill the Cheer bar
 date:01-01|new_year|🎆|New Year|Everyone at {place} stays up to see the first light, and nobody is sure who is supposed to be keeping count.|any|||play,cook,lore|Fill the Cheer bar
 range:04-10..04-16|blossom_week|🌼|Blossom week|The trees around {place} are all in flower, and petals blow down the road like snow.|orchard,herb,spring,market,camp|||gather,tend,lore|Fill the Larder bar
+date:02-14|friendship_day|💌|Friendship day|Notes are tucked under doors all over {place}, signed with a drawing instead of a name.|any|||play,cook,trade|Fill the Cheer bar
+date:04-15|blossom_walk|🌸|Blossom walk|The whole of {place} turns out to walk the blossom lane and compare pink.|any|||play,rest,lore|Fill the Cheer bar
+date:11-11|turnip_night|🎃|Turnip night|Carved turnips glow on every step at {place}, and nobody is quite sure who started it.|any|||play,craft,cook|Fill the Cheer bar
+range:11-25..11-30|stew_week|🍲|Stew week|Pots of stew simmer on every stove at {place}, and doors stay open for anyone with a bowl.|any|||cook,trade,rest|Fill the Larder bar
+weekly:wed|swap_wed|🔁|Swap Wednesday|The swap tables come out at {place}: bring one thing, take one thing.|market,inn,jetty,ferry|||trade,craft|Fill the Cheer bar

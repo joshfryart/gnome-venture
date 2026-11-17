@@ -65,7 +65,7 @@ const VIEWS = [[390, 844, 'light', true], [360, 640, 'dark', true], [1280, 720, 
       ck(`${tag} Escape x3: the fight is still on screen${path === 'trail' ? ' in the open modal dialog' : ''}`, await p.evaluate(() => { const d = document.getElementById('trailpop'), f = document.getElementById('pfight'); return [!!f && f.getBoundingClientRect().height > 200, d ? d.open && d.matches(':modal') : null]; }), [true, path === 'trail' ? true : null]);
       // End turn at a desktop size (the board fits the narrower column), then a reload lands on the same fight
       if (!phone) {
-        await p.locator('#pf-hand .pf-tile').first().click(); await p.waitForTimeout(300);
+        await p.locator('#pf-hand .pf-tile:not([aria-disabled="true"])').first().click(); await p.waitForTimeout(300);
         if (await p.locator('#pfb-board .pfb-lit').count()) { await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(200); await p.locator('#pf-go').click();
           await p.waitForFunction(() => { const f = document.getElementById('pfight'); return f && !f.classList.contains('pf-playing'); }, null, { timeout: 25000 }).catch(() => {}); await p.waitForTimeout(500); }
         ck(`${tag} after End turn: the fight is still a column of the same width, the page does not scroll`, await p.evaluate(() => { const f = document.getElementById('pfight'), r = f && f.getBoundingClientRect(), se = document.scrollingElement; return [!!f && r.width <= 600 && r.height > 300, se.scrollHeight - se.clientHeight <= 0]; }), [true, true]);
