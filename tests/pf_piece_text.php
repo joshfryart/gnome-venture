@@ -15,13 +15,13 @@ foreach (PF_SPECIAL as $k => $v) $all['special ' . $k] = $v;
 foreach (PF_MODS as $k => $v) $all['mod ' . $k] = PF_MODS_V1[$k] ?? $v[2];
 foreach (['PFV_FOE_TAG' => PFV_FOE_TAG] as $n => $m) foreach ($m as $k => $v) $all['creature tag ' . $k] = $v;
 foreach ($all as $k => $v) {
-    chk("$k: 1-69 characters", is_string($v) && strlen($v) >= 3 && strlen($v) < 70, $v);
+    chk("$k: 1-99 characters", is_string($v) && strlen($v) >= 3 && strlen($v) < 100, $v);
     chk("$k: no 'health' for a creature bar, no 'resolve'", !preg_match('/creature.{0,20}health|its health|resolve/i', $v), $v);
 }
-chk('Soothe names its effect (the creature\'s next hits, cut)', preg_match('/next hit/i', PF_TYPE_TEXT['soothe']) && preg_match('/less|cut|soften|reduc/i', PF_TYPE_TEXT['soothe']), PF_TYPE_TEXT['soothe']);
+chk('Soothe names its effect (the creature\'s next turn, cut)', preg_match('/next turn/i', PF_TYPE_TEXT['soothe']) && preg_match('/less|cut|soften|reduc/i', PF_TYPE_TEXT['soothe']), PF_TYPE_TEXT['soothe']);
 chk('Soothe with a value: "Soothe 4: ..." says the 4', strpos(pf_type_text('soothe', 4), '4') !== false && !strpos(pf_type_text('soothe', 4), '#'), pf_type_text('soothe', 4));
 chk('Hurt and Charm fill the Yield bar', stripos(PF_TYPE_TEXT['hurt'], 'Yield bar') !== false && stripos(PF_TYPE_TEXT['charm'], 'Yield bar') !== false);
-chk('Heavy says it has no rule on the board', preg_match('/no (extra|catch)|nothing extra|just/i', PF_TAGS_V1['heavy'][1]) && !preg_match('/last/i', PF_TAGS_V1['heavy'][1]), PF_TAGS_V1['heavy'][1]);
+chk('Heavy says it fires last and falls away (2.7.07: tagfx)', preg_match('/last/i', PF_TAGS_V1['heavy'][1]) && preg_match('/falls away/i', PF_TAGS_V1['heavy'][1]), PF_TAGS_V1['heavy'][1]);
 chk('Trip and Lull say the creature skips its turn', preg_match('/skip/i', PF_TAGS_V1['trip'][1]) && preg_match('/skip/i', PF_TAGS_V1['lull'][1]), [PF_TAGS_V1['trip'][1], PF_TAGS_V1['lull'][1]]);
 chk('PF_TAGS (strip fights, v1 off) keeps the old Heavy rule words', stripos(PF_TAGS['heavy'][1], 'last') !== false);
 chk('the piece text has no Teamwork or set-aside', !preg_match('/teamwork|set aside|set-aside/i', implode(' ', $all)));

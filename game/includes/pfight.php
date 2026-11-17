@@ -105,12 +105,12 @@ const PF_TYPE_TEXT = [
     'guard'  => 'Blocks # damage until your next turn',
     'heal'   => 'Heals you #',
     'charm'  => 'Fills its Yield bar with # charm',
-    'soothe' => 'Takes up to # damage off the creature\'s next turn, then wears off',
+    'soothe' => 'Cuts up to # damage from the creature next turn, then wears off',
     'trick'  => 'Boosts a Hurt or Guard fired right after it by +#',
     'item'   => 'Heals you #',
 ];
 
-/** The sentence for a type with its number put in ("Soothe 4: ..." reads "Takes up to 4 damage off the creature's next turn, then wears off"); with no number the # becomes "its number". */
+/** The sentence for a type with its number put in ("Soothe 4: ..." reads "Cuts up to 4 damage from the creature next turn, then wears off"); with no number the # becomes "its number". */
 function pf_type_text(string $t, ?int $v = null): string
 {
     return str_replace('#', $v === null ? 'its number' : (string)$v, PF_TYPE_TEXT[$t] ?? '');
