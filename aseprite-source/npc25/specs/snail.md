@@ -91,3 +91,14 @@ Slow glide, no legs: the body squashes (body y +1) and stretches (body y 0). Fee
 - 1 px outline `#2b1c26` outside only.
 - Light from the upper left, one shade side (lower right).
 - Keep the silhouette recognisable as a snail at 16 px.
+
+## Redraw 2026-11-17
+Stage 3 art redrawn (Opus) in `lib/species_snail.lua` (`S.draw_figure`); old version in `snail/before/`.
+- Body: soft slug body on a frilled foot, flat wide base on the feet line; big spiral shell on the back.
+- Front: shell spiral shows at the left edge, head with two eyestalks (ink tips, cream glint) rising above a straw hat with green scarf; satchel on the shell. Frame 1 face is small.
+- Side (right-facing): large orange spiral shell on the back (left), head and eyestalk forward on the right, long flat foot, satchel strap and satchel on the shell, scarf tail at the neck.
+- Back: round shell dome with spiral, two eyestalks above it, hat back and scarf tails, wide foot base.
+- Palette hexes now used (`S.palette_list`, unchanged): `#2b1c26`, `#d2cb94`, `#a09e6e`, `#726c60`, `#4a4256`, `#d48e3e`, `#9e5c3c`, `#5e3446`, `#dab65c`, `#5ca24c`, `#ecdab2`, `#aaa9b8`, `#74758c` (`#aaa9b8` is listed but not used in the PNGs).
+- Quirk: mail satchel, `S.quirk.hex` `#9e5c3c`, 4x4 on the shell, follows body y and sways with the walk.
+- Remaining weaknesses: front face is small; hat brims are small at 1x.
+- Stage 2 results: tables S.ramps, S.palette_list, S.idle, S.walk, S.c, S.quirk present; S.T = 8 and S.W = 44 present in the `local S = {...}` header. Palette check (all opaque PNG colours in `S.palette_list`): PASS, 12 of 13 listed colours used, none missing. `check.py snail`: RESULT PASS.

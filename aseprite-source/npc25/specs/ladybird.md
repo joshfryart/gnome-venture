@@ -91,3 +91,14 @@ Tripod gait: the legs move in two alternating tripods. Arms column = the two fro
 - 1 px outline `#2b1c26` outside only.
 - Light from the upper left, one shade side (lower right).
 - Keep the silhouette recognisable as a ladybird at 16 px.
+
+## Redraw 2026-11-17
+Stage 3 art redrawn (Opus) in `lib/species_ladybird.lua` (`S.draw_figure`); old version in `ladybird/before/`. New palette hexes added in `S.palette_list` for this redraw.
+- Body: round red wing-case shell with dark spots, small dark rounded head, thin grey legs on a shadow ellipse, straw hat with green band.
+- Front: head under the hat with two antennae, red shell wider than the head on both sides, legs and feet below, quirk (red) held at the side.
+- Side (right-facing): large domed red shell on the left with spots, head with hat and antenna on the right, grey legs under.
+- Back: split red wing cases with centre seam and spots, dark head under the hat, leg stubs at the sides.
+- Palette hexes now used (`S.palette_list`): `#2b1c26`, `#e8584a`, `#d93a30`, `#a52638`, `#7a2030` (red ramp), `#4f4164`, `#3d3150`, `#3a2c48` (head and spots), `#f0cc6a`, `#c99a48` (straw), `#6aa84a` (hat band), `#f4e2bc` (cream), `#aaa9b8`, `#74758c` (shadow), `#6e6488`, `#9a90b4` (grey leg highlights).
+- Quirk: red `#d93a30` 3x4 item at the hand anchor (`S.quirk.hex`), visible in every frame.
+- Remaining weaknesses: the back-view head is a flat dark blob.
+- Stage 2 results: tables S.ramps, S.palette_list, S.idle, S.walk, S.c, S.quirk present; S.T = 9 and S.W = 40 present in the `local S = {...}` header. Palette check: PASS, all 16 PNG colours in `S.palette_list`, none missing. `check.py ladybird`: RESULT PASS.
