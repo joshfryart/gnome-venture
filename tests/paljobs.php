@@ -585,5 +585,17 @@ $gj = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $sp1, 'kind' => 'g
 q("UPDATE ppal_found SET status = 'garden' WHERE pal_uid = ?", [$sp1]);
 [$gr] = pj_recall($u, $gj); ok('a gardener comes home with no loss', $gr === true && pj_pal($uid, $sp1)['status'] === 'home');
 
+// 2.7.06 (Josh): one pal per WHOLE station, auto-picking recipes, the ones never made first
+q("UPDATE ppal_found SET status = 'home', hp = 30"); q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]);
+ok('the station list offers a whole station per area, listed first', isset(pj_station_list()['cooking:all']) && array_key_first(array_filter(pj_station_list(), fn($v, $k) => str_starts_with($k, 'cooking:'), ARRAY_FILTER_USE_BOTH)) === 'cooking:all');
+$plan = pj_station_all_recipes($uid, 'cooking'); ok('a whole station knows every known recipe of the area, whatever object makes it', count($plan) >= 1 && isset($plan[(int)$rec['id']]), count($plan));
+q('UPDATE user_recipes SET made = 7 WHERE user_id = ? AND recipe_id = ?', [$uid, $rec['id']]);
+$ord = pj_station_order($uid, array_values($plan)); $firstMade = (int)q_val('SELECT COALESCE(made,0) FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, (int)$ord[0]['id']]);
+ok('recipes never made come first (the one made 7 times is not first when another exists)', count($ord) < 2 || (int)$ord[0]['id'] !== (int)$rec['id'] || $firstMade === 0, array_column($ord, 'id'));
+foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 5);
+[$wo, $wm] = pj_station_send($u, $sp1, 'cooking', 'all', 'all', [], 3); ok('one pal takes the whole cooking station with nothing picked', $wo === true, $wm);
+$wj = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'"); ok('its job is the whole station (target cooking:all)', $wj && $wj['target'] === 'cooking:all', $wj['target'] ?? null);
+[$wo2] = pj_station_send($u, $sp2, 'cooking', 'stove', 'all', [], 3); ok('a second pal cannot take an object of a station that already has its pal', $wo2 === false);
+q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]);
 echo $fails ? "$fails FAILED\n" : "all pal job tests passed\n";
 exit($fails ? 1 : 0);

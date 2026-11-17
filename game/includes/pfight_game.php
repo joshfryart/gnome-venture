@@ -865,7 +865,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
     if (isset($v['v1'])) $h .= '<div class="pfv-legend" id="pfv-legend" role="group" aria-label="' . (!empty($v['v1']['env']) ? 'The environment: its next pieces' : 'Terrain legend') . '"></div>';
     $h .= '<div class="pf-opts" id="pf-opts" hidden></div>';
-    $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. One piece a turn.</p>';
+    $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.</p>';
     $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     $won = !empty($enc['won']) && in_array($s['over'], ['seen_off', 'charmed'], true);

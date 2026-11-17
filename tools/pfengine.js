@@ -60,7 +60,7 @@
 
   var ALL7 = ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item'];
   var PF_MODS = {
-    sticky: ['Sticky', '🧲', 'Stays on the board one round longer', 0, ALL7],
+    sticky: ['Sticky', '🧲', 'A snug fit also draws you a tile', 0, ALL7],
     swift: ['Swift', '🪶', 'Does not count towards a four-tile chain (no extra foe move)', 0, ALL7],
     hardy: ['Hardy', '🧱', '+2 guard', 0, ['guard']],
     tender: ['Tender', '💗', 'Heals 2 more', 0, ['heal', 'item']],

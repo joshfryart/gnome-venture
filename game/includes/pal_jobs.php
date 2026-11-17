@@ -664,9 +664,31 @@ function pj_station_list(): array
     $out = [];
     foreach (CRAFT_CATEGORIES as $area => [$label]) {
         if ($area === 'pantry') continue;
-        foreach (craft_scenes()[$area]['hot'] ?? [] as [$id, $ol, , , , , $to]) if (is_array($to)) $out[$area . ':' . $id] = [$label, $ol];
+        $first = true;
+        foreach (craft_scenes()[$area]['hot'] ?? [] as [$id, $ol, , , , , $to]) if (is_array($to)) {
+            if ($first) { $out[$area . ':all'] = [$label, 'Whole station']; $first = false; }   // 2.7.06: one pal for the whole station (every recipe category), listed first
+            $out[$area . ':' . $id] = [$label, $ol];
+        }
     }
     return $out;
+}
+
+/** 2.7.06: every known recipe of an area, whatever object makes it (a whole-station shift). id => recipe row. */
+function pj_station_all_recipes(int $uid, string $area): array
+{
+    $out = [];
+    foreach (craft_recipes($uid, $area) as $r) if ($r['known']) $out[(int)$r['id']] = $r;
+    return $out;
+}
+
+/** 2.7.06: the order a pal tries recipes in: first the ones the gnome has never made (a new dish, a new preserve), then the rest by how little has been made, the list order breaking ties. */
+function pj_station_order(int $uid, array $plan): array
+{
+    $made = [];
+    foreach (q('SELECT recipe_id, made FROM user_recipes WHERE user_id = ?', [$uid])->fetchAll() as $m) $made[(int)$m['recipe_id']] = (int)$m['made'];
+    $idx = array_keys($plan);
+    usort($idx, fn($a, $b) => [$made[(int)$plan[$a]['id']] ?? 0, $a] <=> [$made[(int)$plan[$b]['id']] ?? 0, $b]);
+    return array_map(fn($i) => $plan[$i], $idx);
 }
 
 /** Known recipes of an area that an object makes (rows from craft_recipes with 'ings'). */
@@ -688,25 +710,30 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     require_once __DIR__ . '/crafting.php';
     if (!in_array($hours, PJ_TRIP_HOURS, true)) return [false, 'Pick 1, 3 or 8 hours.'];
     if ($area === 'pantry' || !isset(CRAFT_CATEGORIES[$area])) return [false, 'Pals cannot work that area yet.'];
-    $o = pj_station_object($area, $obj);
+    $whole = ($obj === 'all' || $obj === '');   // 2.7.06 (Josh): one pal tends the WHOLE station, every recipe category it has; no object to pick
+    $o = $whole ? ['id' => 'all', 'label' => CRAFT_CATEGORIES[$area][0], 'globs' => null] : pj_station_object($area, $obj);
     if (!$o) return [false, 'Pick a station.'];
     $stations = craft_stations($uid);
     if (($stations[$area] ?? 0) === 0) return [false, 'You need the building for that area first.'];
     [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
-    $target = $area . ':' . $obj;
+    $target = $area . ':' . ($whole ? 'all' : $obj);
     $passive = $area === 'cooking';   // pals only cook passively, in a pot of their own
     if ($passive && !cook_pots_on()) return [false, 'Pals cook in pots, and pots are switched off.'];
-    if (!$passive && q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target = ? AND state IN ('active','ready')", [$uid, $target])) return [false, 'A pal is already working at the ' . $o['label'] . '.'];
+    if (!$passive) {   // a whole-station pal blocks the station's objects and the other way round
+        $clash = $whole ? q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE ? AND state IN ('active','ready')", [$uid, $area . ':%'])
+            : q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target IN (?, ?) AND state IN ('active','ready')", [$uid, $target, $area . ':all']);
+        if ($clash) return [false, 'A pal is already working at the ' . $o['label'] . '.'];
+    }
     if (!$passive && (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND day = ?", [$uid, landmark_day()]) >= pj_stations_per_day()) return [false, 'Your pals have worked enough shifts today (' . pj_stations_per_day() . ').'];
-    $all = pj_station_recipes($uid, $area, $o['globs']);
+    $all = $whole ? pj_station_all_recipes($uid, $area) : pj_station_recipes($uid, $area, $o['globs']);
     if ($mode === 'chosen') {
         $ids = array_values(array_unique(array_map('intval', $recipeIds)));
         if (!$ids) return [false, 'Tick the recipes the pal should make, or pick "everything".'];
         if (count($ids) > 5) return [false, 'Pick up to 5 recipes.'];
         $plan = array_values(array_filter(array_map(fn($id) => $all[$id] ?? null, $ids)));
         if (count($plan) !== count($ids)) return [false, 'You can only pick recipes you know that this station makes.'];
-    } else $plan = array_values($all);
+    } else $plan = pj_station_order($uid, array_values($all));   // 2.7.06: what you have not made yet comes first
     if (!$plan) return [false, 'You know no recipes for the ' . $o['label'] . ' yet.'];
     $cookingArea = $area === 'cooking';
     if ($passive) {   // one pal per pot: the pal holds it until the shift ends. The first recipe it can make now (else the first chosen) is its starting choice.

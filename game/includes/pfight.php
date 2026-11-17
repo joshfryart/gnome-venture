@@ -117,7 +117,7 @@ function pf_type_text(string $t, ?int $v = null): string
 
 /** Upgrades (secondary effects) a tile can be given by completing puzzles: key => [name, glyph, description, rarity 0-2, tile types it fits]. One per tile; permanent until removed. */
 const PF_MODS = [
-    'sticky'   => ['Sticky', '🧲', 'Stays on the board one round longer', 0, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
+    'sticky'   => ['Sticky', '🧲', 'A snug fit also draws you a tile', 0, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
     'swift'    => ['Swift', '🪶', 'Does not count towards a four-tile chain (no extra foe move)', 0, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
     'hardy'    => ['Hardy', '🧱', '+2 guard', 0, ['guard']],
     'tender'   => ['Tender', '💗', 'Heals 2 more', 0, ['heal', 'item']],

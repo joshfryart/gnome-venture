@@ -18,7 +18,7 @@ echo "== the marker files\n";
 $names = ['camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight', 'haven', 'wonder', 'delve', 'lair', 'overgrown', 'flooded', 'market', 'rest', 'signpost'];
 ok('every installed marker can be asked for by name', array_filter($names, fn($n) => trail_mark_file('', $n) !== $n) === [], json_encode(array_map(fn($n) => trail_mark_file('', $n), $names)));
 ok('an unknown name is no marker; the fight and camp emoji still map', trail_mark_file('', 'nope') === '' && trail_mark_file('⚔️') === 'fight' && trail_mark_file('🏕️') === 'camp' && trail_mark_file('🚪') === '');
-ok('hazard is installed but no Trail token asks for it (no data has a hazard)', is_file($markDir . 'hazard.png') && trail_mark_file('', 'hazard') === '');
+ok('hazard is installed and (2.7.06) a token named hazard draws it; the emoji alone still picks nothing (no data has a hazard yet)', is_file($markDir . 'hazard.png') && trail_mark_file('', 'hazard') === 'hazard' && trail_mark_file('⚠️', '') === '');
 ok('a missing picture is no marker', $away($markDir . 'ferry.png', fn() => trail_mark_file('', 'ferry')) === '');
 
 echo "== road kinds: which stretch\n";
