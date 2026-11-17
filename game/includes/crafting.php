@@ -11,7 +11,7 @@ require_once __DIR__ . '/gnome.php';
 /** category => [label, icon, building needed (or null), blurb] */
 const CRAFT_CATEGORIES = [
     'cooking' => ['Cooking', '🍳', 'kitchen', 'Meals from your harvests and the wild. One meal buff at a time; meals also restore energy.'],
-    'pantry' => ['Pantry', '🫙', 'kitchen', 'Jam, pickles, sauerkraut and cordials from your harvests, kept in the jars of a Pantry (a Kitchen add-on). They take real days, never spoil, and sell for more than the crops.'],
+    'pantry' => ['Pantry', '🫙', 'kitchen', 'Jam, pickles, sauerkraut and cordials from your harvests, kept in the jars of a Pantry (a Kitchen add-on). They take game days (one per sleep), never spoil, and sell for more than the crops.'],
     'tools'   => ['Tools', '🔨', 'tool_shed', 'Upgrade your tools with things you gather on adventures. Masterwork tools can only be made here.'],
     'garden'  => ['Garden supplies', '🪴', null, 'Compost, loam and mulch from gathered materials. No building needed.'],
     'potions' => ['Potions', '🧪', null, 'Healing potions for you and your pals, draughts and brews for a short boost, and a tonic for the soil. No building needed.'],
@@ -242,7 +242,7 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
     if (str_starts_with((string)$r['slug'], 'feast-') && !user_building_bonus($uid, 'kitchen')['feasts']) {   // v0.7.96: feasts need a level 3 Kitchen
         return [false, 'Feasts need a level 3 Kitchen (🍳 Kitchen III). Upgrade one in 🏠 Garden buildings.'];
     }
-    if ($cat === 'pantry') return pantry_start($u, $r, $want);   // v0.9.8: jars with real-day timers (collected later, like pots)
+    if ($cat === 'pantry') return pantry_start($u, $r, $want);   // v0.9.8: jars with game-day timers (ready after N sleeps; collected later, like pots)
     if ($cat === 'cooking') {
         [$ok, $msg, $info] = cook_start($u, $r, $want, (int)$station);
         if (!$ok || cook_pots_on()) return [$ok, $msg];

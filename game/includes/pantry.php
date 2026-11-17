@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * v0.9.8 part A: the Pantry. A Kitchen add-on (garden_buildings.pantry = 1 on the Kitchen's row, not a new building) with jars that
- * preserve crops over real days: jam 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14. Modelled on cook pots
+ * preserve crops over game days (sleeps): jam 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14. Modelled on cook pots
  * (cook_pots -> pantry_jars) and just as lazy: no cron, a jar is ready when ready_at has passed and its Collect is pressed.
  * Recipes live in recipes.txt (tier "preserve", recipes.category "pantry"). One jar holds ONE batch; a batch gives output_qty
  * items (3 or 4 jars of jam). Preserves never spoil, sell for more than their crops, are liked by every townsfolk, and the
@@ -153,8 +153,8 @@ function pantry_quality(array $u, array $r): int
  * Start preserving: checks the Pantry, a free jar, ingredients and energy, then in one transaction takes them and fills one jar per
  * batch. $want is a number or 'all'. Returns [ok, message].
  */
-function pantry_start(array $u, array $r, int|string $want): array
-{
+function pantry_start(array $u, array $r, int|string $want, bool $pal = false): array
+{   // $pal: a pal fills the jar (2.7.06): no energy is spent
     $uid = (int)$u['id'];
     $limit = pantry_jar_limit($uid);
     if ($limit < 1) return [false, 'You need a 🫙 Pantry on a Kitchen first (🏠 Garden buildings → Kitchen).'];
@@ -162,7 +162,7 @@ function pantry_start(array $u, array $r, int|string $want): array
     $free = pantry_free($uid, $kind);
     if ($free < 1) return [false, 'All ' . $limit . ' jars in the ' . PANTRY_KINDS[$kind][0] . ' room are full. Collect a finished one, or wait for a timer (the other rooms are separate).'];
     require_once __DIR__ . '/craft_mastery.php';
-    $energy = craft_mastery_energy($uid, 'pantry', max(0, (int)$r['energy']));   // category mastery: -5% energy a tier
+    $energy = $pal ? 0 : craft_mastery_energy($uid, 'pantry', max(0, (int)$r['energy']));   // category mastery: -5% energy a tier
     $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
     $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
     $fit = min(craft_fit($stock, $energy, $haveE), $free);
