@@ -21,7 +21,7 @@ if (is_post()) {
         require_once __DIR__ . '/includes/pfdeck.php';
         require_once __DIR__ . '/includes/pfdeck_view.php';
         [$ok, $msg] = pfv_post($u, $do, $_POST);   // stage C: pfd_post plus the carry-over of an old box when the starter is packed
-        if (!$ok || !in_array($do, ['pfd_toggle', 'pfd_auto'], true)) flash($msg, $ok ? 'ok' : 'err');   // a switched piece shows on the page itself
+        if (!$ok || !in_array($do, ['pfd_toggle', 'pfd_swap', 'pfd_auto'], true)) flash($msg, $ok ? 'ok' : 'err');   // a switched piece shows on the page itself
         redirect('puzzlebox.php' . (in_array($_POST['t'] ?? '', ['belt', 'pals'], true) ? '?t=' . $_POST['t'] : ''));
     }
     if ($do === 'pick') {   // choose one of the three from an offer

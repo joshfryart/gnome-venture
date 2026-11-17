@@ -179,6 +179,27 @@ function pfd_uniques(bool $reload = false): array
     return $U;
 }
 
+/**
+ * The unique 3 of a creature (its own row), or, for a lair guardian (slug `boss-...`, made by ensure_lair_bosses, so it has none), those of a boss that has them:
+ * a boss of the same landscape if there is one, picked by the guardian's slug so it is always the same. Null for any other creature without. (2.7.05)
+ */
+function pfd_unique_of(array $c): ?array
+{
+    $slug = (string)($c['slug'] ?? ''); $U = pfd_uniques();
+    if (isset($U[$slug])) return $U[$slug];
+    if (!str_starts_with($slug, 'boss-')) return null;
+    static $pool = null;
+    if ($pool === null) {
+        $pool = [];
+        try { foreach (q("SELECT slug, landscapes FROM creatures WHERE size = 'boss' AND slug NOT LIKE 'boss-%' ORDER BY slug")->fetchAll() as $r) if (isset($U[$r['slug']])) $pool[] = [(string)$r['slug'], (string)$r['landscapes']]; } catch (Throwable $e) { $pool = []; }
+    }
+    if (!$pool) return null;
+    $ls = array_map('trim', explode(',', (string)($c['landscapes'] ?? '')));
+    $near = array_values(array_filter($pool, fn($x) => array_intersect($ls, array_map('trim', explode(',', $x[1])))));
+    $pick = $near ?: $pool;
+    return $U[$pick[crc32($slug) % count($pick)][0]] ?? null;
+}
+
 /** data/pf_region_pieces.txt: region code => ['hurt' => piece, 'other' => piece]. */
 function pfd_region_pieces(): array
 {
@@ -204,7 +225,7 @@ function pfd_foe_v(array $c): int
 function pfd_foe_pieces(array $c, string $region = ''): array
 {
     $size = (string)($c['size'] ?? 'small'); $big = $size === 'large' || $size === 'boss'; $v = pfd_foe_v($c);
-    $cl = pfd_class($c); $K = pfd_classes(); $slug = (string)($c['slug'] ?? ''); $u = pfd_uniques()[$slug] ?? null;
+    $cl = pfd_class($c); $K = pfd_classes(); $slug = (string)($c['slug'] ?? ''); $u = pfd_unique_of($c);
     $lean = in_array($u['lean'] ?? '', PFD_FAM, true) ? $u['lean'] : $K['classes'][$cl]['lean'];
     $out = []; $n = [];
     $add = function (string $layer, array $q) use (&$out, &$n, $v, $lean) {
@@ -235,7 +256,7 @@ function pfd_foe_row(array $c, string $region = ''): array
 
 function pfd_foe_lean(array $c): string
 {
-    $u = pfd_uniques()[(string)($c['slug'] ?? '')] ?? null;
+    $u = pfd_unique_of($c);
     return in_array($u['lean'] ?? '', PFD_FAM, true) ? $u['lean'] : pfd_classes()['classes'][pfd_class($c)]['lean'];
 }
 
@@ -524,6 +545,13 @@ function pfd_belt_tier(int|array $u): int
     return $tier;
 }
 
+/** The gnome level a fight belt (by item slug) needs, or 0 for any other item. The shop uses it (2.7.05). */
+function pfd_belt_level_need(string $slug): int
+{
+    foreach (PFD_BELTS as [, $s, $lv]) if ($s !== null && $s === $slug) return (int)$lv;
+    return 0;
+}
+
 /** How many tools the gnome's belt holds (2, 3 or 4). */
 function pfd_belt_slots(int|array $u): int
 {
@@ -675,7 +703,18 @@ function pfd_ensure_starter(int|array $u): bool
     $u = pfd_user($u);
     if (!pfd_ensure()) return false;
     if (is_array(pfd_sources($u)['starter'])) return true;
-    return pfd_set_starter($u, 'fixed') === null;
+    return pfd_set_starter($u, 'fixed') === null;   // 2.7.05 (decided): a box packed before 2.6.74 (user_pbox) is NOT carried over: the starter is the same fixed box for everyone
+}
+
+/** The pieces of an old Puzzle box (user_pbox, before 2.6.74) that the gnome owns and that are not in the deck yet are switched on, as far as the caps allow. Returns how many. Only the starter PICK (pfd_starter, pfv_post) uses it; the fixed starter does not (2.7.05). */
+function pfd_carry_old_box(int|array $u): int
+{
+    $u = pfd_user($u); $n = 0;
+    if (!function_exists('pbox_load')) return 0;
+    foreach ((array)(pbox_load((int)$u['id']) ?? []) as $k) {
+        foreach (pfd_deck($u)['pieces'] as $p) if ($p['key'] === (string)$k && !$p['on'] && !$p['gear'] && pfd_toggle($u, (string)$k, true) === null) $n++;
+    }
+    return $n;
 }
 
 /**
@@ -713,6 +752,20 @@ function pfd_toggle(int|array $u, string $key, ?bool $on = null): ?string
     if (q_val('SELECT 1 FROM pf_deck_pieces WHERE user_id = ? AND piece_key = ?', [$uid, $key])) q('UPDATE pf_deck_pieces SET active = ? WHERE user_id = ? AND piece_key = ?', [$on ? 1 : 0, $uid, $key]);
     else q('INSERT INTO pf_deck_pieces (user_id, piece_key, starter, active, pos) VALUES (?, ?, 0, ?, 100)', [$uid, $key, $on ? 1 : 0]);
     return null;
+}
+
+/** 2.7.05: swap one piece for another in ONE request: `$out` comes out of the kit, `$in` goes in. The order that keeps the deck legal wins (out first, then in first); on failure nothing changes. Returns an error or null. */
+function pfd_swap(int|array $u, string $out, string $in): ?string
+{
+    $u = pfd_user($u);
+    if ($out === '' || $in === '' || $out === $in) return 'Pick two different pieces to swap.';
+    $err = null;
+    foreach ([[$out, false, $in, true], [$in, true, $out, false]] as [$k1, $on1, $k2, $on2]) {
+        if (($err = pfd_toggle($u, $k1, $on1)) !== null) continue;
+        if (($err = pfd_toggle($u, $k2, $on2)) === null) return null;
+        pfd_toggle($u, $k1, !$on1);   // the second step was refused: put the first back
+    }
+    return $err;
 }
 
 function pfd_belt_save(int $uid, array $types): void
@@ -855,6 +908,7 @@ function pfd_end_fight(array $u, array $s): array
  * The POST actions of the Puzzle box and the pre-fight screen (the UI stage calls this from its pages; puzzlebox.php already does). Returns [ok, message].
  *   do=pfd_starter   kit=bold|steady|kind   or   pick[]=KEY x6
  *   do=pfd_toggle    key=KEY  [on=0|1]
+ *   do=pfd_swap      out=KEY  in=KEY   (one piece out of the kit, one in; 2.7.05)
  *   do=pfd_equip     tool=TYPE  [slot=N]
  *   do=pfd_unequip   tool=TYPE
  *   do=pfd_remove    tool=TYPE   (a broken or missing tool: off the belt, the item stays)
@@ -866,6 +920,7 @@ function pfd_post(array $u, string $do, array $in): array
     $err = match ($do) {
         'pfd_starter' => pfd_set_starter($u, isset($in['kit']) && $in['kit'] !== '' ? (string)$in['kit'] : array_map('strval', (array)($in['pick'] ?? []))),
         'pfd_toggle' => pfd_toggle($u, (string)($in['key'] ?? ''), isset($in['on']) ? (string)$in['on'] === '1' : null),
+        'pfd_swap' => pfd_swap($u, (string)($in['out'] ?? ''), (string)($in['in'] ?? '')),
         'pfd_equip' => pfd_equip_tool($u, (string)($in['tool'] ?? ''), isset($in['slot']) && ctype_digit((string)$in['slot']) ? (int)$in['slot'] : null),
         'pfd_unequip' => pfd_unequip($u, (string)($in['tool'] ?? '')),
         'pfd_remove' => pfd_remove_broken($u, (string)($in['tool'] ?? '')),
@@ -873,6 +928,6 @@ function pfd_post(array $u, string $do, array $in): array
         'pfd_fix' => pfd_fix($u, (string)($in['tool'] ?? '')),
         default => 'Unknown action.',
     };
-    $ok = ['pfd_starter' => 'Puzzle box packed.', 'pfd_toggle' => 'Deck changed.', 'pfd_equip' => 'Tool on your belt.', 'pfd_unequip' => 'Tool off your belt.', 'pfd_remove' => 'Removed from your belt.', 'pfd_auto' => 'Saved.', 'pfd_fix' => 'Tool fixed.'];
+    $ok = ['pfd_starter' => 'Puzzle box packed.', 'pfd_toggle' => 'Deck changed.', 'pfd_swap' => 'Pieces swapped.', 'pfd_equip' => 'Tool on your belt.', 'pfd_unequip' => 'Tool off your belt.', 'pfd_remove' => 'Removed from your belt.', 'pfd_auto' => 'Saved.', 'pfd_fix' => 'Tool fixed.'];
     return [$err === null, $err ?? ($ok[$do] ?? 'Done.')];
 }

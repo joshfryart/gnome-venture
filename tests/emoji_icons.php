@@ -110,7 +110,7 @@ $child2 = '<?php define("APP_ROOT", $argv[1]); define("APP_VERSION","T1"); $CONF
 file_put_contents("$d2/c.php", $child2);
 $o2 = (string)shell_exec('php ' . escapeshellarg("$d2/c.php") . ' ' . escapeshellarg(APP_ROOT) . ' ' . escapeshellarg($d2) . ' ' . escapeshellarg("<p>$sent</p>"));
 $okAll = substr_count($o2, '<img') === count($pick) && count($pick) === 5;
-foreach ($pick as $slug => [$k]) $okAll = $okAll && str_contains($o2, "$slug.svg") && !str_contains($o2, $k);
+foreach ($pick as $slug => [$k]) $okAll = $okAll && (str_contains($o2, "$slug.svg") || str_contains($o2, "$slug.png")) && !str_contains($o2, $k);
 ok('5 real entries swapped via real map + temp icon dir', $okAll, $o2);
 array_map('unlink', glob("$d2/*")); rmdir($d2);
 array_map('unlink', glob("$tmp/*")); rmdir($tmp);

@@ -191,7 +191,7 @@
 
   function isOld(p) { return p.left !== undefined ? p.left <= 1 : (p.gone ? false : p.age >= LIFE1); }
   function mudAt(x, y) { return ((data.ter || {})[x + ',' + y] || '') === 'mud'; }   // the rules use the ground as it is now
-  function terAt(x, y) { var k = x + ',' + y; return phase === 'pre' && PREV ? (terOver[k] || (PREV.ter || {})[k] || '') : ((data.ter || {})[k] || ''); }   // what is drawn (the replay starts from the ground before the turn)
+  function terAt(x, y) { var k = x + ',' + y; return phase === 'pre' && PREV ? (terOver[k] !== undefined ? terOver[k] : ((PREV.ter || {})[k] || '')) : ((data.ter || {})[k] || ''); }   // what is drawn (the replay starts from the ground before the turn)
   function dispEnvs() { return (phase === 'pre' && PREV ? PREV.envs : data.envs) || []; }
   function dispAim() { return phase === 'pre' && PREV ? (aimHide ? null : PREV.aim) : data.aim; }
   function pipsEl(n, max) { var s = document.createElement('span'); s.className = 'xp' + (n <= 1 && max > 1 ? ' last' : ''); s.setAttribute('aria-hidden', 'true'); for (var i = 0; i < max; i++) { var d = document.createElement('i'); if (i >= n) d.className = 'e'; s.appendChild(d); } return s; }
@@ -494,7 +494,7 @@
     if (!ev.env) { if (had) render(); return; }
     var envs = (PREV && PREV.envs) || [], k, map = working().map;
     for (k = 0; k < envs.length; k++) if (!envDone[k] && envs[k].kind === ev.env && envs[k].x === ev.x && envs[k].y === ev.y) { flashEnv = k; break; }
-    if (EVT[ev.env] && typeof ev.x === 'number') terOver[ev.x + ',' + ev.y] = EVT[ev.env];
+    if (EVT[ev.env] && typeof ev.x === 'number') { if (ev.drop) terOver[ev.drop] = ''; terOver[ev.x + ',' + ev.y] = EVT[ev.env]; }   // 2.7.05: the oldest patch fades at this step
     if (ev.env === 'gust' && ev.moved && ev.moved.id !== undefined) { delete movedBack[ev.moved.id]; flashIds[ev.moved.id] = 1; }
     if (ev.env === 'thorn' || ev.env === 'creep') Object.keys(map).forEach(function (key) { var p = map[key]; if (p.by !== 'none' && !p.gone && p.id !== undefined && Math.abs(p.x - ev.x) + Math.abs(p.y - ev.y) <= (ev.env === 'thorn' ? 1 : 0)) flashIds[p.id] = 1; });
     if (ev.env === 'bramble') { if (ev.ids && ev.ids.length) ev.ids.forEach(function (id) { flashIds[id] = 1; }); else Object.keys(map).forEach(function (key) { var p = map[key]; if (p.by !== 'none' && !p.gone && p.id !== undefined && terAt(p.x, p.y) === 'br') flashIds[p.id] = 1; }); }

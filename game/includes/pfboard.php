@@ -636,11 +636,13 @@ function pfb_seed_ground(array &$s): void
 }
 
 /** An event puts ground on a cell (replacing what was there). There are never more cells of a kind than at the start: the oldest one goes. */
-function pfb_ground_set(array &$s, int $x, int $y, string $kind): void
+function pfb_ground_set(array &$s, int $x, int $y, string $kind): ?string
 {
     unset($s['ter']["$x,$y"]); $s['ter']["$x,$y"] = $kind;
     $cap = max(1, (int)$s['v1'][['sun' => 'nsun', 'br' => 'nbr', 'mud' => 'nmud'][$kind]]); $have = array_keys($s['ter'], $kind, true);
-    while (count($have) > $cap) unset($s['ter'][array_shift($have)]);
+    $dropped = null;
+    while (count($have) > $cap) { $dropped = (string)array_shift($have); unset($s['ter'][$dropped]); }
+    return $dropped;   // 2.7.05: the cell whose oldest patch faded (the replay shows it fade at this step, not at the end)
 }
 
 /** The terrain hurts the owner of a piece, a share of the maximum (guard does not help). Returns what it cost: health points for you, bar points for the creature ($tag 'thorn' is halved on the creature). */
@@ -678,7 +680,7 @@ function pfb_env_turn(array &$s): void
         } elseif ($e['kind'] === 'thorn') {
             foreach (pfb_zone($e) as [$x, $y]) { $p = pfb_at($s, $x, $y); if ($p && $p['by'] !== 'none') $L[$p['by']] += pfb_env_hurt($s, $p['by'], (float)$s['v1']['thorn'], 'thorn'); }
         } else {
-            pfb_ground_set($s, $e['x'], $e['y'], ['sunbeam' => 'sun', 'creep' => 'br', 'puddle' => 'mud'][$e['kind']]);
+            if (($gone = pfb_ground_set($s, $e['x'], $e['y'], ['sunbeam' => 'sun', 'creep' => 'br', 'puddle' => 'mud'][$e['kind']])) !== null) $L['drop'] = $gone;
             if ($ob) $L['on'] = ['id' => $on['id'], 'by' => $ob, 'n' => $on['tile']['n']];
         }
         $L['me'] = (int)$L['me']; $L['foe'] = pf_round($L['foe'], 1);
@@ -700,7 +702,7 @@ function pfb_env_events(array $s): array
     foreach ($s['envlog'] ?? [] as $L) {
         $e = ['by' => 'env', 'ta' => 'env', 'env' => $L['k'], 'tag' => '', 'k' => 'env:' . $L['k'], 'n' => PFB_EVENT_NAME[$L['k']] ?? 'Terrain', 't' => 'env', 'v' => 0, 'fit' => false, 'combo' => null,
             'x' => $L['x'], 'y' => $L['y'], 'me' => $L['me'], 'foe' => $L['foe']];
-        foreach (['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full'] as $k) if (isset($L[$k])) $e[$k] = $L[$k];
+        foreach (['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full', 'drop'] as $k) if (isset($L[$k])) $e[$k] = $L[$k];
         if (isset($L['n'])) $e['n'] = $L['n'];   // 2.6.75: an environment piece placed (or kept back): its name
         $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
         $ev[] = $e;

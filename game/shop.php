@@ -154,9 +154,12 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
           . ($unknown ? '<p class="help">📕 Unstudied: you can plant it, but it grows ' . unstudied_slow_pct($u) . '% slower and gives ' . (100 - unstudied_yield_pct($u)) . '% less until you study its region (this guide, or the region’s questline in Almanac → Journey) or master the crop.</p>' : '')
           . (!empty($owned[(int)$s['iid']]) ? '<p class="help">👜 You have ' . (int)$owned[(int)$s['iid']] . '.</p>' : '')
           . '<p class="help">' . (int)$s['current_stock'] . ' on the shelf</p>';
+      require_once __DIR__ . '/includes/pfdeck.php';   // 2.7.05: a fight belt above the gnome's level is dimmed with a note (buy_from_shop refuses it too)
+      $beltNeed = pfd_belt_level_need((string)$s['slug']); $beltLow = $beltNeed > (int)$u['level'];
+      if ($beltLow) $info .= '<p class="help">🔒 Needs gnome level ' . $beltNeed . ' (you are level ' . (int)$u['level'] . ').</p>';
       $priceHtml = money($myPrice) . ($myPrice < (int)$s['current_price'] ? ' <s class="muted">' . number_format((int)$s['current_price']) . '</s>' : '');
       echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
-          'tags' => $tags, 'info' => $info, 'dim' => $read, 'offNote' => $read ? '✔ Read' : '', 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true,
+          'tags' => $tags, 'info' => $info, 'dim' => $read || $beltLow, 'offNote' => $read ? '✔ Read' : ($beltLow ? 'Level ' . $beltNeed : ''), 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true,
           'coins' => $open ? $fresh : null]);
   endforeach; ?>
   </div></div>
