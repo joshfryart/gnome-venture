@@ -41,6 +41,7 @@ Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG t
 - All phone checks through 2.6.70 PASSED (Josh, 2026-11-12). Later checks are listed in section 1.
 
 ## 3. JOSH: decisions needed
+- DONE 2026-11-17 (unreleased): old-rules fights lose the creature's free board piece (`PFB_V1_PRE` spawn 1 -> 0, PHP + `tools/pfengine.js`; test in `pfboard_v1_order.php` updated; `pfboard_v1`, `pfengine_js`, `pfboard_js` pass). STILL OPEN from round 3: charm buff, starter kit retune, Wind / Mud unlocks, hide gear, Soothe text, Sights tune.
 - ANSWERED 2026-11-17 (Josh, round 3): START NOW on: charm reward buff, remove old-rules free creature piece, starter kit retune, Wind / Mud staged unlocks, hide belts / kit recipe / Almanac page until Everyone. Soothe text = REWRITE (propose). Everyone option for `pfight_v1` = later (after 2.7.10). Sights rewards = tune NOW.
 - ANSWERED 2026-11-17 (Josh, round 2): rule (c) all-pieces-active = NO; charm ending = BUFF the charm reward (open); creature free board piece in old-rules fights = REMOVE; lair levels = leave.
 - ANSWERED 2026-11-17 (Josh): fight length = keep today's bars (4-5 turns); board = keep 4x4 as a look; starter kit retune = returned, it goes in 2.7.08; Wind and Mud = bring back as staged unlocks; belts / kit recipe / Almanac page = hide until `pfight_v1` is Everyone (not yet built); release cut = WAIT (no bump).

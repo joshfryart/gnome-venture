@@ -19,7 +19,7 @@ chk('order 1: Sun still doubles the Hurt and the root flag stays on the placed p
 $s = $row18(['order' => 0]); $ev0 = v1_place($s, 'me', $wild18 + v1_tile($s, 'x18', 'hurt', 5, 'body'), 2, 2);
 $t0 = array_map(fn($e) => ($e['by'] === 'env' ? 'env' : $e['t']), array_values(array_filter($ev0, fn($e) => isset($e['id']))));
 chk('order 0 (a fight started before): the placed piece first, then the link order as before', $t0[0] === 'hurt' && count($t0) === 5, $t0);
-chk('a new fight has order 1 and spawn 0; a state without the keys reads order 0, spawn 1', ($n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true])) && pfb_v1r($n, 'order') === 1 && pfb_v1r($n, 'spawn') === 0 && ($o = $n) && (function () use ($o) { unset($o['v1']['order'], $o['v1']['spawn']); return pfb_v1r($o, 'order') === 0 && pfb_v1r($o, 'spawn') === 1; })());
+chk('a new fight has order 1 and spawn 0; a state without the keys reads order 0, spawn 0 (2.7.08: old fights lose the free piece too)', ($n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true])) && pfb_v1r($n, 'order') === 1 && pfb_v1r($n, 'spawn') === 0 && ($o = $n) && (function () use ($o) { unset($o['v1']['order'], $o['v1']['spawn']); return pfb_v1r($o, 'order') === 0 && pfb_v1r($o, 'spawn') === 0; })());
 // spawn: a board short of creature pieces
 $mk18 = function (int $spawn) use ($wild18) {
     $s = v1_bare('medium', ['spawn' => $spawn]); v1_put($s, 'me', $wild18 + v1_tile($s, 'm18', 'charm', 3, 'body'), 1, 2);
