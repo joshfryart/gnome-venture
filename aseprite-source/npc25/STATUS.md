@@ -25,3 +25,6 @@
 | moth | PASS | none |
 | wren | PASS | none |
 | bat | PASS | none |
+
+## Full pathway check (2026-11-17)
+Stage 1 (spec): 25 of 25 species have `specs/<species>.md`. Stage 2 (scaffold): 25 of 25 have `lib/species_<species>.lua` (no draft-helper calls left). Stage 3 (art): all drawn; snail, stick-insect and ladybird redrawn by Opus this session (before copies in `<species>/before/`). Stage 4 (check): `python3 check.py <species>` run on all 25: RESULT PASS 25 of 25.
