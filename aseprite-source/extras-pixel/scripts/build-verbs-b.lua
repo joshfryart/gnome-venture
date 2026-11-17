@@ -77,23 +77,34 @@ end
 
 ----------------------------------------------------------------- befriend: open hand offering an apple, heart above
 local function befriend(c)
-  -- sleeve (left)
-  c:part(c:poly({ { 6, 60 }, { 22, 62 }, { 22, 86 }, { 6, 84 } }), "leaf", { cres = 4, deep = 1, gloss = false })
-  -- palm
-  c:part(c:rrect(18, 66, 86, 84, 7), "skin", { cres = 6, deep = 2 })
-  -- thumb
-  c:part(c:rrect(26, 58, 44, 74, 5), "skin", { cres = 4, deep = 1, gloss = false })
-  -- finger creases
-  for _, x in ipairs({ 62, 71, 80 }) do for y = 72, 82 do c:px(x, y, "#c47a52") end end
-  -- apple
-  c:part(c:ellipse(53, 52, 17, 16), "red", { cres = 5, deep = 2 })
-  c:part(c:rect(52, 30, 54, 37), DWOOD, FL)
-  c:part(c:poly({ { 55, 33 }, { 66, 28 }, { 68, 35 }, { 58, 38 } }), "leaf", { cres = 3, deep = 1, gloss = false })
-  -- heart (upper right)
-  local h = c:ellipse(71, 15, 7, 7):add(c:ellipse(83, 15, 7, 7)):add(c:poly({ { 63, 18 }, { 91, 18 }, { 77, 33 } }))
+  local SK = { part = { cres = 4, deep = 1, gloss = false } }
+  -- apple first: the hand cups it from below
+  c:part(c:ellipse(52, 50, 16, 15), "red", { cres = 5, deep = 2 })
+  c:part(c:rect(51, 29, 53, 36), DWOOD, FL)
+  c:part(c:poly({ { 54, 33 }, { 64, 27 }, { 67, 33 }, { 58, 37 } }), "leaf", { cres = 3, deep = 1, gloss = false })
+  -- palm (heel of the hand under the apple)
+  c:part(c:rrect(20, 66, 68, 86, 7), "skin", { cres = 6, deep = 2, gloss = false })
+  -- fingers: four stacked, tips curling up round the apple's right side (pinky first, index last)
+  local fingers = {
+    { { 60, 83 }, { 74, 82 }, { 78, 79 } },
+    { { 60, 79 }, { 78, 78 }, { 83, 73 } },
+    { { 60, 74 }, { 79, 73 }, { 85, 67 } },
+    { { 58, 69 }, { 76, 68 }, { 82, 61 } },
+  }
+  for _, f in ipairs(fingers) do c:part(c:line(f, 6), "skin", SK.part) end
+  -- fingernail on the index tip
+  c:fill(c:rect(82, 61, 83, 62), "#ffe2a8")
+  -- thumb rising on the near side, tip bent toward the apple
+  c:part(c:line({ { 30, 76 }, { 31, 62 }, { 34, 56 }, { 37, 53 } }, 8), "skin", { cres = 4, deep = 1, gloss = false })
+  c:fill(c:rect(36, 51, 38, 52):add(c:rect(37, 53, 38, 53)), "#ffe2a8")
+  -- sleeve and cuff (left)
+  c:part(c:poly({ { 6, 60 }, { 17, 63 }, { 17, 87 }, { 6, 90 } }), "leaf", { cres = 4, deep = 1, gloss = false })
+  c:part(c:rrect(15, 61, 23, 89, 2), CREAM, { cres = 3, deep = 1, gloss = false })
+  c:seam({ { 19, 64 }, { 19, 86 } })
+  -- heart (upper right) and one sparkle
+  local h = c:ellipse(70, 16, 7, 7):add(c:ellipse(82, 16, 7, 7)):add(c:poly({ { 62, 19 }, { 90, 19 }, { 76, 34 } }))
   c:part(h, "petal", { cres = 4, deep = 1 })
-  -- small heart-less sparkles
-  star(c, 16, 30, 3); star(c, 22, 14, 2)
+  star(c, 20, 26, 4); star(c, 30, 12, 2)
   save(c, "befriend")
 end
 
