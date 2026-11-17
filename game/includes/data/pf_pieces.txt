@@ -13,7 +13,7 @@ rest|Rest|basic|-|heal|3|craft|-|-|0|Catch your breath.
 charm|Charm|basic|-|charm|4|craft|-|-|0|A kind word.
 snack|Snack|basic|-|item|5|body|snack|-|0|Eat a snack from your satchel.
 hide|Hide|basic|-|trick|3|body|-|-|0|Duck out of sight.
-soothe|Soothe|knack|4|soothe|2|mind|-|-|0|Calms the creature: its next hit is softer.
+soothe|Soothe|knack|4|soothe|2|mind|-|-|0|Takes damage off the creature's next turn, then wears off.
 offer|Offer|knack|12|charm|6|-|-|-|0|A gift held out. Flat right edge.
 taunt|Taunt|knack|10|trick|3|body|-|-|0|Draw it in.
 jab|Jab|knack|5|hurt|3|craft|quick|-|0|A quick poke.

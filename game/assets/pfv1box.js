@@ -55,7 +55,7 @@
     return bits.length ? 'Links best with ' + bits.slice(0, 2).join(' and ') + '.' : '';
   }
   /* the words for each piece type (mirror of PF_TYPE_TEXT in includes/pfight.php; # is the piece's number; tests/pf_piece_text.php checks they match) */
-  var TYTX = { hurt: 'Deals # damage, filling its Yield bar', guard: 'Blocks # damage until your next turn', heal: 'Heals you #', charm: 'Fills its Yield bar with # charm', soothe: 'Its next hits do # less damage in all', trick: 'Boosts a Hurt or Guard fired right after it by +#', item: 'Heals you #' };
+  var TYTX = { hurt: 'Deals # damage, filling its Yield bar', guard: 'Blocks # damage until your next turn', heal: 'Heals you #', charm: 'Fills its Yield bar with # charm', soothe: 'Takes up to # damage off the creature\'s next turn, then wears off', trick: 'Boosts a Hurt or Guard fired right after it by +#', item: 'Heals you #' };
   function typeText(t, v) { return TYTX[t] ? TYTX[t].replace('#', v === '' || v === undefined || v === null ? 'its number' : String(v)) : ''; }
   function pips(n) { var h = ''; for (var i = 0; i < n; i++) h += '<i></i>'; return '<span class="lp" role="img" aria-label="stays ' + n + ' rounds">' + h + '</span>'; }
   function chips(pc) {
