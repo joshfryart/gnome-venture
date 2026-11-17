@@ -102,3 +102,10 @@ Stage 3 art redrawn (Opus) in `lib/species_stick-insect.lua` (`S.draw_figure`); 
 - Quirk: twig hat on the crown, `S.quirk.hex` `#6e4a44`, 5x3, follows body y.
 - Remaining weaknesses: thorax is busy where the forelegs cross the middle legs; the dashed stripe vanishes at 1x.
 - Stage 2 results: tables S.ramps, S.palette_list, S.idle, S.walk, S.c, S.quirk present; S.T = 7 and S.W = 34 present in the `local S = {...}` header. Palette check: PASS, all 13 PNG colours in `S.palette_list`, none missing. `check.py stick-insect`: RESULT PASS.
+
+## Round 2 plan
+Fixes for the four weaknesses (first-pass implemented in `S.draw_figure`; before-state in `stick-insect/before-r2/`).
+- Busy thorax (front/back): forelegs no longer fold across the middle legs. Shoulder (cx-3, y31) goes out to an elbow at (cx-8, y28) above the middle knee, then down-out to a short hand at (cx-11, y36) with a 2 px bark tip. Forelegs sit outside the body column and above the middle legs; nothing crosses the thorax.
+- Boxed-in legs: knees tucked in, feet splayed. Middle pair hip (cx-3, y42), knee (cx-9, y38), foot cx-13. Rear pair hip y47, knee (cx-6, y43), foot cx-10. Lower legs slant about 4 px over 30 rows, giving an A-shaped stance. Side view: near middle foot x46 (knee +5), near rear foot x24 (knee -5), so lower legs slant fore and aft.
+- Square knee knobs: knob is now 2 px on top (top-left pixel dropped) over 3 px, a rounded dome instead of a 3x2 block.
+- Vanishing stripe: dashes are 3 on, 1 off, 2 px wide in `#3f2c6a` (deep) on the lilac body, front and back (down to y56); side uses `#5c4196` dashes 3 on, 2 off one column in from the back edge. Back view wing-case centre line shortened to a 3 px dark dash.

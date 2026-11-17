@@ -102,3 +102,18 @@ Stage 3 art redrawn (Opus) in `lib/species_snail.lua` (`S.draw_figure`); old ver
 - Quirk: mail satchel, `S.quirk.hex` `#9e5c3c`, 4x4 on the shell, follows body y and sways with the walk.
 - Remaining weaknesses: front face is small; hat brims are small at 1x.
 - Stage 2 results: tables S.ramps, S.palette_list, S.idle, S.walk, S.c, S.quirk present; S.T = 8 and S.W = 44 present in the `local S = {...}` header. Palette check (all opaque PNG colours in `S.palette_list`): PASS, 12 of 13 listed colours used, none missing. `check.py snail`: RESULT PASS.
+
+## Round 2 plan
+Weaknesses: small front face, hard dark right edge on the front body mound, small hat brims at 1x.
+- front face: head blob 10.5x7 -> 11.5x8 with soft shading; cream muzzle ellipse 4.2x2.2 -> 6.2x3.4 plus a 7 px cream highlight row; two nostril pixels (deep plum) and one chin dot instead of one nose; smile widened to 9 px (curl up at both ends); 2-px-tall rosy cheek patches at x +-7..9 so face fills the head.
+- front body mound: `blob(..., soft=true)` - no `#4a4256` deep band, shade starts at light-dot 0.62 (was 0.5), light weights 0.7/0.55 (was 0.95/0.3) so the right edge is a base-to-shade gradient, not a dark wall. Same on the back view mound.
+- hat brims: front brim rx 9.5 -> 13, crown 7 -> 8 wide, lifted 1 px; back brim 9.5 -> 12.5, crown 8; side brim 7.5 -> 9 (crown 7). Side kept at 9 because idle-1 width must stay <= 44.
+- side face: unchanged this round (width budget); candidate for round 3.
+- Status: first-pass code in `S.draw_figure`, `check.py snail` RESULT PASS. Backup in `snail/before-r2/`.
+
+## Round 2 result (Opus)
+- Front face: head 12x8.5, muzzle 6.6x3.9; cream glint upper left, 3 px plum nose, open 9 px smile with plum inside, cheeks at +-7..8. Head and face no longer crowd.
+- Front/back body: stepped neck + mound replaced by one smooth bell (cylinder shading, shade band only, no deep wall); ground shadow narrowed to rx 16.5 (stray pixel gone).
+- Hats: plum (`#5e3446`) contour behind brim and crown; brims front 14, back 13, side 9 (width budget 44). Front strap now runs across the chest to the satchel at the lower left.
+- Still weak: side face small; front bell lower half is plain.
+- `check.py snail`: RESULT PASS. PNGs copied to `game/assets/img/npc25/`.

@@ -100,8 +100,8 @@ function S.draw_figure(img, view, frame, species)
     local fy = 70 + lift
     thick(hx, hy, kx, ky, t.fa, t.fb)
     thick(kx, ky, fx, fy - 1, t.ta, t.tb)
-    P(kx - 1, ky - 1, t.k1); P(kx, ky - 1, t.k1); P(kx + 1, ky - 1, t.k2)
-    P(kx - 1, ky, t.k2); P(kx, ky, t.k2); P(kx + 1, ky, t.k2)
+    P(kx, ky - 1, t.k1); P(kx + 1, ky - 1, t.k2)
+    P(kx - 1, ky, t.k2); P(kx, ky, t.k1); P(kx + 1, ky, t.k2); P(kx + 2, ky, t.fb)
     P(fx, fy, BARK); P(fx + 1, fy, BARK); P(fx + (dir < 0 and -1 or 2), fy, BARK)
   end
   local function twig(x, y)
@@ -129,15 +129,15 @@ function S.draw_figure(img, view, frame, species)
     -- tripods (front view: viewer-left = creature right)
     local vl_mid, vr_mid, vl_rear, vr_rear = fL, fR, fR, fL
     if not front then vl_mid, vr_mid, vl_rear, vr_rear = fR, fL, fL, fR end
-    local function pair(hy, ky, kxo, fxo, liftL, liftR)
+    local function pair(hy, ky, kxo, fxo, liftL, liftR, dir)
       local inl, inr = liftL < 0 and 2 or 0, liftR < 0 and 2 or 0
-      leg(cx - 3, hy + b, cx - kxo, ky + b + liftL, cx - fxo + inl, liftL, -1, 1)
+      leg(cx - 3, hy + b, cx - kxo, ky + b + liftL, cx - fxo + inl, liftL, dir, 1)
       MIR = true
-      leg(cx - 3, hy + b, cx - kxo, ky + b + liftR, cx - fxo + inr, liftR, -1, 2)
+      leg(cx - 3, hy + b, cx - kxo, ky + b + liftR, cx - fxo + inr, liftR, dir, 2)
       MIR = false
     end
-    pair(41, 31, 12, 14, vl_mid, vr_mid)    -- middle pair: wide knees above the body
-    pair(47, 40, 7, 9, vl_rear, vr_rear)     -- rear pair, inner stance
+    pair(44, 40, 9, 15, vl_mid, vr_mid, 1)    -- middle pair: knees up, tibiae splay out (A stance)
+    pair(49, 53, 7, 6, vl_rear, vr_rear, -1)    -- rear pair: low knee, feet tuck in under the tail
     -- long body: thorax, ringed abdomen tapering to a tip
     for y = 28, 62 do
       local hw = y < 44 and 4 or (y < 50 and 3 or (y < 56 and 3 or (y < 60 and 2 or 1)))
@@ -157,21 +157,21 @@ function S.draw_figure(img, view, frame, species)
       -- dashed dorsal / ventral stripe down the centre
       if y >= 32 then
         local seg = (y - 32) % 4
-        if seg < 2 then P(cx, yy, front and BA or SH); if y < 50 then P(cx + 1, yy, front and BA or SH) end end
+        if seg < 3 then P(cx, yy, DP); if y < 56 then P(cx + 1, yy, DP) end end
       end
     end
     if not front then -- folded wing cases on the thorax back
       for y = 30, 42 do P(cx - 2, y + b, LL); P(cx + 3, y + b, BA) end
-      for y = 29, 43 do P(cx, y + b, (y % 2 == 0) and SH or HI); P(cx + 1, y + b, SH) end
+      for y = 29, 31 do P(cx, y + b, SH); P(cx + 1, y + b, SH) end
     end
     -- forelegs held like arms: shoulder -> elbow out -> hands folded at the middle
     local function arm(a, mir)
       MIR = mir
-      local ey = 37 + b - a
-      thick(cx - 3, 30 + b, cx - 7, ey, mir and BA or HI, mir and SH or BA)
-      thick(cx - 7, ey, cx - 2, 42 + b - 2 * a, mir and SH or BA, mir and BA or SH)
-      P(cx - 8, ey - 1, mir and HI or LL); P(cx - 7, ey - 1, mir and HI or LL); P(cx - 8, ey, mir and BA or HI); P(cx - 6, ey - 1, BA)
-      P(cx - 1, 42 + b - 2 * a, BARK); P(cx - 1, 43 + b - 2 * a, BARK)
+      local ey, hy = 32 + b - a, 38 + b
+      thick(cx - 4, 30 + b, cx - 10, ey, mir and BA or HI, mir and SH or BA)
+      thick(cx - 10, ey, cx - 6, hy, mir and SH or BA, mir and BA or SH)
+      P(cx - 10, ey - 1, mir and HI or LL); P(cx - 9, ey - 1, mir and HI or LL)
+      P(cx - 6, hy + 1, BARK); P(cx - 5, hy + 1, BARK); P(cx - 5, hy, BARK)
       MIR = false
     end
     if front then arm(aR, false); arm(aL, true) else arm(aL, false); arm(aR, true) end
@@ -219,12 +219,12 @@ function S.draw_figure(img, view, frame, species)
     local sb = -sa
     local function bx(y) return floor(36 - (y - 27) * 0.26 + 0.5) end
     -- far legs (dark): middle = tripod B (footR), rear = tripod A (footL)
-    leg(bx(41) + 1, 41 + b, bx(41) + 6 + floor(sb / 2), 34 + b + fR, 40 + sb, fR, 1, 3)
-    leg(bx(47), 47 + b, bx(47) - 4 + floor(sa / 2), 40 + b + fL, 27 + sa, fL, -1, 3)
+    leg(bx(41) + 1, 41 + b, bx(41) + 6 + floor(sb / 2), 37 + b + fR, 42 + sb, fR, 1, 3)
+    leg(bx(47), 47 + b, bx(47) - 5 + floor(sa / 2), 40 + b + fL, 23 + sa, fL, -1, 3)
     local function arm(a, far)
       local sx = bx(31)
-      local ex, ey = sx + 4, 38 + b
-      local hx, hy = sx + 9 + a, 33 + b - a
+      local ex, ey = sx + 3, 35 + b
+      local hx, hy = sx + 9 + a, 31 + b - a
       thick(sx, 31 + b, ex, ey, far and SH or HI, far and DP or BA)
       thick(ex, ey, hx, hy, far and SH or BA, far and DP or SH)
       P(ex, ey - 1, far and BA or LL); P(ex + 1, ey - 1, far and SH or HI)
@@ -243,11 +243,11 @@ function S.draw_figure(img, view, frame, species)
         P(x, yy, c)
       end
       if y >= 45 and (y - 45) % 4 == 3 then for x = x0 + 1, x0 + w - 1 do P(x, yy, (x == x0 + w - 1) and DP or SH) end end
-      if y >= 31 and (y - 31) % 4 < 2 then P(x0, yy, HI) end  -- dashed light stripe along the back
+      if y >= 31 and (y - 31) % 5 < 3 then P(x0 + 1, yy, SH) end  -- dashed light stripe along the back
     end
     -- near legs: middle = tripod A (footL), rear = tripod B (footR)
-    leg(bx(41) + 1, 41 + b, bx(41) + 7 + floor(sa / 2), 35 + b + fL, 42 + sa, fL, 1, 1)
-    leg(bx(47), 47 + b, bx(47) - 8 + floor(sb / 2), 42 + b + fR, 25 + sb, fR, -1, 1)
+    leg(bx(41) + 1, 41 + b, bx(41) + 8 + floor(sa / 2), 39 + b + fL, 46 + sa, fL, 1, 1)
+    leg(bx(47), 47 + b, bx(47) - 6 + floor(sb / 2), 43 + b + fR, 20 + sb, fR, -1, 1)
     rows(bx(28) - 1, 27 + b, {"dDd", "dkD", "d.d"}, {d = PINKS, D = PINK, k = PINKS})
     arm(aR, false)
     -- head: hood capsule, face on the right

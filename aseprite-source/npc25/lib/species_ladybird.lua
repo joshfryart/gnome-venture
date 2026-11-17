@@ -134,10 +134,16 @@ function S.draw_figure(img, view, frame, species)
       end
     end
   end
+  -- head: flat dark base, one compact highlight cluster upper-left (inside the rim, not along it),
+  -- cast shadow from the brim, shade on the lower right. Rim stays base so the edge reads as one tone.
+  local brimY = 25 + hd
   local function headf(x, y, nx, ny, d)
-    if d > 0.7 and nx < -0.5 and ny < 0.3 then return GRIM end
-    if nx + ny < -0.55 and d > 0.3 then return GHI end
-    return lit(nx, ny, HEAD)
+    if y == brimY then return HEAD.shade end
+    local s = nx * 0.6 + ny * 0.8
+    if s > 0.62 then return HEAD.deep end
+    if s > 0.2 or nx > 0.55 then return HEAD.shade end
+    if nx < -0.3 and nx > -0.78 and ny > -0.5 and ny < -0.05 and d < 0.7 then return GHI end
+    return HEAD.base
   end
   local function knob(x, y) -- 3x3 diamond, top at (x+1,y)
     P(x + 1, y, HEAD.base); P(x, y + 1, HEAD.base); P(x + 1, y + 1, HEAD.shade); P(x + 2, y + 1, HEAD.deep)
@@ -204,16 +210,16 @@ function S.draw_figure(img, view, frame, species)
       end)
       for y = 36, 37 do for x = 29, 34 do P(x, y + hd, x <= 30 and GHI or (x >= 33 and HEAD.shade or HEAD.base)) end end
     else
-      ell(CX, 49.5 + b, 14, 15, function(x, y, nx, ny)
+      ell(CX, 53.5 + b, 14, 13.5, function(x, y, nx, ny)
         if x == 31 then return WC.deep end
         if x == 32 then return WC.shade end
         return lit(nx, ny, WC)
       end)
-      for _, p in ipairs({{24, 40}, {20, 47}, {26, 49}, {21, 56}, {27, 59}}) do
+      for _, p in ipairs({{24, 43}, {20, 50}, {26, 52}, {21, 59}, {27, 62}}) do
         spot(p[1], p[2] + b); spot(62 - p[1], p[2] + b)
       end
-      P(22, 41 + b, CREAM); P(21, 42 + b, CREAM); P(23, 40 + b, CREAM); P(20, 43 + b, WC.hi); P(20, 44 + b, WC.hi)
-      P(35, 38 + b, WC.hi); P(36, 38 + b, WC.hi)
+      P(22, 44 + b, CREAM); P(21, 45 + b, CREAM); P(23, 43 + b, CREAM); P(20, 46 + b, WC.hi); P(20, 47 + b, WC.hi)
+      P(35, 41 + b, WC.hi); P(36, 41 + b, WC.hi)
     end
     if front then
       arm(armVL, -1)
@@ -224,7 +230,12 @@ function S.draw_figure(img, view, frame, species)
       ink(15 + sw, 42 + b); ink(16, 41 + b) -- strap to the shoulder
     end
     -- head
-    if front then ell(CX, 28.6 + hd, 9.5, 7.2, headf) else ell(CX, 29.5 + hd, 9.5, 7.8, headf) end
+    if front then ell(CX, 28.6 + hd, 9.5, 7.2, headf)
+    else
+      -- back: smaller round head on a narrow neck stub so the outline pinches in between head and collar
+      for y = 35, 37 do for x = 29, 34 do P(x, y + hd, x <= 29 and HEAD.base or (x >= 34 and HEAD.deep or HEAD.shade)) end end
+      ell(CX, 28.8 + hd, 9, 6.6, headf)
+    end
     if front then
       -- cream face patches
       ell(25, 31.4 + hd, 2.2, 1.8, CREAM); ell(38, 31.4 + hd, 2.2, 1.8, CREAM)
@@ -239,8 +250,13 @@ function S.draw_figure(img, view, frame, species)
       P(29, 34 + hd, HEAD.deep); P(30, 35 + hd, HEAD.deep); P(31, 35 + hd, WC.shade); P(32, 35 + hd, WC.shade)
       P(33, 35 + hd, HEAD.deep); P(34, 34 + hd, HEAD.deep)
     else
-      P(27, 25 + hd, HEAD.hi)
-      ell(CX, 35 + hd, 6, 1.5, HEAD.shade)
+      -- pronotum: dark plate with the ladybird's cream side patches, wider than the neck
+      ell(CX, 39.2 + hd, 10.5, 2.6, function(x, y, nx, ny)
+        if abs(nx) > 0.55 then return (ny < 0.5) and CREAM or HEAD.shade end
+        if ny > 0.35 then return HEAD.deep end
+        if ny < -0.3 then return (nx < 0) and GHI or HEAD.base end
+        return (nx < 0.2) and HEAD.base or HEAD.shade
+      end)
     end
     hat(CX, 22 + hd, 6.5, 14.5)
     local lean = walk and o.armL or 0

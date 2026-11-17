@@ -102,3 +102,12 @@ Stage 3 art redrawn (Opus) in `lib/species_ladybird.lua` (`S.draw_figure`); old 
 - Quirk: red `#d93a30` 3x4 item at the hand anchor (`S.quirk.hex`), visible in every frame.
 - Remaining weaknesses: the back-view head is a flat dark blob.
 - Stage 2 results: tables S.ramps, S.palette_list, S.idle, S.walk, S.c, S.quirk present; S.T = 9 and S.W = 40 present in the `local S = {...}` header. Palette check: PASS, all 16 PNG colours in `S.palette_list`, none missing. `check.py ladybird`: RESULT PASS.
+
+## Round 2 plan
+Weakness 1: back-view head is a flat dark disc and the wing-case dome covers the neck gap.
+- Back: dome moved down and shortened (centre y 53.5+b, ry 13.5, top at y 40) so the shell no longer overlaps the head; spots shifted +3 rows to match.
+- Back: pronotum collar drawn after the head (ellipse centre y 39.4+hd, 9.5x2.3): dark HEAD ramp with cream corner marks (`#f4e2bc`), so head, collar and shell read as three parts.
+- Back head detail: nape shadow rows (y 33-34, `#3d3150`/`#3a2c48`) under the hat, crown ridge 3 px of `#6e6488`, left rim light 3 px, right shade side 2 px of deep.
+Weakness 2: busy pale edge on the head (front/side).
+- headf: removed the `#9a90b4` rim band; one thin `#6e6488` highlight only at the upper-left (nx+ny < -0.85), so the edge no longer shows two pale tones.
+Status: first-pass draft by Sonnet; check.py RESULT PASS.

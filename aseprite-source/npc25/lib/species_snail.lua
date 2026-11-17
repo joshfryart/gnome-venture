@@ -223,13 +223,13 @@ function S.draw_figure(img, view, frame, species)
     end
   end
   -- soft glossy blob (head, body mound): lit upper-left, wet cream glint, shade lower-right
-  local function blob(cx, cy, rx, ry, glint, wx, wy)
+  local function blob(cx, cy, rx, ry, glint, wx, wy, soft)
     wx, wy = wx or 0.6, wy or 0.7
     ell(cx, cy, rx, ry, function(x, y, nx, ny)
       local sv = nx * wx + ny * wy
-      if sv > 0.9 then return SK.deep end
-      if sv > 0.5 then return SK.shade end
-      if sv < -0.58 then return SK.hi end
+      if sv > 0.9 and not soft then return SK.deep end
+      if sv > (soft and 0.62 or 0.5) then return SK.shade end
+      if sv < (soft and -0.4 or -0.58) then return SK.hi end
       return SK.base
     end)
     if glint then
@@ -237,34 +237,61 @@ function S.draw_figure(img, view, frame, species)
       P(gx, gy, CREAM); P(gx + 1, gy, SK.hi); P(gx, gy + 1, SK.hi)
     end
   end
-  -- head blob with face (front)
+  -- head blob with face (front): spaced out so muzzle glint, nose and mouth read separately at 1x
   local function face(cx, cy)
-    E(cx, cy + 3, 4.2, 2.2, SK.hi)
     local x = floor(cx)
-    P(x, cy + 2, SHL.deep); P(x + 1, cy + 2, SHL.deep); P(x, cy + 2, CREAM)
-    P(x - 2, cy + 5, K); P(x - 1, cy + 6, K); P(x, cy + 6, K); P(x + 1, cy + 6, K); P(x + 2, cy + 6, K); P(x + 3, cy + 5, K)
-    P(x - 7, cy + 3, SHL.base); P(x - 6, cy + 3, SHL.base); P(x + 7, cy + 3, SHL.base); P(x + 8, cy + 3, SHL.base)
+    E(cx, cy + 3, 6.6, 3.9, SK.hi)               -- wide cream-ish muzzle
+    P(x - 4, cy, CREAM); P(x - 3, cy, CREAM); P(x - 4, cy + 1, CREAM)  -- wet glint, upper left
+    -- nose: 3 px plum bean with a 1 px drop
+    P(x - 1, cy + 1, SHL.deep); P(x, cy + 1, SHL.deep); P(x + 1, cy + 1, SHL.deep); P(x, cy + 2, SHL.deep)
+    -- open smile, 9 px wide, plum inside
+    P(x - 4, cy + 3, K); P(x + 4, cy + 3, K)
+    P(x - 3, cy + 4, K); P(x + 3, cy + 4, K)
+    for i = -2, 2 do P(x + i, cy + 4, SHL.deep) end
+    P(x, cy + 4, SHL.shade); P(x + 1, cy + 4, SHL.shade)
+    for i = -2, 2 do P(x + i, cy + 5, K) end
+    -- rosy cheeks, outside the mouth corners
+    for _, dx in ipairs({-8, -7, 7, 8}) do P(x + dx, cy + 2, SHL.base); P(x + dx, cy + 3, SHL.base) end
+    P(x - 8, cy + 2, STRAW.base); P(x + 7, cy + 2, STRAW.base)
+  end
+  -- smooth bell body from neck to foot: cylinder shading, no dark wall on the right
+  local function bell(y0, y1, cxf, hwf)
+    for y = y0, y1 do
+      local t = (y - y0) / max(1, y1 - y0)
+      local cx, hw = cxf(t), hwf(t)
+      for x = floor(cx - hw + 0.5), floor(cx + hw + 0.5) - 1 do
+        local nx = (x + 0.5 - cx) / hw
+        local c = SK.base
+        if nx < -0.62 then c = SK.hi elseif nx > 0.52 then c = SK.shade end
+        P(x, y, c)
+      end
+      if t > 0.15 and t < 0.6 then P(floor(cx - hw * 0.45 + 0.5), y, (t < 0.25) and CREAM or SK.hi) end
+    end
+  end
+  -- plum contour behind a hat part so the straw separates from the orange shell
+  local function hatback(cx, by, brx, cw)
+    ell(cx, by, brx + 1, 3.2, function() return SHL.deep end)
+    local x1 = floor(cx - cw / 2 + 0.5)
+    for y = by - 6, by - 1 do for x = x1 - 1, x1 + cw do P(x, y, SHL.deep) end end
   end
 
   local HY = 36 -- head centre row (body y 0)
   if view == "front" or view == "back" then
     local front = view == "front"
     local wide = (walking and b == 1) and 1 or 0
-    ell(32, 67.5, 17, 3, function(x, y, nx, ny) return ny < -0.2 and SL or SD end)
+    ell(31.5, 67.5, 16.5, 3, function(x, y, nx, ny) return ny < -0.2 and SL or SD end)
     if front then
-      local HY = 42
-      local FX = 35
+      local HY = 41
+      local FX = 34
       -- big shell dome behind, set to the left, whorl turned toward us
       shell(25, 41 + b, 16, 2.5, 1, -4, -1)
       skirt(31.5, 17 + wide)
-      -- low soft body: the head sits right on a short rounded front that flows into the foot
-      -- soft neck into a round body mound on the foot
-      slug(HY + 3 + b, 54 + b, function(t) return FX - 0.5 - t end, function(t) return 7 + 2 * t end, nil)
-      blob(FX - 2, 60 + b, 14 + wide, 9.5, true, 0.95, 0.3)
+      -- one smooth bell from the neck down into the foot (replaces the stepped neck + mound)
+      bell(HY + 5 + b, 66, function(t) return FX - 0.5 - 2.5 * t end, function(t) return 8.5 + (6.5 + wide) * t ^ 1.5 end)
       -- head
-      blob(FX, HY + hd, 10.5, 7, true)
-      face(FX, HY + hd - 2)
-      for x = FX - 11, FX + 11 do if get(x, HY - 5 + hd) then P(x, HY - 5 + hd, SK.shade) end end
+      blob(FX, HY + hd, 12, 8.5, false, 0.6, 0.7, true)
+      face(FX, HY + hd - 1)
+      for x = FX - 12, FX + 12 do if get(x, HY - 6 + hd) then P(x, HY - 6 + hd, SK.shade) end end
       -- kerchief knotted under the chin
       for j = 0, 4 do
         local w = 15 - j * 3
@@ -274,16 +301,17 @@ function S.draw_figure(img, view, frame, species)
           local c = GREEN
           if (x * 2 + j * 3) % 7 == 0 then c = SK.hi end
           if x == x0 + w - 1 and w > 2 then c = SK.shade end
-          P(x, HY + 6 + j + b, c)
+          P(x, HY + 8 + j + b, c)
         end
       end
-      -- satchel strap from the far shoulder down to the satchel on the shell
-      line(FX + 10, HY + 7 + b, 17 + sway, 47 + b, SHL.deep)
-      satchel(11, 46 + b)
+      -- cross-body mail strap from the far shoulder down to the satchel at the lower left
+      line(FX + 9, HY + 9 + b, 18 + sway, 57 + b, SHL.deep)
+      satchel(13, 56 + b)
       -- long eyestalks rising from the head behind the hat crown
-      stalk(FX - 5, HY - 6 + hd, FX - 8 + aL, 15 + hd, false)
-      stalk(FX + 4, HY - 6 + hd, FX + 6 + aR, 15 + hd, false)
-      hat(FX, HY - 6 + hd, 9.5, 7, false, false)
+      stalk(FX - 5, HY - 7 + hd, FX - 8 + aL, 15 + hd, false)
+      stalk(FX + 4, HY - 7 + hd, FX + 6 + aR, 15 + hd, false)
+      hatback(FX, HY - 7 + hd, 14, 9)
+      hat(FX, HY - 7 + hd, 14, 9, false, false)
       bulb(FX - 8 + aL, 12 + hd, 0, false)
       bulb(FX + 7 + aR, 12 + hd, -1, false)
     else
@@ -293,8 +321,7 @@ function S.draw_figure(img, view, frame, species)
       bulb(25 + aL, 12 + hd, nil, false)
       bulb(38 + aR, 12 + hd, nil, false)
       skirt(31.5, 17 + wide)
-      slug(HY + 3 + b, 54 + b, function(t) return 31.5 end, function(t) return 7 + 2 * t end, nil)
-      blob(31.5, 60 + b, 14 + wide, 9.5, false, 0.95, 0.3)
+      bell(HY + 3 + b, 66, function(t) return 31.5 end, function(t) return 8 + (7 + wide) * t ^ 1.5 end)
       blob(31.5, HY + hd, 10.5, 7, false)
       for x = 22, 41 do if get(x, HY - 5 + hd) then P(x, HY - 5 + hd, SK.shade) end end
       shell(31.5, 50 + b, 16, 2.7, -1, 1, 0)
@@ -308,7 +335,8 @@ function S.draw_figure(img, view, frame, species)
       line(30, 39 + b, 40 + sway, 47 + b, SHL.deep)
       line(31, 39 + b, 41 + sway, 47 + b, SHL.deep)
       satchel(39, 46 + b)
-      hat(31.5, HY - 6 + hd, 9.5, 7, true, false)
+      hatback(31.5, HY - 6 + hd, 13, 9)
+      hat(31.5, HY - 6 + hd, 13, 9, true, false)
     end
 
   else -- side, facing right
@@ -370,7 +398,8 @@ function S.draw_figure(img, view, frame, species)
     local tw = (wi >= 1 and wi % 2 == 0) and 1 or 0
     rows(32, HY + 5 + b + tw, {"..ggggg", ".gggg..", "gg.g...", "g......"}, {g = GREEN})
     P(35, HY + 6 + b + tw, SK.hi)
-    hat(hx - 0.5, sy - 5, 7.5, 6, false, true)
+    hatback(hx - 1.5, sy - 5, 8, 7)
+    hat(hx - 1.5, sy - 5, 9, 7, false, true)
     -- near eyestalk leaning forward, eye looking ahead
     stalk(sx + 2, sy - 5, sx + 4 + aL, 15 + hd, false)
     bulb(sx + 4 + aL, 12 + hd, 1, false)

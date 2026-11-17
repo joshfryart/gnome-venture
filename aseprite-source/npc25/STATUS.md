@@ -14,10 +14,10 @@
 | hare | PASS | none |
 | toad | PASS | none |
 | beetle | PASS | none |
-| ladybird | PASS | redrawn: grey highlight ramp on head, belly and legs, light feet, neck gap and cream pronotum marks now separate the body from the ground shadow; back-view head is still a fairly flat dark disc |
+| ladybird | PASS | round 2 (Opus): back view now reads head / neck stub / cream-cornered pronotum / shell as separate parts (smaller round head, narrow neck pinches the outline, shaded sphere with one highlight cluster, no mouth-like nape line); head pale rim band replaced by one compact upper-left highlight plus a brim cast-shadow row in all views; front/side body unchanged |
 | stag-beetle | PASS | shield is hidden in back view by design (QUIRK_HIDDEN) |
-| stick-insect | PASS | stage-3 redraw: 2 px limbs with knee knobs, brighter lilac body (+#c9b6f2 highlight) with dashed centre stripe and rings; front thorax still busy where forelegs cross middle femurs |
-| snail | PASS | redrawn (stage 3 rework): soft glossy body on a frilled foot, big spiral shell in all views, long eyestalks; front face is small and the front body mound is still a bit lumpy |
+| stick-insect | PASS | round 2 (Opus): akimbo forelegs keep the thorax clear; A stance (middle tibiae splay out, rear feet tuck in) replaces the boxed legs; side knees peak with dome knobs; 2 px deep dashed stripe reads at 1x. Still weak: side rear legs and abdomen stack into one mass; front tibiae read thin at 1x (before copies in `stick-insect/before-r2/`) |
+| snail | PASS | redrawn round 2 (Opus): bigger front face (muzzle glint, plum nose, open smile, cheeks spaced apart), front/back body is one smooth bell into the foot (no stepped mound, no dark right wall), wider hat brims with a plum contour that separates the straw from the shell; side face still small |
 | bumblebee | PASS | none |
 | butterfly | PASS | none |
 | dragonfly | PASS | none |
