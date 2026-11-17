@@ -174,7 +174,7 @@ $gain = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) - $p0;
 $ck('befriending gives half the Petals', $gain >= 2 && $gain <= 3, true);
 $p0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]); $e3['encounter'] = null; $e3['log'] = '[]'; win_fight($u12, $e3, $fc, true, true);
 $gain = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) - $p0;
-$ck('puzzle Charm ($full) gives the full Petals', $gain >= 4 && $gain <= 7, true);
+$ck('puzzle Charm ($full) gives the full Petals plus 25% (2.7.08)', $gain >= 5 && $gain <= 9, true);
 $p0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]); $e3['encounter'] = null; $e3['log'] = '[]'; win_fight($u12, $e3, q_one('SELECT * FROM creatures WHERE id = ?', [$cid]), false);
 $ck('an unlisted creature gives no Petals', (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) - $p0, 0);
 $u30 = $u; $u30['level'] = 40; $p0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]); $e3['encounter'] = null; $e3['log'] = '[]'; win_fight($u30, $e3, $fc, false);
