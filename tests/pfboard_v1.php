@@ -232,11 +232,11 @@ $team = function (array $srcs, array $over = []) {   // a row of your pieces wit
     foreach ($srcs as $i => $src) { $t = v1_tile($s, $row[$i][0], $row[$i][1], $row[$i][2], $row[$i][3], $src, ['col' => 'body']); if ($i < count($srcs) - 1) v1_put($s, 'me', $t, 1 + $i, 2); else $ev = v1_place($s, 'me', $t, 1 + $i, 2); }
     return $ev;
 };
-$base = $team(['knack', 'knack']); $two = $team(['pal', 'tool']); $one = $team(['pal', 'pal']); $three = $team(['pal', 'tool', 'crop']); $three0 = $team(['knack', 'basic', 'calling']); $mixed = $team(['pal', 'region', 'crop']);
+$base = $team(['knack', 'knack']); $two = $team(['pal', 'tool']); $one = $team(['pal', 'pal']); $three = $team(['pal', 'tool', 'crop']); $three0 = $team(['basic', 'basic', 'basic']); $mixed = $team(['pal', 'basic', 'crop']);
 chk('2 of the 3 sources in one chain: +30% on your pieces (and the event says tw 1.3)', $two && $two[0]['v'] === (int)round($base[0]['v'] * PFB_TEAM2) && $two[1]['v'] === (int)round($base[1]['v'] * PFB_TEAM2) && $two[0]['tw'] === PFB_TEAM2, [array_column($base, 'v'), array_column($two, 'v')]);
 chk('one source twice: no bonus', $one && array_column($one, 'v') === array_column($base, 'v') && !isset($one[0]['tw']));
 chk('all 3 sources: +60%', $three && count($three) === 3 && $three[0]['v'] === (int)round($three0[0]['v'] * PFB_TEAM3) && $three[2]['v'] === (int)round($three0[2]['v'] * PFB_TEAM3) && $three[0]['tw'] === PFB_TEAM3, [array_column($three0, 'v'), array_column($three, 'v')]);
-chk('pal + crop with a region piece between: still 2 sources, +30% on all three of your pieces', $mixed && ($mixed[1]['tw'] ?? 0) === PFB_TEAM2);
+chk('pal + crop with a Basic piece between (not a source): still 2 sources, +30% on all three of your pieces', $mixed && ($mixed[1]['tw'] ?? 0) === PFB_TEAM2);
 $s = v1_bare('medium', ['limit' => 0] + V1_294); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 1, 2); v1_put($s, 'me', v1_tile($s, 'c2', 'charm', 4, 'craft', 'tool', ['col' => 'body']), 3, 2); $ev = v1_place($s, 'me', v1_tile($s, 'h1', 'hurt', 5, 'mind', 'pal'), 2, 2);
 $foeEv = array_values(array_filter($ev, fn($e) => $e['by'] === 'foe'));
 chk('the creature\'s piece in your Teamwork chain gets no bonus', count($ev) === 3 && $foeEv && !isset($foeEv[0]['tw']) && $foeEv[0]['v'] === 3, array_column($ev, 'v'));
@@ -408,7 +408,7 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
     if (!$s['over']) $fail[] = "$tag: the fight does not end"; $n++; $over[$s['over'] ?? 'none'] = ($over[$s['over'] ?? 'none'] ?? 0) + 1; $turns[] = $s['turn'];
 }
 chk("$n whole v1 fights (every creature, two decks, saved and loaded mid-fight): pieces on the board, cell map, deck count, ground, views", !$fail, array_slice($fail, 0, 5));
-chk('those fights use every rule (environment pieces placed, kept back, fired by both sides in every kind, pushed, used up, expired, reshuffled; use-up, Teamwork, flips, re-aims; the 2.6.74 terrain in its fights)', !array_filter($evs, fn($x) => $x < 1), $evs);
+chk('those fights use every rule (environment pieces placed, kept back, fired by both sides in every kind, pushed, used up, expired, reshuffled; use-up, Teamwork, flips, re-aims; the 2.6.74 terrain in its fights)', !array_filter(array_diff_key($evs, ['pass' => 1]), fn($x) => $x < 1), $evs);   // 2.7.06: the board no longer fills in these fights (pieces expire faster than two a round arrive), so a full-board environment pass is covered by its own test only
 echo '     ' . json_encode($over) . ' avg turns ' . round(array_sum($turns) / max(1, count($turns)), 1) . ' ' . json_encode($evs) . "\n";
 
 echo "== 11b. the charm bar ends the fight the moment it reads full (2.6.78)\n";
@@ -475,8 +475,8 @@ foreach (['NA', 'SEA'] as $rg) foreach (['small', 'medium', 'large', 'boss'] as 
 }
 chk('a new fight: no Wind or Mud in the environment deck (draw + next), regions NA and SEA, every size', !$w1, $w1);
 $n = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'NA'], 11, ['v1' => true]);
-chk('a new fight: team2 and team3 are 1.0, life is off (no tile carries life), the view says so', $n['v1']['team2'] === 1.0 && $n['v1']['team3'] === 1.0 && !$n['v1']['life'] && pfb_v1r($n, 'nowm') === 1
-    && !array_filter(array_merge($n['me']['hand'], $n['me']['draw'], $n['foe']['hand'], $n['foe']['draw']), fn($t) => isset($t['life'])) && pfb_view($n)['v1']['nowm'] === 1 && pfb_view($n)['v1']['team2'] === 1.0 && pfb_view($n)['v1']['life'] === false, $n['v1']);
+chk('a new fight: team2 and team3 are on (1.3 / 1.6, 2.7.06), life is off (no tile carries life), the view says so', $n['v1']['team2'] === PFB_TEAM2 && $n['v1']['team3'] === PFB_TEAM3 && !$n['v1']['life'] && pfb_v1r($n, 'nowm') === 1
+    && !array_filter(array_merge($n['me']['hand'], $n['me']['draw'], $n['foe']['hand'], $n['foe']['draw']), fn($t) => isset($t['life'])) && pfb_view($n)['v1']['nowm'] === 1 && pfb_view($n)['v1']['team2'] === PFB_TEAM2 && pfb_view($n)['v1']['life'] === false, $n['v1']);
 for ($sd = 1; $sd <= 20; $sd++) { $o = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'NA'], $sd, ['v1' => V1_294]); if (in_array('wind', $envKinds($o), true)) $w2[] = $sd; }
 chk('a fight made with V1_294 still has Wind in NA (20 seeds), Teamwork 1.3 / 1.6 and per-piece life', count($w2) === 20 && ($o['v1']['team2'] ?? 0) === PFB_TEAM2 && $o['v1']['team3'] === PFB_TEAM3 && $o['v1']['life'] === 1 && isset($o['me']['hand'][0]['life']), count($w2));
 $o = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'SEA'], 3, ['v1' => V1_294]);
