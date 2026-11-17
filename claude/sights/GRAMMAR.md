@@ -63,3 +63,4 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 - 2.7.06: reward `time=N` = N more game minutes pass after a win (1-480; a long sit-down, a slow walk). Needs the sleep-days clock.
 - 2.7.06: `buff=stat:amount:delve` is a lucky moment that only counts while a delve or lair run is active (users.ev_scope = 'delve'); it stays until replaced (30 real days at most).
 - 2.7.06: `buff=stat:amount:section` is a lucky moment that lasts until the Trail walk crosses into the next section (users.ev_scope = 'section', ev_day = expedition id * 1000 + section); without a Trail walk it falls back to the usual minutes.
+- 2.7.06: **escorts**: reward `escort=Name` (a stop villager with a picture) makes that villager walk with you for the rest of this Trail walk: they are drawn beside the gnome on the map (both the baked-art and the plain tile renderers; state `escort` in the walk scene). Ends with the walk. Not yet checked by eye (no screenshot).

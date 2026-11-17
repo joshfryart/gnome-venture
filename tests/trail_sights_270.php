@@ -168,6 +168,19 @@ $base0 = ['dp' => 'day', 'se' => 'summer', 'we' => 'clear', 'hp' => '', 'st' => 
 ok('fd=yes holds on a festival day, fd=<slug> only for that festival, neither without one', trail_sight_cond_ok('fd=yes', ['fd' => 'spring-fair'] + $base0) && trail_sight_cond_ok('fd=spring-fair,harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=yes', ['fd' => ''] + $base0));
 ok('the lint accepts fd= and the card text says festival day', preg_match(TRAIL_SIGHT_COND_RE, 'fd=yes') === 1 && preg_match(TRAIL_SIGHT_COND_RE, 'fd=spring-fair') === 1 && trail_sight_cond_text('fd=yes') === 'on a festival day');
 
+echo "== escort (2.7.06)\n";
+$ef = q_one("SELECT name FROM stop_folk WHERE active = 1 ORDER BY id LIMIT 1");
+if ($ef && trail_escort_pic((string)$ef['name']) !== '') {
+    $put(['when' => '-', 'energy' => 0, 'rewards' => 'xp=1:1,escort=' . $ef['name'], 'check' => '-']); $fresh();
+    $scE = trail_scene($exp); $scE['st'] = array_diff_key($scE['st'], ['escort' => 1]); trail_save($scE);
+    [$eo] = $go(); $scE = trail_scene($exp);
+    ok('a Sight with escort=Name puts the villager in the walk state', $eo && ($scE['st']['escort'] ?? '') === $ef['name'], json_encode($scE['st']['escort'] ?? null));
+    $html = trail_view_html($u, $exp, $scE, false);
+    ok('the Trail map draws the companion beside the gnome (tmescort picture)', str_contains($html, 'tmescort'), substr($html, 0, 120));
+    $scE['st'] = array_diff_key($scE['st'], ['escort' => 1]); trail_save($scE); $scE = trail_scene($exp);
+    ok('without an escort nothing extra is drawn', !str_contains(trail_view_html($u, $exp, $scE, false), 'tmescort'));
+} else echo "  (no villager with a picture here: escort check skipped)\n";
+q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); $fresh();
 echo "== find popup (2.7.06)\n";
 if (session_status() !== PHP_SESSION_ACTIVE) { @session_id('trailsights270'); @session_start(); }
 unset($_SESSION['event_box']);
