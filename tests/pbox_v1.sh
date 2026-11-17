@@ -74,6 +74,7 @@ get puzzlebox.php >/dev/null; cp $H $H.off
 ck "flag unset: the old Puzzle box form, nothing of v1 on the page" "$(grep -c 'id="pbox"' $H) $(grep -c 'pfv\|pfboardv1' $H)" "1 0"
 set_ pfight_v1 admin
 get puzzlebox.php >/dev/null
+norm $H | diff - <(norm $H.off) | cut -c1-300 | head -10   # what differs, when it does
 ck "pfight_v1 = admin, a player who is not an admin: the same old page" "$(norm $H | diff - <(norm $H.off) | wc -l | tr -d ' ')" "0"
 get 'gnome.php?tab=gnome' >/dev/null; ck "a player: no Puzzle box tile in the Hovel, none in the menu" "$(grep -c 'gvtl">Puzzle box\|ntl">Puzzle box' $H)" "0"
 post puzzlebox.php -d do=save -d 'tile[]=swing' -d 'tile[]=dodge' -d 'tile[]=rest' -d 'tile[]=charm' -d 'tile[]=hide' -d 'tile[]=snack' -d 'tile[]=taunt' >/dev/null

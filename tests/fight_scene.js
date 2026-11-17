@@ -28,7 +28,7 @@ async function doAttack(p, shot) {
   const mk = await p.evaluate(() => { const m = document.querySelector('.tilemap.tm-fight .tmme'); return m ? getComputedStyle(m).display : 'none'; }); if (mk !== 'none') fail('the map marker shows behind the stage gnome');
   try { await p.waitForFunction(() => !document.querySelector('.fightbtns.fs-wait, .fsdock.fs-wait'), null, { timeout: 8000 }); } catch (e) { fail('buttons stay locked after the enter'); }
   if (shot) console.log('HB', JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('.fe-hb')].map(e => { const r = e.getBoundingClientRect(), h = document.getElementById('fightscene').getBoundingClientRect(); return [e.className, Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height), 'host', Math.round(h.x), Math.round(h.y), Math.round(h.width), Math.round(h.height), getComputedStyle(e).display, getComputedStyle(e).opacity]; }))));
-  if (shot) await p.evaluate(() => { const h = document.getElementById('fightscene'); if (h) h.scrollIntoView({ block: 'center' }); }); await p.waitForTimeout(300); await p.screenshot({ path: shot + '/fs-enter.png' });
+  if (shot) await p.evaluate(() => { const h = document.getElementById('fightscene'); if (h) h.scrollIntoView({ block: 'center' }); }); if (shot) { await p.waitForTimeout(300); await p.screenshot({ path: shot + '/fs-enter.png' }); }
 
   await doAttack(p, shot);
   await p.waitForFunction(() => { const h = document.getElementById('fightscene'); try { return JSON.parse(h.dataset.fight).events.length > 0; } catch (e) { return false; } }, null, { timeout: 15000 }).catch(() => fail('no events after the attack click'));

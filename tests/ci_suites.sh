@@ -10,7 +10,7 @@ LIST="${*:-$SUITES}"
 [ -n "$LIST" ] || { echo "no suites given"; exit 2; }
 PORT=${PORT_BASE:-8810}; BAD=0; N=0
 for s in $LIST; do
-  s=${s%.sh}; N=$((N+1)); PORT=$((PORT+1))
+  s=${s%.sh}; N=$((N+1)); PORT=$((PORT+10))   # 10 ports a suite: some suites open a second server on PORT+1 (catfish), which must never be the next suite's port
   T=$(mktemp -d); cp -r "$HERE/../game" "$T/game"; rm -rf "$T/game/data" "$T/game/config.php"; mkdir -p "$T/game/data"
   if ! echo " $SELF_INSTALLING " | grep -q " $s "; then
     TMPDIR="$T" bash "$HERE/walk.sh" "$T/game" "$PORT" "$HERE/router.php" >"$T/walk.out" 2>&1
@@ -30,6 +30,7 @@ for s in $LIST; do
       done; } | sort -u | head -40 | cut -c1-300 | sed 's/^/   ! /'
     if [ -s "$T/game/data/error-log.txt" ]; then echo "   --- game/data/error-log.txt (first 25 lines)"; head -25 "$T/game/data/error-log.txt" | cut -c1-300 | sed 's/^/   | /'; fi
   else echo "ok   $s"; fi
+  pkill -f "$T/game" 2>/dev/null   # a server (or its workers) a suite left behind must not outlive it
   rm -rf "$T"
 done
 echo "$N suites, $BAD failed"
