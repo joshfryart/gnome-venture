@@ -170,7 +170,7 @@
   function terAt(x, y) { var k = x + ',' + y; return phase === 'pre' && PREV ? (terOver[k] !== undefined ? terOver[k] : ((PREV.ter || {})[k] || '')) : ((data.ter || {})[k] || ''); }   // what is drawn (the replay starts from the ground before the turn)
   function dispEnvs() { return (phase === 'pre' && PREV ? PREV.envs : data.envs) || []; }
   var qAim = null;   // 2.7.06: the aim marker of Quick's second piece during the replay
-  function setQuickAim(a) { qAim = a; render(); }
+  function setQuickAim(a) { if (a === null && qAim === null) return; qAim = a; render(); }
   function dispAim() { if (qAim) return qAim; return phase === 'pre' && PREV ? (aimHide ? null : PREV.aim) : data.aim; }
   function pipsEl(n, max) { var s = document.createElement('span'); s.className = 'xp' + (n <= 1 && max > 1 ? ' last' : ''); s.setAttribute('aria-hidden', 'true'); for (var i = 0; i < max; i++) { var d = document.createElement('i'); if (i >= n) d.className = 'e'; s.appendChild(d); } return s; }
   function flipE(e) { return { L: e.L, R: e.R, T: e.B, B: e.T }; }
