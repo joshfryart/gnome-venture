@@ -506,7 +506,7 @@ function trail_art_svg(array $map, array $state): string
         $px = [-50, 20, -38][$i]; $py = [-6, -6, -34][$i]; $sz = $i === 2 ? 24 : 30;
         $palsSvg .= '<image class="tmpal" href="' . e((string)$pu) . '" x="' . $n($px * $k) . '" y="' . $n($py * $k) . '" width="' . $n($sz * $k) . '" height="' . $n($sz * $k) . '" image-rendering="pixelated"/>';
     }
-    if (!empty($state['escort'])) $palsSvg .= '<image class="tmpal tmescort" href="' . e((string)$state['escort']) . '" x="' . $n(26 * $k) . '" y="' . $n(-52 * $k) . '" width="' . $n(56 * $k) . '" height="' . $n(70 * $k) . '" image-rendering="pixelated"/>';   // 2.7.06: a villager walking with you
+    if (!empty($state['escort'])) $palsSvg .= '<svg class="tmpal tmescort" x="' . $n(-58 * $k) . '" y="' . $n(-40 * $k) . '" width="' . $n(52 * $k) . '" height="' . $n(65 * $k) . '" viewBox="0 0 64 80"><image href="' . e((string)$state['escort']) . '" width="512" height="80" image-rendering="pixelated"/></svg>';   // 2.7.06: a villager walking with you (first frame of the strip)
     $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . $palsSvg . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
         . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/>') . '</g>'];
     usort($items, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);

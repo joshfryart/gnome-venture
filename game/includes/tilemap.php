@@ -481,7 +481,7 @@ function tm_render_svg(array $map, string $theme, array $state): string
     foreach (array_slice((array)($state['pals'] ?? []), 0, 3) as $i => $pu) {
         $pals .= '<image class="tmpal" href="' . htmlspecialchars((string)$pu, ENT_QUOTES, 'UTF-8') . '" x="' . [-34, 14, -26][$i] . '" y="' . [-2, -2, -20][$i] . '" width="' . ($i === 2 ? 16 : 20) . '" height="' . ($i === 2 ? 16 : 20) . '" image-rendering="pixelated"/>';
     }
-    if (!empty($state['escort'])) $pals .= '<image class="tmpal tmescort" href="' . htmlspecialchars((string)$state['escort'], ENT_QUOTES, 'UTF-8') . '" x="20" y="-34" width="38" height="48" image-rendering="pixelated"/>';   // 2.7.06: a villager walking with you
+    if (!empty($state['escort'])) $pals .= '<svg class="tmpal tmescort" x="-40" y="-26" width="38" height="48" viewBox="0 0 64 80"><image href="' . htmlspecialchars((string)$state['escort'], ENT_QUOTES, 'UTF-8') . '" width="512" height="80" image-rendering="pixelated"/></svg>';   // 2.7.06: a villager walking with you (first frame of the strip)
     if (strpos((string)($state['me'] ?? ''), 'tkrig') !== false)   // v2.5.26: the 2.5D gnome stands on its tile, no ring
         return $o . '<g class="tmme" transform="translate(' . tm_n($lx) . ' ' . tm_n($ly) . ')"><ellipse cy="13" rx="13" ry="4.5" fill="#000" opacity=".4"/>' . $pals . $state['me'] . '</g></svg>';
     $o .= '<g class="tmme" transform="translate(' . tm_n($lx) . ' ' . tm_n($ly) . ')"><ellipse cy="14" rx="12" ry="4" fill="#000" opacity=".3"/><circle r="17" fill="' . $P['cream'] . '" stroke="' . $P['gold'] . '" stroke-width="3"/>'
