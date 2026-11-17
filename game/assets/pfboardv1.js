@@ -1252,7 +1252,7 @@
     turnEl.style.animationDuration = ((banMs - 50) / 1000 / Math.max(1, SPD)) + 's';
     turnEl.style.top = Math.max(4, boardEl.offsetTop + boardEl.offsetHeight / 2 - 18) + 'px';
     void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
-    if (who === 'me') root.classList.add('pf-turnhold');   // 2.7.06 (Josh): the hand and board ignore taps while "Your turn" shows (no accidental pick under the banner)
+    if (who === 'me') root.classList.add('pf-turnhold');   // 2.7.06 (Josh): the hand and board ignore taps while "Your turn" shows
     turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; root.classList.remove('pf-turnhold'); }, banMs / Math.max(1, SPD));
   }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
@@ -1318,10 +1318,8 @@
         if (side === 'foe') tt += BAN;
       }
       playTimers.push(setTimeout(function () {
-        if (typeof setQuickAim === 'function') {   // 2.7.06 (Josh): Quick's second piece shows its aim on its cell before it lands
-          if (ev.note === 'quick') { var nx = data.replay[k + 1], qp = nx && nx.id ? pieceById(nx.id) : null; if (qp) setQuickAim({ x: qp.x, y: qp.y, n: qp.n || nx.n, t: qp.t || nx.t, v: nx.v }); }
-          else if (ev.id) setQuickAim(null);
-        }
+        if (ev.note === 'quick') { var nx = data.replay[k + 1], qp = nx && nx.id ? pieceById(nx.id) : null; if (qp) setQuickAim({ x: qp.x, y: qp.y, n: qp.n || nx.n, t: qp.t || nx.t, v: nx.v }); }
+        else if (ev.id) setQuickAim(null);
         if ((ev.ta || ev.by) === 'foe') aimHide = true;   // its aim was on the board while its banner showed
         if (ev.cs && ev.rid && hiddenIds[ev.rid]) { delete hiddenIds[ev.rid]; revealId = ev.rid; render(); revealId = null; }   // next release: the placed piece appears when its chain starts, even when other pieces of the chain (environment, guard, trick) fire before it
         if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores

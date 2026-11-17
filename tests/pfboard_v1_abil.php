@@ -19,7 +19,7 @@ function ab_foe(string $size, array $x = []): array { return $x + ['slug' => 'te
 /** A v1 fight with an empty board and the creature's abilities in; $row adds to the creature row (class, ab, abp), $over to the rule numbers. */
 function ab_fight(string $size = 'medium', array $row = [], array $over = [], int $seed = 7): array
 {
-    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0]]);
+    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0, 'tagfx' => 0]]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = []; $s['ven'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
     ab_put($s, 'foe', ab_tile($s, 'f:base', 'guard', 1), 0, 3);   // a far corner piece, so the board is not empty (a cell needs a neighbour; an aimed cell does not)
     return $s;

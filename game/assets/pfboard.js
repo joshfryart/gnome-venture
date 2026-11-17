@@ -425,8 +425,7 @@
     clearTimeout(turnTimer); turnEl.textContent = text; turnEl.className = 'pf-turn pf-turn-' + who; turnEl.hidden = false;
     turnEl.style.top = Math.max(4, boardEl.offsetTop + boardEl.offsetHeight / 2 - 18) + 'px';
     void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
-    if (who === 'me') root.classList.add('pf-turnhold');   // 2.7.06 (Josh): the hand and board ignore taps while "Your turn" shows (no accidental pick under the banner)
-    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; root.classList.remove('pf-turnhold'); }, 1450);
+    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, 1450);
   }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
   function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
@@ -479,10 +478,6 @@
         tt += BAN;
       }
       playTimers.push(setTimeout(function () {
-        if (typeof setQuickAim === 'function') {   // 2.7.06 (Josh): Quick's second piece shows its aim on its cell before it lands
-          if (ev.note === 'quick') { var nx = data.replay[k + 1], qp = nx && nx.id ? pieceById(nx.id) : null; if (qp) setQuickAim({ x: qp.x, y: qp.y, n: qp.n || nx.n, t: qp.t || nx.t, v: nx.v }); }
-          else if (ev.id) setQuickAim(null);
-        }
         if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }

@@ -17,7 +17,7 @@ function ab_foe(string $size, array $x = []): array { return $x + ['slug' => 'te
 /** A v1 fight with an empty board and the creature's abilities in; $row adds to the creature row (class, ab, abp), $over to the rule numbers. */
 function ab_fight(string $size = 'medium', array $row = [], array $over = [], int $seed = 7): array
 {
-    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0]]);
+    $s = pfb_new(ab_me(), ab_foe($size, $row), $seed, ['v1' => $over + ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0, 'tagfx' => 0]]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = []; $s['ven'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
     ab_put($s, 'foe', ab_tile($s, 'f:base', 'guard', 1), 0, 3);   // a far corner piece, so the board is not empty (a cell needs a neighbour; an aimed cell does not)
     return $s;
@@ -65,10 +65,27 @@ chk('two Hurts in one chain: exactly one gets Double Swing (the one that fires s
 $s = ab_fight('medium', [], ['cset' => 1]); $ft = ab_tile($s, 'FT', 'trick', 4); $h = ab_tile($s, 'H', 'hurt', 6, 'body', 'basic');
 ab_put($s, 'foe', $ft, 0, 0); $ev = ab_place($s, 'me', $h, 1, 0);
 chk('the creature\'s Trick in your chain gives you no combo', combo_of($ev, 'H') === null, combo_of($ev, 'H'));
+echo "== Quick, Heavy and Sticky do something on the board (2.7.06)\n";
+$order = function (int $tagfx, string $tagA, string $tagB) {   // Hurt A (placed first) and Hurt B in one chain: which fires first?
+    $s = ab_fight('medium', [], ['cset' => 0, 'envopen' => 0, 'order' => 1, 'tagfx' => $tagfx]);
+    $a = ab_tile($s, 'A', 'hurt', 5, 'body', 'basic', $tagA); $b = ab_tile($s, 'B', 'hurt', 5, 'body', 'basic', $tagB);
+    ab_put($s, 'me', $a, 0, 0); $ev = ab_place($s, 'me', $b, 1, 0);
+    return array_values(array_map(fn($e) => $e['n'], array_filter($ev, fn($e) => ($e['t'] ?? '') === 'hurt' && isset($e['id']))));
+};
+chk('Quick fires first in its chain even though it was put down first and a plain piece was placed (old rule: the placed piece first)', $order(1, 'quick', '') === ['A', 'B'] && $order(0, 'quick', '') === ['B', 'A'], [$order(1, 'quick', ''), $order(0, 'quick', '')]);
+chk('Heavy fires last in its chain even when it is the piece you placed (old rule: the placed piece first)', $order(1, '', 'heavy') === ['A', 'B'] && $order(0, '', 'heavy') === ['B', 'A'], [$order(1, '', 'heavy'), $order(0, '', 'heavy')]);
+foreach ([1, 0] as $fx) { $s = ab_fight('medium', [], ['cset' => 0, 'envopen' => 0, 'tagfx' => $fx]); $hv = ab_tile($s, 'H', 'hurt', 6, 'body', 'basic', 'heavy');
+    $ev = ab_place($s, 'me', $hv, 1, 1); $fired = count(array_filter($ev, fn($e) => ($e['n'] ?? '') === 'H' && isset($e['id']))); $left = count(array_filter($s['pcs'], fn($p) => $p['by'] === 'me'));
+    $res[$fx] = [$fired, $left]; }
+chk('Heavy swings once and falls away (fired once and gone at once; the old rule leaves it on the board)', $res[1] === [1, 0] && $res[0] === [1, 1], $res);
+$s = ab_fight('medium', [], ['cset' => 0, 'envopen' => 0, 'tagfx' => 1]); $st = ab_tile($s, 'S', 'guard', 3, 'body', 'basic'); $st['m'] = 'sticky'; $pl = ab_tile($s, 'P', 'guard', 3, 'body', 'basic');
+ab_put($s, 'me', $st, 0, 0); ab_put($s, 'me', $pl, 3, 3); $s['round']++; $s['round']++; pfb_expire($s);
+$alive = array_values(array_map(fn($p) => $p['tile']['n'], array_filter($s['pcs'], fn($p) => $p['by'] === 'me')));
+chk('Sticky stays one round longer than a plain piece (born the same round: the plain one is gone first)', in_array('S', $alive, true) && !in_array('P', $alive, true), $alive);
 echo "== events matter more (2.7.06)\n";
-foreach (['small', 'large'] as $sz) {
-    $a = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => true]); $b = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => ['envopen' => 0]]);
-    chk("$sz: a new fight opens with TWO environment pieces face up (the first round places two)", count($a['env']['next']) === 2 && count($b['env']['next']) === 1, [count($a['env']['next']), count($b['env']['next'])]);
+foreach (['small', 'medium', 'large', 'boss'] as $sz) {
+    $a = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => true]); $b = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => ['envopen' => 1]]);
+    chk("$sz: the environment puts down TWO pieces a round (Josh 2026-11-17), so two lie face up (envopen 1 adds a third for the first round)", (int)$a['v1']['envn'] === 2 && count($a['env']['next']) === 2 && count($b['env']['next']) === 3, [$a['v1']['envn'], count($a['env']['next']), count($b['env']['next'])]);
 }
 chk('Rain guards 20% (was 15%), event damage on the creature 70% (was 50%)', PFB_RAIN === 0.20 && PFB_EVENT_FOE === 0.7, [PFB_RAIN, PFB_EVENT_FOE]);
 echo $bad ? "$bad FAILED\n" : "all ok\n"; exit($bad ? 1 : 0);

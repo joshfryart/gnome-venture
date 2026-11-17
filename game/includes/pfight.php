@@ -76,8 +76,8 @@ const PF_TAGS_V1 = [
     'keep'   => ['🧺', 'Keeper: stays in your hand until you play it'],
     'plenty' => ['🍽️', 'Plenty: next round you pick from 6 pieces'],
     'simmer' => ['🍵', 'Simmer: heals you 2 as each of your next 2 turns starts'],
-    'quick'  => ['⚡', 'Quick: no extra effect for you (one piece a turn)'],   // 2.6.986: the whole hand is redrawn each round, so the old extra draw did nothing
-    'heavy'  => ['🪨', 'Heavy: a big hit, nothing extra on this board'],   // the board has no Heavy rule (it only exists in strip fights: PF_TAGS)
+    'quick'  => ['⚡', 'Quick: fires first in its chain (so a later Hurt of yours gets Double Swing)'],   // 2.7.06 (was: no effect on this board)
+    'heavy'  => ['🪨', 'Heavy: fires last in its chain, then falls away'],   // 2.7.06 (was: nothing extra on this board; PF_TAGS is the strip game)
     'pierce' => ['📌', 'Pierce: ignores the creature\'s guard'],
     'poison' => ['🧪', 'Poison: hits again each of the next 2 turns'],
     'trip'   => ['🪢', 'Trip: the creature skips its next turn'],   // pfb_foe_len = 1 - slow: on the board it plays one piece a turn, so one fewer is none
@@ -117,7 +117,7 @@ function pf_type_text(string $t, ?int $v = null): string
 
 /** Upgrades (secondary effects) a tile can be given by completing puzzles: key => [name, glyph, description, rarity 0-2, tile types it fits]. One per tile; permanent until removed. */
 const PF_MODS = [
-    'sticky'   => ['Sticky', '🧲', 'A snug fit also draws you a tile', 0, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
+    'sticky'   => ['Sticky', '🧲', 'Stays on the board one round longer', 0, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
     'swift'    => ['Swift', '🪶', 'Does not count towards a four-tile chain (no extra foe move)', 0, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
     'hardy'    => ['Hardy', '🧱', '+2 guard', 0, ['guard']],
     'tender'   => ['Tender', '💗', 'Heals 2 more', 0, ['heal', 'item']],

@@ -60,7 +60,7 @@
 
   var ALL7 = ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item'];
   var PF_MODS = {
-    sticky: ['Sticky', '🧲', 'A snug fit also draws you a tile', 0, ALL7],
+    sticky: ['Sticky', '🧲', 'Stays on the board one round longer', 0, ALL7],
     swift: ['Swift', '🪶', 'Does not count towards a four-tile chain (no extra foe move)', 0, ALL7],
     hardy: ['Hardy', '🧱', '+2 guard', 0, ['guard']],
     tender: ['Tender', '💗', 'Heals 2 more', 0, ['heal', 'item']],
@@ -533,7 +533,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0, style: 0, cset: 0, envopen: 0 };
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1, abil: 0, style: 0, cset: 0, envopen: 0, tagfx: 0 };
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -647,7 +647,7 @@
   function v1Lvx(c, lv) { return round(Math.max(Number(c[2]), Math.min(Number(c[3]), 1 + Number(c[0]) * (lv - toInt(c[1])))), 4); }   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
-  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 1, medium: 1, large: 1, boss: 1 }, PFB_RAIN = 0.20, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
+  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 2, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.20, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
   var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
   var PFB_ENV_ROWS = [
     ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 3, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
@@ -685,9 +685,9 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,   // 2.7.06: Teamwork on again
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1, envopen: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1, envopen: 0, tagfx: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, envopen: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, envopen: 1, tagfx: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -852,7 +852,8 @@
   }
   function lifeOf(s, p) {
     if (p.by === 'none') return 1;
-    return (s.v1 && truthy(s.v1.life)) ? toInt(nn(p.tile.life, PFB_LIFE)) : PFB_LIFE;
+    var base = (s.v1 && truthy(s.v1.life)) ? toInt(nn(p.tile.life, PFB_LIFE)) : PFB_LIFE;
+    return base + (v1r(s, 'tagfx') === 1 && p.by === 'me' && nn(p.tile.m, '') === 'sticky' ? 1 : 0);
   }
   function discardPiece(s, p) {
     if (p.by === 'none') return;
@@ -1094,8 +1095,9 @@
   }
 
   // next release (Josh's vote): the order a chain's pieces take effect in: environment, defence (guard, soothe), augments (trick), hurt / charm, healing. Same rank keeps the link order; fights from before keep the link order.
-  function rank(p) {
+  function rank(p, tagfx) {
     if (p.by === 'env') return 1;
+    if (tagfx && p.by === 'me') { var tg0 = nn(p.tile.tag, ''); if (tg0 === 'quick') return 0; if (tg0 === 'heavy') return 6; }
     var t = nn(p.tile.t, '');
     return t === 'guard' || t === 'soothe' ? 2 : t === 'trick' ? 3 : (t === 'heal' || t === 'item') ? 5 : 4;
   }
@@ -1103,7 +1105,8 @@
     var ch = chain(s, root);
     if (v1r(s, 'order') !== 1) return ch;
     var idx = ch.map(function (c, i) { return i; });
-    idx.sort(function (a, b) { var ra = rank(s.pcs[ch[a][0]]), rb = rank(s.pcs[ch[b][0]]); return ra !== rb ? ra - rb : a - b; });
+    var tfx = v1r(s, 'tagfx') === 1;
+    idx.sort(function (a, b) { var ra = rank(s.pcs[ch[a][0]], tfx), rb = rank(s.pcs[ch[b][0]], tfx); return ra !== rb ? ra - rb : a - b; });
     return idx.map(function (i) { return ch[i]; });
   }
 
@@ -1190,7 +1193,7 @@
     return ev;
   }
 
-  function fireLimit(p) { return p.by === 'foe' ? Math.max(0, PFB_FOE_FIRES) : 0; }
+  function fireLimit(p, tagfx) { if (tagfx && p.by === 'me' && nn(p.tile.tag, '') === 'heavy') return 1; return p.by === 'foe' ? Math.max(0, PFB_FOE_FIRES) : 0; }
   function goneEntry(s, p, fell) {
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
@@ -1217,7 +1220,7 @@
     }
     var ids = Object.keys(s.pcs);
     for (var i = 0; i < ids.length; i++) {
-      var p = s.pcs[ids[i]], lim = fireLimit(p);
+      var p = s.pcs[ids[i]], lim = fireLimit(p, v1r(s, 'tagfx') === 1);
       if (lim > 0 && toInt(nn(p.f, 0)) >= lim) {
         discardPiece(s, p);
         if (!Array.isArray(s.spent)) s.spent = [];
