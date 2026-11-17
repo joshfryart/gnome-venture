@@ -8339,3 +8339,11 @@ details.sgq summary{cursor:pointer}
 body.game:has(svg.tmbg) .toasts { left: auto; right: 10px; transform: none; width: min(60vw, 300px); font-size: 13px; }
 body.game:has(svg.tmbg) .toasts .prizebox, body.game:has(svg.tmbg) .toasts .newpages { padding: 8px 10px; }
 body.game:has(svg.tmbg) .toasts.phone { right: 8px; left: auto; width: min(70vw, 300px); }
+/* 2.7.08: a fight page off the Trail map (the plain adventure page) gets the same small corner box, and the box steps aside from a fight's end scene (site.js gvToastDodge) */
+body.game:has(.fightscene) .toasts { left: auto; right: 10px; transform: none; width: min(60vw, 300px); font-size: 13px; }
+body.game:has(.fightscene) .toasts .prizebox, body.game:has(.fightscene) .toasts .newpages { padding: 8px 10px; }
+body.game:has(.fightscene) .toasts.phone { right: 8px; left: auto; width: min(70vw, 300px); }
+.toasts.toasts-top { top: calc(var(--hdr) + 8px); bottom: auto; }
+.toasts.toasts-tiny { width: min(56vw, 240px); font-size: 12px; gap: 3px; }
+.toasts.toasts-tiny .flash, .toasts.toasts-tiny .prizebox, .toasts.toasts-tiny .newpages { padding: 4px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toasts.toasts-tiny .prizebox ul, .toasts.toasts-tiny .pzbig, .toasts.toasts-tiny .pzicon { display: none; }

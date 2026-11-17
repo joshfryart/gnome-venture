@@ -7,6 +7,7 @@ require_once $argv[1] . '/includes/adventure.php';
 require_once $argv[1] . '/includes/trail_tiles.php';
 require_once $argv[1] . '/includes/trail_sights.php';
 $fails = 0;
+set_setting('sights_walk_cap', '0');   // 2.7.08: these tests use many Sights on one walk (the cap has its own test, trail_sights_278.php)
 set_setting('npc_clockwork', '0');   // 2.7.01: these tests are about the Sights rules (role hours, chance, give, needs); tests/npc_clockwork.php covers the weekly clockwork
 $GLOBALS['gv_sights_nocache'] = true;
 $tmp = sys_get_temp_dir() . '/sights-p4-' . getmypid(); @mkdir($tmp);
@@ -485,7 +486,7 @@ foreach (trail_authored_all() as $rid => $rt) foreach ($rt['sections'] as $sx) f
 }
 ok("almost every landmark on every map has a free villager spot ($bigBad of $bigAll have none)", $bigAll > 600 && $bigBad <= intdiv($bigAll, 10), "$bigBad of $bigAll");
 
-ok('lint: take= may not have a condition, first: or a chance', count(array_filter([trail_sight_lint(['rewards' => 'take=x:1?se=winter'] + $base), trail_sight_lint(['rewards' => 'first:take=x:1'] + $base), trail_sight_lint(['rewards' => 'take=x:1@50'] + $base)], fn($r) => (bool)array_filter($r, fn($p) => str_contains($p, 'take= is a cost')))) === 3);
+ok('lint: take= may not have first: or a chance (a ?condition is fine since 2.7.08)', count(array_filter([trail_sight_lint(['rewards' => 'take=x:1?se=winter'] + $base), trail_sight_lint(['rewards' => 'first:take=x:1'] + $base), trail_sight_lint(['rewards' => 'take=x:1@50'] + $base)], fn($r) => (bool)array_filter($r, fn($p) => str_contains($p, 'take= is a cost')))) === 2);
 ok('lint: a Sight with no cooldown is refused', (bool)array_filter(trail_sight_lint(['cd' => 0] + $base), fn($p) => str_contains($p, 'cooldown')));
 
 require_once $argv[1] . '/includes/almanac.php';

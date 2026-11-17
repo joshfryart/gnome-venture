@@ -344,7 +344,7 @@ function pfd_build(array $src): array
         switch ($p['src']) {
             case 'basic': return $p['k'] !== 'breather';
             case 'knack': return $lvl >= (int)$p['ref'];
-            case 'calling': return $p['ref'] !== '' && $p['ref'] === $cal;
+            case 'calling': [$rc, $rt] = explode(':', $p['ref'] . ':1'); return $rc !== '' && $rc === $cal && (int)($src['ctier'] ?? 1) >= max(1, (int)$rt);   // 2.7.08: ref `calling:3` = the tier III second piece
             case 'crop': return isset($src['crops'][$p['ref']]);
             case 'craft': return isset($src['crafts'][$p['ref']]);
             case 'region': return isset($src['regions'][$p['ref']]);

@@ -601,7 +601,7 @@ function pfight_line(array $e, string $foe): string
     if (!empty($e['fit'])) $bits[] = 'snug fit';
     if (($e['pluck'] ?? '') === 'missed') return '🤏 You try to pluck something from the ' . $foe . ', but it notices.';
     if (($e['pluck'] ?? '') === 'none') return '🤏 You reach for the ' . $foe . ', but it has nothing to lift (or you already took something).';
-    $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) : ' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => (($e['by'] ?? '') === 'foe' && isset($e['healed']) ? ' (its yield bar back ' . (float)$e['healed'] . ')' : ' (+' . (int)$e['v'] . ' health)'), 'charm' => ' (' . (int)$e['v'] . ')', default => '' };
+    $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) . ((int)($e['blocked'] ?? 0) > 0 ? ' (' . (int)$e['blocked'] . ' blocked by its guard)' : '') :' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => (($e['by'] ?? '') === 'foe' && isset($e['healed']) ? ' (its yield bar back ' . (float)$e['healed'] . ')' : ' (+' . (int)$e['v'] . ' health)'), 'charm' => ' (' . (int)$e['v'] . ')', default => '' };
     return ($e['by'] === 'me' ? '🧩 ' : '💥 ') . $who . ' ' . $e['n'] . $tail . ($bits ? ' · ' . implode(', ', $bits) : '') . '.';
 }
 
@@ -701,6 +701,7 @@ function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): arra
         $bar = (float)($e['bar'] ?? 0); $fh = (float)($e['fh'] ?? 0);
         if ($fh > 0) $parts[] = $one ? '+' . (int)pf_round($fh) . ' hurt' : '-' . (int)pf_round($fh) . ' hp';   // the creature's health (T12: one bar: damage that fills the bar)
         if ($bar > 0) $parts[] = '+' . (int)pf_round($bar) . ' charm';
+        if ($t === 'hurt' && (int)($e['blocked'] ?? 0) > 0) $parts[] = (int)$e['blocked'] . ' blocked';   // 2.7.08: what its guard soaked
         if ($t === 'guard') { $parts[] = '+' . (int)$e['v'] . ' guard'; $tg = 'me'; }
         if (in_array($t, ['heal', 'item'], true)) { $parts[] = '+' . (int)$e['v'] . ' hp'; $tg = 'me'; }
     } else {

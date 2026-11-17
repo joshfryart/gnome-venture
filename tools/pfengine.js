@@ -1999,7 +1999,7 @@
     if (nn(e.pluck, '') === 'none') return '🤏 You reach for the ' + foe + ', but it has nothing to lift (or you already took something).';
     var tail;
     switch (e.t) {
-      case 'hurt': tail = e.by === 'me' ? ' for ' + toInt(nn(e.dmg, e.v)) : ' for ' + toInt(nn(e.dmg, e.v)) + ' damage'; break;
+      case 'hurt': tail = e.by === 'me' ? ' for ' + toInt(nn(e.dmg, e.v)) + (toInt(nn(e.blocked, 0)) > 0 ? ' (' + toInt(e.blocked) + ' blocked by its guard)' : '') :' for ' + toInt(nn(e.dmg, e.v)) + ' damage'; break;
       case 'guard': tail = ' (+' + toInt(e.v) + ' guard)'; break;
       case 'heal': case 'item': tail = (e.by === 'foe' && e.healed !== undefined) ? ' (its yield bar back ' + String(Number(e.healed)) + ')' : ' (+' + toInt(e.v) + ' health)'; break;
       case 'charm': tail = ' (' + toInt(e.v) + ')'; break;
@@ -2044,6 +2044,7 @@
       var bar = Number(nn(e.bar, 0)), fhh = Number(nn(e.fh, 0));
       if (fhh > 0) parts.push('-' + iround(fhh) + ' hp');
       if (bar > 0) parts.push('+' + iround(bar) + ' charm');
+      if (t === 'hurt' && toInt(nn(e.blocked, 0)) > 0) parts.push(toInt(e.blocked) + ' blocked');   // 2.7.08: what its guard soaked
       if (t === 'guard') { parts.push('+' + toInt(e.v) + ' guard'); tg = 'me'; }
       if (t === 'heal' || t === 'item') { parts.push('+' + toInt(e.v) + ' hp'); tg = 'me'; }
     } else {

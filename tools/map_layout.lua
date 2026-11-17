@@ -7,41 +7,57 @@ return {
       code = "NA",
       w = 480,
       h = 270,
-      town = { id = 1, x = 147, y = 84, r = 16, name = "The Maplewold Market" },
+      town = { id = 1, x = 147, y = 81, r = 16, name = "The Maplewold Market" },
       stops = {
-        { id = 15, kind = "village", type = "stop", x = 138, y = 128, r = 13, road = 0, anchor = nil, name = "Poppyburrow" },
+        { id = 15, kind = "village", type = "stop", x = 145, y = 126, r = 13, road = 0, anchor = nil, name = "Poppyburrow" },
         { id = 25, kind = "village", type = "stop", x = 122, y = 176, r = 13, road = 0, anchor = nil, name = "Larkbrook" },
         { id = 26, kind = "village", type = "stop", x = 103, y = 213, r = 13, road = 0, anchor = nil, name = "Poppynook" },
         { id = 2, kind = "exit", type = "far", x = 99, y = 254, r = 12, road = 0, anchor = nil, name = "Maizehollow" },
-        { id = 16, kind = "village", type = "stop", x = 227, y = 70, r = 13, road = 1, anchor = nil, name = "Honeybrook" },
-        { id = 56, kind = "village", type = "stop", x = 306, y = 68, r = 13, road = 1, anchor = nil, name = "Windbottom" },
+        { id = 16, kind = "village", type = "stop", x = 226, y = 69, r = 13, road = 1, anchor = nil, name = "Honeybrook" },
+        { id = 56, kind = "village", type = "stop", x = 306, y = 67, r = 13, road = 1, anchor = nil, name = "Windbottom" },
         { id = 57, kind = "village", type = "stop", x = 391, y = 70, r = 13, road = 1, anchor = nil, name = "Windburrow" },
         { id = 5, kind = "exit", type = "far", x = 464, y = 68, r = 12, road = 1, anchor = nil, name = "Mistmoor" },
-        { id = 17, kind = "village", type = "stop", x = 200, y = 102, r = 13, road = 2, anchor = nil, name = "Cloverholt" },
-        { id = 129, kind = "village", type = "stop", x = 260, y = 148, r = 13, road = 2, anchor = nil, name = "Honeythorpe" },
-        { id = 130, kind = "village", type = "stop", x = 308, y = 183, r = 13, road = 2, anchor = nil, name = "Clovercove" },
-        { id = 12, kind = "exit", type = "far", x = 325, y = 254, r = 12, road = 2, anchor = nil, name = "Blossomreach" },
-        { id = 18, kind = "village", type = "off", x = 66, y = 130, r = 12, road = nil, anchor = 15, name = "Acornby" },
-        { id = 19, kind = "village", type = "off", x = 240, y = 109, r = 12, road = nil, anchor = 16, name = "Birchhollow" },
+        { id = 17, kind = "village", type = "stop", x = 198, y = 101, r = 13, road = 2, anchor = nil, name = "Cloverholt" },
+        { id = 129, kind = "village", type = "stop", x = 308, y = 183, r = 13, road = 2, anchor = nil, name = "Honeythorpe" },
+        { id = 130, kind = "village", type = "stop", x = 339, y = 214, r = 13, road = 2, anchor = nil, name = "Clovercove" },
+        { id = 18, kind = "village", type = "off", x = 72, y = 121, r = 12, road = nil, anchor = 15, name = "Acornby" },
+        { id = 19, kind = "village", type = "off", x = 239, y = 108, r = 12, road = nil, anchor = 16, name = "Birchhollow" },
         { id = 20, kind = "village", type = "off", x = 161, y = 164, r = 12, road = nil, anchor = 17, name = "Mossgate" },
-        { id = 21, kind = "village", type = "off", x = 217, y = 142, r = 12, road = nil, anchor = 15, name = "Shellhollow" },
-        { id = 22, kind = "village", type = "off", x = 211, y = 32, r = 12, road = nil, anchor = 16, name = "Pebblestead" },
-        { id = 23, kind = "village", type = "off", x = 270, y = 88, r = 12, road = nil, anchor = 17, name = "Iciclecrest" },
-        { id = 24, kind = "village", type = "off", x = 66, y = 94, r = 12, road = nil, anchor = 15, name = "Snowcombe" },
-        { id = 161, kind = "haven", type = "off", x = 180, y = 136, r = 10, road = nil, anchor = 16, name = "The Sugar Shack" },
-        { id = 162, kind = "wonder", type = "off", x = 99, y = 125, r = 10, road = nil, anchor = 17, name = "Thousand Rings Stump" },
+        { id = 21, kind = "village", type = "off", x = 217, y = 139, r = 12, road = nil, anchor = 15, name = "Shellhollow" },
+        { id = 22, kind = "village", type = "off", x = 211, y = 31, r = 12, road = nil, anchor = 16, name = "Pebblestead" },
+        { id = 23, kind = "village", type = "off", x = 268, y = 87, r = 12, road = nil, anchor = 17, name = "Iciclecrest" },
+        { id = 24, kind = "village", type = "off", x = 64, y = 86, r = 12, road = nil, anchor = 15, name = "Snowcombe" },
+        { id = 29, kind = "village", type = "off", x = 61, y = 173, r = 12, road = nil, anchor = 25, name = "Frondthorpe" },
+        { id = 30, kind = "village", type = "off", x = 32, y = 216, r = 12, road = nil, anchor = 26, name = "Orchiddell" },
+        { id = 33, kind = "village", type = "off", x = 190, y = 185, r = 12, road = nil, anchor = 25, name = "Stonethorpe" },
+        { id = 34, kind = "village", type = "off", x = 179, y = 225, r = 12, road = nil, anchor = 26, name = "Flintcove" },
+        { id = 60, kind = "village", type = "off", x = 328, y = 116, r = 12, road = nil, anchor = 56, name = "Fernden" },
+        { id = 61, kind = "village", type = "off", x = 400, y = 112, r = 12, road = nil, anchor = 57, name = "Hazelmere" },
+        { id = 64, kind = "village", type = "off", x = 297, y = 26, r = 12, road = nil, anchor = 56, name = "Froststead" },
+        { id = 65, kind = "village", type = "off", x = 383, y = 27, r = 12, road = nil, anchor = 57, name = "Sleetford" },
+        { id = 134, kind = "village", type = "off", x = 252, y = 211, r = 12, road = nil, anchor = 129, name = "Brambleburrow" },
+        { id = 135, kind = "village", type = "off", x = 280, y = 240, r = 12, road = nil, anchor = 130, name = "Sprayholt" },
+        { id = 161, kind = "haven", type = "off", x = 183, y = 137, r = 10, road = nil, anchor = 16, name = "The Sugar Shack" },
+        { id = 162, kind = "wonder", type = "off", x = 106, y = 125, r = 10, road = nil, anchor = 17, name = "Thousand Rings Stump" },
         { id = 163, kind = "wonder", type = "off", x = 258, y = 26, r = 10, road = nil, anchor = 16, name = "Lighthouse of the Lost Lantern" },
-        { id = 164, kind = "delve", type = "off", x = 216, y = 176, r = 10, road = nil, anchor = 15, name = "Beaverdam Tunnels" },
-        { id = 165, kind = "lair", type = "off", x = 299, y = 107, r = 10, road = nil, anchor = 17, name = "Den of the Great White Owl" },
-        { id = 166, kind = "haven", type = "off", x = 26, y = 154, r = 10, road = nil, anchor = 15, name = "Aurora Camp" }
+        { id = 164, kind = "delve", type = "off", x = 223, y = 172, r = 10, road = nil, anchor = 15, name = "Beaverdam Tunnels" },
+        { id = 165, kind = "lair", type = "off", x = 295, y = 108, r = 10, road = nil, anchor = 17, name = "Den of the Great White Owl" },
+        { id = 166, kind = "haven", type = "off", x = 16, y = 152, r = 10, road = nil, anchor = 15, name = "Aurora Camp" },
+        { id = 169, kind = "wonder", type = "off", x = 28, y = 182, r = 10, road = nil, anchor = 26, name = "Cenote of Echoes" },
+        { id = 170, kind = "delve", type = "off", x = 46, y = 143, r = 10, road = nil, anchor = 25, name = "Jaguar Root Caves" },
+        { id = 186, kind = "wonder", type = "off", x = 268, y = 125, r = 10, road = nil, anchor = 56, name = "Fairy-ring Clearing" },
+        { id = 187, kind = "delve", type = "off", x = 361, y = 123, r = 10, road = nil, anchor = 57, name = "Sea-cave Smugglers' Run" },
+        { id = 224, kind = "haven", type = "off", x = 367, y = 157, r = 10, road = nil, anchor = 129, name = "Cherry Blossom Teahouse" },
+        { id = 225, kind = "wonder", type = "off", x = 398, y = 187, r = 10, road = nil, anchor = 130, name = "The Thousand Gates" },
+        { id = 229, kind = "lair", type = "off", x = 218, y = 204, r = 10, road = nil, anchor = 129, name = "Lair of the Jade Dragon-fly" }
       },
       roads = {
         {
           name = "The Maplewold – Maizehollow",
           to = "CA",
           pts = {
-            { 147, 84 },
-            { 138, 128 },
+            { 147, 81 },
+            { 145, 126 },
             { 122, 176 },
             { 103, 213 },
             { 99, 254 }
@@ -51,9 +67,9 @@ return {
           name = "The Maplewold – Mistmoor",
           to = "NWE",
           pts = {
-            { 147, 84 },
-            { 227, 70 },
-            { 306, 68 },
+            { 147, 81 },
+            { 226, 69 },
+            { 306, 67 },
             { 391, 70 },
             { 464, 68 }
           }
@@ -62,245 +78,878 @@ return {
           name = "The Maplewold – Blossomreach",
           to = "EA",
           pts = {
-            { 147, 84 },
-            { 200, 102 },
-            { 260, 148 },
+            { 147, 81 },
+            { 198, 101 },
             { 308, 183 },
-            { 325, 254 }
+            { 339, 214 }
           }
         }
       },
       trails = {
         {
-          { 138, 128 },
-          { 66, 130 }
+          { 145, 126 },
+          { 72, 121 }
         },
         {
-          { 227, 70 },
-          { 240, 109 }
+          { 226, 69 },
+          { 239, 108 }
         },
         {
-          { 200, 102 },
+          { 198, 101 },
           { 161, 164 }
         },
         {
-          { 138, 128 },
-          { 217, 142 }
+          { 145, 126 },
+          { 217, 139 }
         },
         {
-          { 227, 70 },
-          { 211, 32 }
+          { 226, 69 },
+          { 211, 31 }
         },
         {
-          { 200, 102 },
-          { 270, 88 }
+          { 198, 101 },
+          { 268, 87 }
         },
         {
-          { 138, 128 },
-          { 66, 94 }
+          { 145, 126 },
+          { 64, 86 }
         },
         {
-          { 227, 70 },
-          { 180, 136 }
+          { 122, 176 },
+          { 61, 173 }
         },
         {
-          { 200, 102 },
-          { 99, 125 }
+          { 103, 213 },
+          { 32, 216 }
         },
         {
-          { 227, 70 },
+          { 122, 176 },
+          { 190, 185 }
+        },
+        {
+          { 103, 213 },
+          { 179, 225 }
+        },
+        {
+          { 306, 67 },
+          { 328, 116 }
+        },
+        {
+          { 391, 70 },
+          { 400, 112 }
+        },
+        {
+          { 306, 67 },
+          { 297, 26 }
+        },
+        {
+          { 391, 70 },
+          { 383, 27 }
+        },
+        {
+          { 308, 183 },
+          { 252, 211 }
+        },
+        {
+          { 339, 214 },
+          { 280, 240 }
+        },
+        {
+          { 226, 69 },
+          { 183, 137 }
+        },
+        {
+          { 198, 101 },
+          { 106, 125 }
+        },
+        {
+          { 226, 69 },
           { 258, 26 }
         },
         {
-          { 138, 128 },
-          { 216, 176 }
+          { 145, 126 },
+          { 223, 172 }
         },
         {
-          { 200, 102 },
-          { 299, 107 }
+          { 198, 101 },
+          { 295, 108 }
         },
         {
-          { 138, 128 },
-          { 26, 154 }
+          { 145, 126 },
+          { 16, 152 }
+        },
+        {
+          { 103, 213 },
+          { 28, 182 }
+        },
+        {
+          { 122, 176 },
+          { 46, 143 }
+        },
+        {
+          { 306, 67 },
+          { 268, 125 }
+        },
+        {
+          { 391, 70 },
+          { 361, 123 }
+        },
+        {
+          { 308, 183 },
+          { 367, 157 }
+        },
+        {
+          { 339, 214 },
+          { 398, 187 }
+        },
+        {
+          { 308, 183 },
+          { 218, 204 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 15,
+          to = 18,
+          bow = "R",
+          heading = "W",
+          ctrl = { 101, 140 }
+        },
+        {
+          from = 16,
+          to = 19,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 243, 88 }
+        },
+        {
+          from = 17,
+          to = 20,
+          bow = "R",
+          heading = "S",
+          ctrl = { 194, 143 }
+        },
+        {
+          from = 15,
+          to = 21,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 173, 149 }
+        },
+        {
+          from = 16,
+          to = 22,
+          bow = "L",
+          heading = "N",
+          ctrl = { 229, 50 }
+        },
+        {
+          from = 17,
+          to = 23,
+          bow = "L",
+          heading = "E",
+          ctrl = { 247, 105 }
+        },
+        {
+          from = 15,
+          to = 24,
+          bow = "R",
+          heading = "W",
+          ctrl = { 95, 127 }
+        },
+        {
+          from = 25,
+          to = 29,
+          bow = "R",
+          heading = "W",
+          ctrl = { 85, 188 }
+        },
+        {
+          from = 26,
+          to = 30,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 66, 232 }
+        },
+        {
+          from = 25,
+          to = 33,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 148, 196 }
+        },
+        {
+          from = 26,
+          to = 34,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 139, 238 }
+        },
+        {
+          from = 56,
+          to = 60,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 330, 92 }
+        },
+        {
+          from = 57,
+          to = 61,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 406, 91 }
+        },
+        {
+          from = 56,
+          to = 64,
+          bow = "L",
+          heading = "N",
+          ctrl = { 312, 47 }
+        },
+        {
+          from = 57,
+          to = 65,
+          bow = "L",
+          heading = "N",
+          ctrl = { 398, 48 }
+        },
+        {
+          from = 129,
+          to = 134,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 291, 208 }
+        },
+        {
+          from = 130,
+          to = 135,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 321, 238 }
+        },
+        {
+          from = 16,
+          to = 161,
+          bow = "R",
+          heading = "S",
+          ctrl = { 225, 102 }
+        },
+        {
+          from = 17,
+          to = 162,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 171, 127 }
+        },
+        {
+          from = 16,
+          to = 163,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 255, 47 }
+        },
+        {
+          from = 15,
+          to = 164,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 175, 170 }
+        },
+        {
+          from = 17,
+          to = 165,
+          bow = "L",
+          heading = "E",
+          ctrl = { 266, 119 }
+        },
+        {
+          from = 15,
+          to = 166,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 67, 169 }
+        },
+        {
+          from = 26,
+          to = 169,
+          bow = "R",
+          heading = "W",
+          ctrl = { 64, 218 }
+        },
+        {
+          from = 25,
+          to = 170,
+          bow = "R",
+          heading = "W",
+          ctrl = { 75, 178 }
+        },
+        {
+          from = 56,
+          to = 186,
+          bow = "R",
+          heading = "S",
+          ctrl = { 304, 97 }
+        },
+        {
+          from = 57,
+          to = 187,
+          bow = "R",
+          heading = "S",
+          ctrl = { 391, 96 }
+        },
+        {
+          from = 129,
+          to = 224,
+          bow = "L",
+          heading = "E",
+          ctrl = { 349, 181 }
+        },
+        {
+          from = 130,
+          to = 225,
+          bow = "L",
+          heading = "E",
+          ctrl = { 380, 212 }
+        },
+        {
+          from = 129,
+          to = 229,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 279, 210 }
         }
       },
       exits = {
         { road = 0, to = "CA", name = "Maizehollow", x = 99, y = 254, side = "S" },
-        { road = 1, to = "NWE", name = "Mistmoor", x = 464, y = 68, side = "E" },
-        { road = 2, to = "EA", name = "Blossomreach", x = 325, y = 254, side = "S" }
+        { road = 1, to = "NWE", name = "Mistmoor", x = 464, y = 68, side = "E" }
       },
-      pin = { x = 147, y = 84, r = 22 },
+      pin = { x = 147, y = 81, r = 22 },
       clear = {
-        { 147, 84, 22 },
-        { 138, 128, 19 },
+        { 147, 81, 22 },
+        { 145, 126, 19 },
         { 122, 176, 19 },
         { 103, 213, 19 },
         { 99, 254, 18 },
-        { 227, 70, 19 },
-        { 306, 68, 19 },
+        { 226, 69, 19 },
+        { 306, 67, 19 },
         { 391, 70, 19 },
         { 464, 68, 18 },
-        { 200, 102, 19 },
-        { 260, 148, 19 },
+        { 198, 101, 19 },
         { 308, 183, 19 },
-        { 325, 254, 18 },
-        { 66, 130, 18 },
-        { 240, 109, 18 },
+        { 339, 214, 19 },
+        { 72, 121, 18 },
+        { 239, 108, 18 },
         { 161, 164, 18 },
-        { 217, 142, 18 },
-        { 211, 32, 18 },
-        { 270, 88, 18 },
-        { 66, 94, 18 },
-        { 180, 136, 16 },
-        { 99, 125, 16 },
+        { 217, 139, 18 },
+        { 211, 31, 18 },
+        { 268, 87, 18 },
+        { 64, 86, 18 },
+        { 61, 173, 18 },
+        { 32, 216, 18 },
+        { 190, 185, 18 },
+        { 179, 225, 18 },
+        { 328, 116, 18 },
+        { 400, 112, 18 },
+        { 297, 26, 18 },
+        { 383, 27, 18 },
+        { 252, 211, 18 },
+        { 280, 240, 18 },
+        { 183, 137, 16 },
+        { 106, 125, 16 },
         { 258, 26, 16 },
-        { 216, 176, 16 },
-        { 299, 107, 16 },
-        { 26, 154, 16 }
+        { 223, 172, 16 },
+        { 295, 108, 16 },
+        { 16, 152, 16 },
+        { 28, 182, 16 },
+        { 46, 143, 16 },
+        { 268, 125, 16 },
+        { 361, 123, 16 },
+        { 367, 157, 16 },
+        { 398, 187, 16 },
+        { 218, 204, 16 }
       }
     },
     CA = {
       code = "CA",
       w = 480,
       h = 270,
-      town = { id = 2, x = 102, y = 159, r = 16, name = "Maizehollow Market" },
+      town = { id = 2, x = 102, y = 160, r = 16, name = "Maizehollow Market" },
       stops = {
-        { id = 26, kind = "village", type = "stop", x = 105, y = 114, r = 13, road = 0, anchor = nil, name = "Poppynook" },
-        { id = 25, kind = "village", type = "stop", x = 121, y = 75, r = 13, road = 0, anchor = nil, name = "Larkbrook" },
-        { id = 15, kind = "village", type = "stop", x = 159, y = 57, r = 13, road = 0, anchor = nil, name = "Poppyburrow" },
-        { id = 1, kind = "exit", type = "far", x = 160, y = 16, r = 12, road = 0, anchor = nil, name = "The Maplewold" },
-        { id = 27, kind = "village", type = "stop", x = 163, y = 136, r = 13, road = 1, anchor = nil, name = "Meadowmere" },
-        { id = 35, kind = "village", type = "stop", x = 285, y = 124, r = 13, road = 1, anchor = nil, name = "Shoreford" },
-        { id = 36, kind = "village", type = "stop", x = 382, y = 123, r = 13, road = 1, anchor = nil, name = "Breezehollow" },
-        { id = 3, kind = "exit", type = "far", x = 464, y = 116, r = 12, road = 1, anchor = nil, name = "The Sunsprinkle Isles" },
-        { id = 28, kind = "village", type = "stop", x = 178, y = 182, r = 13, road = 2, anchor = nil, name = "Jadedell" },
-        { id = 45, kind = "village", type = "stop", x = 254, y = 201, r = 13, road = 2, anchor = nil, name = "Barleyglen" },
-        { id = 46, kind = "village", type = "stop", x = 305, y = 217, r = 13, road = 2, anchor = nil, name = "Windwell" },
-        { id = 4, kind = "exit", type = "far", x = 288, y = 254, r = 12, road = 2, anchor = nil, name = "The Rainroot Reaches" },
-        { id = 29, kind = "village", type = "off", x = 212, y = 78, r = 12, road = nil, anchor = 25, name = "Frondthorpe" },
-        { id = 30, kind = "village", type = "off", x = 196, y = 110, r = 12, road = nil, anchor = 26, name = "Orchiddell" },
-        { id = 31, kind = "village", type = "off", x = 225, y = 172, r = 12, road = nil, anchor = 27, name = "Saffroncrest" },
-        { id = 32, kind = "village", type = "off", x = 109, y = 202, r = 12, road = nil, anchor = 28, name = "Scorchburrow" },
-        { id = 33, kind = "village", type = "off", x = 41, y = 75, r = 12, road = nil, anchor = 25, name = "Stonethorpe" },
-        { id = 34, kind = "village", type = "off", x = 26, y = 110, r = 12, road = nil, anchor = 26, name = "Flintcove" },
-        { id = 167, kind = "haven", type = "off", x = 165, y = 95, r = 10, road = nil, anchor = 27, name = "Market of a Thousand Chilies" },
-        { id = 168, kind = "wonder", type = "off", x = 246, y = 145, r = 10, road = nil, anchor = 28, name = "The Stepped Seed Temple" },
-        { id = 169, kind = "wonder", type = "off", x = 200, y = 149, r = 10, road = nil, anchor = 26, name = "Cenote of Echoes" },
-        { id = 170, kind = "delve", type = "off", x = 230, y = 112, r = 10, road = nil, anchor = 25, name = "Jaguar Root Caves" },
-        { id = 171, kind = "lair", type = "off", x = 140, y = 188, r = 10, road = nil, anchor = 27, name = "Smokecap Caldera" }
+        { id = 26, kind = "village", type = "stop", x = 103, y = 115, r = 13, road = 0, anchor = nil, name = "Poppynook" },
+        { id = 25, kind = "village", type = "stop", x = 124, y = 79, r = 13, road = 0, anchor = nil, name = "Larkbrook" },
+        { id = 15, kind = "village", type = "stop", x = 160, y = 57, r = 13, road = 0, anchor = nil, name = "Poppyburrow" },
+        { id = 1, kind = "exit", type = "far", x = 162, y = 16, r = 12, road = 0, anchor = nil, name = "The Maplewold" },
+        { id = 27, kind = "village", type = "stop", x = 160, y = 139, r = 13, road = 1, anchor = nil, name = "Meadowmere" },
+        { id = 35, kind = "village", type = "stop", x = 284, y = 121, r = 13, road = 1, anchor = nil, name = "Shoreford" },
+        { id = 36, kind = "village", type = "stop", x = 382, y = 127, r = 13, road = 1, anchor = nil, name = "Breezehollow" },
+        { id = 3, kind = "exit", type = "far", x = 464, y = 119, r = 12, road = 1, anchor = nil, name = "The Sunsprinkle Isles" },
+        { id = 28, kind = "village", type = "stop", x = 177, y = 177, r = 13, road = 2, anchor = nil, name = "Jadedell" },
+        { id = 45, kind = "village", type = "stop", x = 249, y = 210, r = 13, road = 2, anchor = nil, name = "Barleyglen" },
+        { id = 46, kind = "village", type = "stop", x = 307, y = 218, r = 13, road = 2, anchor = nil, name = "Windwell" },
+        { id = 4, kind = "exit", type = "far", x = 287, y = 254, r = 12, road = 2, anchor = nil, name = "The Rainroot Reaches" },
+        { id = 18, kind = "village", type = "off", x = 234, y = 46, r = 12, road = nil, anchor = 15, name = "Acornby" },
+        { id = 21, kind = "village", type = "off", x = 67, y = 54, r = 12, road = nil, anchor = 15, name = "Shellhollow" },
+        { id = 24, kind = "village", type = "off", x = 241, y = 81, r = 12, road = nil, anchor = 15, name = "Snowcombe" },
+        { id = 29, kind = "village", type = "off", x = 204, y = 80, r = 12, road = nil, anchor = 25, name = "Frondthorpe" },
+        { id = 30, kind = "village", type = "off", x = 193, y = 114, r = 12, road = nil, anchor = 26, name = "Orchiddell" },
+        { id = 31, kind = "village", type = "off", x = 224, y = 178, r = 12, road = nil, anchor = 27, name = "Saffroncrest" },
+        { id = 32, kind = "village", type = "off", x = 107, y = 204, r = 12, road = nil, anchor = 28, name = "Scorchburrow" },
+        { id = 33, kind = "village", type = "off", x = 41, y = 80, r = 12, road = nil, anchor = 25, name = "Stonethorpe" },
+        { id = 34, kind = "village", type = "off", x = 26, y = 114, r = 12, road = nil, anchor = 26, name = "Flintcove" },
+        { id = 38, kind = "village", type = "off", x = 293, y = 161, r = 12, road = nil, anchor = 35, name = "Sandpipergate" },
+        { id = 39, kind = "village", type = "off", x = 409, y = 159, r = 12, road = nil, anchor = 36, name = "Foamknoll" },
+        { id = 41, kind = "village", type = "off", x = 277, y = 80, r = 12, road = nil, anchor = 35, name = "Lianacombe" },
+        { id = 42, kind = "village", type = "off", x = 365, y = 90, r = 12, road = nil, anchor = 36, name = "Canopybottom" },
+        { id = 44, kind = "village", type = "off", x = 259, y = 171, r = 12, road = nil, anchor = 35, name = "Mireburrow" },
+        { id = 50, kind = "village", type = "off", x = 173, y = 218, r = 12, road = nil, anchor = 45, name = "Stoneden" },
+        { id = 51, kind = "village", type = "off", x = 239, y = 250, r = 12, road = nil, anchor = 46, name = "Figknoll" },
+        { id = 55, kind = "village", type = "off", x = 323, y = 181, r = 12, road = nil, anchor = 45, name = "Duneford" },
+        { id = 164, kind = "delve", type = "off", x = 66, y = 20, r = 10, road = nil, anchor = 15, name = "Beaverdam Tunnels" },
+        { id = 166, kind = "haven", type = "off", x = 283, y = 39, r = 10, road = nil, anchor = 15, name = "Aurora Camp" },
+        { id = 167, kind = "haven", type = "off", x = 164, y = 96, r = 10, road = nil, anchor = 27, name = "Market of a Thousand Chilies" },
+        { id = 168, kind = "wonder", type = "off", x = 236, y = 145, r = 10, road = nil, anchor = 28, name = "The Stepped Seed Temple" },
+        { id = 169, kind = "wonder", type = "off", x = 205, y = 150, r = 10, road = nil, anchor = 26, name = "Cenote of Echoes" },
+        { id = 170, kind = "delve", type = "off", x = 226, y = 112, r = 10, road = nil, anchor = 25, name = "Jaguar Root Caves" },
+        { id = 171, kind = "lair", type = "off", x = 139, y = 186, r = 10, road = nil, anchor = 27, name = "Smokecap Caldera" },
+        { id = 172, kind = "haven", type = "off", x = 348, y = 157, r = 10, road = nil, anchor = 36, name = "Driftwood Tavern" },
+        { id = 174, kind = "wonder", type = "off", x = 417, y = 84, r = 10, road = nil, anchor = 36, name = "The Singing Waterfall" },
+        { id = 176, kind = "lair", type = "off", x = 377, y = 171, r = 10, road = nil, anchor = 35, name = "Lair of the Hurricane Crab" },
+        { id = 177, kind = "haven", type = "off", x = 320, y = 86, r = 10, road = nil, anchor = 35, name = "Turtle Nesting Beach" },
+        { id = 178, kind = "haven", type = "off", x = 367, y = 201, r = 10, road = nil, anchor = 46, name = "Gaucho Gnome Ranch" },
+        { id = 181, kind = "wonder", type = "off", x = 202, y = 236, r = 10, road = nil, anchor = 46, name = "The Mirror Salt Flat" },
+        { id = 182, kind = "delve", type = "off", x = 138, y = 218, r = 10, road = nil, anchor = 45, name = "Anaconda Hollows" }
       },
       roads = {
         {
           name = "The Maplewold – Maizehollow",
           to = "NA",
           pts = {
-            { 102, 159 },
-            { 105, 114 },
-            { 121, 75 },
-            { 159, 57 },
-            { 160, 16 }
+            { 102, 160 },
+            { 103, 115 },
+            { 124, 79 },
+            { 160, 57 },
+            { 162, 16 }
           }
         },
         {
           name = "Maizehollow – The Sunsprinkle Isles",
           to = "CB",
           pts = {
-            { 102, 159 },
-            { 163, 136 },
-            { 285, 124 },
-            { 382, 123 },
-            { 464, 116 }
+            { 102, 160 },
+            { 160, 139 },
+            { 284, 121 },
+            { 382, 127 },
+            { 464, 119 }
           }
         },
         {
           name = "Maizehollow – The Rainroot Reaches",
           to = "SA",
           pts = {
-            { 102, 159 },
-            { 178, 182 },
-            { 254, 201 },
-            { 305, 217 },
-            { 288, 254 }
+            { 102, 160 },
+            { 177, 177 },
+            { 249, 210 },
+            { 307, 218 },
+            { 287, 254 }
           }
         }
       },
       trails = {
         {
-          { 121, 75 },
-          { 212, 78 }
+          { 160, 57 },
+          { 234, 46 }
         },
         {
-          { 105, 114 },
-          { 196, 110 }
+          { 160, 57 },
+          { 67, 54 }
         },
         {
-          { 163, 136 },
-          { 225, 172 }
+          { 160, 57 },
+          { 241, 81 }
         },
         {
-          { 178, 182 },
-          { 109, 202 }
+          { 124, 79 },
+          { 204, 80 }
         },
         {
-          { 121, 75 },
-          { 41, 75 }
+          { 103, 115 },
+          { 193, 114 }
         },
         {
-          { 105, 114 },
-          { 26, 110 }
+          { 160, 139 },
+          { 224, 178 }
         },
         {
-          { 163, 136 },
-          { 165, 95 }
+          { 177, 177 },
+          { 107, 204 }
         },
         {
-          { 178, 182 },
-          { 246, 145 }
+          { 124, 79 },
+          { 41, 80 }
         },
         {
-          { 105, 114 },
-          { 200, 149 }
+          { 103, 115 },
+          { 26, 114 }
         },
         {
-          { 121, 75 },
-          { 230, 112 }
+          { 284, 121 },
+          { 293, 161 }
         },
         {
-          { 163, 136 },
-          { 140, 188 }
+          { 382, 127 },
+          { 409, 159 }
+        },
+        {
+          { 284, 121 },
+          { 277, 80 }
+        },
+        {
+          { 382, 127 },
+          { 365, 90 }
+        },
+        {
+          { 284, 121 },
+          { 259, 171 }
+        },
+        {
+          { 249, 210 },
+          { 173, 218 }
+        },
+        {
+          { 307, 218 },
+          { 239, 250 }
+        },
+        {
+          { 249, 210 },
+          { 323, 181 }
+        },
+        {
+          { 160, 57 },
+          { 66, 20 }
+        },
+        {
+          { 160, 57 },
+          { 283, 39 }
+        },
+        {
+          { 160, 139 },
+          { 164, 96 }
+        },
+        {
+          { 177, 177 },
+          { 236, 145 }
+        },
+        {
+          { 103, 115 },
+          { 205, 150 }
+        },
+        {
+          { 124, 79 },
+          { 226, 112 }
+        },
+        {
+          { 160, 139 },
+          { 139, 186 }
+        },
+        {
+          { 382, 127 },
+          { 348, 157 }
+        },
+        {
+          { 382, 127 },
+          { 417, 84 }
+        },
+        {
+          { 284, 121 },
+          { 377, 171 }
+        },
+        {
+          { 284, 121 },
+          { 320, 86 }
+        },
+        {
+          { 307, 218 },
+          { 367, 201 }
+        },
+        {
+          { 307, 218 },
+          { 202, 236 }
+        },
+        {
+          { 249, 210 },
+          { 138, 218 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 15,
+          to = 18,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 198, 33 }
+        },
+        {
+          from = 15,
+          to = 21,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 115, 32 }
+        },
+        {
+          from = 15,
+          to = 24,
+          bow = "R",
+          heading = "E",
+          ctrl = { 202, 48 }
+        },
+        {
+          from = 25,
+          to = 29,
+          bow = "R",
+          heading = "E",
+          ctrl = { 181, 69 }
+        },
+        {
+          from = 26,
+          to = 30,
+          bow = "R",
+          heading = "E",
+          ctrl = { 159, 95 }
+        },
+        {
+          from = 27,
+          to = 31,
+          bow = "R",
+          heading = "E",
+          ctrl = { 211, 156 }
+        },
+        {
+          from = 28,
+          to = 32,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 159, 198 }
+        },
+        {
+          from = 25,
+          to = 33,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 100, 69 }
+        },
+        {
+          from = 26,
+          to = 34,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 74, 98 }
+        },
+        {
+          from = 35,
+          to = 38,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 299, 142 }
+        },
+        {
+          from = 36,
+          to = 39,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 406, 142 }
+        },
+        {
+          from = 35,
+          to = 41,
+          bow = "L",
+          heading = "N",
+          ctrl = { 291, 101 }
+        },
+        {
+          from = 36,
+          to = 42,
+          bow = "L",
+          heading = "N",
+          ctrl = { 384, 108 }
+        },
+        {
+          from = 35,
+          to = 44,
+          bow = "R",
+          heading = "S",
+          ctrl = { 285, 147 }
+        },
+        {
+          from = 45,
+          to = 50,
+          bow = "R",
+          heading = "W",
+          ctrl = { 230, 217 }
+        },
+        {
+          from = 46,
+          to = 51,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 264, 250 }
+        },
+        {
+          from = 45,
+          to = 55,
+          bow = "L",
+          heading = "E",
+          ctrl = { 306, 198 }
+        },
+        {
+          from = 15,
+          to = 164,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 114, 13 }
+        },
+        {
+          from = 15,
+          to = 166,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 223, 17 }
+        },
+        {
+          from = 27,
+          to = 167,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 173, 116 }
+        },
+        {
+          from = 28,
+          to = 168,
+          bow = "L",
+          heading = "E",
+          ctrl = { 222, 168 }
+        },
+        {
+          from = 26,
+          to = 169,
+          bow = "R",
+          heading = "E",
+          ctrl = { 168, 109 }
+        },
+        {
+          from = 25,
+          to = 170,
+          bow = "R",
+          heading = "E",
+          ctrl = { 198, 82 }
+        },
+        {
+          from = 27,
+          to = 171,
+          bow = "R",
+          heading = "S",
+          ctrl = { 162, 161 }
+        },
+        {
+          from = 36,
+          to = 172,
+          bow = "R",
+          heading = "S",
+          ctrl = { 376, 141 }
+        },
+        {
+          from = 36,
+          to = 174,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 413, 104 }
+        },
+        {
+          from = 35,
+          to = 176,
+          bow = "R",
+          heading = "E",
+          ctrl = { 357, 148 }
+        },
+        {
+          from = 35,
+          to = 177,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 315, 104 }
+        },
+        {
+          from = 46,
+          to = 178,
+          bow = "L",
+          heading = "E",
+          ctrl = { 329, 223 }
+        },
+        {
+          from = 46,
+          to = 181,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 242, 250 }
+        },
+        {
+          from = 45,
+          to = 182,
+          bow = "R",
+          heading = "W",
+          ctrl = { 221, 218 }
         }
       },
       exits = {
-        { road = 0, to = "NA", name = "The Maplewold", x = 160, y = 16, side = "N" },
-        { road = 1, to = "CB", name = "The Sunsprinkle Isles", x = 464, y = 116, side = "E" },
-        { road = 2, to = "SA", name = "The Rainroot Reaches", x = 288, y = 254, side = "S" }
+        { road = 0, to = "NA", name = "The Maplewold", x = 162, y = 16, side = "N" },
+        { road = 1, to = "CB", name = "The Sunsprinkle Isles", x = 464, y = 119, side = "E" },
+        { road = 2, to = "SA", name = "The Rainroot Reaches", x = 287, y = 254, side = "S" }
       },
-      pin = { x = 102, y = 159, r = 22 },
+      pin = { x = 102, y = 160, r = 22 },
       clear = {
-        { 102, 159, 22 },
-        { 105, 114, 19 },
-        { 121, 75, 19 },
-        { 159, 57, 19 },
-        { 160, 16, 18 },
-        { 163, 136, 19 },
-        { 285, 124, 19 },
-        { 382, 123, 19 },
-        { 464, 116, 18 },
-        { 178, 182, 19 },
-        { 254, 201, 19 },
-        { 305, 217, 19 },
-        { 288, 254, 18 },
-        { 212, 78, 18 },
-        { 196, 110, 18 },
-        { 225, 172, 18 },
-        { 109, 202, 18 },
-        { 41, 75, 18 },
-        { 26, 110, 18 },
-        { 165, 95, 16 },
-        { 246, 145, 16 },
-        { 200, 149, 16 },
-        { 230, 112, 16 },
-        { 140, 188, 16 }
+        { 102, 160, 22 },
+        { 103, 115, 19 },
+        { 124, 79, 19 },
+        { 160, 57, 19 },
+        { 162, 16, 18 },
+        { 160, 139, 19 },
+        { 284, 121, 19 },
+        { 382, 127, 19 },
+        { 464, 119, 18 },
+        { 177, 177, 19 },
+        { 249, 210, 19 },
+        { 307, 218, 19 },
+        { 287, 254, 18 },
+        { 234, 46, 18 },
+        { 67, 54, 18 },
+        { 241, 81, 18 },
+        { 204, 80, 18 },
+        { 193, 114, 18 },
+        { 224, 178, 18 },
+        { 107, 204, 18 },
+        { 41, 80, 18 },
+        { 26, 114, 18 },
+        { 293, 161, 18 },
+        { 409, 159, 18 },
+        { 277, 80, 18 },
+        { 365, 90, 18 },
+        { 259, 171, 18 },
+        { 173, 218, 18 },
+        { 239, 250, 18 },
+        { 323, 181, 18 },
+        { 66, 20, 16 },
+        { 283, 39, 16 },
+        { 164, 96, 16 },
+        { 236, 145, 16 },
+        { 205, 150, 16 },
+        { 226, 112, 16 },
+        { 139, 186, 16 },
+        { 348, 157, 16 },
+        { 417, 84, 16 },
+        { 377, 171, 16 },
+        { 320, 86, 16 },
+        { 367, 201, 16 },
+        { 202, 236, 16 },
+        { 138, 218, 16 }
       }
     },
     CB = {
@@ -309,7 +958,7 @@ return {
       h = 270,
       town = { id = 3, x = 359, y = 65, r = 16, name = "The Sunsprinkle Isles Market" },
       stops = {
-        { id = 36, kind = "village", type = "stop", x = 263, y = 87, r = 13, road = 0, anchor = nil, name = "Breezehollow" },
+        { id = 36, kind = "village", type = "stop", x = 263, y = 86, r = 13, road = 0, anchor = nil, name = "Breezehollow" },
         { id = 35, kind = "village", type = "stop", x = 187, y = 102, r = 13, road = 0, anchor = nil, name = "Shoreford" },
         { id = 27, kind = "village", type = "stop", x = 95, y = 104, r = 13, road = 0, anchor = nil, name = "Meadowmere" },
         { id = 2, kind = "exit", type = "far", x = 16, y = 114, r = 12, road = 0, anchor = nil, name = "Maizehollow" },
@@ -317,19 +966,26 @@ return {
         { id = 47, kind = "village", type = "stop", x = 361, y = 161, r = 13, road = 1, anchor = nil, name = "Thistlebottom" },
         { id = 48, kind = "village", type = "stop", x = 347, y = 209, r = 13, road = 1, anchor = nil, name = "Flintburrow" },
         { id = 4, kind = "exit", type = "far", x = 338, y = 254, r = 12, road = 1, anchor = nil, name = "The Rainroot Reaches" },
+        { id = 31, kind = "village", type = "off", x = 76, y = 57, r = 12, road = nil, anchor = 27, name = "Saffroncrest" },
         { id = 38, kind = "village", type = "off", x = 172, y = 52, r = 12, road = nil, anchor = 35, name = "Sandpipergate" },
         { id = 39, kind = "village", type = "off", x = 258, y = 32, r = 12, road = nil, anchor = 36, name = "Foamknoll" },
-        { id = 40, kind = "village", type = "off", x = 289, y = 118, r = 12, road = nil, anchor = 37, name = "Saltgate" },
+        { id = 40, kind = "village", type = "off", x = 284, y = 121, r = 12, road = nil, anchor = 37, name = "Saltgate" },
         { id = 41, kind = "village", type = "off", x = 203, y = 151, r = 12, road = nil, anchor = 35, name = "Lianacombe" },
-        { id = 42, kind = "village", type = "off", x = 299, y = 153, r = 12, road = nil, anchor = 36, name = "Canopybottom" },
-        { id = 43, kind = "village", type = "off", x = 447, y = 115, r = 12, road = nil, anchor = 37, name = "Heronholt" },
+        { id = 42, kind = "village", type = "off", x = 309, y = 147, r = 12, road = nil, anchor = 36, name = "Canopybottom" },
+        { id = 43, kind = "village", type = "off", x = 446, y = 113, r = 12, road = nil, anchor = 37, name = "Heronholt" },
         { id = 44, kind = "village", type = "off", x = 220, y = 40, r = 12, road = nil, anchor = 35, name = "Mireburrow" },
+        { id = 52, kind = "village", type = "off", x = 275, y = 162, r = 12, road = nil, anchor = 47, name = "Frondstead" },
+        { id = 53, kind = "village", type = "off", x = 265, y = 205, r = 12, road = nil, anchor = 48, name = "Canopyglen" },
+        { id = 167, kind = "haven", type = "off", x = 110, y = 153, r = 10, road = nil, anchor = 27, name = "Market of a Thousand Chilies" },
+        { id = 171, kind = "lair", type = "off", x = 133, y = 43, r = 10, road = nil, anchor = 27, name = "Smokecap Caldera" },
         { id = 172, kind = "haven", type = "off", x = 311, y = 26, r = 10, road = nil, anchor = 36, name = "Driftwood Tavern" },
-        { id = 173, kind = "wonder", type = "off", x = 284, y = 55, r = 10, road = nil, anchor = 37, name = "Sunken Gnome Galleon" },
-        { id = 174, kind = "wonder", type = "off", x = 245, y = 149, r = 10, road = nil, anchor = 36, name = "The Singing Waterfall" },
-        { id = 175, kind = "delve", type = "off", x = 454, y = 148, r = 10, road = nil, anchor = 37, name = "Mangrove Root Maze" },
-        { id = 176, kind = "lair", type = "off", x = 104, y = 40, r = 10, road = nil, anchor = 35, name = "Lair of the Hurricane Crab" },
-        { id = 177, kind = "haven", type = "off", x = 154, y = 163, r = 10, road = nil, anchor = 35, name = "Turtle Nesting Beach" }
+        { id = 173, kind = "wonder", type = "off", x = 285, y = 54, r = 10, road = nil, anchor = 37, name = "Sunken Gnome Galleon" },
+        { id = 174, kind = "wonder", type = "off", x = 244, y = 149, r = 10, road = nil, anchor = 36, name = "The Singing Waterfall" },
+        { id = 175, kind = "delve", type = "off", x = 458, y = 144, r = 10, road = nil, anchor = 37, name = "Mangrove Root Maze" },
+        { id = 176, kind = "lair", type = "off", x = 102, y = 36, r = 10, road = nil, anchor = 35, name = "Lair of the Hurricane Crab" },
+        { id = 177, kind = "haven", type = "off", x = 154, y = 163, r = 10, road = nil, anchor = 35, name = "Turtle Nesting Beach" },
+        { id = 179, kind = "wonder", type = "off", x = 440, y = 170, r = 10, road = nil, anchor = 47, name = "The Sky City Ruins" },
+        { id = 183, kind = "lair", type = "off", x = 429, y = 214, r = 10, road = nil, anchor = 48, name = "Condor's Crag" }
       },
       roads = {
         {
@@ -337,7 +993,7 @@ return {
           to = "CA",
           pts = {
             { 359, 65 },
-            { 263, 87 },
+            { 263, 86 },
             { 187, 102 },
             { 95, 104 },
             { 16, 114 }
@@ -357,56 +1013,226 @@ return {
       },
       trails = {
         {
+          { 95, 104 },
+          { 76, 57 }
+        },
+        {
           { 187, 102 },
           { 172, 52 }
         },
         {
-          { 263, 87 },
+          { 263, 86 },
           { 258, 32 }
         },
         {
           { 365, 111 },
-          { 289, 118 }
+          { 284, 121 }
         },
         {
           { 187, 102 },
           { 203, 151 }
         },
         {
-          { 263, 87 },
-          { 299, 153 }
+          { 263, 86 },
+          { 309, 147 }
         },
         {
           { 365, 111 },
-          { 447, 115 }
+          { 446, 113 }
         },
         {
           { 187, 102 },
           { 220, 40 }
         },
         {
-          { 263, 87 },
+          { 361, 161 },
+          { 275, 162 }
+        },
+        {
+          { 347, 209 },
+          { 265, 205 }
+        },
+        {
+          { 95, 104 },
+          { 110, 153 }
+        },
+        {
+          { 95, 104 },
+          { 133, 43 }
+        },
+        {
+          { 263, 86 },
           { 311, 26 }
         },
         {
           { 365, 111 },
-          { 284, 55 }
+          { 285, 54 }
         },
         {
-          { 263, 87 },
-          { 245, 149 }
+          { 263, 86 },
+          { 244, 149 }
         },
         {
           { 365, 111 },
-          { 454, 148 }
+          { 458, 144 }
         },
         {
           { 187, 102 },
-          { 104, 40 }
+          { 102, 36 }
         },
         {
           { 187, 102 },
           { 154, 163 }
+        },
+        {
+          { 361, 161 },
+          { 440, 170 }
+        },
+        {
+          { 347, 209 },
+          { 429, 214 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 27,
+          to = 31,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 73, 82 }
+        },
+        {
+          from = 35,
+          to = 38,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 166, 77 }
+        },
+        {
+          from = 36,
+          to = 39,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 247, 62 }
+        },
+        {
+          from = 37,
+          to = 40,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 323, 136 }
+        },
+        {
+          from = 35,
+          to = 41,
+          bow = "L",
+          heading = "S",
+          ctrl = { 182, 127 }
+        },
+        {
+          from = 36,
+          to = 42,
+          bow = "L",
+          heading = "S",
+          ctrl = { 267, 120 }
+        },
+        {
+          from = 37,
+          to = 43,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 404, 132 }
+        },
+        {
+          from = 35,
+          to = 44,
+          bow = "R",
+          heading = "N",
+          ctrl = { 186, 71 }
+        },
+        {
+          from = 47,
+          to = 52,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 312, 182 }
+        },
+        {
+          from = 48,
+          to = 53,
+          bow = "R",
+          heading = "W",
+          ctrl = { 302, 227 }
+        },
+        {
+          from = 27,
+          to = 167,
+          bow = "L",
+          heading = "S",
+          ctrl = { 90, 130 }
+        },
+        {
+          from = 27,
+          to = 171,
+          bow = "R",
+          heading = "N",
+          ctrl = { 96, 76 }
+        },
+        {
+          from = 36,
+          to = 172,
+          bow = "R",
+          heading = "N",
+          ctrl = { 268, 60 }
+        },
+        {
+          from = 37,
+          to = 173,
+          bow = "R",
+          heading = "W",
+          ctrl = { 323, 107 }
+        },
+        {
+          from = 36,
+          to = 174,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 237, 121 }
+        },
+        {
+          from = 37,
+          to = 175,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 410, 152 }
+        },
+        {
+          from = 35,
+          to = 176,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 118, 70 }
+        },
+        {
+          from = 35,
+          to = 177,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 153, 133 }
+        },
+        {
+          from = 47,
+          to = 179,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 395, 185 }
+        },
+        {
+          from = 48,
+          to = 183,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 384, 232 }
         }
       },
       exits = {
@@ -416,7 +1242,7 @@ return {
       pin = { x = 359, y = 65, r = 22 },
       clear = {
         { 359, 65, 22 },
-        { 263, 87, 19 },
+        { 263, 86, 19 },
         { 187, 102, 19 },
         { 95, 104, 19 },
         { 16, 114, 18 },
@@ -424,358 +1250,989 @@ return {
         { 361, 161, 19 },
         { 347, 209, 19 },
         { 338, 254, 18 },
+        { 76, 57, 18 },
         { 172, 52, 18 },
         { 258, 32, 18 },
-        { 289, 118, 18 },
+        { 284, 121, 18 },
         { 203, 151, 18 },
-        { 299, 153, 18 },
-        { 447, 115, 18 },
+        { 309, 147, 18 },
+        { 446, 113, 18 },
         { 220, 40, 18 },
+        { 275, 162, 18 },
+        { 265, 205, 18 },
+        { 110, 153, 16 },
+        { 133, 43, 16 },
         { 311, 26, 16 },
-        { 284, 55, 16 },
-        { 245, 149, 16 },
-        { 454, 148, 16 },
-        { 104, 40, 16 },
-        { 154, 163, 16 }
+        { 285, 54, 16 },
+        { 244, 149, 16 },
+        { 458, 144, 16 },
+        { 102, 36, 16 },
+        { 154, 163, 16 },
+        { 440, 170, 16 },
+        { 429, 214, 16 }
       }
     },
     SA = {
       code = "SA",
       w = 480,
       h = 270,
-      town = { id = 4, x = 200, y = 212, r = 16, name = "The Rainroot Reaches Market" },
+      town = { id = 4, x = 212, y = 206, r = 16, name = "The Rainroot Reaches Market" },
       stops = {
-        { id = 46, kind = "village", type = "stop", x = 146, y = 187, r = 13, road = 0, anchor = nil, name = "Windwell" },
-        { id = 45, kind = "village", type = "stop", x = 94, y = 147, r = 13, road = 0, anchor = nil, name = "Barleyglen" },
-        { id = 28, kind = "village", type = "stop", x = 54, y = 106, r = 13, road = 0, anchor = nil, name = "Jadedell" },
-        { id = 2, kind = "exit", type = "far", x = 28, y = 16, r = 12, road = 0, anchor = nil, name = "Maizehollow" },
-        { id = 48, kind = "village", type = "stop", x = 184, y = 170, r = 13, road = 1, anchor = nil, name = "Flintburrow" },
-        { id = 47, kind = "village", type = "stop", x = 198, y = 101, r = 13, road = 1, anchor = nil, name = "Thistlebottom" },
-        { id = 37, kind = "village", type = "stop", x = 207, y = 60, r = 13, road = 1, anchor = nil, name = "Palmknoll" },
-        { id = 3, kind = "exit", type = "far", x = 214, y = 16, r = 12, road = 1, anchor = nil, name = "The Sunsprinkle Isles" },
-        { id = 49, kind = "village", type = "stop", x = 265, y = 202, r = 13, road = 2, anchor = nil, name = "Highcove" },
-        { id = 150, kind = "village", type = "stop", x = 333, y = 194, r = 13, road = 2, anchor = nil, name = "Palmgate" },
-        { id = 151, kind = "village", type = "stop", x = 404, y = 205, r = 13, road = 2, anchor = nil, name = "Reefknoll" },
-        { id = 14, kind = "exit", type = "far", x = 464, y = 228, r = 12, road = 2, anchor = nil, name = "The Coralscatter" },
-        { id = 50, kind = "village", type = "off", x = 144, y = 119, r = 12, road = nil, anchor = 45, name = "Stoneden" },
-        { id = 51, kind = "village", type = "off", x = 214, y = 139, r = 12, road = nil, anchor = 46, name = "Figknoll" },
-        { id = 52, kind = "village", type = "off", x = 257, y = 111, r = 12, road = nil, anchor = 47, name = "Frondstead" },
-        { id = 53, kind = "village", type = "off", x = 256, y = 162, r = 12, road = nil, anchor = 48, name = "Canopyglen" },
-        { id = 54, kind = "village", type = "off", x = 257, y = 244, r = 12, road = nil, anchor = 49, name = "Scorchby" },
-        { id = 55, kind = "village", type = "off", x = 51, y = 181, r = 12, road = nil, anchor = 45, name = "Duneford" },
-        { id = 178, kind = "haven", type = "off", x = 101, y = 215, r = 10, road = nil, anchor = 46, name = "Gaucho Gnome Ranch" },
-        { id = 179, kind = "wonder", type = "off", x = 121, y = 93, r = 10, road = nil, anchor = 47, name = "The Sky City Ruins" },
-        { id = 180, kind = "wonder", type = "off", x = 278, y = 137, r = 10, road = nil, anchor = 49, name = "Pink River Dolphin Pools" },
-        { id = 181, kind = "wonder", type = "off", x = 223, y = 173, r = 10, road = nil, anchor = 46, name = "The Mirror Salt Flat" },
-        { id = 182, kind = "delve", type = "off", x = 175, y = 132, r = 10, road = nil, anchor = 45, name = "Anaconda Hollows" },
-        { id = 183, kind = "lair", type = "off", x = 133, y = 151, r = 10, road = nil, anchor = 48, name = "Condor's Crag" }
+        { id = 46, kind = "village", type = "stop", x = 157, y = 182, r = 13, road = 0, anchor = nil, name = "Windwell" },
+        { id = 45, kind = "village", type = "stop", x = 107, y = 140, r = 13, road = 0, anchor = nil, name = "Barleyglen" },
+        { id = 28, kind = "village", type = "stop", x = 70, y = 102, r = 13, road = 0, anchor = nil, name = "Jadedell" },
+        { id = 2, kind = "exit", type = "far", x = 44, y = 16, r = 12, road = 0, anchor = nil, name = "Maizehollow" },
+        { id = 48, kind = "village", type = "stop", x = 195, y = 165, r = 13, road = 1, anchor = nil, name = "Flintburrow" },
+        { id = 47, kind = "village", type = "stop", x = 210, y = 97, r = 13, road = 1, anchor = nil, name = "Thistlebottom" },
+        { id = 37, kind = "village", type = "stop", x = 218, y = 56, r = 13, road = 1, anchor = nil, name = "Palmknoll" },
+        { id = 3, kind = "exit", type = "far", x = 224, y = 16, r = 12, road = 1, anchor = nil, name = "The Sunsprinkle Isles" },
+        { id = 49, kind = "village", type = "stop", x = 273, y = 191, r = 13, road = 2, anchor = nil, name = "Highcove" },
+        { id = 150, kind = "village", type = "stop", x = 338, y = 183, r = 13, road = 2, anchor = nil, name = "Palmgate" },
+        { id = 151, kind = "village", type = "stop", x = 406, y = 194, r = 13, road = 2, anchor = nil, name = "Reefknoll" },
+        { id = 14, kind = "exit", type = "far", x = 464, y = 215, r = 12, road = 2, anchor = nil, name = "The Coralscatter" },
+        { id = 32, kind = "village", type = "off", x = 108, y = 64, r = 12, road = nil, anchor = 28, name = "Scorchburrow" },
+        { id = 40, kind = "village", type = "off", x = 276, y = 60, r = 12, road = nil, anchor = 37, name = "Saltgate" },
+        { id = 43, kind = "village", type = "off", x = 158, y = 57, r = 12, road = nil, anchor = 37, name = "Heronholt" },
+        { id = 50, kind = "village", type = "off", x = 155, y = 112, r = 12, road = nil, anchor = 45, name = "Stoneden" },
+        { id = 51, kind = "village", type = "off", x = 226, y = 135, r = 12, road = nil, anchor = 46, name = "Figknoll" },
+        { id = 52, kind = "village", type = "off", x = 259, y = 111, r = 12, road = nil, anchor = 47, name = "Frondstead" },
+        { id = 53, kind = "village", type = "off", x = 263, y = 152, r = 12, road = nil, anchor = 48, name = "Canopyglen" },
+        { id = 54, kind = "village", type = "off", x = 263, y = 231, r = 12, road = nil, anchor = 49, name = "Scorchby" },
+        { id = 55, kind = "village", type = "off", x = 68, y = 171, r = 12, road = nil, anchor = 45, name = "Duneford" },
+        { id = 154, kind = "village", type = "off", x = 333, y = 229, r = 12, road = nil, anchor = 150, name = "Shellknoll" },
+        { id = 155, kind = "village", type = "off", x = 400, y = 240, r = 12, road = nil, anchor = 151, name = "Salthollow" },
+        { id = 158, kind = "village", type = "off", x = 344, y = 137, r = 12, road = nil, anchor = 150, name = "Miragewell" },
+        { id = 159, kind = "village", type = "off", x = 411, y = 148, r = 12, road = nil, anchor = 151, name = "Oasiswick" },
+        { id = 168, kind = "wonder", type = "off", x = 26, y = 133, r = 10, road = nil, anchor = 28, name = "The Stepped Seed Temple" },
+        { id = 173, kind = "wonder", type = "off", x = 288, y = 92, r = 10, road = nil, anchor = 37, name = "Sunken Gnome Galleon" },
+        { id = 175, kind = "delve", type = "off", x = 152, y = 24, r = 10, road = nil, anchor = 37, name = "Mangrove Root Maze" },
+        { id = 178, kind = "haven", type = "off", x = 116, y = 203, r = 10, road = nil, anchor = 46, name = "Gaucho Gnome Ranch" },
+        { id = 179, kind = "wonder", type = "off", x = 133, y = 87, r = 10, road = nil, anchor = 47, name = "The Sky City Ruins" },
+        { id = 180, kind = "wonder", type = "off", x = 289, y = 129, r = 10, road = nil, anchor = 49, name = "Pink River Dolphin Pools" },
+        { id = 181, kind = "wonder", type = "off", x = 234, y = 168, r = 10, road = nil, anchor = 46, name = "The Mirror Salt Flat" },
+        { id = 182, kind = "delve", type = "off", x = 186, y = 127, r = 10, road = nil, anchor = 45, name = "Anaconda Hollows" },
+        { id = 183, kind = "lair", type = "off", x = 145, y = 145, r = 10, road = nil, anchor = 48, name = "Condor's Crag" },
+        { id = 237, kind = "wonder", type = "off", x = 363, y = 244, r = 10, road = nil, anchor = 151, name = "Glowworm Grotto" },
+        { id = 238, kind = "wonder", type = "off", x = 297, y = 234, r = 10, road = nil, anchor = 150, name = "Starpath Canoe" },
+        { id = 240, kind = "delve", type = "off", x = 381, y = 133, r = 10, road = nil, anchor = 150, name = "The Red Rock Songlines" }
       },
       roads = {
         {
           name = "Maizehollow – The Rainroot Reaches",
           to = "CA",
           pts = {
-            { 200, 212 },
-            { 146, 187 },
-            { 94, 147 },
-            { 54, 106 },
-            { 28, 16 }
+            { 212, 206 },
+            { 157, 182 },
+            { 107, 140 },
+            { 70, 102 },
+            { 44, 16 }
           }
         },
         {
           name = "The Sunsprinkle Isles – The Rainroot Reaches",
           to = "CB",
           pts = {
-            { 200, 212 },
-            { 184, 170 },
-            { 198, 101 },
-            { 207, 60 },
-            { 214, 16 }
+            { 212, 206 },
+            { 195, 165 },
+            { 210, 97 },
+            { 218, 56 },
+            { 224, 16 }
           }
         },
         {
           name = "The Rainroot Reaches – The Coralscatter",
           to = "OC",
           pts = {
-            { 200, 212 },
-            { 265, 202 },
-            { 333, 194 },
-            { 404, 205 },
-            { 464, 228 }
+            { 212, 206 },
+            { 273, 191 },
+            { 338, 183 },
+            { 406, 194 },
+            { 464, 215 }
           }
         }
       },
       trails = {
         {
-          { 94, 147 },
-          { 144, 119 }
+          { 70, 102 },
+          { 108, 64 }
         },
         {
-          { 146, 187 },
-          { 214, 139 }
+          { 218, 56 },
+          { 276, 60 }
         },
         {
-          { 198, 101 },
-          { 257, 111 }
+          { 218, 56 },
+          { 158, 57 }
         },
         {
-          { 184, 170 },
-          { 256, 162 }
+          { 107, 140 },
+          { 155, 112 }
         },
         {
-          { 265, 202 },
-          { 257, 244 }
+          { 157, 182 },
+          { 226, 135 }
         },
         {
-          { 94, 147 },
-          { 51, 181 }
+          { 210, 97 },
+          { 259, 111 }
         },
         {
-          { 146, 187 },
-          { 101, 215 }
+          { 195, 165 },
+          { 263, 152 }
         },
         {
-          { 198, 101 },
-          { 121, 93 }
+          { 273, 191 },
+          { 263, 231 }
         },
         {
-          { 265, 202 },
-          { 278, 137 }
+          { 107, 140 },
+          { 68, 171 }
         },
         {
-          { 146, 187 },
-          { 223, 173 }
+          { 338, 183 },
+          { 333, 229 }
         },
         {
-          { 94, 147 },
-          { 175, 132 }
+          { 406, 194 },
+          { 400, 240 }
         },
         {
-          { 184, 170 },
-          { 133, 151 }
+          { 338, 183 },
+          { 344, 137 }
+        },
+        {
+          { 406, 194 },
+          { 411, 148 }
+        },
+        {
+          { 70, 102 },
+          { 26, 133 }
+        },
+        {
+          { 218, 56 },
+          { 288, 92 }
+        },
+        {
+          { 218, 56 },
+          { 152, 24 }
+        },
+        {
+          { 157, 182 },
+          { 116, 203 }
+        },
+        {
+          { 210, 97 },
+          { 133, 87 }
+        },
+        {
+          { 273, 191 },
+          { 289, 129 }
+        },
+        {
+          { 157, 182 },
+          { 234, 168 }
+        },
+        {
+          { 107, 140 },
+          { 186, 127 }
+        },
+        {
+          { 195, 165 },
+          { 145, 145 }
+        },
+        {
+          { 406, 194 },
+          { 363, 244 }
+        },
+        {
+          { 338, 183 },
+          { 297, 234 }
+        },
+        {
+          { 338, 183 },
+          { 381, 133 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 28,
+          to = 32,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 85, 70 }
+        },
+        {
+          from = 37,
+          to = 40,
+          bow = "R",
+          heading = "E",
+          ctrl = { 249, 44 }
+        },
+        {
+          from = 37,
+          to = 43,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 190, 42 }
+        },
+        {
+          from = 45,
+          to = 50,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 121, 116 }
+        },
+        {
+          from = 46,
+          to = 51,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 176, 145 }
+        },
+        {
+          from = 47,
+          to = 52,
+          bow = "R",
+          heading = "E",
+          ctrl = { 237, 91 }
+        },
+        {
+          from = 48,
+          to = 53,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 233, 142 }
+        },
+        {
+          from = 49,
+          to = 54,
+          bow = "R",
+          heading = "S",
+          ctrl = { 278, 210 }
+        },
+        {
+          from = 45,
+          to = 55,
+          bow = "L",
+          heading = "W",
+          ctrl = { 79, 147 }
+        },
+        {
+          from = 150,
+          to = 154,
+          bow = "R",
+          heading = "S",
+          ctrl = { 347, 208 }
+        },
+        {
+          from = 151,
+          to = 155,
+          bow = "R",
+          heading = "S",
+          ctrl = { 414, 221 }
+        },
+        {
+          from = 150,
+          to = 158,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 352, 162 }
+        },
+        {
+          from = 151,
+          to = 159,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 419, 175 }
+        },
+        {
+          from = 28,
+          to = 168,
+          bow = "L",
+          heading = "W",
+          ctrl = { 44, 105 }
+        },
+        {
+          from = 37,
+          to = 173,
+          bow = "R",
+          heading = "E",
+          ctrl = { 256, 55 }
+        },
+        {
+          from = 37,
+          to = 175,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 188, 22 }
+        },
+        {
+          from = 46,
+          to = 178,
+          bow = "L",
+          heading = "W",
+          ctrl = { 128, 185 }
+        },
+        {
+          from = 47,
+          to = 179,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 175, 73 }
+        },
+        {
+          from = 49,
+          to = 180,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 297, 158 }
+        },
+        {
+          from = 46,
+          to = 181,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 181, 162 }
+        },
+        {
+          from = 45,
+          to = 182,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 133, 119 }
+        },
+        {
+          from = 48,
+          to = 183,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 173, 142 }
+        },
+        {
+          from = 151,
+          to = 237,
+          bow = "R",
+          heading = "S",
+          ctrl = { 400, 225 }
+        },
+        {
+          from = 150,
+          to = 238,
+          bow = "R",
+          heading = "S",
+          ctrl = { 334, 211 }
+        },
+        {
+          from = 150,
+          to = 240,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 376, 161 }
         }
       },
       exits = {
-        { road = 0, to = "CA", name = "Maizehollow", x = 28, y = 16, side = "N" },
-        { road = 1, to = "CB", name = "The Sunsprinkle Isles", x = 214, y = 16, side = "N" },
-        { road = 2, to = "OC", name = "The Coralscatter", x = 464, y = 228, side = "E" }
+        { road = 0, to = "CA", name = "Maizehollow", x = 44, y = 16, side = "N" },
+        { road = 1, to = "CB", name = "The Sunsprinkle Isles", x = 224, y = 16, side = "N" },
+        { road = 2, to = "OC", name = "The Coralscatter", x = 464, y = 215, side = "E" }
       },
-      pin = { x = 200, y = 212, r = 22 },
+      pin = { x = 212, y = 206, r = 22 },
       clear = {
-        { 200, 212, 22 },
-        { 146, 187, 19 },
-        { 94, 147, 19 },
-        { 54, 106, 19 },
-        { 28, 16, 18 },
-        { 184, 170, 19 },
-        { 198, 101, 19 },
-        { 207, 60, 19 },
-        { 214, 16, 18 },
-        { 265, 202, 19 },
-        { 333, 194, 19 },
-        { 404, 205, 19 },
-        { 464, 228, 18 },
-        { 144, 119, 18 },
-        { 214, 139, 18 },
-        { 257, 111, 18 },
-        { 256, 162, 18 },
-        { 257, 244, 18 },
-        { 51, 181, 18 },
-        { 101, 215, 16 },
-        { 121, 93, 16 },
-        { 278, 137, 16 },
-        { 223, 173, 16 },
-        { 175, 132, 16 },
-        { 133, 151, 16 }
+        { 212, 206, 22 },
+        { 157, 182, 19 },
+        { 107, 140, 19 },
+        { 70, 102, 19 },
+        { 44, 16, 18 },
+        { 195, 165, 19 },
+        { 210, 97, 19 },
+        { 218, 56, 19 },
+        { 224, 16, 18 },
+        { 273, 191, 19 },
+        { 338, 183, 19 },
+        { 406, 194, 19 },
+        { 464, 215, 18 },
+        { 108, 64, 18 },
+        { 276, 60, 18 },
+        { 158, 57, 18 },
+        { 155, 112, 18 },
+        { 226, 135, 18 },
+        { 259, 111, 18 },
+        { 263, 152, 18 },
+        { 263, 231, 18 },
+        { 68, 171, 18 },
+        { 333, 229, 18 },
+        { 400, 240, 18 },
+        { 344, 137, 18 },
+        { 411, 148, 18 },
+        { 26, 133, 16 },
+        { 288, 92, 16 },
+        { 152, 24, 16 },
+        { 116, 203, 16 },
+        { 133, 87, 16 },
+        { 289, 129, 16 },
+        { 234, 168, 16 },
+        { 186, 127, 16 },
+        { 145, 145, 16 },
+        { 363, 244, 16 },
+        { 297, 234, 16 },
+        { 381, 133, 16 }
       }
     },
     NWE = {
       code = "NWE",
       w = 480,
       h = 270,
-      town = { id = 5, x = 232, y = 86, r = 16, name = "Mistmoor Market" },
+      town = { id = 5, x = 221, y = 93, r = 16, name = "Mistmoor Market" },
       stops = {
-        { id = 57, kind = "village", type = "stop", x = 176, y = 102, r = 13, road = 0, anchor = nil, name = "Windburrow" },
-        { id = 56, kind = "village", type = "stop", x = 129, y = 119, r = 13, road = 0, anchor = nil, name = "Windbottom" },
-        { id = 16, kind = "village", type = "stop", x = 69, y = 118, r = 13, road = 0, anchor = nil, name = "Honeybrook" },
-        { id = 1, kind = "exit", type = "far", x = 16, y = 119, r = 12, road = 0, anchor = nil, name = "The Maplewold" },
-        { id = 58, kind = "village", type = "stop", x = 270, y = 109, r = 13, road = 1, anchor = nil, name = "Larkden" },
-        { id = 66, kind = "village", type = "stop", x = 301, y = 167, r = 13, road = 1, anchor = nil, name = "Brinewick" },
-        { id = 67, kind = "village", type = "stop", x = 325, y = 208, r = 13, road = 1, anchor = nil, name = "Driftmead" },
-        { id = 6, kind = "exit", type = "far", x = 313, y = 254, r = 12, road = 1, anchor = nil, name = "Olivewhistle Shore" },
-        { id = 59, kind = "village", type = "stop", x = 292, y = 73, r = 13, road = 2, anchor = nil, name = "Hollowknoll" },
-        { id = 76, kind = "village", type = "stop", x = 352, y = 67, r = 13, road = 2, anchor = nil, name = "Thistleburrow" },
-        { id = 77, kind = "village", type = "stop", x = 411, y = 72, r = 13, road = 2, anchor = nil, name = "Haynook" },
-        { id = 7, kind = "exit", type = "far", x = 464, y = 78, r = 12, road = 2, anchor = nil, name = "Birchbramble Steppe" },
-        { id = 60, kind = "village", type = "off", x = 119, y = 72, r = 12, road = nil, anchor = 56, name = "Fernden" },
-        { id = 61, kind = "village", type = "off", x = 185, y = 62, r = 12, road = nil, anchor = 57, name = "Hazelmere" },
-        { id = 62, kind = "village", type = "off", x = 227, y = 151, r = 12, road = nil, anchor = 58, name = "Spraywell" },
-        { id = 63, kind = "village", type = "off", x = 307, y = 126, r = 12, road = nil, anchor = 59, name = "Brinehollow" },
-        { id = 64, kind = "village", type = "off", x = 135, y = 167, r = 12, road = nil, anchor = 56, name = "Froststead" },
-        { id = 65, kind = "village", type = "off", x = 192, y = 157, r = 12, road = nil, anchor = 57, name = "Sleetford" },
-        { id = 184, kind = "haven", type = "off", x = 323, y = 96, r = 10, road = nil, anchor = 58, name = "Thatchtop Tearoom" },
-        { id = 185, kind = "wonder", type = "off", x = 290, y = 26, r = 10, road = nil, anchor = 59, name = "The Standing Stones" },
-        { id = 186, kind = "wonder", type = "off", x = 151, y = 59, r = 10, road = nil, anchor = 56, name = "Fairy-ring Clearing" },
-        { id = 187, kind = "delve", type = "off", x = 215, y = 48, r = 10, road = nil, anchor = 57, name = "Sea-cave Smugglers' Run" },
-        { id = 188, kind = "lair", type = "off", x = 210, y = 122, r = 10, road = nil, anchor = 58, name = "Barrow of the Frost Toad" },
-        { id = 189, kind = "haven", type = "off", x = 261, y = 146, r = 10, road = nil, anchor = 59, name = "Northern Lights Sauna" }
+        { id = 57, kind = "village", type = "stop", x = 168, y = 109, r = 13, road = 0, anchor = nil, name = "Windburrow" },
+        { id = 56, kind = "village", type = "stop", x = 129, y = 127, r = 13, road = 0, anchor = nil, name = "Windbottom" },
+        { id = 16, kind = "village", type = "stop", x = 69, y = 126, r = 13, road = 0, anchor = nil, name = "Honeybrook" },
+        { id = 1, kind = "exit", type = "far", x = 16, y = 127, r = 12, road = 0, anchor = nil, name = "The Maplewold" },
+        { id = 58, kind = "village", type = "stop", x = 262, y = 111, r = 13, road = 1, anchor = nil, name = "Larkden" },
+        { id = 66, kind = "village", type = "stop", x = 306, y = 169, r = 13, road = 1, anchor = nil, name = "Brinewick" },
+        { id = 67, kind = "village", type = "stop", x = 325, y = 210, r = 13, road = 1, anchor = nil, name = "Driftmead" },
+        { id = 6, kind = "exit", type = "far", x = 315, y = 254, r = 12, road = 1, anchor = nil, name = "Olivewhistle Shore" },
+        { id = 59, kind = "village", type = "stop", x = 290, y = 80, r = 13, road = 2, anchor = nil, name = "Hollowknoll" },
+        { id = 76, kind = "village", type = "stop", x = 350, y = 73, r = 13, road = 2, anchor = nil, name = "Thistleburrow" },
+        { id = 77, kind = "village", type = "stop", x = 411, y = 83, r = 13, road = 2, anchor = nil, name = "Haynook" },
+        { id = 7, kind = "exit", type = "far", x = 464, y = 89, r = 12, road = 2, anchor = nil, name = "Birchbramble Steppe" },
+        { id = 19, kind = "village", type = "off", x = 61, y = 82, r = 12, road = nil, anchor = 16, name = "Birchhollow" },
+        { id = 22, kind = "village", type = "off", x = 76, y = 170, r = 12, road = nil, anchor = 16, name = "Pebblestead" },
+        { id = 60, kind = "village", type = "off", x = 121, y = 87, r = 12, road = nil, anchor = 56, name = "Fernden" },
+        { id = 61, kind = "village", type = "off", x = 183, y = 69, r = 12, road = nil, anchor = 57, name = "Hazelmere" },
+        { id = 62, kind = "village", type = "off", x = 232, y = 144, r = 12, road = nil, anchor = 58, name = "Spraywell" },
+        { id = 63, kind = "village", type = "off", x = 299, y = 128, r = 12, road = nil, anchor = 59, name = "Brinehollow" },
+        { id = 64, kind = "village", type = "off", x = 135, y = 172, r = 12, road = nil, anchor = 56, name = "Froststead" },
+        { id = 65, kind = "village", type = "off", x = 192, y = 163, r = 12, road = nil, anchor = 57, name = "Sleetford" },
+        { id = 69, kind = "village", type = "off", x = 268, y = 184, r = 12, road = nil, anchor = 66, name = "Cliffbrook" },
+        { id = 70, kind = "village", type = "off", x = 282, y = 231, r = 12, road = nil, anchor = 67, name = "Screebottom" },
+        { id = 72, kind = "village", type = "off", x = 350, y = 167, r = 12, road = nil, anchor = 66, name = "Atollmead" },
+        { id = 73, kind = "village", type = "off", x = 366, y = 199, r = 12, road = nil, anchor = 67, name = "Turtlenook" },
+        { id = 75, kind = "village", type = "off", x = 229, y = 180, r = 12, road = nil, anchor = 66, name = "Echonook" },
+        { id = 79, kind = "village", type = "off", x = 362, y = 112, r = 12, road = nil, anchor = 76, name = "Hazelthorpe" },
+        { id = 80, kind = "village", type = "off", x = 418, y = 127, r = 12, road = nil, anchor = 77, name = "Mossknoll" },
+        { id = 82, kind = "village", type = "off", x = 347, y = 32, r = 12, road = nil, anchor = 76, name = "Miregate" },
+        { id = 83, kind = "village", type = "off", x = 410, y = 40, r = 12, road = nil, anchor = 77, name = "Reedby" },
+        { id = 85, kind = "village", type = "off", x = 334, y = 135, r = 12, road = nil, anchor = 76, name = "Flintknoll" },
+        { id = 161, kind = "haven", type = "off", x = 93, y = 68, r = 10, road = nil, anchor = 16, name = "The Sugar Shack" },
+        { id = 163, kind = "wonder", type = "off", x = 43, y = 180, r = 10, road = nil, anchor = 16, name = "Lighthouse of the Lost Lantern" },
+        { id = 184, kind = "haven", type = "off", x = 322, y = 101, r = 10, road = nil, anchor = 58, name = "Thatchtop Tearoom" },
+        { id = 185, kind = "wonder", type = "off", x = 290, y = 40, r = 10, road = nil, anchor = 59, name = "The Standing Stones" },
+        { id = 186, kind = "wonder", type = "off", x = 149, y = 69, r = 10, road = nil, anchor = 56, name = "Fairy-ring Clearing" },
+        { id = 187, kind = "delve", type = "off", x = 213, y = 51, r = 10, road = nil, anchor = 57, name = "Sea-cave Smugglers' Run" },
+        { id = 188, kind = "lair", type = "off", x = 201, y = 130, r = 10, road = nil, anchor = 58, name = "Barrow of the Frost Toad" },
+        { id = 189, kind = "haven", type = "off", x = 265, y = 150, r = 10, road = nil, anchor = 59, name = "Northern Lights Sauna" },
+        { id = 190, kind = "haven", type = "off", x = 252, y = 214, r = 10, road = nil, anchor = 67, name = "Olive Press Piazza" },
+        { id = 191, kind = "wonder", type = "off", x = 384, y = 169, r = 10, road = nil, anchor = 66, name = "Goat Path Vineyards" },
+        { id = 192, kind = "wonder", type = "off", x = 397, y = 214, r = 10, road = nil, anchor = 67, name = "The Labyrinth Isle" },
+        { id = 194, kind = "lair", type = "off", x = 247, y = 245, r = 10, road = nil, anchor = 66, name = "Forge of the Cinder Wyrm" },
+        { id = 196, kind = "haven", type = "off", x = 385, y = 137, r = 10, road = nil, anchor = 77, name = "Painted Egg House" },
+        { id = 198, kind = "wonder", type = "off", x = 442, y = 30, r = 10, road = nil, anchor = 77, name = "Stork Chimney Village" },
+        { id = 199, kind = "delve", type = "off", x = 380, y = 24, r = 10, road = nil, anchor = 76, name = "Salt Mine Galleries" }
       },
       roads = {
         {
           name = "The Maplewold – Mistmoor",
           to = "NA",
           pts = {
-            { 232, 86 },
-            { 176, 102 },
-            { 129, 119 },
-            { 69, 118 },
-            { 16, 119 }
+            { 221, 93 },
+            { 168, 109 },
+            { 129, 127 },
+            { 69, 126 },
+            { 16, 127 }
           }
         },
         {
           name = "Mistmoor – Olivewhistle Shore",
           to = "SE",
           pts = {
-            { 232, 86 },
-            { 270, 109 },
-            { 301, 167 },
-            { 325, 208 },
-            { 313, 254 }
+            { 221, 93 },
+            { 262, 111 },
+            { 306, 169 },
+            { 325, 210 },
+            { 315, 254 }
           }
         },
         {
           name = "Mistmoor – Birchbramble Steppe",
           to = "EE",
           pts = {
-            { 232, 86 },
-            { 292, 73 },
-            { 352, 67 },
-            { 411, 72 },
-            { 464, 78 }
+            { 221, 93 },
+            { 290, 80 },
+            { 350, 73 },
+            { 411, 83 },
+            { 464, 89 }
           }
         }
       },
       trails = {
         {
-          { 129, 119 },
-          { 119, 72 }
+          { 69, 126 },
+          { 61, 82 }
         },
         {
-          { 176, 102 },
-          { 185, 62 }
+          { 69, 126 },
+          { 76, 170 }
         },
         {
-          { 270, 109 },
-          { 227, 151 }
+          { 129, 127 },
+          { 121, 87 }
         },
         {
-          { 292, 73 },
-          { 307, 126 }
+          { 168, 109 },
+          { 183, 69 }
         },
         {
-          { 129, 119 },
-          { 135, 167 }
+          { 262, 111 },
+          { 232, 144 }
         },
         {
-          { 176, 102 },
-          { 192, 157 }
+          { 290, 80 },
+          { 299, 128 }
         },
         {
-          { 270, 109 },
-          { 323, 96 }
+          { 129, 127 },
+          { 135, 172 }
         },
         {
-          { 292, 73 },
-          { 290, 26 }
+          { 168, 109 },
+          { 192, 163 }
         },
         {
-          { 129, 119 },
-          { 151, 59 }
+          { 306, 169 },
+          { 268, 184 }
         },
         {
-          { 176, 102 },
-          { 215, 48 }
+          { 325, 210 },
+          { 282, 231 }
         },
         {
-          { 270, 109 },
-          { 210, 122 }
+          { 306, 169 },
+          { 350, 167 }
         },
         {
-          { 292, 73 },
-          { 261, 146 }
+          { 325, 210 },
+          { 366, 199 }
+        },
+        {
+          { 306, 169 },
+          { 229, 180 }
+        },
+        {
+          { 350, 73 },
+          { 362, 112 }
+        },
+        {
+          { 411, 83 },
+          { 418, 127 }
+        },
+        {
+          { 350, 73 },
+          { 347, 32 }
+        },
+        {
+          { 411, 83 },
+          { 410, 40 }
+        },
+        {
+          { 350, 73 },
+          { 334, 135 }
+        },
+        {
+          { 69, 126 },
+          { 93, 68 }
+        },
+        {
+          { 69, 126 },
+          { 43, 180 }
+        },
+        {
+          { 262, 111 },
+          { 322, 101 }
+        },
+        {
+          { 290, 80 },
+          { 290, 40 }
+        },
+        {
+          { 129, 127 },
+          { 149, 69 }
+        },
+        {
+          { 168, 109 },
+          { 213, 51 }
+        },
+        {
+          { 262, 111 },
+          { 201, 130 }
+        },
+        {
+          { 290, 80 },
+          { 265, 150 }
+        },
+        {
+          { 325, 210 },
+          { 252, 214 }
+        },
+        {
+          { 306, 169 },
+          { 384, 169 }
+        },
+        {
+          { 325, 210 },
+          { 397, 214 }
+        },
+        {
+          { 306, 169 },
+          { 247, 245 }
+        },
+        {
+          { 411, 83 },
+          { 385, 137 }
+        },
+        {
+          { 411, 83 },
+          { 442, 30 }
+        },
+        {
+          { 350, 73 },
+          { 380, 24 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 16,
+          to = 19,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 54, 104 }
+        },
+        {
+          from = 16,
+          to = 22,
+          bow = "L",
+          heading = "S",
+          ctrl = { 61, 148 }
+        },
+        {
+          from = 56,
+          to = 60,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 115, 107 }
+        },
+        {
+          from = 57,
+          to = 61,
+          bow = "R",
+          heading = "N",
+          ctrl = { 166, 93 }
+        },
+        {
+          from = 58,
+          to = 62,
+          bow = "R",
+          heading = "S",
+          ctrl = { 254, 136 }
+        },
+        {
+          from = 59,
+          to = 63,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 307, 103 }
+        },
+        {
+          from = 56,
+          to = 64,
+          bow = "L",
+          heading = "S",
+          ctrl = { 121, 149 }
+        },
+        {
+          from = 57,
+          to = 65,
+          bow = "L",
+          heading = "S",
+          ctrl = { 167, 142 }
+        },
+        {
+          from = 66,
+          to = 69,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 291, 186 }
+        },
+        {
+          from = 67,
+          to = 70,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 301, 232 }
+        },
+        {
+          from = 66,
+          to = 72,
+          bow = "L",
+          heading = "E",
+          ctrl = { 333, 178 }
+        },
+        {
+          from = 67,
+          to = 73,
+          bow = "L",
+          heading = "E",
+          ctrl = { 343, 215 }
+        },
+        {
+          from = 66,
+          to = 75,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 276, 192 }
+        },
+        {
+          from = 76,
+          to = 79,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 366, 94 }
+        },
+        {
+          from = 77,
+          to = 80,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 426, 106 }
+        },
+        {
+          from = 76,
+          to = 82,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 359, 54 }
+        },
+        {
+          from = 77,
+          to = 83,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 421, 63 }
+        },
+        {
+          from = 76,
+          to = 85,
+          bow = "R",
+          heading = "S",
+          ctrl = { 358, 107 }
+        },
+        {
+          from = 16,
+          to = 161,
+          bow = "R",
+          heading = "N",
+          ctrl = { 65, 97 }
+        },
+        {
+          from = 16,
+          to = 163,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 41, 153 }
+        },
+        {
+          from = 58,
+          to = 184,
+          bow = "L",
+          heading = "E",
+          ctrl = { 301, 118 }
+        },
+        {
+          from = 59,
+          to = 185,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 300, 59 }
+        },
+        {
+          from = 56,
+          to = 186,
+          bow = "R",
+          heading = "N",
+          ctrl = { 124, 98 }
+        },
+        {
+          from = 57,
+          to = 187,
+          bow = "R",
+          heading = "N",
+          ctrl = { 174, 88 }
+        },
+        {
+          from = 58,
+          to = 188,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 241, 133 }
+        },
+        {
+          from = 59,
+          to = 189,
+          bow = "R",
+          heading = "S",
+          ctrl = { 296, 113 }
+        },
+        {
+          from = 67,
+          to = 190,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 284, 230 }
+        },
+        {
+          from = 66,
+          to = 191,
+          bow = "L",
+          heading = "E",
+          ctrl = { 353, 187 }
+        },
+        {
+          from = 67,
+          to = 192,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 357, 230 }
+        },
+        {
+          from = 66,
+          to = 194,
+          bow = "R",
+          heading = "S",
+          ctrl = { 287, 229 }
+        },
+        {
+          from = 77,
+          to = 196,
+          bow = "R",
+          heading = "S",
+          ctrl = { 413, 112 }
+        },
+        {
+          from = 77,
+          to = 198,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 442, 58 }
+        },
+        {
+          from = 76,
+          to = 199,
+          bow = "L",
+          heading = "NE",
+          ctrl = { 379, 51 }
         }
       },
       exits = {
-        { road = 0, to = "NA", name = "The Maplewold", x = 16, y = 119, side = "W" },
-        { road = 1, to = "SE", name = "Olivewhistle Shore", x = 313, y = 254, side = "S" },
-        { road = 2, to = "EE", name = "Birchbramble Steppe", x = 464, y = 78, side = "E" }
+        { road = 0, to = "NA", name = "The Maplewold", x = 16, y = 127, side = "W" },
+        { road = 1, to = "SE", name = "Olivewhistle Shore", x = 315, y = 254, side = "S" },
+        { road = 2, to = "EE", name = "Birchbramble Steppe", x = 464, y = 89, side = "E" }
       },
-      pin = { x = 232, y = 86, r = 22 },
+      pin = { x = 221, y = 93, r = 22 },
       clear = {
-        { 232, 86, 22 },
-        { 176, 102, 19 },
-        { 129, 119, 19 },
-        { 69, 118, 19 },
-        { 16, 119, 18 },
-        { 270, 109, 19 },
-        { 301, 167, 19 },
-        { 325, 208, 19 },
-        { 313, 254, 18 },
-        { 292, 73, 19 },
-        { 352, 67, 19 },
-        { 411, 72, 19 },
-        { 464, 78, 18 },
-        { 119, 72, 18 },
-        { 185, 62, 18 },
-        { 227, 151, 18 },
-        { 307, 126, 18 },
-        { 135, 167, 18 },
-        { 192, 157, 18 },
-        { 323, 96, 16 },
-        { 290, 26, 16 },
-        { 151, 59, 16 },
-        { 215, 48, 16 },
-        { 210, 122, 16 },
-        { 261, 146, 16 }
+        { 221, 93, 22 },
+        { 168, 109, 19 },
+        { 129, 127, 19 },
+        { 69, 126, 19 },
+        { 16, 127, 18 },
+        { 262, 111, 19 },
+        { 306, 169, 19 },
+        { 325, 210, 19 },
+        { 315, 254, 18 },
+        { 290, 80, 19 },
+        { 350, 73, 19 },
+        { 411, 83, 19 },
+        { 464, 89, 18 },
+        { 61, 82, 18 },
+        { 76, 170, 18 },
+        { 121, 87, 18 },
+        { 183, 69, 18 },
+        { 232, 144, 18 },
+        { 299, 128, 18 },
+        { 135, 172, 18 },
+        { 192, 163, 18 },
+        { 268, 184, 18 },
+        { 282, 231, 18 },
+        { 350, 167, 18 },
+        { 366, 199, 18 },
+        { 229, 180, 18 },
+        { 362, 112, 18 },
+        { 418, 127, 18 },
+        { 347, 32, 18 },
+        { 410, 40, 18 },
+        { 334, 135, 18 },
+        { 93, 68, 16 },
+        { 43, 180, 16 },
+        { 322, 101, 16 },
+        { 290, 40, 16 },
+        { 149, 69, 16 },
+        { 213, 51, 16 },
+        { 201, 130, 16 },
+        { 265, 150, 16 },
+        { 252, 214, 16 },
+        { 384, 169, 16 },
+        { 397, 214, 16 },
+        { 247, 245, 16 },
+        { 385, 137, 16 },
+        { 442, 30, 16 },
+        { 380, 24, 16 }
       }
     },
     SE = {
       code = "SE",
       w = 480,
       h = 270,
-      town = { id = 6, x = 218, y = 150, r = 16, name = "Olivewhistle Shore Market" },
+      town = { id = 6, x = 214, y = 148, r = 16, name = "Olivewhistle Shore Market" },
       stops = {
-        { id = 67, kind = "village", type = "stop", x = 170, y = 124, r = 13, road = 0, anchor = nil, name = "Driftmead" },
-        { id = 66, kind = "village", type = "stop", x = 126, y = 92, r = 13, road = 0, anchor = nil, name = "Brinewick" },
-        { id = 58, kind = "village", type = "stop", x = 91, y = 55, r = 13, road = 0, anchor = nil, name = "Larkden" },
+        { id = 67, kind = "village", type = "stop", x = 168, y = 124, r = 13, road = 0, anchor = nil, name = "Driftmead" },
+        { id = 66, kind = "village", type = "stop", x = 126, y = 91, r = 13, road = 0, anchor = nil, name = "Brinewick" },
+        { id = 58, kind = "village", type = "stop", x = 92, y = 55, r = 13, road = 0, anchor = nil, name = "Larkden" },
         { id = 5, kind = "exit", type = "far", x = 108, y = 16, r = 12, road = 0, anchor = nil, name = "Mistmoor" },
-        { id = 68, kind = "village", type = "stop", x = 286, y = 165, r = 13, road = 1, anchor = nil, name = "Sprayglen" },
-        { id = 86, kind = "village", type = "stop", x = 353, y = 188, r = 13, road = 1, anchor = nil, name = "Gullwell" },
-        { id = 87, kind = "village", type = "stop", x = 415, y = 216, r = 13, road = 1, anchor = nil, name = "Gullstead" },
-        { id = 8, kind = "exit", type = "far", x = 400, y = 254, r = 12, road = 1, anchor = nil, name = "The Dunewhisper" },
-        { id = 69, kind = "village", type = "off", x = 190, y = 73, r = 12, road = nil, anchor = 66, name = "Cliffbrook" },
-        { id = 70, kind = "village", type = "off", x = 244, y = 115, r = 12, road = nil, anchor = 67, name = "Screebottom" },
-        { id = 71, kind = "village", type = "off", x = 234, y = 194, r = 12, road = nil, anchor = 68, name = "Screemere" },
-        { id = 72, kind = "village", type = "off", x = 54, y = 103, r = 12, road = nil, anchor = 66, name = "Atollmead" },
-        { id = 73, kind = "village", type = "off", x = 105, y = 144, r = 12, road = nil, anchor = 67, name = "Turtlenook" },
-        { id = 74, kind = "village", type = "off", x = 337, y = 136, r = 12, road = nil, anchor = 68, name = "Cragholt" },
-        { id = 75, kind = "village", type = "off", x = 223, y = 85, r = 12, road = nil, anchor = 66, name = "Echonook" },
-        { id = 190, kind = "haven", type = "off", x = 275, y = 127, r = 10, road = nil, anchor = 67, name = "Olive Press Piazza" },
-        { id = 191, kind = "wonder", type = "off", x = 23, y = 89, r = 10, road = nil, anchor = 66, name = "Goat Path Vineyards" },
-        { id = 192, kind = "wonder", type = "off", x = 74, y = 130, r = 10, road = nil, anchor = 67, name = "The Labyrinth Isle" },
-        { id = 193, kind = "delve", type = "off", x = 380, y = 149, r = 10, road = nil, anchor = 68, name = "Pirate-gull Grottoes" },
-        { id = 194, kind = "lair", type = "off", x = 196, y = 39, r = 10, road = nil, anchor = 66, name = "Forge of the Cinder Wyrm" },
-        { id = 195, kind = "haven", type = "off", x = 191, y = 182, r = 10, road = nil, anchor = 68, name = "Lemon Grove Monastery" }
+        { id = 68, kind = "village", type = "stop", x = 280, y = 164, r = 13, road = 1, anchor = nil, name = "Sprayglen" },
+        { id = 86, kind = "village", type = "stop", x = 345, y = 186, r = 13, road = 1, anchor = nil, name = "Gullwell" },
+        { id = 87, kind = "village", type = "stop", x = 404, y = 214, r = 13, road = 1, anchor = nil, name = "Gullstead" },
+        { id = 8, kind = "exit", type = "far", x = 395, y = 254, r = 12, road = 1, anchor = nil, name = "The Dunewhisper" },
+        { id = 62, kind = "village", type = "off", x = 155, y = 35, r = 12, road = nil, anchor = 58, name = "Spraywell" },
+        { id = 69, kind = "village", type = "off", x = 187, y = 88, r = 12, road = nil, anchor = 66, name = "Cliffbrook" },
+        { id = 70, kind = "village", type = "off", x = 240, y = 113, r = 12, road = nil, anchor = 67, name = "Screebottom" },
+        { id = 71, kind = "village", type = "off", x = 226, y = 191, r = 12, road = nil, anchor = 68, name = "Screemere" },
+        { id = 72, kind = "village", type = "off", x = 58, y = 100, r = 12, road = nil, anchor = 66, name = "Atollmead" },
+        { id = 73, kind = "village", type = "off", x = 107, y = 143, r = 12, road = nil, anchor = 67, name = "Turtlenook" },
+        { id = 74, kind = "village", type = "off", x = 330, y = 135, r = 12, road = nil, anchor = 68, name = "Cragholt" },
+        { id = 75, kind = "village", type = "off", x = 223, y = 81, r = 12, road = nil, anchor = 66, name = "Echonook" },
+        { id = 90, kind = "village", type = "off", x = 291, y = 211, r = 12, road = nil, anchor = 86, name = "Windford" },
+        { id = 91, kind = "village", type = "off", x = 354, y = 244, r = 12, road = nil, anchor = 87, name = "Prairieden" },
+        { id = 94, kind = "village", type = "off", x = 399, y = 159, r = 12, road = nil, anchor = 86, name = "Ambercrest" },
+        { id = 95, kind = "village", type = "off", x = 457, y = 191, r = 12, road = nil, anchor = 87, name = "Amberholt" },
+        { id = 184, kind = "haven", type = "off", x = 25, y = 64, r = 10, road = nil, anchor = 58, name = "Thatchtop Tearoom" },
+        { id = 188, kind = "lair", type = "off", x = 183, y = 55, r = 10, road = nil, anchor = 58, name = "Barrow of the Frost Toad" },
+        { id = 190, kind = "haven", type = "off", x = 271, y = 126, r = 10, road = nil, anchor = 67, name = "Olive Press Piazza" },
+        { id = 191, kind = "wonder", type = "off", x = 24, y = 96, r = 10, road = nil, anchor = 66, name = "Goat Path Vineyards" },
+        { id = 192, kind = "wonder", type = "off", x = 75, y = 130, r = 10, road = nil, anchor = 67, name = "The Labyrinth Isle" },
+        { id = 193, kind = "delve", type = "off", x = 368, y = 145, r = 10, road = nil, anchor = 68, name = "Pirate-gull Grottoes" },
+        { id = 194, kind = "lair", type = "off", x = 199, y = 27, r = 10, road = nil, anchor = 66, name = "Forge of the Cinder Wyrm" },
+        { id = 195, kind = "haven", type = "off", x = 187, y = 181, r = 10, road = nil, anchor = 68, name = "Lemon Grove Monastery" },
+        { id = 202, kind = "wonder", type = "off", x = 257, y = 204, r = 10, road = nil, anchor = 86, name = "The Hanging Garden Ruins" },
+        { id = 203, kind = "wonder", type = "off", x = 315, y = 235, r = 10, road = nil, anchor = 87, name = "Cedar Sanctuary" },
+        { id = 206, kind = "lair", type = "off", x = 433, y = 167, r = 10, road = nil, anchor = 86, name = "Tomb of the Sand Scarab" }
       },
       roads = {
         {
           name = "Mistmoor – Olivewhistle Shore",
           to = "NWE",
           pts = {
-            { 218, 150 },
-            { 170, 124 },
-            { 126, 92 },
-            { 91, 55 },
+            { 214, 148 },
+            { 168, 124 },
+            { 126, 91 },
+            { 92, 55 },
             { 108, 16 }
           }
         },
@@ -783,134 +2240,354 @@ return {
           name = "Olivewhistle Shore – The Dunewhisper",
           to = "MENA",
           pts = {
-            { 218, 150 },
-            { 286, 165 },
-            { 353, 188 },
-            { 415, 216 },
-            { 400, 254 }
+            { 214, 148 },
+            { 280, 164 },
+            { 345, 186 },
+            { 404, 214 },
+            { 395, 254 }
           }
         }
       },
       trails = {
         {
-          { 126, 92 },
-          { 190, 73 }
+          { 92, 55 },
+          { 155, 35 }
         },
         {
-          { 170, 124 },
-          { 244, 115 }
+          { 126, 91 },
+          { 187, 88 }
         },
         {
-          { 286, 165 },
-          { 234, 194 }
+          { 168, 124 },
+          { 240, 113 }
         },
         {
-          { 126, 92 },
-          { 54, 103 }
+          { 280, 164 },
+          { 226, 191 }
         },
         {
-          { 170, 124 },
-          { 105, 144 }
+          { 126, 91 },
+          { 58, 100 }
         },
         {
-          { 286, 165 },
-          { 337, 136 }
+          { 168, 124 },
+          { 107, 143 }
         },
         {
-          { 126, 92 },
-          { 223, 85 }
+          { 280, 164 },
+          { 330, 135 }
         },
         {
-          { 170, 124 },
-          { 275, 127 }
+          { 126, 91 },
+          { 223, 81 }
         },
         {
-          { 126, 92 },
-          { 23, 89 }
+          { 345, 186 },
+          { 291, 211 }
         },
         {
-          { 170, 124 },
-          { 74, 130 }
+          { 404, 214 },
+          { 354, 244 }
         },
         {
-          { 286, 165 },
-          { 380, 149 }
+          { 345, 186 },
+          { 399, 159 }
         },
         {
-          { 126, 92 },
-          { 196, 39 }
+          { 404, 214 },
+          { 457, 191 }
         },
         {
-          { 286, 165 },
-          { 191, 182 }
+          { 92, 55 },
+          { 25, 64 }
+        },
+        {
+          { 92, 55 },
+          { 183, 55 }
+        },
+        {
+          { 168, 124 },
+          { 271, 126 }
+        },
+        {
+          { 126, 91 },
+          { 24, 96 }
+        },
+        {
+          { 168, 124 },
+          { 75, 130 }
+        },
+        {
+          { 280, 164 },
+          { 368, 145 }
+        },
+        {
+          { 126, 91 },
+          { 199, 27 }
+        },
+        {
+          { 280, 164 },
+          { 187, 181 }
+        },
+        {
+          { 345, 186 },
+          { 257, 204 }
+        },
+        {
+          { 404, 214 },
+          { 315, 235 }
+        },
+        {
+          { 345, 186 },
+          { 433, 167 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 58,
+          to = 62,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 130, 30 }
+        },
+        {
+          from = 66,
+          to = 69,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 146, 78 }
+        },
+        {
+          from = 67,
+          to = 70,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 190, 107 }
+        },
+        {
+          from = 68,
+          to = 71,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 267, 182 }
+        },
+        {
+          from = 66,
+          to = 72,
+          bow = "L",
+          heading = "W",
+          ctrl = { 80, 83 }
+        },
+        {
+          from = 67,
+          to = 73,
+          bow = "L",
+          heading = "W",
+          ctrl = { 125, 124 }
+        },
+        {
+          from = 68,
+          to = 74,
+          bow = "L",
+          heading = "E",
+          ctrl = { 319, 154 }
+        },
+        {
+          from = 66,
+          to = 75,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 158, 68 }
+        },
+        {
+          from = 86,
+          to = 90,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 331, 205 }
+        },
+        {
+          from = 87,
+          to = 91,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 376, 243 }
+        },
+        {
+          from = 86,
+          to = 94,
+          bow = "L",
+          heading = "E",
+          ctrl = { 386, 179 }
+        },
+        {
+          from = 87,
+          to = 95,
+          bow = "L",
+          heading = "E",
+          ctrl = { 427, 217 }
+        },
+        {
+          from = 58,
+          to = 184,
+          bow = "L",
+          heading = "W",
+          ctrl = { 65, 44 }
+        },
+        {
+          from = 58,
+          to = 188,
+          bow = "R",
+          heading = "E",
+          ctrl = { 146, 34 }
+        },
+        {
+          from = 67,
+          to = 190,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 199, 109 }
+        },
+        {
+          from = 66,
+          to = 191,
+          bow = "L",
+          heading = "W",
+          ctrl = { 57, 75 }
+        },
+        {
+          from = 67,
+          to = 192,
+          bow = "L",
+          heading = "W",
+          ctrl = { 103, 113 }
+        },
+        {
+          from = 68,
+          to = 193,
+          bow = "L",
+          heading = "E",
+          ctrl = { 345, 162 }
+        },
+        {
+          from = 66,
+          to = 194,
+          bow = "R",
+          heading = "N",
+          ctrl = { 146, 41 }
+        },
+        {
+          from = 68,
+          to = 195,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 256, 180 }
+        },
+        {
+          from = 86,
+          to = 202,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 321, 205 }
+        },
+        {
+          from = 87,
+          to = 203,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 354, 247 }
+        },
+        {
+          from = 86,
+          to = 206,
+          bow = "L",
+          heading = "E",
+          ctrl = { 409, 186 }
         }
       },
       exits = {
         { road = 0, to = "NWE", name = "Mistmoor", x = 108, y = 16, side = "N" },
-        { road = 1, to = "MENA", name = "The Dunewhisper", x = 400, y = 254, side = "S" }
+        { road = 1, to = "MENA", name = "The Dunewhisper", x = 395, y = 254, side = "S" }
       },
-      pin = { x = 218, y = 150, r = 22 },
+      pin = { x = 214, y = 148, r = 22 },
       clear = {
-        { 218, 150, 22 },
-        { 170, 124, 19 },
-        { 126, 92, 19 },
-        { 91, 55, 19 },
+        { 214, 148, 22 },
+        { 168, 124, 19 },
+        { 126, 91, 19 },
+        { 92, 55, 19 },
         { 108, 16, 18 },
-        { 286, 165, 19 },
-        { 353, 188, 19 },
-        { 415, 216, 19 },
-        { 400, 254, 18 },
-        { 190, 73, 18 },
-        { 244, 115, 18 },
-        { 234, 194, 18 },
-        { 54, 103, 18 },
-        { 105, 144, 18 },
-        { 337, 136, 18 },
-        { 223, 85, 18 },
-        { 275, 127, 16 },
-        { 23, 89, 16 },
-        { 74, 130, 16 },
-        { 380, 149, 16 },
-        { 196, 39, 16 },
-        { 191, 182, 16 }
+        { 280, 164, 19 },
+        { 345, 186, 19 },
+        { 404, 214, 19 },
+        { 395, 254, 18 },
+        { 155, 35, 18 },
+        { 187, 88, 18 },
+        { 240, 113, 18 },
+        { 226, 191, 18 },
+        { 58, 100, 18 },
+        { 107, 143, 18 },
+        { 330, 135, 18 },
+        { 223, 81, 18 },
+        { 291, 211, 18 },
+        { 354, 244, 18 },
+        { 399, 159, 18 },
+        { 457, 191, 18 },
+        { 25, 64, 16 },
+        { 183, 55, 16 },
+        { 271, 126, 16 },
+        { 24, 96, 16 },
+        { 75, 130, 16 },
+        { 368, 145, 16 },
+        { 199, 27, 16 },
+        { 187, 181, 16 },
+        { 257, 204, 16 },
+        { 315, 235, 16 },
+        { 433, 167, 16 }
       }
     },
     EE = {
       code = "EE",
       w = 480,
       h = 270,
-      town = { id = 7, x = 295, y = 75, r = 16, name = "Birchbramble Steppe Market" },
+      town = { id = 7, x = 278, y = 75, r = 16, name = "Birchbramble Steppe Market" },
       stops = {
-        { id = 77, kind = "village", type = "stop", x = 228, y = 94, r = 13, road = 0, anchor = nil, name = "Haynook" },
-        { id = 76, kind = "village", type = "stop", x = 154, y = 102, r = 13, road = 0, anchor = nil, name = "Thistleburrow" },
-        { id = 59, kind = "village", type = "stop", x = 80, y = 97, r = 13, road = 0, anchor = nil, name = "Hollowknoll" },
+        { id = 77, kind = "village", type = "stop", x = 215, y = 94, r = 13, road = 0, anchor = nil, name = "Haynook" },
+        { id = 76, kind = "village", type = "stop", x = 146, y = 102, r = 13, road = 0, anchor = nil, name = "Thistleburrow" },
+        { id = 59, kind = "village", type = "stop", x = 77, y = 97, r = 13, road = 0, anchor = nil, name = "Hollowknoll" },
         { id = 5, kind = "exit", type = "far", x = 16, y = 89, r = 12, road = 0, anchor = nil, name = "Mistmoor" },
-        { id = 78, kind = "village", type = "stop", x = 343, y = 107, r = 13, road = 1, anchor = nil, name = "Tussockgate" },
-        { id = 118, kind = "village", type = "stop", x = 390, y = 150, r = 13, road = 1, anchor = nil, name = "Newtdell" },
-        { id = 119, kind = "village", type = "stop", x = 429, y = 202, r = 13, road = 1, anchor = nil, name = "Rushdell" },
-        { id = 11, kind = "exit", type = "far", x = 412, y = 254, r = 12, road = 1, anchor = nil, name = "Spicepeak" },
-        { id = 79, kind = "village", type = "off", x = 151, y = 44, r = 12, road = nil, anchor = 76, name = "Hazelthorpe" },
-        { id = 80, kind = "village", type = "off", x = 226, y = 36, r = 12, road = nil, anchor = 77, name = "Mossknoll" },
-        { id = 81, kind = "village", type = "off", x = 291, y = 142, r = 12, road = nil, anchor = 78, name = "Fernford" },
-        { id = 82, kind = "village", type = "off", x = 157, y = 161, r = 12, road = nil, anchor = 76, name = "Miregate" },
-        { id = 83, kind = "village", type = "off", x = 231, y = 153, r = 12, road = nil, anchor = 77, name = "Reedby" },
-        { id = 84, kind = "village", type = "off", x = 396, y = 73, r = 12, road = nil, anchor = 78, name = "Echohollow" },
-        { id = 85, kind = "village", type = "off", x = 190, y = 34, r = 12, road = nil, anchor = 76, name = "Flintknoll" },
-        { id = 196, kind = "haven", type = "off", x = 265, y = 26, r = 10, road = nil, anchor = 77, name = "Painted Egg House" },
-        { id = 197, kind = "wonder", type = "off", x = 259, y = 117, r = 10, road = nil, anchor = 78, name = "The Amber Woods" },
-        { id = 198, kind = "wonder", type = "off", x = 191, y = 162, r = 10, road = nil, anchor = 77, name = "Stork Chimney Village" },
-        { id = 199, kind = "delve", type = "off", x = 117, y = 171, r = 10, road = nil, anchor = 76, name = "Salt Mine Galleries" },
-        { id = 200, kind = "lair", type = "off", x = 427, y = 97, r = 10, road = nil, anchor = 78, name = "Lair of the Grey Wolf King" }
+        { id = 78, kind = "village", type = "stop", x = 324, y = 107, r = 13, road = 1, anchor = nil, name = "Tussockgate" },
+        { id = 118, kind = "village", type = "stop", x = 367, y = 150, r = 13, road = 1, anchor = nil, name = "Newtdell" },
+        { id = 119, kind = "village", type = "stop", x = 405, y = 202, r = 13, road = 1, anchor = nil, name = "Rushdell" },
+        { id = 11, kind = "exit", type = "far", x = 389, y = 254, r = 12, road = 1, anchor = nil, name = "Spicepeak" },
+        { id = 63, kind = "village", type = "off", x = 74, y = 39, r = 12, road = nil, anchor = 59, name = "Brinehollow" },
+        { id = 79, kind = "village", type = "off", x = 144, y = 44, r = 12, road = nil, anchor = 76, name = "Hazelthorpe" },
+        { id = 80, kind = "village", type = "off", x = 215, y = 36, r = 12, road = nil, anchor = 77, name = "Mossknoll" },
+        { id = 81, kind = "village", type = "off", x = 274, y = 142, r = 12, road = nil, anchor = 78, name = "Fernford" },
+        { id = 82, kind = "village", type = "off", x = 148, y = 161, r = 12, road = nil, anchor = 76, name = "Miregate" },
+        { id = 83, kind = "village", type = "off", x = 219, y = 153, r = 12, road = nil, anchor = 77, name = "Reedby" },
+        { id = 84, kind = "village", type = "off", x = 373, y = 73, r = 12, road = nil, anchor = 78, name = "Echohollow" },
+        { id = 85, kind = "village", type = "off", x = 179, y = 34, r = 12, road = nil, anchor = 76, name = "Flintknoll" },
+        { id = 125, kind = "village", type = "off", x = 318, y = 185, r = 12, road = nil, anchor = 118, name = "Hollowby" },
+        { id = 126, kind = "village", type = "off", x = 354, y = 236, r = 12, road = nil, anchor = 119, name = "Cliffmead" },
+        { id = 185, kind = "wonder", type = "off", x = 80, y = 155, r = 10, road = nil, anchor = 59, name = "The Standing Stones" },
+        { id = 189, kind = "haven", type = "off", x = 112, y = 29, r = 10, road = nil, anchor = 59, name = "Northern Lights Sauna" },
+        { id = 196, kind = "haven", type = "off", x = 251, y = 26, r = 10, road = nil, anchor = 77, name = "Painted Egg House" },
+        { id = 197, kind = "wonder", type = "off", x = 246, y = 118, r = 10, road = nil, anchor = 78, name = "The Amber Woods" },
+        { id = 198, kind = "wonder", type = "off", x = 182, y = 162, r = 10, road = nil, anchor = 77, name = "Stork Chimney Village" },
+        { id = 199, kind = "delve", type = "off", x = 112, y = 171, r = 10, road = nil, anchor = 76, name = "Salt Mine Galleries" },
+        { id = 200, kind = "lair", type = "off", x = 400, y = 94, r = 10, road = nil, anchor = 78, name = "Lair of the Grey Wolf King" },
+        { id = 221, kind = "wonder", type = "off", x = 454, y = 167, r = 10, road = nil, anchor = 119, name = "Prayer-flag Pass" },
+        { id = 223, kind = "lair", type = "off", x = 419, y = 119, r = 10, road = nil, anchor = 118, name = "Temple of the Tiger Moth" }
       },
       roads = {
         {
           name = "Mistmoor – Birchbramble Steppe",
           to = "NWE",
           pts = {
-            { 295, 75 },
-            { 228, 94 },
-            { 154, 102 },
-            { 80, 97 },
+            { 278, 75 },
+            { 215, 94 },
+            { 146, 102 },
+            { 77, 97 },
             { 16, 89 }
           }
         },
@@ -918,286 +2595,766 @@ return {
           name = "Birchbramble Steppe – Spicepeak",
           to = "CSA",
           pts = {
-            { 295, 75 },
-            { 343, 107 },
-            { 390, 150 },
-            { 429, 202 },
-            { 412, 254 }
+            { 278, 75 },
+            { 324, 107 },
+            { 367, 150 },
+            { 405, 202 },
+            { 389, 254 }
           }
         }
       },
       trails = {
         {
-          { 154, 102 },
-          { 151, 44 }
+          { 77, 97 },
+          { 74, 39 }
         },
         {
-          { 228, 94 },
-          { 226, 36 }
+          { 146, 102 },
+          { 144, 44 }
         },
         {
-          { 343, 107 },
-          { 291, 142 }
+          { 215, 94 },
+          { 215, 36 }
         },
         {
-          { 154, 102 },
-          { 157, 161 }
+          { 324, 107 },
+          { 274, 142 }
         },
         {
-          { 228, 94 },
-          { 231, 153 }
+          { 146, 102 },
+          { 148, 161 }
         },
         {
-          { 343, 107 },
-          { 396, 73 }
+          { 215, 94 },
+          { 219, 153 }
         },
         {
-          { 154, 102 },
-          { 190, 34 }
+          { 324, 107 },
+          { 373, 73 }
         },
         {
-          { 228, 94 },
-          { 265, 26 }
+          { 146, 102 },
+          { 179, 34 }
         },
         {
-          { 343, 107 },
-          { 259, 117 }
+          { 367, 150 },
+          { 318, 185 }
         },
         {
-          { 228, 94 },
-          { 191, 162 }
+          { 405, 202 },
+          { 354, 236 }
         },
         {
-          { 154, 102 },
-          { 117, 171 }
+          { 77, 97 },
+          { 80, 155 }
         },
         {
-          { 343, 107 },
-          { 427, 97 }
+          { 77, 97 },
+          { 112, 29 }
+        },
+        {
+          { 215, 94 },
+          { 251, 26 }
+        },
+        {
+          { 324, 107 },
+          { 246, 118 }
+        },
+        {
+          { 215, 94 },
+          { 182, 162 }
+        },
+        {
+          { 146, 102 },
+          { 112, 171 }
+        },
+        {
+          { 324, 107 },
+          { 400, 94 }
+        },
+        {
+          { 405, 202 },
+          { 454, 167 }
+        },
+        {
+          { 367, 150 },
+          { 419, 119 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 59,
+          to = 63,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 61, 66 }
+        },
+        {
+          from = 76,
+          to = 79,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 131, 72 }
+        },
+        {
+          from = 77,
+          to = 80,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 201, 67 }
+        },
+        {
+          from = 78,
+          to = 81,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 310, 135 }
+        },
+        {
+          from = 76,
+          to = 82,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 132, 130 }
+        },
+        {
+          from = 77,
+          to = 83,
+          bow = "L",
+          heading = "S",
+          ctrl = { 202, 125 }
+        },
+        {
+          from = 78,
+          to = 84,
+          bow = "L",
+          heading = "E",
+          ctrl = { 359, 101 }
+        },
+        {
+          from = 76,
+          to = 85,
+          bow = "R",
+          heading = "N",
+          ctrl = { 144, 67 }
+        },
+        {
+          from = 118,
+          to = 125,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 351, 180 }
+        },
+        {
+          from = 119,
+          to = 126,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 375, 234 }
+        },
+        {
+          from = 59,
+          to = 185,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 64, 124 }
+        },
+        {
+          from = 59,
+          to = 189,
+          bow = "R",
+          heading = "N",
+          ctrl = { 76, 61 }
+        },
+        {
+          from = 77,
+          to = 196,
+          bow = "R",
+          heading = "N",
+          ctrl = { 214, 62 }
+        },
+        {
+          from = 78,
+          to = 197,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 299, 126 }
+        },
+        {
+          from = 77,
+          to = 198,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 180, 130 }
+        },
+        {
+          from = 76,
+          to = 199,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 110, 135 }
+        },
+        {
+          from = 78,
+          to = 200,
+          bow = "L",
+          heading = "E",
+          ctrl = { 376, 114 }
+        },
+        {
+          from = 119,
+          to = 221,
+          bow = "L",
+          heading = "E",
+          ctrl = { 425, 199 }
+        },
+        {
+          from = 118,
+          to = 223,
+          bow = "L",
+          heading = "E",
+          ctrl = { 402, 147 }
         }
       },
       exits = {
         { road = 0, to = "NWE", name = "Mistmoor", x = 16, y = 89, side = "W" },
-        { road = 1, to = "CSA", name = "Spicepeak", x = 412, y = 254, side = "S" }
+        { road = 1, to = "CSA", name = "Spicepeak", x = 389, y = 254, side = "S" }
       },
-      pin = { x = 295, y = 75, r = 22 },
+      pin = { x = 278, y = 75, r = 22 },
       clear = {
-        { 295, 75, 22 },
-        { 228, 94, 19 },
-        { 154, 102, 19 },
-        { 80, 97, 19 },
+        { 278, 75, 22 },
+        { 215, 94, 19 },
+        { 146, 102, 19 },
+        { 77, 97, 19 },
         { 16, 89, 18 },
-        { 343, 107, 19 },
-        { 390, 150, 19 },
-        { 429, 202, 19 },
-        { 412, 254, 18 },
-        { 151, 44, 18 },
-        { 226, 36, 18 },
-        { 291, 142, 18 },
-        { 157, 161, 18 },
-        { 231, 153, 18 },
-        { 396, 73, 18 },
-        { 190, 34, 18 },
-        { 265, 26, 16 },
-        { 259, 117, 16 },
-        { 191, 162, 16 },
-        { 117, 171, 16 },
-        { 427, 97, 16 }
+        { 324, 107, 19 },
+        { 367, 150, 19 },
+        { 405, 202, 19 },
+        { 389, 254, 18 },
+        { 74, 39, 18 },
+        { 144, 44, 18 },
+        { 215, 36, 18 },
+        { 274, 142, 18 },
+        { 148, 161, 18 },
+        { 219, 153, 18 },
+        { 373, 73, 18 },
+        { 179, 34, 18 },
+        { 318, 185, 18 },
+        { 354, 236, 18 },
+        { 80, 155, 16 },
+        { 112, 29, 16 },
+        { 251, 26, 16 },
+        { 246, 118, 16 },
+        { 182, 162, 16 },
+        { 112, 171, 16 },
+        { 400, 94, 16 },
+        { 454, 167, 16 },
+        { 419, 119, 16 }
       }
     },
     MENA = {
       code = "MENA",
       w = 480,
       h = 270,
-      town = { id = 8, x = 210, y = 133, r = 16, name = "The Dunewhisper Market" },
+      town = { id = 8, x = 232, y = 120, r = 16, name = "The Dunewhisper Market" },
       stops = {
-        { id = 87, kind = "village", type = "stop", x = 171, y = 112, r = 13, road = 0, anchor = nil, name = "Gullstead" },
-        { id = 86, kind = "village", type = "stop", x = 104, y = 88, r = 13, road = 0, anchor = nil, name = "Gullwell" },
-        { id = 68, kind = "village", type = "stop", x = 57, y = 55, r = 13, road = 0, anchor = nil, name = "Sprayglen" },
-        { id = 6, kind = "exit", type = "far", x = 69, y = 16, r = 12, road = 0, anchor = nil, name = "Olivewhistle Shore" },
-        { id = 88, kind = "village", type = "stop", x = 174, y = 170, r = 13, road = 1, anchor = nil, name = "Brineburrow" },
-        { id = 97, kind = "village", type = "stop", x = 126, y = 203, r = 13, road = 1, anchor = nil, name = "Cloverbottom" },
-        { id = 98, kind = "village", type = "stop", x = 74, y = 213, r = 13, road = 1, anchor = nil, name = "Thistleholt" },
-        { id = 9, kind = "exit", type = "far", x = 76, y = 254, r = 12, road = 1, anchor = nil, name = "The Greatcanopy" },
-        { id = 89, kind = "village", type = "stop", x = 269, y = 114, r = 13, road = 2, anchor = nil, name = "Meadowbrook" },
-        { id = 120, kind = "village", type = "stop", x = 336, y = 104, r = 13, road = 2, anchor = nil, name = "Heronby" },
-        { id = 121, kind = "village", type = "stop", x = 404, y = 104, r = 13, road = 2, anchor = nil, name = "Cloverburrow" },
-        { id = 11, kind = "exit", type = "far", x = 464, y = 99, r = 12, road = 2, anchor = nil, name = "Spicepeak" },
-        { id = 90, kind = "village", type = "off", x = 142, y = 55, r = 12, road = nil, anchor = 86, name = "Windford" },
-        { id = 91, kind = "village", type = "off", x = 202, y = 86, r = 12, road = nil, anchor = 87, name = "Prairieden" },
-        { id = 92, kind = "village", type = "off", x = 139, y = 149, r = 12, road = nil, anchor = 88, name = "Craghollow" },
-        { id = 93, kind = "village", type = "off", x = 277, y = 158, r = 12, road = nil, anchor = 89, name = "Cragmead" },
-        { id = 94, kind = "village", type = "off", x = 64, y = 122, r = 12, road = nil, anchor = 86, name = "Ambercrest" },
-        { id = 95, kind = "village", type = "off", x = 103, y = 155, r = 12, road = nil, anchor = 87, name = "Amberholt" },
-        { id = 96, kind = "village", type = "off", x = 215, y = 200, r = 12, road = nil, anchor = 88, name = "Sandbottom" },
-        { id = 201, kind = "haven", type = "off", x = 260, y = 71, r = 10, road = nil, anchor = 89, name = "Spice Souk" },
-        { id = 202, kind = "wonder", type = "off", x = 174, y = 67, r = 10, road = nil, anchor = 86, name = "The Hanging Garden Ruins" },
-        { id = 203, kind = "wonder", type = "off", x = 234, y = 98, r = 10, road = nil, anchor = 87, name = "Cedar Sanctuary" },
-        { id = 204, kind = "wonder", type = "off", x = 131, y = 116, r = 10, road = nil, anchor = 88, name = "The Oasis That Moves" },
-        { id = 205, kind = "delve", type = "off", x = 242, y = 168, r = 10, road = nil, anchor = 89, name = "Rose-red Canyon City" },
-        { id = 206, kind = "lair", type = "off", x = 31, y = 108, r = 10, road = nil, anchor = 86, name = "Tomb of the Sand Scarab" }
+        { id = 87, kind = "village", type = "stop", x = 196, y = 92, r = 13, road = 0, anchor = nil, name = "Gullstead" },
+        { id = 86, kind = "village", type = "stop", x = 129, y = 76, r = 13, road = 0, anchor = nil, name = "Gullwell" },
+        { id = 68, kind = "village", type = "stop", x = 92, y = 57, r = 13, road = 0, anchor = nil, name = "Sprayglen" },
+        { id = 6, kind = "exit", type = "far", x = 91, y = 16, r = 12, road = 0, anchor = nil, name = "Olivewhistle Shore" },
+        { id = 88, kind = "village", type = "stop", x = 206, y = 159, r = 13, road = 1, anchor = nil, name = "Brineburrow" },
+        { id = 97, kind = "village", type = "stop", x = 161, y = 185, r = 13, road = 1, anchor = nil, name = "Cloverbottom" },
+        { id = 98, kind = "village", type = "stop", x = 108, y = 204, r = 13, road = 1, anchor = nil, name = "Thistleholt" },
+        { id = 9, kind = "exit", type = "far", x = 69, y = 254, r = 12, road = 1, anchor = nil, name = "The Greatcanopy" },
+        { id = 89, kind = "village", type = "stop", x = 295, y = 103, r = 13, road = 2, anchor = nil, name = "Meadowbrook" },
+        { id = 120, kind = "village", type = "stop", x = 346, y = 93, r = 13, road = 2, anchor = nil, name = "Heronby" },
+        { id = 121, kind = "village", type = "stop", x = 408, y = 92, r = 13, road = 2, anchor = nil, name = "Cloverburrow" },
+        { id = 11, kind = "exit", type = "far", x = 464, y = 89, r = 12, road = 2, anchor = nil, name = "Spicepeak" },
+        { id = 71, kind = "village", type = "off", x = 129, y = 27, r = 12, road = nil, anchor = 68, name = "Screemere" },
+        { id = 74, kind = "village", type = "off", x = 54, y = 73, r = 12, road = nil, anchor = 68, name = "Cragholt" },
+        { id = 90, kind = "village", type = "off", x = 168, y = 62, r = 12, road = nil, anchor = 86, name = "Windford" },
+        { id = 91, kind = "village", type = "off", x = 230, y = 70, r = 12, road = nil, anchor = 87, name = "Prairieden" },
+        { id = 92, kind = "village", type = "off", x = 179, y = 129, r = 12, road = nil, anchor = 88, name = "Craghollow" },
+        { id = 93, kind = "village", type = "off", x = 296, y = 144, r = 12, road = nil, anchor = 89, name = "Cragmead" },
+        { id = 94, kind = "village", type = "off", x = 95, y = 99, r = 12, road = nil, anchor = 86, name = "Ambercrest" },
+        { id = 95, kind = "village", type = "off", x = 148, y = 147, r = 12, road = nil, anchor = 87, name = "Amberholt" },
+        { id = 96, kind = "village", type = "off", x = 243, y = 178, r = 12, road = nil, anchor = 88, name = "Sandbottom" },
+        { id = 100, kind = "village", type = "off", x = 117, y = 164, r = 12, road = nil, anchor = 97, name = "Fenmead" },
+        { id = 101, kind = "village", type = "off", x = 68, y = 186, r = 12, road = nil, anchor = 98, name = "Fenwell" },
+        { id = 103, kind = "village", type = "off", x = 199, y = 199, r = 12, road = nil, anchor = 97, name = "Vineden" },
+        { id = 104, kind = "village", type = "off", x = 145, y = 223, r = 12, road = nil, anchor = 98, name = "Lianawick" },
+        { id = 106, kind = "village", type = "off", x = 124, y = 120, r = 12, road = nil, anchor = 97, name = "Driftglen" },
+        { id = 107, kind = "village", type = "off", x = 91, y = 139, r = 12, road = nil, anchor = 98, name = "Pebblenook" },
+        { id = 127, kind = "village", type = "off", x = 355, y = 133, r = 12, road = nil, anchor = 120, name = "Pinecrest" },
+        { id = 128, kind = "village", type = "off", x = 417, y = 132, r = 12, road = nil, anchor = 121, name = "Screeden" },
+        { id = 193, kind = "delve", type = "off", x = 21, y = 67, r = 10, road = nil, anchor = 68, name = "Pirate-gull Grottoes" },
+        { id = 195, kind = "haven", type = "off", x = 163, y = 28, r = 10, road = nil, anchor = 68, name = "Lemon Grove Monastery" },
+        { id = 201, kind = "haven", type = "off", x = 279, y = 63, r = 10, road = nil, anchor = 89, name = "Spice Souk" },
+        { id = 202, kind = "wonder", type = "off", x = 200, y = 53, r = 10, road = nil, anchor = 86, name = "The Hanging Garden Ruins" },
+        { id = 203, kind = "wonder", type = "off", x = 259, y = 88, r = 10, road = nil, anchor = 87, name = "Cedar Sanctuary" },
+        { id = 204, kind = "wonder", type = "off", x = 157, y = 103, r = 10, road = nil, anchor = 88, name = "The Oasis That Moves" },
+        { id = 205, kind = "delve", type = "off", x = 262, y = 150, r = 10, road = nil, anchor = 89, name = "Rose-red Canyon City" },
+        { id = 206, kind = "lair", type = "off", x = 62, y = 106, r = 10, road = nil, anchor = 86, name = "Tomb of the Sand Scarab" },
+        { id = 208, kind = "wonder", type = "off", x = 179, y = 226, r = 10, road = nil, anchor = 97, name = "Mud Mosque Library" },
+        { id = 209, kind = "wonder", type = "off", x = 124, y = 250, r = 10, road = nil, anchor = 98, name = "Gorilla Glade" },
+        { id = 211, kind = "lair", type = "off", x = 60, y = 153, r = 10, road = nil, anchor = 97, name = "Hollow of the Silverback Spider" },
+        { id = 222, kind = "delve", type = "off", x = 338, y = 55, r = 10, road = nil, anchor = 120, name = "Snowleopard Ledges" }
       },
       roads = {
         {
           name = "Olivewhistle Shore – The Dunewhisper",
           to = "SE",
           pts = {
-            { 210, 133 },
-            { 171, 112 },
-            { 104, 88 },
-            { 57, 55 },
-            { 69, 16 }
+            { 232, 120 },
+            { 196, 92 },
+            { 129, 76 },
+            { 92, 57 },
+            { 91, 16 }
           }
         },
         {
           name = "The Dunewhisper – The Greatcanopy",
           to = "WCA",
           pts = {
-            { 210, 133 },
-            { 174, 170 },
-            { 126, 203 },
-            { 74, 213 },
-            { 76, 254 }
+            { 232, 120 },
+            { 206, 159 },
+            { 161, 185 },
+            { 108, 204 },
+            { 69, 254 }
           }
         },
         {
           name = "The Dunewhisper – Spicepeak",
           to = "CSA",
           pts = {
-            { 210, 133 },
-            { 269, 114 },
-            { 336, 104 },
-            { 404, 104 },
-            { 464, 99 }
+            { 232, 120 },
+            { 295, 103 },
+            { 346, 93 },
+            { 408, 92 },
+            { 464, 89 }
           }
         }
       },
       trails = {
         {
-          { 104, 88 },
-          { 142, 55 }
+          { 92, 57 },
+          { 129, 27 }
         },
         {
-          { 171, 112 },
-          { 202, 86 }
+          { 92, 57 },
+          { 54, 73 }
         },
         {
-          { 174, 170 },
-          { 139, 149 }
+          { 129, 76 },
+          { 168, 62 }
         },
         {
-          { 269, 114 },
-          { 277, 158 }
+          { 196, 92 },
+          { 230, 70 }
         },
         {
-          { 104, 88 },
-          { 64, 122 }
+          { 206, 159 },
+          { 179, 129 }
         },
         {
-          { 171, 112 },
-          { 103, 155 }
+          { 295, 103 },
+          { 296, 144 }
         },
         {
-          { 174, 170 },
-          { 215, 200 }
+          { 129, 76 },
+          { 95, 99 }
         },
         {
-          { 269, 114 },
-          { 260, 71 }
+          { 196, 92 },
+          { 148, 147 }
         },
         {
-          { 104, 88 },
-          { 174, 67 }
+          { 206, 159 },
+          { 243, 178 }
         },
         {
-          { 171, 112 },
-          { 234, 98 }
+          { 161, 185 },
+          { 117, 164 }
         },
         {
-          { 174, 170 },
-          { 131, 116 }
+          { 108, 204 },
+          { 68, 186 }
         },
         {
-          { 269, 114 },
-          { 242, 168 }
+          { 161, 185 },
+          { 199, 199 }
         },
         {
-          { 104, 88 },
-          { 31, 108 }
+          { 108, 204 },
+          { 145, 223 }
+        },
+        {
+          { 161, 185 },
+          { 124, 120 }
+        },
+        {
+          { 108, 204 },
+          { 91, 139 }
+        },
+        {
+          { 346, 93 },
+          { 355, 133 }
+        },
+        {
+          { 408, 92 },
+          { 417, 132 }
+        },
+        {
+          { 92, 57 },
+          { 21, 67 }
+        },
+        {
+          { 92, 57 },
+          { 163, 28 }
+        },
+        {
+          { 295, 103 },
+          { 279, 63 }
+        },
+        {
+          { 129, 76 },
+          { 200, 53 }
+        },
+        {
+          { 196, 92 },
+          { 259, 88 }
+        },
+        {
+          { 206, 159 },
+          { 157, 103 }
+        },
+        {
+          { 295, 103 },
+          { 262, 150 }
+        },
+        {
+          { 129, 76 },
+          { 62, 106 }
+        },
+        {
+          { 161, 185 },
+          { 179, 226 }
+        },
+        {
+          { 108, 204 },
+          { 124, 250 }
+        },
+        {
+          { 161, 185 },
+          { 60, 153 }
+        },
+        {
+          { 346, 93 },
+          { 338, 55 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 68,
+          to = 71,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 110, 30 }
+        },
+        {
+          from = 68,
+          to = 74,
+          bow = "L",
+          heading = "W",
+          ctrl = { 73, 55 }
+        },
+        {
+          from = 86,
+          to = 90,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 139, 64 }
+        },
+        {
+          from = 87,
+          to = 91,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 203, 79 }
+        },
+        {
+          from = 88,
+          to = 92,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 184, 149 }
+        },
+        {
+          from = 89,
+          to = 93,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 306, 122 }
+        },
+        {
+          from = 86,
+          to = 94,
+          bow = "L",
+          heading = "W",
+          ctrl = { 103, 83 }
+        },
+        {
+          from = 87,
+          to = 95,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 154, 115 }
+        },
+        {
+          from = 88,
+          to = 96,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 215, 174 }
+        },
+        {
+          from = 97,
+          to = 100,
+          bow = "R",
+          heading = "W",
+          ctrl = { 128, 179 }
+        },
+        {
+          from = 98,
+          to = 101,
+          bow = "R",
+          heading = "W",
+          ctrl = { 81, 204 }
+        },
+        {
+          from = 97,
+          to = 103,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 170, 195 }
+        },
+        {
+          from = 98,
+          to = 104,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 120, 222 }
+        },
+        {
+          from = 97,
+          to = 106,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 125, 159 }
+        },
+        {
+          from = 98,
+          to = 107,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 89, 185 }
+        },
+        {
+          from = 120,
+          to = 127,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 361, 113 }
+        },
+        {
+          from = 121,
+          to = 128,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 423, 111 }
+        },
+        {
+          from = 68,
+          to = 193,
+          bow = "L",
+          heading = "W",
+          ctrl = { 56, 44 }
+        },
+        {
+          from = 68,
+          to = 195,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 127, 23 }
+        },
+        {
+          from = 89,
+          to = 201,
+          bow = "L",
+          heading = "N",
+          ctrl = { 298, 81 }
+        },
+        {
+          from = 86,
+          to = 202,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 148, 56 }
+        },
+        {
+          from = 87,
+          to = 203,
+          bow = "R",
+          heading = "E",
+          ctrl = { 212, 86 }
+        },
+        {
+          from = 88,
+          to = 204,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 165, 140 }
+        },
+        {
+          from = 89,
+          to = 205,
+          bow = "R",
+          heading = "S",
+          ctrl = { 293, 124 }
+        },
+        {
+          from = 86,
+          to = 206,
+          bow = "L",
+          heading = "W",
+          ctrl = { 79, 83 }
+        },
+        {
+          from = 97,
+          to = 208,
+          bow = "L",
+          heading = "S",
+          ctrl = { 159, 209 }
+        },
+        {
+          from = 98,
+          to = 209,
+          bow = "L",
+          heading = "S",
+          ctrl = { 109, 237 }
+        },
+        {
+          from = 97,
+          to = 211,
+          bow = "R",
+          heading = "W",
+          ctrl = { 86, 178 }
+        },
+        {
+          from = 120,
+          to = 222,
+          bow = "L",
+          heading = "N",
+          ctrl = { 352, 74 }
         }
       },
       exits = {
-        { road = 0, to = "SE", name = "Olivewhistle Shore", x = 69, y = 16, side = "N" },
-        { road = 1, to = "WCA", name = "The Greatcanopy", x = 76, y = 254, side = "S" },
-        { road = 2, to = "CSA", name = "Spicepeak", x = 464, y = 99, side = "E" }
+        { road = 0, to = "SE", name = "Olivewhistle Shore", x = 91, y = 16, side = "N" },
+        { road = 1, to = "WCA", name = "The Greatcanopy", x = 69, y = 254, side = "S" },
+        { road = 2, to = "CSA", name = "Spicepeak", x = 464, y = 89, side = "E" }
       },
-      pin = { x = 210, y = 133, r = 22 },
+      pin = { x = 232, y = 120, r = 22 },
       clear = {
-        { 210, 133, 22 },
-        { 171, 112, 19 },
-        { 104, 88, 19 },
-        { 57, 55, 19 },
-        { 69, 16, 18 },
-        { 174, 170, 19 },
-        { 126, 203, 19 },
-        { 74, 213, 19 },
-        { 76, 254, 18 },
-        { 269, 114, 19 },
-        { 336, 104, 19 },
-        { 404, 104, 19 },
-        { 464, 99, 18 },
-        { 142, 55, 18 },
-        { 202, 86, 18 },
-        { 139, 149, 18 },
-        { 277, 158, 18 },
-        { 64, 122, 18 },
-        { 103, 155, 18 },
-        { 215, 200, 18 },
-        { 260, 71, 16 },
-        { 174, 67, 16 },
-        { 234, 98, 16 },
-        { 131, 116, 16 },
-        { 242, 168, 16 },
-        { 31, 108, 16 }
+        { 232, 120, 22 },
+        { 196, 92, 19 },
+        { 129, 76, 19 },
+        { 92, 57, 19 },
+        { 91, 16, 18 },
+        { 206, 159, 19 },
+        { 161, 185, 19 },
+        { 108, 204, 19 },
+        { 69, 254, 18 },
+        { 295, 103, 19 },
+        { 346, 93, 19 },
+        { 408, 92, 19 },
+        { 464, 89, 18 },
+        { 129, 27, 18 },
+        { 54, 73, 18 },
+        { 168, 62, 18 },
+        { 230, 70, 18 },
+        { 179, 129, 18 },
+        { 296, 144, 18 },
+        { 95, 99, 18 },
+        { 148, 147, 18 },
+        { 243, 178, 18 },
+        { 117, 164, 18 },
+        { 68, 186, 18 },
+        { 199, 199, 18 },
+        { 145, 223, 18 },
+        { 124, 120, 18 },
+        { 91, 139, 18 },
+        { 355, 133, 18 },
+        { 417, 132, 18 },
+        { 21, 67, 16 },
+        { 163, 28, 16 },
+        { 279, 63, 16 },
+        { 200, 53, 16 },
+        { 259, 88, 16 },
+        { 157, 103, 16 },
+        { 262, 150, 16 },
+        { 62, 106, 16 },
+        { 179, 226, 16 },
+        { 124, 250, 16 },
+        { 60, 153, 16 },
+        { 338, 55, 16 }
       }
     },
     WCA = {
       code = "WCA",
       w = 480,
       h = 270,
-      town = { id = 9, x = 62, y = 148, r = 16, name = "The Greatcanopy Market" },
+      town = { id = 9, x = 61, y = 146, r = 16, name = "The Greatcanopy Market" },
       stops = {
-        { id = 98, kind = "village", type = "stop", x = 137, y = 112, r = 13, road = 0, anchor = nil, name = "Thistleholt" },
-        { id = 97, kind = "village", type = "stop", x = 230, y = 79, r = 13, road = 0, anchor = nil, name = "Cloverbottom" },
-        { id = 88, kind = "village", type = "stop", x = 334, y = 54, r = 13, road = 0, anchor = nil, name = "Brineburrow" },
+        { id = 98, kind = "village", type = "stop", x = 135, y = 111, r = 13, road = 0, anchor = nil, name = "Thistleholt" },
+        { id = 97, kind = "village", type = "stop", x = 226, y = 80, r = 13, road = 0, anchor = nil, name = "Cloverbottom" },
+        { id = 88, kind = "village", type = "stop", x = 328, y = 55, r = 13, road = 0, anchor = nil, name = "Brineburrow" },
         { id = 8, kind = "exit", type = "far", x = 363, y = 16, r = 12, road = 0, anchor = nil, name = "The Dunewhisper" },
-        { id = 99, kind = "village", type = "stop", x = 161, y = 155, r = 13, road = 1, anchor = nil, name = "Hayglen" },
-        { id = 108, kind = "village", type = "stop", x = 284, y = 186, r = 13, road = 1, anchor = nil, name = "Meadowden" },
-        { id = 109, kind = "village", type = "stop", x = 386, y = 217, r = 13, road = 1, anchor = nil, name = "Clovergate" },
-        { id = 10, kind = "exit", type = "far", x = 364, y = 254, r = 12, road = 1, anchor = nil, name = "Thornacre Savanna" },
-        { id = 100, kind = "village", type = "off", x = 316, y = 108, r = 12, road = nil, anchor = 97, name = "Fenmead" },
-        { id = 101, kind = "village", type = "off", x = 218, y = 145, r = 12, road = nil, anchor = 98, name = "Fenwell" },
-        { id = 102, kind = "village", type = "off", x = 96, y = 196, r = 12, road = nil, anchor = 99, name = "Heronwick" },
-        { id = 103, kind = "village", type = "off", x = 144, y = 49, r = 12, road = nil, anchor = 97, name = "Vineden" },
+        { id = 99, kind = "village", type = "stop", x = 158, y = 152, r = 13, road = 1, anchor = nil, name = "Hayglen" },
+        { id = 108, kind = "village", type = "stop", x = 279, y = 182, r = 13, road = 1, anchor = nil, name = "Meadowden" },
+        { id = 109, kind = "village", type = "stop", x = 379, y = 212, r = 13, road = 1, anchor = nil, name = "Clovergate" },
+        { id = 10, kind = "exit", type = "far", x = 375, y = 254, r = 12, road = 1, anchor = nil, name = "Thornacre Savanna" },
+        { id = 92, kind = "village", type = "off", x = 415, y = 75, r = 12, road = nil, anchor = 88, name = "Craghollow" },
+        { id = 96, kind = "village", type = "off", x = 244, y = 26, r = 12, road = nil, anchor = 88, name = "Sandbottom" },
+        { id = 100, kind = "village", type = "off", x = 310, y = 107, r = 12, road = nil, anchor = 97, name = "Fenmead" },
+        { id = 101, kind = "village", type = "off", x = 213, y = 144, r = 12, road = nil, anchor = 98, name = "Fenwell" },
+        { id = 102, kind = "village", type = "off", x = 95, y = 192, r = 12, road = nil, anchor = 99, name = "Heronwick" },
+        { id = 103, kind = "village", type = "off", x = 141, y = 51, r = 12, road = nil, anchor = 97, name = "Vineden" },
         { id = 104, kind = "village", type = "off", x = 50, y = 82, r = 12, road = nil, anchor = 98, name = "Lianawick" },
-        { id = 105, kind = "village", type = "off", x = 247, y = 124, r = 12, road = nil, anchor = 99, name = "Mistcrest" },
-        { id = 106, kind = "village", type = "off", x = 281, y = 134, r = 12, road = nil, anchor = 97, name = "Driftglen" },
-        { id = 107, kind = "village", type = "off", x = 190, y = 184, r = 12, road = nil, anchor = 98, name = "Pebblenook" },
-        { id = 207, kind = "haven", type = "off", x = 26, y = 184, r = 10, road = nil, anchor = 99, name = "Drum Circle Market" },
-        { id = 208, kind = "wonder", type = "off", x = 185, y = 26, r = 10, road = nil, anchor = 97, name = "Mud Mosque Library" },
-        { id = 209, kind = "wonder", type = "off", x = 92, y = 59, r = 10, road = nil, anchor = 98, name = "Gorilla Glade" },
-        { id = 210, kind = "delve", type = "off", x = 318, y = 142, r = 10, road = nil, anchor = 99, name = "The Canopy Bridges" },
-        { id = 211, kind = "lair", type = "off", x = 417, y = 99, r = 10, road = nil, anchor = 97, name = "Hollow of the Silverback Spider" }
+        { id = 105, kind = "village", type = "off", x = 242, y = 123, r = 12, road = nil, anchor = 99, name = "Mistcrest" },
+        { id = 106, kind = "village", type = "off", x = 277, y = 133, r = 12, road = nil, anchor = 97, name = "Driftglen" },
+        { id = 107, kind = "village", type = "off", x = 187, y = 182, r = 12, road = nil, anchor = 98, name = "Pebblenook" },
+        { id = 112, kind = "village", type = "off", x = 205, y = 214, r = 12, road = nil, anchor = 108, name = "Pinecombe" },
+        { id = 113, kind = "village", type = "off", x = 305, y = 244, r = 12, road = nil, anchor = 109, name = "Echoford" },
+        { id = 116, kind = "village", type = "off", x = 354, y = 150, r = 12, road = nil, anchor = 108, name = "Emberhollow" },
+        { id = 117, kind = "village", type = "off", x = 454, y = 180, r = 12, road = nil, anchor = 109, name = "Amberburrow" },
+        { id = 204, kind = "wonder", type = "off", x = 372, y = 106, r = 10, road = nil, anchor = 88, name = "The Oasis That Moves" },
+        { id = 207, kind = "haven", type = "off", x = 26, y = 180, r = 10, road = nil, anchor = 99, name = "Drum Circle Market" },
+        { id = 208, kind = "wonder", type = "off", x = 182, y = 28, r = 10, road = nil, anchor = 97, name = "Mud Mosque Library" },
+        { id = 209, kind = "wonder", type = "off", x = 91, y = 60, r = 10, road = nil, anchor = 98, name = "Gorilla Glade" },
+        { id = 210, kind = "delve", type = "off", x = 313, y = 141, r = 10, road = nil, anchor = 99, name = "The Canopy Bridges" },
+        { id = 211, kind = "lair", type = "off", x = 407, y = 108, r = 10, road = nil, anchor = 97, name = "Hollow of the Silverback Spider" },
+        { id = 213, kind = "wonder", type = "off", x = 136, y = 203, r = 10, road = nil, anchor = 108, name = "Coffee Ceremony Hut" },
+        { id = 217, kind = "lair", type = "off", x = 236, y = 233, r = 10, road = nil, anchor = 109, name = "Snowcrown Peak" }
       },
       roads = {
         {
           name = "The Dunewhisper – The Greatcanopy",
           to = "MENA",
           pts = {
-            { 62, 148 },
-            { 137, 112 },
-            { 230, 79 },
-            { 334, 54 },
+            { 61, 146 },
+            { 135, 111 },
+            { 226, 80 },
+            { 328, 55 },
             { 363, 16 }
           }
         },
@@ -1205,307 +3362,682 @@ return {
           name = "The Greatcanopy – Thornacre Savanna",
           to = "ESA",
           pts = {
-            { 62, 148 },
-            { 161, 155 },
-            { 284, 186 },
-            { 386, 217 },
-            { 364, 254 }
+            { 61, 146 },
+            { 158, 152 },
+            { 279, 182 },
+            { 379, 212 },
+            { 375, 254 }
           }
         }
       },
       trails = {
         {
-          { 230, 79 },
-          { 316, 108 }
+          { 328, 55 },
+          { 415, 75 }
         },
         {
-          { 137, 112 },
-          { 218, 145 }
+          { 328, 55 },
+          { 244, 26 }
         },
         {
-          { 161, 155 },
-          { 96, 196 }
+          { 226, 80 },
+          { 310, 107 }
         },
         {
-          { 230, 79 },
-          { 144, 49 }
+          { 135, 111 },
+          { 213, 144 }
         },
         {
-          { 137, 112 },
+          { 158, 152 },
+          { 95, 192 }
+        },
+        {
+          { 226, 80 },
+          { 141, 51 }
+        },
+        {
+          { 135, 111 },
           { 50, 82 }
         },
         {
-          { 161, 155 },
-          { 247, 124 }
+          { 158, 152 },
+          { 242, 123 }
         },
         {
-          { 230, 79 },
-          { 281, 134 }
+          { 226, 80 },
+          { 277, 133 }
         },
         {
-          { 137, 112 },
-          { 190, 184 }
+          { 135, 111 },
+          { 187, 182 }
         },
         {
-          { 161, 155 },
-          { 26, 184 }
+          { 279, 182 },
+          { 205, 214 }
         },
         {
-          { 230, 79 },
-          { 185, 26 }
+          { 379, 212 },
+          { 305, 244 }
         },
         {
-          { 137, 112 },
-          { 92, 59 }
+          { 279, 182 },
+          { 354, 150 }
         },
         {
-          { 161, 155 },
-          { 318, 142 }
+          { 379, 212 },
+          { 454, 180 }
         },
         {
-          { 230, 79 },
-          { 417, 99 }
+          { 328, 55 },
+          { 372, 106 }
+        },
+        {
+          { 158, 152 },
+          { 26, 180 }
+        },
+        {
+          { 226, 80 },
+          { 182, 28 }
+        },
+        {
+          { 135, 111 },
+          { 91, 60 }
+        },
+        {
+          { 158, 152 },
+          { 313, 141 }
+        },
+        {
+          { 226, 80 },
+          { 407, 108 }
+        },
+        {
+          { 279, 182 },
+          { 136, 203 }
+        },
+        {
+          { 379, 212 },
+          { 236, 233 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 88,
+          to = 92,
+          bow = "R",
+          heading = "E",
+          ctrl = { 386, 48 }
+        },
+        {
+          from = 88,
+          to = 96,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 301, 24 }
+        },
+        {
+          from = 97,
+          to = 100,
+          bow = "R",
+          heading = "E",
+          ctrl = { 289, 88 }
+        },
+        {
+          from = 98,
+          to = 101,
+          bow = "R",
+          heading = "E",
+          ctrl = { 194, 121 }
+        },
+        {
+          from = 99,
+          to = 102,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 145, 176 }
+        },
+        {
+          from = 97,
+          to = 103,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 205, 60 }
+        },
+        {
+          from = 98,
+          to = 104,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 114, 89 }
+        },
+        {
+          from = 99,
+          to = 105,
+          bow = "L",
+          heading = "E",
+          ctrl = { 222, 143 }
+        },
+        {
+          from = 97,
+          to = 106,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 269, 102 }
+        },
+        {
+          from = 98,
+          to = 107,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 182, 139 }
+        },
+        {
+          from = 108,
+          to = 112,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 261, 204 }
+        },
+        {
+          from = 109,
+          to = 113,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 340, 248 }
+        },
+        {
+          from = 108,
+          to = 116,
+          bow = "L",
+          heading = "E",
+          ctrl = { 336, 172 }
+        },
+        {
+          from = 109,
+          to = 117,
+          bow = "L",
+          heading = "E",
+          ctrl = { 415, 216 }
+        },
+        {
+          from = 88,
+          to = 204,
+          bow = "R",
+          heading = "E",
+          ctrl = { 361, 68 }
+        },
+        {
+          from = 99,
+          to = 207,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 125, 174 }
+        },
+        {
+          from = 97,
+          to = 208,
+          bow = "L",
+          heading = "N",
+          ctrl = { 221, 50 }
+        },
+        {
+          from = 98,
+          to = 209,
+          bow = "L",
+          heading = "N",
+          ctrl = { 129, 80 }
+        },
+        {
+          from = 99,
+          to = 210,
+          bow = "L",
+          heading = "E",
+          ctrl = { 273, 156 }
+        },
+        {
+          from = 97,
+          to = 211,
+          bow = "R",
+          heading = "E",
+          ctrl = { 361, 83 }
+        },
+        {
+          from = 108,
+          to = 213,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 242, 203 }
+        },
+        {
+          from = 109,
+          to = 217,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 304, 258 }
         }
       },
       exits = {
         { road = 0, to = "MENA", name = "The Dunewhisper", x = 363, y = 16, side = "N" },
-        { road = 1, to = "ESA", name = "Thornacre Savanna", x = 364, y = 254, side = "S" }
+        { road = 1, to = "ESA", name = "Thornacre Savanna", x = 375, y = 254, side = "S" }
       },
-      pin = { x = 62, y = 148, r = 22 },
+      pin = { x = 61, y = 146, r = 22 },
       clear = {
-        { 62, 148, 22 },
-        { 137, 112, 19 },
-        { 230, 79, 19 },
-        { 334, 54, 19 },
+        { 61, 146, 22 },
+        { 135, 111, 19 },
+        { 226, 80, 19 },
+        { 328, 55, 19 },
         { 363, 16, 18 },
-        { 161, 155, 19 },
-        { 284, 186, 19 },
-        { 386, 217, 19 },
-        { 364, 254, 18 },
-        { 316, 108, 18 },
-        { 218, 145, 18 },
-        { 96, 196, 18 },
-        { 144, 49, 18 },
+        { 158, 152, 19 },
+        { 279, 182, 19 },
+        { 379, 212, 19 },
+        { 375, 254, 18 },
+        { 415, 75, 18 },
+        { 244, 26, 18 },
+        { 310, 107, 18 },
+        { 213, 144, 18 },
+        { 95, 192, 18 },
+        { 141, 51, 18 },
         { 50, 82, 18 },
-        { 247, 124, 18 },
-        { 281, 134, 18 },
-        { 190, 184, 18 },
-        { 26, 184, 16 },
-        { 185, 26, 16 },
-        { 92, 59, 16 },
-        { 318, 142, 16 },
-        { 417, 99, 16 }
+        { 242, 123, 18 },
+        { 277, 133, 18 },
+        { 187, 182, 18 },
+        { 205, 214, 18 },
+        { 305, 244, 18 },
+        { 354, 150, 18 },
+        { 454, 180, 18 },
+        { 372, 106, 16 },
+        { 26, 180, 16 },
+        { 182, 28, 16 },
+        { 91, 60, 16 },
+        { 313, 141, 16 },
+        { 407, 108, 16 },
+        { 136, 203, 16 },
+        { 236, 233, 16 }
       }
     },
     ESA = {
       code = "ESA",
       w = 480,
       h = 270,
-      town = { id = 10, x = 278, y = 216, r = 16, name = "Thornacre Savanna Market" },
+      town = { id = 10, x = 285, y = 216, r = 16, name = "Thornacre Savanna Market" },
       stops = {
-        { id = 109, kind = "village", type = "stop", x = 207, y = 195, r = 13, road = 0, anchor = nil, name = "Clovergate" },
-        { id = 108, kind = "village", type = "stop", x = 135, y = 161, r = 13, road = 0, anchor = nil, name = "Meadowden" },
-        { id = 99, kind = "village", type = "stop", x = 70, y = 115, r = 13, road = 0, anchor = nil, name = "Hayglen" },
-        { id = 9, kind = "exit", type = "far", x = 30, y = 16, r = 12, road = 0, anchor = nil, name = "The Greatcanopy" },
-        { id = 110, kind = "village", type = "stop", x = 324, y = 154, r = 13, road = 1, anchor = nil, name = "Meadowbottom" },
-        { id = 111, kind = "village", type = "stop", x = 356, y = 103, r = 13, road = 1, anchor = nil, name = "Summitglen" },
-        { id = 122, kind = "village", type = "stop", x = 410, y = 57, r = 13, road = 1, anchor = nil, name = "Windstead" },
-        { id = 11, kind = "exit", type = "far", x = 407, y = 16, r = 12, road = 1, anchor = nil, name = "Spicepeak" },
-        { id = 112, kind = "village", type = "off", x = 184, y = 112, r = 12, road = nil, anchor = 108, name = "Pinecombe" },
-        { id = 113, kind = "village", type = "off", x = 258, y = 150, r = 12, road = nil, anchor = 109, name = "Echoford" },
-        { id = 114, kind = "village", type = "off", x = 377, y = 193, r = 12, road = nil, anchor = 110, name = "Bogmead" },
-        { id = 115, kind = "village", type = "off", x = 422, y = 137, r = 12, road = nil, anchor = 111, name = "Newtcombe" },
-        { id = 116, kind = "village", type = "off", x = 86, y = 210, r = 12, road = nil, anchor = 108, name = "Emberhollow" },
-        { id = 117, kind = "village", type = "off", x = 158, y = 244, r = 12, road = nil, anchor = 109, name = "Amberburrow" },
-        { id = 212, kind = "haven", type = "off", x = 251, y = 117, r = 10, road = nil, anchor = 110, name = "Baobab Inn" },
-        { id = 213, kind = "wonder", type = "off", x = 223, y = 133, r = 10, road = nil, anchor = 108, name = "Coffee Ceremony Hut" },
-        { id = 214, kind = "wonder", type = "off", x = 291, y = 69, r = 10, road = nil, anchor = 111, name = "The Great Migration" },
-        { id = 215, kind = "wonder", type = "off", x = 360, y = 230, r = 10, road = nil, anchor = 110, name = "Flamingo Shallows" },
-        { id = 216, kind = "delve", type = "off", x = 405, y = 175, r = 10, road = nil, anchor = 111, name = "Fynbos Fire Trails" },
-        { id = 217, kind = "lair", type = "off", x = 287, y = 167, r = 10, road = nil, anchor = 109, name = "Snowcrown Peak" }
+        { id = 109, kind = "village", type = "stop", x = 224, y = 195, r = 13, road = 0, anchor = nil, name = "Clovergate" },
+        { id = 108, kind = "village", type = "stop", x = 163, y = 161, r = 13, road = 0, anchor = nil, name = "Meadowden" },
+        { id = 99, kind = "village", type = "stop", x = 106, y = 115, r = 13, road = 0, anchor = nil, name = "Hayglen" },
+        { id = 9, kind = "exit", type = "far", x = 72, y = 16, r = 12, road = 0, anchor = nil, name = "The Greatcanopy" },
+        { id = 110, kind = "village", type = "stop", x = 327, y = 152, r = 13, road = 1, anchor = nil, name = "Meadowbottom" },
+        { id = 111, kind = "village", type = "stop", x = 352, y = 103, r = 13, road = 1, anchor = nil, name = "Summitglen" },
+        { id = 122, kind = "village", type = "stop", x = 398, y = 57, r = 13, road = 1, anchor = nil, name = "Windstead" },
+        { id = 11, kind = "exit", type = "far", x = 395, y = 16, r = 12, road = 1, anchor = nil, name = "Spicepeak" },
+        { id = 102, kind = "village", type = "off", x = 148, y = 66, r = 12, road = nil, anchor = 99, name = "Heronwick" },
+        { id = 105, kind = "village", type = "off", x = 65, y = 164, r = 12, road = nil, anchor = 99, name = "Mistcrest" },
+        { id = 112, kind = "village", type = "off", x = 205, y = 112, r = 12, road = nil, anchor = 108, name = "Pinecombe" },
+        { id = 113, kind = "village", type = "off", x = 265, y = 149, r = 12, road = nil, anchor = 109, name = "Echoford" },
+        { id = 114, kind = "village", type = "off", x = 368, y = 194, r = 12, road = nil, anchor = 110, name = "Bogmead" },
+        { id = 115, kind = "village", type = "off", x = 408, y = 137, r = 12, road = nil, anchor = 111, name = "Newtcombe" },
+        { id = 116, kind = "village", type = "off", x = 121, y = 210, r = 12, road = nil, anchor = 108, name = "Emberhollow" },
+        { id = 117, kind = "village", type = "off", x = 182, y = 244, r = 12, road = nil, anchor = 109, name = "Amberburrow" },
+        { id = 207, kind = "haven", type = "off", x = 187, y = 83, r = 10, road = nil, anchor = 99, name = "Drum Circle Market" },
+        { id = 210, kind = "delve", type = "off", x = 26, y = 147, r = 10, road = nil, anchor = 99, name = "The Canopy Bridges" },
+        { id = 212, kind = "haven", type = "off", x = 263, y = 115, r = 10, road = nil, anchor = 110, name = "Baobab Inn" },
+        { id = 213, kind = "wonder", type = "off", x = 236, y = 132, r = 10, road = nil, anchor = 108, name = "Coffee Ceremony Hut" },
+        { id = 214, kind = "wonder", type = "off", x = 296, y = 69, r = 10, road = nil, anchor = 111, name = "The Great Migration" },
+        { id = 215, kind = "wonder", type = "off", x = 355, y = 230, r = 10, road = nil, anchor = 110, name = "Flamingo Shallows" },
+        { id = 216, kind = "delve", type = "off", x = 395, y = 174, r = 10, road = nil, anchor = 111, name = "Fynbos Fire Trails" },
+        { id = 217, kind = "lair", type = "off", x = 292, y = 170, r = 10, road = nil, anchor = 109, name = "Snowcrown Peak" },
+        { id = 218, kind = "haven", type = "off", x = 454, y = 90, r = 10, road = nil, anchor = 122, name = "Floating Flower Market" }
       },
       roads = {
         {
           name = "The Greatcanopy – Thornacre Savanna",
           to = "WCA",
           pts = {
-            { 278, 216 },
-            { 207, 195 },
-            { 135, 161 },
-            { 70, 115 },
-            { 30, 16 }
+            { 285, 216 },
+            { 224, 195 },
+            { 163, 161 },
+            { 106, 115 },
+            { 72, 16 }
           }
         },
         {
           name = "Thornacre Savanna – Spicepeak",
           to = "CSA",
           pts = {
-            { 278, 216 },
-            { 324, 154 },
-            { 356, 103 },
-            { 410, 57 },
-            { 407, 16 }
+            { 285, 216 },
+            { 327, 152 },
+            { 352, 103 },
+            { 398, 57 },
+            { 395, 16 }
           }
         }
       },
       trails = {
         {
-          { 135, 161 },
-          { 184, 112 }
+          { 106, 115 },
+          { 148, 66 }
         },
         {
-          { 207, 195 },
-          { 258, 150 }
+          { 106, 115 },
+          { 65, 164 }
         },
         {
-          { 324, 154 },
-          { 377, 193 }
+          { 163, 161 },
+          { 205, 112 }
         },
         {
-          { 356, 103 },
-          { 422, 137 }
+          { 224, 195 },
+          { 265, 149 }
         },
         {
-          { 135, 161 },
-          { 86, 210 }
+          { 327, 152 },
+          { 368, 194 }
         },
         {
-          { 207, 195 },
-          { 158, 244 }
+          { 352, 103 },
+          { 408, 137 }
         },
         {
-          { 324, 154 },
-          { 251, 117 }
+          { 163, 161 },
+          { 121, 210 }
         },
         {
-          { 135, 161 },
-          { 223, 133 }
+          { 224, 195 },
+          { 182, 244 }
         },
         {
-          { 356, 103 },
-          { 291, 69 }
+          { 106, 115 },
+          { 187, 83 }
         },
         {
-          { 324, 154 },
-          { 360, 230 }
+          { 106, 115 },
+          { 26, 147 }
         },
         {
-          { 356, 103 },
-          { 405, 175 }
+          { 327, 152 },
+          { 263, 115 }
         },
         {
-          { 207, 195 },
-          { 287, 167 }
+          { 163, 161 },
+          { 236, 132 }
+        },
+        {
+          { 352, 103 },
+          { 296, 69 }
+        },
+        {
+          { 327, 152 },
+          { 355, 230 }
+        },
+        {
+          { 352, 103 },
+          { 395, 174 }
+        },
+        {
+          { 224, 195 },
+          { 292, 170 }
+        },
+        {
+          { 398, 57 },
+          { 454, 90 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 99,
+          to = 102,
+          bow = "R",
+          heading = "N",
+          ctrl = { 122, 75 }
+        },
+        {
+          from = 99,
+          to = 105,
+          bow = "L",
+          heading = "W",
+          ctrl = { 80, 124 }
+        },
+        {
+          from = 108,
+          to = 112,
+          bow = "R",
+          heading = "N",
+          ctrl = { 171, 126 }
+        },
+        {
+          from = 109,
+          to = 113,
+          bow = "R",
+          heading = "N",
+          ctrl = { 231, 164 }
+        },
+        {
+          from = 110,
+          to = 114,
+          bow = "R",
+          heading = "E",
+          ctrl = { 354, 160 }
+        },
+        {
+          from = 111,
+          to = 115,
+          bow = "R",
+          heading = "E",
+          ctrl = { 392, 108 }
+        },
+        {
+          from = 108,
+          to = 116,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 129, 175 }
+        },
+        {
+          from = 109,
+          to = 117,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 189, 212 }
+        },
+        {
+          from = 99,
+          to = 207,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 139, 78 }
+        },
+        {
+          from = 99,
+          to = 210,
+          bow = "L",
+          heading = "W",
+          ctrl = { 59, 111 }
+        },
+        {
+          from = 110,
+          to = 212,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 303, 117 }
+        },
+        {
+          from = 108,
+          to = 213,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 184, 134 }
+        },
+        {
+          from = 111,
+          to = 214,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 336, 74 }
+        },
+        {
+          from = 110,
+          to = 215,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 350, 173 }
+        },
+        {
+          from = 111,
+          to = 216,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 388, 124 }
+        },
+        {
+          from = 109,
+          to = 217,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 242, 174 }
+        },
+        {
+          from = 122,
+          to = 218,
+          bow = "R",
+          heading = "E",
+          ctrl = { 425, 57 }
         }
       },
       exits = {
-        { road = 0, to = "WCA", name = "The Greatcanopy", x = 30, y = 16, side = "N" },
-        { road = 1, to = "CSA", name = "Spicepeak", x = 407, y = 16, side = "N" }
+        { road = 0, to = "WCA", name = "The Greatcanopy", x = 72, y = 16, side = "N" },
+        { road = 1, to = "CSA", name = "Spicepeak", x = 395, y = 16, side = "N" }
       },
-      pin = { x = 278, y = 216, r = 22 },
+      pin = { x = 285, y = 216, r = 22 },
       clear = {
-        { 278, 216, 22 },
-        { 207, 195, 19 },
-        { 135, 161, 19 },
-        { 70, 115, 19 },
-        { 30, 16, 18 },
-        { 324, 154, 19 },
-        { 356, 103, 19 },
-        { 410, 57, 19 },
-        { 407, 16, 18 },
-        { 184, 112, 18 },
-        { 258, 150, 18 },
-        { 377, 193, 18 },
-        { 422, 137, 18 },
-        { 86, 210, 18 },
-        { 158, 244, 18 },
-        { 251, 117, 16 },
-        { 223, 133, 16 },
-        { 291, 69, 16 },
-        { 360, 230, 16 },
-        { 405, 175, 16 },
-        { 287, 167, 16 }
+        { 285, 216, 22 },
+        { 224, 195, 19 },
+        { 163, 161, 19 },
+        { 106, 115, 19 },
+        { 72, 16, 18 },
+        { 327, 152, 19 },
+        { 352, 103, 19 },
+        { 398, 57, 19 },
+        { 395, 16, 18 },
+        { 148, 66, 18 },
+        { 65, 164, 18 },
+        { 205, 112, 18 },
+        { 265, 149, 18 },
+        { 368, 194, 18 },
+        { 408, 137, 18 },
+        { 121, 210, 18 },
+        { 182, 244, 18 },
+        { 187, 83, 16 },
+        { 26, 147, 16 },
+        { 263, 115, 16 },
+        { 236, 132, 16 },
+        { 296, 69, 16 },
+        { 355, 230, 16 },
+        { 395, 174, 16 },
+        { 292, 170, 16 },
+        { 454, 90, 16 }
       }
     },
     CSA = {
       code = "CSA",
       w = 480,
       h = 270,
-      town = { id = 11, x = 252, y = 135, r = 16, name = "Spicepeak Market" },
+      town = { id = 11, x = 256, y = 131, r = 16, name = "Spicepeak Market" },
       stops = {
-        { id = 119, kind = "village", type = "stop", x = 219, y = 104, r = 13, road = 0, anchor = nil, name = "Rushdell" },
-        { id = 118, kind = "village", type = "stop", x = 167, y = 65, r = 13, road = 0, anchor = nil, name = "Newtdell" },
-        { id = 78, kind = "village", type = "stop", x = 127, y = 52, r = 13, road = 0, anchor = nil, name = "Tussockgate" },
-        { id = 7, kind = "exit", type = "far", x = 147, y = 16, r = 12, road = 0, anchor = nil, name = "Birchbramble Steppe" },
-        { id = 121, kind = "village", type = "stop", x = 204, y = 150, r = 13, road = 1, anchor = nil, name = "Cloverburrow" },
-        { id = 120, kind = "village", type = "stop", x = 134, y = 157, r = 13, road = 1, anchor = nil, name = "Heronby" },
-        { id = 89, kind = "village", type = "stop", x = 71, y = 157, r = 13, road = 1, anchor = nil, name = "Meadowbrook" },
-        { id = 8, kind = "exit", type = "far", x = 16, y = 161, r = 12, road = 1, anchor = nil, name = "The Dunewhisper" },
-        { id = 122, kind = "village", type = "stop", x = 236, y = 178, r = 13, road = 2, anchor = nil, name = "Windstead" },
-        { id = 111, kind = "village", type = "stop", x = 199, y = 196, r = 13, road = 2, anchor = nil, name = "Summitglen" },
-        { id = 110, kind = "village", type = "stop", x = 160, y = 213, r = 13, road = 2, anchor = nil, name = "Meadowbottom" },
-        { id = 10, kind = "exit", type = "far", x = 155, y = 254, r = 12, road = 2, anchor = nil, name = "Thornacre Savanna" },
-        { id = 123, kind = "village", type = "stop", x = 296, y = 106, r = 13, road = 3, anchor = nil, name = "Poppythorpe" },
-        { id = 131, kind = "village", type = "stop", x = 351, y = 93, r = 13, road = 3, anchor = nil, name = "Poppywell" },
-        { id = 132, kind = "village", type = "stop", x = 410, y = 83, r = 13, road = 3, anchor = nil, name = "Bramblebrook" },
+        { id = 119, kind = "village", type = "stop", x = 217, y = 107, r = 13, road = 0, anchor = nil, name = "Rushdell" },
+        { id = 118, kind = "village", type = "stop", x = 164, y = 62, r = 13, road = 0, anchor = nil, name = "Newtdell" },
+        { id = 78, kind = "village", type = "stop", x = 122, y = 52, r = 13, road = 0, anchor = nil, name = "Tussockgate" },
+        { id = 7, kind = "exit", type = "far", x = 141, y = 16, r = 12, road = 0, anchor = nil, name = "Birchbramble Steppe" },
+        { id = 121, kind = "village", type = "stop", x = 214, y = 149, r = 13, road = 1, anchor = nil, name = "Cloverburrow" },
+        { id = 120, kind = "village", type = "stop", x = 125, y = 157, r = 13, road = 1, anchor = nil, name = "Heronby" },
+        { id = 89, kind = "village", type = "stop", x = 72, y = 156, r = 13, road = 1, anchor = nil, name = "Meadowbrook" },
+        { id = 8, kind = "exit", type = "far", x = 16, y = 159, r = 12, road = 1, anchor = nil, name = "The Dunewhisper" },
+        { id = 122, kind = "village", type = "stop", x = 242, y = 180, r = 13, road = 2, anchor = nil, name = "Windstead" },
+        { id = 111, kind = "village", type = "stop", x = 205, y = 200, r = 13, road = 2, anchor = nil, name = "Summitglen" },
+        { id = 110, kind = "village", type = "stop", x = 171, y = 224, r = 13, road = 2, anchor = nil, name = "Meadowbottom" },
+        { id = 10, kind = "exit", type = "far", x = 142, y = 254, r = 12, road = 2, anchor = nil, name = "Thornacre Savanna" },
+        { id = 123, kind = "village", type = "stop", x = 295, y = 97, r = 13, road = 3, anchor = nil, name = "Poppythorpe" },
+        { id = 131, kind = "village", type = "stop", x = 350, y = 85, r = 13, road = 3, anchor = nil, name = "Poppywell" },
+        { id = 132, kind = "village", type = "stop", x = 409, y = 82, r = 13, road = 3, anchor = nil, name = "Bramblebrook" },
         { id = 12, kind = "exit", type = "far", x = 464, y = 55, r = 12, road = 3, anchor = nil, name = "Blossomreach" },
-        { id = 124, kind = "village", type = "stop", x = 295, y = 148, r = 13, road = 4, anchor = nil, name = "Leafmead" },
-        { id = 139, kind = "village", type = "stop", x = 352, y = 166, r = 13, road = 4, anchor = nil, name = "Marshcrest" },
-        { id = 140, kind = "village", type = "stop", x = 396, y = 189, r = 13, road = 4, anchor = nil, name = "Rushglen" },
-        { id = 13, kind = "exit", type = "far", x = 438, y = 254, r = 12, road = 4, anchor = nil, name = "The Monsoon Tangle" },
-        { id = 125, kind = "village", type = "off", x = 213, y = 63, r = 12, road = nil, anchor = 118, name = "Hollowby" },
-        { id = 126, kind = "village", type = "off", x = 256, y = 87, r = 12, road = nil, anchor = 119, name = "Cliffmead" },
-        { id = 127, kind = "village", type = "off", x = 111, y = 123, r = 12, road = nil, anchor = 120, name = "Pinecrest" },
-        { id = 128, kind = "village", type = "off", x = 178, y = 104, r = 12, road = nil, anchor = 121, name = "Screeden" },
-        { id = 218, kind = "haven", type = "off", x = 168, y = 137, r = 10, road = nil, anchor = 122, name = "Floating Flower Market" },
-        { id = 219, kind = "wonder", type = "off", x = 331, y = 133, r = 10, road = nil, anchor = 123, name = "The Silk Road Caravanserai" },
-        { id = 220, kind = "wonder", type = "off", x = 275, y = 182, r = 10, road = nil, anchor = 124, name = "Tea Garden Slopes" },
-        { id = 221, kind = "wonder", type = "off", x = 144, y = 115, r = 10, road = nil, anchor = 119, name = "Prayer-flag Pass" },
-        { id = 222, kind = "delve", type = "off", x = 126, y = 195, r = 10, road = nil, anchor = 120, name = "Snowleopard Ledges" },
-        { id = 223, kind = "lair", type = "off", x = 123, y = 91, r = 10, road = nil, anchor = 118, name = "Temple of the Tiger Moth" }
+        { id = 124, kind = "village", type = "stop", x = 300, y = 139, r = 13, road = 4, anchor = nil, name = "Leafmead" },
+        { id = 139, kind = "village", type = "stop", x = 355, y = 164, r = 13, road = 4, anchor = nil, name = "Marshcrest" },
+        { id = 140, kind = "village", type = "stop", x = 396, y = 187, r = 13, road = 4, anchor = nil, name = "Rushglen" },
+        { id = 13, kind = "exit", type = "far", x = 443, y = 254, r = 12, road = 4, anchor = nil, name = "The Monsoon Tangle" },
+        { id = 81, kind = "village", type = "off", x = 180, y = 25, r = 12, road = nil, anchor = 78, name = "Fernford" },
+        { id = 84, kind = "village", type = "off", x = 87, y = 74, r = 12, road = nil, anchor = 78, name = "Echohollow" },
+        { id = 93, kind = "village", type = "off", x = 49, y = 120, r = 12, road = nil, anchor = 89, name = "Cragmead" },
+        { id = 114, kind = "village", type = "off", x = 95, y = 222, r = 12, road = nil, anchor = 110, name = "Bogmead" },
+        { id = 115, kind = "village", type = "off", x = 152, y = 188, r = 12, road = nil, anchor = 111, name = "Newtcombe" },
+        { id = 125, kind = "village", type = "off", x = 217, y = 66, r = 12, road = nil, anchor = 118, name = "Hollowby" },
+        { id = 126, kind = "village", type = "off", x = 253, y = 87, r = 12, road = nil, anchor = 119, name = "Cliffmead" },
+        { id = 127, kind = "village", type = "off", x = 113, y = 118, r = 12, road = nil, anchor = 120, name = "Pinecrest" },
+        { id = 128, kind = "village", type = "off", x = 177, y = 101, r = 12, road = nil, anchor = 121, name = "Screeden" },
+        { id = 136, kind = "village", type = "off", x = 371, y = 121, r = 12, road = nil, anchor = 131, name = "Tidecombe" },
+        { id = 137, kind = "village", type = "off", x = 431, y = 117, r = 12, road = nil, anchor = 132, name = "Coppergate" },
+        { id = 144, kind = "village", type = "off", x = 320, y = 183, r = 12, road = nil, anchor = 139, name = "Sandpiperhollow" },
+        { id = 145, kind = "village", type = "off", x = 367, y = 217, r = 12, road = nil, anchor = 140, name = "Spindriftbottom" },
+        { id = 149, kind = "village", type = "off", x = 398, y = 144, r = 12, road = nil, anchor = 139, name = "Parrotden" },
+        { id = 197, kind = "wonder", type = "off", x = 213, y = 32, r = 10, road = nil, anchor = 78, name = "The Amber Woods" },
+        { id = 200, kind = "lair", type = "off", x = 59, y = 55, r = 10, road = nil, anchor = 78, name = "Lair of the Grey Wolf King" },
+        { id = 201, kind = "haven", type = "off", x = 72, y = 196, r = 10, road = nil, anchor = 89, name = "Spice Souk" },
+        { id = 205, kind = "delve", type = "off", x = 80, y = 107, r = 10, road = nil, anchor = 89, name = "Rose-red Canyon City" },
+        { id = 212, kind = "haven", type = "off", x = 204, y = 245, r = 10, road = nil, anchor = 110, name = "Baobab Inn" },
+        { id = 214, kind = "wonder", type = "off", x = 240, y = 222, r = 10, road = nil, anchor = 111, name = "The Great Migration" },
+        { id = 215, kind = "wonder", type = "off", x = 103, y = 189, r = 10, road = nil, anchor = 110, name = "Flamingo Shallows" },
+        { id = 216, kind = "delve", type = "off", x = 180, y = 169, r = 10, road = nil, anchor = 111, name = "Fynbos Fire Trails" },
+        { id = 218, kind = "haven", type = "off", x = 177, y = 135, r = 10, road = nil, anchor = 122, name = "Floating Flower Market" },
+        { id = 219, kind = "wonder", type = "off", x = 338, y = 129, r = 10, road = nil, anchor = 123, name = "The Silk Road Caravanserai" },
+        { id = 220, kind = "wonder", type = "off", x = 280, y = 172, r = 10, road = nil, anchor = 124, name = "Tea Garden Slopes" },
+        { id = 221, kind = "wonder", type = "off", x = 149, y = 121, r = 10, road = nil, anchor = 119, name = "Prayer-flag Pass" },
+        { id = 222, kind = "delve", type = "off", x = 127, y = 210, r = 10, road = nil, anchor = 120, name = "Snowleopard Ledges" },
+        { id = 223, kind = "lair", type = "off", x = 132, y = 90, r = 10, road = nil, anchor = 118, name = "Temple of the Tiger Moth" },
+        { id = 226, kind = "wonder", type = "off", x = 389, y = 49, r = 10, road = nil, anchor = 132, name = "Pearl Diver Cove" },
+        { id = 227, kind = "wonder", type = "off", x = 327, y = 54, r = 10, road = nil, anchor = 131, name = "Panda Bamboo Grove" },
+        { id = 230, kind = "haven", type = "off", x = 429, y = 158, r = 10, road = nil, anchor = 140, name = "Floating Market" },
+        { id = 233, kind = "wonder", type = "off", x = 291, y = 202, r = 10, road = nil, anchor = 139, name = "Root-wrapped Temple" },
+        { id = 234, kind = "delve", type = "off", x = 333, y = 214, r = 10, road = nil, anchor = 140, name = "Firefly Caves" }
       },
       roads = {
         {
           name = "Birchbramble Steppe – Spicepeak",
           to = "EE",
           pts = {
-            { 252, 135 },
-            { 219, 104 },
-            { 167, 65 },
-            { 127, 52 },
-            { 147, 16 }
+            { 256, 131 },
+            { 217, 107 },
+            { 164, 62 },
+            { 122, 52 },
+            { 141, 16 }
           }
         },
         {
           name = "The Dunewhisper – Spicepeak",
           to = "MENA",
           pts = {
-            { 252, 135 },
-            { 204, 150 },
-            { 134, 157 },
-            { 71, 157 },
-            { 16, 161 }
+            { 256, 131 },
+            { 214, 149 },
+            { 125, 157 },
+            { 72, 156 },
+            { 16, 159 }
           }
         },
         {
           name = "Thornacre Savanna – Spicepeak",
           to = "ESA",
           pts = {
-            { 252, 135 },
-            { 236, 178 },
-            { 199, 196 },
-            { 160, 213 },
-            { 155, 254 }
+            { 256, 131 },
+            { 242, 180 },
+            { 205, 200 },
+            { 171, 224 },
+            { 142, 254 }
           }
         },
         {
           name = "Spicepeak – Blossomreach",
           to = "EA",
           pts = {
-            { 252, 135 },
-            { 296, 106 },
-            { 351, 93 },
-            { 410, 83 },
+            { 256, 131 },
+            { 295, 97 },
+            { 350, 85 },
+            { 409, 82 },
             { 464, 55 }
           }
         },
@@ -1513,390 +4045,1010 @@ return {
           name = "Spicepeak – The Monsoon Tangle",
           to = "SEA",
           pts = {
-            { 252, 135 },
-            { 295, 148 },
-            { 352, 166 },
-            { 396, 189 },
-            { 438, 254 }
+            { 256, 131 },
+            { 300, 139 },
+            { 355, 164 },
+            { 396, 187 },
+            { 443, 254 }
           }
         }
       },
       trails = {
         {
-          { 167, 65 },
-          { 213, 63 }
+          { 122, 52 },
+          { 180, 25 }
         },
         {
-          { 219, 104 },
-          { 256, 87 }
+          { 122, 52 },
+          { 87, 74 }
         },
         {
-          { 134, 157 },
-          { 111, 123 }
+          { 72, 156 },
+          { 49, 120 }
         },
         {
-          { 204, 150 },
-          { 178, 104 }
+          { 171, 224 },
+          { 95, 222 }
         },
         {
-          { 236, 178 },
-          { 168, 137 }
+          { 205, 200 },
+          { 152, 188 }
         },
         {
-          { 296, 106 },
-          { 331, 133 }
+          { 164, 62 },
+          { 217, 66 }
         },
         {
-          { 295, 148 },
-          { 275, 182 }
+          { 217, 107 },
+          { 253, 87 }
         },
         {
-          { 219, 104 },
-          { 144, 115 }
+          { 125, 157 },
+          { 113, 118 }
         },
         {
-          { 134, 157 },
-          { 126, 195 }
+          { 214, 149 },
+          { 177, 101 }
         },
         {
-          { 167, 65 },
-          { 123, 91 }
+          { 350, 85 },
+          { 371, 121 }
+        },
+        {
+          { 409, 82 },
+          { 431, 117 }
+        },
+        {
+          { 355, 164 },
+          { 320, 183 }
+        },
+        {
+          { 396, 187 },
+          { 367, 217 }
+        },
+        {
+          { 355, 164 },
+          { 398, 144 }
+        },
+        {
+          { 122, 52 },
+          { 213, 32 }
+        },
+        {
+          { 122, 52 },
+          { 59, 55 }
+        },
+        {
+          { 72, 156 },
+          { 72, 196 }
+        },
+        {
+          { 72, 156 },
+          { 80, 107 }
+        },
+        {
+          { 171, 224 },
+          { 204, 245 }
+        },
+        {
+          { 205, 200 },
+          { 240, 222 }
+        },
+        {
+          { 171, 224 },
+          { 103, 189 }
+        },
+        {
+          { 205, 200 },
+          { 180, 169 }
+        },
+        {
+          { 242, 180 },
+          { 177, 135 }
+        },
+        {
+          { 295, 97 },
+          { 338, 129 }
+        },
+        {
+          { 300, 139 },
+          { 280, 172 }
+        },
+        {
+          { 217, 107 },
+          { 149, 121 }
+        },
+        {
+          { 125, 157 },
+          { 127, 210 }
+        },
+        {
+          { 164, 62 },
+          { 132, 90 }
+        },
+        {
+          { 409, 82 },
+          { 389, 49 }
+        },
+        {
+          { 350, 85 },
+          { 327, 54 }
+        },
+        {
+          { 396, 187 },
+          { 429, 158 }
+        },
+        {
+          { 355, 164 },
+          { 291, 202 }
+        },
+        {
+          { 396, 187 },
+          { 333, 214 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 78,
+          to = 81,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 158, 24 }
+        },
+        {
+          from = 78,
+          to = 84,
+          bow = "L",
+          heading = "W",
+          ctrl = { 109, 54 }
+        },
+        {
+          from = 89,
+          to = 93,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 50, 139 }
+        },
+        {
+          from = 110,
+          to = 114,
+          bow = "R",
+          heading = "W",
+          ctrl = { 120, 237 }
+        },
+        {
+          from = 111,
+          to = 115,
+          bow = "R",
+          heading = "W",
+          ctrl = { 167, 202 }
+        },
+        {
+          from = 118,
+          to = 125,
+          bow = "R",
+          heading = "E",
+          ctrl = { 178, 61 }
+        },
+        {
+          from = 119,
+          to = 126,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 227, 90 }
+        },
+        {
+          from = 120,
+          to = 127,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 109, 137 }
+        },
+        {
+          from = 121,
+          to = 128,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 180, 126 }
+        },
+        {
+          from = 131,
+          to = 136,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 371, 102 }
+        },
+        {
+          from = 132,
+          to = 137,
+          bow = "R",
+          heading = "SE",
+          ctrl = { 429, 95 }
+        },
+        {
+          from = 139,
+          to = 144,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 346, 178 }
+        },
+        {
+          from = 140,
+          to = 145,
+          bow = "R",
+          heading = "S",
+          ctrl = { 387, 211 }
+        },
+        {
+          from = 139,
+          to = 149,
+          bow = "L",
+          heading = "E",
+          ctrl = { 387, 160 }
+        },
+        {
+          from = 78,
+          to = 197,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 178, 21 }
+        },
+        {
+          from = 78,
+          to = 200,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 98, 40 }
+        },
+        {
+          from = 89,
+          to = 201,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 62, 177 }
+        },
+        {
+          from = 89,
+          to = 205,
+          bow = "R",
+          heading = "N",
+          ctrl = { 64, 132 }
+        },
+        {
+          from = 110,
+          to = 212,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 181, 242 }
+        },
+        {
+          from = 111,
+          to = 214,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 214, 217 }
+        },
+        {
+          from = 110,
+          to = 215,
+          bow = "R",
+          heading = "W",
+          ctrl = { 124, 220 }
+        },
+        {
+          from = 111,
+          to = 216,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 184, 190 }
+        },
+        {
+          from = 122,
+          to = 218,
+          bow = "R",
+          heading = "W",
+          ctrl = { 192, 167 }
+        },
+        {
+          from = 123,
+          to = 219,
+          bow = "R",
+          heading = "E",
+          ctrl = { 330, 110 }
+        },
+        {
+          from = 124,
+          to = 220,
+          bow = "R",
+          heading = "S",
+          ctrl = { 299, 159 }
+        },
+        {
+          from = 119,
+          to = 221,
+          bow = "L",
+          heading = "W",
+          ctrl = { 170, 103 }
+        },
+        {
+          from = 120,
+          to = 222,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 113, 183 }
+        },
+        {
+          from = 118,
+          to = 223,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 138, 74 }
+        },
+        {
+          from = 132,
+          to = 226,
+          bow = "L",
+          heading = "N",
+          ctrl = { 408, 61 }
+        },
+        {
+          from = 131,
+          to = 227,
+          bow = "L",
+          heading = "N",
+          ctrl = { 348, 69 }
+        },
+        {
+          from = 140,
+          to = 230,
+          bow = "L",
+          heading = "E",
+          ctrl = { 419, 181 }
+        },
+        {
+          from = 139,
+          to = 233,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 339, 192 }
+        },
+        {
+          from = 140,
+          to = 234,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 374, 215 }
         }
       },
       exits = {
-        { road = 0, to = "EE", name = "Birchbramble Steppe", x = 147, y = 16, side = "N" },
-        { road = 1, to = "MENA", name = "The Dunewhisper", x = 16, y = 161, side = "W" },
-        { road = 2, to = "ESA", name = "Thornacre Savanna", x = 155, y = 254, side = "S" },
+        { road = 0, to = "EE", name = "Birchbramble Steppe", x = 141, y = 16, side = "N" },
+        { road = 1, to = "MENA", name = "The Dunewhisper", x = 16, y = 159, side = "W" },
+        { road = 2, to = "ESA", name = "Thornacre Savanna", x = 142, y = 254, side = "S" },
         { road = 3, to = "EA", name = "Blossomreach", x = 464, y = 55, side = "E" },
-        { road = 4, to = "SEA", name = "The Monsoon Tangle", x = 438, y = 254, side = "S" }
+        { road = 4, to = "SEA", name = "The Monsoon Tangle", x = 443, y = 254, side = "S" }
       },
-      pin = { x = 252, y = 135, r = 22 },
+      pin = { x = 256, y = 131, r = 22 },
       clear = {
-        { 252, 135, 22 },
-        { 219, 104, 19 },
-        { 167, 65, 19 },
-        { 127, 52, 19 },
-        { 147, 16, 18 },
-        { 204, 150, 19 },
-        { 134, 157, 19 },
-        { 71, 157, 19 },
-        { 16, 161, 18 },
-        { 236, 178, 19 },
-        { 199, 196, 19 },
-        { 160, 213, 19 },
-        { 155, 254, 18 },
-        { 296, 106, 19 },
-        { 351, 93, 19 },
-        { 410, 83, 19 },
+        { 256, 131, 22 },
+        { 217, 107, 19 },
+        { 164, 62, 19 },
+        { 122, 52, 19 },
+        { 141, 16, 18 },
+        { 214, 149, 19 },
+        { 125, 157, 19 },
+        { 72, 156, 19 },
+        { 16, 159, 18 },
+        { 242, 180, 19 },
+        { 205, 200, 19 },
+        { 171, 224, 19 },
+        { 142, 254, 18 },
+        { 295, 97, 19 },
+        { 350, 85, 19 },
+        { 409, 82, 19 },
         { 464, 55, 18 },
-        { 295, 148, 19 },
-        { 352, 166, 19 },
-        { 396, 189, 19 },
-        { 438, 254, 18 },
-        { 213, 63, 18 },
-        { 256, 87, 18 },
-        { 111, 123, 18 },
-        { 178, 104, 18 },
-        { 168, 137, 16 },
-        { 331, 133, 16 },
-        { 275, 182, 16 },
-        { 144, 115, 16 },
-        { 126, 195, 16 },
-        { 123, 91, 16 }
+        { 300, 139, 19 },
+        { 355, 164, 19 },
+        { 396, 187, 19 },
+        { 443, 254, 18 },
+        { 180, 25, 18 },
+        { 87, 74, 18 },
+        { 49, 120, 18 },
+        { 95, 222, 18 },
+        { 152, 188, 18 },
+        { 217, 66, 18 },
+        { 253, 87, 18 },
+        { 113, 118, 18 },
+        { 177, 101, 18 },
+        { 371, 121, 18 },
+        { 431, 117, 18 },
+        { 320, 183, 18 },
+        { 367, 217, 18 },
+        { 398, 144, 18 },
+        { 213, 32, 16 },
+        { 59, 55, 16 },
+        { 72, 196, 16 },
+        { 80, 107, 16 },
+        { 204, 245, 16 },
+        { 240, 222, 16 },
+        { 103, 189, 16 },
+        { 180, 169, 16 },
+        { 177, 135, 16 },
+        { 338, 129, 16 },
+        { 280, 172, 16 },
+        { 149, 121, 16 },
+        { 127, 210, 16 },
+        { 132, 90, 16 },
+        { 389, 49, 16 },
+        { 327, 54, 16 },
+        { 429, 158, 16 },
+        { 291, 202, 16 },
+        { 333, 214, 16 }
       }
     },
     EA = {
       code = "EA",
       w = 480,
       h = 270,
-      town = { id = 12, x = 383, y = 120, r = 16, name = "Blossomreach Market" },
+      town = { id = 12, x = 250, y = 102, r = 16, name = "Blossomreach Market" },
       stops = {
-        { id = 130, kind = "village", type = "stop", x = 302, y = 130, r = 13, road = 0, anchor = nil, name = "Clovercove" },
-        { id = 129, kind = "village", type = "stop", x = 192, y = 145, r = 13, road = 0, anchor = nil, name = "Honeythorpe" },
-        { id = 17, kind = "village", type = "stop", x = 96, y = 138, r = 13, road = 0, anchor = nil, name = "Cloverholt" },
-        { id = 1, kind = "exit", type = "far", x = 16, y = 126, r = 12, road = 0, anchor = nil, name = "The Maplewold" },
-        { id = 132, kind = "village", type = "stop", x = 341, y = 105, r = 13, road = 1, anchor = nil, name = "Bramblebrook" },
-        { id = 131, kind = "village", type = "stop", x = 320, y = 69, r = 13, road = 1, anchor = nil, name = "Poppywell" },
-        { id = 123, kind = "village", type = "stop", x = 282, y = 49, r = 13, road = 1, anchor = nil, name = "Poppythorpe" },
-        { id = 11, kind = "exit", type = "far", x = 306, y = 16, r = 12, road = 1, anchor = nil, name = "Spicepeak" },
-        { id = 133, kind = "village", type = "stop", x = 377, y = 165, r = 13, road = 2, anchor = nil, name = "Birchford" },
-        { id = 141, kind = "village", type = "stop", x = 357, y = 202, r = 13, road = 2, anchor = nil, name = "Lilyby" },
-        { id = 142, kind = "village", type = "stop", x = 316, y = 213, r = 13, road = 2, anchor = nil, name = "Sandpiperglen" },
-        { id = 13, kind = "exit", type = "far", x = 317, y = 254, r = 12, road = 2, anchor = nil, name = "The Monsoon Tangle" },
-        { id = 134, kind = "village", type = "off", x = 195, y = 104, r = 12, road = nil, anchor = 129, name = "Brambleburrow" },
-        { id = 135, kind = "village", type = "off", x = 285, y = 92, r = 12, road = nil, anchor = 130, name = "Sprayholt" },
-        { id = 136, kind = "village", type = "off", x = 392, y = 72, r = 12, road = nil, anchor = 131, name = "Tidecombe" },
-        { id = 137, kind = "village", type = "off", x = 423, y = 101, r = 12, road = nil, anchor = 132, name = "Coppergate" },
-        { id = 138, kind = "village", type = "off", x = 295, y = 171, r = 12, road = nil, anchor = 133, name = "Dunewick" },
-        { id = 224, kind = "haven", type = "off", x = 187, y = 184, r = 10, road = nil, anchor = 129, name = "Cherry Blossom Teahouse" },
-        { id = 225, kind = "wonder", type = "off", x = 274, y = 197, r = 10, road = nil, anchor = 130, name = "The Thousand Gates" },
-        { id = 226, kind = "wonder", type = "off", x = 264, y = 118, r = 10, road = nil, anchor = 132, name = "Pearl Diver Cove" },
-        { id = 227, kind = "wonder", type = "off", x = 216, y = 77, r = 10, road = nil, anchor = 131, name = "Panda Bamboo Grove" },
-        { id = 228, kind = "delve", type = "off", x = 454, y = 171, r = 10, road = nil, anchor = 133, name = "The Long Wall Walk" },
-        { id = 229, kind = "lair", type = "off", x = 244, y = 93, r = 10, road = nil, anchor = 129, name = "Lair of the Jade Dragon-fly" }
+        { id = 132, kind = "village", type = "stop", x = 210, y = 123, r = 13, road = 0, anchor = nil, name = "Bramblebrook" },
+        { id = 131, kind = "village", type = "stop", x = 138, y = 149, r = 13, road = 0, anchor = nil, name = "Poppywell" },
+        { id = 123, kind = "village", type = "stop", x = 68, y = 168, r = 13, road = 0, anchor = nil, name = "Poppythorpe" },
+        { id = 11, kind = "exit", type = "far", x = 16, y = 191, r = 12, road = 0, anchor = nil, name = "Spicepeak" },
+        { id = 133, kind = "village", type = "stop", x = 247, y = 147, r = 13, road = 1, anchor = nil, name = "Birchford" },
+        { id = 141, kind = "village", type = "stop", x = 248, y = 189, r = 13, road = 1, anchor = nil, name = "Lilyby" },
+        { id = 142, kind = "village", type = "stop", x = 214, y = 213, r = 13, road = 1, anchor = nil, name = "Sandpiperglen" },
+        { id = 13, kind = "exit", type = "far", x = 208, y = 254, r = 12, road = 1, anchor = nil, name = "The Monsoon Tangle" },
+        { id = 134, kind = "village", type = "off", x = 206, y = 26, r = 12, road = nil, anchor = nil, name = "Brambleburrow" },
+        { id = 135, kind = "village", type = "off", x = 98, y = 140, r = 12, road = nil, anchor = nil, name = "Sprayholt" },
+        { id = 136, kind = "village", type = "off", x = 119, y = 110, r = 12, road = nil, anchor = 131, name = "Tidecombe" },
+        { id = 137, kind = "village", type = "off", x = 174, y = 100, r = 12, road = nil, anchor = 132, name = "Coppergate" },
+        { id = 138, kind = "village", type = "off", x = 182, y = 154, r = 12, road = nil, anchor = 133, name = "Dunewick" },
+        { id = 146, kind = "village", type = "off", x = 180, y = 189, r = 12, road = nil, anchor = 141, name = "Reefden" },
+        { id = 147, kind = "village", type = "off", x = 157, y = 220, r = 12, road = nil, anchor = 142, name = "Canopyford" },
+        { id = 219, kind = "wonder", type = "off", x = 51, y = 127, r = 10, road = nil, anchor = 123, name = "The Silk Road Caravanserai" },
+        { id = 224, kind = "haven", type = "off", x = 367, y = 36, r = 10, road = nil, anchor = nil, name = "Cherry Blossom Teahouse" },
+        { id = 225, kind = "wonder", type = "off", x = 70, y = 84, r = 10, road = nil, anchor = nil, name = "The Thousand Gates" },
+        { id = 226, kind = "wonder", type = "off", x = 214, y = 167, r = 10, road = nil, anchor = 132, name = "Pearl Diver Cove" },
+        { id = 227, kind = "wonder", type = "off", x = 147, y = 187, r = 10, road = nil, anchor = 131, name = "Panda Bamboo Grove" },
+        { id = 228, kind = "delve", type = "off", x = 302, y = 155, r = 10, road = nil, anchor = 133, name = "The Long Wall Walk" },
+        { id = 229, kind = "lair", type = "off", x = 454, y = 97, r = 10, road = nil, anchor = nil, name = "Lair of the Jade Dragon-fly" },
+        { id = 231, kind = "wonder", type = "off", x = 290, y = 193, r = 10, road = nil, anchor = 141, name = "Lantern Festival River" },
+        { id = 232, kind = "wonder", type = "off", x = 270, y = 228, r = 10, road = nil, anchor = 142, name = "Volcano Spice Gardens" }
       },
       roads = {
-        {
-          name = "The Maplewold – Blossomreach",
-          to = "NA",
-          pts = {
-            { 383, 120 },
-            { 302, 130 },
-            { 192, 145 },
-            { 96, 138 },
-            { 16, 126 }
-          }
-        },
         {
           name = "Spicepeak – Blossomreach",
           to = "CSA",
           pts = {
-            { 383, 120 },
-            { 341, 105 },
-            { 320, 69 },
-            { 282, 49 },
-            { 306, 16 }
+            { 250, 102 },
+            { 210, 123 },
+            { 138, 149 },
+            { 68, 168 },
+            { 16, 191 }
           }
         },
         {
           name = "Blossomreach – The Monsoon Tangle",
           to = "SEA",
           pts = {
-            { 383, 120 },
-            { 377, 165 },
-            { 357, 202 },
-            { 316, 213 },
-            { 317, 254 }
+            { 250, 102 },
+            { 247, 147 },
+            { 248, 189 },
+            { 214, 213 },
+            { 208, 254 }
           }
         }
       },
       trails = {
         {
-          { 192, 145 },
-          { 195, 104 }
+          { 138, 149 },
+          { 119, 110 }
         },
         {
-          { 302, 130 },
-          { 285, 92 }
+          { 210, 123 },
+          { 174, 100 }
         },
         {
-          { 320, 69 },
-          { 392, 72 }
+          { 247, 147 },
+          { 182, 154 }
         },
         {
-          { 341, 105 },
-          { 423, 101 }
+          { 248, 189 },
+          { 180, 189 }
         },
         {
-          { 377, 165 },
-          { 295, 171 }
+          { 214, 213 },
+          { 157, 220 }
         },
         {
-          { 192, 145 },
-          { 187, 184 }
+          { 68, 168 },
+          { 51, 127 }
         },
         {
-          { 302, 130 },
-          { 274, 197 }
+          { 210, 123 },
+          { 214, 167 }
         },
         {
-          { 341, 105 },
-          { 264, 118 }
+          { 138, 149 },
+          { 147, 187 }
         },
         {
-          { 320, 69 },
-          { 216, 77 }
+          { 247, 147 },
+          { 302, 155 }
         },
         {
-          { 377, 165 },
-          { 454, 171 }
+          { 248, 189 },
+          { 290, 193 }
         },
         {
-          { 192, 145 },
-          { 244, 93 }
+          { 214, 213 },
+          { 270, 228 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 131,
+          to = 136,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 118, 132 }
+        },
+        {
+          from = 132,
+          to = 137,
+          bow = "R",
+          heading = "W",
+          ctrl = { 182, 115 }
+        },
+        {
+          from = 133,
+          to = 138,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 215, 167 }
+        },
+        {
+          from = 141,
+          to = 146,
+          bow = "R",
+          heading = "W",
+          ctrl = { 200, 199 }
+        },
+        {
+          from = 142,
+          to = 147,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 183, 231 }
+        },
+        {
+          from = 123,
+          to = 219,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 49, 152 }
+        },
+        {
+          from = 132,
+          to = 226,
+          bow = "L",
+          heading = "S",
+          ctrl = { 202, 149 }
+        },
+        {
+          from = 131,
+          to = 227,
+          bow = "L",
+          heading = "S",
+          ctrl = { 133, 171 }
+        },
+        {
+          from = 133,
+          to = 228,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 275, 165 }
+        },
+        {
+          from = 141,
+          to = 231,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 260, 197 }
+        },
+        {
+          from = 142,
+          to = 232,
+          bow = "L",
+          heading = "SE",
+          ctrl = { 240, 235 }
         }
       },
       exits = {
-        { road = 0, to = "NA", name = "The Maplewold", x = 16, y = 126, side = "W" },
-        { road = 1, to = "CSA", name = "Spicepeak", x = 306, y = 16, side = "N" },
-        { road = 2, to = "SEA", name = "The Monsoon Tangle", x = 317, y = 254, side = "S" }
+        { road = 0, to = "CSA", name = "Spicepeak", x = 16, y = 191, side = "W" },
+        { road = 1, to = "SEA", name = "The Monsoon Tangle", x = 208, y = 254, side = "S" }
       },
-      pin = { x = 383, y = 120, r = 22 },
+      pin = { x = 250, y = 102, r = 22 },
       clear = {
-        { 383, 120, 22 },
-        { 302, 130, 19 },
-        { 192, 145, 19 },
-        { 96, 138, 19 },
-        { 16, 126, 18 },
-        { 341, 105, 19 },
-        { 320, 69, 19 },
-        { 282, 49, 19 },
-        { 306, 16, 18 },
-        { 377, 165, 19 },
-        { 357, 202, 19 },
-        { 316, 213, 19 },
-        { 317, 254, 18 },
-        { 195, 104, 18 },
-        { 285, 92, 18 },
-        { 392, 72, 18 },
-        { 423, 101, 18 },
-        { 295, 171, 18 },
-        { 187, 184, 16 },
-        { 274, 197, 16 },
-        { 264, 118, 16 },
-        { 216, 77, 16 },
-        { 454, 171, 16 },
-        { 244, 93, 16 }
+        { 250, 102, 22 },
+        { 210, 123, 19 },
+        { 138, 149, 19 },
+        { 68, 168, 19 },
+        { 16, 191, 18 },
+        { 247, 147, 19 },
+        { 248, 189, 19 },
+        { 214, 213, 19 },
+        { 208, 254, 18 },
+        { 206, 26, 18 },
+        { 98, 140, 18 },
+        { 119, 110, 18 },
+        { 174, 100, 18 },
+        { 182, 154, 18 },
+        { 180, 189, 18 },
+        { 157, 220, 18 },
+        { 51, 127, 16 },
+        { 367, 36, 16 },
+        { 70, 84, 16 },
+        { 214, 167, 16 },
+        { 147, 187, 16 },
+        { 302, 155, 16 },
+        { 454, 97, 16 },
+        { 290, 193, 16 },
+        { 270, 228, 16 }
       }
     },
     SEA = {
       code = "SEA",
       w = 480,
       h = 270,
-      town = { id = 13, x = 287, y = 151, r = 16, name = "The Monsoon Tangle Market" },
+      town = { id = 13, x = 265, y = 152, r = 16, name = "The Monsoon Tangle Market" },
       stops = {
-        { id = 140, kind = "village", type = "stop", x = 214, y = 142, r = 13, road = 0, anchor = nil, name = "Rushglen" },
-        { id = 139, kind = "village", type = "stop", x = 139, y = 115, r = 13, road = 0, anchor = nil, name = "Marshcrest" },
-        { id = 124, kind = "village", type = "stop", x = 71, y = 91, r = 13, road = 0, anchor = nil, name = "Leafmead" },
-        { id = 11, kind = "exit", type = "far", x = 16, y = 36, r = 12, road = 0, anchor = nil, name = "Spicepeak" },
-        { id = 142, kind = "village", type = "stop", x = 290, y = 106, r = 13, road = 1, anchor = nil, name = "Sandpiperglen" },
-        { id = 141, kind = "village", type = "stop", x = 304, y = 67, r = 13, road = 1, anchor = nil, name = "Lilyby" },
-        { id = 133, kind = "village", type = "stop", x = 345, y = 57, r = 13, road = 1, anchor = nil, name = "Birchford" },
-        { id = 12, kind = "exit", type = "far", x = 341, y = 16, r = 12, road = 1, anchor = nil, name = "Blossomreach" },
-        { id = 143, kind = "village", type = "stop", x = 339, y = 163, r = 13, road = 2, anchor = nil, name = "Shellnook" },
-        { id = 152, kind = "village", type = "stop", x = 388, y = 189, r = 13, road = 2, anchor = nil, name = "Turtleburrow" },
-        { id = 153, kind = "village", type = "stop", x = 431, y = 216, r = 13, road = 2, anchor = nil, name = "Brineglen" },
-        { id = 14, kind = "exit", type = "far", x = 414, y = 254, r = 12, road = 2, anchor = nil, name = "The Coralscatter" },
-        { id = 144, kind = "village", type = "off", x = 177, y = 83, r = 12, road = nil, anchor = 139, name = "Sandpiperhollow" },
-        { id = 145, kind = "village", type = "off", x = 251, y = 120, r = 12, road = nil, anchor = 140, name = "Spindriftbottom" },
-        { id = 146, kind = "village", type = "off", x = 384, y = 86, r = 12, road = nil, anchor = 141, name = "Reefden" },
-        { id = 147, kind = "village", type = "off", x = 368, y = 118, r = 12, road = nil, anchor = 142, name = "Canopyford" },
-        { id = 148, kind = "village", type = "off", x = 267, y = 190, r = 12, road = nil, anchor = 143, name = "Monsoonburrow" },
-        { id = 149, kind = "village", type = "off", x = 92, y = 141, r = 12, road = nil, anchor = 139, name = "Parrotden" },
-        { id = 230, kind = "haven", type = "off", x = 166, y = 158, r = 10, road = nil, anchor = 140, name = "Floating Market" },
-        { id = 231, kind = "wonder", type = "off", x = 230, y = 59, r = 10, road = nil, anchor = 141, name = "Lantern Festival River" },
-        { id = 232, kind = "wonder", type = "off", x = 204, y = 104, r = 10, road = nil, anchor = 142, name = "Volcano Spice Gardens" },
-        { id = 233, kind = "wonder", type = "off", x = 234, y = 91, r = 10, road = nil, anchor = 139, name = "Root-wrapped Temple" },
-        { id = 234, kind = "delve", type = "off", x = 327, y = 119, r = 10, road = nil, anchor = 140, name = "Firefly Caves" },
-        { id = 235, kind = "lair", type = "off", x = 406, y = 145, r = 10, road = nil, anchor = 143, name = "Dragonlizard Den" }
+        { id = 140, kind = "village", type = "stop", x = 195, y = 144, r = 13, road = 0, anchor = nil, name = "Rushglen" },
+        { id = 139, kind = "village", type = "stop", x = 129, y = 115, r = 13, road = 0, anchor = nil, name = "Marshcrest" },
+        { id = 124, kind = "village", type = "stop", x = 67, y = 91, r = 13, road = 0, anchor = nil, name = "Leafmead" },
+        { id = 11, kind = "exit", type = "far", x = 16, y = 35, r = 12, road = 0, anchor = nil, name = "Spicepeak" },
+        { id = 142, kind = "village", type = "stop", x = 266, y = 107, r = 13, road = 1, anchor = nil, name = "Sandpiperglen" },
+        { id = 141, kind = "village", type = "stop", x = 277, y = 67, r = 13, road = 1, anchor = nil, name = "Lilyby" },
+        { id = 133, kind = "village", type = "stop", x = 318, y = 57, r = 13, road = 1, anchor = nil, name = "Birchford" },
+        { id = 12, kind = "exit", type = "far", x = 312, y = 16, r = 12, road = 1, anchor = nil, name = "Blossomreach" },
+        { id = 143, kind = "village", type = "stop", x = 311, y = 160, r = 13, road = 2, anchor = nil, name = "Shellnook" },
+        { id = 152, kind = "village", type = "stop", x = 355, y = 189, r = 13, road = 2, anchor = nil, name = "Turtleburrow" },
+        { id = 153, kind = "village", type = "stop", x = 394, y = 216, r = 13, road = 2, anchor = nil, name = "Brineglen" },
+        { id = 14, kind = "exit", type = "far", x = 379, y = 254, r = 12, road = 2, anchor = nil, name = "The Coralscatter" },
+        { id = 138, kind = "village", type = "off", x = 375, y = 55, r = 12, road = nil, anchor = 133, name = "Dunewick" },
+        { id = 144, kind = "village", type = "off", x = 163, y = 82, r = 12, road = nil, anchor = 139, name = "Sandpiperhollow" },
+        { id = 145, kind = "village", type = "off", x = 228, y = 121, r = 12, road = nil, anchor = 140, name = "Spindriftbottom" },
+        { id = 146, kind = "village", type = "off", x = 352, y = 86, r = 12, road = nil, anchor = 141, name = "Reefden" },
+        { id = 147, kind = "village", type = "off", x = 338, y = 119, r = 12, road = nil, anchor = 142, name = "Canopyford" },
+        { id = 148, kind = "village", type = "off", x = 233, y = 183, r = 12, road = nil, anchor = 143, name = "Monsoonburrow" },
+        { id = 149, kind = "village", type = "off", x = 86, y = 141, r = 12, road = nil, anchor = 139, name = "Parrotden" },
+        { id = 156, kind = "village", type = "off", x = 299, y = 199, r = 12, road = nil, anchor = 152, name = "Mossby" },
+        { id = 157, kind = "village", type = "off", x = 334, y = 237, r = 12, road = nil, anchor = 153, name = "Toadstoolbrook" },
+        { id = 160, kind = "village", type = "off", x = 417, y = 172, r = 12, road = nil, anchor = 152, name = "Ambercove" },
+        { id = 220, kind = "wonder", type = "off", x = 110, y = 65, r = 10, road = nil, anchor = 124, name = "Tea Garden Slopes" },
+        { id = 228, kind = "delve", type = "off", x = 237, y = 39, r = 10, road = nil, anchor = 133, name = "The Long Wall Walk" },
+        { id = 230, kind = "haven", type = "off", x = 153, y = 158, r = 10, road = nil, anchor = 140, name = "Floating Market" },
+        { id = 231, kind = "wonder", type = "off", x = 211, y = 58, r = 10, road = nil, anchor = 141, name = "Lantern Festival River" },
+        { id = 232, kind = "wonder", type = "off", x = 188, y = 105, r = 10, road = nil, anchor = 142, name = "Volcano Spice Gardens" },
+        { id = 233, kind = "wonder", type = "off", x = 216, y = 89, r = 10, road = nil, anchor = 139, name = "Root-wrapped Temple" },
+        { id = 234, kind = "delve", type = "off", x = 304, y = 118, r = 10, road = nil, anchor = 140, name = "Firefly Caves" },
+        { id = 235, kind = "lair", type = "off", x = 371, y = 145, r = 10, road = nil, anchor = 143, name = "Dragonlizard Den" },
+        { id = 236, kind = "haven", type = "off", x = 454, y = 202, r = 10, road = nil, anchor = 153, name = "Kava Circle" },
+        { id = 239, kind = "wonder", type = "off", x = 301, y = 233, r = 10, road = nil, anchor = 153, name = "Stone Head Watchers" },
+        { id = 241, kind = "lair", type = "off", x = 265, y = 195, r = 10, road = nil, anchor = 152, name = "Reef of the Box Jelly Queen" }
       },
       roads = {
         {
           name = "Spicepeak – The Monsoon Tangle",
           to = "CSA",
           pts = {
-            { 287, 151 },
-            { 214, 142 },
-            { 139, 115 },
-            { 71, 91 },
-            { 16, 36 }
+            { 265, 152 },
+            { 195, 144 },
+            { 129, 115 },
+            { 67, 91 },
+            { 16, 35 }
           }
         },
         {
           name = "Blossomreach – The Monsoon Tangle",
           to = "EA",
           pts = {
-            { 287, 151 },
-            { 290, 106 },
-            { 304, 67 },
-            { 345, 57 },
-            { 341, 16 }
+            { 265, 152 },
+            { 266, 107 },
+            { 277, 67 },
+            { 318, 57 },
+            { 312, 16 }
           }
         },
         {
           name = "The Monsoon Tangle – The Coralscatter",
           to = "OC",
           pts = {
-            { 287, 151 },
-            { 339, 163 },
-            { 388, 189 },
-            { 431, 216 },
-            { 414, 254 }
+            { 265, 152 },
+            { 311, 160 },
+            { 355, 189 },
+            { 394, 216 },
+            { 379, 254 }
           }
         }
       },
       trails = {
         {
-          { 139, 115 },
-          { 177, 83 }
+          { 318, 57 },
+          { 375, 55 }
         },
         {
-          { 214, 142 },
-          { 251, 120 }
+          { 129, 115 },
+          { 163, 82 }
         },
         {
-          { 304, 67 },
-          { 384, 86 }
+          { 195, 144 },
+          { 228, 121 }
         },
         {
-          { 290, 106 },
-          { 368, 118 }
+          { 277, 67 },
+          { 352, 86 }
         },
         {
-          { 339, 163 },
-          { 267, 190 }
+          { 266, 107 },
+          { 338, 119 }
         },
         {
-          { 139, 115 },
-          { 92, 141 }
+          { 311, 160 },
+          { 233, 183 }
         },
         {
-          { 214, 142 },
-          { 166, 158 }
+          { 129, 115 },
+          { 86, 141 }
         },
         {
-          { 304, 67 },
-          { 230, 59 }
+          { 355, 189 },
+          { 299, 199 }
         },
         {
-          { 290, 106 },
-          { 204, 104 }
+          { 394, 216 },
+          { 334, 237 }
         },
         {
-          { 139, 115 },
-          { 234, 91 }
+          { 355, 189 },
+          { 417, 172 }
         },
         {
-          { 214, 142 },
-          { 327, 119 }
+          { 67, 91 },
+          { 110, 65 }
         },
         {
-          { 339, 163 },
-          { 406, 145 }
+          { 318, 57 },
+          { 237, 39 }
+        },
+        {
+          { 195, 144 },
+          { 153, 158 }
+        },
+        {
+          { 277, 67 },
+          { 211, 58 }
+        },
+        {
+          { 266, 107 },
+          { 188, 105 }
+        },
+        {
+          { 129, 115 },
+          { 216, 89 }
+        },
+        {
+          { 195, 144 },
+          { 304, 118 }
+        },
+        {
+          { 311, 160 },
+          { 371, 145 }
+        },
+        {
+          { 394, 216 },
+          { 454, 202 }
+        },
+        {
+          { 394, 216 },
+          { 301, 233 }
+        },
+        {
+          { 355, 189 },
+          { 265, 195 }
+        }
+      },
+      trail_bends = {
+        {
+          from = 133,
+          to = 138,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 344, 42 }
+        },
+        {
+          from = 139,
+          to = 144,
+          bow = "R",
+          heading = "N",
+          ctrl = { 135, 94 }
+        },
+        {
+          from = 140,
+          to = 145,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 202, 128 }
+        },
+        {
+          from = 141,
+          to = 146,
+          bow = "R",
+          heading = "E",
+          ctrl = { 333, 72 }
+        },
+        {
+          from = 142,
+          to = 147,
+          bow = "R",
+          heading = "E",
+          ctrl = { 307, 95 }
+        },
+        {
+          from = 143,
+          to = 148,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 289, 183 }
+        },
+        {
+          from = 139,
+          to = 149,
+          bow = "L",
+          heading = "W",
+          ctrl = { 96, 123 }
+        },
+        {
+          from = 152,
+          to = 156,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 339, 202 }
+        },
+        {
+          from = 153,
+          to = 157,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 358, 241 }
+        },
+        {
+          from = 152,
+          to = 160,
+          bow = "L",
+          heading = "E",
+          ctrl = { 399, 190 }
+        },
+        {
+          from = 124,
+          to = 220,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 80, 69 }
+        },
+        {
+          from = 133,
+          to = 228,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 274, 27 }
+        },
+        {
+          from = 140,
+          to = 230,
+          bow = "L",
+          heading = "W",
+          ctrl = { 164, 147 }
+        },
+        {
+          from = 141,
+          to = 231,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 260, 59 }
+        },
+        {
+          from = 142,
+          to = 232,
+          bow = "L",
+          heading = "NW",
+          ctrl = { 232, 87 }
+        },
+        {
+          from = 139,
+          to = 233,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 151, 94 }
+        },
+        {
+          from = 140,
+          to = 234,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 224, 120 }
+        },
+        {
+          from = 143,
+          to = 235,
+          bow = "L",
+          heading = "E",
+          ctrl = { 354, 161 }
+        },
+        {
+          from = 153,
+          to = 236,
+          bow = "L",
+          heading = "E",
+          ctrl = { 418, 223 }
+        },
+        {
+          from = 153,
+          to = 239,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 339, 246 }
+        },
+        {
+          from = 152,
+          to = 241,
+          bow = "R",
+          heading = "SW",
+          ctrl = { 329, 205 }
         }
       },
       exits = {
-        { road = 0, to = "CSA", name = "Spicepeak", x = 16, y = 36, side = "W" },
-        { road = 1, to = "EA", name = "Blossomreach", x = 341, y = 16, side = "N" },
-        { road = 2, to = "OC", name = "The Coralscatter", x = 414, y = 254, side = "S" }
+        { road = 0, to = "CSA", name = "Spicepeak", x = 16, y = 35, side = "W" },
+        { road = 1, to = "EA", name = "Blossomreach", x = 312, y = 16, side = "N" },
+        { road = 2, to = "OC", name = "The Coralscatter", x = 379, y = 254, side = "S" }
       },
-      pin = { x = 287, y = 151, r = 22 },
+      pin = { x = 265, y = 152, r = 22 },
       clear = {
-        { 287, 151, 22 },
-        { 214, 142, 19 },
-        { 139, 115, 19 },
-        { 71, 91, 19 },
-        { 16, 36, 18 },
-        { 290, 106, 19 },
-        { 304, 67, 19 },
-        { 345, 57, 19 },
-        { 341, 16, 18 },
-        { 339, 163, 19 },
-        { 388, 189, 19 },
-        { 431, 216, 19 },
-        { 414, 254, 18 },
-        { 177, 83, 18 },
-        { 251, 120, 18 },
-        { 384, 86, 18 },
-        { 368, 118, 18 },
-        { 267, 190, 18 },
-        { 92, 141, 18 },
-        { 166, 158, 16 },
-        { 230, 59, 16 },
-        { 204, 104, 16 },
-        { 234, 91, 16 },
-        { 327, 119, 16 },
-        { 406, 145, 16 }
+        { 265, 152, 22 },
+        { 195, 144, 19 },
+        { 129, 115, 19 },
+        { 67, 91, 19 },
+        { 16, 35, 18 },
+        { 266, 107, 19 },
+        { 277, 67, 19 },
+        { 318, 57, 19 },
+        { 312, 16, 18 },
+        { 311, 160, 19 },
+        { 355, 189, 19 },
+        { 394, 216, 19 },
+        { 379, 254, 18 },
+        { 375, 55, 18 },
+        { 163, 82, 18 },
+        { 228, 121, 18 },
+        { 352, 86, 18 },
+        { 338, 119, 18 },
+        { 233, 183, 18 },
+        { 86, 141, 18 },
+        { 299, 199, 18 },
+        { 334, 237, 18 },
+        { 417, 172, 18 },
+        { 110, 65, 16 },
+        { 237, 39, 16 },
+        { 153, 158, 16 },
+        { 211, 58, 16 },
+        { 188, 105, 16 },
+        { 216, 89, 16 },
+        { 304, 118, 16 },
+        { 371, 145, 16 },
+        { 454, 202, 16 },
+        { 301, 233, 16 },
+        { 265, 195, 16 }
       }
     },
     OC = {
@@ -1913,6 +5065,8 @@ return {
         { id = 152, kind = "village", type = "stop", x = 281, y = 105, r = 13, road = 1, anchor = nil, name = "Turtleburrow" },
         { id = 143, kind = "village", type = "stop", x = 232, y = 63, r = 13, road = 1, anchor = nil, name = "Shellnook" },
         { id = 13, kind = "exit", type = "far", x = 254, y = 16, r = 12, road = 1, anchor = nil, name = "The Monsoon Tangle" },
+        { id = 54, kind = "village", type = "off", x = 107, y = 129, r = 12, road = nil, anchor = 49, name = "Scorchby" },
+        { id = 148, kind = "village", type = "off", x = 309, y = 37, r = 12, road = nil, anchor = 143, name = "Monsoonburrow" },
         { id = 154, kind = "village", type = "off", x = 219, y = 150, r = 12, road = nil, anchor = 150, name = "Shellknoll" },
         { id = 155, kind = "village", type = "off", x = 299, y = 145, r = 12, road = nil, anchor = 151, name = "Salthollow" },
         { id = 156, kind = "village", type = "off", x = 357, y = 83, r = 12, road = nil, anchor = 152, name = "Mossby" },
@@ -1920,6 +5074,8 @@ return {
         { id = 158, kind = "village", type = "off", x = 193, y = 240, r = 12, road = nil, anchor = 150, name = "Miragewell" },
         { id = 159, kind = "village", type = "off", x = 296, y = 239, r = 12, road = nil, anchor = 151, name = "Oasiswick" },
         { id = 160, kind = "village", type = "off", x = 192, y = 125, r = 12, road = nil, anchor = 152, name = "Ambercove" },
+        { id = 180, kind = "wonder", type = "off", x = 91, y = 229, r = 10, road = nil, anchor = 49, name = "Pink River Dolphin Pools" },
+        { id = 235, kind = "lair", type = "off", x = 155, y = 89, r = 10, road = nil, anchor = 143, name = "Dragonlizard Den" },
         { id = 236, kind = "haven", type = "off", x = 259, y = 173, r = 10, road = nil, anchor = 153, name = "Kava Circle" },
         { id = 237, kind = "wonder", type = "off", x = 373, y = 133, r = 10, road = nil, anchor = 151, name = "Glowworm Grotto" },
         { id = 238, kind = "wonder", type = "off", x = 264, y = 140, r = 10, road = nil, anchor = 150, name = "Starpath Canoe" },
@@ -1953,6 +5109,14 @@ return {
       },
       trails = {
         {
+          { 99, 179 },
+          { 107, 129 }
+        },
+        {
+          { 232, 63 },
+          { 309, 37 }
+        },
+        {
           { 201, 190 },
           { 219, 150 }
         },
@@ -1981,6 +5145,14 @@ return {
           { 192, 125 }
         },
         {
+          { 99, 179 },
+          { 91, 229 }
+        },
+        {
+          { 232, 63 },
+          { 155, 89 }
+        },
+        {
           { 339, 153 },
           { 259, 173 }
         },
@@ -2005,6 +5177,127 @@ return {
           { 393, 102 }
         }
       },
+      trail_bends = {
+        {
+          from = 49,
+          to = 54,
+          bow = "R",
+          heading = "N",
+          ctrl = { 91, 151 }
+        },
+        {
+          from = 143,
+          to = 148,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 279, 32 }
+        },
+        {
+          from = 150,
+          to = 154,
+          bow = "R",
+          heading = "N",
+          ctrl = { 199, 169 }
+        },
+        {
+          from = 151,
+          to = 155,
+          bow = "R",
+          heading = "NW",
+          ctrl = { 290, 168 }
+        },
+        {
+          from = 152,
+          to = 156,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 304, 81 }
+        },
+        {
+          from = 153,
+          to = 157,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 362, 126 }
+        },
+        {
+          from = 150,
+          to = 158,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 184, 214 }
+        },
+        {
+          from = 151,
+          to = 159,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 287, 215 }
+        },
+        {
+          from = 152,
+          to = 160,
+          bow = "L",
+          heading = "W",
+          ctrl = { 219, 100 }
+        },
+        {
+          from = 49,
+          to = 180,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 83, 201 }
+        },
+        {
+          from = 143,
+          to = 235,
+          bow = "L",
+          heading = "W",
+          ctrl = { 202, 58 }
+        },
+        {
+          from = 153,
+          to = 236,
+          bow = "L",
+          heading = "W",
+          ctrl = { 283, 150 }
+        },
+        {
+          from = 151,
+          to = 237,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 315, 162 }
+        },
+        {
+          from = 150,
+          to = 238,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 213, 163 }
+        },
+        {
+          from = 153,
+          to = 239,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 374, 131 }
+        },
+        {
+          from = 150,
+          to = 240,
+          bow = "L",
+          heading = "SW",
+          ctrl = { 147, 215 }
+        },
+        {
+          from = 152,
+          to = 241,
+          bow = "R",
+          heading = "NE",
+          ctrl = { 316, 85 }
+        }
+      },
       exits = {
         { road = 0, to = "SA", name = "The Rainroot Reaches", x = 16, y = 156, side = "W" },
         { road = 1, to = "SEA", name = "The Monsoon Tangle", x = 254, y = 16, side = "N" }
@@ -2020,6 +5313,8 @@ return {
         { 281, 105, 19 },
         { 232, 63, 19 },
         { 254, 16, 18 },
+        { 107, 129, 18 },
+        { 309, 37, 18 },
         { 219, 150, 18 },
         { 299, 145, 18 },
         { 357, 83, 18 },
@@ -2027,6 +5322,8 @@ return {
         { 193, 240, 18 },
         { 296, 239, 18 },
         { 192, 125, 18 },
+        { 91, 229, 16 },
+        { 155, 89, 16 },
         { 259, 173, 16 },
         { 373, 133, 16 },
         { 264, 140, 16 },

@@ -4,9 +4,9 @@ Status: TODO list (2026-11-12, after the P2b data upgrade). Data: `game/includes
 Everything the grammar can express is in the data. What is left needs engine work.
 
 ## Engine / lint gaps found in this pass
-- **Lint rejects `fpto=Name@village`** (`trail_sight_lint` reads the `@` as a chance). Workaround: which-nettle's giver is the Mossgate Nettle (`@v-na-2-3`) and `fpto=Nettle Cobblefield:2` (lowest id = Cloverholt in a fresh install; twin risk on other sites); sled-derby's giver is Elm (`@v-na-4-2`), `fpto=Rue Wickerby:2` (unique name).
-- **`tally=` ignores `?cond`** (counted on every win), so "dress the scarecrow in all four seasons" and "four seasons charted" are 4 uses (`scarecrow-hats`, `charts`), not 4 seasons. `?tl=key:N` tokens pay on every use after N (milestones use low odds or once-only titles/pages).
-- **`nocheck` does not apply to `pick:` checks** (only stat checks). No pick Sight has a nocheck villager now.
+- DONE (checked 2.7.08: the lint and `trail_sight_pay` take `fpto=Name@village:N`; the two workaround rows may now name the village) **Lint rejects `fpto=Name@village`** (`trail_sight_lint` reads the `@` as a chance). Workaround: which-nettle's giver is the Mossgate Nettle (`@v-na-2-3`) and `fpto=Nettle Cobblefield:2` (lowest id = Cloverholt in a fresh install; twin risk on other sites); sled-derby's giver is Elm (`@v-na-4-2`), `fpto=Rue Wickerby:2` (unique name).
+- DONE (2.7.01, checked 2.7.08: `tally=key?se=winter` counts only when it holds; the scarecrow / charts rows could now count seasons) **`tally=` ignores `?cond`** (counted on every win), so "dress the scarecrow in all four seasons" and "four seasons charted" are 4 uses (`scarecrow-hats`, `charts`), not 4 seasons. `?tl=key:N` tokens pay on every use after N (milestones use low odds or once-only titles/pages).
+- DONE (checked 2.7.08: a `nocheck` villager settles a pick too, `trail_sight_do`) **`nocheck` does not apply to `pick:` checks** (only stat checks). No pick Sight has a nocheck villager now.
 - **A wrong pick spends the use** for the whole cooldown; the quest-beat pick Sights (`310-driftpass`, `312-woodpecker`, `313-stickgate`, `314-driftwood`, `314-gullparliament`, `316-starstones`) have 2 uses so a wrong guess can be retried.
 - **`give=` rows can be repeated** as often as the gnome has the item on a day the villager is there; their rewards are kept below the item's value (Alder's punnet: 3 raspberries for 110).
 - **Quest beats cannot give items**: the owl letter comes from `316-starstones` (`first:`) and from Sorrel Fiddlewood at `316-kettletree` (40%).
@@ -18,6 +18,7 @@ Everything the grammar can express is in the data. What is left needs engine wor
 - **Choice of reward in a pick** (314-driftwood dragon/chair/sofa buffs, 316-skyhill night boon, 309-snowmen "no wrong answer"): a pick has one right answer.
 - **Hidden button**: 310-icicurtain "Lick" (Almanac "Told You").
 - **Streaks and "in a row"**: 228-pondmill 5 wins in a row, 312-ringlog streak, 236-haywagon 5 visits running, 314-driftwood sofa 3 visits running (all made private tallies instead).
+- 2.7.08: the destination lines (`to=` + `{cond}` line variants), market day (`mk=`), true tide / moon hints and conditional takes are in the grammar now (GRAMMAR.md).
 - **Any-of takes**: scarecrow "any crop or flower" (takes `carrot`), 312-larder any nut (`hazelnut`), 315-cairns any feather (`hen-feather`), 236-haywagon any seed (no take), 316-auroracamp any bread, 316-kettletree tea swaps (`meadowsweet` -> tea, `mint` -> tea), 232-picnicrise "eat any snack here, double buff".
 - **Tool-tier odds** (Sturdy/Fine tool rows): hedgerow butterfly scales, combridge fossil/frost crystal, ringlog oak log/heartwood, axe-only logs.
 - **Time-limited loans and flags**: Mister Plink's singing pebble for a day (now a 4-hour Charm buff), spare tin bucket, lantern oil refill (tool wear -1), muddy gnome, the seal pup's gift only after Q4, preened 3 times = the Owl fight starts Calm, woodpecker's beat (next Tune/Ring sure).

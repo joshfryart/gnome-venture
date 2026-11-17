@@ -633,7 +633,11 @@ function trail_sight_now(array $loc, ?array $sc, ?array $u = null): array
     $now['fd'] = ''; try { require_once __DIR__ . '/festival.php'; $fa = festival_active(); $now['fd'] = $fa ? (string)$fa['slug'] : ''; } catch (Throwable $e) {}   // 2.7.06: the festival on today (conditions fd=yes or fd=<slug>)
     $now['tl'] = $u ? trail_sight_tallies((int)$u['id']) : [];
     $now['towns'] = array_values(array_filter([(string)($loc['region'] ?? '')]));   // 2026-11-14: the regions of the walk's two ends (travellers follow their circuit)
-    if ($u && function_exists('active_expedition')) { try { $ex = active_expedition((int)$u['id']); if ($ex && ($rg = (string)q_val('SELECT region FROM locations WHERE id = ?', [(int)$ex['to_id']])) !== '') $now['towns'][] = $rg; } catch (Throwable $e) {} }
+    $now['to'] = [];   // 2.7.08: where this walk leads (conditions to=<place slug, kind or land>[,..])
+    if ($u && function_exists('active_expedition')) { try { $ex = active_expedition((int)$u['id']); $dest = $ex ? q_one('SELECT slug, kind, landscape, region FROM locations WHERE id = ?', [(int)$ex['to_id']]) : null;
+        if ($dest && (string)$dest['region'] !== '') $now['towns'][] = (string)$dest['region'];
+        if ($dest) $now['to'] = array_values(array_unique(array_filter([(string)$dest['slug'], (string)$dest['kind'], (string)$dest['landscape']]))); } catch (Throwable $e) {} }
+    $now['mk'] = 'no'; try { if (function_exists('market_day_on') && market_day_on()) $now['mk'] = 'yes'; } catch (Throwable $e) {}   // 2.7.08: the town market day (conditions mk=yes / mk=no)
     $now['qd'] = [];
     if ($u) { try { $now['qd'] = array_column(q('SELECT quest FROM user_sight_quests WHERE user_id = ? AND done_at IS NOT NULL', [(int)$u['id']])->fetchAll(), 'quest'); } catch (Throwable $e) {} }
     return $now;
@@ -655,7 +659,8 @@ function trail_sight_cond_ok(string $cond, array $now): bool
             $have = (int)(($now['tl'] ?? [])[$tk] ?? 0); if ($k === 'tl' ? $have < (int)$tn : $have !== (int)$tn) return false; continue; }   // tl=<key>:N = a tally is at least N; tn=<key>:N = exactly N (pays once, on the use that reaches it)
         if ($k === 'gd') { $okd = false; foreach (explode(',', $v) as $mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); if ((int)$gm > 0 && ((int)($now['gd'] ?? 0)) % (int)$gm === (int)$gr) $okd = true; } if (!$okd) return false; continue; }   // 2.7.00: every Mth game day (day mod M = R)
         if ($k === 'qd') { if (!array_intersect(array_map('trim', explode(',', $v)), (array)($now['qd'] ?? []))) return false; continue; }   // qd=<quest slug>[,..] = that Sight quest line is done
-        if (!in_array($k, ['dp', 'se', 'we', 'hp', 'st', 'pal', 'mo', 'ti', 'fd'], true) || $v === '') return false;
+        if ($k === 'to') { if (!array_intersect(array_map('trim', explode(',', $v)), (array)($now['to'] ?? []))) return false; continue; }   // 2.7.08: to=<slug|kind|land>[,..] = the walk leads there
+        if (!in_array($k, ['dp', 'se', 'we', 'hp', 'st', 'pal', 'mo', 'ti', 'fd', 'mk'], true) || $v === '') return false;
         if ($k === 'fd') { $fdv = array_values(array_filter(array_map('trim', explode(',', $v)))); $fdn = (string)($now['fd'] ?? ''); if (!($fdn !== '' && (in_array('yes', $fdv, true) || in_array($fdn, $fdv, true)))) return false; continue; }   // 2.7.06: fd=yes = any festival is on today, fd=<festival slug> = that one
         if (!in_array((string)($now[$k] ?? ''), array_values(array_filter(array_map('trim', explode(',', $v)))), true)) return false;
     }
@@ -712,6 +717,8 @@ function trail_sight_cond_text(string $cond): string
         elseif ($k === 'mo') $bits[] = 'at ' . implode(' or ', array_map(fn($x) => strtolower(MOON_PHASES[trim($x)][1] ?? $x), explode(',', $v)));
         elseif ($k === 'ti') $bits[] = 'at ' . implode(' or ', array_map('trim', explode(',', $v))) . ' tide';
         elseif ($k === 'qd') $bits[] = 'once ' . str_replace('-', ' ', $v) . ' is done';
+        elseif ($k === 'to') $bits[] = 'on the way to ' . implode(' or ', array_map(fn($x) => str_replace('-', ' ', trim($x)), explode(',', $v)));   // 2.7.08
+        elseif ($k === 'mk') $bits[] = $v === 'yes' ? 'on market day' : 'not on market day';   // 2.7.08
         elseif (isset($w[$k])) $bits[] = $w[$k] . implode(' or ', explode(',', $v));
     }
     return implode(', ', $bits);
@@ -727,6 +734,13 @@ function trail_sight_hint(array $u, array $loc, string $kind): string
             return '🌦️ The sky says tomorrow will be ' . hollow_weather(null, $tm) . '.';
         }
         if ($kind === 'season') return '🍂 It is ' . hollow_season() . ' now.';
+        if ($kind === 'tide' || $kind === 'moon') {   // 2.7.08: the true tide right now / tonight's moon (moon.php, the same clock as the ti= and mo= conditions)
+            require_once __DIR__ . '/moon.php'; require_once __DIR__ . '/npc_clockwork.php';
+            [, $ch, $cdi] = npc_cw_clock();
+            if ($kind === 'tide') return '🌊 The water says: ' . lcfirst((string)moon_tide($ch, $cdi)['text']) . '.';
+            $ph = moon_phase($cdi);
+            return $ph['icon'] . ' The moon is a ' . strtolower((string)$ph['name']) . ' tonight' . ($ph['range'] === 'spring' ? ': big tides' : ($ph['range'] === 'neap' ? ': small tides' : '')) . '.';
+        }
         if ($kind === 'away') {
             if (($loc['kind'] ?? '') !== 'village') return '';   // only a village has folk to be away from
             require_once __DIR__ . '/stop_folk.php';
@@ -882,6 +896,8 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
         require_once __DIR__ . '/npc_clockwork.php';
         $folkNote .= npc_cw_sight_card_html($m['slug']);   // 2.7.01: who is here, and when they are next
         $pk = trail_sight_pick_info($row); $ch = trail_sight_choose_info($row);
+        $capped = $exp && ($wc = trail_sight_walk_cap()) > 0 && trail_sight_walk_uses((int)$u['id'], (int)($exp['id'] ?? 0)) >= $wc;   // 2.7.08: the walk's Sight cap is reached
+        if ($capped && $m['left'] > 0) { $m['left'] = 0; $m['why'] = $wc . ' Sights this walk: the most'; }
         $act = $m['left'] < 1
             ? '<button class="btn" disabled>' . e($row['icon']) . ' ' . e($row['verb']) . ' <small>' . e($m['why'] ?: 'again soon') . '</small></button>'
             : ($near

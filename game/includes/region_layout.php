@@ -16,7 +16,9 @@ declare(strict_types=1);
  *                      leaves from, or 0), 'side' (far: N/E/S/W edge), 'far' (far: region code), 'farname', 'loc' (id, name, slug,
  *                      kind, landscape, region)]],
  *   'roads' => [['id', 'name', 'far', 'nodes' => [town … exit], 'pts' => [[x, y] …]]],
- *   'trails' => [['from' => anchor id, 'to' => id, 'pts' => [[x, y], [x, y]]]],
+ *   'trails' => [['from' => anchor id, 'to' => id, 'pts' => [[x, y], [x, y]], 'bow' => 'L'|'R', 'heading' => N|NE|E|SE|S|SW|W|NW, 'ctrl' => [x, y]]],
+ *                (2.7.08 side-trail heading rule, rl_trail_heading: the line on the map stays straight, so the art stays in sync; bow / heading / ctrl say how the
+ *                 trail's Trail map bends: it leaves the stop leaning the way the road runs, and bows to the side the place lies on)
  *   'exits' => [['road', 'id', 'to', 'name', 'x', 'y', 'side']],
  *   'pin' => ['x', 'y', 'r'],            (one flat spot: the town square)
  *   'clear' => [['id', 'x', 'y', 'r']]   (keep-clear circles round every marker: the art keeps these flat and plain)
@@ -33,6 +35,44 @@ function region_layout(string $code): ?array
     static $cache = [];
     if (array_key_exists($code, $cache)) return $cache[$code];
     return $cache[$code] = region_layout_build($code);
+}
+
+const RL_HEADINGS = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];   // screen compass (y grows down), 45 degrees apart from east
+
+/** The nearest of 8 compass headings for a screen vector (y down: +y is S). */
+function rl_heading8(float $dx, float $dy): string
+{
+    if (abs($dx) < 1e-9 && abs($dy) < 1e-9) return 'E';
+    $i = (int)round(atan2($dy, $dx) / (M_PI / 4));
+    return RL_HEADINGS[(($i % 8) + 8) % 8];
+}
+
+/**
+ * 2.7.08 (plan-route-map-bends item 8): the heading rule of a side trail (stop -> off-road place). The road's forward direction at the stop is the way
+ * along its road to the next node (the previous one at a road's end). The trail BOWS to the side of the road the place lies on ('L' or 'R', looking
+ * along the road), and it leaves the stop leaning forward: its control point is the chord's middle pushed 0.25 x chord length along the road.
+ * 'heading' = the 8-compass heading of the first leg (stop -> control point): the way the trail's first Trail section turns. Pure.
+ * $roads = the layout roads ([['nodes' => ids, 'pts' => [[x, y] ...]] ...]); a stop on no road (or a lone point) uses the chord only (bow 'R').
+ */
+function rl_trail_heading(array $roads, int $anchor, array $a, array $b): array
+{
+    [$cx, $cy] = [$b[0] - $a[0], $b[1] - $a[1]]; $len = hypot($cx, $cy) ?: 1.0;
+    $fx = 0.0; $fy = 0.0;
+    foreach ($roads as $rd) {
+        $k = array_search($anchor, array_map('intval', (array)($rd['nodes'] ?? [])), true);
+        if ($k === false) continue;
+        $pts = (array)($rd['pts'] ?? []); $n = count($pts);
+        if ($n < 2) continue;
+        [$p, $q] = $k + 1 < $n ? [$pts[$k], $pts[$k + 1]] : [$pts[$k - 1], $pts[$k]];
+        $fx = (float)$q[0] - (float)$p[0]; $fy = (float)$q[1] - (float)$p[1];
+        break;
+    }
+    $fl = hypot($fx, $fy);
+    if ($fl < 1e-9) return ['bow' => 'R', 'heading' => rl_heading8($cx, $cy), 'ctrl' => [(int)round(($a[0] + $b[0]) / 2), (int)round(($a[1] + $b[1]) / 2)]];
+    $fx /= $fl; $fy /= $fl;
+    $bow = ($fx * $cy - $fy * $cx) >= 0 ? 'R' : 'L';   // screen y is down: a positive cross product is to the right of the road
+    $ctrl = [($a[0] + $b[0]) / 2 + $fx * 0.25 * $len, ($a[1] + $b[1]) / 2 + $fy * 0.25 * $len];
+    return ['bow' => $bow, 'heading' => rl_heading8($ctrl[0] - $a[0], $ctrl[1] - $a[1]), 'ctrl' => [(int)round($ctrl[0]), (int)round($ctrl[1])]];
 }
 
 /** Places on any road (towns and road villages), by id. */
@@ -249,7 +289,7 @@ function region_layout_build(string $code): ?array
     foreach ($items as $id => $it) {
         if ($it['type'] === 'off' && $it['anchor'] && isset($items[$it['anchor']])) {
             $an = $items[$it['anchor']];
-            $trails[] = ['from' => $it['anchor'], 'to' => $id, 'pts' => [[$an['x'], $an['y']], [$it['x'], $it['y']]]];
+            $trails[] = ['from' => $it['anchor'], 'to' => $id, 'pts' => [[$an['x'], $an['y']], [$it['x'], $it['y']]]] + rl_trail_heading($outRoads, (int)$it['anchor'], [$an['x'], $an['y']], [$it['x'], $it['y']]);
         }
         $slots[$id] = ['id' => $id, 'type' => $it['type'], 'kind' => $it['kind'], 'x' => $it['x'], 'y' => $it['y'], 'r' => $it['r'], 'road' => $it['road'], 'idx' => $it['idx'],
             'anchor' => (int)($it['anchor'] ?? 0), 'side' => $it['side'], 'far' => (string)($it['far'] ?? ''), 'farname' => (string)($it['farname'] ?? ''), 'loc' => $it['loc']];

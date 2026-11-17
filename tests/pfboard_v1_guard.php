@@ -24,3 +24,9 @@ chk('no guard notices once the fight is over', $ev === []);
 $s = v1_bare('medium'); $s['me']['hand'] = []; $s['me']['block'] = 5; $s['foe']['hand'] = []; $c = json_decode(json_encode($s), true); $r = pfb_pass($c, $c['turn']);
 chk('a saved and loaded fight fades the same way', $c['me']['block'] === 0 && $c['me']['faded'] === 5);
 $l = pfight_chip_event(['by' => 'me', 'note' => 'fade', 'n' => '6', 't' => 'note', 'k' => 'note'], null); chk('the history chip for the fade is yours and says so', $l['by'] === 'me' && $l['types'] === ['note'] && str_contains($l['txt'], 'fades -6'), $l);
+// 2.7.08 puzzle clarity (docs/puzzle-board-proposals.md P7 "creature guard readout"): your Hurt that its guard soaks says how much was blocked, in the history chip and the log line (PHP and tools/pfengine.js chipEvent / line).
+$s = v1_bare('medium', V1_OLD); $s['foe']['block'] = 4; v1_put($s, 'foe', v1_tile($s, 'c1', 'charm', 3, 'body'), 2, 2); $r = v1_place($s, 'me', v1_tile($s, 'jab', 'hurt', 9, 'body'), 3, 2); $he = array_values(array_filter($r ?? [], fn($e) => ($e['by'] ?? '') === 'me' && ($e['t'] ?? '') === 'hurt'))[0] ?? [];
+chk('your Hurt into its guard of 4 records 4 blocked (engine)', (int)($he['blocked'] ?? 0) === 4, $he);
+$l = pfight_chip_event($he, null); chk('the history chip of that Hurt says "4 blocked"', str_contains($l['txt'], '4 blocked'), $l['txt']);
+chk('the log line of that Hurt says "4 blocked by its guard"', str_contains(pfight_line($he, 'Owl'), '4 blocked by its guard'), pfight_line($he, 'Owl'));
+$he0 = $he; $he0['blocked'] = 0; chk('a Hurt with nothing blocked says nothing about guard', !str_contains(pfight_chip_event($he0, null)['txt'], 'blocked') && !str_contains(pfight_line($he0, 'Owl'), 'blocked'));

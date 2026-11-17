@@ -201,7 +201,7 @@ function pf_tiles(): array
     if ($T) return $T;
     $T = [];
     foreach (pf_data_lines('pf_pieces.txt') as $r) {
-        if (count($r) < 10 || !in_array($r[2], ['basic', 'knack', 'calling'], true) || !isset(PF_HOLE[$r[4]]) || (int)$r[5] < 1) continue;
+        if (count($r) < 10 || !in_array($r[2], ['basic', 'knack', 'calling'], true) || !isset(PF_HOLE[$r[4]]) || (int)$r[5] < 1 || str_contains($r[3], ':')) continue;   // 2.7.08: a tier III calling piece (ref `calling:3`) is a deck-model piece, not an old tile
         $knob = explode('/', $r[6])[0];
         $t = ['n' => $r[1], 't' => $r[4], 'v' => (int)$r[5], 'r' => in_array($knob, ['body', 'mind', 'craft'], true) ? $knob : null];
         if ($r[7] !== '-' && $r[7] !== '') $t['tag'] = $r[7];

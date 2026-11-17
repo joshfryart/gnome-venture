@@ -1683,6 +1683,19 @@ function gvCapToasts(nodes) {
   }
   return nodes.slice(0, max).concat([more]);
 }
+/* 2.7.08: the toast box (Milestone lines, new Almanac pages, prizes) must not sit over a fight's end scene (#fightscene: the last blow, the loot drawn into the gnome).
+   If it does: move it to the top right under the header (.toasts-top); if it still does, make it compact (.toasts-tiny: one line each, no prize lists). */
+function gvToastDodge(box) {
+  var sc = document.querySelector('#fightscene, .fightscene');
+  if (!sc || !box || !box.getBoundingClientRect) return;
+  var hit = function () {
+    var a = box.getBoundingClientRect(), b = sc.getBoundingClientRect();
+    return a.width > 0 && b.width > 0 && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  };
+  if (!hit()) return;
+  box.classList.add('toasts-top');
+  if (hit()) box.classList.add('toasts-tiny');
+}
 /* v0.9.6: show pop-up messages. Phones: top of the screen under the header (never over the bottom bar), ok ones go after 4s,
    errors stay until tapped (✕). Computers: as before. Always role status (ok) or alert (error). */
 function gvShowToasts(nodes) {
@@ -1720,6 +1733,7 @@ function gvShowToasts(nodes) {
     box.appendChild(n);
   });
   document.body.appendChild(box);
+  gvToastDodge(box);
   if (phone) {
     // v1.6.2: ~2.5s (prizes 6s); errors stay until tapped. Reduced motion: no fade, just gone.
     var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

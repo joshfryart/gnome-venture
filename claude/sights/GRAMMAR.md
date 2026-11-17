@@ -64,3 +64,11 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 - 2.7.06: `buff=stat:amount:delve` is a lucky moment that only counts while a delve or lair run is active (users.ev_scope = 'delve'); it stays until replaced (30 real days at most).
 - 2.7.06: `buff=stat:amount:section` is a lucky moment that lasts until the Trail walk crosses into the next section (users.ev_scope = 'section', ev_day = expedition id * 1000 + section); without a Trail walk it falls back to the usual minutes.
 - 2.7.06: **escorts**: reward `escort=Name` (a stop villager with a picture) makes that villager walk with you for the rest of this Trail walk: they are drawn beside the gnome on the map (both the baked-art and the plain tile renderers; state `escort` in the walk scene). Ends with the walk. Checked by eye: first frame of the 64x80 strip, left of the gnome.
+
+## 2.7.08 additions (tests `tests/trail_sights_278.sh`)
+- **`to=<place slug|kind|land>[,..]`** (a `when` / `?cond` key): the walk leads there. The place slug is the destination's location slug (`lm-ea-2-wonder-panda-bamboo-grove`), the kind is `haven wonder delve lair village ...`, the land is the destination's landscape. The lint checks each value against the world.
+- **`{cond}` line variants**: a `win` / `lose` variant may START with `{cond}` (the `when` grammar, e.g. `{to=lm-ca-4-lair-smokecap-caldera}`, `{we=fog}`, `{dp=night/se=winter}`). A matching `{cond}` variant WINS over the plain ones; with none matching a plain one shows. Keep at least one plain variant. No other `{ }` in a line.
+- **`mk=yes|no`**: the town market day (`market_day_on()`, setting `market_day`).
+- **`hint=tide`** (the true tide now: "low tide now, turning in 3 h") and **`hint=moon`** (tonight's phase, and big / small tides).
+- **`take=` may carry a `?cond`** (`take=sardine:1?ti=low`): it is only needed and used up when the condition holds. Still no `first:` or `@chance` on a take.
+- **Per-walk cap**: setting `sights_walk_cap` (default 6, 0 = off): at most that many Sight uses (win or lose) on one Trail walk; the card shows "6 Sights this walk: the most". Gifts (`give=`) do not count.

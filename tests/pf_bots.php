@@ -120,8 +120,35 @@ function pb_edge(): int
         }
     }
     $ok("aim re-roll: $nf fights played with random moves, $reaims re-aims seen, no engine error", $reaims > 0, $reaims);
+    echo "== 2.7.08 Teamwork reachable but not dominant, re-aims and bait aims within bounds (chain bot, std build, 30 creatures)\n";
+    $m = pb_aim_stats(array_slice($cr, 0, 30));
+    $ok(sprintf('Teamwork fires in %.0f%% of your turns (reachable: 5-50%%), x1.6 in %.0f%% (at most 10%%)', 100 * $m['tw'], 100 * $m['tw3']), $m['tw'] >= 0.05 && $m['tw'] <= 0.5 && $m['tw3'] <= 0.1, $m);
+    $ok(sprintf('re-aims: %.2f a fight (at most 2), at most %d in one fight (never more than its turns)', $m['re'], $m['remax']), $m['re'] <= 2.0 && $m['reover'] === 0, $m);
+    $ok(sprintf('bait aims: its own chain fires your pieces in %.0f%% of its turns, at most %.0f%% of its bar in one turn (under 50%%)', 100 * $m['bait'], 100 * $m['baitmax']), $m['baitmax'] < 0.5, $m);
     echo $bad ? "$bad FAILED\n" : "ok\n";
     return $bad ? 1 : 0;
+}
+
+/** 2.7.08: chain-bot fights on $cr: share of your turns with Teamwork (any, x1.6), re-aims per fight (mean, max, fights with more re-aims than turns), and bait (its chain firing your pieces: share of its turns, the largest one as a share of its bar). $v1 overrides rules (a check run with Teamwork off must fail). */
+function pb_aim_stats(array $cr, array $v1 = []): array
+{
+    $T = 0; $tw = 0; $tw3 = 0; $re = 0; $remax = 0; $reover = 0; $F = 0; $ft = 0; $bt = 0; $bmax = 0.0;
+    foreach ($cr as $c) {
+        $seed = 500 + $c['level'] + 1000 * (crc32($c['slug']) % 97); mt_srand($seed);
+        $s = pfb_new(pb_player($c['level'], 'std'), pfd_foe_row($c, array_keys(pfd_region_pieces())[(crc32($c['slug']) + $seed) % 14]), $seed, ['blank' => true, 'v1' => $v1 ?: true]);
+        $hand = $s['me']['hand']; if ($hand) { $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i; pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$seed % 4]); }
+        $n = 0; $fr = 0; $F++;
+        while (!$s['over'] && $n++ < 40) {
+            $r = tv_act($s, tv_choose($s, 'chain', tv_places($s))); if ($r['err']) { $r = pfb_pass($s, $s['turn']); if ($r['err']) break; }
+            $T++; $mx = 1.0; $in = false; $b = 0.0;
+            foreach ($r['ev'] as $e) { if (isset($e['tw'])) $mx = max($mx, (float)$e['tw']); if (!isset($e['id'])) continue; if (!empty($e['root'])) { $in = ($e['by'] ?? '') === 'foe'; if ($in) $ft++; continue; } if ($in && ($e['by'] ?? '') === 'me') $b += (float)($e['fh'] ?? 0); }
+            if ($mx > 1) $tw++; if ($mx >= (float)$s['v1']['team3'] && $mx > 1) $tw3++;
+            if ($b > 0) { $bt++; $bmax = max($bmax, $b / max(1.0, (float)$s['fh']['max'])); }
+            if (!empty($s['reaim'])) $fr++;
+        }
+        $re += $fr; $remax = max($remax, $fr); if ($fr > $n) $reover++;
+    }
+    return ['tw' => $tw / max(1, $T), 'tw3' => $tw3 / max(1, $T), 're' => $re / max(1, $F), 'remax' => $remax, 'reover' => $reover, 'bait' => $bt / max(1, $ft), 'baitmax' => $bmax];
 }
 
 function pb_report(): void

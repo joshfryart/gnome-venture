@@ -37,6 +37,13 @@ thorn|Thorn Cut|calling|thornblade|hurt|7|craft|-|-|0|Thornblade calling piece.
 sow|Sow Doubt|calling|seedkeeper|trick|5|mind|-|-|0|Seedkeeper calling piece.
 wayfind|Slip Past|calling|wayfinder|trick|5|body|-|-|0|Wayfinder calling piece.
 brew|Steep|calling|brewroot|heal|6|craft|-|-|0|Brewroot calling piece.
+# 2.7.08: the tier III second piece of each calling (ref CALLING:3; owned from calling tier III). Value = type base - tag cost + 2 (claude/piece-audit-2.7.07.md); the calling tier bonus (+4 at tier III) comes on top, as for the first piece.
+roots|Deep Roots|calling|rootwarden:3|guard|5|body|hold|-|0|Rootwarden tier III piece: guard that holds.
+bloomb|Bloom Bond|calling|bloomcaller:3|charm|5|mind|bond|-|0|Bloomcaller tier III piece: it warms to you.
+barb|Barbed Cut|calling|thornblade:3|hurt|4|craft|poison|-|0|Thornblade tier III piece: the barb stays in.
+seedswap|Seed Swap|calling|seedkeeper:3|trick|4|mind|pluck|-|0|Seedkeeper tier III piece: a seed for its trinket.
+sidepath|Side Path|calling|wayfinder:3|guard|4|body|evade|-|0|Wayfinder tier III piece: its next hit misses.
+slowbrew|Slow Brew|calling|brewroot:3|heal|3|craft|simmer|-|0|Brewroot tier III piece: heals over two turns.
 
 # --- fight tools: one piece per tool type, added while the tool is on the fight belt
 t:till|Hoe Hook|tool|till|hurt|3|body|pierce|-|src|The edge of a tilling tool hooks past its guard.
@@ -96,44 +103,44 @@ r:OC|Island Time|region|OC|guard|3|body|hold|-|src|The Coralscatter: no hurry at
 
 # --- 2.6.990 legendary crops: one piece per TREASURE crop (region_crops.txt), unlocked by harvesting the crop 3 times, ranked by your mastery of that crop. Column 12 = a built-in knack (tender, leech, spiky, soft, warm, finisher, hardy). They sit in the Larder.
 g:blueberry|Blueberry Burst|legend|blueberry|heal|4|body|-|-|src|Heals a bit more than it looks.|tender
-g:cloudberry|Cloudberry Gold|legend|cloudberry|item|5|body|-|-|src|A rare sweet snack; also calms the creature.|soft
+g:cloudberry|Cloudberry Gold|legend|cloudberry|item|7|body|-|-|src|A rare sweet snack; also calms the creature.|soft
 g:cranberry|Cranberry Preserve|legend|cranberry|guard|5|body|keep|-|src|Keeps in your hand until you play it.|-
-g:gooseberry|Gooseberry Prickle|legend|gooseberry|guard|4|body|-|-|src|Pricks the creature for 2 when played.|spiky
-g:sea-buckthorn|Buckthorn Zing|legend|sea-buckthorn|heal|5|body|plenty|-|src|Next round you pick from 6 pieces.|-
-g:sugarcane|Cane Crush|legend|sugarcane|hurt|6|body|-|-|src|Heals you a little when it hits.|leech
+g:gooseberry|Gooseberry Prickle|legend|gooseberry|guard|5|body|-|-|src|Pricks the creature for 2 when played.|spiky
+g:sea-buckthorn|Buckthorn Zing|legend|sea-buckthorn|heal|4|body|plenty|-|src|Next round you pick from 6 pieces.|-
+g:sugarcane|Cane Crush|legend|sugarcane|hurt|5|body|-|-|src|Heals you a little when it hits.|leech
 g:almond|Almond Crack|legend|almond|hurt|5|mind|pierce|-|src|Ignores the creature's guard.|-
-g:brazil-nut|Brazil Nut Bash|legend|brazil-nut|hurt|6|mind|bash|-|src|Adds your guard to the hit, using it up.|-
-g:cashew|Cashew Calm|legend|cashew|soothe|5|mind|-|-|src|Its next hits do less.|-
+g:brazil-nut|Brazil Nut Bash|legend|brazil-nut|hurt|4|mind|bash|-|src|Adds your guard to the hit, using it up.|-
+g:cashew|Cashew Calm|legend|cashew|soothe|4|mind|-|-|src|Its next hits do less.|-
 g:chestnut|Chestnut Roast|legend|chestnut|hurt|5|mind|-|-|src|A quarter of its damage also counts as Charm.|warm
-g:hazelnut|Hazelnut Hide|legend|hazelnut|guard|4|mind|hold|-|src|Some guard stays up into your next turn.|-
+g:hazelnut|Hazelnut Hide|legend|hazelnut|guard|5|mind|hold|-|src|Some guard stays up into your next turn.|-
 g:kola|Kola Jolt|legend|kola|hurt|5|mind|-|-|src|+3 when the Yield bar is past 60%.|finisher
-g:macadamia|Macadamia Smash|legend|macadamia|hurt|7|mind|-|-|src|The plain big hit.|-
-g:pecan|Pecan Pie|legend|pecan|heal|5|mind|simmer|-|src|Heals you 2 at the start of your next 2 turns.|-
-g:pistachio|Pistachio Pop|legend|pistachio|trick|3|mind|pluck|-|src|Tries to lift an item from the creature.|-
-g:shea|Shea Shield|legend|shea|guard|4|mind|-|-|src|A thick butter coat.|hardy
+g:macadamia|Macadamia Smash|legend|macadamia|hurt|6|mind|-|-|src|The plain big hit.|-
+g:pecan|Pecan Pie|legend|pecan|heal|4|mind|simmer|-|src|Heals you 2 at the start of your next 2 turns.|-
+g:pistachio|Pistachio Pop|legend|pistachio|trick|4|mind|pluck|-|src|Tries to lift an item from the creature.|-
+g:shea|Shea Shield|legend|shea|guard|5|mind|-|-|src|A thick butter coat.|hardy
 g:walnut|Walnut Crack|legend|walnut|hurt|6|mind|pierce|-|src|Ignores the creature's guard.|-
 g:saffron|Saffron Thread|legend|saffron|charm|6|craft|bond|-|src|The creature warms to Charm for the fight.|-
-g:caper|Caper Pop|legend|caper|guard|3|craft|evade|-|src|The creature's first hit misses.|-
+g:caper|Caper Pop|legend|caper|guard|4|craft|evade|-|src|The creature's first hit misses.|-
 g:cardamom|Cardamom Hum|legend|cardamom|charm|5|craft|hum|-|src|It will not hit as hard this turn.|-
 g:grains-of-paradise|Paradise Lull|legend|grains-of-paradise|charm|5|craft|lull|-|src|It loses its next turn.|-
-g:black-pepper|Pepper Sting|legend|black-pepper|hurt|5|craft|poison|-|src|Hits again for the next 2 turns.|-
+g:black-pepper|Pepper Sting|legend|black-pepper|hurt|4|craft|poison|-|src|Hits again for the next 2 turns.|-
 g:cinnamon|Cinnamon Swirl|legend|cinnamon|charm|5|craft|-|-|src|Also calms the creature.|soft
 g:clove|Clove Prick|legend|clove|hurt|4|craft|trip|-|src|It skips its next turn.|-
-g:ginseng|Ginseng Root|legend|ginseng|heal|6|craft|-|-|src|Heals 2 more.|tender
+g:ginseng|Ginseng Root|legend|ginseng|heal|5|craft|-|-|src|Heals 2 more.|tender
 g:nutmeg|Nutmeg Whisper|legend|nutmeg|charm|6|craft|hum|-|src|It will not hit as hard this turn.|-
 g:vanilla|Vanilla Cream|legend|vanilla|charm|6|craft|-|-|src|Also calms the creature.|soft
-g:wasabi|Wasabi Burn|legend|wasabi|hurt|6|craft|poison|-|src|Poison, and +3 late in the fight.|finisher
+g:wasabi|Wasabi Burn|legend|wasabi|hurt|3|craft|poison|-|src|Poison, and +3 late in the fight.|finisher
 g:tea|Tea Leaf|legend|tea|heal|3|body|simmer|-|src|Heals you 2 at the start of your next 2 turns.|-
 g:acai|Açaí Bowl|legend|acai|heal|5|body|-|-|src|Heals and calms the creature.|soft
-g:ackee|Ackee Surprise|legend|ackee|item|4|body|-|-|src|A snack that heals more.|tender
+g:ackee|Ackee Surprise|legend|ackee|item|6|body|-|-|src|A snack that heals more.|tender
 g:baobab|Baobab Bark|legend|baobab|guard|6|body|hold|-|src|Guard that stays up into your next turn.|-
 g:cacao|Cacao Bite|legend|cacao|charm|5|body|bond|-|src|The creature warms to Charm for the fight.|-
-g:carob|Carob Crust|legend|carob|guard|5|body|-|-|src|A thick crust.|hardy
-g:coffee|Coffee Rush|legend|coffee|hurt|4|body|plenty|-|src|Next round you pick from 6 pieces.|-
-g:durian|Durian Stink|legend|durian|guard|5|body|thorns|-|src|Hurts the creature when it hits you.|-
+g:carob|Carob Crust|legend|carob|guard|6|body|-|-|src|A thick crust.|hardy
+g:coffee|Coffee Rush|legend|coffee|hurt|5|body|plenty|-|src|Next round you pick from 6 pieces.|-
+g:durian|Durian Stink|legend|durian|guard|4|body|thorns|-|src|Hurts the creature when it hits you.|-
 g:finger-lime|Lime Pearls|legend|finger-lime|heal|4|body|-|-|src|Pops sour, heals, and calms the creature.|soft
-g:kava|Kava Calm|legend|kava|soothe|6|body|-|-|src|Its next hits do less.|-
-g:mangosteen|Mangosteen Gold|legend|mangosteen|heal|6|body|-|-|src|The plain big heal.|-
+g:kava|Kava Calm|legend|kava|soothe|5|body|-|-|src|Its next hits do less.|-
+g:mangosteen|Mangosteen Gold|legend|mangosteen|heal|5|body|-|-|src|The plain big heal.|-
 g:quince|Quince Jelly|legend|quince|guard|6|body|keep|-|src|Keeps in your hand until you play it.|-
 g:salak|Snakeskin Plate|legend|salak|guard|5|body|evade|-|src|The creature's first hit misses.|-
-g:yuzu|Yuzu Zest|legend|yuzu|item|4|body|-|-|src|A sharp snack; also calms the creature.|soft
+g:yuzu|Yuzu Zest|legend|yuzu|item|6|body|-|-|src|A sharp snack; also calms the creature.|soft

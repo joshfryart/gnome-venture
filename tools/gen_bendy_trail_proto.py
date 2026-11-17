@@ -79,8 +79,10 @@ def region_path(rid, frm, to, region, to_region=None):
         if a in pts and b in pts:
             i, j = pts.index(a), pts.index(b); cur = curve(pts, min(i, j), max(i, j))
             return (cur if i < j else cur[::-1]), "road", region
-    for t in x["trails"]:
+    for k, t in enumerate(x["trails"]):
         t = [tuple(q) for q in t]
+        bends = x.get("trail_bends") or []; bend = bends[k] if k < len(bends) else None
+        if bend and len(t) == 2: t = [t[0], tuple(bend["ctrl"]), t[1]]   # 2.7.08 side-trail heading rule (region_layout.php rl_trail_heading): leave the stop leaning along the road, bow to the place's side
         if (t[0], t[-1]) == (a, b): return t, "trail", region
         if (t[0], t[-1]) == (b, a): return t[::-1], "trail", region
     vx, vy = b[0] - a[0], b[1] - a[1]; n = math.hypot(vx, vy) or 1; bow = 0.18 * n * (1 if rid % 2 else -1)
