@@ -39,7 +39,7 @@ if (is_post()) {
             $one = match ($do) {
                 'send_garden' => gclock_on() ? pj_crew_send_post($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), $unq) : pj_garden_send($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
                 'send_trip' => pj_trip_send($u, $pu, (string)$pick($pu, 'land', $_POST['land'] ?? ''), (string)$pick($pu, 'tool', $_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck']), $potMore),
-                'send_station' => (function () use ($u, $pu, $unq, $pick): array { [$ar, $ob] = array_pad(explode(':', (string)$pick($pu, 'station', $_POST['station'] ?? ''), 2), 2, ''); return pj_station_send($u, $pu, $ar, $ob, (string)($_POST['mode'] ?? 'all'), (array)($_POST['recipes'] ?? []), (int)($_POST['hours'] ?? 0), $unq); })(),
+                'send_station' => (function () use ($u, $pu, $unq, $pick): array { [$ar, $ob] = array_pad(explode(':', (string)$pick($pu, 'station', $_POST['station'] ?? ''), 2), 2, ''); return pj_station_send($u, $pu, $ar, $ob, (string)($_POST['mode'] ?? 'all'), (array)($_POST['recipes'] ?? []), (int)($_POST['hours'] ?? 0), $unq, (int)($_POST['keep'] ?? 0)); })(),
                 default => pj_delve_send($u, $pu, (int)$pick($pu, 'delve', $_POST['delve'] ?? 0), $pots, $unq, $potMore),
             };
             $pn = (string)(pj_pal($uid, $pu)['name'] ?? 'A pal');
