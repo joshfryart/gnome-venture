@@ -27,7 +27,7 @@ $url = trim((string)shell_exec('php -d error_reporting=0 -r \'$_SERVER["SCRIPT_N
 ok('gnome25_url carries the worn codes as w=', str_contains($url, 'w=bch'), $url);
 
 echo "== the layers (the real art)\n";
-$npx = function (string $png): int { $im = imagecreatefromstring($png); $n = 0; for ($x = 0; $x < 512; $x++) for ($y = 0; $y < 80; $y++) if (((imagecolorat($im, $x, $y) >> 24) & 127) === 0) $n++; imagedestroy($im); return $n; };
+$npx = function (string $png): int { $im = imagecreatefromstring($png); $n = 0; for ($x = 0; $x < 512; $x++) for ($y = 0; $y < 80; $y++) if (((imagecolorat($im, $x, $y) >> 24) & 127) === 0) $n++; return $n; };
 $plain = gnome25_compose('front', []);
 ok('no wearables: the strip is a PNG', $plain !== '' && str_starts_with($plain, "\x89PNG"));
 foreach (['front', 'back', 'side'] as $v) {

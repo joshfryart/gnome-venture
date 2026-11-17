@@ -138,7 +138,7 @@ np() { curl -s -c $C -b $C "$BASE/villagers.php?id=$NID" > /tmp/pk0.html; curl -
 echo "npc $NID: $(db "SELECT name FROM npcs WHERE id=$NID")"
 give dill-pickles 2
 m=$(np -d do=gift -d item_id=$(db "SELECT id FROM items WHERE slug='dill-pickles'"))
-has "preserves" "$m" "gift reaction: likes preserves"; has "+10 friendship" "$m" "+10 friendship (liked)"
+has "preserves" "$m" "gift reaction: likes preserves"; case "$m" in *"(+10 friendship"*|*"(+11 friendship"*) echo "ok   +10 friendship (liked; +11 when a charm bonus is on)";; *) echo "FAIL +10 friendship (liked): got '$m'"; FAILS=$((FAILS+1));; esac
 chk "jar given away" "$(qty dill-pickles)" 1
 
 echo "== pantry.php: stacking, prices, Fair judging, jobs, upgrade path"

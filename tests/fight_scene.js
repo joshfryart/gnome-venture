@@ -28,14 +28,14 @@ async function doAttack(p, shot) {
   const mk = await p.evaluate(() => { const m = document.querySelector('.tilemap.tm-fight .tmme'); return m ? getComputedStyle(m).display : 'none'; }); if (mk !== 'none') fail('the map marker shows behind the stage gnome');
   try { await p.waitForFunction(() => !document.querySelector('.fightbtns.fs-wait, .fsdock.fs-wait'), null, { timeout: 8000 }); } catch (e) { fail('buttons stay locked after the enter'); }
   if (shot) console.log('HB', JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('.fe-hb')].map(e => { const r = e.getBoundingClientRect(), h = document.getElementById('fightscene').getBoundingClientRect(); return [e.className, Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height), 'host', Math.round(h.x), Math.round(h.y), Math.round(h.width), Math.round(h.height), getComputedStyle(e).display, getComputedStyle(e).opacity]; }))));
-  if (shot) await p.evaluate(() => { const h = document.getElementById('fightscene'); if (h) h.scrollIntoView({ block: 'center' }); }); await p.waitForTimeout(300); await p.screenshot({ path: shot + '/fs-enter.png' });
+  if (shot) await p.evaluate(() => { const h = document.getElementById('fightscene'); if (h) h.scrollIntoView({ block: 'center' }); }); if (shot) { await p.waitForTimeout(300); await p.screenshot({ path: shot + '/fs-enter.png' }); }
 
   await doAttack(p, shot);
   await p.waitForFunction(() => { const h = document.getElementById('fightscene'); try { return JSON.parse(h.dataset.fight).events.length > 0; } catch (e) { return false; } }, null, { timeout: 15000 }).catch(() => fail('no events after the attack click'));
   try { await p.waitForSelector('#fightscene .fe-view', { timeout: 20000 }); } catch (e) { fail('engine did not mount after attack: ' + errs.join('|') + ' ' + await p.evaluate(() => typeof FightEngine + ' ' + document.readyState)); }
   const locked = await p.evaluate(() => !!document.querySelector('.fightbtns.fs-wait, .fsdock.fs-wait')); if (!locked) fail('buttons not locked while events play');
   await p.waitForSelector('#fightscene .fe-dmg', { timeout: 6000 }).catch(() => fail('no damage number popped'));
-  if (shot) await p.evaluate(() => { const h = document.getElementById('fightscene'); if (h) h.scrollIntoView({ block: 'center' }); }); await p.screenshot({ path: shot + '/fs-attack.png' });
+  if (shot) await p.evaluate(() => { const h = document.getElementById('fightscene'); if (h) h.scrollIntoView({ block: 'center' }); }); if (shot) await p.screenshot({ path: shot + '/fs-attack.png' });
   try { await p.waitForFunction(() => !document.querySelector('.fightbtns.fs-wait, .fsdock.fs-wait'), null, { timeout: 12000 }); } catch (e) { fail('buttons stay locked after the events'); }
   const hp = await p.evaluate(() => { const bars = [...document.querySelectorAll('#fightscene .fe-hud *')]; return bars.length; });
   if (errs.length) fail('page errors: ' + errs.join(' | '));
