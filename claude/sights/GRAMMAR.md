@@ -61,3 +61,4 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 - 2.7.06: `take=any-<kind>:N` = any N items of a kind: the produce of every plant of that kind (any-nut, any-fruit, any-vegetable ...), else every item whose slug ends with it (any-feather). Different kinds of item may be mixed; the biggest stacks go first.
 - 2.7.06: condition `fd=yes` (any festival is on today) or `fd=<festival slug>[,..]` (that festival). **Villager stat check** was already there: a `check=stat:dc` token in a folk row's rewards (2.7.01); a miss pays none of that row's other rewards.
 - 2.7.06: reward `time=N` = N more game minutes pass after a win (1-480; a long sit-down, a slow walk). Needs the sleep-days clock.
+- 2.7.06: `buff=stat:amount:delve` is a lucky moment that only counts while a delve or lair run is active (users.ev_scope = 'delve'); it stays until replaced (30 real days at most).

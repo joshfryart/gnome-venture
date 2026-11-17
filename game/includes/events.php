@@ -141,12 +141,17 @@ function apply_event_effect(array $u, string $effect): array
                 break;
             case 'buff':
                 if (isset(GNOME_STATS[$p[1] ?? ''])) {
+                    if (($p[3] ?? '') === 'delve') {   // 2.7.06: only counts while a delve or lair run is active (30 real days at most)
+                        q('UPDATE users SET ev_stat = ?, ev_amt = ?, ev_until = ?, ev_day = NULL, ev_scope = ? WHERE id = ?', [$p[1], (int)($p[2] ?? 1), gmdate('Y-m-d H:i:s', time() + 30 * 86400), 'delve', $uid]);
+                        $lines[] = GNOME_STATS[$p[1]][1] . ' +' . (int)($p[2] ?? 1) . ' ' . GNOME_STATS[$p[1]][0] . ' in delves and lairs';
+                        break;
+                    }
                     if (($p[3] ?? '') === 'sleep' && function_exists('gclock_on') && gclock_on()) {   // 2.7.06: lasts until the next sleep
-                        q('UPDATE users SET ev_stat = ?, ev_amt = ?, ev_until = ?, ev_day = game_day WHERE id = ?', [$p[1], (int)($p[2] ?? 1), gmdate('Y-m-d H:i:s', time() + 30 * 86400), $uid]);
+                        q('UPDATE users SET ev_stat = ?, ev_amt = ?, ev_until = ?, ev_day = game_day, ev_scope = NULL WHERE id = ?', [$p[1], (int)($p[2] ?? 1), gmdate('Y-m-d H:i:s', time() + 30 * 86400), $uid]);
                         $lines[] = GNOME_STATS[$p[1]][1] . ' +' . (int)($p[2] ?? 1) . ' ' . GNOME_STATS[$p[1]][0] . ' until you sleep';
                         break;
                     }
-                    q('UPDATE users SET ev_stat = ?, ev_amt = ?, ev_until = ?, ev_day = NULL WHERE id = ?', [$p[1], (int)($p[2] ?? 1), gmdate('Y-m-d H:i:s', time() + (int)($p[3] ?? 60) * 60), $uid]);
+                    q('UPDATE users SET ev_stat = ?, ev_amt = ?, ev_until = ?, ev_day = NULL, ev_scope = NULL WHERE id = ?', [$p[1], (int)($p[2] ?? 1), gmdate('Y-m-d H:i:s', time() + (int)($p[3] ?? 60) * 60), $uid]);
                     $lines[] = GNOME_STATS[$p[1]][1] . ' +' . (int)($p[2] ?? 1) . ' ' . GNOME_STATS[$p[1]][0] . ' for ' . (int)($p[3] ?? 60) . ' minutes';
                 }
                 break;

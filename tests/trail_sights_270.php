@@ -110,7 +110,17 @@ $bl = apply_event_effect($ub, 'buff:luck:2:sleep'); $ub = q_one('SELECT * FROM u
 ok('a buff:luck:2:sleep gives +2 now and says until you sleep', eff_stat($ub, 'luck') === $base0 + 2 && str_contains(implode(' ', $bl), 'until you sleep') && (int)$ub['ev_day'] === 20, json_encode([$bl, $ub['ev_day'], eff_stat($ub, 'luck'), $base0]));
 q('UPDATE users SET game_day = 21 WHERE id = ?', [$u['id']]); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
 ok('after a sleep (next game day) the lucky moment is over', eff_stat($ub, 'luck') === $base0, (string)eff_stat($ub, 'luck'));
-q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, game_day = 10 WHERE id = ?', [$u['id']]);
+// delve / lair scoped buff
+q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL, game_day = 10 WHERE id = ?', [$u['id']]);
+unset($GLOBALS['gv_ev_run']);   // (the walk the later checks use is a 'walk', not a delve: it does not count)
+$ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $bd = apply_event_effect($ub, 'buff:luck:2:delve'); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('a delve buff says where it works and does nothing outside a run', str_contains(implode(' ', $bd), 'delves and lairs') && eff_stat($ub, 'luck') === $base0, json_encode([$bd, eff_stat($ub, 'luck'), $base0]));
+$lmx = (int)q_val('SELECT id FROM locations ORDER BY id LIMIT 1');
+$eid = db_insert('expeditions', ['user_id' => $u['id'], 'from_id' => $lmx, 'to_id' => $lmx, 'kind' => 'delve', 'status' => 'active', 'step' => 0, 'steps_total' => 3, 'hp' => 10, 'max_hp' => 10, 'level' => 3, 'log' => '[]', 'route_id' => 1, 'started_at' => now(), 'arrive_at' => now()]);
+unset($GLOBALS['gv_ev_run']); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('while a delve run is active the buff counts (+2)', eff_stat($ub, 'luck') === $base0 + 2, (string)eff_stat($ub, 'luck'));
+q("UPDATE expeditions SET status = 'done' WHERE id = ?", [$eid]); unset($GLOBALS['gv_ev_run']);
+q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL, game_day = 10 WHERE id = ?', [$u['id']]);
 echo "== quest time limit (2.7.06)\n";
 $qfile = $argv[1] . '/includes/data/trail_sight_quests.txt'; $qorig = file_get_contents($qfile);
 $slugs = array_slice(array_keys(trail_sights_all()), 0, 3);

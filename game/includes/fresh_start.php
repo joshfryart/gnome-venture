@@ -26,7 +26,7 @@ function fresh_start_columns(): array
         'region_id' => null, 'location' => null, 'gnome_name' => null, 'hat_color' => null, 'beard_color' => null, 'hat_dye' => null,
         'onboarded' => 0, 'tour_step' => 0, 'tour_ask' => 0, 'job_dailies' => 0, 'sapling_day' => null, 'sapling_count' => 0,
         'community_day' => null, 'community_shift_until' => null, 'shift_actions' => 0, 'community_rep' => 0, 'ribbons' => 0,
-        'event_at' => null, 'event_day' => null, 'event_count' => 0, 'ev_stat' => null, 'ev_amt' => 0, 'ev_until' => null, 'ev_day' => null,
+        'event_at' => null, 'event_day' => null, 'event_count' => 0, 'ev_stat' => null, 'ev_amt' => 0, 'ev_until' => null, 'ev_day' => null, 'ev_scope' => null,
         'easy_roads' => 1, 'ev_harvest_bonus' => 0, 'ev_quickwalk' => 0, 'ev_gather_until' => null, 'ev_sale_until' => null,
         'free_mend_n' => 0, 'free_mend_day' => null,
         'dest_id' => null, 'dest_auto' => 1, 'dest_pause_towns' => 0, 'dest_chain' => 0, 'dest_legs' => 0, 'dest_trail' => null,

@@ -178,6 +178,11 @@ function ts_gnome(?string $dt): int
 /** 2.7.06: a "until you sleep" lucky moment (ev_day = the game day it was given) is over once the gnome's game day has moved on. */
 function gnome_ev_slept(array $u): bool
 {
+    if (($u['ev_scope'] ?? '') === 'delve') {   // 2.7.06: a delve / lair buff only counts during a run (cached per request: eff_stat is called a lot)
+        $uid = (int)($u['id'] ?? 0); $run = &$GLOBALS['gv_ev_run'];   // per request; a test clears it
+        if (!isset($run[$uid])) { try { $run[$uid] = (bool)q_val("SELECT 1 FROM expeditions WHERE user_id = ? AND status = 'active' AND kind IN ('delve', 'lair') LIMIT 1", [$uid]); } catch (Throwable $e) { $run[$uid] = false; } }
+        return !$run[$uid];
+    }
     return isset($u['ev_day']) && $u['ev_day'] !== '' && $u['ev_day'] !== null && (int)($u['game_day'] ?? 0) > (int)$u['ev_day'];
 }
 
