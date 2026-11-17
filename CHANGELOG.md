@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.7.06
+- **Puzzle fights (new fights only; a fight already under way keeps its old rules).**
+  - **Board is 4x4 always.** Two environment pieces per turn; environment events matter a bit more (rain 0.20, creature events 0.7).
+  - **Set combos:** a combo is two pieces of the same owner anywhere in the same chain, not played order. The chain resolves in a fixed order (environment, Guard/Soothe, Trick, Hurt/Charm, Heal/Item); Quick fires first, Heavy last. Explained in the Almanac and the "?" sheet.
+  - **Creature tactics and piece abilities:** Bramble halved on creatures, starter Jab on the curve, 7 creature tune rows fitted, creature Barge planning, Stagger in learner fights, luck redraw, boss double roll, Sticky and slow-draw fixes.
+  - **Teamwork reachable** (+30% / +60%), creature healing now acts on the yield bar (damage first, then charm).
+  - **Turn banner** holds input until it ends; the Quick second piece shows its aim.
+  - Lair drops gated, Pluck gated, broken belt pieces clear their wear.
+- **Camps:** resting or sleeping at a Trail camp now heals.
+- **Trail pills:** all Trail family pills start collapsed, with a line showing, like the moon pill.
+- **Pal jobs:** one pal tends a whole station (kitchen, pantry, ...). It auto-picks new recipes first, uses anything in the satchel, outputs to the satchel or jar. Recipe picking stays as an option. Pantry jars supported. All crafting timers run on game days.
+- **Sights:** many new tokens and conditions (streaks, lend/repay, time, escorts, take any item, buffs, quest limits), more varied rewards, a second line each; escorts walk beside the gnome on the map. Wander finds show a popup for any item or Petals.
+- **Roads and building:** road kinds toll / beat / weather; new build verbs; Lantern Relay per game day; moon line and hazard marker fixes.
+- **Cleanup:** 4 dead mentor folk rows deleted; Treks and Pal targeting dropped from the roadmap.
+- **Art:** none in this release (build-verb pictures, combo chips and others follow in a separate image zip).
+
 ## 2.7.05
 - **Puzzle box finish (behind `pfight_v1`; players see none of it until it is on).**
   - **Waiting upgrade offers on the v1 box.** `pfv_offer_html()`: when a puzzle upgrade offer is waiting (`user_poffer`), the v1 box shows a "Choose an upgrade" card above the box with the three choices (post `do=pick`, the same handler as the old page), the count waiting and how many were earned today. Offers are no longer only reachable on the old page.
