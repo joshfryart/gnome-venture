@@ -105,6 +105,10 @@ ok('calendar: last Sunday of a month', stop_cal_match('monthly:last:sun', '2026-
 ok('calendar: a fixed date', stop_cal_match('date:06-21', '2027-06-21') && !stop_cal_match('date:06-21', '2027-06-22'));
 ok('calendar: a range, and one that wraps the year', stop_cal_match('range:12-20..12-26', '2026-12-25') && !stop_cal_match('range:12-20..12-26', '2026-12-27') && stop_cal_match('range:12-28..01-03', '2027-01-01') && stop_cal_match('range:12-28..01-03', '2026-12-30') && !stop_cal_match('range:12-28..01-03', '2026-06-01'));
 ok('calendar loads', count(stop_calendar()) >= 6, (string)count(stop_calendar()));
+$hl = file(__DIR__ . '/../game/includes/data/stop_happenings.txt', FILE_IGNORE_NEW_LINES); $hn = 0; $hids = []; $hbad = [];
+foreach ($hl as $l) { $l = trim($l); if ($l === '' || $l[0] === '#') continue; $f = explode('|', $l); $hn++; if (count($f) !== 8 || isset($hids[$f[0]])) $hbad[] = $f[0]; $hids[$f[0]] = 1; foreach (array_filter(explode(',', $f[6])) as $tg) if (!isset(STOP_TAG_WORDS[$tg])) $hbad[] = $f[0] . ':' . $tg; }
+ok('2.7.06: every happening row has 8 fields, a unique id and real tags (' . $hn . ' rows)', !$hbad && $hn >= 29, json_encode($hbad));
+$cids = array_column(stop_calendar(), 'id'); ok('2.7.06: calendar ids are unique and the new days are there (' . count($cids) . ')', count($cids) === count(array_unique($cids)) && count($cids) >= 20, json_encode($cids));
 ok('a Saturday market at a market stop', ($ev = stop_cal_event($lkLoc, '2026-11-07')) && $ev['id'] === 'c_market_sat', json_encode($ev['id'] ?? null));
 ok('and not at a shrine', stop_cal_event(stopOfType('shrine'), '2026-11-14') === null);
 ok('calendar days are happenings, found by id', isset(stop_happenings()['c_midsummer']) && !empty(stop_happenings()['c_midsummer']['cal']));
