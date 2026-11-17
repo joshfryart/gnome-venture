@@ -101,6 +101,16 @@ $h0 = $hq(); [$l1] = $go(); $h1 = $hq(); q('DELETE FROM trail_sight_uses WHERE u
 ok('first use lends 1 honey, the next use gives 2 back, the third lends again', $l1 && $l2 && $l3 && [$h0, $h1, $h2, $h3] === [3, 2, 4, 3], json_encode([$h0, $h1, $h2, $h3]));
 q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $hid]); q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey LIKE 'lend#%'", [$u['id']]); $fresh();
 [$l4, $m4] = $go(); ok('with nothing to lend the first use says what is needed', !$l4 && str_contains((string)$m4, 'to lend here'), (string)$m4);
+echo "== buff until sleep (2.7.06)\n";
+require_once $argv[1] . '/includes/events.php'; require_once $argv[1] . '/includes/gnome.php';
+set_setting('game_clock_on', '1'); setting('__reload__');
+q('UPDATE users SET game_day = 20, ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL WHERE id = ?', [$u['id']]);
+$ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $base0 = eff_stat($ub, 'luck');
+$bl = apply_event_effect($ub, 'buff:luck:2:sleep'); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('a buff:luck:2:sleep gives +2 now and says until you sleep', eff_stat($ub, 'luck') === $base0 + 2 && str_contains(implode(' ', $bl), 'until you sleep') && (int)$ub['ev_day'] === 20, json_encode([$bl, $ub['ev_day'], eff_stat($ub, 'luck'), $base0]));
+q('UPDATE users SET game_day = 21 WHERE id = ?', [$u['id']]); $ub = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+ok('after a sleep (next game day) the lucky moment is over', eff_stat($ub, 'luck') === $base0, (string)eff_stat($ub, 'luck'));
+q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, game_day = 10 WHERE id = ?', [$u['id']]);
 echo "== choose your reward\n";
 $put(['energy' => 0, 'rewards' => 'choose=c=40:1;en=4', 'check' => '-']); $fresh();
 $ci = trail_sight_choose_info(trail_sights_all()[$base['slug']]);

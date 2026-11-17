@@ -1472,6 +1472,7 @@ function schema_statements(string $driver): array
         ['users', 'last_cooked_id', "$ID NULL"],                       // v0.7.99 the last dish cooked (a visitor can smell it)                              // v0.7.98 where the gnome is heading           // v0.7.96 free mends used on free_mend_day
         ['users', 'ev_amt', 'INT NOT NULL DEFAULT 0'],
         ['users', 'ev_until', 'DATETIME NULL'],
+        ['users', 'ev_day', 'INT NULL'],   // 2.7.06: a buff=stat:amount:sleep lucky moment lasts through this game_day (until the next sleep)
         ['users', 'town_stat', 'VARCHAR(12) NULL'],              // v0.7.20 a town drink's little boost
         ['users', 'town_amt', 'INT NOT NULL DEFAULT 0'],
         ['users', 'town_until', 'DATETIME NULL'],
