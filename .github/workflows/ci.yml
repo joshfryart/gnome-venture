@@ -32,12 +32,13 @@ jobs:
           fi
 
   sqlite:
-    name: SQLite suites (PHP ${{ matrix.php }})
+    name: SQLite suites (PHP ${{ matrix.php }}, shard ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php: ['8.1', 'latest']
+        shard: [1, 2, 3, 4]   # the suite list is split over 4 parallel jobs (tests/ci_suites.sh SHARD / SHARDS)
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -74,6 +75,9 @@ jobs:
             comm cook delvemap flowers gather099 gather150 images mentors120 modr pantry pjobs prog security190
             sinks097 social100 stops100 satchel stopthemes stopkinds popart roadkinds folkoverlay trekshell updrollback villagers worms yard puzzles puzzles_upload puzzles_tourney puzzles_daily jigsaw jigsaw_tourney catfish puzzle_pals landing css_lint redirects home_slim tour here heredo
           PORT_BASE: '8800'
+          SHARD: ${{ matrix.shard }}
+          SHARDS: '4'
+          RETRY_SUITES: 'pbox_v1 fight_scene fight_scene_trail here heredo catfish pfboard_v1_page pfv1_charm pfengine_js gnome_wear puzzle_pals tour gourmand pfdeck_v1'   # browser or timing-sensitive suites get one retry; a pass on retry is logged as flaky
 
   upgrade:
     name: Upgrade from an older release
