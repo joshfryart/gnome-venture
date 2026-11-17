@@ -181,6 +181,13 @@ chk('Ambush: the aim total shows the boosted number (14 against 10)', $tot['hp']
 $s = ab_fight('medium', ['ab' => ['ambush1']]); $ev = ab_turn($s, [ab_tile($s, 'f:g', 'guard', 4), ab_tile($s, 'f:h', 'hurt', 10), ab_tile($s, 'f:i', 'hurt', 10)], 1, 1); $s['foe']['again'] = 0;
 chk('Ambush: only its FIRST Hurt piece (a guard first does not use it)', ($h = $hurtOf(ab_turn($s, [ab_tile($s, 'f:h', 'hurt', 10)], 2, 2))) && $h[0]['v'] === 10, $h);
 
+echo "== 7b. Barge planning (2.7.06)\n";
+$s = ab_fight('medium', [], ['tags' => 1]); $s['foe']['block'] = 8; $a0 = $s; $a1 = $s; $a1['foe']['bashnext'] = 1; $u = 0.05 * $s['me']['max'];
+$d = pfb_score($s, $a1, 'foe') - pfb_score($s, $a0, 'foe');
+chk('Barge planning: a lent guard of 8 is worth that guard (about 8 health), not a flat 1 unit (' . round($u, 2) . ')', $d > 0.9 * 8 && $d > 2 * $u, [round($d, 2), $u]);
+$a1['foe']['block'] = 0; $a0['foe']['block'] = 0; $d0 = pfb_score($s, $a1, 'foe') - pfb_score($s, $a0, 'foe');
+chk('Barge with no guard standing: still the flat unit (never worth less than before)', abs($d0 - $u) < 1e-6, [round($d0, 3), $u]);
+
 echo "== 8. Stagger\n";
 $s = ab_fight('medium', ['ab' => ['stagger1']]); $max = $s['me']['max']; $big = (int)ceil(0.2 * $max);
 $ev = ab_place($s, 'foe', ab_tile($s, 'f:h', 'hurt', $big), 1, 1);

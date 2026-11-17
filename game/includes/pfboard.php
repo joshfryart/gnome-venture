@@ -278,7 +278,7 @@ function pfb_feat(array $b, array $a, array &$ctx): array
         $pz = fn(array $z) => (int)($z['me']['poison'] ?? 0) * (int)($z['me']['poison_v'] ?? 0);
         $dPz = $pz($a) - $pz($b); $dEv = (int)$a['foe']['evade'] - (int)$b['foe']['evade']; $dTh = (int)$a['foe']['thorns'] - (int)$b['foe']['thorns'];
         $dBa = (int)($a['foe']['bashnext'] ?? 0) - (int)($b['foe']['bashnext'] ?? 0); $dSl = (int)($a['me']['slowdraw'] ?? 0) - (int)($b['me']['slowdraw'] ?? 0); $dAg = (int)($a['foe']['again'] ?? 0) - (int)($b['foe']['again'] ?? 0);
-        $setup = $dPz + $u * (1.5 * $dEv + 0.6 * $dTh + 1.0 * $dBa); $tempo = $u * (1.0 * $dSl + 1.5 * $dAg);
+        $setup = $dPz + $u * (1.5 * $dEv + 0.6 * $dTh + $dBa * max(1.0, (float)$a['foe']['block'] / max(1.0, $u))); $tempo = $u * (1.0 * $dSl + 1.5 * $dAg);   // 2.7.06: a lent guard is worth the guard it will turn into damage (Barge planning)
     }
     $nf = fn(array $z) => min(4, count(array_filter($z['pcs'], fn($p) => $p['by'] === 'foe')));
     $deny = 0.0; $force = 0.0; $dReach = 0;
@@ -1262,7 +1262,7 @@ function pfb_score(array $b, array $a, string $who, ?array &$ctx = null): float
     if (!empty($a['v1']['tags'])) {   // creature tags: what the lasting effects are worth to the creature (poison waiting on you, a tripped draw, its evade, thorns, a lent guard, one more piece)
         $u = 0.05 * $a['me']['max']; $pz = fn(array $z) => (int)($z['me']['poison'] ?? 0) * (int)($z['me']['poison_v'] ?? 0);
         $tg = ($pz($a) - $pz($b)) + $u * (1.0 * ((int)($a['me']['slowdraw'] ?? 0) - (int)($b['me']['slowdraw'] ?? 0)) + 1.5 * ((int)$a['foe']['evade'] - (int)$b['foe']['evade']) + 0.6 * ((int)$a['foe']['thorns'] - (int)$b['foe']['thorns'])
-            + 1.0 * ((int)($a['foe']['bashnext'] ?? 0) - (int)($b['foe']['bashnext'] ?? 0)) + 1.5 * ((int)($a['foe']['again'] ?? 0) - (int)($b['foe']['again'] ?? 0)));
+            + ((int)($a['foe']['bashnext'] ?? 0) - (int)($b['foe']['bashnext'] ?? 0)) * max(1.0, (float)$a['foe']['block'] / max(1.0, $u)) + 1.5 * ((int)($a['foe']['again'] ?? 0) - (int)($b['foe']['again'] ?? 0)));
     }
     if ($who === 'me') return -0.7 * $tg + $barD + 0.7 * $hpD + 0.3 * ($a['me']['block'] - $b['me']['block']) - 0.3 * ($a['foe']['block'] - $b['foe']['block']) + ($a['over'] && in_array($a['over'], ['seen_off', 'charmed'], true) ? 50 : 0);
     return $tg - 0.8 * $barD - $hpD + 0.4 * ($a['foe']['block'] - $b['foe']['block']) - 0.3 * ($a['me']['block'] - $b['me']['block']) + ($a['over'] === 'defeat' ? 50 : 0);

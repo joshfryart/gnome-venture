@@ -1443,7 +1443,7 @@
       var pz = function (z) { return toInt(nn(z.me.poison, 0)) * toInt(nn(z.me.poison_v, 0)); };
       dPz = pz(a) - pz(b); dEv = I(a.foe.evade) - I(b.foe.evade); dTh = I(a.foe.thorns) - I(b.foe.thorns);
       dBa = I(a.foe.bashnext) - I(b.foe.bashnext); dSl = I(a.me.slowdraw) - I(b.me.slowdraw); dAg = I(a.foe.again) - I(b.foe.again);
-      setup = dPz + u * (1.5 * dEv + 0.6 * dTh + 1.0 * dBa); tempo = u * (1.0 * dSl + 1.5 * dAg);
+      setup = dPz + u * (1.5 * dEv + 0.6 * dTh + dBa * Math.max(1.0, Number(nn(a.foe.block, 0)) / Math.max(1.0, u))); tempo = u * (1.0 * dSl + 1.5 * dAg);
     }
     var deny = 0.0, force = 0.0, dReach = 0;
     if (w !== null && nn(w.deny, 0) != 0) { if (ctx.rb === undefined) ctx.rb = reach(b); dReach = ctx.rb - reach(a); deny = 0.1 * a.me.max * dReach / Math.max(1, ctx.rb); }
@@ -1492,7 +1492,7 @@
     if (a.v1 && truthy(a.v1.tags)) {
       var u = 0.05 * a.me.max, pz = function (z) { return toInt(nn(z.me.poison, 0)) * toInt(nn(z.me.poison_v, 0)); }, I = function (x) { return x === true ? 1 : toInt(nn(x, 0)); };
       tg = (pz(a) - pz(b)) + u * (1.0 * (I(a.me.slowdraw) - I(b.me.slowdraw)) + 1.5 * (I(a.foe.evade) - I(b.foe.evade)) + 0.6 * (I(a.foe.thorns) - I(b.foe.thorns))
-        + 1.0 * (I(a.foe.bashnext) - I(b.foe.bashnext)) + 1.5 * (I(a.foe.again) - I(b.foe.again)));
+        + (I(a.foe.bashnext) - I(b.foe.bashnext)) * Math.max(1.0, Number(nn(a.foe.block, 0)) / Math.max(1.0, u)) + 1.5 * (I(a.foe.again) - I(b.foe.again)));
     }
     if (who === 'me') return -0.7 * tg + barD + 0.7 * hpD + 0.3 * (a.me.block - b.me.block) - 0.3 * (a.foe.block - b.foe.block) + (truthy(a.over) && (a.over === 'seen_off' || a.over === 'charmed') ? 50 : 0);
     return tg - 0.8 * barD - hpD + 0.4 * (a.foe.block - b.foe.block) - 0.3 * (a.me.block - b.me.block) + (a.over === 'defeat' ? 50 : 0);
