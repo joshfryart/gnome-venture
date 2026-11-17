@@ -468,15 +468,15 @@ chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(
 
 echo "== 17. week 1 cuts: Teamwork, per-piece life, Wind and Mud are off in a new fight (2.6.95); a fight saved under 2.6.94 keeps them\n";
 $envKinds = fn(array $s) => array_map(fn($t) => $t['env'], array_merge($s['env']['draw'], $s['env']['next']));
-$w1 = []; $w2 = [];
+$w1 = []; $w2 = []; $wm = [];
 foreach (['NA', 'SEA'] as $rg) foreach (['small', 'medium', 'large', 'boss'] as $sz) {
     $n = pfb_new(v1_me(), v1_foe($sz) + ['region' => $rg], 11, ['v1' => true]);
-    $k = $envKinds($n); if (!$k || array_intersect($k, ['wind', 'mud'])) $w1[] = "$rg $sz";
+    $k = $envKinds($n); if (!$k) $w1[] = "$rg $sz"; if (array_intersect($k, ['wind', 'mud'])) $wm[] = "$rg $sz";
 }
-chk('a new fight: no Wind or Mud in the environment deck (draw + next), regions NA and SEA, every size', !$w1, $w1);
+chk('a new fight: Wind and Mud are back in the environment deck from the start (2.7.08, Josh), regions NA and SEA, every size: no empty deck, and the two kinds turn up', !$w1 && $wm, [$w1, $wm]);
 $n = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'NA'], 11, ['v1' => true]);
-chk('a new fight: team2 and team3 are on (1.3 / 1.6, 2.7.06), life is off (no tile carries life), the view says so', $n['v1']['team2'] === PFB_TEAM2 && $n['v1']['team3'] === PFB_TEAM3 && !$n['v1']['life'] && pfb_v1r($n, 'nowm') === 1
-    && !array_filter(array_merge($n['me']['hand'], $n['me']['draw'], $n['foe']['hand'], $n['foe']['draw']), fn($t) => isset($t['life'])) && pfb_view($n)['v1']['nowm'] === 1 && pfb_view($n)['v1']['team2'] === PFB_TEAM2 && pfb_view($n)['v1']['life'] === false, $n['v1']);
+chk('a new fight: team2 and team3 are on (1.3 / 1.6, 2.7.06), life is off (no tile carries life), the view says so', $n['v1']['team2'] === PFB_TEAM2 && $n['v1']['team3'] === PFB_TEAM3 && !$n['v1']['life'] && pfb_v1r($n, 'nowm') === 0
+    && !array_filter(array_merge($n['me']['hand'], $n['me']['draw'], $n['foe']['hand'], $n['foe']['draw']), fn($t) => isset($t['life'])) && pfb_view($n)['v1']['nowm'] === 0 && pfb_view($n)['v1']['team2'] === PFB_TEAM2 && pfb_view($n)['v1']['life'] === false, $n['v1']);
 for ($sd = 1; $sd <= 20; $sd++) { $o = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'NA'], $sd, ['v1' => V1_294]); if (in_array('wind', $envKinds($o), true)) $w2[] = $sd; }
 chk('a fight made with V1_294 still has Wind in NA (20 seeds), Teamwork 1.3 / 1.6 and per-piece life', count($w2) === 20 && ($o['v1']['team2'] ?? 0) === PFB_TEAM2 && $o['v1']['team3'] === PFB_TEAM3 && $o['v1']['life'] === 1 && isset($o['me']['hand'][0]['life']), count($w2));
 $o = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'SEA'], 3, ['v1' => V1_294]);

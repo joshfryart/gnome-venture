@@ -161,7 +161,7 @@ if (pfb_play($y, [['c', 3, 2]], $y['turn'])['err'] === null) { echo "FAIL played
 // the board keeps the creature supplied: with fewer than two of its pieces out after its turn, one is put out (not fired); pieces that expire are listed for the replay (they scored first)
 $s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $s['round'] = 5; pfb_end_round($s);
 $foeOut = count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));
-if ($s['spawn'] === null || $foeOut !== 1) { echo "FAIL no creature piece was put out when it had none ({$foeOut})\n"; $bad++; }
+if ($s['spawn'] !== null || $foeOut !== 0) { echo "FAIL a creature piece was put out although old-rules fights get none since 2.7.08 ({$foeOut})\n"; $bad++; }
 $s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $put($s, 'foe', $T('a', 'guard', 2, 'body'), 2, 2); $put($s, 'foe', $T('b', 'guard', 2, 'body'), 4, 2); $s['round'] = 1; pfb_end_round($s);
 if ($s['spawn'] !== null || count($s['pcs']) !== 2) { echo "FAIL a piece was put out although the creature already had two\n"; $bad++; }
 $s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $old = $put($s, 'me', $h, 2, 2); $put($s, 'foe', $T('c', 'guard', 2, 'body'), 4, 2); $put($s, 'foe', $T('d', 'guard', 2, 'body'), 5, 2); $s['pcs'][$old]['born'] = 1; $s['round'] = 3; pfb_end_round($s);
