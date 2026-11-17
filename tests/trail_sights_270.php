@@ -141,7 +141,11 @@ if (count($nuts) >= 2) {
     ok('two different nuts are enough and both are used up', $t2 && $left === 0, json_encode([$t2, $left]));
     ok('the lint accepts take=any-nut:2', !array_filter(trail_sight_lint(['rewards' => 'take=any-nut:2,xp=1:1', 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'no item') || str_contains($p, 'unknown')), json_encode(trail_sight_lint(['rewards' => 'take=any-nut:2,xp=1:1', 'lose' => 'x'] + $base)));
 }
-echo "== choose your reward\n";
+echo "== festival days (2.7.06)\n";
+$base0 = ['dp' => 'day', 'se' => 'summer', 'we' => 'clear', 'hp' => '', 'st' => 'normal', 'pal' => '0', 'mo' => 'full', 'ti' => 'low', 'gd' => 5, 'tl' => [], 'qd' => []];
+ok('fd=yes holds on a festival day, fd=<slug> only for that festival, neither without one', trail_sight_cond_ok('fd=yes', ['fd' => 'spring-fair'] + $base0) && trail_sight_cond_ok('fd=spring-fair,harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=yes', ['fd' => ''] + $base0));
+ok('the lint accepts fd= and the card text says festival day', preg_match(TRAIL_SIGHT_COND_RE, 'fd=yes') === 1 && preg_match(TRAIL_SIGHT_COND_RE, 'fd=spring-fair') === 1 && trail_sight_cond_text('fd=yes') === 'on a festival day');
+
 $put(['energy' => 0, 'rewards' => 'choose=c=40:1;en=4', 'check' => '-']); $fresh();
 $ci = trail_sight_choose_info(trail_sights_all()[$base['slug']]);
 ok('the card gets two options with names', count($ci) === 2 && str_contains($ci[0][1], '40') && str_contains($ci[1][1], '4 energy'), json_encode($ci));
