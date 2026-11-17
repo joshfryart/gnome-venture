@@ -260,7 +260,8 @@ function ensure_almanac_pages_2700(): void
             . '[b]Pass[/b]: ' . rk_text('pass', 2) . " The tier is shown on the road card.\n"
             . '[b]Toll road[/b]: ' . rk_text('toll') . "\n"
             . '[b]Overgrown[/b]: ' . rk_text('overgrown') . "\n"
-            . '[b]Flooded[/b]: ' . rk_text('flooded') . " Flood Boots are sold in the Home & curios shops.";
+            . '[b]Flooded[/b]: ' . rk_text('flooded') . " Flood Boots are sold in the Home & curios shops.\n"
+            . '[b]Hazard[/b]: ' . rk_text('hazard');
         try {
             db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Places', 'title' => $title, 'body' => $body, 'unlock_key' => 'roadkinds', 'hint' => 'Walk a ferry, tunnel, pass, toll, overgrown or flooded road.', 'sort_order' => 70]);
         } catch (PDOException $e) { return; }   // made at the same moment

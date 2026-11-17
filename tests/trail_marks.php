@@ -23,6 +23,8 @@ ok('a missing picture is no marker', $away($markDir . 'ferry.png', fn() => trail
 
 echo "== road kinds: which stretch\n";
 ok('ferry, tunnel, pass and toll: the first stretch walked only', rk_on_stretch('ferry', 0) && !rk_on_stretch('ferry', 1) && rk_on_stretch('tunnel', 0) && !rk_on_stretch('pass', 2) && rk_on_stretch('toll', 0) && !rk_on_stretch('toll', 1));
+ok('2.7.06 hazard: a road kind, every stretch, three routes, slower without a staff', in_array('hazard', RK_KINDS, true) && rk_on_stretch('hazard', 2) && rk_of(242)['kind'] === 'hazard' && rk_of(245)['kind'] === 'hazard' && rk_of(249)['kind'] === 'hazard' && rk_label(['kind' => 'hazard', 'tier' => 0]) !== '' && rk_text('hazard') !== '' && trail_mark_file('', 'hazard') === 'hazard');
+ok('hazard road: +10 minutes a stretch with no staff', rk_start_costs(['id' => 0], ['id' => 242])[0] === RK_SLOW_MIN && rk_start_costs(['id' => 0], ['id' => 242])[2] !== '');
 ok('overgrown and flooded: every stretch', rk_on_stretch('overgrown', 0) && rk_on_stretch('overgrown', 2) && rk_on_stretch('flooded', 1));
 ok('every road kind has a map emoji', count(array_filter(RK_KINDS, fn($k) => (RK_ICON[$k] ?? '') !== '')) === count(RK_KINDS));
 

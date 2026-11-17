@@ -1,5 +1,5 @@
 # Road kinds (2.7.00, approved by Josh 2026-11-15; made by tools/draft_road_kinds.py, then edited by hand: this file is the truth).
-# route id | kind (ferry tunnel pass toll overgrown flooded) | tier (tunnel = lantern, pass = staff: the tool tier needed; 0 for the other kinds)
+# route id | kind (ferry tunnel pass toll overgrown flooded hazard) | tier (tunnel = lantern, pass = staff: the tool tier needed; 0 for the other kinds)
 308|ferry|0
 309|tunnel|2
 310|pass|2
@@ -84,3 +84,6 @@
 303|toll|0
 463|overgrown|0
 302|flooded|0
+242|hazard|0
+245|hazard|0
+249|hazard|0
