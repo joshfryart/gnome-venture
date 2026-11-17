@@ -58,6 +58,7 @@ dbx "INSERT INTO landmark_runs (user_id, landmark_id, exp_id, kind, outcome, lev
 code=$(get "admin/crud.php?r=landmark_runs"); echo "admin landmark_runs -> $code"; { [ "$code" = 200 ] && grep -q 'cleared' $H && grep -q 'sprout' $H; } || { echo "FAIL admin delve and lair runs list (v2.5.97)"; RC=1; }
 echo "admin livingstops -> $(get admin/livingstops.php)  rows=$(grep -c "<tr" $H) missing=$(grep -c "missing:" $H)"; [ "$(grep -c "<tr" $H)" -ge 20 ] && [ "$(grep -c "missing:" $H)" = 0 ] || { echo "FAIL admin/livingstops.php (v2.5.72)"; RC=1; }
 echo "admin buildplans -> $(get admin/buildplans.php)  rows=$(grep -c "<tr" $H)"; { [ "$(grep -c "<tr" $H)" -ge 60 ] && ! grep -q "No landmark of this name" $H && grep -q "Build plans" $H; } || { echo "FAIL admin/buildplans.php lists every plan (2.7.06)"; RC=1; }
+echo "admin roadlines -> $(get admin/roadlines.php)  rows=$(grep -c "<tr" $H)"; { [ "$(grep -c "<tr" $H)" -ge 20 ] && grep -q "Road lines" $H && ! grep -qi "fatal error" $H; } || { echo "FAIL admin/roadlines.php lists the road lines (2.7.06)"; RC=1; }
 get admin/settings.php >/dev/null; for k in stop_slots stop_daily_cap stop_adopt_limit stop_daypart_force; do grep -q "name=\"s\[$k\]\"" $H && echo "  setting $k" || echo "  MISSING setting $k"; done
 echo "== php log"
 grep -iE 'fatal|warning|notice|deprecated' $LOG || echo "(none)"
