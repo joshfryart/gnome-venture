@@ -135,11 +135,11 @@
   function remember(o) { try { sessionStorage.setItem('pbx-after', JSON.stringify(o)); } catch (e) {} }
   function pbxSwap(form, out, inn, outFirst, root) {
     var nameOf = function (k) { var n = k; all('.pc', root).forEach(function (x) { var q = pcOf(x); if (q && q.key === k) n = q.n; }); return n; };
-    var first = outFirst ? [out, '0'] : [inn, '1'], second = outFirst ? [inn, '1'] : [out, '0'];
     remember({ key: inn, where: 'kit', msg: nameOf(inn) + ' is in, ' + nameOf(out) + ' is on the shelf' });
-    var fd = new FormData(form); fd.set('do', 'pfd_toggle'); fd.set('key', first[0]); fd.set('on', first[1]);
-    var go = function () { form.querySelector('[name=do]').value = 'pfd_toggle'; form.querySelector('[name=key]').value = second[0]; form.querySelector('[name=on]').value = second[1]; send(form); };
-    fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'pfswap' } }).then(go, go);
+    /* 2.7.05: ONE post (do=pfd_swap): the server tries the order that keeps the deck legal and puts everything back if it cannot */
+    form.querySelector('[name=do]').value = 'pfd_swap';
+    ['out', 'in'].forEach(function (n) { var f = form.querySelector('[name=' + n + ']'); if (!f) { f = document.createElement('input'); f.type = 'hidden'; f.name = n; form.appendChild(f); } f.value = n === 'out' ? out : inn; });
+    send(form);
   }
 
   var sheet = null, sheetRoot = null, sheetBtn = null, sheetList = [], sx = 0, sy = 0;

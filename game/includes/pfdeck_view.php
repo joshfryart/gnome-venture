@@ -126,7 +126,7 @@ function pfv_auto_html(bool $on, string $back = ''): string
 
 // ================================================================= 1. the starter pick
 
-/** First-time flow: 4 core pieces + pick 6 of the 12 offered, or a one-tap kit. Posts do=pfd_starter (pick[] x6, or kit=NAME without script) to the page it is on. */
+/** Fallback only (2.7.05): the pick screen is no longer the normal way in (pfd_ensure_starter packs the fixed box); it shows when that packing fails. First-time flow: 4 core pieces + pick 6 of the 12 offered, or a one-tap kit. Posts do=pfd_starter (pick[] x6, or kit=NAME without script) to the page it is on. */
 function pfv_starter_html(array $u, array $d, bool $inFight = false): string
 {
     $src = pfd_sources($u); $offer = $d['offer']; $old = pbox_load((int)$u['id']) ?? [];
@@ -243,7 +243,12 @@ function pfv_box_pc(array $u, array $p, array $c, array $o): string
     $o['al'] = ', ' . PFV_SRC_META[$g][0] . ($why !== '' ? ', ' . $why : '');
     $o['pcx'] = ['g' => $g, 'sn' => PFV_SRC_META[$g][0], 'fr' => pfv_from($u, $p), 'lg' => pfv_limit($p), 'why' => $why, 'in' => $p['on'] ? 1 : 0, 'key' => (string)$p['key']];
     if ($why !== '') $o['cls'] = trim(($o['cls'] ?? '') . ' blk');
-    return pfv_pc($p, $o);
+    $li = pfv_pc($p, $o);
+    if (($o['a'] ?? '') === 'tog' && empty($p['gear']) && $why === '') {   // 2.7.05: without script a piece can still be packed or taken out (its own small form)
+        $on = !empty($p['on']);
+        $li = substr($li, 0, -5) . '<noscript><form method="post" class="pfv-ns">' . csrf_field() . '<input type="hidden" name="do" value="pfd_toggle"><input type="hidden" name="key" value="' . e((string)$p['key']) . '"><input type="hidden" name="on" value="' . ($on ? '0' : '1') . '"><input type="hidden" name="t" value="kit"><button class="btn small ghost">' . ($on ? 'Take out' : 'Pack') . '</button></form></noscript></li>';
+    }
+    return $li;
 }
 
 /** One cell of the ready strip: icon with a check or warning mark, a word and a number, a small meter. */
@@ -251,6 +256,24 @@ function pfv_stc(bool $ok, string $icon, string $big, string $small, int $pct, s
 {
     return '<div class="stc' . ($ok ? '' : ' bad') . '" role="img" aria-label="' . e($label) . '"><span class="ic">' . $icon . '<i>' . pfv_img($ok ? 'ico/ico-check.png' : 'ico/ico-warning.png', 64) . '</i></span>'
         . '<b>' . $big . '</b><small>' . $small . '</small><span class="meter' . ($ok ? '' : ' low') . '"><i data-w="' . max(0, min(100, $pct)) . '"></i></span></div>';
+}
+
+/** The upgrade offer card for the v1 box: the first waiting offer's three choices (post `pick`, handled in puzzlebox.php), and how many are waiting / earned today. '' when none. */
+function pfv_offer_html(array $u, array $mods, string $back = ''): string
+{
+    $uid = (int)$u['id']; $offers = pfight_offers($uid);
+    if (!$offers) return '';
+    [$today, $dayCap] = pfight_offer_today($uid);
+    $o = $offers[0]; $own = pf_collection((int)$u['level'], (string)($u['calling'] ?? ''));
+    $h = '<section class="pbx-offer" aria-label="Choose a Puzzle upgrade"><h3>' . pfv_img('ico/ico-sparkle.png', 64) . 'Choose an upgrade<span>' . count($offers) . ' waiting · ' . $today . ' of ' . $dayCap . ' earned today</span></h3>'
+        . '<p class="hint">One of these three goes on the piece shown and stays until you remove it. From ' . (['a small', 'a medium', 'a big'][(int)$o['rarity']] ?? 'a') . ' puzzle.</p><ul class="pbx-offers">';
+    foreach ($o['choices'] as $ci => [$tk, $mk]) {
+        $def = pf_tiles()[$tk] ?? null; $md = PF_MODS[$mk] ?? null;
+        if (!$def || !$md || !in_array($tk, $own, true)) continue;
+        $h .= '<li><form method="post" class="pbx-pick" data-noajax="1">' . csrf_field() . '<input type="hidden" name="do" value="pick"><input type="hidden" name="offer" value="' . (int)$o['id'] . '"><input type="hidden" name="choice" value="' . (int)$ci . '">' . $back
+            . '<button class="btn">' . e($def['n']) . ' + ' . $md[1] . ' <b>' . e($md[0]) . '</b><small>' . e($md[2]) . (isset($mods[$tk]) ? ' (replaces ' . e(PF_MODS[$mods[$tk]][0]) . ')' : '') . ' · ' . ['common', 'uncommon', 'rare'][$md[3]] . '</small></button></form></li>';
+    }
+    return $h . '</ul></section>';
 }
 
 /** The whole Puzzle box page body (puzzlebox.php, v1 on). $tab: kit | belt | pals. */
@@ -294,6 +317,9 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             . ($kit < PFD_KIT_MIN ? '<a class="btn gold" href="' . e($kitUrl) . '#pbx-shelf" data-fix="add">Add</a>' : '') . '</div>';
         if (!$hurtOk) $h .= '<div class="pbx-fix"><span><b>Only ' . $hu . ' of ' . $n . ' pieces hit</b><small>Fights will drag on. Add ' . ($aim - $hu) . ' more Hurt piece' . ($aim - $hu === 1 ? '' : 's') . '.</small></span><a class="btn gold" href="' . e($kitUrl) . '?show=hurt#pbx-shelf" data-fix="hurt">Show Hurt</a></div>';
     }
+
+    // ---- 2.7.05: a waiting Puzzle upgrade offer (earned by finishing a puzzle): choose one of three, one offer at a time
+    $h .= pfv_offer_html($u, $mods, $back);
 
     // ---- the box: the lid (limits), then the Kit, Belt and Pals trays
     $lim = function (string $cls, string $icon, string $name, int $have, int $max): string {
@@ -390,13 +416,13 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
                 . '<span class="ti" aria-hidden="true">' . $tt[1] . '</span><span class="tn">' . e($pn) . '</span>' . pfv_durbar((int)$w['left'], (int)$w['max']) . '</button></li>';
         }
         $h .= ($any ? '' : '<li class="hint">No tools yet. A garden or gathering tool in your satchel can go on the belt.</li>') . '</ul>';
-        $h .= '<p class="hint">' . ($tier < 3 ? 'A bigger belt holds more tools: <a href="' . e(url('shop.php')) . '">buy one at Twigg’s</a> (Belt II from level ' . PFD_BELTS[2][2] . ', Belt III from level ' . PFD_BELTS[3][2] . ').' : 'Your belt holds the most tools a belt can.')
+        $h .= '<p class="hint">' . ($tier < 3 ? 'A bigger belt holds more tools: <a href="' . e((($twg = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'")) > 0 ? url('shop.php?id=' . $twg) : url('world.php?tab=markets'))) . '">buy one at Twigg’s</a> (Belt II from level ' . PFD_BELTS[2][2] . ', Belt III from level ' . PFD_BELTS[3][2] . ').' : 'Your belt holds the most tools a belt can.')
             . ' A worn-out tool leaves the deck until you fix it with a Tool Repair Kit (crafted: flint, pine resin, coir fibre). Remove takes a broken tool off the belt: keep it to repair later.</p></section>';
         $hint = $locked ? 'Tap a tool to read it.' : 'Tap a tool, then put it on, take it off or fix it.';
     } else {
         require_once __DIR__ . '/puzzle_pals.php';
         $h .= '<section class="pbx-shelf" id="pbx-shelf" aria-label="Puzzle Pals"><h3>' . pfv_img('ico/ico-paw.png', 64) . 'Puzzle Pals<span>' . (int)$c['pals'] . ' along · 1 piece each</span></h3>'
-            . '<p class="hint">' . (ppal_open() ? 'The pals you take along each add one piece. <a href="' . e(url('puzzlepals.php')) . '">Change your party in the Pal Book</a>' . ($locked ? ' (after the fight).' : '.') : 'Puzzle Pals are not open yet.') . '</p></section>';
+            . '<p class="hint">' . (ppal_open() ? 'The pals you take along each add one piece. <a href="' . e(url('puzzlepals.php#party')) . '">Change your party in the Pal Book</a>' . ($locked ? ' (after the fight).' : '.') : 'Puzzle Pals are not open yet.') . '</p></section>';
         $hint = 'Tap a pal piece to read it.';
     }
     $h .= '<div class="pinfo" id="pfv-info" aria-live="polite" data-hint="' . e($hint) . '"><span>' . e($hint) . '</span></div>';
@@ -487,10 +513,7 @@ function pfv_post(array $u, string $do, array $in): array
 {
     [$ok, $msg] = pfd_post($u, $do, $in);
     if ($ok && $do === 'pfd_starter') {
-        $n = 0;
-        foreach ((array)(pbox_load((int)$u['id']) ?? []) as $k) {
-            foreach (pfd_deck($u)['pieces'] as $p) if ($p['key'] === (string)$k && !$p['on'] && !$p['gear'] && pfd_toggle($u, (string)$k, true) === null) $n++;
-        }
+        $n = pfd_carry_old_box($u);
         if ($n > 0) $msg .= ' ' . $n . ' more piece' . ($n === 1 ? '' : 's') . ' from your old box ' . ($n === 1 ? 'is' : 'are') . ' packed too.';
     }
     return [$ok, $msg];

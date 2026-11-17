@@ -359,6 +359,9 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
     $s = q_one('SELECT st.*, sh.open, sh.open_minute, sh.close_minute, sh.id AS sid, sh.location_id, i.name, i.category AS item_category, i.effects AS item_effects FROM shop_stock st
                 JOIN shops sh ON sh.id = st.shop_id JOIN items i ON i.id = st.item_id WHERE st.id = ?', [$stockId]);
     if (!$s || !(int)$s['open']) return [false, 'That shop is closed.'];
+    require_once __DIR__ . '/pfdeck.php';   // 2.7.05: a fight belt is sold only to a gnome old enough to use it
+    $slugB = (string)q_val('SELECT slug FROM items WHERE id = ?', [(int)$s['item_id']]);
+    if (($needB = pfd_belt_level_need($slugB)) > (int)($u['level'] ?? 1)) return [false, 'The ' . $s['name'] . ' needs gnome level ' . $needB . '. Come back when you are old enough to wear it.'];
     if (!shop_reachable($u, ['location_id' => $s['location_id']])) return [false, 'You need to be in that town first.'];
     if ($why = gclock_closed_reason($u, $s)) return [false, $why];
     if (!staff_on_duty((int)$s['sid'])) return [false, 'Nobody is at the counter right now.'];

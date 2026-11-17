@@ -859,7 +859,9 @@
     delete s.ter[x + ',' + y]; s.ter[x + ',' + y] = kind;
     var cap = Math.max(1, toInt(s.v1[GROUND_N[kind]]));
     var have = Object.keys(s.ter).filter(function (k) { return s.ter[k] === kind; });
-    while (have.length > cap) delete s.ter[have.shift()];
+    var dropped = null;
+    while (have.length > cap) { dropped = have.shift(); delete s.ter[dropped]; }
+    return dropped;   // 2.7.05: the cell whose oldest patch faded (the replay event carries it as drop)
   }
   function envHurt(s, who, frac, tag) {
     if (frac <= 0) return 0.0;
@@ -882,7 +884,7 @@
       } else if (e.kind === 'thorn') {
         zone(e).forEach(function (z) { var p = pieceAt(s, z[0], z[1]); if (p && p.by !== 'none') L[p.by] += envHurt(s, p.by, Number(s.v1.thorn), 'thorn'); });
       } else {
-        groundSet(s, e.x, e.y, KIND_GROUND[e.kind]);
+        var gone = groundSet(s, e.x, e.y, KIND_GROUND[e.kind]); if (gone !== null) L.drop = gone;
         if (ob) L.on = { id: on.id, by: ob, n: on.tile.n };
       }
       L.me = toInt(L.me); L.foe = round(L.foe, 1);
@@ -900,7 +902,7 @@
   function envEvents(s) {
     return nn(s.envlog, []).map(function (L) {
       var e = { by: 'env', ta: 'env', env: L.k, tag: '', k: 'env:' + L.k, n: nn(PFB_EVENT_NAME[L.k], 'Terrain'), t: 'env', v: 0, fit: false, combo: null, x: L.x, y: L.y, me: L.me, foe: L.foe };
-      ['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
+      ['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full', 'drop'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
       if (L.n !== undefined && L.n !== null) e.n = L.n;   // 2.6.75: an environment piece placed (or kept back): its name
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
       return e;

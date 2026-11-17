@@ -788,3 +788,26 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pbx .comp.shut .tally i { display: none; }
 @media (min-width: 480px) { .pbx .comp.shut .tally i { display: inline-flex; } }
 .pbx .tb .tn { white-space: normal; text-overflow: clip; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.15; }
+
+/* 2.7.05: a waiting Puzzle upgrade offer in the v1 box */
+.pbx-offer { margin: 0 0 12px; padding: 10px 12px; border: 2px solid var(--line, #b8a27a); background: var(--card, #fff8e6); color: var(--ink, #2b2416); }
+.pbx-offer h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 16px; }
+.pbx-offer h3 span { margin-left: auto; font-size: 13px; font-weight: 400; }
+.pbx-offer h3 img { width: 24px; height: 24px; }
+.pbx-offers { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.pbx-offers .btn { display: block; width: 100%; min-height: 44px; text-align: left; }
+.pbx-offers .btn small { display: block; font-weight: 400; font-size: 13px; }
+
+/* 2.7.05: while a turn is replayed the piece card is one small line (no art, no chips), so it no longer covers the hand */
+.pf-v1.pf-playing .pf-inspect { max-height: 34px; overflow: hidden; padding-top: 3px; padding-bottom: 3px; }
+.pf-v1.pf-playing .pf-inspect .pfi-art, .pf-v1.pf-playing .pf-inspect .pfi-ch, .pf-v1.pf-playing .pf-inspect br { display: none; }
+.pf-v1.pf-playing .pf-inspect .pf-itext { display: block; font-size: 12px; line-height: 1.25; max-height: 28px; overflow: hidden; }
+.pf-v1.pf-playing.pfv-dockon .pfv-dock .pf-inspect { inset: auto 0 0 0; max-height: 34px; }
+
+/* 2.7.05: without script a piece has no drawn art (the script paints it): show its type icon, and a Pack / Take out button under it */
+.pfv .pc .cvh:empty { background: center / contain no-repeat; min-height: 40px; }
+.pfv .pc[data-t=hurt] .cvh:empty { background-image: url(img/pfight/ico-hurt-s.png); } .pfv .pc[data-t=guard] .cvh:empty { background-image: url(img/pfight/ico-guard-s.png); }
+.pfv .pc[data-t=heal] .cvh:empty { background-image: url(img/pfight/ico-heal-s.png); } .pfv .pc[data-t=charm] .cvh:empty { background-image: url(img/pfight/ico-charm-s.png); }
+.pfv .pc[data-t=soothe] .cvh:empty { background-image: url(img/pfight/ico-soothe-s.png); } .pfv .pc[data-t=trick] .cvh:empty { background-image: url(img/pfight/ico-trick-s.png); }
+.pfv .pc[data-t=item] .cvh:empty { background-image: url(img/pfight/ico-item-s.png); }
+.pfv-ns { margin: 2px 0 0; } .pfv-ns .btn { width: 100%; min-height: 36px; }

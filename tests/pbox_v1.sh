@@ -52,7 +52,9 @@ install $BASE $GAME; echo installed
 echo "== flag off: the old pages, byte for byte"
 OLD=${OLD:-b2c83466}   # the 2.6.73 release (before stages A to C). Stage D: was ba9c416c (the commit before stage C); that copy made the repair kit's recipe and Almanac page with the setting off, the release does not
 if git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then
-  ck "pfboard.js, pfight.js, pbox.js, pfight.css, pfparts.js are untouched since 2.6.73" "$(git -C "$ROOT" diff --stat $OLD -- game/assets/pfboard.js game/assets/pfight.js game/assets/pbox.js game/assets/pfight.css game/assets/pfparts.js | wc -l | tr -d ' ')" "0"
+  # 2.7.05: pfight.css is no longer byte for byte: it got light ink on the old board's dark panels (the light theme showed dark on dark). Only appended rules, marked "2.7.05".
+  ck "pfboard.js, pfight.js, pbox.js, pfparts.js are untouched since 2.6.73" "$(git -C "$ROOT" diff --stat $OLD -- game/assets/pfboard.js game/assets/pfight.js game/assets/pbox.js game/assets/pfparts.js | wc -l | tr -d ' ')" "0"
+  ck "pfight.css differs from 2.6.73 only by lines added (2.7.05 light ink)" "$(git -C "$ROOT" diff --numstat $OLD -- game/assets/pfight.css | awk '{print ($2==0 ? "added-only" : "changed")}')" "added-only"
   T0=$(mktemp -d); git -C "$ROOT" archive $OLD game | tar -x -C "$T0"; GAME0=$T0/game; mkdir -p "$GAME0/data"; PORT0=$((PORT+500)); BASE0=http://127.0.0.1:$PORT0
   php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT0 -t "$GAME0" "$ROUTER" >/dev/null 2>&1 & PID0=$!; sleep 1
   C1=$C; C=$(mktemp); install $BASE0 $GAME0; C0=$C; C=$C1
@@ -103,7 +105,7 @@ ck "the box: tabs, ready strip meters, Hurt line (no Teamwork row, no harmony me
 ck "the kit: packed pieces and a collection, each with art data, value and expiry pips" "$([ $(grep -o 'data-a="tog"' $H | wc -l) -ge 14 ] && echo many) $([ $(grep -o 'class="cvh" data-p=' $H | wc -l) -ge 14 ] && echo art) $(grep -c 'class="pc-x' $H | head -1 | sed 's/[1-9][0-9]*/pips/')" "many art pips"
 ck "toggle through the page: Jab out (no flash for a switch), back in" "$(post puzzlebox.php -d do=pfd_toggle -d key=jab -d on=0) $(db "SELECT active FROM pf_deck_pieces WHERE piece_key='jab'") $(get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_toggle -d key=jab -d on=1 >/dev/null; db "SELECT active FROM pf_deck_pieces WHERE piece_key='jab'")" "302 0 1"
 get 'puzzlebox.php?t=belt' >/dev/null
-ck "the belt tab: tier chips, slots with durability bars, the tools as buttons (no long list), repair kits, a link to Twigg's" "$(grep -c 'pfv-tier' $H) $(grep -o 'class="bslot"' $H | wc -l | tr -d ' ') $([ $(grep -o 'class="tb t[1-4]' $H | wc -l) -ge 4 ] && echo tools) $(grep -c 'class="toolrow' $H) $(grep -c 'repair kits: 2' $H) $(grep -c 'href="/shop.php"' $H)" "1 3 tools 0 1 1"
+ck "the belt tab: tier chips, slots with durability bars, the tools as buttons (no long list), repair kits, a link to Twigg's" "$(grep -c 'pfv-tier' $H) $(grep -o 'class="bslot"' $H | wc -l | tr -d ' ') $([ $(grep -o 'class="tb t[1-4]' $H | wc -l) -ge 4 ] && echo tools) $(grep -c 'class="toolrow' $H) $(grep -c 'repair kits: 2' $H) $(grep -c 'href="/shop.php?id=[0-9]*"' $H)" "1 3 tools 0 1 1"
 ck "a broken tool's button offers Fix, a worn one on the belt too; a tool on the belt offers Take off" "$(grep -o 'data-acts="pfd_fix|[^"]*"' $H | wc -l | tr -d ' ') $(grep -c 'class="tb t1 broken"' $H) $(grep -o 'pfd_unequip|Take off' $H | wc -l | tr -d ' ')" "2 1 3"
 ck "fix through the page: one kit used, the axe is whole again" "$(post 'puzzlebox.php' -d do=pfd_fix -d tool=axe -d t=belt) $(db "SELECT wear FROM pf_tool_wear WHERE tool_type='axe'") $(db "SELECT ui.qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE i.slug='tool-repair-kit'")" "302 0 1"
 get 'puzzlebox.php?t=belt' >/dev/null

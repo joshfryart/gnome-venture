@@ -48,7 +48,7 @@ page_header('Puzzle Pals');
   <?= ppal_waiting_html($u) ?>
 
   <?php if ($party): ?>
-  <section class="box ppalparty" aria-label="Your party">
+  <section class="box ppalparty" id="party" aria-label="Your party">
     <h2>Your party</h2>
     <?php if (!$canParty): ?>
       <p class="help">Pals cannot come along just yet. You can still find and collect them.</p>

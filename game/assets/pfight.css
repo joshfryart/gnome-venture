@@ -423,3 +423,10 @@
 /* 2.6.66: numbers on a lit spot (damage, charm, health you lose, the creature's reply) */
 .pfb-num { position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%); z-index: 3; max-width: 96%; padding: 0 .3em; border-radius: .6em; background: rgba(20, 20, 20, .82); color: #fff; font: 700 .62rem/1.25 system-ui, sans-serif; white-space: nowrap; pointer-events: none; }
 .pfb-num-hurt { background: #8f1d1d; }
+
+/* 2.7.05: the old board (pfight_v1 Off) sits on dark panels; in the light theme their text inherited the page's dark ink. Panels that are dark in both themes carry their own light ink. */
+.advgrid.fighting.pfover .encounter { color: #f2e4c0; }
+.advgrid.fighting.pfover .encounter a:not(.btn) { color: #ffd98a; }
+.advgrid.fighting.pfover .encounter .help, .advgrid.fighting.pfover .encounter .hint, .advgrid.fighting.pfover .encounter .muted, .advgrid.fighting.pfover .encounter small { color: #e6d6b0; }
+.pf-boardmode .pf-inspect, .pf-held-chip, .pf-play { color: #f2e4c0; }
+.pf-boardmode .pf-inspect .pfi-x { color: #f2e4c0; }
