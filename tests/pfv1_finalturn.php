@@ -8,7 +8,7 @@ require_once APP_ROOT . '/includes/adventure.php'; require_once APP_ROOT . '/inc
 $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'];
 $exp = active_expedition($uid); $enc = json_decode((string)$exp['encounter'], true); $c = encounter_creature($enc);
 $enc['pfgo'] = 1; unset($enc['pf']); $exp['encounter'] = json_encode($enc); save_exp($exp);
-$enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), 7, ['v1' => ['onebar' => 0, 'spawn' => 1], 'blank' => true, 'can_pluck' => false]); if (($enc['pf']['cm'] ?? 0) > 0) $enc['pf']['cm'] = 0.6;   // 2.7.08: Charm counts 0.8 on hostile creatures now and ends this fixture's fight before the creature has put pieces down; the fixture keeps its old 0.6 $exp['encounter'] = json_encode($enc); save_exp($exp);
+$enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), 7, ['v1' => ['onebar' => 0, 'spawn' => 1, 'nowm' => 1], 'blank' => true, 'can_pluck' => false]);
 $turn = function () use (&$exp, &$enc, &$u) {
     $exp = active_expedition((int)$u['id']); $enc = json_decode((string)$exp['encounter'], true); $s = $enc['pf']; if ($s['over']) return false;
     $_POST = ['nonce' => $s['nonce'], 'turn' => $s['turn']];
