@@ -237,8 +237,8 @@ const BUILD_VERBS = [
     'haul' => 'Haul', 'gather' => 'Gather', 'feed' => 'Feed the crew', 'light' => 'Light up', 'clear' => 'Clear',
     'carry' => 'Carry', 'decorate' => 'Decorate', 'wait' => 'Wait', 'vigil' => 'Keep vigil', 'befriend' => 'Befriend', 'trial' => 'Face the trial',   // 2.7.06: carry = haul by another name (heavy things), decorate = deco:N decor items, wait = wait:N game days pass, vigil = vigil:H game hours at the place
 ];
-/** 2.7.06: until the pictures for the new verbs are drawn they borrow an old one (assets/img/steps/stage-<verb>.png). */
-const BUILD_VERB_ART = ['carry' => 'haul', 'decorate' => 'haul', 'wait' => 'light', 'vigil' => 'light', 'befriend' => 'feed', 'trial' => 'clear'];
+/** 2.7.06: a verb whose picture is not drawn yet borrows another (assets/img/steps/stage-<verb>.png). All verbs have their own picture now. */
+const BUILD_VERB_ART = [];
 
 /** Parse a needs string ("item:rope:3,coins:250,meal:4,fine:2,days:3:3") into need tuples. Bad parts are dropped. */
 function build_parse_needs(string $s): array

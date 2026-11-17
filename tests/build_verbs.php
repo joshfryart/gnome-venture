@@ -5,7 +5,7 @@ require $argv[1] . '/includes/bootstrap.php';
 require_once $argv[1] . '/includes/rebuild.php'; require_once $argv[1] . '/includes/trade.php'; require_once $argv[1] . '/includes/gnome.php';
 $fails = 0;
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
-ok('the new verbs exist and have a borrowed picture', isset(BUILD_VERBS['carry'], BUILD_VERBS['decorate'], BUILD_VERBS['wait'], BUILD_VERBS['vigil']) && BUILD_VERB_ART['vigil'] === 'light');
+ok('the new verbs exist and each has its own picture file', isset(BUILD_VERBS['carry'], BUILD_VERBS['decorate'], BUILD_VERBS['wait'], BUILD_VERBS['vigil']) && !array_diff_key(array_flip(['carry','decorate','wait','vigil','befriend','trial']), array_flip(array_keys(BUILD_VERBS))) && !array_filter(['carry','decorate','wait','vigil','befriend','trial'], fn($v) => !is_file(__DIR__ . '/../game/assets/img/steps/stage-' . (BUILD_VERB_ART[$v] ?? $v) . '.png') || isset(BUILD_VERB_ART[$v])));
 ok('needs parse: wait:2, vigil:3, deco:4', build_parse_needs('wait:2') === [['wait', '', 2]] && build_parse_needs('vigil:3') === [['vigil', '', 3]] && build_parse_needs('deco:4') === [['deco', '', 4]] && build_parse_needs('wait:0') === []);
 $uid = (int)q_val("SELECT id FROM users WHERE username = 'sprout'");
 // a plan for one real landmark: 1 wait, 2 vigil, 3 decorate, 4 haul
