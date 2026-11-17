@@ -165,7 +165,7 @@ const PF_TILES_BUILTIN = [
         'offer'  => ['n' => 'Offer',  't' => 'charm',  'v' => 6, 'r' => null],
         'taunt'  => ['n' => 'Taunt',  't' => 'trick',  'v' => 3, 'r' => 'body'],
         // Hurt tiles that play differently (unlocks: see pfight_me)
-        'jab'    => ['n' => 'Jab',    't' => 'hurt',   'v' => 2, 'r' => 'craft', 'tag' => 'quick'],
+        'jab'    => ['n' => 'Jab',    't' => 'hurt',   'v' => 3, 'r' => 'craft', 'tag' => 'quick'],
         'pierce' => ['n' => 'Pierce', 't' => 'hurt',   'v' => 3, 'r' => 'mind',  'tag' => 'pierce'],
         'sting'  => ['n' => 'Sting',  't' => 'hurt',   'v' => 2, 'r' => 'body',  'tag' => 'poison'],
         'trip'   => ['n' => 'Trip',   't' => 'hurt',   'v' => 2, 'r' => 'craft', 'tag' => 'trip'],

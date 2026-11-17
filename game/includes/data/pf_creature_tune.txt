@@ -22,6 +22,7 @@ bearded-pig|0.803|1.000
 beaver-foreman|0.866|1.000
 bison-calf-stampede|0.854|1.000
 black-bear|1.271|0.797
+black-jaguar|0.800|1.000
 blue-ring-octopus|1.078|1.000
 bog-leech|1.966|1.000
 bog-pike|1.972|0.500
@@ -51,6 +52,7 @@ cloud-kite|1.160|0.725
 cloud-leopard|0.882|1.000
 coati-band|1.131|1.129
 cockle-bed|2.487|0.789
+coconut-crab-titan|0.900|1.000
 coconut-crab-youngster|1.066|1.003
 coconut-hermit|0.879|1.474
 condor|0.667|1.000
@@ -142,6 +144,7 @@ herring-gull|1.862|0.700
 honey-badger-brute|0.430|1.664
 honeybee-swarm|1.565|1.000
 horned-viper|0.883|1.000
+hornet-sentry|2.000|1.000
 house-centipede-skitter|3.200|1.596
 hyena-pup-cackle|1.178|1.000
 ibex-patriarch|0.913|1.000
@@ -167,6 +170,7 @@ leatherback|1.255|0.876
 lemming-kit-scurry|3.197|1.000
 leopard-slug|3.200|1.000
 lichen-golem|1.714|1.047
+lichen-reindeer|1.150|1.000
 luna-moth|0.800|1.474
 macaque-troop|1.267|1.000
 magpie-mob|1.266|0.839
@@ -176,6 +180,7 @@ mangrove-crab-emperor|1.091|0.737
 mangrove-crab-king|1.065|0.966
 marmot-bruiser|1.299|0.682
 marsh-harrier|0.967|1.130
+marsh-rat|1.300|1.000
 marsh-spark-swarm|2.213|1.000
 midge-cloud|3.200|1.596
 mire-toad|1.807|0.500
@@ -220,6 +225,7 @@ red-fox|0.607|1.479
 red-stag|1.165|0.953
 reef-eel-lord|1.055|0.804
 reef-eel-tyrant|0.861|1.133
+reef-leviathan|1.150|1.000
 reef-turtle|1.287|0.832
 reindeer-calf-herd|1.524|1.000
 river-otter|0.985|1.140
@@ -282,6 +288,7 @@ thistle-beast|1.947|1.450
 thorn-jackal|0.863|1.111
 thorny-devil|1.156|1.342
 thunder-yak|0.710|1.000
+tide-crab-knight|1.150|1.000
 tide-crab-paladin|1.385|0.966
 tide-crab-squire|2.056|0.500
 tiger-leech|2.226|1.004
