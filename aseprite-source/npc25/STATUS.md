@@ -14,7 +14,7 @@
 | hare | PASS | none |
 | toad | PASS | none |
 | beetle | PASS | none |
-| ladybird | PASS | dark head and body merge with the dark ground shadow in front view |
+| ladybird | PASS | redrawn: grey highlight ramp on head, belly and legs, light feet, neck gap and cream pronotum marks now separate the body from the ground shadow; back-view head is still a fairly flat dark disc |
 | stag-beetle | PASS | shield is hidden in back view by design (QUIRK_HIDDEN) |
 | stick-insect | PASS | very thin limbs and low-contrast purple body may fade at 1x |
 | snail | PASS | body reads more like a stone pillar than a snail; shell is small in front view |

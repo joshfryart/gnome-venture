@@ -3,7 +3,7 @@ local N = dofile((app.params.root or "npc25") .. "/lib/npc25.lua")
 local D = dofile((app.params.root or "npc25") .. "/lib/draft_common.lua")
 local S = {name = "ladybird", feet_y = 71, outline = "#2b1c26", plan = "sixleg", T = 9, W = 40}
 S.ramps = {main = {"#e8584a", "#d93a30", "#a52638", "#7a2030"}}  -- hi, base, shade, deep
-S.palette_list = {"#2b1c26", "#e8584a", "#d93a30", "#a52638", "#7a2030", "#4f4164", "#3d3150", "#3a2c48", "#f0cc6a", "#c99a48", "#6aa84a", "#f4e2bc", "#aaa9b8", "#74758c"}
+S.palette_list = {"#2b1c26", "#e8584a", "#d93a30", "#a52638", "#7a2030", "#4f4164", "#3d3150", "#3a2c48", "#f0cc6a", "#c99a48", "#6aa84a", "#f4e2bc", "#aaa9b8", "#74758c", "#6e6488", "#9a90b4"}
 -- {body y, head y, footL, footR, armL, armR}
 S.idle = {{0, 0, 0, 0, 0, 0}, {-1, -1, 0, 0, 0, 0}}
 S.walk = {{0, 0, 0, -2, 1, -1}, {-1, -1, -1, -1, 0, 0}, {-1, -1, -2, 0, -1, 1}, {0, 0, -1, -1, -1, -1}, {-1, -1, 0, -2, 0, 0}, {-1, -1, 0, 0, 1, -1}}
@@ -38,9 +38,12 @@ function S.draw_figure(img, view, frame, species)
   -- palette (look 1)
   local CREAM = H"#f4e2bc"
   local WC = {spec = CREAM, hi = H"#e8584a", base = H"#d93a30", shade = H"#a52638", deep = H"#7a2030"}
-  local HEAD = {hi = H"#4f4164", base = H"#4f4164", shade = H"#3d3150", deep = H"#3a2c48"}
-  local LEG = {hi = H"#4f4164", base = H"#4f4164", shade = H"#3d3150", deep = H"#3a2c48"}
-  local LEGF = {hi = H"#3d3150", base = H"#3d3150", shade = H"#3a2c48", deep = H"#3a2c48"}
+  local GHI, GRIM = H"#6e6488", H"#9a90b4" -- body-grey highlight ramp
+  local HEAD = {hi = GHI, base = H"#4f4164", shade = H"#3d3150", deep = H"#3a2c48"}
+  local LEG = {hi = GRIM, base = GHI, shade = H"#4f4164", deep = H"#3d3150"}
+  local LEGF = {hi = GHI, base = H"#4f4164", shade = H"#3d3150", deep = H"#3a2c48"}
+  local FOOT = {hi = GRIM, base = GRIM, shade = GHI, deep = H"#4f4164"}
+  local FOOTF = {hi = GHI, base = GHI, shade = H"#4f4164", deep = H"#3d3150"}
   local STRAW = {hi = CREAM, base = H"#f0cc6a", shade = H"#c99a48"}
   local BAND = H"#6aa84a"
   local SPOT = H"#3d3150"
@@ -131,6 +134,11 @@ function S.draw_figure(img, view, frame, species)
       end
     end
   end
+  local function headf(x, y, nx, ny, d)
+    if d > 0.7 and nx < -0.5 and ny < 0.3 then return GRIM end
+    if nx + ny < -0.55 and d > 0.3 then return GHI end
+    return lit(nx, ny, HEAD)
+  end
   local function knob(x, y) -- 3x3 diamond, top at (x+1,y)
     P(x + 1, y, HEAD.base); P(x, y + 1, HEAD.base); P(x + 1, y + 1, HEAD.shade); P(x + 2, y + 1, HEAD.deep)
     P(x + 1, y + 2, HEAD.deep)
@@ -144,13 +152,13 @@ function S.draw_figure(img, view, frame, species)
     shadow()
     for _, s in ipairs({-1, 1}) do
       local lift = s < 0 and backVL or backVR
-      local lx = CX + s * 6
+      local lx = CX + s * 7
       local bot = 70 + lift
       seg(lx, 60 + b, lx + s * 0.5, bot - 2, 1.2, LEG)
       ell(lx + s * 1.2, bot - 0.8, 3.2, 1.6, function(x, y, nx, ny)
-        if y >= bot then return LEG.deep end
-        if ny < -0.3 and nx < 0 then return LEG.hi end
-        return LEG.shade
+        if y >= bot then return FOOT.shade end
+        if ny < 0 and nx < 0.3 then return FOOT.hi end
+        return FOOT.shade
       end)
     end
     for _, s in ipairs({-1, 1}) do
@@ -179,8 +187,9 @@ function S.draw_figure(img, view, frame, species)
         local yy = y - b
         local gap = 1.2 + max(0, yy - 41) * 0.32
         if abs(x - CX) < gap then
-          if yy % 3 == 0 then return HEAD.deep end
-          return (x > CX) and HEAD.shade or HEAD.base
+          if yy % 3 == 0 then return HEAD.shade end
+          if yy % 3 == 1 then return (x > CX + 1) and HEAD.base or GRIM end
+          return (x > CX) and HEAD.base or GHI
         end
         if abs(x - CX) < gap + 1 then return WC.deep end
         return lit(nx, ny, WC)
@@ -189,8 +198,11 @@ function S.draw_figure(img, view, frame, species)
       spot(40, 45 + b); spot(42, 52 + b); spot(37, 57 + b)
       P(23, 42 + b, CREAM); P(22, 43 + b, CREAM); P(21, 44 + b, WC.hi)
       -- cream shoulder patches (pronotum)
-      ell(26, 39 + b, 2.6, 1.6, CREAM); ell(37, 39 + b, 2.6, 1.6, CREAM)
-      ell(CX, 39 + b, 2.6, 1.6, HEAD.shade)
+      ell(CX, 39.6 + b, 10.5, 2.4, function(x, y, nx, ny)
+        if abs(nx) > 0.45 then return (ny < 0.4) and CREAM or HEAD.shade end
+        return ny < -0.2 and GHI or HEAD.base
+      end)
+      for y = 36, 37 do for x = 29, 34 do P(x, y + hd, x <= 30 and GHI or (x >= 33 and HEAD.shade or HEAD.base)) end end
     else
       ell(CX, 49.5 + b, 14, 15, function(x, y, nx, ny)
         if x == 31 then return WC.deep end
@@ -212,10 +224,10 @@ function S.draw_figure(img, view, frame, species)
       ink(15 + sw, 42 + b); ink(16, 41 + b) -- strap to the shoulder
     end
     -- head
-    ell(CX, 29.5 + hd, 9.5, 7.8, HEAD)
+    if front then ell(CX, 28.6 + hd, 9.5, 7.2, headf) else ell(CX, 29.5 + hd, 9.5, 7.8, headf) end
     if front then
       -- cream face patches
-      ell(25, 32 + hd, 2, 1.6, CREAM); ell(38, 32 + hd, 2, 1.6, CREAM)
+      ell(25, 31.4 + hd, 2.2, 1.8, CREAM); ell(38, 31.4 + hd, 2.2, 1.8, CREAM)
       for _, ex in ipairs({26, 35}) do
         for y = 27, 29 do for x = ex, ex + 2 do P(x, y + hd, CREAM) end end
         P(ex + 1, 28 + hd, INK); P(ex + 2, 28 + hd, INK); P(ex + 1, 29 + hd, INK); P(ex + 2, 29 + hd, INK)
@@ -242,10 +254,11 @@ function S.draw_figure(img, view, frame, species)
     local function hind(x, lift, R)
       local bot = 70 + lift
       seg(x, 59 + b, x + 0.5, bot - 2, 1.2, R)
+      local F = R == LEG and FOOT or FOOTF
       ell(x + 2, bot - 0.8, 3.2, 1.6, function(xx, y, nx, ny)
-        if y >= bot then return R.deep end
-        if ny < -0.3 and nx < 0 then return R.hi end
-        return R.shade
+        if y >= bot then return F.shade end
+        if ny < 0 and nx < 0.3 then return F.hi end
+        return F.shade
       end)
     end
     hind(28 + fst / 2, o.footL, LEGF)
@@ -257,8 +270,9 @@ function S.draw_figure(img, view, frame, species)
     -- belly then wing-case dome
     ell(36, 53 + b, 4.6, 9, function(x, y, nx, ny)
       local yy = y - b
-      if yy % 3 == 0 then return HEAD.deep end
-      return nx > 0.4 and HEAD.shade or HEAD.base
+      if yy % 3 == 0 then return HEAD.shade end
+      if nx < -0.2 then return GRIM end
+      return nx > 0.4 and HEAD.base or GHI
     end)
     ell(27.5, 50 + b, 11.5, 13, function(x, y, nx, ny, d)
       if nx > 0.55 and d > 0.7 then return WC.deep end
@@ -275,7 +289,8 @@ function S.draw_figure(img, view, frame, species)
     seg(37, 44 + b, 40 + a, 48 + b, 1.1, LEG); seg(40 + a, 48 + b, 41 + 2 * a, 52 + b, 0.9, LEG)
     ink(40 + 2 * a, 54 + b); ink(42 + 2 * a, 54 + b)
     -- head
-    ell(37.5, 30 + hd, 8, 7.2, HEAD)
+    for y = 36, 37 do for x = 35, 38 do P(x, y + hd, x == 35 and GHI or HEAD.base) end end
+    ell(37.5, 29.2 + hd, 8, 6.8, headf)
     ell(43.5, 33 + hd, 2.6, 2, function(x, y, nx, ny) return ny < -0.3 and HEAD.hi or HEAD.base end)
     ell(39, 33 + hd, 1.6, 1.2, CREAM)
     for y = 27, 29 do P(40, y + hd, CREAM); P(41, y + hd, CREAM); P(42, y + hd, CREAM) end
