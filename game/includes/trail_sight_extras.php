@@ -161,7 +161,7 @@ function trail_sight_quests(?string $file = null): array
     foreach (trail_sight_data_lines('quests', $file) as $l) {
         $p = array_map('trim', explode('|', $l));
         if ($p[0] === 'Q' && count($p) >= 9 && preg_match('/^[a-z0-9-]+$/', $p[1])) $out[$p[1]] = ['slug' => $p[1], 'title' => $p[2], 'giver' => $p[3], 'icon' => $p[4], 'order' => in_array($p[5], ['any', 'anylast'], true) ? $p[5] : 'seq',
-            'reward' => $p[6], 'intro' => $p[7], 'outro' => $p[8], 'gate' => $p[9] ?? '', 'beats' => []];
+            'reward' => $p[6], 'intro' => $p[7], 'outro' => $p[8], 'gate' => $p[9] ?? '', 'limit' => max(0, (int)($p[10] ?? 0)), 'beats' => []];   // limit (optional 11th column, 2.7.06) = game days to finish the line from its first beat; 0 = no limit
         elseif ($p[0] === 'B' && count($p) >= 4 && isset($out[$p[1]])) $out[$p[1]]['beats'][] = [$p[2], $p[3], ($p[4] ?? '') === '' ? '-' : $p[4], $p[5] ?? ''];
     }
     return $c[$key] = $out;
@@ -186,6 +186,7 @@ function trail_sight_quest_lint(array $q, array $sights, array $allQuests = []):
         $seen = [$q['slug']]; $g = $q['gate'];
         while ($g !== '' && preg_match('/^quest:([a-z0-9-]+)$/', $g, $gm)) { if (in_array($gm[1], $seen, true)) { $bad[] = 'gate loop through ' . $gm[1]; break; } $seen[] = $gm[1]; $g = $allQuests[$gm[1]]['gate'] ?? ''; }
     }
+    if (($q['limit'] ?? 0) > 60) $bad[] = 'limit over 60 game days';
     if ($q['title'] === '' || $q['intro'] === '' || $q['outro'] === '') $bad[] = 'title, intro and outro are all needed';
     $probe = ['slug' => 'x', 'verb' => 'x', 'icon' => 'x', 'energy' => 0, 'cd' => 55, 'uses' => 1, 'when' => '-', 'check' => '-', 'rewards' => $q['reward'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0];
     foreach (trail_sight_lint($probe, true) as $p) if (!str_starts_with($p, 'no landmark picture')) $bad[] = 'reward: ' . $p;
@@ -279,6 +280,16 @@ function trail_sight_quest_hook(array $u, string $slug, array $loc, array $now):
         if ($q['gate'] !== '' && preg_match('/^quest:([a-z0-9-]+)$/', $q['gate'], $gm)) { $gr = trail_sight_quest_row($uid, $gm[1]); if (!$gr || $gr['done_at'] === null) continue; }
         $row = trail_sight_quest_row($uid, $q['slug']);
         if ($row && $row['done_at'] !== null) continue;
+        $gdq = (int)($now['gd'] ?? 0);
+        if ($row && ($q['limit'] ?? 0) > 0) {   // 2.7.06 quest time limit, in game days from the first beat
+            $qs = trail_sight_tallies($uid)['qstart#' . $q['slug']] ?? null;
+            if ($qs === null) trail_sight_tally_set($uid, 'qstart#' . $q['slug'], max(1, $gdq));
+            elseif ($gdq - (int)$qs > (int)$q['limit']) {
+                q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ? AND done_at IS NULL', [$uid, $q['slug']]); trail_sight_tally_set($uid, 'qstart#' . $q['slug'], 0);
+                $out[] = '⌛ Time ran out on ' . $q['title'] . ' (' . (int)$q['limit'] . ' game days). The next beat starts it again from the beginning.';
+                continue;
+            }
+        }
         $done = trail_sight_quest_done($q, $row);
         if ($row && count($done) >= count($q['beats'])) { $fl = trail_sight_quest_finish($u, $q, $loc, $now); if ($fl !== '') $out[] = $fl; continue; }   // a line whose beats were all done before a data edit: finish it now
         $idx = null; $needMissing = null; $npcMissing = null;
@@ -299,7 +310,7 @@ function trail_sight_quest_hook(array $u, string $slug, array $loc, array $now):
         $need = trail_sight_beat_need($q['beats'][$idx]);
         $new = array_merge($done, [$idx]); $oldJson = $row ? (string)$row['beats'] : '[]'; $newJson = trail_sight_quest_store($q, $new);
         try {
-            if (!$row) { try { db_insert('user_sight_quests', ['user_id' => $uid, 'quest' => $q['slug'], 'beats' => '[]', 'started_at' => now(), 'done_at' => null]); $out[] = '📜 A quest begins: ' . $q['title'] . '. ' . $q['intro']; } catch (Throwable $e) { /* made by another request a moment ago */ } $oldJson = '[]'; }
+            if (!$row) { try { db_insert('user_sight_quests', ['user_id' => $uid, 'quest' => $q['slug'], 'beats' => '[]', 'started_at' => now(), 'done_at' => null]); $out[] = '📜 A quest begins: ' . $q['title'] . '. ' . $q['intro'] . (($q['limit'] ?? 0) > 0 ? ' (You have ' . (int)$q['limit'] . ' game days.)' : ''); if (($q['limit'] ?? 0) > 0) trail_sight_tally_set($uid, 'qstart#' . $q['slug'], max(1, $gdq)); } catch (Throwable $e) { /* made by another request a moment ago */ } $oldJson = '[]'; }
             if (q('UPDATE user_sight_quests SET beats = ? WHERE user_id = ? AND quest = ? AND beats = ? AND done_at IS NULL', [$newJson, $uid, $q['slug'], $oldJson])->rowCount() !== 1) continue;   // another request moved this line: not counted twice
         } catch (Throwable $e) { continue; }
         $needLine = '';
