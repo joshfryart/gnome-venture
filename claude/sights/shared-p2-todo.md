@@ -10,8 +10,8 @@ Everything else in the ideas file is now in the data (picks, tallies and milesto
 - `grassland-the-clover-patch` is the test's fixture row (no check, win line with "thorough"), so it keeps no luck check (design: luck 12).
 
 ## Grammar gaps
-- `@chance` is ignored on `fpto=`, `hint=`, `title=`, `page=` (they always pay when their condition holds), and `?cond` on `tally=` is ignored (every win counts). So "3 different nights / seasons / weathers" milestones count any wins; the prize tokens carry the condition instead (lantern wick title at dusk/night, Ice Pianist on frost, mirror pebble on calm days).
-- A `?tl=` milestone pays on EVERY use after N (no "exactly N" / once), so milestone items are low-odds keepsakes, not big prizes.
+- DONE 2.7.06: `@chance` now works on `fpto=`, `hint=`, `title=`, `page=`, `disc=` (`trail_sight_chance_pass`); `?cond` on `tally=` was already honoured (2.7.01). Old note: `@chance` is ignored on `fpto=`, `hint=`, `title=`, `page=` (they always pay when their condition holds), and `?cond` on `tally=` is ignored (every win counts). So "3 different nights / seasons / weathers" milestones count any wins; the prize tokens carry the condition instead (lantern wick title at dusk/night, Ice Pianist on frost, mirror pebble on calm days).
+- DONE (`tn=key:N` = exactly N, 2.7.01): old note: A `?tl=` milestone pays on EVERY use after N (no "exactly N" / once), so milestone items are low-odds keepsakes, not big prizes.
 - `nocheck` does not help a `pick:` Sight (only stat checks).
 - No condition for "this quest line is done": after-quest effects stay out (meadow forecast after KITE is a tally milestone instead; Marrowby's stall is `se=autumn` only; stilt-house nap Sight, knoll feast buff, crows' trinket every 7 days, Pinchwell's weekly letter, Lyra's Hollow Round buff whenever she is on a green).
 - No either/or checks (boardwalk: plank OR nimble 9), no season-dependent DC (bluebells easier in spring), no penalty token (wind notch headwind), no "rest N game hours" (stone hut, shade awning, hammock, bones).

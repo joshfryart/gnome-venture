@@ -367,7 +367,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
                 if ($found) gather_reveal_set($found);
                 $lines[] = $gl ?? 'You find nothing this time.';
             } elseif (str_starts_with($tok, 'unlock=')) { if (unlock_entries((int)$u['id'], substr($tok, 7)) > 0) $lines[] = '📖 A new Almanac page'; }
-            elseif (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now));
+            elseif (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) { if (trail_sight_chance_pass($tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); }   // 2.7.06: @chance now works on these too
             else $plain[] = $tok;
         }
         foreach ($takes as [$tid, $tq]) give_item((int)$u['id'], $tid, -$tq);
@@ -405,6 +405,14 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     trail_sight_state_reset();
     if (random_int(1, 40) === 1) { try { q('DELETE FROM trail_sight_uses WHERE got_at < ?', [time() - 120 * 86400]); } catch (Throwable $e) {} }   // old cooldown rows (the longest cooldown is 40 days)
     return [true, ''];
+}
+
+/** 2.7.06: a token's trailing `@N` (percent chance) on hint= title= page= fpto= disc=: true when it pays this time; $tok loses the `@N`. No `@N` = always. */
+function trail_sight_chance_pass(string &$tok): bool
+{
+    if (!preg_match('/^(.*)@(\d{1,3})$/', $tok, $m)) return true;
+    $tok = $m[1];
+    return random_int(1, 100) <= (int)$m[2];
 }
 
 /**

@@ -123,6 +123,11 @@ $put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fr
 [$a] = $go(); ok('with puzzle combat off a wearable does not drop', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
 $put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('pfight_v1', '1'); setting('__reload__');
 [$a] = $go(); ok('with puzzle combat on it drops', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0 + 1, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
+$t0 = 'hint=old-ruin@0'; $t100 = 'title=Lantern Runner@100'; $tn = 'page=the-stump';
+$n0 = 0; for ($i = 0; $i < 200; $i++) { $x = $t0; if (trail_sight_chance_pass($x)) $n0++; }
+$x100 = $t100; $x1 = $tn; $r100 = trail_sight_chance_pass($x100); $r1 = trail_sight_chance_pass($x1);
+$n50 = 0; for ($i = 0; $i < 1000; $i++) { $x = 'fpto=Pip:5@50'; if (trail_sight_chance_pass($x)) $n50++; }
+if ($n0 === 0 && $r100 && $x100 === 'title=Lantern Runner' && $r1 && $x1 === $tn && $n50 > 400 && $n50 < 600) echo "  ok   2.7.06 @chance on hint / title / page / fpto: 0 never, 100 always, none = always, 50 about half, the @N is stripped\n"; else { echo "  FAIL 2.7.06 @chance on hint/title/page/fpto " . json_encode([$n0, $r100, $x100, $r1, $n50]) . "\n"; $fails++; }
 set_setting('pfight_v1', '0'); setting('__reload__');
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]);
 echo $fails ? "$fails FAILED\n" : "ok\n";
