@@ -146,6 +146,18 @@ function sh_bag_entries(array $u, array $items, string $hid): array
 }
 
 /** one line per ingredient: icon, name, have/need (the Pantry's slim lines) */
+/** 2.7.06 (Josh): the ingredients of a recipe you have not found yet, as lines "2 × Carrot · found / not found yet", so even an unknown recipe says what it needs. */
+function sh_unk_ing_html(array $ings, array $icons = []): string
+{
+    $h = '<ul class="p2ingcmp p2ingunk">';
+    foreach ($ings as $i) {
+        $seen = !empty($i['seen']);
+        $h .= '<li class="' . ($seen ? 'ok' : 'short') . '"><span class="p2ic" aria-hidden="true">' . (isset($icons[$i['slug'] ?? '']) ? sh_icon($icons[$i['slug']], 'sm') : '❔') . '</span><span class="p2in">' . (int)$i['qty'] . ' × ' . e((string)$i['name'])
+            . '</span><b>' . ($seen ? '✔ found' : 'not found yet') . '</b></li>';
+    }
+    return $h . '</ul>';
+}
+
 function sh_ing_line(array $i, array $icons): string
 {
     $ok = (int)$i['have'] >= (int)$i['qty'];
@@ -218,7 +230,7 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
         }
         $tw = $tier ? SH_TIERS[$tier] : null;
         $pic = $known && $item ? sh_icon($item, 'lg') : '❔';
-        $head = '<div class="shdh"><span class="p2big" aria-hidden="true">' . $pic . '</span><span class="p2dt"><b class="p2name">' . ($known ? e((string)$r['name']) : '???') . '</b>'
+        $head = '<div class="shdh"><span class="p2big" aria-hidden="true">' . $pic . '</span><span class="p2dt"><b class="p2name">' . e((string)$r['name']) . '</b>'
               . '<span class="p2tags">' . ($tw ? '<span class="tag">' . $tw[0] . ' ' . e($tw[1]) . '</span>' : '<span class="tag">' . CRAFT_CATEGORIES[$tab][1] . ' ' . e(strtolower(CRAFT_CATEGORIES[$tab][0])) . '</span>')
               . (!empty($r['new']) ? ' <span class="tag">new!</span>' : '') . '</span>'
               . '<small class="p2sub">' . ($known ? ($tab === 'cooking' ? e(buff_text($r['effects'], $u, true, (int)$r['output_item_id'])) : 'Makes ' . (int)$r['output_qty'] . ' × ' . e((string)$r['out_name']) . (($ff = item_food_line((string)$r['effects'], $u, true, (int)$r['output_item_id'])) !== '' ? ' · ' . e($ff) : '')) : 'Not discovered yet') . '</small></span>';
@@ -238,18 +250,18 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
                 $sq .= $i['seen'] ? item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'states' => ['done'], 'chips' => [['note', 'Found']]])
                                   : item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'icon' => '❔', 'rarity' => 'C', 'states' => ['off'], 'chips' => [['note', 'Not found yet']]]);
             }
-            $body = '<p class="ccingh p2ingh">Ingredients</p>' . item_grid($sq, 'itms--flush ccings p2ings');
+            $body = '<p class="ccingh p2ingh">You need</p>' . sh_unk_ing_html($r['ings'], $icons) . item_grid($sq, 'itms--flush ccings p2ings');
         }
         $small = $known ? ($status === 'ok' ? ($timeTxt ? str_replace([' minutes', ' minute', ' hours', ' hour'], [' min', ' min', ' h', ' h'], $timeTxt) . ' · ' : '') . ($cost ? '⚡' . $cost : 'no ⚡')
                                             : ($feast && !$kitchen3 && $r['can'] ? '🔒 Kitchen 3' : ($shortN > 0 ? 'short ' . $shortN : 'not now')))
                         : count(array_filter($r['ings'], fn($i) => $i['seen'])) . '/' . count($r['ings']) . ' found';
         $out[] = [
-            'id' => (int)$r['id'], 'item' => $known ? $item : null, 'name' => $known ? (string)$r['name'] : '???', 'count' => null, 'status' => $status,
+            'id' => (int)$r['id'], 'item' => $known ? $item : null, 'name' => (string)$r['name'], 'count' => null, 'status' => $status,
             'group' => $status === 'ok' ? 'ready' : ($status === 'unk' ? 'unk' : ($shortN <= 2 ? 'close' : 'far')),
             'flag' => !empty($r['new']) ? 'New' : '', 'small' => e($small), 'head' => $head, 'panel' => $body . '<div class="p2acts shacts">' . $acts . '</div>',
             'acts' => $acts, 'why' => $why, 'food' => $known ? item_food_line((string)$r['effects'], $u, true, (int)$r['output_item_id']) : '', 'desc' => $known ? (string)($r['description'] ?? '') : '',
             'found' => $known ? '' : count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found',
-            'quick' => null, 'hay' => $known ? $r['name'] . ' ' . implode(' ', array_column($r['ings'], 'name')) : '', 'short' => $shortN, 'ings' => $r['ings'], 'icons' => $icons,
+            'quick' => null, 'hay' => $r['name'] . ' ' . implode(' ', array_column($r['ings'], 'name')), 'short' => $shortN, 'ings' => $r['ings'], 'icons' => $icons,
         ];
     }
     return $out;

@@ -55,7 +55,7 @@ $obj = craft_obj_pick($tab);   // v2.3.7: a tapped scene object (?o=) keeps only
 if ($obj && !isset($_GET['show'])) $show = 'any';
 $base = ['known' => array_merge($ready, $missing), 'ready' => $ready, 'missing' => $missing, 'unknown' => $unknown, 'any' => array_merge($ready, $missing, $unknown)][$show];
 if ($obj) $base = array_values(array_filter($base, fn($r) => craft_tag_match($obj['globs'], (string)($r['slug'] ?? ''))));
-$list = array_values(array_filter($base, fn($r) => ($kind === '' || $kindOf($r) === $kind) && ($qs === '' || stripos($r['known'] ? $r['name'] : '', $qs) !== false)));
+$list = array_values(array_filter($base, fn($r) => ($kind === '' || $kindOf($r) === $kind) && ($qs === '' || stripos($r['name'], $qs) !== false)));
 $kindN = []; foreach ($base as $r) $kindN[$kindOf($r)] = ($kindN[$kindOf($r)] ?? 0) + 1;
 
 $jarsList = $stations['pantry'] !== 0 ? pantry_jars_list($uid) : [];
@@ -77,7 +77,7 @@ $link = function (array $over = []) use ($show, $kind, $qs, $sel, $obj): string 
 $make = function (array $r, bool $compact = false) use ($u, $tab, $stations, $now, $coins, $freeIn): string {
     $jarsFree = $freeIn(pantry_kind($r));
     ob_start();
-    if (!$r['known']) { ?><p class="muted p2note">Collect everything above to discover it.</p><?php return (string)ob_get_clean(); }
+    if (!$r['known']) { require_once __DIR__ . '/shelves.php'; ?><p class="p2ingh">You need</p><?= sh_unk_ing_html($r['ings'], []) ?><p class="muted p2note">Collect everything above to discover it.</p><?php return (string)ob_get_clean(); }
     if (!$r['can']) {
         $short = array_filter($r['ings'], fn($i) => $i['have'] < $i['qty']); ?>
         <p class="ccneed p2note">Need <?= e(implode(', ', array_map(fn($i) => ($i['qty'] - $i['have']) . ' ' . $i['name'], $short))) ?></p>
@@ -140,7 +140,7 @@ foreach ($recipes as $r) {
     $popAll[] = ['id' => (int)$r['id'], 'name' => (string)$r['name'], 'status' => !$r['known'] ? 'unk' : ($canNow ? 'ok' : 'miss'),
         'item' => $outItems[(int)$r['output_item_id']] ?? null, 'food' => $r['known'] ? item_food_line((string)$r['effects'], $u, false, (int)$r['output_item_id']) : '', 'desc' => $r['known'] ? (string)($r['description'] ?? '') : '',
         'acts' => $acts, 'why' => $r['known'] && !$canNow ? ($r['can'] ? trim(html_entity_decode(strip_tags($acts))) : implode(', ', array_map(fn($i) => $i['name'] . ' ' . (int)$i['have'] . '/' . (int)$i['qty'], array_filter($r['ings'], fn($i) => $i['have'] < $i['qty'])))) : '',
-        'found' => count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found'];
+        'ings' => $r['ings'], 'icons' => [], 'found' => count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found'];
 }
 craft_area_header($tab, craft_can_by_obj($tab, $popAll, $popSlug));
 echo craft_pop_html($tab, $popAll, $popSlug); ?>
@@ -209,7 +209,7 @@ echo craft_pop_html($tab, $popAll, $popSlug); ?>
       $shortN = array_sum(array_map(fn($i) => max(0, $i['qty'] - $i['have']), $r['ings'])); ?>
       <li><a class="p2row <?= !$r['known'] ? 'unk' : ($r['can'] ? 'ok' : 'miss') ?><?= $isSel ? ' sel' : '' ?>" href="<?= e($link(['r' => (string)$r['id']])) ?>#p2d"<?= $isSel ? ' aria-current="true"' : '' ?>>
         <span class="p2ic"><?= $r['known'] ? $pic((int)$r['output_item_id'], 'sm') : '❔' ?></span>
-        <span class="p2rm"><b><?= $r['known'] ? e($r['name']) : '???' ?><?= !empty($r['new']) ? ' <span class="tag">new!</span>' : '' ?></b>
+        <span class="p2rm"><b><?= e($r['name']) ?><?= !empty($r['new']) ? ' <span class="tag">new!</span>' : '' ?></b>
           <small><?= e(pantry_time_text(pantry_seconds($r))) ?> · <?= (int)$r['output_qty'] ?> jars<?php if ($r['known'] && !$r['can']): ?> · <span class="p2short">short <?= $shortN ?></span><?php endif; ?></small></span>
         <i class="p2dot" aria-hidden="true"></i><span class="vh"><?= !$r['known'] ? 'not discovered' : ($r['can'] ? 'you can make this' : 'missing ingredients') ?></span>
       </a></li>
@@ -221,7 +221,7 @@ echo craft_pop_html($tab, $popAll, $popSlug); ?>
     <details class="p2sheet" open>
       <summary class="p2dh">
         <span class="p2big"><?= $sel['known'] ? $pic((int)$sel['output_item_id'], 'lg') : '❔' ?></span>
-        <span class="p2dt"><b class="p2name"><?= $sel['known'] ? e($sel['name']) : '???' ?></b>
+        <span class="p2dt"><b class="p2name"><?= e($sel['name']) ?></b>
           <span class="p2tags"><span class="tag">🫙 preserve</span> <span class="tag"><?= e(P2_KINDS[$sk][0]) ?></span></span>
           <?php if ($sel['known']): ?><small class="p2sub">Makes <?= (int)$sel['output_qty'] ?> jars · <?= e(buff_text($sel['effects'], $u, true, (int)$sel['output_item_id'])) ?></small><?php endif; ?></span>
         <span class="p2grab" aria-hidden="true"></span><span class="p2chev" aria-hidden="true">▾</span>
