@@ -56,7 +56,7 @@ jobs:
           npx --prefix "$RUNNER_TEMP/pw" playwright install --with-deps chromium
           echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
       - name: Python art tools (catfish layers need numpy + Pillow)
-        run: python3 -m pip install --quiet numpy pillow
+        run: sudo apt-get install -y -qq python3-numpy python3-pil   # system packages: tests run python3 -I, which ignores a pip --user install
       - name: db_migrate / give_item error handling
         run: php tests/db_errors.php
       - name: Install and playthrough
@@ -77,7 +77,7 @@ jobs:
           PORT_BASE: '8800'
           SHARD: ${{ matrix.shard }}
           SHARDS: '4'
-          RETRY_SUITES: 'pbox_v1 fight_scene fight_scene_trail here heredo catfish pfboard_v1_page pfv1_charm pfengine_js gnome_wear puzzle_pals tour gourmand pfdeck_v1'   # browser or timing-sensitive suites get one retry; a pass on retry is logged as flaky
+          RETRY_SUITES: 'cook pbox_v1 fight_scene fight_scene_trail here heredo catfish pfboard_v1_page pfv1_charm pfengine_js gnome_wear puzzle_pals tour gourmand pfdeck_v1'   # browser or timing-sensitive suites get one retry; a pass on retry is logged as flaky
 
   upgrade:
     name: Upgrade from an older release

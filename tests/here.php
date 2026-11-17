@@ -760,7 +760,7 @@ if ($withDb) {
     $keepStep = []; foreach ([$stepF, $backF] as $rf) if (is_file($rf)) { rename($rf, $rf . '.keep'); $keepStep[] = $rf; }
     ok('no art: nothing drawn (off and road)', !is_file($stepF) && wander_step_strip('off') === '' && wander_step_strip('road') === '');
     if (function_exists('imagecreatetruecolor')) {
-        $mk = function (string $f, int $w, int $h) { $im = imagecreatetruecolor($w, $h); imagepng($im, $f); imagedestroy($im); };
+        $mk = function (string $f, int $w, int $h) { $im = imagecreatetruecolor($w, $h); imagepng($im, $f); };
         $mk($stepF, 480, 64);   // 5 frames of 96 x 64
         $off = wander_step_strip('off'); $road = wander_step_strip('road');
         ok('5-frame strip: off plays ws-n5, not mirrored, pixelated image', str_contains($off, 'ws-n5') && !str_contains($off, 'flip') && str_contains($off, 'class="pix '), $off);

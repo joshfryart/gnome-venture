@@ -79,7 +79,7 @@ $jobLine = fn(array $j): string => match ($j['kind']) {
     'garden' => ($plotName[(int)$j['plot_id']] ?? 'a garden') . ' · ' . strtolower(pj_garden_task_text((int)$j['plot_id'])),   // v2.3.3: works after your hired help
     'trip' => (LANDSCAPES[$j['target']][1] ?? $j['target']) . ' · ' . (TOOL_TYPES[$j['tool']][0] ?? $j['tool']) . ' · ' . pj_ago(ts($j['ends_at']) - ts($j['started_at'])),
     'delve' => ($delveName[(int)$j['target']] ?? 'a delve') . ((int)$j['potions'] ? ' · ' . (int)$j['potions'] . ' potion' . ((int)$j['potions'] > 1 ? 's' : '') : ''),
-    'station' => (($stationList[$j['target']][0] ?? '') . ' · ' . ($stationList[$j['target']][1] ?? 'station') . ' · ' . (($j['tool'] ?? '') === 'passive' ? 'tends a pot' : (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes')),
+    'station' => (($stationList[(string)$j['target']][0] ?? '') . ' · ' . ($stationList[(string)$j['target']][1] ?? 'station') . ' · ' . (($j['tool'] ?? '') === 'passive' ? 'tends a pot' : (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes')),
     default => '',
 };
 $nextBack = null;
