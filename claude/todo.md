@@ -41,6 +41,7 @@ Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG t
 - All phone checks through 2.6.70 PASSED (Josh, 2026-11-12). Later checks are listed in section 1.
 
 ## 3. JOSH: decisions needed
+- ANSWERED 2026-11-17 (Josh, round 2): rule (c) all-pieces-active = NO; charm ending = BUFF the charm reward (open); creature free board piece in old-rules fights = REMOVE; lair levels = leave.
 - ANSWERED 2026-11-17 (Josh): fight length = keep today's bars (4-5 turns); board = keep 4x4 as a look; starter kit retune = returned, it goes in 2.7.08; Wind and Mud = bring back as staged unlocks; belts / kit recipe / Almanac page = hide until `pfight_v1` is Everyone (not yet built); release cut = WAIT (no bump).
 - Sim questions (`claude/design-board-strategy.md`, "Sim results 3", Questions), needed before 2.7.07: (1) longer fights by tougher creatures (bars x1.6, softer hits), or keep today's bars and 4-5 turns? (2) board size does not change play: keep as a look, or give big boards something that uses the room? (3) events change the plan 1 turn in 6: enough, or make them hit harder? (4) bramble takes 14-21% of the creature's bar for free: halve it on creatures?
 - Starter kit: keep the six base pieces as they are, or retune them onto an even curve (2.7.07)?
