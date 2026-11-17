@@ -241,15 +241,15 @@ function explore_deeper(array $u, array &$exp, int $delta = 1): void
         exp_log($exp, $found);
     } elseif ($roll <= 63) {
         $s = road_sight_pick(exp_scene($exp));   // v1.9.3: not the same sight again soon; v1.9.4: from road_events.txt
-        if (!$s) { exp_log($exp, give_find($u, exp_scene($exp))); return; }
+        if (!$s) { exp_log($exp, find_popup(give_find($u, exp_scene($exp)))); return; }
         $c = 5 * $depth + intdiv((int)$exp['level'], 2);
         $fx = str_replace(['{c}', '{x}'], [$c . '-' . (2 * $c), (string)(2 + $depth)], $s['fx']);
         require_once __DIR__ . '/events.php';
         $lines = apply_event_effect($u, outlevel_fx($fx, $pct));   // v0.7.75: outgrown areas give less XP and Petals
         exp_log($exp, $s['icon'] . ' ' . $s['text'] . ($lines ? ' (' . implode(', ', $lines) . ')' : ''));
     } else {
-        exp_log($exp, give_find($u, exp_scene($exp)));
-        if ($depth >= 3 && random_int(1, 100) <= 10 * ($depth - 2)) exp_log($exp, give_find($u, exp_scene($exp)));   // richer further out
+        exp_log($exp, find_popup(give_find($u, exp_scene($exp))));
+        if ($depth >= 3 && random_int(1, 100) <= 10 * ($depth - 2)) exp_log($exp, find_popup(give_find($u, exp_scene($exp))));   // richer further out
     }
 }
 

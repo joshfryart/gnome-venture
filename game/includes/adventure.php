@@ -429,6 +429,20 @@ function give_local_seed(array $u, array $scene): ?string
     return '🌱 You find some ' . $s['name'] . ' and tuck them into your satchel.';
 }
 
+/**
+ * 2.7.06 (Josh): an item or Petals found while wandering or walking shows as a popup too (the event box), not only a log line. Several finds in one action share one popup.
+ * Returns $line unchanged, so it wraps a give_find() call: exp_log($exp, find_popup(give_find(...))).
+ */
+function find_popup(string $line): string
+{
+    if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && $line !== '' && !str_starts_with($line, '👀')) {
+        $b = $_SESSION['event_box'] ?? null;
+        if ($b && !empty($b['finds'])) { $b['lines'][] = $line; $_SESSION['event_box'] = $b; }
+        elseif (!$b) $_SESSION['event_box'] = ['icon' => '✨', 'title' => 'You found something!', 'text' => '', 'lines' => [$line], 'finds' => 1];
+    }
+    return $line;
+}
+
 /** A small reward: Petals, a landscape find, or a seed of a local crop. */
 function give_find(array $u, array $scene): string
 {
@@ -506,7 +520,7 @@ function next_step(array $u, array &$exp): void
         road_meet_start($u, $exp, $mt);   // v1.9.4: somebody on the road (a chat card; the only pay is the usual once-a-day chat)
     } else {
         $exp['encounter'] = null;
-        exp_log($exp, give_find($u, $scene));
+        exp_log($exp, find_popup(give_find($u, $scene)));
         rest_heal($exp);   // v1.3.0
     }
 }

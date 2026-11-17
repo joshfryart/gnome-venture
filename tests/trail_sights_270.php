@@ -146,6 +146,15 @@ $base0 = ['dp' => 'day', 'se' => 'summer', 'we' => 'clear', 'hp' => '', 'st' => 
 ok('fd=yes holds on a festival day, fd=<slug> only for that festival, neither without one', trail_sight_cond_ok('fd=yes', ['fd' => 'spring-fair'] + $base0) && trail_sight_cond_ok('fd=spring-fair,harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=harvest', ['fd' => 'spring-fair'] + $base0) && !trail_sight_cond_ok('fd=yes', ['fd' => ''] + $base0));
 ok('the lint accepts fd= and the card text says festival day', preg_match(TRAIL_SIGHT_COND_RE, 'fd=yes') === 1 && preg_match(TRAIL_SIGHT_COND_RE, 'fd=spring-fair') === 1 && trail_sight_cond_text('fd=yes') === 'on a festival day');
 
+echo "== find popup (2.7.06)\n";
+if (session_status() !== PHP_SESSION_ACTIVE) { @session_id('trailsights270'); @session_start(); }
+unset($_SESSION['event_box']);
+$fl = find_popup('🪙 You find 12 Petals glinting in the dirt.'); find_popup('✨ You find Acorn.');
+ok('a wander find raises the popup and returns the line unchanged; a second find joins it', $fl === '🪙 You find 12 Petals glinting in the dirt.' && ($_SESSION['event_box']['title'] ?? '') === 'You found something!' && count($_SESSION['event_box']['lines'] ?? []) === 2, json_encode($_SESSION['event_box'] ?? null));
+$_SESSION['event_box'] = ['icon' => 'x', 'title' => 'Other', 'text' => '', 'lines' => ['a']]; find_popup('🪙 You find 3 Petals.');
+ok('a popup that something else raised is not overwritten or mixed into', ($_SESSION['event_box']['title'] ?? '') === 'Other' && count($_SESSION['event_box']['lines']) === 1);
+unset($_SESSION['event_box']); find_popup('👀 You spot something shiny but cannot reach it.');
+ok('a hint ("👀 ...") is not a find and raises nothing', empty($_SESSION['event_box']));
 echo "== time= (2.7.06)\n";
 q('UPDATE users SET game_day = 10, game_minute = 360 WHERE id = ?', [$u['id']]);
 $put(['when' => '-', 'energy' => 0, 'rewards' => 'xp=1:1', 'check' => '-']); $fresh(); [$tA] = $go(); $mA = (int)q_val('SELECT game_minute FROM users WHERE id = ?', [$u['id']]);

@@ -289,7 +289,7 @@ function trail_token_event(array $u, array &$exp, string $kind, string $boss = '
         }
     }
     $exp['encounter'] = null;
-    exp_log($exp, give_find($u, $scene));
+    exp_log($exp, find_popup(give_find($u, $scene)));
     rest_heal($exp);
 }
 
