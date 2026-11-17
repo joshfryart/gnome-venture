@@ -41,11 +41,11 @@ function trail_fam_forest(array $ctx): string
             . '<span class="tff-st">' . ($used ? 'lit' : 'unlit') . ($isRelay ? ' · relay' : '') . ($fly ? ' · villager due' : '') . '</span>'
             . ($fly ? '<span class="tff-fly" aria-hidden="true"><i></i><i></i><i></i></span>' : '') . '</li>';
     }
-    $tl = (int)(($ctx['now']['tl'] ?? [])['lanterns-lit'] ?? 0);
+    $tl = (int)(($ctx['now']['tl'] ?? [])['lanterns-lit@' . (int)($ctx['now']['gd'] ?? 0)] ?? 0);   // 2.7.06: this game day's count (the bonus pays from 3 a day)
     $h = '<section class="tfforest tff-' . e($dp) . '" aria-label="Glow-moss lantern row, ' . e($dp) . '">'
         . '<p class="tff-h"><span aria-hidden="true">🌲</span> Lantern row at ' . e($dp) . ': ' . $lit . ' of ' . count($marks) . ' lit</p>'
         . '<ul class="tff-row">' . $li . '</ul>';
-    if ($relay) $h .= '<p class="tff-relay">Lantern Relay: ' . $relayLit . ' of ' . $relay . ' relay lanterns lit this round · ' . $tl . ' lit in all (bonus pays from 3)</p>';
+    if ($relay) $h .= '<p class="tff-relay">Lantern Relay: ' . $relayLit . ' of ' . $relay . ' relay lanterns lit this round · ' . $tl . ' lit today (bonus pays from 3 a day)</p>';
     foreach (array_slice($chips, 0, 3) as $c) $h .= '<p class="tff-chip' . ($c['now'] ? ' now' : '') . '"><span aria-hidden="true">✨</span> ' . e($c['text']) . '</p>';
     return $h . '</section>';
 }

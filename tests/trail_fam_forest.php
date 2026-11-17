@@ -18,7 +18,7 @@ foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchA
 $all = trail_sights_all();
 $who = 'Alder Thistledown';
 $mark = fn(string $slug, bool $used = false) => ['x' => 1, 'y' => 1, 'slug' => $slug, 'row' => $all[$slug], 'left' => $used ? 0 : $all[$slug]['uses'], 'why' => ''];
-$ctx = fn(string $dp, array $marks, array $tl = []) => ['now' => ['dp' => $dp, 'tl' => $tl], 'marks' => $marks];
+$ctx = fn(string $dp, array $marks, array $tl = []) => ['now' => ['dp' => $dp, 'tl' => $tl, 'gd' => 12], 'marks' => $marks];
 $branch = 'forest-the-lantern-branch'; $grotto = 'forest-the-glow-moss-grotto'; $bough = 'forest-the-owl-watch-bough';
 
 echo "== the layer\n";
@@ -29,7 +29,7 @@ ok('the lit lantern has the lit class, the ready one does not', preg_match('/tff
 ok('it renders at night too', str_contains(trail_fam_forest($ctx('night', [$mark($branch)])), 'tff-night'));
 ok('not by day or dawn', trail_fam_forest($ctx('day', [$mark($branch)])) === '' && trail_fam_forest($ctx('dawn', [$mark($branch)])) === '');
 ok('not for a section with no forest Sight', trail_fam_forest($ctx('dusk', [$mark('grassland-the-clover-patch')])) === '' && trail_fam_forest($ctx('dusk', [])) === '');
-ok('relay line counts relay lanterns and the tally', str_contains($h, 'Lantern Relay: 1 of 2 relay lanterns lit') && str_contains(trail_fam_forest($ctx('dusk', [$mark($branch)], ['lanterns-lit' => 7])), '7 lit in all'), $h);
+ok('relay line counts relay lanterns and today\'s tally (2.7.06: not the all-time 40)', str_contains($h, 'Lantern Relay: 1 of 2 relay lanterns lit') && str_contains(trail_fam_forest($ctx('dusk', [$mark($branch)], ['lanterns-lit' => 40, 'lanterns-lit@12' => 2, 'lanterns-lit@11' => 5])), '2 lit today'), $h);
 
 echo "== fireflies and the appointment chip\n";
 $f = npc_cw_forecast($who, $branch);

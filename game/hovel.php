@@ -60,6 +60,7 @@ $tabs = ['today' => ['🌅', 'Today'], 'sleep' => ['🛏️', 'Sleep'], 'tasks' 
   <div class="hov-mid">
     <div class="hov-day">Day <b><?= (int)$s['day'] ?></b><?= $s['tired'] ? ' · 😴 tired' : '' ?></div>
     <div class="hov-sub"><?= e($now['season_emoji'] . ' ' . $now['season_label']) ?> <?= (int)$now['season_day'] ?> · <?= e($now['weather_emoji'] . ' ' . $now['weather_label']) ?></div>
+    <?php require_once __DIR__ . '/includes/moon.php'; if ($moonL = moon_line()): ?><div class="hov-sub hov-moon"><?= e($moonL) ?></div><?php endif; ?>
   </div>
   <div class="hov-energy" title="Energy">⚡ <progress class="ebar" max="<?= $maxE ?>" value="<?= (int)$u['energy'] ?>" aria-label="Energy"></progress> <b><?= (int)$u['energy'] ?></b>/<?= $maxE ?></div>
 </div>

@@ -81,3 +81,14 @@ function moon_pill_section(string $sectionHtml, string $icon, string $label): st
     if ($i === false || !str_ends_with($sectionHtml, '</section>')) return $sectionHtml;
     return substr($sectionHtml, 0, $i + 1) . moon_pill($icon, $label, substr($sectionHtml, $i + 1, -strlen('</section>'))) . '</section>';
 }
+
+
+/** 2.7.06 (Josh): the moon line for Today and the Seasons page: "🌕 Full moon · big tides · high tide now, turning in 3 h". '' when the clockwork clock is not there. */
+function moon_line(): string
+{
+    require_once __DIR__ . '/npc_clockwork.php';
+    try { [, $h, $di] = npc_cw_clock(); } catch (Throwable $e) { return ''; }
+    $m = moon_phase((int)$di); $t = moon_tide((float)$h, (int)$di);
+    $r = ['spring' => 'big tides', 'neap' => 'small tides', 'mid' => 'middling tides'][$m['range']] ?? '';
+    return $m['icon'] . ' ' . $m['name'] . ' · ' . $r . ' · ' . lcfirst($t['text']);
+}
