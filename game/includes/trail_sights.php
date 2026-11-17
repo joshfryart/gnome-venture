@@ -397,6 +397,9 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     $text = $row['icon'] . ' ' . trail_sight_line($ok ? $row['win'] : $row['lose']) . ($lines ? ' (' . implode(', ', array_filter($lines)) . ')' : '');
     exp_log($exp, $text);
     foreach ($qlines as $ql) exp_log($exp, $ql);
+    if ($ok && array_filter($lines) && function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['event_box'])) {   // 2.7.06 (Josh): what a Sight gives (items, prizes, titles) shows as its own popup, not only a log line
+        $_SESSION['event_box'] = ['icon' => (string)$row['icon'], 'title' => (string)$row['verb'], 'text' => trail_sight_line($row['win']), 'lines' => array_values(array_filter(array_map('strval', array_merge($lines, $qlines))))];
+    }
     $route = (int)substr((string)$sc['row']['map_key'], 6);
     $sec = trail_phys_sec($route, (int)$sc['st']['sec'], $sc['st']);
     try {

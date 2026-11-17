@@ -74,6 +74,13 @@ q('UPDATE users SET game_day = 11 WHERE id = ?', [$u['id']]); $put(['when' => 'g
 [$a, $m] = $go(); ok('on game day 11 it is not the right time, and says every 7th game day', !$a && str_contains((string)$m, 'every 7th game day'), (string)$m);
 q('UPDATE users SET game_day = 10 WHERE id = ?', [$u['id']]);
 
+echo "== popup (2.7.06)\n";
+if (session_status() !== PHP_SESSION_ACTIVE) { @session_id('trailsights270'); @session_start(); }
+unset($_SESSION['event_box']);
+$put(['energy' => 0, 'rewards' => 'xp=3:1,c=7:1', 'check' => '-']); $fresh();
+[$pa] = $go();
+ok('a Sight that gives something also raises the event popup with its lines', $pa && !empty($_SESSION['event_box']) && !empty($_SESSION['event_box']['lines']) && (string)$_SESSION['event_box']['title'] === (string)$base['verb'], json_encode($_SESSION['event_box'] ?? null));
+unset($_SESSION['event_box']);
 echo "== choose your reward\n";
 $put(['energy' => 0, 'rewards' => 'choose=c=40:1;en=4', 'check' => '-']); $fresh();
 $ci = trail_sight_choose_info(trail_sights_all()[$base['slug']]);
