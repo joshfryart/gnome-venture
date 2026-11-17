@@ -601,7 +601,7 @@ function pfight_line(array $e, string $foe): string
     if (!empty($e['fit'])) $bits[] = 'snug fit';
     if (($e['pluck'] ?? '') === 'missed') return '🤏 You try to pluck something from the ' . $foe . ', but it notices.';
     if (($e['pluck'] ?? '') === 'none') return '🤏 You reach for the ' . $foe . ', but it has nothing to lift (or you already took something).';
-    $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) : ' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => ' (+' . (int)$e['v'] . ' health)', 'charm' => ' (' . (int)$e['v'] . ')', default => '' };
+    $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) : ' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => (($e['by'] ?? '') === 'foe' && isset($e['healed']) ? ' (its yield bar back ' . (float)$e['healed'] . ')' : ' (+' . (int)$e['v'] . ' health)'), 'charm' => ' (' . (int)$e['v'] . ')', default => '' };
     return ($e['by'] === 'me' ? '🧩 ' : '💥 ') . $who . ' ' . $e['n'] . $tail . ($bits ? ' · ' . implode(', ', $bits) : '') . '.';
 }
 

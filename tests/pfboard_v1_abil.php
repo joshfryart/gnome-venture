@@ -181,6 +181,15 @@ chk('Ambush: the aim total shows the boosted number (14 against 10)', $tot['hp']
 $s = ab_fight('medium', ['ab' => ['ambush1']]); $ev = ab_turn($s, [ab_tile($s, 'f:g', 'guard', 4), ab_tile($s, 'f:h', 'hurt', 10), ab_tile($s, 'f:i', 'hurt', 10)], 1, 1); $s['foe']['again'] = 0;
 chk('Ambush: only its FIRST Hurt piece (a guard first does not use it)', ($h = $hurtOf(ab_turn($s, [ab_tile($s, 'f:h', 'hurt', 10)], 2, 2))) && $h[0]['v'] === 10, $h);
 
+echo "== 7a. Creature healing on the yield bar (2.7.06)\n";
+$s = ab_fight('medium'); $s['fh']['now'] = 3.0; $s['bar']['now'] = 5.0; $s['bar']['charm'] = 5.0; $tot0 = $s['fh']['now'] + $s['bar']['now'];
+$ev = ab_place($s, 'foe', ab_tile($s, 'f:hl', 'heal', 6), 1, 1); $he = array_values(array_filter($ev, fn($e) => ($e['t'] ?? '') === 'heal'));
+chk('a creature Heal of 6 takes back 3 damage first, then 3 charm: the yield bar loses 6 in all', abs(($s['fh']['now'] + $s['bar']['now']) - ($tot0 - 6)) < 1e-9 && abs($s['fh']['now']) < 1e-9 && abs($s['bar']['now'] - 2.0) < 1e-9 && abs($s['bar']['charm'] - 2.0) < 1e-9, [$s['fh']['now'], $s['bar']['now'], $s['bar']['charm']]);
+chk('the event says how much it really took back (healed 6)', $he && abs(($he[0]['healed'] ?? -1) - 6.0) < 1e-9, $he[0] ?? null);
+$s = ab_fight('medium'); $s['fh']['now'] = 1.0; $s['bar']['now'] = 2.0; $s['bar']['charm'] = 2.0;
+$ev = ab_place($s, 'foe', ab_tile($s, 'f:hl', 'heal', 20), 1, 1); $he = array_values(array_filter($ev, fn($e) => ($e['t'] ?? '') === 'heal'));
+chk('a Heal bigger than the bar holds takes back only what is there (3) and leaves nothing negative', $he && abs(($he[0]['healed'] ?? -1) - 3.0) < 1e-9 && $s['fh']['now'] >= 0 && $s['bar']['now'] >= 0 && $s['bar']['charm'] >= 0, [$he[0]['healed'] ?? null, $s['fh']['now'], $s['bar']['now']]);
+chk('its line says the yield bar, not "+N health"', $he && str_contains(pfight_line($he[0], 'Owl'), 'yield bar back 3'), $he ? pfight_line($he[0], 'Owl') : null);
 echo "== 7b. Barge planning (2.7.06)\n";
 $s = ab_fight('medium', [], ['tags' => 1]); $s['foe']['block'] = 8; $a0 = $s; $a1 = $s; $a1['foe']['bashnext'] = 1; $u = 0.05 * $s['me']['max'];
 $d = pfb_score($s, $a1, 'foe') - pfb_score($s, $a0, 'foe');

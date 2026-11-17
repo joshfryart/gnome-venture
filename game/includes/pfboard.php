@@ -1582,7 +1582,7 @@ function pfb_aim_total(array $s): ?array
         if (($e['by'] ?? '') === 'env') { if (($e['kind'] ?? '') !== 'sun') $fires[] = 'fires ' . $e['n']; continue; }   // a Sun says 'Sun x2' instead
         if ($e['by'] === 'foe') {
             if ($e['t'] === 'hurt') $g += (int)($e['blocked'] ?? 0);
-            if ($e['t'] === 'heal' || ($e['t'] === 'trick' && $e['tag'] === 'heal')) $heal += (int)$e['v'];
+            if ($e['t'] === 'heal' || ($e['t'] === 'trick' && $e['tag'] === 'heal')) $heal += (int)pf_round((float)($e['healed'] ?? $e['v']), 0);
             if (!empty($e['sun'])) $sun = true;
             if (!empty($e['mud'])) $mud = true;
             if (!empty($e['combo'])) $combo[$e['combo']] = 1;

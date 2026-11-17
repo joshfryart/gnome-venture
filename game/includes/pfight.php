@@ -509,7 +509,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             break;
         case 'heal':
             if ($who === 'me') { $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val + ($m === 'tender' ? 2 : 0))); if ($m === 'soft') $s['foe']['agg'] += 2; }
-            else pf_foe_heal($s, (float)$val);   // the creature recovers some health
+            else $e['healed'] = pf_round(pf_foe_heal($s, (float)$val), 1);   // the creature's yield bar goes back by what it could take back (2.7.06: the amount is in the event)
             break;
         case 'charm':
             if ($who === 'me') {
@@ -532,7 +532,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
                 if ($tile['tag'] === 'thorns') $mine['thorns'] = true;
                 if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil((!empty($s['v1']) ? (int)$tile['v'] : $val) / 2))); $e['poisoned'] = $theirs['poison']; }
                 if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }
-                if ($tile['tag'] === 'heal') pf_foe_heal($s, (float)$val);
+                if ($tile['tag'] === 'heal') $e['healed'] = pf_round(pf_foe_heal($s, (float)$val), 1);
             }
             if ($root && $who === 'me' && $tile['tag'] === 'pluck') {
                 if (!$s['can_pluck'] || $s['plucked']) $e['pluck'] = 'none';
@@ -708,11 +708,12 @@ function pf_plan_score(array $s, array $tiles): float
 
 /** After the foe's reply: player's next turn begins. Refill hands, bump turn, apply stall cap, refresh intent and redraws. */
 /** The creature recovers $val. 2.6.989 (one shared bar): the heal takes the Yield bar down, the Hurt part first, then the Charm part; two bars (a 2.6.94 fight): only the health bar. */
-function pf_foe_heal(array &$s, float $val): void
-{
-    if (empty($s['v1']['onebar'])) { $s['fh']['now'] = max(0.0, $s['fh']['now'] - $val); return; }
-    $d = min((float)$s['fh']['now'], $val); $s['fh']['now'] -= $d; $rest = $val - $d;
+function pf_foe_heal(array &$s, float $val): float
+{   // the creature takes back progress on the yield bar: damage first, then charm. Returns what it actually took back (never more than the bar held)
+    if (empty($s['v1']['onebar'])) { $d = min((float)$s['fh']['now'], $val); $s['fh']['now'] = max(0.0, $s['fh']['now'] - $val); return max(0.0, $d); }
+    $d = min((float)$s['fh']['now'], $val); $s['fh']['now'] -= $d; $rest = $val - $d; $c = 0.0;
     if ($rest > 0) { $c = min((float)$s['bar']['now'], $rest); $s['bar']['now'] -= $c; $s['bar']['charm'] = max(0.0, (float)$s['bar']['charm'] - $c); }
+    return max(0.0, $d + $c);
 }
 
 function pf_end_turn(array &$s): void

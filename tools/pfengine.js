@@ -447,7 +447,7 @@
         break;
       case 'heal':
         if (who === 'me') { mine.hp = Math.max(mine.hp, Math.min(mine.max, mine.hp + val + (m === 'tender' ? 2 : 0))); if (m === 'soft') s.foe.agg += 2; }
-        else foeHeal(s, Number(val));
+        else e.healed = round(foeHeal(s, Number(val)), 1);
         break;
       case 'charm':
         if (who === 'me') {
@@ -470,7 +470,7 @@
           if (tile.tag === 'thorns') mine.thorns = true;
           if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil((s.v1 ? toInt(tile.v) : val) / 2)))); e.poisoned = theirs.poison; }
           if (tile.tag === 'trip') { theirs.slowdraw = 1; e.tripped = 1; }
-          if (tile.tag === 'heal') foeHeal(s, Number(val));
+          if (tile.tag === 'heal') e.healed = round(foeHeal(s, Number(val)), 1);
         }
         if (root && who === 'me' && tile.tag === 'pluck') {
           if (!s.can_pluck || truthy(s.plucked)) e.pluck = 'none';
@@ -1550,10 +1550,11 @@
   }
 
   /** 2.6.989: the creature recovers val. One shared bar: the Yield bar goes down, the Hurt part first, then the Charm part; two bars: only the health bar. */
-  function foeHeal(s, val) {
-    if (!(s.v1 && truthy(s.v1.onebar))) { s.fh.now = Math.max(0.0, s.fh.now - val); return; }
-    var d = Math.min(Number(s.fh.now), val); s.fh.now -= d; var rest = val - d;
-    if (rest > 0) { var c = Math.min(Number(s.bar.now), rest); s.bar.now -= c; s.bar.charm = Math.max(0.0, Number(s.bar.charm) - c); }
+  function foeHeal(s, val) {   // returns what it actually took back (never more than the bar held)
+    if (!(s.v1 && truthy(s.v1.onebar))) { var d0 = Math.min(Number(s.fh.now), val); s.fh.now = Math.max(0.0, s.fh.now - val); return Math.max(0.0, d0); }
+    var d = Math.min(Number(s.fh.now), val); s.fh.now -= d; var rest = val - d, c = 0.0;
+    if (rest > 0) { c = Math.min(Number(s.bar.now), rest); s.bar.now -= c; s.bar.charm = Math.max(0.0, Number(s.bar.charm) - c); }
+    return Math.max(0.0, d + c);
   }
   function foeLen(s) { return Math.max(0, Math.min(s.foe.hand.length, 1 - toInt(s.foe.slow))); }
 
@@ -1705,7 +1706,7 @@
       if (e.by === 'env') { if (e.kind !== 'sun') fires.push('fires ' + e.n); return; }
       if (e.by === 'foe') {
         if (e.t === 'hurt') g += toInt(nn(e.blocked, 0));
-        if (e.t === 'heal' || (e.t === 'trick' && e.tag === 'heal')) heal += toInt(e.v);
+        if (e.t === 'heal' || (e.t === 'trick' && e.tag === 'heal')) heal += iround(Number(e.healed !== undefined ? e.healed : e.v));
         if (truthy(e.sun)) sun = true;
         if (truthy(e.mud)) mud = true;
         if (truthy(e.combo) && combo.indexOf(e.combo) < 0) combo.push(e.combo);
@@ -1997,7 +1998,7 @@
     switch (e.t) {
       case 'hurt': tail = e.by === 'me' ? ' for ' + toInt(nn(e.dmg, e.v)) : ' for ' + toInt(nn(e.dmg, e.v)) + ' damage'; break;
       case 'guard': tail = ' (+' + toInt(e.v) + ' guard)'; break;
-      case 'heal': case 'item': tail = ' (+' + toInt(e.v) + ' health)'; break;
+      case 'heal': case 'item': tail = (e.by === 'foe' && e.healed !== undefined) ? ' (its yield bar back ' + String(Number(e.healed)) + ')' : ' (+' + toInt(e.v) + ' health)'; break;
       case 'charm': tail = ' (' + toInt(e.v) + ')'; break;
       default: tail = '';
     }
