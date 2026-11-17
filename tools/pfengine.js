@@ -522,7 +522,7 @@
   var PFB_GROUND = { small: [2, 2, 1], medium: [3, 2, 1], large: [3, 3, 1], boss: [4, 3, 1] }, PFB_GROUND_DIST = [1, 2];
   var PFB_EVENTS = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];
   var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble', poison: 'Poison', place: 'Environment', pass: 'Environment', expire: 'Environment' };
-  var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 1.0, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
+  var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
   var PFB_TEAM_SRC = ['pal', 'tool', 'crop'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'wear', 'creature', 'env'];
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft', wear: 'body' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };

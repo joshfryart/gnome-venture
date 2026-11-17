@@ -117,7 +117,7 @@ $s6 = v1_bare('medium', V1_OLD); v1_put($s6, 'foe', v1_tile($s6, 'c1', 'charm', 
 chk('mud: no link INTO a piece on mud either, so no chain runs through it (only your piece fires)', $j !== null && !pfb_has_link($j) && $m && count($m) === 1 && ($m[0]['linked'] ?? -1) === 0, [$j, count($m ?? [])]);
 $s7 = v1_bare('medium', V1_OLD); $s7['ter']['3,2'] = 'br'; $s7['ter']['1,1'] = 'br'; v1_put($s7, 'me', $swing, 3, 2); v1_put($s7, 'foe', $guard, 1, 1); $hp0 = $s7['me']['hp']; $fh0 = $s7['fh']['now'];
 pfb_env_turn($s7); $want = max(1, (int)round(PFB_BRAMBLE * $s7['me']['max']));
-chk('bramble: at the end of the round a piece on bramble costs its owner 10% of max health (you and the creature)', $hp0 - $s7['me']['hp'] === $want && abs($s7['fh']['now'] - $fh0 - PFB_BRAMBLE * $s7['fh']['max']) < 1e-9, [$hp0 - $s7['me']['hp'], $s7['fh']['now'] - $fh0]);
+chk('bramble: at the end of the round a piece on bramble costs its owner 10% of max health for you, half that for the creature (2.7.06 PFB_BRAMBLE_FOE 0.5)', $hp0 - $s7['me']['hp'] === $want && abs($s7['fh']['now'] - $fh0 - PFB_BRAMBLE * PFB_BRAMBLE_FOE * $s7['fh']['max']) < 1e-9, [$hp0 - $s7['me']['hp'], $s7['fh']['now'] - $fh0]);
 $ev = pfb_env_events($s7);
 chk('bramble: the terrain turn reports it as an event note (by env, ta env, what each side lost, the pieces)', count($ev) === 1 && $ev[0]['by'] === 'env' && $ev[0]['ta'] === 'env' && $ev[0]['env'] === 'bramble' && $ev[0]['me'] === $want && count($ev[0]['ids']) === 2 && str_contains(pfight_line($ev[0], 'Test Thing'), 'Bramble'), $ev);
 $s8 = v1_bare('medium', ['ground' => 0] + V1_OLD); chk('rule switch ground = 0: no ground cells', pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => ['ground' => 0] + V1_OLD])['ter'] === []);

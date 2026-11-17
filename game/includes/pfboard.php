@@ -32,7 +32,7 @@ const PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];   // dr
 const PFB_EVENT_NAME = ['sunbeam' => 'Sunbeam', 'creep' => 'Bramble creep', 'puddle' => 'Puddle', 'gust' => 'Gust', 'thorn' => 'Thorn burst', 'bramble' => 'Bramble', 'poison' => 'Poison', 'place' => 'Environment', 'pass' => 'Environment', 'expire' => 'Environment'];
 const PFB_USEUP = 3;                          // a chain that fires this many pieces or more uses up every piece that fired (both sides; 0 = off)
 const PFB_SUN_MULT = 2.0;                     // a Hurt or Charm piece on a sunny cell counts this much
-const PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 1.0;   // bramble: share of max health a piece on it costs its owner each terrain turn (x PFB_BRAMBLE_FOE for a creature piece)
+const PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5;   // bramble: share of max health a piece on it costs its owner each terrain turn (x PFB_BRAMBLE_FOE for a creature piece). 2.7.06 (Josh): halved on creatures (was 1.0; it took 14-21% of the creature's bar for free)
 const PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5;  // thorn burst: share of max health per piece in the zone; event damage on the creature is halved
 const PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;       // Teamwork: your pieces in a chain you start come from 2 / 3 of the sources pal, tool, crop
 const PFB_TEAM_SRC = ['pal', 'tool', 'crop'];
