@@ -96,6 +96,7 @@ const PF_TAGS_V1 = [
 const PF_SPECIAL = [
     'snack' => 'Snack: eats a food item from your satchel',
     'pal'   => 'Pal: a piece your pal lends you while it comes along',
+    'boon'  => 'Boon: a piece your pal lends you while it comes along, shaped by its rare Boon',   // 2.7.06
 ];
 
 /** What each piece TYPE does for the player, in one sentence; # is the piece's number (pf_type_text). Hurt and Charm fill the creature's one Yield bar. */
