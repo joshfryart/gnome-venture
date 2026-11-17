@@ -9,7 +9,7 @@ SHIPPED = os.path.join(HERE, '..', 'game', 'includes', 'data', 'road_events.txt'
 LANDS = {'forest','grassland','coast','mountain','desert','rainforest','wetland','tundra','island','any'}
 STATS = {'grit','nimble','hardiness','lore','sense','charm','luck'}
 REGIONS = {'NA','CA','CB','SA','NWE','SE','EE','MENA','WCA','ESA','CSA','EA','SEA','OC'}
-KINDS = {'choice','fork','riddle','trade','chain','sketch'}
+KINDS = {'choice','fork','riddle','trade','chain','sketch','toll','beat','weather'}
 FX = {'xp','coins','item','rand','energy','buff','heal','hp','pay','take','next','skip','journal','landmark'}
 def opt(n): return sys.argv[sys.argv.index(n) + 1] if n in sys.argv else ''
 def parse(path):
@@ -76,11 +76,14 @@ def main():
         if kind == 'trade':
             if not any('take:' in w or 'pay:' in w for w in wins): err('trade needs a take: or pay: option')
             if not any(w == '' for w in wins): err('trade needs a decline option with no effect')
+        if kind == 'weather' and 'we=' not in cond: err('weather: the cond must name a weather (we=...)')   # 2.7.06
+        if kind == 'toll' and not any('pay:' in w for w in wins): err('toll: one option must pay Petals (pay:N)')
+        if kind == 'beat' and not id_.startswith('chain-') and not any('next:' in w for w in wins): err('beat: the first card needs a next: effect')
         if kind == 'chain':
             if not any('next:' in w or 'next:' in x[6] for x, w in zip(o, wins)) and not id_.startswith('chain-'): err('chain: first card needs a next: effect')
         if kind == 'sketch':
             if len(o) != 1 or f'journal:{id_}' not in o[0][4] or not name: err('sketch: one option, win has journal:<own id>, name column set')
-        if id_.startswith('chain-') and kind != 'chain' and kind != 'choice' and kind != 'riddle' and kind != 'fork' and kind != 'trade': err('bad kind for a chain card')
+        if id_.startswith('chain-') and kind != 'chain' and kind != 'choice' and kind != 'riddle' and kind != 'fork' and kind != 'trade' and kind not in ('beat', 'toll', 'weather'): err('bad kind for a chain card')
     # every chain: a first card reaches a chain- card
     nexts = {p.split(':')[1] for e in evs for x in e['opts'] if len(x) >= 8 for fx in (x[4], x[6]) for p in fx.split('+') if p.startswith('next:')}
     for e in evs:

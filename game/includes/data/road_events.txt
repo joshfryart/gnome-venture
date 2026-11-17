@@ -20,7 +20,8 @@
 #
 #
 # v2.0.79: two optional columns on an E row: E|id|cond|lands|region|where|icon|text|KIND|NAME
-#   KIND: choice (default) | fork (two or three ways on: a short way, a long way) | riddle (one answer is right, the rest have stat "!") |
+#   KIND: toll (2.7.06: an option pays Petals with pay:N, another gets past for free) | beat (2.7.06: a three-card story; each card leads on with next:ID, the 2nd and 3rd ids start with chain-) | weather (2.7.06: the cond must name a weather, we=...) |
+#         choice (default) | fork (two or three ways on: a short way, a long way) | riddle (one answer is right, the rest have stat "!") |
 #         trade (offer goods for goods) | chain (a card that leads on to the next) | sketch (a page of your Road Journal)
 #   NAME: sketch only: the name of the journal page.
 #   stat "!" on an O row = no roll, always the "lose" side (a wrong riddle answer). stat blank = no roll, always "win".
@@ -1489,3 +1490,27 @@ O|Help her finish weeding in the rain|grit|11|xp:6+coins:{c}|Warm rain, soft mud
 E|oc-pandanus-weaving|-|island|OC|road|🧺|In the shade of a thatched porch, an old woman is weaving a mat from long dried strips of pandanus leaf, over and under, faster than you can follow. She pats the floor beside her.|choice|
 O|Try weaving a corner|nimble|12|xp:6+buff:nimble:1:30|Over, under, over, under. Your corner is a little loose, but she weaves it in with hers.|xp:1|Your strip goes under twice. She shows you again, patiently, and again.
 O|Sit and listen to her stories||0|heal:5+xp:3|She tells you about her mother, who taught her, and whose mats are still on the village meeting house floor.||
+E|toll-plank-bridge|-|wetland,coast,island|any|road|🪙|A plank bridge crosses a creek, and a small gnome with a very large ledger sits at the end of it. “Toll’s ten Petals,” she says, not looking up. “Or you can wade, if you like cold feet.”|toll|
+O|Pay the toll||0|pay:10+xp:3|She ticks the ledger and waves you over, dry-footed.||
+O|Wade the creek|hardiness|10|xp:3|Brr! But it is free, and you feel hearty.|hp:-3|Cold water, colder pride.
+O|Haggle|charm|12|xp:4|“Oh, go on then,” she sighs, and lifts the rope for you.|pay:10|She will not be moved. You pay up and say nothing.
+E|toll-hill-gate|-|grassland,forest,mountain|any|road|🚧|A striped pole bars the lane, and a gnome in a hat too big for them taps a tin box. “Eight Petals for the road upkeep. Potholes don’t fill themselves.”|toll|
+O|Pay the eight Petals||0|pay:8+xp:3|The pole swings up. Behind you, someone starts, very slowly, to fill a pothole.||
+O|Duck under the pole|nimble|11|xp:4|You roll under it and are gone before the hat can say a word.|hp:-2|The pole catches your hat, and your dignity.
+O|Turn back and go round||0|skip:0|You take the long way, kicking pebbles.||
+E|rain-puddle-road|!we=rain,storm|any|any|road|🌧️|The rain has turned the lane into a string of brown puddles, and every one has a frog sitting in it looking smug.|weather|
+O|Splash straight through||0|xp:3|Splish, splash. The frogs are impressed.||
+O|Hop from puddle to puddle|nimble|11|xp:5+buff:nimble:1:30|You dance across without a drop on you. The frogs applaud.|hp:-2|You miss one. The frogs applaud that too.
+O|Wait for the rain to ease||0||You sit under a dock leaf until it does.||
+E|fog-lantern-road|!we=fog|any|any|road|🌫️|The fog is thick as porridge. Somewhere ahead a small lantern bobs, and a voice calls, “Is that the road? Anyone? Is that the road?”|weather|
+O|Call back and guide them||0|xp:5+coins:{c}|A grateful traveller finds you by the lantern light and presses a few Petals into your hand.||
+O|Listen for their footsteps|sense|11|xp:5|You pick them out of the fog and lead them to the lane.|xp:1|The fog swallows every sound. You wait it out.
+O|Keep walking||0||You walk on, and the voice fades behind you.||
+E|beat-tune-whistle|-|grassland,forest|any|road|🎶|Somewhere up the lane, someone is whistling the first half of a tune. They stop at the exact bit where the tune turns.|beat|
+O|Whistle the next bit||0|xp:2+next:chain-beat-tune-2|The whistling starts again, delighted.||
+O|Walk on||0||You leave the tune hanging, which is rude, but quiet.||
+E|chain-beat-tune-2|-|grassland,forest|any|road|🎵|A gnome on a fence post grins at you and whistles the tune back, with a flourish. “Know the ending, do you?”|beat|
+O|Whistle the ending||0|xp:2+next:chain-beat-tune-3|They nod along, and tap a boot on the post.||
+O|Hum something else|charm|11|xp:3+next:chain-beat-tune-3|They laugh and join in anyway.|xp:1|It does not fit. They nod politely.
+E|chain-beat-tune-3|-|grassland,forest|any|road|🥁|The gnome pulls a drum from behind the post, and the three of you finish the tune together, badly and wonderfully. “Take this,” they say. “For next time.”|beat|
+O|Take the prize and wave||0|xp:6+coins:{c}+item:garden-honey:1@15|A little honey and a few Petals, and a tune stuck in your head for the rest of the day.||

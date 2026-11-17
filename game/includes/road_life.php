@@ -309,8 +309,8 @@ function road_roll_bands(): array
 }
 const ROAD_ITEM_CAP = 20;      // an item or find from a road event happens at most this often (percent)
 /** v2.0.79: the shapes of a road card. choice = today's; fork = two ways on; riddle = one answer is right; trade = swap goods; chain = leads to the next card; sketch = a journal page. */
-const ROAD_EVENT_KINDS = ['choice', 'fork', 'riddle', 'trade', 'chain', 'sketch'];
-const ROAD_KIND_LABEL = ['choice' => '', 'fork' => '🔀 A fork in the road', 'riddle' => '🧩 A riddle', 'trade' => '🤝 A trade', 'chain' => '🔗 The story goes on', 'sketch' => '📓 For your road journal'];
+const ROAD_EVENT_KINDS = ['choice', 'fork', 'riddle', 'trade', 'chain', 'sketch', 'toll', 'beat', 'weather'];   // 2.7.06: toll (pay Petals or take the hard way), beat (a three-card story, each leads to the next), weather (only in the weather its cond names)
+const ROAD_KIND_LABEL = ['choice' => '', 'fork' => '🔀 A fork in the road', 'riddle' => '🧩 A riddle', 'trade' => '🤝 A trade', 'chain' => '🔗 The story goes on', 'sketch' => '📓 For your road journal', 'toll' => '🪙 A toll', 'beat' => '🥁 A story beat', 'weather' => '🌦️ Weather on the road'];
 const ROAD_LEGACY_EVENTS = 14; // the first 14 scenes keep their order: walks saved before v1.9.4 point at them by number
 
 /** The land / region / where columns: "any" or a comma list (lands lower case, regions upper case). */
