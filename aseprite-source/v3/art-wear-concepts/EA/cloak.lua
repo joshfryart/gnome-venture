@@ -57,9 +57,9 @@ end
 ---------------------------------------------------------------- 2 plum snow hood (hooded quilted mantle)
 do
   local c = C.canvas("cloak-2-plum-snow-hood")
-  local mantle = c:poly{ {22,20}, {42,20}, {54,56}, {10,56} }:add(c:rrect(10, 48, 54, 59, 5))
-  local hood = c:ellipse(32, 15, 12, 11):add(c:poly{ {26,6}, {34,1}, {38,6} })
-  local face = c:ellipse(32, 17, 7, 7.5)
+  local mantle = c:poly{ {18,20}, {46,20}, {55,56}, {9,56} }:add(c:rrect(9, 48, 55, 59, 5)):add(c:ellipse(32, 24, 15, 6))
+  local hood = c:ellipse(32, 15, 11, 10):add(c:poly{ {24,8}, {35,0}, {40,8} })
+  local face = c:ellipse(32, 18, 5, 5.5)
   C.part(c, mantle, R.frost, { R = 6, cuts = { .22, .38, .54, .72, .9 } })
   -- quilted diamonds over the mantle
   local mi = {}
@@ -72,7 +72,7 @@ do
   C.sep(c, hood, mantle, R.frost[1])
   local hi = C.part(c, hood, R.frost, { R = 4, b = 1 })
   -- fleece rim around the face opening, dark inner hood
-  local rim = c:ellipse(32, 17, 9, 9.5):cut(face)
+  local rim = c:ellipse(32, 18, 7, 7.5):cut(face)
   c:fillMask(face, R.frost[1])
   local inner = face:copy():cut(face:shift(-1, -1))
   c:fillMask(inner, R.frost[2])
@@ -83,54 +83,56 @@ do
   local hmi = C.part(c, hem, R.fleece, { R = 1, b = 0 })
   C.retone(c, hem, hmi, R.fleece, function(x, y) if (x * 3 + y * 5) % 4 == 0 then return -1 end end)
   -- quirk: red plum blossom pinned at the throat, with a bud
-  local fx, fy = 32, 28
-  for _, d in ipairs({ { 0, -2 }, { 2, -1 }, { 1.4, 1.6 }, { -1.4, 1.6 }, { -2, -1 } }) do
-    local p = c:ellipse(fx + d[1], fy + d[2], 1.3, 1.3)
-    c:fillMask(p, (d[1] <= 0 and d[2] < 0) and R.ember[6] or R.ember[4])
+  local fx, fy = 32, 29
+  for _, d in ipairs({ { 0, -2.5 }, { 2.5, -1 }, { 1.6, 2 }, { -1.6, 2 }, { -2.5, -1 } }) do
+    local p = c:ellipse(fx + d[1], fy + d[2], 1.6, 1.6)
+    C.part(c, p, R.ember, { R = 1, b = (d[1] <= 0 and d[2] < 0) and 1 or 0 })
   end
-  c:put(fx, fy, R.brass[5]) c:put(fx + 1, fy, R.brass[3])
-  c:put(fx - 1, fy - 2, R.petal[6])
-  c:put(fx + 4, fy + 3, R.ember[3]) c:put(fx + 3, fy + 2, R.wood[2])
+  C.put(c, { {fx, fy}, {fx - 1, fy}, {fx, fy - 1} }, R.brass[6]) c:put(fx + 1, fy + 1, R.brass[3])
+  c:put(fx - 2, fy - 3, R.petal[6])
+  c:put(fx + 6, fy + 4, R.ember[3]) c:put(fx + 5, fy + 3, R.wood[2]) c:put(fx + 4, fy + 2, R.wood[2])
   C.save(c, "cloak-2-plum-snow-hood")
 end
 
 ---------------------------------------------------------------- 3 maple shawl (square on point, fringe)
 do
   local c = C.canvas("cloak-3-maple-shawl")
-  local shawl = c:poly{ {5,10}, {59,10}, {32,52} }:add(c:rrect(5, 6, 59, 14, 3))
-  -- fringe along the two lower edges
+  -- drape: a square folded on point, hung from its top edge; the top edge sags between two corners
+  local shawl = c:poly{ {5,9}, {16,12}, {32,13}, {48,12}, {59,9}, {50,30}, {38,49}, {32,55}, {26,49}, {14,30} }
   local fringe = HP.mask()
-  for i = 0, 26 do
-    local t = i / 26
-    local x1, y1 = 5 + t * 27, 12 + t * 40
-    local x2, y2 = 59 - t * 27, 12 + t * 40
-    if i % 2 == 0 then
-      for d = 1, 4 do fringe:set(floor(x1 - d * .6), floor(y1 + d)) fringe:set(floor(x2 + d * .6), floor(y2 + d)) end
+  local edges = { { {5,9}, {14,30}, {26,49}, {32,55} }, { {59,9}, {50,30}, {38,49}, {32,55} } }
+  for side, e in ipairs(edges) do
+    for i = 0, 30 do
+      local x, y = G.bez(e, i / 30)
+      if i % 2 == 0 and i < 30 then
+        local s = (side == 1) and -1 or 1
+        for d = 1, 4 do fringe:set(floor(x + s * d * .7 + .5), floor(y + d * .55 + .5)) end
+      end
     end
   end
   fringe:cut(shawl)
   fringe:each(function(x, y) c:put(x, y, R.lining[(x < 32) and 5 or 3]) end)
-  -- gradient: warm gold at the top to deep maple red at the point
-  local si = C.part(c, shawl, R.ember, { R = 5 })
+  local si = C.part(c, shawl, R.ember, { R = 6, cuts = { .22, .38, .54, .72, .9 } })
+  -- deepen toward the point, warm toward the top (gradient dye)
   shawl:each(function(x, y)
-    local k = K(x, y)
-    local i = si[k]
-    local t = (y - 6) / 46
-    local rp = (t < .4) and R.autumn or R.ember
-    if t > .75 then rp = R.lacq end
-    c:put(x, y, rp[math.max(1, math.min(6, i + (t < .4 and 1 or 0)))])
+    local i = si[K(x, y)]
+    if y > 42 then c:put(x, y, R.lacq[math.min(6, i + 1)]) elseif y < 18 then c:put(x, y, R.autumn[i]) end
   end)
-  -- tie-dye rings
-  for _, p in ipairs({ { 16, 18 }, { 32, 20 }, { 48, 18 }, { 24, 30 }, { 40, 30 }, { 32, 41 } }) do
-    local ring = c:ellipse(p[1], p[2], 3, 3):cut(c:ellipse(p[1], p[2], 1.6, 1.6))
-    ring:each(function(x, y) if shawl:has(x, y) then c:put(x, y, (x + y < p[1] + p[2]) and R.autumn[6] or R.autumn[5]) end end)
-    c:put(p[1], p[2], R.lacq[2])
+  -- drape folds from the hanging corners toward the point
+  for _, f in ipairs({ { {16,13}, {24,30}, {30,50} }, { {48,13}, {40,30}, {34,50} }, { {32,14}, {32,40} } }) do
+    c:line(f, 1):clip(shawl:shrink(1)):each(function(x, y) c:put(x, y, R.ember[1]) c:put(x - 1, y, R.ember[5]) end)
   end
-  -- top fold edge
-  C.hline(c, 7, 57, 6, R.autumn[6]) C.hline(c, 6, 58, 14, R.lacq[2])
-  for x = 6, 58 do c:put(x, 15, (c:get(x, 15) and shawl:has(x, 15)) and R.lacq[2] or c:get(x, 15) or R.lacq[2]) end
+  -- shibori resist rings, pale
+  for _, p in ipairs({ { 14, 16 }, { 50, 16 }, { 25, 22 }, { 39, 22 }, { 32, 33 }, { 26, 40 }, { 38, 40 }, { 32, 48 } }) do
+    if shawl:shrink(2):has(p[1], p[2]) then
+      local ring = c:ellipse(p[1], p[2], 2, 2):cut(c:ellipse(p[1], p[2], .6, .6))
+      ring:each(function(x, y) if shawl:has(x, y) then c:put(x, y, (x + y <= p[1] + p[2]) and R.lining[6] or R.lining[4]) end end)
+    end
+  end
+  -- rolled top edge
+  for x = 5, 59 do for y = 8, 14 do if shawl:has(x, y) and not shawl:has(x, y - 1) then c:put(x, y, R.autumn[6]) c:put(x, y + 1, R.autumn[4]) break end end end
   -- quirk: a red dragonfly resting on the shawl
-  local dx, dy = 38, 9
+  local dx, dy = 44, 20
   local wingC = R.snow
   C.put(c, { {dx - 4, dy - 1}, {dx - 3, dy - 1}, {dx - 2, dy - 1}, {dx - 4, dy + 1}, {dx - 3, dy + 1}, {dx - 2, dy + 1},
              {dx + 2, dy - 1}, {dx + 3, dy - 1}, {dx + 4, dy - 1}, {dx + 2, dy + 1}, {dx + 3, dy + 1}, {dx + 4, dy + 1} }, wingC[4])
@@ -180,29 +182,28 @@ end
 ---------------------------------------------------------------- 5 blossom capelet
 do
   local c = C.canvas("cloak-5-blossom-capelet")
-  local cape = c:ellipse(32, 22, 26, 22):clip(c:rect(0, 10, 63, 63)):add(c:rrect(18, 8, 46, 16, 5))
-  cape:cut(c:rect(0, 40, 63, 63))
-  -- scalloped petal hem
-  local hem = HP.mask()
-  for i = 0, 6 do
-    local sx = 10 + i * 7.3
-    hem:add(c:ellipse(sx, 39, 4, 4.5))
+  local cape = c:poly{ {24,9}, {40,9}, {50,22}, {57,37}, {7,37}, {14,22} }:add(c:rrect(22, 7, 42, 14, 4))
+  local scal = {}
+  for i = 0, 7 do
+    local sx = 9 + i * 6.6
+    scal[#scal + 1] = c:ellipse(sx, 38, 3.6, 4)
   end
-  hem:clip(c:ellipse(32, 22, 27, 26))
-  local all = cape:copy():add(hem)
-  local ai = C.part(c, all, R.petal, { R = 6, cuts = { .22, .38, .54, .72, .9 } })
-  -- petal notches and inner scallop line
-  for i = 0, 6 do
-    local sx = floor(10 + i * 7.3 + .5)
-    c:put(sx, 43, R.petal[2]) c:put(sx, 42, R.petal[3])
-    for x = sx - 3, sx + 3 do if all:has(x, 37) then c:put(x, 37 + ((abs(x - sx) == 3) and -1 or 0), R.petal[(x < 32) and 6 or 5]) end end
+  local ai = C.part(c, cape, R.petal, { R = 6, cuts = { .22, .38, .54, .72, .9 } })
+  for i, m in ipairs(scal) do
+    local mm = m:copy():cut(cape:shrink(1))
+    C.part(c, mm, R.petal, { R = 2, b = (i < 4) and 1 or 0 })
+    local sx = floor(9 + (i - 1) * 6.6 + .5)
+    c:put(sx, 41, R.petal[3]) c:put(sx, 40, R.petal[4])
   end
+  local all = cape:copy() for _, m in ipairs(scal) do all:add(m) end
+  -- seam where the petal hem joins
+  for x = 6, 58 do if all:has(x, 35) and all:has(x, 36) then c:put(x, 35, R.petal[3]) end end
   -- soft gathers from the neck
-  for _, f in ipairs({ { {26,15}, {20,26}, {16,36} }, { {38,15}, {44,26}, {48,36} }, { {32,16}, {32,36} } }) do
-    c:line(f, 1):clip(all):each(function(x, y) c:put(x, y, R.petal[3]) c:put(x - 1, y, R.petal[5]) end)
+  for _, f in ipairs({ { {27,14}, {20,24}, {15,34} }, { {37,14}, {44,24}, {49,34} }, { {32,15}, {32,34} } }) do
+    c:line(f, 1):clip(cape:shrink(1)):each(function(x, y) c:put(x, y, R.petal[3]) c:put(x - 1, y, R.petal[5]) end)
   end
   -- neck opening and cord tie with tassels
-  local hole = c:ellipse(32, 10, 7, 2)
+  local hole = c:ellipse(32, 9, 7, 1.6)
   c:fillMask(hole, R.petal[1])
   C.tube(c, { {24,13}, {28,16}, {36,16}, {40,13} }, 1, R.jade, { b = 0 })
   local kn = c:ellipse(32, 16, 1.6, 1.4) C.part(c, kn, R.jade, { R = 1, b = 1 })
@@ -211,7 +212,7 @@ do
   local t1, t2 = c:rrect(29, 27, 31, 31, 1), c:rrect(33, 26, 35, 30, 1)
   C.part(c, t1, R.brass, { R = 1, b = 0 }) C.part(c, t2, R.brass, { R = 1, b = -1 })
   -- quirk: a tiny green white-eye bird perched on the left shoulder
-  local bx, by = 15, 10
+  local bx, by = 18, 15
   local bird = c:ellipse(bx, by, 4, 2.6)
   local head = c:ellipse(bx - 3, by - 2, 2.2, 2.2)
   local tail = c:poly{ {bx + 3, by}, {bx + 8, by - 3}, {bx + 8, by - 1}, {bx + 4, by + 2} }
