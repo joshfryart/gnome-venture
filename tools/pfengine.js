@@ -649,6 +649,160 @@
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
   var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 2, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.20, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
   var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
+  // 2.7.09 wear piece effects: the rows of game/includes/data/wear_fx.txt (comments left out; tests/pfengine_js.sh checks they match pfb_wx_data)
+  var PFB_WEAR_FX_ROWS = [
+    "act|guard|fire|post",
+    "act|heal|fire|post",
+    "act|dmg|fire|pre",
+    "act|pierce|fire|pre",
+    "act|charm|fire|post",
+    "act|soothe|fire|post",
+    "act|skip|fire|post",
+    "act|poison|fire|post",
+    "act|evade|fire|post",
+    "act|hold|fire|post",
+    "act|life|fire|post",
+    "act|stay|fire|post",
+    "act|cleanse|fire|post",
+    "act|knock|fire|post",
+    "act|boost|fire|post",
+    "act|more|fire|post",
+    "act|mend|fire|post",
+    "act|bond|fire|post",
+    "act|pluck|fire|post",
+    "act|shrink|fire|post",
+    "act|shrinkall|fire|post",
+    "act|fstrip|fire|post",
+    "act|fnext|fire|post",
+    "act|fhalf|fire|post",
+    "act|bar|fire|post",
+    "act|plenty|place|post",
+    "act|hand|place|post",
+    "act|next|place|post",
+    "act|recycle|place|post",
+    "act|keep1|place|post",
+    "act|keep|hand|post",
+    "act|add|held|post",
+    "act|kill|block|post",
+    "trig|linkG|link:guard|If it is linked to a Guard",
+    "trig|linkH|link:hurt|If it is linked to a Hurt",
+    "trig|handC|hand:charm:1|If you hold a Charm in your hand",
+    "trig|foeHasH|fhas:hurt|If the creature has a Hurt on the board",
+    "trig|handHeal|hand:heal:1|If you hold a Heal in your hand",
+    "trig|hp75|hplt:0.75|If you are under three quarters health",
+    "trig|linkEnv|cenv|If an environment piece is in its chain",
+    "trig|linkFoe|cfoe|If a creature piece is in its chain",
+    "trig|yQuarter|ygt:0.25|If its Yield bar is past a quarter",
+    "trig|chain2|clen:2:2|If its chain is exactly 2 pieces",
+    "trig|combo3|clen:3|If its chain has 3 or more pieces",
+    "trig|foeHasG|fhas:guard|If the creature has a Guard on the board",
+    "trig|aimNext|aimnext|If it sits next to the creature's aim cell",
+    "trig|onAim|onaim|If it sits on the creature's aim cell",
+    "trig|edge|edge|If it sits on the edge of the board",
+    "trig|corner|corner|If it sits in a corner",
+    "trig|mid4|mid|If it sits in one of the four inner cells",
+    "trig|handG|hand:guard:1|If you hold a Guard in your hand",
+    "trig|handH|hand:hurt:2|If you hold 2 or more Hurts in your hand",
+    "trig|foeEvade|fevade|If the creature dodges your next hit",
+    "trig|foeG|fguard|If the creature has guard up",
+    "trig|foeB2|fpcs:2|If the creature has 2 or more pieces on the board",
+    "trig|foeNoH|!fhas:hurt|If the creature has no Hurt on the board",
+    "trig|yHalf|ygt:0.5|If its Yield bar is past half",
+    "trig|yLow|ylt:0.25|If its Yield bar is under a quarter",
+    "trig|hpLow|hplt:0.5|If you are under half health",
+    "trig|hpFull|hpfull|If you are at full health",
+    "trig|hit|hit|If the creature hit you last turn",
+    "trig|noDmg|nodmg|If you took no damage last turn",
+    "trig|poisoned|poisoned|If you are poisoned",
+    "trig|r12|round:1:2|In the first two rounds of the fight",
+    "trig|r3|round:3|From round 3 on",
+    "trig|hurtLast|lastturn:hurt|If you played a Hurt last turn",
+    "trig|disc5|disc:5|If your discard pile holds 5 or more pieces",
+    "trig|g2|played:guard:2|If you have played 2 or more Guards this fight",
+    "trig|h2|played:hurt:2|If you have played 2 or more Hurts this fight",
+    "trig|noHurt|!lastturn:hurt|If you played no Hurt last turn",
+    "pay|guard|guard:b|gain {b} guard",
+    "pay|heal|heal:b|heal {b}",
+    "pay|dmg|dmg:b|deal {b} extra damage",
+    "pay|charm|charm:b|add {b} Charm",
+    "pay|soothe|soothe:a|cut the creature's hits by {a} this round",
+    "pay|skip|skip|the creature skips its next turn",
+    "pay|poison|poison:a:2|the creature takes {a} poison for 2 turns",
+    "pay|pierce|pierce|it ignores the creature's guard",
+    "pay|evade|evade|the creature's next Hurt misses",
+    "pay|thorns|@block bar:a|each hit this guard blocks adds {a} to the bar",
+    "pay|hold|hold|this guard stays up one more turn",
+    "pay|life|life:a|it stays {a} more round(s) on the board",
+    "pay|stay|stay|a chain of 3 or more does not use it up",
+    "pay|keep|@hand keep|Keeper: it stays in your hand if you do not play it",
+    "pay|cleanse|cleanse:a|end your poison and heal {a}",
+    "pay|knock|knock|remove the creature's weakest piece from the board",
+    "pay|boost|boost:a|the piece it links to gets +{a}",
+    "pay|mend|mend:a:2|heal {a} at the start of each of your next 2 turns",
+    "pay|bond|bond|your Charm counts 10% more for the rest of the fight",
+    "pay|pluck|pluck|small chance to lift an item from the creature",
+    "pay|plenty|plenty:6|next round you pick from 6 pieces",
+    "pay|hand|hand:1|your next hand has 1 extra piece",
+    "pay|shrink|shrink:a|the creature's strongest piece loses {a}",
+    "pay|ward|next:guard:1:b|the next Guard you place gets +{b}",
+    "pay|focus|next:hurt:1:b|the next Hurt you place gets +{b}",
+    "rare|NA:footwear|soothe:b ; ylt:0.5 hand:1|Cuts the creature's hits by {b} this round. If its Yield bar is under half, your next hand has 1 extra piece.",
+    "rare|NA:backpack|dmg:a*chain|Deals its number plus {a} for every piece in its chain.",
+    "rare|NA:coat|guard:b ; hold ; @block fhas:hurt bar:a|Gain {b} guard that stays up one more turn. If the creature has a Hurt on the board, each hit it blocks adds {a} to the bar.",
+    "rare|NA:cloak|keep ; guard:b ; next:charm:1:b|Keeper. Gain {b} guard. The turn you play it, your next Charm this fight also adds {b}.",
+    "rare|CA:footwear|dmg:b ; link:guard shrink:a|Deal {b} extra damage. If it is linked to a Guard (Riposte), the creature's strongest piece also loses {a}.",
+    "rare|CA:backpack|heal:b ; plenty:6 ; cmine:guard:0:0 heal:a|Heal {b} and next round pick from 6 pieces. If your chain has no Guard, heal {a} more.",
+    "rare|CA:coat|guard:b ; heal:a ; @block heal:a|Gain {b} guard and heal {a}. Each hit it blocks heals you {a} more.",
+    "rare|CA:cloak|guard:b ; ygt:0.5 soothe:a|Gain {b} guard. If its Yield bar is past half, also cut the creature's hits by {a} this round.",
+    "rare|NWE:footwear|pierce ; link:trick hand:1|Pierce. If it is linked to a Trick (Ambush), your next hand has 1 extra piece.",
+    "rare|NWE:backpack|keep ; pt:guard add:a|Keeper. While it waits in your hand, every other Guard you place gets +{a}.",
+    "rare|NWE:coat|guard:b ; hold ; hplt:0.5 heal:a|Gain {b} guard that stays up one more turn. If you are under half health, heal {a} as well.",
+    "rare|NWE:cloak|boost:b ; tgt:charm soothe:a|The piece it links to gets +{b}. If that piece is a Charm, it also cuts the creature's hits by {a} this round.",
+    "rare|CB:footwear|skip ; clen:3 shrink:a|Trip: the creature skips its next turn. If its chain has 3 or more pieces, the creature's strongest piece also loses {a}.",
+    "rare|CB:backpack|heal:b ; !hand:guard:1 plenty:6 ; hand:guard:1 plenty:7|Heal {b}. Next round pick from 6 pieces, or from 7 if you hold a Guard in your hand.",
+    "rare|CB:coat|guard:b ; @block heal:a ; @block charm:a|Gain {b} guard. When this guard soaks a Hurt, heal {a} and add {a} Charm.",
+    "rare|CB:cloak|charm:b ; links:2 skip|Add {b} Charm. If it is linked to 2 or more pieces, the creature skips its next turn.",
+    "rare|SE:footwear|dmg:b ; heal:a*ctype:guard|Deal {b} extra damage and heal {a} for each Guard in its chain.",
+    "rare|SE:backpack|heal:b ; soothe:a ; fguard charm:a|Heal {b} and cut the creature's hits by {a} this round. If the creature has guard up, add {a} Charm too.",
+    "rare|SE:coat|guard:b ; @block bar:b ; @block full kill|Gain {b} guard. Each hit it blocks adds {b} to the bar; a Hurt that is fully blocked is removed from the board.",
+    "rare|SE:cloak|charm:b ; cmine:charm:1:1 skip|Add {b} Charm. If it is the only Charm in your chain, the creature skips its next turn.",
+    "rare|SA:footwear|skip ; clen:3 dmg:b|Trip: the creature skips its next turn. If its chain has 3 or more pieces, deal {b} extra damage.",
+    "rare|SA:backpack|heal:b ; heal:1*disc2^a ; plenty:6|Heal {b}, plus 1 for every 2 pieces in your discard pile (up to {a} extra). Next round pick from 6 pieces.",
+    "rare|SA:coat|keep ; guard:b ; kept:1 guard:b|Keeper. Gain {b} guard; if it stayed in your hand through a round, gain {b} more.",
+    "rare|SA:cloak|charm:b ; soothe:a ; ygt:0.5 skip|Add {b} Charm and cut the creature's hits by {a} this round. If its Yield bar is past half, the creature skips its next turn.",
+    "rare|EE:footwear|!lastturn:hurt dmg:b ; !lastturn:hurt next:hurt:1:a|If you played no Hurt last turn, deal {b} extra damage and the next Hurt you place gets +{a}.",
+    "rare|EE:backpack|heal:b ; recycle:a|Heal {b} and shuffle {a} pieces from your discard pile back into your draw pile.",
+    "rare|EE:coat|guard:b ; @block bar:a ; @block fpcs:3 bar:a|Gain {b} guard. Each hit it blocks adds {a} to the bar, and {a} more while the creature has 3 or more pieces on the board.",
+    "rare|EE:cloak|pluck:x2 ; boost:a|Pluck with twice the usual chance (once a fight). The piece it links to gets +{a}.",
+    "rare|MENA:footwear|poison:a:3 ; link:guard soothe:a|Poison {a} for 3 turns. If it is linked to a Guard, also cut the creature's hits by {a} this round.",
+    "rare|MENA:backpack|heal:b ; charm:b ; ygt:0.5 skip|Heal {b} and add {b} Charm. If its Yield bar is past half, the creature skips its next turn.",
+    "rare|MENA:coat|keep ; guard:b ; kept:1 hold|Keeper. Gain {b} guard; if it was kept through a round, it also stays up one more turn.",
+    "rare|MENA:cloak|charm:b ; skip ; fskip shrink:a|Add {b} Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses {a}.",
+    "rare|EA:footwear|skip ; link:trick dmg:b ; link:trick hand:1|Trip: the creature skips its next turn. If it is linked to a Trick, deal {b} extra damage and your next hand has 1 extra piece.",
+    "rare|EA:backpack|heal:b ; heal:a*ctype:heal/item|Heal {b}. Each other Heal or Item in its chain heals {a} more.",
+    "rare|EA:coat|guard:b ; @block first heal:a|Gain {b} guard. The first hit it blocks each round also heals you {a}.",
+    "rare|EA:cloak|charm:b ; next:charm:2:a|Add {b} Charm. The next two Charm pieces you place this fight add {a} more each.",
+    "rare|CSA:footwear|guard:b ; evade ; @miss bar:a|Gain {b} guard; the creature's next Hurt misses and the missed Hurt adds {a} to the bar.",
+    "rare|CSA:backpack|heal:b ; mend:a:3|Heal {b} now and {a} at the start of each of your next 3 turns.",
+    "rare|CSA:coat|keep ; guard:b ; heal:a*hand|Keeper. Gain {b} guard and heal {a} for each piece left in your hand.",
+    "rare|CSA:cloak|charm:b ; fguard fstrip:b|Add {b} Charm. If the creature has guard up, its guard drops by {b}.",
+    "rare|SEA:footwear|skip ; shrinkall:a|Trip: the creature skips its next turn. Every creature piece on the board also loses {a} once.",
+    "rare|SEA:backpack|heal:b ; !lastturn:heal plenty:6 ; lastturn:heal plenty:7|Heal {b}. Next round pick from 6 pieces, or from 7 if you placed a Heal last round.",
+    "rare|SEA:coat|guard:b ; evade ; fpcs:0:0 fnext:a|Gain {b} guard; the creature's next Hurt misses. If the creature has no pieces on the board, its next piece loses {a}.",
+    "rare|SEA:cloak|charm:b ; fhalf:2|Add {b} Charm. The creature's next two Hurts do half damage.",
+    "rare|WCA:footwear|dmg:b ; link:hurt boost:a:hurt|Deal {b} extra damage. If it is linked to another Hurt (Double Swing), that Hurt gets +{a} more.",
+    "rare|WCA:backpack|heal:b ; mend:a:2 ; hand:1|Heal {b} now and {a} at the start of each of your next 2 turns. Your next hand has 1 extra piece.",
+    "rare|WCA:coat|keep ; guard:b ; guard:a*kept|Keeper. Gain {b} guard, +{a} for each round it stayed in your hand.",
+    "rare|WCA:cloak|guard:b ; guard:a*ctype:charm|Gain {b} guard, +{a} for each Charm in its chain.",
+    "rare|ESA:footwear|dmg:b*chain ; knock|Deal {b} extra damage for each piece in its chain and remove the creature's weakest piece from the board.",
+    "rare|ESA:backpack|heal:b ; plenty:6 ; next:hurt:99:a:r|Heal {b} and next round pick from 6 pieces; each Hurt you place that round gets +{a}.",
+    "rare|ESA:coat|guard:b ; guard:a*types|Gain {b} guard, +{a} for each other piece type in its chain.",
+    "rare|ESA:cloak|boost:a ; tgt:charm more:b|The piece it links to gets +{a}. If that piece is a Charm, it adds {b} more.",
+    "rare|OC:footwear|dmg:b ; ygt:0.5 skip|Deal {b} extra damage. If its Yield bar is past half, the creature also skips its next turn.",
+    "rare|OC:backpack|heal:b ; plenty:6 ; keep1|Heal {b}. Next round pick from 6 pieces, and at the end of that round your strongest unplayed piece stays in your hand.",
+    "rare|OC:coat|keep ; guard:b ; kept:2 hold ; kept:2 @block bar:a|Keeper. Gain {b} guard; after two rounds in your hand it also stays up one more turn and each hit it blocks adds {a} to the bar.",
+    "rare|OC:cloak|pluck:sure ; shrink:b ; hand:1|Pluck, sure to work. The creature's strongest piece loses {b} and your next hand has 1 extra piece."
+  ];
   var PFB_ENV_ROWS = [
     ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 3, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
     ['bramble', 'Bramble', 'bramble', 'hm,kc,kb,hb', 3, [1, 2, 2, 3], 'Fire it in your chain: the creature\'s Yield bar fills a tenth. If the creature fires it, you lose a tenth of your health.'],
@@ -853,11 +1007,11 @@
   function lifeOf(s, p) {
     if (p.by === 'none') return 1;
     var base = (s.v1 && truthy(s.v1.life)) ? toInt(nn(p.tile.life, PFB_LIFE)) : PFB_LIFE;
-    return base + (v1r(s, 'tagfx') === 1 && p.by === 'me' && nn(p.tile.m, '') === 'sticky' ? 1 : 0);
+    return base + (v1r(s, 'tagfx') === 1 && p.by === 'me' && nn(p.tile.m, '') === 'sticky' ? 1 : 0) + toInt(nn(p.xl, 0));   // 2.7.09 wear 'life'
   }
   function discardPiece(s, p) {
     if (p.by === 'none') return;
-    var t = clone(p.tile); delete t.flip; delete t.ft; delete t.dir;
+    var t = clone(p.tile); delete t.flip; delete t.ft; delete t.dir; delete t.kr;
     s[p.by].discard.push(t);
   }
   function seedGround(s) {
@@ -1130,6 +1284,225 @@
     return [iround(best === null ? v : best), bk];
   }
 
+  // ------------------------------------------------------------------ 2.7.09 wear piece effects (pfb_wx_* in pfboard.php; data PFB_WEAR_FX_ROWS)
+  var WX_DATA = null, WX_CL = {};
+  function wxData() {
+    if (WX_DATA) return WX_DATA;
+    WX_DATA = { act: {}, trig: {}, pay: {}, rare: {} };
+    PFB_WEAR_FX_ROWS.forEach(function (l) { var r = l.split('|').map(function (c) { return c.trim(); }); if (r.length >= 4 && has(WX_DATA, r[0])) WX_DATA[r[0]][r[1]] = [r[2], r[3]]; });
+    return WX_DATA;
+  }
+  function wxClauses(fx) {
+    if (has(WX_CL, fx)) return WX_CL[fx];
+    var D = wxData(), src = [], p = fx.split('>'), m;
+    if (fx.indexOf('R:') === 0) { if (has(D.rare, fx.slice(2))) src = D.rare[fx.slice(2)][0].split(' ; '); }
+    else if (p.length === 2 && has(D.trig, p[0]) && has(D.pay, p[1])) {
+      var pay = D.pay[p[1]][0], tr = D.trig[p[0]][0];
+      m = /^@(hand|held) /.exec(pay);
+      src = [m ? '@' + m[1] + ' ' + tr + ' ' + pay.slice(m[0].length) : tr + ' ' + pay];
+    }
+    var out = [];
+    src.forEach(function (cl) {
+      var tk = cl.trim().split(/\s+/), last = String(tk.pop()), per = null, cap = null, i;
+      if ((i = last.indexOf('^')) >= 0) { cap = last.slice(i + 1); last = last.slice(0, i); }
+      if ((i = last.indexOf('*')) >= 0) { per = last.slice(i + 1); last = last.slice(0, i); }
+      var x = last.split(':'), a = x.shift(), def = has(D.act, a) ? D.act[a] : null;
+      if (!def) return;
+      var o = { ph: def[0], c0: [], c1: [], a: a, x: x, per: per, cap: cap, st: def[1] }, at = false;
+      tk.forEach(function (t) { if (t[0] === '@') { o.ph = t.slice(1); at = true; return; } o[at ? 'c1' : 'c0'].push(t); });
+      if (!at && (o.ph === 'hand' || o.ph === 'held')) { o.c1 = o.c0; o.c0 = []; }
+      out.push(o);
+    });
+    WX_CL[fx] = out;
+    return out;
+  }
+  function wxText(fx, a, b) {
+    var D = wxData(), p = fx.split('>'), sub = function (t) { return t.split('{a}').join(String(a)).split('{b}').join(String(b)); };
+    if (fx.indexOf('R:') === 0) return has(D.rare, fx.slice(2)) ? sub(D.rare[fx.slice(2)][1]) : '';
+    if (p.length !== 2 || !has(D.trig, p[0]) || !has(D.pay, p[1])) return '';
+    return D.trig[p[0]][1] + ', ' + sub(D.pay[p[1]][1]) + '.';
+  }
+  function wxHas(s) { var z = ['hand', 'draw', 'discard']; for (var i = 0; i < 3; i++) for (var j = 0; j < s.me[z[i]].length; j++) if (truthy(s.me[z[i]][j].fx)) return true; return false; }
+  function wxNum(x, t) { return x === 'a' ? toInt(nn(t.fxa, 0)) : (x === 'b' ? toInt(nn(t.fxb, 0)) : toInt(x)); }
+  function wxYield(s) { var m = Math.max(0.1, Number(s.fh.max)); return (s.v1 && truthy(s.v1.onebar) ? Number(s.fh.now) + Number(s.bar.now) : Number(s.fh.now)) / m; }
+  function wxIn(n, x, i) { return n >= toInt(nn(x[i], 0)) && (x[i + 1] === undefined || n <= toInt(x[i + 1])); }
+  function wxCond(s, c, cx) {
+    if (c !== '' && c[0] === '!') return !wxCond(s, c.slice(1), cx);
+    var x = c.split(':'), t = nn(cx.t, {}), p = (cx.id !== undefined && cx.id !== null && has(s.pcs, cx.id)) ? s.pcs[cx.id] : null, ch = nn(cx.ch, []), n = 0, i, k, q, ex, ey;
+    switch (x[0]) {
+      case 'link':
+        if (!p) return false; var ty = x[1] === 'self' ? [String(t.t)] : x[1].split('/'), ln = links(s, toInt(p.id));
+        for (i = 0; i < ln.length; i++) if (ty.indexOf(String(nn(s.pcs[ln[i]] && s.pcs[ln[i]].tile.t, ''))) >= 0) return true;
+        return false;
+      case 'links': return p !== null && links(s, toInt(p.id)).length >= toInt(x[1]);
+      case 'cenv': case 'cfoe': for (i = 0; i < ch.length; i++) if ((has(s.pcs, ch[i][0]) ? s.pcs[ch[i][0]].by : '') === (x[0] === 'cenv' ? 'env' : 'foe')) return true; return false;
+      case 'clen': return ch.length > 0 && wxIn(ch.length, x, 1);
+      case 'cmine': for (i = 0; i < ch.length; i++) { q = has(s.pcs, ch[i][0]) ? s.pcs[ch[i][0]] : null; if (q && q.by === 'me' && x[1].split('/').indexOf(String(q.tile.t)) >= 0) n++; } return ch.length > 0 && wxIn(n, x, 2);
+      case 'aimnext': case 'onaim':
+        var pl = nn(s.foe.plan, null); if (!p || !pl) return false;
+        var d = Math.abs(toInt(pl.x) - toInt(p.x)) + Math.abs(toInt(pl.y) - toInt(p.y)); return x[0] === 'onaim' ? d === 0 : d === 1;
+      case 'edge': case 'corner': case 'mid':
+        if (!p) return false; ex = toInt(p.x) === 0 || toInt(p.x) === pfbW(s) - 1; ey = toInt(p.y) === 0 || toInt(p.y) === pfbH(s) - 1;
+        return x[0] === 'edge' ? (ex || ey) : (x[0] === 'corner' ? (ex && ey) : (!ex && !ey));
+      case 'hand': s.me.hand.forEach(function (h) { if (nn(h.t, '') === x[1]) n++; }); return n >= toInt(x[2]);
+      case 'fevade': return toInt(s.foe.evade) > 0;
+      case 'fguard': return toInt(s.foe.block) > 0;
+      case 'fpcs': case 'fhas':
+        for (k in s.pcs) { q = s.pcs[k]; if (q.by === 'foe' && (x[0] === 'fpcs' || q.tile.t === x[1])) n++; }
+        return x[0] === 'fhas' ? n > 0 : wxIn(n, x, 1);
+      case 'ygt': return wxYield(s) > Number(x[1]);
+      case 'ylt': return wxYield(s) < Number(x[1]);
+      case 'hplt': return toInt(s.me.hp) < Number(x[1]) * toInt(s.me.max);
+      case 'hpfull': return toInt(s.me.hp) >= toInt(s.me.max);
+      case 'hit': return toInt(nn(s.me.wx && s.me.wx.hit, 0)) > 0;
+      case 'nodmg': return truthy(s.me.wx && s.me.wx.nd);
+      case 'poisoned': return toInt(nn(s.me.poison, 0)) > 0;
+      case 'round': return wxIn(toInt(s.round) - (nn(cx.ph, '') === 'hand' ? 1 : 0), x, 1);
+      case 'last': return p !== null && toInt(p.born) + lifeOf(s, p) - toInt(s.round) === 1;
+      case 'disc': return s.me.discard.length >= toInt(x[1]);
+      case 'played': return toInt(nn(s.me.wx.pl[x[1]], 0)) >= toInt(x[2]);
+      case 'lastturn': return String(nn(s.me.wx[nn(cx.ph, '') === 'hand' ? 'ct' : 'lt'], '')) === x[1];
+      case 'kept': return toInt(nn(t.kr, 0)) >= toInt(x[1]);
+      case 'fskip': return toInt(nn(s.foe.wsk, 0)) > 0;
+      case 'tgt': return cx.tgt !== undefined && cx.tgt !== null && has(s.pcs, cx.tgt) && String(nn(s.pcs[cx.tgt].tile.t, '')) === x[1];
+      case 'pt': return nn(cx.pt, '') === x[1];
+      case 'first': return toInt(nn(cx.blk && cx.blk.u, 0)) === 0;
+      case 'full': return toInt(nn(cx.e && cx.e.dmg, 1)) === 0;
+    }
+    return false;
+  }
+  function wxIsTgt(c) { return c.replace(/^!+/, '').indexOf('tgt:') === 0; }
+  function wxConds(s, cs, cx, skipTgt) {
+    for (var i = 0; i < cs.length; i++) { if (skipTgt && wxIsTgt(cs[i])) continue; if (!wxCond(s, cs[i], cx)) return false; }
+    return true;
+  }
+  function wxPer(s, per, cx) {
+    var x = per.split(':'), ch = nn(cx.ch, []), n = 0, i, q;
+    switch (x[0]) {
+      case 'chain': return ch.length;
+      case 'ctype': for (i = 0; i < ch.length; i++) { q = has(s.pcs, ch[i][0]) ? s.pcs[ch[i][0]] : null; if (q && q.by === 'me' && ch[i][0] !== nn(cx.id, null) && x[1].split('/').indexOf(String(q.tile.t)) >= 0) n++; } return n;
+      case 'types': var ty = {}; for (i = 0; i < ch.length; i++) { q = has(s.pcs, ch[i][0]) ? s.pcs[ch[i][0]] : null; if (q && (q.by === 'me' || q.by === 'foe') && q.tile.t !== nn(cx.t && cx.t.t, '')) ty[String(q.tile.t)] = 1; } return Object.keys(ty).length;
+      case 'kept': return toInt(nn(cx.t && cx.t.kr, 0));
+      case 'hand': return s.me.hand.length;
+      case 'disc2': return intdiv(s.me.discard.length, 2);
+    }
+    return 0;
+  }
+  function wxN(s, o, cx, i) {
+    var t = nn(cx.t, {}), n = wxNum(String(nn(o.x[i || 0], '0')), t);
+    if (o.per !== null) n *= wxPer(s, String(o.per), cx);
+    if (o.cap !== null) n = Math.min(n, wxNum(String(o.cap), t));
+    return n;
+  }
+  function wxFoePick(s, strong) {
+    var best = null, bv = null;
+    for (var id in s.pcs) { var q = s.pcs[id]; if (q.by !== 'foe') continue; var v = toInt(q.tile.v) + toInt(nn(q.wv, 0)); if (bv === null || (strong ? v > bv : v < bv)) { bv = v; best = toInt(id); } }
+    return best;
+  }
+  function wxTarget(s, id, ty) {
+    var best = null, ln = links(s, id);
+    for (var i = 0; i < ln.length; i++) {
+      var q = s.pcs[ln[i]]; if (q.by !== 'me' || (ty !== '' && q.tile.t !== ty)) continue;
+      if (nn(s.fired, []).indexOf(ln[i]) < 0) return ln[i];
+      if (best === null) best = ln[i];
+    }
+    return best;
+  }
+  function wxCharm(s, n) { var add = n * s.cm; if (hasAb(s)) { var wy = abOf(s, 'wary'); if (wy) add *= Number(wy.mult); } s.bar.now += add; s.bar.charm += add; }
+  function wxAddWv(p, n) { p.wv = toInt(nn(p.wv, 0)) + n; }
+  function wxAct(s, o, cx, e) {
+    var a = o.a, x = o.x, n = ['next', 'boost', 'poison', 'mend', 'plenty', 'pluck'].indexOf(a) >= 0 ? 0 : wxN(s, o, cx), id = nn(cx.id, null), did = true, t = nn(cx.t, {}), tg, i;
+    var heal = function (h) { s.me.hp = Math.max(toInt(s.me.hp), Math.min(toInt(s.me.max), toInt(s.me.hp) + h)); };
+    switch (a) {
+      case 'guard': s.me.block += n; cx.g = toInt(nn(cx.g, 0)) + n; break;
+      case 'heal': heal(n); break;
+      case 'charm': wxCharm(s, n); break;
+      case 'soothe': s.foe.agg += n; break;
+      case 'skip': s.foe.slow = 1; break;
+      case 'poison': n = wxNum(x[0], t); s.foe.poison = Math.max(toInt(s.foe.poison), toInt(nn(x[1], 2))); s.foe.poison_v = Math.max(toInt(s.foe.poison_v), n); break;
+      case 'evade': s.me.evade = 1; break;
+      case 'hold': n = toInt(nn(cx.g, 0)); s.me.keep += n; break;
+      case 'life': if (id !== null && has(s.pcs, id)) s.pcs[id].xl = Math.max(toInt(nn(s.pcs[id].xl, 0)), n); break;
+      case 'stay': if (id !== null && s.wstay.indexOf(id) < 0) s.wstay.push(id); break;
+      case 'cleanse': s.me.poison = 0; s.me.poison_v = 0; heal(n); break;
+      case 'knock': s.wkn.push(0); break;
+      case 'kill': if (cx.fid !== undefined && cx.fid !== null) s.wkn.push(toInt(cx.fid)); break;
+      case 'boost': n = wxNum(x[0], t); tg = id !== null ? wxTarget(s, id, String(nn(x[1], ''))) : null; if (tg === null) { did = false; break; } wxAddWv(s.pcs[tg], n); cx.tgt = tg; break;
+      case 'more': if (cx.tgt === undefined || cx.tgt === null) { did = false; break; } wxAddWv(s.pcs[cx.tgt], n); break;
+      case 'add': if (cx.pid !== undefined && cx.pid !== null) wxAddWv(s.pcs[cx.pid], n); break;
+      case 'mend':
+        n = wxNum(x[0], t); var tn = toInt(nn(x[1], 2)), hit = false;
+        for (i = 0; i < s.me.wmend.length; i++) if (s.me.wmend[i][2] === id) { s.me.wmend[i] = [n, tn, id]; hit = true; }
+        if (!hit) s.me.wmend.push([n, tn, id]);
+        break;
+      case 'bond': if (s.cm > 0 && s.bond < 3) { s.bond++; s.cm = Math.min(1.0, s.cm + 0.1); } else did = false; break;
+      case 'pluck':
+        if (!s.can_pluck || truthy(s.plucked)) { did = false; break; }
+        var md = String(nn(x[0], ''));
+        if (md === 'sure') { s.plucked = 1; e.pluck = 'got'; break; }
+        var chn = Math.min(35, 8 + 3 * s.me.luckmod) * (md === 'x2' ? 2 : 1) / (s.boss ? 2 : 1);
+        if (rand(s, 1000) < chn * 10) { s.plucked = 1; e.pluck = 'got'; } else e.pluck = 'missed';
+        break;
+      case 'shrink': tg = wxFoePick(s, true); if (tg === null) { did = false; break; } wxAddWv(s.pcs[tg], -n); break;
+      case 'shrinkall': for (var qid in s.pcs) if (s.pcs[qid].by === 'foe') wxAddWv(s.pcs[qid], -n); break;
+      case 'fstrip': s.foe.block = Math.max(0, toInt(s.foe.block) - n); break;
+      case 'fnext': s.foe.wnx = Math.max(toInt(s.foe.wnx), n); break;
+      case 'fhalf': s.foe.whf = Math.max(toInt(s.foe.whf), n); break;
+      case 'bar': s.fh.now += n * s.hm; break;
+      case 'plenty': n = wxNum(x[0], t); s.me.more = Math.max(toInt(nn(s.me.more, 0)), n - PF_HAND_CAP); break;
+      case 'hand': s.me.wmore += n; break;
+      case 'next': n = wxNum(x[2], t); s.me.wx.nx.push([String(x[0]), toInt(x[1]), n, nn(x[3], '') === 'r' ? toInt(s.round) + 1 : 0]); break;
+      case 'recycle':
+        var kk = Math.min(n, s.me.discard.length);
+        if (kk > 0) { var take = s.me.discard.splice(s.me.discard.length - kk, kk); s.me.draw = shuffle(s, s.me.draw.concat(take)); }
+        n = kk; break;
+      case 'keep1': s.me.wk1 = toInt(s.round) + 2; break;
+      default: did = false;
+    }
+    if (did) { if (!Array.isArray(e.wfx)) e.wfx = []; e.wfx.push(a + (n ? ' ' + n : '')); }
+  }
+  function wxFire(s, cx, placed) {
+    var on = [];
+    wxClauses(String(cx.t.fx)).forEach(function (o, i) {
+      if (o.ph === 'hand' || o.ph === 'held' || (o.ph === 'place' && !placed)) return;
+      if (!wxConds(s, o.c0, cx, true)) return;
+      if (o.ph === 'block' || o.ph === 'miss') { s.me[o.ph === 'block' ? 'wblk' : 'wmiss'].push({ fx: String(cx.t.fx), i: i, a: toInt(nn(cx.t.fxa, 0)), b: toInt(nn(cx.t.fxb, 0)), u: 0 }); return; }
+      on.push(o);
+    });
+    return on;
+  }
+  function wxGuard(s, e, fid) {
+    var k = truthy(e.evaded) ? 'wmiss' : (toInt(nn(e.blocked, 0)) > 0 ? 'wblk' : null);
+    if (k === null) return;
+    s.me[k].forEach(function (r, i) {
+      var o = nn(wxClauses(r.fx)[r.i], null); if (!o) return;
+      var cx = { t: { fxa: r.a, fxb: r.b }, e: e, blk: r, fid: fid, ph: k === 'wblk' ? 'block' : 'miss' };
+      if (wxConds(s, o.c1, cx)) wxAct(s, o, cx, e);
+      s.me[k][i].u++;
+    });
+  }
+  function wxPlaced(s, id, tile) {
+    var t = String(tile.t), w = s.me.wx;
+    if (Array.isArray(w.pl)) w.pl = {};
+    w.pl[t] = toInt(nn(w.pl[t], 0)) + 1; w.ct = t;
+    var nx = [];
+    w.nx.forEach(function (q) {
+      if (q[0] === t && (q[3] === 0 || q[3] === toInt(s.round))) { wxAddWv(s.pcs[id], q[2]); q[1]--; }
+      if (q[1] > 0 && (q[3] === 0 || q[3] >= toInt(s.round))) nx.push(q);
+    });
+    w.nx = nx;
+    var e = {};
+    s.me.hand.forEach(function (h) {
+      if (!truthy(h.fx)) return;
+      wxClauses(String(h.fx)).forEach(function (o) { var cx = { t: h, pt: t, pid: id, ph: 'held' }; if (o.ph === 'held' && wxConds(s, o.c1, cx)) wxAct(s, o, cx, e); });
+    });
+  }
+  function wxKeep(s, t) {
+    var cl = wxClauses(String(t.fx));
+    for (var i = 0; i < cl.length; i++) if (cl[i].ph === 'hand' && cl[i].a === 'keep' && wxConds(s, cl[i].c1, { t: t, ph: 'hand' })) return true;
+    return false;
+  }
+
   function fire(s, root) {
     var ev = [], ch = fireOrder(s, root);
     var v1 = nn(s.v1, null), rb = s.pcs[root].by, tw = 1.0;
@@ -1158,6 +1531,7 @@
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       if (cset) { var sc = setCombo(s, ch, i, who, tile); vv = [sc[0]]; ck = sc[1]; }   // 2.7.06 set combos
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
+      if (p.wv !== undefined && p.wv !== null) val = Math.max(1, val + toInt(p.wv));   // 2.7.09 wear effects: a boost or a shrink on this board piece
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + Number(abp(s, 'gpct', PFB_KIND_GRUDGE)) * toInt(s.foe.grudge)));   // 2.6.98 Grudge
       if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); val += Math.min(toInt(abp(s, 'smax', PFB_KIND_SWARM_MAX)), Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows
       var ambp = false, ambd = false;
@@ -1175,8 +1549,13 @@
       if (cntr) val += PFB_COUNTER_ADD;
       var toughed = false;
       if (who === 'me' && rb === 'me' && tile.t === 'hurt' && !truthy(s.me.tough) && hasAb(s)) { var th = abOf(s, 'toughhide'); if (th) { val = Math.max(1, val - toInt(th.cut)); s.me.tough = 1; toughed = true; } }   // 2.7.01 Tough hide
+      var isRoot = id === root, wcl = null, wcx = null, whalf = false;
+      if (who === 'me' && truthy(s.wfx) && truthy(tile.fx)) {   // 2.7.09 wear effects (pfb_fire)
+        wcx = { id: id, t: tile, ch: ch, ph: 'fire', g: 0 }; wcl = wxFire(s, wcx, isRoot && rb === 'me');
+        wcl.forEach(function (o) { if (o.a === 'dmg') val += wxN(s, o, wcx); if (o.a === 'pierce') { tile = clone(tile); tile.tag = 'pierce'; } });
+      }
+      if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.whf, 0)) > 0) { val = iround(val / 2); s.foe.whf--; whalf = true; }   // 2.7.09
       if (v1) s.fired.push(id);
-      var isRoot = id === root;
       var e = { by: who, id: id, root: isRoot, tag: tile.tag, mod: String(nn(tile.m, '')), k: tile.k, n: tile.n, t: tile.t, v: val, fit: false, combo: ck ? PF_COMBOS[ck].name : null };
       if (sunny) e.sun = 1;
       if (muddy) e.mud = 1;
@@ -1185,7 +1564,10 @@
       if (ambp) e.ambp = 1;
       if (toughed) e.tough = 1;
       if (cntr) e.cntr = 1;
+      if (whalf) e.whalf = 1;
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
+      if (wcl !== null) { wcx.g = tile.t === 'guard' ? val : 0; for (var wi = 0; wi < wcl.length; wi++) { var wo = wcl[wi]; if (wo.st === 'post' && wxConds(s, wo.c0.filter(wxIsTgt), wcx)) wxAct(s, wo, wcx, e); } }   // 2.7.09 wear effects
+      if (who === 'foe' && tile.t === 'hurt' && truthy(s.wfx)) wxGuard(s, e, id);   // 2.7.09: blocked or missed
       s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
       ev.push(e);
@@ -1207,6 +1589,7 @@
   // Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard); never mid-chain.
   function spend(s) {
     var fired = nn(s.fired, []), by = nn(s.firedby, 'me'), froot = has(s, 'firedroot') ? s.firedroot : null, used = []; delete s.fired; delete s.firedby; delete s.firedroot;
+    var wst = nn(s.wstay, []), wkn = nn(s.wkn, []); if (truthy(s.wfx)) { s.wstay = []; s.wkn = []; }   // 2.7.09 wear 'stay' and 'knock'
     if (s.over) return used;
     var lim3 = s.v1 ? toInt(nn(s.v1.limit, 0)) : 0;
     if (lim3 > 0 && fired.length >= lim3) {   // v1 USE-UP: a chain of 3 or more uses up every piece that fired
@@ -1215,6 +1598,7 @@
         if (!has(s.pcs, fid)) return; var q = s.pcs[fid];
         if (keepMine && q.by === 'me') return;
         if (onlyRoot && froot !== null && fid !== froot) return;
+        if (wst.indexOf(fid) >= 0) return;   // 2.7.09 wear 'stay'
         discardPiece(s, q); q.used = by;
         if (!Array.isArray(s.spent)) s.spent = [];
         s.spent.push(q); used.push(fid); venom(s, q);
@@ -1231,11 +1615,21 @@
         delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
       }
     }
+    wkn.forEach(function (kid) {   // 2.7.09 wear 'knock' (0 = its weakest piece) and 'kill'
+      if (kid === 0) kid = wxFoePick(s, false);
+      if (kid === null || !has(s.pcs, kid)) return;
+      var q = s.pcs[kid]; discardPiece(s, q); q.used = 'me'; if (!Array.isArray(s.spent)) s.spent = []; s.spent.push(q); venom(s, q); used.push(kid);
+      delete s.cell[q.x + ',' + q.y]; delete s.pcs[kid];
+    });
     return used;
   }
 
   function begin(s, who) {
-    if (who === 'me') { if (hasAb(s)) s.me.tough = 0; return; }   // 2.7.01 Tough hide
+    if (who === 'me') {
+      if (hasAb(s)) s.me.tough = 0;   // 2.7.01 Tough hide
+      if (truthy(s.wfx)) { var w = s.me.wx; w.lt = w.ct; w.ct = ''; w.nd = toInt(s.me.hp) >= toInt(w.hps) ? 1 : 0; w.hps = toInt(s.me.hp); }   // 2.7.09
+      return;
+    }
     var p = s[who];
     p.block = p.keep; p.keep = 0; p.thorns = false; p.evade = 0;
   }
@@ -1258,6 +1652,10 @@
     s.pcs[id] = { id: id, by: who, tile: tile, x: x, y: y, born: s.round, seq: s.seq };
     s.cell[x + ',' + y] = id;
     if (who === 'me' && tile.tool !== undefined && tile.tool !== null) { if (!s.wear) s.wear = {}; s.wear[tile.tool] = toInt(nn(s.wear[tile.tool], 0)) + PFB_TOOL_WEAR; }   // tool wear
+    if (truthy(s.wfx)) {   // 2.7.09 wear effects
+      if (who === 'me') wxPlaced(s, id, tile);
+      else if (who === 'foe' && toInt(s.foe.wnx) > 0) { s.pcs[id].wv = -toInt(s.foe.wnx); s.foe.wnx = 0; }
+    }
     var joints = checkAfter(s, id);
     var ev = fire(s, id);
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); ev[0].cs = 1; ev[0].rid = id; }
@@ -1610,7 +2008,7 @@
       if (checkEnd(s)) return ev;
     }
     if (hasAb(s)) { abTurn(s, ev); s.infoe = 1; }   // 2.7.01: its turn count, Regrow, Plated; Ambush is live for this turn
-    if (s.v1 && truthy(s.v1.tags) && toInt(s.foe.slow) > 0 && s.foe.hand.length) ev.push(note('slow'));
+    if (s.v1 && truthy(s.v1.tags) && toInt(s.foe.slow) > 0 && s.foe.hand.length) { ev.push(note('slow')); if (truthy(s.wfx)) s.foe.wsk++; }
     var n = foeLen(s), again = false, hp0 = toInt(s.me.hp), kind = kindNow(s); s.lastfoe = [];
     if (s.v1 && truthy(s.v1.tags)) s.foe.again = 0;
     if (s.v1) s.reaim = 0;
@@ -1641,6 +2039,7 @@
       if (truthy(s.foe.again)) { if (!again) { again = true; n++; if (s.v1 && truthy(s.v1.tags) && r && r.length) ev.push(note('quick', String(r[0].rid && s.pcs[r[0].rid] ? s.pcs[r[0].rid].tile.n : nn(r[0].n, '')))); } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
     }
     if (kind === 'beast' && toInt(s.me.hp) < hp0) s.foe.grudge = 0;   // Grudge: a hit that lands clears it
+    if (truthy(s.wfx)) s.me.wx.hit = Math.max(0, hp0 - toInt(s.me.hp));   // 2.7.09
     if (kind === 'plant' && !truthy(s.over)) grow(s, ev);
     s.foe.agg = 0; s.foe.slow = 0;
     if (hasAb(s)) { delete s.infoe; s.foe.amb = 0; }   // 2.7.01: Ambush is for its first turn only
@@ -1765,6 +2164,11 @@
       if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'), !!v1r(s, 'nothorn'))), discard: [], next: [] }; envDraw(s); if (v1r(s, 'envopen') === 1) { s.v1.envn++; envDraw(s); s.v1.envn--; } }   // 2.6.75: the environment's deck
       s.me.slowdraw = 0; s.me.tripped = 0;
       if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.foe.bashnext = 0; s.foe.again = 0; }
+      if (wxHas(s)) {   // 2.7.09 wear piece effects (pfb_new)
+        s.wfx = 1; s.wstay = []; s.wkn = [];
+        s.me.wx = { lt: '', ct: '', nd: 1, hps: toInt(s.me.hp), hit: 0, pl: {}, nx: [] };
+        s.me.wblk = []; s.me.wmiss = []; s.me.wmend = []; s.me.wk1 = 0; s.me.wmore = 0; s.foe.wnx = 0; s.foe.whf = 0; s.foe.wsk = 0;
+      }
       if (Array.isArray(c.ab) && c.ab.length && v1r(s, 'abil') === 1) abInit(s, c);   // 2.7.01 abilities (an E id replaces the class rule)
       if (v1r(s, 'style') === 1 && truthy(c.ai) && has(PFB_AI, String(c.ai))) { s.foe.aid = String(c.ai); var aiw = aiMake(String(c.ai), nn(c.aip, {})); if (aiw) s.foe.ai = aiw; }   // 2.7.01 play style
     }
@@ -1841,6 +2245,11 @@
       s.me.simmer = 0;
       if (toInt(nn(s.me.regen, 0)) > 0) { var hh = Math.min(2, toInt(s.me.max) - toInt(s.me.hp)); s.me.hp += Math.max(0, hh); s.me.regen--; s.me.simmer = Math.max(0, hh); }   // 2.6.990 Simmer
     }
+    if (truthy(s.wfx) && s.me.wmend.length) {   // 2.7.09 wear 'mend'
+      var mh = 0, ml = [];
+      s.me.wmend.forEach(function (m) { var h1 = Math.max(0, Math.min(toInt(m[0]), toInt(s.me.max) - toInt(s.me.hp))); s.me.hp += h1; mh += h1; if (m[1] > 1) ml.push([m[0], m[1] - 1, m[2]]); });
+      s.me.wmend = ml; s.me.simmer = toInt(nn(s.me.simmer, 0)) + mh;
+    }
     slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;   // 2.7.06: also in learner fights (tags 0)
     var gone = expire(s);
     if (s.ven) Object.keys(s.ven).forEach(function (vk) { if (s.ven[vk] <= 1) delete s.ven[vk]; else s.ven[vk] = s.ven[vk] - 1; });   // 2.6.98 venom fades
@@ -1851,7 +2260,19 @@
     else { s.me.block = s.me.keep; s.me.keep = 0; }
     s.me.thorns = false; s.me.evade = 0; delete s.me.evd;
     var more = toInt(nn(s.me.more, 0)); s.me.more = 0;   // 2.6.990 Plenty
-    if (v1r(s, 'redraw')) { var kept = []; s.me.hand.forEach(function (ht) { if (nn(ht.tag, '') === 'keep') { kept.push(ht); return; } var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = kept; draw(s, 'me', PF_HAND_CAP - slow + more); }   // 2.6.990 Keeper   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
+    var wfx = truthy(s.wfx);
+    if (wfx) { more += toInt(s.me.wmore); s.me.wmore = 0; s.me.wblk = []; s.me.wmiss = []; }   // 2.7.09 wear
+    if (v1r(s, 'redraw')) {
+      var kept = [], out = [];
+      s.me.hand.forEach(function (ht) {
+        var wk = wfx && truthy(ht.fx);
+        if (nn(ht.tag, '') === 'keep' || (wk && wxKeep(s, ht))) { if (wk) ht.kr = toInt(nn(ht.kr, 0)) + 1; kept.push(ht); return; }   // 2.6.990 Keeper (2.7.09 wear Keeper)
+        var c = clone(ht); delete c.flip; delete c.ft; delete c.kr; out.push(c);
+      });
+      if (wfx && toInt(s.me.wk1) === toInt(s.round) && out.length) { var bi = 0; out.forEach(function (ht, oi) { if (toInt(ht.v) > toInt(out[bi].v)) bi = oi; }); kept.push(out[bi]); out.splice(bi, 1); s.me.wk1 = 0; }   // 2.7.09 wear 'keep1'
+      out.forEach(function (c) { s.me.discard.push(c); });
+      s.me.hand = kept; draw(s, 'me', PF_HAND_CAP - slow + more);
+    }   // 2.6.990 Keeper   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else draw(s, 'me', Math.min(PF_HAND_CAP + more, s.me.hand.length + PF_DRAW - slow));
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
     s.spawn = (truthy(s.nospawn) || !v1r(s, 'spawn')) ? null : spawn(s); delete s.nospawn;   // 2.6.99: a strike spent its turn: no free piece
@@ -2000,7 +2421,8 @@
       if (v1r(s, 'aimtot') && v.status) v.status.foe_block = toInt(s.foe.block);
       v.wear = clone(nn(s.wear, {}));
       v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); q.rank = toInt(nn(p.tile.rank, 0)); q.layer = String(nn(p.tile.layer, '')); if (p.by === 'env') { q.kind = String(p.tile.env); q.dir = nn(p.tile.dir, null); } });
-      for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); v.hand[i].rank = toInt(nn(ht.rank, 0)); v.hand[i].tool = String(nn(ht.tool, '')); }
+      for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); v.hand[i].rank = toInt(nn(ht.rank, 0)); v.hand[i].tool = String(nn(ht.tool, '')); if (truthy(ht.fx)) v.hand[i].fx = wxText(String(ht.fx), toInt(nn(ht.fxa, 0)), toInt(nn(ht.fxb, 0))); }
+      v.pcs.forEach(function (q) { var pt = s.pcs[q.id].tile; if (truthy(pt.fx)) q.fx = wxText(String(pt.fx), toInt(nn(pt.fxa, 0)), toInt(nn(pt.fxb, 0))); });   // 2.7.09: a wear piece's effect sentence
       if (v.held) v.held.pcs.forEach(function (q, gi) { var gt = g.pcs[gi].tile; q.life = toInt(nn(gt.life, PFB_LIFE)); q.src = String(nn(gt.src, '')); q.flip = truthy(gt.flip); });
       v.gone.forEach(function (q, gi) { var u = s.gone[gi].used; if (u !== undefined && u !== null) q.used = u; });
     }
@@ -2121,7 +2543,7 @@
     spawn: spawn, aiMake: aiMake, AI: PFB_AI, AI_KEYS: PFB_AI_KEYS, why: why, feat: feat, myMoves: myMoves, endRound: endRound, foeTurn: foeTurn, intent: intent, snap: snap, fx: fx, begin: begin, fire: fire,
     makeTile: makeTile, foeDeck: foeDeck, temper: temper, value: value, apply: apply, checkEnd: checkEnd, draw: draw, rand: rand, shuffle: shuffle,
     collection: collection, box: box, boxCheck: boxCheck, boxCapacity: boxCapacity, unlocks: unlocks,
-    round: round, crc32: crc32, clone: clone,
+    round: round, crc32: crc32, clone: clone, wxData: wxData, wxText: wxText, wxClauses: wxClauses,
     // data
     W: PFB_W, H: PFB_H, LIFE: PFB_LIFE, SIDE: PFB_SIDE, HOLE: PF_HOLE, STAT: PF_STAT, COMBOS: PF_COMBOS, TAGS: PF_TAGS, MODS: PF_MODS,
     CALLING_TILE: PF_CALLING_TILE, BASE_KEYS: PF_BASE_KEYS, GENTLE: PF_GENTLE, SIGNATURE: PF_SIGNATURE, TURN_CAP: PF_TURN_CAP, HAND_CAP: PF_HAND_CAP

@@ -18,3 +18,10 @@ Fix (one line, `game/includes/gnome25.php` line 15): in `GNOME25_WEAR_AFTER['fro
 
 ## Installed (2.7.01)
 All six copied to game (`tools/install_art_2701.py`). The fix above is done: `GNOME25_WEAR_AFTER['front']['wboots'] = 'tunic'` (back and side unchanged), the hem-shadow line is out of `front-wboots.lua` (re-run gave the same PNG). Checked composited in all 8 frames: tall wellies over the tunic legs, face/hat rows unchanged (`tests/art_2701.php`). The derived cloak -b-lined/-b-fine come from `travel-cloak-b.png` now (`derive_icons.py` PROTECTED list).
+
+## Back and side Flood Boots (after 2.7.01)
+| file | game path | size | what |
+|---|---|---|---|
+| back-wboots.png | game/assets/img/gnome25/back-wboots.png | 512x80 | Flood Boots from behind, same design as front-wboots: the 11-column waxed green shaft on the hip line, lipped rim at row 60 with an ink line over it (the mouth of the boot against the tunic; the front has the beard there), long lit stripe on the viewer's left, a back seam, a heel counter band and a brown heel block in place of the toe cap. Feet lift with ly/ry. Quirk: mud kicked up the heel of the ry boot (the muddy boot in front view). |
+| side-wboots.png | game/assets/img/gnome25/side-wboots.png | 512x80 | Facing right: each welly is a 7 px shaft (rim row 60 + ink mouth line, stripe, lip shadow) over the heel with the foot running forward to a lit toe cap with specular, instep crease, brown sole with heel. Feet follow the side rig (gnome-dir.lua SD: far clog x = 31+fx lifted fl, near x = 33+nx lifted nl); far boot a tone darker, near boot over it with a deep seam. Quirk: mud on the near boot's toe. |
+Both drawn by `back-wboots.lua` / `side-wboots.lua` (+ .aseprite, `.before.png` = the old rimless strips) and copied to game; `GNOME25_WEAR_AFTER` back and side `wboots` => `tunic`, `GNOME25_ART_REV` = '2701b'. Checked composited, all 8 frames, default colours and one other colour set, plus with cloak/pack (sorted wear codes: the cloak and pack draw after the boots and hang over them, as before). `tests/art_2701.php` checks the order and the shafts over the tunic in back and side.

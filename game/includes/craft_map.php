@@ -95,6 +95,7 @@ function craft_map_facts(array $u): array
         if ($locked) {
             $badge = $k === 'pantry' ? 'Needs a Pantry' : 'Needs a ' . (BUILDINGS[$building][0] ?? 'building');
         } elseif ($k === 'pantry') {
+            require_once __DIR__ . '/pal_jobs.php'; pj_settle_pantry($uid);
             $jars = pantry_jars_list($uid);
             $done = count(array_filter($jars, fn($j) => $j['left'] <= 0));
             $badge = $done ? $done . ' jar' . ($done > 1 ? 's' : '') . ' done' : (count($jars) ? count($jars) . ' in use' : '');

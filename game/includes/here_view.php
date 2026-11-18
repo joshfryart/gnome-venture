@@ -478,28 +478,15 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         $note = $lock ? journey_lock_note($lock, (string)$node['name']) : ($ruin ? '<p class="box notice">🏚️ In ruins. Make it safe first on the <a href="' . e(url('world.php')) . '">World page</a>.</p>' : '');
         $f = ['lm' => $lmId, 'back' => $back];
         if ($lm && $kind === 'haven') {
-            $card = $note ?: ('<p>Rest your feet, or stay the night.</p><div class="heretools">' . here_form('landmark.php', $f + ['do' => 'rest'], '😌 Rest') . here_form('landmark.php', $f + ['do' => 'stay'], '🛏️ Stay') . '</div>');
+            $card = $note ?: landmark_panel($u, $node, $back);   // the World page panel: rest, stay and today's pantry; its buttons come back to this page
             $add('fire', (string)$node['name'], '🔥', url('world.php'), $card, '', $lock ? 'locked' : ($ruin ? 'ruin' : ''));
             $add('shop', 'Haven shop', '🧺', url('world.php'), $lock || $ruin ? ($note ?: '') : here_haven_shop_card($u, $lm, $back));   // v2.5.49: the pantry in a popover
         } elseif ($lm && $kind === 'wonder') {
             $card = $note;
-            if (!$card) {
-                $done = landmark_done_today($uid, $lmId, 'wonder');
-                $card = '<p>' . e((string)($lm['description'] ?? '')) . '</p>' . ($done ? '<p class="muted">You explored this wonder today. Come back tomorrow.</p>' : '<p>Pick a way to investigate (once a day):</p><div class="heretools">');
-                if (!$done) {
-                    foreach (wonder_approaches($lm, $uid) as $stat => [$ico, $lab, $dc]) $card .= here_form('landmark.php', $f + ['do' => 'wonder', 'stat' => $stat], $ico . ' ' . e($lab) . ' <small>(' . (int)$dc . ')</small>');
-                    $card .= '</div>';
-                }
-            }
+            if (!$card) $card = landmark_panel($u, $node, $back);   // the same panel as the World page (picture, intro, mood, ways in with their chances); its buttons come back to this page
             $add('investigate', (string)$node['name'], '✨', url('world.php'), $card, '', $lock ? 'locked' : ($ruin ? 'ruin' : ''));
         } elseif ($lm) {   // delve or lair: the mouth
-            $card = $note;
-            if (!$card) {
-                $done = $kind === 'delve' && landmark_done_today($uid, $lmId, 'delve');
-                $card = '<p>' . e((string)($lm['description'] ?? '')) . '</p><p class="muted">Level ' . (int)$lm['level'] . ($kind === 'delve' ? ' · −1 energy to go in · once a day' : '') . '</p>'
-                    . ($done ? '<p class="muted">You’ve been down there today. The delve needs a day to settle.</p>' : here_form('landmark.php', $f + ['do' => $kind], $kind === 'delve' ? '🕳️ Go in' : '🐉 Face the lair'));
-                $card .= landmark_runs_html($uid, $lmId);   // v2.6.05: your past runs here
-            }
+            $card = $note ?: landmark_panel($u, $node, $back);   // the World page panel (picture, danger level, go in / face it, your past runs)
             $add('mouth', (string)$node['name'], $kind === 'delve' ? '🕳️' : '🐉', url('world.php'), $card, '', $lock ? 'locked' : ($ruin ? 'ruin' : ''));
         }
     }

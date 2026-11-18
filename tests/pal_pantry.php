@@ -40,4 +40,31 @@ $col0 = (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND colle
 pj_pantry_tick($uid, ['id' => 0]);
 $col1 = (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NOT NULL', [$uid]);
 ok('the ready jars were collected (into the satchel) and the free jars refilled', $col1 - $col0 >= $n0 && (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL', [$uid]) >= 2, json_encode([$col0, $col1, $n0]));
+// 2.7.xx: a tending pal also checks the jars when you LOOK at them (Pantry page, craft map, Kitchen card), not only on the Jobs page
+q('DELETE FROM pantry_jars WHERE user_id = ?', [$uid]);   // every jar free again
+db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => 'test-pal', 'kind' => 'station', 'target' => 'pantry:all', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'jars',
+    'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => json_encode(['full' => false, 'jars' => true, 'hp' => 5, 'rounds' => 0, 'area' => 'pantry', 'obj' => 'Pantry', 'started' => 0, 'collected' => 0])]);
+foreach ([$old, $new] as $r) foreach (json_decode((string)$r['ingredients'], true) as $slug => $qn) { $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); give_item($uid, $iid, $qn * 6); }
+pj_settle_pantry($uid);
+ok('looking at the Pantry makes a tending pal refill the free jars (pj_settle_pantry)', (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL', [$uid]) >= 2, (string)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ?', [$uid]));
+// 2.7.xx: with the sleep-days clock on, a tending pal works at 06:00 game time, once per morning, however the gnome gets there
+$clock0 = setting('game_clock_on'); set_setting('game_clock_on', '1');
+q('DELETE FROM pantry_jars WHERE user_id = ?', [$uid]); q("DELETE FROM ppal_jobs WHERE user_id = ? AND tool = 'jars'", [$uid]);
+foreach ([$old, $new] as $r) foreach (json_decode((string)$r['ingredients'], true) as $slug => $qn) { $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); give_item($uid, $iid, $qn * 60); }
+q('UPDATE users SET game_day = 100, game_minute = 800 WHERE id = ?', [$uid]);
+db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => 'test-pal2', 'kind' => 'station', 'target' => 'pantry:all', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'jars',
+    'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 99999), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => json_encode(['full' => true, 'jars' => true, 'hp' => 5, 'rounds' => 0, 'area' => 'pantry', 'obj' => 'Pantry', 'started' => 0, 'collected' => 0])]);
+$jid = (int)q_val("SELECT id FROM ppal_jobs WHERE user_id = ? AND tool = 'jars' ORDER BY id DESC LIMIT 1", [$uid]);
+$passes = fn() => (int)(json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$jid]), true)['passes'] ?? 0);
+pj_pantry_tick($uid, ['id' => $jid]); ok('the first look stocks the jars (1 pass)', $passes() === 1 && (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL', [$uid]) >= 2, (string)$passes());
+pj_pantry_tick($uid, ['id' => $jid]); ok('looking again the same morning does nothing', $passes() === 1);
+q('UPDATE users SET game_minute = 1799 WHERE id = ?', [$uid]);   // 05:59 the next calendar morning, still awake
+pj_pantry_tick($uid, ['id' => $jid]); ok('05:59 is before the morning: still 1 pass', $passes() === 1, (string)$passes());
+game_sleep($uid); pj_pantry_tick($uid, ['id' => $jid]); ok('sleeping at 05:59 gives exactly one new 06:00 (2 passes, not 3)', $passes() === 2, (string)$passes());
+pj_pantry_tick($uid, ['id' => $jid]); ok('and no more on the next look', $passes() === 2);
+q('UPDATE users SET game_minute = 1800 WHERE id = ?', [$uid]);   // awake through 06:00 without sleeping
+pj_pantry_tick($uid, ['id' => $jid]); ok('staying up past 06:00 is a morning too (3 passes)', $passes() === 3, (string)$passes());
+game_sleep($uid); pj_pantry_tick($uid, ['id' => $jid]); ok('sleeping after that 06:00 does not give it twice (still 3)', $passes() === 3, (string)$passes());
+game_sleep($uid); game_sleep($uid); game_sleep($uid); pj_pantry_tick($uid, ['id' => $jid]); ok('three sleeps without a look: three mornings caught up (6 passes)', $passes() === 6, (string)$passes());
+set_setting('game_clock_on', $clock0);
 echo $fails ? "$fails FAILED\n" : "ok\n"; exit($fails ? 1 : 0);

@@ -58,6 +58,7 @@ if ($obj) $base = array_values(array_filter($base, fn($r) => craft_tag_match($ob
 $list = array_values(array_filter($base, fn($r) => ($kind === '' || $kindOf($r) === $kind) && ($qs === '' || stripos($r['name'], $qs) !== false)));
 $kindN = []; foreach ($base as $r) $kindN[$kindOf($r)] = ($kindN[$kindOf($r)] ?? 0) + 1;
 
+if ($stations['pantry'] !== 0) { require_once __DIR__ . '/pal_jobs.php'; pj_settle_pantry($uid); }   // a pal tending the jars collects and refills when you look
 $jarsList = $stations['pantry'] !== 0 ? pantry_jars_list($uid) : [];
 $busyBy = pantry_busy_by_kind($uid);   // v2.3.9: every kind has its own room of $jarLimit jars
 $freeIn = fn(string $k): int => max(0, $jarLimit - ($busyBy[$k] ?? 0));

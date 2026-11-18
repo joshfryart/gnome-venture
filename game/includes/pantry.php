@@ -153,8 +153,8 @@ function pantry_quality(array $u, array $r): int
  * Start preserving: checks the Pantry, a free jar, ingredients and energy, then in one transaction takes them and fills one jar per
  * batch. $want is a number or 'all'. Returns [ok, message].
  */
-function pantry_start(array $u, array $r, int|string $want, bool $pal = false): array
-{   // $pal: a pal fills the jar (2.7.06): no energy is spent
+function pantry_start(array $u, array $r, int|string $want, bool $pal = false, ?int $day = null): array
+{   // $day: the game day a pal's morning pass fills the jar on (null = the gnome's own day)   // $pal: a pal fills the jar (2.7.06): no energy is spent
     $uid = (int)$u['id'];
     $limit = pantry_jar_limit($uid);
     if ($limit < 1) return [false, 'You need a 🫙 Pantry on a Kitchen first (🏠 Garden buildings → Kitchen).'];
@@ -190,7 +190,7 @@ function pantry_start(array $u, array $r, int|string $want, bool $pal = false): 
     for ($i = 0; $i < $qty; $i++) {
         $row = ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => 1, 'qty' => max(1, craft_mastery_yield($uid, 'pantry', (int)$r['output_qty'])),
             'score' => pantry_quality($u, $r), 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)];
-        if (gclock_on() && $secs > 0) $row['ready_day'] = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) + gclock_jar_days($r);   // sleep-days: N sleeps
+        if (gclock_on() && $secs > 0) $row['ready_day'] = ($day ?? (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid])) + gclock_jar_days($r);   // sleep-days: N sleeps
         db_insert('pantry_jars', $row);
     }
     db()->commit();
@@ -207,12 +207,12 @@ function pantry_start(array $u, array $r, int|string $want, bool $pal = false): 
  * tier "preserve" (the Job Board and calling questlines count meal and feast only, so it counts as a craft and nothing more).
  * Returns [ok, message, info]; info: name, dishes, xp, scraps, page.
  */
-function pantry_collect_one(array $u, int $jarId): array
+function pantry_collect_one(array $u, int $jarId, ?int $day = null): array   // $day: a pal's morning pass collects as of that game day (the gnome's own day may be behind it)
 {
     $uid = (int)$u['id'];
     $jar = q_one('SELECT * FROM pantry_jars WHERE id = ? AND user_id = ? AND collected_at IS NULL', [$jarId, $uid]);
     if (!$jar) return [false, 'That jar is already empty.', []];
-    if ($jar['ready_day'] !== null && $jar['ready_day'] !== '' ? (int)$jar['ready_day'] > (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) : $jar['ready_at'] > now()) return [false, 'That jar isn’t ready yet.', []];
+    if ($jar['ready_day'] !== null && $jar['ready_day'] !== '' ? (int)$jar['ready_day'] > ($day ?? (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid])) : $jar['ready_at'] > now()) return [false, 'That jar isn’t ready yet.', []];
     $r = q_one('SELECT r.*, i.name AS out_name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$jar['recipe_id']]);
     db()->beginTransaction();
     if (q('UPDATE pantry_jars SET collected_at = ? WHERE id = ? AND user_id = ? AND collected_at IS NULL', [now(), $jarId, $uid])->rowCount() !== 1) {

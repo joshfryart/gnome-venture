@@ -136,6 +136,46 @@ ok('Admins only: live for an admin, not for a player', wear_live() && wear_live(
 ok('Admins only: a player cannot build the Tailor', !$a, $m);
 set_setting('pfight_v1', '1'); setting('__reload__'); ok('On: live for all', wear_live(['role' => 'player']));
 
+echo "== the 280 Tailor wearables: craft, gates, fees, the piece\n";
+q("DELETE FROM festival_flags WHERE festival = 'tailor-free' AND user_id = ?", [$uid]);
+q('UPDATE garden_buildings SET level = 1 WHERE plot_id = ? AND building = ?', [$plot, 'tailor']);
+q('UPDATE users SET energy = 90, level = 30, coins = 5000 WHERE id = ?', [$uid]); $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+$coins = fn() => (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
+foreach (['birch-log', 'pine-resin'] as $s) { $h = $qty($s); if ($h) $give($s, -$h); }
+[$a, $m] = tailor_craft($u, 'na-sugarbush-snow-boots');
+ok('no materials: refused, no Petals taken', !$a && str_contains($m, 'You need') && $coins() === 5000, $m);
+$give('birch-log', 2); $give('pine-resin', 1); $e0 = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
+[$a, $m] = tailor_craft($u, 'na-sugarbush-snow-boots');
+ok('Sugarbush Snow Boots (Common, NA): made for 1200 Petals, 2 Birch Log + 1 Pine Resin and 4 energy', $a && $qty('na-sugarbush-snow-boots') === 1 && $coins() === 3800 && $qty('birch-log') === 0 && $qty('pine-resin') === 0 && $e0 - (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) === 4, $m);
+$give('birch-log', 3); $give('pine-resin', 2);
+[$a, $m] = tailor_craft($u, 'na-lakeland-snowshoe');
+ok('an Uncommon one needs a level 2 Tailor (nothing taken)', !$a && str_contains($m, 'level 2 Tailor') && $coins() === 3800 && $qty('birch-log') === 3, $m);
+q('UPDATE users SET level = 3 WHERE id = ?', [$uid]);
+$caSlug = array_key_first(array_filter(wear_tailor_defs(), fn($d) => $d['region'] === 'CA' && $d['tailor'] === 1));
+[$a, $m] = tailor_craft($u, $caSlug);
+ok('region gate: a level 3 gnome cannot make a Maizehollow (level 4) wearable', !$a && str_contains($m, 'level 4'), $m);
+q('UPDATE users SET level = 30, coins = 100 WHERE id = ?', [$uid]); $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+$give('birch-log', -1); $give('pine-resin', -1);   // 2 + 1 left
+[$a, $m] = tailor_craft($u, 'na-birchwood-clog');
+ok('not enough Petals: refused, materials kept', !$a && str_contains($m, 'Petals') && $qty('birch-log') === 2 && $coins() === 100, $m);
+q('UPDATE users SET coins = 5000 WHERE id = ?', [$uid]);
+$give('cottongrass', 2); $give('butterfly-scales', 1);
+[$a, $m] = tailor_line($u, 'na-sugarbush-snow-boots', false, fn($pct) => true);
+ok('lining a Tailor wearable costs the step up in Petals too (1800 - 1200 = 600)', $a && $qty('na-sugarbush-snow-boots-lined') === 1 && $coins() === 4400, $m);
+[$a, $m] = tailor_recut($u, 'na-sugarbush-snow-boots-lined');
+ok('one piece, no cuts: no re-cut', !$a && str_contains($m, 'one cut'), $m);
+$src = pfd_sources($uid); $src['level'] = 15; $src['state'] = ['w:na-sugarbush-snow-boots' => true];
+$e = array_column(pfd_build($src)['pieces'], null, 'key')['w:na-sugarbush-snow-boots'] ?? [];
+ok('in the Puzzle box: a Keepsake wear piece, Lined (rank 2), fx linkFoe>skip carried, in the deck', ($e['src'] ?? '') === 'wear' && ($e['rank'] ?? 0) === 2 && ($e['fx'] ?? '') === 'linkFoe>skip' && ($e['fa'] ?? 0) === 1 && ($e['out'] ?? 'x') === '', json_encode($e));
+$tl = pfd_tiles([$e], ['grit' => 0, 'nimble' => 0, 'hardiness' => 0, 'charm' => 0, 'lore' => 0, 'luck' => 0, 'level' => 3]);
+ok('its tile: Hurt 3 + 1 (level 3) + 2 (Lined) = 6', ($tl[0]['n'] ?? '') === 'Snowdrift Trip' && ($tl[0]['v'] ?? 0) === 6, json_encode($tl[0] ?? null));
+$fines = array_slice(array_keys(wear_tailor_defs()), 0, 4);
+foreach ($fines as $f) $give($f . '-fine', 1);
+$src = pfd_sources($uid); $src['level'] = 40; $src['state'] = array_fill_keys(array_map(fn($f) => 'w:' . $f, $fines), true);
+$b4 = pfd_build($src); $w4 = array_filter($b4['pieces'], fn($p) => in_array(substr($p['key'], 2), $fines, true));
+ok('four Fine Tailor wearables on with four Keepsake slots: the Rare cap leaves one out, at most 3 Rare in the deck', count(array_filter($w4, fn($p) => $p['out'] === 'cap')) === 1 && count(array_filter($b4['deck'], fn($p) => $p['rank'] === 3)) <= PFD_RARE_CAP, json_encode(array_column($w4, 'out', 'key')));
+foreach ($fines as $f) $give($f . '-fine', -1);
+
 echo "== 2.7.01: the Rare cap counts wearables last\n";
 $mk = fn(string $key, int $rank) => ['key' => $key, 'rank' => $rank, 'on' => true];
 $ps = [$mk('w:flood-boots', 3), $mk('w:work-gloves', 3), $mk('w:travel-cloak', 3), $mk('t:chop', 3), $mk('t:hoe', 3), $mk('kit:a', 3)];   // 3 Fine wearables listed first, then 3 Rare belt / kit pieces

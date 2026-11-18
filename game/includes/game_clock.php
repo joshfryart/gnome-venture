@@ -23,6 +23,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['player_jobs', 'ends_day', 'INT NULL'],    // tend job deadline as the garden owner's game_day; NULL = real ends_at
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'pal_real_at', 'INT NULL'],   // unix time the pal clocks were last held still (real time must not move pal work)
+        ['users', 'pal_morning', 'INT NULL'],   // the game day of the last 06:00 whose pal work has been credited (one morning = one day of pal work, sleep or not)
         ['news', 'kind', "VARCHAR(10) NOT NULL DEFAULT 'news'"],   // 'news' (hand-written) or 'notes' (release notes posted per version)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['shops', 'open_minute', 'INT NULL'], ['shops', 'close_minute', 'INT NULL'],          // closing hours (decision 41); NULL = default_open/close_minute
@@ -454,9 +455,8 @@ function gclock_jar_ready(int $uid): array
 function game_new_day(int $uid): void
 {
     if (!gclock_on()) return;
-    gclock_freeze_pals($uid);
-    $h = gclock_setting_int('pal_hours_per_sleep', 8);
-    if ($h > 0) gclock_shift_pal_clocks($uid, $h * 3600);
+    gclock_freeze_pals_real($uid);
+    gclock_pal_mornings($uid, true);   // 2.7.xx: pal work is credited per 06:00 morning, not per sleep; a sleep lands on one new 06:00
     require_once __DIR__ . '/pal_crew.php';
     pcrew_save_report($uid, (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]), ['slept' => true]);   // v2.6.40: the Hovel Today tab opens on this
     pcrew_night($uid);   // v2.6.40: the garden crew works the night (water, weed, pests, harvest)
@@ -470,6 +470,43 @@ function game_new_day(int $uid): void
  * pal-tended pot, so only sleeps (and nothing else) bring them closer to done. Cheap, safe to call often. First call only stamps the time.
  */
 function gclock_freeze_pals(int $uid): void
+{
+    if (!gclock_on()) return;
+    gclock_freeze_pals_real($uid);
+    gclock_pal_mornings($uid);   // and every 06:00 the clock has reached since the last look gives the pals a whole day of work (whether the gnome slept or not)
+}
+
+/** The game day of the latest 06:00 this gnome's clock has reached: a sleep lands on 06:00 of the next day, and staying up past 06:00 reaches it on its own. */
+function gclock_morning_day(int $uid): int
+{
+    return (int)floor((gclock_user_tick($uid) - GAME_WAKE_MINUTE) / 1440);
+}
+
+/**
+ * Pal work happens at 06:00 game time, for the whole day ahead (Josh, 2026-11-18): each 06:00 the clock reaches moves every running pal job and pal-tended pot
+ * pal_hours_per_sleep hours (default 8) closer to done. The morning is counted from the game clock, so sleeping at 05:59 and sleeping at noon each pass exactly one
+ * 06:00, staying up past 06:00 passes it without a sleep, and sleeping after that does not pass it twice. $slept: called from a sleep, so a gnome with no
+ * baseline yet gets this one morning. Safe to call often (a compare-and-set on users.pal_morning); catches up at most 30 mornings.
+ */
+function gclock_pal_mornings(int $uid, bool $slept = false): void
+{
+    if (!gclock_on()) return;
+    $L = gclock_morning_day($uid);
+    $last = q_val('SELECT pal_morning FROM users WHERE id = ?', [$uid]);
+    if ($last === null || $last === false || $last === '') {
+        q('UPDATE users SET pal_morning = ? WHERE id = ? AND pal_morning IS NULL', [$slept ? $L - 1 : $L, $uid]);
+        if (!$slept) return;
+        $last = $L - 1;
+    }
+    $last = (int)$last;
+    if ($L <= $last) return;
+    if (q('UPDATE users SET pal_morning = ? WHERE id = ? AND pal_morning = ?', [$L, $uid, $last])->rowCount() !== 1) return;   // another tab got it
+    $h = gclock_setting_int('pal_hours_per_sleep', 8);
+    if ($h > 0) gclock_shift_pal_clocks($uid, min(30, $L - $last) * $h * 3600);
+}
+
+/** Hold the pal clocks still against real time (see gclock_freeze_pals). */
+function gclock_freeze_pals_real(int $uid): void
 {
     if (!gclock_on()) return;
     $last = q_val('SELECT pal_real_at FROM users WHERE id = ?', [$uid]);
@@ -681,7 +718,7 @@ function gclock_settings(): array
         'mastery_yield_pct' => $i('craft mastery: +% yield per category tier', 5, 0, 50),
         'mastery_energy_pct' => $i('craft mastery: -% energy per category tier', 5, 0, 50),
         'job_month_days' => $i('a job-board month is this many sleeps', 28, 7, 120),
-        'pal_hours_per_sleep' => $i('pal jobs and pots advance this many hours per sleep', 8, 0, 24),
+        'pal_hours_per_sleep' => $i('pal jobs and pots advance this many hours per game morning (06:00)', 8, 0, 24),
         'trail_pickup_tenths' => $i('Trail finds (✨) come back this many tenths of a game day after you took them on that stretch (55 = 5.5 days; 0 = they come back on the next walk)', 55, 0, 3000),
         'npc_clockwork' => $i('1 = every villager has a weekly clockwork of 2-3 doings (strolls, errands, visits to Trail Sights); 0 = the old random presence', 1, 0, 1),
         'npc_away_pct' => $i('chance a villager is away on a given game day (no chat or gift that day), %', 25, 0, 90),

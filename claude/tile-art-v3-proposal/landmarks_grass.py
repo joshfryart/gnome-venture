@@ -7,6 +7,24 @@ from PIL import Image, ImageDraw
 W5, S5, G5, M5, L5 = r5(RAMP["wood"]), r5(RAMP["stone"]), r5(RAMP["gold"]), r5(RAMP["moss"]), r5(RAMP["leaf"])
 E5, P5, A5, SEA5, D5, LT5 = r5(RAMP["ember"]), r5(RAMP["petal"]), r5(RAMP["sand"]), r5(RAMP["sea"]), r5(RAMP["dusk"]), r5(RAMP["litter"])
 CLEAR = (0, 0, 0, 0)
+# maple syrup (2.7 nit fix: the 311 syrup was litter-brown and read as mud): a clear amber ramp, glossy highlight, deep red-brown shade
+SY = [H(c) for c in ("#ffe08a", "#f4a634", "#d9701f", "#a8431c", "#6e2a1e")]
+def syrup_pool(cv, cx, cy, rx, ry):
+    """a glossy amber puddle: dark rim, amber body, a lit streak up-left and two specular dots"""
+    for y in range(cy - ry, cy + ry + 1):
+        for x in range(cx - rx, cx + rx + 1):
+            nx = (x + .5 - cx) / rx; ny = (y + .5 - cy) / ry; d = nx * nx + ny * ny
+            if d > 1: continue
+            t = 4 if d > .78 and (ny > 0 or nx > .3) else 3 if d > .78 else 2 if nx + ny > .2 else 1
+            cv.put(x, y, SY[t])
+    for k in range(max(2, rx // 2)): cv.put(cx - rx // 2 + k, cy - max(1, ry // 2), SY[0])
+    cv.put(cx - rx // 2 - 1, cy - max(1, ry // 2) + 1, SY[0]); cv.put(cx + rx // 3, cy + 1, CREAM)
+def syrup_drop(cv, x, y, r=2):
+    """one hanging drop: a round amber bead with a light catch"""
+    for dy in range(-r - 1, r + 1):
+        for dx in range(-r, r + 1):
+            if dx * dx + (dy if dy > 0 else dy * .6) ** 2 <= r * r + .5: cv.put(x + dx, y + dy, SY[2] if dx + dy > 0 else SY[1])
+    cv.put(x - max(0, r - 1), y - max(0, r - 1), SY[0]); cv.put(x + r, y + 1, SY[3]) if r > 1 else None
 
 def fillmask(cv, drawfn, fn):
     m = Image.new("L", cv.im.size, 0); drawfn(ImageDraw.Draw(m)); bb = m.getbbox()
@@ -1000,12 +1018,11 @@ def lm_taprow(rnd, cv):   # 290 x 240
         bw, bh = int(22 * s), int(20 * s); bx = cx + tw // 2 + 6 - bw // 2; by = sy + 8
         line(cv, cx + tw // 2 + 6, sy + 3, cx + tw // 2 + 6, by, S5[3])
         fillmask(cv, lambda d: d.polygon([(bx, by), (bx + bw, by), (bx + bw - 3, by + bh), (bx + 3, by + bh)], fill=255), lambda x, y: S5[0] if x < bx + bw // 4 else S5[1] if x < bx + bw // 2 else S5[2] if x < bx + bw * 3 // 4 else S5[3])
-        rect(cv, bx - 1, by, bx + bw + 1, by + 3, S5[0]); rect(cv, bx + 1, by + 1, bx + bw - 1, by + 2, INK)
-        for k in range(3):   # drip, drip, drip
-            cv.put(cx + tw // 2 + 6, sy + 4 + k * 0, G5[1])
-        dy0 = by + bh + 6
-        for k in range(2): cv.put(bx + bw // 2, dy0 + k * 5, G5[1]); cv.put(bx + bw // 2, dy0 + k * 5 + 1, G5[2])
-        for k in range(4): cv.put(bx + bw // 2 - 3 + k * 2, base + 2, G5[1])
+        rect(cv, bx - 1, by, bx + bw + 1, by + 3, S5[0]); rect(cv, bx + 1, by + 1, bx + bw - 1, by + 2, SY[3])   # syrup to the brim
+        for x in range(bx + 2, bx + bw // 2): cv.put(x, by + 1, SY[1])
+        cv.put(bx + 3, by + 1, SY[0])
+        syrup_drop(cv, cx + tw // 2 + 6, sy + 6, 1)   # drip, drip, drip
+        for x in range(bx + 2, bx + bw - 1, 5): cv.put(x, by + 3, SY[2]); cv.put(x, by + 4, SY[3]) if x % 2 else None   # a run down the side
     for _ in range(40):
         x, y = rnd.randint(8, 280), rnd.randint(218, 238); cv.put(x, y, E5[1]); cv.put(x + 1, y, G5[1])
 def bucket(cv, rnd, cx, base, w, h, R=None, wood=False):
@@ -1027,10 +1044,9 @@ def lm_bucketstacks(rnd, cv):   # 230 x 230
     bucket(cv, rnd, 118 - 6, 42, 40, 14, W5, wood=True) if False else None
     # one tipped over, spilling syrup
     fillmask(cv, lambda d: d.polygon([(138, 202), (172, 196), (176, 220), (142, 222)], fill=255), lambda x, y: S5[0] if y < 206 else S5[1] if y < 212 else S5[2])
-    ell(cv, 140, 212, 5, 10, S5[3]); ell(cv, 140, 212, 3, 8, INK)
-    for x in range(126, 150): cv.put(x, 223 + (x // 4) % 2, G5[1]); cv.put(x, 224, G5[2])
-    ell(cv, 100, 226, 14, 4, G5[1])
-    for k in range(3): cv.put(104 + k * 3, 223, G5[0])
+    ell(cv, 140, 212, 5, 10, S5[3]); ell(cv, 140, 212, 3, 8, SY[4]); ell(cv, 140, 215, 2, 5, SY[3])
+    for y in range(206, 222): cv.put(138 + (y - 206) // 6, y, SY[2]); cv.put(139 + (y - 206) // 6, y, SY[1])   # pouring out of the mouth
+    syrup_pool(cv, 118, 224, 24, 5); syrup_pool(cv, 92, 226, 10, 3)
 def lm_sugarshack(rnd, cv):   # 280 x 260
     planks(cv, 46, 234, 122, 246, W5, rnd, 10)
     for y in range(66, 124):
@@ -1063,10 +1079,16 @@ def lm_sugarshack(rnd, cv):   # 280 x 260
     for wx in (62, 190):
         fillmask(cv, lambda d: d.rectangle((wx, 146, wx + 30, 178), fill=255), lambda x, y: G5[0] if (x + y) % 9 else CREAM)
         rect(cv, wx - 2, 144, wx + 32, 147, W5[3]); rect(cv, wx - 2, 177, wx + 32, 180, W5[3]); rect(cv, wx + 14, 146, wx + 16, 178, W5[3]); rect(cv, wx - 2, 146, wx, 178, W5[3]); rect(cv, wx + 30, 146, wx + 32, 178, W5[3])
-    ell(cv, 140, 138, 10, 8, G5[1]); poly(cv, [(140, 126), (134, 138), (146, 138)], G5[1]); cv.put(137, 136, CREAM)   # syrup drop
+    ell(cv, 140, 138, 16, 16, W5[3]); ell(cv, 140, 138, 14, 14, A5[1]); ell(cv, 139, 137, 12, 12, A5[0])   # a pale round board, so the drop reads on the dark planks
+    ell(cv, 140, 140, 10, 9, SY[2]); poly(cv, [(140, 125), (131, 139), (149, 139)], SY[2])   # syrup drop sign: amber, lit left, shaded right
+    fillmask(cv, lambda d: (d.ellipse((130, 131, 150, 149), fill=255), d.polygon([(140, 125), (131, 139), (149, 139)], fill=255)),
+             lambda x, y: SY[1] if x < 138 - (y - 140) // 4 else SY[3] if x > 145 or y > 146 else SY[2])
+    for y in range(130, 141): cv.put(135 - (y - 130) // 4, y + 2, SY[0])
+    cv.put(136, 134, CREAM); cv.put(137, 133, CREAM)
     for r in range(4):
         for c in range(4 - r % 2): lump(cv, 24 + c * 14 + (r % 2) * 7, 244 - r * 12, 7, 6, W5, rnd, 0); ell(cv, 24 + c * 14 + (r % 2) * 7, 244 - r * 12, 3, 2, W5[0])
     bucket(cv, rnd, 250, 244, 22, 20)
+    rect(cv, 241, 225, 260, 227, SY[3]); rect(cv, 241, 225, 248, 226, SY[1]); cv.put(243, 225, SY[0])   # full of syrup
     for x in range(10, 270): cv.put(x, 250 if (x * 7) % 5 else 251, M5[2])
     for x in range(8, 272, 5): cv.put(x, 249, M5[1])
 def lm_pancakelane(rnd, cv):   # 320 x 236
@@ -1091,11 +1113,12 @@ def lm_pancakelane(rnd, cv):   # 320 x 236
     rect(cv, 126, top - 20, 144, top - 12, CREAM); rect(cv, 126, top - 20, 144, top - 19, G5[0]); rect(cv, 126, top - 13, 144, top - 12, G5[1])
     for y in range(top - 12, top + 24):
         mx = 150 + int(math.sin((y - top) / 6.0) * 10) + (y - top) // 3; w = 14 + (y - top) // 3
-        for x in range(mx - w // 2, mx + w // 2): cv.put(x, y, G5[0] if x == mx - w // 2 + 1 and y % 3 else LT5[2] if x < mx - 1 else LT5[3] if x > mx + w // 4 else LT5[2])
+        for x in range(mx - w // 2, mx + w // 2): cv.put(x, y, SY[0] if x == mx - w // 2 + 1 and y % 3 else SY[4] if x == mx + w // 2 - 1 else SY[1] if x < mx - 1 else SY[3] if x > mx + w // 4 else SY[2])
     for dx, ln in ((-14, 18), (-2, 36), (10, 26), (22, 14)):
         x0 = 150 + 14 + dx; y0 = top + 24
-        for k in range(ln): rect(cv, x0, y0 + k, x0 + 6, y0 + k + 1, LT5[2] if k < ln - 3 else LT5[3])
-        ell(cv, x0 + 3, y0 + ln, 4, 4, LT5[2]); cv.put(x0 + 1, y0 + ln - 1, G5[0])
+        for k in range(ln):
+            for xx in range(x0, x0 + 6): cv.put(xx, y0 + k, SY[1] if xx == x0 + 1 else SY[4] if xx == x0 + 5 else SY[3] if xx == x0 + 4 else SY[2])
+        ell(cv, x0 + 3, y0 + ln, 4, 4, SY[2]); ell(cv, x0 + 4, y0 + ln + 1, 3, 3, SY[3]); cv.put(x0 + 1, y0 + ln - 1, SY[0]); cv.put(x0 + 2, y0 + ln - 1, CREAM)
     def post(x, y, n):
         box(cv, x - 3, x + 4, y - 30, y, W5, rnd, 0)
         for k in range(n):

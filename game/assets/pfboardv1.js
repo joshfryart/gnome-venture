@@ -1211,7 +1211,7 @@
     var gk = p.ter || '', gtx = gk ? ' On ' + GRN[gk].toLowerCase() + ': ' + terrText(gk).l[0] : '';
     if (p.gone) return t + (p.used ? ' Used up by a chain of ' + (V1.limit || 3) + ' or more.' : p.fell ? ' It has fired its last time.' : ' It has left the board.');
     var fbt = p.by === 'foe' && typeof p.fl === 'number' ? (p.fl <= 1 ? ' One more firing and it falls away.' : ' It falls away after ' + p.fl + ' more firings.') : '';   // fire budget
-    return t + fbt + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.') + gtx;
+    return t + fbt + (p.fx ? ' ' + p.fx : '') + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.') + gtx;
   }
   function showText(name, desc, p) {
     if (!insp) return;
@@ -1427,8 +1427,8 @@
   function showInspect(b) {
     if (!insp) return;
     document.getElementById('pfi-name').textContent = b.dataset.name || '';
-    document.getElementById('pfi-desc').textContent = b.dataset.desc || '';
     var slot = document.getElementById('pfi-art'), P = window.PFParts, i = tiles.indexOf(b);
+    document.getElementById('pfi-desc').textContent = (b.dataset.desc || '') + (data.hand[i] && data.hand[i].fx ? ' ' + data.hand[i].fx : '');
     if (slot && P && P.ok && data.hand[i]) {   // the piece at hand size, edges and all
       slot.textContent = '';
       var c = P.piece({ size: 'hand', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: b.dataset.v });

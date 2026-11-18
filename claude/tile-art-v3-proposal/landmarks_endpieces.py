@@ -205,26 +205,91 @@ def d_lair1(cv, rnd, P):
     for (bx, by) in ((20, FY - 6), (176, FY - 8)): lump(cv, bx, by, 10, 7, r, rnd, .1)
     grass_tufts(cv, rnd, g, 6, 10, 60)
 def d_lair2(cv, rnd, P):
+    """2.7 fix (was a flat ring): a raised nest bank with a real bowl in it (lit far wall, shaded near wall, deep middle), a woven twig rim,
+    boulders sorted back to front and getting smaller toward the viewer, a cast shadow, feathers on the rim and the Zzz from the sleeper."""
     g, r, t, a, gl = [r5(RAMP[n]) for n in P]
-    L = r5(RAMP["litter"]); S = r5(RAMP["sand"])
-    ground_patch(cv, 100, FY - 8, 94, 18, g, rnd)
-    lump(cv, 100, FY - 18, 82, 24, L, rnd, .12)                                    # the scuffed circle, trodden earth
-    lump(cv, 100, FY - 18, 56, 14, [L[3], L[4], L[4], L[4], L[4]], rnd, .1)        # a deep dent in the middle
-    for k in range(18):   # ring of stones; the back half is stacked high, like a headboard
-        ang = k * (2 * math.pi / 18); x = 100 + int(86 * math.cos(ang)); y = FY - 18 + int(22 * math.sin(ang))
-        back = math.sin(ang) < -0.2
-        lump(cv, x, y - (6 if back else 0), 9 + (k % 3) * 2, 7 + (k % 2) * 2, r, rnd, .1)
-        if back: lump(cv, x + (k % 2) * 4 - 2, y - 20 - (k % 3) * 3, 8 + (k % 2) * 3, 8, r, rnd, .1)
-    for k in range(26):   # straw, scuffed in
-        x = rnd.randint(54, 146); y = FY - 18 + rnd.randint(-8, 8)
-        line(cv, x, y, x + rnd.randint(-8, 8), y + rnd.randint(-2, 2), S[1 + k % 3])
-    ell(cv, 100, FY - 22, 18, 8, L[4]); ell(cv, 100, FY - 24, 15, 6, (40, 26, 40, 255))
-    for k, (zx, zy) in enumerate(((106, 92), (118, 80), (132, 66))):               # big Zzz rising
-        s = 5 + k * 3; c = CREAM
-        line(cv, zx, zy, zx + s, zy, c, 2); line(cv, zx + s, zy, zx, zy + s, c, 2); line(cv, zx, zy + s, zx + s, zy + s, c, 2)
-    f = [(66, FY - 26), (140, FY - 12)]                                            # two feathers / tufts of fur
-    for fx, fy in f:
-        for k in range(10): cv.put(fx + k, fy - k // 2, gl[0 if k % 3 else 1]); cv.put(fx + k, fy - k // 2 + 1, gl[1])
+    if P[1] == "litter": r = r5(RAMP["stone"])                                  # desert: grey stones on the litter bank
+    L = r5(RAMP["litter"]); S = r5(RAMP["sand"]); Wd = r5(RAMP["wood"])
+    CX, CY = 100, FY - 22                                                        # centre of the nest bowl
+    ground_patch(cv, 100, FY - 8, 94, 16, g, rnd)
+    for y in range(FY - 14, FY + 1):                                             # soft cast shadow to the lower right
+        for x in range(30, 196):
+            if ((x - 112) / 84.0) ** 2 + ((y - (FY - 6)) / 9.0) ** 2 <= 1 and (x + y) % 2 == 0 and cv.get(x, y)[3]: cv.put(x, y, g[4])
+    # the bank: a low earth mound, lit up-left
+    for y in range(CY - 30, FY):
+        for x in range(CX - 92, CX + 93):
+            nx = (x + .5 - CX) / 90.0; ny = (y + .5 - (CY + 2)) / 30.0
+            if nx * nx + ny * ny > 1: continue
+            cv.put(x, y, L[gen2.tone5(gen2.shade_pt(nx * .85, ny * .85))])
+    # the bowl: concave, so the light falls on the far (lower-right) inner wall and the near-left wall is in shade
+    for y in range(CY - 20, CY + 21):
+        for x in range(CX - 66, CX + 67):
+            nx = (x + .5 - CX) / 64.0; ny = (y + .5 - CY) / 18.0; d = nx * nx + ny * ny
+            if d > 1: continue
+            v = gen2.shade_pt(-nx * .9, -ny * .9) - (1 - d) * .55                 # inverted normal + deeper in the middle
+            ti = gen2.tone5(v)
+            if d < .36: ti = 4 if d < .2 else max(3, ti)
+            if ny < -.55 and d > .7: ti = 4                                     # the far lip throws a dark band inside
+            c = L[ti]
+            if .7 < d and ti <= 2 and (x * 3 + y) % 5 == 0: c = S[2]            # a few lit straw ends on the sunny wall
+            cv.put(x, y, c)
+    for k in range(34):   # straw and down scuffed into the bowl
+        ang = rnd.random() * 6.283; rr = .35 + rnd.random() * .5
+        x = CX + int(60 * rr * math.cos(ang)); y = CY + int(16 * rr * math.sin(ang))
+        line(cv, x, y, x + rnd.randint(-6, 6), y + rnd.randint(-1, 1), S[1 + k % 3] if k % 4 else CREAM)
+    # woven rim: short twigs laid along the lip, alternating light and dark so it reads as weaving
+    for k in range(96):
+        ang = k * 6.283 / 96; rx_, ry_ = 65 + (k % 3), 18 + (k % 2)
+        x = CX + rx_ * math.cos(ang); y = CY + ry_ * math.sin(ang); dx, dy = -math.sin(ang) * 6, math.cos(ang) * 2
+        lit = math.sin(ang) > -.2                                               # the near lip faces the light, the far lip is in shade
+        line(cv, int(x - dx), int(y - dy), int(x + dx), int(y + dy), Wd[3 if not lit else 1] if k % 2 else Wd[4 if not lit else 2], 2)
+        if k % 2 == 0 and lit: cv.put(int(x - dx), int(y - dy) - 1, Wd[0])
+    # stones round the bank, painted back to front; the back ones are bigger and stacked like a headboard
+    st = []
+    for k in range(16):
+        ang = (k + .5) * (2 * math.pi / 16); x = CX + int(84 * math.cos(ang)); y = CY + int(26 * math.sin(ang))
+        depth = (math.sin(ang) + 1) / 2                                          # 0 back .. 1 front
+        sz = 1.25 - .35 * depth
+        st.append((y, x, int((9 + (k % 3) * 2) * sz), int((7 + (k % 2) * 2) * sz), math.sin(ang) < -.35))
+    for (y, x, rx, ry, back) in sorted(st):
+        if back: lump(cv, x, y - ry - 2, rx + 2, int(ry * 1.7), r, rnd, .08)       # the back row: tall boulders, like a headboard
+        else: lump(cv, x, y - ry // 2, rx, ry, r, rnd, .08)
+        for k in range(rx):   # contact shadow where the stone sits on the bank
+            if cv.get(x - rx // 2 + k, y + ry // 2 + 1)[3]: cv.put(x - rx // 2 + k, y + ry // 2 + 1, L[4])
+    # feathers lying on the rim: shaft and vanes, in the accent / glow colour
+    for (fx, fy, s, dirn) in ((50, CY + 16, 20, 1), (134, CY + 14, 16, -1)):
+        for k in range(s):
+            x = fx + k; y = fy - int(k * .45 * dirn)
+            for w in range(1, 4 - k // 6 if k < s - 2 else 2): cv.put(x, y - w, gl[0] if w == 1 else gl[1]); cv.put(x, y + w, gl[2] if w == 1 else gl[3])
+            cv.put(x, y, CREAM)
+    # the sleeper: a dark furry curl deep in the bowl (body, head tucked in on the left with two ears, tail wrapped round the front, one closed eye)
+    D = r5(RAMP["dusk"])
+    def furlump(cx, cy, rx, ry):
+        for y in range(int(cy - ry) - 1, int(cy + ry) + 2):
+            for x in range(int(cx - rx) - 1, int(cx + rx) + 2):
+                nx = (x + .5 - cx) / rx; ny = (y + .5 - cy) / ry
+                if nx * nx + ny * ny > 1: continue
+                ti = min(4, gen2.tone5(gen2.shade_pt(nx, ny)) + 2) if gen2.shade_pt(nx, ny) < .5 else 1   # mostly in shadow down in the bowl
+                if (x * 5 + y * 3) % 7 == 0 and ti > 1: ti -= 1                 # fur ticks
+                if nx * nx + ny * ny > .8 and nx + ny > .2: ti = 4                # dark under-rim so the parts separate
+                cv.put(x, y, D[min(4, ti)])
+    furlump(CX + 6, CY - 2, 25, 10)                                              # body
+    for (ex, sgn) in ((CX - 24, 1), (CX - 14, 1)):
+        for k in range(5):
+            for w in range(5 - k): cv.put(ex - (5 - k) // 2 + w, CY - 10 - k, D[1] if w == 0 else D[2] if w < 3 else D[3])
+    furlump(CX - 19, CY - 3, 10, 8)                                              # head, tucked in
+    for k in range(90):   # tail curling round the front of the body, lit on top
+        ang = math.pi * (.08 + k / 90.0 * .9); x = CX + 6 + int(round(27 * math.cos(ang))); y = CY + 1 + int(round(9 * math.sin(ang)))
+        tw = 3 if k < 70 else 2
+        for w in range(tw): cv.put(x, y + w - 1, D[1] if w == 0 else D[2] if w < tw - 1 else D[4])
+    for (x, y) in ((CX - 25, CY - 3), (CX - 24, CY - 2), (CX - 23, CY - 2), (CX - 22, CY - 2), (CX - 21, CY - 3)): cv.put(x, y, INK)   # closed eye
+    cv.put(CX - 28, CY - 1, D[4]); cv.put(CX - 29, CY - 1, INK)                  # nose tip
+    # claw scrapes in the earth out front
+    for i in range(3): line(cv, 22 + i * 6, FY - 14, 30 + i * 6, FY - 4, g[4], 2); line(cv, 21 + i * 6, FY - 14, 28 + i * 6, FY - 5, g[0])
+    for k, (zx, zy) in enumerate(((106, 91), (118, 79), (132, 65))):               # big Zzz rising from the sleeper in the bowl
+        s_ = 5 + k * 3
+        for (dx, c) in ((1, INK), (0, CREAM)):
+            line(cv, zx + dx, zy + dx, zx + s_ + dx, zy + dx, c, 2); line(cv, zx + s_ + dx, zy + dx, zx + dx, zy + s_ + dx, c, 2); line(cv, zx + dx, zy + s_ + dx, zx + s_ + dx, zy + s_ + dx, c, 2)
     grass_tufts(cv, rnd, g, 8)
 
 DRAW = {"haven-1": d_haven1, "haven-2": d_haven2, "wonder-1": d_wonder1, "wonder-2": d_wonder2, "delve-1": d_delve1, "delve-2": d_delve2, "lair-1": d_lair1, "lair-2": d_lair2}

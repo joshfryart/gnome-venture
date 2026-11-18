@@ -40,10 +40,10 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 2. Repaint if Josh dislikes: coralscatter wave dome + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box. Stuffed peppers busy at 64 px; ginseng 3 px margins.
 
 ## B. NEXT: graphical navigation (`claude/plan-graphical-nav.md`, brief `claude/art-brief-here.md`)
-1. Stop looks for the other 14 landscapes per type (only default + `desert_adobe` exist for the 11 types; market also has grassland_maplewold).
+1. DONE 2026-11-18: stop looks for every landscape x type (9 x 12; see `claude/todo.md` section 5). Open: hotspot check in the game; half-fixed weak spots.
 2. Village/haven at hero scale per region; folk wiring.
 4. Doors: DONE 2026-11-11, 81 unique `door-<slug>.png` + 6 shared (no night variant; lit window comes from the hotspot chips).
-5. 2.5D villager sprites: 81 of up to 151 done. Feet bottom-centre, 96 px max, transparent, 1 px outline. Prioritise villagers on the most scenes.
+5. 2.5D villager sprites: SUPERSEDED. Species strips (`npc25/`, 30 species incl. squirrel, scarecrow, hermit-crab, crab, beaver 2026-11-18) are used first by `here_sprite`; only gnome NPCs without a `gnome-<slug>` strip and any new species are open. The old per-NPC `sprite/npc-*.png` (81) is the fallback.
 6. Treehouse: nothing open (done). Optional: `scenes/wander-step-back.png`.
 7. Pal perch sprites: DONE 2026-11-11, all 570 in `assets/img/pals/` (475 block pals generator-drawn, 95 whimsy hand-drawn). Optional: found-pal arrival sparkle. Weaker whimsy: pl-dlz-6 (lizard reads turtle), pl-wgor-6 (gorilla blob), mt-bill-brolly, pl-wcof-6, pl-flfm-6.
 8. Trail tile sets per landscape (code-generated today, art optional); event/hotspot icons 32x32; nav icons.

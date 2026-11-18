@@ -569,24 +569,39 @@ def lm_larder(rnd, cv):   # 230 x 202
             if nx * nx + ny * ny > 1: continue
             s = dome_s(nx * .9, ny * .9) * .8 + .5 + (.9 if (x * 3 + y * 2) % 7 == 0 else -.8 if (x + y * 5) % 11 == 0 else 0)
             cv.put(x, y, sq[min(4, dith(s, x, y))])
-    for y in range(158, 196):   # cream belly with fur ticks
-        for x in range(140, 162):
-            nx = (x - 150) / 9; ny = (y - 176) / 17
-            if nx * nx + ny * ny > 1: continue
-            s = .4 + (nx + ny) * .5 + (1.0 if (x + y * 2) % 6 == 0 else 0)
-            cv.put(x, y, CRM[min(3, dith(s, x, y))])
+    # 2.7 nit fix: the belly was a flat cream egg poking out under the body; now a pear-shaped patch inside the body, shaded with it,
+    # with a ragged fur edge, two paws holding the acorn up at the chest
+    for y in range(158, 191):
+        for x in range(140, 168):
+            bnx = (x + .5 - 156) / 17; bny = (y + .5 - 168) / 22
+            if bnx * bnx + bny * bny > .86: continue                       # stay inside the body outline
+            v = (y - 158) / 32.0; hw_ = 4 + 7 * math.sin(math.pi * min(1, v * .8 + .14)); cxb = 153 + 1.5 * v
+            u = (x + .5 - cxb) / hw_
+            edge = 1 + (((x * 7 + y * 3) % 5) - 2) * .06                   # fur ticks along the edge
+            if abs(u) > edge: continue
+            s = .15 + max(0, u) * 1.3 + max(0, v - .6) * 2.2 + max(0, -u - .7) * 1.5 + (.9 if (x * 3 + y * 2) % 9 == 0 else 0)
+            c = CRM[min(3, dith(s, x, y))]
+            if abs(u) > edge - .16 and (x + y) % 2: c = sq[1 if u < 0 else 2]   # soft fur seam into the orange
+            cv.put(x, y, c)
     for dx in (-3, 3): lump(cv, 147 + dx * 2, 197, 5, 3, sq, rnd, 0)   # feet
     for (hx_, hy_) in ((142, 200), (150, 200)):
         for k in range(3): cv.put(hx_ + k, 201, sq[4])
-    nut(cv, 150, 174); nut(cv, 151, 173)   # holding a snack
-    cv.put(144, 176, sq[2]); cv.put(145, 176, sq[2]); cv.put(155, 176, sq[2]); cv.put(156, 176, sq[2])   # paws
+    for (ax, ay, sd) in ((144, 162, 1), (162, 163, -1)):   # short arms reaching in to the chest: lit top edge, dark underside
+        for k in range(8):
+            px = ax + sd * int(k * .5)
+            for w in range(4): cv.put(px + w - 2, ay + k, sq[(1 if w == 0 else 2) if sd > 0 else (2 if w < 3 else 3)])
+            cv.put(px + (2 if sd > 0 else -3), ay + k + 1, sq[4]) if k > 2 else None
+    nut(cv, 153, 171)                                                         # holding a snack
+    for (px, py) in ((147, 170), (157, 170)):                                 # paws round the acorn
+        for dy in range(4):
+            for dx in range(4): cv.put(px + dx, py + dy, sq[0] if dy == 0 and dx < 2 else sq[1] if dy < 2 else sq[2] if dy == 2 else sq[4])
     for y in range(124, 156):   # head with cheek fluff
         for x in range(134, 168):
             nx = (x - 150) / 15.5; ny = (y - 139) / 14; d = math.hypot(nx, ny) * (1 + .05 * ((x * 7 + y * 3) % 3 - 1))
             if d > 1: continue
             s = dome_s(nx * .9, ny * .9) * .8 + .5 + (.9 if (x * 5 + y * 3) % 7 == 0 else 0)
             c = sq[min(4, dith(s, x, y))]
-            if ny > .25 and abs(nx) < .6: c = CRM[min(3, dith(.3 + nx * .5 + ny * .5, x, y))]   # muzzle
+            if ((x + .5 - 150) / 8.5) ** 2 + ((y + .5 - 147) / 6.5) ** 2 < 1: c = CRM[min(3, dith(.3 + nx * .9 + max(0, ny - .4) * 1.4, x, y))]   # muzzle, rounded
             cv.put(x, y, c)
     for sd in (-1, 1):   # ears with tufts
         ex = 150 + sd * 9
