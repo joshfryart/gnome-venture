@@ -46,11 +46,14 @@ for rank, lab in ((1, 'Common rank'), (3, 'Fine rank (Rares)')):
     p('\nWeakest 15 (by the effect alone, health; positive = the effect costs health):\n\n' + hdr)
     for o in sorted(g, key=lambda o: -o['ehp'])[:15]: p(row(o, P1))
 
-p('\n### Before / after of every piece whose numbers changed (v/a/b; effect alone at Common, Rares also at Fine)\n')
+p('\n### Before / after of the pieces changed beyond the new a / b formula (trigger bumps and Rare fixes; effect alone at Common, Rares also at Fine)\n')
+def formula(q):
+    L = q['regionLevel']; R = q['rarity'] == 'Rare'
+    return 1 + L // 10 + R, 2 + L // 5 + (q['rarity'] == 'Uncommon') + 2 * R
 p('| piece | region | rarity | fx | v/a/b before | after | eff health before | after | eff win before | after | Fine eff health before | after |\n|---|---|---|---|---|---|---|---|---|---|---|---|')
 for s, q1 in P1.items():
     q0 = P0[s]
-    if (q0['v'], q0['a'], q0['b']) == (q1['v'], q1['a'], q1['b']): continue
+    if (q0['v'], q0['a'], q0['b']) == (q1['v'], q1['a'], q1['b']) or (q0['v'] == q1['v'] and (q1['a'], q1['b']) == formula(q1)): continue
     o0, o1 = S0.get(f'{s}@1'), S1.get(f'{s}@1'); f0, f1 = S0.get(f'{s}@3'), S1.get(f'{s}@3')
     fine = f"{f0['ehp']:+.2f} | {f1['ehp']:+.2f}" if f0 and f1 else ' | '
     p(f"| {s} | {q1['region']} | {q1['rarity']} | `{q1['code']}` | {q0['v']}/{q0['a']}/{q0['b']} | {q1['v']}/{q1['a']}/{q1['b']} | {o0['ehp']:+.2f} | {o1['ehp']:+.2f} | {o0['ewin']:+.1f} | {o1['ewin']:+.1f} | {fine} |")

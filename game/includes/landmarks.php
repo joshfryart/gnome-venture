@@ -669,7 +669,7 @@ function landmark_panel(array $u, array $node, string $back = ''): string   // $
                 $done = landmark_done_today($uid, $id, 'buy' . (int)$it['id']);
                 $h .= shop_tile(['id' => (int)$it['id'], 'item' => $row, 'price' => $price, 'max' => 1, 'dim' => $done, 'offNote' => $done ? 'Back tomorrow' : '', 'badge' => $done ? '✔' : '', 'badgeTitle' => 'Bought today',
                     'info' => $done ? '<p class="help">Bought today. Back tomorrow.</p>'
-                        : shop_oneform(url('landmark.php'), ['do' => 'buy', 'lm' => $id, 'item_id' => (int)$it['id']], money($price), 'Buy')]);
+                        : shop_oneform(url('landmark.php'), ['do' => 'buy', 'lm' => $id, 'item_id' => (int)$it['id']] + ($back !== '' ? ['back' => $back] : []), money($price), 'Buy')]);
             }
             $h .= '</div></div></div><p class="help">One of each a day. Changes daily.</p>';
             break;
