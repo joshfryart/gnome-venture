@@ -797,9 +797,12 @@ def lm_den(rnd, cv):   # 300 x 190
             for i in range(int(w) + 1):
                 u = i / max(1, w); px = int(round(xs + i)); sag = int(round(((px - X) / 147) ** 2 * 16))
                 py = yr + sag + int(round(4 * (1 - (2 * u - 1) ** 2)))
-                if _inside(cv, px, py) and cv.get(px, py)[3]:
-                    _sh(cv, px, py, 2 if u > .35 else 1); _sh(cv, px, py + 1, 2 if u > .5 else 1)
-                    if _inside(cv, px, py - 1): _sh(cv, px, py - 1, -2 if u < .5 else -1)
+                if _inside(cv, px, py) and cv.get(px, py)[3]:   # 2.7 nit fix: bolder feather edges (lit lip, dark seam, shadow band below)
+                    if _inside(cv, px, py - 1): _sh(cv, px, py - 1, -2)
+                    _sh(cv, px, py, -1 if u < .3 else 0)
+                    if _inside(cv, px, py + 1): _sh(cv, px, py + 1, 3 if u > .3 else 2)
+                    if _inside(cv, px, py + 2): _sh(cv, px, py + 2, 2 if u > .45 else 1)
+                    if _inside(cv, px, py + 3) and u > .55: _sh(cv, px, py + 3, 1)
     # --- wind-sculpted ridges and snow crust cracks
     for (a0, a1, rx, ry, cyy) in ((205, 250, 118, 118, B + 6), (292, 335, 126, 124, B + 6), (240, 275, 90, 96, B + 6)):
         _ridge(cv, _arc(X, cyy, rx, ry, a0, a1, .7))
