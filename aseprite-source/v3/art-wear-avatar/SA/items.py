@@ -367,7 +367,7 @@ def _fleece_d(c, g):
     if v == 'front':
         form(c, rect(31, 60 + b, 34, 60 + b), wood, frac=0.3, rim=False)       # wooden toggle
         P(c, [(32, 59 + b), (32, 61 + b)], felt[2])
-    tuft = {'front': [(44, 47), (45, 46), (46, 46)], 'back': [(20, 47), (19, 46), (20, 46)], 'side': [(26, 47), (25, 46), (26, 46)]}[v]
+    tuft = {'front': [(46, 48), (46, 47), (47, 46), (45, 47)], 'back': [(19, 48), (19, 47), (18, 46), (20, 47)], 'side': [(22, 48), (22, 47), (21, 46), (23, 48)]}[v]
     for i, (x, y) in enumerate(tuft): c.put(x, y + b, alpaca[5] if i else alpaca[4])
 
 
@@ -438,7 +438,7 @@ def _barkcoat(c, g):
         else:
             P(c, [(x0 - 1, y1 - 1), (x0 - 1, y1), (x1 + 1, y1 - 1), (x1 + 1, y1)], bark[3])
     # morpho butterfly on the shoulder
-    bx, by = {'front': (43, 46), 'back': (20, 46), 'side': (26, 47)}[v]
+    bx, by = {'front': (47, 48), 'back': (18, 48), 'side': (20, 48)}[v]
     by += b
     wings = [(bx - 1, by), (bx - 1, by + 1), (bx + 1, by), (bx + 1, by + 1), (bx - 2, by - 1), (bx + 2, by - 1)]
     P(c, wings, jay[4]); P(c, [(bx - 2, by - 1), (bx + 2, by - 1)], jay[5]); P(c, [(bx - 1, by + 1), (bx + 1, by + 1)], jay[2])
@@ -456,14 +456,13 @@ def _baffle(q, t, g):
 
 def _puffer(c, g):
     v, b = g['view'], g['b']
-    if v == 'back':   # alpaca collar
-        for q in ellipse(32.5, 47 + b, 8.5, 1.5): c.put(q[0], q[1], alpaca[4] if (q[0] + q[1]) % 2 else alpaca[3])
-    elif v == 'side':
-        for q in ellipse(26, 47 + b, 2.5, 1.5): c.put(q[0], q[1], alpaca[4] if (q[0] + q[1]) % 2 else alpaca[3])
+    # alpaca collar where it clears the beard/scarf: shoulder tops
+    col = {'front': [(45, 47), (46, 47), (45, 46)], 'back': [(18, 48), (19, 48), (20, 47), (44, 47), (45, 48), (46, 48)], 'side': [(21, 47), (22, 47), (22, 46), (23, 46), (21, 48)]}[v]
+    for x, y in col: c.put(x, y + b, alpaca[4] if (x + y) % 2 else alpaca[3])
     # kapok fluff escaping a seam on the sleeve
     s = g['sleeves'][-1 if v == 'back' else 0]
     x0, y0, x1, y1 = s.bbox()
-    fx, fy = (x0 - 1, y0 + 4) if v != 'side' else (x0 - 1, y0 + 5)
+    fx, fy = {'front': (x0 - 1, y0 + 4), 'back': (x1 + 2, y0 + 4), 'side': (x0 - 1, y0 + 5)}[v]
     P(c, [(fx, fy), (fx - 1, fy), (fx, fy - 1), (fx - 1, fy + 1)], mist[5]); c.put(fx - 1, fy, alpaca[5])
     if v == 'front':
         for y in (59, 62): P(c, [(32, y + b), (33, y + b)], cacao[0])   # snap buttons below the beard

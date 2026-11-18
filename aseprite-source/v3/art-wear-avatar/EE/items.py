@@ -27,6 +27,8 @@ yarnA = ["#5c1f2e", "#842a36", "#a8383a", "#c64e40", "#dc6a4a", "#f08e62"]
 yarnB = ["#1d4048", "#285e62", "#357c78", "#46998c", "#68b8a2", "#a2dcc0"]
 autumn = ["#6e2a1c", "#a8401e", "#d8602a", "#ee8434", "#f8a848", "#ffd27a"]
 # skin tones of the default gnome (rig.DEFAULT skin) as a 6-ramp, for the bare toes in the sandals
+# quilted coat: autumn pulled towards straw so it reads ochre like the icon
+ochre = ["#6e3a1c", "#a05a22", "#c8802e", "#e0a240", "#f0c25c", "#fbe08a"]
 toes = ["#51302b", "#a8644c", "#c98462", "#f0b98d", "#ffe0bd", "#fff0dc"]
 
 
@@ -280,7 +282,8 @@ def frame_back(c, x, y, g):
     form(c, rect(x - 2, y + 11, x + 1, y + 14), canvas, frac=0.3, under=False)
     for q in line([(x - 6, y + 4), (x + 6, y + 10)]): c.put(q[0], q[1], strap[2]) if q in c and c[q] in straw else None
     bx, by = _BEE[g['f'] - 1]
-    P(c, [(x - 11 - bx, y + 5 + by)], brass[4]); c.put(x - 12 - bx, y + 5 + by, strap[0]); c.put(x - 11 - bx, y + 4 + by, steel_wing)
+    bx, by = bx % 2, by % 2   # bee crawling on the skep face
+    P(c, [(x - 5 + bx, y + 9 + by)], brass[5]); c.put(x - 4 + bx, y + 9 + by, sole[0]); c.put(x - 5 + bx, y + 8 + by, steel_wing)
 
 
 steel_wing = "#e4ecf2"
@@ -349,8 +352,8 @@ def drawsack_back(c, x, y, g):
     for q in rect(x - 4, y - 1, x + 3, y): c.put(q[0], q[1], fleece[5] if q[0] % 2 else fleece[4])
     for xx in range(x - 3, x + 3): c.put(xx, y + 2, strap[2])
     # brass bell on the cord
-    P(c, [(x - 4, y + 3), (x - 5, y + 4)], strap[2])
-    P(c, [(x - 6, y + 5), (x - 5, y + 5)], brass[4]); P(c, [(x - 6, y + 6)], brass[3]); c.put(x - 5, y + 6, brass[2]); c.put(x - 6, y + 5, brass[5])
+    P(c, [(x - 4, y + 3), (x - 5, y + 4), (x - 6, y + 5)], strap[1])
+    P(c, [(x - 7, y + 6), (x - 6, y + 6)], brass[4]); P(c, [(x - 8, y + 7), (x - 7, y + 7)], brass[3]); c.put(x - 6, y + 7, brass[2]); c.put(x - 7, y + 6, brass[5]); c.put(x - 7, y + 8, brass[1])
 
 
 def drawsack_side(c, x, y, g):
@@ -362,8 +365,8 @@ def drawsack_side(c, x, y, g):
     for q in rect(x - 7, y + 1, x - 3, y + 3): c.put(q[0], q[1], fleece[4] if q[0] % 2 else fleece[2])
     for q in rect(x - 8, y - 1, x - 2, y): c.put(q[0], q[1], fleece[5] if q[0] % 2 else fleece[4])
     for xx in range(x - 7, x - 2): c.put(xx, y + 2, strap[2])
-    P(c, [(x - 8, y + 3), (x - 9, y + 4)], strap[2])
-    P(c, [(x - 10, y + 5), (x - 9, y + 5)], brass[4]); c.put(x - 10, y + 6, brass[3]); c.put(x - 9, y + 6, brass[2]); c.put(x - 10, y + 5, brass[5])
+    P(c, [(x - 8, y + 3), (x - 9, y + 4)], strap[1])
+    P(c, [(x - 10, y + 5), (x - 9, y + 5)], brass[4]); P(c, [(x - 11, y + 6), (x - 10, y + 6)], brass[3]); c.put(x - 9, y + 6, brass[2]); c.put(x - 10, y + 5, brass[5]); c.put(x - 10, y + 7, brass[1])
 
 
 PACK = [
@@ -371,7 +374,7 @@ PACK = [
     dict(slug='ee-harvest-wicker-basket', cat='backpack', back=basket_back, side=basket_side),
     dict(slug='ee-beekeepers-frame', cat='backpack', back=frame_back, side=frame_side),
     dict(slug='ee-flat-weave-satchel', cat='backpack', back=satchel_back, side=satchel_side),
-    dict(slug='ee-fleece-drawsack', cat='backpack', back=drawsack_back, side=drawsack_side),
+    dict(slug='ee-fleece-drawsack', cat='backpack', y0=49, back=drawsack_back, side=drawsack_side),
 ]
 
 
@@ -398,8 +401,6 @@ def _longcoat(c, g):
     v, b = g['view'], g['b']
     _trim(c, g, 2, _fleece_col)
     if v == 'front':
-        for x0 in (19, 44):   # fleece collar showing at the shoulders beside the beard
-            for q in ellipse(x0 + 0.5, 46.5 + b, 2, 1.5): c.put(q[0], q[1], _fleece_col(q))
         for y in (60, 63): P(c, [(32, y + b), (33, y + b)], wood[4]); c.put(33, y + b, wood[2])   # toggles
         P(c, [(41, 55 + b), (42, 54 + b)], ember[4]); P(c, [(42, 55 + b)], brass[4]); P(c, [(43, 55 + b), (42, 56 + b)], ember[3])   # stitched flower
     elif v == 'back':
@@ -459,7 +460,7 @@ def _smock(c, g):
 
 
 def _quilt(q, t, g):
-    if q[0] % 3 == 0: return autumn[max(0, 2 - t // 2 - (1 if t >= 2 else 0))]
+    if q[0] % 3 == 0: return ochre[max(0, 2 - t // 2 - (1 if t >= 2 else 0))]
     return None
 
 
@@ -470,7 +471,7 @@ def _steppe(c, g):
     if v == 'back': sl = g['sleeves'][0]
     # teal patch on the elbow
     x0, y0, x1, y1 = sl.bbox()
-    patch = M(q for q in sl if y0 + 2 <= q[1] <= y0 + 4 and x0 + 1 <= q[0] <= x1 - 1) & c.mask()
+    patch = M(q for q in sl if y1 - 5 <= q[1] <= y1 - 3 and x0 + 1 <= q[0] <= x1 - 1) & c.mask()
     for q in patch: c.put(q[0], q[1], yarnB[4] if (q[0] + q[1]) % 3 else yarnB[3])
     for q in patch.top(): c.put(q[0], q[1], yarnB[5])
     if v == 'front':   # wrap front: diagonal edge strap with a brass toggle
@@ -501,16 +502,16 @@ def _cardigan(c, g):
     v, b = g['view'], g['b']
     if v == 'front':
         for y in (59, 61, 63): P(c, [(31, y + b), (34, y + b)], wood[4])
-        _hedgehog(c, 39, 55 + b)
+        _hedgehog(c, 40, 52 + b)
     elif v == 'side':
-        _hedgehog(c, 36, 54 + b)
+        _hedgehog(c, 26, 58 + b)
 
 
 COAT = [
     dict(slug='ee-sheepskin-longcoat', cat='coat', r=leather, hem=3, detail=_longcoat),
     dict(slug='ee-stitched-felt-vest', cat='coat', r=plum, sleeves=False, open=2, detail=_vest),
     dict(slug='ee-red-stitch-linen-smock', cat='coat', r=linen, hem=2, detail=_smock),
-    dict(slug='ee-quilted-steppe-coat', cat='coat', r=autumn, puff=1, pattern=_quilt, detail=_steppe),
+    dict(slug='ee-quilted-steppe-coat', cat='coat', r=ochre, puff=1, pattern=_quilt, detail=_steppe),
     dict(slug='ee-hedgehog-knit-cardigan', cat='coat', r=cloakg, open=2, pattern=_cable, detail=_cardigan),
 ]
 

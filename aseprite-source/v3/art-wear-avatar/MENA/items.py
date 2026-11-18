@@ -83,9 +83,10 @@ def _palmrope(c, g, ft, k):
     else:
         x = int(round(cx))
         if v == 'front':   # X of straps over the instep + toe loop
-            for q in line([(x - 2, cy - 2), (x + 2, cy)], 1): c.put(q[0], q[1], leather[2])
-            for q in line([(x + 2, cy - 2), (x - 2, cy)], 1): c.put(q[0], q[1], leather[3])
-            c.put(x, cy - 1, leather[1])
+            P(c, [(x - 3, cy - 2), (x - 2, cy - 1), (x - 1, cy), (x + 3, cy - 2), (x + 2, cy - 1), (x + 1, cy)], leather[2])
+            P(c, [(x - 3, cy - 1), (x + 3, cy - 1)], leather[1])
+            P(c, [(x, cy + 1), (x, cy)], leather[1])                       # toe loop between the toes
+            P(c, [(x - 2, y1 - 1), (x + 2, y1 - 1)], skin[2])               # toe creases
             P(c, [(x, cy + 1), (x, cy + 2)], leather[1])
             if k == 1:   # gecko on the right sole edge
                 P(c, [(x1 + 1, y1), (x1 + 2, y1), (x1 + 2, y1 - 1), (x1 + 3, y1 - 2)], mint[4]); c.put(x1 + 1, y1, mint[5])
@@ -138,30 +139,25 @@ def _cedar(c, g, ft, k):
     v, cx, cy = g['view'], ft['cx'], int(ft['cy'])
     foot = g['foot']
     x0, _, x1, y1 = foot.bbox()
-    # platform board over the foot's bottom rows
-    board = M(q for q in foot if q[1] >= y1 - 1) | rect(x0, y1 - 1, x1, y1)
-    form(c, board, cedar, frac=0.3, under=False)
-    for x in range(x0, x1 + 1): c.put(x, y1 - 1, cedar[4] if x < x1 - 1 else cedar[3])
-    # stilt blocks under the board
+    # platform board: the foot's 2 bottom rows, 1 px proud on each side
+    board = M(q for q in foot if q[1] >= y1 - 1) | rect(x0 - 1, y1 - 1, x1 + 1, y1)
+    for q in board: c.put(q[0], q[1], cedar[4] if q[1] == y1 - 1 else (cedar[3] if q[0] < x1 - 1 else cedar[2]))
+    c.put(x0 - 1, y1, cedar[2]); c.put(x1 + 1, y1 - 1, cedar[3])
+    # stilt blocks under the board (heel + toe: gap shows in profile)
     if v == 'side':
-        blocks = rect(x0 + 1, y1 + 1, x0 + 3, y1 + 2) | rect(x1 - 3, y1 + 1, x1 - 1, y1 + 2)
+        blocks = rect(x0, y1 + 1, x0 + 2, y1 + 2) | rect(x1 - 3, y1 + 1, x1 - 1, y1 + 2)
     else:
         blocks = rect(x0 + 1, y1 + 1, x1 - 1, y1 + 2)
-    form(c, blocks, cedar, frac=0.35, rim=False)
-    if v != 'side':
-        for y in (y1 + 1, y1 + 2): c.put(int(round(cx)), y, cedar[1])   # groove between heel and toe block
-    # striped strap across the top of the foot
+    for q in blocks: c.put(q[0], q[1], cedar[1] if q[1] == y1 + 1 else (cedar[2] if q[0] < x1 - 2 else cedar[1]))
+    # striped strap across the top of the foot (2 rows: madder with linen ticks, deep madder)
     sy = cy - 1
-    if v != 'back':
-        for q in foot:
-            if q[1] in (sy - 1, sy):
-                col = (madder[3], linen[4], madder[2], linen[3])[(q[0] + (q[1] - sy) * 2) % 4]
-                c.put(q[0], q[1], col)
-    else:
-        for x in range(x0 + 1, x1): c.put(x, sy, madder[2] if x % 2 else linen[3])
+    for q in foot:
+        if v != 'back' and q[1] == sy: c.put(q[0], q[1], linen[4] if q[0] % 3 == 0 else madder[3])
+        if v != 'back' and q[1] == sy + 1: c.put(q[0], q[1], madder[2] if q[0] % 3 else linen[3])
+        if v == 'back' and q[1] == sy + 1 and x0 < q[0] < x1: c.put(q[0], q[1], madder[2])
     if not g.get('far') and k == 1 and v != 'back':   # little cedar cone tucked under the strap
-        qx = x1 - 1 if v == 'front' else int(cx) + 1
-        P(c, [(qx, sy - 2), (qx + 1, sy - 2), (qx, sy - 3)], cedar[3]); c.put(qx + 1, sy - 3, cedar[1]); c.put(qx, sy - 3, cedar[4])
+        qx = x1 if v == 'front' else int(cx) + 1
+        P(c, [(qx, sy - 1), (qx + 1, sy - 1), (qx, sy - 2), (qx + 1, sy - 2)], cedar[3]); c.put(qx + 1, sy - 1, cedar[1]); c.put(qx, sy - 2, cedar[5])
 
 
 FOOT = [

@@ -190,10 +190,10 @@ def market_back(c, x, y, g):
         d = -1 if sx < x else 1
         for yy in range(y + 4, y + 11): c.put(sx + d, yy, palm[3] if yy % 2 else palm[2])
         c.put(sx, y + 3, palm[4]); c.put(sx, y + 11, palm[2])
-    ball(c, x + 7, y - 1, 2.5, sunset)                                           # mango over the rim, beside the head
-    P(c, [(x + 8, y - 4), (x + 9, y - 5)], palm[4])
-    for i, (lx, ly) in enumerate([(x - 7, y - 1), (x - 8, y - 3), (x - 9, y - 5), (x - 10, y - 7), (x - 11, y - 9)]):   # palm leaf
-        c.put(lx, ly, palm[3]); c.put(lx + 1, ly - 1 + (i == 0), palm[4]); c.put(lx - 1, ly + 1, palm[2])
+    ball(c, x - 12, y + 4, 2.5, sunset)                                           # mango over the rim, beside the head (left: the scarf end hides the right)
+    P(c, [(x - 11, y + 1), (x - 10, y + 0)], palm[4])
+    for i, (lx, ly) in enumerate([(x + 9, y - 1), (x + 10, y - 3), (x + 11, y - 5), (x + 12, y - 7), (x + 13, y - 9)]):   # palm leaf
+        c.put(lx, ly, palm[3]); c.put(lx - 1, ly - 1 + (i == 0), palm[4]); c.put(lx + 1, ly + 1, palm[2])
 
 
 def market_side(c, x, y, g):
@@ -231,7 +231,7 @@ def calabash_back(c, x, y, g):
         if (xx, yy) in m: c.put(xx, yy, gourd[1])
     form(c, rect(x - 2, y - 1, x + 1, y + 1), gourd, frac=0.4)                   # neck
     form(c, rect(x - 2, y - 3, x + 1, y - 2), mahog, frac=0.4)                   # stopper
-    _hummingbird(c, x + 7, y + 1, 1)                                             # perched on the net at the shoulder (stopper is behind the head)
+    _hummingbird(c, x - 9, y + 4, -1)                                             # perched on the net at the shoulder (stopper is behind the head)
 
 
 def calabash_side(c, x, y, g):
@@ -385,7 +385,7 @@ def _smock(c, g):
         for q in s:
             if q[1] == y1 - 1: c.put(q[0], q[1], turq[3] if q[0] % 2 else turq[2])
     if v == 'front':   # frangipani at the collar beside the beard
-        fx, fy = 43, 47 + b
+        fx, fy = 43, 50 + b
         P(c, [(fx, fy - 1), (fx - 1, fy), (fx + 1, fy), (fx, fy + 1)], flam[4]); c.put(fx, fy, GOLD); c.put(fx + 1, fy + 1, flam[2])
     elif v == 'side':
         fx, fy = 28, 48 + b
@@ -416,7 +416,7 @@ def _check_pat(q, t, g):
     a, bb = q[0] % 4 == 0, (q[1] - g['b']) % 4 == 2
     if a and bb: return check[0] if t >= 2 else check[1]
     if a: return cotton[3] if t < 2 else cotton[2]
-    if bb: return check[1] if t >= 2 else check[2]
+    if bb: return cotton[2] if t < 2 else cotton[1]
     return None
 
 
@@ -514,11 +514,11 @@ def _thatch(c, g, m, v):
         else: c.put(q[0], q[1], straw[1])
     b = g['b']
     if v == 'back':   # tree frog on the top tier
-        fx, fy = 37, 48 + b
-        P(c, [(fx, fy), (fx + 1, fy), (fx + 2, fy), (fx + 1, fy - 1)], palm[4]); c.put(fx + 2, fy - 1, palm[5])
-        P(c, [(fx, fy + 1), (fx + 3, fy + 1)], palm[2]); c.put(fx + 2, fy - 1, INK); c.put(fx + 3, fy, sunset[4])
+        fx, fy = 23, 52 + b   # left shoulder: the scarf end covers the right one
+        P(c, [(fx, fy), (fx + 1, fy), (fx + 2, fy), (fx + 1, fy - 1)], palm[4]); c.put(fx, fy - 1, palm[5])
+        P(c, [(fx, fy + 1), (fx + 2, fy + 1)], palm[2]); c.put(fx + 1, fy - 1, INK); c.put(fx - 1, fy, sunset[4])
     elif v == 'side':
-        fx, fy = 24, 48 + b
+        fx, fy = 20, 53 + b
         P(c, [(fx, fy), (fx + 1, fy), (fx - 1, fy), (fx, fy - 1)], palm[4]); c.put(fx - 1, fy - 1, INK); c.put(fx + 1, fy + 1, palm[2])
 
 
@@ -581,7 +581,8 @@ def _mangrove(c, g, m, v):
         hood = poly([(25, 47 + b), (40, 47 + b), (33, 58 + b), (32, 58 + b)])
         form(c, hood, palm, frac=0.35)
         for q in hood.inner_edge():
-            if q[1] > 47 + b: c.put(q[0], q[1], palm[1])
+            if q[1] > 47 + b: c.put(q[0], q[1], palm[4] if q[0] < 33 else palm[2])
+        for q in poly([(28, 48 + b), (37, 48 + b), (33, 53 + b), (32, 53 + b)]): c.put(q[0], q[1], palm[0])   # hood opening
         P(c, [(32, 59 + b), (32, 60 + b)], sisal[2]); P(c, [(32, 61 + b), (32, 62 + b), (32, 63 + b)], palm[4]); c.put(32, 64 + b, mahog[3])
     elif v == 'side':
         hood = poly([(22, 46 + b), (28, 46 + b), (26, 53 + b), (21, 52 + b)])
@@ -613,11 +614,11 @@ def _capelet(c, g, m, v):
 
 
 CLOAK = [
-    dict(slug='cb-thatch-rain-cape', cat='cloak', r=straw, lining=straw, len=62, flare=5, x0=23, x1=42, fx0=15, fx1=50, front_flare=6, side_back=18, detail=_thatch),
+    dict(slug='cb-thatch-rain-cape', cat='cloak', r=straw, lining=straw, len=62, flare=5, x0=23, x1=42, fx0=16, fx1=49, front_flare=3, side_back=18, detail=_thatch),
     dict(slug='cb-hibiscus-shawl', cat='cloak', r=cotton, lining=cotton, len=63, flare=3, x0=19, x1=46, hemstyle='tri', border=hibis, border_rows=1, fx0=15, fx1=50, detail=_hibiscus),
-    dict(slug='cb-sea-breeze-poncho', cat='cloak', r=turq, lining=turq, len=63, flare=4, x0=20, x1=45, hemstyle='diamond', fx0=13, fx1=52, side_back=19, detail=_poncho),
+    dict(slug='cb-sea-breeze-poncho', cat='cloak', r=turq, lining=turq, len=63, flare=4, x0=20, x1=45, hemstyle='diamond', fx0=15, fx1=50, front_flare=3, side_back=19, detail=_poncho),
     dict(slug='cb-mangrove-hood', cat='cloak', r=palm, lining=palm, len=67, flare=3, front_wide=2, side_back=18, detail=_mangrove),
-    dict(slug='cb-shell-scallop-capelet', cat='cloak', r=coral, lining=coral, len=55, flare=4, fx0=15, fx1=50, side_back=19, detail=_capelet),
+    dict(slug='cb-shell-scallop-capelet', cat='cloak', r=coral, lining=coral, len=55, flare=4, fx0=17, fx1=48, front_flare=2, side_back=19, detail=_capelet),
 ]
 
 ITEMS = FOOT + PACK + COAT + CLOAK

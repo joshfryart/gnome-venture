@@ -342,7 +342,9 @@ def _robe(c, g):
 def _kantha(q, t, g):
     y = q[1] - g['b']
     pr = [plum, yarnB, saffron, madder, feltc][int(_h(q[0] // 4, y // 4, 3) * 5)]
-    if y % 2 == 0 and q[0] % 2 == 0: return feltc[5] if t < 2 else feltc[3]   # running stitch rows
+    if (q[0] // 4 + y // 4) % 2 == 0 and q[0] % 4 == 0: pr = pr   # patch seams below
+    if q[0] % 4 == 3 or y % 4 == 3: return pr[max(0, min(5, 2 - t))]   # darker patch edges
+    if y % 4 == 1 and q[0] % 3 == 1: return feltc[5] if t < 2 else feltc[3]   # running stitch dashes
     return pr[max(1, min(5, 4 - t))]
 
 
@@ -418,9 +420,16 @@ def _wrap(c, g):
         P(c, [(34, 60 + b), (34, 61 + b), (35, 62 + b), (35, 63 + b), (34, 64 + b)], madder[4])
         P(c, [(29, 52 + b), (30, 51 + b), (30, 52 + b)], leaf[4]); c.put(31, 51 + b, leaf[5])
     else:
-        P(c, [(44 + hs, 59 + b), (45 + hs, 60 + b), (45 + hs, 61 + b), (46 + hs, 62 + b)], madder[4])
+        for xx, sgn in ((20 + hs, -1), (45 + hs, 1)):   # the long side ties hanging at both hips
+            P(c, [(xx, 59 + b), (xx + sgn, 60 + b), (xx + sgn, 61 + b), (xx, 62 + b), (xx, 63 + b)], madder[4]); c.put(xx + sgn, 64 + b, madder[2])
+        for xx in range(27, 39): c.put(xx, 47 + b, madder[3])   # collar trim
     for q in list(c.keys()):
         if q[1] >= 66 + b and (q[0], q[1] + 1) not in c: c.put(q[0], q[1], madder[2])
+
+
+def _cotton(q, t, g):
+    if q[1] - g['b'] >= 58 and q[0] % 4 == 1: return saffron[max(1, min(5, 3 - t))]   # soft cotton folds
+    return None
 
 
 COAT = [
@@ -428,7 +437,7 @@ COAT = [
     dict(slug='csa-kantha-patch-vest', cat='coat', r=plum, sleeves=False, pattern=_kantha, detail=_vest),
     dict(slug='csa-fleece-collar-jacket', cat='coat', r=yak, hem=1, pattern=_fleece_pat, detail=_fleece),
     dict(slug='csa-mirror-work-smock', cat='coat', r=indigo, pattern=_smock_pat, detail=_smock),
-    dict(slug='csa-turmeric-wrap-coat', cat='coat', r=saffron, hem=3, detail=_wrap),
+    dict(slug='csa-turmeric-wrap-coat', cat='coat', r=saffron, hem=3, pattern=_cotton, detail=_wrap),
 ]
 
 
@@ -456,7 +465,7 @@ def _palm(c, g, m, v):
         q = (int((x0 + x1) / 2) + dx, y0 + dy)
         if q in sh: c.put(q[0], q[1], water[5]); c.put(q[0], q[1] + 1, water[3])
     # frog sitting on the shoulder of the shell
-    fx, fy = (x1 - 6, y0) if v == 'back' else (x0 + 2, y0 + 1)
+    fx, fy = (x0 + 1, 52 + b) if v == 'back' else (x0 + 1, y0 + 1)
     frog = {(fx, fy - 1): leaf[4], (fx + 1, fy - 1): leaf[4], (fx + 2, fy - 1): leaf[3], (fx, fy - 2): leaf[5], (fx + 2, fy - 2): leaf[4],
             (fx + 1, fy): leaf[2], (fx, fy): leaf[2], (fx + 2, fy): leaf[1]}
     for (x, y), col in frog.items(): c.put(x, y, col)
@@ -493,7 +502,7 @@ def _shepherd(c, g, m, v):
             sp = [(sx - 1, 52 + b), (sx, 52 + b), (sx + 1, 52 + b), (sx + 1, 53 + b), (sx + 1, 54 + b), (sx, 54 + b), (sx - 1, 54 + b), (sx - 1, 53 + b), (sx, 53 + b)]
             P(c, sp[:-1], feltc[4]); c.put(sx, 53 + b, char[1])
         for y in range(57 + b, y1 + 1): c.put(32 + g['tail'], y, feltc[3] if y % 2 else char[1])   # stitched centre seam
-        P(c, [(38, 47 + b), (39, 47 + b)], strap[3]); form(c, rect(39, 48 + b, 40, 49 + b), brass, frac=0.5, hi=[(39, 48 + b)]); c.put(40, 50 + b, brass[0])   # bell
+        P(c, [(31, 50 + b), (34, 50 + b)], strap[3]); form(c, rect(32, 51 + b, 33, 52 + b), brass, frac=0.5, hi=[(32, 51 + b)]); c.put(32, 53 + b, brass[0])   # bell on the neck tie
     elif v == 'side':
         for y in range(y0 + 6, y1, 2): c.put(x0 + 4 + g['tail'], y, feltc[3])
         P(c, [(28, 47 + b)], strap[3]); form(c, rect(28, 48 + b, 29, 49 + b), brass, frac=0.5, hi=[(28, 48 + b)])
@@ -505,7 +514,7 @@ _BANDS = [madder, saffron, yarnB, indigo, saffron, madder, feltc]
 def _poncho(c, g, m, v):
     x0, y0, x1, y1 = m.bbox()
     b = g['b']
-    if v != 'front':
+    if True:
         for q in m:
             r = _BANDS[((q[1] - b - 46) // 2) % len(_BANDS)]
             t = 3 if q[0] < x1 - (x1 - x0) * 0.3 else 2
@@ -513,17 +522,18 @@ def _poncho(c, g, m, v):
             c.put(q[0], q[1], r[t])
         for q in m.bottom():   # knotted fringe
             if q[0] % 2: P(c, [(q[0], q[1] + 1)], feltc[3]); c.put(q[0], q[1] + 2, feltc[2])
-        for q in m.top(): c.put(q[0], q[1], yak[3])   # neck binding
+        if v != 'front':
+            for q in m.top(): c.put(q[0], q[1], yak[3])   # neck binding
     # barred goose feather tucked into the neck
     if v == 'back':
-        pts = [(41, 50), (42, 49), (42, 48), (43, 47), (43, 46), (44, 45)]
+        pts = [(21, 50), (20, 49), (19, 48), (18, 47), (17, 46), (16, 45), (15, 44)]
     elif v == 'side':
-        pts = [(26, 50), (25, 49), (25, 48), (24, 47), (24, 46), (23, 45)]
+        pts = [(20, 53), (19, 52), (18, 51), (17, 50), (17, 49), (16, 48)]
     else:
         return
     for i, (x, y) in enumerate(pts): c.put(x, y + b, goose[1] if i % 2 else goose[4])
-    nx = 1 if v == 'back' else -1
-    for i, (x, y) in enumerate(pts[1:4]): c.put(x + nx, y + b, goose[0] if i % 2 else goose[3])
+    nx = -1
+    for i, (x, y) in enumerate(pts[1:-1]): c.put(x + nx, y + b, goose[0] if i % 2 else goose[3])
 
 
 def _indigo_hood(c, g, m, v):
@@ -539,11 +549,11 @@ def _indigo_hood(c, g, m, v):
             if q[1] <= 50 + b: c.put(q[0], q[1], madder[3])
         px, py = 33 + tl, 59 + b
     else:
-        hood = poly([(28, 47 + b), (23, 48 + b), (21 + tl, 55 + b), (25, 54 + b), (27, 51 + b)])
+        hood = poly([(28, 47 + b), (23, 48 + b), (19 + tl, 58 + b), (24, 56 + b), (27, 51 + b)])
         form(c, hood, indigo, frac=0.3)
         for q in hood.inner_edge():
             if q[0] >= 27: c.put(q[0], q[1], madder[3])
-        px, py = 21 + tl, 55 + b
+        px, py = 19 + tl, 58 + b
     # green parakeet perched on the hood point
     bird = {(px, py - 1): leaf[4], (px + 1, py - 1): leaf[4], (px, py - 2): leaf[5], (px + 1, py - 2): leaf[3], (px + 2, py - 2): ember[4],
             (px - 1, py): leaf[2], (px - 2, py + 1): leaf[1], (px, py): leaf[3]}

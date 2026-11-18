@@ -207,10 +207,12 @@ def _peat_bricks(c, x0, x1, y):
 
 
 def _wren(c, x, y):
-    """a tiny brown wren on a rim at (x, y) facing left, cocked tail up-right"""
-    P(c, [(x, y), (x + 1, y), (x + 2, y)], wicker[2]); P(c, [(x, y - 1), (x + 1, y - 1)], wicker[3])
-    c.put(x - 1, y - 1, wicker[4]); c.put(x - 1, y - 2, wicker[3]); c.put(x - 2, y - 1, brass[3])   # head + beak
-    P(c, [(x + 3, y - 1), (x + 3, y - 2)], wicker[1]); c.put(x + 1, y, fleece[3])
+    """a tiny brown wren on a perch at (x, y) facing left, cocked tail up-right"""
+    P(c, [(x, y), (x + 1, y), (x + 2, y)], wicker[2]); P(c, [(x, y - 1), (x + 1, y - 1), (x + 2, y - 1)], wicker[3])
+    P(c, [(x, y), (x + 1, y)], fleece[4])                                          # pale belly
+    P(c, [(x - 1, y - 1), (x - 1, y - 2), (x, y - 2)], wicker[4]); c.put(x - 1, y - 2, INK)   # head + eye
+    c.put(x - 2, y - 1, brass[3])                                                  # beak
+    P(c, [(x + 3, y - 2), (x + 3, y - 3), (x + 4, y - 3)], strap[1])              # cocked tail
 
 
 def creel_back(c, x, y, g):
@@ -230,7 +232,7 @@ def creel_side(c, x, y, g):
     for xx in range(x - 8, x + 1):
         c.put(xx, y, wicker[5] if xx % 2 else wicker[4]); c.put(xx, y + 1, wicker[2])
     _peat_bricks(c, x - 7, x, y)
-    _wren(c, x - 6, y - 1)
+    _wren(c, x - 9, y - 1)
     for yy in range(y + 3, y + 12): c.put(x - 9 + (yy % 2 == 0) * 0, yy, rope[3] if yy % 2 else rope[1])   # rope handle loop
 
 
@@ -419,7 +421,7 @@ def _field(c, g):
     for s in g['sleeves']:   # brown cord cuffs
         bot = max(q[1] for q in s)
         for q in s:
-            if q[1] >= bot - 1: c.put(q[0], q[1], felt[3] if q[1] == bot - 1 else felt[2])
+            if bot - 4 <= q[1] <= bot - 2: c.put(q[0], q[1], felt[4] if q[1] == bot - 4 else felt[2])
     if v == 'front':
         for x0 in (23, 37):   # two bellows pockets below the beard
             pk = rect(x0, 60 + b, x0 + 5, 64 + b)
@@ -536,8 +538,8 @@ def _shawl(c, g, m, v):
             for k in range(1, n + 1): c.put(q[0], q[1] + k, heather[2] if k < n else heather[3])
     if v == 'back':   # leaf-shaped wooden shawl pin at the top right
         b = g['b']
-        P(c, [(40, 51 + b), (41, 50 + b), (42, 50 + b), (43, 49 + b)], wood[4]); P(c, [(41, 51 + b), (42, 51 + b)], wood[2]); c.put(39, 52 + b, wood[1])
-        c.put(44, 48 + b, wood[3])
+        P(c, [(24, 52 + b), (25, 51 + b), (26, 51 + b), (27, 50 + b)], wood[4]); P(c, [(25, 52 + b), (26, 52 + b)], wood[2]); c.put(23, 53 + b, wood[1])
+        c.put(28, 50 + b, wood[3]); c.put(22, 54 + b, wood[3])   # leaf pin with its shank
     elif v == 'side':
         b = g['b']
         P(c, [(24, 50 + b), (25, 49 + b), (26, 49 + b)], wood[4]); c.put(25, 50 + b, wood[2]); c.put(23, 51 + b, wood[1])
@@ -549,12 +551,12 @@ def _raincape(c, g, m, v):
     if v == 'back':
         for q in m:   # oilcloth panel seams
             if q[0] in (25 + tl, 40 + tl) and q[1] > y0 + 5 and (q[0] + 1, q[1]) in m: c.put(q[0], q[1], mustard[2])
-        hood = ellipse(32.5, 51 + b, 6.5, 4) | poly([(28, 53 + b), (37, 53 + b), (35 + tl, 59 + b), (34 + tl, 59 + b)])
+        hood = ellipse(32.5, 53 + b, 6.5, 3.5) | poly([(27, 54 + b), (38, 54 + b), (35 + tl, 61 + b), (34 + tl, 61 + b)])
         form(c, hood, mustard, frac=0.35)
-        inner = ellipse(32.5, 50 + b, 4, 2)
+        inner = ellipse(32.5, 51 + b, 4, 1.5)
         for q in inner: c.put(q[0], q[1], mustard[1])
         for q in hood.bottom(): c.put(q[0], q[1], mustard[1])
-        P(c, [(33 + tl, 60 + b), (34 + tl, 60 + b)], wood[4]); c.put(34 + tl, 60 + b, wood[2])   # toggle on the hood tip
+        P(c, [(33 + tl, 62 + b), (34 + tl, 62 + b), (35 + tl, 62 + b)], wood[4]); c.put(35 + tl, 62 + b, wood[2])   # toggle on the hood tip
     elif v == 'side':
         hood = ellipse(24.5, 50 + b, 3, 4) | poly([(22, 52 + b), (26, 52 + b), (21 + tl, 57 + b)])
         form(c, hood, mustard, frac=0.3)
@@ -635,7 +637,7 @@ def _woad(c, g, m, v):
             if q[1] >= 50 + b and q not in hood.bottom(): c.put(q[0], q[1], woad[3] if (q[0] + q[1]) % 4 else woad[4])
         for q in inner: c.put(q[0], q[1], mist[1])
         for q in hood.bottom(): c.put(q[0], q[1], woad[1])
-        mx, my = 36, 54 + b   # pale moth resting on the hood
+        mx, my = 35, 54 + b   # pale moth resting on the hood
     elif v == 'side':
         hood = ellipse(24.5, 51 + b, 3, 4.5)
         form(c, hood, mist, frac=0.3)
@@ -644,15 +646,17 @@ def _woad(c, g, m, v):
         mx, my = 22, 51 + b
     else:
         return
-    P(c, [(mx, my), (mx + 2, my)], fleece[4]); P(c, [(mx, my + 1), (mx + 2, my + 1)], fleece[3]); c.put(mx + 1, my, fleece[1]); c.put(mx + 1, my + 1, fleece[1])
-    c.put(mx, my, CREAM)
+    # pale moth, wings open: 5 x 3
+    P(c, [(mx - 1, my), (mx, my), (mx + 2, my), (mx + 3, my), (mx, my + 1), (mx + 2, my + 1)], CREAM)
+    P(c, [(mx - 1, my + 1), (mx + 3, my + 1)], fleece[3]); c.put(mx, my, fleece[2]); c.put(mx + 2, my, fleece[2])
+    P(c, [(mx + 1, my - 1), (mx + 1, my), (mx + 1, my + 1)], peat[2])
 
 
 CLOAK = [
     dict(slug='nwe-heather-shawl', cat='cloak', r=heather, lining=heather, len=64, flare=3, x0=19, x1=46, hemstyle='tri', fx0=15, fx1=50, detail=_shawl),
-    dict(slug='nwe-mustard-rain-cape', cat='cloak', r=mustard, lining=mustard, len=60, flare=5, x0=20, x1=45, front_wide=3, fx0=14, fx1=51, side_back=19, folds=(), detail=_raincape),
-    dict(slug='nwe-sheepskin-mantle', cat='cloak', r=fleece, lining=fleece, len=56, flare=2, x0=19, x1=46, fx0=14, fx1=51, side_back=21, folds=(), detail=_sheepskin),
-    dict(slug='nwe-rush-thatch-cape', cat='cloak', r=straw, lining=straw, len=64, flare=6, x0=23, x1=42, fx0=16, fx1=49, side_back=17, folds=(), detail=_thatch),
+    dict(slug='nwe-mustard-rain-cape', cat='cloak', r=mustard, lining=mustard, len=61, flare=4, x0=20, x1=45, front_flare=2, fx0=15, fx1=50, side_back=19, folds=(), detail=_raincape),
+    dict(slug='nwe-sheepskin-mantle', cat='cloak', r=fleece, lining=fleece, len=57, flare=2, x0=19, x1=46, front_flare=0, fx0=17, fx1=48, side_back=18, folds=(), detail=_sheepskin),
+    dict(slug='nwe-rush-thatch-cape', cat='cloak', r=straw, lining=straw, len=64, flare=5, x0=23, x1=42, front_flare=2, fx0=17, fx1=48, side_back=17, folds=(), detail=_thatch),
     dict(slug='nwe-woad-mist-cloak', cat='cloak', r=mist, lining=mist, len=68, flare=3, border=woad, border_rows=2, border_sides=True, side_back=18, detail=_woad),
 ]
 

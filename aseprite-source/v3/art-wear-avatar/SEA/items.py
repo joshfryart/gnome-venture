@@ -181,7 +181,8 @@ def _rambutan(c, x, y):
 
 
 def basket_back(c, x, y, g):
-    m = poly([(x - 9, y + 1), (x + 8, y + 1), (x + 6, y + 16), (x - 7, y + 16)])
+    y += 4
+    m = poly([(x - 9, y + 1), (x + 8, y + 1), (x + 6, y + 14), (x - 7, y + 14)])
     x0, y0, x1, y1 = m.bbox()
     for q in m:
         sh = q[0] > x1 - 3
@@ -195,7 +196,7 @@ def basket_back(c, x, y, g):
     rim = rect(x - 10, y, x + 9, y + 1)
     for q in rim: c.put(q[0], q[1], rattan[1] if (q[0] + q[1]) % 3 == 0 else (rattan[4] if q[1] == y else rattan[3]))
     for sx in (x - 5, x + 3):   # leather shoulder loops
-        for yy in range(y + 2, y + 14): c.put(sx, yy, strap[2]); c.put(sx + 1, yy, strap[1])
+        for yy in range(y + 2, y + 12): c.put(sx, yy, strap[2]); c.put(sx + 1, yy, strap[1])
 
 
 def basket_side(c, x, y, g):
@@ -219,9 +220,9 @@ def _pole(c, px, y0, y1, w=2):
 
 
 def _cup(c, x, y):
-    c.put(x, y, canvas[3]); c.put(x, y + 1, canvas[3])
-    for q in ellipse(x, y + 3, 1.5, 1).rows(y + 3, y + 4): c.put(q[0], q[1], soga[4] if q[0] < x else soga[2])
-    P(c, [(x - 1, y + 2), (x, y + 2), (x + 1, y + 2)], soga[1])
+    c.put(x, y, canvas[4]); c.put(x, y + 1, canvas[4])
+    for q in ellipse(x, y + 3, 1.5, 1).rows(y + 3, y + 4): c.put(q[0], q[1], clay[4] if q[0] < x else clay[2])
+    P(c, [(x - 1, y + 2), (x, y + 2), (x + 1, y + 2)], petal[4])
 
 
 def ladder_back(c, x, y, g):
@@ -231,13 +232,13 @@ def ladder_back(c, x, y, g):
         c.put(x - 6 + i, y + 2 + i, wax[4]); c.put(x + 5 - i, y + 2 + i, wax[4] if i < 6 else wax[2])
     _pole(c, x - 9, y - 2, y + 17); _pole(c, x + 7, y - 2, y + 17)
     for by in (y + 1, y + 14):
-        for xx in range(x - 7, x + 7): c.put(xx, by, pandan[4] if xx < x + 4 else pandan[3])
+        for xx in range(x - 7, x + 7 + (3 if by > y + 1 else 0)): c.put(xx, by, pandan[4] if xx < x + 4 else pandan[3])
         for xx in range(x - 7, x + 7): c.put(xx, by + 1, pandan[1])
     mat = rect(x - 10, y - 3, x + 9, y - 1)
     form(c, mat, straw, frac=0.3)
     for xx in range(x - 10, x + 10, 3): c.put(xx, y - 2, straw[2])
     P(c, [(x - 10, y - 2)], straw[1])
-    _cup(c, x + 10, y + 9)
+    _cup(c, x + 10, y + 13)   # dangles from the lower crossbar end, below the scarf and hand
 
 
 def ladder_side(c, x, y, g):
@@ -271,7 +272,9 @@ def bundle_back(c, x, y, g):
     _batik(c, m, y)
     for q in ellipse(x - 0.5, y + 3, 2, 1.5): c.put(q[0], q[1], indigo[2] if q[1] > y + 3 else indigo[4])
     for q in line([(x - 9, y + 6), (x + 8, y + 14)], 2): c.put(q[0], q[1], blanket[3] if q[1] % 2 else blanket[2])
-    D(c, {(x + 1, y + 1): orchid[4], (x + 2, y + 1): orchid[5], (x + 1, y + 2): orchid[3], (x + 2, y + 2): brass[4], (x + 3, y + 2): orchid[3], (x + 2, y + 3): orchid[2]})
+    ox, oy = x - 6, y + 6   # orchid tucked under the sling where it crosses the bundle
+    D(c, {(ox, oy): orchid[5], (ox + 1, oy): orchid[4], (ox - 1, oy + 1): orchid[4], (ox, oy + 1): brass[4], (ox + 1, oy + 1): orchid[3],
+          (ox, oy + 2): orchid[2], (ox + 2, oy + 1): orchid[3], (ox - 1, oy - 1): leaf[3]})
 
 
 def bundle_side(c, x, y, g):
@@ -299,16 +302,17 @@ def _tiers(c, x, y, widths, side=False):
 
 
 def _snail(c, x, y):
-    for q in ellipse(x, y, 1.5, 1.5): c.put(q[0], q[1], clay[4] if (q[0] < x or q[1] < y) else clay[2])
-    c.put(x, y, clay[1]); c.put(x + 1, y, clay[1])
-    P(c, [(x - 2, y + 2), (x - 1, y + 2), (x, y + 2), (x + 1, y + 2)], petal[3]); P(c, [(x - 3, y + 1), (x - 3, y)], petal[2])
+    for q in ellipse(x, y, 2, 2): c.put(q[0], q[1], clay[5] if (q[0] < x and q[1] < y) else (clay[4] if q[0] <= x or q[1] <= y else clay[3]))
+    P(c, [(x, y), (x + 1, y), (x, y - 1)], clay[1])   # spiral
+    P(c, [(x - 3, y + 3), (x - 2, y + 3), (x - 1, y + 3), (x, y + 3), (x + 1, y + 3), (x + 2, y + 3)], petal[3]); P(c, [(x - 3, y + 2), (x - 4, y + 1)], petal[4])
+    c.put(x - 4, y, INK)
 
 
 def thatch_back(c, x, y, g):
     form(c, rect(x - 1, y - 4, x, y - 1), straw, frac=0.5)
     c.put(x - 1, y - 5, straw[5])
     _tiers(c, x, y, (3, 6, 8, 10))
-    _snail(c, x + 5, y + 6)
+    _snail(c, x + 4, y + 8)
 
 
 def thatch_side(c, x, y, g):
@@ -327,8 +331,8 @@ def jar_back(c, x, y, g):
         for yy in range(y + 2, y + 10): c.put(sx, yy, canvas[3])
     form(c, rect(x - 2, y - 3, x + 1, y - 2), wood, frac=0.3)   # cork
     D(c, {(x - 1, y - 4): leaf[3], (x - 1, y - 5): leaf[3], (x - 2, y - 6): leaf[4], (x - 3, y - 6): leaf[5], (x, y - 6): leaf[4], (x + 1, y - 6): leaf[3]})
-    for q in line([(x + 7, y + 11), (x + 10, y + 10)], 1): c.put(q[0], q[1], pandan[4])   # bamboo spout
-    c.put(x + 10, y + 11 + g['f'] % 3, king[4])
+    for q in line([(x - 7, y + 14), (x - 10, y + 13)], 1): c.put(q[0], q[1], pandan[4])   # bamboo spout (left: scarf hangs right)
+    c.put(x - 10, y + 14 + g['f'] % 3, king[4])
 
 
 def jar_side(c, x, y, g):
@@ -375,8 +379,8 @@ def _hibiscus(c, x, y):
 def _smock(c, g):
     v, b, a = g['view'], g['b'], g['p']['arm']
     _flare_sleeves(c, g, indigo)
-    if v == 'front': _hibiscus(c, 19, 50 + b + a)
-    elif v == 'back': _hibiscus(c, 44, 50 + b - a)
+    if v == 'front': _hibiscus(c, 44, 50 + b - a)
+    elif v == 'back': _hibiscus(c, 19, 50 + b + a)
     else: _hibiscus(c, 30 + a // 2, 50 + b)
 
 

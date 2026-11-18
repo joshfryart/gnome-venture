@@ -189,37 +189,40 @@ FOOT = [
 
 
 # ======================================================================== BACKPACK
+# Back view: the scarf + beard hide everything above row ~49 between x 20..45, so these packs hang lower (y0 51-52) and the
+# quirks sit on the visible part of the pack or poke out past the beard at the shoulders.
 def basket_back(c, x, y, g):
-    m = rect(x - 8, y + 1, x + 7, y + 15) - M({(x - 8, y + 15), (x + 7, y + 15), (x - 8, y + 14), (x + 7, y + 14)})
+    m = rect(x - 8, y + 1, x + 7, y + 13) - M({(x - 8, y + 13), (x + 7, y + 13)})
     form(c, m, sisal, frac=0.3)
     for q in m:   # coil rows: a darker groove every second row, stitch ticks
         if (q[1] - y) % 2 == 0: c.put(q[0], q[1], sisal[2] if q[0] < x + 5 else sisal[1])
         elif (q[0] + q[1]) % 4 == 0 and q[0] < x + 5: c.put(q[0], q[1], sisal[4])
     for xx in range(x - 8, x + 8):   # madder zigzag band + indigo band
-        c.put(xx, y + 5 - (xx % 2), madder[3] if xx < x + 5 else madder[2]); c.put(xx, y + 6, madder[2] if xx < x + 5 else madder[1])
-        c.put(xx, y + 11, indigo[3] if xx % 2 else indigo[4]); c.put(xx, y + 12, indigo[2])
-    lid = ellipse(x - 0.5, y, 8.5, 2)
+        c.put(xx, y + 4 - (xx % 2), madder[4] if xx < x + 5 else madder[2]); c.put(xx, y + 5, madder[2] if xx < x + 5 else madder[1])
+        c.put(xx, y + 9, indigo[4] if xx % 2 else indigo[5]); c.put(xx, y + 10, indigo[2])
+    for q in m.bottom(): c.put(q[0], q[1], sisal[0])
+    lid = ellipse(x - 0.5, y, 8.5, 1.5)
     form(c, lid, sisal, frac=0.3)
     for q in lid:
         if (q[0] + q[1]) % 2 == 0 and q[1] >= y: c.put(q[0], q[1], sisal[3])
-    c.put(x, y - 3, strap[2])   # lid knob
-    # sorghum head poking out under the lid
-    P(c, [(x - 5, y - 2), (x - 5, y - 3), (x - 6, y - 4)], leafg[3]); c.put(x - 4, y - 3, leafg[5])
-    for q in ellipse(x - 6.5, y - 6, 1.2, 1.8): c.put(q[0], q[1], madder[4] if (q[0] + q[1]) % 2 else ochre[3])
-    c.put(x - 7, y - 7, ochre[5])
+    for q in lid.bottom(): c.put(q[0], q[1], sisal[1])
+    # sorghum head poking out under the lid, leaning out past the left shoulder
+    P(c, [(x - 8, y), (x - 9, y - 1), (x - 10, y - 1), (x - 11, y - 2)], leafg[3]); c.put(x - 10, y - 2, leafg[5])
+    for q in ellipse(x - 13, y - 3, 1.5, 1.8): c.put(q[0], q[1], madder[4] if (q[0] + q[1]) % 2 else ochre[4])
+    c.put(x - 14, y - 4, ochre[5])
 
 
 def basket_side(c, x, y, g):
-    m = rect(x - 8, y + 1, x, y + 15) - M({(x - 8, y + 15), (x - 8, y + 14)})
+    m = rect(x - 8, y + 1, x, y + 13) - M({(x - 8, y + 13)})
     form(c, m, sisal, frac=0.25)
     for q in m:
         if (q[1] - y) % 2 == 0: c.put(q[0], q[1], sisal[2])
     for xx in range(x - 8, x + 1):
-        c.put(xx, y + 5 - (xx % 2), madder[3]); c.put(xx, y + 6, madder[2])
-        c.put(xx, y + 11, indigo[3] if xx % 2 else indigo[4]); c.put(xx, y + 12, indigo[2])
-    form(c, ellipse(x - 4, y, 5, 2), sisal, frac=0.3)
-    P(c, [(x - 6, y - 2), (x - 6, y - 3), (x - 7, y - 4)], leafg[3])
-    for q in ellipse(x - 7.5, y - 6, 1.2, 1.8): c.put(q[0], q[1], madder[4] if (q[0] + q[1]) % 2 else ochre[3])
+        c.put(xx, y + 4 - (xx % 2), madder[4]); c.put(xx, y + 5, madder[2])
+        c.put(xx, y + 9, indigo[4] if xx % 2 else indigo[5]); c.put(xx, y + 10, indigo[2])
+    form(c, ellipse(x - 4, y, 5, 1.5), sisal, frac=0.3)
+    P(c, [(x - 8, y), (x - 9, y - 1), (x - 10, y - 2)], leafg[3])
+    for q in ellipse(x - 11, y - 4, 1.2, 1.8): c.put(q[0], q[1], madder[4] if (q[0] + q[1]) % 2 else ochre[4])
     for yy in range(y + 2, y + 10): c.put(x, yy, strap[2])
 
 
@@ -230,69 +233,72 @@ def _net(c, m, x, y):
             c.put(q[0], q[1], strap[1] if i is not None and i <= 2 else strap[2])
 
 
+def _feather(c, pts, flip=False):
+    """guinea-fowl feather: dark grey vane with white spots, pts from quill to tip."""
+    for i, (fx, fy) in enumerate(pts):
+        c.put(fx, fy, steel[0] if i < 1 else (steel[5] if i % 2 == 0 else steel[1]))
+        c.put(fx, fy + 1, steel[1] if i % 2 else steel[5])
+
+
 def calabash_back(c, x, y, g):
-    bulb = ellipse(x - 0.5, y + 10, 8, 6.5)
-    neck = ellipse(x - 0.5, y + 2, 3, 3.5)
-    form(c, neck, gourd, frac=0.35, hi=[(x - 2, y)])
-    form(c, bulb, gourd, frac=0.3, hi=[(x - 5, y + 6), (x - 4, y + 5)])
-    _net(c, M(q for q in bulb if q[1] >= y + 7), x, y)
-    for xx in range(x - 4, x + 3): c.put(xx, y + 6, strap[2])   # cord ring under the neck
-    form(c, rect(x - 2, y - 3, x, y - 1), wood, frac=0.4)        # stopper
-    # spotted guinea-fowl feather in the stopper
-    for i, (fx, fy) in enumerate([(x + 1, y - 3), (x + 2, y - 4), (x + 3, y - 5), (x + 4, y - 6), (x + 4, y - 7)]):
-        c.put(fx, fy, steel[1] if i % 2 else steel[0]); c.put(fx - 1, fy, steel[5] if i % 2 == 0 else steel[1])
-    c.put(x + 5, y - 7, steel[1])
+    bulb = ellipse(x - 0.5, y + 8, 7.5, 5)
+    neck = ellipse(x - 0.5, y + 2, 2.5, 2.5)
+    form(c, neck, gourd, frac=0.35, hi=[(x - 2, y + 1)])
+    form(c, bulb, gourd, frac=0.3, hi=[(x - 5, y + 5), (x - 4, y + 4)])
+    _net(c, M(q for q in bulb if q[1] >= y + 6), x, y)
+    for xx in range(x - 3, x + 2): c.put(xx, y + 4, strap[2])   # cord ring under the neck
+    form(c, rect(x - 2, y - 2, x, y - 1), wood, frac=0.4)        # stopper
+    # spotted guinea-fowl feather stuck in the stopper, lying out to the left
+    _feather(c, [(x - 3, y - 1), (x - 4, y - 1), (x - 5, y - 2), (x - 6, y - 2), (x - 7, y - 2), (x - 8, y - 3)])
 
 
 def calabash_side(c, x, y, g):
-    bulb = ellipse(x - 5, y + 10, 5.5, 6.5)
-    neck = ellipse(x - 4, y + 2, 2.5, 3.5)
+    bulb = ellipse(x - 5, y + 8, 5, 5)
+    neck = ellipse(x - 4, y + 2, 2, 2.5)
     form(c, neck, gourd, frac=0.35)
-    form(c, bulb, gourd, frac=0.25, hi=[(x - 8, y + 6)])
-    _net(c, M(q for q in bulb if q[1] >= y + 7), x, y)
-    form(c, rect(x - 5, y - 3, x - 3, y - 1), wood, frac=0.4)
-    for i, (fx, fy) in enumerate([(x - 6, y - 3), (x - 7, y - 4), (x - 8, y - 5), (x - 9, y - 6), (x - 9, y - 7)]):
-        c.put(fx, fy, steel[1] if i % 2 else steel[0]); c.put(fx + 1, fy, steel[5] if i % 2 == 0 else steel[1])
+    form(c, bulb, gourd, frac=0.25, hi=[(x - 8, y + 5)])
+    _net(c, M(q for q in bulb if q[1] >= y + 6), x, y)
+    form(c, rect(x - 5, y - 2, x - 3, y - 1), wood, frac=0.4)
+    _feather(c, [(x - 6, y - 2), (x - 7, y - 3), (x - 8, y - 3), (x - 9, y - 4), (x - 10, y - 5)])
 
 
 def sack_back(c, x, y, g):
-    m = ellipse(x - 0.5, y + 9, 9, 7.5) | ellipse(x - 0.5, y + 4, 6, 3)
+    m = ellipse(x - 0.5, y + 8, 8.5, 5.5) | ellipse(x - 0.5, y + 4, 5, 2.5)
     form(c, m, canvas, frac=0.3, hi=[(x - 6, y + 4)])
     for q in m:   # burlap weave flecks
         if (q[0] * 3 + q[1] * 5) % 7 == 0 and tone(c, q, canvas) in (3, 4): c.put(q[0], q[1], canvas[2])
     for xx in range(x - 9, x + 9):   # red woven stripe
-        q = (xx, y + 11)
-        if q in m: c.put(xx, y + 11, madder[3] if xx < x + 5 else madder[2])
-    neck = rect(x - 2, y - 1, x + 1, y + 1)
+        if (xx, y + 9) in m: c.put(xx, y + 9, madder[3] if xx < x + 5 else madder[2])
+    neck = rect(x - 2, y, x + 1, y + 1)
     form(c, neck, canvas, frac=0.3)
-    for xx in range(x - 2, x + 2): c.put(xx, y + 1, strap[2])   # drawstring
-    tuft = poly([(x - 4, y - 4), (x + 3, y - 4), (x + 1, y - 1), (x - 2, y - 1)])
+    for xx in range(x - 2, x + 2): c.put(xx, y + 1, strap[3] if xx % 2 else strap[1])   # drawstring knot
+    tuft = poly([(x - 4, y - 3), (x + 3, y - 3), (x + 1, y), (x - 2, y)])
     form(c, tuft, canvas, frac=0.3)
-    P(c, [(x - 3, y - 4), (x, y - 4), (x + 2, y - 4)], canvas[1])
     # rope shoulder loops down both sides
     for side in (-1, 1):
-        for i, yy in enumerate(range(y + 2, y + 15)):
-            xx = x + side * (7 + (1 if 3 < i < 10 else 0)) - (1 if side > 0 else 0)
+        for i, yy in enumerate(range(y + 2, y + 13)):
+            xx = x + side * (7 + (1 if 2 < i < 8 else 0)) - (1 if side > 0 else 0)
             c.put(xx, yy, strap[3] if i % 2 else strap[1])
     # tiny yellow weaver bird perched on the knot
-    bx, by = x + 2, y - 1
-    P(c, [(bx, by), (bx + 1, by), (bx + 1, by - 1), (bx + 2, by - 1)], brass[4]); c.put(bx, by - 1, brass[3])
-    c.put(bx + 2, by - 2, brass[4]); c.put(bx + 3, by - 2, sole[2]); c.put(bx + 2, by, brass[2]); c.put(bx - 1, by, brass[2])
+    bx, by = x + 2, y + 1
+    P(c, [(bx, by), (bx + 1, by), (bx + 2, by), (bx + 1, by - 1), (bx + 2, by - 1)], brass[4]); c.put(bx + 2, by - 2, brass[4])
+    c.put(bx + 3, by - 2, sole[2]); c.put(bx + 3, by - 1, brass[2]); c.put(bx + 1, by + 1, brass[2]); c.put(bx - 1, by - 1, brass[2])
 
 
 def sack_side(c, x, y, g):
-    m = ellipse(x - 5, y + 9, 5.5, 7.5) | ellipse(x - 4, y + 4, 3.5, 3)
+    m = ellipse(x - 5, y + 8, 5, 5.5) | ellipse(x - 4, y + 4, 3.5, 2.5)
     form(c, m, canvas, frac=0.25)
     for q in m:
         if (q[0] * 3 + q[1] * 5) % 7 == 0 and tone(c, q, canvas) in (3, 4): c.put(q[0], q[1], canvas[2])
     for xx in range(x - 11, x + 1):
-        if (xx, y + 11) in m: c.put(xx, y + 11, madder[3])
-    form(c, rect(x - 5, y - 1, x - 3, y + 1), canvas, frac=0.3)
+        if (xx, y + 9) in m: c.put(xx, y + 9, madder[3])
+    form(c, rect(x - 5, y, x - 3, y + 1), canvas, frac=0.3)
     for xx in range(x - 5, x - 2): c.put(xx, y + 1, strap[2])
-    form(c, poly([(x - 7, y - 4), (x - 1, y - 4), (x - 3, y - 1), (x - 5, y - 1)]), canvas, frac=0.3)
-    bx, by = x - 7, y - 1
-    P(c, [(bx, by), (bx - 1, by), (bx - 1, by - 1), (bx - 2, by - 1)], brass[4]); c.put(bx - 2, by - 2, brass[4]); c.put(bx - 3, by - 2, sole[2]); c.put(bx + 1, by, brass[2])
-    for yy in range(y + 2, y + 12): c.put(x, yy, strap[2])
+    form(c, poly([(x - 7, y - 3), (x - 1, y - 3), (x - 3, y), (x - 5, y)]), canvas, frac=0.3)
+    bx, by = x - 7, y + 1
+    P(c, [(bx, by), (bx - 1, by), (bx - 2, by), (bx - 1, by - 1), (bx - 2, by - 1)], brass[4]); c.put(bx - 2, by - 2, brass[4])
+    c.put(bx - 3, by - 2, sole[2]); c.put(bx - 3, by - 1, brass[2]); c.put(bx + 1, by - 1, brass[2])
+    for yy in range(y + 2, y + 11): c.put(x, yy, strap[2])
 
 
 def _blog(c, x0, x1, y):
@@ -303,8 +309,8 @@ def _blog(c, x0, x1, y):
 
 def frame_back(c, x, y, g):
     for rx in (x - 8, x + 7):   # acacia poles
-        form(c, rect(rx, y - 4, rx + 1, y + 16), wood, frac=0.5)
-    for yy in (y + 13, y + 16): form(c, rect(x - 8, yy, x + 8, yy), wood, frac=0.2, rim=False)
+        form(c, rect(rx, y - 3, rx + 1, y + 14), wood, frac=0.5)
+    form(c, rect(x - 8, y + 13, x + 8, y + 13), wood, frac=0.2, rim=False)
     for i, ly in enumerate((y + 3, y + 6, y + 9)): _blog(c, x - 10 + (i % 2), x + 9 - (i % 2), ly)
     # rolled striped cloth on top
     roll = rect(x - 9, y - 1, x + 8, y + 2)
@@ -315,67 +321,65 @@ def frame_back(c, x, y, g):
     P(c, [(x - 9, y), (x - 9, y + 1)], canvas[5])
     for rx in (x - 4, x + 3):
         for yy in range(y - 1, y + 12): c.put(rx, yy, strap[3] if yy % 2 else strap[1])
-    # puffball acacia flowers on a thorny twig over the right pole
-    P(c, [(x + 8, y - 5), (x + 9, y - 6), (x + 10, y - 7)], wood[2]); c.put(x + 10, y - 6, canvas[5])
-    for (fx, fy) in ((x + 11, y - 8), (x + 9, y - 8)):
+    # puffball acacia flowers on a thorny twig, out past the right shoulder
+    P(c, [(x + 9, y - 1), (x + 10, y - 2), (x + 11, y - 3)], wood[2]); c.put(x + 10, y - 3, canvas[5])
+    for (fx, fy) in ((x + 12, y - 5), (x + 10, y - 5)):
         P(c, [(fx, fy), (fx + 1, fy), (fx, fy - 1), (fx + 1, fy - 1)], brass[4]); c.put(fx, fy - 1, brass[5])
 
 
 def frame_side(c, x, y, g):
-    form(c, rect(x - 1, y - 4, x, y + 16), wood, frac=0.5)
+    form(c, rect(x - 1, y - 3, x, y + 14), wood, frac=0.5)
     for i, ly in enumerate((y + 3, y + 6, y + 9)):
         e = ellipse(x - 4, ly + 1, 2.5, 1.5)
         for q in e: c.put(q[0], q[1], barkg[4] if (q[0] - x) % 2 else barkg[3])
         P(c, [(x - 4, ly + 1)], wood[4])
     e = ellipse(x - 4, y + 0.5, 3, 2)
     for q in e: c.put(q[0], q[1], blanket[4] if q[1] < y else yarnB[3] if q[1] == y else canvas[3])
-    for q in e.inner_edge(): pass
     P(c, [(x - 4, y), (x - 4, y + 1)], canvas[5])
     form(c, rect(x - 7, y + 13, x - 1, y + 13), wood, frac=0.2, rim=False)
     form(c, rect(x - 7, y + 3, x - 7, y + 14), wood, frac=0.2, rim=False)
-    P(c, [(x - 1, y - 5), (x - 2, y - 6), (x - 3, y - 7)], wood[2])
-    P(c, [(x - 4, y - 8), (x - 3, y - 8), (x - 4, y - 9), (x - 3, y - 9)], brass[4]); c.put(x - 4, y - 9, brass[5])
+    P(c, [(x - 1, y - 4), (x - 2, y - 5), (x - 3, y - 6)], wood[2])
+    P(c, [(x - 4, y - 7), (x - 3, y - 7), (x - 4, y - 8), (x - 3, y - 8)], brass[4]); c.put(x - 4, y - 8, brass[5])
 
 
 def satchel_back(c, x, y, g):
     # strap handle arching over the top
-    for q in ellipse(x - 0.5, y + 2, 6, 4) - ellipse(x - 0.5, y + 2, 5, 3):
-        if q[1] <= y + 2: c.put(q[0], q[1], strap[2] if q[0] < x + 3 else strap[1])
-    body = rect(x - 10, y + 3, x + 9, y + 13) - M({(x - 10, y + 3), (x + 9, y + 3)})
-    form(c, body, leather, frac=0.25, hi=[(x - 8, y + 4)])
-    flap = ellipse(x - 0.5, y + 4, 10, 4.5).rows(y + 3, y + 8)
+    for q in ellipse(x - 0.5, y + 1, 6, 3) - ellipse(x - 0.5, y + 1, 5, 2):
+        if q[1] <= y + 1: c.put(q[0], q[1], strap[2] if q[0] < x + 3 else strap[1])
+    body = rect(x - 10, y + 2, x + 9, y + 11) - M({(x - 10, y + 2), (x + 9, y + 2)})
+    form(c, body, leather, frac=0.25, hi=[(x - 8, y + 3)])
+    flap = ellipse(x - 0.5, y + 3, 10, 4.5).rows(y + 2, y + 7)
     form(c, flap, leather, frac=0.25)
     for q in flap.bottom(): c.put(q[0], q[1], leather[1])
     # row of plain coloured beads along the flap edge
     for i, q in enumerate(sorted(flap.bottom(), key=lambda p: p[0])):
         c.put(q[0], q[1] - 1, BEADS[i % 4])
-    c.put(x - 1, y + 9, wool[5]); c.put(x, y + 9, wool[4]); c.put(x - 1, y + 10, wool[3]); c.put(x, y + 10, wool[2])   # cowrie button
+    c.put(x - 1, y + 8, wool[5]); c.put(x, y + 8, wool[4]); c.put(x - 1, y + 9, wool[3]); c.put(x, y + 9, wool[2])   # cowrie button
     # long fringe
     for xx in range(x - 9, x + 9):
         if xx % 2 == 0:
-            n = 3 + (xx % 4 == 0)
-            for yy in range(y + 14, y + 14 + n): c.put(xx, yy, leather[2] if yy < y + 16 else leather[1])
+            for yy in range(y + 12, y + 15 + (xx % 4 == 0)): c.put(xx, yy, leather[2] if yy < y + 14 else leather[1])
 
 
 def satchel_side(c, x, y, g):
-    for q in ellipse(x - 2, y + 2, 3, 4) - ellipse(x - 2, y + 2, 2, 3):
-        if q[1] <= y + 2: c.put(q[0], q[1], strap[2])
-    body = rect(x - 5, y + 3, x, y + 13) - M({(x - 5, y + 3)})
+    for q in ellipse(x - 2, y + 1, 3, 3) - ellipse(x - 2, y + 1, 2, 2):
+        if q[1] <= y + 1: c.put(q[0], q[1], strap[2])
+    body = rect(x - 5, y + 2, x, y + 11) - M({(x - 5, y + 2)})
     form(c, body, leather, frac=0.3)
-    flap = rect(x - 6, y + 3, x, y + 8) - M({(x - 6, y + 3)})
+    flap = rect(x - 6, y + 2, x, y + 7) - M({(x - 6, y + 2)})
     form(c, flap, leather, frac=0.3)
-    for i, yy in enumerate(range(y + 4, y + 9)): c.put(x - 6, yy, BEADS[i % 4])
+    for i, yy in enumerate(range(y + 3, y + 8)): c.put(x - 6, yy, BEADS[i % 4])
     for xx in range(x - 5, x + 1):
         if xx % 2 == 0:
-            for yy in range(y + 14, y + 17 + (xx % 4 == 0)): c.put(xx, yy, leather[2] if yy < y + 16 else leather[1])
+            for yy in range(y + 12, y + 15 + (xx % 4 == 0)): c.put(xx, yy, leather[2] if yy < y + 14 else leather[1])
 
 
 PACK = [
-    dict(slug='esa-coiled-basket-pack', cat='backpack', back=basket_back, side=basket_side),
-    dict(slug='esa-calabash-carrier', cat='backpack', back=calabash_back, side=calabash_side),
-    dict(slug='esa-grain-sack-pack', cat='backpack', back=sack_back, side=sack_side),
-    dict(slug='esa-acacia-frame-pack', cat='backpack', back=frame_back, side=frame_side),
-    dict(slug='esa-herders-satchel', cat='backpack', back=satchel_back, side=satchel_side),
+    dict(slug='esa-coiled-basket-pack', cat='backpack', y0=51, front_lift=5, back=basket_back, side=basket_side),
+    dict(slug='esa-calabash-carrier', cat='backpack', y0=52, front_lift=5, back=calabash_back, side=calabash_side),
+    dict(slug='esa-grain-sack-pack', cat='backpack', y0=51, front_lift=5, back=sack_back, side=sack_side),
+    dict(slug='esa-acacia-frame-pack', cat='backpack', y0=51, front_lift=5, back=frame_back, side=frame_side),
+    dict(slug='esa-herders-satchel', cat='backpack', y0=51, front_lift=5, back=satchel_back, side=satchel_side),
 ]
 
 

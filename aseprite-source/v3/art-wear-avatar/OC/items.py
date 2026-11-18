@@ -384,20 +384,23 @@ def _oil_shine(q, t, g):
     return None
 
 
+OILCAPE = oilskin[1:] + ["#c8a468"]
+
+
 def _oilskin(c, g):
     v, b, hs = g['view'], g['b'], g['hem']
     # shoulder capelet
     cape = (ellipse(32.5, 49 + b, 13.5, 4) if v != 'side' else ellipse(32, 49 + b, 9, 4)).rows(46 + b, 52 + b)
-    form(c, cape, oilskin, frac=0.35)
-    for q in cape.bottom(): c.put(q[0], q[1], oilskin[1])
+    form(c, cape, OILCAPE, frac=0.35)
+    for q in cape.bottom(): c.put(q[0], q[1], INK if v != 'front' else oilskin[0])
     for q in cape:
-        if q[1] == 48 + b and q[0] % 5 == 1: c.put(q[0], q[1], oilskin[5])
+        if q[1] == 49 + b and q[0] % 5 == 1: c.put(q[0], q[1], OILCAPE[5])
     if v == 'back':   # split back skirt
         for y in range(62, 68): c.put(32 + hs, y + b, INK)
-        P(c, [(44, 53 + b), (44, 54 + b)], paua[5]); c.put(44, 55 + b, sea[4])   # raindrop off the capelet
+        P(c, [(39, 53 + b), (39, 54 + b)], paua[5]); c.put(39, 55 + b, sea[3])   # raindrop off the capelet
     if v == 'front':
         for y in (61, 63, 65): c.put(33, y + b, brass[4])
-        P(c, [(19, 53 + b), (19, 54 + b)], paua[5]); c.put(19, 55 + b, sea[4])
+        P(c, [(43, 53 + b), (43, 54 + b)], paua[5]); c.put(43, 55 + b, sea[3])
     if v == 'side':
         P(c, [(23, 53 + b), (23, 54 + b)], paua[5]); c.put(23, 55 + b, sea[4])
 
@@ -550,19 +553,31 @@ def _frond_cape(c, g, m, v):
 def _fleece_mantle(c, g, m, v):
     b, tl = g['b'], g['tail']
     x0, y0, x1, y1 = m.bbox()
-    # round the bottom corners
-    for q in list(m):
-        if q[1] >= y1 - 1 and (q[0] <= x0 + 1 or q[0] >= x1 - 1): c.pop(q, None)
-        if q[1] == y1 and (q[0] <= x0 + 3 or q[0] >= x1 - 3): c.pop(q, None)
-    if v != 'front':   # curls
-        for q in m:
-            if q in c and (q[0] * 2 + q[1] * 3) % 5 == 0 and c[q] not in (fleece[1],): c.put(q[0], q[1], fleece[2])
-            elif q in c and (q[0] * 2 + q[1] * 3) % 5 == 1 and c[q] == fleece[3]: c.put(q[0], q[1], fleece[5])
-        for q in m:   # suede lining edge at the hem
-            if q in c and (q[0], q[1] + 1) not in c: c.put(q[0], q[1], suede[2])
+    # round the hem into a cape curve
+    if v != 'side':
+        keep = ellipse(32.5 + tl * 0.5, 44 + b, 15, 15) if v == 'back' else ellipse(32.5 - tl * 0.5, 42 + b, 19, 17)
+        for q in list(m):
+            if q not in keep: c.pop(q, None)
+    else:
+        for q in list(m):
+            if q[1] > y1 - 3 and q[0] < x0 + 3 - (y1 - q[1]): c.pop(q, None)
+    mm = M(q for q in m if q in c)
+    if v != 'front':   # tight curls: scattered shade dots with a lit pixel above-left
+        for q in mm:
+            if ((q[0] * 73856093) ^ (q[1] * 19349663)) % 6 == 0 and q[1] > y0 + 1:
+                c.put(q[0], q[1], fleece[2]); 
+                if (q[0] - 1, q[1] - 1) in mm: c.put(q[0] - 1, q[1] - 1, fleece[5])
+        for q in mm:   # suede lining peeking at the hem
+            if (q[0], q[1] + 1) not in mm: c.put(q[0], q[1], suede[3])
     # prickly burr caught in the curls
-    if v == 'back': P(c, [(37, 52 + b), (38, 52 + b), (37, 53 + b), (38, 53 + b)], coconut[3]); P(c, [(36, 52 + b), (39, 53 + b), (38, 51 + b)], coconut[1]); c.put(37, 52 + b, flax[4])
-    if v == 'side': P(c, [(24, 52 + b), (25, 52 + b), (24, 53 + b)], coconut[3]); P(c, [(23, 52 + b), (25, 51 + b)], coconut[1])
+    if v == 'back':
+        bx, by = 37 + tl, 53 + b
+        P(c, [(bx, by), (bx + 1, by), (bx, by + 1), (bx + 1, by + 1)], flax[2]); c.put(bx, by, flax[4])
+        P(c, [(bx - 1, by), (bx + 2, by + 1), (bx + 1, by - 1), (bx, by + 2)], coconut[2])
+    if v == 'side':
+        bx, by = 23 + tl, 52 + b
+        P(c, [(bx, by), (bx + 1, by), (bx, by + 1), (bx + 1, by + 1)], flax[2]); c.put(bx, by, flax[4])
+        P(c, [(bx - 1, by), (bx + 2, by + 1), (bx + 1, by - 1)], coconut[2])
 
 
 def _pareo(c, g, m, v):
@@ -617,6 +632,9 @@ def _poncho(c, g, m, v):
         P(c, [(lx, ly), (lx + 1, ly), (lx + 2, ly)], pandanus[4]); c.put(lx + 3, ly - 1, pandanus[3]); c.put(lx - 1, ly + 1, pandanus[2]); c.put(lx + 1, ly + 1, pandanus[1])
 
 
+HOOD = petrel[1:] + [sea[5]]
+
+
 def _petrel(c, g, m, v):
     b, tl = g['b'], g['tail']
     # wave-stitched hem: canvas running stitch in a gentle wave 2 rows above the hem
@@ -626,7 +644,7 @@ def _petrel(c, g, m, v):
         if (q[0], y) in c and q[0] % 4 != 3 and v != 'front': c.put(q[0], y, canvas[4])
     if v == 'back':   # pointed hood hanging down the back (hood can't go up: head is untouchable)
         hood = poly([(26, 48 + b), (39, 48 + b), (35, 55 + b), (32.5, 59 + b), (30, 55 + b)])
-        form(c, hood, petrel, frac=0.35)
+        form(c, hood, HOOD, frac=0.35)
         for q in hood.inner_edge():
             if q[1] > 48 + b: c.put(q[0], q[1], jay[3])
         for q in ellipse(32.5, 50 + b, 3.5, 1.5): c.put(q[0], q[1], petrel[0])
@@ -635,7 +653,7 @@ def _petrel(c, g, m, v):
         P(c, [(32, 61 + b), (33, 62 + b), (32, 63 + b), (32, 64 + b), (33, 65 + b)], brass[4]); c.put(33, 61 + b, brass[5]); c.put(31, 62 + b, brass[2])
     elif v == 'side':
         hood = poly([(26, 46 + b), (29, 47 + b), (27, 53 + b), (24, 56 + b), (23, 50 + b)])
-        form(c, hood, petrel, frac=0.3)
+        form(c, hood, HOOD, frac=0.3)
         for q in hood.inner_edge():
             if q[0] >= 26: c.put(q[0], q[1], jay[3])
         c.put(24, 57 + b, tapa[5])
@@ -646,7 +664,7 @@ def _petrel(c, g, m, v):
 
 CLOAK = [
     dict(slug='oc-frond-rain-cape', cat='cloak', r=flax, lining=flax, len=62, flare=3, fx0=15, fx1=50, side_back=19, detail=_frond_cape),
-    dict(slug='oc-fleece-mantle', cat='cloak', r=fleece, lining=suede, len=56, flare=3, x0=21, x1=44, fx0=15, fx1=50, side_back=20, detail=_fleece_mantle),
+    dict(slug='oc-fleece-mantle', cat='cloak', r=fleece, lining=suede, len=59, flare=3, x0=21, x1=44, fx0=15, fx1=50, side_back=20, detail=_fleece_mantle),
     dict(slug='oc-hibiscus-pareo', cat='cloak', r=coral, lining=coral, len=66, flare=3, fx0=15, fx1=50, side_back=19, folds=(26, 33), detail=_pareo),
     dict(slug='oc-red-dust-poncho', cat='cloak', r=ochre, lining=ochre, len=62, flare=4, x0=20, x1=45, hemstyle='diamond', fx0=13, fx1=52, side_back=19, detail=_poncho),
     dict(slug='oc-storm-petrel-hood', cat='cloak', r=petrel, lining=petrel, len=67, flare=3, side_back=18, detail=_petrel),

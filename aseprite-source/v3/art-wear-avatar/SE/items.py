@@ -1,5 +1,6 @@
 """Olivewhistle Shore (SE): 20 wearables as small designs on the cats.py templates. Ramps = art-wear-concepts/SE/common.lua (R.*)
 and gnome-wear/_gw.lua (W.R.*), 6 tones dark -> light."""
+import av
 from av import C, M, ellipse, poly, rect, line, form, INK
 
 # ---- ramps (dark -> light): SE common.lua
@@ -69,26 +70,28 @@ def _sandal(c, g, ft, k):
     v, cx, cy = g['view'], ft['cx'], int(ft['cy'])
     foot, shaft = g['foot'], g['shaft']
     x0, y0, x1, y1 = foot.bbox()
-    for q in foot.bottom(): c.put(q[0], q[1], leather[1])   # leather sole under the bare foot
+    rx = x1 - (x1 - x0 + 1) * 0.35
+    for q in foot:   # flat leather sole: 2 rows under the bare foot
+        if q[1] >= y1 - 1: c.put(q[0], q[1], leather[1] if q[1] == y1 else (leather[3] if q[0] <= rx else leather[2]))
+    # one strap across the instep, toe loop, laces crossing once up the ankle
     for q in foot:
-        if (q[0], q[1] + 2) not in foot and (q[0], q[1] + 1) in foot: c.put(q[0], q[1], leather[3] if q[0] < x1 - 2 else leather[2])
-    # crossed straps over the instep and laces up the ankle
-    for q in foot | shaft:
-        if q[1] < y1 - 1 and (q[0] + q[1]) % 4 == 0 or q[1] < y1 - 1 and (q[0] - q[1]) % 4 == 0 and q[1] <= y0 + 1:
-            c.put(q[0], q[1], leather[2] if q[0] > x1 - 3 else leather[4])
+        if q[1] == y0 + 2 and x0 < q[0] < x1: c.put(q[0], q[1], strap[2] if q[0] <= rx else strap[1])
     for q in shaft:
-        if (q[0] + q[1]) % 3 == 0 or (q[0] - q[1]) % 3 == 0: c.put(q[0], q[1], strap[2] if q[0] > g['sx1'] - 2 else strap[4])
-    if v != 'back': P(c, [(int(cx) - 1, cy - 1)], leather[3])   # toe loop
+        if q[1] < y0 and ((q[0] + q[1]) % 4 == 0 or (q[0] - q[1]) % 4 == 0): c.put(q[0], q[1], strap[3] if q[0] <= rx else strap[2])
+    if v != 'back':
+        tx = int(cx) + (2 if v == 'side' else 0)
+        c.put(tx, y0 + 1, strap[3])
+        c.put(tx - 1, y0 + 3, skin[2]); c.put(tx + 1, y0 + 3, skin[2])   # toes
     # buckle ring + olive-leaf charm with two olives
     if v == 'side':
-        bx, by = int(cx) - 3, cy - 1
-        c.put(bx, by, brass[4])
-        if not g['far']: P(c, [(bx - 1, by + 1)], sage[4]); P(c, [(bx - 2, by + 1)], olive[1]); c.put(bx - 2, by + 2, olive[2])
+        bx = int(cx) - 3
+        c.put(bx, y0 + 2, brass[4])
+        if not g['far']: P(c, [(bx - 1, y0 + 2), (bx - 2, y0 + 1)], sage[4]); c.put(bx - 1, y0 + 3, olive[1]); c.put(bx - 2, y0 + 3, olive[3])
     else:
         bx = x1 if ft['side'] == 'R' else x0
-        c.put(bx, cy - 1, brass[4])
+        c.put(bx, y0 + 2, brass[4])
         if k == 1 and v == 'front':
-            P(c, [(bx + 1, cy), (bx + 2, cy - 1)], sage[4]); c.put(bx + 1, cy + 1, olive[1]); c.put(bx + 2, cy, olive[2])
+            P(c, [(bx + 1, y0 + 1), (bx + 2, y0)], sage[4]); c.put(bx + 1, y0 + 3, olive[1]); c.put(bx + 2, y0 + 2, olive[3])
 
 
 def _corkclog(c, g, ft, k):
@@ -202,8 +205,10 @@ def creel_back(c, x, y, g):
     # silvery olive branch with dark olives spilling over the rim
     _olives(c, [(x - 6, y - 2, 'l'), (x - 5, y - 3, 'L'), (x - 4, y - 2, 'd'), (x - 3, y - 4, 'l'), (x - 2, y - 3, 'o'), (x - 1, y - 3, 'O'),
                 (x, y - 2, 'l'), (x + 1, y - 4, 'L'), (x + 2, y - 3, 'l'), (x + 3, y - 2, 'o'), (x + 4, y - 3, 'd'), (x + 5, y - 4, 'l'),
-                (x + 4, y - 2, 'O'), (x - 3, y - 2, 'o'), (x + 9, y, 'l'), (x + 10, y + 1, 'L'), (x + 9, y + 2, 'o')])
-    _snail(c, x + 5, y + 9, 1)
+                (x + 4, y - 2, 'O'), (x - 3, y - 2, 'o'), (x + 9, y, 'l'), (x + 10, y + 1, 'L'), (x + 9, y + 2, 'o'),
+                (x - 10, y, 'l'), (x - 11, y + 1, 'L'), (x - 10, y + 2, 'd'), (x - 11, y + 3, 'l'), (x - 10, y + 3, 'o'), (x - 11, y + 4, 'O'),
+                (x - 10, y + 5, 'l'), (x - 9, y + 2, 'O')])
+    _snail(c, x - 4, y + 10, 1)
 
 
 def creel_side(c, x, y, g):
@@ -217,19 +222,21 @@ def creel_side(c, x, y, g):
 
 def net_back(c, x, y, g):
     bag = ellipse(x - 0.5, y + 9, 8, 7.5)
-    form(c, bag, jute, frac=0.3)
-    for cx_, cy_, rr, r in ((x - 4, y + 12, 3, cork), (x + 3, y + 12, 2.5, cork), (x + 2, y + 5, 2.5, lemon), (x - 3, y + 5, 2.5, sea)):
+    inside = M()
+    for cx_, cy_, rr, r in ((x - 4, y + 12, 3.5, cork), (x + 3, y + 11, 3.5, cork), (x + 2, y + 5, 2.5, lemon), (x - 3, y + 5, 2.5, sea)):
         e = ellipse(cx_, cy_, rr, rr) & bag
-        form(c, e, r, frac=0.4, hi=[(int(cx_) - 1, int(cy_) - 1)])
-    for q in bag:   # knotted cord mesh
+        form(c, e, r, frac=0.4, hi=[(int(cx_) - 1, int(cy_) - 1)]); inside |= e
+    for q in bag:   # knotted cord mesh; gaps between the floats stay open
         a, b = (q[0] + q[1]) % 4 == 0, (q[0] - q[1]) % 4 == 0
-        if a or b: c.put(q[0], q[1], jute[4] if a and b else jute[1])
+        if a and b: c.put(q[0], q[1], jute[4])
+        elif a or b: c.put(q[0], q[1], jute[1] if q in inside else jute[3])
+    for q in bag.inner_edge(): c.put(q[0], q[1], jute[2])
     for q in rect(x - 2, y - 1, x + 1, y + 1): c.put(q[0], q[1], jute[3] if q[0] < x else jute[2])   # cinched neck
     for q in line([(x - 2, y - 1), (x - 2, y - 3), (x - 1, y - 4), (x, y - 4), (x + 1, y - 3), (x + 1, y - 1)]): c.put(q[0], q[1], jute[4])
-    # silver fish charm hanging from the knot
-    P(c, [(x + 2, y + 1), (x + 3, y + 2)], jute[2])
-    P(c, [(x + 4, y + 3), (x + 5, y + 3), (x + 6, y + 3)], steel[4]); c.put(x + 5, y + 4, steel[2]); c.put(x + 7, y + 2, steel[3]); c.put(x + 7, y + 4, steel[3])
-    c.put(x + 4, y + 3, steel[5])
+    # silver fish charm hanging from the knot (left side, clear of the scarf)
+    P(c, [(x - 9, y + 2), (x - 9, y + 3)], jute[2])
+    P(c, [(x - 9, y + 4), (x - 10, y + 4), (x - 11, y + 4)], steel[4]); c.put(x - 10, y + 5, steel[2]); c.put(x - 12, y + 3, steel[3]); c.put(x - 12, y + 5, steel[3])
+    c.put(x - 9, y + 4, steel[5])
 
 
 def net_side(c, x, y, g):
@@ -270,10 +277,15 @@ def amph_back(c, x, y, g):
 
 def amph_side(c, x, y, g):
     form(c, rect(x - 1, y - 3, x, y + 17), wood, frac=0.5)
-    _amphora(c, x - 6, y, half=4)
-    for yy in (y + 4, y + 10):
-        for xx in range(x - 10, x + 1): c.put(xx, yy, jute[4] if xx % 2 else jute[2])
-    P(c, [(x - 9, y - 2), (x - 10, y - 1)], jute[3]); P(c, [(x - 11, y), (x - 11, y + 1), (x - 12, y + 1)], lemon[4]); c.put(x - 11, y + 2, lemon[2])
+    cx = x - 6
+    body = ellipse(cx, y + 8, 4, 5) | poly([(cx - 2, y + 12), (cx + 2, y + 12), (cx + 1, y + 16), (cx, y + 16)])
+    form(c, body | rect(cx - 1, y, cx + 1, y + 3), terra, frac=0.35, hi=[(cx - 2, y + 5)])
+    form(c, rect(cx - 2, y - 1, cx + 2, y - 1), terra, frac=0.3, under=False)
+    for q in rect(cx - 1, y - 2, cx + 1, y - 2): c.put(q[0], q[1], cork[3])
+    P(c, [(cx - 2, y + 1), (cx - 3, y + 2), (cx - 3, y + 3)], terra[2])   # handle
+    for yy in (y + 5, y + 11):
+        for xx in range(x - 11, x + 1): c.put(xx, yy, jute[4] if xx % 2 else jute[2])
+    P(c, [(cx + 2, y - 2), (cx + 3, y - 1)], jute[3]); P(c, [(cx + 3, y), (cx + 3, y + 1)], lemon[4]); c.put(cx + 3, y + 2, lemon[2])
 
 
 def _stripes(c, m, rx):
@@ -300,7 +312,8 @@ def seabag_back(c, x, y, g):
     # rope shoulder loop on the right side
     for q in line([(x + 4, y - 1), (x + 7, y + 2), (x + 8, y + 7), (x + 7, y + 12), (x + 5, y + 14)]): c.put(q[0], q[1], jute[4] if q[1] % 2 else jute[2])
     # coral starfish tied to the drawstring
-    sx, sy = x - 4, y + 2
+    P(c, [(x - 5, y + 1), (x - 5, y + 2), (x - 4, y + 3)], jute[4])
+    sx, sy = x - 4, y + 5
     P(c, [(sx, sy - 1), (sx - 1, sy), (sx + 1, sy), (sx - 1, sy + 1), (sx + 1, sy + 1)], coral[3]); c.put(sx, sy, coral[5])
 
 
@@ -319,15 +332,15 @@ def satchel_back(c, x, y, g):
     body = rect(x - 8, y + 4, x + 7, y + 15) - M({(x - 8, y + 4), (x + 7, y + 4), (x - 8, y + 15), (x + 7, y + 15), (x - 7, y + 15), (x + 6, y + 15)})
     form(c, body, leather, frac=0.3, hi=[(x - 6, y + 11)])
     # lemon with a leaf peeking from under the flap, top right
-    lm = ellipse(x + 4, y + 3, 2.5, 1.5)
-    form(c, lm, lemon, frac=0.3, hi=[(x + 3, y + 2)])
-    P(c, [(x + 6, y + 1), (x + 7, y)], leaf[4]); c.put(x + 7, y + 1, leaf[2])
     flap = poly([(x - 8, y + 4), (x + 8, y + 4), (x + 8, y + 9), (x + 4, y + 11), (x - 5, y + 11), (x - 8, y + 9)])
     form(c, flap, leather, frac=0.3)
     for q in flap.bottom(): c.put(q[0], q[1], leather[1])
     for q in flap.inner_edge():   # stitched edge
         if q[1] > y + 4 and (q[0] + q[1]) % 2 == 0 and (q[0], q[1] + 1) in flap: c.put(q[0], q[1], leather[5] if q[0] < x + 4 else leather[3])
     P(c, [(x - 1, y + 10), (x, y + 10), (x - 1, y + 11)], brass[4]); c.put(x, y + 11, brass[2])   # buckle
+    lm = ellipse(x - 8, y + 10, 2, 1.5)
+    form(c, lm, lemon, frac=0.3, hi=[(x - 9, y + 9)])
+    P(c, [(x - 10, y + 8), (x - 11, y + 7)], leaf[4]); c.put(x - 10, y + 7, leaf[2])
 
 
 def satchel_side(c, x, y, g):
@@ -345,7 +358,7 @@ def satchel_side(c, x, y, g):
 PACK = [
     dict(slug='se-olive-creel', cat='backpack', back=creel_back, side=creel_side),
     dict(slug='se-float-net', cat='backpack', back=net_back, side=net_side),
-    dict(slug='se-amphora-frame', cat='backpack', back=amph_back, side=amph_side),
+    dict(slug='se-amphora-frame', cat='backpack', y0=49, back=amph_back, side=amph_side),
     dict(slug='se-sailcloth-seabag', cat='backpack', back=seabag_back, side=seabag_side),
     dict(slug='se-lemon-satchel', cat='backpack', back=satchel_back, side=satchel_side),
 ]
@@ -355,6 +368,9 @@ PACK = [
 def _sleeve_band(c, g, r, rows=1, widen=0):
     """paint the lowest `rows` rows of each sleeve with ramp r (cuff / trim); widen = bell sleeve px each side."""
     for s in g['sleeves']:
+        x0, y0, x1, y1 = s.bbox()
+        hand = av._layer_mask(g['view'], 'skin', g['f'])
+        s = M(q for q in s if q not in hand)
         x0, y0, x1, y1 = s.bbox()
         band = M(q for q in s if q[1] > y1 - rows)
         if widen:
@@ -366,7 +382,7 @@ def _sleeve_band(c, g, r, rows=1, widen=0):
 
 
 def _linen_tex(q, t, g):
-    if q[0] % 3 == 0 and (q[1] - g['b']) % 2 == 0 and t < 3: return linen[max(1, 3 - t)]
+    if (q[0] * 2 + (q[1] - g['b']) * 3) % 7 == 0 and t < 2: return linen[2 if t else 3]
     return None
 
 
@@ -393,7 +409,7 @@ def _smock(c, g):
 def _fleece(c, g):
     v, b = g['view'], g['b']
     m = M(c.keys())
-    trim = M(q for q in m.inner_edge() if q[1] > 47 + b) | M(q for q in m if (q[0], q[1] + 2) not in m)
+    trim = M(q for q in m.inner_edge() if q[1] > 47 + b) | M(q for q in m if (q[0], q[1] + 3) not in m)
     for q in trim: c.put(q[0], q[1], fleece[5] if (q[0] + q[1]) % 3 == 0 else fleece[4] if (q[0] * 2 + q[1]) % 3 else fleece[3])
     if v == 'front':   # fleece-lined front edges, toggle and goat bell on a cord
         for y in range(60 + b, 65 + b):
@@ -408,13 +424,11 @@ def _fleece(c, g):
         c.put(42, 60 + b, strap[2])
         for q in ((42, 61), (43, 61), (42, 62), (43, 62), (44, 62)): c.put(q[0], q[1] + b, brass[4] if q[0] < 43 else brass[2])
         c.put(42, 61 + b, brass[5])
-    elif v == 'back':   # back seam
-        for y in range(50 + b, 63 + b): c.put(32, y, felt[2])
 
 
 def _quilt(q, t, g):
     x, y = q[0], q[1] - g['b']
-    if (x + y) % 4 == 0 or (x - y) % 4 == 0: return olive[max(0, 3 - t)] if t < 3 else olive[0]
+    if (x + y) % 5 == 0 or (x - y) % 5 == 0: return olive[2] if t < 2 else olive[1]
     return None
 
 
@@ -519,7 +533,7 @@ def _feltcape(c, g, m, v):
             if q[1] > 47 + b: c.put(q[0], q[1], felt[1])
         c.put(32, 59 + b, felt[2]); c.put(33, 59 + b, felt[2])
         # rosemary sprig at the clasp cord on the shoulder
-        _rosemary(c, [(40, 48), (41, 47), (42, 46)], b)
+        _rosemary(c, [(22, 53), (23, 52), (24, 51)], b)
     elif v == 'side':
         hood = poly([(24, 47 + b), (29, 47 + b), (26, 56 + b), (24, 55 + b)])
         form(c, hood, felt, frac=0.3)
@@ -588,7 +602,7 @@ def _poncho(c, g, m, v):
         t = min((q for q in m if q[1] >= y1 - 1), key=lambda q: q[0])
         P(c, [(t[0], t[1] + 1), (t[0], t[1] + 2)], terra[1]); c.put(t[0], t[1] + 3, saffron[3])
     # gull feather at the neck slit
-    if v == 'back': fp = [(37, 48), (38, 47), (39, 46), (40, 45)]
+    if v == 'back': fp = [(25, 53), (24, 52), (23, 51), (22, 50)]
     elif v == 'side': fp = [(26, 48), (25, 47), (24, 46), (23, 45)]
     else: fp = [(46, 46), (47, 45), (48, 44)]
     for i, (x, y) in enumerate(fp): c.put(x, y + b, steel[5] if i < len(fp) - 1 else steel[1])
@@ -646,11 +660,11 @@ def _capelet(c, g, m, v):
 
 
 CLOAK = [
-    dict(slug='se-shepherd-felt-cape', cat='cloak', r=felt, lining=felt, len=66, flare=5, x0=20, x1=45, fx0=15, fx1=50, side_back=18, detail=_feltcape),
+    dict(slug='se-shepherd-felt-cape', cat='cloak', r=felt, lining=felt, len=66, flare=5, x0=20, x1=45, fx0=16, fx1=49, front_flare=3, side_back=18, detail=_feltcape),
     dict(slug='se-lemon-fringe-shawl', cat='cloak', r=lemon, lining=lemon, len=62, flare=3, x0=18, x1=47, hemstyle='tri', fx0=14, fx1=51, detail=_lemonshawl),
-    dict(slug='se-loom-stripe-poncho', cat='cloak', r=terra, lining=terra, len=63, flare=4, x0=19, x1=46, fx0=13, fx1=52, side_back=19, detail=_poncho),
+    dict(slug='se-loom-stripe-poncho', cat='cloak', r=terra, lining=terra, len=63, flare=4, x0=19, x1=46, fx0=15, fx1=50, front_flare=2, side_back=19, detail=_poncho),
     dict(slug='se-whitewash-mantle', cat='cloak', r=linen, lining=linen, len=d_mantle_len, flare=3, side_back=18, detail=_mantle),
-    dict(slug='se-sea-squall-capelet', cat='cloak', r=indigo, lining=indigo, len=55, flare=3, fx0=15, fx1=50, side_back=20, detail=_capelet),
+    dict(slug='se-sea-squall-capelet', cat='cloak', r=indigo, lining=indigo, len=57, flare=3, fx0=15, fx1=50, side_back=20, detail=_capelet),
 ]
 
 ITEMS = FOOT + PACK + COAT + CLOAK
