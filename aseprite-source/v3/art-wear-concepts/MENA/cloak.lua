@@ -52,49 +52,37 @@ end
 ---------------------------------------------------------------- 2 indigo shawl
 do
   local c = C.new("cloak-2-indigo-shawl")
-  -- folded over at the top, two long tails hanging and splaying a little
-  local tailR = c:poly{ {33,10}, {44,8}, {50,52}, {37,54} }
-  local tailL = c:poly{ {19,8}, {32,10}, {29,54}, {13,52} }
-  local fold = c:rrect(17, 4, 46, 13, 4)
-  local ri = C.lay(c, tailR, R.indigo, { R = 3, bias = -1 })
-  folds(c, tailR, ri, R.indigo, 5, 1)
-  C.sep(c, tailL, tailR, R.indigo[1])
-  local li = C.lay(c, tailL, R.indigo, { R = 3 })
-  folds(c, tailL, li, R.indigo, 5, 3)
-  -- glossy beaten-cloth sheen streaks
-  for _, s in ipairs({ { {22,16}, {18,40} }, { {24,18}, {22,30} }, { {38,16}, {41,36} } }) do
-    C.stroke(c, s[1] and s or s, R.indigo[6], tailL:copy():add(tailR))
-  end
-  C.stroke(c, { {39,16}, {42,36} }, R.indigo[5], tailR)
-  -- fringe
-  local function fringe(x0, x1, ytop, slope)
-    for x = x0, x1 do
-      if x % 2 == 0 then
-        local y = floor(ytop + (x - x0) * slope + .5)
-        local len = 4 + (x % 4 == 0 and 1 or 0)
-        for d = 1, len do c:put(x, y + d, R.indigo[(d == len) and 3 or ((x < 32) and 5 or 4)]) end
-      end
+  -- big triangular shawl hanging point-down from its top edge, folds radiating from the corners
+  local sh = c:poly{ {6,9}, {58,9}, {55,14}, {36,50}, {31,53}, {27,49}, {9,14} }
+  -- fringe along both lower edges
+  local fr = HP.mask()
+  sh:each(function(x, y)
+    if not sh:has(x, y + 1) and y > 12 and x % 2 == 0 then
+      local len = 4 + ((x % 4 == 0) and 1 or 0)
+      for d = 1, len do if not sh:has(x, y + d) then fr:set(x, y + d) end end
     end
+  end)
+  fr:each(function(x, y) c:put(x, y, R.indigo[(sh:has(x, y - 4) or sh:has(x, y - 5)) and 2 or ((x < 32) and 5 or 4)]) end)
+  local idx = C.lay(c, sh, R.indigo, { R = 4, hs = 0.6, cuts = { .2, .36, .52, .68, .86 } })
+  -- drape folds: lines from the top corners towards the point
+  for _, f in ipairs({ { {14,12}, {29,46} }, { {22,11}, {30,40} }, { {50,12}, {34,46} }, { {42,11}, {33,38} } }) do
+    C.stroke(c, f, R.indigo[2], sh)
+    C.stroke(c, { {f[1][1] - 1, f[1][2]}, {f[2][1] - 1, f[2][2]} }, R.indigo[5], sh)
   end
-  fringe(14, 28, 52, 0.12) fringe(37, 49, 54, -0.12)
-  -- fold at the top (over the peg)
-  C.sep(c, fold, tailL:copy():add(tailR), R.indigo[1])
-  local fi = C.lay(c, fold, R.indigo, { R = 4, cuts = { .2, .36, .52, .68, .84 } })
-  C.hline(c, 21, 41, 5, R.indigo[6])
-  c:put(22, 6, C.cream) c:put(23, 6, R.indigo[6])
-  C.stroke(c, { {32,7}, {32,12} }, R.indigo[2], fold)
-  -- woven border stripe across the tails
-  for _, m in ipairs({ tailL, tailR }) do
-    m:each(function(x, y) if y == 46 or y == 48 then c:put(x, y, R.turq[(x < 32) and 4 or 3]) end end)
-  end
-  -- quirk: barred hoopoe feather tucked into the fold
-  local fe = c:line({ {44,9}, {47,5}, {51,2} }, 2)
+  -- glossy beaten-cloth sheen
+  C.stroke(c, { {12,12}, {20,24} }, R.indigo[6], sh) c:put(13, 12, C.cream)
+  -- rolled top hem
+  C.hline(c, 7, 57, 9, R.indigo[6]) C.hline(c, 8, 56, 10, R.indigo[4]) C.hline(c, 9, 55, 11, R.indigo[2])
+  -- turquoise woven border line inside the lower edges
+  sh:each(function(x, y) if y > 13 and not sh:has(x, y + 3) and sh:has(x, y + 2) then c:put(x, y, R.turq[(x < 32) and 4 or 3]) end end)
+  -- quirk: barred hoopoe feather tucked into the top hem
+  local fe = c:line({ {46,10}, {49,6}, {53,2} }, 2)
   fe:each(function(x, y)
     local band = floor((x + y) / 2) % 2
-    local col = (x <= 45) and R.ochre[5] or (band == 0 and R.goat[2] or R.linen[6])
+    local col = (y >= 8) and R.ochre[5] or (band == 0 and R.goat[2] or R.linen[6])
     c:put(x, y, col)
   end)
-  C.put(c, { {43,10}, {42,11} }, R.ochre[3])
+  c:put(54, 1, R.goat[2]) C.put(c, { {45,11}, {46,11} }, R.ochre[3])
   C.save(c, "cloak-2-indigo-shawl")
 end
 
@@ -178,17 +166,18 @@ do
   end
   C.hline(c, 31, 34, 18, R.brass[3]) c:put(32, 18, R.brass[5])
   -- quirk: dried rosebud tucked beside the clasp
-  local bud = c:ellipse(41, 20, 1.8, 2.4)
-  C.lay(c, bud, R.rose, { R = 1, bias = -1 })
-  C.put(c, { {40,19}, {41,18} }, R.rose[5])
-  C.put(c, { {40,22}, {42,22}, {41,23} }, R.mint[3]) C.stroke(c, { {41,24}, {43,27} }, R.mint[2])
+  local bud = c:ellipse(42, 20, 2.4, 3)
+  C.sep(c, bud, m, R.madder[1])
+  C.lay(c, bud, R.madder, { R = 1, bias = 1 })
+  C.put(c, { {41,18}, {42,17} }, R.rose[6]) C.vline(c, 43, 19, 21, R.madder[2])
+  C.put(c, { {40,23}, {41,23}, {43,23}, {44,23}, {42,24} }, R.mint[4]) C.stroke(c, { {42,25}, {44,29} }, R.mint[2])
   C.save(c, "cloak-4-rose-madder-mantle")
 end
 
 ---------------------------------------------------------------- 5 goat-hair tent cape
 do
   local c = C.new("cloak-5-goat-hair-tent-cape")
-  local cape = c:poly{ {22,8}, {42,8}, {55,16}, {56,57}, {8,57}, {9,16} }
+  local cape = c:poly{ {24,6}, {40,6}, {50,12}, {54,24}, {60,59}, {4,59}, {10,24}, {14,12} }
   local idx = C.lay(c, cape, R.goat, { R = 4, cuts = { .18, .34, .5, .66, .82 } })
   folds(c, cape, idx, R.goat, 8, 4, 18)
   -- coarse goat-hair texture
@@ -198,26 +187,26 @@ do
     local i = idx[K(x, y)]
     if y == 22 or y == 23 or y == 44 or y == 45 then c:put(x, y, R.linen[max(1, min(6, i))])
     elseif y == 24 or y == 46 then c:put(x, y, R.madder[max(1, min(6, i + 1))])
-    elseif y >= 54 then c:put(x, y, R.linen[max(1, min(6, i - 1))]) end
+    elseif y >= 56 then c:put(x, y, R.linen[max(1, min(6, i - 1))]) end
   end)
   -- neck turned back (lining edge)
-  local nk = c:poly{ {22,8}, {42,8}, {38,14}, {32,16}, {26,14} }
+  local nk = c:poly{ {24,6}, {40,6}, {37,13}, {32,15}, {27,13} }
   C.lay(c, nk, R.linen, { R = 2, bias = -1 })
-  C.hline(c, 23, 41, 8, R.linen[5])
+  C.hline(c, 25, 39, 6, R.linen[5])
   -- front opening edge
-  C.stroke(c, { {32,16}, {32,57} }, R.goat[1], cape) C.stroke(c, { {31,16}, {31,57} }, R.goat[4], cape)
+  C.stroke(c, { {32,15}, {32,59} }, R.goat[1], cape) C.stroke(c, { {31,15}, {31,59} }, R.goat[4], cape)
   -- shoulder seams
-  C.stroke(c, { {22,9}, {10,16} }, R.goat[5]) C.stroke(c, { {42,9}, {54,16} }, R.goat[2])
+  C.stroke(c, { {15,13}, {11,24} }, R.goat[5], cape) C.stroke(c, { {49,13}, {53,24} }, R.goat[2], cape)
   -- wooden pin through the opening
-  local pin = c:line({ {24,24}, {40,17} }, 2)
+  local pin = c:line({ {23,22}, {42,14} }, 2)
   C.lay(c, pin, R.wood, { R = 1 })
-  local head = c:ellipse(23, 25, 2, 2)
+  local head = c:ellipse(22, 23, 2.4, 2.4)
   C.lay(c, head, R.wood, { R = 1 })
-  c:put(22, 24, R.wood[6]) c:put(41, 17, R.wood[2])
+  c:put(21, 22, R.wood[6]) c:put(43, 14, R.wood[2])
   -- quirk: fluffy camel-wool pompom at the bottom corner
-  local pp = c:ellipse(10, 58, 3.4, 3.4)
-  for _, d in ipairs({ { -3, -2 }, { 3, -1 }, { 0, 3 }, { -3, 2 }, { 2, 3 } }) do pp:set(10 + d[1], 58 + d[2]) end
+  local pp = c:ellipse(6, 60, 3.4, 3.4)
+  for _, d in ipairs({ { -3, -2 }, { 3, -1 }, { 0, 3 }, { -3, 2 }, { 2, 3 } }) do pp:set(6 + d[1], 60 + d[2]) end
   C.lay(c, pp, R.camel, { R = 2, tex = C.wool })
-  c:put(9, 56, R.camel[6]) c:put(8, 57, R.camel[6])
+  c:put(5, 58, R.camel[6]) c:put(4, 59, R.camel[6])
   C.save(c, "cloak-5-goat-hair-tent-cape")
 end

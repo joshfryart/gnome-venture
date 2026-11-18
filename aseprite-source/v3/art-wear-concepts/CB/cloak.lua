@@ -13,7 +13,7 @@ if want("1") then
     { 41, 57, 22, 25, R.straw, -1 },
     { 30, 47, 18, 22, R.straw, 0 },
     { 20, 36, 13, 18, R.straw, 0 },
-    { 11, 25, 8, 13, R.palm, 0 },
+    { 11, 25, 8, 13, R.straw, 1 },
   }
   local prev
   for ti, t in ipairs(tiers) do
@@ -89,42 +89,48 @@ end
 ------------------------------------------------------------------ 3 sea-breeze poncho
 if want("3") then
   local c = C.new("cloak-3-sea-breeze-poncho")
-  local po = c:poly{ {32,6}, {57,30}, {32,54}, {7,30} }
-  -- tassels (behind) at left, right, bottom corners
-  local function tassel(pts)
-    C.tube(c, pts, 1, R.sisal)
-    local e = pts[4]
-    local tm = c:poly{ {e[1]-1,e[2]}, {e[1]+1,e[2]}, {e[1]+2,e[2]+5}, {e[1]-2,e[2]+5} }
-    local ti = C.lay(c, tm, R.coral, { R = 1 })
-    W.retone(c, tm, ti, R.coral, function(x) if x % 2 == 0 then return -1 end end)
-    return tm
+  local po = c:poly{ {24,11}, {40,11}, {50,16}, {57,30}, {58,38}, {32,55}, {6,38}, {7,30}, {14,16} }
+  -- fringe along the two lower edges (behind)
+  for i = 0, 12 do
+    local t = i / 12
+    local lx, ly = 7 + (31 - 7) * t, 39 + (55 - 39) * t
+    local rx = 57 - (57 - 33) * t
+    c:line({ {lx, ly}, {lx - 1, ly + 4} }, 1):each(function(x, y) c:put(x, y, R.sisal[(i % 2 == 0) and 4 or 3]) end)
+    c:line({ {rx, ly}, {rx + 1, ly + 4} }, 1):each(function(x, y) c:put(x, y, R.sisal[(i % 2 == 0) and 3 or 2]) end)
   end
-  tassel({ {8,31}, {6,34}, {5,36}, {5,38} })
-  tassel({ {56,31}, {58,34}, {59,36}, {59,38} })
-  local bt = tassel({ {32,53}, {32,55}, {31,56}, {31,57} })
+  local bt = c:poly{ {30,55}, {34,55}, {35,60}, {29,60} }
+  local bti = C.lay(c, bt, R.coral, { R = 1 })
+  W.retone(c, bt, bti, R.coral, function(x) if x % 2 == 0 then return -1 end end)
   local idx = W.lit(c, po, R.turq, { R = 4, cuts = { .22, .4, .56, .72, .88 } })
   po:each(function(x, y)
     local i = idx[K(x, y)]
-    local band = (y // 4) % 3
+    local q = y - math.abs(x - 32) * .55   -- chevron stripes parallel to the hem
+    local band = math.floor(q / 4) % 3
     local ramp = (band == 1) and R.sisal or R.turq
-    if y % 12 == 0 then ramp = R.coral end
-    local wy = (band == 2) and ((x + y) % 6 == 0 or (x - y) % 6 == 0) and (y % 4 == 1 or y % 4 == 2)
-    c:put(x, y, ramp[math.max(1, math.min(6, i - (wy and 1 or 0)))])
+    if math.floor(q) % 12 == 0 then ramp = R.coral end
+    local wv = (band == 2) and ((x % 4 == 0 and math.floor(q) % 4 == 1) or (x % 4 == 2 and math.floor(q) % 4 == 2))
+    c:put(x, y, ramp[math.max(1, math.min(6, i - (wv and 1 or 0)))])
   end)
-  -- fold crease along the centre line
-  for y = 9, 52 do if po:has(32, y) then c:put(32, y, R.turq[1]) end end
-  -- neck opening with a bound collar
-  local neck = c:ellipse(32, 22, 5, 3)
-  neck:grow(1):cut(neck):each(function(x, y) c:put(x, y, R.coral[y < 22 and 5 or 3]) end)
+  -- arm folds
+  for _, f in ipairs({ { {16,18}, {12,36} }, { {48,18}, {52,36} } }) do
+    c:line(f, 1):each(function(x, y) if po:has(x, y) then c:put(x, y, R.turq[1]) end end)
+  end
+  -- rolled collar
+  local col = c:rrect(23, 6, 41, 14, 3)
+  C.sep(c, col, po)
+  local coi = C.lay(c, col, R.coral, { R = 2 })
+  W.retone(c, col, coi, R.coral, function(x, y) if x % 3 == 0 then return -1 end end)
+  local neck = c:ellipse(32, 9, 6, 1.5)
   c:fillMask(neck, R.turq[1])
-  W.hline(c, 29, 35, 24, R.indigo[1])
+  W.hline(c, 26, 38, 13, R.coral[1])
   -- quirk: scallop shell tied to the bottom tassel
-  local sm = c:poly{ {36,52}, {44,52}, {42,57}, {38,57} }:add(c:ellipse(40, 52, 4, 2.5))
+  local sm = c:poly{ {35,55}, {43,55}, {41,60}, {37,60} }:add(c:ellipse(39, 55, 4, 2.5))
   C.sep(c, sm, po:copy():add(bt))
   W.lit(c, sm, R.shell, { R = 1 })
-  for _, x in ipairs({ 38, 40, 42 }) do c:put(x, 54, R.shell[2]) c:put(x, 55, R.shell[2]) end
-  W.put(c, { {39,57}, {40,57}, {41,57} }, R.shell[3]) c:put(37, 51, W.cream)
-  c:put(17, 27, R.turq[6]) c:put(18, 26, R.turq[6])
+  for _, x in ipairs({ 37, 39, 41 }) do c:put(x, 57, R.shell[2]) c:put(x, 58, R.shell[2]) end
+  W.put(c, { {38,60}, {39,60}, {40,60} }, R.shell[3]) c:put(36, 54, W.cream)
+  W.put(c, { {34,56}, {35,56} }, R.sisal[2])
+  c:put(19, 20, R.turq[6]) c:put(20, 19, R.turq[6])
   C.save(c, "cloak-3-sea-breeze-poncho")
 end
 
@@ -173,28 +179,43 @@ end
 ------------------------------------------------------------------ 5 shell-scallop capelet
 if want("5") then
   local c = C.new("cloak-5-shell-scallop-capelet")
-  local clipm = c:poly{ {23,13}, {41,13}, {59,50}, {5,50} }
-  local rows = {
-    { 47, { 10, 19, 28, 37, 46, 55 }, R.coral },
-    { 38, { 14, 23, 32, 41, 50 }, R.flam },
-    { 29, { 19, 27, 37, 45 }, R.coral },
-    { 21, { 24, 32, 40 }, R.flam },
-  }
-  local drawn = HP.mask()
-  for ri, r in ipairs(rows) do
-    local yb, xs, ramp = r[1], r[2], r[3]
-    for _, cx in ipairs(xs) do
-      local m = c:ellipse(cx, yb - 4, 4.6, 4.5):add(c:rect(cx - 4, yb - 12, cx + 4, yb - 4)):clip(clipm:copy():add(c:rect(0, yb - 6, 63, yb)))
-      m:cut(c:rect(0, 0, 63, 12))
-      C.sep(c, m, drawn)
-      local i = C.lay(c, m, ramp, { R = 3, b = (ri == 1) and -1 or 0 })
-      -- shell ribs fanning down
-      W.retone(c, m, i, ramp, function(x, y) if y > yb - 8 and (x - cx) % 3 == 0 and x ~= cx then return -1 end end)
-      -- pale lip on the scallop edge
-      m:edge():each(function(x, y) if y > yb - 4 and not m:has(x, y + 1) then c:put(x, y, R.shell[x < cx and 6 or 4]) end end)
-      drawn:add(m)
+  -- shell fan: radial ribs from the collar, scalloped hem, two growth tiers
+  local ox, oy, A, NR = 32, 4, 0.74, 9
+  local m, v, rib = HP.mask(), {}, {}
+  for y = 8, 56 do for x = 0, 63 do
+    local dx, dy = x - ox, y - oy
+    local r, a = math.sqrt(dx * dx + dy * dy), math.atan(dx, dy)
+    if math.abs(a) <= A and r >= 7 then
+      local f = (a + A) / (2 * A) * NR
+      local k, u = math.floor(f), (f % 1) * 2 - 1
+      local rmax = 41 + 2.4 * math.cos(u * math.pi / 2) - 2
+      if r <= rmax and k < NR then
+        m:set(x, y)
+        local kk = K(x, y)
+        rib[kk] = k
+        local lit = .55 - .35 * u - (x - 32) / 70 - (r > rmax - 2 and 0 or 0) + (y < 20 and .08 or 0)
+        v[kk] = math.max(0, math.min(1, lit))
+      end
     end
-  end
+  end end
+  local tier = function(x, y) return math.sqrt((x - ox)^2 + (y - oy)^2) end
+  m:each(function(x, y)
+    local kk = K(x, y)
+    local ramp = (tier(x, y) > 29) and R.coral or R.flam
+    local i = 1
+    for j, t in ipairs({ .18, .34, .5, .66, .82 }) do if v[kk] >= t then i = j + 1 end end
+    c:put(x, y, ramp[i])
+  end)
+  -- rib grooves, growth line, pale scalloped lip
+  m:each(function(x, y)
+    local kk = K(x, y)
+    if rib[K(x + 1, y)] and rib[K(x + 1, y)] ~= rib[kk] then c:put(x, y, R.coral[1]) end
+    local r = tier(x, y)
+    if r > 29 and r <= 30 then c:put(x, y, R.shell[(x < 32) and 6 or 4]) end
+    if r > 28 and r <= 29 then c:put(x, y, R.flam[1]) end
+    if not m:has(x, y + 1) then c:put(x, y, R.shell[(x < 32) and 5 or 3]) end
+  end)
+  local drawn = m
   -- high collar
   local col = c:rrect(24, 8, 40, 16, 3)
   C.sep(c, col, drawn)

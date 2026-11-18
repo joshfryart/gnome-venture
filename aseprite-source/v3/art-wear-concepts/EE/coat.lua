@@ -107,7 +107,7 @@ end
 if C.want("coat-3") then
   local c = C.new("coat-3-red-stitch-linen-smock")
   local body = c:poly{ {21, 6}, {43, 6}, {46, 12}, {49, 58}, {15, 58}, {18, 12} }
-  local sl, sr = sleeves(c, R.linen, { {20, 11}, {13, 17}, {8, 26}, {6, 35} }, { {44, 11}, {51, 17}, {56, 26}, {58, 35} }, 5, { flare = 2 })
+  local sl, sr = sleeves(c, R.linen, { {20, 11}, {14, 17}, {10, 26}, {9, 34} }, { {44, 11}, {50, 17}, {54, 26}, {55, 34} }, 4.5, { flare = 1.5 })
   C.sep(c, body, sl:copy():add(sr), C.ink)
   local folds = function(x, y, i) if (x == 22 or x == 41) and y > 34 then return -1 end if x == 27 and y > 40 then return -1 end end
   C.part(c, body, R.linen, { R = 5, tex = folds, cuts = { .2, .36, .52, .7, .9 } })
@@ -131,7 +131,7 @@ if C.want("coat-3") then
   for y = 9, 19 do c:put(30, y, R.ember[4]) c:put(34, y, R.ember[3]) if y % 2 == 0 then c:put(29, y, R.ember[3]) c:put(35, y, R.ember[2]) end end
   band(20, 44, 9, body)
   -- cuffs
-  band(1, 12, 34, sl) band(52, 63, 34, sr)
+  band(2, 16, 33, sl) band(48, 62, 33, sr)
   -- hem band
   band(15, 49, 53, body)
   -- woven sash at the waist with tassels

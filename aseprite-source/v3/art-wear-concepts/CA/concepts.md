@@ -24,7 +24,7 @@ plus shared `leather`, `strap`, `wood`, `sole`, `brass`, `water`.
 
 | # | name | description | region reason | palette | quirk |
 |---|---|---|---|---|---|
-| 1 | Carrier Frame | An open wooden ladder frame lashed with rope, a clay water jar on the shelf and a tumpline headband. | Wooden carrying frames and tumplines for hauling goods. | wood, clay, straw | a round water gourd tied to the side (dry spells) |
+| 1 | Carrier Frame | An open wooden ladder frame lashed with rope, a clay water jar on the shelf and a tumpline headband. | Wooden carrying frames and tumplines for hauling goods. | wood, clay, straw | a red-and-green parrot feather tucked into a lashing |
 | 2 | Maize Net Bag | A bulging open-knot fibre net sack stuffed with cobs. | Ixtle net bags; maize is the heart of the region. | straw, maize, jade | one cob poking out of the top with a pale silk tuft |
 | 3 | Palm Basket Pack | A tall woven palm basket with a lid and shoulder cords. | Palm plaiting and basketry. | straw, marig, strap | a hummingbird perched on the lid rim |
 | 4 | Loom-Cloth Bundle | A square bundle of backstrap-woven striped cloth, corners knotted on top. | Backstrap-loom weaving; goods carried wrapped in cloth. | cochi, indigo, cotton | a marigold flower tucked into the knot |
@@ -35,7 +35,7 @@ plus shared `leather`, `strap`, `wood`, `sole`, `brass`, `water`.
 | # | name | description | region reason | palette | quirk |
 |---|---|---|---|---|---|
 | 1 | Bloom Smock | A boxy cream cotton smock with short wide sleeves and a square yoke of embroidered flowers. | Backstrap cotton and floral embroidery. | cotton, cochi, marig, jade | a needle still stuck in the yoke, trailing red thread |
-| 2 | Pleated Shirt-Jacket | A light linen jacket with vertical pleats and four patch pockets. | A breezy layer for heat; tidy pleat-and-pocket tailoring. | cotton(tinted sage), cacao | a cacao pod poking out of a pocket |
+| 2 | Pleated Shirt-Jacket | A light sage linen jacket with vertical pleats, collar points and four patch pockets. | A breezy layer for heat; tidy pleat-and-pocket tailoring. | sage, cacao, clay | a cacao pod poking out of a pocket |
 | 3 | Fringed Leather Vest | A sleeveless tooled leather vest with a fringed hem and copper studs. | Leatherwork and copper smithing. | leather, copper | a small copper bell dangling from the fringe |
 | 4 | Quilted Cotton Coat | A thick, puffy quilted coat in cochineal red with diamond stitching. | Quilted cotton padding; cochineal dye. | cochi, cotton | a fluffy cotton boll tucked in the collar |
 | 5 | Indigo Field Jacket | A long-sleeved indigo work jacket with toggle loops and a striped woven sash. | Indigo dyeing and woven belts (sashes). | indigo, maize, cochi | a monarch butterfly resting on the shoulder |
@@ -45,7 +45,13 @@ plus shared `leather`, `strap`, `wood`, `sole`, `brass`, `water`.
 | # | name | description | region reason | palette | quirk |
 |---|---|---|---|---|---|
 | 1 | Hearthstripe Poncho | A heavy woollen poncho with earthy bands, a stepped-diamond centre and a fringe. | Striped blanket weaving for chilly highland nights. | clay, maize, indigo, cotton | a magenta bougainvillea blossom caught in the fringe |
-| 2 | Dappled Rebozo | A long fine shawl draped in a loop, dappled with tie-dye speckle, long knotted fringe at both ends. | Rebozo shawls with ikat-dyed patterns and knotted fringe. | agave(teal), cotton | a brown seed-pod rattle bead on one fringe strand |
+| 2 | Dappled Rebozo | A fine teal shawl folded into a triangle and worn point-down, ikat-style broken stripes, a knotted net and long fringe on both lower edges. | Rebozo shawls with ikat-dyed patterns and knotted fringe. | agave(teal), cotton | a brown seed-pod rattle bead on one fringe strand |
 | 3 | Palm Rain Cape | A shaggy cape of overlapping dried palm leaf shingles with a peaked top. | Palm-leaf rain capes for the wet season. | straw, maize | a red-eyed green tree frog sheltering at the hem |
-| 4 | Agave-Fibre Mantle | A coarse open-weave fibre mantle knotted at one shoulder. | Maguey fibre cloth (ayate) used as cloak and carrying cloth. | straw(agave tint) | a yellow prickly-pear blossom tied at the knot |
+| 4 | Agave-Fibre Mantle | A coarse open-weave pale fibre mantle knotted at one shoulder, falling to a hanging corner with a frayed hem. | Maguey fibre cloth (ayate) used as cloak and carrying cloth. | ixtle (pale grey-green fibre ramp in cloak.lua) | a yellow prickly-pear blossom tied at the knot |
 | 5 | Sun Hood Cloak | A light cream cotton cloak with a deep peaked sun hood and a cochineal-red border. | Shade from the sun on dry, bright roads. | cotton, cochi | a blue dragonfly resting on the hood |
+
+## Review notes (after 2 rounds per category)
+
+- Strongest: Tooled Ankle Boots, Indigo Leg Wraps, Carrier Frame, Loom-Cloth Bundle, Dry-Spell Water Pack, Quilted Cotton Coat, Indigo Field Jacket, Hearthstripe Poncho.
+- Weakest: Market Platform Clogs (reads a bit boxy), Agave-Fibre Mantle (silhouette can read as a leaf/sack), Maize Net Bag (cobs inside the net are not obvious).
+- Small quirks that are borderline at 64 px: the leaf-cutter ant, the seed-pod bead, the dragonfly.
