@@ -21,6 +21,8 @@ def ab(T,rar):
 # its last round) are replaced by conditions true in about 25-60% of the turns the piece is placed (design3.RETRIG); the +1 they got to make up for it is gone.
 # Rares over the Rare limit at Fine (about +6 win points or -12 health points, mostly the Trip ones with the careless bot): their value comes down, the effect stays.
 RARE_FIX={('MENA','cloak'):dict(v=-5,b=-2),('EA','footwear'):dict(v=-6,b=-2),('SE','cloak'):dict(v=-3),('SA','footwear'):dict(v=-1),('CB','footwear'):dict(v=-1),('MENA','backpack'):dict(v=-1),('ESA','footwear'):dict(b=-2)}
+# Commons / Uncommons over the goal (about +3 win points / -4 health points) once their new trigger fired: the Trip (skip) ones. Their value comes down, the effect stays.
+TRIG_FIX={('OC','footwear',4):dict(v=-2),('WCA','cloak',4):dict(v=-1)}
 used={}; items=[]; fixed=[]
 for T,r in enumerate(ORDER):
     for ci,cat in enumerate(CATS):
@@ -38,7 +40,7 @@ for T,r in enumerate(ORDER):
                     for t_ in trs:
                         if (t_,p_) not in used: tr,py=t_,p_; done=True; break
                     if done: break
-                used[(tr,py)]=pn; code=f'{tr}>{py}'
+                used[(tr,py)]=pn; code=f'{tr}>{py}'; dv=TRIG_FIX.get((r,cat,i+1),{}).get('v',0)
                 txt=f"{TRIG[tr]}, {PAY[py].format(a=a,b=b)}."
             v=max(2,BASE[ty]-1+T//3+(0,0,1,1,3)[i]+dv)
             art=ART[f'{r}|{cat}|{i+1}']

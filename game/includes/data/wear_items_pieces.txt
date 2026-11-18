@@ -238,7 +238,7 @@ w:wca-kapok-jerkin|Kapok Jerkin|wear|wca-kapok-jerkin|guard|9|craft|-|-|src|Kapo
 w:wca-plantain-leaf-cape|Plantain Cape Hum|wear|wca-plantain-leaf-cape|charm|6|craft|-|-|src|Plantain Leaf Cape: If the creature hit you last turn, add 7 Charm.|-|hit>charm|3|7
 w:wca-strip-weave-shawl|Strip Shawl Bond|wear|wca-strip-weave-shawl|charm|6|body|-|-|src|Strip-Weave Shawl: If you have played 2 or more Guards this fight, your Charm counts 10% more for the rest of the fight.|-|g2>bond|3|7
 w:wca-indigo-hood-mantle|Indigo Mantle Calm|wear|wca-indigo-hood-mantle|soothe|5|mind|-|-|src|Indigo Hood Mantle: If the creature has no Hurt on the board, cut the creature's hits by 3 this round.|-|foeNoH>soothe|3|8
-w:wca-raffia-poncho|Raffia Poncho Lull|wear|wca-raffia-poncho|charm|7|craft|-|-|src|Raffia Poncho: If you hold a Charm in your hand, the creature skips its next turn.|-|handC>skip|3|8
+w:wca-raffia-poncho|Raffia Poncho Lull|wear|wca-raffia-poncho|charm|6|craft|-|-|src|Raffia Poncho: If you hold a Charm in your hand, the creature skips its next turn.|-|handC>skip|3|8
 w:wca-scaleleaf-mantle|Scaleleaf Mantle|wear|wca-scaleleaf-mantle|guard|9|body|-|-|src|Scaleleaf Mantle: Gain 9 guard, +4 for each Charm in its chain.|-|R:WCA:cloak|4|9
 w:esa-acacia-sandals|Acacia Sandal Skip|wear|esa-acacia-sandals|guard|7|body|-|-|src|Acacia Sandals: If you are at full health, a chain of 3 or more does not use it up.|-|hpFull>stay|4|8
 w:esa-highland-trek-boots|Highland Trek Hold|wear|esa-highland-trek-boots|guard|7|mind|-|-|src|Highland Trek Boots: If it is linked to a Hurt, the creature's next Hurt misses.|-|linkH>evade|4|8
@@ -263,7 +263,7 @@ w:esa-indigo-dot-shawl|Indigo Dot Shawl|wear|esa-indigo-dot-shawl|trick|9|mind|-
 w:oc-reef-sandals|Reef Skip|wear|oc-reef-sandals|guard|7|mind|-|-|src|Reef Sandals: If you hold a Heal in your hand, your next hand has 1 extra piece.|-|handHeal>hand|4|9
 w:oc-gully-fleece-boot|Gully Hold|wear|oc-gully-fleece-boot|guard|7|craft|-|-|src|Gully Fleece Boot: If the creature hit you last turn, a chain of 3 or more does not use it up.|-|hit>stay|4|9
 w:oc-drovers-pull-ons|Drover Pierce|wear|oc-drovers-pull-ons|hurt|8|body|-|-|src|Drover's Pull-ons: If the creature has a Hurt on the board, it ignores the creature's guard.|-|foeHasH>pierce|4|10
-w:oc-flax-wading-wraps|Flax Wade Trip|wear|oc-flax-wading-wraps|hurt|8|mind|-|-|src|Flax Wading Wraps: If the creature has 2 or more pieces on the board, the creature skips its next turn.|-|foeB2>skip|4|10
+w:oc-flax-wading-wraps|Flax Wade Trip|wear|oc-flax-wading-wraps|hurt|6|mind|-|-|src|Flax Wading Wraps: If the creature has 2 or more pieces on the board, the creature skips its next turn.|-|foeB2>skip|4|10
 w:oc-mangrove-clog|Mangrove Clog Crush|wear|oc-mangrove-clog|hurt|10|craft|-|-|src|Mangrove Clog: Deal 11 extra damage. If its Yield bar is past half, the creature also skips its next turn.|-|R:OC:footwear|5|11
 w:oc-flax-basket-pack|Flax Plenty|wear|oc-flax-basket-pack|item|8|craft|-|-|src|Flax Basket Pack: If you hold a Charm in your hand, next round you pick from 6 pieces.|-|handC>plenty|4|9
 w:oc-coconut-string-bag|Coconut Snack|wear|oc-coconut-string-bag|item|8|body|-|-|src|Coconut String Bag: If a creature piece is in its chain, heal 9.|-|linkFoe>heal|4|9

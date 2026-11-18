@@ -505,7 +505,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 1 | Plantain Leaf Cape | Common | **Plantain Cape Hum** | charm | 6 | If the creature hit you last turn, add 7 Charm. | 4500 | 1 |
 | 2 | Strip-Weave Shawl | Common | **Strip Shawl Bond** | charm | 6 | If you have played 2 or more Guards this fight, your Charm counts 10% more for the rest of the fight. | 4500 | 1 |
 | 3 | Indigo Hood Mantle | Uncommon | **Indigo Mantle Calm** | soothe | 5 | If the creature has no Hurt on the board, cut the creature's hits by 3 this round. | 12000 | 2 |
-| 4 | Raffia Poncho | Uncommon | **Raffia Poncho Lull** | charm | 7 | If you hold a Charm in your hand, the creature skips its next turn. | 12000 | 2 |
+| 4 | Raffia Poncho | Uncommon | **Raffia Poncho Lull** | charm | 6 | If you hold a Charm in your hand, the creature skips its next turn. | 12000 | 2 |
 | 5 | Scaleleaf Mantle | Rare | **Scaleleaf Mantle** | guard | 9 | Gain 9 guard, +4 for each Charm in its chain. | 30000 | 3 |
 
 ## Thornacre Savanna (ESA, region level 32)
@@ -559,7 +559,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 1 | Reef Sandals | Common | **Reef Skip** | guard | 7 | If you hold a Heal in your hand, your next hand has 1 extra piece. | 5100 | 1 |
 | 2 | Gully Fleece Boot | Common | **Gully Hold** | guard | 7 | If the creature hit you last turn, a chain of 3 or more does not use it up. | 5100 | 1 |
 | 3 | Drover's Pull-ons | Uncommon | **Drover Pierce** | hurt | 8 | If the creature has a Hurt on the board, it ignores the creature's guard. | 13600 | 2 |
-| 4 | Flax Wading Wraps | Uncommon | **Flax Wade Trip** | hurt | 8 | If the creature has 2 or more pieces on the board, the creature skips its next turn. | 13600 | 2 |
+| 4 | Flax Wading Wraps | Uncommon | **Flax Wade Trip** | hurt | 6 | If the creature has 2 or more pieces on the board, the creature skips its next turn. | 13600 | 2 |
 | 5 | Mangrove Clog | Rare | **Mangrove Clog Crush** | hurt | 10 | Deal 11 extra damage. If its Yield bar is past half, the creature also skips its next turn. | 34000 | 3 |
 
 ### Backpack

@@ -7,7 +7,7 @@ The 280 Tailor wear pieces (224 Common / Uncommon, 56 Rare) measured on the real
 - **One wear piece moves a fight very little.** The bots place it in 7-30% of fights (Commons and Uncommons; a hand of 5 out of a deck of 13-19, one piece a turn, fights of 2-8 turns). The effect alone of a Common or Uncommon piece averages -0.1 to -0.3 health points; 166 of 224 move health and wins by under half a point, and 83 never changed a single fight out of 96. That is structure (how often one piece in the deck is played), not the numbers: raising a and b does not change it (see the trigger bumps below, still 0.00).
 - **Goal 1 (no Common / Uncommon over +3 win or about 6 health): met.** Largest Common / Uncommon: +3.2 win (`esa-acacia-frame-pack`, half of it noise from the smoothed piece part), 4.2 health. The two biggest effects alone: `oc-red-dust-poncho` (yHalf>skip) +2.1 win / -3.0 health, `ca-fringed-leather-vest` (edge>evade) -3.5 health.
 - **Rares (limit about +6 win / -12 health): met after the fixes, at Common and at Fine.** Worst at Fine now: `mena-goat-hair-tent-cape` +6.8 win / -11.2, `ea-snow-straw-boots` +6.5 / -10.0, `cb-curl-toe-reef-booties` -11.7 health, `sa-striped-leg-wraps` -11.5. Before: MENA cloak +8.7 / -14.4, EA footwear +9.3 / -12.4, SE cloak +6.1 / -12.5. The strong Rares are the Trip (skip) ones, and they are strong for the careless bot (+15 win alone): a skipped creature turn is worth far more than any number on the piece.
-- **Goal 2 (no useless piece): not reachable by numbers for most Commons.** I bumped the 10 triggers that almost never fire (+1 on the payoff number, or +1 value; 53 pieces). Their effect stayed at 0.00: those triggers (linked to a Trick / Soothe / Charm / Heal, a pair of the same type, first round, the creature with 0 or 3+ pieces, its last round) hardly ever happen in these fights. Their worth is the extra piece value. Josh may want to look at the triggers themselves (out of my brief: no meaning changes).
+- **Goal 2 (no useless piece): not reachable by numbers for most Commons.** I bumped the 10 triggers that almost never fire (+1 on the payoff number, or +1 value; 53 pieces). Their effect stayed at 0.00: those triggers (linked to a Trick / Soothe / Charm / Heal, a pair of the same type, first round, the creature with 0 or 3+ pieces, its last round) hardly ever happen in these fights. Their worth is the extra piece value. Josh may want to look at the triggers themselves (out of my brief: no meaning changes). **Done since: see Trigger redesign** (the ten triggers replaced; the groups now change 9-40% of the fights their pieces are placed in, before 0-11%; one single-piece group still 0%).
 - **Goal 3 (later regions stronger): in absolute numbers yes now, in share of health flat.** a and b used to follow the tier and fell from 9% of the gnome's health (NA) to 4% (OC); they now follow the region level (6-9% everywhere). Measured as health points, the Rare effect is -2.4 (NA-SE), -3.1 (SA-CSA), -1.8 (SEA-OC) at Fine: late Rares are not stronger relative to their fights. Commons and Uncommons are too small to show a trend.
 - **Goal 4 (no impossible / trivial fight): met.** The careful bot wins 95-100% with or without a wear piece (largest change +6 points, early Rares, where it is not already at 100%); the largest careless-bot change is +12.5 win points after the fixes (`esa-baobab-clogs` at Common), +17 before (the Trip Rares). No piece makes a fight trivial or lost. No engine errors in about 145,000 fights.
 - **The two engine readings asked about:** Rare "gain {b} guard" on top of the piece's own guard: the 18 Rares with it measure 0 to -8.1 health at Fine (`csa-turmeric-wrap-coat` -8.1 is the top, it also heals {a} per hand piece; `wca-kapok-jerkin` +4.3 is the Keeper problem below); none is over the limit. Plenty + an extra hand piece = 7: the Plenty Rares (CA, CB, SA, ESA, OC backpacks) measure -0.5 to -0.9 health at Fine; not too strong (the bots get little out of a bigger hand).
@@ -45,10 +45,96 @@ The 280 Tailor wear pieces (224 Common / Uncommon, 56 Rare) measured on the real
 
 (Max health: the sim gnome at that level. The Rare a is +1 and the Uncommon / Rare b +1 / +2 as before.)
 
-2. **Rarely firing triggers, +1** (`RARE_TRIG`: linkT, linkS, linkHeal, link2, linkC, pair, r1, foeB0, foeB3, lastRound; each changed a fight in under 6% of the fights its piece was placed): +1 on the payoff's b or a, or +1 value when the payoff has no number or counts rounds (life). 53 pieces.
+2. **Rarely firing triggers, +1** (superseded by the trigger redesign below: the triggers are replaced and the +1 is gone) (`RARE_TRIG`: linkT, linkS, linkHeal, link2, linkC, pair, r1, foeB0, foeB3, lastRound; each changed a fight in under 6% of the fights its piece was placed): +1 on the payoff's b or a, or +1 value when the payoff has no number or counts rounds (life). 53 pieces.
 3. **Rares over the limit** (`RARE_FIX`, value v and numbers): MENA cloak v-5 b-2, EA footwear v-6 b-2, SE cloak v-3, SA footwear v-1, CB footwear v-1, MENA backpack v-1, ESA footwear b-2 (its b x chain grew with the new b). The value cut works through how often the bots pick it (the effect itself is a Trip); the per-slot bonus and the region step of v were left alone.
 
 Before / after per changed piece: last table. 213 pieces changed numbers in all (most only by the new a / b; their text changes with them).
+
+## Trigger redesign (2026-11-18, second pass)
+
+The ten triggers of change 2 were replaced by new conditions (meaning, text and engine clause; `design3.py` TRIG / TRIG_FX, mapped old -> new by `RETRIG` in the same place in TRIG, so every other pairing and every (trigger, payoff) pair stayed unique: 280 codes, 280 texts). The +1 they had got was taken off (it was there only because they did not fire). Effect codes keep their payoff; the trigger part has a new name. No new engine condition was needed: every new trigger is a condition `pfb_wx_cond` / `wxCond` already knew (`fhas`, `hand`, `fpcs`, `round`, `hplt`, `lastturn`, `ygt`), so `pfboard.php` and `pfengine.js` only changed in the data rows. Petal prices unchanged.
+
+**How chosen (measured, not guessed).** A probe (`pfb_wx_fire` hook, removed after) played the 53 pieces with their old codes, 150 fights per piece and bot (15,900 fights, 3,636 placings), and at every firing of the wear piece checked 82 candidate conditions. Kept: true in about 25-60% of the turns the piece is placed, close to even across the group's pieces, one short sentence, and near the old meaning where the data allowed (a type in hand for the "linked to a type" ones, the creature's board for foeB0 / foeB3, early rounds for r1). Rejected with the data: "linked to any piece" (94% when placed), "the creature has a piece on the board" (75%), "round 2 or later" (83%), "its chain has 2 or more pieces" (94%), "Yield past a quarter" (70% over all pieces; kept only for the one SE piece, where it is 46%), "you hold a Hurt" (90%), "a creature piece touches it" (19%), "a Guard of yours in its chain" (always true on a Guard), "a piece of yours touches it" (32-96% by piece).
+
+Rates: from the probe on the same fights (old condition vs new condition when placed, and at any firing in a fight it was placed). "Changed a fight": share of placed fights where the paired fx / plain result differs (`wear_sim.php`, 48 fights a piece and bot, same seeds as the first pass). Effect alone: eff health / eff win, Common rank, mean of the group.
+
+| old trigger | new trigger (code: engine) | pieces | true when placed, before -> after | true at some firing in a fight it was placed, before -> after | changed a fight it was placed in, before -> after | effect alone, health / win, before -> after |
+|---|---|---|---|---|---|---|
+| `linkT` (linked to a Trick) | `foeHasH` If the creature has a Hurt on the board (`fhas:hurt`) | 12 | 3% -> 42% | 9% -> 80% | 3% -> 29% | -0.05 / +0.0 -> -0.37 / -0.0 |
+| `linkC` (linked to a Charm) | `handC` If you hold a Charm in your hand (`hand:charm:1`) | 10 | 6% -> 59% | 9% -> 76% | 5% -> 40% | +0.06 / +0.0 -> -0.76 / +0.6 |
+| `pair` (a piece of its own type linked to it) | `foeHasG` If the creature has a Guard on the board (`fhas:guard`) | 6 | 6% -> 29% | 13% -> 45% | 11% -> 20% | -0.30 / +0.2 -> -0.19 / +0.0 |
+| `foeB3` (the creature has 3 or more pieces on the board) | `foeB2` If the creature has 2 or more pieces on the board (`fpcs:2`) | 6 | 2% -> 23% | 19% -> 63% | 4% -> 26% | +0.09 / +0.3 -> -0.54 / +0.5 |
+| `foeB0` (the creature has no pieces on the board) | `foeNoH` If the creature has no Hurt on the board (`!fhas:hurt`) | 5 | 15% -> 56% | 19% -> 59% | 4% -> 9% | -0.04 / +0.0 -> -0.12 / -0.2 |
+| `r1` (in the first round) | `r12` In the first two rounds of the fight (`round:1:2`) | 5 | 13% -> 32% | 17% -> 39% | 1% -> 10% | +0.05 / +0.0 -> -0.12 / +0.0 |
+| `lastRound` (in its last round on the board) | `hurtLast` If you played a Hurt last turn (`lastturn:hurt`) | 5 | 0% -> 47% | 12% -> 54% | 5% -> 22% | -0.07 / +0.0 -> -0.21 / +0.0 |
+| `linkS` (linked to a Soothe) | `handHeal` If you hold a Heal in your hand (`hand:heal:1`) | 2 | 0% -> 39% | 0% -> 49% | 0% -> 23% | +0.00 / +0.0 -> -0.48 / +0.0 |
+| `linkHeal` (linked to a Heal or Item) | `hp75` If you are under three quarters health (`hplt:0.75`) | 1 | 0% -> 26% | 0% -> 46% | 0% -> 26% | +0.00 / +0.0 -> +0.02 / +0.0 |
+| `link2` (linked to 2 or more pieces) | `yQuarter` If its Yield bar is past a quarter (`ygt:0.25`) | 1 | 16% -> 46% | 57% -> 86% | 0% -> 0% | +0.00 / +0.0 -> +0.00 / +0.0 |
+
+
+Still 0% changed: `se-float-net` (`yQuarter>hand`; the trigger is now true 46% of placings, but a bigger next hand changes nothing for the bots), and pieces whose payoff the bots cannot use or rarely place (ward, life, pluck, bond, hand; `ca-bloom-smock`, `sa-bark-cloth-tunic-coat`, `ca-pleated-shirt-jacket`, `na-sap-run-bucket` are placed in 3-4% of fights). Those are payoff / placement limits (see below), not the trigger.
+
+**Over the goal after the change, tuned (`TRIG_FIX` in `build3.py`, value only):** the two Trip Uncommons. `wca-raffia-poncho` (`handC>skip`) v 7 -> 6: -4.3 -> -3.9 health, +2.3 win. `oc-flax-wading-wraps` (`foeB2>skip`) v 8 -> 6: +3.7 -> +2.6 win, health stays -4.6 (v 4 also gave -4.8: the skip itself is -3.1, the value only moves how often the bots pick it). Left at about 0.6 over the -4 health goal; the next step would be a rarer trigger or another payoff for that one piece (a meaning change, not done). Largest Common / Uncommon now: +3.2 win (`esa-acacia-frame-pack`, unchanged), -4.6 health (`oc-flax-wading-wraps`), then `oc-red-dust-poncho` -4.1 (unchanged).
+
+Per piece (Common rank; before = with the old trigger and its +1):
+
+| piece | rarity | fx before -> after | v/a/b before -> after | placed | changed a placed fight | eff health | eff win | est win | est health |
+|---|---|---|---|---|---|---|---|---|---|
+| ca-indigo-leg-wraps | Uncommon | `linkT>life` -> `foeHasH>life` | 5/1/3 -> 4/1/3 | 0.08 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | -3.7 -> -3.7 | +2.6 -> +2.6 |
+| csa-chili-cone-basket | Common | `linkT>heal` -> `foeHasH>heal` | 7/3/7 -> 7/3/6 | 0.31 | 0% -> 40% | +0.00 -> -0.50 | +0.0 -> +0.0 | -0.9 -> -0.9 | -1.5 -> -2.0 |
+| csa-curl-toe-slippers | Common | `linkT>dmg` -> `foeHasH>dmg` | 6/3/7 -> 6/3/6 | 0.56 | 0% -> 43% | +0.00 -> -0.88 | +0.0 -> -1.0 | -0.4 -> -1.5 | -0.0 -> -0.9 |
+| ee-poppy-field-shawl | Common | `linkT>bond` -> `foeHasH>bond` | 6/2/4 -> 5/2/4 | 0.32 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | +1.8 -> +1.8 | +2.2 -> +2.2 |
+| nwe-birch-bark-slippers | Uncommon | `linkT>stay` -> `foeHasH>stay` | 5/1/4 -> 4/1/4 | 0.09 | 0% -> 33% | +0.00 -> +0.00 | +0.0 -> +0.0 | -1.5 -> -1.5 | +0.8 -> +0.9 |
+| oc-bark-cloth-vest | Uncommon | `linkT>mend` -> `foeHasH>mend` | 8/5/10 -> 8/4/10 | 0.20 | 12% -> 53% | -0.12 -> -1.06 | +0.0 -> +0.0 | -0.1 -> -0.1 | -0.9 -> -1.8 |
+| oc-drovers-oilskin | Common | `linkT>thorns` -> `foeHasH>thorns` | 7/5/9 -> 7/4/9 | 0.28 | 5% -> 52% | +0.11 -> -0.93 | +0.0 -> +1.0 | -0.1 -> +0.9 | -0.7 -> -1.6 |
+| oc-drovers-pull-ons | Uncommon | `linkT>pierce` -> `foeHasH>pierce` | 9/4/10 -> 8/4/10 | 0.54 | 0% -> 21% | +0.00 -> +0.50 | +0.0 -> -2.1 | +0.6 -> -1.5 | -1.6 -> -1.0 |
+| oc-frond-rain-cape | Common | `linkT>soothe` -> `foeHasH>soothe` | 7/5/9 -> 7/4/9 | 0.39 | 3% -> 41% | -0.30 -> -0.39 | +0.0 -> +0.0 | +0.4 -> +0.3 | -1.5 -> -1.5 |
+| sa-bark-cloth-tunic-coat | Uncommon | `linkT>shrink` -> `foeHasH>shrink` | 5/3/5 -> 5/2/5 | 0.03 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | -0.8 -> -0.8 | +1.1 -> +1.1 |
+| sea-bamboo-ladder-pack | Common | `linkT>hand` -> `foeHasH>hand` | 6/3/7 -> 5/3/7 | 0.28 | 3% -> 37% | +0.04 -> -0.63 | +0.0 -> +2.1 | -0.7 -> +1.4 | +0.3 -> -0.3 |
+| sea-rattan-back-basket | Common | `linkT>plenty` -> `foeHasH>plenty` | 8/3/7 -> 7/3/7 | 0.27 | 8% -> 31% | -0.31 -> -0.62 | +0.0 -> +0.0 | -1.6 -> -1.6 | -1.1 -> -1.3 |
+| ca-bloom-smock | Common | `linkC>thorns` -> `handC>thorns` | 3/2/2 -> 3/1/2 | 0.03 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | -3.7 -> -3.7 | +2.6 -> +2.6 |
+| cb-hibiscus-shawl | Common | `linkC>bond` -> `handC>bond` | 5/1/3 -> 4/1/3 | 0.17 | 0% -> 6% | +0.00 -> +0.02 | +0.0 -> +0.0 | +0.5 -> +0.4 | -0.6 -> -0.5 |
+| csa-porters-frame-pack | Uncommon | `linkC>hand` -> `handC>hand` | 9/3/7 -> 8/3/7 | 0.26 | 16% -> 36% | +0.39 -> -0.74 | +0.0 -> +0.0 | -0.9 -> -0.9 | -1.1 -> -2.2 |
+| ea-tea-chest | Uncommon | `linkC>mend` -> `handC>mend` | 5/4/7 -> 5/3/7 | 0.31 | 0% -> 73% | +0.00 -> -1.35 | +0.0 -> +0.0 | +0.8 -> +0.8 | -1.9 -> -3.3 |
+| esa-check-blanket-wrap | Common | `linkC>soothe` -> `handC>soothe` | 7/5/8 -> 7/4/8 | 0.38 | 0% -> 50% | +0.00 -> -0.86 | +0.0 -> +2.1 | +0.5 -> +2.6 | -0.6 -> -1.4 |
+| mena-indigo-wrap-boots | Uncommon | `linkC>guard` -> `handC>guard` | 6/2/7 -> 6/2/6 | 0.22 | 0% -> 29% | +0.00 -> -0.49 | +0.0 -> +0.0 | +0.7 -> +0.7 | -0.5 -> -1.0 |
+| oc-flax-basket-pack | Common | `linkC>plenty` -> `handC>plenty` | 9/4/9 -> 8/4/9 | 0.25 | 8% -> 38% | +0.29 -> -0.74 | +0.0 -> +2.1 | +0.1 -> +2.2 | -2.8 -> -3.7 |
+| se-olive-quilt-jacket | Uncommon | `linkC>heal` -> `handC>heal` | 5/2/6 -> 5/2/5 | 0.04 | 25% -> 100% | -0.06 -> -0.29 | +0.0 -> +0.0 | +0.2 -> +0.2 | +0.2 -> -0.1 |
+| sea-pandan-weave-vest | Common | `linkC>life` -> `handC>life` | 7/3/7 -> 6/3/7 | 0.14 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | -1.8 -> -1.8 | +1.5 -> +1.6 |
+| wca-raffia-poncho | Uncommon | `linkC>skip` -> `handC>skip` | 8/3/8 -> 6/3/8 | 0.49 | 0% -> 70% | +0.00 -> -3.17 | +0.0 -> +2.1 | +0.2 -> +2.3 | -0.8 -> -3.9 |
+| ea-cloth-bundle | Uncommon | `pair>pluck` -> `foeHasG>pluck` | 6/3/7 -> 5/3/7 | 0.22 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | +1.4 -> +1.4 | -1.5 -> -1.5 |
+| ee-stitched-felt-vest | Common | `pair>life` -> `foeHasG>life` | 6/2/4 -> 5/2/4 | 0.11 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | +1.3 -> +1.3 | +2.6 -> +2.6 |
+| esa-grain-sack-pack | Uncommon | `pair>heal` -> `foeHasG>heal` | 9/4/10 -> 9/4/9 | 0.33 | 0% -> 9% | +0.00 -> -0.14 | +0.0 -> +0.0 | +0.2 -> +0.2 | -2.4 -> -2.6 |
+| na-birch-poncho | Common | `pair>charm` -> `foeHasG>charm` | 3/1/3 -> 3/1/2 | 0.17 | 44% -> 25% | -2.22 -> -0.27 | +1.0 -> +0.0 | -0.1 -> -1.2 | -0.5 -> +1.5 |
+| sa-latex-puddle-boots | Common | `pair>evade` -> `foeHasG>evade` | 5/2/4 -> 4/2/4 | 0.10 | 22% -> 60% | +0.41 -> -0.67 | +0.0 -> +0.0 | -0.8 -> -0.8 | +1.5 -> +0.4 |
+| sa-thatch-rain-cape | Common | `pair>soothe` -> `foeHasG>soothe` | 2/3/4 -> 2/2/4 | 0.08 | 0% -> 25% | +0.00 -> -0.09 | +0.0 -> +0.0 | +0.2 -> +0.3 | +0.6 -> +0.5 |
+| ca-palm-rain-cape | Uncommon | `foeB3>shrink` -> `foeB2>shrink` | 2/2/3 -> 2/1/3 | 0.11 | 0% -> 27% | +0.00 -> -0.10 | +0.0 -> +0.0 | -2.7 -> -2.7 | +2.1 -> +2.0 |
+| cb-net-roll-bundle | Uncommon | `foeB3>knock` -> `foeB2>knock` | 5/1/4 -> 4/1/4 | 0.29 | 0% -> 4% | +0.00 -> -0.05 | +0.0 -> +1.0 | +1.1 -> +2.0 | -1.5 -> -1.4 |
+| ea-indigo-jacket | Common | `foeB3>ward` -> `foeB2>ward` | 5/3/7 -> 5/3/6 | 0.09 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | +0.3 -> +0.3 | -0.3 -> -0.3 |
+| mena-camel-pad-overshoes | Uncommon | `foeB3>dmg` -> `foeB2>dmg` | 6/2/7 -> 6/2/6 | 0.44 | 2% -> 31% | +0.55 -> +0.19 | +0.0 -> -1.0 | +1.4 -> +0.3 | -0.8 -> -1.1 |
+| nwe-cable-knit-long-coat | Common | `foeB3>guard` -> `foeB2>guard` | 3/1/4 -> 3/1/3 | 0.06 | 17% -> 50% | -0.08 -> -0.14 | +1.0 -> +1.0 | -1.1 -> -1.2 | +1.6 -> +1.5 |
+| oc-flax-wading-wraps | Uncommon | `foeB3>skip` -> `foeB2>skip` | 9/4/10 -> 6/4/10 | 0.45 | 4% -> 47% | +0.08 -> -3.13 | +1.0 -> +2.1 | +1.6 -> +2.6 | -1.5 -> -4.6 |
+| ea-felt-poncho | Uncommon | `foeB0>hand` -> `foeNoH>hand` | 6/3/7 -> 5/3/7 | 0.20 | 5% -> 32% | -0.12 -> -0.34 | +0.0 -> -1.0 | +1.4 -> +0.3 | -1.7 -> -1.8 |
+| ee-snowdrift-felt-boots | Common | `foeB0>life` -> `foeNoH>life` | 6/2/4 -> 5/2/4 | 0.11 | 9% -> 9% | +0.00 -> +0.00 | +0.0 -> +0.0 | +1.3 -> +1.3 | +2.6 -> +2.6 |
+| esa-stripe-weave-vest | Common | `foeB0>ward` -> `foeNoH>ward` | 7/4/9 -> 7/4/8 | 0.19 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | +0.0 -> +0.0 | -0.1 -> -0.2 |
+| na-portage-sack | Uncommon | `foeB0>pluck` -> `foeNoH>pluck` | 4/1/3 -> 3/1/3 | 0.06 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | -0.6 -> -0.6 | +0.9 -> +1.0 |
+| wca-indigo-hood-mantle | Uncommon | `foeB0>soothe` -> `foeNoH>soothe` | 5/4/8 -> 5/3/8 | 0.24 | 4% -> 4% | -0.10 -> -0.24 | +0.0 -> +0.0 | +0.7 -> +0.7 | -0.9 -> -1.0 |
+| ca-pleated-shirt-jacket | Common | `r1>ward` -> `r12>ward` | 3/1/3 -> 3/1/2 | 0.04 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | -3.7 -> -3.7 | +2.6 -> +2.6 |
+| esa-highland-shawl | Common | `r1>bond` -> `r12>bond` | 8/4/8 -> 7/4/8 | 0.31 | 3% -> 10% | +0.23 -> -0.04 | +0.0 -> +0.0 | +0.5 -> +0.5 | -0.3 -> -0.6 |
+| mena-quilted-night-coat | Uncommon | `r1>cleanse` -> `r12>cleanse` | 6/3/6 -> 6/2/6 | 0.20 | 0% -> 26% | +0.00 -> -0.49 | +0.0 -> +0.0 | +0.7 -> +0.7 | -0.5 -> -1.0 |
+| na-sap-run-bucket | Uncommon | `r1>heal` -> `r12>heal` | 5/1/4 -> 5/1/3 | 0.04 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | -1.5 -> -1.5 | -0.1 -> -0.1 |
+| se-amphora-frame | Uncommon | `r1>mend` -> `r12>mend` | 4/3/5 -> 4/2/5 | 0.07 | 0% -> 14% | +0.00 -> -0.04 | +0.0 -> +0.0 | +0.7 -> +0.7 | -1.4 -> -1.5 |
+| csa-fleece-collar-jacket | Uncommon | `lastRound>mend` -> `hurtLast>mend` | 7/4/7 -> 7/3/7 | 0.25 | 10% -> 46% | -0.07 -> -0.48 | +0.0 -> +0.0 | -1.1 -> -1.1 | +0.7 -> +0.3 |
+| esa-banana-leaf-rain-cape | Uncommon | `lastRound>shrink` -> `hurtLast>shrink` | 6/5/9 -> 6/4/9 | 0.18 | 6% -> 18% | -0.21 -> -0.27 | +0.0 -> +0.0 | +1.0 -> +1.0 | -0.8 -> -0.9 |
+| mena-rose-madder-mantle | Uncommon | `lastRound>pluck` -> `hurtLast>pluck` | 6/2/6 -> 5/2/6 | 0.23 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | +1.8 -> +1.7 | -1.8 -> -1.7 |
+| oc-reef-sail-cloth-jerkin | Uncommon | `lastRound>evade` -> `hurtLast>evade` | 9/4/10 -> 8/4/10 | 0.16 | 8% -> 13% | -0.06 -> +0.12 | +0.0 -> +0.0 | -0.1 -> -0.1 | -0.8 -> -0.6 |
+| wca-raffia-cone-basket | Common | `lastRound>heal` -> `hurtLast>heal` | 7/3/8 -> 7/3/7 | 0.29 | 4% -> 32% | -0.02 -> -0.41 | +0.0 -> +0.0 | -0.1 -> -0.1 | -2.6 -> -3.0 |
+| oc-reef-sandals | Common | `linkS>hand` -> `handHeal>hand` | 8/4/9 -> 7/4/9 | 0.18 | 0% -> 29% | +0.00 -> -0.56 | +0.0 -> +0.0 | -0.1 -> -0.1 | -0.8 -> -1.3 |
+| sea-nipa-thatch-pack | Uncommon | `linkS>heal` -> `handHeal>heal` | 8/3/9 -> 8/3/8 | 0.26 | 0% -> 16% | +0.00 -> -0.41 | +0.0 -> +0.0 | -1.6 -> -1.6 | -0.8 -> -1.1 |
+| esa-calabash-carrier | Common | `linkHeal>heal` -> `hp75>heal` | 6/4/9 -> 6/4/8 | 0.20 | 0% -> 26% | +0.00 -> +0.02 | +0.0 -> +0.0 | +0.5 -> +0.5 | -1.8 -> -1.8 |
+| se-float-net | Common | `link2>hand` -> `yQuarter>hand` | 4/2/4 -> 3/2/4 | 0.10 | 0% -> 0% | +0.00 -> +0.00 | +0.0 -> +0.0 | +1.3 -> +1.3 | -1.0 -> -1.0 |
+
+Tests after the change: `tests/pf_wear_fx.php` has one true and one false scenario for each new trigger, the dropped ones are gone (a check says so), the payoff checks use `r12>PAY`; `tests/ci_suites.sh wearables pfdeck_v1 pf_wear_fx pfengine_js pf_play_decks pfboard_v1`: 6 suites, 0 failed.
 
 ## What the bots cannot judge (untested or under-measured)
 
