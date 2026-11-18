@@ -48,7 +48,7 @@ iceM:each(function(x, y)
   local d = y - WL
   local v = F.vnoise(x / 46, y / 2.6, 61) -- long wind streaks: snow skiffs vs swept ice
   local w = F.vnoise(x / 14, y / 5, 62)
-  local thr = .56 - math.min(.14, d * .0016)
+  local thr = .47 - math.min(.12, d * .0014)
   local h
   if v + (w - .5) * .25 > thr then
     polished:set(x, y)
@@ -221,7 +221,7 @@ local function dogSled(x, y)
   hline(x + 17, x + 48, y - 3, L.soil.shade)
   dog(x + 18, y - 6) dog(x + 30, y - 7) dog(x + 41, y - 6)
 end
-dogSled(300, 160)
+dogSled(304, 156)
 
 ---------------------------------------------------------------- the big blue fishing shack on runners (where the boathouse stood)
 local function bigShack()
@@ -260,15 +260,15 @@ for _, t in ipairs({ { 288, 172, true }, { 410, 160, false }, { 466, 158, false 
 
 ---------------------------------------------------------------- mid ice: a gnome on a bucket, an arctic char coming out of the hole
 do
-  local hx, hy = 360, 166
-  hole(hx + 8, hy + 1, 5, 2, 12)
+  local hx, hy = 366, 166
+  hole(hx + 19, hy + 1, 5, 2, 12)
   F.shadow(hx - 6, hx + 6, hy, 4, 2)
   local bkt = rect(hx - 5, hy - 6, hx + 5, hy)
   rimOf(bkt, L.iron) part(bkt, L.iron, { nopop = true }) hline(hx - 5, hx + 5, hy - 3, L.iron.deep)
-  local _, ghx, ghy = F.gnome(hx, hy - 4, { hat = L.produce, coat = L.wall2, arm = "up", noShadow = true })
+  local _, ghx, ghy = F.gnome(hx, hy - 4, { hat = L.produce, coat = L.wall2, arm = "out", noShadow = true })
   -- short jigging rod, the line taut down to the char
-  fill(line({ { ghx, ghy }, { ghx + 7, ghy - 6 } }), L.timber.deep)
-  line({ { ghx + 7, ghy - 6 }, { hx + 10, hy - 14 } }):each(function(x, y) px(x, y, L.awnB.shade) end)
+  fill(line({ { ghx, ghy }, { hx + 22, hy - 20 } }), L.timber.deep)
+  line({ { hx + 22, hy - 20 }, { hx + 21, hy - 14 } }):each(function(x, y) px(x, y, L.awnB.shade) end)
   F.sprite({
     "..kk..",
     ".kBBk.",
@@ -280,15 +280,15 @@ do
     ".kCBk.",
     "..kk..",
     ".kkkk.",
-  }, hx + 7, hy - 13, { k = L.timber.edge, C = CHAR.base, c = CHAR.hi, B = BELLY.base })
-  px(hx + 9, hy - 12, BELLY.hi)
-  for _, d in ipairs({ { 2, -2 }, { 15, -1 }, { 4, -6 }, { 14, -7 } }) do px(hx + d[1], hy + d[2], W.hi) end -- flicked drops
+  }, hx + 18, hy - 13, { k = L.timber.edge, C = CHAR.base, c = CHAR.hi, B = BELLY.base })
+  px(hx + 20, hy - 12, BELLY.hi)
+  for _, d in ipairs({ { 14, -2 }, { 26, -1 }, { 16, -6 }, { 25, -7 } }) do px(hx + d[1], hy + d[2], W.hi) end -- flicked drops
   -- two char already on the ice beside him
   for k = 0, 1 do
     local fx, fy = hx - 18 + k * 7, hy + 2 + k
     fill(rect(fx, fy, fx + 5, fy + 1), CHAR.base) hline(fx, fx + 5, fy + 1, BELLY.base) px(fx + 6, fy, CHAR.shade) px(fx + 6, fy + 1, CHAR.shade) px(fx, fy, L.timber.edge)
   end
-  F.tracks({ { 340, 178 }, { 352, 168 } }, "boot", 5)
+  F.tracks({ { 346, 178 }, { 358, 168 } }, "boot", 5)
 end
 
 ---------------------------------------------------------------- the jetty, piles locked in the ice, a rowboat frozen in
@@ -494,9 +494,9 @@ local function netFrame(x0, x1, yt, yb)
     for y = yt + 4, y1 do
       local a, b = (x + y) % 5, (x - y) % 5
       if a == 0 or b == 0 then
-        px(x, y, (hash(x, y, 48) < .25) and S.hi or NET.shade) -- rime on the mesh
+        px(x, y, (hash(x, y, 48) < .1) and S.hi or NET.shade) -- rime on the mesh
         if a == 0 and b == 0 then px(x, y, S.base) end
-      elseif hash(x, y, 2) < .06 then px(x, y, NET.base) end
+      elseif hash(x, y, 2) < .015 then px(x, y, NET.base) end
     end
     px(x, y1, NET.deep)
     if x % 7 == 0 then fill(rect(x - 1, y1 + 1, x + 1, y1 + 3), L.awnA.base) px(x - 1, y1 + 1, L.awnA.hi) px(x + 1, y1 + 3, L.awnA.deep) px(x, y1 + 1, S.hi)

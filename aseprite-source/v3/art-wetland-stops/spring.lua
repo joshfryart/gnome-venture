@@ -20,7 +20,7 @@ local part, rect, poly, line, fill, px, rimOf, hline, vline, union, hash = F.par
 local floor, sin, cos, pi, abs = math.floor, math.sin, math.cos, math.pi, math.abs
 local mix = F.mix
 local Wt = L.water
-local PW = F.rp("#d4c69c #8a6a44 #634a30 #443222 #2c2018")   -- peat-brown spring water (tannin stained)
+local PW = F.rp("#dacca2 #9a7042 #74502e #523822 #33231a")   -- peat-brown spring water (tannin stained)
 local GL = "#f0e8c6"                                           -- cream glint
 local CL = F.rp("#eef0dc #c8d4c4 #9ab0aa #6e8684 #4a5a5c")   -- clear spring water (the jet, the trickle)
 local lime = F.rp("#f0e6c6 #d4c6a0 #ae9e7e #807460 #50483e") -- dressed limestone
@@ -245,7 +245,7 @@ for _, b in ipairs(boulders) do
     for k = 1, 2 do
       local x, y = floor(b[1] + (hash(k, b[5], 85) - .5) * b[3]), floor(b[2] + b[4] * .62)
       if b.m:has(x, y) then
-        for d = -2, 2 do px(x + d, y, (d + k) % 2 == 0 and "#b8a24c" or "#9a8a40") px(x + d, y - 1, abs(d) < 2 and ((d + k) % 2 == 0 and "#d6c06a" or "#c26a4a") or nil) end
+        for d = -2, 2 do px(x + d, y, (d + k) % 2 == 0 and "#b8a24c" or "#9a8a40") if abs(d) < 2 then px(x + d, y - 1, (d + k) % 2 == 0 and "#d6c06a" or "#c26a4a") end end
       end
     end
   end
@@ -347,6 +347,15 @@ do
   for x = BX - 40, BX + 40 do if hash(x, 4, 12) < .45 then local n = floor(hash(x, 5, 12) * 4) for k = 0, n do px(x, BY + 8 - k, k == n and moss.hi or moss.base) end end end
   for _, s in ipairs({ { 356, 212 }, { 372, 213 }, { 420, 212 } }) do F.sedge(s[1], s[2], 5) end
 end
+-- the boardwalk from the causeway to the well-head pool, on stakes
+do
+  local bw = poly{ { 284, 199 }, { 350, 194 }, { 352, 203 }, { 286, 208 } }
+  F.shadowM(poly{ { 288, 209 }, { 352, 204 }, { 352, 206 }, { 288, 211 } })
+  F.boardwalk(bw, true, 51)
+  bw:each(function(x, y) if not bw:has(x, y + 1) then px(x, y, L.board.deep) end end)
+  for x = 290, 346, 10 do local y = floor(208 - (x - 286) * 5 / 66) vline(x, y + 1, y + 3, L.timber.base) px(x, y + 3, L.timber.edge) end
+end
+
 -- the trickle from a crack in the peat into a gnome's pail
 do
   local cx, cy = 334, 168
@@ -408,9 +417,11 @@ brook:each(function(x, y) if F.roadM:has(x, y) then onRoad:set(x, y) end end)
 brook:cut(onRoad)
 do
   local bank = brook:grow(2):cut(brook):cut(F.roadM)
-  bank:each(function(x, y) local v = hash(x, y, 51) px(x, y, v < .45 and peat.base or (v < .65 and peat.hi or (v < .85 and sedgeG.base or rg.shade))) end)
+  bank:each(function(x, y) local v = hash(x, y, 51) px(x, y, v < .3 and peat.shade or (v < .45 and peat.hi or (v < .8 and sedgeG.base or rg.shade))) end)
   brook:edge():each(function(x, y) if hash(x, y, 52) < .25 then px(x, y, peat.shade) end end)
-  F.water(brook, PW, { step = 3 })
+  F.water(brook, PW, { step = 3, dark = true })
+  brook:each(function(x, y) if hash((x + y * 3) // 7, y, 56) < .12 and y % 2 == 0 then px(x, y, F.SKYREF) end end)
+  F.water(brook:copy():clip(rect(0, 234, 200, 269)), PW, { step = 3 }) -- the lily pool gets its own sky band
   -- alder and willow reflections on the pool's far edge
   for _, rx in ipairs({ 36, 56, 92, 126 }) do for k = 0, 6 do hline(rx - 4 + k // 2, rx + 4 - k // 2, 238 + k * 2, PW.deep) end end
   brook:each(function(x, y)
@@ -418,7 +429,7 @@ do
     if hash(x, y, 55) < .01 and brook:has(x, y - 2) then px(x, y, GL) end
   end)
   -- sunk tussocks in the rill with a cream lip on the upstream side
-  for _, s in ipairs({ { 334, 220 }, { 310, 228 }, { 290, 234 }, { 186, 247 }, { 270, 241 } }) do
+  for _, s in ipairs({ { 334, 220 }, { 310, 228 }, { 290, 234 }, { 186, 247 } }) do
     local m = c:ellipse(s[1], s[2], 3, 2) rimOf(m, peat) part(m, peat, { nopop = true })
     px(s[1] - 1, s[2] - 2, reed.hi) px(s[1], s[2] - 3, reed.base) px(s[1] + 1, s[2] - 2, reed.shade) px(s[1] - 2, s[2] - 1, rg.base)
     for k = 0, 3 do px(s[1] + 3 + k, s[2] - 2 + (k % 2), GL) end hline(s[1] - 4, s[1] - 1, s[2] + 3, PW.hi)
@@ -573,15 +584,6 @@ do
   local jug = c:rrect(hx - 2, hy - 6, hx + 3, hy + 1, 2) c:rim(jug, L.timber.edge) part(jug, L.stone, { nopop = true })
   hline(hx - 2, hx + 3, hy - 6, L.soil.base) px(hx - 1, hy - 4, L.stone.hi)
 end
--- the boardwalk from the causeway to the well-head pool, on stakes
-do
-  local bw = poly{ { 284, 199 }, { 350, 194 }, { 352, 203 }, { 286, 208 } }
-  F.shadowM(poly{ { 288, 209 }, { 352, 204 }, { 352, 206 }, { 288, 211 } })
-  F.boardwalk(bw, true, 51)
-  bw:each(function(x, y) if not bw:has(x, y + 1) then px(x, y, L.board.deep) end end)
-  for x = 290, 346, 10 do local y = floor(208 - (x - 286) * 5 / 66) vline(x, y + 1, y + 3, L.timber.base) px(x, y + 3, L.timber.edge) end
-end
-
 ---------------------------------------------------------------- the lily pool: lilies, bulrushes, a boardwalk, the washer gnome
 F.depth(3)
 for _, p in ipairs({ { 60, 246, true, "white" }, { 98, 258, true, "white" }, { 124, 246, true }, { 40, 262, false, "yellow" }, { 150, 256, true, "white" },
