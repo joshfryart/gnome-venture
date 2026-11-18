@@ -48,7 +48,8 @@ ok('mo=full holds only at full moon', trail_sight_cond_ok('dp=night/mo=full', ['
 
 echo "== appointment chip (next-appointment from the clockwork)\n";
 $who = 'Posy Marrowby';
-$f = npc_cw_forecast($who, $lantern);
+$GLOBALS['gv_cw_time'] = [3, 8.0, 20000];   // pin the clockwork clock: the forecast's day index must be the one the checks below set (20000 + in), not today's real date
+$f = npc_cw_forecast($who, $lantern, 'dp=night');   // 2.7.06: the forecast honours the folk row's when, as the layer's chip does
 ok("$who has a forecast at the lantern fruit", $f !== null);
 if ($f) {
     $GLOBALS['gv_cw_time'] = [$f['dow'], $f['from'] + 0.2, 20000 + $f['in']];

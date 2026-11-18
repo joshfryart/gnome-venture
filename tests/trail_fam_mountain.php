@@ -44,6 +44,7 @@ $css = file_get_contents($argv[1] . '/assets/style.css');
 ok('css has the block and the dark theme', str_contains($css, '.tfmountain') && str_contains($css, ':root[data-theme="dark"] .tfmountain'));
 
 echo "== appointment chip\n";
+$GLOBALS['gv_cw_time'] = [3, 8.0, 20000];   // pin the clockwork clock: the forecast's day index must be the one the checks below set (20000 + in), not today's real date
 $f = npc_cw_forecast('Hazel Dewdrop', $pine, 'dp=dawn');   // 2.7.06: the forecast honours the folk row's when (dp=dawn), as the layer's chip does
 ok('Hazel has a forecast at the pine shelf', $f !== null);
 if ($f) {

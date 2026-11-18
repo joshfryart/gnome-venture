@@ -197,6 +197,7 @@
 /* pieces on the board: life pips; a piece being used up */
 .pf-v1 .pfb-cell .xp { position: absolute; left: 50%; bottom: 9%; transform: translateX(-50%); z-index: 4; display: flex; gap: 1px; padding: 1px; background: rgba(24, 14, 8, .9); pointer-events: none; }
 .pf-v1 .xp i { width: 5px; height: 3px; background: #e8a317; } .pf-v1 .xp i.e { background: #5a4636; } .pf-v1 .xp.last i:not(.e) { background: #ff6a4a; }
+.pf-v1 .xp .xpn { align-self: center; margin-left: 2px; font: 700 9px/1 system-ui, sans-serif; color: #f6e7c8; } .pf-v1 .xp.last .xpn { color: #ff8a6e; }   /* 2.7.08: the rounds a board piece still stays, as a number beside its pips */
 .pf-v1 .pfb-cell .pfb-old { display: none; }
 .pf-v1 .pfb-cell.pfv-used { animation: pfv-used .8s ease-in forwards; }
 .pf-v1 .pfb-cell.pfv-used::after { content: 'used up'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 0 3px; font: 700 9px/13px var(--font, system-ui, sans-serif); color: #fff; background: #8a2c1e; z-index: 5; white-space: nowrap; }

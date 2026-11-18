@@ -100,7 +100,7 @@ $GLOBALS['gv_cw_time'] = [3, 9.0, 20000];
 echo "== the Sights that feed it\n";
 $rw = fn(string $s) => $all[$s]['rewards'];
 ok('flour, honey, eggs, beans, berries and syrup come at a fair chance', str_contains($rw('236-windmill'), 'item=flour:1@35') && str_contains($rw('232-beehive'), 'item=garden-honey:1@45') && str_contains($rw('haybales'), 'item=hen-egg:1@35')
-    && str_contains($rw('236-beanpoles'), 'item=green-bean:1@45') && str_contains($rw('232-berrypatch'), 'item=blueberry:1@30') && str_contains($rw('311-sugarshack'), 'item=maple-syrup:1@30'));
+    && str_contains($rw('236-beanpoles'), 'item=green-bean:1@45') && str_contains($rw('232-berrypatch'), 'item=raspberry:1@30') && str_contains($rw('232-berrypatch'), 'item=blueberry:1@8')   /* 2.7.08 reward tune: blueberry (a treasure crop) @30 -> @8, raspberry is the everyday berry */ && str_contains($rw('311-sugarshack'), 'item=maple-syrup:1@30'));
 
 echo "== The Opening Day Parade\n";
 $qs = trail_sight_quests()['opening-day-parade'] ?? null;

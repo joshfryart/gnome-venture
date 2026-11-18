@@ -173,6 +173,13 @@
   function setQuickAim(a) { if (a === null && qAim === null) return; qAim = a; render(); }
   function dispAim() { if (qAim) return qAim; return phase === 'pre' && PREV ? (aimHide ? null : PREV.aim) : data.aim; }
   function pipsEl(n, max) { var s = document.createElement('span'); s.className = 'xp' + (n <= 1 && max > 1 ? ' last' : ''); s.setAttribute('aria-hidden', 'true'); for (var i = 0; i < max; i++) { var d = document.createElement('i'); if (i >= n) d.className = 'e'; s.appendChild(d); } return s; }
+  /** 2.7.08 (puzzle clarity P7, expiry label): a piece on the board says how long it stays, not only in pips: a number beside them, a tooltip and the cell's spoken label ("fades in 2 rounds" / "fades at the end of this round"). */
+  function lifeWords(n) { return n <= 1 ? 'fades at the end of this round' : 'fades in ' + n + ' rounds'; }
+  function lifeEl(n, max, cell) {
+    var s = pipsEl(n, max), b = document.createElement('b'); b.className = 'xpn'; b.textContent = String(Math.max(0, n)); s.appendChild(b);
+    if (cell) { var w = lifeWords(n), al = cell.getAttribute('aria-label'); if (!cell.title) cell.title = w.charAt(0).toUpperCase() + w.slice(1); if (al) cell.setAttribute('aria-label', al + ' It ' + w + '.'); cell.dataset.left = String(n); }
+    return s;
+  }
   function flipE(e) { return { L: e.L, R: e.R, T: e.B, B: e.T }; }
 
   /** Ground under every cell: a plain cell, or a button that says what the ground does. */
@@ -403,6 +410,7 @@
       + (ASIDE ? row({ n: 'Set aside', g: 'chain', l: ['Instead of placing a piece you can set two hand pieces aside, joined; play the group on a later turn and it fires for more.'], who: '' }) : '')
       + (V1.paltgt ? row({ n: 'Pal targeting', g: 'aim', l: ['A pal piece (\uD83D\uDC3E) you place goes for the creature\u2019s strongest piece on the board after its chain: that piece is knocked off. Strongest = the highest value that is not above the pal piece\u2019s own number (a bigger piece is left alone; a great creature shrugs it off); a tie goes to the piece fewest steps from your pal, then the oldest. No dice: the lit spot shows \uD83D\uDC3E and, once placed, the chip names the piece.'], who: '' }) : '')
       + row({ n: 'Guard', g: 'guard', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
+      + row({ n: 'How long a piece stays', g: 'chain', l: ['The bars and the number under a piece on the board are the rounds it still stays: 2 = it fades in 2 rounds. Red bars and ⌛: it fades at the end of this round.'], who: 'Same for your pieces and the creature’s.' })
       + row({ n: 'Flip', g: 'flip', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
       + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].filter(function (k) { return !(NOWM && (k === 'wind' || k === 'mud')); }).map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'

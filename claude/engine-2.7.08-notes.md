@@ -53,3 +53,14 @@ Smallest design taken from the docs (design-board-strategy "a pal trick can move
 - pass: pfboard_v1, pfboard_sim, pfight_sim, pfboard_fixes, pfboard_js, pf_play_decks, pf_bots (edge), ci_suites: pfdeck_v1 pfv1_belt pf_boon_tag pfboard_v1_page pfight_js pf_bots pfight fight_events pfboard pfboard_combo_set pfv1_costly pfboard_v1_abil pfboard_v1_ai pf_learner.
 - pfengine_js: passes with my changes on HEAD data (checked in a copy); FAILS in the shared tree on the data agent's uncommitted calling tier III pieces (`Deep Roots` ... `Slow Brew` in pf_pieces.txt / pfdeck.php: the JS tiles table lacks them). That agent must sync `tools/pfengine.js`.
 - pfv1_charm: FAILS on clean HEAD 1c3912ed too (scripted charm win no longer ends the fight: "the winning turn ends the fight (got null)"), so not from this work; likely the tune / piece data changes. Not fixed here.
+
+## 7. pfv1_finalturn made deterministic (2026-11-18)
+- Real cause (a fixture bug, not the engine): commit f833ea0e folded `$exp['encounter'] = json_encode($enc); save_exp($exp);` into the trailing comment of the `pfb_new(..., 7, ...)` line, so the seeded fight was never stored. The first `$turn()` then found no fight and `pfight_state` dealt a fresh one with `random_int` and the LIVE rules (one bar, Wind, pal targeting...), so the pinned options and seed 7 did nothing: about 1 run in 3 happened to pass. The engine itself is seeded (`pf_rand`), only `nonce` is random.
+- Fix: the save is back on its own line, plus a guard check "the fixture's seeded fight (seed 7, pinned rules) is the one stored and played" (watched failing 3/3 without the save; with it 10/10 identical outputs, all ok).
+- Results of `PORT_BASE=... bash tests/ci_suites.sh pfv1_charm`: see the test runs below.
+
+## 8. Expiry label on the v1 board (P7)
+- Before: a board piece showed life pips only (bars, aria-hidden, no number), plus a ⌛ in its last round; the tap card said "It stays for N more rounds". No number, no spoken/tooltip text on the board itself.
+- Now (`tools/pfboardv1_part.js` lifeWords/lifeEl -> `game/assets/pfboardv1.js` via `tools/build_pfboardv1.py`; style `.xpn` in `game/assets/pfv1.css`): the number of rounds left beside the pips, the cell tooltip "Fades in N rounds" / "Fades at the end of this round" (a cell's own tooltip, e.g. a spawned piece, is kept), the same words appended to the cell's aria-label, `data-left` on the cell, and a help row "How long a piece stays". The PHP view already sends `left` per piece (`pfb_view`, pfboard.php), so no PHP change.
+- Test: `tests/pfv1_lifelabel.js` (runs the real functions on a fake DOM; watched failing on the HEAD build), wired into `tests/pfboard_v1_page.sh`.
+- Group `!` marks and `add` help: harness-only by design. New v1 fights have `aside` 0 (pfboard.php new-fight rules), so the in-game v1 page has no group/add concept in a new fight; nothing to add there.
