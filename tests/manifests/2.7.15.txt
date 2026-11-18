@@ -15524,7 +15524,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-70aa1a09abdb8ac35a3ffa1b620fa845327857df  includes/update_news.php
+67b6bdb8b339008122ee9a98ea91872267251602  includes/update_news.php
 14987a7d98e8d33f3b07f2c03e44107caa8bc2aa  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php
