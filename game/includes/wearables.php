@@ -12,6 +12,13 @@ declare(strict_types=1);
  * sum of the levels of every Tailor they own; every point adds WEAR_UP_PER_POINT percent to the chance a lining attempt works (cap WEAR_UP_CAP).
  * A failed attempt gives a Thread; WEAR_PITY Threads make the next attempt a sure thing. Power above WEAR_POWER_CAP pays commission Petals instead.
  * Flood Boots are CARRIED: any pair in the satchel halves a flooded road's slowdown (includes/road_kinds.php).
+ *
+ * The 280 TAILOR wearables (design: claude/wear-pieces/, data: data/wear_items.txt + data/wear_items_pieces.txt, built by tools/build_wear_items.py):
+ * 14 regions x footwear / backpack / coat / cloak x 5. Each is ONE piece (no cuts: only cut 'a'), ranks Common / Lined / Fine as above.
+ * How a gnome gets one: made at the Tailor only (no shop), and only once the gnome has reached the item's region level (REGION_LEVELS) and owns a Tailor of
+ * at least the item's Tailor level. A craft costs the Petal fee (the Common price), the energy and the region's two local materials (data/region_locals.txt).
+ * Lining one also costs Petals: the step up to Lined x1.5 and to Fine x2.5 of the fee (0.5x and 1x more), paid on every attempt like the materials.
+ * The piece row keeps the design's fx|a|b (the effect code and its numbers) as 'fx', 'fa', 'fb' for the engine. All wearable data: wear_defs().
  */
 
 const WEAR_UP_BASE = 30;          // percent: a lining attempt with no Tailor power points
@@ -51,6 +58,57 @@ const WEAR_DEFS = [
         'cuts' => ['a' => ['Yarn Wrap', 'charm', 3, '', '', 'A plain Charm.']]],
 ];
 
+const WEAR_FEE_MULT = [1 => 1.0, 2 => 1.5, 3 => 2.5];   // Tailor wearables: the Petal price of each rank, times the Common fee
+const WEAR_CAT_ICON = ['footwear' => '🥾', 'backpack' => '🎒', 'coat' => '🧥', 'cloak' => '🧣'];
+const WEAR_CAT_NAME = ['footwear' => 'Footwear', 'backpack' => 'Backpack', 'coat' => 'Coat', 'cloak' => 'Cloak'];
+
+/** Rows of a data file (data/<file>): cells of every line that is not empty or a # comment. */
+function wear_data_lines(string $file): array
+{
+    $path = __DIR__ . '/data/' . $file; $out = [];
+    if (!is_file($path)) return $out;
+    foreach (file($path, FILE_IGNORE_NEW_LINES) as $line) {
+        $line = trim($line);
+        if ($line !== '' && $line[0] !== '#') $out[] = array_map('trim', explode('|', $line));
+    }
+    return $out;
+}
+
+/**
+ * The 280 Tailor wearables: slug => a WEAR_DEFS-like entry with 'get' => 'tailor', one cut 'a' => [piece, type, v, tag, knack, words], and
+ * 'region', 'cat', 'n', 'rarity' (the design's Common / Uncommon / Rare), 'petals' (Common fee), 'tailor' (Tailor level), 'energy', 'mats', 'knob', 'fx', 'fa', 'fb'.
+ * A row with no piece row (or a bad one) is left out.
+ */
+function wear_tailor_defs(): array
+{
+    static $D = null;
+    if ($D !== null) return $D;
+    $P = [];
+    foreach (wear_data_lines('wear_items_pieces.txt') as $r) if (count($r) >= 15 && $r[2] === 'wear') $P[$r[3]] = $r;
+    $D = [];
+    foreach (wear_data_lines('wear_items.txt') as $r) {
+        if (count($r) < 11 || !isset($P[$r[0]])) continue;
+        $p = $P[$r[0]]; $mats = [];
+        foreach (explode(',', $r[9]) as $m) { $m = explode(':', trim($m)); if (count($m) === 2 && (int)$m[1] > 0) $mats[$m[0]] = (int)$m[1]; }
+        $words = str_starts_with($p[10], $r[5] . ': ') ? substr($p[10], strlen($r[5]) + 2) : $p[10];
+        $D[$r[0]] = ['name' => $r[5], 'icon' => WEAR_CAT_ICON[$r[2]] ?? '🧵', 'get' => 'tailor', 'desc' => $r[10], 'region' => $r[1], 'cat' => $r[2], 'n' => (int)$r[3], 'rarity' => $r[4],
+            'petals' => (int)$r[6], 'tailor' => max(1, min(3, (int)$r[7])), 'energy' => (int)$r[8], 'mats' => $mats, 'knob' => explode('/', $p[6])[0],
+            'fx' => $p[12], 'fa' => (int)$p[13], 'fb' => (int)$p[14],
+            'cuts' => ['a' => [$p[1], $p[4], (int)$p[5], $p[7] === '-' ? '' : $p[7], $p[11] === '-' ? '' : $p[11], $words]]];
+    }
+    return $D;
+}
+
+/** Every wearable: the 6 of WEAR_DEFS and the 280 Tailor ones. */
+function wear_defs(): array
+{
+    static $all = null;
+    return $all ??= WEAR_DEFS + wear_tailor_defs();
+}
+
+/** The Petal price of a Tailor wearable at a rank (the Common fee x1, x1.5, x2.5). */
+function wear_fee(array $d, int $rank): int { return (int)round((int)($d['petals'] ?? 0) * (WEAR_FEE_MULT[$rank] ?? 1)); }
+
 /** Item slug of a wearable: base, cut 'a' or 'b', rank 1 to 3. */
 function wear_slug(string $base, string $cut = 'a', int $rank = 1): string
 {
@@ -64,20 +122,27 @@ function wear_parse(string $slug): ?array
     if (str_ends_with($slug, '-lined')) { $rank = 2; $slug = substr($slug, 0, -6); }
     elseif (str_ends_with($slug, '-fine')) { $rank = 3; $slug = substr($slug, 0, -5); }
     $cut = 'a';
-    if (!isset(WEAR_DEFS[$slug]) && str_ends_with($slug, '-b') && isset(WEAR_DEFS[substr($slug, 0, -2)])) { $cut = 'b'; $slug = substr($slug, 0, -2); }
-    if (!isset(WEAR_DEFS[$slug]) || !isset(WEAR_DEFS[$slug]['cuts'][$cut])) return null;
+    $D = wear_defs();
+    if (!isset($D[$slug]) && str_ends_with($slug, '-b') && isset($D[substr($slug, 0, -2)])) { $cut = 'b'; $slug = substr($slug, 0, -2); }
+    if (!isset($D[$slug]) || !isset($D[$slug]['cuts'][$cut])) return null;
     return [$slug, $cut, $rank];
 }
 
-/** Every wearable item: slug => [name, description, base, cut, rank, rarity, price]. 6 wearables, 11 cuts, 3 ranks = 33 items. */
+/**
+ * Every wearable item: slug => [name, description, base, cut, rank, rarity, price]. The 6 of WEAR_DEFS: 11 cuts x 3 ranks = 33 items; the 280 Tailor ones x 3 ranks = 840.
+ * A Tailor wearable's base price (what shops reckon from) is half its Petal price at that rank, so selling one never pays back the fee.
+ */
 function wear_items(): array
 {
+    static $o = null;
+    if ($o !== null) return $o;
     $o = [];
-    foreach (WEAR_DEFS as $base => $d) foreach ($d['cuts'] as $cut => $c) foreach ([1, 2, 3] as $rank) {
+    foreach (wear_defs() as $base => $d) foreach ($d['cuts'] as $cut => $c) foreach ([1, 2, 3] as $rank) {
         $slug = wear_slug($base, $cut, $rank);
         $nm = $d['name'] . ($cut === 'b' ? ' (' . $c[0] . ')' : '') . ($rank > 1 ? ', ' . WEAR_RANK_NAME[$rank] : '');
+        $price = ($d['get'] ?? '') === 'tailor' ? max(1, intdiv(wear_fee($d, $rank), 2)) : (int)($d['price'] ?? 120) * $rank;
         $o[$slug] = ['name' => $nm, 'desc' => $d['desc'] . ' Piece: ' . $c[0] . ', ' . ucfirst($c[1]) . ' ' . $c[2] . '. ' . $c[5], 'base' => $base, 'cut' => $cut, 'rank' => $rank,
-            'rarity' => 6 + 6 * $rank, 'price' => (int)($d['price'] ?? 120) * $rank];
+            'rarity' => 6 + 6 * $rank, 'price' => $price];
     }
     return $o;
 }
@@ -99,11 +164,13 @@ function wear_pieces(array $owned, array $lined = []): array
     }
     $out = [];
     foreach ($best as $k => [$rank, $slug]) {
-        [$base, $cut] = explode('|', $k); $c = WEAR_DEFS[$base]['cuts'][$cut];
+        [$base, $cut] = explode('|', $k); $d = wear_defs()[$base]; $c = $d['cuts'][$cut];
         $key = 'w:' . $base . ($cut === 'b' ? '-b' : '');   // the piece keeps its key when the wearable is lined or finished (its switch stays as the gnome set it)
-        $out[] = ['key' => $key, 'k' => $key, 'n' => $c[0], 'src' => 'wear', 'ref' => $slug, 't' => $c[1], 'v' => $c[2], 'r' => 'body', 'tag' => $c[3], 'mod' => $c[4], 'rank' => $rank,
-            'life' => 0, 'blurb' => WEAR_DEFS[$base]['name'] . ': ' . $c[5]];
-        if ($c[4] === '') unset($out[count($out) - 1]['mod']);   // no knack: no 'mod' field at all
+        $row = ['key' => $key, 'k' => $key, 'n' => $c[0], 'src' => 'wear', 'ref' => $slug, 't' => $c[1], 'v' => $c[2], 'r' => $d['knob'] ?? 'body', 'tag' => $c[3], 'mod' => $c[4], 'rank' => $rank,
+            'life' => 0, 'blurb' => $d['name'] . ': ' . $c[5]];
+        if ($c[4] === '') unset($row['mod']);   // no knack: no 'mod' field at all
+        if (isset($d['fx'])) { $row['fx'] = $d['fx']; $row['fa'] = $d['fa']; $row['fb'] = $d['fb']; }   // Tailor wearables: the effect code and its {a} {b} (the engine reads them)
+        $out[] = $row;
     }
     return $out;
 }
@@ -181,9 +248,9 @@ function wear_lined_toggle(array $u, string $slug): array
     if ($rank !== 3) return [false, 'Only a Fine wearable can be worn as Lined.'];
     if (!wear_lined_table()) return [false, 'Not now.'];
     $k = $base . '|' . $cut;
-    if (in_array($k, wear_lined_set($uid), true)) { q('DELETE FROM wear_lined WHERE user_id = ? AND wkey = ?', [$uid, $k]); return [true, '🧵 The ' . WEAR_DEFS[$base]['name'] . ' is worn as Fine again.']; }
+    if (in_array($k, wear_lined_set($uid), true)) { q('DELETE FROM wear_lined WHERE user_id = ? AND wkey = ?', [$uid, $k]); return [true, '🧵 The ' . wear_defs()[$base]['name'] . ' is worn as Fine again.']; }
     db_insert('wear_lined', ['user_id' => $uid, 'wkey' => $k]);
-    return [true, '🧵 The ' . WEAR_DEFS[$base]['name'] . ' is worn as Lined now: not a Rare piece, a little weaker.'];
+    return [true, '🧵 The ' . wear_defs()[$base]['name'] . ' is worn as Lined now: not a Rare piece, a little weaker.'];
 }
 
 /** Does the gnome have a Tailor in at least one garden? */
@@ -201,8 +268,9 @@ function wear_ensure_items(): void
     if ($done && ($stocked || !wear_live())) return;   // the items once; the shelf once the setting is on
     $done = true; $stocked = wear_live();
     try {
+        $have = array_flip(q('SELECT slug FROM items')->fetchAll(PDO::FETCH_COLUMN));   // one query, not one per item (873 of them)
         foreach (wear_items() as $slug => $it) {
-            if (item_id_by_slug($slug)) continue;
+            if (isset($have[$slug])) continue;
             db_insert('items', ['name' => $it['name'], 'slug' => $slug, 'category' => 'supply', 'rarity' => $it['rarity'], 'base_price' => $it['price'], 'description' => $it['desc'], 'edible' => 0, 'tradable' => 1]);
         }
         $shop = wear_live() ? (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'") : 0;   // the shop stocks them only while the setting is on   // the Hat and the Pack are sold at Twigg's (Common, first cut)
@@ -254,12 +322,27 @@ function wear_mats_text(array $mats): string
 /** The materials of a lining attempt from this rank (1 to Lined, 2 to Fine). */
 function wear_line_mats(int $fromRank): array { return $fromRank === 1 ? ['cottongrass' => 2, 'butterfly-scales' => 1] : ['seed-pearl' => 1, 'snow-moth-dust' => 1]; }
 
-/** Make a wearable at the Tailor: Common, cut 'a' or 'b'. Only the 'craft' wearables (boots, gloves, cloak); the Hat and Pack are bought. [ok, message] */
+/** Why a gnome cannot make this Tailor wearable yet (region level, Tailor level), or null. Not the materials, energy or Petals. */
+function tailor_gate(array $u, array $d, ?array $levels = null): ?string
+{
+    $need = (int)(REGION_LEVELS[$d['region'] ?? ''] ?? 1);
+    if ((int)($u['level'] ?? 1) < $need) return 'Reach level ' . $need . ' first (the region of this wearable).';
+    $levels ??= tailor_levels((int)$u['id']);
+    if ($levels === []) return 'You need a Tailor built in one of your gardens first.';
+    if (max($levels) < (int)$d['tailor']) return 'That takes a level ' . (int)$d['tailor'] . ' Tailor.';
+    return null;
+}
+
+/**
+ * Make a wearable at the Tailor: Common, cut 'a' or 'b'. The 'craft' wearables (boots, gloves, cloak; the Hat and Pack are bought) and the 280 'tailor' ones
+ * (one cut; tailor_gate; the Petal fee as well). A level 3 Tailor's free craft of the day saves the materials and energy, not a Petal fee. [ok, message]
+ */
 function tailor_craft(array $u, string $base, string $cut = 'a'): array
 {
-    $uid = (int)$u['id']; $d = WEAR_DEFS[$base] ?? null;
-    if (!$d || ($d['get'] ?? '') !== 'craft' || !isset($d['cuts'][$cut])) return [false, 'That is not something the Tailor makes.'];
+    $uid = (int)$u['id']; $d = wear_defs()[$base] ?? null;
+    if (!$d || !in_array($d['get'] ?? '', ['craft', 'tailor'], true) || !isset($d['cuts'][$cut])) return [false, 'That is not something the Tailor makes.'];
     if (!tailor_has($uid)) return [false, 'You need a Tailor built in one of your gardens first.'];
+    if ($d['get'] === 'tailor') return tailor_craft_regional($u, $base, $d);
     wear_ensure_items();
     $free = tailor_free_take($uid);   // a level 3 Tailor: the first craft of the day costs nothing
     if (!$free) {
@@ -270,6 +353,28 @@ function tailor_craft(array $u, string $base, string $cut = 'a'): array
     give_item($uid, item_id_by_slug(wear_slug($base, $cut, 1)), 1);
     $c = tailor_commission($uid, wear_slug($base, $cut, 1));
     return [true, '🧵 You make ' . $d['name'] . ' (' . $d['cuts'][$cut][0] . ').' . ($free ? ' Your level 3 Tailor made it for nothing today.' : '') . ($c ? ' Commission: ' . $c . ' Petals.' : '')];
+}
+
+/** A Tailor wearable (tailor_craft did the first checks). Everything is checked before anything is taken; the Petals are the claim. [ok, message] */
+function tailor_craft_regional(array $u, string $base, array $d): array
+{
+    $uid = (int)$u['id'];
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]) ?: $u;   // the level as it is now
+    if (($why = tailor_gate($u, $d)) !== null) return [false, $why];
+    wear_ensure_items();
+    $fee = wear_fee($d, 1); $free = tailor_free_ready($uid);
+    if (!$free) foreach ($d['mats'] as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . wear_mats_text($d['mats']) . '.'];
+    if ((int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) < $fee) return [false, 'The Tailor asks ' . $fee . ' Petals for that.'];
+    if (!take_petals($uid, $fee, 'tailor fee')) return [false, 'The Tailor asks ' . $fee . ' Petals for that.'];
+    $free = $free && tailor_free_take($uid);
+    if (!$free) {
+        if (!spend_energy($uid, (int)$d['energy'], 'craft')) { give_petals($uid, $fee, 'tailor fee back'); return [false, 'You need ' . (int)$d['energy'] . ' energy for that.']; }
+        if (!wear_take($uid, $d['mats'])) { give_petals($uid, $fee, 'tailor fee back'); return [false, 'You need ' . wear_mats_text($d['mats']) . '.']; }
+    }
+    $slug = wear_slug($base, 'a', 1);
+    give_item($uid, item_id_by_slug($slug), 1);
+    $c = tailor_commission($uid, $slug);
+    return [true, '🧵 You make ' . $d['name'] . ' (' . $d['cuts']['a'][0] . ') for ' . $fee . ' Petals.' . ($free ? ' Your level 3 Tailor saved you the materials and energy today.' : '') . ($c ? ' Commission: ' . $c . ' Petals.' : '')];
 }
 
 /**
@@ -288,10 +393,13 @@ function tailor_line(array $u, string $slug, bool $pity = false, ?callable $roll
     foreach ($mats as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . wear_mats_text($mats) . '.'];
     $sure = $pity && wear_qty($uid, WEAR_THREAD) >= WEAR_PITY;
     if ($pity && !$sure) return [false, 'You need ' . WEAR_PITY . ' Tailor’s Thread for a sure thing.'];
-    if (!spend_energy($uid, 2, 'craft')) return [false, 'You need 2 energy for that.'];
+    $d = wear_defs()[$base];
+    $fee = ($d['get'] ?? '') === 'tailor' ? wear_fee($d, $rank + 1) - wear_fee($d, $rank) : 0;   // a Tailor wearable: the Petals of the step up, every attempt
+    if ($fee > 0 && !take_petals($uid, $fee, 'tailor lining')) return [false, 'The Tailor asks ' . $fee . ' Petals for that.'];
+    if (!spend_energy($uid, 2, 'craft')) { if ($fee > 0) give_petals($uid, $fee, 'tailor lining back'); return [false, 'You need 2 energy for that.']; }
     wear_take($uid, $mats);
     $roll ??= fn(int $pct): bool => random_int(1, 100) <= $pct;
-    $name = WEAR_DEFS[$base]['name'];
+    $name = $d['name'];
     if ($sure) { give_item($uid, item_id_by_slug(WEAR_THREAD), -WEAR_PITY); }
     if ($sure || $roll(tailor_chance(tailor_power($uid)))) {
         give_item($uid, item_id_by_slug($slug), -1);
@@ -309,7 +417,8 @@ function tailor_recut(array $u, string $slug): array
     $uid = (int)$u['id']; $p = wear_parse($slug);
     if (!$p || wear_qty($uid, $slug) < 1) return [false, 'You do not have that.'];
     [$base, $cut, $rank] = $p;
-    if (count(WEAR_DEFS[$base]['cuts']) < 2) return [false, 'That has only one cut.'];
+    $d = wear_defs()[$base];
+    if (count($d['cuts']) < 2) return [false, 'That has only one cut.'];
     if (!tailor_has($uid)) return [false, 'You need a Tailor built in one of your gardens first.'];
     $free = tailor_power($uid) >= 2 && max(tailor_levels($uid)) >= 2;   // a level 2 Tailor does it for nothing
     wear_ensure_items();
@@ -318,5 +427,5 @@ function tailor_recut(array $u, string $slug): array
     $to = $cut === 'a' ? 'b' : 'a';
     give_item($uid, item_id_by_slug($slug), -1);
     give_item($uid, item_id_by_slug(wear_slug($base, $to, $rank)), 1);
-    return [true, '🧵 You re-cut the ' . WEAR_DEFS[$base]['name'] . ': it is now ' . WEAR_DEFS[$base]['cuts'][$to][0] . '.'];
+    return [true, '🧵 You re-cut the ' . $d['name'] . ': it is now ' . $d['cuts'][$to][0] . '.'];
 }

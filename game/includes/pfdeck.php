@@ -367,7 +367,7 @@ function pfd_build(array $src): array
         $e = ['key' => $key, 'k' => $p['k'], 'n' => $p['n'], 't' => $p['t'], 'v' => (int)$p['v'], 'r' => $p['r'], 'tag' => (string)$p['tag'], 'src' => $p['src'], 'ref' => (string)($p['ref'] ?? ''), 'rank' => $rank,
             'life' => (int)($p['life'] ?? 0) ?: ($rank >= 4 ? 4 : ($p['tag'] === 'quick' ? 2 : ($p['tag'] === 'hold' ? 4 : PFB_LIFE))), 'blurb' => (string)($p['blurb'] ?? ''),
             'gear' => false, 'tool' => '', 'starter' => false, 'core' => false, 'on' => false, 'out' => ''];
-        foreach (['col', 'up', 'mod', 'cnt'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];
+        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];   // fx fa fb: a Tailor wearable's effect code and numbers (includes/wearables.php)
         return $x + $e;
     };
     $pieces = []; $seen = [];
@@ -462,7 +462,7 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
         if ($e['src'] === 'calling') $b += max(0, $ctier - 1) * 2;
         if ($e['src'] !== 'pal') $b += PFD_RANK_BONUS[(int)$e['rank']] ?? 0;
         $over = ['n' => $e['n'], 't' => $t, 'v' => (int)$e['v'], 'r' => $e['r'], 'tag' => (string)$e['tag'], 'src' => $e['src'], 'life' => (int)$e['life'], 'rank' => (int)$e['rank']];
-        foreach (['col', 'up', 'mod', 'cnt'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
+        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
         if ($e['tool'] !== '') $over['tool'] = $e['tool'];
         $deck[] = pf_make_tile($k, $stats, $b, $over);
     }

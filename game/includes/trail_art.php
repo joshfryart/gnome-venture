@@ -429,6 +429,7 @@ function trail_art_svg(array $map, array $state): string
         $o .= '</g>';
     }
     $items = [];   // [feet row, column, markup]
+    $lmSpan = [];   // 2.7.09: wide landmarks [row, left tile, right tile]: they sort after every tree of their row (a tree is at most 4 px down), and the walker / a villager standing at one sort after the landmark
     $in = fn(float $x, float $y, float $w, float $h): bool => $x + $w > 0 && $y + $h > 0 && $x < $W && $y < $H;
     foreach ($art['objs'] as $ob) {
         [$ox, $oy, $key, $jit] = $ob;
@@ -442,7 +443,9 @@ function trail_art_svg(array $map, array $state): string
             $Y = (($oy - $y0) * TRAIL_ART_PX + 62 - $bh) * $k;
         }
         if (!$in($X, $Y, $bw * $k, $bh * $k)) continue;
-        $items[] = [$oy + .5 + $jy / TRAIL_ART_PX, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
+        $isLm = !($bw === 64 && $bh === 96);   // 2.7.09: a landmark (any other size) is drawn over the trees of its own row, not under the ones shifted down a few px (wall-trees overdraw)
+        if ($isLm) $lmSpan[] = [$oy, $ox - $bw / 2 / TRAIL_ART_PX, $ox + $bw / 2 / TRAIL_ART_PX];
+        $items[] = [$oy + .5 + ($isLm ? 4.5 : $jy) / TRAIL_ART_PX, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
         if (isset($state['sights'][$ox . ',' . $oy]) && strncmp((string)$key, 'lm-', 3) === 0) {   // v2.6.68: a Sight here (Trail Sights); true = ready, false = used up for now
             $ready = !empty($state['sights'][$ox . ',' . $oy]);
             $mx = $X + $bw * $k / 2; $my = max(14.0, $Y - 4);
@@ -453,10 +456,14 @@ function trail_art_svg(array $map, array $state): string
             } elseif ($ready) $items[] = [$oy + .9, $ox, '<g class="tmsight"><circle cx="' . $n($mx) . '" cy="' . $n($my) . '" r="11" fill="#f5b82e" stroke="#2b1c26" stroke-width="2"/><text x="' . $n($mx) . '" y="' . $n($my + 5.5) . '" text-anchor="middle" font-size="16" font-weight="700" fill="#2b1c26">!</text></g>'];
         }
     }
+    $overLm = function (int $tx, int $ty, float $key) use ($lmSpan): float {   // 2.7.09: a walker / villager on a wide landmark's tiles stays in front of it
+        foreach ($lmSpan as [$ly_, $l0, $l1]) if ($ly_ === $ty && $tx >= $l0 - .5 && $tx <= $l1 + .5) return max($key, $ty + .5 + 4.5 / TRAIL_ART_PX + .001);
+        return $key;
+    };
     foreach ((array)($state['folk'] ?? []) as $fe_) { [$fx, $fy, $fpic, $fname, $fframes, , , $fanim] = $fe_; $f25 = $fe_[10] ?? null;   // v2.6.68: a villager out and about at a Sight stands beside the landmark (the first frame of a sprite sheet)
         if ((int)$fframes === 0) {   // 2.7.01: a villager with no sprite of their own: the villager marker on their tile (trail_sight_folk_pic)
             $FX = ($fx - $x0) * $C; $FY = ($fy - $y0) * $C;
-            if ($in($FX, $FY, $C, $C)) $items[] = [$fy + .55, $fx, '<g class="tmfolk tmfolkmark' . (!empty($fanim) ? ' tmfolk-in' : '') . '"><title>' . e((string)$fname) . '</title><image href="' . e((string)$fpic) . '" x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $C . '" height="' . $C . '" image-rendering="pixelated"/></g>'];
+            if ($in($FX, $FY, $C, $C)) $items[] = [$overLm((int)$fx, (int)$fy, $fy + .55), $fx, '<g class="tmfolk tmfolkmark' . (!empty($fanim) ? ' tmfolk-in' : '') . '"><title>' . e((string)$fname) . '</title><image href="' . e((string)$fpic) . '" x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $C . '" height="' . $C . '" image-rendering="pixelated"/></g>'];
             continue;
         }
         if ($f25) { $fw = 51 * $k; $fh = 64 * $k; } else { $fw = 46 * $k; $fh = 69 * $k; } $FX = ($fx - $x0) * $C + $C / 2 - $fw / 2; $FY = ($fy - $y0) * $C + $C - $fh + 6 * $k;
@@ -465,10 +472,10 @@ function trail_art_svg(array $map, array $state): string
             $FX = ($fx - $x0) * $C + $C / 2 - $fw / 2; $FY = ($fy - $y0) * $C + $C - $fh + 6 * $k;
             $img = '<image class="' . (!empty($f25['walk']) ? 'tmwalk' : 'tmidle') . '" href="' . e((string)$fpic) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/>';
             if (($f25['dir'] ?? 1) < 0) $img = '<g transform="translate(64 0) scale(-1 1)">' . $img . '</g>';
-            $items[] = [$fy + .55, $fx, '<g class="tmfolk"><title>' . e((string)$fname . (!empty($f25['label']) ? ': ' . $f25['label'] : '')) . '</title><svg x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $n($fw) . '" height="' . $n($fh) . '" viewBox="0 0 64 80" overflow="hidden" preserveAspectRatio="xMidYMax meet">' . $img . '</svg></g>'];
+            $items[] = [$overLm((int)$fx, (int)$fy, $fy + .55), $fx, '<g class="tmfolk"><title>' . e((string)$fname . (!empty($f25['label']) ? ': ' . $f25['label'] : '')) . '</title><svg x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $n($fw) . '" height="' . $n($fh) . '" viewBox="0 0 64 80" overflow="hidden" preserveAspectRatio="xMidYMax meet">' . $img . '</svg></g>'];
             continue;
         }
-        $items[] = [$fy + .55, $fx, '<g class="tmfolk' . (!empty($fanim) ? ' tmfolk-in' : '') . '"><title>' . e((string)$fname) . '</title><svg x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $n($fw) . '" height="' . $n($fh) . '" viewBox="0 0 ' . (64) . ' 96" overflow="hidden" preserveAspectRatio="xMidYMax meet"><image href="' . e((string)$fpic) . '" x="0" y="0" width="' . (64 * max(1, (int)$fframes)) . '" height="96" image-rendering="pixelated"/></svg></g>'];
+        $items[] = [$overLm((int)$fx, (int)$fy, $fy + .55), $fx, '<g class="tmfolk' . (!empty($fanim) ? ' tmfolk-in' : '') . '"><title>' . e((string)$fname) . '</title><svg x="' . $n($FX) . '" y="' . $n($FY) . '" width="' . $n($fw) . '" height="' . $n($fh) . '" viewBox="0 0 ' . (64) . ' 96" overflow="hidden" preserveAspectRatio="xMidYMax meet"><image href="' . e((string)$fpic) . '" x="0" y="0" width="' . (64 * max(1, (int)$fframes)) . '" height="96" image-rendering="pixelated"/></svg></g>'];
     }
     $marks = '';
     foreach ($state['tokens'] ?? [] as $tk) {
@@ -507,7 +514,7 @@ function trail_art_svg(array $map, array $state): string
         $palsSvg .= '<image class="tmpal" href="' . e((string)$pu) . '" x="' . $n($px * $k) . '" y="' . $n($py * $k) . '" width="' . $n($sz * $k) . '" height="' . $n($sz * $k) . '" image-rendering="pixelated"/>';
     }
     if (!empty($state['escort'])) $palsSvg .= '<svg class="tmpal tmescort" x="' . $n(-58 * $k) . '" y="' . $n(-40 * $k) . '" width="' . $n(52 * $k) . '" height="' . $n(65 * $k) . '" viewBox="0 0 64 80"><image href="' . e((string)$state['escort']) . '" width="512" height="80" image-rendering="pixelated"/></svg>';   // 2.7.06: a villager walking with you (first frame of the strip)
-    $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . $palsSvg . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
+    $items[] = [$overLm((int)$state['px'], (int)$state['py'], $state['py'] + .5), $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . $palsSvg . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
         . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/>') . '</g>'];
     usort($items, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);
     $o .= $marks;   // flat marks lie on the ground, under the walker and the raised things
