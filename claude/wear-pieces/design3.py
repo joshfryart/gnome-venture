@@ -4,7 +4,7 @@ TRIG = {
  'linkG':'If it is linked to a Guard','linkH':'If it is linked to a Hurt','linkC':'If it is linked to a Charm','linkT':'If it is linked to a Trick','linkS':'If it is linked to a Soothe',
  'linkHeal':'If it is linked to a Heal or Item','linkEnv':'If an environment piece is in its chain','linkFoe':'If a creature piece is in its chain','link2':'If it is linked to 2 or more pieces',
  'chain2':'If its chain is exactly 2 pieces','combo3':'If its chain has 3 or more pieces','pair':'If a piece of its own type is linked to it','aimNext':'If it sits next to the creature\'s aim cell',
- 'onAim':'If it sits on the creature\'s aim cell','edge':'If it sits on the edge of the board','corner':'If it sits in a corner','mid4':'If it sits in one of the four middle cells',
+ 'onAim':'If it sits on the creature\'s aim cell','edge':'If it sits on the edge of the board','corner':'If it sits in a corner','mid4':'If it sits in one of the four inner cells',
  'handG':'If you hold a Guard in your hand','handH':'If you hold 2 or more Hurts in your hand','foeEvade':'If the creature dodges your next hit','foeG':'If the creature has guard up',
  'foeB3':'If the creature has 3 or more pieces on the board','foeB0':'If the creature has no pieces on the board','yHalf':'If its Yield bar is past half','yLow':'If its Yield bar is under a quarter',
  'hpLow':'If you are under half health','hpFull':'If you are at full health','hit':'If the creature hit you last turn','noDmg':'If you took no damage last turn','poisoned':'If you are poisoned',

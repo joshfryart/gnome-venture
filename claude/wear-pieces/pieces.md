@@ -83,7 +83,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | # | Item | Rarity | Piece | Type | Value | Effect | Petals | Tailor |
 |---|---|---|---|---|---|---|---|---|
 | 1 | Hearthstripe Poncho | Common | **Hearth Stripe** | charm | 3 | If you took no damage last turn, add 2 Charm. | 1500 | 1 |
-| 2 | Dappled Rebozo | Common | **Rebozo Hum** | charm | 3 | If it sits in one of the four middle cells, cut the creature's hits by 1 this round. | 1500 | 1 |
+| 2 | Dappled Rebozo | Common | **Rebozo Hum** | charm | 3 | If it sits in one of the four inner cells, cut the creature's hits by 1 this round. | 1500 | 1 |
 | 3 | Palm Rain Cape | Uncommon | **Palm Cape Calm** | soothe | 2 | If the creature has 3 or more pieces on the board, the creature's strongest piece loses 1. | 4000 | 2 |
 | 4 | Agave-Fibre Mantle | Uncommon | **Fibre Veil** | trick | 3 | If it sits in a corner, the next Hurt you place gets +3. | 4000 | 2 |
 | 5 | Sun Hood Cloak | Rare | **Sun-Hood Shade** | guard | 6 | Gain 4 guard. If its Yield bar is past half, also cut the creature's hits by 2 this round. | 10000 | 3 |
@@ -210,7 +210,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 |---|---|---|---|---|---|---|---|---|
 | 1 | Shepherd's Felt Cape | Common | **Shepherd Hum** | charm | 4 | If you hold 2 or more Hurts in your hand, cut the creature's hits by 1 this round. | 2400 | 1 |
 | 2 | Lemon-Fringe Shawl | Common | **Lemon Fringe Soft** | charm | 4 | If it sits in a corner, add 3 Charm. | 2400 | 1 |
-| 3 | Loom-Stripe Poncho | Uncommon | **Loom Stripe Tidy** | trick | 4 | If it sits in one of the four middle cells, small chance to lift an item from the creature. | 6400 | 2 |
+| 3 | Loom-Stripe Poncho | Uncommon | **Loom Stripe Tidy** | trick | 4 | If it sits in one of the four inner cells, small chance to lift an item from the creature. | 6400 | 2 |
 | 4 | Whitewash Sun Mantle | Uncommon | **Whitewash Glare** | guard | 5 | If its Yield bar is under a quarter, the creature's next Hurt misses. | 6400 | 2 |
 | 5 | Sea-Squall Capelet | Rare | **Squall Lull** | charm | 7 | Add 5 Charm. If it is the only Charm in your chain, the creature skips its next turn. | 16000 | 3 |
 
@@ -294,7 +294,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 |---|---|---|---|---|---|---|---|---|
 | 1 | Shaggy Shepherd Cape | Common | **Shaggy Hum** | charm | 5 | If you are under half health, add 4 Charm. | 3000 | 1 |
 | 2 | Poppy Field Shawl | Common | **Poppy Shawl Bond** | charm | 5 | If it is linked to a Trick, your Charm counts 10% more for the rest of the fight. | 3000 | 1 |
-| 3 | Birch Hooded Mantle | Uncommon | **Birch Mantle Lull** | charm | 6 | If it sits in one of the four middle cells, the creature skips its next turn. | 8000 | 2 |
+| 3 | Birch Hooded Mantle | Uncommon | **Birch Mantle Lull** | charm | 6 | If it sits in one of the four inner cells, the creature skips its next turn. | 8000 | 2 |
 | 4 | Wheatfield Poncho | Uncommon | **Wheatfield Poncho** | soothe | 4 | If it sits on the edge of the board, cut the creature's hits by 2 this round. | 8000 | 2 |
 | 5 | Fox-collar Capelet | Rare | **Fox-Collar Lift** | trick | 7 | Pluck, sure to work once a fight; after that Pluck chances double. The piece it links to gets +3. | 20000 | 3 |
 
@@ -304,7 +304,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 
 | # | Item | Rarity | Piece | Type | Value | Effect | Petals | Tailor |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Dune Slippers | Common | **Dune Slip** | guard | 5 | If it sits in one of the four middle cells, the creature's next Hurt misses. | 3300 | 1 |
+| 1 | Dune Slippers | Common | **Dune Slip** | guard | 5 | If it sits in one of the four inner cells, the creature's next Hurt misses. | 3300 | 1 |
 | 2 | Palm-Rope Sandals | Common | **Palm-Rope Spring** | hurt | 5 | If you are at full health, your next hand has 1 extra piece. | 3300 | 1 |
 | 3 | Indigo Wrap Boots | Uncommon | **Indigo Wrap Brace** | guard | 6 | If it is linked to a Charm, gain 5 guard. | 8800 | 2 |
 | 4 | Camel-Pad Overshoes | Uncommon | **Camel-Pad Plod** | hurt | 6 | If the creature has 3 or more pieces on the board, deal 5 extra damage. | 8800 | 2 |
@@ -409,7 +409,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | # | Item | Rarity | Piece | Type | Value | Effect | Petals | Tailor |
 |---|---|---|---|---|---|---|---|---|
 | 1 | Ikat Robe Coat | Common | **Ikat Robe Wall** | guard | 6 | If you have played 2 or more Guards this fight, the creature's strongest piece loses 2. | 3900 | 1 |
-| 2 | Kantha Patch Vest | Common | **Kantha Patch Thorn** | guard | 6 | If it sits in one of the four middle cells, each hit this guard blocks adds 2 to the bar. | 3900 | 1 |
+| 2 | Kantha Patch Vest | Common | **Kantha Patch Thorn** | guard | 6 | If it sits in one of the four inner cells, each hit this guard blocks adds 2 to the bar. | 3900 | 1 |
 | 3 | Fleece-Collar Jacket | Uncommon | **Fleece Collar Mend** | guard | 7 | In its last round on the board, heal 2 at the start of each of your next 2 turns. | 10400 | 2 |
 | 4 | Mirror-Work Smock | Uncommon | **Mirror Smock Glint** | guard | 7 | If a creature piece is in its chain, the creature's next Hurt misses. | 10400 | 2 |
 | 5 | Turmeric Wrap Coat | Rare | **Turmeric Wrap Keep** | guard | 9 | Keeper. Gain 7 guard and heal 3 for each piece left in your hand. | 26000 | 3 |
@@ -430,7 +430,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 
 | # | Item | Rarity | Piece | Type | Value | Effect | Petals | Tailor |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Paddy Stilt-Clogs | Common | **Stilt Clog Surge** | hurt | 6 | If it sits in one of the four middle cells, deal 5 extra damage. | 4200 | 1 |
+| 1 | Paddy Stilt-Clogs | Common | **Stilt Clog Surge** | hurt | 6 | If it sits in one of the four inner cells, deal 5 extra damage. | 4200 | 1 |
 | 2 | Pandan Sandals | Common | **Pandan Skip** | guard | 6 | If its chain has 3 or more pieces, your next hand has 1 extra piece. | 4200 | 1 |
 | 3 | Ikat Leech-Wraps | Uncommon | **Leech Wrap Guard** | guard | 7 | If you played no Hurt last turn, heal 6. | 11200 | 2 |
 | 4 | Rattan Trail Boot | Uncommon | **Rattan Rush** | hurt | 7 | If it sits next to the creature's aim cell, it ignores the creature's guard. | 11200 | 2 |
@@ -462,7 +462,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 |---|---|---|---|---|---|---|---|---|
 | 1 | Palm-Frond Rain Cape | Common | **Palm Frond Hum** | charm | 6 | If it sits next to the creature's aim cell, cut the creature's hits by 3 this round. | 4200 | 1 |
 | 2 | Banana-Leaf Hood | Common | **Banana Hood Calm** | soothe | 4 | If it sits in a corner, cut the creature's hits by 3 this round. | 4200 | 1 |
-| 3 | Batik Shawl | Uncommon | **Batik Shawl Bond** | charm | 7 | If it sits in one of the four middle cells, your Charm counts 10% more for the rest of the fight. | 11200 | 2 |
+| 3 | Batik Shawl | Uncommon | **Batik Shawl Bond** | charm | 7 | If it sits in one of the four inner cells, your Charm counts 10% more for the rest of the fight. | 11200 | 2 |
 | 4 | Net-Veil Mantle | Uncommon | **Net-Veil Pluck** | trick | 6 | If an environment piece is in its chain, small chance to lift an item from the creature. | 11200 | 2 |
 | 5 | Monsoon Poncho | Rare | **Monsoon Lull** | charm | 9 | Add 7 Charm. The creature's next two Hurts do half damage. | 28000 | 3 |
 
