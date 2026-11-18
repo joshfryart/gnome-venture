@@ -286,7 +286,8 @@ function here_shop_fronts(array $u, array $node, int $fronts): array
 {
     if ($fronts < 1) return [];
     require_once __DIR__ . '/world.php';
-    $list = fn(string $region): array => q('SELECT s.*, l.name AS loc_name, l.id AS loc_id FROM shops s JOIN locations l ON l.id = s.location_id WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$region])->fetchAll();
+    require_once __DIR__ . '/wearables.php';
+    $list = fn(string $region): array => array_values(array_filter(q('SELECT s.*, l.name AS loc_name, l.id AS loc_id FROM shops s JOIN locations l ON l.id = s.location_id WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$region])->fetchAll(), fn($sh) => !wear_shop_hidden($sh, $u)));   // the regional outfitter shows only where the wearables are switched on
     $isHub = (string)$node['region'] === HUB_REGION;
     $town = $list((string)$node['region']);
     $hub = $isHub ? [] : $list(HUB_REGION);

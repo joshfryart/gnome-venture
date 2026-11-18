@@ -279,6 +279,7 @@ function wear_ensure_items(): void
             $id = item_id_by_slug(wear_slug($base, 'a', 1)); $price = (int)$d['price'];
             if ($id && !q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $id])) db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)round($price * 1.1), 'max_stock' => 2, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
         }
+        if (wear_live()) wear_ensure_shops();   // 2.7.xx: each region's outfitter (the 20 wearables of that region)
         if (!item_id_by_slug(WEAR_THREAD)) { [$n, $cat, $rar, $pr, $ds] = WEAR_THREAD_ITEM; db_insert('items', ['name' => $n, 'slug' => WEAR_THREAD, 'category' => $cat, 'rarity' => $rar, 'base_price' => $pr, 'description' => $ds, 'edible' => 0, 'tradable' => 1]); }
     } catch (Throwable $e) { error_log('wear_ensure_items: ' . $e->getMessage()); }
 }
@@ -428,4 +429,75 @@ function tailor_recut(array $u, string $slug): array
     give_item($uid, item_id_by_slug($slug), -1);
     give_item($uid, item_id_by_slug(wear_slug($base, $to, $rank)), 1);
     return [true, '🧵 You re-cut the ' . $d['name'] . ': it is now ' . $d['cuts'][$to][0] . '.'];
+}
+
+
+// ---------------------------------------------------------------- the regional outfitters (2.7.xx)
+
+/** Shop name per region (slug = <code>-outfitters), at the region's market place. */
+const WEAR_SHOP_NAMES = ['NA' => 'Plaid & Pine Outfitters', 'CA' => 'Hilo & Hoja', 'NWE' => 'The Tweed Peg', 'CB' => 'The Salt Stitch', 'SE' => 'Sun & Thread', 'SA' => 'Llama & Loom Outfitters',
+    'EE' => 'The Felted Fox', 'MENA' => 'Dune Drapers', 'EA' => 'The Indigo Needle', 'CSA' => 'Spicepeak Threads', 'SEA' => 'Batik & Bamboo', 'WCA' => 'The Strip-Weave Stall',
+    'ESA' => 'Highland Hem', 'OC' => 'Reef & Flax Outfitters'];
+const WEAR_SHOP_MARKUP = 1.25;   // the shop sells the Common rank for the Tailor's Petal fee x this (no Tailor, no materials, no energy); Lined and Fine still come from the Tailor
+const WEAR_SHOP_STOCK = ['Common' => [3, 50, 2], 'Uncommon' => [2, 30, 1], 'Rare' => [1, 12, 0]];   // rarity => [max on the shelf, restock chance %, on the shelf at the start]
+
+/** Price of a Tailor wearable's Common rank on the outfitter's shelf. */
+function wear_shop_price(array $d): int { return max(50, (int)(round((int)$d['petals'] * WEAR_SHOP_MARKUP / 50) * 50)); }
+
+/** Is this shop the wearables' outfitter, and may this gnome see it (the same switch as the wearables: puzzle combat v1)? */
+function wear_shop_hidden(array $shop, array $u): bool
+{
+    return (string)($shop['shop_type'] ?? '') === 'outfitter' && !wear_live($u);
+}
+
+/** One outfitter per region: shop, three shifts of staff (like the seed markets), the region's 20 wearables on its shelves. Idempotent; adds missing stock too. */
+function wear_ensure_shops(): void
+{
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    $first = ['Tansy', 'Quill', 'Hazel', 'Rowan', 'Sorrel', 'Thistle', 'Willow', 'Cricket', 'Maple', 'Nutmeg', 'Poppy', 'Reed', 'Sage', 'Tumble', 'Dew', 'Ember', 'Fern', 'Ginger'];
+    $last = ['Stitchwell', 'Threadbare', 'Needleby', 'Hemsworth', 'Buttonwood', 'Spindlewick', 'Tuckaway', 'Seamsby', 'Warpfield', 'Weftley', 'Cuffington', 'Patchley', 'Fringeby', 'Loomsby'];
+    $species = ['Hedgehog', 'Field mouse', 'Dormouse', 'Hare', 'Wren', 'Tortoise', 'Mole', 'Snail'];
+    $moods = ['Cheerful', 'Fussy', 'Chatty', 'Generous', 'Proud', 'Dreamy', 'Curious', 'Shy'];
+    $i = 0;
+    foreach (WEAR_SHOP_NAMES as $code => $name) {
+        $rslug = strtolower($code);
+        $loc = (int)q_val('SELECT id FROM locations WHERE slug = ?', ['market-' . $rslug]);
+        $i += 3;
+        if (!$loc) continue;
+        $slug = $rslug . '-outfitters';
+        $shopId = (int)q_val('SELECT id FROM shops WHERE slug = ?', [$slug]);
+        if (!$shopId) {
+            $shopId = db_insert('shops', ['name' => $name, 'slug' => $slug, 'location_id' => $loc, 'shop_type' => 'outfitter', 'restock_minutes' => 60,
+                'description' => 'Footwear, packs, coats and cloaks cut and sewn from this region\'s own cloth. Better ranks (Lined, Fine) are made at your Tailor.']);
+            foreach ([[6, 14], [14, 22], [22, 6]] as $k => [$st, $en]) {
+                $nm = $first[($i + $k * 5) % count($first)] . ' ' . $last[($i * 3 + $k) % count($last)];
+                $ns = slugify($nm); if (q_val('SELECT 1 FROM npcs WHERE slug = ?', [$ns])) $ns .= '-' . $rslug;
+                $nid = db_insert('npcs', ['name' => $nm, 'slug' => $ns, 'species' => $species[($i + $k) % count($species)], 'personality' => $moods[($i + $k) % count($moods)], 'home_location_id' => $loc,
+                    'bio' => 'Works at ' . $name . ' and can tell a good seam from across the street.']);
+                db_insert('npc_schedules', ['npc_id' => $nid, 'location_id' => $loc, 'shop_id' => $shopId, 'activity' => 'working', 'start_hour' => $st, 'end_hour' => $en]);
+                db_insert('npc_schedules', ['npc_id' => $nid, 'location_id' => $loc, 'shop_id' => null, 'activity' => 'wandering', 'start_hour' => $en, 'end_hour' => ($en + 3) % 24]);
+                db_insert('npc_schedules', ['npc_id' => $nid, 'location_id' => $loc, 'shop_id' => null, 'activity' => 'resting', 'start_hour' => ($en + 3) % 24, 'end_hour' => $st]);
+            }
+        }
+        foreach (wear_tailor_defs() as $iSlug => $d) {
+            if (($d['region'] ?? '') !== $code) continue;
+            $id = item_id_by_slug($iSlug);
+            if (!$id || q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shopId, $id])) continue;
+            [$max, $chance, $start] = WEAR_SHOP_STOCK[$d['rarity']] ?? [1, 10, 0]; $price = wear_shop_price($d);
+            db_insert('shop_stock', ['shop_id' => $shopId, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)round($price * 1.1), 'max_stock' => $max, 'restock_chance' => $chance, 'current_stock' => $start, 'current_price' => $price]);
+        }
+    }
+}
+
+/** Why this gnome cannot buy this wearable item from a shelf yet (null = fine): the setting, and the level of its region (the Tailor's rule). */
+function wear_shop_block(array $u, string $slug): ?string
+{
+    $p = wear_parse($slug);
+    $d = $p ? (wear_defs()[$p[0]] ?? null) : null;
+    if (!$d || ($d['get'] ?? '') !== 'tailor') return null;
+    if (!wear_live($u)) return 'That is not on the shelf.';
+    $need = (int)(REGION_LEVELS[$d['region'] ?? ''] ?? 1);
+    return (int)($u['level'] ?? 1) < $need ? 'That needs gnome level ' . $need . ' (the level of its region).' : null;
 }

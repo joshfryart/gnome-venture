@@ -9,6 +9,7 @@ require_once __DIR__ . '/includes/shop_tiles.php';
 $u = require_login();
 
 $shop = q_one('SELECT * FROM shops WHERE id = ? AND open = 1', [(int)($_GET['id'] ?? 0)]);
+if ($shop) { require_once __DIR__ . '/includes/wearables.php'; if (wear_shop_hidden($shop, $u)) $shop = null; }   // the regional outfitter: only where the wearables are switched on
 if (!$shop) {
     if (active_expedition((int)$u['id'])) {   // v0.9.1a: say why, while walking
         flash('You’re on the road; shops wait until you arrive.', 'err');
@@ -159,9 +160,11 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
       require_once __DIR__ . '/includes/pfdeck.php';   // 2.7.05: a fight belt above the gnome's level is dimmed with a note (buy_from_shop refuses it too)
       $beltNeed = pfd_belt_level_need((string)$s['slug']); $beltLow = $beltNeed > (int)$u['level'];
       if ($beltLow) $info .= '<p class="help">🔒 Needs gnome level ' . $beltNeed . ' (you are level ' . (int)$u['level'] . ').</p>';
+      require_once __DIR__ . '/includes/wearables.php'; $wearBlock = wear_shop_block($u, (string)$s['slug']);   // 2.7.xx: a regional wearable needs the level of its region
+      if ($wearBlock) $info .= '<p class="help">🔒 ' . e($wearBlock) . '</p>';
       $priceHtml = money($myPrice) . ($myPrice < (int)$s['current_price'] ? ' <s class="muted">' . number_format((int)$s['current_price']) . '</s>' : '');
       echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
-          'tags' => $tags, 'info' => $info, 'dim' => $read || $beltLow, 'offNote' => $read ? '✔ Read' : ($beltLow ? 'Level ' . $beltNeed : ''), 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true,
+          'tags' => $tags, 'info' => $info, 'dim' => $read || $beltLow || (bool)$wearBlock, 'offNote' => $read ? '✔ Read' : ($beltLow ? 'Level ' . $beltNeed : ($wearBlock ? 'Locked' : '')), 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true,
           'coins' => $open ? $fresh : null]);
   endforeach; ?>
   </div></div>
