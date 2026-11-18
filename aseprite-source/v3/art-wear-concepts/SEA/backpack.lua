@@ -268,10 +268,10 @@ do
   C.lit(c, drop, R.water, 0, { R = 1 })
   c:put(52, 49, R.water[6])
   -- quirk: sprout from the cork
-  C.vline(c, 32, 3, 7, R.leaf[3]) C.vline(c, 33, 5, 7, R.leaf[2])
-  local l1 = c:ellipse(29, 3, 3, 1.6)
-  local l2 = c:ellipse(36, 2, 3, 1.6)
+  C.vline(c, 32, 4, 7, R.leaf[3]) C.vline(c, 33, 5, 7, R.leaf[2])
+  local l1 = c:ellipse(29, 4, 3, 1.6)
+  local l2 = c:ellipse(36, 3, 3, 1.6)
   C.lit(c, l1, R.leaf, 1, { R = 1 }) C.lit(c, l2, R.leaf, 0, { R = 1 })
-  c:put(28, 2, R.leaf[6]) c:put(35, 1, R.leaf[6])
+  c:put(28, 3, R.leaf[6]) c:put(35, 2, R.leaf[6])
   C.save(c, "backpack-5-water-jar-pack")
 end

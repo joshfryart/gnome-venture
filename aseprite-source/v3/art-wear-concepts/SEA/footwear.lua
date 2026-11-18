@@ -165,7 +165,7 @@ do
     C.lit(c, bd, R.wood, 0, { R = 1 }) c:put(p[1] - 1, p[2] - 1, R.wood[6])
   end
   -- quirk: dragonfly resting on the back cuff
-  local oy = 3
+  local oy = 4
   C.hline(c, 31, 42, oy, R.yarnB[4]) C.hline(c, 31, 35, oy, R.yarnB[5]) C.hline(c, 36, 42, oy + 1, R.yarnB[2])
   c:put(43, oy, R.yarnB[3])
   c:fillMask(c:rect(28, oy - 1, 30, oy + 1), R.yarnB[3]) c:put(28, oy - 1, R.yarnB[6]) c:put(29, oy, C.ink)
