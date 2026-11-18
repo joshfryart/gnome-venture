@@ -14,6 +14,6 @@ for r in ORDER:
             L.append(f"| {x['n']} | {x['item']} | {x['rarity']} | **{x['piece']}** | {x['type']} | {x['v']} | {x['effect']} | {x['petals']} | {x['tailor']} |")
         L.append('')
 open('pieces.md','w').write('\n'.join(L))
-D=['# Wearable pieces v2 (280): key|name|source|ref|type|v|knob|tag|life|rarity|blurb|mod|fx   fx = unique effect code (needs engine support; see design2.py TRIG/PAY and the Rare texts)']
-for x in IT: D.append('|'.join([f"w:{x['slug']}",x['piece'],'wear',x['slug'],x['type'],str(x['v']),FAM[x['knob']],'-','-','src',f"{x['item']}: {x['effect']}",'-',x['code']]))
+D=['# Wearable pieces v2 (280): key|name|source|ref|type|v|knob|tag|life|rarity|blurb|mod|fx|a|b   fx = unique effect code (needs engine support; see design2.py TRIG/PAY and the Rare texts)']
+for x in IT: D.append('|'.join([f"w:{x['slug']}",x['piece'],'wear',x['slug'],x['type'],str(x['v']),FAM[x['knob']],'-','-','src',f"{x['item']}: {x['effect']}",'-',x['code'],str(x.get('a','')),str(x.get('b',''))]))
 open('wear_pieces.txt','w').write('\n'.join(D)+'\n'); json.dump(IT,open('pieces.json','w'),indent=1); print('ok')

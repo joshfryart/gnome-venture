@@ -18,7 +18,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-sugarbush-snow-boots"
+  "slug": "na-sugarbush-snow-boots",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -39,7 +41,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-birchwood-clog"
+  "slug": "na-birchwood-clog",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -60,7 +64,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-lakeland-snowshoe"
+  "slug": "na-lakeland-snowshoe",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -81,7 +87,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-prairie-stitch-boots"
+  "slug": "na-prairie-stitch-boots",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -102,7 +110,9 @@
   "petals": 8000,
   "tailor": 3,
   "energy": 6,
-  "slug": "na-loon-down-slippers"
+  "slug": "na-loon-down-slippers",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "NA",
@@ -123,7 +133,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-splint-pack-basket"
+  "slug": "na-splint-pack-basket",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -144,7 +156,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-firewood-pack-frame"
+  "slug": "na-firewood-pack-frame",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -165,7 +179,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-portage-sack"
+  "slug": "na-portage-sack",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -186,7 +202,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-sap-run-bucket"
+  "slug": "na-sap-run-bucket",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -207,7 +225,9 @@
   "petals": 8000,
   "tailor": 3,
   "energy": 6,
-  "slug": "na-toboggan-pack"
+  "slug": "na-toboggan-pack",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "NA",
@@ -228,7 +248,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-lumber-check-jacket"
+  "slug": "na-lumber-check-jacket",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -249,7 +271,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-goldenrod-down-vest"
+  "slug": "na-goldenrod-down-vest",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -270,7 +294,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-prairie-duster"
+  "slug": "na-prairie-duster",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -291,7 +317,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-lodge-cardigan"
+  "slug": "na-lodge-cardigan",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -312,7 +340,9 @@
   "petals": 8000,
   "tailor": 3,
   "energy": 6,
-  "slug": "na-frostline-parka"
+  "slug": "na-frostline-parka",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "NA",
@@ -333,7 +363,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-maple-mantle"
+  "slug": "na-maple-mantle",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -354,7 +386,9 @@
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
-  "slug": "na-birch-poncho"
+  "slug": "na-birch-poncho",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NA",
@@ -375,7 +409,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-northern-lights-cloak"
+  "slug": "na-northern-lights-cloak",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -396,7 +432,9 @@
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
-  "slug": "na-harbour-slicker-cape"
+  "slug": "na-harbour-slicker-cape",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NA",
@@ -417,7 +455,9 @@
   "petals": 8000,
   "tailor": 3,
   "energy": 6,
-  "slug": "na-pine-needle-shawl"
+  "slug": "na-pine-needle-shawl",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "CA",
@@ -438,7 +478,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-lattice-huaraches"
+  "slug": "ca-lattice-huaraches",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -459,7 +501,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-tooled-ankle-boots"
+  "slug": "ca-tooled-ankle-boots",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -480,7 +524,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-indigo-leg-wraps"
+  "slug": "ca-indigo-leg-wraps",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -501,7 +547,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-ixtle-slippers"
+  "slug": "ca-ixtle-slippers",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -522,7 +570,9 @@
   "petals": 10000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ca-market-platform-clogs"
+  "slug": "ca-market-platform-clogs",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "CA",
@@ -543,7 +593,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-carrier-frame"
+  "slug": "ca-carrier-frame",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -564,7 +616,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-maize-net-bag"
+  "slug": "ca-maize-net-bag",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -585,7 +639,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-palm-basket-pack"
+  "slug": "ca-palm-basket-pack",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -606,7 +662,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-loom-cloth-bundle"
+  "slug": "ca-loom-cloth-bundle",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -627,7 +685,9 @@
   "petals": 10000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ca-dry-spell-water-pack"
+  "slug": "ca-dry-spell-water-pack",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "CA",
@@ -648,7 +708,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-bloom-smock"
+  "slug": "ca-bloom-smock",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -669,7 +731,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-pleated-shirt-jacket"
+  "slug": "ca-pleated-shirt-jacket",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -690,7 +754,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-fringed-leather-vest"
+  "slug": "ca-fringed-leather-vest",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -711,7 +777,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-quilted-cotton-coat"
+  "slug": "ca-quilted-cotton-coat",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -732,7 +800,9 @@
   "petals": 10000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ca-indigo-field-jacket"
+  "slug": "ca-indigo-field-jacket",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "CA",
@@ -753,7 +823,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-hearthstripe-poncho"
+  "slug": "ca-hearthstripe-poncho",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -774,7 +846,9 @@
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
-  "slug": "ca-dappled-rebozo"
+  "slug": "ca-dappled-rebozo",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "CA",
@@ -795,7 +869,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-palm-rain-cape"
+  "slug": "ca-palm-rain-cape",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -816,7 +892,9 @@
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ca-agave-fibre-mantle"
+  "slug": "ca-agave-fibre-mantle",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CA",
@@ -837,7 +915,9 @@
   "petals": 10000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ca-sun-hood-cloak"
+  "slug": "ca-sun-hood-cloak",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "NWE",
@@ -858,7 +938,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-alder-clogs"
+  "slug": "nwe-alder-clogs",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -879,7 +961,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-drain-brogues"
+  "slug": "nwe-drain-brogues",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -900,7 +984,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-felted-fleece-boots"
+  "slug": "nwe-felted-fleece-boots",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -921,7 +1007,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-birch-bark-slippers"
+  "slug": "nwe-birch-bark-slippers",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -942,7 +1030,9 @@
   "petals": 12000,
   "tailor": 3,
   "energy": 6,
-  "slug": "nwe-herringbone-gaiters"
+  "slug": "nwe-herringbone-gaiters",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "NWE",
@@ -963,7 +1053,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-peat-creel"
+  "slug": "nwe-peat-creel",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -984,7 +1076,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-waxed-roll-top"
+  "slug": "nwe-waxed-roll-top",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -1005,7 +1099,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-heather-frame"
+  "slug": "nwe-heather-frame",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1026,7 +1122,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-bark-box-pack"
+  "slug": "nwe-bark-box-pack",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1047,7 +1145,9 @@
   "petals": 12000,
   "tailor": 3,
   "energy": 6,
-  "slug": "nwe-fleece-bundle"
+  "slug": "nwe-fleece-bundle",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1068,7 +1168,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-cable-knit-long-coat"
+  "slug": "nwe-cable-knit-long-coat",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -1089,7 +1191,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-waxed-field-jacket"
+  "slug": "nwe-waxed-field-jacket",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -1110,7 +1214,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-tweed-waistcoat"
+  "slug": "nwe-tweed-waistcoat",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1131,7 +1237,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-tanbark-smock"
+  "slug": "nwe-tanbark-smock",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1152,7 +1260,9 @@
   "petals": 12000,
   "tailor": 3,
   "energy": 6,
-  "slug": "nwe-eiderdown-coat"
+  "slug": "nwe-eiderdown-coat",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1173,7 +1283,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-heather-shawl"
+  "slug": "nwe-heather-shawl",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -1194,7 +1306,9 @@
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
-  "slug": "nwe-mustard-rain-cape"
+  "slug": "nwe-mustard-rain-cape",
+  "a": 1,
+  "b": 2
  },
  {
   "region": "NWE",
@@ -1215,7 +1329,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-sheepskin-mantle"
+  "slug": "nwe-sheepskin-mantle",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1236,7 +1352,9 @@
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
-  "slug": "nwe-rush-thatch-cape"
+  "slug": "nwe-rush-thatch-cape",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1257,7 +1375,9 @@
   "petals": 12000,
   "tailor": 3,
   "energy": 6,
-  "slug": "nwe-woad-mist-cloak"
+  "slug": "nwe-woad-mist-cloak",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1278,7 +1398,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-palm-plait-sandals"
+  "slug": "cb-palm-plait-sandals",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1299,7 +1421,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-mahogany-clogs"
+  "slug": "cb-mahogany-clogs",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1320,7 +1444,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-sisal-sole-slippers"
+  "slug": "cb-sisal-sole-slippers",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1341,7 +1467,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-mangrove-gaiters"
+  "slug": "cb-mangrove-gaiters",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1362,7 +1490,9 @@
   "petals": 14000,
   "tailor": 3,
   "energy": 6,
-  "slug": "cb-curl-toe-reef-booties"
+  "slug": "cb-curl-toe-reef-booties",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CB",
@@ -1383,7 +1513,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-market-basket-pack"
+  "slug": "cb-market-basket-pack",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1404,7 +1536,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-calabash-carrier"
+  "slug": "cb-calabash-carrier",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1425,7 +1559,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-net-roll-bundle"
+  "slug": "cb-net-roll-bundle",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1446,7 +1582,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-batik-sea-sack"
+  "slug": "cb-batik-sea-sack",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1467,7 +1605,9 @@
   "petals": 14000,
   "tailor": 3,
   "energy": 6,
-  "slug": "cb-bamboo-frame-pack"
+  "slug": "cb-bamboo-frame-pack",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CB",
@@ -1488,7 +1628,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-breeze-smock"
+  "slug": "cb-breeze-smock",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1509,7 +1651,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-indigo-wrap-coat"
+  "slug": "cb-indigo-wrap-coat",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1530,7 +1674,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-check-weave-jacket"
+  "slug": "cb-check-weave-jacket",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1551,7 +1697,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-sailcloth-longcoat"
+  "slug": "cb-sailcloth-longcoat",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1572,7 +1720,9 @@
   "petals": 14000,
   "tailor": 3,
   "energy": 6,
-  "slug": "cb-sunset-batik-vest"
+  "slug": "cb-sunset-batik-vest",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CB",
@@ -1593,7 +1743,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-thatch-rain-cape"
+  "slug": "cb-thatch-rain-cape",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1614,7 +1766,9 @@
   "petals": 2100,
   "tailor": 1,
   "energy": 4,
-  "slug": "cb-hibiscus-shawl"
+  "slug": "cb-hibiscus-shawl",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "CB",
@@ -1635,7 +1789,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-sea-breeze-poncho"
+  "slug": "cb-sea-breeze-poncho",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1656,7 +1812,9 @@
   "petals": 5600,
   "tailor": 2,
   "energy": 5,
-  "slug": "cb-mangrove-hood"
+  "slug": "cb-mangrove-hood",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "CB",
@@ -1677,7 +1835,9 @@
   "petals": 14000,
   "tailor": 3,
   "energy": 6,
-  "slug": "cb-shell-scallop-capelet"
+  "slug": "cb-shell-scallop-capelet",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -1698,7 +1858,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-rope-slips"
+  "slug": "se-rope-slips",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -1719,7 +1881,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-sunpath-sandals"
+  "slug": "se-sunpath-sandals",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -1740,7 +1904,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-corkbark-clogs"
+  "slug": "se-corkbark-clogs",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1761,7 +1927,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-thyme-hill-wraps"
+  "slug": "se-thyme-hill-wraps",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1782,7 +1950,9 @@
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
-  "slug": "se-harvest-treaders"
+  "slug": "se-harvest-treaders",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -1803,7 +1973,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-olive-creel"
+  "slug": "se-olive-creel",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -1824,7 +1996,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-float-net"
+  "slug": "se-float-net",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -1845,7 +2019,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-amphora-frame"
+  "slug": "se-amphora-frame",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1866,7 +2042,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-sailcloth-seabag"
+  "slug": "se-sailcloth-seabag",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1887,7 +2065,9 @@
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
-  "slug": "se-lemon-satchel"
+  "slug": "se-lemon-satchel",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -1908,7 +2088,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-net-mender-smock"
+  "slug": "se-net-mender-smock",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -1929,7 +2111,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-fleece-vest"
+  "slug": "se-fleece-vest",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -1950,7 +2134,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-olive-quilt-jacket"
+  "slug": "se-olive-quilt-jacket",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1971,7 +2157,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-vintner-long-coat"
+  "slug": "se-vintner-long-coat",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1992,7 +2180,9 @@
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
-  "slug": "se-sun-stripe-tunic"
+  "slug": "se-sun-stripe-tunic",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -2013,7 +2203,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-shepherd-felt-cape"
+  "slug": "se-shepherd-felt-cape",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -2034,7 +2226,9 @@
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
-  "slug": "se-lemon-fringe-shawl"
+  "slug": "se-lemon-fringe-shawl",
+  "a": 1,
+  "b": 3
  },
  {
   "region": "SE",
@@ -2055,7 +2249,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-loom-stripe-poncho"
+  "slug": "se-loom-stripe-poncho",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -2076,7 +2272,9 @@
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
-  "slug": "se-whitewash-mantle"
+  "slug": "se-whitewash-mantle",
+  "a": 1,
+  "b": 4
  },
  {
   "region": "SE",
@@ -2097,7 +2295,9 @@
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
-  "slug": "se-sea-squall-capelet"
+  "slug": "se-sea-squall-capelet",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SA",
@@ -2118,7 +2318,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-latex-puddle-boots"
+  "slug": "sa-latex-puddle-boots",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2139,7 +2341,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-puna-wool-booties"
+  "slug": "sa-puna-wool-booties",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2160,7 +2364,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-plaited-fibre-sandals"
+  "slug": "sa-plaited-fibre-sandals",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2181,7 +2387,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-balsa-bark-clogs"
+  "slug": "sa-balsa-bark-clogs",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2202,7 +2410,9 @@
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sa-striped-leg-wraps"
+  "slug": "sa-striped-leg-wraps",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SA",
@@ -2223,7 +2433,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-striped-bundle-cloth"
+  "slug": "sa-striped-bundle-cloth",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2244,7 +2456,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-cone-vine-basket"
+  "slug": "sa-cone-vine-basket",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2265,7 +2479,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-highland-carry-frame"
+  "slug": "sa-highland-carry-frame",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2286,7 +2502,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-leaf-flap-satchel"
+  "slug": "sa-leaf-flap-satchel",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2307,7 +2525,9 @@
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sa-market-net-bag"
+  "slug": "sa-market-net-bag",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SA",
@@ -2328,7 +2548,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-fleece-vest"
+  "slug": "sa-fleece-vest",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2349,7 +2571,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-shingle-leaf-smock"
+  "slug": "sa-shingle-leaf-smock",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2370,7 +2594,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-warp-stripe-jacket"
+  "slug": "sa-warp-stripe-jacket",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2391,7 +2617,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-bark-cloth-tunic-coat"
+  "slug": "sa-bark-cloth-tunic-coat",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2412,7 +2640,9 @@
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sa-kapok-puffer"
+  "slug": "sa-kapok-puffer",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SA",
@@ -2433,7 +2663,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-striped-poncho"
+  "slug": "sa-striped-poncho",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2454,7 +2686,9 @@
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
-  "slug": "sa-thatch-rain-cape"
+  "slug": "sa-thatch-rain-cape",
+  "a": 2,
+  "b": 3
  },
  {
   "region": "SA",
@@ -2475,7 +2709,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-feather-shoulder-mantle"
+  "slug": "sa-feather-shoulder-mantle",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2496,7 +2732,9 @@
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sa-cloud-forest-shawl"
+  "slug": "sa-cloud-forest-shawl",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2517,7 +2755,9 @@
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sa-indigo-hooded-cloak"
+  "slug": "sa-indigo-hooded-cloak",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2538,7 +2778,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-birchweave-shoes"
+  "slug": "ee-birchweave-shoes",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2559,7 +2801,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-snowdrift-felt-boots"
+  "slug": "ee-snowdrift-felt-boots",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2580,7 +2824,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-poppy-hide-moccasins"
+  "slug": "ee-poppy-hide-moccasins",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2601,7 +2847,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-riders-red-boots"
+  "slug": "ee-riders-red-boots",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2622,7 +2870,9 @@
   "petals": 20000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ee-sunflower-straw-sandals"
+  "slug": "ee-sunflower-straw-sandals",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EE",
@@ -2643,7 +2893,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-birchbark-pester"
+  "slug": "ee-birchbark-pester",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2664,7 +2916,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-harvest-wicker-basket"
+  "slug": "ee-harvest-wicker-basket",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2685,7 +2939,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-beekeepers-frame"
+  "slug": "ee-beekeepers-frame",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2706,7 +2962,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-flat-weave-satchel"
+  "slug": "ee-flat-weave-satchel",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2727,7 +2985,9 @@
   "petals": 20000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ee-fleece-drawsack"
+  "slug": "ee-fleece-drawsack",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EE",
@@ -2748,7 +3008,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-sheepskin-longcoat"
+  "slug": "ee-sheepskin-longcoat",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2769,7 +3031,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-stitched-felt-vest"
+  "slug": "ee-stitched-felt-vest",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2790,7 +3054,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-red-stitch-linen-smock"
+  "slug": "ee-red-stitch-linen-smock",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2811,7 +3077,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-quilted-steppe-coat"
+  "slug": "ee-quilted-steppe-coat",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2832,7 +3100,9 @@
   "petals": 20000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ee-hedgehog-knit-cardigan"
+  "slug": "ee-hedgehog-knit-cardigan",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EE",
@@ -2853,7 +3123,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-shaggy-shepherd-cape"
+  "slug": "ee-shaggy-shepherd-cape",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2874,7 +3146,9 @@
   "petals": 3000,
   "tailor": 1,
   "energy": 4,
-  "slug": "ee-poppy-field-shawl"
+  "slug": "ee-poppy-field-shawl",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EE",
@@ -2895,7 +3169,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-birch-hooded-mantle"
+  "slug": "ee-birch-hooded-mantle",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2916,7 +3192,9 @@
   "petals": 8000,
   "tailor": 2,
   "energy": 5,
-  "slug": "ee-wheatfield-poncho"
+  "slug": "ee-wheatfield-poncho",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EE",
@@ -2937,7 +3215,9 @@
   "petals": 20000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ee-fox-collar-capelet"
+  "slug": "ee-fox-collar-capelet",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "MENA",
@@ -2958,7 +3238,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-dune-slippers"
+  "slug": "mena-dune-slippers",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -2979,7 +3261,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-palm-rope-sandals"
+  "slug": "mena-palm-rope-sandals",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -3000,7 +3284,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-indigo-wrap-boots"
+  "slug": "mena-indigo-wrap-boots",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3021,7 +3307,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-camel-pad-overshoes"
+  "slug": "mena-camel-pad-overshoes",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3042,7 +3330,9 @@
   "petals": 22000,
   "tailor": 3,
   "energy": 6,
-  "slug": "mena-cedar-bath-clogs"
+  "slug": "mena-cedar-bath-clogs",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3063,7 +3353,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-goatskin-waterskin"
+  "slug": "mena-goatskin-waterskin",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -3084,7 +3376,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-date-palm-basket"
+  "slug": "mena-date-palm-basket",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -3105,7 +3399,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-kilim-saddle-bag"
+  "slug": "mena-kilim-saddle-bag",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3126,7 +3422,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-copper-pot-frame"
+  "slug": "mena-copper-pot-frame",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3147,7 +3445,9 @@
   "petals": 22000,
   "tailor": 3,
   "energy": 6,
-  "slug": "mena-bottle-gourd-sling"
+  "slug": "mena-bottle-gourd-sling",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3168,7 +3468,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-loom-stripe-vest"
+  "slug": "mena-loom-stripe-vest",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -3189,7 +3491,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-braided-cord-jacket"
+  "slug": "mena-braided-cord-jacket",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -3210,7 +3514,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-sand-robe-coat"
+  "slug": "mena-sand-robe-coat",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3231,7 +3537,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-quilted-night-coat"
+  "slug": "mena-quilted-night-coat",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3252,7 +3560,9 @@
   "petals": 22000,
   "tailor": 3,
   "energy": 6,
-  "slug": "mena-caravan-leather-jerkin"
+  "slug": "mena-caravan-leather-jerkin",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3273,7 +3583,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-camel-wool-hooded-cape"
+  "slug": "mena-camel-wool-hooded-cape",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -3294,7 +3606,9 @@
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
-  "slug": "mena-indigo-shawl"
+  "slug": "mena-indigo-shawl",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "MENA",
@@ -3315,7 +3629,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-palm-leaf-sun-cape"
+  "slug": "mena-palm-leaf-sun-cape",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3336,7 +3652,9 @@
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
-  "slug": "mena-rose-madder-mantle"
+  "slug": "mena-rose-madder-mantle",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3357,7 +3675,9 @@
   "petals": 22000,
   "tailor": 3,
   "energy": 6,
-  "slug": "mena-goat-hair-tent-cape"
+  "slug": "mena-goat-hair-tent-cape",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3378,7 +3698,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-hemp-sandals"
+  "slug": "ea-hemp-sandals",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3399,7 +3721,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-rain-clogs"
+  "slug": "ea-rain-clogs",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3420,7 +3744,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-indigo-boots"
+  "slug": "ea-indigo-boots",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3441,7 +3767,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-felt-boots"
+  "slug": "ea-felt-boots",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3462,7 +3790,9 @@
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ea-snow-straw-boots"
+  "slug": "ea-snow-straw-boots",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3483,7 +3813,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-bamboo-aframe"
+  "slug": "ea-bamboo-aframe",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3504,7 +3836,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-forager-basket"
+  "slug": "ea-forager-basket",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3525,7 +3859,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-cloth-bundle"
+  "slug": "ea-cloth-bundle",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3546,7 +3882,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-tea-chest"
+  "slug": "ea-tea-chest",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3567,7 +3905,9 @@
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ea-quilted-satchel"
+  "slug": "ea-quilted-satchel",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3588,7 +3928,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-indigo-jacket"
+  "slug": "ea-indigo-jacket",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3609,7 +3951,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-padded-vest"
+  "slug": "ea-padded-vest",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3630,7 +3974,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-spring-wrap"
+  "slug": "ea-spring-wrap",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3651,7 +3997,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-fleece-jacket"
+  "slug": "ea-fleece-jacket",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3672,7 +4020,9 @@
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ea-ramie-jacket"
+  "slug": "ea-ramie-jacket",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3693,7 +4043,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-straw-rain-cape"
+  "slug": "ea-straw-rain-cape",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3714,7 +4066,9 @@
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
-  "slug": "ea-plum-snow-hood"
+  "slug": "ea-plum-snow-hood",
+  "a": 2,
+  "b": 4
  },
  {
   "region": "EA",
@@ -3735,7 +4089,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-maple-shawl"
+  "slug": "ea-maple-shawl",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3756,7 +4112,9 @@
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
-  "slug": "ea-felt-poncho"
+  "slug": "ea-felt-poncho",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "EA",
@@ -3777,7 +4135,9 @@
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
-  "slug": "ea-blossom-capelet"
+  "slug": "ea-blossom-capelet",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -3798,7 +4158,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-curl-toe-slippers"
+  "slug": "csa-curl-toe-slippers",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -3819,7 +4181,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-felted-snow-boots"
+  "slug": "csa-felted-snow-boots",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -3840,7 +4204,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-toe-ring-sandals"
+  "slug": "csa-toe-ring-sandals",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -3861,7 +4227,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-stilt-clogs"
+  "slug": "csa-stilt-clogs",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -3882,7 +4250,9 @@
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
-  "slug": "csa-wrapped-hide-boots"
+  "slug": "csa-wrapped-hide-boots",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -3903,7 +4273,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-chili-cone-basket"
+  "slug": "csa-chili-cone-basket",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -3924,7 +4296,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-ikat-saddle-satchel"
+  "slug": "csa-ikat-saddle-satchel",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -3945,7 +4319,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-porters-frame-pack"
+  "slug": "csa-porters-frame-pack",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -3966,7 +4342,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-block-print-bundle"
+  "slug": "csa-block-print-bundle",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -3987,7 +4365,9 @@
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
-  "slug": "csa-stacked-tin-pack"
+  "slug": "csa-stacked-tin-pack",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4008,7 +4388,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-ikat-robe-coat"
+  "slug": "csa-ikat-robe-coat",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -4029,7 +4411,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-kantha-patch-vest"
+  "slug": "csa-kantha-patch-vest",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -4050,7 +4434,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-fleece-collar-jacket"
+  "slug": "csa-fleece-collar-jacket",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4071,7 +4457,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-mirror-work-smock"
+  "slug": "csa-mirror-work-smock",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4092,7 +4480,9 @@
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
-  "slug": "csa-turmeric-wrap-coat"
+  "slug": "csa-turmeric-wrap-coat",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4113,7 +4503,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-palm-leaf-rain-hood"
+  "slug": "csa-palm-leaf-rain-hood",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -4134,7 +4526,9 @@
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
-  "slug": "csa-fine-wool-shawl"
+  "slug": "csa-fine-wool-shawl",
+  "a": 2,
+  "b": 5
  },
  {
   "region": "CSA",
@@ -4155,7 +4549,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-felt-shepherd-cape"
+  "slug": "csa-felt-shepherd-cape",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4176,7 +4572,9 @@
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
-  "slug": "csa-striped-yak-poncho"
+  "slug": "csa-striped-yak-poncho",
+  "a": 2,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4197,7 +4595,9 @@
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
-  "slug": "csa-indigo-dot-cloak"
+  "slug": "csa-indigo-dot-cloak",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4218,7 +4618,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-paddy-stilt-clogs"
+  "slug": "sea-paddy-stilt-clogs",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4239,7 +4641,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-pandan-sandals"
+  "slug": "sea-pandan-sandals",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4260,7 +4664,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-ikat-leech-wraps"
+  "slug": "sea-ikat-leech-wraps",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4281,7 +4687,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-rattan-trail-boot"
+  "slug": "sea-rattan-trail-boot",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4302,7 +4710,9 @@
   "petals": 28000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sea-mudflat-paddles"
+  "slug": "sea-mudflat-paddles",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4323,7 +4733,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-rattan-back-basket"
+  "slug": "sea-rattan-back-basket",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4344,7 +4756,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-bamboo-ladder-pack"
+  "slug": "sea-bamboo-ladder-pack",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4365,7 +4779,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-batik-bundle"
+  "slug": "sea-batik-bundle",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4386,7 +4802,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-nipa-thatch-pack"
+  "slug": "sea-nipa-thatch-pack",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4407,7 +4825,9 @@
   "petals": 28000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sea-water-jar-pack"
+  "slug": "sea-water-jar-pack",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4428,7 +4848,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-indigo-batik-smock"
+  "slug": "sea-indigo-batik-smock",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4449,7 +4871,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-pandan-weave-vest"
+  "slug": "sea-pandan-weave-vest",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4470,7 +4894,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-ikat-wrap-jacket"
+  "slug": "sea-ikat-wrap-jacket",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4491,7 +4917,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-kapok-puffer"
+  "slug": "sea-kapok-puffer",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4512,7 +4940,9 @@
   "petals": 28000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sea-mangrove-oilcloth"
+  "slug": "sea-mangrove-oilcloth",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4533,7 +4963,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-palm-frond-rain-cape"
+  "slug": "sea-palm-frond-rain-cape",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4554,7 +4986,9 @@
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
-  "slug": "sea-banana-leaf-hood"
+  "slug": "sea-banana-leaf-hood",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SEA",
@@ -4575,7 +5009,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-batik-shawl"
+  "slug": "sea-batik-shawl",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4596,7 +5032,9 @@
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
-  "slug": "sea-net-veil-mantle"
+  "slug": "sea-net-veil-mantle",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SEA",
@@ -4617,7 +5055,9 @@
   "petals": 28000,
   "tailor": 3,
   "energy": 6,
-  "slug": "sea-monsoon-poncho"
+  "slug": "sea-monsoon-poncho",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "WCA",
@@ -4638,7 +5078,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-palm-sole-sandals"
+  "slug": "wca-palm-sole-sandals",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4659,7 +5101,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-mudwader-wraps"
+  "slug": "wca-mudwader-wraps",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4680,7 +5124,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-rainroot-clogs"
+  "slug": "wca-rainroot-clogs",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -4701,7 +5147,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-ochre-trail-boots"
+  "slug": "wca-ochre-trail-boots",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -4722,7 +5170,9 @@
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
-  "slug": "wca-plantain-slippers"
+  "slug": "wca-plantain-slippers",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "WCA",
@@ -4743,7 +5193,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-calabash-pack"
+  "slug": "wca-calabash-pack",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4764,7 +5216,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-raffia-cone-basket"
+  "slug": "wca-raffia-cone-basket",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4785,7 +5239,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-indigo-bundle"
+  "slug": "wca-indigo-bundle",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -4806,7 +5262,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-tooled-satchel"
+  "slug": "wca-tooled-satchel",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -4827,7 +5285,9 @@
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
-  "slug": "wca-bamboo-frame-pack"
+  "slug": "wca-bamboo-frame-pack",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "WCA",
@@ -4848,7 +5308,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-strip-weave-smock"
+  "slug": "wca-strip-weave-smock",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4869,7 +5331,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-mudcloth-vest"
+  "slug": "wca-mudcloth-vest",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4890,7 +5354,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-raffia-rain-coat"
+  "slug": "wca-raffia-rain-coat",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -4911,7 +5377,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-adire-jacket"
+  "slug": "wca-adire-jacket",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -4932,7 +5400,9 @@
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
-  "slug": "wca-kapok-jerkin"
+  "slug": "wca-kapok-jerkin",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "WCA",
@@ -4953,7 +5423,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-plantain-leaf-cape"
+  "slug": "wca-plantain-leaf-cape",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4974,7 +5446,9 @@
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
-  "slug": "wca-strip-weave-shawl"
+  "slug": "wca-strip-weave-shawl",
+  "a": 3,
+  "b": 5
  },
  {
   "region": "WCA",
@@ -4995,7 +5469,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-indigo-hood-mantle"
+  "slug": "wca-indigo-hood-mantle",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -5016,7 +5492,9 @@
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
-  "slug": "wca-raffia-poncho"
+  "slug": "wca-raffia-poncho",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "WCA",
@@ -5037,7 +5515,9 @@
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
-  "slug": "wca-scaleleaf-mantle"
+  "slug": "wca-scaleleaf-mantle",
+  "a": 4,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5058,7 +5538,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-acacia-sandals"
+  "slug": "esa-acacia-sandals",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5079,7 +5561,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-highland-trek-boots"
+  "slug": "esa-highland-trek-boots",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5100,7 +5584,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-sisal-slippers"
+  "slug": "esa-sisal-slippers",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5121,7 +5607,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-stripe-gaiters"
+  "slug": "esa-stripe-gaiters",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5142,7 +5630,9 @@
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
-  "slug": "esa-baobab-clogs"
+  "slug": "esa-baobab-clogs",
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5163,7 +5653,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-coiled-basket-pack"
+  "slug": "esa-coiled-basket-pack",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5184,7 +5676,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-calabash-carrier"
+  "slug": "esa-calabash-carrier",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5205,7 +5699,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-grain-sack-pack"
+  "slug": "esa-grain-sack-pack",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5226,7 +5722,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-acacia-frame-pack"
+  "slug": "esa-acacia-frame-pack",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5247,7 +5745,9 @@
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
-  "slug": "esa-herders-satchel"
+  "slug": "esa-herders-satchel",
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5268,7 +5768,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-barkcloth-smock"
+  "slug": "esa-barkcloth-smock",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5289,7 +5791,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-stripe-weave-vest"
+  "slug": "esa-stripe-weave-vest",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5310,7 +5814,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-highland-wool-coat"
+  "slug": "esa-highland-wool-coat",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5331,7 +5837,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-savanna-field-jacket"
+  "slug": "esa-savanna-field-jacket",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5352,7 +5860,9 @@
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
-  "slug": "esa-beaded-tunic-coat"
+  "slug": "esa-beaded-tunic-coat",
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5373,7 +5883,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-check-blanket-wrap"
+  "slug": "esa-check-blanket-wrap",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5394,7 +5906,9 @@
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
-  "slug": "esa-highland-shawl"
+  "slug": "esa-highland-shawl",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "ESA",
@@ -5415,7 +5929,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-banana-leaf-rain-cape"
+  "slug": "esa-banana-leaf-rain-cape",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5436,7 +5952,9 @@
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
-  "slug": "esa-dust-mantle"
+  "slug": "esa-dust-mantle",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "ESA",
@@ -5457,7 +5975,9 @@
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
-  "slug": "esa-indigo-dot-shawl"
+  "slug": "esa-indigo-dot-shawl",
+  "a": 4,
+  "b": 8
  },
  {
   "region": "OC",
@@ -5478,7 +5998,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-reef-sandals"
+  "slug": "oc-reef-sandals",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5499,7 +6021,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-gully-fleece-boot"
+  "slug": "oc-gully-fleece-boot",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5520,7 +6044,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-drovers-pull-ons"
+  "slug": "oc-drovers-pull-ons",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5541,7 +6067,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-flax-wading-wraps"
+  "slug": "oc-flax-wading-wraps",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5562,7 +6090,9 @@
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
-  "slug": "oc-mangrove-clog"
+  "slug": "oc-mangrove-clog",
+  "a": 4,
+  "b": 8
  },
  {
   "region": "OC",
@@ -5583,7 +6113,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-flax-basket-pack"
+  "slug": "oc-flax-basket-pack",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5604,7 +6136,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-coconut-string-bag"
+  "slug": "oc-coconut-string-bag",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5625,7 +6159,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-bushmans-swag"
+  "slug": "oc-bushmans-swag",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5646,7 +6182,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-bamboo-frame-pack"
+  "slug": "oc-bamboo-frame-pack",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5667,7 +6205,9 @@
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
-  "slug": "oc-pouch-pack"
+  "slug": "oc-pouch-pack",
+  "a": 4,
+  "b": 8
  },
  {
   "region": "OC",
@@ -5688,7 +6228,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-drovers-oilskin"
+  "slug": "oc-drovers-oilskin",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5709,7 +6251,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-bush-check-smock"
+  "slug": "oc-bush-check-smock",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5730,7 +6274,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-bark-cloth-vest"
+  "slug": "oc-bark-cloth-vest",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5751,7 +6297,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-reef-sail-cloth-jerkin"
+  "slug": "oc-reef-sail-cloth-jerkin",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5772,7 +6320,9 @@
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
-  "slug": "oc-gum-dyed-cardigan"
+  "slug": "oc-gum-dyed-cardigan",
+  "a": 4,
+  "b": 8
  },
  {
   "region": "OC",
@@ -5793,7 +6343,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-frond-rain-cape"
+  "slug": "oc-frond-rain-cape",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5814,7 +6366,9 @@
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
-  "slug": "oc-fleece-mantle"
+  "slug": "oc-fleece-mantle",
+  "a": 3,
+  "b": 6
  },
  {
   "region": "OC",
@@ -5835,7 +6389,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-hibiscus-pareo"
+  "slug": "oc-hibiscus-pareo",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5856,7 +6412,9 @@
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
-  "slug": "oc-red-dust-poncho"
+  "slug": "oc-red-dust-poncho",
+  "a": 3,
+  "b": 7
  },
  {
   "region": "OC",
@@ -5877,6 +6435,8 @@
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
-  "slug": "oc-storm-petrel-hood"
+  "slug": "oc-storm-petrel-hood",
+  "a": 4,
+  "b": 8
  }
 ]
