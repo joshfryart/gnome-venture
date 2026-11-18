@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.13
+- **Wearable rarity:** the 840 regional wearable items now carry their design's rarity (Common 10, Uncommon 25, Rare 50, +10 Lined, +20 Fine) instead of one value from the rank, so shelves and the satchel show Uncommon and Rare. Items already created are corrected by the `wearables_2700` boot step (a rarity changed in the Admin is left alone). Hidden with the wearables (`pfight_v1`). No player news.
+
 ## 2.7.12
 - **Shop item sheet:** the "About it" fold is now always there and always open for every shop item (it used to appear only for long descriptions). A wearable's puzzle piece picture sits inside it at 1x (132x92, much smaller than in 2.7.11). No player news.
 
