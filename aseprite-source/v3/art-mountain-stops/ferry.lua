@@ -51,6 +51,12 @@ end
 -- a granite rock standing in the current: foam pillow upstream (left), collar, a V of white water trailing right
 local function riverRock(x, yb, w, h, seed)
   local m = F.boulder(x, yb, w, h, seed)
+  m:each(function(xx, yy)
+    if yy < yb - 1 and xx > x + w * .35 and hash(xx, yy, seed + 9) < .75 then px(xx, yy, L.stone.shade) end -- shaded right flank
+    if xx > x + w * .7 and yy < yb - 1 then px(xx, yy, L.stone.deep) end
+  end)
+  if w >= 5 then vline(x + floor(w * .3), yb - h + 2, yb - 2, L.stone.deep) hline(x - w + 1, x - 1, yb - h + 1, L.stone.hi) end
+  if w >= 9 then F.snow(m, .3, seed + 12) end
   m:each(function(xx, yy) if yy >= yb - 1 then px(xx, yy, L.stone.deep) end end) -- wet foot
   for k = 0, 2 do px(x - w - 1 - k, yb - 1 + (k == 2 and 1 or 0), FOAM) end
   for xx = x - w - 1, x + w + 1 do px(xx, yb + 1, hash(xx, yb, seed) < .6 and FOAM or Wt.hi) end
@@ -122,7 +128,30 @@ do
   end
 end
 
----------------------------------------------------------------- far bank: road on, landing, stone hut, larch and spruce
+---------------------------------------------------------------- far bank left: a lower granite crag so the gorge closes on both sides
+F.depth(2)
+do
+  local lc = poly{ { 14, 124 }, { 14, 98 }, { 19, 92 }, { 25, 86 }, { 31, 85 }, { 37, 89 }, { 44, 93 }, { 52, 99 }, { 60, 108 }, { 68, 116 }, { 74, 124 } }
+  lc:cut(river)
+  local function top2(x) for y = 60, 125 do if lc:has(x, y) then return y end end return 125 end
+  rimOf(lc, L.stone)
+  lc:each(function(x, y)
+    local f = (x + (y - 80) * .28) / 9 + vnoise(x / 11, y / 15, 161) * 1.3
+    local fr = f - floor(f)
+    local h
+    if fr < .22 then h = L.stone.hi elseif fr < .62 then h = L.stone.base elseif fr < .9 then h = L.stone.shade else h = L.stone.deep end
+    local jy = (y + floor(2 * sin(x / 9))) % 9
+    if jy == 0 and hash(x // 5, y, 162) < .8 then h = L.stone.deep elseif jy == 1 and h ~= L.stone.deep then h = L.stone.hi end
+    if y == top2(x) then h = L.stone.hi end
+    px(x, y, mix(h, HAZE or L.mist2, .12))
+  end)
+  F.lichen(lc, .2, 165)
+  lc:each(function(x, y)
+    local jy = (y + 1 + floor(2 * sin(x / 9))) % 9
+    if jy == 0 and y < 108 and hash(x // 4, y, 166) < .35 then px(x, y, L.snow.base) px(x, y + 1, L.snow.shade) end
+  end)
+  for x = 15, 73 do local t = top2(x) if t < 125 then px(x, t, L.fern.hi) if hash(x, 1, 169) < .5 then px(x, t - 1, L.fern.base) end end end
+end
 F.depth(1)
 F.drawRoad(113, 122)
 F.tree(20, 122, 40, 2)
@@ -460,8 +489,13 @@ do
   part(foot, L.stone, { nopop = true }) F.courses(foot, 202, 4, 8, L.stone) F.lichen(foot, .2, 142)
   hline(272, 298, 202, L.stone.hi)
   -- the windlass drum on the crossbar, wound with rope, a crank
-  local drum = c:rrect(280, 180, 290, 186, 2) rimOf(drum, L.timber) part(drum, L.board, { nopop = true })
-  for x = 281, 289, 2 do vline(x, 181, 185, L.board.shade) end
+  local drum = rect(279, 178, 280, 188):add(rect(290, 178, 291, 188)):add(rect(281, 180, 289, 186))
+  rimOf(drum, L.iron) fill(drum, L.timber.deep) 
+  hline(281, 289, 180, L.board.deep) hline(281, 289, 186, L.board.deep)
+  px(279, 178, L.iron.hi) px(290, 178, L.iron.hi)
+  fill(rect(281, 181, 289, 185), L.board.hi) -- wound rope
+  for x = 281, 289, 2 do vline(x, 181, 185, L.board.base) vline(x + 1, 181, 185, L.board.shade) end
+  vline(285, 188, 192, L.board.shade) px(284, 192, L.board.base)
   fill(line({ { 291, 183 }, { 296, 187 } }), L.iron.base) fill(rect(296, 187, 297, 190), L.timber.base)
   -- the sheave at the top and a lantern hung off a short arm
   local sh = c:ellipse(CN[1], CN[2], 2, 2) c:rim(sh, L.iron.edge) fill(sh, L.iron.base) px(CN[1] - 1, CN[2] - 1, L.iron.hi)

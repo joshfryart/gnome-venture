@@ -40,9 +40,9 @@ local function shutter(x0, y0, y1, w, flip)
 end
 -- a little alpine chough pecking: blue-black, yellow beak, red legs
 local function chough(x, yb, flip)
-  local rows = { "..kkk....", ".kKKKkk..", "yKeKKKKkk", ".kKKKKKk.", "..kKKk...", "...r.r..." }
+  local rows = { "...kkkk.....", "..kKKKKkk...", ".kKKhKKKkk..", "yyKeKKKKKkkk", ".kKKKKKKKkk.", "..kKKKKKkk..", "...kKKKkk...", "....r..r...." }
   if flip then for i, r in ipairs(rows) do rows[i] = r:reverse() end end
-  F.sprite(rows, x - 4, yb - 5, { k = "#2c2c3c", K = "#424256", e = "#8a8aa4", y = L.gold.hi, r = L.apple.base })
+  F.sprite(rows, x - 6, yb - 7, { k = "#34344a", K = "#58587a", h = "#7c7ca0", e = "#c8c8dc", y = L.gold.hi, r = L.apple.base })
 end
 
 ---------------------------------------------------------------- back: the pass path zig-zagging up the near range
@@ -52,7 +52,7 @@ do
   for i = 1, #pts - 1 do
     line({ pts[i], pts[i + 1] }):each(function(x, y)
       local v = c:get(x, y)
-      if v and hash(x, y, 5) < .85 then px(x, y, mix(v, L.soil.shade, .32)) end
+      if v and hash(x, y, 5) < .95 then px(x, y, mix(v, L.soil.shade, .62)) local v2 = c:get(x, y + 1) if v2 and hash(x, y, 6) < .5 then px(x, y + 1, mix(v2, L.soil.shade, .3)) end end
     end)
   end
   -- a cairn at the top bend
@@ -123,7 +123,7 @@ end
 F.shadow(300, 350, 166, 8, 3)
 hayCart(302, 166)
 -- a mouse-grey pack mule with a pale muzzle and long ears, head down in the hay, a red pack saddle blanket
-F.shadowM(c:ellipse(364, 167, 12, 1))
+F.shadowM(c:ellipse(369, 167, 12, 1))
 F.sprite({
   ".......mm...............",
   "......mmBBhhhhhhhhhh....",
@@ -139,12 +139,12 @@ F.sprite({
   "nn......Bd.dd....Bd.dd..",
   "........dd.dd....dd.dd..",
   "........ff.ff....ff.ff..",
-}, 347, 153, { m = L.soil.deep, h = L.soil.hi, B = L.soil.base, d = L.soil.shade, k = L.timber.edge, w = L.goat.base,
+}, 352, 153, { m = L.soil.deep, h = L.soil.hi, B = L.soil.base, d = L.soil.shade, k = L.timber.edge, w = L.goat.base,
   n = L.soil.deep, t = L.soil.deep, f = L.timber.deep, e = L.soil.deep, r = L.awnA.base, R = L.awnA.hi })
 -- long ears
-for _, p in ipairs({ { 349, 157 }, { 348, 156 }, { 347, 155 }, { 351, 158 }, { 351, 157 }, { 350, 156 } }) do px(p[1], p[2], L.soil.base) end
-px(347, 155, L.soil.deep) px(350, 156, L.soil.deep) px(348, 156, L.soil.hi)
-px(346, 162, L.needle.hi) px(345, 163, L.needle.base) px(346, 164, L.needle.hi) px(345, 161, L.needle.shade)
+for _, p in ipairs({ { 354, 157 }, { 353, 156 }, { 352, 155 }, { 356, 158 }, { 356, 157 }, { 355, 156 } }) do px(p[1], p[2], L.soil.base) end
+px(352, 155, L.soil.deep) px(355, 156, L.soil.deep) px(353, 156, L.soil.hi)
+px(351, 162, L.needle.hi) px(350, 163, L.needle.base) px(351, 164, L.needle.hi) px(350, 161, L.needle.shade)
 
 ---------------------------------------------------------------- the hospice inn (left hero)
 F.depth(3)
@@ -254,13 +254,13 @@ local function inn()
   fill(bd:grow(1), L.timber.edge) fill(bd, L.soil.deep)
   fill(rect(101, UTOP + 3, 113, UTOP + 10), L.glow.shade) fill(rect(102, UTOP + 4, 106, UTOP + 9), L.glow.base) px(102, UTOP + 4, L.glow.hi)
   -- a gnome stepping out of the balcony door, beating a striped rug over the rail
-  F.gnome(106, 132, { small = true, hat = L.leaf, coat = L.awnA, arm = "out" })
   local rail = rect(20, 126, 194, 127):add(rect(20, GTOP - 1, 194, GTOP + 1))
   for x = 21, 193, 4 do rail:add(rect(x, 128, x + 2, GTOP - 2)) end
   rimOf(rail, L.timber) part(rail, L.timber, { nopop = true, noshade = true })
   hline(20, 194, 126, L.timber.hi) hline(20, 194, GTOP - 1, L.timber.hi)
   for x = 21, 193, 4 do px(x + 1, 131, L.timber.edge) px(x + 1, 132, L.timber.edge) px(x, 134, L.timber.hi) end -- cut-out hearts
   for x = 22, 192, 6 do F.logEnd(x, GTOP + 1, 1) end
+  F.gnome(104, GTOP - 2, { small = true, hat = L.leaf, coat = L.awnA, arm = "out" })
   -- geranium boxes on the rail
   for _, bx in ipairs({ { 24, 66 }, { 128, 190 } }) do
     hline(bx[1], bx[2], 125, L.board.base) hline(bx[1], bx[2], 126, L.board.deep)

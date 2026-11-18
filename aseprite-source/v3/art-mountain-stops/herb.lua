@@ -45,7 +45,7 @@ for y = 114, 160 do
         -- a far terrace: one line of bloom, a hazed wall line under every other one
         if y == y1 and hgt == 2 or (hgt == 1 and row % 3 == 0) then h = F.mix((x + row) % 4 == 0 and L.stone.shade or L.stone.base, HAZE, .3)
         else
-          h = F.mix(R.base, HAZE, .25)
+          h = F.mix(R == EDL and R.shade or R.base, HAZE, R == EDL and .08 or .25)
           if hash(x // 3, y, 3) < .2 then h = F.mix(R.hi, HAZE, .2) elseif hash(x // 2, y, 4) < .15 then h = F.mix(L.fern.shade, HAZE, .3) end
         end
       else
@@ -74,7 +74,7 @@ for y = 114, 160 do
           elseif R == EDL then
             -- felted silver cushions starred with edelweiss
             local lit = (1 - fx) * .8 - ry * 1.1 + (v - .5) * .6
-            h = lit > .3 and EDL.base or (lit > -.3 and EDL.shade or EDL.deep)
+            h = lit > .45 and EDL.base or (lit > -.1 and EDL.shade or EDL.deep)
             if y == ty then h = EDL.hi end
             if v > .86 and y < yb then h = L.edel.hi end
           elseif R == ARN then
@@ -318,7 +318,7 @@ local function bed(x0, x1, y0, y1, plant, seed)
   end)
   F.lichen(front, .3, seed + 30)
   local n = (x1 - x0) // 7
-  for k = 0, n - 1 do plant(x0 + 6 + k * 7, y0 + (y1 - y0) // 2 + 2, k) end
+  for k = 0, n - 1 do plant(x0 + 6 + k * 7 + floor(hash(k, 1, seed + 40) * 4) - 1, y0 + (y1 - y0) // 2 + 2 + floor(hash(k, 2, seed + 40) * 5) - 2, k) end
 end
 local EDLF = F.rp("#d2dcc4 #a8b89a #84967a #627460 #44523f")   -- woolly grey-green edelweiss leaves
 local function edelweissPlant(x, y, k)
@@ -621,14 +621,15 @@ do
   local tr = rect(290, 252, 326, 263)
   F.shadow(290, 328, 264, 6, 2)
   rimOf(tr, L.stone) part(tr, L.stone)
-  hline(291, 325, 252, L.stone.hi) hline(291, 325, 254, L.stone.deep)
+  tr:each(function(x, y) if y > 254 then px(x, y, L.stone.shade) end end)
+  hline(291, 325, 252, L.stone.hi) hline(291, 325, 254, L.stone.deep) hline(291, 325, 263, L.stone.edge)
   tr:each(function(x, y) if y > 255 and (x - 290) % 12 == 0 then px(x, y, L.stone.shade) end end)
   F.lichen(tr, .3, 95)
   -- houseleek rosettes: green stars with red tips, one in flower
   for k = 0, 4 do
     local x = 294 + k * 7
     local y = 250 + (k % 2)
-    local ro = c:ellipse(x, y, 3, 2) c:rim(ro, L.leaf.edge) fill(ro, L.leaf.shade)
+    local ro = c:ellipse(x, y, 4, 3) c:rim(ro, L.leaf.edge) fill(ro, L.leaf.shade) px(x - 3, y - 1, L.leaf.base) px(x + 2, y - 2, L.leaf.base) px(x - 2, y + 1, L.leaf.base) px(x + 1, y + 2, L.leaf.deep)
     px(x - 1, y - 1, L.leaf.hi) px(x - 2, y, L.leaf.base) px(x, y - 1, L.leaf.base) px(x + 1, y, L.leaf.deep) px(x, y, L.leaf.deep)
     px(x - 3, y, AROSE.base) px(x + 3, y, AROSE.shade) px(x, y - 2, AROSE.base) px(x - 2, y + 2, AROSE.shade) px(x + 2, y - 2, AROSE.shade)
   end

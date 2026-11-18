@@ -20,7 +20,8 @@ local mix = F.mix
 ---------------------------------------------------------------- local helpers
 -- a granite crag / needle: faceted, lit upper-left, diagonal joints, ledges with snow, lichen
 local function crag(m, cx, w, seed, snowK)
-  local S = L.peak
+  local S = {}
+  for k, v in pairs(L.peak) do S[k] = (type(v) == "string") and mix(v, L.stone.deep, .28) or v end
   rimOf(m, S) part(m, S)
   -- big planar facets: a quantised noise field; each facet gets one tone by its side of the rock,
   -- a lit lip on its upper-left boundary and a dark crack on its lower-right one
@@ -109,19 +110,21 @@ end
 ---------------------------------------------------------------- far: two more beacon towers on the peaks (the signal chain)
 F.depth(0)
 local function farBeacon(x, yb, lit)
-  local hz = function(h) return mix(h, L.sky[4], .35) end
-  local m = rect(x - 2, yb - 8, x + 2, yb):add(rect(x - 3, yb - 10, x + 3, yb - 8))
-  m:add(rect(x - 3, yb - 11, x - 3, yb - 11)):add(rect(x + 3, yb - 11, x + 3, yb - 11)):add(rect(x, yb - 11, x, yb - 11))
+  local hz = function(h) return mix(h, L.sky[4], .12) end
+  local m = rect(x - 3, yb - 12, x + 3, yb):add(rect(x - 5, yb - 16, x + 5, yb - 12)):add(rect(x - 5, yb - 2, x + 5, yb))
+  m:add(rect(x - 5, yb - 18, x - 4, yb - 17)):add(rect(x + 4, yb - 18, x + 5, yb - 17)):add(rect(x - 1, yb - 18, x + 1, yb - 17))
+  c:rim(m, S.edge)
   fill(m, hz(S.shade))
-  m:each(function(xx, yy) if xx < x then px(xx, yy, hz(S.hi)) end end)
-  px(x, yb - 4, hz(S.edge))
+  m:each(function(xx, yy) if xx < x - 1 then px(xx, yy, hz(S.hi)) elseif xx > x + 1 then px(xx, yy, hz(S.deep)) end end)
+  hline(x - 5, x + 5, yb - 13, hz(S.deep))
+  fill(rect(x - 1, yb - 8, x, yb - 5), S.edge)
   if lit then
-    px(x - 1, yb - 12, G.shade) px(x, yb - 12, G.base) px(x + 1, yb - 12, G.shade) px(x, yb - 13, G.hi) px(x - 1, yb - 14, G.base)
-    for i = 0, 3 do px(x - 1 - i, yb - 16 - i * 3, i < 2 and "#bcc3cb" or "#cfd5db") px(x - i, yb - 16 - i * 3, "#cfd5db") end
+    fill(rect(x - 1, yb - 20, x + 1, yb - 19), G.shade) px(x, yb - 21, G.base) px(x - 1, yb - 20, G.base) px(x, yb - 20, G.hi) px(x, yb - 22, G.hi) px(x - 1, yb - 22, G.base)
+    for i = 0, 3 do px(x - 1 - i, yb - 24 - i * 3, i < 2 and "#bcc3cb" or "#cfd5db") px(x - i, yb - 24 - i * 3, "#cfd5db") end
   end
 end
-farBeacon(420, 66, true)
-farBeacon(64, 62, true)
+farBeacon(421, 79, true)
+farBeacon(62, 76, true)
 
 ---------------------------------------------------------------- right: dry-stone rampart along the horizon
 F.depth(1)
@@ -172,7 +175,7 @@ local function tower()
     elseif (yy - yt) % 7 == 1 and t < .2 then px(x, y, S.hi) end
     if hash(x, y, 78) < .05 then px(x, y, S.shade) end -- granite grain
     if y > yb - 9 and ((yy - yt) % 7 == 0 or (x + off) % 14 == 0) then px(x, y, S.edge) end -- big footing blocks
-    if t > .5 and t <= .75 and (x + y) % 2 == 0 then px(x, y, S.shade) end
+    if t > .5 and t <= .75 then px(x, y, ((yy - yt) % 7 == 0) and S.deep or S.shade) end
     if t > .75 then px(x, y, ((yy - yt) % 7 == 0 or (x + off) % bw == 0) and S.deep or S.shade) end
     if t < -.6 and (yy - yt) % 7 == 1 then px(x, y, S.hi) end
   end)
@@ -546,17 +549,22 @@ F.gentian(296, 218, true)
 local _, gx, gy = F.gnome(258, 242, { hat = L.iron, coat = L.awnA, arm = "hold" })
 fill(rect(gx + 6, 204, gx + 6, 242), L.board.shade) fill(poly{ { gx + 5, 204 }, { gx + 6, 197 }, { gx + 8, 204 } }, IR.hi) -- spear
 -- the guard's big mountain dog, chestnut and white, a tiny barrel at its collar
-F.shadow(270, 284, 242, 4, 1)
+F.shadow(270, 288, 242, 4, 1)
 F.sprite({
-  ".BB.........",
-  "BeWB........",
-  "nWWBB......B",
-  ".WWWBBBBBBBb",
-  "..GWWBBBBBb.",
-  "..gWWWWWWbb.",
-  "..W.W...W.b.",
-  "..W.W...W.b.",
-}, 270, 234, { B = L.chamois.base, b = L.chamois.shade, W = L.goat.hi, e = T.edge, n = T.edge, G = L.gold.hi, g = L.gold.shade })
+  ".BBB............",
+  "BeWBB...........",
+  "nWWWBB.........B",
+  "nWWWWBBBBBBBBBBb",
+  ".WWWWBBBBBBBBBbb",
+  "..GWWWBBBBBBbbb.",
+  "..gWWWWWWWWWbb..",
+  "..WWWWWWWWWbbb..",
+  "..WW.WW....Wb.b.",
+  "..WW.WW....Wb.b.",
+  "..WW.WW....Wb.b.",
+  "..WW.WW....Wb.b.",
+  "..WW.WW...WWb.bb",
+}, 270, 230, { B = L.chamois.base, b = L.chamois.shade, W = L.goat.hi, e = T.edge, n = T.edge, G = L.gold.hi, g = L.gold.shade })
 F.depth(0)
 -- a golden eagle circling over the beacon smoke, choughs lower down
 F.sprite({

@@ -16,6 +16,23 @@
 local DIR = "/home/user/gnome-venture/aseprite-source/v3/art-mountain-stops/"
 local F = dofile(DIR .. "_frame.lua").build{ name = "market", out = DIR, treeLineGap = { 204, 276 } }
 local c, L, HP = F.c, F.L, F.HP
+-- juniper cushions: lift the lit upper-left with pale blue-green tufts and a few frosted blue berries so they stop reading as dark blobs
+do
+  local jun0 = F.juniper
+  F.juniper = function(x, yb, w, h, sd)
+    jun0(x, yb, w, h, sd)
+    local J = L.juniper
+    for yy = yb - h - 1, yb do for xx = x - w - 1, x + w + 1 do
+      local v = c:get(xx, yy)
+      if v == J.base or v == J.shade or v == J.deep then
+        local u = ((xx - x) + (yy - (yb - h))) / (w + h)
+        local r = F.hash(xx, yy, sd + 5)
+        if u < .15 and r < .45 then F.px(xx, yy, J.hi) elseif u < .5 and r < .22 then F.px(xx, yy, J.base)
+        elseif u > .3 and r < .05 then F.px(xx, yy, "#6e86b0") end
+      end
+    end end
+  end
+end
 local part, rect, poly, line, fill, px, rimOf, hline, vline, union, hash = F.part, F.rect, F.poly, F.line, F.fill, F.px, F.rimOf, F.hline, F.vline, F.union, F.hash
 local courses, shadow, window, door = F.courses, F.shadow, F.window, F.door
 local floor, sin, cos, pi, abs = math.floor, math.sin, math.cos, math.pi, math.abs
@@ -179,7 +196,7 @@ local function barrow()
   end
   local center = c:ellipse(cx, cy, 6, 5)
   rimOf(union(tray, handles, wheel), t)
-  rimOf(union(stem, leaf1, leaf2, petals, center), L.edel)
+  rimOf(union(stem, leaf1, leaf2, petals, center), L.timber)
   part(handles, t, { nopop = true }) part(tray, t) part(wheel, L.stone, { nopop = true })
   -- woolly grey-green stem and leaves
   part(union(stem, leaf1, leaf2), L.juniper, { nopop = true })
@@ -325,7 +342,7 @@ local function notice()
   line({ { 283, 60 }, { 312, 47 } }):each(function(x, y) if roof:has(x, y) then px(x, y, L.roof.hi) end end)
   wstone(296, 57) wstone(330, 57)
   -- an ibex head carved on the peak, great ridged horns swept back
-  F.sprite({ "h.......h", "Hh.....hH", ".Hh...hH.", "..hbbbh..", "..bEbEb..", "..BbbbS..", "...bbS...", "...bS....", "...g....." }, 309, 37,
+  F.sprite({ "HH...............HH", "HhH.............HhH", ".HhH...........HhH.", ".hHhH.........HhHh.", "..HhhH.......HhhH..", "..hHhHhb.b.bhHhHh..", "...hhHbbbbbbbHhh...", "......bbbbbbb......", "......bEbbbEb......", "......bbbBbbb......", ".......bBBBb.......", ".......bSSSb.......", ".......gSgSg......." }, 304, 33,
     { h = L.timber.shade, H = L.timber.hi, b = L.board.base, B = L.board.hi, S = L.board.shade, E = L.timber.edge, g = L.board.deep })
   local notes = { { 291, 69, 302, 82, L.awnB }, { 306, 70, 320, 80, L.plaster }, { 324, 68, 335, 84, L.awnB },
                   { 292, 87, 305, 100, L.accent }, { 309, 85, 321, 104, L.edel }, { 325, 89, 335, 99, L.cheese },
@@ -764,7 +781,7 @@ F.marmot(112, 228, { flip = true })
   -- stones in the water with a dipper bobbing on one
   for _, b in ipairs({ { 44, 247, 4, 3 }, { 58, 254, 3, 2 } }) do F.boulder(b[1], b[2], b[3], b[4], b[1]) hline(b[1] - b[3] - 1, b[1] + b[3] + 1, b[2] + 1, L.water.hi) end
   F.sprite({ "..dd....", ".dbbd...", "dbebd..t", "kdWbbdtt", ".dWbbbd.", "..ddd...", "..o.o..." }, 41, 238,
-    { d = "#4a3a36", b = "#6e5448", W = L.edel.hi, e = L.timber.edge, k = L.iron.deep, t = "#4a3a36", o = L.timber.deep })
+    { d = "#6a5248", b = "#9a7a62", W = L.edel.hi, e = L.timber.edge, k = L.iron.deep, t = "#6a5248", o = L.timber.deep })
   -- jetty
   local jet = poly{ { 70, 240 }, { 104, 240 }, { 106, 250 }, { 72, 250 } }
   local legs = rect(74, 250, 76, 257):add(rect(100, 250, 102, 256)):add(rect(86, 250, 88, 256))

@@ -12,6 +12,7 @@
 local DIR = "/home/user/gnome-venture/aseprite-source/v3/art-mountain-stops/"
 local F = dofile(DIR .. "_frame.lua").build{ name = "shrine", out = DIR, farTrees = { 24, 150, 330, 352, 440 }, treeLineGap = { 176, 304 } }
 local c, L, HP = F.c, F.L, F.HP
+do local lich = F.lichen F.lichen = function(m, k, sd) return lich(m, k * .55, sd) end end -- calmer lichen speckle
 local part, rect, poly, line, fill, px, rimOf, hline, vline, union, hash = F.part, F.rect, F.poly, F.line, F.fill, F.px, F.rimOf, F.hline, F.vline, F.union, F.hash
 local floor, sin, cos, pi = math.floor, math.sin, math.cos, math.pi
 local RED, SL = L.awnA, L.roof
@@ -263,7 +264,7 @@ local function sacredTree()
     if y > 150 and hash(x // 2, y, 36) < .3 then px(x, y, hash(x, y, 37) < .5 and L.moss.base or L.moss.shade) end
   end)
   -- clumped dark arolla crown: tufts with blue-green lit tops
-  local clumps = { { 372, 84, 16, 9 }, { 392, 70, 18, 10 }, { 420, 60, 18, 11 }, { 440, 80, 16, 9 }, { 404, 48, 14, 9 }, { 384, 100, 12, 6 }, { 432, 100, 13, 6 }, { 410, 84, 14, 8 } }
+  local clumps = { { 372, 84, 16, 9 }, { 392, 70, 18, 10 }, { 420, 60, 18, 11 }, { 440, 80, 16, 9 }, { 410, 57, 16, 10 }, { 384, 100, 12, 6 }, { 432, 100, 13, 6 }, { 410, 84, 14, 8 } }
   for i, k in ipairs(clumps) do
     for j = 0, 6 do
       local a = hash(i, j, 44) * 2 * pi
@@ -532,6 +533,9 @@ do
   -- smouldering juniper sprigs in the lid vents
   for _, p in ipairs({ { 58, 199 }, { 61, 196 }, { 64, 199 } }) do px(p[1], p[2] - 1, L.juniper.base) px(p[1] + 1, p[2] - 2, L.juniper.hi) end
   px(61, 195, L.glow.base) px(60, 194, L.glow.hi)
+  for x = 56, 66, 5 do vline(x, 205, 213, L.iron.shade) end
+  for _, x in ipairs({ 52, 58, 64, 69 }) do px(x, 206, BRONZE.hi) end
+  hline(54, 67, 213, BRONZE.base) px(55, 199, BRONZE.hi) px(56, 200, BRONZE.hi) px(59, 195, L.glow.hi) px(62, 194, L.glow.base)
   F.smoke(61, 190, 7, -.3, 2)
   cairn(38, 222, 6)
   F.juniper(80, 222, 9, 6, 87)
@@ -577,7 +581,7 @@ gravel()
 F.larch(428, 226, 50, 52)
 F.tree(452, 228, 72, 3)
 F.boulder(410, 224, 9, 8, 53)
-F.goat(410, 216, { r = L.chamois, k = .6, noShadow = true })
+F.goat(410, 216, { r = L.chamois, k = .85, noShadow = true })
 F.juniper(440, 228, 10, 5, 54) F.juniper(466, 226, 8, 4, 55)
 for _, f in ipairs({ { 398, 224 }, { 424, 228 }, { 460, 218 } }) do F.edelweiss(f[1], f[2], true) end
 F.gentian(402, 227, true) F.gentian(446, 220, true)

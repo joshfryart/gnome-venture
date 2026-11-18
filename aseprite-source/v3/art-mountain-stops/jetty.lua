@@ -111,10 +111,10 @@ for xx = 268, 479 do
     if lake:has(xx, dy) and lake:has(xx, dy + 1) and not beach:has(xx, dy) and sy >= 0 then
       local v = c:get(xx, sy)
       if v and not (dy % 3 == 0 and hash(xx // 4, dy, 84) < .5) then
-        local t = .16 + k * .0045
+        local t = .07 + k * .0042
         if k > 60 then t = t + (k - 60) * .05 end
         local h = mix(v, tone(xx, dy), math.min(1, t))
-        if (xx + dy) % 2 == 0 and k > 50 then h = mix(h, T3, .4) end
+        if (xx + dy) % 2 == 0 and k > 56 then h = mix(h, T3, .4) end
         px(xx, dy, h)
       end
     end
@@ -139,10 +139,12 @@ end
 -- cold sun glints
 for k = 0, 34 do local gx, gy = 276 + floor(hash(k, 1, 18) * 200), 124 + floor(hash(k, 2, 18) * 96) if lake:has(gx, gy) then px(gx, gy, "#f2f0dc") px(gx + 1, gy, W.hi) end end
 -- a few ice floes still drifting far out
-for _, f in ipairs({ { 330, 128, 6 }, { 352, 124, 3 }, { 452, 162, 5 }, { 466, 158, 2 }, { 300, 138, 3 } }) do
+for _, f in ipairs({ { 330, 128, 8 }, { 352, 124, 4 }, { 452, 162, 7 }, { 466, 158, 3 }, { 300, 138, 5 } }) do
   local fx, fy, fw = f[1], f[2], f[3]
   local m = poly{ { fx - fw, fy }, { fx - fw + 2, fy - 1 }, { fx + fw - 1, fy - 1 }, { fx + fw, fy } }
-  fill(m, L.snow.hi) hline(fx - fw + 1, fx + fw - 1, fy + 1, L.snow.shade) hline(fx - fw + 2, fx + fw - 2, fy + 2, mix(L.snow.shade, T2, .5))
+  hline(fx - fw, fx + fw + 1, fy + 3, T5) hline(fx - fw + 1, fx + fw, fy + 2, T4)
+  fill(m, L.snow.hi) hline(fx - fw + 1, fx + fw - 1, fy + 1, L.snow.shade) hline(fx - fw + 2, fx + fw - 2, fy + 2, mix(L.snow.shade, T2, .3))
+  hline(fx - fw, fx + fw, fy, L.snow.base) hline(fx - fw + 1, fx + fw - 1, fy - 2, L.stone.shade)
   px(fx + fw, fy, L.snow.base) px(fx - fw + 2, fy - 1, "#f6f6f0")
 end
 -- a leaping char (red belly) over its rings
@@ -150,7 +152,7 @@ do
   local fx, fy = 364, 156
   c:ellipse(fx, fy + 6, 9, 2):edge():each(function(x2, y2) px(x2, y2, W.hi) end)
   c:ellipse(fx, fy + 6, 13, 3):edge():each(function(x2, y2) if (x2 // 2) % 2 == 0 then px(x2, y2, W.hi) end end)
-  F.sprite({ "...ff..", ".fffff.", "fGGpGe.", ".fppf..", "f.f....", }, fx - 3, fy - 4,
+  F.sprite({ ".....ff....", "...fffffff.", ".ffGGGGGGf.", "fGGGGGeGGGf", ".fpppppGGf.", "..ffppppf..", "ff...ffff..", "f..........", }, fx - 5, fy - 6,
     { f = L.foliage2.shade, G = L.stone.hi, p = L.apple.hi, e = L.timber.edge })
   for _, d in ipairs({ { -6, 2 }, { 5, 3 }, { -4, -1 }, { 7, 0 } }) do px(fx + d[1], fy + d[2], W.hi) end
 end
@@ -378,6 +380,8 @@ F.boulder(368, 264, 9, 8, 94)
 F.boulder(326, 269, 6, 5, 95)
 F.juniper(372, 252, 7, 4, 96)
 F.edelweiss(346, 262, true) F.edelweiss(278, 246, true) F.gentian(282, 250, true) F.gentian(362, 236, true) F.edelweiss(366, 232, true)
+F.boulder(314, 240, 5, 4, 97) F.boulder(326, 232, 3, 3, 98) F.boulder(272, 262, 4, 3, 99) F.juniper(322, 246, 5, 3, 100)
+F.edelweiss(312, 228, true) F.gentian(324, 224, true) F.edelweiss(334, 244, true) F.gentian(318, 256, true) F.gentian(332, 256, true) F.edelweiss(304, 224, true)
 F.gentian(292, 214, true) F.edelweiss(298, 217, true) F.gentian(287, 217)
 
 ---------------------------------------------------------------- left: fisher's stone-and-larch chalet, fish rack

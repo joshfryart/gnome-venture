@@ -134,13 +134,14 @@ end
 ---------------------------------------------------------------- behind the tree line: the stepped granite quarry
 F.depth(0)
 do
-  local function hz(h) return F.mix(h, L.sky[4], .2) end
+  local function hz(h) return F.mix(h, L.sky[4], .07) end
   local P, S = L.peak, L.stone
   local q = poly{ { 176, HZ + 2 }, { 182, 98 }, { 190, 88 }, { 204, 80 }, { 222, 76 }, { 246, 74 }, { 266, 77 }, { 282, 84 }, { 296, 94 }, { 306, HZ + 2 } }
   q:each(function(x, y)
     local v = F.vnoise(x / 5, y / 4, 7)
     local h = v < .25 and P.hi or (v < .6 and P.base or P.shade)
     if x > 262 + (y - 76) * .6 then h = (v < .5) and P.shade or P.deep end
+    if v < .1 then h = P.deep end
     if not q:has(x, y - 1) then h = L.snow.base end
     px(x, y, hz(h))
   end)
@@ -285,27 +286,27 @@ end
 ---------------------------------------------------------------- back-right: the bell pit
 local function bellpit()
   -- the clay mould (cope) in its pit, bound with iron, a pouring cup on top
-  F.shadow(302, 330, 142, 6, 2)
-  local pit = c:ellipse(316, 143, 15, 2) fill(pit, L.soil.deep)
-  local cope = c:ellipse(316, 128, 7, 6):add(poly{ { 309, 128 }, { 323, 128 }, { 329, 142 }, { 303, 142 } })
-  local cup = rect(313, 119, 319, 122)
+  F.shadow(302, 330, 134, 6, 2)
+  local pit = c:ellipse(316, 135, 15, 2) fill(pit, L.soil.deep)
+  local cope = c:ellipse(316, 120, 7, 6):add(poly{ { 309, 120 }, { 323, 120 }, { 329, 134 }, { 303, 134 } })
+  local cup = rect(313, 111, 319, 114)
   rimOf(union(cope, cup), CLAY)
   part(cope, CLAY)
-  cope:each(function(x, y) if hash(x // 2, y, 87) < .12 then px(x, y, CLAY.shade) end if (x - 316) < -4 and y < 132 and hash(x, y, 88) < .4 then px(x, y, CLAY.hi) end end)
-  for _, yy in ipairs({ 130, 136, 141 }) do cope:each(function(x, y) if y == yy then px(x, y, (x < 312) and IR.base or IR.deep) end end) end
-  part(cup, CLAY, { nopop = true }) fill(rect(314, 119, 318, 120), G.base) px(315, 119, G.hi)
+  cope:each(function(x, y) if hash(x // 2, y, 87) < .12 then px(x, y, CLAY.shade) end if (x - 316) < -4 and y < 124 and hash(x, y, 88) < .4 then px(x, y, CLAY.hi) end end)
+  for _, yy in ipairs({ 122, 128, 133 }) do cope:each(function(x, y) if y == yy then px(x, y, (x < 312) and IR.base or IR.deep) end end) end
+  part(cup, CLAY, { nopop = true }) fill(rect(314, 111, 318, 112), G.base) px(315, 111, G.hi)
   -- the furnace: a squat clay-and-granite cupola, firehole glowing, tapping bronze down a runner into the cup
-  local fur = rect(336, 98, 354, 141)
-  rimOf(fur, L.stone) part(fur, L.stone) F.courses(fur, 98, 5, 7, L.stone)
-  fill(rect(334, 96, 356, 99), CLAY.base) hline(334, 356, 96, CLAY.hi) hline(334, 356, 99, CLAY.deep)
-  local fh = c:rrect(340, 105, 350, 116, 3):clip(rect(340, 105, 350, 116)) fill(fh, L.soil.edge)
-  fill(c:ellipse(345, 114, 4, 2):clip(fh), G.shade) px(344, 113, G.hi) px(346, 114, G.base) px(343, 114, G.base) px(345, 111, G.base) px(347, 110, G.shade)
-  local run = line({ { 337, 116 }, { 328, 118 }, { 320, 120 } }, 2)
+  local fur = rect(336, 90, 354, 133)
+  rimOf(fur, L.stone) part(fur, L.stone) F.courses(fur, 90, 5, 7, L.stone)
+  fill(rect(334, 88, 356, 91), CLAY.base) hline(334, 356, 88, CLAY.hi) hline(334, 356, 91, CLAY.deep)
+  local fh = c:rrect(340, 97, 350, 108, 3):clip(rect(340, 97, 350, 108)) fill(fh, L.soil.edge)
+  fill(c:ellipse(345, 106, 4, 2):clip(fh), G.shade) px(344, 105, G.hi) px(346, 106, G.base) px(343, 106, G.base) px(345, 103, G.base) px(347, 102, G.shade)
+  local run = line({ { 337, 108 }, { 328, 110 }, { 320, 112 } }, 2)
   rimOf(run, CLAY) fill(run, CLAY.shade)
-  line({ { 337, 116 }, { 328, 118 }, { 320, 119 } }):each(function(x, y) px(x, y, hash(x, y, 89) < .5 and G.hi or G.base) end)
-  px(321, 121, G.base)
-  F.smoke(345, 92, 6, .8, 2)
-  for i = 0, 6 do px(324 + floor(hash(i, 1, 90) * 14), 108 + floor(hash(i, 2, 90) * 8), i % 2 == 0 and G.hi or G.base) end
+  line({ { 337, 108 }, { 328, 110 }, { 320, 111 } }):each(function(x, y) px(x, y, hash(x, y, 89) < .5 and G.hi or G.base) end)
+  px(321, 113, G.base)
+  F.smoke(345, 84, 6, .8, 2)
+  for i = 0, 6 do px(324 + floor(hash(i, 1, 90) * 14), 100 + floor(hash(i, 2, 90) * 8), i % 2 == 0 and G.hi or G.base) end
 end
 bellpit()
 F.depth(2)
@@ -583,9 +584,11 @@ local function marmotStatue(x, yb)
       px(xx, yy, h)
     end
   end)
-  fill(ears, L.stone.shade) px(x - 6, yb - 44, L.stone.hi)
+  c:edgeIn(union(body, head):clip(rect(x - 12, yb - 46, x + 12, yb - 16)), L.stone.deep)
+  hline(x - 5, x + 5, yb - 33, L.stone.shade) -- chin / neck
+  fill(ears, L.stone.shade) px(x - 6, yb - 44, L.stone.hi) px(x - 5, yb - 43, L.stone.deep) px(x + 5, yb - 43, L.stone.deep)
   -- face: eyes, nose, the incisors, cheeks
-  for _, ex in ipairs({ x - 3, x + 3 }) do px(ex, yb - 40, L.timber.edge) px(ex, yb - 41, L.stone.deep) px(ex - 1, yb - 41, L.stone.deep) end
+  for _, ex in ipairs({ x - 3, x + 3 }) do px(ex, yb - 40, L.timber.edge) px(ex, yb - 41, L.timber.edge) px(ex - 1, yb - 41, L.stone.deep) px(ex + 1, yb - 41, L.stone.deep) end
   fill(rect(x - 2, yb - 38, x + 2, yb - 35), L.stone.hi) -- the pale muzzle
   for _, ck in ipairs({ x - 5, x + 5 }) do px(ck, yb - 37, L.stone.shade) end
   fill(rect(x - 1, yb - 38, x + 1, yb - 37), L.stone.deep) px(x - 1, yb - 38, L.stone.shade)

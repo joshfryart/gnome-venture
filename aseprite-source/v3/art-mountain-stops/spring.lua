@@ -31,7 +31,7 @@ local feld = "#ecdcd2" -- pink feldspar fleck
 F.depth(0)
 do
   -- the glacier hangs in the left flank of the right-hand crag (peak at 420,66) and spills toward the rock face
-  local g = poly{ { 416, 68 }, { 424, 72 }, { 422, 78 }, { 416, 84 }, { 413, 90 }, { 409, 99 }, { 399, 99 }, { 401, 90 }, { 398, 84 }, { 404, 76 } }
+  local g = poly{ { 416, 61 }, { 426, 67 }, { 425, 76 }, { 421, 82 }, { 418, 88 }, { 414, 94 }, { 400, 94 }, { 397, 88 }, { 392, 82 }, { 396, 74 }, { 405, 67 } }
   -- dark lateral moraines either side
   g:grow(2):cut(g):each(function(x, y) if y > 74 then px(x, y, hash(x, y, 4) < .5 and L.peak.deep or L.peak.edge) end end)
   g:edge():each(function(x, y) if y > 80 then px(x, y, mix(ice.edge, L.sky[4], .2)) end end)
@@ -44,12 +44,12 @@ do
     local a = floor((y - 68) + ((x - 410) / 6) ^ 2 * .8)
     if a % 6 == 0 and g:has(x, y - 1) and g:has(x, y + 1) then h = ice.shade elseif a % 6 == 5 and y > 74 then h = ice.hi end
     -- the ice fall: blue seracs at the snout
-    if y > 89 then h = (x % 3 == 0) and ice.deep or ((x % 3 == 1) and ice.hi or ice.shade) end
+    if y > 85 then h = (x % 3 == 0) and ice.deep or ((x % 3 == 1) and ice.hi or ice.shade) end
     px(x, y, mix(h, L.sky[4], .15))
   end)
   -- the blue snout and meltwater threads running down to the rock face
-  hline(395, 408, 102, ice.deep) hline(397, 405, 101, ice.shade)
-  for _, t in ipairs({ { 398, 103 }, { 404, 103 } }) do
+  hline(398, 414, 95, ice.deep) hline(400, 412, 94, ice.shade)
+  for _, t in ipairs({ { 402, 96 }, { 410, 96 } }) do
     for y = t[2], 110 do px(t[1] + floor((y - t[2]) * .25), y, (y % 3 == 0) and L.snow.hi or ice.shade) end
   end
   -- snowmelt rills streaking down the left crags (thin, broken, catching the light)
@@ -250,7 +250,7 @@ for _, b in ipairs(boulders) do
   if b[2] < 135 then
     b.m:each(function(x, y)
       local nx, ny = (x - b[1]) / b[3], (y - b[2]) / b[4]
-      local cap = -.62 + .45 * F.vnoise(x / 5, 1, b[5]) + .08 * hash(x // 2, 3, b[5])
+      local cap = -.7 + .3 * F.vnoise(x / 6, 1, b[5]) + .55 * F.vnoise(x / 15, 7, b[5]) * F.vnoise(x / 4, 5, b[5] + 3)
       if ny < cap and nx < .6 then
         local edge = not b.m:has(x, y - 1)
         local h = (nx < -.1) and L.snow.hi or L.snow.base

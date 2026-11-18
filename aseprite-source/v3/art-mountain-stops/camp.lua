@@ -99,11 +99,11 @@ F.depth(0)
 do
   local cx, yb = 356, HZ - 1
   local m = HP.mask()
-  for k = 0, 3 do m:add(c:ellipse(cx + (k % 2), yb - 1 - k * 3, 5 - k, 2)) end
+  for k = 0, 4 do m:add(c:ellipse(cx + (k % 2), yb - 1 - k * 4, 8 - floor(k * 1.5), 3)) end
   rimOf(m, L.peak) part(m, L.peak, { nopop = true })
   m:each(function(x, y) if not m:has(x, y - 1) then px(x, y, L.peak.hi) elseif hash(x, y, 9) < .3 then px(x, y, L.peak.deep) end end)
-  vline(cx, yb - 22, yb - 11, L.timber.deep)
-  for y = yb - 22, yb - 15 do px(cx + 1, y, ((y // 2) % 2 == 0) and L.awnA.base or L.awnB.hi) end
+  vline(cx, yb - 30, yb - 15, L.timber.deep)
+  for y = yb - 30, yb - 21 do px(cx + 1, y, ((y // 2) % 2 == 0) and L.awnA.base or L.awnB.hi) end
 end
 
 ---------------------------------------------------------------- back trees (plane 1)
@@ -290,11 +290,11 @@ do
   for _, sx in ipairs({ 398, 470 }) do local st = rect(sx, 120, sx + 1, 146) rimOf(st, L.timber) part(st, L.timber, { nopop = true, noshade = true }) end
   for x = 399, 470 do px(x, floor(y0 + (y1 - y0) * (x - 399) / 71 + 2 * sin((x - 399) / 71 * pi)), L.board.deep) end
   F.shadow(408, 466, 156, 8, 3)
-  packGoat(418, 156, .86, false, L.goat, L.roof2, L.wall2)
-  packGoat(454, 154, .8, true, L.chamois, L.awnA, L.awnB)
+  packGoat(422, 157, 1.1, false, L.goat, L.roof2, L.wall2)
+  packGoat(452, 155, 1.0, true, L.chamois, L.awnA, L.awnB)
   -- lead ropes to the line
-  line({ { 431, 138 }, { 433, 130 } }):each(function(x, y) px(x, y, L.board.deep) end)
-  line({ { 441, 136 }, { 440, 130 } }):each(function(x, y) px(x, y, L.board.deep) end)
+  line({ { 435, 136 }, { 436, 130 } }):each(function(x, y) px(x, y, L.board.deep) end)
+  line({ { 445, 134 }, { 444, 130 } }):each(function(x, y) px(x, y, L.board.deep) end)
   -- pile of unloaded pack saddles and panniers
   local ps = c:rrect(394, 151, 406, 157, 2) rimOf(ps, L.timber) part(ps, L.timber, { nopop = true })
   hline(395, 405, 151, L.timber.hi) px(397, 150, L.timber.base) px(403, 150, L.timber.base)
@@ -375,6 +375,8 @@ local function campfire(cx, cy)
     rimOf(top, L.stone) part(top, L.stone, { nopop = true })
     line({ { x0 + 1, y - 2 }, { x1 - 2, y - 3 } }):each(function(x, yy) px(x, yy, L.stone.hi) end)
     hline(x0 + 2, x1 - 1, y + 1, L.stone.deep)
+    hline(x0 + 1, x1 - 2, y + 2, L.stone.shade) hline(x0 + 2, x1 - 3, y + 3, L.stone.deep)
+    hline(x0 + 1, x1 - 3, y - 2, "#e6e8e6")
     F.lichen(top, .3, x0 + 3)
     -- a folded sheepskin on it
     fill(rect(x0 + 6, y - 4, x0 + 13, y - 2), L.goat.base) hline(x0 + 6, x0 + 13, y - 4, L.goat.hi) px(x0 + 8, y - 3, L.goat.shade) px(x0 + 11, y - 3, L.goat.shade)
@@ -415,7 +417,7 @@ local function campfire(cx, cy)
   local glowM = c:ellipse(cx, cy + 4, 42, 14):cut(c:ellipse(cx, cy, 25, 10))
   glowM:each(function(x, y) if hash(x, y, 33) < .3 and not F.roadM:has(x, y) then px(x, y, hash(x, y, 34) < .5 and L.gold.hi or L.board.hi) end end)
   seat(cx - 46, cx - 22, cy + 4)
-  slab(cx + 24, cx + 50, cy + 2)
+  slab(cx + 24, cx + 52, cy + 5)
   seat(cx - 16, cx + 18, cy + 20, L.redbark)
 end
 campfire(132, 214)
@@ -431,15 +433,16 @@ local _, ux, uy = F.gnome(174, 208, { hat = L.gold, coat = L.lav, arm = "out", f
 fill(rect(ux - 3, uy - 3, ux, uy + 1), L.accent.base) px(ux, uy - 2, L.accent.shade) px(ux - 3, uy - 3, L.accent.hi) px(ux - 2, uy - 5, L.cloud.top) px(ux - 1, uy - 7, L.cloud.top)
 -- a Bernese dog asleep by the fire, nose on its paws
 F.sprite({
-  ".ee.............",
-  "eDDe....DDDDD...",
-  "DweDDDDDDDDDDD..",
-  "nwRDDDDDDDdDDDt.",
-  "wwwRRDDDDDDDDDtw",
-  ".wwRRdRRddRRd...",
-}, 154, 228, { e = IR.deep, D = "#3c3a44", d = "#2e2c36", n = L.timber.edge, w = L.edel.hi, R = L.chamois.base, t = "#3c3a44" })
-px(159, 229, "#56525e") px(164, 229, "#56525e") px(170, 230, "#56525e")
-hline(156, 157, 230, L.timber.edge)
+  "..ee......................",
+  ".eDDe.........DDDDDD......",
+  "eDDDeDDDDDDDDDDDDDDDDD....",
+  "DwwDDDDDDDDDDDhhDDDDDDDt..",
+  "nwwRDDDDDDDhhDDDDDDDDDDtw.",
+  "wwwwRRDDDDDDDDDDDDDDDDDtww",
+  ".wwwRRRdRRDDDdRRDDDdRRDt..",
+  "..wRRRddRRdddddRRddddRR...",
+}, 148, 224, { e = IR.deep, D = "#4c4856", d = "#38343e", h = "#6c6676", n = L.timber.edge, w = L.edel.hi, R = L.chamois.base, t = "#4c4856" })
+px(152, 226, L.edel.hi)
 -- a stump stool by the lute player, pebbles by the ring
 stump(66, 216, 5, .3, 23)
 F.edelweiss(84, 222, true) F.gentian(192, 236, true) F.edelweiss(196, 232, true)

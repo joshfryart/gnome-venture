@@ -166,6 +166,7 @@ local function terraceWall(y0, h, s, seed, x0, x1)
   local m = HP.mask()
   for x = x0, x1 do for y = y0, y0 + h do if not F.roadM:has(x, y) and not F.roadM:has(x - 1, y) and not F.roadM:has(x + 1, y) then m:set(x, y) end end end
   local bw = 3 + floor(s * 3)
+  if s < .8 then bw = 5 end
   m:each(function(x, y)
     local ry = y - y0
     local row = (ry - 1) // 2
@@ -196,7 +197,7 @@ end
 for k = 2, #levels do
   local y, s = levels[k][1], levels[k][2]
   F.depth(y < 140 and 1 or (y < 170 and 2 or 3))
-  terraceWall(y + 4, 1 + floor(s * 2.6), s, 500 + k * 7, 16, 463)
+  terraceWall(y + 4, 2 + floor(s * 2.6) + (s < .7 and 1 or 0), s, 500 + k * 7, 16, 463)
 end
 
 F.depth(2)
@@ -289,7 +290,7 @@ local function pressHouse()
   for k = 1, 6 do local t = k / 7 lad:add(line({ { 400 + 8 * t, 140 - 28 * t }, { 404 + 8 * t, 140 - 28 * t } })) end
   c:rim(lad, L.timber.edge) fill(lad, L.board.base)
   for k = 0, 2 do
-    local b = poly{ { 464 - 1, 140 - k * 3 - 4 }, { 472, 140 - k * 3 - 4 }, { 471, 140 - k * 3 }, { 464, 140 - k * 3 } }
+    local b = poly{ { 440 - 1, 140 - k * 3 - 4 }, { 448, 140 - k * 3 - 4 }, { 447, 140 - k * 3 }, { 440, 140 - k * 3 } }
     rimOf(b, WICK) part(b, WICK, { nopop = true })
   end
 end
@@ -446,20 +447,25 @@ F.sprite({
 F.goat(64, 168, { k = .5, graze = true })
 F.goat(46, 166, { k = .36, flip = true, r = L.chamois })
 for _, a in ipairs({ { 52, 169 }, { 55, 171 }, { 76, 170 } }) do px(a[1], a[2], AP.base) px(a[1] + 1, a[2], AP.shade) px(a[1], a[2] - 1, AP.hi) end
+-- the midground between press and road: juniper cushions, a windfall or two, a drystone cairn of pears
+F.juniper(168, 190, 7, 4, 301) F.juniper(205, 176, 6, 3, 302) F.boulder(190, 204, 4, 3, 303) F.boulder(150, 178, 3, 2, 304)
+F.edelweiss(176, 200, true) F.gentian(196, 190, true) F.edelweiss(210, 196, true) F.gentian(160, 196, true) F.gentian(184, 182) F.edelweiss(150, 190)
+for _, a in ipairs({ { 172, 196 }, { 199, 200 }, { 187, 186 } }) do px(a[1], a[2], AP.base) px(a[1] + 1, a[2], AP.shade) px(a[1], a[2] - 1, AP.hi) end
 -- an alpine chough (yellow bill, red legs) pecking a windfall by the road
 F.sprite({ ".kk....", "kkkkk..", "kkkkkky", ".kkkk..", "..r.r.." }, 182, 191, { k = "#3c3640", y = L.gold.hi, r = AP.base })
 px(180, 195, AP.base) px(179, 195, AP.shade)
 -- a nutcracker on the crate stack with a walnut in its bill
 F.sprite({
-  "...CC.....",
-  "..CCCC....",
-  "NkCECBB...",
-  "NkBwBwBB..",
-  "..BBwBwBbb",
-  "...BwBBbbt",
+  "...CCC....",
+  "..CCCCC...",
+  "NkCCECBB..",
+  "NkBBBBBBB.",
+  "..BWBWBBbb",
+  "...BBBBbbt",
   "....BBWWbt",
+  "....BWWbbt",
   "....o.o..t",
-}, 303, 194, { C = "#3a2e2a", E = L.timber.edge, k = "#2e2a2c", N = WAL.base, B = "#6a5244", w = L.edel.base, W = L.edel.hi, b = "#46383a", t = "#2e2a2c", o = L.timber.edge })
+}, 303, 193, { C = "#5a4a44", E = L.timber.edge, k = "#2e2a2c", N = WAL.base, B = "#9a8272", w = L.edel.base, W = L.edel.hi, b = "#6a5448", t = "#2e2a2c", o = L.timber.edge })
 F.depth(0)
 F.birds({ { 330, 40, 2 }, { 120, 48, 2 }, { 132, 42, 1 } })
 F.finish()
