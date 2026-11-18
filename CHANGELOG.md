@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.14
+- **Wearable piece pictures** now show the piece's name in the name ribbon (small pixel capitals). 103 of the 280 piece names were too long for it and are shortened (for example "Saddle-Bag Rummage" is now "Saddle Dig"); values, effects and prices are unchanged. The 280 pictures in `game/assets/img/wearpiece/` are regenerated and the stored item descriptions ("Piece: name") are refreshed by the `wearables_2700` boot step. Hidden with the wearables (`pfight_v1`). No player news.
+
 ## 2.7.13
 - **Wearable rarity:** the 840 regional wearable items now carry their design's rarity (Common 10, Uncommon 25, Rare 50, +10 Lined, +20 Fine) instead of one value from the rank, so shelves and the satchel show Uncommon and Rare. Items already created are corrected by the `wearables_2700` boot step (a rarity changed in the Admin is left alone). Hidden with the wearables (`pfight_v1`). No player news.
 
