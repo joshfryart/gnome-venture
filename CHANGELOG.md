@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.10
+- **Regional outfitters** (hidden behind `pfight_v1`, like the wearables): one shop per region at its market place, three shifts of staff, selling that region's 20 wearables at Common rank for the Tailor's Petal fee x 1.25 (no Tailor, materials or energy needed; Lined and Fine still come from the Tailor). Stock: Common 3, Uncommon 2, Rare 1 on the shelf. A gnome needs the level of the item's region. Shops and stock are created by the existing `wearables_2700` boot step (`wear_ensure_shops` in `wearables.php`); the shop and its items stay out of sight for normal gnomes while `pfight_v1` is Admins only.
+- No player news this version.
+
 ## 2.7.09
 - **Pals work at 06:00.** All pal work (trips, delves, garden stays, pots, the Pantry) is credited once per game morning at 06:00, a whole day ahead, counted from the game clock. Sleeping at 05:59 gives exactly one morning, staying up past 06:00 gives it without a sleep, and sleeping after it does not give it twice. New column `users.pal_morning`.
 - **Pantry pal** collects ready jars and refills free ones every morning it missed (up to 40), not only on the Jobs page; it also checks when you open the Pantry, the craft map or the Kitchen card.
