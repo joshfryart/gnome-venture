@@ -36,7 +36,8 @@ $today = hollow_today();
 $a = array_map(fn($n) => npc_order($n, $today), $folk);
 $b = array_map(fn($n) => npc_order($n, $today), $folk);
 ok('same orders on a second call', $a == $b);
-ok('at least one order open today', count(array_filter($a)) >= 1, json_encode(array_map(fn($x) => $x['kind'] ?? null, $a)));
+$c0 = orders_cycle($today)['start']; // an order is open only until its deadline: late in a cycle all can be past, so look at the cycle's first day
+ok('at least one order open on a cycle\'s first day', count(array_filter(array_map(fn($n) => npc_order($n, $c0), $folk))) >= 1, json_encode(array_map(fn($x) => $x['kind'] ?? null, $a)));
 $kindsSeen = [];
 for ($len = 3; $len <= 28; $len++) { cfg(['orders_cycle_days' => $len]); foreach ($folk as $n) if ($o = npc_order($n, $today)) $kindsSeen[$o['kind']] = ($kindsSeen[$o['kind']] ?? 0) + 1; }
 cfg(['orders_cycle_days' => 7]);

@@ -95,8 +95,8 @@ const PF_TAGS_V1 = [
 /** Tags that carry no art icon of their own but still explain themselves (Snack: the item piece; pal: a pal's piece). */
 const PF_SPECIAL = [
     'snack' => 'Snack: eats a food item from your satchel',
-    'pal'   => 'Pal: a piece your pal lends you while it comes along; placed, it knocks the creature\'s strongest piece (up to its own value) off the board; a boss shrugs it off',   // 2.7.08 pal targeting
-    'boon'  => 'Boon: a piece your pal lends you while it comes along, shaped by its rare Boon; placed, it knocks the creature\'s strongest piece (up to its own value) off the board; a boss shrugs it off',   // 2.7.06; 2.7.08 pal targeting
+    'pal'   => 'Pal: your pal\'s piece; it knocks off the creature\'s best piece up to its value (not a boss)',   // 2.7.08 pal targeting
+    'boon'  => 'Boon: your pal\'s Boon piece; it knocks off the creature\'s best piece up to its value (not a boss)',   // 2.7.06; 2.7.08 pal targeting
 ];
 
 /** What each piece TYPE does for the player, in one sentence; # is the piece's number (pf_type_text). Hurt and Charm fill the creature's one Yield bar. */
