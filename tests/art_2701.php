@@ -98,7 +98,7 @@ ok('the fight token draws mark/fight.png', trail_mark_file('⚔️') === 'fight'
 ok('the camp token draws mark/camp.png', trail_mark_file('🏕️') === 'camp');
 ok('the way on keeps its emoji tile (no marker drawn)', trail_mark_file('🚪') === '' && trail_mark_file('✨') === '');
 ok('step 2: the rest stop and the side path markers can be asked for by name', trail_mark_file('', 'rest') === 'rest' && trail_mark_file('', 'signpost') === 'signpost');
-ok('step 2: the hazard marker is installed but not wired (no Trail data has a hazard)', is_file($img . 'trail/mark/hazard.png') && trail_mark_file('', 'hazard') === '');
+ok('step 2: the hazard marker is installed and can be asked for by name (2.7.06; no Trail data names one yet)', is_file($img . 'trail/mark/hazard.png') && trail_mark_file('', 'hazard') === 'hazard');
 ok('a rest stop (village) is a place the last stretch shows on its way on', (TRAIL_DEST_MARKS['village'] ?? '') !== '' && trail_dest_mark_name('village') === 'rest' && trail_dest_mark_name('lair') === 'lair');
 
 echo "== stop looks (Maplewold)\n";
@@ -117,8 +117,10 @@ foreach (['inn', 'ferry', 'spring'] as $t) {   // step 2: drawn now (batch4); ea
     ok("$t: the Maplewold layout has do / homes / people / stop / wild with boxes, and 6 stand slots", $L && $ks === ['do', 'homes', 'people', 'stop', 'wild'] && count(array_filter($L['spots'], fn($s) => isset($s['box']))) === 5 && count($L['stand']) === 6, json_encode($ks));
     ok("$t: it is not the plain look's layout (spots placed on the new picture)", $L && $L['spots'] !== ($all['stop-' . $t]['spots'] ?? null));
 }
+$f = here_layout_find($all, 'stop', 'savanna', 'some-stop', ['type' => 'mill', 'style' => 'maplewold']);   // a landscape with no look of its own (forest, mountain, coast ... have one each since the 84 stop looks)
+ok('a Maplewold mill in a landscape with no look: its stop-mill picture', $f && $f[0] === 'stop-mill');
 $f = here_layout_find($all, 'stop', 'forest', 'some-stop', ['type' => 'mill', 'style' => 'maplewold']);
-ok('a Maplewold mill in another landscape: its stop-mill picture', $f && $f[0] === 'stop-mill');
+ok('a Maplewold mill in the forest: the forest look of the mill', $f && $f[0] === 'stop-mill-forest_pinewood', $f[0] ?? '');
 
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);
