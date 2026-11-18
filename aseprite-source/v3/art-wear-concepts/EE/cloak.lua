@@ -89,7 +89,7 @@ if C.want("cloak-2") then
     C.fill(c, ctr, C.ink) c:put(cx - 1, cy - 1, R.plum[3])
     c:put(cx - r + 2, cy - r + 2, R.ember[6]) c:put(cx - r + 3, cy - r + 1, R.ember[6])
   end
-  poppy(19, 21, 5) poppy(44, 21, 5) poppy(32, 33, 4.5)
+  poppy(19, 21, 5) poppy(44, 21, 5) poppy(32, 34, 4)
   -- tiny white-cream flowers scattered (cornfield)
   C.dots(c, { {30, 19}, {11, 17}, {52, 17}, {26, 28}, {38, 28}, {32, 43} }, R.linen[5])
   C.dots(c, { {33, 19}, {36, 41}, {28, 41} }, R.jay[6])

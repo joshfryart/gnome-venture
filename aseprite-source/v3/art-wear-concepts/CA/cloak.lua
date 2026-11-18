@@ -40,9 +40,9 @@ do
   for x = 7, 57 do if x % 2 == 1 then local len = 4 + (x * 5) % 3 for y = 51, 50 + len do c:put(x, y, (y == 51) and R.clay[3] or R.maize[(x < 32) and 4 or 3]) end end end
   C.hline(c, 6, 58, 50, R.clay[2])
   -- quirk: bougainvillea blossom caught in the fringe
-  local p1 = c:poly{ {13, 51}, {17, 49}, {17, 53} }
-  local p2 = c:poly{ {17, 53}, {21, 51}, {20, 56} }
-  local p3 = c:poly{ {14, 53}, {17, 54}, {14, 57} }
+  local p1 = c:poly{ {12, 51}, {17, 48}, {18, 53} }
+  local p2 = c:poly{ {17, 53}, {23, 51}, {21, 57} }
+  local p3 = c:poly{ {12, 54}, {17, 54}, {13, 58} }
   C.part(c, p1, R.bougain, { R = 1, b = 1 }) C.part(c, p2, R.bougain, { R = 1 }) C.part(c, p3, R.bougain, { R = 1, b = -1 })
   c:put(17, 53, R.cotton[6]) c:put(16, 52, R.maize[5])
   C.save(c, "cloak-1-hearthstripe-poncho")
@@ -51,35 +51,47 @@ end
 ---------------------------------------------------------------- 2 dappled rebozo (draped loop, knotted fringe)
 do
   local c = C.new("cloak-2-dappled-rebozo")
-  local pts = { {14, 50}, {6, 0}, {58, 0}, {50, 50} }
-  local m, n, T, S = G.tube(pts, function(t) return 5.5 end)
-  -- inner (far) side of the drape is darker
-  local b = {} m:each(function(x, y) local t = T[K(x, y)] if t > .25 and t < .75 and S[K(x, y)] > .3 then b[K(x, y)] = -1 end end)
-  local idx = G.toneN(c, m, n, R.agave, { bias = b, cuts = { .2, .36, .52, .7, .88 } })
-  -- ikat dapple: short feathered dashes along the band
-  m:each(function(x, y)
-    local t, s = T[K(x, y)], S[K(x, y)]
-    local u = math.floor(t * 90)
-    local v = math.floor((s + 1) * 3)
-    local h = hash(u // 3, v, 4)
-    if h < .3 and (u % 3) ~= 2 then c:put(x, y, R.cotton[math.min(6, idx[K(x, y)] + 1)])
-    elseif h > .85 then c:put(x, y, R.agave[1]) end
-  end)
-  -- fold creases along the band
-  m:each(function(x, y) if math.abs(S[K(x, y)] - .05) < .09 and T[K(x, y)] > .15 and T[K(x, y)] < .85 then c:put(x, y, R.agave[2]) end end)
-  -- knotted fringe at both ends: net then long strands
-  local function fringe(x0, x1, y0, side)
+  local function band(pts, bias, w)
+    local m, n, T, S = G.tube(pts, function(t) return w or 5.5 end)
+    local b = {} m:each(function(x, y) b[K(x, y)] = bias(T[K(x, y)], S[K(x, y)]) end)
+    return m, n, T, S, b
+  end
+  local function paint(m, n, T, S, b)
+    local idx = G.toneN(c, m, n, R.agave, { bias = b, cuts = { .2, .36, .52, .7, .88 } })
+    -- ikat: lengthwise stripes with feathered breaks
+    m:each(function(x, y)
+      local t, s = T[K(x, y)], S[K(x, y)]
+      local u = math.floor(t * 70)
+      local i = idx[K(x, y)]
+      for _, sv in ipairs({ -.55, 0, .55 }) do
+        if math.abs(s - sv) < .12 then
+          if hash(u, math.floor(sv * 10), 4) > .35 then c:put(x, y, R.cotton[math.min(6, i + 1)]) else c:put(x, y, R.agave[math.max(1, i - 1)]) end
+        end
+      end
+      if math.abs(math.abs(s) - .28) < .07 and u % 4 == 0 then c:put(x, y, R.bougain[3]) end
+    end)
+  end
+  -- back: left tail + over the shoulders to the right shoulder
+  local m1, n1, T1, S1, b1 = band({ {12, 52}, {4, 2}, {56, 0}, {50, 24} }, function(t, s) return (t > .35 and t < .8 and s > .2) and -1 or 0 end)
+  -- front: right end swung across the chest, hanging to the lower middle
+  local m2, n2, T2, S2, b2 = band({ {50, 20}, {56, 42}, {40, 48}, {32, 55} }, function() return 0 end)
+  paint(m1, n1, T1, S1, b1)
+  C.sep(c, m2, m1, R.agave[1])
+  paint(m2, n2, T2, S2, b2)
+  -- knotted fringe at both ends: net rows then long strands
+  local function fringe(x0, x1, y0, side, slope)
     for x = x0, x1 do
-      for y = y0, y0 + 3 do if (x + y) % 2 == 0 then c:put(x, y, R.cotton[4 + side]) end end
-      if x % 2 == 0 then for y = y0 + 4, y0 + 10 - (x % 3) do c:put(x, y, R.agave[4 + side]) end end
+      local yy = y0 + math.floor((x - x0) * (slope or 0))
+      for y = yy, yy + 2 do if (x + y) % 2 == 0 then c:put(x, y, R.cotton[4 + side]) end end
+      if x % 2 == 0 then for y = yy + 3, yy + 9 - (x % 3) do c:put(x, y, R.agave[4 + side]) end end
     end
   end
-  fringe(9, 19, 53, 0)
-  fringe(45, 55, 53, -1)
+  fringe(7, 17, 55, -1)
+  fringe(27, 37, 57, 0, -.25)
   -- quirk: a seed-pod rattle bead on one strand
-  local pod = G.oval(13, 62, 1.6, 2.4, 0)
+  local pod = G.oval(30, 64, 1.6, 2.4, 0)
   C.part(c, pod, R.cacao, { R = 1, b = 1 })
-  c:put(12, 61, R.cacao[6])
+  c:put(29, 63, R.cacao[6])
   C.save(c, "cloak-2-dappled-rebozo")
 end
 
@@ -133,24 +145,23 @@ end
 ---------------------------------------------------------------- 4 agave-fibre mantle knotted at one shoulder
 do
   local c = C.new("cloak-4-agave-fibre-mantle")
-  local back = c:poly{ {22, 12}, {50, 22}, {56, 46}, {40, 40} }
-  local front = c:poly{ {14, 12}, {24, 10}, {44, 26}, {54, 48}, {46, 58}, {12, 58}, {8, 34} }
+  local back = c:poly{ {22, 12}, {46, 18}, {54, 36}, {44, 34} }
+  local front = c:poly{ {14, 12}, {24, 10}, {40, 22}, {48, 38}, {56, 61}, {44, 56}, {30, 58}, {18, 56}, {8, 58}, {7, 34} }
   C.part(c, back, ixtle, { R = 2, b = -1 })
   C.sep(c, front, back, ixtle[1])
   local fi = C.part(c, front, ixtle, { R = 6 })
   -- open coarse weave: holes on a grid, thick yarn ridges
   front:each(function(x, y)
     local i = fi[K(x, y)]
-    if x % 4 == 0 and y % 4 == 0 then c:put(x, y, ixtle[1])
-    elseif x % 4 == 0 or y % 4 == 0 then c:put(x, y, ixtle[math.max(1, i - 1)])
-    elseif (x % 4 == 1 and y % 4 == 1) then c:put(x, y, ixtle[math.min(6, i + 1)]) end
+    if x % 4 == 0 and y % 4 == 0 then c:put(x, y, ixtle[math.max(1, i - 2)])
+    elseif (x + y) % 4 == 1 and hash(x, y, 6) < .35 then c:put(x, y, ixtle[math.min(6, i + 1)]) end
   end)
   -- diagonal drape folds
-  for _, f in ipairs({ { {18, 14}, {24, 56} }, { {24, 14}, {38, 56} }, { {30, 20}, {48, 52} } }) do
+  for _, f in ipairs({ { {16, 16}, {12, 56} }, { {19, 16}, {26, 56} }, { {23, 16}, {40, 55} }, { {28, 18}, {50, 56} } }) do
     c:line(f, 1):each(function(x, y) if front:has(x, y) then c:put(x, y, ixtle[2]) if front:has(x - 1, y) then c:put(x - 1, y, ixtle[5]) end end end)
   end
   -- hem: frayed loose ends
-  for x = 13, 47 do if front:has(x, 57) and x % 3 ~= 0 then c:put(x, 58, ixtle[3]) if x % 3 == 1 then c:put(x, 59, ixtle[2]) end end end
+  for x = 8, 55 do if front:has(x, 57) and x % 3 ~= 0 then c:put(x, 58, ixtle[3]) if x % 3 == 1 then c:put(x, 59, ixtle[2]) end end end
   -- shoulder knot with two ears
   local ear1 = c:poly{ {14, 12}, {8, 3}, {13, 2}, {19, 10} }
   local ear2 = c:poly{ {20, 12}, {26, 3}, {29, 7}, {23, 14} }
@@ -185,23 +196,25 @@ do
   for x = 9, 55, 4 do if cape:has(x, 56) then c:put(x, 56, R.maize[5]) end end
   -- hood: big peaked shape, deep opening with red lining
   local hood = c:poly{ {32, 2}, {46, 18}, {47, 28}, {32, 34}, {17, 28}, {18, 18} }
-  local open = c:ellipse(32, 23, 9, 8):clip(hood)
+  local open = c:ellipse(32, 24, 7, 6):clip(hood)
   C.sep(c, hood, cape, R.cotton[1])
   C.part(c, hood, R.cotton, { R = 4, b = 1 })
   C.fill(c, open:copy():grow(1):clip(hood), R.cochi[3])
   open:grow(1):clip(hood):each(function(x, y) if x < 32 and not open:has(x, y) then c:put(x, y, R.cochi[5]) end end)
   C.fill(c, open, R.cochi[1])
-  open:each(function(x, y) if y > 27 then c:put(x, y, R.cochi[2]) end end)
+  open:each(function(x, y) if y > 25 then c:put(x, y, R.cochi[2]) end end)
+  open:each(function(x, y) if y > 28 then c:put(x, y, R.cochi[3]) end end)
   -- hood seam to the peak
   for y = 4, 13 do c:put(32, y, R.cotton[3]) end
   -- clasp
   local cl = c:ellipse(32, 34, 2, 2)
   C.part(c, cl, R.copper, { R = 1 }) c:put(31, 33, R.copper[6])
   -- quirk: a blue dragonfly resting on the hood
-  C.put(c, { {38, 8}, {39, 9}, {40, 10}, {41, 11}, {42, 12}, {43, 13} }, R.turq[3])
+  C.put(c, { {38, 8}, {39, 9}, {40, 10}, {41, 11}, {42, 12}, {43, 13} }, R.turq[2])
+  C.put(c, { {39, 8}, {40, 9} }, R.turq[4])
   C.put(c, { {38, 7}, {37, 8} }, R.turq[5])
   for _, w in ipairs({ { {36, 10}, {35, 11}, {34, 12} }, { {37, 11}, {36, 12}, {36, 13} }, { {41, 7}, {42, 6}, {43, 5} }, { {42, 8}, {43, 8}, {44, 7} } }) do
-    C.put(c, w, R.turq[6])
+    C.put(c, w, R.turq[5])
   end
   C.save(c, "cloak-5-sun-hood-cloak")
 end
