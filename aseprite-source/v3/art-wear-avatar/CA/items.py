@@ -251,12 +251,12 @@ def _net(c, m, base):
 
 def netbag_back(c, x, y, g):
     # cob poking out of the top with a silk tuft
-    cob = line([(x - 7, y + 4), (x - 12, y - 1)], 3)
+    cob = line([(x - 8, y + 6), (x - 13, y + 3)], 3)
     for q in cob: c.put(q[0], q[1], maize[4] if (q[0] + q[1]) % 2 else maize[3])
     for q in cob:
         if (q[0] + 1, q[1]) not in cob: c.put(q[0], q[1], maize[2])
-    P(c, [(x - 14, y - 3), (x - 13, y - 3), (x - 14, y - 2)], cotton[5]); c.put(x - 15, y - 4, maize[5])
-    P(c, [(x - 6, y + 2), (x - 7, y + 1), (x - 10, y + 4), (x - 11, y + 3)], jade[4]); c.put(x - 6, y + 1, jade[3])
+    P(c, [(x - 15, y + 2), (x - 15, y + 3), (x - 16, y + 2)], cotton[5]); c.put(x - 16, y + 1, maize[5])
+    P(c, [(x - 8, y + 4), (x - 9, y + 4), (x - 8, y + 8), (x - 9, y + 8)], jade[4]); c.put(x - 10, y + 4, jade[3])
     sack = ellipse(x - 0.5, y + 9, 9, 8) | poly([(x - 6, y + 1), (x + 5, y + 1), (x + 8, y + 5), (x - 9, y + 5)])
     _net(c, sack, maize)
     # drawstring gather + carrying loop

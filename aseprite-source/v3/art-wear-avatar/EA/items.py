@@ -562,6 +562,7 @@ def _snowhood(c, g, m, v):
             if q[1] > 49 + b: c.put(q[0], q[1], fleece[5] if (q[0] + q[1]) % 2 else fleece[4])
         for q in ellipse(32.5, 51 + b, 4, 2):
             if q[1] >= 50 + b: c.put(q[0], q[1], frost[1])
+        D(c, {(32, 57 + b): brass[5], (31, 57 + b): ember[4], (33, 57 + b): ember[3], (32, 56 + b): ember[4], (32, 58 + b): ember[2]})   # plum blossom pin
     elif v == 'side':
         hood = ellipse(24.5, 50 + b, 3, 4)
         form(c, hood, frost, frac=0.3)
