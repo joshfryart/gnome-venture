@@ -153,8 +153,6 @@ def _straw(c, g, ft, k):
         elif r == 3: c.put(q[0], q[1], straw[1] if q[0] % 2 else straw[2])      # shaggy tier edge
         elif q[0] % 2 == 0: shift(c, q, straw, -1)                              # hanging strands
     # shaggy tier ends stick out sideways
-    for y in range(top + 3, cy, 4):
-        P(c, [(x0 - 1, y), (x1 + 1, y)], straw[2])
     for x in range(x0, x1 + 1): c.put(x, top + 6, strap[2] if x % 2 else strap[3])   # tie at the shin
     c.put(x1 + 1, top + 7, strap[2])
     if k == 1:   # tuft of snow on the top layer
@@ -168,7 +166,7 @@ FOOT = [
     dict(slug='ea-rain-clogs', cat='footwear', shell=fleece, sole=fleece[2], rim=None, detail=_clogs),
     dict(slug='ea-indigo-boots', cat='footwear', shell=indigo, upper=indigo, cuff=indigoL, cuff_rows=1, sole=fleece[1], rim=62, half=4, toe=1, detail=_indigo),
     dict(slug='ea-felt-boots', cat='footwear', shell=fleece, upper=fleece, sole=sole[1], rim=59, half=4, toe=2, detail=_felt),
-    dict(slug='ea-snow-straw-boots', cat='footwear', shell=straw, upper=straw, sole=straw[0], rim=59, half=4, puff=1, detail=_straw),
+    dict(slug='ea-snow-straw-boots', cat='footwear', shell=straw, upper=straw, sole=straw[0], rim=59, half=4, puff=0.5, detail=_straw),
 ]
 
 

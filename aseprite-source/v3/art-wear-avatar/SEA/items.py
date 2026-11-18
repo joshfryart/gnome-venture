@@ -488,10 +488,12 @@ def _frond(c, g, m, v):
         if r > 2 and (r + (q[0] % 2)) % 5 == 0: c.put(q[0], q[1], straw[1])
         elif q[0] % 3 == 1 and r > 2 and c.get(q) != straw[1]: c.put(q[0], q[1], straw[2] if c.get(q) != straw[4] else straw[3])
     b = g['b']
-    if v == 'back':
-        bird = {(44, 45): king[4], (45, 45): king[4], (46, 45): sole[1], (47, 45): sole[1], (43, 46): king[2], (44, 46): king[3], (45, 46): mango[4], (42, 47): king[1]}
-    elif v == 'side':
-        bird = {(24, 44): king[4], (25, 44): king[4], (26, 44): sole[1], (27, 44): sole[1], (23, 45): king[3], (24, 45): mango[4], (25, 45): mango[3], (22, 46): king[1]}
+    if v == 'back':     # kingfisher perched on the left shoulder, facing out
+        bird = {(21, 48): king[4], (20, 48): king[4], (19, 48): sole[1], (18, 48): sole[1], (22, 49): king[3], (21, 49): mango[4], (20, 49): mango[3],
+                (23, 50): king[1], (22, 50): king[2], (21, 47): king[5]}
+    elif v == 'side':   # perched on the back of the cape
+        bird = {(23, 48): king[4], (24, 48): king[4], (25, 48): sole[1], (26, 48): sole[1], (22, 49): king[3], (23, 49): mango[4], (24, 49): mango[3],
+                (21, 50): king[1], (22, 50): king[2], (23, 47): king[5]}
     else:
         bird = {(18, 45): king[4], (19, 45): king[4], (17, 45): sole[1], (16, 45): sole[1], (19, 46): king[3], (18, 46): mango[4], (20, 46): king[2]}
         P(c, [(31, 46 + b), (34, 46 + b)], blanket[3])
@@ -507,12 +509,13 @@ def _banana(c, g, m, v):
             dx = q[0] - mid - (tl if q[1] > y0 + 10 else 0)
             if dx in (0, 1): c.put(q[0], q[1], pandan[5] if dx == 0 else pandan[4])
             elif (q[1] - y0 - abs(dx) // 2) % 3 == 0: c.put(q[0], q[1], leaf[2])
-        hood = poly([(25, 46 + b), (40, 46 + b), (34, 57 + b), (31, 57 + b)])
+        hood = poly([(24, 46 + b), (41, 46 + b), (34, 60 + b), (31, 60 + b)])
         form(c, hood, leaf, frac=0.35)
-        for q in ellipse(32.5, 48 + b, 4, 1.5): c.put(q[0], q[1], leaf[0])
+        for q in hood.inner_edge(): c.put(q[0], q[1], leaf[5] if q[0] < 33 else leaf[1])   # glossy curled rim
+        for q in ellipse(32.5, 51 + b, 3.5, 1.5): c.put(q[0], q[1], leaf[0])                # hood opening
         for q in hood:
-            if q[0] in (32, 33) and q[1] > 50 + b: c.put(q[0], q[1], pandan[5] if q[0] == 32 else pandan[4])
-        c.put(32, 59 + b + f % 3, king[5]); c.put(32, 60 + b + f % 3, king[3])
+            if q[0] in (32, 33) and q[1] > 53 + b: c.put(q[0], q[1], pandan[5] if q[0] == 32 else pandan[4])
+        c.put(32 + g['tail'], 62 + b + f % 3, king[5]); c.put(32 + g['tail'], 63 + b + f % 3, king[3])
     elif v == 'side':
         for q in m:
             if (q[1] + q[0]) % 3 == 0 and q[1] > y0 + 2: c.put(q[0], q[1], leaf[2])

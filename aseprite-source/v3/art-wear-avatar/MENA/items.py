@@ -384,11 +384,11 @@ PACK = [
 
 
 # ======================================================================== COAT
-_STRIPES = (linen, linen, madder, indigo, linen, ochre)
+_STRIPES = (linen, linen, madder, linen, indigo, linen, ochre)
 
 
 def _loom(q, t, g):
-    r = _STRIPES[q[0] % 6]
+    r = _STRIPES[q[0] % 7]
     return r[max(1, min(5, 4 - t))]
 
 
@@ -463,9 +463,9 @@ def _robe(c, g):
 
 def _quilt(q, t, g):
     y = q[1] - g['b']
-    a, d = (q[0] + y) % 4, (q[0] - y) % 4
+    a, d = (q[0] + y) % 6, (q[0] - y) % 6
     if a == 0 and d == 0: return linen[3] if t < 2 else linen[2]   # stitch knots
-    if a == 0 or d == 0: return indigo[max(1, 3 - t)] if t < 3 else indigo[0]
+    if a == 0 or d == 0: return indigo[max(1, 2 - t // 2)] if t < 3 else indigo[0]
     return None
 
 
@@ -473,11 +473,11 @@ def _nightcoat(c, g):
     v, b = g['view'], g['b']
     if v == 'front':   # fennec patch on the right front
         patch = rect(40, 58 + b, 43, 61 + b)
-        for q in patch: c.put(q[0], q[1], sand[4])
-        P(c, [(40, 58 + b), (43, 58 + b)], ochre[2])      # ears
-        P(c, [(41, 59 + b), (42, 59 + b)], sand[5])
+        for q in patch: c.put(q[0], q[1], linen[4])
+        P(c, [(40, 58 + b), (43, 58 + b)], ochre[3]); P(c, [(41, 58 + b), (42, 58 + b)], linen[5])   # big fennec ears
+        P(c, [(40, 59 + b), (43, 59 + b), (41, 59 + b), (42, 59 + b)], sand[4])
         P(c, [(41, 60 + b)], INK); c.put(42, 60 + b, INK)   # eyes
-        c.put(41, 61 + b, sand[2]); c.put(42, 61 + b, goat[1])   # nose
+        P(c, [(40, 61 + b), (43, 61 + b)], sand[3]); c.put(41, 61 + b, sand[4]); c.put(42, 61 + b, goat[1])   # muzzle + nose
         for y in range(59, 64): c.put(33, y + b, linen[4] if y % 2 else indigo[0])   # toggles down the front
     elif v == 'back':   # high collar band
         col = rect(23, 46 + b, 42, 47 + b)
@@ -548,23 +548,24 @@ def _hooded(c, g, m, v):
     b, tl = g['b'], g['tail']
     _wooltex(c, m, linen)
     if v == 'back':   # deep pointed hood lying down the back, long tassel at the tip
-        hood = poly([(25, 47 + b), (40, 47 + b), (36, 55 + b), (33 + tl, 60 + b), (30, 55 + b)])
+        hood = poly([(23, 48 + b), (42, 48 + b), (38, 56 + b), (33 + tl, 62 + b), (27, 56 + b)])
         form(c, hood, linen, frac=0.35)
-        inner = poly([(27, 47 + b), (38, 47 + b), (33, 52 + b)])
-        for q in inner: c.put(q[0], q[1], linen[1] if q[1] > 47 + b else linen[0])
+        for q in hood:
+            if c.get(q) == linen[3]: c.put(q[0], q[1], linen[4])
+        inner = poly([(26, 48 + b), (39, 48 + b), (33, 54 + b)])
+        for q in inner: c.put(q[0], q[1], sand[1] if q[1] > 50 + b else sand[0])
         for q in hood.inner_edge():
-            if q not in inner and q[1] > 47 + b: c.put(q[0], q[1], camel[3])
+            if q not in inner and q[1] > 48 + b: c.put(q[0], q[1], camel[3] if (q[0] + q[1]) % 2 else camel[2])
         tx = 33 + tl
-        P(c, [(tx, 61 + b), (tx, 62 + b)], camel[2]); P(c, [(tx, 63 + b), (tx + 1, 63 + b), (tx, 64 + b), (tx + 1, 64 + b)], cedar[3]); c.put(tx, 63 + b, cedar[5])
-        for y in range(48, 66):
-            if (32, y + b) not in hood: c.put(32 + (tl if y > 56 else 0), y + b, linen[2])
+        P(c, [(tx, 63 + b), (tx, 64 + b)], camel[2]); P(c, [(tx - 1, 65 + b), (tx, 65 + b), (tx - 1, 66 + b), (tx, 66 + b), (tx, 67 + b)], camel[4]); c.put(tx - 1, 66 + b, camel[3]); c.put(tx - 1, 67 + b, camel[2])
     elif v == 'side':
-        hood = poly([(28, 46 + b), (23, 47 + b), (21 + tl, 53 + b), (25, 55 + b), (28, 52 + b)])
+        hood = poly([(24, 49 + b), (19, 50 + b), (16 + tl, 58 + b), (21, 59 + b), (24, 55 + b)])
         form(c, hood, linen, frac=0.3)
-        for q in hood.inner_edge():
-            if q[0] >= 26: c.put(q[0], q[1], camel[3])
-        tx = 21 + tl
-        P(c, [(tx, 54 + b), (tx - 1, 55 + b)], camel[2]); P(c, [(tx - 1, 56 + b), (tx - 2, 56 + b), (tx - 1, 57 + b), (tx - 2, 57 + b)], cedar[3])
+        for q in hood:
+            if c.get(q) == linen[3]: c.put(q[0], q[1], linen[4])
+        for q in hood.inner_edge(): c.put(q[0], q[1], camel[3])
+        tx = 16 + tl
+        P(c, [(tx, 59 + b), (tx, 60 + b)], camel[2]); P(c, [(tx - 1, 61 + b), (tx, 61 + b), (tx - 1, 62 + b), (tx, 62 + b)], camel[4]); c.put(tx - 1, 62 + b, camel[2])
     else:
         for q in m:   # camel trim on the front edges that show beside the legs
             if (q[0] + 1, q[1]) not in m or (q[0] - 1, q[1]) not in m:
@@ -584,12 +585,12 @@ def _shawl(c, g, m, v):
     for q in m.bottom():
         if q[0] % 2 == 0: c.put(q[0], q[1] + 1, indigo[1])
     if v == 'back':   # barred hoopoe feather tucked in the fold at the right shoulder
-        pts = [(38, 51), (39, 50), (40, 49), (41, 48), (42, 47), (43, 46)]
-        for i, (x, y) in enumerate(pts): c.put(x, y + b, (ochre[4], INK, sand[5], INK, ochre[3], ochre[4])[i])
-        c.put(37, 52 + b, sand[2])
+        pts = [(28, 57), (27, 56), (26, 55), (25, 54), (24, 53), (23, 52), (22, 51)]
+        for i, (x, y) in enumerate(pts): c.put(x, y + b, (sand[2], ochre[4], INK, sand[5], INK, ochre[3], ochre[5])[i])
+        P(c, [(23, 51 + b), (22, 52 + b)], ochre[4])
     elif v == 'side':
-        pts = [(24, 51), (23, 50), (22, 49), (21, 48), (20, 47)]
-        for i, (x, y) in enumerate(pts): c.put(x + tl // 2, y + b, (ochre[4], INK, sand[5], INK, ochre[4])[i])
+        pts = [(24, 58), (23, 57), (22, 56), (21, 55), (20, 54), (19, 53)]
+        for i, (x, y) in enumerate(pts): c.put(x + tl // 2, y + b, (sand[2], ochre[4], INK, sand[5], INK, ochre[5])[i])
 
 
 def _palmcape(c, g, m, v):
@@ -601,8 +602,8 @@ def _palmcape(c, g, m, v):
         elif r > 2 and r % 4 == 0: c.put(q[0], q[1], palm[4] if q[0] % 2 else palm[3])
         elif q[0] % 2 == 0 and c.get(q) == palm[3]: c.put(q[0], q[1], palm[2])
     if v == 'back':   # fresh green frond tip sprouting at the collar
-        P(c, [(24, 46 + b), (23, 45 + b), (22, 44 + b)], mint[3])
-        P(c, [(21, 44 + b), (22, 43 + b), (24, 44 + b), (21, 42 + b)], mint[4]); c.put(23, 43 + b, mint[5])
+        P(c, [(21, 49 + b), (20, 48 + b), (19, 47 + b)], mint[3])
+        P(c, [(18, 47 + b), (19, 46 + b), (21, 47 + b), (18, 45 + b), (20, 46 + b)], mint[4]); c.put(19, 45 + b, mint[5])
     elif v == 'side':
         P(c, [(25, 46 + b), (24, 45 + b), (23, 44 + b)], mint[3]); P(c, [(22, 44 + b), (23, 43 + b), (25, 44 + b)], mint[4]); c.put(22, 43 + b, mint[5])
     else:
@@ -655,9 +656,9 @@ def _tent(c, g, m, v):
         if below == 4: c.put(q[0], q[1], madder[2] if q[0] < x1 - 4 else madder[1])
     if v == 'back':
         for y in range(y0 + 3, y1 - 1): c.put(32 + (tl if y > y0 + 10 else 0), y, goat[0])   # centre seam of the joined panels
-        pin = line([(28, 49 + b), (38, 46 + b)], 1)
+        pin = line([(26, 55 + b), (37, 51 + b)], 1)
         for i, q in enumerate(sorted(pin)): c.put(q[0], q[1], wood[4] if i % 3 else wood[3])
-        P(c, [(38, 45 + b), (39, 45 + b)], wood[5])
+        P(c, [(37, 50 + b), (38, 50 + b), (38, 51 + b)], wood[5]); c.put(25, 55 + b, wood[2])
         # camel-wool pompom on the lower left corner
         px, py = x0 - 1 + tl, y1
         for q in ellipse(px + 0.5, py + 0.5, 1.5, 1.5): c.put(q[0], q[1], camel[4] if (q[0] + q[1]) % 2 else camel[3])
@@ -673,7 +674,7 @@ def _tent(c, g, m, v):
 
 
 CLOAK = [
-    dict(slug='mena-camel-wool-hooded-cape', cat='cloak', r=linen, lining=sand, len=67, flare=4, border=camel, border_rows=1, fx0=15, fx1=50, side_back=18, folds=(27, 38), detail=_hooded),
+    dict(slug='mena-camel-wool-hooded-cape', cat='cloak', r=linen, lining=sand, len=67, flare=4, border=camel, border_rows=1, fx0=16, fx1=49, front_flare=2, side_back=17, folds=(27, 38), detail=_hooded),
     dict(slug='mena-indigo-shawl', cat='cloak', r=indigo, lining=indigo, len=66, flare=3, x0=19, x1=46, hemstyle='tri', fx0=15, fx1=50, side_back=19, detail=_shawl),
     dict(slug='mena-palm-leaf-sun-cape', cat='cloak', r=palm, lining=palm, len=64, flare=5, x0=19, x1=46, hemstyle='points', fx0=13, fx1=52, side_back=17, folds=(), detail=_palmcape),
     dict(slug='mena-rose-madder-mantle', cat='cloak', r=rose, lining=rose, len=56, flare=4, x0=18, x1=47, fx0=14, fx1=51, side_back=19, folds=(28, 37), detail=_mantle),
