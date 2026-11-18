@@ -163,10 +163,11 @@ chk('payoff thorns: a blocked creature Hurt adds a to the bar', abs($w['fh']['no
 chk('payoff mend: heals 2 as your next turn starts, once more after', $w['me']['hp'] === $h0 + 2 && $w['me']['wmend'] === [[2, 1, $w['pcs'] ? array_key_last($w['pcs']) : 0]] || ($w['me']['hp'] === $h0 + 2 && count($w['me']['wmend']) === 1), [$h0, $w['me']['hp'], $w['me']['wmend']]);
 $s = base(); $s['round'] = 3; $s['me']['hand'] = [T('guard', 3, ['fx' => 'r2>keep', 'fxa' => 1, 'fxb' => 2]), T('hurt', 3)]; pfb_end_round($s);
 chk('payoff keep: at the redraw the piece stays in your hand (and counts the round)', ($s['me']['hand'][0]['fx'] ?? '') === 'r2>keep' && ($s['me']['hand'][0]['kr'] ?? 0) === 1 && count($s['me']['hand']) === 5, $s['me']['hand'][0]);
-$s = base(); $s['round'] = 2; $s['me']['hand'] = [T('guard', 3, ['fx' => 'r2>keep', 'fxa' => 1, 'fxb' => 2])]; pfb_end_round($s);
+$s = base(); $s['round'] = 1; $s['me']['hand'] = [T('guard', 3, ['fx' => 'r2>keep', 'fxa' => 1, 'fxb' => 2])]; pfb_end_round($s);
 chk('payoff keep: a false trigger lets it go to the discard', ($s['me']['hand'][0]['fx'] ?? '') !== 'r2>keep', $s['me']['hand'][0]);
 $s = base(); $s['me']['wmore'] = 1; $s['me']['more'] = 1; pfb_end_round($s); chk('payoffs plenty + hand: the next hand holds 7', count($s['me']['hand']) === 7, count($s['me']['hand']));
 
+$nb = ['nb' => [['me', 'heal', 2, 0, 1]]];   // the Rares play in round 1
 // ---------------------------------------------------------------- the 70 Rares: each placed in a scenario, the difference it makes
 $Rt = []; foreach ($P as $p) if (str_starts_with($p['code'], 'R:')) $Rt[substr($p['code'], 2)] = $p;
 $h10 = fn(&$s) => $s['me']['hp'] = 10;
