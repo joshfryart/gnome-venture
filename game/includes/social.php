@@ -187,7 +187,7 @@ function social_note_return(array $u): void
 /** Remove a gnome's social rows (used by Admin → Fresh start). Call inside the caller's transaction. */
 function social_fresh_start(int $uid): void
 {
-    foreach (['first_week_claims', 'daily_ticks', 'hollow_goal_contrib', 'hollow_goal_claims', 'festival_flags', 'festival_buys', 'festival_claims', 'garden_stamps', 'wear_lined'] as $t) {
+    foreach (['first_week_claims', 'daily_ticks', 'hollow_goal_contrib', 'hollow_goal_claims', 'festival_flags', 'festival_buys', 'festival_claims', 'garden_stamps', 'wear_lined', 'user_wear_slots'] as $t) {
         q("DELETE FROM $t WHERE user_id = ?", [$uid]);
     }
     q('DELETE FROM garden_stamps WHERE plot_id IN (SELECT id FROM plots WHERE user_id = ?)', [$uid]);

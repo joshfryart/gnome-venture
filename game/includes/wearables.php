@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 /**
  * 2.7.00 WEARABLES: things a gnome wears that are also ONE puzzle piece, switched on in a Keepsake slot (includes/pfdeck.php: PFD_KEEP_SRC has 'wear').
+ * 2.7.14: the piece is offered in the Puzzle box only while its item is WORN (7 slots on My Gnome: wear_equip, wear_takeoff, table user_wear_slots).
  * Design: claude/proposal-wearables-2.7.00.md, claude/plan-tailor-2.7.00.md, claude/review-tailor-2.7.00.md and Josh's answers in claude/todo.md.
  *
  * Items: every wearable is an item per CUT (a or b: two pieces on the same art, chosen when it is made) and per RANK:
@@ -252,6 +253,158 @@ function wear_lined_toggle(array $u, string $slug): array
     if (in_array($k, wear_lined_set($uid), true)) { q('DELETE FROM wear_lined WHERE user_id = ? AND wkey = ?', [$uid, $k]); return [true, '🧵 The ' . wear_defs()[$base]['name'] . ' is worn as Fine again.']; }
     db_insert('wear_lined', ['user_id' => $uid, 'wkey' => $k]);
     return [true, '🧵 The ' . wear_defs()[$base]['name'] . ' is worn as Lined now: not a Rare piece, a little weaker.'];
+}
+
+// ---------------------------------------------------------------- wearing (2.7.14: Josh, the equip spot on My Gnome)
+// A gnome WEARS items in 7 slots, one item each. A wearable's piece is offered in the Puzzle box only while its item is worn; switching it on still
+// takes a Keepsake slot (PFD_KEEP_SRC), so wearing more than there are Keepsake slots offers more pieces than can be on. Table user_wear_slots.
+
+/** slot => [short name, icon], in the order the panel shows them. */
+const WEAR_SLOTS = ['footwear' => ['Feet', '🥾'], 'backpack' => ['Back', '🎒'], 'coat' => ['Coat', '🧥'], 'cloak' => ['Cloak', '🧣'], 'hat' => ['Hat', '🎩'], 'hands' => ['Hands', '🧤'], 'neck' => ['Neck', '🧶']];
+/** The six older wearables' slots (the 280 Tailor ones go by their 'cat'). */
+const WEAR_OLD_SLOT = ['flood-boots' => 'footwear', 'trail-pack' => 'backpack', 'travel-cloak' => 'cloak', 'wayfarers-hat' => 'hat', 'work-gloves' => 'hands', 'yarn-scarf' => 'neck'];
+
+/** The slot a wearable (base slug) is worn in, or null. */
+function wear_slot_of(string $base): ?string
+{
+    if (isset(WEAR_OLD_SLOT[$base])) return WEAR_OLD_SLOT[$base];
+    $c = (string)(wear_defs()[$base]['cat'] ?? '');
+    return isset(WEAR_SLOTS[$c]) ? $c : null;
+}
+
+/** CREATE TABLE of the worn items (schema.php adds it; made here on first use too). */
+function wear_slots_schema(string $ID = 'INTEGER', string $END = ''): array
+{
+    return ["CREATE TABLE IF NOT EXISTS user_wear_slots (
+        user_id $ID NOT NULL,
+        slot VARCHAR(12) NOT NULL,
+        item_slug VARCHAR(80) NOT NULL,
+        worn_at DATETIME NOT NULL,
+        UNIQUE (user_id, slot)
+    )$END"];
+}
+
+function wear_slots_ensure(): bool
+{
+    static $ok = null;
+    if ($ok !== null) return $ok;
+    try { q('SELECT 1 FROM user_wear_slots LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try { $my = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql'; foreach (wear_slots_schema($my ? 'INT UNSIGNED' : 'INTEGER', $my ? ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci' : '') as $sql) db()->exec($sql); return $ok = true; }
+    catch (Throwable $e) { error_log('wear_slots_ensure: ' . $e->getMessage()); return $ok = false; }
+}
+
+/** slot => item slug as stored (it may name an item the gnome no longer has: wear_worn resolves that). */
+function wear_worn_raw(int $uid): array
+{
+    if (!wear_slots_ensure()) return [];
+    $o = [];
+    foreach (q('SELECT slot, item_slug FROM user_wear_slots WHERE user_id = ?', [$uid])->fetchAll() as $r) if (isset(WEAR_SLOTS[$r['slot']])) $o[(string)$r['slot']] = (string)$r['item_slug'];
+    return $o;
+}
+
+/**
+ * What the gnome wears: slot => item slug, only items it still has. A stored item it no longer has (lined, re-cut, sold) falls back to its best copy of the
+ * same wearable (same cut first); none left = nothing worn there. $owned = wear_owned() when the caller has it.
+ */
+function wear_worn(int $uid, ?array $owned = null): array
+{
+    $owned ??= wear_owned($uid); $o = [];
+    foreach (wear_worn_raw($uid) as $slot => $slug) {
+        if ((int)($owned[$slug] ?? 0) > 0) { $o[$slot] = $slug; continue; }
+        $p = wear_parse($slug); if (!$p) continue;
+        $best = null; $bk = -1;
+        foreach ($owned as $s => $n) {
+            $q = wear_parse((string)$s); if (!$q || (int)$n < 1 || $q[0] !== $p[0]) continue;
+            $k = ($q[1] === $p[1] ? 10 : 0) + $q[2];
+            if ($k > $bk) { $bk = $k; $best = (string)$s; }
+        }
+        if ($best !== null) $o[$slot] = $best;
+    }
+    return $o;
+}
+
+/** Why this gnome may not change what it wears now, or null. */
+function wear_change_block(array $u): ?string
+{
+    if (!wear_live($u) || (function_exists('is_guest') && is_guest($u))) return 'Not now.';
+    if (!wear_slots_ensure()) return 'Not ready yet. Try again in a moment.';
+    require_once __DIR__ . '/pfdeck.php';
+    if (pfd_locked((int)$u['id'])) return 'You are in a fight. Change clothes after it.';
+    return null;
+}
+
+/** Wear an item you own in its slot (what was there comes off). Refused when it would break the Puzzle box (a Fine piece over the Rare cap). [ok, message] */
+function wear_equip(array $u, string $slot, string $slug): array
+{
+    $uid = (int)$u['id'];
+    if (($why = wear_change_block($u)) !== null) return [false, $why];
+    $p = wear_parse($slug);
+    if (!$p || !isset(WEAR_SLOTS[$slot])) return [false, 'That is not something you wear.'];
+    if (wear_slot_of($p[0]) !== $slot) return [false, 'That does not go there.'];
+    if (wear_qty($uid, $slug) < 1) return [false, 'You do not have that.'];
+    $raw = wear_worn_raw($uid); $cur = $raw[$slot] ?? null;
+    $name = (string)(wear_items()[$slug]['name'] ?? $slug);
+    if ($cur === $slug) return [true, '🧵 You already wear the ' . $name . '.'];
+    $src = pfd_sources($u); $old = pfd_build($src);   // a worn piece that is switched on must not make the deck illegal (the Rare cap)
+    $src['worn'] = wear_worn($uid, $src['wears']); $src['worn'][$slot] = $slug;
+    $new = pfd_build($src);
+    if ($new['err'] !== null && $old['err'] === null) return [false, $new['err'] . ($p[2] === 3 ? ' Or wear it as Lined.' : '')];
+    if ($cur === null) {
+        try { q('INSERT INTO user_wear_slots (user_id, slot, item_slug, worn_at) VALUES (?, ?, ?, ?)', [$uid, $slot, $slug, now()]); }
+        catch (Throwable $e) { return [false, 'That changed in another tab. Try again.']; }
+    } elseif (q('UPDATE user_wear_slots SET item_slug = ?, worn_at = ? WHERE user_id = ? AND slot = ? AND item_slug = ?', [$slug, now(), $uid, $slot, $cur])->rowCount() < 1) {
+        return [false, 'That changed in another tab. Try again.'];
+    }
+    return [true, '🧵 You put on the ' . $name . '.'];
+}
+
+/** Take off what is worn in a slot. Its piece leaves the Puzzle box; its switch is kept for when it is worn again. [ok, message] */
+function wear_takeoff(array $u, string $slot): array
+{
+    $uid = (int)$u['id'];
+    if (($why = wear_change_block($u)) !== null) return [false, $why];
+    $cur = wear_worn_raw($uid)[$slot] ?? null;
+    if ($cur === null) return [false, 'Nothing is worn there.'];
+    if (q('DELETE FROM user_wear_slots WHERE user_id = ? AND slot = ? AND item_slug = ?', [$uid, $slot, $cur])->rowCount() < 1) return [false, 'That changed in another tab. Try again.'];
+    return [true, '🧵 You take off the ' . (string)(wear_items()[$cur]['name'] ?? 'item') . '.'];
+}
+
+/** The POST actions of the Wearing panel (My Gnome): do=wear_on slot=SLOT item=SLUG, do=wear_off slot=SLOT, do=wear_lined item=SLUG. [ok, message] */
+function wear_post(array $u, string $do, array $in): array
+{
+    return match ($do) {
+        'wear_on' => wear_equip($u, (string)($in['slot'] ?? ''), (string)($in['item'] ?? '')),
+        'wear_off' => wear_takeoff($u, (string)($in['slot'] ?? '')),
+        'wear_lined' => wear_live($u) ? wear_lined_toggle($u, (string)($in['item'] ?? '')) : [false, 'Not now.'],
+        default => [false, 'Unknown action.'],
+    };
+}
+
+/**
+ * Once (boot step, setting wear_slots_2714): every wearable piece switched on in a Puzzle box becomes worn in its slot (first wins: box order); its switch stays on.
+ * The gnome's best item of that wearable and cut is worn. Owned wearables that were off stay unworn. Returns how many items were put on.
+ */
+function wear_slots_migrate(): int
+{
+    if (setting('wear_slots_2714') === '1' || !wear_slots_ensure()) return 0;
+    $n = 0;
+    try { $rows = q("SELECT user_id, piece_key FROM pf_deck_pieces WHERE active = 1 AND piece_key LIKE 'w:%' ORDER BY user_id, pos, piece_key")->fetchAll(); } catch (Throwable $e) { $rows = []; }
+    $owned = [];
+    foreach ($rows as $r) {
+        $uid = (int)$r['user_id']; $k = substr((string)$r['piece_key'], 2);
+        $owned[$uid] ??= wear_owned($uid);
+        $best = null; $bk = 0;
+        foreach ($owned[$uid] as $s => $q) {
+            $p = wear_parse((string)$s);
+            if (!$p || (int)$q < 1 || $p[0] . ($p[1] === 'b' ? '-b' : '') !== $k || $p[2] <= $bk) continue;
+            $bk = $p[2]; $best = (string)$s;
+        }
+        $slot = $best !== null ? wear_slot_of(wear_parse($best)[0]) : null;
+        if ($slot === null || q_val('SELECT 1 FROM user_wear_slots WHERE user_id = ? AND slot = ?', [$uid, $slot])) continue;
+        try { q('INSERT INTO user_wear_slots (user_id, slot, item_slug, worn_at) VALUES (?, ?, ?, ?)', [$uid, $slot, $best, now()]); $n++; } catch (Throwable $e) {}
+    }
+    set_setting('wear_slots_2714', '1');
+    return $n;
 }
 
 /** Does the gnome have a Tailor in at least one garden? */
