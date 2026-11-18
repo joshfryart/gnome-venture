@@ -1260,7 +1260,7 @@
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); ev[0].cs = 1; ev[0].rid = id; }
     var used = spend(s);
     if (used.length && ev.length) ev[0].used = used;
-    if (ev.length && who === 'me' && !truthy(s.over) && v1r(s, 'paltgt') === 1 && srcOf(tile) === 'pal') { var tid = palTarget(s, x, y); if (tid !== null) ev.push(palNip(s, tid, String(tile.n))); }   // 2.7.08 pal targeting
+    if (ev.length && who === 'me' && !truthy(s.over) && v1r(s, 'paltgt') === 1 && srcOf(tile) === 'pal') { var tid = palTarget(s, x, y, toInt(tile.v)); if (tid !== null) ev.push(palNip(s, tid, String(tile.n))); }   // 2.7.08 pal targeting
     if (ev.length && who === 'me' && s.ven && has(s.ven, x + ',' + y) && kindNow(s) === 'reptile' && truthy(s.v1.tags)) {   // 2.6.98 Venom trail
       var vr = toInt(abp(s, 'vrnds', PFB_KIND_VENOM_RNDS)), vp = toInt(abp(s, 'vpoison', PFB_KIND_VENOM_POISON));
       s.me.poison = Math.min(PF_POISON_CAP, toInt(s.me.poison) + vr); s.me.poison_v = Math.max(toInt(s.me.poison_v), vp);
@@ -1572,11 +1572,11 @@
   }
   function note(kind, n) { return { by: 'foe', note: kind, k: 'note', n: n === undefined ? '' : n, t: 'note', tag: '', v: 0, fit: false, combo: null }; }   // 2.6.76: a notice event (pfb_note)
 
-  /** 2.7.08 pal targeting (pfb_pal_target): the creature's strongest piece out, ties by fewest steps from (x, y), then the oldest; null when it has none. */
-  function palTarget(s, x, y) {
+  /** 2.7.08 pal targeting (pfb_pal_target): the creature's strongest piece out that is no stronger than the pal piece (pv; null = no cap), ties by fewest steps from (x, y), then the oldest; null when none. */
+  function palTarget(s, x, y, pv) {
     var best = null, bv = 0, bd = 0;
     for (var k in s.pcs) {
-      var p = s.pcs[k]; if (p.by !== 'foe') continue;
+      var p = s.pcs[k]; if (p.by !== 'foe' || (pv !== undefined && pv !== null && toInt(p.tile.v) > pv)) continue;
       var id = toInt(p.id), v = toInt(p.tile.v), d = Math.abs(toInt(p.x) - x) + Math.abs(toInt(p.y) - y);
       if (best === null || v > bv || (v === bv && (d < bd || (d === bd && id < best)))) { best = id; bv = v; bd = d; }
     }

@@ -1088,7 +1088,7 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); $ev[0]['cs'] = 1; $ev[0]['rid'] = $id; }   // cs / rid: this event opens the chain and the placed piece is rid (after the firing order changed the placed piece is not always the first to fire); linked: how many linked joints the new piece made; snap: the board for the history rewind
     $used = pfb_spend($s);
     if ($used && $ev) $ev[0]['used'] = $used;   // v1: the ids this chain used up
-    if ($ev && $who === 'me' && !$s['over'] && pfb_v1r($s, 'paltgt') === 1 && pfb_src($tile) === 'pal' && ($tid = pfb_pal_target($s, $x, $y)) !== null) $ev[] = pfb_pal_nip($s, $tid, (string)$tile['n']);   // 2.7.08 pal targeting: after its chain, the pal knocks the creature's strongest piece off
+    if ($ev && $who === 'me' && !$s['over'] && pfb_v1r($s, 'paltgt') === 1 && pfb_src($tile) === 'pal' && ($tid = pfb_pal_target($s, $x, $y, (int)$tile['v'])) !== null) $ev[] = pfb_pal_nip($s, $tid, (string)$tile['n']);   // 2.7.08 pal targeting: after its chain, the pal knocks the creature's strongest piece off
     if ($ev && $who === 'me' && isset($s['ven']["$x,$y"]) && pfb_kind($s) === 'reptile' && !empty($s['v1']['tags'])) {   // 2.6.98 Venom trail: you stepped on it
         $vr = (int)pfb_abp($s, 'vrnds', PFB_KIND_VENOM_RNDS); $vp = (int)pfb_abp($s, 'vpoison', PFB_KIND_VENOM_POISON);
         $s['me']['poison'] = min(PF_POISON_CAP, (int)$s['me']['poison'] + $vr); $s['me']['poison_v'] = max((int)$s['me']['poison_v'], $vp);
@@ -1350,14 +1350,14 @@ function pfb_note(string $kind, string $n = ''): array
 }
 
 /**
- * 2.7.08 PAL TARGETING (claude/engine-2.7.08-notes.md "Pal targeting"): the creature piece a pal piece placed at (x, y) goes for: its STRONGEST piece on the board (highest value),
- * ties by the fewest steps from the pal piece (|dx| + |dy|), then the oldest (lowest id). Deterministic: no dice. null when the creature has no piece out.
+ * 2.7.08 PAL TARGETING (claude/engine-2.7.08-notes.md "Pal targeting"): the creature piece a pal piece of value $pv placed at (x, y) goes for: its STRONGEST piece on the board that is
+ * no stronger than the pal piece (value <= $pv; null = no cap), ties by the fewest steps from the pal piece (|dx| + |dy|), then the oldest (lowest id). Deterministic: no dice. null when there is none.
  */
-function pfb_pal_target(array $s, int $x, int $y): ?int
+function pfb_pal_target(array $s, int $x, int $y, ?int $pv = null): ?int
 {
     $best = null; $key = null;
     foreach ($s['pcs'] as $id => $p) {
-        if ($p['by'] !== 'foe') continue;
+        if ($p['by'] !== 'foe' || ($pv !== null && (int)$p['tile']['v'] > $pv)) continue;
         $k = [(int)$p['tile']['v'], -(abs((int)$p['x'] - $x) + abs((int)$p['y'] - $y)), -(int)$id];
         if ($key === null || $k > $key) { $key = $k; $best = (int)$id; }
     }
