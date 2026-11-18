@@ -1,5 +1,5 @@
 <?php
-// Draws the 11 gnome NPCs as 2.5D strips (front, back, side; 512 x 80, 8 frames of 64 x 80) from the player's gnome rig (game/assets/img/gnome25) with a look of their own:
+// Draws the 12 gnome NPCs as 2.5D strips (front, back, side; 512 x 80, 8 frames of 64 x 80) from the player's gnome rig (game/assets/img/gnome25) with a look of their own:
 // a full set of rig colours (hat, beard, scarf, tunic, boots, skin, trim) and worn pieces (c cloak, p pack, h brim, g gloves, b flood boots). Output: game/assets/img/npc25/gnome-<slug>-<view>.png.
 // Usage: php tools/gen_gnome_npcs.php        (re-run after changing the table; the pictures are committed)
 define('APP_ROOT', dirname(__DIR__) . '/game');
@@ -16,6 +16,7 @@ $LOOKS = [   // slug => [colours by rig role, worn pieces]
     'auntie-mossbead'        => [['hat' => '#6b8f3a', 'beard' => '#ece6d6', 'scarf' => '#7bb274', 'tunic' => '#8a6f47', 'boots' => '#4a3a2a', 'skin' => '#efb98f', 'trim' => '#c9d99a'], 'p'],    // warm: moss hat and scarf, a mushroom-gathering pack
     'old-baobab-kito'        => [['hat' => '#a5673f', 'beard' => '#d9d0c1', 'scarf' => '#8a3b12', 'tunic' => '#6e4b2f', 'boots' => '#3a2a20', 'skin' => '#8d5a3b', 'trim' => '#e0b872'], ''],     // patient: baobab-bark brown, ash beard
     'captain-pipi-shellback' => [['hat' => '#1d3557', 'beard' => '#c8d6e5', 'scarf' => '#e63946', 'tunic' => '#f1faee', 'boots' => '#22303c', 'skin' => '#e6ad84', 'trim' => '#f5c542'], 'cb'],  // salty: navy cap, red neckerchief, cloak and sea boots
+    'keeper-marram'          => [['hat' => '#7a8fa6', 'beard' => '#d8d2c4', 'scarf' => '#e7c26a', 'tunic' => '#3f5a73', 'boots' => '#3b2c26', 'skin' => '#e6b08a', 'trim' => '#f2e6c8'], 'c'],    // warm lighthouse keeper: knitted slate-blue cap, navy coat, a lantern-yellow scarf, a weather cloak
 ];
 $out = APP_ROOT . '/assets/img/npc25/';
 if (!is_dir($out)) mkdir($out, 0775, true);
