@@ -64,7 +64,7 @@ end end
 
 function C.save(c, name)
   c:finish{ outline = true }
-  G.centre(c)
+  if not app.params.nocentre then G.centre(c) end
   HP.report(c) HP.assertClean(c)
   c:save{ aseprite = DIR .. "/" .. name .. ".aseprite", png = C.png .. name .. ".png", scale = 1 }
 end

@@ -81,14 +81,14 @@ if not only or only == "2" then
   for _, x in ipairs({ 19, 26, 38, 45 }) do for y = 11, 19 do if rm:has(x, y) then c:put(x, y, R.wax[2]) end end end
   C.hline(c, 15, 49, 12, R.wax[6])
   -- the roll ends fold up into a handle arc closed by a clip
-  local arcL = G.tube({ {14,13}, {11,4}, {22,1}, {29,3} }, function() return 2.2 end)
-  local arcR = G.tube({ {50,13}, {53,4}, {42,1}, {35,3} }, function() return 2.2 end)
+  local arcL = G.tube({ {14,13}, {11,6}, {22,3}, {29,5} }, function() return 2.2 end)
+  local arcR = G.tube({ {50,13}, {53,6}, {42,3}, {35,5} }, function() return 2.2 end)
   C.colour(c, arcL:copy():add(arcR):grow(1):cut(arcL):cut(arcR):cut(rm), C.ink)
   C.lit(c, arcL, R.wax, { R = 1 }) C.lit(c, arcR, R.wax, { R = 1, b = -1 })
-  local clip = c:rrect(28, 0, 36, 5, 1)
+  local clip = c:rrect(28, 2, 36, 7, 1)
   C.colour(c, clip:copy():grow(1):cut(clip), C.ink)
   C.lit(c, clip, R.leather, { R = 1 })
-  C.vline(c, 32, 1, 4, R.leather[1]) C.hline(c, 29, 35, 1, R.leather[6])
+  C.vline(c, 32, 3, 6, R.leather[1]) C.hline(c, 29, 35, 3, R.leather[6])
   -- quirk: rain beads on the waxed cloth
   for _, p in ipairs({ {24,30}, {41,27}, {26,46}, {42,47}, {38,22} }) do
     local x, y = p[1], p[2]

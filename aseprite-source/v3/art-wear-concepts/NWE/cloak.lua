@@ -92,7 +92,7 @@ if not only or only == "3" then
   local m = c:ellipse(32, 22, 28, 20)
   m:clip(c:rect(0, 0, 64, 38))
   for x = 6, 58, 6 do m:add(c:ellipse(x, 37 + ((x % 12 == 0) and 1 or 0) - abs(x - 32) * 0.18, 3.6, 3.2)) end
-  for _, p in ipairs({ {6,22}, {58,22}, {9,13}, {55,13}, {16,6}, {48,6}, {25,3}, {39,3}, {32,2} }) do m:add(c:ellipse(p[1], p[2], 3.4, 3.2)) end
+  for _, p in ipairs({ {6,22}, {58,22}, {9,13}, {55,13}, {16,6}, {48,6}, {25,5}, {39,5}, {32,5} }) do m:add(c:ellipse(p[1], p[2], 3.4, 3.2)) end
   local neck = c:ellipse(32, 12, 10, 7)
   m:cut(neck)
   m:cut(c:poly{ {30.5,17}, {33.5,17}, {33,40}, {31,40} })
@@ -137,7 +137,7 @@ if not only or only == "4" then
   local all = HP.mask()
   for i = 0, 3 do
     local y0, y1 = 8 + i * 11, 8 + i * 11 + 14
-    local x0, x1 = 21 - i * 6, 43 + i * 6
+    local x0, x1 = 22 - i * 5.5, 42 + i * 5.5
     local m = c:poly{ {x0 + 3, y0}, {x1 - 3, y0}, {x1 + 3, y1}, {x0 - 3, y1} }
     -- ragged straw ends
     for x = x0 - 3, x1 + 3 do
