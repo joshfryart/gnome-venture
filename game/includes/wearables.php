@@ -269,10 +269,12 @@ function wear_ensure_items(): void
     if ($done && ($stocked || !wear_live())) return;   // the items once; the shelf once the setting is on
     $done = true; $stocked = wear_live();
     try {
-        $have = q('SELECT slug, rarity FROM items')->fetchAll(PDO::FETCH_KEY_PAIR);   // one query, not one per item (873 of them)
+        $have = []; $haveDesc = [];
+        foreach (q('SELECT slug, rarity, description FROM items')->fetchAll() as $hr) { $have[$hr['slug']] = $hr['rarity']; $haveDesc[$hr['slug']] = (string)$hr['description']; }   // one query, not one per item (873 of them)
         foreach (wear_items() as $slug => $it) {
             if (isset($have[$slug])) {   // 2.7.xx: items made before the design rarity existed hold 6 + 6 x rank: bring them to the new value (an admin-edited value is left alone)
                 if ((int)$have[$slug] !== (int)$it['rarity'] && (int)$have[$slug] === 6 + 6 * (int)$it['rank']) q('UPDATE items SET rarity = ? WHERE slug = ?', [(int)$it['rarity'], $slug]);
+                if (($haveDesc[$slug] ?? '') !== $it['desc'] && ($it['base'] ?? '') !== '' && (wear_defs()[$it['base']]['get'] ?? '') === 'tailor') q('UPDATE items SET description = ? WHERE slug = ?', [$it['desc'], $slug]);   // 2.7.xx: a piece renamed since the item was made
                 continue;
             }
             db_insert('items', ['name' => $it['name'], 'slug' => $slug, 'category' => 'supply', 'rarity' => $it['rarity'], 'base_price' => $it['price'], 'description' => $it['desc'], 'edible' => 0, 'tradable' => 1]);
