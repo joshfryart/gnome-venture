@@ -35,7 +35,8 @@ ok('altitude rises with more Sights', trail_fam_mountain_altitude(1, [])['lvl'] 
 ok('mist at dawn and in fog, said in words', trail_fam_mountain_altitude(2, ['dp' => 'dawn'])['mist'] && str_contains(trail_fam_mountain_altitude(2, ['we' => 'fog'])['text'], 'misty') && !trail_fam_mountain_altitude(2, ['dp' => 'day'])['mist']);
 ok('a wall-less stretch has no rings text but still the strip', ($x = trail_fam_mountain($ctx([$mark($goat)]))) !== '' && !str_contains($x, 'Echo wall:'));
 $full = 20000 - (20000 % 28) + 14; $new = 20000 - (20000 % 28);
-ok('full or new moon: the note promises a second pebble; a quarter does not', str_contains(trail_fam_mountain($ctx([$mark($wall)], [3, 8.0, $full])), 'second pebble') && str_contains(trail_fam_mountain($ctx([$mark($wall)], [3, 8.0, $new])), 'second pebble') && !str_contains(trail_fam_mountain($ctx([$mark($wall)], [3, 8.0, $new + 7])), 'second pebble'));
+$note = fn(int $di) => preg_match('#<p class="tfm-note">(.*?)</p>#', trail_fam_mountain($ctx([$mark($wall)], [3, 8.0, $di])), $m) ? $m[1] : '';   // 2.7.08: the moon pill always explains the rule; the promise is in the echo-wall note
+ok('full or new moon: the note promises a second pebble; a quarter does not', str_contains($note($full), 'second pebble') && str_contains($note($new), 'second pebble') && $note($new + 7) !== '' && !str_contains($note($new + 7), 'second pebble'), $note($full) . ' / ' . $note($new + 7));
 ok('the tally shows', str_contains(trail_fam_mountain($ctx([$mark($wall)], [3, 8.0, 20000], ['tl' => ['echo-cheeks' => 2]])), 'Cheeky echoes: 2'));
 ok('not for other lands or an empty section', trail_fam_mountain($ctx([$mark('coast-the-kelp-line')])) === '' && trail_fam_mountain($ctx([])) === '' && trail_fam_mountain($ctx([$mark('grassland-the-clover-patch')])) === '');
 ok('a mountain mark among Maplewold ones still draws it', str_contains(trail_fam_mountain($ctx([['x' => 1, 'y' => 1, 'slug' => '12-the-old-well', 'row' => $all[$wall], 'left' => 1, 'why' => ''], $mark($goat)])), 'tfmountain'));
@@ -43,7 +44,7 @@ $css = file_get_contents($argv[1] . '/assets/style.css');
 ok('css has the block and the dark theme', str_contains($css, '.tfmountain') && str_contains($css, ':root[data-theme="dark"] .tfmountain'));
 
 echo "== appointment chip\n";
-$f = npc_cw_forecast('Hazel Dewdrop', $pine);
+$f = npc_cw_forecast('Hazel Dewdrop', $pine, 'dp=dawn');   // 2.7.06: the forecast honours the folk row's when (dp=dawn), as the layer's chip does
 ok('Hazel has a forecast at the pine shelf', $f !== null);
 if ($f) {
     $GLOBALS['gv_cw_time'] = [$f['dow'], $f['from'] + 0.2, 20000 + $f['in']];

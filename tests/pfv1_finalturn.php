@@ -9,6 +9,9 @@ $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'
 $exp = active_expedition($uid); $enc = json_decode((string)$exp['encounter'], true); $c = encounter_creature($enc);
 $enc['pfgo'] = 1; unset($enc['pf']); $exp['encounter'] = json_encode($enc); save_exp($exp);
 $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), 7, ['v1' => ['onebar' => 0, 'spawn' => 1, 'nowm' => 1, 'paltgt' => 0], 'blank' => true, 'can_pluck' => false]);   // 2.7.08: nowm 1 keeps this fixture's two-bar fight on the old Wind-less deck (Wind and Mud are back in new fights)
+$exp['encounter'] = json_encode($enc); save_exp($exp);   // 2.7.08: the seeded fight must be STORED: without this save the first turn found no fight and pfight_do dealt a fresh one with a random seed and the live rules (the test passed about 1 run in 3)
+$pin = json_decode((string)active_expedition($uid)['encounter'], true)['pf'] ?? null;
+echo (is_array($pin) && json_encode($pin['v1']['rules'] ?? $pin['v1'] ?? null) === json_encode($enc['pf']['v1']['rules'] ?? $enc['pf']['v1'] ?? null) && ($pin['rng'] ?? null) === $enc['pf']['rng'] ? 'ok  ' : 'FAIL') . " the fixture's seeded fight (seed 7, pinned rules) is the one stored and played\n";
 $turn = function () use (&$exp, &$enc, &$u) {
     $exp = active_expedition((int)$u['id']); $enc = json_decode((string)$exp['encounter'], true); $s = $enc['pf']; if ($s['over']) return false;
     $_POST = ['nonce' => $s['nonce'], 'turn' => $s['turn']];

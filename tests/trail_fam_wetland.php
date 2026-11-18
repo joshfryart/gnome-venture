@@ -30,7 +30,7 @@ ok('same day, same fireflies', trail_fam_wetland_fireflies(123, 'dusk') === trai
 
 echo "== the layer\n";
 $h = trail_fam_wetland($ctx('dusk', [$mark($ford), $mark($bend), $mark($cause)], [3, 19.0, $newD]));
-ok('renders for a section with wetland Sights, with the moon', str_contains($h, 'tfwetland') && str_contains($h, 'tfw-moon') && str_contains($h, moon_phase($newD)['name']), $h);
+ok('renders for a section with wetland Sights, with the moon', str_contains($h, 'tfwetland') && str_contains($h, 'class="moonpill"') && str_contains($h, moon_phase($newD)['name']), $h);
 ok('ripples: one per Sight, said in words', substr_count($h, 'tfw-r ') === 3 && str_contains($h, 'rippling'), $h);
 ok('fireflies lit at dusk at new moon, with words and a text alternative', str_contains($h, 'Fireflies blazing (8 of 8)') && str_contains($h, 'aria-label="Fireflies: 8 of 8 lamps lit') && substr_count($h, '<i class="on">') === 8, $h);
 $hd = trail_fam_wetland($ctx('day', [$mark($ford)], [3, 12.0, $newD]));

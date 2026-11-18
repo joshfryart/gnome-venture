@@ -37,7 +37,7 @@ echo "== the layer\n";
 $h = trail_fam_tundra($ctx('night', [$mark($fort), $mark($rise)], [3, 23.0, $newDay]));
 ok('renders for a section with tundra Sights', str_contains($h, 'tftundra') && str_contains($h, 'Aurora blazing'), $h);
 ok('winter night: ribbons drawn, brightness class', str_contains($h, 'tft-sky') && str_contains($h, 'tft-on') && str_contains($h, 'tft-b4'), $h);
-ok('the moon is named in words', str_contains($h, 'New moon') && str_contains($h, 'day '), $h);
+ok('the moon is named in words', str_contains($h, 'New moon') && preg_match('/Day \d+ of 28/', $h) === 1, $h);   // 2.7.08 moon pill: "Day 1 of 28."
 $hf = trail_fam_tundra($ctx('night', [$mark($fort)], [3, 23.0, $fullDay]));
 ok('full moon: fainter class', str_contains($hf, 'tft-b1') && str_contains($hf, 'Aurora faint'), $hf);
 $hd = trail_fam_tundra($ctx('day', [$mark($fort)], [3, 12.0, $newDay]));

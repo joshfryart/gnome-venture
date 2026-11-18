@@ -33,7 +33,7 @@ ok('not for a section with no forest Sight', trail_fam_forest($ctx('dusk', [$mar
 ok('relay line counts relay lanterns and today\'s tally (2.7.06: not the all-time 40)', str_contains($h, 'Lantern Relay: 1 of 2 relay lanterns lit') && str_contains(trail_fam_forest($ctx('dusk', [$mark($branch)], ['lanterns-lit' => 40, 'lanterns-lit@12' => 2, 'lanterns-lit@11' => 5])), '2 lit today'), $h);
 
 echo "== fireflies and the appointment chip\n";
-$f = npc_cw_forecast($who, $branch);
+$f = npc_cw_forecast($who, $branch, 'dp=dusk');   // 2.7.06: the forecast honours the folk row's when (dp=dusk), as the layer's chip does
 ok('Alder has a forecast at the lantern branch', $f !== null, 'none');
 if ($f) {
     $GLOBALS['gv_cw_time'] = [$f['dow'], $f['from'] + 0.2, 20000 + $f['in']];
