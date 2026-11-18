@@ -57,7 +57,8 @@ Smallest design taken from the docs (design-board-strategy "a pal trick can move
 ## 7. pfv1_finalturn made deterministic (2026-11-18)
 - Real cause (a fixture bug, not the engine): commit f833ea0e folded `$exp['encounter'] = json_encode($enc); save_exp($exp);` into the trailing comment of the `pfb_new(..., 7, ...)` line, so the seeded fight was never stored. The first `$turn()` then found no fight and `pfight_state` dealt a fresh one with `random_int` and the LIVE rules (one bar, Wind, pal targeting...), so the pinned options and seed 7 did nothing: about 1 run in 3 happened to pass. The engine itself is seeded (`pf_rand`), only `nonce` is random.
 - Fix: the save is back on its own line, plus a guard check "the fixture's seeded fight (seed 7, pinned rules) is the one stored and played" (watched failing 3/3 without the save; with it 10/10 identical outputs, all ok).
-- Results of `PORT_BASE=... bash tests/ci_suites.sh pfv1_charm`: see the test runs below.
+- Results of `PORT_BASE=... bash tests/ci_suites.sh pfv1_charm`, 6 runs (3 parallel x2): the finalturn checks pass 6/6; the whole suite passes 4/6. The 2 failures are wall-clock budgets in `tests/pfv1_replay.js` under the 3-browser load, a different check each time ("reduced motion ... replay is skipped" 1169 ms > 600; "skip: control is back after End turn" 1328 ms > 1200; both include the server round trip, and nothing played). Not touched here: they are load-timing budgets, not the finalturn bug. A lone run (or RETRY_SUITES) should pass.
+- Other runs (2026-11-18): pfboard_v1, pfengine_js (1012 fights), pfboard_js, pfight_sim, pf_bots: all ok; ci_suites pfboard_v1_page (with the new expiry-label check), pfight_js, pfdeck_v1: 3/3 ok.
 
 ## 8. Expiry label on the v1 board (P7)
 - Before: a board piece showed life pips only (bars, aria-hidden, no number), plus a ⌛ in its last round; the tap card said "It stays for N more rounds". No number, no spoken/tooltip text on the board itself.
