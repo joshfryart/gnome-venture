@@ -812,6 +812,11 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.15' => ['🧦 Update 2.7.15: wear your gear, new shops',
+        "[list][*][b]Wearing[/b]: My Gnome has a new Wearing panel with 7 slots: footwear, backpack, coat, cloak, hat, hands and neck. Wear one item in each. A clothing item's Puzzle piece only joins your deck while you wear it.\n"
+        . "[*][b]You see it[/b]: everything you wear shows on your gnome as you walk around, front, back and side.\n"
+        . "[*][b]New shops[/b]: every region now has an outfitter selling its own footwear, backpacks, coats and cloaks, 280 designs in all. Fine ones come from the Tailor.\n"
+        . "[*][b]Puzzle box[/b]: shows what you are wearing. Keepsake slots work as before.[/list]"],
     '2.7.09' => ['🌿 Update 2.7.09: pals work at 6am, Here popovers',
         "[list][*][b]Pals[/b] now do a whole day of work at 6am game time, whether you sleep or not. A Pantry pal collects every jar that was ready and refills the free ones each morning.\n"
         . "[*][b]Here page[/b]: tap a wonder, haven, delve or lair and the full panel pops up in place, with its picture and your chances.\n"
