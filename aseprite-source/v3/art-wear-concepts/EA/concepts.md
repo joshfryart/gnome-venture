@@ -36,7 +36,7 @@ Palettes name 6-tone ramps (dark to light) in the `_gw.lua` style; new ramps are
 |---|---|---|---|---|---|
 | 1 | Indigo Work Jacket | A straight-cut short jacket with wide square sleeves and a contrasting collar band, indigo with running stitch. | Indigo-dyed, stitch-reinforced cotton jackets are hard-wearing farm and fishing wear. | `indigo`, `cream` stitch, `canvas` collar | A mended patch in paler indigo with a stitched cross. |
 | 2 | Padded Winter Vest | A puffy sleeveless vest in persimmon-orange cotton, quilted in horizontal channels, knotted cord buttons. | Cotton-padded quilted vests keep villagers warm through cold, dry winters. | `autumn` persimmon, `jade` knots, `lining` | Knotted jade cord buttons, one dangling a loose end. |
-| 3 | Spring Wrap Coat | A knee-length silk coat that crosses over at the front, wide sleeves, cream collar, soft sash. | Crossed-front wrap coats in silk are long-standing regional dress for mild spring days. | `petal` pink silk, `cream` collar, `jade` sash | An embroidered green white-eye bird on the chest. |
+| 3 | Spring Wrap Coat | A knee-length silk coat that crosses over at the front, wide sleeves, cream collar, soft sash. | Crossed-front wrap coats in silk are long-standing regional dress for mild spring days. | `petal` pink silk, `fleece` cream collar, `jade` sash | A small embroidered goldfish on the lower panel. |
 | 4 | Fleece-Lined Jacket | A short brown leather jacket with big curly cream fleece collar and cuffs, side fastening. | Sheepskin and fleece clothing comes from the herding traditions of the northern steppe. | `leather`, `fleece` cream curls | A turquoise bead toggle on a leather loop. |
 | 5 | Ramie Summer Jacket | A light open-weave pale-blue ramie jacket with short wide sleeves, airy and crisp. | Ramie (grass-cloth) is woven for cool summer clothes in humid valleys. | `ramie` pale blue, `canvas` ties | A cicada clinging to the shoulder. |
 
@@ -50,5 +50,6 @@ Palettes name 6-tone ramps (dark to light) in the `_gw.lua` style; new ramps are
 | 4 | Felt Herder's Poncho | A thick square felt poncho, oatmeal grey, with a stitched rust border band and a neck slit. | Felted wool is the herders' all-weather cloth of the northern grasslands. | `oat` felt, `yarnA` border | A turquoise bead string on the collar tie. |
 | 5 | Blossom Capelet | A short light silk capelet with a petal-scalloped hem in spring pink, tied with a cord. | Spring blossom viewing: the season's first light wear. | `petal` pink, `jade` cord, `lining` | A tiny green white-eye bird perched on the shoulder. |
 
-Note: the white-eye appears on both Coat 3 (embroidery) and Cloak 5 (a bird). In production Coat 3's
-embroidery was swapped to a ginkgo-leaf motif to keep quirks unique (see the scripts).
+Notes from production: the Steppe Felt Boots' toe cap was left cream felt (a rust cap merged with the pompom);
+the Lacquer Tea Chest gourd and the Quilted Silk Satchel lantern hang outside the silhouette so the quirk reads.
+Scripts: `footwear.lua`, `backpack.lua`, `coat.lua`, `cloak.lua` (+ `common.lua`); contact sheet `sheet.py` -> `sheet.png`.
