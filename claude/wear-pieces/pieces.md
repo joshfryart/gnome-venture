@@ -212,7 +212,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 2 | Lemon-Fringe Shawl | Common | **Lemon Fringe Soft** | charm | 4 | If it sits in a corner, add 4 Charm. | 2400 | 1 |
 | 3 | Loom-Stripe Poncho | Uncommon | **Loom Stripe Tidy** | trick | 4 | If it sits in one of the four inner cells, small chance to lift an item from the creature. | 6400 | 2 |
 | 4 | Whitewash Sun Mantle | Uncommon | **Whitewash Glare** | guard | 5 | If its Yield bar is under a quarter, the creature's next Hurt misses. | 6400 | 2 |
-| 5 | Sea-Squall Capelet | Rare | **Squall Lull** | charm | 6 | Add 6 Charm. If it is the only Charm in your chain, the creature skips its next turn. | 16000 | 3 |
+| 5 | Sea-Squall Capelet | Rare | **Squall Lull** | charm | 4 | Add 6 Charm. If it is the only Charm in your chain, the creature skips its next turn. | 16000 | 3 |
 
 ## The Rainroot Reaches (SA, region level 12)
 
@@ -338,7 +338,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 2 | Indigo Shawl | Common | **Indigo Shawl Bond** | charm | 5 | If an environment piece is in its chain, your Charm counts 10% more for the rest of the fight. | 3300 | 1 |
 | 3 | Palm-Leaf Sun Cape | Uncommon | **Palm Sun Calm** | soothe | 4 | If you are at full health, the creature's strongest piece loses 2. | 8800 | 2 |
 | 4 | Rose-Madder Mantle | Uncommon | **Madder Veil** | trick | 6 | In its last round on the board, small chance to lift an item from the creature. | 8800 | 2 |
-| 5 | Goat-Hair Tent Cape | Rare | **Tent-Cape Lull** | charm | 6 | Add 6 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3. | 22000 | 3 |
+| 5 | Goat-Hair Tent Cape | Rare | **Tent-Cape Lull** | charm | 3 | Add 5 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3. | 22000 | 3 |
 
 ## Blossomreach (EA, region level 20)
 
@@ -350,7 +350,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 2 | Rain Clogs | Common | **Rain Clog Splash** | hurt | 5 | If you played no Hurt last turn, deal 6 extra damage. | 3600 | 1 |
 | 3 | Indigo Stitch Boots | Uncommon | **Indigo Stitch Pierce** | hurt | 6 | If its Yield bar is past half, it ignores the creature's guard. | 9600 | 2 |
 | 4 | Steppe Felt Boots | Uncommon | **Felt Boot Stay** | guard | 6 | If you have played 2 or more Guards this fight, the creature's next Hurt misses. | 9600 | 2 |
-| 5 | Snow Straw Boots | Rare | **Snow Straw Trip** | hurt | 6 | Trip: the creature skips its next turn. If it is linked to a Trick, deal 8 extra damage and your next hand has 1 extra piece. | 24000 | 3 |
+| 5 | Snow Straw Boots | Rare | **Snow Straw Trip** | hurt | 2 | Trip: the creature skips its next turn. If it is linked to a Trick, deal 6 extra damage and your next hand has 1 extra piece. | 24000 | 3 |
 
 ### Backpack
 
@@ -518,7 +518,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 2 | Highland Trek Boots | Common | **Highland Trek Hold** | guard | 7 | If it is linked to a Hurt, the creature's next Hurt misses. | 4800 | 1 |
 | 3 | Sisal Slippers | Uncommon | **Sisal Slip Pierce** | hurt | 8 | If an environment piece is in its chain, it ignores the creature's guard. | 12800 | 2 |
 | 4 | Stripe Gaiters | Uncommon | **Stripe Gaiter Finish** | hurt | 8 | If its Yield bar is past half, deal 9 extra damage. | 12800 | 2 |
-| 5 | Baobab Clogs | Rare | **Baobab Thud** | hurt | 10 | Deal 10 extra damage for each piece in its chain and remove the creature's weakest piece from the board. | 32000 | 3 |
+| 5 | Baobab Clogs | Rare | **Baobab Thud** | hurt | 10 | Deal 8 extra damage for each piece in its chain and remove the creature's weakest piece from the board. | 32000 | 3 |
 
 ### Backpack
 

@@ -2288,7 +2288,7 @@
   "artDesc": "Short round shoulder capelet of waxed indigo wool with a high collar.",
   "piece": "Squall Lull",
   "type": "charm",
-  "v": 6,
+  "v": 4,
   "code": "R:SE:cloak",
   "effect": "Add 6 Charm. If it is the only Charm in your chain, the creature skips its next turn.",
   "knob": "c",
@@ -3668,16 +3668,16 @@
   "artDesc": "A heavy rectangular cape of dark striped goat-hair cloth pinned with a wooden pin.",
   "piece": "Tent-Cape Lull",
   "type": "charm",
-  "v": 6,
+  "v": 3,
   "code": "R:MENA:cloak",
-  "effect": "Add 6 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3.",
+  "effect": "Add 5 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3.",
   "knob": "c",
   "petals": 22000,
   "tailor": 3,
   "energy": 6,
   "slug": "mena-goat-hair-tent-cape",
   "a": 3,
-  "b": 6
+  "b": 5
  },
  {
   "region": "EA",
@@ -3783,16 +3783,16 @@
   "artDesc": "Tall shaggy rice-straw over-boots, thatched in layers, tied at the shin.",
   "piece": "Snow Straw Trip",
   "type": "hurt",
-  "v": 6,
+  "v": 2,
   "code": "R:EA:footwear",
-  "effect": "Trip: the creature skips its next turn. If it is linked to a Trick, deal 8 extra damage and your next hand has 1 extra piece.",
+  "effect": "Trip: the creature skips its next turn. If it is linked to a Trick, deal 6 extra damage and your next hand has 1 extra piece.",
   "knob": "b",
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
   "slug": "ea-snow-straw-boots",
   "a": 4,
-  "b": 8
+  "b": 6
  },
  {
   "region": "EA",
@@ -5625,14 +5625,14 @@
   "type": "hurt",
   "v": 10,
   "code": "R:ESA:footwear",
-  "effect": "Deal 10 extra damage for each piece in its chain and remove the creature's weakest piece from the board.",
+  "effect": "Deal 8 extra damage for each piece in its chain and remove the creature's weakest piece from the board.",
   "knob": "m",
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
   "slug": "esa-baobab-clogs",
   "a": 5,
-  "b": 10
+  "b": 8
  },
  {
   "region": "ESA",

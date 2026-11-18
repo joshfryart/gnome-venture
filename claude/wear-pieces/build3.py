@@ -21,7 +21,7 @@ def ab(T,rar):
 RARE_TRIG={'linkT','linkS','linkHeal','link2','linkC','pair','r1','foeB0','foeB3','lastRound'}
 PAY_N={'guard':'b','heal':'b','dmg':'b','charm':'b','ward':'b','focus':'b','soothe':'a','poison':'a','thorns':'a','cleanse':'a','boost':'a','mend':'a','shrink':'a'}
 # Rares over the Rare limit at Fine (about +6 win points or -12 health points, mostly the Trip ones with the careless bot): their value comes down, the effect stays.
-RARE_FIX={('MENA','cloak'):dict(v=-2,b=-1),('EA','footwear'):dict(v=-2),('SE','cloak'):dict(v=-1),('SA','footwear'):dict(v=-1),('CB','footwear'):dict(v=-1),('MENA','backpack'):dict(v=-1)}
+RARE_FIX={('MENA','cloak'):dict(v=-5,b=-2),('EA','footwear'):dict(v=-6,b=-2),('SE','cloak'):dict(v=-3),('SA','footwear'):dict(v=-1),('CB','footwear'):dict(v=-1),('MENA','backpack'):dict(v=-1),('ESA','footwear'):dict(b=-2)}
 used={}; items=[]; fixed=[]
 for T,r in enumerate(ORDER):
     for ci,cat in enumerate(CATS):

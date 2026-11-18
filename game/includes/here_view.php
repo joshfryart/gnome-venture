@@ -483,14 +483,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
             $add('shop', 'Haven shop', '🧺', url('world.php'), $lock || $ruin ? ($note ?: '') : here_haven_shop_card($u, $lm, $back));   // v2.5.49: the pantry in a popover
         } elseif ($lm && $kind === 'wonder') {
             $card = $note;
-            if (!$card) {
-                $done = landmark_done_today($uid, $lmId, 'wonder');
-                $card = '<p>' . e((string)($lm['description'] ?? '')) . '</p>' . ($done ? '<p class="muted">You explored this wonder today. Come back tomorrow.</p>' : '<p>Pick a way to investigate (once a day):</p><div class="heretools">');
-                if (!$done) {
-                    foreach (wonder_approaches($lm, $uid) as $stat => [$ico, $lab, $dc]) $card .= here_form('landmark.php', $f + ['do' => 'wonder', 'stat' => $stat], $ico . ' ' . e($lab) . ' <small>(' . (int)$dc . ')</small>');
-                    $card .= '</div>';
-                }
-            }
+            if (!$card) $card = landmark_panel($u, $node, $back);   // the same panel as the World page (picture, intro, mood, ways in with their chances); its buttons come back to this page
             $add('investigate', (string)$node['name'], '✨', url('world.php'), $card, '', $lock ? 'locked' : ($ruin ? 'ruin' : ''));
         } elseif ($lm) {   // delve or lair: the mouth
             $card = $note;

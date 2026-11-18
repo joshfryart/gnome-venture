@@ -98,7 +98,7 @@ w:se-shepherd-felt-cape|Shepherd Hum|wear|se-shepherd-felt-cape|charm|4|mind|-|-
 w:se-lemon-fringe-shawl|Lemon Fringe Soft|wear|se-lemon-fringe-shawl|charm|4|craft|-|-|src|Lemon-Fringe Shawl: If it sits in a corner, add 4 Charm.|-|corner>charm|2|4
 w:se-loom-stripe-poncho|Loom Stripe Tidy|wear|se-loom-stripe-poncho|trick|4|body|-|-|src|Loom-Stripe Poncho: If it sits in one of the four inner cells, small chance to lift an item from the creature.|-|mid4>pluck|2|5
 w:se-whitewash-mantle|Whitewash Glare|wear|se-whitewash-mantle|guard|5|mind|-|-|src|Whitewash Sun Mantle: If its Yield bar is under a quarter, the creature's next Hurt misses.|-|yLow>evade|2|5
-w:se-sea-squall-capelet|Squall Lull|wear|se-sea-squall-capelet|charm|6|craft|-|-|src|Sea-Squall Capelet: Add 6 Charm. If it is the only Charm in your chain, the creature skips its next turn.|-|R:SE:cloak|3|6
+w:se-sea-squall-capelet|Squall Lull|wear|se-sea-squall-capelet|charm|4|craft|-|-|src|Sea-Squall Capelet: Add 6 Charm. If it is the only Charm in your chain, the creature skips its next turn.|-|R:SE:cloak|3|6
 w:sa-latex-puddle-boots|Latex Splash|wear|sa-latex-puddle-boots|guard|5|craft|-|-|src|Latex Puddle Boots: If a piece of its own type is linked to it, the creature's next Hurt misses.|-|pair>evade|2|4
 w:sa-puna-wool-booties|Puna Warm|wear|sa-puna-wool-booties|guard|4|body|-|-|src|Puna Wool Booties: If you have played 2 or more Guards this fight, heal 4.|-|g2>heal|2|4
 w:sa-plaited-fibre-sandals|Fibre Stride|wear|sa-plaited-fibre-sandals|hurt|5|mind|-|-|src|Plaited Fibre Sandals: If it is linked to a Hurt, your next hand has 1 extra piece.|-|linkH>hand|2|5
@@ -158,12 +158,12 @@ w:mena-camel-wool-hooded-cape|Camel Hood Hum|wear|mena-camel-wool-hooded-cape|ch
 w:mena-indigo-shawl|Indigo Shawl Bond|wear|mena-indigo-shawl|charm|5|craft|-|-|src|Indigo Shawl: If an environment piece is in its chain, your Charm counts 10% more for the rest of the fight.|-|linkEnv>bond|2|5
 w:mena-palm-leaf-sun-cape|Palm Sun Calm|wear|mena-palm-leaf-sun-cape|soothe|4|body|-|-|src|Palm-Leaf Sun Cape: If you are at full health, the creature's strongest piece loses 2.|-|hpFull>shrink|2|6
 w:mena-rose-madder-mantle|Madder Veil|wear|mena-rose-madder-mantle|trick|6|mind|-|-|src|Rose-Madder Mantle: In its last round on the board, small chance to lift an item from the creature.|-|lastRound>pluck|2|6
-w:mena-goat-hair-tent-cape|Tent-Cape Lull|wear|mena-goat-hair-tent-cape|charm|6|craft|-|-|src|Goat-Hair Tent Cape: Add 6 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3.|-|R:MENA:cloak|3|6
+w:mena-goat-hair-tent-cape|Tent-Cape Lull|wear|mena-goat-hair-tent-cape|charm|3|craft|-|-|src|Goat-Hair Tent Cape: Add 5 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3.|-|R:MENA:cloak|3|5
 w:ea-hemp-sandals|Hemp Skip|wear|ea-hemp-sandals|guard|5|craft|-|-|src|Hemp-Cord Sandals: If it sits next to the creature's aim cell, it stays 3 more round(s) on the board.|-|aimNext>life|3|6
 w:ea-rain-clogs|Rain Clog Splash|wear|ea-rain-clogs|hurt|5|body|-|-|src|Rain Clogs: If you played no Hurt last turn, deal 6 extra damage.|-|noHurt>dmg|3|6
 w:ea-indigo-boots|Indigo Stitch Pierce|wear|ea-indigo-boots|hurt|6|mind|-|-|src|Indigo Stitch Boots: If its Yield bar is past half, it ignores the creature's guard.|-|yHalf>pierce|3|7
 w:ea-felt-boots|Felt Boot Stay|wear|ea-felt-boots|guard|6|craft|-|-|src|Steppe Felt Boots: If you have played 2 or more Guards this fight, the creature's next Hurt misses.|-|g2>evade|3|7
-w:ea-snow-straw-boots|Snow Straw Trip|wear|ea-snow-straw-boots|hurt|6|body|-|-|src|Snow Straw Boots: Trip: the creature skips its next turn. If it is linked to a Trick, deal 8 extra damage and your next hand has 1 extra piece.|-|R:EA:footwear|4|8
+w:ea-snow-straw-boots|Snow Straw Trip|wear|ea-snow-straw-boots|hurt|2|body|-|-|src|Snow Straw Boots: Trip: the creature skips its next turn. If it is linked to a Trick, deal 6 extra damage and your next hand has 1 extra piece.|-|R:EA:footwear|4|6
 w:ea-bamboo-aframe|Bamboo Frame Haul|wear|ea-bamboo-aframe|item|6|body|-|-|src|Bamboo A-Frame: If its chain has 3 or more pieces, next round you pick from 6 pieces.|-|combo3>plenty|3|6
 w:ea-forager-basket|Forager's Feast|wear|ea-forager-basket|item|6|mind|-|-|src|Forager's Basket: From round 3 on, heal 3 at the start of each of your next 2 turns.|-|r3>mend|3|6
 w:ea-cloth-bundle|Knot Bundle Pluck|wear|ea-cloth-bundle|trick|6|craft|-|-|src|Knotted Cloth Bundle: If a piece of its own type is linked to it, small chance to lift an item from the creature.|-|pair>pluck|3|7
@@ -243,7 +243,7 @@ w:esa-acacia-sandals|Acacia Sandal Skip|wear|esa-acacia-sandals|guard|7|body|-|-
 w:esa-highland-trek-boots|Highland Trek Hold|wear|esa-highland-trek-boots|guard|7|mind|-|-|src|Highland Trek Boots: If it is linked to a Hurt, the creature's next Hurt misses.|-|linkH>evade|4|8
 w:esa-sisal-slippers|Sisal Slip Pierce|wear|esa-sisal-slippers|hurt|8|craft|-|-|src|Sisal Slippers: If an environment piece is in its chain, it ignores the creature's guard.|-|linkEnv>pierce|4|9
 w:esa-stripe-gaiters|Stripe Gaiter Finish|wear|esa-stripe-gaiters|hurt|8|body|-|-|src|Stripe Gaiters: If its Yield bar is past half, deal 9 extra damage.|-|yHalf>dmg|4|9
-w:esa-baobab-clogs|Baobab Thud|wear|esa-baobab-clogs|hurt|10|mind|-|-|src|Baobab Clogs: Deal 10 extra damage for each piece in its chain and remove the creature's weakest piece from the board.|-|R:ESA:footwear|5|10
+w:esa-baobab-clogs|Baobab Thud|wear|esa-baobab-clogs|hurt|10|mind|-|-|src|Baobab Clogs: Deal 8 extra damage for each piece in its chain and remove the creature's weakest piece from the board.|-|R:ESA:footwear|5|8
 w:esa-coiled-basket-pack|Coiled Pack Plenty|wear|esa-coiled-basket-pack|item|8|mind|-|-|src|Coiled Basket Pack: If its chain has 3 or more pieces, heal 8.|-|combo3>heal|4|8
 w:esa-calabash-carrier|Gourd Brew|wear|esa-calabash-carrier|heal|6|craft|-|-|src|Calabash Carrier: If it is linked to a Heal or Item, heal 9.|-|linkHeal>heal|4|9
 w:esa-grain-sack-pack|Grain Sack Meal|wear|esa-grain-sack-pack|item|9|body|-|-|src|Grain Sack Pack: If a piece of its own type is linked to it, heal 10.|-|pair>heal|4|10

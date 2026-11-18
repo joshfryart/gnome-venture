@@ -615,7 +615,7 @@ function landmark_scene(array $lm, bool $ruined = false): string
 
 // ---------------- The panel on the World page ----------------
 
-function landmark_panel(array $u, array $node): string
+function landmark_panel(array $u, array $node, string $back = ''): string   // $back = 'here.php' when the Here picture shows it in a popover: its forms come back there
 {
     $lm = landmark_at((int)$node['id']);
     if (!$lm) return '';
@@ -626,7 +626,7 @@ function landmark_panel(array $u, array $node): string
     require_once __DIR__ . '/jigsaw.php';   // v2.0.87: the first visit puts this place's picture in the gnome's puzzle room
     $newJig = jigsaw_unlock_place($uid, $lm);
     $form = fn(string $do, string $label, string $extra = '', bool $disabled = false, string $cls = 'btn act', string $fcls = 'inline') => '<form method="post" action="' . e(url('landmark.php')) . '" class="' . $fcls . '">'
-        . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="lm" value="' . $id . '">' . $extra
+        . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="lm" value="' . $id . '">' . ($back !== '' ? '<input type="hidden" name="back" value="' . e($back) . '">' : '') . $extra
         . '<button class="' . $cls . '"' . ($disabled ? ' disabled' : '') . '>' . $label . '</button></form> ';
     $cleared = (int)q_val('SELECT clears FROM landmark_clears WHERE user_id = ? AND landmark_id = ?', [$uid, $id]);
     $h = '<div class="box lmpanel lm-' . e($lm['kind']) . '">'
