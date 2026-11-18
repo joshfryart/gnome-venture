@@ -37,8 +37,10 @@ for y = 114, 160 do
     if x > F.xr(y) + 6 then
       local h
       if hgt < 3 then
-        h = (y % 2 == 0) and F.mix(R.shade, HAZE, .35) or farC
-        if hash(x // 4, y, 3) < .15 then h = F.mix(garlic and RAMS.hi or R.hi, HAZE, .3) end
+        local bk = hash(x // 5 + row * 7, row, 9)
+        h = (bk < .3) and F.mix(R.shade, HAZE, .3) or ((bk < .68) and farC or F.mix(R.base, HAZE, .15))
+        if hash(x // 2, y, 5) < .2 then h = F.mix(R.shade, HAZE, .45) end
+        if hash(x // 4, y, 3) < .08 then h = F.mix(garlic and RAMS.hi or R.hi, HAZE, .45) end
       else
         -- each bush its own width and height (hashed), so the rows read as shrubby heather, not tiles
         local bw0 = math.max(5, floor(hgt * 1.7))
@@ -275,7 +277,7 @@ F.depth(2)
 F.tree(204, 128, 46, 1)
 F.tree(282, 130, 44, 4)
 arch()
-F.tree(458, 168, 60, 2)
+F.tree(447, 168, 60, 2)
 F.depth(3)
 local ctop = cottage()
 F.smoke(172, 102, 7, .5, 2)
@@ -365,8 +367,8 @@ local function hives()
   rimOf(bench, L.timber) part(bench, L.timber, { nopop = true, noshade = true })
   for k = 0, 2 do
     local x = 420 + k * 16
-    local hb = rect(x - 5, 199, x + 5, 213)
-    local cap = poly{ { x - 8, 200 }, { x, 193 }, { x + 8, 200 } }
+    local hb = c:rrect(x - 5, 198, x + 5, 213, 2)
+    local cap = c:ellipse(x, 199, 8, 5):clip(rect(x - 9, 190, x + 9, 199))
     rimOf(union(hb, cap), L.timber)
     part(hb, L.timber)
     -- vertical bark ridges, lit left
@@ -374,7 +376,10 @@ local function hives()
       if (xx - x + 5) % 3 == 0 then px(xx, yy, L.timber.deep) elseif xx < x - 2 and hash(xx, yy // 3, k) < .5 then px(xx, yy, L.timber.hi) end
       if hash(xx // 2, yy // 2, 40 + k) < .08 then px(xx, yy, L.moss.base) end
     end)
-    part(cap, L.redbark) F.courses(cap, 193, 3, 4, L.redbark)
+    -- rounded straw skep cap with coiled rings
+    part(cap, L.board, { nopop = true })
+    cap:each(function(xx, yy) if (yy - 190) % 3 == 2 then px(xx, yy, L.board.shade) elseif xx < x - 2 and yy % 3 == 0 then px(xx, yy, L.board.hi) end end)
+    px(x, 189, L.timber.edge)
     fill(c:ellipse(x, 208, 1, 1), L.timber.edge)
     hline(x - 5, x + 5, 203, L.iron.shade)
   end
@@ -516,5 +521,12 @@ for k, x in ipairs({ 300, 316, 368 }) do
   else
     F.fern(x - 2, 251, 8 + k) F.fern(x + 3, 251, 6)
   end
+end
+-- fix-up: small herbs on the plain ground between the glasshouse and the foxgloves
+F.depth(3)
+F.fern(48, 148, 4) F.fern(90, 152, 4, L.needle) F.fern(36, 160, 3) F.fern(104, 160, 4)
+F.mushroom(58, 156, L.needle, true) F.mushroom(62, 158, L.needle) F.mushroom(98, 150, L.apple)
+for _, p in ipairs({ { 70, 150 }, { 82, 158 }, { 44, 154 }, { 110, 152 }, { 54, 166 } }) do
+  fill(rect(p[1], p[2], p[1] + 3, p[2] + 1), L.stone.base) hline(p[1], p[1] + 3, p[2] - 1, L.stone.edge) px(p[1], p[2], L.stone.hi) hline(p[1] + 1, p[1] + 3, p[2] + 2, L.stone.shade)
 end
 F.finish()

@@ -59,7 +59,15 @@ local function fruitTree(x, yb, s, seed, kind)
     rimOf(union(tr, brs), L.timber) part(tr, L.timber, { nopop = true }) part(brs, L.timber, { nopop = true, noshade = true })
     if s > .8 then mossTrunk(tr, seed) end
     F.crown(x - 6 * s, yb - 22 * s, 9 * s, 7 * s, lr, seed) F.crown(x + 6 * s, yb - 23 * s, 9 * s, 7 * s, lr, seed + 1) F.crown(x + lean, yb - 29 * s, 10 * s, 7 * s, lr, seed + 2)
+    if s > 1.5 then
+      -- big tree: fruit on an even jittered grid so it does not bunch
+      for gy = -9, 9, 4 do for gx = -14, 14, 4 do
+        local fx, fy = gx + floor(hash(gx, gy, seed) * 3) - 1, gy + floor(hash(gy, gx, seed + 3) * 3) - 1
+        if (fx / 14) ^ 2 + (fy / 10) ^ 2 < 1 and hash(gx, gy, seed + 5) > .12 then fruitDot(floor(x + fx * s * .9), floor(yb - 25 * s + fy * s * .9), s, fr) end
+      end end
+    else
     for i = 1, floor(9 * s * s) + 3 do local a, rr = hash(i, seed, 1) * 2 * pi, math.sqrt(hash(i, seed, 2)) * .95 fruitDot(floor(x + cos(a) * rr * 13 * s), floor(yb - 25 * s + sin(a) * rr * 9 * s), s, fr) end
+    end
   elseif kind == 2 then
     -- coppice stools: 4 thin stems fanning from one mossy base
     local st = HP.mask()
@@ -184,6 +192,9 @@ end
 -- forest edge pines framing the far right and left rows
 F.depth(1)
 F.tree(150, 124, 46, 3) F.tree(338, 122, 48, 7)
+-- fix-up: lower boughs on the two bare red-bark trunks
+F.crown(144, 114, 6, 3, L.foliage2, 61) F.crown(157, 107, 6, 3, L.foliage2, 62) F.crown(145, 101, 5, 3, L.foliage2, 63)
+F.crown(332, 112, 6, 3, L.foliage2, 64) F.crown(345, 105, 6, 3, L.foliage2, 65) F.crown(333, 99, 5, 3, L.foliage2, 66)
 
 ---------------------------------------------------------------- back-right: log barn (between the rows)
 local function barn()
@@ -352,14 +363,17 @@ F.sprite({
   m = AP.shade, M = AP.hi, w = L.awnB.base })
 -- a boar piglet (humbug stripes) snuffling the windfalls under the far-left trees
 F.sprite({
-  "..e...........",
-  ".eBe.bBBBBB...",
-  "bBBBBSSSSSSBb.",
-  "nBEBBBBBBBBBBb",
-  "nnBBBSSSSSSSBq",
-  ".bBBBBBBBBBBb.",
-  "..dd.dd..dd.d.",
-}, 58, 162, { b = L.soil.shade, B = L.soil.base, S = L.needle.hi, E = L.timber.edge, n = L.petal.shade, q = L.soil.deep, e = L.soil.deep, d = L.timber.edge })
+  "...kk..kkkkkkkk....",
+  "..kBBkkBBSBBSBBk...",
+  ".kBBBBBBBSBBSBBBk..",
+  "kBEBBBBBBSBBSBBBBk.",
+  "knnBBBBBBSBBSBBBBBt",
+  "knnbBBBBBSBBSBBBbk.",
+  ".kkbbBBBBBBBBBBbk..",
+  "..kbbbbbbbbbbbbk...",
+  "..kdk.kdk..kdk.kdk.",
+  "..kkk.kkk..kkk.kkk.",
+}, 52, 159, { k = L.timber.edge, b = L.soil.shade, B = L.soil.base, S = L.board.hi, E = L.timber.edge, n = L.petal.base, t = L.soil.deep, d = L.timber.base })
 for _, a in ipairs({ { 52, 167 }, { 55, 169 }, { 76, 168 } }) do px(a[1], a[2], AP.base) px(a[1] + 1, a[2], AP.shade) px(a[1], a[2] - 1, AP.hi) end
 -- a blackbird pecking a windfall by the road
 F.sprite({ ".kk...", "kkkkk.", "kkkkky", ".k.k.." }, 182, 192, { k = "#3c3640", y = L.gold.base })

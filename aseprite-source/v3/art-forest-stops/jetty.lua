@@ -81,7 +81,9 @@ while x < 486 do
   x = x + 8 + floor(hash(x, 7, 83) * 7)
 end
 -- a red-bark pine standing up out of the spruces
-F.pine(302, WL, 36, L.foliage, 61)
+F.pine(302, WL, 36, L.foliage2, 61)
+-- fix-up: a shaggier, darker crown (tufts up top and hanging boughs)
+F.crown(294, floor(WL - 36 * .82) - 5, 7, 4, L.foliage2, 70) F.crown(311, floor(WL - 36 * .82) - 3, 6, 4, L.foliage2, 71)
 F.depth(0)
 -- their reflection in the still water: everything dark above the waterline, mirrored, sunk toward the water colour,
 -- broken by ripple rows
@@ -354,7 +356,8 @@ do
   local sb = rect(26, 158, 36, 166) local st = c:ellipse(31, 158, 5, 2)
   rimOf(union(sb, st), L.timber) part(sb, L.timber, { nopop = true }) fill(st, L.board.base) px(31, 158, L.board.shade) px(28, 157, L.board.hi)
   F.moss(sb, .3, 101)
-  fill(line({ { 33, 157 }, { 39, 150 } }), L.board.base) fill(rect(31, 154, 34, 157), L.iron.base) px(31, 154, L.iron.hi)
+  local ah = line({ { 33, 157 }, { 41, 147 } }, 1) c:rim(ah, L.timber.edge) fill(ah, L.board.base) px(41, 147, L.board.hi)
+  local ab = poly{ { 28, 151 }, { 34, 150 }, { 35, 156 }, { 29, 157 } } c:rim(ab, L.iron.edge) fill(ab, L.iron.base) vline(28, 151, 157, L.iron.hi) vline(34, 151, 155, L.iron.shade) px(29, 151, L.iron.hi)
 end
 F.depth(1)
 -- ferns at the cabin's foot
@@ -464,4 +467,14 @@ F.fern(206, 176, 5) F.fern(214, 210, 6)
 F.depth(0)
 F.birds({ { 360, 60, 3 }, { 376, 52, 2 }, { 300, 76, 2 }, { 150, 50, 2 } })
 fill(c:ellipse(205, 153, 5, 2):add(poly{ { 209, 153 }, { 212, 150 }, { 212, 156 } }), L.accent.base) px(202, 152, L.timber.edge) px(203, 152, L.accent.hi)
+-- fix-up: detail on the empty ground beside the road
+F.depth(2)
+F.fern(262, 166, 4) F.fern(282, 186, 5, L.needle) F.fern(270, 204, 4) F.fern(214, 176, 4) F.fern(204, 196, 4, L.needle) F.fern(286, 158, 3)
+F.mushroom(276, 176, L.apple, true) F.mushroom(280, 178, L.apple) F.mushroom(212, 188, L.needle, true) F.mushroom(266, 194, L.needle)
+for _, p in ipairs({ { 268, 156 }, { 290, 170 }, { 258, 182 }, { 296, 196 }, { 210, 168 }, { 220, 206 }, { 276, 222 } }) do
+  px(p[1], p[2], L.soil.base) px(p[1] + 1, p[2], L.soil.shade) px(p[1], p[2] - 1, L.soil.hi) px(p[1] + 1, p[2] + 1, L.soil.deep)
+end
+for _, p in ipairs({ { 284, 210 } }) do
+  fill(rect(p[1], p[2], p[1] + 4, p[2] + 1), L.stone.base) hline(p[1], p[1] + 4, p[2] - 1, L.stone.edge) px(p[1], p[2], L.stone.hi) hline(p[1] + 1, p[1] + 4, p[2] + 2, L.stone.shade)
+end
 F.finish()

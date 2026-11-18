@@ -561,8 +561,8 @@ do
 end
 F.fern(306, 262, 7) F.fern(296, 266, 6) F.fern(364, 268, 6)
 -- a dipper (the brook bird) bobbing on the bridge coping: dark brown, white bib
-F.sprite({ ".kk...", "kKKk..", "WWKKkt", "WcKKkt", ".l.l.." }, floor(F.xr(230)) + 1, 211,
-  { k = "#4e3c38", K = "#64504a", W = L.awnB.hi, c = "#8a5440", t = "#3a2c2c", l = L.timber.edge })
+F.sprite({ "..kkk.....", ".kKKKk....", "bWKKKKKkt.", "bWWKKKKKkt", ".WcKKKKkt.", "..kKKKkk..", "...l.l...." }, floor(F.xr(230)) + 1, 209,
+  { k = "#4e3c38", K = "#64504a", W = L.awnB.hi, c = "#8a5440", t = "#3a2c2c", l = L.timber.edge, b = L.timber.edge })
 -- dragonflies over the water: blue, a red one and a green one
 for i, d in ipairs({ { 296, 222 }, { 176, 238 }, { 120, 234 }, { 64, 226 }, { 360, 222 } }) do
   local x, y = d[1], d[2]
@@ -574,7 +574,7 @@ end
 ---------------------------------------------------------------- cool mist lying on the water (solid dithered streaks)
 brook:each(function(x, y)
   local band = (y + floor(sin(x / 17) * 2)) % 9
-  if band < 2 and hash(x // 11, y // 9, 90) < .5 and (x + y) % 2 == 0 then
+  if band < 2 and hash(x // 11, y // 9, 90) < .55 and (band == 0 or (x + y) % 2 == 0) then
     local v = c:get(x, y)
     if v == Wt.hi or v == Wt.base or v == Wt.shade or v == F.mix(Wt.hi, Wt.base, .5) then px(x, y, band == 0 and L.mist2 or L.mist) end
   end
@@ -582,4 +582,14 @@ end)
 
 F.depth(0)
 F.birds({ { 330, 44, 2 }, { 340, 50, 1 }, { 168, 60, 2 }, { 186, 54, 2 }, { 236, 70, 1 } })
+-- fix-up: detail on the bare needle ground between the road and the hamlet
+F.depth(3)
+F.fern(270, 160, 5) F.fern(294, 176, 4, L.needle) F.fern(262, 190, 5) F.fern(184, 196, 4) F.fern(176, 168, 4, L.needle) F.fern(300, 152, 4)
+F.mushroom(280, 168, L.apple, true) F.mushroom(284, 170, L.apple) F.mushroom(190, 184, L.needle) F.mushroom(270, 182, L.needle, true)
+for _, p in ipairs({ { 266, 172 }, { 288, 158 }, { 300, 186 }, { 178, 180 }, { 188, 160 }, { 274, 150 }, { 292, 194 } }) do
+  px(p[1], p[2], L.soil.base) px(p[1] + 1, p[2], L.soil.shade) px(p[1], p[2] - 1, L.soil.hi) px(p[1] + 1, p[2] + 1, L.soil.deep)
+end
+for _, p in ipairs({ { 258, 164 }, { 282, 188 }, { 182, 190 } }) do
+  fill(rect(p[1], p[2], p[1] + 3, p[2] + 1), L.stone.base) hline(p[1], p[1] + 3, p[2] - 1, L.stone.edge) px(p[1], p[2], L.stone.hi) hline(p[1] + 1, p[1] + 3, p[2] + 2, L.stone.shade)
+end
 F.finish()

@@ -16,17 +16,18 @@ local G, IR = L.glow, L.iron
 local sage = L.wall2
 
 -- local helpers ------------------------------------------------------------------------
-local function stump(x, yb, w, mossK, seed)
-  local body = rect(x - w, yb - w, x + w, yb)
-  local top = c:ellipse(x, yb - w, w, math.max(1, w // 2))
+local function stump(x, yb, w, mossK, seed, bark, hh)
+  bark = bark or L.timber hh = hh or w
+  local body = rect(x - w, yb - hh, x + w, yb)
+  local top = c:ellipse(x, yb - hh, w, math.max(1, w // 2))
   local roots = poly{ { x - w - 2, yb }, { x - w, yb - 3 }, { x - w, yb } }:add(poly{ { x + w + 2, yb }, { x + w, yb - 3 }, { x + w, yb } })
-  rimOf(union(body, top, roots), L.timber)
-  part(union(body, roots), L.timber, { nopop = true })
-  body:each(function(xx, yy) if (xx - x) % 3 == 0 and hash(xx, yy // 2, seed or 5) < .6 then px(xx, yy, L.timber.shade) end end)
-  vline(x - w + 1, yb - w + 1, yb - 1, L.timber.hi)
+  rimOf(union(body, top, roots), bark)
+  part(union(body, roots), bark, { nopop = true })
+  body:each(function(xx, yy) if (xx - x) % 3 == 0 and hash(xx, yy // 2, seed or 5) < .6 then px(xx, yy, bark.shade) end end)
+  vline(x - w + 1, yb - hh + 1, yb - 1, bark.hi)
   fill(top, L.board.base)
-  top:each(function(xx, yy) local d = math.sqrt((xx - x) ^ 2 + ((yy - (yb - w)) * 2) ^ 2) if floor(d) % 2 == 1 then px(xx, yy, L.board.shade) end if xx - x + (yy - (yb - w)) * 2 < -w * .6 then px(xx, yy, L.board.hi) end end)
-  px(x, yb - w, L.board.deep)
+  top:each(function(xx, yy) local d = math.sqrt((xx - x) ^ 2 + ((yy - (yb - hh)) * 2) ^ 2) if floor(d) % 2 == 1 then px(xx, yy, L.board.shade) end if xx - x + (yy - (yb - hh)) * 2 < -w * .6 then px(xx, yy, L.board.hi) end end)
+  px(x, yb - hh, L.board.deep)
   if mossK then F.moss(body, mossK, seed or 7) end
   return body, top
 end
@@ -328,7 +329,7 @@ F.sprite({
 }, 154, 228, { e = L.timber.base, D = L.needle.base, d = L.needle.shade, n = L.timber.edge, w = L.awnB.hi, t = L.needle.hi })
 hline(156, 157, 230, L.timber.edge)
 -- a stump stool by the lute player and pine cones by the ring
-stump(66, 216, 5, .3, 23)
+stump(66, 217, 5, nil, 23, L.redbark, 8)
 for _, p in ipairs({ { 112, 230 }, { 158, 222 }, { 84, 222 }, { 192, 236 } }) do cone(p[1], p[2]) end
 
 ---------------------------------------------------------------- camp kitchen table, bottom-left
@@ -395,13 +396,13 @@ F.depth(3)
 
 ---------------------------------------------------------------- near right: chopping stump, young spruce, mushrooms
 F.depth(2)
-F.tree(456, 206, 56, 1)
+F.tree(449, 206, 56, 1)
 F.depth(3)
 F.conifer(436, 228, 24, L.foliage2, 44)
-local cs = stump(416, 224, 8, .25, 24)
+local cs = stump(417, 224, 9, .25, 24)
 -- an axe bitten into the stump
-local haft = line({ { 417, 213 }, { 426, 203 } }, 1) c:rim(haft, L.timber.edge) haft:each(function(x, y) px(x, y, L.board.base) end) px(426, 203, L.board.hi)
-local axe = poly{ { 410, 210 }, { 417, 211 }, { 417, 216 }, { 411, 217 } } c:rim(axe, IR.edge) fill(axe, IR.base) vline(410, 210, 217, IR.hi) px(411, 210, IR.hi) px(416, 216, IR.deep) vline(417, 211, 216, IR.shade)
+local haft = line({ { 409, 213 }, { 401, 203 } }, 1) c:rim(haft, L.timber.edge) haft:each(function(x, y) px(x, y, L.board.base) end) px(401, 203, L.board.hi)
+local axe = poly{ { 406, 212 }, { 412, 211 }, { 412, 218 }, { 407, 219 } } c:rim(axe, IR.edge) fill(axe, IR.base) vline(406, 212, 219, IR.hi) px(407, 212, IR.hi) px(411, 218, IR.deep) vline(412, 212, 217, IR.shade)
 for _, s in ipairs({ { 404, 224 }, { 432, 226 } }) do
   local m = poly{ { s[1], s[2] }, { s[1] + 5, s[2] - 2 }, { s[1] + 6, s[2] }, { s[1] + 1, s[2] + 2 } }
   rimOf(m, L.timber) fill(m, L.board.base) px(s[1] + 1, s[2], L.board.hi) px(s[1] + 5, s[2] - 1, L.timber.base)

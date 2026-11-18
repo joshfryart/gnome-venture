@@ -67,28 +67,55 @@ local function hayCart(x0, yb)
     vline(wx, yb - 9, yb + 1, L.timber.deep) hline(wx - 5, wx + 5, yb - 4, L.timber.deep) px(wx, yb - 4, L.iron.hi)
   end
 end
+-- fix-up: a split-rail fence and hedge behind the cart
+do
+  local fy = 141
+  local rails = rect(294, fy - 6, 348, fy - 5):add(rect(294, fy - 2, 348, fy - 1))
+  local posts = HP.mask()
+  for px0 = 296, 346, 10 do posts:add(rect(px0, fy - 9, px0 + 1, fy + 1)) end
+  rimOf(union(rails, posts), L.timber)
+  part(rails, L.timber, { nopop = true, noshade = true }) part(posts, L.timber, { nopop = true, noshade = true })
+  F.moss(posts, .3, 51)
+  F.bush(298, 142, 6, 6, L.foliage2, 52) F.bush(344, 142, 5, 5, L.foliage, 53)
+  F.fern(318, 142, 3) F.fern(334, 143, 3, L.needle)
+end
 F.shadow(300, 350, 166, 8, 3)
 hayCart(302, 166)
 -- a chestnut fell pony with a flaxen mane, head down in the hay
-F.shadowM(c:ellipse(364, 167, 12, 1))
-F.sprite({
-  ".......mm...............",
-  "......mmBBhhhhhhhhhh....",
-  ".....mmBBBBBBBBBBBBBBh.t",
-  "....mmBBBBBBBBBBBBBBBBtt",
-  "...mmBBBBBBBBBBBBBBBBBtt",
-  "..mBBB.BBBBBBBBBBBBBBBtt",
-  ".mBeB..BBBBBBBBBBBBBBB.t",
-  "BBkB...dBBBBBBBBBBBBBd.t",
-  "BBBw....dBBdddddddBBBd.t",
-  "BBww....BB.d.....BB.d...",
-  "nBw.....Bd.d.....Bd.d...",
-  "nn......Bd.dd....Bd.dd..",
-  "........dd.dd....dd.dd..",
-  "........ff.ff....ff.ff..",
-}, 347, 153, { m = L.board.hi, h = L.soil.hi, B = L.soil.base, d = L.soil.shade, k = L.timber.edge, w = L.awnB.hi,
-  n = L.soil.deep, t = L.board.base, f = L.timber.deep, e = L.soil.deep })
-px(346, 162, L.gold.hi) px(345, 163, L.gold.base) px(346, 164, L.gold.hi) px(345, 161, L.gold.shade)
+F.shadowM(c:ellipse(362, 168, 17, 1))
+do
+  local src = {
+    ".......mm...............",
+    "......mmBBhhhhhhhhhh....",
+    ".....mmBBBBBBBBBBBBBBh.t",
+    "....mmBBBBBBBBBBBBBBBBtt",
+    "...mmBBBBBBBBBBBBBBBBBtt",
+    "..mBBB.BBBBBBBBBBBBBBBtt",
+    ".mBeB..BBBBBBBBBBBBBBB.t",
+    "BBkB...dBBBBBBBBBBBBBd.t",
+    "BBBw....dBBdddddddBBBd.t",
+    "BBww....BB.d.....BB.d...",
+    "nBw.....Bd.d.....Bd.d...",
+    "nn......Bd.dd....Bd.dd..",
+    "........dd.dd....dd.dd..",
+    "........ff.ff....ff.ff..",
+  }
+  local big, pm = {}, HP.mask()
+  for j = 0, 20 do
+    local row = {}
+    local sr = src[floor(j * 2 / 3) + 1]
+    for i = 0, 35 do
+      local ch = sr:sub(floor(i * 2 / 3) + 1, floor(i * 2 / 3) + 1)
+      row[#row + 1] = ch
+      if ch ~= "." then pm:add(rect(344 + i, 147 + j, 344 + i, 147 + j)) end
+    end
+    big[#big + 1] = table.concat(row)
+  end
+  c:rim(pm, L.timber.edge)
+  F.sprite(big, 344, 147, { m = L.gold.hi, h = L.redbark.hi, B = L.redbark.base, d = L.redbark.shade, k = L.timber.edge, w = L.awnB.hi,
+    n = L.redbark.deep, t = L.gold.base, f = L.timber.deep, e = L.redbark.deep })
+end
+px(343, 163, L.gold.hi) px(342, 164, L.gold.base) px(343, 165, L.gold.hi) px(342, 162, L.gold.shade)
 
 ---------------------------------------------------------------- the inn (left hero)
 F.depth(3)
@@ -154,9 +181,9 @@ local function inn()
   -- upper floor: grey-green painted board-and-batten between log posts
   part(upper, L.wall2, { nopop = true })
   upper:each(function(x, y)
-    local k = (x - UX0) % 7
-    if k == 0 then px(x, y, L.wall2.hi) elseif k == 1 then px(x, y, L.wall2.shade)
-    elseif hash(x, y // 4, 46) < .07 then px(x, y, L.wall2.shade) elseif hash(x, y // 5, 47) < .05 then px(x, y, L.wall2.hi) end
+    local k = (x - UX0) % 9
+    if k == 0 then px(x, y, F.mix(L.wall2.base, L.wall2.shade, .6))
+    elseif hash(x, y // 6, 46) < .04 then px(x, y, F.mix(L.wall2.base, L.wall2.shade, .4)) end
     if y >= GTOP - 5 and hash(x, y, 45) < .3 then px(x, y, L.wall2.shade) end
     if y <= UTOP + 3 then px(x, y, L.wall2.deep) end -- eave shadow
   end)
@@ -455,14 +482,15 @@ end
 do -- firewood stack under a little lean-to by the inn wall
   local stackM = rect(146, 196, 184, 212)
   F.shadow(146, 186, 213, 6, 3)
-  rimOf(stackM, L.timber) fill(stackM, L.timber.shade)
+  rimOf(stackM, L.timber) fill(stackM, L.timber.deep)
   for row = 0, 2 do for k = 0, 6 do
     local cx, cy = 149 + k * 6 + (row % 2) * 3, 199 + row * 5
     if cx <= 182 then
       local tr = (hash(k, row, 8) < .3) and L.needle or L.board
-      local lg = c:ellipse(cx, cy, 2.5, 2.5)
-      fill(lg, tr.hi) px(cx, cy, tr.shade) px(cx + 1, cy, tr.base)
-      lg:edge():each(function(x, y) px(x, y, (x > cx or y > cy) and L.timber.base or tr.base) end)
+      local lg = rect(cx - 2, cy - 2, cx + 2, cy + 2)
+      fill(lg, tr.base) hline(cx - 2, cx + 1, cy - 2, tr.hi) vline(cx - 2, cy - 2, cy + 1, tr.hi)
+      hline(cx - 1, cx + 2, cy + 2, tr.shade) vline(cx + 2, cy - 1, cy + 2, tr.shade) px(cx, cy, tr.shade)
+      px(cx - 2, cy + 2, L.timber.deep) px(cx + 2, cy - 2, L.timber.deep)
     end
   end end
   local lean = poly{ { 142, 196 }, { 188, 192 }, { 188, 195 }, { 142, 199 } }

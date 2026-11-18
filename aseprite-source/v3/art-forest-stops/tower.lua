@@ -195,6 +195,12 @@ F.door(94, 142, 108, 167, T, true)
 F.smoke(141, 104, 6, .5, 2)
 local wp = rect(17, 149, 18, 172) rimOf(wp, T) part(wp, T, { nopop = true, noshade = true })
 F.washing(18, 150, 54, 146, { { "sock", L.awnA }, { "shirt", L.accent }, { "sock", L.roof } }, 5)
+-- fix-up: make the washing line itself readable (dark ink cord, a lit pixel under it)
+for xx = 18, 54 do
+  local t = (xx - 18) / 36
+  local yy = floor(150 + (146 - 150) * t + 5 * 4 * t * (1 - t) + .5)
+  if c:get(xx, yy) == L.board.deep then px(xx, yy, L.timber.edge) if c:get(xx, yy + 1) ~= L.timber.edge and (xx % 2 == 0) and not c:get(xx, yy + 1) == nil then end end
+end
 F.window(66, 140, 74, 147, T) F.window(126, 140, 134, 147, T)
 -- shield over the door: a pine on teal
 local sh = poly{ { 95, 128 }, { 107, 128 }, { 107, 134 }, { 101, 139 }, { 95, 134 } }
@@ -221,8 +227,12 @@ local function rack(x0, yb)
     local x = x0 + 6 + k * 7
     if k == 2 then -- a fire beater (a broom of pine boughs) among the spears
       vline(x, yb - 34, yb - 1, L.board.base) vline(x + 1, yb - 34, yb - 1, L.board.shade)
-      fill(poly{ { x - 3, yb - 34 }, { x + 4, yb - 34 }, { x + 2, yb - 44 }, { x - 1, yb - 44 } }, L.foliage.shade)
-      for q = 0, 4 do px(x - 2 + q * 1, yb - 42 + q * 2, L.foliage.hi) px(x + 3 - q, yb - 41 + q * 2, L.foliage.deep) end
+      -- a flat leather flapper (red-brown rag flap on a pole), not a tree
+      local fl = rect(x - 2, yb - 46, x + 3, yb - 38)
+      rimOf(fl, L.roof2) part(fl, L.roof2, { nopop = true })
+      for q = 0, 2 do vline(x - 1 + q * 2, yb - 45, yb - 39, L.roof2.shade) end
+      for q = -2, 3, 2 do vline(q + x, yb - 37, yb - 36, L.roof2.base) px(q + x, yb - 35, L.roof2.deep) end -- ragged strips
+      hline(x - 2, x + 3, yb - 34, L.gold.base) -- binding
     else
       vline(x, yb - 34, yb - 1, L.board.base) vline(x + 1, yb - 34, yb - 1, L.board.shade)
       local tip = poly{ { x - 1, yb - 34 }, { x + 1, yb - 40 }, { x + 3, yb - 34 } } fill(tip, IR.hi) px(x + 2, yb - 34, IR.shade)

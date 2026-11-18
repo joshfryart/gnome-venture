@@ -167,7 +167,8 @@ for x = 206, 274 do
 end
 for i, x in ipairs({ 210, 214, 222, 226, 254, 258, 266, 270 }) do
   local y = 97 + floor(2 * sin((x - 206) / 68 * pi))
-  if i % 2 == 0 then fill(line({ { x, y }, { x + 2, y + 2 }, { x, y + 4 }, { x + 2, y + 6 } }), L.awnB.hi)
+  if i % 2 == 0 then -- folded paper shide: two stacked flat tabs on a hanging strip
+    fill(rect(x, y, x + 1, y + 2), L.awnB.hi) fill(rect(x, y + 3, x + 1, y + 5), L.awnB.base) px(x + 1, y + 2, L.awnB.shade) px(x + 1, y + 5, L.awnB.deep) px(x, y + 6, L.awnB.shade)
   else ribbon(x, y, 5, RIB[i % #RIB + 1]) end
 end
 -- candles along the foot of the terrace, either side of the steps
@@ -201,7 +202,7 @@ local function sacredTree()
   paintTrunk(trunk:copy():cut(crownM), true)
   -- roped trunk with zigzags
   for x = 402, 416 do px(x, 136 + (x - 402) // 6, ROPE.shade) px(x, 137 + (x - 402) // 6, (x % 3 == 0) and ROPE.hi or ROPE.base) px(x, 138 + (x - 402) // 6, ROPE.deep) end
-  for _, x in ipairs({ 405, 412 }) do local y = 139 + (x - 402) // 6 fill(line({ { x, y }, { x + 2, y + 2 }, { x, y + 4 }, { x + 2, y + 6 } }), L.awnB.hi) end
+  for _, x in ipairs({ 405, 412 }) do local y = 139 + (x - 402) // 6 fill(rect(x, y, x + 1, y + 2), L.awnB.hi) fill(rect(x, y + 3, x + 1, y + 5), L.awnB.base) px(x + 1, y + 2, L.awnB.shade) px(x + 1, y + 5, L.awnB.deep) end
   -- ribbons tied on the low boughs
   for i, p in ipairs({ { 380, 120 }, { 392, 112 }, { 432, 114 }, { 442, 122 }, { 372, 128 }, { 448, 128 }, { 422, 100 }, { 396, 94 }, { 386, 104 }, { 436, 104 } }) do
     ribbon(p[1], p[2], 5 + i % 3, RIB[i % #RIB + 1], (i % 2 == 0) and 1 or -1)
@@ -315,7 +316,16 @@ local function chozuya()
   -- floating birch leaves
   for _, k in ipairs({ { 124, 186 }, { 140, 187 }, { 156, 185 } }) do px(k[1], k[2], L.birchLeaf.hi) px(k[1] + 1, k[2], L.birchLeaf.base) end
   -- mossy rock spring with a hollow-log spout and a trickle
-  F.moss(F.rock(178, 190, 9, 14), .6, 70)
+  local rk = F.rock(178, 190, 9, 14)
+  F.moss(rk, .45, 70)
+  do -- fix-up: facets, cracks and a damp dark foot so the rock is not a plain blob
+    for _, ln in ipairs({ { { 172, 183 }, { 177, 189 }, { 175, 196 } }, { { 181, 180 }, { 183, 187 }, { 186, 191 } }, { { 174, 199 }, { 180, 197 } } }) do
+      line(ln):each(function(x, y) if rk:has(x, y) then px(x, y, L.stone.deep) end end)
+    end
+    for _, p in ipairs({ { 170, 184 }, { 171, 185 }, { 176, 181 }, { 177, 181 }, { 184, 183 } }) do if rk:has(p[1], p[2]) then px(p[1], p[2], L.stone.hi) end end
+    for x = 170, 188 do if rk:has(x, 203) or rk:has(x, 202) then px(x, 202, L.stone.shade) end end
+    F.fern(188, 202, 4)
+  end
   local sp = rect(148, 168, 176, 171)
   rimOf(sp, L.timber) part(sp, L.timber, { nopop = true }) hline(149, 175, 168, L.board.shade) hline(149, 175, 169, L.water.base)
   F.logEnd(148, 170, 2)
@@ -467,9 +477,20 @@ fill(line({ { bx + 1, by - 6 }, { bx - 6, by + 6 } }, 1), L.timber.base)
 local broom = poly{ { bx - 11, by + 6 }, { bx - 3, by + 6 }, { bx - 4, by + 10 }, { bx - 12, by + 10 } }
 rimOf(broom, ROPE) part(broom, ROPE, { nopop = true }) for x = bx - 11, bx - 4, 2 do vline(x, by + 7, by + 10, ROPE.deep) end
 -- the heap of needles and cones he is sweeping up
-for i = 0, 34 do local x, y = 314 + floor(hash(i, 1, 5) * 14), 240 + floor(hash(i, 2, 5) * 5) - (i % 3)
-  local r = L.needle px(x, y, i % 3 == 0 and r.hi or r.base) px(x + 1, y, r.shade) end
-for _, p in ipairs({ { 318, 238 }, { 325, 240 } }) do px(p[1], p[2], L.soil.base) px(p[1], p[2] + 1, L.soil.shade) px(p[1] + 1, p[2] + 1, L.soil.deep) end
+do
+  local hp = c:ellipse(322, 242, 9, 4):clip(rect(300, 234, 336, 246))
+  F.shadowM(c:ellipse(324, 246, 10, 1))
+  rimOf(hp, L.needle)
+  hp:each(function(x, y)
+    local v = hash(x, y, 5)
+    local h = L.needle.base
+    if (x - 322) + (y - 242) * 2 < -4 then h = L.needle.hi elseif (x - 322) + (y - 242) * 2 > 6 then h = L.needle.shade end
+    if v < .2 then h = L.needle.deep elseif v > .85 then h = L.needle.hi end
+    px(x, y, h)
+  end)
+  for i = 0, 6 do local x = 314 + i * 2 px(x, 238 + (i % 3), L.needle.hi) px(x + 1, 239 + (i % 3), L.needle.deep) end
+end
+for _, p in ipairs({ { 318, 240 }, { 326, 242 } }) do px(p[1], p[2], L.soil.base) px(p[1], p[2] + 1, L.soil.shade) px(p[1] + 1, p[2] + 1, L.soil.deep) end
 -- a gnome tying a ribbon on the rack
 local _, ex, ey = F.gnome(392, 214, { hat = L.fern, coat = L.lav, arm = "up", flip = true })
 ribbon(ex, ey - 1, 7, L.awnA)

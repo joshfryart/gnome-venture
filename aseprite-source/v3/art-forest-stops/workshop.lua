@@ -189,7 +189,7 @@ local function coopers()
   hline(310, 322, 119, IR.hi) hline(310, 322, 120, IR.shade) hline(309, 323, 125, IR.base) hline(309, 323, 126, IR.deep)
   F.smoke(318, 113, 4, .4, 1)
   -- finished barrels
-  for _, b in ipairs({ { 340, 140 }, { 352, 140 }, { 346, 128 } }) do F.barrel(b[1], b[2], L.timber, 11) end
+  for _, b in ipairs({ { 333, 134 }, { 345, 129 } }) do F.barrel(b[1], b[2], L.timber, 11) end
   -- bent hoops leaning on a post
   local post = rect(366, 120, 367, 140) rimOf(post, L.timber) part(post, L.timber, { nopop = true })
   for k = 0, 2 do
@@ -247,11 +247,11 @@ local function hearth()
   part(rect(124, 84, 140, 128):clip(chim), L.stone) F.courses(rect(124, 84, 140, 128), 84, 6, 8, L.stone)
   F.smoke(132, 78, 9, .7, 3)
   -- steam from the stuffed end of the box
-  local st = { "#e2e6d8", "#d4dacb", "#c8cfbf" }
+  local st = { "#f4f6ee", "#e6eadd", "#d6dccc" }
   for k = 0, 5 do
     local x, y = 98 - k * 2 + floor(sin(k * 1.4) * 2), 156 - k * 4
-    local m = c:ellipse(x, y, 2 + k // 3, 1 + k // 3)
-    fill(m, st[1 + k % 3])
+    local m = c:ellipse(x, y, 2 + k // 2, 1 + k // 2)
+    fill(m, st[1 + k % 3]) m:edge():each(function(xx, yy) if yy > y then px(xx, yy, st[3]) end end)
   end
   -- bent hoops and snowshoe frames on the left post
   for k = 0, 2 do
@@ -289,16 +289,16 @@ fill(rect(hx, hy - 6, hx + 1, hy + 1), L.board.base) fill(rect(hx + 1, hy - 8, h
 fill(rect(146, 228, 150, 235), L.soil.shade) px(146, 228, L.soil.base) -- leather apron
 -- a grey forest dog asleep in the hearth's warmth
 F.sprite({
-  "..............e.e...",
-  ".............eHHHe..",
-  ".....DDDDDD..HHHHHH.",
-  "..TDDDDDDDDDDHkHHHMn",
-  ".TTDDdDDDDDDDHHHHMM.",
-  "TTTDDDdDDDdDDDHHLL..",
-  "TT.DDDDDDDDDDDLLLL..",
-  "....LLdLLLLLdLLLL...",
-}, 102, 210, { e = L.stone.deep, D = L.stone.base, d = L.stone.shade, H = L.stone.hi, k = L.timber.edge, M = L.stone.deep,
-  n = L.timber.edge, T = L.stone.shade, L = L.awnB.shade })
+  "................ee..ee...",
+  "...............eHHeeHHe..",
+  "......DDDDDDD..HHHHHHHH..",
+  "....TDDDDDDDDDHHkkHHkkHH.",
+  "...TTDDdDDDDDDHHHHHHHHnn.",
+  "..TTTDDDdDDDDDDHHHHHHHnn.",
+  "...TTDDDDDDDDDDPPHHHHPPP.",
+  ".....LLdLLLLLLLPPPLLLPPP.",
+}, 100, 210, { e = L.stone.deep, D = L.stone.base, d = L.stone.shade, H = L.stone.hi, k = L.timber.edge, M = L.stone.deep,
+  n = L.timber.edge, T = L.stone.shade, L = L.awnB.shade, P = L.awnB.hi })
 local qb = F.barrel(196, 236, L.timber, 12) fill(rect(192, 225, 200, 226), L.water.base) px(193, 225, L.water.hi)
 -- a birch dipper hooked on the barrel
 fill(rect(199, 222, 202, 223), L.birch.base) vline(202, 220, 222, L.birch.shade)
@@ -312,6 +312,20 @@ local function workshop()
   F.logs(gab, L.timber, top, 4)
   F.window(cx - 3, top - 36 // 2 + 1, cx + 2, top - 36 // 2 + 5, L.timber)
   for y = top + 2, yb - 1, 4 do F.logEnd(x0 - 1, y, 2) F.logEnd(x1 + 1, y, 2) end
+  -- fix-up: a proper shingled bargeboard band along the gable, so the roof is not a thin line
+  gab:each(function(x, y)
+    local d = 0
+    while d < 7 and gab:has(x, y - d - 1) do d = d + 1 end
+    if d <= 5 then
+      local h
+      if d == 0 then h = L.roof.hi
+      elseif d == 5 then h = L.roof.deep
+      elseif (x + d * 2) % 5 == 0 then h = L.roof.shade
+      else h = (d % 2 == 0) and L.roof.base or L.roof.shade end
+      if d > 0 and d < 5 and hash(x, y, 41) < .08 then h = L.moss.base end
+      px(x, y, h)
+    end
+  end)
   F.moss(roofM, .13, 38)
   wallM:each(function(x, y) if y > yb - 6 and hash(x, y // 2, 39) < .45 then px(x, y, hash(x, y, 40) < .5 and L.moss.shade or L.moss.base) end end)
   -- window, left of the doorway

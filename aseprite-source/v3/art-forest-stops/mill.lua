@@ -430,4 +430,11 @@ line({ { 226, 263 }, { 230, 260 }, { 232, 262 } }):each(function(x, y) px(x, y, 
 F.depth(0)
 F.birds({ { 300, 40, 2 }, { 310, 46, 1 }, { 292, 49, 1 }, { 140, 58, 2 }, { 186, 74, 1 } })
 
+-- fix-up: life on the sparse near-centre ground
+F.depth(3)
+F.fern(182, 222, 5) F.fern(196, 238, 4, L.needle) F.fern(158, 244, 5) F.fern(300, 232, 4, L.needle) F.fern(318, 246, 5)
+F.mushroom(188, 232, L.apple, true) F.mushroom(192, 234, L.apple) F.mushroom(172, 246, L.needle) F.mushroom(306, 240, L.needle, true)
+for _, p in ipairs({ { 166, 232 }, { 204, 226 }, { 292, 222 }, { 322, 232 }, { 178, 250 } }) do
+  px(p[1], p[2], L.soil.base) px(p[1] + 1, p[2], L.soil.shade) px(p[1], p[2] - 1, L.soil.hi) px(p[1] + 1, p[2] + 1, L.soil.deep)
+end
 F.finish()

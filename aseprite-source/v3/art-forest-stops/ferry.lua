@@ -196,31 +196,37 @@ end
 -- a grey heron fishing in the shallows under the alders
 F.depth(3)
 do
-  local hx, hy = 382, 118
+  local hx, hy = 378, 112
   F.sprite({
-    ".....kkkkkk...",
-    "...dWWWkk.....",
-    "yyyyWeWkk.....",
-    "...dWWWWd.....",
-    ".....WWWd.....",
-    ".....WWd......",
-    "......WWd.....",
-    "......WWd.....",
-    ".....WWd......",
-    "....WkWd......",
-    "....WkkGGg....",
-    "...dGGGGGGgg..",
-    "..dkGGGGGgggd.",
-    "..dGGGGGgggddd",
-    "...gGGGgggdddd",
-    "....ggggddd..d",
-    ".....gddd.....",
-    "......l.l.....",
-    "......l.l.....",
-    "......l.l.....",
-    "......l..l....",
+    "......kkkkkk......",
+    "....kkkWWWWkk.....",
+    "yyyyyyyWeWWk......",
+    "......dWWWWd......",
+    ".......WWWd.......",
+    "......WWWd........",
+    "......WWd.........",
+    ".......WWd........",
+    ".......WWWd.......",
+    ".......WWkd.......",
+    "......WkkGGGg.....",
+    "....dGGGGGGGggg...",
+    "...dkGGGGGGgggdd..",
+    "...dGGGGGGggggdddd",
+    "....gGGGGgggddddd.",
+    ".....ggggggddd..d.",
+    "......gdddd.......",
+    ".......l.l........",
+    ".......l.l........",
+    ".......l.l........",
+    ".......l.l........",
+    ".......l.l........",
+    ".......l.l........",
+    ".......l.l........",
+    ".......l.l........",
+    "......ll.ll.......",
+    "......l...l.......",
   }, hx, hy, { k = "#34363f", W = "#e2e4d8", d = "#5c6670", G = "#a8b0b6", g = "#7e8890", e = "#26262e", y = L.gold.base, l = L.gold.shade })
-  for k = 0, 2 do hline(hx + 3 - k * 2, hx + 11 + k * 2, hy + 21 + k, k == 1 and Wt.shade or Wt.hi) end
+  for k = 0, 2 do hline(hx + 3 - k * 2, hx + 11 + k * 2, hy + 27 + k, k == 1 and Wt.shade or Wt.hi) end
 end
 F.depth(2)
 
@@ -579,4 +585,17 @@ F.sprite({
 DY = 0
 F.depth(0)
 F.birds({ { 150, 58, 2 }, { 162, 52, 1 }, { 360, 46, 2 }, { 372, 52, 2 } })
+-- fix-up: detail on the plain lower-right near bank
+F.depth(3)
+F.fern(300, 252, 5) F.fern(334, 262, 5, L.needle) F.fern(266, 262, 4) F.fern(368, 248, 4) F.fern(352, 258, 3, L.needle)
+F.mushroom(318, 246, L.apple, true) F.mushroom(322, 248, L.apple) F.mushroom(284, 256, L.needle, true)
+do -- a fallen branch with a mossy stub
+  local br = line({ { 306, 262 }, { 326, 258 } }, 2)
+  rimOf(br, L.timber) part(br, L.timber, { nopop = true, noshade = true }) F.moss(br, .35, 71)
+  px(326, 257, L.timber.hi)
+end
+for _, p in ipairs({ { 290, 242 }, { 346, 240 }, { 276, 250 }, { 360, 262 } }) do
+  px(p[1], p[2], L.soil.base) px(p[1] + 1, p[2], L.soil.shade) px(p[1], p[2] - 1, L.soil.hi) px(p[1] + 1, p[2] + 1, L.soil.deep)
+end
+fill(rect(340, 250, 344, 251), L.stone.base) hline(340, 344, 249, L.stone.edge) px(340, 250, L.stone.hi) hline(341, 344, 252, L.stone.shade)
 F.finish()

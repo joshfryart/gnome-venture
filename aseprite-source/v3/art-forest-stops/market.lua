@@ -125,7 +125,9 @@ local function barrow()
   local ring = poly{ { 166, 70 }, { 178, 70 }, { 177, 74 }, { 167, 74 } }
   local cap = poly{ { 148, 58 }, { 152, 48 }, { 160, 41 }, { 172, 38 }, { 184, 41 }, { 192, 48 }, { 196, 58 }, { 186, 60 }, { 158, 60 } }
   rimOf(union(tray, handles, wheel, stem, ring, cap), t)
-  part(handles, t, { nopop = true }) part(tray, t) part(wheel, L.stone, { nopop = true })
+  part(handles, L.redbark, { nopop = true }) part(tray, L.redbark) part(wheel, L.timber, { nopop = true })
+  px(183, 101, L.timber.deep) hline(180, 186, 101, L.timber.deep) vline(183, 98, 104, L.timber.deep) -- spokes
+  hline(162, 182, 100, L.redbark.deep)
   part(stem, L.awnB, { nopop = true })
   stem:each(function(x, y) if x == 169 then px(x, y, L.awnB.hi) elseif x >= 174 then px(x, y, L.awnB.shade) end end)
   part(ring, L.awnB, { nopop = true }) hline(167, 177, 74, L.awnB.shade)
@@ -150,8 +152,12 @@ local function trail()
   fill(opening, L.foliage2.edge)
   opening:each(function(x, y) if hash(x // 2, y, 31) < .3 then px(x, y, L.foliage2.deep) end end)
   -- the deep wood inside: a far misted gap, receding conifers, the path running in
-  fill(poly{ { 236, 104 }, { 244, 104 }, { 243, 94 }, { 237, 94 } }, L.mist)
-  hline(237, 243, 104, L.mist2)
+  -- (fix-up: a flat horizontal slot of misty light, so it cannot read as a pale figure)
+  local dimM = F.mix(L.mist, L.foliage2.deep, .45)
+  fill(rect(231, 100, 249, 104), dimM)
+  hline(231, 249, 104, L.mist2)
+  for x = 231, 249 do if hash(x, 1, 33) < .6 then px(x, 100, L.mist) end if (x % 3) == 0 then px(x, 102, L.mist) end end
+  for x = 232, 248, 2 do px(x, 99, F.mix(L.mist, L.foliage2.deep, .7)) end
   for _, t in ipairs({ { 230, 112, 22, L.farTree }, { 251, 112, 24, L.farTree }, { 226, 120, 30, L.foliage2 }, { 255, 121, 32, L.foliage2 } }) do
     F.conifer(t[1], t[2], t[3], t[4], t[1], { far = t[4] == L.farTree, slim = true })
   end
@@ -502,7 +508,7 @@ local function stall()
     end
   end
   -- the stallkeeper, behind the counter
-  F.gnome(352, 202, { hat = L.awnA, coat = L.leaf, arm = "up", noShadow = true })
+  F.gnome(352, 198, { hat = L.awnA, coat = L.leaf, arm = "up", noShadow = true })
   -- mossy shingle roof + red/cream valance
   part(roof, L.roof, { sep = true }) courses(roof, 151, 3, 5, L.roof)
   F.moss(roof, .14, 81)
