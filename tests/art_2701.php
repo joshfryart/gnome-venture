@@ -1,6 +1,6 @@
 <?php
 // 2.7.01 the approved Opus art (tools/install_art_2701.py) is in place and wired: every installed file at the path the code builds, the right size, art_path() finds it;
-// the pal perch pictures (treehouse_pal_pic), the front Flood Boots over the tunic (gnome25), the Trail fight / camp markers (trail_art.php), the 8 Maplewold stop looks (here_layouts.json).
+// the pal perch pictures (treehouse_pal_pic), the Flood Boots over the tunic in all three views (gnome25), the Trail fight / camp markers (trail_art.php), the 8 Maplewold stop looks (here_layouts.json).
 // php tests/art_2701.php GAME_DIR REPO_DIR   (an installed game; walk.sh installs one)
 $_SERVER['SCRIPT_NAME'] = '/adventure.php';
 require $argv[1] . '/includes/bootstrap.php';
@@ -67,9 +67,17 @@ for ($c = 0; $c < 16; $c++) foreach ($wl[$c] as $p) {
 ok('128 pals: in puzzle_pals.txt under the same picture and name, yard (64) and perch (36) picked by treehouse_pal_pic(), the opus3 bytes, art_path() finds both', $n === 128 && !$miss, $n . ' ' . implode('; ', array_slice($miss, 0, 4)));
 foreach (['pl-frt-1', 'ss-palm-fidget', 'pl-bjq-4'] as $k) { $a = @getimagesize($img . 'pals/' . $k . '.png'); $b = @getimagesize($img . 'pals/perch/' . $k . '.png'); ok("$k: yard 64x64, perch 36x36", $a && $a[0] === 64 && $a[1] === 64 && $b && $b[0] === 36 && $b[1] === 36); }
 
-echo "== gnome: front Flood Boots over the tunic\n";
+echo "== gnome: Flood Boots over the tunic (front, back, side)\n";
 ok('front wboots is drawn after the tunic', GNOME25_WEAR_AFTER['front']['wboots'] === 'tunic');
-ok('back and side wboots stay after the boots (their strips have no rim yet)', GNOME25_WEAR_AFTER['back']['wboots'] === 'boots' && GNOME25_WEAR_AFTER['side']['wboots'] === 'boots');
+ok('back and side wboots are drawn after the tunic too (their strips have the rim at row 60 now)', GNOME25_WEAR_AFTER['back']['wboots'] === 'tunic' && GNOME25_WEAR_AFTER['side']['wboots'] === 'tunic');
+foreach (['back', 'side'] as $v) {   // the same check as the front below: the shafts show over the tunic legs, the head is untouched
+    $pl = imagecreatefromstring(gnome25_compose($v, [])); $bo = imagecreatefromstring(gnome25_compose($v, [], [], 'b')); $ly = imagecreatefrompng($img . "gnome25/$v-wboots.png");
+    $sh = 0; $same = true;
+    for ($x = 0; $x < 512; $x++) { for ($y = 58; $y <= 63; $y++) { $l = imagecolorat($ly, $x, $y); if ((($l >> 24) & 127) === 0 && (imagecolorat($bo, $x, $y) & 0xFFFFFF) === ($l & 0xFFFFFF) && (((imagecolorat($pl, $x, $y) >> 24) & 127) === 0)) $sh++; }
+        for ($y = 0; $y <= 50; $y++) if (imagecolorat($pl, $x, $y) !== imagecolorat($bo, $x, $y)) $same = false; }
+    ok("$v: the boot shafts show over the tunic legs (rows 58-63, all 8 frames: back 882 px, side 401; the old rimless strips gave 691 and 333)", $sh > ($v === 'back' ? 800 : 370), "$sh px");
+    ok("$v: the boots do not paint over the face or hat (rows 0-50 unchanged)", $same);
+}
 $plain = imagecreatefromstring(gnome25_compose('front', []));
 $boots = imagecreatefromstring(gnome25_compose('front', [], [], 'b'));
 $layer = imagecreatefrompng($img . 'gnome25/front-wboots.png');

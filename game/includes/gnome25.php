@@ -11,13 +11,14 @@ const GNOME25_ORDER = [['shadow', null], ['outline', null], ['boots', 'boots'], 
 /** 2.7.00 wearables on the rig: code => layer name; the art is `<view>-<layer>.png` (512 x 80, 8 frames like the other layers). A layer with no file is skipped, so nothing changes until it is drawn.
  *  b = Flood Boots (tall boots, drawn over the boots), g = Work Gloves (the hands), c = Travel Cloak, h = Wayfarer's Hat (a brim and band over the hat), p = Trail Pack, s = (the Scarf is the existing scarf layer). */
 /** 2.7.01: bump when a layer strip or the stack changes: it is part of the cache file name (gnome_sprite.php), so old composed strips under data/gnome25/ are not served again. */
-const GNOME25_ART_REV = '2701';
+const GNOME25_ART_REV = '2701b';   // 2701b: back and side Flood Boots over the tunic
 const GNOME25_WEAR = ['b' => 'wboots', 'g' => 'gloves', 'c' => 'cape', 'h' => 'brim', 'p' => 'pack'];
 /** where each wearable layer goes in the stack, per view: it is drawn right AFTER the named base layer ('' = first). The cloak and the pack sit behind the body in front view, over the tunic in back and side view.
- *  2.7.01: front Flood Boots draw over the tunic (wellies over the legs, rim at row 60, art-2701-opus/wear/MANIFEST.md); back and side stay after the boots until their strips get a rim. */
+ *  2.7.01: Flood Boots draw over the tunic in every view (wellies over the legs, rim at row 60, art-2701-opus/wear/MANIFEST.md); back and side got their rim strips after the front.
+ *  Wear codes are sorted, so in back and side the boots go down before the cloak and pack (both also after the tunic), which hang over them. */
 const GNOME25_WEAR_AFTER = ['front' => ['cape' => '', 'pack' => '', 'wboots' => 'tunic', 'gloves' => 'skin', 'brim' => 'hat'],
-    'back' => ['cape' => 'tunic', 'pack' => 'tunic', 'wboots' => 'boots', 'gloves' => 'skin', 'brim' => 'hat'],
-    'side' => ['cape' => 'tunic', 'pack' => 'tunic', 'wboots' => 'boots', 'gloves' => 'skin', 'brim' => 'hat']];
+    'back' => ['cape' => 'tunic', 'pack' => 'tunic', 'wboots' => 'tunic', 'gloves' => 'skin', 'brim' => 'hat'],
+    'side' => ['cape' => 'tunic', 'pack' => 'tunic', 'wboots' => 'tunic', 'gloves' => 'skin', 'brim' => 'hat']];
 const GNOME25_DEFAULT = [   // the colours the gnome was drawn with: hi, base, shade, deep
     'hat' => ['#ff8a5c', '#e8493b', '#b52e3f', '#6e2038'], 'tunic' => ['#b6f0e0', '#5fc4c8', '#3a86b0', '#2a4a7a'], 'scarf' => ['#ffe38a', '#f5b82e', '#d98322', '#51302b'],
     'beard' => ['#fff4d6', '#e2e0e6', '#aaa9b8', '#74758c'], 'boots' => ['#e8b982', '#b97a4a', '#864c33', '#51302b'], 'skin' => ['#ffe0bd', '#f0b98d', '#c98462', '#51302b'],
