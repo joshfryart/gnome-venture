@@ -214,6 +214,72 @@ function S.draw_figure(img, view, frame, species)
       [OV.base] = OV.shade, [OV.shade] = OV.deep, [STRAP] = HAT}
     -- far leg (shade), opposite phase, peeks in front of the near leg
     leg(41 + o.armR, 5, 58 + b, fR, farS, 1)
+    -- SHELL, seen edge-on: a thick "(" slab standing behind the spine. Its
+    -- patterned top faces left (away); we see the carapace curve with seam
+    -- notches, the marginal rim along the near side and the plastron at the bottom.
+    local ocx, ocy, orx, ory = 32.5, 41 + b, 14.2, 18.5     -- outer curve
+    local icx, icy, irx, iry = 38.5, 42 + b, 8.5, 15.5      -- inner curve (toward body)
+    local function inO(x, y) local u, v = (x - ocx) / orx, (y - ocy) / ory; return u * u + v * v <= 1 end
+    local function inI(x, y) local u, v = (x - icx) / irx, (y - icy) / iry; return u * u + v * v <= 1 end
+    local function inshell(x, y) return inO(x, y) and not inI(x, y) end
+    local shellpx = {}
+    for y = 20 + b, 62 + b do
+      -- outer edge and inner edge of this row
+      local xo, xi
+      for x = 10, 46 do if inshell(x, y) then xo = xo or x; xi = x end end
+      if xo then
+        for x = xo, xi do
+          if inshell(x, y) then
+            local v = (y - ocy) / ory
+            local k, r = x - xo, xi - x                     -- from outer edge / from inner edge
+            local c
+            if not inO(x, y + 2) and v > 0.35 then
+              c = inO(x, y + 1) and SH.deep or SH.deep       -- plastron edge underneath
+              if not inO(x, y + 1) and v < 0.8 and r > 3 then c = SH.shade end
+            elseif r <= 3 then                               -- marginal rim, lit lip
+              c = v < 0.45 and SH.hi or (v < 0.62 and SH.base or SH.shade)
+              if r == 0 then c = (v < -0.2) and SH.base or SH.shade end
+            elseif r == 4 then
+              c = SH.deep                                    -- groove above the rim
+            else                                             -- carapace curve
+              c = v < 0.3 and SH.base or (v < 0.6 and SH.shade or SH.deep)
+              if k <= 1 and v < 0.15 and x - ocx < -3 then c = SH.hi end
+              if k == 0 and v >= 0.15 then c = SH.shade end
+            end
+            P(x, y, c); shellpx[y * 64 + x] = true
+          end
+        end
+      end
+    end
+    -- rim segments: short blocks along the curve, split by deep ticks
+    for _, y in ipairs({27, 32, 37, 42, 47, 52}) do
+      local yy = y + b
+      local xi; for x = 10, 46 do if inshell(x, yy) then xi = x end end
+      if xi then P(xi - 1, yy, SH.deep); P(xi - 2, yy, SH.deep); P(xi - 3, yy, SH.shade) end
+    end
+    -- foreshortened scutes bulge 1 px past the curve between the seams
+    for _, a in ipairs({-139, -161, 177, 152}) do
+      for da = -6, 6 do
+        local ca, sa = math.cos(math.rad(a + da)), math.sin(math.rad(a + da))
+        local x = math.floor(ocx + ca * (orx + 0.9) + 0.5)
+        local y = math.floor(ocy + sa * (ory + 0.9) + 0.5)
+        if not shellpx[y * 64 + x] then
+          P(x, y, (a < -150 and SH.hi) or (a < 0 and SH.base) or (a > 170 and SH.base) or SH.shade)
+          shellpx[y * 64 + x] = true
+        end
+      end
+    end
+    -- vertebral/costal seams: notches in the outer silhouette + short ticks
+    for _, a in ipairs({-128, -150, -172, 166}) do
+      local ca, sa = math.cos(math.rad(a)), math.sin(math.rad(a))
+      local ex, ey = math.floor(ocx + ca * orx + 0.5), math.floor(ocy + sa * ory + 0.5)
+      while not inO(ex, ey) do ex = ex - math.floor(ca * 1.5 + 0.5); ey = ey - math.floor(sa * 1.5 + 0.5) end
+      P(ex, ey, 0)
+      for t = 1, 2 do
+        local tx, ty = ex - math.floor(ca * t + 0.5), ey - math.floor(sa * t + 0.5)
+        if shellpx[ty * 64 + tx] then P(tx, ty, SH.deep) end
+      end
+    end
     -- torso: rounded chest and belly; the back half is hidden by the shell
     local spans = {{31, 34, 42}, {32, 32, 44}, {33, 31, 44}, {34, 30, 45}, {42, 30, 46}, {56, 30, 45}, {58, 31, 44}, {59, nil}}
     for k = 1, #spans - 1 do
@@ -225,13 +291,13 @@ function S.draw_figure(img, view, frame, species)
     for x = 30, 46 do
       local top = x < 34 and 39 or (x < 38 and 37 or 35)
       for y = top, 58 do
-        if get(x, y + b) ~= 0 then P(x, y + b, OV.base) end
+        local c = get(x, y + b)
+        if c == SK.base or c == SK.shade then P(x, y + b, OV.base) end
       end
     end
     R(45, 36 + b, 2, 20, OV.shade); R(38, 35 + b, 8, 1, OV.shade); R(44, 56 + b, 2, 2, OV.shade)
     R(31, 57 + b, 14, 1, OV.shade); R(31, 58 + b, 14, 1, OV.deep)
     R(33, 48 + b, 6, 1, OV.shade)                      -- waist seam
-    -- strap over the shoulder to the bib corner, with a button
     -- neck: leans forward out of the collar, wrinkle ticks, jaw shadow
     for y = 23, 33 do
       local x1 = 46 - (y - 25) // 4
@@ -239,70 +305,17 @@ function S.draw_figure(img, view, frame, species)
       P(x1, y + hd, SK.shade); P(x1 - 1, y + hd, SK.shade)
     end
     P(40, 29 + hd, SK.shade); P(41, 29 + hd, SK.shade); P(41, 31 + hd, SK.shade); P(42, 31 + hd, SK.shade)
+    -- strap over the shoulder, emerging from under the shell rim, button at bib
     for k = 0, 5 do P(34 + k * 2 // 3, 30 + k + b, STRAP); P(35 + k * 2 // 3, 30 + k + b, HAT) end
     P(38, 35 + b, STRAP); P(39, 35 + b, HATHI); P(40, 35 + b, STRAP)
-    -- shell: dome carried on the back, front lip wraps around the body
-    local scx, scy, srx, sry = 25.5, 42 + b, 15.5, 18.5
-    local function rimx(y) local t = (y - b - 42) / 18; return 31 + math.floor(6 * t * t + 0.5) end
-    local function ell(x, y)
-      local u, v = (x - scx) / srx, (y - scy) / sry
-      return u, v, math.sqrt(u * u + v * v)
-    end
-    local function inside(x, y) local _, _, r = ell(x, y); return r <= 0.97 and x <= rimx(y) end
-    local radial = {-100, -148, 165, 122, 80}
-    local ticks = {-122, -170, 145, 100, 60, -78}
-    local function seam(x, y)
-      if not inside(x, y) or x >= rimx(y) - 2 then return false end
-      local u, v, r = ell(x, y)
-      if r < 0.01 then return false end
-      local px = math.sqrt((u * srx) ^ 2 + (v * sry) ^ 2) / r   -- px radius along this direction
-      if math.abs(r - 0.82) * px < 0.5 then return true end
-      if math.abs(r - 0.40) * px < 0.5 then return true end
-      local ang = math.deg(math.atan(v * sry, u * srx))
-      local list = r > 0.82 and ticks or (r > 0.40 and radial or nil)
-      if list then
-        for _, a in ipairs(list) do
-          local ca, sa = math.cos(math.rad(a)), math.sin(math.rad(a))
-          local dx, dy = x - scx, y - scy
-          if dx * ca + dy * sa > 0 and math.abs(dx * sa - dy * ca) < 0.55 then return true end
-        end
+    -- cast shadow of the shell on the back of the torso / neck (2 px)
+    for y = 24 + b, 59 + b do
+      local x = 10
+      while x < 46 and not (shellpx[y * 64 + x] and get(x, y) ~= 0 and not darker[get(x, y)]) do x = x + 1 end
+      if x < 46 then
+        while x < 46 and not darker[get(x, y)] and get(x, y) ~= 0 do x = x + 1 end
+        for dx = 0, 1 do local c = get(x + dx, y); if darker[c] then P(x + dx, y, darker[c]) end end
       end
-      return false
-    end
-    local step = {[SH.hi] = SH.base, [SH.base] = SH.shade, [SH.shade] = SH.deep, [SH.deep] = SH.deep}
-    local up = {[SH.deep] = SH.shade, [SH.shade] = SH.base, [SH.base] = SH.hi, [SH.hi] = SH.hi}
-    for y = 20 + b, 64 + b do
-      for x = 8, 40 do
-        if inside(x, y) then
-          local u, v, r = ell(x, y)
-          local lit = -0.6 * u - 0.8 * v
-          local rx = rimx(y)
-          local c
-          if x >= rx - 1 then
-            c = (v < 0.25) and SH.hi or SH.base               -- front lip (rim)
-            if x == rx and v >= 0.25 then c = SH.shade end
-          elseif x == rx - 2 then
-            c = SH.deep
-          elseif r > 0.82 then                                 -- marginal band
-            c = lit > 0.45 and SH.base or (lit > -0.1 and SH.shade or SH.deep)
-          else
-            c = lit > 0.42 and SH.hi or (lit > -0.25 and SH.base or SH.shade)
-          end
-          if seam(x, y) then c = step[c]
-          elseif r <= 0.82 and x < rx - 2 and (seam(x - 1, y) or seam(x, y - 1)) then c = up[c]
-          end
-          P(x, y, c)
-        end
-      end
-    end
-    -- highlight cluster on the upper-left plate
-    P(17, 31 + b, HAT); P(18, 31 + b, HAT); P(16, 32 + b, HAT); P(17, 32 + b, HATHI)
-    P(16, 34 + b, SH.hi)
-    -- shadow the shell lip casts on the body
-    for y = 24, 60 do
-      local x = rimx(y + b) + 1
-      local c = get(x, y + b)
-      if darker[c] then P(x, y + b, darker[c]) end
     end
     -- head
     E(35, 14 + hd, 19, 15, SK.shade)
@@ -341,7 +354,7 @@ function S.draw_figure(img, view, frame, species)
     R(38, 11 + hd, 5, 1, HATHI); R(37, 12 + hd, 2, 2, HATHI)
     R(37, 14 + hd, 12, 2, BAND)
     rows(34, 11 + hd, {"ll..", "lLl.", "..Ll"}, {l = SPRIG, L = BAND})
-    pot(22, 19 + b)
+    pot(24, 20 + b)
     N.outline(img, K)
     P(48, 10 + hd, 0); P(48, 11 + hd, K)
   end
