@@ -119,6 +119,12 @@ local function lighthouse()
       px(x, y, L.surf) if hash(x, y, 212) < .5 then px(x + (x < 240 and -1 or 1), y - 1, L.mist) end
     end
   end end
+  -- a second, heavier foam band: white breakers piling at the foot of the point
+  for x = 184, 298 do for y = 106, 116 do
+    if not head:has(x, y) and y >= 108 and (head:has(x + 2, y) or head:has(x - 2, y) or head:has(x, y + 2)) and hash(x, y, 217) < .75 then
+      px(x, y, hash(x, y, 218) < .5 and L.surf or L.mist2)
+    end
+  end end
   for i = 0, 9 do local sx = (i < 5) and (190 + i * 3) or (276 + (i - 5) * 4) local sy = 108 + floor(hash(i, 1, 213) * 6) px(sx, sy, L.surf) px(sx + 1, sy - 1, L.mist2) end
   -- naupaka scrub and beach grass on the shoulders, a tide pool on the left
   F.crown(203, 122, 6, 4, L.foliage2, 214) F.crown(279, 121, 7, 4, L.foliage2, 215) F.crown(287, 128, 4, 3, L.seagrass, 216)
@@ -258,17 +264,17 @@ local function lighthouse()
 
   -- sentry on the gallery waving, then the bamboo railing in front
   F.gnome(218, 51, { small = true, hat = L.awnA, coat = L.wall2, arm = "up", noShadow = true, flip = true })
-  local rail = rect(210, 44, 270, 45):add(rect(210, 48, 270, 48))
-  for x = 210, 270, 6 do rail:add(rect(x, 43, x + 1, 51)) end
+  local rail = rect(210, 47, 270, 48):add(rect(210, 50, 270, 50))
+  for x = 210, 270, 6 do rail:add(rect(x, 46, x + 1, 51)) end
   rimOf(rail, T)
   rail:each(function(x, y)
     local h = B.base
-    if y == 44 or y == 43 then h = B.hi elseif y == 45 or y == 48 then h = B.shade end
-    if (x - 210) % 6 <= 1 and y ~= 44 and y ~= 48 then h = ((x - 210) % 6 == 0) and B.hi or B.shade end
-    if (x - 210) % 6 == 3 and y == 44 then h = B.deep end
+    if y == 47 or y == 46 then h = B.hi elseif y == 48 or y == 50 then h = B.shade end
+    if (x - 210) % 6 <= 1 and y ~= 47 and y ~= 50 then h = ((x - 210) % 6 == 0) and B.hi or B.shade end
+    if (x - 210) % 6 == 3 and y == 47 then h = B.deep end
     px(x, y, h)
   end)
-  for x = 210, 270, 12 do px(x + 2, 46, L.rope.base) px(x + 2, 47, L.rope.shade) end -- lashings
+  for x = 210, 270, 12 do px(x + 2, 49, L.rope.base) px(x + 2, 51, L.rope.shade) end -- lashings
   -- pennant pole at the right end of the gallery, a palm on the flag
   local pole = rect(267, 18, 268, 51)
   rimOf(pole, T) bambooPole(pole) px(267, 17, L.gold.hi)
@@ -537,6 +543,10 @@ F.depth(2)
 F.shadow(346, 382, 176, 6, 3)
 for k = 0, 2 do F.frond(372 + k * 3, 176, -1.75 - k * .3, 20, .15, L.needle, 700 + k, { wide = .22 }) end
 for row = 0, 2 do for k = 0, 3 - row do F.coconut(350 + k * 7 + row * 3, 172 - row * 5, 3) end end
+for row = 0, 2 do for k = 0, 3 - row do
+  local hx, hy = 350 + k * 7 + row * 3, 172 - row * 5
+  px(hx - 3, hy - 3, L.needle.hi) px(hx - 4, hy - 2, L.needle.base) px(hx + 2, hy - 4, L.needle.hi) px(hx + 3, hy - 3, L.needle.base) px(hx - 1, hy - 4, L.needle.hi) px(hx - 2, hy, L.needle.hi) px(hx - 1, hy + 1, L.needle.base)
+end end
 grass(346, 177, 5) grass(380, 177, 4)
 local stp2 = rect(388, 170, 396, 176) local stt2 = c:ellipse(392, 170, 4, 2)
 rimOf(union(stp2, stt2), T) part(stp2, T, { nopop = true }) fill(stt2, B.base) px(392, 170, B.shade) px(390, 169, B.hi)

@@ -91,9 +91,9 @@ do -- A-frame thatch canoe house with an outrigger nose showing
   -- dark open gable with the canoe inside
   fill(front, L.soil.deep)
   front:edge():each(function(x, y) px(x, y, L.timber.base) end)
-  local hull = poly{ { 258, 125 }, { 278, 125 }, { 284, 121 }, { 280, 127 }, { 260, 127 } }
-  fill(hull, L.timber.hi) hline(259, 279, 125, L.awnA.base) px(283, 121, L.timber.hi) px(284, 120, L.timber.base)
-  hline(262, 276, 127, L.timber.shade)
+  local hull = poly{ { 257, 122 }, { 279, 122 }, { 285, 117 }, { 282, 127 }, { 259, 127 } }
+  fill(hull, L.wall2.base) hline(258, 280, 122, L.wall2.hi) hline(258, 280, 124, L.awnA.base) hline(259, 281, 125, L.awnA.shade) px(283, 118, L.wall2.hi) px(284, 117, L.wall2.base)
+  hline(261, 278, 127, L.wall2.shade) vline(268, 119, 121, L.timber.hi) vline(272, 119, 121, L.timber.hi)
   -- a fishing net drying on the right slope, floats along it
   local nm = poly{ { 284, 112 }, { 292, 122 }, { 288, 127 }, { 281, 117 } }
   F.net(nm, L.rope)
@@ -301,7 +301,7 @@ local function inn()
   end
   -- a gnome at the left window, leaning on the sill with a coconut
   F.sprite({ "...rr..", "..rrr..", ".rrrrr.", "rrrrrrr", ".sssss.", ".sksks.", ".bbbbb.", "..bbb.." }, 33, 118,
-    { r = L.leaf.base, s = L.skin.base, k = L.timber.edge, b = L.awnB.hi }, { rim = false })
+    { r = L.awnA.base, s = L.skin.base, k = L.timber.edge, b = L.awnB.hi })
   nutDrink(38, 129, true)
   -- the door: a shell-bead curtain in a glowing doorway, a carved fish board over it
   local door = rect(98, 113, 116, FL - 5)
@@ -520,8 +520,8 @@ do
   hline(203, 217, by - 10, L.awnA.deep) hline(204, 216, by - 11, L.awnA.shade)
   -- the dangling arm holding a banana peel
   fill(rect(220, by + 7, 222, by + 8), L.skin.shade)
-  F.sprite({ "y.y.y", "yyyyy", ".yyy.", "..g.." }, 219, by + 9, { y = L.gold.base, g = L.foliage.shade })
-  px(219, by + 9, L.gold.hi) px(223, by + 9, L.gold.shade)
+  F.sprite({ "yy..yy.", "yyyyyyy", ".yyyyy.", "..yyy..", "...g..." }, 218, by + 9, { y = L.gold.hi, g = L.foliage.shade })
+  hline(219, 223, by + 10, L.gold.base) px(224, by + 9, L.gold.shade) px(219, by + 12, L.gold.deep) px(221, by + 12, L.gold.deep)
   local function zed(x, y, s)
     for i = 0, s do px(x + i, y, L.awnB.hi) px(x + i, y + s, L.awnB.hi) px(x + s - i, y + i, L.awnB.hi) end
   end
@@ -685,8 +685,9 @@ do -- fish grill under a little palm-thatch lean-to by the stair
   for k = 0, 2 do
     local fx = 154 + k * 8
     local fr = k == 1 and L.coral or L.iron
-    F.sprite({ "t..sss.", "ttssssk", "t..sss." }, fx - 1, 197, { s = fr.hi, k = L.timber.edge, t = fr.shade })
-    px(fx + 2, 197, fr.base) px(fx + 3, 199, fr.base) px(fx + 4, 198, L.produce.deep) px(fx + 2, 198, L.produce.deep) -- grill marks
+    fr = k == 1 and L.produce or L.awnB
+    F.sprite({ "t...ss..", "ttsssssk", "ttsssssk", "t...ss.." }, fx - 1, 196, { s = fr.hi, k = L.timber.edge, t = fr.shade })
+    px(fx + 2, 197, fr.base) px(fx + 3, 199, fr.base) px(fx + 4, 198, L.apple.deep) px(fx + 2, 198, L.apple.deep) px(fx + 5, 197, fr.base) -- grill marks
   end
   F.smoke(166, 192, 5, -.5, 2)
   -- coconut husks for fuel, piled at the side, and a pair of tongs

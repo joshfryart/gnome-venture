@@ -39,13 +39,13 @@ for y = 114, 160 do
   local hgt = y1 - y0 + 1
   local ginger = row % 3 == 1
   local R = ginger and L.foliage2 or LG
-  local farC = F.mix(R.base, HAZE, .4)
+  local farC = F.mix(R.base, HAZE, .15)
   for x = 262, 479 do
     if x > F.xr(y) + 6 then
       local h
       if hgt < 3 then
-        h = (y % 2 == 0) and F.mix(R.shade, HAZE, .35) or farC
-        if hash(x // 4, y, 3) < .15 then h = F.mix(ginger and GIN.base or R.hi, HAZE, .35) end
+        h = (y % 2 == 0) and F.mix(R.deep, HAZE, .1) or farC
+        if hash(x // 4, y, 3) < .15 then h = F.mix(ginger and GIN.base or R.hi, HAZE, .1) end
       else
         local bw0 = math.max(5, floor(hgt * 1.6))
         local xx = x + row * 3
@@ -59,6 +59,9 @@ for y = 114, 160 do
         if y < ty then
           h = (ry < .2) and L.mossGround.deep or L.ground.shade
           if hash(x, y, 12) < .15 then h = L.ground.deep end
+          if not ginger and hgt > 3 and y >= ty - 3 then
+            if y == ty - 1 and xx % 3 == 0 then h = LG.hi elseif y == ty - 2 and xx % 6 == 0 then h = LG.base elseif y == ty - 1 and xx % 3 == 1 and fx < .6 then h = LG.shade end
+          end
           if ginger and y == ty - 1 and hgt > 3 and hash(bi, row, 19) < .55 and xx == bi * bw0 + floor((.3 + .4 * hash(bi, row, 23)) * bw0) then h = GIN.hi end
         elseif y == y1 then h = L.soil.shade
         elseif ginger then
@@ -77,8 +80,8 @@ for y = 114, 160 do
           -- lemongrass: fountain of thin blades, pale tips, darker vertical blade lines, red-brown base stalks
           local blade = (xx + floor(ry * 3 * (fx - .5) * 2)) % 2 == 0
           if y == ty then h = fx < .55 and LG.hi or LG.base
-          elseif ry < .45 then h = blade and (fx < .5 and LG.hi or LG.base) or (fx < .6 and LG.base or LG.shade)
-          elseif ry < .8 then h = blade and LG.base or LG.shade
+          elseif ry < .45 then h = blade and (fx < .5 and LG.hi or LG.base) or LG.shade
+          elseif ry < .8 then h = blade and LG.base or LG.deep
           else h = (xx % 2 == 0) and L.roof2.shade or LG.deep end
           if fx > .78 and ry > .2 then h = LG.shade end
           if v > .95 and ry < .7 then h = L.roof.base end -- dry blades
@@ -173,6 +176,13 @@ local function shadeHouse(x0, x1, yb)
     px(x - 2, top + 9, col.base) px(x - 3, top + 9, col.hi) px(x - 2, top + 10, col.shade) px(x + 1, top + 10, col.base) px(x + 2, top + 11, col.shade) px(x + 1, top + 11, L.leaf.base)
     px(x - 1, top + 8, L.leaf.shade) px(x, top + 8, L.leaf.base)
   end
+  -- split-bamboo slat walls: closely set bamboo with narrow dark gaps (a shade house, not a glasshouse)
+  wall:each(function(x, y)
+    if y > top + 1 and y < yb - 4 then
+      local k = (x - x0) % 3
+      if k == 0 then px(x, y, L.board.hi) elseif k == 1 then px(x, y, L.board.base) elseif y % 5 == 0 then px(x, y, L.board.shade) end
+    end
+  end)
   -- lava-block sill
   part(sill, L.lava) F.courses(sill, yb - 4, 2, 6, L.lava)
   -- bamboo posts and rails
@@ -184,7 +194,7 @@ local function shadeHouse(x0, x1, yb)
   -- slatted roof: strips of dried palm leaf with sky-bright gaps
   roofm:each(function(x, y)
     local k = (x - cx + (y * 2)) % 5
-    if k <= 2 then px(x, y, (k == 0) and L.roof.hi or L.roof.base) elseif k == 3 then px(x, y, L.roof.shade) else px(x, y, L.foliage2.deep) end
+    if k <= 2 then px(x, y, (k == 0) and L.roof.hi or L.roof.base) elseif k == 3 then px(x, y, L.roof.shade) else px(x, y, L.roof.deep) end
   end)
   line({ { x0 - 2, top + 1 }, { cx, top - rh } }):each(function(x, y) px(x, y, L.board.hi) end)
   line({ { cx, top - rh }, { x1 + 2, top + 1 } }):each(function(x, y) px(x, y, L.board.deep) end)

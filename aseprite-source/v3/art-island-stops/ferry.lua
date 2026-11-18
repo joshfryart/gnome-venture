@@ -469,12 +469,12 @@ do
   basket(RX1 - 29, RY0 - 1, RX1 - 18, RY0 + 6, L.roof)
   for k = 0, 3 do local mx = RX1 - 27 + k * 3 F.coconut(mx, RY0 - 2 - (k % 2), 1, false) px(mx, RY0 - 2 - (k % 2), k % 2 == 0 and L.produce.base or L.gold.base) px(mx - 1, RY0 - 3 - (k % 2), L.produce.hi) end
   -- the mast with a pulley block riding the guide rope
-  local MX = RX1 - 33
-  local mast = rect(MX, ropeY(MX) + 3, MX + 1, RY0 + 4)
+  local MX = RX1 - 3
+  local mast = rect(MX, ropeY(MX) + 3, MX + 1, RY0 + 6)
   local block = c:rrect(MX - 2, ropeY(MX) - 1, MX + 3, ropeY(MX) + 4, 1)
   rimOf(union(mast, block), L.timber)
   part(mast, L.board, { nopop = true, noshade = true })
-  for y = ropeY(MX) + 6, RY0 + 2, 5 do px(MX, y, L.board.deep) px(MX + 1, y, L.board.deep) end
+  for y = ropeY(MX) + 6, RY0 + 4, 4 do px(MX, y, L.board.deep) px(MX + 1, y, L.board.deep) end
   part(block, L.timber, { nopop = true }) px(MX, ropeY(MX) + 1, L.iron.hi) px(MX + 1, ropeY(MX) + 2, L.iron.base)
   -- the guide rope: 2 px laid rope across the channel, sagging a little, through the block
   local pts = {}
@@ -640,10 +640,10 @@ seaTurtle(150, 140, 2, true)
 seaTurtle(166, 145, 1, true) seaTurtle(176, 142, 1, true) seaTurtle(186, 147, 1, true)
 do -- a spotted eagle ray gliding under the surface
   local rx, ry = 130, 157
-  local ray = poly{ { rx - 9, ry }, { rx, ry - 3 }, { rx + 9, ry }, { rx, ry + 3 } }
-  ray:each(function(x, y) if river:has(x, y) then px(x, y, mix(L.lava.shade, waterCol(x, y), .45)) end end)
-  ray:each(function(x, y) if river:has(x, y) and (x * 3 + y) % 7 == 0 then px(x, y, mix(L.shell.hi, waterCol(x, y), .5)) end end)
-  for k = 1, 8 do px(rx - k, ry + 3 + k // 3, mix(L.lava.shade, waterCol(rx - k, ry + 3), .55)) end
+  local ray = poly{ { rx - 13, ry }, { rx - 2, ry - 4 }, { rx + 13, ry }, { rx - 2, ry + 4 } }
+  ray:each(function(x, y) if river:has(x, y) then px(x, y, mix(L.lava.deep, waterCol(x, y), .2)) end end)
+  ray:each(function(x, y) if river:has(x, y) and (x * 3 + y) % 7 == 0 then px(x, y, mix(L.shell.hi, waterCol(x, y), .15)) end end)
+  for k = 1, 11 do px(rx - 12 - k, ry + k // 4, mix(L.lava.deep, waterCol(rx - k, ry + 3), .35)) end
 end
 for _, f in ipairs({ { 352, 172, L.gold }, { 356, 174, L.gold }, { 210, 150, L.accent }, { 400, 168, L.hibiscus }, { 60, 170, L.gold }, { 430, 172, L.accent }, { 100, 172, L.hibiscus } }) do
   if river:has(f[1], f[2]) then px(f[1], f[2], f[3].base) px(f[1] + 1, f[2], f[3].hi) px(f[1] - 1, f[2], f[3].shade) px(f[1] - 2, f[2] - 1, f[3].shade) px(f[1] - 2, f[2] + 1, f[3].shade) end
@@ -654,7 +654,7 @@ hline(357, 363, 170, S.hi) hline(341, 347, 178, S.hi)
 F.coconut(388, 164, 2) hline(385, 391, 167, S.hi)
 do -- a small outrigger canoe moored to a stake
   local y = 179
-  F.outrigger(424, 468, y, { side = -1, stripe = L.wall2, hull = L.timber })
+  F.outrigger(424, 468, y, { side = -1, stripe = L.awnA, hull = L.wall2 })
   for k = 0, 2 do hline(424 + k * 2, 466 - k * 2, y + 3 + k * 2, S.deep) end
   local st = rect(410, y - 12, 412, y + 6) rimOf(st, L.timber) part(st, L.timber, { nopop = true, noshade = true })
   fill(line({ { 412, y - 8 }, { 422, y - 3 } }), L.rope.shade)
@@ -730,7 +730,7 @@ do
   F.crab(450, 224, L.awnA) F.shell(446, 228, "conch", true)
 end
 -- a blue-footed booby stretching its neck at the gnome's fish
-F.sprite({
+local bb = {
   "..........WW..",
   ".........WWkoo",
   "..........WW..",
@@ -744,7 +744,14 @@ F.sprite({
   "...ss.WV......",
   "....f..f......",
   "...ff.ff......",
-}, 336, 234, { W = L.awnB.hi, V = L.awnB.shade, w = L.timber.base, s = L.timber.shade, k = L.timber.edge, o = "#7e9ab8", f = "#4aa8e0" })
+}
+local bb2 = {}
+for _, row in ipairs(bb) do
+  local r2 = ""
+  for i = 1, #row do r2 = r2 .. row:sub(i, i):rep(2) end
+  bb2[#bb2 + 1] = r2 bb2[#bb2 + 1] = r2
+end
+F.sprite(bb2, 326, 240, { W = L.awnB.hi, V = L.awnB.shade, w = L.timber.base, s = L.timber.shade, k = L.timber.edge, o = "#7e9ab8", f = "#4aa8e0" })
 F.crab(204, 252, L.hibiscus, true)
 F.shell(186, 246, "conch", true)
 

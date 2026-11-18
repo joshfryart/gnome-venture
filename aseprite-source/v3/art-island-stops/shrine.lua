@@ -270,7 +270,7 @@ local function banyan()
   end
   table.sort(cl, function(a, b) return a[2] < b[2] end)
   for i, k in ipairs(cl) do
-    local ramp = (k[2] < 68 or (k[1] < 400 and k[2] < 80)) and L.foliage or L.foliage2
+    local ramp = (k[2] < 62 or (k[1] < 392 and k[2] < 74)) and L.foliage or L.foliage2
     F.crown(floor(k[1]), floor(k[2]), floor(k[3]), floor(k[3] * .62), ramp, 310 + i)
   end
   -- roped trunk with a lei
@@ -411,11 +411,11 @@ local function basin()
   rimOf(clam, L.shell)
   clam:each(function(x, y)
     local a = math.atan(y - 204, x - 140)
-    local rib = floor((a + pi) * 14) % 2
-    local hcol = rib == 0 and L.shell.base or L.shell.shade
+    local rib = floor((a + pi) * 8) % 2
+    local hcol = rib == 0 and L.stone.hi or L.stone.shade
     if x < 128 and rib == 0 then hcol = L.shell.hi end
-    if x > 158 and rib == 1 then hcol = L.shell.deep end
-    if y > 195 then hcol = rib == 0 and L.shell.shade or L.shell.deep end
+    if x > 158 and rib == 1 then hcol = L.stone.deep end
+    if y > 195 then hcol = rib == 0 and L.stone.shade or L.stone.deep end
     px(x, y, hcol)
   end)
   -- the scalloped lip
@@ -505,7 +505,7 @@ local function stoneTurtle(x, yb, flip, bare)
     local off = v < 4 and 0 or 2
     local h
     if v == 4 or (u + off) % 5 == 0 then h = LAVA.deep
-    elseif v == 1 or v == 5 or (u + off) % 5 == 1 then h = (xx - x) * s < 3 and LAVA.hi or LAVA.base
+    elseif v == 1 or v == 5 or (u + off) % 5 == 1 then h = (xx - x) * s < 3 and L.stone.shade or LAVA.hi
     elseif (xx - x) * s > 4 or v > 5 then h = LAVA.shade end
     if h then px(xx, y, h) end
   end)
@@ -560,7 +560,7 @@ do
   for x = 54, 67, 3 do px(x, 203, L.glow.base) px(x + 1, 203, L.produce.base) end
   px(60, 202, L.glow.hi) px(61, 201, L.glow.base)
   hline(50, 71, 208, LAVA.edge) for x = 53, 68, 3 do px(x, 211, LAVA.hi) end
-  F.smoke(61, 199, 7, -.3, 2)
+  F.smoke(61, 201, 7, -.3, 2)
   cairn(38, 222, 6)
   F.flower(46, 218, "hibiscus", true) F.flower(74, 219, "plumeria", true)
 end

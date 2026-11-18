@@ -34,7 +34,7 @@ local WEAVE = L.rope
 -- mango new-leaf flush: bronze-pink sprays along the top lip of a crown
 local function flush(m, seed, k)
   m:each(function(x, y)
-    if not m:has(x, y - 2) and m:has(x, y + 2) and hash(x // 2, y, seed) < (k or .3) then
+    if not m:has(x, y - 2) and m:has(x, y + 2) and hash(x // 2, y, seed) < (k or .3) * 1.6 then
       px(x, y, hash(x, y, seed + 1) < .5 and MLF2.base or MLF2.hi)
       if m:has(x, y + 1) then px(x, y + 1, MLF2.shade) end
     end
@@ -267,7 +267,7 @@ end
 oldTree()
 table.sort(rows, function(a, b) return a[2] < b[2] end)
 for i, r in ipairs(rows) do
-  F.depth(r[2] < 140 and 1 or (r[2] < 170 and 2 or 3))
+  F.depth(r[2] < 128 and 1 or (r[2] < 170 and 2 or 3))
   local x = floor(r[1])
   if x > 0 and x < 480 and not (x > 370 and r[2] > 175) then
     if i % 5 == 3 and x > 20 and x < 460 then
@@ -416,6 +416,9 @@ for _, cx in ipairs({ 156, 112 }) do
 end
 F.barrel(196, 250, L.timber, 14)
 hline(192, 200, 239, JUICE.base) -- juice stain round the bung
+-- painted turquoise band and a bright lid ring so the barrel reads against the road
+hline(191, 201, 244, L.wall2.base) hline(191, 201, 245, L.wall2.hi) hline(191, 201, 246, L.wall2.shade)
+hline(193, 199, 238, L.timber.hi) px(197, 241, JUICE.hi) px(197, 242, JUICE.base)
 basket(186, 264, 7, 6, MANGO)
 
 ---------------------------------------------------------------- right hero: picker on a bamboo ladder at a big front mango tree

@@ -387,8 +387,8 @@ local function hall()
   line({ { cx + 6, top - 40 }, { cx - 4, top - 32 } }, 1):each(function(x, y) px(x, y, L.timber.shade) end)
   F.sprite({ "k.........k", "kk.......kk", ".kkk...kkk.", "...kkkkk...", ".....k....." }, cx - 5, top - 46, { k = L.timber.shade })
   -- a net draped over the gable as a sun screen
-  local gnet = poly{ { cx - 22, top - 10 }, { cx + 18, top - 10 }, { cx + 14, top - 2 }, { cx - 18, top - 2 } }:clip(gab)
-  F.net(gnet, L.rope, { floats = true })
+  local gnet = poly{ { cx - 28, top - 22 }, { cx + 24, top - 22 }, { cx + 15, top - 2 }, { cx - 19, top - 2 } }:clip(gab)
+  F.net(gnet, { base = L.shell.hi, shade = L.stone.shade }, { floats = true })
   -- window with turquoise shutters, left of the doorway
   F.window(306, 172, 313, 182, L.timber)
   local sl, sr = rect(300, 171, 304, 183), rect(315, 171, 319, 183)

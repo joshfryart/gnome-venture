@@ -154,6 +154,7 @@ end
 ---------------------------------------------------------------- far quirks (plane 1): coconut scarecrow + giant pineapple barrow
 F.depth(1)
 F.tree(196, 118, 28, 3, false)
+F.depth(2)
 local function scarecrow()
   local t = L.timber
   local post = rect(108, 72, 109, 112):add(rect(100, 81, 117, 82))
@@ -607,6 +608,13 @@ local function well()
   -- beach grass at the drum foot, shells set in the mortar
   for _, f in ipairs({ { 98, 208, 7 }, { 106, 210, 5 }, { 188, 208, 6 } }) do F.fern(f[1], f[2], f[3], L.mossGround) end
   for i = 0, 10 do local x, y = 99 + floor(hash(i, 1, 41) * 86), 168 + floor(hash(i, 2, 41) * 34) F.shell(x, y, i % 3 == 0 and "scallop" or "cowrie") end
+  -- an inlaid mosaic band of shell and sea-glass on the drum, a coral wreath at the foot
+  for x = 101, 185, 6 do
+    local k = (x // 6) % 3
+    px(x, 186, k == 0 and L.petal.base or (k == 1 and L.wall2.base or L.awnA.base)) px(x - 1, 187, L.shell.hi) px(x + 1, 187, L.shell.hi) px(x, 187, k == 0 and L.petal.shade or (k == 1 and L.wall2.shade or L.awnA.shade)) px(x, 188, k == 0 and L.petal.hi or (k == 1 and L.wall2.hi or L.awnA.hi))
+  end
+  hline(98, 190, 185, L.lava.shade)
+  F.coral(114, 207, 6, L.coral) F.coral(170, 207, 5, L.coral)
   c:sparkle(176, 160)
 end
 well()
@@ -826,7 +834,7 @@ local function canoe()
   fishSide(96, 237, L.accent, false)
   fishSide(76, 238, L.iron, true)
   for _, l in ipairs({ { 89, 238 }, { 108, 242 } }) do px(l[1], l[2], lime.hi) px(l[1] + 1, l[2], lime.base) px(l[1], l[2] + 1, lime.shade) px(l[1] + 1, l[2] + 1, L.awnB.hi) end
-  F.outrigger(66, 114, 248, { side = 1, stripe = L.awnA, hull = L.timber })
+  F.outrigger(66, 114, 248, { side = 1, stripe = L.awnA, hull = L.wall2 })
   -- a paddle leaning, a chalked slate: FISH, a bucket of ice
   line({ { 112, 230 }, { 118, 254 } }):each(function(x, y) px(x, y, L.board.shade) end)
   local blade = poly{ { 116, 248 }, { 120, 248 }, { 120, 257 }, { 118, 259 }, { 116, 257 } } rimOf(blade, L.timber) part(blade, L.board, { nopop = true }) px(118, 252, L.awnA.base)
@@ -870,6 +878,10 @@ pineBed()
 ---------------------------------------------------------------- near beach grass, flowers, shells, sky life
 for _, f in ipairs({ { 112, 262, 7 }, { 192, 262, 8 }, { 200, 250, 6 }, { 290, 260, 7 }, { 376, 226, 6 }, { 196, 226, 6 } }) do F.fern(f[1], f[2], f[3], (f[1] % 2 == 0) and L.mossGround or nil) end
 F.hibiscus(204, 266, 7, 10, 93)
+F.fern(172, 232, 6, L.mossGround) F.fern(186, 242, 5, L.mossGround) F.fern(288, 222, 5, L.mossGround)
+F.shell(160, 224, "scallop", true) F.shell(180, 250, "conch") F.shell(150, 246, "cowrie") F.shell(300, 214, "cowrie")
+F.flower(166, 240, "plumeria", true) F.flower(284, 232, "hibiscus", true) F.flower(156, 232, "white", true)
+F.coral(194, 226, 4, L.shell)
 F.shell(208, 238, "conch", true) F.shell(292, 236, "scallop", true) F.shell(196, 256, "cowrie")
 F.flower(286, 250, "plumeria") F.flower(196, 244, "orange", true)
 F.crab(214, 252, L.hibiscus, true)

@@ -369,6 +369,7 @@ do
     px(x, y, h)
   end)
   toes:each(function(x, y) px(x, y, gk.hi) end)
+  tail:each(function(x, y) if x > 419 and (x + y) % 3 == 0 then px(x, y, L.gold.hi) elseif x > 419 and (x + y) % 3 == 1 then px(x, y, gk.hi) end end)
   -- pale throat and belly
   for x = 395, 417 do local y = (x < 405) and 193 or 195 if gm:has(x, y) and gm:has(x, y + 1) then px(x, y, L.gold.hi) end end
   hline(394, 397, 193, gk.deep) -- the smile
@@ -740,7 +741,14 @@ do -- a gnome hauling a little water cart: a barrel on two wheels, slopping over
   F.gnome(x, yb, { hat = L.roof2, coat = L.board, arm = "out" })
 end
 -- a sacred kingfisher on the bridge rail: teal back, cream front, long dark bill
-F.sprite({ "..TT...", ".TTTk..", "bbTeTT.", ".cTTTT.", ".ccTTt.", "..cct..", "..l.l.." }, floor(F.xr(230)) + 1, 205,
+local kf = { "..TT...", ".TTTk..", "bbTeTT.", ".cTTTT.", ".ccTTt.", "..cct..", "..l.l.." }
+local kf2 = {}
+for _, row in ipairs(kf) do
+  local r2 = ""
+  for i = 1, #row do r2 = r2 .. row:sub(i, i):rep(2) end
+  kf2[#kf2 + 1] = r2 kf2[#kf2 + 1] = r2
+end
+F.sprite(kf2, floor(F.xr(230)) - 6, 195,
   { T = L.accent.base, k = L.accent.hi, b = L.timber.edge, e = L.timber.edge, c = L.awnB.hi, t = L.accent.deep, l = L.timber.deep })
 -- a lory perched on the basalt above the fall, and a white tern pair over the rocks
 F.parrot(412, 104, "lory", true)
@@ -750,6 +758,23 @@ for _, d in ipairs({ { 296, 226 }, { 228, 236 }, { 120, 236 } }) do
   vline(x, y - 1, y + 4, L.awnA.shade) px(x, y - 1, L.awnA.hi)
 end
 
+-- salt-crust and sand blown up the foot of the black rock so it sits on the sand rather than against it
+do
+  local bases = { bas.shade, bas.deep, bas.base }
+  for y = 176, 214 do for x = 438, 474 do
+    if rockM:has(x, y) then
+      local v = c:get(x, y)
+      for _, b in ipairs(bases) do
+        if v == b and hash(x, y, 311) < (y - 170) / 90 then px(x, y, F.mix(v, "#e8d6b0", .3 + (y - 176) / 90)) break end
+      end
+    end
+  end end
+end
+-- shells, tufts and a little driftwood on the plain sand left of the well and road
+F.shell(62, 196, "conch", true) F.shell(120, 210, "scallop", true) F.shell(88, 214, "cowrie") F.shell(156, 200, "cowrie")
+F.fern(48, 214, 5, L.mossGround) F.fern(104, 202, 4, L.mossGround) F.fern(188, 212, 4, L.mossGround)
+F.flower(76, 206, "plumeria", true) F.flower(140, 214, "hibiscus", true) F.flower(34, 200, "white", true)
+F.coral(70, 212, 4, L.coral)
 F.depth(0)
 F.birds({ { 330, 44, 2 }, { 340, 50, 1 }, { 168, 64, 2 }, { 186, 58, 2 }, { 236, 70, 1 } })
 for _, t in ipairs({ { 402, 74 }, { 416, 80 } }) do -- white fairy terns

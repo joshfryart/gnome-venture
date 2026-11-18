@@ -153,11 +153,11 @@ do
     end
   end)
   local n = 0
-  for a = -1.95, 1.15, .14 do
+  for a = -1.95, 1.15, .085 do
     n = n + 1
     local sx, sy = floor(cx0 + rx * cos(a) + .5), floor(cy0 + ry * sin(a) + .5)
-    if lake:has(sx, sy) and n % 5 ~= 0 then
-      local w = 2 + floor(hash(n, 1, 44) * 2)
+    if lake:has(sx, sy) and n % 17 ~= 0 then
+      local w = 3 + floor(hash(n, 1, 44) * 2)
       local st = c:ellipse(sx, sy, w, 1)
       -- foam lace on the seaward side and a ripple on the pond side
       for k = -w - 1, w + 1 do if lake:has(sx + k + 1, sy + 2) and hash(n, k, 45) < .7 then px(sx + k + 1, sy + 2, L.surf) end end
@@ -545,8 +545,8 @@ for k = 0, 4 do local fx = 162 + k * 4 local r = ({ L.accent, glassB, L.hibiscus
 -- leaf-bladed paddles leaning on the net post
 for k, ox in ipairs({ -2, 6 }) do
   fill(line({ { 194 + ox, 228 }, { 186 + ox, 176 } }, 1), L.timber.base)
-  local blade = poly{ { 185 + ox, 160 }, { 187 + ox, 166 }, { 187 + ox, 174 }, { 185 + ox, 179 }, { 184 + ox, 174 }, { 184 + ox, 166 } }
-  c:rim(blade, koa.edge) part(blade, L.timber, { nopop = true }) vline(184 + ox, 165, 174, L.timber.hi) vline(187 + ox, 165, 174, L.timber.shade)
+  local blade = poly{ { 184 + ox, 158 }, { 188 + ox, 165 }, { 188 + ox, 174 }, { 185 + ox, 180 }, { 183 + ox, 174 }, { 183 + ox, 165 } }
+  c:rim(blade, koa.edge) part(blade, k == 1 and L.wall2 or L.timber, { nopop = true }) vline(184 + ox, 164, 174, k == 1 and L.wall2.hi or L.timber.hi) vline(188 + ox, 165, 174, k == 1 and L.wall2.shade or L.timber.shade)
   if k == 1 then hline(183 + ox, 188 + ox, 170, L.awnA.base) hline(183 + ox, 188 + ox, 171, L.awnA.shade) end
 end
 -- a calico cat sitting by the basket, eyeing the fish
@@ -604,23 +604,23 @@ local function trap(x, yb, len, flip)
   local mouth = c:ellipse(x, yb - 5, 3, 5)
   local body = poly{ { x, yb - 10 }, { x + len * s, yb - 6 }, { x + len * s, yb - 4 }, { x, yb } }
   local all = union(mouth, body)
-  rimOf(all, L.rope)
+  rimOf(all, L.timber)
   body:each(function(xx, yy)
-    local h = ((xx + yy) % 2 == 0) and L.rope.base or L.rope.shade
-    if yy < yb - 7 then h = ((xx + yy) % 2 == 0) and L.rope.hi or L.rope.base end
-    if (xx - x) % 4 == 0 then h = L.rope.deep end
+    local h = ((xx + yy) % 2 == 0) and L.timber.base or L.timber.shade
+    if yy < yb - 7 then h = ((xx + yy) % 2 == 0) and L.timber.hi or L.timber.base end
+    if (xx - x) % 4 == 0 then h = L.timber.deep end
     px(xx, yy, h)
   end)
-  mouth:each(function(xx, yy) px(xx, yy, (xx - x) * s < 0 and L.rope.hi or L.rope.base) end)
-  fill(c:ellipse(x, yb - 5, 2, 4), L.rope.deep) fill(c:ellipse(x, yb - 5, 1, 2), L.soil.deep)
+  mouth:each(function(xx, yy) px(xx, yy, (xx - x) * s < 0 and L.timber.hi or L.timber.base) end)
+  fill(c:ellipse(x, yb - 5, 2, 4), L.timber.deep) fill(c:ellipse(x, yb - 5, 1, 2), L.soil.deep)
 end
 trap(148, 266, 16) trap(186, 258, 12, true)
 do -- one standing on its end
   local m = poly{ { 162, 252 }, { 174, 252 }, { 170, 238 }, { 166, 238 } }
-  rimOf(m, L.rope) part(m, L.rope, { nopop = true })
-  m:each(function(x, y) if (252 - y) % 3 == 0 then px(x, y, L.rope.deep) elseif (x + y) % 2 == 0 then px(x, y, L.rope.shade) end end)
-  vline(164, 241, 250, L.rope.hi)
-  hline(166, 170, 237, L.rope.base)
+  rimOf(m, L.timber) part(m, L.rope, { nopop = true })
+  m:each(function(x, y) if (252 - y) % 3 == 0 then px(x, y, L.timber.deep) elseif (x + y) % 2 == 0 then px(x, y, L.timber.shade) end end)
+  vline(164, 241, 250, L.timber.hi)
+  hline(166, 170, 237, L.timber.base)
 end
 F.crab(140, 262, L.awnA, true)
 F.shell(206, 258, "conch", true) F.shell(196, 266, "scallop", true) F.shell(14, 226, "cowrie")

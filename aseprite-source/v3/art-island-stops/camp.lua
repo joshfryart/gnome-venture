@@ -240,8 +240,8 @@ end
 
 ---------------------------------------------------------------- back right: an outrigger canoe on driftwood chocks, paddles in the sand
 F.depth(2)
-for _, x in ipairs({ 418, 444 }) do local ch = rect(x, 153, x + 5, 157) rimOf(ch, L.timber) part(ch, L.timber, { nopop = true }) end
-canoe(404, 462, 156, { side = -1, stripe = L.awnA })
+for _, x in ipairs({ 428, 446 }) do local ch = rect(x, 147, x + 5, 151) rimOf(ch, L.timber) part(ch, L.timber, { nopop = true }) end
+canoe(416, 458, 150, { side = -1, stripe = L.awnA })
 for _, p in ipairs({ { 466, 156, L.wall2 }, { 472, 158, L.awnA } }) do
   local pm = line({ { p[1], p[2] - 26 }, { p[1] + 1, p[2] - 8 } }, 1):add(c:rrect(p[1] - 2, p[2] - 9, p[1] + 3, p[2], 2))
   rimOf(pm, L.timber) part(pm, L.board, { nopop = true, noshade = true }) fill(c:rrect(p[1] - 1, p[2] - 8, p[1] + 2, p[2] - 1, 1), p[3].base) px(p[1] - 1, p[2] - 8, p[3].hi)
@@ -458,8 +458,8 @@ end
 campfire(132, 214)
 -- the ukulele player on the back seat
 local _, lx, ly = F.gnome(104, 191, { hat = L.leaf, coat = L.hibiscus, arm = "hold", noShadow = true })
-local uke = c:ellipse(lx + 2, ly, 3, 2):add(c:ellipse(lx + 5, ly - 1, 2, 2)):add(line({ { lx + 6, ly - 2 }, { lx + 12, ly - 6 } }, 1))
-rimOf(uke, L.timber) part(uke, L.board, { nopop = true }) fill(c:ellipse(lx + 3, ly, 1, 1), L.timber.edge) px(lx + 12, ly - 7, L.timber.base) px(lx + 13, ly - 7, L.timber.base)
+local uke = c:ellipse(lx + 2, ly, 4, 3):add(c:ellipse(lx + 6, ly - 1, 3, 2)):add(line({ { lx + 7, ly - 2 }, { lx + 14, ly - 7 } }, 1))
+rimOf(uke, L.timber) part(uke, L.board, { nopop = true }) fill(c:ellipse(lx + 3, ly, 1, 1), L.timber.edge) px(lx + 1, ly - 2, L.board.hi) px(lx + 2, ly - 2, L.board.hi) hline(lx + 5, lx + 7, ly + 1, L.board.shade) px(lx + 14, ly - 8, L.timber.base) px(lx + 15, ly - 8, L.timber.base)
 for _, n in ipairs({ { lx + 8, ly - 14 }, { lx + 13, ly - 18 } }) do vline(n[1] + 1, n[2] - 3, n[2], L.timber.edge) fill(rect(n[1], n[2], n[1] + 1, n[2] + 1), L.timber.edge) end
 F.flower(lx - 6, ly - 22, "hibiscus", true) -- a flower tucked in the hat brim
 -- the toasting gnome holds a fish on a long stick over the flames
@@ -561,12 +561,12 @@ F.shell(318, 258, "scallop", true) F.crab(370, 252, L.awnA, true)
 
 ---------------------------------------------------------------- near right: a hammock between two palms, a gnome napping in it
 F.depth(2)
-F.palm(468, 222, 62, L.foliage2, 11, { lean = -6, dead = true })
+F.palm(458, 222, 62, L.foliage2, 11, { lean = -6, dead = true })
 F.depth(3)
 do
-  local ax, ay, bx, by = 403, 180, 466, 182
+  local ax, ay, bx, by = 400, 180, 454, 182
   -- the napper: a belly mound, a face with closed eyes, a beard spilling over, boots up, the hat flopped over the edge
-  local mid = 438
+  local mid = 432
   local belly = c:ellipse(mid + 2, 192, 9, 4)
   rimOf(belly, L.accent) part(belly, L.accent) hline(mid - 5, mid + 9, 193, L.timber.deep) px(mid + 2, 193, L.gold.hi)
   local face = rect(mid - 14, 186, mid - 8, 191)
