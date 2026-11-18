@@ -21,6 +21,7 @@ local floor, sin, cos, pi, abs = math.floor, math.sin, math.cos, math.pi, math.a
 local mix = F.mix
 local S, D = L.lagoon, L.sea -- shallow reef flat / deep channel
 local GLINT = "#f4f8e6"
+local TURT = { hi = "#d6c878", base = "#9a9046", shade = "#706a36", deep = "#4e4a28", edge = "#2e2c1a" }
 -- DY: a temporary vertical offset for whole near-bank groups (set, draw, reset)
 local DY = 0
 do local base = c.put c.put = function(self, x, y, h, o) base(self, x, y + DY, h, o) end end
@@ -401,7 +402,6 @@ end
 local RX0, RX1, RY0, RY1 = 270, 366, 137, 152
 local FY = RY1 - 6 -- where figures stand: the front of the deck stays visible
 local function ropeY(x) local t = (x - NPX) / (FPX - NPX) return floor(NPY + (FPY - NPY) * t + 5 * 4 * t * (1 - t) + .5) end
-local TURT = { hi = "#d6c878", base = "#9a9046", shade = "#706a36", deep = "#4e4a28", edge = "#2e2c1a" }
 local function turtleInHat(x0, y0)
   F.sprite({
     "........R....................",
@@ -608,9 +608,23 @@ do -- driftwood log bench with two waiting travellers and their luggage
 end
 do -- an outrigger canoe pulled up on the sand, a paddle across it
   local y = 230
-  F.shadow(24, 78, y + 2, 6, 3)
-  F.outrigger(22, 80, y, { side = 1, stripe = L.awnA, hull = L.timber })
-  fill(line({ { 30, y - 7 }, { 72, y - 3 } }), L.board.base) fill(c:ellipse(74, y - 3, 3, 1), L.board.shade)
+  local x0, x1 = 24, 80
+  F.shadow(x0, x1, y + 2, 6, 3)
+  local hull = poly{ { x0 - 6, y - 11 }, { x0 + 2, y - 7 }, { x1 - 2, y - 7 }, { x1 + 6, y - 12 }, { x1 + 2, y - 3 }, { x1 - 6, y }, { x0 + 5, y }, { x0 - 2, y - 4 } }
+  local inside = c:ellipse((x0 + x1) // 2, y - 7, (x1 - x0) // 2 - 3, 1)
+  local booms = HP.mask()
+  for _, bx in ipairs({ x0 + 14, x1 - 16 }) do booms:add(line({ { bx, y - 6 }, { bx + 3, y + 7 } }, 2)) end
+  local float = c:rrect(x0 + 6, y + 5, x1 - 8, y + 8, 2)
+  rimOf(union(hull, booms, float), L.timber)
+  part(hull, L.timber, { nopop = true })
+  fill(inside, L.timber.deep) c:edgeIn(inside, L.timber.shade)
+  hline(x0 + 1, x1 - 1, y - 6, L.awnA.base) hline(x0 + 2, x1 - 2, y - 5, L.awnA.shade)
+  hline(x0 + 3, x1 - 4, y - 3, L.wall2.base) hline(x0 + 5, x1 - 6, y - 1, L.timber.deep)
+  for x = x0 + 6, x1 - 6, 8 do px(x, y - 4, L.awnB.hi) px(x + 1, y - 4, L.awnB.base) end
+  px(x0 - 4, y - 10, L.timber.hi) px(x1 + 4, y - 11, L.timber.hi)
+  part(booms, L.board, { nopop = true, noshade = true })
+  part(float, L.board, { nopop = true }) hline(x0 + 7, x1 - 9, y + 5, L.board.hi)
+  fill(line({ { 30, y - 9 }, { 72, y - 5 } }), L.board.base) fill(c:ellipse(74, y - 5, 3, 1), L.board.shade)
 end
 DY = 0
 -- near waterline: spider-lily sedge and mangroves on both sides of the landing
@@ -730,7 +744,7 @@ F.sprite({
   "...ss.WV......",
   "....f..f......",
   "...ff.ff......",
-}, 340, 228, { W = L.awnB.hi, V = L.awnB.shade, w = L.timber.base, s = L.timber.shade, k = L.timber.edge, o = "#7e9ab8", f = "#4aa8e0" })
+}, 336, 234, { W = L.awnB.hi, V = L.awnB.shade, w = L.timber.base, s = L.timber.shade, k = L.timber.edge, o = "#7e9ab8", f = "#4aa8e0" })
 F.crab(204, 252, L.hibiscus, true)
 F.shell(186, 246, "conch", true)
 
