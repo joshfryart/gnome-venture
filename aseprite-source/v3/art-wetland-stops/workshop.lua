@@ -27,6 +27,7 @@ local OSIER = F.rp("#c8968a #9a665c #764a46 #553436 #382426")    -- purple osier
 local BUFF = F.rp("#f0deb0 #d6bc86 #b09664 #84704c #544632")     -- boiled and stripped buff rods
 local TURF = F.rp("#8e6e52 #664a36 #4c362a #34261e #22181a")     -- cut peat turves
 local BRICK = F.rp("#d8a282 #b4765a #8c5646 #643c34 #402624")    -- soft red hearth brick
+local WATTLE = F.rp("#cdb48a #a88e66 #84704e #5e4e3a #3c3228")    -- hazel wattle under daub
 local COPPER = F.rp("#f2b47e #cc7c4c #a05836 #703c2c #48261e")   -- the boiling copper
 
 ---------------------------------------------------------------- local helpers
@@ -402,19 +403,21 @@ local function boiler()
 end
 boiler()
 
--- an otter asleep in the warmth of the boiler
+-- an otter asleep in the warmth of the boiler, curled with its tail round its nose
 F.sprite({
-  "........ee.......",
-  ".......eOOO......",
-  "..OOOOOOOOOOn....",
-  ".OoOOOOOcccOO....",
-  "OOOOOOOccccOO....",
-  "TOOOOOOOOOOO.....",
-  "TT.oo.......oo...",
-  ".TTT.............",
-}, 100, 206, { e = L.cattail.shade, O = L.cattail.base, o = L.cattail.shade, c = L.board.hi, n = L.timber.edge, T = L.cattail.deep })
-px(110, 208, L.timber.edge) px(117, 207, L.timber.edge) -- shut eye, nose
-for k = 0, 2 do px(118 + k * 2, 204 - k * 2, L.mist) end -- z z
+  "......OOOOOOOO.......",
+  "....OOOOOOOOOOOOe....",
+  "..OOOOOOOOOOOOOOEe...",
+  ".OOOOOOOOOOOOOOcccn..",
+  "OOOOOOOOOOOOOOcccccd.",
+  "OOOOOOOOOOOOOOOcccdd.",
+  "TOOOOOOOOOOOOOOOOdd..",
+  ".TTTTTTTTTTTTTTTTd...",
+  "..TTT.............",
+}, 98, 205, { e = L.cattail.deep, E = L.cattail.shade, O = L.cattail.base, c = L.board.hi, d = L.board.shade, n = L.timber.edge, T = L.cattail.shade })
+for _, p2 in ipairs({ { 101, 208 }, { 103, 207 }, { 106, 206 }, { 110, 206 } }) do px(p2[1], p2[2], L.cattail.hi) end
+px(112, 208, L.timber.edge) px(113, 208, L.timber.edge) -- shut eye
+for k = 0, 2 do px(120 + k * 3, 202 - k * 2, L.mist) end -- z z
 -- the willow brake: a post with an iron V; a gnome pulling a rod through it, bark curls flying
 local function brake(x, yb)
   local post = rect(x - 2, yb - 16, x + 2, yb)
@@ -463,9 +466,17 @@ local function workshop()
       if ex > 2 or hash(x, y, 30 + p[5]) < ex / 3 then wm:set(x, y) end
     end)
     wm:clip(wallM)
-    weave(wm, OSIER, (p[1] + p[3]) // 2, (p[3] - p[1]) // 2, p[2], 3)
+    weave(wm, WATTLE, (p[1] + p[3]) // 2, (p[3] - p[1]) // 2, p[2], 3)
     wm:grow(1):cut(wm):clip(wallM):each(function(x, y) px(x, y, L.plaster.deep) end)
   end
+  -- the gable infilled with bundled reed, hazel liggers across it
+  local gab = poly{ { x0 + 6, top - 1 }, { cx, top - 36 + 9 }, { x1 - 6, top - 1 } }
+  gab:each(function(x, y)
+    local h = (x % 2 == 0) and ((x < cx) and L.reed.hi or L.reed.base) or ((x < cx) and L.reed.base or L.reed.shade)
+    if (y - top) % 7 == 0 then h = L.timber.base elseif (y - top) % 7 == 1 then h = L.reed.deep end
+    px(x, y, h)
+  end)
+  F.window(cx - 3, top - 17, cx + 2, top - 13, L.timber)
   -- big open front with the interior
   local dx0, dx1, dy0 = 322, 420, 166
   fill(rect(dx0 - 2, dy0 - 2, dx1 + 2, yb), L.timber.base) hline(dx0 - 2, dx1 + 2, dy0 - 2, L.timber.hi)
@@ -545,7 +556,8 @@ part(lhan, L.timber, { nopop = true, noshade = true })
 ---------------------------------------------------------------- foreground: spar block, stacked baskets, soaking pool, log basket
 -- spar-making block with a billhook, a bundle of split hazel spars twisted into pins
 local blkM = c:rrect(176, 248, 198, 262, 3)
-rimOf(blkM, L.timber) part(blkM, L.timber, { nopop = true })
+rimOf(blkM, L.willowBark) part(blkM, L.willowBark, { nopop = true })
+blkM:each(function(x, y) if y > 251 and hash(x // 2, y // 3, 27) < .3 then px(x, y, L.willowBark.deep) elseif x < 179 then px(x, y, L.willowBark.hi) end end)
 local top = c:ellipse(187, 249, 10, 3) fill(top, L.board.base) c:edgeIn(top, L.board.shade) px(184, 248, L.board.hi) px(185, 248, L.board.hi)
 c:ellipse(187, 249, 5, 1):edge():each(function(x, y) px(x, y, L.board.shade) end)
 local hook = line({ { 182, 248 }, { 188, 238 } }, 2) rimOf(hook, L.timber) fill(hook, L.board.base)
