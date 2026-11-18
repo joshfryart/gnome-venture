@@ -8370,3 +8370,35 @@ body.game:has(.fightscene) .toasts.phone { right: 8px; left: auto; width: min(70
 .wearing .wbtn { display: flex; gap: 6px; margin-left: auto; }
 .wearing .wbtn form { margin: 0; }
 .wearing .wnone { display: block; }
+
+/* 2.7.16 CLOSET tab: four tabs across, the walking gnome (four stacked strips faded in turn, no script), slot pills, the picker under its row */
+main nav.tabs.hstabs.hs4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+main nav.tabs.hstabs.hs4 a { gap: 4px; padding-left: 4px; padding-right: 4px; font-size: 14px; }
+.closet .clstage { position: relative; display: flex; justify-content: center; align-items: flex-end; height: 236px; overflow: hidden; margin-bottom: 10px; box-shadow: var(--frame-lite); background: linear-gradient(#7fa3b8 0, #a9c6c9 55%, #7d9b5c 55%, #5f7d43 100%); }
+.clgnome { position: relative; width: 192px; height: 240px; margin-bottom: -6px; }
+.clv { position: absolute; left: 0; top: 0; width: 192px; height: 240px; overflow: hidden; opacity: 0; image-rendering: pixelated; }
+.clv.flip { transform: scaleX(-1); }
+.clv .clw { animation: clwalk .9s steps(6) infinite; }
+.clv1 { animation: clshow1 7.2s linear infinite; }
+.clv2 { animation: clshow2 7.2s linear infinite; }
+.clv3 { animation: clshow3 7.2s linear infinite; }
+.clv4 { animation: clshow4 7.2s linear infinite; }
+@keyframes clwalk { from { transform: translateX(-128px); } to { transform: translateX(-512px); } }
+@keyframes clshow1 { 0%, 24.9% { opacity: 1; } 25%, 100% { opacity: 0; } }
+@keyframes clshow2 { 0%, 24.9% { opacity: 0; } 25%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes clshow3 { 0%, 49.9% { opacity: 0; } 50%, 74.9% { opacity: 1; } 75%, 100% { opacity: 0; } }
+@keyframes clshow4 { 0%, 74.9% { opacity: 0; } 75%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .clv .clw { animation: none; transform: translateX(0); } .clv { animation: none; } .clv1 { opacity: 1; } }
+.clslots { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.clpill a { display: grid; grid-template-columns: 32px minmax(0, 1fr) 12px; gap: 8px; align-items: center; min-height: 56px; padding: 6px 10px; border-radius: 28px; background: var(--surface-2); box-shadow: var(--frame-lite); color: var(--ink); text-decoration: none; }
+.clpill.open a { box-shadow: 0 0 0 3px var(--brand-line); }
+.clpill .wpic { image-rendering: pixelated; justify-self: center; }
+.clpill .wico { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; font-size: 22px; opacity: .55; }
+.clpill.on .wico { opacity: 1; }
+.clt { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.clt small { text-transform: uppercase; letter-spacing: .06em; font-size: 11px; color: var(--muted, inherit); }
+.clt b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cldot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--thread); vertical-align: middle; }
+.clgo { font-size: 12px; color: var(--muted, inherit); }
+.clpop { grid-column: 1 / -1; background: var(--surface); box-shadow: 0 0 0 3px var(--brand-line); padding: 4px 8px; }
+.clpb { margin: 10px 0 0; font-size: 13px; }

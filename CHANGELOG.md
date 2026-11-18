@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.16
+- **Closet tab** in the slim Hovel (after Gnome; `gnome.php?tab=closet`): the gnome in its worn items walks and turns (four stacked sprite strips faded in turn with CSS, no script), seven slot pills, and the open slot's picker under its pill row (plain links + POST forms, works without script). The Wearing panel leaves the Gnome tab when the Closet tab is there (non-slim My Gnome keeps it). Gold badge = empty spots you own something for. Wear/Take off from the Closet return to the Closet; the Puzzle box strip links to it. Player news added.
+
 ## 2.7.15
 - **Wearables are live for every player** (admin setting `wear_open`, default On; Off hides outfitters, wearables and equip again). No longer tied to `pfight_v1`; Puzzle box and its pieces still are.
 - **Equip on My Gnome:** a Wearing panel with 7 slots (footwear, backpack, coat, cloak, hat, hands, neck), one item each, new table `user_wear_slots`. A wearable's puzzle piece is offered only while it is worn; Keepsake slots in the Puzzle box are unchanged (1/2/3/4). Equip refused in a fight, for unowned items, or if it would break the deck (4th Rare). Boot step `wear_slots_2714` turns existing switched-on pieces into worn items. Puzzle box shows a read-only Wearing strip.
