@@ -136,6 +136,9 @@ rep("  function planAsk() {\n", "  function planAsk() {\n    aimLive = null;\n")
 rep("    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync();\n", "    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync(); paintRings();\n")
 # --- 2.6.98 (aimhit, T16): a piece the creature strikes cracks in the replay
 rep("if (c) c.classList.add('pfb-scoring');", "if (c) c.classList.add('pfb-scoring'); if (c && ev.strike) { c.classList.add('pfv-struck'); var sk = c; setTimeout(function () { sk.classList.remove('pfv-struck'); }, 900); }")
+# --- 2.7.09 wear piece effects: a wear piece's effect sentence (the view's 'fx' on hand and board pieces) in its card
+rep("    return t + fbt + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '')", "    return t + fbt + (p.fx ? ' ' + p.fx : '') + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '')")
+rep("    document.getElementById('pfi-desc').textContent = b.dataset.desc || '';\n    var slot = document.getElementById('pfi-art'), P = window.PFParts, i = tiles.indexOf(b);", "    var slot = document.getElementById('pfi-art'), P = window.PFParts, i = tiles.indexOf(b);\n    document.getElementById('pfi-desc').textContent = (b.dataset.desc || '') + (data.hand[i] && data.hand[i].fx ? ' ' + data.hand[i].fx : '');")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')

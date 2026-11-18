@@ -139,12 +139,12 @@ w:ee-shaggy-shepherd-cape|Shaggy Hum|wear|ee-shaggy-shepherd-cape|charm|5|body|-
 w:ee-poppy-field-shawl|Poppy Shawl Bond|wear|ee-poppy-field-shawl|charm|5|mind|-|-|src|Poppy Field Shawl: If it is linked to a Trick, your Charm counts 10% more for the rest of the fight.|-|linkT>bond|2|4
 w:ee-birch-hooded-mantle|Birch Mantle Lull|wear|ee-birch-hooded-mantle|charm|6|craft|-|-|src|Birch Hooded Mantle: If it sits in one of the four inner cells, the creature skips its next turn.|-|mid4>skip|2|5
 w:ee-wheatfield-poncho|Wheatfield Poncho|wear|ee-wheatfield-poncho|soothe|4|body|-|-|src|Wheatfield Poncho: If it sits on the edge of the board, cut the creature's hits by 2 this round.|-|edge>soothe|2|5
-w:ee-fox-collar-capelet|Fox-Collar Lift|wear|ee-fox-collar-capelet|trick|7|mind|-|-|src|Fox-collar Capelet: Pluck, sure to work once a fight; after that Pluck chances double. The piece it links to gets +3.|-|R:EE:cloak|3|6
+w:ee-fox-collar-capelet|Fox-Collar Lift|wear|ee-fox-collar-capelet|trick|7|mind|-|-|src|Fox-collar Capelet: Pluck with twice the usual chance (once a fight). The piece it links to gets +3.|-|R:EE:cloak|3|6
 w:mena-dune-slippers|Dune Slip|wear|mena-dune-slippers|guard|5|mind|-|-|src|Dune Slippers: If it sits in one of the four inner cells, the creature's next Hurt misses.|-|mid4>evade|2|4
 w:mena-palm-rope-sandals|Palm-Rope Spring|wear|mena-palm-rope-sandals|hurt|5|craft|-|-|src|Palm-Rope Sandals: If you are at full health, your next hand has 1 extra piece.|-|hpFull>hand|2|4
 w:mena-indigo-wrap-boots|Indigo Wrap Brace|wear|mena-indigo-wrap-boots|guard|6|body|-|-|src|Indigo Wrap Boots: If it is linked to a Charm, gain 5 guard.|-|linkC>guard|2|5
 w:mena-camel-pad-overshoes|Camel-Pad Plod|wear|mena-camel-pad-overshoes|hurt|6|mind|-|-|src|Camel-Pad Overshoes: If the creature has 3 or more pieces on the board, deal 5 extra damage.|-|foeB3>dmg|2|5
-w:mena-cedar-bath-clogs|Cedar Clog Soak|wear|mena-cedar-bath-clogs|hurt|8|craft|-|-|src|Cedar Bath Clogs: Poison 3 for 3 turns. If it is linked to a Guard, the poison also cuts the creature's hits by 3.|-|R:MENA:footwear|3|6
+w:mena-cedar-bath-clogs|Cedar Clog Soak|wear|mena-cedar-bath-clogs|hurt|8|craft|-|-|src|Cedar Bath Clogs: Poison 3 for 3 turns. If it is linked to a Guard, also cut the creature's hits by 3 this round.|-|R:MENA:footwear|3|6
 w:mena-goatskin-waterskin|Waterskin Sip|wear|mena-goatskin-waterskin|heal|4|craft|-|-|src|Goatskin Waterskin: If it is linked to a Hurt, heal 2 at the start of each of your next 2 turns.|-|linkH>mend|2|4
 w:mena-date-palm-basket|Date Basket Treat|wear|mena-date-palm-basket|item|6|body|-|-|src|Date-Palm Basket: If you took no damage last turn, heal 4.|-|noDmg>heal|2|4
 w:mena-kilim-saddle-bag|Saddle-Bag Rummage|wear|mena-kilim-saddle-bag|trick|5|mind|-|-|src|Kilim Saddle-Bag: If it is linked to a Guard, your next hand has 1 extra piece.|-|linkG>hand|2|5
@@ -269,7 +269,7 @@ w:oc-flax-basket-pack|Flax Plenty|wear|oc-flax-basket-pack|item|8|craft|-|-|src|
 w:oc-coconut-string-bag|Coconut Snack|wear|oc-coconut-string-bag|item|8|body|-|-|src|Coconut String Bag: If a creature piece is in its chain, heal 6.|-|linkFoe>heal|3|6
 w:oc-bushmans-swag|Swag Rummage|wear|oc-bushmans-swag|trick|7|mind|-|-|src|Bushman's Swag: If you played no Hurt last turn, small chance to lift an item from the creature.|-|noHurt>pluck|3|7
 w:oc-bamboo-frame-pack|Frame Simmer|wear|oc-bamboo-frame-pack|heal|7|craft|-|-|src|Bamboo Frame Pack: If it sits in a corner, heal 3 at the start of each of your next 2 turns.|-|corner>mend|3|7
-w:oc-pouch-pack|Pouch Provision|wear|oc-pouch-pack|heal|9|body|-|-|src|Pouch Pack: Heal 8. Next round pick from 6 pieces, and one piece you keep stays in your hand the round after.|-|R:OC:backpack|4|8
+w:oc-pouch-pack|Pouch Provision|wear|oc-pouch-pack|heal|9|body|-|-|src|Pouch Pack: Heal 8. Next round pick from 6 pieces, and at the end of that round your strongest unplayed piece stays in your hand.|-|R:OC:backpack|4|8
 w:oc-drovers-oilskin|Oilskin Thorn|wear|oc-drovers-oilskin|guard|7|body|-|-|src|Drover's Oilskin: If it is linked to a Trick, each hit this guard blocks adds 3 to the bar.|-|linkT>thorns|3|6
 w:oc-bush-check-smock|Bush Check Hold|wear|oc-bush-check-smock|guard|7|mind|-|-|src|Bush Check Smock: If it is linked to a Guard, the next Guard you place gets +6.|-|linkG>ward|3|6
 w:oc-bark-cloth-vest|Bark Vest Mend|wear|oc-bark-cloth-vest|guard|8|craft|-|-|src|Bark-cloth Vest: If it is linked to a Trick, heal 3 at the start of each of your next 2 turns.|-|linkT>mend|3|7

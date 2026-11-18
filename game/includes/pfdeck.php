@@ -60,6 +60,7 @@ function pfd_catalog(): array
         $p = ['k' => $r[0], 'n' => $r[1], 'src' => $r[2], 'ref' => $r[3] === '-' ? '' : $r[3], 't' => $r[4], 'v' => (int)$r[5], 'r' => in_array($e[0], PFD_FAM, true) ? $e[0] : null,
             'tag' => $r[7] === '-' ? '' : $r[7], 'life' => $r[8] === '-' ? 0 : (int)$r[8], 'rar' => $r[9] === 'src' ? 'src' : (int)$r[9], 'blurb' => (string)($r[10] ?? '')];
         if (!empty($r[11]) && $r[11] !== '-') $p['mod'] = (string)$r[11];   // a built-in knack (PF_MODS)
+        if (!empty($r[12]) && $r[12] !== '-') { $p['fx'] = (string)$r[12]; $p['fa'] = (int)($r[13] ?? 0); $p['fb'] = (int)($r[14] ?? 0); }   // 2.7.09 a wear piece's effect in a catalog row (fx|a|b, data/wear_fx.txt)
         if ($r[2] === 'knack' && str_contains($r[3], ':')) $p['cnt'] = explode(':', $r[3], 2)[1];   // 2.7.08 a counter knack: its creature class (pfb_kind)
         if (isset($e[1]) && in_array($e[1], PFD_FAM, true)) $p['col'] = $e[1];
         if (isset($e[2])) $p['up'] = $e[2] === 'up' ? 1 : 0;
@@ -464,7 +465,9 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
         $over = ['n' => $e['n'], 't' => $t, 'v' => (int)$e['v'], 'r' => $e['r'], 'tag' => (string)$e['tag'], 'src' => $e['src'], 'life' => (int)$e['life'], 'rank' => (int)$e['rank']];
         foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
         if ($e['tool'] !== '') $over['tool'] = $e['tool'];
-        $deck[] = pf_make_tile($k, $stats, $b, $over);
+        $tile = pf_make_tile($k, $stats, $b, $over);
+        if (!empty($e['fx'])) { $tile['fx'] = (string)$e['fx']; $tile['fxa'] = (int)($e['fa'] ?? 0); $tile['fxb'] = (int)($e['fb'] ?? 0); }   // 2.7.09: the wear effect rides on the tile as fx, fxa, fxb (pfb_wx_* in pfboard.php)
+        $deck[] = $tile;
     }
     return $deck;
 }

@@ -111,7 +111,7 @@ foreach ([[$st, 'bloomcaller', 2, [], ['soothe', 'jab', 'nonexistent', 'swing'],
           [$st, '', 1, $pals, [], [], true, ['swing', 'pierce', 'dodge', 'rest', 'charm', 'snack', 'bark', 'nothing']], [$st, 'wayfinder', 1, [], pf_unlocks(16), [], true, null]] as $a) {
     $decks[] = ['args' => $a, 'deck' => pf_player_deck(...$a)];
 }
-out(['hdr' => true, 'phpv' => PHP_VERSION_ID, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks, 'abil' => PFB_ABIL, 'abrange' => PFB_AB_RANGE, 'ai' => PFB_AI, 'aikeys' => PFB_AI_KEYS, 'env' => pfb_env_table(), 'envdecks' => array_map(fn($a) => [$a, pfb_env_deck(...$a)], [['small', ''], ['medium', 'SEA'], ['large', 'NA'], ['boss', 'ESA'], ['odd', 'nowhere']])]);
+out(['hdr' => true, 'wearfx' => pfb_wx_data(), 'phpv' => PHP_VERSION_ID, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks, 'abil' => PFB_ABIL, 'abrange' => PFB_AB_RANGE, 'ai' => PFB_AI, 'aikeys' => PFB_AI_KEYS, 'env' => pfb_env_table(), 'envdecks' => array_map(fn($a) => [$a, pfb_env_deck(...$a)], [['small', ''], ['medium', 'SEA'], ['large', 'NA'], ['boss', 'ESA'], ['odd', 'nowhere']])]);
 
 // ---- fights
 $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
@@ -125,13 +125,15 @@ $abSets = [];   // each ability alone, then pairs (an E with an N, an N with a D
 foreach ($abN as $i => $id) { $abSets[] = [[$id], []]; if (PFB_ABIL[$id][0] === 'E') $abSets[] = [[$id, $abN[13 + ($i * 3) % 16], 'D4'], []]; }
 $abSets[] = [['drain2', 'D1'], ['drain2' => ['pct' => 0.15]]]; $abSets[] = [['enrage2'], ['enrage2' => ['at' => 0.35, 'mult' => 1.35]]]; $abSets[] = [['ambush2'], ['ambush2' => ['mult' => 2.0]]]; $abSets[] = [['regrow2'], ['regrow2' => ['pct' => 0.04, 'turns' => 6]]];
 $abSets[] = [['venom-long'], ['venom-long' => ['vrnds' => 4, 'vpoison' => 3]]]; $abSets[] = [['plated2', 'stagger2'], ['stagger2' => ['pct' => 0.08]]]; $abSets[] = [['toughhide2', 'wary2'], ['toughhide2' => ['cut' => 4]]];
+$WEAR = array_values(array_filter(pf_data_lines('wear_items_pieces.txt'), fn($r) => count($r) >= 15));   // 2.7.09: the wear pieces (fx|a|b)
 $nf = 0; $na = 0;   // modes: v1 and v1d play the DEFAULT rules, v1pre plays the 2.6.94 rule set, so parity covers both from here on
 // 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot. 2.6.74: 'v1' = the v1 board rules with the blank opening (single bot, flips when stuck);
 // 'v1b' = v1 with the builder bot and made-up sources (Teamwork); 'v1chaos' = v1 with random moves, random flips and random rule switches
-foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88], ['v1old', 99], ['v1pre', 111], ['v1preb', 122], ['v1ab', 133], ['v1abc', 144], ['v1st', 155], ['v1stc', 166]] as [$mode0, $seed]) {   // 2.6.75: v1 fights have ENVIRONMENT PIECES; 'v1old' = a fight started under 2.6.74 (ground and events), which must still play the same   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
+foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88], ['v1old', 99], ['v1pre', 111], ['v1preb', 122], ['v1ab', 133], ['v1abc', 144], ['v1st', 155], ['v1stc', 166], ['v1wear', 177], ['v1wearc', 188]] as [$mode0, $seed]) {   // 2.6.75: v1 fights have ENVIRONMENT PIECES; 'v1old' = a fight started under 2.6.74 (ground and events), which must still play the same   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
+    if (getenv('PFE_MODES') && !in_array($mode0, explode(',', (string)getenv('PFE_MODES')), true)) continue;   // PFE_MODES=v1wear,v1wearc: only these modes (tests/pf_wear_fx.sh)
     mt_srand($seed * 1000 + $ci);
-    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank', 'v1old' => 'blank', 'v1pre' => 'blank', 'v1preb' => 'builder', 'v1ab' => 'blank', 'v1abc' => 'chaos', 'v1st' => 'blank', 'v1stc' => 'chaos'][$mode0] ?? $mode0;
-    if ($v1 && $mode0 !== 'v1' && $mode0 !== 'v1d' && $mode0 !== 'v1ab' && $mode0 !== 'v1st' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
+    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank', 'v1old' => 'blank', 'v1pre' => 'blank', 'v1preb' => 'builder', 'v1ab' => 'blank', 'v1abc' => 'chaos', 'v1st' => 'blank', 'v1stc' => 'chaos', 'v1wear' => 'blank', 'v1wearc' => 'chaos'][$mode0] ?? $mode0;
+    if ($v1 && $mode0 !== 'v1' && $mode0 !== 'v1d' && $mode0 !== 'v1ab' && $mode0 !== 'v1st' && $mode0 !== 'v1wear' && $mode0 !== 'v1wearc' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
     $opt = $mode === 'blank' ? ['blank' => true] : []; $mods = false;
     if ($mode === 'chaos') {
         $all = array_keys(pf_tiles()); $box = [];
@@ -150,6 +152,10 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
     if ($mode0 === 'v1d' || $mode0 === 'v1ab' || $mode0 === 'v1st') {
         $src = tv_sources($c['level']); $me['deck'] = pfd_tiles(pfd_fight_entries($src), $me['stats'], [], $src['calling'], $src['ctier']);
         $c = pfd_foe_row($c, array_keys(pfd_region_pieces())[$ci % 14]);
+    }
+    if ($mode0 === 'v1wear' || $mode0 === 'v1wearc') {   // 2.7.09 wear piece effects: 6 of the 280 wear pieces in the deck (every piece comes up across the creatures)
+        for ($j = 0; $j < 6; $j++) { $wr = $WEAR[($ci * 6 + $j + ($mode0 === 'v1wearc' ? 140 : 0)) % count($WEAR)]; $me['deck'][] = pf_make_tile($wr[0], $me['stats'], 0, ['n' => $wr[1], 't' => $wr[4], 'v' => (int)$wr[5], 'r' => 'body', 'tag' => '', 'src' => 'wear']) + ['fx' => $wr[12], 'fxa' => (int)$wr[13], 'fxb' => (int)$wr[14]]; }
+        $opt['can_pluck'] = true;
     }
     if ($mode0 === 'v1ab' || $mode0 === 'v1abc') { $set = $abSets[$ci % count($abSets)]; $c['ab'] = $set[0]; $c['abp'] = $set[1]; $c['class'] = ['Critter', 'Bird', 'Beast', 'Water', 'Plant / Fungus', 'Reptile / Amphibian'][($ci + intdiv($ci, 6)) % 6]; }   // 2.7.01: every ability (and E ids on other classes, overrides) is played in parity
     if ($mode0 === 'v1st' || $mode0 === 'v1stc') {   // 2.7.01 creature AI: every style (and an unknown id, and overrides) on every creature, with and without abilities, on every class

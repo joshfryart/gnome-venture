@@ -42,6 +42,7 @@ function fail(ctx, php, js, label) {
 const hdr = JSON.parse(lines[0]);
 fail('header tiles', hdr.tiles, PFE.tiles(), 'tiles');
 fail('header combos', hdr.combos, PFE.COMBOS, 'combos');
+fail('header wear effects (data/wear_fx.txt = PFB_WEAR_FX_ROWS in tools/pfengine.js)', hdr.wearfx, PFE.wxData(), 'wearfx');
 fail('header tags', hdr.tags, PFE.TAGS, 'tags');
 fail('header mods', hdr.mods, PFE.MODS, 'mods');
 fail('header abilities (PFB_ABIL in tools/pfengine.js)', hdr.abil, PFE.ABIL, 'abil');
