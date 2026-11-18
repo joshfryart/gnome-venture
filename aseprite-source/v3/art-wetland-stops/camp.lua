@@ -119,22 +119,25 @@ F.depth(1)
 do
   local x0, x1 = 16, 72
   F.shadow(x0 + 2, x1, 147, 8, 3)
-  local under = poly{ { x0 + 4, 136 }, { x1 - 2, 132 }, { x1 - 2, 146 }, { x0 + 4, 146 } }
+  -- the hull rests on its gunwale at the left and is propped high on two forked stakes at the right
+  local under = poly{ { x0 + 6, 145 }, { x1 - 2, 133 }, { x1 - 2, 146 }, { x0 + 6, 146 } }
   fill(under, L.soil.deep)
-  under:each(function(x, y) if y > 142 and hash(x, y, 408) < .5 then px(x, y, L.peat.shade) end end)
-  -- a bedroll and a glowing lamp tucked under
-  local br = c:rrect(x0 + 10, 140, x0 + 30, 145, 2) rimOf(br, L.awnA) part(br, L.awnA, { nopop = true })
-  fill(rect(x1 - 14, 139, x1 - 11, 143), G.base) px(x1 - 14, 139, G.hi) hline(x1 - 15, x1 - 10, 144, IR.shade)
-  -- the hull, bottom up: a flat tarred bottom (lit) over a sloping side
-  local bottom = poly{ { x0, 131 }, { x1, 126 }, { x1 + 3, 128 }, { x0 + 2, 134 } }
-  local side = poly{ { x0 + 2, 134 }, { x1 + 3, 128 }, { x1 + 1, 133 }, { x0 + 4, 138 } }
-  local props = rect(x0 + 6, 137, x0 + 7, 147):add(rect(x1 - 4, 132, x1 - 3, 147))
+  under:each(function(x, y) if y > 143 and hash(x, y, 408) < .5 then px(x, y, L.peat.shade) end end)
+  -- a bedroll, a pair of boots and a glowing lamp tucked under
+  local br = c:rrect(x0 + 26, 141, x0 + 42, 145, 2) rimOf(br, L.awnA) part(br, L.awnA, { nopop = true })
+  fill(rect(x1 - 12, 139, x1 - 9, 143), G.base) px(x1 - 12, 139, G.hi) hline(x1 - 13, x1 - 8, 144, IR.shade)
+  fill(rect(x0 + 18, 143, x0 + 20, 145), L.timber.base) fill(rect(x0 + 21, 143, x0 + 23, 145), L.timber.shade)
+  -- the hull, bottom up: a flat tarred bottom (lit) with raked square ends over the sloping side
+  local bottom = poly{ { x0 - 2, 140 }, { x0 + 4, 135 }, { x1 - 2, 121 }, { x1 + 5, 122 }, { x1 + 1, 126 }, { x0 + 2, 143 } }
+  local side = poly{ { x0 + 2, 143 }, { x1 + 1, 126 }, { x1 + 1, 131 }, { x0 + 6, 146 } }
+  local props = rect(x1 - 6, 128, x1 - 5, 147):add(rect(x1 - 1, 127, x1, 147))
   rimOf(union(bottom, side, props), L.timber)
   part(props, L.timber, { nopop = true, noshade = true })
-  part(bottom, sage, { nopop = true }) F.planks(bottom, sage, 3, false, 409)
+  part(bottom, sage, { nopop = true }) F.planks(bottom, sage, 3, true, 409)
   part(side, L.timber, { nopop = true })
-  side:each(function(x, y) if (x - y) % 5 == 0 then px(x, y, L.timber.shade) end end)
-  line({ { x0 + 1, 131 }, { x1 - 1, 126 } }):each(function(x, y) px(x, y, sage.hi) end)
+  side:each(function(x, y) if (x + y) % 6 == 0 then px(x, y, L.timber.shade) end end)
+  line({ { x0 + 3, 136 }, { x1 - 2, 122 } }):each(function(x, y) px(x, y, sage.hi) end)
+  line({ { x0 + 3, 143 }, { x1, 127 } }):each(function(x, y) px(x, y, L.timber.hi) end)
   -- a reed mat hung down the far end as a wall
   local mat = rect(x1 - 1, 129, x1 + 4, 146)
   rimOf(mat, L.reed) part(mat, L.reed, { nopop = true }) mat:each(function(x, y) if y % 2 == 0 then px(x, y, L.reed.hi) end end)
@@ -288,9 +291,9 @@ F.frog(378, 210, false)
 F.reeds(284, 296, 210, 14, 418, { cattails = 2, green = true })
 
 ---------------------------------------------------------------- near right: a punt moored in the pool, ducks
-F.punt(404, 462, 222, L.timber, { pole = { 418, 206, 446, 227 } })
-F.sack(420, 218, L.plaster, 3)
-eelTrap(430, 217, 446, 217, 3)
+F.punt(404, 462, 219, L.timber, { pole = { 416, 204, 448, 226 } })
+F.sack(420, 215, L.plaster, 3)
+eelTrap(430, 214, 446, 214, 3)
 do -- a pair of mallards
   local function duck(x, y, drake)
     local rows = drake and { "..hh.....", ".hhkY....", "..hh.....", "..ww.....", ".BBBBBBBt", "BBbbbbBtt", ".BBBBBB.." }
@@ -349,6 +352,20 @@ do
   end
   -- the left flank (x 8..10) as a stake row
   for y = 186, 262, 4 do vline(8, y, y + 2, L.timber.shade) end
+end
+-- pile heads along the back lip (the platform is driven into the fen), and rush mats under the seats
+do
+  local top = {}
+  plat:each(function(x, y) if not top[x] or y < top[x] then top[x] = y end end)
+  for x = 14, 204, 15 do if top[x] then
+    local m = rect(x, top[x] - 3, x + 2, top[x] + 1) rimOf(m, L.timber) part(m, L.timber, { nopop = true, noshade = true })
+    hline(x, x + 2, top[x] - 3, L.board.hi) px(x + 1, top[x] - 3, L.board.shade)
+  end end
+  for _, mt in ipairs({ { 84, 196, 124, 203 }, { 150, 196, 176, 203 } }) do
+    local m = rect(mt[1], mt[2], mt[3], mt[4])
+    m:each(function(x, y) local k = ((x // 2) + y) % 2 px(x, y, k == 0 and L.reedGreen.shade or L.reed.shade) if y == mt[2] then px(x, y, L.reed.base) end end)
+    hline(mt[1], mt[3], mt[4], L.reedGreen.deep)
+  end
 end
 -- a boardwalk from the causeway in to the hearth
 local walk = poly{ { 162, 226 }, { 212, 223 }, { 210, 233 }, { 160, 236 } }

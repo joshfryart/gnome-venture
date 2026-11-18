@@ -209,10 +209,9 @@ end
 -- a small gnome waving from the far stage
 F.gnome(242, 127, { small = true, hat = L.awnA, coat = L.leaf, arm = "up" })
 -- a row of pollard willows along the right far bank, and the far guide-rope post
-F.tree(408, 124, 44, 3)
-F.tree(432, 123, 50, 7)
-F.tree(458, 124, 42, 11)
-F.tree(474, 124, 36, 1)
+F.tree(410, 124, 34, 3)
+F.tree(440, 124, 52, 6)
+F.tree(470, 124, 40, 9)
 do -- their reflections in the channel
   for x = 396, 479 do for y = yF(x) + 2, yF(x) + 14 do if river:has(x, y) and (y + x // 4) % 3 == 0 and hash(x, y, 27) < .6 then px(x, y, mix(L.willow.shade, Wt.base, .5)) end end end
 end
@@ -276,7 +275,8 @@ do
     end
   end
   for row = 0, 1 do for k = 0, 2 - row do bundleEnd(80 + k * 7 + row * 3, y - 6 - row * 5, 2) end end
-  local _, hx, hy = F.gnome(66, y - 3, { small = true, hat = L.marigold, coat = L.awnA, arm = "up", noShadow = true })
+  F.gnome(66, y - 3, { small = true, hat = L.marigold, coat = L.awnA, arm = "up", noShadow = true })
+  local hx, hy = 72, y - 17
   line({ { hx + 1, hy - 8 }, { hx - 10, y + 8 } }):each(function(x, yy) px(x, yy, yy > y and L.board.shade or L.board.base) end)
   for k = 0, 2 do hline(hx - 14 - k * 2, hx - 6 + k * 2, y + 9 + k, k == 1 and Wt.shade or Wt.hi) end
 end
@@ -367,8 +367,8 @@ do
   -- rail posts and the far rail rope
   local posts = HP.mask()
   for _, x in ipairs({ RX0 + 1, RX1 - 2 }) do posts:add(rect(x, RY1 - 9, x + 1, RY1)) end
-  local backPosts = rect(RX0 + 5, RY0 - 8, RX0 + 6, RY0)
-  local guide = rect(RX1 - 6, RY0 - 18, RX1 - 5, RY0)
+  local backPosts = rect(RX1 - 6, RY0 - 8, RX1 - 5, RY0)
+  local guide = rect(RX0 + 5, RY0 - 18, RX0 + 6, RY0)
   rimOf(union(backPosts, guide), L.timber) part(union(backPosts, guide), L.timber, { nopop = true, noshade = true })
   for x = RX0 + 6, RX1 - 6 do px(x, RY0 - 6 + floor(2 * sin((x - RX0) / (RX1 - RX0) * pi)), L.board.shade) end
   -- the guide rope slung across the channel: far post -> pulley on the guide post -> the lantern post by the stage
@@ -385,10 +385,7 @@ do
         prev = yy
       end
     end
-    rope(398, 101, RX1 - 5, RY0 - 17, 2)
-    rope(RX1 - 6, RY0 - 17, 284, 151, 4)
-    -- the pulley block
-    local pb = c:ellipse(RX1 - 5, RY0 - 17, 2, 2) rimOf(pb, L.iron) part(pb, L.iron, { nopop = true }) px(RX1 - 5, RY0 - 17, L.iron.deep)
+    rope(398, 101, RX0 + 6, RY0 - 17, 3)
   end
   -- cargo: milk churns, a stack of reed bundles end-on, an eel basket
   for _, cx in ipairs({ RX0 + 9, RX0 + 16 }) do
@@ -422,6 +419,10 @@ do
   local pole = line({ { fx - 3, fy - 10 }, { fx + 14, RY1 + 16 } }, 1)
   fill(pole, L.board.shade) line({ { fx - 2, fy - 10 }, { fx + 15, RY1 + 16 } }):each(function(x, y) if y < RY1 + 4 then px(x, y, L.board.hi) end end)
   for k = 0, 2 do hline(fx + 10 - k * 3, fx + 18 + k * 3, RY1 + 17 + k * 2, Wt.hi) end
+  -- the guide rope's run down from the pulley to the lantern post, and the pulley block
+  local gx0, gy0 = RX0 + 5, RY0 - 17
+  for yy = gy0, 158 do local xx = floor(gx0 + (yy - gy0) * (285 - gx0) / (158 - gy0) + .5) px(xx, yy, yy % 3 == 0 and L.board.base or L.timber.deep) px(xx + 1, yy, L.timber.edge) end
+  local pb = c:ellipse(gx0, gy0, 2, 2) rimOf(pb, L.iron) part(pb, L.iron, { nopop = true }) px(gx0, gy0, L.iron.deep) px(gx0 - 1, gy0 - 1, L.iron.hi)
   -- near rail posts and rope in front of everyone
   rimOf(posts, L.timber) part(posts, L.timber, { nopop = true, noshade = true })
   for x = RX0 + 2, RX1 - 2 do px(x, RY1 - 7 + floor(2 * sin((x - RX0) / (RX1 - RX0) * pi)), L.board.deep) end
@@ -444,7 +445,7 @@ end
 
 -- a pollard willow and a reed bed at the left of the near bank (behind the booth)
 F.depth(3)
-F.tree(106, 190, 40, 3)
+F.tree(106, 190, 40, 2)
 F.reeds(0, 30, 196, 26, 701, { cattails = 3 })
 
 DY = 10
@@ -584,10 +585,6 @@ do
 end
 F.moss(F.rock(160, 254, 9, 6), .3, 121) F.rock(172, 257, 5, 4)
 F.moss(F.rock(70, 254, 6, 4), .3, 122)
-do -- a stack of drying peat turves on the near right
-  F.shadow(194, 230, 236, 6, 3)
-  for row = 0, 3 do for k = 0, 3 - row do turf(196 + k * 8 + row * 4, 230 - row * 5, 8) end end
-end
 for _, f in ipairs({ { 30, 216, 6 }, { 148, 246, 6 }, { 186, 242, 7 }, { 270, 214, 5 }, { 362, 214, 5 }, { 60, 262, 7 }, { 290, 250, 7 }, { 330, 258, 6 }, { 214, 214, 5 }, { 96, 224, 5 } }) do F.sedge(f[1], f[2], f[3]) end
 for _, f in ipairs({ { 152, 248 }, { 268, 226 }, { 336, 260 }, { 34, 218 } }) do px(f[1] - 1, f[2] - 5, L.marigold.base) px(f[1] + 1, f[2] - 4, L.marigold.hi) px(f[1], f[2] - 6, L.marigold.shade) end
 
