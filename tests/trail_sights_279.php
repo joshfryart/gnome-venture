@@ -26,7 +26,7 @@ $after = array_map(fn($s) => eff_stat($u1, $s), array_keys(GNOME_STATS));
 ok('every stat is one higher', $after === array_map(fn($v) => $v + 1, $before), json_encode([$before, $after]));
 ok('the line says every stat', str_contains(implode(' ', $res), '+1 every stat for 60 minutes'), json_encode($res));
 ok('the effects list shows it', (bool)array_filter(active_effects($u1), fn($e) => $e[2] === 'Every stat +1'), json_encode(active_effects($u1)));
-ok('lint: buff=all:1:60 is clean; a bad stat or shape is refused', !$lint(['rewards' => 'buff=all:1:60,buff=luck:2:sleep'], 'buff=') && (bool)$lint(['rewards' => 'buff=strength:1:60'], 'buff=') && (bool)$lint(['rewards' => 'buff=luck'], 'buff='));
+ok('lint: buff=all:1:60 is clean; a bad stat or shape is refused', !$lint(['rewards' => 'buff=all:1:60,buff2=luck:2:sleep'], 'buff=') && (bool)$lint(['rewards' => 'buff=strength:1:60'], 'buff=') && (bool)$lint(['rewards' => 'buff=luck'], 'buff='));
 q('UPDATE users SET ev_stat = NULL, ev_amt = 0, ev_until = NULL, ev_day = NULL, ev_scope = NULL WHERE id = ?', [$u['id']]);
 
 echo "== fpall=: every villager of the start place\n";
