@@ -548,23 +548,21 @@ def _hooded(c, g, m, v):
     _wooltex(c, m, linen)
     if v == 'back':   # deep pointed hood lying down the back, long tassel at the tip
         hood = poly([(23, 48 + b), (42, 48 + b), (38, 56 + b), (33 + tl, 62 + b), (27, 56 + b)])
-        form(c, hood, linen, frac=0.35)
-        for q in hood:
-            if c.get(q) == linen[3]: c.put(q[0], q[1], linen[4])
+        form(c, hood, sand, frac=0.35)
         inner = poly([(26, 48 + b), (39, 48 + b), (33, 54 + b)])
-        for q in inner: c.put(q[0], q[1], sand[1] if q[1] > 50 + b else sand[0])
+        for q in inner: c.put(q[0], q[1], camel[0] if q[1] > 50 + b else goat[1])
         for q in hood.inner_edge():
-            if q not in inner and q[1] > 48 + b: c.put(q[0], q[1], camel[3] if (q[0] + q[1]) % 2 else camel[2])
+            if q not in inner and q[1] > 48 + b: c.put(q[0], q[1], camel[1])
         tx = 33 + tl
-        P(c, [(tx, 63 + b), (tx, 64 + b)], camel[2]); P(c, [(tx - 1, 65 + b), (tx, 65 + b), (tx - 1, 66 + b), (tx, 66 + b), (tx, 67 + b)], camel[4]); c.put(tx - 1, 66 + b, camel[3]); c.put(tx - 1, 67 + b, camel[2])
+        P(c, [(tx, 63 + b), (tx, 64 + b)], camel[1]); P(c, [(tx - 1, 65 + b), (tx, 65 + b), (tx + 1, 65 + b), (tx - 1, 66 + b), (tx, 66 + b), (tx + 1, 66 + b), (tx, 67 + b)], camel[3])
+        c.put(tx - 1, 65 + b, camel[4]); P(c, [(tx + 1, 66 + b), (tx, 67 + b)], camel[1])
     elif v == 'side':
         hood = poly([(24, 49 + b), (19, 50 + b), (16 + tl, 58 + b), (21, 59 + b), (24, 55 + b)])
-        form(c, hood, linen, frac=0.3)
-        for q in hood:
-            if c.get(q) == linen[3]: c.put(q[0], q[1], linen[4])
-        for q in hood.inner_edge(): c.put(q[0], q[1], camel[3])
+        form(c, hood, sand, frac=0.3)
+        for q in hood.inner_edge(): c.put(q[0], q[1], camel[1])
+        P(c, [(23, 51 + b), (22, 52 + b), (23, 52 + b)], camel[0])
         tx = 16 + tl
-        P(c, [(tx, 59 + b), (tx, 60 + b)], camel[2]); P(c, [(tx - 1, 61 + b), (tx, 61 + b), (tx - 1, 62 + b), (tx, 62 + b)], camel[4]); c.put(tx - 1, 62 + b, camel[2])
+        P(c, [(tx, 59 + b), (tx, 60 + b)], camel[1]); P(c, [(tx - 1, 61 + b), (tx, 61 + b), (tx - 1, 62 + b), (tx, 62 + b), (tx + 1, 61 + b)], camel[3]); P(c, [(tx, 62 + b), (tx - 1, 63 + b)], camel[1])
     else:
         for q in m:   # camel trim on the front edges that show beside the legs
             if (q[0] + 1, q[1]) not in m or (q[0] - 1, q[1]) not in m:
@@ -633,16 +631,18 @@ def _mantle(c, g, m, v):
     for q in m.bottom():
         if (q[0] + tl) % 2 == 0: c.put(q[0], q[1] + 1, madder[1])
         c.put(q[0], q[1], madder[2])
-    # brass clasp chain over the shoulders + dried rosebud beside it
+    # brass clasp bits at the shoulders + the dried rosebud tucked on the mantle where it shows
+    def bud(x, y):
+        P(c, [(x, y), (x + 1, y), (x, y + 1), (x + 1, y + 1)], madder[2]); c.put(x, y, rose[4]); c.put(x + 1, y + 1, madder[1])
+        P(c, [(x, y + 2), (x + 1, y + 2)], mint[2]); c.put(x + 2, y + 3, mint[1])
     if v == 'back':
         P(c, [(24, 46 + b), (41, 46 + b)], brass[3])
-        P(c, [(43, 45 + b), (44, 45 + b), (43, 44 + b)], madder[2]); c.put(44, 44 + b, rose[4]); P(c, [(42, 46 + b), (42, 47 + b)], mint[2])
+        bud(19 + tl, 50 + b); c.put(21 + tl, 50 + b, brass[4])
     elif v == 'side':
         P(c, [(29, 46 + b), (30, 47 + b)], brass[3]); c.put(30, 46 + b, brass[4])
-        P(c, [(31, 45 + b), (32, 45 + b), (31, 44 + b)], madder[2]); c.put(32, 44 + b, rose[4]); c.put(30, 45 + b, mint[2])
+        bud(18 + tl, 51 + b)
     else:
-        P(c, [(20, 46 + b), (21, 46 + b)], brass[3]); c.put(20, 45 + b, brass[4])
-        P(c, [(45, 45 + b), (46, 45 + b), (45, 44 + b)], madder[2]); c.put(46, 44 + b, rose[4]); P(c, [(44, 46 + b), (44, 47 + b)], mint[2])
+        bud(49, 50 + b); c.put(48, 49 + b, brass[4])
 
 
 def _tent(c, g, m, v):

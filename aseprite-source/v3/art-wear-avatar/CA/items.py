@@ -410,12 +410,12 @@ PACK = [
 
 
 # ======================================================================== COAT
-def _cuffs(c, g, r, rows=2, band=None):
-    """recolour the bottom `rows` rows of each sleeve with ramp r (keeping tone)."""
+def _cuffs(c, g, r, rows=2, lift=1):
+    """recolour `rows` rows near the bottom of each sleeve (lifted `lift` rows above the hand) with ramp r."""
     for s in g['sleeves']:
         s2 = M(q for q in s if q not in g['torso'] or g['view'] == 'side')
         if not s2: continue
-        y1 = s2.bbox()[3]
+        y1 = s2.bbox()[3] - lift
         for q in s2:
             if y1 - rows < q[1] <= y1 and q in c:
                 i = 4 if q[0] < s2.bbox()[0] + 2 else 3
@@ -542,8 +542,10 @@ def _vest(c, g):
 
 def _quilt(q, t, g):
     y = q[1] - g['b']
-    if (q[0] + y) % 4 == 0 or (q[0] - y) % 4 == 0:
+    if (q[0] + y) % 6 == 0 or (q[0] - y) % 6 == 0:
         return cochi[max(1, 3 - t - 1)] if t < 3 else cochi[0]
+    if (q[0] + y) % 6 == 3 and (q[0] - y) % 6 == 3 and t < 2:
+        return cochi[4]
     return None
 
 
@@ -560,7 +562,7 @@ def _quiltcoat(c, g):
         if (q[0], q[1] + 1) not in m and q[1] > 60 + b:
             c.put(q[0], q[1], cotton[2]); c.put(q[0], q[1] - 1, cotton[4] if q[0] < 40 else cotton[3])
     if v == 'front':
-        _boll(c, 22, 47 + b)
+        _boll(c, 45, 48 + b)
         for y in (61,): c.put(33, y + b, cotton[4])
     elif v == 'side':
         _boll(c, 27, 47 + b)
@@ -584,6 +586,7 @@ def _monarch(c, x, y, flip=False):
     P(c, [(x - s, y), (x + s, y)], marig[3]); P(c, [(x - 2 * s, y), (x + 2 * s, y)], cacao[0])
     c.put(x, y - 1, cacao[0]); c.put(x, y, cacao[0])
     P(c, [(x - s, y + 1), (x + s, y + 1)], marig[2])
+    P(c, [(x - 2 * s, y - 2), (x + 2 * s, y - 2)], marig[3])
 
 
 def _fieldjacket(c, g):
