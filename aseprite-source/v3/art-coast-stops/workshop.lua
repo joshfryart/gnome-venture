@@ -106,6 +106,10 @@ local function hungSail(x0, x1, yt, yb, r, seed, yardTilt)
     local h = (u < .3) and r.hi or (u < .72 and r.base or r.shade)
     if (x - x0) % 8 == 0 then h = (u < .5) and r.shade or r.deep end -- cloth seams
     if hash(x // 2, y // 3, seed) < .04 then h = r.deep end
+    local fold = math.sin((x - x0) * .55 + (y - yt) * .09 + seed)
+    if fold > .75 and h == r.base then h = r.shade elseif fold < -.8 and h == r.shade then h = r.base end
+    if y > yb - 4 and (x + y) % 3 == 0 then h = r.deep end
+    if x - x0 < 2 then h = r.hi end
     px(x, y, h)
   end)
   -- a reef band with points, the bolt rope along the leech
@@ -200,7 +204,7 @@ local ntop, ncx, nwall, nroof = F.building{ x0 = 60, x1 = 80, yb = 140, wh = 40,
 F.planks(nwall, L.tar, 4, true, 22)
 F.pantile(nroof, L.roof2, ntop - 12, 23)
 fill(rect(66, 106, 74, 116), L.tar.edge) fill(rect(67, 107, 73, 116), L.soil.deep)
-F.netSwag(64, 76, 113, 12, { floatStep = 5 })
+F.netSwag(64, 76, 113, 12, { floatStep = 5, col = L.cork.hi, col2 = L.cork.base })
 F.door(65, 126, 75, 139, L.wall2)
 -- stickered plank stacks drying in the wind
 F.shadow(94, 150, 141, 6, 2)
@@ -209,13 +213,16 @@ plankStack(128, 152, 140, 4, OAK)
 -- an oar and spar rack: a trestle with oars leaning, blades up
 local tr = union(rect(160, 120, 161, 138), rect(192, 122, 193, 138), rect(158, 124, 196, 125))
 rimOf(tr, L.tar) part(tr, L.timber, { nopop = true, noshade = true }) hline(158, 196, 124, L.timber.hi)
+local DX = { 5, -3, 6, -5, 3, -2 }
 for k = 0, 5 do
   local x = 164 + k * 5
-  local m = line({ { x, 138 }, { x + 2, 112 } }, 1)
-  local blade = rect(x + 1, 108 - (k % 2) * 2, x + 3, 116 - (k % 2) * 2)
+  local dx = DX[k + 1]
+  local ty = 108 + (k % 3) * 4
+  local m = line({ { x, 138 }, { x + dx, ty } }, 1)
+  local blade = rect(x + dx - 1, ty - 8, x + dx + 2, ty + 2)
   rimOf(union(m, blade), L.tar) part(m, L.board, { nopop = true, noshade = true })
   local br = ({ L.wall2, L.awnA, L.board })[k % 3 + 1]
-  fill(blade, br.base) vline(x + 3, 108 - (k % 2) * 2, 116 - (k % 2) * 2, br.shade) hline(x + 1, x + 3, 108 - (k % 2) * 2, br.hi)
+  fill(blade, br.base) vline(x + dx + 2, ty - 8, ty + 2, br.shade) hline(x + dx - 1, x + dx + 2, ty - 8, br.hi) vline(x + dx - 1, ty - 7, ty + 1, br.hi)
 end
 
 ---------------------------------------------------------------- back-right: sails spread to dry, a sailmaker stitching
@@ -442,7 +449,7 @@ local function boatShed()
   -- copper roves glinting along the lands
   for x = 336, 398, 6 do
     local pt, bt = plankTop(x), bottom(x)
-    for k = 1, NS - 1 do local y = floor(pt + (bt - pt + 1) * k / NS) - 1 if hull:has(x, y) then px(x, y, L.produce.hi) end end
+    for k = 1, NS - 1 do local y = floor(pt + (bt - pt + 1) * k / NS) - 1 if hull:has(x, y) and ((x - 336) // 6 + k) % 2 == 0 then px(x, y, L.produce.hi) end end
   end
   for x = X0 + 1, X1 + 10 do local y = floor(plankTop(x)) if hull:has(x, y - 1) then px(x, y - 1, L.tar.deep) end end
   part(stem, OAK, { nopop = true, noshade = true }) stem:each(function(x, y) if not stem:has(x - 1, y) then px(x, y, OAK.hi) end end)
@@ -526,8 +533,8 @@ fill(rect(80, 190, 88, 191), L.tar.deep) px(81, 190, L.tar.hi)
 line({ { 86, 190 }, { 90, 182 } }):each(function(x, y) px(x, y, L.timber.base) end) fill(rect(89, 180, 91, 182), L.cork.base)
 -- the sawhorse bench: two trestles, a long oak strake on them, a gnome pushing a plane along it
 local function sawhorse(x, yb)
-  local m = line({ { x - 5, yb }, { x - 1, yb - 12 } }, 1):add(line({ { x + 5, yb }, { x + 1, yb - 12 } }, 1)):add(rect(x - 4, yb - 13, x + 4, yb - 12))
-  rimOf(m, L.tar) part(m, L.timber, { nopop = true, noshade = true }) hline(x - 4, x + 4, yb - 13, L.timber.hi)
+  local m = line({ { x - 5, yb }, { x - 1, yb - 12 } }, 2):add(line({ { x + 5, yb }, { x + 1, yb - 12 } }, 2)):add(rect(x - 5, yb - 14, x + 5, yb - 12)):add(rect(x - 3, yb - 6, x + 3, yb - 5))
+  rimOf(m, L.tar) part(m, L.timber, { nopop = true, noshade = true }) hline(x - 5, x + 5, yb - 14, L.timber.hi)
 end
 F.shadow(20, 100, 256, 8, 3)
 sawhorse(30, 256) sawhorse(78, 254)

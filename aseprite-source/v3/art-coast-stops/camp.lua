@@ -234,9 +234,17 @@ do
     px(x, y, h)
   end)
   -- lobsters, clams and a corn cob peeking out
-  F.sprite({ "a.a.....", "aa.aaaAa", ".aaaaaaA", "a.a....." }, cx - 14, cy - 6, { a = L.awnA.base, A = L.awnA.hi }, { rimCol = L.awnA.edge })
-  F.sprite({ "ccC", "Ccc" }, cx + 4, cy - 8, { c = L.awnB.base, C = L.awnB.hi }, { rimCol = L.awnB.edge })
-  F.sprite({ "ccC", "Ccc" }, cx + 10, cy - 4, { c = L.awnB.base, C = L.awnB.hi }, { rimCol = L.awnB.edge })
+  F.sprite({
+    "aa....aa........",
+    "aAa..aAa...aa...",
+    ".aAaaaAa.aaAAa..",
+    "..aaAaaaaaAAaaaa",
+    ".a.aaaaaaaaaaa.a",
+    "a.a.a.a.a..aa...",
+  }, cx - 18, cy - 9, { a = L.awnA.base, A = L.awnA.hi }, { rimCol = L.awnA.edge })
+  F.sprite({ ".ccCc.", "cCcccC", ".cccc." }, cx + 3, cy - 10, { c = L.awnB.base, C = L.awnB.hi }, { rimCol = L.awnB.edge })
+  F.sprite({ ".ccCc.", "cCcccC", ".cccc." }, cx + 11, cy - 6, { c = L.awnB.base, C = L.awnB.hi }, { rimCol = L.awnB.edge })
+  F.sprite({ ".ccCc.", "cCcccC", ".cccc." }, cx - 6, cy - 2, { c = L.awnB.base, C = L.awnB.hi }, { rimCol = L.awnB.edge })
   F.sprite({ "gGgGg", "GgGgG" }, cx - 4, cy - 10, { g = L.gold.base, G = L.gold.hi }, { rimCol = L.gold.edge })
   -- steam rising in pale wisps (against the sky/sea, not the chalk)
   for k = 0, 2 do
@@ -403,6 +411,12 @@ local function campfire(cx, cy)
   fill(poly{ { cx - 4, cy }, { cx - 1, cy - 12 }, { cx + 3, cy } }, G.hi)
   -- salt-soaked driftwood burns with blue-green flickers at its foot
   for _, b in ipairs({ { -9, -2 }, { -7, -4 }, { 7, -3 }, { 9, -1 }, { 6, -5 }, { -10, -1 } }) do px(cx + b[1], cy + b[2], L.glass.hi) px(cx + b[1], cy + b[2] - 1, L.glass.base) end
+  local front = HP.mask()
+  for _, s in ipairs({ { -14, 2, -1 }, { 12, 2, 0 } }) do
+    front:add(line({ { cx + s[1], cy + s[2] }, { cx + s[3] + floor(s[1] * .15), cy - 24 } }, 2))
+  end
+  rimOf(front, L.timber) part(front, L.timber, { nopop = true })
+  front:each(function(x, y) if hash(x, y, 93) < .2 then px(x, y, G.deep) elseif y < cy - 18 and hash(x, y, 95) < .3 then px(x, y, L.timber.hi) end end)
   -- charred stick tips poking out of the flames
   px(cx - 1, cy - 25, L.tar.base) px(cx, cy - 26, L.tar.deep) px(cx + 1, cy - 24, L.tar.base)
   for i = 0, 14 do px(cx - 14 + floor(hash(i, 1, 31) * 30), cy - 32 - floor(hash(i, 2, 31) * 24), i % 3 == 0 and G.base or G.hi) end
@@ -450,8 +464,8 @@ F.sprite({
   "nwDDDDDDDDdDDDt.",
   "wwwDDDDDDDDDDDtt",
   ".wwwwwddddddd...",
-}, 154, 228, { e = L.tar.base, D = L.tar.shade, d = L.tar.base, n = L.tar.edge, w = L.gull.hi, t = L.gull.hi }, { rimCol = L.tar.edge })
-hline(156, 157, 230, L.tar.edge) px(160, 229, L.tar.hi) px(166, 229, L.tar.hi) hline(162, 168, 230, L.tar.hi)
+}, 154, 228, { e = L.tar.shade, D = L.iron.shade, d = L.tar.shade, n = L.tar.edge, w = L.gull.hi, t = L.gull.hi }, { rimCol = L.tar.edge })
+hline(156, 157, 230, L.tar.edge) px(160, 229, L.iron.hi) px(166, 229, L.iron.hi) hline(162, 168, 230, L.iron.base) hline(162, 167, 229, L.iron.base)
 -- a driftwood stump stool by the concertina player; pebbles and shells by the ring
 stump(66, 216, 5, .12, 23)
 for _, p in ipairs({ { 112, 230 }, { 158, 222 }, { 84, 222 }, { 192, 236 } }) do F.pebbles(p[1], p[2], 2, p[1]) end
@@ -537,9 +551,13 @@ F.sprite({
 }, 355, 233, { W = L.gull.hi, G = L.gull.shade, K = L.tar.deep, w = L.gull.hi, Y = L.gold.base, r = L.apple.base, e = L.tar.edge, p = L.petal.shade }, { rimCol = L.gull.edge })
 px(363, 239, L.gull.base) px(364, 240, L.gull.base) px(365, 242, L.gull.base) -- breast shading
 -- a string of linked sausages pulled taut between the raccoon's paws and the gull's bill
-for x = 350, 355 do px(x, 235, L.awnA.base) px(x, 236, L.awnA.shade) end
-px(351, 234, L.awnA.edge) px(354, 234, L.awnA.edge) px(352, 235, L.awnA.hi) px(353, 235, L.awnA.deep) px(353, 236, L.awnA.deep)
-hline(350, 355, 237, L.awnA.edge)
+F.sprite({
+  ".aAAa.aAAa.",
+  "aAAAAnaAAAa",
+  "assssnassss",
+  ".aaaa.aaaa.",
+}, 345, 233, { a = L.awnA.base, A = L.awnA.hi, s = L.awnA.shade, n = L.tar.base }, { rimCol = L.awnA.edge })
+px(347, 234, L.cloud.top) px(353, 234, L.cloud.top)
 F.marram(364, 262, 8) F.marram(320, 268, 6) F.marram(294, 258, 5)
 F.shell(304, 252, true) F.shell(372, 256, false)
 F.depth(0)

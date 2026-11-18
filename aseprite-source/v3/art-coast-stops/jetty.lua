@@ -143,8 +143,12 @@ do
   local post = rect(299, 89, 300, 104)
   local lamp = rect(297, 84, 302, 89)
   local cap = rect(296, 82, 303, 83)
-  rimOf(union(post, lamp, cap), L.tar)
+  local plinth = rect(295, 98, 304, 104)
+  local brace = poly{ { 297, 99 }, { 298, 94 }, { 301, 94 }, { 302, 99 } }
+  rimOf(union(post, lamp, cap, plinth, brace), L.tar)
   part(post, L.iron, { nopop = true, noshade = true })
+  part(brace, L.iron, { nopop = true, noshade = true })
+  part(plinth, L.stone) hline(295, 304, 98, L.stone.hi) hline(295, 304, 101, L.stone.deep) vline(299, 99, 100, L.stone.deep) vline(302, 102, 103, L.stone.deep)
   fill(lamp, L.awnA.base) vline(297, 84, 89, L.awnA.hi) vline(302, 84, 89, L.awnA.deep) hline(297, 302, 87, L.tar.base)
   fill(cap, L.tar.base) px(299, 81, L.tar.base) px(300, 81, L.tar.deep)
   px(298, 85, L.produce.hi)
@@ -155,11 +159,15 @@ local function spray(x0, w, hh, seed)
     local dx = floor(hash(k, 1, seed) * w)
     local t = 1 - math.abs(dx - w / 2) / (w / 2)
     local dy = floor(hash(k, 2, seed) * hh * (0.3 + t))
-    if dy > 0 then px(x0 + dx, 102 - dy, hash(k, 3, seed) < .6 and L.foam or L.cloud.mid) end
+    if dy > 0 then
+      local v = hash(k, 3, seed)
+      local col = v < .5 and L.foam or (v < .8 and L.cloud.mid or L.cloud.shade)
+      if hash(k, 5, seed) < .45 then fill(rect(x0 + dx, 102 - dy, x0 + dx + 1, 103 - dy), col) else px(x0 + dx, 102 - dy, col) end
+    end
   end
-  for dx = 0, w do if hash(dx, 4, seed) < .7 then px(x0 + dx, 101, L.foam) end end
+  for dx = 0, w do if hash(dx, 4, seed) < .8 then px(x0 + dx, 101, L.foam) px(x0 + dx, 100, hash(dx, 6, seed) < .5 and L.foam or L.cloud.shade) end end
 end
-spray(310, 14, 9, 41) spray(352, 8, 5, 42) spray(448, 12, 8, 43)
+spray(308, 18, 14, 41) spray(350, 10, 8, 42) spray(446, 16, 12, 43)
 F.depth(0)
 
 -- the wall's reflection in the basin: mirrored, sunk into the water colour, broken by ripple rows
@@ -209,20 +217,22 @@ buoy(316, 136, L.produce) buoy(372, 152, L.awnA) buoy(470, 160, L.produce)
 
 ---------------------------------------------------------------- the grey seal (bobbing head) and a cormorant on a post
 do
-  local sx, sy = 322, 150
+  local sx, sy = 320, 147
   F.sprite({
-    "..gggg...",
-    ".gGGGGg..",
-    "gGeGGeGg.",
-    "gGGGGGGgg",
-    "gGGnnGGGg",
-    ".gGwwGGg.",
-    "..ggggg..",
+    "...gggggg....",
+    "..gGGGGGGg...",
+    ".gGGGGGGGGg..",
+    "gGGeGGGGeGGg.",
+    "gGGGGGGGGGGgg",
+    "gGGGGnnnGGGGg",
+    ".gGGGwwwGGGg.",
+    "..gGGGGGGGg..",
+    "...gggggg....",
   }, sx, sy, { g = L.iron.shade, G = L.iron.base, e = L.tar.edge, n = L.tar.deep, w = L.iron.hi }, { rimCol = L.tar.deep })
-  px(sx + 2, sy + 1, L.iron.hi) px(sx + 3, sy + 1, L.iron.hi) -- wet shine on the crown
-  px(sx - 1, sy + 4, L.iron.hi) px(sx + 10, sy + 5, L.iron.hi) -- whiskers
-  c:ellipse(sx + 4, sy + 7, 8, 1):edge():each(function(x, y) px(x, y, S.hi) end)
-  c:ellipse(sx + 4, sy + 8, 12, 2):edge():each(function(x, y) if (x // 2) % 2 == 0 and lake:has(x, y) then px(x, y, T1) end end)
+  px(sx + 3, sy + 1, L.iron.hi) px(sx + 4, sy + 1, L.iron.hi) px(sx + 5, sy + 1, L.iron.hi) px(sx + 2, sy + 2, L.iron.hi)
+  px(sx - 2, sy + 5, L.iron.hi) px(sx - 3, sy + 6, L.iron.hi) px(sx + 14, sy + 5, L.iron.hi) px(sx + 15, sy + 6, L.iron.hi) -- whiskers
+  c:ellipse(sx + 6, sy + 9, 9, 1):edge():each(function(x, y) px(x, y, S.hi) end)
+  c:ellipse(sx + 6, sy + 10, 13, 2):edge():each(function(x, y) if (x // 2) % 2 == 0 and lake:has(x, y) then px(x, y, T1) end end)
 end
 do -- cormorant drying its wings on a tarred mooring post
   local px0, py0 = 372, 128
@@ -231,18 +241,20 @@ do -- cormorant drying its wings on a tarred mooring post
   F.barnacles(post, .25, 37, py0 + 19)
   for y = py0 + 25, py0 + 30, 2 do hline(px0 + 3, px0 + 7, y, T5) end
   F.sprite({
-    "......kk.....",
-    "......kkyo...",
-    "KK....kk.....",
-    "KKK..kkk...KK",
-    ".KKK.kkk..KK.",
-    "..KKKkKkKKK..",
-    "...KKkkkKK...",
-    "......kk.....",
-    "......kk.....",
-    ".....y..y....",
-  }, px0, py0, { K = L.tar.base, k = L.tar.shade, y = L.gold.base, o = L.gold.hi }, { rimCol = L.tar.edge })
-  px(px0 + 6, py0, L.tar.hi) px(px0 + 1, py0 + 3, L.tar.hi) px(px0 + 2, py0 + 4, L.tar.hi) px(px0 + 7, py0 + 1, L.awnB.hi)
+    "........kkk......",
+    "........kkkyo....",
+    "........kkk......",
+    "KK......kkk....KK",
+    "KKK....kkkk...KKK",
+    ".KKK...kkkk..KKK.",
+    "..KKKKkkkkkKKKK..",
+    "...KKKKkKkKKKK...",
+    ".....KKkkkKK.....",
+    ".......kkk.......",
+    ".......kkk.......",
+    "......y...y......",
+  }, px0 - 4, py0 - 2, { K = L.tar.base, k = L.tar.shade, y = L.gold.base, o = L.gold.hi }, { rimCol = L.tar.edge })
+  px(px0 + 5, py0 - 2, L.tar.hi) px(px0 - 3, py0 + 1, L.tar.hi) px(px0 - 2, py0 + 2, L.tar.hi) px(px0 + 11, py0 + 1, L.awnB.hi) px(px0 + 10, py0 + 2, L.tar.hi)
 end
 
 ---------------------------------------------------------------- a lugger moored alongside the wall, sail furled
@@ -445,6 +457,20 @@ F.tree(10, 134, 40, 1)
 local ctop, _, cwall, croof = F.building{ x0 = 22, x1 = 66, yb = 136, wh = 36, rh = 20, wall = L.tar, roof = L.roof, shingle = true, noFrame = true, noAttic = true }
 F.planks(cwall, L.tar, 4, true, 96)
 F.lichen(croof, .07, 97)
+do
+  local ch = rect(57, ctop + 3, 61, ctop + 14)
+  rimOf(ch, L.tar) part(ch, L.stone) F.courses(ch, ctop + 3, 3, 4, L.stone)
+  hline(56, 62, ctop + 2, L.stone.hi) hline(56, 62, ctop + 3, L.stone.deep)
+  local cols = { "#5c6a78", "#74838f", "#8c9aa6", "#a6b4be" }
+  for i = 0, 5 do
+    local t = i / 5
+    local r = 3 + floor(t * 2)
+    local cx, cy = 59 + floor(i * i * .45 + 2 * sin(i * 1.7)), ctop - 1 - i * 5
+    local m = c:ellipse(cx, cy, r, r - 1)
+    fill(m, cols[math.min(4, 1 + floor(t * 3.5))])
+    m:each(function(xx, yy) if not m:has(xx - 1, yy - 1) then px(xx, yy, cols[math.min(4, 2 + floor(t * 3.5))]) end if not m:has(xx + 1, yy + 1) then px(xx, yy, cols[math.max(1, floor(t * 3.5))]) end end)
+  end
+end
 -- the loft door high up with a hoist beam, a ground door in sea blue, a little window
 local ld = rect(38, ctop + 3, 48, ctop + 12) fill(ld, L.tar.edge) hline(38, 48, ctop + 3, L.wall2.hi) vline(38, ctop + 3, ctop + 12, L.wall2.base) vline(48, ctop + 3, ctop + 12, L.wall2.shade)
 hline(39, 47, ctop + 8, L.accent.shade) for xx = 39, 47, 2 do px(xx, ctop + 9, L.accent.base) px(xx + 1, ctop + 10, L.accent.shade) end -- nets inside

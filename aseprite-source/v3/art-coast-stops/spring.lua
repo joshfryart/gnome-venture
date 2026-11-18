@@ -130,9 +130,14 @@ mass:each(function(x, y)
   if ledgeOn and band == 0 then h = (lt > -.15) and chalk.hi or chalk.base
   elseif ledgeOn and band == 1 then h = (lt > .1) and chalk.shade or chalk.deep
   elseif ledgeOn and band == 2 and lt < .25 then h = chalk.shade end
-  if band == 7 and hash(x // 2, bi, 302) < .2 then
-    h = flint.deep px(x, y - 1, flint.shade)
+  if band == 7 and hash(x // 7, bi, 302) < .6 then
+    h = hash(x, y, 307) < .3 and flint.shade or flint.deep
+  elseif band == 8 and hash(x // 7, bi, 302) < .6 and hash(x, y, 308) < .45 then
+    h = flint.shade
+  elseif band == 6 and hash(x // 7, bi, 302) < .6 and hash(x, y, 309) < .3 then
+    h = chalk.deep
   end
+  if ledgeOn == false and band > 2 and band < 6 and vn(x / 9, bi, 301) < .3 then h = (h == chalk.hi) and chalk.base or h end
   if hash(x, y, 304) < .015 then h = chalk.hi elseif hash(x, y, 305) < .015 then h = chalk.shade end
   if x >= 347 and x <= 425 and y >= 128 and h == chalk.hi then h = chalk.base end -- damp shade round the face
   if y > 202 then h = (hash(x, y, 306) < .5) and chalk.deep or chalk.shade end
@@ -194,10 +199,10 @@ end
 for i = 0, 6 do local x = 340 + floor(hash(i, 2, 314) * 120) if topY[x] then F.marram(x, topY[x] + 1, 5) end end
 -- kittiwakes nesting on the ledges: white heads, grey backs, black wingtips, a dab of yellow bill
 local function kitti(x, y, flip)
-  local s = flip and -1 or 1
-  px(x, y, L.gull.hi) px(x + s, y, L.gull.hi) px(x - s, y + 1, L.gull.shade) px(x, y + 1, L.gull.base) px(x + s, y + 1, L.gull.hi)
-  px(x - 2 * s, y + 1, L.tar.deep) px(x + 2 * s, y, L.gold.base) px(x + s, y - 1, L.gull.base)
-  hline(x - 2, x + 2, y + 2, L.soil.shade) -- nest
+  local rows = { "..HHH....", ".HHeHHy..", "gGGGGHH..", "KgGGGGg..", ".KKggg..." }
+  if flip then for i, r in ipairs(rows) do rows[i] = r:reverse() end end
+  F.sprite(rows, x - 4, y - 3, { H = L.gull.hi, G = L.gull.base, g = L.gull.shade, K = L.tar.deep, e = L.tar.deep, y = L.gold.base }, { rimCol = L.gull.edge })
+  hline(x - 3, x + 3, y + 2, L.soil.shade) -- nest
 end
 for _, k in ipairs({ { 330, 141 }, { 342, 129, true }, { 436, 117 }, { 446, 129, true }, { 456, 141 }, { 318, 153, true }, { 432, 141 } }) do
   local yy = k[2] - (k[2] + wob(k[1])) % 12
@@ -338,6 +343,9 @@ do
     d = seal.deep, e = L.tar.deep, n = L.tar.deep, m = L.petal.shade, w = seal.shade, F = seal.shade }, { rimCol = seal.edge })
   -- a few darker dapples, the trough water lapping round it (the front lip is drawn over its belly)
   px(404, 192, seal.shade) px(410, 190, seal.shade) px(399, 189, seal.hi)
+  for _, p in ipairs({ { 400, 183 }, { 408, 186 }, { 412, 183 }, { 403, 187 }, { 397, 185 }, { 409, 192 }, { 413, 188 } }) do px(p[1], p[2], seal.deep) end
+  for _, p in ipairs({ { 402, 190 }, { 406, 189 }, { 411, 186 }, { 399, 186 } }) do px(p[1], p[2], seal.shade) end
+  for y = 186, 190 do px(398, y, seal.deep) end
   hline(396, 415, TY + 5, Wt.hi) hline(398, 413, TY + 6, GL)
   for x = TX0, TX1 do px(x, TY + 8, gran.base) px(x, TY + 9, gran.shade) end
   hline(TX0 + 1, TX1 - 1, TY + 8, gran.hi)
@@ -665,13 +673,16 @@ do
   brook:each(function(x, y) if deck:grow(2):has(x, y) and not deck:has(x, y) then px(x, y, Wt.deep) end end)
   rimOf(deck, L.tar)
   deck:each(function(x, y)
-    local k = (y - ys) % 3
-    local off = hash((y - ys) // 3, 9, 355) * 30
-    local h = k == 0 and L.board.deep or (k == 1 and L.board.hi or L.board.base)
-    if k == 2 and floor(x + off) % 31 == 0 then h = L.board.deep end -- butt joints
-    local v = hash(floor(x + off) // 31, (y - ys) // 3, 350)
-    if k > 1 and hash(x, y, 351) < .12 then h = L.board.shade end
+    -- planks run along the road: 4 px wide boards, dark gaps, short butt joints
+    local xl = floor(F.xl(y)) - 4
+    local col = (x - xl) // 4
+    local k = (x - xl) % 4
+    local h = k == 0 and L.board.deep or (k == 1 and L.board.hi or (k == 2 and L.board.base or L.board.shade))
+    local jy = (y - ys + col * 5) % 17
+    if jy == 0 then h = L.board.deep end
+    local v = hash(col, (y - ys + col * 5) // 17, 350)
     if v < .2 and k > 0 then h = (k == 1) and L.timber.hi or L.timber.base end -- a grey replacement plank
+    if k == 2 and hash(x, y, 351) < .1 then h = L.board.shade end
     px(x, y, h)
   end)
   -- nail heads near each end of every plank, ends ragged
@@ -702,16 +713,15 @@ do
       tops[#tops + 1] = { x + 1, y - hh + 1 }
     end
     for i = 1, #tops - 1 do
-      rails:add(line({ tops[i], tops[i + 1] }, 2))
+      rails:add(line({ tops[i], tops[i + 1] }, 1))
       rails:add(line({ { tops[i][1], tops[i][2] + 6 }, { tops[i + 1][1], tops[i + 1][2] + 6 } }))
     end
   end
   local allR = union(rails, postsM)
-  rimOf(allR, L.tar)
+  rimOf(postsM, L.tar)
   part(postsM, L.timber, { nopop = true })
   postsM:each(function(x, y) if not postsM:has(x, y - 1) then px(x, y, L.timber.hi) end end)
-  part(rails, L.timber, { nopop = true, noshade = true })
-  rails:each(function(x, y) if not rails:has(x, y - 1) then px(x, y, L.timber.hi) elseif hash(x, y, 353) < .15 then px(x, y, L.timber.shade) end end)
+  rails:each(function(x, y) if not postsM:has(x, y) then px(x, y, (x + y) % 2 == 0 and L.cork.base or L.cork.shade) end end)
   F.barnacles(postsM, .06, 354, 0)
   -- a coil of rope hung on the right rail, a cork float tied on
   local rx, ry = floor(F.xr(ye)) + 5, ye - 8

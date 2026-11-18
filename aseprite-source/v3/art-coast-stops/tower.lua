@@ -37,10 +37,10 @@ end
 F.depth(0)
 do
   local cx, cy = 248, 28
-  for x = cx + 4, 360 do
+  for x = cx + 4, 372 do
     local d = x - cx
     local up, dn = cy - d * .10, cy + d * .22
-    local k = .34 * (1 - d / 116)
+    local k = .85 * (1 - d / 130)
     for y = floor(up), floor(dn) do
       if y >= 13 and y < F.SEA_Y then
         local core = y >= cy - d * .03 and y <= cy + d * .1
@@ -106,7 +106,7 @@ do
   local knoll = poly{ { 182, 131 }, { 190, 121 }, { 198, 112 }, { 207, 106 }, { 216, 102 }, { 264, 102 }, { 273, 106 }, { 283, 112 }, { 292, 121 }, { 300, 131 } }
   rimOf(knoll, L.chalk)
   -- per column: a turf cap, then a chalk face with gullies and flint bands (same recipe as the headlands)
-  local kt = {}
+  local kt, ft = {}, {}
   for x = 182, 300 do
     local y = 100
     while not knoll:has(x, y) and y < 132 do y = y + 1 end
@@ -123,6 +123,20 @@ do
         local h = lit and (v < .25 and L.leaf.hi or (v < .8 and L.mossGround.base or L.leaf.shade)) or (v < .2 and L.leaf.base or (v < .8 and L.mossGround.shade or L.leaf.deep))
         if yy == y then h = lit and L.leaf.hi or L.leaf.base end
         px(x, yy, h)
+      end
+      ft[x] = y + turf - 1
+    end
+  end
+  -- the lee (right) face: gullies, darker slumps and flint bands so it is not one flat pale wedge
+  for x = 244, 300 do
+    if ft[x] then
+      for y = ft[x] + 1, 131 do
+        if knoll:has(x, y) then
+          local gul = (x * 5 + floor(y * .3)) % 13 == 0 and hash(x, y // 6, 76) < .8
+          if gul then px(x, y, L.chalk.edge)
+          elseif y % 8 == 3 and hash(x // 3, y, 77) < .55 then px(x, y, L.stone.shade)
+          elseif hash(x // 2, y // 2, 78) < .12 then px(x, y, L.chalk.deep) end
+        end
       end
     end
   end
@@ -234,7 +248,7 @@ local function lighthouse()
   fill(ball, L.tar.base) px(239, 13, L.tar.hi) px(240, 16, L.tar.deep)
 
   -- the keeper on the gallery, waving (drawn before the rail so the rail crosses his legs)
-  F.gnome(222, 42, { small = true, hat = L.awnA, coat = L.accent, arm = "up", noShadow = true, flip = true })
+  F.gnome(222, 42, { small = true, hat = L.gold, coat = L.accent, arm = "up", noShadow = true, flip = true })
   -- gallery railing
   local rail = HP.mask()
   for x = 218, 262, 4 do rail:add(rect(x, 37, x, 42)) end
@@ -512,7 +526,7 @@ local function pigeonLoft(x, yb)
     ".....o.o......",
     "....sZRs......",
     "....sZZs......",
-  }, x - 7, yb - 86, { K = S.deep, W = S.hi, w = S.base, g = S.base, e = L.produce.base, y = L.gold.hi, P = "#7cc0a0", Q = "#b48ac8",
+  }, x - 7, yb - 86, { K = L.tar.edge, W = S.base, w = S.hi, g = S.shade, e = L.produce.base, y = L.gold.hi, P = "#7cc0a0", Q = "#b48ac8",
     T = S.shade, o = L.apple.base, s = L.awnB.hi, Z = L.awnB.shade, R = L.awnA.base })
 end
 pigeonLoft(440, 196)

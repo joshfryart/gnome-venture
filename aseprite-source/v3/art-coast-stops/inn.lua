@@ -81,6 +81,15 @@ F.fenceP(300, 132, 410, 129, 10)
 do local wp = rect(318, 112, 319, 130) rimOf(wp, L.timber) part(wp, L.timber, { nopop = true, noshade = true }) end
 F.washing(293, 114, 318, 113, { { "sheet", L.awnB }, { "shirt", L.accent }, { "sock", L.awnA } }, 3)
 
+local function lp(x, yb, w)
+  local m = F.lobsterPot(x, yb, w)
+  -- lath cage: pale slats round the dome, a dark funnel eye on the face, a red cork float on a rope
+  for _, yy in ipairs({ yb - 3, yb - 3 - w // 2 }) do hline(x - w + 1, x + w - 1, yy, L.timber.hi) hline(x - w + 2, x + w - 2, yy + 1, L.timber.deep) end
+  local fn = c:ellipse(x - w // 3, yb - w // 2 - 1, math.max(1, w // 3), math.max(1, w // 3))
+  rimOf(fn, L.timber) fill(fn, L.soil.deep)
+  px(x + w - 1, yb - w - 4, L.awnA.base) px(x + w, yb - w - 4, L.awnA.shade) px(x + w - 1, yb - w - 3, L.awnA.hi) px(x + w - 2, yb - w - 2, L.tar.base)
+  return m
+end
 ---------------------------------------------------------------- mid right: wind-bent trees, the cart of lobster pots, the donkey
 F.depth(2)
 F.tree(352, 152, 46, 6)
@@ -93,7 +102,7 @@ local function potCart(x0, yb)
   part(shaft, L.timber, { nopop = true, noshade = true })
   part(bed, L.wall2) hline(x0 + 1, x0 + 45, yb - 9, L.wall2.deep) hline(x0 + 1, x0 + 45, yb - 12, L.wall2.hi)
   -- the load: lobster pots, a coil of rope, a net heap with cork floats
-  F.lobsterPot(x0 + 10, yb - 12, 7) F.lobsterPot(x0 + 26, yb - 12, 7) F.lobsterPot(x0 + 18, yb - 21, 6)
+  lp(x0 + 10, yb - 12, 7) lp(x0 + 26, yb - 12, 7) lp(x0 + 18, yb - 21, 6)
   local net = c:ellipse(x0 + 39, yb - 15, 6, 4):clip(rect(x0 + 30, yb - 22, x0 + 47, yb - 12))
   rimOf(net, L.tar) fill(net, L.tar.base)
   net:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.tar.hi) elseif (x - y) % 4 == 0 then px(x, y, L.tar.deep) end end)
@@ -128,6 +137,13 @@ F.sprite({
 }, 352, 152, { m = L.tar.base, h = L.timber.hi, B = L.timber.base, d = L.timber.shade, a = L.timber.shade, A = L.awnB.base,
   w = L.awnB.base, n = L.tar.shade, t = L.tar.base, f = L.tar.deep, e = L.tar.edge }, { rimCol = L.tar.edge })
 vline(364, 157, 160, L.tar.shade) -- the dark cross on its back
+-- tall ears, inner ear pale
+do
+  local ears = poly{ { 354, 153 }, { 353, 145 }, { 357, 146 }, { 357, 153 } }:add(poly{ { 358, 154 }, { 359, 146 }, { 363, 147 }, { 361, 155 } })
+  rimOf(ears, L.tar) fill(ears, L.timber.shade)
+  vline(355, 148, 152, L.cloud.mid) vline(360, 149, 153, L.cloud.mid)
+  px(354, 146, L.timber.hi) px(359, 147, L.timber.hi)
+end
 -- the hay net hanging off the cart tail
 local hn = c:ellipse(350, 161, 3, 3) rimOf(hn, L.cork) fill(hn, L.gold.base)
 hn:each(function(x, y) if (x + y) % 2 == 0 then px(x, y, L.cork.shade) elseif hash(x, y, 5) < .4 then px(x, y, L.gold.hi) end end)
@@ -366,7 +382,7 @@ do
   local row = 0
   for yb = Y1, Y0 + 14, -9 do
     row = row + 1
-    for _, x in ipairs(row % 2 == 0 and { 22, 34 } or { 21, 33 }) do F.lobsterPot(x, yb, 5) end
+    for _, x in ipairs(row % 2 == 0 and { 22, 34 } or { 21, 33 }) do lp(x, yb, 5) end
   end
   -- a buoy and two glass floats in rope cages on the top tier
   local fl = c:ellipse(22, Y0 + 9, 3, 3) rimOf(fl, L.glass) part(fl, L.glass) px(21, Y0 + 8, "#eef6f0")
@@ -497,6 +513,7 @@ do
   F.shadowM(c:ellipse(434, 194, 28, 3))
   F.windTree(452, 192, 72, L.foliage2, 51)
   F.tree(428, 196, 104, 3)
+  F.tree(404, 194, 92, 2)
 end
 -- festoon lantern strings: sign arm -> pole across the road, pole -> pine
 local function festoon(x0, y0, x1, y1, sag, step, startI)
@@ -674,7 +691,7 @@ do
   px(288, 223, L.produce.deep) px(292, 224, L.produce.shade) F.wrack(286, 225, 7, 3)
 end
 -- lobster pots and shore plants on the right, around the garden (clear of the compass corner)
-F.lobsterPot(440, 224, 6) F.lobsterPot(456, 224, 6) F.lobsterPot(448, 214, 6)
+lp(440, 224, 6) lp(456, 224, 6) lp(448, 214, 6)
 for _, f in ipairs({ { 304, 262, 8 }, { 290, 250, 6 }, { 374, 262, 7 }, { 430, 222, 6 }, { 470, 216, 7 }, { 282, 238, 5 } }) do F.marram(f[1], f[2], f[3]) end
 F.thrift(300, 240, true) F.thrift(306, 244) F.thrift(366, 254, true)
 F.shell(312, 248, true) F.shell(370, 266) F.shell(286, 262, true)
@@ -700,13 +717,14 @@ for x = 100, 106 do px(x, 218 + (x - 100) // 3, L.cork.shade) end
 F.shadowM(c:ellipse(118, 228, 10, 1))
 -- a black-and-white collie asleep under the table between the legs
 F.sprite({
-  "....bb..........",
-  "...bBBb.....bb..",
-  "..bWkBBBBBBBBBb.",
-  "dWWWWBBBBBBBBBBb",
-  ".dWWBBbbBBBBbbBW",
-  "...ddd..WWdWW.WW",
-}, 364, 217, { b = L.tar.base, B = L.tar.shade, d = L.tar.deep, W = L.awnB.hi, k = L.tar.edge }, { rimCol = L.tar.edge })
+  "....bb..............",
+  "...bBBb.......bb....",
+  "..bWkBBBBBBBBBBBBBb.",
+  ".dWWWWBBBBBBBBBBBBBb",
+  "..dWWBBbbBBBBbbBBBWW",
+  "...ddd...WWdWW..WWWW",
+  "..........dd..dd....",
+}, 362, 216, { b = L.tar.base, B = L.tar.shade, d = L.tar.deep, W = L.awnB.hi, k = L.tar.edge }, { rimCol = L.tar.edge })
 
 F.depth(0)
 F.gull(330, 52, 3) F.gull(346, 44, 2) F.gull(372, 62, 2) F.gull(200, 52, 2) F.gull(420, 84, 1) F.gull(160, 84, 1)

@@ -49,8 +49,9 @@ for y = 114, 160 do
     if x > F.xr(y) + 6 then
       local h
       if hgt < 3 then
-        h = (y % 2 == 0) and F.mix(R.shade, HAZE, .35) or farC
-        if hash(x // 4, y, 3) < .15 then h = F.mix(kale and L.awnB.hi or R.hi, HAZE, .3) end
+        h = farC
+        if hash(x // 3, y // 2, 5) < .12 then h = F.mix(R.shade, HAZE, .35) end
+        if hash(x // 4, y, 3) < .1 then h = F.mix(kale and L.awnB.hi or R.hi, HAZE, .3) end
       else
         local bw0 = math.max(5, floor(hgt * 1.7))
         local xx = x + row * 3
@@ -113,8 +114,8 @@ end
 ---------------------------------------------------------------- road's end: whalebone arch with honeysuckle and a rambling rose
 local function arch()
   -- two jawbones rising from the ground, thick at the foot, meeting in a pointed crown
-  local pL = poly{ { 212, 126 }, { 219, 126 }, { 220, 112 }, { 219, 96 }, { 220, 80 }, { 216, 80 }, { 215, 96 }, { 213, 112 } }
-  local pR = poly{ { 261, 126 }, { 268, 126 }, { 267, 112 }, { 265, 96 }, { 264, 80 }, { 260, 80 }, { 261, 96 }, { 260, 112 } }
+  local pL = poly{ { 211, 126 }, { 209, 112 }, { 208, 100 }, { 211, 90 }, { 216, 80 }, { 220, 80 }, { 217, 92 }, { 215, 102 }, { 215, 112 }, { 220, 126 } }
+  local pR = poly{ { 269, 126 }, { 271, 112 }, { 272, 100 }, { 269, 90 }, { 264, 80 }, { 260, 80 }, { 263, 92 }, { 265, 102 }, { 265, 112 }, { 260, 126 } }
   local top = c:ellipse(240, 82, 24, 24):cut(c:ellipse(240, 82, 20, 20)):clip(rect(214, 56, 266, 82))
   F.shadow(214, 266, 126, 6, 3)
   local frame = union(pL, pR, top)
@@ -304,7 +305,10 @@ local function seakale(x, y, k)
   end)
   if k % 2 == 0 then
     vline(x, y - 9, y - 6, SK.shade)
-    fill(rect(x - 2, y - 10, x + 1, y - 9), L.awnB.base) px(x - 2, y - 10, L.awnB.hi) px(x - 1, y - 11, L.awnB.hi) px(x + 1, y - 9, L.awnB.shade) px(x + 2, y - 10, L.awnB.base)
+    for _, r in ipairs({ { -1, 1, -13 }, { -3, 3, -12 }, { -3, 3, -11 }, { -2, 2, -10 }, { -1, 1, -9 } }) do
+      for xx = x + r[1], x + r[2] do px(xx, y + r[3] + 1, hash(xx, y + r[3], 59) < .3 and L.awnB.shade or ((xx - x) < 0 and L.awnB.hi or L.awnB.base)) end
+    end
+    px(x - 2, y - 12, L.awnB.hi) px(x + 1, y - 11, L.awnB.hi)
   end
 end
 local function samphire(x, y, k)
@@ -549,16 +553,19 @@ hline(wx - 8, wx - 1, wy - 1, L.iron.hi)
 for k = 0, 4 do px(wx - 17 - k, wy - 3 + k * 2, L.water.hi) px(wx - 15 - k, wy - 2 + k * 2, L.water.base) end
 -- an oystercatcher probing the path edge by the spiral
 F.sprite({
-  "......KKK...",
-  ".....KKKKK..",
-  "OOOOOKeKKKK.",
-  "......KKKKKK",
-  ".......WWKKK",
-  "......WWWWK.",
-  ".......p.p..",
-  ".......p.p..",
-}, 180, 222, { K = L.tar.deep, e = L.apple.base, O = L.produce.base, W = L.gull.hi, p = L.petal.shade }, { rimCol = L.tar.edge })
-px(186, 225, L.produce.hi) px(191, 225, L.tar.base)
+  "........KKKK....",
+  ".......KKKKKK...",
+  "OOOOOO.KKeKKKK..",
+  ".....OKKKKKKKKK.",
+  "......KKKKKKKKKK",
+  "......KWWWKKKKK.",
+  ".......WWWWWKK..",
+  ".......WWWWWK...",
+  "........p..p....",
+  "........p..p....",
+  ".......pp.pp....",
+}, 178, 219, { K = L.tar.deep, e = L.apple.base, O = L.produce.base, W = L.gull.hi, p = L.petal.shade }, { rimCol = L.tar.edge })
+px(179, 221, L.produce.hi)
 -- a ring of white shells round a chamomile patch by the cottage
 do
   local pm = c:ellipse(132, 208, 12, 3)

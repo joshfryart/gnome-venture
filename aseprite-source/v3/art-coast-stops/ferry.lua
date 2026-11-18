@@ -104,10 +104,11 @@ do
           col = (k > depth - 2) and (v < .5 and L.wetSand.base or L.wetSand.shade) or (v < .55 and mud.base or (v < .8 and mud.shade or mud.hi))
           -- runnels of water left by the tide, mirroring the sky
           local r = math.abs(sin(x / 13 + y * .9) + sin(x / 7.3))
-          if k > 2 and k < depth - 1 and r < .18 then col = (hash(x, y, 10) < .5) and L.sky[3] or Wt.hi end
+          if k > 2 and k < depth - 1 and r < .3 then col = (hash(x, y, 10) < .5) and L.sky[3] or Wt.hi end
         end
         px(x, y, col)
       end
+      if k == 3 and hash(x // 3, 14, 8) < .35 then px(x, yn + 3, Wt.hi) end
       if hash(x, 11, 8) < .05 then px(x, yn + 4, L.shingle.hi) px(x + 1, yn + 4, L.shingle.shade) end
       if hash(x, 12, 8) < .04 then px(x, yn + 5, mud.deep) px(x, yn + 4, mud.hi) end -- worm casts
     end
@@ -125,7 +126,17 @@ do -- a whitewashed fisherman's cottage under slate, smoke blown inland
   F.lichen(roofM, .06, 101)
   F.window(44, 113, 48, 116, L.wall2) F.window(68, 113, 72, 116, L.wall2)
   F.door(56, 112, 61, 121, L.wall2)
-  F.smoke(70, 94, 4, .6, 2)
+  do -- dark peat smoke so it shows against the chalk
+    local cols = { "#5c6a78", "#74838f", "#8c9aa6", "#a6b4be" }
+    for i = 0, 4 do
+      local t = i / 4
+      local r = 2 + floor(t * 2)
+      local sx, sy = 70 + floor(i * i * .4 + 2 * sin(i * 1.7)), 99 - i * 5
+      local m = c:ellipse(sx, sy, r, r - 1)
+      fill(m, cols[math.min(4, 1 + floor(t * 3.5))])
+      m:each(function(xx, yy) if not m:has(xx - 1, yy - 1) then px(xx, yy, cols[math.min(4, 2 + floor(t * 3.5))]) end if not m:has(xx + 1, yy + 1) then px(xx, yy, cols[math.max(1, floor(t * 3.5))]) end end)
+    end
+  end
 end
 -- saltmarsh along the far bank: sea lavender cushions, samphire, phragmites with feathery plumes
 local function reedClump(x, yb, n, hmax, seed, near)
@@ -601,10 +612,9 @@ do
     F.crate(x0, yb, w, h)
     hline(x0 + 1, x0 + w - 1, yb - h // 2, band.base) hline(x0 + 1, x0 + w - 1, yb - h // 2 + 1, band.shade)
     local top = yb - h - 1
-    for k = x0 + 1, x0 + w - 3, 3 do
-      local yy = top - (k // 3) % 2
-      hline(k, k + 2, yy, (k // 3) % 3 == 0 and L.accent.hi or L.iron.hi) px(k + 2, yy, L.accent.shade)
-      if hash(k, yy, 135) < .5 then px(k + 1, yy + 1 - 1, L.awnB.hi) end
+    for k = x0 + 1, x0 + w - 6, 7 do
+      local yy = top - 2 - (k // 7) % 2
+      F.sprite({ ".MMMMt", "eMmmMtt", ".mmmm." }, k, yy, { M = L.accent.hi, m = L.iron.hi, t = L.accent.shade, e = L.tar.base }, { rimCol = L.accent.deep })
     end
     hline(x0 + 1, x0 + w - 1, top + 1, L.awnB.hi)
   end

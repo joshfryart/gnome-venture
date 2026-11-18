@@ -166,7 +166,7 @@ local function rowX(t, side)
   if side < 0 then return F.xl(y) - 70 - 110 * t, y + 2 end
   return F.xr(y) + 70 + 110 * t, y + 2
 end
-local function wallH(t) local s = .45 + t * t * .75 return floor(3 + 10 * s) end
+local function wallH(t) local s = .45 + t * t * .75 return floor(5 + 10 * s) end
 local function drystone(side, tEnd)
   local m, tops = HP.mask(), {}
   local t = -.02
@@ -194,7 +194,7 @@ local function drystone(side, tEnd)
       local bx = (x + off + cr * 2) // (3 + cr % 2)
       local v = hash(bx, cr * 7 + top // 3, 71)
       if (ry - 2) % 3 == 2 or (x + off + cr * 2) % (3 + cr % 2) == 0 then h = r.deep
-      else h = v < .25 and r.base or (v < .7 and r.shade or (v < .88 and F.mix(r.shade, L.sand.shade, .45) or r.base)) end
+      else h = v < .2 and r.shade or (v < .7 and F.mix(r.shade, r.deep, .45) or (v < .88 and F.mix(r.shade, L.sand.shade, .3) or r.base)) end
     end
     if not m:has(x, y + 1) then h = r.edge end
     px(x, y, h)
@@ -215,10 +215,10 @@ local function espalier(t, side, seed)
   dx, dy = dx / n, dy / n
   local fr = (seed % 3 == 0) and PEAR or ((seed % 3 == 1) and AP or QUINCE)
   local lr = (fr == QUINCE) and LF2 or ((fr == PEAR) and LF4 or LF)
-  local h = floor(18 * s + 2)
+  local h = floor(24 * s + 3)
   local trunk = rect(floor(x), floor(yb - h), floor(x) + (s > .9 and 1 or 0), floor(yb))
   local arms = HP.mask()
-  local armLen = 9 * s + 3
+  local armLen = 11 * s + 3
   for k = 1, 3 do
     local ty = yb - h * k / 3.4
     for sg = -1, 1, 2 do

@@ -103,12 +103,14 @@ local function seamark(cx, yb)
   for i = 0, 2 do
     local w = 13 - i * 3
     local body = rect(cx - w, y - 11, cx + w, y)
-    rimOf(body, TAR) part(body, TAR) F.planks(body, TAR, 3, true, 20 + i)
-    hline(cx - w, cx + w, y - 11, TAR.edge) hline(cx - w, cx + w, y - 10, TAR.deep)
+    local bandR = (i == 1) and L.plaster or TAR
+    rimOf(body, TAR) part(body, bandR) F.planks(body, bandR, 3, true, 20 + i)
+    hline(cx - w, cx + w, y - 11, TAR.edge) hline(cx - w, cx + w, y - 10, bandR.deep)
     F.window(cx - 1, y - 8, cx + 1, y - 5, BLUE, true)
     y = y - 11
-    flare(cx - w - 9, cx + w + 9, y, cx - w + 1, cx + w - 1, y - 7, SH, .03, 85 + i)
-    y = y - 7
+    local cap = poly{ { cx - w - 2, y }, { cx - w + 1, y - 6 }, { cx + w - 1, y - 6 }, { cx + w + 2, y } }
+    rimOf(cap, SH) part(cap, SH, { sep = true }) hline(cx - w + 1, cx + w - 1, y - 6, SH.hi) hline(cx - w - 1, cx + w + 1, y, SH.deep)
+    y = y - 6
   end
   local spire = rect(cx - 1, y - 14, cx, y)
   rimOf(spire, SH) part(spire, SH, { nopop = true, noshade = true })
@@ -166,16 +168,17 @@ end
 fill(rect(231, 96, 249, 112), L.soil.deep)
 fill(rect(233, 98, 247, 110), L.tar.shade)
 vline(240, 96, 97, ROPE.base)
-modelBoat(240, 99, 7, PT, L.awnB)
+fill(c:ellipse(240, 98, 7, 3), F.mix(L.tar.shade, L.glow.deep, .28))
+modelBoat(240, 100, 9, PT, L.awnB)
 local box = rect(232, 107, 248, 112) rimOf(box, TAR) part(box, L.board) for x = 234, 246, 3 do px(x, 109, L.board.deep) end
 hline(232, 248, 107, L.board.hi)
 -- the bottle on its cradle
 local bottle = rect(236, 102, 243, 106):add(rect(244, 103, 245, 105))
 rimOf(bottle, L.glass)
-bottle:each(function(x, y) px(x, y, F.mix(L.glass.shade, L.glow.deep, .35)) end)
+bottle:each(function(x, y) px(x, y, F.mix(L.glass.base, L.glow.base, .2)) end)
 hline(237, 244, 102, L.glass.hi) px(236, 103, L.glass.base) hline(237, 242, 106, L.glass.deep)
 px(246, 103, L.cork.hi) px(246, 104, L.cork.base) px(246, 105, L.cork.shade)
-hline(238, 241, 105, PT.base) px(242, 104, PT.base) vline(239, 103, 104, L.awnB.hi) px(240, 104, L.awnB.base)
+hline(238, 241, 105, PT.deep) px(242, 104, PT.base) vline(239, 103, 104, L.awnB.hi) px(240, 104, L.awnB.hi) px(240, 103, L.awnB.base)
 px(237, 107, L.timber.deep) px(242, 107, L.timber.deep)
 candle(233, 106, 3) candle(247, 106, 3)
 glowSpill(240, 106, 7, .22)
@@ -243,6 +246,13 @@ local function ragTree()
   local again = trunk:copy():cut(crownM)
   again:each(function(x, y) px(x, y, L.timber.base) end)
   paintTrunk(again, true)
+  for y = 108, 160 do for x = 394, 424 do
+    if trunk:has(x, y) and not crownM:has(x, y) and trunk:has(x - 1, y) and trunk:has(x + 1, y) then
+      if hash(x, y // 5, 41) < .1 and hash(x, y, 42) < .8 then px(x, y, L.timber.deep) end
+      if hash(x // 2, y // 4, 43) < .06 then px(x, y, L.lichen.base) end
+    end
+  end end
+  local knot = c:ellipse(409, 126, 2, 3) rimOf(knot, L.timber) fill(knot, L.soil.deep) px(408, 124, L.timber.shade) px(410, 129, L.timber.hi)
   -- roped trunk with knotted cords
   for x = 401, 416 do local yy = 136 + (x - 401) // 6 px(x, yy, ROPE.shade) px(x, yy + 1, (x % 3 == 0) and ROPE.hi or ROPE.base) px(x, yy + 2, ROPE.deep) end
   for _, x in ipairs({ 405, 412 }) do local y = 139 + (x - 401) // 6 vline(x, y, y + 6, ROPE.base) px(x, y + 3, ROPE.deep) px(x, y + 7, ROPE.deep) end
@@ -271,13 +281,13 @@ end
 local function bellFrame(x0, yb)
   local posts = rect(x0, yb - 34, x0 + 2, yb):add(rect(x0 + 30, yb - 34, x0 + 32, yb))
   local roofm = poly{ { x0 - 8, yb - 34 }, { x0 + 4, yb - 44 }, { x0 + 28, yb - 44 }, { x0 + 40, yb - 34 }, { x0 + 38, yb - 31 }, { x0 - 6, yb - 31 } }
-  local bm = poly{ { x0 + 11, yb - 28 }, { x0 + 21, yb - 28 }, { x0 + 23, yb - 12 }, { x0 + 9, yb - 12 } }:add(c:rrect(x0 + 11, yb - 31, x0 + 21, yb - 25, 3))
+  local bm = poly{ { x0 + 13, yb - 31 }, { x0 + 19, yb - 31 }, { x0 + 20, yb - 27 }, { x0 + 21, yb - 22 }, { x0 + 23, yb - 17 }, { x0 + 25, yb - 13 }, { x0 + 25, yb - 11 }, { x0 + 7, yb - 11 }, { x0 + 7, yb - 13 }, { x0 + 9, yb - 17 }, { x0 + 11, yb - 22 }, { x0 + 12, yb - 27 } }
   F.shadow(x0, x0 + 34, yb, 8, 3)
   rimOf(union(posts, roofm, bm), TAR)
   part(posts, TAR, { nopop = true })
   part(roofm, SH) F.courses(roofm, yb - 44, 3, 5, SH) F.lichen(roofm, .04, 91) hline(x0 - 6, x0 + 38, yb - 31, SH.deep)
   part(bm, BELL)
-  hline(x0 + 10, x0 + 22, yb - 20, BELL.deep) hline(x0 + 9, x0 + 23, yb - 13, BELL.deep) hline(x0 + 10, x0 + 22, yb - 14, BELL.hi)
+  hline(x0 + 11, x0 + 21, yb - 22, BELL.deep) hline(x0 + 8, x0 + 24, yb - 12, BELL.deep) hline(x0 + 9, x0 + 23, yb - 14, BELL.hi) vline(x0 + 13, yb - 29, yb - 24, BELL.hi)
   bm:each(function(x, y) if y > yb - 20 and hash(x, y, 92) < .14 then px(x, y, L.glass.shade) end end) -- verdigris
   -- the bell rope with a turk's-head knot
   vline(x0 + 16, yb - 11, yb - 4, ROPE.base) px(x0 + 16, yb - 3, ROPE.deep) px(x0 + 15, yb - 4, ROPE.hi) px(x0 + 17, yb - 4, ROPE.shade)

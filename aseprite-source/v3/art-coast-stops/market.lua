@@ -65,9 +65,9 @@ local function driftPosts(m) -- silvered driftwood posts: lit left, dark right, 
   end)
 end
 local function mackerel(x, y, flip) -- a mackerel lying flat, 9x3, head left (flip: head right)
-  local rows = { ".BbBbBbT.", "eSSSSSSTT", ".sssssT.." }
+  local rows = { ".BbBbBbBbT.", "eSSSSSSSSTT", ".sssssssT.." }
   if flip then for i, r in ipairs(rows) do rows[i] = r:reverse() end end
-  F.sprite(rows, x, y, { B = mack.base, b = mack.deep, T = mack.shade, S = silver.hi, s = silver.shade, e = L.tar.edge }, { rim = false })
+  F.sprite(rows, x, y, { B = mack.shade, b = mack.deep, T = mack.base, S = silver.hi, s = silver.base, e = L.tar.edge }, { rimCol = mack.deep })
 end
 local function wee_crab(x, y) -- a cooked crab seen from above, 5x4
   F.sprite({ "o...o", ".OHO.", "oOOOo", "o.o.o" }, x, y, { O = crab.base, H = crab.hi, o = crab.shade }, { rim = false })
@@ -86,7 +86,7 @@ local function fishBox(x0, x1, yb, h, kind, seed) -- shallow box heaped with goo
   if kind == "mack" then
     ice(heap, seed)
     local k = 0
-    for yy = yb - h - 4, yb - h - 1, 2 do for xx = x0 + 2 + (k % 2) * 3, x1 - 9, 7 do mackerel(xx, yy, k % 2 == 1) end k = k + 1 end
+    for yy = yb - h - 4, yb - h - 1, 2 do for xx = x0 + 2 + (k % 2) * 3, x1 - 10, 8 do mackerel(xx, yy, k % 2 == 1) end k = k + 1 end
   elseif kind == "crab" then
     fill(heap, L.kelp.shade)
     heap:each(function(x, y) if hash(x, y, seed) < .3 then px(x, y, L.kelp.base) end end)
@@ -154,9 +154,9 @@ end
 scarecrow()
 local function barrow()
   local t = L.timber
-  local tray = poly{ { 160, 92 }, { 184, 92 }, { 180, 100 }, { 163, 100 } }
-  local handles = line({ { 160, 94 }, { 152, 98 } }):add(line({ { 166, 100 }, { 164, 104 } }))
-  local wheel = poly{ { 180, 98 }, { 186, 98 }, { 188, 101 }, { 186, 104 }, { 180, 104 }, { 178, 101 } }
+  local tray = poly{ { 158, 91 }, { 187, 91 }, { 183, 102 }, { 162, 102 } }
+  local handles = line({ { 160, 95 }, { 150, 100 } }, 2):add(line({ { 166, 102 }, { 164, 107 } }, 2))
+  local wheel = c:ellipse(184, 102, 6, 6)
   -- the giant crab, far too big for the barrow, claws up
   local body = c:ellipse(172, 82, 17, 9)
   local eyes = rect(166, 69, 167, 74):add(rect(177, 69, 178, 74))
@@ -166,13 +166,13 @@ local function barrow()
   local clawR = poly{ { 196, 60 }, { 194, 48 }, { 189, 44 }, { 186, 50 }, { 190, 53 }, { 184, 56 }, { 186, 62 }, { 192, 64 } }
   local legs = HP.mask()
   for k = 0, 2 do
-    legs:add(line({ { 157, 84 + k * 2 }, { 151, 88 + k * 3 }, { 149, 94 + k * 3 } }, 1))
-    legs:add(line({ { 187, 84 + k * 2 }, { 193, 88 + k * 3 }, { 195, 94 + k * 3 } }, 1))
+    legs:add(line({ { 157, 84 + k * 2 }, { 152, 87 + k * 2 }, { 150, 90 + k } }, 1))
+    legs:add(line({ { 187, 84 + k * 2 }, { 192, 87 + k * 2 }, { 194, 90 + k } }, 1))
   end
   local crabM = union(body, eyes, armL, armR, clawL, clawR, legs)
   rimOf(union(tray, handles, wheel, crabM), L.tar)
-  part(handles, t, { nopop = true }) part(tray, L.wall2) part(wheel, L.stone, { nopop = true })
-  hline(162, 182, 95, L.wall2.deep)
+  part(handles, t, { nopop = true }) part(tray, L.timber) F.planks(tray, L.timber, 3, false, 77) part(wheel, L.stone, { nopop = true })
+  hline(160, 185, 91, L.timber.hi) hline(162, 182, 97, L.timber.deep) vline(184, 97, 107, L.stone.deep) hline(178, 190, 102, L.stone.deep) px(184, 102, L.iron.hi)
   part(legs, crab, { nopop = true, noshade = true })
   part(union(armL, armR), crab, { nopop = true })
   part(body, crab)
@@ -192,7 +192,7 @@ local function barrow()
   px(165, 68, L.gull.hi) px(177, 68, L.gull.hi)
   -- a little smile, and seawater slopping over the barrow rim
   line({ { 168, 86 }, { 172, 88 }, { 176, 86 } }):each(function(x, y) px(x, y, crab.deep) end)
-  hline(161, 168, 92, L.water.hi) hline(177, 183, 92, L.water.hi) px(160, 93, L.foam) px(184, 93, L.foam)
+  hline(161, 168, 91, L.water.hi) hline(177, 184, 91, L.water.hi) px(160, 92, L.foam) px(186, 92, L.foam)
 end
 barrow()
 
@@ -419,8 +419,8 @@ for k = 0, 3 do F.cork(280 + k * 2, 139 - (k % 2)) end
 
 ---------------------------------------------------------------- the whelk-shell house (plane 3, replaces the haystack house)
 local function whelkHouse()
-  local m = poly{ { 420, 224 }, { 418, 214 }, { 420, 205 }, { 425, 197 }, { 431, 190 }, { 436, 184 }, { 440, 178 }, { 443, 172 },
-                  { 446, 177 }, { 450, 183 }, { 455, 190 }, { 461, 197 }, { 466, 205 }, { 468, 215 }, { 466, 224 } }
+  local m = poly{ { 420, 224 }, { 417, 216 }, { 417, 208 }, { 420, 201 }, { 425, 198 }, { 427, 195 }, { 429, 190 }, { 432, 187 }, { 435, 185 }, { 436, 181 }, { 439, 177 }, { 441, 174 }, { 443, 171 },
+                  { 446, 174 }, { 450, 178 }, { 454, 181 }, { 453, 185 }, { 457, 188 }, { 460, 193 }, { 462, 197 }, { 461, 199 }, { 465, 203 }, { 468, 210 }, { 468, 218 }, { 466, 224 } }
   local pipe = rect(452, 176, 454, 186)
   shadow(426, 462, 224, 8, 3)
   rimOf(union(m, pipe), L.tar)
