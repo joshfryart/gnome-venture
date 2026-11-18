@@ -37,7 +37,7 @@ ok("Josh's answers: Hat = Guard 2 thorns 'Brim Down'; Pack = a Trick (pluck); Sc
 ok('the Hat and the Pack are bought (Twigg\'s), the Boots, Gloves and Cloak crafted, the Scarf from Cat Fish', WEAR_DEFS['wayfarers-hat']['get'] === 'shop' && WEAR_DEFS['trail-pack']['get'] === 'shop' && WEAR_DEFS['flood-boots']['get'] === 'craft' && WEAR_DEFS['work-gloves']['get'] === 'craft' && WEAR_DEFS['travel-cloak']['get'] === 'craft' && WEAR_DEFS['yarn-scarf']['get'] === 'catfish');
 
 echo "== item slugs\n";
-$items = wear_items();
+$items = array_filter(wear_items(), fn($it) => isset(WEAR_DEFS[$it['base']]));   // the six older wearables (the 280 Tailor ones are checked below)
 ok('33 items: 11 cuts x 3 ranks, unique slugs', count($items) === 33, (string)count($items));
 $rt = true; foreach ($items as $slug => $it) { $p = wear_parse($slug); if ($p === null || $p[0] !== $it['base'] || $p[1] !== $it['cut'] || $p[2] !== $it['rank'] || wear_slug($p[0], $p[1], $p[2]) !== $slug) { $rt = false; echo "    $slug\n"; } }
 ok('every slug parses back to its wearable, cut and rank, and builds again', $rt);

@@ -51,7 +51,7 @@ page_header('Tailor');
   <h2>Regional wearables</h2>
   <p class="help">Twenty from every region: footwear, backpacks, coats and cloaks, one puzzle piece each. The Tailor makes them once you have reached the region’s level, for a Petal fee and two things gathered in that region. Common ones need a level 1 Tailor, Uncommon level 2, Rare level 3. Lining costs Petals too (Lined is worth 1.5 times the fee, Fine 2.5 times).</p>
   <?php
-    $rnames = []; foreach (q('SELECT code, name FROM regions')->fetchAll() as $r) $rnames[(string)$r['code']] = (string)$r['name'];
+    $rnames = []; foreach (q('SELECT code, gnomish_name FROM regions')->fetchAll() as $r) $rnames[(string)$r['code']] = (string)$r['gnomish_name'];
     $byRegion = []; foreach (wear_tailor_defs() as $base => $d) $byRegion[$d['region']][$base] = $d;
     uksort($byRegion, fn($a, $b) => (REGION_LEVELS[$a] ?? 99) <=> (REGION_LEVELS[$b] ?? 99));
     $coins = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);

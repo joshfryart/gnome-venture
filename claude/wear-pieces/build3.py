@@ -32,7 +32,7 @@ for T,r in enumerate(ORDER):
             v=max(2,BASE[ty]-1+T//3+(0,0,1,1,3)[i])
             art=ART[f'{r}|{cat}|{i+1}']
             items.append(dict(region=r,regionName=NAME[r],regionLevel=LEVEL[r],tier=T,cat=cat,n=i+1,rarity=rar,item=art[0],artDesc=art[1],piece=pn,type=ty,v=v,code=code,effect=txt,
-                knob='bmc'[(T+ci+i)%3],petals=price(T,rar),tailor=(1,1,2,2,3)[i],energy=(4,4,5,5,6)[i]))
+                knob='bmc'[(T+ci+i)%3],petals=price(T,rar),tailor=(1,1,2,2,3)[i],energy=(4,4,5,5,6)[i],a=a,b=b))
 texts=collections.Counter(x['effect'] for x in items); names=collections.Counter(x['piece'] for x in items); codes=collections.Counter(x['code'] for x in items)
 errs=[f'dup text {t}' for t,c in texts.items() if c>1]+[f'dup name {t}' for t,c in names.items() if c>1]+[f'dup code {t}' for t,c in codes.items() if c>1]
 print('items',len(items),'distinct effect codes',len(codes),'distinct texts',len(texts),'errors',errs,'pair fixes',len(fixed))

@@ -296,7 +296,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 2 | Poppy Field Shawl | Common | **Poppy Shawl Bond** | charm | 5 | If it is linked to a Trick, your Charm counts 10% more for the rest of the fight. | 3000 | 1 |
 | 3 | Birch Hooded Mantle | Uncommon | **Birch Mantle Lull** | charm | 6 | If it sits in one of the four inner cells, the creature skips its next turn. | 8000 | 2 |
 | 4 | Wheatfield Poncho | Uncommon | **Wheatfield Poncho** | soothe | 4 | If it sits on the edge of the board, cut the creature's hits by 2 this round. | 8000 | 2 |
-| 5 | Fox-collar Capelet | Rare | **Fox-Collar Lift** | trick | 7 | Pluck, sure to work once a fight; after that Pluck chances double. The piece it links to gets +3. | 20000 | 3 |
+| 5 | Fox-collar Capelet | Rare | **Fox-Collar Lift** | trick | 7 | Pluck with twice the usual chance (once a fight). The piece it links to gets +3. | 20000 | 3 |
 
 ## The Dunewhisper (MENA, region level 17)
 
@@ -308,7 +308,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 2 | Palm-Rope Sandals | Common | **Palm-Rope Spring** | hurt | 5 | If you are at full health, your next hand has 1 extra piece. | 3300 | 1 |
 | 3 | Indigo Wrap Boots | Uncommon | **Indigo Wrap Brace** | guard | 6 | If it is linked to a Charm, gain 5 guard. | 8800 | 2 |
 | 4 | Camel-Pad Overshoes | Uncommon | **Camel-Pad Plod** | hurt | 6 | If the creature has 3 or more pieces on the board, deal 5 extra damage. | 8800 | 2 |
-| 5 | Cedar Bath Clogs | Rare | **Cedar Clog Soak** | hurt | 8 | Poison 3 for 3 turns. If it is linked to a Guard, the poison also cuts the creature's hits by 3. | 22000 | 3 |
+| 5 | Cedar Bath Clogs | Rare | **Cedar Clog Soak** | hurt | 8 | Poison 3 for 3 turns. If it is linked to a Guard, also cut the creature's hits by 3 this round. | 22000 | 3 |
 
 ### Backpack
 
@@ -570,7 +570,7 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 2 | Coconut String Bag | Common | **Coconut Snack** | item | 8 | If a creature piece is in its chain, heal 6. | 5100 | 1 |
 | 3 | Bushman's Swag | Uncommon | **Swag Rummage** | trick | 7 | If you played no Hurt last turn, small chance to lift an item from the creature. | 13600 | 2 |
 | 4 | Bamboo Frame Pack | Uncommon | **Frame Simmer** | heal | 7 | If it sits in a corner, heal 3 at the start of each of your next 2 turns. | 13600 | 2 |
-| 5 | Pouch Pack | Rare | **Pouch Provision** | heal | 9 | Heal 8. Next round pick from 6 pieces, and one piece you keep stays in your hand the round after. | 34000 | 3 |
+| 5 | Pouch Pack | Rare | **Pouch Provision** | heal | 9 | Heal 8. Next round pick from 6 pieces, and at the end of that round your strongest unplayed piece stays in your hand. | 34000 | 3 |
 
 ### Coat
 

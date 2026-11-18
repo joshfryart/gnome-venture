@@ -1,0 +1,158 @@
+# Wear piece effects (claude/wear-pieces/design3.py, written by outputs2.py: edit design3.py, then run build3.py and outputs2.py). Read by pfb_wx_data() in includes/pfboard.php and mirrored in tools/pfengine.js.
+# A wear piece tile carries fx (the code), fxa and fxb (its two numbers a, b). fx = TRIG>PAY (Common, Uncommon) or R:REGION:category (Rare).
+# act|name|phase|step   phase: fire (each firing for you), place (the firing when you place it), hand (at the redraw, in your hand), held (you place another piece while it is in your hand),
+#   block (a creature Hurt your guard blocks, until your guard fades), miss (a creature Hurt your Evade made miss). step: pre = changes its own hit, post = after it fired.
+# trig|code|conditions|text    pay|code|clause|text    rare|REGION:category|clauses (" ; ")|text
+# A clause: tokens, the last is the action (name:arg..., a / b = the piece numbers; act*per^cap multiplies), the others conditions (! = not). @phase: conditions before it are checked when it fires, after it when the phase comes.
+# A Common piece is "TRIG PAY" (the trigger goes after @hand / @held). Names of conditions and actions: see pfb_wx_cond / pfb_wx_act.
+act|guard|fire|post
+act|heal|fire|post
+act|dmg|fire|pre
+act|pierce|fire|pre
+act|charm|fire|post
+act|soothe|fire|post
+act|skip|fire|post
+act|poison|fire|post
+act|evade|fire|post
+act|hold|fire|post
+act|life|fire|post
+act|stay|fire|post
+act|cleanse|fire|post
+act|knock|fire|post
+act|boost|fire|post
+act|more|fire|post
+act|mend|fire|post
+act|bond|fire|post
+act|pluck|fire|post
+act|shrink|fire|post
+act|shrinkall|fire|post
+act|fstrip|fire|post
+act|fnext|fire|post
+act|fhalf|fire|post
+act|bar|fire|post
+act|plenty|place|post
+act|hand|place|post
+act|next|place|post
+act|recycle|place|post
+act|keep1|place|post
+act|keep|hand|post
+act|add|held|post
+act|kill|block|post
+trig|linkG|link:guard|If it is linked to a Guard
+trig|linkH|link:hurt|If it is linked to a Hurt
+trig|linkC|link:charm|If it is linked to a Charm
+trig|linkT|link:trick|If it is linked to a Trick
+trig|linkS|link:soothe|If it is linked to a Soothe
+trig|linkHeal|link:heal/item|If it is linked to a Heal or Item
+trig|linkEnv|cenv|If an environment piece is in its chain
+trig|linkFoe|cfoe|If a creature piece is in its chain
+trig|link2|links:2|If it is linked to 2 or more pieces
+trig|chain2|clen:2:2|If its chain is exactly 2 pieces
+trig|combo3|clen:3|If its chain has 3 or more pieces
+trig|pair|link:self|If a piece of its own type is linked to it
+trig|aimNext|aimnext|If it sits next to the creature's aim cell
+trig|onAim|onaim|If it sits on the creature's aim cell
+trig|edge|edge|If it sits on the edge of the board
+trig|corner|corner|If it sits in a corner
+trig|mid4|mid|If it sits in one of the four inner cells
+trig|handG|hand:guard:1|If you hold a Guard in your hand
+trig|handH|hand:hurt:2|If you hold 2 or more Hurts in your hand
+trig|foeEvade|fevade|If the creature dodges your next hit
+trig|foeG|fguard|If the creature has guard up
+trig|foeB3|fpcs:3|If the creature has 3 or more pieces on the board
+trig|foeB0|fpcs:0:0|If the creature has no pieces on the board
+trig|yHalf|ygt:0.5|If its Yield bar is past half
+trig|yLow|ylt:0.25|If its Yield bar is under a quarter
+trig|hpLow|hplt:0.5|If you are under half health
+trig|hpFull|hpfull|If you are at full health
+trig|hit|hit|If the creature hit you last turn
+trig|noDmg|nodmg|If you took no damage last turn
+trig|poisoned|poisoned|If you are poisoned
+trig|r1|round:1:1|In the first round of the fight
+trig|r3|round:3|From round 3 on
+trig|lastRound|last|In its last round on the board
+trig|disc5|disc:5|If your discard pile holds 5 or more pieces
+trig|g2|played:guard:2|If you have played 2 or more Guards this fight
+trig|h2|played:hurt:2|If you have played 2 or more Hurts this fight
+trig|noHurt|!lastturn:hurt|If you played no Hurt last turn
+pay|guard|guard:b|gain {b} guard
+pay|heal|heal:b|heal {b}
+pay|dmg|dmg:b|deal {b} extra damage
+pay|charm|charm:b|add {b} Charm
+pay|soothe|soothe:a|cut the creature's hits by {a} this round
+pay|skip|skip|the creature skips its next turn
+pay|poison|poison:a:2|the creature takes {a} poison for 2 turns
+pay|pierce|pierce|it ignores the creature's guard
+pay|evade|evade|the creature's next Hurt misses
+pay|thorns|@block bar:a|each hit this guard blocks adds {a} to the bar
+pay|hold|hold|this guard stays up one more turn
+pay|life|life:a|it stays {a} more round(s) on the board
+pay|stay|stay|a chain of 3 or more does not use it up
+pay|keep|@hand keep|Keeper: it stays in your hand if you do not play it
+pay|cleanse|cleanse:a|end your poison and heal {a}
+pay|knock|knock|remove the creature's weakest piece from the board
+pay|boost|boost:a|the piece it links to gets +{a}
+pay|mend|mend:a:2|heal {a} at the start of each of your next 2 turns
+pay|bond|bond|your Charm counts 10% more for the rest of the fight
+pay|pluck|pluck|small chance to lift an item from the creature
+pay|plenty|plenty:6|next round you pick from 6 pieces
+pay|hand|hand:1|your next hand has 1 extra piece
+pay|shrink|shrink:a|the creature's strongest piece loses {a}
+pay|ward|next:guard:1:b|the next Guard you place gets +{b}
+pay|focus|next:hurt:1:b|the next Hurt you place gets +{b}
+rare|NA:footwear|soothe:b ; ylt:0.5 hand:1|Cuts the creature's hits by {b} this round. If its Yield bar is under half, your next hand has 1 extra piece.
+rare|NA:backpack|dmg:a*chain|Deals its number plus {a} for every piece in its chain.
+rare|NA:coat|guard:b ; hold ; @block fhas:hurt bar:a|Gain {b} guard that stays up one more turn. If the creature has a Hurt on the board, each hit it blocks adds {a} to the bar.
+rare|NA:cloak|keep ; guard:b ; next:charm:1:b|Keeper. Gain {b} guard. The turn you play it, your next Charm this fight also adds {b}.
+rare|CA:footwear|dmg:b ; link:guard shrink:a|Deal {b} extra damage. If it is linked to a Guard (Riposte), the creature's strongest piece also loses {a}.
+rare|CA:backpack|heal:b ; plenty:6 ; cmine:guard:0:0 heal:a|Heal {b} and next round pick from 6 pieces. If your chain has no Guard, heal {a} more.
+rare|CA:coat|guard:b ; heal:a ; @block heal:a|Gain {b} guard and heal {a}. Each hit it blocks heals you {a} more.
+rare|CA:cloak|guard:b ; ygt:0.5 soothe:a|Gain {b} guard. If its Yield bar is past half, also cut the creature's hits by {a} this round.
+rare|NWE:footwear|pierce ; link:trick hand:1|Pierce. If it is linked to a Trick (Ambush), your next hand has 1 extra piece.
+rare|NWE:backpack|keep ; pt:guard add:a|Keeper. While it waits in your hand, every other Guard you place gets +{a}.
+rare|NWE:coat|guard:b ; hold ; hplt:0.5 heal:a|Gain {b} guard that stays up one more turn. If you are under half health, heal {a} as well.
+rare|NWE:cloak|boost:b ; tgt:charm soothe:a|The piece it links to gets +{b}. If that piece is a Charm, it also cuts the creature's hits by {a} this round.
+rare|CB:footwear|skip ; clen:3 shrink:a|Trip: the creature skips its next turn. If its chain has 3 or more pieces, the creature's strongest piece also loses {a}.
+rare|CB:backpack|heal:b ; !hand:guard:1 plenty:6 ; hand:guard:1 plenty:7|Heal {b}. Next round pick from 6 pieces, or from 7 if you hold a Guard in your hand.
+rare|CB:coat|guard:b ; @block heal:a ; @block charm:a|Gain {b} guard. When this guard soaks a Hurt, heal {a} and add {a} Charm.
+rare|CB:cloak|charm:b ; links:2 skip|Add {b} Charm. If it is linked to 2 or more pieces, the creature skips its next turn.
+rare|SE:footwear|dmg:b ; heal:a*ctype:guard|Deal {b} extra damage and heal {a} for each Guard in its chain.
+rare|SE:backpack|heal:b ; soothe:a ; fguard charm:a|Heal {b} and cut the creature's hits by {a} this round. If the creature has guard up, add {a} Charm too.
+rare|SE:coat|guard:b ; @block bar:b ; @block full kill|Gain {b} guard. Each hit it blocks adds {b} to the bar; a Hurt that is fully blocked is removed from the board.
+rare|SE:cloak|charm:b ; cmine:charm:1:1 skip|Add {b} Charm. If it is the only Charm in your chain, the creature skips its next turn.
+rare|SA:footwear|skip ; clen:3 dmg:b|Trip: the creature skips its next turn. If its chain has 3 or more pieces, deal {b} extra damage.
+rare|SA:backpack|heal:b ; heal:1*disc2^a ; plenty:6|Heal {b}, plus 1 for every 2 pieces in your discard pile (up to {a} extra). Next round pick from 6 pieces.
+rare|SA:coat|keep ; guard:b ; kept:1 guard:b|Keeper. Gain {b} guard; if it stayed in your hand through a round, gain {b} more.
+rare|SA:cloak|charm:b ; soothe:a ; ygt:0.5 skip|Add {b} Charm and cut the creature's hits by {a} this round. If its Yield bar is past half, the creature skips its next turn.
+rare|EE:footwear|!lastturn:hurt dmg:b ; !lastturn:hurt next:hurt:1:a|If you played no Hurt last turn, deal {b} extra damage and the next Hurt you place gets +{a}.
+rare|EE:backpack|heal:b ; recycle:a|Heal {b} and shuffle {a} pieces from your discard pile back into your draw pile.
+rare|EE:coat|guard:b ; @block bar:a ; @block fpcs:3 bar:a|Gain {b} guard. Each hit it blocks adds {a} to the bar, and {a} more while the creature has 3 or more pieces on the board.
+rare|EE:cloak|pluck:x2 ; boost:a|Pluck with twice the usual chance (once a fight). The piece it links to gets +{a}.
+rare|MENA:footwear|poison:a:3 ; link:guard soothe:a|Poison {a} for 3 turns. If it is linked to a Guard, also cut the creature's hits by {a} this round.
+rare|MENA:backpack|heal:b ; charm:b ; ygt:0.5 skip|Heal {b} and add {b} Charm. If its Yield bar is past half, the creature skips its next turn.
+rare|MENA:coat|keep ; guard:b ; kept:1 hold|Keeper. Gain {b} guard; if it was kept through a round, it also stays up one more turn.
+rare|MENA:cloak|charm:b ; skip ; fskip shrink:a|Add {b} Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses {a}.
+rare|EA:footwear|skip ; link:trick dmg:b ; link:trick hand:1|Trip: the creature skips its next turn. If it is linked to a Trick, deal {b} extra damage and your next hand has 1 extra piece.
+rare|EA:backpack|heal:b ; heal:a*ctype:heal/item|Heal {b}. Each other Heal or Item in its chain heals {a} more.
+rare|EA:coat|guard:b ; @block first heal:a|Gain {b} guard. The first hit it blocks each round also heals you {a}.
+rare|EA:cloak|charm:b ; next:charm:2:a|Add {b} Charm. The next two Charm pieces you place this fight add {a} more each.
+rare|CSA:footwear|guard:b ; evade ; @miss bar:a|Gain {b} guard; the creature's next Hurt misses and the missed Hurt adds {a} to the bar.
+rare|CSA:backpack|heal:b ; mend:a:3|Heal {b} now and {a} at the start of each of your next 3 turns.
+rare|CSA:coat|keep ; guard:b ; heal:a*hand|Keeper. Gain {b} guard and heal {a} for each piece left in your hand.
+rare|CSA:cloak|charm:b ; fguard fstrip:b|Add {b} Charm. If the creature has guard up, its guard drops by {b}.
+rare|SEA:footwear|skip ; shrinkall:a|Trip: the creature skips its next turn. Every creature piece on the board also loses {a} once.
+rare|SEA:backpack|heal:b ; !lastturn:heal plenty:6 ; lastturn:heal plenty:7|Heal {b}. Next round pick from 6 pieces, or from 7 if you placed a Heal last round.
+rare|SEA:coat|guard:b ; evade ; fpcs:0:0 fnext:a|Gain {b} guard; the creature's next Hurt misses. If the creature has no pieces on the board, its next piece loses {a}.
+rare|SEA:cloak|charm:b ; fhalf:2|Add {b} Charm. The creature's next two Hurts do half damage.
+rare|WCA:footwear|dmg:b ; link:hurt boost:a:hurt|Deal {b} extra damage. If it is linked to another Hurt (Double Swing), that Hurt gets +{a} more.
+rare|WCA:backpack|heal:b ; mend:a:2 ; hand:1|Heal {b} now and {a} at the start of each of your next 2 turns. Your next hand has 1 extra piece.
+rare|WCA:coat|keep ; guard:b ; guard:a*kept|Keeper. Gain {b} guard, +{a} for each round it stayed in your hand.
+rare|WCA:cloak|guard:b ; guard:a*ctype:charm|Gain {b} guard, +{a} for each Charm in its chain.
+rare|ESA:footwear|dmg:b*chain ; knock|Deal {b} extra damage for each piece in its chain and remove the creature's weakest piece from the board.
+rare|ESA:backpack|heal:b ; plenty:6 ; next:hurt:99:a:r|Heal {b} and next round pick from 6 pieces; each Hurt you place that round gets +{a}.
+rare|ESA:coat|guard:b ; guard:a*types|Gain {b} guard, +{a} for each other piece type in its chain.
+rare|ESA:cloak|boost:a ; tgt:charm more:b|The piece it links to gets +{a}. If that piece is a Charm, it adds {b} more.
+rare|OC:footwear|dmg:b ; ygt:0.5 skip|Deal {b} extra damage. If its Yield bar is past half, the creature also skips its next turn.
+rare|OC:backpack|heal:b ; plenty:6 ; keep1|Heal {b}. Next round pick from 6 pieces, and at the end of that round your strongest unplayed piece stays in your hand.
+rare|OC:coat|keep ; guard:b ; kept:2 hold ; kept:2 @block bar:a|Keeper. Gain {b} guard; after two rounds in your hand it also stays up one more turn and each hit it blocks adds {a} to the bar.
+rare|OC:cloak|pluck:sure ; shrink:b ; hand:1|Pluck, sure to work. The creature's strongest piece loses {b} and your next hand has 1 extra piece.
