@@ -812,6 +812,11 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.09' => ['🌿 Update 2.7.09: pals work at 6am, Here popovers',
+        "[list][*][b]Pals[/b] now do a whole day of work at 6am game time, whether you sleep or not. A Pantry pal collects every jar that was ready and refills the free ones each morning.\n"
+        . "[*][b]Here page[/b]: tap a wonder, haven, delve or lair and the full panel pops up in place, with its picture and your chances.\n"
+        . "[*][b]New rest-stop pictures[/b] for the forest, mountain, coast, island, wetland, tundra and rainforest, and five new villager species.\n"
+        . "[*][b]Fixes[/b]: fight info cards scroll on phones, and Trail landmarks draw over the trees beside them.[/list]"],
     '2.7.08' => ['🌸 Update 2.7.08: Sights pay more, new Sights tricks',
         "[list][*][b]Sights[/b] pay better: a Sight is now worth about as much as a Gather for the energy. Walks are capped at 6 Sights each.\n"
         . "[*][b]Birthdays[/b]: some villagers have one. Give them a present on the day for double the friendship.\n"

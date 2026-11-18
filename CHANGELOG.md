@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.7.09
+- **Pals work at 06:00.** All pal work (trips, delves, garden stays, pots, the Pantry) is credited once per game morning at 06:00, a whole day ahead, counted from the game clock. Sleeping at 05:59 gives exactly one morning, staying up past 06:00 gives it without a sleep, and sleeping after it does not give it twice. New column `users.pal_morning`.
+- **Pantry pal** collects ready jars and refills free ones every morning it missed (up to 40), not only on the Jobs page; it also checks when you open the Pantry, the craft map or the Kitchen card.
+- **Here page:** the popover of a wonder, haven, delve or lair is now the same panel as on the World page (picture, intro, mood, ways in with their chances); its buttons return to the Here page.
+- **Fights:** the piece info card scrolls on a phone (the text used to cut itself off).
+- **Trail:** landmarks draw over the trees next to them (wall-trees overdraw).
+- **84 new rest-stop pictures** (7 landscapes x 12 stop types), five new villager species (squirrel, scarecrow, hermit crab, crab, beaver), Keeper Marram, back and side Flood Boots, new Sights landmark pictures.
+- **Hidden behind `pfight_v1` (Admins only):** 280 regional wearables (item art, Tailor crafting with a Petal fee, one Keepsake piece each with its own unique effect; engine, JS mirror and tests in `tests/pf_wear_fx.php`; balance notes in `claude/wear-pieces/balance.md`). New data files `wear_items.txt`, `wear_items_pieces.txt`, `wear_fx.txt`.
+- **Database:** `users.pal_morning` is added on first load of this version (safe to run twice); the 840 wearable items are created on the upgrade step `wearables_2700`.
+
 ## 2.7.08
 - **Trail Sights pay better.** A Sight now pays about one Gather's worth per energy (it was about a third). New admin setting `sights_reward_pct` (default 125; rest stops are not touched). 100 thin Sights gained a small Petal reward, 8 rich free Sights now cost 1 energy, and a few over-rich ones (berry patch, bramble, scarecrow, sugar shack) were trimmed.
 - **At most 6 Sights on one walk** (admin setting `sights_walk_cap`, 0 = off).
