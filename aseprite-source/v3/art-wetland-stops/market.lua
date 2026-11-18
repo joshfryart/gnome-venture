@@ -105,8 +105,8 @@ end
 -- a smoked eel hanging head-down from a string, 3 wide x 13 tall
 local function eel(x, y)
   vline(x + 1, y - 2, y, L.board.deep)
-  F.sprite({ ".k.", ".e.", "eE.", "eEs", ".eE", ".eE", "eEs", "eE.", ".eE", ".eE", ".e.", "..e", "..s" }, x, y,
-    { k = L.timber.deep, e = eelR.base, E = eelR.hi, s = eelR.shade })
+  F.sprite({ ".kk.", ".eE.", "eEEk", "eEEs", ".eEs", ".eEs", "eEEs", "eEEs", ".eEs", ".eEs", "..eE", "..es", "..ss", "...s" }, x, y - 1,
+    { k = L.timber.edge, e = eelR.hi, E = "#f4dca4", s = eelR.base })
 end
 -- a bundle of bulrush heads / dried cress hanging
 local function rushes(x, y)
@@ -465,6 +465,10 @@ local function snail()
     line({ { s2[1][1] + X, s2[1][2] }, { s2[2][1] + X, s2[2][2] } }):each(function(x, y) if shell:has(x, y) then px(x, y, amber.deep) if shell:has(x, y - 1) then px(x, y - 1, amber.hi) end end end)
   end
   body:each(function(x, y) if (x - 211 - X) + (y - 129) * 2 > 9 then px(x, y, amber.shade) end end)
+  c:ellipse(211 + X, 129, 6, 4):edge():each(function(x, y) if body:has(x, y) then px(x, y, amber.deep) end end)
+  c:ellipse(211 + X, 129, 3, 2):edge():each(function(x, y) if body:has(x, y) then px(x, y, amber.deep) end end)
+  px(209 + X, 126, amber.hi) px(210 + X, 126, amber.hi) px(211 + X, 125, amber.hi)
+  px(197 + X, 123, L.awnB.hi) px(200 + X, 123, L.awnB.hi)
   hline(206 + X, 215 + X, 132, L.awnB.base) hline(206 + X, 215 + X, 133, L.timber.deep) -- letter slot
   fill(rect(221 + X, 126, 223 + X, 129), L.awnA.base) vline(221 + X, 126, 136, L.timber.deep)
   F.lily(212, 146, false)
@@ -566,6 +570,14 @@ local function well()
     if x < 104 and k ~= 0 then px(x, y, k < 4 and oak.hi or oak.base) end
     if x > 182 and k ~= 0 then px(x, y, k < 3 and oak.base or oak.shade) end
     if y > 196 and k ~= 0 and hash(x, y, 171) < .5 then px(x, y, oak.shade) end
+  end)
+  drum:each(function(x, y)
+    local idx = (x - 94) // 7
+    local k = (x - 94) % 7
+    if k >= 2 and k ~= 5 then
+      local v = hash(idx, 3, 171)
+      if v < .35 then px(x, y, oak.shade) elseif v > .75 and x < 160 then px(x, y, oak.hi) end
+    end
   end)
   for _, hy in ipairs({ 160, 180, 199 }) do
     hline(95, 191, hy, L.iron.base) hline(95, 191, hy + 1, L.iron.deep) hline(95, 104, hy, L.iron.hi)

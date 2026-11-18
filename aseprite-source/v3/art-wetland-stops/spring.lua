@@ -483,8 +483,8 @@ do
   local hole = c:ellipse(WX, yb - 16, 17, 2)
   local post = rect(43, 146, 45, yb + 2)
   local fork = line({ { 44, 148 }, { 41, 142 } }):add(line({ { 44, 148 }, { 47, 142 } }))
-  local pole = line({ { 20, 170 }, { WX + 4, 118 } }, 2)
-  local cw = c:ellipse(20, 172, 6, 5)
+  local pole = line({ { 20, 162 }, { WX + 4, 136 } }, 2)
+  local cw = c:ellipse(20, 164, 6, 5)
   F.shadow(WX - 20, WX + 22, yb, 12, 4)
   F.shadow(36, 50, yb + 2, 6, 2)
   rimOf(union(drum, lip, post, fork, pole, cw), L.timber)
@@ -497,15 +497,15 @@ do
   part(post, L.timber, { nopop = true }) vline(43, 147, yb + 1, L.timber.hi)
   part(fork, L.timber, { nopop = true, noshade = true })
   part(pole, L.board, { nopop = true, noshade = true })
-  line({ { 20, 169 }, { WX + 4, 117 } }):each(function(x, y) if pole:has(x, y) then px(x, y, L.board.hi) end end)
+  line({ { 20, 161 }, { WX + 4, 135 } }):each(function(x, y) if pole:has(x, y) then px(x, y, L.board.hi) end end)
   px(44, 151, L.iron.hi) px(44, 152, L.iron.shade) -- the pin
   -- the counterweight: a lump of tufa lashed with rope
-  part(cw, tufa) px(17, 169, tufa.hi) px(18, 169, tufa.hi) px(22, 175, tufa.deep)
-  vline(20, 167, 177, L.reed.deep) hline(15, 25, 172, L.reed.deep)
+  part(cw, tufa) px(17, 161, tufa.hi) px(18, 161, tufa.hi) px(22, 167, tufa.deep)
+  vline(20, 159, 169, L.reed.deep) hline(15, 25, 164, L.reed.deep)
   -- the rope and the bucket coming up, dripping peat-brown water
   local bx = WX + 4
-  vline(bx, 119, 170, L.reed.shade)
-  for y = 121, 168, 4 do px(bx, y, L.reed.deep) end
+  vline(bx, 137, 170, L.reed.shade)
+  for y = 139, 168, 4 do px(bx, y, L.reed.deep) end
   local bk = poly{ { bx - 5, 170 }, { bx + 5, 170 }, { bx + 4, 179 }, { bx - 4, 179 } }
   c:rim(bk, L.timber.edge) part(bk, L.board) F.planks(bk, L.board, 3, true, 7)
   hline(bx - 5, bx + 5, 172, L.iron.shade) hline(bx - 4, bx + 4, 177, L.iron.shade) hline(bx - 4, bx + 4, 170, PW.hi)
@@ -588,6 +588,16 @@ end
 F.depth(3)
 for _, p in ipairs({ { 60, 246, true, "white" }, { 98, 258, true, "white" }, { 124, 246, true }, { 40, 262, false, "yellow" }, { 150, 256, true, "white" },
   { 78, 240, false }, { 30, 250, true }, { 112, 262, false, "yellow" }, { 138, 240, false } }) do F.lily(p[1], p[2], p[3], p[4]) end
+-- sky-light streaks and big bright pads to lift the pool off the mud
+for y = 240, 268, 2 do for x = 22, 196 do
+  if brook:has(x, y) and brook:has(x, y + 1) and F.roadM:has(x, y) == false and hash((x + y * 5) // 6, y, 91) < .1 then px(x, y, F.SKYREF) px(x + 1, y, F.SKYREF) end
+end end
+for k, p in ipairs({ { 36, 256 }, { 52, 262 }, { 70, 250 }, { 84, 262 }, { 106, 252 }, { 120, 264 }, { 134, 254 }, { 150, 262 }, { 64, 266 }, { 94, 242 }, { 24, 244 }, { 128, 244 } }) do
+  local pm = c:ellipse(p[1], p[2], 6, 3) pm:cut(rect(p[1], p[2], p[1] + 7, p[2]))
+  rimOf(pm, L.lily) fill(pm, L.lily.base)
+  pm:each(function(x, y) if y < p[2] - 1 and x < p[1] + 1 then px(x, y, L.lily.hi) elseif y > p[2] + 1 then px(x, y, L.lily.shade) end end)
+  if k % 3 == 0 then px(p[1] - 1, p[2] - 3, L.awnB.hi) px(p[1], p[2] - 3, L.awnB.base) px(p[1] - 1, p[2] - 4, L.awnB.hi) end
+end
 F.reeds(18, 46, 248, 22, 82, { cattails = 4, green = true })
 do -- the boardwalk across the pool to the washing landing
   local walk = poly{ { 96, 269 }, { 112, 269 }, { 156, 238 }, { 146, 238 } }

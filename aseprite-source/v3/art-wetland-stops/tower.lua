@@ -149,7 +149,7 @@ local function tower()
   rimOf(landing, T) part(landing, B, { nopop = true }) hline(216, 234, 95, B.hi) hline(216, 234, 98, T.deep)
   flight(230, 95, 252, 71)
   -- a gnome halfway up the lower flight
-  F.gnome(241, 109, { small = true, hat = L.awnA, coat = L.leaf, arm = "up", noShadow = true, flip = true })
+  F.gnome(231, 122, { small = true, hat = L.awnA, coat = L.leaf, arm = "up", noShadow = true, flip = true })
   -- the landing at the causeway end
   local land = rect(226, 122, 256, 127)
   F.boardwalk(land, true, 21)
@@ -243,13 +243,13 @@ local function tower()
   fill(dorm, L.timber.edge) hline(237, 243, 39, L.roof.deep) px(239, 41, G.shade) px(240, 41, G.base)
 
   -- beacon: an iron basket on a short pole at the apex, burning
-  vline(239, 25, 30, IR.deep) vline(240, 25, 30, IR.base)
-  local basket = poly{ { 232, 19 }, { 248, 19 }, { 245, 25 }, { 235, 25 } }
+  vline(239, 31, 36, IR.deep) vline(240, 31, 36, IR.base)
+  local basket = poly{ { 232, 26 }, { 248, 26 }, { 245, 31 }, { 235, 31 } }
   rimOf(basket, IR) part(basket, IR)
-  for x = 234, 246, 3 do vline(x, 20, 24, IR.deep) end hline(233, 247, 19, IR.hi)
-  local fire = poly{ { 232, 19 }, { 234, 11 }, { 236, 14 }, { 239, 5 }, { 242, 13 }, { 245, 9 }, { 248, 19 } }
-  fill(fire, G.shade) fill(poly{ { 235, 19 }, { 239, 8 }, { 245, 19 } }, G.base) fill(poly{ { 238, 19 }, { 240, 12 }, { 242, 19 } }, G.hi)
-  for i = 0, 5 do px(228 + floor(hash(i, 1, 2) * 26), 13 + floor(hash(i, 2, 2) * 6), G.hi) end
+  for x = 234, 246, 3 do vline(x, 27, 30, IR.deep) end hline(233, 247, 26, IR.hi)
+  local fire = poly{ { 232, 26 }, { 234, 19 }, { 236, 21 }, { 239, 14 }, { 242, 20 }, { 245, 17 }, { 248, 26 } }
+  fill(fire, G.shade) fill(poly{ { 235, 26 }, { 239, 17 }, { 245, 26 } }, G.base) fill(poly{ { 238, 26 }, { 240, 19 }, { 242, 26 } }, G.hi)
+  for i = 0, 5 do px(228 + floor(hash(i, 1, 2) * 26), 15 + floor(hash(i, 2, 2) * 6), G.hi) end
   -- warm glow on the thatch near the beacon
   roofM:each(function(x, y) if y < 37 and math.abs(x - 240) < 8 and (x + y) % 2 == 0 then px(x, y, L.roof.hi) end end)
   -- windsock on a pole at the right end of the gallery
@@ -573,10 +573,18 @@ for k = 0, 2 do
   m:each(function(xx, y) if y % 2 == 0 then px(xx, y, L.reed.hi) end end)
   fill(rect(x + 5, 228, x + 6, 236), T.deep)
   bundleEnd(x + 14, 232, 3)
+  for _, bx in ipairs({ x + 2, x + 10 }) do vline(bx, 228, 236, L.roof2.base) vline(bx + 1, 228, 236, L.roof2.deep) end
+  for t = 0, 2 do px(x + 3 + t * 4, 227, L.reed.hi) px(x + 4 + t * 4, 226, L.reed.base) end -- loose straws
   px(x, 230, L.plume.base) px(x - 1, 231, L.plume.hi) px(x, 233, L.plume.shade)
 end
 F.crate(300, 254, 18, 12) F.crate(320, 256, 18, 12) F.crate(310, 242, 18, 10, L.wall2)
+for _, cr in ipairs({ { 300, 254, 18, 12 }, { 320, 256, 18, 12 }, { 310, 242, 18, 10 } }) do
+  local lx, ly = cr[1] + 4, cr[2] - cr[4] + 4
+  fill(rect(lx, ly, lx + 9, ly + 4), L.awnB.hi) rimOf(rect(lx, ly, lx + 9, ly + 4), L.timber)
+  hline(lx + 2, lx + 7, ly + 2, L.awnA.base) px(lx + 1, ly + 1, L.awnA.shade)
+end
 F.barrel(346, 258, T, 12)
+for k = 0, 3 do hline(334 + k * 3, 340 + k * 3, 266 + k, L.reed.base) px(334 + k * 3, 266 + k, L.reed.hi) end -- loose reeds on the ground
 local coil = c:ellipse(362, 262, 6, 3)
 rimOf(coil, L.reed) fill(coil, L.reed.base) c:ellipse(362, 262, 3, 1):edge():each(function(x, y) px(x, y, L.reed.deep) end)
 coil:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.reed.shade) end if y < 261 and x < 360 then px(x, y, L.reed.hi) end end)

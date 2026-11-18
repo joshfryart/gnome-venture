@@ -246,7 +246,7 @@ local function hut()
   part(corners, L.board, { nopop = true, noshade = true }) vline(96, top, 176, L.board.hi)
   F.moss(roofM, .05, 41)
   -- the gable in vertical silvered boards, a reed-bundle cross nailed under the apex
-  local gableM = poly{ { 101, top }, { cx, top - 30 + 8 }, { 177, top } }:cut(rect(cx - 5, top - 15 - 1, cx + 4, top - 15 + 7))
+  local gableM = poly{ { 108, top }, { cx, top - 19 }, { 170, top } }:cut(rect(cx - 5, top - 15 - 1, cx + 4, top - 15 + 7))
   F.planks(gableM, L.wall2, 4, true, 44)
   gableM:each(function(x, y) if hash(x // 4, y, 45) < .2 then px(x, y, L.board.shade) end end)
   for _, q in ipairs({ { cx - 14, top - 3, cx - 6, top - 7 }, { cx + 6, top - 7, cx + 14, top - 3 } }) do
@@ -452,6 +452,8 @@ end
 -- lilies and reeds in the channels
 for _, p in ipairs({ { 392, 200, true, "white" }, { 386, 226, false }, { 300, 224, true }, { 396, 246, true, "yellow" }, { 380, 178, false } }) do F.lily(p[1], p[2], p[3], p[4]) end
 F.reeds(398, 410, 228, 14, 88, { cattails = 2, green = true })
+for _, p in ipairs({ { 402, 194, true }, { 410, 206, false, "white" }, { 400, 182, false }, { 412, 186, true }, { 404, 212, false } }) do F.lily(p[1], p[2], p[3], p[4]) end
+F.reeds(414, 424, 214, 12, 90, { green = true })
 F.reeds(388, 400, 184, 12, 87, { green = true })
 for _, p in ipairs({ { 372, 168, true }, { 380, 172, false, "white" }, { 366, 176, false }, { 392, 166, true, "yellow" }, { 362, 182, true } }) do F.lily(p[1], p[2], p[3], p[4]) end
 F.sprite({ "....kk.", "...kkkR", ".kkkk..", "kKKKKk.", ".wkkk.." }, 370, 191, { k = "#3e3c42", K = "#5a5862", R = L.apple.base, w = L.awnB.hi })
@@ -459,15 +461,15 @@ for xx = 368, 380 do if hash(xx, 9, 79) < .6 then px(xx, 196, (xx < 374) and L.w
 F.reeds(284, 292, 250, 12, 89, { green = true })
 -- a pair of mallards paddling in the channel between the near beds
 local function duck(x, y, drake, flip)
-  local rows = drake and { "......gg.", ".....gGgy", "bbbbbwb..", "BBBBBbbb.", ".dddddd.." }
-    or { "......bb.", ".....bBby", "bbbbbbb..", "BBBBBbbb.", ".dddddd.." }
+  local rows = drake and { ".......ggg..", "......gGGGgy", "..bbb.ggg.yy", ".bbbbbbwb...", "bBBBbbbbbbb.", "BbbbbbbbbbB.", ".ddddddddd.." }
+    or { ".......bbb..", "......bBBbby", "..bbb.bbb.yy", ".bbbbbbbbb..", "bBBBbbbbbbb.", "BbbbbbbbbbB.", ".ddddddddd.." }
   if flip then for i, r in ipairs(rows) do rows[i] = r:reverse() end end
   local gr = drake and L.heron or L.goose
-  F.sprite(rows, x, y, { g = "#2e5a46", G = "#4e8a62", y = L.marigold.base, w = L.awnB.hi, b = gr.base, B = gr.hi, d = gr.deep })
-  if drake then px(flip and x + 3 or x + 5, y + 3, KING.base) end
-  for xx = x - 2, x + 10 do if hash(xx, y, 79) < .6 then px(xx, y + 5, (xx < x + 4) and L.water.hi or SKY) end end
+  F.sprite(rows, x, y - 2, { g = "#2e5a46", G = "#4e8a62", y = L.marigold.base, w = L.awnB.hi, b = gr.base, B = gr.hi, d = gr.deep })
+  if drake then px(flip and x + 4 or x + 7, y + 2, KING.base) end
+  for xx = x - 2, x + 12 do if hash(xx, y, 79) < .6 then px(xx, y + 6, (xx < x + 4) and L.water.hi or SKY) end end
 end
-duck(358, 223, true, true) duck(372, 221, false, true)
+duck(352, 223, true, true) duck(370, 221, false, true)
 
 -- quirk: an otter in a red gnome hat asleep, curled in the water-mint bed; a dragonfly resting on the hat tip
 do
@@ -577,8 +579,9 @@ local function spiral(cx, cy)
     F.moss(face, .3, 50 + i)
     fill(top, L.peat.shade)
     top:each(function(x, y)
-      local v = hash(x, y, i * 7)
-      if v < .45 then px(x, y, rr.base) elseif v < .55 then px(x, y, rr.hi) elseif v < .7 then px(x, y, rr.shade) end
+      local v = hash(x // 2, y // 2, i * 7)
+      px(x, y, v < .5 and rr.base or (v < .7 and rr.hi or rr.shade))
+      if hash(x, y, i * 3) < .1 then px(x, y, rr.deep) end
       if i == 1 and hash(x, y, 77) < .05 then px(x, y, MFL.base) end
       if i == 2 and hash(x, y, 78) < .07 then px(x, y, CRAN.base) end
       if i == 3 and hash(x, y, 79) < .07 then px(x, y, L.marigold.base) end
@@ -605,10 +608,7 @@ for k, x in ipairs({ 26, 36, 46, 58, 70, 82 }) do
     for y = yb - h, yb - 10 do px(sx(y), y, FLAG.deep) px(sx(y) + 1, y, FLAG.shade) end
     for i, fy in ipairs({ yb - h, yb - h + 7, yb - h + 13 }) do
       local fx = sx(fy) + ((i % 2 == 0) and 2 or -1)
-      local m = poly{ { fx - 2, fy }, { fx + 2, fy }, { fx + 3, fy + 3 }, { fx, fy + 5 }, { fx - 3, fy + 3 } }
-      c:rim(m, L.marigold.edge) fill(m, L.marigold.base)
-      px(fx - 1, fy, L.marigold.hi) px(fx - 2, fy + 2, L.marigold.hi) px(fx + 2, fy + 3, L.marigold.shade) px(fx, fy + 4, L.marigold.deep)
-      px(fx, fy + 2, L.cattail.base)
+      F.sprite({ "..h.h..", ".hbhbh.", "hbbcbbe", "ebbcbbe", ".ebcbe.", "..ebe.." }, fx - 3, fy - 1, { h = L.marigold.hi, b = L.marigold.base, c = L.cattail.base, e = L.marigold.deep }, { rim = false })
     end
   else
     -- purple loosestrife: a leafy stem, a long magenta spike of whorls, smaller to the tip

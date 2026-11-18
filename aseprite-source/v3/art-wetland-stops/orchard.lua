@@ -25,7 +25,7 @@ local RUSSET = F.rp("#f0c486 #cc8e4c #a06636 #6e4428 #462a1e") -- russet apple
 local GREEN = F.rp("#eaee9e #bcc65c #8e9c42 #626e34 #3e4628")  -- green cooking apple
 local CRAN = F.rp("#ff9a90 #d63c4a #a42438 #6e1a2e #46121e")   -- cranberry
 local BOG = F.rp("#a8a066 #8a7c4e #6c5842 #503e36 #34282a")    -- cranberry bog mat
-local MIST = F.rp("#eef0b4 #ccd480 #a2ae5e #74804a #4c5634")   -- mistletoe
+local MIST = F.rp("#f6f29a #d8d23c #aab028 #6e7a20 #3e4a18")   -- mistletoe
 local WICK = F.rp("#dccc94 #b69c64 #8e7648 #665436 #403428")   -- withy / wicker
 local CIDER = F.rp("#f6e49a #e6c058 #c0963a #8c6a2c #5a4422")
 local LICH = { "#c8cfb0", "#a8b094", "#d8d6a6" }               -- grey and yellow lichen
@@ -43,6 +43,7 @@ local function lichen(m, k, seed)
 end
 -- a ball of mistletoe in a crown: round tuft, forked sprigs at its edge, pale berries
 local function mistletoe(x, y, r)
+  r = r + 1
   local m = c:ellipse(x, y, r, math.max(1, r - 1))
   rimOf(m, MIST)
   m:each(function(xx, yy)
@@ -256,10 +257,12 @@ F.pollard(186, 157, 30, 15)
 -- plank bridges over the dykes
 local function bridge(x, yd, w, dep)
   F.depth(dep)
-  local m = rect(x, yd - 2, x + 3 + w * 2, yd + w)
+  local x1 = x + 8 + w * 2
+  local m = rect(x, yd - 3, x1, yd + w + 1)
   rimOf(m, L.timber) part(m, L.board, { nopop = true })
-  for xx = x, x + 3 + w * 2, 3 do vline(xx, yd - 2, yd + w, L.board.deep) end
-  hline(x, x + 3 + w * 2, yd - 2, L.board.hi)
+  for xx = x, x1, 3 do vline(xx, yd - 3, yd + w + 1, L.board.deep) end
+  hline(x, x1, yd - 3, L.board.hi) hline(x, x1, yd + w + 1, L.timber.deep)
+  vline(x, yd - 6, yd - 3, L.timber.base) vline(x1, yd - 6, yd - 3, L.timber.base) hline(x, x1, yd - 6, L.timber.hi) -- hand rail
 end
 bridge(64, 141, 2, 1) bridge(404, 141, 2, 1) bridge(110, 157, 2, 2) bridge(370, 157, 2, 2)
 -- a pair of mallards on the right near dyke
@@ -290,6 +293,12 @@ local function ladder(x0, y0, x1, y1, w, n, pole)
 end
 F.depth(2)
 do
+end
+-- a second ladder, leaning in a tree among the rows
+F.depth(2)
+do
+  local lm = ladder(204, 160, 210, 134, 5, 5, 1)
+  rimOf(lm, L.timber) part(lm, L.willowBark, { nopop = true, noshade = true })
 end
 
 F.depth(1)
@@ -539,16 +548,17 @@ F.sprite({
   c = CRAN.base, C = CRAN.hi, t = L.reedGreen.shade })
 -- a Chinese water deer (little tusks, round ears) nibbling the windfalls under the far-left trees
 F.sprite({
-  "...ee............",
-  "..eDDe...........",
-  ".eDDDDBBBBBBBBB..",
-  ".DkDDDBBBBBBBBBBb",
-  "nDDDD.BbBBBBBBBBb",
-  ".tD...BbBBBBBBBb.",
-  ".......d.d...d.d.",
-  ".......d.d...d.d.",
-  "......dd.d..dd.d.",
-}, 40, 157, { D = L.needle.hi, B = L.needle.base, b = L.needle.shade, k = L.timber.edge, n = L.timber.edge, e = L.needle.shade, t = L.awnB.hi, d = L.needle.deep })
+  ".ee.ee............",
+  "eEEeEEe...........",
+  ".DDDDDD.BBBBBBBB..",
+  "DkDDDDDBBBBBBBBBB.",
+  "nDDDDDDBbBBBBBBBBw",
+  ".tDDDD.BbBBBBBBBw.",
+  "..DD...BbbbbbbBB..",
+  ".......d.d....d.d.",
+  ".......d.d....d.d.",
+  "......dd.d...dd.d.",
+}, 40, 156, { D = L.needle.hi, B = L.needle.base, b = L.needle.shade, k = L.timber.edge, n = L.timber.edge, e = L.needle.deep, E = L.awnB.base, t = L.awnB.hi, w = L.awnB.hi, d = L.needle.deep })
 for _, a in ipairs({ { 36, 166 }, { 32, 164 }, { 60, 167 } }) do px(a[1], a[2], AP.base) px(a[1] + 1, a[2], AP.shade) px(a[1], a[2] - 1, AP.hi) end
 -- a moorhen pecking a windfall by the road
 F.sprite({ ".kk....", "kkkkk..", "kwkkkr.", "kkkkk..", ".y.y..." }, 181, 190, { k = "#3c3a44", w = L.awnB.base, r = L.awnA.base, y = L.reedGreen.base })

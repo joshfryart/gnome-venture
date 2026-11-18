@@ -388,15 +388,17 @@ end
 local coil = c:ellipse(354, 248, 9, 4) rimOf(coil, L.board) part(coil, L.board) fill(c:ellipse(354, 248, 4, 1), L.board.deep)
 for k = 0, 2 do c:ellipse(354, 248, 8 - k * 2, 3 - k // 2):edge():each(function(x2, y2) if y2 > 247 then px(x2, y2, L.board.shade) end end) end
 do
-  local shaft = rect(336, 222, 337, 246)
-  local head = rect(330, 220, 343, 221)
+  local shaft = rect(336, 206, 337, 246)
+  local head = rect(332, 205, 341, 206)
   local tines = HP.mask()
-  for k = 0, 4 do tines:add(rect(331 + k * 3, 212 + (k % 2), 332 + k * 3, 219)) end
+  for _, tx in ipairs({ 332, 336, 341 }) do tines:add(rect(tx, 196, tx + 1, 204)) end
+  tines:add(rect(334, 199, 334, 201)) tines:add(rect(339, 199, 339, 201)) -- inward barbs
   local g = union(shaft, head, tines)
   rimOf(g, L.iron)
   part(shaft, L.timber, { nopop = true, noshade = true }) part(head, L.iron, { nopop = true }) part(tines, L.iron, { nopop = true, noshade = true })
-  tines:each(function(x2, y2) if (x2 - 331) % 3 == 0 then px(x2, y2, L.iron.hi) end end)
-  head:each(function(x2, y2) if hash(x2, y2, 93) < .35 then px(x2, y2, L.roof2.shade) end end) -- rust
+  vline(336, 207, 245, L.timber.hi)
+  tines:each(function(x2, y2) if x2 == 332 or x2 == 336 then px(x2, y2, L.iron.hi) end end)
+  hline(332, 341, 205, L.iron.hi)
   hline(333, 340, 247, L.peat.deep)
 end
 decoy(372, 241, false, false)
@@ -417,6 +419,8 @@ for _, f in ipairs({ { 372, 266 }, { 346, 264 }, { 276, 250 }, { 362, 234 }, { 3
 F.reeds(346, 366, 228, 14, 304, { cattails = 2, green = true })
 F.reeds(270, 284, 232, 16, 305, { cattails = 1 })
 F.dragonfly(342, 226, L.apple, true)
+for _, f in ipairs({ { 392, 252 }, { 322, 262 }, { 300, 252 } }) do F.sedge(f[1], f[2], 6) end
+F.moss(F.rock(386, 262, 5, 4), .3, 96)
 
 ---------------------------------------------------------------- left: fisher's tarred cottage under sedge thatch, eel-smoking rack
 F.depth(1)
@@ -503,12 +507,18 @@ local bk = poly{ { 160, 214 }, { 182, 214 }, { 179, 224 }, { 163, 224 } }
 rimOf(bk, WICK) part(bk, WICK) bk:each(function(x2, y2) if (x2 + y2) % 3 == 0 then px(x2, y2, WICK.shade) end if (y2 - 214) % 3 == 2 then px(x2, y2, WICK.deep) end end)
 for k = 0, 3 do
   local ex = 162 + k * 5
-  for t = 0, 6 do local yy = 212 - floor(1.5 * sin(t / 1.6 + k)) px(ex + t, yy - 1, L.timber.edge) px(ex + t, yy, t < 2 and EEL.hi or EEL.shade) px(ex + t, yy + 1, EEL.edge) end px(ex, 211 - floor(1.5 * sin(k)), EEL.hi)
+  for t = 0, 6 do local yy = 212 - floor(1.5 * sin(t / 1.6 + k)) px(ex + t, yy - 2, L.timber.edge) px(ex + t, yy - 1, EEL.base) px(ex + t, yy, "#d4d4a8") px(ex + t, yy + 1, EEL.hi) px(ex + t, yy + 2, L.timber.edge) end px(ex, 211 - floor(1.5 * sin(k)), EEL.hi)
 end
-fill(line({ { 166, 211 }, { 170, 205 }, { 168, 201 } }), EEL.base) px(168, 200, EEL.hi) -- one making a break for it
+fill(line({ { 166, 211 }, { 170, 205 }, { 168, 201 } }, 2), EEL.hi) px(168, 200, EEL.hi) px(167, 200, L.timber.edge) px(169, 200, L.timber.edge) -- one making a break for it
 -- the quant (punt pole) leaning, with its forked foot uppermost
-fill(line({ { 194, 228 }, { 184, 168 } }, 2), L.board.base) vline(185, 168, 200, L.board.hi)
-fill(line({ { 184, 168 }, { 180, 162 } }), L.iron.base) fill(line({ { 185, 168 }, { 188, 162 } }), L.iron.base) px(180, 161, L.iron.hi)
+do
+  local pole = line({ { 194, 228 }, { 184, 168 } }, 3)
+  rimOf(pole, L.timber) fill(pole, L.timber.base)
+  fill(line({ { 193, 228 }, { 183, 168 } }), L.timber.hi)
+  for k = 0, 6 do hline(185 + k // 6 - 0, 186, 224 - k * 9, L.board.hi) end -- worn bands
+  fill(line({ { 184, 168 }, { 179, 161 } }, 2), L.iron.deep) fill(line({ { 186, 168 }, { 190, 161 } }, 2), L.iron.deep)
+  fill(line({ { 184, 168 }, { 179, 161 } }), L.iron.hi) fill(line({ { 186, 168 }, { 190, 161 } }), L.iron.base)
+end
 -- an otter sitting up by the basket, eyeing the eels
 do
   local om = F.sprite({
@@ -528,7 +538,7 @@ do
     ".bbBB.bbB.",
     "BBbbB.....",
     ".BBB......",
-  }, 145, 207, { o = L.soil.shade, b = L.soil.base, B = L.soil.deep, e = L.timber.edge, n = L.timber.edge, p = L.plume.hi, w = L.awnB.base })
+  }, 145, 207, { o = L.soil.base, b = L.soil.hi, B = L.soil.base, e = L.timber.edge, n = L.timber.edge, p = L.awnB.base, w = L.awnB.base })
   om:each(function(x2, y2) if not om:has(x2 - 1, y2) and y2 > 208 then px(x2, y2, L.soil.hi)
     elseif not om:has(x2 + 1, y2) and y2 > 210 and y2 < 219 then px(x2, y2, L.soil.shade) end end)
   px(149, 210, L.awnB.hi) -- eye glint

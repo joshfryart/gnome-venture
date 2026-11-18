@@ -203,7 +203,7 @@ F.depth(3)
 
 ---------------------------------------------------------------- right: round reed hut on a stilted deck over a pool
 F.depth(3)
-local pool = poly{ { 290, 201 }, { 410, 199 }, { 476, 204 }, { 476, 229 }, { 444, 229 }, { 412, 222 }, { 380, 214 }, { 330, 212 }, { 296, 210 } }
+local pool = poly{ { 290, 201 }, { 410, 199 }, { 476, 204 }, { 476, 229 }, { 444, 229 }, { 412, 227 }, { 380, 219 }, { 330, 212 }, { 296, 210 } }
 rimOf(pool, L.peat)
 pool:grow(2):cut(pool):each(function(x, y) if y > 199 then local v = hash(x, y, 414) px(x, y, v < .4 and L.peat.base or (v < .65 and L.peat.hi or L.sedgeGround.base)) end end)
 F.water(pool, L.water)
@@ -312,7 +312,7 @@ F.dragonfly(398, 206, L.accent, true)
 F.depth(3)
 F.reeds(150, 178, 176, 10, 421, { green = true })
 F.reeds(20, 44, 180, 9, 422)
-local platPts = { { 8, 184 }, { 28, 177 }, { 80, 173 }, { 150, 172 }, { 200, 176 }, { 214, 176 }, { 188, 262 }, { 120, 263 }, { 40, 262 }, { 8, 258 } }
+local platPts = { { 8, 184 }, { 28, 177 }, { 80, 173 }, { 150, 172 }, { 200, 176 }, { 214, 176 }, { 188, 256 }, { 120, 257 }, { 40, 256 }, { 8, 253 } }
 local plat = poly(platPts)
 plat:each(function(x, y) if x > F.xl(y) - 4 then end end)
 local platC = HP.mask()
@@ -323,10 +323,18 @@ plat:each(function(x, y)
   local b = hash(x // 6, y // 2, 423)
   local h = b < .45 and L.peat.hi or (b < .8 and L.peat.base or L.soil.hi)
   local v = hash(x, y, 424)
+  local cl = hash(x // 9, y // 5, 430)
+  if cl < .22 then h = (v < .5) and L.soil.hi or L.peat.hi elseif cl > .86 then h = (v < .5) and L.peat.shade or L.peat.base end
   if v < .03 then h = L.reed.hi elseif v > .975 then h = L.peat.shade end
   if not plat:has(x, y - 1) then h = L.sedgeGround.hi elseif not plat:has(x, y - 2) then h = L.sedgeGround.base end
   px(x, y, h)
 end)
+-- dried-clay cracks
+for i = 0, 26 do
+  local x, y = 14 + floor(hash(i, 1, 431) * 190), 182 + floor(hash(i, 2, 431) * 68)
+  local dx = hash(i, 3, 431) < .5 and 1 or -1
+  for k = 0, 4 + i % 3 do local xx, yy = x + k * dx, y + (k % 2) if plat:has(xx, yy) and plat:has(xx, yy - 1) then px(xx, yy, L.peat.deep) end end
+end
 -- strewn reed straw
 for i = 0, 140 do
   local x, y = 12 + floor(hash(i, 1, 425) * 196), 176 + floor(hash(i, 2, 425) * 84)
@@ -361,10 +369,10 @@ do
     local m = rect(x, top[x] - 3, x + 2, top[x] + 1) rimOf(m, L.timber) part(m, L.timber, { nopop = true, noshade = true })
     hline(x, x + 2, top[x] - 3, L.board.hi) px(x + 1, top[x] - 3, L.board.shade)
   end end
-  for _, mt in ipairs({ { 84, 196, 124, 203 }, { 150, 196, 176, 203 } }) do
+  for _, mt in ipairs({ { 82, 216, 118, 226 }, { 152, 214, 190, 224 }, { 112, 240, 158, 249 }, { 148, 229, 180, 238 } }) do
     local m = rect(mt[1], mt[2], mt[3], mt[4])
-    m:each(function(x, y) local k = ((x // 2) + y) % 2 px(x, y, k == 0 and L.reedGreen.shade or L.reed.shade) if y == mt[2] then px(x, y, L.reed.base) end end)
-    hline(mt[1], mt[3], mt[4], L.reedGreen.deep)
+    m:each(function(x, y) local k = ((x // 2) + y) % 2 px(x, y, k == 0 and L.reedGreen.base or L.reed.base) if y == mt[2] then px(x, y, L.reed.hi) end end)
+    hline(mt[1], mt[3], mt[4], L.reedGreen.deep) vline(mt[1], mt[2], mt[4], L.reedGreen.shade) vline(mt[3], mt[2], mt[4], L.reedGreen.deep)
   end
 end
 -- a boardwalk from the causeway in to the hearth
@@ -526,7 +534,7 @@ F.sprite({
   "nwDDDDDDDDdDDDt.",
   "wwwDDDDDDDDDDDtt",
   ".wwdddddddddd...",
-}, 154, 228, { e = L.soil.deep, D = L.soil.base, d = L.soil.shade, n = L.timber.edge, w = L.awnB.base, t = L.soil.hi })
+}, 154, 228, { e = L.soil.shade, D = "#c8a468", d = L.soil.base, n = L.timber.edge, w = L.awnB.hi, t = "#e0c088" })
 hline(156, 157, 230, L.timber.edge)
 for _, p in ipairs({ { 158, 229 }, { 162, 230 }, { 165, 229 } }) do px(p[1], p[2], L.soil.hi) end -- curls
 -- a little reed-bundle stool by the lute player
@@ -596,7 +604,7 @@ F.sprite({
   "..ooommmmooooo.E",
   "...oooooooooo..k",
 }, 336, 216, { h = L.awnA.hi, R = L.awnA.base, r = L.awnA.shade, d = L.awnA.deep, O = L.soil.base, o = L.soil.shade, s = L.soil.deep,
-  k = L.timber.edge, K = L.awnB.hi, m = L.plaster.base, n = L.timber.edge, E = EELF.base, e = EELF.hi, p = L.soil.hi })
+  k = L.timber.edge, K = L.awnB.hi, m = L.plaster.base, n = L.timber.edge, E = "#c4cc8a", e = "#eaecb8", p = L.soil.hi })
 -- whiskers
 px(339, 226, L.plaster.hi) px(338, 225, L.plaster.hi) px(349, 226, L.plaster.hi) px(350, 225, L.plaster.hi)
 -- the thick tapering tail hanging over the pack's rim

@@ -121,10 +121,11 @@ F.mist(296, 402, 140, 142, 66, .35)
 F.depth(3)
 F.shadowM(c:ellipse(430, 203, 34, 3))
 F.willow(432, 200, 108, 18)
+for _, cr in ipairs({ { 410, 112, 20, 9, L.willow, 5 }, { 452, 106, 20, 9, L.foliage2, 6 }, { 430, 96, 18, 7, L.willow, 7 }, { 400, 128, 12, 6, L.foliage2, 8 } }) do F.crown(cr[1], cr[2], cr[3], cr[4], cr[5], cr[6]) end
 
 ---------------------------------------------------------------- the inn's dyke: water under the pier, stilts, punts
 F.depth(3)
-local water = poly{ { 8, 184 }, { 188, 184 }, { 190, 198 }, { 186, 210 }, { 160, 216 }, { 120, 214 }, { 80, 216 }, { 40, 218 }, { 8, 214 } }
+local water = poly{ { 8, 184 }, { 188, 184 }, { 190, 198 }, { 186, 210 }, { 160, 219 }, { 120, 218 }, { 80, 222 }, { 40, 224 }, { 8, 226 } }
 rimOf(water, L.peat)
 do
   local bank = water:grow(2):cut(water)
@@ -140,7 +141,7 @@ for _, s in ipairs({ { 40, 76 }, { 134, 170 } }) do
     end
   end
 end
-F.stilts({ 18, 32, 46, 60, 150, 164, 178 }, 186, 206, 197)
+F.stilts({ 18, 32, 46, 60, 150, 164, 178 }, 186, 210, 197)
 for _, sx in ipairs({ 18, 32, 46, 60, 150, 164, 178 }) do for y = 207, 213, 2 do if water:has(sx, y) then px(sx, y, L.water.deep) px(sx + 1, y, L.water.shade) end end end
 
 ---------------------------------------------------------------- the inn (left hero)
@@ -510,10 +511,14 @@ do
   px(196, by - 20, L.awnB.hi) px(195, by - 19, L.awnB.base) -- bobble
   -- a little fish-bone it fell asleep over
   hline(228, 234, by - 10, L.awnB.base) for x = 229, 233, 2 do px(x, by - 11, L.awnB.shade) px(x, by - 9, L.awnB.shade) end px(235, by - 11, L.awnB.base) px(235, by - 9, L.awnB.base)
-  local function zed(x, y, s)
-    for i = 0, s do px(x + i, y, L.awnB.hi) px(x + i, y + s, L.awnB.hi) px(x + s - i, y + i, L.awnB.hi) end
+  local function zed(x, y, s, col)
+    for i = 0, s do px(x + i, y, col) px(x + i, y + s, col) px(x + s - i, y + i, col) end
   end
-  zed(212, by - 26, 3) zed(218, by - 34, 4) zed(226, by - 43, 5)
+  local function zz(x, y, s)
+    for _, o in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 1 }, { -1, -1 } }) do zed(x + o[1], y + o[2], s, L.timber.base) end
+    zed(x, y, s, L.awnB.hi)
+  end
+  zz(211, by - 33, 3) zz(218, by - 41, 4) zz(227, by - 51, 5)
 end
 
 ---------------------------------------------------------------- beer garden (right): festoons, table, drinkers

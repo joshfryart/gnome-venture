@@ -209,8 +209,8 @@ for row = 0, 2 do
     for k = -3, 3 do
       local tx = x + k * 2 + (k > 0 and 1 or 0)
       local r = ((k + row + floor(s * 3)) % 3 == 0) and L.reedGreen or OSIER
-      line({ { x + (k > 0 and 1 or 0), y - 1 }, { tx, y - h + math.abs(k) } }):each(function(xx, yy) px(xx, yy, k < 0 and r.hi or r.base) end)
-      px(tx, y - h + math.abs(k) - 1, L.willow.base) px(tx + 1, y - h + math.abs(k), L.willow.shade)
+      line({ { x + (k > 0 and 1 or 0), y - 1 }, { tx, y - h + math.abs(k) } }):each(function(xx, yy) px(xx, yy, k < 0 and r.base or r.shade) end)
+      px(tx, y - h + math.abs(k) - 1, L.willow.hi) px(tx + 1, y - h + math.abs(k), L.willow.base)
     end
   end
 end
@@ -293,8 +293,8 @@ gantry()
 F.depth(2)
 local function puntBuild()
   -- the boat-builder behind the hull, mallet raised
-  F.gnome(322, 124, { small = true, hat = L.awnA, coat = L.wall2, arm = "up" })
-  fill(rect(328, 107, 331, 109), L.timber.base) px(328, 107, L.board.hi) vline(329, 110, 111, L.board.base)
+  F.gnome(322, 124, { hat = L.awnA, coat = L.wall2, arm = "up" })
+  fill(rect(327, 95, 332, 98), L.timber.base) px(327, 95, L.board.hi) rimOf(rect(327, 95, 332, 98), L.timber) vline(330, 99, 101, L.board.base)
   local hull = poly{ { 298, 117 }, { 304, 121 }, { 340, 121 }, { 348, 116 }, { 350, 118 }, { 342, 130 }, { 306, 130 }, { 296, 119 } }
   local ribs = HP.mask()
   for x = 322, 340, 5 do ribs:add(rect(x, 115, x, 120)) end
@@ -313,7 +313,7 @@ local function puntBuild()
   -- trestles, a plank and a pot of tar
   for _, x in ipairs({ 310, 336 }) do fill(rect(x, 133, x + 2, 138), L.timber.base) fill(rect(x - 2, 138, x + 4, 139), L.timber.deep) end
   local pl = rect(312, 139, 334, 140) rimOf(pl, L.timber) part(pl, L.board, { nopop = true, noshade = true }) hline(312, 334, 139, L.board.hi)
-  local pot = c:rrect(290, 132, 296, 138, 2) rimOf(pot, IR) part(pot, IR, { nopop = true }) hline(290, 296, 132, TAR.edge) px(291, 133, IR.hi)
+  local pot = c:rrect(288, 130, 297, 138, 3) rimOf(pot, IR) part(pot, IR, { nopop = true }) hline(289, 296, 130, G.base) hline(290, 295, 131, TAR.edge) px(290, 132, IR.hi) px(291, 133, IR.hi) px(292, 129, L.mist) px(293, 127, L.mist2) px(292, 125, L.mist)
   vline(295, 126, 131, L.timber.base)
 end
 puntBuild()
@@ -405,19 +405,20 @@ boiler()
 
 -- an otter asleep in the warmth of the boiler, curled with its tail round its nose
 F.sprite({
-  "......OOOOOOOO.......",
-  "....OOOOOOOOOOOOe....",
-  "..OOOOOOOOOOOOOOEe...",
-  ".OOOOOOOOOOOOOOcccn..",
-  "OOOOOOOOOOOOOOcccccd.",
+  "..............hh....",
+  "......hhhhhhhhhhhh...",
+  "....hhhhhhhhhhhhhhe..",
+  "..hhhhhhhhhhhhhhhEe..",
+  ".hhhhOOOOOOOOOOcccn..",
+  "hhhOOOOOOOOOOOcccccd.",
   "OOOOOOOOOOOOOOOcccdd.",
   "TOOOOOOOOOOOOOOOOdd..",
   ".TTTTTTTTTTTTTTTTd...",
   "..TTT.............",
-}, 98, 205, { e = L.cattail.deep, E = L.cattail.shade, O = L.cattail.base, c = L.board.hi, d = L.board.shade, n = L.timber.edge, T = L.cattail.shade })
-for _, p2 in ipairs({ { 101, 208 }, { 103, 207 }, { 106, 206 }, { 110, 206 } }) do px(p2[1], p2[2], L.cattail.hi) end
-px(112, 208, L.timber.edge) px(113, 208, L.timber.edge) -- shut eye
-for k = 0, 2 do px(120 + k * 3, 202 - k * 2, L.mist) end -- z z
+}, 98, 204, { e = L.soil.deep, E = L.soil.shade, O = L.soil.base, h = L.soil.hi, c = L.awnB.base, d = L.board.shade, n = L.timber.edge, T = L.soil.shade })
+for _, p2 in ipairs({ { 101, 208 }, { 103, 207 }, { 106, 206 }, { 110, 206 } }) do px(p2[1], p2[2], L.soil.shade) end
+hline(111, 113, 207, L.timber.edge) hline(116, 118, 208, L.awnB.hi) -- shut eye, whiskers -- shut eye
+for k = 0, 2 do px(120 + k * 3, 202 - k * 3, L.mist) px(121 + k * 3, 202 - k * 3, L.mist) px(120 + k * 3, 201 - k * 3, L.mist) end -- z z
 -- the willow brake: a post with an iron V; a gnome pulling a rod through it, bark curls flying
 local function brake(x, yb)
   local post = rect(x - 2, yb - 16, x + 2, yb)
@@ -447,7 +448,7 @@ heap:each(function(x, y)
 end)
 for k = 0, 4 do local y = 230 + k * 2 px(106 - (k % 2), y + 3, BUFF.base) px(143 + (k % 2), y + 1, BUFF.shade) end
 -- the soaking tub of rods waiting their turn
-local tub = F.barrel(198, 238, L.timber, 12)
+local tub = F.barrel(198, 238, F.rp("#d8a870 #b07c48 #8a5a38 #623e2a #3e281c"), 12)
 for k = 0, 8 do
   local x0 = 193 + k
   line({ { x0, 226 }, { x0 + (k - 4) * 2, 202 + (k % 3) * 3 } }):each(function(x, y) px(x, y, (k % 2 == 0) and OSIER.base or OSIER.shade) end)

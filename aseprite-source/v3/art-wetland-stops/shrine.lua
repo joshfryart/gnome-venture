@@ -237,7 +237,7 @@ local boss = c:ellipse(240, 76, 4, 4) rimOf(boss, L.timber) fill(boss, L.board.b
 F.sprite({ ".k.", "kbk", ".k." }, 239, 75, { k = L.timber.deep, b = L.marigold.base }, { rim = false })
 -- carved bird finials at the ridge ends, and a wisp of candle smoke from the smoke hole
 for _, e in ipairs({ { 217, -1 }, { 263, 1 } }) do
-  F.sprite(e[2] < 0 and { "kk..", "kkk.", ".kkk", "..k." } or { "..kk", ".kkk", "kkk.", ".k.." }, e[1] - 2, 51, { k = L.timber.base })
+  F.sprite(e[2] < 0 and { "ykk...", "kkkk..", ".kkkk.", "..kkkk", "...kkk" } or { "...kky", "..kkkk", ".kkkk.", "kkkk..", "kkk..." }, e[1] - 3, 49, { k = L.timber.base, y = L.marigold.base })
 end
 -- bell rope and bell in the bay, straw rope with paper zigzags and reed tassels across the front
 vline(240, 96, 104, RED.base) vline(241, 96, 104, L.awnB.base)
@@ -303,7 +303,7 @@ local function sacredWillow()
     -- long weeping fronds from the clump's underside
     m:each(function(x, y)
       if not m:has(x, y + 1) and x % 2 == 0 and hash(x, y, cr[6]) < .85 then
-        local len = 5 + floor(hash(x, 1, cr[6]) * (.4 + .6 * hash(x, 2, cr[6])) * 34)
+        local len = 5 + floor(hash(x, 1, cr[6]) * (.4 + .6 * hash(x, 2, cr[6])) * (cr[6] == 36 and 8 or 34))
         local lit = x < cr[1]
         for k = 1, len do
           local yy = y + k
@@ -567,17 +567,17 @@ end
 
 ---------------------------------------------------------------- otters: stone guardians and the real pup
 local OTTER = {
-  "..B.....B..",
-  ".BHBBBBBBS.",
+  "..BB...BB..",
+  ".HHBBBBBBS.",
   ".HHBBBBBSS.",
   ".HeHBBBeSS.",
   ".HmmmnmmmS.",
   "..mmmmmmS..",
   "...BBBBS...",
   "..HBmmBSS..",
-  ".HBBmmBBSS.",
-  ".HBBmmBBSS.",
-  ".HBBmmBBSS.",
+  ".HBffffFSS.",
+  ".HfFfFfFSS.",
+  ".HBffffBSS.",
   ".HBpBBpBSS.",
   "HHBBBBBBBSS.",
   "HBBBBBBBBSSD",
@@ -589,7 +589,7 @@ local function otter(x, yb, r, chest, flip)
   for i, row in ipairs(OTTER) do rows[i] = flip and row:reverse() or row end
   local w = #OTTER[13]
   return F.sprite(rows, x - 5 - (flip and (w - 11) or 0), yb - #rows + 1, { H = r.hi, B = r.base, S = r.shade, D = r.deep, e = L.timber.edge, n = L.timber.edge,
-    m = chest, p = r.deep }, { rimCol = r.edge })
+    m = chest, f = chest, F = r.deep, p = r.deep }, { rimCol = r.edge })
 end
 local function otterHat(x, ytop)
   F.sprite({ "....r..", "...RR..", "..HRRr.", ".HRRRr.", "hhhhhhh" }, x - 3, ytop, { R = RED.base, r = RED.shade, H = RED.hi, h = RED.deep })
@@ -675,6 +675,12 @@ end
 F.heron(446, 222)
 for xx = 438, 454 do if hash(xx, 2, 84) < .6 then px(xx, 223, L.water.hi) end end
 F.bush(400, 230, 12, 7, L.reedGreen, 12)
+for y = 236, 270 do for x = 306, 376 do
+  local near = false for dy = -2, 2 do for dx = -2, 2 do if F.poolAt(x + dx, y + dy) then near = true end end end
+  if near then
+    local v = hash(x, y, 61) px(x, y, v < .55 and "#92985a" or (v < .85 and "#a69862" or (v < .93 and "#6e8044" or "#96a458")))
+  end
+end end
 -- a gnome sweeping fallen willow leaves off the ground below the boardwalk
 local _, bx, by = F.gnome(348, 238, { hat = RED, coat = L.wall2, flip = true, arm = "hold" })
 fill(line({ { bx + 1, by - 6 }, { bx - 6, by + 6 } }, 1), L.timber.base)
@@ -693,7 +699,7 @@ F.dragonfly(90, 226, L.apple) F.dragonfly(332, 222, L.accent, true)
 
 -- a heron flying in from the left, swallows over the chapel
 F.depth(0)
-F.sprite({ "....ww......", "...wwwwwwwww", "YYkwwwwwww..", "......wwwww.", ".......www.." }, 110, 44, { w = L.heron.base, k = L.heron.deep, Y = L.marigold.shade }, { rim = false })
+F.sprite({ "........ww..........", "......wwwww.........", "....wwwwwwww........", "..wwwwwwwwwwwww.....", "YYkwwwwwwwwwwwwwww..", "..kkkwwwwwwwwww.....", ".......kwwwwwk......", "........kkkk...kk..." }, 106, 41, { w = L.heron.shade, k = L.heron.deep, Y = L.marigold.shade })
 F.birds({ { 330, 38, 2 }, { 342, 44, 1 }, { 168, 64, 1 }, { 290, 52, 2 } })
 F.depth(3)
 -- fallen willow leaves and marigold petals scattered about

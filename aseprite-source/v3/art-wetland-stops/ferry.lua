@@ -175,6 +175,8 @@ end
 for _, r in ipairs({ { 0, 22, 9, 1 }, { 84, 104, 8, 2 }, { 118, 160, 10, 3 }, { 150, 164, 7, 4 }, { 260, 300, 10, 5 }, { 306, 350, 9, 6 }, { 352, 392, 11, 7 }, { 458, 479, 9, 8 } }) do
   local x0, x1 = r[1], r[2]
   F.reeds(x0, x1, yF((x0 + x1) // 2) + 1, r[3], 500 + r[4], { cattails = (x1 - x0) // 14 })
+  F.reeds(x0 + 4, x1 - 4, yF((x0 + x1) // 2) + 3, r[3] - 3, 520 + r[4], { green = true })
+  for xx = x0, x1, 5 do local yy = yF(xx) + 2 + floor(hash(xx, 8, 77) * 3) px(xx, yy, L.reedGreen.base) px(xx + 1, yy - 1, L.reedGreen.hi) px(xx - 1, yy, L.reed.shade) end
 end
 -- far stage on stilts
 do
@@ -251,7 +253,44 @@ end
 
 ---------------------------------------------------------------- a heron wading in the shallows, moorhens
 F.depth(2)
-F.heron(136, 147, false)
+do -- a tall grey heron: long S neck, long legs (the frame heron is squat)
+  local rows = {
+    ".....KKKKKk......",
+    "....WWWWWWkKK....",
+    "...WWeKKWWW......",
+    "YYYYYYWWWW.......",
+    "......WWWW.......",
+    "......WkW........",
+    ".......WkW.......",
+    ".......WkW.......",
+    "......WkW........",
+    "......WkW........",
+    ".......WkW.......",
+    ".......WkWw......",
+    ".......WWkw......",
+    "......WWkww......",
+    "......WWWwGG.....",
+    ".....WWwGGGGGG...",
+    ".....WwGGGGGGGGG.",
+    ".....wGGgGGGGGGGG",
+    ".....wGGGgGGGGKKK",
+    "......GGGGGgGKKKK",
+    ".......GGGGGKKK..",
+    "........GGGgg....",
+    ".........ggg.....",
+    ".........Y.Y.....",
+    ".........Y.Y.....",
+    ".........Y.Y.....",
+    ".........Y.Y.....",
+    ".........Y..Y....",
+    ".........Y..Y....",
+    ".........Y..Y....",
+    ".........Y..Y....",
+    "........YY.YY....",
+  }
+  local hr = L.heron
+  F.sprite(rows, 128 - 9, 147 - #rows + 1, { W = hr.hi, w = hr.base, G = hr.shade, g = hr.deep, k = hr.deep, K = L.timber.edge, e = L.gold.base, Y = L.marigold.shade })
+end
 for k = 0, 2 do hline(130 - k * 2, 140 + k * 2, 148 + k, k == 1 and Wt.shade or Wt.hi) end
 moorhen(160, 141)
 for k, mx in ipairs({ 174, 181, 188 }) do
@@ -316,7 +355,7 @@ local function otter(x0, y0)
     "......RRRRRRr....",
     ".....HRRRRRRRr...",
     "....bbbbbbbbbbb..",
-    ".....LOOOOOOo....",
+    ".....LOeOOOeOo...",
     "....LOeOOOeOOo...",
     "....LOOccnccOo...",
     "...wOOccccccOow..",
@@ -612,8 +651,10 @@ do -- the fisher gnome on an upturned bucket, rod out over the reeds, an eel in 
   local cr = c:rrect(428, 212, 442, 222, 2) rimOf(cr, L.timber) part(cr, L.reed)
   cr:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.reed.shade) end end)
   -- an eel looping out of the creel
-  for k = 0, 8 do local ex, ey = 430 + k, 211 - floor(3 * sin(k / 2.6)) px(ex, ey, L.foliage.shade) px(ex, ey + 1, L.foliage.deep) end
-  px(439, 209, L.foliage.base) px(440, 209, L.timber.edge)
+  local eelM = line({ { 433, 213 }, { 434, 207 }, { 437, 204 }, { 440, 205 }, { 442, 209 }, { 443, 214 } }, 3)
+  rimOf(eelM, L.timber) fill(eelM, "#6c7a48")
+  line({ { 433, 213 }, { 434, 207 }, { 437, 204 }, { 440, 205 } }):each(function(x, y) if eelM:has(x, y) then px(x, y, "#c8d498") end end)
+  px(443, 215, L.timber.edge) px(444, 215, "#c8d498") px(443, 214, "#f0f0d0")
 end
 -- a greylag goose stretching its neck at the gnome's apple
 F.sprite({
