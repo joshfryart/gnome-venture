@@ -5,7 +5,7 @@ $_SERVER['SCRIPT_NAME'] = '/adventure.php';
 require $argv[1] . '/includes/bootstrap.php';
 require_once $argv[1] . '/includes/pfight.php';
 require_once $argv[1] . '/includes/wearables.php';
-set_setting('pfight_v1', '1'); setting('__reload__');   // wearables are behind the Puzzle combat setting
+set_setting('wear_open', '1'); setting('__reload__');   // 2.7.14: wearables are open to all unless the admin setting wear_open is Off
 $fails = 0;
 set_exception_handler(function (Throwable $e) { echo '  EXCEPTION ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine() . "\n"; exit(1); });
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }

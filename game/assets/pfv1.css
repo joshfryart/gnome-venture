@@ -812,3 +812,9 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pfv .pc[data-t=soothe] .cvh:empty { background-image: url(img/pfight/ico-soothe-s.png); } .pfv .pc[data-t=trick] .cvh:empty { background-image: url(img/pfight/ico-trick-s.png); }
 .pfv .pc[data-t=item] .cvh:empty { background-image: url(img/pfight/ico-item-s.png); }
 .pfv-ns { margin: 2px 0 0; } .pfv-ns .btn { width: 100%; min-height: 36px; }
+/* 2.7.14 the Wearing strip on the Puzzle box (read-only; the slots are on My Gnome: includes/wear_view.php) */
+.pfv .pbx-wear { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 6px 0; padding: 6px 8px; background: var(--surface-2); color: var(--ink); text-decoration: none; font-size: 13px; box-shadow: var(--frame-lite); }
+.pfv .pbx-wear .wps { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; min-width: 0; align-items: center; }
+.pfv .pbx-wear .wpic { width: 32px; height: 32px; image-rendering: pixelated; }
+.pfv .pbx-wear .wico { display: inline-flex; align-items: center; justify-content: center; font-size: 20px; }
+.pfv .pbx-wear .wch { color: var(--brand, inherit); text-decoration: underline; }

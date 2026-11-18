@@ -11,7 +11,12 @@ const GNOME25_ORDER = [['shadow', null], ['outline', null], ['boots', 'boots'], 
 /** 2.7.00 wearables on the rig: code => layer name; the art is `<view>-<layer>.png` (512 x 80, 8 frames like the other layers). A layer with no file is skipped, so nothing changes until it is drawn.
  *  b = Flood Boots (tall boots, drawn over the boots), g = Work Gloves (the hands), c = Travel Cloak, h = Wayfarer's Hat (a brim and band over the hat), p = Trail Pack, s = (the Scarf is the existing scarf layer). */
 /** 2.7.01: bump when a layer strip or the stack changes: it is part of the cache file name (gnome_sprite.php), so old composed strips under data/gnome25/ are not served again. */
-const GNOME25_ART_REV = '2701b';   // 2701b: back and side Flood Boots over the tunic
+const GNOME25_ART_REV = '2714a';   // 2701b: back and side Flood Boots over the tunic; 2714a: the worn items (equipped, 2.7.14) and the Tailor items' layers
+/** 2.7.14 the 280 Tailor wearables: art at assets/img/gnome25/wear/<item slug>/<view>.png (512 x 80, 8 frames like the rig). No file = nothing drawn.
+ *  Where each category goes, per view (after that base layer; '' = first): like wboots, cape and pack. Drawn in this category order. */
+const GNOME25_WEAR_CAT_AFTER = ['front' => ['footwear' => 'tunic', 'coat' => 'tunic', 'backpack' => '', 'cloak' => ''],
+    'back' => ['footwear' => 'tunic', 'coat' => 'tunic', 'backpack' => 'tunic', 'cloak' => 'tunic'],
+    'side' => ['footwear' => 'tunic', 'coat' => 'tunic', 'backpack' => 'tunic', 'cloak' => 'tunic']];
 const GNOME25_WEAR = ['b' => 'wboots', 'g' => 'gloves', 'c' => 'cape', 'h' => 'brim', 'p' => 'pack'];
 /** where each wearable layer goes in the stack, per view: it is drawn right AFTER the named base layer ('' = first). The cloak and the pack sit behind the body in front view, over the tunic in back and side view.
  *  2.7.01: Flood Boots draw over the tunic in every view (wellies over the legs, rim at row 60, art-2701-opus/wear/MANIFEST.md); back and side got their rim strips after the front.
@@ -77,21 +82,25 @@ function gnome25_ramp(string $base): array
 }
 
 /** The strip (PNG bytes) for a view and colours ['hat' => '#rrggbb', 'beard' => ..., 'scarf' => ...] (missing = as drawn), or '' when the art or GD is missing. */
-function gnome25_compose(string $view, array $cols, array $skip = [], string $wear = ''): string
+function gnome25_compose(string $view, array $cols, array $skip = [], string $wear = '', array $items = []): string
 {
     if (!function_exists('imagecreatetruecolor') || !in_array($view, ['front', 'back', 'side'], true)) return '';
     $dir = APP_ROOT . '/assets/img/gnome25/';
     $out = null;
-    $stack = [];   // the base layers with the worn wearables' layers put in (2.7.00)
-    $worn = array_values(array_filter(array_map(fn($ch) => GNOME25_WEAR[$ch] ?? '', str_split($wear))));
-    foreach ($worn as $wl) if ((GNOME25_WEAR_AFTER[$view][$wl] ?? null) === '' && is_file($dir . $view . '-' . $wl . '.png')) $stack[] = [$wl, null];
-    foreach (GNOME25_ORDER as [$name, $role]) {
-        $stack[] = [$name, $role];
-        foreach ($worn as $wl) if ((GNOME25_WEAR_AFTER[$view][$wl] ?? null) === $name && is_file($dir . $view . '-' . $wl . '.png')) $stack[] = [$wl, null];
+    $extra = [];   // [after, layer name, file]: the worn wearables' layers (2.7.00), then the Tailor items' (2.7.14: $items = [item base slug => category])
+    foreach (array_values(array_filter(array_map(fn($ch) => GNOME25_WEAR[$ch] ?? '', str_split($wear)))) as $wl) $extra[] = [GNOME25_WEAR_AFTER[$view][$wl] ?? null, $wl, $dir . $view . '-' . $wl . '.png'];
+    foreach (array_keys(GNOME25_WEAR_CAT_AFTER[$view]) as $cat) foreach ($items as $slug => $c) {
+        if ($c === $cat && preg_match('/^[a-z0-9-]+$/', (string)$slug)) $extra[] = [GNOME25_WEAR_CAT_AFTER[$view][$cat], 'x:' . $slug, $dir . 'wear/' . $slug . '/' . $view . '.png'];
     }
-    foreach ($stack as [$name, $role]) {
+    $extra = array_values(array_filter($extra, fn($x) => $x[0] !== null && is_file($x[2])));
+    $stack = [];   // [name, role, file]: the base layers with the extra layers put in
+    foreach ($extra as [$after, $nm, $f]) if ($after === '') $stack[] = [$nm, null, $f];
+    foreach (GNOME25_ORDER as [$name, $role]) {
+        $stack[] = [$name, $role, $dir . $view . '-' . $name . '.png'];
+        foreach ($extra as [$after, $nm, $f]) if ($after === $name) $stack[] = [$nm, null, $f];
+    }
+    foreach ($stack as [$name, $role, $f]) {
         if (in_array($name, $skip, true)) continue;   // rig parts (tools/gnome_rig_parts.php) leave layers out
-        $f = $dir . $view . '-' . $name . '.png';
         if (!is_file($f)) return '';
         $im = @imagecreatefrompng($f);
         if (!$im) return '';
@@ -134,7 +143,8 @@ function gnome25_url(array $u, string $view = 'front'): string
     if (!is_file(APP_ROOT . '/assets/img/gnome25/front-hat.png')) return '';
     $c = gnome25_colours($u);
     $q = ['v' => $view];
-    if (($w = gnome25_worn($u)) !== '') $q['w'] = $w;   // 2.7.00: the wearables switched on in the Puzzle box
+    if (($w = gnome25_worn($u)) !== '') $q['w'] = $w;   // 2.7.00: the worn wearables (2.7.14: the equipped items)
+    if (($x = gnome25_worn_items($u)) !== []) $q['x'] = implode('.', array_keys($x));   // 2.7.14: the worn Tailor items (their layers are drawn once their art exists)
     foreach (['hat' => 'h', 'beard' => 'b', 'scarf' => 's'] as $role => $k) if (isset($c[$role])) $q[$k] = ltrim($c[$role], '#');
     return url('gnome_sprite.php?' . http_build_query($q));
 }
@@ -148,24 +158,38 @@ function gnome25_avatar(array $u, int $size = 96): string
         . '<image href="' . e($url) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></svg>';
 }
 
-/**
- * 2.7.00: the wearables a gnome WEARS = the ones switched on in the Puzzle box (key w:<base>[-b]), as sorted codes of GNOME25_WEAR ('' = none). Cached for the request; '' without
- * the deck tables. The art has one look per wearable whatever its cut or rank.
- */
-function gnome25_worn(array $u): string
+/** 2.7.14: what the gnome wears (wearables.php wear_worn: the equipped items), cached for the request. [] when the setting is off or the table is missing. */
+function gnome25_equipped(array $u): array
 {
     static $c = [];
     $uid = (int)($u['id'] ?? 0);
-    if ($uid < 1) return '';
+    if ($uid < 1) return [];
     if (isset($c[$uid])) return $c[$uid];
-    $codes = '';
     try {
-        $map = ['flood-boots' => 'b', 'work-gloves' => 'g', 'travel-cloak' => 'c', 'wayfarers-hat' => 'h', 'trail-pack' => 'p'];
-        foreach (q("SELECT piece_key FROM pf_deck_pieces WHERE user_id = ? AND active = 1 AND piece_key LIKE 'w:%'", [$uid])->fetchAll(PDO::FETCH_COLUMN) as $k) {
-            $base = preg_replace('/-b$/', '', substr((string)$k, 2));
-            if (isset($map[$base]) && !str_contains($codes, $map[$base])) $codes .= $map[$base];
-        }
-    } catch (Throwable $e) { $codes = ''; }
-    $a = str_split($codes); sort($a);
-    return $c[$uid] = implode('', $a);
+        require_once __DIR__ . '/wearables.php';
+        $w = wear_live($u) ? wear_worn($uid) : [];
+    } catch (Throwable $e) { $w = []; }
+    return $c[$uid] = $w;
+}
+
+/**
+ * 2.7.00: the wearables a gnome WEARS as sorted codes of GNOME25_WEAR ('' = none). 2.7.14: the EQUIPPED items (whatever is switched on in the Puzzle box).
+ * The art has one look per wearable whatever its cut or rank; the Scarf is the existing scarf layer (no code).
+ */
+function gnome25_worn(array $u): string
+{
+    $map = ['flood-boots' => 'b', 'work-gloves' => 'g', 'travel-cloak' => 'c', 'wayfarers-hat' => 'h', 'trail-pack' => 'p'];
+    $codes = [];
+    foreach (gnome25_equipped($u) as $slug) { $p = wear_parse($slug); if ($p && isset($map[$p[0]])) $codes[$map[$p[0]]] = 1; }
+    $a = array_keys($codes); sort($a);
+    return implode('', $a);
+}
+
+/** 2.7.14: the worn Tailor items: item base slug => category (footwear, backpack, coat, cloak), sorted by slug. */
+function gnome25_worn_items(array $u): array
+{
+    $o = [];
+    foreach (gnome25_equipped($u) as $slug) { $p = wear_parse($slug); $d = $p ? (wear_defs()[$p[0]] ?? null) : null; if ($d && ($d['get'] ?? '') === 'tailor') $o[$p[0]] = (string)$d['cat']; }
+    ksort($o);
+    return $o;
 }

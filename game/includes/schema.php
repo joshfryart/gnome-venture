@@ -1594,5 +1594,7 @@ function schema_statements(string $driver): array
     [$hst, $hsi, $hsc] = home_slim_schema($PK, $ID, $END);
     require_once __DIR__ . '/pfdeck.php';   // 2.6.74: puzzle combat, the v1 deck model (pf_decks, pf_deck_pieces, pf_belts, pf_tool_wear)
     $pfdt = pfd_schema($END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc)];
+    require_once __DIR__ . '/wearables.php';   // 2.7.14: the items a gnome wears (user_wear_slots)
+    $wrt = wear_slots_schema($ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt, $wrt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc)];
 }

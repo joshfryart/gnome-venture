@@ -11,7 +11,7 @@ $fails = 0;
 set_exception_handler(function (Throwable $e) { echo '  EXCEPTION ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine() . "\n"; exit(1); });
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
 $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'];
-set_setting('pfight_v1', '1'); setting('__reload__');   // wearables are behind the Puzzle combat setting
+set_setting('pfight_v1', '1'); set_setting('wear_open', '1'); setting('__reload__');   // 2.7.14: wearables are open to all (wear_open); the Puzzle box pieces need pfight_v1
 q('UPDATE users SET energy = 90, level = 30 WHERE id = ?', [$uid]); $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
 $plot = (int)q_val('SELECT id FROM plots WHERE user_id = ? ORDER BY id LIMIT 1', [$uid]);
 $give = function (string $slug, int $n) use ($uid) { give_item($uid, item_id_by_slug($slug), $n); };
@@ -81,12 +81,14 @@ $onSale = fn(string $slug) => (int)q_val('SELECT COUNT(*) FROM shop_stock WHERE 
 ok("Twigg's sells the Hat (300) and the Pack (800); the Tailor makes the rest, so no boots, gloves or cloak on a shelf", $shop > 0 && $onSale('wayfarers-hat') === 1 && $onSale('trail-pack') === 1 && !$onSale('flood-boots') && !$onSale('work-gloves') && !$onSale('travel-cloak'));
 ok('the Tailor\'s Thread exists', item_id_by_slug(WEAR_THREAD) > 0);
 
-echo "== the Puzzle box: wearables are Keepsake pieces\n";
+echo "== the Puzzle box: worn wearables are Keepsake pieces\n";
 foreach (['flood-boots', 'flood-boots-b', 'wayfarers-hat', 'work-gloves-b-fine'] as $s) if (!$qty($s)) $give($s, 1);
+q('DELETE FROM user_wear_slots WHERE user_id = ?', [$uid]);
 $src = pfd_sources($uid);
-ok('pfd_sources lists the wearables in the satchel', isset($src['wears']['flood-boots'], $src['wears']['work-gloves-b-fine']), json_encode($src['wears'] ?? null));
+ok('pfd_sources lists the wearables in the satchel; nothing worn: no wear piece in the box', isset($src['wears']['flood-boots'], $src['wears']['work-gloves-b-fine']) && $src['worn'] === [] && !array_filter(pfd_build($src)['pieces'], fn($p) => $p['src'] === 'wear'), json_encode($src['wears'] ?? null));
+$src['worn'] = ['footwear' => 'flood-boots', 'hat' => 'wayfarers-hat', 'hands' => 'work-gloves-b-fine'];
 $b = pfd_build($src); $byKey = array_column($b['pieces'], null, 'key');
-ok('each makes a piece: boots a and b, the Hat, the Gloves (cut b), all src wear, off and New until switched on', isset($byKey['w:flood-boots'], $byKey['w:flood-boots-b'], $byKey['w:wayfarers-hat'], $byKey['w:work-gloves-b'])
+ok('each worn item makes a piece: the boots (cut a only: the cut worn), the Hat, the Gloves (cut b), all src wear, off and New until switched on', isset($byKey['w:flood-boots'], $byKey['w:wayfarers-hat'], $byKey['w:work-gloves-b']) && !isset($byKey['w:flood-boots-b'])
     && !$byKey['w:flood-boots']['on'] && !empty($byKey['w:flood-boots']['new']) && $byKey['w:flood-boots']['src'] === 'wear', json_encode(array_keys($byKey)));
 ok('the Gloves are Fine (rank 3), the Boots Common', $byKey['w:work-gloves-b']['rank'] === 3 && $byKey['w:flood-boots']['rank'] === 1);
 $src['level'] = 1; $src['state'] = ['w:flood-boots' => true, 'w:wayfarers-hat' => true]; $b1 = pfd_build($src);
@@ -132,14 +134,14 @@ $pc = array_column(wear_pieces(wear_owned($uid), wear_lined_set($uid)), null, 'k
 ok('switched to Lined: the piece is rank 2, same key', $a && ($pc['rank'] ?? 0) === 2 && ($pc['v'] ?? 0) < 8 && ($pc['ref'] ?? '') === 'work-gloves-b-lined', json_encode($pc));
 [$a, $m] = wear_lined_toggle($u, 'work-gloves-b-fine');
 ok('switched back to Fine', $a && (array_column(wear_pieces(wear_owned($uid), wear_lined_set($uid)), null, 'key')['w:work-gloves-b']['rank'] ?? 0) === 3);
-echo "== behind the Puzzle combat setting\n";
-set_setting('pfight_v1', '0'); setting('__reload__');
-ok('setting Off: wearables are not live, for anyone', !wear_live() && !wear_live($u));
-set_setting('pfight_v1', 'admin'); setting('__reload__');
-ok('Admins only: live for an admin, not for a player', wear_live() && wear_live(['role' => 'admin']) && !wear_live(['role' => 'player']));
+echo "== open to all (wear_open), not behind Puzzle combat\n";
+set_setting('pfight_v1', '0'); set_setting('wear_open', '1'); setting('__reload__');
+ok('Puzzle combat Off, wear_open On: wearables are live for a player and an admin', wear_live() && wear_live(['role' => 'player']) && wear_live(['role' => 'admin']));
+set_setting('wear_open', '0'); setting('__reload__');
+ok('wear_open Off (the kill switch): not live for anyone', !wear_live() && !wear_live(['role' => 'admin']) && !wear_live(['role' => 'player']));
 [$a, $m] = build_building($u, $plot, 'tailor');
-ok('Admins only: a player cannot build the Tailor', !$a, $m);
-set_setting('pfight_v1', '1'); setting('__reload__'); ok('On: live for all', wear_live(['role' => 'player']));
+ok('wear_open Off: the Tailor cannot be built', !$a, $m);
+set_setting('pfight_v1', '1'); set_setting('wear_open', '1'); setting('__reload__'); ok('On again: live for all', wear_live(['role' => 'player']));
 
 echo "== the 280 Tailor wearables: craft, gates, fees, the piece\n";
 q("DELETE FROM festival_flags WHERE festival = 'tailor-free' AND user_id = ?", [$uid]);
@@ -169,14 +171,14 @@ $give('cottongrass', 2); $give('butterfly-scales', 1);
 ok('lining a Tailor wearable costs the step up in Petals too (1800 - 1200 = 600)', $a && $qty('na-sugarbush-snow-boots-lined') === 1 && $coins() === 4400, $m);
 [$a, $m] = tailor_recut($u, 'na-sugarbush-snow-boots-lined');
 ok('one piece, no cuts: no re-cut', !$a && str_contains($m, 'one cut'), $m);
-$src = pfd_sources($uid); $src['level'] = 15; $src['state'] = ['w:na-sugarbush-snow-boots' => true];
+$src = pfd_sources($uid); $src['level'] = 15; $src['state'] = ['w:na-sugarbush-snow-boots' => true]; $src['worn'] = ['footwear' => 'na-sugarbush-snow-boots-lined'];   // 2.7.14: worn, then switched on
 $e = array_column(pfd_build($src)['pieces'], null, 'key')['w:na-sugarbush-snow-boots'] ?? [];
 ok('in the Puzzle box: a Keepsake wear piece, Lined (rank 2), fx linkFoe>skip carried, in the deck', ($e['src'] ?? '') === 'wear' && ($e['rank'] ?? 0) === 2 && ($e['fx'] ?? '') === 'linkFoe>skip' && ($e['fa'] ?? 0) === 1 && ($e['out'] ?? 'x') === '', json_encode($e));
 $tl = pfd_tiles([$e], ['grit' => 0, 'nimble' => 0, 'hardiness' => 0, 'charm' => 0, 'lore' => 0, 'luck' => 0, 'level' => 3]);
 ok('its tile: Hurt 3 + 1 (level 3) + 2 (Lined) = 6', ($tl[0]['n'] ?? '') === 'Snowdrift Trip' && ($tl[0]['v'] ?? 0) === 6, json_encode($tl[0] ?? null));
 $fines = array_slice(array_keys(wear_tailor_defs()), 0, 4);
 foreach ($fines as $f) $give($f . '-fine', 1);
-$src = pfd_sources($uid); $src['level'] = 40; $src['state'] = array_fill_keys(array_map(fn($f) => 'w:' . $f, $fines), true);
+$src = pfd_sources($uid); $src['level'] = 40; $src['state'] = array_fill_keys(array_map(fn($f) => 'w:' . $f, $fines), true); $src['worn'] = array_map(fn($f) => $f . '-fine', $fines);   // the build as if all four were worn (pure: one per slot is wear_equip's rule)
 $b4 = pfd_build($src); $w4 = array_filter($b4['pieces'], fn($p) => in_array(substr($p['key'], 2), $fines, true));
 ok('four Fine Tailor wearables on with four Keepsake slots: the Rare cap leaves one out, at most 3 Rare in the deck', count(array_filter($w4, fn($p) => $p['out'] === 'cap')) === 1 && count(array_filter($b4['deck'], fn($p) => $p['rank'] === 3)) <= PFD_RARE_CAP, json_encode(array_column($w4, 'out', 'key')));
 foreach ($fines as $f) $give($f . '-fine', -1);
@@ -213,8 +215,10 @@ $c0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
 [$bok, $bmsg] = buy_from_shop($u, (int)$row['id'], 1) + [1 => ''];
 ok('buying a regional wearable takes the shelf price and gives the item (a shop with no staff on duty may refuse: say so)', ($bok && wear_qty($uid, 'na-sugarbush-snow-boots') >= 1 && $c0 - (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) === 1500) || str_contains((string)$bmsg, 'counter') || str_contains((string)$bmsg, 'closed') || str_contains((string)$bmsg, 'town'), (string)$bmsg);
 set_setting('pfight_v1', 'admin'); setting('__reload__');
-ok('with puzzle combat for admins only, a normal gnome does not see the outfitter or buy from it', wear_shop_hidden($na, ['id' => $uid, 'role' => 'player']) && wear_shop_block(['id' => $uid, 'level' => 35, 'role' => 'player'], $oc) === 'That is not on the shelf.');
-set_setting('pfight_v1', '1'); setting('__reload__');
+ok('puzzle combat for admins only: a normal gnome still sees the outfitter and may buy (wear_open is on)', !wear_shop_hidden($na, ['id' => $uid, 'role' => 'player']) && wear_shop_block(['id' => $uid, 'level' => 35, 'role' => 'player'], $oc) === null);
+set_setting('wear_open', '0'); setting('__reload__');
+ok('wear_open Off: nobody sees the outfitter or buys from it, admin or not', wear_shop_hidden($na, ['id' => $uid, 'role' => 'player']) && wear_shop_hidden($na, ['id' => $uid, 'role' => 'admin']) && wear_shop_block(['id' => $uid, 'level' => 35, 'role' => 'player'], $oc) === 'That is not on the shelf.');
+set_setting('pfight_v1', '1'); set_setting('wear_open', '1'); setting('__reload__');
 
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

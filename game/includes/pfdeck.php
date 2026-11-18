@@ -17,7 +17,7 @@ const PFD_LEGEND_HARVESTS = 3;                // 2.6.990: a legendary crop's pie
 const PFD_RANK_NAME = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
 const PFD_RANK_BONUS = [0, 0, 2, 4, 5];       // value added by rank (I Common .. IV Masterwork)
 const PFD_LARDER_SRC = ['crop', 'legend', 'food'];        // 2.6.989: the Larder holds crop (and, later, food) pieces ...
-const PFD_KEEP_SRC = ['friend', 'gourmand', 'trophy', 'wear'];   // 2.7.00: wearables (includes/wearables.php) are Keepsakes too   // ... the Keepsakes the friend, Gourmand and lair-trophy pieces (none exist yet)
+const PFD_KEEP_SRC = ['friend', 'gourmand', 'trophy', 'wear'];   // 2.7.00: wearables (includes/wearables.php) are Keepsakes too; 2.7.14: only a WORN wearable offers its piece   // ... the Keepsakes the friend, Gourmand and lair-trophy pieces (none exist yet)
 /** Slots by gnome level: the Larder 3 (4 from level 10, 5 from level 20), the Keepsakes 1 (2 from level 15, 3 from level 25, 4 from level 40; Josh 2026-11-15). */
 function pfd_slots(int $level): array { return ['larder' => $level >= 20 ? 5 : ($level >= 10 ? 4 : 3), 'keeps' => $level >= 40 ? 4 : ($level >= 25 ? 3 : ($level >= 15 ? 2 : 1))]; }
 const PFD_RARE_CAP = 3, PFD_MW_CAP = 1;       // a deck holds at most 3 Rare and 1 Masterwork pieces (kit + gear)
@@ -309,7 +309,8 @@ function pfd_sources_blank(int $level = 1, string $calling = '', string $home = 
         'slots' => PFD_BELTS[1][0], // belt slots
         'wear' => [],               // tool type => fight wear so far
         'pals' => [],               // active party pals: [['n', 't', 'v', 'r', 'rank' 1-3], ...]
-        'wears' => [],              // wearable item slug => qty (includes/wearables.php): each makes a Keepsake piece
+        'wears' => [],              // wearable item slug => qty (includes/wearables.php): what the gnome owns
+        'worn' => [],               // 2.7.14: slot => wearable item slug the gnome WEARS: each makes a Keepsake piece (only worn items do)
         'crops' => [], 'crafts' => [], 'regions' => [], 'legends' => [],   // crop kind / recipe category / region code / legendary crop slug => rank 1-4
         'auto' => false];
 }
@@ -380,9 +381,9 @@ function pfd_build(array $src): array
         if (isset($seen[$key]) || !in_array($p['src'], PFD_PLAYER_SRC, true) || !$owned($p)) continue;
         $pieces[] = $entry($key, $p, $rankOf($p), ['on' => (bool)($src['state'][$key] ?? false), 'new' => !isset($src['state'][$key])]);   // 2.6.989: a piece the gnome has just earned arrives switched off, marked New, until they switch it
     }
-    if (!empty($src['wears'])) {   // 2.7.00 wearables: each is a Keepsake piece (key w:<wearable>[-b]), off until switched on; its rank is the rank of the best item of that cut
+    if (!empty($src['worn'])) {   // 2.7.00 wearables: each WORN item (2.7.14) is a Keepsake piece (key w:<wearable>[-b]), off until switched on; its rank is the worn item's rank
         require_once __DIR__ . '/wearables.php';
-        foreach (wear_pieces((array)$src['wears'], (array)($src['wears_lined'] ?? [])) as $wp) {
+        foreach (wear_pieces(array_fill_keys(array_map('strval', array_values((array)$src['worn'])), 1), (array)($src['wears_lined'] ?? [])) as $wp) {
             if (isset($seen[$wp['key']])) continue; $seen[$wp['key']] = 1;
             $pieces[] = $entry($wp['key'], $wp, (int)$wp['rank'], ['on' => (bool)($src['state'][$wp['key']] ?? false), 'new' => !isset($src['state'][$wp['key']])]);
         }
@@ -656,7 +657,7 @@ function pfd_sources(int|array $u): array
         $n = count(array_unique($codes)); $rank = $n >= 12 ? 4 : ($n >= 7 ? 3 : ($n >= 3 ? 2 : 1));
         foreach ($codes as $c) if (isset(pfd_catalog()['r:' . $c])) $src['regions'][$c] = $rank;
     });
-    $try(function () use (&$src, $uid) { require_once __DIR__ . '/wearables.php'; $src['wears'] = wear_owned($uid); $src['wears_lined'] = wear_lined_set($uid); });   // 2.7.00: the wearables in the satchel
+    $try(function () use (&$src, $uid, $u) { require_once __DIR__ . '/wearables.php'; $src['wears'] = wear_owned($uid); $src['wears_lined'] = wear_lined_set($uid); $src['worn'] = wear_live($u) ? wear_worn($uid, $src['wears']) : []; });   // 2.7.00: the wearables in the satchel; 2.7.14: the ones worn (only they make pieces)
     if (!pfd_ensure()) return $src;
     $row = q_one('SELECT * FROM pf_decks WHERE user_id = ?', [$uid]);
     $src['auto'] = !empty($row['auto_use']);
@@ -766,7 +767,7 @@ function pfd_toggle(int|array $u, string $key, ?bool $on = null): ?string
     if ($why = pfd_guard($u)) return $why;
     $src = pfd_sources($u); $b = pfd_build($src); $e = null;
     foreach ($b['pieces'] as $x) if ($x['key'] === $key) $e = $x;
-    if (!$e) return 'You do not own that piece.';
+    if (!$e) return str_starts_with($key, 'w:') ? 'Wear it first (My Gnome, Wearing).' : 'You do not own that piece.';
     if ($e['gear']) return $e['src'] === 'tool' ? 'Tool pieces follow your fight belt.' : 'Pal pieces follow your party.';
     $on ??= !$e['on'];
     if ($on === $e['on']) return null;

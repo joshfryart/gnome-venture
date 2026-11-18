@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.7.14');
+define('APP_VERSION', '2.7.15');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -578,6 +578,10 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
         boot_step('wearables_2700', function () {   // 2.7.00 wearables: the 33 wearable items, the Tailor's Thread, the Hat and the Pack on sale at Twigg's (includes/wearables.php)
             require_once __DIR__ . '/wearables.php';
             wear_ensure_items();
+        });
+        boot_step('wear_slots_2714', function () {   // 2.7.14: wearables are worn in 7 slots; every wearable piece switched on in a Puzzle box becomes worn (once: setting wear_slots_2714)
+            require_once __DIR__ . '/wearables.php';
+            wear_slots_migrate();
         });
         boot_step('road_kind_items_2700', function () {   // 2.7.00 road kinds: Flood Boots (on sale in the Home & curios shops) and the Toll Receipt (includes/road_kinds.php)
             require_once __DIR__ . '/road_kinds.php';

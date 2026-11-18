@@ -38,6 +38,13 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect('gnome.php?' . http_build_query(['tab' => 'furnish'] + (isset(hovel_decor_catalog()['slots'][$slot]) ? ['slot' => $slot] : []) + ($ok && $prev !== '' ? ['prev' => $prev] : [])));
     }
+    if (in_array($do, ['wear_on', 'wear_off', 'wear_lined'], true)) {   // 2.7.14: the Wearing panel (includes/wear_view.php, rules in includes/wearables.php)
+        require_once __DIR__ . '/includes/wearables.php';
+        [$ok, $msg] = wear_post($u, $do, $_POST);
+        flash($msg, $ok ? 'ok' : 'err');
+        $ws = (string)($_POST['slot'] ?? '');
+        redirect('gnome.php?tab=gnome' . (!$ok && isset(WEAR_SLOTS[$ws]) ? '&wear=' . $ws : '') . '#wearing');
+    }
     if ($do === 'heal') {   // v2.3.5: a Healing Potion or a snack, from the Health box
         [$ok, $msg] = hp_use($u, (string)($_POST['what'] ?? ''), (int)($_POST['item'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
@@ -163,6 +170,7 @@ endif; ?>
   <?php if (!is_guest($u)) echo hp_card_html($u); ?>
   <p class="gcprof"><a href="<?= e(url('profile.php')) ?>">See your profile as others do</a></p>
 </section>
+<?php require_once __DIR__ . '/includes/wearables.php'; if (wear_live($u) && !is_guest($u)) { require_once __DIR__ . '/includes/wear_view.php'; echo wear_panel_html($u, (string)($_GET['wear'] ?? '')); }   // 2.7.14: what the gnome wears (7 slots) ?>
 <?php endif; ?>
 <?php if (in_array($tab, ['gnome', 'pals'], true)): ?>
 <?php if (ppal_party_on() && !is_guest($u)): ?>

@@ -15,13 +15,24 @@ foreach (['h' => 'hat', 'b' => 'beard', 's' => 'scarf'] as $k => $role) {
 $wear = (string)($_GET['w'] ?? '');   // 2.7.00: worn wearables as codes (b g c h p)
 if ($wear !== '' && !preg_match('/^[bgchp]{1,5}$/', $wear)) { http_response_code(400); exit; }
 $wear = count_chars($wear, 3);   // sorted, no repeats: one cache file per set
+$items = [];   // 2.7.14: worn Tailor items (item base slugs joined by '.'): each is drawn once its art exists (gnome25/wear/<slug>/<view>.png)
+if (($x = (string)($_GET['x'] ?? '')) !== '') {
+    require_once __DIR__ . '/includes/wearables.php';
+    $T = wear_tailor_defs(); $cats = [];
+    foreach (explode('.', $x) as $sl) {
+        $c = (string)($T[$sl]['cat'] ?? '');
+        if ($c === '' || isset($cats[$c])) { http_response_code(400); exit; }   // a real Tailor item, one per category
+        $cats[$c] = 1; $items[$sl] = $c;
+    }
+    ksort($items);
+}
 $dir = APP_ROOT . '/data/gnome25';
-$file = $dir . '/' . (defined('GNOME25_ART_REV') ? 'r' . GNOME25_ART_REV . '-' : '') . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . ($wear !== '' ? '-w' . $wear : '') . '.png';
+$file = $dir . '/' . (defined('GNOME25_ART_REV') ? 'r' . GNOME25_ART_REV . '-' : '') . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . ($wear !== '' ? '-w' . $wear : '') . ($items ? '-x' . substr(md5(implode('.', array_keys($items))), 0, 12) : '') . '.png';
 if (!in_array($view, ['front', 'back', 'side'], true)) { http_response_code(400); exit; }
 $png = is_file($file) ? (string)file_get_contents($file) : '';
 if ($png === '') {
     if (!sprite_miss_ok()) { http_response_code(429); exit; }   // too many new colour sets from this address
-    $png = gnome25_compose($view, $cols, [], $wear);
+    $png = gnome25_compose($view, $cols, [], $wear, $items);
     if ($png === '') { http_response_code(404); exit; }
     if (!is_dir($dir)) @mkdir($dir, 0775, true);
     if (is_dir($dir) && is_writable($dir) && sprite_cache_room($dir)) @file_put_contents($file, $png);

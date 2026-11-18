@@ -8350,3 +8350,23 @@ body.game:has(.fightscene) .toasts.phone { right: 8px; left: auto; width: min(70
 /* 2.7.xx: the puzzle piece a wearable gives, on its shop sheet (a 132x92 picture shown at 2x; never wider than the sheet) */
 .isheet .spiece { margin: .4rem 0; text-align: center; }
 .isheet .spiece img { width: 132px; max-width: 100%; height: auto; image-rendering: pixelated; }
+/* 2.7.14 Wearing on My Gnome (includes/wear_view.php): 7 slots, one item each; tap a slot for its picker */
+.wearing .wslots, .wearing .wpick { list-style: none; margin: 6px 0 0; padding: 0; }
+.wearing .wslot { margin: 0 0 6px; background: var(--surface-2); box-shadow: var(--frame-lite); }
+.wearing .wslot.open { box-shadow: 0 0 0 3px var(--brand-line); }
+.wearing .wsa { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 4px 8px 4px 4px; color: var(--ink); text-decoration: none; }
+.wearing .wpic { flex: 0 0 auto; image-rendering: pixelated; }
+.wearing .wico { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; font-size: 26px; opacity: .55; }
+.wearing .wslot.on .wico { opacity: 1; }
+.wearing .wst { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; font-size: 13px; line-height: 1.3; }
+.wearing .wsn { font-weight: 600; overflow-wrap: anywhere; }
+.wearing .wrk { font-weight: 400; color: var(--muted, inherit); }
+.wearing .wsp { overflow-wrap: anywhere; }
+.wearing .wsgo { flex: 0 0 auto; font-size: 14px; color: var(--muted, inherit); }
+.wearing .wpick { margin: 0; padding: 0 6px 6px; }
+.wearing .wpick li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 6px 0; border-top: 1px solid var(--line, rgba(0, 0, 0, .1)); }
+.wearing .wpick li.on .wsn::after { content: ' · worn'; font-weight: 400; color: var(--good, inherit); }
+.wearing .wpick .wico { width: 40px; height: 40px; font-size: 22px; }
+.wearing .wbtn { display: flex; gap: 6px; margin-left: auto; }
+.wearing .wbtn form { margin: 0; }
+.wearing .wnone { display: block; }

@@ -169,7 +169,7 @@ const PFV_SRC_META = [
     'legend' => ['Legend', 'ico/ico-crown.png', 'Earned by ' . PFD_LEGEND_HARVESTS . ' harvests of a legendary crop. Uses a Larder spot'],
     'craft' => ['Craft', 'ico/ico-hammer.png', 'Made at a crafting bench'],
     'region' => ['Region', 'ico/ico-world-map.png', 'Found on the roads of a region'],
-    'wear' => ['Wear', 'ico/ico-gloves.png', 'Clothes you wear. Uses a Keepsake spot'],
+    'wear' => ['Wear', 'ico/ico-gloves.png', 'Clothes you wear (My Gnome). Uses a Keepsake spot'],
     'tool' => ['Tool', 'ico/ico-shears.png', 'A tool on your fight belt. Wears out as you play it'],
     'pal' => ['Pal', 'ico/ico-paw.png', 'A pal in your party adds its piece'],
 ];
@@ -208,6 +208,7 @@ function pfv_from(array $u, array $p): string
         case 'region': $rn = $ref !== '' ? (string)(q_val('SELECT gnomish_name FROM regions WHERE code = ?', [$ref]) ?: $ref) : ''; return 'Found on the roads' . ($rn !== '' ? ' of ' . $rn : '');
         case 'tool': return (TOOL_TYPES[(string)($p['tool'] ?? '')][0] ?? 'A tool') . ' on your fight belt';
         case 'pal': return (string)$p['n'] . ', in your party';
+        case 'wear': return 'Worn: ' . (string)(function_exists('wear_items') ? (wear_items()[$ref]['name'] ?? 'something you wear') : 'something you wear');   // 2.7.14: ref = the worn item
     }
     return in_array($p['src'], PFD_KEEP_SRC, true) ? 'Something you wear' : '';
 }
@@ -300,6 +301,8 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
     $h .= '<nav class="tabs" aria-label="Puzzle box">';
     foreach (['kit' => 'Kit', 'belt' => 'Belt', 'pals' => 'Pals'] as $k => $l) $h .= '<a href="' . e(url('puzzlebox.php' . ($k === 'kit' ? '' : '?t=' . $k))) . '"' . ($k === $tab ? ' class="on" aria-current="page"' : '') . '>' . $l . '</a>';
     $h .= '</nav>';
+    require_once __DIR__ . '/wearables.php';
+    if (wear_live($u)) { require_once __DIR__ . '/wear_view.php'; $h .= wear_strip_html($u); }   // 2.7.14: what the gnome wears (read-only; changed on My Gnome). Only worn items offer their piece
 
     // ---- locked banner, or the ready strip and what to fix
     if ($locked) {

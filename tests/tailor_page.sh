@@ -12,10 +12,10 @@ hasnt() { if grep -q "$2" $H; then echo "  FAIL $1 (has '$2')"; FAILS=$((FAILS+1
 rm -f $A; curl -s -c $A -b $A $BASE/login.php > $H; curl -s -c $A -b $A -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
 SID=$(db "SELECT id FROM users WHERE username='sprout'"); PL=$(db "SELECT id FROM plots WHERE user_id=$SID LIMIT 1")
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_v1','1'); DELETE FROM garden_buildings WHERE building='tailor'; UPDATE users SET energy=80, level=30 WHERE id=$SID"
-echo "== setting Off"
-dbx "UPDATE settings SET value='0' WHERE name='pfight_v1'"
+echo "== wear_open Off (2.7.14: wearables are open to all; wear_open is the kill switch)"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('wear_open','0')"
 chk "the page redirects away" "$(curl -s -c $A -b $A $BASE/tailor.php -o /dev/null -w '%{http_code}')" 302
-dbx "UPDATE settings SET value='1' WHERE name='pfight_v1'"
+dbx "UPDATE settings SET value='1' WHERE name='wear_open'"
 echo "== no Tailor"
 chk "the page opens" "$(curl -s -c $A -b $A $BASE/tailor.php -o $H -w '%{http_code}')" 200
 has "it says a Tailor is needed" 'need a <b>Tailor</b>'
