@@ -508,7 +508,7 @@ local function igloo()
   local tunnel = c:rrect(424, 208, 440, 228, 5):clip(rect(400, 200, 479, 224))
   local pipe = rect(455, 196, 457, 203)
   shadow(426, 466, 224, 6, 2)
-  rimOf(union(dome, tunnel, pipe), S.edge)
+  rimOf(union(dome, tunnel, pipe), S)
   -- curved block courses: rows follow the dome, joints offset
   dome:each(function(x, y)
     local dy = 224 - y
@@ -519,8 +519,8 @@ local function igloo()
     local off = (row % 2) * (bw // 2)
     local rx = (x - 446 + floor(half) + off) % bw
     local lit = (x - 446) / 22 * .8 + (y - 214) / 22 * .6
-    local h = lit < -.35 and S.hi or (lit < .25 and S.base or S.shade)
-    if ry == 0 or rx == 0 then h = lit < .2 and S.shade or S.deep
+    local h = lit < -.35 and S.hi or (lit < -.05 and S.base or (lit < .45 and S.shade or S.deep))
+    if ry == 0 or rx == 0 then h = lit < -.3 and S.shade or (lit < .4 and S.deep or S.edge)
     elseif ry == 4 and lit < -.35 then h = "#fafaf6" end
     if hash(x // 3, row, 75) < .08 and ry > 0 and rx > 0 then h = L.ice.base end
     px(x, y, h)
@@ -549,9 +549,9 @@ local function igloo()
     "fFFFFFFFFFFFf.",
     "FFTTFFFFFFFf..",
     ".fTTTff.......",
-  }, 434, 189, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, F = L.fur.hi, f = L.fur.shade, k = L.fur.deep,
+  }, 437, 193, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, F = L.fur.hi, f = L.fur.shade, k = L.fur.deep,
     e = L.timber.edge, n = L.timber.edge, T = L.fur.base })
-  px(439, 189, L.awnA.hi)
+  px(442, 193, L.awnA.hi)
 end
 igloo()
 
@@ -736,10 +736,9 @@ local function stall()
   -- hanging toy birds on a string between the lanterns
   hline(380, 392, 176, T.deep)
   for k = 0, 2 do px(382 + k * 4, 177, L.gold.base) px(383 + k * 4, 177, L.gold.base) px(382 + k * 4, 178, L.awnA.base) end
-  -- a sledge-side tray of stockfish bundles tied with red cord, a sack, snow along the runner
-  local tray = poly{ { 410, 206 }, { 424, 206 }, { 423, 216 }, { 411, 216 } }
-  rimOf(tray, T) part(tray, L.birch) tray:each(function(x, y) if hash(x // 3, y, 90) < .2 then px(x, y, L.birch.edge) end end)
-  for k = 0, 2 do local x = 411 + k * 4 fill(rect(x, 199, x + 2, 206), dfish.base) vline(x, 199, 206, dfish.hi) px(x + 1, 203, L.awnA.base) px(x + 2, 203, L.awnA.base) end
+  -- berry baskets set out on the snow beside the sled
+  basket(408, 424, 222, 5, L.apple, 90, true)
+  basket(410, 426, 212, 5, cloudb, 91)
   for x = 296, 406 do if hash(x // 3, 1, 91) < .6 then px(x, 222, S.hi) px(x, 223, S.base) end end
 end
 stall()
@@ -826,8 +825,7 @@ local function pond()
   end
   hole(46, 246, 5)
   hole(30, 240, 5)
-  F.sprite({ ".sss.", "sSsSs", "sesSe", "sSnSs", "sSSSs" }, 28, 234, { s = "#a6a8bc", S = "#82849c", e = L.timber.edge, n = "#3c3e54" })
-  px(29, 235, "#cfd0dc")
+  F.sprite({ "..sss..", ".sHSSs.", "sHSSSSs", "sesSseS", "sSSnSSs", "wSSSSSw", ".sSSSs." }, 27, 233, { s = "#82849c", S = "#a6a8bc", H = "#cfd0dc", e = L.timber.edge, n = "#3c3e54", w = "#d6d8e2" })
   -- a tip-up: a crossed stick with a red flag sprung up
   vline(58, 236, 242, L.timber.base) hline(55, 61, 242, L.timber.deep)
   fill(rect(59, 236, 62, 238), L.awnA.base) px(59, 236, L.awnA.hi)
@@ -847,8 +845,8 @@ local function pond()
   line({ { ghx, ghy }, { 50, 240 } }):each(function(x, y) px(x, y, L.timber.deep) end)
   vline(50, 241, 246, L.awnB.shade)
   -- the catch: a birch-bark basket and a couple of fish on the snow of the jetty
-  local fb = poly{ { 88, 234 }, { 96, 234 }, { 95, 239 }, { 89, 239 } } rimOf(fb, L.timber) part(fb, L.birch, { nopop = true })
-  for x = 89, 95, 2 do vline(x, 235, 238, L.birch.edge) end
+  local fb = poly{ { 88, 234 }, { 96, 234 }, { 95, 239 }, { 89, 239 } } rimOf(fb, L.timber) part(fb, hide, { nopop = true })
+  for x = 89, 95, 2 do vline(x, 235, 238, hide.deep) end
   px(90, 233, dfish.base) px(91, 233, dfish.hi) px(93, 233, dfish.base)
   F.sprite({ "ssss.s", "sSSSss", ".sss.s" }, 78, 237, { s = "#8ea6b8", S = "#b6cad6" })
   -- dry sedge and cotton grass along the bank
@@ -886,9 +884,13 @@ local function forage()
   end
   -- cloudberry plants: crinkled rust-red autumn leaves, amber berries on short stems
   for i, x in ipairs({ 319, 341, 363 }) do
-    local b = poly{ { x - 6, 251 }, { x - 4, 243 }, { x, 240 }, { x + 4, 243 }, { x + 6, 251 } }
-    rimOf(b, L.leaf) part(b, L.leaf)
-    b:each(function(xx, y) if (xx + y) % 4 == 0 then px(xx, y, L.leaf.deep) end end)
+    for k = -1, 1 do vline(x + k * 3, 239 + abs(k), 246, L.greyMoss.deep) end
+    for j, lf in ipairs({ { x - 4, 248, L.leaf }, { x + 4, 248, L.greyMoss }, { x, 245, L.leaf } }) do
+      local m = c:ellipse(lf[1], lf[2], 3, 2)
+      rimOf(m, lf[3]) fill(m, lf[3].base)
+      m:each(function(xx, y) if xx < lf[1] and y < lf[2] then px(xx, y, lf[3].hi) elseif xx > lf[1] then px(xx, y, lf[3].shade) end end)
+      px(lf[1], lf[2], lf[3].deep) px(lf[1], lf[2] - 1, lf[3].deep)
+    end
     for k = -1, 1 do fill(rect(x + k * 3, 237 + abs(k), x + k * 3 + 1, 238 + abs(k)), cloudb.base) px(x + k * 3, 237 + abs(k), cloudb.hi) end
     hline(x - 3, x + 1, 240, S.hi)
   end
