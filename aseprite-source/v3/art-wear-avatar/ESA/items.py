@@ -64,15 +64,17 @@ def _sandals(c, g, ft, k):
         c.put(q[0], q[1] + 1, sole[1])
     if v == 'front':
         # crossed toe straps (an X over the toes) + ankle loop
-        P(c, [(cx - 2, cy - 1), (cx - 1, cy), (cx + 1, cy - 1), (cx, cy)], leather[1])
-        P(c, [(cx - 1, cy - 1), (cx, cy - 1)], leather[0])
-        for x in range(x0 + 1, x1): c.put(x, y0 + 1, leather[3] if x < x1 - 1 else leather[1])
-        c.put(cx, y0 + 1, brass[4])
+        for i in range(4):
+            c.put(cx - 2 + i, cy - 1 + i // 2 * 0 + (i % 2), leather[2])
+        P(c, [(cx - 3, cy - 1), (cx - 2, cy), (cx - 1, cy + 1), (cx + 2, cy - 1), (cx + 1, cy), (cx, cy + 1)], leather[2])
+        P(c, [(cx - 2, cy - 1), (cx + 1, cy - 1)], leather[4]); P(c, [(cx - 1, cy), (cx, cy)], leather[1])
+        for x in range(x0 + 1, x1): c.put(x, y0, leather[4] if x < x1 - 1 else leather[2])
+        c.put(cx, y0, brass[4])
     elif v == 'back':
-        for x in range(x0 + 1, x1): c.put(x, y0 + 1, leather[3] if x < x1 - 1 else leather[1])
-        for y in range(y0 + 2, y1): c.put(cx, y, leather[2])
+        for x in range(x0 + 1, x1): c.put(x, y0, leather[4] if x < x1 - 1 else leather[2])
+        for y in range(y0 + 1, y1): c.put(cx, y, leather[2])
     else:
-        P(c, [(x1 - 2, cy - 1), (x1 - 3, cy), (x1 - 4, cy - 1)], leather[1])
+        P(c, [(x1 - 2, cy - 1), (x1 - 3, cy), (x1 - 4, cy - 1), (x1 - 3, cy - 1)], leather[2])
         for y in range(y0, y1): c.put(x0 + 2, y, leather[3])
         c.put(x0 + 2, y0 + 1, brass[4])
     # long white acacia thorn stuck in the sole edge (outer edge of the near/right foot)
@@ -98,8 +100,8 @@ def _trek(c, g, ft, k):
             P(c, [(mx + 2, top + 3), (mx + 3, top + 4)], leafg[3])
             P(c, [(mx + 3, top + 5), (mx + 4, top + 5)], madder[4]); P(c, [(mx + 3, top + 6), (mx + 4, top + 6)], madder[2])
     elif v == 'side':
-        for i, y in enumerate(range(top + 3, cy - 1)): c.put(x1 - (i % 2), y, canvas[5])
         if not g['far']:
+            for i, y in enumerate(range(top + 3, cy - 1)): c.put(x1 - 1, y, canvas[5] if i % 2 else coffee[1])
             P(c, [(x1 + 1, top + 3)], leafg[3]); P(c, [(x1 + 1, top + 4), (x1 + 2, top + 4)], madder[4]); P(c, [(x1 + 2, top + 5)], madder[2])
     else:   # heel seam
         for y in range(top + 3, cy): c.put((x0 + x1) // 2, y, coffee[2])
@@ -145,12 +147,12 @@ def _gaiters(c, g, ft, k):
     # tail-hair tassel on the tie cord, on the outer side
     if (v == 'front' and k == 0) or (v == 'back' and k == 1):
         tx = x0 - 1
-        P(c, [(tx, top), (tx, top + 1), (tx, top + 2)], umber[0]); P(c, [(tx - 1, top + 3), (tx, top + 3)], umber[1])
+        P(c, [(tx, top), (tx, top + 1)], canvas[2]); P(c, [(tx, top + 2), (tx - 1, top + 3), (tx, top + 3)], umber[4]); P(c, [(tx - 1, top + 4)], umber[2])
     elif v == 'front' or v == 'back':
         pass
     elif v == 'side' and not g['far']:
         tx = x1 + 1
-        P(c, [(tx, top), (tx, top + 1), (tx, top + 2)], umber[0]); P(c, [(tx, top + 3), (tx + 1, top + 3)], umber[1])
+        P(c, [(tx, top), (tx, top + 1)], canvas[2]); P(c, [(tx, top + 2), (tx + 1, top + 3), (tx, top + 3)], umber[4]); P(c, [(tx + 1, top + 4)], umber[2])
 
 
 def _baobab(c, g, ft, k):
@@ -164,7 +166,7 @@ def _baobab(c, g, ft, k):
             if q[0] >= x1 - 1: c.put(q[0], q[1], barkg[2])
     for q in foot.bottom(): c.put(q[0], q[1], wood[0])
     if v == 'side':   # upturned toe
-        P(c, [(x1, y0), (x1 + 1, y0 - 1)], wood[3]); c.put(x1, y0 + 1, wood[2])
+        P(c, [(x1, y0 + 1), (x1, y0), (x1 + 1, y0), (x1 + 1, y0 - 1)], wood[4]); c.put(x1 - 1, y0, wood[3])
     elif v == 'front':
         c.put(cx, y0 - 1, wood[4])
     # strap heel band (the 'upper' rim rows) gets a dark stitch
@@ -184,7 +186,7 @@ FOOT = [
     dict(slug='esa-highland-trek-boots', cat='footwear', shell=coffee, upper=coffee, sole=sole[0], rim=60, half=4, toe=1, detail=_trek),
     dict(slug='esa-sisal-slippers', cat='footwear', shell=sisal, upper=sisal, sole=sisal[1], rim=64, half=4, puff=0.5, detail=_sisal),
     dict(slug='esa-stripe-gaiters', cat='footwear', shell=leather, upper=canvas, sole=sole[0], rim=58, half=4, detail=_gaiters),
-    dict(slug='esa-baobab-clogs', cat='footwear', shell=wood, upper=strap, sole=wood[0], rim=64, half=4, puff=1, toe=1, detail=_baobab),
+    dict(slug='esa-baobab-clogs', cat='footwear', shell=wood, upper=strap, sole=wood[0], rim=65, half=4, puff=1, toe=1, detail=_baobab),
 ]
 
 
@@ -437,7 +439,10 @@ def _woolcoat(c, g):
     v, b, hs = g['view'], g['b'], g['hem']
     if v == 'front':
         for i, y in enumerate((60, 62, 64, 66)):
-            c.put(29 + (hs if y > 63 else 0), y + b, wood[3]); c.put(36 + (hs if y > 63 else 0), y + b, madder[4] if i == 2 else wood[3])
+            for bx in (29, 36):
+                xx = bx + (hs if y > 63 else 0)
+                odd = bx == 36 and i == 2
+                c.put(xx, y + b, madder[4] if odd else wood[2]); c.put(xx - 1, y + b, madder[2] if odd else wood[1])
         # tall collar points beside the beard
         for x0 in (19, 44):
             P(c, [(x0, 46 + b), (x0 + 1, 46 + b), (x0, 47 + b), (x0 + 1, 47 + b)], wool[5] if x0 < 30 else wool[3])
@@ -445,6 +450,8 @@ def _woolcoat(c, g):
     elif v == 'back':   # tall collar band
         for x in range(25, 41): c.put(x, 46 + b, wool[4] if x < 37 else wool[2]); c.put(x, 47 + b, wool[1])
         for y in range(62, 68): c.put(32 + hs, y + b, wool[1])   # back vent
+        for x in range(26, 40): c.put(x, 58 + b, wool[1]); c.put(x, 59 + b, wool[4] if x < 37 else wool[2])   # half-belt
+        P(c, [(27, 59 + b), (38, 59 + b)], wood[2])
     else:
         for x in range(30, 37): c.put(x, 47 + b, wool[4])
         for y in (59, 61, 63): c.put(40, y + b, wood[3])
@@ -462,7 +469,7 @@ def _field(c, g):
     for s in sls:
         x0, y0, x1, y1 = s.bbox()
         for q in s.rows(y1 - 2, y1 - 1):
-            if q in c: c.put(q[0], q[1], khaki[5] if q[1] == y1 - 2 else khaki[2])
+            if q in c: c.put(q[0], q[1], khaki[5] if q[1] == y1 - 2 else khaki[1])
     if v == 'front':
         for px in (23, 37):   # two lower patch pockets below the beard
             pk = rect(px + hs, 60 + b, px + 4 + hs, 63 + b)
@@ -477,7 +484,9 @@ def _field(c, g):
             P(c, [(px, 51 + b), (px + 1, 51 + b)], strap[2])
     elif v == 'back':
         for x in range(21, 45): c.put(x, 50 + b, khaki[2])   # yoke seam
-        for y in range(58, 64): c.put(25 + (0), y + b, khaki[2]) if False else None
+        for x in range(25, 41): c.put(x, 58 + b, strap[2]); c.put(x, 59 + b, khaki[4] if x < 37 else khaki[2])
+        P(c, [(26, 59 + b), (39, 59 + b)], brass[4])
+        for y in range(60, 64): c.put(32 + hs, y + b, khaki[1])
     else:
         pk = rect(35 + hs, 59 + b, 39 + hs, 62 + b); form(c, pk, khaki, frac=0.3)
         for x in range(35 + hs, 40 + hs): c.put(x, 58 + b, strap[2])
@@ -495,9 +504,9 @@ def _beaded(c, g):
         bx = 38 + hs
         c.put(bx, 67 + b, strap[1]); P(c, [(bx - 1, 68 + b), (bx, 68 + b)], brass[4]); P(c, [(bx - 1, 69 + b), (bx, 69 + b)], brass[2])
     elif v == 'back':
-        for x in range(23, 43):
-            c.put(x, 46 + b, BEADS[x % 4]); c.put(x, 47 + b, BEADS[(x + 2) % 4] if x % 2 else suede[2])
-        for x in range(24, 42): c.put(x, 48 + b, suede[1])
+        for x in range(20, 46):
+            if (x, 50 + b) in c: c.put(x, 50 + b, BEADS[x % 4])
+            if (x, 51 + b) in c: c.put(x, 51 + b, suede[1])
         for y in range(63, 67): c.put(21 + hs, y + b, INK); c.put(44 + hs, y + b, INK)
     else:
         for x in range(28, 37): c.put(x, 47 + b, BEADS[x % 4]); c.put(x, 48 + b, suede[1])
@@ -537,7 +546,7 @@ def _wrap(c, g, m, v):
         if q[0] % 2 and q[1] > y0 + 6: c.put(q[0], q[1] + 1, indigo[2])
     # knot over the shoulder + carved wooden bead
     if v == 'back':
-        kx, ky = 22, 46 + b
+        kx, ky = 20, 49 + b
     elif v == 'side':
         kx, ky = 27, 47 + b
     else:
@@ -615,9 +624,11 @@ def _dust(c, g, m, v):
     for q in m.bottom():
         if q[0] % 2 == 0: c.put(q[0], q[1] + 1, sand[2]); c.put(q[0], q[1] + 2, madder[3])
     if v == 'back':   # pointed hood lying down the back
-        hood = poly([(26, 47 + b), (39, 47 + b), (33, 58 + b), (32, 58 + b)])
-        form(c, hood, sand, frac=0.35)
-        for q in ellipse(32.5, 49.5 + b, 3, 1.5): c.put(q[0], q[1], sand[0] if q[1] > 49 + b else sand[1])
+        hood = poly([(24, 49 + b), (41, 49 + b), (33.5, 61 + b), (31.5, 61 + b)])
+        form(c, hood, sand, frac=0.4)
+        for q in hood.inner_edge(): c.put(q[0], q[1], sand[1] if q[1] > 50 + b else sand[2])
+        for q in hood.bottom(): c.put(q[0], q[1], sand[0])
+        for q in ellipse(32.5, 50.5 + b, 4, 1.2): c.put(q[0], q[1], sand[0])
         # agama lizard clinging to the hem (blue body, orange head, head up)
         lx, ly = 38 + tl, y1 - 1
         for yy in range(ly - 4, ly + 1): c.put(lx, yy, jay[3] if yy % 2 else jay[4])

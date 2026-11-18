@@ -441,12 +441,12 @@ def _puffer(c, g):
     v, b = g['view'], g['b']
     if v == 'front':
         for y in (59, 61, 63): P(c, [(32, y + b), (33, y + b)], soga[4])
-        _fluff(c, 43, 47 + b)
+        _fluff(c, 45, 50 + b - g['p']['arm'])
     elif v == 'back':
         for q in rect(27, 46 + b, 38, 47 + b): c.put(q[0], q[1], sage[4] if q[1] == 46 + b else sage[2])
-        _fluff(c, 20, 47 + b)
+        _fluff(c, 18, 50 + b + g['p']['arm'])
     else:
-        _fluff(c, 29, 47 + b)
+        _fluff(c, 24, 50 + b)
 
 
 def _crab(c, x, y, flip=False):

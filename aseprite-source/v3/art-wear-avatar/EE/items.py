@@ -566,7 +566,7 @@ def _shawl(c, g, m, v):
 def _birch_mantle(c, g, m, v):
     b, tl = g['b'], g['tail']
     for q in m:   # bark dashes
-        if (q[0] * 7 + q[1] * 3) % 17 == 0 and (q[0] + 1, q[1]) in m: c.put(q[0], q[1], birch[0]); c.put(q[0] + 1, q[1], birch[1])
+        if ((q[0] * 73856093) ^ (q[1] * 19349663)) % 11 == 0 and q[0] % 2 == 0 and (q[0] + 1, q[1]) in m: c.put(q[0], q[1], birch[0]); c.put(q[0] + 1, q[1], birch[1])
     if v == 'back':   # peaked hood lying down the back
         hood = poly([(26, 48 + b), (40, 48 + b), (34, 58 + b), (32, 58 + b)])
         form(c, hood, birch, frac=0.35)
@@ -614,7 +614,7 @@ def _fox(c, g, m, v):
     # storm-blue wool: hem binding
     for q in m.bottom(): c.put(q[0], q[1], jay[3])
     if v == 'back':
-        collar = M(q for q in ellipse(32.5, 48 + b, 13, 4.5) if q[1] >= 46 + b)
+        collar = M(q for q in ellipse(32.5, 49 + b, 13, 5) if q[1] >= 46 + b)
         collar -= M(q for q in collar if q[1] == max(p[1] for p in collar if p[0] == q[0]) and q[0] % 3 == 1)
     elif v == 'side':
         collar = ellipse(25.5, 49 + b, 4.5, 4)
@@ -624,17 +624,17 @@ def _fox(c, g, m, v):
     for q in collar.bottom(): c.put(q[0], q[1], autumn[1])
     # quirk: amber bead clasp on the cord
     if v == 'back':
-        P(c, [(32, 52 + b), (33, 52 + b)], strap[2]); P(c, [(32, 53 + b), (33, 53 + b)], brass[3]); c.put(32, 53 + b, brass[5]); c.put(33, 54 + b, brass[1]); c.put(32, 54 + b, brass[2])
+        P(c, [(30, 55 + b), (31, 55 + b)], strap[2]); P(c, [(30, 56 + b), (31, 56 + b)], brass[3]); c.put(30, 56 + b, brass[5]); c.put(31, 57 + b, brass[1]); c.put(30, 57 + b, brass[2])
     elif v == 'side':
         P(c, [(28, 52 + b)], strap[2]); P(c, [(28, 53 + b), (29, 53 + b)], brass[3]); c.put(28, 53 + b, brass[5]); c.put(28, 54 + b, brass[2])
 
 
 CLOAK = [
-    dict(slug='ee-shaggy-shepherd-cape', cat='cloak', r=fleece, lining=fleece, len=66, flare=5, x0=20, x1=45, hemstyle='points', fx0=14, fx1=51, side_back=17, detail=_shaggy),
+    dict(slug='ee-shaggy-shepherd-cape', cat='cloak', r=fleece, lining=fleece, len=66, flare=5, x0=20, x1=45, hemstyle='points', fx0=16, fx1=49, front_flare=2, side_back=17, detail=_shaggy),
     dict(slug='ee-poppy-field-shawl', cat='cloak', r=jay, lining=jay, len=63, flare=3, x0=19, x1=46, hemstyle='tri', fx0=15, fx1=50, detail=_shawl),
     dict(slug='ee-birch-hooded-mantle', cat='cloak', r=birch, lining=birch, len=66, flare=3, border=birch, border_rows=1, side_back=18, detail=_birch_mantle),
     dict(slug='ee-wheatfield-poncho', cat='cloak', r=straw, lining=straw, len=62, flare=4, x0=20, x1=45, hemstyle='diamond', fx0=13, fx1=52, side_back=19, detail=_wheat),
-    dict(slug='ee-fox-collar-capelet', cat='cloak', r=storm, lining=storm, len=56, flare=3, fx0=15, fx1=50, side_back=20, detail=_fox),
+    dict(slug='ee-fox-collar-capelet', cat='cloak', r=storm, lining=storm, len=59, flare=3, fx0=15, fx1=50, side_back=20, detail=_fox),
 ]
 
 ITEMS = FOOT + PACK + COAT + CLOAK

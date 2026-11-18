@@ -202,12 +202,12 @@ def flaxbasket_back(c, x, y, g):
     rimm = rect(x - 10, y, x + 9, y + 1)
     form(c, rimm, pandanus, frac=0.3)
     for xx in range(x - 9, x + 9): c.put(xx, y + 8, pandanus[4] if xx % 2 else pandanus[3])   # plaited band
-    for hx in (x - 9, x + 3):   # handle loops over the rim
+    for hx in (x - 5, x + 5):   # handle loops over the rim
         P(c, [(hx, y - 1), (hx, y - 2), (hx + 1, y - 3), (hx + 2, y - 3), (hx + 3, y - 2), (hx + 3, y - 1)], flax[3])
         c.put(hx + 1, y - 3, flax[5])
     # curled fern frond poking out of the top
-    _frond(c, [(x + 7, y - 1), (x + 7, y - 2), (x + 8, y - 3), (x + 8, y - 4), (x + 9, y - 5), (x + 10, y - 6), (x + 11, y - 6), (x + 11, y - 5)])
-    P(c, [(x + 9, y - 3), (x + 7, y - 4), (x + 10, y - 4)], leafwrap[5])
+    _frond(c, [(x - 10, y - 1), (x - 11, y - 2), (x - 12, y - 2), (x - 13, y - 3), (x - 14, y - 4), (x - 15, y - 5), (x - 16, y - 5), (x - 17, y - 4), (x - 17, y - 3), (x - 16, y - 3)])
+    P(c, [(x - 12, y - 3), (x - 13, y - 2), (x - 14, y - 5), (x - 15, y - 4)], leafwrap[5])
 
 
 def flaxbasket_side(c, x, y, g):
@@ -305,12 +305,12 @@ def bamboo_back(c, x, y, g):
         P(c, [(x + i, y + 7 + i), (x - 1 - i, y + 7 + i)], coir[3])
     P(c, [(x - 1, y + 7), (x, y + 7)], coir[1])
     # striped glass float tied on top
-    fl = ellipse(x + 8, y - 6, 2.5, 2.5)
+    fl = ellipse(x - 13, y + 1, 2.5, 2.5)
     form(c, fl, paua, frac=0.35)
     for q in fl:
-        if q[1] == y - 6: c.put(q[0], q[1], sea[2])
-    c.put(x + 7, y - 7, paua[5])
-    P(c, [(x + 8, y - 3)], coir[3])
+        if q[1] == y + 1: c.put(q[0], q[1], sea[2])
+    c.put(x - 14, y, paua[5])
+    P(c, [(x - 10, y - 1), (x - 11, y - 1)], coir[3])
 
 
 def bamboo_side(c, x, y, g):

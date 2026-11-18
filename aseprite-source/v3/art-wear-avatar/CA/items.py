@@ -93,8 +93,8 @@ def _tooled(c, g, ft, k):
             P(c, [(x1 - 1, top - 2), (x1 + 1, top - 2)], jade[4]); c.put(x1, top - 2, jade[0])
             P(c, [(x1 - 2, top - 1), (x1 + 2, top - 1)], jade[3]); P(c, [(x1 - 1, top - 1), (x1, top - 1), (x1 + 1, top - 1)], jade[4])
         elif v == 'front':
-            P(c, [(x0 + 2, top - 2), (x0 + 4, top - 2)], jade[5]); c.put(x0 + 3, top - 2, jade[0])
-            P(c, [(x0 + 1, top - 1), (x0 + 5, top - 1)], jade[3]); P(c, [(x0 + 2, top - 1), (x0 + 3, top - 1), (x0 + 4, top - 1)], jade[4])
+            P(c, [(x0, top - 2), (x0 + 1, top - 2)], jade[5]); c.put(x0 + 1, top - 2, jade[0]); c.put(x0, top - 3, jade[4])
+            P(c, [(x0 - 1, top - 1), (x0 + 2, top - 1)], jade[3]); P(c, [(x0, top - 1), (x0 + 1, top - 1)], jade[4])
         else:   # tail curling over the rim
             P(c, [(x1 - 1, top - 1), (x1, top - 1), (x1 + 1, top), (x1 + 1, top + 1)], jade[3])
 
@@ -122,8 +122,9 @@ def _wraps(c, g, ft, k):
     P(c, [(ox, top + 1), (ox, top + 2)], cochi[3]); c.put(ox, top + 3, cochi[4])
     # leaf-cutter ant marching up the cord with a leaf scrap
     if (k == 1) and v != 'back':
-        ax, ay = x1 - 1 - w // 4, top + 3
-        c.put(ax, ay, cacao[0]); c.put(ax, ay - 1, jade[4]); c.put(ax - 1, ay - 1, jade[5])
+        ax = x0 + w // 2
+        ay = top + 5 + (ax - x0) * 3 // max(1, w)
+        P(c, [(ax, ay), (ax + 1, ay)], cacao[0]); c.put(ax, ay - 1, jade[4]); c.put(ax + 1, ay - 2, jade[5]); c.put(ax, ay - 2, jade[3])
 
 
 def _ixtle(c, g, ft, k):

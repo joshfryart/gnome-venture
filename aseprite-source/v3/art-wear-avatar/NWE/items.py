@@ -555,7 +555,9 @@ def _raincape(c, g, m, v):
         form(c, hood, mustard, frac=0.35)
         inner = ellipse(32.5, 51 + b, 4, 1.5)
         for q in inner: c.put(q[0], q[1], mustard[1])
-        for q in hood.bottom(): c.put(q[0], q[1], mustard[1])
+        for q in hood.inner_edge(): c.put(q[0], q[1], mustard[1] if q[0] > 32 else mustard[2])
+        for q in hood.rows(53 + b, 56 + b):
+            if q not in hood.inner_edge() and q[0] < 33: c.put(q[0], q[1], mustard[5])   # wet sheen on the hood
         P(c, [(33 + tl, 62 + b), (34 + tl, 62 + b), (35 + tl, 62 + b)], wood[4]); c.put(35 + tl, 62 + b, wood[2])   # toggle on the hood tip
     elif v == 'side':
         hood = ellipse(24.5, 50 + b, 3, 4) | poly([(22, 52 + b), (26, 52 + b), (21 + tl, 57 + b)])
@@ -643,7 +645,8 @@ def _woad(c, g, m, v):
         form(c, hood, mist, frac=0.3)
         for q in hood:
             if q[0] >= 27: c.put(q[0], q[1], woad[3])
-        mx, my = 22, 51 + b
+        lft = [q for q in m if q[1] == 59 + b]
+        mx, my = (min(lft)[0] + 2, 59 + b) if lft else (22, 59 + b)
     else:
         return
     # pale moth, wings open: 5 x 3

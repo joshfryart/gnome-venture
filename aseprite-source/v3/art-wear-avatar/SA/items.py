@@ -518,8 +518,9 @@ def _thatch(c, g, m, v):
         i = straw.index(col) if col in straw else 3
         # fringe streaks
         if (q[0] + tier) % 2 == 0: i = max(1, i - 1)
-        if q[1] in (tiers[0], tiers[1]) and q[0] % 2: i = 1
+        if q[1] in (tiers[0], tiers[1]): i = 0 if q[0] % 2 else 1
         if q[1] in (tiers[0] - 1, tiers[1] - 1) and q[0] % 2 == 0: i = 1
+        if q[1] in (tiers[0] + 1, tiers[1] + 1): i = min(5, i + 1)
         c.put(q[0], q[1], r[i])
     for q in m.bottom():   # shaggy hem
         if q[0] % 2: c.pop(q, None)
@@ -527,9 +528,9 @@ def _thatch(c, g, m, v):
     b = g['b']
     if v == 'back':
         for x in range(28, 37): c.put(x, 46 + b, strap[2])
-        bird = [(44, 44, frog[3]), (45, 44, frog[4]), (45, 43, frog[4]), (46, 44, INK), (46, 45, pink[3]), (43, 44, frog[1]), (42, 45, frog[1]), (44, 45, frog[2]), (47, 45, canvas[1])]
+        bird = [(47, 45, frog[3]), (48, 45, frog[4]), (48, 44, frog[5]), (49, 45, INK), (49, 46, pink[3]), (46, 45, frog[1]), (45, 46, frog[1]), (47, 46, frog[2]), (50, 46, canvas[1])]
     else:
-        bird = [(24, 43, frog[3]), (23, 43, frog[4]), (23, 42, frog[4]), (22, 43, INK), (22, 44, pink[3]), (25, 43, frog[1]), (26, 44, frog[1]), (24, 44, frog[2]), (21, 44, canvas[1])]
+        bird = [(20, 44, frog[3]), (19, 44, frog[4]), (19, 43, frog[5]), (18, 44, INK), (18, 45, pink[3]), (21, 44, frog[1]), (22, 45, frog[1]), (20, 45, frog[2]), (17, 45, canvas[1])]
     flap = g['f'] % 2   # hovering: wings flick
     for x, y, col in bird:
         c.put(x, y + b - flap, col)
@@ -586,17 +587,20 @@ def _shawl(c, g, m, v):
 def _indigo(c, g, m, v):
     b, tl = g['b'], g['tail']
     if v == 'front': return
-    # pointed hood flopping sideways, red-lined, bell on the tip
+    # pointed hood lying on the back, tip flopping sideways, red-lined, bell on the tip
     if v == 'back':
-        hood = ellipse(32.5, 50 + b, 6, 4) | poly([(36, 47 + b), (39, 48 + b), (43 + tl, 55 + b), (42 + tl, 57 + b)])
-        form(c, hood, indigo, frac=0.35)
-        for q in ellipse(32.5, 48 + b, 4, 1.5): c.put(q[0], q[1], yarnA[2])
-        tip = (42 + tl, 58 + b)
+        hood = ellipse(32.5, 53 + b, 6.5, 3.5) | poly([(35, 50 + b), (39, 52 + b), (42 + tl, 59 + b), (40 + tl, 60 + b), (35, 56 + b)])
+        lin = M(q for q in ellipse(32.5, 51 + b, 5, 1.5) if q[1] <= 51 + b)
+        tip = (41 + tl, 60 + b)
     else:
-        hood = ellipse(25, 49 + b, 3, 4) | poly([(24, 47 + b), (21, 48 + b), (19 + tl, 55 + b), (20 + tl, 57 + b)])
-        form(c, hood, indigo, frac=0.3)
-        for q in ellipse(27, 49 + b, 1, 3): c.put(q[0], q[1], yarnA[2])
-        tip = (20 + tl, 58 + b)
+        hood = ellipse(24.5, 51 + b, 3, 4) | poly([(23, 48 + b), (21, 50 + b), (18 + tl, 57 + b), (20 + tl, 58 + b), (24, 54 + b)])
+        lin = M(q for q in hood if q[0] >= 26 and q[1] <= 52 + b)
+        tip = (19 + tl, 58 + b)
+    hood -= lin
+    form(c, hood, indigo, frac=0.35, hi=[(29, 51 + b)] if v == 'back' else None)
+    for q in hood.bottom() | M(q for q in hood if (q[0] + 1, q[1]) not in hood and (q[0] + 1, q[1]) not in lin):
+        c.put(q[0], q[1], INK)
+    for q in lin: c.put(q[0], q[1], yarnA[3] if q[1] % 2 else yarnA[2])
     tx, ty = tip
     c.put(tx, ty, brass[1])
     P(c, [(tx - 1, ty + 1), (tx, ty + 1), (tx + 1, ty + 1), (tx - 1, ty + 2), (tx + 1, ty + 2)], brass[3]); c.put(tx - 1, ty + 1, brass[5]); c.put(tx, ty + 2, brass[1])
@@ -607,7 +611,7 @@ def _indigo(c, g, m, v):
 
 CLOAK = [
     dict(slug='sa-striped-poncho', cat='cloak', r=alpaca, lining=yarnA, len=64, flare=4, x0=19, x1=46, hemstyle='diamond', fx0=13, fx1=52, side_back=19, detail=_poncho),
-    dict(slug='sa-thatch-rain-cape', cat='cloak', r=straw, lining=straw, len=63, flare=4, x0=20, x1=45, fx0=14, fx1=51, side_back=19, detail=_thatch),
+    dict(slug='sa-thatch-rain-cape', cat='cloak', r=straw, lining=straw, len=63, flare=4, x0=20, x1=45, fx0=16, fx1=49, side_back=19, detail=_thatch),
     dict(slug='sa-feather-shoulder-mantle', cat='cloak', r=ember, lining=ember, len=56, flare=4, hemstyle='points', fx0=14, fx1=51, side_back=19, detail=_feathers),
     dict(slug='sa-cloud-forest-shawl', cat='cloak', r=mist, lining=mist, len=52, flare=2, fx0=16, fx1=49, detail=_shawl),
     dict(slug='sa-indigo-hooded-cloak', cat='cloak', r=indigo, lining=yarnA, len=67, flare=3, front_flare=4, side_back=18, detail=_indigo),

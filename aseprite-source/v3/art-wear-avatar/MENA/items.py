@@ -189,10 +189,10 @@ def skin_back(c, x, y, g):
     for rx in (x - 5, x + 4):
         P(c, [(rx - 1, y + 9), (rx + 1, y + 9), (rx, y + 8), (rx, y + 10)], brass[3]); c.put(rx - 1, y + 8, brass[4])
         for yy in range(y - 1, y + 8): c.put(rx, yy, strap[3] if yy < y + 3 else strap[2])
-    # wooden spout top right, a water drop at its mouth
-    form(c, rect(x + 6, y - 1, x + 7, y + 3), wood, frac=0.5)
-    P(c, [(x + 6, y - 2), (x + 7, y - 2)], wood[4]); c.put(x + 8, y - 1, wood[2])
-    c.put(x + 8, y, water[5]); c.put(x + 8, y + 1, water[3])
+    # wooden spout out of the upper left (neck of the skin), a water drop at its mouth
+    form(c, line([(x - 9, y + 6), (x - 11, y + 4)], 2), leather, frac=0.5)
+    form(c, rect(x - 13, y + 2, x - 12, y + 3), wood, frac=0.5); c.put(x - 13, y + 2, wood[5])
+    c.put(x - 14, y + 3, water[5]); c.put(x - 14, y + 4, water[3])
 
 
 def skin_side(c, x, y, g):
@@ -213,13 +213,16 @@ def _weave(c, m, r, sh=0):
 
 
 def basket_back(c, x, y, g):
-    m = poly([(x - 9, y + 1), (x + 8, y + 1), (x + 5, y + 18), (x - 6, y + 18)])
+    m = poly([(x - 9, y + 1), (x + 8, y + 1), (x + 5, y + 16), (x - 6, y + 16)])
     _weave(c, m, palm); _shade_right(c, m, palm)
     rim = rect(x - 10, y, x + 9, y + 1)
     form(c, rim, palm, frac=0.25)
     for q in m:   # dyed bands: madder and indigo
         if q[1] == y + 7: c.put(q[0], q[1], madder[3] if q[0] < x + 4 else madder[2])
-        if q[1] == y + 14: c.put(q[0], q[1], indigo[3] if q[0] < x + 3 else indigo[2])
+        if q[1] == y + 12: c.put(q[0], q[1], indigo[3] if q[0] < x + 3 else indigo[2])
+    for q in ((x - 7, y + 2), (x - 6, y + 2), (x - 6, y + 3), (x + 2, y + 2), (x - 3, y + 2)):   # dates tumbling over the rim
+        c.put(q[0], q[1], date[3] if q[1] == y + 2 else date[2])
+    c.put(x - 7, y + 2, date[5]); c.put(x + 2, y + 2, date[5])
     # rope loops at the sides
     for sx, d in ((x - 10, -1), (x + 9, 1)):
         P(c, [(sx, y + 3), (sx + d, y + 4), (sx + d, y + 5), (sx + d, y + 6), (sx + d, y + 7), (sx, y + 8)], linen[3])
@@ -234,12 +237,12 @@ def basket_back(c, x, y, g):
 
 
 def basket_side(c, x, y, g):
-    m = poly([(x - 9, y + 1), (x, y + 1), (x, y + 18), (x - 6, y + 18)])
+    m = poly([(x - 9, y + 1), (x, y + 1), (x, y + 16), (x - 6, y + 16)])
     _weave(c, m, palm); _shade_right(c, m, palm, 1)
     form(c, rect(x - 10, y, x, y + 1), palm, frac=0.25)
     for q in m:
         if q[1] == y + 7: c.put(q[0], q[1], madder[3])
-        if q[1] == y + 14: c.put(q[0], q[1], indigo[3])
+        if q[1] == y + 12: c.put(q[0], q[1], indigo[3])
     heap = ellipse(x - 5, y - 1, 4.5, 2)
     for q in heap:
         if q[1] <= y - 1: c.put(q[0], q[1], date[4] if (q[0] + q[1] * 2) % 3 == 0 else date[3] if (q[0] + q[1]) % 2 else date[2])
@@ -296,16 +299,17 @@ def kilim_side(c, x, y, g):
 
 def pot_back(c, x, y, g):
     for ux in (x - 8, x + 7):   # frame uprights
-        form(c, rect(ux, y - 4, ux + 1, y + 17), wood, frac=0.5)
+        form(c, rect(ux, y - 4, ux + 1, y + 16), wood, frac=0.5)
     form(c, rect(x - 8, y - 4, x + 8, y - 3), wood, frac=0.2)
     # rolled reed mat across the bottom
-    mat = rect(x - 10, y + 14, x + 9, y + 17)
+    mat = rect(x - 10, y + 13, x + 9, y + 15)
     for q in mat: c.put(q[0], q[1], palm[4] if q[0] % 2 else palm[2])
     for q in mat.top(): c.put(q[0], q[1], palm[5] if q[0] % 2 else palm[3])
     for q in mat.bottom(): c.put(q[0], q[1], palm[1])
-    form(c, rect(x - 11, y + 14, x - 11, y + 17), palm, frac=0, rim=False); c.put(x - 11, y + 15, palm[1])
+    for yy in range(y + 13, y + 16): c.put(x - 11, yy, palm[3] if yy == y + 14 else palm[2])
+    c.put(x - 11, y + 14, palm[1])
     # hammered copper pot
-    pot = ellipse(x - 0.5, y + 7.5, 6, 5.5)
+    pot = ellipse(x - 0.5, y + 7, 6, 5)
     form(c, pot, copper, frac=0.3, hi=[(x - 4, y + 4), (x - 3, y + 4)])
     for q in pot:
         if (q[0] * 3 + q[1] * 2) % 7 == 0 and c.get(q) == copper[3]: c.put(q[0], q[1], copper[4])
@@ -313,17 +317,19 @@ def pot_back(c, x, y, g):
     form(c, neck, copper, frac=0.3)
     for xx in range(x - 4, x + 4): c.put(xx, y, copper[4] if xx < x + 2 else copper[3])
     for xx in (x - 7, x - 6, x + 5, x + 6): c.put(xx, y + 8, linen[3])
-    # mint sprig
-    P(c, [(x, y - 1), (x, y - 2), (x - 1, y - 3), (x + 1, y - 3)], mint[3])
-    P(c, [(x - 2, y - 4), (x - 1, y - 4), (x + 1, y - 4), (x + 2, y - 4), (x, y - 5)], mint[4]); P(c, [(x - 1, y - 5), (x + 1, y - 5)], mint[5])
+    # mint sprig: a bunch in the pot mouth, one stem leaning out over the left upright
+    P(c, [(x, y - 1), (x - 1, y - 1), (x + 1, y - 2), (x - 2, y - 2)], mint[3])
+    P(c, [(x - 1, y - 2), (x + 2, y - 3), (x - 3, y - 3), (x, y - 3)], mint[4]); P(c, [(x + 1, y - 3), (x - 2, y - 3)], mint[5])
+    P(c, [(x - 4, y + 1), (x - 5, y + 1), (x - 6, y), (x - 7, y - 1)], mint[3])
+    P(c, [(x - 8, y - 2), (x - 9, y - 1), (x - 10, y - 2), (x - 9, y - 3)], mint[4]); P(c, [(x - 9, y - 2), (x - 10, y - 3)], mint[5])
 
 
 def pot_side(c, x, y, g):
-    form(c, rect(x - 1, y - 4, x, y + 17), wood, frac=0.5)
-    mat = ellipse(x - 4, y + 15.5, 2.5, 2)
+    form(c, rect(x - 1, y - 4, x, y + 16), wood, frac=0.5)
+    mat = ellipse(x - 4, y + 14, 2.5, 1.5)
     form(c, mat, palm, frac=0.3)
-    P(c, [(x - 4, y + 15), (x - 4, y + 16)], palm[1]); c.put(x - 5, y + 15, palm[2])
-    pot = ellipse(x - 6, y + 7.5, 5, 5.5)
+    P(c, [(x - 4, y + 14)], palm[1]); c.put(x - 5, y + 14, palm[2])
+    pot = ellipse(x - 6, y + 7, 5, 5)
     form(c, pot, copper, frac=0.3, hi=[(x - 9, y + 4)])
     for q in pot:
         if (q[0] * 3 + q[1] * 2) % 7 == 0 and c.get(q) == copper[3]: c.put(q[0], q[1], copper[4])
@@ -340,21 +346,19 @@ def _net(c, m, sh=0):
 
 
 def gourd_back(c, x, y, g):
-    big = ellipse(x - 0.5, y + 11, 7, 6.5)
-    small = ellipse(x - 0.5, y + 2.5, 3.5, 3)
-    neck = rect(x - 2, y + 4, x + 1, y + 6)
+    big = ellipse(x - 0.5, y + 10, 6.5, 6)
+    small = ellipse(x - 0.5, y + 2, 3, 2.5)
+    neck = rect(x - 2, y + 3, x + 1, y + 5)
     form(c, big, gourd, frac=0.3, hi=[(x - 5, y + 7), (x - 4, y + 6)])
     form(c, small | neck, gourd, frac=0.3, hi=[(x - 2, y + 1)])
     _net(c, big)
-    for xx in range(x - 2, x + 2): c.put(xx, y + 5, linen[3])   # cord tie at the waist
-    # cedar stopper + the spare stopper dangling on its string at the side
+    for xx in range(x - 2, x + 2): c.put(xx, y + 4, linen[3])   # cord tie at the waist
     form(c, rect(x - 1, y - 2, x, y - 1), cedar, frac=0.5)
-    P(c, [(x + 1, y - 1), (x + 2, y), (x + 3, y + 1), (x + 4, y + 2)], linen[2])
-    sw = g['tail']
-    sx = x + 4 + sw
-    form(c, rect(sx, y + 3, sx + 1, y + 4), cedar, frac=0.5); c.put(sx, y + 3, cedar[4])
-    # carrying cord over both shoulders
-    P(c, [(x - 7, y + 6), (x - 7, y + 5), (x - 6, y + 4), (x - 5, y + 3)], linen[3])
+    # the spare cork-wood stopper dangling on its own string at the left, swinging with the step
+    P(c, [(x - 3, y + 4), (x - 4, y + 4), (x - 5, y + 5), (x - 6, y + 5), (x - 7, y + 6)], linen[2])
+    sx = x - 9 + g['tail']
+    P(c, [(sx + 1, y + 7), (sx + 1, y + 8)], linen[2])
+    form(c, rect(sx, y + 9, sx + 1, y + 10), cedar, frac=0.5); c.put(sx, y + 9, cedar[5])
 
 
 def gourd_side(c, x, y, g):
@@ -372,10 +376,10 @@ def gourd_side(c, x, y, g):
 
 PACK = [
     dict(slug='mena-goatskin-waterskin', cat='backpack', back=skin_back, side=skin_side),
-    dict(slug='mena-date-palm-basket', cat='backpack', back=basket_back, side=basket_side),
+    dict(slug='mena-date-palm-basket', cat='backpack', back=basket_back, side=basket_side, y0=49),
     dict(slug='mena-kilim-saddle-bag', cat='backpack', back=kilim_back, side=kilim_side),
-    dict(slug='mena-copper-pot-frame', cat='backpack', back=pot_back, side=pot_side),
-    dict(slug='mena-bottle-gourd-sling', cat='backpack', back=gourd_back, side=gourd_side),
+    dict(slug='mena-copper-pot-frame', cat='backpack', back=pot_back, side=pot_side, y0=49),
+    dict(slug='mena-bottle-gourd-sling', cat='backpack', back=gourd_back, side=gourd_side, y0=49),
 ]
 
 
