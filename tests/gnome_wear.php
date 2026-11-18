@@ -1,5 +1,5 @@
 <?php
-// 2.7.00 the worn wearables on the 2.5D gnome rig (includes/gnome25.php): which wearables are worn (switched on in the Puzzle box), the layers drawn for them, and nothing changing without art.
+// 2.7.00 the worn wearables on the 2.5D gnome rig (includes/gnome25.php): which wearables are worn (2.7.14: the equipped items), the layers drawn for them, and nothing changing without art.
 // php tests/gnome_wear.php GAME_DIR   (an installed game, player "sprout"; walk.sh installs one)
 $_SERVER['SCRIPT_NAME'] = '/adventure.php';
 require $argv[1] . '/includes/bootstrap.php';
@@ -12,16 +12,20 @@ $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'
 $dir = $argv[1] . '/assets/img/gnome25/';
 echo "== which wearables are worn\n";
 ok('the codes and layers are the ones the art uses', GNOME25_WEAR === ['b' => 'wboots', 'g' => 'gloves', 'c' => 'cape', 'h' => 'brim', 'p' => 'pack']);
-pfd_ensure(); q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]);
-ok('nothing switched on: nothing worn', gnome25_worn($u) === '');
-$ins = fn(string $k, int $on) => q('INSERT INTO pf_deck_pieces (user_id, piece_key, starter, active, pos) VALUES (?, ?, 0, ?, 100)', [$uid, $k, $on]);
-$ins('w:travel-cloak', 1); $ins('w:flood-boots-b', 1); $ins('w:wayfarers-hat', 0); $ins('swing', 1);
-$fn = function () use ($u) { $r = new ReflectionFunction('gnome25_worn'); return $r; };
+require_once $argv[1] . '/includes/wearables.php';
+set_setting('wear_open', '1'); setting('__reload__'); wear_ensure_items(); wear_slots_ensure();
+pfd_ensure(); q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]); q('DELETE FROM user_wear_slots WHERE user_id = ?', [$uid]);
+ok('nothing worn: no codes', gnome25_worn($u) === '');
+// 2.7.14: worn = the EQUIPPED items (user_wear_slots), whatever is switched on in the Puzzle box
+foreach (['travel-cloak', 'flood-boots-b', 'wayfarers-hat'] as $s) give_item($uid, item_id_by_slug($s), 1);
+$wear = fn(string $slot, string $slug) => q('INSERT INTO user_wear_slots (user_id, slot, item_slug, worn_at) VALUES (?, ?, ?, ?)', [$uid, $slot, $slug, now()]);
+$wear('cloak', 'travel-cloak'); $wear('footwear', 'flood-boots-b');
+q('INSERT INTO pf_deck_pieces (user_id, piece_key, starter, active, pos) VALUES (?, ?, 0, 1, 100)', [$uid, 'w:wayfarers-hat']);   // switched on but NOT worn
 // gnome25_worn caches per request: ask in a fresh process for each state
 $ask = function () use ($argv, $uid): string { return trim((string)shell_exec('php -d error_reporting=0 -r \'$_SERVER["SCRIPT_NAME"]="/adventure.php"; require "' . $argv[1] . '/includes/bootstrap.php"; require_once "' . $argv[1] . '/includes/gnome25.php"; echo gnome25_worn(["id" => ' . $uid . ']);\' 2>/dev/null')); };
-ok('two wearables on (the cloak and the boots, cut b): the codes bc, sorted; the Hat is off and a non-wearable piece is ignored', $ask() === 'bc', $ask());
-q('UPDATE pf_deck_pieces SET active = 1 WHERE user_id = ? AND piece_key = ?', [$uid, 'w:wayfarers-hat']);
-ok('switch the Hat on: bch', $ask() === 'bch', $ask());
+ok('two items worn (the cloak and the boots, cut b): the codes bc, sorted; the Hat switched on in the box but not worn is not drawn', $ask() === 'bc', $ask());
+$wear('hat', 'wayfarers-hat');
+ok('put the Hat on: bch', $ask() === 'bch', $ask());
 echo "== the url\n";
 $url = trim((string)shell_exec('php -d error_reporting=0 -r \'$_SERVER["SCRIPT_NAME"]="/adventure.php"; require "' . $argv[1] . '/includes/bootstrap.php"; require_once "' . $argv[1] . '/includes/gnome25.php"; echo gnome25_url(q_one("SELECT * FROM users WHERE id = ' . $uid . '"), "front");\' 2>/dev/null'));
 ok('gnome25_url carries the worn codes as w=', str_contains($url, 'w=bch'), $url);
@@ -39,6 +43,6 @@ foreach (['front', 'back', 'side'] as $v) {
 }
 ok('wear codes in any order give the same strip', gnome25_compose('front', [], [], 'ch') === gnome25_compose('front', [], [], 'hc'));
 ok('all five worn: more pixels than the plain strip', $npx(gnome25_compose('front', [], [], 'bcghp')) > $npx($plain));
-q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]);
+q('DELETE FROM pf_deck_pieces WHERE user_id = ?', [$uid]); q('DELETE FROM user_wear_slots WHERE user_id = ?', [$uid]);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

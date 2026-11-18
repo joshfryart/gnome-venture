@@ -179,12 +179,11 @@ function wear_pieces(array $owned, array $lined = []): array
 
 // ---------------------------------------------------------------- the Tailor (a garden building)
 
-/** Wearables are behind the same admin setting as the v1 Puzzle combat (pfight_v1: Off / Admins only): live for this gnome? $u null = the setting alone (is it on for anyone). */
+/** 2.7.14 (Josh): wearables are open to everyone (items, outfitters, Tailor crafts, the Wearing slots, the avatar); the admin setting wear_open = '0' hides them again (a kill switch).
+ *  The Puzzle box pieces still need Puzzle combat v1 (pfight_v1). $u is kept for the callers: the answer is the same for every gnome. */
 function wear_live(?array $u = null): bool
 {
-    $v = (string)setting('pfight_v1');
-    if ($v === '1') return true;
-    return $v === 'admin' && ($u === null || ($u['role'] ?? '') === 'admin');
+    return (string)setting('wear_open') !== '0';
 }
 
 /** Tailor power of a list of Tailor levels (one per garden that has one): the sum. */

@@ -97,6 +97,6 @@ page_header('Tailor');
     </li>
   <?php endforeach; ?>
   </ul>
-  <p class="help">Switch a wearable on in the <a href="<?= e(url('puzzlebox.php')) ?>">Puzzle box</a> (a Keepsake slot: 1 at level 1, 2 at 15, 3 at 25, 4 at 40). Flood Boots work on flooded roads from your satchel.</p>
+  <p class="help">Wear it on <a href="<?= e(url('gnome.php?tab=gnome')) ?>#wearing">My Gnome</a> (one item in each of 7 spots); a worn item's piece can then be switched on in the <a href="<?= e(url('puzzlebox.php')) ?>">Puzzle box</a> (a Keepsake slot: 1 at level 1, 2 at 15, 3 at 25, 4 at 40). Flood Boots work on flooded roads from your satchel.</p>
 <?php endif; ?>
 <?php page_footer();
