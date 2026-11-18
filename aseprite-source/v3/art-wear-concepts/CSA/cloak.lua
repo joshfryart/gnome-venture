@@ -12,20 +12,23 @@ do
   -- side view of a leaf shell hood: rounded back on the left, open front on the right
   local shell = c:ellipse(30, 36, 26, 22):clip(c:rect(0, 0, 63, 53))
   for x = 6, 46, 4 do shell:add(c:poly{ {x - 1, 53}, {x + 3, 53}, {x + 1, 57} }) end
+  shell:add(c:poly{ {40,16}, {57,24}, {55,28}, {46,26} })
   local hollow = c:ellipse(46, 40, 12, 15):clip(shell)
   local outer = shell:copy():cut(hollow)
   local si = C.part(c, outer, R.palm, { R = 8, hs = .9, cuts = { .16, .32, .48, .66, .84 } })
-  -- shingled rows of leaf scallops, overlapping downward
+  -- long palm-leaf strips radiating from the crown, each with a lit midrib and a dark seam
   outer:each(function(x, y)
-    local row = floor((y - 14) / 6)
-    local off = (row % 2) * 3
-    local sx = (x + off) % 6
-    local ly = (y - 14) % 6
-    local arc = (sx - 2.5) ^ 2 / 7
+    local ang = math.atan(x - 30, (y - 12) + 0.001)
+    local u = ang * 9
+    local f = u - floor(u)
     local i = si[K(x, y)]
-    if ly >= 4.4 - arc and ly < 5.6 - arc then c:put(x, y, R.palm[max(1, i - 2)])
-    elseif ly == 1 and sx == 2 then c:put(x, y, R.palm[min(6, i + 1)]) end
+    if f < 0.16 then c:put(x, y, R.palm[max(1, i - 2)])
+    elseif f > 0.45 and f < 0.58 and (y % 2 == 0) then c:put(x, y, R.palm[min(6, i + 1)]) end
   end)
+  -- a second, lower tier of leaves overlapping the first
+  for x = 6, 40 do for y = 38, 40 do
+    if outer:has(x, y) then c:put(x, y, (y == 38) and R.palm[2] or R.palm[min(6, (si[K(x, y)] or 3) + 1)]) end
+  end end
   -- dark hollow inside the shell, lighter toward its back wall
   local hv = {}
   hollow:each(function(x, y) hv[K(x, y)] = (x < 42) and 2 or 1 end)
