@@ -363,6 +363,8 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
     if (pfd_gear_slug((string)q_val('SELECT slug FROM items WHERE id = ?', [$s['item_id']])) && !pfd_gear_open($u)) return [false, 'That is not on the shelf.'];   // 2.7.08
     $slugB = (string)q_val('SELECT slug FROM items WHERE id = ?', [(int)$s['item_id']]);
     if (($needB = pfd_belt_level_need($slugB)) > (int)($u['level'] ?? 1)) return [false, 'The ' . $s['name'] . ' needs gnome level ' . $needB . '. Come back when you are old enough to wear it.'];
+    require_once __DIR__ . '/wearables.php';
+    if ($wb = wear_shop_block($u, $slugB)) return [false, $wb];   // 2.7.xx: the regional outfitters (setting + region level)
     if (!shop_reachable($u, ['location_id' => $s['location_id']])) return [false, 'You need to be in that town first.'];
     if ($why = gclock_closed_reason($u, $s)) return [false, $why];
     if (!staff_on_duty((int)$s['sid'])) return [false, 'Nobody is at the counter right now.'];

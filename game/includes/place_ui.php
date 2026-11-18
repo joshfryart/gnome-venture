@@ -560,6 +560,8 @@ function shop_street_list(array $u, string $region): array
     require_once __DIR__ . '/world.php';
     $rows = q('SELECT s.*, l.name AS loc_name, l.id AS loc_id, l.region AS loc_region FROM shops s JOIN locations l ON l.id = s.location_id
                WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$region])->fetchAll();
+    require_once __DIR__ . '/wearables.php';
+    $rows = array_values(array_filter($rows, fn($r) => !wear_shop_hidden($r, $u)));   // the regional outfitter shows only where the wearables are switched on
     foreach ($rows as &$r) $r['st'] = shop_state($u, $r);
     return $rows;
 }
