@@ -12,6 +12,26 @@ SPEC = {
   9,
   40
  ),
+ "squirrel": (
+  8,
+  42
+ ),
+ "scarecrow": (
+  6,
+  40
+ ),
+ "hermit-crab": (
+  10,
+  42
+ ),
+ "crab": (
+  14,
+  46
+ ),
+ "beaver": (
+  9,
+  42
+ ),
  "tortoise": (
   10,
   54
