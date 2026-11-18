@@ -10,7 +10,7 @@
 -- A tapir eats from the fruit cart; a capybara chews the tether at the hitching rail beside a hollow-log trough.
 -- Quirk: an ocelot in a red gnome hat asleep on top of the inn sign, tail hanging over the tankard, "z z" rising.
 local DIR = "/home/user/gnome-venture/aseprite-source/v3/art-rainforest-stops/"
-local F = dofile(DIR .. "_frame.lua").build{ name = "inn", out = DIR, farTrees = { 24, 150, 206, 300, 340, 380, 452 } }
+local F = dofile(DIR .. "_frame.lua").build{ name = "inn", out = DIR, farTrees = { 24, 150, 206, 300, 340, 380, 452 }, shafts = { { -70, 18 }, { 440, 14 }, { 470, 8 } } }
 local c, L, HP = F.c, F.L, F.HP
 local part, rect, poly, line, fill, px, rimOf, hline, vline, union, hash = F.part, F.rect, F.poly, F.line, F.fill, F.px, F.rimOf, F.hline, F.vline, F.union, F.hash
 local floor, sin, cos, pi = math.floor, math.sin, math.cos, math.pi
@@ -426,15 +426,15 @@ do
   local function my(x) return floor(ly(x) + .5) end
   -- head end (left): red cone hat drooping over the side, face, big beard
   local hx0, hy0 = 45, my(45) - 7
-  local hat = poly{ { hx0 - 3, hy0 + 1 }, { hx0 + 4, hy0 - 1 }, { hx0 - 2, hy0 - 6 }, { hx0 - 7, hy0 - 3 }, { hx0 - 9, hy0 + 3 }, { hx0 - 7, hy0 + 4 } }
-  local face = rect(hx0 + 1, hy0, hx0 + 6, hy0 + 3)
-  local beard = poly{ { hx0 + 2, hy0 + 2 }, { hx0 + 12, hy0 + 2 }, { hx0 + 9, hy0 + 5 }, { hx0 + 3, hy0 + 5 } }
-  local boots = rect(64, my(64) - 9, 66, my(64) - 5):add(rect(68, my(68) - 8, 70, my(68) - 4))
+  local hat = poly{ { hx0 - 3, hy0 + 2 }, { hx0 + 5, hy0 - 2 }, { hx0 - 2, hy0 - 9 }, { hx0 - 9, hy0 - 5 }, { hx0 - 12, hy0 + 3 }, { hx0 - 9, hy0 + 6 } }
+  local face = rect(hx0 + 1, hy0 - 1, hx0 + 8, hy0 + 4)
+  local beard = poly{ { hx0 + 2, hy0 + 3 }, { hx0 + 15, hy0 + 3 }, { hx0 + 12, hy0 + 8 }, { hx0 + 3, hy0 + 8 } }
+  local boots = rect(63, my(63) - 11, 66, my(63) - 5):add(rect(68, my(68) - 10, 71, my(68) - 4))
   c:rim(union(hat, face, beard, boots), L.timber.edge)
-  part(hat, L.awnA, { nopop = true }) hat:each(function(x, y) if y < hy0 - 2 then px(x, y, L.awnA.hi) end end) px(hx0 - 9, hy0 + 3, L.awnB.hi)
-  part(face, L.skin, { nopop = true, noshade = true }) px(hx0 + 2, hy0 + 1, L.timber.edge) px(hx0 + 3, hy0 + 1, L.timber.edge) px(hx0 + 5, hy0 + 1, L.skin.shade)
+  part(hat, L.awnA, { nopop = true }) hat:each(function(x, y) if y < hy0 - 2 then px(x, y, L.awnA.hi) end end) px(hx0 - 12, hy0 + 3, L.awnB.hi) px(hx0 - 11, hy0 + 3, L.awnB.hi)
+  part(face, L.skin, { nopop = true, noshade = true }) hline(hx0 + 2, hx0 + 4, hy0 + 1, L.timber.edge) hline(hx0 + 6, hx0 + 7, hy0 + 1, L.timber.edge) px(hx0 + 5, hy0 + 2, L.skin.shade) px(hx0 + 2, hy0 + 3, L.apple.base)
   part(beard, L.awnB, { nopop = true }) beard:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, L.awnB.shade) end end)
-  part(boots, L.timber, { nopop = true, noshade = true }) hline(64, 66, my(64) - 9, L.timber.hi) hline(68, 70, my(68) - 8, L.timber.hi)
+  part(boots, L.timber, { nopop = true, noshade = true }) hline(63, 66, my(63) - 11, L.timber.hi) hline(68, 71, my(68) - 10, L.timber.hi)
   zed(52, hy0 - 10, 2) zed(57, hy0 - 16, 3)
   -- the capuchin sitting on his belly, eating a banana
   local cx, cy = 56, my(56) - 5
@@ -519,17 +519,20 @@ do
 end
 -- a spider monkey hanging by its tail from the right eave tip
 F.sprite({
-  "..t.....",
-  "..t.....",
-  "...t....",
-  "...MM...",
-  "..MMMM..",
-  ".MfefM..",
-  ".MMMMMM.",
-  "M.MMM.M.",
-  "M.MmM..M",
-  "..M.M...",
-}, 204, 111, { t = L.timber.shade, M = L.timber.base, m = L.timber.shade, f = L.skin.base, e = L.timber.edge })
+  "....t.......",
+  "....t.......",
+  ".....t......",
+  "....tMM.....",
+  "...MMMMM....",
+  "..MMffMM....",
+  "..MfefM.....",
+  "..MMfnMM....",
+  ".MMMMMMMM...",
+  "MM.MMMM.MM..",
+  "M..MMMM..M..",
+  "M..MmMM..M..",
+  "...M..M.....",
+}, 202, 111, { t = L.timber.shade, M = L.timber.base, m = L.timber.shade, f = L.skin.base, e = L.timber.edge, n = L.skin.deep })
 F.smoke(57, 44, 7, .5, 2) F.smoke(156, 43, 8, .8, 3)
 
 -- the innkeeper in her apron with a coconut cup, at the foot of the stair
@@ -685,17 +688,20 @@ do
   local x = 344
   local y = fly(x)
   F.sprite({
-    "t.....a.",
-    ".t....a.",
-    "..t..Ma.",
-    "...tMMM.",
-    "...MMfM.",
-    "...MefM.",
-    "..MMMMMM",
-    ".M.MMM..",
-    "M..M.M..",
-    "...M..M.",
-  }, x - 2, y + 1, { t = L.timber.shade, a = L.timber.base, M = L.timber.base, f = L.skin.base, e = L.timber.edge })
+    "t.......a...",
+    ".t......a...",
+    "..t....Ma...",
+    "...t..MMM...",
+    "....MMMMM...",
+    "....MffMM...",
+    "...MMefMM...",
+    "...MMMMMMM..",
+    "..MMMMMMM.MM",
+    ".MM.MMMM...M",
+    "M...MMMM....",
+    "....M..M....",
+    "....M...M...",
+  }, x - 4, y + 1, { t = L.timber.shade, a = L.timber.base, M = L.timber.base, f = L.skin.base, e = L.timber.edge })
 end
 -- clay jars and bamboo kegs against the pole
 jar(298, 207, 13) jar(312, 208, 12, F.rp("#a8d8cc #6aac9c #48867a #33625c #203e3e")) keg(305, 196, 5, 9)
@@ -861,13 +867,13 @@ F.sprite({
   "............tT..",
   "............Tt..",
   ".............tT.",
-  "....bb.......Tt.",
-  "...bBBb.....tT..",
-  "..bBkBBBBBBBBBb.",
-  "wbBBBBBBBBBBBBBb",
+  "..bb.........Tt.",
+  ".bBBbbb.....tT..",
+  "wwBkkBBBBBBBBBb.",
+  "wnBBBBBBBBBBBBBb",
   ".dddBBbbBBBBbbB.",
   "...ddd..ddddd...",
-}, 364, 212, { b = capy.base, B = capy.hi, d = capy.shade, k = L.timber.edge, w = L.awnB.hi, t = capy.deep, T = capy.hi })
+}, 364, 212, { b = L.litter.shade, B = L.litter.base, d = L.litter.deep, k = L.timber.edge, w = L.awnB.hi, n = L.timber.edge, t = L.timber.edge, T = L.awnB.hi })
 -- blue morpho butterflies
 for _, b in ipairs({ { 182, 222 }, { 318, 186 }, { 236, 168 } }) do
   F.sprite({ "BB.BB", "bBkBb", ".b.b." }, b[1], b[2], { B = "#5aa8f0", b = "#2c62b4", k = L.timber.edge }, { rim = false })

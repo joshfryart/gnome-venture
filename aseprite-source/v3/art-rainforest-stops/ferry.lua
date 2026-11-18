@@ -69,15 +69,15 @@ local function jar(x, yb, h)
 end
 local function bananas(x, y) -- an upright hand of green bananas, stalk on top
   F.sprite({
-    "...k...",
-    ".bkbkb.",
-    "hbbbbbs",
-    "hbsbsbs",
-    ".hbbbs.",
-    "hbsbsbs",
-    ".bbbbs.",
-    "..sss..",
-  }, x - 3, y - 4, { h = L.leaf.hi, b = L.leaf.base, s = L.leaf.shade, k = L.vine.deep }, { rimCol = L.leaf.edge })
+    "....k....",
+    ".bbkkkbb.",
+    "hbbbkbbbs",
+    "hbsbbbsbs",
+    ".hbbbbbs.",
+    "hbsbbbsbs",
+    ".bbbbbbs.",
+    "..sssss..",
+  }, x - 4, y - 4, { h = L.leaf.hi, b = L.leaf.base, s = L.leaf.shade, k = L.vine.deep }, { rimCol = L.leaf.edge })
   px(x - 2, y - 1, L.gold.hi) px(x + 1, y + 2, L.gold.base)
 end
 local function pineapple(x, y)
@@ -103,9 +103,9 @@ do
     local f = (y - yF(x)) / math.max(1, yN(x) - yF(x))
     local h
     if f < .18 then h = hash(x // 10, y, 13) < .5 and mix(Wt.hi, L.sky[2], .3) or mix(Wt.hi, L.sky[4], .3)
-    elseif f < .4 then h = hash(x // 8, y, 14) < .5 and mix(Wt.hi, Wt.base, .45) or mix(Wt.hi, Wt.base, .7)
-    elseif f < .78 then h = hash(x // 12, y // 3, 19) < .3 and mix(Wt.base, Wt.shade, .3) or Wt.base
-    else h = hash(x // 6, y // 2, 15) < .6 and mix(Wt.base, Wt.shade, .55) or Wt.shade end
+    elseif f < .4 then h = hash(x // 8, y, 14) < .5 and mix(Wt.hi, Wt.base, .55) or mix(Wt.hi, Wt.base, .85)
+    elseif f < .78 then h = hash(x // 12, y // 3, 19) < .35 and mix(Wt.base, Wt.shade, .6) or ((y + x // 24) % 5 == 0 and mix(Wt.base, Wt.hi, .4) or mix(Wt.base, Wt.shade, .15))
+    else h = hash(x // 6, y // 2, 15) < .6 and mix(Wt.base, Wt.shade, .7) or mix(Wt.shade, Wt.deep, .3) end
     px(x, y, h)
   end)
   -- current streaks: long thin lit lines drifting with the flow, longer nearer; swirls of silt
@@ -356,9 +356,9 @@ end
 -- a caiman lurking: snout tip, eye bumps and a ridged back breaking the surface
 do
   local cx, cy = 120, 160
-  F.sprite({ "...........kk......", "kkk.......kKKk...k.", "kKKkkKkKkkKKKKkkKKk", "..kkkkkkkkkkkkkkkk." }, cx, cy - 3, { k = "#3a4028", K = "#7a8450" })
-  px(cx + 11, cy - 2, L.gold.hi) px(cx + 12, cy - 2, L.timber.edge) px(cx + 1, cy - 2, "#7a8450")
-  hline(cx - 3, cx + 21, cy + 1, Wt.hi) hline(cx + 2, cx + 16, cy + 2, Wt.deep) hline(cx - 6, cx - 2, cy - 1, Wt.hi)
+  F.sprite({ "...........kk....kk..................", "kkkkk.....kGGk..kGGk......kk...kk....", "kKKKKkkkkkkKKkkkKKkkkkkkkkKKkkKKkkk..", ".kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.." }, cx, cy - 3, { k = "#3a4028", K = "#7a8450", G = L.gold.hi })
+  px(cx + 12, cy - 2, L.timber.edge) px(cx + 17, cy - 2, L.timber.edge) px(cx + 1, cy - 2, "#7a8450")
+  hline(cx - 3, cx + 34, cy + 2, Wt.hi) hline(cx + 2, cx + 28, cy + 3, Wt.deep) hline(cx - 6, cx - 2, cy - 1, Wt.hi)
 end
 
 ---------------------------------------------------------------- the near landing (split bamboo) and its hardwood piles
@@ -489,8 +489,12 @@ do
   hline(RX0 + 4, RX1 - 4, RY0, L.bamboo.hi)
   -- the face: a row of cut culm ends, lashed
   part(face, L.timber, { nopop = true })
-  for x = RX0 + 2, RX1 - 2, 4 do bambooEnd(x, RY1 + 2, 1) end
-  face:each(function(x, y) if y >= RY1 + 3 and hash(x // 2, y, 154) < .4 then px(x, y, L.moss.shade) end end)
+  face:each(function(x, y)
+    local rr = y - RY1
+    px(x, y, rr == 1 and L.bamboo.hi or (rr == 2 and L.bamboo.base or (rr == 3 and L.bamboo.shade or L.bamboo.deep)))
+    if (x - RX0) % 14 == 0 and rr <= 3 then px(x, y, L.bamboo.deep) end
+    if (x - RX0) % 28 == 7 and rr <= 4 then px(x, y, L.needle.base) px(x + 1, y, L.needle.shade) end
+  end)
   -- far rail behind the cargo
   for x = RX0 + 6, RX1 - 6 do px(x, RY0 - 6 + floor(2 * sin((x - RX0) / (RX1 - RX0) * pi)), L.needle.shade) end
   -- cargo: clay water jars, a basket of mangoes, a bunch of green bananas

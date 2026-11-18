@@ -53,13 +53,13 @@ local function fishTrap(x, yb, len, flip, r)
   r = r or L.board
   local s = flip and -1 or 1
   local mh = 6
-  local m = poly{ { x, yb - mh * 2 }, { x + s * len, yb - mh - 1 }, { x + s * (len + 3), yb - mh }, { x + s * len, yb - mh + 1 }, { x, yb } }
+  local m = poly{ { x, yb - mh * 2 }, { x + s * len, yb - mh - 3 }, { x + s * (len + 2), yb - mh - 2 }, { x + s * (len + 2), yb - mh + 2 }, { x + s * len, yb - mh + 3 }, { x, yb } }
   rimOf(m, r)
   part(m, r, { nopop = true })
   m:each(function(xx, yy)
     local t = (xx - x) * s / len
     local cy = yb - mh
-    local half = mh * (1 - t * .85)
+    local half = mh * (1 - t * .5)
     local v = (yy - cy) / math.max(1, half)
     local h = v < -.3 and r.hi or (v > .45 and r.shade or r.base)
     if floor((yy - cy) / math.max(1, half) * 2.5 + 3) ~= floor((yy - cy + 1) / math.max(1, half) * 2.5 + 3) then h = r.deep end -- ribs
@@ -274,9 +274,9 @@ do
   for k = 0, 12 do
     local sx, sy = 330 + k * 3, 126 + floor(k * 1.2)
     local h = 5 + (k % 2)
-    vline(sx, sy - h, sy, (k % 2 == 0) and L.bamboo.shade or L.bamboo.deep) px(sx, sy - h, L.bamboo.hi)
+    vline(sx, sy - h, sy, (k % 2 == 0) and L.timber.base or L.timber.shade) px(sx, sy - h, L.bamboo.hi) px(sx, sy - h + 1, L.bamboo.base)
     px(sx, sy + 1, T4)
-    if prev then line({ { prev[1], prev[2] - 2 }, { sx, sy - 2 } }):each(function(x2, y2) if x2 ~= sx and x2 ~= prev[1] then px(x2, y2, rattan.shade) end end) end
+    if prev then line({ { prev[1], prev[2] - 2 }, { sx, sy - 2 } }):each(function(x2, y2) if x2 ~= sx and x2 ~= prev[1] then px(x2, y2, rattan.base) end end) end
     prev = { sx, sy }
   end
   standingTrap(372, 143, 9)
@@ -312,7 +312,7 @@ end
 fishingHut()
 F.depth(0)
 -- mist lying on the water: long soft banks, ragged at the ends, veiling the far bank and the hut stilts
-for _, b in ipairs({ { 270, 400, 117, 2 }, { 300, 479, 121, 2 }, { 316, 384, 129, 1 }, { 380, 479, 150, 2 }, { 296, 420, 140, 1 } }) do
+for _, b in ipairs({ { 270, 400, 117, 2 }, { 300, 479, 121, 2 }, { 380, 479, 150, 2 }, { 374, 430, 141, 1 } }) do
   for y2 = b[3], b[3] + b[4] - 1 do
     for x2 = b[1], b[2] do
       local edge = math.min(x2 - b[1], b[2] - x2)
@@ -546,20 +546,32 @@ fill(line({ { 194, 228 }, { 186, 176 } }, 2), L.board.base) fill(c:ellipse(186, 
 fill(line({ { 199, 226 }, { 196, 186 } }, 1), L.timber.base) fill(c:ellipse(196, 183, 2, 5), L.redbark.base) px(195, 180, L.redbark.hi)
 -- a coati sitting by the basket, ringed tail up, eyeing the fish
 F.sprite({
-  "..........r..",
-  ".o..o.....R..",
-  ".ccccc....r..",
-  "cceccec...R..",
-  "...cmmn...r..",
-  ".cccc.....R..",
-  ".cCccc...r...",
-  "cCccccc.R....",
-  "cCCcccccr....",
-  "cCcccccc.....",
-  "cccccc.......",
-  "wc.cw........",
-}, 146, 212, { o = L.timber.edge, c = L.litter.base, C = L.litter.shade, e = L.timber.edge, m = L.awnB.hi, n = L.timber.edge,
+  "..................r.",
+  ".o...o...........rR.",
+  ".occcco..........R..",
+  "cceCccec.........rr.",
+  "cccKKKccc.......R...",
+  "..cmmmn.........r...",
+  "..ccccc........R....",
+  ".cccCccc......rR....",
+  "ccCCcccccc...rR.....",
+  "ccCcccccccccrR......",
+  "cCcccccccccRr.......",
+  "ccccccccccc.........",
+  ".cccccccccc.........",
+  "wc.cw..wc.cw........",
+}, 143, 211, { o = L.timber.edge, c = L.litter.base, C = L.litter.shade, e = L.timber.edge, m = L.awnB.hi, n = L.timber.edge, K = L.timber.edge,
   r = L.ground.deep, R = L.litter.hi, w = L.awnB.base })
+-- the ground between the fisher's hut and the net frame: a fish-drying mat, ferns and a mushroom ring
+do
+  local mat = poly{ { 56, 160 }, { 82, 160 }, { 86, 168 }, { 52, 168 } }
+  rimOf(mat, L.timber) part(mat, rattan, { nopop = true })
+  mat:each(function(x2, y2) if (x2 + y2) % 3 == 0 then px(x2, y2, rattan.shade) end end)
+  for k = 0, 3 do local fx = 59 + k * 7 fill(c:ellipse(fx, 164, 3, 1), (k % 2 == 0) and L.stone.hi or L.gold.base) px(fx + 3, 164, L.apple.base) px(fx - 1, 163, L.timber.edge) end
+  F.fern(52, 158, 5) F.fern(84, 158, 5) F.fern(70, 172, 4) F.fern(20, 160, 5)
+  F.mushroom(48, 172, L.produce, true) F.mushroom(53, 174, L.produce)
+  F.heliconia(26, 150, 13, 53)
+end
 
 ---------------------------------------------------------------- bottom-left: big palm, a dugout being carved on trestles, resin pot, fish traps
 F.palm(44, 206, 56, 6, { lean = -6 })

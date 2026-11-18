@@ -288,23 +288,26 @@ F.logEnd(165, 125, 3, L.redbark)
 
 ---------------------------------------------------------------- back-right: a dugout canoe being burnt out on trestles
 local function canoe()
-  local hull = poly{ { 300, 120 }, { 306, 126 }, { 362, 126 }, { 370, 119 }, { 368, 129 }, { 360, 135 }, { 310, 135 }, { 302, 129 } }
-  F.shadow(304, 364, 142, 6, 2)
+  local ox, oy = -18, -4
+  local function P(x, y) return { x + ox, y + oy } end
+  local hull = poly{ P(300, 120), P(306, 126), P(362, 126), P(370, 119), P(368, 129), P(360, 135), P(310, 135), P(302, 129) }
+  F.shadow(304 + ox, 364 + ox, 142 + oy, 6, 2)
   for _, tx in ipairs({ 316, 352 }) do
-    local t = line({ { tx - 4, 142 }, { tx + 3, 133 } }):add(line({ { tx + 4, 142 }, { tx - 3, 133 } }))
+    tx = tx + ox
+    local t = line({ { tx - 4, 142 + oy }, { tx + 3, 133 + oy } }):add(line({ { tx + 4, 142 + oy }, { tx - 3, 133 + oy } }))
     rimOf(t, L.timber) fill(t, L.timber.base)
   end
   rimOf(hull, L.timber) part(hull, L.timber)
   hull:each(function(x, y) if (x + y * 3) % 11 == 0 then px(x, y, L.timber.shade) end if y >= 132 and hash(x // 2, y, 91) < .4 then px(x, y, L.redbark.deep) end end)
-  line({ { 302, 121 }, { 306, 126 }, { 362, 126 }, { 369, 120 } }):each(function(x, y) px(x, y, L.timber.hi) end)
+  line({ P(302, 121), P(306, 126), P(362, 126), P(369, 120) }):each(function(x, y) px(x, y, L.timber.hi) end)
   -- the hollow: charred wood, a smouldering trough of embers
-  local hol = rect(310, 127, 358, 129)
+  local hol = rect(310 + ox, 127 + oy, 358 + ox, 129 + oy)
   fill(hol, L.soil.edge)
   hol:each(function(x, y) local v = hash(x, y, 92) if v < .25 then px(x, y, G.shade) elseif v < .32 then px(x, y, G.base) elseif v < .36 then px(x, y, G.hi) end end)
-  hline(310, 358, 130, L.timber.deep)
-  F.smoke(322, 120, 4, .5, 1) F.smoke(344, 121, 4, .4, 1)
+  hline(310 + ox, 358 + ox, 130 + oy, L.timber.deep)
+  F.smoke(322 + ox, 120 + oy, 4, .5, 1) F.smoke(344 + ox, 121 + oy, 4, .4, 1)
   -- the prow carved into a caiman snout
-  px(369, 119, L.board.hi) px(370, 119, L.board.base) px(368, 121, L.timber.edge)
+  px(369 + ox, 119 + oy, L.board.hi) px(370 + ox, 119 + oy, L.board.base) px(368 + ox, 121 + oy, L.timber.edge)
 end
 canoe()
 F.depth(2)
@@ -413,15 +416,15 @@ F.sprite({
   "....TTttTTttTT.......",
   "..ttTTttTTttTTtt.....",
   ".TTt..........TTe....",
-  ".TT...CCCCCCCCtteee..",
-  "tt...CCCCCCCCCCCCCe..",
+  ".TT...dddddddCtteee..",
+  "tt...CCdCCdCCCCCCCe..",
   "tt..CCCcCCCCCCCCwwCn.",
   "TT.CCCCCCcCCCCCCmwmmn",
-  ".TCCCCCCCCCCCcCCmmm..",
+  ".TCCCCCCCCCCcCCCmmm..",
   "..CCcCCCCCCCCCCCC....",
   "....LL......LL.......",
-}, 97, 205, { e = L.soil.deep, C = L.soil.base, c = L.soil.shade, m = L.awnB.base, w = L.awnB.hi, n = L.timber.edge, T = L.needle.hi,
-  t = L.soil.deep, L = L.soil.deep })
+}, 97, 205, { e = L.timber.edge, C = L.litter.base, c = L.litter.shade, d = L.litter.deep, m = L.awnB.base, w = L.awnB.hi, n = L.timber.edge, T = L.awnB.hi,
+  t = L.timber.edge, L = L.timber.edge })
 -- a clay water jar with a coconut-shell dipper; a blue dart frog on its lip
 dyePot(198, 238, 7, 14, L.water, { band = indigo.base })
 fill(rect(201, 221, 205, 222), L.soil.base) px(201, 221, L.soil.hi) vline(205, 218, 221, L.soil.shade)
@@ -444,7 +447,11 @@ local function workshop()
   end
   hline(x0 + 1, x1 - 1, top + 6, L.board.hi) hline(x0 + 1, x1 - 1, top + 12, L.board.deep)
   -- the gable: woven mat with a carved sunburst
-  local gab = poly{ { x0 + 5, top }, { cx, top - 36 + 8 }, { x1 - 5, top } }:cut(roofM)
+  local gab0 = poly{ { x0 + 5, top }, { cx, top - 36 + 8 }, { x1 - 5, top } }:cut(roofM)
+  local gab = poly{ { x0 + 20, top }, { cx, top - 22 }, { x1 - 20, top } }:cut(roofM)
+  local extra = gab0:copy():cut(gab)
+  rimOf(extra, L.roof2) part(extra, L.roof2, { sep = true }) F.palmThatch(extra, L.roof2, top - 28, cx, 77)
+  c:edgeIn(gab, L.roof2.deep)
   part(gab, L.timber, { nopop = true }) F.planks(gab, L.timber, 4, true, 46)
   local sy = top - 13
   for k = 0, 11 do

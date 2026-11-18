@@ -219,6 +219,7 @@ local function aFrame(x, yb, w, h)
 end
 F.depth(1)
 F.tree(84, 140, 46, 13)
+F.depth(2)
 aFrame(36, 146, 14, 18)
 hammock(12, 118, 80, 118, 9, { L.awnA, L.gold, L.awnB }, { ends = 7 })
 F.fern(64, 150, 4) F.fern(18, 150, 4, L.mossGround)
@@ -314,8 +315,8 @@ local function roundHut(cx, yb)
   F.palmThatch(cone, L.roof, yb - 62, cx, 45)
   cone:each(function(x, y)
     local v = c:get(x, y)
-    if x > cx + 14 and (x - cx) / 56 + (y - (yb - 62)) / 44 > .95 then
-      if v == L.roof.hi or v == L.roof.base then px(x, y, L.roof.shade) elseif v == L.roof2.hi or v == L.roof2.base then px(x, y, L.roof2.shade) end
+    if x > cx + 8 and (x - cx) / 56 + (y - (yb - 62)) / 44 > .66 then
+      if v == L.roof.hi or v == L.roof.base then px(x, y, L.roof.shade) elseif v == L.roof.shade then px(x, y, L.roof.deep) elseif v == L.roof2.hi or v == L.roof2.base then px(x, y, L.roof2.shade) elseif v == L.roof2.shade then px(x, y, L.roof2.deep) end
     end
   end)
   cone:each(function(x, y) if x < cx - 6 and (cx - x) / 30 + (y - (yb - 62)) / 22 < 1.0 and hash(x, y, 47) < .25 then px(x, y, L.roof.hi) end end)
@@ -579,7 +580,8 @@ end
 pack(346, 258, L.leaf)
 pack(330, 262, L.awnA)
 -- quirk: a coati in a red gnome hat climbing out of the green pack, a sausage in its paws, ringed tail up over the rim
-F.sprite({
+do -- 4/3 scale of the coati sprite so it reads against the packs
+  local src = {
   "..........rR......",
   "........RRRr......",
   ".......RRRRr......",
@@ -597,11 +599,22 @@ F.sprite({
   ".......nnnn.......",
   "...ppsSSSSSSSpp...",
   "...pSSSSSSSSSSp...",
-  "....cC......Cc....",
-}, 328, 220, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, C = coati.base, c = coati.shade, e = coati.deep, w = L.awnB.hi,
-  k = L.timber.edge, n = L.timber.edge, p = coati.deep, S = L.apple.shade, s = L.apple.hi })
-px(339, 221, L.awnA.hi) px(337, 223, L.awnA.hi) px(335, 224, L.awnA.hi) px(339, 220, L.awnB.hi) px(340, 220, L.awnB.base) -- pompom tip
-hline(333, 341, 237, L.apple.deep)
+  "....cC......Cc...."
+  }
+  local out = {}
+  for j = 0, 23 do
+    local r = src[floor(j * 3 / 4) + 1]
+    local t = {}
+    for i = 0, 23 do t[#t + 1] = r:sub(floor(i * 3 / 4) + 1, floor(i * 3 / 4) + 1) end
+    out[#out + 1] = table.concat(t)
+  end
+  F.sprite(out, 325, 214, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, C = coati.base, c = coati.shade, e = coati.deep, w = L.awnB.hi,
+    k = L.timber.edge, n = L.timber.edge, p = coati.deep, S = L.apple.shade, s = L.apple.hi })
+  local function mp(ox, oy) return 325 + floor((ox - 328) * 4 / 3), 214 + floor((oy - 220) * 4 / 3) end
+  local x1, y1 = mp(339, 221) px(x1, y1, L.awnA.hi) x1, y1 = mp(337, 223) px(x1, y1, L.awnA.hi) x1, y1 = mp(335, 224) px(x1, y1, L.awnA.hi)
+  x1, y1 = mp(339, 220) px(x1, y1, L.awnB.hi) px(x1 + 1, y1, L.awnB.base)
+  local lx0, ly0 = mp(333, 237) hline(lx0, lx0 + 11, 237, L.apple.deep)
+end
 F.sprite({ "..c", ".cg", "cg.", "kk.", "gg.", "kk.", "gg.", "kk.", "gg.", "kk." }, 352, 229, { g = coati.base, k = coati.deep, c = coati.shade })
 F.fern(364, 262, 7) F.fern(320, 268, 6, L.mossGround) F.fern(294, 258, 5)
 F.orchid(300, 252, L.orchid, 2)

@@ -378,6 +378,11 @@ local function bed(x0, x1, y0, y1, plant, seed)
   for k = 0, n - 1 do plant(x0 + 6 + k * 7, y0 + (y1 - y0) // 2 + 2, k) end
 end
 local function aloe(x, y, k)
+  -- compact outlined rosette (clean read at distance)
+  F.sprite({ "h.b.b.s", "hhbbbss", "hbbhbbs", ".bbbbs." }, x - 3, y - 4, { h = ALOE.hi, b = ALOE.base, s = ALOE.shade })
+  if k % 3 == 1 then vline(x + 1, y - 9, y - 6, ALOE.deep) px(x + 1, y - 10, L.produce.base) px(x + 2, y - 9, L.produce.shade) end
+end
+local function aloeOld(x, y, k)
   -- spiky grey-green rosette: blades fanning up and out, lit left, pale speckles
   for _, b in ipairs({ { -4, -3 }, { -3, -5 }, { -1, -6 }, { 1, -6 }, { 3, -5 }, { 4, -3 } }) do
     line({ { x, y }, { x + b[1], y + b[2] } }):each(function(xx, yy) px(xx, yy, b[1] < 0 and ALOE.base or ALOE.shade) end)
@@ -552,18 +557,18 @@ local function hives()
   for k = 0, 2 do
     local x = 420 + k * 16
     local gd = c:ellipse(x, 206, 7, 7):add(c:ellipse(x, 199, 3, 3))
-    local cap = poly{ { x - 6, 196 }, { x, 190 }, { x + 6, 196 } }:add(rect(x - 6, 196, x + 6, 197))
+    local cap = poly{ { x - 7, 196 }, { x, 189 }, { x + 7, 196 } }:add(rect(x - 7, 196, x + 7, 197))
     rimOf(union(gd, cap), L.timber)
     part(gd, CAL)
     gd:each(function(xx, yy)
       if (xx - x) + (yy - 206) < -6 then px(xx, yy, CAL.hi) end
       if hash(xx // 2, yy // 2, 40 + k) < .06 then px(xx, yy, L.moss.base) end
     end)
-    vline(x - 3, 201, 211, CAL.shade) vline(x + 3, 201, 211, CAL.shade)
+    hline(x - 5, x + 5, 199, CAL.deep) hline(x - 6, x + 6, 202, CAL.shade) hline(x - 7, x + 7, 211, CAL.shade) hline(x - 5, x + 5, 213, CAL.shade)
     part(cap, L.roof, { nopop = true }) F.palmThatch(cap, L.roof, 190, x, 70 + k)
     for xx = x - 6, x + 6, 2 do px(xx, 198, L.roof.deep) end
     -- the little wax entrance tube
-    fill(rect(x - 1, 207, x + 1, 209), L.produce.deep) px(x, 208, L.timber.edge) px(x - 1, 207, L.produce.shade)
+    fill(rect(x - 2, 206, x + 2, 209), L.produce.shade) hline(x - 2, x + 2, 206, L.produce.base) fill(rect(x - 1, 207, x + 1, 208), L.timber.edge) hline(x - 3, x + 3, 210, L.board.base) px(x - 3, 211, L.timber.edge)
   end
   for i = 0, 9 do local bx, by = 412 + floor(hash(i, 1, 3) * 50), 182 + floor(hash(i, 2, 3) * 14) px(bx, by, L.timber.deep) px(bx, by - 1, L.wet) end
 end
@@ -630,13 +635,13 @@ tube:each(function(x, y) if (x - wx) % 6 == 0 then px(x, y, L.bamboo.deep) end e
 line({ { wx + 1, wy - 1 }, { wx - 13, wy - 6 } }):each(function(x, y) if tube:has(x, y) then px(x, y, L.bamboo.hi) end end)
 for k = 0, 5 do px(wx - 16 - k, wy - 4 + k * 2, L.water.hi) px(wx - 15 - k, wy - 3 + k * 2, L.water.base) end
 -- a blue poison-dart frog on the near bed's bamboo edge
-F.sprite({ ".BB.", "BkBB", "BBkB", "b..b" }, 338, 239, { B = "#4a8ad8", k = L.timber.edge, b = "#2c4c9c" })
+F.sprite({ "..BBB.", ".BkBkB", "BBYBBb", "bBBBbb", "b.b.bb" }, 335, 237, { B = "#4a8ad8", k = L.timber.edge, b = "#2c4c9c", Y = L.gold.hi })
 -- leafcutter ants carrying leaf bits from the beds across the road
-for i = 0, 22 do
-  local t = i / 22
+for i = 0, 14 do
+  local t = i / 14
   local x, y = floor(296 - t * 70 + sin(t * 9) * 2 + .5), floor(250 + t * 6 + .5)
-  px(x, y, L.timber.edge)
-  if i % 2 == 0 then px(x, y - 1, (i % 4 == 0) and L.leaf.base or L.vine.hi) end
+  px(x, y, L.timber.edge) px(x + 1, y, L.timber.edge) px(x - 1, y + 1, L.timber.edge) px(x + 1, y + 1, L.timber.edge)
+  if i % 2 == 0 then px(x, y - 1, L.leaf.hi) px(x + 1, y - 1, L.leaf.base) px(x, y - 2, L.leaf.base) px(x + 1, y - 2, L.leaf.shade) end
 end
 -- a fairy ring of orange jungle fungi by the hut
 for k = 0, 7 do

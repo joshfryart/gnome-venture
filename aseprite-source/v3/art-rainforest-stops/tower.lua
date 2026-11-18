@@ -121,8 +121,8 @@ local function lookoutTree()
   F.depth(2)
   -- crown behind the lookout hut
   local crownM = HP.mask()
-  for i, lb in ipairs({ { 202, 50, 24, 13, L.foliage }, { 278, 48, 24, 13, L.foliage2 }, { 240, 34, 34, 14, L.foliage },
-    { 190, 66, 14, 8, L.foliage2 }, { 292, 64, 14, 8, L.foliage } }) do
+  for i, lb in ipairs({ { 202, 50, 24, 13, L.leaf }, { 278, 48, 24, 13, L.leaf }, { 240, 34, 34, 14, L.foliage },
+    { 190, 66, 14, 8, L.leaf }, { 292, 64, 14, 8, L.leaf } }) do
     crownM:add(F.crown(lb[1], lb[2], lb[3], lb[4], lb[5], 60 + i))
   end
   -- epiphyte ferns and a bromeliad in the crown
@@ -251,16 +251,18 @@ local _, lys = bridge(176, 93, 200, 64, 3, 1, 21)
 local _, rys = bridge(280, 64, 306, 93, 3, 1, 22)
 -- a capuchin crossing the left bridge, tail up in a curl
 F.sprite({
-  "........tt.",
-  "..cc....t.t",
-  ".cMMc...t..",
-  ".MffM...t..",
-  ".fefe..t...",
-  ".MfnMMMt...",
-  "..MMMMMM...",
-  ".MM.MMmM...",
-  ".M..M..M...",
-}, 182, lys[186] - 9, { M = T.base, m = T.shade, c = L.awnB.base, f = L.skin.hi, e = T.edge, n = L.skin.deep, t = T.shade })
+  ".........ttt..",
+  "..cccc...t.t..",
+  ".cMMMMc..t....",
+  ".MffffM..t....",
+  ".fefeffM.t....",
+  ".MfnnfMMMt....",
+  "..MMMMMMMt....",
+  ".MMMMMMMMM....",
+  ".MMmMMMmMM....",
+  ".MM.MM.MM.....",
+  ".M..M..M......",
+}, 181, lys[186] - 10, { M = T.base, m = T.shade, c = L.awnB.base, f = L.skin.hi, e = T.edge, n = L.skin.deep, t = T.shade })
 -- a three-toed sloth hanging under the right bridge
 F.sprite({
   "c....c",
@@ -531,10 +533,17 @@ F.gnome(354, 218, { hat = L.lav, coat = L.awnA, arm = "out" })
 -- beacon bundles of dry palm fronds and bamboo torches, coconut baskets, a clay water jar
 for k = 0, 2 do
   local x = 300 + k * 18
-  local m = rect(x, 228, x + 14, 236) rimOf(m, L.needle) part(m, L.needle, { nopop = true })
-  m:each(function(xx, y) if (y - 228) % 2 == 0 and hash(xx // 3, y, k) < .5 then px(xx, y, L.needle.hi) elseif (xx + y) % 5 == 0 then px(xx, y, L.needle.shade) end end)
-  fill(rect(x + 5, 228, x + 6, 236), T.edge) fill(rect(x + 10, 228, x + 10, 236), T.shade) -- rattan ties
-  for y = 229, 235, 2 do px(x + 15, y, L.needle.base) px(x + 16, y + 1, L.needle.shade) end -- frayed frond ends
+  local m = rect(x + 2, 229, x + 12, 236)
+  local fr = HP.mask()
+  for _, d in ipairs({ -6, -3, 0, 3, 6 }) do
+    fr:add(line({ { x + 3, 232 + d // 3 }, { x - 3, 232 + d } })):add(line({ { x + 11, 232 + d // 3 }, { x + 17, 232 + d } }))
+  end
+  rimOf(union(m, fr), L.roof2)
+  part(m, L.roof2, { nopop = true })
+  fill(fr, L.roof2.base)
+  fr:each(function(xx, yy) if (xx + yy) % 3 == 0 then px(xx, yy, L.roof2.hi) end end)
+  m:each(function(xx, y) if (xx + y) % 3 == 0 then px(xx, y, L.roof2.hi) elseif (xx - y) % 4 == 0 then px(xx, y, L.roof2.deep) end end)
+  fill(rect(x + 5, 229, x + 6, 236), T.edge) fill(rect(x + 9, 229, x + 9, 236), L.needle.base) -- rattan ties
 end
 local function basket(x, yb, w, h)
   local m = poly{ { x - w, yb - h }, { x + w, yb - h }, { x + w - 2, yb }, { x - w + 2, yb } }

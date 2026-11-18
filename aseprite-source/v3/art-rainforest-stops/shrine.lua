@@ -25,6 +25,7 @@ local KAPOK = F.rp("#d4dac6 #aab49e #828e7e #5e6a60 #3a4440")  -- banyan / frang
 local FRANG = F.rp("#fff4d6 #f6e2b0 #e8c27a #c0904c #7a5a34")  -- frangipani petals
 local INK = "#2e2a30"
 local ROOT = F.rp("#d2c8a6 #a69a7c #7c725e #585046 #38322e") -- strangler-fig roots, warm grey
+local JAG = F.rp("#c4cab4 #8c9684 #626c62 #424c48 #262e2c") -- darker guardian stone
 local RIB = { L.awnA, MARI, L.accent, L.gold, L.lav, L.petal, L.helic }
 
 ---------------------------------------------------------------- local helpers
@@ -200,7 +201,7 @@ local function tower(cx, yb)
   local base = rect(cx - 19, yb - 5, cx + 19, yb)
   rimOf(base, TST) part(base, TST) F.courses(base, yb - 5, 5, 9, TST) F.moss(base, .3, 84)
   local y = yb - 5
-  for i = 0, 2 do
+  for i = 0, 3 do
     local w = 14 - i * 3
     local body = rect(cx - w, y - 12, cx + w, y)
     local corn = rect(cx - w - 3, y - 15, cx + w + 3, y - 12)
@@ -315,7 +316,7 @@ do
   local naga = { ".hhh...", "hhsss..", "esssSS.", ".ddssS.", "...ssS.", "...hsS.", "..hssS.", ".hssS..", "hssS..." }
   local mir = {}
   for i, r in ipairs(naga) do mir[i] = r:reverse() end
-  local map = { h = TST.hi, s = TST.base, S = TST.shade, d = TST.edge, e = L.glow.base }
+  local map = { h = L.gold.hi, s = L.gold.base, S = L.gold.shade, d = TST.edge, e = L.apple.base }
   F.sprite(naga, 182, 77, map) F.sprite(mir, 292, 77, map)
 end
 -- carved pediment with a gilded sunburst
@@ -367,7 +368,7 @@ local function banyan()
   part(trunk, KAPOK) part(limbs, KAPOK, { nopop = true })
   trunk:each(function(x, y)
     if not trunk:has(x - 1, y) then px(x, y, KAPOK.hi)
-    elseif (x + floor(sin(y / 9 + x) * 1.5 + .5)) % 4 == 0 then px(x, y, KAPOK.deep) -- fluted, braided stems
+    elseif (x + floor(sin(y / 9 + x) * 1.5 + .5)) % 4 == 0 then px(x, y, KAPOK.edge) -- fluted, braided stems
     elseif (x + floor(sin(y / 9 + x) * 1.5 + .5)) % 4 == 1 and x < 410 then px(x, y, KAPOK.hi)
     elseif x > 412 and hash(x, y, 34) < .5 then px(x, y, KAPOK.shade) end
     if y > 146 and hash(x // 2, y, 36) < .35 then px(x, y, hash(x, y, 37) < .5 and L.moss.base or L.moss.shade) end
@@ -624,13 +625,13 @@ end
 -- guardian jaguar: seated, round ears, tail curled up behind, carved rosettes
 local function jaguar(x, yb, flip, bare)
   local s = flip and -1 or 1
-  local r = L.stone
+  local r = JAG
   local body = poly{ { x - 4 * s, yb }, { x - 4 * s, yb - 10 }, { x - 2 * s, yb - 14 }, { x + 3 * s, yb - 14 }, { x + 4 * s, yb } }
   local head = poly{ { x - 3 * s, yb - 14 }, { x - 3 * s, yb - 19 }, { x - 2 * s, yb - 21 }, { x, yb - 19 }, { x + 2 * s, yb - 19 }, { x + 4 * s, yb - 21 }, { x + 5 * s, yb - 18 }, { x + 7 * s, yb - 16 }, { x + 7 * s, yb - 14 }, { x + 3 * s, yb - 13 } }
   local tail = line({ { x - 4 * s, yb - 1 }, { x - 8 * s, yb - 3 }, { x - 9 * s, yb - 8 }, { x - 7 * s, yb - 11 } }, 2)
   local m = union(body, head, tail)
   rimOf(m, r) part(m, r)
-  px(x + 2 * s, yb - 17, r.edge) px(x + 3 * s, yb - 17, L.glow.shade) px(x + 7 * s, yb - 15, r.edge) hline(math.min(x + 4 * s, x + 7 * s), math.max(x + 4 * s, x + 7 * s), yb - 13, r.deep)
+  px(x + 2 * s, yb - 17, r.edge) px(x + 3 * s, yb - 17, L.glow.hi) px(x + 3 * s, yb - 18, L.glow.base) px(x + 7 * s, yb - 15, r.edge) hline(math.min(x + 4 * s, x + 7 * s), math.max(x + 4 * s, x + 7 * s), yb - 13, r.deep)
   m:each(function(xx, y)
     if not m:has(xx, y - 1) and hash(xx, y, 74) < .6 then px(xx, y, L.moss.hi)
     elseif hash(xx // 2, y // 2, 75) < .14 then px(xx, y, L.moss.shade)
@@ -698,12 +699,13 @@ F.depth(3)
 -- a joss-stick urn smoking (left middle), a stone stack beside it
 do
   local ped = rect(55, 210, 66, 220)
-  local bowl = c:rrect(49, 200, 72, 211, 4)
+  local bowl = poly{ { 49, 200 }, { 72, 200 }, { 70, 205 }, { 67, 211 }, { 54, 211 }, { 51, 205 } }
+  local ears = rect(46, 201, 48, 205):add(rect(73, 201, 75, 205))
   F.shadow(52, 70, 220, 6, 2)
-  rimOf(union(ped, bowl), L.timber)
+  rimOf(union(ped, bowl, ears), L.timber)
   part(ped, TST, { nopop = true }) F.courses(ped, 210, 3, 4, TST) F.moss(ped, .2, 83)
-  part(bowl, BRONZE)
-  hline(49, 72, 204, BRONZE.deep) for x = 52, 69, 3 do px(x, 207, BRONZE.hi) end
+  part(bowl, L.iron) part(ears, BRONZE, { nopop = true })
+  hline(51, 70, 204, BRONZE.base) for x = 53, 69, 3 do px(x, 207, BRONZE.hi) end
   bowl:each(function(x, y) if y > 206 and hash(x, y, 83) < .15 then px(x, y, L.accent.shade) end end)
   hline(51, 70, 200, L.awnB.base) hline(53, 68, 199, L.awnB.hi) -- sand
   for i, x in ipairs({ 54, 57, 59, 61, 63, 65, 68 }) do joss(x, 199, 8 + (i % 3) * 2, (x - 61) * .4) end

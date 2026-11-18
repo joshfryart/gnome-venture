@@ -102,6 +102,16 @@ local function mangoTree(x, yb, s, seed)
     cm:add(F.crown(x + 9 * s, yb - 30 * s, 7 * s, 5 * s, lr, seed + 4))
   end
   cm:add(F.crown(x + lean, yb - 26 * s, 14 * s, 9 * s, lr, seed + 2))
+  if s > 1.6 then -- leaf clumps: lit tufts on the upper left, dark pockets below, so the big crown is not flat
+    cm:each(function(xx, yy)
+      if cm:has(xx - 1, yy) and cm:has(xx + 1, yy) and cm:has(xx, yy - 1) and cm:has(xx, yy + 1) then
+        local v = hash(xx // 5, yy // 4, seed + 9)
+        local lit = (xx - x) + (yy - (yb - 26 * s)) < 4
+        if v < .4 and xx % 5 < 3 and yy % 4 < 2 then px(xx, yy, lit and lr.hi or lr.deep)
+        elseif v > .78 and xx % 5 > 0 and yy % 4 == 2 then px(xx, yy, lit and lr.base or lr.shade) end
+      end
+    end)
+  end
   if s > .6 then flush(cm, x - 20 * s, x + 18 * s, floor(yb - 40 * s), yb, floor(4 * s) + 1, seed, s > 1.6) end
   local n = floor((s > 1.6 and 5 or 8) * s * s) + 4
   for i = 1, n do
@@ -164,12 +174,20 @@ local function papayaTree(x, yb, s, seed)
   table.sort(ends, function(a, b) return a[2] < b[2] end)
   for i, e in ipairs(ends) do
     local rx, ry = 3.2 * s + 1.5, 1.6 * s + 1
-    F.crown(e[1], e[2], rx, ry, pl, seed * 5 + i)
-    if s > .7 then -- finger lobes round the blade
-      for k = -2, 2 do
-        local a = e[3] + k * .55
-        px(floor(e[1] + cos(a) * (rx + 1) + .5), floor(e[2] + sin(a) * (ry + 1) + .5), k < 0 and pl.base or pl.shade)
+    if s > .7 then -- a palmate blade: seven finger lobes radiating from the stalk end
+      local fm, ln2 = HP.mask(), rx + 3
+      for k = -3, 3 do
+        local a = e[3] + k * .5
+        fm:add(line({ { e[1], e[2] }, { floor(e[1] + cos(a) * ln2 + .5), floor(e[2] + sin(a) * ln2 * .8 + .5) } }, 2))
       end
+      fm:add(c:ellipse(e[1], e[2], 2, 2))
+      rimOf(fm, pl) part(fm, pl, { nopop = true })
+      for k = -3, 3 do
+        local a = e[3] + k * .5
+        line({ { e[1], e[2] }, { floor(e[1] + cos(a) * ln2 + .5), floor(e[2] + sin(a) * ln2 * .8 + .5) } }):each(function(xx, yy) px(xx, yy, k < 0 and pl.hi or pl.shade) end)
+      end
+    else
+      F.crown(e[1], e[2], rx, ry, pl, seed * 5 + i)
     end
   end
   -- the fruit ring
@@ -466,8 +484,10 @@ local function dryHouse()
   end)
   hline(362, 404, 132, L.bamboo.shade)
   F.gnome(388, 128, { small = true, hat = L.roof2, coat = L.awnA, arm = "out" })
-  line({ { 398, 121 }, { 404, 129 } }):each(function(x, y) px(x, y, L.bamboo.deep) end)
-  hline(401, 406, 129, L.timber.base)
+  local rk = line({ { 393, 114 }, { 403, 128 } }, 1)
+  c:rim(rk, L.timber.edge) fill(rk, L.bamboo.hi)
+  local rh = rect(400, 128, 408, 129) c:rim(rh, L.timber.edge) fill(rh, L.timber.base) hline(400, 408, 128, L.bamboo.hi)
+  for x = 400, 408, 2 do px(x, 130, L.timber.edge) end
 end
 dryHouse()
 
@@ -612,8 +632,12 @@ for _, m in ipairs({ { 120, 256 }, { 236, 222 }, { 274, 232 }, { 446, 202 } }) d
 ---------------------------------------------------------------- windfalls + quirk tenrec
 for i = 0, 44 do
   local x, y = 20 + floor(hash(i, 5, 7) * 440), 150 + floor(hash(i, 6, 7) * 110)
-  local fr = (i % 5 == 0) and CACY or ((i % 5 == 1) and MANGOG or ((i % 5 == 2) and CACR or MANGO))
-  if not F.roadM:has(x, y) and not (x > 378 and y > 228) then px(x, y, fr.base) px(x + 1, y, fr.shade) px(x, y - 1, fr.hi) px(x + 1, y + 1, fr.deep) end
+  local fr = (i % 5 == 0) and CACY or ((i % 5 == 1) and MANGO or ((i % 5 == 2) and CACR or MANGO))
+  if not F.roadM:has(x, y) and not (x > 378 and y > 228) then
+    px(x, y, fr.hi) px(x + 1, y, fr.base) px(x + 2, y, fr.base) px(x, y + 1, fr.base) px(x + 1, y + 1, fr.shade) px(x + 2, y + 1, fr.shade)
+    hline(x, x + 2, y + 2, fr.edge) px(x - 1, y + 1, fr.edge) px(x + 3, y + 1, fr.edge)
+    if i % 2 == 0 then px(x + 2, y, L.apple.base) end
+  end
 end
 -- quirk: a streaked tenrec trundling off with a mango and a little red gnome hat stuck on its spines
 F.shadowM(c:ellipse(220, 263, 13, 1))
@@ -651,16 +675,19 @@ F.sprite({ ".yg...", "yegGg.", "oyGGgg", ".gGGgt", "..d.dt" }, 182, 190, { y = L
 px(180, 195, MANGO.base) px(179, 195, MANGO.shade) px(180, 194, L.apple.base)
 -- a coati on the crate stack, ringed tail up, nibbling a banana
 F.sprite({
-  "T...............",
-  "t...............",
-  "T...............",
-  "t...cccc........",
-  "Tt.cCCCCcc......",
-  ".tcCCCCCCcEcc...",
-  "..cCCCCCCcccccnY",
-  "..cccccccc...YYy",
-  "...d.d..d.d.....",
-}, 302, 193, { T = L.timber.deep, t = L.needle.hi, c = L.needle.shade, C = L.needle.base, E = INK, n = INK, Y = BAN.base, y = BAN.shade, d = L.timber.edge })
+  "tT...................",
+  "Tt...................",
+  "tT...................",
+  ".Tt........cc........",
+  ".tTccccccc.cCc.......",
+  "..tcCCCCCCcCCCc......",
+  "..cCCCCCCCCCEkCcn....",
+  ".cCCCCCCCCCCCCCwYY...",
+  "cCCCcCCCCCCCCCCcnyY..",
+  "cCCCCCCCCCCCCCcc.YY..",
+  ".cccccccccccccc......",
+  "..dd.dd...dd.dd......",
+}, 302, 190, { T = L.timber.edge, t = L.awnB.hi, c = L.litter.shade, C = L.litter.base, E = INK, k = L.timber.edge, w = L.awnB.hi, n = INK, Y = BAN.base, y = BAN.shade, d = L.timber.edge })
 F.depth(0)
 -- scarlet macaws and green parrots crossing the sky
 F.birds({ { 330, 40, 2, "#c83a34" }, { 340, 45, 2, "#c83a34" }, { 120, 48, 2, "#2e7a46" }, { 132, 42, 1, "#2e7a46" }, { 166, 60, 1, "#3a6ec0" } })

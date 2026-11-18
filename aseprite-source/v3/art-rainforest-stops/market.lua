@@ -71,10 +71,9 @@ local function basket(x0, x1, yb, h, r, kind, seed) -- woven rattan basket heape
   px(x0 + 3, yb - h - 3, L.leaf.base) px(x0 + 4, yb - h - 4, L.leaf.hi) px(x1 - 4, yb - h - 2, L.leaf.shade) px(x1 - 5, yb - h - 3, L.leaf.base)
   return body
 end
-local function bananas(x, y) -- a hand of bananas hanging, 5 wide, 9 tall
-  F.sprite({ "..s..", "..s..", ".yYy.", "yYyYy", "yYyYy", "YyYyY", "yYyYy", ".yYy.", "..k.." }, x, y,
-    { s = L.vine.shade, y = L.gold.base, Y = L.gold.hi, k = L.timber.deep })
-  px(x + 4, y + 4, lime.base) px(x, y + 5, lime.shade)
+local function bananas(x, y) -- a hand of bananas hanging, 7 wide, 9 tall: finger pairs, green top, dark tips
+  F.sprite({ "...s...", "..gsg..", ".YhsYh.", ".YhsYh.", "YhysYhy", "Yh.s.hy", "Yy.s.yy", ".y...y.", ".k...k." }, x, y,
+    { s = L.vine.shade, g = lime.base, Y = L.gold.hi, h = L.gold.base, y = L.gold.shade, k = L.timber.deep })
 end
 local function chilli(x, y, n) -- a string of red chillies
   vline(x, y - 2, y, L.needle.deep)
@@ -480,8 +479,8 @@ local function well()
   shadow(100, 192, 208, 14, 6)
   rimOf(union(roofOuter, postL, postR, lipTop, lipFront, drum, crank, axle, bucket), L.timber)
   part(drum, S) courses(drum, 165, 7, 13, S)
-  F.moss(drum, .09, 71)
-  F.vines(rect(97, 165, 189, 167), .06, 79, 12)
+  F.moss(drum, .035, 71)
+  F.vines(rect(97, 165, 189, 167), .03, 79, 9)
   part(lipFront, S, { sep = true }) courses(lipFront, 156, 10, 17, S, 5)
   F.moss(lipFront, .08, 72)
   part(lipTop, S, { sep = true })
@@ -512,22 +511,24 @@ local function well()
   for y = 128, 155 do local vx = 104 + floor(sin(y / 4) * 1.5 + .5) px(vx, y, L.vine.shade) if y % 4 == 0 then px(vx + 1, y, L.vine.hi) px(vx - 1, y + 1, L.vine.base) end end
   F.orchid(104, 138, L.orchid, 2, true)
   for _, f in ipairs({ { 98, 208, 7 }, { 106, 210, 5 }, { 186, 208, 6 }, { 192, 206, 5 } }) do F.fern(f[1], f[2], f[3]) end
-  for i = 0, 14 do local x, y = 97 + floor(hash(i, 1, 41) * 22), 168 + floor(hash(i, 2, 41) * 38) px(x, y, L.fern.base) px(x + 1, y, L.fern.hi) px(x, y + 1, L.fern.deep) end
+  for i = 0, 5 do local x, y = 97 + floor(hash(i, 1, 41) * 22), 168 + floor(hash(i, 2, 41) * 38) px(x, y, L.fern.base) px(x + 1, y, L.fern.hi) px(x, y + 1, L.fern.deep) end
   F.sprite({ "e.e.", "GGGG", "GgGG", "o..o" }, 120, 143, { e = L.apple.base, G = L.fern.hi, g = L.fern.shade, o = L.produce.base })
   c:sparkle(176, 160)
   -- a spider monkey sitting on the thatch, peeling a banana, its tail curled over the ridge
   F.sprite({
-    "...MM.....",
-    "..MMMM....",
-    ".MfefM.YY.",
-    ".MMfMMMy..",
-    "..MMMMM...",
-    ".MMmMM....",
-    "MMMmMM....",
-    "MMMMMMt...",
-    ".M..M..t..",
-    ".......t..",
-  }, 150, 88, { M = L.timber.base, m = L.timber.shade, f = L.skin.base, e = L.timber.edge, Y = L.gold.hi, y = L.gold.shade, t = L.timber.shade })
+    "....MMMM......",
+    "...MMMMMM.....",
+    "..MMffffMM.YY.",
+    "..MfeffefM.YYy",
+    "..MMffffMM..Yy",
+    "...MMfmmMM....",
+    "..MMMMMMMMM...",
+    ".MMMmMMMMMMM..",
+    ".MMMmMMMMMMMt.",
+    "MMMMMMMMMMMMMt",
+    ".MM..MM..MMMt.",
+    ".....MM....t..",
+  }, 146, 86, { M = L.timber.base, m = L.timber.shade, f = L.skin.base, e = L.timber.edge, Y = L.gold.hi, y = L.gold.shade, t = L.timber.shade })
 end
 well()
 
@@ -625,7 +626,7 @@ local function stall()
   lantern(304, 180, 1)
   lantern(396, 180, 1)
   hline(310, 336, 179, L.bamboo.deep)
-  for k = 0, 3 do bananas(310 + k * 7, 180) end
+  for k = 0, 2 do bananas(309 + k * 9, 180) end
   for k = 0, 3 do chilli(368 + k * 5, 181, 4 + (k % 2)) end
   -- counter: lashed horizontal bamboo front, split-bamboo top
   part(cfront, L.bamboo)
@@ -670,21 +671,23 @@ local function stall()
   }, 404, 175, { R = L.apple.base, W = L.awnB.hi, e = L.timber.edge, k = L.awnB.shade, Y = L.gold.base, B = "#4a8ad8", b = "#2c4c9c" })
   -- quirk: a three-toed sloth in a red gnome hat dozing on the roof, hugging the sign
   F.sprite({
-    "......R.......",
-    ".....RRr......",
-    "....RRRr......",
-    "...RRRRRr.....",
-    "..hhhhhhhh....",
-    "..SFFFFFFS....",
-    "..FkkFFkkF....",
-    "..FFFnnFFF....",
-    "..SFFmmFFS....",
-    ".SSSSSSSSSS...",
-    "SSsSSSSSSsSSc.",
-    "SsSSSSSSSSsSSc",
-    ".SSSsSSSsSS.c.",
-    "..SS....SS....",
-  }, 312, 137, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, S = sloth.base, s = sloth.shade, F = sloth.hi,
+    ".......R..........",
+    "......RRr.........",
+    ".....RRRRr........",
+    "....RRRRRRr.......",
+    "...hhhhhhhhh......",
+    "..SFFFFFFFFFS.....",
+    ".SFFkkFFFFkkFS....",
+    ".SFFkkFFFFkkFS....",
+    ".SFFFFnnnFFFFS....",
+    "..SFFFFmmFFFS.....",
+    "..ssssssssssss....",
+    ".ssSSsSSSsSSssSc..",
+    "ssSSSSsSSSSsSSSSc.",
+    "ssSsSSSSSsSSSSsSc.",
+    ".ssSS.ss..ssSSs.c.",
+    "..ss..ss...ss.....",
+  }, 307, 135, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, S = sloth.shade, s = sloth.deep, F = sloth.hi,
     k = sloth.edge, n = L.timber.edge, m = sloth.deep, c = L.awnB.hi })
 end
 stall()

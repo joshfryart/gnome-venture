@@ -257,7 +257,7 @@ do
   -- a carved lotus band along the top
   for x = 356, 400, 6 do px(x, 127, carve.deep) px(x + 1, 126, carve.deep) px(x + 2, 127, carve.deep) px(x + 1, 128, carve.hi) end
   -- the head
-  local hat = poly{ { HX - 14, HY - 8 }, { HX + 14, HY - 8 }, { HX + 7, HY - 22 }, { HX + 12, HY - 27 }, { HX + 2, HY - 26 }, { HX - 6, HY - 18 } }
+  local hat = poly{ { HX - 14, HY - 8 }, { HX - 8, HY - 22 }, { HX - 1, HY - 28 }, { HX + 8, HY - 28 }, { HX + 15, HY - 24 }, { HX + 19, HY - 16 }, { HX + 14, HY - 17 }, { HX + 10, HY - 21 }, { HX + 6, HY - 18 }, { HX + 14, HY - 8 } }
   local fc = c:rrect(HX - 12, HY - 9, HX + 12, HY + 3, 4)
   local beard = poly{ { HX - 13, HY - 1 }, { HX + 13, HY - 1 }, { HX + 10, HY + 13 }, { HX, HY + 20 }, { HX - 10, HY + 13 } }
   c:rim(union(hat, fc, beard), carve.edge)
@@ -265,6 +265,7 @@ do
   fc:each(function(x, y) px(x, y, (x - HX) + (y - HY) < 4 and carve.hi or carve.base) end)
   hat:each(function(x, y) px(x, y, (x - HX) < (HY - y) * .3 - 3 and carve.base or carve.shade) end)
   hat:edge():each(function(x, y) if x - HX < 2 then px(x, y, carve.hi) end end)
+  line({ { HX + 7, HY - 17 }, { HX + 12, HY - 10 } }):each(function(x, y) px(x, y, carve.deep) end)
   beard:each(function(x, y)
     local col = (x - HX) < -2 and carve.base or carve.shade
     if (x + 2 * y) % 5 == 0 and y > HY + 1 then col = carve.deep end
@@ -323,7 +324,9 @@ fill(line({ { 348, 160 }, { 352, 156 } }, 2), rock.edge)
 for y = 174, 202 do px(334, y, ((y // 2) % 2 == 0) and Wt.hi or Wt.base) end
 do
   local _, hx, hy = F.gnome(318, 218, { hat = L.awnA, coat = L.lav, arm = "out" })
-  tube(hx + 1, hy - 7, 8, 10, true)
+  local pailM = tube(hx + 1, hy - 7, 8, 10, true)
+  c:rim(pailM, L.timber.edge)
+  hline(hx + 2, hx + 8, hy - 3, L.needle.deep) hline(hx + 2, hx + 8, hy + 1, L.needle.deep) vline(hx + 7, hy - 6, hy + 2, L.bamboo.deep)
   px(hx + 3, hy - 9, Wt.hi) px(hx + 6, hy - 8, GL)
   c:ellipse(hx + 5, hy - 11, 5, 4):edge():each(function(x, y) if y < hy - 10 then px(x, y, L.needle.shade) end end) -- rattan handle
 end
@@ -473,8 +476,8 @@ do
   local rails, posts = HP.mask(), HP.mask()
   local function ex(sd, y) return sd < 0 and floor(F.xl(y)) - 3 or floor(F.xr(y) + .99) + 3 end
   for _, sd in ipairs({ -1, 1 }) do
-    for y = Y0 - 2, Y1, 8 do posts:add(rect(ex(sd, y) - 1, y - 12, ex(sd, y), y)) end
-    for _, h in ipairs({ 10, 5 }) do rails:add(line({ { ex(sd, Y0 - 2), Y0 - 2 - h }, { ex(sd, Y1), Y1 - h } }, 2)) end
+    for y = Y0 - 2, Y1, 8 do posts:add(rect(ex(sd, y) - 1, y - 12, ex(sd, y) + 1, y)) end
+    for _, h in ipairs({ 10, 5 }) do rails:add(line({ { ex(sd, Y0 - 2), Y0 - 2 - h }, { ex(sd, Y1), Y1 - h } }, 3)) end
   end
   rimOf(union(rails, posts), L.timber)
   part(posts, L.timber, { nopop = true, noshade = true })
