@@ -210,34 +210,33 @@ function S.draw_figure(img, view, frame, species)
   else -- side, facing right
     local farS = {hi = SK.shade, base = SK.shade, shade = SK.deep}
     -- far legs (shade), opposite phase
-    leg(40 + o.armR, 6, 59 + b, fR, farS, 1)
+    leg(38 + o.armR, 6, 59 + b, fR, farS, 1)
     leg(21 + o.armL, 6, 59 + b, fL, farS, 1)
-    -- shell profile (on the back): big dome that wraps down over the hips, rim lip along the bottom
-    E(6, 26 + b, 36, 38, SH.deep)
-    E(6, 26 + b, 36, 34, SH.shade)
-    E(6, 26 + b, 34, 33, SH.hi)
-    E(7, 27 + b, 33, 32, SH.base)
-    for y = 30, 55 do
-      local dx = (y - 42) * (y - 42) // 34
-      P(15 + dx, y + b, SH.shade); P(25 - dx // 2, y + b, SH.shade)
+    -- shell profile: carried ON THE BACK. A tall dome hugging the spine from above the shoulders down past the hips; the torso is drawn over its front half
+    E(12, 25 + b, 28, 38, SH.deep)
+    E(12, 25 + b, 28, 34, SH.shade)
+    E(12, 25 + b, 26, 33, SH.hi)
+    E(13, 26 + b, 25, 32, SH.base)
+    for y = 29, 56 do
+      local dx = (y - 42) * (y - 42) // 40
+      P(19 + dx, y + b, SH.shade); P(26 - dx // 2, y + b, SH.shade)
     end
-    for x = 9, 36 do
-      local t = (x - 22) / 13
-      P(x, 54 + b - math.floor(7 * t * t + 0.5), SH.shade)
+    for x = 15, 36 do
+      local t = (x - 25) / 11
+      P(x, 52 + b - math.floor(6 * t * t + 0.5), SH.shade)
     end
-    for _, x in ipairs({19, 26, 33}) do P(x, 58 + b, SH.shade); P(x, 59 + b, SH.deep) end
-    -- the shell shoulders over the body: a shadow column and a rim stripe so the two read as one animal
-    for y = 33, 61 do P(31, y + b, SH.deep) end
-    R(30, 58 + b, 4, 3, SH.shade)
-    -- body front: chest and bib
-    R(32, 32 + b, 14, 29, SK.base)
+    for _, x in ipairs({17, 22}) do P(x, 57 + b, SH.shade); P(x, 58 + b, SH.deep) end
+    -- shell rim where it meets the body: shadow column, collar at the shoulder
+    for y = 30, 60 do P(30, y + b, SH.deep) end
+    -- body front: chest and bib, drawn over the shell
+    R(31, 32 + b, 15, 29, SK.base)
     R(44, 32 + b, 2, 29, SK.shade)
-    R(32, 38 + b, 14, 22, OV.base)
+    R(31, 38 + b, 15, 22, OV.base)
     R(43, 38 + b, 3, 22, OV.shade); P(45, 39 + b, OV.deep)
-    R(32, 58 + b, 14, 2, OV.deep)
-    R(34, 44 + b, 7, 1, OV.shade)
-    for y = 33, 38 do P(36, y + b, STRAP); P(37, y + b, HAT) end
-    P(36, 39 + b, HATHI)
+    R(31, 58 + b, 15, 2, OV.deep)
+    R(33, 44 + b, 7, 1, OV.shade)
+    for y = 33, 38 do P(35, y + b, STRAP); P(36, y + b, HAT) end
+    P(35, 39 + b, HATHI)
     P(38, 49 + b, OV.deep); P(39, 49 + b, OV.deep)  -- pocket
     -- neck: thick, ends under the head
     R(37, 25 + hd, 10, 9, SK.shade)
@@ -266,8 +265,8 @@ function S.draw_figure(img, view, frame, species)
     P(ax + 2, 52 + b, K); P(ax + 4, 52 + b, K)
     R(ax - 1, 40 + b, 1, 12, K)
     -- near legs: front = L, rear = R (stride from arm swing)
-    leg(36 + o.armL, 7, 58 + b, fL, SK, 1)
-    leg(16 + o.armR, 7, 58 + b, fR, SK, 1)
+    leg(34 + o.armL, 7, 58 + b, fL, SK, 1)
+    leg(17 + o.armR, 7, 58 + b, fR, SK, 1)
     -- hat profile
     E(30, 15 + hd, 24, 6, HAT)
     R(32, 17 + hd, 21, 1, HATHI)
@@ -276,7 +275,7 @@ function S.draw_figure(img, view, frame, species)
     R(38, 11 + hd, 5, 1, HATHI); R(37, 12 + hd, 2, 2, HATHI)
     R(37, 14 + hd, 12, 2, BAND)
     rows(34, 11 + hd, {"ll..", "lLl.", "..Ll"}, {l = SPRIG, L = BAND})
-    pot(21, 24 + b)
+    pot(18, 23 + b)
     N.outline(img, K)
     P(48, 10 + hd, 0); P(48, 11 + hd, K)
   end
