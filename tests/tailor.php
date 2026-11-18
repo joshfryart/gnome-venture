@@ -114,6 +114,7 @@ ok('and only the first', !tailor_free_ready($uid) && !tailor_craft($u, 'work-glo
 q('UPDATE garden_buildings SET level = 1 WHERE plot_id = ? AND building = ?', [$plot, 'tailor']);
 ok('a level 1 Tailor has no free craft', !tailor_free_ready($uid));
 ok('power 6 or less pays no commission', tailor_commission($uid, 'work-gloves') === 0);
+ok('every wearable has its puzzle piece picture (shop sheet), 132x92', !array_filter(array_keys(wear_tailor_defs()), fn($sl) => !is_file($argv[1] . '/assets/img/wearpiece/' . $sl . '.png') || getimagesize($argv[1] . '/assets/img/wearpiece/' . $sl . '.png')[0] !== 132));
 $c0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
 $cm = tailor_commission($uid, 'work-gloves', 10);   // power 10
 ok('power over 6 pays commission Petals (20% of the price, at least 1)', $cm >= 1 && (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) === $c0 + $cm, "$cm");

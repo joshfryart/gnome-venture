@@ -5,6 +5,8 @@ Source: aseprite-source/v3/art-wear-concepts/<REGION>/<category>-<n>-<slug witho
 Game:   game/assets/img/ph/<slug>.png, <slug>-lined.png and <slug>-fine.png (the three ranks are three items; same picture), copied byte for byte.
 Idempotent: a file whose sha256 already matches is left alone. The 33 older wearable icons (WEAR_DEFS) are other names and never touched.
 
+Also: game/assets/img/wearpiece/<slug>.png = the 132x92 puzzle piece picture of each wearable (made by claude/wear-pieces/render2.py -> claude/wear-pieces/img/), shown on the shop sheet. Copy with: cp (see git history), or re-run the loop in claude/wear-pieces/README.
+
 usage: python3 tools/install_wear_art.py [--check]   (--check: write nothing, list missing sources and game files that differ; exit 1 if any)
 """
 import hashlib
