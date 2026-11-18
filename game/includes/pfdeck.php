@@ -40,6 +40,8 @@ const PFD_BELT_ITEMS = [
 const PFD_DUR_BASE = 20, PFD_DUR_RANK = 4;    // a fight tool's durability: 20, +4 per rank above Worn; its piece costs PFB_TOOL_WEAR (2) each time it is played
 const PFD_REPAIR = 'tool-repair-kit';         // the crafted item that fixes a fight tool (recipe in data/crafts.txt)
 const PFD_REPAIR_ITEM = ['Tool Repair Kit', 30, 6, 'Flint, resin and a twist of fibre. Fixes one fight tool on your Puzzle box belt: its piece is worn out by fights (2 each time it is played) and comes back at full strength.'];
+/** 2.7.08 counter pieces (claude/engine-2.7.08-notes.md "Counter piece per type"): one knack per creature class rule, data rows in pf_pieces.txt with ref LEVEL:CLASS. The class key (pfb_kind_of) => the words the Puzzle box uses. */
+const PFD_COUNTER_CLASSES = ['critter' => 'Critters', 'bird' => 'Birds', 'beast' => 'Beasts', 'water' => 'Water creatures', 'plant' => 'Plants and Fungi', 'reptile' => 'Reptiles and Amphibians'];
 const PFD_PAL_KNOB = ['round' => 'body', 'tri' => 'body', 'keyhole' => 'mind', 'double' => 'mind', 'peg' => 'craft', 'hook' => 'craft'];
 const PFD_FOE_TAGS = ['hurt' => ['pierce', 'poison', 'quick', 'trip', 'bash'], 'guard' => ['hold', 'thorns', 'evade'], 'trick' => ['quick', 'evade', 'bash', 'thorns', 'poison', 'trip', 'heal'], 'heal' => []];
 const PFD_LAYERS = ['base' => 'Base (class)', 'reg' => 'Region', 'rar' => 'Size or boss', 'uni' => 'Unique'];
@@ -266,6 +268,14 @@ function pfd_foe_lean(array $c): string
 function pfd_piece(string $key): ?array
 {
     return pfd_catalog()[explode('#', $key)[0]] ?? null;
+}
+
+/** 2.7.08: the creature class a counter piece answers ('bird' ...), or null for any other piece. */
+function pfd_counter_of(?array $p): ?string
+{
+    if (!$p || ($p['src'] ?? '') !== 'knack' || !str_contains((string)($p['ref'] ?? ''), ':')) return null;
+    $c = explode(':', (string)$p['ref'], 2)[1];
+    return isset(PFD_COUNTER_CLASSES[$c]) ? $c : null;
 }
 
 /** The starter offer (12 keys) and kits for a gnome: CALLING and HOME filled in. */

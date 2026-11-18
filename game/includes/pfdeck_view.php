@@ -200,7 +200,7 @@ function pfv_from(array $u, array $p): string
     $ref = (string)($p['ref'] ?? ''); $nice = ucwords(str_replace(['-', '_'], ' ', $ref));
     switch ((string)$p['src']) {
         case 'basic': return 'Every gnome starts with it';
-        case 'knack': return 'Knack, learned at level ' . (int)$ref;
+        case 'knack': return 'Knack, learned at level ' . (int)$ref . (($cc = pfd_counter_of($p)) !== null ? '; good against ' . PFD_COUNTER_CLASSES[$cc] : '');   // 2.7.08 counter pieces
         case 'calling': return 'Your ' . ucfirst((string)($u['calling'] ?? '')) . ' calling';
         case 'crop': return 'Grown in your garden' . ($nice !== '' ? ' (' . $nice . ')' : '');
         case 'legend': return 'Yours after ' . PFD_LEGEND_HARVESTS . ' harvests of ' . ($nice !== '' ? $nice : 'a legendary crop');

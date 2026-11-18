@@ -2,7 +2,7 @@
 
 Scope: the 2.7.07 open data items (todo sections 0 / 3 / 4). Data and tune tables only, plus two one-line gates for the tier III calling pieces (below). Scripts used live in the session scratchpad (not in the repo): `win.php` (region windows), `abdup.php` / `abfix.php` (ability pairs), `legend.php` (legend flatten), `fit.php` + `step.php` + `an.php` (refit on all 319 creatures; `tests/pf_bots.php` and `tests/pfboard_tune_v1.php` still list only the 88 `creatures.txt` rows, so `fit.php` adds the 231 variants of `pfd_creature_rows()` and reads a `TUNEFILE`), `dil.php` (deck dilution).
 
-## 1. Region windows (PARTIAL)
+## 1. Region windows (DONE in the second pass, below)
 
 Rule (SPEC 4.1): a row of level Lv has a window in region R when R holds one of its lands and `Lv-2 <= R <= Lv+6` (bosses: `R >= Lv-8`). Count: **23 rows** = 15 variants (L35-40) + 8 base rows.
 
@@ -22,6 +22,12 @@ Rule (SPEC 4.1): a row of level Lv has a window in region R when R holds one of 
 | snow-owl-monarch | boss L30 tundra | + mountain land | ESA 32 |
 
 (A level move also moves its tune row: refit those rows after.)
+
+**DONE (second pass, 2026-11-18)**: the 8 base rows have a window now. `tests/creature_windows.sh` scripts the SPEC 4.1 rule over all 319 rows (base rows read the world's `creatures` table; L35+ rows in SEA / WCA ESA / OC are the gnome-level exception): 0 rows without a window (8 before: the 8 base rows; the 15 L35-40 variants pass by that exception).
+- Data: `creatures.txt` (fresh worlds) as the table above; reef-turtle **L12 (SE 10)**, not L24: both pass `Lv-2 <= R <= Lv+6`, but L12 keeps its authored `Kelp Frond:25@reg=CB/SE` drop alive (at L24 its only window is SEA, where that drop never falls), is the smaller move (-4 vs +8), and keeps it apart from the family's top row (leatherback L32 OC). It shares SE island with turtle-hatchling-dash (L10 small), allowed by SPEC 4.1 since their conds differ (the hatchlings are `dp=night`). Petals of the 5 moved rows (`pf_creatures.txt`) re-set to the SPEC 5.2 rule at the new level (mischief 13-25, leafcutter 7-13, arctic-fox 15-27, desert-tortoise 19-35, reef-turtle 12-22).
+- Existing worlds: boot step `creature_windows_2708` (`bootstrap.php`, after `medium_lair_levels_1115`) runs `creature_windows_2708()` (`includes/adventure_data.php`, table `CREATURE_WINDOWS_2708`): a creature still at the OLD level / lands gets the new one, hp / attack / defense / dmg_bonus / xp re-derived as `import_creatures_txt()` builds them, and its Almanac page's Level / Found in text and sort order. Idempotent (only old values change; an admin's own edit stays); the test checks an old world comes out byte-equal to a fresh one and a second run changes nothing.
+- Tune rows refit (chain bot, the 2.7.08 fit step, 10 x 60 + 3 x 150 seeds, then a sweep at 600): mischief-monkey 1.115 / 1.000, leafcutter-column 2.235 / 1.009, arctic-fox dropped (1.0 / 1.0), desert-tortoise 1.110 / 1.000, reef-turtle 1.100 / 1.000. Fresh 360-seed check (other seeds): mischief 69, arctic-fox 70, reef-turtle 63, leafcutter 83, desert-tortoise 67 (targets large 68 / medium 85). With the old rows at the new levels they were 68 / 79 / 60 / 100 / 81. PHP `data/pf_creature_tune.txt` and JS `PFB_V1_TUNE` changed in those 5 entries only; `tests/pfengine_js.sh` ok (parity). glacier-bear / lichen-reindeer / snow-owl-monarch only gained a land: no level move, no refit.
+- Left: the base rows' regional drops whose region is outside the new window (arctic-fox `Lemming Fluff@reg=NA/NWE`, desert-tortoise `Prickly Pear@reg=CA/MENA`, glacier-bear / lichen-reindeer `@reg=NA/NWE/EE`) still never drop by the region-level rule (they never could before either: those rows had no window). A data choice for Josh: move the `@reg` to the new window region or leave them as walk-level drops.
 
 ## 2. Refit (DONE)
 

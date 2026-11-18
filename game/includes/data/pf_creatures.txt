@@ -190,7 +190,7 @@ glass-frog|poison-dart-frog|Glass Frog|small|rainforest|SEA|20|dp=night|venom-lo
 golden-mantella|poison-dart-frog|Golden Mantella|medium|rainforest,island|WCA,OC|29|we=rain|regrow1|healer|-/craft/Gold Flick:hurt:0.8:mind:-:3;Moss Rest:heal:0.5:body:-:3;Bright Warn:guard:0.7:craft:evade:3|Golden Mantella Skin:55,Heliconia:40,Bromeliad Seeds:20@reg=WCA,Morpho Scales:2|13-25|1.1|bright golden-orange, tiny|A golden frog the size of a thumbnail, shining on the wet moss like a spill of marmalade.|Golden Mantella Skin
 turtle-hatchling-dash|reef-turtle|Turtle Hatchling Dash|small|island,coast|CB,SE|10|dp=night|regrow1|healer|-/craft/Flipper Scramble:hurt:0.6:mind:quick:2;Moon Sip:heal:0.5:body:-:3;Hatch Cover:guard:0.5:craft:evade:3|Hatchling Egg Shell:55,Kelp Frond:40,Pink Sand:20@reg=CB,Seed Pearl:3|3-5|1.1|tiny, dark, flipper-legged|A scramble of hatchlings racing the gulls to the water. The ones in your way will not forgive you.|Hatchling Egg Shell
 sea-urchin-bed|reef-turtle|Sea Urchin Bed|small|island,coast|MENA|12|dp=day|D12|balanced|-/body/Spine Press:hurt:0.8:body:pierce:3;Spiny Bed:guard:0.7:craft:thorns:3;Venom Prick:trick:0.4:mind:poison:3|Urchin Spine:55,Urchin Shell:40,Sea Thrift:20,Seed Pearl:3|4-6|1.0|black spines, tidepool bed|A black bed of spines in a tidepool. It does not move. It does not need to.|Urchin Spine
-leafcutter-column|leafcutter-column|=|=|=|*|=|=|swarm|crowd|=|=+Vine Twine:15,Amber Seed:2|8-16|1.0|-|=|-
+leafcutter-column|leafcutter-column|=|=|=|*|=|=|swarm|crowd|=|=+Vine Twine:15,Amber Seed:2|7-13|1.0|-|=|-
 weaver-ant-nest|leafcutter-column|Weaver Ant Nest|small|rainforest,forest|SEA,WCA|26|-|stagger1|healer|-/mind/Silk Nip:hurt:0.6:mind:trip:3;Brood Tending:heal:0.5:craft:-:3;Leaf Weave:guard:0.5:body:thorns:3|Weaver Silk Leaf:55,Vine Twine:40,Rambutan:20@reg=SEA,Amber Seed:3|6-12|1.1|green ants, stitched leaves|Green ants that stitch leaves into a nest with their own larvae as thread. A nest is a hall of clever horrors.|Weaver Silk Leaf
 ptarmigan-flock|ptarmigan-flock|=|=|=|*|=|=|two-aims|ambusher|=|=+Heather:15,Snowy Plume:2|9-17|1.0|-|=|-
 snow-bunting-flurry|ptarmigan-flock|Snow Bunting Flurry|small|tundra,mountain|NWE,SE,SA|8|se=winter|ambush1|burst|-/craft/Flurry Burst:hurt:1.0:craft:pierce:3;Snow Fan:trick:0.4:mind:bash:3;Feather Wrap:guard:0.5:body:evade:3|Bunting Feather:55,Heather:40,Lingonberry:20@reg=NWE,Aurora Ribbon:2|2-4|1.1|white and tawny, small, loud|A flock of little white birds that rise from the snow all at once, in a flurry that does not blow away.|Bunting Feather
@@ -222,11 +222,11 @@ cloud-kite|storm-eagle|Cloud Kite|medium|mountain,grassland|EA,CSA|21|we=wind|cu
 # ---- batch C
 grass-snake|grass-snake|=|=|=|*|=|=|venom-trail|poisoner|=|=+Shed Skin:20@reg=SA/EE/MENA,Jade Eye:2|13-25|1.0|-|=|-
 grey-heron|grey-heron|=|=|=|*|=|=|two-aims|ambusher|=|=+Minnow:25@reg=NWE/EE/MENA,Flamingo Feather:2|14-26|1.0|-|=|-
-mischief-monkey|mischief-monkey|=|=|=|*|=|=|grudge|burst|=|=+Banana:25@reg=SA/CB,Pocket Whistle:3|14-26|1.0|-|=|-
+mischief-monkey|mischief-monkey|=|=|=|*|=|=|grudge|burst|=|=+Banana:25@reg=SA/CB,Pocket Whistle:3|13-25|1.0|-|=|-
 red-fox|red-fox|=|=|=|*|=|=|grudge|burst|=|=+Wild Strawberries:20@reg=NA/NWE/EE,Silver Brush:2|15-27|1.0|-|=|Silver Brush
 raccoon|raccoon|=|=|=|*|=|=|grudge|burst|=|=+Crab Claw:20@reg=EE,Shiny Trinket:3|15-27|1.0|-|=|-
 tawny-owl|tawny-owl|=|=|=|*|=|=|two-aims|ambusher|=|=+Moth Wing:25@reg=MENA,Letter for the Owl:2|15-29|1.0|-|=|-
-arctic-fox|arctic-fox|=|=|=|*|=|=|grudge|burst|=|=+Lemming Fluff:25@reg=NA/NWE,Snowy Plume:2|15-29|1.0|-|=|-
+arctic-fox|arctic-fox|=|=|=|*|=|=|grudge|burst|=|=+Lemming Fluff:25@reg=NA/NWE,Snowy Plume:2|15-27|1.0|-|=|-
 tundra-fox|arctic-fox|Tundra Fox|large|tundra,mountain|CSA|24|se=summer|D5+enrage1|blocker|-/body/Mouse Pounce:hurt:1.0:body:bash:3;Den Shove:trick:0.5:craft:bash:3;Thick Summer Coat:guard:0.7:mind:thorns:3|Fox Pelt:55,Cottongrass:40,Cloudberry:22,Fox Fang:14,Frost Crystal:3|21-39|1.1|brown summer coat, thin, no snow|A summer-coated fox, brown and lean, that has not forgiven the thaw. It shoves first and pounces after.|-
 badger|badger|=|=|=|*|=|=|grudge|burst|=|=+Morel:20@reg=MENA,Flint Nodule:3|16-30|1.0|-|=|-
 mire-toad|mire-toad|=|=|=|*|=|=|venom-trail|poisoner|=|=+Croak Sac:25@reg=EA,Marsh Pearl:3|16-30|1.0|-|=|-
@@ -242,7 +242,7 @@ delta-gharial|delta-gharial|=|=|=|*|=|=|venom-trail|poisoner|=|=+River Perch:25@
 emerald-python|emerald-python|=|=|=|*|=|=|venom-trail|poisoner|=|=+Shed Skin:25@reg=SA/SEA/WCA,Morpho Scales:3|22-40|1.0|-|=|-
 jungle-tiger|jungle-tiger|=|=|=|*|=|=|grudge|burst|=|=+Bamboo Shoot:20@reg=SEA,Golden Talon:3|22-42|1.0|-|=|-
 cloud-leopard|cloud-leopard|=|=|=|*|=|=|grudge|burst|=|=+Snow Moth Dust:20,Rock Crystal:3|24-44|1.0|-|=|-
-reef-turtle|reef-turtle|=|=|=|*|=|=|venom-trail|poisoner|=|=+Kelp Frond:25@reg=CB/SE,Pearl:2|15-27|1.0|-|=|-
+reef-turtle|reef-turtle|=|=|=|*|=|=|venom-trail|poisoner|=|=+Kelp Frond:25@reg=CB/SE,Pearl:2|12-22|1.0|-|=|-
 dune-wyrmling|dune-wyrm|Dune Wyrmling|large|desert|EA|22|-|venom-long+D1|burst|-/craft/Fang Snap:hurt:1.1:craft:pierce:3;Sand Lance:hurt:1.0:body:pierce:3;Hiss:trick:0.4:mind:poison:3|Wyrm Scale:55,Lizard Scale:40,Desert Glass:20,Wyrmling Egg Shell:12,Desert Rose Stone:3|19-35|1.1|barn-length, pale sand colour, thin long fangs|A barn-length wyrm still learning to dive through sand. Its fangs are long and thin, and its manners are shorter.|Wyrmling Egg Shell
 bog-pike|bog-pike|=|=|=|*|=|=|current|trickster|=|=+Minnow:25@reg=EA,Golden Carp:3|18-32|1.0|-|=|-
 desert-gila-dragon|desert-gila-dragon|=|=|=|*|=|=|venom-trail|poisoner|=|=+Scorpion Stinger:20,Mirage Marble:2|18-32|1.0|-|=|-
@@ -256,7 +256,7 @@ giant-bumblebee|giant-bumblebee|=|=|=|*|=|=|swarm|crowd|=|=+Sunflower:25@reg=CSA
 tufted-lynx|tufted-lynx|=|=|=|*|=|=|grudge|burst|=|=+Hawk Feather:20@reg=CSA,Golden Talon:2|20-36|1.0|-|=|-
 clam-lurker|clam-lurker|=|=|=|*|=|=|current|trickster|=|=+Bell Shell:20@reg=SEA,Starfish Friend:2|20-36|1.0|-|=|-
 giant-clam|clam-lurker|Giant Clam|large|island|SEA|28|-|stagger2|burst|-/body/Slam Shut:hurt:1.3:body:pierce:3;Pearl Blind:trick:0.4:mind:evade:3;Shell Wall:guard:0.7:craft:hold:4|Mother-of-Pearl:55,Cowrie Shell:40,Sea Grapes:22,Lagoon Glass Bead:12,Pearl:4|24-44|1.2|cart-sized, ridged grey shell, wide pale mouth|A clam the size of a cart, lying open in the shallows like a friendly smile. It shuts without any warning at all.|Mother-of-Pearl
-desert-tortoise|desert-tortoise|=|=|=|*|=|=|venom-trail|poisoner|=|=+Prickly Pear Cactus:25@reg=CA/MENA,Mirage Marble:2|21-39|1.0|-|=|-
+desert-tortoise|desert-tortoise|=|=|=|*|=|=|venom-trail|poisoner|=|=+Prickly Pear Cactus:25@reg=CA/MENA,Mirage Marble:2|19-35|1.0|-|=|-
 griffon-vulture|griffon-vulture|=|=|=|*|=|=|two-aims|ambusher|=|=+Sky Talon:15,Golden Talon:2|21-39|1.0|-|=|-
 black-bear|black-bear|=|=|=|*|=|=|grudge|burst|=|=+Bilberries:25@reg=CSA,Titan Claw:2|22-40|1.0|-|=|-
 salt-sea-lion|salt-sea-lion|=|=|=|*|=|=|current|trickster|=|=+Mackerel:25@reg=SEA,Pearl:2|22-40|1.0|-|=|-

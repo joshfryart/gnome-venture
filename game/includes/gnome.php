@@ -151,7 +151,7 @@ function active_effects(array $u): array
         $b = array_filter(json_decode((string)$u[$bk], true) ?: [], fn($s) => isset(GNOME_STATS[$s]), ARRAY_FILTER_USE_KEY);
         if ($b) $out[] = ['🍽️', 'Meal', $stats($b), $left($u[$uk])];
     }
-    if (!empty($u['ev_stat']) && isset(GNOME_STATS[$u['ev_stat']]) && $left($u['ev_until'] ?? null) > 0 && !gnome_ev_slept($u)) $out[] = ['🍀', 'A lucky moment', $stats([$u['ev_stat'] => $u['ev_amt']]), $left($u['ev_until'])];
+    if (!empty($u['ev_stat']) && (isset(GNOME_STATS[$u['ev_stat']]) || $u['ev_stat'] === 'all') && $left($u['ev_until'] ?? null) > 0 && !gnome_ev_slept($u)) $out[] = ['🍀', 'A lucky moment', $u['ev_stat'] === 'all' ? 'Every stat +' . (int)$u['ev_amt'] : $stats([$u['ev_stat'] => $u['ev_amt']]), $left($u['ev_until'])];   // 2.7.08: 'all' = every stat
     if (!empty($u['town_stat']) && isset(GNOME_STATS[$u['town_stat']]) && $left($u['town_until'] ?? null) > 0) $out[] = ['🏘️', 'Town outing', $stats([$u['town_stat'] => $u['town_amt']]), $left($u['town_until'])];
     if ($left($u['ev_gather_until'] ?? null) > 0) $out[] = ['🌈', 'Rainbow', 'Double gathering', $left($u['ev_gather_until'])];
     if ($left($u['ev_sale_until'] ?? null) > 0) $out[] = ['🐓', 'Shop sale', '20% off in every shop', $left($u['ev_sale_until'])];
@@ -204,7 +204,7 @@ function gnome_ev_slept(array $u): bool
 /** A stat including the current meal's buff. */
 function eff_stat(array $u, string $stat): int
 {
-    $ev = (!empty($u['ev_stat']) && $u['ev_stat'] === $stat && ts_gnome($u['ev_until'] ?? null) > time() && !gnome_ev_slept($u)) ? (int)$u['ev_amt'] : 0;   // a random event's little boost
+    $ev = (!empty($u['ev_stat']) && ($u['ev_stat'] === $stat || ($u['ev_stat'] === 'all' && isset(GNOME_STATS[$stat]))) && ts_gnome($u['ev_until'] ?? null) > time() && !gnome_ev_slept($u)) ? (int)$u['ev_amt'] : 0;   // a random event's little boost
     $tw = (!empty($u['town_stat']) && $u['town_stat'] === $stat && ts_gnome($u['town_until'] ?? null) > time()) ? (int)$u['town_amt'] : 0;   // a town drink or outing (v0.7.20)
     return (int)($u['stat_' . $stat] ?? 10) + (int)(active_buff($u)[$stat] ?? 0) + $ev + $tw;
 }

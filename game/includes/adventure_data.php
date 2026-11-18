@@ -334,6 +334,56 @@ function import_problems_txt(): int
 }
 
 /**
+ * 2.7.08 region windows (claude/balance-2.7.08-notes.md sec 1): the 8 base creatures of data/creatures.txt that had no region window
+ * (SPEC 4.1: a row of level Lv fits region R when R holds one of its lands and Lv-2 <= R <= Lv+6; bosses R >= Lv-8).
+ * slug => [old level, new level, old lands, new lands]. data/creatures.txt already holds the new values (a fresh world);
+ * an existing world gets them from the boot step `creature_windows_2708` (creature_windows_2708()).
+ */
+const CREATURE_WINDOWS_2708 = [
+    'mischief-monkey'   => [15, 14, 'rainforest', 'rainforest'],         // SA 12
+    'leafcutter-column' => [17, 14, 'rainforest', 'rainforest'],         // SA 12
+    'arctic-fox'        => [17, 16, 'tundra', 'tundra'],                 // EE 14 (tundra: explore land)
+    'desert-tortoise'   => [24, 22, 'desert', 'desert'],                 // EA 20
+    'reef-turtle'       => [16, 12, 'island', 'island'],                 // SE 10
+    'glacier-bear'      => [26, 26, 'tundra', 'tundra,mountain'],        // ESA 32
+    'lichen-reindeer'   => [28, 28, 'tundra', 'tundra,mountain'],        // ESA 32
+    'snow-owl-monarch'  => [30, 30, 'tundra', 'tundra,mountain'],        // boss: CSA 23, ESA 32, OC 35
+];
+
+/**
+ * 2.7.08: moves the CREATURE_WINDOWS_2708 creatures of an existing world to their new level / lands. A creature is changed only while it still has
+ * the OLD value (so it is idempotent and an admin's own edit stays); a level move re-derives hp, attack, defense, dmg_bonus and xp exactly as
+ * import_creatures_txt() builds them, and the Almanac page's Level / Found in text. Returns the number of creatures changed.
+ */
+function creature_windows_2708(): int
+{
+    $sizeMult = ['small' => 0.8, 'medium' => 1.1, 'large' => 1.6, 'boss' => 2.4];
+    $sizeAtk = ['small' => 0, 'medium' => 0, 'large' => 2, 'boss' => 2];
+    $sizeDef = ['small' => 0, 'medium' => 1, 'large' => 2, 'boss' => 3];
+    $n = 0;
+    foreach (CREATURE_WINDOWS_2708 as $slug => [$was, $lv, $oldLands, $lands]) {
+        $c = q_one('SELECT id, size, level, landscapes FROM creatures WHERE slug = ?', [$slug]);
+        if (!$c) continue;
+        $key = 'creature:' . $slug; $did = false;
+        if ($lv !== $was && (int)$c['level'] === $was) {
+            $size = (string)$c['size']; $m = $sizeMult[$size] ?? 1.0;
+            q('UPDATE creatures SET level = ?, hp = ?, attack = ?, defense = ?, dmg_bonus = ?, xp = ? WHERE id = ?',
+              [$lv, (int)round((5 + $lv * 3) * $m), 1 + intdiv($lv, 3) + ($sizeAtk[$size] ?? 0), 9 + intdiv($lv, 3) + ($sizeDef[$size] ?? 0), intdiv($lv, 4), (int)round($lv * 6 * $m), (int)$c['id']]);
+            q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?), sort_order = ? WHERE unlock_key = ?', ['[b]Level:[/b] ' . $was, '[b]Level:[/b] ' . $lv, $lv, $key]);
+            $did = true;
+        }
+        if ($lands !== $oldLands && (string)$c['landscapes'] === $oldLands) {
+            q('UPDATE creatures SET landscapes = ? WHERE id = ?', [$lands, (int)$c['id']]);
+            q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?) WHERE unlock_key = ?',
+              ['[b]Found in:[/b] ' . str_replace(',', ', ', $oldLands) . ' ·', '[b]Found in:[/b] ' . str_replace(',', ', ', $lands) . ' ·', $key]);
+            $did = true;
+        }
+        if ($did) $n++;
+    }
+    return $n;
+}
+
+/**
  * Creatures from data/creatures.txt (+ drop tables and Almanac pages). Only slugs the world doesn't have yet are added, so it is safe
  * to run again on an upgrade: existing creatures (and anything an admin changed) are never touched. v0.9.7: split out of import_adventure.
  */

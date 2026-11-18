@@ -97,7 +97,7 @@ function pfb_v1_over(array $c, array $over = []): array
  *  redraw = the hand is redrawn each round, onebar = one shared bar, aimtot = the aim shows its total, keepmine = your pieces survive use-up, aimhit = the aimed cell can be struck,
  *  useroot, kinds = class rules (later tasks). A NEW fight takes its defaults from pfb_v1_cfg (each task flips its own default); an old state falls back to this. */
 const PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health (rules.md: large 7.7 against 7.8 turns)
-const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'nothorn' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0, 'blankrand' => 0, 'order' => 0, 'spawn' => 0, 'abil' => 0, 'style' => 0, 'cset' => 0, 'envopen' => 0, 'tagfx' => 0];
+const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'nothorn' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0, 'blankrand' => 0, 'order' => 0, 'spawn' => 0, 'abil' => 0, 'style' => 0, 'cset' => 0, 'envopen' => 0, 'tagfx' => 0, 'paltgt' => 0];   // paltgt (2.7.08): a pal piece you place knocks the creature's strongest piece off the board (pfb_pal_target)
 /** 2.6.98 class rules (switch kinds): one readable rule per creature class. Swarm: Critter plays 2 pieces a turn at x0.6. Grudge: Beast Hurt +25% per block (max 3). Venom: Reptile leaves venom 2 rounds, poison 2 x 2. */
 const PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;
 /**
@@ -384,7 +384,7 @@ function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
     $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => PFB_TEAM2, 'team3' => PFB_TEAM3,   // 2.7.06 (Josh): Teamwork is back on for new fights, +30% / +60% (2.6.95 had it off; fights under way keep their saved numbers)
         'edges' => 1, 'flip' => 1, 'life' => 0, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
-        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 0, 'nothorn' => 0, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 0, 'kinds' => 1, 'blankrand' => 1, 'order' => 1, 'spawn' => 0, 'abil' => 1, 'style' => 1, 'cset' => 1, 'envopen' => 0, 'tagfx' => 1] + PFB_V1_PRE;   // cset 1 (2.7.06, Josh): combos read the whole chain   // aimhit 0 (2.6.984, owner: a piece on its planned spot must not be removed: it picks somewhere else)   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
+        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 0, 'nothorn' => 0, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 0, 'kinds' => 1, 'blankrand' => 1, 'order' => 1, 'spawn' => 0, 'abil' => 1, 'style' => 1, 'cset' => 1, 'envopen' => 0, 'tagfx' => 1, 'paltgt' => 1] + PFB_V1_PRE;   // paltgt 1 (2.7.08, Josh): pal targeting   // cset 1 (2.7.06, Josh): combos read the whole chain   // aimhit 0 (2.6.984, owner: a piece on its planned spot must not be removed: it picks somewhere else)   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = pf_round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = pf_round($cfg['bar'] * (float)$over['bar_x'], 4);
@@ -1088,6 +1088,7 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); $ev[0]['cs'] = 1; $ev[0]['rid'] = $id; }   // cs / rid: this event opens the chain and the placed piece is rid (after the firing order changed the placed piece is not always the first to fire); linked: how many linked joints the new piece made; snap: the board for the history rewind
     $used = pfb_spend($s);
     if ($used && $ev) $ev[0]['used'] = $used;   // v1: the ids this chain used up
+    if ($ev && $who === 'me' && !$s['over'] && pfb_v1r($s, 'paltgt') === 1 && pfb_src($tile) === 'pal' && ($tid = pfb_pal_target($s, $x, $y)) !== null) $ev[] = pfb_pal_nip($s, $tid, (string)$tile['n']);   // 2.7.08 pal targeting: after its chain, the pal knocks the creature's strongest piece off
     if ($ev && $who === 'me' && isset($s['ven']["$x,$y"]) && pfb_kind($s) === 'reptile' && !empty($s['v1']['tags'])) {   // 2.6.98 Venom trail: you stepped on it
         $vr = (int)pfb_abp($s, 'vrnds', PFB_KIND_VENOM_RNDS); $vp = (int)pfb_abp($s, 'vpoison', PFB_KIND_VENOM_POISON);
         $s['me']['poison'] = min(PF_POISON_CAP, (int)$s['me']['poison'] + $vr); $s['me']['poison_v'] = max((int)$s['me']['poison_v'], $vp);
@@ -1346,6 +1347,30 @@ function pfb_guard_notes(array &$s, array &$ev): void
 function pfb_note(string $kind, string $n = ''): array
 {
     return ['by' => 'foe', 'note' => $kind, 'k' => 'note', 'n' => $n, 't' => 'note', 'tag' => '', 'v' => 0, 'fit' => false, 'combo' => null];
+}
+
+/**
+ * 2.7.08 PAL TARGETING (claude/engine-2.7.08-notes.md "Pal targeting"): the creature piece a pal piece placed at (x, y) goes for: its STRONGEST piece on the board (highest value),
+ * ties by the fewest steps from the pal piece (|dx| + |dy|), then the oldest (lowest id). Deterministic: no dice. null when the creature has no piece out.
+ */
+function pfb_pal_target(array $s, int $x, int $y): ?int
+{
+    $best = null; $key = null;
+    foreach ($s['pcs'] as $id => $p) {
+        if ($p['by'] !== 'foe') continue;
+        $k = [(int)$p['tile']['v'], -(abs((int)$p['x'] - $x) + abs((int)$p['y'] - $y)), -(int)$id];
+        if ($key === null || $k > $key) { $key = $k; $best = (int)$id; }
+    }
+    return $best;
+}
+/** Pal targeting: the target leaves the board (to the creature's discard, shown as used up by you; a Reptile still leaves venom). Returns the notice (note 'palaim'; tid = the piece, not 'id': no chain glow). */
+function pfb_pal_nip(array &$s, int $tid, string $pal): array
+{
+    $p = $s['pcs'][$tid];
+    pfb_discard($s, $p); $p['used'] = 'me'; $s['spent'][] = $p; pfb_venom($s, $p);
+    unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$tid]);
+    $e = pfb_note('palaim', (string)$p['tile']['n']); $e['by'] = 'me'; $e['tid'] = $tid; $e['x'] = (int)$p['x']; $e['y'] = (int)$p['y']; $e['pal'] = $pal; $e['tv'] = (int)$p['tile']['v'];
+    return $e;
 }
 
 /**
@@ -1691,6 +1716,7 @@ function pfb_cell_preview(array $s, $handIdx, bool $flip = false): array
             foreach ($r['ev'] as $e) { if (!isset($e['barnow'])) continue; $n++; if (isset($e['tw'])) $tw = (float)$e['tw']; if (!empty($e['sun']) && $e['by'] === 'me') $sun++; if (!empty($e['mud']) && $e['by'] === 'me') $mud++;
                 if ((int)$e['hpnow'] < $hpp) $hw[] = [(string)$e['n'], (string)$e['by'], $hpp - (int)$e['hpnow']]; $hpp = (int)$e['hpnow']; }   // 2.7.01 costly cell: each piece of the chain that took your health (name, whose, how much)
             $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)pf_round($r['fh'] - $fh0), 'ch' => (int)pf_round($r['bar'] - $b0), 'hp' => max(0, $hp0 - (int)$r['hp']), 'n' => $n, 'used' => !empty($r['ev'][0]['used']), 'tw' => $tw, 'sun' => $sun, 'end' => (bool)$r['over']] + (!empty($s['v1']['env']) ? ['mud' => $mud] : []) + ($hp0 > (int)$r['hp'] && $hw ? ['hw' => $hw] : []);   // mud: your pieces in the chain that a Mud weakens; hw (2.7.01): only on a cell that costs health
+            foreach ($r['ev'] as $e) if (($e['note'] ?? '') === 'palaim') $o[$c[0] . ',' . $c[1]]['pal'] = ['id' => (int)$e['tid'], 'n' => (string)$e['n'], 'x' => (int)$e['x'], 'y' => (int)$e['y']];   // 2.7.08 pal targeting: the creature piece your pal knocks off from here
         }
         return $o;
     }

@@ -6,7 +6,6 @@ alpha-dingo|1.083|1.000
 ancient-snapper|0.758|0.992
 ant-scouts|2.909|1.203
 aphid-swarm|3.035|1.155
-arctic-fox|0.892|0.982
 arctic-fox-kit|2.088|1.000
 army-ant-column|0.781|1.000
 badger|0.839|1.010
@@ -65,7 +64,7 @@ delta-gharial|0.896|1.013
 desert-camel|1.069|0.989
 desert-gila-dragon|1.041|1.000
 desert-spadefoot|0.767|1.010
-desert-tortoise|0.850|0.992
+desert-tortoise|1.110|1.000
 dingo-pup-pack|1.073|1.000
 dune-racer|0.652|0.993
 dune-scorpion|2.874|1.000
@@ -156,7 +155,7 @@ lammergeier|1.136|1.000
 land-crab-march|1.040|1.000
 lantern-glowworm-queen|0.922|1.000
 lava-beetle|0.777|1.000
-leafcutter-column|1.166|1.009
+leafcutter-column|2.235|1.009
 lemming-kit-scurry|2.315|1.010
 leopard-slug|2.820|1.024
 lichen-golem|1.806|1.008
@@ -171,7 +170,7 @@ marsh-rat|0.906|1.000
 marsh-spark-swarm|2.187|1.000
 midge-cloud|2.953|2.150
 mire-toad|1.087|0.981
-mischief-monkey|1.127|0.985
+mischief-monkey|1.115|1.000
 mite-swarm|2.935|1.000
 mole-rat-gang|0.586|0.989
 moray-lurker|0.643|1.000
@@ -211,7 +210,7 @@ red-fox|0.949|1.000
 red-stag|1.255|0.992
 reef-eel-tyrant|1.101|1.000
 reef-leviathan|0.785|1.000
-reef-turtle|1.183|0.992
+reef-turtle|1.100|1.000
 reindeer-calf-herd|2.147|1.000
 river-otter|0.931|1.000
 robber-crab-baron|0.645|1.000

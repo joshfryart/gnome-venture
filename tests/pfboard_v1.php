@@ -19,7 +19,7 @@ function v1_foe(string $size, int $lv = 8, string $slug = 'test-thing'): array {
 /** A v1 fight with an empty board, no ground, no forecast and no aim: the checks put down exactly what they need. */
 function v1_bare(string $size = 'medium', array $over = [], int $seed = 7, ?int $lv = null): array
 {
-    $over += ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0, 'tagfx' => 0];   // the helpers keep the rules their positional checks were written for (link-order firing, the board's free creature piece); the new rules have their own section (14b)
+    $over += ['order' => 0, 'spawn' => 1, 'cset' => 0, 'envopen' => 0, 'tagfx' => 0, 'paltgt' => 0];   // the helpers keep the rules their positional checks were written for (link-order firing, the board's free creature piece); the new rules have their own section (14b)
     $s = pfb_new(v1_me(), v1_foe($size, $lv ?? ($GLOBALS['v1_foe_lv'] ?? 8)), $seed, ['v1' => $over]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = [];
     return $s;
@@ -451,17 +451,18 @@ require __DIR__ . '/pfboard_v1_lasting.php';   // 17: a board that lasts (2.6.98
 require __DIR__ . '/pfboard_v1_order.php';   // 18: activation order and no free creature piece (next release)
 require __DIR__ . '/pfboard_v1_kinds.php';   // 19: class rules (2.6.98)
 require __DIR__ . '/pfboard_v1_costly.php';   // 30: costly cell names its cause (2.7.01)
+require __DIR__ . '/pfboard_v1_paltgt.php';   // 31: pal targeting (2.7.08)
 
 echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
 foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
 $s = json_decode(json_encode($s), true);
 $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
-chk('a 2.6.94 state with none of the new keys resolves every key to PRE (21 keys: nothorn added in 2.7.01, abil and style for the creature pass, cset, envopen and tagfx in 2.7.06)', !$bad16 && count(PFB_V1_PRE) === 21, $bad16);
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE (22 keys: nothorn added in 2.7.01, abil and style for the creature pass, cset, envopen and tagfx in 2.7.06, paltgt in 2.7.08)', !$bad16 && count(PFB_V1_PRE) === 22, $bad16);
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98; order, spawn: next release; abil, style: 2.7.01)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand', 'order', 'spawn', 'abil', 'style', 'cset', 'envopen', 'tagfx']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98; order, spawn: next release; abil, style: 2.7.01)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand', 'order', 'spawn', 'abil', 'style', 'cset', 'envopen', 'tagfx', 'paltgt']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);

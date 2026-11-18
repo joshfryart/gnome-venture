@@ -72,3 +72,12 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 - **`hint=tide`** (the true tide now: "low tide now, turning in 3 h") and **`hint=moon`** (tonight's phase, and big / small tides).
 - **`take=` may carry a `?cond`** (`take=sardine:1?ti=low`): it is only needed and used up when the condition holds. Still no `first:` or `@chance` on a take.
 - **Per-walk cap**: setting `sights_walk_cap` (default 6, 0 = off): at most that many Sight uses (win or lose) on one Trail walk; the card shows "6 Sights this walk: the most". Gifts (`give=`) do not count.
+
+## 2.7.08 additions, second pass (tests `tests/trail_sights_279.sh`)
+- **`buff=all:N[:minutes|sleep|delve|section]`**: +N to EVERY stat (one lucky moment; it replaces any other lucky moment, as every `buff=` does). The lint now checks every `buff=`: `stat:amount[:length]`, stat one of GNOME_STATS or `all`.
+- **`fpall=N`** (1-9): N friendship points with EVERY stop villager of the place the walk began at (the picnic "the whole town likes you"). `fp=` stays one random villager; `fpto=` one named villager.
+- **A free pick** (a reward choice inside a pick): a `pick:N:label;label;...` row with a `choose=A;B;...` of exactly N options. Every label is right (no wrong answer, no lose line used) and label i pays option i. The card shows one button per label with its reward ("dragon: 5 XP"). A `choose=` on a pick with another number of options is refused by the lint.
+- **Quest order `firstlast`** (`Q|...|firstlast|...`): the first beat must come first, the last beat last, the beats between in any order (Q4 / Q5 "start at X").
+- **A beat's gift**: an optional 7th column on a `B|` row: reward tokens paid when that beat counts (`B|line|314-owlrock|the owl's letter|-||item=owl-letter:1`; `fp=N` = friendship with the giver). No costs or choices (`take= choose= give= tally= ...` are refused). The `needs` column (6th) may be empty.
+- **`qd=<quest slug>[,..]`** (a `when` / `?cond` / `{cond}` key, built earlier, documented now): one of those Sight quest lines is done (after-quest effects: the meadow forecast after KITE, Marrowby's stall ...).
+- Still NOT possible (2.7.08): see `claude/trail-2.7.08-notes.md` "Second pass".

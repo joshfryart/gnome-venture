@@ -148,8 +148,8 @@ function trail_sights_ensure_almanac(): void
 
 /**
  * [quest slug => ['slug','title','giver','icon','order','reward','intro','outro','gate','beats' => [[sight slug | '@kind:arg', label, when, needs]]]] from data/trail_sight_quests.txt.
- * Q|slug|title|giver|icon|order (seq | any | anylast = any order, the last beat only when all the others are done)|reward|intro|outro|gate (optional: quest:<slug> = only after that line is done)
- * B|slug|Sight slug OR @kind:arg|label|when|needs (optional take=item:qty, used up when the beat counts)
+ * Q|slug|title|giver|icon|order (seq | any | anylast = any order, the last beat only when all the others are done | firstlast (2.7.08) = the first beat first, the last beat last)|reward|intro|outro|gate (optional: quest:<slug> = only after that line is done)
+ * B|slug|Sight slug OR @kind:arg|label|when|needs (optional take=item:qty, used up when the beat counts)|gift (2.7.08, optional: rewards paid when the beat counts)
  * @kinds: @boss (a lair boss defeated or befriended; arg = lair slug or blank for any), @meal (a home-cooked meal eaten), @friend:<Name[@village]> (that villager is at least an acquaintance).
  */
 function trail_sight_quests(?string $file = null): array
@@ -160,9 +160,9 @@ function trail_sight_quests(?string $file = null): array
     $out = [];
     foreach (trail_sight_data_lines('quests', $file) as $l) {
         $p = array_map('trim', explode('|', $l));
-        if ($p[0] === 'Q' && count($p) >= 9 && preg_match('/^[a-z0-9-]+$/', $p[1])) $out[$p[1]] = ['slug' => $p[1], 'title' => $p[2], 'giver' => $p[3], 'icon' => $p[4], 'order' => in_array($p[5], ['any', 'anylast'], true) ? $p[5] : 'seq',
+        if ($p[0] === 'Q' && count($p) >= 9 && preg_match('/^[a-z0-9-]+$/', $p[1])) $out[$p[1]] = ['slug' => $p[1], 'title' => $p[2], 'giver' => $p[3], 'icon' => $p[4], 'order' => in_array($p[5], ['any', 'anylast', 'firstlast'], true) ? $p[5] : 'seq',
             'reward' => $p[6], 'intro' => $p[7], 'outro' => $p[8], 'gate' => $p[9] ?? '', 'limit' => max(0, (int)($p[10] ?? 0)), 'beats' => []];   // limit (optional 11th column, 2.7.06) = game days to finish the line from its first beat; 0 = no limit
-        elseif ($p[0] === 'B' && count($p) >= 4 && isset($out[$p[1]])) $out[$p[1]]['beats'][] = [$p[2], $p[3], ($p[4] ?? '') === '' ? '-' : $p[4], $p[5] ?? ''];
+        elseif ($p[0] === 'B' && count($p) >= 4 && isset($out[$p[1]])) $out[$p[1]]['beats'][] = [$p[2], $p[3], ($p[4] ?? '') === '' ? '-' : $p[4], $p[5] ?? '', $p[6] ?? ''];   // [4] (2.7.08, optional 7th column) = rewards paid when this beat counts (a letter, an item)
     }
     return $c[$key] = $out;
 }
@@ -172,7 +172,10 @@ function trail_sight_quest_lint(array $q, array $sights, array $allQuests = []):
 {
     $bad = [];
     if (count($q['beats']) < 2) $bad[] = 'fewer than 2 beats';
-    foreach ($q['beats'] as [$s, $label, $when, $needs]) {
+    foreach ($q['beats'] as $bt) { [$s, $label, $when, $needs] = $bt; $gift = (string)($bt[4] ?? '');
+        if ($gift !== '') { $gp = ['slug' => 'x', 'verb' => 'x', 'icon' => 'x', 'energy' => 0, 'cd' => 55, 'uses' => 1, 'when' => '-', 'check' => '-', 'rewards' => $gift, 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0];
+            foreach (trail_sight_lint($gp, true) as $gpb) if (!str_starts_with($gpb, 'no landmark picture')) $bad[] = 'beat gift: ' . $gpb;
+            foreach (trail_sight_tokens($gift) as $gt) if (preg_match('/^(take|choose|give|nocheck|check|tally|streak|lend|repay|escort|gather|time)(=|$)/', $gt['tok'])) $bad[] = 'beat gift: ' . explode('=', $gt['tok'])[0] . '= is not a gift'; }   // 2.7.08
         if ($s !== '' && $s[0] === '@') { if (!preg_match('/^@(boss|meal|friend)(:[A-Za-z0-9@ \'-]*)?$/', $s)) $bad[] = 'bad beat kind ' . $s; }
         elseif (!isset($sights[$s])) $bad[] = 'beat on unknown Sight ' . $s;
         if ($label === '') $bad[] = 'a beat has no label';
@@ -234,6 +237,7 @@ function trail_sight_beat_open(array $q, array $done, int $i): bool
     if (in_array($i, $done, true)) return false;
     $n = count($q['beats']);
     if ($q['order'] === 'seq') { $next = 0; while (in_array($next, $done, true)) $next++; return $i === $next; }
+    if ($q['order'] === 'firstlast') return $i === 0 ? true : ($done !== [] && in_array(0, $done, true) && ($i < $n - 1 || count($done) >= $n - 1));   // 2.7.08: the first beat first, the last beat last, the middle in any order
     return $q['order'] === 'anylast' ? ($i < $n - 1 || count($done) >= $n - 1) : true;
 }
 
@@ -318,7 +322,8 @@ function trail_sight_quest_hook(array $u, string $slug, array $loc, array $now):
             if (!give_item($uid, $need[0], -$need[1])) { q('UPDATE user_sight_quests SET beats = ? WHERE user_id = ? AND quest = ? AND beats = ?', [$oldJson, $uid, $q['slug'], $newJson]); continue; }
             $needLine = ' (used ' . $need[1] . ' × ' . $need[2] . ')';
         }
-        if (count($new) >= count($q['beats'])) { $fl = trail_sight_quest_finish($u, $q, $loc, $now); if ($fl !== '') $out[] = $fl; }
+        if (($q['beats'][$idx][4] ?? '') !== '') { $gl = trail_sight_pay($u, $loc, (string)$q['beats'][$idx][4], $q['giver'], $now); if ($gl) $needLine .= ' (' . implode(', ', $gl) . ')'; }   // 2.7.08: a beat that gives something (a letter, an item)
+        if (count($new) >= count($q['beats'])) { $fl = trail_sight_quest_finish($u, $q, $loc, $now); if ($fl !== '') $out[] = ($needLine !== '' ? '📜 ' . $q['beats'][$idx][1] . $needLine . ' ' : '') . $fl; }
         else $out[] = '📜 ' . $q['title'] . ': ' . $q['beats'][$idx][1] . $needLine . ' (' . count($new) . ' of ' . count($q['beats']) . ')';
     }
     return $out;
@@ -562,12 +567,13 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
     foreach (trail_sight_tokens($rewards) as $t) {
         if ($t['cond'] !== '') { $now ??= trail_sight_now($loc, null, $u); if (!trail_sight_cond_ok($t['cond'], $now)) continue; }
         $tok = $t['tok'];
-        if (preg_match('/^(.*)@(\d+)$/', $tok, $cm) && preg_match('/^(fp|fpto|title|page|hint)=/', $tok)) { if (random_int(1, 100) > (int)$cm[2]) continue; $tok = $cm[1]; }   // a chance on one of OUR tokens (the others go to stop_rewards, which rolls its own)
+        if (preg_match('/^(.*)@(\d+)$/', $tok, $cm) && preg_match('/^(fp|fpto|fpall|title|page|hint)=/', $tok)) { if (random_int(1, 100) > (int)$cm[2]) continue; $tok = $cm[1]; }   // a chance on one of OUR tokens (the others go to stop_rewards, which rolls its own)
         if (str_starts_with($tok, 'fp=') && $who !== '') $lines[] = trail_sight_befriend($u, $who, max(1, (int)substr($tok, 3)));
         elseif (str_starts_with($tok, 'fpto=')) { [$wn, $wp] = array_pad(explode(':', substr($tok, 5), 2), 2, '1'); $lines[] = trail_sight_befriend($u, $wn, max(1, (int)$wp)); }
         elseif (str_starts_with($tok, 'title=')) { if (trail_sight_give_title((int)$u['id'], substr($tok, 6))) $lines[] = '🏅 Title: ' . substr($tok, 6); }
         elseif (str_starts_with($tok, 'page=')) { if (unlock_entries((int)$u['id'], 'sightpage:' . substr($tok, 5)) > 0) $lines[] = '📖 A new Almanac page'; }
         elseif (str_starts_with($tok, 'hint=')) $lines[] = trail_sight_hint($u, $loc, substr($tok, 5));
+        elseif (str_starts_with($tok, 'fpall=')) $lines[] = trail_sight_befriend_town($u, $loc, max(1, (int)substr($tok, 6)));   // 2.7.08: every villager of the walk's start place
         elseif (str_starts_with($tok, 'disc=')) { [$dk, $dp, $dm] = array_pad(explode(':', substr($tok, 5), 3), 3, '0'); $lines[] = trail_sight_disc_set((int)$u['id'], $dk, (int)$dp, (int)$dm); }
         elseif (str_starts_with($tok, 'check=')) continue;
         elseif (str_starts_with($tok, 'take=') || str_starts_with($tok, 'choose=') || str_starts_with($tok, 'gather=') || str_starts_with($tok, 'unlock=') || str_starts_with($tok, 'give=') || $tok === 'nocheck') continue;
@@ -601,6 +607,17 @@ function trail_sight_disc_pct(int $uid, string $kind): int
     } catch (Throwable $e) { return 0; }
     $r = is_array($j) ? ($j[$kind] ?? null) : null;
     return $r && (int)$r[1] >= time() ? max(0, min(60, (int)$r[0])) : 0;
+}
+
+/** 2.7.08 `fpall=N`: N friendship points with EVERY villager of the place the walk began at (its stop villagers; a town's NPCs are not stop villagers). Returns the journal fragment ('' when the place has none). */
+function trail_sight_befriend_town(array $u, array $loc, int $pts): string
+{
+    $place = (int)($loc['id'] ?? 0) > 0 ? q_one('SELECT * FROM locations WHERE id = ?', [(int)$loc['id']]) : null;
+    if (!$place) return '';
+    require_once __DIR__ . '/stop_folk.php';
+    $folk = stop_folk_of($place);
+    foreach ($folk as $f) stop_friend_add((int)$u['id'], (int)$f['id'], $pts);
+    return $folk ? '💛 Everyone at ' . $place['name'] . ' likes you a little more (' . count($folk) . ' villagers)' : '';
 }
 
 /** Friendship with a named villager (`Name` or `Name@village-slug`): a stop villager or a town NPC. Returns the journal fragment ('' if nobody has that name). */
@@ -902,7 +919,7 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
             ? '<button class="btn" disabled>' . e($row['icon']) . ' ' . e($row['verb']) . ' <small>' . e($m['why'] ?: 'again soon') . '</small></button>'
             : ($near
                 ? ($ch
-                    ? '<form method="post" class="inline sgpick">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '"><span class="muted">Choose your reward: </span>' . implode('', array_map(fn($i, $o) => '<button class="btn" name="reward" value="' . $i . '">' . e($row['icon']) . ' ' . e($o[1]) . '</button>', array_keys($ch), $ch)) . '</form>'
+                    ? '<form method="post" class="inline sgpick">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '"><span class="muted">' . (trail_sight_free_pick($row) ? 'Choose one (each gives its own reward): ' : 'Choose your reward: ') . '</span>' . implode('', array_map(fn($i, $o) => '<button class="btn" name="reward" value="' . $i . '">' . e($row['icon']) . ' ' . e((trail_sight_free_pick($row) ? $pk[1][$i] . ': ' : '') . $o[1]) . '</button>', array_keys($ch), $ch)) . '</form>'
                     : ($pk
                     ? '<form method="post" class="inline sgpick">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '">' . implode('', array_map(fn($i, $lb) => '<button class="btn" name="pick" value="' . $i . '">' . e($row['icon']) . ' ' . e($lb) . '</button>', array_keys($pk[1]), $pk[1])) . '</form>'
                     : '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '"><button class="btn">' . e($row['icon']) . ' ' . e($row['verb']) . '</button></form>'))

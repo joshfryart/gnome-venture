@@ -571,6 +571,10 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?) WHERE unlock_key = ?', [$c['name'] . ', level ' . $was . '.', $c['name'] . ', level ' . $lv . '.', 'landmark:' . $loc['slug']]);
             }
         });
+        boot_step('creature_windows_2708', function () {   // 2.7.08: the 8 base creatures with no region window get a new level / an added land (CREATURE_WINDOWS_2708 in includes/adventure_data.php; a fresh world: data/creatures.txt). Only a creature still at the old value is changed
+            require_once __DIR__ . '/adventure_data.php';
+            creature_windows_2708();
+        });
         boot_step('wearables_2700', function () {   // 2.7.00 wearables: the 33 wearable items, the Tailor's Thread, the Hat and the Pack on sale at Twigg's (includes/wearables.php)
             require_once __DIR__ . '/wearables.php';
             wear_ensure_items();

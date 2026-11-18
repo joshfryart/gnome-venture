@@ -44,6 +44,14 @@ barb|Barbed Cut|calling|thornblade:3|hurt|4|craft|poison|-|0|Thornblade tier III
 seedswap|Seed Swap|calling|seedkeeper:3|trick|4|mind|pluck|-|0|Seedkeeper tier III piece: a seed for its trinket.
 sidepath|Side Path|calling|wayfinder:3|guard|4|body|evade|-|0|Wayfinder tier III piece: its next hit misses.
 slowbrew|Slow Brew|calling|brewroot:3|heal|3|craft|simmer|-|0|Brewroot tier III piece: heals over two turns.
+# 2.7.08: COUNTER PIECES, one knack per creature class rule (ref LEVEL:CLASS = learned at that level, answers that class; PFD_COUNTER_CLASSES). Value = the curve (type base - tag cost, knacks rarity 0: claude/piece-audit-2.7.07.md).
+#   The knob is NOT the class's lean family (PFB_CLASS_LEAN), so the piece rarely links into that creature's own pieces. Owned by level like any knack, switched off until the gnome packs it (the tune rows do not move).
+pestring|Pest Ring|knack|6:critter|guard|2|body|thorns|-|0|Counter to Critters: a swarm that bites the ring gets pricked.
+scarecrow|Scarecrow Flap|knack|8:bird|hurt|2|mind|trip|-|0|Counter to Birds: it skips its next turn, both aims with it.
+honeypot|Honey Pot|knack|10:beast|soothe|2|craft|-|-|0|Counter to Beasts: its next hits land softer, so less to hold a grudge over.
+sandbag|Sandbag|knack|12:water|guard|3|craft|hold|-|0|Counter to Water creatures: guard that holds through the tide.
+weedpull|Weed Puller|knack|14:plant|hurt|2|body|poison|-|0|Counter to Plants and Fungi: keeps working while it regrows.
+antivenom|Antivenom|knack|16:reptile|guard|2|body|evade|-|0|Counter to Reptiles and Amphibians: its next hit misses and poison does nothing.
 
 # --- fight tools: one piece per tool type, added while the tool is on the fight belt
 t:till|Hoe Hook|tool|till|hurt|3|body|pierce|-|src|The edge of a tilling tool hooks past its guard.
