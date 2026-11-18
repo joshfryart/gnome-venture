@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.15
+- **Wearables are live for every player** (admin setting `wear_open`, default On; Off hides outfitters, wearables and equip again). No longer tied to `pfight_v1`; Puzzle box and its pieces still are.
+- **Equip on My Gnome:** a Wearing panel with 7 slots (footwear, backpack, coat, cloak, hat, hands, neck), one item each, new table `user_wear_slots`. A wearable's puzzle piece is offered only while it is worn; Keepsake slots in the Puzzle box are unchanged (1/2/3/4). Equip refused in a fight, for unowned items, or if it would break the deck (4th Rare). Boot step `wear_slots_2714` turns existing switched-on pieces into worn items. Puzzle box shows a read-only Wearing strip.
+- **Avatar shows worn items:** 280 art sets (front/back/side) in `game/assets/img/gnome25/wear/<slug>/`; sprite URL carries `x=slug.slug`; `GNOME25_ART_REV` 2714a. No player news.
+
 ## 2.7.14
 - **Wearable piece pictures** now show the piece's name in the name ribbon (small pixel capitals). 103 of the 280 piece names were too long for it and are shortened (for example "Saddle-Bag Rummage" is now "Saddle Dig"); values, effects and prices are unchanged. The 280 pictures in `game/assets/img/wearpiece/` are regenerated and the stored item descriptions ("Piece: name") are refreshed by the `wearables_2700` boot step. Hidden with the wearables (`pfight_v1`). No player news.
 

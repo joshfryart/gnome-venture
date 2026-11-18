@@ -127,12 +127,13 @@ wear_equip($U(), 'footwear', 'na-sugarbush-snow-boots');
 ok('a Tailor item worn: listed with its category, and the url carries it as x= (the cache key)', $ask('json_encode(gnome25_worn_items($u))') === '{"na-sugarbush-snow-boots":"footwear"}' && str_contains($ask('gnome25_url($u)'), 'x=na-sugarbush-snow-boots') && str_contains($ask('gnome25_url($u)'), 'w=gh'), $ask('gnome25_url($u)'));
 ok('the art revision was bumped for the new cache key', GNOME25_ART_REV === '2714a');
 $plain = gnome25_compose('front', []);
-ok('no art for the Tailor item yet: the strip is the same as without it', gnome25_compose('front', [], [], '', ['na-sugarbush-snow-boots' => 'footwear']) === $plain);
-$wd = $argv[1] . '/assets/img/gnome25/wear/na-sugarbush-snow-boots'; @mkdir($wd, 0775, true);
+$tw = 'zz-test-wear-' . getmypid();   // a slug no real art uses: the hook is checked on a throwaway layer (real art may exist for the 280 items)
+ok('no art for a Tailor item: the strip is the same as without it', gnome25_compose('front', [], [], '', [$tw => 'footwear']) === $plain);
+$wd = $argv[1] . '/assets/img/gnome25/wear/' . $tw; @mkdir($wd, 0775, true);
 $im = imagecreatetruecolor(512, 80); imagealphablending($im, false); imagesavealpha($im, true); imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
 imagefilledrectangle($im, 20, 60, 40, 70, imagecolorallocatealpha($im, 200, 20, 20, 0)); imagepng($im, $wd . '/front.png');
-ok('with its art (gnome25/wear/<slug>/front.png) the layer is drawn', gnome25_compose('front', [], [], '', ['na-sugarbush-snow-boots' => 'footwear']) !== $plain);
-ok('a missing view (back) still draws nothing new', gnome25_compose('back', [], [], '', ['na-sugarbush-snow-boots' => 'footwear']) === gnome25_compose('back', []));
+ok('with its art (gnome25/wear/<slug>/front.png) the layer is drawn', gnome25_compose('front', [], [], '', [$tw => 'footwear']) !== $plain);
+ok('a missing view (back) still draws nothing new', gnome25_compose('back', [], [], '', [$tw => 'footwear']) === gnome25_compose('back', []));
 @unlink($wd . '/front.png'); @rmdir($wd);
 
 echo "== wear_open Off hides it all\n";
