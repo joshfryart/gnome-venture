@@ -162,11 +162,12 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
       if ($beltLow) $info .= '<p class="help">🔒 Needs gnome level ' . $beltNeed . ' (you are level ' . (int)$u['level'] . ').</p>';
       require_once __DIR__ . '/includes/wearables.php'; $wearBlock = wear_shop_block($u, (string)$s['slug']);   // 2.7.xx: a regional wearable needs the level of its region
       if ($wearBlock) $info .= '<p class="help">🔒 ' . e($wearBlock) . '</p>';
-      if (($wp = wear_parse((string)$s['slug'])) && is_file(__DIR__ . '/assets/img/wearpiece/' . preg_replace('/-(lined|fine)$/', '', (string)$s['slug']) . '.png')) {   // 2.7.xx: the puzzle piece the wearable gives, at 2x so the pixels stay crisp
-          $info = '<p class="spiece"><img src="' . e(url('assets/img/wearpiece/' . preg_replace('/-(lined|fine)$/', '', (string)$s['slug']) . '.png')) . '" width="264" height="184" alt="The puzzle piece it gives" loading="lazy"></p>' . $info;
+      $wearPiece = '';
+      if (($wp = wear_parse((string)$s['slug'])) && is_file(__DIR__ . '/assets/img/wearpiece/' . preg_replace('/-(lined|fine)$/', '', (string)$s['slug']) . '.png')) {   // 2.7.xx: the puzzle piece the wearable gives (132x92, shown at 1x so it stays small and crisp), inside the About fold
+          $wearPiece = '<p class="spiece"><img src="' . e(url('assets/img/wearpiece/' . preg_replace('/-(lined|fine)$/', '', (string)$s['slug']) . '.png')) . '" width="132" height="92" alt="The puzzle piece it gives" loading="lazy"></p>';
       }
       $priceHtml = money($myPrice) . ($myPrice < (int)$s['current_price'] ? ' <s class="muted">' . number_format((int)$s['current_price']) . '</s>' : '');
-      echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
+      echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'piece' => $wearPiece, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
           'tags' => $tags, 'info' => $info, 'dim' => $read || $beltLow || (bool)$wearBlock, 'offNote' => $read ? '✔ Read' : ($beltLow ? 'Level ' . $beltNeed : ($wearBlock ? 'Locked' : '')), 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true,
           'coins' => $open ? $fresh : null]);
   endforeach; ?>

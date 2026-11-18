@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.12
+- **Shop item sheet:** the "About it" fold is now always there and always open for every shop item (it used to appear only for long descriptions). A wearable's puzzle piece picture sits inside it at 1x (132x92, much smaller than in 2.7.11). No player news.
+
 ## 2.7.11
 - **Shop sheet shows the puzzle piece** a wearable gives (132x92 picture at 2x, with the item's art on it, its number and rarity mark). 280 pictures in `game/assets/img/wearpiece/<item slug>.png` (made by `claude/wear-pieces/render2.py`). Hidden with the rest of the wearables (`pfight_v1`). No player news.
 
