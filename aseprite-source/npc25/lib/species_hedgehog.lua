@@ -88,10 +88,10 @@ function S.draw_figure(img, view, frame, species)
     end)
   end
   local function lantern(x0, y0)
-    local pat = {"..m..", ".m.m.", "oGGso", "oYcso", "oYYso", "oGsso", ".ooo."}
+    local pat = {"..mm..", ".m..m.", "oGGGGo", "oGYYso", "oYccso", "oYccso", "oGYYso", "oGssso", ".oooo."}
     local map = {m = METAL, G = GOLD, Y = GHI, c = CREAM, g = GOLD, s = HAT.shade}
     for j, row in ipairs(pat) do
-      for i = 1, 5 do
+      for i = 1, #row do
         local ch = row:sub(i, i)
         local x, y = x0 + i - 1, y0 + j - 1
         if ch == "o" then
