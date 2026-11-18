@@ -9,48 +9,50 @@ local CUT = { .2, .36, .52, .7, .88 }
 ---------------------------------------------------------------- 1 palm-leaf rain hood
 do
   local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "cloak-1" }
-  local shell = c:ellipse(32, 40, 25, 22):clip(c:rect(0, 0, 63, 55)):add(c:poly{ {22,22}, {31,6}, {34,6}, {42,22} })
-  -- leaf-tip fringe along the bottom
-  for x = 8, 56, 4 do shell:add(c:poly{ {x - 1, 54}, {x + 3, 54}, {x + 1, 58} }) end
-  local si, sn = C.part(c, shell, R.palm, { R = 8, hs = .9, cuts = { .16, .32, .48, .66, .84 } })
-  -- shingled rows of leaf scallops: each row darker at its lower lip
-  shell:each(function(x, y)
-    local row = floor((y - 6) / 7)
+  -- side view of a leaf shell hood: rounded back on the left, open front on the right
+  local shell = c:ellipse(30, 36, 26, 22):clip(c:rect(0, 0, 63, 53))
+  for x = 6, 46, 4 do shell:add(c:poly{ {x - 1, 53}, {x + 3, 53}, {x + 1, 57} }) end
+  local hollow = c:ellipse(46, 40, 12, 15):clip(shell)
+  local outer = shell:copy():cut(hollow)
+  local si = C.part(c, outer, R.palm, { R = 8, hs = .9, cuts = { .16, .32, .48, .66, .84 } })
+  -- shingled rows of leaf scallops, overlapping downward
+  outer:each(function(x, y)
+    local row = floor((y - 14) / 6)
     local off = (row % 2) * 3
     local sx = (x + off) % 6
-    local ly = (y - 6) % 7
-    local arc = (sx - 2.5) ^ 2 / 6
+    local ly = (y - 14) % 6
+    local arc = (sx - 2.5) ^ 2 / 7
     local i = si[K(x, y)]
-    if ly >= 5 - arc and ly < 6.2 - arc then c:put(x, y, R.palm[max(1, i - 2)])
-    elseif ly < 1.2 + 0 and sx == 0 then c:put(x, y, R.palm[max(1, i - 1)])
+    if ly >= 4.4 - arc and ly < 5.6 - arc then c:put(x, y, R.palm[max(1, i - 2)])
     elseif ly == 1 and sx == 2 then c:put(x, y, R.palm[min(6, i + 1)]) end
   end)
-  -- leaf veins on a few scallops
-  -- bamboo binding along the hem
-  for x = 8, 56 do if shell:has(x, 53) then c:put(x, 52, R.bamboo[5]) c:put(x, 53, R.bamboo[3]) end end
-  for x = 9, 55, 5 do c:put(x, 52, R.bamboo[2]) c:put(x, 53, R.bamboo[1]) end
-  -- dark hollow showing under the hem in the middle
-  local hollow = c:ellipse(32, 56, 14, 2):clip(c:rect(0, 54, 63, 63))
-  c:fillMask(hollow, R.palm[1])
+  -- dark hollow inside the shell, lighter toward its back wall
+  local hv = {}
+  hollow:each(function(x, y) hv[K(x, y)] = (x < 42) and 2 or 1 end)
+  hollow:each(function(x, y) c:put(x, y, R.palm[hv[K(x, y)]]) end)
+  C.put(c, { {39,30}, {38,33}, {38,36}, {38,39} }, R.palm[3])
+  -- bamboo binding around the opening
+  hollow:grow(1):cut(hollow):clip(outer):each(function(x, y) c:put(x, y, (y < 36) and R.bamboo[5] or R.bamboo[3]) end)
+  -- tie cord hanging from the opening
+  local cord = c:line({ {40,50}, {41,54}, {40,58} }, 1)
+  c:fillMask(cord, R.madder[3]) c:put(40, 58, R.madder[5])
   -- raindrops beading
-  for _, d in ipairs({ { 16, 38 }, { 46, 30 }, { 40, 45 } }) do
+  for _, d in ipairs({ { 14, 34 }, { 28, 24 }, { 22, 44 } }) do
     local m = c:ellipse(d[1], d[2], 1.4, 1.6)
     C.part(c, m, R.water, { R = 1, b = 1 })
     c:put(d[1] - 1, d[2] - 1, cream) c:put(d[1] + 1, d[2] + 2, R.palm[1])
   end
-  -- top tie of the point
-  C.hline(c, 30, 35, 10, R.bamboo[2]) C.hline(c, 30, 35, 11, R.bamboo[4])
-  c:put(14, 30, R.palm[6]) c:put(15, 29, R.palm[6]) c:put(16, 28, cream)
-  -- quirk: a little green frog sitting on the shell's shoulder
-  local fb = c:ellipse(43, 18, 4, 3)
-  local fh = c:ellipse(46, 15, 2.6, 2.2)
-  local legs = c:poly{ {38,19}, {41,21}, {39,22}, {37,22} }:add(c:poly{ {45,20}, {48,21}, {48,22}, {44,22} })
+  c:put(12, 24, R.palm[6]) c:put(13, 23, R.palm[6]) c:put(14, 22, cream)
+  -- quirk: a little green frog sitting on top of the shell
+  local fb = c:ellipse(30, 12, 4, 3)
+  local fh = c:ellipse(34, 10, 2.6, 2.2)
+  local legs = c:poly{ {25,13}, {28,15}, {26,16}, {24,16} }:add(c:poly{ {32,14}, {35,15}, {35,16}, {31,16} })
   local frog = fb:copy():add(fh):add(legs)
   C.inkSep(c, frog, shell)
   C.part(c, legs, R.leaf, { R = 1, b = -1 })
   C.part(c, fb:copy():add(fh), R.leaf, { R = 2, b = 1 })
-  c:put(45, 13, ink) c:put(48, 14, ink) c:put(44, 13, R.leaf[6]) c:put(47, 14, R.leaf[6])
-  C.put(c, { {46,17}, {47,17} }, R.leaf[2]) c:put(41, 16, R.leaf[6])
+  c:put(33, 8, ink) c:put(36, 9, ink) c:put(32, 8, R.leaf[6]) c:put(35, 9, R.leaf[6])
+  C.put(c, { {34,12}, {35,12} }, R.leaf[2]) c:put(28, 10, R.leaf[6])
   C.save(c, "cloak-1-palm-leaf-rain-hood")
 end
 
@@ -83,57 +85,63 @@ do
   for t = 0, 1, 0.05 do
     local x1, y1 = 4 + (27 - 4) * t, 14 + (55 - 14) * t
     local x2, y2 = 52 + (34 - 52) * t, 12 + (40 - 12) * t
-    fr:add(c:line({ {x1 - 0.5, y1 + 1}, {x1 - 2.5, y1 + 4} }, 1))
-    fr:add(c:line({ {x2 + 0.5, y2 + 1}, {x2 + 2.5, y2 + 4} }, 1))
+    if floor(t * 20 + .5) % 2 == 0 then
+      fr:add(c:line({ {x1 - 0.5, y1 + 1}, {x1 - 2.5, y1 + 4} }, 1))
+      fr:add(c:line({ {x2 + 0.5, y2 + 1}, {x2 + 2.5, y2 + 4} }, 1))
+    end
   end
   fr:add(c:line({ {27,55}, {27,60} }, 1)):add(c:line({ {29,53}, {30,59} }, 1)):add(c:line({ {25,54}, {24,59} }, 1))
   fr:cut(front)
   C.inkSep(c, fr, backL)
-  fr:each(function(x, y) c:put(x, y, ((x + y) % 2 == 0) and R.madder[3] or R.madder[5]) end)
+  fr:each(function(x, y) c:put(x, y, fr:has(x, y + 1) and R.feltc[4] or R.madder[3]) end)
   -- quirk: a small moth resting on the fold
-  local wings = c:poly{ {18,22}, {22,24}, {26,22}, {25,27}, {22,26}, {19,27} }
-  C.part(c, wings, R.canvas, { R = 1 })
-  C.vline(c, 22, 23, 27, R.yak[2])
-  C.put(c, { {20,24}, {24,24} }, R.canvas[2]) C.put(c, { {21,21}, {23,21} }, R.yak[3])
+  local wings = c:poly{ {16,21}, {22,24}, {28,21}, {27,28}, {22,27}, {17,28} }
+  C.inkSep(c, wings, front)
+  C.part(c, wings, R.yak, { R = 1, b = 2 })
+  C.vline(c, 22, 23, 28, R.yak[1])
+  C.put(c, { {19,24}, {25,24} }, R.madder[4]) C.put(c, { {20,24}, {24,24} }, R.yak[1])
+  C.put(c, { {20,21}, {21,22}, {24,22}, {25,21} }, R.yak[2])
   C.save(c, "cloak-2-fine-wool-shawl")
 end
 
 ---------------------------------------------------------------- 3 felt shepherd cape
 do
   local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "cloak-3" }
-  local cape = c:poly{ {6,12}, {26,10}, {38,10}, {58,12}, {57,17}, {53,18}, {57,58}, {7,58}, {11,18}, {7,17} }
+  -- stiff felt cape: squared shoulder ledges, flaring to a wide hem, open at the front
+  local cape = c:poly{ {9,10}, {26,8}, {38,8}, {55,10}, {54,16}, {50,17}, {61,58}, {3,58}, {14,17}, {10,16} }
+  local gap = c:poly{ {32,24}, {38,58}, {26,58} }
   local ci = C.part(c, cape, R.char, { R = 4, cuts = CUT, tex = C.felt })
-  -- stiff vertical folds
-  for _, x in ipairs({ 18, 25, 39, 46 }) do
-    for y = 20, 57 do if cape:has(x, y) then c:put(x, y, R.char[2]) c:put(x - 1, y, R.char[5]) end end
+  -- flaring folds
+  for _, f in ipairs({ { 20, 20, 12, 57 }, { 26, 20, 22, 57 }, { 38, 20, 42, 57 }, { 44, 20, 52, 57 } }) do
+    c:line({ {f[1], f[2]}, {f[3], f[4]} }, 1):each(function(x, y) if cape:has(x, y) then c:put(x, y, R.char[2]) c:put(x - 1, y, R.char[5]) end end)
   end
+  -- open front: dark inside
+  c:fillMask(gap, R.char[1])
+  c:line({ {32,24}, {26,57} }, 1):each(function(x, y) c:put(x - 1, y, R.feltc[3]) end)
+  c:line({ {32,24}, {38,57} }, 1):each(function(x, y) c:put(x + 1, y, R.char[3]) end)
   -- square shoulder ledges
-  C.hline(c, 7, 57, 12, R.char[6]) C.hline(c, 8, 56, 17, R.char[1])
-  -- front opening
-  for y = 18, 57 do c:put(32, y, ink) c:put(31, y, R.char[4]) end
-  -- cream felt stitched spirals down the front
+  C.hline(c, 10, 54, 10, R.char[6]) C.hline(c, 11, 53, 16, R.char[1])
+  -- cream felt spirals stitched on each shoulder and the hem
   local function curl(cx, cy, s)
     local pts = {}
     for i = 0, 30 do
       local t = i / 30 * 1.8 * math.pi
-      local r = 0.5 + t * 0.9
+      local r = 0.5 + t * 0.85
       pts[#pts + 1] = { cx + s * math.cos(t) * r, cy + math.sin(t) * r }
     end
-    c:line(pts, 1):each(function(x, y) if cape:has(x, y) then c:put(x, y, R.feltc[(x + y) % 2 == 0 and 5 or 4]) end end)
+    c:line(pts, 1):each(function(x, y) if cape:has(x, y) and not gap:has(x, y) then c:put(x, y, R.feltc[(x + y) % 2 == 0 and 5 or 4]) end end)
   end
-  curl(27, 26, -1) curl(36, 26, 1) curl(27, 40, -1) curl(36, 40, 1)
-  -- hem stitch
-  for x = 8, 56, 2 do c:put(x, 55, R.feltc[3]) end
+  curl(19, 13, -1) curl(45, 13, 1)
+  for x = 5, 59, 2 do if cape:has(x, 55) and not gap:has(x, 55) then c:put(x, 55, R.feltc[3]) end end
   -- neck opening
-  local neck = c:ellipse(32, 11, 6, 2)
+  local neck = c:ellipse(32, 9, 6, 2)
   c:fillMask(neck, R.char[1])
-  C.hline(c, 27, 37, 9, R.char[5])
   -- quirk: a brass bell on the neck tie
-  C.put(c, { {30,13}, {31,14}, {33,14}, {34,13}, {32,15} }, R.madder[3])
-  local bell = c:poly{ {30,16}, {34,16}, {35,20}, {29,20} }:add(c:ellipse(32, 16, 2, 1.3))
+  C.put(c, { {30,11}, {31,12}, {33,12}, {34,11}, {32,13} }, R.madder[3])
+  local bell = c:poly{ {30,14}, {34,14}, {35,18}, {29,18} }:add(c:ellipse(32, 14, 2, 1.3))
   C.inkSep(c, bell, cape)
   C.part(c, bell, R.brass, { R = 1 })
-  C.hline(c, 29, 35, 20, R.brass[2]) c:put(32, 21, R.brass[3]) c:put(31, 16, R.brass[6]) c:put(30, 18, R.brass[6])
+  C.hline(c, 29, 35, 18, R.brass[2]) c:put(32, 19, R.brass[3]) c:put(31, 14, R.brass[6]) c:put(30, 16, R.brass[6])
   C.save(c, "cloak-3-felt-shepherd-cape")
 end
 

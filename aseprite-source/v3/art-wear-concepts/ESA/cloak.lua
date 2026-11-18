@@ -35,6 +35,15 @@ local function blanket(c)
     if (vb ~= hb) and (x + y) % 2 == 0 and (vb and (x + floor((y - 8) * 0.25)) % 11 == 1 or hb and (y - floor((x - 12) * 0.18)) % 11 == 1) then col = R.madder[min(6, i + 1)] end
     c:put(x, y, col)
   end)
+  -- fold valleys radiating from the knot
+  for _, e in ipairs({ {20,56}, {31,58}, {42,58}, {50,50}, {13,48} }) do
+    c:line({ {17,13}, e }, 1):clip(body):each(function(x, y)
+      if y > 20 then local i = idx[K(x, y)] c:put(x, y, (c:get(x, y) == R.ochre[i]) and R.ochre[max(1, i - 2)] or R.indigo[max(1, i - 2)]) end
+    end)
+    c:line({ {18,13}, { e[1] + 1, e[2] } }, 1):clip(body):each(function(x, y)
+      if y > 24 and (c:get(x, y) == R.ochre[idx[K(x, y)]]) then c:put(x, y, R.ochre[min(6, idx[K(x, y)] + 1)]) end
+    end)
+  end
   -- fringe on the hem
   local fr = HP.mask()
   body:each(function(x, y) if not body:has(x, y + 1) and x % 2 == 0 and y > 50 then fr:add(c:rect(x, y + 1, x, y + 3)) end end)
@@ -150,8 +159,8 @@ end
 
 ------------------------------------------------------------------ 4 dust mantle
 local function mantle(c)
-  local cape = c:poly{ {22,18}, {42,18}, {52,34}, {57,54}, {7,54}, {12,34} }
-  local hood = c:poly{ {32,2}, {35,6}, {42,18}, {41,24}, {23,24}, {22,18}, {29,6} }
+  local cape = c:poly{ {20,20}, {44,20}, {52,25}, {55,34}, {58,54}, {6,54}, {9,34}, {12,25} }
+  local hood = c:poly{ {32,1}, {35,5}, {43,19}, {42,27}, {22,27}, {21,19}, {29,5} }
   -- fringe
   local fr = HP.mask()
   for x = 8, 56, 2 do fr:add(c:rect(x, 55, x, 58 + (x % 4 == 0 and 1 or 0))) end
@@ -165,12 +174,15 @@ local function mantle(c)
   W.sep(c, hood, cape, R.sand[1])
   local hi = C.lit(c, hood, R.sand, { R = 4, b = 1, cuts = { .22, .38, .54, .7, .88 } })
   -- face opening, deep shade inside
-  local op = c:ellipse(32, 17, 6, 5.5):clip(hood)
+  local op = c:ellipse(32, 19, 6.5, 6):clip(hood)
   c:fillMask(op, R.umber[2])
   op:each(function(x, y) if not op:has(x, y - 1) or not op:has(x - 1, y) then c:put(x, y, R.umber[4]) end end)
   op:grow(1):cut(op):clip(hood):each(function(x, y) c:put(x, y, (x < 32) and R.sand[6] or R.sand[3]) end)
-  -- hood seam and tip highlight
+  -- hood seam and tip highlight, neck cord with tassels
   W.put(c, { {31,3}, {31,4}, {30,6} }, R.sand[6])
+  for x = 23, 41 do if hood:has(x, 27) then c:put(x, 27, R.madder[(x < 32) and 4 or 3]) end end
+  W.put(c, { {27,28}, {27,29}, {27,30}, {37,28}, {37,29}, {37,30} }, R.madder[3])
+  c:put(27, 31, R.madder[5]) c:put(37, 31, R.madder[5])
   -- quirk: blue-and-orange agama lizard clinging to the hem
   local lz, ln, LT = G.tube({ {44,58}, {46,50}, {48,44}, {50,38} }, function(t)
     if t < .45 then return 0.6 + t * 1.6 end
@@ -188,10 +200,14 @@ end
 ------------------------------------------------------------------ 5 indigo dot shawl
 local function dotshawl(c)
   local top = function(x) return 11 + floor(3 * sin((x - 4) / 56 * pi) + .5) end
-  local pts = { {4,10}, {18,13}, {32,14}, {46,13}, {60,10}, {59,15}, {34,57}, {30,57}, {5,15} }
+  local pts = {}
+  for i = 0, 14 do local t = i / 14 pts[#pts + 1] = { 4 + 56 * t, 9 + 7 * sin(pi * t) } end
+  for i = 1, 12 do local t = i / 12 pts[#pts + 1] = { 60 - 28 * t + 3 * sin(pi * t), 9 + 49 * t + 2 * sin(pi * t) } end
+  for i = 1, 11 do local t = i / 12 pts[#pts + 1] = { 32 - 28 * t - 3 * sin(pi * (1 - t)), 58 - 49 * t + 2 * sin(pi * (1 - t)) } end
   local body = c:poly(pts)
-  -- tassels behind the corners
-  local tas = c:line({ {4,13}, {3,19} }, 2):add(c:line({ {60,13}, {61,19} }, 2)):add(c:line({ {32,57}, {32,61} }, 2))
+  local topy = function(x) return 9 + 7 * sin(pi * (x - 4) / 56) end
+  -- tassels hanging from the corners
+  local tas = c:line({ {5,11}, {4,15}, {4,20} }, 2):add(c:line({ {59,11}, {60,15}, {60,20} }, 2)):add(c:line({ {32,57}, {32,61} }, 2))
   tas:each(function(x, y) c:put(x, y, ((y % 2) == 0) and R.canvas[5] or R.canvas[3]) end)
   local n = drape(body, 32, 4, 13, 0.4)
   local idx = W.toneN(c, body, n, R.indigo, { cuts = { .2, .36, .52, .7, .86 } })
@@ -206,14 +222,16 @@ local function dotshawl(c)
     if d < 2.6 and d >= 1.4 then c:put(x, y, R.indigo[min(6, i + 2)]) elseif d < 1.0 then c:put(x, y, R.canvas[min(6, i + 1)]) end
   end)
   -- cream border along the two lower edges
-  local inner = c:poly{ {9,15}, {55,15}, {32,51} }
+  local inner = body:shrink(4)
+  body:each(function(x, y) if y < topy(x) + 5 then inner:set(x, y) end end)
+  inner:clip(body)
   body:each(function(x, y)
-    if not inner:has(x, y) and y > 13 then
+    if not inner:has(x, y) then
       local i = idx[K(x, y)]
       c:put(x, y, R.canvas[min(6, i + 1)])
     end
   end)
-  inner:grow(1):cut(inner):clip(body):each(function(x, y) if y > 15 then c:put(x, y, R.madder[3]) end end)
+  inner:grow(1):cut(inner):clip(body):each(function(x, y) if y > topy(x) + 4 then c:put(x, y, R.madder[3]) end end)
   -- top folded edge
   body:each(function(x, y) if not body:has(x, y - 1) then c:put(x, y, R.indigo[5]) elseif not body:has(x, y - 2) then c:put(x, y, R.indigo[2]) end end)
   -- quirk: small orange butterfly resting on it
