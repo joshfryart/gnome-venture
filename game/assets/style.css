@@ -8349,4 +8349,4 @@ body.game:has(.fightscene) .toasts.phone { right: 8px; left: auto; width: min(70
 .toasts.toasts-tiny .prizebox ul, .toasts.toasts-tiny .pzbig, .toasts.toasts-tiny .pzicon { display: none; }
 /* 2.7.xx: the puzzle piece a wearable gives, on its shop sheet (a 132x92 picture shown at 2x; never wider than the sheet) */
 .isheet .spiece { margin: .4rem 0; text-align: center; }
-.isheet .spiece img { width: 264px; max-width: 100%; height: auto; image-rendering: pixelated; }
+.isheet .spiece img { width: 132px; max-width: 100%; height: auto; image-rendering: pixelated; }
