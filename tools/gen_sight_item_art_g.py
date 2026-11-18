@@ -32,10 +32,13 @@ def well_water(cv, rnd):
     # water fills the lower body: a bright surface line and deeper blue
     water = inter(body, Mrect(0, 33, S, S))
     shade(cv, water, DEW, "ball", rnd, box=(17, 22, 48, 54))
-    px(cv, [(x, 33) for x in range(19, 46) if body.getpixel((x, 33))], CREAM)
+    for x in range(19, 46):
+        y = 33 + (1 if (x // 3) % 2 else 0)
+        if body.getpixel((x, y)): cv.put(x, y, CREAM if (x // 3) % 2 == 0 else DEW[0])
     # glass glints
-    px(cv, pix(Mline([(22, 38), (22, 46)], 1)), CREAM)
-    px(cv, [(24, 28), (24, 29)], CREAM)
+    px(cv, [(22, 39), (22, 40), (22, 41), (23, 43)], CREAM)
+    px(cv, [(24, 27), (24, 28), (25, 25)], CREAM)
+    px(cv, [(41, 46), (40, 48)], DEW[0])
     # label: little blue drop tag
     shade(cv, Mrr(27, 40, 38, 48, 2), WOOL, "flat", rnd)
     px(cv, [(32, 42), (31, 43), (32, 43), (33, 43), (31, 44), (32, 44), (33, 44), (32, 45)], BLUE[2])
@@ -47,26 +50,32 @@ def well_water(cv, rnd):
 
 # ------------------------------------------------------------------ firefly-light: a glowing firefly cupped in a twist of reed
 def firefly_light(cv, rnd):
-    # reed cup (back), glow (middle), firefly (front)
-    cup = Mpoly([(14, 34), (50, 34), (44, 54), (20, 54)])
-    glow = Mell(32, 30, 17, 17)
-    for x, y in pix(glow):
-        d = ((x - 32) ** 2 + (y - 30) ** 2) ** .5
-        cv.put(x, y, FLY[1] if d < 8 else FLY[2] if (x + y) % 2 else FLY[1]) if d < 14 else None
+    # soft dither glow behind, reed cup in front, a clear firefly hovering over the cup rim
+    cup = Mpoly([(14, 38), (50, 38), (44, 55), (20, 55)])
     shade(cv, cup, SAND, "cyl", rnd, .05)
-    # reed weave: diagonal strands
     for k in range(0, 40, 6):
-        px(cv, pix(inter(Mline([(14 + k, 36), (22 + k, 54)], 1), cup)), SAND[3])
-    px(cv, [(x, 34) for x in range(14, 51)], SAND[0])
-    # firefly: body, wings, glowing tail
-    shade(cv, Mell(31, 28, 6, 4), LANT, "ball", rnd, rim=False)
-    shade(cv, Mell(37, 29, 5, 4), FLY, "ball", rnd, rim=False)
-    shade(cv, Mell(29, 23, 3, 2), GLASS, "ball", rnd, rim=False)
-    shade(cv, Mell(34, 22, 3, 2), GLASS, "ball", rnd, rim=False)
-    px(cv, [(26, 28), (26, 29)], E.INK); cv.put(27, 27, E.INK)
+        px(cv, pix(inter(Mline([(14 + k, 40), (21 + k, 55)], 1), cup)), SAND[3])
+    px(cv, [(x, 38) for x in range(14, 51)], SAND[0])
+    px(cv, [(x, 39) for x in range(15, 50)], SAND[1])
+    # firefly (side view, facing left): wings up, dark body, glowing tail
+    shade(cv, Mell(30, 21, 4, 2), GLASS, "ball", rnd, rim=False)
+    shade(cv, Mell(35, 20, 4, 2), GLASS, "ball", rnd, rim=False)
+    shade(cv, Mell(31, 27, 5, 3), WOOD, "ball", rnd, rim=False)       # thorax
+    shade(cv, Mell(25, 27, 3, 3), WOOD, "ball", rnd, rim=False)       # head
+    for x, y in pix(Mell(38, 28, 5, 3.5)):                             # glowing tail
+        cv.put(x, y, LANT[0] if abs(x - 38) < 3 and abs(y - 28) < 2 else LANT[1])
+    px(cv, [(24, 26)], CREAM)
+    px(cv, [(23, 24), (22, 23)], E.INK); px(cv, [(25, 24), (25, 23)], E.INK)   # feelers
+    px(cv, [(29, 31), (31, 31), (34, 31)], E.INK)                        # legs
 
     def post(c):
-        sparkle(c, 12, 16, FLY[0], True); sparkle(c, 52, 20, FLY[0]); sparkle(c, 46, 8, FLY[1])
+        # glow goes on after the outline pass, only onto empty pixels, so it has no ink edge
+        for x, y in pix(Mell(32, 28, 19, 19)):
+            if c.im.getpixel((x, y))[3]: continue
+            d = ((x - 32) ** 2 + (y - 28) ** 2) ** .5
+            if d < 12: c.put(x, y, FLY[0] if d < 8 else (FLY[1] if (x + y) % 2 else FLY[0]))
+            elif d < 18 and (x + y) % 2 == 0: c.put(x, y, FLY[1])
+        sparkle(c, 12, 18, FLY[0], True); sparkle(c, 53, 22, FLY[0]); sparkle(c, 47, 7, FLY[1])
     return post
 
 
@@ -108,9 +117,11 @@ def tiny_thank_you_seed(cv, rnd):
     # the tiny seed (a few pixels), and a forget-me-not stuck to the paper
     shade(cv, Mell(32, 44, 4, 3), SEEDB, "ball", rnd, rim=True)
     px(cv, [(29, 42), (30, 41)], CREAM)
-    for dx, dy in ((0, -2), (2, 0), (0, 2), (-2, 0)):
-        shade(cv, Mell(46 + dx, 18 + dy, 1.5, 1.5), FORGET, "ball", rnd, rim=False)
-    cv.put(46, 18, LANT[1])
+    stem = Mline([(46, 28), (46, 24)], 1)
+    px(cv, pix(stem), LEAF[2])
+    for dx, dy in ((0, -3), (3, 0), (0, 3), (-3, 0)):
+        shade(cv, Mell(46 + dx, 21 + dy, 2, 2), FORGET, "ball", rnd, rim=False)
+    shade(cv, Mell(46, 21, 2, 2), LANT, "ball", rnd, rim=False)
 
     def post(c):
         sparkle(c, 14, 40, CREAM, True)
