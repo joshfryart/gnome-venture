@@ -4,7 +4,7 @@ ORDER=['NA','CA','NWE','CB','SE','SA','EE','MENA','EA','CSA','SEA','WCA','ESA','
 ART='/home/user/gnome-venture/aseprite-source/v3/art-wear-concepts'; FAM={'b':'body','m':'mind','c':'craft'}
 for x in IT: x['slug']=x['region'].lower()+'-'+os.path.basename(glob.glob(f"{ART}/{x['region']}/{x['cat']}-{x['n']}-*.png")[0])[len(x['cat'])+3:-4]
 L=['# Wearable puzzle pieces v2: unique effects (280)','',
- 'Every effect is its own trigger + payoff pair (210 Common/Uncommon) or a hand-written rule (70 Rare). No effect repeats. These need new engine support (triggers and payoffs below); nothing is installed in `game/`.','',
+ 'Written against the 2.7.00 quick rules (fixed rank order, a placed piece always touches and fits a neighbour, one piece a turn, Keeper only on Guards). No effect talks about firing order or a lone piece. Each is its own trigger + payoff pair (210) or a hand-written rule (70 Rare). Needs new engine support (`design3.py` TRIG/PAY); nothing is installed in `game/`.','',
  '**Value** is the piece base (the game adds stat, level/3 and rank: Lined +2, Fine +4). **Petals** = Tailor price of the Common rank; Lined x1.5, Fine x2.5. **Tailor** = lowest Tailor level that can craft it. Numbers inside effects ({a}, {b}) grow with region and rarity.','']
 for r in ORDER:
     rows=[x for x in IT if x['region']==r]; L+=[f"## {rows[0]['regionName']} ({r}, region level {rows[0]['regionLevel']})",'']

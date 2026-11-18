@@ -1,281 +1,281 @@
 # Wearable pieces v2 (280): key|name|source|ref|type|v|knob|tag|life|rarity|blurb|mod|fx   fx = unique effect code (needs engine support; see design2.py TRIG/PAY and the Rare texts)
-w:na-sugarbush-snow-boots|Snowdrift Trip|wear|na-sugarbush-snow-boots|hurt|3|body|-|-|src|Sugarbush Snow Boots: If nothing is linked to it, the creature skips its next move.|-|alone>skip
-w:na-birchwood-clog|Clog Knock|wear|na-birchwood-clog|hurt|3|mind|-|-|src|Birchwood Clog: If it fires last in its chain, deal 2 extra damage.|-|last>dmg
-w:na-lakeland-snowshoe|Snowshoe Skim|wear|na-lakeland-snowshoe|guard|4|craft|-|-|src|Lakeland Snowshoe: If you have not played a Hurt this round, the creature's first hit next turn misses.|-|noHurt>evade
-w:na-prairie-stitch-boots|Prairie Kick|wear|na-prairie-stitch-boots|hurt|4|body|-|-|src|Prairie Stitch Boots: If a Guard fired just before it, this piece ignores guard.|-|afterG>pierce
-w:na-loon-down-slippers|Loon Hush|wear|na-loon-down-slippers|soothe|4|mind|-|-|src|Loon-Down Slippers: Cuts its next hits by 4. If its Yield bar is under half, draw 2 as well.|-|R:NA:footwear:5
-w:na-splint-pack-basket|Splint Stash|wear|na-splint-pack-basket|item|4|mind|-|-|src|Splint Pack Basket: If you hold 2 pieces or fewer, draw 1.|-|handSmall>draw
+w:na-sugarbush-snow-boots|Snowdrift Trip|wear|na-sugarbush-snow-boots|hurt|3|body|-|-|src|Sugarbush Snow Boots: If a creature piece is in its chain, the creature skips its next turn.|-|linkFoe>skip
+w:na-birchwood-clog|Clog Knock|wear|na-birchwood-clog|hurt|3|mind|-|-|src|Birchwood Clog: If it sits on the creature's aim cell, deal 2 extra damage.|-|onAim>dmg
+w:na-lakeland-snowshoe|Snowshoe Skim|wear|na-lakeland-snowshoe|guard|4|craft|-|-|src|Lakeland Snowshoe: If you played no Hurt last turn, the creature's next Hurt misses.|-|noHurt>evade
+w:na-prairie-stitch-boots|Prairie Kick|wear|na-prairie-stitch-boots|hurt|4|body|-|-|src|Prairie Stitch Boots: If it is linked to a Guard, it ignores the creature's guard.|-|linkG>pierce
+w:na-loon-down-slippers|Loon Hush|wear|na-loon-down-slippers|soothe|4|mind|-|-|src|Loon-Down Slippers: Cuts the creature's hits by 4 this round. If its Yield bar is under half, your next hand has 1 extra piece.|-|R:NA:footwear
+w:na-splint-pack-basket|Splint Stash|wear|na-splint-pack-basket|item|4|mind|-|-|src|Splint Pack Basket: If you hold 2 or more Hurts in your hand, your next hand has 1 extra piece.|-|handH>hand
 w:na-firewood-pack-frame|Hearth Warmth|wear|na-firewood-pack-frame|heal|2|craft|-|-|src|Firewood Pack Frame: If you are under half health, heal 1 at the start of each of your next 2 turns.|-|hpLow>mend
 w:na-portage-sack|Portage Rummage|wear|na-portage-sack|trick|3|body|-|-|src|Portage Sack: If the creature has no pieces on the board, small chance to lift an item from the creature.|-|foeB0>pluck
 w:na-sap-run-bucket|Syrup Snack|wear|na-sap-run-bucket|item|5|mind|-|-|src|Sap-Run Bucket: In the first round of the fight, heal 3.|-|r1>heal
-w:na-toboggan-pack|Toboggan Run|wear|na-toboggan-pack|hurt|6|craft|-|-|src|Toboggan Pack: Fires last in its chain and deals 4 extra damage for every piece in the chain, then falls off the board.|-|R:NA:backpack:5
-w:na-lumber-check-jacket|Check Wall|wear|na-lumber-check-jacket|guard|3|craft|-|-|src|Lumber-Check Jacket: If the creature just hit you, a blocked hit pricks it for 2.|-|hit>thorns
-w:na-goldenrod-down-vest|Down Puff|wear|na-goldenrod-down-vest|guard|3|body|-|-|src|Goldenrod Down Vest: If you have no guard up, gain 2 guard.|-|noGuard>guard
-w:na-prairie-duster|Duster Mend|wear|na-prairie-duster|guard|4|mind|-|-|src|Prairie Duster: If you have guard up, heal 3.|-|hasGuard>heal
-w:na-lodge-cardigan|Cardigan Calm|wear|na-lodge-cardigan|soothe|2|craft|-|-|src|Lodge Cardigan: If you are under half health, cut its next hits by 1.|-|hpLow>soothe
-w:na-frostline-parka|Parka Bulwark|wear|na-frostline-parka|guard|6|body|-|-|src|Frostline Parka: Gain 4 guard. If the creature has 2 or more Hurts on the board, gain 4 more and it stays 2 more round(s).|-|R:NA:coat:5
-w:na-maple-mantle|Maple Flutter|wear|na-maple-mantle|trick|2|body|-|-|src|Maple Mantle: If a Hurt fired just before it, double the value of the next piece in its chain.|-|afterH>double
+w:na-toboggan-pack|Toboggan Run|wear|na-toboggan-pack|hurt|6|craft|-|-|src|Toboggan Pack: Deals its number plus 2 for every piece in its chain.|-|R:NA:backpack
+w:na-lumber-check-jacket|Check Wall|wear|na-lumber-check-jacket|guard|3|craft|-|-|src|Lumber-Check Jacket: If the creature hit you last turn, each hit this guard blocks adds 1 to the bar.|-|hit>thorns
+w:na-goldenrod-down-vest|Down Puff|wear|na-goldenrod-down-vest|guard|3|body|-|-|src|Goldenrod Down Vest: If an environment piece is in its chain, gain 2 guard.|-|linkEnv>guard
+w:na-prairie-duster|Duster Mend|wear|na-prairie-duster|guard|4|mind|-|-|src|Prairie Duster: If it is linked to a Guard, heal 3.|-|linkG>heal
+w:na-lodge-cardigan|Cardigan Calm|wear|na-lodge-cardigan|soothe|2|craft|-|-|src|Lodge Cardigan: If you are under half health, cut the creature's hits by 1 this round.|-|hpLow>soothe
+w:na-frostline-parka|Parka Bulwark|wear|na-frostline-parka|guard|6|body|-|-|src|Frostline Parka: Gain 4 guard that stays up one more turn. If the creature has a Hurt on the board, each hit it blocks adds 2 to the bar.|-|R:NA:coat
+w:na-maple-mantle|Maple Flutter|wear|na-maple-mantle|trick|2|body|-|-|src|Maple Mantle: If it is linked to a Hurt, the piece it links to gets +1.|-|linkH>boost
 w:na-birch-poncho|Chickadee Chirp|wear|na-birch-poncho|charm|3|mind|-|-|src|Birch Poncho: If a piece of its own type is linked to it, add 2 Charm.|-|pair>charm
-w:na-northern-lights-cloak|Aurora Sheen|wear|na-northern-lights-cloak|charm|4|craft|-|-|src|Northern Lights Cloak: If its Yield bar is past half, your Charm fills 10% more for the rest of the fight.|-|yHalf>bond
-w:na-harbour-slicker-cape|Slicker Shrug|wear|na-harbour-slicker-cape|guard|4|body|-|-|src|Harbour Slicker Cape: If the creature has guard up, the creature's first hit next turn misses.|-|foeG>evade
-w:na-pine-needle-shawl|Pine Wrap|wear|na-pine-needle-shawl|guard|6|mind|-|-|src|Pine-Needle Shawl: Keeper. Once per fight, when you play it, your next Charm also fills the Yield bar by 4.|-|R:NA:cloak:5
-w:ca-lattice-huaraches|Huarache Dash|wear|ca-lattice-huaraches|hurt|3|mind|-|-|src|Lattice Huaraches: If it fires first in its chain, draw 1.|-|first>draw
-w:ca-tooled-ankle-boots|Tooled Stomp|wear|ca-tooled-ankle-boots|hurt|3|craft|-|-|src|Tooled Ankle Boots: If you have guard up, deal 2 extra damage.|-|hasGuard>dmg
-w:ca-indigo-leg-wraps|Leg-Wrap Brace|wear|ca-indigo-leg-wraps|guard|4|body|-|-|src|Indigo Leg Wraps: If a Trick fired just before it, this piece stays 1 more round(s) on the board.|-|afterT>life
-w:ca-ixtle-slippers|Ixtle Slip|wear|ca-ixtle-slippers|guard|4|mind|-|-|src|Ixtle Slippers: If the creature just hit you, the creature's first hit next turn misses.|-|hit>evade
-w:ca-market-platform-clogs|Platform Thud|wear|ca-market-platform-clogs|hurt|6|craft|-|-|src|Market Platform Clogs: Fires last in its chain. Deals 4 extra damage, and the creature loses 2 value on its strongest piece.|-|R:CA:footwear:5
-w:ca-carrier-frame|Carrier Grip|wear|ca-carrier-frame|guard|3|craft|-|-|src|Carrier Frame: If your hand is full, gain 2 guard.|-|handFull>guard
+w:na-northern-lights-cloak|Aurora Sheen|wear|na-northern-lights-cloak|charm|4|craft|-|-|src|Northern Lights Cloak: If its Yield bar is past half, your Charm counts 10% more for the rest of the fight.|-|yHalf>bond
+w:na-harbour-slicker-cape|Slicker Shrug|wear|na-harbour-slicker-cape|guard|4|body|-|-|src|Harbour Slicker Cape: If the creature has guard up, the creature's next Hurt misses.|-|foeG>evade
+w:na-pine-needle-shawl|Pine Wrap|wear|na-pine-needle-shawl|guard|6|mind|-|-|src|Pine-Needle Shawl: Keeper. Gain 4 guard. The turn you play it, your next Charm this fight also adds 4.|-|R:NA:cloak
+w:ca-lattice-huaraches|Huarache Dash|wear|ca-lattice-huaraches|hurt|3|mind|-|-|src|Lattice Huaraches: If it sits next to the creature's aim cell, your next hand has 1 extra piece.|-|aimNext>hand
+w:ca-tooled-ankle-boots|Tooled Stomp|wear|ca-tooled-ankle-boots|hurt|3|craft|-|-|src|Tooled Ankle Boots: If it is linked to a Guard, deal 2 extra damage.|-|linkG>dmg
+w:ca-indigo-leg-wraps|Leg-Wrap Brace|wear|ca-indigo-leg-wraps|guard|4|body|-|-|src|Indigo Leg Wraps: If it is linked to a Trick, it stays 1 more round(s) on the board.|-|linkT>life
+w:ca-ixtle-slippers|Ixtle Slip|wear|ca-ixtle-slippers|guard|4|mind|-|-|src|Ixtle Slippers: If the creature hit you last turn, the creature's next Hurt misses.|-|hit>evade
+w:ca-market-platform-clogs|Platform Thud|wear|ca-market-platform-clogs|hurt|6|craft|-|-|src|Market Platform Clogs: Deal 4 extra damage. If it is linked to a Guard (Riposte), the creature's strongest piece also loses 2.|-|R:CA:footwear
+w:ca-carrier-frame|Carrier Grip|wear|ca-carrier-frame|guard|3|craft|-|-|src|Carrier Frame: If you hold a Guard in your hand, gain 2 guard.|-|handG>guard
 w:ca-maize-net-bag|Maize Net Bite|wear|ca-maize-net-bag|item|4|body|-|-|src|Maize Net Bag: If you are under half health, heal 2.|-|hpLow>heal
 w:ca-palm-basket-pack|Basket Rummage|wear|ca-palm-basket-pack|trick|3|mind|-|-|src|Palm Basket Pack: If its chain has 3 or more pieces, small chance to lift an item from the creature.|-|combo3>pluck
 w:ca-loom-cloth-bundle|Bundle Poultice|wear|ca-loom-cloth-bundle|heal|3|craft|-|-|src|Loom-Cloth Bundle: If you are poisoned, end your poison and heal 1.|-|poisoned>cleanse
-w:ca-dry-spell-water-pack|Water-Pack Sip|wear|ca-dry-spell-water-pack|heal|5|body|-|-|src|Dry-Spell Water Pack: Heal 4. Next round, pick from 6 pieces. If the day is dry (no guard played this round), heal 2 more.|-|R:CA:backpack:5
-w:ca-bloom-smock|Smock Bloom|wear|ca-bloom-smock|guard|3|body|-|-|src|Bloom Smock: If a Charm fired just before it, a blocked hit pricks it for 2.|-|afterC>thorns
-w:ca-pleated-shirt-jacket|Pleat Shield|wear|ca-pleated-shirt-jacket|guard|3|mind|-|-|src|Pleated Shirt-Jacket: In the first round of the fight, your next Guard gets +2.|-|r1>ward
-w:ca-fringed-leather-vest|Fringe Sway|wear|ca-fringed-leather-vest|guard|4|craft|-|-|src|Fringed Leather Vest: If it sits on the edge of the board, the creature's first hit next turn misses.|-|edge>evade
-w:ca-quilted-cotton-coat|Quilt Wall|wear|ca-quilted-cotton-coat|guard|4|body|-|-|src|Quilted Cotton Coat: If you have played 2 or more Guards this fight, this piece stays 1 more round(s) on the board.|-|g2>life
-w:ca-indigo-field-jacket|Indigo Mend|wear|ca-indigo-field-jacket|guard|6|mind|-|-|src|Indigo Field Jacket: Gain 4 guard and heal 2. When it is blocked down to zero, it heals you 2 more.|-|R:CA:coat:5
+w:ca-dry-spell-water-pack|Water-Pack Sip|wear|ca-dry-spell-water-pack|heal|5|body|-|-|src|Dry-Spell Water Pack: Heal 4 and next round pick from 6 pieces. If your chain has no Guard, heal 2 more.|-|R:CA:backpack
+w:ca-bloom-smock|Smock Bloom|wear|ca-bloom-smock|guard|3|body|-|-|src|Bloom Smock: If it is linked to a Charm, each hit this guard blocks adds 1 to the bar.|-|linkC>thorns
+w:ca-pleated-shirt-jacket|Pleat Shield|wear|ca-pleated-shirt-jacket|guard|3|mind|-|-|src|Pleated Shirt-Jacket: In the first round of the fight, the next Guard you place gets +2.|-|r1>ward
+w:ca-fringed-leather-vest|Fringe Sway|wear|ca-fringed-leather-vest|guard|4|craft|-|-|src|Fringed Leather Vest: If it sits on the edge of the board, the creature's next Hurt misses.|-|edge>evade
+w:ca-quilted-cotton-coat|Quilt Wall|wear|ca-quilted-cotton-coat|guard|4|body|-|-|src|Quilted Cotton Coat: If you have played 2 or more Guards this fight, it stays 1 more round(s) on the board.|-|g2>life
+w:ca-indigo-field-jacket|Indigo Mend|wear|ca-indigo-field-jacket|guard|6|mind|-|-|src|Indigo Field Jacket: Gain 4 guard and heal 2. Each hit it blocks heals you 2 more.|-|R:CA:coat
 w:ca-hearthstripe-poncho|Hearth Stripe|wear|ca-hearthstripe-poncho|charm|3|mind|-|-|src|Hearthstripe Poncho: If you took no damage last turn, add 2 Charm.|-|noDmg>charm
-w:ca-dappled-rebozo|Rebozo Hum|wear|ca-dappled-rebozo|charm|3|craft|-|-|src|Dappled Rebozo: If it sits next to the blank centre, cut its next hits by 1.|-|centre>soothe
-w:ca-palm-rain-cape|Palm Cape Calm|wear|ca-palm-rain-cape|soothe|2|body|-|-|src|Palm Rain Cape: If the creature has 3 or more pieces on the board, its strongest piece loses 1 value.|-|foeB3>shrink
-w:ca-agave-fibre-mantle|Fibre Veil|wear|ca-agave-fibre-mantle|trick|3|mind|-|-|src|Agave-Fibre Mantle: If it sits in a corner, your next Hurt gets +3.|-|corner>focus
-w:ca-sun-hood-cloak|Sun-Hood Shade|wear|ca-sun-hood-cloak|guard|6|craft|-|-|src|Sun Hood Cloak: Gain 4 guard. If the Yield bar is past half, the creature's next piece fires at half value.|-|R:CA:cloak:5
-w:nwe-alder-clogs|Alder Splash|wear|nwe-alder-clogs|guard|3|craft|-|-|src|Alder Clogs: If it fires last in its chain, the creature's first hit next turn misses.|-|last>evade
-w:nwe-drain-brogues|Brogue Drain|wear|nwe-drain-brogues|guard|3|body|-|-|src|Drain Brogues: If it fires first in its chain, end your poison and heal 1.|-|first>cleanse
-w:nwe-felted-fleece-boots|Felt Hush|wear|nwe-felted-fleece-boots|soothe|2|mind|-|-|src|Felted Fleece Boots: If your hand is full, this piece stays in your hand if unplayed.|-|handFull>keep
-w:nwe-birch-bark-slippers|Bark Slip|wear|nwe-birch-bark-slippers|hurt|4|craft|-|-|src|Birch-Bark Slippers: If a Trick fired just before it, this piece does not count toward the chain limit.|-|afterT>free
-w:nwe-herringbone-gaiters|Gaiter Lunge|wear|nwe-herringbone-gaiters|hurt|6|body|-|-|src|Herringbone Gaiters: Pierce. If it fires first in its chain, draw 2; if it fires last, deal 2 extra damage.|-|R:NWE:footwear:5
+w:ca-dappled-rebozo|Rebozo Hum|wear|ca-dappled-rebozo|charm|3|craft|-|-|src|Dappled Rebozo: If it sits in one of the four middle cells, cut the creature's hits by 1 this round.|-|mid4>soothe
+w:ca-palm-rain-cape|Palm Cape Calm|wear|ca-palm-rain-cape|soothe|2|body|-|-|src|Palm Rain Cape: If the creature has 3 or more pieces on the board, the creature's strongest piece loses 1.|-|foeB3>shrink
+w:ca-agave-fibre-mantle|Fibre Veil|wear|ca-agave-fibre-mantle|trick|3|mind|-|-|src|Agave-Fibre Mantle: If it sits in a corner, the next Hurt you place gets +3.|-|corner>focus
+w:ca-sun-hood-cloak|Sun-Hood Shade|wear|ca-sun-hood-cloak|guard|6|craft|-|-|src|Sun Hood Cloak: Gain 4 guard. If its Yield bar is past half, also cut the creature's hits by 2 this round.|-|R:CA:cloak
+w:nwe-alder-clogs|Alder Splash|wear|nwe-alder-clogs|guard|3|craft|-|-|src|Alder Clogs: If it sits on the creature's aim cell, the creature's next Hurt misses.|-|onAim>evade
+w:nwe-drain-brogues|Brogue Drain|wear|nwe-drain-brogues|guard|3|body|-|-|src|Drain Brogues: If it is linked to a Guard, end your poison and heal 1.|-|linkG>cleanse
+w:nwe-felted-fleece-boots|Felt Hush|wear|nwe-felted-fleece-boots|soothe|2|mind|-|-|src|Felted Fleece Boots: If you hold a Guard in your hand, cut the creature's hits by 1 this round.|-|handG>soothe
+w:nwe-birch-bark-slippers|Bark Slip|wear|nwe-birch-bark-slippers|hurt|4|craft|-|-|src|Birch-Bark Slippers: If it is linked to a Trick, a chain of 3 or more does not use it up.|-|linkT>stay
+w:nwe-herringbone-gaiters|Gaiter Lunge|wear|nwe-herringbone-gaiters|hurt|6|body|-|-|src|Herringbone Gaiters: Pierce. If it is linked to a Trick (Ambush), your next hand has 1 extra piece.|-|R:NWE:footwear
 w:nwe-peat-creel|Peat Creel Catch|wear|nwe-peat-creel|trick|2|body|-|-|src|Peat Creel: From round 3 on, small chance to lift an item from the creature.|-|r3>pluck
-w:nwe-waxed-roll-top|Roll-Top Snack|wear|nwe-waxed-roll-top|item|4|mind|-|-|src|Waxed Roll-top: If your discard holds 5 or more pieces, draw 1.|-|disc5>draw
-w:nwe-heather-frame|Heather Rest|wear|nwe-heather-frame|heal|3|craft|-|-|src|Heather Frame: If you have not played a Hurt this round, heal 1 at the start of each of your next 2 turns.|-|noHurt>mend
-w:nwe-bark-box-pack|Bark Box Fort|wear|nwe-bark-box-pack|guard|4|body|-|-|src|Bark Box Pack: If you hold 2 pieces or fewer, this piece stays in your hand if unplayed.|-|handSmall>keep
-w:nwe-fleece-bundle|Fleece Bundle Bind|wear|nwe-fleece-bundle|guard|6|mind|-|-|src|Fleece Bundle: Keeper. While it is in your hand, your other Guards get +2.|-|R:NWE:backpack:5
+w:nwe-waxed-roll-top|Roll-Top Snack|wear|nwe-waxed-roll-top|item|4|mind|-|-|src|Waxed Roll-top: If your discard pile holds 5 or more pieces, your next hand has 1 extra piece.|-|disc5>hand
+w:nwe-heather-frame|Heather Rest|wear|nwe-heather-frame|heal|3|craft|-|-|src|Heather Frame: If you played no Hurt last turn, heal 1 at the start of each of your next 2 turns.|-|noHurt>mend
+w:nwe-bark-box-pack|Bark Box Fort|wear|nwe-bark-box-pack|guard|4|body|-|-|src|Bark Box Pack: If you hold 2 or more Hurts in your hand, Keeper: it stays in your hand if you do not play it.|-|handH>keep
+w:nwe-fleece-bundle|Fleece Bundle Bind|wear|nwe-fleece-bundle|guard|6|mind|-|-|src|Fleece Bundle: Keeper. While it waits in your hand, every other Guard you place gets +2.|-|R:NWE:backpack
 w:nwe-cable-knit-long-coat|Cable Wall|wear|nwe-cable-knit-long-coat|guard|3|mind|-|-|src|Cable-Knit Long Coat: If the creature has 3 or more pieces on the board, gain 2 guard.|-|foeB3>guard
-w:nwe-waxed-field-jacket|Waxed Shed|wear|nwe-waxed-field-jacket|guard|3|craft|-|-|src|Waxed Field Jacket: If the creature just hit you, its strongest piece loses 1 value.|-|hit>shrink
-w:nwe-tweed-waistcoat|Tweed Thorn|wear|nwe-tweed-waistcoat|guard|4|body|-|-|src|Tweed Waistcoat: If its chain has 3 or more pieces, a blocked hit pricks it for 3.|-|combo3>thorns
-w:nwe-tanbark-smock|Tanbark Mend|wear|nwe-tanbark-smock|guard|4|mind|-|-|src|Tanbark Smock: If it fires first in its chain, heal 1 at the start of each of your next 2 turns.|-|first>mend
-w:nwe-eiderdown-coat|Eiderdown Nest|wear|nwe-eiderdown-coat|guard|6|craft|-|-|src|Eiderdown Coat: Gain 4 guard. It stays 2 more round(s). If you are under half health, it also heals you 2.|-|R:NWE:coat:5
-w:nwe-heather-shawl|Heather Hum|wear|nwe-heather-shawl|charm|3|craft|-|-|src|Heather Shawl: If the creature has guard up, cut its next hits by 1.|-|foeG>soothe
-w:nwe-mustard-rain-cape|Mustard Drizzle|wear|nwe-mustard-rain-cape|soothe|2|body|-|-|src|Mustard Rain Cape: If nothing is linked to it, gain 1 extra redraw(s) this fight.|-|alone>redraw
-w:nwe-sheepskin-mantle|Sheepskin Snug|wear|nwe-sheepskin-mantle|charm|4|mind|-|-|src|Sheepskin Mantle: If you have guard up, add 3 Charm.|-|hasGuard>charm
-w:nwe-rush-thatch-cape|Thatch Drip|wear|nwe-rush-thatch-cape|guard|4|craft|-|-|src|Rush Thatch Cape: If you took no damage last turn, the creature's first hit next turn misses.|-|noDmg>evade
-w:nwe-woad-mist-cloak|Woad Moth|wear|nwe-woad-mist-cloak|trick|5|body|-|-|src|Woad Mist Cloak: The next piece in its chain is placed as if it had a matching knob; if that piece is a Hurt, add 2 Charm.|-|R:NWE:cloak:5
-w:cb-palm-plait-sandals|Palm-Plait Skip|wear|cb-palm-plait-sandals|guard|4|body|-|-|src|Palm-Plait Sandals: If it sits on the edge of the board, this piece does not count toward the chain limit.|-|edge>free
-w:cb-mahogany-clogs|Mahogany Clack|wear|cb-mahogany-clogs|hurt|4|mind|-|-|src|Mahogany Clogs: If a Guard fired just before it, your next Hurt gets +3.|-|afterG>focus
-w:cb-sisal-sole-slippers|Sisal Soft-Step|wear|cb-sisal-sole-slippers|hurt|5|craft|-|-|src|Sisal-Sole Slippers: If you have no guard up, the creature's first hit next turn misses.|-|noGuard>evade
-w:cb-mangrove-gaiters|Mangrove Grip|wear|cb-mangrove-gaiters|guard|5|body|-|-|src|Mangrove Gaiters: If it sits in a corner, this piece stays 1 more round(s) on the board.|-|corner>life
-w:cb-curl-toe-reef-booties|Reef Hop|wear|cb-curl-toe-reef-booties|hurt|7|mind|-|-|src|Curl-Toe Reef Booties: Trip. If this is its chain's first piece, the creature also loses 2 value on its strongest piece; if last, deal 2 extra.|-|R:CB:footwear:5
+w:nwe-waxed-field-jacket|Waxed Shed|wear|nwe-waxed-field-jacket|guard|3|craft|-|-|src|Waxed Field Jacket: If the creature hit you last turn, the creature's strongest piece loses 1.|-|hit>shrink
+w:nwe-tweed-waistcoat|Tweed Thorn|wear|nwe-tweed-waistcoat|guard|4|body|-|-|src|Tweed Waistcoat: If its chain has 3 or more pieces, each hit this guard blocks adds 1 to the bar.|-|combo3>thorns
+w:nwe-tanbark-smock|Tanbark Mend|wear|nwe-tanbark-smock|guard|4|mind|-|-|src|Tanbark Smock: If it is linked to a Guard, heal 1 at the start of each of your next 2 turns.|-|linkG>mend
+w:nwe-eiderdown-coat|Eiderdown Nest|wear|nwe-eiderdown-coat|guard|6|craft|-|-|src|Eiderdown Coat: Gain 4 guard that stays up one more turn. If you are under half health, heal 2 as well.|-|R:NWE:coat
+w:nwe-heather-shawl|Heather Hum|wear|nwe-heather-shawl|charm|3|craft|-|-|src|Heather Shawl: If the creature has guard up, cut the creature's hits by 1 this round.|-|foeG>soothe
+w:nwe-mustard-rain-cape|Mustard Drizzle|wear|nwe-mustard-rain-cape|soothe|2|body|-|-|src|Mustard Rain Cape: If a creature piece is in its chain, cut the creature's hits by 1 this round.|-|linkFoe>soothe
+w:nwe-sheepskin-mantle|Sheepskin Snug|wear|nwe-sheepskin-mantle|charm|4|mind|-|-|src|Sheepskin Mantle: If it is linked to a Guard, add 3 Charm.|-|linkG>charm
+w:nwe-rush-thatch-cape|Thatch Drip|wear|nwe-rush-thatch-cape|guard|4|craft|-|-|src|Rush Thatch Cape: If you took no damage last turn, the creature's next Hurt misses.|-|noDmg>evade
+w:nwe-woad-mist-cloak|Woad Moth|wear|nwe-woad-mist-cloak|trick|5|body|-|-|src|Woad Mist Cloak: The piece it links to gets +4. If that piece is a Charm, it also cuts the creature's hits by 2 this round.|-|R:NWE:cloak
+w:cb-palm-plait-sandals|Palm-Plait Skip|wear|cb-palm-plait-sandals|guard|4|body|-|-|src|Palm-Plait Sandals: If it sits on the edge of the board, a chain of 3 or more does not use it up.|-|edge>stay
+w:cb-mahogany-clogs|Mahogany Clack|wear|cb-mahogany-clogs|hurt|4|mind|-|-|src|Mahogany Clogs: If it is linked to a Guard, the next Hurt you place gets +3.|-|linkG>focus
+w:cb-sisal-sole-slippers|Sisal Soft-Step|wear|cb-sisal-sole-slippers|hurt|5|craft|-|-|src|Sisal-Sole Slippers: If an environment piece is in its chain, deal 4 extra damage.|-|linkEnv>dmg
+w:cb-mangrove-gaiters|Mangrove Grip|wear|cb-mangrove-gaiters|guard|5|body|-|-|src|Mangrove Gaiters: If it sits in a corner, it stays 1 more round(s) on the board.|-|corner>life
+w:cb-curl-toe-reef-booties|Reef Hop|wear|cb-curl-toe-reef-booties|hurt|7|mind|-|-|src|Curl-Toe Reef Booties: Trip: the creature skips its next turn. If its chain has 3 or more pieces, the creature's strongest piece also loses 2.|-|R:CB:footwear
 w:cb-market-basket-pack|Market Haul|wear|cb-market-basket-pack|item|5|mind|-|-|src|Market Basket Pack: From round 3 on, heal 3.|-|r3>heal
 w:cb-calabash-carrier|Calabash Brew|wear|cb-calabash-carrier|heal|3|craft|-|-|src|Calabash Carrier: If you are at full health, heal 1 at the start of each of your next 2 turns.|-|hpFull>mend
-w:cb-net-roll-bundle|Net-Roll Snare|wear|cb-net-roll-bundle|trick|4|body|-|-|src|Net-Roll Bundle: If the creature has 3 or more pieces on the board, knock its weakest piece off the board.|-|foeB3>knock
-w:cb-batik-sea-sack|Sea-Sack Salve|wear|cb-batik-sea-sack|heal|4|mind|-|-|src|Batik Sea Sack: If the creature just hit you, gain 4 guard.|-|hit>guard
-w:cb-bamboo-frame-pack|Bamboo Bounty|wear|cb-bamboo-frame-pack|heal|6|craft|-|-|src|Bamboo Frame Pack: Heal 5. Next round pick from 6 pieces; if your hand was full, keep one of the unpicked pieces.|-|R:CB:backpack:5
-w:cb-breeze-smock|Breeze Smock|wear|cb-breeze-smock|guard|4|craft|-|-|src|Breeze Smock: If it fires first in its chain, the creature's first hit next turn misses.|-|first>evade
-w:cb-indigo-wrap-coat|Indigo Wrap Wall|wear|cb-indigo-wrap-coat|guard|4|body|-|-|src|Indigo Wrap-Coat: If a Hurt fired just before it, your next Guard gets +3.|-|afterH>ward
-w:cb-check-weave-jacket|Weave Thorn|wear|cb-check-weave-jacket|guard|5|mind|-|-|src|Check-Weave Jacket: If the creature has guard up, a blocked hit pricks it for 4.|-|foeG>thorns
-w:cb-sailcloth-longcoat|Sailcloth Brace|wear|cb-sailcloth-longcoat|guard|5|craft|-|-|src|Sailcloth Longcoat: From round 3 on, this piece stays 1 more round(s) on the board.|-|r3>life
-w:cb-sunset-batik-vest|Sunset Mend|wear|cb-sunset-batik-vest|guard|7|body|-|-|src|Sunset Batik Vest: Gain 5 guard. When the creature plays a Hurt into it, heal 2 and add 2 Charm.|-|R:CB:coat:5
-w:cb-thatch-rain-cape|Thatch Hush|wear|cb-thatch-rain-cape|soothe|2|body|-|-|src|Thatch Rain Cape: If you are under half health, the creature skips its next move.|-|hpLow>skip
-w:cb-hibiscus-shawl|Hibiscus Charm|wear|cb-hibiscus-shawl|charm|4|mind|-|-|src|Hibiscus Shawl: If a Charm fired just before it, your Charm fills 10% more for the rest of the fight.|-|afterC>bond
-w:cb-sea-breeze-poncho|Breeze Poncho|wear|cb-sea-breeze-poncho|trick|4|craft|-|-|src|Sea-Breeze Poncho: If you have guard up, this piece does not count toward the chain limit.|-|hasGuard>free
-w:cb-mangrove-hood|Mangrove Cover|wear|cb-mangrove-hood|guard|5|body|-|-|src|Mangrove Hood: If you have not played a Hurt this round, this piece stays in your hand if unplayed.|-|noHurt>keep
-w:cb-shell-scallop-capelet|Scallop Shine|wear|cb-shell-scallop-capelet|charm|7|mind|-|-|src|Shell-Scallop Capelet: Add 5 Charm. If it is linked to 2 or more pieces, the creature skips its next move.|-|R:CB:cloak:5
-w:se-rope-slips|Rope-Slip Slide|wear|se-rope-slips|hurt|4|mind|-|-|src|Shoreline Rope Slips: If it sits on the edge of the board, draw 1.|-|edge>draw
-w:se-sunpath-sandals|Sunpath Stride|wear|se-sunpath-sandals|guard|4|craft|-|-|src|Sunpath Sandals: If its chain has 3 or more pieces, this piece does not count toward the chain limit.|-|combo3>free
-w:se-corkbark-clogs|Cork Knock|wear|se-corkbark-clogs|hurt|5|body|-|-|src|Corkbark Clogs: If the creature has guard up, this piece ignores guard.|-|foeG>pierce
-w:se-thyme-hill-wraps|Thyme Wrap Stay|wear|se-thyme-hill-wraps|guard|5|mind|-|-|src|Thyme-Hill Wraps: If you took no damage last turn, this piece stays 1 more round(s) on the board.|-|noDmg>life
-w:se-harvest-treaders|Harvest Tread|wear|se-harvest-treaders|hurt|7|craft|-|-|src|Harvest Treaders: Fires last in its chain and deals 5 extra damage. Heal 2 for each Guard in the chain.|-|R:SE:footwear:5
-w:se-olive-creel|Olive Creel Pick|wear|se-olive-creel|item|5|craft|-|-|src|Olive Picker's Creel: If your hand is full, next round you pick from 6 pieces.|-|handFull>plenty
-w:se-float-net|Float-Net Haul|wear|se-float-net|trick|3|body|-|-|src|Fisher's Float Net: If it is linked to 2 or more pieces, draw 1.|-|link2>draw
+w:cb-net-roll-bundle|Net-Roll Snare|wear|cb-net-roll-bundle|trick|4|body|-|-|src|Net-Roll Bundle: If the creature has 3 or more pieces on the board, remove the creature's weakest piece from the board.|-|foeB3>knock
+w:cb-batik-sea-sack|Sea-Sack Salve|wear|cb-batik-sea-sack|heal|4|mind|-|-|src|Batik Sea Sack: If the creature hit you last turn, heal 4.|-|hit>heal
+w:cb-bamboo-frame-pack|Bamboo Bounty|wear|cb-bamboo-frame-pack|heal|6|craft|-|-|src|Bamboo Frame Pack: Heal 5. Next round pick from 6 pieces, or from 7 if you hold a Guard in your hand.|-|R:CB:backpack
+w:cb-breeze-smock|Breeze Smock|wear|cb-breeze-smock|guard|4|craft|-|-|src|Breeze Smock: If it sits next to the creature's aim cell, the creature's next Hurt misses.|-|aimNext>evade
+w:cb-indigo-wrap-coat|Indigo Wrap Wall|wear|cb-indigo-wrap-coat|guard|4|body|-|-|src|Indigo Wrap-Coat: If it is linked to a Hurt, the next Guard you place gets +3.|-|linkH>ward
+w:cb-check-weave-jacket|Weave Thorn|wear|cb-check-weave-jacket|guard|5|mind|-|-|src|Check-Weave Jacket: If the creature has guard up, each hit this guard blocks adds 1 to the bar.|-|foeG>thorns
+w:cb-sailcloth-longcoat|Sailcloth Brace|wear|cb-sailcloth-longcoat|guard|5|craft|-|-|src|Sailcloth Longcoat: From round 3 on, it stays 1 more round(s) on the board.|-|r3>life
+w:cb-sunset-batik-vest|Sunset Mend|wear|cb-sunset-batik-vest|guard|7|body|-|-|src|Sunset Batik Vest: Gain 5 guard. When this guard soaks a Hurt, heal 2 and add 2 Charm.|-|R:CB:coat
+w:cb-thatch-rain-cape|Thatch Hush|wear|cb-thatch-rain-cape|soothe|2|body|-|-|src|Thatch Rain Cape: If you are under half health, the creature skips its next turn.|-|hpLow>skip
+w:cb-hibiscus-shawl|Hibiscus Charm|wear|cb-hibiscus-shawl|charm|4|mind|-|-|src|Hibiscus Shawl: If it is linked to a Charm, your Charm counts 10% more for the rest of the fight.|-|linkC>bond
+w:cb-sea-breeze-poncho|Breeze Poncho|wear|cb-sea-breeze-poncho|trick|4|craft|-|-|src|Sea-Breeze Poncho: If it is linked to a Guard, a chain of 3 or more does not use it up.|-|linkG>stay
+w:cb-mangrove-hood|Mangrove Cover|wear|cb-mangrove-hood|guard|5|body|-|-|src|Mangrove Hood: If you played no Hurt last turn, Keeper: it stays in your hand if you do not play it.|-|noHurt>keep
+w:cb-shell-scallop-capelet|Scallop Shine|wear|cb-shell-scallop-capelet|charm|7|mind|-|-|src|Shell-Scallop Capelet: Add 5 Charm. If it is linked to 2 or more pieces, the creature skips its next turn.|-|R:CB:cloak
+w:se-rope-slips|Rope-Slip Slide|wear|se-rope-slips|hurt|4|mind|-|-|src|Shoreline Rope Slips: If it sits on the edge of the board, your next hand has 1 extra piece.|-|edge>hand
+w:se-sunpath-sandals|Sunpath Stride|wear|se-sunpath-sandals|guard|4|craft|-|-|src|Sunpath Sandals: If its chain has 3 or more pieces, a chain of 3 or more does not use it up.|-|combo3>stay
+w:se-corkbark-clogs|Cork Knock|wear|se-corkbark-clogs|hurt|5|body|-|-|src|Corkbark Clogs: If the creature has guard up, it ignores the creature's guard.|-|foeG>pierce
+w:se-thyme-hill-wraps|Thyme Wrap Stay|wear|se-thyme-hill-wraps|guard|5|mind|-|-|src|Thyme-Hill Wraps: If you took no damage last turn, it stays 1 more round(s) on the board.|-|noDmg>life
+w:se-harvest-treaders|Harvest Tread|wear|se-harvest-treaders|hurt|7|craft|-|-|src|Harvest Treaders: Deal 5 extra damage and heal 2 for each Guard in its chain.|-|R:SE:footwear
+w:se-olive-creel|Olive Creel Pick|wear|se-olive-creel|item|5|craft|-|-|src|Olive Picker's Creel: If you hold a Guard in your hand, next round you pick from 6 pieces.|-|handG>plenty
+w:se-float-net|Float-Net Haul|wear|se-float-net|trick|3|body|-|-|src|Fisher's Float Net: If it is linked to 2 or more pieces, your next hand has 1 extra piece.|-|link2>hand
 w:se-amphora-frame|Amphora Pour|wear|se-amphora-frame|heal|4|mind|-|-|src|Amphora Frame: In the first round of the fight, heal 1 at the start of each of your next 2 turns.|-|r1>mend
-w:se-sailcloth-seabag|Seabag Stash|wear|se-sailcloth-seabag|item|6|craft|-|-|src|Sailcloth Seabag: If your discard holds 5 or more pieces, this piece stays in your hand if unplayed.|-|disc5>keep
-w:se-lemon-satchel|Lemon Zest|wear|se-lemon-satchel|heal|6|body|-|-|src|Lemon-Grove Satchel: Heal 5 and cut its next hits by 2. If you have no guard up, it also draws you 2.|-|R:SE:backpack:5
-w:se-net-mender-smock|Net-Mender Wall|wear|se-net-mender-smock|guard|4|body|-|-|src|Net-Mender's Smock: If it fires first in its chain, a blocked hit pricks it for 3.|-|first>thorns
-w:se-fleece-vest|Fleece Vest Hold|wear|se-fleece-vest|guard|4|mind|-|-|src|Goatherd's Fleece Vest: If you are under half health, this piece stays 1 more round(s) on the board.|-|hpLow>life
-w:se-olive-quilt-jacket|Olive Quilt|wear|se-olive-quilt-jacket|guard|5|craft|-|-|src|Olive-Grove Quilt Jacket: If a Charm fired just before it, heal 4.|-|afterC>heal
-w:se-vintner-long-coat|Vintner's Long Guard|wear|se-vintner-long-coat|guard|5|body|-|-|src|Vintner's Long Coat: If it sits on the edge of the board, your next Guard gets +4.|-|edge>ward
-w:se-sun-stripe-tunic|Sun-Stripe Spike|wear|se-sun-stripe-tunic|guard|7|mind|-|-|src|Sun-Stripe Tunic Coat: Gain 5 guard. A blocked hit pricks it for 5; a hit that is fully blocked also costs it a piece.|-|R:SE:coat:5
-w:se-shepherd-felt-cape|Shepherd Hum|wear|se-shepherd-felt-cape|charm|4|mind|-|-|src|Shepherd's Felt Cape: If you hold 2 pieces or fewer, cut its next hits by 1.|-|handSmall>soothe
+w:se-sailcloth-seabag|Seabag Stash|wear|se-sailcloth-seabag|item|6|craft|-|-|src|Sailcloth Seabag: If your discard pile holds 5 or more pieces, heal 4.|-|disc5>heal
+w:se-lemon-satchel|Lemon Zest|wear|se-lemon-satchel|heal|6|body|-|-|src|Lemon-Grove Satchel: Heal 5 and cut the creature's hits by 2 this round. If the creature has guard up, add 2 Charm too.|-|R:SE:backpack
+w:se-net-mender-smock|Net-Mender Wall|wear|se-net-mender-smock|guard|4|body|-|-|src|Net-Mender's Smock: If it sits next to the creature's aim cell, each hit this guard blocks adds 1 to the bar.|-|aimNext>thorns
+w:se-fleece-vest|Fleece Vest Hold|wear|se-fleece-vest|guard|4|mind|-|-|src|Goatherd's Fleece Vest: If you are under half health, it stays 1 more round(s) on the board.|-|hpLow>life
+w:se-olive-quilt-jacket|Olive Quilt|wear|se-olive-quilt-jacket|guard|5|craft|-|-|src|Olive-Grove Quilt Jacket: If it is linked to a Charm, heal 4.|-|linkC>heal
+w:se-vintner-long-coat|Vintner's Long Guard|wear|se-vintner-long-coat|guard|5|body|-|-|src|Vintner's Long Coat: If it sits on the edge of the board, the next Guard you place gets +4.|-|edge>ward
+w:se-sun-stripe-tunic|Sun-Stripe Spike|wear|se-sun-stripe-tunic|guard|7|mind|-|-|src|Sun-Stripe Tunic Coat: Gain 5 guard. Each hit it blocks adds 5 to the bar; a Hurt that is fully blocked is removed from the board.|-|R:SE:coat
+w:se-shepherd-felt-cape|Shepherd Hum|wear|se-shepherd-felt-cape|charm|4|mind|-|-|src|Shepherd's Felt Cape: If you hold 2 or more Hurts in your hand, cut the creature's hits by 1 this round.|-|handH>soothe
 w:se-lemon-fringe-shawl|Lemon Fringe Soft|wear|se-lemon-fringe-shawl|charm|4|craft|-|-|src|Lemon-Fringe Shawl: If it sits in a corner, add 3 Charm.|-|corner>charm
-w:se-loom-stripe-poncho|Loom Stripe Tidy|wear|se-loom-stripe-poncho|trick|4|body|-|-|src|Loom-Stripe Poncho: If it sits next to the blank centre, small chance to lift an item from the creature.|-|centre>pluck
-w:se-whitewash-mantle|Whitewash Glare|wear|se-whitewash-mantle|guard|5|mind|-|-|src|Whitewash Sun Mantle: If its Yield bar is under a quarter, the creature's first hit next turn misses.|-|yLow>evade
-w:se-sea-squall-capelet|Squall Lull|wear|se-sea-squall-capelet|charm|7|craft|-|-|src|Sea-Squall Capelet: Add 5 Charm. If it is the only Charm this round, the creature skips its next move.|-|R:SE:cloak:5
-w:sa-latex-puddle-boots|Latex Splash|wear|sa-latex-puddle-boots|guard|4|craft|-|-|src|Latex Puddle Boots: If a piece of its own type is linked to it, the creature's first hit next turn misses.|-|pair>evade
+w:se-loom-stripe-poncho|Loom Stripe Tidy|wear|se-loom-stripe-poncho|trick|4|body|-|-|src|Loom-Stripe Poncho: If it sits in one of the four middle cells, small chance to lift an item from the creature.|-|mid4>pluck
+w:se-whitewash-mantle|Whitewash Glare|wear|se-whitewash-mantle|guard|5|mind|-|-|src|Whitewash Sun Mantle: If its Yield bar is under a quarter, the creature's next Hurt misses.|-|yLow>evade
+w:se-sea-squall-capelet|Squall Lull|wear|se-sea-squall-capelet|charm|7|craft|-|-|src|Sea-Squall Capelet: Add 5 Charm. If it is the only Charm in your chain, the creature skips its next turn.|-|R:SE:cloak
+w:sa-latex-puddle-boots|Latex Splash|wear|sa-latex-puddle-boots|guard|4|craft|-|-|src|Latex Puddle Boots: If a piece of its own type is linked to it, the creature's next Hurt misses.|-|pair>evade
 w:sa-puna-wool-booties|Puna Warm|wear|sa-puna-wool-booties|guard|4|body|-|-|src|Puna Wool Booties: If you have played 2 or more Guards this fight, heal 3.|-|g2>heal
-w:sa-plaited-fibre-sandals|Fibre Stride|wear|sa-plaited-fibre-sandals|hurt|5|mind|-|-|src|Plaited Fibre Sandals: If a Hurt fired just before it, draw 2.|-|afterH>draw
+w:sa-plaited-fibre-sandals|Fibre Stride|wear|sa-plaited-fibre-sandals|hurt|5|mind|-|-|src|Plaited Fibre Sandals: If it is linked to a Hurt, your next hand has 1 extra piece.|-|linkH>hand
 w:sa-balsa-bark-clogs|Balsa Bump|wear|sa-balsa-bark-clogs|hurt|5|craft|-|-|src|Balsa Bark Clogs: If you took no damage last turn, deal 4 extra damage.|-|noDmg>dmg
-w:sa-striped-leg-wraps|Stripe Wrap Trip|wear|sa-striped-leg-wraps|hurt|7|body|-|-|src|Striped Leg Wraps: Trip. If its chain has 3 or more pieces, also deal 5 extra damage and draw 3.|-|R:SA:footwear:5
-w:sa-striped-bundle-cloth|Bundle Basics|wear|sa-striped-bundle-cloth|item|5|body|-|-|src|Striped Bundle Cloth: If it fires first in its chain, heal 3.|-|first>heal
-w:sa-cone-vine-basket|Vine Basket Pick|wear|sa-cone-vine-basket|item|5|mind|-|-|src|Cone Vine Basket: If a Guard fired just before it, next round you pick from 6 pieces.|-|afterG>plenty
+w:sa-striped-leg-wraps|Stripe Wrap Trip|wear|sa-striped-leg-wraps|hurt|7|body|-|-|src|Striped Leg Wraps: Trip: the creature skips its next turn. If its chain has 3 or more pieces, deal 5 extra damage.|-|R:SA:footwear
+w:sa-striped-bundle-cloth|Bundle Basics|wear|sa-striped-bundle-cloth|item|5|body|-|-|src|Striped Bundle Cloth: If it is linked to a Hurt, heal 3.|-|linkH>heal
+w:sa-cone-vine-basket|Vine Basket Pick|wear|sa-cone-vine-basket|item|5|mind|-|-|src|Cone Vine Basket: If it is linked to a Guard, next round you pick from 6 pieces.|-|linkG>plenty
 w:sa-highland-carry-frame|Highland Carry|wear|sa-highland-carry-frame|heal|4|craft|-|-|src|Highland Carry Frame: If its chain has 3 or more pieces, heal 2 at the start of each of your next 2 turns.|-|combo3>mend
 w:sa-leaf-flap-satchel|Leaf-Flap Rummage|wear|sa-leaf-flap-satchel|trick|4|body|-|-|src|Leaf-Flap Satchel: If its Yield bar is past half, small chance to lift an item from the creature.|-|yHalf>pluck
-w:sa-market-net-bag|Market Net Feast|wear|sa-market-net-bag|heal|6|mind|-|-|src|Market Net Bag: Heal 5, plus 3 for every piece left in your hand. Next round pick from 6 pieces.|-|R:SA:backpack:5
-w:sa-fleece-vest|Fleece Hold|wear|sa-fleece-vest|guard|4|mind|-|-|src|Fleece Vest: If the creature just hit you, this piece stays 2 more round(s) on the board.|-|hit>life
-w:sa-shingle-leaf-smock|Shingle Thorn|wear|sa-shingle-leaf-smock|guard|4|craft|-|-|src|Shingle Leaf Smock: If you have played 2 or more Hurts this fight, a blocked hit pricks it for 3.|-|h2>thorns
+w:sa-market-net-bag|Market Net Feast|wear|sa-market-net-bag|heal|6|mind|-|-|src|Market Net Bag: Heal 5, plus 1 for every 2 pieces in your discard pile (up to 3 extra). Next round pick from 6 pieces.|-|R:SA:backpack
+w:sa-fleece-vest|Fleece Hold|wear|sa-fleece-vest|guard|4|mind|-|-|src|Fleece Vest: If the creature hit you last turn, it stays 2 more round(s) on the board.|-|hit>life
+w:sa-shingle-leaf-smock|Shingle Thorn|wear|sa-shingle-leaf-smock|guard|4|craft|-|-|src|Shingle Leaf Smock: If you have played 2 or more Hurts this fight, each hit this guard blocks adds 2 to the bar.|-|h2>thorns
 w:sa-warp-stripe-jacket|Warp Mend|wear|sa-warp-stripe-jacket|guard|5|body|-|-|src|Warp-Stripe Jacket: If you are poisoned, heal 2 at the start of each of your next 2 turns.|-|poisoned>mend
-w:sa-bark-cloth-tunic-coat|Bark-Cloth Ward|wear|sa-bark-cloth-tunic-coat|guard|5|mind|-|-|src|Bark-Cloth Tunic Coat: If a Trick fired just before it, its strongest piece loses 2 value.|-|afterT>shrink
-w:sa-kapok-puffer|Kapok Cushion|wear|sa-kapok-puffer|guard|7|craft|-|-|src|Kapok Puffer: Keeper. Gain 5 guard. If it was kept a round, gain 5 more.|-|R:SA:coat:5
-w:sa-striped-poncho|Stripe Poncho Hum|wear|sa-striped-poncho|charm|4|craft|-|-|src|Striped Poncho: If you have guard up, your Charm fills 10% more for the rest of the fight.|-|hasGuard>bond
-w:sa-thatch-rain-cape|Rain Thatch Cover|wear|sa-thatch-rain-cape|soothe|2|body|-|-|src|Thatch Rain Cape: If a piece of its own type is linked to it, this piece stays in your hand if unplayed.|-|pair>keep
-w:sa-feather-shoulder-mantle|Feather Flash|wear|sa-feather-shoulder-mantle|charm|5|mind|-|-|src|Feather Shoulder Mantle: If its Yield bar is past half, double the value of the next piece in its chain.|-|yHalf>double
-w:sa-cloud-forest-shawl|Cloud Shawl Veil|wear|sa-cloud-forest-shawl|trick|4|craft|-|-|src|Cloud-Forest Shawl: If you have no guard up, cut its next hits by 2.|-|noGuard>soothe
-w:sa-indigo-hooded-cloak|Indigo Dusk Lull|wear|sa-indigo-hooded-cloak|charm|7|body|-|-|src|Indigo Hooded Cloak: Add 5 Charm. The creature's next piece fires at half value; if its Yield bar is past half, it skips instead.|-|R:SA:cloak:5
-w:ee-birchweave-shoes|Birchweave Hop|wear|ee-birchweave-shoes|guard|5|body|-|-|src|Birchweave Shoes: If you have not played a Hurt this round, this piece does not count toward the chain limit.|-|noHurt>free
-w:ee-snowdrift-felt-boots|Snowdrift Boot Hold|wear|ee-snowdrift-felt-boots|guard|5|mind|-|-|src|Snowdrift Felt Boots: If the creature has no pieces on the board, this piece stays 2 more round(s) on the board.|-|foeB0>life
-w:ee-poppy-hide-moccasins|Poppy Moccasin Trip|wear|ee-poppy-hide-moccasins|hurt|6|craft|-|-|src|Poppy Hide Moccasins: If it sits in a corner, the creature skips its next move.|-|corner>skip
-w:ee-riders-red-boots|Rider's Charge|wear|ee-riders-red-boots|hurt|6|body|-|-|src|Rider's Red Boots: If its chain has 3 or more pieces, add 5 Charm.|-|combo3>charm
-w:ee-sunflower-straw-sandals|Straw Sun Skip|wear|ee-sunflower-straw-sandals|hurt|8|mind|-|-|src|Sunflower Straw Sandals: Quick. Fires first: draw 3. If no Hurt fired before it this round, deal 6 extra damage.|-|R:EE:footwear:5
-w:ee-birchbark-pester|Pester Pick|wear|ee-birchbark-pester|trick|4|mind|-|-|src|Birchbark Pester: If a Guard fired just before it, small chance to lift an item from the creature.|-|afterG>pluck
-w:ee-harvest-wicker-basket|Harvest Wicker Feast|wear|ee-harvest-wicker-basket|item|6|craft|-|-|src|Harvest Wicker Basket: If you hold 2 pieces or fewer, next round you pick from 6 pieces.|-|handSmall>plenty
-w:ee-beekeepers-frame|Hive Frame Honey|wear|ee-beekeepers-frame|heal|5|body|-|-|src|Beekeeper's Frame: If the creature just hit you, heal 2 at the start of each of your next 2 turns.|-|hit>mend
-w:ee-flat-weave-satchel|Flat-Weave Stash|wear|ee-flat-weave-satchel|item|7|mind|-|-|src|Flat-weave Satchel: If it sits on the edge of the board, gain 2 extra redraw(s) this fight.|-|edge>redraw
-w:ee-fleece-drawsack|Fleece Sack Rest|wear|ee-fleece-drawsack|heal|7|craft|-|-|src|Fleece Drawsack: Heal 6. If your discard holds 5 or more pieces, return 3 of them to your deck.|-|R:EE:backpack:5
-w:ee-sheepskin-longcoat|Longcoat Thorn|wear|ee-sheepskin-longcoat|guard|5|craft|-|-|src|Sheepskin Longcoat: If you have no guard up, a blocked hit pricks it for 4.|-|noGuard>thorns
-w:ee-stitched-felt-vest|Felt Vest Hold|wear|ee-stitched-felt-vest|guard|5|body|-|-|src|Stitched Felt Vest: If a piece of its own type is linked to it, this piece stays 2 more round(s) on the board.|-|pair>life
-w:ee-red-stitch-linen-smock|Red-Stitch Mend|wear|ee-red-stitch-linen-smock|guard|6|mind|-|-|src|Red-stitch Linen Smock: If you are at full health, your next Guard gets +5.|-|hpFull>ward
-w:ee-quilted-steppe-coat|Steppe Quilt Veil|wear|ee-quilted-steppe-coat|guard|6|craft|-|-|src|Quilted Steppe Coat: If the creature has guard up, its strongest piece loses 2 value.|-|foeG>shrink
-w:ee-hedgehog-knit-cardigan|Hedgehog Quill|wear|ee-hedgehog-knit-cardigan|guard|8|body|-|-|src|Hedgehog Knit Cardigan: Gain 6 guard. Each hit it blocks pricks the creature for 3; a creature at 3 or more board pieces takes 3 extra.|-|R:EE:coat:5
+w:sa-bark-cloth-tunic-coat|Bark-Cloth Ward|wear|sa-bark-cloth-tunic-coat|guard|5|mind|-|-|src|Bark-Cloth Tunic Coat: If it is linked to a Trick, the creature's strongest piece loses 2.|-|linkT>shrink
+w:sa-kapok-puffer|Kapok Cushion|wear|sa-kapok-puffer|guard|7|craft|-|-|src|Kapok Puffer: Keeper. Gain 5 guard; if it stayed in your hand through a round, gain 5 more.|-|R:SA:coat
+w:sa-striped-poncho|Stripe Poncho Hum|wear|sa-striped-poncho|charm|4|craft|-|-|src|Striped Poncho: If it is linked to a Guard, your Charm counts 10% more for the rest of the fight.|-|linkG>bond
+w:sa-thatch-rain-cape|Rain Thatch Cover|wear|sa-thatch-rain-cape|soothe|2|body|-|-|src|Thatch Rain Cape: If a piece of its own type is linked to it, cut the creature's hits by 2 this round.|-|pair>soothe
+w:sa-feather-shoulder-mantle|Feather Flash|wear|sa-feather-shoulder-mantle|charm|5|mind|-|-|src|Feather Shoulder Mantle: If its Yield bar is past half, add 4 Charm.|-|yHalf>charm
+w:sa-cloud-forest-shawl|Cloud Shawl Veil|wear|sa-cloud-forest-shawl|trick|4|craft|-|-|src|Cloud-Forest Shawl: If an environment piece is in its chain, the piece it links to gets +2.|-|linkEnv>boost
+w:sa-indigo-hooded-cloak|Indigo Dusk Lull|wear|sa-indigo-hooded-cloak|charm|7|body|-|-|src|Indigo Hooded Cloak: Add 5 Charm and cut the creature's hits by 3 this round. If its Yield bar is past half, the creature skips its next turn.|-|R:SA:cloak
+w:ee-birchweave-shoes|Birchweave Hop|wear|ee-birchweave-shoes|guard|5|body|-|-|src|Birchweave Shoes: If you played no Hurt last turn, a chain of 3 or more does not use it up.|-|noHurt>stay
+w:ee-snowdrift-felt-boots|Snowdrift Boot Hold|wear|ee-snowdrift-felt-boots|guard|5|mind|-|-|src|Snowdrift Felt Boots: If the creature has no pieces on the board, it stays 2 more round(s) on the board.|-|foeB0>life
+w:ee-poppy-hide-moccasins|Poppy Moccasin Trip|wear|ee-poppy-hide-moccasins|hurt|6|craft|-|-|src|Poppy Hide Moccasins: If it sits in a corner, the creature skips its next turn.|-|corner>skip
+w:ee-riders-red-boots|Rider's Charge|wear|ee-riders-red-boots|hurt|6|body|-|-|src|Rider's Red Boots: If its chain has 3 or more pieces, deal 5 extra damage.|-|combo3>dmg
+w:ee-sunflower-straw-sandals|Straw Sun Skip|wear|ee-sunflower-straw-sandals|hurt|8|mind|-|-|src|Sunflower Straw Sandals: If you played no Hurt last turn, deal 6 extra damage and the next Hurt you place gets +3.|-|R:EE:footwear
+w:ee-birchbark-pester|Pester Pick|wear|ee-birchbark-pester|trick|4|mind|-|-|src|Birchbark Pester: If it is linked to a Guard, small chance to lift an item from the creature.|-|linkG>pluck
+w:ee-harvest-wicker-basket|Harvest Wicker Feast|wear|ee-harvest-wicker-basket|item|6|craft|-|-|src|Harvest Wicker Basket: If you hold 2 or more Hurts in your hand, next round you pick from 6 pieces.|-|handH>plenty
+w:ee-beekeepers-frame|Hive Frame Honey|wear|ee-beekeepers-frame|heal|5|body|-|-|src|Beekeeper's Frame: If the creature hit you last turn, heal 2 at the start of each of your next 2 turns.|-|hit>mend
+w:ee-flat-weave-satchel|Flat-Weave Stash|wear|ee-flat-weave-satchel|item|7|mind|-|-|src|Flat-weave Satchel: If it sits on the edge of the board, heal 5.|-|edge>heal
+w:ee-fleece-drawsack|Fleece Sack Rest|wear|ee-fleece-drawsack|heal|7|craft|-|-|src|Fleece Drawsack: Heal 6 and shuffle 3 pieces from your discard pile back into your draw pile.|-|R:EE:backpack
+w:ee-sheepskin-longcoat|Longcoat Thorn|wear|ee-sheepskin-longcoat|guard|5|craft|-|-|src|Sheepskin Longcoat: If an environment piece is in its chain, each hit this guard blocks adds 2 to the bar.|-|linkEnv>thorns
+w:ee-stitched-felt-vest|Felt Vest Hold|wear|ee-stitched-felt-vest|guard|5|body|-|-|src|Stitched Felt Vest: If a piece of its own type is linked to it, it stays 2 more round(s) on the board.|-|pair>life
+w:ee-red-stitch-linen-smock|Red-Stitch Mend|wear|ee-red-stitch-linen-smock|guard|6|mind|-|-|src|Red-stitch Linen Smock: If you are at full health, the next Guard you place gets +5.|-|hpFull>ward
+w:ee-quilted-steppe-coat|Steppe Quilt Veil|wear|ee-quilted-steppe-coat|guard|6|craft|-|-|src|Quilted Steppe Coat: If the creature has guard up, the creature's strongest piece loses 2.|-|foeG>shrink
+w:ee-hedgehog-knit-cardigan|Hedgehog Quill|wear|ee-hedgehog-knit-cardigan|guard|8|body|-|-|src|Hedgehog Knit Cardigan: Gain 6 guard. Each hit it blocks adds 3 to the bar, and 3 more while the creature has 3 or more pieces on the board.|-|R:EE:coat
 w:ee-shaggy-shepherd-cape|Shaggy Hum|wear|ee-shaggy-shepherd-cape|charm|5|body|-|-|src|Shaggy Shepherd Cape: If you are under half health, add 4 Charm.|-|hpLow>charm
-w:ee-poppy-field-shawl|Poppy Shawl Bond|wear|ee-poppy-field-shawl|charm|5|mind|-|-|src|Poppy Field Shawl: If a Trick fired just before it, your Charm fills 10% more for the rest of the fight.|-|afterT>bond
-w:ee-birch-hooded-mantle|Birch Mantle Lull|wear|ee-birch-hooded-mantle|charm|6|craft|-|-|src|Birch Hooded Mantle: If it sits next to the blank centre, the creature skips its next move.|-|centre>skip
-w:ee-wheatfield-poncho|Wheatfield Poncho|wear|ee-wheatfield-poncho|soothe|4|body|-|-|src|Wheatfield Poncho: If it sits on the edge of the board, this piece stays in your hand if unplayed.|-|edge>keep
-w:ee-fox-collar-capelet|Fox-Collar Lift|wear|ee-fox-collar-capelet|trick|7|mind|-|-|src|Fox-collar Capelet: Lift an item from the creature for sure once a fight; after that, +3 to Pluck chances and draw 3.|-|R:EE:cloak:5
-w:mena-dune-slippers|Dune Slip|wear|mena-dune-slippers|guard|5|mind|-|-|src|Dune Slippers: If it sits next to the blank centre, the creature's first hit next turn misses.|-|centre>evade
-w:mena-palm-rope-sandals|Palm-Rope Spring|wear|mena-palm-rope-sandals|hurt|5|craft|-|-|src|Palm-Rope Sandals: If you are at full health, draw 2.|-|hpFull>draw
-w:mena-indigo-wrap-boots|Indigo Wrap Brace|wear|mena-indigo-wrap-boots|guard|6|body|-|-|src|Indigo Wrap Boots: If a Charm fired just before it, gain 5 guard.|-|afterC>guard
+w:ee-poppy-field-shawl|Poppy Shawl Bond|wear|ee-poppy-field-shawl|charm|5|mind|-|-|src|Poppy Field Shawl: If it is linked to a Trick, your Charm counts 10% more for the rest of the fight.|-|linkT>bond
+w:ee-birch-hooded-mantle|Birch Mantle Lull|wear|ee-birch-hooded-mantle|charm|6|craft|-|-|src|Birch Hooded Mantle: If it sits in one of the four middle cells, the creature skips its next turn.|-|mid4>skip
+w:ee-wheatfield-poncho|Wheatfield Poncho|wear|ee-wheatfield-poncho|soothe|4|body|-|-|src|Wheatfield Poncho: If it sits on the edge of the board, cut the creature's hits by 2 this round.|-|edge>soothe
+w:ee-fox-collar-capelet|Fox-Collar Lift|wear|ee-fox-collar-capelet|trick|7|mind|-|-|src|Fox-collar Capelet: Pluck, sure to work once a fight; after that Pluck chances double. The piece it links to gets +3.|-|R:EE:cloak
+w:mena-dune-slippers|Dune Slip|wear|mena-dune-slippers|guard|5|mind|-|-|src|Dune Slippers: If it sits in one of the four middle cells, the creature's next Hurt misses.|-|mid4>evade
+w:mena-palm-rope-sandals|Palm-Rope Spring|wear|mena-palm-rope-sandals|hurt|5|craft|-|-|src|Palm-Rope Sandals: If you are at full health, your next hand has 1 extra piece.|-|hpFull>hand
+w:mena-indigo-wrap-boots|Indigo Wrap Brace|wear|mena-indigo-wrap-boots|guard|6|body|-|-|src|Indigo Wrap Boots: If it is linked to a Charm, gain 5 guard.|-|linkC>guard
 w:mena-camel-pad-overshoes|Camel-Pad Plod|wear|mena-camel-pad-overshoes|hurt|6|mind|-|-|src|Camel-Pad Overshoes: If the creature has 3 or more pieces on the board, deal 5 extra damage.|-|foeB3>dmg
-w:mena-cedar-bath-clogs|Cedar Clog Soak|wear|mena-cedar-bath-clogs|hurt|8|craft|-|-|src|Cedar Bath Clogs: Poison 3 for 3 turns. If it is linked to a Guard, the poison also cuts its Hurts by 3.|-|R:MENA:footwear:5
-w:mena-goatskin-waterskin|Waterskin Sip|wear|mena-goatskin-waterskin|heal|4|craft|-|-|src|Goatskin Waterskin: If it fires last in its chain, heal 2 at the start of each of your next 2 turns.|-|last>mend
+w:mena-cedar-bath-clogs|Cedar Clog Soak|wear|mena-cedar-bath-clogs|hurt|8|craft|-|-|src|Cedar Bath Clogs: Poison 3 for 3 turns. If it is linked to a Guard, the poison also cuts the creature's hits by 3.|-|R:MENA:footwear
+w:mena-goatskin-waterskin|Waterskin Sip|wear|mena-goatskin-waterskin|heal|4|craft|-|-|src|Goatskin Waterskin: If it is linked to a Hurt, heal 2 at the start of each of your next 2 turns.|-|linkH>mend
 w:mena-date-palm-basket|Date Basket Treat|wear|mena-date-palm-basket|item|6|body|-|-|src|Date-Palm Basket: If you took no damage last turn, heal 4.|-|noDmg>heal
-w:mena-kilim-saddle-bag|Saddle-Bag Rummage|wear|mena-kilim-saddle-bag|trick|5|mind|-|-|src|Kilim Saddle-Bag: If you have guard up, draw 2.|-|hasGuard>draw
-w:mena-copper-pot-frame|Copper Pot Boil|wear|mena-copper-pot-frame|heal|5|craft|-|-|src|Copper-Pot Frame: If it fires first in its chain, next round you pick from 6 pieces.|-|first>plenty
-w:mena-bottle-gourd-sling|Gourd Gift|wear|mena-bottle-gourd-sling|item|9|body|-|-|src|Bottle-Gourd Sling: Heal 6. Give the creature a gift: add 6 Charm, and it skips its next move if its Yield bar is past half.|-|R:MENA:backpack:5
-w:mena-loom-stripe-vest|Loom Vest Hold|wear|mena-loom-stripe-vest|guard|5|body|-|-|src|Loom-Stripe Vest: If it fires last in its chain, this piece stays 2 more round(s) on the board.|-|last>life
-w:mena-braided-cord-jacket|Braided Thorn|wear|mena-braided-cord-jacket|guard|5|mind|-|-|src|Braided Cord Jacket: If its chain has 3 or more pieces, your next Guard gets +4.|-|combo3>ward
-w:mena-sand-robe-coat|Sand-Robe Slip|wear|mena-sand-robe-coat|guard|6|craft|-|-|src|Sand-Robe Coat: If you are under half health, the creature's first hit next turn misses.|-|hpLow>evade
+w:mena-kilim-saddle-bag|Saddle-Bag Rummage|wear|mena-kilim-saddle-bag|trick|5|mind|-|-|src|Kilim Saddle-Bag: If it is linked to a Guard, your next hand has 1 extra piece.|-|linkG>hand
+w:mena-copper-pot-frame|Copper Pot Boil|wear|mena-copper-pot-frame|heal|5|craft|-|-|src|Copper-Pot Frame: If it is linked to a Hurt, next round you pick from 6 pieces.|-|linkH>plenty
+w:mena-bottle-gourd-sling|Gourd Gift|wear|mena-bottle-gourd-sling|item|9|body|-|-|src|Bottle-Gourd Sling: Heal 6 and add 6 Charm. If its Yield bar is past half, the creature skips its next turn.|-|R:MENA:backpack
+w:mena-loom-stripe-vest|Loom Vest Hold|wear|mena-loom-stripe-vest|guard|5|body|-|-|src|Loom-Stripe Vest: If it sits on the creature's aim cell, it stays 2 more round(s) on the board.|-|onAim>life
+w:mena-braided-cord-jacket|Braided Thorn|wear|mena-braided-cord-jacket|guard|5|mind|-|-|src|Braided Cord Jacket: If its chain has 3 or more pieces, the next Guard you place gets +4.|-|combo3>ward
+w:mena-sand-robe-coat|Sand-Robe Slip|wear|mena-sand-robe-coat|guard|6|craft|-|-|src|Sand-Robe Coat: If you are under half health, the creature's next Hurt misses.|-|hpLow>evade
 w:mena-quilted-night-coat|Night Quilt Mend|wear|mena-quilted-night-coat|guard|6|body|-|-|src|Quilted Night Coat: In the first round of the fight, end your poison and heal 2.|-|r1>cleanse
-w:mena-caravan-leather-jerkin|Jerkin Keep|wear|mena-caravan-leather-jerkin|guard|8|mind|-|-|src|Caravan Leather Jerkin: Keeper. Gain 6 guard; when it leaves your hand unplayed at round end, gain 3 guard anyway next round.|-|R:MENA:coat:5
-w:mena-camel-wool-hooded-cape|Camel Hood Hum|wear|mena-camel-wool-hooded-cape|charm|5|mind|-|-|src|Camel-Wool Hooded Cape: If it fires first in its chain, cut its next hits by 2.|-|first>soothe
-w:mena-indigo-shawl|Indigo Shawl Bond|wear|mena-indigo-shawl|charm|5|craft|-|-|src|Indigo Shawl: If you have no guard up, your Charm fills 10% more for the rest of the fight.|-|noGuard>bond
-w:mena-palm-leaf-sun-cape|Palm Sun Calm|wear|mena-palm-leaf-sun-cape|soothe|4|body|-|-|src|Palm-Leaf Sun Cape: If you are at full health, its strongest piece loses 2 value.|-|hpFull>shrink
+w:mena-caravan-leather-jerkin|Jerkin Keep|wear|mena-caravan-leather-jerkin|guard|8|mind|-|-|src|Caravan Leather Jerkin: Keeper. Gain 6 guard; if it was kept through a round, it also stays up one more turn.|-|R:MENA:coat
+w:mena-camel-wool-hooded-cape|Camel Hood Hum|wear|mena-camel-wool-hooded-cape|charm|5|mind|-|-|src|Camel-Wool Hooded Cape: If it is linked to a Guard, cut the creature's hits by 2 this round.|-|linkG>soothe
+w:mena-indigo-shawl|Indigo Shawl Bond|wear|mena-indigo-shawl|charm|5|craft|-|-|src|Indigo Shawl: If an environment piece is in its chain, your Charm counts 10% more for the rest of the fight.|-|linkEnv>bond
+w:mena-palm-leaf-sun-cape|Palm Sun Calm|wear|mena-palm-leaf-sun-cape|soothe|4|body|-|-|src|Palm-Leaf Sun Cape: If you are at full health, the creature's strongest piece loses 2.|-|hpFull>shrink
 w:mena-rose-madder-mantle|Madder Veil|wear|mena-rose-madder-mantle|trick|5|mind|-|-|src|Rose-Madder Mantle: In its last round on the board, small chance to lift an item from the creature.|-|lastRound>pluck
-w:mena-goat-hair-tent-cape|Tent-Cape Lull|wear|mena-goat-hair-tent-cape|charm|8|craft|-|-|src|Goat-Hair Tent Cape: Add 6 Charm. The creature loses its next move; if it already skipped one this fight, it also loses 3 value on its strongest piece.|-|R:MENA:cloak:5
-w:ea-hemp-sandals|Hemp Skip|wear|ea-hemp-sandals|guard|5|craft|-|-|src|Hemp-Cord Sandals: If it fires first in its chain, this piece stays 2 more round(s) on the board.|-|first>life
-w:ea-rain-clogs|Rain Clog Splash|wear|ea-rain-clogs|hurt|5|body|-|-|src|Rain Clogs: If you have not played a Hurt this round, add 4 Charm.|-|noHurt>charm
-w:ea-indigo-boots|Indigo Stitch Pierce|wear|ea-indigo-boots|hurt|6|mind|-|-|src|Indigo Stitch Boots: If its Yield bar is past half, this piece ignores guard.|-|yHalf>pierce
-w:ea-felt-boots|Felt Boot Stay|wear|ea-felt-boots|guard|6|craft|-|-|src|Steppe Felt Boots: If you have played 2 or more Guards this fight, the creature's first hit next turn misses.|-|g2>evade
-w:ea-snow-straw-boots|Snow Straw Trip|wear|ea-snow-straw-boots|hurt|8|body|-|-|src|Snow Straw Boots: Trip. If it is alone in its chain, deal 6 extra damage and gain 3 extra redraw(s) this fight.|-|R:EA:footwear:5
+w:mena-goat-hair-tent-cape|Tent-Cape Lull|wear|mena-goat-hair-tent-cape|charm|8|craft|-|-|src|Goat-Hair Tent Cape: Add 6 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3.|-|R:MENA:cloak
+w:ea-hemp-sandals|Hemp Skip|wear|ea-hemp-sandals|guard|5|craft|-|-|src|Hemp-Cord Sandals: If it sits next to the creature's aim cell, it stays 2 more round(s) on the board.|-|aimNext>life
+w:ea-rain-clogs|Rain Clog Splash|wear|ea-rain-clogs|hurt|5|body|-|-|src|Rain Clogs: If you played no Hurt last turn, deal 4 extra damage.|-|noHurt>dmg
+w:ea-indigo-boots|Indigo Stitch Pierce|wear|ea-indigo-boots|hurt|6|mind|-|-|src|Indigo Stitch Boots: If its Yield bar is past half, it ignores the creature's guard.|-|yHalf>pierce
+w:ea-felt-boots|Felt Boot Stay|wear|ea-felt-boots|guard|6|craft|-|-|src|Steppe Felt Boots: If you have played 2 or more Guards this fight, the creature's next Hurt misses.|-|g2>evade
+w:ea-snow-straw-boots|Snow Straw Trip|wear|ea-snow-straw-boots|hurt|8|body|-|-|src|Snow Straw Boots: Trip: the creature skips its next turn. If it is linked to a Trick, deal 6 extra damage and your next hand has 1 extra piece.|-|R:EA:footwear
 w:ea-bamboo-aframe|Bamboo Frame Haul|wear|ea-bamboo-aframe|item|6|body|-|-|src|Bamboo A-Frame: If its chain has 3 or more pieces, next round you pick from 6 pieces.|-|combo3>plenty
 w:ea-forager-basket|Forager's Feast|wear|ea-forager-basket|item|6|mind|-|-|src|Forager's Basket: From round 3 on, heal 2 at the start of each of your next 2 turns.|-|r3>mend
 w:ea-cloth-bundle|Knot Bundle Pluck|wear|ea-cloth-bundle|trick|5|craft|-|-|src|Knotted Cloth Bundle: If a piece of its own type is linked to it, small chance to lift an item from the creature.|-|pair>pluck
-w:ea-tea-chest|Tea Chest Steep|wear|ea-tea-chest|heal|5|body|-|-|src|Lacquer Tea Chest: If a Charm fired just before it, heal 2 at the start of each of your next 2 turns.|-|afterC>mend
-w:ea-quilted-satchel|Silk Satchel Rest|wear|ea-quilted-satchel|heal|7|mind|-|-|src|Quilted Silk Satchel: Heal 6. Keeper. While kept, your Heal pieces heal 3 more.|-|R:EA:backpack:5
-w:ea-indigo-jacket|Indigo Work Wall|wear|ea-indigo-jacket|guard|5|mind|-|-|src|Indigo Work Jacket: If the creature has 3 or more pieces on the board, your next Guard gets +4.|-|foeB3>ward
-w:ea-padded-vest|Padded Vest Thorn|wear|ea-padded-vest|guard|5|craft|-|-|src|Padded Winter Vest: If a Hurt fired just before it, a blocked hit pricks it for 4.|-|afterH>thorns
+w:ea-tea-chest|Tea Chest Steep|wear|ea-tea-chest|heal|5|body|-|-|src|Lacquer Tea Chest: If it is linked to a Charm, heal 2 at the start of each of your next 2 turns.|-|linkC>mend
+w:ea-quilted-satchel|Silk Satchel Rest|wear|ea-quilted-satchel|heal|7|mind|-|-|src|Quilted Silk Satchel: Heal 6. Each other Heal or Item in its chain heals 3 more.|-|R:EA:backpack
+w:ea-indigo-jacket|Indigo Work Wall|wear|ea-indigo-jacket|guard|5|mind|-|-|src|Indigo Work Jacket: If the creature has 3 or more pieces on the board, the next Guard you place gets +4.|-|foeB3>ward
+w:ea-padded-vest|Padded Vest Thorn|wear|ea-padded-vest|guard|5|craft|-|-|src|Padded Winter Vest: If it is linked to a Hurt, each hit this guard blocks adds 2 to the bar.|-|linkH>thorns
 w:ea-spring-wrap|Spring Wrap Mend|wear|ea-spring-wrap|guard|6|body|-|-|src|Spring Wrap Coat: If you are at full health, heal 5.|-|hpFull>heal
-w:ea-fleece-jacket|Fleece Jacket Keep|wear|ea-fleece-jacket|guard|6|mind|-|-|src|Fleece-Lined Jacket: If the creature just hit you, this piece stays in your hand if unplayed.|-|hit>keep
-w:ea-ramie-jacket|Ramie Summer Jacket|wear|ea-ramie-jacket|guard|8|craft|-|-|src|Ramie Summer Jacket: Gain 6 guard. The first hit it blocks each round also heals you 3.|-|R:EA:coat:5
-w:ea-straw-rain-cape|Straw Cape Frog|wear|ea-straw-rain-cape|charm|5|craft|-|-|src|Straw Rain Cape: If it fires first in its chain, add 4 Charm.|-|first>charm
-w:ea-plum-snow-hood|Plum Hood Hush|wear|ea-plum-snow-hood|soothe|3|body|-|-|src|Plum Snow Hood: If the creature just hit you, cut its next hits by 2.|-|hit>soothe
-w:ea-maple-shawl|Maple Shawl Bond|wear|ea-maple-shawl|charm|6|mind|-|-|src|Maple Shawl: If it sits on the edge of the board, your Charm fills 10% more for the rest of the fight.|-|edge>bond
-w:ea-felt-poncho|Herder's Pluck|wear|ea-felt-poncho|trick|5|craft|-|-|src|Felt Herder's Poncho: If the creature has no pieces on the board, draw 2.|-|foeB0>draw
-w:ea-blossom-capelet|Blossom Lull|wear|ea-blossom-capelet|charm|8|body|-|-|src|Blossom Capelet: Add 6 Charm. The next two Charm pieces you play this fight add 3 more.|-|R:EA:cloak:5
-w:csa-curl-toe-slippers|Curl-Toe Pounce|wear|csa-curl-toe-slippers|hurt|6|body|-|-|src|Curl-Toe Slippers: If a Trick fired just before it, deal 5 extra damage.|-|afterT>dmg
-w:csa-felted-snow-boots|Felt Snow Stand|wear|csa-felted-snow-boots|guard|6|mind|-|-|src|Felted Snow Boots: If it sits on the edge of the board, this piece stays 2 more round(s) on the board.|-|edge>life
-w:csa-toe-ring-sandals|Toe-Ring Pierce|wear|csa-toe-ring-sandals|hurt|7|craft|-|-|src|Toe-Ring Sandals: If it fires last in its chain, this piece ignores guard.|-|last>pierce
-w:csa-stilt-clogs|Stilt Stomp|wear|csa-stilt-clogs|hurt|7|body|-|-|src|Stilt Clogs: If you have played 2 or more Hurts this fight, knock its weakest piece off the board.|-|h2>knock
-w:csa-wrapped-hide-boots|Yak Wrap Stand|wear|csa-wrapped-hide-boots|guard|9|mind|-|-|src|Wrapped Hide Boots: Gain 7 guard. The creature's first Hurt next turn misses; if it was a Pierce, it also pricks the creature for 3.|-|R:CSA:footwear:5
-w:csa-chili-cone-basket|Chili Cone Feast|wear|csa-chili-cone-basket|item|7|mind|-|-|src|Chili Cone Basket: If you are under half health, gain 2 extra redraw(s) this fight.|-|hpLow>redraw
-w:csa-ikat-saddle-satchel|Ikat Satchel Pluck|wear|csa-ikat-saddle-satchel|trick|5|craft|-|-|src|Ikat Saddle Satchel: If its chain has 3 or more pieces, double the value of the next piece in its chain.|-|combo3>double
-w:csa-porters-frame-pack|Porter Haul|wear|csa-porters-frame-pack|item|8|body|-|-|src|Porter's Frame Pack: If it fires last in its chain, draw 2.|-|last>draw
-w:csa-block-print-bundle|Print Bundle Brew|wear|csa-block-print-bundle|heal|6|mind|-|-|src|Block-Print Bundle: If it fires first in its chain, gain 6 guard.|-|first>guard
-w:csa-stacked-tin-pack|Tin Tiffin|wear|csa-stacked-tin-pack|heal|8|craft|-|-|src|Stacked Tin Pack: Heal 7 now and 3 at the start of each of your next 3 turns.|-|R:CSA:backpack:5
-w:csa-ikat-robe-coat|Ikat Robe Wall|wear|csa-ikat-robe-coat|guard|6|craft|-|-|src|Ikat Robe Coat: If you have played 2 or more Guards this fight, its strongest piece loses 2 value.|-|g2>shrink
-w:csa-kantha-patch-vest|Kantha Patch Thorn|wear|csa-kantha-patch-vest|guard|6|body|-|-|src|Kantha Patch Vest: If it sits next to the blank centre, a blocked hit pricks it for 5.|-|centre>thorns
+w:ea-fleece-jacket|Fleece Jacket Keep|wear|ea-fleece-jacket|guard|6|mind|-|-|src|Fleece-Lined Jacket: If the creature hit you last turn, Keeper: it stays in your hand if you do not play it.|-|hit>keep
+w:ea-ramie-jacket|Ramie Summer Jacket|wear|ea-ramie-jacket|guard|8|craft|-|-|src|Ramie Summer Jacket: Gain 6 guard. The first hit it blocks each round also heals you 3.|-|R:EA:coat
+w:ea-straw-rain-cape|Straw Cape Frog|wear|ea-straw-rain-cape|charm|5|craft|-|-|src|Straw Rain Cape: If it is linked to a Hurt, add 4 Charm.|-|linkH>charm
+w:ea-plum-snow-hood|Plum Hood Hush|wear|ea-plum-snow-hood|soothe|3|body|-|-|src|Plum Snow Hood: If the creature hit you last turn, cut the creature's hits by 2 this round.|-|hit>soothe
+w:ea-maple-shawl|Maple Shawl Bond|wear|ea-maple-shawl|charm|6|mind|-|-|src|Maple Shawl: If it sits on the edge of the board, your Charm counts 10% more for the rest of the fight.|-|edge>bond
+w:ea-felt-poncho|Herder's Pluck|wear|ea-felt-poncho|trick|5|craft|-|-|src|Felt Herder's Poncho: If the creature has no pieces on the board, your next hand has 1 extra piece.|-|foeB0>hand
+w:ea-blossom-capelet|Blossom Lull|wear|ea-blossom-capelet|charm|8|body|-|-|src|Blossom Capelet: Add 6 Charm. The next two Charm pieces you place this fight add 3 more each.|-|R:EA:cloak
+w:csa-curl-toe-slippers|Curl-Toe Pounce|wear|csa-curl-toe-slippers|hurt|6|body|-|-|src|Curl-Toe Slippers: If it is linked to a Trick, deal 5 extra damage.|-|linkT>dmg
+w:csa-felted-snow-boots|Felt Snow Stand|wear|csa-felted-snow-boots|guard|6|mind|-|-|src|Felted Snow Boots: If it sits on the edge of the board, it stays 2 more round(s) on the board.|-|edge>life
+w:csa-toe-ring-sandals|Toe-Ring Pierce|wear|csa-toe-ring-sandals|hurt|7|craft|-|-|src|Toe-Ring Sandals: If it sits on the creature's aim cell, it ignores the creature's guard.|-|onAim>pierce
+w:csa-stilt-clogs|Stilt Stomp|wear|csa-stilt-clogs|hurt|7|body|-|-|src|Stilt Clogs: If you have played 2 or more Hurts this fight, remove the creature's weakest piece from the board.|-|h2>knock
+w:csa-wrapped-hide-boots|Yak Wrap Stand|wear|csa-wrapped-hide-boots|guard|9|mind|-|-|src|Wrapped Hide Boots: Gain 7 guard; the creature's next Hurt misses and the missed Hurt adds 3 to the bar.|-|R:CSA:footwear
+w:csa-chili-cone-basket|Chili Cone Feast|wear|csa-chili-cone-basket|item|7|mind|-|-|src|Chili Cone Basket: If it is linked to a Trick, heal 5.|-|linkT>heal
+w:csa-ikat-saddle-satchel|Ikat Satchel Pluck|wear|csa-ikat-saddle-satchel|trick|5|craft|-|-|src|Ikat Saddle Satchel: If its chain has 3 or more pieces, the piece it links to gets +2.|-|combo3>boost
+w:csa-porters-frame-pack|Porter Haul|wear|csa-porters-frame-pack|item|8|body|-|-|src|Porter's Frame Pack: If it is linked to a Charm, your next hand has 1 extra piece.|-|linkC>hand
+w:csa-block-print-bundle|Print Bundle Brew|wear|csa-block-print-bundle|heal|6|mind|-|-|src|Block-Print Bundle: If an environment piece is in its chain, heal 6.|-|linkEnv>heal
+w:csa-stacked-tin-pack|Tin Tiffin|wear|csa-stacked-tin-pack|heal|8|craft|-|-|src|Stacked Tin Pack: Heal 7 now and 3 at the start of each of your next 3 turns.|-|R:CSA:backpack
+w:csa-ikat-robe-coat|Ikat Robe Wall|wear|csa-ikat-robe-coat|guard|6|craft|-|-|src|Ikat Robe Coat: If you have played 2 or more Guards this fight, the creature's strongest piece loses 2.|-|g2>shrink
+w:csa-kantha-patch-vest|Kantha Patch Thorn|wear|csa-kantha-patch-vest|guard|6|body|-|-|src|Kantha Patch Vest: If it sits in one of the four middle cells, each hit this guard blocks adds 2 to the bar.|-|mid4>thorns
 w:csa-fleece-collar-jacket|Fleece Collar Mend|wear|csa-fleece-collar-jacket|guard|7|mind|-|-|src|Fleece-Collar Jacket: In its last round on the board, heal 2 at the start of each of your next 2 turns.|-|lastRound>mend
-w:csa-mirror-work-smock|Mirror Smock Glint|wear|csa-mirror-work-smock|guard|7|craft|-|-|src|Mirror-Work Smock: If nothing is linked to it, the creature's first hit next turn misses.|-|alone>evade
-w:csa-turmeric-wrap-coat|Turmeric Wrap Keep|wear|csa-turmeric-wrap-coat|guard|9|body|-|-|src|Turmeric Wrap Coat: Keeper. Gain 7 guard. Heal 3 for every piece in your hand when it fires.|-|R:CSA:coat:5
-w:csa-palm-leaf-rain-hood|Palm Hood Hum|wear|csa-palm-leaf-rain-hood|charm|6|body|-|-|src|Palm-Leaf Rain Hood: If your hand is full, cut its next hits by 2.|-|handFull>soothe
-w:csa-fine-wool-shawl|Wool Shawl Bond|wear|csa-fine-wool-shawl|charm|6|mind|-|-|src|Fine Wool Shawl: If you are at full health, your Charm fills 10% more for the rest of the fight.|-|hpFull>bond
-w:csa-felt-shepherd-cape|Felt Cape Calm|wear|csa-felt-shepherd-cape|soothe|5|craft|-|-|src|Felt Shepherd Cape: If its chain has 3 or more pieces, the creature skips its next move.|-|combo3>skip
-w:csa-striped-yak-poncho|Yak Poncho Pluck|wear|csa-striped-yak-poncho|trick|6|body|-|-|src|Striped Yak Poncho: If the creature just hit you, small chance to lift an item from the creature.|-|hit>pluck
-w:csa-indigo-dot-cloak|Indigo Dot Lull|wear|csa-indigo-dot-cloak|charm|9|mind|-|-|src|Indigo Dot Cloak: Add 7 Charm. If the creature has guard up, its guard drops by 7.|-|R:CSA:cloak:5
-w:sea-paddy-stilt-clogs|Stilt Clog Surge|wear|sea-paddy-stilt-clogs|hurt|6|mind|-|-|src|Paddy Stilt-Clogs: If it sits next to the blank centre, deal 5 extra damage.|-|centre>dmg
-w:sea-pandan-sandals|Pandan Skip|wear|sea-pandan-sandals|guard|6|craft|-|-|src|Pandan Sandals: If its chain has 3 or more pieces, draw 3.|-|combo3>draw
-w:sea-ikat-leech-wraps|Leech Wrap Guard|wear|sea-ikat-leech-wraps|guard|7|body|-|-|src|Ikat Leech-Wraps: If you have not played a Hurt this round, heal 6.|-|noHurt>heal
-w:sea-rattan-trail-boot|Rattan Rush|wear|sea-rattan-trail-boot|hurt|7|mind|-|-|src|Rattan Trail Boot: If it fires first in its chain, this piece ignores guard.|-|first>pierce
-w:sea-mudflat-paddles|Paddle Trip|wear|sea-mudflat-paddles|hurt|9|craft|-|-|src|Mudflat Paddles: Trip. The creature also loses 4 value on every piece on its board, once.|-|R:SEA:footwear:5
-w:sea-rattan-back-basket|Rattan Back Basket|wear|sea-rattan-back-basket|item|7|craft|-|-|src|Rattan Back-Basket: If a Trick fired just before it, next round you pick from 6 pieces.|-|afterT>plenty
-w:sea-bamboo-ladder-pack|Ladder Pack Rummage|wear|sea-bamboo-ladder-pack|trick|5|body|-|-|src|Bamboo Ladder-Pack: If nothing is linked to it, draw 3.|-|alone>draw
+w:csa-mirror-work-smock|Mirror Smock Glint|wear|csa-mirror-work-smock|guard|7|craft|-|-|src|Mirror-Work Smock: If a creature piece is in its chain, the creature's next Hurt misses.|-|linkFoe>evade
+w:csa-turmeric-wrap-coat|Turmeric Wrap Keep|wear|csa-turmeric-wrap-coat|guard|9|body|-|-|src|Turmeric Wrap Coat: Keeper. Gain 7 guard and heal 3 for each piece left in your hand.|-|R:CSA:coat
+w:csa-palm-leaf-rain-hood|Palm Hood Hum|wear|csa-palm-leaf-rain-hood|charm|6|body|-|-|src|Palm-Leaf Rain Hood: If it is linked to a Hurt, cut the creature's hits by 2 this round.|-|linkH>soothe
+w:csa-fine-wool-shawl|Wool Shawl Bond|wear|csa-fine-wool-shawl|charm|6|mind|-|-|src|Fine Wool Shawl: If you are at full health, your Charm counts 10% more for the rest of the fight.|-|hpFull>bond
+w:csa-felt-shepherd-cape|Felt Cape Calm|wear|csa-felt-shepherd-cape|soothe|5|craft|-|-|src|Felt Shepherd Cape: If its chain has 3 or more pieces, the creature skips its next turn.|-|combo3>skip
+w:csa-striped-yak-poncho|Yak Poncho Pluck|wear|csa-striped-yak-poncho|trick|6|body|-|-|src|Striped Yak Poncho: If the creature hit you last turn, small chance to lift an item from the creature.|-|hit>pluck
+w:csa-indigo-dot-cloak|Indigo Dot Lull|wear|csa-indigo-dot-cloak|charm|9|mind|-|-|src|Indigo Dot Cloak: Add 7 Charm. If the creature has guard up, its guard drops by 7.|-|R:CSA:cloak
+w:sea-paddy-stilt-clogs|Stilt Clog Surge|wear|sea-paddy-stilt-clogs|hurt|6|mind|-|-|src|Paddy Stilt-Clogs: If it sits in one of the four middle cells, deal 5 extra damage.|-|mid4>dmg
+w:sea-pandan-sandals|Pandan Skip|wear|sea-pandan-sandals|guard|6|craft|-|-|src|Pandan Sandals: If its chain has 3 or more pieces, your next hand has 1 extra piece.|-|combo3>hand
+w:sea-ikat-leech-wraps|Leech Wrap Guard|wear|sea-ikat-leech-wraps|guard|7|body|-|-|src|Ikat Leech-Wraps: If you played no Hurt last turn, heal 6.|-|noHurt>heal
+w:sea-rattan-trail-boot|Rattan Rush|wear|sea-rattan-trail-boot|hurt|7|mind|-|-|src|Rattan Trail Boot: If it sits next to the creature's aim cell, it ignores the creature's guard.|-|aimNext>pierce
+w:sea-mudflat-paddles|Paddle Trip|wear|sea-mudflat-paddles|hurt|9|craft|-|-|src|Mudflat Paddles: Trip: the creature skips its next turn. Every creature piece on the board also loses 4 once.|-|R:SEA:footwear
+w:sea-rattan-back-basket|Rattan Back Basket|wear|sea-rattan-back-basket|item|7|craft|-|-|src|Rattan Back-Basket: If it is linked to a Trick, next round you pick from 6 pieces.|-|linkT>plenty
+w:sea-bamboo-ladder-pack|Ladder Pack Rummage|wear|sea-bamboo-ladder-pack|trick|5|body|-|-|src|Bamboo Ladder-Pack: If it is linked to a Trick, your next hand has 1 extra piece.|-|linkT>hand
 w:sea-batik-bundle|Batik Bundle Brew|wear|sea-batik-bundle|heal|6|mind|-|-|src|Batik Bundle: If you have played 2 or more Guards this fight, heal 3 at the start of each of your next 2 turns.|-|g2>mend
-w:sea-nipa-thatch-pack|Nipa Thatch Snack|wear|sea-nipa-thatch-pack|item|8|craft|-|-|src|Nipa Thatch Pack: If the creature just hit you, heal 6.|-|hit>heal
-w:sea-water-jar-pack|Water-Jar Plenty|wear|sea-water-jar-pack|heal|8|body|-|-|src|Water-Jar Pack: Heal 7. Pick from 6 pieces next round, and keep any one you do not use.|-|R:SEA:backpack:5
+w:sea-nipa-thatch-pack|Nipa Thatch Snack|wear|sea-nipa-thatch-pack|item|8|craft|-|-|src|Nipa Thatch Pack: If it is linked to a Soothe, heal 6.|-|linkS>heal
+w:sea-water-jar-pack|Water-Jar Plenty|wear|sea-water-jar-pack|heal|8|body|-|-|src|Water-Jar Pack: Heal 7. Next round pick from 6 pieces, or from 7 if you placed a Heal last round.|-|R:SEA:backpack
 w:sea-indigo-batik-smock|Batik Smock Wall|wear|sea-indigo-batik-smock|guard|6|body|-|-|src|Indigo Batik Smock: If you have played 2 or more Hurts this fight, gain 5 guard.|-|h2>guard
-w:sea-pandan-weave-vest|Pandan Vest Thorn|wear|sea-pandan-weave-vest|guard|6|mind|-|-|src|Pandan Weave Vest: If a Charm fired just before it, this piece stays 3 more round(s) on the board.|-|afterC>life
+w:sea-pandan-weave-vest|Pandan Vest Thorn|wear|sea-pandan-weave-vest|guard|6|mind|-|-|src|Pandan Weave Vest: If it is linked to a Charm, it stays 3 more round(s) on the board.|-|linkC>life
 w:sea-ikat-wrap-jacket|Ikat Wrap Mend|wear|sea-ikat-wrap-jacket|guard|7|craft|-|-|src|Ikat Wrap-Jacket: If you are under half health, end your poison and heal 3.|-|hpLow>cleanse
-w:sea-kapok-puffer|Kapok Keep|wear|sea-kapok-puffer|guard|7|body|-|-|src|Kapok Puffer: If the creature has guard up, this piece stays in your hand if unplayed.|-|foeG>keep
-w:sea-mangrove-oilcloth|Oilcloth Slip|wear|sea-mangrove-oilcloth|guard|9|mind|-|-|src|Mangrove Oilcloth: Gain 7 guard. Its first hit next turn misses; if it has no pieces left, it also loses 4 value on its next piece.|-|R:SEA:coat:5
-w:sea-palm-frond-rain-cape|Palm Frond Hum|wear|sea-palm-frond-rain-cape|charm|6|mind|-|-|src|Palm-Frond Rain Cape: If it fires last in its chain, cut its next hits by 3.|-|last>soothe
-w:sea-banana-leaf-hood|Banana Hood Calm|wear|sea-banana-leaf-hood|soothe|4|craft|-|-|src|Banana-Leaf Hood: If it sits in a corner, gain 3 extra redraw(s) this fight.|-|corner>redraw
-w:sea-batik-shawl|Batik Shawl Bond|wear|sea-batik-shawl|charm|7|body|-|-|src|Batik Shawl: If it sits next to the blank centre, your Charm fills 10% more for the rest of the fight.|-|centre>bond
-w:sea-net-veil-mantle|Net-Veil Pluck|wear|sea-net-veil-mantle|trick|6|mind|-|-|src|Net-Veil Mantle: If you have no guard up, small chance to lift an item from the creature.|-|noGuard>pluck
-w:sea-monsoon-poncho|Monsoon Lull|wear|sea-monsoon-poncho|charm|9|craft|-|-|src|Monsoon Poncho: Add 7 Charm. Its next two pieces fire at half value.|-|R:SEA:cloak:5
-w:wca-palm-sole-sandals|Palm Sole Skip|wear|wca-palm-sole-sandals|guard|6|craft|-|-|src|Palm-Sole Sandals: If it fires first in its chain, this piece does not count toward the chain limit.|-|first>free
-w:wca-mudwader-wraps|Mudwader Trip|wear|wca-mudwader-wraps|hurt|6|body|-|-|src|Mudwader Wraps: If its Yield bar is under a quarter, the creature skips its next move.|-|yLow>skip
+w:sea-kapok-puffer|Kapok Keep|wear|sea-kapok-puffer|guard|7|body|-|-|src|Kapok Puffer: If the creature has guard up, Keeper: it stays in your hand if you do not play it.|-|foeG>keep
+w:sea-mangrove-oilcloth|Oilcloth Slip|wear|sea-mangrove-oilcloth|guard|9|mind|-|-|src|Mangrove Oilcloth: Gain 7 guard; the creature's next Hurt misses. If the creature has no pieces on the board, its next piece loses 4.|-|R:SEA:coat
+w:sea-palm-frond-rain-cape|Palm Frond Hum|wear|sea-palm-frond-rain-cape|charm|6|mind|-|-|src|Palm-Frond Rain Cape: If it sits next to the creature's aim cell, cut the creature's hits by 3 this round.|-|aimNext>soothe
+w:sea-banana-leaf-hood|Banana Hood Calm|wear|sea-banana-leaf-hood|soothe|4|craft|-|-|src|Banana-Leaf Hood: If it sits in a corner, cut the creature's hits by 3 this round.|-|corner>soothe
+w:sea-batik-shawl|Batik Shawl Bond|wear|sea-batik-shawl|charm|7|body|-|-|src|Batik Shawl: If it sits in one of the four middle cells, your Charm counts 10% more for the rest of the fight.|-|mid4>bond
+w:sea-net-veil-mantle|Net-Veil Pluck|wear|sea-net-veil-mantle|trick|6|mind|-|-|src|Net-Veil Mantle: If an environment piece is in its chain, small chance to lift an item from the creature.|-|linkEnv>pluck
+w:sea-monsoon-poncho|Monsoon Lull|wear|sea-monsoon-poncho|charm|9|craft|-|-|src|Monsoon Poncho: Add 7 Charm. The creature's next two Hurts do half damage.|-|R:SEA:cloak
+w:wca-palm-sole-sandals|Palm Sole Skip|wear|wca-palm-sole-sandals|guard|6|craft|-|-|src|Palm-Sole Sandals: If it sits next to the creature's aim cell, a chain of 3 or more does not use it up.|-|aimNext>stay
+w:wca-mudwader-wraps|Mudwader Trip|wear|wca-mudwader-wraps|hurt|6|body|-|-|src|Mudwader Wraps: If its Yield bar is under a quarter, the creature skips its next turn.|-|yLow>skip
 w:wca-rainroot-clogs|Rainroot Bash|wear|wca-rainroot-clogs|hurt|7|mind|-|-|src|Rainroot Clogs: If you have played 2 or more Guards this fight, deal 6 extra damage.|-|g2>dmg
-w:wca-ochre-trail-boots|Ochre Boot Hold|wear|wca-ochre-trail-boots|guard|7|craft|-|-|src|Ochre Trail Boots: If nothing is linked to it, this piece stays 3 more round(s) on the board.|-|alone>life
-w:wca-plantain-slippers|Plantain Quick|wear|wca-plantain-slippers|hurt|9|body|-|-|src|Plantain Slippers: Fires first. Draw 4. If a Hurt of yours fires later in the chain, it gets +7.|-|R:WCA:footwear:5
+w:wca-ochre-trail-boots|Ochre Boot Hold|wear|wca-ochre-trail-boots|guard|7|craft|-|-|src|Ochre Trail Boots: If it is linked to a Guard, it stays 3 more round(s) on the board.|-|linkG>life
+w:wca-plantain-slippers|Plantain Quick|wear|wca-plantain-slippers|hurt|9|body|-|-|src|Plantain Slippers: Deal 7 extra damage. If it is linked to another Hurt (Double Swing), that Hurt gets +4 more.|-|R:WCA:footwear
 w:wca-calabash-pack|Calabash Plenty|wear|wca-calabash-pack|item|7|body|-|-|src|Calabash Pack: If you took no damage last turn, next round you pick from 6 pieces.|-|noDmg>plenty
-w:wca-raffia-cone-basket|Raffia Cone Snack|wear|wca-raffia-cone-basket|item|7|mind|-|-|src|Raffia Cone Basket: In its last round on the board, this piece stays in your hand if unplayed.|-|lastRound>keep
-w:wca-indigo-bundle|Indigo Bundle Pluck|wear|wca-indigo-bundle|trick|6|craft|-|-|src|Indigo Bundle: If you hold 2 pieces or fewer, small chance to lift an item from the creature.|-|handSmall>pluck
+w:wca-raffia-cone-basket|Raffia Cone Snack|wear|wca-raffia-cone-basket|item|7|mind|-|-|src|Raffia Cone Basket: In its last round on the board, heal 5.|-|lastRound>heal
+w:wca-indigo-bundle|Indigo Bundle Pluck|wear|wca-indigo-bundle|trick|6|craft|-|-|src|Indigo Bundle: If you hold 2 or more Hurts in your hand, small chance to lift an item from the creature.|-|handH>pluck
 w:wca-tooled-satchel|Tooled Satchel Brew|wear|wca-tooled-satchel|heal|6|body|-|-|src|Tooled Satchel: If the creature has guard up, heal 3 at the start of each of your next 2 turns.|-|foeG>mend
-w:wca-bamboo-frame-pack|Bamboo Frame Stew|wear|wca-bamboo-frame-pack|heal|8|mind|-|-|src|Bamboo Frame Pack: Heal 7 now and 4 at the start of each of your next 2 turns; the second heal also draws you 4.|-|R:WCA:backpack:5
-w:wca-strip-weave-smock|Strip Smock Thorn|wear|wca-strip-weave-smock|guard|6|mind|-|-|src|Strip-Weave Smock: From round 3 on, a blocked hit pricks it for 5.|-|r3>thorns
-w:wca-mudcloth-vest|Mudcloth Hold|wear|wca-mudcloth-vest|guard|6|craft|-|-|src|Mudcloth Vest: If it is linked to 2 or more pieces, this piece stays 3 more round(s) on the board.|-|link2>life
-w:wca-raffia-rain-coat|Raffia Rain Slip|wear|wca-raffia-rain-coat|guard|7|body|-|-|src|Raffia Rain Coat: If it is linked to 2 or more pieces, the creature's first hit next turn misses.|-|link2>evade
+w:wca-bamboo-frame-pack|Bamboo Frame Stew|wear|wca-bamboo-frame-pack|heal|8|mind|-|-|src|Bamboo Frame Pack: Heal 7 now and 4 at the start of each of your next 2 turns. Your next hand has 1 extra piece.|-|R:WCA:backpack
+w:wca-strip-weave-smock|Strip Smock Thorn|wear|wca-strip-weave-smock|guard|6|mind|-|-|src|Strip-Weave Smock: From round 3 on, each hit this guard blocks adds 3 to the bar.|-|r3>thorns
+w:wca-mudcloth-vest|Mudcloth Hold|wear|wca-mudcloth-vest|guard|6|craft|-|-|src|Mudcloth Vest: If it is linked to a Hurt, it stays 3 more round(s) on the board.|-|linkH>life
+w:wca-raffia-rain-coat|Raffia Rain Slip|wear|wca-raffia-rain-coat|guard|7|body|-|-|src|Raffia Rain Coat: If it is linked to a Guard, the creature's next Hurt misses.|-|linkG>evade
 w:wca-adire-jacket|Adire Mend|wear|wca-adire-jacket|guard|7|mind|-|-|src|Adire Jacket: If you are poisoned, gain 6 guard.|-|poisoned>guard
-w:wca-kapok-jerkin|Kapok Jerkin|wear|wca-kapok-jerkin|guard|9|craft|-|-|src|Kapok Jerkin: Keeper. Gain 7 guard; the longer it stays in your hand, the more it gives (+4 each round).|-|R:WCA:coat:5
-w:wca-plantain-leaf-cape|Plantain Cape Hum|wear|wca-plantain-leaf-cape|charm|6|craft|-|-|src|Plantain Leaf Cape: If the creature just hit you, add 5 Charm.|-|hit>charm
-w:wca-strip-weave-shawl|Strip Shawl Bond|wear|wca-strip-weave-shawl|charm|6|body|-|-|src|Strip-Weave Shawl: If you have played 2 or more Guards this fight, your Charm fills 10% more for the rest of the fight.|-|g2>bond
-w:wca-indigo-hood-mantle|Indigo Mantle Calm|wear|wca-indigo-hood-mantle|soothe|5|mind|-|-|src|Indigo Hood Mantle: If the creature has no pieces on the board, this piece stays in your hand if unplayed.|-|foeB0>keep
-w:wca-raffia-poncho|Raffia Poncho Lull|wear|wca-raffia-poncho|charm|7|craft|-|-|src|Raffia Poncho: If a Charm fired just before it, the creature skips its next move.|-|afterC>skip
-w:wca-scaleleaf-mantle|Scaleleaf Mantle|wear|wca-scaleleaf-mantle|guard|9|body|-|-|src|Scaleleaf Mantle: Gain 7 guard. Each Charm you play this round adds 4 guard to it.|-|R:WCA:cloak:5
-w:esa-acacia-sandals|Acacia Sandal Skip|wear|esa-acacia-sandals|guard|7|body|-|-|src|Acacia Sandals: If you are at full health, this piece does not count toward the chain limit.|-|hpFull>free
-w:esa-highland-trek-boots|Highland Trek Hold|wear|esa-highland-trek-boots|guard|7|mind|-|-|src|Highland Trek Boots: If a Guard fired just before it, the creature's first hit next turn misses.|-|afterG>evade
-w:esa-sisal-slippers|Sisal Slip Pierce|wear|esa-sisal-slippers|hurt|8|craft|-|-|src|Sisal Slippers: If you have no guard up, this piece ignores guard.|-|noGuard>pierce
+w:wca-kapok-jerkin|Kapok Jerkin|wear|wca-kapok-jerkin|guard|9|craft|-|-|src|Kapok Jerkin: Keeper. Gain 7 guard, +4 for each round it stayed in your hand.|-|R:WCA:coat
+w:wca-plantain-leaf-cape|Plantain Cape Hum|wear|wca-plantain-leaf-cape|charm|6|craft|-|-|src|Plantain Leaf Cape: If the creature hit you last turn, add 5 Charm.|-|hit>charm
+w:wca-strip-weave-shawl|Strip Shawl Bond|wear|wca-strip-weave-shawl|charm|6|body|-|-|src|Strip-Weave Shawl: If you have played 2 or more Guards this fight, your Charm counts 10% more for the rest of the fight.|-|g2>bond
+w:wca-indigo-hood-mantle|Indigo Mantle Calm|wear|wca-indigo-hood-mantle|soothe|5|mind|-|-|src|Indigo Hood Mantle: If the creature has no pieces on the board, cut the creature's hits by 3 this round.|-|foeB0>soothe
+w:wca-raffia-poncho|Raffia Poncho Lull|wear|wca-raffia-poncho|charm|7|craft|-|-|src|Raffia Poncho: If it is linked to a Charm, the creature skips its next turn.|-|linkC>skip
+w:wca-scaleleaf-mantle|Scaleleaf Mantle|wear|wca-scaleleaf-mantle|guard|9|body|-|-|src|Scaleleaf Mantle: Gain 7 guard, +4 for each Charm in its chain.|-|R:WCA:cloak
+w:esa-acacia-sandals|Acacia Sandal Skip|wear|esa-acacia-sandals|guard|7|body|-|-|src|Acacia Sandals: If you are at full health, a chain of 3 or more does not use it up.|-|hpFull>stay
+w:esa-highland-trek-boots|Highland Trek Hold|wear|esa-highland-trek-boots|guard|7|mind|-|-|src|Highland Trek Boots: If it is linked to a Hurt, the creature's next Hurt misses.|-|linkH>evade
+w:esa-sisal-slippers|Sisal Slip Pierce|wear|esa-sisal-slippers|hurt|8|craft|-|-|src|Sisal Slippers: If an environment piece is in its chain, it ignores the creature's guard.|-|linkEnv>pierce
 w:esa-stripe-gaiters|Stripe Gaiter Finish|wear|esa-stripe-gaiters|hurt|8|body|-|-|src|Stripe Gaiters: If its Yield bar is past half, deal 7 extra damage.|-|yHalf>dmg
-w:esa-baobab-clogs|Baobab Thud|wear|esa-baobab-clogs|hurt|10|mind|-|-|src|Baobab Clogs: Fires last. Deal 8 extra damage per piece in the chain, and knock its weakest piece off the board.|-|R:ESA:footwear:5
-w:esa-coiled-basket-pack|Coiled Pack Plenty|wear|esa-coiled-basket-pack|item|8|mind|-|-|src|Coiled Basket Pack: If its chain has 3 or more pieces, this piece stays in your hand if unplayed.|-|combo3>keep
-w:esa-calabash-carrier|Gourd Brew|wear|esa-calabash-carrier|heal|6|craft|-|-|src|Calabash Carrier: If the creature just hit you, gain 3 extra redraw(s) this fight.|-|hit>redraw
+w:esa-baobab-clogs|Baobab Thud|wear|esa-baobab-clogs|hurt|10|mind|-|-|src|Baobab Clogs: Deal 8 extra damage for each piece in its chain and remove the creature's weakest piece from the board.|-|R:ESA:footwear
+w:esa-coiled-basket-pack|Coiled Pack Plenty|wear|esa-coiled-basket-pack|item|8|mind|-|-|src|Coiled Basket Pack: If its chain has 3 or more pieces, heal 6.|-|combo3>heal
+w:esa-calabash-carrier|Gourd Brew|wear|esa-calabash-carrier|heal|6|craft|-|-|src|Calabash Carrier: If it is linked to a Heal or Item, heal 6.|-|linkHeal>heal
 w:esa-grain-sack-pack|Grain Sack Meal|wear|esa-grain-sack-pack|item|9|body|-|-|src|Grain Sack Pack: If a piece of its own type is linked to it, heal 7.|-|pair>heal
-w:esa-acacia-frame-pack|Frame Rummage|wear|esa-acacia-frame-pack|trick|7|mind|-|-|src|Acacia Frame Pack: If its Yield bar is past half, next round you pick from 6 pieces.|-|yHalf>plenty
-w:esa-herders-satchel|Herder's Satchel|wear|esa-herders-satchel|heal|9|craft|-|-|src|Herder's Satchel: Heal 8. Pick from 6 pieces next round; every Hurt among them is +4 this round.|-|R:ESA:backpack:5
-w:esa-barkcloth-smock|Barkcloth Thorn|wear|esa-barkcloth-smock|guard|7|craft|-|-|src|Barkcloth Smock: If a Guard fired just before it, a blocked hit pricks it for 6.|-|afterG>thorns
-w:esa-stripe-weave-vest|Stripe Vest Hold|wear|esa-stripe-weave-vest|guard|7|body|-|-|src|Stripe Weave Vest: If the creature has no pieces on the board, your next Guard gets +6.|-|foeB0>ward
+w:esa-acacia-frame-pack|Frame Rummage|wear|esa-acacia-frame-pack|trick|7|mind|-|-|src|Acacia Frame Pack: If its Yield bar is past half, the piece it links to gets +3.|-|yHalf>boost
+w:esa-herders-satchel|Herder's Satchel|wear|esa-herders-satchel|heal|9|craft|-|-|src|Herder's Satchel: Heal 8 and next round pick from 6 pieces; each Hurt you place that round gets +4.|-|R:ESA:backpack
+w:esa-barkcloth-smock|Barkcloth Thorn|wear|esa-barkcloth-smock|guard|7|craft|-|-|src|Barkcloth Smock: If it is linked to a Guard, each hit this guard blocks adds 3 to the bar.|-|linkG>thorns
+w:esa-stripe-weave-vest|Stripe Vest Hold|wear|esa-stripe-weave-vest|guard|7|body|-|-|src|Stripe Weave Vest: If the creature has no pieces on the board, the next Guard you place gets +6.|-|foeB0>ward
 w:esa-highland-wool-coat|Highland Mend|wear|esa-highland-wool-coat|guard|8|mind|-|-|src|Highland Wool Coat: If you took no damage last turn, heal 3 at the start of each of your next 2 turns.|-|noDmg>mend
-w:esa-savanna-field-jacket|Field Jacket Slip|wear|esa-savanna-field-jacket|guard|8|craft|-|-|src|Savanna Field Jacket: If it fires first in its chain, its strongest piece loses 3 value.|-|first>shrink
-w:esa-beaded-tunic-coat|Beaded Tunic-Coat|wear|esa-beaded-tunic-coat|guard|10|body|-|-|src|Beaded Tunic-Coat: Gain 8 guard. For each distinct piece type you have played this round, gain 4 more.|-|R:ESA:coat:5
-w:esa-check-blanket-wrap|Check Wrap Hum|wear|esa-check-blanket-wrap|charm|7|body|-|-|src|Check Blanket Wrap: If a piece of its own type is linked to it, cut its next hits by 3.|-|pair>soothe
-w:esa-highland-shawl|Highland Shawl Bond|wear|esa-highland-shawl|charm|7|mind|-|-|src|Highland Shawl: In the first round of the fight, your Charm fills 10% more for the rest of the fight.|-|r1>bond
-w:esa-banana-leaf-rain-cape|Banana Rain Calm|wear|esa-banana-leaf-rain-cape|soothe|6|craft|-|-|src|Banana-Leaf Rain Cape: In its last round on the board, its strongest piece loses 3 value.|-|lastRound>shrink
-w:esa-dust-mantle|Dust Mantle Lull|wear|esa-dust-mantle|charm|8|body|-|-|src|Dust Mantle: If it fires first in its chain, the creature skips its next move.|-|first>skip
-w:esa-indigo-dot-shawl|Indigo Dot Shawl|wear|esa-indigo-dot-shawl|trick|9|mind|-|-|src|Indigo Dot Shawl: The next Charm in its chain adds 8 more, and the next Hurt gets +4.|-|R:ESA:cloak:5
-w:oc-reef-sandals|Reef Skip|wear|oc-reef-sandals|guard|7|mind|-|-|src|Reef Sandals: If a Guard fired just before it, draw 3.|-|afterG>draw
-w:oc-gully-fleece-boot|Gully Hold|wear|oc-gully-fleece-boot|guard|7|craft|-|-|src|Gully Fleece Boot: If the creature just hit you, this piece does not count toward the chain limit.|-|hit>free
-w:oc-drovers-pull-ons|Drover Pierce|wear|oc-drovers-pull-ons|hurt|8|body|-|-|src|Drover's Pull-ons: If a Trick fired just before it, this piece ignores guard.|-|afterT>pierce
-w:oc-flax-wading-wraps|Flax Wade Trip|wear|oc-flax-wading-wraps|hurt|8|mind|-|-|src|Flax Wading Wraps: If the creature has 3 or more pieces on the board, the creature skips its next move.|-|foeB3>skip
-w:oc-mangrove-clog|Mangrove Clog Crush|wear|oc-mangrove-clog|hurt|10|craft|-|-|src|Mangrove Clog: Heavy. Fires last, deals 8 extra damage, and the creature skips its next move if its Yield bar is past half.|-|R:OC:footwear:5
-w:oc-flax-basket-pack|Flax Plenty|wear|oc-flax-basket-pack|item|8|craft|-|-|src|Flax Basket Pack: If it fires last in its chain, next round you pick from 6 pieces.|-|last>plenty
-w:oc-coconut-string-bag|Coconut Snack|wear|oc-coconut-string-bag|item|8|body|-|-|src|Coconut String Bag: If you are at full health, gain 3 extra redraw(s) this fight.|-|hpFull>redraw
-w:oc-bushmans-swag|Swag Rummage|wear|oc-bushmans-swag|trick|7|mind|-|-|src|Bushman's Swag: If you have not played a Hurt this round, small chance to lift an item from the creature.|-|noHurt>pluck
+w:esa-savanna-field-jacket|Field Jacket Slip|wear|esa-savanna-field-jacket|guard|8|craft|-|-|src|Savanna Field Jacket: If it sits next to the creature's aim cell, the creature's strongest piece loses 3.|-|aimNext>shrink
+w:esa-beaded-tunic-coat|Beaded Tunic-Coat|wear|esa-beaded-tunic-coat|guard|10|body|-|-|src|Beaded Tunic-Coat: Gain 8 guard, +4 for each other piece type in its chain.|-|R:ESA:coat
+w:esa-check-blanket-wrap|Check Wrap Hum|wear|esa-check-blanket-wrap|charm|7|body|-|-|src|Check Blanket Wrap: If it is linked to a Charm, cut the creature's hits by 3 this round.|-|linkC>soothe
+w:esa-highland-shawl|Highland Shawl Bond|wear|esa-highland-shawl|charm|7|mind|-|-|src|Highland Shawl: In the first round of the fight, your Charm counts 10% more for the rest of the fight.|-|r1>bond
+w:esa-banana-leaf-rain-cape|Banana Rain Calm|wear|esa-banana-leaf-rain-cape|soothe|6|craft|-|-|src|Banana-Leaf Rain Cape: In its last round on the board, the creature's strongest piece loses 3.|-|lastRound>shrink
+w:esa-dust-mantle|Dust Mantle Lull|wear|esa-dust-mantle|charm|8|body|-|-|src|Dust Mantle: If it is linked to a Guard, the creature skips its next turn.|-|linkG>skip
+w:esa-indigo-dot-shawl|Indigo Dot Shawl|wear|esa-indigo-dot-shawl|trick|9|mind|-|-|src|Indigo Dot Shawl: The piece it links to gets +4. If that piece is a Charm, it adds 8 more.|-|R:ESA:cloak
+w:oc-reef-sandals|Reef Skip|wear|oc-reef-sandals|guard|7|mind|-|-|src|Reef Sandals: If it is linked to a Soothe, your next hand has 1 extra piece.|-|linkS>hand
+w:oc-gully-fleece-boot|Gully Hold|wear|oc-gully-fleece-boot|guard|7|craft|-|-|src|Gully Fleece Boot: If the creature hit you last turn, a chain of 3 or more does not use it up.|-|hit>stay
+w:oc-drovers-pull-ons|Drover Pierce|wear|oc-drovers-pull-ons|hurt|8|body|-|-|src|Drover's Pull-ons: If it is linked to a Trick, it ignores the creature's guard.|-|linkT>pierce
+w:oc-flax-wading-wraps|Flax Wade Trip|wear|oc-flax-wading-wraps|hurt|8|mind|-|-|src|Flax Wading Wraps: If the creature has 3 or more pieces on the board, the creature skips its next turn.|-|foeB3>skip
+w:oc-mangrove-clog|Mangrove Clog Crush|wear|oc-mangrove-clog|hurt|10|craft|-|-|src|Mangrove Clog: Deal 8 extra damage. If its Yield bar is past half, the creature also skips its next turn.|-|R:OC:footwear
+w:oc-flax-basket-pack|Flax Plenty|wear|oc-flax-basket-pack|item|8|craft|-|-|src|Flax Basket Pack: If it is linked to a Charm, next round you pick from 6 pieces.|-|linkC>plenty
+w:oc-coconut-string-bag|Coconut Snack|wear|oc-coconut-string-bag|item|8|body|-|-|src|Coconut String Bag: If a creature piece is in its chain, heal 6.|-|linkFoe>heal
+w:oc-bushmans-swag|Swag Rummage|wear|oc-bushmans-swag|trick|7|mind|-|-|src|Bushman's Swag: If you played no Hurt last turn, small chance to lift an item from the creature.|-|noHurt>pluck
 w:oc-bamboo-frame-pack|Frame Simmer|wear|oc-bamboo-frame-pack|heal|7|craft|-|-|src|Bamboo Frame Pack: If it sits in a corner, heal 3 at the start of each of your next 2 turns.|-|corner>mend
-w:oc-pouch-pack|Pouch Provision|wear|oc-pouch-pack|heal|9|body|-|-|src|Pouch Pack: Heal 8. Keep every unplayed piece in hand this round; next round pick from 6.|-|R:OC:backpack:5
-w:oc-drovers-oilskin|Oilskin Thorn|wear|oc-drovers-oilskin|guard|7|body|-|-|src|Drover's Oilskin: If it fires last in its chain, a blocked hit pricks it for 6.|-|last>thorns
-w:oc-bush-check-smock|Bush Check Hold|wear|oc-bush-check-smock|guard|7|mind|-|-|src|Bush Check Smock: If you have guard up, your next Guard gets +6.|-|hasGuard>ward
-w:oc-bark-cloth-vest|Bark Vest Mend|wear|oc-bark-cloth-vest|guard|8|craft|-|-|src|Bark-cloth Vest: If nothing is linked to it, heal 3 at the start of each of your next 2 turns.|-|alone>mend
-w:oc-reef-sail-cloth-jerkin|Sail Jerkin Slip|wear|oc-reef-sail-cloth-jerkin|guard|8|body|-|-|src|Reef Sail-cloth Jerkin: In its last round on the board, the creature's first hit next turn misses.|-|lastRound>evade
-w:oc-gum-dyed-cardigan|Gum-dye Keep|wear|oc-gum-dyed-cardigan|guard|10|mind|-|-|src|Gum-dyed Cardigan: Keeper. Gain 8 guard. When the creature plays a Hurt, you may play this from hand for free in response.|-|R:OC:coat:5
-w:oc-frond-rain-cape|Frond Cape Hum|wear|oc-frond-rain-cape|charm|7|mind|-|-|src|Frond Rain Cape: If nothing is linked to it, cut its next hits by 3.|-|alone>soothe
-w:oc-fleece-mantle|Fleece Mantle Bond|wear|oc-fleece-mantle|charm|7|craft|-|-|src|Fleece Mantle: If it fires first in its chain, your Charm fills 10% more for the rest of the fight.|-|first>bond
-w:oc-hibiscus-pareo|Pareo Calm|wear|oc-hibiscus-pareo|soothe|6|body|-|-|src|Hibiscus Pareo: If it fires last in its chain, the creature skips its next move.|-|last>skip
-w:oc-red-dust-poncho|Red-Dust Lull|wear|oc-red-dust-poncho|charm|8|mind|-|-|src|Red-dust Poncho: If its Yield bar is past half, the creature skips its next move.|-|yHalf>skip
-w:oc-storm-petrel-hood|Storm-petrel Hood|wear|oc-storm-petrel-hood|trick|9|craft|-|-|src|Storm-petrel Hood: Lift an item for sure; the creature's strongest piece loses 8 value, and you draw 4.|-|R:OC:cloak:5
+w:oc-pouch-pack|Pouch Provision|wear|oc-pouch-pack|heal|9|body|-|-|src|Pouch Pack: Heal 8. Next round pick from 6 pieces, and one piece you keep stays in your hand the round after.|-|R:OC:backpack
+w:oc-drovers-oilskin|Oilskin Thorn|wear|oc-drovers-oilskin|guard|7|body|-|-|src|Drover's Oilskin: If it is linked to a Trick, each hit this guard blocks adds 3 to the bar.|-|linkT>thorns
+w:oc-bush-check-smock|Bush Check Hold|wear|oc-bush-check-smock|guard|7|mind|-|-|src|Bush Check Smock: If it is linked to a Guard, the next Guard you place gets +6.|-|linkG>ward
+w:oc-bark-cloth-vest|Bark Vest Mend|wear|oc-bark-cloth-vest|guard|8|craft|-|-|src|Bark-cloth Vest: If it is linked to a Trick, heal 3 at the start of each of your next 2 turns.|-|linkT>mend
+w:oc-reef-sail-cloth-jerkin|Sail Jerkin Slip|wear|oc-reef-sail-cloth-jerkin|guard|8|body|-|-|src|Reef Sail-cloth Jerkin: In its last round on the board, the creature's next Hurt misses.|-|lastRound>evade
+w:oc-gum-dyed-cardigan|Gum-dye Keep|wear|oc-gum-dyed-cardigan|guard|10|mind|-|-|src|Gum-dyed Cardigan: Keeper. Gain 8 guard; after two rounds in your hand it also stays up one more turn and each hit it blocks adds 4 to the bar.|-|R:OC:coat
+w:oc-frond-rain-cape|Frond Cape Hum|wear|oc-frond-rain-cape|charm|7|mind|-|-|src|Frond Rain Cape: If it is linked to a Trick, cut the creature's hits by 3 this round.|-|linkT>soothe
+w:oc-fleece-mantle|Fleece Mantle Bond|wear|oc-fleece-mantle|charm|7|craft|-|-|src|Fleece Mantle: If it is linked to a Hurt, your Charm counts 10% more for the rest of the fight.|-|linkH>bond
+w:oc-hibiscus-pareo|Pareo Calm|wear|oc-hibiscus-pareo|soothe|6|body|-|-|src|Hibiscus Pareo: If it is linked to a Hurt, the creature skips its next turn.|-|linkH>skip
+w:oc-red-dust-poncho|Red-Dust Lull|wear|oc-red-dust-poncho|charm|8|mind|-|-|src|Red-dust Poncho: If its Yield bar is past half, the creature skips its next turn.|-|yHalf>skip
+w:oc-storm-petrel-hood|Storm-petrel Hood|wear|oc-storm-petrel-hood|trick|9|craft|-|-|src|Storm-petrel Hood: Pluck, sure to work. The creature's strongest piece loses 8 and your next hand has 1 extra piece.|-|R:OC:cloak

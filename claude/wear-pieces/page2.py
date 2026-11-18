@@ -43,7 +43,7 @@ h3{{font:700 16px "Space Grotesk",Inter,sans-serif;margin:6px 0 2px;color:var(--
 .rar-uncommon .it i{{color:var(--unc)}} .rar-rare .it i{{color:var(--rare)}} .rar-common .it i{{color:var(--com)}}
 </style>
 <h1>Wear Pieces</h1>
-<p class="lead">280 wearables, 280 different effects. Each Common and Uncommon piece pairs its own trigger with its own payoff; each Rare has a hand-written rule. Numbers in the text grow with region and rarity. Left picture is the item, right is the piece it grants. Value is the base; the game adds your stat, level/3 and rank (Lined +2, Fine +4). Petals is the Common-rank price; Lined x1.5, Fine x2.5. New effects need engine work.</p>
+<p class="lead">280 wearables, 280 different effects, written against the 2.7.00 quick rules (fixed firing order, no lone pieces). Each Common and Uncommon piece pairs its own trigger with its own payoff; each Rare has a hand-written rule. Numbers in the text grow with region and rarity. Left picture is the item, right is the piece it grants. Value is the base; the game adds your stat, level/3 and rank (Lined +2, Fine +4). Petals is the Common-rank price; Lined x1.5, Fine x2.5. New effects need engine work.</p>
 <div class="tw"><table><thead><tr><th>Region</th><th>Level</th><th>Base bonus</th><th>Piece values</th><th>Petals (Common&ndash;Rare)</th></tr></thead><tbody>{''.join(sc)}</tbody></table></div>
 <nav id="nav">{nav}<span class="sp"></span><button data-f="all" aria-pressed="true">All</button><button data-f="footwear" aria-pressed="false">Footwear</button><button data-f="backpack" aria-pressed="false">Backpack</button><button data-f="coat" aria-pressed="false">Coat</button><button data-f="cloak" aria-pressed="false">Cloak</button></nav>
 {''.join(cards)}
