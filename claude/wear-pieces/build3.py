@@ -12,8 +12,8 @@ CATS=['footwear','backpack','coat','cloak']; RAR=['Common','Common','Uncommon','
 BASE=dict(hurt=4,guard=4,heal=3,charm=4,item=5,trick=3,soothe=2)
 ART=json.load(open('art.json'))
 def price(T,rar): return int(round(({'Common':1200,'Uncommon':3200,'Rare':8000}[rar])*(1+0.25*T)/50))*50
-# Balance 2026-11-18 (balance.md, sims in sim/). The effect numbers a and b follow the region LEVEL: by tier (a 1+T//5, b 2+T//3) they fell to half
-# their share of the gnome's health from the first region to the last, while the piece values (the game adds level/3) kept up.
+# Balance 2026-11-18 (balance.md, sims in sim/). The effect numbers a and b follow the region LEVEL: by tier (a 1+T//5, b 2+T//3) a Common b fell from
+# 9% of the gnome's health in the first region to 4% in the last, while the piece values (the game adds level/3) kept up. Now 6-9% everywhere.
 def ab(T,rar):
     L=LEVEL[ORDER[T]]
     return 1+L//10+(1 if rar=='Rare' else 0), 2+L//5+(1 if rar=='Uncommon' else 0)+(2 if rar=='Rare' else 0)
