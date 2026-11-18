@@ -197,7 +197,7 @@ for _, b in ipairs(boulders) do
   -- the top: a heavy snow cushion with a lilac underside and icicles; near the spring it melts to green moss
   b.m:each(function(x, y)
     local nx, ny = (x - b[1]) / b[3], (y - b[2]) / b[4]
-    local cap = -.32 + .16 * sin(x * .31 + b[5]) + .2 * hash(x // 3, 3, b[5]) + .06 * hash(x, 4, b[5])
+    local cap = -.5 + .16 * sin(x * .31 + b[5]) + .2 * hash(x // 3, 3, b[5]) + .06 * hash(x, 4, b[5])
     if ny < cap and nx < .8 then
       local w = warmth(x, y)
       local edge = not b.m:has(x, y - 1)
@@ -339,22 +339,23 @@ end
 -- QUIRK: an arctic fox in a red gnome hat soaking to its chin in the basin, eyes shut, under the hot shower
 do
   F.sprite({
-    "...........RR.....",
-    "..........RRr.....",
-    ".........HRRr.....",
-    "........HRRRr.....",
-    ".......HRRRRr.....",
-    ".k....HRRRRRRr..k.",
-    ".kF..HRRRRRRRRr.Fk",
-    ".kFFbbbbbbbbbbbbFk",
-    "..FFFFFFFFFFFFFFf.",
-    ".FFFkkFFFFFFkkFFf.",
-    ".FFFFkFFFFFFkFFFf.",
-    ".fFpFFFFnnFFFFpFf.",
-    "..fFFFFFFnFFFFFf..",
-    "..ffFFFFmmFFFFff..",
-    "...ffFFFFFFFFff...",
-  }, 399, 180, { R = L.awnA.base, r = L.awnA.shade, H = L.awnA.hi, b = L.awnB.base, F = L.fur.hi, f = L.fur.shade,
+    "...F.........RR..F...",
+    "...FF.......RRr.FF...",
+    "..FpF......HRRr.FpF..",
+    "..FpFF....HRRRrFFpF..",
+    "..FFFF...HRRRRrFFFF..",
+    ".FFFFF..HRRRRRRFFFFF.",
+    "kFFFFbbbbbbbbbbbbFFFF",
+    "..FFFFFFFFFFFFFFFFF..",
+    "..fFFFFFFFFFFFFFFFf..",
+    "..FkkkFFFFFFFFkkkFF..",
+    ".FFFFFFFFFFFFFFFFFF..",
+    ".fFFpFFFFnnFFFFpFFf..",
+    "..fFFFFFFnnFFFFFFf...",
+    "..ffFFFFFmmFFFFFFff..",
+    "...ffFFFFFFFFFFff....",
+    "....ffFFFFFFFFff.....",
+  }, 398, 180, { R = L.awnA.base, r = L.awnA.shade, H = L.awnA.hi, b = L.awnB.base, F = L.fur.hi, f = L.fur.shade,
     k = L.timber.edge, n = L.timber.edge, m = L.petal.shade, p = L.petal.hi })
   -- ripple rings round its neck, splashes on the hat
   for x = 397, 418 do if (x % 3) ~= 0 then px(x, 195, HW.hi) end end
@@ -684,7 +685,7 @@ plume(226, 242, 12, 1.4, 5, 42, .75)
 plume(60, 252, 16, 1.3, 7, 43, .85)
 plume(122, 256, 12, 1.5, 6, 44, .75)
 -- the main basin plume: rising from the right half of the basin, behind the fox, drifting up over the outcrop
-plume(432, 194, 80, .18, 8, 45, 1.15)
+plume(444, 192, 80, .12, 7, 45, .8)
 plume(360, 198, 30, -.15, 5, 46, .8)
 
 F.depth(0)

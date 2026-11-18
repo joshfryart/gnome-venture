@@ -49,8 +49,9 @@ for y = 114, 160 do
     if x > F.xr(y) + 6 then
       local h
       if hgt < 3 then
-        h = (y % 2 == 0) and F.mix(R.shade, HAZE, .45) or F.mix(S.base, HAZE, .3)
-        if hash(x // 4, y, 3) < .15 then h = F.mix(berry.base, HAZE, .45) end
+        h = (y == y1) and F.mix(R.shade, HAZE, .5) or F.mix(S.base, HAZE, .28)
+        if hash(x // 3, y, 3) < .1 then h = F.mix(R.base, HAZE, .55) end
+        if hash(x // 5, y, 4) < .04 then h = F.mix(berry.base, HAZE, .5) end
       elseif wall then
         -- dry-stone windbreak: snow on its top course, stones lit left, lee drift under
         local ry = y - y0
@@ -354,9 +355,26 @@ local function cloudberry(x, y, k)
   px(x - 1, y - 10, CBL.shade) px(x + 1, y - 10, CBL.shade)
 end
 local function roseroot(x, y, k)
-  local m = c:ellipse(x, y - 4, 3, 4) fill(m, RR.base)
-  m:each(function(xx, yy) if (xx - x) + (yy - y + 4) > 1 then px(xx, yy, RR.shade) elseif (yy - y) % 2 == 0 and xx < x then px(xx, yy, RR.hi) end end)
-  fill(rect(x - 1, y - 9, x + 1, y - 8), CB.hi) px(x + 1, y - 8, L.produce.base) px(x - 1, y - 9, L.gold.hi) px(x, y - 9, L.produce.shade)
+  local v = k % 3
+  if v == 0 then
+    local m = c:ellipse(x, y - 4, 3, 4) fill(m, RR.base)
+    m:each(function(xx, yy) if (xx - x) + (yy - y + 4) > 1 then px(xx, yy, RR.shade) elseif (yy - y) % 2 == 0 and xx < x then px(xx, yy, RR.hi) end end)
+    fill(rect(x - 1, y - 9, x + 1, y - 8), CB.hi) px(x + 1, y - 8, L.produce.base) px(x - 1, y - 9, L.gold.hi) px(x, y - 9, L.produce.shade)
+  elseif v == 1 then -- low flat rosette of fleshy leaves, a red-gold flower head on a short stalk
+    local m = c:ellipse(x, y - 2, 4, 2) fill(m, RR.base)
+    m:each(function(xx, yy) if (xx - x) + (yy - y + 2) * 2 > 2 then px(xx, yy, RR.shade) elseif xx < x - 1 then px(xx, yy, RR.hi) end end)
+    px(x - 4, y - 2, RR.deep) px(x + 4, y - 2, RR.deep) hline(x - 3, x + 3, y, RR.deep)
+    vline(x, y - 7, y - 3, RR.deep)
+    fill(rect(x - 1, y - 9, x + 1, y - 7), L.produce.base) px(x - 1, y - 9, L.produce.hi) px(x + 1, y - 7, L.produce.deep)
+  else -- three upright stems with red seed pods and pointed leaves
+    for i, dx in ipairs({ -2, 0, 2 }) do
+      local h = 6 + (i % 2) * 2
+      vline(x + dx, y - h, y, RR.shade)
+      px(x + dx - 1, y - 3, RR.base) px(x + dx + 1, y - 5, RR.hi)
+      px(x + dx, y - h - 1, L.apple.base) px(x + dx, y - h, L.apple.shade)
+    end
+    px(x - 1, y - 9, L.apple.hi) px(x + 3, y - 8, L.gold.base)
+  end
 end
 local function lichen(x, y, k)
   -- reindeer lichen cushions: pale, knobbly, lit upper left
@@ -562,14 +580,14 @@ for k, x in ipairs({ 26, 36, 46, 58, 70, 82 }) do
   if k % 2 == 1 then
     -- angelica: straw stem, side umbels, a big snow-capped crown umbel
     for y = yb - h, yb do px(sx(y), y, L.fern.shade) px(sx(y) + 1, y, L.fern.deep) end
-    for _, u in ipairs({ { 0, 6 }, { -1, 3 }, { 1, 3 } }) do
+    for _, u in ipairs({ { 0, 8 }, { -1, 4 }, { 1, 4 } }) do
       local uy = (u[1] == 0) and (yb - h) or (yb - h + 10 + floor(hash(k, u[1], 6) * 6))
       local ux = sx(uy) + u[1] * 5
       local w = u[2]
       if u[1] ~= 0 then line({ { sx(uy + 4), uy + 4 }, { ux, uy } }):each(function(xx, yy) px(xx, yy, L.fern.shade) end) end
       for j = -w, w, 2 do line({ { ux, uy + 3 }, { ux + j, uy } }):each(function(xx, yy) px(xx, yy, L.fern.base) end) end
       for j = -w, w do
-        local dy = floor((j * j) / (w + 1) + .5) // 2
+        local dy = floor((j * j) * .8 / w + .5)
         px(ux + j, uy + dy, (j < 0) and S.hi or S.base)
         px(ux + j, uy + dy + 1, ((ux + j) % 2 == 0) and L.fern.hi or L.fern.shade)
         if abs(j) < w then px(ux + j, uy + dy + 2, ((ux + j) % 2 == 1) and L.fern.base or L.fern.deep) end
@@ -612,6 +630,14 @@ for i, x in ipairs({ 20, 30, 41, 52, 63, 74, 86 }) do
   else
     lingonberry(x, y, i) px(x - 3, y - 6, S.hi) px(x - 2, y - 6, S.base)
   end
+end
+-- more colour in the left bed: purple saxifrage, golden saxifrage, pink moss campion, white cotton grass
+for i = 0, 30 do
+  local x, y = 18 + floor(hash(i, 1, 93) * 76), 212 + floor(hash(i, 2, 93) * 9)
+  local kind = i % 4
+  local col = kind == 0 and { L.lav.hi, L.lav.base } or (kind == 1 and { L.gold.hi, L.gold.base } or (kind == 2 and { L.petal.hi, L.petal.base } or { "#f4f6fa", S.base }))
+  px(x, y, col[1]) px(x + 1, y, col[2]) px(x, y + 1, LG.shade) px(x + 1, y + 1, LG.deep)
+  if kind == 2 then px(x, y - 1, col[1]) end
 end
 -- gnome harvesting with a basket of cloudberries
 local _, gx, gy = F.gnome(268, 218, { hat = L.awnA, coat = L.leaf, arm = "out" })

@@ -75,20 +75,22 @@ F.cairn(110, 128, 12, 9)
 ---------------------------------------------------------------- musk oxen far right, heads down in the wind
 local function muskox(x, yb, flip)
   local s = flip and -1 or 1
-  local body = c:ellipse(x, yb - 5, 6, 4):add(rect(x - 6, yb - 4, x + 6, yb - 1))
-  local hump = c:ellipse(x + 2 * s, yb - 8, 3, 2)
-  local head = flip and rect(x - 9, yb - 5, x - 6, yb - 1) or rect(x + 6, yb - 5, x + 9, yb - 1)
-  local legs = rect(x - 4, yb, x - 4, yb):add(rect(x + 3, yb, x + 3, yb))
-  local m = union(body, hump, head, legs)
+  local body = c:ellipse(x, yb - 6, 8, 5):add(rect(x - 8, yb - 5, x + 8, yb - 1))
+  local hump = c:ellipse(x + 2 * s, yb - 10, 4, 2)
+  local head = flip and rect(x - 12, yb - 6, x - 7, yb - 1) or rect(x + 7, yb - 6, x + 12, yb - 1)
+  local legs = rect(x - 6, yb, x - 5, yb + 1):add(rect(x + 4, yb, x + 5, yb + 1))
+  local hx = x + 10 * s
+  local horn = line({ { x + 6 * s, yb - 9 }, { x + 11 * s, yb - 9 }, { x + 14 * s, yb - 6 }, { x + 14 * s, yb - 3 }, { x + 15 * s, yb - 2 } }, 1)
+  local m = union(body, hump, head, legs, horn)
   c:rim(m, OX.edge) part(m, OX, { nopop = true })
   m:each(function(xx, yy) if yy >= yb - 1 and hash(xx, yy, 7) < .6 then px(xx, yy, OX.deep) end end) -- long skirt
-  hline(x - 3, x + 3, yb - 9, OX.hi) px(x + 1, yb - 7, "#b49c84") px(x + 2, yb - 7, "#b49c84") -- pale saddle
-  local hx = x + 7 * s
-  px(hx, yb - 5, BONE.base) px(hx + s, yb - 4, BONE.base) px(hx - s, yb - 6, BONE.hi) -- horn boss
-  px(x - 4, yb, OX.edge) px(x + 3, yb, OX.edge)
+  hline(x - 4, x + 4, yb - 11, OX.hi) hline(x - 3, x + 5, yb - 8, "#b49c84") hline(x - 2, x + 4, yb - 7, "#b49c84") -- pale saddle
+  fill(horn, BONE.hi) px(x + 15 * s, yb - 2, BONE.base)
+  px(hx + s, yb - 5, OX.edge) -- eye
+  px(x - 5, yb + 1, OX.edge) px(x + 4, yb + 1, OX.edge)
 end
 F.depth(1)
-for _, m in ipairs({ { 318, 135, false }, { 333, 132, true }, { 346, 137, false }, { 456, 131, false } }) do muskox(m[1], m[2], m[3]) end
+for _, m in ipairs({ { 316, 128, true }, { 304, 137, false }, { 329, 135, false }, { 456, 131, false } }) do muskox(m[1], m[2], m[3]) end
 F.tracks({ { 352, 142 }, { 372, 150 } }, "deer", 5)
 
 ---------------------------------------------------------------- the beacon / aurora-watch tower
@@ -383,6 +385,9 @@ F.tracks({ { 14, 236 }, { 40, 222 }, { 70, 220 } }, "hare", 8)
 for _, w in ipairs({ { 22, 216, 6, 6 }, { 112, 224, 5, 5 }, { 120, 264, 6, 6 } }) do F.willow(w[1], w[2], w[3], w[4], w[1] + 5) end
 F.snowCap(F.rock(100, 266, 8, 6), 3, 68)
 F.snowCap(F.rock(14, 262, 7, 5), 2, 69)
+F.drift(34, 198, 17, 6, 121) F.drift(92, 214, 13, 4, 122) F.drift(54, 184, 11, 4, 123)
+F.snowCap(F.rock(76, 196, 6, 5), 2, 124)
+F.willow(24, 186, 5, 6, 125) F.willow(96, 190, 4, 5, 126)
 -- sedge tufts poking through the snow by the targets
 for i = 0, 6 do local x = 54 + i * 3 local h = 4 + floor(hash(i, 9, 52) * 5) vline(x, 258 - h, 258, i % 2 == 0 and L.fern.shade or L.fern.base) end
 
@@ -504,7 +509,17 @@ for row = 0, 2 do for k = 0, 3 - row do
   b:each(function(x, y) if hash(x, y, 94) < .2 then px(x, y, L.rust.shade) end end)
 end end
 hline(286, 296, 215, SN.hi)
-for _, cr in ipairs({ { 300, 254, 18, 12 }, { 320, 256, 18, 12 }, { 310, 242, 18, 10 } }) do F.snowCap(F.crate(cr[1], cr[2], cr[3], cr[4]), 2, cr[1], { cx = cr[1] + 10 }) end
+for ci, cr in ipairs({ { 300, 254, 18, 12 }, { 320, 256, 18, 12 }, { 310, 242, 18, 10 } }) do
+  local cm = F.crate(cr[1], cr[2], cr[3], cr[4])
+  local x0, yb, w, h = cr[1], cr[2], cr[3], cr[4]
+  hline(x0 + 1, x0 + w - 1, yb - h + 3, IR.shade) hline(x0 + 1, x0 + w - 1, yb - 3, IR.shade) -- iron straps
+  for _, bx in ipairs({ x0 + 2, x0 + w - 2 }) do px(bx, yb - h + 3, IR.hi) px(bx, yb - 3, IR.hi) end
+  if ci == 1 then fill(rect(x0 + 6, yb - h + 5, x0 + 11, yb - 5), L.awnA.base) hline(x0 + 7, x0 + 10, yb - 8, L.plaster.base) vline(x0 + 8, yb - h + 6, yb - 6, L.plaster.base) -- red stencil
+  elseif ci == 2 then vline(x0 + 5, yb - h + 1, yb - 1, SEDGE.base) vline(x0 + 13, yb - h + 1, yb - 1, SEDGE.base) vline(x0 + 6, yb - h + 1, yb - 1, SEDGE.shade) vline(x0 + 14, yb - h + 1, yb - 1, SEDGE.shade)
+    fill(rect(x0 + 8, yb - 7, x0 + 11, yb - 5), L.gold.base) px(x0 + 8, yb - 7, L.gold.hi)
+  else fill(rect(x0 + 4, yb - h + 4, x0 + 13, yb - 3), L.plaster.base) hline(x0 + 5, x0 + 12, yb - 6, L.timber.edge) hline(x0 + 5, x0 + 10, yb - 4, L.timber.edge) end
+  F.snowCap(cm, 2, x0, { cx = x0 + 10 })
+end
 local brl = F.barrel(346, 258, T, 12) F.snowCap(brl, 2, 95)
 px(343, 250, L.gold.base) px(344, 250, L.gold.shade) -- oil drip
 F.willow(286, 262, 7, 7, 96) F.willow(356, 236, 5, 5, 97)
@@ -516,7 +531,17 @@ F.willow(456, 224, 7, 8, 98) F.willow(404, 220, 5, 5, 99)
 local _, gx, gy = F.gnome(258, 242, { hat = L.awnA, coat = L.deer, arm = "hold" })
 fill(rect(gx + 6, 204, gx + 6, 242), L.board.shade) fill(poly{ { gx + 5, 204 }, { gx + 6, 197 }, { gx + 8, 204 } }, IR.hi)
 px(gx + 6, 205, BONE.base)
-F.sprite({
+local function scale15(rows)
+  local out, nh = {}, math.floor(#rows * 1.5 + .5)
+  for j = 0, nh - 1 do
+    local r = rows[math.floor(j / 1.5) + 1]
+    local t = {}
+    for i = 0, math.floor(#r * 1.5 + .5) - 1 do t[#t + 1] = r:sub(math.floor(i / 1.5) + 1, math.floor(i / 1.5) + 1) end
+    out[#out + 1] = table.concat(t)
+  end
+  return out
+end
+F.sprite(scale15({
   ".e.e........",
   ".ee.e.....TT",
   "dDDDd.....Tt",
@@ -526,7 +551,7 @@ F.sprite({
   "..WWWWWWWWd.",
   "..WW.WW.WW..",
   "..dd.dd.dd..",
-}, 270, 234, { e = L.fur.deep, D = L.fur.deep, d = L.fur.edge, n = T.edge, m = L.accent.hi, W = L.fur.base, b = L.fur.shade, T = L.fur.base, t = L.fur.deep })
+}), 270, 229, { e = L.fur.deep, D = L.fur.deep, d = L.fur.edge, n = T.edge, m = L.accent.hi, W = L.fur.base, b = L.fur.shade, T = L.fur.base, t = L.fur.deep })
 F.tracks({ { 282, 246 }, { 300, 262 } }, "bird", 5)
 F.tracks({ { 286, 244 }, { 306, 262 } }, "hare", 7)
 

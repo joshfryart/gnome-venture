@@ -186,6 +186,7 @@ do
   -- skis and poles leaning on the right wall
   for k, sx in ipairs({ cx + 30, cx + 33 }) do
     local ski = line({ { sx, yb }, { sx + 3, yb - 22 } }, 1)
+    rimOf(ski, L.timber)
     fill(ski, k == 1 and L.wall2.base or L.accent.base) px(sx + 3, yb - 22, L.timber.edge) px(sx + 2, yb - 23, k == 1 and L.wall2.hi or L.accent.hi)
   end
   line({ { cx + 37, yb }, { cx + 38, yb - 18 } }):each(function(x, y) px(x, y, L.timber.deep) end) fill(rect(cx + 36, yb - 4, cx + 39, yb - 4), L.timber.deep)
@@ -372,10 +373,10 @@ local function freightSled(x0, yb)
   for k = 0, 1 do local hx = x0 - 18 - k * 9 local hy = yb + 1 + k * 2 hline(hx - 2, hx + 2, hy, L.accent.base) px(hx - 2, hy - 1, L.accent.hi) px(hx + 2, hy + 1, L.accent.deep) end
 end
 F.depth(2)
-freightSled(406, 152)
+freightSled(398, 152)
 F.tree(470, 150, 46, 5)
 -- a raven on the load
-F.sprite({ "..kk...", ".kKkk..", "bkkkkkk", "..kkkkk", "...o.o." }, 430, 117, { k = "#4a4656", K = "#8a88a0", b = L.gold.deep, o = L.timber.edge })
+F.sprite({ "..kk...", ".kKkk..", "bkkkkkk", "..kkkkk", "...o.o." }, 422, 117, { k = "#4a4656", K = "#8a88a0", b = L.gold.deep, o = L.timber.edge })
 F.depth(3)
 
 ---------------------------------------------------------------- left: driftwood stacked between stakes, an ermine
@@ -395,7 +396,17 @@ local function woodStack(x0, x1, yb)
   F.drift(x0 - 6, yb + 1, 10, 4, 93)
 end
 woodStack(22, 72, 196)
-F.sprite({
+local function scale15(rows)
+  local out, nh = {}, math.floor(#rows * 1.5 + .5)
+  for j = 0, nh - 1 do
+    local r = rows[math.floor(j / 1.5) + 1]
+    local t = {}
+    for i = 0, math.floor(#r * 1.5 + .5) - 1 do t[#t + 1] = r:sub(math.floor(i / 1.5) + 1, math.floor(i / 1.5) + 1) end
+    out[#out + 1] = table.concat(t)
+  end
+  return out
+end
+F.sprite(scale15({
   "............kk",
   "............Wb",
   ".kk.......WWWb",
@@ -403,7 +414,7 @@ F.sprite({
   "WeWWWWWWWWWw..",
   "nWWWWWWWWWww..",
   ".wW..wwW..w...",
-}, 74, 188, { k = L.fur.deep, W = L.fur.hi, w = L.fur.shade, e = L.timber.edge, n = L.timber.edge, b = L.timber.edge })
+}), 74, 185, { k = L.fur.deep, W = L.fur.hi, w = L.fur.shade, e = L.timber.edge, n = L.timber.edge, b = L.timber.edge })
 -- a gnome pegging a mitten on the line
 F.gnome(140, 134, { small = true, hat = L.produce, coat = L.wall2, arm = "up" })
 
@@ -416,8 +427,9 @@ local function campfire(cx, cy)
     local top = floor(cy - 46 + t * t * 10)
     for y = top, floor(cy - 28 + t * t * 6) do wb:set(x, y) end
   end
-  rimOf(wb, S) snowBlocks(wb, cy - 46, 4, 7, cx - 10)
-  wb:each(function(x, y) if not wb:has(x, y - 1) then px(x, y, S.hi) end end)
+  rimOf(wb, L.timber) snowBlocks(wb, cy - 46, 4, 7, cx - 10)
+  wb:each(function(x, y) if not wb:has(x, y - 1) then px(x, y, S.hi) end if not wb:has(x, y + 1) then px(x, y, S.edge) end end)
+  wb:each(function(x, y) if (x - cx) > 8 and hash(x // 7, y // 4, 58) < .3 and (y - (cy - 46)) % 4 ~= 0 and (x + (((y - (cy - 46)) // 4) % 2) * 3) % 7 ~= 0 then px(x, y, S.deep) end end)
   local function seat(x0, x1, y, hide)
     local m = c:rrect(x0, y - 4, x1, y + 4, 4)
     F.shadow(x0, x1, y + 6, 4, 2)

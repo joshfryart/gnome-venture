@@ -197,14 +197,27 @@ end
 iceYacht(286, 134)
 -- the dog sled team trotting out to the shacks
 F.depth(2)
+local function scale15(rows)
+  local out, nh = {}, math.floor(#rows * 1.5 + .5)
+  for j = 0, nh - 1 do
+    local r = rows[math.floor(j / 1.5) + 1]
+    local t = {}
+    for i = 0, math.floor(#r * 1.5 + .5) - 1 do t[#t + 1] = r:sub(math.floor(i / 1.5) + 1, math.floor(i / 1.5) + 1) end
+    out[#out + 1] = table.concat(t)
+  end
+  return out
+end
 local function dog(x, y)
   F.sprite({
-    "......kk.",
-    "..w..kGGk",
-    ".wGGGGGWn",
-    "..GWWWWG.",
-    "..k.k.k.k",
-  }, x, y, { k = L.timber.edge, G = L.fur.deep, W = L.fur.base, w = L.fur.shade, n = L.timber.edge })
+    "........G.G...",
+    "........GGGG..",
+    ".w..GGGGGeWWn.",
+    ".wwGGGGGGGWWW.",
+    "..GGGGGGWWWW..",
+    "..GWWWWWWWWG..",
+    "..G.G....G.G..",
+    "..k.k....k.k..",
+  }, x, y - 3, { k = L.timber.edge, G = L.iron.base, W = L.fur.hi, w = L.iron.shade, e = L.timber.edge, n = L.timber.edge })
 end
 local function dogSled(x, y)
   -- tracks behind
@@ -218,8 +231,8 @@ local function dogSled(x, y)
   F.sack(x + 9, y - 5, SACK, 3)
   F.gnome(x + 2, y - 2, { small = true, hat = L.awnA, coat = L.leaf, noShadow = true })
   -- gangline and the team
-  hline(x + 17, x + 48, y - 3, L.soil.shade)
-  dog(x + 18, y - 6) dog(x + 30, y - 7) dog(x + 41, y - 6)
+  hline(x + 17, x + 54, y - 3, L.soil.shade)
+  dog(x + 16, y - 6) dog(x + 28, y - 7) dog(x + 40, y - 6)
 end
 dogSled(304, 156)
 
@@ -293,20 +306,20 @@ end
 
 ---------------------------------------------------------------- the jetty, piles locked in the ice, a rowboat frozen in
 local function rowboat(x0, x1, y)
-  local hull = poly{ { x0 - 3, y - 2 }, { x0, y }, { x1, y }, { x1 + 3, y - 2 }, { x1 - 5, y + 8 }, { x0 + 6, y + 8 } }
+  local hull = poly{ { x0 - 3, y - 2 }, { x0, y }, { x1, y }, { x1 + 3, y - 2 }, { x1 - 5, y + 11 }, { x0 + 6, y + 11 } }
   local inside = c:ellipse((x0 + x1) / 2, y - 2, (x1 - x0) / 2 - 1, 2)
   rimOf(union(hull, inside), L.timber)
-  part(hull, L.wall2) hline(x0 + 2, x1 - 2, y + 3, L.plaster.base) hline(x0 + 4, x1 - 4, y + 4, L.plaster.shade)
+  part(hull, L.wall2) hline(x0 + 2, x1 - 2, y + 3, L.plaster.base) hline(x0 + 3, x1 - 3, y + 4, L.plaster.shade) hline(x0 + 6, x1 - 6, y + 9, L.wall2.deep)
   fill(inside, L.timber.shade) c:edgeIn(inside, L.board.base)
   -- snow heaped in the boat and on the seats
   local sn = c:ellipse((x0 + x1) / 2, y - 3, (x1 - x0) / 2 - 4, 2)
   sn:each(function(x, yy) px(x, yy, yy < y - 3 and S.hi or S.base) end)
   vline(x0 + 16, y - 5, y - 1, L.board.hi) vline(x1 - 16, y - 5, y - 1, L.board.hi)
   -- the ice it is frozen into: a lip of ice and snow round the waterline, a drift on the lee side
-  local lip = c:ellipse((x0 + x1) / 2 + 1, y + 7, (x1 - x0) / 2 + 2, 3):cut(c:ellipse((x0 + x1) / 2 + 1, y + 4, (x1 - x0) / 2 - 2, 2))
+  local lip = c:ellipse((x0 + x1) / 2 + 1, y + 10, (x1 - x0) / 2 + 2, 3):cut(c:ellipse((x0 + x1) / 2 + 1, y + 7, (x1 - x0) / 2 - 2, 2))
   F.obj()
-  lip:each(function(x, yy) if yy >= y + 6 then px(x, yy, yy == y + 6 and I.hi or (hash(x, yy, 95) < .5 and S.base or I.base)) end end)
-  F.drift(x1 + 6, y + 9, 10, 4, 96)
+  lip:each(function(x, yy) if yy >= y + 9 then px(x, yy, yy == y + 9 and I.hi or (hash(x, yy, 95) < .5 and S.base or I.base)) end end)
+  F.drift(x1 + 6, y + 12, 10, 4, 96)
   F.icicles(x0 + 6, x1 - 6, y + 4, 2, 97, .25)
   -- the oar frozen in its rowlock, sticking out over the ice
   fill(line({ { x0 + 8, y - 2 }, { x1 + 6, y + 6 } }), L.board.shade) fill(rect(x1 + 4, y + 5, x1 + 8, y + 7), L.board.base)
@@ -325,11 +338,11 @@ F.planks(deck, L.board, 5, true, 21)
 -- snow lying on the deck, a cleared boot path down the middle (and swept round the fisher's crate)
 deck:each(function(x, y)
   local path = y >= 181 and y <= 183
-  if not path and hash(x // 3, y, 99) < .72 then px(x, y, y == 178 and S.hi or (y < 181 and S.base or S.shade)) end
-  if path and hash(x, y, 100) < .12 then px(x, y, S.base) end
+  if not path and hash(x // 9, y, 99) < .8 then px(x, y, y == 178 and S.hi or (y < 181 and S.base or S.shade)) end
+  if path and hash(x // 5, y, 100) < .08 then px(x, y, S.base) end
 end)
 hline(300, 470, 177, S.hi)
-for x = 302, 470, 7 do if hash(x, 1, 101) < .5 then px(x, 176, S.base) end end
+for x = 302, 470, 14 do if hash(x, 1, 101) < .5 then px(x, 176, S.base) end end
 part(face, L.timber, { nopop = true })
 for x = 302, 470, 10 do px(x, 187, L.iron.hi) end
 F.icicles(300, 470, 189, 5, 102, .5)
@@ -401,7 +414,7 @@ F.sprite({
   ".....WW.wWW.WW........",
   ".....Ww..ww.Ww........",
   ".....dd..dd.dd........",
-}, 284, 246, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, W = L.fur.hi, w = L.fur.shade, s = L.fur.deep,
+}, 284, 246, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, W = L.fur.base, w = L.fur.shade, s = L.fur.deep,
   e = L.timber.edge, n = L.timber.edge, C = CHAR.base, B = BELLY.base, d = L.fur.deep })
 px(298, 249, L.awnB.hi) -- the hat's pompom catches the sun
 F.tracks({ { 262, 268 }, { 276, 262 }, { 286, 264 } }, "hare", 6)

@@ -135,8 +135,8 @@ F.sprite({
   "nn......Bd.dd....Bd.dd..",
   "........dd.dd....dd.dd..",
   "........ff.ff....ff.ff..",
-}, 347, 153, { m = L.timber.deep, h = L.board.hi, B = L.board.base, d = L.board.shade, k = L.timber.edge, w = L.fur.hi,
-  n = L.board.deep, t = L.timber.deep, f = L.timber.edge, e = L.timber.edge, r = L.awnA.shade, R = L.awnA.base })
+}, 347, 153, { m = L.deer.deep, h = L.deer.hi, B = L.deer.base, d = L.deer.shade, k = L.timber.edge, w = L.fur.hi,
+  n = L.deer.deep, t = L.deer.deep, f = L.timber.edge, e = L.timber.edge, r = L.awnA.shade, R = L.awnA.base })
 hline(358, 364, 156, L.gold.base)
 px(346, 162, L.fern.hi) px(345, 163, L.fern.base) px(346, 164, L.fern.hi) px(345, 161, L.fern.shade)
 F.steam(345, 159, 3, -.4, 12) -- the pony's breath
@@ -278,8 +278,8 @@ local function inn()
     -- warm light spilling onto the snow-dusted box front
     for x = x0, x1, 3 do px(x, y1 + 3, L.glow.deep) end
   end
-  bay(40, 76, 155, 168)
-  bay(134, 170, 155, 168)
+  bay(46, 72, 155, 168)
+  bay(138, 164, 155, 168)
   F.sprite({ "..ss..", ".ssss.", "ssssss", ".sss..", "sssss.", "sssss." }, 140, 160, { s = L.glow.deep }, { rim = false })
   F.sprite({ ".ss.", "ssss", "ssss", ".ss." }, 66, 162, { s = L.glow.deep }, { rim = false }) -- a cat in the left bay
   px(65, 161, L.glow.deep) px(68, 161, L.glow.deep)
@@ -391,7 +391,7 @@ end
 do
   local by = SY0 - 1
   local body = c:ellipse(226, by - 6, 13, 6):clip(rect(200, by - 14, 245, by))
-  local head = c:ellipse(208, by - 6, 7, 5):clip(rect(196, by - 14, 220, by))
+  local head = c:ellipse(208, by - 6, 8, 6):clip(rect(196, by - 15, 221, by))
   local snout = poly{ { 202, by - 6 }, { 196, by - 3 }, { 197, by - 1 }, { 204, by - 2 } }
   local hat = poly{ { 201, by - 9 }, { 215, by - 9 }, { 213, by - 15 }, { 208, by - 20 }, { 203, by - 21 }, { 205, by - 17 }, { 203, by - 13 } }
   local tail = c:ellipse(240, by + 4, 4, 8):add(c:ellipse(237, by + 12, 4, 4)):add(c:ellipse(239, by - 2, 4, 3))
@@ -419,8 +419,8 @@ do
   hat:each(function(x, y) if x < 207 and y > by - 16 then px(x, y, L.awnA.hi) end end)
   hline(201, 215, by - 9, L.awnA.deep) hline(202, 214, by - 10, L.awnA.shade)
   -- one ear poking out of the hat, dark-tipped
-  local ear = poly{ { 211, by - 10 }, { 215, by - 15 }, { 215, by - 10 } }
-  c:rim(ear, L.timber.edge) fill(ear, Fu.base) px(214, by - 13, Fu.deep) px(214, by - 14, L.timber.deep)
+  local ear = poly{ { 211, by - 10 }, { 216, by - 18 }, { 217, by - 10 } }
+  c:rim(ear, L.timber.edge) fill(ear, Fu.base) px(215, by - 14, L.petal.base) px(215, by - 13, L.petal.shade) px(216, by - 17, L.timber.deep) px(216, by - 16, Fu.deep)
   local function zed(x, y, s)
     for i = 0, s do px(x + i, y, L.accent.shade) px(x + i, y + s, L.accent.shade) px(x + s - i, y + i, L.accent.shade) end
   end
@@ -695,15 +695,25 @@ F.willow(466, 216, 6, 7, 57) F.willow(432, 224, 5, 6, 58)
 F.fern(284, 240, 5) F.fern(470, 228, 5)
 F.drift(456, 206, 16, 4, 59)
 berries(300, 246) berries(368, 254, L.lav)
+local function scale15(rows)
+  local out, nh = {}, math.floor(#rows * 1.5 + .5)
+  for j = 0, nh - 1 do
+    local r = rows[math.floor(j / 1.5) + 1]
+    local t = {}
+    for i = 0, math.floor(#r * 1.5 + .5) - 1 do t[#t + 1] = r:sub(math.floor(i / 1.5) + 1, math.floor(i / 1.5) + 1) end
+    out[#out + 1] = table.concat(t)
+  end
+  return out
+end
 -- a husky asleep under the table between the legs
-F.sprite({
+F.sprite(scale15({
   "....bb..........",
   "...bBBb.....bb..",
   "..bBkBBBBBBBBBb.",
   "WbBBBBBBBBBBBBBb",
   ".WWWBBWWBBBBWWBt",
   "...WWW..WWWWW.tt",
-}, 364, 217, { b = L.iron.base, B = L.iron.shade, W = L.fur.base, k = L.timber.edge, t = L.iron.base })
+}), 360, 211, { b = L.iron.hi, B = L.iron.base, W = L.fur.hi, k = L.timber.edge, t = L.iron.hi })
 
 F.depth(0)
 F.birds({ { 330, 52, 2 }, { 342, 46, 1 }, { 120, 46, 2 }, { 380, 78, 2 } })

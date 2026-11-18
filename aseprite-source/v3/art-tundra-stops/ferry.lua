@@ -198,17 +198,14 @@ hline(152, 166, 136, L.deer.hi) hline(154, 164, 137, L.deer.base) px(150, 140, L
 ---------------------------------------------------------------- frost smoke drifting over the open channel
 F.depth(0)
 for y = 128, 168 do
-  local x = floor(hash(y, 3, 41) * 40)
-  while x < 480 do
-    local len = 8 + floor(hash(x, y, 42) * 22)
-    if hash(x // 11, y, 43) < .34 - (y - 128) * .007 then
-      for xx = x, x + len do
-        if openW:has(xx, y) and hash(xx, y, 44) < .75 and not (xx > 262 and xx < 374 and y > 128 and y < 172) then
-          local v = c:get(xx, y + DY) if v then px(xx, y, mix(v, "#eef0f6", .5)) end
-        end
+  for x = 0, 479 do
+    if openW:has(x, y) and not (x > 262 and x < 374 and y > 128 and y < 172) then
+      local v = F.vnoise(x / 15 + (y - 128) * .08, y / 4.5, 41)
+      local thr = .6 + (y - 128) * .006
+      if v > thr and (v > thr + .08 or (x + y) % 2 == 0) then
+        local cv = c:get(x, y + DY) if cv then px(x, y, mix(cv, "#eef0f6", .5)) end
       end
     end
-    x = x + len + 10 + floor(hash(x, y, 45) * 30)
   end
 end
 
@@ -399,9 +396,9 @@ local function fox(x0, y0)
     ".....QqHRRRRRRr...",
     ".....bbbbbbbbbbb..",
     "......FFFFFFFFf...",
-    ".....FFeFFFFFFf...",
-    "..kFFFFFFFFFFFf...",
-    "...ffFFFFFFFFf....",
+    ".....FFeFFFeFFf...",
+    "..kkFFFFFFFFFFf...",
+    "...kffFFFFFFFf....",
     ".....ffFFFFFFf....",
     "......FFFFFFFf....",
     ".....FFFFFFFFFf...",
@@ -631,16 +628,19 @@ local function guillemot(x, y)
   px(x - 3, y - 2, L.fur.base) hline(x - 4, x + 4, y + 3, Wt.hi)
 end
 guillemot(290, 170) guillemot(298, 174) guillemot(312, 165)
-do -- a skin boat (umiak) caught in the shore ice, snow along its gunwale
+do -- a skin boat (umiak) caught in the shore ice: pale hide over ribs, upswept bow and stern, an oar
   local y = 186
-  local hull = poly{ { 418, y - 3 }, { 472, y - 3 }, { 466, y + 4 }, { 424, y + 4 } }
-  rimOf(hull, L.timber) part(hull, L.deer) hline(420, 470, y, L.deer.deep)
-  for x = 426, 466, 6 do vline(x, y - 2, y + 3, L.deer.shade) end
-  hline(418, 472, y - 4, S.hi) hline(420, 470, y - 3, S.base)
-  for x = 420, 470 do if hash(x, 1, 122) < .5 then px(x, y + 5, I.hi) px(x, y + 6, I.base) end end
-  local st = rect(410, y - 12, 412, y + 6) rimOf(st, L.timber) part(st, L.timber, { nopop = true, noshade = true })
-  hline(409, 413, y - 13, S.hi)
-  fill(line({ { 412, y - 8 }, { 422, y - 2 } }), L.board.shade)
+  local hull = poly{ { 403, y - 11 }, { 408, y - 5 }, { 420, y - 3 }, { 446, y - 3 }, { 458, y - 5 }, { 464, y - 12 }, { 464, y - 4 }, { 456, y + 3 }, { 436, y + 5 }, { 414, y + 3 }, { 405, y - 3 } }
+  for x = 408, 460 do if hash(x, 1, 122) < .6 then px(x, y + 6, I.hi) px(x, y + 7, I.base) end end
+  rimOf(hull, L.timber) part(hull, L.board)
+  hull:each(function(x, yy) if yy >= y + 1 then px(x, yy, L.board.shade) end if yy >= y + 3 then px(x, yy, L.deer.shade) end end)
+  for x = 413, 457, 6 do vline(x, y - 2, y + 3, L.deer.base) end -- rib seams showing through the skin
+  hull:each(function(x, yy) if not hull:has(x, yy - 1) then px(x, yy, L.timber.base) end end) -- gunwale
+  hline(408, 460, y - 4, S.hi) hline(412, 456, y - 5, S.base)
+  F.snowCap(rect(416, y - 3, 450, y - 2), 1, 121)
+  local oar = line({ { 420, y - 7 }, { 444, y - 4 } }, 1)
+  rimOf(oar, L.timber) fill(oar, L.timber.hi)
+  px(404, y - 11, L.deer.deep) px(463, y - 12, L.deer.deep)
 end
 
 ---------------------------------------------------------------- near bank right: cargo waiting to cross, a gnome on a crate
@@ -668,11 +668,11 @@ do
   local wh = c:ellipse(92, y, 5, 5)
   F.shadow(92, 132, y + 5, 5, 3)
   -- the heap of fish first (behind the tray's front)
-  for k = 0, 6 do
-    local fx, fy = 100 + (k % 3) * 9 + (k // 3) * 4, y - 14 - (k // 3) * 3 + floor(hash(k, 2, 129) * 2)
+  for k = 0, 4 do
+    local fx, fy = 98 + (k % 3) * 11 + (k // 3) * 5, y - 15 - (k // 3) * 4
     local flip = k % 2 == 1
-    F.sprite(flip and { "tt.......", ".tSSSSSh.", "tssssssse" } or { ".......tt", ".hSSSSSt.", "essssssst" }, fx, fy,
-      { S = L.iron.hi, s = L.iron.base, h = L.iron.hi, t = L.iron.shade, e = INK })
+    F.sprite(flip and { "tt.........", "tSSSSSSSSh.", "tssssssssse", ".tttttttt.." } or { ".........tt", ".hSSSSSSSSt", "esssssssssp", "..tttttttt." }, fx, fy,
+      { S = "#d8dee8", s = "#a4b0c4", h = "#f0f2f6", t = L.iron.shade, e = INK, p = L.iron.shade })
   end
   rimOf(union(tray, legs, wh), L.timber)
   part(legs, L.timber, { nopop = true, noshade = true })

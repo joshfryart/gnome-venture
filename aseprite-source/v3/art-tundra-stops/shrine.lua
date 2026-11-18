@@ -251,7 +251,7 @@ local function chapel()
   glowSpill(218, 127, 6, .3) glowSpill(262, 127, 6, .3)
   -- prayer-flag lines from the apex to the flanking spruce and the bell frame
   flagLine(238, 46, 177, 70, 2, 5, 3, 0)
-  flagLine(242, 46, 306, 88, 2, 5, 3, 2)
+  flagLine(242, 46, 310, 68, 4, 5, 3, 2)
 end
 chapel()
 
@@ -310,7 +310,8 @@ local function sacredTree()
   F.drift(410, 163, 18, 3, 51)
   -- two redpolls (red caps) in the twigs
   for _, p in ipairs({ { 382, 98 }, { 436, 92 } }) do
-    F.sprite({ ".rk.", "bbbk", "pbbb", ".bb." }, p[1], p[2], { r = RED.base, k = L.timber.edge, b = L.deer.base, p = L.petal.base })
+    F.sprite({ "...rrr....", "..bbrrb...", "yEbbbbbb..", ".pppbbbbtt", ".pwwwbbbtt", "..wwwwbt..", "....k.k..." }, p[1], p[2],
+      { r = RED.base, k = L.timber.edge, E = L.timber.edge, y = L.gold.base, b = L.deer.hi, p = L.petal.base, w = L.fur.hi, t = L.deer.deep })
   end
 end
 local function bellFrame(x0, yb)
@@ -448,7 +449,20 @@ local function basinShelter()
     fill(line({ { lx, 181 }, { lx + 10, 178 } }), BONE.base)
     local cup = rect(lx - 2, 180, lx + 1, 183) fill(cup, L.soil.base) px(lx - 2, 180, L.soil.hi) px(lx, 182, L.soil.deep)
   end
-  F.steam(124, 182, 5, .4, 11) F.steam(144, 181, 6, .6, 12) F.steam(160, 182, 4, .3, 13)
+  for _, st in ipairs({ { 124, 182, 7, .4, 11 }, { 144, 181, 8, .6, 12 }, { 160, 182, 6, .3, 13 } }) do
+    local x, y, n, dr, sd = st[1], st[2], st[3], st[4], st[5]
+    for i = 0, n - 1 do
+      local cx = x + floor(dr * i * 1.4 + 2 * sin(i * 1.1 + sd))
+      local cy = y - i * 3
+      local w = 2 + (i % 3) + floor(i / 3)
+      for xx = cx - w, cx + w do
+        local a = hash(xx, cy, sd)
+        if a < .85 - i * .05 then px(xx, cy, i % 2 == 0 and "#c4cce2" or "#d4d9ec") end
+        if hash(xx, cy - 1, sd) < .55 - i * .05 and math.abs(xx - cx) < w - 1 then px(xx, cy - 1, "#f4f6fa") end
+      end
+      px(cx + w + 1, cy + 1, "#a0a8c8")
+    end
+  end
   -- a snow bunting on the basin rim
   F.sprite({ "...cc..", "..cWWk.", "WWWWWb.", "KWWKWW.", ".KKWW..", "..o.o.." }, 158, 177,
     { W = L.fur.hi, c = L.board.hi, k = L.timber.edge, b = L.gold.shade, K = L.timber.edge, o = L.timber.deep })
@@ -601,7 +615,7 @@ F.conifer(424, 228, 32, L.foliage, 52)
 F.birch(440, 230, 52, 53)
 F.willow(410, 232, 8, 8, 54) F.willow(466, 230, 6, 7, 55)
 -- a gnome sweeping snow off the path by the right lanterns, the little heap he has swept
-F.drift(321, 243, 10, 4, 56)
+F.drift(322, 245, 15, 7, 56)
 local _, bx, by = F.gnome(348, 238, { hat = RED, coat = L.accent, flip = true, arm = "hold" })
 fill(line({ { bx + 1, by - 6 }, { bx - 6, by + 6 } }, 1), L.timber.base)
 local broom = poly{ { bx - 11, by + 6 }, { bx - 3, by + 6 }, { bx - 4, by + 10 }, { bx - 12, by + 10 } }

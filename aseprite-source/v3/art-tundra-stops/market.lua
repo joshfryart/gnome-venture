@@ -228,22 +228,29 @@ local function cloudSled()
   -- the cloudberry: a cluster of drupelets, each lit top-left, whole fruit darker lower right
   part(berry, cloudb)
   local dr = {}
-  for gy = -16, 16, 5 do for gx = -18, 18, 5 do
-    local ox = (floor(gy / 5) % 2) * 2
-    if ((gx + ox) / 18) ^ 2 + (gy / 17) ^ 2 < 1.05 then dr[#dr + 1] = { 172 + gx + ox, 76 + gy } end
-  end end
+  for t = 1, 900 do
+    local gx, gy = floor(hash(t, 1, 93) * 40) - 20, floor(hash(t, 2, 94) * 38) - 19
+    if (gx / 18) ^ 2 + (gy / 17) ^ 2 < 1.05 then
+      local ok = true
+      for _, e in ipairs(dr) do if (e[1] - gx) ^ 2 + (e[2] - gy) ^ 2 < 20 then ok = false break end end
+      if ok then dr[#dr + 1] = { gx, gy } end
+    end
+  end
+  table.sort(dr, function(p, q) return p[2] < q[2] end)
+  fill(berry, cloudb.deep)
   for _, d in ipairs(dr) do
-    local m = c:ellipse(d[1], d[2], 2, 2):clip(berry)
-    local sh = (d[1] - 172) / 19 + (d[2] - 76) / 18
-    local base = sh < -.6 and cloudb.hi or (sh < .3 and cloudb.base or cloudb.shade)
+    local cx, cy = 172 + d[1], 76 + d[2]
+    local m = c:ellipse(cx, cy, 2, 2):clip(berry)
+    local sh = d[1] / 19 + d[2] / 18
+    local base = sh < -.5 and cloudb.hi or (sh < .35 and cloudb.base or cloudb.shade)
     m:each(function(x, y)
-      local lx, ly = x - d[1], y - d[2]
+      local lx, ly = x - cx, y - cy
       local h = base
-      if lx + ly <= -2 then h = sh < .3 and cloudb.hi or cloudb.base end
-      if lx + ly >= 3 or (ly == 2) then h = sh < .3 and cloudb.shade or cloudb.deep end
+      if lx + ly >= 2 then h = sh < .35 and cloudb.shade or cloudb.deep end
+      if lx + ly <= -2 then h = sh < .35 and cloudb.hi or cloudb.base end
       px(x, y, h)
     end)
-    px(d[1] - 1, d[2] - 1, sh < 0 and "#fff0c4" or cloudb.hi)
+    px(cx - 1, cy - 1, sh < 0 and "#fff6d4" or cloudb.hi)
   end
   berry:each(function(x, y) if not berry:has(x + 1, y) or not berry:has(x, y + 1) then px(x, y, cloudb.deep) end end)
   -- papery sepals and the big crinkled leaf
@@ -508,7 +515,7 @@ local function igloo()
   local tunnel = c:rrect(424, 208, 440, 228, 5):clip(rect(400, 200, 479, 224))
   local pipe = rect(455, 196, 457, 203)
   shadow(426, 466, 224, 6, 2)
-  rimOf(union(dome, tunnel, pipe), S)
+  rimOf(union(dome, tunnel, pipe), L.timber)
   -- curved block courses: rows follow the dome, joints offset
   dome:each(function(x, y)
     local dy = 224 - y
@@ -825,7 +832,6 @@ local function pond()
   end
   hole(46, 246, 5)
   hole(30, 240, 5)
-  F.sprite({ "..sss..", ".sHSSs.", "sHSSSSs", "sesSseS", "sSSnSSs", "wSSSSSw", ".sSSSs." }, 27, 233, { s = "#82849c", S = "#a6a8bc", H = "#cfd0dc", e = L.timber.edge, n = "#3c3e54", w = "#d6d8e2" })
   -- a tip-up: a crossed stick with a red flag sprung up
   vline(58, 236, 242, L.timber.base) hline(55, 61, 242, L.timber.deep)
   fill(rect(59, 236, 62, 238), L.awnA.base) px(59, 236, L.awnA.hi)
@@ -855,6 +861,9 @@ local function pond()
     vline(x, 252 - h, 252, i % 2 == 0 and L.fern.shade or L.fern.base)
     if i % 2 == 0 then px(x, 252 - h - 1, L.awnB.hi) px(x + 1, 252 - h - 1, L.awnB.base) px(x, 252 - h - 2, L.awnB.hi) end
   end
+  -- the ringed seal popping up from the second hole (drawn over the sedge so it reads)
+  F.sprite({ "....kkkkkkk....", "...kHHHHSSSk...", "..kHHSSSSSSsk..", "..kHSeSSSSeSsk.", ".wkSSSSnnnSSskw", "kSSsSSSrSSSsSSk", "kssSSrSSSSrSssk", ".kksSSSSrSSssk.", "...kkkkkkkkk..." },
+    23, 232, { k = "#3c3e54", s = "#82849c", S = "#a6a8bc", H = "#e2e4ee", e = L.timber.edge, n = "#2a2a3a", w = "#e2e4ee", r = "#5e6078" })
   F.snowCap(F.rock(16, 238, 6, 5), 2, 54)
 end
 pond()

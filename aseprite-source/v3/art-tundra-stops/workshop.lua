@@ -57,6 +57,19 @@ local function ski(xb, yb, xt, yt, r, snowTip)
   if snowTip then px(xt - 3, yt - 4, S.hi) px(xt - 2, yt - 4, S.base) end
   return m
 end
+-- scale sprite rows by 1.5 (nearest) so small animals read
+local function scale15(rows)
+  local out = {}
+  local h = #rows
+  local nh = math.floor(h * 1.5 + .5)
+  for j = 0, nh - 1 do
+    local r = rows[math.floor(j / 1.5) + 1]
+    local t = {}
+    for i = 0, math.floor(#r * 1.5 + .5) - 1 do t[#t + 1] = r:sub(math.floor(i / 1.5) + 1, math.floor(i / 1.5) + 1) end
+    out[#out + 1] = table.concat(t)
+  end
+  return out
+end
 -- a snowshoe frame: teardrop of bent birch, rawhide lacing, a tail. (cx, cy = centre of the oval)
 local function snowshoe(cx, cy, w, h, upTail)
   local o = c:ellipse(cx, cy, w, h)
@@ -65,32 +78,32 @@ local function snowshoe(cx, cy, w, h, upTail)
   c:rim(union(o, tail), L.timber.edge)
   local inner = c:ellipse(cx, cy, w - 1, h - 1)
   inner:each(function(x, y)
-    local k = ((x - cx + 40) + (y - cy + 40)) % 3 == 0 or ((x - cx + 40) - (y - cy + 40)) % 3 == 0
-    px(x, y, k and RAW.base or L.soil.deep)
+    local k = ((x - cx + 40) + (y - cy + 40)) % 4 == 0 or ((x - cx + 40) - (y - cy + 40)) % 4 == 0
+    px(x, y, k and RAW.hi or L.timber.deep)
   end)
   hline(cx - w + 1, cx + w - 1, cy - 1, RAW.shade) hline(cx - w + 1, cx + w - 1, cy + 2, RAW.deep) -- toe bars
-  frame:each(function(x, y) px(x, y, (x < cx or y < cy - h + 2) and L.board.hi or L.board.shade) end)
+  frame:each(function(x, y) px(x, y, (x < cx or y < cy - h + 2) and L.timber.hi or L.timber.shade) end)
   return o
 end
 -- a long sled seen from the side: runners with a curled nose at the right, stanchions, bed rails, slats,
 -- rawhide lashing. Returns the silhouette.
 local function sled(x0, x1, yb, bedR, o)
   o = o or {}
-  local run = line({ { x0, yb }, { x1 - 4, yb }, { x1, yb - 2 }, { x1 + 2, yb - 6 }, { x1 + 1, yb - 9 } }, 2)
-  local bed = rect(x0 + 2, yb - 8, x1 - 4, yb - 6)
+  local run = line({ { x0, yb }, { x1 - 4, yb }, { x1, yb - 2 }, { x1 + 3, yb - 6 }, { x1 + 3, yb - 11 }, { x1 + 1, yb - 13 } }, 2)
+  local bed = rect(x0 + 2, yb - 9, x1 - 4, yb - 4)
   local st = HP.mask()
-  for x = x0 + 4, x1 - 6, 9 do st:add(rect(x, yb - 5, x + 1, yb - 1)) end
+  for x = x0 + 4, x1 - 6, 9 do st:add(rect(x, yb - 3, x + 1, yb - 1)) end
   local rail = line({ { x0 + 1, yb - 11 }, { x0 + 1, yb - 8 } }, 1) -- a little back stake
   local sil = union(run, bed, st, rail)
   rimOf(sil, L.timber)
   part(run, o.runR or L.board, { nopop = true, noshade = true })
   run:each(function(x, y) if not run:has(x, y - 1) then px(x, y, (o.runR or L.board).hi) end end)
   part(st, L.timber, { nopop = true, noshade = true })
-  part(bed, bedR or L.board, { nopop = true }) hline(x0 + 2, x1 - 4, yb - 8, (bedR or L.board).hi)
-  for x = x0 + 5, x1 - 6, 4 do px(x, yb - 7, (bedR or L.board).deep) end
+  part(bed, bedR or L.board, { nopop = true }) hline(x0 + 2, x1 - 4, yb - 9, (bedR or L.board).hi) hline(x0 + 2, x1 - 4, yb - 4, (bedR or L.board).deep)
+  for x = x0 + 5, x1 - 6, 4 do vline(x, yb - 8, yb - 5, (bedR or L.board).shade) end
   part(rail, L.timber, { nopop = true, noshade = true })
   -- rawhide lashing: X between each stanchion and the bed
-  for x = x0 + 4, x1 - 6, 9 do px(x - 1, yb - 5, RAW.hi) px(x + 2, yb - 4, RAW.base) px(x + 2, yb - 5, RAW.shade) end
+  for x = x0 + 4, x1 - 6, 9 do px(x - 1, yb - 7, RAW.hi) px(x, yb - 6, RAW.base) px(x + 1, yb - 5, RAW.shade) px(x + 1, yb - 7, RAW.base) px(x, yb - 5, RAW.shade) end
   return sil
 end
 
@@ -144,22 +157,22 @@ local function crane()
   F.depth(3)
   -- quirk: a nest of curled ski shavings on the beam, an ermine in a red gnome hat, two kits peeking out
   F.sprite({
-    "...............RR.......",
-    "..............RRr.......",
-    ".............RRRr.......",
-    "............RRRRRr......",
-    "...........RRRRRRr......",
-    "..........hhhhhhhhh.....",
-    "..........WWWWWWWWw.....",
-    "..........WKWWWWKWw.....",
-    "..ww..ww..WWWWpWWWw.....",
-    ".wKWw.wKWw.WWWWWWw......",
-    ".WWpW.WWpW..WWWWWw...KK.",
-    "nNWWWnWWWWnNWWWWWWwnnKKn",
-    "nNnnNnNnnNnnNnNnnNnnNnnN",
-    ".nNnnnNnnnNnnnNnnnNnnnn.",
-    "..nnNnnnNnnnNnnnNnnnNn..",
-  }, 260, 35, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, W = L.fur.hi, w = L.fur.shade, K = L.timber.edge,
+    ".................RR.......",
+    "................RRr.......",
+    "...............RRRr.......",
+    "..............RRRRRr......",
+    ".............RRRRRRr......",
+    "............hhhhhhhhh.....",
+    "............WWWWWWWWw.....",
+    ".KwK...KwK..WKWWWWKWw.....",
+    "KWWWK.KWWWK.WWWWpWWWw.....",
+    "WKWKW.WKWKW..WWWWWWw......",
+    "WWpWW.WWpWW...WWWWWw...KK.",
+    "nNnNWWWnWWWWnNWWWWWWwnnKKn",
+    "nNnNnnNnNnnNnnNnNnnNnnNnnN",
+    "nN.nNnnnNnnnNnnnNnnnNnnnn.",
+    "nN..nnNnnnNnnnNnnnNnnnNn..",
+  }, 258, 35, { R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep, W = L.fur.hi, w = L.fur.shade, K = L.timber.edge,
     p = L.petal.base, n = L.board.hi, N = L.board.shade })
   px(273, 37, L.awnA.hi) px(272, 38, L.awnA.hi) px(271, 39, L.awnA.hi) -- hat lit side
 end
@@ -221,7 +234,7 @@ local function sleepDog(x, y, flip)
     ".wwwwwwwwTT.",
   }
   if flip then for i, r in ipairs(rows) do rows[i] = r:reverse() end end
-  F.sprite(rows, x, y, { e = L.stone.deep, G = L.stone.base, g = L.stone.shade, K = L.timber.edge, w = L.fur.base, T = L.fur.shade })
+  F.sprite(scale15(rows), x, y - 5, { e = L.stone.deep, G = L.stone.base, g = L.stone.shade, K = L.timber.edge, w = L.fur.hi, T = L.fur.shade })
 end
 F.depth(2)
 F.tree(452, 142, 56, 6)
@@ -294,8 +307,8 @@ local function stove()
   F.smoke(132, 66, 8, .7, 2)
   F.steam(102, 150, 6, -.4, 13) F.steam(184, 150, 7, .5, 14) F.steam(150, 148, 4, .3, 15)
   -- snowshoe frames and runner blanks hanging on the left post
-  snowshoe(100, 146, 3, 7)
-  snowshoe(100, 166, 3, 7)
+  snowshoe(100, 146, 4, 7)
+  snowshoe(100, 168, 4, 7)
   -- a coil of rawhide on the right post
   local coil = c:ellipse(181, 176, 4, 5):cut(c:ellipse(181, 176, 2, 3))
   c:rim(coil, L.timber.edge) fill(coil, RAW.base) coil:each(function(x, y) if x < 181 then px(x, y, RAW.hi) elseif y > 178 then px(x, y, RAW.shade) end end)
@@ -333,7 +346,7 @@ local _, hx, hy = F.gnome(148, 238, { hat = L.awnA, coat = L.wall2, arm = "up" }
 fill(rect(hx - 1, hy - 1, hx + 1, hy), L.skin.base) -- mitt pressed on the runner
 fill(rect(146, 228, 150, 235), L.soil.shade) px(146, 228, L.soil.base) -- leather apron
 -- a husky asleep in the stove's warmth: grey saddle, white face and belly, dark mask, tail curled over its nose
-F.sprite({
+F.sprite(scale15({
   ".............ee.e...",
   "............eGGGe...",
   ".....GGGGGG.GKwKGG..",
@@ -342,7 +355,7 @@ F.sprite({
   "TTwGGGgGGGgGGGGww...",
   "TwwwGGGGGGGGGGwww...",
   ".wwwwwwwwwwwwwww....",
-}, 100, 210, { e = L.stone.deep, G = L.stone.base, g = L.stone.shade, K = L.timber.edge, w = L.fur.hi, T = L.fur.shade, n = L.timber.edge })
+}), 98, 203, { e = L.stone.deep, G = L.stone.base, g = L.stone.shade, K = L.timber.edge, w = L.fur.hi, T = L.fur.shade, n = L.timber.edge })
 -- water barrel with an ice skin, a birch ladle
 local qb = F.barrel(198, 236, L.timber, 12)
 fill(rect(194, 225, 202, 226), L.ice.hi) px(195, 225, L.ice.base) px(200, 226, L.ice.shade)
@@ -451,6 +464,13 @@ for _, x in ipairs({ 34, 78 }) do
   rimOf(t, L.timber) part(t, L.timber, { nopop = true, noshade = true })
 end
 sled(24, 92, 233, L.board, { runR = TAR })
+do -- a lashed canvas load so it reads as a sled, not a bench
+  local load = c:rrect(34, 215, 74, 224, 3)
+  rimOf(load, L.timber) part(load, L.wall2)
+  for _, x in ipairs({ 42, 54, 66 }) do vline(x, 216, 224, RAW.base) vline(x + 1, 216, 224, RAW.shade) end
+  hline(35, 73, 216, L.wall2.hi)
+  F.snowCap(load, 2, 61, { cx = 54 })
+end
 -- loose rawhide hanging from the last lashing
 line({ { 81, 229 }, { 83, 236 }, { 80, 241 } }):each(function(x, y) px(x, y, RAW.base) end)
 local _, shx, shy = F.gnome(104, 256, { hat = L.leaf, coat = L.accent, arm = "up", flip = true })

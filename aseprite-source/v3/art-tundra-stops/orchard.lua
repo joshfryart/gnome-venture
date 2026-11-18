@@ -36,8 +36,8 @@ end
 local function berryCluster(ax, ay, s, fr)
   -- sea-buckthorn: berries packed along a twig
   if s > 1.1 then
-    for k = 0, 2 do px(ax + k, ay + (k % 2), fr.base) end
-    px(ax, ay - 1, fr.hi) px(ax + 1, ay + 1, fr.shade) px(ax + 2, ay - 1, fr.hi) px(ax + 3, ay, fr.shade)
+    fill(rect(ax, ay, ax + 2, ay + 1), fr.base) px(ax, ay, fr.hi) px(ax + 1, ay, fr.hi) px(ax + 2, ay + 1, fr.shade) px(ax + 1, ay + 1, fr.shade)
+    px(ax + 1, ay + 2, fr.deep)
   elseif s > .7 then px(ax, ay, fr.base) px(ax + 1, ay, fr.hi)
   else px(ax, ay, fr.base) end
 end
@@ -129,7 +129,7 @@ local function orchardTree(x, yb, s, seed, kind)
       local fr = (hash(i, seed, 4) < .35) and GOLD or AP
       local ax = floor(x + (hash(i, seed, 1) - .5) * 34 * s)
       local ay = floor(yb - 8 * s - hash(i, seed, 2) * 4 * s)
-      fruitDot(ax, ay, s, fr)
+      fruitDot(ax, ay, max(s, 1.15), fr)
     end
     F.snowCap(cr, max(2, floor(3 * s)), seed + 5, { lip = s > .9 })
     if s > 1 then F.icicles(floor(x - 18 * s), floor(x + 18 * s), floor(yb - 7 * s), 3, seed, .12) end
@@ -475,7 +475,7 @@ F.sprite({
   "qqQqQqQqQqQqQqQqqffff...",
   ".qqqqqqqqqqqqqqqqqf.....",
   "...dd........dd..dd.....",
-}, 200, 252, { a = AP.base, A = AP.hi, q = L.soil.deep, Q = L.soil.shade, t = L.fur.hi, l = LING.base, R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep,
+}, 200, 252, { a = GOLD.base, A = GOLD.hi, q = L.soil.shade, Q = L.soil.base, t = "#f4ecd8", l = LING.base, R = L.awnA.base, r = L.awnA.shade, h = L.awnA.deep,
   f = L.deer.shade, e = L.timber.edge, n = L.timber.edge, d = L.timber.edge })
 F.depth(0)
 F.birds({ { 330, 40, 2 }, { 120, 48, 2 }, { 132, 42, 1 } })
