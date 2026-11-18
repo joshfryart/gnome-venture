@@ -720,7 +720,7 @@ const PJ_PANTRY_MAX_MORNINGS = 40;   // most mornings one look catches up (the s
 /** The game day of the latest 06:00 this gnome's clock has reached: a sleep lands on 06:00 of the next day, and staying up past 06:00 reaches it by itself. */
 function pj_morning_day(int $uid): int
 {
-    return (int)floor((gclock_user_tick($uid) - GAME_WAKE_MINUTE) / 1440);
+    return gclock_morning_day($uid);
 }
 
 /**

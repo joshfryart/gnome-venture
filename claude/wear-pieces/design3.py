@@ -1,14 +1,14 @@
 # v3 effects, written against the 2.7.00 quick rules: fixed rank order (Env, Guard/Soothe, Trick, Hurt/Charm, Heal/Item), a placed piece always touches and fits a neighbour,
 # one piece a turn, a new hand of 5 every round, no mid-round draw, Keeper only on Guards. Triggers and payoffs below only use things the rules define.
 TRIG = {
- 'linkG':'If it is linked to a Guard','linkH':'If it is linked to a Hurt','handC':'If you hold a Charm in your hand','foeHasH':'If the creature has a Hurt on the board','disc3':'If your discard pile holds 3 or more pieces',
- 'handHeal':'If you hold a Heal or Item in your hand','linkEnv':'If an environment piece is in its chain','linkFoe':'If a creature piece is in its chain','yQuarter':'If its Yield bar is past a quarter',
+ 'linkG':'If it is linked to a Guard','linkH':'If it is linked to a Hurt','handC':'If you hold a Charm in your hand','foeHasH':'If the creature has a Hurt on the board','handHeal':'If you hold a Heal in your hand',
+ 'hp75':'If you are under three quarters health','linkEnv':'If an environment piece is in its chain','linkFoe':'If a creature piece is in its chain','yQuarter':'If its Yield bar is past a quarter',
  'chain2':'If its chain is exactly 2 pieces','combo3':'If its chain has 3 or more pieces','foeHasG':'If the creature has a Guard on the board','aimNext':'If it sits next to the creature\'s aim cell',
  'onAim':'If it sits on the creature\'s aim cell','edge':'If it sits on the edge of the board','corner':'If it sits in a corner','mid4':'If it sits in one of the four inner cells',
  'handG':'If you hold a Guard in your hand','handH':'If you hold 2 or more Hurts in your hand','foeEvade':'If the creature dodges your next hit','foeG':'If the creature has guard up',
- 'foeB2':'If the creature has 2 or more pieces on the board','foeB1':'If the creature has 1 piece or none on the board','yHalf':'If its Yield bar is past half','yLow':'If its Yield bar is under a quarter',
+ 'foeB2':'If the creature has 2 or more pieces on the board','foeNoH':'If the creature has no Hurt on the board','yHalf':'If its Yield bar is past half','yLow':'If its Yield bar is under a quarter',
  'hpLow':'If you are under half health','hpFull':'If you are at full health','hit':'If the creature hit you last turn','noDmg':'If you took no damage last turn','poisoned':'If you are poisoned',
- 'r2':'From round 2 on','r3':'From round 3 on','hp75':'If you are under three quarters health','disc5':'If your discard pile holds 5 or more pieces','g2':'If you have played 2 or more Guards this fight',
+ 'r12':'In the first two rounds of the fight','r3':'From round 3 on','hurtLast':'If you played a Hurt last turn','disc5':'If your discard pile holds 5 or more pieces','g2':'If you have played 2 or more Guards this fight',
  'h2':'If you have played 2 or more Hurts this fight','noHurt':'If you played no Hurt last turn',
 }
 PAY = {
@@ -30,7 +30,7 @@ PAYTYPE = {
 }
 OLDT = {'first':'aimNext','last':'onAim','afterG':'linkG','afterH':'linkH','afterC':'linkC','afterT':'linkT','alone':'linkFoe','handFull':'handG','handSmall':'handH','centre':'mid4','hasGuard':'linkG','noGuard':'linkEnv','combo3':'combo3'}
 # Trigger redesign 2026-11-18 (balance.md): ten triggers that almost never came true in real fights, renamed with their new meaning (same place in TRIG, so the pairing is unchanged).
-RETRIG = {'linkT': 'foeHasH', 'linkS': 'disc3', 'linkHeal': 'handHeal', 'link2': 'yQuarter', 'linkC': 'handC', 'pair': 'foeHasG', 'r1': 'r2', 'foeB0': 'foeB1', 'foeB3': 'foeB2', 'lastRound': 'hp75'}
+RETRIG = {'linkT': 'foeHasH', 'linkS': 'handHeal', 'linkHeal': 'hp75', 'link2': 'yQuarter', 'linkC': 'handC', 'pair': 'foeHasG', 'r1': 'r12', 'foeB0': 'foeNoH', 'foeB3': 'foeB2', 'lastRound': 'hurtLast'}
 OLDP = {'draw':'hand','redraw':'hold','double':'boost','free':'stay','echo':'stay'}
 # Rare, hand-written (type stays as in design2). {a}, {b} scale with region and rarity.
 RARE = {
@@ -100,10 +100,10 @@ RARE = {
 # An action without '@' works in its own phase (ACT below). 'act*per^cap' multiplies the number: chain = pieces in its chain, ctype:T = your other pieces of type T in it,
 # types = other piece types in it, kept = rounds it waited in your hand, hand = pieces in your hand, disc2 = your discard pile / 2.
 TRIG_FX = {
- 'linkG':'link:guard','linkH':'link:hurt','handC':'hand:charm:1','foeHasH':'fhas:hurt','disc3':'disc:3','handHeal':'hand:heal/item:1','linkEnv':'cenv','linkFoe':'cfoe','yQuarter':'ygt:0.25',
+ 'linkG':'link:guard','linkH':'link:hurt','handC':'hand:charm:1','foeHasH':'fhas:hurt','handHeal':'hand:heal:1','hp75':'hplt:0.75','linkEnv':'cenv','linkFoe':'cfoe','yQuarter':'ygt:0.25',
  'chain2':'clen:2:2','combo3':'clen:3','foeHasG':'fhas:guard','aimNext':'aimnext','onAim':'onaim','edge':'edge','corner':'corner','mid4':'mid',
- 'handG':'hand:guard:1','handH':'hand:hurt:2','foeEvade':'fevade','foeG':'fguard','foeB2':'fpcs:2','foeB1':'fpcs:0:1','yHalf':'ygt:0.5','yLow':'ylt:0.25',
- 'hpLow':'hplt:0.5','hpFull':'hpfull','hit':'hit','noDmg':'nodmg','poisoned':'poisoned','r2':'round:2','r3':'round:3','hp75':'hplt:0.75','disc5':'disc:5',
+ 'handG':'hand:guard:1','handH':'hand:hurt:2','foeEvade':'fevade','foeG':'fguard','foeB2':'fpcs:2','foeNoH':'!fhas:hurt','yHalf':'ygt:0.5','yLow':'ylt:0.25',
+ 'hpLow':'hplt:0.5','hpFull':'hpfull','hit':'hit','noDmg':'nodmg','poisoned':'poisoned','r12':'round:1:2','r3':'round:3','hurtLast':'lastturn:hurt','disc5':'disc:5',
  'g2':'played:guard:2','h2':'played:hurt:2','noHurt':'!lastturn:hurt',
 }
 PAY_FX = {

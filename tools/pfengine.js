@@ -688,8 +688,8 @@
     "trig|linkH|link:hurt|If it is linked to a Hurt",
     "trig|handC|hand:charm:1|If you hold a Charm in your hand",
     "trig|foeHasH|fhas:hurt|If the creature has a Hurt on the board",
-    "trig|disc3|disc:3|If your discard pile holds 3 or more pieces",
-    "trig|handHeal|hand:heal/item:1|If you hold a Heal or Item in your hand",
+    "trig|handHeal|hand:heal:1|If you hold a Heal in your hand",
+    "trig|hp75|hplt:0.75|If you are under three quarters health",
     "trig|linkEnv|cenv|If an environment piece is in its chain",
     "trig|linkFoe|cfoe|If a creature piece is in its chain",
     "trig|yQuarter|ygt:0.25|If its Yield bar is past a quarter",
@@ -706,7 +706,7 @@
     "trig|foeEvade|fevade|If the creature dodges your next hit",
     "trig|foeG|fguard|If the creature has guard up",
     "trig|foeB2|fpcs:2|If the creature has 2 or more pieces on the board",
-    "trig|foeB1|fpcs:0:1|If the creature has 1 piece or none on the board",
+    "trig|foeNoH|!fhas:hurt|If the creature has no Hurt on the board",
     "trig|yHalf|ygt:0.5|If its Yield bar is past half",
     "trig|yLow|ylt:0.25|If its Yield bar is under a quarter",
     "trig|hpLow|hplt:0.5|If you are under half health",
@@ -714,9 +714,9 @@
     "trig|hit|hit|If the creature hit you last turn",
     "trig|noDmg|nodmg|If you took no damage last turn",
     "trig|poisoned|poisoned|If you are poisoned",
-    "trig|r2|round:2|From round 2 on",
+    "trig|r12|round:1:2|In the first two rounds of the fight",
     "trig|r3|round:3|From round 3 on",
-    "trig|hp75|hplt:0.75|If you are under three quarters health",
+    "trig|hurtLast|lastturn:hurt|If you played a Hurt last turn",
     "trig|disc5|disc:5|If your discard pile holds 5 or more pieces",
     "trig|g2|played:guard:2|If you have played 2 or more Guards this fight",
     "trig|h2|played:hurt:2|If you have played 2 or more Hurts this fight",
@@ -1344,7 +1344,7 @@
       case 'edge': case 'corner': case 'mid':
         if (!p) return false; ex = toInt(p.x) === 0 || toInt(p.x) === pfbW(s) - 1; ey = toInt(p.y) === 0 || toInt(p.y) === pfbH(s) - 1;
         return x[0] === 'edge' ? (ex || ey) : (x[0] === 'corner' ? (ex && ey) : (!ex && !ey));
-      case 'hand': var hty = x[1].split('/'); s.me.hand.forEach(function (h) { if (hty.indexOf(String(nn(h.t, ''))) >= 0) n++; }); return n >= toInt(x[2]);
+      case 'hand': s.me.hand.forEach(function (h) { if (nn(h.t, '') === x[1]) n++; }); return n >= toInt(x[2]);
       case 'fevade': return toInt(s.foe.evade) > 0;
       case 'fguard': return toInt(s.foe.block) > 0;
       case 'fpcs': case 'fhas':
