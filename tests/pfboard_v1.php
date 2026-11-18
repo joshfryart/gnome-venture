@@ -452,6 +452,7 @@ require __DIR__ . '/pfboard_v1_order.php';   // 18: activation order and no free
 require __DIR__ . '/pfboard_v1_kinds.php';   // 19: class rules (2.6.98)
 require __DIR__ . '/pfboard_v1_costly.php';   // 30: costly cell names its cause (2.7.01)
 require __DIR__ . '/pfboard_v1_paltgt.php';   // 31: pal targeting (2.7.08)
+require __DIR__ . '/pfboard_v1_counter.php';   // 32: counter pieces (2.7.08)
 
 echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);

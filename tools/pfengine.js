@@ -196,7 +196,7 @@
     var stat = Math.max(0, toInt(nn(stats[PF_STAT[d.t]], 0)));
     var lvl = intdiv(Math.max(1, toInt(nn(stats.level, 1))), 3);
     var t = { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' };
-    ['src', 'life', 'col', 'up', 'edges', 'rank', 'tool'].forEach(function (k) { if (d[k] !== undefined && d[k] !== null) t[k] = d[k]; });   // v1 board rules (v1Tile): source, life, authored edges
+    ['src', 'life', 'col', 'up', 'edges', 'rank', 'tool', 'cnt'].forEach(function (k) { if (d[k] !== undefined && d[k] !== null) t[k] = d[k]; });   // v1 board rules (v1Tile): source, life, authored edges
     return t;
   }
 
@@ -526,7 +526,7 @@
   var PFB_TEAM_SRC = ['pal', 'tool', 'crop', 'craft', 'region', 'knack', 'calling'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'wear', 'creature', 'env'];
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft', wear: 'body' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
-  var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
+  var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2, PFB_COUNTER_ADD = 2;   // PFB_COUNTER_ADD: 2.7.08 counter pieces
   var PFB_V1_FOE_MULT = { small: 0.93, medium: 0.735, large: 0.428, boss: 0.60 }, PFB_V1_BAR_MULT = { small: 1.378, medium: 1.7743, large: 1.7193, boss: 0.9158 };   // 2.7.01 policy D (balance-report.md): was 0.855 / 0.48 / 0.378 / 0.585 and 1.325 / 1.491 / 1.495 / 0.825;   // week-1 retune (T13): was 0.95 / 0.60 / 0.42 / 0.585 and 0.828 / 0.994 / 1.15 / 0.611;   // after 2.6.94 (AIMSTICK): boss x1.3 with its bar x0.8 (was 0.45 / 0.764)
   // after 2.6.94: the LEVEL CURVE (PFB_V1_LEVEL in pfboard.php, where the why is): f = clamp(1 + slope x (level - ref), lo, hi) as [slope, ref, lo, hi]; piece values x f, bar x min(1, f)
   var PFB_V1_LEVEL = { small: [0.05, 6, 1.0, 1.8], medium: [0.05, 12, 0.85, 1.25], large: [0.025, 22, 0.85, 1.10], boss: [0.0, 1, 1.0, 1.0] };
@@ -1171,6 +1171,8 @@
       var muddy = !!v1 && truthy(v1.env) && Number(nn(v1.mud, 0)) > 0 && mudNear(s, p.x, p.y);   // Mud's teeth
       if (muddy) val = iround(val * (1 - Number(v1.mud)));
       if (tw > 1 && who === rb) val = iround(val * tw);
+      var cntr = who === 'me' && !!tile.cnt && tile.cnt === kindNow(s);   // 2.7.08 counter piece against its own class (pfb_fire)
+      if (cntr) val += PFB_COUNTER_ADD;
       var toughed = false;
       if (who === 'me' && rb === 'me' && tile.t === 'hurt' && !truthy(s.me.tough) && hasAb(s)) { var th = abOf(s, 'toughhide'); if (th) { val = Math.max(1, val - toInt(th.cut)); s.me.tough = 1; toughed = true; } }   // 2.7.01 Tough hide
       if (v1) s.fired.push(id);
@@ -1182,6 +1184,7 @@
       if (ambd) e.amb = 1;
       if (ambp) e.ambp = 1;
       if (toughed) e.tough = 1;
+      if (cntr) e.cntr = 1;
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
       s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
@@ -1260,7 +1263,7 @@
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); ev[0].cs = 1; ev[0].rid = id; }
     var used = spend(s);
     if (used.length && ev.length) ev[0].used = used;
-    if (ev.length && who === 'me' && !truthy(s.over) && v1r(s, 'paltgt') === 1 && srcOf(tile) === 'pal') { var tid = palTarget(s, x, y, toInt(tile.v)); if (tid !== null) ev.push(palNip(s, tid, String(tile.n))); }   // 2.7.08 pal targeting
+    if (ev.length && who === 'me' && !truthy(s.over) && !s.boss && v1r(s, 'paltgt') === 1 && srcOf(tile) === 'pal') { var tid = palTarget(s, x, y, toInt(tile.v)); if (tid !== null) ev.push(palNip(s, tid, String(tile.n))); }   // 2.7.08 pal targeting
     if (ev.length && who === 'me' && s.ven && has(s.ven, x + ',' + y) && kindNow(s) === 'reptile' && truthy(s.v1.tags)) {   // 2.6.98 Venom trail
       var vr = toInt(abp(s, 'vrnds', PFB_KIND_VENOM_RNDS)), vp = toInt(abp(s, 'vpoison', PFB_KIND_VENOM_POISON));
       s.me.poison = Math.min(PF_POISON_CAP, toInt(s.me.poison) + vr); s.me.poison_v = Math.max(toInt(s.me.poison_v), vp);
@@ -2015,6 +2018,7 @@
     var bits = [];
     if (truthy(e.combo)) bits.push('✨ ' + e.combo);
     if (truthy(e.fit)) bits.push('snug fit');
+    if (truthy(e.cntr)) bits.push('\uD83C\uDFAF counter +' + PFB_COUNTER_ADD);   // 2.7.08
     if (nn(e.pluck, '') === 'missed') return '🤏 You try to pluck something from the ' + foe + ', but it notices.';
     if (nn(e.pluck, '') === 'none') return '🤏 You reach for the ' + foe + ', but it has nothing to lift (or you already took something).';
     var tail;

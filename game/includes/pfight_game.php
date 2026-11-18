@@ -599,6 +599,7 @@ function pfight_line(array $e, string $foe): string
     $bits = [];
     if (!empty($e['combo'])) $bits[] = '✨ ' . $e['combo'];
     if (!empty($e['fit'])) $bits[] = 'snug fit';
+    if (!empty($e['cntr'])) $bits[] = '🎯 counter +' . PFB_COUNTER_ADD;   // 2.7.08 counter piece against its own class
     if (($e['pluck'] ?? '') === 'missed') return '🤏 You try to pluck something from the ' . $foe . ', but it notices.';
     if (($e['pluck'] ?? '') === 'none') return '🤏 You reach for the ' . $foe . ', but it has nothing to lift (or you already took something).';
     $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) . ((int)($e['blocked'] ?? 0) > 0 ? ' (' . (int)$e['blocked'] . ' blocked by its guard)' : '') :' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => (($e['by'] ?? '') === 'foe' && isset($e['healed']) ? ' (its yield bar back ' . (float)$e['healed'] . ')' : ' (+' . (int)$e['v'] . ' health)'), 'charm' => ' (' . (int)$e['v'] . ')', default => '' };

@@ -41,6 +41,7 @@ const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craf
 const PFB_UP = ['hurt' => 1, 'charm' => 1, 'trick' => 1];   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round
 const PFB_CLASS_LEAN = ['critter' => 'mind', 'insect' => 'mind', 'water' => 'body', 'bird' => 'craft', 'plant' => 'mind', 'fungus' => 'mind', 'reptile' => 'craft', 'amphibian' => 'craft', 'beast' => 'body'];   // a creature class leans to a family: 3 of its pieces in 5 stack in it
 const PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4;     // per-piece life in rounds (tile field 'life'; default PFB_LIFE, Quick pieces 2, Hold pieces 4)
+const PFB_COUNTER_ADD = 2;                    // 2.7.08 counter pieces: a piece of yours whose tile field 'cnt' names the creature's class (pfb_kind) counts this much more when it fires (claude/engine-2.7.08-notes.md)
 const PFB_TOOL_WEAR = 2;                      // 2.6.74 (deck model): a fight tool loses this much durability each time ITS piece is played (tile field 'tool'; counted in $s['wear'], saved at the end of the fight)
 // 2.6.75 ENVIRONMENT PIECES (Josh, after testing 2.6.74): no ground cells and no forecast marks. The environment is a third player: after the creature's turn it puts ONE piece from its own deck
 // on the board (data/pf_env.txt), and its next piece lies face up a round ahead. Its pieces link and fire in chains like any piece; the effect goes to the side whose chain fires it.
@@ -999,6 +1000,8 @@ function pfb_fire(array &$s, int $root): array
         $muddy = $v1 && !empty($v1['env']) && (float)($v1['mud'] ?? 0) > 0 && pfb_mud_near($s, $p['x'], $p['y']);   // Mud's teeth: a piece next to a Mud counts less (where it stands when it fires)
         if ($muddy) $val = (int)pf_round($val * (1 - (float)$v1['mud']));
         if ($tw > 1 && $who === $rb) $val = (int)pf_round($val * $tw);
+        $cntr = $who === 'me' && !empty($tile['cnt']) && $tile['cnt'] === pfb_kind($s);   // 2.7.08 counter piece against its own class
+        if ($cntr) $val += PFB_COUNTER_ADD;
         $toughed = false;
         if ($who === 'me' && $rb === 'me' && $tile['t'] === 'hurt' && empty($s['me']['tough']) && ($th = pfb_ab($s, 'toughhide'))) { $val = max(1, $val - (int)$th['cut']); $s['me']['tough'] = 1; $toughed = true; }   // 2.7.01 Tough hide: your first Hurt of the turn counts less
         if ($v1) $s['fired'][] = $id;
@@ -1010,6 +1013,7 @@ function pfb_fire(array &$s, int $root): array
         if ($ambd) $e['amb'] = 1;
         if ($ambp) $e['ambp'] = 1;
         if ($toughed) $e['tough'] = 1;
+        if ($cntr) $e['cntr'] = 1;
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
         $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;   // fire budget: one more firing used (the placement counts as the first)
         $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
@@ -1088,7 +1092,7 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); $ev[0]['cs'] = 1; $ev[0]['rid'] = $id; }   // cs / rid: this event opens the chain and the placed piece is rid (after the firing order changed the placed piece is not always the first to fire); linked: how many linked joints the new piece made; snap: the board for the history rewind
     $used = pfb_spend($s);
     if ($used && $ev) $ev[0]['used'] = $used;   // v1: the ids this chain used up
-    if ($ev && $who === 'me' && !$s['over'] && pfb_v1r($s, 'paltgt') === 1 && pfb_src($tile) === 'pal' && ($tid = pfb_pal_target($s, $x, $y, (int)$tile['v'])) !== null) $ev[] = pfb_pal_nip($s, $tid, (string)$tile['n']);   // 2.7.08 pal targeting: after its chain, the pal knocks the creature's strongest piece off
+    if ($ev && $who === 'me' && !$s['over'] && empty($s['boss']) && pfb_v1r($s, 'paltgt') === 1 && pfb_src($tile) === 'pal' && ($tid = pfb_pal_target($s, $x, $y, (int)$tile['v'])) !== null) $ev[] = pfb_pal_nip($s, $tid, (string)$tile['n']);   // 2.7.08 pal targeting: after its chain, the pal knocks the creature's strongest piece off (a boss shrugs it off, as it cannot be charmed)
     if ($ev && $who === 'me' && isset($s['ven']["$x,$y"]) && pfb_kind($s) === 'reptile' && !empty($s['v1']['tags'])) {   // 2.6.98 Venom trail: you stepped on it
         $vr = (int)pfb_abp($s, 'vrnds', PFB_KIND_VENOM_RNDS); $vp = (int)pfb_abp($s, 'vpoison', PFB_KIND_VENOM_POISON);
         $s['me']['poison'] = min(PF_POISON_CAP, (int)$s['me']['poison'] + $vr); $s['me']['poison_v'] = max((int)$s['me']['poison_v'], $vp);

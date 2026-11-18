@@ -167,6 +167,7 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
         }
         if ($mode0 !== 'v1' && $mode0 !== 'v1d') foreach ($me['deck'] as $i => $t) { $me['deck'][$i]['src'] = ['pal', 'tool', 'crop', 'craft', 'region'][($i + $ci) % 5]; if ($i % 4 === 0) $me['deck'][$i]['life'] = 2 + ($i + $ci) % 3; if ($i % 7 === 3) $me['deck'][$i]['edges'] = false; if ($i % 7 === 5) { $me['deck'][$i]['col'] = 'mind'; $me['deck'][$i]['up'] = false; } }
         if (in_array($mode0, ['v1', 'v1b', 'v1chaos', 'v1d'], true)) foreach ($me['deck'] as $i => $t) if ($i % 7 === 3) $me['deck'][$i]['tag'] = ['keep', 'plenty', 'simmer'][$i % 3];   // 2.6.990: the three new tags are on some pieces, so parity fires them
+        if ($mode0 !== 'v1pre' && $mode0 !== 'v1preb' && $mode0 !== 'v1old') foreach ($me['deck'] as $i => $t) if ($i % 5 === 2) $me['deck'][$i]['cnt'] = ['critter', 'bird', 'beast', 'water', 'plant', 'reptile'][($i + $ci) % 6];   // 2.7.08: counter pieces (+2 against their class), so parity fires them
         if ($mode0 === 'v1pre' || $mode0 === 'v1preb') $opt['v1'] = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the full 2.6.94 rule set (V1_294 in pfboard_v1.php): parity covers it as well as the defaults
         if ($mode0 === 'v1old') $opt['v1'] = ['env' => 0, 'ground' => 1, 'events' => 1];
         if ($mode0 !== 'v1d' && $ci % 2 === 0) $c['region'] = array_keys(pfb_env_table()['regions'])[$ci % 14];   // the region leans the environment's deck

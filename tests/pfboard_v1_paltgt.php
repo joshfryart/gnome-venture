@@ -44,4 +44,6 @@ foreach ($pv as $xy => $q) { [$x, $y] = array_map('intval', explode(',', $xy)); 
 chk('the cell preview names, on every lit cell, the target pfb_pal_target gives for that cell', $okp, $pv);
 $s['me']['hand'] = [v1_tile($s, 'swing', 'hurt', 4, 'body')]; $pv = pfb_cell_preview($s, 0);
 chk('a piece that is not a pal\'s has no target in the preview', $pv !== [] && !array_filter($pv, fn($c) => isset($c['pal'])));
+$s = $pt(); $s['boss'] = true; $c = v1_put($s, 'foe', v1_tile($s, 'c1', 'hurt', 3, 'body', 'creature'), 4, 0); $t = $palT($s); [$cx, $cy] = $first($s, $t); $r = v1_place($s, 'me', $t, $cx, $cy);
+chk('a great creature (boss) shrugs it off: nothing is knocked off', $r !== null && isset($s['pcs'][$c]) && !$nips($r));
 $v = pfb_view($pt()); chk('the view carries the rule for the page (v1.paltgt)', (int)($v['v1']['paltgt'] ?? -1) === 1);

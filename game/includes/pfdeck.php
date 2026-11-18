@@ -60,6 +60,7 @@ function pfd_catalog(): array
         $p = ['k' => $r[0], 'n' => $r[1], 'src' => $r[2], 'ref' => $r[3] === '-' ? '' : $r[3], 't' => $r[4], 'v' => (int)$r[5], 'r' => in_array($e[0], PFD_FAM, true) ? $e[0] : null,
             'tag' => $r[7] === '-' ? '' : $r[7], 'life' => $r[8] === '-' ? 0 : (int)$r[8], 'rar' => $r[9] === 'src' ? 'src' : (int)$r[9], 'blurb' => (string)($r[10] ?? '')];
         if (!empty($r[11]) && $r[11] !== '-') $p['mod'] = (string)$r[11];   // a built-in knack (PF_MODS)
+        if ($r[2] === 'knack' && str_contains($r[3], ':')) $p['cnt'] = explode(':', $r[3], 2)[1];   // 2.7.08 a counter knack: its creature class (pfb_kind)
         if (isset($e[1]) && in_array($e[1], PFD_FAM, true)) $p['col'] = $e[1];
         if (isset($e[2])) $p['up'] = $e[2] === 'up' ? 1 : 0;
         $C[$r[0]] = $p;
@@ -366,7 +367,7 @@ function pfd_build(array $src): array
         $e = ['key' => $key, 'k' => $p['k'], 'n' => $p['n'], 't' => $p['t'], 'v' => (int)$p['v'], 'r' => $p['r'], 'tag' => (string)$p['tag'], 'src' => $p['src'], 'ref' => (string)($p['ref'] ?? ''), 'rank' => $rank,
             'life' => (int)($p['life'] ?? 0) ?: ($rank >= 4 ? 4 : ($p['tag'] === 'quick' ? 2 : ($p['tag'] === 'hold' ? 4 : PFB_LIFE))), 'blurb' => (string)($p['blurb'] ?? ''),
             'gear' => false, 'tool' => '', 'starter' => false, 'core' => false, 'on' => false, 'out' => ''];
-        foreach (['col', 'up', 'mod'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];
+        foreach (['col', 'up', 'mod', 'cnt'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];
         return $x + $e;
     };
     $pieces = []; $seen = [];
@@ -461,7 +462,7 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
         if ($e['src'] === 'calling') $b += max(0, $ctier - 1) * 2;
         if ($e['src'] !== 'pal') $b += PFD_RANK_BONUS[(int)$e['rank']] ?? 0;
         $over = ['n' => $e['n'], 't' => $t, 'v' => (int)$e['v'], 'r' => $e['r'], 'tag' => (string)$e['tag'], 'src' => $e['src'], 'life' => (int)$e['life'], 'rank' => (int)$e['rank']];
-        foreach (['col', 'up', 'mod'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
+        foreach (['col', 'up', 'mod', 'cnt'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
         if ($e['tool'] !== '') $over['tool'] = $e['tool'];
         $deck[] = pf_make_tile($k, $stats, $b, $over);
     }

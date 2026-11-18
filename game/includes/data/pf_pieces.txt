@@ -50,7 +50,7 @@ pestring|Pest Ring|knack|6:critter|guard|2|body|thorns|-|0|Counter to Critters: 
 scarecrow|Scarecrow Flap|knack|8:bird|hurt|2|mind|trip|-|0|Counter to Birds: it skips its next turn, both aims with it.
 honeypot|Honey Pot|knack|10:beast|soothe|2|craft|-|-|0|Counter to Beasts: its next hits land softer, so less to hold a grudge over.
 sandbag|Sandbag|knack|12:water|guard|3|craft|hold|-|0|Counter to Water creatures: guard that holds through the tide.
-weedpull|Weed Puller|knack|14:plant|hurt|2|body|poison|-|0|Counter to Plants and Fungi: keeps working while it regrows.
+billhook|Billhook|knack|14:plant|hurt|3|body|pierce|-|0|Counter to Plants and Fungi: cuts through its thick guard.
 antivenom|Antivenom|knack|16:reptile|guard|2|body|evade|-|0|Counter to Reptiles and Amphibians: its next hit misses and poison does nothing.
 
 # --- fight tools: one piece per tool type, added while the tool is on the fight belt

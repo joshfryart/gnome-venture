@@ -95,8 +95,8 @@ const PF_TAGS_V1 = [
 /** Tags that carry no art icon of their own but still explain themselves (Snack: the item piece; pal: a pal's piece). */
 const PF_SPECIAL = [
     'snack' => 'Snack: eats a food item from your satchel',
-    'pal'   => 'Pal: a piece your pal lends you while it comes along; placed, it knocks the creature\'s strongest piece off the board',   // 2.7.08 pal targeting
-    'boon'  => 'Boon: a piece your pal lends you while it comes along, shaped by its rare Boon; placed, it knocks the creature\'s strongest piece off the board',   // 2.7.06; 2.7.08 pal targeting
+    'pal'   => 'Pal: a piece your pal lends you while it comes along; placed, it knocks the creature\'s strongest piece (up to its own value) off the board; a boss shrugs it off',   // 2.7.08 pal targeting
+    'boon'  => 'Boon: a piece your pal lends you while it comes along, shaped by its rare Boon; placed, it knocks the creature\'s strongest piece (up to its own value) off the board; a boss shrugs it off',   // 2.7.06; 2.7.08 pal targeting
 ];
 
 /** What each piece TYPE does for the player, in one sentence; # is the piece's number (pf_type_text). Hurt and Charm fill the creature's one Yield bar. */
@@ -239,7 +239,7 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
     $lvl = intdiv(max(1, (int)($stats['level'] ?? 1)), 3);
     $t = ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
     if (!empty($d['mod'])) $t['m'] = (string)$d['mod'];   // 2.6.990: a built-in knack (a legendary crop piece)
-    foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
+    foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool', 'cnt'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // cnt (2.7.08): a counter piece's creature class   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
     return $t;
 }
 
