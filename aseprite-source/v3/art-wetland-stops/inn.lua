@@ -463,12 +463,14 @@ do
   end)
   for _, s in ipairs({ { 214, 141 }, { 226, 140 }, { 219, 143 } }) do px(s[1], s[2], L.gold.deep) px(s[1] + 1, s[2] - 1, L.gold.deep) end -- slashes
   -- the eel: up through a hole in the crust, curling, with a beady eye
-  local eel = line({ { 221, 137 }, { 222, 134 }, { 225, 132 }, { 228, 132 } }, 2)
-  c:rim(eel, L.timber.edge) part(eel, EEL, { nopop = true })
-  px(221, 135, EEL.hi) px(222, 133, EEL.hi) px(228, 131, L.gold.hi) px(229, 133, EEL.deep)
-  fill(c:ellipse(221, 137, 2, 1), L.gold.deep)
+  local eel = line({ { 220, 138 }, { 218, 135 }, { 220, 133 }, { 224, 133 } }, 2):add(c:ellipse(227, 134, 3, 2))
+  c:rim(eel, L.timber.edge) fill(eel, EEL.shade)
+  eel:each(function(x, y) if not eel:has(x, y - 1) then px(x, y, EEL.hi) elseif not eel:has(x, y + 1) then px(x, y, EEL.deep) end end)
+  px(228, 133, L.gold.hi) px(229, 133, L.timber.edge) hline(228, 230, 135, L.timber.edge) -- eye and grin
+  fill(c:ellipse(220, 138, 2, 1), L.gold.deep)
   -- and its tail flicking out of the side of the pie
-  line({ { 210, 140 }, { 207, 137 }, { 208, 134 } }):each(function(x, y) px(x, y, EEL.base) end) px(207, 133, EEL.shade)
+  local tl = line({ { 211, 141 }, { 208, 138 }, { 209, 134 } }, 1)
+  c:rim(tl, L.timber.edge) fill(tl, EEL.shade) px(208, 137, EEL.hi) px(209, 134, EEL.hi)
   -- steam
   for _, p in ipairs({ { 216, 136 }, { 215, 134 }, { 216, 132 }, { 232, 137 }, { 233, 135 } }) do px(p[1], p[2], L.awnB.shade) end
 end
