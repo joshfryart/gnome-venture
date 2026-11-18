@@ -702,6 +702,19 @@ function pj_pantry_send(array $u, string $palUid, int $hours, bool $unequip): ar
     return [true, $p['name'] . ' takes over the Pantry ' . ($full ? 'full time' : 'for ' . $hours . ' h') . ': it fills free jars from your satchel (new preserves first) and collects the ready ones, on game days.'];
 }
 
+/** 2.7.xx: a pal tending the Pantry checks the jars whenever you look at them (the Pantry page, the craft map, the Kitchen card), not only on the Jobs page: collect what is ready, refill what is free. */
+function pj_settle_pantry(int $uid): void
+{
+    static $done = [];
+    if (isset($done[$uid])) return;   // once a request
+    $done[$uid] = true;
+    try {
+        if (!ppal_ensure()) return;
+        if (!q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND kind = 'station' AND tool = 'jars'", [$uid])) return;
+        pj_settle($uid);
+    } catch (Throwable $e) {}
+}
+
 /** One look at the Pantry for a tending pal: collect what is ready, then start jars (one of each recipe per pass, never-made first) until the jars or the ingredients run out. */
 function pj_pantry_tick(int $uid, array $j): void
 {

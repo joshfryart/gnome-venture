@@ -40,4 +40,11 @@ $col0 = (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND colle
 pj_pantry_tick($uid, ['id' => 0]);
 $col1 = (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NOT NULL', [$uid]);
 ok('the ready jars were collected (into the satchel) and the free jars refilled', $col1 - $col0 >= $n0 && (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL', [$uid]) >= 2, json_encode([$col0, $col1, $n0]));
+// 2.7.xx: a tending pal also checks the jars when you LOOK at them (Pantry page, craft map, Kitchen card), not only on the Jobs page
+q('DELETE FROM pantry_jars WHERE user_id = ?', [$uid]);   // every jar free again
+db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => 'test-pal', 'kind' => 'station', 'target' => 'pantry:all', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'jars',
+    'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => json_encode(['full' => false, 'jars' => true, 'hp' => 5, 'rounds' => 0, 'area' => 'pantry', 'obj' => 'Pantry', 'started' => 0, 'collected' => 0])]);
+foreach ([$old, $new] as $r) foreach (json_decode((string)$r['ingredients'], true) as $slug => $qn) { $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); give_item($uid, $iid, $qn * 6); }
+pj_settle_pantry($uid);
+ok('looking at the Pantry makes a tending pal refill the free jars (pj_settle_pantry)', (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL', [$uid]) >= 2, (string)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ?', [$uid]));
 echo $fails ? "$fails FAILED\n" : "ok\n"; exit($fails ? 1 : 0);
