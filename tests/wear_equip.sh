@@ -41,6 +41,21 @@ hasnt "no Wear buttons there" 'value="wear_on"'
 curl -s -c $A -b $A "$BASE/gnome.php?tab=gnome&wear=hands" -o $H
 chk "Take off (POST)" "$(curl -s -c $A -b $A -X POST $BASE/gnome.php --data-urlencode "csrf=$(csrf $H)" -d do=wear_off -d slot=hands -o /dev/null -w '%{http_code}')" 302
 chk "nothing worn" "$(db "SELECT COUNT(*) FROM user_wear_slots WHERE user_id=$SID")" 0
+echo "== the Closet tab (slim home)"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('home_slim','1')"
+chk "the Closet tab opens" "$(curl -s -c $A -b $A "$BASE/gnome.php?tab=closet" -o $H -w '%{http_code}')" 200
+has "the Closet section" 'id="closet"'
+has "the walking gnome" 'class="clv clv1"'
+has "the Hands pill" 'clpill'
+has "the tab bar has Closet" '>Closet'
+curl -s -c $A -b $A "$BASE/gnome.php?tab=closet&wear=hands" -o $H
+has "the Hands picker opens under the pill row" 'name="item" value="work-gloves"'
+chk "Wear from the Closet (POST, redirect)" "$(curl -s -c $A -b $A -X POST $BASE/gnome.php --data-urlencode "csrf=$(csrf $H)" -d do=wear_on -d slot=hands -d item=work-gloves -o /dev/null -w '%{http_code}')" 302
+chk "the gloves are worn" "$(db "SELECT item_slug FROM user_wear_slots WHERE user_id=$SID AND slot='hands'")" work-gloves
+curl -s -c $A -b $A "$BASE/gnome.php?tab=gnome" -o $H; hasnt "the Gnome tab no longer holds the Wearing panel" 'id="wearing"'
+curl -s -c $A -b $A "$BASE/gnome.php?tab=closet&wear=hands" -o $H
+chk "Take off (POST)" "$(curl -s -c $A -b $A -X POST $BASE/gnome.php --data-urlencode "csrf=$(csrf $H)" -d do=wear_off -d slot=hands -o /dev/null -w '%{http_code}')" 302
+dbx "UPDATE settings SET value='0' WHERE name='home_slim'"
 echo "== wear_open Off"
 dbx "UPDATE settings SET value='0' WHERE name='wear_open'"
 curl -s -c $A -b $A "$BASE/gnome.php?tab=gnome" -o $H; hasnt "no Wearing panel" 'id="wearing"'

@@ -282,11 +282,21 @@ function home_slim_needs(array $u): array
     return ['need' => $need, 'quiet' => $quiet];
 }
 
+/** 2.7.16: is the Closet tab there (wearables open to everyone, not a guest)? */
+function home_slim_closet_on(array $u): bool
+{
+    require_once __DIR__ . '/wearables.php';
+    if (is_guest($u) || !wear_live($u)) return false;
+    require_once __DIR__ . '/wear_view.php';
+    return true;
+}
+
 /** Badges for the three tabs: ['today' => needs count, 'news' => unread, 'furnish' => new items, 'gnome' => stat points + a calling to choose]. */
 function home_slim_badges(array $u, int $needN): array
 {
     $g = (int)$u['stat_points'] + (!$u['calling'] && (int)$u['level'] >= (int)setting('calling_level') ? 1 : 0);
-    return ['today' => $needN, 'news' => home_slim_news((int)$u['id'])['unread'], 'furnish' => 0, 'gnome' => $g];
+    $cl = home_slim_closet_on($u);   // 2.7.16: the Closet tab (the Wearing panel moved here from the Gnome tab)
+    return ['today' => $needN, 'news' => home_slim_news((int)$u['id'])['unread'], 'furnish' => 0, 'gnome' => $g, 'closet_on' => $cl, 'closet' => $cl ? wear_closet_badge($u) : 0];
 }
 
 /** A gold count badge, or '' for none. */
@@ -341,9 +351,9 @@ function home_slim_banner_html(array $u, array $chosen, string $tab, string $hel
 /** The three tabs (plain links, so they load in place with AJAX_PAGES and work without script). $cur: 'today', 'furnish', 'gnome' or a Gnome sub-page. */
 function home_slim_tabs_html(string $cur, array $b): string
 {
-    $T = ['today' => 'Today', 'furnish' => 'Furnish', 'gnome' => 'Gnome'];
+    $T = ['today' => 'Today', 'furnish' => 'Furnish', 'gnome' => 'Gnome'] + (!empty($b['closet_on']) ? ['closet' => 'Closet'] : []);
     $on = isset($T[$cur]) ? $cur : 'gnome';
-    $h = '<nav class="tabs hometabs hstabs" aria-label="Home">';
+    $h = '<nav class="tabs hometabs hstabs' . (isset($T['closet']) ? ' hs4' : '') . '" aria-label="Home">';
     foreach ($T as $k => $l) {
         $href = url($k === 'today' ? 'gnome.php' : 'gnome.php?tab=' . $k);
         $bang = home_slim_bang((int)($b[$k] ?? 0), ($b[$k] ?? 0) . ' new')

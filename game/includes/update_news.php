@@ -812,6 +812,10 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.16' => ['👗 Update 2.7.16: the Closet',
+        "[list][*][b]Closet[/b]: a new tab in your Hovel, after Gnome. Your gnome stands on top in what you are wearing, walking slowly and turning to show every side.\n"
+        . "[*][b]Seven spots[/b] (feet, back, coat, cloak, hat, hands, neck) are small buttons. Tap one to pick what to wear there; the choices open right under it.\n"
+        . "[*][b]The Wearing list[/b] moved here from the Gnome tab, and a gold dot shows a spot where you own something to put on.[/list]"],
     '2.7.15' => ['🧦 Update 2.7.15: wear your gear, new shops',
         "[list][*][b]Wearing[/b]: My Gnome has a new Wearing panel with 7 slots: footwear, backpack, coat, cloak, hat, hands and neck. Wear one item in each. A clothing item's Puzzle piece only joins your deck while you wear it.\n"
         . "[*][b]You see it[/b]: everything you wear shows on your gnome as you walk around, front, back and side.\n"

@@ -37,7 +37,7 @@ dbx "INSERT OR REPLACE INTO settings (name, value) VALUES ('home_slim', '1')"
 for t in today furnish gnome stats; do chk "gnome.php?tab=$t is 200" "$(get "gnome.php?tab=$t")" 200; noerr "tab $t"; done
 get gnome.php >/dev/null
 has "the banner" 'class="hs-banner"'; has "...a room picture" 'class="hroom hroom-crop'; has "...Go to sleep posts to hovel.php" 'action="/hovel.php" class="hs-rest"'
-has "three tabs" 'class="tabs hometabs hstabs"'; has "Needs you" 'id="hs-needs-h"'; has "unread news row" 'class="box hs-news unread"'
+has "tabs (Today, Furnish, Gnome, and Closet while wearables are open)" 'class="tabs hometabs hstabs hs4"'; has "Needs you" 'id="hs-needs-h"'; has "unread news row" 'class="box hs-news unread"'
 hasnt "no clock pill in the header (the tag has the time)" 'hdr-clock'
 get 'gnome.php?tab=gnome' >/dev/null; has "Gnome tab: the gnome card" 'class="box gnomecard"'; has "...the tiles" 'class="gvtiles"'; hasnt "...no Hovel link" 'Your hovel: sleep or nap'
 hasnt "menu: no Hovel tile" 'href="/hovel.php"'

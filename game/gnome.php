@@ -20,7 +20,8 @@ $todayOn = (int)($u['onboarded'] ?? 1) === 1;   // a gnome still being set up ha
 $SUBS = ['stats' => ['💪', 'Stats'], 'calling' => ['🎩', 'Calling'], 'pals' => ['🐾', 'Pals'], 'foods' => ['🍴', 'Foods'], 'folk' => ['💛', 'Villagers'], 'gardens' => ['🏡', 'Gardens']];
 if (!$palsOn) unset($SUBS['pals']);
 $slim = $todayOn && home_slim_on();   // slim home: the Hovel and Today are one page with a FURNISH tab (includes/home_slim.php)
-$TABS = ['today' => 1, 'gnome' => 1] + ($slim ? ['furnish' => 1] : []) + $SUBS;
+$closetOn = $slim && home_slim_closet_on($u);   // 2.7.16: the Closet tab: what the gnome wears
+$TABS = ['today' => 1, 'gnome' => 1] + ($slim ? ['furnish' => 1] : []) + ($closetOn ? ['closet' => 1] : []) + $SUBS;
 $tab = (string)($_GET['tab'] ?? (isset($_GET['dye']) ? 'stats' : 'today'));   // the Dye Pot's old link (?dye=1#dyes) opens Stats, where the dyes are now
 if ($tab === 'overview') $tab = 'gnome';   // the old Overview tab
 if (!isset($TABS[$tab])) $tab = 'today';
@@ -43,7 +44,8 @@ if (is_post()) {
         [$ok, $msg] = wear_post($u, $do, $_POST);
         flash($msg, $ok ? 'ok' : 'err');
         $ws = (string)($_POST['slot'] ?? '');
-        redirect('gnome.php?tab=gnome' . (!$ok && isset(WEAR_SLOTS[$ws]) ? '&wear=' . $ws : '') . '#wearing');
+        $wt = $closetOn ? 'closet' : 'gnome';
+        redirect('gnome.php?tab=' . $wt . (!$ok && isset(WEAR_SLOTS[$ws]) ? '&wear=' . $ws : '') . '#' . ($closetOn ? 'closet' : 'wearing'));
     }
     if ($do === 'heal') {   // v2.3.5: a Healing Potion or a snack, from the Health box
         [$ok, $msg] = hp_use($u, (string)($_POST['what'] ?? ''), (int)($_POST['item'] ?? 0));
@@ -142,6 +144,7 @@ $onGnome = $tab !== 'today';
     echo home_slim_tabs_html($tab, home_slim_badges($u, $hsNeedN));
     if ($tab === 'today') echo home_slim_today_html($u, $hsNeeds);
     elseif ($tab === 'furnish') echo home_slim_furnish_html($u, $hsDecor);
+    elseif ($tab === 'closet') echo '<div class="homepanel gvpage">' . wear_closet_html($u, (string)($_GET['wear'] ?? '')) . '</div>';
 endif; ?>
 <?php if (!$slim): ?>
 <?= today_head_html($u, $tctx, ['class' => 'homehead', 'px' => 64]) ?>
@@ -152,7 +155,7 @@ endif; ?>
   <a href="<?= e($gurl('gnome')) ?>"<?= $onGnome ? ' class="on"' . ($tab === 'gnome' ? ' aria-current="page"' : '') : '' ?>>My Gnome</a>
 </nav>
 <?php endif; ?>
-<?php if (!$slim || !in_array($tab, ['today', 'furnish'], true)): ?>
+<?php if (!$slim || !in_array($tab, ['today', 'furnish', 'closet'], true)): ?>
 <div class="homepanel<?= $onGnome ? ' gvpage' : '' ?><?= $slim && $tab === 'gnome' ? ' hs-cols' : '' ?>">
 <?php if ($slim && $tab === 'gnome'): ?><div class="hs-main"><?php endif; ?>
 <?php if ($tab === 'today'): ?>
@@ -170,7 +173,7 @@ endif; ?>
   <?php if (!is_guest($u)) echo hp_card_html($u); ?>
   <p class="gcprof"><a href="<?= e(url('profile.php')) ?>">See your profile as others do</a></p>
 </section>
-<?php require_once __DIR__ . '/includes/wearables.php'; if (wear_live($u) && !is_guest($u)) { require_once __DIR__ . '/includes/wear_view.php'; echo wear_panel_html($u, (string)($_GET['wear'] ?? '')); }   // 2.7.14: what the gnome wears (7 slots) ?>
+<?php require_once __DIR__ . '/includes/wearables.php'; if (wear_live($u) && !is_guest($u) && !$closetOn) { require_once __DIR__ . '/includes/wear_view.php'; echo wear_panel_html($u, (string)($_GET['wear'] ?? '')); }   // 2.7.14: what the gnome wears (7 slots) ?>
 <?php endif; ?>
 <?php if (in_array($tab, ['gnome', 'pals'], true)): ?>
 <?php if (ppal_party_on() && !is_guest($u)): ?>
