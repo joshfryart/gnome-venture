@@ -172,7 +172,7 @@
   "artDesc": "Big slouchy waxed canvas sack with a leather head-strap and buckles.",
   "piece": "Portage Rummage",
   "type": "trick",
-  "v": 3,
+  "v": 4,
   "code": "foeB0>pluck",
   "effect": "If the creature has no pieces on the board, small chance to lift an item from the creature.",
   "knob": "b",
@@ -197,14 +197,14 @@
   "type": "item",
   "v": 5,
   "code": "r1>heal",
-  "effect": "In the first round of the fight, heal 3.",
+  "effect": "In the first round of the fight, heal 4.",
   "knob": "m",
   "petals": 3200,
   "tailor": 2,
   "energy": 5,
   "slug": "na-sap-run-bucket",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NA",
@@ -381,14 +381,14 @@
   "type": "charm",
   "v": 3,
   "code": "pair>charm",
-  "effect": "If a piece of its own type is linked to it, add 2 Charm.",
+  "effect": "If a piece of its own type is linked to it, add 3 Charm.",
   "knob": "m",
   "petals": 1200,
   "tailor": 1,
   "energy": 4,
   "slug": "na-birch-poncho",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NA",
@@ -517,7 +517,7 @@
   "artDesc": "Tall indigo cloth gaiters spiral-wrapped up the shin over a soft shoe, tied with red cord.",
   "piece": "Leg-Wrap Brace",
   "type": "guard",
-  "v": 4,
+  "v": 5,
   "code": "linkT>life",
   "effect": "If it is linked to a Trick, it stays 1 more round(s) on the board.",
   "knob": "b",
@@ -703,13 +703,13 @@
   "type": "guard",
   "v": 3,
   "code": "linkC>thorns",
-  "effect": "If it is linked to a Charm, each hit this guard blocks adds 1 to the bar.",
+  "effect": "If it is linked to a Charm, each hit this guard blocks adds 2 to the bar.",
   "knob": "b",
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
   "slug": "ca-bloom-smock",
-  "a": 1,
+  "a": 2,
   "b": 2
  },
  {
@@ -726,14 +726,14 @@
   "type": "guard",
   "v": 3,
   "code": "r1>ward",
-  "effect": "In the first round of the fight, the next Guard you place gets +2.",
+  "effect": "In the first round of the fight, the next Guard you place gets +3.",
   "knob": "m",
   "petals": 1500,
   "tailor": 1,
   "energy": 4,
   "slug": "ca-pleated-shirt-jacket",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "CA",
@@ -864,13 +864,13 @@
   "type": "soothe",
   "v": 2,
   "code": "foeB3>shrink",
-  "effect": "If the creature has 3 or more pieces on the board, the creature's strongest piece loses 1.",
+  "effect": "If the creature has 3 or more pieces on the board, the creature's strongest piece loses 2.",
   "knob": "b",
   "petals": 4000,
   "tailor": 2,
   "energy": 5,
   "slug": "ca-palm-rain-cape",
-  "a": 1,
+  "a": 2,
   "b": 3
  },
  {
@@ -940,7 +940,7 @@
   "energy": 4,
   "slug": "nwe-alder-clogs",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NWE",
@@ -963,7 +963,7 @@
   "energy": 4,
   "slug": "nwe-drain-brogues",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NWE",
@@ -986,7 +986,7 @@
   "energy": 5,
   "slug": "nwe-felted-fleece-boots",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1000,7 +1000,7 @@
   "artDesc": "Pair of light slip-on shoes woven in a checker of birch-bark strips.",
   "piece": "Bark Slip",
   "type": "hurt",
-  "v": 4,
+  "v": 5,
   "code": "linkT>stay",
   "effect": "If it is linked to a Trick, a chain of 3 or more does not use it up.",
   "knob": "c",
@@ -1009,7 +1009,7 @@
   "energy": 5,
   "slug": "nwe-birch-bark-slippers",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1032,7 +1032,7 @@
   "energy": 6,
   "slug": "nwe-herringbone-gaiters",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "NWE",
@@ -1055,7 +1055,7 @@
   "energy": 4,
   "slug": "nwe-peat-creel",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1078,7 +1078,7 @@
   "energy": 4,
   "slug": "nwe-waxed-roll-top",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1101,7 +1101,7 @@
   "energy": 5,
   "slug": "nwe-heather-frame",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1124,7 +1124,7 @@
   "energy": 5,
   "slug": "nwe-bark-box-pack",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1147,7 +1147,7 @@
   "energy": 6,
   "slug": "nwe-fleece-bundle",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "NWE",
@@ -1163,14 +1163,14 @@
   "type": "guard",
   "v": 3,
   "code": "foeB3>guard",
-  "effect": "If the creature has 3 or more pieces on the board, gain 2 guard.",
+  "effect": "If the creature has 3 or more pieces on the board, gain 4 guard.",
   "knob": "m",
   "petals": 1800,
   "tailor": 1,
   "energy": 4,
   "slug": "nwe-cable-knit-long-coat",
   "a": 1,
-  "b": 2
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1193,7 +1193,7 @@
   "energy": 4,
   "slug": "nwe-waxed-field-jacket",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1216,7 +1216,7 @@
   "energy": 5,
   "slug": "nwe-tweed-waistcoat",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1239,7 +1239,7 @@
   "energy": 5,
   "slug": "nwe-tanbark-smock",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1255,14 +1255,14 @@
   "type": "guard",
   "v": 6,
   "code": "R:NWE:coat",
-  "effect": "Gain 4 guard that stays up one more turn. If you are under half health, heal 2 as well.",
+  "effect": "Gain 5 guard that stays up one more turn. If you are under half health, heal 2 as well.",
   "knob": "c",
   "petals": 12000,
   "tailor": 3,
   "energy": 6,
   "slug": "nwe-eiderdown-coat",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "NWE",
@@ -1285,7 +1285,7 @@
   "energy": 4,
   "slug": "nwe-heather-shawl",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1308,7 +1308,7 @@
   "energy": 4,
   "slug": "nwe-mustard-rain-cape",
   "a": 1,
-  "b": 2
+  "b": 3
  },
  {
   "region": "NWE",
@@ -1324,14 +1324,14 @@
   "type": "charm",
   "v": 4,
   "code": "linkG>charm",
-  "effect": "If it is linked to a Guard, add 3 Charm.",
+  "effect": "If it is linked to a Guard, add 4 Charm.",
   "knob": "m",
   "petals": 4800,
   "tailor": 2,
   "energy": 5,
   "slug": "nwe-sheepskin-mantle",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1354,7 +1354,7 @@
   "energy": 5,
   "slug": "nwe-rush-thatch-cape",
   "a": 1,
-  "b": 3
+  "b": 4
  },
  {
   "region": "NWE",
@@ -1370,14 +1370,14 @@
   "type": "trick",
   "v": 5,
   "code": "R:NWE:cloak",
-  "effect": "The piece it links to gets +4. If that piece is a Charm, it also cuts the creature's hits by 2 this round.",
+  "effect": "The piece it links to gets +5. If that piece is a Charm, it also cuts the creature's hits by 2 this round.",
   "knob": "b",
   "petals": 12000,
   "tailor": 3,
   "energy": 6,
   "slug": "nwe-woad-mist-cloak",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "CB",
@@ -1483,7 +1483,7 @@
   "artDesc": "A puffy ankle bootie with a gnomish curled toe, sea-green leather stitched in a scale pattern, rolled cotton cuff and a tie.",
   "piece": "Reef Hop",
   "type": "hurt",
-  "v": 7,
+  "v": 6,
   "code": "R:CB:footwear",
   "effect": "Trip: the creature skips its next turn. If its chain has 3 or more pieces, the creature's strongest piece also loses 2.",
   "knob": "m",
@@ -1552,7 +1552,7 @@
   "artDesc": "A rolled fishing net strapped into a sausage bundle, cork floats knotted along it, a rope carry loop.",
   "piece": "Net-Roll Snare",
   "type": "trick",
-  "v": 4,
+  "v": 5,
   "code": "foeB3>knock",
   "effect": "If the creature has 3 or more pieces on the board, remove the creature's weakest piece from the board.",
   "knob": "b",
@@ -1759,7 +1759,7 @@
   "artDesc": "A wide triangular cotton shawl printed with hibiscus flowers, long fringe along the edges.",
   "piece": "Hibiscus Charm",
   "type": "charm",
-  "v": 4,
+  "v": 5,
   "code": "linkC>bond",
   "effect": "If it is linked to a Charm, your Charm counts 10% more for the rest of the fight.",
   "knob": "m",
@@ -1859,8 +1859,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "se-rope-slips",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1882,8 +1882,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "se-sunpath-sandals",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1905,8 +1905,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "se-corkbark-clogs",
-  "a": 1,
-  "b": 4
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -1922,14 +1922,14 @@
   "type": "guard",
   "v": 5,
   "code": "noDmg>life",
-  "effect": "If you took no damage last turn, it stays 1 more round(s) on the board.",
+  "effect": "If you took no damage last turn, it stays 2 more round(s) on the board.",
   "knob": "m",
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
   "slug": "se-thyme-hill-wraps",
-  "a": 1,
-  "b": 4
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -1945,14 +1945,14 @@
   "type": "hurt",
   "v": 7,
   "code": "R:SE:footwear",
-  "effect": "Deal 5 extra damage and heal 2 for each Guard in its chain.",
+  "effect": "Deal 6 extra damage and heal 3 for each Guard in its chain.",
   "knob": "c",
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
   "slug": "se-harvest-treaders",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SE",
@@ -1974,8 +1974,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "se-olive-creel",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -1989,7 +1989,7 @@
   "artDesc": "A bulging knotted-cord net bag holding cork floats and a lemon, cinched at the top with a rope loop.",
   "piece": "Float-Net Haul",
   "type": "trick",
-  "v": 3,
+  "v": 4,
   "code": "link2>hand",
   "effect": "If it is linked to 2 or more pieces, your next hand has 1 extra piece.",
   "knob": "b",
@@ -1997,8 +1997,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "se-float-net",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -2014,14 +2014,14 @@
   "type": "heal",
   "v": 4,
   "code": "r1>mend",
-  "effect": "In the first round of the fight, heal 1 at the start of each of your next 2 turns.",
+  "effect": "In the first round of the fight, heal 3 at the start of each of your next 2 turns.",
   "knob": "m",
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
   "slug": "se-amphora-frame",
-  "a": 1,
-  "b": 4
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SE",
@@ -2037,14 +2037,14 @@
   "type": "item",
   "v": 6,
   "code": "disc5>heal",
-  "effect": "If your discard pile holds 5 or more pieces, heal 4.",
+  "effect": "If your discard pile holds 5 or more pieces, heal 5.",
   "knob": "c",
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
   "slug": "se-sailcloth-seabag",
-  "a": 1,
-  "b": 4
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -2060,14 +2060,14 @@
   "type": "heal",
   "v": 6,
   "code": "R:SE:backpack",
-  "effect": "Heal 5 and cut the creature's hits by 2 this round. If the creature has guard up, add 2 Charm too.",
+  "effect": "Heal 6 and cut the creature's hits by 3 this round. If the creature has guard up, add 3 Charm too.",
   "knob": "b",
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
   "slug": "se-lemon-satchel",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SE",
@@ -2083,14 +2083,14 @@
   "type": "guard",
   "v": 4,
   "code": "aimNext>thorns",
-  "effect": "If it sits next to the creature's aim cell, each hit this guard blocks adds 1 to the bar.",
+  "effect": "If it sits next to the creature's aim cell, each hit this guard blocks adds 2 to the bar.",
   "knob": "b",
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
   "slug": "se-net-mender-smock",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -2106,14 +2106,14 @@
   "type": "guard",
   "v": 4,
   "code": "hpLow>life",
-  "effect": "If you are under half health, it stays 1 more round(s) on the board.",
+  "effect": "If you are under half health, it stays 2 more round(s) on the board.",
   "knob": "m",
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
   "slug": "se-fleece-vest",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -2129,14 +2129,14 @@
   "type": "guard",
   "v": 5,
   "code": "linkC>heal",
-  "effect": "If it is linked to a Charm, heal 4.",
+  "effect": "If it is linked to a Charm, heal 6.",
   "knob": "c",
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
   "slug": "se-olive-quilt-jacket",
-  "a": 1,
-  "b": 4
+  "a": 2,
+  "b": 6
  },
  {
   "region": "SE",
@@ -2152,14 +2152,14 @@
   "type": "guard",
   "v": 5,
   "code": "edge>ward",
-  "effect": "If it sits on the edge of the board, the next Guard you place gets +4.",
+  "effect": "If it sits on the edge of the board, the next Guard you place gets +5.",
   "knob": "b",
   "petals": 6400,
   "tailor": 2,
   "energy": 5,
   "slug": "se-vintner-long-coat",
-  "a": 1,
-  "b": 4
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -2175,14 +2175,14 @@
   "type": "guard",
   "v": 7,
   "code": "R:SE:coat",
-  "effect": "Gain 5 guard. Each hit it blocks adds 5 to the bar; a Hurt that is fully blocked is removed from the board.",
+  "effect": "Gain 6 guard. Each hit it blocks adds 6 to the bar; a Hurt that is fully blocked is removed from the board.",
   "knob": "m",
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
   "slug": "se-sun-stripe-tunic",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SE",
@@ -2198,14 +2198,14 @@
   "type": "charm",
   "v": 4,
   "code": "handH>soothe",
-  "effect": "If you hold 2 or more Hurts in your hand, cut the creature's hits by 1 this round.",
+  "effect": "If you hold 2 or more Hurts in your hand, cut the creature's hits by 2 this round.",
   "knob": "m",
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
   "slug": "se-shepherd-felt-cape",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -2221,14 +2221,14 @@
   "type": "charm",
   "v": 4,
   "code": "corner>charm",
-  "effect": "If it sits in a corner, add 3 Charm.",
+  "effect": "If it sits in a corner, add 4 Charm.",
   "knob": "c",
   "petals": 2400,
   "tailor": 1,
   "energy": 4,
   "slug": "se-lemon-fringe-shawl",
-  "a": 1,
-  "b": 3
+  "a": 2,
+  "b": 4
  },
  {
   "region": "SE",
@@ -2250,8 +2250,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "se-loom-stripe-poncho",
-  "a": 1,
-  "b": 4
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -2273,8 +2273,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "se-whitewash-mantle",
-  "a": 1,
-  "b": 4
+  "a": 2,
+  "b": 5
  },
  {
   "region": "SE",
@@ -2288,16 +2288,16 @@
   "artDesc": "Short round shoulder capelet of waxed indigo wool with a high collar.",
   "piece": "Squall Lull",
   "type": "charm",
-  "v": 7,
+  "v": 6,
   "code": "R:SE:cloak",
-  "effect": "Add 5 Charm. If it is the only Charm in your chain, the creature skips its next turn.",
+  "effect": "Add 6 Charm. If it is the only Charm in your chain, the creature skips its next turn.",
   "knob": "c",
   "petals": 16000,
   "tailor": 3,
   "energy": 6,
   "slug": "se-sea-squall-capelet",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "SA",
@@ -2311,7 +2311,7 @@
   "artDesc": "Ankle-high cloth boots dipped many times in rubber-tree latex, so they dry glossy amber with drip-lumps at the toe.",
   "piece": "Latex Splash",
   "type": "guard",
-  "v": 4,
+  "v": 5,
   "code": "pair>evade",
   "effect": "If a piece of its own type is linked to it, the creature's next Hurt misses.",
   "knob": "c",
@@ -2320,7 +2320,7 @@
   "energy": 4,
   "slug": "sa-latex-puddle-boots",
   "a": 2,
-  "b": 3
+  "b": 4
  },
  {
   "region": "SA",
@@ -2336,14 +2336,14 @@
   "type": "guard",
   "v": 4,
   "code": "g2>heal",
-  "effect": "If you have played 2 or more Guards this fight, heal 3.",
+  "effect": "If you have played 2 or more Guards this fight, heal 4.",
   "knob": "b",
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
   "slug": "sa-puna-wool-booties",
   "a": 2,
-  "b": 3
+  "b": 4
  },
  {
   "region": "SA",
@@ -2366,7 +2366,7 @@
   "energy": 5,
   "slug": "sa-plaited-fibre-sandals",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "SA",
@@ -2382,14 +2382,14 @@
   "type": "hurt",
   "v": 5,
   "code": "noDmg>dmg",
-  "effect": "If you took no damage last turn, deal 4 extra damage.",
+  "effect": "If you took no damage last turn, deal 5 extra damage.",
   "knob": "c",
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
   "slug": "sa-balsa-bark-clogs",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "SA",
@@ -2403,16 +2403,16 @@
   "artDesc": "Tall woven gaiters wound up the shin over a little leather shoe, tied with cords.",
   "piece": "Stripe Wrap Trip",
   "type": "hurt",
-  "v": 7,
+  "v": 6,
   "code": "R:SA:footwear",
-  "effect": "Trip: the creature skips its next turn. If its chain has 3 or more pieces, deal 5 extra damage.",
+  "effect": "Trip: the creature skips its next turn. If its chain has 3 or more pieces, deal 6 extra damage.",
   "knob": "b",
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
   "slug": "sa-striped-leg-wraps",
   "a": 3,
-  "b": 5
+  "b": 6
  },
  {
   "region": "SA",
@@ -2428,14 +2428,14 @@
   "type": "item",
   "v": 5,
   "code": "linkH>heal",
-  "effect": "If it is linked to a Hurt, heal 3.",
+  "effect": "If it is linked to a Hurt, heal 4.",
   "knob": "b",
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
   "slug": "sa-striped-bundle-cloth",
   "a": 2,
-  "b": 3
+  "b": 4
  },
  {
   "region": "SA",
@@ -2458,7 +2458,7 @@
   "energy": 4,
   "slug": "sa-cone-vine-basket",
   "a": 2,
-  "b": 3
+  "b": 4
  },
  {
   "region": "SA",
@@ -2481,7 +2481,7 @@
   "energy": 5,
   "slug": "sa-highland-carry-frame",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "SA",
@@ -2504,7 +2504,7 @@
   "energy": 5,
   "slug": "sa-leaf-flap-satchel",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "SA",
@@ -2520,14 +2520,14 @@
   "type": "heal",
   "v": 6,
   "code": "R:SA:backpack",
-  "effect": "Heal 5, plus 1 for every 2 pieces in your discard pile (up to 3 extra). Next round pick from 6 pieces.",
+  "effect": "Heal 6, plus 1 for every 2 pieces in your discard pile (up to 3 extra). Next round pick from 6 pieces.",
   "knob": "m",
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
   "slug": "sa-market-net-bag",
   "a": 3,
-  "b": 5
+  "b": 6
  },
  {
   "region": "SA",
@@ -2550,7 +2550,7 @@
   "energy": 4,
   "slug": "sa-fleece-vest",
   "a": 2,
-  "b": 3
+  "b": 4
  },
  {
   "region": "SA",
@@ -2573,7 +2573,7 @@
   "energy": 4,
   "slug": "sa-shingle-leaf-smock",
   "a": 2,
-  "b": 3
+  "b": 4
  },
  {
   "region": "SA",
@@ -2596,7 +2596,7 @@
   "energy": 5,
   "slug": "sa-warp-stripe-jacket",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "SA",
@@ -2612,14 +2612,14 @@
   "type": "guard",
   "v": 5,
   "code": "linkT>shrink",
-  "effect": "If it is linked to a Trick, the creature's strongest piece loses 2.",
+  "effect": "If it is linked to a Trick, the creature's strongest piece loses 3.",
   "knob": "m",
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
   "slug": "sa-bark-cloth-tunic-coat",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 5
  },
  {
   "region": "SA",
@@ -2635,14 +2635,14 @@
   "type": "guard",
   "v": 7,
   "code": "R:SA:coat",
-  "effect": "Keeper. Gain 5 guard; if it stayed in your hand through a round, gain 5 more.",
+  "effect": "Keeper. Gain 6 guard; if it stayed in your hand through a round, gain 6 more.",
   "knob": "c",
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
   "slug": "sa-kapok-puffer",
   "a": 3,
-  "b": 5
+  "b": 6
  },
  {
   "region": "SA",
@@ -2665,7 +2665,7 @@
   "energy": 4,
   "slug": "sa-striped-poncho",
   "a": 2,
-  "b": 3
+  "b": 4
  },
  {
   "region": "SA",
@@ -2681,14 +2681,14 @@
   "type": "soothe",
   "v": 2,
   "code": "pair>soothe",
-  "effect": "If a piece of its own type is linked to it, cut the creature's hits by 2 this round.",
+  "effect": "If a piece of its own type is linked to it, cut the creature's hits by 3 this round.",
   "knob": "b",
   "petals": 2700,
   "tailor": 1,
   "energy": 4,
   "slug": "sa-thatch-rain-cape",
-  "a": 2,
-  "b": 3
+  "a": 3,
+  "b": 4
  },
  {
   "region": "SA",
@@ -2704,14 +2704,14 @@
   "type": "charm",
   "v": 5,
   "code": "yHalf>charm",
-  "effect": "If its Yield bar is past half, add 4 Charm.",
+  "effect": "If its Yield bar is past half, add 5 Charm.",
   "knob": "m",
   "petals": 7200,
   "tailor": 2,
   "energy": 5,
   "slug": "sa-feather-shoulder-mantle",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "SA",
@@ -2734,7 +2734,7 @@
   "energy": 5,
   "slug": "sa-cloud-forest-shawl",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "SA",
@@ -2750,14 +2750,14 @@
   "type": "charm",
   "v": 7,
   "code": "R:SA:cloak",
-  "effect": "Add 5 Charm and cut the creature's hits by 3 this round. If its Yield bar is past half, the creature skips its next turn.",
+  "effect": "Add 6 Charm and cut the creature's hits by 3 this round. If its Yield bar is past half, the creature skips its next turn.",
   "knob": "b",
   "petals": 18000,
   "tailor": 3,
   "energy": 6,
   "slug": "sa-indigo-hooded-cloak",
   "a": 3,
-  "b": 5
+  "b": 6
  },
  {
   "region": "EE",
@@ -2794,7 +2794,7 @@
   "artDesc": "Tall, seamless, chunky pressed-felt boots in soft grey, rounded toes, a stitched leather patch on the heel.",
   "piece": "Snowdrift Boot Hold",
   "type": "guard",
-  "v": 5,
+  "v": 6,
   "code": "foeB0>life",
   "effect": "If the creature has no pieces on the board, it stays 2 more round(s) on the board.",
   "knob": "m",
@@ -3024,7 +3024,7 @@
   "artDesc": "Sleeveless deep plum felt vest with bright flower-and-leaf embroidery along the front edges.",
   "piece": "Felt Vest Hold",
   "type": "guard",
-  "v": 5,
+  "v": 6,
   "code": "pair>life",
   "effect": "If a piece of its own type is linked to it, it stays 2 more round(s) on the board.",
   "knob": "b",
@@ -3139,7 +3139,7 @@
   "artDesc": "Big triangular wool shawl on a deep blue ground with large red poppy prints and a long fringe.",
   "piece": "Poppy Shawl Bond",
   "type": "charm",
-  "v": 5,
+  "v": 6,
   "code": "linkT>bond",
   "effect": "If it is linked to a Trick, your Charm counts 10% more for the rest of the fight.",
   "knob": "m",
@@ -3240,7 +3240,7 @@
   "energy": 4,
   "slug": "mena-dune-slippers",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3263,7 +3263,7 @@
   "energy": 4,
   "slug": "mena-palm-rope-sandals",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3279,14 +3279,14 @@
   "type": "guard",
   "v": 6,
   "code": "linkC>guard",
-  "effect": "If it is linked to a Charm, gain 5 guard.",
+  "effect": "If it is linked to a Charm, gain 7 guard.",
   "knob": "b",
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
   "slug": "mena-indigo-wrap-boots",
   "a": 2,
-  "b": 5
+  "b": 7
  },
  {
   "region": "MENA",
@@ -3302,14 +3302,14 @@
   "type": "hurt",
   "v": 6,
   "code": "foeB3>dmg",
-  "effect": "If the creature has 3 or more pieces on the board, deal 5 extra damage.",
+  "effect": "If the creature has 3 or more pieces on the board, deal 7 extra damage.",
   "knob": "m",
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
   "slug": "mena-camel-pad-overshoes",
   "a": 2,
-  "b": 5
+  "b": 7
  },
  {
   "region": "MENA",
@@ -3332,7 +3332,7 @@
   "energy": 6,
   "slug": "mena-cedar-bath-clogs",
   "a": 3,
-  "b": 6
+  "b": 7
  },
  {
   "region": "MENA",
@@ -3355,7 +3355,7 @@
   "energy": 4,
   "slug": "mena-goatskin-waterskin",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3371,14 +3371,14 @@
   "type": "item",
   "v": 6,
   "code": "noDmg>heal",
-  "effect": "If you took no damage last turn, heal 4.",
+  "effect": "If you took no damage last turn, heal 5.",
   "knob": "b",
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
   "slug": "mena-date-palm-basket",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3401,7 +3401,7 @@
   "energy": 5,
   "slug": "mena-kilim-saddle-bag",
   "a": 2,
-  "b": 5
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3424,7 +3424,7 @@
   "energy": 5,
   "slug": "mena-copper-pot-frame",
   "a": 2,
-  "b": 5
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3438,16 +3438,16 @@
   "artDesc": "A big two-bulbed dried gourd held in a knotted cord net, slung on the back.",
   "piece": "Gourd Gift",
   "type": "item",
-  "v": 9,
+  "v": 8,
   "code": "R:MENA:backpack",
-  "effect": "Heal 6 and add 6 Charm. If its Yield bar is past half, the creature skips its next turn.",
+  "effect": "Heal 7 and add 7 Charm. If its Yield bar is past half, the creature skips its next turn.",
   "knob": "b",
   "petals": 22000,
   "tailor": 3,
   "energy": 6,
   "slug": "mena-bottle-gourd-sling",
   "a": 3,
-  "b": 6
+  "b": 7
  },
  {
   "region": "MENA",
@@ -3470,7 +3470,7 @@
   "energy": 4,
   "slug": "mena-loom-stripe-vest",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3486,14 +3486,14 @@
   "type": "guard",
   "v": 5,
   "code": "combo3>ward",
-  "effect": "If its chain has 3 or more pieces, the next Guard you place gets +4.",
+  "effect": "If its chain has 3 or more pieces, the next Guard you place gets +5.",
   "knob": "m",
   "petals": 3300,
   "tailor": 1,
   "energy": 4,
   "slug": "mena-braided-cord-jacket",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3516,7 +3516,7 @@
   "energy": 5,
   "slug": "mena-sand-robe-coat",
   "a": 2,
-  "b": 5
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3532,14 +3532,14 @@
   "type": "guard",
   "v": 6,
   "code": "r1>cleanse",
-  "effect": "In the first round of the fight, end your poison and heal 2.",
+  "effect": "In the first round of the fight, end your poison and heal 3.",
   "knob": "b",
   "petals": 8800,
   "tailor": 2,
   "energy": 5,
   "slug": "mena-quilted-night-coat",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3555,14 +3555,14 @@
   "type": "guard",
   "v": 8,
   "code": "R:MENA:coat",
-  "effect": "Keeper. Gain 6 guard; if it was kept through a round, it also stays up one more turn.",
+  "effect": "Keeper. Gain 7 guard; if it was kept through a round, it also stays up one more turn.",
   "knob": "m",
   "petals": 22000,
   "tailor": 3,
   "energy": 6,
   "slug": "mena-caravan-leather-jerkin",
   "a": 3,
-  "b": 6
+  "b": 7
  },
  {
   "region": "MENA",
@@ -3585,7 +3585,7 @@
   "energy": 4,
   "slug": "mena-camel-wool-hooded-cape",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3608,7 +3608,7 @@
   "energy": 4,
   "slug": "mena-indigo-shawl",
   "a": 2,
-  "b": 4
+  "b": 5
  },
  {
   "region": "MENA",
@@ -3631,7 +3631,7 @@
   "energy": 5,
   "slug": "mena-palm-leaf-sun-cape",
   "a": 2,
-  "b": 5
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3645,7 +3645,7 @@
   "artDesc": "A short, wide shoulder mantle dyed rose-madder with a scalloped edge and fringe, closed by a brass clasp.",
   "piece": "Madder Veil",
   "type": "trick",
-  "v": 5,
+  "v": 6,
   "code": "lastRound>pluck",
   "effect": "In its last round on the board, small chance to lift an item from the creature.",
   "knob": "m",
@@ -3654,7 +3654,7 @@
   "energy": 5,
   "slug": "mena-rose-madder-mantle",
   "a": 2,
-  "b": 5
+  "b": 6
  },
  {
   "region": "MENA",
@@ -3668,7 +3668,7 @@
   "artDesc": "A heavy rectangular cape of dark striped goat-hair cloth pinned with a wooden pin.",
   "piece": "Tent-Cape Lull",
   "type": "charm",
-  "v": 8,
+  "v": 6,
   "code": "R:MENA:cloak",
   "effect": "Add 6 Charm; the creature skips its next turn. If it skipped one earlier this fight, its strongest piece also loses 3.",
   "knob": "c",
@@ -3693,14 +3693,14 @@
   "type": "guard",
   "v": 5,
   "code": "aimNext>life",
-  "effect": "If it sits next to the creature's aim cell, it stays 2 more round(s) on the board.",
+  "effect": "If it sits next to the creature's aim cell, it stays 3 more round(s) on the board.",
   "knob": "c",
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
   "slug": "ea-hemp-sandals",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3716,14 +3716,14 @@
   "type": "hurt",
   "v": 5,
   "code": "noHurt>dmg",
-  "effect": "If you played no Hurt last turn, deal 4 extra damage.",
+  "effect": "If you played no Hurt last turn, deal 6 extra damage.",
   "knob": "b",
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
   "slug": "ea-rain-clogs",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3745,8 +3745,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "ea-indigo-boots",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -3768,8 +3768,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "ea-felt-boots",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -3783,16 +3783,16 @@
   "artDesc": "Tall shaggy rice-straw over-boots, thatched in layers, tied at the shin.",
   "piece": "Snow Straw Trip",
   "type": "hurt",
-  "v": 8,
+  "v": 6,
   "code": "R:EA:footwear",
-  "effect": "Trip: the creature skips its next turn. If it is linked to a Trick, deal 6 extra damage and your next hand has 1 extra piece.",
+  "effect": "Trip: the creature skips its next turn. If it is linked to a Trick, deal 8 extra damage and your next hand has 1 extra piece.",
   "knob": "b",
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
   "slug": "ea-snow-straw-boots",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "EA",
@@ -3814,8 +3814,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "ea-bamboo-aframe",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3831,14 +3831,14 @@
   "type": "item",
   "v": 6,
   "code": "r3>mend",
-  "effect": "From round 3 on, heal 2 at the start of each of your next 2 turns.",
+  "effect": "From round 3 on, heal 3 at the start of each of your next 2 turns.",
   "knob": "m",
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
   "slug": "ea-forager-basket",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3852,7 +3852,7 @@
   "artDesc": "A big square of dotted shibori-dyed cloth wrapped round a load, two knot ears on top, worn on cords.",
   "piece": "Knot Bundle Pluck",
   "type": "trick",
-  "v": 5,
+  "v": 6,
   "code": "pair>pluck",
   "effect": "If a piece of its own type is linked to it, small chance to lift an item from the creature.",
   "knob": "c",
@@ -3860,8 +3860,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "ea-cloth-bundle",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -3877,14 +3877,14 @@
   "type": "heal",
   "v": 5,
   "code": "linkC>mend",
-  "effect": "If it is linked to a Charm, heal 2 at the start of each of your next 2 turns.",
+  "effect": "If it is linked to a Charm, heal 4 at the start of each of your next 2 turns.",
   "knob": "b",
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
   "slug": "ea-tea-chest",
-  "a": 2,
-  "b": 5
+  "a": 4,
+  "b": 7
  },
  {
   "region": "EA",
@@ -3900,14 +3900,14 @@
   "type": "heal",
   "v": 7,
   "code": "R:EA:backpack",
-  "effect": "Heal 6. Each other Heal or Item in its chain heals 3 more.",
+  "effect": "Heal 8. Each other Heal or Item in its chain heals 4 more.",
   "knob": "m",
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
   "slug": "ea-quilted-satchel",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "EA",
@@ -3923,14 +3923,14 @@
   "type": "guard",
   "v": 5,
   "code": "foeB3>ward",
-  "effect": "If the creature has 3 or more pieces on the board, the next Guard you place gets +4.",
+  "effect": "If the creature has 3 or more pieces on the board, the next Guard you place gets +7.",
   "knob": "m",
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
   "slug": "ea-indigo-jacket",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -3946,14 +3946,14 @@
   "type": "guard",
   "v": 5,
   "code": "linkH>thorns",
-  "effect": "If it is linked to a Hurt, each hit this guard blocks adds 2 to the bar.",
+  "effect": "If it is linked to a Hurt, each hit this guard blocks adds 3 to the bar.",
   "knob": "c",
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
   "slug": "ea-padded-vest",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -3969,14 +3969,14 @@
   "type": "guard",
   "v": 6,
   "code": "hpFull>heal",
-  "effect": "If you are at full health, heal 5.",
+  "effect": "If you are at full health, heal 7.",
   "knob": "b",
   "petals": 9600,
   "tailor": 2,
   "energy": 5,
   "slug": "ea-spring-wrap",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -3998,8 +3998,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "ea-fleece-jacket",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -4015,14 +4015,14 @@
   "type": "guard",
   "v": 8,
   "code": "R:EA:coat",
-  "effect": "Gain 6 guard. The first hit it blocks each round also heals you 3.",
+  "effect": "Gain 8 guard. The first hit it blocks each round also heals you 4.",
   "knob": "c",
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
   "slug": "ea-ramie-jacket",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "EA",
@@ -4038,14 +4038,14 @@
   "type": "charm",
   "v": 5,
   "code": "linkH>charm",
-  "effect": "If it is linked to a Hurt, add 4 Charm.",
+  "effect": "If it is linked to a Hurt, add 6 Charm.",
   "knob": "c",
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
   "slug": "ea-straw-rain-cape",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -4061,14 +4061,14 @@
   "type": "soothe",
   "v": 3,
   "code": "hit>soothe",
-  "effect": "If the creature hit you last turn, cut the creature's hits by 2 this round.",
+  "effect": "If the creature hit you last turn, cut the creature's hits by 3 this round.",
   "knob": "b",
   "petals": 3600,
   "tailor": 1,
   "energy": 4,
   "slug": "ea-plum-snow-hood",
-  "a": 2,
-  "b": 4
+  "a": 3,
+  "b": 6
  },
  {
   "region": "EA",
@@ -4090,8 +4090,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "ea-maple-shawl",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -4105,7 +4105,7 @@
   "artDesc": "A thick square felt poncho, oatmeal grey, with a stitched rust border band and a neck slit.",
   "piece": "Herder's Pluck",
   "type": "trick",
-  "v": 5,
+  "v": 6,
   "code": "foeB0>hand",
   "effect": "If the creature has no pieces on the board, your next hand has 1 extra piece.",
   "knob": "c",
@@ -4113,8 +4113,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "ea-felt-poncho",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "EA",
@@ -4130,14 +4130,14 @@
   "type": "charm",
   "v": 8,
   "code": "R:EA:cloak",
-  "effect": "Add 6 Charm. The next two Charm pieces you place this fight add 3 more each.",
+  "effect": "Add 8 Charm. The next two Charm pieces you place this fight add 4 more each.",
   "knob": "b",
   "petals": 24000,
   "tailor": 3,
   "energy": 6,
   "slug": "ea-blossom-capelet",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "CSA",
@@ -4153,14 +4153,14 @@
   "type": "hurt",
   "v": 6,
   "code": "linkT>dmg",
-  "effect": "If it is linked to a Trick, deal 5 extra damage.",
+  "effect": "If it is linked to a Trick, deal 7 extra damage.",
   "knob": "b",
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
   "slug": "csa-curl-toe-slippers",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4176,14 +4176,14 @@
   "type": "guard",
   "v": 6,
   "code": "edge>life",
-  "effect": "If it sits on the edge of the board, it stays 2 more round(s) on the board.",
+  "effect": "If it sits on the edge of the board, it stays 3 more round(s) on the board.",
   "knob": "m",
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
   "slug": "csa-felted-snow-boots",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4205,8 +4205,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "csa-toe-ring-sandals",
-  "a": 2,
-  "b": 6
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4228,8 +4228,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "csa-stilt-clogs",
-  "a": 2,
-  "b": 6
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4245,14 +4245,14 @@
   "type": "guard",
   "v": 9,
   "code": "R:CSA:footwear",
-  "effect": "Gain 7 guard; the creature's next Hurt misses and the missed Hurt adds 3 to the bar.",
+  "effect": "Gain 8 guard; the creature's next Hurt misses and the missed Hurt adds 4 to the bar.",
   "knob": "m",
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
   "slug": "csa-wrapped-hide-boots",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 8
  },
  {
   "region": "CSA",
@@ -4268,14 +4268,14 @@
   "type": "item",
   "v": 7,
   "code": "linkT>heal",
-  "effect": "If it is linked to a Trick, heal 5.",
+  "effect": "If it is linked to a Trick, heal 7.",
   "knob": "m",
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
   "slug": "csa-chili-cone-basket",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4291,14 +4291,14 @@
   "type": "trick",
   "v": 5,
   "code": "combo3>boost",
-  "effect": "If its chain has 3 or more pieces, the piece it links to gets +2.",
+  "effect": "If its chain has 3 or more pieces, the piece it links to gets +3.",
   "knob": "c",
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
   "slug": "csa-ikat-saddle-satchel",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4312,7 +4312,7 @@
   "artDesc": "A-shaped wooden carrying frame with a hammered copper pot and a rolled striped rug lashed on with rope.",
   "piece": "Porter Haul",
   "type": "item",
-  "v": 8,
+  "v": 9,
   "code": "linkC>hand",
   "effect": "If it is linked to a Charm, your next hand has 1 extra piece.",
   "knob": "b",
@@ -4320,8 +4320,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "csa-porters-frame-pack",
-  "a": 2,
-  "b": 6
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4337,14 +4337,14 @@
   "type": "heal",
   "v": 6,
   "code": "linkEnv>heal",
-  "effect": "If an environment piece is in its chain, heal 6.",
+  "effect": "If an environment piece is in its chain, heal 7.",
   "knob": "m",
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
   "slug": "csa-block-print-bundle",
-  "a": 2,
-  "b": 6
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4360,14 +4360,14 @@
   "type": "heal",
   "v": 8,
   "code": "R:CSA:backpack",
-  "effect": "Heal 7 now and 3 at the start of each of your next 3 turns.",
+  "effect": "Heal 8 now and 4 at the start of each of your next 3 turns.",
   "knob": "c",
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
   "slug": "csa-stacked-tin-pack",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 8
  },
  {
   "region": "CSA",
@@ -4383,14 +4383,14 @@
   "type": "guard",
   "v": 6,
   "code": "g2>shrink",
-  "effect": "If you have played 2 or more Guards this fight, the creature's strongest piece loses 2.",
+  "effect": "If you have played 2 or more Guards this fight, the creature's strongest piece loses 3.",
   "knob": "c",
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
   "slug": "csa-ikat-robe-coat",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4406,14 +4406,14 @@
   "type": "guard",
   "v": 6,
   "code": "mid4>thorns",
-  "effect": "If it sits in one of the four inner cells, each hit this guard blocks adds 2 to the bar.",
+  "effect": "If it sits in one of the four inner cells, each hit this guard blocks adds 3 to the bar.",
   "knob": "b",
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
   "slug": "csa-kantha-patch-vest",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4429,14 +4429,14 @@
   "type": "guard",
   "v": 7,
   "code": "lastRound>mend",
-  "effect": "In its last round on the board, heal 2 at the start of each of your next 2 turns.",
+  "effect": "In its last round on the board, heal 4 at the start of each of your next 2 turns.",
   "knob": "m",
   "petals": 10400,
   "tailor": 2,
   "energy": 5,
   "slug": "csa-fleece-collar-jacket",
-  "a": 2,
-  "b": 6
+  "a": 4,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4458,8 +4458,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "csa-mirror-work-smock",
-  "a": 2,
-  "b": 6
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4475,14 +4475,14 @@
   "type": "guard",
   "v": 9,
   "code": "R:CSA:coat",
-  "effect": "Keeper. Gain 7 guard and heal 3 for each piece left in your hand.",
+  "effect": "Keeper. Gain 8 guard and heal 4 for each piece left in your hand.",
   "knob": "b",
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
   "slug": "csa-turmeric-wrap-coat",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 8
  },
  {
   "region": "CSA",
@@ -4498,14 +4498,14 @@
   "type": "charm",
   "v": 6,
   "code": "linkH>soothe",
-  "effect": "If it is linked to a Hurt, cut the creature's hits by 2 this round.",
+  "effect": "If it is linked to a Hurt, cut the creature's hits by 3 this round.",
   "knob": "b",
   "petals": 3900,
   "tailor": 1,
   "energy": 4,
   "slug": "csa-palm-leaf-rain-hood",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4527,8 +4527,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "csa-fine-wool-shawl",
-  "a": 2,
-  "b": 5
+  "a": 3,
+  "b": 6
  },
  {
   "region": "CSA",
@@ -4550,8 +4550,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "csa-felt-shepherd-cape",
-  "a": 2,
-  "b": 6
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4573,8 +4573,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "csa-striped-yak-poncho",
-  "a": 2,
-  "b": 6
+  "a": 3,
+  "b": 7
  },
  {
   "region": "CSA",
@@ -4590,14 +4590,14 @@
   "type": "charm",
   "v": 9,
   "code": "R:CSA:cloak",
-  "effect": "Add 7 Charm. If the creature has guard up, its guard drops by 7.",
+  "effect": "Add 8 Charm. If the creature has guard up, its guard drops by 8.",
   "knob": "m",
   "petals": 26000,
   "tailor": 3,
   "energy": 6,
   "slug": "csa-indigo-dot-cloak",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 8
  },
  {
   "region": "SEA",
@@ -4613,14 +4613,14 @@
   "type": "hurt",
   "v": 6,
   "code": "mid4>dmg",
-  "effect": "If it sits in one of the four inner cells, deal 5 extra damage.",
+  "effect": "If it sits in one of the four inner cells, deal 7 extra damage.",
   "knob": "m",
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
   "slug": "sea-paddy-stilt-clogs",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4643,7 +4643,7 @@
   "energy": 4,
   "slug": "sea-pandan-sandals",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4659,14 +4659,14 @@
   "type": "guard",
   "v": 7,
   "code": "noHurt>heal",
-  "effect": "If you played no Hurt last turn, heal 6.",
+  "effect": "If you played no Hurt last turn, heal 8.",
   "knob": "b",
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
   "slug": "sea-ikat-leech-wraps",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "SEA",
@@ -4689,7 +4689,7 @@
   "energy": 5,
   "slug": "sea-rattan-trail-boot",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "SEA",
@@ -4712,7 +4712,7 @@
   "energy": 6,
   "slug": "sea-mudflat-paddles",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "SEA",
@@ -4726,7 +4726,7 @@
   "artDesc": "Tall flaring basket of woven cane with a wrapped rim and leather shoulder loops; open top for harvests.",
   "piece": "Rattan Back Basket",
   "type": "item",
-  "v": 7,
+  "v": 8,
   "code": "linkT>plenty",
   "effect": "If it is linked to a Trick, next round you pick from 6 pieces.",
   "knob": "c",
@@ -4735,7 +4735,7 @@
   "energy": 4,
   "slug": "sea-rattan-back-basket",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4749,7 +4749,7 @@
   "artDesc": "Two knotted bamboo poles with crossbars, a rolled pandan mat and an indigo sack lashed on with cord.",
   "piece": "Ladder Pack Rummage",
   "type": "trick",
-  "v": 5,
+  "v": 6,
   "code": "linkT>hand",
   "effect": "If it is linked to a Trick, your next hand has 1 extra piece.",
   "knob": "b",
@@ -4758,7 +4758,7 @@
   "energy": 4,
   "slug": "sea-bamboo-ladder-pack",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4781,7 +4781,7 @@
   "energy": 5,
   "slug": "sea-batik-bundle",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "SEA",
@@ -4797,14 +4797,14 @@
   "type": "item",
   "v": 8,
   "code": "linkS>heal",
-  "effect": "If it is linked to a Soothe, heal 6.",
+  "effect": "If it is linked to a Soothe, heal 9.",
   "knob": "c",
   "petals": 11200,
   "tailor": 2,
   "energy": 5,
   "slug": "sea-nipa-thatch-pack",
   "a": 3,
-  "b": 6
+  "b": 9
  },
  {
   "region": "SEA",
@@ -4820,14 +4820,14 @@
   "type": "heal",
   "v": 8,
   "code": "R:SEA:backpack",
-  "effect": "Heal 7. Next round pick from 6 pieces, or from 7 if you placed a Heal last round.",
+  "effect": "Heal 9. Next round pick from 6 pieces, or from 7 if you placed a Heal last round.",
   "knob": "b",
   "petals": 28000,
   "tailor": 3,
   "energy": 6,
   "slug": "sea-water-jar-pack",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "SEA",
@@ -4843,14 +4843,14 @@
   "type": "guard",
   "v": 6,
   "code": "h2>guard",
-  "effect": "If you have played 2 or more Hurts this fight, gain 5 guard.",
+  "effect": "If you have played 2 or more Hurts this fight, gain 7 guard.",
   "knob": "b",
   "petals": 4200,
   "tailor": 1,
   "energy": 4,
   "slug": "sea-indigo-batik-smock",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4864,7 +4864,7 @@
   "artDesc": "Sleeveless open vest plaited of two-tone palm-leaf strips with dark bound edges and two pockets.",
   "piece": "Pandan Vest Thorn",
   "type": "guard",
-  "v": 6,
+  "v": 7,
   "code": "linkC>life",
   "effect": "If it is linked to a Charm, it stays 3 more round(s) on the board.",
   "knob": "m",
@@ -4873,7 +4873,7 @@
   "energy": 4,
   "slug": "sea-pandan-weave-vest",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4896,7 +4896,7 @@
   "energy": 5,
   "slug": "sea-ikat-wrap-jacket",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "SEA",
@@ -4919,7 +4919,7 @@
   "energy": 5,
   "slug": "sea-kapok-puffer",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "SEA",
@@ -4935,14 +4935,14 @@
   "type": "guard",
   "v": 9,
   "code": "R:SEA:coat",
-  "effect": "Gain 7 guard; the creature's next Hurt misses. If the creature has no pieces on the board, its next piece loses 4.",
+  "effect": "Gain 9 guard; the creature's next Hurt misses. If the creature has no pieces on the board, its next piece loses 4.",
   "knob": "m",
   "petals": 28000,
   "tailor": 3,
   "energy": 6,
   "slug": "sea-mangrove-oilcloth",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "SEA",
@@ -4965,7 +4965,7 @@
   "energy": 4,
   "slug": "sea-palm-frond-rain-cape",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -4988,7 +4988,7 @@
   "energy": 4,
   "slug": "sea-banana-leaf-hood",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "SEA",
@@ -5011,7 +5011,7 @@
   "energy": 5,
   "slug": "sea-batik-shawl",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "SEA",
@@ -5034,7 +5034,7 @@
   "energy": 5,
   "slug": "sea-net-veil-mantle",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "SEA",
@@ -5050,14 +5050,14 @@
   "type": "charm",
   "v": 9,
   "code": "R:SEA:cloak",
-  "effect": "Add 7 Charm. The creature's next two Hurts do half damage.",
+  "effect": "Add 9 Charm. The creature's next two Hurts do half damage.",
   "knob": "c",
   "petals": 28000,
   "tailor": 3,
   "energy": 6,
   "slug": "sea-monsoon-poncho",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "WCA",
@@ -5080,7 +5080,7 @@
   "energy": 4,
   "slug": "wca-palm-sole-sandals",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "WCA",
@@ -5103,7 +5103,7 @@
   "energy": 4,
   "slug": "wca-mudwader-wraps",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "WCA",
@@ -5119,14 +5119,14 @@
   "type": "hurt",
   "v": 7,
   "code": "g2>dmg",
-  "effect": "If you have played 2 or more Guards this fight, deal 6 extra damage.",
+  "effect": "If you have played 2 or more Guards this fight, deal 8 extra damage.",
   "knob": "m",
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
   "slug": "wca-rainroot-clogs",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5149,7 +5149,7 @@
   "energy": 5,
   "slug": "wca-ochre-trail-boots",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5165,14 +5165,14 @@
   "type": "hurt",
   "v": 9,
   "code": "R:WCA:footwear",
-  "effect": "Deal 7 extra damage. If it is linked to another Hurt (Double Swing), that Hurt gets +4 more.",
+  "effect": "Deal 9 extra damage. If it is linked to another Hurt (Double Swing), that Hurt gets +4 more.",
   "knob": "b",
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
   "slug": "wca-plantain-slippers",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "WCA",
@@ -5195,7 +5195,7 @@
   "energy": 4,
   "slug": "wca-calabash-pack",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "WCA",
@@ -5211,14 +5211,14 @@
   "type": "item",
   "v": 7,
   "code": "lastRound>heal",
-  "effect": "In its last round on the board, heal 5.",
+  "effect": "In its last round on the board, heal 8.",
   "knob": "m",
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
   "slug": "wca-raffia-cone-basket",
   "a": 3,
-  "b": 5
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5241,7 +5241,7 @@
   "energy": 5,
   "slug": "wca-indigo-bundle",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5264,7 +5264,7 @@
   "energy": 5,
   "slug": "wca-tooled-satchel",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5280,14 +5280,14 @@
   "type": "heal",
   "v": 8,
   "code": "R:WCA:backpack",
-  "effect": "Heal 7 now and 4 at the start of each of your next 2 turns. Your next hand has 1 extra piece.",
+  "effect": "Heal 9 now and 4 at the start of each of your next 2 turns. Your next hand has 1 extra piece.",
   "knob": "m",
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
   "slug": "wca-bamboo-frame-pack",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "WCA",
@@ -5310,7 +5310,7 @@
   "energy": 4,
   "slug": "wca-strip-weave-smock",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "WCA",
@@ -5333,7 +5333,7 @@
   "energy": 4,
   "slug": "wca-mudcloth-vest",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "WCA",
@@ -5356,7 +5356,7 @@
   "energy": 5,
   "slug": "wca-raffia-rain-coat",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5372,14 +5372,14 @@
   "type": "guard",
   "v": 7,
   "code": "poisoned>guard",
-  "effect": "If you are poisoned, gain 6 guard.",
+  "effect": "If you are poisoned, gain 8 guard.",
   "knob": "m",
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
   "slug": "wca-adire-jacket",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5395,14 +5395,14 @@
   "type": "guard",
   "v": 9,
   "code": "R:WCA:coat",
-  "effect": "Keeper. Gain 7 guard, +4 for each round it stayed in your hand.",
+  "effect": "Keeper. Gain 9 guard, +4 for each round it stayed in your hand.",
   "knob": "c",
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
   "slug": "wca-kapok-jerkin",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "WCA",
@@ -5418,14 +5418,14 @@
   "type": "charm",
   "v": 6,
   "code": "hit>charm",
-  "effect": "If the creature hit you last turn, add 5 Charm.",
+  "effect": "If the creature hit you last turn, add 7 Charm.",
   "knob": "c",
   "petals": 4500,
   "tailor": 1,
   "energy": 4,
   "slug": "wca-plantain-leaf-cape",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "WCA",
@@ -5448,7 +5448,7 @@
   "energy": 4,
   "slug": "wca-strip-weave-shawl",
   "a": 3,
-  "b": 5
+  "b": 7
  },
  {
   "region": "WCA",
@@ -5464,14 +5464,14 @@
   "type": "soothe",
   "v": 5,
   "code": "foeB0>soothe",
-  "effect": "If the creature has no pieces on the board, cut the creature's hits by 3 this round.",
+  "effect": "If the creature has no pieces on the board, cut the creature's hits by 4 this round.",
   "knob": "m",
   "petals": 12000,
   "tailor": 2,
   "energy": 5,
   "slug": "wca-indigo-hood-mantle",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5485,7 +5485,7 @@
   "artDesc": "Square straw poncho with dyed red bands and a long fringe hem.",
   "piece": "Raffia Poncho Lull",
   "type": "charm",
-  "v": 7,
+  "v": 8,
   "code": "linkC>skip",
   "effect": "If it is linked to a Charm, the creature skips its next turn.",
   "knob": "c",
@@ -5494,7 +5494,7 @@
   "energy": 5,
   "slug": "wca-raffia-poncho",
   "a": 3,
-  "b": 6
+  "b": 8
  },
  {
   "region": "WCA",
@@ -5510,14 +5510,14 @@
   "type": "guard",
   "v": 9,
   "code": "R:WCA:cloak",
-  "effect": "Gain 7 guard, +4 for each Charm in its chain.",
+  "effect": "Gain 9 guard, +4 for each Charm in its chain.",
   "knob": "b",
   "petals": 30000,
   "tailor": 3,
   "energy": 6,
   "slug": "wca-scaleleaf-mantle",
   "a": 4,
-  "b": 7
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5539,8 +5539,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "esa-acacia-sandals",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5562,8 +5562,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "esa-highland-trek-boots",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5585,8 +5585,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "esa-sisal-slippers",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5602,14 +5602,14 @@
   "type": "hurt",
   "v": 8,
   "code": "yHalf>dmg",
-  "effect": "If its Yield bar is past half, deal 7 extra damage.",
+  "effect": "If its Yield bar is past half, deal 9 extra damage.",
   "knob": "b",
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
   "slug": "esa-stripe-gaiters",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5625,14 +5625,14 @@
   "type": "hurt",
   "v": 10,
   "code": "R:ESA:footwear",
-  "effect": "Deal 8 extra damage for each piece in its chain and remove the creature's weakest piece from the board.",
+  "effect": "Deal 10 extra damage for each piece in its chain and remove the creature's weakest piece from the board.",
   "knob": "m",
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
   "slug": "esa-baobab-clogs",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 10
  },
  {
   "region": "ESA",
@@ -5648,14 +5648,14 @@
   "type": "item",
   "v": 8,
   "code": "combo3>heal",
-  "effect": "If its chain has 3 or more pieces, heal 6.",
+  "effect": "If its chain has 3 or more pieces, heal 8.",
   "knob": "m",
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
   "slug": "esa-coiled-basket-pack",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5671,14 +5671,14 @@
   "type": "heal",
   "v": 6,
   "code": "linkHeal>heal",
-  "effect": "If it is linked to a Heal or Item, heal 6.",
+  "effect": "If it is linked to a Heal or Item, heal 9.",
   "knob": "c",
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
   "slug": "esa-calabash-carrier",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5694,14 +5694,14 @@
   "type": "item",
   "v": 9,
   "code": "pair>heal",
-  "effect": "If a piece of its own type is linked to it, heal 7.",
+  "effect": "If a piece of its own type is linked to it, heal 10.",
   "knob": "b",
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
   "slug": "esa-grain-sack-pack",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "ESA",
@@ -5717,14 +5717,14 @@
   "type": "trick",
   "v": 7,
   "code": "yHalf>boost",
-  "effect": "If its Yield bar is past half, the piece it links to gets +3.",
+  "effect": "If its Yield bar is past half, the piece it links to gets +4.",
   "knob": "m",
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
   "slug": "esa-acacia-frame-pack",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5740,14 +5740,14 @@
   "type": "heal",
   "v": 9,
   "code": "R:ESA:backpack",
-  "effect": "Heal 8 and next round pick from 6 pieces; each Hurt you place that round gets +4.",
+  "effect": "Heal 10 and next round pick from 6 pieces; each Hurt you place that round gets +5.",
   "knob": "c",
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
   "slug": "esa-herders-satchel",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 10
  },
  {
   "region": "ESA",
@@ -5763,14 +5763,14 @@
   "type": "guard",
   "v": 7,
   "code": "linkG>thorns",
-  "effect": "If it is linked to a Guard, each hit this guard blocks adds 3 to the bar.",
+  "effect": "If it is linked to a Guard, each hit this guard blocks adds 4 to the bar.",
   "knob": "c",
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
   "slug": "esa-barkcloth-smock",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5786,14 +5786,14 @@
   "type": "guard",
   "v": 7,
   "code": "foeB0>ward",
-  "effect": "If the creature has no pieces on the board, the next Guard you place gets +6.",
+  "effect": "If the creature has no pieces on the board, the next Guard you place gets +9.",
   "knob": "b",
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
   "slug": "esa-stripe-weave-vest",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5809,14 +5809,14 @@
   "type": "guard",
   "v": 8,
   "code": "noDmg>mend",
-  "effect": "If you took no damage last turn, heal 3 at the start of each of your next 2 turns.",
+  "effect": "If you took no damage last turn, heal 4 at the start of each of your next 2 turns.",
   "knob": "m",
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
   "slug": "esa-highland-wool-coat",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5832,14 +5832,14 @@
   "type": "guard",
   "v": 8,
   "code": "aimNext>shrink",
-  "effect": "If it sits next to the creature's aim cell, the creature's strongest piece loses 3.",
+  "effect": "If it sits next to the creature's aim cell, the creature's strongest piece loses 4.",
   "knob": "c",
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
   "slug": "esa-savanna-field-jacket",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5855,14 +5855,14 @@
   "type": "guard",
   "v": 10,
   "code": "R:ESA:coat",
-  "effect": "Gain 8 guard, +4 for each other piece type in its chain.",
+  "effect": "Gain 10 guard, +5 for each other piece type in its chain.",
   "knob": "b",
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
   "slug": "esa-beaded-tunic-coat",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 10
  },
  {
   "region": "ESA",
@@ -5878,14 +5878,14 @@
   "type": "charm",
   "v": 7,
   "code": "linkC>soothe",
-  "effect": "If it is linked to a Charm, cut the creature's hits by 3 this round.",
+  "effect": "If it is linked to a Charm, cut the creature's hits by 5 this round.",
   "knob": "b",
   "petals": 4800,
   "tailor": 1,
   "energy": 4,
   "slug": "esa-check-blanket-wrap",
-  "a": 3,
-  "b": 6
+  "a": 5,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5899,7 +5899,7 @@
   "artDesc": "A thick cream cotton shawl, folded, with a coloured woven border and tasselled ends.",
   "piece": "Highland Shawl Bond",
   "type": "charm",
-  "v": 7,
+  "v": 8,
   "code": "r1>bond",
   "effect": "In the first round of the fight, your Charm counts 10% more for the rest of the fight.",
   "knob": "m",
@@ -5907,8 +5907,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "esa-highland-shawl",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 8
  },
  {
   "region": "ESA",
@@ -5924,14 +5924,14 @@
   "type": "soothe",
   "v": 6,
   "code": "lastRound>shrink",
-  "effect": "In its last round on the board, the creature's strongest piece loses 3.",
+  "effect": "In its last round on the board, the creature's strongest piece loses 5.",
   "knob": "c",
   "petals": 12800,
   "tailor": 2,
   "energy": 5,
   "slug": "esa-banana-leaf-rain-cape",
-  "a": 3,
-  "b": 7
+  "a": 5,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5953,8 +5953,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "esa-dust-mantle",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 9
  },
  {
   "region": "ESA",
@@ -5970,14 +5970,14 @@
   "type": "trick",
   "v": 9,
   "code": "R:ESA:cloak",
-  "effect": "The piece it links to gets +4. If that piece is a Charm, it adds 8 more.",
+  "effect": "The piece it links to gets +5. If that piece is a Charm, it adds 10 more.",
   "knob": "m",
   "petals": 32000,
   "tailor": 3,
   "energy": 6,
   "slug": "esa-indigo-dot-shawl",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 10
  },
  {
   "region": "OC",
@@ -5991,7 +5991,7 @@
   "artDesc": "Flat woven pandanus soles with a coir toe-thong and ankle tie, shown as a pair from above.",
   "piece": "Reef Skip",
   "type": "guard",
-  "v": 7,
+  "v": 8,
   "code": "linkS>hand",
   "effect": "If it is linked to a Soothe, your next hand has 1 extra piece.",
   "knob": "m",
@@ -5999,8 +5999,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "oc-reef-sandals",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6022,8 +6022,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "oc-gully-fleece-boot",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6037,7 +6037,7 @@
   "artDesc": "A pair of chestnut leather ankle boots with green elastic side panels, pull tabs and a stacked heel.",
   "piece": "Drover Pierce",
   "type": "hurt",
-  "v": 8,
+  "v": 9,
   "code": "linkT>pierce",
   "effect": "If it is linked to a Trick, it ignores the creature's guard.",
   "knob": "b",
@@ -6045,8 +6045,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "oc-drovers-pull-ons",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6060,7 +6060,7 @@
   "artDesc": "Bulky foot-and-ankle wraps of plaited flax strips, crossed ties up the shin, for wading rock pools.",
   "piece": "Flax Wade Trip",
   "type": "hurt",
-  "v": 8,
+  "v": 9,
   "code": "foeB3>skip",
   "effect": "If the creature has 3 or more pieces on the board, the creature skips its next turn.",
   "knob": "m",
@@ -6068,8 +6068,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "oc-flax-wading-wraps",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6085,14 +6085,14 @@
   "type": "hurt",
   "v": 10,
   "code": "R:OC:footwear",
-  "effect": "Deal 8 extra damage. If its Yield bar is past half, the creature also skips its next turn.",
+  "effect": "Deal 11 extra damage. If its Yield bar is past half, the creature also skips its next turn.",
   "knob": "c",
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
   "slug": "oc-mangrove-clog",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 11
  },
  {
   "region": "OC",
@@ -6106,7 +6106,7 @@
   "artDesc": "A wide woven flax basket with checkerboard plait, two handle loops and a cord shoulder sling.",
   "piece": "Flax Plenty",
   "type": "item",
-  "v": 8,
+  "v": 9,
   "code": "linkC>plenty",
   "effect": "If it is linked to a Charm, next round you pick from 6 pieces.",
   "knob": "c",
@@ -6114,8 +6114,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "oc-flax-basket-pack",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6131,14 +6131,14 @@
   "type": "item",
   "v": 8,
   "code": "linkFoe>heal",
-  "effect": "If a creature piece is in its chain, heal 6.",
+  "effect": "If a creature piece is in its chain, heal 9.",
   "knob": "b",
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
   "slug": "oc-coconut-string-bag",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6160,8 +6160,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "oc-bushmans-swag",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6177,14 +6177,14 @@
   "type": "heal",
   "v": 7,
   "code": "corner>mend",
-  "effect": "If it sits in a corner, heal 3 at the start of each of your next 2 turns.",
+  "effect": "If it sits in a corner, heal 4 at the start of each of your next 2 turns.",
   "knob": "c",
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
   "slug": "oc-bamboo-frame-pack",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6200,14 +6200,14 @@
   "type": "heal",
   "v": 9,
   "code": "R:OC:backpack",
-  "effect": "Heal 8. Next round pick from 6 pieces, and at the end of that round your strongest unplayed piece stays in your hand.",
+  "effect": "Heal 11. Next round pick from 6 pieces, and at the end of that round your strongest unplayed piece stays in your hand.",
   "knob": "b",
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
   "slug": "oc-pouch-pack",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 11
  },
  {
   "region": "OC",
@@ -6223,14 +6223,14 @@
   "type": "guard",
   "v": 7,
   "code": "linkT>thorns",
-  "effect": "If it is linked to a Trick, each hit this guard blocks adds 3 to the bar.",
+  "effect": "If it is linked to a Trick, each hit this guard blocks adds 5 to the bar.",
   "knob": "b",
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
   "slug": "oc-drovers-oilskin",
-  "a": 3,
-  "b": 6
+  "a": 5,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6246,14 +6246,14 @@
   "type": "guard",
   "v": 7,
   "code": "linkG>ward",
-  "effect": "If it is linked to a Guard, the next Guard you place gets +6.",
+  "effect": "If it is linked to a Guard, the next Guard you place gets +9.",
   "knob": "m",
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
   "slug": "oc-bush-check-smock",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6269,14 +6269,14 @@
   "type": "guard",
   "v": 8,
   "code": "linkT>mend",
-  "effect": "If it is linked to a Trick, heal 3 at the start of each of your next 2 turns.",
+  "effect": "If it is linked to a Trick, heal 5 at the start of each of your next 2 turns.",
   "knob": "c",
   "petals": 13600,
   "tailor": 2,
   "energy": 5,
   "slug": "oc-bark-cloth-vest",
-  "a": 3,
-  "b": 7
+  "a": 5,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6290,7 +6290,7 @@
   "artDesc": "A short quilted sea-blue jerkin of sail cloth, rope-edged collar, toggles of knotted rope.",
   "piece": "Sail Jerkin Slip",
   "type": "guard",
-  "v": 8,
+  "v": 9,
   "code": "lastRound>evade",
   "effect": "In its last round on the board, the creature's next Hurt misses.",
   "knob": "b",
@@ -6298,8 +6298,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "oc-reef-sail-cloth-jerkin",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6315,14 +6315,14 @@
   "type": "guard",
   "v": 10,
   "code": "R:OC:coat",
-  "effect": "Keeper. Gain 8 guard; after two rounds in your hand it also stays up one more turn and each hit it blocks adds 4 to the bar.",
+  "effect": "Keeper. Gain 11 guard; after two rounds in your hand it also stays up one more turn and each hit it blocks adds 5 to the bar.",
   "knob": "m",
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
   "slug": "oc-gum-dyed-cardigan",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 11
  },
  {
   "region": "OC",
@@ -6338,14 +6338,14 @@
   "type": "charm",
   "v": 7,
   "code": "linkT>soothe",
-  "effect": "If it is linked to a Trick, cut the creature's hits by 3 this round.",
+  "effect": "If it is linked to a Trick, cut the creature's hits by 5 this round.",
   "knob": "m",
   "petals": 5100,
   "tailor": 1,
   "energy": 4,
   "slug": "oc-frond-rain-cape",
-  "a": 3,
-  "b": 6
+  "a": 5,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6367,8 +6367,8 @@
   "tailor": 1,
   "energy": 4,
   "slug": "oc-fleece-mantle",
-  "a": 3,
-  "b": 6
+  "a": 4,
+  "b": 9
  },
  {
   "region": "OC",
@@ -6390,8 +6390,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "oc-hibiscus-pareo",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6413,8 +6413,8 @@
   "tailor": 2,
   "energy": 5,
   "slug": "oc-red-dust-poncho",
-  "a": 3,
-  "b": 7
+  "a": 4,
+  "b": 10
  },
  {
   "region": "OC",
@@ -6430,13 +6430,13 @@
   "type": "trick",
   "v": 9,
   "code": "R:OC:cloak",
-  "effect": "Pluck, sure to work. The creature's strongest piece loses 8 and your next hand has 1 extra piece.",
+  "effect": "Pluck, sure to work. The creature's strongest piece loses 11 and your next hand has 1 extra piece.",
   "knob": "c",
   "petals": 34000,
   "tailor": 3,
   "energy": 6,
   "slug": "oc-storm-petrel-hood",
-  "a": 4,
-  "b": 8
+  "a": 5,
+  "b": 11
  }
 ]
