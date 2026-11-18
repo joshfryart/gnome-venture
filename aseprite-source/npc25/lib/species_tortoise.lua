@@ -211,7 +211,6 @@ function S.draw_figure(img, view, frame, species)
     local farS = {hi = SK.shade, base = SK.shade, shade = SK.deep}
     -- far legs (shade), opposite phase
     leg(38 + o.armR, 6, 59 + b, fR, farS, 1)
-    leg(21 + o.armL, 6, 59 + b, fL, farS, 1)
     -- shell profile: carried ON THE BACK. A tall dome hugging the spine from above the shoulders down past the hips; the torso is drawn over its front half
     E(12, 25 + b, 28, 38, SH.deep)
     E(12, 25 + b, 28, 34, SH.shade)
@@ -266,7 +265,6 @@ function S.draw_figure(img, view, frame, species)
     R(ax - 1, 40 + b, 1, 12, K)
     -- near legs: front = L, rear = R (stride from arm swing)
     leg(34 + o.armL, 7, 58 + b, fL, SK, 1)
-    leg(17 + o.armR, 7, 58 + b, fR, SK, 1)
     -- hat profile
     E(30, 15 + hd, 24, 6, HAT)
     R(32, 17 + hd, 21, 1, HATHI)
