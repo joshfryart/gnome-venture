@@ -16,7 +16,7 @@ for r in ORDER:
     cards.append(f'<section id="{r}" data-r="{r}"><h2>{NAME[r]} <span>{r} &middot; region level {LEVEL[r]}</span></h2><div class="grid">')
     for x in [y for y in IT if y['region']==r]:
         ch=''; md=''
-        cards.append(f'''<article data-c="{x['cat']}" class="rar-{x['rarity'].lower()}"><div class="pics"><img class="ic" src="{b64(icon(x))}" alt="{html.escape(x['item'])}" width="64" height="64"><img class="pc" src="{b64(f"img/piece-{r}-{x['cat']}-{x['n']}.png")}" alt="" width="148" height="104"></div>
+        cards.append(f'''<article data-c="{x['cat']}" class="rar-{x['rarity'].lower()}"><div class="pics"><img class="ic" src="{b64(icon(x))}" alt="{html.escape(x['item'])}" width="64" height="64"><img class="pc" src="{b64(f"img/piece-{r}-{x['cat']}-{x['n']}.png")}" alt="" width="132" height="92"></div>
 <div class="tx"><p class="it">{html.escape(x['item'])} <i>{x['cat']} &middot; {x['rarity']}</i></p><p class="ds">{html.escape(short(x['artDesc']))}</p>
 <h3>{html.escape(x['piece'])}</h3><p class="ef"><b>{x['type']} {x['v']}</b><br>{html.escape(x['effect'])}</p>
 <p class="co"><span>{x['petals']:,} Petals</span><span>Tailor {x['tailor']}</span><span>{x['energy']} energy</span><span>{FAM[x['knob']]} knob</span></p></div></article>''')
@@ -36,7 +36,7 @@ nav{{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);displ
 nav a,nav button{{font:600 12px Inter;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);text-decoration:none;cursor:pointer}} nav button[aria-pressed="true"]{{background:var(--acc);color:var(--bg);border-color:var(--acc)}} nav .sp{{flex:1}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}}
 article{{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}}
-.pics{{display:flex;flex-direction:column;gap:8px;align-items:center;flex:none}} img{{image-rendering:pixelated;max-width:100%}} .ic{{width:64px;height:64px}} .pc{{width:112px;height:auto}}
+.pics{{display:flex;flex-direction:column;gap:8px;align-items:center;flex:none}} img{{image-rendering:pixelated;max-width:100%}} .ic{{width:64px;height:64px}} .pc{{width:132px;height:auto}}
 .tx{{min-width:0;flex:1}} .tx p{{margin:0 0 4px}} .it{{font-weight:600}} .it i{{font:500 12px Inter;color:var(--mut);margin-left:4px}} .ds{{font-size:12px;color:var(--mut)}}
 h3{{font:700 16px "Space Grotesk",Inter,sans-serif;margin:6px 0 2px;color:var(--acc)}} .ef{{font-size:13px}} .chip{{font:600 11px Inter;padding:1px 6px;border-radius:99px;border:1px solid var(--line);margin:0 4px 0 6px}} .chip.k{{border-style:dashed}}
 .co{{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--mut);margin-top:6px!important}}
