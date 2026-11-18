@@ -1722,6 +1722,7 @@ function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
 function pfb_wx_fire(array &$s, array $cx, bool $placed): array
 {
     $on = [];
+    if (isset($GLOBALS['PFB_WX_PROBE'])) ($GLOBALS['PFB_WX_PROBE'])($s, $cx, $placed);   // TEMP PROBE
     foreach (pfb_wx_clauses((string)$cx['t']['fx']) as $i => $o) {
         if ($o['ph'] === 'hand' || $o['ph'] === 'held' || ($o['ph'] === 'place' && !$placed)) continue;
         if (!pfb_wx_conds($s, $o['c0'], $cx, true)) continue;
