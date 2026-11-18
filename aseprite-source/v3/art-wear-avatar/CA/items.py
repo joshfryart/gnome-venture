@@ -703,9 +703,9 @@ def _mantle(c, g, m, v):
     x0, y0, x1, y1 = m.bbox()
     # asymmetric: knotted high on one shoulder, hem slanting down to a hanging corner
     if v == 'back':
-        cut = M(q for q in m if q[1] > y1 - (q[0] - x0) * 0.45 + 1)
-    elif v == 'front':
         cut = M(q for q in m if q[1] > y1 - (x1 - q[0]) * 0.45 + 1)
+    elif v == 'front':
+        cut = M(q for q in m if q[1] > y1 - (q[0] - x0) * 0.45 + 1)
     else:
         cut = M()
     for q in cut: c.pop(q, None)
@@ -721,9 +721,9 @@ def _mantle(c, g, m, v):
         if q[0] % 4 == 0: c.put(q[0], q[1] + 2, ixtle[1])
     # knot + prickly-pear blossom on the shoulder
     if v == 'back':
-        kx, ky = 41, 48 + b
+        kx, ky = 23, 50 + b
     elif v == 'side':
-        kx, ky = 27, 48 + b
+        kx, ky = 25, 53 + b
     else:
         return
     form(c, ellipse(kx, ky, 1.5, 1.2), ixtle, frac=0.4)
@@ -737,8 +737,9 @@ def _sunhood(c, g, m, v):
         hood = poly([(25, 48 + b), (40, 48 + b), (35, 56 + b), (32.5, 60 + b), (30, 56 + b)])
         form(c, hood, cotton, frac=0.35)
         for q in hood.inner_edge(): c.put(q[0], q[1], cochi[3] if q[1] > 49 + b else cochi[2])
-        for x in range(26, 40):   # red-lined opening along the top
-            if (x, 49 + b) in hood: c.put(x, 49 + b, cochi[1])
+        op = ellipse(32.5, 50.5 + b, 4.5, 2)   # deep red-lined opening of the hood
+        for q in op:
+            if q in hood: c.put(q[0], q[1], cochi[1] if q[1] <= 50 + b else cochi[2])
         # dragonfly resting on the hood
         P(c, [(36, 52 + b), (36, 53 + b), (36, 54 + b), (36, 55 + b)], turq[2]); c.put(36, 51 + b, turq[4])
         P(c, [(35, 52 + b), (37, 52 + b), (34, 53 + b), (38, 53 + b)], turq[5])
@@ -751,9 +752,9 @@ def _sunhood(c, g, m, v):
 
 
 CLOAK = [
-    dict(slug='ca-hearthstripe-poncho', cat='cloak', r=clay, lining=clay, len=62, flare=4, x0=20, x1=45, fx0=14, fx1=51, side_back=19, detail=_poncho),
+    dict(slug='ca-hearthstripe-poncho', cat='cloak', r=clay, lining=clay, len=62, flare=4, x0=20, x1=45, fx0=17, fx1=48, front_flare=2, side_back=19, detail=_poncho),
     dict(slug='ca-dappled-rebozo', cat='cloak', r=agave, lining=agave, len=64, flare=3, x0=19, x1=46, hemstyle='tri', fx0=15, fx1=50, side_back=19, detail=_rebozo),
-    dict(slug='ca-palm-rain-cape', cat='cloak', r=straw, lining=straw, len=64, flare=4, x0=20, x1=45, hemstyle='points', fx0=14, fx1=51, side_back=18, detail=_palmcape),
+    dict(slug='ca-palm-rain-cape', cat='cloak', r=straw, lining=straw, len=64, flare=4, x0=20, x1=45, hemstyle='points', fx0=17, fx1=48, front_flare=2, side_back=18, detail=_palmcape),
     dict(slug='ca-agave-fibre-mantle', cat='cloak', r=ixtle, lining=ixtle, len=65, flare=3, x0=21, x1=44, fx0=15, fx1=50, side_back=19, detail=_mantle),
     dict(slug='ca-sun-hood-cloak', cat='cloak', r=cotton, lining=cotton, len=66, flare=3, border=cochi, border_rows=2, border_sides=True, side_back=18, detail=_sunhood),
 ]
