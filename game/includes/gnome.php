@@ -152,6 +152,7 @@ function active_effects(array $u): array
         if ($b) $out[] = ['🍽️', 'Meal', $stats($b), $left($u[$uk])];
     }
     if (!empty($u['ev_stat']) && (isset(GNOME_STATS[$u['ev_stat']]) || $u['ev_stat'] === 'all') && $left($u['ev_until'] ?? null) > 0 && !gnome_ev_slept($u)) $out[] = ['🍀', 'A lucky moment', $u['ev_stat'] === 'all' ? 'Every stat +' . (int)$u['ev_amt'] : $stats([$u['ev_stat'] => $u['ev_amt']]), $left($u['ev_until'])];   // 2.7.08: 'all' = every stat
+    if (!empty($u['ev2_stat']) && (isset(GNOME_STATS[$u['ev2_stat']]) || $u['ev2_stat'] === 'all') && $left($u['ev2_until'] ?? null) > 0 && !gnome_ev_slept(gnome_ev2_view($u))) $out[] = ['🍀', 'A second lucky moment', $u['ev2_stat'] === 'all' ? 'Every stat +' . (int)$u['ev2_amt'] : $stats([$u['ev2_stat'] => $u['ev2_amt']]), $left($u['ev2_until'])];   // 2.7.08 third pass A: buff2=
     if (!empty($u['town_stat']) && isset(GNOME_STATS[$u['town_stat']]) && $left($u['town_until'] ?? null) > 0) $out[] = ['🏘️', 'Town outing', $stats([$u['town_stat'] => $u['town_amt']]), $left($u['town_until'])];
     if ($left($u['ev_gather_until'] ?? null) > 0) $out[] = ['🌈', 'Rainbow', 'Double gathering', $left($u['ev_gather_until'])];
     if ($left($u['ev_sale_until'] ?? null) > 0) $out[] = ['🐓', 'Shop sale', '20% off in every shop', $left($u['ev_sale_until'])];
@@ -206,7 +207,21 @@ function eff_stat(array $u, string $stat): int
 {
     $ev = (!empty($u['ev_stat']) && ($u['ev_stat'] === $stat || ($u['ev_stat'] === 'all' && isset(GNOME_STATS[$stat]))) && ts_gnome($u['ev_until'] ?? null) > time() && !gnome_ev_slept($u)) ? (int)$u['ev_amt'] : 0;   // a random event's little boost
     $tw = (!empty($u['town_stat']) && $u['town_stat'] === $stat && ts_gnome($u['town_until'] ?? null) > time()) ? (int)$u['town_amt'] : 0;   // a town drink or outing (v0.7.20)
-    return (int)($u['stat_' . $stat] ?? 10) + (int)(active_buff($u)[$stat] ?? 0) + $ev + $tw;
+    return (int)($u['stat_' . $stat] ?? 10) + (int)(active_buff($u)[$stat] ?? 0) + $ev + $tw + gnome_ev2_amt($u, $stat);
+}
+
+/** 2.7.08 third pass A: the second lucky moment (users.ev2_*, Sight token buff2=) as the first slot's field names, for gnome_ev_slept(). */
+function gnome_ev2_view(array $u): array
+{
+    return ['id' => $u['id'] ?? 0, 'game_day' => $u['game_day'] ?? 0, 'ev_scope' => $u['ev2_scope'] ?? null, 'ev_day' => $u['ev2_day'] ?? null];
+}
+
+/** 2.7.08 third pass A: what the second lucky moment adds to $stat now (0 when there is none, it is over, or it is not for this stat). */
+function gnome_ev2_amt(array $u, string $stat): int
+{
+    $s = (string)($u['ev2_stat'] ?? '');
+    if ($s === '' || !($s === $stat || ($s === 'all' && isset(GNOME_STATS[$stat])))) return 0;
+    return ts_gnome($u['ev2_until'] ?? null) > time() && !gnome_ev_slept(gnome_ev2_view($u)) ? (int)($u['ev2_amt'] ?? 0) : 0;
 }
 
 /** Luck as a straight percentage: every 2 points = setting luck_percent_per_2 (default 0.05%). */

@@ -1474,6 +1474,11 @@ function schema_statements(string $driver): array
         ['users', 'ev_until', 'DATETIME NULL'],
         ['users', 'ev_day', 'INT NULL'],
         ['users', 'ev_scope', 'VARCHAR(10) NULL'],   // 2.7.06: a buff=stat:amount:delve lucky moment only counts while a delve or lair run is active   // 2.7.06: a buff=stat:amount:sleep lucky moment lasts through this game_day (until the next sleep)
+        ['users', 'ev2_stat', 'VARCHAR(10) NULL'],   // 2.7.08 third pass A: a SECOND lucky moment (Sight token buff2=), same meaning as ev_* (trail_sights_3a.php SIGHTS3A_EV2_COLS)
+        ['users', 'ev2_amt', 'INT NOT NULL DEFAULT 0'],
+        ['users', 'ev2_until', 'DATETIME NULL'],
+        ['users', 'ev2_day', 'INT NULL'],
+        ['users', 'ev2_scope', 'VARCHAR(10) NULL'],
         ['users', 'town_stat', 'VARCHAR(12) NULL'],              // v0.7.20 a town drink's little boost
         ['users', 'town_amt', 'INT NOT NULL DEFAULT 0'],
         ['users', 'town_until', 'DATETIME NULL'],

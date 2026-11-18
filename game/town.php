@@ -36,9 +36,11 @@ if (is_post()) {
         'order' => order_deliver($u, (int)($_POST['npc'] ?? 0), town_for($u, $hub)),   // v1.0.0 wave 2b: orders with a quality bar
         'favour' => favour_deliver($u, (int)($_POST['npc'] ?? 0), town_for($u, $hub)),
         'deed' => buy_land_deed($u, $pnode),
+        'sightquest' => (function () use ($u) { require_once __DIR__ . '/includes/trail_sights.php'; return trail_sight_board_take($u, (string)($_POST['quest'] ?? '')); })(),   // 2.7.08 third pass B: a quest line taken from the Notice Board
         'local' => (function () use ($u) { require_once __DIR__ . '/includes/local.php'; return local_do($u, player_node($u), (string)($_POST['kind'] ?? ''), $_POST); })(),
         default => [false, 'Unknown action.'],
     };
+    if ($ok && in_array($do, ['act', 'festival', 'wave', 'bench', 'snack', 'rps'], true)) { require_once __DIR__ . '/includes/trail_sights.php'; $msg .= trail_sight_green_visit(require_login(), (int)($_POST['spot'] ?? 0), $do === 'act' ? (int)($_POST['action_id'] ?? 0) : 0); }   // 2.7.08 third pass B: a quest beat @green (done something on a town's Green)
     if ($ajax && ($_POST['card'] ?? '') === 'do' && $do === 'local') {   // v2.5.67: a Do here / Stall popover of the Here picture comes back with the result in place
         require_once __DIR__ . '/includes/here_view.php';
         here_do_reply(require_login(), (string)($_POST['kind'] ?? ''), $msg, $ok);
@@ -208,7 +210,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <p class="help">Waves, benches and snacks: once a day for each gnome. Rock-paper-trowel is just for fun (your wins: <?= (int)$u['rps_wins'] ?>).</p>
     <?php endif; ?>
   </div>
-  <?php if ($spot['kind'] === 'board') town_favours_box($uid, $town, $hub, $sid); ?>
+  <?php if ($spot['kind'] === 'board') { town_favours_box($uid, $town, $hub, $sid); require_once __DIR__ . '/includes/trail_sights.php'; echo trail_sight_board_html($u, $sid, $hub); } ?>
   <?php if ($spot['kind'] === 'teahouse' && ($rumours = teahouse_rumours($town))): ?>
     <div class="box rumours"><h3>👂 Overheard</h3><?php foreach ($rumours as $r): ?><p><?= e($r) ?></p><?php endforeach; ?>
       <p class="help">The gossip changes every hour.</p></div>

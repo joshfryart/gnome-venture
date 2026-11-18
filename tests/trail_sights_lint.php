@@ -34,5 +34,6 @@ $info = trail_sight_info(); foreach (array_keys($all) as $s) if (!isset($info[$s
 foreach (trail_sight_items_file() as $slug => $it) if (!in_array($it[1], ['forage', 'part', 'misc', 'produce', 'flower', 'food', 'decor', 'supply', 'other', 'soil'], true)) { echo "BAD item $slug category {$it[1]}\n"; $bad++; }
 require_once $argv[1] . '/includes/npc_clockwork.php';
 foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) if (in_array(trail_sight_split_who($f['who'])[0], npc_cw_fixed_names(), true)) { echo "BAD folk row $slug: {$f['who']} is a mentor / fixed villager: the clockwork never lets them travel, so the row would never show (2.7.06)\n"; $bad++; }
+foreach (trail_sight_b_data_lint() as $p) { echo "BAD $p\n"; $bad++; }   // 2.7.08 third pass B: birthdays, letters, bottles, seeds, keepsakes, quest start column
 echo count($all) . " rows, $bad problems\n";
 exit($bad ? 1 : 0);

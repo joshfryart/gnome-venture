@@ -1,0 +1,4 @@
+# Letters a villager or a Sight hands over (2.7.08 third pass B): reward token letter=<key>. key | from | title | body (one line; the satchel item's description). Each becomes a satchel item letter-<key> (not tradable).
+stork-post|Tuck Bumbleby|A Letter from the Stork Post|Dear walker, thank you for holding the bag. The stork says you have very steady hands, which from a stork is high praise. Yours, Tuck.
+pinchwell-hello|Pinchwell|A Very Short Letter|Hello. You are a friend. That is all. Love, Pinchwell (the crab).
+lyra-thanks|Lyra Fiddlewing|A Note with a Tune on the Back|Thank you for the snores! I have written them all down. Hum the back of this page when you cannot sleep. Lyra.

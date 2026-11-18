@@ -429,9 +429,11 @@ function trail_next(array $u, array &$exp): array
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
     $new['seen'] = $seen;
+    require_once __DIR__ . '/trail_sights_3a.php'; $nxt = sights3a_nxt_prepare($sc, $new, $map, $revisit);   // 2.7.08 third pass A: a Sight's nxt= effects are used up on this stretch (and the escort walks on)
     if (!trail_save($new)) return [false, 'You already went on.'];   // the other tab won: no second event
     $exp['step'] = $nsec;
-    if (!$revisit) trail_roll_event($u, $exp);   // a stretch you have walked before has no new surprise at its door
+    $calm = sights3a_nxt_finish($u, $exp, $nxt);   // nxt=calm: no surprise at this stretch's door
+    if (!$revisit && !$calm) trail_roll_event($u, $exp);   // a stretch you have walked before has no new surprise at its door
     $exp['step'] = $nsec;
     return [true, ''];
 }
@@ -456,6 +458,7 @@ function trail_prev(array $u, array &$exp): array
     $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($st['stance'] ?? ''), 'hist' => $hist, 'tokens' => $ptokens];
     if (!empty($st['rev'])) $new['st']['rev'] = 1;
     if (isset($st['toll'])) $new['st']['toll'] = $st['toll'];
+    foreach (['nxt', 'escort'] as $keep) if (!empty($st[$keep])) $new['st'][$keep] = $st[$keep];   // 2.7.08 third pass A: a pending nxt= effect and the escort stay when you walk back
     $new['st']['phase'] = 'confirm';   // you stand on that stretch's exit: Continue is offered at once (or "Not yet" to look around)
     $new['x'] = $ex; $new['y'] = $ey; $new['seen'] = $seen;
     if (!trail_save($new)) return [false, 'You already moved. Look again.'];

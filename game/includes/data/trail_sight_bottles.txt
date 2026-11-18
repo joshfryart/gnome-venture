@@ -1,0 +1,6 @@
+# Messages in a bottle (2.7.08 third pass B): reward token bottle=1 at a coast or island Sight picks one at random. key | item name | message (the satchel item's description) | rewards (optional, plain Sight reward tokens)
+lost-sock|Note about a Sock|If found, please return my left sock. It is blue. The right one misses it. -- a gnome on the far shore|xp=2
+treasure-x|Smudged Treasure Map|X marks a spot. The spot is under the bottle you are holding. Well done!|c=5
+hello-there|Hello from the Sea|Whoever reads this: hello! I am a gull and I cannot write, so a crab is writing this for me.|xp=2
+recipe|Seaweed Toast Recipe|Toast. Seaweed. Put one on the other. Eat by the sea. That is the whole recipe.|item=bladderwrack:1@50
+wish|A Wish in a Bottle|I wished for a friend to find this, and here you are. Wish granted!|buff=luck:1:60

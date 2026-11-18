@@ -53,7 +53,7 @@ function spot_card_html(array $u, array $spot, bool $hub, string $msg = '', bool
         npc_meet($uid, array_column($here, 'id'));
         $h .= '<div class="sfaces" aria-label="Here now">' . implode('', array_map('spot_face', $here)) . '</div>';
     }
-    if ($spot['kind'] === 'board') { ob_start(); town_favours_box($uid, $town, $hub, $sid); $h .= ob_get_clean(); }
+    if ($spot['kind'] === 'board') { ob_start(); town_favours_box($uid, $town, $hub, $sid); $h .= ob_get_clean(); require_once __DIR__ . '/trail_sights.php'; $h .= trail_sight_board_html($u, $sid, $hub); }   // 2.7.08 third pass B: Sight quest lines that start from the Notice Board
     if ($spot['kind'] === 'teahouse' && ($rumours = teahouse_rumours($town))) {
         $h .= '<div class="rumours"><b>👂 Overheard</b>' . implode('', array_map(fn($r) => '<p>' . e($r) . '</p>', $rumours)) . '</div>';
     }

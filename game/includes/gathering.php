@@ -122,6 +122,7 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
     $qty = gclock_on() ? random_int(2, 3) : 1;   // sleep-days: 2 or 3 items a find at base tool level (Josh); baskets, Sense and rainbows add on top
     $basket = tool_tier($uid, 'basket');
     if ($basket > 0 && random_int(1, 3) <= min(3, $basket)) $qty++;
+    require_once __DIR__ . '/trail_sight_extras.php'; [$keepQ, $keepN] = trail_sight_keepsake_bonus($uid, (string)$pick['tool']); $qty += $keepQ;   // 2.7.08 third pass B: a keepsake carried for this tool (items.effects keepsake)
     $sense = function_exists('eff_mod') ? eff_mod($u, 'sense') : 0;
     if ($sense > 0 && random_int(1, 100) <= 5 * $sense) $qty++;
     $rainbow = q_val('SELECT ev_gather_until FROM users WHERE id = ?', [$uid]);
@@ -129,6 +130,7 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
     give_item($uid, (int)$pick['item_id'], $qty);
     if (function_exists('job_event')) job_event($uid, 'gather', (string)$pick['slug'], $qty);
     $line = (TOOL_TYPES[$pick['tool']][1] ?? '🧺') . ' You gather ' . $qty . ' × ' . $pick['name'] . ($pick['rarity'] === 'rare' ? ' (rare!)' : '') . '.';
+    if ($keepQ > 0) $line .= ' (' . implode(', ', $keepN) . ' helped: +' . $keepQ . ')';
     if (unlock_entries($uid, 'gather:' . $pick['slug'])) $line .= ' 📖 New Almanac page!';
     // Now and then, point out something a missing or better tool would have found here.
     if ($missing && random_int(1, 100) <= 25) {

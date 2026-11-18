@@ -721,6 +721,9 @@ function stop_rewards(array $u, array $loc, string $spec, float $f = 1.0, string
                 $res = apply_event_effect(q_one('SELECT * FROM users WHERE id = ?', [$uid]), 'buff:' . implode(':', $p));
                 foreach ($res as $r) $lines[] = $r;
                 break;
+            case 'buff2':   // 2.7.08 third pass A: the second lucky moment (a Sight row with buff= AND buff2= gives both)
+                foreach (apply_event_effect(q_one('SELECT * FROM users WHERE id = ?', [$uid]), 'buff2:' . implode(':', $p)) as $r) $lines[] = $r;
+                break;
             case 'fp':
                 require_once __DIR__ . '/stop_folk.php';
                 $folk = stop_pick_folk($uid, $loc, $folkSeed);

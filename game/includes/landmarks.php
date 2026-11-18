@@ -317,6 +317,7 @@ function delve_start(array $u, int $lmId): array
         q('UPDATE expeditions SET steps_total = ? WHERE id = ?', [DELVE_ROOMS, $expId]);
         if (dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');
     } elseif (!$v2 && dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');   // v2.0.6: the map (the simple list works the same without it)
+    if ($v2) { require_once __DIR__ . '/trail_sights_3a.php'; sights3a_delve_start($uid, $lm, $expId); }   // 2.7.08 third pass A: a Sight's hint=firstroom is told again inside, from this run's real route
     return [true, '🕳️ Into the delve! (−1 energy)'];
 }
 

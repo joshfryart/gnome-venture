@@ -1,0 +1,4 @@
+# Seeds that really grow (2.7.08 third pass B): reward token seed=<seed slug>[:qty]. seed slug | seed name | grows (the produce item slug, must exist) | plant kind (vegetable fruit herb flower ...) | grow tier 1 (fast) - 6 (slow) | description
+# Each makes a seed item (category seed) and a plants row, so the gnome plants it in the garden like any seed (garden_logic.php: plants.seed_item_id).
+lantern-fruit-seed|Lantern Fruit Seed|lantern-fruit|fruit|3|A warm, faintly glowing pip from a lantern fruit. Plant it and it grows a little lantern-fruit bush.
+tiny-thank-you-seed|Tiny Thank-You Seed|cut-forget-me-not|flower|2|The smallest seed you have ever seen, left as a thank-you. It grows forget-me-nots.

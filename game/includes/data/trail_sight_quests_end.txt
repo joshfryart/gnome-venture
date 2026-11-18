@@ -18,7 +18,8 @@ B|big-friends-lullaby|end-lair-2-forest|Pick up a rustly wing-scale|-
 B|big-friends-lullaby|end-lair-2-coast|Spot the slow jelly-glow|-
 B|big-friends-lullaby|end-lair-2-rainforest|Pluck a humming web thread|-
 B|big-friends-lullaby|end-lair-2-desert|Measure the scarab's rolling rut|-
-B|big-friends-lullaby|end-lair-2-mountain|Last: read three sets of footprints and bring Lyra six Snore Notes|-|take=snore-note:6
+B|big-friends-lullaby|end-lair-2-mountain|Read three sets of footprints and bring Lyra six Snore Notes|-|take=snore-note:6
+B|big-friends-lullaby|@green|Last: hear Lyra play it on a village green (do something on any town's Green)|-||letter=lyra-thanks
 Q|scouts-field-notes|The Scout's Field Notes|Captain Bracken Spurwing|🔭|anylast|xp=80,item=scouts-spyglass:1,c=60,fp=2|Captain Spurwing says a Hedge Knight looks before leaping, ideally a long look, and hands you a fresh notebook.|The Captain reads your notes, nods three times, and hands over his old pocket spyglass.
 B|scouts-field-notes|end-lair-1-desert|Watch the shimmer before the lair|-
 B|scouts-field-notes|end-lair-1-island|Read the dragonlizard's tail-drag|-

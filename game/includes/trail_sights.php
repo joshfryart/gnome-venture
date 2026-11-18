@@ -8,11 +8,13 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/trail_sight_extras.php';
+require_once __DIR__ . '/trail_sight_third_b.php';   // 2.7.08 third pass B: birthdays, letters, bottle post, board / green quest lines, growing seeds, keepsakes
+require_once __DIR__ . '/trail_sights_3a.php';   // 2.7.08 third pass A: buff2=, lair / delve hints, nxt=
 
-const TRAIL_SIGHT_HINTS = ['weather', 'season', 'away', 'creature', 'tide', 'moon'];   // hint=<kind>: a true line from the game state (tide and moon: 2.7.08)
+const TRAIL_SIGHT_HINTS = ['weather', 'season', 'away', 'creature', 'tide', 'moon', 'snore', 'webhum', 'glow', 'rut', 'firstroom'];   // snore webhum glow rut firstroom: 2.7.08 third pass A (trail_sights_3a.php)   // hint=<kind>: a true line from the game state (tide and moon: 2.7.08)
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
-const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'streak', 'lend', 'repay', 'time', 'escort', 'check', 'choose', 'disc', 'fpall'];   // fpall: 2.7.08
-const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti|fd|to)=[a-z0-9,_-]+|mk=(yes|no)|mo=[a-z,-]+|(tl|tn|sk)=[a-z0-9-]+(@today)?:\d+|qd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
+const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'streak', 'lend', 'repay', 'time', 'escort', 'check', 'choose', 'disc', 'fpall', 'buff2', 'nxt'];   // buff2 nxt: 2.7.08 third pass A   // fpall: 2.7.08
+const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti|fd|to)=[a-z0-9,_-]+|mk=(yes|no)|mo=[a-z,-]+|(tl|tn|sk)=[a-z0-9-]+(@today)?:\d+|qd=[a-z0-9,-]+|bd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
 function trail_sight_row(array $p): ?array
@@ -114,6 +116,7 @@ function trail_sight_lint(array $r, bool $db = true): array
         $t = explode(':', $r['tool']);
         if (count($t) !== 2 || !in_array($t[0], GATHER_TOOLS, true) || !in_array((int)$t[1], [1, 2, 3, 4], true)) $bad[] = 'tool must be type:tier 1-4 (' . implode(', ', GATHER_TOOLS) . ')';
     }
+    foreach (sights3a_lint_row(trail_sight_tokens($r['rewards'])) as $p3a) $bad[] = $p3a;   // 2.7.08 third pass A: two buff= in a row
     foreach (trail_sight_tokens($r['rewards']) as $t) {
         $tok = $t['tok'];
         if ($t['cond'] !== '') foreach (explode('/', $t['cond']) as $part) if (!preg_match(TRAIL_SIGHT_COND_RE, trim($part))) $bad[] = 'bad condition "' . $part . '" in ' . $tok;
@@ -124,7 +127,8 @@ function trail_sight_lint(array $r, bool $db = true): array
         elseif (preg_match('/^(.*)@(\d+)$/', $tok, $cm)) { $tok = $cm[1]; if ((int)$cm[2] > 100) $bad[] = 'bad chance in ' . $tok; }   // a trailing @N is a chance (a villager's @village-slug is not)
         elseif (str_contains($tok, '@') && !str_starts_with($tok, 'fpto=') && !str_starts_with($tok, 'fp=')) $bad[] = 'bad chance in ' . $tok;
         [$k, $v] = array_pad(explode('=', $tok, 2), 2, '');
-        if (!in_array($k, TRAIL_SIGHT_REWARD_TOKENS, true)) { $bad[] = 'unknown reward "' . $k . '"'; continue; }
+        if (!in_array($k, TRAIL_SIGHT_REWARD_TOKENS, true) && !in_array($k, TRAIL_SIGHT_REWARD_TOKENS_B, true)) { $bad[] = 'unknown reward "' . $k . '"'; continue; }
+        foreach (trail_sight_b_lint($k, $v, $db) as $bp) $bad[] = $bp;   // 2.7.08 third pass B: bday= letter= bottle= quest= seed=<slug>
         if ($k === 'gather' && !in_array($v, GATHER_TOOLS, true)) $bad[] = 'gather= needs a tool type';
         if ($k === 'unlock' && !preg_match('/^[a-z]+:[a-z0-9-]+$/', $v)) $bad[] = 'unlock= needs kind:slug';
         if ($k === 'hint' && !in_array($v, TRAIL_SIGHT_HINTS, true)) $bad[] = 'hint= needs ' . implode(', ', TRAIL_SIGHT_HINTS);
@@ -132,6 +136,7 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($k === 'title' && ($v === '' || mb_strlen($v) > 60)) $bad[] = 'title= needs a title of 1 to 60 characters';
         if ($k === 'nocheck' && $v !== '') $bad[] = 'nocheck takes no value';
         if ($k === 'fpall' && !preg_match('/^[1-9]$/', $v)) $bad[] = 'fpall= needs points 1 to 9 (every villager of the start place)';   // 2.7.08
+        foreach (sights3a_lint_token($k, $v) as $p3a) $bad[] = $p3a;   // 2.7.08 third pass A: buff2= nxt=
         if ($k === 'buff' && (!preg_match('/^([a-z]+):(\d{1,2})(:(\d{1,4}|sleep|delve|section))?$/', $v, $bm) || !($bm[1] === 'all' || array_key_exists($bm[1], GNOME_STATS)))) $bad[] = 'buff= needs stat:amount[:minutes|sleep|delve|section] (stat: ' . implode(', ', array_keys(GNOME_STATS)) . ', or all = every stat)';   // 2.7.08: all
         if ($k === 'disc' && !preg_match('/^(rest|shop):([1-9]\d?|100):([1-9]\d{0,3})$/', $v)) $bad[] = 'disc= needs rest|shop:percent:minutes (real minutes), e.g. disc=rest:10:120';
         if ($k === 'check' && !preg_match('/^[a-z]+:\d{1,2}$/', $v)) $bad[] = 'check= needs stat:difficulty (a villager row)';
@@ -423,7 +428,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             $tok = $t['tok'];
             if (str_starts_with($tok, 'take=') || str_starts_with($tok, 'tally=') || str_starts_with($tok, 'streak=') || str_starts_with($tok, 'lend=') || str_starts_with($tok, 'repay=') || str_starts_with($tok, 'escort=')) continue;
             if (str_starts_with($tok, 'item=')) { require_once __DIR__ . '/wearables.php'; if (wear_parse(explode(':', substr($tok, 5))[0]) !== null && !wear_live($u)) continue; }   // 2.7.01: wearables drop only while puzzle combat (pfight_v1) is on for this gnome
-            if (str_starts_with($tok, 'choose=')) { $tok = $choose[(int)$opt['reward']][0]; if (preg_match('/^(hint|title|page|fpto|fpall|disc)=/', $tok)) { $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); continue; } $plain[] = $tok; continue; }
+            if (str_starts_with($tok, 'choose=')) { $tok = $choose[(int)$opt['reward']][0]; if (preg_match('/^(hint|title|page|fpto|fpall|disc|nxt)=/', $tok)) { $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); continue; } $plain[] = $tok; continue; }
             $tok = trail_sight_flat_scale($tok, stop_level($loc));   // 2.7.00 rewards pass (setting sights_flat_pct_per_level, default 3)
             if ($row['tool'] !== '-' && str_contains($tok, '@')) $tok = trail_sight_tier_chance($tok, tool_tier((int)$u['id'], explode(':', $row['tool'])[0]));   // 2.7.00 tool-tier odds
             if (str_starts_with($tok, 'gather=')) {
@@ -436,7 +441,8 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
                 $tm = max(1, min(480, (int)substr($tok, 5)));
                 if (function_exists('gclock_on') && gclock_on() && game_spend((int)$u['id'], $tm)) $lines[] = '⏱️ ' . ($tm >= 60 ? round($tm / 60, 1) . ' h' : $tm . ' min') . ' pass';
             }
-            elseif (preg_match('/^(hint|title|page|fpto|fpall|disc)=/', $tok)) { if (trail_sight_chance_pass($tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); }   // 2.7.06: @chance now works on these too
+            elseif (trail_sight_b_token($tok)) $lines = array_merge($lines, trail_sight_b_pay($u, $loc, $tok, $now));   // 2.7.08 third pass B (rolls its own @chance)
+            elseif (preg_match('/^(hint|title|page|fpto|fpall|disc|nxt)=/', $tok)) { if (trail_sight_chance_pass($tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); }   // 2.7.06: @chance now works on these too
             else $plain[] = $tok;
         }
         foreach ($takes as $tk) {

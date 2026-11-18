@@ -1,0 +1,4 @@
+# Keepsakes that help a gathering tool (2.7.08 third pass B). item slug | tool (forage pick net bucket axe rod basket staff lantern) | extra finds (1-2) | note
+# Written into the item's effects JSON as {"keepsake":{"gather":"axe","qty":1}} (merged, kept on admin edits); while the gnome carries one, every find with that tool gives that many more.
+teeny-axe|axe|1|The very small axe helps the big one.
+squirrels-spare-key|forage|1|The squirrel's key seems to know where the acorns are.

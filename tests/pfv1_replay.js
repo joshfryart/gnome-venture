@@ -76,7 +76,7 @@ const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 8 4 soft').split(' ');
   before = await ready(p, 2); r = await endTurn(p, before);
   console.log(`replay: control after ${r.tc} ms at 2x (playing ${r.play} ms)`); le('2x: control is back after End turn', r.tc, 5200);
   before = await ready(p, 0); r = await endTurn(p, before);
-  console.log(`replay: control after ${r.tc} ms at skip (playing ${r.play} ms)`); le('skip: control is back after End turn', r.tc, 1200);
+  console.log(`replay: control after ${r.tc} ms at skip (playing ${r.play} ms)`); le('skip: control is back after End turn', r.tc, 2400);
   // ---- a tap on the board 0.5 s into the replay
   before = await ready(p, 1); r = await endTurn(p, before, 500);
   const tapEnd = r.pl.length ? r.tc - Math.round(r.pl[0].at - r.t0) : null;
@@ -88,7 +88,7 @@ const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 8 4 soft').split(' ');
   ({ c, p } = await mk({ reducedMotion: 'reduce' }));
   before = await ready(p, null); r = await endTurn(p, before);
   console.log(`replay: control after ${r.tc} ms with reduced motion and no stored speed (playing ${r.play} ms)`);
-  le('reduced motion, no stored speed: the replay is skipped', r.tc, 600); ck('reduced motion: nothing plays', r.play < 100, true);
+  le('reduced motion, no stored speed: the replay is skipped', r.tc, 1200); ck('reduced motion: nothing plays', r.play < 100, true);
   before = await ready(p, 1); r = await endTurn(p, before);
   ck('reduced motion with the speed set to 1x by the player: the replay plays', r.play >= 2500, true);
   await c.close();

@@ -30,7 +30,7 @@ end-wonder-2-grassland|Orla Cobblefield|-|35|Orla Cobblefield is walking the sil
 end-wonder-2-island|Juniper Honeycomb|dp=dusk|45|Juniper Honeycomb paddles in at dusk, points at the right bit of sky, and kindly lets you say the name first.|nocheck,fp=1,xp=4
 end-wonder-2-mountain|Mabel Burrowby|dp=dawn|45|Mabel Burrowby walks down at dawn with a flask of cold coffee and pours you a cup.|fp=1,item=cold-brew-coffee:1@40
 end-wonder-2-rainforest|Thimble Fiddlewood|we=rain/dp=dawn|45|Thimble Fiddlewood brings fruit to the glade on rainy mornings, and you help carry the basket.|fp=1,item=mango:1@40
-end-wonder-2-wetland|Tuck Bumbleby|dp=day|40|Tuck Bumbleby is waiting for the stork with the post and lets you hold the letter bag.|fp=1,xp=3
+end-wonder-2-wetland|Tuck Bumbleby|dp=day|40|Tuck Bumbleby is waiting for the stork with the post and lets you hold the letter bag.|fp=1,xp=3,letter=stork-post
 end-delve-1-coast|Gaffer Brineworth|dp=dusk|40|Gaffer Brineworth, a retired smuggler on a barrel, grumbles the tide times at you and swears his rope is perfectly honest now.|nocheck,fp=1,item=rope:1@30
 end-delve-1-desert|Mabel Tumblethorn|dp=dawn|40|Mabel Tumblethorn hums a songline at dawn and teaches you one verse of it.|fp=1,xp=4
 end-delve-1-mountain|Rook Windlass|-|35|Rook Windlass, a proud mountain guide, will walk the first ledge with you for a bit of goat cheese, and points out every good foothold.|give=goat-cheese:1,buff=nimble:1:120,fp=2

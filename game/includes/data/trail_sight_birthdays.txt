@@ -1,0 +1,8 @@
+# Villager birthdays (2.7.08 third pass B; GRAMMAR.md "2.7.08 third pass B"). Name[@village-slug] | season (spring summer autumn winter) | day of the season (1 = its first day; past the season's length = its last day) | wish line (optional: what they say on the day)
+# The day is the gnome's own game day (the sleep-days clock, game_clock.php) read as season + day of the season (hollow_clock.php); with the clock off, today's date.
+Lyra Fiddlewing|spring|3|Lyra plays herself a birthday reel and makes everyone dance it.
+Wren Thimblewick|summer|7|Wren is a year older and has a new notebook to prove it.
+Tobias Trundle|autumn|5|Tobias has polished his shell for his birthday. It squeaks.
+Posy Marrowby|winter|2|Posy has a birthday candle in a lantern fruit and is very proud of it.
+Mabel Pennywhistle@v-na-1-2|spring|9|Mabel reads her birthday cards to the clouds.
+Pinchwell|summer|12|Pinchwell has written himself a birthday letter. It says "Well done".

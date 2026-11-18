@@ -206,6 +206,7 @@ foreach ($qOrder as $qs) {
     $nq++; $bad = trail_sight_quest_lint($q, $allSights, $qAll); ok('quest lints: ' . $q['slug'], !$bad, implode('; ', $bad));
     q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], $q['slug']]);
     $lines = []; $guard = 0;
+    if (($q['start'] ?? '') === 'board') { $gate0 = preg_match('/^quest:([a-z0-9-]+)$/', $q['gate'], $gm0) ? trail_sight_quest_row((int)$u['id'], $gm0[1]) : null; if ($q['gate'] === '' || ($gate0 && $gate0['done_at'] !== null)) trail_sight_quest_begin($u, $q); }   // 2.7.08 third pass B: a board line is taken at the Notice Board first
     while ($guard++ < 60) {   // keep doing the next open beat until the line is done (hand-in items are supplied, event beats are fired)
         $row = trail_sight_quest_row((int)$u['id'], $q['slug']);
         if ($row && $row['done_at'] !== null) break;

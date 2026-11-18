@@ -161,6 +161,10 @@ function apply_event_effect(array $u, string $effect): array
                     $lines[] = $bl[1] . ' +' . (int)($p[2] ?? 1) . ' ' . $bl[0] . ' for ' . (int)($p[3] ?? 60) . ' minutes';
                 }
                 break;
+            case 'buff2':   // 2.7.08 third pass A: a SECOND lucky moment (users.ev2_*), so two buffs can run at once
+                require_once __DIR__ . '/trail_sights_3a.php';
+                $lines = array_merge($lines, sights3a_buff2_apply($uid, $p));
+                break;
             // v0.7.31 boons
             case 'fairyring':
                 q('UPDATE users SET ev_harvest_bonus = 2 WHERE id = ?', [$uid]);
