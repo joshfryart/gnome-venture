@@ -599,11 +599,11 @@ def _pareo(c, g, m, v):
             P(c, [(p[0] + tl, p[1] + b) for p in pts], tapa[5]); c.put(fx + tl, fy + b, hibiscus[3])
     # knot on the shoulder + hibiscus flower tucked in
     if v == 'back':
-        kn = ellipse(41.5, 47.5 + b, 2, 1.5); form(c, kn, coral, frac=0.3)
-        P(c, [(43, 46 + b), (44, 46 + b), (43, 45 + b), (44, 47 + b), (45, 46 + b)], hibiscus[3]); c.put(44, 46 + b, brass[4]); c.put(43, 45 + b, hibiscus[5])
-        P(c, [(42, 49 + b), (43, 50 + b), (43, 51 + b)], coral[2])   # knot tails
+        kn = ellipse(41.5, 50.5 + b, 2, 1.5); form(c, kn, coral, frac=0.3)
+        P(c, [(44, 50 + b), (45, 50 + b), (44, 49 + b), (45, 51 + b), (46, 50 + b), (44, 51 + b)], hibiscus[3]); c.put(45, 50 + b, brass[4]); c.put(44, 49 + b, hibiscus[5])
+        P(c, [(41, 52 + b), (42, 53 + b), (42, 54 + b)], coral[2])   # knot tails
     elif v == 'side':
-        P(c, [(27, 46 + b), (28, 46 + b), (27, 45 + b), (26, 46 + b), (27, 47 + b)], hibiscus[3]); c.put(27, 46 + b, brass[4]); c.put(26, 45 + b, hibiscus[5])
+        P(c, [(25, 49 + b), (26, 49 + b), (25, 48 + b), (24, 49 + b), (25, 50 + b)], hibiscus[3]); c.put(25, 49 + b, brass[4]); c.put(24, 48 + b, hibiscus[5])
     else:
         P(c, [(19, 46 + b), (18, 46 + b), (19, 45 + b), (17, 46 + b), (19, 47 + b)], hibiscus[3]); c.put(18, 46 + b, brass[4]); c.put(18, 45 + b, hibiscus[5])
 

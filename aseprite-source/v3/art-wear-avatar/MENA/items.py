@@ -355,10 +355,9 @@ def gourd_back(c, x, y, g):
     for xx in range(x - 2, x + 2): c.put(xx, y + 4, linen[3])   # cord tie at the waist
     form(c, rect(x - 1, y - 2, x, y - 1), cedar, frac=0.5)
     # the spare cork-wood stopper dangling on its own string at the left, swinging with the step
-    P(c, [(x - 3, y + 4), (x - 4, y + 4), (x - 5, y + 5), (x - 6, y + 5), (x - 7, y + 6)], linen[2])
-    sx = x - 9 + g['tail']
-    P(c, [(sx + 1, y + 7), (sx + 1, y + 8)], linen[2])
-    form(c, rect(sx, y + 9, sx + 1, y + 10), cedar, frac=0.5); c.put(sx, y + 9, cedar[5])
+    sx = x - 6 + g['tail']
+    P(c, [(x - 3, y + 5), (x - 4, y + 6)] + [(x - 5 + (g['tail'] if yy > y + 12 else 0), yy) for yy in range(y + 7, y + 17)], linen[1])
+    form(c, rect(sx - 1, y + 17, sx, y + 18), cedar, frac=0.5); c.put(sx - 1, y + 17, cedar[5])
 
 
 def gourd_side(c, x, y, g):
@@ -465,7 +464,7 @@ def _quilt(q, t, g):
     y = q[1] - g['b']
     a, d = (q[0] + y) % 6, (q[0] - y) % 6
     if a == 0 and d == 0: return linen[3] if t < 2 else linen[2]   # stitch knots
-    if a == 0 or d == 0: return indigo[max(1, 2 - t // 2)] if t < 3 else indigo[0]
+    if a == 0 or d == 0: return indigo[1] if t < 2 else indigo[0]
     return None
 
 

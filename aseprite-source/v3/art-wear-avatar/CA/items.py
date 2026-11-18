@@ -235,29 +235,28 @@ def frame_side(c, x, y, g):
 
 
 def _net(c, m, base):
-    """maize cobs behind an open-knot fibre net: cobs = maize kernels (checker), net = diagonal straw lines."""
+    """maize cobs behind an open-knot fibre net: lit sack, cob bumps, a coarse diagonal net with knots."""
     x0, y0, x1, y1 = m.bbox()
-    tmp = C(); form(tmp, m, maize, frac=0.35)
-    for q, col in tmp.items():
-        i = maize.index(col)
-        if (q[0] + q[1]) % 2: i = max(1, i - 1)
-        c.put(q[0], q[1], maize[i])
-    # a few husk leaves showing through
+    form(c, m, maize, frac=0.35, hi=[(x0 + 3, y0 + 3), (x0 + 4, y0 + 3)])
+    for q in m:   # cob bumps: lighter kernels in the middle of each net cell
+        if (q[0] + q[1]) % 4 == 2 and (q[0] - q[1]) % 4 == 2 and (q[0], q[1] + 1) in m:
+            c.put(q[0], q[1], maize[5] if q[0] < x0 + (x1 - x0) * 0.6 else maize[4])
     for q in m:
-        if (q[0] * 5 + q[1] * 3) % 17 == 0: c.put(q[0], q[1], jade[3] if q[0] < x1 - 3 else jade[2])
+        if (q[0] * 5 + q[1] * 3) % 23 == 0: c.put(q[0], q[1], jade[3]); c.put(q[0] + 1, q[1], jade[2])
     for q in m:
         if (q[0] + q[1]) % 4 == 0 or (q[0] - q[1]) % 4 == 0:
-            c.put(q[0], q[1], straw[4] if q[0] < x0 + (x1 - x0) * 0.6 else straw[2])
-            if (q[0] + q[1]) % 4 == 0 and (q[0] - q[1]) % 4 == 0: c.put(q[0], q[1], straw[1])   # knots
+            c.put(q[0], q[1], straw[2] if q[0] < x0 + (x1 - x0) * 0.6 else straw[1])
+            if (q[0] + q[1]) % 4 == 0 and (q[0] - q[1]) % 4 == 0: c.put(q[0], q[1], straw[0])   # knots
 
 
 def netbag_back(c, x, y, g):
     # cob poking out of the top with a silk tuft
-    cob = rect(x + 2, y - 5, x + 4, y + 2)
+    cob = line([(x - 7, y + 4), (x - 12, y - 1)], 3)
     for q in cob: c.put(q[0], q[1], maize[4] if (q[0] + q[1]) % 2 else maize[3])
-    for yy in range(y - 5, y + 3): c.put(x + 4, yy, maize[2])
-    P(c, [(x + 3, y - 6), (x + 4, y - 7), (x + 2, y - 7)], cotton[5]); c.put(x + 3, y - 7, maize[5])
-    P(c, [(x + 1, y), (x + 1, y + 1), (x + 5, y + 1)], jade[4]); c.put(x + 5, y, jade[3])
+    for q in cob:
+        if (q[0] + 1, q[1]) not in cob: c.put(q[0], q[1], maize[2])
+    P(c, [(x - 14, y - 3), (x - 13, y - 3), (x - 14, y - 2)], cotton[5]); c.put(x - 15, y - 4, maize[5])
+    P(c, [(x - 6, y + 2), (x - 7, y + 1), (x - 10, y + 4), (x - 11, y + 3)], jade[4]); c.put(x - 6, y + 1, jade[3])
     sack = ellipse(x - 0.5, y + 9, 9, 8) | poly([(x - 6, y + 1), (x + 5, y + 1), (x + 8, y + 5), (x - 9, y + 5)])
     _net(c, sack, maize)
     # drawstring gather + carrying loop
@@ -289,9 +288,9 @@ def _plait(c, m, r):
 
 def basket_back(c, x, y, g):
     for sx, dx in ((x - 8, -1), (x + 7, 1)):   # shoulder cords looping out at the sides
-        cord = line([(sx, y + 4), (sx + 2 * dx, y + 8), (sx + 2 * dx, y + 13), (sx, y + 16)], 1)
+        cord = line([(sx, y + 4), (sx + 2 * dx, y + 8), (sx + 2 * dx, y + 12), (sx, y + 14)], 1)
         for q in cord: c.put(q[0], q[1], strap[3] if dx < 0 else strap[2])
-    body = rect(x - 7, y + 3, x + 6, y + 17)
+    body = rect(x - 7, y + 3, x + 6, y + 15)
     _plait(c, body, straw)
     for xx in range(x - 7, x + 7):   # marigold band with red dashes
         c.put(xx, y + 9, marig[4] if xx < x + 3 else marig[3])
@@ -303,12 +302,12 @@ def basket_back(c, x, y, g):
     for xx in range(x - 9, x + 9): c.put(xx, y + 3, straw[1])
     form(c, rect(x - 1, y - 5, x, y - 4), strap, frac=0.5)
     # hummingbird perched on the lid rim
-    P(c, [(x + 5, y + 1), (x + 6, y + 1)], jade[4]); c.put(x + 7, y + 2, jade[2]); c.put(x + 8, y + 2, jade[1])
-    c.put(x + 4, y, jade[5]); c.put(x + 5, y, jade[3]); c.put(x + 4, y + 1, cochi[4]); c.put(x + 3, y, cacao[0])
+    P(c, [(x - 7, y + 1), (x - 8, y + 1)], jade[4]); c.put(x - 9, y + 2, jade[2]); c.put(x - 10, y + 2, jade[1])
+    c.put(x - 6, y, jade[5]); c.put(x - 7, y, jade[3]); c.put(x - 6, y + 1, cochi[4]); c.put(x - 5, y, cacao[0])
 
 
 def basket_side(c, x, y, g):
-    body = rect(x - 8, y + 3, x - 1, y + 17)
+    body = rect(x - 8, y + 3, x - 1, y + 15)
     _plait(c, body, straw)
     for xx in range(x - 8, x):
         c.put(xx, y + 9, marig[4]); c.put(xx, y + 10, cochi[3] if xx % 3 == 0 else marig[3])
@@ -336,16 +335,16 @@ def _stripes(c, m, y):
 
 
 def bundle_back(c, x, y, g):
-    body = ellipse(x - 0.5, y + 10, 9.5, 7) | rect(x - 9, y + 5, x + 8, y + 12)
+    body = ellipse(x - 0.5, y + 8, 9.5, 6) | rect(x - 9, y + 4, x + 8, y + 11)
     for side in (-1, 1):   # knotted corners sticking up
         ex = x - 0.5 + side * 4
         ear = poly([(ex - 2, y + 5), (ex + 2, y + 5), (ex + side * 5, y - 2), (ex + side * 3, y - 3)])
         form(c, ear, cochi, frac=0.4)
         for q in ear:
             if (q[0] - side * q[1]) % 4 == 0: c.put(q[0], q[1], indigo[3])
-    _stripes(c, body, y + 6)
+    _stripes(c, body, y + 5)
     for xx in range(x - 8, x + 8):   # little fringe on the bottom edge
-        if xx % 2 == 0: c.put(xx, y + 18, cotton[3])
+        if xx % 2 == 0: c.put(xx, y + 15, cotton[3])
     knot = ellipse(x - 0.5, y + 4, 2.5, 2)
     form(c, knot, cochi, frac=0.35, hi=[(x - 2, y + 3)])
     # marigold tucked in the knot
@@ -355,12 +354,12 @@ def bundle_back(c, x, y, g):
 
 
 def bundle_side(c, x, y, g):
-    body = ellipse(x - 5, y + 10, 5, 7) | rect(x - 9, y + 5, x - 1, y + 12)
+    body = ellipse(x - 5, y + 8, 5, 6) | rect(x - 9, y + 4, x - 1, y + 11)
     ear = poly([(x - 7, y + 5), (x - 3, y + 5), (x - 10, y - 2), (x - 8, y - 3)])
     form(c, ear, cochi, frac=0.4)
     for q in ear:
         if (q[0] + q[1]) % 4 == 0: c.put(q[0], q[1], indigo[3])
-    _stripes(c, body, y + 6)
+    _stripes(c, body, y + 5)
     knot = ellipse(x - 4, y + 4, 2, 2)
     form(c, knot, cochi, frac=0.35)
     fx, fy = x - 3, y + 2
@@ -404,8 +403,8 @@ def water_side(c, x, y, g):
 PACK = [
     dict(slug='ca-carrier-frame', cat='backpack', back=frame_back, side=frame_side),
     dict(slug='ca-maize-net-bag', cat='backpack', back=netbag_back, side=netbag_side),
-    dict(slug='ca-palm-basket-pack', cat='backpack', back=basket_back, side=basket_side),
-    dict(slug='ca-loom-cloth-bundle', cat='backpack', back=bundle_back, side=bundle_side),
+    dict(slug='ca-palm-basket-pack', cat='backpack', back=basket_back, side=basket_side, y0=49),
+    dict(slug='ca-loom-cloth-bundle', cat='backpack', back=bundle_back, side=bundle_side, y0=49),
     dict(slug='ca-dry-spell-water-pack', cat='backpack', back=water_back, side=water_side),
 ]
 

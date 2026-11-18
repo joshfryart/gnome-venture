@@ -275,7 +275,8 @@ def _dots(c, m, r, step=4):
 
 
 def bundle_back(c, x, y, g):
-    m = rect(x - 9, y + 3, x + 8, y + 16) - M({(x - 9, y + 3), (x + 8, y + 3), (x - 9, y + 16), (x + 8, y + 16)})
+    y += 3
+    m = rect(x - 9, y + 3, x + 8, y + 15) - M({(x - 9, y + 3), (x + 8, y + 3), (x - 9, y + 15), (x + 8, y + 15)})
     form(c, m, plum, frac=0.3)
     _dots(c, m, plum)
     for q in line([(x - 8, y + 15), (x - 1, y + 6)]) | line([(x + 7, y + 15), (x, y + 6)]):   # wrap folds
@@ -353,7 +354,8 @@ def satchel_back(c, x, y, g):
     for q in flap.bottom(): c.put(q[0], q[1], lining[4] if q[0] < x + 4 else lining[2])
     P(c, [(x - 1, y + 9), (x, y + 9)], wood[4]); P(c, [(x - 1, y + 10), (x, y + 10)], wood[2])   # toggle
     for xx in (x - 6, x + 5): P(c, [(xx, y), (xx, y + 1)], lining[3])
-    _lantern(c, x + 8 + g['tail'], y)
+    P(c, [(x + 8, y + 1), (x + 9, y + 1), (x + 10, y + 1), (x + 11, y + 1)], strap[1])
+    _lantern(c, x + 11 + g['tail'], y)
 
 
 def satchel_side(c, x, y, g):
@@ -472,11 +474,11 @@ def _fleece(c, g):
     # cuffs + hem band of curly fleece
     for s in g['sleeves']:
         x0, y0, x1, y1 = s.bbox()
-        _curl(c, M(q for q in s if q[1] >= y1 - 1))
+        _curl(c, M(q for q in s if q[1] >= y1 - 2))
     full = c.mask()
     _curl(c, M(q for q in full if (q[0], q[1] + 1) not in full or (q[0], q[1] + 2) not in full).rows(60 + b, 70 + b))
     if v != 'side':
-        col = ellipse(32.5, 48.5 + b, 13.5, 3.5).rows(46 + b, 51 + b)
+        col = ellipse(32.5, 49 + b, 14.5, 4).rows(46 + b, 53 + b)
         _curl(c, col)
     else:
         _curl(c, ellipse(30, 49 + b, 6, 3).rows(46 + b, 51 + b))
@@ -488,8 +490,7 @@ def _fleece(c, g):
 
 
 def _weave(q, t, g):
-    if q[0] % 2 == 0 and (q[1] - g['b']) % 2 == 0: return ramie[5] if t < 2 else ramie[3]
-    if q[0] % 2 == 1 and (q[1] - g['b']) % 2 == 1 and t >= 2: return ramie[1]
+    if q[0] % 2 == 0 and (q[1] - g['b']) % 2 == 0: return ramie[4] if t < 2 else ramie[3]
     return None
 
 

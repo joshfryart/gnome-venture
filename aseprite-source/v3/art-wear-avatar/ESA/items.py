@@ -60,27 +60,26 @@ def _sandals(c, g, ft, k):
     x0, y0, x1, y1 = foot.bbox()
     # thick stacked sole: the bottom row becomes a pale leather layer, a dark sole row under it
     for q in foot.bottom():
-        c.put(q[0], q[1], leather[4] if q[0] < x1 - 1 else leather[2])
-        c.put(q[0], q[1] + 1, sole[1])
+        c.put(q[0], q[1], leather[4] if q[0] < x1 - 1 else leather[3])
+        c.put(q[0], q[1] + 1, sole[2])
+    ank = cy - 2
+    row = sorted(q[0] for q in foot if q[1] == ank)
     if v == 'front':
-        # crossed toe straps (an X over the toes) + ankle loop
-        for i in range(4):
-            c.put(cx - 2 + i, cy - 1 + i // 2 * 0 + (i % 2), leather[2])
-        P(c, [(cx - 3, cy - 1), (cx - 2, cy), (cx - 1, cy + 1), (cx + 2, cy - 1), (cx + 1, cy), (cx, cy + 1)], leather[2])
-        P(c, [(cx - 2, cy - 1), (cx + 1, cy - 1)], leather[4]); P(c, [(cx - 1, cy), (cx, cy)], leather[1])
-        for x in range(x0 + 1, x1): c.put(x, y0, leather[4] if x < x1 - 1 else leather[2])
-        c.put(cx, y0, brass[4])
+        # ankle loop across the instep + crossed red toe straps
+        for x in row: c.put(x, ank, leather[1])
+        c.put(row[0] if ft['side'] == 'L' else row[-1], ank, brass[4])
+        P(c, [(cx - 2, cy - 1), (cx + 1, cy - 1), (cx - 2, cy + 1), (cx + 1, cy + 1)], madder[3]); P(c, [(cx - 1, cy), (cx, cy)], madder[1])
     elif v == 'back':
-        for x in range(x0 + 1, x1): c.put(x, y0, leather[4] if x < x1 - 1 else leather[2])
-        for y in range(y0 + 1, y1): c.put(cx, y, leather[2])
+        for x in row: c.put(x, ank, leather[1])
+        for y in range(ank + 1, y1): c.put(cx, y, leather[1])
     else:
-        P(c, [(x1 - 2, cy - 1), (x1 - 3, cy), (x1 - 4, cy - 1), (x1 - 3, cy - 1)], leather[2])
-        for y in range(y0, y1): c.put(x0 + 2, y, leather[3])
-        c.put(x0 + 2, y0 + 1, brass[4])
+        for x in row:
+            if x <= x1 - 3: c.put(x, ank, leather[1])
+        c.put(row[0], ank, brass[4])
+        P(c, [(x1 - 3, cy - 1), (x1 - 2, cy), (x1 - 1, cy - 1)], madder[3]); c.put(x1 - 2, cy - 1, madder[1])
     # long white acacia thorn stuck in the sole edge (outer edge of the near/right foot)
     if k == 1 and v != 'back':
-        sy = y1 + 1
-        P(c, [(x1 + 1, sy - 1), (x1 + 2, sy - 1), (x1 + 3, sy - 2)], canvas[5]); c.put(x1, sy, canvas[3])
+        P(c, [(x1 + 1, y1), (x1 + 2, y1), (x1 + 3, y1 - 1)], canvas[5]); c.put(x1, y1 + 1, canvas[3])
     elif k == 1:
         P(c, [(x1 + 1, y1), (x1 + 2, y1 - 1)], canvas[5])
 

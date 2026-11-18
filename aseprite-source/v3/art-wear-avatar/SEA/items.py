@@ -489,11 +489,11 @@ def _frond(c, g, m, v):
         elif q[0] % 3 == 1 and r > 2 and c.get(q) != straw[1]: c.put(q[0], q[1], straw[2] if c.get(q) != straw[4] else straw[3])
     b = g['b']
     if v == 'back':     # kingfisher perched on the left shoulder, facing out
-        bird = {(21, 48): king[4], (20, 48): king[4], (19, 48): sole[1], (18, 48): sole[1], (22, 49): king[3], (21, 49): mango[4], (20, 49): mango[3],
-                (23, 50): king[1], (22, 50): king[2], (21, 47): king[5]}
+        bird = {(19, 51): king[4], (18, 51): king[4], (17, 51): sole[1], (16, 51): sole[1], (20, 52): king[3], (19, 52): mango[4], (18, 52): mango[3],
+                (21, 53): king[1], (20, 53): king[2], (19, 50): king[5], (18, 50): king[4]}   # below the scarf line
     elif v == 'side':   # perched on the back of the cape
-        bird = {(23, 48): king[4], (24, 48): king[4], (25, 48): sole[1], (26, 48): sole[1], (22, 49): king[3], (23, 49): mango[4], (24, 49): mango[3],
-                (21, 50): king[1], (22, 50): king[2], (23, 47): king[5]}
+        bird = {(19, 52): king[4], (18, 52): king[4], (17, 52): sole[1], (16, 52): sole[1], (20, 53): king[3], (19, 53): mango[4], (18, 53): mango[3],
+                (21, 54): king[1], (20, 54): king[2], (19, 51): king[5], (18, 51): king[4]}   # on the cape's back slope, facing back
     else:
         bird = {(18, 45): king[4], (19, 45): king[4], (17, 45): sole[1], (16, 45): sole[1], (19, 46): king[3], (18, 46): mango[4], (20, 46): king[2]}
         P(c, [(31, 46 + b), (34, 46 + b)], blanket[3])
