@@ -812,6 +812,14 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.08' => ['🌸 Update 2.7.08: Sights pay more, new Sights tricks',
+        "[list][*][b]Sights[/b] pay better: a Sight is now worth about as much as a Gather for the energy. Walks are capped at 6 Sights each.\n"
+        . "[*][b]Birthdays[/b]: some villagers have one. Give them a present on the day for double the friendship.\n"
+        . "[*][b]Letters and bottle post[/b]: villagers hand out letters, and coast and island walks can wash up a bottle with a note.\n"
+        . "[*][b]Notice Boards[/b] and Village Greens start new quests. Some Sights now grow seeds in your garden or hand you a keepsake that finds a little extra.\n"
+        . "[*][b]Trail[/b]: side trails lean along the road, the corner notices no longer cover the end of a fight, and hints can tell you about a lair's nights and a delve's first rooms.\n"
+        . "[*][b]New region maps[/b] for all 14 regions.\n"
+        . "[*][b]Also since 2.7.04[/b]: the Mentor button is back in mentor towns, pals can keep the whole Kitchen cooking (new Full time option), and recipes you have not found yet show their name and what they need.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

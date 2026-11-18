@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.7.08
+- **Trail Sights pay better.** A Sight now pays about one Gather's worth per energy (it was about a third). New admin setting `sights_reward_pct` (default 125; rest stops are not touched). 100 thin Sights gained a small Petal reward, 8 rich free Sights now cost 1 energy, and a few over-rich ones (berry patch, bramble, scarecrow, sugar shack) were trimmed.
+- **At most 6 Sights on one walk** (admin setting `sights_walk_cap`, 0 = off).
+- **New Sights features:** a second lucky moment at once (`buff2=`); hints about a lair's nights and a delve's first rooms; effects on the next stretch of the walk; villager **birthdays**; **letters** from villagers; **bottle post** on coast and island walks; the **Village Green** and **Notice Board** start quest lines (Wren's Woodland Census now starts from the Notice Board); seeds that grow in the garden (Lantern Fruit, Tiny Thank-You); keepsakes that help a tool find a little more. Details: `claude/sights/GRAMMAR.md`.
+- **Trail:** side trails leave a stop leaning along the road; the toast box no longer covers a fight's end scene; the 9 thinnest Sights got lines per destination, streaks, titles or bonuses.
+- **Region maps repainted** from the new layout (all 14; some roads and places moved). Needs an art look: CSA market village, CA trails.
+- **Fights (behind `pfight_v1`, Admins only):** Charm counts 0.8 (was 0.6) on hostile creatures and a Charm win pays +25% XP and Petals; Wind and Mud are back in the environment from the start; creatures no longer put out a free piece in old-rules fights; Soothe text rewritten; pal pieces knock off the creature's strongest piece they can (new fights); six counter knacks (Pest Ring, Scarecrow Flap, Honey Pot, Sandbag, Billhook, Antivenom) count +2 against their own class; six tier III second calling pieces; 22 legendary pieces flattened; the board shows rounds left on each piece; the guard readout says how much its guard blocked.
+- **Creatures:** all 319 re-fitted to the win-rate targets; 76 shared ability strings made distinct; 8 base creatures moved into a region window (boot step `creature_windows_2708`: mischief-monkey, leafcutter-column, arctic-fox, desert-tortoise, reef-turtle, glacier-bear, lichen-reindeer, snow-owl-monarch).
+- **Hidden until `pfight_v1` is on for everyone:** the fight belts on Twigg's shelf and the Tool Repair Kit recipe show only to admins.
+- **Database:** five new `users.ev2_*` columns, added on first load of this version (safe to run twice).
+- **Tests:** `trail_sights_278`, `_279`, `_280`, `_281`, `region_trails_gates`, `toast_cover`, `creature_windows`, `pfboard_v1_paltgt`, `pfboard_v1_counter`, `pfv1_lifelabel` added; the six `trail_fam_*` suites repaired (pinned clock, new moon-pill wording); the `pfv1_finalturn` fixture saves its seeded fight again; `pfv1_replay` limits loosened 2x.
+
 ## 2.7.07
 - **Mentor button fixed.** Every town with a calling mentor (Birchbramble Steppe, Maizehollow, Mistmoor, Olivewhistle, Rainroot Reaches, Sunsprinkle Isles) shows the Mentor button again; it had been hidden in all towns since 2.7.03. Rest stops and villages still show none.
 - **Pals in the Kitchen.** A pal on the whole Kitchen now keeps every free pot cooking (new dishes first, from anything in the satchel), not just one. New **Full time** option for the whole Kitchen and the Pantry: the pal keeps working on game time until you call it home. "Pots to leave free" keeps some pots for you. Checks run every 10 game minutes (sleeps move the pal clocks).
