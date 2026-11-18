@@ -115,6 +115,10 @@ q('UPDATE garden_buildings SET level = 1 WHERE plot_id = ? AND building = ?', [$
 ok('a level 1 Tailor has no free craft', !tailor_free_ready($uid));
 ok('power 6 or less pays no commission', tailor_commission($uid, 'work-gloves') === 0);
 ok('every wearable has its puzzle piece picture (shop sheet), 132x92', !array_filter(array_keys(wear_tailor_defs()), fn($sl) => !is_file($argv[1] . '/assets/img/wearpiece/' . $sl . '.png') || getimagesize($argv[1] . '/assets/img/wearpiece/' . $sl . '.png')[0] !== 132));
+$rv = fn($sl) => (int)q_val('SELECT rarity FROM items WHERE slug = ?', [$sl]);
+ok('item rarity follows the design: Common 10, Uncommon 25, Rare 50 (+10 Lined, +20 Fine)', $rv('na-sugarbush-snow-boots') === 10 && $rv('na-sugarbush-snow-boots-lined') === 20 && $rv('na-lakeland-snowshoe') === 25 && $rv('na-lakeland-snowshoe-fine') === 45 && $rv('na-loon-down-slippers') === 50 && $rv('oc-mangrove-clog-fine') === 70, json_encode([$rv('na-sugarbush-snow-boots'), $rv('na-lakeland-snowshoe'), $rv('na-loon-down-slippers')]));
+$IL = item_lookups(); $lab = fn($sl) => item_rarity(q_one('SELECT * FROM items WHERE slug = ?', [$sl]), $IL)[1];
+ok('the shelf and satchel word it: a Rare design reads Rare, an Uncommon one Uncommon', $lab('na-loon-down-slippers') === 'Rare' && $lab('na-lakeland-snowshoe') === 'Uncommon' && $lab('na-sugarbush-snow-boots') === 'Common', json_encode([$lab('na-loon-down-slippers'), $lab('na-lakeland-snowshoe'), $lab('na-sugarbush-snow-boots')]));
 $c0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
 $cm = tailor_commission($uid, 'work-gloves', 10);   // power 10
 ok('power over 6 pays commission Petals (20% of the price, at least 1)', $cm >= 1 && (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) === $c0 + $cm, "$cm");

@@ -142,7 +142,8 @@ function wear_items(): array
         $nm = $d['name'] . ($cut === 'b' ? ' (' . $c[0] . ')' : '') . ($rank > 1 ? ', ' . WEAR_RANK_NAME[$rank] : '');
         $price = ($d['get'] ?? '') === 'tailor' ? max(1, intdiv(wear_fee($d, $rank), 2)) : (int)($d['price'] ?? 120) * $rank;
         $o[$slug] = ['name' => $nm, 'desc' => $d['desc'] . ' Piece: ' . $c[0] . ', ' . ucfirst($c[1]) . ' ' . $c[2] . '. ' . $c[5], 'base' => $base, 'cut' => $cut, 'rank' => $rank,
-            'rarity' => 6 + 6 * $rank, 'price' => $price];
+            'rarity' => ($d['get'] ?? '') === 'tailor' ? (['Common' => 10, 'Uncommon' => 25, 'Rare' => 50][$d['rarity'] ?? 'Common'] ?? 10) + [1 => 0, 2 => 10, 3 => 20][$rank] : 6 + 6 * $rank,   // 2.7.xx: a Tailor wearable's rarity is its design's (Common / Uncommon / Rare = 10 / 25 / 50, +10 Lined, +20 Fine) so the shelf and the satchel show it; the old ones stay 12 / 18 / 24
+            'price' => $price];
     }
     return $o;
 }
@@ -268,9 +269,12 @@ function wear_ensure_items(): void
     if ($done && ($stocked || !wear_live())) return;   // the items once; the shelf once the setting is on
     $done = true; $stocked = wear_live();
     try {
-        $have = array_flip(q('SELECT slug FROM items')->fetchAll(PDO::FETCH_COLUMN));   // one query, not one per item (873 of them)
+        $have = q('SELECT slug, rarity FROM items')->fetchAll(PDO::FETCH_KEY_PAIR);   // one query, not one per item (873 of them)
         foreach (wear_items() as $slug => $it) {
-            if (isset($have[$slug])) continue;
+            if (isset($have[$slug])) {   // 2.7.xx: items made before the design rarity existed hold 6 + 6 x rank: bring them to the new value (an admin-edited value is left alone)
+                if ((int)$have[$slug] !== (int)$it['rarity'] && (int)$have[$slug] === 6 + 6 * (int)$it['rank']) q('UPDATE items SET rarity = ? WHERE slug = ?', [(int)$it['rarity'], $slug]);
+                continue;
+            }
             db_insert('items', ['name' => $it['name'], 'slug' => $slug, 'category' => 'supply', 'rarity' => $it['rarity'], 'base_price' => $it['price'], 'description' => $it['desc'], 'edible' => 0, 'tradable' => 1]);
         }
         $shop = wear_live() ? (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'") : 0;   // the shop stocks them only while the setting is on   // the Hat and the Pack are sold at Twigg's (Common, first cut)
