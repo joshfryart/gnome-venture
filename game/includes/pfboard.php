@@ -1584,7 +1584,7 @@ function pfb_wx_cond(array $s, string $c, array $cx): bool
         case 'edge': case 'corner': case 'mid':
             if (!$p) return false; $ex = (int)$p['x'] === 0 || (int)$p['x'] === pfb_w($s) - 1; $ey = (int)$p['y'] === 0 || (int)$p['y'] === pfb_h($s) - 1;
             return $x[0] === 'edge' ? ($ex || $ey) : ($x[0] === 'corner' ? ($ex && $ey) : (!$ex && !$ey));
-        case 'hand': $n = 0; foreach ($s['me']['hand'] as $h) if (($h['t'] ?? '') === $x[1]) $n++; return $n >= (int)$x[2];
+        case 'hand': $n = 0; $ty = explode('/', $x[1]); foreach ($s['me']['hand'] as $h) if (in_array((string)($h['t'] ?? ''), $ty, true)) $n++; return $n >= (int)$x[2];   // pieces of these types in your hand
         case 'fevade': return (int)$s['foe']['evade'] > 0;
         case 'fguard': return (int)$s['foe']['block'] > 0;
         case 'fpcs': case 'fhas':

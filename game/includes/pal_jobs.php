@@ -699,7 +699,7 @@ function pj_pantry_send(array $u, string $palUid, int $hours, bool $unequip): ar
     db()->commit();
     $j = q_one("SELECT * FROM ppal_jobs WHERE user_id = ? AND pal_uid = ? AND state = 'active' ORDER BY id DESC LIMIT 1", [$uid, $palUid]);
     if ($j) pj_pantry_tick($uid, $j);
-    return [true, $p['name'] . ' takes over the Pantry ' . ($full ? 'full time' : 'for ' . $hours . ' h') . ': it fills free jars from your satchel (new preserves first) and collects the ready ones, on game days.'];
+    return [true, $p['name'] . ' takes over the Pantry ' . ($full ? 'full time' : 'for ' . $hours . ' h') . ': it fills free jars from your satchel (new preserves first) and collects the ready ones, every game morning at 6am (whether or not you sleep).'];
 }
 
 /** 2.7.xx: a pal tending the Pantry checks the jars whenever you look at them (the Pantry page, the craft map, the Kitchen card), not only on the Jobs page: collect what is ready, refill what is free. */
@@ -715,18 +715,53 @@ function pj_settle_pantry(int $uid): void
     } catch (Throwable $e) {}
 }
 
-/** One look at the Pantry for a tending pal: collect what is ready, then start jars (one of each recipe per pass, never-made first) until the jars or the ingredients run out. */
+const PJ_PANTRY_MAX_MORNINGS = 40;   // most mornings one look catches up (the satchel runs dry long before)
+
+/** The game day of the latest 06:00 this gnome's clock has reached: a sleep lands on 06:00 of the next day, and staying up past 06:00 reaches it by itself. */
+function pj_morning_day(int $uid): int
+{
+    return (int)floor((gclock_user_tick($uid) - GAME_WAKE_MINUTE) / 1440);
+}
+
+/**
+ * One look at the Pantry for a tending pal. With the sleep-days clock on, the pal works at 06:00 game time, once for EVERY morning since its last pass
+ * (whether or not the gnome slept: the morning is counted from the game clock, so a sleep at 05:59 and a sleep at noon each pass exactly one 06:00).
+ * Each pass collects the jars ready that day and refills the free ones (never-made preserves first). With the clock off it is the old single pass per look.
+ */
 function pj_pantry_tick(int $uid, array $j): void
 {
     require_once __DIR__ . '/pantry.php';
     require_once __DIR__ . '/crafting.php';
     $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
     if (!$u) return;
+    if (!gclock_on() || empty($j['id'])) { pj_pantry_pass($uid, $u, (int)($j['id'] ?? 0), null); return; }
+    $raw = (string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$j['id']]);
+    $cur = json_decode($raw, true) ?: [];
+    $L = pj_morning_day($uid);
+    $last = isset($cur['morning']) ? (int)$cur['morning'] : null;
+    $days = $last === null ? [null] : ($L > $last ? range($last + 1, min($L, $last + PJ_PANTRY_MAX_MORNINGS)) : []);   // null = the first look: stock the jars today
+    if (!$days) return;
+    $cur['morning'] = $L; $cur['passes'] = (int)($cur['passes'] ?? 0) + count($days);
+    if (q('UPDATE ppal_jobs SET result = ? WHERE id = ? AND result = ?', [json_encode($cur), $j['id'], $raw])->rowCount() !== 1) return;   // another tab took these mornings
+    foreach ($days as $d) pj_pantry_pass($uid, $u, (int)$j['id'], $d);
+}
+
+/** One pass: collect the ready jars (as of game day $day, null = now), then start jars until the jars or the ingredients run out. */
+function pj_pantry_pass(int $uid, array $u, int $jobId, ?int $day): void
+{
     $collected = 0; $started = 0;
-    foreach (pantry_jars_list($uid) as $jar) {
-        if ($jar['left'] > 0) continue;
-        [$ok, , $info] = pantry_collect_one($u, (int)$jar['id']);
-        if ($ok) $collected += max(1, (int)($info['dishes'] ?? 1));
+    if ($day === null) {
+        foreach (pantry_jars_list($uid) as $jar) {
+            if ($jar['left'] > 0) continue;
+            [$ok, , $info] = pantry_collect_one($u, (int)$jar['id']);
+            if ($ok) $collected += max(1, (int)($info['dishes'] ?? 1));
+        }
+    } else {
+        [$rs, $rp] = [ '((ready_day IS NOT NULL AND ready_day <= ?) OR (ready_day IS NULL AND ready_at <= ?))', [$day, now()] ];
+        foreach (q('SELECT id FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND ' . $rs . ' ORDER BY id', array_merge([$uid], $rp))->fetchAll(PDO::FETCH_COLUMN) as $id) {
+            [$ok, , $info] = pantry_collect_one($u, (int)$id, $day);
+            if ($ok) $collected += max(1, (int)($info['dishes'] ?? 1));
+        }
     }
     $plan = pj_station_order($uid, array_values(pj_station_all_recipes($uid, 'pantry')));
     for ($pass = 0; $pass < 30; $pass++) {
@@ -734,15 +769,15 @@ function pj_pantry_tick(int $uid, array $j): void
         foreach ($plan as $rec) {
             if (pantry_free($uid, pantry_kind($rec)) < 1) continue;
             if (craft_fit(craft_stock($uid, (string)$rec['ingredients'], (int)$rec['id']), 0, 0) < 1) continue;
-            [$ok] = pantry_start($u, $rec, 1, true);
+            [$ok] = pantry_start($u, $rec, 1, true, $day);
             if ($ok) { $started++; $did = true; }
         }
         if (!$did) break;
     }
-    if ($collected || $started) {
-        $cur = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$j['id']]), true) ?: [];
+    if (($collected || $started) && $jobId > 0) {
+        $cur = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$jobId]), true) ?: [];
         $cur['started'] = (int)($cur['started'] ?? 0) + $started; $cur['collected'] = (int)($cur['collected'] ?? 0) + $collected;
-        q('UPDATE ppal_jobs SET result = ? WHERE id = ?', [json_encode($cur), $j['id']]);
+        q('UPDATE ppal_jobs SET result = ? WHERE id = ?', [json_encode($cur), $jobId]);
     }
 }
 

@@ -14,7 +14,7 @@ function base(): array
     static $b = null; if ($b !== null) return $b;
     $st = ['grit' => 1, 'nimble' => 1, 'hardiness' => 1, 'charm' => 1, 'lore' => 1, 'luck' => 0, 'level' => 10];
     $deck = []; foreach (range(1, 12) as $i) $deck[] = T(['hurt', 'guard', 'heal', 'charm'][$i % 4], 4);
-    $deck[] = T('guard', 4, ['fx' => 'r1>guard', 'fxa' => 1, 'fxb' => 2]);
+    $deck[] = T('guard', 4, ['fx' => 'r2>guard', 'fxa' => 1, 'fxb' => 2]);
     $s = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => $deck, 'luck' => 0], ['slug' => 'tst', 'name' => 'Test', 'size' => 'medium', 'level' => 10, 'dmg_die' => 6, 'dmg_bonus' => 1], 7, ['v1' => true, 'can_pluck' => true]);
     $s['pcs'] = []; $s['cell'] = []; $s['me']['hand'] = []; $s['foe']['plan'] = null; $s['round'] = 1; $s['foe']['block'] = 0; $s['me']['block'] = 0; $s['me']['hp'] = 30;
     $s['fh']['max'] = $s['bar']['max'] = 500.0; $s['me']['luckmod'] = 0; $s['foe']['kind'] = '';
@@ -78,16 +78,10 @@ $far = ['foe', 'heal', 3, 3, 3];
 $TR = [
     'linkG' => [['nb' => [['me', 'guard', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
     'linkH' => [['nb' => [['me', 'hurt', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
-    'linkC' => [['nb' => [['me', 'charm', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
-    'linkT' => [['nb' => [['me', 'trick', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
-    'linkS' => [['nb' => [['me', 'soothe', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
-    'linkHeal' => [['nb' => [['me', 'item', 2, 0, 1]]], ['nb' => [['me', 'charm', 2, 0, 1]]]],
     'linkEnv' => [['st' => function (&$s) { $e = null; foreach (pfb_env_deck('medium') as $et) if ($et['env'] === 'rain') $e = $et; $e['ed'] = WILD; put($s, 'env', $e, 0, 1); }], ['nb' => [['me', 'heal', 2, 0, 1]]]],
     'linkFoe' => [['nb' => [['foe', 'heal', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1], $far]]],
-    'link2' => [['nb' => [['me', 'heal', 2, 0, 1], ['me', 'heal', 2, 2, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
     'chain2' => [['nb' => [['me', 'heal', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1], ['me', 'heal', 2, 2, 1]]]],
     'combo3' => [['nb' => [['me', 'heal', 2, 0, 1], ['me', 'heal', 2, 2, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
-    'pair' => [['nb' => [['me', 'soothe', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
     'aimNext' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['foe']['plan'] = ['k' => 'q', 'x' => 2, 'y' => 1, 't' => 'hurt']], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['foe']['plan'] = ['k' => 'q', 'x' => 3, 'y' => 3, 't' => 'hurt']]],
     'onAim' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['foe']['plan'] = ['k' => 'q', 'x' => 1, 'y' => 1, 't' => 'hurt']], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['foe']['plan'] = ['k' => 'q', 'x' => 2, 'y' => 1, 't' => 'hurt']]],
     'edge' => [['at' => [0, 1], 'nb' => [['me', 'heal', 2, 1, 1]]], ['nb' => [['me', 'heal', 2, 0, 1]]]],
@@ -97,8 +91,6 @@ $TR = [
     'handH' => [['nb' => [['me', 'heal', 2, 0, 1]], 'hand' => [T('hurt', 2), T('hurt', 2)]], ['nb' => [['me', 'heal', 2, 0, 1]], 'hand' => [T('hurt', 2)]]],
     'foeEvade' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['foe']['evade'] = 1], ['nb' => [['me', 'heal', 2, 0, 1]]]],
     'foeG' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['foe']['block'] = 3], ['nb' => [['me', 'heal', 2, 0, 1]]]],
-    'foeB3' => [['nb' => [['me', 'heal', 2, 0, 1], ['foe', 'heal', 1, 3, 3], ['foe', 'heal', 1, 3, 1], ['foe', 'heal', 1, 3, 0]]], ['nb' => [['me', 'heal', 2, 0, 1], ['foe', 'heal', 1, 3, 3], ['foe', 'heal', 1, 3, 1]]]],
-    'foeB0' => [['nb' => [['me', 'heal', 2, 0, 1]]], ['nb' => [['me', 'heal', 2, 0, 1], $far]]],
     'yHalf' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['fh']['now'] = 300.0], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['fh']['now'] = 200.0]],
     'yLow' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['fh']['now'] = 50.0], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['fh']['now'] = 150.0]],
     'hpLow' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['hp'] = 10], ['nb' => [['me', 'heal', 2, 0, 1]]]],
@@ -106,13 +98,22 @@ $TR = [
     'hit' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['hit'] = 4], ['nb' => [['me', 'heal', 2, 0, 1]]]],
     'noDmg' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['nd'] = 1], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['nd'] = 0]],
     'poisoned' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['poison'] = 2], ['nb' => [['me', 'heal', 2, 0, 1]]]],
-    'r1' => [['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 1], ['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 2]],
     'r3' => [['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 3], ['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 2]],
-    'lastRound' => [['refire' => [0, 1], 'round' => 4], ['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 4]],
     'disc5' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['discard'] = array_fill(0, 5, T('hurt', 1))], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['discard'] = array_fill(0, 4, T('hurt', 1))]],
     'g2' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['pl'] = ['guard' => 2]], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['pl'] = ['guard' => 1]]],
     'h2' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['pl'] = ['hurt' => 2]], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['pl'] = ['hurt' => 1]]],
     'noHurt' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['lt'] = 'guard'], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['wx']['lt'] = 'hurt']],
+    // trigger redesign: the ten that almost never came true were replaced (balance.md)
+    'handC' => [['nb' => [['me', 'heal', 2, 0, 1]], 'hand' => [T('charm', 2)]], ['nb' => [['me', 'heal', 2, 0, 1]], 'hand' => [T('hurt', 2)]]],
+    'foeHasH' => [['nb' => [['me', 'heal', 2, 0, 1], ['foe', 'hurt', 2, 3, 3]]], ['nb' => [['me', 'heal', 2, 0, 1], $far]]],
+    'disc3' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['discard'] = array_fill(0, 3, T('hurt', 1))], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['discard'] = array_fill(0, 2, T('hurt', 1))]],
+    'handHeal' => [['nb' => [['me', 'heal', 2, 0, 1]], 'hand' => [T('hurt', 2), T('item', 2)]], ['nb' => [['me', 'heal', 2, 0, 1]], 'hand' => [T('charm', 2)]]],
+    'yQuarter' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => function (&$s) { $s['fh']['now'] = 150.0; $s['bar']['now'] = 0.0; }], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => function (&$s) { $s['fh']['now'] = 100.0; $s['bar']['now'] = 0.0; }]],
+    'foeHasG' => [['nb' => [['me', 'heal', 2, 0, 1], ['foe', 'guard', 2, 3, 3]]], ['nb' => [['me', 'heal', 2, 0, 1], $far]]],
+    'foeB2' => [['nb' => [['me', 'heal', 2, 0, 1], ['foe', 'heal', 1, 3, 3], ['foe', 'heal', 1, 3, 1]]], ['nb' => [['me', 'heal', 2, 0, 1], $far]]],
+    'foeB1' => [['nb' => [['me', 'heal', 2, 0, 1], $far]], ['nb' => [['me', 'heal', 2, 0, 1], ['foe', 'heal', 1, 3, 3], ['foe', 'heal', 1, 3, 1]]]],
+    'r2' => [['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 2], ['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 1]],
+    'hp75' => [['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['hp'] = 20], ['nb' => [['me', 'heal', 2, 0, 1]], 'st' => fn(&$s) => $s['me']['hp'] = 30]],
 ];
 chk('a scenario for every trigger', array_keys($TR) == array_keys($D['trig']) || !array_diff(array_keys($D['trig']), array_keys($TR)), array_diff(array_keys($D['trig']), array_keys($TR)));
 foreach ($TR as $code => [$yes, $no]) {
@@ -120,11 +121,10 @@ foreach ($TR as $code => [$yes, $no]) {
     [$w, $o] = both($no, $code . '>guard'); $gn = $G($w, $o);
     chk("trigger $code: true gives the payoff, false does not", $gy === 5 && $gn === 0, [$gy, $gn]);
 }
-// a placed piece that fires again: lastRound is false on placement
-[$w, $o] = both(['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 4], 'lastRound>guard'); chk('trigger lastRound: never true on the turn it is placed', $G($w, $o) === 0, $G($w, $o));
+chk('the triggers that almost never came true are gone (trigger redesign)', !array_intersect(['linkC', 'linkT', 'linkS', 'linkHeal', 'link2', 'pair', 'r1', 'foeB0', 'foeB3', 'lastRound'], array_keys($D['trig'])), array_keys($D['trig']));
 
-// ---------------------------------------------------------------- payoffs: r1>PAY (round 1), a = 2, b = 5
-$nb = ['nb' => [['me', 'heal', 2, 0, 1]]];
+// ---------------------------------------------------------------- payoffs: r2>PAY (round 2), a = 2, b = 5
+$nb = ['nb' => [['me', 'heal', 2, 0, 1]], 'round' => 2];
 $PY = [
     'guard' => [$nb, fn($w, $o) => $G($w, $o) === 5],
     'heal' => [$nb + ['st' => fn(&$s) => $s['me']['hp'] = 10], fn($w, $o) => $w['me']['hp'] - $o['me']['hp'] === 5],
@@ -139,7 +139,7 @@ $PY = [
     'hold' => [['t' => 'guard', 'v' => 6] + $nb, fn($w, $o) => $w['me']['keep'] - $o['me']['keep'] === 6],
     'life' => [['t' => 'guard'] + $nb, fn($w, $o) => ($w['pcs'][$w['pid']]['xl'] ?? 0) === 2 && pfb_life($w, $w['pcs'][$w['pid']]) === pfb_life($o, $o['pcs'][$o['pid']]) + 2],
     'stay' => [['t' => 'guard', 'nb' => [['me', 'heal', 2, 0, 1], ['me', 'heal', 2, 2, 1]]], fn($w, $o) => isset($w['pcs'][$w['pid']]) && !isset($o['pcs'][$o['pid']]) && count($w['pcs']) === 1],
-    'keep' => [['t' => 'guard'] + $nb, fn($w, $o) => pfb_wx_keep(['round' => 2] + $w, T('guard', 3, ['fx' => 'r1>keep'])) && !pfb_wx_keep(['round' => 3] + $w, T('guard', 3, ['fx' => 'r1>keep']))],
+    'keep' => [['t' => 'guard'] + $nb, fn($w, $o) => pfb_wx_keep(['round' => 3] + $w, T('guard', 3, ['fx' => 'r2>keep'])) && !pfb_wx_keep(['round' => 2] + $w, T('guard', 3, ['fx' => 'r2>keep']))],
     'cleanse' => [['t' => 'guard', 'st' => function (&$s) { $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $s['me']['hp'] = 10; }] + $nb, fn($w, $o) => $w['me']['poison'] === 0 && $o['me']['poison'] === 2 && $w['me']['hp'] - $o['me']['hp'] === 2],
     'knock' => [['t' => 'trick', 'nb' => [['me', 'heal', 2, 0, 1], ['foe', 'heal', 5, 3, 3], ['foe', 'heal', 1, 3, 1]]], fn($w, $o) => count(array_filter($w['pcs'], fn($p) => $p['by'] === 'foe')) === 1 && array_values(array_filter($w['pcs'], fn($p) => $p['by'] === 'foe'))[0]['tile']['v'] === 5],
     'boost' => [['t' => 'trick', 'nb' => [['me', 'hurt', 4, 0, 1]]], fn($w, $o) => ($w['pcs'][$w['pid'] - 1]['wv'] ?? 0) === 2 && $w['fh']['now'] - $o['fh']['now'] == 2 * $w['hm']],
@@ -153,18 +153,18 @@ $PY = [
     'focus' => [['t' => 'hurt'] + $nb, fn($w, $o) => $w['me']['wx']['nx'] === [['hurt', 1, 5, 0]]],
 ];
 chk('a check for every payoff', !array_diff(array_keys($D['pay']), array_keys($PY)), array_diff(array_keys($D['pay']), array_keys($PY)));
-foreach ($PY as $code => [$c, $f]) { [$w, $o, $ev] = both($c, 'r1>' . $code); chk("payoff $code", (bool)$f($w, $o), $ev[0]['wfx'] ?? null); }
+foreach ($PY as $code => [$c, $f]) { [$w, $o, $ev] = both($c + ['round' => 2], 'r2>' . $code); chk("payoff $code", (bool)$f($w, $o), $ev[0]['wfx'] ?? null); }
 // the later steps of the lasting payoffs, through the engine
-$s = base(); put($s, 'me', T('heal', 2), 0, 1); $s['me']['wx']['nx'] = [['guard', 1, 5, 0]]; $s['me']['hand'] = [T('guard', 3)]; pfb_place($s, 'me', 0, 1, 1);
+$s = base(); $s['round'] = 2; put($s, 'me', T('heal', 2), 0, 1); $s['me']['wx']['nx'] = [['guard', 1, 5, 0]]; $s['me']['hand'] = [T('guard', 3)]; pfb_place($s, 'me', 0, 1, 1);
 chk('payoff ward: the next Guard placed gets +5 (and only one)', ($s['pcs'][$s['pid']]['wv'] ?? 0) === 5 && $s['me']['wx']['nx'] === [], $s['pcs'][$s['pid']]);
-[$w] = play(['t' => 'guard'] + $nb, ['r1>thorns', 2, 5]); $w['fh']['now'] = 0.0; $e = ['blocked' => 3, 'dmg' => 0]; pfb_wx_guard($w, $e, 99);
+[$w] = play(['t' => 'guard'] + $nb, ['r2>thorns', 2, 5]); $w['fh']['now'] = 0.0; $e = ['blocked' => 3, 'dmg' => 0]; pfb_wx_guard($w, $e, 99);
 chk('payoff thorns: a blocked creature Hurt adds a to the bar', abs($w['fh']['now'] - 2 * $w['hm']) < 0.01 && ($e['wfx'] ?? null) === ['bar 2'], $e);
-[$w] = play(['t' => 'heal'] + $nb + ['st' => fn(&$s) => $s['me']['hp'] = 10], ['r1>mend', 2, 5]); $h0 = $w['me']['hp']; pfb_end_round($w);
+[$w] = play(['t' => 'heal'] + $nb + ['st' => fn(&$s) => $s['me']['hp'] = 10], ['r2>mend', 2, 5]); $h0 = $w['me']['hp']; pfb_end_round($w);
 chk('payoff mend: heals 2 as your next turn starts, once more after', $w['me']['hp'] === $h0 + 2 && $w['me']['wmend'] === [[2, 1, $w['pcs'] ? array_key_last($w['pcs']) : 0]] || ($w['me']['hp'] === $h0 + 2 && count($w['me']['wmend']) === 1), [$h0, $w['me']['hp'], $w['me']['wmend']]);
-$s = base(); $s['me']['hand'] = [T('guard', 3, ['fx' => 'r1>keep', 'fxa' => 1, 'fxb' => 2]), T('hurt', 3)]; pfb_end_round($s);
-chk('payoff keep: at the redraw the piece stays in your hand (and counts the round)', ($s['me']['hand'][0]['fx'] ?? '') === 'r1>keep' && ($s['me']['hand'][0]['kr'] ?? 0) === 1 && count($s['me']['hand']) === 5, $s['me']['hand'][0]);
-$s = base(); $s['round'] = 2; $s['me']['hand'] = [T('guard', 3, ['fx' => 'r1>keep', 'fxa' => 1, 'fxb' => 2])]; pfb_end_round($s);
-chk('payoff keep: a false trigger lets it go to the discard', ($s['me']['hand'][0]['fx'] ?? '') !== 'r1>keep', $s['me']['hand'][0]);
+$s = base(); $s['round'] = 3; $s['me']['hand'] = [T('guard', 3, ['fx' => 'r2>keep', 'fxa' => 1, 'fxb' => 2]), T('hurt', 3)]; pfb_end_round($s);
+chk('payoff keep: at the redraw the piece stays in your hand (and counts the round)', ($s['me']['hand'][0]['fx'] ?? '') === 'r2>keep' && ($s['me']['hand'][0]['kr'] ?? 0) === 1 && count($s['me']['hand']) === 5, $s['me']['hand'][0]);
+$s = base(); $s['round'] = 2; $s['me']['hand'] = [T('guard', 3, ['fx' => 'r2>keep', 'fxa' => 1, 'fxb' => 2])]; pfb_end_round($s);
+chk('payoff keep: a false trigger lets it go to the discard', ($s['me']['hand'][0]['fx'] ?? '') !== 'r2>keep', $s['me']['hand'][0]);
 $s = base(); $s['me']['wmore'] = 1; $s['me']['more'] = 1; pfb_end_round($s); chk('payoffs plenty + hand: the next hand holds 7', count($s['me']['hand']) === 7, count($s['me']['hand']));
 
 // ---------------------------------------------------------------- the 70 Rares: each placed in a scenario, the difference it makes
@@ -238,18 +238,18 @@ foreach ($R as $k => [$c, $f]) {
 }
 
 // ---------------------------------------------------------------- the rules: fire order, use-up, old fights, the view
-[$w, , $ev] = both(['t' => 'guard', 'nb' => [['me', 'hurt', 2, 0, 1], ['me', 'heal', 2, 2, 1]]], 'r1>guard');
+[$w, , $ev] = both(['t' => 'guard', 'nb' => [['me', 'hurt', 2, 0, 1], ['me', 'heal', 2, 2, 1]], 'round' => 2], 'r2>guard');
 $ord = array_map(fn($e) => $e['t'], array_filter($ev, fn($e) => isset($e['id'])));
 chk('fixed fire order still holds with a wear piece in the chain (Guard, Hurt, Heal)', $ord === ['guard', 'hurt', 'heal'], $ord);
 chk('a chain of 3 uses up the wear piece like any piece', !isset($w['pcs'][$w['pid']]), array_keys($w['pcs']));
 $s = pfb_new(['hp' => 30, 'max_hp' => 30, 'stats' => ['level' => 3], 'deck' => [T('hurt', 3), T('guard', 3), T('heal', 3), T('charm', 3), T('hurt', 2)], 'luck' => 0], ['slug' => 'z', 'name' => 'Z', 'size' => 'small', 'level' => 3], 3, ['v1' => true]);
 chk('a fight with no wear piece carries no wear state', !isset($s['wfx']) && !isset($s['me']['wx']) && !isset($s['foe']['wnx']), array_keys($s));
-[$w] = play($nb, ['r1>guard', 1, 2]); $v = pfb_view($w);
+[$w] = play($nb, ['r2>guard', 1, 2]); $v = pfb_view($w);
 $fxv = array_values(array_filter($v['pcs'], fn($q) => isset($q['fx'])));
-chk('the view gives a wear piece on the board its effect sentence', count($fxv) === 1 && $fxv[0]['fx'] === 'In the first round of the fight, gain 2 guard.', $fxv);
+chk('the view gives a wear piece on the board its effect sentence', count($fxv) === 1 && $fxv[0]['fx'] === 'From round 2 on, gain 2 guard.', $fxv);
 $s = base(); $s['me']['hand'] = [T('hurt', 2, ['fx' => 'linkG>pierce', 'fxa' => 1, 'fxb' => 3])]; $v = pfb_view($s);
 chk('the view gives a wear piece in the hand its effect sentence', ($v['hand'][0]['fx'] ?? '') === 'If it is linked to a Guard, it ignores the creature\'s guard.', $v['hand'][0]);
-$s = base(); put($s, 'me', T('heal', 2), 0, 1); $s['me']['hand'] = [T('guard', 3, ['fx' => 'r1>guard', 'fxa' => 1, 'fxb' => 2])]; $ev = pfb_place($s, 'me', 0, 1, 1);
+$s = base(); $s['round'] = 2; put($s, 'me', T('heal', 2), 0, 1); $s['me']['hand'] = [T('guard', 3, ['fx' => 'r2>guard', 'fxa' => 1, 'fxb' => 2])]; $ev = pfb_place($s, 'me', 0, 1, 1);
 chk('the event of a wear piece names what it did (wfx)', ($ev[array_key_first(array_filter($ev, fn($e) => ($e['t'] ?? '') === 'guard'))]['wfx'] ?? null) === ['guard 2'], $ev);
 
 echo $bad ? "$bad of $n FAILED\n" : "all $n ok\n";

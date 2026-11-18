@@ -686,16 +686,16 @@
     "act|kill|block|post",
     "trig|linkG|link:guard|If it is linked to a Guard",
     "trig|linkH|link:hurt|If it is linked to a Hurt",
-    "trig|linkC|link:charm|If it is linked to a Charm",
-    "trig|linkT|link:trick|If it is linked to a Trick",
-    "trig|linkS|link:soothe|If it is linked to a Soothe",
-    "trig|linkHeal|link:heal/item|If it is linked to a Heal or Item",
+    "trig|handC|hand:charm:1|If you hold a Charm in your hand",
+    "trig|foeHasH|fhas:hurt|If the creature has a Hurt on the board",
+    "trig|disc3|disc:3|If your discard pile holds 3 or more pieces",
+    "trig|handHeal|hand:heal/item:1|If you hold a Heal or Item in your hand",
     "trig|linkEnv|cenv|If an environment piece is in its chain",
     "trig|linkFoe|cfoe|If a creature piece is in its chain",
-    "trig|link2|links:2|If it is linked to 2 or more pieces",
+    "trig|yQuarter|ygt:0.25|If its Yield bar is past a quarter",
     "trig|chain2|clen:2:2|If its chain is exactly 2 pieces",
     "trig|combo3|clen:3|If its chain has 3 or more pieces",
-    "trig|pair|link:self|If a piece of its own type is linked to it",
+    "trig|foeHasG|fhas:guard|If the creature has a Guard on the board",
     "trig|aimNext|aimnext|If it sits next to the creature's aim cell",
     "trig|onAim|onaim|If it sits on the creature's aim cell",
     "trig|edge|edge|If it sits on the edge of the board",
@@ -705,8 +705,8 @@
     "trig|handH|hand:hurt:2|If you hold 2 or more Hurts in your hand",
     "trig|foeEvade|fevade|If the creature dodges your next hit",
     "trig|foeG|fguard|If the creature has guard up",
-    "trig|foeB3|fpcs:3|If the creature has 3 or more pieces on the board",
-    "trig|foeB0|fpcs:0:0|If the creature has no pieces on the board",
+    "trig|foeB2|fpcs:2|If the creature has 2 or more pieces on the board",
+    "trig|foeB1|fpcs:0:1|If the creature has 1 piece or none on the board",
     "trig|yHalf|ygt:0.5|If its Yield bar is past half",
     "trig|yLow|ylt:0.25|If its Yield bar is under a quarter",
     "trig|hpLow|hplt:0.5|If you are under half health",
@@ -714,9 +714,9 @@
     "trig|hit|hit|If the creature hit you last turn",
     "trig|noDmg|nodmg|If you took no damage last turn",
     "trig|poisoned|poisoned|If you are poisoned",
-    "trig|r1|round:1:1|In the first round of the fight",
+    "trig|r2|round:2|From round 2 on",
     "trig|r3|round:3|From round 3 on",
-    "trig|lastRound|last|In its last round on the board",
+    "trig|hp75|hplt:0.75|If you are under three quarters health",
     "trig|disc5|disc:5|If your discard pile holds 5 or more pieces",
     "trig|g2|played:guard:2|If you have played 2 or more Guards this fight",
     "trig|h2|played:hurt:2|If you have played 2 or more Hurts this fight",
@@ -1344,7 +1344,7 @@
       case 'edge': case 'corner': case 'mid':
         if (!p) return false; ex = toInt(p.x) === 0 || toInt(p.x) === pfbW(s) - 1; ey = toInt(p.y) === 0 || toInt(p.y) === pfbH(s) - 1;
         return x[0] === 'edge' ? (ex || ey) : (x[0] === 'corner' ? (ex && ey) : (!ex && !ey));
-      case 'hand': s.me.hand.forEach(function (h) { if (nn(h.t, '') === x[1]) n++; }); return n >= toInt(x[2]);
+      case 'hand': var hty = x[1].split('/'); s.me.hand.forEach(function (h) { if (hty.indexOf(String(nn(h.t, ''))) >= 0) n++; }); return n >= toInt(x[2]);
       case 'fevade': return toInt(s.foe.evade) > 0;
       case 'fguard': return toInt(s.foe.block) > 0;
       case 'fpcs': case 'fhas':
