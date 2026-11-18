@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.11
+- **Shop sheet shows the puzzle piece** a wearable gives (132x92 picture at 2x, with the item's art on it, its number and rarity mark). 280 pictures in `game/assets/img/wearpiece/<item slug>.png` (made by `claude/wear-pieces/render2.py`). Hidden with the rest of the wearables (`pfight_v1`). No player news.
+
 ## 2.7.10
 - **Regional outfitters** (hidden behind `pfight_v1`, like the wearables): one shop per region at its market place, three shifts of staff, selling that region's 20 wearables at Common rank for the Tailor's Petal fee x 1.25 (no Tailor, materials or energy needed; Lined and Fine still come from the Tailor). Stock: Common 3, Uncommon 2, Rare 1 on the shelf. A gnome needs the level of the item's region. Shops and stock are created by the existing `wearables_2700` boot step (`wear_ensure_shops` in `wearables.php`); the shop and its items stay out of sight for normal gnomes while `pfight_v1` is Admins only.
 - No player news this version.
