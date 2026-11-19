@@ -272,7 +272,7 @@ function home_slim_needs(array $u): array
     foreach ($d['need'] as $n) $need[] = $n;
     foreach ($d['night'] as $n) {
         if ($n[3] === '') continue;   // the weather: it is on the banner's tag
-        if (str_contains($n[3], 'hovel.php')) { if ($n[2] !== '') $quiet[] = 'Overnight the crew: ' . $n[2] . '.'; continue; }
+        if (str_contains($n[3], 'hovel.php')) continue;   // the garden crew has its own Overnight list (home_slim_overnight)
         $need[] = $n;
     }
     foreach ($d['village'] as $n) {
@@ -280,6 +280,66 @@ function home_slim_needs(array $u): array
         $quiet[] = rtrim($n[1], '.') . ($n[2] !== '' ? ' · ' . $n[2] : '') . '.';
     }
     return ['need' => $need, 'quiet' => $quiet];
+}
+
+/**
+ * 2.7.17: the Overnight list on the Today tab, one row per pal job: the garden crew (what each pal did last night, from the sleep report),
+ * pals tending a station (Kitchen, Pantry, Workshop...: jobs finished so far, time left or full time) and pals out on a trip or delve (back in).
+ * Rows: [icon, title, small, href]. Never throws.
+ */
+function home_slim_overnight(array $u): array
+{
+    $rows = [];
+    $uid = (int)$u['id'];
+    try {
+        require_once __DIR__ . '/pal_crew.php';
+        $rep = pcrew_latest_report($uid);
+        if ($rep && (int)$rep[0] === (int)$u['game_day'] && !empty($rep[1]['crew'])) {
+            $plots = array_unique(array_map(fn($c) => (string)($c['plot'] ?? ''), $rep[1]['crew']));
+            foreach ($rep[1]['crew'] as $c) {
+                $pal = (string)($c['pal'] ?? 'A pal');
+                $role = (string)($c['role'] ?? '');
+                $txt = trim((string)($c['text'] ?? ''));
+                if (str_starts_with($txt, $pal . ' ')) $txt = ucfirst(substr($txt, strlen($pal) + 1));   // the title names the pal already
+                if ($txt === '') $txt = (int)($c['n'] ?? 0) > 0 ? (int)$c['n'] . ' done' : 'Nothing to do';
+                $bits = [$txt];
+                if (count($plots) > 1 && !empty($c['plot'])) $bits[] = (string)$c['plot'];
+                if (!empty($c['eff']) && (int)$c['eff'] < 100) $bits[] = 'working at ' . (int)$c['eff'] . '%';
+                if (!empty($c['ended'])) $bits[] = 'job finished, home to rest';
+                elseif (!empty($c['tired'])) $bits[] = 'tired of this job';
+                $rows[] = [PCREW_ROLES[$role][0] ?? '🧩', $pal . ' · ' . (PCREW_ROLES[$role][1] ?? 'Crew'), implode(' · ', $bits), url('garden.php?t=help')];
+            }
+        }
+    } catch (Throwable $e) {}
+    try {
+        require_once __DIR__ . '/pal_jobs.php';
+        if (pj_open($u)) {
+            $list = function_exists('pj_station_list') ? pj_station_list() : [];
+            $left = function (string $ends): string {
+                $t = strtotime($ends);
+                if (!$t || $t - time() > 86400 * 365) return 'full time';
+                return $t <= time() ? 'time is up' : pj_ago($t - time()) . ' left';
+            };
+            foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND kind IN ('station','trip','delve') ORDER BY id", [$uid])->fetchAll() as $j) {
+                $pal = pj_pal($uid, (string)$j['pal_uid']);
+                $name = (string)($pal['name'] ?? 'A pal');
+                $n = (int)$j['tasks'];
+                if ($j['kind'] === 'station') {
+                    $isJars = ($j['tool'] ?? '') === 'jars';
+                    $lab = $list[$j['target']] ?? null;
+                    $area = $lab ? ($lab[1] === 'Whole station' ? $lab[0] : $lab[0] . ': ' . $lab[1]) : ($isJars ? 'Pantry' : 'Station');
+                    $icon = $isJars ? '🫙' : (str_starts_with((string)$j['target'], 'cooking') ? '🍳' : '🛠️');
+                    $href = $isJars ? url('inventory.php?tab=craft&c=pantry') : (str_starts_with((string)$j['target'], 'cooking') ? url('inventory.php?tab=craft&c=cooking') : url('paljobs.php'));
+                    $rows[] = [$icon, $name . ' · ' . $area, ($n > 0 ? $n . ' made so far' : 'Nothing made yet') . ' · ' . $left((string)$j['ends_at']), $href];
+                } else {
+                    $what = $j['kind'] === 'delve' ? 'on a delve' : 'on a trip';
+                    $t = strtotime((string)$j['ends_at']);
+                    $rows[] = [$j['kind'] === 'delve' ? '⛏️' : '🌲', $name . ' is ' . $what, $t && $t > time() ? 'Back in ' . pj_ago($t - time()) : 'Back any moment', url('paljobs.php')];
+                }
+            }
+        }
+    } catch (Throwable $e) {}
+    return $rows;
 }
 
 /** 2.7.16: is the Closet tab there (wearables open to everyone, not a guest)? */
@@ -399,7 +459,17 @@ function home_slim_today_html(array $u, array $needs): string
         $h .= '<p class="hs-empty">Nothing needs you right now. A good day to wander.</p>';
     }
     if ($needs['quiet']) $h .= '<p class="hs-quiet">' . e(implode(' ', $needs['quiet'])) . '</p>';
-    $h .= '</section>' . home_slim_news_html($uid) . '</div>';
+    $h .= '</section>';
+    $night = home_slim_overnight($u);
+    if ($night) {   // 2.7.17: every pal job in one list (garden crew, stations, trips and delves)
+        $h .= '<section class="box hs-needs hs-night" aria-labelledby="hs-night-h"><h2 id="hs-night-h">Your pals</h2><ul class="hs-nlist">';
+        foreach ($night as [$ic, $tt, $sm, $href]) {
+            $in = '<span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b>' . ($sm !== '' ? '<small>' . e($sm) . '</small>' : '') . '</span>';
+            $h .= '<li><a href="' . e($href) . '">' . $in . '<span class="hs-go">' . e(basename((string)parse_url($href, PHP_URL_PATH)) === 'paljobs.php' ? 'Pals' : home_slim_go($href)) . ' →</span></a></li>';
+        }
+        $h .= '</ul></section>';
+    }
+    $h .= home_slim_news_html($uid) . '</div>';
     require_once __DIR__ . '/today_social.php';
     return $h . '<aside class="hs-rail" aria-label="The Hollow">' . today_social_html($u, 'line') . '</aside></div>';
 }
