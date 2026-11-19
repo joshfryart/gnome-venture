@@ -14,6 +14,9 @@ $pill = '<section class="x"><details class="moonpill"><summary>🌕 Full</summar
 chk('a panel that already collapses (a moon pill) is left alone', trail_fam_collapse($pill) === $pill);
 $det = '<details class="tfcoast"><summary>Tide</summary>x</details>';
 chk('a panel that is its own <details> is left alone', trail_fam_collapse($det) === $det);
+$ledger = '<section class="mwl" aria-label="Sugar-shack ledger"><div class="mwl-h"><b>🧵 Sugar-shack ledger</b> <span class="mwl-n">11/82 patches</span></div><ul class="mwl-row"><li>x</li></ul><details class="mwl-quilt"><summary>🪡 The whole quilt <small>11/82</small></summary><ul class="mwl-grid"><li>y</li></ul></details></section>';
+$o = trail_fam_collapse($ledger);
+chk('a panel with its own inner details (the Sugar-shack ledger and its quilt) still starts collapsed under its headline', str_contains($o, '<details class="moonpill">') && str_contains($o, '<summary><span aria-hidden="true">🧵</span> Sugar-shack ledger 11/82 patches</summary>') && str_contains($o, '<details class="mwl-quilt">'), $o);
 chk('empty stays empty, text that is not a section is left alone', trail_fam_collapse('') === '' && trail_fam_collapse('<p>x</p>') === '<p>x</p>');
 $long = '<section><p>' . str_repeat('word ', 40) . '</p></section>';
 chk('a long first line is cut for the summary', mb_strlen(strip_tags(explode('</summary>', explode('<summary>', trail_fam_collapse($long))[1])[0])) <= 95);

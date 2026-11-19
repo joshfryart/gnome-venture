@@ -21,13 +21,13 @@ function trail_fam_ctx(array $u, array $exp, array $sc, array $marks): array
 
 /**
  * 2.7.06 (Josh): a family panel (the wind row, the lantern row, the aurora ...) starts collapsed like the moon pill: a <details> whose summary is the panel's own first line, the rest behind a tap.
- * A panel that already collapses (a moon pill or its own <details>) and one that is not a single <section> are left as they are.
+ * A panel that already collapses (a moon pill, or a <details> as its first child) and one that is not a single <section> are left as they are.
  */
 function trail_fam_collapse(string $html): string
 {
     $html = trim($html);
     if ($html === '' || !str_starts_with($html, '<section') || !str_ends_with($html, '</section>')) return $html;
-    if (str_contains($html, 'class="moonpill"') || str_contains($html, '<details')) return $html;
+    if (str_contains($html, 'class="moonpill"') || preg_match('/^<section\b[^>]*>\s*<details\b/', $html)) return $html;   // already collapses: a moon pill, or the section's own first child is a <details> (an inner <details> further down, like the Sugar-shack ledger's quilt, does not count)
     require_once __DIR__ . '/moon.php';
     $i = strpos($html, '>'); if ($i === false) return $html;
     $inner = substr($html, $i + 1, -strlen('</section>'));

@@ -1,0 +1,37 @@
+/* pfight_stage: the Trail's puzzle fight takes over the map's place instead of a dimmed pop-up. Loaded only when the setting is on for the viewer (includes/layout.php).
+   The dialog stays a real modal (assets/site.js keepTrailPop and assets/hubscene.js depend on that); only where it sits and how it looks change.
+   assets/pfstage.js sets --pfx / --pfy / --pfw / --pfh to the map column's box (document coordinates), puts the jigsaw pieces in .pfst-layer behind the card, and adds .pfst-on when the card may show. */
+dialog.trailpop.pfst { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 100%); height: var(--pfh, auto); min-height: 0; margin: 0; padding: 0; max-width: none; max-height: none; border: 0; background: transparent; overflow: visible; }
+dialog.trailpop.pfdlg.pfst::backdrop, dialog.trailpop.pfst::backdrop { background: transparent; backdrop-filter: none; }
+dialog.trailpop.pfst .pickbox { position: relative; z-index: 1; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; box-shadow: none; background: transparent; display: block; }
+dialog.trailpop.pfst .hubcard { position: relative; height: 100%; overflow: hidden; padding: 0; background: transparent; }
+dialog.trailpop.pfst .panel.box.encounter { position: static; margin: 0; padding: 0; border: 0; box-shadow: none; background: transparent; animation: none; }
+/* the pre-fight card and the fight are position: fixed full-window panels in the game (pfv1.css .pfv-fit): here they fill the map's place instead */
+dialog.trailpop.pfst #pfv-pre.pfv-fit, dialog.trailpop.pfst #pfight.pf-v1.pfv-fit, dialog.trailpop.pfst .pfst-ghost .pfv-fit { position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; max-width: none; transform: none; z-index: auto; margin: 0; }
+html:has(dialog.trailpop.pfst), html:has(dialog.trailpop.pfst) body { height: auto; overflow: visible; }
+/* the combat gets the visible window (assets/pfstage.js visBox), fixed to it, like the game's own full-window fight panel */
+dialog.trailpop.pfst.pfst-fixed { position: fixed; }
+/* the page behind is not dimmed or blurred (the game's own .pfover does that to the map column) */
+.advgrid.fighting.pfover:has(dialog.pfst) > .mapcol { filter: none; opacity: 1; }
+/* held: the jigsaw stays under the pre-fight card, which sits inset so the pieces frame it */
+dialog.trailpop.pfst.pfst-held #pfv-pre.pfv-fit, dialog.trailpop.pfst .pfst-ghost .pfv-fit { top: 10px; bottom: 10px; left: 10px; right: 10px; width: auto; border: 2px solid var(--thread, #e8a317); box-shadow: 0 4px 18px rgba(0, 0, 0, .55); background: var(--felt, #3d2a1c); }
+/* the result card (a run fight) over the map, same inset */
+dialog.trailpop.pfst .hubcard.pfst-res { display: flex; flex-direction: column; gap: 8px; margin: 10px; height: calc(100% - 20px); background: var(--felt, #3d2a1c); border: 2px solid var(--thread, #e8a317); box-shadow: 0 4px 18px rgba(0, 0, 0, .55); padding: 10px; overflow-y: auto; box-sizing: border-box; }
+dialog.trailpop.pfst .pfst-res .pfst-act { margin: 0; position: sticky; bottom: 0; }
+dialog.trailpop.pfst .pfst-res .pfst-act .btn { width: 100%; }
+/* without script the fight is simply shown; with script it waits for the jigsaw (pfstage.js always adds .pfst-on, also when the cover cannot play) */
+@media (scripting: enabled) { dialog.trailpop.pfst:not(.pfst-on) .pickbox { visibility: hidden; } }
+dialog.trailpop.pfst.pfst-fade .pickbox { animation: pfstfade .4s ease-out both; }
+@keyframes pfstfade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { dialog.trailpop.pfst.pfst-fade .pickbox { animation: none; } }
+/* the jigsaw layer: under the card, over the map; the ghost of the old card and the second set of pieces (Let's fight) are over everything and let taps through */
+.pfst-layer, .pfst-ghost, .pfst-top { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.pfst-layer { z-index: 0; }
+.pfst-ghost { z-index: 3; }
+.pfst-top { z-index: 4; }
+.pfst-top svg { position: absolute; overflow: visible; will-change: transform; }
+dialog.trailpop.pfst.pfst-wait .pickbox { visibility: hidden; }
+.pfst-layer svg { position: absolute; overflow: visible; will-change: transform; }
+/* the cover for the way out (End match): a manual popover, so it sits above the modal dialog in the top layer */
+.pfst-cover { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 0px); height: var(--pfh, 0px); margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; pointer-events: auto; }
+.pfst-cover svg { position: absolute; overflow: visible; will-change: transform; }
