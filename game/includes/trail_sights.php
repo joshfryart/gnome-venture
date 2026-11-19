@@ -10,12 +10,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/trail_sight_extras.php';
 require_once __DIR__ . '/trail_sight_third_b.php';   // 2.7.08 third pass B: birthdays, letters, bottle post, board / green quest lines, growing seeds, keepsakes
 require_once __DIR__ . '/trail_sights_3a.php';   // 2.7.08 third pass A: buff2=, lair / delve hints, nxt=
+require_once __DIR__ . '/trail_sights_5.php';   // fifth pass: items with engine uses (rain-proof charm, map scrap, star chart, chalk, message bottle), condition hv=
 require_once __DIR__ . '/trail_sights_4.php';   // fourth pass: fog (nxt=fog, nxt=lit), a named stretch (sec=), penalties (lose:), a check that depends on the conditions
 
 const TRAIL_SIGHT_HINTS = ['weather', 'season', 'away', 'creature', 'tide', 'moon', 'snore', 'webhum', 'glow', 'rut', 'firstroom'];   // snore webhum glow rut firstroom: 2.7.08 third pass A (trail_sights_3a.php)   // hint=<kind>: a true line from the game state (tide and moon: 2.7.08)
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
 const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'streak', 'lend', 'repay', 'time', 'escort', 'check', 'choose', 'disc', 'fpall', 'buff2', 'nxt', 'sec'];   // buff2 nxt: 2.7.08 third pass A; sec: fourth pass (a named stretch)   // fpall: 2.7.08
-const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti|fd|to)=[a-z0-9,_-]+|mk=(yes|no)|mo=[a-z,-]+|(tl|tn|sk)=[a-z0-9-]+(@today)?:\d+|qd=[a-z0-9,-]+|bd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
+const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal|ti|fd|to)=[a-z0-9,_-]+|mk=(yes|no)|hv=[a-z0-9-]+:\d+|mo=[a-z,-]+|(tl|tn|sk)=[a-z0-9-]+(@today)?:\d+|qd=[a-z0-9,-]+|bd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
 function trail_sight_row(array $p): ?array

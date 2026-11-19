@@ -14,6 +14,8 @@ declare(strict_types=1);
  * Everything here is new functions; trail_sights.php, trail_sight_extras.php, trail_sights_3a.php and trail_tiles.php only call them.
  */
 
+require_once __DIR__ . '/trail_sights_5.php';
+
 const SIGHTS4_SEC_RE = '/^(\d{1,4})\.([1-6]):(find(?::[1-3])?|calm|fog|quick:(?:[5-9]|[1-5]\d|60)|skip)$/';
 const SIGHTS4_LOSE_KEYS = ['time', 'nxt', 'sec'];
 const SIGHTS4_CHECK_RE = '/^([a-z]+):(\d{1,2})(?:\?(.+):(\d{1,2}))?$/';
@@ -31,7 +33,7 @@ function sights4_fog_view(array $sc): array
 {
     if (!sights4_fog_on((array)($sc['st'] ?? []))) return $sc;
     $sc['st']['tokens'] = array_values(array_filter((array)$sc['st']['tokens'],
-        fn($t) => $t[2] !== 'F' || (int)$t[3] !== 0 || max(abs((int)$t[0] - (int)$sc['x']), abs((int)$t[1] - (int)$sc['y'])) <= 1));
+        fn($t) => $t[2] !== 'F' || (int)$t[3] !== 0 || max(abs((int)$t[0] - (int)$sc['x']), abs((int)$t[1] - (int)$sc['y'])) <= 1 || sights5_is_marked($sc['st'], (int)$t[0], (int)$t[1])));   // fifth pass: a find marked with a map scrap shows in fog
     return $sc;
 }
 
@@ -181,6 +183,7 @@ function sights4_split_lose(string $rewards): array
 /** Pay the penalties of a lost check ($lose = the lose: tokens, prefix gone). ?cond and @chance work. Lines for the walk log. */
 function sights4_lose_pay(array $u, string $lose, array $now): array
 {
+    $now = sights5_dry_now($now);   // fifth pass: the rain charm keeps a rain penalty off
     $lines = [];
     foreach (trail_sight_tokens($lose) as $t) {
         if ($t['cond'] !== '' && !trail_sight_cond_ok($t['cond'], $now)) continue;
@@ -201,6 +204,7 @@ function sights4_lose_pay(array $u, string $lose, array $now): array
 /** `sense:11?se=spring:9+grit:12` as it stands right now: `sense:9+grit:12` in spring, `sense:11+grit:12` otherwise. A pick is returned as it is. */
 function sights4_check_resolve(string $check, array $now): string
 {
+    $now = sights5_dry_now($now);   // fifth pass: a harder check in rain is not harder for a gnome with the rain charm
     if ($check === '-' || str_starts_with($check, 'pick') || !str_contains($check, '?')) return $check;
     $out = [];
     foreach (explode('+', $check) as $alt) {
@@ -213,6 +217,7 @@ function sights4_check_resolve(string $check, array $now): string
 /** For the Sights card: 'easier' / 'harder' when the conditions change a check's difficulty right now, else ''. */
 function sights4_check_note(string $check, array $now): string
 {
+    $now = sights5_dry_now($now);
     if ($check === '-' || str_starts_with($check, 'pick') || !str_contains($check, '?')) return '';
     $d = 0;
     foreach (explode('+', $check) as $alt) if (preg_match(SIGHTS4_CHECK_RE, $alt, $m) && isset($m[3]) && $m[3] !== '' && trail_sight_cond_ok($m[3], $now)) $d += (int)$m[4] - (int)$m[2];
