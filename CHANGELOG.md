@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.25
+- **Puzzle combat stage mode (`pfight_stage`, still Off by default): the play board was cut off on phones.** The combat took the map's height plus extra, so on a short phone screen the board and the hand fell below the fold. It now gets the visible window like the game's own fight panel (the whole window on a phone, between the header and the bottom bar on a wide screen), fixed to it, and the pieces cover that same area. The pre-fight card and the result card still sit on the map.
+- No player news (setting is Off). No DB step.
 ## 2.7.24
 - **Puzzle combat stage mode (`pfight_stage`, still Off by default) fixes:** a fight that is already on the page when it loads no longer shows its card while the pieces are still coming in; the fight follows the map when the page moves; the pieces wait for a Trail walk to end and for the pop-up to open; the card's buttons are scrolled into view and focused. Script and stylesheet get a new version number so a phone that kept the 2.7.23 copies fetches these.
 - No player news (setting is Off). No DB step.

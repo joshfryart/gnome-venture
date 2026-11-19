@@ -9,8 +9,8 @@ dialog.trailpop.pfst .panel.box.encounter { position: static; margin: 0; padding
 /* the pre-fight card and the fight are position: fixed full-window panels in the game (pfv1.css .pfv-fit): here they fill the map's place instead */
 dialog.trailpop.pfst #pfv-pre.pfv-fit, dialog.trailpop.pfst #pfight.pf-v1.pfv-fit, dialog.trailpop.pfst .pfst-ghost .pfv-fit { position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; max-width: none; transform: none; z-index: auto; margin: 0; }
 html:has(dialog.trailpop.pfst), html:has(dialog.trailpop.pfst) body { height: auto; overflow: visible; }
-/* the fight needs more room than the tile map: it grows below the map's box (the page behind is inert anyway) */
-dialog.trailpop.pfst:has(#pfight.pf-screen) { height: max(var(--pfh, 0px), 660px); }
+/* the combat gets the visible window (assets/pfstage.js visBox), fixed to it, like the game's own full-window fight panel */
+dialog.trailpop.pfst.pfst-fixed { position: fixed; }
 /* the page behind is not dimmed or blurred (the game's own .pfover does that to the map column) */
 .advgrid.fighting.pfover:has(dialog.pfst) > .mapcol { filter: none; opacity: 1; }
 /* held: the jigsaw stays under the pre-fight card, which sits inset so the pieces frame it */

@@ -18,7 +18,7 @@
   var seenNoFight = false;   // the page had no fight before: only then does a fight that shows up get the jigsaw
   var wasD = false, entering = false, held = false, dismissing = false, closing = false, coverUp = false, token = 0;
   var layer = null, pieces = null, ghost = null, ghostTimer = 0, cover = null, cpieces = null, lastBox = null;
-  var top = null, tpieces = null, topIn = null, topReady = false, accepting = false;   // Let's fight: the second set of pieces, over the card
+  var top = null, tpieces = null, topIn = null, topReady = false, accepting = false, closeBox = null;   // Let's fight: the second set of pieces, over the card
 
   function dlg() { return document.querySelector('dialog.trailpop.pfst'); }
   function kindOf(d) {
@@ -42,15 +42,31 @@
     return { x: l + window.pageXOffset + (w - cw) / 2, y: t + window.pageYOffset, w: cw, h: h };
   }
   function box() { var b = curBox(); if (b) lastBox = b; return b || lastBox; }   // where the tile map is NOW (the page lays out differently while a fight is on); the last box seen only when it cannot be measured
+  /* the combat needs the visible window, not just the map's height: the same room the game gives it (pfv1box.js): the whole window on a phone, between the header and the bottom bar on a wide screen. Fixed to the window, so it cannot scroll away. */
+  function visBox() {
+    var iw = window.innerWidth, ih = window.innerHeight, top = 0, bot = 0;
+    if (iw >= 700) {
+      var hd = document.querySelector('.bannerin'), bb = document.querySelector('.bottombar');
+      if (hd) top = Math.max(0, Math.round(hd.getBoundingClientRect().bottom));
+      if (bb && getComputedStyle(bb).display !== 'none' && getComputedStyle(bb).position === 'fixed') bot = Math.max(0, Math.round(ih - bb.getBoundingClientRect().top));
+      if (top > ih * 0.4) top = 0;
+    }
+    var w = Math.min(iw, 560);
+    return { x: (iw - w) / 2, y: top, w: w, h: Math.max(320, ih - top - bot), fixed: true };
+  }
+  function fixedKind(d) { return !!d && (accepting || kindOf(d) === 'fight'); }
+  function boxFor(d) { return fixedKind(d) ? visBox() : box(); }
+  function docBox(b) { return b && b.fixed ? { x: b.x + window.pageXOffset, y: b.y + window.pageYOffset, w: b.w, h: b.h } : b; }
   function setBox(el, b) { el.style.setProperty('--pfx', b.x + 'px'); el.style.setProperty('--pfy', b.y + 'px'); el.style.setProperty('--pfw', b.w + 'px'); el.style.setProperty('--pfh', b.h + 'px'); }
-  function place(d) { var b = box(); if (b) setBox(d, b); return b; }
+  function place(d) { var b = boxFor(d); if (b) { setBox(d, b); d.classList.toggle('pfst-fixed', !!b.fixed); } return b; }
   /* follow the map for as long as a dialog exists: late stylesheets, images, the route box fade or a toast above the map all move it after the first measurement */
   var follow = 0;
   function startFollow() {
     if (follow) return; var last = '';
     (function tick() {
       var d = dlg(); if (!d) { follow = 0; return; }
-      var b = curBox(); if (b) { lastBox = b; var k = [b.x, b.y, b.w, b.h].map(Math.round).join(); if (k !== last) { last = k; setBox(d, b); } }
+      var m = curBox(); if (m) lastBox = m;
+      var b = boxFor(d); if (b) { var k = [b.x, b.y, b.w, b.h, b.fixed ? 1 : 0].map(Math.round).join(); if (k !== last) { last = k; setBox(d, b); d.classList.toggle('pfst-fixed', !!b.fixed); } }
       follow = requestAnimationFrame(tick);
     })();
   }
@@ -116,6 +132,7 @@
   }
   /* the card or board can be taller than what is left of the screen below the map: bring its bottom (the buttons) into view without losing its top */
   function scrollIn(d) {
+    if (d.classList.contains('pfst-fixed')) return;
     try { var r = d.getBoundingClientRect(), dy = Math.min(r.bottom - window.innerHeight + 8, r.top - 8); if (dy > 1) window.scrollBy({ top: dy, left: 0, behavior: reduce.matches ? 'auto' : 'smooth' }); } catch (e) {}
   }
   /* the dialog is a modal whose card was hidden: put keyboard and screen-reader focus on its main button once it shows */
@@ -194,7 +211,7 @@
       seenNoFight = true; seen(false); var nb = curBox(); if (nb) lastBox = nb;
       if (wasD) {
         if (closing) {   // the swap removed the fight: when the cover is already whole it leaves now, else the click handler's cover-in finishes this
-          if (coverUp && cover) { var b = box(); closing = false; if (b) { setBox(cover, b); fly(cpieces, false, b).then(dropCover, dropCover); } else dropCover(); }
+          if (coverUp && cover) { var b = closeBox || box(); closing = false; if (b) { setBox(cover, b); fly(cpieces, false, b).then(dropCover, dropCover); } else dropCover(); }
         } else if (!dismissing) { entering = false; dropLayer(); dropCover(); }
       }
     }
@@ -222,7 +239,8 @@
     var btn = t.closest('button, input[type=submit]'); if (!btn || !btn.form) return;
     var doo = btn.form.querySelector('input[name=do]'), v = doo ? doo.value : '';
     if (v === 'pfv_go' && layer && held && canAnim) {   // the player accepts the deck: new pieces come in over the card (a ghost of it stays under them), then the board shows
-      var d1 = dlg(), pre = d1 && d1.querySelector('#pfv-pre'), bx = box(); if (!pre || !bx) return;
+      var d1 = dlg(), pre = d1 && d1.querySelector('#pfv-pre'), bx = visBox(); if (!pre || !bx) return;
+      setBox(d1, bx); d1.classList.add('pfst-fixed');   // the combat will fill the window: the new pieces cover that
       dropGhost(); ghost = document.createElement('div'); ghost.className = 'pfst-ghost'; ghost.setAttribute('aria-hidden', 'true');
       var cl = pre.cloneNode(true); cl.removeAttribute('id'); Array.prototype.forEach.call(cl.querySelectorAll('[id]'), function (e) { e.removeAttribute('id'); }); Array.prototype.forEach.call(cl.querySelectorAll('form, script'), function (e) { e.parentNode.removeChild(e); });
       ghost.appendChild(cl); d1.appendChild(ghost);
@@ -234,9 +252,9 @@
       return;
     }
     if (v === 'pf_finish' && dlg() && canPop && usable() && !closing) {
-      var b2 = box(); if (!b2) return;
-      closing = true; var tk = ++token;
-      mkCover(b2); fly(cpieces, true, b2).then(function () { coverUp = true; if (tk === token && !dlg() && closing) { closing = false; fly(cpieces, false, b2).then(dropCover, dropCover); } }, function () { closing = false; dropCover(); });
+      var b2 = boxFor(dlg()); if (!b2) return;
+      closing = true; var tk = ++token; closeBox = docBox(b2);
+      mkCover(closeBox); b2 = closeBox; fly(cpieces, true, b2).then(function () { coverUp = true; if (tk === token && !dlg() && closing) { closing = false; fly(cpieces, false, b2).then(dropCover, dropCover); } }, function () { closing = false; dropCover(); });
       setTimeout(function () { if (closing && tk === token) { closing = false; dropCover(); } }, 6000);   // the swap never came (an error shows its own message)
     }
   }, true);

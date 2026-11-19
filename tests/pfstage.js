@@ -10,7 +10,7 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
   let fail = 0;
   const chk = (ok, msg) => { console.log((ok ? 'ok   ' : 'FAIL ') + msg); if (!ok) fail = 1; };
-  for (const [name, vp] of [['wide', { width: 1280, height: 900 }], ['phone', { width: 412, height: 700 }]]) {
+  for (const [name, vp] of [['wide', { width: 1280, height: 900 }], ['phone', { width: 412, height: 600 }]]) {
     php(here + '/here.php', game, 'cli', 'tilewalk'); php(here + '/here.php', game, 'cli', 'clearenc');
     const c = await b.newContext({ viewport: vp, deviceScaleFactor: 1, hasTouch: name === 'phone' }); const p = await c.newPage(); const errs = [];
     p.on('pageerror', e => errs.push(String(e))); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
@@ -44,6 +44,11 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
     const mid = await until(s => s.top > 0 && s.ghost && s.wait, 3000); chk(!!mid, `[${name}] Let's fight: a second set of pieces flies in over the card (a ghost of the card stays under them)`);
     const fightOn = await until(s => s.board && !s.pre && s.on && !s.wait, 8000); chk(!!fightOn, `[${name}] the combat section shows once the pieces cover the card`);
     const gone = await until(s => s.board && s.layer === 0 && s.top === 0 && !s.held && !s.ghost && !s.wait, 6000); chk(!!gone, `[${name}] all the pieces and the ghost are gone once the fight is on`);
+
+    const fit = await p.evaluate(() => { const d = document.querySelector('dialog.trailpop.pfst').getBoundingClientRect(), h = [...document.querySelectorAll('#pf-hand .pf-tile')], hb = h.length ? Math.max(...h.map(e => e.getBoundingClientRect().bottom)) : 0, bd = document.getElementById('pfb-board'), br = bd ? bd.getBoundingClientRect() : null;
+      return { top: Math.round(d.top), bottom: Math.round(d.bottom), ih: innerHeight, hand: Math.round(hb), n: h.length, bh: br ? Math.round(br.height) : 0, bb: br ? Math.round(br.bottom) : 0 }; });
+    chk(fit.n > 0 && fit.hand <= fit.ih + 1 && fit.bottom <= fit.ih + 1 && fit.top >= -1, `[${name}] the combat fits the window, the hand is in sight (dialog ${fit.top}-${fit.bottom} of ${fit.ih}, hand bottom ${fit.hand}, ${fit.n} pieces)`);
+    chk(fit.bh >= 100 && fit.bb <= fit.ih, `[${name}] the play board is not cut off (board ${fit.bh}px high, bottom ${fit.bb})`);
 
     // ---- a turn through the in-place swap keeps the dialog node
     const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0;
