@@ -29,7 +29,7 @@
   function seen(v) { try { if (v === undefined) return sessionStorage.getItem(KEY) === '1'; if (v) sessionStorage.setItem(KEY, '1'); else sessionStorage.removeItem(KEY); } catch (e) {} return false; }
   /* the tile map's box (the map column's, when there is no tile map). A column can be display: contents (a phone): then it is the box of its children. */
   function curBox() {
-    var m = document.querySelector('.advgrid .tmwrap') || document.querySelector('.advgrid .mapcol'); if (!m) return null;   // the tile map itself: what the fight takes over
+    var m = document.querySelector('.advgrid .tmwrap') || document.querySelector('.wanderbehind .tmwrap') || document.querySelector('.advgrid .mapcol'); if (!m) return null;   // a fight met off the Trail: the map is the wander page's one behind the card (.wanderbehind), the .mapcol of the hidden old page is only a sliver   // the tile map itself: what the fight takes over
     var r = m.getBoundingClientRect(), l, t, w, h;
     if (r.width >= 40 && r.height >= 40) { l = r.left; t = r.top; w = r.width; h = r.height; }
     else {
