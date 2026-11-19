@@ -1,5 +1,7 @@
 # Maplewold Sights: new items that need art
 
+Status: DONE (2026-11-19): every listed item has its PNG in `game/assets/img/ph/`.
+
 64x64 PNG at `game/assets/img/ph/<slug>.png`. Items: `game/includes/data/trail_sight_items_maplewold.txt` (made 2026-11-12, P2b upgrade).
 
 - `white-clover-sprig` White Clover Sprig: a small sprig of white clover, three round leaves and one fluffy white-pink flower head.
