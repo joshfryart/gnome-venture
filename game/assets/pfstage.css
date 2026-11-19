@@ -1,4 +1,4 @@
-/* 2.7.23 pfight_stage: the Trail's puzzle fight takes over the map's place instead of a dimmed pop-up. Loaded only when the setting is on for the viewer (includes/layout.php).
+/* pfight_stage: the Trail's puzzle fight takes over the map's place instead of a dimmed pop-up. Loaded only when the setting is on for the viewer (includes/layout.php).
    The dialog stays a real modal (assets/site.js keepTrailPop and assets/hubscene.js depend on that); only where it sits and how it looks change.
    assets/pfstage.js sets --pfx / --pfy / --pfw / --pfh to the map column's box (document coordinates) and adds .pfst-on once the jigsaw cover has covered the swap. */
 dialog.trailpop.pfst { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 100%); min-height: var(--pfh, 0px); margin: 0; padding: 0; max-width: none; max-height: none; border: 0; background: transparent; overflow: visible; }

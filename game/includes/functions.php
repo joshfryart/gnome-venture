@@ -489,7 +489,7 @@ function settings_schema(): array
         'pfight_open' => ['label' => 'Puzzle combat: fights are played as jigsaw-tile chains in road, lair and delve fights (Treks not yet)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', 'admin' => 'Admins only', '1' => 'Everyone']],
         'pfight_mode' => ['label' => 'Puzzle combat: a NEW fight is played as a strip of tiles (chain) or on a shared jigsaw board (board). Fights already under way keep their mode.', 'type' => 'select', 'default' => 'chain', 'options' => ['chain' => 'Strip (chain)', 'board' => 'Board']],
         'pfight_v1' => ['label' => 'Puzzle combat: the v1 board rules (2.6.74, in testing) for NEW fights: board size by creature size, ground cells, a terrain turn with forecast events, chains of 3+ use pieces up, the creature shows its aim, Teamwork, authored edges with a flip, per-piece life. The fight is then always a board fight. Fights already under way keep their rules.', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', 'admin' => 'Admins only']],
-        'pfight_stage' => ['label' => 'Puzzle combat on the Trail: the fight takes over the map\'s own place (same size, no dimmed page) and a jigsaw cover plays over the swap in and out, instead of a pop-up over a dimmed page. Needs the v1 board. Off = the pop-up as before (2.7.23).', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', 'admin' => 'Admins only', '1' => 'Everyone']],
+        'pfight_stage' => ['label' => 'Puzzle combat on the Trail: the fight takes over the map\'s own place (same size, no dimmed page) and a jigsaw cover plays over the swap in and out, instead of a pop-up over a dimmed page. Needs the v1 board. Off = the pop-up as before.', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', 'admin' => 'Admins only', '1' => 'Everyone']],
         'wear_open' => ['label' => 'Wearables: clothing items, the regional outfitters, the Tailor\'s regional crafts and the Wearing slots on My Gnome, for everyone (Off = hidden again for all; the Puzzle box pieces still need Puzzle combat v1) (2.7.14)', 'type' => 'select', 'default' => '1', 'options' => ['1' => 'On', '0' => 'Off']],
         'tea_open' => ['label' => 'Tea kettle: the kettle in the Hovel room brews one cup of tea a day (a small stat boost until the next sleep), with the Tea Journal and better kettles. Off = the kettle is plain art for all; Admins only = only admins see it; Everyone = live.', 'type' => 'select', 'default' => 'admin', 'options' => ['off' => 'Off', 'admin' => 'Admins only', 'everyone' => 'Everyone']],
         'tea_cap_main' => ['label' => 'Tea kettle: the most points the best cup gives its main stat (the Silver Samovar; lesser kettles have their own lower caps). Lower it to weaken tea.', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 3],
@@ -852,7 +852,7 @@ function load_current_user(): ?array
     return $u;
 }
 
-/** 2.7.23: the Trail's puzzle fight takes over the map's place (setting pfight_stage; Off by default). Cheap: one settings read, no other includes. */
+/** the Trail's puzzle fight takes over the map's place (setting pfight_stage; Off by default). Cheap: one settings read, no other includes. */
 function pfight_stage_on(?array $u): bool
 {
     $v = setting('pfight_stage');

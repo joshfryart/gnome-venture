@@ -1,10 +1,5 @@
 # Changelog
 
-## 2.7.23
-- **Puzzle combat on the Trail can take over the map's place (setting `pfight_stage`, Off by default; Admins only / Everyone):** instead of a pop-up over a dimmed page, the fight sits exactly on the map column's box, the page behind is not dimmed, and a jigsaw cover plays over the swap when a fight starts and when End match or Run ends it. The dialog stays a real modal, so the in-place turn swap (`keepTrailPop`), Escape handling and the reload-lands-on-the-fight behaviour are unchanged; `site.js` only keeps the new `pfst-on` class across turns. Reduced motion, no Popover API, or any failure means the fight is simply shown. With the setting Off the page loads none of it (no class, no stylesheet, no script).
-- New files `assets/pfstage.css`, `assets/pfstage.js`; test `tests/pfstage.sh` + `tests/pfstage.js` (Off loads nothing; On: box, no dimming, still modal, a turn keeps the dialog node, cover on start and end, no JS errors).
-- No player news (setting is Off). No DB step.
-
 ## 2.7.22
 - **Tea recipes show what they need (tea is still hidden behind `tea_open`):** every row in the Recipes tab has a "Needs ..." line with the ingredients by name, the ones you lack marked. Teas not found yet stay "???" but now list their ingredients too, with the hint. Ingredient tiles in the Leaves and Extras tabs are four to a row.
 - No player news (tea is hidden). No DB step.

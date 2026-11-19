@@ -1,4 +1,4 @@
-/* 2.7.23 pfight_stage (setting, default Off): the Trail's puzzle fight takes over the map's place.
+/* pfight_stage (setting, default Off): the Trail's puzzle fight takes over the map's place.
    What this script does, and only when the dialog has the class .pfst (includes/adventure.php adds it when the setting is on):
    - puts the fight dialog on the map column's box (assets/pfstage.css reads --pfx --pfy --pfw --pfh set here),
    - plays a jigsaw cover over the swap when a fight starts and when it ends (End match, Run), then lets the fight show (.pfst-on),
