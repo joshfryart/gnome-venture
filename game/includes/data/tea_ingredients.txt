@@ -6,6 +6,7 @@
 #   power  steep points: 2 = true leaves, roots and spices; 1 = other herbs, flowers and fruit; 0 = sweet and milk.
 #   items  item slugs that count as this ingredient, comma separated, tried in this order (empty = the same slug).
 #          A "?" after a slug = the item is made on first use by the game (dried flowers), so it may not exist yet.
+# Next release: six tea crops (lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise) were added: one stat each, luck stays at 5 (41 stat ingredients: six stats have 6, luck 5).
 # Adding a plant later is one row here (and a row in teas.txt if it makes a named tea). tests/tea.php checks every item slug.
 tea|Tea Leaves|leaf|lore|2|
 yerba-mate|Yerba Mate|leaf|grit|2|
@@ -24,6 +25,11 @@ raspberry-leaf|Raspberry Leaf|herb|lore|1|
 spruce-tips|Spruce Tips|herb|nimble|1|
 dandelion-root|Dandelion Root|herb|luck|2|
 licorice-root|Licorice Root|herb|charm|2|
+lemon-balm|Lemon Balm|herb|charm|1|
+peppermint|Peppermint|herb|nimble|1|
+lemon-verbena|Lemon Verbena|herb|sense|1|
+garden-sage|Garden Sage|herb|lore|1|
+tulsi|Tulsi|herb|hardiness|1|
 bee-balm|Bee Balm|flower|grit|1|cut-bee-balm,dried-bee-balm?
 lavender|Lavender|flower|sense|1|lavender,cut-lavender,dried-lavender?
 chrysanthemum|Chrysanthemum|flower|lore|1|cut-chrysanthemum,dried-chrysanthemum?
@@ -37,6 +43,7 @@ cinnamon|Cinnamon|spice|grit|2|
 clove|Clove|spice|hardiness|2|
 black-pepper|Black Pepper|spice|grit|2|
 vanilla|Vanilla|spice|luck|2|
+star-anise|Star Anise|spice|grit|2|
 lemon|Lemon|fruit|sense|1|
 orange|Orange|fruit|charm|1|
 yuzu|Yuzu|fruit|nimble|1|

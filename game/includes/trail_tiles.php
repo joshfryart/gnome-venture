@@ -580,7 +580,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     foreach ($sc['st']['tokens'] as [$tx, $ty, $k, $done]) {
         if ($tx === $sc['x'] && $ty === $sc['y']) continue;
         $fight = $k === 'E' || ($k === 'M' && !$easyMini);
-        $tokens[] = [$tx, $ty, $fight ? '⚔️' : '✨', $fight ? 'ember' : 'gold', (bool)$done];
+        $tokens[] = [$tx, $ty, $fight ? '⚔️' : (!$done && sights5_is_marked($sc['st'], (int)$tx, (int)$ty) ? '📍' : '✨'), $fight ? 'ember' : 'gold', (bool)$done];   // fifth pass: a find a map scrap marked wears a pin
     }
     [$ex, $ey] = $map['spots']['9'];
     $dest = null;   // 2.7.01: the last stretch's way on shows the marker of the place it leads into (haven, wonder, delve, lair, market; a rest stop draws 'rest')
@@ -675,7 +675,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         else {
             $cls .= $tap ? ' reach' : '';
             $tk = trail_token_at($sc, $x, $y);
-            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = ($sc['st']['tokens'][$tk][2] === 'E' || ($sc['st']['tokens'][$tk][2] === 'M' && !$easyMini)) ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
+            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = ($sc['st']['tokens'][$tk][2] === 'E' || ($sc['st']['tokens'][$tk][2] === 'M' && !$easyMini)) ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : (sights5_is_marked($sc['st'], $x, $y) ? 'Something to find (marked on your map)' : 'Something to find')); }
             elseif (isset($shut[$x . ',' . $y])) { $cls .= ' gate'; $label = trail_gate_message($shut, [[$x, $y]]) ?? 'A shut gate'; }
             elseif (isset($openMid[$x . ',' . $y])) $label = $openMid[$x . ',' . $y];
             elseif ($campSpot && $campSpot[0] === $x && $campSpot[1] === $y) { $cls .= ' spot'; $label = 'A camp spot: sleep, nap or wait'; }

@@ -12,7 +12,8 @@ declare(strict_types=1);
 const COMMON_CROPS = ['tomato', 'potato', 'onion', 'garlic', 'carrot', 'cabbage', 'lettuce', 'radish', 'spinach',
     'cucumber', 'pumpkin', 'green-bean', 'pea', 'beet', 'turnip', 'kale', 'basil', 'mint', 'parsley', 'coriander',
     'dill', 'sunflower', 'strawberry', 'white-clover', 'winter-rye', 'crimson-clover',
-    'celery', 'cauliflower', 'broccoli', 'fennel', 'horseradish', 'rosemary', 'thyme'];
+    'celery', 'cauliflower', 'broccoli', 'fennel', 'horseradish', 'rosemary', 'thyme',
+    'lemon-balm', 'peppermint', 'garden-sage'];   // the last three: tea crops (next release), sold at Twigg's like mint
 
 /** Hungry crops that drain soil fertility faster. */
 const HEAVY_FEEDERS = ['corn', 'tomato', 'pumpkin', 'cabbage', 'potato', 'broccoli', 'cauliflower', 'eggplant',
@@ -51,13 +52,22 @@ function guide_item_slug(string $regionCode): string
     return 'guide-' . strtolower($regionCode);
 }
 
-function import_catalog(): array
+/** The six tea crops (data/crops.txt, next release). A live world gets them from the boot step tea_crops_ensure (bootstrap.php), once. */
+const TEA_CROPS = ['lemon-balm', 'peppermint', 'lemon-verbena', 'garden-sage', 'tulsi', 'star-anise'];
+
+/**
+ * $onlyCrops (a list of crop slugs from data/crops.txt) = the incremental import a live world needs when a release adds crops: only those crops (seed and produce items,
+ * plant row, region links, Almanac page) and their stock in the shops that already exist (Twigg's for an everyday crop, the region's seed market for an uncommon / staple),
+ * nothing else. Null = the whole catalog (a new world, or the Admin Import button).
+ */
+function import_catalog(?array $onlyCrops = null): array
 {
     $stats = ['items' => 0, 'plants' => 0, 'regions' => 0, 'zones' => 0, 'landmarks' => 0,
         'links' => 0, 'pages' => 0, 'milestones' => 0, 'markets' => 0];
 
     $crops = catalog_lines('crops.txt');
-    $flowers = catalog_lines('flowers.txt');
+    $flowers = $onlyCrops === null ? catalog_lines('flowers.txt') : [];
+    if ($onlyCrops !== null) $crops = array_values(array_filter($crops, fn($r) => in_array($r[0] ?? '', $onlyCrops, true)));
     $regions = catalog_lines('regions.txt');
     $regionCrops = catalog_lines('region_crops.txt');
 
@@ -88,6 +98,7 @@ function import_catalog(): array
         'turmeric' => 'Turmeric Rhizome', 'saffron' => 'Saffron Corms', 'horseradish' => 'Horseradish Root',
         'sugarcane' => 'Sugarcane Cuttings', 'asparagus' => 'Asparagus Crowns', 'rhubarb' => 'Rhubarb Crown',
         'strawberry' => 'Strawberry Runners', 'mint' => 'Mint Cutting', 'lemongrass' => 'Lemongrass Stalk',
+        'peppermint' => 'Peppermint Cutting', 'lemon-verbena' => 'Lemon Verbena Cutting', 'star-anise' => 'Star Anise Seedling',
         'banana' => 'Banana Sucker', 'plantain' => 'Plantain Sucker', 'ensete' => 'Enset Sucker',
         'pineapple' => 'Pineapple Crown', 'vanilla' => 'Vanilla Cutting', 'black-pepper' => 'Pepper Vine Cutting',
         'hops' => 'Hop Rhizome', 'wasabi' => 'Wasabi Offset', 'nopal' => 'Cactus Pad', 'bamboo-shoot' => 'Bamboo Rhizome',
@@ -113,6 +124,7 @@ function import_catalog(): array
         'kola' => 'Kola Nuts', 'vanilla' => 'Vanilla Pods', 'black-pepper' => 'Peppercorns', 'cinnamon' => 'Cinnamon Bark',
         'clove' => 'Cloves', 'nutmeg' => 'Nutmeg', 'cardamom' => 'Cardamom Pods', 'caper' => 'Capers',
         'cumin' => 'Cumin Seeds', 'sea-buckthorn' => 'Sea Buckthorn Berries', 'carob' => 'Carob Pods',
+        'star-anise' => 'Star Anise Pods',
     ];
     $notRaw = ['cassava', 'kidney-bean', 'coffee', 'cacao', 'tea', 'hops', 'kava', 'wheat', 'rice', 'barley', 'rye',
         'oats', 'millet', 'sorghum', 'teff', 'fonio', 'quinoa', 'buckwheat', 'corn', 'yam', 'taro', 'potato',
@@ -297,6 +309,12 @@ function import_catalog(): array
             }
         }
 
+        if ($onlyCrops !== null) {   // a live world: the new crops only (no region pages, markets, adventure data or recipes)
+            $stats['stocked'] = catalog_stock_crops($onlyCrops);
+            if ($own) db()->commit();
+            return $stats;
+        }
+
         // ----- Region pages (one per region, Gnomish name + flavour)
         foreach ($regions as $row) {
             if (count($row) < 6) continue;
@@ -364,6 +382,60 @@ function import_catalog(): array
         throw $e;
     }
     return $stats;
+}
+
+/**
+ * Put the seeds of these crops on sale in the shops that exist: an everyday crop (plants.common) at Twigg's, any other at the seed market of each region it is
+ * linked to (uncommon: like import_markets stocks them; staple: like ensure_staple_stock). Adds only what is missing. Returns the stock rows made.
+ */
+function catalog_stock_crops(array $slugs): int
+{
+    $n = 0;
+    $twigg = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'");
+    foreach ($slugs as $slug) {
+        $p = q_one('SELECT p.id, p.common, i.id AS item_id, i.base_price, i.rarity FROM plants p JOIN items i ON i.id = p.seed_item_id WHERE p.slug = ?', [$slug]);
+        if (!$p) continue;
+        $price = max(1, (int)$p['base_price']);
+        if ((int)$p['common']) {
+            if ($twigg && !q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$twigg, $p['item_id']])) {
+                db_insert('shop_stock', ['shop_id' => $twigg, 'item_id' => $p['item_id'], 'price_min' => max(1, (int)floor($price * 0.9)), 'price_max' => (int)ceil($price * 1.2),
+                    'max_stock' => 20, 'restock_chance' => 90, 'current_stock' => 0, 'current_price' => $price]);
+                $n++;
+            }
+            continue;
+        }
+        foreach (q('SELECT pr.tier, s.id AS shop_id FROM plant_regions pr JOIN locations l ON l.region_id = pr.region_id JOIN shops s ON s.location_id = l.id AND s.shop_type = ?
+                    WHERE pr.plant_id = ? AND pr.tier IN (\'staple\', \'uncommon\')', ['seeds', $p['id']])->fetchAll() as $r) {
+            if (q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$r['shop_id'], $p['item_id']])) continue;
+            $rar = (int)$p['rarity'];
+            $staple = $r['tier'] === 'staple';
+            db_insert('shop_stock', ['shop_id' => $r['shop_id'], 'item_id' => $p['item_id'],
+                'price_min' => max(1, (int)floor($price * ($staple ? 0.9 : 0.8))), 'price_max' => (int)ceil($price * ($staple ? 1.2 : 1.3)),
+                'max_stock' => $staple ? 20 : max(2, 14 - intdiv($rar, 8)), 'restock_chance' => $staple ? 90 : max(15, 100 - (int)($rar * 0.8)),
+                'current_stock' => $staple ? 10 : 0, 'current_price' => $price]);
+            $n++;
+        }
+    }
+    return $n;
+}
+
+/**
+ * Boot step (bootstrap.php, runs when the version changes): the tea crops reach a live world. Skips once every one of them has its plant, seed and shop stock.
+ * Returns the number of crops added. Never changes a crop that exists (an Admin edit stands).
+ */
+function tea_crops_ensure(): int
+{
+    $missing = array_values(array_filter(TEA_CROPS, fn($s) => !q_val('SELECT 1 FROM plants WHERE slug = ?', [$s])));
+    $added = count($missing);
+    if ($missing) import_catalog($missing);
+    else catalog_stock_crops(TEA_CROPS);   // a crop made but not stocked (an earlier step stopped half way)
+    require_once __DIR__ . '/world.php';
+    ensure_grow_times();   // the new plants get the v0.7.27 grow times, like the Admin import does
+    require_once __DIR__ . '/climate.php';
+    ensure_plant_climates();
+    require_once __DIR__ . '/nutrients.php';
+    ensure_nutrients();    // the crop's nutrient
+    return $added;
 }
 
 /** One market per world region: location, seed shop, three shifts of staff, stock incl. a rare guide. */

@@ -15,7 +15,7 @@ NWE|staple|rye,barley,leek,brussels-sprouts
 NWE|uncommon|rhubarb,blackcurrant,lingonberry,asparagus,kohlrabi
 NWE|treasure|cloudberry,gooseberry,hazelnut
 SE|staple|fava-bean,oregano,artichoke
-SE|uncommon|olive,grape,fig,lemon,orange,mandarin
+SE|uncommon|olive,grape,fig,lemon,orange,mandarin,lemon-verbena
 SE|treasure|caper,carob,chestnut
 EE|staple|buckwheat,bell-pepper,plum
 EE|uncommon|cherry,pear,elderberry,sorrel
@@ -30,10 +30,10 @@ ESA|staple|teff,collard,banana,sorghum
 ESA|uncommon|ensete,tamarind,watermelon,rooibos
 ESA|treasure|coffee,baobab,clove
 CSA|staple|wheat,mung-bean,fenugreek,ginger
-CSA|uncommon|turmeric,mango,jackfruit,melon,apricot,mulberry
+CSA|uncommon|turmeric,mango,jackfruit,melon,apricot,mulberry,tulsi
 CSA|treasure|cinnamon,tea,black-pepper
 EA|staple|napa-cabbage,daikon,adzuki,bok-choy
-EA|uncommon|peach,perilla,lotus-root,jujube,persimmon,lychee,bamboo-shoot
+EA|uncommon|peach,perilla,lotus-root,jujube,persimmon,lychee,bamboo-shoot,star-anise
 EA|treasure|wasabi,ginseng,yuzu
 SEA|staple|rice,kangkong,lemongrass,bitter-melon
 SEA|uncommon|dragon-fruit,rambutan,longan,starfruit,moringa

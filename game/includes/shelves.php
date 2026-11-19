@@ -45,6 +45,8 @@ function sh_bag_group(array $i): string
     return SH_BAG_SLUGS[(string)($i['slug'] ?? '')] ?? (SH_BAG_CATS[(string)$i['category']][0] ?? 'more');
 }
 
+require_once __DIR__ . '/trail_sights_5.php';   // fifth pass: Satchel buttons of the star chart and the message bottle
+
 /** a one-button POST form to inventory.php (the fields the Satchel always sent; $quick: the quick bar, which does not open the item afterwards) */
 function sh_bag_form(string $do, int $itemId, string $label, string $hid, string $cls = 'btn', bool $quick = false): string
 {
@@ -122,6 +124,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         } elseif ($i['slug'] === 'garden-tonic') {
             $acts[] = '<a class="btn" href="' . e(url('garden.php')) . '">🪴 Pour on a garden square</a>';
         }
+        foreach (sights5_satchel_acts($i, $hid) as $sa) $acts[] = $sa;   // fifth pass: star chart (file in the Almanac), message bottle (open)
         if ($i['category'] === 'decor') $acts[] = '<a class="btn" href="' . e(url('yard.php')) . '">✏️ Place it in your yard</a>';
         if ($i['category'] === 'guide') {
             $acts[] = sh_bag_form('read', $id, '📗 Read guide', $hid);

@@ -73,11 +73,11 @@ function climate_fx(int $regionId): array
 
 /** Crops that count as cool-climate or tropical (each plant's label is editable in Admin → Plants; this only fills in blanks). */
 const CLIMATE_COOL_CROPS = 'crimson-clover white-clover winter-rye blackcurrant blueberry cloudberry cranberry elderberry gooseberry lingonberry raspberry sea-buckthorn strawberry '
-    . 'barley buckwheat oats rye wheat wild-rice dill mint parsley sorrel thyme fava-bean pea chestnut hazelnut walnut pecan hops ginseng wasabi horseradish '
+    . 'barley buckwheat oats rye wheat wild-rice dill mint peppermint lemon-balm garden-sage parsley sorrel thyme fava-bean pea chestnut hazelnut walnut pecan hops ginseng wasabi horseradish '
     . 'apple cherry pear plum quince apricot rhubarb potato asparagus beet bok-choy broccoli brussels-sprouts cabbage carrot cauliflower celery collard kale '
     . 'kohlrabi leek lettuce napa-cabbage radish spinach turnip daikon garlic onion fennel';
 const CLIMATE_TROPICAL_CROPS = 'banana dragon-fruit ensete papaya passion-fruit pineapple plantain fonio sugarcane lemongrass black-pepper cardamom cinnamon clove '
-    . 'ginger grains-of-paradise nutmeg turmeric vanilla acai ackee breadfruit cacao coconut coffee durian guava jackfruit kava longan lychee mamey mango '
+    . 'ginger grains-of-paradise nutmeg turmeric tulsi star-anise vanilla acai ackee breadfruit cacao coconut coffee durian guava jackfruit kava longan lychee mamey mango '
     . 'mangosteen noni pandanus rambutan sago salak soursop starfruit cassava taro yam kangkong bitter-melon okra chayote egusi jute-mallow lotus-root '
     . 'brazil-nut cashew kola macadamia shea bambara cowpea pigeon-pea moringa naranjilla cherimoya tamarind avocado';
 

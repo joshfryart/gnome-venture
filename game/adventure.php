@@ -143,7 +143,7 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
-        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_stay', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp', 'gather', 'sight', 'sightgive', 'sightchat', 'sightgift'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_stay', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp', 'gather', 'sight', 'sightgive', 'sightchat', 'sightgift', 'trail_mapscrap', 'trail_chalk'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
             if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
             elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
             elseif ($do === 'trail_prev') [$tok, $tmsg] = trail_prev($u, $exp);
@@ -153,6 +153,7 @@ if (is_post()) {
             elseif ($do === 'sightchat') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_folk_talk($u, $exp, 'chat', $sgp('fk')); }
             elseif ($do === 'sightgift') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_folk_talk($u, $exp, 'gift', $sgp('fk'), (int)$sgp('item_id')); }
             elseif ($do === 'sightgive') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_give($u, $exp, $sgp('slug'), $sgp('idx') !== '' && ctype_digit($sgp('idx')) ? (int)$sgp('idx') : -1); }   // v2.6.68 Trail Sights
+            elseif ($do === 'trail_mapscrap' || $do === 'trail_chalk') { [$tok, $tmsg] = sights5_trail_do($do, $u, $exp); }   // fifth pass
             elseif ($do === 'trail_stance') [$tok, $tmsg] = trail_stance($u, $exp, (string)($_POST['mode'] ?? ''));
             elseif ($do === 'trail_toll') [$tok, $tmsg] = trail_toll($u, $exp, (string)($_POST['pay'] ?? '') === '1');   // 2.7.00
             elseif ($do === 'trail_camp') { require_once __DIR__ . '/includes/trail_camps.php'; [$cm, $cmin] = tc_parse((string)($_POST['mode_min'] ?? '')); [$tok, $tmsg] = trail_camp($u, $exp, $cm, $cmin); }   // 2.7.00
@@ -161,7 +162,7 @@ if (is_post()) {
             elseif (trail_can_arrive($exp)) { arrive($u, $exp); dm_scene_drop((int)$exp['id']); $arrivedAt = (int)$exp['to_id']; $tok = true; $tmsg = ''; }
             else { $tok = false; $tmsg = 'Not there yet.'; }
             if (!$tok && $tmsg !== '') flash($tmsg, 'err');
-            elseif ($tok && in_array($do, ['trail_back', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp'], true)) flash($tmsg, 'ok');
+            elseif ($tok && in_array($do, ['trail_back', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp', 'trail_mapscrap', 'trail_chalk'], true)) flash($tmsg, 'ok');
         } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total'] && !(($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp))) {   // a tile walk is only walked on its map (trail_go ...), never by the old step button
             next_step($u, $exp);
         } elseif ($do === 'arrive' && (int)$exp['step'] >= (int)$exp['steps_total'] && ts($exp['arrive_at']) <= time() && !(($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp))) {
@@ -363,6 +364,7 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
     <?php if (empty($exp['encounter']) && trail_fish_here($trailSc)): /* v2.7: on or beside water the rod gets its own button */ ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="gather"><input type="hidden" name="tool" value="rod"><button class="btn trailfish">🎣 Fish <small>⚡1</small></button></form><?php endif; ?>
     <?php $sgMarks = empty($exp['encounter']) ? trail_sights_marks($u, $trailSc) : []; if ($sgMarks): ?><a class="btn alt trailsights" data-pop="hubpop-tsights" href="<?= e(url('adventure.php?sg=1')) ?>">🔎 Sights <small><?= count($sgMarks) ?></small></a><?php endif; ?>
     <?php if (empty($exp['encounter'])) foreach (trail_sights_here($u, $trailSc) as [$sgRow, $sgLeft, $sgWhy]): /* v2.6.68: next to a big set piece: its own button (data/trail_sights.txt) */ ?><?php if ((trail_sight_pick_info($sgRow) || trail_sight_choose_info($sgRow)) && $sgLeft > 0): ?><a class="btn trailsight" data-pop="hubpop-tsights" href="<?= e(url('adventure.php?sg=1')) ?>"><?= e($sgRow['icon']) ?> <?= e($sgRow['verb']) ?> <small>choose</small></a><?php else: ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="<?= e($sgRow['slug']) ?>"><button class="btn trailsight"<?= $sgLeft < 1 ? ' disabled title="' . e($sgWhy) . '"' : '' ?>><?= e($sgRow['icon']) ?> <?= e($sgRow['verb']) ?> <small><?= $sgLeft < 1 ? e($sgWhy) : '⚡' . (int)$sgRow['energy'] ?></small></button></form><?php endif; ?><?php endforeach; ?>
+    <?= sights5_trailfoot_html($u, $exp, $trailSc) ?>
     <?php if (on_road((int)$exp['from_id'])): ?><a class="btn alt" data-pop="hubpop-twander" href="<?= e(url('adventure.php?w=1')) ?>">🌿 Wander off <small>⚡1</small></a><?php endif; ?>
     <?php $stance = (string)($trailSc['st']['stance'] ?? ''); foreach (empty($exp['encounter']) ? ['sneak' => '🤫 Sneak', 'hunt' => '🏹 Hunt'] : [] as $sm => $sl): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stance"><input type="hidden" name="mode" value="<?= $sm ?>"><button class="btn<?= $stance === $sm ? '' : ' alt' ?>" aria-pressed="<?= $stance === $sm ? 'true' : 'false' ?>"><?= $sl ?></button></form><?php endforeach; ?>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>

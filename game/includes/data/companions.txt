@@ -10,3 +10,5 @@ rosemary|slugs,caterpillars|carrot,cabbage|Woody and strong-smelling.
 lavender|aphids,gnats||Bees love it, small pests do not.
 dill|aphids|cabbage,lettuce,cucumber|Feathery flowers draw hoverflies that eat aphids.
 coriander|aphids|spinach,lettuce|Its flowers draw the aphid-eaters.
+peppermint|caterpillars,aphids|cabbage,broccoli,cauliflower|A sharp mint smell keeps the egg-laying moths away.
+garden-sage|caterpillars|cabbage,carrot|Grey, woolly and not to a caterpillar’s taste.

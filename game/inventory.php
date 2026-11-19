@@ -31,6 +31,10 @@ if (is_post()) {
         require_once __DIR__ . '/includes/flowers.php';
         [$ok, $msg] = packet_open($u, (int)($_POST['item_id'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
+    } elseif (($_POST['do'] ?? '') === 'sight_item') {   // fifth pass: star chart, message bottle
+        require_once __DIR__ . '/includes/trail_sights.php';
+        [$ok, $msg] = sights5_use_item($u, (int)($_POST['item_id'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
     } elseif (($_POST['do'] ?? '') === 'mend') {   // v0.7.86: mend a worn tool or a Broken copy
         [$ok, $msg] = mend_tool((int)$u['id'], (int)($_POST['item_id'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');

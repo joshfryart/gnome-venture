@@ -135,6 +135,10 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             require_once __DIR__ . '/nutrients.php';
             ensure_nutrients();     // before crafting: some recipes make NPK items
         });
+        boot_step('tea_crops_ensure', function () {
+            require_once __DIR__ . '/catalog.php';
+            tea_crops_ensure();     // next release: lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise (crop, seed, plant, shop stock, Almanac page); adds only what is missing
+        });
         boot_step('ensure_games', function () {
             require_once __DIR__ . '/games.php';
             ensure_games();

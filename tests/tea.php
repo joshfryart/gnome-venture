@@ -35,7 +35,7 @@ ok('fresh start empties the journal', (FRESH_LAZY_TABLES['user_tea_journal'] ?? 
 ok('tea_ensure is a no-op on an upgraded copy', tea_ensure() === true);
 
 echo "== data: ingredients and named teas\n";
-ok('40 ingredients', count($ING) === 40, (string)count($ING));
+ok('46 ingredients', count($ING) === 46, (string)count($ING));
 $bad = [];
 foreach ($ING as $s => $g) {
     $real = 0;
@@ -51,6 +51,18 @@ $NEW = ['nettle' => ['herb', 'grit', 1], 'raspberry-leaf' => ['herb', 'lore', 1]
 $bad = [];
 foreach ($NEW as $s => [$kind, $stat, $pw]) { $g = $ING[$s] ?? null; if (!$g || $g['kind'] !== $kind || $g['stat'] !== $stat || $g['power'] !== $pw) $bad[] = $s; }
 ok('the nine new plants are rows with the decided kind, stat and power', !$bad, implode(', ', $bad));
+// next release: six garden herbs / spices, each a CROP (data/crops.txt). Stat balance: 41 stat ingredients = six stats with 6, Luck with 5 (the gap is at most one).
+$CROP = ['lemon-balm' => ['herb', 'charm', 1], 'peppermint' => ['herb', 'nimble', 1], 'lemon-verbena' => ['herb', 'sense', 1], 'garden-sage' => ['herb', 'lore', 1], 'tulsi' => ['herb', 'hardiness', 1], 'star-anise' => ['spice', 'grit', 2]];
+$bad = [];
+foreach ($CROP as $s => [$kind, $stat, $pw]) {
+    $g = $ING[$s] ?? null; if (!$g || $g['kind'] !== $kind || $g['stat'] !== $stat || $g['power'] !== $pw) { $bad[] = $s; continue; }
+    $pl = q_one('SELECT p.kind, p.seed_item_id, p.produce_item_id, i.slug FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.slug = ?', [$s]);
+    if (!$pl || $pl['slug'] !== $s || !(int)$pl['seed_item_id'] || !item_id_by_slug($s . '-seed')) $bad[] = "$s: no crop / seed";
+    if (!is_file(APP_ROOT . '/assets/img/ph/' . $s . '.svg') || !is_file(APP_ROOT . '/assets/img/ph/' . $s . '-seed.svg')) $bad[] = "$s: no placeholder art";
+}
+ok('the six tea crops are ingredients with a plant, a seed item and placeholder art', !$bad, implode(', ', $bad));
+$per = []; foreach ($ING as $g) if ($g['stat'] !== '') $per[$g['stat']] = ($per[$g['stat']] ?? 0) + 1;
+ok('stats are even: 41 stat ingredients, 6 each but Luck 5 (max - min <= 1)', array_sum($per) === 41 && max($per) - min($per) <= 1 && ($per['luck'] ?? 0) === 5 && count($per) === 7, json_encode($per));
 $bad = [];
 foreach (array_keys($NEW) as $s) {
     if ($s === 'jasmine') { if ($ING[$s]['items'] !== [['cut-night-jasmine', false], ['dried-night-jasmine', true]] || q_val("SELECT category FROM items WHERE slug = 'cut-night-jasmine'") !== 'flower') $bad[] = $s; continue; }
@@ -76,7 +88,7 @@ foreach ($ING as $s => $g) {
 ok('every ingredient draws a picture (real art, flower art or a placeholder file that exists) or the emoji fallback, held or not', !$bad, implode('; ', array_slice($bad, 0, 6)));
 $noPh = array_values(array_filter(array_keys($NEW), fn($s) => $s !== 'jasmine' && !is_file(APP_ROOT . '/assets/img/ph/' . $s . '.svg') && !is_file(APP_ROOT . '/assets/img/ph/' . $s . '.png')));
 ok('the eight new wild finds have a placeholder picture in assets/img/ph', !$noPh, implode(', ', $noPh));
-ok('the stat spread is even: five ingredients for each of the seven stats', array_unique(array_values($spread)) === [5], json_encode($spread));
+ok('the stat spread is even: six ingredients for each stat but Luck (five); max - min is 1', count($spread) === 7 && max($spread) - min($spread) === 1 && $spread['luck'] === 5 && array_sum($spread) === 41, json_encode($spread));
 foreach (array_keys($NEW) as $s) { $c = $ING[$s]['role'] === 'steep' ? tea_cup([$s], 0) : tea_cup(['mint', $s], 3); if (!$c['ok'] || !$c['buff'] || $c['named']) $bad[] = "$s: " . json_encode($c); }
 ok('each new plant brews a legal House Blend (a herb, root or flower alone as the base; Rose Hips as an extra only)', !$bad && tea_cup(['rose-hips', 'mint'], 0)['error'] === 'The base must be a leaf, herb, flower or root.', implode('; ', $bad));
 $c = tea_cup(['dandelion-root', 'elderflower', 'goat-milk', 'garden-honey'], 3);
@@ -378,7 +390,7 @@ foreach (array_keys($ING) as $s) foreach ($ING[$s]['items'] as [$it]) if ($id = 
 $h = tea_dialog_html($row(), false);
 ok('an empty satchel: no form, a hint, the kettle and the journal still show', !str_contains($h, 'tea-form') && str_contains($h, 'Nothing to steep') && str_contains($h, 'tea-kettle') && str_contains($h, 'class="tea-jm"') && str_contains($h, 'class="tea-stamps"'));
 $d = tea_js_data(1);
-ok('the data for the JS twin: every ingredient, 20 teas, the kettle', count($d['ing']) === 40 && count($d['named']) === 20 && $d['k'] === [5, 2, 1] && $d['max'] === 4);
+ok('the data for the JS twin: every ingredient, 20 teas, the kettle', count($d['ing']) === 46 && count($d['named']) === 20 && $d['k'] === [5, 2, 1] && $d['max'] === 4);
 ok('... trimmed to the satchel for the page', array_keys(tea_js_data(0, null, ['tea', 'mint'])['ing']) === ['tea', 'mint'] && array_column(tea_js_data(0, null, ['tea', 'mint'])['named'], 0) === ['Mint Tea']);
 
 if (!empty($argv[2])) {   // cups for the JS twin (tests/tea_parity.js): every named tea, the worked cups, and random legal and illegal cups, in every kettle and under lowered caps

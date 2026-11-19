@@ -12,6 +12,7 @@ require_once __DIR__ . '/trail_sight_third_b.php';   // 2.7.08 third pass B (bir
  *   trail_sight_folk.txt    sight slug | Villager name | when | chance % | line | rewards (the Sight's reward grammar; fp=N = N friendship with that villager)
  */
 
+require_once __DIR__ . '/trail_sights_5.php';   // fifth pass (hv=, the rain charm)
 require_once __DIR__ . '/trail_sights_3a.php';   // 2.7.08 third pass A (hints snore webhum glow rut firstroom, nxt=)
 require_once __DIR__ . '/trail_sights_5.php';   // fifth pass (a folk row's miss line, scoped discounts, season limit): the functions extras calls
 
@@ -672,6 +673,7 @@ function trail_sight_now(array $loc, ?array $sc, ?array $u = null): array
     $now['ti'] = moon_tide($ch, $cdi)['state'];
     $now['fd'] = ''; try { require_once __DIR__ . '/festival.php'; $fa = festival_active(); $now['fd'] = $fa ? (string)$fa['slug'] : ''; } catch (Throwable $e) {}   // 2.7.06: the festival on today (conditions fd=yes or fd=<slug>)
     $now['tl'] = $u ? trail_sight_tallies((int)$u['id']) : [];
+    $now['uid'] = $u ? (int)$u['id'] : 0; $now['dry'] = $u && sights5_dry((int)$u['id']) ? 1 : 0;   // fifth pass: hv= needs the gnome; a dry gnome (rain charm) is not hurt by rain
     $now['towns'] = array_values(array_filter([(string)($loc['region'] ?? '')]));   // 2026-11-14: the regions of the walk's two ends (travellers follow their circuit)
     $now['to'] = [];   // 2.7.08: where this walk leads (conditions to=<place slug, kind or land>[,..])
     if ($u && function_exists('active_expedition')) { try { $ex = active_expedition((int)$u['id']); $dest = $ex ? q_one('SELECT slug, kind, landscape, region FROM locations WHERE id = ?', [(int)$ex['to_id']]) : null;
@@ -700,6 +702,7 @@ function trail_sight_cond_ok(string $cond, array $now): bool
             $have = (int)(($now['tl'] ?? [])[$tk] ?? 0); if ($k === 'tl' ? $have < (int)$tn : $have !== (int)$tn) return false; continue; }   // tl=<key>:N = a tally is at least N; tn=<key>:N = exactly N (pays once, on the use that reaches it)
         if ($k === 'gd') { $okd = false; foreach (explode(',', $v) as $mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); if ((int)$gm > 0 && ((int)($now['gd'] ?? 0)) % (int)$gm === (int)$gr) $okd = true; } if (!$okd) return false; continue; }   // 2.7.00: every Mth game day (day mod M = R)
         if ($k === 'bd') { $bdv = array_map('trim', explode(',', $v)); $bdn = (array)($now['bd'] ?? []); if (!($bdn && in_array('any', $bdv, true)) && !array_intersect($bdv, $bdn)) return false; continue; }   // 2.7.08 third pass B: a villager's birthday today
+        if ($k === 'hv') { if (!sights5_cond_hv($v, $now)) return false; continue; }   // fifth pass: hv=<item slug>:N = the gnome holds at least N of it
         if ($k === 'qd') { if (!array_intersect(array_map('trim', explode(',', $v)), (array)($now['qd'] ?? []))) return false; continue; }   // qd=<quest slug>[,..] = that Sight quest line is done
         if ($k === 'to') { if (!array_intersect(array_map('trim', explode(',', $v)), (array)($now['to'] ?? []))) return false; continue; }   // 2.7.08: to=<slug|kind|land>[,..] = the walk leads there
         if (!in_array($k, ['dp', 'se', 'we', 'hp', 'st', 'pal', 'mo', 'ti', 'fd', 'mk'], true) || $v === '') return false;
@@ -755,6 +758,7 @@ function trail_sight_cond_text(string $cond): string
         elseif ($k === 'fd') $bits[] = $v === 'yes' ? 'on a festival day' : 'during the ' . str_replace(['-', '_'], ' ', $v);   // 2.7.06
         elseif ($k === 'sk') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = 'on a ' . $tn . '-day streak of ' . $tk; }   // 2.7.06
         elseif ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = str_ends_with($tk, '@today') ? 'after ' . $tn . ' ' . substr($tk, 0, -6) . ' in one day' : 'after ' . $tn . ' ' . $tk; }
+        elseif ($k === 'hv') { [$hs, $hn] = array_pad(explode(':', $v, 2), 2, '1'); $bits[] = 'if you hold ' . max(1, (int)$hn) . ' × ' . str_replace('-', ' ', $hs); }   // fifth pass
         elseif ($k === 'gd') $bits[] = implode(' or ', array_map(function ($mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); return 'every ' . (int)$gm . 'th game day' . ((int)$gm > 1 ? ' (day ' . (int)$gr . ' of ' . (int)$gm . ')' : ''); }, explode(',', $v)));
         elseif ($k === 'mo') $bits[] = 'at ' . implode(' or ', array_map(fn($x) => strtolower(MOON_PHASES[trim($x)][1] ?? $x), explode(',', $v)));
         elseif ($k === 'ti') $bits[] = 'at ' . implode(' or ', array_map('trim', explode(',', $v))) . ' tide';

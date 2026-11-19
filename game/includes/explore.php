@@ -343,7 +343,9 @@ function explore_choose(array $u, array &$exp, int $option): void
         $win = false;   // v2.0.79: a wrong answer to a riddle: no roll, it simply is not right
     }
     $fx = $win ? $o['win'] : $o['lose'];
-    $text = $win ? $o['wintext'] : $o['losetext'];
+    $dryNote = '';
+    if (!$win) { require_once __DIR__ . '/trail_sights_5.php'; [$fx, $dryNote] = sights5_road_rain($ev, (string)$fx, $uid); }   // fifth pass: the rain charm: a lost roll on a rain card costs no health
+    $text = ($win ? $o['wintext'] : $o['losetext']);
     $c = 5 * $depth + intdiv((int)$exp['level'], 2);
     $fx = str_replace('{c}', $c . '-' . (2 * $c), (string)$fx);
     $fx = road_fx_resolve($fx, $road);   // v1.9.4: "@N" chances; items capped on a road
@@ -397,6 +399,7 @@ function explore_choose(array $u, array &$exp, int $option): void
         $lines = array_merge($lines, apply_event_effect(q_one('SELECT * FROM users WHERE id = ?', [$uid]), implode('+', $rest)));
     }
     $exp['encounter'] = null;
+    if ($dryNote !== '') $lines[] = $dryNote;
     exp_log($exp, ($win ? ($stat !== '' ? '✅ ' : '👉 ') : '❌ ') . $label . $rollText . ': ' . $text . ($lines ? ' (' . implode(', ', $lines) . ')' : ''));
 }
 
