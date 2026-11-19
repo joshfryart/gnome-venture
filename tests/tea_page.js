@@ -97,6 +97,7 @@ const out = []; const ok = (name, got, want) => out.push((got === want ? '  ok  
   await T('[data-tea-tab="1"]').click(); await settle(); await T('[data-tea-add="mint"]').click();
   await T('[data-tea-go]').click(); await p.waitForTimeout(200);
   await Promise.all([p.waitForURL(/tea=1/), T('[data-tea-pourgo]').click()]);
+  await T('.tea-today').waitFor({ timeout: 5000 }).catch(() => {});   // the page reloads: wait for the cup line instead of a fixed pause (was flaky once under load)
   await p.waitForTimeout(300);
   ok('Pour out and brew: the new cup replaces the first', (await T('.tea-today').innerText()).includes('Today’s cup: Mint Tea'), true);
   ok('no script errors', errs.join(' | '), '');
