@@ -12,6 +12,7 @@ declare(strict_types=1);
  * Decor catalogue: includes/data/hovel_decor.json. Choices: table user_hovel_decor (user_id, slot, item).
  */
 require_once __DIR__ . '/here_schema.php';   // hub_seen_get/set: the per-gnome "last saw the news" time (scene 'news')
+require_once __DIR__ . '/tea.php';   // the kettle in the room picture brews tea (setting tea_open)
 
 /** Is the slim home on for this viewer? Players need the setting; admins always preview. */
 function home_slim_on(): bool
@@ -129,6 +130,9 @@ function hovel_cosy(array $chosen): array
     return [$n, max(1, $max)];
 }
 
+/** The kettle's tap area in the 480 x 270 room picture: [x, y, w, h]. 64 units each way: 44 px or more on a 390 px phone, where the banner is about 350 px wide. */
+const HOVEL_KETTLE_HIT = [312, 142, 64, 64];
+
 /** Picture file (under assets/img/) as a URL, or '' when it is not drawn yet. */
 function hovel_art(string $rel): string
 {
@@ -182,8 +186,10 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
     $names = [];
     foreach ($cat['slots'] as $sk => $s) $names[] = $s['name'] . ': ' . ($s['items'][$chosen[$sk] ?? '']['name'] ?? '');
     $dp = (string)($o['daypart'] ?? '');
+    $tea = tea_open_for($u);   // the kettle on the side table is a link (the tea popover); closed for this viewer = plain art, no hit box
     $svg = '<svg class="hroom hroom-' . ($full ? 'full' : 'crop') . ($dp !== '' ? ' dp-' . e(preg_replace('/[^a-z]/', '', $dp)) : '') . '" viewBox="' . $vb . '"'
-        . ($taps ? ' role="group" aria-label="' . e('Your room. ' . implode(', ', $names) . '. Tap a thing to change it.') . '"' : ' role="img" aria-label="' . e('Your hovel. ' . implode(', ', $names)) . '"') . ' focusable="false">';
+        . ($taps ? ' role="group" aria-label="' . e('Your room. ' . implode(', ', $names) . '. Tap a thing to change it.') . '"'
+            : ($tea ? ' role="group" aria-label="' . e('Your hovel. ' . implode(', ', $names) . '. Tap the kettle to brew tea.') . '"' : ' role="img" aria-label="' . e('Your hovel. ' . implode(', ', $names)) . '"')) . ' focusable="false">';
     $back = hovel_art('scenes/hovel-room.png');
     if ($back !== '') {
         $svg .= '<image class="hr-back" href="' . e($back) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" image-rendering="pixelated"/>';
@@ -208,6 +214,11 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
         } else {
             $svg .= '<g class="' . $cls . '">' . $lay . '</g>';
         }
+    }
+    if ($tea) {   // the kettle is painted into scenes/hovel-room.png at about x 320-350, y 163-185: a 64 x 64 tap area around it, inside the banner crop and clear of the lamp's and the shelf's
+        [$kx, $ky, $kw, $kh] = HOVEL_KETTLE_HIT;
+        $svg .= '<a class="hd hd-kettle" href="' . e(url('gnome.php?tea=1') . '#htea') . '" data-hdlg="htea" aria-label="The kettle. Brew a cup of tea"><title>The kettle. Brew a cup of tea</title>'
+            . '<rect class="hd-hit" x="' . $kx . '" y="' . $ky . '" width="' . $kw . '" height="' . $kh . '"/></a>';
     }
     $svg .= hovel_gnome_svg($u, $cat['gnome']);
     $svg .= '<rect class="hr-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" aria-hidden="true"/>';
@@ -269,7 +280,18 @@ function home_slim_needs(array $u): array
     } catch (Throwable $e) {}
     $d = ['need' => [], 'night' => [], 'village' => []];
     try { $d = today_data($u); } catch (Throwable $e) {}
-    foreach ($d['need'] as $n) $need[] = $n;
+    $beds = 0; $why = []; $bedPlot = [];
+    foreach ($d['need'] as $n) {
+        if (str_contains((string)$n[1], ' is tired of ')) continue;   // 2.7.17: tired pals show as a tag in the Your pals box
+        if (str_starts_with((string)$n[1], 'Plant: ')) {   // 2.7.17: the crew's empty-bed warnings become one row: how many beds, and why
+            if (preg_match('/(\d+) beds? left empty: (.+)$/', (string)$n[1], $m)) { $beds += (int)$m[1]; $why[] = $m[1] . ' ' . $m[2]; }
+            else { $beds++; $why[] = substr((string)$n[1], 7); }
+            if ($n[2] !== '') $bedPlot[(string)$n[2]] = 1;
+            continue;
+        }
+        $need[] = $n;
+    }
+    if ($beds > 0) $need[] = ['🌰', $beds . ' bed' . ($beds === 1 ? '' : 's') . ' empty', implode(' · ', $bedPlot ? array_keys($bedPlot) : []) . ($bedPlot && $why ? ': ' : '') . implode(', ', $why), url('garden.php?t=help')];
     foreach ($d['night'] as $n) {
         if ($n[3] === '') continue;   // the weather: it is on the banner's tag
         if (str_contains($n[3], 'hovel.php')) continue;   // the garden crew has its own Overnight list (home_slim_overnight)
@@ -285,7 +307,7 @@ function home_slim_needs(array $u): array
 /**
  * 2.7.17: the "Your pals" box on the Today tab, three groups: the garden crew (one summary of last night + a chip per pal, two to a row),
  * pals at a station (Kitchen, Pantry, Workshop...: made so far, time left or full time) and pals out on a trip or delve (back in).
- * Returns ['crew' => ['sum' => '', 'sub' => '', 'chips' => [[icon, name, tag, ok]], 'href' => ''] | null, 'stations' => [[icon, title, small, href]], 'out' => [[icon, title, small, href, pct]], 'n' => pals].
+ * Returns ['crew' => ['sum' => '', 'sub' => '', 'chips' => [[icon, name, working %, job finished]], 'href' => ''] | null, 'stations' => [[icon, title, small, href]], 'out' => [[icon, title, small, href, pct]], 'n' => pals].
  * Never throws.
  */
 function home_slim_overnight(array $u): array
@@ -300,10 +322,8 @@ function home_slim_overnight(array $u): array
             foreach ($rep[1]['crew'] as $c) {
                 $role = (string)($c['role'] ?? '');
                 if (isset($tot[$role])) $tot[$role] += (int)($c['n'] ?? 0);
-                $tag = '';
-                if (!empty($c['ended'])) $tag = 'job done';
-                elseif (!empty($c['tired']) || (!empty($c['eff']) && (int)$c['eff'] < 100)) $tag = (!empty($c['tired']) ? 'tired · ' : '') . (int)($c['eff'] ?? 100) . '%';
-                $chips[] = [PCREW_ROLES[$role][0] ?? '🧩', (string)($c['pal'] ?? 'A pal'), $tag, $tag === ''];
+                $pct = isset($c['eff']) ? (int)$c['eff'] : 100;
+                $chips[] = [PCREW_ROLES[$role][0] ?? '🧩', (string)($c['pal'] ?? 'A pal'), $pct, !empty($c['ended'])];   // [icon, name, working %, job finished]
             }
             $words = ['harvest' => '%d crops picked', 'water' => '%d beds watered', 'plant' => '%d planted', 'weed' => '%d beds weeded', 'pests' => 'pests cleared from %d beds'];
             $bits = [];
@@ -446,17 +466,26 @@ function home_slim_today_html(array $u, array $needs): string
 {
     $uid = (int)$u['id'];
     $h = '<div class="hs-cols"><div class="hs-main">';
+    $teaOn = tea_open_for($u);
+    if ($teaOn) { require_once __DIR__ . '/tea_view.php'; $h .= tea_dialog_html($u, isset($_GET['tea'])); }   // the kettle's popover (opened by the kettle in the banner; ?tea=1 draws it open here)
     require_once __DIR__ . '/puzzle_pals.php';
     if (ppal_open() && !is_guest($u)) { require_once __DIR__ . '/pal_jobs.php'; $h .= pj_home_notice_html($u); }   // pals back from a trip or delve
     $n = count($needs['need']);
     $h .= '<section class="box hs-needs" aria-labelledby="hs-needs-h"><h2 id="hs-needs-h">Needs you' . home_slim_bang($n, $n . ' thing' . ($n === 1 ? '' : 's')) . '</h2>';
-    if ($needs['need']) {
-        $h .= '<ul class="hs-nlist">';
-        foreach ($needs['need'] as [$ic, $tt, $sm, $href]) {
-            $in = '<span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b>' . ($sm !== '' ? '<small>' . e($sm) . '</small>' : '') . '</span>';
-            $h .= '<li>' . ($href !== '' ? '<a href="' . e($href) . '">' . $in . '<span class="hs-go">' . e(home_slim_go($href)) . ' →</span></a>' : '<div>' . $in . '</div>') . '</li>';
+    if ($needs['need']) {   // 2.7.17: things that pile up (N crops ripe, N pots done, N jars ready, N beds empty...) are big-number tiles; the rest are slim rows under them
+        $tiles = []; $cards = [];   // C (Josh): things you collect (N crops ripe, N pots done, N jars ready, N pal trips ready) sit three across; everything else is a wide card under them
+        foreach ($needs['need'] as $r) {
+            if (preg_match('/^(\d+) (.+)$/', (string)$r[1], $m) && !str_contains((string)$r[3], 't=help')) $tiles[] = [$r, $m[1], $m[2]]; else $cards[] = $r;
         }
-        $h .= '</ul>';
+        if ($tiles) {
+            $h .= '<div class="hs-t3">';
+            foreach ($tiles as [$r, $num, $lab]) $h .= '<a class="hs-tile hot" href="' . e($r[3]) . '"><span class="hs-ti" aria-hidden="true">' . e($r[0]) . '</span><span class="hs-tn">' . e($num) . '</span><b>' . e($lab) . '</b></a>';
+            $h .= '</div>';
+        }
+        foreach ($cards as [$ic, $tt, $sm, $href]) {
+            $in = '<span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b>' . ($sm !== '' ? '<small>' . e($sm) . '</small>' : '') . '</span>';
+            $h .= $href !== '' ? '<a class="hs-wide" href="' . e($href) . '">' . $in . '<span class="hs-go">' . e(home_slim_go($href)) . ' →</span></a>' : '<div class="hs-wide">' . $in . '</div>';
+        }
     } else {
         $h .= '<p class="hs-empty">Nothing needs you right now. A good day to wander.</p>';
     }
@@ -473,12 +502,21 @@ function home_slim_today_html(array $u, array $needs): string
         $h .= '<section class="box hs-needs hs-night" aria-labelledby="hs-night-h"><h2 id="hs-night-h">Your pals' . home_slim_bang($night['n'], $night['n'] . ' pal' . ($night['n'] === 1 ? '' : 's')) . '</h2>';
         if ($c = $night['crew']) {
             $h .= $grp('🌱', 'Garden crew · last night', $c['href'], 'Crew') . '<p class="hs-sum"><b>' . e($c['sum']) . '</b>' . ($c['sub'] !== '' ? '<small>' . e($c['sub']) . '</small>' : '') . '</p><ul class="hs-chips">';
-            foreach ($c['chips'] as [$ic, $nm, $tag, $ok]) $h .= '<li><a href="' . e($c['href']) . '"><span aria-hidden="true">' . e($ic) . '</span> <span class="hs-cn">' . e($nm) . '</span>' . ($tag !== '' ? '<em class="hs-tag">' . e($tag) . '</em>' : '') . '</a></li>';
+            foreach ($c['chips'] as [$ic, $nm, $pct, $done]) {
+                $cls = $pct >= 70 ? 'g' : ($pct >= 50 ? 'y' : ($pct >= 5 ? 'r' : 'k'));   // green 70+, yellow 50-69, red 5-49, black under 5 (with a red !)
+                $pill = $done ? '<em class="hs-pill d">done</em>' : '<em class="hs-pill ' . $cls . '" title="Working at ' . $pct . '%">' . ($cls === 'k' ? '<i aria-hidden="true">!</i>' : '') . $pct . '%</em>';
+                $h .= '<li><a href="' . e($c['href']) . '"><span aria-hidden="true">' . e($ic) . '</span> <span class="hs-cn">' . e($nm) . '</span>' . $pill . '</a></li>';
+            }
             $h .= '</ul>';
         }
         if ($night['stations']) $h .= $grp('🏠', 'At their stations', $night['stations'][0][3], home_slim_go($night['stations'][0][3])) . '<ul class="hs-nlist">' . implode('', array_map($row, $night['stations'])) . '</ul>';
         if ($night['out']) $h .= $grp('🌲', 'Out and about', url('paljobs.php'), 'Pals') . '<ul class="hs-nlist">' . implode('', array_map($row, $night['out'])) . '</ul>';
         $h .= '</section>';
+    }
+    if ($teaOn) {   // the plain link to the kettle (the same popover), with today's cup
+        $cup = tea_today($u);
+        $h .= '<p class="hs-newsl hs-teal"><a href="' . e(tea_url(true)) . '" data-hdlg="htea"><span aria-hidden="true">🫖</span> '
+            . e($cup ? 'Today’s cup: ' . $cup['name'] . (($bt = tea_buff_text($cup['buff'])) !== '' ? ' · ' . $bt : '') : 'The kettle is warm: brew today’s cup of tea') . ' →</a></p>';
     }
     $h .= home_slim_news_html($uid) . '</div>';
     require_once __DIR__ . '/today_social.php';

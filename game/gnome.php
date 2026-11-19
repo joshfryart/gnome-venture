@@ -169,7 +169,7 @@ endif; ?>
   <p class="gcrank"><?= $u['title'] ? '“' . e($u['title']) . '” · ' : '' ?><?= $u['calling'] ? e(CALLINGS[$u['calling']][0]) . ' · ' : '' ?>Garden gnome<?= $home ? ' of ' . e($home['gnomish_name']) : '' ?></p>
   <p class="gclevel">🎩 <b>Level <?= (int)$u['level'] ?></b> · <?= number_format((int)$u['xp']) ?>/<?= number_format(xp_for_level((int)$u['level'] + 1)) ?> XP</p>
   <p class="gcline">🏡 <?= count($gardens) ?>/<?= max_gardens($u) ?> garden<?= max_gardens($u) === 1 ? '' : 's' ?><?= $slim ? '' : ' · ⚡ ' . (int)$u['energy'] . '/' . max_energy($u) . ' energy' ?></p>
-  <?php if ($slim && ($fx = active_effects($u))): ?><p class="gcline hs-boosts"><?php foreach (array_slice($fx, 0, 3) as [$fi, $fn, $fw, $fs]): ?><span><b><?= e($fi . ' ' . $fw) ?></b> <?= e(effect_time($fs)) ?></span> <?php endforeach; ?><a href="<?= e($gurl('stats', [], '#effects')) ?>">All boosts</a></p><?php endif; ?>
+  <?php if ($slim && ($fx = active_effects($u))): ?><p class="gcline hs-boosts"><?php foreach (array_slice($fx, 0, 3) as $fx1): [$fi, $fn, $fw] = $fx1; ?><span><b><?= e($fi . ' ' . $fw) ?></b> <?= e(effect_left($fx1)) ?></span> <?php endforeach; ?><a href="<?= e($gurl('stats', [], '#effects')) ?>">All boosts</a></p><?php endif; ?>
   <?php if (!is_guest($u)) echo hp_card_html($u); ?>
   <p class="gcprof"><a href="<?= e(url('profile.php')) ?>">See your profile as others do</a></p>
 </section>
@@ -276,10 +276,10 @@ endif; ?>
         <div class="muted">🍴 food bonus <?= (int)($food[$selK] ?? 0) ?>/<?= $cap ?><?= $sb ? ' · <span class="good">+' . $sb . ' from a boost</span>' : '' ?></div></div>
       <h3 id="effects">✨ Active effects</h3>
       <?php $fx = active_effects($u); if ($fx): ?>
-        <ul class="effects"><?php foreach ($fx as [$ic, $nm, $what, $sec]): ?>
-          <li><span class="efi"><?= $ic ?></span> <b><?= e($nm) ?>:</b> <?= e($what) ?> <span class="muted">· <?= e(effect_time($sec)) ?> left</span></li>
+        <ul class="effects"><?php foreach ($fx as $fx1): [$ic, $nm, $what] = $fx1; $fl = effect_left($fx1); ?>
+          <li><span class="efi"><?= $ic ?></span> <b><?= e($nm) ?>:</b> <?= e($what) ?><?php if ($fl !== ''): ?> <span class="muted">· <?= e($fl) ?> left</span><?php endif; ?></li>
         <?php endforeach; ?></ul>
-        <p class="help">A new meal replaces the old meal’s boost. Town outings and lucky moments each have their own slot, so they add up.</p>
+        <p class="help">A new meal replaces the old meal’s boost. Town outings<?= gnome_tea_buff($u) ? ', a cup of tea' : '' ?> and lucky moments each have their own slot, so they add up.</p>
       <?php else: ?><p class="help">No boosts right now. Eat something from your <a href="<?= e(url('inventory.php')) ?>">satchel</a> or cook something at your <a href="<?= e(url('inventory.php?tab=craft')) ?>">workbench</a>.</p><?php endif; ?>
     </section>
     <?php $lc = q_one("SELECT SUM(CASE WHEN lm.kind = 'lair' THEN 1 ELSE 0 END) AS lairs, SUM(CASE WHEN lm.kind = 'delve' THEN 1 ELSE 0 END) AS delves

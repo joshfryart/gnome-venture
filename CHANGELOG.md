@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.18
+- **Needs you as tiles (Today tab):** things you collect (crops ripe, pots done, jars ready, pal trips ready) are small tiles three across with a gold edge; empty beds are merged into one row ("5 beds empty", with the reasons); the daily job, "say hello" and the rest are wide cards under them. Tired pals no longer clutter this list.
+- **Your pals pills:** each garden pal chip shows its working percent as a pill: green 70%+, yellow 50-69%, red 5-49%, black under 5% with a red "!". A finished job shows "done". Fixes a clash that turned the banner's date label orange (`.hs-tag`).
+- **Tea kettle (hidden, admins only):** the Hovel kettle opens a brew popover: a base leaf (counts double) plus up to three extras, a day-long buff in its own slot (`users.tea`, `tea_day`, `tea_name`), kettle tiers (Dented Tin, Copper 150 Petals, Cast-Iron at 8 named teas, Silver Samovar at 16), a Tea Journal with 20 named teas. Setting `tea_open` (off / admin / everyone, default admin), caps `tea_cap_main` 3 and `tea_cap_side` 2. New table `user_tea_journal`, new columns `users.tea`, `tea_day`, `tea_name`, `kettle` (added by themselves on first load). Data: `data/teas.txt`, `data/tea_ingredients.txt`. Suite `tea` added to CI. Audit and plan: `claude/tea-audit.md`.
+- No DB step.
 ## 2.7.17
 - **Your pals box on the Today tab:** every pal job in one place, in three groups: the garden crew (one summary of last night, then a chip per pal, two to a row, with "tired · 50%" or "job done"), pals at a station (Kitchen, Pantry and others: made so far, time left or full time) and pals out on a trip or delve (back in, with a progress bar). It replaces the one-line "Overnight the crew" paragraph.
 - **Daily "say hello" card** opens the Here page when graphical navigation is on (it opened the old town page).

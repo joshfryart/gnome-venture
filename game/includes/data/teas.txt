@@ -1,0 +1,27 @@
+# Named teas for the Hovel kettle (includes/tea.php, tea_named()). A cup whose components are exactly this set (any order)
+# takes the name, gets a stamp in the Tea Journal and +1 steep to its main stat. Every other cup is a House Blend.
+# slug|Name|components|note
+#   slug        journal key (user_tea_journal.tea_slug). Never rename one that is live.
+#   components  ingredient slugs from tea_ingredients.txt, comma separated, 1 to 4, at least one that can steep (leaf, herb, flower).
+#   note        one short line shown in the journal once the tea is found.
+# Adding a tea later is one row. tests/tea.php checks every component and that no two teas share a set.
+mint-tea|Mint Tea|mint|The plainest cup in the Hollow, and none the worse for it.
+meadowsweet-tea|Meadowsweet Tea|meadowsweet|Smells of hay meadows after rain.
+desert-sage-tea|Desert Sage Tea|desert-sage|A dry, clear cup for long thinking.
+oswego-tea|Oswego Tea|bee-balm|Bee balm, brewed the old way.
+moroccan-mint|Moroccan Mint|tea,mint,cane-syrup|Poured from a height, very sweet.
+masala-chai|Masala Chai|tea,cardamom,cinnamon,ginger|Spice first, leaf second.
+milk-chai|Milk Chai|tea,cardamom,ginger,goat-milk|Chai gone soft and creamy.
+honey-lemon-tea|Honey Lemon Tea|tea,lemon,garden-honey|For a scratchy throat and a slow morning.
+osmanthus-tea|Osmanthus Tea|tea,osmanthus|Tiny golden flowers among the leaves.
+lavender-fog|Lavender Fog|tea,lavender,vanilla,goat-milk|A cloud in a cup.
+vanilla-rooibos|Vanilla Rooibos|rooibos,vanilla|Red bush and a pod.
+red-latte|Red Latte|rooibos,goat-milk,garden-honey|Rooibos, frothed.
+sleepy-meadow|Sleepy Meadow|chamomile,lavender,garden-honey|Two calm flowers and a spoon of honey.
+agua-de-jamaica|Agua de Jamaica|hibiscus,cane-syrup|Ruby red and sharp.
+zobo|Zobo|hibiscus,ginger,clove|Roselle with a kick.
+golden-milk|Golden Milk|turmeric,ginger,black-pepper,goat-milk|Warm, yellow and peppery.
+ginger-lemon-honey|Ginger Lemon Honey|ginger,lemon,garden-honey|The three that fix most things.
+lemongrass-ginger|Lemongrass Ginger|lemongrass,ginger|Bright and quick.
+chrysanthemum-tea|Chrysanthemum Tea|chrysanthemum,garden-honey|Whole flowers opening in the pot.
+mate-cocido|Mate Cocido|yerba-mate,goat-milk,cane-syrup|Mate, simmered and sweet.
