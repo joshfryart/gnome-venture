@@ -97,6 +97,17 @@ function trail_sights_ensure_items(): int
     return $n;
 }
 
+/** Existing installs: items made before the items file had an effects column (decor JSON, short buffs) keep a NULL effects. Fill only those; a row with any effects (or one edited in Admin) is left alone. Returns how many were filled. */
+function trail_sights_backfill_effects(): int
+{
+    $n = 0;
+    foreach (trail_sight_items_file() as $slug => [, , , , , , $fx]) {
+        if ($fx === '' || !is_array(json_decode($fx, true))) continue;
+        try { $n += q("UPDATE items SET effects = ? WHERE slug = ? AND (effects IS NULL OR effects = '')", [$fx, $slug])->rowCount(); } catch (Throwable $e) { /* no items table */ }
+    }
+    return $n;
+}
+
 /** A short-lived lock in the settings (60 s): true if this request may do the work, false if another started it a moment ago. (The Almanac pages have no unique key: two requests would double them.) */
 function trail_sight_claim(string $name): bool
 {

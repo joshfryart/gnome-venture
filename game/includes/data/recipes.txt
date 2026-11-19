@@ -251,3 +251,7 @@ kangkong-stir-fry|Kangkong Stir-fry|kangkong:3,garlic:1,chili-pepper:1|nimble:2,
 palusami|Palusami|taro:2,coconut:2,onion:1|hardiness:3,charm:1|300|11|Taro and coconut cream baked in a parcel. The Coralscatter’s Sunday lunch.|meal|15
 chicha|Chicha|corn:3,quinoa:1|grit:1,luck:1|1080|5|A cloudy, gently fizzing highland drink of corn and quinoa. Five days in the jar.|preserve|7200|3
 poi|Poi|taro:5|hardiness:2|1080|5|Pounded taro left to sour for a week. Purple, smooth and an acquired taste worth acquiring.|preserve|10080|3
+windmill-loaf|Windmill Loaf|flour:3|hardiness:1,grit:1|120|6|A round loaf that smells of the windmill that ground it.|snack|3
+maple-flapjacks|Maple Flapjacks|flour:2,hen-egg:1,maple-syrup:1|nimble:2,charm:1|150|8|A stack of thick flapjacks with syrup pooling in the dents.|meal|15
+toffee-apple|Toffee Apple|apple:1,toffee:1|charm:2|120|6|A crunchy apple in a sticky shell that is hard to talk through.|snack|3
+maple-sap-tea|Maple Sap Tea|mint:1,maple-sap:2|sense:1,luck:1|120|4|Faintly sweet and faintly minty, steaming in a tin cup.|snack|3
