@@ -380,10 +380,13 @@ function cook_pots_list(int $uid): array
         $pid = (int)(json_decode((string)$j['result'], true)['plan'] ?? 0);
         return [$pid, $pid > 0 ? (string)q_val('SELECT i.name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pid]) : ''];
     };
+    $palNow = null;
     foreach ($rows as &$r) {
+        $isPal = $r['pal_uid'] !== null && $r['pal_uid'] !== '';
+        if ($isPal && $palNow === null) $palNow = gclock_pal_now($uid);   // a pal-tended pot is timed on the pal work clock (sleep-days: real time does not move it), seconds of pal work left
         $r['left'] = $r['ready_tick'] !== null && $r['ready_tick'] !== ''
             ? max(0, ((int)$r['ready_tick'] - gclock_user_tick($uid)) * 60)   // game clock: game seconds left
-            : max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
+            : max(0, (int)strtotime($r['ready_at'] . ' UTC') - ($isPal ? $palNow : time()));
         $r['name'] = (string)($r['name'] ?? 'Dish');
         if ($r['pal_uid'] && isset($allPal[(string)$r['pal_uid']])) {   // 2.7.06: every pot of a whole-kitchen pal carries its name
             $j = $allPal[(string)$r['pal_uid']]; [$pid, $pn] = $planName($j);

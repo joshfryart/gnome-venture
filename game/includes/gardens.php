@@ -568,11 +568,12 @@ function building_peek(array $plot, string $b): ?array
     switch ($b) {
         case 'kitchen':
             $dish = q_val('SELECT i.name FROM users u JOIN items i ON i.id = u.last_cooked_id WHERE u.id = ?', [$ownerId]);
-            $cooking = q("SELECT i.name, p.ready_at, p.ready_tick FROM cook_pots p JOIN recipes r ON r.id = p.recipe_id JOIN items i ON i.id = r.output_item_id
+            $cooking = q("SELECT i.name, p.ready_at, p.ready_tick, p.pal_uid FROM cook_pots p JOIN recipes r ON r.id = p.recipe_id JOIN items i ON i.id = r.output_item_id
                           WHERE p.user_id = ? AND p.collected_at IS NULL ORDER BY p.ready_at", [$ownerId])->fetchAll();   // v0.9.4: pots
             $ownTick = gclock_on() ? gclock_user_tick((int)$ownerId) : 0;
             if ($cooking) {
-                $done = count(array_filter($cooking, fn($c) => $c['ready_tick'] !== null && $c['ready_tick'] !== '' ? (int)$c['ready_tick'] <= $ownTick : $c['ready_at'] <= now()));
+                $palAt = gmdate('Y-m-d H:i:s', gclock_pal_now((int)$ownerId));   // a pal-tended pot is timed on the pal work clock (sleep-days: real time does not finish it)
+                $done = count(array_filter($cooking, fn($c) => $c['ready_tick'] !== null && $c['ready_tick'] !== '' ? (int)$c['ready_tick'] <= $ownTick : $c['ready_at'] <= ($c['pal_uid'] !== null && $c['pal_uid'] !== '' ? $palAt : now())));
                 $lines[] = 'Something is bubbling away: ' . $cooking[0]['name'] . ($done === count($cooking) ? ', all done and waiting to be collected' : '') . '. '
                     . count($cooking) . ' pot' . (count($cooking) === 1 ? ' is' : 's are') . ' on the stove.';
             } else
