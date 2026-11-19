@@ -812,6 +812,11 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.28' => ['🍞 Update 2.7.28: new treats and tidier pictures',
+        "[list][*][b]New recipes[/b]: Windmill Loaf, Maple Flapjacks, Toffee Apple and Maple Sap Tea. Flour, maple sap, maple syrup and toffee from your Trail Sights now go into the pot.\n"
+        . "[*][b]Glowcap Repair Kit[/b]: use it to mend a worn lantern for free.\n"
+        . "[*][b]Decor[/b]: the glow lights, the toadstool stool, the icicle chime and the other Trail Sight keepsakes can now be placed in your yard and hovel.\n"
+        . "[*][b]New pictures[/b]: ginseng, ginseng seed, the stone wall end and the stuffed peppers got a fresh look.[/list]"],
     '2.7.27' => ['🫙 Update 2.7.27: a bigger Hollow jar and a cosier hovel',
         "[list][*][b]Hollow jar[/b]: the weekly jar is four times bigger, because the whole Hollow fills it together. The rewards grew with it: 10 Plain Compost at the first mark, 20 more at the second, 30 Worm Castings at the third and 40 Rich Loam for a full jar.\n"
         . "[*][b]Your hovel[/b]: the bed's and the window's cards now open right next to them. The z's over the bed only float in the evening and at night, and the bed asks for a tap just once a day.\n"
