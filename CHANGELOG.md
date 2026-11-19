@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.21
+- **Tea popover redesigned (B2 "Cup and drawer"; tea is still hidden behind `tea_open`):** the cup is on top as four slots (the base slot bigger), with the live result and the Brew button beside it; a drawer below has Recipes, Leaves and Extras tabs (tap or swipe), ingredient tiles four to a row, one-tap Fill on a named tea you can make, "Need 1 X" for ones you cannot, a hint for teas not found yet, a stamp row for the journal that opens a list with the kettle progress, and the second-brew replace sheet. Works without script as before.
+- **Same ingredients, same cup:** when two stats tie for the side stat the one earlier in Charm, Lore, Sense, Nimble, Grit, Hardiness, Luck wins (PHP `tea_cup` and JS `gvTeaCup`). Masala Chai and Milk Chai now give Charm +1 as their side stat.
+- Test `tea_page` waits for the cup line after the pour-out reload.
+- No player news (tea is hidden). No DB step.
 ## 2.7.20
 - **Hovel room art:** a bigger home gnome (48x72, hat and beard still take your colours), night versions of the three windows (shown at dusk and night), real steam and z sprites, and Copper, Cast-Iron and Silver Samovar kettle overlays (shown for the tea kettle, when tea is open). Small kettle and cup icons in the tea popover. 18 new pictures (`game/assets/img/sprite`, `scenes`, `fx`, `ico`), also in `upload-zips/gnome-venture-images-v3-2.7.20.zip`. Every picture falls back to the old drawing when missing. Suite `hovel_art_2720`; generator `aseprite-source/extras-pixel/scripts/hovel-room-2720.py`.
 - **Fresh start** now classifies all 33 older users columns it never covered (kept: theme, start page, session, guest, email and verify state; reset: the rest), and resets only columns that exist on the database. `reset` test fixed (welcome page check).

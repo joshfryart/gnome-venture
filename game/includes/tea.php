@@ -7,7 +7,8 @@ declare(strict_types=1);
  * A cup: one BASE that can steep (leaf, herb, flower; it counts double) and up to three extras; no ingredient twice,
  * one sweetener, one milk, 4 components at most. The cup is drunk at once and never becomes an item.
  *   steep[stat] = sum of the power of the components with that stat, the base x 2
- *   main = the base's stat; side = the other stat with the most steep (tie: the one added first)
+ *   main = the base's stat; side = the other stat with the most steep (tie: the one earlier in TEA_SIDE_ORDER, so the same set
+ *   always gives the same cup, whatever order its parts were added in; only the side's NAME can change on a tie, never the points)
  *   sweetener: +1 steep to main, and +1 to side if there is one; milk: +2 steep to main; a named tea: +1 steep to main
  *   points = min(cap, floor(steep x K / 8))        K and caps (main / side) per kettle: TEA_KETTLES
  * The JS twin for the live preview is assets/tea.js (gvTeaCup); tests/tea.sh checks that both give the same cups.
@@ -32,6 +33,10 @@ const TEA_MAX_PARTS = 4;
 const TEA_KINDS = ['leaf' => 'steep', 'herb' => 'steep', 'flower' => 'steep', 'spice' => 'add', 'fruit' => 'add', 'sweet' => 'sweet', 'milk' => 'milk'];
 const TEA_STATS = ['grit' => 'Grit', 'nimble' => 'Nimble', 'hardiness' => 'Hardiness', 'lore' => 'Lore', 'sense' => 'Sense', 'charm' => 'Charm', 'luck' => 'Luck'];
 const TEA_HOUSE = 'House Blend';
+/** 2.7.21: a tie for the side stat goes to the stat earlier in this list (decided by Josh; assets/tea.js gvTeaCup uses the same list). */
+const TEA_SIDE_ORDER = ['charm', 'lore', 'sense', 'nimble', 'grit', 'hardiness', 'luck'];
+/** Short kettle names for the popover's sub line, by tier. */
+const TEA_KETTLE_SHORT = ['Tin', 'Copper', 'Cast-Iron', 'Samovar'];
 
 /** Tables and columns. Returns [tables, indexes, columns] like the other *_schema() functions (wired in schema.php). */
 function tea_schema(string $PK, string $ID, string $END): array
@@ -187,14 +192,14 @@ function tea_cup(array $slugs, int $tier, ?array $caps = null): array
     if ($milk > 1) return $bad('One milk per cup.');
     [, $K, $capM, $capS] = tea_kettle($tier, $caps);
     $main = $ING[$slugs[0]]['stat'];
-    $steep = [];   // insertion order = the order the stats were added
+    $steep = [];
     foreach ($slugs as $i => $s) {
         $g = $ING[$s];
         if ($g['stat'] === '') continue;
         $steep[$g['stat']] = ($steep[$g['stat']] ?? 0) + $g['power'] * ($i === 0 ? 2 : 1);
     }
-    $side = '';
-    foreach ($steep as $st => $v) if ($st !== $main && ($side === '' || $v > $steep[$side])) $side = $st;
+    $side = '';   // the most steep; a tie goes to the stat earlier in TEA_SIDE_ORDER (never to the one added first)
+    foreach (TEA_SIDE_ORDER as $st) if ($st !== $main && isset($steep[$st]) && ($side === '' || $steep[$st] > $steep[$side])) $side = $st;
     $nm = tea_named_for($slugs);
     if ($sweet) { $steep[$main]++; if ($side !== '') $steep[$side]++; }
     if ($milk) $steep[$main] += 2;
@@ -377,4 +382,91 @@ function tea_js_data(int $tier, ?array $caps = null, ?array $only = null): array
     foreach (tea_named() as $t) if (!array_diff($t['parts'], array_keys($ing))) $named[] = [$t['name'], $t['parts']];
     [, $K, $cm, $cs] = tea_kettle($tier, $caps);
     return ['ing' => $ing, 'named' => $named, 'k' => [$K, $cm, $cs], 'stat' => TEA_STATS, 'max' => TEA_MAX_PARTS, 'house' => TEA_HOUSE];
+}
+
+/* ===== 2.7.21: the B2 popover ("Cup and drawer"): recipes, hints, stamps. Pure functions, so tests/tea.php can check them. ===== */
+
+/** A named tea's parts in cup order: its first part that can steep is the base, then the rest as tea_pick() orders them. */
+function tea_recipe(array $t): array
+{
+    $ING = tea_ingredients();
+    $base = '';
+    foreach ($t['parts'] as $p) if (($ING[$p]['role'] ?? '') === 'steep') { $base = $p; break; }
+    return tea_pick(['base' => $base, 'c' => $t['parts']]);
+}
+
+/**
+ * The hint for a tea not found yet, built from the KINDS of its real parts (the base first), never their names:
+ * "Try one herb on its own", "Try a leaf with an herb and two spices", "Try a flower with another flower and something sweet".
+ */
+function tea_hint(array $t): string
+{
+    $ING = tea_ingredients();
+    $W = ['leaf' => ['a leaf', 'leaf', 'leaves'], 'herb' => ['an herb', 'herb', 'herbs'], 'flower' => ['a flower', 'flower', 'flowers'],
+        'spice' => ['a spice', 'spice', 'spices'], 'fruit' => ['a fruit', 'fruit', 'fruits'], 'sweet' => ['something sweet'], 'milk' => ['milk']];
+    $parts = tea_recipe($t);
+    $bk = $ING[$parts[0]]['kind'] ?? 'herb';
+    if (count($parts) === 1) return 'Try one ' . $W[$bk][1] . ' on its own';
+    $c = [];
+    foreach (array_slice($parts, 1) as $p) { $k = $ING[$p]['kind'] ?? ''; if ($k !== '') $c[$k] = ($c[$k] ?? 0) + 1; }
+    $bits = [];
+    foreach (array_keys($W) as $k) {
+        if (empty($c[$k])) continue;
+        if ($k === 'sweet' || $k === 'milk') $bits[] = $W[$k][0];
+        elseif ($c[$k] === 1) $bits[] = $k === $bk ? 'another ' . $W[$k][1] : $W[$k][0];
+        else $bits[] = ($c[$k] === 2 ? 'two ' : 'three ') . ($k === $bk ? 'more ' : '') . $W[$k][2];
+    }
+    $last = array_pop($bits);
+    return 'Try ' . $W[$bk][0] . ' with ' . ($bits ? implode(', ', $bits) . ' and ' . $last : $last);
+}
+
+/** The parts of a tea that are not in $held (ingredient slugs the gnome holds), in cup order. */
+function tea_lacks(array $t, array $held): array
+{
+    return array_values(array_filter(tea_recipe($t), fn($s) => !in_array($s, $held, true)));
+}
+
+/** "Need 1 Cane Syrup" / "Need 1 Vanilla, 1 Goat Milk" for missing parts. */
+function tea_need_text(array $miss): string
+{
+    $ING = tea_ingredients();
+    return 'Need 1 ' . implode(', 1 ', array_map(fn($s) => $ING[$s]['name'] ?? $s, $miss));
+}
+
+/**
+ * The Recipes tab: one row per named tea. Found teas first (the ones you can make now before the ones that need something),
+ * then the teas still to find. $held = ingredient slugs in the satchel, $found = tea slug => anything (tea_journal()['found']).
+ * Row: ['slug', 'known' => bool, 'name' (found only), 'parts' (cup order), 'miss' (slugs), 'can' => bool, 'buff' (text, can only), 'need' (text), 'hint' (unknown only)].
+ */
+function tea_recipe_rows(array $held, array $found, int $tier, ?array $caps = null): array
+{
+    $can = []; $need = []; $unk = [];
+    foreach (tea_named() as $slug => $t) {
+        $parts = tea_recipe($t);
+        if (!isset($found[$slug])) { $unk[] = ['slug' => $slug, 'known' => false, 'name' => '', 'parts' => $parts, 'miss' => [], 'can' => false, 'buff' => '', 'need' => '', 'hint' => tea_hint($t)]; continue; }
+        $miss = tea_lacks($t, $held);
+        $row = ['slug' => $slug, 'known' => true, 'name' => $t['name'], 'parts' => $parts, 'miss' => $miss, 'can' => !$miss, 'buff' => '', 'need' => $miss ? tea_need_text($miss) : '', 'hint' => ''];
+        if (!$miss) { $c = tea_cup($parts, $tier, $caps); $row['buff'] = $c['ok'] ? (str_replace(', ', ' · ', tea_buff_text($c['buff'])) ?: 'Too weak for a boost') : ''; $can[] = $row; }
+        else $need[] = $row;
+    }
+    return array_merge($can, $need, $unk);
+}
+
+/** The journal's stamp row: tea slug => found (bool), every named tea in file order. */
+function tea_stamps(array $found): array
+{
+    $o = [];
+    foreach (tea_named() as $slug => $t) $o[$slug] = isset($found[$slug]);
+    return $o;
+}
+
+/** The popover's sub line: "Copper · Cast-Iron at 8 teas (5/8)", "Tin · Copper for 150 Petals", "Samovar · the finest kettle". */
+function tea_kettle_sub(int $tier, int $have): string
+{
+    $tier = max(0, min(3, $tier));
+    $s = TEA_KETTLE_SHORT[$tier];
+    if ($tier === 0) return $s . ' · Copper for ' . TEA_COPPER_PRICE . ' Petals';
+    if (!isset(TEA_KETTLE_NEED[$tier + 1])) return $s . ' · the finest kettle';
+    $need = TEA_KETTLE_NEED[$tier + 1];
+    return $s . ' · ' . TEA_KETTLE_SHORT[$tier + 1] . ' at ' . $need . ' teas (' . min($have, $need) . '/' . $need . ')';
 }

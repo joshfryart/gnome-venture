@@ -74,7 +74,31 @@ ok('K is 4 / 5 / 6 / 7 and the caps 1-1 / 2-1 / 2-2 / 3-2', array_map(fn($t) => 
 ok('Tea Leaves alone reach the copper cap', tea_cup(['tea'], 1)['buff'] === ['lore' => 2]);
 ok('milk adds 2 steep to the main stat', tea_cup(['mint', 'goat-milk'], 3)['steep']['main']['steep'] === 4);
 ok('a sweetener adds 1 to main and 1 to side', (function () { $c = tea_cup(['mint', 'cinnamon', 'cane-syrup'], 3); return $c['steep']['main']['steep'] === 3 && $c['steep']['side']['steep'] === 3; })());
-ok('side tie: the stat added first', tea_cup(['tea', 'cardamom', 'cinnamon'], 3)['side'] === 'charm' && tea_cup(['tea', 'cinnamon', 'cardamom'], 3)['side'] === 'grit');
+ok('side tie: the stat earlier in Charm, Lore, Sense, Nimble, Grit, Hardiness, Luck wins, whatever the order (cardamom Charm 2 = cinnamon Grit 2)', tea_cup(['tea', 'cardamom', 'cinnamon'], 3)['side'] === 'charm' && tea_cup(['tea', 'cinnamon', 'cardamom'], 3)['side'] === 'charm');
+ok('TEA_SIDE_ORDER is the decided list and covers every stat', TEA_SIDE_ORDER === ['charm', 'lore', 'sense', 'nimble', 'grit', 'hardiness', 'luck'] && !array_diff(array_keys(TEA_STATS), TEA_SIDE_ORDER));
+$tie = function (array $a, array $b, string $want, int $t = 3): bool { $x = tea_cup($a, $t); $y = tea_cup($b, $t); return $x['side'] === $want && $y['side'] === $want && $x['buff'] === $y['buff'] && $x['steep'] === $y['steep']; };
+ok('tie Nimble vs Grit: Nimble (tea + cinnamon + ginger, both orders)', $tie(['tea', 'cinnamon', 'ginger'], ['tea', 'ginger', 'cinnamon'], 'nimble'));
+ok('tie Sense vs Hardiness: Sense (tea + meadowsweet + mint)', $tie(['tea', 'meadowsweet', 'mint'], ['tea', 'mint', 'meadowsweet'], 'sense'));
+ok('tie Lore vs Luck on a mint base: Lore (desert sage 1 = chamomile 1)', $tie(['mint', 'chamomile', 'desert-sage'], ['mint', 'desert-sage', 'chamomile'], 'lore'));
+ok('three-way tie Charm / Grit / Nimble: Charm', $tie(['tea', 'cinnamon', 'ginger', 'cardamom'], ['tea', 'ginger', 'cinnamon', 'cardamom'], 'charm'));
+ok('no tie: the most steep still wins over an earlier stat (Grit 4 beats Charm 1)', tea_cup(['tea', 'orange', 'cinnamon', 'black-pepper'], 3)['side'] === 'grit');
+ok('a tie never changes the points, only the side\'s name', tea_cup(['tea', 'cinnamon', 'cardamom'], 1)['steep']['side']['points'] === tea_cup(['tea', 'cardamom', 'cinnamon'], 1)['steep']['side']['points']);
+mt_srand(7);
+$legal = 0; $diff = [];
+$allS = array_keys($ING); $stp = array_values(array_filter($allS, fn($x) => $ING[$x]['role'] === 'steep'));
+for ($i = 0; $i < 3000 && $legal < 600; $i++) {
+    $base = $stp[mt_rand(0, count($stp) - 1)]; $rest = [];
+    for ($k = mt_rand(0, 3); $k > 0; $k--) { $x = $allS[mt_rand(0, count($allS) - 1)]; if ($x !== $base && !in_array($x, $rest, true)) $rest[] = $x; }
+    $t = mt_rand(0, 3); $c0 = tea_cup(array_merge([$base], $rest), $t);
+    if (!$c0['ok']) continue;
+    $legal++;
+    for ($r = 0; $r < 6; $r++) {   // the same set: shuffled extras, and shuffled form submissions with the base named
+        $sh = $rest; shuffle($sh); $c1 = tea_cup(array_merge([$base], $sh), $t);
+        $sub = array_merge([$base], $rest); shuffle($sub); $c2 = tea_cup(tea_pick(['base' => $base, 'c' => $sub]), $t);
+        foreach ([$c1, $c2] as $c) if ([$c['name'], $c['buff'], $c['main'], $c['side'], $c['steep']] !== [$c0['name'], $c0['buff'], $c0['main'], $c0['side'], $c0['steep']]) $diff[] = implode(',', array_merge([$base], $rest)) . " t$t";
+    }
+}
+ok("order independence: $legal legal cups x 6 shuffles of the extras and of the submitted form give the same cup", $legal >= 500 && !$diff, implode('; ', array_slice(array_unique($diff), 0, 5)));
 ok('a cup can be too weak for a boost and is still a cup', (function () { $c = tea_cup(['mint'], 0, [3, 2]); return $c['ok'] && $c['named'] && $c['steep']['main']['steep'] === 3 && $c['buff'] === ['sense' => 1]; })() && tea_cup(['lavender'], 0)['buff'] === ['sense' => 1] && tea_cup(['lavender', 'lemon'], 0, [0, 0])['buff'] === []);
 
 echo "== rules and limits\n";
@@ -101,7 +125,29 @@ ok('Masala Chai on Copper: named, +1 steep (Lore 5), Lore +2 and Charm +1', $c['
 ok('the set is order-free', tea_cup(['ginger', 'cinnamon', 'tea', 'cardamom'], 1)['name'] === 'Masala Chai' && tea_cup(['tea', 'ginger', 'cinnamon', 'cardamom'], 1)['name'] === 'Masala Chai');
 ok('a part more or less is a House Blend with the plain formula', tea_cup(['tea', 'cardamom', 'cinnamon'], 1)['name'] === TEA_HOUSE && !tea_cup(['tea', 'cardamom', 'cinnamon'], 1)['named'] && tea_cup(['tea', 'cardamom', 'cinnamon'], 1)['steep']['main']['steep'] === 4 && tea_cup(['mint', 'lemon'], 1)['name'] === TEA_HOUSE);
 ok('single-part named teas', tea_cup(['mint'], 0)['name'] === 'Mint Tea' && tea_cup(['bee-balm'], 0)['name'] === 'Oswego Tea');
+ok('Masala Chai and Milk Chai: Lore +2, Charm +1 on Copper (Charm wins the side tie over Nimble and Grit), from every order', (function () use ($NAMED) { foreach (['masala-chai', 'milk-chai'] as $sl) { $p = tea_recipe($NAMED[$sl]); $rest = array_slice($p, 1); foreach ([$rest, array_reverse($rest)] as $r) { $c = tea_cup(array_merge([$p[0]], $r), 1); if ($c['buff'] !== ['lore' => 2, 'charm' => 1]) return false; } } return true; })());
 ok('Golden Milk on Cast-Iron: Hardiness +2, Nimble +1', $pts(tea_cup(['turmeric', 'ginger', 'black-pepper', 'goat-milk'], 2)) === '{"hardiness":2,"nimble":1}', $pts(tea_cup(['turmeric', 'ginger', 'black-pepper', 'goat-milk'], 2)));
+
+echo "== the B2 popover's helpers: hints, recipes, stamps\n";
+$hint = fn(string $s): string => tea_hint($NAMED[$s]);
+ok('hint: a one-part tea', $hint('mint-tea') === 'Try one herb on its own' && $hint('oswego-tea') === 'Try one flower on its own');
+ok('hint: Masala Chai = a leaf with an herb and two spices', $hint('masala-chai') === 'Try a leaf with an herb and two spices');
+ok('hint: Sleepy Meadow = a flower with another flower and something sweet', $hint('sleepy-meadow') === 'Try a flower with another flower and something sweet');
+ok('hint: Golden Milk = an herb with another herb, a spice and milk', $hint('golden-milk') === 'Try an herb with another herb, a spice and milk');
+ok('hint: Osmanthus Tea = a leaf with a flower; Red Latte = a leaf with something sweet and milk', $hint('osmanthus-tea') === 'Try a leaf with a flower' && $hint('red-latte') === 'Try a leaf with something sweet and milk');
+$leak = [];
+foreach ($NAMED as $s => $t) { $x = tea_hint($t); if (!str_starts_with($x, 'Try ')) $leak[] = "$s: $x"; foreach ($t['parts'] as $p) if (stripos($x, $ING[$p]['name']) !== false && !in_array(strtolower($ING[$p]['name']), ['milk'], true)) $leak[] = "$s names {$ING[$p]['name']}"; }
+ok('every hint starts "Try" and names kinds, never the real parts', !$leak, implode('; ', $leak));
+ok('tea_recipe: the base first, then card order', tea_recipe($NAMED['masala-chai']) === ['tea', 'ginger', 'cardamom', 'cinnamon'] && tea_recipe($NAMED['mate-cocido']) === ['yerba-mate', 'cane-syrup', 'goat-milk']);
+ok('tea_lacks / tea_need_text', tea_lacks($NAMED['moroccan-mint'], ['tea', 'mint']) === ['cane-syrup'] && tea_need_text(['cane-syrup']) === 'Need 1 Cane Syrup' && tea_need_text(['vanilla', 'goat-milk']) === 'Need 1 Vanilla, 1 Goat Milk' && tea_lacks($NAMED['mint-tea'], ['mint']) === []);
+$rows = tea_recipe_rows(['tea', 'mint', 'lemon', 'garden-honey'], ['moroccan-mint' => 1, 'mint-tea' => 1, 'honey-lemon-tea' => 1], 1);
+$bySlug = array_column($rows, null, 'slug');
+ok('recipe rows: one per named tea; the ones you can make now first, then "need X", then the unknown', count($rows) === 20 && array_column(array_slice($rows, 0, 3), 'slug') === ['mint-tea', 'honey-lemon-tea', 'moroccan-mint'] && !$rows[3]['known']);
+ok('...can make now: Fill, the cup it gives (server-built text)', $bySlug['mint-tea']['can'] && $bySlug['mint-tea']['buff'] === 'Sense +1' && $bySlug['honey-lemon-tea']['can'] && $bySlug['honey-lemon-tea']['buff'] === 'Lore +2 · Sense +1');
+ok('...cannot: Need 1 Cane Syrup, no buff', !$bySlug['moroccan-mint']['can'] && $bySlug['moroccan-mint']['miss'] === ['cane-syrup'] && $bySlug['moroccan-mint']['need'] === 'Need 1 Cane Syrup' && $bySlug['moroccan-mint']['buff'] === '');
+ok('...unknown: no name, a hint', $bySlug['masala-chai']['name'] === '' && $bySlug['masala-chai']['hint'] === 'Try a leaf with an herb and two spices' && !$bySlug['masala-chai']['can']);
+ok('stamps: every named tea in file order, found = true', tea_stamps(['zobo' => 1, 'mint-tea' => 1]) === array_map(fn($s) => in_array($s, ['zobo', 'mint-tea'], true), array_combine(array_keys($NAMED), array_keys($NAMED))) && count(tea_stamps([])) === 20 && !array_filter(tea_stamps([])));
+ok('kettle sub line', tea_kettle_sub(0, 3) === 'Tin · Copper for 150 Petals' && tea_kettle_sub(1, 5) === 'Copper · Cast-Iron at 8 teas (5/8)' && tea_kettle_sub(2, 20) === 'Cast-Iron · Samovar at 16 teas (16/16)' && tea_kettle_sub(3, 20) === 'Samovar · the finest kettle');
 
 echo "== who sees it\n";
 $me = $row(); $adm = ['role' => 'admin'] + $me; $guest = ['guest' => 1] + $adm;
@@ -242,7 +288,7 @@ ok('cards only for what the satchel holds (6), the cut flower counts as chamomil
 ok('the base can only be something that steeps (3 Base choices)', substr_count($h, 'name="base"') === 3 && !str_contains($h, 'name="base" value="cardamom"'));
 ok('Brew posts do=brew to hovel.php with CSRF', (bool)preg_match('~<form method="post" action="[^"]*hovel\.php" class="tea-form"~', $h) && str_contains($h, 'name="csrf"') && str_contains($h, 'name="do" value="brew" data-tea-brew'));
 ok('the kettle line and the next kettle', str_contains($h, 'Dented Tin Kettle') && str_contains($h, 'Next: <b>Copper Kettle</b> · 150 Petals (you have 10)') && str_contains($h, 'name="do" value="kettle_buy"'));
-ok('the journal: 0 of 20, twenty "???", no names shown', str_contains($h, 'Tea Journal · 0 of 20 found') && substr_count($h, '>???</li>') === 20 && !str_contains($h, 'Masala Chai') && str_contains($h, '20 named teas still to find'));
+ok('the journal: 0 of 20, twenty "???" (and twenty in Recipes), no names shown', str_contains($h, 'Tea Journal · 0 of 20 found') && substr_count($h, '<li class="unk">') === 20 && substr_count($h, '<b>???</b>') === 40 && !str_contains($h, 'Masala Chai') && str_contains($h, '20 named teas still to find'));
 ok('no inline styles (CSP style-src self)', !preg_match('/\sstyle=/', $h));
 $_GET = ['tea' => '1', 'base' => 'tea', 'c' => 'mint,cardamom'];
 $h = tea_dialog_html($row(), true);
@@ -253,10 +299,27 @@ ok('an illegal cup in the preview', str_contains(tea_preview_html(tea_cup(['card
 tea_brew($row(), ['mint']);
 $_GET = [];
 $h = tea_dialog_html($row(), false);
-ok('after a brew: today\'s cup, the confirm box, the stamped tea in the journal', str_contains($h, 'Today’s cup: Mint Tea</b> · Sense +1 · until you sleep') && str_contains($h, 'name="confirm" value="1"> Pour out my Mint Tea') && str_contains($h, 'data-tea-pour="This pours out your Mint Tea. Brew again?"') && str_contains($h, 'Tea Journal · 1 of 20 found') && substr_count($h, '>???</li>') === 19 && str_contains($h, '<li class="got"><b>Mint Tea</b>'));
+ok('after a brew: today\'s cup, the confirm box, the stamped tea in the journal', str_contains($h, 'Today’s cup: Mint Tea</b> · Sense +1 · until you sleep') && str_contains($h, 'name="confirm" value="1"> Pour out my Mint Tea') && str_contains($h, 'data-tea-pour="This pours out your Mint Tea."') && str_contains($h, 'data-tea-confirm') && str_contains($h, 'data-tea-sheet hidden') && str_contains($h, '>Brew again</button>') && str_contains($h, 'Tea Journal · 1 of 20 found') && substr_count($h, '<li class="unk">') === 19 && (bool)preg_match('~<li class="got"><span class="tea-ics">.*?</span><span class="tx"><b>Mint Tea</b>~', $h));
+$b2 = '';
+if (preg_match('~<div class="tea-b2">.*?<div class="tea-plain">~s', $h, $mm)) $b2 = $mm[0];
+ok('B2: the cup has four slots, the first is the base (bigger, marked), empty slots show a faint +', substr_count($b2, '<div class="tea-slot">') + substr_count($b2, '<div class="tea-slot base">') === 4 && substr_count($b2, '<div class="tea-slot base">') === 1 && substr_count($b2, '<span class="tea-sl empty" aria-hidden="true">+</span>') === 4 && str_contains($b2, '<span class="tea-cap">Base ×2</span>'));
+ok('B2: the result line and Brew sit in the cup form, posting do=brew with CSRF', (bool)preg_match('~<form method="post" action="[^"]*hovel\.php" class="tea-cupf" data-tea="~', $b2) && str_contains($b2, 'name="csrf"') && str_contains($b2, 'class="tea-go" type="submit" name="do" value="brew" data-tea-go disabled') && str_contains($b2, 'data-tea-pv'));
+ok('B2: three tabs (Recipes, Leaves, Extras) and three panes', substr_count($b2, 'role="tab"') === 3 && substr_count($b2, 'role="tabpanel"') === 3 && (bool)preg_match('~>Recipes</button>.*>Leaves</button>.*>Extras</button>~s', $b2));
+ok('B2: Recipes has the found Mint Tea with Fill (it can be made), 19 "???" rows with hints', str_contains($b2, 'data-tea-fill="mint-tea" data-tea-parts="mint"') && substr_count($b2, 'class="tea-rrow unk"') === 19 && str_contains($b2, '<span class="hint">Try a leaf with an herb and two spices</span>'));
+ok('B2: Leaves holds tea and mint, Extras the rest (cardamom, honey, milk, chamomile)', (bool)preg_match('~id="htea-p1".*data-tea-add="tea".*data-tea-add="mint".*id="htea-p2"~s', $b2) && (bool)preg_match('~id="htea-p2".*data-tea-add="garden-honey".*data-tea-add="goat-milk".*data-tea-add="cardamom".*data-tea-add="chamomile"~s', $b2));
+ok('B2: ingredient tiles use the game pictures, not emoji (cut chamomile = flower art)', (bool)preg_match('~data-tea-add="tea"[^>]*>.*?<img class="aimg~s', $b2) && (bool)preg_match('~data-tea-add="chamomile"[^>]*>.*?<svg class="flsvg~s', $b2));
+ok('the stamp row: 20 tiny stamps, 1 found, opens the journal', substr_count($h, '<span class="tea-dot"></span>') + substr_count($h, '<span class="tea-dot f">') === 20 && substr_count($h, '<span class="tea-dot f">') === 1 && str_contains($h, 'class="tea-stamps" href="#htea-jr" data-tea-jopen') && str_contains($h, '<span class="lb">1/20 ›</span>'));
+ok('the header: kettle sub line, a close control', str_contains($h, '<small class="tea-sub">Tin · Copper for 150 Petals</small>') && str_contains($h, 'class="tea-x" href="/gnome.php" data-hdlg-close'));
+ok('the replace sheet (only with a cup today): Keep my cup / Pour out and brew', str_contains($h, '>Keep my cup</button>') && str_contains($h, 'data-tea-pourgo>Pour out and brew</button>'));
+ok('the plain form without script is still there (tick boxes, a Base radio, Show the cup)', str_contains($h, '<div class="tea-plain"><form method="post"') && str_contains($h, 'name="do" value="tea_preview"') && str_contains($h, 'name="c[]"'));
+ok('no inline style attributes anywhere in the popover', !preg_match('/\sstyle=/', $h));
+$_GET = ['tea' => '1', 'base' => 'tea', 'c' => 'mint,cardamom'];
+$hs = tea_dialog_html($row(), true);
+ok('?base=&c=: the B2 cup is drawn with those slots, the hidden inputs and the cup\'s result', str_contains($hs, 'data-tea-sel="tea,mint,cardamom"') && str_contains($hs, 'data-tea-take="tea" aria-label="Tea Leaves, the base. Tap to take it out"') && str_contains($hs, '<input type="hidden" name="base" value="tea"><input type="hidden" name="c[]" value="tea">') && str_contains($hs, '<button type="button" class="tea-mkb" data-tea-base="mint">Make base</button>') && str_contains($hs, '<span class="tea-cap">Charm 2</span>') && str_contains($hs, '<span class="sub ok">Lore +1 · Charm +1</span>'));
+$_GET = [];
 foreach (array_keys($ING) as $s) foreach ($ING[$s]['items'] as [$it]) if ($id = item_id_by_slug($it)) q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $id]);
 $h = tea_dialog_html($row(), false);
-ok('an empty satchel: no form, a hint, the kettle and the journal still show', !str_contains($h, 'tea-form') && str_contains($h, 'Nothing to steep') && str_contains($h, 'tea-kettle') && str_contains($h, 'tea-journal'));
+ok('an empty satchel: no form, a hint, the kettle and the journal still show', !str_contains($h, 'tea-form') && str_contains($h, 'Nothing to steep') && str_contains($h, 'tea-kettle') && str_contains($h, 'class="tea-jm"') && str_contains($h, 'class="tea-stamps"'));
 $d = tea_js_data(1);
 ok('the data for the JS twin: every ingredient, 20 teas, the kettle', count($d['ing']) === 31 && count($d['named']) === 20 && $d['k'] === [5, 2, 1] && $d['max'] === 4);
 ok('... trimmed to the satchel for the page', array_keys(tea_js_data(0, null, ['tea', 'mint'])['ing']) === ['tea', 'mint'] && array_column(tea_js_data(0, null, ['tea', 'mint'])['named'], 0) === ['Mint Tea']);
@@ -278,7 +341,9 @@ if (!empty($argv[2])) {   // cups for the JS twin (tests/tea_parity.js): every n
     }
     $data = [];
     foreach ([[3, 2], [2, 1], [1, 0]] as $caps) for ($t = 0; $t < 4; $t++) $data[$t . ':' . implode(',', $caps)] = tea_js_data($t, $caps);
-    file_put_contents($argv[2], json_encode(['data' => $data, 'cups' => $cups], JSON_UNESCAPED_UNICODE));
+    $picks = [];   // tea_pick() twin (gvTeaPick): random sets, random order, with and without a base named
+    for ($i = 0; $i < 300; $i++) { $c = []; for ($k = mt_rand(1, 4); $k > 0; $k--) $c[] = $all[mt_rand(0, count($all) - 1)]; $c = array_values(array_unique($c)); $b = mt_rand(0, 2) ? $c[mt_rand(0, count($c) - 1)] : ''; $picks[] = ['base' => $b, 'c' => $c, 'want' => tea_pick(['base' => $b, 'c' => $c])]; }
+    file_put_contents($argv[2], json_encode(['data' => $data, 'cups' => $cups, 'picks' => $picks], JSON_UNESCAPED_UNICODE));
     ok('wrote ' . count($cups) . ' cups for the JS twin (' . count(array_filter($cups, fn($c) => !isset($c['want']['err']))) . ' legal)', count($cups) > 1500 && count(array_filter($cups, fn($c) => !isset($c['want']['err']))) > 500);
 }
 

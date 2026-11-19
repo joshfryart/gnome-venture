@@ -82,12 +82,12 @@ has "...the preview names the tea" '<b>Masala Chai</b> <span class="tea-stamp">n
 chk "...nothing spent by looking" "$(dbv "SELECT qty FROM user_items WHERE user_id = $SID AND item_id = (SELECT id FROM items WHERE slug = 'tea')")" 3
 chk "no CSRF, no brew" "$(curl -s -c $C -b $C -X POST "$BASE/hovel.php" -d do=brew -d base=mint -d 'c[]=mint' -o /dev/null -w '%{http_code}')" 400
 chk "Brew" "$(post hovel.php -d do=brew -d base=tea -d 'c[]=tea' -d 'c[]=cardamom' -d 'c[]=cinnamon' -d 'c[]=ginger')" "302 $BASE/gnome.php?tea=1#htea"
-chk "...the cup is in its slot" "$(dbv "SELECT tea_name || ' ' || tea || ' ' || (tea_day = CAST(game_day AS TEXT)) FROM users WHERE id = $SID")" 'Masala Chai {"lore":1,"nimble":1} 1'
+chk "...the cup is in its slot" "$(dbv "SELECT tea_name || ' ' || tea || ' ' || (tea_day = CAST(game_day AS TEXT)) FROM users WHERE id = $SID")" 'Masala Chai {"lore":1,"charm":1} 1'
 chk "...one of each spent" "$(dbv "SELECT GROUP_CONCAT(qty) FROM (SELECT ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = $SID AND i.slug IN ('tea', 'cardamom', 'cinnamon', 'ginger') ORDER BY i.slug)")" "2,2,2,2"
 chk "...stamped in the journal" "$(dbv "SELECT tea_slug || ':' || times FROM user_tea_journal WHERE user_id = $SID")" "masala-chai:1"
 get 'gnome.php?tea=1' >/dev/null; noerr "after a brew"
-has "today's cup shows" 'Today’s cup: Masala Chai</b> · Lore +1, Nimble +1 · until you sleep'; has "...the journal has it" '<li class="got"><b>Masala Chai</b>'; has "...the kettle line on Today names it" 'Today’s cup: Masala Chai · Lore +1, Nimble +1'
-get 'gnome.php?tab=stats&s=lore' >/dev/null; has "Stats: the tea in Active effects" '<b>Tea:</b> Lore +1, Nimble +1 · until you sleep</li>'
+has "today's cup shows (the side tie goes to Charm)" 'Today’s cup: Masala Chai</b> · Lore +1, Charm +1 · until you sleep'; has "...the journal has it" '<span class="tx"><b>Masala Chai</b><span>Spice first'; has "...the kettle line on Today names it" 'Today’s cup: Masala Chai · Lore +1, Charm +1'
+get 'gnome.php?tab=stats&s=lore' >/dev/null; has "Stats: the tea in Active effects" '<b>Tea:</b> Lore +1, Charm +1 · until you sleep</li>'
 get 'gnome.php?tea=1' >/dev/null
 chk "a second brew without the confirm is refused (the cup stays in the address)" "$(post hovel.php -d do=brew -d base=mint -d 'c[]=mint')" "302 $BASE/gnome.php?tea=1&base=mint&c=#htea"
 chk "...the first cup stays" "$(dbv "SELECT tea_name FROM users WHERE id = $SID")" "Masala Chai"
@@ -96,7 +96,7 @@ chk "with the confirm it replaces the first" "$(post hovel.php -d do=brew -d bas
 echo "== the Copper Kettle, and a sleep"
 get 'gnome.php?tea=1' >/dev/null
 chk "buy the Copper Kettle" "$(post hovel.php -d do=kettle_buy; dbv "SELECT kettle || ':' || coins FROM users WHERE id = $SID")" "302 $BASE/gnome.php?tea=1#htea1:350"
-get 'gnome.php?tea=1' >/dev/null; has "the kettle line: Copper, next Cast-Iron at 8 teas" 'Next: <b>Cast-Iron Kettle</b> · yours free at 8 named teas in your journal (2 of 8)'
+get 'gnome.php?tea=1' >/dev/null; has "the kettle line: Copper, next Cast-Iron at 8 teas" '<p class="tea-pg"><b>Cast-Iron at 8 teas</b><span>2/8</span></p>'; has "...and the sub line" 'Copper · Cast-Iron at 8 teas (2/8)'
 chk "a sleep" "$(post hovel.php -d do=home_sleep -d back=today)" "302 $BASE/gnome.php?tab=today"
 get 'gnome.php?tea=1' >/dev/null; hasnt "after the sleep: no cup today" 'Today’s cup'; hasnt "...no confirm box" 'name="confirm"'; has "...the journal keeps both teas" 'Tea Journal · 2 of 20 found'
 get 'gnome.php?tab=stats&s=lore' >/dev/null; hasnt "...and no tea in Active effects" '<b>Tea:</b>'
