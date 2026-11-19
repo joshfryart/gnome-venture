@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.30
+- **Delves:** the delve column (picture, floor map, chips) is centred on wide screens, with the empty encounter panel hidden (`.advgrid.dv2`, also on the delve end page and old-style delves); the puzzle-fight stage popover now sits over the 480 px column with no sideways scroll (`.advgrid.dv2.fighting.pfover`). Trail and wander pages unchanged.
+
 ## 2.7.29
 - **Puzzle combat stage (`pfight_stage`):** a wander started from the world / Here page (no Trail map) now puts its fight in the stage popover, so the jigsaw entry, Let's fight and End match covers play like Trail fights (`adventure.php` `$trailPop`, `pfstage.js` `curBox()` falls back to the visible window); a wander's Run result card shows inside the dialog; `pfstSeen` is cleared at load when no dialog is on the page. New wander cases in `tests/pfstage.js`.
 - `tests/eggs110.sh`: 15 egg recipes (Maple Flapjacks), meal:10.
