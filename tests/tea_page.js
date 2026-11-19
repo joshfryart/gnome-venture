@@ -1,14 +1,19 @@
-// node tests/tea_page.js BASE : the Hovel tea kettle in a real browser, called by tests/tea.sh (skipped without playwright).
-// Player sprout holds tea, mint, cardamom, cinnamon, ginger, lemon (3 each), tea_open = everyone, home_slim on, no cup yet today.
-// SHOTS=/some/dir also writes screenshots (390 x 844). Prints "  ok   ..." / "  FAIL ..." lines.
+// node tests/tea_page.js BASE : the Hovel tea kettle (2.7.21 B2 "Cup and drawer") in a real browser at 390 x 844, called by tests/tea.sh (skipped without playwright).
+// Player sprout holds tea, mint, cardamom, cinnamon, ginger, lemon (3 each), tea_open = everyone, home_slim on, no cup yet today, empty journal, tin kettle.
+// SHOTS=/some/dir also writes screenshots. Prints "  ok   ..." / "  FAIL ..." lines.
 const { chromium } = require('playwright');
 const B = process.argv[2];
 const out = []; const ok = (name, got, want) => out.push((got === want ? '  ok   ' : '  FAIL ') + name + (got === want ? '' : " (got '" + got + "', want '" + want + "')"));
 (async () => {
   const br = await chromium.launch({ args: ['--no-sandbox'] }).catch(() => chromium.launch());
-  const c = await br.newContext({ viewport: { width: 390, height: 844 } }); const p = await c.newPage(); const errs = [];
+  const c = await br.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true }); const p = await c.newPage(); const errs = [];
   p.on('pageerror', e => errs.push(String(e)));
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+  const shot = async n => { if (process.env.SHOTS) await p.screenshot({ path: process.env.SHOTS + '/tea-' + n + '.png' }); };
+  const T = s => p.locator('#htea ' + s);
+  const norm = s => s.replace(/\s+/g, ' ').trim();
+  const pv = async () => norm(await T('[data-tea-pv]').innerText());
+  const settle = () => p.waitForTimeout(450);
   await p.goto(B + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!');
   await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]); await p.goto(B + '/gnome.php');
   const hit = p.locator('.hs-room a.hd-kettle .hd-hit');
@@ -16,49 +21,84 @@ const out = []; const ok = (name, got, want) => out.push((got === want ? '  ok  
   ok('the kettle tap area is at least 44 px each way on a phone (' + (bb ? Math.round(bb.width) + ' x ' + Math.round(bb.height) : 'none') + ')', !!bb && bb.width >= 44 && bb.height >= 44, true);
   ok('the popover is closed', await p.evaluate(() => document.getElementById('htea').open), false);
   await p.mouse.click(bb.x + bb.width / 2, bb.y + bb.height / 2);
-  await p.waitForTimeout(200);
+  await p.waitForTimeout(250);
   ok('a tap on the kettle opens the popover as a modal dialog (no page load)', await p.evaluate(() => { const d = document.getElementById('htea'); return d.open && d.matches(':modal') && location.search === ''; }), true);
-  ok('the no-script button is hidden', await p.locator('#htea .tea-nojs').isVisible(), false);
-  const tick = s => p.locator('#htea [data-tea-ing="' + s + '"] input[type=checkbox]').check();
-  const outText = () => p.locator('#htea [data-tea-out]').innerText();
-  await tick('tea');
-  ok('the first thing that steeps becomes the base', await p.locator('#htea [data-tea-ing="tea"] input[type=radio]').isChecked(), true);
-  ok('...and its card is marked', await p.locator('#htea [data-tea-ing="tea"]').getAttribute('class'), 'tea-card on base');
-  ok('the live preview: a House Blend on the tin kettle', (await outText()).replace(/\s+/g, ' ').includes('House Blend Lore +1 until you sleep Lore: steep 4 × 4 ÷ 8 = 2, cap 1'), true);
-  await tick('cardamom'); await tick('cinnamon'); await tick('ginger');
-  const live = (await outText()).replace(/\s+/g, ' ');
-  ok('four parts: the preview names the tea', live.includes('Masala Chai named tea · +1 steep Lore +1 Nimble +1 until you sleep'), true);
-  await p.locator('#htea [data-tea-ing="mint"] input[type=checkbox]').click();
-  ok('a fifth part does not go in', await p.locator('#htea [data-tea-ing="mint"] input[type=checkbox]').isChecked(), false);
-  ok('...and a note says why', (await p.locator('#htea [data-tea-note]').innerText()).includes('4 components at most'), true);
-  await p.locator('#htea [data-tea-ing="ginger"] input[type=radio]').check();
-  ok('another base can be picked: the main stat follows it', (await outText()).replace(/\s+/g, ' ').includes('Masala Chai named tea · +1 steep Nimble +1 Lore +1'), true);
-  await p.locator('#htea [data-tea-ing="tea"] input[type=radio]').check();
-  ok('the live preview is the cup the server draws for the same picks', await p.evaluate(async () => {
+  ok('with script: the cup and the drawer show, the plain form does not', (await T('.tea-b2').isVisible()) && !(await T('.tea-plain').isVisible()), true);
+  ok('the cup has four slots, the base first and bigger', await p.evaluate(() => { const s = [...document.querySelectorAll('#htea .tea-slot .tea-sl')].map(x => x.getBoundingClientRect().width); return s.length === 4 && s[0] > s[1]; }), true);
+  ok('three tabs, Recipes selected', (await T('[role=tab]').count()) === 3 && (await T('[data-tea-tab="0"]').getAttribute('aria-selected')) === 'true', true);
+  ok('the stamp row: 20 stamps, none found', (await T('.tea-dot').count()) === 20 && (await T('.tea-dot.f').count()) === 0, true);
+  ok('Brew is off with an empty cup', await T('[data-tea-go]').isDisabled(), true);
+  ok('no horizontal overflow (page and popover)', await p.evaluate(() => { const d = document.getElementById('htea'); return document.documentElement.scrollWidth <= window.innerWidth && d.scrollWidth <= d.clientWidth; }), true);
+  // tabs: tap and swipe
+  await T('[data-tea-tab="1"]').click(); await settle();
+  ok('tap Leaves: its tab is selected and its pane is in view', (await T('[data-tea-tab="1"]').getAttribute('aria-selected')) === 'true' && await p.evaluate(() => { const pn = document.querySelector('#htea [data-tea-panes]'); return Math.abs(pn.scrollLeft - pn.clientWidth) < 4; }), true);
+  await p.evaluate(() => { const pn = document.querySelector('#htea [data-tea-panes]'); pn.scrollLeft = pn.clientWidth * 2; }); await settle();
+  ok('a swipe to the third pane selects Extras', await T('[data-tea-tab="2"]').getAttribute('aria-selected'), 'true');
+  await T('[data-tea-tab="1"]').click(); await settle();
+  // tap an ingredient: it fills a slot
+  await T('[data-tea-add="tea"]').click();
+  ok('tap Tea Leaves: it fills the base slot', await T('.tea-slot.base [data-tea-take="tea"]').count(), 1);
+  ok('...the tile is marked as the base', await T('[data-tea-add="tea"]').getAttribute('class'), 'tea-gt on isbase');
+  ok('...the live result: a House Blend, Lore +1 on the tin kettle', await pv(), 'House Blend Lore +1');
+  ok('...Brew is on', await T('[data-tea-go]').isEnabled(), true);
+  await T('[data-tea-add="ginger"]').click();
+  await T('[data-tea-tab="2"]').click(); await settle();
+  await T('[data-tea-add="cardamom"]').click(); await T('[data-tea-add="cinnamon"]').click();
+  ok('four parts: the named tea with its stamp, the side tie goes to Charm', await pv(), 'Masala Chai +1 Lore +1 · Charm +1');
+  ok('...ginger (it can steep) offers Make base', await T('[data-tea-base="ginger"]').count(), 1);
+  await T('[data-tea-tab="1"]').click(); await settle();
+  await T('[data-tea-add="mint"]').click();
+  ok('a fifth part does not go in, a note says why', (await T('[data-tea-take="mint"]').count()) === 0 && (await T('[data-tea-note]').innerText()).includes('A cup holds 4'), true);
+  await T('[data-tea-take="cinnamon"]').click();
+  ok('tap a filled slot: it comes out', await p.evaluate(() => [...document.querySelectorAll('#htea [data-tea-take]')].map(x => x.getAttribute('data-tea-take')).join()), 'tea,ginger,cardamom');
+  ok('...and the result follows', await pv(), 'House Blend Lore +1 · Charm +1');
+  await T('[data-tea-tab="2"]').click(); await settle(); await T('[data-tea-add="cinnamon"]').click();
+  await T('[data-tea-base="ginger"]').click();
+  ok('Make base: ginger is the base, the main stat follows it', await pv(), 'Masala Chai +1 Nimble +1 · Charm +1');
+  await T('[data-tea-base="tea"]').click();
+  ok('the live result is the one the server draws for the same cup', await p.evaluate(async () => {
     const norm = s => s.replace(/\s+/g, ' ').trim();
-    const mine = norm(document.querySelector('#htea [data-tea-out]').textContent);
+    const mine = norm(document.querySelector('#htea [data-tea-pv]').textContent);
     const html = await (await fetch('gnome.php?tea=1&base=tea&c=ginger,cardamom,cinnamon', { credentials: 'same-origin' })).text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    return mine === norm(doc.querySelector('#htea [data-tea-out]').textContent);
+    return mine === norm(doc.querySelector('#htea [data-tea-pv]').textContent) ? true : mine + ' / ' + norm(doc.querySelector('#htea [data-tea-pv]').textContent);
   }), true);
-  if (process.env.SHOTS) await p.screenshot({ path: process.env.SHOTS + '/tea-popover.png' });
-  await Promise.all([p.waitForURL(/tea=1/), p.locator('#htea [data-tea-brew]').click()]);
+  ok('the hidden fields hold the cup (base first)', await p.evaluate(() => [...document.querySelectorAll('#htea [data-tea-hid] input')].map(i => i.name + '=' + i.value).join('&')), 'base=tea&c[]=tea&c[]=ginger&c[]=cardamom&c[]=cinnamon');
+  const small = await p.evaluate(() => [...document.querySelectorAll('#htea .tea-sl.full, #htea .tea-tab, #htea .tea-gt, #htea .tea-go, #htea .tea-x, #htea .tea-stamps')]
+    .filter(e => e.offsetParent).map(e => e.getBoundingClientRect()).filter(r => r.width > 0 && (r.width < 44 || r.height < 44)).length);
+  ok('tap targets (slots, tabs, tiles, Brew, close, stamps) are 44 px or more', small, 0);
+  ok('still no horizontal overflow with a full cup', await p.evaluate(() => { const d = document.getElementById('htea'); return document.documentElement.scrollWidth <= window.innerWidth && d.scrollWidth <= d.clientWidth; }), true);
+  await shot('popover');
+  await Promise.all([p.waitForURL(/tea=1/), T('[data-tea-go]').click()]);
   await p.waitForTimeout(300);
-  ok('Brew: back on Today with the cup', (await p.locator('#htea .tea-today').innerText()).includes('Today’s cup: Masala Chai'), true);
-  ok('...the journal has its stamp', (await p.locator('#htea .tea-journal summary').innerText()).includes('1 of 20 found'), true);
-  if (process.env.SHOTS) await p.screenshot({ path: process.env.SHOTS + '/tea-after.png', fullPage: true });
-  // a second cup: the game's own confirm dialog, Cancel keeps the first cup
-  await p.locator('.hs-teal a').click(); await p.waitForTimeout(200);
+  ok('Brew posts: back on Today with the cup', (await T('.tea-today').innerText()).includes('Today’s cup: Masala Chai'), true);
+  ok('...one stamp is coloured', await T('.tea-dot.f').count(), 1);
+  // the journal modal, Fill on a known tea, the replace sheet
+  await p.locator('.hs-teal a').click(); await p.waitForTimeout(250);
   ok('the plain link on Today opens the same popover', await p.evaluate(() => document.getElementById('htea').matches(':modal')), true);
-  await tick('mint');
-  await p.locator('#htea [data-tea-brew]').click(); await p.waitForTimeout(200);
-  ok('a second brew asks first', (await p.locator('dialog.gvask .gvmsg').innerText()).includes('This pours out your Masala Chai'), true);
-  await p.locator('dialog.gvask .btn.alt').click(); await p.waitForTimeout(200);
-  ok('Cancel: nothing is brewed', await p.locator('#htea input[name=confirm]').isChecked(), false);
-  await p.locator('#htea [data-tea-brew]').click(); await p.waitForTimeout(200);
-  await Promise.all([p.waitForURL(/tea=1/), p.locator('dialog.gvask .gvbtns .btn:not(.alt)').click()]);
+  await T('[data-tea-jopen]').click(); await p.waitForTimeout(200);
+  ok('tap the stamp row: the journal opens in the popover', (await T('[data-tea-jm]').isVisible()) && (await T('#htea-jh').innerText()).includes('Tea Journal · 1 of 20 found'), true);
+  ok('...with the kettle and the Copper Kettle offer', (await T('.tea-jm .tea-buy button').innerText()).includes('Buy the Copper Kettle'), true);
+  ok('...and hints for the teas still to find', (await T('.tea-jm li.unk').count()) === 19 && (await T('.tea-jm li.unk').first().innerText()).includes('Try one herb on its own'), true);
+  await shot('journal');
+  await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+  ok('Esc closes the journal, not the popover', !(await T('[data-tea-jm]').isVisible()) && await p.evaluate(() => document.getElementById('htea').open), true);
+  ok('Recipes: Masala Chai is known, with Fill', await T('[data-tea-fill="masala-chai"]').innerText(), 'Fill');
+  await T('[data-tea-fill="masala-chai"]').click();
+  ok('Fill: the cup holds the four parts, the row says In cup', (await T('[data-tea-take]').count()) === 4 && (await pv()) === 'Masala Chai +1 Lore +1 · Charm +1' && (await T('[data-tea-fill="masala-chai"]').innerText()) === 'In cup', true);
+  ok('a second cup: the button says Brew again', await T('[data-tea-go]').innerText(), 'Brew again');
+  await T('[data-tea-go]').click(); await p.waitForTimeout(200);
+  ok('Brew again asks first in a sheet', (await T('[data-tea-sheet]').isVisible()) && (await T('[data-tea-sq]').innerText()) === 'This pours out your Masala Chai. Brew Masala Chai instead?', true);
+  await shot('replace');
+  await T('.tea-sbox [data-tea-keep]').click(); await p.waitForTimeout(200);
+  ok('Keep my cup: the sheet closes, nothing is posted', !(await T('[data-tea-sheet]').isVisible()) && (await p.evaluate(() => location.search)).includes('tea=1') && (await T('[data-tea-take]').count()) === 4, true);
+  await T('[data-tea-fill="masala-chai"]').click();
+  ok('Fill again empties the cup', await T('[data-tea-take]').count(), 0);
+  await T('[data-tea-tab="1"]').click(); await settle(); await T('[data-tea-add="mint"]').click();
+  await T('[data-tea-go]').click(); await p.waitForTimeout(200);
+  await Promise.all([p.waitForURL(/tea=1/), T('[data-tea-pourgo]').click()]);
   await p.waitForTimeout(300);
-  ok('OK: the new cup replaces the first', (await p.locator('#htea .tea-today').innerText()).includes('Today’s cup: Mint Tea'), true);
+  ok('Pour out and brew: the new cup replaces the first', (await T('.tea-today').innerText()).includes('Today’s cup: Mint Tea'), true);
   ok('no script errors', errs.join(' | '), '');
   console.log(out.join('\n'));
   await br.close();
