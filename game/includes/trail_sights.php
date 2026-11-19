@@ -140,14 +140,15 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($k === 'page' && !isset(trail_sight_pages()[$v])) $bad[] = 'page= needs a key in trail_sight_pages.txt';
         if ($k === 'title' && ($v === '' || mb_strlen($v) > 60)) $bad[] = 'title= needs a title of 1 to 60 characters';
         if ($k === 'nocheck' && $v !== '') $bad[] = 'nocheck takes no value';
-        if ($k === 'fpall' && !preg_match('/^[1-9]$/', $v)) $bad[] = 'fpall= needs points 1 to 9 (every villager of the start place)';   // 2.7.08
+        if ($k === 'fpall' && !preg_match('/^([1-9]|10)$/', $v)) $bad[] = 'fpall= needs points 1 to 10 (every villager of the start place)';   // 2.7.08
         foreach (sights3a_lint_token($k, $v) as $p3a) $bad[] = $p3a;   // 2.7.08 third pass A: buff2= nxt=
         foreach (sights5_lint_token($k, $v, $db) as $p5) $bad[] = $p5;   // fifth pass: any-of take / give, disc scope, nextkind=
         foreach (sights4_lint_token($k, $v, $db) as $p4) $bad[] = $p4;   // fourth pass: sec= (a named stretch), time= range
         if ($k === 'buff' && (!preg_match('/^([a-z]+):(\d{1,2})(:(\d{1,4}|sleep|delve|section))?$/', $v, $bm) || !($bm[1] === 'all' || array_key_exists($bm[1], GNOME_STATS)))) $bad[] = 'buff= needs stat:amount[:minutes|sleep|delve|section] (stat: ' . implode(', ', array_keys(GNOME_STATS)) . ', or all = every stat)';   // 2.7.08: all
-        if ($k === 'disc' && !preg_match('/^(rest|shop):([1-9]\d?|100):([1-9]\d{0,3})(:[a-z]+)?$/', $v)) $bad[] = 'disc= needs rest|shop:percent:minutes[:item category] (real minutes), e.g. disc=rest:10:120 or disc=shop:20:60:seed';
+        if ($k === 'disc' && !preg_match('/^(rest|shop):([1-9]\d?|100):([1-9]\d{0,3})(:[a-z][a-z0-9-]*)?$/', $v)) $bad[] = 'disc= needs rest|shop:percent:minutes[:item category or item slug] (real minutes), e.g. disc=rest:10:120 or disc=shop:20:60:seed';
         if ($k === 'check' && !preg_match('/^[a-z]+:\d{1,2}$/', $v)) $bad[] = 'check= needs stat:difficulty (a villager row)';
-        if ($k === 'choose') {   // choose=A;B;C: the gnome picks ONE of these rewards (2.7.00); each is a plain reward token
+        if ($k === 'choose' && !empty($r['folk']) && str_contains($v, '~')) { foreach (sights6a_lint_vchoose($v, $db) as $vp) $bad[] = $vp; }   // sixth pass A: a villager row's choice (Label~reward+reward;...)
+        elseif ($k === 'choose') {   // choose=A;B;C: the gnome picks ONE of these rewards (2.7.00); each is a plain reward token
             $opts = array_values(array_filter(array_map('trim', explode(';', $v))));
             if (count($opts) < 2 || count($opts) > 4) $bad[] = 'choose= needs 2 to 4 rewards joined by ;';
             if ($r['check'] !== '-' && str_starts_with($r['check'], 'pick') && count($opts) !== (int)(explode(':', $r['check'])[1] ?? 0)) $bad[] = 'choose= on a pick needs one reward per label (a free pick: label i pays reward i, 2.7.08)';
@@ -488,7 +489,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
         foreach ($folkHere as $fh) {
             $toks = array_map(fn($t) => $t['tok'], trail_sight_tokens($fh['rewards']));
             if ($fh === $sure) { $lines = array_merge($lines, trail_sight_pay($u, $loc, $fh['rewards'], $fh['who'], $now)); break; }
-            if (array_filter($toks, fn($t) => str_starts_with($t, 'give='))) continue;   // waits for trail_sight_give()
+            if (array_filter($toks, fn($t) => str_starts_with($t, 'give=')) || sights6a_vchoose((string)$fh['rewards'])) continue;   // waits for trail_sight_give() (a give= row, or a villager's choice: sixth pass A)
             $rolled = sights5_folk_roll($u, $fh, $now);   // fifth pass: their own check is rolled here, once: a miss says the row's miss line and pays nothing
             if ($rolled === false) { $lines[] = '💬 ' . sights5_folk_miss_text($fh, $now); break; }
             $lines = array_merge($lines, ['💬 ' . $fh['line']], trail_sight_pay($u, $loc, $fh['rewards'], $fh['who'], $now, $rolled === true)); break;
@@ -558,7 +559,7 @@ function trail_sight_chance_pass(string &$tok): bool
 /** 2.7.06: the item ids that count as "any <kind>" for take=any-<kind>: the produce of every plant of that kind (nut, fruit, vegetable ...), else every item whose slug ends with it (feather). */
 function trail_sight_any_items(string $kind): array
 {
-    if (str_contains($kind, '+') || in_array($kind, SIGHTS5_ANY_CATS, true)) return sights5_any_items($kind);   // fifth pass: an item category (seed, flower, food, produce) and several kinds joined by +
+    if (str_contains($kind, '+') || in_array($kind, SIGHTS5_ANY_CATS, true) || sights6a_word_list($kind) !== null) return sights5_any_items($kind);   // fifth pass: an item category (seed, flower, food, produce) and several kinds joined by +
     $ids = array_map('intval', q('SELECT i.id FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.kind = ?', [$kind])->fetchAll(PDO::FETCH_COLUMN));
     if (!$ids) $ids = array_map('intval', q("SELECT id FROM items WHERE slug = ? OR slug LIKE ?", [$kind, '%-' . $kind])->fetchAll(PDO::FETCH_COLUMN));
     return array_values(array_unique($ids));
@@ -568,7 +569,7 @@ function trail_sight_any_items(string $kind): array
  * Hand a villager who is at the Sight today what they ask for (their row has `give=item:qty`): the item is used up, their rewards are paid. No energy; 10 game minutes. [ok, message]
  * $idx = the row's index in trail_sight_folk()[$slug].
  */
-function trail_sight_give(array $u, array &$exp, string $slug, int $idx): array
+function trail_sight_give(array $u, array &$exp, string $slug, int $idx, int $reward = -1): array
 {
     $sc = trail_scene($exp);
     if (!$sc || $exp['encounter']) return [false, 'Not now.'];
@@ -581,6 +582,7 @@ function trail_sight_give(array $u, array &$exp, string $slug, int $idx): array
     if (!$here) return [false, 'Nobody is here for that today.'];
     $f = $here[0];
     $g = null; foreach (trail_sight_tokens($f['rewards']) as $t) if (str_starts_with($t['tok'], 'give=')) $g = $t['tok'];
+    if (!$g && sights6a_vchoose((string)$f['rewards'])) return sights6a_folk_choose($u, $exp, $loc, $now, $f, $slug, $idx, $reward);   // sixth pass A: the villager asks a question instead of an item
     if (!$g) return [false, 'They do not need anything.'];
     [$gs, $gq] = array_pad(explode(':', substr($g, 5), 2), 2, '1'); $gid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$gs]); $gq = max(1, (int)$gq);
     $anyG = preg_match(SIGHTS5_ANY_RE, $gs) ? substr($gs, 4) : null;   // fifth pass: give=any-seed:1 = one of any seed

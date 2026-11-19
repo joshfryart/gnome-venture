@@ -70,6 +70,7 @@ function sights5_any_items(string $spec): array
     $ids = [];
     foreach (explode('+', $spec) as $part) {
         if (!preg_match('/^[a-z]+$/', $part)) continue;
+        if (($wl = sights6a_word_list($part)) !== null) { foreach ($wl as $ws) { $wid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$ws]); if ($wid) $ids[] = $wid; } continue; }   // sixth pass A: a word list (any-bread, any-tea)
         if (in_array($part, SIGHTS5_ANY_CATS, true)) $ids = array_merge($ids, array_map('intval', q('SELECT id FROM items WHERE category = ?', [$part])->fetchAll(PDO::FETCH_COLUMN)));
         else $ids = array_merge($ids, trail_sight_any_items($part));
     }
@@ -146,8 +147,10 @@ function sights5_folk_card_note(array $f, array $now): string
 function sights5_disc_item_pct(int $uid, int $itemId): int
 {
     if ($itemId <= 0) return 0;
-    try { $cat = (string)q_val('SELECT category FROM items WHERE id = ?', [$itemId]); } catch (Throwable $e) { return 0; }
-    return isset(SIGHTS5_DISC_SCOPES[$cat]) ? trail_sight_disc_pct($uid, 'shop:' . $cat) : 0;
+    try { $it = q_one('SELECT category, slug FROM items WHERE id = ?', [$itemId]); } catch (Throwable $e) { return 0; }
+    if (!$it) return 0;
+    $cat = (string)$it['category'];
+    return (isset(SIGHTS5_DISC_SCOPES[$cat]) ? trail_sight_disc_pct($uid, 'shop:' . $cat) : 0) + trail_sight_disc_pct($uid, 'shop:' . (string)$it['slug']);   // sixth pass A: a discount scoped to one item slug (disc=shop:50:120:rope)
 }
 
 // ---------------------------------------------------------------- 5. Sight kinds and the "next Sight of that kind" tips
@@ -224,10 +227,11 @@ function sights5_lint_token(string $k, string $v, bool $db = true): array
     if (($k === 'take' || $k === 'give') && str_starts_with($v, 'any-')) {
         $spec = explode(':', $v)[0];
         if (!preg_match(SIGHTS5_ANY_RE, $spec)) $bad[] = $k . '= needs any-<kind>[+<kind>] in lower case letters, e.g. any-seed or any-produce+flower';
+        else foreach (explode('+', substr($spec, 4)) as $wd) if (($wl = sights6a_word_list($wd)) !== null && $db) foreach ($wl as $ws) if (!trail_sight_item_known($ws)) $bad[] = 'word list "' . $wd . '": no item "' . $ws . '"';   // sixth pass A
     }
     if ($k === 'disc') {
         $p = explode(':', $v);
-        if (isset($p[3]) && ($p[0] !== 'shop' || !isset(SIGHTS5_DISC_SCOPES[$p[3]]))) $bad[] = 'disc= scope (a fourth part) works on shop only, with one of ' . implode(', ', array_keys(SIGHTS5_DISC_SCOPES));
+        if (isset($p[3]) && ($p[0] !== 'shop' || !(isset(SIGHTS5_DISC_SCOPES[$p[3]]) || ($p[3] !== '' && preg_match('/^[a-z][a-z0-9-]*$/', $p[3]) && (!$db || trail_sight_item_known($p[3])))))) $bad[] = 'disc= scope (a fourth part) works on shop only, with one of ' . implode(', ', array_keys(SIGHTS5_DISC_SCOPES)) . ' or an item slug';   // sixth pass A: an item slug
     }
     if ($k === 'nextkind' && (!preg_match(SIGHTS5_NEXT_RE, $v, $m) || !in_array($m[1] ?? '', SIGHTS5_KINDS, true))) $bad[] = 'nextkind= needs <kind>:+1..3 or <kind>:fish=1..3 (kinds: ' . implode(', ', SIGHTS5_KINDS) . ')';
     return $bad;
@@ -313,6 +317,7 @@ function sights5_cond_hv(string $v, array $now): bool
 {
     [$slug, $n] = array_pad(explode(':', $v, 2), 2, '1');
     $uid = (int)($now['uid'] ?? 0);
+    if ($uid > 0 && preg_match(SIGHTS5_ANY_RE, $slug)) return sights5_any_have($uid, substr($slug, 4))[1] >= max(1, (int)$n);   // sixth pass A: hv=any-bread:1
     return $uid > 0 && preg_match('/^[a-z0-9-]+$/', $slug) && sights5_have($uid, $slug) >= max(1, (int)$n);
 }
 
@@ -461,4 +466,121 @@ function sights5_bottle_open(array $u, int $itemId): array
     $lines = trail_sight_b_pay($u, $loc, 'bottle=1', $now);
     if (!$lines) { give_item($uid, $itemId, 1); return [false, 'The bottle is empty after all. It goes back in your satchel.']; }
     return [true, str_replace('A bottle washes up.', 'You pull the cork.', implode(' ', array_map('strval', $lines)))];
+}
+
+// ---------------------------------------------------------------- sixth pass A (claude/sights/GRAMMAR.md "Sixth pass A"; test tests/trail_sights_284.sh)
+
+const SIGHTS6A_VCHOOSE_KINDS = ['c', 'xp', 'en', 'item', 'seed', 'crop', 'fish', 'find', 'buff', 'fp', 'take', 'disc'];   // the tokens a villager's choice option may hold
+
+/**
+ * Word lists for `any-<word>` (data/trail_sight_words.txt: `word|slug,slug,...`): the words that are no item category and no plant kind (bread slugs have no common
+ * ending: cornbread, herb-flatbread; teas are listed by slug). Used by take=any-bread, give=any-tea, hv=any-bread:1. Null when $word is not a list.
+ */
+function sights6a_word_list(string $word): ?array
+{
+    static $c = [];
+    $files = trail_sight_data_files('words'); $key = implode(',', $files) . '|' . implode(',', array_map(fn($f) => is_file($f) ? filemtime($f) : 0, $files));
+    if (!isset($c[$key])) {
+        $c[$key] = [];
+        foreach (trail_sight_data_lines('words') as $l) { [$w, $sl] = array_pad(array_map('trim', explode('|', $l, 2)), 2, ''); if (preg_match('/^[a-z]+$/', $w)) $c[$key][$w] = array_values(array_filter(array_map('trim', explode(',', $sl)))); }
+    }
+    return $c[$key][$word] ?? null;
+}
+
+/** A villager row's choice: `choose=Label~tok+tok;Label~tok+tok` (2 to 4 options) as [[label, [tokens]], ...], or null when the rewards hold none. */
+function sights6a_vchoose(string $rewards): ?array
+{
+    foreach (trail_sight_tokens($rewards) as $t) if (str_starts_with($t['tok'], 'choose=') && str_contains($t['tok'], '~')) {
+        $out = [];
+        foreach (array_filter(array_map('trim', explode(';', substr($t['tok'], 7)))) as $o) { [$lb, $tk] = array_pad(explode('~', $o, 2), 2, ''); $out[] = [trim($lb), array_values(array_filter(array_map('trim', explode('+', $tk))))]; }
+        return $out ?: null;
+    }
+    return null;
+}
+
+/** Problems with a villager choice (`Label~tok+tok;...`). $db false = do not look items up. */
+function sights6a_lint_vchoose(string $v, bool $db = true): array
+{
+    $bad = []; $opts = array_values(array_filter(array_map('trim', explode(';', $v))));
+    if (count($opts) < 2 || count($opts) > 4) $bad[] = 'a villager choose= needs 2 to 4 options joined by ;';
+    foreach ($opts as $o) {
+        if (!str_contains($o, '~')) { $bad[] = 'a villager choose= option needs Label~reward+reward ("' . $o . '")'; continue; }
+        [$lb, $tk] = explode('~', $o, 2);
+        if (trim($lb) === '' || mb_strlen(trim($lb)) > 40) $bad[] = 'a villager choose= label needs 1 to 40 characters';
+        $toks = array_values(array_filter(array_map('trim', explode('+', $tk))));
+        if (!$toks) $bad[] = 'a villager choose= option "' . $lb . '" has no reward';
+        foreach ($toks as $tok) {
+            [$k, $val] = array_pad(explode('=', $tok, 2), 2, '');
+            if (!in_array($k, SIGHTS6A_VCHOOSE_KINDS, true)) { $bad[] = 'a villager choose= option "' . $lb . '" may not hold ' . $k . '='; continue; }
+            if (($k === 'item' || $k === 'take') && $db && !preg_match(SIGHTS5_ANY_RE, explode(':', $val)[0]) && !trail_sight_item_known(explode(':', $val)[0])) $bad[] = 'a villager choose= item "' . explode(':', $val)[0] . '" does not exist';
+        }
+    }
+    return $bad;
+}
+
+/**
+ * A villager row with a choice (`choose=Let them sleep~buff=luck:1:60+fp=1;Wake them~take=cornbread:1+fp=2`): the Sights card shows one button per option; the line column
+ * is `prompt // result 1 // result 2 ...` (one result per option, said in the journal). A `take=` in an option is used up (and checked first). Once per game day, like give=.
+ * Called from trail_sight_give(): [ok, message].
+ */
+function sights6a_folk_choose(array $u, array &$exp, array $loc, array $now, array $f, string $slug, int $idx, int $reward): array
+{
+    $opts = sights6a_vchoose((string)$f['rewards']);
+    if (!$opts) return [false, 'They do not need anything.'];
+    if ($reward < 0 || $reward >= count($opts)) return [false, 'Choose one.'];
+    $uid = (int)$u['id'];
+    $gkey = 'give~' . substr(md5($slug . '|' . $idx), 0, 16); $dayNo = (int)floor(strtotime(gclock_my_date() . ' UTC') / 86400);
+    if ((int)(trail_sight_tallies($uid)[$gkey] ?? 0) === $dayNo) return [false, trail_sight_split_who($f['who'])[0] . ' has had what they need from you today.'];
+    $takes = []; $pay = [];
+    foreach ($opts[$reward][1] as $tok) {
+        if (!str_starts_with($tok, 'take=')) { $pay[] = $tok; continue; }
+        [$ts, $tq] = array_pad(explode(':', substr($tok, 5), 2), 2, '1'); $tq = max(1, (int)$tq);
+        if (preg_match(SIGHTS5_ANY_RE, $ts)) { if (sights5_any_have($uid, substr($ts, 4))[1] < $tq) return [false, 'You need ' . $tq . ' × ' . sights5_any_label(substr($ts, 4)) . ' for that.']; $takes[] = [$ts, $tq, 0]; continue; }
+        $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$ts]);
+        if (!$tid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $tid]) < $tq) return [false, 'You need ' . $tq . ' × ' . ($tid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$tid]) : $ts) . ' for that.'];
+        $takes[] = [$ts, $tq, $tid];
+    }
+    foreach ($takes as [$ts, $tq, $tid]) if (!($tid ? give_item($uid, $tid, -$tq) : sights5_any_use($uid, substr($ts, 4), $tq))) return [false, 'You need ' . $tq . ' × ' . ($tid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$tid]) : sights5_any_label(substr($ts, 4))) . ' for that.'];
+    try { if (q('UPDATE trail_sight_tally SET n = ? WHERE user_id = ? AND tkey = ?', [$dayNo, $uid, $gkey])->rowCount() < 1) db_insert('trail_sight_tally', ['user_id' => $uid, 'tkey' => $gkey, 'n' => $dayNo]); } catch (Throwable $e) { /* a double click */ }
+    gclock_charge($uid, 'sight');
+    $lines = $pay ? trail_sight_pay($u, $loc, implode(',', $pay), $f['who'], $now) : [];
+    $said = array_map('trim', explode(' // ', (string)$f['miss']))[$reward] ?? '';
+    $tl = array_map(fn($t) => '🎁 used ' . $t[1] . ' × ' . ($t[2] ? (string)q_val('SELECT name FROM items WHERE id = ?', [$t[2]]) : sights5_any_label(substr($t[0], 4))), $takes);
+    exp_log($exp, '💬 ' . ($said !== '' ? $said : trail_sight_split_who($f['who'])[0] . ': ' . $opts[$reward][0] . '.') . (($lines || $tl) ? ' (' . implode(', ', array_merge($tl, array_filter($lines))) . ')' : ''));
+    return [true, ''];
+}
+
+/** The Sights card buttons for a villager row with a choice: '' when the row has none. $near = the gnome stands by the Sight. */
+function sights6a_folk_choose_html(array $u, string $slug, array $f, bool $near): string
+{
+    $opts = sights6a_vchoose((string)$f['rewards']);
+    if (!$opts) return '';
+    if (!$near) return ' <small class="muted">Walk there to answer.</small>';
+    $h = '<form method="post" class="inline sgpick">' . csrf_field() . '<input type="hidden" name="do" value="sightgive"><input type="hidden" name="slug" value="' . e($slug) . '"><input type="hidden" name="idx" value="' . (int)$f['idx'] . '">';
+    foreach ($opts as $i => [$lb, $toks]) {
+        $dis = '';
+        foreach ($toks as $tok) if (str_starts_with($tok, 'take=')) { [$ts, $tq] = array_pad(explode(':', substr($tok, 5), 2), 2, '1'); $have = preg_match(SIGHTS5_ANY_RE, $ts) ? sights5_any_have((int)$u['id'], substr($ts, 4))[1] : sights5_have((int)$u['id'], $ts); if ($have < max(1, (int)$tq)) $dis = ' disabled'; }
+        $h .= ' <button class="btn small" name="reward" value="' . $i . '"' . $dis . '>' . e($lb) . '</button>';
+    }
+    return ' ' . $h . '</form>';
+}
+
+/** Put rope on the shelf of Twigg's (the supplies shop reachable from anywhere) so a rope discount has a shop to apply in. Adds only what is missing; boot step rope_stock_ensure. */
+function sights6a_rope_stock_ensure(): int
+{
+    require_once __DIR__ . '/rebuild.php';
+    ensure_building_items();
+    $rope = q_one("SELECT id, base_price FROM items WHERE slug = 'rope'"); $shop = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'");
+    if (!$rope || !$shop || q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, (int)$rope['id']])) return 0;
+    $p = max(1, (int)$rope['base_price']);
+    db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => (int)$rope['id'], 'price_min' => $p * 4, 'price_max' => $p * 5, 'max_stock' => 4, 'restock_chance' => 40, 'current_stock' => 2, 'current_price' => $p * 4]);
+    return 1;
+}
+
+/** Every word list: [word => [slugs]] (for the lint). */
+function sights6a_word_list_all(): array
+{
+    $o = [];
+    foreach (trail_sight_data_lines('words') as $l) { [$w, $sl] = array_pad(array_map('trim', explode('|', $l, 2)), 2, ''); if (preg_match('/^[a-z]+$/', $w)) $o[$w] = array_values(array_filter(array_map('trim', explode(',', $sl)))); }
+    return $o;
 }
