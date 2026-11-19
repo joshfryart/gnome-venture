@@ -178,7 +178,7 @@ if (is_post()) {
         save_exp($exp);
         road_flush();
     }
-    db()->commit();
+    if (db()->inTransaction()) db()->commit();   // a DDL statement (MySQL CREATE / ALTER) or a nested commit may have ended it already
     if (!empty($visited)) redirect(gnav_on() ? 'here.php' : 'town.php');   // turned back: the place you left is the Here page
     // After arriving, send the player straight to the destination page
     if (!empty($arrivedAt)) {

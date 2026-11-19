@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.32
+- **Fix:** `adventure.php` (and the region pick in `world.php`) no longer throw "There is no active transaction" when something inside the request ends the transaction early (MySQL commits on CREATE / ALTER); the closing commit is now guarded like the rollback. Seen in the live error log on a POST to `adventure.php`; the action that triggered it is not known.
+
 ## 2.7.31
 - **Trail Sights, fifth and sixth pass:** an item can stand in for a failed check (`nimble:9+item:plank`); 14 villager ask rows have a check with a miss line; `take=` / `give=` / `hv=` accept `any-seed`, `any-bread`, `any-tea` and other word lists (`data/trail_sight_words.txt`); shop discounts can be scoped to a category or one item (`disc=shop:20:60:seed`, `disc=shop:50:120:rope`); Sight kinds + `nextkind=`; a season limit on a quest line; `choose=` on villager rows (Ulric at the haven sleeper); `fpall` cap 10 (picnic quest pays 10). Rope is stocked at Twigg's (boot step `rope_stock_ensure`).
 - **Sight items with uses:** fern-drip-hat-charm keeps the rain off, map-scrap pins a find (shows in fog), star-chart files an Almanac page per season, stargazers-chalk, message-bottle; maple-syrup and flour swaps (`hv=<item>:N`). Engine `trail_sights_5.php`.
