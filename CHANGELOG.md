@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.24
+- **Puzzle combat stage mode (`pfight_stage`, still Off by default) fixes:** a fight that is already on the page when it loads no longer shows its card while the pieces are still coming in; the fight follows the map when the page moves; the pieces wait for a Trail walk to end and for the pop-up to open; the card's buttons are scrolled into view and focused. Script and stylesheet get a new version number so a phone that kept the 2.7.23 copies fetches these.
+- No player news (setting is Off). No DB step.
 ## 2.7.23
 - **Puzzle combat on the Trail can take over the map's place (setting `pfight_stage`, Off by default):** the fight sits on the tile map's box with no dimming. Jigsaw pieces fly in over the map first, the pre-fight card (creature and deck) shows on top of them and they stay until Let's fight, then new pieces cover the card and leave to show the combat. A fight that was run from shows its result card over the map instead of above it. End match covers the swap with the pieces. With the setting Off nothing of it loads.
 - **Sugar-shack ledger starts collapsed again:** the Trail family panel collapse skipped any panel containing a `<details>`, so the ledger (which holds the quilt fold) showed fully open. It now only skips a panel that is its own pill. Test `trail_fam_collapse` covers it.
