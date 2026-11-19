@@ -7979,6 +7979,8 @@ dialog.htea:modal .tea-panes { flex: 1; height: auto; min-height: 0; }
 .tea-fill { flex: none; min-width: 64px; min-height: var(--tap); padding: 0 12px; border: 0; border-radius: var(--tea-r); background: var(--surface-2); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; }
 .tea-fill:hover { box-shadow: inset 0 0 0 1px var(--line-2); }
 .tea-rrow.sel .tea-fill { background: var(--tea-gold-soft); color: var(--tea-gold-ink); box-shadow: inset 0 0 0 1px var(--tea-gold); }
+.tea-rrow .ing { display: block; font-size: 13px; line-height: 1.3; color: var(--muted); }
+.tea-rrow .ing .lack { color: var(--tea-warn, #d9503f); font-weight: 700; text-decoration: underline dotted; }
 .tea-gl { margin: 16px 0 8px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .tea-gl:first-child { margin-top: 8px; }
 .tea-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }

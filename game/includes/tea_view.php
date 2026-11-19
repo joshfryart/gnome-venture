@@ -187,7 +187,9 @@ function tea_drawer_html(array $u, array $have, array $sel): string
     $R = '';
     foreach (tea_recipe_rows(array_keys($have), $j['found'], $tier) as $r) {
         if (!$r['known']) { $R .= '<div class="tea-rrow unk"><span class="tea-ics"><span class="tea-ico q" aria-hidden="true">?</span></span><span class="tx"><b>???</b><span class="hint">' . e($r['hint']) . '</span></span></div>'; continue; }
+        $names = array_map(fn($ps) => in_array($ps, $r['miss'], true) ? '<span class="lack">' . e($ING[$ps]['name'] ?? $ps) . '</span>' : e($ING[$ps]['name'] ?? $ps), $r['parts']);   // every recipe lists what it needs; the ones you lack are marked
         $R .= '<div class="tea-rrow" data-tea-row="' . e($r['slug']) . '">' . tea_icons_html($r['parts'], $have, $r['miss']) . '<span class="tx"><b>' . e($r['name']) . '</b>'
+            . '<span class="ing">Needs ' . implode(', ', $names) . '</span>'
             . ($r['can'] ? '<span class="bf">' . e($r['buff']) . '</span>' : '<span class="need">' . e($r['need']) . '</span>') . '</span>'
             . ($r['can'] ? '<button type="button" class="tea-fill" data-tea-fill="' . e($r['slug']) . '" data-tea-parts="' . e(implode(',', $r['parts'])) . '" aria-pressed="false">Fill</button>' : '') . '</div>';
     }
