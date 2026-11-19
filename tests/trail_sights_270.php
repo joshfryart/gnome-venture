@@ -243,10 +243,10 @@ ok('a check of difficulty 0 pays', $xp() > $x0, implode(' | ', $lines));
 echo "== 2.7.01 wearables as Sight rewards\n";
 require_once $argv[1] . '/includes/wearables.php'; wear_ensure_items();
 ok('lint accepts a wearable as an item reward', !trail_sight_lint(['rewards' => 'item=flood-boots:1@100'] + $base));
-$put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('pfight_v1', '0'); setting('__reload__'); $w0 = wear_qty((int)$u['id'], 'flood-boots');
-[$a] = $go(); ok('with puzzle combat off a wearable does not drop', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
-$put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('pfight_v1', '1'); setting('__reload__');
-[$a] = $go(); ok('with puzzle combat on it drops', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0 + 1, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
+$put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('wear_open', '0'); setting('__reload__'); $w0 = wear_qty((int)$u['id'], 'flood-boots');
+[$a] = $go(); ok('with wearables shut (setting wear_open 0; since 2.7.15 they no longer follow pfight_v1) a wearable does not drop', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
+$put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('wear_open', '1'); setting('__reload__');
+[$a] = $go(); ok('with wearables open (wear_open, 2.7.15) it drops', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0 + 1, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
 $ncl = fn(string $chk) => array_values(array_filter(trail_sight_lint(['check' => $chk, 'lose' => 'x'] + $base), fn($p) => str_contains($p, 'check')));
 if (!$ncl('nimble:9+grit:11') && !$ncl('grit:12') && $ncl('nimble:9+bogus:3') && $ncl('nimble:9+grit:99')) echo "  ok   2.7.06 either / or check: nimble:9+grit:11 lints clean, a bad half is refused\n"; else { echo "  FAIL 2.7.06 either / or check lint " . json_encode([$ncl('nimble:9+grit:11'), $ncl('nimble:9+bogus:3')]) . "\n"; $fails++; }
 $t0 = 'hint=old-ruin@0'; $t100 = 'title=Lantern Runner@100'; $tn = 'page=the-stump';

@@ -25,7 +25,7 @@ B|scouts-field-notes|end-lair-1-desert|Watch the shimmer before the lair|-
 B|scouts-field-notes|end-lair-1-island|Read the dragonlizard's tail-drag|-
 B|scouts-field-notes|end-lair-1-mountain|Peek over the ridge carefully|-
 B|scouts-field-notes|@boss|Last: defeat or befriend a lair's big friend|-
-Q|gate-rubbings|Wren's Gate Rubbings|Wren Thimblewick|🖍️|anylast|xp=80,seed=1,item=amber-seed:1,c=50,fp=2,title=Gate Gazer,page=gate-riddle|Wren collects crayon rubbings of the wonder gates, and every gate hides one line of a riddle.|Wren reads the riddle lines in order, they rhyme, and she claps like a gnome half her age.
+Q|gate-rubbings|Wren's Gate Rubbings|Wren Thimblewick|🖍️|firstlast|xp=80,seed=1,item=amber-seed:1,c=50,fp=2,title=Gate Gazer,page=gate-riddle|Wren collects crayon rubbings of the wonder gates, and every gate hides one line of a riddle.|Wren reads the riddle lines in order, they rhyme, and she claps like a gnome half her age.
 B|gate-rubbings|end-wonder-1-rainforest|Make the first gate rubbing|-
 B|gate-rubbings|end-wonder-1-coast|Count the gate's glimmers|-
 B|gate-rubbings|end-wonder-1-desert|Shade your eyes at the gate|-
@@ -34,7 +34,7 @@ B|gate-rubbings|end-wonder-1-island|Trace the gate's maze|-
 B|gate-rubbings|end-wonder-1-mountain|Call the goats at the gate|-
 B|gate-rubbings|end-wonder-1-wetland|Stand on one leg by the gate|-
 B|gate-rubbings|end-wonder-1-grassland|Last: hum with the stones at dusk and give Wren seven rubbings|dp=dusk|take=gate-rubbing:7
-Q|book-of-hushes|The Book of Hushes|Sorrel Inkcap|📖|anylast|xp=80,item=book-of-hushes:1,item=sages-draught:1,c=50,fp=2,page=book-of-hushes|Sorrel says every hush is a place about to speak, and asks you to write down what it nearly says.|The book is bound, its pages very quiet, and Sorrel shelves it where nobody will shush it.
+Q|book-of-hushes|The Book of Hushes|Sorrel Inkcap|📖|firstlast|xp=80,item=book-of-hushes:1,item=sages-draught:1,c=50,fp=2,page=book-of-hushes|Sorrel says every hush is a place about to speak, and asks you to write down what it nearly says.|The book is bound, its pages very quiet, and Sorrel shelves it where nobody will shush it.
 B|book-of-hushes|end-wonder-2-forest|Tiptoe in and listen|-
 B|book-of-hushes|end-wonder-2-coast|Hold a shell to your ear|-
 B|book-of-hushes|end-wonder-2-desert|Whisper a question and wait|-

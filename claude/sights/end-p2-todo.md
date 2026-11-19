@@ -1,35 +1,36 @@
 # End pieces Trail Sights: what still cannot be done (engine gaps)
 
-Status: 2026-11-12, pass 2. Rows `trail_sights_end.txt` (43), folk `trail_sight_folk_end.txt` (50), quests `trail_sight_quests_end.txt` (8 lines), items `trail_sight_items_end.txt` (7), pages `trail_sight_pages_end.txt` (7), newfolk `trail_sight_newfolk_end.txt` (7). Lint clean. Ideas: `ideas-end-pieces.md`.
-Everything the grammar can express is in the data now (picks, true hints, sneak/pal bonuses, tallies with title/page milestones, nocheck and give villagers, the design's missing villagers as newfolk, anylast / @boss / @meal / gates / needs, titles, pages). What is left:
+Status: checked line by line 2026-11-19 (Sights fourth pass, `claude/trail-2.7.08-notes.md` "Fourth pass"). DONE = in the engine (and in the data where it says so); OPEN = still not possible, with what it needs. Rows `trail_sights_end.txt` (43), folk `trail_sight_folk_end.txt` (50), quests `trail_sight_quests_end.txt` (8 lines), items `trail_sight_items_end.txt` (7), pages `trail_sight_pages_end.txt` (7), newfolk `trail_sight_newfolk_end.txt` (7). Lint clean. Ideas: `ideas-end-pieces.md`. Grammar: `GRAMMAR.md`.
 
 ## Test gap (not data)
-- `tests/trail_sights.php` predates the pass-2 grammar: its every-route run calls `trail_sight_do` with no `pick` (all pick Sights are refused "Choose one"), its quest walk does not know `anylast` (it tries the last beat first), `needs` (no items given) or gates (the gating line is never done), and the "one Almanac page per Sight" count includes the `page=` pages. Those checks fail for every set using the new grammar; the test needs updating (owner of the engine/tests).
+- DONE (checked 2026-11-19): `tests/trail_sights.php` passes the right pick, knows `anylast` / `firstlast`, hands over `needs` items, runs gated lines after their gate and counts only `sight:` pages; every end line runs to its end.
 
 ## Per-destination text (one slug stands before several places)
-- BUILT 2.7.08: `to=` (destination slug / kind / land) and `{cond}` line variants. Written for end-wonder-2-forest (5 places), end-haven-2-grassland (5), end-lair-1-mountain (2); the other end slugs still have general lines (data pass to do).
-- A line cannot know which place the route leads to. Variants stay general ("a gate, or a panda, or a stone head"); per-place lines for haven-1-grassland/wetland, haven-2-grassland/coast, wonder-1-coast/grassland/mountain/rainforest, wonder-2 coast/desert/forest/grassland/island/mountain/rainforest/wetland, delve-1-desert/rainforest, delve-2-rainforest/desert, lair-1-mountain, lair-2-mountain need a `to=` condition (destination slug).
+- DONE 2.7.08 (engine): `to=` and `{cond}` line variants. Written for end-wonder-2-forest (5 places), end-haven-2-grassland (5), end-lair-1-mountain (2).
+- OPEN (writing only, no engine work): per-place lines for haven-1-grassland / wetland, haven-2-coast, wonder-1-coast / grassland / mountain / rainforest, wonder-2 coast / desert / grassland / island / mountain / rainforest / wetland, delve-1-desert / rainforest, delve-2-rainforest / desert, lair-2-mountain.
 
-## State hints with no hint kind
-- BUILT 2.7.08: `hint=tide` (the real tide) and `hint=moon`; a line can now depend on the weather (`{we=sun}...`), so the Dragonlizard sun line can be written.
-- Real tide / current channel / ledge count / first room of a delve (delve-1-*, delve-2-wetland), glow-pulse speed / snore count / web hum / rut width since last visit (lair-2-*), the Oasis's village today (wonder-2-desert), which seed can be dug today (wonder-1-forest), the real first turn of the Labyrinth (the pick is random per day, not the map). Needs more `hint=` kinds.
-- Lair stat hints ("Nimble will matter") stay fixed text; the we=sun-only Dragonlizard hint cannot be a conditional line (lines have no conditions).
+## State hints
+- DONE 2.7.08: `hint=tide`, `hint=moon`; a line can depend on the weather (`{we=sun}`), so the Dragonlizard sun line can be written (a data line).
+- DONE 2.7.08 third pass A: first room of a delve (`hint=firstroom`), glow-pulse / snore / web hum / rut width (`hint=glow|snore|webhum|rut`).
+- OPEN: current channel / ledge count (the delve map has no such value: needs a delve fact to read), the Oasis's village today (wonder-2-desert: needs the Oasis schedule exposed as a hint), which seed can be dug today (wonder-1-forest: needs a per-day seed pick), the real first turn of the Labyrinth (its pick is a random per-day pick, not a map).
+- OPEN: lair stat hints ("Nimble will matter") stay fixed text. Needs: a hint kind that reads the lair boss's strongest stat.
 
 ## Effects outside the Sight
-- Shop effects: rest price -10% / -25% (haven-1-grassland, -island), free shop peek of today's shelf, the tavern bar peek, Lyra's half-price song, the smuggler's half-price rope.
-- Walk time: arrive 10 game minutes sooner / skip the last stretch / next walk shorter (haven-1-coast, haven-1-wetland, wonder-1-mountain, wonder-2-island). Rows use `reveal`.
-- Delve- or lair-scoped buffs: Sense/Luck/Nimble "for the delve", Charm "for the wonder", one fewer wrong turn, a dry first room, a safer first bridge, a firefly that counts as a lantern, the Sneak bonus inside a lair (Hushed Steps); the Scout's Spyglass "+1 Sense on every end-piece scout" (it is a one-use 240 min buff item). One `buff=` per row still.
-- Pick difficulty by time (Borrow a firefly easier at night: done with a night `nocheck` villager instead).
-- Letters: wonder-2-wetland letter-carrier handing a real Letter (`letters.php` hook).
-- Almanac lines per firefly named (delve-2-rainforest).
+- Shop effects: DONE 2.7.00 `disc=rest|shop`; in the data 2026-11-19: rest price -10% (`end-haven-1-grassland` `disc=rest:10:180`) and -25% (`end-haven-1-island` `disc=rest:25:180`), for 180 real minutes rather than "today". OPEN: free shop peek of today's shelf, the tavern bar peek (need a read-only shop / tavern view from the Trail), Lyra's half-price song, the smuggler's half-price rope (need a discount scoped to one service / item).
+- Walk time: DONE 2.7.08 third pass A (`nxt=quick`, `nxt=skip`); in the data 2026-11-19: `end-wonder-2-island` `nxt=quick:10` (name the first star), the boat gnome at `end-haven-1-wetland` `nxt=skip` (ride along). `nxt=skip` now never jumps past a fight that waits. Not changed: haven-1-coast, wonder-1-mountain (keep `reveal`; the ideas give no time). OPEN: "your NEXT walk is shorter": needs an effect kept past the walk's end (`sec=` can aim at a named stretch of a named route, not at "whatever walk comes next").
+- Delve- or lair-scoped buffs: DONE 2.7.06 `buff=stat:N:delve`; in the data 2026-11-19: `end-delve-2-forest` and `-rainforest` `buff=sense:1:delve`, `end-delve-2-wetland` `buff=luck:1:delve`. DONE `buff2=` (a second buff in a row). OPEN: Charm "for the wonder" (needs a wonder scope), one fewer wrong turn / a dry first room / a safer first bridge / a firefly that counts as a lantern (need delve hooks: `delve_v2`), the Sneak bonus inside a lair (Hushed Steps: needs a stance modifier in the lair code), the Scout's Spyglass "+1 Sense on every end-piece scout" (needs a carried-item effect on Sight checks).
+- OPEN: pick difficulty by time (a pick has no difficulty; the night `nocheck` villager stays). A stat check can now depend on the time: `charm:11?dp=night:9` (fourth pass).
+- DONE 2.7.08 third pass B: letters (`letter=<key>`; Tuck Bumbleby at end-wonder-2-wetland).
+- OPEN: Almanac lines per firefly named (delve-2-rainforest): needs free text from the player (a name field), an owner decision (moderation).
 
-## Villager timing words missing
-- "every 7th game day" (Captain Spurwing at lair-2-mountain), "when Lyra is in the Sunsprinkle Isles" (haven-2-island), "market days" (feather-crafter; BUILT 2.7.08: `mk=yes`). Rows use plain chances.
-- Choices: let the sleeper sleep (Luck) or wake them (cornbread) at haven-2-grassland; "any seed" for the caravan swap (wonder-2-grassland; give= needs one item); "or toss a sardine" as a second way past the gulls' Grit check (a take on a lose path).
-- BUILT 2.7.08: a Sight row's `take=` may carry `?cond`. (Old note:) A conditional take: the crab-sitter only at low tide is a dawn `give=` villager (fine), but a Sight row's `take=` cannot have `?cond`.
+## Villager timing words
+- DONE 2.7.00 `gd=7:0` ("every 7th game day"). NOT in the data: Captain Spurwing at lair-2-mountain is a mentor / fixed villager, the clockwork never lets him travel and the lint refuses the row (tried 2026-11-19). Needs: a mentor allowed out on a given day (clockwork), or another villager for the tip.
+- DONE (role hours, 2026-11-14): "when Lyra is in the Sunsprinkle Isles" = a travelling NPC row with no `dp=` follows her circuit (haven-2-island). DONE 2.7.08 `mk=yes` (market days).
+- OPEN: choices: let the sleeper sleep (Luck) or wake them (cornbread) at haven-2-grassland, "or toss a sardine" as a second way past the gulls' Grit check: both need a check alternative that is an item (`grit:11+take=sardine:1`), a new check kind. "Any seed" for the caravan swap (wonder-2-grassland): needs `give=any-<kind>` (give= takes one item; seeds are a category, not a kind).
+- DONE 2.7.08: a Sight row's `take=` may carry `?cond`.
 
 ## Quest gaps
-- Q1 "all five lanterns lit inside one season": no time limit on a line.
-- Q2 finale "Lyra plays on any village green": the finale beat is the lair-2-mountain Sight with 6 Snore Notes; no "at a village" beat kind. Hushed Steps buff: replaced by Nimble +1 240 min.
-- Q4 / Q5 "start at X": anylast lines may begin at any beat; a fixed FIRST beat plus a fixed last one is not an order.
-- Q6: Pomeroy is hidden until the Gourmand opens; his line still runs (he only gives the reward friendship).
+- Q1 "all five lanterns lit inside one season": DONE in the engine (2.7.06, the 11th `Q|` column = game days). NOT set on `lamplighters-round`: a timed line drops its progress when late. Needs: Josh's yes and the number of game days.
+- Q2 finale: DONE 2.7.08 third pass B (`@green`). OPEN: the Hushed Steps buff (Sneak easier at every lair for 3 game days): needs a lair-stance modifier; the reward stays Nimble +1 240 min.
+- Q4 / Q5 "start at X": DONE 2.7.08 second pass (`firstlast`); in the data 2026-11-19: `gate-rubbings` and `book-of-hushes` are `firstlast` (they were `anylast`).
+- Q6: BY DESIGN: Pomeroy is hidden until the Gourmand opens; his line still runs. No work.

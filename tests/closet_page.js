@@ -49,7 +49,7 @@ const login = async p => {
   ok('...without a full page load', await stay(), true);
   ok('...the picker is closed and nothing is left open over the page', await p.evaluate(() => document.querySelectorAll('dialog[open]').length), 0);
   ok('...the address is the Closet tab', await p.evaluate(() => location.search), '?tab=closet');
-  ok('...the page says so', await p.evaluate(() => /put on the Work Gloves/.test(document.querySelector('main').textContent)), true);
+  ok('...the page says so', await p.evaluate(() => /put on the Work Gloves/.test(document.body.textContent)), true);
   if (process.env.SHOTS) await p.screenshot({ path: process.env.SHOTS + '/closet-worn.png' });
 
   // take off: the same way
@@ -64,17 +64,19 @@ const login = async p => {
 
   // without script: links and forms
   const c2 = await br.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false }); const q = await c2.newPage();
+  // the buttons are pressed with the keyboard here: after the jump to #closet the fixed bottom bar can sit over a button, and without script the browser driver cannot scroll it clear
+  const nav = async act => { const was = q.url(); await act(); await q.waitForURL(u => String(u) !== was, { waitUntil: 'domcontentloaded', timeout: 10000 }); };   // a link or a form: the address changes
   await login(q); await q.goto(B + '/gnome.php?tab=closet');
   ok('no script: no picker shows until a pill is followed', await q.locator('dialog.clpick[open]').count(), 0);
-  await Promise.all([q.waitForNavigation(), q.locator('.clpill a[data-hdlg="clpick-hands"]').click()]);
+  await nav(() => q.locator('.clpill a[data-hdlg="clpick-hands"]').click());
   ok('no script: the pill is a link to ?wear=hands', new URL(q.url()).search, '?tab=closet&wear=hands');
   ok('...the Hands picker is drawn open in the page', await q.locator('#clpick-hands[open]').isVisible(), true);
   ok('...and only that one', await q.locator('dialog.clpick[open]').count(), 1);
   if (process.env.SHOTS) await q.screenshot({ path: process.env.SHOTS + '/closet-noscript.png' });
-  await Promise.all([q.waitForNavigation(), q.locator('#clpick-hands form:has(input[name=item][value="work-gloves"]) button').click()]);
+  await nav(() => q.locator('#clpick-hands form:has(input[name=item][value="work-gloves"]) button').press('Enter'));
   ok('...Wear is a plain form: back on the Closet tab with the gloves on', new URL(q.url()).search + ' ' + (await q.locator('.clpill a[data-hdlg="clpick-hands"] b').innerText()), '?tab=closet Work Gloves');
   await q.goto(B + '/gnome.php?tab=closet&wear=hands');
-  await Promise.all([q.waitForNavigation(), q.locator('#clpick-hands form:has(input[name=item][value="work-gloves"]) button').click()]);
+  await nav(() => q.locator('#clpick-hands form:has(input[name=item][value="work-gloves"]) button').press('Enter'));
   ok('...Take off too', await q.locator('.clpill a[data-hdlg="clpick-hands"] b').innerText(), 'Nothing on');
   await br.close();
   console.log(out.join('\n'));
