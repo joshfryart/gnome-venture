@@ -1,5 +1,5 @@
 #!/bin/bash
-# Puzzle combat stage mode (setting pfight_stage, 2.7.23): the Trail fight sits on the map column box, a jigsaw cover plays over its start and end, the dialog node survives turns; with the setting Off nothing of it loads.
+# Puzzle combat stage mode (setting pfight_stage): the Trail fight sits on the map column box, a jigsaw cover plays over its start and end, the dialog node survives turns; with the setting Off nothing of it loads.
 # Usage: tests/pfstage.sh [GAME_COPY_DIR] [PORT] [ROUTER]
 HERE=$(cd "$(dirname "$0")" && pwd)
 GAME=${1:-}; PORT=${2:-8793}; ROUTER=${3:-$HERE/router.php}
