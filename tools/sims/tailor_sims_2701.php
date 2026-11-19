@@ -12,7 +12,8 @@ function ts_player(int $lv, array $wears, array $opt = []): array
     $m = max(0, intdiv($lv + 3, 14)); $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $opt['luck'] ?? $m, 'level' => $lv];
     $max = 20 + 3 * $lv + 5 * $m; $src = tv_sources($lv);
     if ($lv >= 40) $src['slots'] = 4;
-    $src['wears'] = $wears; foreach (wear_pieces($wears) as $wp) $src['state'][$wp['key']] = true;
+    $src['wears'] = $wears; $src['worn'] = array_keys($wears);   // 2.7.14: only WORN items make pieces (pfd_build reads src['worn'], slot => item slug; the slot names do not matter here)
+    foreach (wear_pieces($wears) as $wp) $src['state'][$wp['key']] = true;
     $b = pfd_build($src); $entries = $b['deck'];
     if (!empty($opt['col'])) foreach ($entries as &$e) if ($e['src'] === 'wear') $e['r'] = ['hurt' => 'body', 'guard' => 'craft', 'charm' => 'mind', 'soothe' => 'mind', 'trick' => 'mind'][$e['t']] ?? 'body'; unset($e);
     $deck = pfd_tiles($entries, $st, [], $src['calling'], $src['ctier']);
@@ -133,7 +134,7 @@ if ($sim === '10') {   // "Shove" (built as Knuckle Down: Hurt 3, bash) after a 
 if ($sim === '6') {   // the Rare cap: which piece the deck drops when a Fine wearable is the 4th Rare (pfd_build order: kit and owned pieces, then wearables, then belt tools, then pals)
     foreach ([16, 28, 40] as $lv) {
         $src = tv_sources($lv); if ($lv >= 40) $src['slots'] = 4;
-        $src['wears'] = ['work-gloves-fine' => 1, 'travel-cloak-fine' => 1]; foreach (wear_pieces($src['wears']) as $wp) $src['state'][$wp['key']] = true;
+        $src['wears'] = ['work-gloves-fine' => 1, 'travel-cloak-fine' => 1]; $src['worn'] = array_keys($src['wears']); foreach (wear_pieces($src['wears']) as $wp) $src['state'][$wp['key']] = true;
         $b = pfd_build($src); $rares = array_values(array_map(fn($e) => $e['src'] . ':' . $e['n'] . ($e['out'] ? ' OUT(' . $e['out'] . ')' : ''), array_filter($b['pieces'], fn($e) => $e['on'] && $e['rank'] === 3)));
         $keeps = pfd_slots($lv)['keeps'];
         echo "level $lv: Keepsake slots $keeps; Rare pieces switched on, in deck order: " . implode(', ', $rares) . "\n";

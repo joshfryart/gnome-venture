@@ -325,6 +325,39 @@ foreach ([['sorrel', 'trek_act_fetch', 'join'], ['tumble', 'trek_act_recruit', '
 }
 $reset();
 
+echo "== the three spot scenes (v2.0.18 trek_scene_spot): Gloomtooth intro, Sorrel's door plate, the signpost riddle\n";
+// Standing on the spot is enough: the Map render calls trek_scene_spot(), which notes the spot's first story line once per run. The panel stays.
+$uid4 = mkuser('Tess');   // a fresh Chapter II run: the hooks above already opened the signpost for $uid3
+q('UPDATE users SET trek_ch = 2 WHERE id = ?', [$uid4]);
+$tx4 = $tl($uid4, 2);
+$tx4(fn(&$run, $u) => trek_enter($run, $u), false);
+foreach ([[1, 'gloomtooth', 'intro', $uid2], [2, 'libdoor', 'question', $uid4], [2, 'signpost', 'question', $uid4]] as [$chS, $codeS, $partS, $uidS]) {
+    $txS = $tl($uidS, $chS);
+    $keyS = "ch$chS.spot.$codeS.$partS";
+    $rowS = trek_text_row($keyS);
+    ok("$keyS: a written slot of a pop-over kind", $rowS && in_array((string)$rowS['kind'], TREK_SCENE_KINDS, true) && trim((string)$rowS['body']) !== '', json_encode($rowS['kind'] ?? null));
+    $txS(function (&$run, $u) use ($codeS) { unset($run['st']['tries_' . $codeS]); return [true, '']; });
+    $put($txS, $codeS, $chS);
+    $reset();
+    $RS = trek_load(trek_run_row($uidS, $chS)); $US = q_one('SELECT * FROM users WHERE id = ?', [$uidS]);
+    ok("$codeS: the spot is not done yet in this run", !trek_spot_done($RS, trek_spots($chS)[$codeS]));
+    trek_scene_spot($RS, $US);
+    ok("$codeS: standing on it notes $keyS for the pop-over", $keysOf() === [$keyS], json_encode($keysOf()));
+    $j = $decode(trek_scene_stage($RS, $US)); $b = $j['beats'] ?? [];
+    $want = count(array_filter(array_map('trim', explode("\n", trek_scene_plain($keyS, [], $US))), fn($l) => $l !== ''));
+    ok("$codeS: the stage has one beat per written line ($want), no HTML", $want > 0 && count($b) >= $want && !array_filter($b, fn($x) => preg_match('/<[a-z]/i', (string)$x['t'])), json_encode($b, JSON_UNESCAPED_UNICODE));
+    ok("$codeS: every beat has a known voice (narration, or a speaker listed in who)", $b && !array_filter($b, fn($x) => $x['w'] !== 'nar' && !isset($j['who'][$x['w']])), json_encode(array_column($b, 'w')));
+    trek_scene_spot($RS, $US);
+    ok("$codeS: a second render adds nothing (once per run)", !$items(), json_encode($keysOf()));
+    $reset();
+}
+// A riddle with no tries left has no question to ask: no pop-over
+$tx4(function (&$run, $u) { $run['st']['tries_signpost'] = (int)(trek_spots(2)['signpost']['data']['tries'] ?? 2); return [true, '']; });
+$RS = trek_load(trek_run_row($uid4, 2)); $US = q_one('SELECT * FROM users WHERE id = ?', [$uid4]);
+trek_scene_spot($RS, $US);
+ok('signpost with the tries used up: no question pop-over', !$items(), json_encode($keysOf()));
+$reset();
+
 echo "== the pages print the stage (hub and map branches of trek.php)\n";
 $src = (string)file_get_contents($GAME . '/trek.php');
 ok('trek.php takes the stage once per render, and prints it in both the hub and the map branch', substr_count($src, "\$sceneHtml = \$tab === 'map' ? trek_scene_stage(\$run, \$u) : '';") === 1 && substr_count($src, '<?= $sceneHtml ?>') === 2 && preg_match('~tab === \'map\' && \$hub\)\s*:\s*\?>\s*<\?= \$sceneHtml \?>~', $src) === 1 && preg_match('~elseif \(\$tab === \'map\'\)\s*:\s*\?>\s*(<\?= \$replayHtml \?>\s*)?<\?= \$sceneHtml \?>~', $src) === 1);

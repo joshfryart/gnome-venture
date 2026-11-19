@@ -27,7 +27,7 @@ function ws_player(int $lv, ?string $slug, int $rank, string $mode): array
     $m = max(0, intdiv($lv + 3, 14));
     $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv]; $max = 20 + 3 * $lv + 5 * $m;
     $src = tv_sources($lv);
-    if ($mode !== 'base') { $src['wears'] = [wear_slug($slug, 'a', $rank) => 1]; $src['state']['w:' . $slug] = true; }
+    if ($mode !== 'base') { $src['wears'] = [wear_slug($slug, 'a', $rank) => 1]; $src['worn'] = array_keys($src['wears']); $src['state']['w:' . $slug] = true; }
     $deck = pfd_tiles(pfd_fight_entries($src), $st, [], $src['calling'], $src['ctier']);
     if ($mode !== 'base') {
         $hit = 0;

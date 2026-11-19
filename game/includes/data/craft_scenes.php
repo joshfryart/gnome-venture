@@ -2,11 +2,13 @@
 // Hotspot boxes come from aseprite-source/craftmap/scenes/*.json (% of the picture). The last field is what an object opens:
 // a list of recipe-slug globs (v2.3.7, fnmatch; the link is ?o=<id> and the list shows only the matching recipes, known or not),
 // or a plain query string (Potions, left to the potions work). tests/craft_tags.php checks every recipe of a tagged area lands on an object.
+// Teas are listed by name, never as "*-tea": the Hovel kettle's named teas (data/teas.txt), the fertiliser teas (nutrients.php) and the teahouse spots (town.php)
+// all use slugs ending in -tea, so a glob would file a new one under the Stove or the watering can. A new snack tea or fertiliser tea is added here by its slug.
 return [
   'cooking' => ['alt' => "Kitchen scene", 'hot' => [
     ["oven", "Bread oven", 1.33, 5.00, 30.00, 45.00, ["*bread*", "*-buns", "*-toast", "feast-*-pie", "feast-*-bake", "feast-*-roast", "roasted-roots", "*-quiche", "stuffed-peppers-*", "bean-tamales"]],
     ["produce", "Produce barrel", 4.00, 50.50, 24.00, 45.50, ["*salad*", "*-fruit-bowl", "*-sorbet", "sunflower-snack", "ramson-pesto", "pickled-radishes", "fiery-pickled-cabbage", "devilled-eggs"]],
-    ["stove", "Stove", 33.33, 15.00, 32.67, 74.00, ["*soup*", "*stew*", "*broth", "*-dal", "*curry", "khichdi", "*kasha", "*porridge", "*risotto", "*rice*", "colcannon", "palusami", "sukuma-wiki", "*-tea", "hot-cocoa", "*-cordial", "feast-*-pot", "feast-*-pilaf", "feast-*-mole", "feast-*-thali", "feast-*-supper"]],
+    ["stove", "Stove", 33.33, 15.00, 32.67, 74.00, ["*soup*", "*stew*", "*broth", "*-dal", "*curry", "khichdi", "*kasha", "*porridge", "*risotto", "*rice*", "colcannon", "palusami", "sukuma-wiki", "mint-tea", "meadowsweet-tea", "desert-sage-tea", "hot-cocoa", "*-cordial", "feast-*-pot", "feast-*-pilaf", "feast-*-mole", "feast-*-thali", "feast-*-supper"]],
     ["rack", "Pan rack", 68.00, 5.00, 30.67, 26.00, ["*fry*", "*fritters", "falafel", "scrambled-eggs", "*tortilla", "*frittata", "shakshuka", "grilled-*", "smoked-*", "scotch-*", "golden-carp-feast", "pancakes"]],
     ["table", "Worktable", 67.33, 36.00, 32.00, 53.00, ["*-cake", "*-tart", "*crumble*", "feast-*-table", "wild-berry-jam"]],
   ]],
@@ -25,10 +27,10 @@ return [
     ["grindstone", "Grindstone", 71.33, 44.00, 28.00, 50.00, ["*pick", "garden-hoe", "masterwork-*-hoe", "masterwork-secateurs"]],
   ]],
   'garden' => ['alt' => "Garden shed scene", 'hot' => [
-    ["can", "Watering can and trowels", 1.33, 7.00, 32.00, 41.00, ["*-tea", "kelp-meal"]],
+    ["can", "Watering can and trowels", 1.33, 7.00, 32.00, 41.00, ["worm-tea", "fern-tea", "kelp-meal"]],
     ["sacks", "Sacks of loam", 2.00, 52.00, 30.67, 44.00, ["*-loam", "rock-dust*", "shell-meal-*"]],
     ["compost", "Compost bin", 34.00, 14.00, 32.00, 76.00, ["*compost", "worm-bedding", "worm-bin", "*leaf-mould"]],
-    ["seeds", "Seed trays", 67.33, 7.00, 32.00, 41.00, ["worm-bedding", "*leaf-mould", "kelp-meal", "wood-ash", "*-tea"]],
+    ["seeds", "Seed trays", 67.33, 7.00, 32.00, 41.00, ["worm-bedding", "*leaf-mould", "kelp-meal", "wood-ash", "worm-tea", "fern-tea"]],
     ["barrow", "Mulch barrow", 67.33, 50.00, 32.00, 46.00, ["*-chips*", "*-straw", "wood-ash", "*leaf-mould"]],
   ]],
   'potions' => ['alt' => "Alchemy station scene", 'hot' => [

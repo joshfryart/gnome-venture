@@ -33,6 +33,12 @@ foreach ($scenes as $area => $sc) {
     $lost = array_diff($slugs, array_keys($cover));
     if ($lost) { echo "FAIL $area recipes on no object: " . implode(' ', $lost) . "\n"; $fail++; }
 }
+// 2.7.23: teas are listed by slug. The Hovel kettle's named teas (data/teas.txt), fertiliser teas and teahouse spots all end in -tea, so no glob may catch a made-up one.
+foreach ($scenes as $area => $sc) foreach ($sc['hot'] as [$id, , , , , , $globs]) {
+    if (!is_array($globs)) continue;
+    foreach (['xyz-tea', 'feast-xyz-tea', 'xyz-iced-tea'] as $fake) if ($m($globs, $fake)) { echo "FAIL $area/$id picks up the made-up slug $fake (list teas by slug, not by a glob)\n"; $fail++; }
+    foreach ($globs as $g) if (preg_match('/[*?\]]-?tea$/', $g)) { echo "FAIL $area/$id has the glob $g: it would file any new slug ending in tea here\n"; $fail++; }
+}
 if ($tagged < 6) { echo "FAIL only $tagged areas tagged (want 6, Potions excepted)\n"; $fail++; }
 echo $fail ? "craft_tags: $fail FAIL\n" : "craft_tags: OK\n";
 exit($fail ? 1 : 0);

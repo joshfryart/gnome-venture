@@ -27,10 +27,12 @@
     return hurt < 3 ? 'Bring at least three Hurt pieces.' : null;
   }
   /** The sample gnome's sources (the shape of pfd_sources_blank): what it owns. level = the level its pieces were unlocked at (values use the fight's level). */
+  /** 2.7.14: only WORN items make pieces. The sample gnome wears everything in its satchel (the four sample items sit in four different slots); keys stand in for the slot names. */
+  function wornAll(owned) { var o = {}; Object.keys(owned).forEach(function (slug, i) { o['slot' + i] = slug; }); return o; }
   function blank() {
     return { level: 15, calling: 'thornblade', ctier: 1, home: 'NA', starter: null, state: {}, tools: { till: 3, staff: 2, lantern: 4, rod: 1, axe: 2, net: 1, prune: 3 }, belt: null, slots: 2, wear: { lantern: 6, axe: 14 },
       pals: [{ n: 'Bark Badger', t: 'guard', v: 8, r: 'craft', rank: 2, ref: 'badger' }, { n: 'Acorn Nip', t: 'heal', v: 6, r: 'mind', rank: 1, ref: 'acorn' }],
-      crops: { grain: 2, herb: 1, fruit: 2, spice: 3, nut: 1, legume: 2 }, crafts: { cooking: 2, garden: 3, potions: 2 }, regions: { NA: 2, SE: 2, MENA: 2 }, legends: {}, wears: Object.assign({}, D.wearOwned || {}), auto: false, repair: 3, beltTier: 1 };   // 2.7.00: a few wearables in the satchel (dump_data.php)
+      crops: { grain: 2, herb: 1, fruit: 2, spice: 3, nut: 1, legume: 2 }, crafts: { cooking: 2, garden: 3, potions: 2 }, regions: { NA: 2, SE: 2, MENA: 2 }, legends: {}, wears: Object.assign({}, D.wearOwned || {}), worn: wornAll(D.wearOwned || {}), auto: false, repair: 3, beltTier: 1 };   // 2.7.00: a few wearables in the satchel (dump_data.php)
   }
   function belt(src) {
     var b = src.belt;
@@ -85,8 +87,9 @@
       var p = D.catalog[key]; if (seen[key] || PLAYER_SRC.indexOf(p.src) < 0 || !owned(p)) return;
       pieces.push(entry(key, p, rankOf(p), { on: !!src.state[key], 'new': src.state[key] === undefined }));   // 2.6.989: a piece the gnome has just earned arrives switched off, marked New
     });
+    var wornSet = {}; Object.keys(src.worn || {}).forEach(function (sl) { wornSet[src.worn[sl]] = 1; });
     (D.wearPieces || []).forEach(function (wp) {   // 2.7.00 wearables (wear_pieces, dumped at build time for the sample satchel): each a Keepsake piece, off until switched on
-      if (!(src.wears || {})[wp.ref] || seen[wp.key]) return; seen[wp.key] = 1;
+      if (wornSet[wp.ref] !== 1 || seen[wp.key]) return; seen[wp.key] = 1;   // 2.7.14: only WORN items make pieces (src.worn: slot => item slug, as pfd_build)
       pieces.push(entry(wp.key, wp, +wp.rank, { on: !!src.state[wp.key], 'new': src.state[wp.key] === undefined }));
     });
     var bl = belt(src);

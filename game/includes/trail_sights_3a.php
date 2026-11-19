@@ -17,7 +17,7 @@ declare(strict_types=1);
 const SIGHTS3A_EV2_COLS = [['users', 'ev2_stat', 'VARCHAR(10) NULL'], ['users', 'ev2_amt', 'INT NOT NULL DEFAULT 0'], ['users', 'ev2_until', 'DATETIME NULL'], ['users', 'ev2_day', 'INT NULL'], ['users', 'ev2_scope', 'VARCHAR(10) NULL']];
 const SIGHTS3A_LAIR_HINTS = ['snore', 'webhum', 'glow', 'rut'];
 const SIGHTS3A_HINTS = ['snore', 'webhum', 'glow', 'rut', 'firstroom'];
-const SIGHTS3A_NXT_RE = '/^(find(:[1-3])?|calm|quick:([5-9]|[1-5]\d|60)|skip|peek)$/';
+const SIGHTS3A_NXT_RE = '/^(find(:[1-3])?|calm|quick:([5-9]|[1-5]\d|60)|skip|peek|fog|lit)$/';   // fog lit: fourth pass (trail_sights_4.php)
 
 // ---------------------------------------------------------------- 1. the second lucky moment
 
@@ -159,7 +159,11 @@ function sights3a_nxt_add(array $u, string $v): string
         $sc = $exp && function_exists('trail_scene') ? trail_scene($exp) : null;
         if (!$sc) return '';
         $sec = (int)$sc['st']['sec'];
+        require_once __DIR__ . '/trail_sights_4.php';
+        if ($v === 'lit') return sights4_lit($sc);   // fourth pass: a lit path (it also lifts the fog you stand in, so it works on the last stretch too)
         if ($sec + 1 >= (int)$sc['st']['S']) return '🗺️ No stretch is left on this walk for that.';
+        if ($v === 'fog' && !empty($sc['st']['lit'])) return '🏮 Fog gathers ahead, but your lit path keeps it off.';
+        if ($v === 'peek' && sights4_fog_pending($sc['st'])) return '🌫️ The next stretch lies in fog: you cannot tell what waits there.';
         if ($v === 'peek') {
             $rid = (int)substr((string)$sc['row']['map_key'], 6);
             $hist = (array)($sc['st']['hist'] ?? []);
@@ -176,6 +180,7 @@ function sights3a_nxt_add(array $u, string $v): string
             'find' => '🗺️ ' . ((int)$a > 1 ? (int)$a . ' finds wait' : 'A find waits') . ' on the next stretch',
             'calm' => '🍃 The next stretch begins quietly',
             'quick' => '⏱️ You will reach the next stretch ' . (int)$a . ' game minutes sooner',
+            'fog' => '🌫️ Fog settles on the next stretch: its finds will show only when you are next to them',
             default => '🪜 A shortcut: you will skip most of the next stretch',
         };
     } catch (Throwable $e) { error_log('sights3a_nxt_add: ' . $e->getMessage()); return ''; }
@@ -188,6 +193,7 @@ function sights3a_nxt_add(array $u, string $v): string
 function sights3a_nxt_prepare(array $old, array &$new, array $map, bool $revisit): array
 {
     if (!empty($old['st']['escort'])) $new['st']['escort'] = $old['st']['escort'];
+    foreach (['fog', 'lit'] as $keep) if (!empty($old['st'][$keep])) $new['st'][$keep] = $old['st'][$keep];   // fourth pass: foggy stretches and a lit path stay for the walk
     $fx = array_values(array_filter((array)($old['st']['nxt'] ?? []), fn($e) => is_string($e) && preg_match(SIGHTS3A_NXT_RE, $e)));
     if (!$fx) return [];
     if ($revisit) { $new['st']['nxt'] = $fx; return []; }
@@ -208,7 +214,7 @@ function sights3a_nxt_prepare(array $old, array &$new, array $map, bool $revisit
             [$new['x'], $new['y']] = [(int)$map['spots']['9'][0], (int)$map['spots']['9'][1]];
             tm_reveal($new['seen'], $map['w'], $map['h'], $new['x'], $new['y'], 20);
             $new['st']['phase'] = 'confirm';
-        }
+        } elseif ($k === 'fog') { require_once __DIR__ . '/trail_sights_4.php'; if (!sights4_fog_set($new['st'])) continue; }   // fourth pass: a lit path (or a stretch already in fog) takes none
         $done[] = $e;
     }
     return $done;
@@ -223,6 +229,7 @@ function sights3a_nxt_finish(array $u, array &$exp, array $done): bool
         if ($k === 'calm') { $calm = true; exp_log($exp, '🍃 The stretch begins quietly, as you were told.'); }
         elseif ($k === 'find') exp_log($exp, '🗺️ ' . (max(1, (int)$a) > 1 ? 'Finds wait' : 'A find waits') . ' on this stretch, as you were told.');
         elseif ($k === 'quick') { $m = sights3a_time_back((int)$u['id'], (int)$a); exp_log($exp, '⏱️ A quick stretch' . ($m > 0 ? ': ' . $m . ' game minutes back' : '') . '.'); }
+        elseif ($k === 'fog') exp_log($exp, '🌫️ Fog lies on this stretch: a find shows only when you are next to it.');
         elseif ($k === 'skip') { $m = sights3a_time_back((int)$u['id'], function_exists('gclock_time_cost') ? gclock_time_cost('travel') : 0); exp_log($exp, '🪜 You take the shortcut to the end of this stretch' . ($m > 0 ? ' (' . $m . ' game minutes back)' : '') . '.'); }
     }
     return $calm;
@@ -244,7 +251,7 @@ function sights3a_time_back(int $uid, int $m): int
 function sights3a_lint_token(string $k, string $v): array
 {
     if ($k === 'buff2' && (!preg_match('/^([a-z]+):(\d{1,2})(:(\d{1,4}|sleep|delve|section))?$/', $v, $bm) || !($bm[1] === 'all' || array_key_exists($bm[1], GNOME_STATS)))) return ['buff2= needs stat:amount[:minutes|sleep|delve|section] (the second lucky moment; stat: ' . implode(', ', array_keys(GNOME_STATS)) . ', or all)'];
-    if ($k === 'nxt' && !preg_match(SIGHTS3A_NXT_RE, $v)) return ['nxt= needs find[:1-3], calm, quick:5-60, skip or peek (the next Trail stretch)'];
+    if ($k === 'nxt' && !preg_match(SIGHTS3A_NXT_RE, $v)) return ['nxt= needs find[:1-3], calm, quick:5-60, skip, peek, fog or lit (the next Trail stretch)'];
     return [];
 }
 

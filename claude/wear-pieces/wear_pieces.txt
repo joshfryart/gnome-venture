@@ -262,7 +262,7 @@ w:esa-indigo-dot-shawl|Dot Shawl|wear|esa-indigo-dot-shawl|trick|9|mind|-|-|src|
 w:oc-reef-sandals|Reef Skip|wear|oc-reef-sandals|guard|7|mind|-|-|src|Reef Sandals: If you hold a Heal in your hand, your next hand has 1 extra piece.|-|handHeal>hand|4|9
 w:oc-gully-fleece-boot|Gully Hold|wear|oc-gully-fleece-boot|guard|7|craft|-|-|src|Gully Fleece Boot: If the creature hit you last turn, a chain of 3 or more does not use it up.|-|hit>stay|4|9
 w:oc-drovers-pull-ons|Drover Pierce|wear|oc-drovers-pull-ons|hurt|8|body|-|-|src|Drover's Pull-ons: If the creature has a Hurt on the board, it ignores the creature's guard.|-|foeHasH>pierce|4|10
-w:oc-flax-wading-wraps|Flax Wade Trip|wear|oc-flax-wading-wraps|hurt|6|mind|-|-|src|Flax Wading Wraps: If the creature has 2 or more pieces on the board, the creature skips its next turn.|-|foeB2>skip|4|10
+w:oc-flax-wading-wraps|Flax Wade Trip|wear|oc-flax-wading-wraps|hurt|6|mind|-|-|src|Flax Wading Wraps: If the creature has guard up, the creature skips its next turn.|-|foeG>skip|4|10
 w:oc-mangrove-clog|Clog Crush|wear|oc-mangrove-clog|hurt|10|craft|-|-|src|Mangrove Clog: Deal 11 extra damage. If its Yield bar is past half, the creature also skips its next turn.|-|R:OC:footwear|5|11
 w:oc-flax-basket-pack|Flax Plenty|wear|oc-flax-basket-pack|item|8|craft|-|-|src|Flax Basket Pack: If you hold a Charm in your hand, next round you pick from 6 pieces.|-|handC>plenty|4|9
 w:oc-coconut-string-bag|Coconut Snack|wear|oc-coconut-string-bag|item|8|body|-|-|src|Coconut String Bag: If a creature piece is in its chain, heal 9.|-|linkFoe>heal|4|9

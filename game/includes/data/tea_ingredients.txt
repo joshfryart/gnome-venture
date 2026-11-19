@@ -19,11 +19,19 @@ hibiscus|Roselle|herb|charm|1|
 lemongrass|Lemongrass|herb|nimble|1|
 meadowsweet|Meadowsweet|herb|hardiness|1|
 desert-sage|Desert Sage|herb|lore|1|
+nettle|Nettle|herb|grit|1|
+raspberry-leaf|Raspberry Leaf|herb|lore|1|
+spruce-tips|Spruce Tips|herb|nimble|1|
+dandelion-root|Dandelion Root|herb|luck|2|
+licorice-root|Licorice Root|herb|charm|2|
 bee-balm|Bee Balm|flower|grit|1|cut-bee-balm,dried-bee-balm?
 lavender|Lavender|flower|sense|1|lavender,cut-lavender,dried-lavender?
 chrysanthemum|Chrysanthemum|flower|lore|1|cut-chrysanthemum,dried-chrysanthemum?
 osmanthus|Osmanthus|flower|luck|1|cut-osmanthus,dried-osmanthus?
 damask-rose|Damask Rose|flower|charm|1|cut-damask-rose,dried-damask-rose?
+jasmine|Jasmine|flower|sense|1|cut-night-jasmine,dried-night-jasmine?
+linden-blossom|Linden Blossom|flower|sense|1|
+elderflower|Elderflower|flower|luck|1|
 cardamom|Cardamom|spice|charm|2|
 cinnamon|Cinnamon|spice|grit|2|
 clove|Clove|spice|hardiness|2|
@@ -33,6 +41,7 @@ lemon|Lemon|fruit|sense|1|
 orange|Orange|fruit|charm|1|
 yuzu|Yuzu|fruit|nimble|1|
 elderberry|Elderberry|fruit|hardiness|1|
+rose-hips|Rose Hips|fruit|nimble|1|
 garden-honey|Garden Honey|sweet||0|
 cane-syrup|Cane Syrup|sweet||0|
 date-syrup|Date Syrup|sweet||0|

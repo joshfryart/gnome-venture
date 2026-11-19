@@ -572,13 +572,14 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
     foreach (trail_sight_tokens($rewards) as $t) {
         if ($t['cond'] !== '') { $now ??= trail_sight_now($loc, null, $u); if (!trail_sight_cond_ok($t['cond'], $now)) continue; }
         $tok = $t['tok'];
-        if (preg_match('/^(.*)@(\d+)$/', $tok, $cm) && preg_match('/^(fp|fpto|fpall|title|page|hint|nxt)=/', $tok)) { if (random_int(1, 100) > (int)$cm[2]) continue; $tok = $cm[1]; }   // a chance on one of OUR tokens (the others go to stop_rewards, which rolls its own)
+        if (preg_match('/^(.*)@(\d+)$/', $tok, $cm) && preg_match('/^(fp|fpto|fpall|title|page|hint|nxt|sec)=/', $tok)) { if (random_int(1, 100) > (int)$cm[2]) continue; $tok = $cm[1]; }   // a chance on one of OUR tokens (the others go to stop_rewards, which rolls its own)
         if (str_starts_with($tok, 'fp=') && $who !== '') $lines[] = trail_sight_befriend($u, $who, max(1, (int)substr($tok, 3)));
         elseif (str_starts_with($tok, 'fpto=')) { [$wn, $wp] = array_pad(explode(':', substr($tok, 5), 2), 2, '1'); $lines[] = trail_sight_befriend($u, $wn, max(1, (int)$wp)); }
         elseif (str_starts_with($tok, 'title=')) { if (trail_sight_give_title((int)$u['id'], substr($tok, 6))) $lines[] = '🏅 Title: ' . substr($tok, 6); }
         elseif (str_starts_with($tok, 'page=')) { if (unlock_entries((int)$u['id'], 'sightpage:' . substr($tok, 5)) > 0) $lines[] = '📖 A new Almanac page'; }
         elseif (str_starts_with($tok, 'hint=')) $lines[] = trail_sight_hint($u, $loc, substr($tok, 5));
         elseif (str_starts_with($tok, 'nxt=')) $lines[] = sights3a_nxt_add($u, substr($tok, 4));   // 2.7.08 third pass A: an effect on the next Trail stretch
+        elseif (str_starts_with($tok, 'sec=')) $lines[] = sights4_sec_add($u, substr($tok, 4));   // fourth pass: an effect aimed at a named stretch
         elseif (trail_sight_b_token($tok)) $lines = array_merge($lines, trail_sight_b_pay($u, $loc, $tok, $now));   // 2.7.08 third pass B: bday= letter= bottle= quest= seed=<slug>
         elseif (str_starts_with($tok, 'fpall=')) $lines[] = trail_sight_befriend_town($u, $loc, max(1, (int)substr($tok, 6)));   // 2.7.08: every villager of the walk's start place
         elseif (str_starts_with($tok, 'disc=')) { [$dk, $dp, $dm] = array_pad(explode(':', substr($tok, 5), 3), 3, '0'); $lines[] = trail_sight_disc_set((int)$u['id'], $dk, (int)$dp, (int)$dm); }
@@ -901,6 +902,7 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
         if ($row['tool'] !== '-') { [$tt, $tr] = explode(':', $row['tool']); $bits[] = '🧰 ' . (TOOL_TIERS[(int)$tr] ?? '') . ' ' . (GATHER_TOOL_NOUN[$tt] ?? $tt); }
         if ($row['check'] !== '-') $bits[] = '🎲 ' . ucfirst(implode(' or ', array_map(fn($a) => explode(':', $a)[0], explode('+', $row['check']))));
         if ($row['when'] !== '-') $bits[] = '🕰️ ' . trail_sight_cond_text($row['when']);
+        if ($row['check'] !== '-' && str_contains((string)$row['check'], '?') && ($cn = sights4_check_note((string)$row['check'], trail_sight_now(['landscape' => 'grassland', 'name' => $row['verb']] + ($exp ? (q_one('SELECT * FROM locations WHERE id = ?', [(int)$exp['from_id']]) ?: []) : []), $sc, $u))) !== '') $bits[count($bits) - ($row['when'] !== '-' ? 2 : 1)] .= ' (' . $cn . ' right now)';   // fourth pass: the difficulty depends on the conditions
         $notes = '';
         foreach (trail_sight_quest_notes((int)$u['id'], $m['slug']) as [$qt, $n, $of, $st]) {
             $notes .= '<p class="sgq">📜 <b>' . e($qt) . '</b> · step ' . $n . ' of ' . $of . ' · ' . ['done' => 'done', 'next' => '<b>your next step</b>', 'later' => 'later', 'new' => 'starts here', 'locked' => 'not yet'][$st] . '</p>';

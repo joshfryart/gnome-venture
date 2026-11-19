@@ -107,7 +107,7 @@ set_setting('delve_v2', '0'); setting('__reload__');
 ok('with the v2 delves off: no line', trail_sight_hint($row(), ['region_id' => (int)$dLoc['region_id'], 'kind' => 'village', 'id' => 0, 'name' => 'x'], 'firstroom') === '');
 
 echo "== nxt=: effects on the next Trail stretch\n";
-ok('lint: nxt=find / find:2 / calm / quick:30 / skip / peek clean; nxt=fog, quick:90, find:5 refused', !$lint(['rewards' => 'nxt=find,nxt=find:2,nxt=calm,nxt=quick:30,nxt=skip,nxt=peek@50'], 'nxt=') && count($lint(['rewards' => 'nxt=fog,nxt=quick:90,nxt=find:5'], 'nxt=')) === 3);
+ok('lint: nxt=find / find:2 / calm / quick:30 / skip / peek clean; nxt=mist, quick:90, find:5 refused (fog: fourth pass)', !$lint(['rewards' => 'nxt=find,nxt=find:2,nxt=calm,nxt=quick:30,nxt=skip,nxt=peek@50'], 'nxt=') && count($lint(['rewards' => 'nxt=mist,nxt=quick:90,nxt=find:5'], 'nxt=')) === 3);
 set_setting('gnav_on', '1'); set_setting('gnav_tiles', '1'); set_setting('game_clock_on', '1'); setting('__reload__');
 q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$uid]);
 q("UPDATE routes SET kind = 'road', steps = 5 WHERE id = 240");
