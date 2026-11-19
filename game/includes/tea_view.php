@@ -47,12 +47,20 @@ function tea_card_html(array $g, array $have, bool $on, bool $base): string
     return $h . '</div>';
 }
 
+/** 2.7.20: the kettle's 20 px pixel icon (assets/img/ico/ico-kettle-<tin|copper|castiron|samovar>.png) for a tier, or the 🫖 emoji when the file is missing. */
+function tea_kettle_icon(int $tier): string
+{
+    $f = 'assets/img/ico/ico-kettle-' . (['tin', 'copper', 'castiron', 'samovar'][max(0, min(3, $tier))]) . '.png';
+    if (!is_file(APP_ROOT . '/' . $f)) return '<span class="tea-ki tea-k' . $tier . '" aria-hidden="true">🫖</span>';
+    return '<img class="tea-ki tea-k' . $tier . ' pix" src="' . e(url($f)) . '" alt="" width="20" height="20">';
+}
+
 /** The kettle line: which kettle, how strong, what the next one needs (and the Buy button for the Copper Kettle). */
 function tea_kettle_html(array $u): string
 {
     $tier = max(0, (int)($u['kettle'] ?? 0));
     [$name, $K, $cm, $cs] = tea_kettle($tier);
-    $h = '<section class="tea-kettle" aria-label="Your kettle"><p class="tea-k"><span class="tea-ki tea-k' . $tier . '" aria-hidden="true">🫖</span> <b>' . e($name) . '</b> <small>strength ' . $K . ' of 7 · best cup +' . $cm . ' and +' . $cs . '</small></p>';
+    $h = '<section class="tea-kettle" aria-label="Your kettle"><p class="tea-k">' . tea_kettle_icon($tier) . ' <b>' . e($name) . '</b> <small>strength ' . $K . ' of 7 · best cup +' . $cm . ' and +' . $cs . '</small></p>';
     $nx = tea_kettle_next($u);
     if (!$nx) return $h . '<p class="tea-next">The finest kettle in the Hollow. Nothing steeps better.</p></section>';
     if ($nx['buy'] > 0) {
@@ -99,8 +107,8 @@ function tea_panel_html(array $u, array $sel, bool $slim): string
     $today = tea_today($u);
     $tier = max(0, (int)($u['kettle'] ?? 0));
     $sel = array_values(array_filter($sel, fn($s) => isset($have[$s])));
-    $h = '<div class="tea-head"><h3 id="htea-h"><span aria-hidden="true">🫖</span> The kettle</h3><small>One cup a day. Pick a base to steep, then up to three extras. It is drunk here and lasts ' . e(tea_ends()) . '.</small></div>';
-    if ($today) $h .= '<p class="tea-today"><b>Today’s cup: ' . e($today['name']) . '</b> · ' . e(($bt = tea_buff_text($today['buff'])) !== '' ? $bt . ' · ' . tea_ends() : 'no boost') . '</p>';
+    $h = '<div class="tea-head"><h3 id="htea-h">' . tea_kettle_icon($tier) . ' The kettle</h3><small>One cup a day. Pick a base to steep, then up to three extras. It is drunk here and lasts ' . e(tea_ends()) . '.</small></div>';
+    if ($today) $h .= '<p class="tea-today">' . (is_file(APP_ROOT . '/assets/img/ico/ico-steam-cup.png') ? '<img class="tea-ki pix" src="' . e(url('assets/img/ico/ico-steam-cup.png')) . '" alt="" width="20" height="20"> ' : '') . '<b>Today’s cup: ' . e($today['name']) . '</b> · ' . e(($bt = tea_buff_text($today['buff'])) !== '' ? $bt . ' · ' . tea_ends() : 'no boost') . '</p>';
     $steepable = array_filter($have, fn($x, $s) => $ING[$s]['role'] === 'steep', ARRAY_FILTER_USE_BOTH);
     if (!$steepable) {
         $h .= '<p class="tea-empty">Nothing to steep in your satchel yet. Mint, ginger, chamomile, lavender or Tea Leaves from the garden will do, or foraged meadowsweet and desert sage.</p>';

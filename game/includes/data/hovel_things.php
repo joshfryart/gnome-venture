@@ -10,7 +10,7 @@
 return [
     ['id' => 'window', 'label' => 'The window', 'x' => 48, 'y' => 56, 'w' => 64, 'h' => 64, 'act' => 'pop', 'out' => [52, 58, 56, 60]],
     ['id' => 'bed', 'label' => 'Your bed', 'x' => 66, 'y' => 156, 'w' => 122, 'h' => 66, 'act' => 'pop', 'out' => [68, 158, 132, 62]],
-    ['id' => 'gnome', 'label' => 'Your gnome', 'x' => 188, 'y' => 160, 'w' => 62, 'h' => 64, 'act' => 'say', 'out' => [208, 166, 42, 56]],
+    ['id' => 'gnome', 'label' => 'Your gnome', 'x' => 188, 'y' => 150, 'w' => 62, 'h' => 72, 'act' => 'say', 'out' => [204, 150, 46, 72]],   // 2.7.20: the 48 x 72 gnome (catalogue box 202,150)
     ['id' => 'lamp', 'label' => 'The lamp', 'x' => 250, 'y' => 160, 'w' => 62, 'h' => 64, 'act' => 'lamp', 'out' => [268, 172, 32, 50]],
     ['id' => 'kettle', 'label' => 'The kettle', 'x' => 312, 'y' => 142, 'w' => 64, 'h' => 64, 'act' => 'tea', 'out' => [314, 156, 60, 34]],
     ['id' => 'door', 'label' => 'The door', 'x' => 410, 'y' => 98, 'w' => 64, 'h' => 124, 'act' => 'go', 'out' => [412, 100, 60, 122]],

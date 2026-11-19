@@ -139,7 +139,7 @@ const HOVEL_KETTLE_HIT = [312, 142, 64, 64];
 const HOVEL_KETTLE_ART = [312, 140, 40, 47];
 const HOVEL_KETTLE_FILES = [1 => 'copper', 2 => 'castiron', 3 => 'samovar'];
 /** Where the steam leaves each kettle's spout (room units, the puff's bottom left): tin (painted), copper, cast-iron, samovar (the little teapot on top). */
-const HOVEL_KETTLE_STEAM = [0 => [318, 158], 1 => [316, 157], 2 => [316, 160], 3 => [322, 139]];
+const HOVEL_KETTLE_STEAM = [0 => [316, 157], 1 => [315, 157], 2 => [315, 160], 3 => [321, 140]];
 
 /** Picture file (under assets/img/) as a URL, or '' when it is not drawn yet. */
 function hovel_art(string $rel): string
@@ -236,18 +236,29 @@ function hovel_slot_art(string $sk, string $ik, string $dp): string
     return hovel_art('scenes/hovel-' . $sk . '-' . $ik . '.png');
 }
 
-/** The kettle steam and the bed's z's: pixel sprites (fx/fx-steam-a|b, fx/fx-z-a|b, 2.7.20) animated by the hr-steam / hr-zz classes; drawn circles and letters when a file is missing. */
-function hovel_fx_svg(int $tier, bool $bed): string
+/** One fx sprite (assets/img/fx/<f>.png) as an <image> with class $cls, or '' when the file is missing. */
+function hovel_fx_img(string $f, string $cls, int $x, int $y, int $w, int $h): string
+{
+    $s = hovel_art('fx/' . $f . '.png');
+    return $s !== '' ? '<image class="' . $cls . '" href="' . e($s) . '" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>' : '';
+}
+
+/** The kettle's steam: two pixel puffs (fx/fx-steam-a 10 x 10, -b 8 x 8; 2.7.20) at this kettle tier's spout, animated by .hr-steam .a / .b; drawn circles when a file is missing. */
+function hovel_steam_svg(int $tier): string
 {
     [$sx, $sy] = HOVEL_KETTLE_STEAM[$tier] ?? HOVEL_KETTLE_STEAM[0];
-    $img = fn(string $f, string $cls, int $x, int $y, int $w, int $h): string => ($s = hovel_art('fx/' . $f . '.png')) !== '' ? '<image class="' . $cls . '" href="' . e($s) . '" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>' : '';
-    $a = $img('fx-steam-a', 'a', $sx, $sy, 10, 10); $b = $img('fx-steam-b', 'b', $sx + 5, $sy - 4, 8, 8);
-    $h = '<g class="hr-steam" aria-hidden="true">' . ($a !== '' ? $a : '<circle class="a" cx="' . ($sx + 4) . '" cy="' . ($sy + 8) . '" r="2"/>') . ($b !== '' ? $b : '<circle class="b" cx="' . ($sx + 7) . '" cy="' . ($sy + 5) . '" r="1.6"/>') . '</g>';
-    if ($bed) {
-        $a = $img('fx-z-a', 'a', 96, 166, 8, 8); $b = $img('fx-z-b', 'b', 106, 159, 6, 6);
-        $h .= '<g class="hr-zz" aria-hidden="true">' . ($a !== '' ? $a : '<text class="a" x="98" y="176">z</text>') . ($b !== '' ? $b : '<text class="b" x="106" y="168">z</text>') . '</g>';
-    }
-    return $h;
+    $a = hovel_fx_img('fx-steam-a', 'a', $sx, $sy, 10, 10);
+    $b = hovel_fx_img('fx-steam-b', 'b', $sx + 5, $sy - 4, 8, 8);
+    return '<g class="hr-steam" aria-hidden="true">' . ($a !== '' ? $a : '<circle class="a" cx="' . ($sx + 4) . '" cy="' . ($sy + 8) . '" r="2"/>')
+        . ($b !== '' ? $b : '<circle class="b" cx="' . ($sx + 7) . '" cy="' . ($sy + 5) . '" r="1.6"/>') . '</g>';
+}
+
+/** The z's over the bed: pixel z's (fx/fx-z-a 8 x 8, -b 6 x 6; 2.7.20) animated by .hr-zz .a / .b; text letters when a file is missing. */
+function hovel_zz_svg(): string
+{
+    $a = hovel_fx_img('fx-z-a', 'a', 96, 166, 8, 8);
+    $b = hovel_fx_img('fx-z-b', 'b', 106, 159, 6, 6);
+    return '<g class="hr-zz" aria-hidden="true">' . ($a !== '' ? $a : '<text class="a" x="98" y="176">z</text>') . ($b !== '' ? $b : '<text class="b" x="106" y="168">z</text>') . '</g>';
 }
 
 /**
@@ -274,6 +285,7 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
         . ($taps ? ' role="group" aria-label="' . e('Your room. ' . implode(', ', $names) . '. Tap a thing to change it.') . '"'
             : ($things !== null ? ' role="group" aria-label="' . e('Your hovel. ' . implode(', ', $names) . '. Tap a thing to use it.') . '"' : ($tea ? ' role="group" aria-label="' . e('Your hovel. ' . implode(', ', $names) . '. Tap the kettle to brew tea.') . '"' : ' role="img" aria-label="' . e('Your hovel. ' . implode(', ', $names)) . '"'))) . ' focusable="false">';
     $back = hovel_art('scenes/hovel-room.png');
+    $kart = ['src' => '', 'tier' => 0];
     if ($back !== '') {
         $svg .= '<image class="hr-back" href="' . e($back) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" image-rendering="pixelated"/>';
         $kart = hovel_kettle_art($u, $tea);   // the Copper / Cast-Iron / Samovar over the painted tin kettle (only on the real picture: it is painted to match it)
@@ -308,11 +320,11 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
         $lamp = $cat['slots']['lamp'] ?? ['x' => 276, 'y' => 180, 'w' => 16];
         $lx = (int)$lamp['x'] + intdiv((int)$lamp['w'], 2); $ly = (int)$lamp['y'] + 6;
         $svg .= '<defs><radialGradient id="hr-lampg"><stop offset="0" stop-color="#fff3b0" stop-opacity=".85"/><stop offset=".45" stop-color="#ffd98a" stop-opacity=".4"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient></defs>'
-            . hovel_fx_svg($back !== '' ? $kart['tier'] : 0, false)
+            . hovel_steam_svg($kart['tier'])
             . hovel_gnome_svg($u, $cat['gnome'])
             . '<rect class="hr-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" aria-hidden="true"/>'
             . '<circle class="hr-lampglow" cx="' . $lx . '" cy="' . $ly . '" r="34" fill="url(#hr-lampg)" aria-hidden="true"/>'
-            . (isset($things['bed']) ? (string)preg_replace('~^<g class="hr-steam".*?</g>~', '', hovel_fx_svg(0, true)) : '');
+            . (isset($things['bed']) ? hovel_zz_svg() : '');
         foreach ($T as $id => $t) {
             if ($id === 'kettle') {   // the tea kettle keeps its own link and dialog (includes/tea_view.php); closed for this viewer = plain art
                 if (!$tea) continue;
