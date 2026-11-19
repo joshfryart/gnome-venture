@@ -36,7 +36,7 @@ const HOLLOW_GOAL_SCALE = 4;
 
 /** Tier fractions and the items that come with each tier (coins come from the goal_tier_coins setting). */
 const HOLLOW_GOAL_TIERS = [25, 50, 75, 100];
-const HOLLOW_GOAL_TIER_ITEMS = ['', 'plain-compost:10', 'worm-castings:10', 'rich-loam:10'];   // 2.7.27 (Josh: be nicer): 10 of each, was 3 / 2 / 2
+const HOLLOW_GOAL_TIER_ITEMS = ['plain-compost:10', 'plain-compost:20', 'worm-castings:30', 'rich-loam:40'];   // 2.7.27 (Josh: be nicer): 10 / 20 / 30 / 40, was none / 3 / 2 / 2
 const HOLLOW_GOAL_TIER_XP = [5, 10, 15, 25];
 
 function hollow_goals_on(): bool
