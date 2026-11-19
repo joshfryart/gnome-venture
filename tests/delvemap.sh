@@ -9,14 +9,17 @@ if [ -z "$GAME" ]; then T=$(mktemp -d); cp -r "$HERE/../game" "$T/game"; GAME=$T
 rm -f "$GAME/config.php"; rm -rf "$GAME/data"; mkdir -p "$GAME/data"
 BASE=http://127.0.0.1:$PORT
 LOG=$(mktemp)
-php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$ROUTER" >$LOG 2>&1 & PID=$!; sleep 1
+# a port that is already taken (another run, another suite) would make every curl talk to somebody else's server (or hang): refuse; and wait for OUR server to answer instead of a blind sleep
+if curl -s --max-time 2 -o /dev/null "$BASE/login.php"; then echo "PORT $PORT IS ALREADY IN USE: pass another port as the second argument"; exit 2; fi
+php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$ROUTER" >$LOG 2>&1 & PID=$!
 trap "kill $PID 2>/dev/null" EXIT
+for i in $(seq 50); do curl -s --max-time 2 -o /dev/null "$BASE/login.php" && break; kill -0 $PID 2>/dev/null || { echo "SERVER DID NOT START"; cat $LOG; exit 2; }; sleep 0.2; done
 C=$(mktemp); H=$(mktemp); A=$(mktemp)
 FAILS=0
 chk() { if [ "$2" = 1 ]; then echo "  ok   $1"; else echo "  FAIL $1 $3"; FAILS=$((FAILS+1)); fi; }
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
-get() { curl -s -c $C -b $C "$BASE/$1" -o $H -w '%{http_code}'; }
-post() { local page=$1; shift; curl -s -c $C -b $C -X POST "$BASE/$page" --data-urlencode "csrf=$(csrf $H)" "$@" -o $H -w '%{http_code}'; }
+get() { curl -s --max-time 120 -c $C -b $C "$BASE/$1" -o $H -w '%{http_code}'; }
+post() { local page=$1; shift; curl -s --max-time 120 -c $C -b $C -X POST "$BASE/$page" --data-urlencode "csrf=$(csrf $H)" "$@" -o $H -w '%{http_code}'; }
 db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query($argv[1])->fetchAll(PDO::FETCH_NUM) as $r) echo implode(" | ",$r),"\n";' "$1"; }
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
 flashes() { grep -oE 'class="flash (ok|err)">[^<]*' $H | sed 's/class="flash [a-z]*">//' | tr '\n' ' '; }
@@ -44,7 +47,7 @@ php "$HERE/delvemap.php" unit "$GAME" > $A 2>&1; tail -1 $A | grep -q 'all unit 
 
 echo "== table"
 chk "walk_scene table exists" "$([ "$(db "SELECT COUNT(*) FROM sqlite_master WHERE name='walk_scene'")" = 1 ] && echo 1)"
-chk "setting delve_map defaults to on" "$([ "$(curl -s -c $C -b $C $BASE/login.php >/dev/null; db "SELECT COALESCE((SELECT value FROM settings WHERE name='delve_map'),'(default)')")" != 0 ] && echo 1)"
+chk "setting delve_map defaults to on" "$([ "$(curl -s --max-time 120 -c $C -b $C $BASE/login.php >/dev/null; db "SELECT COALESCE((SELECT value FROM settings WHERE name='delve_map'),'(default)')")" != 0 ] && echo 1)"
 
 get login.php >/dev/null; post login.php -d username=sprout -d 'password=TestPass123!' >/dev/null
 pick() { db "SELECT lm.id||' '||lm.location_id||' '||COALESCE(l.landscape,'')||' '||lm.name FROM landmarks lm JOIN locations l ON l.id=lm.location_id WHERE lm.kind='$1' ORDER BY lm.id LIMIT 1 OFFSET ${2:-0}"; }
@@ -150,7 +153,7 @@ playdelve() { local id=$1 order=$2 loc land key e n=0 code lvl coins xp
   post adventure.php -d do=chest >/dev/null; logline $e > $A
   coins=$(grep -oE 'chest creaks open: [0-9,]+' $A | grep -oE '[0-9,]+$' | tr -d ,); xp=$(grep -oE 'Delve cleared! \+[0-9]+' $A | grep -oE '[0-9]+')
   chk "  chest $coins in [$((20+5*lvl)),$((40+10*lvl))], clear XP $xp = $((10+2*lvl)), scene gone" "$([ -n "$coins" ] && [ "$coins" -ge $((20+5*lvl)) ] && [ "$coins" -le $((40+10*lvl)) ] && [ "$xp" = $((10+2*lvl)) ] && [ "$(SCENES)" = 0 ] && echo 1)"; }
-curl -s -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
+curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
 playdelve 4 "1 2 3 4"; playdelve 45 "4 3 2 1"; playdelve 56 "2 4 1 3"; playdelve 10 "3 1 2 4"; playdelve 27 "2 3 4 1"; playdelve 50 "4 1 3 2"
 KEYS=$(db "SELECT DISTINCT substr(map_key,1,1) FROM walk_scene")
 dbx "UPDATE users SET level=30, stat_grit=26, stat_hardiness=26, stat_nimble=22 WHERE id=$SID"
@@ -159,7 +162,7 @@ echo "== list fallback: same delve, simple list, remembered in the session"
 dbx "DELETE FROM landmark_uses WHERE user_id=$SID"
 goto $DLOC; lmact -d do=delve -d lm=$DID
 EX2=$(EXPID); chk "new expedition + its scene" "$([ "$EX2" != "$EX" ] && [ "$(SCENES)" = 1 ] && echo 1)"
-curl -s -c $C -b $C "$BASE/adventure.php?view=list" -o /dev/null
+curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=list" -o /dev/null
 adv
 chk "?view=list shows the old flow (Next room)" "$(grep -q 'value="next"' $A && ! grep -q 'class="tilemap' $A && echo 1)"
 chk "…and a way back to the map" "$(grep -q 'Show the map' $A && echo 1)"
@@ -167,7 +170,7 @@ adv; chk "remembered on the next page view" "$(grep -q 'value="next"' $A && echo
 LB=0
 for r in 1 2 3 4; do post adventure.php -d do=next >/dev/null; resolve; done
 chk "four rooms by the list: depth 4" "$([ "$(EDEPTH)" = 4 ] && echo 1)"
-curl -s -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null; adv
+curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null; adv
 chk "switching to the map mid-run: the four rooms show as done" "$([ "$(grep -o 'class="tmt[^"]*spot done' $A | wc -l)" -ge 0 ] && grep -q 'class="tilemap' $A && echo 1)"
 php "$HERE/delvemap.php" scene "$GAME" $EX2 > $A
 chk "the map caught up with the list (four rooms recorded)" "$([ "$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo count($j["c"]);' $A)" = 4 ] && echo 1)"
@@ -181,7 +184,7 @@ chk "list-flow clear XP the same: $(grep -oE 'Delve cleared! \+[0-9]+' $A)" "$(g
 chk "scene gone after the list-flow ends" "$([ "$(SCENES)" = 0 ] && echo 1)"
 
 echo "== abandon (Climb back out) clears the scene"
-curl -s -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
+curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
 dbx "DELETE FROM landmark_uses WHERE user_id=$SID"; goto $DLOC; lmact -d do=delve -d lm=$DID
 EX3=$(EXPID); adv; walkto 2 >/dev/null; resolve
 chk "scene exists mid-delve" "$([ "$(SCENES)" = 1 ]  && echo 1)"
@@ -199,7 +202,7 @@ dbx "DELETE FROM settings WHERE name='delve_map'"; dbx "INSERT INTO settings (na
 echo "== a lair on the map"
 read LID LLOC LLAND LNAME <<< "$(pick lair 0)"; echo "   $LNAME ($LLAND)"; goto $LLOC
 dbx "DELETE FROM landmark_uses WHERE user_id=$SID"; dbx "UPDATE users SET energy=500 WHERE id=$SID"
-curl -s -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
+curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
 lmact -d do=lair -d lm=$LID
 EXL=$(EXPID)
 chk "lair expedition active, boss has not risen (no encounter, depth 0)" "$([ "$(db "SELECT kind||status||depth||COALESCE(encounter,'none') FROM expeditions WHERE id=$EXL")" = lairactive0none ] && echo 1)"
@@ -220,16 +223,16 @@ logline $EXL > $A; echo "   $(grep -E 'hoard|First victory|escape|knocks' $A | h
 
 echo "== a lair in the simple list: the boss rises at once, no scene"
 dbx "DELETE FROM landmark_uses WHERE user_id=$SID"; goto $LLOC
-curl -s -c $C -b $C "$BASE/adventure.php?view=list" -o /dev/null
+curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=list" -o /dev/null
 lmact -d do=lair -d lm=$LID
 EXL2=$(EXPID)
 chk "boss already fighting (depth 1, encounter), no scene row" "$([ "$(db "SELECT depth FROM expeditions WHERE id=$EXL2")" = 1 ] && [ "$(db "SELECT COUNT(*) FROM expeditions WHERE id=$EXL2 AND encounter IS NOT NULL")" = 1 ] && [ "$(SCENES)" = 0 ] && echo 1)"
 resolve; chk "ends normally" "$([ "$(ESTATUS)" != active ] && echo 1)"
 
 echo "== lair: Face it now from the quiet lair; slip out; knock-out all clear the scene"
-curl -s -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
+curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null
 dbx "DELETE FROM landmark_uses WHERE user_id=$SID"; goto $LLOC; lmact -d do=lair -d lm=$LID
-EXL3=$(EXPID); curl -s -c $C -b $C "$BASE/adventure.php?view=list" -o /dev/null; adv
+EXL3=$(EXPID); curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=list" -o /dev/null; adv
 chk "list view of a quiet lair: Face the boss now" "$(grep -q 'value="lair_engage"' $A && echo 1)"
 post adventure.php -d do=lair_engage >/dev/null
 chk "the boss rises, scene still there until it ends" "$([ "$(db "SELECT depth FROM expeditions WHERE id=$EXL3")" = 1 ] && [ "$(SCENES)" = 1 ] && echo 1)"
@@ -237,7 +240,7 @@ dbx "UPDATE users SET level=1, stat_grit=6, stat_hardiness=6, stat_nimble=6 WHER
 for k in 1 2 3 4 5 6 7 8; do get adventure.php >/dev/null; grep -q 'value="attack"' $H && post adventure.php -d do=attack >/dev/null || break; done
 chk "knocked out ($(ESTATUS)): scene row removed" "$([ "$(ESTATUS)" = ko ] && [ "$(SCENES)" = 0 ] && echo 1)"
 dbx "UPDATE users SET level=30, stat_grit=26, stat_hardiness=26, stat_nimble=22, energy=500 WHERE id=$SID"
-dbx "DELETE FROM landmark_uses WHERE user_id=$SID"; goto $LLOC; curl -s -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null; lmact -d do=lair -d lm=$LID
+dbx "DELETE FROM landmark_uses WHERE user_id=$SID"; goto $LLOC; curl -s --max-time 120 -c $C -b $C "$BASE/adventure.php?view=map" -o /dev/null; lmact -d do=lair -d lm=$LID
 get adventure.php >/dev/null; post adventure.php -d do=leave >/dev/null
 chk "slipped out of the lair before the boss rose: done, scene gone, no victory" "$([ "$(ESTATUS)" = done ] && [ "$(SCENES)" = 0 ] && ! logline $(EXPID) | grep -q 'First victory' && echo 1)"
 
