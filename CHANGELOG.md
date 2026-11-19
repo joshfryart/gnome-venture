@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.7.31
+- **Trail Sights, fifth and sixth pass:** an item can stand in for a failed check (`nimble:9+item:plank`); 14 villager ask rows have a check with a miss line; `take=` / `give=` / `hv=` accept `any-seed`, `any-bread`, `any-tea` and other word lists (`data/trail_sight_words.txt`); shop discounts can be scoped to a category or one item (`disc=shop:20:60:seed`, `disc=shop:50:120:rope`); Sight kinds + `nextkind=`; a season limit on a quest line; `choose=` on villager rows (Ulric at the haven sleeper); `fpall` cap 10 (picnic quest pays 10). Rope is stocked at Twigg's (boot step `rope_stock_ensure`).
+- **Sight items with uses:** fern-drip-hat-charm keeps the rain off, map-scrap pins a find (shows in fog), star-chart files an Almanac page per season, stargazers-chalk, message-bottle; maple-syrup and flour swaps (`hv=<item>:N`). Engine `trail_sights_5.php`.
+- **Shared Sights (setting `sights_shared_on`, default OFF; `sights_shared_text` on):** shared cairn count, anonymous bottle notes between players, chalk marks; reports, per-day limits, Admin page `admin/sights_shared.php`; code `trail_sights_6.php`, endpoint `sights_shared.php`, three new tables from `schema.php`.
+- **Tea crops:** lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise (crops, seeds, Almanac, tea ingredients: 46); boot step `tea_crops_ensure` adds them to existing worlds. Placeholder art.
+- **Puzzle combat:** 7 creatures refit (aphid-swarm, garden-snail, barn-rat, storm-eagle, hermit-crab-hoarder, bog-pike, desert-camel); new fight rule `firex` (boss pieces and creature Guard / Hold fire 3 times; new fights only); `oc-red-dust-poncho` trigger now full health; `pf_bots` seed step fixed.
+- **Pal Jobs page:** shows game time with the sleep-days clock on.
+- **Tests:** `trail_sights_283`, `trail_sights_284`, `trail_sights_shared`, `sights_items`, `herb_crops`; `pfstage` layout cases; `delvemap.sh` port and server guards.
+
 ## 2.7.30
 - **Delves:** the delve column (picture, floor map, chips) is centred on wide screens, with the empty encounter panel hidden (`.advgrid.dv2`, also on the delve end page and old-style delves); the puzzle-fight stage popover now sits over the 480 px column with no sideways scroll (`.advgrid.dv2.fighting.pfover`). Trail and wander pages unchanged.
 
