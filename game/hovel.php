@@ -7,6 +7,24 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 $u = require_login();
 $uid = (int)$u['id'];
+require_once __DIR__ . '/includes/home_slim.php';
+require_once __DIR__ . '/includes/tea.php';
+// The tea kettle (setting tea_open; includes/tea.php): brewing and the Copper Kettle post here; it does not need the game clock.
+if (is_post() && in_array((string)($_POST['do'] ?? ''), ['brew', 'tea_preview', 'kettle_buy'], true)) {
+    csrf_check();
+    require_once __DIR__ . '/includes/tea_view.php';
+    tea_post($u, $_POST, (int)($u['onboarded'] ?? 1) === 1 && home_slim_on());
+}
+if (!is_post() && ($_GET['t'] ?? '') === 'tea' && tea_open_for($u)) {   // the kettle as a page: the slim home has it as a popover on Today
+    require_once __DIR__ . '/includes/tea_view.php';
+    $teaKeep = array_intersect_key($_GET, ['base' => 1, 'c' => 1]);
+    if ((int)($u['onboarded'] ?? 1) === 1 && home_slim_on()) redirect('gnome.php?' . http_build_query(['tea' => 1] + $teaKeep) . '#htea');
+    page_header('Tea kettle');
+    echo '<h1>🫖 Tea kettle</h1><section class="box htea-page">' . tea_panel_html($u, tea_pick($teaKeep), false) . '</section>'
+        . '<p><a class="btn alt" href="' . e(url(gclock_on() ? 'hovel.php' : 'gnome.php')) . '">' . (gclock_on() ? 'Back to the Hovel' : 'Back home') . '</a></p>';
+    page_footer();
+    exit;
+}
 if (!gclock_on()) { flash('The hovel is still being built. (Admin > Settings > Sleep-days: ON reads as "' . setting('game_clock_on') . '"; it needs 1.)', 'err'); redirect('gnome.php'); }
 require_once __DIR__ . '/includes/home_slim.php';
 $slimHome = (int)($u['onboarded'] ?? 1) === 1 && home_slim_on();   // slim home: the hovel is the banner and tabs of gnome.php; this page only does the sleeping
@@ -53,6 +71,7 @@ $crewN = pcrew_count($uid);
 $today = today_data($u);
 $todayN = count($today['need']);
 $tabs = ['today' => ['🌅', 'Today'], 'sleep' => ['🛏️', 'Sleep'], 'tasks' => ['📋', 'Tasks'], 'pals' => ['🧩', 'Pals'], 'costs' => ['🕐', 'Costs']];
+if (tea_open_for($u)) $tabs['tea'] = ['🫖', 'Tea'];   // opens the kettle page (above)
 ?>
 <h1>🛏️ Hovel</h1>
 <div class="hov-hero<?= $s['tired'] ? ' tired' : '' ?>">

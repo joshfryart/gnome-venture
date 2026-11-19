@@ -12,6 +12,7 @@ declare(strict_types=1);
  * Decor catalogue: includes/data/hovel_decor.json. Choices: table user_hovel_decor (user_id, slot, item).
  */
 require_once __DIR__ . '/here_schema.php';   // hub_seen_get/set: the per-gnome "last saw the news" time (scene 'news')
+require_once __DIR__ . '/tea.php';   // the kettle in the room picture brews tea (setting tea_open)
 
 /** Is the slim home on for this viewer? Players need the setting; admins always preview. */
 function home_slim_on(): bool
@@ -129,6 +130,9 @@ function hovel_cosy(array $chosen): array
     return [$n, max(1, $max)];
 }
 
+/** The kettle's tap area in the 480 x 270 room picture: [x, y, w, h]. 64 units each way: 44 px or more on a 390 px phone, where the banner is about 350 px wide. */
+const HOVEL_KETTLE_HIT = [312, 142, 64, 64];
+
 /** Picture file (under assets/img/) as a URL, or '' when it is not drawn yet. */
 function hovel_art(string $rel): string
 {
@@ -182,8 +186,10 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
     $names = [];
     foreach ($cat['slots'] as $sk => $s) $names[] = $s['name'] . ': ' . ($s['items'][$chosen[$sk] ?? '']['name'] ?? '');
     $dp = (string)($o['daypart'] ?? '');
+    $tea = tea_open_for($u);   // the kettle on the side table is a link (the tea popover); closed for this viewer = plain art, no hit box
     $svg = '<svg class="hroom hroom-' . ($full ? 'full' : 'crop') . ($dp !== '' ? ' dp-' . e(preg_replace('/[^a-z]/', '', $dp)) : '') . '" viewBox="' . $vb . '"'
-        . ($taps ? ' role="group" aria-label="' . e('Your room. ' . implode(', ', $names) . '. Tap a thing to change it.') . '"' : ' role="img" aria-label="' . e('Your hovel. ' . implode(', ', $names)) . '"') . ' focusable="false">';
+        . ($taps ? ' role="group" aria-label="' . e('Your room. ' . implode(', ', $names) . '. Tap a thing to change it.') . '"'
+            : ($tea ? ' role="group" aria-label="' . e('Your hovel. ' . implode(', ', $names) . '. Tap the kettle to brew tea.') . '"' : ' role="img" aria-label="' . e('Your hovel. ' . implode(', ', $names)) . '"')) . ' focusable="false">';
     $back = hovel_art('scenes/hovel-room.png');
     if ($back !== '') {
         $svg .= '<image class="hr-back" href="' . e($back) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" image-rendering="pixelated"/>';
@@ -208,6 +214,11 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
         } else {
             $svg .= '<g class="' . $cls . '">' . $lay . '</g>';
         }
+    }
+    if ($tea) {   // the kettle is painted into scenes/hovel-room.png at about x 320-350, y 163-185: a 64 x 64 tap area around it, inside the banner crop and clear of the lamp's and the shelf's
+        [$kx, $ky, $kw, $kh] = HOVEL_KETTLE_HIT;
+        $svg .= '<a class="hd hd-kettle" href="' . e(url('gnome.php?tea=1') . '#htea') . '" data-hdlg="htea" aria-label="The kettle. Brew a cup of tea"><title>The kettle. Brew a cup of tea</title>'
+            . '<rect class="hd-hit" x="' . $kx . '" y="' . $ky . '" width="' . $kw . '" height="' . $kh . '"/></a>';
     }
     $svg .= hovel_gnome_svg($u, $cat['gnome']);
     $svg .= '<rect class="hr-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" aria-hidden="true"/>';
@@ -455,6 +466,8 @@ function home_slim_today_html(array $u, array $needs): string
 {
     $uid = (int)$u['id'];
     $h = '<div class="hs-cols"><div class="hs-main">';
+    $teaOn = tea_open_for($u);
+    if ($teaOn) { require_once __DIR__ . '/tea_view.php'; $h .= tea_dialog_html($u, isset($_GET['tea'])); }   // the kettle's popover (opened by the kettle in the banner; ?tea=1 draws it open here)
     require_once __DIR__ . '/puzzle_pals.php';
     if (ppal_open() && !is_guest($u)) { require_once __DIR__ . '/pal_jobs.php'; $h .= pj_home_notice_html($u); }   // pals back from a trip or delve
     $n = count($needs['need']);
@@ -499,6 +512,11 @@ function home_slim_today_html(array $u, array $needs): string
         if ($night['stations']) $h .= $grp('🏠', 'At their stations', $night['stations'][0][3], home_slim_go($night['stations'][0][3])) . '<ul class="hs-nlist">' . implode('', array_map($row, $night['stations'])) . '</ul>';
         if ($night['out']) $h .= $grp('🌲', 'Out and about', url('paljobs.php'), 'Pals') . '<ul class="hs-nlist">' . implode('', array_map($row, $night['out'])) . '</ul>';
         $h .= '</section>';
+    }
+    if ($teaOn) {   // the plain link to the kettle (the same popover), with today's cup
+        $cup = tea_today($u);
+        $h .= '<p class="hs-newsl hs-teal"><a href="' . e(tea_url(true)) . '" data-hdlg="htea"><span aria-hidden="true">🫖</span> '
+            . e($cup ? 'Today’s cup: ' . $cup['name'] . (($bt = tea_buff_text($cup['buff'])) !== '' ? ' · ' . $bt : '') : 'The kettle is warm: brew today’s cup of tea') . ' →</a></p>';
     }
     $h .= home_slim_news_html($uid) . '</div>';
     require_once __DIR__ . '/today_social.php';

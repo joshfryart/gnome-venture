@@ -28,6 +28,7 @@ function fresh_start_columns(): array
         'community_day' => null, 'community_shift_until' => null, 'shift_actions' => 0, 'community_rep' => 0, 'ribbons' => 0,
         'event_at' => null, 'event_day' => null, 'event_count' => 0, 'ev_stat' => null, 'ev_amt' => 0, 'ev_until' => null, 'ev_day' => null, 'ev_scope' => null,
         'ev2_stat' => null, 'ev2_amt' => 0, 'ev2_until' => null, 'ev2_day' => null, 'ev2_scope' => null,   // 2.7.08 third pass A: the second lucky moment
+        'tea' => null, 'tea_day' => null, 'tea_name' => null, 'kettle' => 0,   // the Hovel tea kettle (includes/tea.php): today's cup and the kettle tier
         'easy_roads' => 1, 'ev_harvest_bonus' => 0, 'ev_quickwalk' => 0, 'ev_gather_until' => null, 'ev_sale_until' => null,
         'free_mend_n' => 0, 'free_mend_day' => null,
         'dest_id' => null, 'dest_auto' => 1, 'dest_pause_towns' => 0, 'dest_chain' => 0, 'dest_legs' => 0, 'dest_trail' => null,
@@ -62,6 +63,7 @@ const FRESH_LAZY_TABLES = [
     'ppal_releases' => 'user_id', 'ppal_found' => 'user_id', 'ppal_trophies' => 'user_id', 'ppal_spawns' => 'user_id', 'ppal_jobs' => 'user_id',
     'user_hybrids' => 'user_id', 'trek_ms' => 'user_id', 'trek_runs' => 'user_id', 'stop_prog' => 'user_id',
     'puzzle_attempts' => 'user_id', 'puzzle_runs' => 'user_id', 'puzzle_wins' => 'user_id', 'jigsaw_unlocks' => 'user_id',
+    'user_tea_journal' => 'user_id',   // the Tea Journal (includes/tea.php)
 ];
 
 /**

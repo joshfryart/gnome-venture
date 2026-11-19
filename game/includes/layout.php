@@ -108,6 +108,7 @@ function page_header(string $title, bool $admin = false): void
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/chest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.6: delve chest opening treat */ ?>
 <?php if (!$admin && $u && gnav_on()): /* on every page: world.php and others are swapped in place (AJAX_PAGES), so the script must already be there */ ?><script src="<?= e(url('assets/hubscene.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* graphical navigation: picture pages (includes/hub_scene.php) */ ?>
+<?php if (!$admin && $u) require_once __DIR__ . '/tea.php'; if (!$admin && $u && tea_open_for($u)): /* the Hovel kettle's live preview; on every page it can be swapped into (AJAX_PAGES), and only for viewers the kettle is open for */ ?><script src="<?= e(url('assets/tea.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
 <?php if (!$admin && $u && $page === 'workshop.php'): ?><script src="<?= e(url('assets/workshop.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* graphical navigation: crafting sections in the workshop popovers */ ?>
 <?php if (!$admin && $u && in_array($page, ['inventory.php', 'workshop.php'], true)): ?><script src="<?= e(url('assets/craftpop.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/shpop.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v2.4.0: crafting scene popovers */ ?>
 </head>
@@ -659,9 +660,10 @@ function right_rail(array $u): string
     $fx = active_effects($u);
     if ($fx) {
         $h .= '<ul class="rlist">';
-        foreach ($fx as [$ic, $nm, $what, $sec]) {
+        foreach ($fx as $fx1) {
+            [$ic, $nm, $what] = $fx1;
             $h .= '<li><span><span aria-hidden="true">' . $ic . '</span> <b>' . e($nm === 'Meal' ? $what : $nm) . '</b>'
-                . ($nm === 'Meal' ? ' <small class="muted">meal</small>' : '<br><small class="muted">' . e($what) . '</small>') . '</span><small class="rtime">' . e(effect_time($sec)) . '</small></li>';
+                . ($nm === 'Meal' ? ' <small class="muted">meal</small>' : '<br><small class="muted">' . e($what) . '</small>') . '</span><small class="rtime">' . e(effect_left($fx1)) . '</small></li>';
         }
         $h .= '</ul>';
     } else {

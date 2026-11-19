@@ -7834,6 +7834,57 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 @media (prefers-reduced-motion: no-preference) {
   a.hs-slot, .hpick-it, a.hs-news, .hs-nlist a, .hroom .hd-hit { transition: background-color .12s, box-shadow .12s, fill .12s; }
 }
+/* The tea kettle (includes/tea_view.php): the popover is a dialog.hpick; the same panel is a page at hovel.php?t=tea */
+dialog.htea { text-align: left; }
+.htea-in, .htea-page { display: grid; gap: 10px; }
+.tea-head { display: grid; gap: 2px; }
+.tea-head h3 { margin: 0; font-size: 18px; }
+.tea-head small, .tea-jn, .tea-next, .tea-k small { color: var(--muted); font-size: 13px; }
+.tea-today { margin: 0; padding: 6px 10px; background: var(--surface-2); border: 2px solid var(--brand-line); }
+.tea-empty { margin: 0; }
+.tea-form { display: grid; gap: 10px; margin: 0; }
+.tea-grp { margin: 0; padding: 0; border: 0; min-width: 0; }
+.tea-grp legend { padding: 0 0 4px; font-weight: 800; font-size: 13px; color: var(--ink-2); }
+.tea-tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; align-items: start; }
+.tea-card { display: grid; background: var(--surface-2); border: 2px solid var(--line-2); }
+.tea-card.on { border-color: var(--brand); box-shadow: inset 0 0 0 3px var(--brand-line); }
+.tea-card.base { border-color: var(--thread); }
+.tea-in { display: grid; gap: 2px; justify-items: center; align-content: start; min-height: var(--tap); padding: 6px 4px 4px; text-align: center; cursor: pointer; }
+.tea-in input, .tea-base input, .tea-pour input { accent-color: var(--brand); }
+.tea-in .nm { font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.tea-in .tg, .tea-in .qt { color: var(--muted); font-size: 13px; line-height: 1.2; }
+.tea-pic { display: block; min-height: 32px; }
+.tea-base { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 36px; border-top: 2px solid var(--line-2); font-size: 13px; font-weight: 700; cursor: pointer; }
+.tea-card.base .tea-base { background: var(--thread); color: #2a1a10; border-top-color: var(--thread); }
+.tea-in:focus-within, .tea-base:focus-within { outline: 3px solid var(--focus); outline-offset: -3px; }
+.tea-note { margin: 0; color: var(--bad); font-weight: 700; font-size: 13px; }
+.tea-note:empty { display: none; }
+.tea-out { display: grid; gap: 4px; padding: 8px 10px; background: var(--surface-2); border: 2px solid var(--brand); }
+.tea-out.bad { border-color: var(--line-2); border-style: dashed; color: var(--muted); }
+.tea-out p { margin: 0; }
+.tea-name { font-size: 16px; }
+.tea-stamp { display: inline-block; padding: 0 6px; border: 2px solid var(--thread); font-size: 12px; font-weight: 800; }
+.tea-buffs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tea-buff { padding: 1px 8px; background: var(--brand); color: var(--surface); font-weight: 800; }
+.tea-buff.none { background: transparent; color: var(--muted); font-weight: 400; padding-left: 0; padding-right: 0; }
+.tea-math { color: var(--muted); font-size: 13px; }
+.tea-pour { display: flex; gap: 8px; align-items: center; min-height: var(--tap); font-weight: 700; }
+html.js .tea-nojs { display: none; }
+.tea-kettle { display: grid; gap: 4px; padding: 8px 10px; border: 2px solid var(--line-2); }
+.tea-kettle p { margin: 0; }
+.tea-ki { font-size: 20px; }
+.tea-buy { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 0; }
+dialog.hpick form.tea-buy { display: flex; }
+.tea-prog { width: 100%; }
+.tea-journal summary { min-height: var(--tap); display: flex; align-items: center; font-weight: 800; cursor: pointer; }
+.tea-jl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin: 0 0 6px; padding: 0; list-style: none; }
+.tea-jl li { display: grid; gap: 2px; padding: 6px 8px; background: var(--surface-2); border: 2px solid var(--line-2); }
+.tea-jl li.got { border-color: var(--brand-line); }
+.tea-jl li.unk { place-items: center; min-height: 44px; border-style: dashed; background: transparent; color: var(--muted); font-weight: 800; letter-spacing: 2px; }
+.tea-jl small { color: var(--muted); font-size: 13px; line-height: 1.25; }
+.tea-jl .nt { font-style: italic; }
+.tea-jn { margin: 0; }
+.hs-teal { justify-content: flex-start; }
 /* ===== end slim home ===== */
 
 /* ===== Contest hall pop-up: compact score cards ===== */

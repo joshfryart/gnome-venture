@@ -154,6 +154,7 @@ function active_effects(array $u): array
     if (!empty($u['ev_stat']) && (isset(GNOME_STATS[$u['ev_stat']]) || $u['ev_stat'] === 'all') && $left($u['ev_until'] ?? null) > 0 && !gnome_ev_slept($u)) $out[] = ['🍀', 'A lucky moment', $u['ev_stat'] === 'all' ? 'Every stat +' . (int)$u['ev_amt'] : $stats([$u['ev_stat'] => $u['ev_amt']]), $left($u['ev_until'])];   // 2.7.08: 'all' = every stat
     if (!empty($u['ev2_stat']) && (isset(GNOME_STATS[$u['ev2_stat']]) || $u['ev2_stat'] === 'all') && $left($u['ev2_until'] ?? null) > 0 && !gnome_ev_slept(gnome_ev2_view($u))) $out[] = ['🍀', 'A second lucky moment', $u['ev2_stat'] === 'all' ? 'Every stat +' . (int)$u['ev2_amt'] : $stats([$u['ev2_stat'] => $u['ev2_amt']]), $left($u['ev2_until'])];   // 2.7.08 third pass A: buff2=
     if (!empty($u['town_stat']) && isset(GNOME_STATS[$u['town_stat']]) && $left($u['town_until'] ?? null) > 0) $out[] = ['🏘️', 'Town outing', $stats([$u['town_stat'] => $u['town_amt']]), $left($u['town_until'])];
+    if ($tea = gnome_tea_buff($u)) $out[] = ['🫖', 'Tea', $stats($tea) . ' · ' . gnome_tea_ends(), 86400, 'sleep'];   // the Hovel kettle: its own slot; [4] = no clock time (effect_left)
     if ($left($u['ev_gather_until'] ?? null) > 0) $out[] = ['🌈', 'Rainbow', 'Double gathering', $left($u['ev_gather_until'])];
     if ($left($u['ev_sale_until'] ?? null) > 0) $out[] = ['🐓', 'Shop sale', '20% off in every shop', $left($u['ev_sale_until'])];
     if (!empty($u['id'])) {   // 2.6.33: stop perks
@@ -162,6 +163,12 @@ function active_effects(array $u): array
     }
     usort($out, fn($a, $b) => $b[3] <=> $a[3]);
     return $out;
+}
+
+/** How long an active_effects() row has left, for display: "1h 20m", or '' for one that ends with the day (the tea says so in its own text). */
+function effect_left(array $fx): string
+{
+    return isset($fx[4]) ? '' : effect_time((int)$fx[3]);
 }
 
 /** Seconds as "1h 20m" / "12m" / "40s", without needing garden_logic.php. */
@@ -207,7 +214,28 @@ function eff_stat(array $u, string $stat): int
 {
     $ev = (!empty($u['ev_stat']) && ($u['ev_stat'] === $stat || ($u['ev_stat'] === 'all' && isset(GNOME_STATS[$stat]))) && ts_gnome($u['ev_until'] ?? null) > time() && !gnome_ev_slept($u)) ? (int)$u['ev_amt'] : 0;   // a random event's little boost
     $tw = (!empty($u['town_stat']) && $u['town_stat'] === $stat && ts_gnome($u['town_until'] ?? null) > time()) ? (int)$u['town_amt'] : 0;   // a town drink or outing (v0.7.20)
-    return (int)($u['stat_' . $stat] ?? 10) + (int)(active_buff($u)[$stat] ?? 0) + $ev + $tw + gnome_ev2_amt($u, $stat);
+    return (int)($u['stat_' . $stat] ?? 10) + (int)(active_buff($u)[$stat] ?? 0) + $ev + $tw + gnome_ev2_amt($u, $stat) + (int)(gnome_tea_buff($u)[$stat] ?? 0);
+}
+
+/** The Hovel kettle: the day key a cup is drunk on (users.tea_day): the game day while the game clock is on, else the Hollow date. */
+function gnome_tea_day(array $u): string
+{
+    return function_exists('gclock_on') && gclock_on() ? (string)(int)($u['game_day'] ?? 0) : hollow_date('Y-m-d');
+}
+
+/** The Hovel kettle: today's tea as stat => points ([] when there is none, or the gnome has slept since). Its own slot (users.tea / tea_day), beside the meal, lucky moments and town drink. */
+function gnome_tea_buff(array $u): array
+{
+    if (empty($u['tea']) || !isset($u['tea_day']) || (string)$u['tea_day'] === '' || (string)$u['tea_day'] !== gnome_tea_day($u)) return [];
+    static $memo = [];   // eff_stat is called a lot: decode each JSON once
+    $j = (string)$u['tea'];
+    return $memo[$j] ??= array_filter(array_map('intval', json_decode($j, true) ?: []), fn($n, $s) => isset(GNOME_STATS[$s]) && $n > 0, ARRAY_FILTER_USE_BOTH);
+}
+
+/** "until you sleep" (game clock on) or "until tomorrow" (off: the cup ends with the Hollow day). */
+function gnome_tea_ends(): string
+{
+    return function_exists('gclock_on') && gclock_on() ? 'until you sleep' : 'until tomorrow';
 }
 
 /** 2.7.08 third pass A: the second lucky moment (users.ev2_*, Sight token buff2=) as the first slot's field names, for gnome_ev_slept(). */
