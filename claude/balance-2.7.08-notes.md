@@ -83,3 +83,48 @@ A big deck costs a weak player about 6 points and a good one nothing; a size cap
 ## Tests
 
 See the final run in the hand-off. Pre-existing failures not caused by this data: `pf_creatures_import` "puzzle Charm ($full) gives the full Petals" (the +25% charm reward, 4-7 range in the test), `pf_piece_text` (6 text checks: Quick / Heavy / Boon / Soothe texts changed by other work).
+
+## 7. Follow-up 2026-11-19: the five limit rows (deck edits + refit) and the four dead regional drops
+
+### 7.1 Decks of the five rows at a fit limit
+
+Why they sat on a limit: all five are level 7-11, where the model gnome ends a fight in about 2 turns; their unique 3 were mostly guard (two of the five have the `guardian` style, one `blocker`), so foe_x had little to multiply and the fit ran into 3.1 and pushed the rest into the bar. What moves the win rate in a 2-turn fight is a Hurt piece with `quick` (the creature plays twice) and the Hurt values; other tags (pierce / trip / poison) measured the same within noise. Class, ability string, AI style, lean and drops unchanged; budget (SPEC 1.1 rule 2) and the 2-of-3 (type, tag) difference to base and siblings (rule 3) checked by script; `shore-earwig` still passes D4 (2 quick).
+
+| creature | unique 3 before | unique 3 after | mult sum (band) |
+|---|---|---|---|
+| house-centipede-skitter (small L10) | Skitter Wall guard 0.6 evade, Wall Dash hurt 0.6 trip, Leg Wrap guard 0.5 thorns | Skitter Wall guard 0.3 evade, Wall Dash hurt 1.0 quick, **Leg Rake** hurt 0.6 pierce | 1.7 -> 1.9 (1.5-1.94) |
+| midge-cloud (small L11) | Haze Wall guard 0.7 thorns, Dense Haze guard 0.6 hold, Midge Nip hurt 0.5 | Haze Wall guard 0.3 thorns, **Biting Haze** hurt 0.6 pierce, Midge Nip hurt 1.0 quick | 1.8 -> 1.9 (1.5-1.94) |
+| bullfrog (medium L7, base: `pf_creature_pieces.txt`) | Tongue Lash hurt 0.9 trip, Deep Croak trick 0.4, Puff Up guard 0.7 | Tongue Lash 1.3, Deep Croak 0.5, Puff Up 0.7 (types and tags as before) | 2.0 -> 2.5 (1.8-2.6) |
+| hermit-crab-convoy (small L7) | Shell Line guard 0.7 thorns, Convoy Bump hurt 0.6 bash, Spare Shell guard 0.5 evade | Shell Line guard 0.6 thorns, Convoy Bump hurt 0.9 quick, Spare Shell guard 0.5 evade | 1.8 -> 2.0 (1.5-2.02) |
+| shore-earwig (small L9) | Tide Pincer hurt 0.7 quick, Wrack Scuttle trick 0.4 quick, Brine Nip hurt 0.6 poison | Tide Pincer 0.9, Wrack Scuttle 0.4, Brine Nip 0.7 (types and tags as before) | 1.7 -> 2.0 (1.5-2.1) |
+
+Refit of those five rows only (chain bot, std build, gnome at the creature's level; the 2.7.08 fit step rebuilt from section 2: ln(foe_x) toward the size target with logit slope 4 and shrink n/(n+6), the part foe_x cannot take inside [0.42, 3.1] to bar_x with slope 3 inside [0.52, 2.15], a free foe_x hands half of ln(bar_x) back a round; 10 x 60 + 3 x 150 seeds, each round other seeds, then a foe_x sweep at 600, then other seeds for the check). The old scratchpad `fit.php` was gone, so the hand-back rate is my reading of the notes.
+
+| creature | tune before | tune after | chain win % before (1500 seeds) | after (same 1500 seeds) | after, fresh 360 | turns before -> after | target |
+|---|---|---|---|---|---|---|---|
+| house-centipede-skitter | 3.100 / 2.150 | 2.821 / 1.135 | 83.5 | 83.5 | 85.6 | 3.78 -> 1.76 | 83 |
+| midge-cloud | 2.953 / 2.150 | 2.859 / 1.030 | 86.0 | 85.6 | 86.1 | 3.81 -> 1.72 | 83 |
+| bullfrog | 3.100 / 1.064 | 2.686 / 1.000 | 84.2 | 85.2 | 87.5 | 2.36 -> 2.25 | 85 |
+| hermit-crab-convoy | 3.100 / 1.633 | 2.634 / 1.000 | 81.0 | 83.5 | 87.8 | 2.84 -> 1.97 | 83 |
+| shore-earwig | 3.100 / 1.316 | 2.364 / 1.006 | 73.9 | 83.4 | 82.5 | 1.98 -> 1.67 | 83 |
+
+- No row on a limit now (foe_x 2.36-2.86, bar_x 1.00-1.14). 36 seeds are too few for these rows (SE about 6 points): `pf_bots.php`'s own first 36 seeds give skitter 92, midge 64, bullfrog 81, hermit 92, earwig 92 with the new rows (83 / 86 / 83 / 83 / 81 with the old), while six other 36-seed blocks of midge-cloud give 81-92. Use the 1500-seed column.
+- Trade-off to know: skitter and midge-cloud fights are now about 1.7 turns (as their level peers: fly-swarm 1.5, snow-moth 1.8), not 3.8: the old rows reached the win target by doubling the bar. If the longer fight was liked, that is a bar question for the whole L6-12 small band, not for these two rows.
+- Files: `data/pf_creatures.txt` (4 deck cells), `data/pf_creature_pieces.txt` (bullfrog, 2 values), `data/pf_creature_tune.txt` (5 rows), JS `PFB_V1_TUNE` in `tools/pfengine.js` (the same 5 entries, edited in place: there is no generator script in the repo). Decks and tune are read from the files at fight time, so existing worlds get them with the update (no DB step).
+
+### 7.2 Regional drops outside the window (the "Left" item of section 1)
+
+Windows now (SPEC 4.1 rule on an installed world): arctic-fox L16 tundra = EE; desert-tortoise L22 desert = EA; glacier-bear L26 and lichen-reindeer L28 tundra,mountain = ESA. Gates moved in `data/pf_creatures.txt`:
+
+| base row | drop | gate before | after | checked |
+|---|---|---|---|---|
+| arctic-fox | Lemming Fluff 25% | NA/NWE | EE | a creature part only (grumpy-lemming 70% ungated, wolverine 20% EA); no recipe |
+| desert-tortoise | Prickly Pear Cactus 25% | CA/MENA | EA | CA uncommon crop (`region_crops.txt`); already drops ungated in EA (whip-scorpion EA 20%, cactus-beast MENA/EA 40%) and CSA/WCA (thorn-jackal) |
+| glacier-bear | Crowberries 25% | NA/NWE/EE | ESA | common tundra forage; already in ESA (snow-lynx 20% @ESA) and OC (eagle-owl) |
+| lichen-reindeer | Cloudberry 25% | NA/NWE/EE | ESA | NWE treasure crop, as produce (not seed); already drops ungated in CSA (tundra-fox 22%) and ESA/OC (musk-ox 14%) |
+
+None of the four is a lair template (templates are boss rows), so no lair guardian loses a copied drop. Existing worlds: `import_pf_creatures()` never updates a drop row it has, so boot step `creature_window_drops_1119` (`bootstrap.php`, right after `creature_windows_2708`) runs `creature_window_drops_1119()` (`includes/adventure_data.php`, table `CREATURE_WINDOW_DROPS_1119`): a `creature_drops` row still at the OLD gate gets the new one (idempotent, an admin's own gate stays). `tests/creature_windows.php` section 4 (24 checks): fresh gates, gate inside / old gate outside the window, `creature_drop_open`, no base row with a gate outside its window, old world -> step -> as fresh, no other drop row touched, second run 0, admin edit kept, wired after `creature_windows_2708`.
+
+### 7.3 Tests (2026-11-19)
+
+`tests/pfengine_js.sh` ok (1188 fights, 35828 actions match); `php tests/pfdeck_v1.php` 131 ok; `tests/pfboard_v1.sh` 430 ok; `tests/pfboard_v1_abil.sh` 121 ok; `php tests/pf_bots.php edge` 77 ok; `tests/creature_windows.sh` 51 ok; `tests/lair_drops.sh` 5 ok; `tests/ci_suites.sh creature_windows lair_drops pfdeck_v1 pf_creatures_import pfboard_v1_ai pf_bots`: 6 suites, 0 failed.
