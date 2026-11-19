@@ -237,7 +237,7 @@ function act_choice(string $do, string $icon, string $title, string $sub = '', $
 /**
  * Optional pixel art for the wander card. A file that does not exist draws NOTHING (the emoji / plain header stays): no broken images.
  * scenes/wander-<land>.png banner (+ wander-deep.png for the Deep wilds, wander-wild.png for the Hard and Wild tiers), ico/wander-tier-<gentle|wild|dangerous|deep>.png (24 px),
- * ico/wander-<deeper|roam|back|return|visit>.png (24 px), ico/wander-found.png. Names in claude/todo.md (ART TODO: the wander area).
+ * ico/wander-<deeper|roam|back|return|visit>.png (24 px), ico/wander-found.png. Names in claude/todo.md (art list: the wander area).
  */
 function wander_art(string $rel, int $w, int $h, string $cls = ''): string
 {

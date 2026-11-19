@@ -1,7 +1,7 @@
 # Trail Sights: the 43 end pieces (end-*), the big set pieces right before a haven, wonder, delve or lair (P2 data). Ideas: claude/sights/ideas-end-pieces.md; what this grammar cannot do yet: claude/sights/end-p2-todo.md
 # slug | verb | icon | energy | cd (tenths of a game day) | uses | when | check | rewards | win | lose | tool | fail_en   (columns as in trail_sights.txt)
 # Archetype J, "scout the place ahead": peek, listen, read tracks, light a light. Never a fight; a lair scout hints at one stat but never shows numbers. cd 110 = a real hint or goodie.
-# Each slug stands before 1 to 5 places: a line names a place only when the slug has just one (multi-place lines stay general; per-place text is in the TODO).
+# Each slug stands before 1 to 5 places: a line names a place only when the slug has just one (multi-place lines stay general; per-place text is in the sights docs).
 # Pass 2: lines have ` // ` variants; true hints (hint=weather|season|away|creature); picks for guess-games (dish, rhythm, glimmer shape, stone note, maze start); st=sneak bonuses at lairs and the hush tiptoe; pal=1 bonuses;
 # private tallies with title/page milestones: spoons (haven paths), gate-rubbings, hush-pages, stars-named, echoes, lanterns-lit, lair-looks. Quest tokens: gate-rubbing, hush-page, snore-note (trail_sight_items_end.txt).
 # Verbs changed (the lint allows 24 characters): end-haven-2-grassland "Read the back of the sign" is "Read the sign's back"; end-lair-2-wetland "Follow the sideways tracks" is "Follow sideways tracks".
