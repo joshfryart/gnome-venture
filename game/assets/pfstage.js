@@ -51,8 +51,12 @@
       if (bb && getComputedStyle(bb).display !== 'none' && getComputedStyle(bb).position === 'fixed') bot = Math.max(0, Math.round(ih - bb.getBoundingClientRect().top));
       if (top > ih * 0.4) top = 0;
     }
-    var w = Math.min(iw, 560);
-    return { x: (iw - w) / 2, y: top, w: w, h: Math.max(320, ih - top - bot), fixed: true };
+    var w = Math.min(iw, 560), x = (iw - w) / 2;
+    if (iw >= 700) {   // wide screen: stay in line with the map (its column), not centred on the window; height is still the visible window
+      var mb = curBox();
+      if (mb) { var mw = Math.min(iw, Math.max(mb.w, 480)), mc = mb.x - window.pageXOffset + mb.w / 2; w = mw; x = Math.max(0, Math.min(iw - w, mc - w / 2)); }
+    }
+    return { x: x, y: top, w: w, h: Math.max(320, ih - top - bot), fixed: true };
   }
   function fixedKind(d) { return !!d && (accepting || kindOf(d) === 'fight'); }
   function boxFor(d) { return fixedKind(d) ? visBox() : box(); }

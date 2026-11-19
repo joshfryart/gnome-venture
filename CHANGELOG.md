@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.26
+- **Puzzle combat stage mode (`pfight_stage`, still Off by default), wide screens only:** the combat stays in line with the map's column (it was centred on the whole window and covered the side menu). It still gets the visible height and at least 480 px of width. Phones unchanged.
+- No player news (setting is Off). No DB step.
 ## 2.7.25
 - **Puzzle combat stage mode (`pfight_stage`, still Off by default): the play board was cut off on phones.** The combat took the map's height plus extra, so on a short phone screen the board and the hand fell below the fold. It now gets the visible window like the game's own fight panel (the whole window on a phone, between the header and the bottom bar on a wide screen), fixed to it, and the pieces cover that same area. The pre-fight card and the result card still sit on the map.
 - No player news (setting is Off). No DB step.
