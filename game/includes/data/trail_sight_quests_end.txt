@@ -5,7 +5,7 @@
 # ================================================================ shared land pieces (claude/sights/ideas-shared-land.md, cross-spot lines)
 # ================================================================ end pieces (claude/sights/ideas-end-pieces.md, section 1)
 # Pass 2: Q|...|gate (quest:<slug>) and B|...|needs (take=item:qty). Orders anylast (the finale beat last); @boss / @meal beats; titles and Almanac pages (trail_sight_pages_end.txt); quest tokens in trail_sight_items_end.txt.
-Q|lamplighters-round|The Lamplighter's Round|Burdock Deepdelve|🕯️|anylast|xp=80,item=tin-lantern:1,c=60,fp=2,title=Lamplighter,page=lamplighters-round|Somebody put up lanterns before five deep delves and then forgot them, and Burdock thinks we should not forget them.|All five lanterns glow at once, and Burdock calls you a proper Lamplighter.|quest:echo-map
+Q|lamplighters-round|The Lamplighter's Round|Burdock Deepdelve|🕯️|anylast|xp=80,item=tin-lantern:1,c=60,fp=2,title=Lamplighter,page=lamplighters-round|Somebody put up lanterns before five deep delves and then forgot them, and Burdock thinks we should not forget them.|All five lanterns glow at once, and Burdock calls you a proper Lamplighter.|quest:echo-map|season
 B|lamplighters-round|end-delve-2-forest|Light the first lantern|-
 B|lamplighters-round|end-delve-2-wetland|Float a candle into the maze|-
 B|lamplighters-round|end-delve-2-rainforest|Borrow a firefly for a lantern|-

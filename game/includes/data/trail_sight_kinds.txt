@@ -1,0 +1,25 @@
+# Sight kinds (fifth pass; claude/sights/GRAMMAR.md "Fifth pass"): slug|kind[,kind]. Kinds: crossing (a bridge, ford, log, causeway, stepping place), fishing (a rod or a catch), rest (a nap, a sit-down).
+# A kind lets a tip say "the next crossing Sight on this walk" (token nextkind=crossing:+2, nextkind=fishing:fish=1). Only the Sights a tip or an item effect can aim at are listed.
+# Crossings
+grassland-the-plank-footbridge|crossing
+forest-the-root-tangle-crossing|crossing
+forest-the-fallen-log-bridge|crossing
+wetland-the-lily-pad-ford|crossing
+wetland-the-reed-causeway|crossing
+wetland-the-boardwalk-gap|crossing
+coast-the-sandbar-causeway|crossing
+rainforest-the-stepping-roots|crossing
+rainforest-the-vine-bridge|crossing
+mountain-the-rope-bridge|crossing
+ford|crossing
+232-logbridge|crossing
+236-stonebridge|crossing
+314-causeway|crossing
+315-bridge|crossing
+# Fishing
+island-the-reef-shallows|fishing
+315-stream|fishing
+# Rests
+mountain-the-stone-hut|rest
+desert-the-shade-awning|rest
+island-the-hammock-palms|rest
