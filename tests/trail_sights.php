@@ -166,10 +166,12 @@ foreach ($authored as $rid => $rt) {
             $slug = substr($o[2], 3); $row = $rows[$slug];
             $st2 = null; foreach ([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]] as [$dx, $dy]) if (in_array(tm_tile($sc['map'], $o[0] + $dx, $o[1] + $dy), ['.', ',', 'S'], true)) { $st2 = [$o[0] + $dx, $o[1] + $dy]; break; }
             if (!$st2) { $errs[] = "$slug: nowhere to stand"; continue; }
+            $sc = trail_scene($exp);   // a fresh scene every time: a Sight before this one may have saved the walk state itself (nxt=, sec=, an escort), and a stale copy would lose the save
             $sc['x'] = $st2[0]; $sc['y'] = $st2[1]; $sc['st']['phase'] = 'section'; trail_save($sc); $sc = trail_scene($exp);
             q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); q('UPDATE users SET energy = 150 WHERE id = ?', [$u['id']]);
             foreach (['rod', 'forage', 'pick', 'net', 'bucket', 'axe', 'basket', 'staff', 'lantern'] as $tt) $tc[$u['id'] . ':' . $tt] = 3;
-            foreach (trail_sight_tokens($row['rewards']) as $tk) if (str_starts_with($tk['tok'], 'take=')) { [$ts, $tq] = array_pad(explode(':', substr($tk['tok'], 5), 2), 2, '1'); give_item((int)$u['id'], (int)q_val('SELECT id FROM items WHERE slug = ?', [$ts]), (int)$tq + 1); }
+            foreach (trail_sight_tokens($row['rewards']) as $tk) if (str_starts_with($tk['tok'], 'take=')) { [$ts, $tq] = array_pad(explode(':', substr($tk['tok'], 5), 2), 2, '1'); if (preg_match('/^any-([a-z]+)$/', $ts, $anyM)) { give_item((int)$u['id'], (int)(trail_sight_any_items($anyM[1])[0] ?? 0), (int)$tq + 1); continue; }   // take=any-<kind>: hand over the first item of that kind
+                give_item((int)$u['id'], (int)q_val('SELECT id FROM items WHERE slug = ?', [$ts]), (int)$tq + 1); }
             $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
             $pk = trail_sight_pick_info($row);
             try { [$ro, $rm] = trail_sight_do($u, $exp, $slug, $pk ? ['pick' => trail_sight_pick_right($u, trail_scene($exp), $row)] : []); save_exp($exp); $exp = active_expedition((int)$u['id']); }

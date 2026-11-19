@@ -55,6 +55,20 @@ chk "the gloves are worn" "$(db "SELECT item_slug FROM user_wear_slots WHERE use
 curl -s -c $A -b $A "$BASE/gnome.php?tab=gnome" -o $H; hasnt "the Gnome tab no longer holds the Wearing panel" 'id="wearing"'
 curl -s -c $A -b $A "$BASE/gnome.php?tab=closet&wear=hands" -o $H
 chk "Take off (POST)" "$(curl -s -c $A -b $A -X POST $BASE/gnome.php --data-urlencode "csrf=$(csrf $H)" -d do=wear_off -d slot=hands -o /dev/null -w '%{http_code}')" 302
+has "every slot's picker is in the page as a closed dialog (script opens it)" '<dialog class="hpick clpick" id="clpick-hat"'
+has "the pill opens it (data-hdlg), and is still a link" 'wear=hat#closet" data-hdlg="clpick-hat"'
+curl -s -c $A -b $A "$BASE/gnome.php?tab=closet&wear=hands" -o $H
+has "?wear=hands: that picker is drawn open (no script)" '<dialog class="hpick clpick" id="clpick-hands"[^>]* open>'
+chk "...only that one" "$(grep -o '<dialog class="hpick clpick"[^>]* open>' $H | wc -l | tr -d ' ')" 1
+echo "== the Closet picker in a real browser (tests/closet_page.js; skipped without playwright)"
+dbx "DELETE FROM user_wear_slots WHERE user_id=$SID; INSERT OR REPLACE INTO user_items (user_id,item_id,qty) SELECT $SID, id, 1 FROM items WHERE slug='wayfarers-hat'"
+NP=${NODE_PATH:-$(npm root -g 2>/dev/null)}
+if command -v node >/dev/null && NODE_PATH=$NP node -e "require('playwright')" 2>/dev/null; then
+  POUT=$(SHOTS=${CLOSETSHOTS:-} NODE_PATH=$NP node "$HERE/closet_page.js" "$BASE" 2>&1); echo "$POUT"
+  echo "$POUT" | grep -q '^  ok   ...Take off too' || { echo "  FAIL the browser pass did not finish"; FAILS=$((FAILS+1)); }
+  FAILS=$((FAILS + $(echo "$POUT" | grep -c '^  FAIL')))
+  chk "after the browser pass nothing is worn" "$(db "SELECT COUNT(*) FROM user_wear_slots WHERE user_id=$SID")" 0
+else echo "  ok   browser pass: skipped (no playwright)"; fi
 dbx "UPDATE settings SET value='0' WHERE name='home_slim'"
 echo "== wear_open Off"
 dbx "UPDATE settings SET value='0' WHERE name='wear_open'"

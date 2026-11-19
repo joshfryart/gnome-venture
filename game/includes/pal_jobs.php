@@ -860,7 +860,7 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
         db()->commit();
         $jn = q_one("SELECT * FROM ppal_jobs WHERE user_id = ? AND pal_uid = ? AND state = 'active' ORDER BY id DESC LIMIT 1", [$uid, $palUid]);
         if ($jn) { $GLOBALS['pj_allpots_plan'] = null; pj_allpots_step($u, $jn, $res, time()); pj_passive_save($jn['id'], $res); }
-        return [true, $p['name'] . ' takes over the Kitchen ' . ($full ? 'full time' : 'for ' . $hours . ' h') . ': it keeps every pot' . ($keep > 0 ? ' but ' . $keep : '') . ' cooking (new dishes first, from anything in your satchel), checking every ' . intdiv(PJ_PASSIVE_TICK, 60) . ' game minutes. Call it home any time.'];
+        return [true, $p['name'] . ' takes over the Kitchen ' . ($full ? 'full time' : 'for ' . $hours . (gclock_on() ? ' game hours' : ' h')) . ': it keeps every pot' . ($keep > 0 ? ' but ' . $keep : '') . ' cooking (new dishes first, from anything in your satchel), checking every ' . intdiv(PJ_PASSIVE_TICK, 60) . ' game minutes. Call it home any time.' . gclock_pal_work_note()];
     }
     if ($passive) {   // one pal per pot: the pal holds it until the shift ends. The first recipe it can make now (else the first chosen) is its starting choice.
         if ((int)($stations['cooking'] ?? 0) === 0 || cook_pots_busy($uid) >= cook_pot_limit($u)) return [false, 'All your pots are busy. A pal needs a free pot.'];
@@ -873,7 +873,7 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
             'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $hours * 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active',
             'result' => json_encode(['passive' => true, 'plan' => (int)$first['id'], 'hp' => (int)$p['hp'], 'rounds' => 0, 'area' => $area, 'obj' => $o['label'], 'served' => 0, 'cooks' => 0, 'skipped' => 0])]);
         db()->commit();
-        return [true, $p['name'] . ' takes a pot for ' . $hours . ' h and cooks ' . (string)$first['out_name'] . ', checking it every ' . intdiv(PJ_PASSIVE_TICK, 60) . ' min. Change the dish on the pot, in your Kitchen.'];
+        return [true, $p['name'] . ' takes a pot for ' . $hours . (gclock_on() ? ' game hours' : ' h') . ' and cooks ' . (string)$first['out_name'] . ', checking it every ' . intdiv(PJ_PASSIVE_TICK, 60) . (gclock_on() ? ' game minutes' : ' min') . '. Change the dish on the pot, in your Kitchen.' . gclock_pal_work_note()];
     }
     $kitchen3 = !$cookingArea || user_building_bonus($uid, 'kitchen')['feasts'];
     $c = (int)$p['c'];
@@ -1060,8 +1060,9 @@ function pj_passive_finish(int $uid, int $jobId, bool $recall = false): void
     if (!$j || !$u) return;
     require_once __DIR__ . '/crafting.php';
     $r = json_decode((string)$j['result'], true) ?: [];
+    $palNow = gclock_pal_now($uid);   // sleep-days: the pal work clock (real time with the clock off)
     foreach (q('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']])->fetchAll() as $pot) {   // 2.7.06: a whole-kitchen pal has several
-        if (pj_ts((string)$pot['ready_at']) > time()) continue;
+        if (pj_ts((string)$pot['ready_at']) > $palNow) continue;
         [$ok, , $info] = cook_collect_one($u, (int)$pot['id'], true);
         if ($ok) { $r['served'] = (int)($r['served'] ?? 0) + (int)$info['dishes']; $r['cooks'] = (int)($r['cooks'] ?? 0) + 1; $r['pal_xp'] = (int)($r['pal_xp'] ?? 0) + 3; $r['last'] = (string)$info['name']; }
     }
@@ -1071,6 +1072,8 @@ function pj_passive_finish(int $uid, int $jobId, bool $recall = false): void
         else q('UPDATE cook_pots SET dishes = ? WHERE id = ?', [$half, $pot['id']]);
         $r['lost'] = (int)($r['lost'] ?? 0) + (int)$pot['dishes'] - $half;
     }
+    // sleep-days: a pot the pal leaves behind used to keep its real-time ready_at and finished while the game clock stood still; it now cooks on the gnome's own clock
+    if (gclock_on()) foreach (q('SELECT id, ready_at FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']])->fetchAll() as $pot) gclock_pot_release($uid, (int)$pot['id'], pj_ts((string)$pot['ready_at']) - $palNow);
     q('UPDATE cook_pots SET pal_uid = NULL WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']]);
     pj_passive_save($jobId, $r);
 }

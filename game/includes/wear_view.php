@@ -32,7 +32,7 @@ function wear_panel_html(array $u, string $open = '', string $base = 'gnome.php?
     foreach ($have as $s => $list) usort($have[$s], fn($a, $b) => strcmp(wear_item_words($a)[0], wear_item_words($b)[0]) ?: (wear_parse($b)[2] <=> wear_parse($a)[2]));
     $sep = str_contains($base, '?') ? '&' : '?';
     $h = '<section class="box wearing" id="wearing" aria-label="Wearing"><div class="palhead"><h2>🧵 Wearing <small class="muted">' . count($worn) . ' of ' . count(WEAR_SLOTS) . '</small></h2></div>'
-        . '<p class="help">One item in each spot. A worn item adds its piece to your Puzzle box.</p><ul class="wslots">';
+        . '<p class="help">One item in each spot. A worn item offers its piece in your Puzzle box: pack it there, it uses a Keepsake spot.</p><ul class="wslots">';
     foreach (WEAR_SLOTS as $slot => [$sn, $ico]) {
         $cur = $worn[$slot] ?? ''; $isOpen = $open === $slot; $n = count($have[$slot] ?? []);
         [$nm, $rk, $pl] = $cur !== '' ? wear_item_words($cur, $lined) : ['', '', ''];
@@ -81,7 +81,30 @@ function wear_closet_gnome_html(array $u): string
     return '<div class="clgnome" role="img" aria-label="Your gnome, wearing what you have on, walking and turning">' . $h . '</div>';
 }
 
-/** 2.7.16: the CLOSET tab of the Hovel: the walking gnome, seven slot pills, and the open slot's picker under its row. Plain links and POST forms: works without script. */
+/**
+ * One slot's picker on the Closet tab: a <dialog> (the Furnish tab's pattern, class hpick). With script the slot's pill opens it over the page (site.js, data-hdlg) and its
+ * forms post in place (gnome.php is an AJAX page); with ?wear=SLOT in the address it is drawn open in the page, under its pill row (no script, and after a refused change).
+ * $list = the item slugs the gnome owns for the slot, $cur = the one worn ('' none).
+ */
+function wear_closet_picker_html(string $slot, string $sn, array $list, string $cur, array $lined, bool $open, string $base): string
+{
+    $h = '<dialog class="hpick clpick" id="clpick-' . e($slot) . '" aria-labelledby="clpick-h-' . e($slot) . '"' . ($open ? ' open' : '') . '><div class="wearing">'
+        . '<div class="hpick-h"><h3 id="clpick-h-' . e($slot) . '">' . e($sn) . '</h3><small>' . ($list ? 'You own ' . count($list) . ' · one item in each spot' : 'Nothing to wear here yet') . '</small></div>'
+        . '<ul class="wpick" aria-label="' . e($sn) . ': what you can wear">';
+    foreach ($list as $slug) {
+        [$inm, $irk, $ipl] = wear_item_words($slug, $lined); $on = $slug === $cur; $p = wear_parse($slug);
+        $h .= '<li' . ($on ? ' class="on"' : '') . '>' . wear_pic($slug, $slot, 40) . '<span class="wst"><span class="wsn">' . e($inm) . ' <small class="wrk">' . e($irk) . '</small></span><small class="wsp">' . e($ipl) . '</small></span><span class="wbtn">'
+            . '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="' . ($on ? 'wear_off' : 'wear_on') . '"><input type="hidden" name="slot" value="' . e($slot) . '"><input type="hidden" name="item" value="' . e($slug) . '">'
+            . '<button class="btn small' . ($on ? ' ghost' : ' primary') . '">' . ($on ? 'Take off' : 'Wear') . '</button></form>';
+        if ($p && $p[2] === 3) $h .= '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="wear_lined"><input type="hidden" name="slot" value="' . e($slot) . '"><input type="hidden" name="item" value="' . e($slug) . '"><button class="btn small ghost">'
+            . (in_array($p[0] . '|' . $p[1], $lined, true) ? 'As Fine' : 'As Lined') . '</button></form>';
+        $h .= '</span></li>';
+    }
+    if (!$list) $h .= '<li class="wnone"><small>You have nothing to wear here yet. The outfitters sell clothes; your Tailor makes and lines them.</small></li>';
+    return $h . '</ul><div class="hpick-act"><a class="btn" href="' . e(url($base)) . '#closet" data-hdlg-close>Done</a></div></div></dialog>';
+}
+
+/** 2.7.16: the CLOSET tab of the Hovel: the walking gnome, seven slot pills, and each slot's picker (wear_closet_picker_html: a dialog with script, in the page under its pill row without). Plain links and POST forms: works without script. */
 function wear_closet_html(array $u, string $open = '', string $base = 'gnome.php?tab=closet'): string
 {
     $uid = (int)$u['id']; $owned = wear_owned($uid); $worn = wear_worn($uid, $owned); $lined = wear_lined_set($uid);
@@ -91,32 +114,20 @@ function wear_closet_html(array $u, string $open = '', string $base = 'gnome.php
     $sep = str_contains($base, '?') ? '&' : '?';
     $h = '<section class="box closet" id="closet" aria-label="Closet"><div class="clstage">' . wear_closet_gnome_html($u) . '</div>'
         . '<div class="palhead"><h2>🧵 Wearing <small class="muted">' . count($worn) . ' of ' . count(WEAR_SLOTS) . '</small></h2></div>'
-        . '<p class="help">Tap a spot to choose. A worn item adds its piece to your Puzzle box.</p><ul class="clslots">';
-    $i = 0; $n = count(WEAR_SLOTS); $keys = array_keys(WEAR_SLOTS); $pop = '';
+        . '<p class="help">Tap a spot to choose. A worn item offers its piece in your Puzzle box: pack it there, it uses a Keepsake spot.</p><ul class="clslots">';
+    $i = 0; $n = count(WEAR_SLOTS); $pop = ''; $shut = '';
     foreach (WEAR_SLOTS as $slot => [$sn, $ico]) {
         $cur = $worn[$slot] ?? ''; $isOpen = $open === $slot; $cnt = count($have[$slot] ?? []);
         $nm = $cur !== '' ? wear_item_words($cur, $lined)[0] : '';
-        $h .= '<li class="clpill' . ($cur !== '' ? ' on' : '') . ($isOpen ? ' open' : '') . '"><a href="' . e(url($isOpen ? $base : $base . $sep . 'wear=' . $slot)) . '#closet" aria-expanded="' . ($isOpen ? 'true' : 'false') . '">'
+        $h .= '<li class="clpill' . ($cur !== '' ? ' on' : '') . ($isOpen ? ' open' : '') . '"><a href="' . e(url($base . $sep . 'wear=' . $slot)) . '#closet" data-hdlg="clpick-' . e($slot) . '" aria-haspopup="dialog">'
             . wear_pic($cur, $slot, 32) . '<span class="clt"><small>' . e($sn) . ($cur === '' && $cnt ? ' <i class="cldot" title="You own something for this spot"></i>' : '') . '</small>'
             . '<b>' . ($cur !== '' ? e($nm) : '<span class="muted">' . ($cnt ? 'Nothing on' : 'Nothing yet') . '</span>') . '</b></span><span class="clgo" aria-hidden="true">▾</span></a></li>';
-        if ($isOpen) {
-            $pop = '<li class="clpop" aria-label="' . e($sn) . '"><div class="wearing"><ul class="wpick" aria-label="' . e($sn) . ': what you can wear">';
-            foreach ($have[$slot] ?? [] as $slug) {
-                [$inm, $irk, $ipl] = wear_item_words($slug, $lined); $on = $slug === $cur; $p = wear_parse($slug);
-                $pop .= '<li' . ($on ? ' class="on"' : '') . '>' . wear_pic($slug, $slot, 40) . '<span class="wst"><span class="wsn">' . e($inm) . ' <small class="wrk">' . e($irk) . '</small></span><small class="wsp">' . e($ipl) . '</small></span><span class="wbtn">'
-                    . '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="' . ($on ? 'wear_off' : 'wear_on') . '"><input type="hidden" name="slot" value="' . e($slot) . '"><input type="hidden" name="item" value="' . e($slug) . '">'
-                    . '<button class="btn small' . ($on ? ' ghost' : ' primary') . '">' . ($on ? 'Take off' : 'Wear') . '</button></form>';
-                if ($p && $p[2] === 3) $pop .= '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="wear_lined"><input type="hidden" name="slot" value="' . e($slot) . '"><input type="hidden" name="item" value="' . e($slug) . '"><button class="btn small ghost">'
-                    . (in_array($p[0] . '|' . $p[1], $lined, true) ? 'As Fine' : 'As Lined') . '</button></form>';
-                $pop .= '</span></li>';
-            }
-            if (!($have[$slot] ?? [])) $pop .= '<li class="wnone"><small>You have nothing to wear here yet. The outfitters sell clothes; your Tailor makes and lines them.</small></li>';
-            $pop .= '</ul></div></li>';
-        }
+        $dlg = wear_closet_picker_html($slot, $sn, $have[$slot] ?? [], $cur, $lined, $isOpen, $base);
+        if ($isOpen) $pop = '<li class="clpop">' . $dlg . '</li>'; else $shut .= $dlg;
         $i++;
         if ($pop !== '' && ($i % 2 === 0 || $i === $n)) { $h .= $pop; $pop = ''; }   // the picker opens under the row its pill is in
     }
-    return $h . '</ul><p class="clpb"><a href="' . e(url('puzzlebox.php')) . '">Puzzle box →</a></p></section>';
+    return $h . '</ul>' . $shut . '<p class="clpb"><a href="' . e(url('puzzlebox.php')) . '">Puzzle box →</a></p></section>';
 }
 
 /** The small read-only strip on the Puzzle box: the worn items' pictures and a link to My Gnome. */

@@ -23,6 +23,9 @@ def ab(T,rar):
 RARE_FIX={('MENA','cloak'):dict(v=-5,b=-2),('EA','footwear'):dict(v=-6,b=-2),('SE','cloak'):dict(v=-3),('SA','footwear'):dict(v=-1),('CB','footwear'):dict(v=-1),('MENA','backpack'):dict(v=-1),('ESA','footwear'):dict(b=-2)}
 # Commons / Uncommons over the goal (about +3 win points / -4 health points) once their new trigger fired: the Trip (skip) ones. Their value comes down, the effect stays.
 TRIG_FIX={('OC','footwear',4):dict(v=-2),('WCA','cloak',4):dict(v=-1)}
+# 2.7.2x: oc-flax-wading-wraps (foeB2>skip) stayed at -4.6 health after the value cut (the skip itself was -3.1). It gets a rarer trigger for that one piece: foeG ("If the creature has guard up"),
+# an existing trigger whose pair with skip was free, so the 224 pairs stay unique and the engine data (wear_fx.txt) does not change. Measured in balance.md (section "oc-flax-wading-wraps").
+PIECE_TRIG={('OC','footwear',4):'foeG'}
 used={}; items=[]; fixed=[]
 for T,r in enumerate(ORDER):
     for ci,cat in enumerate(CATS):
@@ -32,7 +35,7 @@ for T,r in enumerate(ORDER):
                 fx=RARE_FIX.get((r,cat),{}); dv=fx.get('v',0); a+=fx.get('a',0); b+=fx.get('b',0)
                 txt=RARE[(r,cat)].format(a=a,b=b); code='R:'+r+':'+cat
             else:
-                tr=OLDT.get(tr,tr); tr=RETRIG.get(tr,tr); py=OLDP.get(py,py)
+                tr=OLDT.get(tr,tr); tr=RETRIG.get(tr,tr); tr=PIECE_TRIG.get((r,cat,i+1),tr); py=OLDP.get(py,py)
                 if py not in PAYTYPE[ty]: py=next(p for p in PAYTYPE[ty] if (tr,p) not in used or True)
                 trs=[tr]+[t for t in TRIG if t!=tr]; pys=[py]+[p for p in PAYTYPE[ty] if p!=py]
                 done=False

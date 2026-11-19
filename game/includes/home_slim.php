@@ -324,7 +324,7 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
             . hovel_gnome_svg($u, $cat['gnome'])
             . '<rect class="hr-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" aria-hidden="true"/>'
             . '<circle class="hr-lampglow" cx="' . $lx . '" cy="' . $ly . '" r="34" fill="url(#hr-lampg)" aria-hidden="true"/>'
-            . (isset($things['bed']) ? hovel_zz_svg() : '');
+            . (isset($things['bed']) && in_array($dp, ['dusk', 'night'], true) ? hovel_zz_svg() : '');   // z's only once it is bedtime (dusk, night): they floated all day before
         foreach ($T as $id => $t) {
             if ($id === 'kettle') {   // the tea kettle keeps its own link and dialog (includes/tea_view.php); closed for this viewer = plain art
                 if (!$tea) continue;
@@ -566,6 +566,19 @@ function hovel_gnome_lines(array $u, string $hello, ?array $s): array
 }
 
 /** Is the lamp lit? By itself at dusk and at night; ?lamp=on / ?lamp=off is the no-script switch (a look only, nothing is saved). */
+/**
+ * True on the first look at the Today room in a game day (per login session), false after: the bed's pulse and the "tap things" hint
+ * show once a day, not on every load. No session (CLI) = every look is a first look.
+ */
+function hovel_first_look(array $u): bool
+{
+    $key = (int)($u['id'] ?? 0) . ':' . (int)($u['game_day'] ?? 0);
+    if (!isset($_SESSION) || !is_array($_SESSION)) return true;
+    if (($_SESSION['hr_look'] ?? '') === $key) return false;
+    $_SESSION['hr_look'] = $key;
+    return true;
+}
+
 function hovel_lamp_on(string $dp): bool
 {
     $g = (string)($_GET['lamp'] ?? '');
@@ -587,6 +600,7 @@ function home_slim_banner_html(array $u, array $chosen, string $tab, string $hel
     $rest = $s ? home_slim_rest($u, $s) : null;
     if ($tab === 'today') {
         $lamp = hovel_lamp_on($dp);
+        $first = hovel_first_look($u);   // once a game day: the bed pulses and the hint shows
         [$doorHref, $doorLabel] = hovel_door($u);
         $things = [
             'window' => ['href' => url('gnome.php?thing=window') . '#hp-window', 'label' => 'The window. Today’s weather: ' . $now['weather_label'], 'attr' => ' data-hdlg="hp-window"'],
@@ -594,9 +608,10 @@ function home_slim_banner_html(array $u, array $chosen, string $tab, string $hel
             'lamp' => ['href' => url('gnome.php?lamp=' . ($lamp ? 'off' : 'on')), 'label' => 'The lamp. Switch the light', 'attr' => ' data-hlamp role="button" aria-pressed="' . ($lamp ? 'true' : 'false') . '"'],
             'door' => ['href' => $doorHref, 'label' => $doorLabel],
         ];
-        if ($rest && $rest['main']) $things['bed'] = ['href' => url('gnome.php?thing=bed') . '#hp-bed', 'label' => 'Your bed. Sleep or nap', 'attr' => ' data-hdlg="hp-bed"', 'cls' => 'pulse'];
+        if ($rest && $rest['main']) $things['bed'] = ['href' => url('gnome.php?thing=bed') . '#hp-bed', 'label' => 'Your bed. Sleep or nap', 'attr' => ' data-hdlg="hp-bed"', 'cls' => $first ? 'pulse' : ''];
         $h = '<section class="hs-banner" aria-label="Your hovel">'
             . '<div class="hs-pic hs-room">' . hovel_room_svg($u, $chosen, 'full', ['things' => $things, 'lamp' => $lamp, 'daypart' => $dp]) . $tagHtml
+            . ($first ? '<span class="hs-hint">Tap things in the room</span>' : '')
             . '<span class="hs-say" role="status" hidden></span></div>'
             . '<div class="hs-side"><h1 class="hs-hi">' . e($hello) . ', ' . e((string)strtok(gnome_name($u), ' ')) . '!</h1>';
         if ($rest && $rest['main']) {   // the row of small buttons: the same rest options as the big buttons had (same keys, prices and disabled states)

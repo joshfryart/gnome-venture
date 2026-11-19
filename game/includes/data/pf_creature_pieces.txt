@@ -45,8 +45,8 @@ bog-leech|body|Drain|heal|0.5|mind|-|3
 grumpy-lemming|body|Grumble|trick|0.4|mind|-|3
 grumpy-lemming|body|Lemming Bite|hurt|0.9|craft|-|3
 grumpy-lemming|body|Dig Snow|guard|0.6|body|evade|3
-bullfrog|craft|Tongue Lash|hurt|0.9|mind|trip|3
-bullfrog|craft|Deep Croak|trick|0.4|craft|-|3
+bullfrog|craft|Tongue Lash|hurt|1.3|mind|trip|3
+bullfrog|craft|Deep Croak|trick|0.5|craft|-|3
 bullfrog|craft|Puff Up|guard|0.7|body|-|3
 shore-crab|body|Pinch|hurt|1.0|body|pierce|3
 shore-crab|body|Shell Up|guard|0.7|craft|hold|4

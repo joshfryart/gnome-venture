@@ -631,5 +631,77 @@ if ($lim >= 2) {
 }
 [$po] = pj_station_send($u, $sp2, 'pantry', 'all', 'all', [], 7); ok('7 hours is not a station length', $po === false);
 q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]);
-echo $fails ? "$fails FAILED\n" : "all pal job tests passed\n";
+
+echo "== sleep-days clock: a pal's passive cooking runs on game time (pal work at 06:00), never on real time\n";
+$gc0 = setting('game_clock_on'); $hrs0 = setting('pal_hours_per_sleep'); $urow0 = q_one('SELECT game_day, game_minute, pal_real_at, pal_morning FROM users WHERE id = ?', [$uid]);
+// $age($s): $s real seconds pass (every stored time, and the last freeze stamp, is $s further in the past)
+$age = function (int $secs) use ($uid): void {
+    $sh = fn($v) => $v === null || $v === '' ? $v : gmdate('Y-m-d H:i:s', (int)strtotime($v . ' UTC') - $secs);
+    foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state IN ('active','ready')", [$uid])->fetchAll() as $j) q('UPDATE ppal_jobs SET started_at = ?, ends_at = ?, last_tick = ? WHERE id = ?', [$sh($j['started_at']), $sh($j['ends_at']), $sh($j['last_tick']), $j['id']]);
+    foreach (q('SELECT * FROM cook_pots WHERE user_id = ? AND collected_at IS NULL', [$uid])->fetchAll() as $p) q('UPDATE cook_pots SET started_at = ?, ready_at = ? WHERE id = ?', [$sh($p['started_at']), $sh($p['ready_at']), $p['id']]);
+    q('UPDATE users SET pal_real_at = pal_real_at - ? WHERE id = ? AND pal_real_at IS NOT NULL', [$secs, $uid]);
+};
+$palPots = fn() => q('SELECT id, ready_tick, dishes FROM cook_pots WHERE user_id = ? AND pal_uid IS NOT NULL AND collected_at IS NULL ORDER BY id', [$uid])->fetchAll();
+$jobRes = fn(int $id) => json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$id]), true) ?: [];
+$reset = function () use ($uid, $ingIds): void {
+    q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]); q("UPDATE ppal_found SET status = 'home', hp = 30");
+    q('UPDATE users SET game_day = 20, game_minute = 600, pal_real_at = NULL, pal_morning = NULL WHERE id = ?', [$uid]);
+    foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 300);
+};
+// clock ON
+cfg(['game_clock_on' => '1', 'pal_hours_per_sleep' => '8']); $reset(); pj_settle($uid);
+[$go, $gm] = pj_station_send($u, $sp1, 'cooking', 'all', 'all', [], 0);
+ok('clock on: the send text speaks of game time (6am, game hours a morning)', $go === true && str_contains((string)$gm, '6am game time') && str_contains((string)$gm, '8 game hours'), (string)$gm);
+$gj = (int)q_val("SELECT id FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND tool = 'passive' ORDER BY id DESC LIMIT 1", [$uid]);
+$ids0 = array_column($palPots(), 'id'); ok('clock on: the pal started its pots', count($ids0) >= 1);
+$left0 = array_column(array_filter(cook_pots_list($uid), fn($r) => (int)$r['id'] > 0 && !empty($r['pal'])), 'left', 'id');
+ok('clock on: its pots still need pal work', $left0 && min($left0) > 0, json_encode($left0));
+$age(7200);
+$left1 = array_column(array_filter(cook_pots_list($uid), fn($r) => (int)$r['id'] > 0 && !empty($r['pal'])), 'left', 'id');
+ok('clock on: 2 real hours pass, nobody looks at the pal jobs: the pots\' time left has not moved', $left1 === $left0, json_encode([$left0, $left1]));
+pj_settle($uid); $age(7200); pj_settle($uid);
+ok('clock on: real time alone never serves a dish (same pots, 0 cooks)', array_column($palPots(), 'id') === $ids0 && (int)($jobRes($gj)['cooks'] ?? 0) === 0, json_encode($jobRes($gj)));
+ok('clock on: the time left is shown as pal work in game time, not as a real countdown', gclock_pal_left_text(900) === '15 min of pal work left · pals work at 6am game time' && str_starts_with(gclock_pal_left_text(5400), '1 h 30 min of pal work left'), gclock_pal_left_text(900));
+game_sleep($uid); pj_settle($uid);
+ok('clock on: a sleep (one 06:00, 8 game hours of pal work) serves dishes and starts new ones', (int)($jobRes($gj)['cooks'] ?? 0) >= count($ids0) && array_column($palPots(), 'id') !== $ids0 && count($palPots()) >= 1, json_encode($jobRes($gj)));
+$cooks1 = (int)$jobRes($gj)['cooks']; pj_settle($uid); $age(3600); pj_settle($uid);
+ok('clock on: looking again, and another real hour, add nothing', (int)$jobRes($gj)['cooks'] === $cooks1);
+q('UPDATE cook_pots SET dishes = 4 WHERE user_id = ? AND pal_uid IS NOT NULL AND collected_at IS NULL', [$uid]);   // a recall halves a cooking pot (1 dish would be lost whole)
+$leftB = array_column(array_filter(cook_pots_list($uid), fn($r) => (int)$r['id'] > 0 && !empty($r['pal'])), 'left', 'id'); $nLeft = count($leftB);
+[$grc] = pj_recall($u, $gj); $tickNow = gclock_user_tick($uid);
+$freed = q('SELECT id, ready_tick, pal_uid FROM cook_pots WHERE user_id = ? AND collected_at IS NULL ORDER BY id', [$uid])->fetchAll();
+ok('clock on: called home, the pots it leaves are the gnome\'s', $grc === true && count($freed) === $nLeft && $nLeft >= 1 && !array_filter($freed, fn($p) => $p['pal_uid'] !== null));
+ok('clock on: a left pot goes onto the gnome\'s own game clock (ready_tick = now + the rest, x cook_time_multiplier like an own pot)',
+    !array_filter($freed, fn($p) => $p['ready_tick'] === null || (int)$p['ready_tick'] <= $tickNow || (int)$p['ready_tick'] > $tickNow + gclock_pot_minutes((int)$leftB[$p['id']] + 60)), json_encode([$tickNow, $freed, $leftB]));
+$age(6 * 3600);
+ok('clock on: 6 real hours later the left pots are still cooking (the game clock stood still)', cook_ready_count($uid) === 0 && cook_collect_one($u, (int)$freed[0]['id'])[0] === false, (string)cook_ready_count($uid));
+q('UPDATE users SET game_minute = game_minute + ? WHERE id = ?', [max(array_map(fn($p) => (int)$p['ready_tick'], $freed)) - $tickNow, $uid]);
+ok('clock on: game time passing finishes them', cook_ready_count($uid) === $nLeft && cook_collect_one($u, (int)$freed[0]['id'])[0] === true, (string)cook_ready_count($uid));
+// clock OFF: real time, as before
+cfg(['game_clock_on' => '0']); $reset(); pj_settle($uid);
+[$ro, $rm] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 8);
+ok('clock off: the send text is the old one (hours, minutes, no game time)', $ro === true && str_contains((string)$rm, ' for 8 h and cooks ') && str_contains((string)$rm, ' every 10 min.') && !str_contains((string)$rm, 'game'), (string)$rm);
+$rj = (int)q_val("SELECT id FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND tool = 'passive' ORDER BY id DESC LIMIT 1", [$uid]);
+$age(PJ_PASSIVE_TICK + 60); pj_settle($uid);
+$rp = $palPots(); ok('clock off: after 11 real minutes the pal has a pot cooking, on real time (no ready_tick)', count($rp) === 1 && $rp[0]['ready_tick'] === null, json_encode($rp));
+$rl = array_values(array_filter(cook_pots_list($uid), fn($r) => (int)$r['id'] > 0 && !empty($r['pal'])));
+ok('clock off: its time left is real seconds', count($rl) === 1 && $rl[0]['left'] > 0 && $rl[0]['left'] <= cook_seconds($u, $rec), json_encode(array_column($rl, 'left')));
+$age(7200);
+$rl2 = array_values(array_filter(cook_pots_list($uid), fn($r) => (int)$r['id'] > 0 && !empty($r['pal'])));
+ok('clock off: 2 real hours later that pot is done without a look at the jobs', count($rl2) === 1 && $rl2[0]['left'] === 0);
+pj_settle($uid);
+ok('clock off: and the pal has served dishes on real time', (int)($jobRes($rj)['cooks'] ?? 0) >= 1, json_encode($jobRes($rj)));
+game_sleep($uid); $c2 = (int)$jobRes($rj)['cooks']; pj_settle($uid);
+ok('clock off: a sleep moves nothing', (int)$jobRes($rj)['cooks'] === $c2);
+if (!$palPots()) { $age(PJ_PASSIVE_TICK); pj_settle($uid); }
+q('UPDATE cook_pots SET dishes = 4 WHERE user_id = ? AND pal_uid IS NOT NULL AND collected_at IS NULL', [$uid]);
+[$rrc] = pj_recall($u, $rj);
+$rf = q('SELECT id, ready_tick, pal_uid FROM cook_pots WHERE user_id = ? AND collected_at IS NULL', [$uid])->fetchAll();
+ok('clock off: a pot left by a recalled pal stays on real time (no ready_tick)', $rrc === true && count($rf) === 1 && $rf[0]['ready_tick'] === null && $rf[0]['pal_uid'] === null, json_encode($rf));
+$age(7200);
+ok('clock off: and real time finishes it', cook_ready_count($uid) === 1 && cook_collect_one($u, (int)$rf[0]['id'])[0] === true);
+cfg(['game_clock_on' => $gc0, 'pal_hours_per_sleep' => $hrs0]);
+q('UPDATE users SET game_day = ?, game_minute = ?, pal_real_at = ?, pal_morning = ? WHERE id = ?', [$urow0['game_day'], $urow0['game_minute'], $urow0['pal_real_at'], $urow0['pal_morning'], $uid]);
+q("UPDATE ppal_jobs SET state = 'done' WHERE state IN ('active', 'ready')"); q('UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL', [now()]); q("UPDATE ppal_found SET status = 'home', hp = 30");
+echo $fails ?"$fails FAILED\n" : "all pal job tests passed\n";
 exit($fails ? 1 : 0);

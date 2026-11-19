@@ -136,6 +136,35 @@ ok('with its art (gnome25/wear/<slug>/front.png) the layer is drawn', gnome25_co
 ok('a missing view (back) still draws nothing new', gnome25_compose('back', [], [], '', [$tw => 'footwear']) === gnome25_compose('back', []));
 @unlink($wd . '/front.png'); @rmdir($wd);
 
+echo "== all 7 spots worn: the Keepsake slots still cap the worn pieces in a fight (1 / 2 / 3 / 4 by level, never 7)\n";
+// arrange: keep what the sections above left (restored below), then one Common item in each of the 7 spots at level 40 (4 Keepsake slots), every switch off
+$keepWorn = q('SELECT slot, item_slug, worn_at FROM user_wear_slots WHERE user_id = ?', [$uid])->fetchAll(); $keepSw = q('SELECT piece_key, starter, active, pos FROM pf_deck_pieces WHERE user_id = ? AND piece_key LIKE ?', [$uid, 'w:%'])->fetchAll();
+q('DELETE FROM user_wear_slots WHERE user_id = ?', [$uid]); q('DELETE FROM pf_deck_pieces WHERE user_id = ? AND piece_key LIKE ?', [$uid, 'w:%']);
+q('UPDATE users SET level = 40 WHERE id = ?', [$uid]);
+$seven = ['footwear' => 'flood-boots', 'backpack' => 'trail-pack', 'coat' => 'ca-quilted-cotton-coat', 'cloak' => 'travel-cloak', 'hat' => 'wayfarers-hat', 'hands' => 'work-gloves', 'neck' => 'yarn-scarf'];
+$had = []; foreach ($seven as $it) { $had[$it] = wear_qty($uid, $it); $have($it, 1); }
+// act: wear all seven, then try to pack every piece (what the Kit tab and the pre-fight bench do: pfd_toggle)
+$wornOk = 0; foreach ($seven as $sl => $it) { [$a] = wear_equip($U(), $sl, $it); $wornOk += $a ? 1 : 0; }
+$sevenKeys = array_map(fn($it) => 'w:' . $it, array_values($seven));
+$res = []; foreach ($sevenKeys as $k) $res[] = pfd_toggle($uid, $k, true);
+$d7 = pfd_deck($uid); $inDeck = fn(array $deck) => count(array_filter($deck, fn($p) => $p['src'] === 'wear'));
+// assert
+ok('seven items worn, one in each spot; seven pieces offered', $wornOk === 7 && count(wear_worn($uid)) === 7 && count($wearKeys()) === 7, [$wornOk, wear_worn($uid), $wearKeys()]);
+ok('packing them one by one: the first four go in, the fifth, sixth and seventh are refused (Keepsake slots)', array_map(fn($e) => $e === null ? 'in' : (str_contains($e, '4 Keepsake slots') ? 'full' : $e), $res) === ['in', 'in', 'in', 'in', 'full', 'full', 'full'], $res);
+ok('the deck holds four worn pieces, Keepsakes 4 of 4, and is legal', $inDeck($d7['deck']) === 4 && $d7['counts']['keeps'] === 4 && $d7['counts']['keeps_max'] === 4 && $d7['err'] === null, [$inDeck($d7['deck']), $d7['counts'], $d7['err']]);
+ok('the fight gets those four (pfd_fight_entries), not seven', $inDeck(pfd_fight_entries(pfd_sources($uid))) === 4);
+$all = pfd_sources($uid); foreach ($sevenKeys as $k) $all['state'][$k] = true;   // a box that somehow has all seven switched on (older data)
+$byLv = []; foreach ([1, 15, 25, 40, 99] as $lv) { $all['level'] = $lv; $bl = pfd_build($all); $byLv[] = [$inDeck($bl['deck']), count(array_filter($bl['pieces'], fn($p) => $p['src'] === 'wear' && $p['out'] === 'slots')), $inDeck(pfd_fight_entries($all))]; }
+ok('all seven switched on anyway: 1 / 2 / 3 / 4 / 4 play at level 1 / 15 / 25 / 40 / 99, the rest are left out (slots), and the fight never gets more', $byLv === [[1, 6, 1], [2, 5, 2], [3, 4, 3], [4, 3, 4], [4, 3, 4]], $byLv);
+ok('swap (the pre-fight screen): a packed worn piece out, a benched one in, still four', pfd_swap($uid, $sevenKeys[0], $sevenKeys[6]) === null && $piece($sevenKeys[6])['on'] && !$piece($sevenKeys[0])['on'] && pfd_deck($uid)['counts']['keeps'] === 4);
+ok('taking a packed worn piece out again frees its slot; the item stays worn (the Closet decides what is worn, the box what is packed)', pfd_toggle($uid, $sevenKeys[6], false) === null && pfd_deck($uid)['counts']['keeps'] === 3 && wear_worn($uid)['neck'] === 'yarn-scarf');
+// clean up: back to what the sections above left
+q('DELETE FROM user_wear_slots WHERE user_id = ?', [$uid]); q('DELETE FROM pf_deck_pieces WHERE user_id = ? AND piece_key LIKE ?', [$uid, 'w:%']);
+foreach ($keepWorn as $r) q('INSERT INTO user_wear_slots (user_id, slot, item_slug, worn_at) VALUES (?, ?, ?, ?)', [$uid, $r['slot'], $r['item_slug'], $r['worn_at']]);
+foreach ($keepSw as $r) q('INSERT INTO pf_deck_pieces (user_id, piece_key, starter, active, pos) VALUES (?, ?, ?, ?, ?)', [$uid, $r['piece_key'], $r['starter'], $r['active'], $r['pos']]);
+foreach ($had as $it => $n) $have($it, $n);
+q('UPDATE users SET level = 1 WHERE id = ?', [$uid]);
+
 echo "== wear_open Off hides it all\n";
 set_setting('wear_open', '0'); setting('__reload__');
 [$a, $m] = wear_equip($U(), 'hands', 'work-gloves-b-fine');

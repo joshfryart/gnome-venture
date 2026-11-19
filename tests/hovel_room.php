@@ -62,9 +62,17 @@ foreach (['window' => 'data-hdlg="hp-window"', 'bed' => 'data-hdlg="hp-bed"', 'g
     ok("...$id: a link with a label, a title and the data file's tap box", $ok && str_contains($m[0], $hook), $ok ? $m[0] : 'no link');
 }
 ok('...the kettle keeps its own link and box', str_contains($ban, '<a class="hd hd-kettle" href="/gnome.php?tea=1#htea" data-hdlg="htea"') && str_contains($ban, '<rect class="hd-hit" x="312" y="142" width="64" height="64"/></a>'));
-ok('...steam, z\'s, the lamp glow and the night tint are in the picture', str_contains($ban, 'class="hr-steam"') && str_contains($ban, 'class="hr-zz"') && str_contains($ban, 'class="hr-lampglow"') && str_contains($ban, 'class="hr-tint"'));
+ok('...steam, the lamp glow and the night tint are in the picture', str_contains($ban, 'class="hr-steam"') && str_contains($ban, 'class="hr-lampglow"') && str_contains($ban, 'class="hr-tint"'));
 ok('...the tap boxes are drawn last (on top)', strrpos($ban, 'class="hr-tint"') < strpos($ban, '<a class="ht '));
-ok('...the bed pulses', str_contains($ban, '<a class="ht ht-bed pulse"'));
+ok('...no z\'s over the bed in the daytime', !str_contains($ban, 'class="hr-zz"'));
+ok('...first look: the bed pulses and the hint shows', str_contains($ban, '<a class="ht ht-bed pulse"') && str_contains($ban, '<span class="hs-hint">Tap things in the room</span>'));
+$_SESSION = [];   // with a session: once a game day
+$look1 = home_slim_banner_html($u, $chosen, 'today', 'Good morning'); $look2 = home_slim_banner_html($u, $chosen, 'today', 'Good morning');
+ok('...with a session the first look of the day pulses and hints', str_contains($look1, 'ht-bed pulse"') && str_contains($look1, 'class="hs-hint"'));
+ok('...the second look the same day does neither', !str_contains($look2, 'pulse') && !str_contains($look2, 'hs-hint') && str_contains($look2, '<a class="ht ht-bed"'), 'second look still pulses or hints');
+$look3 = home_slim_banner_html(['game_day' => (int)$u['game_day'] + 1] + $u, $chosen, 'today', 'Good morning');
+ok('...the next game day it pulses and hints again', str_contains($look3, 'ht-bed pulse"') && str_contains($look3, 'class="hs-hint"'));
+unset($_SESSION);
 ok('...one greeting line with the first name', str_contains($ban, '<h1 class="hs-hi">Good morning, ' . e((string)strtok(gnome_name($u), ' ')) . '!</h1>') && substr_count($ban, '<h1') === 1);
 ok('...the bubble is there, hidden', str_contains($ban, '<span class="hs-say" role="status" hidden></span>'));
 ok('...no inline style', !preg_match('/\sstyle=/', $ban));
@@ -85,6 +93,7 @@ ok('...?lamp=off wins over the evening', !hovel_lamp_on('night'));
 $_GET = [];
 q('UPDATE users SET game_minute = 1290 WHERE id = ?', [$uid]);
 $banN = home_slim_banner_html($row(), $chosen, 'today', 'Good evening');
+ok('...z\'s over the bed once it is bedtime', str_contains($banN, 'class="hr-zz"'));
 ok('...in the evening the room is lit and tinted', (bool)preg_match('/hroom-things lamp-on dp-(dusk|night)"/', $banN));
 q('UPDATE users SET game_minute = 600 WHERE id = ?', [$uid]);
 $mx = max_energy($u);
@@ -175,7 +184,8 @@ foreach (['hr-pulse', 'hr-rise', 'hr-zz', 'hr-bob', 'hr-hop', 'hr-flick'] as $k)
 ok('a dotted outline shows on hover and on focus', str_contains($css, '.hroom a:hover .ht-out, .hroom a:focus-visible .ht-out { opacity: 1; }') && (bool)preg_match('/\.hroom \.ht-out \{[^}]*stroke-dasharray/', $css));
 ok('the night tint follows the daypart', str_contains($css, '.hroom.dp-night .hr-tint'));
 $js = (string)file_get_contents(APP_ROOT . '/assets/hovelroom.js');
-ok('hovelroom.js: the lamp and the gnome only, text set as text', str_contains($js, 'a[data-hlamp]') && str_contains($js, 'a[data-hsay]') && str_contains($js, 'textContent') && !str_contains($js, 'innerHTML') && !preg_match('/\.style\b/', $js));
+ok('hovelroom.js: the lamp, the gnome, the hint and the cards\' place only; text set as text, no style but a card\'s left / top', str_contains($js, 'a[data-hlamp]') && str_contains($js, 'a[data-hsay]') && str_contains($js, 'textContent') && !str_contains($js, 'innerHTML') && !preg_match('/\.style\b(?!\.(left|top)\b)/', $js));
+ok('the hint fades by itself and a card opened from the picture can be placed', str_contains($css, '@keyframes hr-hint ') && (bool)preg_match('/\.hs-hint \{[^}]*pointer-events: none[^}]*animation: hr-hint/', $css) && str_contains($css, 'dialog.hpop.hpop-at { position: fixed; margin: 0; }'));
 cfg(['game_clock_on' => '', 'home_slim' => '', 'tea_open' => '']);
 q("DELETE FROM settings WHERE name IN ('game_clock_on', 'home_slim', 'tea_open')");
 echo $fails ? "$fails FAILED\n" : "ok\n";

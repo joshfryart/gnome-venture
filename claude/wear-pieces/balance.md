@@ -74,7 +74,7 @@ Rates: from the probe on the same fights (old condition vs new condition when pl
 
 Still 0% changed: `se-float-net` (`yQuarter>hand`; the trigger is now true 46% of placings, but a bigger next hand changes nothing for the bots), and pieces whose payoff the bots cannot use or rarely place (ward, life, pluck, bond, hand; `ca-bloom-smock`, `sa-bark-cloth-tunic-coat`, `ca-pleated-shirt-jacket`, `na-sap-run-bucket` are placed in 3-4% of fights). Those are payoff / placement limits (see below), not the trigger.
 
-**Over the goal after the change, tuned (`TRIG_FIX` in `build3.py`, value only):** the two Trip Uncommons. `wca-raffia-poncho` (`handC>skip`) v 7 -> 6: -4.3 -> -3.9 health, +2.3 win. `oc-flax-wading-wraps` (`foeB2>skip`) v 8 -> 6: +3.7 -> +2.6 win, health stays -4.6 (v 4 also gave -4.8: the skip itself is -3.1, the value only moves how often the bots pick it). Left at about 0.6 over the -4 health goal; the next step would be a rarer trigger or another payoff for that one piece (a meaning change, not done). Largest Common / Uncommon now: +3.2 win (`esa-acacia-frame-pack`, unchanged), -4.6 health (`oc-flax-wading-wraps`), then `oc-red-dust-poncho` -4.1 (unchanged).
+**Over the goal after the change, tuned (`TRIG_FIX` in `build3.py`, value only):** the two Trip Uncommons. `wca-raffia-poncho` (`handC>skip`) v 7 -> 6: -4.3 -> -3.9 health, +2.3 win. `oc-flax-wading-wraps` (`foeB2>skip`) v 8 -> 6: +3.7 -> +2.6 win, health stays -4.6 (v 4 also gave -4.8: the skip itself is -3.1, the value only moves how often the bots pick it). Left at about 0.6 over the -4 health goal; the next step would be a rarer trigger or another payoff for that one piece (a meaning change, not done). **Done 2026-11-19: `foeG>skip`, est -2.3 health; see "`oc-flax-wading-wraps`: a rarer trigger" below.** Largest Common / Uncommon now: +3.2 win (`esa-acacia-frame-pack`, unchanged), -4.6 health (`oc-flax-wading-wraps`), then `oc-red-dust-poncho` -4.1 (unchanged).
 
 Per piece (Common rank; before = with the old trigger and its +1):
 
@@ -136,6 +136,45 @@ Per piece (Common rank; before = with the old trigger and its +1):
 
 Tests after the change: `tests/pf_wear_fx.php` has one true and one false scenario for each new trigger, the dropped ones are gone (a check says so), the payoff checks use `r12>PAY`; `tests/ci_suites.sh wearables pfdeck_v1 pf_wear_fx pfengine_js pf_play_decks pfboard_v1`: 6 suites, 0 failed.
 
+## `oc-flax-wading-wraps`: a rarer trigger (2026-11-19)
+
+The one piece left over the -4 health goal. The value cut could not fix it (the skip alone was -3.1), so its trigger changed, for this piece only: `foeB2>skip` -> **`foeG>skip`**, "If the creature has guard up, the creature skips its next turn." (`PIECE_TRIG` in `build3.py`). `foeG` (`fguard`) is an existing trigger and its pair with `skip` was free: still 280 codes and 280 texts, `wear_fx.txt` and `tools/pfengine.js` unchanged (only this piece's row in `wear_items_pieces.txt`, `wear_pieces.txt`, `pieces.json`, `pieces.md`). Name (Flax Wade Trip), value 6, a / b, Petals and the piece picture are unchanged (the picture shows name, value and rarity, not the effect); the item description follows the piece row (`wear_items()`), so `wear_ensure_items` refreshes it on the next update or Tailor visit. The other five `foeB2` pieces keep their trigger.
+
+How chosen: the piece played with each candidate trigger on the same creatures and seeds as before (`wear_sim.php`, OC, 48 fights a bot, Common rank, value 6). eff = fx - plain, paired.
+
+| trigger (with `skip`) | eff health | careful / careless | eff win | changed a fight | effect actions a fight |
+|---|---|---|---|---|---|
+| `foeB2` the creature has 2 or more pieces (before) | -3.13 | -3.53 / -2.73 | +2.1 | 21% | 0.40 |
+| `foeHasG` the creature has a Guard on the board | -2.97 | -2.84 / -3.10 | +2.1 | 18% | 0.32 |
+| `r12` first two rounds | -2.65 | -3.35 / -1.94 | +2.1 | 29% | 0.48 |
+| `handG` you hold a Guard | -1.74 (144 fights: -2.19) | -3.39 / -0.08 | +2.1 | 34% | 0.51 |
+| `aimNext` next to the aim cell | -1.00 (144: -0.78) | -1.33 / -0.68 | +0.0 | 8% | 0.14 |
+| `hit` the creature hit you last turn | -0.94 (144: -1.76) | -0.06 / -1.82 | +2.1 | 27% | 0.32 |
+| **`foeG` the creature has guard up (chosen)** | **-0.86** (144: -0.74) | -1.10 / -0.63 | +2.1 | 6% (144: 12%) | 0.12 |
+| `onAim` on the aim cell | -0.01 | -0.56 / +0.54 | +0.0 | 23% | 0.27 |
+| `foeB3` the creature has 3 or more pieces (the first design) | -0.00 | +0.00 / -0.00 | +1.0 | 2% | 0.06 |
+
+`foeG` was taken because it is clearly rarer, about the creature like the old one, steady at both sample sizes and the same for both bots; `handG` and `hit` land near -3.3 to -3.7 est at 144 fights, too close to the goal for their noise. With value 8 (the cut undone) `foeG` measured -1.23: the cut was kept, so the picture did not change.
+
+Result (est = smoothed piece part + eff): the piece part for an OC Hurt was -1.5 in the full run, so **est health -4.6 -> about -2.3, est win +2.6 -> +2.6**. A fresh run of the whole OC region (20 pieces, 48 fights a bot, baseline 480; smoothing over OC only) gives est +2.9 win / -2.2 health for it. In that OC-only run the type offset rests on few pieces and is noisy: `oc-flax-basket-pack` reads -5.3 est there (its effect alone is -0.74, unchanged; with the smoothing over all regions it was -3.7) and `oc-coconut-string-bag` -4.4 (effect +0.18). Largest effect alone among the OC Commons / Uncommons: `oc-red-dust-poncho` -2.98 (unchanged, est -2.9 here, -4.1 in the full run). A full 280-piece run was not repeated for one changed row. Check: `tests/pf_wear_fx.php` pins the pair (seen failing on the old data).
+
+## Several worn pieces at once (2026-11-19)
+
+Since 2.7.14 a gnome can WEAR 7 items (7 spots), but a worn item only OFFERS its piece: packing it takes a Keepsake slot (`pfd_slots`: 1, 2 from level 15, 3 from 25, 4 from 40) and `pfd_toggle` refuses the next one when they are full; pieces switched on beyond the slots are left out of the deck (`out = slots`), and `pfd_fight_entries` gives the fight only the deck. So at most 4 worn pieces are ever active in a fight, never 7 (`tests/wear_equip.php`, section "all 7 spots worn"). The 280 Tailor items fill four spots (footwear, backpack, coat, cloak), so four of them at once is also the most a gnome can pack.
+
+Measured: `sim/multi_sim.php` (the tuner's gnome, every creature within 3 levels, 480 fights a bot and set, the same creatures and seeds for every set; not paired, noise about +-2 win points for the careless bot). Common rank, OC pieces. Change against no wear piece in brackets.
+
+| level (slots) | set | careful: win / health lost | careless: win / health lost | wear pieces placed a fight (careful / careless) |
+|---|---|---|---|---|
+| 40 (4) | none | 100.0% / 13.6% | 94.2% / 46.4% | - |
+| 40 (4) | the four strongest: `oc-flax-basket-pack`, `oc-mangrove-clog` (Rare), `oc-gum-dyed-cardigan` (Rare), `oc-red-dust-poncho` | 100.0% (+0.0) / 10.8% (-2.8) | 97.3% (+3.1) / 41.6% (-4.8) | 1.73 / 1.15 |
+| 40 (4) | four plain Commons: `oc-reef-sandals`, `oc-coconut-string-bag`, `oc-drovers-oilskin`, `oc-frond-rain-cape` | 100.0% (+0.0) / 12.1% (-1.5) | 96.0% (+1.9) / 47.8% (+1.5) | 0.97 / 0.60 |
+| 40 (4) | four middling: `oc-flax-wading-wraps` (new trigger), `oc-pouch-pack` (Rare), `oc-bark-cloth-vest`, `oc-hibiscus-pareo` | 100.0% (+0.0) / 11.2% (-2.4) | 96.0% (+1.9) / 47.0% (+0.7) | 0.96 / 0.56 |
+| 35 (3) | none | 100.0% / 14.5% | 86.7% / 64.6% | - |
+| 35 (3) | the three strongest: `oc-flax-basket-pack`, `oc-mangrove-clog`, `oc-gum-dyed-cardigan` | 100.0% (+0.0) / 10.1% (-4.3) | 92.5% (+5.8) / 58.2% (-6.4) | 2.00 / 1.13 |
+
+Reading: a full set of Keepsake slots is worth +2 to +3 win points and up to 5 health points at level 40, and about +6 win / -6 health for the three strongest at level 35, where the careless bot still loses 13% of its fights. That is less than the sum of the single-piece numbers (the pieces share the same 5-piece hand, one piece a turn), and about what one Rare alone measures at Fine (limit +6 win / -12 health). No fight becomes trivial or lost; no engine errors in 5,760 fights. Not run: Fine rank sets (the 3-Rare cap and the two Rare belt tools of the tuner's gnome leave room for one Fine wear piece from level 28), Lined, the 6 old wearables, regions before OC.
+
 ## What the bots cannot judge (untested or under-measured)
 
 - **Pluck** (12 Commons / Uncommons, EE and OC Rares): it lifts an item, worth nothing inside the fight. Measured 0; not tuned.
@@ -145,7 +184,7 @@ Tests after the change: `tests/pf_wear_fx.php` has one true and one false scenar
 - **Evade against poison, bond, life, stay**: the bots do not value them; measured as they happen.
 - **Win rate for the careful bot**: it wins 95-100% at every region with no wear piece, so every win change comes from the careless bot.
 - **Early regions** (NA-NWE): fights last about 2 turns, the wear piece is placed in 7-10% of them; the effects there are close to unmeasurable.
-- Not run: Lined rank (between the two measured), more than one wear piece at once (2 slots at 15, 3 at 25, 4 at 40), the 6 old wearables, the JS engine (`tools/pfengine.js`: same rules, parity checked by `pf_wear_fx.sh`).
+- Not run: Lined rank (between the two measured), the 6 old wearables (more than one wear piece at once: run 2026-11-19 for 3 and 4 OC pieces, see "Several worn pieces at once"), the JS engine (`tools/pfengine.js`: same rules, parity checked by `pf_wear_fx.sh`).
 - The engine logs a wear action in the replay event (`wfx`) for every action but `dmg` and `pierce` (they change the hit before it is logged): the per-fight fire counts in the sim miss those two. Not a rule bug; a replay could not show "+b damage from the wear piece".
 
 ## Tests

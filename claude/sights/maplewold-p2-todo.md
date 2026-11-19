@@ -1,28 +1,36 @@
 # Maplewold Trail Sights: what the data still cannot do (engine gaps)
 
-Status: TODO list (2026-11-12, after the P2b data upgrade). Data: `game/includes/data/trail_sights_maplewold.txt`, `trail_sight_folk_maplewold.txt`, `trail_sight_quests_maplewold.txt`, `trail_sight_items_maplewold.txt`, `trail_sight_pages_maplewold.txt`, `trail_sight_newfolk_maplewold.txt`. Lint: 219 rows, 0 problems. Art: `maplewold-art-todo.md`.
-Everything the grammar can express is in the data. What is left needs engine work.
+Status: checked line by line 2026-11-19 (Sights fourth pass, `claude/trail-2.7.08-notes.md` "Fourth pass"). DONE = in the engine (and in the data where it says so); OPEN = still not possible, with what it needs. Data: `game/includes/data/trail_sights_maplewold.txt`, `trail_sight_folk_maplewold.txt`, `trail_sight_quests_maplewold.txt`, `trail_sight_items_maplewold.txt`, `trail_sight_pages_maplewold.txt`, `trail_sight_newfolk_maplewold.txt`. Lint: 219 rows, 0 problems. Art: `maplewold-art-todo.md`. Grammar: `GRAMMAR.md`.
+NOTE: many tokens built in 2.7.00 to 2.7.08 were never put into the rows; the rows changed on 2026-11-19 are named below, the rest is a data pass.
 
-## Engine / lint gaps found in this pass
-- DONE (checked 2.7.08: the lint and `trail_sight_pay` take `fpto=Name@village:N`; the two workaround rows may now name the village) **Lint rejects `fpto=Name@village`** (`trail_sight_lint` reads the `@` as a chance). Workaround: which-nettle's giver is the Mossgate Nettle (`@v-na-2-3`) and `fpto=Nettle Cobblefield:2` (lowest id = Cloverholt in a fresh install; twin risk on other sites); sled-derby's giver is Elm (`@v-na-4-2`), `fpto=Rue Wickerby:2` (unique name).
-- DONE (2.7.01, checked 2.7.08: `tally=key?se=winter` counts only when it holds; the scarecrow / charts rows could now count seasons) **`tally=` ignores `?cond`** (counted on every win), so "dress the scarecrow in all four seasons" and "four seasons charted" are 4 uses (`scarecrow-hats`, `charts`), not 4 seasons. `?tl=key:N` tokens pay on every use after N (milestones use low odds or once-only titles/pages).
-- DONE (checked 2.7.08: a `nocheck` villager settles a pick too, `trail_sight_do`) **`nocheck` does not apply to `pick:` checks** (only stat checks). No pick Sight has a nocheck villager now.
-- **A wrong pick spends the use** for the whole cooldown; the quest-beat pick Sights (`310-driftpass`, `312-woodpecker`, `313-stickgate`, `314-driftwood`, `314-gullparliament`, `316-starstones`) have 2 uses so a wrong guess can be retried.
-- **`give=` rows can be repeated** as often as the gnome has the item on a day the villager is there; their rewards are kept below the item's value (Alder's punnet: 3 raspberries for 110).
-- **Quest beats cannot give items**: the owl letter comes from `316-starstones` (`first:`) and from Sorrel Fiddlewood at `316-kettletree` (40%).
+## Engine / lint gaps found in the P2b pass
+- DONE (checked 2.7.08): the lint and `trail_sight_pay` take `fpto=Name@village:N`.
+- DONE (2.7.01): `tally=key?cond` counts only when it holds; `tn=key:N` pays once. Data pass left: the scarecrow / charts rows could count seasons.
+- DONE (checked 2.7.08): a `nocheck` villager settles a pick too.
+- BY DESIGN: a wrong pick spends the use; the quest-beat pick Sights have 2 uses. No work.
+- DONE (checked 2026-11-19, `trail_sight_give`): a `give=` row pays once per villager row and game day (tally `give~...`), not as often as the gnome has the item.
+- DONE 2.7.08 second pass: quest beats can give items (7th `B|` column).
 
-## Still impossible, per idea
-- **Game time and walk effects**: haybales nap costs 1 game hour; 236-windmill no-wind 30 minutes; 314-causeway wait 20 minutes and "impatient: -1 energy"; 309-icecave no energy for the next 3 steps; 315-bridge free step; 310-driftpass 10 minutes shorter; 313-stickgate 1 step shorter.
-- **Next-section / map outputs**: 236-dandelions +1 Trail find on the next section; 306-toadsteps shows the next section's finds; 314-gullparliament shows a hidden find; 305-birchtunnel names a section; 307-shellhollow night secret and 316-starstones winter secret (a find on route 314 / 309); map-scrap marking a find.
-- **Buffs with other lengths or targets**: "until you sleep", "until you leave the route / lair", "until dark ends", a delve buff for the next Beaverdam Tunnels run, +1 to every stat (312-toadring), two buffs in one row (314-lanternrocks fog Luck), +5% Charm in the Den only.
-- **Choice of reward in a pick** (314-driftwood dragon/chair/sofa buffs, 316-skyhill night boon, 309-snowmen "no wrong answer"): a pick has one right answer.
-- **Hidden button**: 310-icicurtain "Lick" (Almanac "Told You").
-- **Streaks and "in a row"**: 228-pondmill 5 wins in a row, 312-ringlog streak, 236-haywagon 5 visits running, 314-driftwood sofa 3 visits running (all made private tallies instead).
-- 2.7.08: the destination lines (`to=` + `{cond}` line variants), market day (`mk=`), true tide / moon hints and conditional takes are in the grammar now (GRAMMAR.md).
-- **Any-of takes**: scarecrow "any crop or flower" (takes `carrot`), 312-larder any nut (`hazelnut`), 315-cairns any feather (`hen-feather`), 236-haywagon any seed (no take), 316-auroracamp any bread, 316-kettletree tea swaps (`meadowsweet` -> tea, `mint` -> tea), 232-picnicrise "eat any snack here, double buff".
-- **Tool-tier odds** (Sturdy/Fine tool rows): hedgerow butterfly scales, combridge fossil/frost crystal, ringlog oak log/heartwood, axe-only logs.
-- **Time-limited loans and flags**: Mister Plink's singing pebble for a day (now a 4-hour Charm buff), spare tin bucket, lantern oil refill (tool wear -1), muddy gnome, the seal pup's gift only after Q4, preened 3 times = the Owl fight starts Calm, woodpecker's beat (next Tune/Ring sure).
-- **Villager timing words**: away days, Maplewold half-days of travellers, Market rest days, festival days (Pomeroy rows are plain chances and stay hidden until the Gourmand opens), once per week / season goodies (low odds instead), Basil's flower +10% growth, Elm's +20% chanterelle, Fennick's sale tip, Tobias's 10% seed discount, Moss Windlass selling sea salt for Petals, Bunty's inn voucher.
-- **Birthday**: 236-dandelions birthday wishes (now a 10-blow tally page).
-- **Quest starts and rewards**: Sap to Stack should wait for Wren's Journey chapter "The Sugar Shack" (gated on Bramble's Picnic List instead); Q8 half-price build-plan stage; the Den boss hint card (now `hint=creature`); Q6 Tansy clue for Wren's Journey (now an Almanac page); after-quest parcels between the Nettles.
-- **Real other players' notes**: message bottle (phase 4 bottle post).
+## Per idea
+- **Game time and walk effects**:
+  - DONE 2.7.06 `time=N`; in the data 2026-11-19: `haybales` `time=60` (the nap costs 1 game hour), `236-windmill` `time=30` when there is no wind, `314-causeway` `time=20`.
+  - DONE 2.7.08 third pass A `nxt=quick:N`; in the data 2026-11-19: `310-driftpass` `nxt=quick:10`, `313-stickgate` `nxt=quick:15` (its "1 step shorter"; `nxt=skip` would jump a whole stretch).
+  - DONE: `314-causeway` "impatient: -1 energy" = the `fail_en` column, but the row has no check to lose (it is a wait). OPEN: needs a Cancel button on a Sight (a card change).
+  - OPEN: `309-icecave` no energy for the next 3 steps, `315-bridge` free step: walking the Trail costs no energy per step (the walk is paid at its start), so there is nothing to waive. Needs: a design decision on what a "free step" gives (energy back = `en=1` is the nearest).
+- **Next-section / map outputs**:
+  - DONE 2.7.08 third pass A; in the data 2026-11-19: `236-dandelions` `nxt=find@40`, `306-toadsteps` `nxt=peek`.
+  - DONE 2026-11-19 (fourth pass, `sec=<route>.<stretch>:<effect>`, a named stretch): `305-birchtunnel` names a stretch (`sec=305.2:find@40`, in fog also `sec=312.1:find@40`), `307-shellhollow` night secret (`sec=314.2:find@50?dp=night`), `316-starstones` winter-night secret (`sec=309.2:find?dp=night/se=winter`).
+  - OPEN: `314-gullparliament` "shows a hidden find" and map-scrap marking: a stretch's finds are all shown on entry, so there is no hidden find to show (the row keeps `find=1`). Needs: finds that start hidden (the new fog does that for a whole stretch) and a per-find reveal.
+  - OPEN: `305-birchtunnel` "a find is RARER today on that stretch" (the built form adds a find). Needs: a per-day find-odds table per stretch.
+- **Buffs with other lengths or targets**: DONE 2.7.06 "until you sleep" (`:sleep`), "until the next section" (`:section`), a delve / lair buff (`:delve`); DONE 2.7.08 `buff=all` (in the data 2026-11-19: `312-toadring` `buff=all:1:10`) and `buff2=` (in the data: `314-lanternrocks` `buff2=luck:1:120?we=fog`). OPEN: "until dark ends" (needs a length that ends at the next dawn), "+5% Charm in the Den only" (needs a buff scoped to one place and a percent, the slots hold whole points).
+- **Choice of reward in a pick**: DONE 2.7.08 second pass (a free pick: `pick:N` + `choose=` with N options). Not in the data: `314-driftwood`, `316-skyhill`, `309-snowmen` need their N rewards written (a data / balance choice per label).
+- **Hidden button**: OPEN. `310-icicurtain` "Lick" needs a second, unlisted action on a Sight card (a card and POST change).
+- **Streaks and "in a row"**: DONE 2.7.06 (`streak=`, `sk=`). The four rows (`228-pondmill`, `312-ringlog`, `236-haywagon`, `314-driftwood`) still use private tallies: a data pass.
+- DONE 2.7.08: destination lines (`to=` + `{cond}`), market day (`mk=`), tide / moon hints, conditional takes.
+- **Any-of takes**: DONE 2.7.06 (`take=any-<kind>`). In the data 2026-11-19: `312-larder` `take=any-nut:1`, `315-cairns` `take=any-feather:1`. OPEN: scarecrow "any crop or flower" (two kinds in one take), `236-haywagon` any seed (seeds are not a plant kind or a slug ending), `316-auroracamp` any bread, `316-kettletree` tea swaps: need `any-` over a list of kinds or an item category. `232-picnicrise` "eat any snack here, double buff": needs the eat code to know where the gnome stands.
+- **Tool-tier odds**: DONE 2.7.00 (`@a/b/c/d` with a tool column). Not in the data (hedgerow, combridge, ringlog, axe-only logs): each row needs a tool column, which also makes the tool REQUIRED; a data / design choice.
+- **Time-limited loans and flags**: DONE 2.7.06 `lend=` / `repay=`. OPEN: Mister Plink's pebble for a day (an item that goes back by itself: needs an expiry on a satchel item), lantern oil refill (needs a tool-wear token), muddy gnome (a cosmetic state), the seal pup's gift only after Q4 (possible now: `?qd=<Q4 slug>`, a data line), "preened 3 times = the Owl fight starts Calm" and the woodpecker's beat (need a hook into the fight start).
+- **Villager timing words**: DONE: away days (an away villager is not there, 2.7.00), every Nth day (`gd=`), market days (`mk=`), festival days (`fd=`), travellers by their circuit (role hours). In the data 2026-11-19: Tobias's 10% discount (`232-crossroads`, `disc=shop:10:60`: every shop for an hour, not seeds only), Bunty's inn voucher (`307-sandcastle` give row, `disc=rest:25:240`). OPEN: Basil's flower +10% growth, Elm's +20% chanterelle (need a garden / gather modifier token), Fennick's sale tip (needs the shop sale state), Moss Windlass selling sea salt for Petals (needs a buy action at a Sight).
+- **Birthday**: DONE 2.7.08 third pass B (`bd=`, `bday=`). `236-dandelions` still has its tally page; a `bday=1` there is a data line.
+- **Quest starts and rewards**: DONE Notice Board starts (`board`, `quest=`). OPEN: "Sap to Stack" waiting for Wren's Journey chapter "The Sugar Shack" (needs a gate on a Journey chapter: `gate` knows only `quest:<sight line>`), Q8 half-price build-plan stage (needs a build-plan discount), the Den boss hint card (kept `hint=creature`), the Q6 Tansy clue for Wren's Journey (needs a Journey hook), after-quest parcels between the Nettles (possible with `qd=` + `give=`: a data line).
+- **Real other players' notes**: OPEN (P4): the message bottle between players needs a shared table and moderation; single-player bottle post is DONE (`bottle=1`).

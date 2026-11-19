@@ -68,3 +68,12 @@ arctic-char|Arctic Char|tundra|rod|uncommon|26|-|Fished through a hole in the ic
 rainbow-fish|Rainbow Fish|rainforest,wetland|rod|uncommon|24|-|Flashes every colour in the river shallows.
 golden-carp|Golden Carp|wetland,grassland|rod|rare|80|-|An old, gold, wise-looking carp. Lucky to catch.
 moonfish|Moonfish|coast,island|rod|rare|85|-|Round, pale and silver, it only bites under a full sky.|dp=night
+# Tea plants for the Hovel kettle (data/tea_ingredients.txt): wild ones a foraging knife finds. Roots need a Sturdy knife (they steep stronger).
+nettle|Nettle|forest,grassland|forage|common|9|-|Stings until it is dried or steeped. After that it makes a deep green, iron-tasting cup.|se=spring
+raspberry-leaf|Raspberry Leaf|forest|forage|common|8|-|Leaves from wild raspberry canes, picked before the fruit. Dried, they taste a little like black tea.
+spruce-tips|Spruce Tips|forest,mountain,tundra|forage|common|10|nimble|Soft, pale green new growth at the ends of spruce twigs. Bright and lemony.|se=spring
+elderflower|Elderflower|forest,grassland|forage|common|10|-|Creamy, lacy flower heads from the elder. The whole hedge smells of them in early summer.|se=spring,summer
+rose-hips|Rose Hips|grassland,coast|forage|common|10|nimble|Red fruit left on wild roses after the petals fall. Tart, and best after the first frost.|se=autumn
+linden-blossom|Linden Blossom|forest,grassland|forage|uncommon|16|sense|Pale, honey-scented flowers from the lime tree, each cluster on its own little wing.|se=summer
+dandelion-root|Dandelion Root|grassland|forage|uncommon|15|-|A long taproot, dug up whole. Roasted, it brews dark and a little bitter.
+licorice-root|Licorice Root|grassland,desert|forage|uncommon|18|charm|A woody root from the dry steppe, many times sweeter than sugar.

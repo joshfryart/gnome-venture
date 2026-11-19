@@ -62,6 +62,7 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     <?php if ($potsOn):
         require_once __DIR__ . '/pal_jobs.php';
         try { pj_settle($uid); } catch (Throwable $e) {}   // pals tending pots check them when you look
+        $gcOn = gclock_on();   // sleep-days: a pal's pot is timed in game time of pal work, not a real countdown
         $pots = cook_pots_list($uid); $lim = cook_pot_limit($u); $readyN = count(array_filter($pots, fn($p) => $p['left'] <= 0 && empty($p['pal'])));
         $palOpts = [];   // recipes a tending pal can be set to, per station
         $outItems = [];
@@ -77,11 +78,11 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
       <button type="button" class="p2jar pot potsq palpot <?= $done && empty($p['idle']) ? 'done' : 'busy' ?>" data-palpot="palpot-<?= (int)$p['job'] ?>-<?= (int)$p['id'] ?>" title="<?= e($p['pal'] . ' is tending this pot') ?>">
         <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🧩' ?></span>
         <span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span>
-        <span class="potleft">🧩 <?= e($p['pal']) ?> <?= !empty($p['allpots']) ? 'keeps the pots going' : 'is tending this pot' ?><?= !empty($p['idle']) ? '' : ' · ' . ($done ? 'ready, served at the next check' : e(energy_clock((int)$p['left']))) ?></span>
+        <span class="potleft">🧩 <?= e($p['pal']) ?> <?= !empty($p['allpots']) ? 'keeps the pots going' : 'is tending this pot' ?><?= !empty($p['idle']) ? '' : ' · ' . ($done ? ($gcOn ? 'ready, served at 6am game time' : 'ready, served at the next check') : e($gcOn ? gclock_pal_left_text((int)$p['left']) : energy_clock((int)$p['left']))) ?></span>
       </button>
       <dialog class="picker craftpop shbagpop palpotpop" id="palpot-<?= (int)$p['job'] ?>-<?= (int)$p['id'] ?>" aria-labelledby="palpot-<?= (int)$p['job'] ?>-<?= (int)$p['id'] ?>-t"><div class="pickbox">
         <div class="pickhead"><h3 id="palpot-<?= (int)$p['job'] ?>-<?= (int)$p['id'] ?>-t">🧩 <?= e($p['pal']) ?> at the pot</h3><button type="button" class="pickx" data-shpd-close aria-label="Close">✕</button></div>
-        <p><b>Cooking now:</b> <?= !empty($p['idle']) ? '<span class="muted">nothing yet (waits for the next check)</span>' : e($p['name']) . ((int)$p['dishes'] > 0 ? ' ×' . (int)$p['dishes'] : '') . ' · ' . ($done ? 'ready, served at the next check' : e(energy_clock((int)$p['left'])) . ' left') ?></p>
+        <p><b>Cooking now:</b> <?= !empty($p['idle']) ? '<span class="muted">' . ($gcOn ? 'nothing yet (the pal works at 6am game time)' : 'nothing yet (waits for the next check)') . '</span>' : e($p['name']) . ((int)$p['dishes'] > 0 ? ' ×' . (int)$p['dishes'] : '') . ' · ' . ($done ? ($gcOn ? 'ready, served at 6am game time' : 'ready, served at the next check') : ($gcOn ? e(gclock_pal_left_text((int)$p['left'])) : e(energy_clock((int)$p['left'])) . ' left')) ?></p>
         <?php if (empty($p['locked'])): ?>
         <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="potpick"><?= csrf_field() ?>
           <input type="hidden" name="do" value="pal_pot_recipe"><input type="hidden" name="job_id" value="<?= (int)$p['job'] ?>">

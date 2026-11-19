@@ -35,7 +35,7 @@ ok('fresh start empties the journal', (FRESH_LAZY_TABLES['user_tea_journal'] ?? 
 ok('tea_ensure is a no-op on an upgraded copy', tea_ensure() === true);
 
 echo "== data: ingredients and named teas\n";
-ok('31 ingredients', count($ING) === 31, (string)count($ING));
+ok('40 ingredients', count($ING) === 40, (string)count($ING));
 $bad = [];
 foreach ($ING as $s => $g) {
     $real = 0;
@@ -45,6 +45,42 @@ foreach ($ING as $s => $g) {
     if (in_array($g['role'], ['steep', 'add'], true) ? (!isset(GNOME_STATS[$g['stat']]) || $g['power'] < 1 || $g['power'] > 2) : ($g['stat'] !== '' || $g['power'] !== 0)) $bad[] = "$s: stat / power";
 }
 ok('every ingredient slug is a real item (optional "?" items may be made later), with a real stat and power', !$bad, implode('; ', $bad));
+// 2.7.23: the nine plants added to tea_ingredients.txt. Eight are wild finds (data/gatherables.txt, a foraging knife), Jasmine is the cut Night-flowering Jasmine.
+$NEW = ['nettle' => ['herb', 'grit', 1], 'raspberry-leaf' => ['herb', 'lore', 1], 'spruce-tips' => ['herb', 'nimble', 1], 'dandelion-root' => ['herb', 'luck', 2], 'licorice-root' => ['herb', 'charm', 2],
+    'jasmine' => ['flower', 'sense', 1], 'linden-blossom' => ['flower', 'sense', 1], 'elderflower' => ['flower', 'luck', 1], 'rose-hips' => ['fruit', 'nimble', 1]];
+$bad = [];
+foreach ($NEW as $s => [$kind, $stat, $pw]) { $g = $ING[$s] ?? null; if (!$g || $g['kind'] !== $kind || $g['stat'] !== $stat || $g['power'] !== $pw) $bad[] = $s; }
+ok('the nine new plants are rows with the decided kind, stat and power', !$bad, implode(', ', $bad));
+$bad = [];
+foreach (array_keys($NEW) as $s) {
+    if ($s === 'jasmine') { if ($ING[$s]['items'] !== [['cut-night-jasmine', false], ['dried-night-jasmine', true]] || q_val("SELECT category FROM items WHERE slug = 'cut-night-jasmine'") !== 'flower') $bad[] = $s; continue; }
+    $g = q_one("SELECT g.tool, g.rarity, g.active, i.category FROM gatherables g JOIN items i ON i.id = g.item_id WHERE i.slug = ?", [$s]);
+    if (!$g || $g['tool'] !== 'forage' || !(int)$g['active'] || $g['category'] !== 'forage' || ($NEW[$s][2] === 2 && $g['rarity'] !== 'uncommon') || $g['rarity'] === 'rare') $bad[] = "$s: " . json_encode($g);
+    if (!q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['gather:' . $s])) $bad[] = "$s: no Almanac page";
+}
+ok('...each one is an item a gnome can get: a wild find for a foraging knife (none rare; the two strong roots uncommon), Jasmine = the cut flower', !$bad, implode('; ', $bad));
+require_once APP_ROOT . '/includes/gathering.php';
+$bad = [];
+foreach (array_keys($NEW) as $s) { if ($s === 'jasmine') continue; $lands = array_map('trim', explode(',', (string)q_val('SELECT g.landscapes FROM gatherables g JOIN items i ON i.id = g.item_id WHERE i.slug = ?', [$s])));
+    foreach ($lands as $l) if (!in_array($s, array_column(gather_candidates($l, 'forage'), 'slug'), true)) $bad[] = "$s not found in $l"; }
+ok('...and it really turns up where its row says (gather_candidates)', !$bad, implode('; ', $bad));
+$bad = []; $spread = array_fill_keys(array_keys(TEA_STATS), 0);
+foreach ($ING as $s => $g) {
+    if ($g['stat'] !== '') $spread[$g['stat']]++;
+    $first = q_one('SELECT * FROM items WHERE slug = ?', [$g['items'][0][0]]);
+    $p = tea_ing_pic($s, $first ? [$s => ['item' => $first, 'qty' => 1]] : [], 'sm');
+    if ($p === '' || str_contains($p, 'style=')) $bad[] = "$s: " . $p;
+    elseif (str_contains($p, '<img') && preg_match('/src="([^"?]+)/', $p, $m) && !is_file(APP_ROOT . '/' . ltrim(preg_replace('~^.*?(assets|uploads)/~', '$1/', $m[1]), '/'))) $bad[] = "$s: picture file missing " . $m[1];
+    if (tea_ing_pic($s, [], 'md') === '') $bad[] = "$s: nothing drawn when none is held";
+}
+ok('every ingredient draws a picture (real art, flower art or a placeholder file that exists) or the emoji fallback, held or not', !$bad, implode('; ', array_slice($bad, 0, 6)));
+$noPh = array_values(array_filter(array_keys($NEW), fn($s) => $s !== 'jasmine' && !is_file(APP_ROOT . '/assets/img/ph/' . $s . '.svg') && !is_file(APP_ROOT . '/assets/img/ph/' . $s . '.png')));
+ok('the eight new wild finds have a placeholder picture in assets/img/ph', !$noPh, implode(', ', $noPh));
+ok('the stat spread is even: five ingredients for each of the seven stats', array_unique(array_values($spread)) === [5], json_encode($spread));
+foreach (array_keys($NEW) as $s) { $c = $ING[$s]['role'] === 'steep' ? tea_cup([$s], 0) : tea_cup(['mint', $s], 3); if (!$c['ok'] || !$c['buff'] || $c['named']) $bad[] = "$s: " . json_encode($c); }
+ok('each new plant brews a legal House Blend (a herb, root or flower alone as the base; Rose Hips as an extra only)', !$bad && tea_cup(['rose-hips', 'mint'], 0)['error'] === 'The base must be a leaf, herb, flower or root.', implode('; ', $bad));
+$c = tea_cup(['dandelion-root', 'elderflower', 'goat-milk', 'garden-honey'], 3);
+ok('the caps hold for the new roots: dandelion root + elderflower + milk + honey in the Samovar is Luck +3 and no more', $c['ok'] && $c['buff'] === ['luck' => 3] && $c['steep']['main']['steep'] === 8, json_encode($c));
 ok('TEA_STATS are the gnome stats', array_keys(TEA_STATS) === array_keys(GNOME_STATS) && !array_filter(TEA_STATS, fn($n, $k) => GNOME_STATS[$k][0] !== $n, ARRAY_FILTER_USE_BOTH));
 ok('20 named teas', count($NAMED) === 20, (string)count($NAMED));
 $bad = []; $keys = [];
@@ -59,6 +95,26 @@ foreach ($NAMED as $s => $t) {
 }
 ok('every named tea: known parts, a base, a unique set, a legal cup that gives a boost', !$bad, implode('; ', $bad));
 ok('the Kitchen snack teas and Pantry drinks are untouched (still recipes, still food items)', (int)q_val("SELECT COUNT(*) FROM recipes WHERE slug IN ('mint-tea', 'meadowsweet-tea', 'desert-sage-tea', 'chai-blend', 'iced-tea-concentrate', 'kombucha')") === 6 && (int)q_val("SELECT COUNT(*) FROM items WHERE slug IN ('mint-tea', 'meadowsweet-tea', 'desert-sage-tea')") === 3);
+// 2.7.23: the craft scenes list their teas by slug (data/craft_scenes.php), so a slug that only ends in -tea is not filed under the Stove or the watering can
+require_once APP_ROOT . '/includes/craft_map.php';
+$objs = []; foreach (craft_scenes() as $area => $sc) foreach ($sc['hot'] as [$id, , , , , , $to]) if (is_array($to)) $objs["$area/$id"] = $to;
+$hits = fn(string $slug): array => array_keys(array_filter($objs, fn($g) => craft_tag_match($g, $slug)));
+ok('a made-up xyz-tea lands on no scene object', $hits('xyz-tea') === [], json_encode($hits('xyz-tea')));
+$kettleOnly = array_values(array_filter(array_keys($NAMED), fn($s) => !q_val('SELECT 1 FROM recipes WHERE slug = ?', [$s])));
+$bad = array_filter($kettleOnly, fn($s) => $hits($s) !== []);
+ok('the kettle-only named teas (' . count($kettleOnly) . ', e.g. oswego-tea) land on no scene object', count($kettleOnly) === 17 && !$bad, implode(', ', $bad));
+ok('town teahouse spots (<town>-tea) land on no scene object', !array_filter(q("SELECT slug FROM town_spots WHERE kind = 'teahouse'")->fetchAll(PDO::FETCH_COLUMN), fn($s) => $hits((string)$s) !== []));
+ok('the three snack teas open from the Stove only, the two fertiliser teas from the can and the seed trays only',
+    $hits('mint-tea') === ['cooking/stove'] && $hits('meadowsweet-tea') === ['cooking/stove'] && $hits('desert-sage-tea') === ['cooking/stove'] && $hits('worm-tea') === ['garden/can', 'garden/seeds'] && $hits('fern-tea') === ['garden/can', 'garden/seeds'],
+    json_encode([$hits('mint-tea'), $hits('worm-tea'), $hits('fern-tea')]));
+$fake = (int)db_insert('recipes', ['name' => 'Xyz Tea', 'slug' => 'xyz-tea', 'category' => 'cooking', 'output_item_id' => item_id_by_slug('mint-tea'), 'output_qty' => 1, 'ingredients' => '{"mint":1}']);
+$fake2 = (int)db_insert('recipes', ['name' => 'Xyz Garden Tea', 'slug' => 'xyz-garden-tea', 'category' => 'garden', 'output_item_id' => item_id_by_slug('worm-tea'), 'output_qty' => 1, 'ingredients' => '{"mint":1}']);
+$slugOf = q('SELECT id, slug FROM recipes')->fetchAll(PDO::FETCH_KEY_PAIR);
+$all = array_map(fn($id) => ['id' => (int)$id, 'status' => 'ok'], array_keys($slugOf));
+$nStove = craft_can_by_obj('cooking', $all, $slugOf)['stove'] ?? 0; $nCan = craft_can_by_obj('garden', $all, $slugOf)['can'] ?? 0;
+q('DELETE FROM recipes WHERE id IN (?, ?)', [$fake, $fake2]);
+unset($slugOf[$fake], $slugOf[$fake2]); $all = array_map(fn($id) => ['id' => (int)$id, 'status' => 'ok'], array_keys($slugOf));
+ok('a fake xyz-tea recipe in the Kitchen and one in the Garden shed are not picked up by the Stove or the watering can', $fake > 0 && $fake2 > 0 && $nStove > 0 && $nCan > 0 && $nStove === (craft_can_by_obj('cooking', $all, $slugOf)['stove'] ?? 0) && $nCan === (craft_can_by_obj('garden', $all, $slugOf)['can'] ?? 0), "$nStove / $nCan");
 ok('no kettle or cup item was made', (int)q_val("SELECT COUNT(*) FROM items WHERE slug LIKE '%kettle%' OR slug LIKE '%samovar%' OR slug = 'house-blend'") === 0);
 
 echo "== formula: the proposal's worked cups (Plan 2)\n";
@@ -109,7 +165,7 @@ ok('4 components fine', tea_cup(['tea', 'mint', 'ginger', 'lemon'], 3)['ok']);
 ok('the same ingredient twice refused', $err(['tea', 'mint', 'mint']) === 'Mint is in the cup twice. Each ingredient goes in once.');
 ok('the base must steep (a spice, fruit, sweetener or milk cannot)', $err(['cinnamon', 'tea']) === 'The base must be a leaf, herb, flower or root.' && !tea_cup(['lemon'], 3)['ok'] && !tea_cup(['garden-honey'], 3)['ok'] && !tea_cup(['goat-milk'], 3)['ok']);
 ok('one sweetener', $err(['tea', 'garden-honey', 'cane-syrup']) === 'One sweetener per cup.');
-ok('unknown ingredient', $err(['tea', 'nettle']) === 'Unknown ingredient.');
+ok('unknown ingredient', $err(['tea', 'no-such-plant']) === 'Unknown ingredient.');
 ok('a refused cup gives nothing', tea_cup(['cinnamon'], 3)['buff'] === [] && tea_cup(['cinnamon'], 3)['name'] === '');
 ok('tea_pick: the base first, the rest in card order; no base named = the first that steeps', tea_pick(['base' => 'mint', 'c' => ['lemon', 'tea', 'mint']]) === ['mint', 'tea', 'lemon'] && tea_pick(['c' => 'lemon,ginger']) === ['ginger', 'lemon'] && tea_pick(['base' => 'x', 'c' => ['lemon']]) === ['lemon'] && tea_pick([]) === []);
 cfg(['tea_cap_main' => 2, 'tea_cap_side' => 1]);
@@ -322,7 +378,7 @@ foreach (array_keys($ING) as $s) foreach ($ING[$s]['items'] as [$it]) if ($id = 
 $h = tea_dialog_html($row(), false);
 ok('an empty satchel: no form, a hint, the kettle and the journal still show', !str_contains($h, 'tea-form') && str_contains($h, 'Nothing to steep') && str_contains($h, 'tea-kettle') && str_contains($h, 'class="tea-jm"') && str_contains($h, 'class="tea-stamps"'));
 $d = tea_js_data(1);
-ok('the data for the JS twin: every ingredient, 20 teas, the kettle', count($d['ing']) === 31 && count($d['named']) === 20 && $d['k'] === [5, 2, 1] && $d['max'] === 4);
+ok('the data for the JS twin: every ingredient, 20 teas, the kettle', count($d['ing']) === 40 && count($d['named']) === 20 && $d['k'] === [5, 2, 1] && $d['max'] === 4);
 ok('... trimmed to the satchel for the page', array_keys(tea_js_data(0, null, ['tea', 'mint'])['ing']) === ['tea', 'mint'] && array_column(tea_js_data(0, null, ['tea', 'mint'])['named'], 0) === ['Mint Tea']);
 
 if (!empty($argv[2])) {   // cups for the JS twin (tests/tea_parity.js): every named tea, the worked cups, and random legal and illegal cups, in every kettle and under lowered caps
@@ -332,7 +388,7 @@ if (!empty($argv[2])) {   // cups for the JS twin (tests/tea_parity.js): every n
     $push = function (array $slugs, int $tier, array $caps) use (&$cups, $norm): void { $c = tea_cup($slugs, $tier, $caps); $n = $norm($c); if ($c['ok'] && !$c['steep']['side']) $n['capSide'] = tea_kettle($tier, $caps)[3]; $cups[] = ['slugs' => $slugs, 'tier' => $tier, 'caps' => $caps, 'want' => $n]; };
     foreach ([[3, 2], [2, 1], [1, 0]] as $caps) for ($t = 0; $t < 4; $t++) {
         foreach ($NAMED as $n) { $p = $n['parts']; usort($p, fn($a, $b) => ($ING[$a]['role'] === 'steep' ? 0 : 1) <=> ($ING[$b]['role'] === 'steep' ? 0 : 1)); $push($p, $t, $caps); }
-        foreach ([['chamomile'], ['mint', 'lavender', 'lemon'], ['rooibos', 'clove', 'lemon', 'garden-honey'], ['tea', 'ginseng', 'ginger', 'garden-honey'], [], ['', 'mint'], ['tea', 'nettle']] as $w) $push($w, $t, $caps);
+        foreach ([['chamomile'], ['mint', 'lavender', 'lemon'], ['rooibos', 'clove', 'lemon', 'garden-honey'], ['tea', 'ginseng', 'ginger', 'garden-honey'], [], ['', 'mint'], ['tea', 'no-such-plant'], ['nettle', 'rose-hips', 'elderflower', 'licorice-root'], ['dandelion-root', 'jasmine', 'linden-blossom'], ['spruce-tips', 'raspberry-leaf'], ['rose-hips', 'nettle']] as $w) $push($w, $t, $caps);
     }
     for ($i = 0; $i < 1500; $i++) {
         $n = mt_rand(1, 5); $s = [];

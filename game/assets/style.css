@@ -7845,6 +7845,9 @@ body[data-area] main .hs-tab-today h1.hs-hi, main .hs-tab-today h1.hs-hi { backg
 .hs-btns .hs-sb { flex: 1 1 auto; min-height: 40px; margin: 0; padding: 4px 10px; font-size: 15px; white-space: nowrap; }
 .hs-say { position: absolute; left: 40%; bottom: 38%; z-index: 2; max-width: 58%; padding: 2px 8px; background: #fff8e6; color: #2a1a10; border: 2px solid #2a1a10; font-size: 13px; font-weight: 700; line-height: 1.35; pointer-events: none; }   /* over the gnome's hat (the gnome's box is fixed in hovel_decor.json) */
 .hs-say[hidden] { display: none; }
+.hs-hint { position: absolute; left: 50%; bottom: 6px; z-index: 1; transform: translateX(-50%); padding: 1px 8px; background: var(--felt); color: var(--felt-ink); border: 2px solid var(--thread); font-weight: 700; font-size: 13px; line-height: 1.4; white-space: nowrap; pointer-events: none; animation: hr-hint 7s ease-in forwards; }   /* first look of the game day: says the room can be tapped, then fades; a tap on a thing hides it at once (hovelroom.js) */
+.hs-hint[hidden] { display: none; }
+dialog.hpop.hpop-at { position: fixed; margin: 0; }   /* opened from its thing in the picture: hovelroom.js sets left / top next to the thing */
 .hroom .ht-hit { fill: transparent; }
 .hroom a.ht, .hroom-things a.hd { cursor: pointer; outline: none; }
 .hroom .ht-out { fill: none; stroke: #fff3b0; stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: round; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 1px #2a1a10) drop-shadow(0 0 1px #2a1a10); }
@@ -7863,6 +7866,7 @@ body[data-area] main .hs-tab-today h1.hs-hi, main .hs-tab-today h1.hs-hi { backg
 .hroom-things .hr-gnome.hop { animation: hr-hop .5s ease-out 1, hr-bob 2.6s ease-in-out .5s infinite; }
 .hroom .hr-lampglow { opacity: 0; pointer-events: none; }
 .hroom.lamp-on .hr-lampglow { opacity: .9; animation: hr-flick 3.2s ease-in-out infinite; }
+@keyframes hr-hint { 0%, 80% { opacity: 1; visibility: visible; } 100% { opacity: 0; visibility: hidden; } }
 @keyframes hr-pulse { 0%, 100% { opacity: 0; } 50% { opacity: .95; } }
 @keyframes hr-rise { 0% { transform: translateY(0); opacity: 0; } 25% { opacity: .75; } 100% { transform: translateY(-12px); opacity: 0; } }
 @keyframes hr-zz { 0% { transform: translate(0, 0); opacity: 0; } 30% { opacity: .9; } 100% { transform: translate(7px, -16px); opacity: 0; } }
@@ -7870,7 +7874,7 @@ body[data-area] main .hs-tab-today h1.hs-hi, main .hs-tab-today h1.hs-hi { backg
 @keyframes hr-hop { 0% { transform: translateY(0); } 40% { transform: translateY(-9px); } 100% { transform: translateY(0); } }
 @keyframes hr-flick { 0%, 100% { opacity: .9; } 45% { opacity: 1; } 60% { opacity: .78; } }
 @media (prefers-reduced-motion: reduce) {   /* calm: nothing moves; the steam and the z's stay as still marks */
-  .hroom .hr-steam .a, .hroom .hr-steam .b, .hroom .hr-zz .a, .hroom .hr-zz .b, .hroom-things .hr-gnome, .hroom-things .hr-gnome.hop, .hroom.lamp-on .hr-lampglow, .hroom .ht.pulse .ht-out { animation: none; }
+  .hroom .hr-steam .a, .hroom .hr-steam .b, .hroom .hr-zz .a, .hroom .hr-zz .b, .hroom-things .hr-gnome, .hroom-things .hr-gnome.hop, .hroom.lamp-on .hr-lampglow, .hs-hint, .hroom .ht.pulse .ht-out { animation: none; }
   .hroom .hr-steam circle, .hroom .hr-zz text, .hroom .hr-steam image, .hroom .hr-zz image { opacity: .6; }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -8657,5 +8661,11 @@ main nav.tabs.hstabs.hs4 a { gap: 4px; padding-left: 4px; padding-right: 4px; fo
 .clt b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cldot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--thread); vertical-align: middle; }
 .clgo { font-size: 12px; color: var(--muted, inherit); }
-.clpop { grid-column: 1 / -1; background: var(--surface); box-shadow: 0 0 0 3px var(--brand-line); padding: 4px 8px; }
+.clpop { grid-column: 1 / -1; }   /* holds the picker drawn open in the page (?wear=SLOT: no script, or a refused change), under its pill row */
+dialog.clpick { text-align: left; padding: 10px 10px 12px; }   /* the Closet's slot picker: the Furnish dialog (dialog.hpick) with the Wearing list in it */
+dialog.clpick[open]:not(:modal) { box-shadow: 0 0 0 3px var(--brand-line); padding: 4px 8px 8px; }
+dialog.clpick .hpick-h { text-align: center; margin-bottom: 6px; }
+dialog.clpick form { display: block; }
+dialog.clpick .wbtn .btn { min-height: 40px; margin: 0; }
+dialog.clpick .hpick-act { margin-top: 8px; }
 .clpb { margin: 10px 0 0; font-size: 13px; }

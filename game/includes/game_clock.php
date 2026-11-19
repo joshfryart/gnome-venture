@@ -411,7 +411,8 @@ function gclock_rest_do(int $uid, string $key, array $u): array
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Cook pots on the game clock (decision 45: 4x longer, ready_tick). A pot made under game_clock_on has ready_tick; old pots
-// and pal-tended pots keep ready_at (real time).
+// keep ready_at (real time). A pot a pal tends keeps ready_at too, but on the PAL work clock (gclock_pal_now: held still against
+// real time, moved pal_hours_per_sleep hours at every 06:00); when the pal lets go of it, it gets a ready_tick (gclock_pot_release).
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** The gnome's game tick (day*1440 + minute). */
@@ -431,6 +432,43 @@ function gclock_pot_minutes(int $secs): int
 function gclock_pot_ready(int $uid): array
 {
     return ['((ready_tick IS NOT NULL AND ready_tick <= ?) OR (ready_tick IS NULL AND ready_at <= ?))', [gclock_user_tick($uid), now()]];
+}
+
+/**
+ * "Now" on a gnome's pal work clock, as UNIX seconds, to compare with the stored times of a running pal job or a pal-tended pot. With the sleep-days clock
+ * on this is the last moment the pal clocks were held (users.pal_real_at): real seconds since then do not count, so ready_at - gclock_pal_now() only
+ * shrinks when a 06:00 moves the pal clocks (gclock_pal_mornings). With the clock off it is the real time.
+ */
+function gclock_pal_now(int $uid): int
+{
+    if (!gclock_on()) return time();
+    $v = q_val('SELECT pal_real_at FROM users WHERE id = ?', [$uid]);
+    return $v === null || $v === false || $v === '' ? time() : min(time(), (int)$v);
+}
+
+/** A pal lets go of a pot that is still cooking (shift over, or called home): from here it cooks on the gnome's own clock, like a pot the gnome started. No-op with the clock off. */
+function gclock_pot_release(int $uid, int $potId, int $secsLeft): void
+{
+    if (!gclock_on()) return;
+    q('UPDATE cook_pots SET ready_tick = ? WHERE id = ? AND user_id = ? AND collected_at IS NULL', [gclock_user_tick($uid) + ($secsLeft > 0 ? gclock_pot_minutes($secsLeft) : 0), $potId, $uid]);
+}
+
+/** Game hours of pal work each 06:00 gives (setting pal_hours_per_sleep, default 8). */
+function gclock_pal_hours(): int
+{
+    return max(0, gclock_setting_int('pal_hours_per_sleep', 8));
+}
+
+/** "15 min of pal work left · pals work at 6am" for the seconds a pal-tended pot still needs on the pal work clock. */
+function gclock_pal_left_text(int $secs): string
+{
+    return gclock_span_text(max(1, (int)ceil($secs / 60))) . ' of pal work left · pals work at 6am game time';
+}
+
+/** One sentence for a pal that was just sent to work on game time. '' with the clock off. */
+function gclock_pal_work_note(): string
+{
+    return gclock_on() ? ' Pals work at 6am game time, ' . gclock_pal_hours() . ' game hours every morning (whether or not you sleep); real time does not count.' : '';
 }
 
 // Pantry jars: ready after N sleeps (decision 12). A jar's real cook_minutes are read as real days: 1 day = 1 sleep.

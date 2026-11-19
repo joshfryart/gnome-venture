@@ -202,7 +202,9 @@ function trail_scene_make(int $uid, int $expId, array $route, bool $rev = false)
         $seen = tm_seen_new($map['w'], $map['h']);
         tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
         $st['tokens'] = trail_pickup_apply($uid, (int)$route['id'], trail_phys_sec((int)$route['id'], 0, $st), array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens));
+        require_once __DIR__ . '/trail_sights.php'; [$sec4, $sec4Lines] = sights4_start_apply($uid, $expId, (int)$route['id'], $map, $st);   // Sights fourth pass: a named stretch's find / fog (sec=), the weather's fog
         db_insert('walk_scene', ['user_id' => $uid, 'exp_id' => $expId, 'map_key' => 'trail:' . (int)$route['id'], 'x' => $map['entry'][0], 'y' => $map['entry'][1], 'seen' => $seen, 'state' => json_encode($st), 'updated_at' => now()]);
+        sights4_start_done($uid, $expId, $sec4, $sec4Lines);
         return true;
     } catch (Throwable $e) {
         error_log('trail_scene_make: ' . $e->getMessage());
@@ -429,8 +431,13 @@ function trail_next(array $u, array &$exp): array
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
     $new['seen'] = $seen;
-    require_once __DIR__ . '/trail_sights_3a.php'; $nxt = sights3a_nxt_prepare($sc, $new, $map, $revisit);   // 2.7.08 third pass A: a Sight's nxt= effects are used up on this stretch (and the escort walks on)
+    require_once __DIR__ . '/trail_sights.php';
+    $sec4 = $revisit ? [] : sights4_sec_pending((int)$exp['user_id'], $rid, trail_phys_sec($rid, $nsec, $sc['st']));   // Sights fourth pass: effects aimed at this named stretch (sec=) join the pending nxt= ones
+    if ($sec4) $sc['st']['nxt'] = array_values(array_merge((array)($sc['st']['nxt'] ?? []), array_column($sec4, 1)));
+    $nxt = sights3a_nxt_prepare($sc, $new, $map, $revisit);   // 2.7.08 third pass A: a Sight's nxt= effects are used up on this stretch (and the escort walks on)
+    if (!$revisit && !in_array('fog', $nxt, true) && sights4_weather_fog($exp) && sights4_fog_set($new['st'])) $nxt[] = 'fog';   // fourth pass: foggy weather (setting trail_fog_weather)
     if (!trail_save($new)) return [false, 'You already went on.'];   // the other tab won: no second event
+    sights4_sec_clear((int)$exp['user_id'], $sec4);
     $exp['step'] = $nsec;
     $calm = sights3a_nxt_finish($u, $exp, $nxt);   // nxt=calm: no surprise at this stretch's door
     if (!$revisit && !$calm) trail_roll_event($u, $exp);   // a stretch you have walked before has no new surprise at its door
@@ -458,7 +465,7 @@ function trail_prev(array $u, array &$exp): array
     $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($st['stance'] ?? ''), 'hist' => $hist, 'tokens' => $ptokens];
     if (!empty($st['rev'])) $new['st']['rev'] = 1;
     if (isset($st['toll'])) $new['st']['toll'] = $st['toll'];
-    foreach (['nxt', 'escort'] as $keep) if (!empty($st[$keep])) $new['st'][$keep] = $st[$keep];   // 2.7.08 third pass A: a pending nxt= effect and the escort stay when you walk back
+    foreach (['nxt', 'escort', 'fog', 'lit'] as $keep) if (!empty($st[$keep])) $new['st'][$keep] = $st[$keep];   // 2.7.08 third pass A: a pending nxt= effect and the escort stay when you walk back
     $new['st']['phase'] = 'confirm';   // you stand on that stretch's exit: Continue is offered at once (or "Not yet" to look around)
     $new['x'] = $ex; $new['y'] = $ey; $new['seen'] = $seen;
     if (!trail_save($new)) return [false, 'You already moved. Look again.'];
@@ -567,6 +574,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $win = tm_window_clamped($sc['x'], $sc['y'], DM_VIEW, DM_VIEW, (int)$w, (int)$h);
     $land = (string)(exp_scene($exp)['land'] ?? 'forest');
     $phase = (string)$sc['st']['phase'];
+    require_once __DIR__ . '/trail_sights.php'; $foggy = sights4_fog_on($sc['st']); $sc = sights4_fog_view($sc);   // Sights fourth pass: in fog a find shows only when the gnome is next to it
     $tokens = [];
     $easyMini = exp_easy_cap($u, $exp) > 0;   // an easy road never meets an extra mini-boss (it gives a find), so draw it as a find
     foreach ($sc['st']['tokens'] as [$tx, $ty, $k, $done]) {
@@ -688,7 +696,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>' . $fightDock
         . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
-        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) || (!empty($map['art']['extra_minibosses']) && !$easyMini) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span>' . ($shut ? '<span>🔒 Needs a tool</span>' : '') . ($openMid && str_contains(json_encode($tokens, JSON_UNESCAPED_UNICODE), '🔓') ? '<span>🔓 Open gate</span>' : '') . '</p></div>';
+        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) || (!empty($map['art']['extra_minibosses']) && !$easyMini) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span>' . ($foggy ? '<span>🌫️ Fog: finds show when you are next to them</span>' : '') . ($shut ? '<span>🔒 Needs a tool</span>' : '') . ($openMid && str_contains(json_encode($tokens, JSON_UNESCAPED_UNICODE), '🔓') ? '<span>🔓 Open gate</span>' : '') . '</p></div>';
     return $out;
 }
 

@@ -70,6 +70,9 @@ chk('the effect sentence of every piece is the design text (pieces.json effect)'
 $rows = array_values(array_filter(pf_data_lines('wear_items_pieces.txt'), fn($r) => count($r) >= 15));
 $bl = []; foreach ($rows as $r) if (!str_ends_with($r[10], pfb_wx_text($r[12], (int)$r[13], (int)$r[14]))) $bl[] = $r[0];
 chk('the game pieces (wear_items_pieces.txt) carry fx|a|b and their blurb ends in the effect sentence', count($rows) === 280 && !$bl, $bl);
+$flax = array_values(array_filter($rows, fn($r) => $r[0] === 'w:oc-flax-wading-wraps'))[0] ?? [];   // balance.md: foeB2>skip measured -4.6 health (goal -4); its trigger is the rarer foeG, and no other piece has that pair
+chk('oc-flax-wading-wraps trips only when the creature has guard up (foeG>skip, value 6), a pair no other piece has', ($flax[12] ?? '') === 'foeG>skip' && ($flax[5] ?? '') === '6' && str_ends_with($flax[10] ?? '', 'If the creature has guard up, the creature skips its next turn.')
+    && count(array_filter($rows, fn($r) => $r[12] === 'foeG>skip')) === 1 && count(array_unique(array_column($rows, 12))) === 280, $flax);
 $unk = []; foreach (array_merge(...array_map(fn($p) => pfb_wx_clauses($p['code']), $P)) as $o) foreach (array_merge($o['c0'], $o['c1']) as $c) { $k = explode(':', ltrim($c, '!'))[0]; if (!in_array($k, ['link', 'links', 'cenv', 'cfoe', 'clen', 'cmine', 'aimnext', 'onaim', 'edge', 'corner', 'mid', 'hand', 'fevade', 'fguard', 'fpcs', 'fhas', 'ygt', 'ylt', 'hplt', 'hpfull', 'hit', 'nodmg', 'poisoned', 'round', 'last', 'disc', 'played', 'lastturn', 'kept', 'fskip', 'tgt', 'pt', 'first', 'full'], true)) $unk[] = $c; }
 chk('every condition in the data is one the engine knows', !$unk, $unk);
 
