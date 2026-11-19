@@ -296,7 +296,7 @@ function home_slim_needs(array $u): array
 /**
  * 2.7.17: the "Your pals" box on the Today tab, three groups: the garden crew (one summary of last night + a chip per pal, two to a row),
  * pals at a station (Kitchen, Pantry, Workshop...: made so far, time left or full time) and pals out on a trip or delve (back in).
- * Returns ['crew' => ['sum' => '', 'sub' => '', 'chips' => [[icon, name, tag, ok]], 'href' => ''] | null, 'stations' => [[icon, title, small, href]], 'out' => [[icon, title, small, href, pct]], 'n' => pals].
+ * Returns ['crew' => ['sum' => '', 'sub' => '', 'chips' => [[icon, name, working %, job finished]], 'href' => ''] | null, 'stations' => [[icon, title, small, href]], 'out' => [[icon, title, small, href, pct]], 'n' => pals].
  * Never throws.
  */
 function home_slim_overnight(array $u): array
@@ -311,10 +311,8 @@ function home_slim_overnight(array $u): array
             foreach ($rep[1]['crew'] as $c) {
                 $role = (string)($c['role'] ?? '');
                 if (isset($tot[$role])) $tot[$role] += (int)($c['n'] ?? 0);
-                $tag = '';
-                if (!empty($c['ended'])) $tag = 'job done';
-                elseif (!empty($c['tired']) || (!empty($c['eff']) && (int)$c['eff'] < 100)) $tag = (!empty($c['tired']) ? 'tired · ' : '') . (int)($c['eff'] ?? 100) . '%';
-                $chips[] = [PCREW_ROLES[$role][0] ?? '🧩', (string)($c['pal'] ?? 'A pal'), $tag, $tag === ''];
+                $pct = isset($c['eff']) ? (int)$c['eff'] : 100;
+                $chips[] = [PCREW_ROLES[$role][0] ?? '🧩', (string)($c['pal'] ?? 'A pal'), $pct, !empty($c['ended'])];   // [icon, name, working %, job finished]
             }
             $words = ['harvest' => '%d crops picked', 'water' => '%d beds watered', 'plant' => '%d planted', 'weed' => '%d beds weeded', 'pests' => 'pests cleared from %d beds'];
             $bits = [];
@@ -491,7 +489,11 @@ function home_slim_today_html(array $u, array $needs): string
         $h .= '<section class="box hs-needs hs-night" aria-labelledby="hs-night-h"><h2 id="hs-night-h">Your pals' . home_slim_bang($night['n'], $night['n'] . ' pal' . ($night['n'] === 1 ? '' : 's')) . '</h2>';
         if ($c = $night['crew']) {
             $h .= $grp('🌱', 'Garden crew · last night', $c['href'], 'Crew') . '<p class="hs-sum"><b>' . e($c['sum']) . '</b>' . ($c['sub'] !== '' ? '<small>' . e($c['sub']) . '</small>' : '') . '</p><ul class="hs-chips">';
-            foreach ($c['chips'] as [$ic, $nm, $tag, $ok]) $h .= '<li><a href="' . e($c['href']) . '"><span aria-hidden="true">' . e($ic) . '</span> <span class="hs-cn">' . e($nm) . '</span>' . ($tag !== '' ? '<em class="hs-tag">' . e($tag) . '</em>' : '') . '</a></li>';
+            foreach ($c['chips'] as [$ic, $nm, $pct, $done]) {
+                $cls = $pct >= 70 ? 'g' : ($pct >= 50 ? 'y' : ($pct >= 5 ? 'r' : 'k'));   // green 70+, yellow 50-69, red 5-49, black under 5 (with a red !)
+                $pill = $done ? '<em class="hs-pill d">done</em>' : '<em class="hs-pill ' . $cls . '" title="Working at ' . $pct . '%">' . ($cls === 'k' ? '<i aria-hidden="true">!</i>' : '') . $pct . '%</em>';
+                $h .= '<li><a href="' . e($c['href']) . '"><span aria-hidden="true">' . e($ic) . '</span> <span class="hs-cn">' . e($nm) . '</span>' . $pill . '</a></li>';
+            }
             $h .= '</ul>';
         }
         if ($night['stations']) $h .= $grp('🏠', 'At their stations', $night['stations'][0][3], home_slim_go($night['stations'][0][3])) . '<ul class="hs-nlist">' . implode('', array_map($row, $night['stations'])) . '</ul>';
