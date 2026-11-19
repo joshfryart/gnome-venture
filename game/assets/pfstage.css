@@ -1,7 +1,7 @@
 /* pfight_stage: the Trail's puzzle fight takes over the map's place instead of a dimmed pop-up. Loaded only when the setting is on for the viewer (includes/layout.php).
    The dialog stays a real modal (assets/site.js keepTrailPop and assets/hubscene.js depend on that); only where it sits and how it looks change.
    assets/pfstage.js sets --pfx / --pfy / --pfw / --pfh to the map column's box (document coordinates), puts the jigsaw pieces in .pfst-layer behind the card, and adds .pfst-on when the card may show. */
-dialog.trailpop.pfst { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 100%); height: var(--pfh, auto); min-height: 520px; margin: 0; padding: 0; max-width: none; max-height: none; border: 0; background: transparent; overflow: visible; }
+dialog.trailpop.pfst { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 100%); height: var(--pfh, auto); min-height: 0; margin: 0; padding: 0; max-width: none; max-height: none; border: 0; background: transparent; overflow: visible; }
 dialog.trailpop.pfdlg.pfst::backdrop, dialog.trailpop.pfst::backdrop { background: transparent; backdrop-filter: none; }
 dialog.trailpop.pfst .pickbox { position: relative; z-index: 1; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; box-shadow: none; background: transparent; display: block; }
 dialog.trailpop.pfst .hubcard { position: relative; height: 100%; overflow: hidden; padding: 0; background: transparent; }

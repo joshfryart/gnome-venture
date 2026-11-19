@@ -44,6 +44,16 @@
   function box() { var b = curBox(); if (b) lastBox = b; return b || lastBox; }   // where the tile map is NOW (the page lays out differently while a fight is on); the last box seen only when it cannot be measured
   function setBox(el, b) { el.style.setProperty('--pfx', b.x + 'px'); el.style.setProperty('--pfy', b.y + 'px'); el.style.setProperty('--pfw', b.w + 'px'); el.style.setProperty('--pfh', b.h + 'px'); }
   function place(d) { var b = box(); if (b) setBox(d, b); return b; }
+  /* follow the map for as long as a dialog exists: late stylesheets, images, the route box fade or a toast above the map all move it after the first measurement */
+  var follow = 0;
+  function startFollow() {
+    if (follow) return; var last = '';
+    (function tick() {
+      var d = dlg(); if (!d) { follow = 0; return; }
+      var b = curBox(); if (b) { lastBox = b; var k = [b.x, b.y, b.w, b.h].map(Math.round).join(); if (k !== last) { last = k; setBox(d, b); } }
+      follow = requestAnimationFrame(tick);
+    })();
+  }
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
   function usable() { return canAnim && !reduce.matches && !!box(); }
 
@@ -102,16 +112,31 @@
   function reveal(d, fade) {
     d.classList.add('pfst-on'); seen(true);
     if (fade) { d.classList.add('pfst-fade'); setTimeout(function () { d.classList.remove('pfst-fade'); }, 480); }
+    startFollow(); scrollIn(d); focusMain(d);
+  }
+  /* the card or board can be taller than what is left of the screen below the map: bring its bottom (the buttons) into view without losing its top */
+  function scrollIn(d) {
+    try { var r = d.getBoundingClientRect(), dy = Math.min(r.bottom - window.innerHeight + 8, r.top - 8); if (dy > 1) window.scrollBy({ top: dy, left: 0, behavior: reduce.matches ? 'auto' : 'smooth' }); } catch (e) {}
+  }
+  /* the dialog is a modal whose card was hidden: put keyboard and screen-reader focus on its main button once it shows */
+  function focusMain(d) {
+    try { var b = d.querySelector('#pfv-pre .pfv-gof button, #pf-end, [data-pfst-dismiss], #pf-go'); if (b && !b.disabled) b.focus({ preventScroll: true }); } catch (e) {}
   }
 
   /* a dialog showed up on a page that had none */
+  function waitFor(cond, ms) { return new Promise(function (res) { var t0 = Date.now(); (function poll() { var ok = false; try { ok = cond(); } catch (e) {} if (ok || Date.now() - t0 > ms) res(); else setTimeout(poll, 50); })(); }); }
   function begin(d, force) {
     var t = ++token, b = place(d);
     if (!(seenNoFight || force) || !usable() || !b) { reveal(d, false); return; }
-    entering = true; mkLayer(d, b);
-    var iv = setInterval(function () { var dd = dlg(); if (dd) place(dd); }, 80);   // the page lays itself out for the fight a moment after the swap (its stylesheet loads): follow the map
+    entering = true; startFollow();
+    // hubscene.js opens the dialog as a modal a moment after the swap (a modal's box is measured from the document, a plain one's from its parent), and a Trail walk may still be playing on the map: the pieces wait for both
+    waitFor(function () { var q = dlg(); return q && q.matches(':modal') && !document.querySelector('.tilemap.tmplay'); }, 3500).then(function () {
+      if (t !== token) return;
+      var d1 = dlg(); if (!d1) { entering = false; return; }
+      d = d1; b = place(d1) || b; mkLayer(d1, b); go();
+    });
+    function go() {
     fly(pieces, true, b).then(function () {
-      clearInterval(iv);
       if (t !== token) return;
       entering = false;
       var d2 = dlg(); if (!d2) { dropLayer(); return; }
@@ -120,7 +145,8 @@
       if (k === 'fight') { reveal(d2, true); return sleep(150).then(function () { var P = pieces; return P ? fly(P, false, b).then(dropLayer) : null; }); }
       held = true; if (k === 'pre') d2.classList.add('pfst-held');   // the pieces stay under the card until Let's fight
       reveal(d2, true);
-    }).catch(function () { clearInterval(iv); entering = false; dropLayer(); var d3 = dlg(); if (d3) reveal(d3, false); });
+    }).catch(function () { entering = false; dropLayer(); var d3 = dlg(); if (d3) reveal(d3, false); });
+    }
   }
   /* a new dialog node (or new content) while the pieces are held */
   function adopt(d) {
@@ -156,6 +182,7 @@
   function check() {
     var d = dlg();
     if (d) {
+      startFollow();
       if (!d.classList.contains('pfst-on')) {
         if (entering) { /* the pieces are still coming in: begin() reveals it */ }
         else if (layer && held) adopt(d);
@@ -179,7 +206,7 @@
   }
   document.addEventListener('gv:swapped', function () { try { check(); } catch (e) {} });
   window.addEventListener('resize', function () { var d = dlg(); if (d) place(d); else { var nb = curBox(); if (nb) lastBox = nb; } });
-  window.addEventListener('pageshow', function () { var d = dlg(); if (d) { place(d); d.classList.add('pfst-on'); } });
+  window.addEventListener('pageshow', function (ev) { if (!ev.persisted) return; var d = dlg(); if (d) { dropLayer(); dropTop(); place(d); d.classList.add('pfst-on'); } });   // a page restored from the back-forward cache only (pageshow also fires after every normal load)
 
   /* ---- clicks: Let's fight (keep a ghost of the card for the crossfade), End match (cover), the result card's button (pieces leave) ---- */
   document.addEventListener('click', function (ev) {
@@ -216,5 +243,5 @@
 
   var d0 = dlg();
   seenNoFight = !d0 || !seen(); lastBox = curBox();
-  if (d0) check();
+  if (d0) check();   // (a fight already on the page: it gets the pieces too, once hubscene.js has made the dialog a modal)
 })();

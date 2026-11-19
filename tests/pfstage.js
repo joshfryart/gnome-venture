@@ -10,7 +10,7 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
   let fail = 0;
   const chk = (ok, msg) => { console.log((ok ? 'ok   ' : 'FAIL ') + msg); if (!ok) fail = 1; };
-  for (const [name, vp] of [['wide', { width: 1280, height: 900 }], ['phone', { width: 412, height: 900 }]]) {
+  for (const [name, vp] of [['wide', { width: 1280, height: 900 }], ['phone', { width: 412, height: 700 }]]) {
     php(here + '/here.php', game, 'cli', 'tilewalk'); php(here + '/here.php', game, 'cli', 'clearenc');
     const c = await b.newContext({ viewport: vp, deviceScaleFactor: 1, hasTouch: name === 'phone' }); const p = await c.newPage(); const errs = [];
     p.on('pageerror', e => errs.push(String(e))); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
@@ -68,6 +68,20 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
       chk((await st()).resOutside === 0, `[${name}] nothing of the result is left above the map`);
     } else console.log('note [' + name + '] no Run button (the fight ended)');
 
+    // ---- a FULL page load with a fight waiting (not an in-place swap): the card must not show while the pieces are still coming in, and the map is followed when it moves
+    php(here + '/pbox_v1_seed.php', game, 'fight', 'small'); await p.goto(base + '/adventure.php', { waitUntil: 'commit' });
+    const samples = []; for (let i = 0; i < 70; i++) { samples.push(await st()); await p.waitForTimeout(45); }
+    const early = samples.filter(s => s.dlg && s.on && !s.hidden && s.layer > 0 && !s.held).length;
+    chk(early === 0 && samples.some(s => s.layer > 0 && s.hidden === true), `[${name}] a page load with a fight waiting: the card stays hidden until the pieces are in (card shown mid-flight in ${early} samples)`);
+    const fin = samples[samples.length - 1]; chk(fin.held && fin.pre && !fin.hidden, `[${name}] ...then the card shows over the held pieces`);
+    const btn = await p.evaluate(() => { const b = document.querySelector('#pfv-pre .pfv-gof button'); const r = b ? b.getBoundingClientRect() : null; return r ? { bottom: r.bottom, ih: innerHeight, focus: document.activeElement === b } : null; });
+    chk(!!btn && btn.bottom <= btn.ih + 1, `[${name}] the Let's fight button is on screen (bottom ${btn ? Math.round(btn.bottom) : '?'} of ${btn ? btn.ih : '?'})`);
+    chk(!!btn && btn.focus, `[${name}] and it has the focus (the card was hidden when the modal opened)`);
+    await p.evaluate(() => { const m = document.querySelector('.advgrid .tmwrap'); m.style.marginTop = '60px'; });   // the map moves without any DOM change (a late stylesheet, an image): the dialog follows
+    await p.waitForTimeout(400);
+    const fol = await p.evaluate(() => { const d = document.querySelector('dialog.trailpop.pfst').getBoundingClientRect(), m = document.querySelector('.advgrid .tmwrap').getBoundingClientRect(); return { d: Math.round(d.top + scrollY), m: Math.round(m.top + scrollY) }; });
+    chk(Math.abs(fol.d - fol.m) < 3, `[${name}] the dialog follows the map when it moves (dialog ${fol.d}, map ${fol.m})`);
+
     // ---- End match: a popover cover over the swap that removes the fight (a fake form with the same do value; the swap is simulated by removing the dialog)
     php(here + '/pbox_v1_seed.php', game, 'fight', 'small'); await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await p.waitForSelector('dialog.trailpop.pfst.pfst-on', { timeout: 8000 }).catch(() => {});
     const way = await p.evaluate(async () => {
@@ -81,6 +95,17 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
       return { mid, gone, end };
     });
     if (way) chk(way.mid === 1 && way.gone === 1 && way.end === 0, `[${name}] End match: cover on at once (${way.mid}), still there when the fight is swapped out (${way.gone}), gone after (${way.end})`);
+    // ---- a Trail walk still playing on the map: the pieces wait for it
+    const p2 = await c.newPage();
+    await p2.addInitScript(() => { document.addEventListener('DOMContentLoaded', () => { const t = document.createElement('div'); t.className = 'tilemap tmplay'; t.id = 'fake-walk'; (document.querySelector('.advgrid .tmwrap') || document.body).appendChild(t); }); });
+    await p2.goto(base + '/adventure.php');   // (the seeded fight from the section above is still waiting)
+    await p2.waitForTimeout(1500);
+    const w1 = await p2.evaluate(() => document.querySelectorAll('.pfst-layer svg').length);
+    await p2.evaluate(() => document.getElementById('fake-walk') && document.getElementById('fake-walk').remove());
+    await p2.waitForFunction(() => document.querySelectorAll('.pfst-layer svg').length > 0, null, { timeout: 4000 }).catch(() => {});
+    const w2 = await p2.evaluate(() => document.querySelectorAll('.pfst-layer svg').length);
+    chk(w1 === 0 && w2 > 0, `[${name}] the pieces wait while the walk plays (${w1} pieces during it, ${w2} after)`);
+    await p2.close();
     chk(errs.length === 0, `[${name}] no JS errors${errs.length ? ': ' + errs.slice(0, 2).join(' | ') : ''}`);
     await c.close();
   }
