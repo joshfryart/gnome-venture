@@ -821,7 +821,7 @@ gvAdvFold();
     var op = main, np = nmain;
     /* 2.6.85 (Josh: "the background behind the popover blinks"): the page around the pop-up (the Trail map, with the zoom and marks its scripts add) used to be thrown away and rebuilt from the server's copy on every turn, and the map scripts started again. Nothing behind a fight changes during its turns (it is inert and dimmed), so it is left exactly as it is: only the dialog's own content is replaced. */
     for (i = oc.length - 1; i >= 0; i--) { if (oc[i] !== od) syncAttrs(oc[i], nc[i]); }
-    syncAttrs(od, nd, ['wired', 'cardwired']);   // classes the page scripts put on (wired) stay
+    syncAttrs(od, nd, ['wired', 'cardwired', 'pfst-on']);   // classes the page scripts put on (wired; pfst-on = assets/pfstage.js has revealed the fight) stay
     var ob = od.querySelector('.pickbox'), nb = nd.querySelector('.pickbox');
     if (ob && nb && ob.contains(oh) && nb.contains(nh)) {
       // everything between the dialog and the card keeps its node; the card keeps its node too (and so its scroll): only its content is replaced

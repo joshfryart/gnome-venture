@@ -1,0 +1,12 @@
+/* 2.7.23 pfight_stage: the Trail's puzzle fight takes over the map's place instead of a dimmed pop-up. Loaded only when the setting is on for the viewer (includes/layout.php).
+   The dialog stays a real modal (assets/site.js keepTrailPop and assets/hubscene.js depend on that); only where it sits and how it looks change.
+   assets/pfstage.js sets --pfx / --pfy / --pfw / --pfh to the map column's box (document coordinates) and adds .pfst-on once the jigsaw cover has covered the swap. */
+dialog.trailpop.pfst { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 100%); min-height: var(--pfh, 0px); margin: 0; padding: 0; max-width: none; max-height: none; border: 0; background: transparent; overflow: visible; }
+dialog.trailpop.pfdlg.pfst::backdrop, dialog.trailpop.pfst::backdrop { background: transparent; backdrop-filter: none; }
+dialog.trailpop.pfst .pickbox { width: 100%; max-width: none; max-height: none; height: auto; border: 0; box-shadow: none; background: var(--felt, #3d2a1c); }
+dialog.trailpop.pfst .hubcard { overflow: visible; max-height: none; min-height: var(--pfh, 0px); }
+/* without script the fight is simply shown; with script it waits for the cover (pfstage.js always adds .pfst-on, also when the cover cannot play) */
+@media (scripting: enabled) { dialog.trailpop.pfst:not(.pfst-on) { visibility: hidden; } }
+/* the jigsaw cover: a manual popover, so it sits above the modal dialog in the top layer */
+.pfst-cover { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 0px); height: var(--pfh, 0px); margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; pointer-events: auto; }
+.pfst-cover svg { position: absolute; overflow: visible; will-change: transform; }
