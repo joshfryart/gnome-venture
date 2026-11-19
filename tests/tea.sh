@@ -38,7 +38,7 @@ get login.php >/dev/null; post login.php -d username=sprout -d 'password=TestPas
 
 echo "== default (Admins only): a player sees plain art"
 chk "home is 200" "$(get gnome.php)" 200; noerr home
-has "the room picture" 'class="hroom hroom-crop'; has "...as a picture, not a group" 'role="img" aria-label="Your hovel'
+has "the room picture (Today: the whole room with its things)" 'class="hroom hroom-full hroom-things'; has "...the other things are links" '<a class="ht ht-door"'
 hasnt "no kettle hit box" 'hd-kettle'; hasnt "no popover" 'id="htea"'; hasnt "no tea script" 'assets/tea.js'; hasnt "no kettle line" 'hs-teal'
 get 'gnome.php?tab=furnish' >/dev/null; hasnt "Furnish: no kettle hit box in the whole room" 'hd-kettle'
 chk "?tea=1 draws nothing" "$(get 'gnome.php?tea=1' >/dev/null; grep -c 'id="htea"' $H)" 0

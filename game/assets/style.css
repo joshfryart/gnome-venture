@@ -7834,6 +7834,64 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 @media (prefers-reduced-motion: no-preference) {
   a.hs-slot, .hpick-it, a.hs-news, .hs-nlist a, .hroom .hd-hit { transition: background-color .12s, box-shadow .12s, fill .12s; }
 }
+/* The interactive room on TODAY (includes/home_slim.php, boxes in includes/data/hovel_things.php, script assets/hovelroom.js):
+   the whole room with tappable things, a one-line greeting, a row of small rest buttons. Positions are SVG attributes; state is classes. */
+.hs-tab-today .hs-banner { gap: 8px; }
+.hs-tab-today .hs-room { margin: -6px -6px 0; }   /* a phone: the picture runs to the stitch, so a 62-unit tap box is 44 px on a 390 px screen */
+.hs-tab-today .hs-side { gap: 6px; }
+.hs-hi { max-width: 100%; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body[data-area] main .hs-tab-today h1.hs-hi, main .hs-tab-today h1.hs-hi { background: none; padding-bottom: 0; }   /* one plain line: no heading rule */
+.hs-btns { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; justify-content: center; }
+.hs-btns .hs-sb { flex: 1 1 auto; min-height: 40px; margin: 0; padding: 4px 10px; font-size: 15px; white-space: nowrap; }
+.hs-say { position: absolute; left: 40%; bottom: 38%; z-index: 2; max-width: 58%; padding: 2px 8px; background: #fff8e6; color: #2a1a10; border: 2px solid #2a1a10; font-size: 13px; font-weight: 700; line-height: 1.35; pointer-events: none; }   /* over the gnome's hat (the gnome's box is fixed in hovel_decor.json) */
+.hs-say[hidden] { display: none; }
+.hroom .ht-hit { fill: transparent; }
+.hroom a.ht, .hroom-things a.hd { cursor: pointer; outline: none; }
+.hroom .ht-out { fill: none; stroke: #fff3b0; stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: round; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 1px #2a1a10) drop-shadow(0 0 1px #2a1a10); }
+.hroom a:hover .ht-out, .hroom a:focus-visible .ht-out { opacity: 1; }
+.hroom a:focus-visible .ht-out { stroke-width: 3; }
+.hroom-things a.hd:hover .hd-hit, .hroom-things a.hd:focus-visible .hd-hit { fill: transparent; stroke: none; }
+.hroom .ht.pulse .ht-out { animation: hr-pulse 1.6s ease-in-out 4; }   /* the bed asks to be tapped for a few seconds, then rests */
+.hroom .hr-steam circle { fill: #fff; stroke: rgba(74, 44, 26, .35); stroke-width: .5; opacity: 0; pointer-events: none; }
+.hroom .hr-steam .a { animation: hr-rise 2.8s ease-in infinite; }
+.hroom .hr-steam .b { animation: hr-rise 2.8s ease-in 1.2s infinite; }
+.hroom .hr-zz text { fill: #fff; stroke: #4a2c1a; stroke-width: .7; paint-order: stroke; font-weight: 700; font-size: 11px; opacity: 0; pointer-events: none; }
+.hroom .hr-zz .a { animation: hr-zz 3.4s ease-in-out infinite; }
+.hroom .hr-zz .b { font-size: 8px; animation: hr-zz 3.4s ease-in-out 1.2s infinite; }
+.hroom-things .hr-gnome { animation: hr-bob 2.6s ease-in-out infinite; }
+.hroom-things .hr-gnome.hop { animation: hr-hop .5s ease-out 1, hr-bob 2.6s ease-in-out .5s infinite; }
+.hroom .hr-lampglow { opacity: 0; pointer-events: none; }
+.hroom.lamp-on .hr-lampglow { opacity: .9; animation: hr-flick 3.2s ease-in-out infinite; }
+@keyframes hr-pulse { 0%, 100% { opacity: 0; } 50% { opacity: .95; } }
+@keyframes hr-rise { 0% { transform: translateY(0); opacity: 0; } 25% { opacity: .75; } 100% { transform: translateY(-12px); opacity: 0; } }
+@keyframes hr-zz { 0% { transform: translate(0, 0); opacity: 0; } 30% { opacity: .9; } 100% { transform: translate(7px, -16px); opacity: 0; } }
+@keyframes hr-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+@keyframes hr-hop { 0% { transform: translateY(0); } 40% { transform: translateY(-9px); } 100% { transform: translateY(0); } }
+@keyframes hr-flick { 0%, 100% { opacity: .9; } 45% { opacity: 1; } 60% { opacity: .78; } }
+@media (prefers-reduced-motion: reduce) {   /* calm: nothing moves; the steam and the z's stay as still marks */
+  .hroom .hr-steam .a, .hroom .hr-steam .b, .hroom .hr-zz .a, .hroom .hr-zz .b, .hroom-things .hr-gnome, .hroom-things .hr-gnome.hop, .hroom.lamp-on .hr-lampglow, .hroom .ht.pulse .ht-out { animation: none; }
+  .hroom .hr-steam circle, .hroom .hr-zz text { opacity: .6; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hroom .ht-out, .hroom .hr-lampglow { transition: opacity .15s; }
+}
+@container (min-width: 600px) {
+  .hs-tab-today .hs-room { margin: 0; }
+  .hs-hi { font-size: 18px; }
+}
+/* the cards behind the bed and the window: small dialog.hpick boxes */
+dialog.hpop { width: min(380px, calc(100% - 24px)); }
+.hpop-in { display: grid; gap: 10px; }
+.hpop-acts { display: flex; gap: 8px; }
+.hpop-acts .btn { flex: 1 1 0; min-height: 48px; margin: 0; font-size: 17px; }
+.hpop-sm, .hpop-beds small, .hpop-wx small { color: var(--muted); font-size: 13px; }
+.hpop-sub { margin: 4px 0 0; font-size: 15px; }
+.hpop-beds, .hpop-wx { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.hpop-beds li { display: grid; gap: 2px; justify-items: center; }
+.hpop-beds .btn { margin: 0; }
+.hpop-wx { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.hpop-wx li { display: grid; gap: 2px; padding: 8px; background: var(--surface-2); border: 2px solid var(--line-2); }
+.hpop-wx b { font-size: 16px; }
 /* The tea kettle (includes/tea_view.php): the popover is a dialog.hpick; the same panel is a page at hovel.php?t=tea */
 dialog.htea { text-align: left; }
 .htea-in, .htea-page { display: grid; gap: 10px; }

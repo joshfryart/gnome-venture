@@ -812,6 +812,9 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.19' => ['🛏️ Update 2.7.19: your hovel, up close',
+        "[list][*][b]Bigger room[/b]: your whole hovel shows on the Today tab, and you can tap things in it. Tap the bed to sleep or nap, the door to step out, the window for the weather, the lamp for light, and your gnome to say hello.\n"
+        . "[*][b]Small buttons[/b]: Sleep, Nap, the inn and Other beds are a neat row under the picture.[/list]"],
     '2.7.18' => ['🧩 Update 2.7.18: a tidier Today tab',
         "[list][*][b]Needs you[/b]: things to collect (ripe crops, finished pots, ready jars) are now three small tiles in a row. Empty beds are one line with the reasons, and the daily job and \"say hello\" sit underneath.\n"
         . "[*][b]Your pals[/b]: every garden pal shows how well it is working as a coloured pill: green is good, yellow is slowing down, red means replace it soon, and black with a ! means it is barely working.[/list]"],

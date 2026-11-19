@@ -11,7 +11,7 @@ const out = []; const ok = (name, got, want) => out.push((got === want ? '  ok  
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   await p.goto(B + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!');
   await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]); await p.goto(B + '/gnome.php');
-  const hit = p.locator('.hs-crop a.hd-kettle .hd-hit');
+  const hit = p.locator('.hs-room a.hd-kettle .hd-hit');
   const bb = await hit.boundingBox();
   ok('the kettle tap area is at least 44 px each way on a phone (' + (bb ? Math.round(bb.width) + ' x ' + Math.round(bb.height) : 'none') + ')', !!bb && bb.width >= 44 && bb.height >= 44, true);
   ok('the popover is closed', await p.evaluate(() => document.getElementById('htea').open), false);

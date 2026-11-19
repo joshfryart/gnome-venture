@@ -6,6 +6,9 @@ declare(strict_types=1);
  * On: gnome.php is one page: a slim hovel banner (a 480x120 crop, y104-224, of the 480x270 room picture) with Go to sleep and Nap,
  * then three tabs, plain links: TODAY (one "Needs you" list + the news row), FURNISH (the room's decor slots) and GNOME (level,
  * health, pals along, the six sub-page tiles). hovel.php still does the sleeping (POST, CSRF) and sends a GET to the right tab.
+ * TODAY (the interactive room): the banner is the WHOLE room with tappable things (bed, door, kettle, window, lamp, gnome; boxes in
+ * includes/data/hovel_things.php, like the Crafting scenes), a one-line greeting and a row of small rest buttons. Every thing is a
+ * real link; assets/hovelroom.js only adds the lamp switch and the gnome's speech bubble, the dialogs open through site.js (data-hdlg).
  *
  * Picture rules (DESIGN.md "Here, door and treehouse pictures"): one inline SVG, positions are SVG attributes, state is classes,
  * every image pixelated, art optional (a drawn wall and floor when scenes/hovel-room.png is missing; a missing layer is a soft box).
@@ -145,6 +148,37 @@ function hovel_slot_url(string $slot, array $x = []): string
     return url('gnome.php?' . http_build_query(['tab' => 'furnish'] + ($slot !== '' ? ['slot' => $slot] : []) + $x));
 }
 
+/**
+ * The tappable things of the room on Today, from includes/data/hovel_things.php: [id => ['id', 'label', 'x', 'y', 'w', 'h', 'act', 'out' => [x, y, w, h]]].
+ * A row with a bad id or a box outside the picture is dropped.
+ */
+function hovel_things(): array
+{
+    static $t = null;
+    if ($t !== null) return $t;
+    $t = [];
+    $rows = @include __DIR__ . '/data/hovel_things.php';
+    $cv = hovel_decor_catalog()['canvas'];
+    foreach (is_array($rows) ? $rows : [] as $r) {
+        $id = (string)($r['id'] ?? '');
+        if (!preg_match('/^[a-z]{1,12}$/', $id)) continue;
+        $x = (int)($r['x'] ?? -1); $y = (int)($r['y'] ?? -1); $w = (int)($r['w'] ?? 0); $h = (int)($r['h'] ?? 0);
+        if ($x < 0 || $y < 0 || $w < 1 || $h < 1 || $x + $w > (int)$cv['w'] || $y + $h > (int)$cv['h']) continue;
+        $out = array_map('intval', array_slice((array)($r['out'] ?? []), 0, 4));
+        $t[$id] = ['id' => $id, 'label' => (string)($r['label'] ?? $id), 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h, 'act' => (string)($r['act'] ?? 'go'), 'out' => count($out) === 4 ? $out : [$x, $y, $w, $h]];
+    }
+    return $t;
+}
+
+/** One thing's link in the room picture: the dotted outline (shown on hover and focus, pulsing on the bed) and the tap box. $t: a hovel_things() row; $a: ['href', 'label', 'attr' => more attributes, 'cls']. */
+function hovel_thing_svg(array $t, array $a): string
+{
+    [$ox, $oy, $ow, $oh] = $t['out'];
+    return '<a class="ht ht-' . e($t['id']) . (($a['cls'] ?? '') !== '' ? ' ' . e($a['cls']) : '') . '" href="' . e($a['href']) . '"' . ($a['attr'] ?? '') . ' aria-label="' . e($a['label']) . '"><title>' . e($a['label']) . '</title>'
+        . '<rect class="ht-out" x="' . $ox . '" y="' . $oy . '" width="' . $ow . '" height="' . $oh . '" rx="5"/>'
+        . '<rect class="ht-hit" x="' . $t['x'] . '" y="' . $t['y'] . '" width="' . $t['w'] . '" height="' . $t['h'] . '"/></a>';
+}
+
 /** The gnome standing at home: sprite/gnome-home.png (optional grey gnome-home-hat / -beard layers are tinted), else the layered avatar. */
 function hovel_gnome_svg(array $u, array $g): string
 {
@@ -173,6 +207,8 @@ function hovel_gnome_svg(array $u, array $g): string
 /**
  * The room as one SVG. $mode 'crop' = the banner (y104-224, 480x120), 'full' = the whole 480x270 room.
  * $o: 'taps' => true makes each slot a link that opens its picker (dialog with script, ?slot= without), 'sel' => slot key to mark.
+ * 'things' => [id => ['href', 'label', 'attr', 'cls']] (full room, Today): the things of includes/data/hovel_things.php named here are links
+ * (the decor slots are plain art then), with kettle steam, z's over the bed and the lamp's glow ('lamp' => true = lit).
  */
 function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o = []): string
 {
@@ -181,15 +217,16 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
     [$c0, $c1] = array_map('intval', $cat['canvas']['crop']);
     $full = $mode === 'full';
     $vb = $full ? '0 0 ' . $W . ' ' . $H : '0 ' . $c0 . ' ' . $W . ' ' . max(1, $c1 - $c0);
-    $taps = $full && !empty($o['taps']);
+    $things = $full && isset($o['things']) && is_array($o['things']) ? $o['things'] : null;
+    $taps = $full && !empty($o['taps']) && $things === null;
     $sel = (string)($o['sel'] ?? '');
     $names = [];
     foreach ($cat['slots'] as $sk => $s) $names[] = $s['name'] . ': ' . ($s['items'][$chosen[$sk] ?? '']['name'] ?? '');
     $dp = (string)($o['daypart'] ?? '');
     $tea = tea_open_for($u);   // the kettle on the side table is a link (the tea popover); closed for this viewer = plain art, no hit box
-    $svg = '<svg class="hroom hroom-' . ($full ? 'full' : 'crop') . ($dp !== '' ? ' dp-' . e(preg_replace('/[^a-z]/', '', $dp)) : '') . '" viewBox="' . $vb . '"'
+    $svg = '<svg class="hroom hroom-' . ($full ? 'full' : 'crop') . ($things !== null ? ' hroom-things' . (!empty($o['lamp']) ? ' lamp-on' : '') : '') . ($dp !== '' ? ' dp-' . e(preg_replace('/[^a-z]/', '', $dp)) : '') . '" viewBox="' . $vb . '"'
         . ($taps ? ' role="group" aria-label="' . e('Your room. ' . implode(', ', $names) . '. Tap a thing to change it.') . '"'
-            : ($tea ? ' role="group" aria-label="' . e('Your hovel. ' . implode(', ', $names) . '. Tap the kettle to brew tea.') . '"' : ' role="img" aria-label="' . e('Your hovel. ' . implode(', ', $names)) . '"')) . ' focusable="false">';
+            : ($things !== null ? ' role="group" aria-label="' . e('Your hovel. ' . implode(', ', $names) . '. Tap a thing to use it.') . '"' : ($tea ? ' role="group" aria-label="' . e('Your hovel. ' . implode(', ', $names) . '. Tap the kettle to brew tea.') . '"' : ' role="img" aria-label="' . e('Your hovel. ' . implode(', ', $names)) . '"'))) . ' focusable="false">';
     $back = hovel_art('scenes/hovel-room.png');
     if ($back !== '') {
         $svg .= '<image class="hr-back" href="' . e($back) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" image-rendering="pixelated"/>';
@@ -214,6 +251,29 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
         } else {
             $svg .= '<g class="' . $cls . '">' . $lay . '</g>';
         }
+    }
+    if ($things !== null) {   // Today: the room's things are the links. Order: the cute bits, the gnome, the night tint, the lamp's glow, then every tap box on top
+        $T = hovel_things();
+        $lamp = $cat['slots']['lamp'] ?? ['x' => 276, 'y' => 180, 'w' => 16];
+        $lx = (int)$lamp['x'] + intdiv((int)$lamp['w'], 2); $ly = (int)$lamp['y'] + 6;
+        $svg .= '<defs><radialGradient id="hr-lampg"><stop offset="0" stop-color="#fff3b0" stop-opacity=".85"/><stop offset=".45" stop-color="#ffd98a" stop-opacity=".4"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient></defs>'
+            . '<g class="hr-steam" aria-hidden="true"><circle class="a" cx="322" cy="166" r="2"/><circle class="b" cx="325" cy="163" r="1.6"/></g>'
+            . hovel_gnome_svg($u, $cat['gnome'])
+            . '<rect class="hr-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" aria-hidden="true"/>'
+            . '<circle class="hr-lampglow" cx="' . $lx . '" cy="' . $ly . '" r="34" fill="url(#hr-lampg)" aria-hidden="true"/>'
+            . (isset($things['bed']) ? '<g class="hr-zz" aria-hidden="true"><text class="a" x="98" y="176">z</text><text class="b" x="106" y="168">z</text></g>' : '');
+        foreach ($T as $id => $t) {
+            if ($id === 'kettle') {   // the tea kettle keeps its own link and dialog (includes/tea_view.php); closed for this viewer = plain art
+                if (!$tea) continue;
+                [$ox, $oy, $ow, $oh] = $t['out'];
+                $svg .= '<a class="hd hd-kettle" href="' . e(url('gnome.php?tea=1') . '#htea') . '" data-hdlg="htea" aria-label="The kettle. Brew a cup of tea"><title>The kettle. Brew a cup of tea</title>'
+                    . '<rect class="ht-out" x="' . $ox . '" y="' . $oy . '" width="' . $ow . '" height="' . $oh . '" rx="5"/>'
+                    . '<rect class="hd-hit" x="' . $t['x'] . '" y="' . $t['y'] . '" width="' . $t['w'] . '" height="' . $t['h'] . '"/></a>';
+                continue;
+            }
+            if (isset($things[$id])) $svg .= hovel_thing_svg($t, $things[$id]);
+        }
+        return $svg . '</svg>';
     }
     if ($tea) {   // the kettle is painted into scenes/hovel-room.png at about x 320-350, y 163-185: a 64 x 64 tap area around it, inside the banner crop and clear of the lamp's and the shelf's
         [$kx, $ky, $kw, $kh] = HOVEL_KETTLE_HIT;
@@ -388,7 +448,71 @@ function home_slim_bang(int|string $n, string $label): string
     return '<b class="hs-bang" role="img" aria-label="' . e($label) . '">' . e((string)$n) . '</b>';
 }
 
-/** The slim banner: the room crop (on FURNISH also the whole room, shown on a phone), the time tag, the greeting, Go to sleep and Nap. */
+/**
+ * The ways to rest right now, sorted for the banner and the bed's card (gclock_rest_options() decides what is on offer, its price and
+ * whether it can be done): ['main' => the first sleep that can be done (else the first), 'nap' => the nap, 'others' => the other sleeps,
+ * 'notes' => [lines under the buttons], 'plain' => true when 'main' is a free night in your own bed and nothing needs saying].
+ */
+function home_slim_rest(array $u, array $s): array
+{
+    $opts = gclock_rest_options($u);
+    $sleep = array_values(array_filter($opts, fn($o) => $o['kind'] !== 'nap'));
+    $nap = array_values(array_filter($opts, fn($o) => $o['kind'] === 'nap'));
+    $main = null; foreach ($sleep as $o) if ($o['ok']) { $main = $o; break; }
+    $main ??= $sleep[0] ?? null;
+    $notes = []; $plain = false;
+    if ($main) {
+        $note = $main['key'] === 'home_sleep' ? 'Sleep: fresh start at 06:00' : $main['label'] . ' · ' . $main['cost'];
+        $plain = $main['key'] === 'home_sleep' && $main['ok'] && !$s['tired'];
+        if (!$main['ok']) $note = $main['label'] . ': ' . $main['why'];
+        if ($s['tired']) $note = 'After 22:00 everything costs +' . game_surcharge_pct($u) . '% energy. Sleep to start fresh at 06:00.';
+        $notes[] = $note;
+        if (($busy = gclock_busy_minutes((int)$u['id'])) > 0) $notes[] = round($busy / 60, 1) . ' h of work still to finish. Sleep, and it is done first thing in the morning.';
+    }
+    return ['main' => $main, 'nap' => $nap[0] ?? null, 'others' => array_values(array_filter($sleep, fn($o) => $o !== $main)), 'notes' => $notes, 'plain' => $plain];
+}
+
+/** What a rest button says when you hover it: its full name, the price, and why not. */
+function home_slim_rest_title(array $o): string
+{
+    return $o['label'] . ' · ' . $o['cost'] . ($o['ok'] ? '' : ' · ' . $o['why']);
+}
+
+/** Where the room's door leads: [address, label]. The Here page (the town page without the picture pages), named after where the gnome is. */
+function hovel_door(array $u): array
+{
+    $name = '';
+    try {
+        $lid = (int)($u['location_id'] ?? 0) ?: (int)($u['home_village_id'] ?? 0);
+        $loc = $lid > 0 ? q_one('SELECT * FROM locations WHERE id = ?', [$lid]) : null;
+        if ($loc) { require_once __DIR__ . '/destination.php'; $name = dest_name((int)$u['id'], $loc); }
+    } catch (Throwable $e) {}
+    if ($name === '???') $name = '';
+    return [url(gnav_on() ? 'here.php' : 'town.php'), 'The door. Step out' . ($name !== '' ? ' to ' . $name : '')];
+}
+
+/** What the gnome says when tapped: the greeting, then a short mood line from energy and the hour. */
+function hovel_gnome_lines(array $u, string $hello, ?array $s): array
+{
+    $max = max(1, max_energy($u)); $e = (int)($u['energy'] ?? 0);
+    if ($s && $s['tired']) $mood = 'Sleepy... bed soon?';
+    elseif ($e * 10 >= $max * 7) $mood = 'Rested and ready!';
+    elseif ($e * 10 <= $max * 3) $mood = 'Tired: a nap?';
+    else $mood = 'A fine day for a wander.';
+    return [$hello . '!', $mood];
+}
+
+/** Is the lamp lit? By itself at dusk and at night; ?lamp=on / ?lamp=off is the no-script switch (a look only, nothing is saved). */
+function hovel_lamp_on(string $dp): bool
+{
+    $g = (string)($_GET['lamp'] ?? '');
+    return $g === 'on' || ($g !== 'off' && in_array($dp, ['dusk', 'night'], true));
+}
+
+/**
+ * The slim banner. TODAY: the whole room with its tappable things, the time tag, a one-line greeting and the row of small rest buttons.
+ * The other tabs: the room crop (on FURNISH also the whole room with the decor slots, shown on a phone), the greeting, Go to sleep and Nap.
+ */
 function home_slim_banner_html(array $u, array $chosen, string $tab, string $hello): string
 {
     $s = gclock_on() ? gclock_state($u) : null;
@@ -397,37 +521,94 @@ function home_slim_banner_html(array $u, array $chosen, string $tab, string $hel
         . ' · ' . $now['season_label'] . ' ' . (int)$now['season_day'] . ' · ' . $now['weather_label'];
     $dp = (string)$now['daypart'];
     $tagHtml = '<span class="hs-tag">' . e($tag) . '</span>';
+    $rest = $s ? home_slim_rest($u, $s) : null;
+    if ($tab === 'today') {
+        $lamp = hovel_lamp_on($dp);
+        [$doorHref, $doorLabel] = hovel_door($u);
+        $things = [
+            'window' => ['href' => url('gnome.php?thing=window') . '#hp-window', 'label' => 'The window. Today’s weather: ' . $now['weather_label'], 'attr' => ' data-hdlg="hp-window"'],
+            'gnome' => ['href' => url('gnome.php?tab=gnome'), 'label' => 'Your gnome. Say hello', 'attr' => ' data-hsay="' . e((string)json_encode(hovel_gnome_lines($u, $hello, $s), JSON_UNESCAPED_UNICODE)) . '"'],
+            'lamp' => ['href' => url('gnome.php?lamp=' . ($lamp ? 'off' : 'on')), 'label' => 'The lamp. Switch the light', 'attr' => ' data-hlamp role="button" aria-pressed="' . ($lamp ? 'true' : 'false') . '"'],
+            'door' => ['href' => $doorHref, 'label' => $doorLabel],
+        ];
+        if ($rest && $rest['main']) $things['bed'] = ['href' => url('gnome.php?thing=bed') . '#hp-bed', 'label' => 'Your bed. Sleep or nap', 'attr' => ' data-hdlg="hp-bed"', 'cls' => 'pulse'];
+        $h = '<section class="hs-banner" aria-label="Your hovel">'
+            . '<div class="hs-pic hs-room">' . hovel_room_svg($u, $chosen, 'full', ['things' => $things, 'lamp' => $lamp, 'daypart' => $dp]) . $tagHtml
+            . '<span class="hs-say" role="status" hidden></span></div>'
+            . '<div class="hs-side"><h1 class="hs-hi">' . e($hello) . ', ' . e((string)strtok(gnome_name($u), ' ')) . '!</h1>';
+        if ($rest && $rest['main']) {   // the row of small buttons: the same rest options as the big buttons had (same keys, prices and disabled states)
+            $sb = fn(array $o, string $label, string $cls): string => '<button class="btn small hs-sb' . $cls . '" type="submit" name="do" value="' . e($o['key']) . '" title="' . e(home_slim_rest_title($o)) . '"' . ($o['ok'] ? '' : ' disabled') . '>' . e($label) . '</button>';
+            $inn = fn(array $o): string => '🛏️ Inn · ' . (int)$o['cost'];
+            $m = $rest['main'];
+            $h .= '<form method="post" action="' . e(url('hovel.php')) . '" class="hs-rest">' . csrf_field() . '<input type="hidden" name="back" value="today"><div class="hs-btns">'
+                . $sb($m, $m['key'] === 'inn_pay' ? $inn($m) : '🌙 Sleep', '') . ($rest['nap'] ? $sb($rest['nap'], '💤 Nap', ' ghost') : '');
+            $more = 0;
+            foreach ($rest['others'] as $o) { if ($o['key'] === 'inn_pay') $h .= $sb($o, $inn($o), ' ghost'); else $more++; }
+            if ($more > 0) $h .= '<a class="btn small ghost hs-sb" href="' . e(url('gnome.php?thing=bed') . '#hp-bed') . '" data-hdlg="hp-bed">Other beds</a>';
+            $h .= '</div>';
+            foreach (array_slice($rest['notes'], $rest['plain'] ? 1 : 0) as $note) $h .= '<p class="hs-note">' . e($note) . '</p>';   // a plain night at home needs no line (the bed's card has it)
+            $h .= '</form>';
+        }
+        return $h . '</div></section>';
+    }
     $h = '<section class="hs-banner" aria-label="Your hovel">'
         . '<div class="hs-pic hs-crop">' . hovel_room_svg($u, $chosen, 'crop', ['daypart' => $dp]) . $tagHtml . '</div>';
     if ($tab === 'furnish') $h .= '<div class="hs-pic hs-full">' . hovel_room_svg($u, $chosen, 'full', ['taps' => true, 'sel' => (string)($_GET['slot'] ?? ''), 'daypart' => $dp]) . $tagHtml . '</div>';
     $h .= '<div class="hs-side"><h1>' . e($hello) . ', ' . e(gnome_name($u)) . '!</h1>';
-    if ($s) {
-        $opts = gclock_rest_options($u);
-        $sleep = array_values(array_filter($opts, fn($o) => $o['kind'] !== 'nap'));
-        $nap = array_values(array_filter($opts, fn($o) => $o['kind'] === 'nap'));
-        $main = null; foreach ($sleep as $o) if ($o['ok']) { $main = $o; break; }
-        $main ??= $sleep[0] ?? null;
-        $n0 = $nap[0] ?? null;
+    if ($rest) {
+        $main = $rest['main']; $n0 = $rest['nap'];
         $back = in_array($tab, ['today', 'furnish', 'gnome'], true) ? $tab : 'today';
-        $btn = fn(array $o, string $label, string $cls) => '<button class="btn big' . $cls . '" type="submit" name="do" value="' . e($o['key']) . '" title="' . e($o['label'] . ' · ' . $o['cost'] . ($o['ok'] ? '' : ' · ' . $o['why'])) . '"' . ($o['ok'] ? '' : ' disabled') . '>' . e($label) . '</button>';
+        $btn = fn(array $o, string $label, string $cls) => '<button class="btn big' . $cls . '" type="submit" name="do" value="' . e($o['key']) . '" title="' . e(home_slim_rest_title($o)) . '"' . ($o['ok'] ? '' : ' disabled') . '>' . e($label) . '</button>';
         $h .= '<form method="post" action="' . e(url('hovel.php')) . '" class="hs-rest">' . csrf_field() . '<input type="hidden" name="back" value="' . e($back) . '">'
             . '<div class="hs-acts">' . ($main ? $btn($main, 'Go to sleep', '') : '') . ($n0 ? $btn($n0, 'Nap', ' ghost') : '') . '</div>';
-        if ($main) {
-            $note = $main['key'] === 'home_sleep' ? 'Sleep: fresh start at 06:00' : $main['label'] . ' · ' . $main['cost'];
-            if (!$main['ok']) $note = $main['label'] . ': ' . $main['why'];
-            if ($s['tired']) $note = 'After 22:00 everything costs +' . game_surcharge_pct($u) . '% energy. Sleep to start fresh at 06:00.';
-            $h .= '<p class="hs-note">' . e($note) . '</p>';
-            if (($busy = gclock_busy_minutes((int)$u['id'])) > 0) $h .= '<p class="hs-note">' . e(round($busy / 60, 1) . ' h of work still to finish. Sleep, and it is done first thing in the morning.') . '</p>';
-        }
-        $others = array_values(array_filter($sleep, fn($o) => $o !== $main));
-        if ($others) {
+        foreach ($rest['notes'] as $note) $h .= '<p class="hs-note">' . e($note) . '</p>';
+        if ($rest['others']) {
             $h .= '<details class="hs-more"><summary>Other beds</summary>';
-            foreach ($others as $o) $h .= '<p><button class="btn small ghost" type="submit" name="do" value="' . e($o['key']) . '"' . ($o['ok'] ? '' : ' disabled') . '>' . e($o['label']) . '</button> <small>' . e($o['cost'] . ($o['ok'] ? '' : ' · ' . $o['why'])) . '</small></p>';
+            foreach ($rest['others'] as $o) $h .= '<p><button class="btn small ghost" type="submit" name="do" value="' . e($o['key']) . '"' . ($o['ok'] ? '' : ' disabled') . '>' . e($o['label']) . '</button> <small>' . e($o['cost'] . ($o['ok'] ? '' : ' · ' . $o['why'])) . '</small></p>';
             $h .= '</details>';
         }
         $h .= '</form>';
     }
     return $h . '</div></section>';
+}
+
+/**
+ * The cards behind the room's things on TODAY: the bed (every way to rest, as the big buttons and "Other beds" had them) and the window
+ * (today's and tomorrow's weather). Each is a <dialog> opened by its thing in the picture (site.js, data-hdlg); with ?thing=bed or
+ * ?thing=window in the address it is drawn open in the page (no script).
+ */
+function home_slim_things_html(array $u): string
+{
+    $open = (string)($_GET['thing'] ?? '');
+    $s = gclock_on() ? gclock_state($u) : null;
+    $close = '<a class="btn alt" href="' . e(url('gnome.php')) . '" data-hdlg-close>Close</a>';
+    $h = '';
+    $rest = $s ? home_slim_rest($u, $s) : null;
+    if ($rest && $rest['main']) {
+        $m = $rest['main']; $n0 = $rest['nap'];
+        $btn = fn(array $o, string $label, string $cls): string => '<button class="btn' . $cls . '" type="submit" name="do" value="' . e($o['key']) . '" title="' . e(home_slim_rest_title($o)) . '"' . ($o['ok'] ? '' : ' disabled') . '>' . e($label) . '</button>';
+        $h .= '<dialog class="hpick hpop" id="hp-bed" aria-labelledby="hp-bed-h"' . ($open === 'bed' ? ' open' : '') . '>'
+            . '<form method="post" action="' . e(url('hovel.php')) . '">' . csrf_field() . '<input type="hidden" name="back" value="today">'
+            . '<div class="hpick-h"><h3 id="hp-bed-h"><span aria-hidden="true">🛏️</span> Your bed</h3>';
+        foreach ($rest['notes'] as $note) $h .= '<small>' . e($note) . '</small>';
+        $h .= '</div><div class="hpop-acts">' . $btn($m, 'Go to sleep', '') . ($n0 ? $btn($n0, 'Nap', ' ghost') : '') . '</div>';
+        $h .= '<small class="hpop-sm">' . e(home_slim_rest_title($m)) . ($n0 ? '<br>' . e(home_slim_rest_title($n0)) : '') . '</small>';
+        if ($rest['others']) {
+            $h .= '<h4 class="hpop-sub">Other beds</h4><ul class="hpop-beds">';
+            foreach ($rest['others'] as $o) $h .= '<li><button class="btn small ghost" type="submit" name="do" value="' . e($o['key']) . '"' . ($o['ok'] ? '' : ' disabled') . '>' . e($o['label']) . '</button> <small>' . e($o['cost'] . ($o['ok'] ? '' : ' · ' . $o['why'])) . '</small></li>';
+            $h .= '</ul>';
+        }
+        $h .= '<div class="hpick-act">' . $close . '</div></form></dialog>';
+    }
+    $now = hollow_now(hollow_user_region($u), null, $s);
+    $tom = null;
+    try { $tom = hollow_forecast(hollow_user_region($u), 2)[1] ?? null; } catch (Throwable $e) {}
+    $h .= '<dialog class="hpick hpop" id="hp-window" aria-labelledby="hp-window-h"' . ($open === 'window' ? ' open' : '') . '><div class="hpop-in">'
+        . '<div class="hpick-h"><h3 id="hp-window-h">Out the window</h3><small>' . e($now['season_label'] . ', day ' . (int)$now['season_day']) . '</small></div>'
+        . '<ul class="hpop-wx"><li><small>Today</small><b><span aria-hidden="true">' . e((string)$now['weather_emoji']) . '</span> ' . e((string)$now['weather_label']) . '</b></li>'
+        . ($tom ? '<li><small>Tomorrow</small><b><span aria-hidden="true">' . e((string)$tom['emoji']) . '</span> ' . e((string)$tom['wlabel']) . '</b></li>' : '') . '</ul>'
+        . '<div class="hpick-act"><a class="btn ghost" href="' . e(url('seasons.php')) . '">Seasons →</a>' . $close . '</div></div></dialog>';
+    return $h;
 }
 
 /** The three tabs (plain links, so they load in place with AJAX_PAGES and work without script). $cur: 'today', 'furnish', 'gnome' or a Gnome sub-page. */
@@ -467,6 +648,7 @@ function home_slim_today_html(array $u, array $needs): string
     $uid = (int)$u['id'];
     $h = '<div class="hs-cols"><div class="hs-main">';
     $teaOn = tea_open_for($u);
+    $h .= home_slim_things_html($u);   // the bed's and the window's cards (opened by the things in the room picture)
     if ($teaOn) { require_once __DIR__ . '/tea_view.php'; $h .= tea_dialog_html($u, isset($_GET['tea'])); }   // the kettle's popover (opened by the kettle in the banner; ?tea=1 draws it open here)
     require_once __DIR__ . '/puzzle_pals.php';
     if (ppal_open() && !is_guest($u)) { require_once __DIR__ . '/pal_jobs.php'; $h .= pj_home_notice_html($u); }   // pals back from a trip or delve
