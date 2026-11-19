@@ -23,6 +23,7 @@
   var PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78, PF_POISON_CAP = 3;
   var PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_FOE_MIN = 2, PFB_GROUP_MAX = 3;
   var PFB_GROUP_MULT = { 2: 1.0, 3: 2.0 }, PFB_SETASIDE_GUARD = 1.0;
+  var PFB_FIREX_BOSS = 1, PFB_FIREX_HOLD = 1;   // 2.7.31 rule firex: extra firings, a boss's pieces and a creature Guard / Hold piece
   var PFB_FOE_FIRES = 2, PFB_FOE_FIRE_MULT = 1.15;   // fire budget: a creature piece falls away after this many firings (its placement is the first)
   var PFB_BOSS_MULT = 1.2, PFB_BLANK_FOE_MULT = 1.0;
   var PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;
@@ -533,7 +534,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.8;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 0, abil: 0, style: 0, cset: 0, envopen: 0, tagfx: 0, paltgt: 0 };   // paltgt (2.7.08): pal targeting (pfb_pal_target)
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 0, abil: 0, style: 0, cset: 0, envopen: 0, tagfx: 0, paltgt: 0, firex: 0 };   // paltgt (2.7.08): pal targeting (pfb_pal_target)
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -839,9 +840,9 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,   // 2.7.06: Teamwork on again
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 0, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1, envopen: 0, tagfx: 1, paltgt: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 0, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1, envopen: 0, tagfx: 1, paltgt: 1, firex: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, envopen: 1, tagfx: 1, paltgt: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, envopen: 1, tagfx: 1, paltgt: 1, firex: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -1578,7 +1579,13 @@
     return ev;
   }
 
-  function fireLimit(p, tagfx) { if (tagfx && p.by === 'me' && nn(p.tile.tag, '') === 'heavy') return 1; return p.by === 'foe' ? Math.max(0, PFB_FOE_FIRES) : 0; }
+  function fireLimit(p, tagfx, firex, boss) {
+    if (tagfx && p.by === 'me' && nn(p.tile.tag, '') === 'heavy') return 1;
+    var n = p.by === 'foe' ? Math.max(0, PFB_FOE_FIRES) : 0;
+    if (n > 0 && firex) n += (boss ? PFB_FIREX_BOSS : 0) + (nn(p.tile.t, '') === 'guard' || nn(p.tile.tag, '') === 'hold' ? PFB_FIREX_HOLD : 0);   // 2.7.31 firex: bosses and guards stick longer
+    return n;
+  }
+  function fireLim(s, p) { return fireLimit(p, v1r(s, 'tagfx') === 1, v1r(s, 'firex') === 1, truthy(s.boss)); }
   function goneEntry(s, p, fell) {
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
@@ -1607,7 +1614,7 @@
     }
     var ids = Object.keys(s.pcs);
     for (var i = 0; i < ids.length; i++) {
-      var p = s.pcs[ids[i]], lim = fireLimit(p, v1r(s, 'tagfx') === 1);
+      var p = s.pcs[ids[i]], lim = fireLim(s, p);
       if (lim > 0 && toInt(nn(p.f, 0)) >= lim) {
         discardPiece(s, p);
         if (!Array.isArray(s.spent)) s.spent = [];
@@ -2394,7 +2401,7 @@
       link: groupCellsAll(s, g).some(function (o) { return o[2]; })
     } : null;
     v.pcs = [];
-    for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, fl: fireLimit(p) > 0 ? Math.max(0, fireLimit(p) - toInt(nn(p.f, 0))) : null, spawn: nn(s.spawn, null) === p.id, fnew: nn(s.lastfoe, []).indexOf(p.id) >= 0 }); }
+    for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, fl: fireLim(s, p) > 0 ? Math.max(0, fireLim(s, p) - toInt(nn(p.f, 0))) : null, spawn: nn(s.spawn, null) === p.id, fnew: nn(s.lastfoe, []).indexOf(p.id) >= 0 }); }
     v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), e: edges(q.tile), age: q.age, fell: truthy(q.fell) }; });
     nn(s.gone, []).forEach(function (q, i) { if (q.by === 'env') { v.gone[i].kind = String(q.tile.env); v.gone[i].dir = q.tile.dir === undefined ? null : q.tile.dir; } });   // 2.6.75: an environment piece that left: its kind and Wind's arrow
     for (i = 0; i < v.hand.length; i++) v.hand[i].e = edges(s.me.hand[i]);
