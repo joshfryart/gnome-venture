@@ -16,7 +16,7 @@ hedgerow|Clover Puddlejump|dp=dawn|35|Clover Puddlejump inspects your trimming, 
 232-berrypatch|Alder Pennywhistle@v-na-1-2|-|35|Alder Pennywhistle is checking his punnets. "Bramble said she'd send some honey over. Any sign of it?"|give=honey-parcel:1,fp=2,c=12,item=blueberry:1
 232-logbridge|Clover Brambleby@v-na-1-2|-|25|Clover Brambleby is off to see her cousin Bunty in Shellhollow, so you cross the log arm in arm, and she asks you to carry a parcel the rest of the way.|nocheck,fp=2,item=bunty-parcel:1
 232-well|Mister Plink@v-na-1-2|dp=night|60|A very polite voice says "good evening" from the bottom of the well. It is Mister Plink, a frog, and he lends you his singing pebble to hum along with for a while.|fp=1,buff=charm:1:240
-232-crossroads|Tobias Trundle|-|20|Tobias Trundle has set up a tiny shell-shop under the signpost and gives you a seed "for reading so nicely".|fp=1,seed=1
+232-crossroads|Tobias Trundle|-|20|Tobias Trundle has set up a tiny shell-shop under the signpost and gives you a seed "for reading so nicely".|fp=1,seed=1,disc=shop:10:60
 232-picnicrise|Bramble Mossfoot|we=sun/dp=day|50|Bramble Mossfoot is picnicking on the rise, shares half her sandwich, and gives you the leftover honey to take to Alder in Honeybrook.|fp=2,item=honey-parcel:1
 236-wildflowers|Basil Teaspoon@v-na-1-3|se=summer/dp=day|45|Basil Teaspoon is dozing in the flowers and mumbles which ones his bees like best this week.|fp=1,item=meadowsweet:1@50
 236-beanpoles|Dorrit Thistledown@v-na-1-3|-|25|Dorrit Thistledown has stopped to argue with the beans on her way to cousin Posy. "Could you spare two wheat for Posy's bread? I'll pay you in mushrooms."|give=wheat:2,fp=2,item=chanterelle:2
@@ -36,7 +36,7 @@ hedgerow|Clover Puddlejump|dp=dawn|35|Clover Puddlejump inspects your trimming, 
 307-barnacles|Yarrow Mossgrove@v-na-3-1|dp=dawn|45|Yarrow Mossgrove is picking mussels for the inn and hands you a warm bowl of stew.|fp=1,item=fishermans-stew:1@30
 307-shellhollow|Willa Gillyflower@v-na-3-1|dp=dusk|45|Willa Gillyflower is collecting echoes in a jar and tells you the next bit of a very long story.|fp=1,xp=4
 307-sandcastle|Bunty Brambleby@v-na-3-1|se=summer/dp=day|50|Bunty Brambleby is building castles with her inn guests and lets you add the seventh tower.|fp=2
-307-sandcastle|Bunty Brambleby@v-na-3-1|-|35|Bunty Brambleby is out for a breath of sea air. "Is that a parcel from Clover? It smells like her biscuits!"|give=bunty-parcel:1,fp=2,c=10,item=custard-tart:1@20
+307-sandcastle|Bunty Brambleby@v-na-3-1|-|35|Bunty Brambleby is out for a breath of sea air. "Is that a parcel from Clover? It smells like her biscuits!"|give=bunty-parcel:1,fp=2,c=10,disc=rest:25:240,item=custard-tart:1@20
 308-pebblebar|Fennel Crumblewick@v-na-3-2|dp=dusk|45|Fennel Crumblewick keeps the skipping record, and today your throw beats it. She chalks your name on the record stone.|fp=1,item=sea-glass:1@30,page=record-stone
 308-rockpool|Wick Kettleby@v-na-3-2|dp=day|45|Wick Kettleby is teaching the crab to wave signal flags. The crab is doing better than you.|fp=1,page=flag-lessons
 308-tidesteps|Burdock Oakenpot@v-na-3-2|dp=dawn|45|Burdock Oakenpot is mapping every teacup pool, lets you name a very small, very cross fish, and tears you a corner of his map.|fp=1,item=map-scrap:1@50

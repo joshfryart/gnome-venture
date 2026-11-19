@@ -384,6 +384,36 @@ function creature_windows_2708(): int
 }
 
 /**
+ * 2026-11-19: the four CREATURE_WINDOWS_2708 base rows whose regional drop was gated to regions outside their new window (so it could never fall):
+ * slug => [item name, old reg, new reg]. data/pf_creatures.txt already holds the new gate (a fresh world);
+ * an existing world gets it from the boot step `creature_window_drops_1119` (creature_window_drops_1119()).
+ */
+const CREATURE_WINDOW_DROPS_1119 = [
+    'arctic-fox'      => ['Lemming Fluff', 'NA/NWE', 'EE'],            // L16 tundra: window EE 14
+    'desert-tortoise' => ['Prickly Pear Cactus', 'CA/MENA', 'EA'],     // L22 desert: window EA 20
+    'glacier-bear'    => ['Crowberries', 'NA/NWE/EE', 'ESA'],          // L26 tundra,mountain: window ESA 32
+    'lichen-reindeer' => ['Cloudberry', 'NA/NWE/EE', 'ESA'],           // L28 tundra,mountain: window ESA 32
+];
+
+/**
+ * 2026-11-19: moves the region gate of the CREATURE_WINDOW_DROPS_1119 drops of an existing world (import_pf_creatures() never updates a drop row it already has).
+ * A drop row is changed only while it still has the OLD gate, so it is idempotent and an admin's own edit stays. Returns the number of drop rows changed.
+ */
+function creature_window_drops_1119(): int
+{
+    $n = 0;
+    foreach (CREATURE_WINDOW_DROPS_1119 as $slug => [$item, $old, $new]) {
+        $cid = (int)q_val('SELECT id FROM creatures WHERE slug = ?', [$slug]);
+        if (!$cid) continue;
+        foreach (q('SELECT cd.id FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.reg = ? AND (i.slug = ? OR LOWER(i.name) = LOWER(?))', [$cid, $old, slugify($item), $item])->fetchAll() as $d) {
+            q('UPDATE creature_drops SET reg = ? WHERE id = ?', [$new, (int)$d['id']]);
+            $n++;
+        }
+    }
+    return $n;
+}
+
+/**
  * Creatures from data/creatures.txt (+ drop tables and Almanac pages). Only slugs the world doesn't have yet are added, so it is safe
  * to run again on an upgrade: existing creatures (and anything an admin changed) are never touched. v0.9.7: split out of import_adventure.
  */

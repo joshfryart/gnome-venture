@@ -199,6 +199,33 @@ $put(['when' => '-', 'energy' => 0, 'uses' => 9, 'check' => 'luck:11?se=' . $oth
 $cards = trail_sights_cards_html($row(), trail_scene($exp), trail_sights_marks($row(), trail_scene($exp)), $exp);
 ok('in another season the card shows the plain check', str_contains($cards, '🎲 Luck') && !str_contains($cards, 'right now'), substr(strip_tags($cards), 0, 300));
 
+echo "== a shortcut never passes a waiting fight; a peek with nothing ahead says nothing\n";
+$sc = trail_scene($exp); $mp = $sc['map'];
+$old = ['st' => ['nxt' => ['skip']]]; $new = ['st' => ['sec' => 1, 'S' => 5, 'sx' => 1, 'phase' => 'section', 'tokens' => [[3, 3, 'E', 0]]], 'x' => 1, 'y' => 1, 'seen' => tm_seen_new($mp['w'], $mp['h'])];
+$done = sights3a_nxt_prepare($old, $new, $mp, false);
+ok('nxt=skip onto a stretch with a fight that waits: no skip', $done === ['skip:blocked'] && $new['st']['phase'] === 'section' && $new['x'] === 1, json_encode([$done, $new['st']['phase'], $new['x']]));
+$lg = ['log' => '[]']; sights3a_nxt_finish($row(), $lg, $done);
+ok('... and the log says why', str_contains((string)$lg['log'], 'a fight waits on this stretch'), (string)$lg['log']);
+$new = ['st' => ['sec' => 1, 'S' => 5, 'sx' => 1, 'phase' => 'section', 'tokens' => [[3, 3, 'E', 1]]], 'x' => 1, 'y' => 1, 'seen' => tm_seen_new($mp['w'], $mp['h'])];
+$done = sights3a_nxt_prepare($old, $new, $mp, false);
+ok('once the fight is done the shortcut works', $done === ['skip'] && $new['st']['phase'] === 'confirm');
+$sc['st']['sec'] = (int)$sc['st']['S'] - 1; trail_save($sc);
+ok('nxt=peek on the last stretch says nothing; nxt=find still says no stretch is left', sights3a_nxt_add($row(), 'peek') === '' && str_contains(sights3a_nxt_add($row(), 'find'), 'No stretch is left'));
+
+echo "== the data rows that use this pass and the older tokens the todo lists named\n";
+$GLOBALS['gv_sights_reload'] = true; q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]); $file = trail_sights_file();
+$has = fn(string $slug, string $tok) => isset($file[$slug]) && in_array($tok, array_map(fn($t) => ($t['lose'] ? 'lose:' : '') . $t['tok'] . ($t['cond'] !== '' ? '?' . $t['cond'] : ''), trail_sight_tokens($file[$slug]['rewards'])), true);
+ok('the Lantern Path: the lantern fruit lights the path at night', $has('rainforest-the-lantern-fruit', 'nxt=lit?dp=night'));
+ok('named stretches: the shell hollow, the star stones, the birch tunnel', $has('307-shellhollow', 'sec=314.2:find@50?dp=night') && $has('316-starstones', 'sec=309.2:find?dp=night/se=winter') && $has('305-birchtunnel', 'sec=305.2:find@40') && $has('305-birchtunnel', 'sec=312.1:find@40?we=fog'));
+ok('the bluebells are easier to hear in spring', $file['forest-the-bluebell-glade']['check'] === 'sense:11?se=spring:9');
+ok('game time: hay nap 60, stone hut 60, awning 120, causeway 20, windmill 30 without wind, a storm headwind 15', $has('haybales', 'time=60') && $has('mountain-the-stone-hut', 'time=60') && $has('desert-the-shade-awning', 'time=120') && $has('314-causeway', 'time=20') && $has('236-windmill', 'time=30?we=sun,cloud,rain,fog,frost,heat,snow') && $has('mountain-the-wind-notch', 'time=15?we=storm'));
+ok('next-stretch effects: dandelions find, toad steps peek, drift pass and stick gate quicker, rowboat hop, first star', $has('236-dandelions', 'nxt=find@40') && $has('306-toadsteps', 'nxt=peek') && $has('310-driftpass', 'nxt=quick:10') && $has('313-stickgate', 'nxt=quick:15') && $has('coast-the-stranded-rowboat', 'nxt=skip?dp=dawn/ti=high') && $has('end-wonder-2-island', 'nxt=quick:10'));
+ok('buffs: toad ring +1 to every stat, lantern rocks a second buff in fog, the delve lantern line lasts for the delve', $has('312-toadring', 'buff=all:1:10') && $has('314-lanternrocks', 'buff2=luck:1:120?we=fog') && $has('end-delve-2-forest', 'buff=sense:1:delve') && $has('end-delve-2-wetland', 'buff=luck:1:delve') && $has('end-delve-2-rainforest', 'buff=sense:1:delve'));
+ok('any-kind takes, after-quest forecast, inn discounts', $has('312-larder', 'take=any-nut:1') && $has('315-cairns', 'take=any-feather:1') && $has('grassland-the-wind-combed-meadow', 'hint=weather?qd=runaway-kite') && $has('end-haven-1-grassland', 'disc=rest:10:180') && $has('end-haven-1-island', 'disc=rest:25:180'));
+$folk = trail_sight_folk(); $frow = fn(string $slug, string $who, string $tok) => (bool)array_filter($folk[$slug] ?? [], fn($f) => str_starts_with($f['who'], $who) && str_contains(',' . $f['rewards'] . ',', ',' . $tok . ','));
+ok('villagers: Tobias 10% off, Bunty an inn voucher, Mabel a hay-ride, the boat gnome a short hop, Marrowby weekly after his line', $frow('232-crossroads', 'Tobias Trundle', 'disc=shop:10:60') && $frow('307-sandcastle', 'Bunty Brambleby', 'disc=rest:25:240') && $frow('grassland-the-hay-cart-ruts', 'Mabel Mossgrove', 'nxt=quick:10') && $frow('end-haven-1-wetland', 'Bramwick Pennywhistle', 'nxt=skip')
+    && (bool)array_filter($folk['desert-the-trader-s-tent-poles'] ?? [], fn($f) => $f['when'] === 'gd=7:0/qd=trader-went-home'));
+
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]);
 q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey LIKE 'sec#%'", [$uid]);
 q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$uid]);

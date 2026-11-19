@@ -8661,5 +8661,11 @@ main nav.tabs.hstabs.hs4 a { gap: 4px; padding-left: 4px; padding-right: 4px; fo
 .clt b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cldot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--thread); vertical-align: middle; }
 .clgo { font-size: 12px; color: var(--muted, inherit); }
-.clpop { grid-column: 1 / -1; background: var(--surface); box-shadow: 0 0 0 3px var(--brand-line); padding: 4px 8px; }
+.clpop { grid-column: 1 / -1; }   /* holds the picker drawn open in the page (?wear=SLOT: no script, or a refused change), under its pill row */
+dialog.clpick { text-align: left; padding: 10px 10px 12px; }   /* the Closet's slot picker: the Furnish dialog (dialog.hpick) with the Wearing list in it */
+dialog.clpick[open]:not(:modal) { box-shadow: 0 0 0 3px var(--brand-line); padding: 4px 8px 8px; }
+dialog.clpick .hpick-h { text-align: center; margin-bottom: 6px; }
+dialog.clpick form { display: block; }
+dialog.clpick .wbtn .btn { min-height: 40px; margin: 0; }
+dialog.clpick .hpick-act { margin-top: 8px; }
 .clpb { margin: 10px 0 0; font-size: 13px; }

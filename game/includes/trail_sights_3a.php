@@ -161,7 +161,7 @@ function sights3a_nxt_add(array $u, string $v): string
         $sec = (int)$sc['st']['sec'];
         require_once __DIR__ . '/trail_sights_4.php';
         if ($v === 'lit') return sights4_lit($sc);   // fourth pass: a lit path (it also lifts the fog you stand in, so it works on the last stretch too)
-        if ($sec + 1 >= (int)$sc['st']['S']) return '🗺️ No stretch is left on this walk for that.';
+        if ($sec + 1 >= (int)$sc['st']['S']) return $v === 'peek' ? '' : '🗺️ No stretch is left on this walk for that.';   // fourth pass: a peek with nothing ahead says nothing
         if ($v === 'fog' && !empty($sc['st']['lit'])) return '🏮 Fog gathers ahead, but your lit path keeps it off.';
         if ($v === 'peek' && sights4_fog_pending($sc['st'])) return '🌫️ The next stretch lies in fog: you cannot tell what waits there.';
         if ($v === 'peek') {
@@ -210,6 +210,7 @@ function sights3a_nxt_prepare(array $old, array &$new, array $map, bool $revisit
             }
             $h = crc32((string)($new['st']['sx'] ?? 0) . '|' . (int)$new['st']['sec']);
             for ($i = 0; $i < $want && $cand; $i++) { [$cx, $cy] = array_splice($cand, ($h + $i * 7) % count($cand), 1)[0]; $new['st']['tokens'][] = [$cx, $cy, 'F', 0]; }
+        } elseif ($k === 'skip' && array_filter($new['st']['tokens'], fn($t) => in_array($t[2], ['E', 'M'], true) && (int)$t[3] === 0)) { $done[] = 'skip:blocked'; continue;   // fourth pass: a shortcut never carries the gnome past a fight that waits on the stretch (a lair road's last stretch)
         } elseif ($k === 'skip' && isset($map['spots']['9'])) {
             [$new['x'], $new['y']] = [(int)$map['spots']['9'][0], (int)$map['spots']['9'][1]];
             tm_reveal($new['seen'], $map['w'], $map['h'], $new['x'], $new['y'], 20);
@@ -230,6 +231,7 @@ function sights3a_nxt_finish(array $u, array &$exp, array $done): bool
         elseif ($k === 'find') exp_log($exp, '🗺️ ' . (max(1, (int)$a) > 1 ? 'Finds wait' : 'A find waits') . ' on this stretch, as you were told.');
         elseif ($k === 'quick') { $m = sights3a_time_back((int)$u['id'], (int)$a); exp_log($exp, '⏱️ A quick stretch' . ($m > 0 ? ': ' . $m . ' game minutes back' : '') . '.'); }
         elseif ($k === 'fog') exp_log($exp, '🌫️ Fog lies on this stretch: a find shows only when you are next to it.');
+        elseif ($k === 'skip' && $a === 'blocked') exp_log($exp, '🪜 The shortcut is no use here: a fight waits on this stretch.');
         elseif ($k === 'skip') { $m = sights3a_time_back((int)$u['id'], function_exists('gclock_time_cost') ? gclock_time_cost('travel') : 0); exp_log($exp, '🪜 You take the shortcut to the end of this stretch' . ($m > 0 ? ' (' . $m . ' game minutes back)' : '') . '.'); }
     }
     return $calm;

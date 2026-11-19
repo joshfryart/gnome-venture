@@ -575,6 +575,10 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             require_once __DIR__ . '/adventure_data.php';
             creature_windows_2708();
         });
+        boot_step('creature_window_drops_1119', function () {   // 2026-11-19: the regional drop of arctic-fox, desert-tortoise, glacier-bear and lichen-reindeer was gated to regions outside their 2.7.08 window; its gate moves into the window (CREATURE_WINDOW_DROPS_1119 in includes/adventure_data.php; a fresh world: data/pf_creatures.txt). Only a drop still at the old gate is changed
+            require_once __DIR__ . '/adventure_data.php';
+            creature_window_drops_1119();
+        });
         boot_step('wearables_2700', function () {   // 2.7.00 wearables: the 33 wearable items, the Tailor's Thread, the Hat and the Pack on sale at Twigg's (includes/wearables.php)
             require_once __DIR__ . '/wearables.php';
             wear_ensure_items();

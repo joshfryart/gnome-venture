@@ -13,7 +13,7 @@ grassland-the-sleepy-windmill|Thimble Hollowell|dp=dawn|45|Thimble Hollowell is 
 grassland-the-daisy-ring|Granny Tapewell|tl=daisy-measures:3|35|Granny Tapewell pops up with her own tape measure, checks yours, and says you will do. She has been keeping the ring round for sixty years.|fp=2,item=daisy-chain-crown:1@50
 grassland-the-clover-patch|Dorrit Rushworth|we=rain|45|Dorrit Rushworth has a clipboard of checked clover leaves and asks you to recheck the wet ones. She gives you a copy of her ledger.|fp=2,item=clover-ledger:1@30,page=clover-ledger
 grassland-the-lonely-scarecrow|Alder Windlass|dp=dusk|40|Alder Windlass is telling the scarecrow their worries, so you sit and listen too.|fp=2
-grassland-the-hay-cart-ruts|Mabel Mossgrove|se=autumn/dp=day|45|Mabel Mossgrove gives you a bumpy hay-ride to the next bend, singing the whole way.|fp=1,xp=3
+grassland-the-hay-cart-ruts|Mabel Mossgrove|se=autumn/dp=day|45|Mabel Mossgrove gives you a bumpy hay-ride to the next bend, singing the whole way.|fp=1,xp=3,nxt=quick:10
 forest-the-lantern-branch|Alder Thistledown|dp=dusk|35|Alder Thistledown, the sleepy wick-keeper and the wood's lamplighter, yawns over his taper. If you have kept the lantern trimmed, he leaves you a spare lantern.|fp=2,item=tin-lantern:1@15?tl=wicks-trimmed:2
 forest-the-root-tangle-crossing|Bramwick Honeycomb|dp=day|40|Bramwick Honeycomb races you over the roots, loses by a whisker, and pins a ribbon on you anyway.|fp=2,item=root-race-ribbon:1@30
 forest-the-spring-and-the-pebbles|Wren Thimblewick|dp=dawn|35|Wren Thimblewick is testing the spring water and swaps you a seed for your prettiest pebble.|fp=1,seed=1
@@ -64,6 +64,7 @@ desert-the-mirage-pool|Wren Thimblewick|we=heat|40|Wren Thimblewick is studying 
 desert-the-cactus-garden|Hazel Hollowell|dp=dawn|40|Hazel Hollowell waters the cactus garden very bravely and lets you hold the can while showing off.|fp=2
 desert-the-trader-s-tent-poles|Old Marrowby|se=autumn|40|Old Marrowby has set up his autumn barter stall under the poles: three of a desert find for two from the sea.|give=desert-glass:3,item=sea-glass:2,fp=1
 desert-the-trader-s-tent-poles|Old Marrowby|se=autumn|40|Old Marrowby spots one of his old wooden coins and swaps it for a crystal, fair and square, as he always said.|give=marrowbys-wooden-coin:1,item=rock-crystal:1,fp=1
+desert-the-trader-s-tent-poles|Old Marrowby|gd=7:0/qd=trader-went-home|100|Old Marrowby is back under the poles for his weekly stall, now that someone hung him a light: three of a desert find for two from the sea.|give=desert-glass:3,item=sea-glass:2,fp=1
 desert-the-well-and-its-rope|Tilly Wickerby|we=heat/dp=day|45|Tilly Wickerby hauls up a cold bucket and shares the well water with you.|fp=1,en=1
 rainforest-the-stepping-roots|Thimble Fiddlewood|we=rain|40|Thimble Fiddlewood, a very quick gecko, shows you which roots are grippy. You climb straight up behind them.|nocheck,fp=2
 rainforest-the-giant-fern-glade|Ferrin Sedgemoor|dp=day|40|Ferrin Sedgemoor is playing hide and seek in the giant ferns and is very bad at hiding.|fp=2

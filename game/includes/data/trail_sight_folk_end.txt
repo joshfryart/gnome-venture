@@ -9,7 +9,7 @@ end-haven-1-coast|Alder Barleycorn|dp=dawn|45|Alder Barleycorn is running to ope
 end-haven-1-island|Posy Oakenpot|dp=night/we=sun,cloud|45|Posy Oakenpot is walking to the kava circle under the stars and tells you a story on the way.|fp=1,xp=3
 end-haven-1-tundra|Ferrin Pennywhistle|we=snow|45|Ferrin Pennywhistle trudges to the sauna through the snow, grumbling, and grumbles you a mug of cocoa.|fp=1,item=hot-cocoa:1@40
 end-haven-1-tundra|Pomeroy Crumbworth|-|25|Pomeroy Crumbworth is waiting by the sauna with a napkin tucked in, hoping somebody will let him taste a sauna bun.|give=sauna-bun:1,fp=2,xp=6,c=10
-end-haven-1-wetland|Bramwick Pennywhistle|dp=dawn|45|Bramwick Pennywhistle poles past on the way to market and waves so hard the boat wobbles.|fp=1,xp=3
+end-haven-1-wetland|Bramwick Pennywhistle|dp=dawn|45|Bramwick Pennywhistle poles past on the way to market and waves so hard the boat wobbles.|fp=1,xp=3,nxt=skip
 end-haven-2-grassland|Ulric Tumblethorn|dp=day/we=sun|45|Ulric Tumblethorn is napping against the sign post, so you tiptoe past and they mumble thank you.|fp=1,item=cornbread:1@20
 end-haven-2-coast|Sorrel Acorncap|dp=dawn|45|Sorrel Acorncap holds the sign steady with one hand and a tiny spirit level with the other. It is level, so you get a lemon.|nocheck,fp=1,item=lemon:1@50
 end-haven-2-island|Lyra Fiddlewing|-|30|Lyra Fiddlewing stops on her way to the tavern and plays you a song right there on the path.|fp=1,xp=3
