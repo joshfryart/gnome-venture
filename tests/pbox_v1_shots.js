@@ -151,7 +151,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('4-fight-new-rules');
     await p.keyboard.press('Escape'); await open('/adventure.php');
     await p.click('#pfv-legend [data-a=help]'); await p.waitForTimeout(200);
-    ck(T('T12 new fight: the help sheet has the two chain rules, the bar, free flip; no Teamwork, no Wind, no Mud'), await p.locator('.pfv-sheet').innerText().then(t => [/A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it/.test(t), /If its aim fires one of your pieces, your piece works for you/.test(t), /The Yield bar/.test(t), /Free, as often as you like/.test(t), /Teamwork|once a turn/i.test(t), /Wind|Mud/.test(t)]), [true, true, true, true, false, false]);
+    ck(T('T12 new fight: the help sheet has the two chain rules, the bar, free flip; no Teamwork; Wind and Mud are in (2.7.08: back from the start)'), await p.locator('.pfv-sheet').innerText().then(t => [/A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it/.test(t), /If its aim fires one of your pieces, your piece works for you/.test(t), /The Yield bar/.test(t), /Free, as often as you like/.test(t), /Teamwork|once a turn/i.test(t), /Wind|Mud/.test(t)]), [true, true, true, true, false, true]);
     await shot('4-fight-new-help', false);
     await p.keyboard.press('Escape');
 

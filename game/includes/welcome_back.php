@@ -106,7 +106,7 @@ function daily_card(array $u): ?array
         $opts[] = ['job', '📋', 'There’s no daily job on your list. Pick a small one.', 'jobs.php', 'Job Board'];
     }
     if (!q_val('SELECT 1 FROM npc_friends WHERE user_id = ? AND last_talk = ? LIMIT 1', [$uid, $day])) {
-        $opts[] = ['talk', '💬', 'Say hello to one of the townsfolk. A chat a day makes friends.', 'town.php?view=villagers', 'Villagers'];
+        $opts[] = ['talk', '💬', 'Say hello to one of the townsfolk. A chat a day makes friends.', (function_exists('gnav_on') && gnav_on()) ? 'here.php' : 'town.php?view=villagers', 'Villagers'];
     }
     $opts[] = ['stamp', '🌸', 'Visit a garden and sign its guestbook.', 'gotm.php', 'Wander the lanes'];
     $opts[] = ['walk', '🥾', 'Take a short walk to a stop you haven’t been to.', 'world.php', 'Out and about'];

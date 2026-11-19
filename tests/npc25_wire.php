@@ -8,6 +8,7 @@ require_once $argv[1] . '/includes/here_view.php';
 require_once $argv[1] . '/includes/spot_card.php';
 require_once $argv[1] . '/includes/stop_folk.php';
 require_once $argv[1] . '/includes/trail_sights.php';
+require_once $argv[1] . '/includes/trail_art.php';
 $fails = 0;
 set_exception_handler(function (Throwable $e) { echo '  EXCEPTION ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine() . "\n"; exit(1); });
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }

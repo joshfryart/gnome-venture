@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.17
+- **Your pals box on the Today tab:** every pal job in one place, in three groups: the garden crew (one summary of last night, then a chip per pal, two to a row, with "tired · 50%" or "job done"), pals at a station (Kitchen, Pantry and others: made so far, time left or full time) and pals out on a trip or delve (back in, with a progress bar). It replaces the one-line "Overnight the crew" paragraph.
+- **Daily "say hello" card** opens the Here page when graphical navigation is on (it opened the old town page).
+- Tests fixed: `pf_piece_text` (Pal and Boon texts shortened), `trail_bendy` (two mini-boss levels follow the 2.7.08 creature levels), `market100`, `npc25_wire`, `pbox_v1`, `catfish`.
 ## 2.7.16
 - **Closet tab** in the slim Hovel (after Gnome; `gnome.php?tab=closet`): the gnome in its worn items walks and turns (four stacked sprite strips faded in turn with CSS, no script), seven slot pills, and the open slot's picker under its pill row (plain links + POST forms, works without script). The Wearing panel leaves the Gnome tab when the Closet tab is there (non-slim My Gnome keeps it). Gold badge = empty spots you own something for. Wear/Take off from the Closet return to the Closet; the Puzzle box strip links to it. Player news added.
 

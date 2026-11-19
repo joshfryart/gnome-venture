@@ -272,7 +272,7 @@ function home_slim_needs(array $u): array
     foreach ($d['need'] as $n) $need[] = $n;
     foreach ($d['night'] as $n) {
         if ($n[3] === '') continue;   // the weather: it is on the banner's tag
-        if (str_contains($n[3], 'hovel.php')) { if ($n[2] !== '') $quiet[] = 'Overnight the crew: ' . $n[2] . '.'; continue; }
+        if (str_contains($n[3], 'hovel.php')) continue;   // the garden crew has its own Overnight list (home_slim_overnight)
         $need[] = $n;
     }
     foreach ($d['village'] as $n) {
@@ -280,6 +280,68 @@ function home_slim_needs(array $u): array
         $quiet[] = rtrim($n[1], '.') . ($n[2] !== '' ? ' · ' . $n[2] : '') . '.';
     }
     return ['need' => $need, 'quiet' => $quiet];
+}
+
+/**
+ * 2.7.17: the "Your pals" box on the Today tab, three groups: the garden crew (one summary of last night + a chip per pal, two to a row),
+ * pals at a station (Kitchen, Pantry, Workshop...: made so far, time left or full time) and pals out on a trip or delve (back in).
+ * Returns ['crew' => ['sum' => '', 'sub' => '', 'chips' => [[icon, name, tag, ok]], 'href' => ''] | null, 'stations' => [[icon, title, small, href]], 'out' => [[icon, title, small, href, pct]], 'n' => pals].
+ * Never throws.
+ */
+function home_slim_overnight(array $u): array
+{
+    $o = ['crew' => null, 'stations' => [], 'out' => [], 'n' => 0];
+    $uid = (int)$u['id'];
+    try {
+        require_once __DIR__ . '/pal_crew.php';
+        $rep = pcrew_latest_report($uid);
+        if ($rep && (int)$rep[0] === (int)$u['game_day'] && !empty($rep[1]['crew'])) {
+            $tot = ['harvest' => 0, 'water' => 0, 'plant' => 0, 'weed' => 0, 'pests' => 0]; $chips = [];
+            foreach ($rep[1]['crew'] as $c) {
+                $role = (string)($c['role'] ?? '');
+                if (isset($tot[$role])) $tot[$role] += (int)($c['n'] ?? 0);
+                $tag = '';
+                if (!empty($c['ended'])) $tag = 'job done';
+                elseif (!empty($c['tired']) || (!empty($c['eff']) && (int)$c['eff'] < 100)) $tag = (!empty($c['tired']) ? 'tired · ' : '') . (int)($c['eff'] ?? 100) . '%';
+                $chips[] = [PCREW_ROLES[$role][0] ?? '🧩', (string)($c['pal'] ?? 'A pal'), $tag, $tag === ''];
+            }
+            $words = ['harvest' => '%d crops picked', 'water' => '%d beds watered', 'plant' => '%d planted', 'weed' => '%d beds weeded', 'pests' => 'pests cleared from %d beds'];
+            $bits = [];
+            foreach ($tot as $r => $n) if ($n > 0) $bits[] = sprintf($words[$r], $n);
+            $o['crew'] = ['sum' => $bits ? implode(' · ', array_slice($bits, 0, 2)) : 'Nothing to do last night', 'sub' => implode(' · ', array_slice($bits, 2)), 'chips' => $chips, 'href' => url('garden.php?t=help')];
+            $o['n'] += count($chips);
+        }
+    } catch (Throwable $e) {}
+    try {
+        require_once __DIR__ . '/pal_jobs.php';
+        if (pj_open($u)) {
+            $list = function_exists('pj_station_list') ? pj_station_list() : [];
+            $left = function (string $ends): string {
+                $t = strtotime($ends);
+                if (!$t || $t - time() > 86400 * 365) return 'full time';
+                return $t <= time() ? 'time is up' : pj_ago($t - time()) . ' left';
+            };
+            foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND kind IN ('station','trip','delve') ORDER BY id", [$uid])->fetchAll() as $j) {
+                $pal = pj_pal($uid, (string)$j['pal_uid']);
+                $name = (string)($pal['name'] ?? 'A pal');
+                $n = (int)$j['tasks'];
+                $o['n']++;
+                if ($j['kind'] === 'station') {
+                    $isJars = ($j['tool'] ?? '') === 'jars';
+                    $cook = str_starts_with((string)$j['target'], 'cooking');
+                    $lab = $list[$j['target']] ?? null;
+                    $area = $isJars ? 'Pantry' : ($lab ? ($lab[1] === 'Whole station' ? $lab[0] : $lab[0] . ': ' . $lab[1]) : 'Station');
+                    $o['stations'][] = [$isJars ? '🫙' : ($cook ? '🍳' : '🛠️'), $name . ' · ' . $area, ($n > 0 ? $n . ($isJars ? ' jars' : '') . ' made' : 'Nothing made yet') . ' · ' . $left((string)$j['ends_at']),
+                        $isJars ? url('inventory.php?tab=craft&c=pantry') : ($cook ? url('inventory.php?tab=craft&c=cooking') : url('paljobs.php'))];
+                } else {
+                    $t = strtotime((string)$j['ends_at']); $t0 = strtotime((string)$j['started_at']);
+                    $pct = $t && $t0 && $t > $t0 ? (int)max(0, min(100, round((time() - $t0) * 100 / ($t - $t0)))) : 0;
+                    $o['out'][] = [$j['kind'] === 'delve' ? '⛏️' : '🌲', $name . ' · ' . ($j['kind'] === 'delve' ? 'delve' : 'trip'), $t && $t > time() ? 'Back in ' . pj_ago($t - time()) : 'Back any moment', url('paljobs.php'), $pct];
+                }
+            }
+        }
+    } catch (Throwable $e) {}
+    return $o;
 }
 
 /** 2.7.16: is the Closet tab there (wearables open to everyone, not a guest)? */
@@ -399,7 +461,26 @@ function home_slim_today_html(array $u, array $needs): string
         $h .= '<p class="hs-empty">Nothing needs you right now. A good day to wander.</p>';
     }
     if ($needs['quiet']) $h .= '<p class="hs-quiet">' . e(implode(' ', $needs['quiet'])) . '</p>';
-    $h .= '</section>' . home_slim_news_html($uid) . '</div>';
+    $h .= '</section>';
+    $night = home_slim_overnight($u);
+    if ($night['n'] > 0) {   // 2.7.17: every pal job in one box (garden crew, stations, trips and delves)
+        $grp = fn(string $ic, string $lab, string $href, string $go): string => '<div class="hs-grp"><span><span aria-hidden="true">' . $ic . '</span> ' . e($lab) . '</span><a href="' . e($href) . '">' . e($go) . ' →</a></div>';
+        $row = function (array $r): string {
+            $in = '<span class="hs-ni" aria-hidden="true">' . e($r[0]) . '</span><span class="hs-tx"><b>' . e($r[1]) . '</b><small>' . e($r[2]) . '</small>'
+                . (isset($r[4]) ? '<span class="hs-bar" aria-hidden="true"><i style="width:' . (int)$r[4] . '%"></i></span>' : '') . '</span>';
+            return '<li><a href="' . e($r[3]) . '">' . $in . '</a></li>';
+        };
+        $h .= '<section class="box hs-needs hs-night" aria-labelledby="hs-night-h"><h2 id="hs-night-h">Your pals' . home_slim_bang($night['n'], $night['n'] . ' pal' . ($night['n'] === 1 ? '' : 's')) . '</h2>';
+        if ($c = $night['crew']) {
+            $h .= $grp('🌱', 'Garden crew · last night', $c['href'], 'Crew') . '<p class="hs-sum"><b>' . e($c['sum']) . '</b>' . ($c['sub'] !== '' ? '<small>' . e($c['sub']) . '</small>' : '') . '</p><ul class="hs-chips">';
+            foreach ($c['chips'] as [$ic, $nm, $tag, $ok]) $h .= '<li><a href="' . e($c['href']) . '"><span aria-hidden="true">' . e($ic) . '</span> <span class="hs-cn">' . e($nm) . '</span>' . ($tag !== '' ? '<em class="hs-tag">' . e($tag) . '</em>' : '') . '</a></li>';
+            $h .= '</ul>';
+        }
+        if ($night['stations']) $h .= $grp('🏠', 'At their stations', $night['stations'][0][3], home_slim_go($night['stations'][0][3])) . '<ul class="hs-nlist">' . implode('', array_map($row, $night['stations'])) . '</ul>';
+        if ($night['out']) $h .= $grp('🌲', 'Out and about', url('paljobs.php'), 'Pals') . '<ul class="hs-nlist">' . implode('', array_map($row, $night['out'])) . '</ul>';
+        $h .= '</section>';
+    }
+    $h .= home_slim_news_html($uid) . '</div>';
     require_once __DIR__ . '/today_social.php';
     return $h . '<aside class="hs-rail" aria-label="The Hollow">' . today_social_html($u, 'line') . '</aside></div>';
 }
