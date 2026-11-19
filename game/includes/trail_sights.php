@@ -10,6 +10,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/trail_sight_extras.php';
 require_once __DIR__ . '/trail_sight_third_b.php';   // 2.7.08 third pass B: birthdays, letters, bottle post, board / green quest lines, growing seeds, keepsakes
 require_once __DIR__ . '/trail_sights_3a.php';   // 2.7.08 third pass A: buff2=, lair / delve hints, nxt=
+require_once __DIR__ . '/trail_sights_6.php';   // sixth pass B: Sights shared across players (notes, chalk, the cairn count)
 require_once __DIR__ . '/trail_sights_5.php';   // fifth pass: an item as a check alternative, a villager's check with a miss line, any-of takes over a category, scoped shop discounts, Sight kinds (nextkind=), a season quest limit
 require_once __DIR__ . '/trail_sights_4.php';   // fourth pass: fog (nxt=fog, nxt=lit), a named stretch (sec=), penalties (lose:), a check that depends on the conditions
 
@@ -426,7 +427,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     $first = false;
     try { $first = !q_val('SELECT 1 FROM trail_sight_first WHERE user_id = ? AND slug = ?', [(int)$u['id'], $slug]); } catch (Throwable $e) { /* table missing: no first-time bonus */ }
     if ($ok) {   // tally=<key> counts this use for the gnome (a private cairn, a collection); conditions tl=<key>:N see the new count
-        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'tally=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) { trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6)); trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6) . '@' . (int)($now['gd'] ?? 0)); try { q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey LIKE '%@%' AND tkey NOT LIKE ?", [(int)$u['id'], '%@' . (int)($now['gd'] ?? 0)]); } catch (Throwable $e) { } $now['tl'] = trail_sight_tallies((int)$u['id']); $lines[] = '🪨 ' . substr($t['tok'], 6) . ' ' . ($now['tl'][substr($t['tok'], 6)] ?? 0); }
+        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'tally=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) { trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6)); trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6) . '@' . (int)($now['gd'] ?? 0)); try { q("DELETE FROM trail_sight_tally WHERE user_id = ? AND tkey LIKE '%@%' AND tkey NOT LIKE ?", [(int)$u['id'], '%@' . (int)($now['gd'] ?? 0)]); } catch (Throwable $e) { } foreach (sights6_tally_hook($u, substr($t['tok'], 6)) as $s6l) $lines[] = $s6l; $now['tl'] = trail_sight_tallies((int)$u['id']); $lines[] = '🪨 ' . substr($t['tok'], 6) . ' ' . ($now['tl'][substr($t['tok'], 6)] ?? 0); }
     }
     if ($ok) {   // 2.7.06 streak=<key>: using the Sight on consecutive game days builds a streak (a missed day starts again at 1); conditions sk=<key>:N see it
         $gdNow = (int)($now['gd'] ?? 0); $bumped = false;

@@ -383,7 +383,7 @@ function sights5_chalk_use(array $u, array &$exp): array
     require_once __DIR__ . '/trail_sights.php';
     $n = trail_sight_tally_add($uid, 'chalk-marks');
     add_xp($uid, 4);
-    $msg = '🖍️ You chalk a small star beside the one you liked best. Your mark number ' . $n . ' on these stones (+4 XP).';
+    $msg = '🖍️ You chalk a small star beside the one you liked best. Your mark number ' . $n . ' on these stones (+4 XP).' . sights6_chalk_after($u, SIGHTS5_STONES);   // sixth pass B: the shared count and the words
     exp_log($exp, $msg);
     return [true, $msg];
 }
@@ -398,8 +398,8 @@ function sights5_trailfoot_html(array $u, array $exp, ?array $sc): string
         $h .= '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_mapscrap"><button class="btn alt trailscrap">📍 Map scrap <small>×' . $scrap . '</small></button></form>';
     $chalk = sights5_have($uid, SIGHTS5_CHALK);
     if ($chalk > 0 && sights5_near($sc, SIGHTS5_STONES))
-        $h .= '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_chalk"><button class="btn alt trailchalk">🖍️ Chalk a mark <small>×' . $chalk . '</small></button></form>';
-    return $h;
+        $h .= '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_chalk">' . sights6_chalk_input() . '<button class="btn alt trailchalk">🖍️ Chalk a mark <small>×' . $chalk . '</small></button></form>';
+    return $h . sights6_trailfoot_html($u, $sc);   // sixth pass B: the cairn count, other gnomes' chalk words
 }
 
 /** adventure.php: the Trail posts of these items. [ok, message] */
@@ -454,6 +454,7 @@ function sights5_bottle_open(array $u, int $itemId): array
 {
     $uid = (int)$u['id'];
     require_once __DIR__ . '/trail_sights.php';
+    if (($s6 = sights6_bottle_open($u, $itemId)) !== null) return $s6;   // sixth pass B: a stranger's note, when one is waiting
     if (!trail_sight_bottles()) return [false, 'The cork will not come out.'];
     $loc = (q_one('SELECT * FROM locations WHERE id = ?', [(int)($u['location_id'] ?? 0)]) ?: []); $loc['landscape'] = 'coast'; $loc['name'] = 'the bottle';
     $now = trail_sight_now($loc, null, $u);
