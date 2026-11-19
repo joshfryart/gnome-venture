@@ -186,7 +186,11 @@ function tea_drawer_html(array $u, array $have, array $sel): string
     $j = tea_journal((int)$u['id']);
     $R = '';
     foreach (tea_recipe_rows(array_keys($have), $j['found'], $tier) as $r) {
-        if (!$r['known']) { $R .= '<div class="tea-rrow unk"><span class="tea-ics"><span class="tea-ico q" aria-hidden="true">?</span></span><span class="tx"><b>???</b><span class="hint">' . e($r['hint']) . '</span></span></div>'; continue; }
+        if (!$r['known']) {   // not found yet: the name stays hidden, but what it needs is shown (what you lack is marked) so you can go and look for it
+            $lack = tea_lacks(tea_named()[$r['slug']], array_keys($have));
+            $nm = array_map(fn($ps) => in_array($ps, $lack, true) ? '<span class="lack">' . e($ING[$ps]['name'] ?? $ps) . '</span>' : e($ING[$ps]['name'] ?? $ps), $r['parts']);
+            $R .= '<div class="tea-rrow unk"><span class="tea-ics"><span class="tea-ico q" aria-hidden="true">?</span></span><span class="tx"><b>???</b><span class="ing">Needs ' . implode(', ', $nm) . '</span><span class="hint">' . e($r['hint']) . '</span></span></div>'; continue;
+        }
         $names = array_map(fn($ps) => in_array($ps, $r['miss'], true) ? '<span class="lack">' . e($ING[$ps]['name'] ?? $ps) . '</span>' : e($ING[$ps]['name'] ?? $ps), $r['parts']);   // every recipe lists what it needs; the ones you lack are marked
         $R .= '<div class="tea-rrow" data-tea-row="' . e($r['slug']) . '">' . tea_icons_html($r['parts'], $have, $r['miss']) . '<span class="tx"><b>' . e($r['name']) . '</b>'
             . '<span class="ing">Needs ' . implode(', ', $names) . '</span>'
