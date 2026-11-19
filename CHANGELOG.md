@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.22
+- **Tea recipes show what they need (tea is still hidden behind `tea_open`):** every row in the Recipes tab has a "Needs ..." line with the ingredients by name, the ones you lack marked. Teas not found yet stay "???" but now list their ingredients too, with the hint. Ingredient tiles in the Leaves and Extras tabs are four to a row.
+- No player news (tea is hidden). No DB step.
 ## 2.7.21
 - **Tea popover redesigned (B2 "Cup and drawer"; tea is still hidden behind `tea_open`):** the cup is on top as four slots (the base slot bigger), with the live result and the Brew button beside it; a drawer below has Recipes, Leaves and Extras tabs (tap or swipe), ingredient tiles four to a row, one-tap Fill on a named tea you can make, "Need 1 X" for ones you cannot, a hint for teas not found yet, a stamp row for the journal that opens a list with the kettle progress, and the second-brew replace sheet. Works without script as before.
 - **Same ingredients, same cup:** when two stats tie for the side stat the one earlier in Charm, Lore, Sense, Nimble, Grit, Hardiness, Luck wins (PHP `tea_cup` and JS `gvTeaCup`). Masala Chai and Milk Chai now give Charm +1 as their side stat.
