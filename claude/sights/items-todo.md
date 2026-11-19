@@ -4,7 +4,7 @@ Status: 2026-11-12, source only. Items: `game/includes/data/trail_sight_items.tx
 
 **Maplewold DONE (2026-11-12):** effects added to maple-syrup, toffee, marshmallow (short buffs) and glowcap-garden-light, star-chart, message-bottle, snowman-scarf (decor); 9 new Maplewold items in `trail_sight_items_maplewold.txt` (art list: `maplewold-art-todo.md`). Still no use: flour, maple-sap (quest hand-in only), map-scrap, lost-mitten (now a give to Posy), glowcap-repair-kit.
 
-## Art needed (all 62: there is no art yet, the game shows its placeholder)
+## Art needed: DONE (audited 2026-11-19, every slug listed below has game/assets/img/ph/<slug>.png). Was: all 62 had no art
 Maplewold: flour, maple-sap, maple-syrup, toffee, marshmallow, message-bottle, map-scrap, snowman-scarf, lost-mitten, glowcap-repair-kit, glowcap-garden-light, star-chart.
 Shared land: lost-sock, grumpys-hedge-shears, tuft-of-fleece, daisy-chain-crown, dew-pearl, root-race-ribbon, glow-moss-nightlight, bookmark-snail, fern-drip-hat-charm, squirrels-spare-key, toadstool-stool, brass-button, teeny-axe, mudskipper-medal, willow-withies, icicle-chime, bog-pressed-bookmark, herons-programme-notes, pine-snow-cone, pocket-whistle, bottled-rainbow, visitors-book-page, echo-pebble, gulls-medal, barnacle-giggle, dream-souvenir, old-river-pebble, mirage-marble, cactus-bloom, marrowbys-wooden-coin, wishing-coin, giant-fern-spores, vine-twine, giants-bark-curl, raindrop-bead, lantern-fruit, soup-mist-jar, cave-echo-shell, bell-shell, beach-ball, lagoon-glass-bead, aurora-ribbon, frost-window-pane, squeaky-ice-chip, stargazers-chalk.
 End pieces: sauna-bun, mirror-salt-crystal, amber-seed, flamingo-feather, taper.
