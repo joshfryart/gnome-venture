@@ -111,6 +111,23 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
     const w2 = await p2.evaluate(() => document.querySelectorAll('.pfst-layer svg').length);
     chk(w1 === 0 && w2 > 0, `[${name}] the pieces wait while the walk plays (${w1} pieces during it, ${w2} after)`);
     await p2.close();
+    // ---- off the road: (1) a wander begun from a Trail walk (the map behind the card), (2) a wander begun with no map at all (the window). Both get the jigsaw like the Trail, and the result card of a fight run from
+    for (const kind of ['behind', 'nomap']) {
+      if (kind === 'behind') { php(here + '/here.php', game, 'cli', 'tilewalk'); php(here + '/here.php', game, 'cli', 'clearenc'); await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await p.locator('a[data-pop=hubpop-twander]').first().click(); await p.locator('#hubpop-twander form button').click(); await p.waitForSelector('dialog.wanderpop', { timeout: 8000 }); await p.waitForTimeout(500); }
+      else { php(here + '/here.php', game, 'cli', 'endexp'); php(here + '/here.php', game, 'cli', 'at', 'market'); }
+      php(here + '/pbox_v1_seed.php', game, 'fight', 'small'); await p.evaluate(() => sessionStorage.removeItem('pfstSeen')); await p.goto(base + '/adventure.php', { waitUntil: 'commit' });
+      const w1 = await until(s => s.dlg && s.layer > 0 && s.hidden === true, 8000); chk(!!w1, `[${name}] wander (${kind}): the jigsaw comes in over the fight card`);
+      const w2 = await until(s => s.on && s.pre && s.held && s.layer > 0 && s.hidden === false, 8000); chk(!!w2, `[${name}] wander (${kind}): the card shows over the held pieces`);
+      await p.locator('#pfv-pre .pfv-gof button').first().click({ force: true });
+      const w3 = await until(s => s.top > 0 && s.ghost && s.wait, 4000); chk(!!w3, `[${name}] wander (${kind}): Let's fight brings the second set of pieces`);
+      await until(s => s.board && s.layer === 0 && s.top === 0 && !s.wait, 9000);
+      if (await p.locator('.pf-runf button').count()) {
+        await p.locator('.pf-runf button').first().click({ force: true });
+        const w4 = await until(s => s.res && s.on && s.layer > 0 && s.resOutside === 0, 8000); chk(!!w4, `[${name}] wander (${kind}): the result card of a fight run from is over the map's place with the pieces`);
+        await p.locator('[data-pfst-dismiss]').first().click({ force: true });
+        chk(!!(await until(s => !s.dlg && s.layer === 0, 6000)), `[${name}] wander (${kind}): its button sends the pieces away`);
+      } else console.log('note [' + name + '] wander (' + kind + '): no Run button');
+    }
     chk(errs.length === 0, `[${name}] no JS errors${errs.length ? ': ' + errs.slice(0, 2).join(' | ') : ''}`);
     await c.close();
   }

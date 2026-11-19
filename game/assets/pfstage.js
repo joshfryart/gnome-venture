@@ -268,6 +268,6 @@
   }, true);
 
   var d0 = dlg();
-  seenNoFight = !d0 || !seen(); lastBox = curBox();
+  seenNoFight = !d0 || !seen(); if (!d0) seen(false); lastBox = curBox();   // (no fight on this page: a flag left by a fight that was left by a full page load must not hide the next one)
   if (d0) check();   // (a fight already on the page: it gets the pieces too, once hubscene.js has made the dialog a modal)
 })();
