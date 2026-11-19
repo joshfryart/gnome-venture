@@ -58,7 +58,7 @@ function hovel_decor_catalog(): array
     static $c = null;
     if ($c !== null) return $c;
     $j = json_decode((string)@file_get_contents(__DIR__ . '/data/hovel_decor.json'), true);
-    $c = ['canvas' => ['w' => 480, 'h' => 270, 'crop' => [104, 224], 'floor' => 220], 'gnome' => ['x' => 214, 'y' => 172, 'w' => 32, 'h' => 48], 'slots' => []];
+    $c = ['canvas' => ['w' => 480, 'h' => 270, 'crop' => [104, 224], 'floor' => 220], 'gnome' => ['x' => 202, 'y' => 150, 'w' => 48, 'h' => 72, 'small' => ['x' => 214, 'y' => 172, 'w' => 32, 'h' => 48]], 'slots' => []];
     if (!is_array($j)) return $c;
     $c['canvas'] = (array)($j['canvas'] ?? []) + $c['canvas'];
     $c['gnome'] = (array)($j['gnome'] ?? []) + $c['gnome'];
@@ -135,6 +135,11 @@ function hovel_cosy(array $chosen): array
 
 /** The kettle's tap area in the 480 x 270 room picture: [x, y, w, h]. 64 units each way: 44 px or more on a 390 px phone, where the banner is about 350 px wide. */
 const HOVEL_KETTLE_HIT = [312, 142, 64, 64];
+/** 2.7.20: the kettle overlays scenes/hovel-kettle-<name>.png (users.kettle 1..3) cover the painted tin kettle: their box [x, y, w, h] in room units. */
+const HOVEL_KETTLE_ART = [312, 140, 40, 47];
+const HOVEL_KETTLE_FILES = [1 => 'copper', 2 => 'castiron', 3 => 'samovar'];
+/** Where the steam leaves each kettle's spout (room units, the puff's bottom left): tin (painted), copper, cast-iron, samovar (the little teapot on top). */
+const HOVEL_KETTLE_STEAM = [0 => [318, 158], 1 => [316, 157], 2 => [316, 160], 3 => [322, 139]];
 
 /** Picture file (under assets/img/) as a URL, or '' when it is not drawn yet. */
 function hovel_art(string $rel): string
@@ -179,11 +184,22 @@ function hovel_thing_svg(array $t, array $a): string
         . '<rect class="ht-hit" x="' . $t['x'] . '" y="' . $t['y'] . '" width="' . $t['w'] . '" height="' . $t['h'] . '"/></a>';
 }
 
-/** The gnome standing at home: sprite/gnome-home.png (optional grey gnome-home-hat / -beard layers are tinted), else the layered avatar. */
+/**
+ * The gnome standing at home. 2.7.20: sprite/gnome-home-big.png (48 x 72) in the catalogue's gnome box, its grey -hat / -beard layers tinted;
+ * without it the old sprite/gnome-home.png (32 x 48) in the 'small' box (feet on the same spot, optional gnome-home-hat / -beard layers); else the layered avatar.
+ */
 function hovel_gnome_svg(array $u, array $g): string
 {
     $x = (int)$g['x']; $y = (int)$g['y']; $w = (int)$g['w']; $h = (int)$g['h'];
-    $src = hovel_art('sprite/gnome-home.png');
+    $name = 'gnome-home-big';
+    $src = hovel_art('sprite/gnome-home-big.png');
+    if ($src === '') {   // the old, small sprite: its own box, bottom-centred on the big one when the catalogue has no 'small'
+        $name = 'gnome-home';
+        $src = hovel_art('sprite/gnome-home.png');
+        $sm = (array)($g['small'] ?? []);
+        $sw = (int)($sm['w'] ?? 32); $sh = (int)($sm['h'] ?? 48);
+        $x = isset($sm['x']) ? (int)$sm['x'] : $x + intdiv($w - $sw, 2); $y = isset($sm['y']) ? (int)$sm['y'] : $y + $h - $sh; $w = $sw; $h = $sh;
+    }
     if ($src !== '') {
         require_once __DIR__ . '/pixel_art.php';
         $uid = '-h' . bin2hex(random_bytes(3));
@@ -193,15 +209,45 @@ function hovel_gnome_svg(array $u, array $g): string
         $layers = '';
         $defs = '';
         foreach (['hat' => $hat, 'beard' => $beard] as $part => $hex) {
-            $lsrc = hovel_art('sprite/gnome-home-' . $part . '.png');
+            $lsrc = hovel_art('sprite/' . $name . '-' . $part . '.png');
             if ($lsrc === '' || $hex === '') continue;
             if (!str_contains($defs, 'tint-' . $hex . $uid)) $defs .= pixel_tint_filter($hex, 1.25, $uid);
             $layers .= '<image href="' . e($lsrc) . '" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated" filter="url(#tint-' . $hex . $uid . ')"/>';
         }
         return ($defs !== '' ? '<defs>' . $defs . '</defs>' : '') . '<g class="hr-gnome"><image href="' . e($src) . '" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>' . $layers . '</g>';
     }
+    $x = (int)$g['x']; $y = (int)$g['y']; $w = (int)$g['w']; $h = (int)$g['h'];
     $av = gnome_avatar($u, $w);   // no sprite yet: the same layered (tinted) gnome as the avatar, standing in the gnome's box, feet on the floor
     return '<g class="hr-gnome">' . (string)preg_replace('/^<svg class="gnomeart" width="\d+" height="\d+"/', '<svg class="gnomeart" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" preserveAspectRatio="xMidYMax meet"', $av, 1) . '</g>';
+}
+
+/** The kettle overlay for this gnome's tier (users.kettle 1..3) while tea is open for them: ['src' => url or '', 'tier' => 0..3]. A missing file = the painted tin kettle. */
+function hovel_kettle_art(array $u, bool $tea): array
+{
+    $tier = $tea ? max(0, min(3, (int)($u['kettle'] ?? 0))) : 0;
+    $src = isset(HOVEL_KETTLE_FILES[$tier]) ? hovel_art('scenes/hovel-kettle-' . HOVEL_KETTLE_FILES[$tier] . '.png') : '';
+    return ['src' => $src, 'tier' => $src !== '' ? $tier : 0];
+}
+
+/** The decor layer's file: scenes/hovel-<slot>-<item>.png; at dusk and night the window's -night twin when it is drawn (2.7.20), else the day picture. */
+function hovel_slot_art(string $sk, string $ik, string $dp): string
+{
+    if ($sk === 'window' && in_array($dp, ['dusk', 'night'], true) && ($n = hovel_art('scenes/hovel-window-' . $ik . '-night.png')) !== '') return $n;
+    return hovel_art('scenes/hovel-' . $sk . '-' . $ik . '.png');
+}
+
+/** The kettle steam and the bed's z's: pixel sprites (fx/fx-steam-a|b, fx/fx-z-a|b, 2.7.20) animated by the hr-steam / hr-zz classes; drawn circles and letters when a file is missing. */
+function hovel_fx_svg(int $tier, bool $bed): string
+{
+    [$sx, $sy] = HOVEL_KETTLE_STEAM[$tier] ?? HOVEL_KETTLE_STEAM[0];
+    $img = fn(string $f, string $cls, int $x, int $y, int $w, int $h): string => ($s = hovel_art('fx/' . $f . '.png')) !== '' ? '<image class="' . $cls . '" href="' . e($s) . '" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>' : '';
+    $a = $img('fx-steam-a', 'a', $sx, $sy, 10, 10); $b = $img('fx-steam-b', 'b', $sx + 5, $sy - 4, 8, 8);
+    $h = '<g class="hr-steam" aria-hidden="true">' . ($a !== '' ? $a : '<circle class="a" cx="' . ($sx + 4) . '" cy="' . ($sy + 8) . '" r="2"/>') . ($b !== '' ? $b : '<circle class="b" cx="' . ($sx + 7) . '" cy="' . ($sy + 5) . '" r="1.6"/>') . '</g>';
+    if ($bed) {
+        $a = $img('fx-z-a', 'a', 96, 166, 8, 8); $b = $img('fx-z-b', 'b', 106, 159, 6, 6);
+        $h .= '<g class="hr-zz" aria-hidden="true">' . ($a !== '' ? $a : '<text class="a" x="98" y="176">z</text>') . ($b !== '' ? $b : '<text class="b" x="106" y="168">z</text>') . '</g>';
+    }
+    return $h;
 }
 
 /**
@@ -230,6 +276,11 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
     $back = hovel_art('scenes/hovel-room.png');
     if ($back !== '') {
         $svg .= '<image class="hr-back" href="' . e($back) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" image-rendering="pixelated"/>';
+        $kart = hovel_kettle_art($u, $tea);   // the Copper / Cast-Iron / Samovar over the painted tin kettle (only on the real picture: it is painted to match it)
+        if ($kart['src'] !== '') {
+            [$kx, $ky, $kw, $kh] = HOVEL_KETTLE_ART;
+            $svg .= '<image class="hr-kettle hr-kettle-' . HOVEL_KETTLE_FILES[$kart['tier']] . '" href="' . e($kart['src']) . '" x="' . $kx . '" y="' . $ky . '" width="' . $kw . '" height="' . $kh . '" image-rendering="pixelated"/>';
+        }
     } else {   // no picture yet: a drawn wall, floor, skirting and bed, so the room still reads and the slots still line up
         $svg .= '<rect class="hr-wall" x="0" y="0" width="' . $W . '" height="' . $fl . '"/><rect class="hr-floor" x="0" y="' . $fl . '" width="' . $W . '" height="' . max(1, $H - $fl) . '"/>'
             . '<rect class="hr-beam" x="0" y="40" width="' . $W . '" height="8"/><rect class="hr-bed" x="384" y="176" width="88" height="44"/><rect class="hr-pillow" x="444" y="168" width="24" height="12"/>'
@@ -237,7 +288,7 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
     }
     foreach ($cat['slots'] as $sk => $s) {
         $ik = $chosen[$sk] ?? '';
-        $src = hovel_art('scenes/hovel-' . $sk . '-' . $ik . '.png');
+        $src = hovel_slot_art($sk, $ik, $dp);
         $box = 'x="' . $s['x'] . '" y="' . $s['y'] . '" width="' . $s['w'] . '" height="' . $s['h'] . '"';
         $lay = $src !== '' ? '<image href="' . e($src) . '" ' . $box . ' image-rendering="pixelated"/>' : '<rect class="hd-ph" ' . $box . '/>';
         $cls = 'hd hd-' . $sk . ($sk === $sel ? ' sel' : '');
@@ -257,11 +308,11 @@ function hovel_room_svg(array $u, array $chosen, string $mode = 'crop', array $o
         $lamp = $cat['slots']['lamp'] ?? ['x' => 276, 'y' => 180, 'w' => 16];
         $lx = (int)$lamp['x'] + intdiv((int)$lamp['w'], 2); $ly = (int)$lamp['y'] + 6;
         $svg .= '<defs><radialGradient id="hr-lampg"><stop offset="0" stop-color="#fff3b0" stop-opacity=".85"/><stop offset=".45" stop-color="#ffd98a" stop-opacity=".4"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient></defs>'
-            . '<g class="hr-steam" aria-hidden="true"><circle class="a" cx="322" cy="166" r="2"/><circle class="b" cx="325" cy="163" r="1.6"/></g>'
+            . hovel_fx_svg($back !== '' ? $kart['tier'] : 0, false)
             . hovel_gnome_svg($u, $cat['gnome'])
             . '<rect class="hr-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" aria-hidden="true"/>'
             . '<circle class="hr-lampglow" cx="' . $lx . '" cy="' . $ly . '" r="34" fill="url(#hr-lampg)" aria-hidden="true"/>'
-            . (isset($things['bed']) ? '<g class="hr-zz" aria-hidden="true"><text class="a" x="98" y="176">z</text><text class="b" x="106" y="168">z</text></g>' : '');
+            . (isset($things['bed']) ? (string)preg_replace('~^<g class="hr-steam".*?</g>~', '', hovel_fx_svg(0, true)) : '');
         foreach ($T as $id => $t) {
             if ($id === 'kettle') {   // the tea kettle keeps its own link and dialog (includes/tea_view.php); closed for this viewer = plain art
                 if (!$tea) continue;

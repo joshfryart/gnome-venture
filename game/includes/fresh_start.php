@@ -13,6 +13,9 @@ declare(strict_types=1);
 const FRESH_KEEP_COLS = [
     'id', 'username', 'email', 'password_hash', 'role', 'banned', 'ban_reason', 'banned_until', 'muted_until', 'deleted_at',
     'created_at', 'agreed_at', 'last_login', 'last_seen', 'garden_public', 'pulse_show',
+    'theme', 'start_page', 'sess_ver',   // preferences and the session version (bumping it down would revive old log-ins)
+    'guest', 'guest_ip', 'reg_ip_hash',   // how the account was made (guest play, sign-up IP hash): security
+    'email_verified_at', 'verify_hash', 'verify_expires', 'email_nudges', 'last_nudge_at', 'nudge_away_seen',   // e-mail verification and nudge state belong to the address, not the progress
 ];
 
 /** What a brand-new sign-up has in every other users column (register.php sets coins/energy/onboarded; the rest are schema defaults). */
@@ -37,6 +40,10 @@ function fresh_start_columns(): array
         'calling_free_change' => 1, 'calling_tier_seen' => 0, 'calling_changes' => 0, 'calling_qt' => 0, 'calling_chapter' => null,
         'game_energy_day' => null, 'arrived_at' => null,
         'fw_start' => null, 'away_from' => null,   // v1.0.0 wave 3
+        'ev_disc' => null, 'hp' => null, 'hp_at' => null, 'satchel_skin' => null, 'road_recent' => null, 'pmentor_open' => 0,
+        'trek_ch' => 1, 'trek_pet_day' => null, 'trek_pet_today' => 0, 'trek_item_day' => null, 'trek_item_today' => 0,
+        'ppal_at' => null, 'ppal_day' => null, 'ppal_count' => 0, 'ppal_spawn_day' => null,
+        'game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'pal_real_at' => null, 'pal_morning' => null, 'camp_naps' => 0,   // game_minute 360 = GAME_WAKE_MINUTE
     ];
 }
 
@@ -150,7 +157,8 @@ function fresh_start_player(int $uid): array
         $del("DELETE FROM player_jobs WHERE poster_id = ? AND (taker_id IS NULL OR taker_id = ?)", [$uid, $uid]);
 
         // ---- The account itself: back to what a new sign-up has ----
-        db_update('users', fresh_start_columns(), 'id = ?', [$uid]);
+        // Some of these columns are made on first use by their feature (trek, pals, game clock): only reset the ones this database has
+        db_update('users', array_intersect_key(fresh_start_columns(), $u), 'id = ?', [$uid]);
 
         db()->commit();
     } catch (Throwable $e) {

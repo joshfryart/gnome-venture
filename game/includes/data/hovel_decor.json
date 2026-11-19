@@ -1,7 +1,7 @@
 {
   "_about": "Slim Home > Furnish (includes/home_slim.php). The hovel room is scenes/hovel-room.png, 480x270, floor line y=220; the Home banner is its y104-224 crop (480x120). Each slot is a layer box on that canvas; each item's art is assets/img/scenes/hovel-<slot>-<item>.png at the slot's size (feet bottom-centre, 1 px umber outline, transparent). Art is optional. own: true = every gnome has it (v1: no economy; hovel_decor_owned() is where new sources go). cosy: 0 to 2 per item; the meter's top is the sum of each slot's best item.",
   "canvas": {"w": 480, "h": 270, "crop": [104, 224], "floor": 220},
-  "gnome": {"x": 214, "y": 172, "w": 32, "h": 48},
+  "gnome": {"x": 202, "y": 150, "w": 48, "h": 72, "small": {"x": 214, "y": 172, "w": 32, "h": 48}, "_about": "48x72 sprite/gnome-home-big.png (+ -hat / -beard grey tint layers, 2.7.20) feet at y 220 with a 2-row floor shadow; small = the 32x48 sprite/gnome-home.png box, used when the big file is missing"},
   "slots": [
     {"k": "floor", "name": "Floor", "x": 0, "y": 220, "w": 480, "h": 50, "items": [
       {"k": "plank", "name": "Planks", "cosy": 1, "own": true},
