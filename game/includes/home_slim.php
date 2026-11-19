@@ -462,24 +462,18 @@ function home_slim_today_html(array $u, array $needs): string
     $n = count($needs['need']);
     $h .= '<section class="box hs-needs" aria-labelledby="hs-needs-h"><h2 id="hs-needs-h">Needs you' . home_slim_bang($n, $n . ' thing' . ($n === 1 ? '' : 's')) . '</h2>';
     if ($needs['need']) {   // 2.7.17: things that pile up (N crops ripe, N pots done, N jars ready, N beds empty...) are big-number tiles; the rest are slim rows under them
-        $tiles = []; $rows = [];
-        foreach ($needs['need'] as $r) { if (preg_match('/^(\d+) (.+)$/', (string)$r[1], $m)) $tiles[] = [$r, $m[1], $m[2]]; else $rows[] = $r; }
+        $tiles = []; $cards = [];   // C (Josh): things you collect (N crops ripe, N pots done, N jars ready, N pal trips ready) sit three across; everything else is a wide card under them
+        foreach ($needs['need'] as $r) {
+            if (preg_match('/^(\d+) (.+)$/', (string)$r[1], $m) && !str_contains((string)$r[3], 't=help')) $tiles[] = [$r, $m[1], $m[2]]; else $cards[] = $r;
+        }
         if ($tiles) {
-            $h .= '<div class="hs-tiles">';
-            foreach ($tiles as [$r, $num, $lab]) {
-                $hot = !str_contains((string)$r[3], 't=help');
-                $h .= '<a class="hs-tile' . ($hot ? ' hot' : '') . '" href="' . e($r[3]) . '"><span class="hs-tn"><span aria-hidden="true">' . e($r[0]) . '</span>' . e($num) . '</span><b>' . e($lab) . '</b>'
-                    . ((string)$r[2] !== '' ? '<small>' . e((string)$r[2]) . '</small>' : '') . '</a>';
-            }
+            $h .= '<div class="hs-t3">';
+            foreach ($tiles as [$r, $num, $lab]) $h .= '<a class="hs-tile hot" href="' . e($r[3]) . '"><span class="hs-ti" aria-hidden="true">' . e($r[0]) . '</span><span class="hs-tn">' . e($num) . '</span><b>' . e($lab) . '</b></a>';
             $h .= '</div>';
         }
-        if ($rows) {
-            $h .= '<ul class="hs-nlist">';
-            foreach ($rows as [$ic, $tt, $sm, $href]) {
-                $in = '<span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b>' . ($sm !== '' ? '<small>' . e($sm) . '</small>' : '') . '</span>';
-                $h .= '<li>' . ($href !== '' ? '<a href="' . e($href) . '">' . $in . '<span class="hs-go">' . e(home_slim_go($href)) . ' →</span></a>' : '<div>' . $in . '</div>') . '</li>';
-            }
-            $h .= '</ul>';
+        foreach ($cards as [$ic, $tt, $sm, $href]) {
+            $in = '<span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b>' . ($sm !== '' ? '<small>' . e($sm) . '</small>' : '') . '</span>';
+            $h .= $href !== '' ? '<a class="hs-wide" href="' . e($href) . '">' . $in . '<span class="hs-go">' . e(home_slim_go($href)) . ' →</span></a>' : '<div class="hs-wide">' . $in . '</div>';
         }
     } else {
         $h .= '<p class="hs-empty">Nothing needs you right now. A good day to wander.</p>';
