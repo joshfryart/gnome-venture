@@ -2,6 +2,7 @@
 
 ## 2.7.23
 - **Puzzle combat on the Trail can take over the map's place (setting `pfight_stage`, Off by default):** the fight sits on the map column's box with no dimming, and a jigsaw cover plays when it starts and ends. With the setting Off nothing of it loads.
+- **Sugar-shack ledger starts collapsed again:** the Trail family panel collapse skipped any panel containing a `<details>`, so the ledger (which holds the quilt fold) showed fully open. It now only skips a panel that is its own pill. Test `trail_fam_collapse` covers it.
 - No player news. No DB step.
 ## 2.7.22
 - **Tea recipes show what they need (tea is still hidden behind `tea_open`):** every row in the Recipes tab has a "Needs ..." line with the ingredients by name, the ones you lack marked. Teas not found yet stay "???" but now list their ingredients too, with the hint. Ingredient tiles in the Leaves and Extras tabs are four to a row.
