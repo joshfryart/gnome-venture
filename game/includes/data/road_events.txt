@@ -1514,3 +1514,4 @@ O|Whistle the ending||0|xp:2+next:chain-beat-tune-3|They nod along, and tap a bo
 O|Hum something else|charm|11|xp:3+next:chain-beat-tune-3|They laugh and join in anyway.|xp:1|It does not fit. They nod politely.
 E|chain-beat-tune-3|-|grassland,forest|any|road|🥁|The gnome pulls a drum from behind the post, and the three of you finish the tune together, badly and wonderfully. “Take this,” they say. “For next time.”|beat|
 O|Take the prize and wave||0|xp:6+coins:{c}+item:garden-honey:1@15|A little honey and a few Petals, and a tune stuck in your head for the rest of the day.||
+O|Bow and leave them the prize||0|xp:8|You bow. They bow. The drum gets one last thump, and the tune follows you down the road.||

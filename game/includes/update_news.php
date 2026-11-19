@@ -812,6 +812,14 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.27' => ['🫙 Update 2.7.27: a bigger Hollow jar and a cosier hovel',
+        "[list][*][b]Hollow jar[/b]: the weekly jar is four times bigger, because the whole Hollow fills it together. The rewards grew with it: 10 Plain Compost at the first mark, 20 more at the second, 30 Worm Castings at the third and 40 Rich Loam for a full jar.\n"
+        . "[*][b]Your hovel[/b]: the bed's and the window's cards now open right next to them. The z's over the bed only float in the evening and at night, and the bed asks for a tap just once a day.\n"
+        . "[*][b]Closet[/b]: picking what to wear opens in place, with no page reload.\n"
+        . "[*][b]Pals at the stove[/b]: when your days pass by sleeping, a pal's cooking now keeps to game time too, and the Kitchen says so.\n"
+        . "[*][b]New wild finds[/b]: nettle, raspberry leaf, spruce tips, elderflower, rose hips, linden blossom, dandelion root and licorice root can turn up when you forage.\n"
+        . "[*][b]Trail Sights[/b]: some Sights can now send a mist over the next stretch (walk close to spot its finds), light the way, or change a stretch further on. A few checks are easier in the right season. Resting at the hay bales, the stone hut and the shade awning now takes a little game time.\n"
+        . "[*][b]Creature drops[/b]: Lemming Fluff, Prickly Pear, Crowberries and Cloudberry now really drop where their creatures live.[/list]"],
     '2.7.20' => ['🌙 Update 2.7.20: a livelier hovel',
         "[list][*][b]Bigger gnome[/b]: your gnome is larger in the room, and still wears your hat and beard colours.\n"
         . "[*][b]Night windows[/b]: the windows show the night sky in the evening.\n"

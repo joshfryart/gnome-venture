@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.7.27
+- **Hollow jar:** weekly jar 4 times the size (`HOLLOW_GOAL_SCALE`, from the next week's jar; festival jars unchanged). Tier items 10 Plain Compost / 20 Plain Compost / 30 Worm Castings / 40 Rich Loam (were none / 3 / 2 / 2). Petals and XP unchanged.
+- **Hovel room:** z's only at dusk and night; the bed's pulse and a "Tap things in the room" hint show once a game day; the bed's and the window's cards open next to their thing.
+- **Pal cooking:** with the sleep-days clock on, pal pots run on the pal work clock and a pot a pal lets go of cooks on the gnome's clock; Kitchen texts say game time. Clock off: unchanged.
+- **Wearables:** Closet picker is an in-page dialog (link path kept without script); Flax Wading Wraps trigger is now "the creature has guard up"; Closet help text says a worn item offers its piece; demo and sims feed `worn`.
+- **Tea (still hidden, `tea_open`):** 9 more ingredients (40); 8 new forage items with placeholder pictures (nettle, raspberry leaf, spruce tips, elderflower, rose hips, linden blossom, dandelion root, licorice root); the `*-tea` globs in `craft_scenes.php` are explicit slug lists.
+- **Trail Sights, fourth pass** (`trail_sights_4.php`): `nxt=fog`, `nxt=lit`, `sec=<route>.<stretch>:<effect>`, `lose:` penalties, `stat:dc?cond:dc2`; setting `trail_fog_weather` (default off); `nxt=skip` is refused while a fight waits; data rows use the new tokens; three rest Sights cost game time.
+- **Puzzle combat (behind `pfight_v1`):** five weak creature decks refit (house-centipede-skitter, midge-cloud, bullfrog, hermit-crab-convoy, shore-earwig).
+- **Creature drops:** four regional drops moved into their creature's region window (boot step `creature_window_drops_1119` for live worlds).
+- **Road:** `chain-beat-tune-3` has a second option (the lint wanted two).
+- Player news: yes (`UPDATE_NEWS['2.7.27']`). DB: boot step only, no manual step.
 ## 2.7.26
 - **Puzzle combat stage mode (`pfight_stage`, still Off by default), wide screens only:** the combat stays in line with the map's column (it was centred on the whole window and covered the side menu). It still gets the visible height and at least 480 px of width. Phones unchanged.
 - No player news (setting is Off). No DB step.
