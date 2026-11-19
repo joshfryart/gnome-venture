@@ -5,14 +5,14 @@ alligator-snapper|0.761|0.981
 alpha-dingo|1.083|1.000
 ancient-snapper|0.758|0.992
 ant-scouts|2.909|1.203
-aphid-swarm|3.035|1.155
+aphid-swarm|1.730|1.155
 arctic-fox-kit|2.088|1.000
 army-ant-column|0.781|1.000
 badger|0.839|1.010
 badger-cub-gang|2.560|1.000
 banana-slug|3.077|1.218
 bark-scorpion|0.861|1.000
-barn-rat|2.073|1.000
+barn-rat|2.050|1.000
 basilisk-runner|0.886|1.000
 beach-hopper-horde|1.269|0.992
 beaded-lizard|0.654|1.000
@@ -23,7 +23,7 @@ black-bear|1.118|0.991
 black-jaguar|1.034|1.000
 blue-ring-octopus|1.047|1.000
 bog-leech|2.362|1.000
-bog-pike|1.070|0.981
+bog-pike|0.984|0.981
 bombardier-beetle|0.904|1.000
 booby-colony|0.727|0.992
 bramble-pup-pack|1.198|1.000
@@ -61,7 +61,7 @@ croc-hatchling-scatter|1.247|1.000
 dawn-skipper-flutter|2.902|0.992
 deep-octopus|0.962|1.009
 delta-gharial|0.896|1.013
-desert-camel|1.069|0.989
+desert-camel|1.019|0.989
 desert-gila-dragon|1.041|1.000
 desert-spadefoot|0.767|1.010
 desert-tortoise|1.110|1.000
@@ -100,7 +100,7 @@ frost-beetle|2.226|1.000
 frost-hare|1.897|0.989
 frost-owl-regent|0.433|0.909
 garden-eel-colony|1.171|0.992
-garden-snail|2.917|1.168
+garden-snail|2.850|1.168
 ghost-leopard|0.907|1.000
 ghost-slug|1.119|0.991
 giant-anteater|0.876|1.000
@@ -130,7 +130,7 @@ griffon-vulture|0.955|1.000
 grumpy-lemming|2.043|1.010
 gyrfalcon|0.733|1.000
 hermit-crab-convoy|2.634|1.000
-hermit-crab-hoarder|2.770|0.992
+hermit-crab-hoarder|2.540|0.992
 herring-gull|2.092|0.990
 honey-badger-brute|0.937|1.010
 honeybee-swarm|1.401|1.000
@@ -256,7 +256,7 @@ star-nosed-mole|2.959|1.000
 stickleback-shoal|2.537|1.028
 stink-badger|0.559|0.992
 stoat|2.095|1.000
-storm-eagle|0.613|1.000
+storm-eagle|0.655|1.000
 storm-wisp|1.052|1.000
 striped-hyena|0.847|0.991
 sun-bear|0.816|0.992
