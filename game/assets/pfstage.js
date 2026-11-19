@@ -28,8 +28,8 @@
   }
   function seen(v) { try { if (v === undefined) return sessionStorage.getItem(KEY) === '1'; if (v) sessionStorage.setItem(KEY, '1'); else sessionStorage.removeItem(KEY); } catch (e) {} return false; }
   /* the tile map's box (the map column's, when there is no tile map). A column can be display: contents (a phone): then it is the box of its children. */
-  function curBox() {
-    var m = document.querySelector('.advgrid .tmwrap') || document.querySelector('.wanderbehind .tmwrap') || document.querySelector('.advgrid .mapcol'); if (!m) return null;   // a fight met off the Trail: the map is the wander page's one behind the card (.wanderbehind), the .mapcol of the hidden old page is only a sliver   // the tile map itself: what the fight takes over
+  function mapBox() {
+    var m = document.querySelector('.wanderbehind .tmwrap') || document.querySelector('.advgrid .tmwrap') || document.querySelector('.advgrid .mapcol'); if (!m) return null;   // a fight met off the Trail: the map is the wander page's one behind the card (.wanderbehind; asked first, the hidden old page .wanderhide may hold boxes too), the .mapcol of the hidden old page is only a sliver
     var r = m.getBoundingClientRect(), l, t, w, h;
     if (r.width >= 40 && r.height >= 40) { l = r.left; t = r.top; w = r.width; h = r.height; }
     else {
@@ -41,6 +41,9 @@
     var cw = Math.min(w, 760);
     return { x: l + window.pageXOffset + (w - cw) / 2, y: t + window.pageYOffset, w: cw, h: h };
   }
+  /* a wander that began off the road (not from a Trail walk) has no map at all: the fight takes over the visible window instead (fixed to it, like the combat) */
+  function noMap() { return !document.querySelector('.tmwrap'); }
+  function curBox() { var m = mapBox(); if (m || !noMap()) return m; var v = visBox(); return { x: v.x + window.pageXOffset, y: v.y + window.pageYOffset, w: v.w, h: v.h }; }
   function box() { var b = curBox(); if (b) lastBox = b; return b || lastBox; }   // where the tile map is NOW (the page lays out differently while a fight is on); the last box seen only when it cannot be measured
   /* the combat needs the visible window, not just the map's height: the same room the game gives it (pfv1box.js): the whole window on a phone, between the header and the bottom bar on a wide screen. Fixed to the window, so it cannot scroll away. */
   function visBox() {
@@ -53,12 +56,13 @@
     }
     var w = Math.min(iw, 560), x = (iw - w) / 2;
     if (iw >= 700) {   // wide screen: stay in line with the map (its column), not centred on the window; height is still the visible window
-      var mb = curBox();
+      var mb = mapBox() || (noMap() && document.querySelector('main') ? mainBox() : null);
       if (mb) { var mw = Math.min(iw, Math.max(mb.w, 480)), mc = mb.x - window.pageXOffset + mb.w / 2; w = mw; x = Math.max(0, Math.min(iw - w, mc - w / 2)); }
     }
     return { x: x, y: top, w: w, h: Math.max(320, ih - top - bot), fixed: true };
   }
-  function fixedKind(d) { return !!d && (accepting || kindOf(d) === 'fight'); }
+  function mainBox() { var r = document.querySelector('main').getBoundingClientRect(); return r.width >= 40 ? { x: r.left + window.pageXOffset, w: r.width } : null; }   // no map: line up with the page's column instead
+  function fixedKind(d) { return !!d && (accepting || kindOf(d) === 'fight' || noMap()); }
   function boxFor(d) { return fixedKind(d) ? visBox() : box(); }
   function docBox(b) { return b && b.fixed ? { x: b.x + window.pageXOffset, y: b.y + window.pageYOffset, w: b.w, h: b.h } : b; }
   function setBox(el, b) { el.style.setProperty('--pfx', b.x + 'px'); el.style.setProperty('--pfy', b.y + 'px'); el.style.setProperty('--pfw', b.w + 'px'); el.style.setProperty('--pfh', b.h + 'px'); }
