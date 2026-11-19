@@ -48,6 +48,6 @@ db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_stage','1')" >/
 get adventure.php >/dev/null
 grep -q 'assets/pfstage.js' $H && grep -q 'assets/pfstage.css' $H && echo "ok   On: files linked" || { echo "FAIL files not linked"; FAILS=$((FAILS+1)); }
 if grep -q 'trailpop' $H; then grep -q 'trailpop pfdlg pfst' $H && echo "ok   dialog carries pfst" || { echo "FAIL dialog lacks pfst"; FAILS=$((FAILS+1)); }; else echo "FAIL no Trail dialog on the page (the tile walk did not start)"; FAILS=$((FAILS+1)); fi
-node "$HERE/pfstage.js" "$BASE" "${SHOT:-/tmp}" || { echo "FAIL browser check"; FAILS=$((FAILS+1)); }
+node "$HERE/pfstage.js" "$BASE" "$GAME" "$HERE" || { echo "FAIL browser check"; FAILS=$((FAILS+1)); }
 grep -qi "warning\|fatal\|notice" $LOG && { echo "FAIL php log"; grep -i "warning\|fatal\|notice" $LOG | head -3; FAILS=$((FAILS+1)); } || echo "ok   no PHP warnings"
 [ $FAILS = 0 ] && echo "pfstage ok" || { echo "$FAILS FAILED"; exit 1; }
