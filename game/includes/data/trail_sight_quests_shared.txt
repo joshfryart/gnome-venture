@@ -32,7 +32,7 @@ B|star-wheel|tundra-the-aurora-rise|Lie back and match the green|dp=night
 B|star-wheel|mountain-the-eagle-s-rest|Find the Thimble from the eagle's rock|dp=night/we=sun,cloud,rain,storm,frost,heat,wind,snow
 B|star-wheel|desert-the-red-rock-arch|Stand in the glow for the evening star|dp=dusk
 B|star-wheel|coast-the-lighthouse-shadow|Signal the keeper for a lens|dp=night
-Q|picnic-for-everyone|The Picnic for Everyone|Yarrow Mossgrove@v-na-3-1|🧺|seq|xp=70,item=patchwork-picnic-blanket:1,item=garden-honey:2,c=40,fp=3,title=Picnic Host|Yarrow wants the whole town on one blanket, which is a big blanket and a bigger picnic.|Everything is laid out on the knoll, everyone squeezes on, and Yarrow beams like a teapot. The blanket is yours to keep.
+Q|picnic-for-everyone|The Picnic for Everyone|Yarrow Mossgrove@v-na-3-1|🧺|seq|xp=70,item=patchwork-picnic-blanket:1,item=garden-honey:2,c=40,fp=3,fpall=10,title=Picnic Host|Yarrow wants the whole town on one blanket, which is a big blanket and a bigger picnic.|Everything is laid out on the knoll, everyone squeezes on, and Yarrow beams like a teapot. The blanket is yours to keep.
 B|picnic-for-everyone|grassland-the-picnic-knoll|Spread a cloth to measure the dent|-
 B|picnic-for-everyone|grassland-the-sleepy-windmill|Wind up the mill for picnic flour|-
 B|picnic-for-everyone|forest-the-hollow-oak|Pour tea and borrow six acorn teacups|-

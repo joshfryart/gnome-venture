@@ -611,7 +611,7 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
 function trail_sight_disc_set(int $uid, string $kind, int $pct, int $minutes, string $scope = ''): string
 {
     if (!in_array($kind, ['rest', 'shop'], true) || $pct < 1 || $minutes < 1) return '';
-    if ($scope !== '' && ($kind !== 'shop' || !isset(SIGHTS5_DISC_SCOPES[$scope]))) return '';   // fifth pass: disc=shop:20:60:seed = seeds only
+    if ($scope !== '' && ($kind !== 'shop' || !(isset(SIGHTS5_DISC_SCOPES[$scope]) || (bool)q_val('SELECT 1 FROM items WHERE slug = ?', [$scope])))) return '';   // sixth pass A: or one item slug (disc=shop:50:120:rope)   // fifth pass: disc=shop:20:60:seed = seeds only
     $kindKey = $scope !== '' ? 'shop:' . $scope : $kind;
     try {
         $cur = json_decode((string)q_val('SELECT ev_disc FROM users WHERE id = ?', [$uid]), true); $cur = is_array($cur) ? $cur : [];
@@ -619,7 +619,7 @@ function trail_sight_disc_set(int $uid, string $kind, int $pct, int $minutes, st
         if (!$old || (int)$old[1] < time() || (int)$old[0] <= $pct) $cur[$kindKey] = [min(60, $pct), time() + $minutes * 60];
         q('UPDATE users SET ev_disc = ? WHERE id = ?', [json_encode($cur), $uid]);
     } catch (Throwable $e) { return ''; }
-    return '🏷️ ' . $pct . '% off ' . ($kind === 'rest' ? 'a room at the inn' : ($scope !== '' ? SIGHTS5_DISC_SCOPES[$scope] . ' in the shops' : 'in the shops')) . ' for ' . ($minutes >= 60 ? round($minutes / 60, 1) . ' hours' : $minutes . ' minutes');
+    return '🏷️ ' . $pct . '% off ' . ($kind === 'rest' ? 'a room at the inn' : ($scope !== '' ? (SIGHTS5_DISC_SCOPES[$scope] ?? (string)q_val('SELECT name FROM items WHERE slug = ?', [$scope])) . ' in the shops' : 'in the shops')) . ' for ' . ($minutes >= 60 ? round($minutes / 60, 1) . ' hours' : $minutes . ' minutes');
 }
 
 /** The discount percent (0 if none or run out) of a kind for a gnome. */
@@ -941,6 +941,7 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
                 $folkNote .= ' They would like ' . $gq . ' × ' . e($anyG !== null ? sights5_any_label($anyG) : (string)q_val('SELECT name FROM items WHERE id = ?', [$gid])) . '.' . sights5_folk_card_note($fh, $now) . ' ' . ($has && $near
                     ? '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sightgive"><input type="hidden" name="slug" value="' . e($m['slug']) . '"><input type="hidden" name="idx" value="' . (int)$fh['idx'] . '"><button class="btn small">🎁 Give</button></form>' : '<small class="muted">' . ($near ? 'You have none.' : 'Walk there to give it.') . '</small>');
             }
+            elseif (($vc = sights6a_folk_choose_html($u, $m['slug'], $fh, (bool)$near)) !== '') $folkNote .= ' ' . $vc;   // sixth pass A: a villager's question, one button per answer
             $folkNote .= '</p>';
         }
         require_once __DIR__ . '/npc_clockwork.php';

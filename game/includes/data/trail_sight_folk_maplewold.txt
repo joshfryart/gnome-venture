@@ -62,4 +62,5 @@ hedgerow|Clover Puddlejump|dp=dawn|35|Clover Puddlejump inspects your trimming, 
 316-skyhill|Fennick Hollowell|se=winter/dp=night|50|Fennick Hollowell is lying in the snow counting nothing, and tells you a wish he made years ago.|fp=2,page=fennicks-wish
 316-auroracamp|Lyra Fiddlewing|dp=night|35|Lyra Fiddlewing plays a little song by the fire, for free, because the sky is showing off.|fp=1,buff=charm:1:60
 316-kettletree|Tobias Trundle|-|25|Tobias Trundle is having his tea break, so you brew him a cup and he gives you a seed for it, and knocks a little off his seeds for the day.|fp=1,seed=1,disc=shop:10:180:seed
+316-kettletree|Tobias Trundle|-|25|Tobias Trundle spots the tea you are carrying, says that is the good stuff and swaps you a seed for it, with a little off his seeds besides.|give=any-tea:1,fp=2,seed=1,disc=shop:10:180:seed
 316-kettletree|Sorrel Fiddlewood@v-na-4-1|-|40|Sorrel Fiddlewood is warming her paws at the kettles. She presses a thick letter into your mitten: "for the Owl, if you're going that way".|fp=1,item=owl-letter:1

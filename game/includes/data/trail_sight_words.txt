@@ -1,0 +1,5 @@
+# Word lists for `any-<word>` in take= / give= / hv= (sixth pass A; claude/sights/GRAMMAR.md "Sixth pass A"): word|slug,slug,...
+# For the words that are no item category (seed flower food produce) and no plant kind or slug ending: bread slugs share no ending (cornbread, herb-flatbread), teas are listed by slug
+# (craft_scenes.php keeps the same rule: never a *-tea glob, worm-tea and fern-tea are fertilisers). The lint checks every slug exists. More lists may go in trail_sight_words_<set>.txt.
+bread|cornbread,herb-flatbread,mesquite-flatbread
+tea|mint-tea,meadowsweet-tea,desert-sage-tea,maple-sap-tea
