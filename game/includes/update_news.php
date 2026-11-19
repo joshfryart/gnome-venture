@@ -812,6 +812,9 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.17' => ['🧩 Update 2.7.17: Your pals',
+        "[list][*][b]Your pals[/b]: the Today tab has a new box that shows what all your pals are doing. Garden crew: what they did last night, with a tag when a pal is tired. Kitchen and Pantry pals: how much they have made and how long is left. Pals on a trip or delve: when they are back.\n"
+        . "[*][b]Say hello[/b]: the daily \"say hello\" card now takes you to the Here page.[/list]"],
     '2.7.16' => ['👗 Update 2.7.16: the Closet',
         "[list][*][b]Closet[/b]: a new tab in your Hovel, after Gnome. Your gnome stands on top in what you are wearing, walking slowly and turning to show every side.\n"
         . "[*][b]Seven spots[/b] (feet, back, coat, cloak, hat, hands, neck) are small buttons. Tap one to pick what to wear there; the choices open right under it.\n"
