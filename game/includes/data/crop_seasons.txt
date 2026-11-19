@@ -196,3 +196,9 @@ warrigal-greens||
 grains-of-paradise||tender
 salak||tender
 finger-lime|autumn,winter|
+lemon-balm||
+peppermint||
+lemon-verbena|summer,autumn|tender
+garden-sage||
+tulsi|summer,autumn|tender
+star-anise||tender

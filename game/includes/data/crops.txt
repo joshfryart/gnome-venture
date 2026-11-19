@@ -199,3 +199,9 @@ warrigal-greens|Warrigal Greens|vegetable|2|1|A sprawling coastal spinach of the
 grains-of-paradise|Grains of Paradise|spice|5|1|Peppery seeds of a West African ginger, once traded as a luxury.
 salak|Salak|tree|6|1|Snake fruit: scaly brown skin over sweet, crunchy flesh.
 finger-lime|Finger Lime|tree|6|1|A thorny native lime whose pods burst with tiny citrus pearls.
+lemon-balm|Lemon Balm|herb|2|1|A lemon-scented cousin of mint that calms and cheers. Bees adore it.
+peppermint|Peppermint|herb|2|1|A strong, cooling mint, a cross between watermint and spearmint.
+lemon-verbena|Lemon Verbena|herb|3|1|A tender shrub with the sharpest lemon scent of any herb.
+garden-sage|Garden Sage|herb|3|1|Soft grey leaves, once thought to give a long life and a sharp memory.
+tulsi|Tulsi|herb|3|0|Holy basil, grown in a pot by the door of many homes in India and brewed for calm.
+star-anise|Star Anise|spice|5|1|Eight-pointed pods from a Chinese evergreen tree, sweet like liquorice.
