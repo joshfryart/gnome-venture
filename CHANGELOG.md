@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.7.23
-- **Puzzle combat on the Trail can take over the map's place (setting `pfight_stage`, Off by default):** the fight sits on the map column's box with no dimming, and a jigsaw cover plays when it starts and ends. With the setting Off nothing of it loads.
+- **Puzzle combat on the Trail can take over the map's place (setting `pfight_stage`, Off by default):** the fight sits on the tile map's box with no dimming. Jigsaw pieces fly in over the map first, the pre-fight card (creature and deck) shows on top of them and they stay until Let's fight, then new pieces cover the card and leave to show the combat. A fight that was run from shows its result card over the map instead of above it. End match covers the swap with the pieces. With the setting Off nothing of it loads.
 - **Sugar-shack ledger starts collapsed again:** the Trail family panel collapse skipped any panel containing a `<details>`, so the ledger (which holds the quilt fold) showed fully open. It now only skips a panel that is its own pill. Test `trail_fam_collapse` covers it.
 - No player news. No DB step.
 ## 2.7.22

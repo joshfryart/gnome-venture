@@ -35,7 +35,7 @@ f9ca48fabb811c5e973f057aaab36c99dfddc8fd  admin/mentors.php
 a8ee7d16da7542d10b9cef727b4ce44a676435f8  admin/upload.php
 5fb06e46834212d06d313be4f7b06ec427746481  admin/usage.php
 4866d9121a003c587301a7792c6c1b7518fda832  admin/xp.php
-dc79ff97bbea2f1b593bd4e7e5e7f79bbe0c53d8  adventure.php
+e5a4810b70526b070d14463d4c00f1070a7f92b7  adventure.php
 ad5c4b3bc413c8b4a5d70e6f8acf928452a6668d  arrange.php
 6d94b025467a53f5aff80bce8295133b93e037c9  assets/admin.css
 2666d13ae2605ed27f82ab1621d126ba8c2beb30  assets/admin.js
@@ -15088,8 +15088,8 @@ d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
 ec8a27eaa1ead7eab7bc77e244bc44c3ea861212  assets/pfparts47.js
-1cc84e89ae7e228584c611a29bfad350ca3fda17  assets/pfstage.css
-13f2e4310f5856180dcc46bf8e0a9f675932845e  assets/pfstage.js
+ca4836d78744a588eeb17190018d2fb934550605  assets/pfstage.css
+955d7c40c3ce5382c069b26c0789eeae16c32995  assets/pfstage.js
 bb69fd4ed54d2a12114b4f7180a801c72a106702  assets/pfv1.css
 6d5ff9a500d219588aeff7c3e1c2d1d4d616861c  assets/pfv1box.js
 81bfd29eb554564643f4a471332a54aabe7cfe40  assets/pfx.js
@@ -15100,7 +15100,7 @@ c669ec571e848d73050df20b531f62404cb825ba  assets/race.js
 a103fba30728f115898a4795e2df6e40ce7541da  assets/rainbarrel.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
 2ee16d960cfb3d650b85b6bce22b8bdae2be7732  assets/shpop.js
-134e76f7f3b0cc586db3c3364593fae02f89a5da  assets/site.js
+4b1e4ac4493f3a561fd40f74d399143a4b948775  assets/site.js
 bbde7acb08f6400768d21bef6e1cf78ef77e052b  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
 51cd468591b501a7a24a9d6e973b5fd36a13a19e  assets/style.css
