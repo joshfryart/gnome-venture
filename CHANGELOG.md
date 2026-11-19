@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.29
+- **Puzzle combat stage (`pfight_stage`):** a wander started from the world / Here page (no Trail map) now puts its fight in the stage popover, so the jigsaw entry, Let's fight and End match covers play like Trail fights (`adventure.php` `$trailPop`, `pfstage.js` `curBox()` falls back to the visible window); a wander's Run result card shows inside the dialog; `pfstSeen` is cleared at load when no dialog is on the page. New wander cases in `tests/pfstage.js`.
+- `tests/eggs110.sh`: 15 egg recipes (Maple Flapjacks), meal:10.
+
 ## 2.7.28
 - **Trail Sights items:** boot step `sight_item_effects_2719` fills empty decor `effects` on existing worlds (Admin edits kept); Glowcap Repair Kit mends a worn lantern free (`mend_tool`); recipes windmill-loaf, maple-flapjacks, toffee-apple, maple-sap-tea (no pictures yet); `import_recipes` ensures Sight items first.
 - **Art:** ginseng, ginseng-seed, stone-wall-end, stuffed-peppers-goat redrawn (tomato kept).
