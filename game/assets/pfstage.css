@@ -24,10 +24,13 @@ dialog.trailpop.pfst .pfst-res .pfst-act .btn { width: 100%; }
 dialog.trailpop.pfst.pfst-fade .pickbox { animation: pfstfade .4s ease-out both; }
 @keyframes pfstfade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { dialog.trailpop.pfst.pfst-fade .pickbox { animation: none; } }
-/* the jigsaw layer: under the card, over the map; the ghost of the old card (a crossfade) is over everything and lets taps through */
-.pfst-layer, .pfst-ghost { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+/* the jigsaw layer: under the card, over the map; the ghost of the old card and the second set of pieces (Let's fight) are over everything and let taps through */
+.pfst-layer, .pfst-ghost, .pfst-top { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .pfst-layer { z-index: 0; }
 .pfst-ghost { z-index: 3; }
+.pfst-top { z-index: 4; }
+.pfst-top svg { position: absolute; overflow: visible; will-change: transform; }
+dialog.trailpop.pfst.pfst-wait .pickbox { visibility: hidden; }
 .pfst-layer svg { position: absolute; overflow: visible; will-change: transform; }
 /* the cover for the way out (End match): a manual popover, so it sits above the modal dialog in the top layer */
 .pfst-cover { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 0px); height: var(--pfh, 0px); margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; pointer-events: auto; }

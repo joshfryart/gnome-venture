@@ -2,7 +2,7 @@
    Only acts on a dialog with the class .pfst (adventure.php adds it when the setting is on). What it does:
    - puts the dialog on the map column's box (assets/pfstage.css reads --pfx --pfy --pfw --pfh set here),
    - a fight that starts: jigsaw pieces fly in over the map FIRST, then the pre-fight card (creature, deck) shows on top of them; the pieces STAY until the player
-     taps Let's fight; then the card fades into the combat section while the pieces leave,
+     taps Let's fight; then a second set of pieces flies in over the card, the combat section is swapped in underneath, and they leave to show it,
    - a result card (a fight that was run from) is shown over the map in the same place, and its button sends the pieces away,
    - End match covers the swap that removes the fight with the pieces and they leave over the map.
    It never blocks the game: any failure, reduced motion, or no Element.animate means the card is just shown. It does not touch the fight's own script (pfboardv1.js),
@@ -18,6 +18,7 @@
   var seenNoFight = false;   // the page had no fight before: only then does a fight that shows up get the jigsaw
   var wasD = false, entering = false, held = false, dismissing = false, closing = false, coverUp = false, token = 0;
   var layer = null, pieces = null, ghost = null, ghostTimer = 0, cover = null, cpieces = null, lastBox = null;
+  var top = null, tpieces = null, topIn = null, topReady = false, accepting = false;   // Let's fight: the second set of pieces, over the card
 
   function dlg() { return document.querySelector('dialog.trailpop.pfst'); }
   function kindOf(d) {
@@ -96,6 +97,7 @@
     d.insertBefore(layer, d.firstChild);
   }
   function dropLayer() { if (layer && layer.parentNode) layer.parentNode.removeChild(layer); layer = null; pieces = null; held = false; dropGhost(); var d = dlg(); if (d) d.classList.remove('pfst-held'); }
+  function dropTop() { if (top && top.parentNode) top.parentNode.removeChild(top); top = null; tpieces = null; topIn = null; topReady = false; accepting = false; var d = dlg(); if (d) d.classList.remove('pfst-wait'); dropGhost(); }
   function dropGhost() { clearTimeout(ghostTimer); if (ghost && ghost.parentNode) ghost.parentNode.removeChild(ghost); ghost = null; }
   function reveal(d, fade) {
     d.classList.add('pfst-on'); seen(true);
@@ -120,16 +122,25 @@
       reveal(d2, true);
     }).catch(function () { clearInterval(iv); entering = false; dropLayer(); var d3 = dlg(); if (d3) reveal(d3, false); });
   }
-  /* a new dialog node while the pieces are held (the pre-fight card changed, or Let's fight brought the board) */
+  /* a new dialog node (or new content) while the pieces are held */
   function adopt(d) {
     var b = place(d) || lastBox, k = kindOf(d);
     if (layer && !d.contains(layer)) d.insertBefore(layer, d.firstChild);
     if (ghost && !d.contains(ghost)) d.appendChild(ghost);
+    if (top && !d.contains(top)) d.appendChild(top);
     if (k === 'pre') { d.classList.add('pfst-held'); reveal(d, false); return; }
-    held = false; reveal(d, true);   // the creature card fades into the combat section while the pieces leave
-    var P = pieces, g = ghost; ghost = null;
-    if (g) { var rm = function () { if (g.parentNode) g.parentNode.removeChild(g); }; g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, fill: 'forwards' }).finished.then(rm, rm); }
-    if (P && b) fly(P, false, b).then(dropLayer, dropLayer); else dropLayer();
+    if (accepting) { d.classList.add('pfst-wait'); d.classList.add('pfst-on'); finishAccept(d); return; }   // Let's fight: the board is here; it shows once the new pieces cover the card
+    held = false; reveal(d, true);   // (a page that brought the board some other way: the pieces just leave)
+    var P = pieces; if (P && b) fly(P, false, b).then(dropLayer, dropLayer); else dropLayer();
+  }
+  /* Let's fight: the new pieces are over the card and the board has arrived: swap, then they leave */
+  function finishAccept(d) {
+    if (!topReady || !accepting) { if (topIn) topIn.then(function () { var d2 = dlg(); if (d2 && accepting && kindOf(d2) !== 'pre') finishAccept(d2); }); return; }
+    var b = place(d) || lastBox, T = tpieces;
+    accepting = false; held = false;
+    d.classList.remove('pfst-wait'); d.classList.remove('pfst-held'); dropGhost(); dropLayer();   // the held pieces and the old card's ghost are under the new ones: drop them now
+    reveal(d, false);
+    if (T && b) fly(T, false, b).then(dropTop, dropTop); else dropTop();
   }
 
   /* ---- the way out of a won/lost fight: a popover cover above the dialog, the swap removes the fight, the pieces leave ---- */
@@ -183,11 +194,16 @@
     }
     var btn = t.closest('button, input[type=submit]'); if (!btn || !btn.form) return;
     var doo = btn.form.querySelector('input[name=do]'), v = doo ? doo.value : '';
-    if (v === 'pfv_go' && layer && held && canAnim) {   // the player accepts the deck: the card stays on screen as a ghost until the board is there
-      var d1 = dlg(), pre = d1 && d1.querySelector('#pfv-pre'); if (!pre) return;
+    if (v === 'pfv_go' && layer && held && canAnim) {   // the player accepts the deck: new pieces come in over the card (a ghost of it stays under them), then the board shows
+      var d1 = dlg(), pre = d1 && d1.querySelector('#pfv-pre'), bx = box(); if (!pre || !bx) return;
       dropGhost(); ghost = document.createElement('div'); ghost.className = 'pfst-ghost'; ghost.setAttribute('aria-hidden', 'true');
       var cl = pre.cloneNode(true); cl.removeAttribute('id'); Array.prototype.forEach.call(cl.querySelectorAll('[id]'), function (e) { e.removeAttribute('id'); }); Array.prototype.forEach.call(cl.querySelectorAll('form, script'), function (e) { e.parentNode.removeChild(e); });
-      ghost.appendChild(cl); d1.appendChild(ghost); ghostTimer = setTimeout(dropGhost, 8000);
+      ghost.appendChild(cl); d1.appendChild(ghost);
+      top = document.createElement('div'); top.className = 'pfst-top'; top.setAttribute('aria-hidden', 'true');
+      var g = grid(bx); tpieces = jig(bx.w, bx.h, g[0], g[1]); tpieces.forEach(function (q) { top.appendChild(q.svg); }); d1.appendChild(top);
+      d1.classList.add('pfst-wait'); accepting = true; topReady = false;
+      topIn = fly(tpieces, true, bx).then(function () { topReady = true; });
+      ghostTimer = setTimeout(function () { dropTop(); dropLayer(); var d9 = dlg(); if (d9) { d9.classList.remove('pfst-wait'); d9.classList.add('pfst-on'); } }, 9000);   // the board never came (an error shows its own message)
       return;
     }
     if (v === 'pf_finish' && dlg() && canPop && usable() && !closing) {

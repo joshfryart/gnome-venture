@@ -1,6 +1,6 @@
 // node tests/pfstage.js BASE GAME TESTSDIR : puzzle fight stage mode (setting pfight_stage on), the whole flow on the real page, phone and wide:
 //   a fight that starts (a tap on the map while a creature waits): the jigsaw comes in over the map FIRST, the pre-fight card shows on top of it and the pieces STAY;
-//   Let's fight: the card fades into the combat section and the pieces leave; a turn keeps the dialog node; Run: the result card is OVER the map (never above it) with the pieces
+//   Let's fight: new pieces cover the card, the combat section is swapped in under them, they leave; a turn keeps the dialog node; Run: the result card is OVER the map (never above it) with the pieces
 //   again, and its button sends them away; End match: a cover over the swap that removes the fight; the page is not dimmed; no JS errors. Prints "ok ..." / "FAIL ..." lines.
 const { chromium } = require('playwright');
 const { execFileSync } = require('child_process');
@@ -19,7 +19,7 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
     const st = () => p.evaluate(() => {
       const d = document.querySelector('dialog.trailpop.pfst'), L = document.querySelector('.pfst-layer'), pb = d && d.querySelector('.pickbox');
       return { dlg: !!d, held: !!(d && d.classList.contains('pfst-held')), on: !!(d && d.classList.contains('pfst-on')), layer: L ? L.children.length : 0, hidden: pb ? getComputedStyle(pb).visibility === 'hidden' : null, pre: !!document.getElementById('pfv-pre'), board: !!document.querySelector('#pfight.pf-screen'), res: !!document.querySelector('.pfst-res'),
-        ghost: !!document.querySelector('.pfst-ghost'), modal: d ? d.matches(':modal') : false, resOutside: [...document.querySelectorAll('.res.pfv')].filter(e => !e.closest('dialog')).length };
+        ghost: !!document.querySelector('.pfst-ghost'), top: (document.querySelector('.pfst-top') || { children: [] }).children.length, wait: !!(d && d.classList.contains('pfst-wait')), modal: d ? d.matches(':modal') : false, resOutside: [...document.querySelectorAll('.res.pfv')].filter(e => !e.closest('dialog')).length };
     });
     const until = async (f, ms = 6000) => { const t0 = Date.now(); for (;;) { const s = await st(); if (f(s)) return s; if (Date.now() - t0 > ms) return null; await p.waitForTimeout(60); } };
 
@@ -41,9 +41,9 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
 
     // ---- accept the deck: the card fades into combat, the pieces leave
     await p.locator('#pfv-pre .pfv-gof button').first().click({ force: true });
-    const mid = await until(s => s.ghost || s.board, 3000); chk(!!mid, `[${name}] Let's fight: a ghost of the card (or the board) appears`);
-    const fightOn = await until(s => s.board && !s.pre && s.on, 5000); chk(!!fightOn, `[${name}] the combat section is there`);
-    const gone = await until(s => s.board && s.layer === 0 && !s.held && !s.ghost, 4000); chk(!!gone, `[${name}] the pieces and the ghost are gone once the fight is on`);
+    const mid = await until(s => s.top > 0 && s.ghost && s.wait, 3000); chk(!!mid, `[${name}] Let's fight: a second set of pieces flies in over the card (a ghost of the card stays under them)`);
+    const fightOn = await until(s => s.board && !s.pre && s.on && !s.wait, 8000); chk(!!fightOn, `[${name}] the combat section shows once the pieces cover the card`);
+    const gone = await until(s => s.board && s.layer === 0 && s.top === 0 && !s.held && !s.ghost && !s.wait, 6000); chk(!!gone, `[${name}] all the pieces and the ghost are gone once the fight is on`);
 
     // ---- a turn through the in-place swap keeps the dialog node
     const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0;
