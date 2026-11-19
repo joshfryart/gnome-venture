@@ -1,6 +1,7 @@
 /* The interactive hovel room on the slim home's Today tab (includes/home_slim.php: hovel_room_svg() with 'things').
    Every thing in the picture is a real link, so the room works without this file: the bed, the window and the kettle open their
-   dialogs through site.js (data-hdlg), the door is a plain link. This file only adds two looks, nothing is saved:
+   dialogs through site.js (data-hdlg), the door is a plain link. This file only adds looks, nothing is saved:
+   a card opened from the picture sits next to its thing, the first-look hint goes away on a tap,
    the lamp (a[data-hlamp]) switches the light, the gnome (a[data-hsay]) hops and says a line.
    Listeners sit on the document, so they survive the in-place page swaps (AJAX_PAGES). */
 (function () {
@@ -33,6 +34,33 @@
     clearTimeout(sayTimer);
     sayTimer = setTimeout(function () { box.hidden = true; }, 2800);
   }
+
+  /* The bed's and the window's cards open next to their thing (site.js opens the dialog; this only moves it).
+     Below the thing when it fits, else above, else it stays centred. Closing or resizing puts it back to centred. */
+  function unanchor(d) { d.classList.remove('hpop-at'); d.style.left = ''; d.style.top = ''; }
+  function anchor(a, d) {
+    if (!d.open || !d.matches || !d.matches(':modal')) return;
+    var hit = a.querySelector('.ht-out') || a, t = hit.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight, gap = 8, pad = 12;
+    d.classList.add('hpop-at');
+    var b = d.getBoundingClientRect(), top;
+    if (t.bottom + gap + b.height <= vh - pad) top = t.bottom + gap;
+    else if (t.top - gap - b.height >= pad) top = t.top - gap - b.height;
+    else { unanchor(d); return; }
+    d.style.left = Math.round(Math.max(pad, Math.min(t.left + t.width / 2 - b.width / 2, vw - b.width - pad))) + 'px';
+    d.style.top = Math.round(top) + 'px';
+    if (!d.hrBound) { d.hrBound = 1; d.addEventListener('close', function () { unanchor(d); }); }
+  }
+  window.addEventListener('resize', function () {
+    var l = document.querySelectorAll('dialog.hpop-at'); for (var i = 0; i < l.length; i++) unanchor(l[i]);
+  });
+  document.addEventListener('click', function (ev) {   // any thing tapped: the hint has done its job; a card opened from the picture is moved to its thing
+    var a = closest(ev.target, '.hs-room a.ht, .hs-room a.hd');
+    if (!a) return;
+    var hint = closest(a, '.hs-pic'); hint = hint && hint.querySelector('.hs-hint');
+    if (hint) hint.hidden = true;
+    var id = a.getAttribute('data-hdlg'), d = id && document.getElementById(id);
+    if (d && d.classList.contains('hpop')) setTimeout(function () { anchor(a, d); }, 0);
+  });
 
   document.addEventListener('click', function (ev) {
     if (ev.defaultPrevented || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;

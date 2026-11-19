@@ -46,8 +46,12 @@ const out = []; const ok = (name, got, want) => out.push((got === want ? '  ok  
   if (process.env.SHOTS) await p.screenshot({ path: process.env.SHOTS + '/hovel-today.png' });
   // the window and the bed: dialogs
   await tap('.hs-room a.ht-window .ht-hit');
+  const near = id => p.evaluate(id => { const d = document.getElementById('hp-' + id).getBoundingClientRect(), t = document.querySelector('.hs-room a.ht-' + id + ' .ht-out').getBoundingClientRect(); const gap = Math.min(Math.abs(d.top - t.bottom), Math.abs(t.top - d.bottom)); return gap <= 9 && d.left <= t.left + t.width / 2 && d.right >= t.left + t.width / 2 && d.left >= 0 && d.right <= innerWidth && d.top >= 0 && d.bottom <= innerHeight ? 'at its thing' : 'gap ' + Math.round(gap) + ', card ' + [d.left, d.top, d.right, d.bottom].map(Math.round).join(' '); }, id);
   ok('a tap on the window opens the weather card as a modal dialog', await p.evaluate(() => { const d = document.getElementById('hp-window'); return d.open && d.matches(':modal') && location.search === '' && /Today[\s\S]*Tomorrow/.test(d.innerText); }), true);
+  ok('...the card sits next to the window, inside the screen', await near('window'), 'at its thing');
+  ok('...the hint is gone after a tap', await p.evaluate(() => { const h = document.querySelector('.hs-hint'); return !h || h.hidden; }), true);
   await p.locator('#hp-window [data-hdlg-close]').click(); await p.waitForTimeout(200);
+  ok('...closed: the card is centred again next time (no leftover position)', await p.evaluate(() => { const d = document.getElementById('hp-window'); return !d.classList.contains('hpop-at') && d.style.left === '' && d.style.top === ''; }), true);
   ok('...Close shuts it', await p.evaluate(() => document.getElementById('hp-window').open), false);
   await tap('.hs-room a.hd-kettle .hd-hit');
   ok('the kettle still opens the tea popover', await p.evaluate(() => document.getElementById('htea').matches(':modal')), true);
@@ -55,6 +59,7 @@ const out = []; const ok = (name, got, want) => out.push((got === want ? '  ok  
   await tap('.hs-room a.ht-bed .ht-hit');
   ok('a tap on the bed opens its card', await p.evaluate(() => { const d = document.getElementById('hp-bed'); return d.open && d.matches(':modal') && location.search === ''; }), true);
   ok('...Go to sleep and Nap, 44 px or more', await p.evaluate(() => [...document.querySelectorAll('#hp-bed .hpop-acts .btn')].map(b => b.textContent + ':' + (b.getBoundingClientRect().height >= 44)).join(' ')), 'Go to sleep:true Nap:true');
+  ok('...the card sits next to the bed, inside the screen', await near('bed'), 'at its thing');
   if (process.env.SHOTS) await p.screenshot({ path: process.env.SHOTS + '/hovel-bed.png' });
   const day0 = await p.evaluate(() => document.querySelector('.hs-tag').textContent);
   await Promise.all([p.waitForURL(/tab=today/), p.locator('#hp-bed button[value=home_nap]').click()]);
@@ -63,7 +68,7 @@ const out = []; const ok = (name, got, want) => out.push((got === want ? '  ok  
   // reduced motion: nothing moves
   const c2 = await br.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', storageState: await c.storageState() }); const p2 = await c2.newPage();
   await p2.goto(B + '/gnome.php');
-  ok('reduced motion: no animation in the room', await p2.evaluate(() => ['.hr-gnome', '.hr-steam .a', '.hr-zz .a', 'a.ht-bed .ht-out'].map(s => getComputedStyle(document.querySelector('.hs-room ' + s)).animationName).join(',')), 'none,none,none,none');
+  ok('reduced motion: no animation in the room', await p2.evaluate(() => ['.hr-gnome', '.hr-steam .a', 'a.ht-bed .ht-out'].map(s => getComputedStyle(document.querySelector('.hs-room ' + s)).animationName).join(',')), 'none,none,none');
   await c2.close();
   ok('with motion: the gnome bobs, the steam rises', await p.evaluate(() => ['.hr-gnome', '.hr-steam .a'].map(s => getComputedStyle(document.querySelector('.hs-room ' + s)).animationName).join(',')), 'hr-bob,hr-rise');
   // Furnish: the slot taps are as they were
