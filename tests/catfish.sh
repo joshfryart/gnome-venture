@@ -567,11 +567,12 @@ dbx "UPDATE catfish_state SET yarn=${CF0%%|*}, meta='$(echo "$CF0" | cut -d'|' -
 # 5. adopt with a stale seed is refused; the seed from the page works (a cat freed for it first)
 dbx "DELETE FROM cats WHERE user_id=$UID_ AND name='Delta'"
 dbx "UPDATE catfish_state SET kibble=1000000, last_tick=$(date +%s) WHERE user_id=$UID_"
-pagew3; S5=$(seed_of 0 $W/w3.html)
-ok "page: slot 0 has a seed to adopt" "$([ -n "$S5" ] && echo y || echo n)" y
-cfpost -d do=adopt -d slot=0 -d seed=1 --data-urlencode name=Wrong >/dev/null
+pagew3; OWN5=" $(dbv "SELECT group_concat(seed, ' ') FROM cats WHERE user_id=$UID_") "; SL5=0; S5=""
+for i in 0 1 2; do S5=$(seed_of $i $W/w3.html); SL5=$i; case "$OWN5" in *" $S5 "*) S5="";; *) break;; esac; done   # the shelter is fixed per day: a slot whose cat the gnome already owns is refused ("already adopted"), so take a slot that is free
+ok "page: a slot has a seed to adopt" "$([ -n "$S5" ] && echo y || echo n)" y
+cfpost -d do=adopt -d slot=$SL5 -d seed=1 --data-urlencode name=Wrong >/dev/null
 ok "stale seed (1): refused, cats unchanged" "$(ncats)" 3
-cfpost -d do=adopt -d slot=0 -d seed=$S5 --data-urlencode name=Right >/dev/null
+cfpost -d do=adopt -d slot=$SL5 -d seed=$S5 --data-urlencode name=Right >/dev/null
 ok "seed from the page: adopted (4 cats)" "$(ncats)" 4
 
 # 6. spending Yarn never lowers Kibble per hour
