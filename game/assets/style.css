@@ -7729,6 +7729,14 @@ main nav.tabs.hstabs a { gap: 6px; }
 .hs-go { flex: none; color: var(--brand-ink); font-weight: 800; white-space: nowrap; }
 .hs-quiet, .hs-empty { margin: 6px 0 0; padding-top: 8px; border-top: 2px dashed var(--line); color: var(--muted); font-size: 14px; }
 .hs-empty { border-top: 0; }
+/* 2.7.17: Needs you tiles */
+.hs-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 6px; }
+.hs-tile { display: flex; flex-direction: column; gap: 2px; min-height: 76px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 10px; color: var(--ink); text-decoration: none; min-width: 0; }
+.hs-tile.hot { border-color: var(--gold, #f2c94c); }
+.hs-tile:hover { background: var(--surface-2); } .hs-tile:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hs-tn { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 800; line-height: 1; } .hs-tn span { font-size: 22px; }
+.hs-tile b { font-size: 14px; overflow-wrap: anywhere; } .hs-tile small { color: var(--muted); font-size: 12px; line-height: 1.25; overflow-wrap: anywhere; }
+.hs-tiles + .hs-nlist li:first-child a, .hs-tiles + .hs-nlist li:first-child > div { border-top: 0; }
 /* 2.7.17: the Your pals box */
 .hs-grp { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 10px 0 2px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .hs-grp:first-of-type { margin-top: 2px; }

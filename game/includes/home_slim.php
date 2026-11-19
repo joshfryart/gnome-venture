@@ -269,7 +269,18 @@ function home_slim_needs(array $u): array
     } catch (Throwable $e) {}
     $d = ['need' => [], 'night' => [], 'village' => []];
     try { $d = today_data($u); } catch (Throwable $e) {}
-    foreach ($d['need'] as $n) $need[] = $n;
+    $beds = 0; $why = []; $bedPlot = [];
+    foreach ($d['need'] as $n) {
+        if (str_contains((string)$n[1], ' is tired of ')) continue;   // 2.7.17: tired pals show as a tag in the Your pals box
+        if (str_starts_with((string)$n[1], 'Plant: ')) {   // 2.7.17: the crew's empty-bed warnings become one row: how many beds, and why
+            if (preg_match('/(\d+) beds? left empty: (.+)$/', (string)$n[1], $m)) { $beds += (int)$m[1]; $why[] = $m[1] . ' ' . $m[2]; }
+            else { $beds++; $why[] = substr((string)$n[1], 7); }
+            if ($n[2] !== '') $bedPlot[(string)$n[2]] = 1;
+            continue;
+        }
+        $need[] = $n;
+    }
+    if ($beds > 0) $need[] = ['🌰', $beds . ' bed' . ($beds === 1 ? '' : 's') . ' empty', implode(' · ', $bedPlot ? array_keys($bedPlot) : []) . ($bedPlot && $why ? ': ' : '') . implode(', ', $why), url('garden.php?t=help')];
     foreach ($d['night'] as $n) {
         if ($n[3] === '') continue;   // the weather: it is on the banner's tag
         if (str_contains($n[3], 'hovel.php')) continue;   // the garden crew has its own Overnight list (home_slim_overnight)
@@ -450,13 +461,26 @@ function home_slim_today_html(array $u, array $needs): string
     if (ppal_open() && !is_guest($u)) { require_once __DIR__ . '/pal_jobs.php'; $h .= pj_home_notice_html($u); }   // pals back from a trip or delve
     $n = count($needs['need']);
     $h .= '<section class="box hs-needs" aria-labelledby="hs-needs-h"><h2 id="hs-needs-h">Needs you' . home_slim_bang($n, $n . ' thing' . ($n === 1 ? '' : 's')) . '</h2>';
-    if ($needs['need']) {
-        $h .= '<ul class="hs-nlist">';
-        foreach ($needs['need'] as [$ic, $tt, $sm, $href]) {
-            $in = '<span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b>' . ($sm !== '' ? '<small>' . e($sm) . '</small>' : '') . '</span>';
-            $h .= '<li>' . ($href !== '' ? '<a href="' . e($href) . '">' . $in . '<span class="hs-go">' . e(home_slim_go($href)) . ' →</span></a>' : '<div>' . $in . '</div>') . '</li>';
+    if ($needs['need']) {   // 2.7.17: things that pile up (N crops ripe, N pots done, N jars ready, N beds empty...) are big-number tiles; the rest are slim rows under them
+        $tiles = []; $rows = [];
+        foreach ($needs['need'] as $r) { if (preg_match('/^(\d+) (.+)$/', (string)$r[1], $m)) $tiles[] = [$r, $m[1], $m[2]]; else $rows[] = $r; }
+        if ($tiles) {
+            $h .= '<div class="hs-tiles">';
+            foreach ($tiles as [$r, $num, $lab]) {
+                $hot = !str_contains((string)$r[3], 't=help');
+                $h .= '<a class="hs-tile' . ($hot ? ' hot' : '') . '" href="' . e($r[3]) . '"><span class="hs-tn"><span aria-hidden="true">' . e($r[0]) . '</span>' . e($num) . '</span><b>' . e($lab) . '</b>'
+                    . ((string)$r[2] !== '' ? '<small>' . e((string)$r[2]) . '</small>' : '') . '</a>';
+            }
+            $h .= '</div>';
         }
-        $h .= '</ul>';
+        if ($rows) {
+            $h .= '<ul class="hs-nlist">';
+            foreach ($rows as [$ic, $tt, $sm, $href]) {
+                $in = '<span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b>' . ($sm !== '' ? '<small>' . e($sm) . '</small>' : '') . '</span>';
+                $h .= '<li>' . ($href !== '' ? '<a href="' . e($href) . '">' . $in . '<span class="hs-go">' . e(home_slim_go($href)) . ' →</span></a>' : '<div>' . $in . '</div>') . '</li>';
+            }
+            $h .= '</ul>';
+        }
     } else {
         $h .= '<p class="hs-empty">Nothing needs you right now. A good day to wander.</p>';
     }
