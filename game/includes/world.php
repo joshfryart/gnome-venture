@@ -398,7 +398,7 @@ function shop_price(array $u, int $price, int $shopId, int $itemId = 0): int
     if ($sale && strtotime($sale . ' UTC') > time()) $d += 20;   // the weather vane (v0.7.31)
     require_once __DIR__ . '/player_perks.php';
     $d += player_perk_pct((int)$u['id'], 'silver_tongue', 'perk_silver_tongue');   // 2.6.33
-    require_once __DIR__ . '/trail_sight_extras.php'; $d += trail_sight_disc_pct((int)$u['id'], 'shop');   // 2.7.00: a Trail Sight's shop discount
+    require_once __DIR__ . '/trail_sight_extras.php'; $d += trail_sight_disc_pct((int)$u['id'], 'shop') + sights5_disc_item_pct((int)$u['id'], $itemId);   // 2.7.00: a Trail Sight's shop discount; fifth pass: one scoped to this item's category (disc=shop:20:60:seed)
     $p = $d ? max(1, (int)round($p * (100 - min(60, $d)) / 100)) : $p;
     return $itemId > 0 ? max(1, (int)round($p * market_buy_mult($itemId))) : $p;   // v1.0.0: seasonal seeds and crops cost a little less in season
 }

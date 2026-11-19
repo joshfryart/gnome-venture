@@ -16,7 +16,7 @@ hedgerow|Clover Puddlejump|dp=dawn|35|Clover Puddlejump inspects your trimming, 
 232-berrypatch|Alder Pennywhistle@v-na-1-2|-|35|Alder Pennywhistle is checking his punnets. "Bramble said she'd send some honey over. Any sign of it?"|give=honey-parcel:1,fp=2,c=12,item=blueberry:1
 232-logbridge|Clover Brambleby@v-na-1-2|-|25|Clover Brambleby is off to see her cousin Bunty in Shellhollow, so you cross the log arm in arm, and she asks you to carry a parcel the rest of the way.|nocheck,fp=2,item=bunty-parcel:1
 232-well|Mister Plink@v-na-1-2|dp=night|60|A very polite voice says "good evening" from the bottom of the well. It is Mister Plink, a frog, and he lends you his singing pebble to hum along with for a while.|fp=1,buff=charm:1:240
-232-crossroads|Tobias Trundle|-|20|Tobias Trundle has set up a tiny shell-shop under the signpost and gives you a seed "for reading so nicely".|fp=1,seed=1,disc=shop:10:60
+232-crossroads|Tobias Trundle|-|20|Tobias Trundle has set up a tiny shell-shop under the signpost and gives you a seed "for reading so nicely".|fp=1,seed=1,disc=shop:20:60:seed
 232-picnicrise|Bramble Mossfoot|we=sun/dp=day|50|Bramble Mossfoot is picnicking on the rise, shares half her sandwich, and gives you the leftover honey to take to Alder in Honeybrook.|fp=2,item=honey-parcel:1
 236-wildflowers|Basil Teaspoon@v-na-1-3|se=summer/dp=day|45|Basil Teaspoon is dozing in the flowers and mumbles which ones his bees like best this week.|fp=1,item=meadowsweet:1@50
 236-beanpoles|Dorrit Thistledown@v-na-1-3|-|25|Dorrit Thistledown has stopped to argue with the beans on her way to cousin Posy. "Could you spare two wheat for Posy's bread? I'll pay you in mushrooms."|give=wheat:2,fp=2,item=chanterelle:2
@@ -61,5 +61,5 @@ hedgerow|Clover Puddlejump|dp=dawn|35|Clover Puddlejump inspects your trimming, 
 315-stream|Sorrel Fiddlewood@v-na-4-1|se=winter|40|Sorrel Fiddlewood is ice-fishing and lets you dangle a line in her hole for a bit.|fp=1,item=arctic-char:1@30
 316-skyhill|Fennick Hollowell|se=winter/dp=night|50|Fennick Hollowell is lying in the snow counting nothing, and tells you a wish he made years ago.|fp=2,page=fennicks-wish
 316-auroracamp|Lyra Fiddlewing|dp=night|35|Lyra Fiddlewing plays a little song by the fire, for free, because the sky is showing off.|fp=1,buff=charm:1:60
-316-kettletree|Tobias Trundle|-|25|Tobias Trundle is having his tea break, so you brew him a cup and he gives you a seed for it.|fp=1,seed=1
+316-kettletree|Tobias Trundle|-|25|Tobias Trundle is having his tea break, so you brew him a cup and he gives you a seed for it, and knocks a little off his seeds for the day.|fp=1,seed=1,disc=shop:10:180:seed
 316-kettletree|Sorrel Fiddlewood@v-na-4-1|-|40|Sorrel Fiddlewood is warming her paws at the kettles. She presses a thick letter into your mitten: "for the Owl, if you're going that way".|fp=1,item=owl-letter:1
