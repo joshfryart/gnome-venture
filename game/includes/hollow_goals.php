@@ -31,6 +31,9 @@ const HOLLOW_GOAL_POOL = [
     ['serve', '', 'Serve Pomeroy {n} courses', '🥄', 3, 'courses'],   // only while the Gourmand is on (hollow_goal_make_weekly)
 ];
 
+/** 2.7.27 (Josh): the weekly jar is shared by the whole Hollow, so it is 4 times the size the pool's per-gnome amounts give. Festival jars are not scaled. */
+const HOLLOW_GOAL_SCALE = 4;
+
 /** Tier fractions and the items that come with each tier (coins come from the goal_tier_coins setting). */
 const HOLLOW_GOAL_TIERS = [25, 50, 75, 100];
 const HOLLOW_GOAL_TIER_ITEMS = ['', 'plain-compost:3', 'worm-castings:2', 'rich-loam:2'];
@@ -84,7 +87,7 @@ function hollow_goal_make_weekly(): ?array
     $pool = hollow_goal_pool();
     if (!$pool) return null;
     [$kind, $filter, $title, $icon, $per] = $pool[crc32('hollowgoal|' . $key) % count($pool)];
-    $target = hollow_goal_round($per * hollow_goal_gnomes());
+    $target = hollow_goal_round($per * HOLLOW_GOAL_SCALE * hollow_goal_gnomes());
     try {
         db_insert('hollow_goals', ['period_key' => $pk, 'kind' => $kind, 'filter' => $filter, 'title' => str_replace('{n}', (string)$target, $title), 'icon' => $icon,
             'target' => $target, 'progress' => 0, 'festival' => null, 'starts_at' => gmdate('Y-m-d H:i:s', $start), 'ends_at' => gmdate('Y-m-d H:i:s', $end), 'created_at' => now()]);
