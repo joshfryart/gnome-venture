@@ -135,7 +135,7 @@ check "ctrl player untouched" "$(db "SELECT COUNT(*) FROM plots WHERE user_id=(S
 echo "== sprout logs in and replays the welcome flow"
 CK=/tmp/reset-ck-sprout; rm -f "$CK"; get login.php >/dev/null; post login.php -d username=sprout -d password=TestPass123! >/dev/null
 RED=$(get world.php); echo "world.php -> $RED"; case "$RED" in *welcome.php*) echo "ok   sent to welcome flow";; *) echo "FAIL not sent to welcome"; FAILS=$((FAILS+1));; esac
-get welcome.php >/dev/null; check "welcome page shows (step 1)" "$(grep -c 'class="box form gnomemaker"' $H)" "1"
+get welcome.php >/dev/null; check "welcome page shows (step 1)" "$(grep -c 'name="do" value="gnome"' $H)" "1"
 post welcome.php -d do=gnome -d "gnome_name=Sprout Again" -d 'hat=#2e7d4f' -d 'beard=#b5651d' >/dev/null
 get 'welcome.php?step=place' >/dev/null; post welcome.php -d do=place -d village_id=$VID >/dev/null
 get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'garden_name=Fresh Patch' >/dev/null

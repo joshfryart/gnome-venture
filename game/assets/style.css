@@ -7858,6 +7858,7 @@ body[data-area] main .hs-tab-today h1.hs-hi, main .hs-tab-today h1.hs-hi { backg
 .hroom .hr-zz text { fill: #fff; stroke: #4a2c1a; stroke-width: .7; paint-order: stroke; font-weight: 700; font-size: 11px; opacity: 0; pointer-events: none; }
 .hroom .hr-zz .a { animation: hr-zz 3.4s ease-in-out infinite; }
 .hroom .hr-zz .b { font-size: 8px; animation: hr-zz 3.4s ease-in-out 1.2s infinite; }
+.hroom .hr-steam image, .hroom .hr-zz image { opacity: 0; pointer-events: none; }   /* 2.7.20: pixel puffs and z's (fx/fx-steam-*, fx/fx-z-*); the circles and letters stay as the fallback */
 .hroom-things .hr-gnome { animation: hr-bob 2.6s ease-in-out infinite; }
 .hroom-things .hr-gnome.hop { animation: hr-hop .5s ease-out 1, hr-bob 2.6s ease-in-out .5s infinite; }
 .hroom .hr-lampglow { opacity: 0; pointer-events: none; }
@@ -7870,7 +7871,7 @@ body[data-area] main .hs-tab-today h1.hs-hi, main .hs-tab-today h1.hs-hi { backg
 @keyframes hr-flick { 0%, 100% { opacity: .9; } 45% { opacity: 1; } 60% { opacity: .78; } }
 @media (prefers-reduced-motion: reduce) {   /* calm: nothing moves; the steam and the z's stay as still marks */
   .hroom .hr-steam .a, .hroom .hr-steam .b, .hroom .hr-zz .a, .hroom .hr-zz .b, .hroom-things .hr-gnome, .hroom-things .hr-gnome.hop, .hroom.lamp-on .hr-lampglow, .hroom .ht.pulse .ht-out { animation: none; }
-  .hroom .hr-steam circle, .hroom .hr-zz text { opacity: .6; }
+  .hroom .hr-steam circle, .hroom .hr-zz text, .hroom .hr-steam image, .hroom .hr-zz image { opacity: .6; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .hroom .ht-out, .hroom .hr-lampglow { transition: opacity .15s; }
@@ -7931,6 +7932,7 @@ html.js .tea-nojs { display: none; }
 .tea-kettle { display: grid; gap: 4px; padding: 8px 10px; border: 2px solid var(--line-2); }
 .tea-kettle p { margin: 0; }
 .tea-ki { font-size: 20px; }
+img.tea-ki { width: 20px; height: 20px; vertical-align: -4px; image-rendering: pixelated; }   /* 2.7.20: the kettle's own 20 px icon (ico/ico-kettle-<tier>.png) */
 .tea-buy { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 0; }
 dialog.hpick form.tea-buy { display: flex; }
 .tea-prog { width: 100%; }

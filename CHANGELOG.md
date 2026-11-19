@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.20
+- **Hovel room art:** a bigger home gnome (48x72, hat and beard still take your colours), night versions of the three windows (shown at dusk and night), real steam and z sprites, and Copper, Cast-Iron and Silver Samovar kettle overlays (shown for the tea kettle, when tea is open). Small kettle and cup icons in the tea popover. 18 new pictures (`game/assets/img/sprite`, `scenes`, `fx`, `ico`), also in `upload-zips/gnome-venture-images-v3-2.7.20.zip`. Every picture falls back to the old drawing when missing. Suite `hovel_art_2720`; generator `aseprite-source/extras-pixel/scripts/hovel-room-2720.py`.
+- **Fresh start** now classifies all 33 older users columns it never covered (kept: theme, start page, session, guest, email and verify state; reset: the rest), and resets only columns that exist on the database. `reset` test fixed (welcome page check).
+- **MySQL installer:** `mentors120_upgrade()` no longer runs CREATE TABLE / INDEX when the tables exist (on MySQL that silently committed the installer's transaction and the install failed with "There is no active transaction").
 ## 2.7.19
 - **Interactive hovel (Today tab):** the full room picture replaces the cropped banner, and things in it are tappable: the bed (card with Go to sleep, Nap, the inn and other beds, with prices and reasons), the door (out to Here), the kettle (tea, when open), the window (today's and tomorrow's weather, link to Seasons), the lamp (light on or off, lit by itself at dusk) and the gnome (hops and says a mood line). Things are data in `data/hovel_things.php`; each has a plain link without script. Small steam, z's and gnome bob, off with reduced motion. A one-line greeting and a small row of Sleep, Nap, Inn and Other beds buttons replace the big buttons on Today only. Furnish, Gnome and Closet are unchanged. New `hovelroom.js`, suite `hovel_room`.
 ## 2.7.18

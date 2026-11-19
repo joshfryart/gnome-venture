@@ -91,12 +91,14 @@ function mentors120_upgrade(): void
     $sqlite = $driver === 'sqlite';
     [$t, $i, $c] = mentors120_schema($sqlite ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', $sqlite ? 'INTEGER' : 'INT UNSIGNED',
         $sqlite ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-    foreach ($t as $sql) { try { db()->exec($sql); } catch (PDOException $e) { error_log('mentors120 table: ' . $e->getMessage()); } }
+    $have = true;
+    foreach (['pmentor_links', 'pmentor_grads', 'pmentor_days'] as $tbl) { try { db()->query("SELECT 1 FROM $tbl LIMIT 1"); } catch (PDOException $e) { $have = false; } }
+    if (!$have) foreach ($t as $sql) { try { db()->exec($sql); } catch (PDOException $e) { error_log('mentors120 table: ' . $e->getMessage()); } }
     foreach ($c as [$table, $col, $def]) {
         try { db()->query("SELECT $col FROM $table LIMIT 1"); }
         catch (PDOException $e) { try { db()->exec("ALTER TABLE $table ADD COLUMN $col $def"); } catch (PDOException $e2) { error_log('mentors120 column: ' . $e2->getMessage()); } }
     }
-    foreach ($i as $sql) { try { db()->exec($sql); } catch (PDOException $e) { /* exists */ } }
+    if (!$have) foreach ($i as $sql) { try { db()->exec($sql); } catch (PDOException $e) { /* exists */ } }
     mentors120_pages();
 }
 
