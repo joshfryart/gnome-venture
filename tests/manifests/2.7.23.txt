@@ -15088,8 +15088,8 @@ d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
 ec8a27eaa1ead7eab7bc77e244bc44c3ea861212  assets/pfparts47.js
-ca4836d78744a588eeb17190018d2fb934550605  assets/pfstage.css
-955d7c40c3ce5382c069b26c0789eeae16c32995  assets/pfstage.js
+5aec898a8112dc88411b90be269cac1ac3cc755d  assets/pfstage.css
+f7ceb1915993544eb1a05be67da2de7164445437  assets/pfstage.js
 bb69fd4ed54d2a12114b4f7180a801c72a106702  assets/pfv1.css
 6d5ff9a500d219588aeff7c3e1c2d1d4d616861c  assets/pfv1box.js
 81bfd29eb554564643f4a471332a54aabe7cfe40  assets/pfx.js
