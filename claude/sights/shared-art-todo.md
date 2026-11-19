@@ -1,6 +1,6 @@
 # Shared land Trail Sights: new item art needed
 
-Status: TODO (2026-11-12). Items in `game/includes/data/trail_sight_items_shared.txt`; each needs a 64x64 PNG `game/assets/img/ph/<slug>.png` (the game shows its placeholder until then).
+Status: DONE (2026-11-19, every listed item has its PNG in game/assets/img/ph/). Was TODO (2026-11-12). Items in `game/includes/data/trail_sight_items_shared.txt`; each needs a 64x64 PNG `game/assets/img/ph/<slug>.png` (the game shows its placeholder until then).
 
 ## Sight keepsakes and minigame prizes
 - `five-leaf-clover` Five-Leaf Clover: a bright green clover with five round leaves, a tiny snail trail on one.

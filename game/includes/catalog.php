@@ -568,6 +568,7 @@ function import_recipes(array &$stats): int
     animals120_items();  // v1.2.0: Quail Egg, Goat Milk and the other animal items, for the same reason
     require_once __DIR__ . '/animals140.php';
     animals140_items();  // v1.4.0: Wing Scale, Snail Trail Glaze and the two decor items made from them
+    try { require_once __DIR__ . '/trail_sights.php'; trail_sights_ensure_items(); } catch (Throwable $e) {}   // 2026-11-19: flour, toffee, maple sap / syrup (Sights-only items) are ingredients of four recipes
     $cookCost = tier_setting('cook_energy_tiers', [0, 1, 2]);
     $snackBatch = max(1, (int)setting('snack_batch_max'));
     foreach (catalog_lines('recipes.txt') as $r) {

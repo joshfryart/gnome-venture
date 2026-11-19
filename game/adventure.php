@@ -237,7 +237,7 @@ function act_choice(string $do, string $icon, string $title, string $sub = '', $
 /**
  * Optional pixel art for the wander card. A file that does not exist draws NOTHING (the emoji / plain header stays): no broken images.
  * scenes/wander-<land>.png banner (+ wander-deep.png for the Deep wilds, wander-wild.png for the Hard and Wild tiers), ico/wander-tier-<gentle|wild|dangerous|deep>.png (24 px),
- * ico/wander-<deeper|roam|back|return|visit>.png (24 px), ico/wander-found.png. Names in claude/todo.md (ART TODO: the wander area).
+ * ico/wander-<deeper|roam|back|return|visit>.png (24 px), ico/wander-found.png. Names in claude/todo.md (art list: the wander area).
  */
 function wander_art(string $rel, int $w, int $h, string $cls = ''): string
 {
@@ -301,14 +301,16 @@ function wander_card_html(array $u, array $exp, array $last, array $log, array $
 
 page_header('On the mycelium');
 $pfStageRes = '';
-if (!empty($_SESSION['pfv_res'])) { require_once __DIR__ . '/includes/pfdeck_view.php'; $pfRes = pfv_result_take(); if ($pfRes !== '' && $trailSc && pfight_stage_on($u)) $pfStageRes = $pfRes; else echo $pfRes; }   // pfight_stage: on a Trail map the card of a fight that was run from is shown over the map (below), not above it   // 2.6.74 v1: the result card of a puzzle fight that was lost or left (never set with pfight_v1 off)
+$pfRes = '';
+if (!empty($_SESSION['pfv_res'])) { require_once __DIR__ . '/includes/pfdeck_view.php'; $pfRes = pfv_result_take(); }   // 2.6.74 v1: the result card of a puzzle fight that was lost or left (never set with pfight_v1 off); shown below, over the map's place when pfight_stage is on (a Trail map, the map behind a wander off the Trail, or a wander with no map: the window)
 // graphical navigation 2d: Wander off the Trail plays in a popover over the Trail's section; when the wander ends the walk is picked up again
 $wanderView = null;
 if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);
+if ($pfRes !== '') { if (($trailSc || $wanderView || ($exp && ($exp['kind'] ?? '') === 'explore')) && pfight_stage_on($u)) $pfStageRes = $pfRes; else echo $pfRes; }   // pfight_stage: on a Trail map, behind a wander off the Trail, or off the road with no map, the card of a fight that was run from is shown over the map's place (below), not above it
 if ($wanderView) {
     $wOver = $exp && fight_scene_on() && (($enc && ($enc['type'] ?? '') === 'creature' && !pfight_on($u)) || fight_finale_pending($exp));   // (a puzzle fight never draws the old stage)   // a fight off the Trail still plays on the map behind it
     echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true, $wOver, $exp) . '</div>';
-    if (!$enc) { echo wander_card_html($u, $exp, $last, $log, $from, $L); page_footer(); exit; }   // nothing in front of you: the purpose-built wander card
+    if (!$enc) { echo wander_card_html($u, $exp, $last, $log, $from, $L); if ($pfStageRes !== '') echo '<dialog class="picker hubpop trailpop pfdlg pfst" open aria-label="Fight result"><div class="pickbox"><div class="hubcard trailui pfst-res">' . $pfStageRes . '<p class="actrow pfst-act"><button type="button" class="btn primary" data-pfst-dismiss>Back to the map</button></p></div></div></dialog>'; page_footer(); exit; }   // (the result card comes after the wander card, so it is the modal on top; no id: the wander card has #trailpop)   // nothing in front of you: the purpose-built wander card
     ob_start();   // something in front of you: the usual encounter popover (fight, choice, meeting), the old page hidden behind it
 }
 ?>
@@ -333,7 +335,7 @@ if ($wi && !$isWalk): ?>
 </div>
 <?php endif; ?>
 <?php $hasMap = $trailSc || $wanderView || $mapMode || ($dv2Scene && $dv2Scene['map']); $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
-<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() && !pfight_on($u) ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?><?= $fighting && pfight_on($u) ? ' pfover' : '' ?>">
+<div class="advgrid<?= $dv2Scene || $kind === 'delve' ? ' dv2' : '' ?><?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() && !pfight_on($u) ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?><?= $fighting && pfight_on($u) ? ' pfover' : '' ?>">
 <div class="mapcol"<?= $fighting && pfight_on($u) ? ' inert aria-hidden="true"' : '' ?>>
 <?php if ($pfStageRes !== ''): /* pfight_stage: the result card over the map's place, with one button to send it away (assets/pfstage.js); nothing is kept server side */ ?><dialog class="picker hubpop trailpop pfdlg pfst"<?= $enc ? '' : ' id="trailpop"' ?> open aria-label="Fight result"><div class="pickbox"><div class="hubcard trailui pfst-res"><?= $pfStageRes ?><p class="actrow pfst-act"><button type="button" class="btn primary" data-pfst-dismiss>Back to the map</button></p></div></div></dialog><?php endif; ?>
 <?php $pfAct = $fighting && pfight_on($u);   // puzzle combat: no old stage, no old dock
@@ -416,7 +418,7 @@ if (!$enc && $latestHtml !== '') {
 </div>
 
 
-<?php $trailPop = ($trailSc || $mapMode || $dv2Scene || $wanderView) && $enc && !$fsc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
+<?php $trailPop = ($trailSc || $mapMode || $dv2Scene || $wanderView || ($isExplore && $pfAct && pfight_stage_on($u))) && $enc && !$fsc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
 if ($trailPop): ?><dialog class="picker hubpop trailpop<?= $pfAct ? ' pfdlg' : '' ?><?= $pfAct && pfight_stage_on($u) ? ' pfst' : '' ?>" id="trailpop" open aria-label="<?= $enc['type'] === 'creature' ? 'A fight' : 'Something in your way' ?>"><div class="pickbox"><div class="hubcard trailui"><?= $pfAct ? '' : adventure_stage_html($u, $exp, $scene, $enc, 'fight', 'fightstage') /* the battle backdrop (placeholder art: scenes/fight-<land>.png) */ ?><?php endif; ?>
 <div class="panel box encounter">
 <?= fight_replay_stage((int)$last['id']) ?>   <?php // v1.4.0: Fight on replay, played by assets/fighton.js ?>

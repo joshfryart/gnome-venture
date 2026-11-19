@@ -1,5 +1,7 @@
 # Puzzle combat: ART TODO
 
+Audit 2026-11-19 (files in `game/assets/img/pfight/`): DONE = tile icons `ico-<type>` and `-s` for all 7 types and for jab, pierce, sting, trip, bash, smash, brace, roll, thornhide, mending, hum, lull, bond, pluck (named `ico-<name>`, not `ico-hurt-<name>`); tile frames, edge and socket pieces; combo stamps (6); end-charmed (4); open-end; ico-gift; popover-header. STILL OPEN: the 12x12 `tag-*.png` marks (none exist), upgrade corner gems, rarity trim, strip-bg, bar-frame, intent-bubble.
+
 The fight card works with emoji and CSS borders now. Pixel art to replace them (same style as the existing ico/ set; files under game/assets/img/pfight/, all optional: a missing file keeps the emoji, so nothing breaks).
 
 ## Tile type icons, 24x24 px (ico/pfight-<type>.png)

@@ -7,8 +7,8 @@
 Generated from the three activity data files; tick = `game/assets/img/acts/act-<slug>.png` exists in the repo (first pass drawn, not approved by Joshua). Brief for each = its blurb: `python3 tools/missing_act_art.py` (or open the data row). Scene rules and how-to: `claude/todo-art-variety.md` section "ART TODO FOR A FUTURE AI". `tt_*` upgrade acts are skipped.
 The wave + regional data comes with release 2.0.78 (branch `ccr-7e2dadf5-mxypd7`, 2e7c5e67, not on main when this list was made). Regenerate this list after merging.
 
-## Kind cards (still placeholder in 2.0.78; draw first)
-- [ ] act-craft  - [ ] act-collect  - [ ] act-tend  - [ ] act-contest
+## Kind cards: DONE
+(all four drawn, files exist; audited 2026-11-19) - [x] act-craft  - [x] act-collect  - [x] act-tend  - [x] act-contest
 
 ## Existing activities (stop_acts.txt): 55/55 drawn
 - [x] `chores` A helping hand (check; any; -)

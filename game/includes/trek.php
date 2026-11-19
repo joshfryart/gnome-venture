@@ -19,7 +19,7 @@ require_once __DIR__ . '/trek_knacks.php';   // v2.0.20: knacks (skill slots)
  * v1.8.0 Treks, the engine: one run per gnome (trek_runs), a party, a pack, flags, a map to walk, camps, bank and knock-outs.
  * Every state change runs inside trek_tx(): a transaction, the gnome's users row locked, then the run RE-READ (as adventure.php v1.2.2).
  * The fight maths is in trek_fight.php. Story text is always trek_text(); mechanical labels are plain strings.
- * v1 slice: Gentle mode, Chapter I only. TODO later: Chapters II-VI, Thorny/Bramble, skill points, fast travel, mini-map, hats.
+ * v1 slice: Gentle mode, Chapter I only. Planned later: Chapters II-VI, Thorny/Bramble, skill points, fast travel, mini-map, hats.
  */
 
 /** Items that belong to a quest: they stay in the pack (never banked) and a knock-out never takes them. */

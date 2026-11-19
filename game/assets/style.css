@@ -8669,3 +8669,14 @@ dialog.clpick form { display: block; }
 dialog.clpick .wbtn .btn { min-height: 40px; margin: 0; }
 dialog.clpick .hpick-act { margin-top: 8px; }
 .clpb { margin: 10px 0 0; font-size: 13px; }
+
+/* 2.7.30: a delve's column (picture, floor map, chips) is always centred on a wide screen; the encounter panel sits under it, and is hidden while it is empty */
+@media (min-width: 1000px) {
+  .advgrid.dv2, .advgrid.dv2.fighting { grid-template-columns: minmax(0, 480px); justify-content: center; }
+  .advgrid.dv2.fighting.pfover { grid-template-columns: minmax(0, 480px); }   /* the puzzle fight overlays the column (pfight.css), so the column stays 480 wide */
+  .advgrid.dv2 .encounter { max-width: 480px; max-height: none; margin-inline: auto; width: 100%; box-sizing: border-box; }
+  .advgrid.dv2 .encounter:not(:has(h3, p, .choicelist, button, form, img, svg, canvas)) { display: none; }
+}
+/* 2.7.30: pfstage.js places its dialog in document coordinates, so on a delve the overlay grid must not be the dialog's containing block (it pushed the fight off to the right) */
+.advgrid.dv2.fighting.pfover:has(dialog.pfst) { position: static; }
+.advgrid.dv2.fighting.pfover > dialog.pfst { grid-area: auto; }

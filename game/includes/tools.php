@@ -423,12 +423,15 @@ function mend_tool(int $uid, int $itemId): array
     if (!$tool || $tool['category'] !== 'tool') return [false, 'That doesn’t need mending.'];
     if (!$broken && (int)$row['wear'] < 1) return [false, 'Your ' . $tool['name'] . ' is in good order.'];
     $cost = tool_mend_cost((int)$tool['base_price']);
+    $kitId = 0;   // 2026-11-19: a Glowcap Lantern Repair Kit mends a lantern for free and is used up
+    if ((((json_decode((string)($tool['effects'] ?? ''), true) ?: [])['tool']) ?? '') === 'lantern') $kitId = (int)q_val("SELECT i.id FROM items i JOIN user_items ui ON ui.item_id = i.id WHERE i.slug = 'glowcap-repair-kit' AND ui.user_id = ? AND ui.qty > 0", [$uid]);
     $today = gclock_my_date();
     db()->beginTransaction();
     $allow = tool_free_mends($uid);   // v0.7.96: 1 a day with a Tool Shed, 2 with a level 3 one
-    $free = $allow > 0
+    $kit = $kitId > 0 && give_item($uid, $kitId, -1);
+    $free = $kit || ($allow > 0
         && q('UPDATE users SET free_mend_n = CASE WHEN free_mend_day = ? THEN free_mend_n + 1 ELSE 1 END, free_mend_day = ?
-              WHERE id = ? AND (free_mend_day IS NULL OR free_mend_day <> ? OR free_mend_n < ?)', [$today, $today, $uid, $today, $allow])->rowCount() === 1;
+              WHERE id = ? AND (free_mend_day IS NULL OR free_mend_day <> ? OR free_mend_n < ?)', [$today, $today, $uid, $today, $allow])->rowCount() === 1);
     if (!$free && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Mending it costs ' . number_format($cost) . ' ' . setting('currency_name') . '. You don’t have that many.'];
@@ -443,8 +446,8 @@ function mend_tool(int $uid, int $itemId): array
     q('UPDATE user_items SET wear = 0, wear_day = NULL WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']]);
     db()->commit();
     tool_cache_reset();
-    return [true, $free ? '🛠️ Your Tool Shed mended it for free today.'
-        : '🔧 Mended your ' . $tool['name'] . ' for ' . number_format($cost) . ' ' . setting('currency_name') . '.'];
+    return [true, $kit ? '🧰 The repair kit made it good as new (and is used up).' : ($free ? '🛠️ Your Tool Shed mended it for free today.'
+        : '🔧 Mended your ' . $tool['name'] . ' for ' . number_format($cost) . ' ' . setting('currency_name') . '.')];
 }
 
 /** A worn tool can't be traded, put on a stall or given away until it is mended. Returns the reason, or null. */

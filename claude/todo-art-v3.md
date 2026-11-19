@@ -45,7 +45,7 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 4. Doors: DONE 2026-11-11, 81 unique `door-<slug>.png` + 6 shared (no night variant; lit window comes from the hotspot chips).
 5. 2.5D villager sprites: SUPERSEDED. Species strips (`npc25/`, 30 species incl. squirrel, scarecrow, hermit-crab, crab, beaver 2026-11-18) are used first by `here_sprite`; only gnome NPCs without a `gnome-<slug>` strip and any new species are open. The old per-NPC `sprite/npc-*.png` (81) is the fallback.
 6. Treehouse: nothing open (done). Optional: `scenes/wander-step-back.png`.
-7. Pal perch sprites: DONE 2026-11-11, all 570 in `assets/img/pals/` (475 block pals generator-drawn, 95 whimsy hand-drawn). Optional: found-pal arrival sparkle. Weaker whimsy: pl-dlz-6 (lizard reads turtle), pl-wgor-6 (gorilla blob), mt-bill-brolly, pl-wcof-6, pl-flfm-6.
+7. Pal perch sprites: PARTLY DONE (audited 2026-11-19: all 570 keys have a unique 64x64 `pals/<key>.png`; only 142 have a perch-size `pals/perch/<key>.png`, 428 do not; Josh: pals not done). Earlier note said "DONE 2026-11-11, all 570 in `assets/img/pals/`" (files there may be fallbacks) (475 block pals generator-drawn, 95 whimsy hand-drawn). Optional: found-pal arrival sparkle. Weaker whimsy: pl-dlz-6 (lizard reads turtle), pl-wgor-6 (gorilla blob), mt-bill-brolly, pl-wcof-6, pl-flfm-6.
 8. Trail tile sets per landscape (code-generated today, art optional); event/hotspot icons 32x32; nav icons.
 9. Canvas 480x270 treated as settled (code reads size from layout JSON).
 

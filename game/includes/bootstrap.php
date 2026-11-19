@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.7.27');
+define('APP_VERSION', '2.7.30');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -314,6 +314,11 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 require_once __DIR__ . '/trek_textpass.php';
                 trek_apply_text_2022();                 // sets trek_text_pass = 9
             }
+        });
+        boot_step('sight_item_effects_2719', function () {   // 2026-11-19: Trail Sight decor / buff items made before the effects column: fill a NULL effects once (an edited row stays)
+            require_once __DIR__ . '/trail_sights.php';
+            trail_sights_ensure_items();
+            trail_sights_backfill_effects();
         });
         boot_step('trek_item_desc_2012', function () {   // v2.0.12: the Lanternroot Seed showed a TODO in the Satchel; only a row that still holds the old words is changed
             db_update('items', ['description' => 'A small seed with a faint glow inside, like a coal that forgot to go out.'], 'slug = ? AND description = ?', ['lanternroot-seed', 'A seed that glows faintly. TODO: the Lanternroot crop is not built yet.']);

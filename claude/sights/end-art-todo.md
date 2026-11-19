@@ -1,5 +1,7 @@
 # End pieces: art for the new items (64x64 PNG, `game/assets/img/ph/<slug>.png`)
 
+Status: DONE (2026-11-19): every listed item has its PNG in `game/assets/img/ph/`.
+
 Items made in pass 2 (`game/includes/data/trail_sight_items_end.txt`):
 - `gate-rubbing` Gate Rubbing: a curled leaf-paper with a dark crayon rubbing of a carved arch and one wavy line of writing.
 - `hush-page` Hush Page: a small cream page with a few faint pencil lines and a "shh" finger doodle in the corner.

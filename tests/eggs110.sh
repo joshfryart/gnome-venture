@@ -23,9 +23,9 @@ dbx "INSERT INTO garden_buildings (plot_id,building,built_at,last_collect) VALUE
 
 echo "== data"
 chk "hen-egg item exists" "$(db "SELECT COUNT(*) FROM items WHERE slug='hen-egg'")" 1
-chk "14 egg recipes (11 + the Pantry's Lemon Curd, Passion Fruit Curd and Salted Eggs)" "$(db "SELECT COUNT(*) FROM recipes WHERE ingredients LIKE '%hen-egg%'")" 14
+chk "15 egg recipes (11 + the Pantry's Lemon Curd, Passion Fruit Curd and Salted Eggs, + 2.7.28 Maple Flapjacks)" "$(db "SELECT COUNT(*) FROM recipes WHERE ingredients LIKE '%hen-egg%'")" 15
 chk "no egg dish priced at 0" "$(db "SELECT COUNT(*) FROM items i JOIN recipes r ON r.output_item_id=i.id WHERE r.ingredients LIKE '%hen-egg%' AND i.base_price<=0")" 0
-chk "tiers meal/feast/preserve (2.7.03: the egg snacks are Meals)" "$(db "SELECT group_concat(t||':'||n) FROM (SELECT tier t, COUNT(*) n FROM recipes WHERE ingredients LIKE '%hen-egg%' GROUP BY tier ORDER BY tier)")" "feast:1,meal:9,preserve:4"
+chk "tiers meal/feast/preserve (2.7.03: the egg snacks are Meals)" "$(db "SELECT group_concat(t||':'||n) FROM (SELECT tier t, COUNT(*) n FROM recipes WHERE ingredients LIKE '%hen-egg%' GROUP BY tier ORDER BY tier)")" "feast:1,meal:10,preserve:4"
 chk "egg Almanac page" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key='item:hen-egg'")" 1
 chk "recipe Almanac pages for eggs" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key IN ('recipe:scrambled-eggs','recipe:spanish-tortilla','recipe:pickled-eggs','recipe:feast-egg-pie')")" 4
 chk "cook_energy_percent default is 115" "$(php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; echo setting("cook_energy_percent");' 2>&1 | tail -1)" 115
