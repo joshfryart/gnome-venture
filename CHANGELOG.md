@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.7.19
+- **Interactive hovel (Today tab):** the full room picture replaces the cropped banner, and things in it are tappable: the bed (card with Go to sleep, Nap, the inn and other beds, with prices and reasons), the door (out to Here), the kettle (tea, when open), the window (today's and tomorrow's weather, link to Seasons), the lamp (light on or off, lit by itself at dusk) and the gnome (hops and says a mood line). Things are data in `data/hovel_things.php`; each has a plain link without script. Small steam, z's and gnome bob, off with reduced motion. A one-line greeting and a small row of Sleep, Nap, Inn and Other beds buttons replace the big buttons on Today only. Furnish, Gnome and Closet are unchanged. New `hovelroom.js`, suite `hovel_room`.
 ## 2.7.18
 - **Needs you as tiles (Today tab):** things you collect (crops ripe, pots done, jars ready, pal trips ready) are small tiles three across with a gold edge; empty beds are merged into one row ("5 beds empty", with the reasons); the daily job, "say hello" and the rest are wide cards under them. Tired pals no longer clutter this list.
 - **Your pals pills:** each garden pal chip shows its working percent as a pill: green 70%+, yellow 50-69%, red 5-49%, black under 5% with a red "!". A finished job shows "done". Fixes a clash that turned the banner's date label orange (`.hs-tag`).
