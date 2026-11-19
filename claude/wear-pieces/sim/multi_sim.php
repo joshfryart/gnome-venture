@@ -1,7 +1,7 @@
 <?php
 // Several worn pieces at once (balance.md, "Several worn pieces at once"). Real engine, the bots of tests/pf_bots.php, no DB.
 //   php multi_sim.php LEVEL N SET [SHARD/NSHARDS]     json lines on stdout; aggregate: php multi_sim.php agg FILE...
-//     SET: none | a comma list of item slugs (rank Common), all worn and all switched on. The Puzzle box decides how many play: pfd_slots (Keepsakes 1 / 2 / 3 / 4
+//     SET: none | a comma list of item slugs (rank Common; env WEAR_RANK=2 Lined, 3 Fine for all of them), all worn and all switched on. The Puzzle box decides how many play: pfd_slots (Keepsakes 1 / 2 / 3 / 4
 //     at level 1 / 15 / 25 / 40) and the Rare cap. The run stops if a listed piece is not in the deck (so a set is never silently cut).
 //   The gnome: the tuner's kit at LEVEL (tv_sources). Creatures: within 3 levels of LEVEL (ws_pool), same creature and seed for every set (k).
 //   Sets have different deck sizes, so they are not paired: compare the means, noise about +-2 win points at N = 480 for the careless bot.
@@ -22,7 +22,8 @@ $slugs = $set === 'none' ? [] : explode(',', $set);
 $m = max(0, intdiv($lv + 3, 14));
 $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv]; $max = 20 + 3 * $lv + 5 * $m;
 $src = tv_sources($lv);
-foreach ($slugs as $s) { $src['wears'][$s] = 1; $src['worn'][] = $s; $src['state']['w:' . $s] = true; }
+$rank = max(1, min(3, (int)(getenv('WEAR_RANK') ?: 1)));   // env WEAR_RANK 1 Common (default), 2 Lined, 3 Fine: every piece of the set at that rank
+foreach ($slugs as $s) { $k = wear_slug($s, 'a', $rank); $src['wears'][$k] = 1; $src['worn'][] = $k; $src['state']['w:' . $s] = true; }
 $b = pfd_build($src);
 $out = array_values(array_map(fn($e) => $e['key'] . ':' . $e['out'], array_filter($b['pieces'], fn($e) => $e['src'] === 'wear' && $e['out'] !== '')));
 $deck = array_values(pfd_tiles(pfd_fight_entries($src), $st, [], $src['calling'], $src['ctier']));
@@ -33,5 +34,5 @@ $pool = ws_pool($lv);
 foreach (['look', 'greedy'] as $bot) for ($k = 0; $k < $N; $k++) {
     if ($k % $nsh !== $sh) continue;
     $c = $pool[$k % count($pool)]; $r = ws_fight($c, $lv, $bot, 700000 + 13 * $k + $lv, $player);
-    echo json_encode(['lv' => $lv, 'set' => $set, 'wn' => $wn, 'bot' => $bot, 'k' => $k, 'cr' => $c['slug'], 'win' => $r['win'], 'hp' => round($r['hp'], 4), 'turns' => $r['turns'], 'pl' => $r['pl'], 'fx' => $r['fx']] + (isset($r['err']) ? ['err' => $r['err']] : [])), "\n";
+    echo json_encode(['lv' => $lv, 'set' => $set . ($rank > 1 ? '@' . ['', 'Lined', 'Fine'][$rank - 1] : ''), 'wn' => $wn, 'bot' => $bot, 'k' => $k, 'cr' => $c['slug'], 'win' => $r['win'], 'hp' => round($r['hp'], 4), 'turns' => $r['turns'], 'pl' => $r['pl'], 'fx' => $r['fx']] + (isset($r['err']) ? ['err' => $r['err']] : [])), "\n";
 }

@@ -278,5 +278,5 @@ w:oc-gum-dyed-cardigan|Gum-dye Keep|wear|oc-gum-dyed-cardigan|guard|10|mind|-|-|
 w:oc-frond-rain-cape|Frond Cape Hum|wear|oc-frond-rain-cape|charm|7|mind|-|-|src|Frond Rain Cape: If the creature has a Hurt on the board, cut the creature's hits by 4 this round.|-|foeHasH>soothe|4|9
 w:oc-fleece-mantle|Mantle Bond|wear|oc-fleece-mantle|charm|7|craft|-|-|src|Fleece Mantle: If it is linked to a Hurt, your Charm counts 10% more for the rest of the fight.|-|linkH>bond|4|9
 w:oc-hibiscus-pareo|Pareo Calm|wear|oc-hibiscus-pareo|soothe|6|body|-|-|src|Hibiscus Pareo: If it is linked to a Hurt, the creature skips its next turn.|-|linkH>skip|4|10
-w:oc-red-dust-poncho|Red-Dust Lull|wear|oc-red-dust-poncho|charm|8|mind|-|-|src|Red-dust Poncho: If its Yield bar is past half, the creature skips its next turn.|-|yHalf>skip|4|10
+w:oc-red-dust-poncho|Red-Dust Lull|wear|oc-red-dust-poncho|charm|8|mind|-|-|src|Red-dust Poncho: If you are at full health, the creature skips its next turn.|-|hpFull>skip|4|10
 w:oc-storm-petrel-hood|Petrel Hood|wear|oc-storm-petrel-hood|trick|9|craft|-|-|src|Storm-petrel Hood: Pluck, sure to work. The creature's strongest piece loses 11 and your next hand has 1 extra piece.|-|R:OC:cloak|5|11
