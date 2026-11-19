@@ -75,8 +75,11 @@ q('UPDATE users SET game_minute = 600 WHERE id = ?', [$uid]);
 
 echo "== steam and z's\n";
 ok('pixel steam puffs and z\'s (no drawn circles or letters)', (bool)preg_match('~<g class="hr-steam" aria-hidden="true"><image class="a" href="[^"]*fx/fx-steam-a\.png[^"]*" x="316" y="157" width="10" height="10"[^>]*/><image class="b" href="[^"]*fx-steam-b\.png[^"]*"[^>]*/></g>~', $b)
-    && (bool)preg_match('~<g class="hr-zz" aria-hidden="true"><image class="a" href="[^"]*fx/fx-z-a\.png[^"]*"[^>]*/><image class="b" href="[^"]*fx-z-b\.png[^"]*"[^>]*/></g>~', $b) && !str_contains($b, '<circle class="a"') && !str_contains($b, '<text class="a"'));
+    && (bool)preg_match('~<g class="hr-zz" aria-hidden="true"><image class="a" href="[^"]*fx/fx-z-a\.png[^"]*"[^>]*/><image class="b" href="[^"]*fx-z-b\.png[^"]*"[^>]*/></g>~', $n) && !str_contains($b, '<circle class="a"') && !str_contains($n, '<text class="a"'));   // the z's are drawn at dusk and night only ($n = 23:00)
+ok('no z\'s over the bed by day', !str_contains($b, 'hr-zz'));
+q('UPDATE users SET game_minute = 1380 WHERE id = ?', [$uid]);
 $b0 = without(['fx/fx-steam-a.png', 'fx/fx-z-b.png'], $today);
+q('UPDATE users SET game_minute = 600 WHERE id = ?', [$uid]);
 ok('a missing sprite: its drawn circle or letter instead', str_contains($b0, '<circle class="a"') && str_contains($b0, '<text class="b" x="106" y="168">z</text>') && str_contains($b0, 'fx-steam-b.png') && str_contains($b0, 'fx-z-a.png'));
 $css = (string)file_get_contents(APP_ROOT . '/assets/style.css');
 ok('the CSS hides the sprites until their animation and keeps them still under reduced motion', str_contains($css, '.hroom .hr-steam image, .hroom .hr-zz image { opacity: 0;') && str_contains($css, '.hroom .hr-steam image, .hroom .hr-zz image { opacity: .6; }'));
