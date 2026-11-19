@@ -56,6 +56,10 @@ document.addEventListener("DOMContentLoaded",function(){
     if (allb) { var fr = f.querySelectorAll('input[name="pals[]"]:not(:disabled):not([data-pj-party])'); allb.textContent = Array.prototype.every.call(fr, function (c) { return c.checked; }) ? 'Clear all' : 'Select all free pals (' + fr.length + ')'; }
     var sb = f.querySelector('[data-pj-send]'); if (sb) sb.disabled = n < 1;   // v2.3.98: always visible, live once a pal is ticked
     if (!back) return;
+    if (back.hasAttribute('data-pj-game')) {   // sleep-days clock: game time, never a real clock time
+      if (kind === 'trip') back.textContent = 'Back after ' + checkedVal(f, 'hours') + ' game hours of pal work (pals work at 6am), sooner if HP runs out.';
+      return;
+    }
     var t = now();
     if (kind === 'garden') back.textContent = 'Back on ' + day(t + checkedVal(f, 'days') * 864e5) + '.';
     else if (kind === 'trip') back.textContent = 'Back at ' + hm(t + checkedVal(f, 'hours') * 36e5) + ', sooner if HP runs out.';

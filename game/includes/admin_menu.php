@@ -100,6 +100,7 @@ function admin_menu_def(): array
             ['road_text.php', '🛣️', 'Road text', 'Edit road lines, scenes, wonder and delve wording', ''],
             ['roadlines.php', '🛤️', 'Road lines', 'The one-line ambience of each road space: coverage and every row (read-only)', ''],
             ['trailsights.php', '🔎', 'Trail sights', 'What a gnome can do next to a big set piece on a Trail map', ''],   // v2.6.68
+            ['sights_shared.php', '🍾', 'Shared Sights', 'Notes, chalk words and the cairn count shared between players: review reported ones, hide or delete', ''],   // Sights sixth pass B
             ['trail_decor.php', '🌿', 'Trail decor', 'Edit how a section of a Trail map is dressed (looks, zones, props)', ''],   // 2.7.00
             ['code.php', '🧑‍💻', 'Page code', 'See or edit the code of a game page', ''],   // v2.6.37
             ['r:encyclopedia_entries', '📚', null, 'The Almanac’s pages', 't:encyclopedia_entries'],
@@ -180,7 +181,7 @@ function admin_entry_icon(string $key, string $sid): string
     static $m = ['update.php' => 'update', 'settings.php' => 'system', 'tools.php' => 'items', 'log.php' => 'log', 'feedback.php' => 'mail', 'grant.php' => 'gift', 'puzzlebox.php' => 'puzzle',
         'mentors.php' => 'cap', 'gourmand.php' => 'folk', 'livingstops.php' => 'garden', 'hybrids.php' => 'dna', 'callings.php' => 'log', 'treks.php' => 'boot', 'trek_text.php' => 'pen',
         'xp.php' => 'progress', 'retention.php' => 'progress', 'usage.php' => 'progress', 'gameclock.php' => 'clock', 'texts.php' => 'content', 'road_text.php' => 'pen', 'roadlines.php' => 'pen', 'code.php' => 'code',
-        'buildplans.php' => 'world', 'trailsights.php' => 'world', 'trail_decor.php' => 'garden', 'images.php' => 'art', 'artguide.php' => 'content', 'here_layout.php' => 'world', 'puzzles.php' => 'puzzle', 'jigsaw.php' => 'puzzle'];
+        'buildplans.php' => 'world', 'trailsights.php' => 'world', 'sights_shared.php' => 'world', 'trail_decor.php' => 'garden', 'images.php' => 'art', 'artguide.php' => 'content', 'here_layout.php' => 'world', 'puzzles.php' => 'puzzle', 'jigsaw.php' => 'puzzle'];
     static $ed = [   // 2.7.06 (Josh): a data editor (r:<table>) has its own glyph
         'users' => 'person', 'npc_friends' => 'people', 'gotm_entries' => 'star', 'regions' => 'world', 'zones' => 'world', 'landmarks' => 'pin', 'landmark_runs' => 'route', 'locations' => 'pin', 'routes' => 'route',
         'town_spots' => 'door', 'town_actions' => 'dice', 'town_lore' => 'scroll', 'npcs' => 'people', 'npc_schedules' => 'clock', 'shops' => 'shop', 'shop_stock' => 'coin', 'helpers' => 'person',

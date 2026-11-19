@@ -25,7 +25,7 @@ RARE_FIX={('MENA','cloak'):dict(v=-5,b=-2),('EA','footwear'):dict(v=-6,b=-2),('S
 TRIG_FIX={('OC','footwear',4):dict(v=-2),('WCA','cloak',4):dict(v=-1)}
 # 2.7.2x: oc-flax-wading-wraps (foeB2>skip) stayed at -4.6 health after the value cut (the skip itself was -3.1). It gets a rarer trigger for that one piece: foeG ("If the creature has guard up"),
 # an existing trigger whose pair with skip was free, so the 224 pairs stay unique and the engine data (wear_fx.txt) does not change. Measured in balance.md (section "oc-flax-wading-wraps").
-PIECE_TRIG={('OC','footwear',4):'foeG'}
+PIECE_TRIG={('OC','footwear',4):'foeG',('OC','cloak',4):'hpFull'}
 used={}; items=[]; fixed=[]
 for T,r in enumerate(ORDER):
     for ci,cat in enumerate(CATS):

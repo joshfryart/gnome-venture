@@ -1598,5 +1598,7 @@ function schema_statements(string $driver): array
     $wrt = wear_slots_schema($ID, $END);
     require_once __DIR__ . '/tea.php';   // the Hovel tea kettle: user_tea_journal + users.tea / tea_day / tea_name / kettle
     [$teat, $teai, $teac] = tea_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt, $wrt, $teat), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi, $teai), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc, $teac)];
+    require_once __DIR__ . '/trail_sights_6.php';   // Sights sixth pass B: notes, chalk marks and the cairn count shared between players
+    [$s6t, $s6i, $s6c] = sights6_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt, $wrt, $teat, $s6t), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi, $teai, $s6i), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc, $teac, $s6c)];
 }

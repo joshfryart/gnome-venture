@@ -21,7 +21,7 @@ foreach ($verbs as $v => $s) if (count($s) > 1) { echo "BAD verb '$v' used by " 
 foreach (trail_sight_quests() as $q) foreach (trail_sight_quest_lint($q, $all) as $p) { echo "BAD quest {$q['slug']}: $p\n"; $bad++; }
 foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) {
     if (!isset($all[$slug])) { echo "BAD folk row on unknown Sight $slug\n"; $bad++; }
-    $probe = ['slug' => $slug, 'verb' => 'x', 'icon' => 'x', 'energy' => 0, 'cd' => 55, 'uses' => 1, 'when' => $f['when'], 'check' => '-', 'rewards' => $f['rewards'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0];
+    $probe = ['slug' => $slug, 'verb' => 'x', 'icon' => 'x', 'energy' => 0, 'cd' => 55, 'uses' => 1, 'when' => $f['when'], 'check' => '-', 'rewards' => $f['rewards'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0, 'folk' => 1];
     foreach (trail_sight_lint($probe) as $p) { echo "BAD folk $slug/{$f['who']}: $p\n"; $bad++; }
     if ($f['line'] === '' || $f['who'] === '') { echo "BAD folk $slug has no villager or line\n"; $bad++; }
 }
@@ -34,6 +34,10 @@ $info = trail_sight_info(); foreach (array_keys($all) as $s) if (!isset($info[$s
 foreach (trail_sight_items_file() as $slug => $it) if (!in_array($it[1], ['forage', 'part', 'misc', 'produce', 'flower', 'food', 'decor', 'supply', 'other', 'soil'], true)) { echo "BAD item $slug category {$it[1]}\n"; $bad++; }
 require_once $argv[1] . '/includes/npc_clockwork.php';
 foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) if (in_array(trail_sight_split_who($f['who'])[0], npc_cw_fixed_names(), true)) { echo "BAD folk row $slug: {$f['who']} is a mentor / fixed villager: the clockwork never lets them travel, so the row would never show (2.7.06)\n"; $bad++; }
-foreach (trail_sight_b_data_lint() as $p) { echo "BAD $p\n"; $bad++; }   // 2.7.08 third pass B: birthdays, letters, bottles, seeds, keepsakes, quest start column
+foreach (trail_sight_b_data_lint() as $p) { echo "BAD $p\n"; $bad++; }
+foreach (sights5_lint_kinds($all) as $p) { echo "BAD $p\n"; $bad++; }   // fifth pass: data/trail_sight_kinds.txt
+foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) if (str_contains($f['rewards'], 'check=') && $f['miss'] === '') { echo "BAD folk $slug/{$f['who']}: a row with check= needs a miss line (line // miss line)\n"; $bad++; } elseif ($f['miss'] !== '' && !str_contains($f['rewards'], 'check=') && !sights6a_vchoose($f['rewards'])) { echo "BAD folk $slug/{$f['who']}: a miss line without check=\n"; $bad++; }   // 2.7.08 third pass B: birthdays, letters, bottles, seeds, keepsakes, quest start column
+foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) if (($vc = sights6a_vchoose($f['rewards'])) && count(explode(' // ', $f['miss'])) !== count($vc)) { echo "BAD folk $slug/{$f['who']}: a villager choice needs one result line per option (line // result 1 // result 2)\n"; $bad++; }   // sixth pass A
+foreach (sights6a_word_list_all() as $w => $sl) foreach ($sl as $ws) if (!trail_sight_item_known($ws)) { echo "BAD word list $w: no item $ws\n"; $bad++; }   // sixth pass A
 echo count($all) . " rows, $bad problems\n";
 exit($bad ? 1 : 0);

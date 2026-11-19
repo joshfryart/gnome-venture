@@ -4,6 +4,7 @@
 //   BOTS: comma list of chain, look, random, greedy, defensive, charm, newbie, or all (the last 5 are new in 2.7.10; chain and look are the tuner's)
 //   BUILDS: comma list of std (the tuner's typical gnome), pals (pal-heavy: 4 pals, no belt tools), norare (nothing above Uncommon: Rare / Masterwork pieces left out)
 //   OFFSETS: gnome level minus creature level (e.g. -8,-4,0,4,8).  SEEDS: fights per creature, bot, build and offset.
+//   env V1='{"firex":0}' = pfb_v1_cfg overrides for every fight (a rule off, a number changed)
 //   php tests/pf_bots.php edge      the edge cases (empty deck, tiny and huge boards, level mismatch +/-8, every size and ability, aim re-roll): exit 1 on any broken invariant
 //   php tests/pf_bots.php agg < json lines of several shards   the report: win rate and turns by bot, build, size and offset, plus the creatures furthest from the target
 // The bots mirror a kind of player, not a solver: random (any legal placement), greedy (most damage and charm this turn), defensive (guard and health first), charm (only the charm bar),
@@ -181,11 +182,11 @@ if (($argv[1] ?? '') === 'agg') { pb_report(); return; }
 $bots = ($argv[1] ?? 'all') === 'all' ? PB_BOTS : array_values(array_intersect(explode(',', $argv[1]), PB_BOTS));
 $offs = array_map('intval', explode(',', $argv[2] ?? '0')); $seeds = max(1, (int)($argv[3] ?? 1));
 $builds = array_values(array_intersect(explode(',', $argv[4] ?? 'std'), PB_BUILDS)) ?: ['std']; [$shard, $nsh] = array_map('intval', explode('/', $argv[5] ?? '0/1')); $json = ($argv[6] ?? '') === 'json';
-$ci = 0;
+$ci = 0; $V1 = json_decode(getenv('V1') ?: '{}', true) ?: [];   // env V1='{"firex":0}': pfb_v1_cfg overrides (what-if on any rule)
 foreach ($offs as $d) foreach (tv_creatures() as $c) {
     if ($ci++ % $nsh !== $shard) continue;
     foreach ($bots as $bot) foreach ($builds as $build) for ($k = 0; $k < $seeds; $k++) {
-        $lv = max(1, $c['level'] + $d); $r = pb_fight($c, $lv, $bot, $build, 500 + 7 * $k + $c['level'] + 1000 * (crc32($c['slug']) % 97));
+        $lv = max(1, $c['level'] + $d); $r = pb_fight($c, $lv, $bot, $build, 500 + 13 * $k + $c['level'] + 1000 * (crc32($c['slug']) % 97), $V1);   // 13: a step of 7 reached only 2 of the 14 regions a creature's seed picks
         echo json_encode(['bot' => $bot, 'build' => $build, 'd' => $d, 'size' => $c['size'], 'slug' => $c['slug']] + $r), "\n";
     }
 }

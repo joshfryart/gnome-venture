@@ -195,6 +195,7 @@ function trail_sight_b_pay(array $u, array $loc, string $tok, ?array $now = null
     }
     if ($k === 'bottle') {
         if (!in_array((string)($loc['landscape'] ?? ''), TRAIL_SIGHT_BOTTLE_LANDS, true)) return [];
+        if ($s6 = sights6_bottle_stranger($u)) return $s6;   // sixth pass B: sometimes a stranger's note
         $all = trail_sight_bottles(); if (!$all) return [];
         $keys = array_keys($all); $key = $keys[random_int(0, count($keys) - 1)]; [$name, $msg, $rw] = $all[$key];
         $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', ['bottle-note-' . $key]);

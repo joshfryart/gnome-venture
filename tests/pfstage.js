@@ -131,5 +131,32 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
     chk(errs.length === 0, `[${name}] no JS errors${errs.length ? ': ' + errs.slice(0, 2).join(' | ') : ''}`);
     await c.close();
   }
+  // ---- every page that can carry .pfover (adventure.php: Trail walk, wander, delve, lair), 1280 and 390 wide: the popover sits on the content column (the map's box; a wander with no map: the page column,
+  // centred) and the page does not scroll sideways, before the fight (pre-fight card) and in combat. 2.7.30: a delve at >= 1000 px had the popover pushed sideways by the overlay grid.
+  for (const [name, vp] of [['wide', { width: 1280, height: 900 }], ['phone', { width: 390, height: 900 }]]) {
+    const c = await b.newContext({ viewport: vp, deviceScaleFactor: 1, hasTouch: name === 'phone' }); const p = await c.newPage(); const errs = [];
+    p.on('pageerror', e => errs.push(String(e)));
+    await p.goto(base + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!'); await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
+    for (const kind of ['trail', 'wander', 'delve', 'lair']) {
+      const seeded = php(here + '/pfstage_seed.php', game, kind).trim(); chk(seeded.startsWith('ok '), `[${name}] layout ${kind}: seeded (${seeded})`);
+      await p.goto(base + '/adventure.php?view=map', { waitUntil: 'networkidle' }); await p.waitForSelector('dialog.trailpop.pfst.pfst-on', { timeout: 9000 }).catch(() => {}); await p.waitForTimeout(500);
+      const box = () => p.evaluate(() => {
+        const d = document.querySelector('dialog.trailpop.pfst'); if (!d) return null;
+        const r = e => { const x = e.getBoundingClientRect(); return { l: x.left + scrollX, w: x.width, r: x.right + scrollX }; };
+        const m = document.querySelector('.advgrid .tmwrap'), mn = document.querySelector('main');
+        return { d: r(d), col: m ? r(m) : r(mn), map: !!m, fixed: getComputedStyle(d).position === 'fixed', sw: document.documentElement.scrollWidth, iw: innerWidth, grid: document.querySelector('.advgrid').className };
+      });
+      const fits = (g, phone) => {   // on a phone the combat fills the window; otherwise the dialog sits on the column (centred on it, never wider than 760)
+        if (!g) return false; if (g.sw > g.iw) return false;
+        if (phone && g.fixed) return g.d.l >= -1 && g.d.r <= g.iw + 1;
+        const cc = g.col.l + g.col.w / 2, dc = g.d.l + g.d.w / 2; return Math.abs(cc - dc) < 3 && g.d.w <= Math.max(g.col.w, 760) + 3;
+      };
+      const g1 = await box(); chk(fits(g1, name === 'phone'), `[${name}] layout ${kind}, pre-fight: the popover sits on the content column, no sideways scroll (${g1 ? `dialog ${Math.round(g1.d.l)}+${Math.round(g1.d.w)}, column ${Math.round(g1.col.l)}+${Math.round(g1.col.w)}, page ${g1.sw}/${g1.iw}, ${g1.grid}` : 'no dialog'})`);
+      await p.locator('#pfv-pre .pfv-gof button').first().click({ force: true }).catch(() => {}); await p.waitForTimeout(4500);
+      const g2 = await box(); chk(fits(g2, name === 'phone'), `[${name}] layout ${kind}, combat: the popover sits on the content column, no sideways scroll (${g2 ? `dialog ${Math.round(g2.d.l)}+${Math.round(g2.d.w)}, column ${Math.round(g2.col.l)}+${Math.round(g2.col.w)}, page ${g2.sw}/${g2.iw}` : 'no dialog'})`);
+    }
+    chk(errs.length === 0, `[${name}] layout: no JS errors${errs.length ? ': ' + errs.slice(0, 2).join(' | ') : ''}`);
+    await c.close();
+  }
   await b.close(); process.exit(fail);
 })();

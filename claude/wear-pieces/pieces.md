@@ -589,5 +589,5 @@ Written against the 2.7.00 quick rules (fixed rank order, a placed piece always 
 | 1 | Frond Rain Cape | Common | **Frond Cape Hum** | charm | 7 | If the creature has a Hurt on the board, cut the creature's hits by 4 this round. | 5100 | 1 |
 | 2 | Fleece Mantle | Common | **Mantle Bond** | charm | 7 | If it is linked to a Hurt, your Charm counts 10% more for the rest of the fight. | 5100 | 1 |
 | 3 | Hibiscus Pareo | Uncommon | **Pareo Calm** | soothe | 6 | If it is linked to a Hurt, the creature skips its next turn. | 13600 | 2 |
-| 4 | Red-dust Poncho | Uncommon | **Red-Dust Lull** | charm | 8 | If its Yield bar is past half, the creature skips its next turn. | 13600 | 2 |
+| 4 | Red-dust Poncho | Uncommon | **Red-Dust Lull** | charm | 8 | If you are at full health, the creature skips its next turn. | 13600 | 2 |
 | 5 | Storm-petrel Hood | Rare | **Petrel Hood** | trick | 9 | Pluck, sure to work. The creature's strongest piece loses 11 and your next hand has 1 extra piece. | 34000 | 3 |

@@ -10,7 +10,7 @@ end-haven-1-island|Posy Oakenpot|dp=night/we=sun,cloud|45|Posy Oakenpot is walki
 end-haven-1-tundra|Ferrin Pennywhistle|we=snow|45|Ferrin Pennywhistle trudges to the sauna through the snow, grumbling, and grumbles you a mug of cocoa.|fp=1,item=hot-cocoa:1@40
 end-haven-1-tundra|Pomeroy Crumbworth|-|25|Pomeroy Crumbworth is waiting by the sauna with a napkin tucked in, hoping somebody will let him taste a sauna bun.|give=sauna-bun:1,fp=2,xp=6,c=10
 end-haven-1-wetland|Bramwick Pennywhistle|dp=dawn|45|Bramwick Pennywhistle poles past on the way to market and waves so hard the boat wobbles.|fp=1,xp=3,nxt=skip
-end-haven-2-grassland|Ulric Tumblethorn|dp=day/we=sun|45|Ulric Tumblethorn is napping against the sign post, so you tiptoe past and they mumble thank you.|fp=1,item=cornbread:1@20
+end-haven-2-grassland|Ulric Tumblethorn|dp=day/we=sun|45|Ulric Tumblethorn is napping against the sign post, with a very peaceful face and a very empty stomach. Let them sleep, or wake them with something warm? // You tiptoe past. Ulric mumbles thank you, smiles in their sleep, and a small luck settles on your shoulders. // You wave a warm cornbread under their nose. Ulric wakes with a snort, eats it in three bites and is very grateful, and also slightly embarrassed.|choose=Let them sleep~fp=1+buff=luck:1:60;Wake them with cornbread~take=cornbread:1+fp=2+xp=6+c=8
 end-haven-2-coast|Sorrel Acorncap|dp=dawn|45|Sorrel Acorncap holds the sign steady with one hand and a tiny spirit level with the other. It is level, so you get a lemon.|nocheck,fp=1,item=lemon:1@50
 end-haven-2-island|Lyra Fiddlewing|-|30|Lyra Fiddlewing stops on her way to the tavern and plays you a song right there on the path.|fp=1,xp=3
 end-haven-2-island|Tobias Trundle|-|25|Tobias Trundle is resting on the tavern step with a pot of red paint and asks how his signs are looking these days.|fp=1,xp=4
@@ -26,12 +26,12 @@ end-wonder-1-wetland|Plume Rosewader|-|35|Plume Rosewader makes hats from fallen
 end-wonder-2-coast|Dilly Teaspoon|dp=day/we=sun|45|Dilly Teaspoon is drying off on the rocks after a dive and tells you all the latest gossip.|fp=1,item=seed-pearl:1@10
 end-wonder-2-desert|Juniper Peppercorn|dp=dusk|45|Juniper Peppercorn follows the Oasis wherever it wanders and shares a spoon of date syrup.|fp=1,item=date-syrup:1@40
 end-wonder-2-forest|Fig Oakenpot|dp=day|40|Fig Oakenpot is napping by the path. You do not wake them, and later find a bamboo shoot left for you.|fp=1,item=bamboo-shoot:1@40
-end-wonder-2-grassland|Orla Cobblefield|-|35|Orla Cobblefield is walking the silk road with a caravan and swaps you a handful of dried figs.|fp=1,item=dried-figs:1@50
+end-wonder-2-grassland|Orla Cobblefield|-|35|Orla Cobblefield is walking the silk road with a caravan and swaps you a handful of dried figs for any seed you can spare.|give=any-seed:1,fp=1,item=dried-figs:2
 end-wonder-2-island|Juniper Honeycomb|dp=dusk|45|Juniper Honeycomb paddles in at dusk, points at the right bit of sky, and kindly lets you say the name first.|nocheck,fp=1,xp=4
 end-wonder-2-mountain|Mabel Burrowby|dp=dawn|45|Mabel Burrowby walks down at dawn with a flask of cold coffee and pours you a cup.|fp=1,item=cold-brew-coffee:1@40
 end-wonder-2-rainforest|Thimble Fiddlewood|we=rain/dp=dawn|45|Thimble Fiddlewood brings fruit to the glade on rainy mornings, and you help carry the basket.|fp=1,item=mango:1@40
 end-wonder-2-wetland|Tuck Bumbleby|dp=day|40|Tuck Bumbleby is waiting for the stork with the post and lets you hold the letter bag.|fp=1,xp=3,letter=stork-post
-end-delve-1-coast|Gaffer Brineworth|dp=dusk|40|Gaffer Brineworth, a retired smuggler on a barrel, grumbles the tide times at you and swears his rope is perfectly honest now.|nocheck,fp=1,item=rope:1@30
+end-delve-1-coast|Gaffer Brineworth|dp=dusk|40|Gaffer Brineworth, a retired smuggler on a barrel, grumbles the tide times at you and swears his rope is perfectly honest now, and knocks half off a coil for you to prove it.|nocheck,fp=1,item=rope:1@30,disc=shop:50:120:rope
 end-delve-1-desert|Mabel Tumblethorn|dp=dawn|40|Mabel Tumblethorn hums a songline at dawn and teaches you one verse of it.|fp=1,xp=4
 end-delve-1-mountain|Rook Windlass|-|35|Rook Windlass, a proud mountain guide, will walk the first ledge with you for a bit of goat cheese, and points out every good foothold.|give=goat-cheese:1,buff=nimble:1:120,fp=2
 end-delve-1-rainforest|Tilly Barleycorn|dp=dawn|40|Tilly Barleycorn climbs up at dawn to mend the bridges and could really use a coil of rope carried up.|give=rope:1,xp=10,fp=2

@@ -3,12 +3,12 @@
 # type: hurt guard heal trick.  tag (creature side): hurt = pierce poison quick trip bash; guard = hold thorns evade; trick = quick evade bash thorns poison trip heal; or -.  life: rounds 2-4.
 # Order follows creatures.txt; names are unique across the file. Linted by tests/pfdeck_v1.php.
 
-aphid-swarm|mind|Swarm|hurt|0.6|mind|quick|2
+aphid-swarm|mind|Swarm|hurt|1.0|mind|quick|2
 aphid-swarm|mind|Honeydew|heal|0.5|craft|-|2
 aphid-swarm|mind|Cloud Up|guard|0.5|body|evade|3
 garden-snail|mind|Slime Trail|guard|0.7|body|hold|4
-garden-snail|mind|Shell Tuck|guard|0.6|mind|evade|3
-garden-snail|mind|Rasp|hurt|0.8|craft|-|3
+garden-snail|mind|Shell Bash|hurt|0.8|mind|bash|3
+garden-snail|mind|Rasp|hurt|1.1|craft|-|3
 ant-scouts|mind|Scout Bite|hurt|0.8|body|-|3
 ant-scouts|mind|Ant Trail|trick|0.4|craft|quick|2
 ant-scouts|mind|Carry Off|hurt|0.7|mind|trip|3

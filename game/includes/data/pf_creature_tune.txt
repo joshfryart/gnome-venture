@@ -1,18 +1,18 @@
-# Per-creature balance multipliers (2.7.01 policy D, refit in balance pass 2; 2.7.08 refit on all 319 creatures, chain bot 36 seeds, targets small 83 / medium 85 / large 68 / boss 78, claude/balance-2.7.08-notes.md): slug|foe_x|bar_x. foe_x x piece value, bar_x x Yield bar, both on the final numbers; a missing row = 1.0 / 1.0. Fitted with tests/pfboard_tune_v1.php (chain bot, model gnome, 4x4; claude/creature-pass/balance-report.md): equal win at level inside a size, medium lv 1-14 and small lv 6-15 aimed a little easier so a gnome 4 levels under them is not lost; rows kept only where a multiplier is more than 0.03 from 1. Read by pfb_v1_tune() (PHP) and the JS twin.
+# Per-creature balance multipliers (2.7.01 policy D, refit in balance pass 2; 2.7.08 refit on all 319 creatures, chain bot 36 seeds, targets small 83 / medium 85 / large 68 / boss 78, claude/balance-2.7.08-notes.md): slug|foe_x|bar_x. foe_x x piece value, bar_x x Yield bar, both on the final numbers; a missing row = 1.0 / 1.0. Fitted with tests/pfboard_tune_v1.php (chain bot, model gnome, 4x4; claude/creature-pass/balance-report.md): equal win at level inside a size, medium lv 1-14 and small lv 6-15 aimed a little easier so a gnome 4 levels under them is not lost; rows kept only where a multiplier is more than 0.03 from 1. Read by pfb_v1_tune() (PHP) and the JS twin. 2.7.31: aphid-swarm, garden-snail (deck edit: stronger unique Hurt pieces) and barn-rat, hermit-crab-hoarder, bog-pike, desert-camel, storm-eagle refit on seeds spread over all 14 regions (chain bot, 1000-2000 fights each), and the boss rows x0.94 (dune-wyrm gets a row) for the fire-budget extras (rule firex): docs/puzzle-board-proposals.md P9.
 aardvark|0.769|0.992
 albatross|0.691|1.000
 alligator-snapper|0.761|0.981
 alpha-dingo|1.083|1.000
-ancient-snapper|0.758|0.992
+ancient-snapper|0.713|0.992
 ant-scouts|2.909|1.203
-aphid-swarm|3.035|1.155
+aphid-swarm|1.730|1.155
 arctic-fox-kit|2.088|1.000
 army-ant-column|0.781|1.000
 badger|0.839|1.010
 badger-cub-gang|2.560|1.000
 banana-slug|3.077|1.218
 bark-scorpion|0.861|1.000
-barn-rat|2.073|1.000
+barn-rat|2.050|1.000
 basilisk-runner|0.886|1.000
 beach-hopper-horde|1.269|0.992
 beaded-lizard|0.654|1.000
@@ -23,7 +23,7 @@ black-bear|1.118|0.991
 black-jaguar|1.034|1.000
 blue-ring-octopus|1.047|1.000
 bog-leech|2.362|1.000
-bog-pike|1.070|0.981
+bog-pike|0.984|0.981
 bombardier-beetle|0.904|1.000
 booby-colony|0.727|0.992
 bramble-pup-pack|1.198|1.000
@@ -50,7 +50,7 @@ cloud-kite|0.783|0.991
 cloud-leopard|1.078|1.000
 coati-band|1.059|1.010
 cockle-bed|2.222|0.991
-coconut-crab-titan|0.796|1.000
+coconut-crab-titan|0.748|1.000
 coconut-crab-youngster|1.040|1.003
 condor|0.781|1.000
 conger-brute|1.077|0.991
@@ -61,7 +61,7 @@ croc-hatchling-scatter|1.247|1.000
 dawn-skipper-flutter|2.902|0.992
 deep-octopus|0.962|1.009
 delta-gharial|0.896|1.013
-desert-camel|1.069|0.989
+desert-camel|1.019|0.989
 desert-gila-dragon|1.041|1.000
 desert-spadefoot|0.767|1.010
 desert-tortoise|1.110|1.000
@@ -69,6 +69,7 @@ dingo-pup-pack|1.073|1.000
 dune-racer|0.652|0.993
 dune-scorpion|2.874|1.000
 dune-snail|2.194|1.000
+dune-wyrm|0.880|1.000
 dung-beetle|2.798|1.020
 dusk-moth|3.098|1.009
 eagle-owl|0.631|0.991
@@ -98,9 +99,9 @@ frigatebird|0.859|0.981
 frilled-lizard|0.894|1.000
 frost-beetle|2.226|1.000
 frost-hare|1.897|0.989
-frost-owl-regent|0.433|0.909
+frost-owl-regent|0.407|0.909
 garden-eel-colony|1.171|0.992
-garden-snail|2.917|1.168
+garden-snail|2.850|1.168
 ghost-leopard|0.907|1.000
 ghost-slug|1.119|0.991
 giant-anteater|0.876|1.000
@@ -124,13 +125,13 @@ goliath-frog|0.935|1.000
 goliath-heron|0.846|0.992
 gorse-beast|1.479|1.009
 grass-snake|0.892|0.981
-great-hawk|0.856|0.987
+great-hawk|0.805|0.987
 grey-heron|1.098|1.000
 griffon-vulture|0.955|1.000
 grumpy-lemming|2.043|1.010
 gyrfalcon|0.733|1.000
 hermit-crab-convoy|2.634|1.000
-hermit-crab-hoarder|2.770|0.992
+hermit-crab-hoarder|2.540|0.992
 herring-gull|2.092|0.990
 honey-badger-brute|0.937|1.010
 honeybee-swarm|1.401|1.000
@@ -141,7 +142,7 @@ hyena-pup-cackle|1.092|1.000
 ibex-patriarch|1.073|1.000
 ice-floe-seal|1.588|0.992
 jackrabbit|0.764|1.000
-jade-jaguar|0.763|1.010
+jade-jaguar|0.717|1.010
 jaguar-cub-pair|1.871|0.992
 jaguarundi|0.695|0.991
 jumping-spider|2.776|1.896
@@ -187,7 +188,7 @@ nettle-lurker|3.019|0.999
 night-adder|0.706|1.000
 night-heron|0.586|1.010
 ocelot|1.042|1.000
-old-bramblehorn|0.951|1.000
+old-bramblehorn|0.894|1.000
 old-brock|0.782|0.991
 orb-spider|2.025|1.010
 outback-dingo|0.529|0.991
@@ -209,11 +210,11 @@ raven-pair|2.210|0.986
 red-fox|0.949|1.000
 red-stag|1.255|0.992
 reef-eel-tyrant|1.101|1.000
-reef-leviathan|0.785|1.000
+reef-leviathan|0.738|1.000
 reef-turtle|1.100|1.000
 reindeer-calf-herd|2.147|1.000
 river-otter|0.931|1.000
-robber-crab-baron|0.645|1.000
+robber-crab-baron|0.606|1.000
 rock-agama|1.641|1.000
 rock-crab-pincher|0.799|0.992
 rock-earwig|2.929|1.022
@@ -248,7 +249,7 @@ snow-leopard-cub|0.775|0.991
 snow-lynx|0.740|1.009
 snow-moth|2.813|1.008
 snow-owl-fledgling|0.709|0.989
-snow-owl-monarch|0.798|0.991
+snow-owl-monarch|0.750|0.991
 snowshoe-leveret-dash|3.025|1.123
 snowy-owl-scout|1.140|1.000
 spice-monitor|0.818|0.992
@@ -256,7 +257,7 @@ star-nosed-mole|2.959|1.000
 stickleback-shoal|2.537|1.028
 stink-badger|0.559|0.992
 stoat|2.095|1.000
-storm-eagle|0.613|1.000
+storm-eagle|0.616|1.000
 storm-wisp|1.052|1.000
 striped-hyena|0.847|0.991
 sun-bear|0.816|0.992

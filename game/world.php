@@ -29,7 +29,7 @@ if (is_post()) {
             db()->beginTransaction();
             q('UPDATE users SET region_id = ? WHERE id = ? AND region_id IS NULL', [$rid, $u['id']]);
             give_home_seeds((int)$u['id'], $rid);
-            db()->commit();
+            if (db()->inTransaction()) db()->commit();
             flash('Welcome home! You’ve received seeds from your home region.');
         }
     }

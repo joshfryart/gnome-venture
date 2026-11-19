@@ -175,6 +175,75 @@ Measured: `sim/multi_sim.php` (the tuner's gnome, every creature within 3 levels
 
 Reading: a full set of Keepsake slots is worth +2 to +3 win points and up to 5 health points at level 40, and about +6 win / -6 health for the three strongest at level 35, where the careless bot still loses 13% of its fights. That is less than the sum of the single-piece numbers (the pieces share the same 5-piece hand, one piece a turn), and about what one Rare alone measures at Fine (limit +6 win / -12 health). No fight becomes trivial or lost; no engine errors in 5,760 fights. Not run: Fine rank sets (the 3-Rare cap and the two Rare belt tools of the tuner's gnome leave room for one Fine wear piece from level 28), Lined, the 6 old wearables, regions before OC.
 
+## `oc-red-dust-poncho`: a rarer trigger (2026-11-19)
+
+The last Uncommon over the -4 health goal (est -4.1, `yHalf>skip`: "If its Yield bar is past half, the creature skips its next turn"; the skip itself is the cost, a value cut only moves how often the bots pick it, as with the flax wraps). Fixed the same way: its trigger changed for this piece only, `yHalf>skip` -> **`hpFull>skip`**, "If you are at full health, the creature skips its next turn." (`PIECE_TRIG` in `build3.py`, then `build3.py` -> `outputs2.py` -> `tools/build_wear_items.py`: only this piece's row changed in `wear_items_pieces.txt`, `wear_pieces.txt`, `pieces.json`, `pieces.md`; `wear_fx.txt` and `tools/pfengine.js` untouched, `hpFull` and its pair with `skip` already existed and the pair was free, so still 280 codes and 280 texts).
+
+How chosen: the piece played with each candidate trigger on the same creatures and seeds (`wear_sim.php`, OC, Common rank, 192 fights a bot, effect alone = fx - plain, paired; 480 fights a bot for the four finalists). Health = points of health lost, negative = the piece helps.
+
+| trigger | effect alone, health (192 / 480 fights) | win (192 / 480) | note |
+|---|---|---|---|
+| `yHalf` (old) | -1.81 / -2.36 | +1.0 / +1.2 | placed 47-52% of fights |
+| `foeEvade`, `poisoned`, `g2` | -0.29, -0.17, -0.32 | 0 to +0.5 | almost never true: a dead piece |
+| `onAim` | -0.79 / -0.73 | +0.3 / +0.4 | true only when it lands on the aim cell |
+| `aimNext` | -0.61 / -0.54 | -0.3 / 0.0 | same |
+| **`hpFull`** | **-1.40 / -1.55** | -0.5 / 0.0 | true early in a fight, so the skip still matters; cuts the effect by about a third |
+| `hit`, `handH`, `hurtLast`, `noDmg`, `disc5` | -1.1, -2.0, -2.1, -2.7, -2.9 | up to +1.8 | not rarer than `yHalf` |
+
+Result: est health **-4.2 -> -2.2**, est win +2.5 -> -1.5 (OC-only run: baseline 320 fights per region and bot, piece 48 fights a bot, smoothing over OC only, so est carries about +-1.5 of noise; the paired effect alone went -2.4 -> -1.6 health, +1.2 -> 0.0 win). Again at Lined and Fine (240 fights a bot, paired): -2.1 / -1.9 health, -0.2 / 0.0 win.
+
+## Lined and Fine ranks, every piece, and sets (2026-11-19, third pass)
+
+Engine as of this pass (the fire-budget extras `firex`, the boss tune rows x0.94; `PFB_V1_*` unchanged). Method as above: every piece played plain and with its effect, paired (`sim/wear_sim.php`, now with `ONLY=baseline` for baseline fights alone), Lined = rank 2 (+2 value), Fine = rank 3 (+4). **32 fights a bot** a piece and rank (fewer than the 48 of the Common run, so the unpaired "piece" part is noisier: use `eff`, not `est`, to judge a single piece), baseline 320 fights a region and bot (shared), 280 pieces x 2 ranks = 71,680 fights, 0 engine errors. Every piece that looked over a limit was played again at **240 fights a bot** (below).
+
+| rank | | n | est win | est health | eff win | eff health | largest est win / health |
+|---|---|---|---|---|---|---|---|
+| Lined | Common | 112 | +0.2 | -0.2 | +0.2 | -0.3 | +3.3 / -4.5 |
+| Lined | Uncommon | 112 | +0.3 | -0.2 | +0.1 | -0.2 | +3.7 / -4.3 |
+| Lined | Rare | 56 | +1.1 | -2.6 | +1.0 | -2.5 | +7.9 / -11.3 |
+| Fine | Common | 112 | +0.3 | -0.6 | +0.1 | -0.2 | +3.5 / -4.8 |
+| Fine | Uncommon | 112 | +0.4 | -0.7 | +0.1 | -0.3 | +4.2 / -6.4 |
+| Fine | Rare | 56 | +1.4 | -3.2 | +1.0 | -2.5 | +9.2 / -13.1 |
+
+Reading: a higher rank barely changes what a piece does (the effects use a and b, which follow the region, not the rank; Lined / Fine add only +2 / +4 to the piece value). Commons and Uncommons: mean effect alone -0.2 to -0.3 health, +0.1 win at both ranks, as at Common. Every Common / Uncommon "over the limit" by est at N=32 had an effect alone near 0 (`cb-mahogany-clogs`, `cb-sisal-sole-slippers`, `cb-market-basket-pack`, `ea-forager-basket`, `cb-calabash-carrier`: -4.1 to -4.5 est, eff 0.0 to -0.3): that is the smoothed piece part of a piece placed in 0-12% of fights, noise, not a piece. The ones with a real effect were played again:
+
+| piece (code) | Lined: eff win / health | Fine: eff win / health | |
+|---|---|---|---|
+| `wca-raffia-poncho` (`handC>skip`, Unc.) | +2.5 / -2.4 | +2.7 / -2.6 | at the goal (+3 win), as at Common |
+| `wca-mudwader-wraps` (`yLow>skip`, Com.) | +0.8 / -3.0 | +1.0 / -3.4 | under -4 |
+| `sa-balsa-bark-clogs` (`noDmg>dmg`, Unc.) | +0.4 / -1.4 | +0.4 / -2.3 | est -6.4 was noise |
+| `oc-flax-wading-wraps`, `oc-red-dust-poncho` (fixed) | +1.0 / -0.6, -0.2 / -2.1 | +0.8 / -0.7, 0.0 / -1.9 | |
+| `sea-paddy-stilt-clogs`, `mena-dune-slippers` | +0.4 / -0.1, 0.0 / 0.0 | +0.8 / -0.7, +0.2 / -0.3 | est +3 win was noise |
+| `mena-goat-hair-tent-cape` (Rare) | **+6.2 / -10.1** | **+7.3 / -11.8** | careless bot alone +12.5 / +14.6 win |
+| `sea-mudflat-paddles` (Rare) | +4.2 / -11.1 | +3.8 / -11.7 | the largest health effect, inside -12 |
+| `cb-curl-toe-reef-booties` (Rare) | +2.5 / -10.6 | +2.3 / -10.3 | |
+| `sa-striped-leg-wraps` (Rare) | +3.1 / -9.2 | +2.3 / -8.3 | |
+| `csa-turmeric-wrap-coat` (Rare) | +2.3 / -7.1 | +2.3 / -7.1 | |
+| `ea-snow-straw-boots` (Rare) | +2.1 / -5.4 | +3.8 / -7.3 | est +9.2 at N=32 was noise |
+| `esa-baobab-clogs` (Rare) | +0.8 / -4.3 | +1.0 / -4.8 | est +6.9 at N=32 was noise |
+
+**Outliers.** No Common or Uncommon needs a change at Lined or Fine. One Rare is over the "about +6 win" goal at both ranks and stays there: `mena-goat-hair-tent-cape` (+6.2 Lined, +7.3 Fine; the effect is the skip, a Trip). Tried on it (Fine, 240 fights a bot): value 3 -> 2: +7.5; b 5 -> 4: +7.1 / -11.1; both: +7.5 / -10.5. Numbers do not move it (the value is already cut from 8 to 3 and the Add-Charm part is small); only a different effect would (for example the skip only when the creature has a Hurt out). Left as it is, as in the second pass (+6.8 est at Fine then): the careful bot is at 100% with or without it, and the careless bot's win rate is what moves. Nothing else changed in this pass.
+
+**What rank does to the caps.** At Fine a piece counts as Rare under the 3-Rare cap (`PFD_RARE_CAP`, kit and gear together). The tuner's level-40 gnome can wear **one** Fine piece: four Fine pieces at once leave 3 out of the deck (`cap`). Mixed sets (one Fine, the rest Lined) fit; `multi_sim.php` now takes `slug:2` / `slug:3` per piece and `WEAR_RANK`.
+
+### Sets, again (`sim/multi_sim.php`, 480 fights a bot and set, same creatures and seeds; not paired, noise about +-2 win for the careless bot; change against no wear piece in brackets)
+
+| level (slots) | set | careful: win / health lost | careless: win / health lost | placed (careful / careless) |
+|---|---|---|---|---|
+| 40 (4) | none | 100.0% / 13.8% | 94.2% / 46.4% | - |
+| 40 (4) | the four strongest OC (`oc-flax-basket-pack`, `oc-mangrove-clog`, `oc-gum-dyed-cardigan`, `oc-red-dust-poncho`), Common | 100.0% / 10.7% (-3.1) | 97.1% (+2.9) / 41.8% (-4.5) | 1.75 / 1.12 |
+| 40 (4) | the same, Lined | 100.0% / 10.3% (-3.5) | 97.1% (+2.9) / 40.7% (-5.7) | 1.79 / 1.18 |
+| 40 (4) | the same, `oc-mangrove-clog` Fine, the rest Lined | 100.0% / 9.9% (-3.8) | 97.9% (+3.7) / 40.4% (-6.0) | 1.77 / 1.16 |
+| 40 (4) | four plain OC Commons (`oc-reef-sandals`, `oc-coconut-string-bag`, `oc-drovers-oilskin`, `oc-frond-rain-cape`), Common | 100.0% / 12.3% (-1.4) | 96.2% (+2.1) / 47.2% (+0.9) | 1.00 / 0.61 |
+| 40 (4) | the same, Lined | 100.0% / 11.9% (-1.9) | 96.7% (+2.5) / 46.3% (-0.0) | 1.04 / 0.67 |
+| 40 (4) | **the four strongest Rares of any region, Lined** (`ea-snow-straw-boots`, `mena-goat-hair-tent-cape`, `esa-baobab-clogs`, `sea-mudflat-paddles`) | 100.0% / 8.5% (-5.2) | 99.4% (+5.2) / 30.0% (-16.4) | 1.55 / 1.35 |
+| 35 (3) | none | 100.0% / 14.1% | 87.1% / 64.1% | - |
+| 35 (3) | the three strongest OC, Common | 100.0% / 10.2% (-3.8) | 92.1% (+5.0) / 58.4% (-5.7) | 2.02 / 1.14 |
+| 35 (3) | the same, Lined | 99.8% / 10.1% (-4.0) | 92.3% (+5.2) / 58.1% (-6.0) | 2.03 / 1.13 |
+| 35 (3) | the same, `oc-mangrove-clog` Fine, the rest Lined | 99.8% / 9.7% (-4.4) | 93.5% (+6.5) / 57.4% (-6.6) | 2.05 / 1.06 |
+
+Reading: rank barely matters inside a set (Lined adds 0.2-1 health point over Common, a mixed Fine set about 1 more); what matters is which pieces. Normal sets are worth +2 to +6 win and -2 to -6 health. The one extreme set, four of the strongest Rares from four regions at once (a gnome who bought them all), takes the careless bot's health lost at level 40 from 46% to 30% and its win rate to 99.4%: strong, not a trivial game (the careless bot was already at 94% there and the careful one at 100%), and it costs four Rare Tailor crafts. No engine errors in 10,560 set fights.
+
 ## What the bots cannot judge (untested or under-measured)
 
 - **Pluck** (12 Commons / Uncommons, EE and OC Rares): it lifts an item, worth nothing inside the fight. Measured 0; not tuned.
@@ -184,7 +253,7 @@ Reading: a full set of Keepsake slots is worth +2 to +3 win points and up to 5 h
 - **Evade against poison, bond, life, stay**: the bots do not value them; measured as they happen.
 - **Win rate for the careful bot**: it wins 95-100% at every region with no wear piece, so every win change comes from the careless bot.
 - **Early regions** (NA-NWE): fights last about 2 turns, the wear piece is placed in 7-10% of them; the effects there are close to unmeasurable.
-- Not run: Lined rank (between the two measured), the 6 old wearables (more than one wear piece at once: run 2026-11-19 for 3 and 4 OC pieces, see "Several worn pieces at once"), the JS engine (`tools/pfengine.js`: same rules, parity checked by `pf_wear_fx.sh`).
+- Not run (until the third pass above): Lined rank (now run), the 6 old wearables (more than one wear piece at once: run 2026-11-19 for 3 and 4 OC pieces, see "Several worn pieces at once"), the JS engine (`tools/pfengine.js`: same rules, parity checked by `pf_wear_fx.sh`).
 - The engine logs a wear action in the replay event (`wfx`) for every action but `dmg` and `pierce` (they change the hit before it is logged): the per-fight fire counts in the sim miss those two. Not a rule bug; a replay could not show "+b damage from the wear piece".
 
 ## Tests

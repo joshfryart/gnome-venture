@@ -2,7 +2,7 @@
 // Wear piece balance sim (claude/wear-pieces/balance.md). Real engine, real decks, the bots of tests/pf_bots.php. No DB.
 //   php wear_sim.php run REGIONS BOTS N RANK [SHARD/NSHARDS] [ONLY] [NBASE]   json lines on stdout
 //     REGIONS: all or a comma list (NA,CA...).  BOTS: look,greedy (careful, careless).  N: fights per piece and bot.  RANK: 1 Common, 2 Lined, 3 Fine.
-//     ONLY: '' = every piece, rare = only the Rare pieces, nobase = every piece but no baseline fights, a comma list of slugs = only those.  NBASE: baseline fights per region and bot (default 10 x N).
+//     ONLY: '' = every piece, baseline = only the baseline fights, rare = only the Rare pieces, nobase = every piece but no baseline fights, a comma list of slugs = only those.  NBASE: baseline fights per region and bot (default 10 x N).
 //   A piece is played two ways on the same creature and seed: plain (its effect taken off: a plain piece of the same type, value and edges) and fx (the real piece).
 //   Their decks are the same size, so the shuffles match and fx - plain is the effect alone (paired). The baseline (no wear piece) has a smaller deck, so it cannot be
 //   paired: it gets many fights per region instead, and every piece its own seeds (so the pieces of a region do not share one draw of luck).
@@ -65,13 +65,13 @@ if (PHP_SAPI !== 'cli' || realpath($argv[0]) !== __FILE__) return;
 [$sh, $nsh] = array_map('intval', explode('/', $argv[6] ?? '0/1')); $only = $argv[7] ?? ''; $N = (int)$N; $NB = (int)($argv[8] ?? 10 * $N); $rank = (int)$rank; $bots = explode(',', $bots);
 $P = ws_pieces(); $idx = array_flip(array_column($P, 'slug'));
 if ($regs !== 'all') { $rs = explode(',', $regs); $P = array_values(array_filter($P, fn($p) => in_array($p['region'], $rs, true))); }
-$withBase = $only === '';   // the baseline does not depend on the rank: only a full run plays it
+$withBase = $only === '' || $only === 'baseline';   // 'baseline' = the baseline fights only (no piece)   // the baseline does not depend on the rank: only a full run plays it
 if ($only === 'rare') $P = array_values(array_filter($P, fn($p) => $p['rarity'] === 'Rare'));
-elseif ($only !== '' && $only !== 'nobase') { $os = explode(',', $only); $P = array_values(array_filter($P, fn($p) => in_array($p['slug'], $os, true))); }
+elseif ($only !== '' && $only !== 'nobase' && $only !== 'baseline') { $os = explode(',', $only); $P = array_values(array_filter($P, fn($p) => in_array($p['slug'], $os, true))); }
 $jobs = []; $seenReg = [];   // [region, slug|null, piece, k0, k1]: the baseline is cut in chunks of N so the shards share it
 foreach ($P as $p) {
     if ($withBase && !isset($seenReg[$p['region']])) { $seenReg[$p['region']] = 1; for ($k0 = 0; $k0 < $NB; $k0 += $N) $jobs[] = [$p['region'], null, null, $k0, min($NB, $k0 + $N)]; }
-    $jobs[] = [$p['region'], $p['slug'], $p, 0, $N];
+    if ($only !== 'baseline') $jobs[] = [$p['region'], $p['slug'], $p, 0, $N];
 }
 $pls = [];
 foreach ($jobs as $ji => [$reg, $slug, $p, $k0, $k1]) {

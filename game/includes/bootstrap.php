@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.7.30');
+define('APP_VERSION', '2.7.32');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -134,6 +134,14 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
         boot_step('ensure_nutrients', function () {
             require_once __DIR__ . '/nutrients.php';
             ensure_nutrients();     // before crafting: some recipes make NPK items
+        });
+        boot_step('tea_crops_ensure', function () {
+            require_once __DIR__ . '/catalog.php';
+            tea_crops_ensure();     // next release: lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise (crop, seed, plant, shop stock, Almanac page); adds only what is missing
+        });
+        boot_step('rope_stock_ensure', function () {
+            require_once __DIR__ . '/trail_sights_5.php';
+            sights6a_rope_stock_ensure();   // sixth pass A: rope on the shelf of Twigg's (the smuggler's half-price rope needs a shop that sells it); adds only what is missing
         });
         boot_step('ensure_games', function () {
             require_once __DIR__ . '/games.php';
