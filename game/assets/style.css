@@ -7729,6 +7729,17 @@ main nav.tabs.hstabs a { gap: 6px; }
 .hs-go { flex: none; color: var(--brand-ink); font-weight: 800; white-space: nowrap; }
 .hs-quiet, .hs-empty { margin: 6px 0 0; padding-top: 8px; border-top: 2px dashed var(--line); color: var(--muted); font-size: 14px; }
 .hs-empty { border-top: 0; }
+/* 2.7.17: the Your pals box */
+.hs-grp { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 10px 0 2px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hs-grp:first-of-type { margin-top: 2px; }
+.hs-grp a { color: var(--brand-ink); text-decoration: none; white-space: nowrap; }
+.hs-sum { margin: 2px 0 8px; } .hs-sum b, .hs-sum small { display: block; } .hs-sum small { color: var(--muted); font-size: 13px; }
+.hs-chips { list-style: none; margin: 0 0 4px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.hs-chips a { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; min-height: 44px; padding: 4px 8px; border: 2px solid var(--line); border-radius: 10px; color: var(--ink); text-decoration: none; font-size: 14px; }
+.hs-chips a:hover { background: var(--surface-2); } .hs-chips a:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.hs-cn { min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
+.hs-tag { font-style: normal; font-size: 11px; font-weight: 800; padding: 0 6px; border-radius: 4px; background: var(--warn-bg, #e8a05a); color: var(--warn-ink, #2b1500); }
+.hs-bar { display: block; height: 6px; margin-top: 5px; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; } .hs-bar i { display: block; height: 100%; background: var(--brand-ink); }
 /* the news row: paper with "!" while unread, quiet felt once read */
 a.hs-news { display: flex; align-items: center; gap: 12px; padding: 10px 14px; text-align: left; text-decoration: none; color: var(--ink); }
 a.hs-news:hover { background: var(--surface-2); }
