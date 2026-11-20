@@ -272,6 +272,8 @@ $tab = (string)($_GET['t'] ?? '');
 if (!in_array($tab, ['beds', 'bld', 'an', 'help', 'grow', 'pic'], true)) $tab = isset($_GET['bld']) ? 'bld' : (isset($_GET['an']) ? 'an' : 'beds');
 $gyOn = gnav_page_open('gnav_garden');   // 2.7.33: the Yard picture tab (flag gnav_garden; admins can always preview)
 if ($tab === 'pic' && !$gyOn) $tab = 'beds';
+// 2.7.36: with the flag on, the Buildings tab IS the Yard picture (the list is still there for ?bld=<key> detail links and ?t=bld&list=1)
+if ($gyOn && $tab === 'bld' && !isset($_GET['bld']) && !isset($_GET['list'])) $tab = 'pic';
 
 function action_form(string $do, array $t, string $label, int $cost, string $extra = '', string $confirm = ''): string
 {
@@ -413,8 +415,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
 ?>
 <nav class="tabs gardentabnav" aria-label="Garden sections">
   <a class="<?= $tab === 'beds' ? 'on' : '' ?>" href="<?= e(url('garden.php')) ?>"><span class="tabic">🌱</span> Beds<?= $tb($nReadyBeds) ?></a>
-  <?php if ($gyOn): ?><a class="<?= $tab === 'pic' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=pic')) ?>"><span class="tabic">🏞️</span> Yard<?= $tb(count($readyB)) ?></a><?php endif; ?>
-  <a class="<?= $tab === 'bld' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=bld')) ?>"><span class="tabic">🏠</span> Buildings<?= $tb(count($readyB)) ?></a>
+  <a class="<?= $tab === 'bld' || $tab === 'pic' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=bld')) ?>"><span class="tabic">🏠</span> Buildings<?= $tb(count($readyB)) ?></a>
   <?php if ($hasAnimals): ?><a class="<?= $tab === 'an' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=an')) ?>"><span class="tabic">🐾</span> Animals<?= $tb($nAnimals) ?></a><?php endif; ?>
   <a class="<?= $tab === 'help' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=help')) ?>"><span class="tabic">🧩</span> Crew<?php require_once __DIR__ . '/includes/pal_crew.php'; echo $tb(count(pcrew_slots((int)$plot['id'])), ' muted'); ?></a>
   <a class="<?= $tab === 'grow' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=grow')) ?>"><span class="tabic">📐</span> Grow</a>

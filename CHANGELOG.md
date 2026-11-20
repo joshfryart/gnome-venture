@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.36
+- **Yard replaces the Buildings tab (flag `gnav_garden` on):** there is no separate Yard tab any more. The Buildings tab itself shows the Yard picture. The old building list is still there: the picture's "List version" button (`garden.php?t=bld&list=1`), the card's "More" button and every `?bld=<building>` link open it. Flag OFF: nothing changes (Buildings is the list). `tests/gyard.sh` updated (33 checks).
+- 2.7.35 was only the release news post; folded in here for anyone who skipped it.
+
 ## 2.7.35
 - **Release news:** `UPDATE_NEWS` had no entry after 2.7.31, so 2.7.32 to 2.7.34 never posted to players. Added the 2.7.35 player post (Trail transaction fix from 2.7.32, and a no-spoiler line about the hidden Yard groundwork; the Yard itself stays OFF behind `gnav_garden`, so it is not announced). The post is created once, the first time 2.7.35 loads, for sites on 2.7.31 or later.
 - No other code change.

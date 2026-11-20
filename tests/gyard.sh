@@ -20,12 +20,12 @@ P=$(db "SELECT id FROM plots WHERE user_id=$UID_ LIMIT 1")
 dbx "UPDATE plots SET garden_level=12 WHERE id=$P"
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('upgrade_materials_2',''),('upgrade_materials_3','')"   # upgrades cost Petals only here
 
-echo "== flag off: no Yard tab, ?t=pic falls back to the beds"
+echo "== flag off: Buildings tab is the list, ?t=pic falls back to the beds"
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('gnav_on','1'),('gnav_garden','0')"
-page "garden.php?t=pic"; hasnot "no Yard tab" 'href="[^"]*garden.php?t=pic"'; hasnot "no picture" 'id="gyard"'
+page "garden.php?t=pic"; hasnot "no picture" 'id="gyard"'; page "garden.php?t=bld"; has "list on Buildings" 'id="buildings"'; hasnot "no picture on Buildings" 'id="gyard"'
 echo "== flag on"
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('gnav_garden','1')"
-page "garden.php"; has "Yard tab" 'href="[^"]*garden.php?t=pic"'
+page "garden.php"; hasnot "no separate Yard tab" 'href="[^"]*garden.php?t=pic"'; page "garden.php?t=bld"; has "Buildings tab shows the picture" 'id="gyard"'; hasnot "not the list" 'id="buildings"'
 page "garden.php?t=pic"
 has "picture" 'id="gyard"'; has "ground" 'img/gyard/ground.png'; has "script" 'assets/gardenyard.js'
 has "kitchen plot is for sale (empty art)" 'gy-h-kitchen-e'; has "its card has a Build button" 'value="build"'; has "the card has an art tile" 'gyt-kitchen-e'; has "and a header with chips" 'gyhd'
@@ -52,8 +52,8 @@ R=$(post "garden.php?t=pic" -d do=critter_welcome -d building=quail_coop -d name
 page "garden.php?t=pic"; has "the new resident shows in a slot" '<b>Pip</b>'
 echo "== a card opens without script (?o=)"
 page "garden.php?t=pic&o=kitchen"; has "kitchen card open" '<dialog class="picker hubpop gycard" id="gypop-kitchen"[^>]* open'
-echo "== the Buildings tab and old links are unchanged"
-page "garden.php?t=bld"; has "Buildings tab" 'id="buildings"'; page "garden.php?bld=kitchen"; has "?bld= still lands on Buildings" 'id="buildings"'
+echo "== the building list and old links still work"
+page "garden.php?t=bld&list=1"; has "list version" 'id="buildings"'; page "garden.php?bld=kitchen"; has "?bld= still lands on Buildings" 'id="buildings"'
 echo "== assets: every class the page uses is defined and every image exists"
 page "garden.php?t=pic"
 for cls in $(grep -o 'gy-h-[a-z_]*-[a-z0-9]*' $H | sort -u) $(grep -o 'gy-bg-[a-z_]*-[a-z0-9]*' $H | sort -u) $(grep -o 'gyt-[a-z_]*-[a-z0-9]*' $H | sort -u); do grep -q "\.$cls{" $GAME/assets/gyard.css || echo "FAIL css missing $cls"; done
