@@ -20,6 +20,9 @@ if (is_post()) {
                 'hire' => 'help', 'dismiss' => 'help', 'crew_assign' => 'help', 'crew_recall' => 'help', 'crew_seeds' => 'help', 'crew_skip' => 'help', 'expand' => 'grow', 'sign_buy' => 'grow', 'sign_use' => 'grow'];
     if ($do === 'collect' && ($_POST['from'] ?? '') === 'yard') unset($tabOfDo['collect']);   // v1.9.7: tapping a glowing building on the yard collects and stays on the garden
     $postTab = $tabOfDo[$do] ?? (in_array((string)($_POST['t'] ?? ''), ['bld', 'an', 'help', 'grow'], true) ? (string)$_POST['t'] : 'beds');
+    $fromPic = ($_POST['t'] ?? '') === 'pic' && gnav_page_open('gnav_garden');   // 2.7.33: an action taken from the Yard picture comes back to the picture, card open
+    if ($fromPic) $postTab = 'pic';
+    $picBack = fn(string $key, string $else): string => $fromPic ? 'garden.php?t=pic&o=' . urlencode($key) : $else;
     $tq = $postTab !== 'beds' ? '?t=' . $postTab : '';
     $back = 'garden.php' . ($x >= 0 ? "?sel=$x-$y" : $tq);
 
@@ -77,31 +80,31 @@ if (is_post()) {
     } elseif ($do === 'critter_feed') {   // v1.0.0: garden animals
         [$ok, $msg] = critter_feed($u, active_plot_id($uid), (string)($_POST['building'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('garden.php?bld=' . urlencode((string)($_POST['building'] ?? '')) . '#b-' . urlencode((string)($_POST['building'] ?? '')));
+        redirect($picBack((string)($_POST['building'] ?? ''), 'garden.php?bld=' . urlencode((string)($_POST['building'] ?? '')) . '#b-' . urlencode((string)($_POST['building'] ?? ''))));
     } elseif ($do === 'critter_welcome') {
         [$ok, $msg] = critter_welcome($u, active_plot_id($uid), (string)($_POST['building'] ?? ''), (string)($_POST['name'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('garden.php?bld=' . urlencode((string)($_POST['building'] ?? '')) . '#b-' . urlencode((string)($_POST['building'] ?? '')));
+        redirect($picBack((string)($_POST['building'] ?? ''), 'garden.php?bld=' . urlencode((string)($_POST['building'] ?? '')) . '#b-' . urlencode((string)($_POST['building'] ?? ''))));
     } elseif ($do === 'critter_rename') {
         [$ok, $msg] = critter_rename($u, active_plot_id($uid), (int)($_POST['critter'] ?? 0), (string)($_POST['name'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('garden.php?bld=' . urlencode((string)($_POST['building'] ?? '')) . '#b-' . urlencode((string)($_POST['building'] ?? '')));
+        redirect($picBack((string)($_POST['building'] ?? ''), 'garden.php?bld=' . urlencode((string)($_POST['building'] ?? '')) . '#b-' . urlencode((string)($_POST['building'] ?? ''))));
     } elseif ($do === 'critter_hatch') {
         [$ok, $msg] = critter_hatch($u, active_plot_id($uid));
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('garden.php?bld=frog_pond#b-frog_pond');
+        redirect($picBack('frog_pond', 'garden.php?bld=frog_pond#b-frog_pond'));
     } elseif ($do === 'biddy') {   // v1.0.0: trade scraps for eggs at the fence
         [$ok, $msg] = biddy_trade($u, active_plot_id($uid), (int)($_POST['scraps'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('garden.php?an=1#biddy');
+        redirect($picBack('fence', 'garden.php?an=1#biddy'));
     } elseif ($do === 'clementine') {   // v1.2.0: trade scraps for goat milk at the fence
         [$ok, $msg] = clementine_trade($u, active_plot_id($uid), (int)($_POST['scraps'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('garden.php?an=1#biddy');
+        redirect($picBack('fence', 'garden.php?an=1#biddy'));
     } elseif ($do === 'percy') {   // v1.2.0: seeds for a far-off seed from Percy
         [$ok, $msg] = percy_trade($u, active_plot_id($uid), (int)($_POST['seed'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('garden.php?an=1#biddy');
+        redirect($picBack('fence', 'garden.php?an=1#biddy'));
     } elseif ($do === 'collect') {
         [$ok, $msg] = collect_building($u, active_plot_id($uid), (string)($_POST['building'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
@@ -266,7 +269,9 @@ $built = [];
 foreach (q('SELECT * FROM garden_buildings WHERE plot_id = ?', [$plot['id']])->fetchAll() as $b) $built[$b['building']] = $b;
 // v1.4.0: the page is split into tabs (?t=); the old ?bld= and ?an= links still land on their tab
 $tab = (string)($_GET['t'] ?? '');
-if (!in_array($tab, ['beds', 'bld', 'an', 'help', 'grow'], true)) $tab = isset($_GET['bld']) ? 'bld' : (isset($_GET['an']) ? 'an' : 'beds');
+if (!in_array($tab, ['beds', 'bld', 'an', 'help', 'grow', 'pic'], true)) $tab = isset($_GET['bld']) ? 'bld' : (isset($_GET['an']) ? 'an' : 'beds');
+$gyOn = gnav_page_open('gnav_garden');   // 2.7.33: the Yard picture tab (flag gnav_garden; admins can always preview)
+if ($tab === 'pic' && !$gyOn) $tab = 'beds';
 
 function action_form(string $do, array $t, string $label, int $cost, string $extra = '', string $confirm = ''): string
 {
@@ -408,6 +413,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
 ?>
 <nav class="tabs gardentabnav" aria-label="Garden sections">
   <a class="<?= $tab === 'beds' ? 'on' : '' ?>" href="<?= e(url('garden.php')) ?>"><span class="tabic">🌱</span> Beds<?= $tb($nReadyBeds) ?></a>
+  <?php if ($gyOn): ?><a class="<?= $tab === 'pic' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=pic')) ?>"><span class="tabic">🏞️</span> Yard<?= $tb(count($readyB)) ?></a><?php endif; ?>
   <a class="<?= $tab === 'bld' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=bld')) ?>"><span class="tabic">🏠</span> Buildings<?= $tb(count($readyB)) ?></a>
   <?php if ($hasAnimals): ?><a class="<?= $tab === 'an' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=an')) ?>"><span class="tabic">🐾</span> Animals<?= $tb($nAnimals) ?></a><?php endif; ?>
   <a class="<?= $tab === 'help' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=help')) ?>"><span class="tabic">🧩</span> Crew<?php require_once __DIR__ . '/includes/pal_crew.php'; echo $tb(count(pcrew_slots((int)$plot['id'])), ' muted'); ?></a>
@@ -757,6 +763,12 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
   </div>
 </div>
 <?php endif; /* v1.4.0: end of the Beds tab */ ?>
+
+<?php if ($tab === 'pic'):   // 2.7.33: the Yard picture
+    require_once __DIR__ . '/includes/gyard.php';
+    $picOpen = preg_match('/^[a-z_]{1,24}$/', (string)($_GET['o'] ?? '')) ? (string)$_GET['o'] : '';
+    echo gyard_html($u, $plot, $built, $biddy, $nbr, $picOpen);
+endif; /* 2.7.33: end of the Yard tab */ ?>
 
 <?php if ($tab === 'bld'):   // v0.9.6: compact buildings panel
 $bBuilt = $bCan = $bLater = [];
