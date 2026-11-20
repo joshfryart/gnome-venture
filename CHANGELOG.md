@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.38
+- **Thornblade Journeyman quest (`thornblade-2`, Thorn Master):** "Weed 40 squares in your own beds" is replaced by "Craft Wattle Fences 6 times". Thornblade tiers slow weeds (tier 2 half speed) and a hedge slows them again, so the weeding task could be impossible to finish. The Captain's intro now says "fence your own beds well". Data file only (`includes/data/calling_quests.txt`); sites that already imported the chapter keep the old task until it is edited in Admin.
+
 ## 2.7.37
 - **Yard cards scroll on phones:** the card is at most the screen height (`100dvh - 24px`); the header stays put and the body scrolls (`overscroll-behavior:contain`). The fence card (long visitor lists) was cut off with no way to scroll. The fence card is also tighter: shorter intro line, smaller text and gaps. CSS only (`tools/build_gyard_assets.py`, regenerated `gyard.css`) plus one text change in `gyard.php`.
 
