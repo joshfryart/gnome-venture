@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.42
+- **Level-up animation:** when the gnome levels up, the next page shows a short burst: a "Level up!" card with the new level popping in and 12 sparks flying out, gone after about 4 seconds. Pure CSS (`.lvlup` in `style.css`), never blocks taps, and with reduced motion it is a plain card that fades. `add_xp()` leaves the new level in `$_SESSION['lvlup']`; `layout.php` plays it once (also when the message log replaces flashes). Fights still pop their own "LEVEL UP!".
+
 ## 2.7.41
 - **Starter kit pieces raised:** Jab, Pierce and Brace 3 to 6; Garden Greens (vegetable crop piece) 3 to 5; Soothe 2 to 4 (shows 5 with the Charm bonus). Changed in `data/pf_pieces.txt`, `PF_TILES_BUILTIN` (the lint needs them equal) and `tools/pfengine.js`. `tests/pfdeck_v1.php`: the recorded old-fight transcript is re-recorded again.
 

@@ -8776,3 +8776,26 @@ dialog.clpick .hpick-act { margin-top: 8px; }
 .jb-pill.taken { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent-line); }
 .jb-pill.done { background: var(--brand-soft); color: var(--brand-ink); border-color: var(--brand-line); }
 @container (max-width: 559px) { .jb-periods { grid-template-columns: 1fr 1fr; } .jb-per .s { font-size: .78rem; } }
+
+/* v2.7.42: level-up animation. Pure CSS, plays once on the page after the level was gained, never blocks taps. */
+.lvlup { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; pointer-events: none; animation: lvlup-out .5s ease-in 3.4s forwards; }
+.lvlup-card { display: grid; justify-items: center; gap: 2px; padding: 14px 28px 16px; background: var(--felt, #3d2a1c); color: var(--felt-ink, #f2e4c0); border: 2px solid var(--ol); box-shadow: 0 0 0 2px var(--accent), 6px 6px 0 0 var(--drop); text-align: center; animation: lvlup-pop .7s cubic-bezier(.2, 1.4, .4, 1) both; }
+.lvlup-top { font-weight: 800; font-size: .95rem; color: var(--thread-bright, #f5cf6a); }
+.lvlup-num { font-size: 4rem; line-height: 1; color: var(--accent); text-shadow: 3px 3px 0 var(--ol); animation: lvlup-num 1.1s ease-out .5s both; }
+.lvlup-sub { font-size: .78rem; color: var(--felt-muted, #c9a96e); }
+.lvlup-burst { z-index: 1; position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.lvlup-burst i { position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; background: var(--thread-bright, #f5cf6a); border: 2px solid var(--ol); opacity: 0; animation: lvlup-spark 1.8s ease-out .3s both; }
+.lvlup-burst i:nth-child(even) { background: var(--accent); width: 8px; height: 8px; left: -4px; top: -4px; animation-delay: .4s; }
+.lvlup-burst i:nth-child(1) { --a: 0deg; } .lvlup-burst i:nth-child(2) { --a: 30deg; } .lvlup-burst i:nth-child(3) { --a: 60deg; }
+.lvlup-burst i:nth-child(4) { --a: 90deg; } .lvlup-burst i:nth-child(5) { --a: 120deg; } .lvlup-burst i:nth-child(6) { --a: 150deg; }
+.lvlup-burst i:nth-child(7) { --a: 180deg; } .lvlup-burst i:nth-child(8) { --a: 210deg; } .lvlup-burst i:nth-child(9) { --a: 240deg; }
+.lvlup-burst i:nth-child(10) { --a: 270deg; } .lvlup-burst i:nth-child(11) { --a: 300deg; } .lvlup-burst i:nth-child(12) { --a: 330deg; }
+@keyframes lvlup-pop { 0% { transform: scale(.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes lvlup-num { 0% { transform: scale(1); } 30% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@keyframes lvlup-spark { 0% { transform: rotate(var(--a)) translateY(0) scale(1); opacity: 1; } 70% { opacity: 1; } 100% { transform: rotate(var(--a)) translateY(-190px) scale(.3); opacity: 0; } }
+@keyframes lvlup-out { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .lvlup { animation: lvlup-out .4s ease-in 2.6s forwards; }
+  .lvlup-card, .lvlup-num { animation: none; }
+  .lvlup-burst { display: none; }
+}

@@ -346,6 +346,7 @@ function add_xp(int $uid, int $n, string $source = ''): ?int
         }
     }
     if ($gained > 0) hp_full($uid);   // v2.3.5: a level up heals fully
+    if ($gained > 0 && session_status() === PHP_SESSION_ACTIVE) $_SESSION['lvlup'] = ['uid' => $uid, 'lvl' => $level];   // v2.7.42: the next page plays the level-up animation (layout.php)
     if ($earned > 0) mentors120_after_xp($uid, $earned, $source !== '' ? $source : (string)(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] ?? 'other'), $level);   // v1.2.0: mentor share + graduation
     return $gained ? $level : null;
 }
