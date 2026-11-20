@@ -812,6 +812,9 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.35' => ['🛠️ Update 2.7.35: a Trail fix and tidying up',
+        "[list][*][b]Trail errors[/b]: starting or finishing something on the Trail could sometimes show a \"no active transaction\" error page. That is fixed.\n"
+        . "[*][b]Behind the scenes[/b]: groundwork for a new picture view of your garden. You will not see it yet; we will tell you when it is ready.[/list]"],
     '2.7.31' => ['🌿 Update 2.7.31: herbs, Trail finds and sharper Sights',
         "[list][*][b]New herbs[/b]: lemon balm, peppermint, garden sage, lemon verbena, tulsi and star anise can now be grown. Twigg sells the everyday seeds; the rarer ones turn up in their own regions.\n"
         . "[*][b]Trail keepsakes with a use[/b]: the fern-drip hat charm keeps the rain off, a map scrap pins a find on your walk, a star chart goes into your Almanac, and the stargazer's chalk and message bottle can be used on the Trail.\n"

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.7.37
+- **Yard cards scroll on phones:** the card is at most the screen height (`100dvh - 24px`); the header stays put and the body scrolls (`overscroll-behavior:contain`). The fence card (long visitor lists) was cut off with no way to scroll. The fence card is also tighter: shorter intro line, smaller text and gaps. CSS only (`tools/build_gyard_assets.py`, regenerated `gyard.css`) plus one text change in `gyard.php`.
+
+## 2.7.36
+- **Yard replaces the Buildings tab (flag `gnav_garden` on):** there is no separate Yard tab any more. The Buildings tab itself shows the Yard picture. The old building list is still there: the picture's "List version" button (`garden.php?t=bld&list=1`), the card's "More" button and every `?bld=<building>` link open it. Flag OFF: nothing changes (Buildings is the list). `tests/gyard.sh` updated (33 checks).
+- 2.7.35 was only the release news post; folded in here for anyone who skipped it.
+
+## 2.7.35
+- **Release news:** `UPDATE_NEWS` had no entry after 2.7.31, so 2.7.32 to 2.7.34 never posted to players. Added the 2.7.35 player post (Trail transaction fix from 2.7.32, and a no-spoiler line about the hidden Yard groundwork; the Yard itself stays OFF behind `gnav_garden`, so it is not announced). The post is created once, the first time 2.7.35 loads, for sites on 2.7.31 or later.
+- No other code change.
+
 ## 2.7.34
 - **Garden Yard picture (new, setting `gnav_garden`, default OFF; admins can always preview; needs `gnav_on`):** a **Yard** tab on the garden page shows the whole garden as one picture. Every building is its own sprite on it: an empty plot with its own small BUILD sign for what is not built yet (greyed with a lock when the garden level is too low), level 1, 2 and 3 art for what is, and a looping animation with a gold "!" in the corner when it has something to collect (the same loop exists for every level). The Buildings tab is unchanged and is the "List version"; "More" on a card goes to that building there. (2.7.33 was built on the branch but never merged or released; its notes are folded into this entry.)
 - **Cards:** a tap on a building (or a "ready" chip) opens a centred card with the building's own art cropped into a fixed square, its name and chips (level pips, "Level 3 · max", Ready), a short "Now" line, one info strip (what is waiting, or what the next level adds and any materials it needs) and one row of buttons. Every non-animal card is the same size. Build, Upgrade and Collect work from the card and return to the Yard with the card open. Animal homes get a resident row (one tile per home: the animal with its mood, or an open "+" home), Feed, Hatch (frog pond), Upgrade and a compact Welcome form with the name field; the fence shows the neighbour visitors. Without script the card still opens (`garden.php?t=pic&o=<building>`).

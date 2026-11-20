@@ -141,7 +141,7 @@ function gyard_html(array $u, array $plot, array $built, string $biddy, array $n
             $st = 'i'; $label = $name . ($ready ? ', someone is waiting' : '');
             $sprites .= $ready ? '<span class="gy-sp gy-a gy-fence gy-bg-fence-r1"></span>' : '<img class="gy-sp gy-fence" src="' . e(url('assets/img/gyard/fence-i.png')) . '" alt="">';
             $head = gyard_head($id, $name, gyard_tile('fence', $ready ? 'r1' : 'i', (bool)$ready), '<span class="gypill' . ($ready ? ' g' : '') . '">' . ($ready ? 'Someone is waiting' : 'Quiet today') . '</span>');
-            $body = '<div class="gybd"><p class="gynow">Neighbours drop by the fence to trade scraps for eggs, milk and seeds.</p>' . gyard_stay($biddy . (string)$nbr['html']) . '</div>';
+            $body = '<div class="gybd fence"><p class="gynow">Neighbours drop by to trade scraps for eggs, milk and seeds.</p>' . gyard_stay($biddy . (string)$nbr['html']) . '</div>';
         } else {
             if (!gyard_listed($u, $plot, $built, $key)) continue;
             [$name, , $needLv] = BUILDINGS[$key];
@@ -176,7 +176,7 @@ function gyard_html(array $u, array $plot, array $built, string $biddy, array $n
         . '<div class="box gtab gyard" id="gyard"><div class="gy-scene"><img class="gy-ground" src="' . e(url('assets/img/gyard/ground.png')) . '" alt="The garden yard">' . $sprites . $hits . '</div>'
         . '<p class="help gy-hint">Tap a building to open it. A gold ! means something is ready.</p>'
         . ($legend !== '' ? '<ul class="hubleg">' . $legend . '</ul>' : '')
-        . '<p class="gy-tools"><a class="btn alt" href="' . e(url('garden.php?t=bld')) . '">List version</a></p>'
+        . '<p class="gy-tools"><a class="btn alt" href="' . e(url('garden.php?t=bld&list=1')) . '">List version</a></p>'
         . $cards . '</div>'
         . '<script src="' . e(url('assets/gardenyard.js?v=' . APP_VERSION)) . '" defer></script>';
 }
