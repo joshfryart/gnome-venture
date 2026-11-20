@@ -31,6 +31,43 @@ STATIC = """.gyard .gy-scene{position:relative;width:100%;aspect-ratio:480/270;b
 .gyard .gy-hint{margin:6px 0 0;font-size:13px}
 @media (prefers-reduced-motion:reduce){.gy-a{animation:none}}"""
 
+STATIC2 = """.gyt{position:relative;flex:none;width:112px;height:112px;overflow:hidden;background:#c4e3b8;border:2px solid #150d08;box-sizing:content-box}
+.gyt>span{position:absolute;image-rendering:pixelated;background-repeat:no-repeat;animation-duration:.8s;animation-timing-function:steps(1,end);animation-iteration-count:infinite}
+.gyt-b{position:absolute;right:5px;top:5px;z-index:2;width:22px;height:22px;border-radius:50%;background:#e8a317;border:2px solid #150d08;color:#2a1a10;font:800 14px/18px system-ui;text-align:center;font-style:normal;animation:gyb .8s steps(1,end) infinite}
+@keyframes gyb{0%{transform:translateY(0)}25%{transform:translateY(-1px)}50%{transform:translateY(0)}75%{transform:translateY(1px)}}
+dialog.gycard .pickbox{width:min(330px,calc(100vw - 28px));padding:0;overflow:hidden}
+.gyhd{display:flex;gap:12px;align-items:center;padding:12px 10px 12px 12px;min-height:140px;background:var(--surface-2,#4a3322);border-bottom:2px dashed var(--thread,#e8a317)}
+.gytt{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.gytt b{font-size:19px;line-height:1.1}
+.gychips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.gypill{font:700 11px system-ui,sans-serif;padding:2px 7px;border:1px solid var(--line);background:var(--bg-2,transparent);color:var(--muted)}
+.gypill.g{background:var(--thread,#e8a317);color:#2a1a10;border-color:var(--thread,#e8a317)}
+.gyx:focus{outline:none}
+.gyx:focus-visible{outline:2px dashed #ffe9a3}
+.gyx{flex:none;align-self:flex-start;width:36px;height:36px;margin:-6px -4px 0 0;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:20px}
+.gybd{padding:12px;display:flex;flex-direction:column;gap:10px}
+.gybd.home{min-height:262px}
+.gybd:not(.home){min-height:176px}
+.gynow{margin:0;font-size:14px;line-height:1.4;min-height:4.2em;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.gyst{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.gystrip{margin:0;min-height:50px;display:flex;gap:8px;align-items:center;padding:7px 9px;font-size:13px;line-height:1.35;border:1px solid var(--line);color:var(--muted)}
+.gystrip.alert{border-color:var(--thread,#e8a317);color:var(--ink)}
+.gystrip i{flex:none;width:18px;height:18px;border-radius:50%;background:var(--thread,#e8a317);color:#2a1a10;font:800 12px/16px system-ui;text-align:center;font-style:normal;border:1px solid #150d08}
+.gyacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;min-height:44px}
+.gyacts form{flex:1 1 28%;margin:0;min-width:0}
+.gyacts .btn,.gyacts .gypill{width:100%;white-space:nowrap}
+.gyacts .gymore{flex:0 0 auto;width:auto;padding:0 14px}
+.gyacts .gypill{flex:1;text-align:center;padding:12px 6px;font-size:12px}
+.gyslots{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.gyslot{border:1px solid var(--line);min-height:64px;padding:5px 2px 4px;text-align:center;font-size:11px;line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:0}
+.gyslot .cimg{width:30px;height:30px}
+.gyslot b,.gyslot small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gyslot.free{border-style:dashed;color:var(--muted)}
+.gyslot.free b{font-size:20px;line-height:1}
+.gywelcome{display:flex;gap:6px;margin:0}
+.gywelcome input{flex:1;min-width:0}
+@media (prefers-reduced-motion:reduce){.gyt>span,.gyt-b{animation:none}}"""
+
 def pct(v, t):
     s = ('%.3f' % (v / t * 100)).rstrip('0').rstrip('.')
     return s + '%'
@@ -47,12 +84,33 @@ def bbox_union(im, W, H, frames, body=0.7):
             bb = b if bb is None else (min(bb[0], b[0]), min(bb[1], b[1]), max(bb[2], b[2]), max(bb[3], b[3]))
     return bb
 
+
+TILE = 112   # the art tile in a card is a fixed square; the building is cropped to its drawn pixels and zoomed by a whole number to fill it
+
+def tile_css(k, st, im, W, H, frames, still_for_box, fname):
+    """One tile class: the sprite (or strip) cropped to the building and centred in the square. Ready tiles are cropped to the still of the same level, so the badge is drawn by CSS."""
+    bb = bbox_union(still_for_box, W, H, 1, body=1.0)
+    x0, y0, x1, y1 = max(0, bb[0] - 1), max(0, bb[1] - 1), min(W, bb[2] + 1), min(H, bb[3] + 1)
+    bw, bh = x1 - x0, y1 - y0
+    z = max(1, int(min((TILE - 8) / bw, (TILE - 8) / bh)))
+    ox, oy = (TILE - bw * z) // 2, (TILE - bh * z) // 2
+    name = 'gyt-%s-%s' % (k, st)
+    rule = '.%s{left:%dpx;top:%dpx;width:%dpx;height:%dpx;background-image:url(img/gyard/%s);background-size:%dpx %dpx;background-position:%dpx %dpx' % (
+        name, ox, oy, bw * z, bh * z, fname, frames * W * z, H * z, -x0 * z, -y0 * z)
+    out = []
+    if frames > 1:
+        rule += ';animation-name:%s' % name
+        kf = ''.join('%d%%{background-position:%dpx %dpx}' % (i * 25, -(x0 + i * W) * z, -y0 * z) for i in range(4))
+        out.append('@keyframes %s{%s}' % (name, kf))
+    out.insert(0, rule + '}')
+    return out
+
 def save(im, name):
     im.save(os.path.join(OUT, name), 'PNG', optimize=True)
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    css = ['/* GENERATED by tools/build_gyard_assets.py (do not edit). The Garden Yard picture: sprites are placed in percentages of the 480x270 ground picture. */', STATIC]
+    css = ['/* GENERATED by tools/build_gyard_assets.py (do not edit). The Garden Yard picture: sprites are placed in percentages of the 480x270 ground picture. */', STATIC, STATIC2]
     shutil.copyfile(os.path.join(ROOT, 'aseprite-source/v3/scenes/garden-ground.png'), os.path.join(OUT, 'ground.png'))
     for k in KEYS:
         d = os.path.join(SRC, k, k)
@@ -61,6 +119,7 @@ def main():
             idle = r.crop((0, 0, W, H)); idle.paste((0, 0, 0, 0), (W - 14, 0, W, 13))   # the idle fence has no badge
             save(idle, 'fence-i.png'); save(r, 'fence-r1.png')
             states = {'i': (idle, 1)}
+            tiles = tile_css('fence', 'i', idle, W, H, 1, idle, 'fence-i.png') + tile_css('fence', 'r1', r, W, H, 4, idle, 'fence-r1.png')
         else:
             l1 = Image.open(d + '-l1.png').convert('RGBA'); W, H = l1.size
             states = {}
@@ -68,6 +127,13 @@ def main():
                 im = Image.open(d + '-l%d.png' % lv).convert('RGBA'); save(im, '%s-l%d.png' % (k, lv)); states['l%d' % lv] = (im, 1)
                 rr = Image.open(d + '-ready-l%d.png' % lv).convert('RGBA'); save(rr, '%s-r%d.png' % (k, lv))
             e = Image.open(d + '-empty.png').convert('RGBA'); save(e, '%s-e.png' % k); states['e'] = (e, 4)
+            tiles = []
+            tiles += tile_css(k, 'e', e, W, H, 4, e.crop((0, 0, W, H)), '%s-e.png' % k)
+            for lv in (1, 2, 3):
+                tiles += tile_css(k, 'l%d' % lv, states['l%d' % lv][0], W, H, 1, states['l%d' % lv][0], '%s-l%d.png' % (k, lv))
+                rr = Image.open(d + '-ready-l%d.png' % lv).convert('RGBA')
+                tiles += tile_css(k, 'r%d' % lv, rr, W, H, 4, states['l%d' % lv][0], '%s-r%d.png' % (k, lv))
+        css += tiles
         x, y = POS[k]
         left, top = (x - W / 2) * 2, (y - (H - 10)) * 2
         css.append('.gy-%s{left:%s;top:%s;width:%s;height:%s}' % (k, pct(left, 480), pct(top, 270), pct(W * 2, 480), pct(H * 2, 270)))

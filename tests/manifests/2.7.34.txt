@@ -59,7 +59,7 @@ afa09658a6b2d42136e12ee3d3cafd066e932827  assets/fightscene.js
 f501a3307e83832e730da850b05286b4bfba1a07  assets/guides/.htaccess
 d73a68e0810458fe3ed3a30c0f416777e5dcebc7  assets/guides/Gnome-Venture-Style-Guide.json
 75b37445e62d65c65f33608d89d6d7c501745217  assets/guides/Gnome-Venture-Style-Guide.pdf
-625bb21a443b7ed3e0d936085607faab090394ac  assets/gyard.css
+2a218a985fcf82e16b0829b79a60808d0de71812  assets/gyard.css
 10cffd050bf9ac5d76458f81f5b5e46c1b84d2dd  assets/hereedit.js
 9e6e08f43212eb0fd8017854d1c938c24993ab18  assets/hoop.js
 65f8cfde94860b98dfac35c99e4aa5e328e475f7  assets/hovelroom.js
@@ -15306,7 +15306,7 @@ c47d8c33468cea3fde94224102b43f5cdcb37217  includes/adventure_data.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-952a980662694b15a5acc076b38cac64eeabf508  includes/bootstrap.php
+5d7c97aa48315203198e35ed0a8dfa6ddf2940aa  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
@@ -15554,7 +15554,7 @@ cdf5a878670a5bf7dc83649306bd1970e7e40612  includes/gnome.php
 36e85a2f138efe170194a850d1a65b13225b7ecf  includes/gnome_rig.php
 557b87686bd97a5abdd4bee2c1022108308daaee  includes/gourmand.php
 e8105f613ab86461bed4c23973fcdd65fa3baa14  includes/guest.php
-a5ef182c6b0c25ee2aa0dd0e734470e09a564255  includes/gyard.php
+46f77f1fef8db97ce5354134119dcc76e1ebe60f  includes/gyard.php
 39cca657e57b8784afa02e7460465e4129b837f9  includes/health.php
 d34a29476889b2ec64d5b0c04e9baa2d502115ea  includes/here_layout.php
 3db03e9d7b6831cf98b9d2c85db731a87aa27b37  includes/here_schema.php
