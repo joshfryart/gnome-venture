@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.41
+- **Starter kit pieces raised:** Jab, Pierce and Brace 3 to 6; Garden Greens (vegetable crop piece) 3 to 5; Soothe 2 to 4 (shows 5 with the Charm bonus). Changed in `data/pf_pieces.txt`, `PF_TILES_BUILTIN` (the lint needs them equal) and `tools/pfengine.js`. `tests/pfdeck_v1.php`: the recorded old-fight transcript is re-recorded again.
+
 ## 2.7.40
 - **Player base combat pieces +2:** Swing (Hurt 4 to 6), Dodge (Guard 4 to 6), Rest (Heal 3 to 5), Charm (4 to 6) and Hide (Trick 3 to 5). Snack and Breather are unchanged. Changed in `data/pf_pieces.txt`, the built-in fallback `PF_TILES_BUILTIN` (the lint needs them equal) and `tools/pfengine.js`. `tests/pfdeck_v1.php`: the recorded old-fight transcript is re-recorded.
 
