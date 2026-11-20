@@ -58,5 +58,5 @@ F=$(db "SELECT id FROM stop_folk ORDER BY id LIMIT 1"); if [ -n "$F" ]; then   #
   set -- $L; [ $# -eq 2 ] && [ "$1" -lt "$2" ] || echo "FAIL errands not listed soonest first: $L"
   grep -qE 'Orders from the townsfolk|Favours from the townsfolk' /tmp/j.html || echo "FAIL hub Requests tab has no order board"
 fi
-echo "== First Week / Today job links still land on the Job Board"; curl -s -b $C "$BASE/jobs.php" | grep -q 'class="tabs jobtabs"' && echo "  jobs.php -> Jobs tab" || echo "FAIL jobs.php no longer opens the Jobs tab"
+echo "== First Week / Today job links still land on the Job Board"; curl -s -b $C "$BASE/jobs.php" | grep -q 'class="jobtabs jb-periods"' && echo "  jobs.php -> Jobs tab" || echo "FAIL jobs.php no longer opens the Jobs tab"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/jobs-php.log || echo "(none)"

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.39
+- **Jobs page redesign (focus + detail):** one period at a time. The switcher shows Daily, Weekly, Monthly and the Community board, each with its state (dot plus words) and a countdown. The chosen period shows one large job card (title, progress, reward chips, the 4-step stepper for rebuild jobs) with a card beside it for what to hand in (rebuild needs with "Short by", deliver, or the tending link). Give up sits in a fold. With no job taken, the offers are a list where one opens at a time (hint, reward, Take this job); re-roll and the other gnomes' posts sit beside it. **Post a job** is now the Community board (`?p=post`): open jobs from other gnomes (Take disabled when your slot is full), two compact post forms, and Your posted jobs with Take down. All actions and forms are unchanged. CSS is scoped to `.jb` in `style.css` and adapts to the column width. `tests/jobs.sh` now looks for the new nav class.
+
 ## 2.7.38
 - **Thornblade Journeyman quest (`thornblade-2`, Thorn Master):** "Weed 40 squares in your own beds" is replaced by "Craft Wattle Fences 6 times". Thornblade tiers slow weeds (tier 2 half speed) and a hedge slows them again, so the weeding task could be impossible to finish. The Captain's intro now says "fence your own beds well". Data file only (`includes/data/calling_quests.txt`); sites that already imported the chapter keep the old task until it is edited in Admin.
 
