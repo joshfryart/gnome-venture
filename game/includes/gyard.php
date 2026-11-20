@@ -141,7 +141,7 @@ function gyard_html(array $u, array $plot, array $built, string $biddy, array $n
             $st = 'i'; $label = $name . ($ready ? ', someone is waiting' : '');
             $sprites .= $ready ? '<span class="gy-sp gy-a gy-fence gy-bg-fence-r1"></span>' : '<img class="gy-sp gy-fence" src="' . e(url('assets/img/gyard/fence-i.png')) . '" alt="">';
             $head = gyard_head($id, $name, gyard_tile('fence', $ready ? 'r1' : 'i', (bool)$ready), '<span class="gypill' . ($ready ? ' g' : '') . '">' . ($ready ? 'Someone is waiting' : 'Quiet today') . '</span>');
-            $body = '<div class="gybd"><p class="gynow">Neighbours drop by the fence to trade scraps for eggs, milk and seeds.</p>' . gyard_stay($biddy . (string)$nbr['html']) . '</div>';
+            $body = '<div class="gybd fence"><p class="gynow">Neighbours drop by to trade scraps for eggs, milk and seeds.</p>' . gyard_stay($biddy . (string)$nbr['html']) . '</div>';
         } else {
             if (!gyard_listed($u, $plot, $built, $key)) continue;
             [$name, , $needLv] = BUILDINGS[$key];

@@ -35,7 +35,13 @@ STATIC2 = """.gyt{position:relative;flex:none;width:112px;height:112px;overflow:
 .gyt>span{position:absolute;image-rendering:pixelated;background-repeat:no-repeat;animation-duration:.8s;animation-timing-function:steps(1,end);animation-iteration-count:infinite}
 .gyt-b{position:absolute;right:5px;top:5px;z-index:2;width:22px;height:22px;border-radius:50%;background:#e8a317;border:2px solid #150d08;color:#2a1a10;font:800 14px/18px system-ui;text-align:center;font-style:normal;animation:gyb .8s steps(1,end) infinite}
 @keyframes gyb{0%{transform:translateY(0)}25%{transform:translateY(-1px)}50%{transform:translateY(0)}75%{transform:translateY(1px)}}
-dialog.gycard .pickbox{width:min(330px,calc(100vw - 28px));padding:0;overflow:hidden}
+dialog.gycard .pickbox{width:min(330px,calc(100vw - 28px));padding:0;overflow:hidden;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column}
+.gycard .gyhd{flex:none}
+.gycard .gybd{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+.gycard .gybd.fence{min-height:0;gap:8px}
+.gycard .gybd.fence .gynow{min-height:0;-webkit-line-clamp:2;font-size:13px}
+.gycard .gybd.fence .help,.gycard .gybd.fence .muted{font-size:12px;margin:0}
+@media (max-height:640px){.gycard .gyhd{min-height:0;padding:8px 10px 8px 12px}.gycard .gyt{transform:none}}
 .gyhd{display:flex;gap:12px;align-items:center;padding:12px 10px 12px 12px;min-height:140px;background:var(--surface-2,#4a3322);border-bottom:2px dashed var(--thread,#e8a317)}
 .gytt{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
 .gytt b{font-size:19px;line-height:1.1}

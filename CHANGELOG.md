@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.37
+- **Yard cards scroll on phones:** the card is at most the screen height (`100dvh - 24px`); the header stays put and the body scrolls (`overscroll-behavior:contain`). The fence card (long visitor lists) was cut off with no way to scroll. The fence card is also tighter: shorter intro line, smaller text and gaps. CSS only (`tools/build_gyard_assets.py`, regenerated `gyard.css`) plus one text change in `gyard.php`.
+
 ## 2.7.36
 - **Yard replaces the Buildings tab (flag `gnav_garden` on):** there is no separate Yard tab any more. The Buildings tab itself shows the Yard picture. The old building list is still there: the picture's "List version" button (`garden.php?t=bld&list=1`), the card's "More" button and every `?bld=<building>` link open it. Flag OFF: nothing changes (Buildings is the list). `tests/gyard.sh` updated (33 checks).
 - 2.7.35 was only the release news post; folded in here for anyone who skipped it.
