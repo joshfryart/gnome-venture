@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.43
+- **Level-up lettering, garden style:** the level-up card now spells "LEVEL UP!" in bold pixel letters (new `includes/levelup.php`, drawn as SVG rects, no font file, strict CSP safe). The green letters sprout one after another, little seedlings and a growing vine appear on the word, then the new level pops in gold with a pink flower blooming each side. Sparks are now petals in pink, gold and leaf green. Reduced motion shows the finished card without the growth. Still pure CSS, plays once and never blocks taps.
+
 ## 2.7.42
 - **Level-up animation:** when the gnome levels up, the next page shows a short burst: a "Level up!" card with the new level popping in and 12 sparks flying out, gone after about 4 seconds. Pure CSS (`.lvlup` in `style.css`), never blocks taps, and with reduced motion it is a plain card that fades. `add_xp()` leaves the new level in `$_SESSION['lvlup']`; `layout.php` plays it once (also when the message log replaces flashes). Fights still pop their own "LEVEL UP!".
 

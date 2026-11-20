@@ -174,7 +174,7 @@ if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.p
     if ($u && (int)$lv['uid'] === (int)$u['id']): ?>
   <div class="lvlup" role="status" aria-label="Level up! You are now level <?= (int)$lv['lvl'] ?>">
     <div class="lvlup-burst" aria-hidden="true"><?php for ($i = 0; $i < 12; $i++): ?><i></i><?php endfor; ?></div>
-    <div class="lvlup-card"><span class="lvlup-top">Level up!</span><b class="lvlup-num"><?= (int)$lv['lvl'] ?></b><span class="lvlup-sub">Spend your new stat points on My Gnome</span></div>
+    <div class="lvlup-card"><?php require_once __DIR__ . '/levelup.php'; ?><?= lvlup_svg('LEVEL UP!', 'word', 'Level up!') ?><?= lvlup_svg((string)(int)$lv['lvl'], 'num', 'Level ' . (int)$lv['lvl']) ?><span class="lvlup-sub">Spend your new stat points on My Gnome</span></div>
   </div>
 <?php endif; endif; ?>
 <?php if (!$useLog): ?>
