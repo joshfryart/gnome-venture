@@ -22,7 +22,8 @@ STATIC = """.gyard .gy-scene{position:relative;width:100%;aspect-ratio:480/270;b
 .gy-a{background-repeat:no-repeat;background-size:400% 100%;animation:gyf4 .8s steps(1,end) infinite}
 @keyframes gyf4{0%{background-position:0% 0}25%{background-position:33.3333% 0}50%{background-position:66.6667% 0}75%{background-position:100% 0}}
 .gy-locked{opacity:.55}
-.gy-hit{position:absolute;display:block;min-width:44px;min-height:44px;background:transparent;border:0;cursor:pointer;text-decoration:none}
+.gy-hit{position:absolute;display:block;background:transparent;border:0;cursor:pointer;text-decoration:none}
+.gy-hit::before{content:"";position:absolute;inset:-10px -4px}
 .gy-hit::after{content:"";position:absolute;inset:0;border:2px solid transparent;pointer-events:none}
 .gy-hit:hover::after,.gy-hit:focus-visible::after,.gy-hit.on::after{border-color:#ffe9a3;border-style:dashed}
 .gy-hit:focus-visible{outline:none}
@@ -34,11 +35,15 @@ def pct(v, t):
     s = ('%.3f' % (v / t * 100)).rstrip('0').rstrip('.')
     return s + '%'
 
-def bbox_union(im, W, H, frames):
+def bbox_union(im, W, H, frames, body=0.7):
     bb = None
     for i in range(frames):
-        b = im.crop((i * W, 0, (i + 1) * W, H)).getchannel('A').point(lambda v: 255 if v else 0).getbbox()
+        a = im.crop((i * W, 0, (i + 1) * W, H)).getchannel('A').point(lambda v: 255 if v else 0)
+        b = a.getbbox()
         if b:
+            top = int(b[1] + (1 - body) * (b[3] - b[1]))   # only the lower part of the drawing takes taps
+            b = a.crop((0, top, W, b[3])).getbbox()
+            b = (b[0], b[1] + top, b[2], b[3] + top)
             bb = b if bb is None else (min(bb[0], b[0]), min(bb[1], b[1]), max(bb[2], b[2]), max(bb[3], b[3]))
     return bb
 
