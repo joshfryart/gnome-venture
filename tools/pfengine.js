@@ -142,12 +142,12 @@
   function tiles() {
     if (TILES) return TILES;
     return TILES = {
-      swing: { n: 'Swing', t: 'hurt', v: 4, r: 'mind' },
-      dodge: { n: 'Dodge', t: 'guard', v: 4, r: 'body' },
-      rest: { n: 'Rest', t: 'heal', v: 3, r: 'craft' },
-      charm: { n: 'Charm', t: 'charm', v: 4, r: 'craft' },
+      swing: { n: 'Swing', t: 'hurt', v: 6, r: 'mind' },
+      dodge: { n: 'Dodge', t: 'guard', v: 6, r: 'body' },
+      rest: { n: 'Rest', t: 'heal', v: 5, r: 'craft' },
+      charm: { n: 'Charm', t: 'charm', v: 6, r: 'craft' },
       snack: { n: 'Snack', t: 'item', v: 5, r: 'body', tag: 'snack' },
-      hide: { n: 'Hide', t: 'trick', v: 3, r: 'body' },
+      hide: { n: 'Hide', t: 'trick', v: 5, r: 'body' },
       soothe: { n: 'Soothe', t: 'soothe', v: 2, r: 'mind' },
       offer: { n: 'Offer', t: 'charm', v: 6, r: null },
       taunt: { n: 'Taunt', t: 'trick', v: 3, r: 'body' },

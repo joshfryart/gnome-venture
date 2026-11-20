@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.40
+- **Player base combat pieces +2:** Swing (Hurt 4 to 6), Dodge (Guard 4 to 6), Rest (Heal 3 to 5), Charm (4 to 6) and Hide (Trick 3 to 5). Snack and Breather are unchanged. Changed in `data/pf_pieces.txt`, the built-in fallback `PF_TILES_BUILTIN` (the lint needs them equal) and `tools/pfengine.js`. `tests/pfdeck_v1.php`: the recorded old-fight transcript is re-recorded.
+
 ## 2.7.39
 - **Jobs page redesign (focus + detail):** one period at a time. The switcher shows Daily, Weekly, Monthly and the Community board, each with its state (dot plus words) and a countdown. The chosen period shows one large job card (title, progress, reward chips, the 4-step stepper for rebuild jobs) with a card beside it for what to hand in (rebuild needs with "Short by", deliver, or the tending link). Give up sits in a fold. With no job taken, the offers are a list where one opens at a time (hint, reward, Take this job); re-roll and the other gnomes' posts sit beside it. **Post a job** is now the Community board (`?p=post`): open jobs from other gnomes (Take disabled when your slot is full), two compact post forms, and Your posted jobs with Take down. All actions and forms are unchanged. CSS is scoped to `.jb` in `style.css` and adapts to the column width. `tests/jobs.sh` now looks for the new nav class.
 
