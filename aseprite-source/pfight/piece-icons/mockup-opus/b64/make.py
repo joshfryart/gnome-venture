@@ -42,10 +42,10 @@ ICONS = [
     ('arctic-fox-kit-burrow-tumble', 'guard', dict(SNOW, **EAR)),
     ('arctic-fox-kit-pup-yip', 'trick', dict(SNOW, **EAR, **MOUTH)),
     ('arctic-fox-kit-learned-pounce', 'hurt', dict(SNOW, **EAR)),
-    ('whiteout-fox-whiteout-snap', 'hurt', dict(SNOW, **MOUTH)),
-    ('whiteout-fox-drift-bite', 'hurt', dict(SNOW, **MOUTH)),
-    ('whiteout-fox-snow-blind', 'trick', dict(SNOW)),
-    ('whiteout-fox-blank-dash', 'hurt', dict(SNOW)),
+    ('whiteout-fox-whiteout-snap', 'hurt', dict(SNOW, **MOUTH, **EAR)),
+    ('whiteout-fox-drift-bite', 'hurt', dict(SNOW, **MOUTH, **EAR)),
+    ('whiteout-fox-snow-blind', 'trick', dict(SNOW, **EAR)),
+    ('whiteout-fox-blank-dash', 'hurt', dict(SNOW, **EAR)),
 ]
 
 

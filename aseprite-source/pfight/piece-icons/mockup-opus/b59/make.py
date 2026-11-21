@@ -44,7 +44,7 @@ ICONS = [
     ('raven-pair-pair-peck', 'hurt', dict(BEAK, **CLAW)),
     ('raven-pair-croak-sign', 'trick', dict(BEAK, **CLAW, **MOUTH)),
     ('raven-pair-two-voices', 'trick', dict(BEAK, **CLAW, **MOUTH)),
-    ('jungle-crow-canopy-caw', 'hurt', dict(BEAK, **CLAW, **MOUTH)),
+    ('jungle-crow-canopy-caw', 'hurt', dict(BEAK, **CLAW, **MOUTH, **LEAF)),
     ('jungle-crow-fruit-feast', 'heal', dict(BEAK, **CLAW, **FRUIT, **LEAF)),
     ('jungle-crow-leaf-mantle', 'guard', dict(BEAK, **CLAW, **LEAF)),
     ('jungle-crow-bill-snatch', 'hurt', dict(BEAK, **CLAW)),

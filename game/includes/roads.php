@@ -51,6 +51,7 @@ function ensure_roads(): void
     if (!q_val("SELECT 1 FROM locations WHERE kind = 'market'")) return;   // world not imported yet
     if (setting('world_layout') !== 'roads') lay_roads();
     cut_dead_end_roads();
+    name_dead_end_roads();
     link_hidden_places();
     // The Almanac's travel page: the old "Zones & landmarks" page becomes "Roads and the wilds"
     $old = q_val("SELECT id FROM encyclopedia_entries WHERE chapter = 'General' AND title IN ('Zones & landmarks', 'Roads and the wilds') ORDER BY id LIMIT 1");
@@ -96,7 +97,7 @@ function lay_roads(): void
         $deadEnd = in_array([$a, $b], ROAD_DEAD_ENDS, true);
         $nodes = array_values(array_filter([$ta, $v1, $v2, $v3, $deadEnd ? 0 : $tb]));
         if ($deadEnd) $tb = (int)end($nodes);
-        $name = $byCode[$a]['gnomish_name'] . ' – ' . $byCode[$b]['gnomish_name'];
+        $name = $byCode[$a]['gnomish_name'] . ' – ' . ($deadEnd ? (string)q_val('SELECT name FROM locations WHERE id = ?', [$tb]) : $byCode[$b]['gnomish_name']);   // 2.7.45: a dead-end road is named for the village it stops at, not the far region it never reaches
         $roadId = db_insert('roads', ['name' => $name, 'a_town' => $ta, 'b_town' => $tb, 'nodes' => json_encode($nodes)]);
         for ($i = 1; $i < count($nodes); $i++) {
             db_insert('routes', ['a_id' => $nodes[$i - 1], 'b_id' => $nodes[$i], 'steps' => ROAD_STEPS, 'minutes' => 6, 'level' => 1,
@@ -230,5 +231,27 @@ function cut_dead_end_roads(): void
         }
     }
     set_setting('road_deadends_cut', '1');
+    setting('__reload__');
+}
+
+/** 2.7.45: a dead-end road (ROAD_DEAD_ENDS) used to keep the name "The Maplewold – Blossomreach" although it stops at Clovercove, so Clovercove looked like it led on to Blossomreach.
+ *  Rename it for the village it ends at ("The Maplewold – Clovercove"). Safe to repeat. */
+function name_dead_end_roads(): void
+{
+    if (setting('road_deadends_named') === '1') return;
+    foreach (ROAD_DEAD_ENDS as [$a, $b]) {
+        $ra = q_one('SELECT id, gnomish_name FROM regions WHERE code = ?', [$a]);
+        $rb = q_one('SELECT id, gnomish_name FROM regions WHERE code = ?', [$b]);
+        if (!$ra || !$rb) continue;
+        $old = $ra['gnomish_name'] . ' – ' . $rb['gnomish_name'];
+        foreach (q('SELECT * FROM roads WHERE name = ?', [$old])->fetchAll() as $rd) {
+            $nodes = array_map('intval', json_decode((string)$rd['nodes'], true) ?: []);
+            if (count($nodes) < 3) continue;
+            $last = q_one('SELECT name, kind FROM locations WHERE id = ?', [end($nodes)]);
+            if (!$last || $last['kind'] === 'market') continue;   // it reaches the far town: keep the name
+            q('UPDATE roads SET name = ? WHERE id = ?', [$ra['gnomish_name'] . ' – ' . $last['name'], $rd['id']]);
+        }
+    }
+    set_setting('road_deadends_named', '1');
     setting('__reload__');
 }

@@ -27,7 +27,7 @@ WING = {'W': (214, 234, 240), 'w': (163, 199, 216), 'v': (98, 136, 160)}
 # Booby Colony: bright blue feet, grey-blue bill, pale eye, guano
 BOOBY = {'f': (64, 186, 214), 'F': (150, 226, 240), 'g': (24, 112, 150),     # blue feet
          'n': (120, 140, 158), 'N': (176, 192, 204), 'm': (78, 92, 110),      # bill
-         'y': (240, 232, 170)}                                                 # pale eye
+         'y': (250, 248, 222)}                                                 # pale eye
 GUANO = {'W': (240, 238, 228), 'w': (196, 192, 178), 'v': (148, 142, 128)}
 # Tamandua: black vest, pink tongue, branch
 VEST = {'v': (60, 50, 54), 'V': (98, 86, 90)}

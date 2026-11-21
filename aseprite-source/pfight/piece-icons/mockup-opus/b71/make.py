@@ -24,9 +24,10 @@ import pix  # noqa: E402
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 TONGUE = {'r': (226, 98, 120), 'm': (122, 40, 40)}
 MOSS = {'y': (138, 176, 62), 'Y': (190, 214, 96), 'z': (88, 122, 40)}
-JAM = {'a': (244, 166, 36), 'A': (255, 216, 120), 'o': (184, 104, 16)}       # marmalade
+JAM = {'a': (248, 190, 70), 'A': (255, 226, 140), 'o': (206, 138, 34)}       # marmalade
 WATER = {'W': (214, 236, 246), 'w': (156, 200, 226), 'v': (104, 150, 184)}
 SAND = {'S': (234, 212, 160), 's': (200, 174, 118), 'z': (150, 124, 80)}
+SKIN = {'F': (156, 148, 136), 'f': (116, 108, 100), 'e': (78, 72, 66)}         # hatchling skin
 SHELL = {'c': (212, 196, 160), 'x': (168, 150, 118)}                         # eggshell (C cream)
 ROCK = {'R': (184, 174, 162), 'r': (142, 132, 122), 'x': (100, 92, 86)}
 POISON = {'p': (150, 80, 190), 'P': (200, 150, 230), 'q': (96, 44, 130)}
@@ -38,10 +39,10 @@ ICONS = [
     ('golden-mantella-moss-rest', 'heal', dict(MOSS)),
     ('golden-mantella-bright-warn', 'guard', {'m': (122, 40, 40)}),
     ('golden-mantella-marmalade-spill', 'hurt', dict(JAM)),
-    ('turtle-hatchling-dash-flipper-scramble', 'hurt', dict(SAND)),
-    ('turtle-hatchling-dash-moon-sip', 'heal', dict(WATER)),
-    ('turtle-hatchling-dash-hatch-cover', 'guard', dict(SHELL)),
-    ('turtle-hatchling-dash-last-scramble', 'hurt', dict(WATER)),
+    ('turtle-hatchling-dash-flipper-scramble', 'hurt', dict(SKIN, **SAND)),
+    ('turtle-hatchling-dash-moon-sip', 'heal', dict(SKIN, **WATER)),
+    ('turtle-hatchling-dash-hatch-cover', 'guard', dict(SKIN, **SHELL)),
+    ('turtle-hatchling-dash-last-scramble', 'hurt', dict(SKIN, **WATER)),
     ('sea-urchin-bed-spine-press', 'hurt', {}),
     ('sea-urchin-bed-spiny-bed', 'guard', dict(ROCK)),
     ('sea-urchin-bed-venom-prick', 'trick', dict(POISON)),

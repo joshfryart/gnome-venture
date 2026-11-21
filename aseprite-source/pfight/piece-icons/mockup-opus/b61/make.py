@@ -47,7 +47,7 @@ ICONS = [
     ('cave-centipede-moist-rest', 'heal', dict(PALE, **WATER)),
     ('cave-centipede-stalactite-cover', 'guard', dict(PALE, **STONE)),
     ('cave-centipede-roof-drop', 'hurt', dict(PALE, **STONE)),
-    ('giant-millipede-ring-crush', 'hurt', dict(REDLEG)),
+    ('giant-millipede-ring-crush', 'hurt', dict(REDLEG, **STONE)),
     ('giant-millipede-coil-armour', 'guard', dict(REDLEG)),
     ('giant-millipede-poison-mist', 'trick', dict(REDLEG, **POISON)),
     ('giant-millipede-startled-curl', 'guard', dict(REDLEG)),
