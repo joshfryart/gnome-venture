@@ -4,7 +4,7 @@
    so it rides every page and every in-place swap) and harvest.js plays it. Plays after the Harvest buttons ('self') and on wake from sleep
    when a garden pal picked overnight ('pal'). The server has already paid everything out; this is presentation only. No JS: block stays hidden. */
 
-const HV_MAX_CARDS = 14;
+const HV_MAX_CARDS = 8;
 
 /** One plant picked. $src: 'self' | 'pal' (a hired helper's visit is not shown). */
 function hv_note_add(string $src, array $p, int $itemId, int $qty, string $palName = ''): void
