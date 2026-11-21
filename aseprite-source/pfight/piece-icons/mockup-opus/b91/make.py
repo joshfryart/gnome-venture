@@ -25,6 +25,7 @@ import pix  # noqa: E402
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 ICE = {'i': (120, 200, 232), 'I': (200, 236, 250), 'W': (226, 240, 248), 'w': (168, 200, 222)}
 CROWN = {'g': (176, 124, 20)}                                               # dark gold
+THRONE = {'a': (190, 228, 244), 'q': (112, 174, 210), 'x': (62, 112, 150)}         # ice throne
 BEAK = {'o': (226, 160, 40), 'O': (150, 96, 20)}                            # horn beak
 BONE = {'c': (206, 188, 150), 'b': (150, 128, 96)}                          # bone shade
 VULT = {'n': (52, 40, 36), 'r': (214, 56, 44), 'm': (196, 76, 92)}          # beard, eye ring, marrow
@@ -38,7 +39,7 @@ ICONS = [
     ('frost-owl-regent-rime-talon', 'hurt', dict(ICE, **CROWN)),
     ('frost-owl-regent-whiteout-wing', 'guard', dict(ICE, **CROWN, **BEAK)),
     ('frost-owl-regent-ice-glare', 'trick', dict(ICE, **CROWN, **BEAK)),
-    ('frost-owl-regent-throne-feint', 'trick', dict(ICE, **CROWN, **BEAK)),
+    ('frost-owl-regent-throne-feint', 'trick', dict(ICE, **CROWN, **BEAK, **THRONE)),
     ('lammergeier-bone-drop', 'hurt', dict(BONE, **VULT, **BEAK, **ROCK)),
     ('lammergeier-marrow-meal', 'heal', dict(BONE, **VULT, **BEAK)),
     ('lammergeier-ridge-perch', 'guard', dict(BONE, **VULT, **BEAK, **ROCK)),

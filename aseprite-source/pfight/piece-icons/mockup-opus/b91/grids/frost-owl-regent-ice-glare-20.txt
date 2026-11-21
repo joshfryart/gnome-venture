@@ -3,8 +3,8 @@
 ..LBD..GGGGGG..LBD..
 ..LBBLLGHGiGgLLBBD..
 .LBEEBBggggggBBEEBD.
-.LBBkkkkEBBEkkkkBBD.
-.LBkHIiikBBkHIiikBD.
+.LBLEEEELLLLEEEELBD.
+.LBkHIiikLLkHIiikBD.
 .LBkikkikookikkikBD.
 .LBkikkikoOkikkikBD.
 .LBkiiiikBOkiiiikBD.
