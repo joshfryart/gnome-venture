@@ -1452,6 +1452,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             if ($mastUp !== '') $msgs[] = $mastUp;
             array_unshift($msgs, $helper !== null && !$pal ? "$helper harvests $qty × $pname and keeps " . ($qty - $kept) . ' as pay.'
                                                   : 'You harvest ' . $qty . ' × ' . $pname . '.');
+            if (session_status() === PHP_SESSION_ACTIVE) $_SESSION['gv_harvest_stat'] = time();   // garden status quip (assets/gardenstat.js): garden.php shows it on the next render
             job_event($uid, 'harvest', (string)$p['slug'], $kept, ['kind' => (string)$p['kind'], 'plant' => (string)$p['slug'], 'bedgrade' => $notill ? $g : -1, 'helper' => $helper !== null]);   // v0.9.4 N8: plant kind and bed grade (a hired or player helper's harvest doesn't count)
             require_once __DIR__ . '/contests.php';
             if ($show = show_measure($uid, $t, $p, $u)) $msgs[] = $show;   // the Village Show
