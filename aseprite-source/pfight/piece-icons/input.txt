@@ -1,0 +1,264 @@
+aphid-swarm-swarm|Swarm|hurt|quick|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+aphid-swarm-honeydew|Honeydew|heal|-|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+aphid-swarm-cloud-up|Cloud Up|guard|evade|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+aphid-swarm-sap-sip|Sap Sip|hurt|poison|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+garden-snail-slime-trail|Slime Trail|guard|hold|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.
+garden-snail-shell-bash|Shell Bash|hurt|bash|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.
+garden-snail-rasp|Rasp|hurt|-|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.
+garden-snail-shell-lean|Shell Lean|guard|evade|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.
+ant-scouts-scout-bite|Scout Bite|hurt|-|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+ant-scouts-ant-trail|Ant Trail|trick|quick|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+ant-scouts-carry-off|Carry Off|hurt|trip|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+ant-scouts-scout-sign|Scout Sign|trick|quick|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+gnat-cloud-whine|Whine|trick|trip|Gnat Cloud|Thousands of tiny wings, all aimed at your ears.
+gnat-cloud-gnat-nip|Gnat Nip|hurt|quick|Gnat Cloud|Thousands of tiny wings, all aimed at your ears.
+gnat-cloud-scatter|Scatter|guard|evade|Gnat Cloud|Thousands of tiny wings, all aimed at your ears.
+gnat-cloud-gnat-veil|Gnat Veil|guard|evade|Gnat Cloud|Thousands of tiny wings, all aimed at your ears.
+leopard-slug-slime-slick|Slime Slick|trick|trip|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+leopard-slug-slug-lunge|Slug Lunge|hurt|-|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+leopard-slug-thick-slime|Thick Slime|guard|hold|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+leopard-slug-blotch-warn|Blotch Warn|guard|thorns|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+sand-fleas-flea-hop|Flea Hop|hurt|quick|Sand Flea Pack|Hopping, nipping, impossible to pin down.
+sand-fleas-itch|Itch|hurt|poison|Sand Flea Pack|Hopping, nipping, impossible to pin down.
+sand-fleas-sand-burrow|Sand Burrow|guard|-|Sand Flea Pack|Hopping, nipping, impossible to pin down.
+sand-fleas-heap-pile|Heap Pile|guard|hold|Sand Flea Pack|Hopping, nipping, impossible to pin down.
+dusk-moth-wing-dust|Wing Dust|trick|evade|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dusk-moth-flutter-bump|Flutter Bump|hurt|-|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dusk-moth-dusk-veil|Dusk Veil|guard|hold|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dusk-moth-scale-puff|Scale Puff|trick|quick|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dung-beetle-dung-roll|Dung Roll|hurt|-|Dung Beetle|Rolls a ball three times its size, and will roll you too.
+dung-beetle-hard-wings|Hard Wings|guard|hold|Dung Beetle|Rolls a ball three times its size, and will roll you too.
+dung-beetle-push-on|Push On|trick|bash|Dung Beetle|Rolls a ball three times its size, and will roll you too.
+dung-beetle-ball-shove|Ball Shove|hurt|bash|Dung Beetle|Rolls a ball three times its size, and will roll you too.
+earwig-pincer|Pincer|hurt|pierce|Pincer Earwig|All snap and swagger.
+earwig-tuck-under|Tuck Under|guard|-|Pincer Earwig|All snap and swagger.
+earwig-night-scuttle|Night Scuttle|trick|quick|Pincer Earwig|All snap and swagger.
+earwig-pincer-fold|Pincer Fold|guard|evade|Pincer Earwig|All snap and swagger.
+cave-glowworm-glow-lure|Glow Lure|trick|trip|Cave Glowworm|Lovely to look at. Sticky to touch.
+cave-glowworm-sticky-thread|Sticky Thread|hurt|-|Cave Glowworm|Lovely to look at. Sticky to touch.
+cave-glowworm-dim|Dim|guard|evade|Cave Glowworm|Lovely to look at. Sticky to touch.
+cave-glowworm-light-snare|Light Snare|hurt|trip|Cave Glowworm|Lovely to look at. Sticky to touch.
+orb-spider-web-snare|Web Snare|hurt|trip|Orb Spider|Weaves wheels of silk across the path and waits.
+orb-spider-venom-fang|Venom Fang|hurt|poison|Orb Spider|Weaves wheels of silk across the path and waits.
+orb-spider-silk-wrap|Silk Wrap|guard|-|Orb Spider|Weaves wheels of silk across the path and waits.
+orb-spider-orb-spin|Orb Spin|trick|trip|Orb Spider|Weaves wheels of silk across the path and waits.
+paper-wasp-wasp-sting|Wasp Sting|hurt|poison|Paper Wasp|A striped guard with a short temper.
+paper-wasp-paper-nest|Paper Nest|guard|thorns|Paper Wasp|A striped guard with a short temper.
+paper-wasp-buzz-dive|Buzz Dive|hurt|quick|Paper Wasp|A striped guard with a short temper.
+paper-wasp-nest-hum|Nest Hum|guard|evade|Paper Wasp|A striped guard with a short temper.
+bog-leech-latch|Latch|hurt|poison|Bog Leech|Wriggles out of the murk looking for a snack.
+bog-leech-slick|Slick|guard|evade|Bog Leech|Wriggles out of the murk looking for a snack.
+bog-leech-drain|Drain|heal|-|Bog Leech|Wriggles out of the murk looking for a snack.
+bog-leech-mire-slide|Mire Slide|trick|trip|Bog Leech|Wriggles out of the murk looking for a snack.
+grumpy-lemming-grumble|Grumble|trick|-|Grumpy Lemming|Small, round, furious.
+grumpy-lemming-lemming-bite|Lemming Bite|hurt|-|Grumpy Lemming|Small, round, furious.
+grumpy-lemming-dig-snow|Dig Snow|guard|evade|Grumpy Lemming|Small, round, furious.
+grumpy-lemming-sulk-stare|Sulk Stare|trick|-|Grumpy Lemming|Small, round, furious.
+bullfrog-tongue-lash|Tongue Lash|hurt|trip|Bullfrog|One gulp and you'd be lunch. Keep moving.
+bullfrog-deep-croak|Deep Croak|trick|-|Bullfrog|One gulp and you'd be lunch. Keep moving.
+bullfrog-puff-up|Puff Up|guard|-|Bullfrog|One gulp and you'd be lunch. Keep moving.
+bullfrog-bog-gulp|Bog Gulp|hurt|bash|Bullfrog|One gulp and you'd be lunch. Keep moving.
+shore-crab-pinch|Pinch|hurt|pierce|Shore Crab|Sidesteps, then pinches.
+shore-crab-shell-up|Shell Up|guard|hold|Shore Crab|Sidesteps, then pinches.
+shore-crab-sidestep|Sidestep|trick|evade|Shore Crab|Sidesteps, then pinches.
+shore-crab-clack-warn|Clack Warn|trick|-|Shore Crab|Sidesteps, then pinches.
+barn-rat-gnaw|Gnaw|hurt|pierce|Barn Rat|A seed thief with a long memory.
+barn-rat-filth-bite|Filth Bite|hurt|poison|Barn Rat|A seed thief with a long memory.
+barn-rat-squeeze-by|Squeeze By|guard|evade|Barn Rat|A seed thief with a long memory.
+barn-rat-grain-nip|Grain Nip|hurt|quick|Barn Rat|A seed thief with a long memory.
+sun-lizard-sun-bask|Sun Bask|heal|-|Sun Lizard|Basks on hot stones and darts at anything that moves.
+sun-lizard-tail-drop|Tail Drop|guard|evade|Sun Lizard|Basks on hot stones and darts at anything that moves.
+sun-lizard-lizard-dart|Lizard Dart|hurt|quick|Sun Lizard|Basks on hot stones and darts at anything that moves.
+sun-lizard-stone-snap|Stone Snap|hurt|poison|Sun Lizard|Basks on hot stones and darts at anything that moves.
+tunnel-mole-burrow|Burrow|guard|hold|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+tunnel-mole-mole-claw|Mole Claw|hurt|-|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+tunnel-mole-dirt-toss|Dirt Toss|trick|trip|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+tunnel-mole-dirt-blink|Dirt Blink|trick|evade|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+carrion-crow-hat-snatch|Hat Snatch|trick|trip|Carrion Crow|Clever, patient, and very interested in your hat.
+carrion-crow-dive-bomb|Dive Bomb|hurt|pierce|Carrion Crow|Clever, patient, and very interested in your hat.
+carrion-crow-mob-caw|Mob Caw|hurt|quick|Carrion Crow|Clever, patient, and very interested in your hat.
+carrion-crow-glint-eye|Glint Eye|trick|quick|Carrion Crow|Clever, patient, and very interested in your hat.
+herring-gull-chip-thief|Chip Thief|trick|trip|Herring Gull|Screams, swoops and steals.
+herring-gull-gull-swoop|Gull Swoop|hurt|-|Herring Gull|Screams, swoops and steals.
+herring-gull-screech|Screech|hurt|quick|Herring Gull|Screams, swoops and steals.
+herring-gull-bin-lid-clang|Bin Lid Clang|trick|bash|Herring Gull|Screams, swoops and steals.
+dune-scorpion-tail-sting|Tail Sting|hurt|poison|Dune Scorpion|Its tail curls like a question you don't want answered.
+dune-scorpion-claw-grab|Claw Grab|hurt|pierce|Dune Scorpion|Its tail curls like a question you don't want answered.
+dune-scorpion-plate-up|Plate Up|guard|hold|Dune Scorpion|Its tail curls like a question you don't want answered.
+dune-scorpion-sand-shuffle|Sand Shuffle|guard|hold|Dune Scorpion|Its tail curls like a question you don't want answered.
+frost-hare-hare-kick|Hare Kick|hurt|quick|Frost Hare|A white hare with breath like a winter wind.
+frost-hare-zigzag|Zigzag|guard|evade|Frost Hare|A white hare with breath like a winter wind.
+frost-hare-thump|Thump|trick|-|Frost Hare|A white hare with breath like a winter wind.
+frost-hare-frost-breath|Frost Breath|trick|evade|Frost Hare|A white hare with breath like a winter wind.
+giant-centipede-hundred-legs|Hundred Legs|hurt|quick|Giant Centipede|A hundred legs and not one of them friendly.
+giant-centipede-venom-jaws|Venom Jaws|hurt|poison|Giant Centipede|A hundred legs and not one of them friendly.
+giant-centipede-coil-up|Coil Up|guard|-|Giant Centipede|A hundred legs and not one of them friendly.
+giant-centipede-hundred-steps|Hundred Steps|hurt|quick|Giant Centipede|A hundred legs and not one of them friendly.
+thistle-beast-needle-volley|Needle Volley|hurt|poison|Thistle Beast|A walking thistle patch with a bad attitude.
+thistle-beast-thistle-spines|Thistle Spines|guard|thorns|Thistle Beast|A walking thistle patch with a bad attitude.
+thistle-beast-root-deep|Root Deep|heal|-|Thistle Beast|A walking thistle patch with a bad attitude.
+thistle-beast-spine-heap|Spine Heap|guard|thorns|Thistle Beast|A walking thistle patch with a bad attitude.
+ember-beetle-ember-spit|Ember Spit|hurt|poison|Ember Beetle|Its shell glows like a coal fresh from the fire.
+ember-beetle-hot-shell|Hot Shell|guard|thorns|Ember Beetle|Its shell glows like a coal fresh from the fire.
+ember-beetle-cinder-rush|Cinder Rush|hurt|-|Ember Beetle|Its shell glows like a coal fresh from the fire.
+ember-beetle-scorched-track|Scorched Track|trick|thorns|Ember Beetle|Its shell glows like a coal fresh from the fire.
+will-o-wisp-lead-astray|Lead Astray|trick|trip|Will-o'-Wisp|A floating light that leads gnomes astray.
+will-o-wisp-wisp-burn|Wisp Burn|hurt|-|Will-o'-Wisp|A floating light that leads gnomes astray.
+will-o-wisp-flicker|Flicker|guard|evade|Will-o'-Wisp|A floating light that leads gnomes astray.
+will-o-wisp-bog-lantern|Bog Lantern|heal|-|Will-o'-Wisp|A floating light that leads gnomes astray.
+grass-snake-coil|Coil|guard|hold|Grass Snake|A green river of scales. Do not stand still.
+grass-snake-strike|Strike|hurt|quick|Grass Snake|A green river of scales. Do not stand still.
+grass-snake-constrict|Constrict|hurt|trip|Grass Snake|A green river of scales. Do not stand still.
+grass-snake-swim-away|Swim Away|trick|quick|Grass Snake|A green river of scales. Do not stand still.
+grey-heron-spear-beak|Spear Beak|hurt|pierce|Grey Heron|Stands like a statue. Strikes like lightning.
+grey-heron-stand-still|Stand Still|guard|hold|Grey Heron|Stands like a statue. Strikes like lightning.
+grey-heron-wade-in|Wade In|trick|-|Grey Heron|Stands like a statue. Strikes like lightning.
+grey-heron-minnow-snap|Minnow Snap|hurt|quick|Grey Heron|Stands like a statue. Strikes like lightning.
+mischief-monkey-pocket-pick|Pocket Pick|trick|trip|Mischief Monkey|Steals your hat, then your seeds, then your dignity.
+mischief-monkey-fruit-fling|Fruit Fling|hurt|quick|Mischief Monkey|Steals your hat, then your seeds, then your dignity.
+mischief-monkey-swing-away|Swing Away|guard|evade|Mischief Monkey|Steals your hat, then your seeds, then your dignity.
+mischief-monkey-grimace|Grimace|trick|thorns|Mischief Monkey|Steals your hat, then your seeds, then your dignity.
+red-fox-sly-pounce|Sly Pounce|trick|-|Red Fox|To a gnome, a fox is a dragon with a smile.
+red-fox-quick-bite|Quick Bite|hurt|quick|Red Fox|To a gnome, a fox is a dragon with a smile.
+red-fox-den-dash|Den Dash|guard|evade|Red Fox|To a gnome, a fox is a dragon with a smile.
+red-fox-brush-feint|Brush Feint|guard|evade|Red Fox|To a gnome, a fox is a dragon with a smile.
+raccoon-bandit-grab|Bandit Grab|trick|trip|Raccoon|A masked bandit with clever hands.
+raccoon-scratch|Scratch|hurt|-|Raccoon|A masked bandit with clever hands.
+raccoon-bin-lid|Bin Lid|guard|-|Raccoon|A masked bandit with clever hands.
+raccoon-clever-pry|Clever Pry|hurt|pierce|Raccoon|A masked bandit with clever hands.
+tawny-owl-silent-swoop|Silent Swoop|hurt|pierce|Tawny Owl|Silent wings in the dark. Listen for them.
+tawny-owl-hoot|Hoot|trick|-|Tawny Owl|Silent wings in the dark. Listen for them.
+tawny-owl-feather-fluff|Feather Fluff|guard|-|Tawny Owl|Silent wings in the dark. Listen for them.
+tawny-owl-mouse-freeze|Mouse Freeze|guard|-|Tawny Owl|Silent wings in the dark. Listen for them.
+arctic-fox-snow-dive|Snow Dive|hurt|-|Arctic Fox|A ghost of the snow.
+arctic-fox-white-out|White Out|guard|evade|Arctic Fox|A ghost of the snow.
+arctic-fox-cold-nip|Cold Nip|hurt|quick|Arctic Fox|A ghost of the snow.
+arctic-fox-snow-veil|Snow Veil|guard|evade|Arctic Fox|A ghost of the snow.
+badger-dig-in|Dig In|guard|hold|Badger|An armoured digger who does not like visitors.
+badger-badger-maul|Badger Maul|hurt|-|Badger|An armoured digger who does not like visitors.
+badger-bash-back|Bash Back|hurt|bash|Badger|An armoured digger who does not like visitors.
+badger-tunnel-dash|Tunnel Dash|trick|evade|Badger|An armoured digger who does not like visitors.
+mire-toad-toad-slime|Toad Slime|guard|thorns|Mire Toad|Ancient, warty, and much bigger than it has any right to be.
+mire-toad-belly-flop|Belly Flop|hurt|-|Mire Toad|Ancient, warty, and much bigger than it has any right to be.
+mire-toad-bog-breath|Bog Breath|trick|poison|Mire Toad|Ancient, warty, and much bigger than it has any right to be.
+mire-toad-tongue-gulp|Tongue Gulp|hurt|pierce|Mire Toad|Ancient, warty, and much bigger than it has any right to be.
+tide-crab-knight-knight-s-claw|Knight's Claw|hurt|pierce|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+tide-crab-knight-tide-shield|Tide Shield|guard|hold|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+tide-crab-knight-joust|Joust|hurt|bash|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+tide-crab-knight-duel-call|Duel Call|trick|trip|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+moss-golem-boulder-fist|Boulder Fist|hurt|-|Moss Golem|A boulder that woke up covered in moss and opinions.
+moss-golem-moss-cloak|Moss Cloak|guard|hold|Moss Golem|A boulder that woke up covered in moss and opinions.
+moss-golem-regrow|Regrow|heal|-|Moss Golem|A boulder that woke up covered in moss and opinions.
+moss-golem-shed-pebble|Shed Pebble|trick|bash|Moss Golem|A boulder that woke up covered in moss and opinions.
+bramble-wolf-howl|Howl|trick|-|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+bramble-wolf-bramble-bite|Bramble Bite|hurt|bash|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+bramble-wolf-pack-circle|Pack Circle|guard|thorns|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+bramble-wolf-soil-scent|Soil Scent|trick|evade|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+coconut-crab-titan-husk-crack|Husk Crack|hurt|pierce|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+coconut-crab-titan-coconut-drop|Coconut Drop|hurt|trip|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+coconut-crab-titan-titan-shell|Titan Shell|guard|hold|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+coconut-crab-titan-husk-rain|Husk Rain|hurt|quick|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+great-hawk-stoop|Stoop|hurt|-|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+great-hawk-talon-grip|Talon Grip|hurt|trip|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+great-hawk-high-circle|High Circle|guard|evade|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+great-hawk-shadow-pass|Shadow Pass|trick|quick|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+ancient-snapper-snapping-jaw|Snapping Jaw|hurt|pierce|Ancient Snapping Turtle|Older than the marsh itself.
+ancient-snapper-mossy-shell|Mossy Shell|guard|hold|Ancient Snapping Turtle|Older than the marsh itself.
+ancient-snapper-mud-sink|Mud Sink|trick|evade|Ancient Snapping Turtle|Older than the marsh itself.
+ancient-snapper-ancient-patience|Ancient Patience|heal|-|Ancient Snapping Turtle|Older than the marsh itself.
+reef-leviathan-tidal-slam|Tidal Slam|hurt|-|Reef Leviathan|An eel as long as a village street.
+reef-leviathan-deep-dive|Deep Dive|guard|evade|Reef Leviathan|An eel as long as a village street.
+reef-leviathan-whirlpool|Whirlpool|hurt|trip|Reef Leviathan|An eel as long as a village street.
+reef-leviathan-swallow-whole|Swallow Whole|hurt|pierce|Reef Leviathan|An eel as long as a village street.
+old-bramblehorn-horn-gore|Horn Gore|hurt|pierce|Old Bramblehorn|A great stag crowned with living branches.
+old-bramblehorn-bramble-mantle|Bramble Mantle|guard|thorns|Old Bramblehorn|A great stag crowned with living branches.
+old-bramblehorn-ancient-root|Ancient Root|heal|-|Old Bramblehorn|A great stag crowned with living branches.
+old-bramblehorn-antler-wall|Antler Wall|guard|hold|Old Bramblehorn|A great stag crowned with living branches.
+dune-wyrm-burrow-under|Burrow Under|guard|evade|Dune Wyrm|The sand ripples. Then the sand stands up.
+dune-wyrm-quake|Quake|hurt|trip|Dune Wyrm|The sand ripples. Then the sand stands up.
+dune-wyrm-sand-swallow|Sand Swallow|hurt|-|Dune Wyrm|The sand ripples. Then the sand stands up.
+dune-wyrm-sand-spout|Sand Spout|hurt|quick|Dune Wyrm|The sand ripples. Then the sand stands up.
+snow-owl-monarch-frost-wing|Frost Wing|hurt|trip|Snow Owl Monarch|Ruler of the white silence.
+snow-owl-monarch-snow-glare|Snow Glare|trick|evade|Snow Owl Monarch|Ruler of the white silence.
+snow-owl-monarch-royal-talon|Royal Talon|hurt|pierce|Snow Owl Monarch|Ruler of the white silence.
+snow-owl-monarch-silent-glide|Silent Glide|guard|-|Snow Owl Monarch|Ruler of the white silence.
+storm-eagle-thunder-dive|Thunder Dive|hurt|-|Storm Eagle|Rides the thunder above the peaks.
+storm-eagle-gale-wing|Gale Wing|guard|evade|Storm Eagle|Rides the thunder above the peaks.
+storm-eagle-lightning-claw|Lightning Claw|hurt|quick|Storm Eagle|Rides the thunder above the peaks.
+storm-eagle-eyrie-grip|Eyrie Grip|guard|hold|Storm Eagle|Rides the thunder above the peaks.
+jade-jaguar-jade-gaze|Jade Gaze|trick|trip|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.
+jade-jaguar-jaguar-pounce|Jaguar Pounce|hurt|pierce|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.
+jade-jaguar-spirit-stalk|Spirit Stalk|guard|evade|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.
+jade-jaguar-jade-canopy-drop|Jade Canopy Drop|hurt|pierce|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.
+delta-gharial-thin-snout|Thin Snout|hurt|pierce|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+delta-gharial-death-roll|Death Roll|hurt|-|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+delta-gharial-river-drift|River Drift|guard|evade|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+delta-gharial-log-nap|Log Nap|heal|-|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+emerald-python-squeeze|Squeeze|hurt|trip|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.
+emerald-python-emerald-coil|Emerald Coil|guard|hold|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.
+emerald-python-slow-swallow|Slow Swallow|heal|-|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.
+emerald-python-rope-drop|Rope Drop|hurt|bash|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.
+jungle-tiger-stripe-stalk|Stripe Stalk|trick|evade|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+jungle-tiger-tiger-pounce|Tiger Pounce|hurt|-|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+jungle-tiger-rake-claws|Rake Claws|hurt|pierce|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+jungle-tiger-striped-dash|Striped Dash|hurt|quick|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+spice-monitor-spice-bite|Spice Bite|hurt|poison|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+spice-monitor-tail-whip|Tail Whip|hurt|-|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+spice-monitor-fork-tongue|Fork Tongue|trick|-|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+spice-monitor-cinnamon-cloud|Cinnamon Cloud|trick|poison|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+cloud-leopard-branch-drop|Branch Drop|hurt|pierce|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+cloud-leopard-cloud-coat|Cloud Coat|guard|evade|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+cloud-leopard-long-tail|Long Tail|trick|-|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+cloud-leopard-rumour-step|Rumour Step|trick|evade|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+savanna-hyena-cackle|Cackle|trick|trip|Savanna Hyena|Laughs at you first. The rest of the pack laughs later.
+savanna-hyena-bone-crunch|Bone Crunch|hurt|pierce|Savanna Hyena|Laughs at you first. The rest of the pack laughs later.
+savanna-hyena-scavenge|Scavenge|heal|-|Savanna Hyena|Laughs at you first. The rest of the pack laughs later.
+savanna-hyena-laugh-it-off|Laugh It Off|guard|evade|Savanna Hyena|Laughs at you first. The rest of the pack laughs later.
+mangrove-crab-king-root-grip|Root Grip|hurt|trip|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+mangrove-crab-king-king-s-pincer|King's Pincer|hurt|pierce|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+mangrove-crab-king-mud-armour|Mud Armour|guard|hold|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+mangrove-crab-king-mud-snatch|Mud Snatch|trick|trip|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+sand-viper-matriarch-viper-fang|Viper Fang|hurt|poison|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.
+sand-viper-matriarch-sidle|Sidle|guard|evade|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.
+sand-viper-matriarch-brood-hiss|Brood Hiss|trick|trip|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.
+sand-viper-matriarch-sand-sand-sting|Sand Sand Sting|hurt|poison|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.
+honey-badger-brute-no-fear|No Fear|guard|thorns|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+honey-badger-brute-brute-bite|Brute Bite|hurt|-|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+honey-badger-brute-shrug-off|Shrug Off|heal|-|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+honey-badger-brute-mad-rush|Mad Rush|hurt|bash|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+thunder-yak-thunder-charge|Thunder Charge|hurt|-|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.
+thunder-yak-shaggy-coat|Shaggy Coat|guard|hold|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.
+thunder-yak-horn-toss|Horn Toss|hurt|bash|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.
+thunder-yak-hoof-stomp|Hoof Stomp|trick|bash|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.
+reef-eel-lord-eel-shock|Eel Shock|hurt|trip|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+reef-eel-lord-lunge-from-hole|Lunge From Hole|hurt|quick|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+reef-eel-lord-slip-back|Slip Back|guard|evade|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+reef-eel-lord-toll-bite|Toll Bite|trick|poison|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+outback-dingo-dingo-snap|Dingo Snap|hurt|quick|Outback Dingo|Pale as the dust and twice as patient.
+outback-dingo-circle-round|Circle Round|trick|-|Outback Dingo|Pale as the dust and twice as patient.
+outback-dingo-dust-roll|Dust Roll|guard|evade|Outback Dingo|Pale as the dust and twice as patient.
+outback-dingo-pale-patience|Pale Patience|guard|hold|Outback Dingo|Pale as the dust and twice as patient.
+fern-cassowary-casque-butt|Casque Butt|hurt|bash|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+fern-cassowary-dagger-kick|Dagger Kick|hurt|pierce|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+fern-cassowary-fern-crouch|Fern Crouch|guard|-|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+fern-cassowary-fern-dash|Fern Dash|trick|quick|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+deep-octopus-ink-cloud|Ink Cloud|trick|evade|Deep Octopus|Eight arms, three hearts, and not one of them is friendly today.
+deep-octopus-eight-arms|Eight Arms|hurt|quick|Deep Octopus|Eight arms, three hearts, and not one of them is friendly today.
+deep-octopus-sucker-grip|Sucker Grip|hurt|trip|Deep Octopus|Eight arms, three hearts, and not one of them is friendly today.
+deep-octopus-sucker-ring|Sucker Ring|guard|thorns|Deep Octopus|Eight arms, three hearts, and not one of them is friendly today.
+hermit-crab-hoarder-borrowed-shell|Borrowed Shell|guard|hold|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+hermit-crab-hoarder-hoard-toss|Hoard Toss|hurt|-|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+hermit-crab-hoarder-shell-swap|Shell Swap|heal|-|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+hermit-crab-hoarder-spare-address|Spare Address|heal|-|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+sea-otter-bandit-rock-crack|Rock Crack|hurt|bash|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+sea-otter-bandit-kelp-wrap|Kelp Wrap|guard|evade|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+sea-otter-bandit-pebble-pocket|Pebble Pocket|trick|trip|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+sea-otter-bandit-tummy-anvil|Tummy Anvil|hurt|bash|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+dust-sidewinder-side-wind|Side Wind|guard|evade|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+dust-sidewinder-dust-fang|Dust Fang|hurt|poison|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+dust-sidewinder-sand-skim|Sand Skim|hurt|quick|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+dust-sidewinder-sideways-skirt|Sideways Skirt|trick|quick|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+poison-dart-frog-dart-skin|Dart Skin|guard|thorns|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.
+poison-dart-frog-toxic-touch|Toxic Touch|hurt|poison|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.
+poison-dart-frog-bright-warning|Bright Warning|trick|-|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.
+poison-dart-frog-jewel-flash|Jewel Flash|trick|poison|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.

@@ -1,0 +1,18 @@
+ant-scouts-carry-off	26 parts
+dung-beetle-dung-roll	bad coords
+earwig-night-scuttle	21 parts
+orb-spider-orb-spin	21 parts
+sun-lizard-sun-bask	21 parts
+tunnel-mole-burrow	21 parts
+tawny-owl-silent-swoop	off-palette #7a4a1e
+arctic-fox-white-out	bad coords
+coconut-crab-titan-husk-crack	bad coords
+ancient-snapper-snapping-jaw	off-palette #00744a
+old-bramblehorn-horn-gore	error Expecting value: line 1 column 1 (char 0)
+old-bramblehorn-antler-wall	error Expecting value: line 1 column 1 (char 0)
+jade-jaguar-jade-canopy-drop	23 parts
+delta-gharial-river-drift	22 parts
+spice-monitor-cinnamon-cloud	1 parts
+cloud-leopard-cloud-coat	25 parts
+mangrove-crab-king-mud-armour	off-palette #6b4a2a
+honey-badger-brute-mad-rush	21 parts
