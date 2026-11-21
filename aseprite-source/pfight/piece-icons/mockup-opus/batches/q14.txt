@@ -1,0 +1,8 @@
+pl-g-coffee|Coffee Rush|hurt|plenty|Player|Next round you pick from 6 pieces.
+pl-g-durian|Durian Stink|guard|thorns|Player|Hurts the creature when it hits you.
+pl-g-finger-lime|Lime Pearls|heal||Player|Pops sour, heals, and calms the creature.
+pl-g-kava|Kava Calm|soothe||Player|Its next hits do less.
+pl-g-mangosteen|Mangosteen Gold|heal||Player|The plain big heal.
+pl-g-quince|Quince Jelly|guard|keep|Player|Keeps in your hand until you play it.
+pl-g-salak|Snakeskin Plate|guard|evade|Player|The creature's first hit misses.
+pl-g-yuzu|Yuzu Zest|item||Player|A sharp snack; also calms the creature.

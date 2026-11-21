@@ -1,0 +1,8 @@
+pl-g-hazelnut|Hazelnut Hide|guard|hold|Player|Some guard stays up into your next turn.
+pl-g-kola|Kola Jolt|hurt||Player|+3 when the Yield bar is past 60%.
+pl-g-macadamia|Macadamia Smash|hurt||Player|The plain big hit.
+pl-g-pecan|Pecan Pie|heal|simmer|Player|Heals you 2 at the start of your next 2 turns.
+pl-g-pistachio|Pistachio Pop|trick|pluck|Player|Tries to lift an item from the creature.
+pl-g-shea|Shea Shield|guard||Player|A thick butter coat.
+pl-g-walnut|Walnut Crack|hurt|pierce|Player|Ignores the creature's guard.
+pl-g-saffron|Saffron Thread|charm|bond|Player|The creature warms to Charm for the fight.

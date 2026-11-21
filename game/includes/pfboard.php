@@ -607,7 +607,7 @@ function pfb_v1_tiles(array &$s, array $c): void
 {
     $order = array_flip(array_column(pf_foe_deck($c), 'k')); $lean = pfb_lean($c);
     foreach (['hand', 'draw', 'discard'] as $z) {
-        foreach ($s['me'][$z] as $i => $t) $s['me'][$z][$i] = pfb_v1_tile($t, $s['v1']);
+        foreach ($s['me'][$z] as $i => $t) { if (empty($t['ik']) && ($ik = pf_player_icon_key((string)($t['k'] ?? ''))) !== '') $t['ik'] = $ik; $s['me'][$z][$i] = pfb_v1_tile($t, $s['v1']); }
         foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i] = pfb_v1_tile($t, $s['v1'], ($order[$t['k']] ?? 0) % 5 < 3 ? $lean : null);
     }
 }

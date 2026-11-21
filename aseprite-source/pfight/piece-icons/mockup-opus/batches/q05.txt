@@ -1,0 +1,8 @@
+pl-t-pick|Rock Chip|hurt|bash|Player|A chip of stone with your guard behind it.
+pl-t-net|Net Toss|hurt|trip|Player|Tangles its legs.
+pl-t-bucket|Bucket Slosh|soothe||Player|Cold water calms it down.
+pl-t-axe|Chop|hurt||Player|A good chop.
+pl-t-rod|Reel In|trick||Player|Hooks it and pulls it close.
+pl-t-basket|Pack Wall|guard||Player|Your pack takes the hit.
+pl-t-staff|Sweep|guard|evade|Player|A sweep of the staff: its next hit misses.
+pl-t-lantern|Glare|charm|lull|Player|Bright light in its eyes.

@@ -231,6 +231,17 @@ function pf_shuffle(array &$s, array $a): array
 }
 
 /** A tile instance as stored in a deck/hand: ['k' => key, 'v' => final value, 't', 'r', 'n', 'tag']. Built once per fight. */
+/** 2.7.48: a player piece's own icon key (assets/img/pfight/pieces/ico-pl-<key>[-s].png): 'pl-' + the piece key lowercased with dashes ('t:till' -> 'pl-t-till'); '' when no file. */
+function pf_player_icon_key(string $k): string
+{
+    static $c = [];
+    if (!isset($c[$k])) {
+        $s = 'pl-' . trim((string)preg_replace('/[^a-z0-9]+/', '-', strtolower($k)), '-');
+        $c[$k] = $k !== '' && is_file(__DIR__ . '/../assets/img/pfight/pieces/ico-' . $s . '-s.png') ? $s : '';
+    }
+    return $c[$k];
+}
+
 function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = []): array
 {
     $d = (pf_tiles()[$key] ?? pf_tiles()['swing']) + ['tag' => ''];
@@ -238,6 +249,7 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
     $stat = max(0, (int)($stats[PF_STAT[$d['t']]] ?? 0));
     $lvl = intdiv(max(1, (int)($stats['level'] ?? 1)), 3);
     $t = ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
+    if (($ik = pf_player_icon_key($key)) !== '') $t['ik'] = $ik;
     if (!empty($d['mod'])) $t['m'] = (string)$d['mod'];   // 2.6.990: a built-in knack (a legendary crop piece)
     foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool', 'cnt'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // cnt (2.7.08): a counter piece's creature class   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
     return $t;

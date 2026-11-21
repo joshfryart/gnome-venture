@@ -388,7 +388,7 @@ function pfd_build(array $src): array
         return false;   // tool pieces come from the belt
     };
     $entry = function (string $key, array $p, int $rank, array $x = []): array {
-        $e = ['key' => $key, 'k' => $p['k'], 'n' => $p['n'], 't' => $p['t'], 'v' => (int)$p['v'], 'r' => $p['r'], 'tag' => (string)$p['tag'], 'src' => $p['src'], 'ref' => (string)($p['ref'] ?? ''), 'rank' => $rank,
+        $e = ['key' => $key, 'k' => $p['k'], 'ik' => pf_player_icon_key((string)$p['k']), 'n' => $p['n'], 't' => $p['t'], 'v' => (int)$p['v'], 'r' => $p['r'], 'tag' => (string)$p['tag'], 'src' => $p['src'], 'ref' => (string)($p['ref'] ?? ''), 'rank' => $rank,
             'life' => (int)($p['life'] ?? 0) ?: ($rank >= 4 ? 4 : ($p['tag'] === 'quick' ? 2 : ($p['tag'] === 'hold' ? 4 : PFB_LIFE))), 'blurb' => (string)($p['blurb'] ?? ''),
             'gear' => false, 'tool' => '', 'starter' => false, 'core' => false, 'on' => false, 'out' => ''];
         foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];   // fx fa fb: a Tailor wearable's effect code and numbers (includes/wearables.php)

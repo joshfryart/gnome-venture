@@ -1,0 +1,8 @@
+pl-t-plant|Dibber Poke|hurt|quick|Player|A quick poke with the dibber.
+pl-t-spread|Mulch Heap|guard|hold|Player|A heap of mulch to stand behind.
+pl-t-weed|Root Out|hurt||Player|Pulls it up by the roots.
+pl-t-harvest|Basket Catch|guard||Player|Catches the blow in the basket.
+pl-t-prune|Clean Cut|hurt||Player|One clean snip.
+pl-t-broadfork|Fork Lift|hurt|heavy|Player|The whole broadfork, both hands.
+pl-t-soiltest|Probe|trick||Player|Finds the soft spot.
+pl-t-forage|Forager's Find|item||Player|Something tasty from the hedge.

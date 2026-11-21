@@ -1,0 +1,8 @@
+pl-g-vanilla|Vanilla Cream|charm||Player|Also calms the creature.
+pl-g-wasabi|Wasabi Burn|hurt|poison|Player|Poison, and +3 late in the fight.
+pl-g-tea|Tea Leaf|heal|simmer|Player|Heals you 2 at the start of your next 2 turns.
+pl-g-acai|Açaí Bowl|heal||Player|Heals and calms the creature.
+pl-g-ackee|Ackee Surprise|item||Player|A snack that heals more.
+pl-g-baobab|Baobab Bark|guard|hold|Player|Guard that stays up into your next turn.
+pl-g-cacao|Cacao Bite|charm|bond|Player|The creature warms to Charm for the fight.
+pl-g-carob|Carob Crust|guard||Player|A thick crust.

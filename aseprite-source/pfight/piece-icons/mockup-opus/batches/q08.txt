@@ -1,0 +1,8 @@
+pl-r-NA|Frost Bark|guard|hold|Player|The Maplewold: bark hard with frost.
+pl-r-CA|Dry Spell|trick||Player|Maizehollow: the ground cracks.
+pl-r-CB|Sea Breeze|heal||Player|The Sunsprinkle Isles: a fresh breeze.
+pl-r-SA|Humus Hide|guard||Player|The Rainroot Reaches: deep forest floor.
+pl-r-NWE|Mist Veil|guard|evade|Player|Mistmoor: lost in the mist.
+pl-r-SE|Terra Wall|guard|hold|Player|Olivewhistle Shore: a red stone terrace.
+pl-r-EE|Black Earth|heal||Player|Birchbramble Steppe: rich black soil.
+pl-r-MENA|Heat Shimmer|guard|evade|Player|The Dunewhisper: the air bends.

@@ -1,0 +1,8 @@
+pl-soothe|Soothe|soothe||Player|Cuts damage from the creature next turn, then wears off.
+pl-offer|Offer|charm||Player|A gift held out. Flat right edge.
+pl-taunt|Taunt|trick||Player|Draw it in.
+pl-breather|Breather|heal||Player|Stands in for Snack when there is nothing to eat.
+pl-bark|Bark Wall|guard||Player|Rootwarden calling piece.
+pl-bloom|Bloom|charm||Player|Bloomcaller calling piece.
+pl-thorn|Thorn Cut|hurt||Player|Thornblade calling piece.
+pl-sow|Sow Doubt|trick||Player|Seedkeeper calling piece.

@@ -1,0 +1,8 @@
+pl-wayfind|Slip Past|trick||Player|Wayfinder calling piece.
+pl-brew|Steep|heal||Player|Brewroot calling piece.
+pl-roots|Deep Roots|guard|hold|Player|Rootwarden tier III piece: guard that holds.
+pl-bloomb|Bloom Bond|charm|bond|Player|Bloomcaller tier III piece: it warms to you.
+pl-barb|Barbed Cut|hurt|poison|Player|Thornblade tier III piece: the barb stays in.
+pl-seedswap|Seed Swap|trick|pluck|Player|Seedkeeper tier III piece: a seed for its trinket.
+pl-sidepath|Side Path|guard|evade|Player|Wayfinder tier III piece: its next hit misses.
+pl-slowbrew|Slow Brew|heal|simmer|Player|Brewroot tier III piece: heals over two turns.

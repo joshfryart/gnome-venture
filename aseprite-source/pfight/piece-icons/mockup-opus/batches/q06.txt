@@ -1,0 +1,8 @@
+pl-c-vegetable|Garden Greens|heal||Player|A crunchy bite from the patch.
+pl-c-tuber|Spud Shield|guard||Player|A big potato takes the blow.
+pl-c-legume|Sweet Pea|charm|bond|Player|A sprig of sweet pea.
+pl-c-grain|Oat Cake|guard|hold|Player|Filling and steady.
+pl-c-fruit|Juicy Bite|item||Player|Sweet and gone in a moment.
+pl-c-tree|Windfall|hurt|heavy|Player|A branch load of fruit comes down.
+pl-c-nut|Nut Crack|hurt|pierce|Player|Cracks a hard shell.
+pl-c-herb|Herb Poultice|heal||Player|Crushed leaves on a scrape.

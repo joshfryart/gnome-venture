@@ -1,0 +1,8 @@
+pl-g-cranberry|Cranberry Preserve|guard|keep|Player|Keeps in your hand until you play it.
+pl-g-gooseberry|Gooseberry Prickle|guard||Player|Pricks the creature for 2 when played.
+pl-g-sea-buckthorn|Buckthorn Zing|heal|plenty|Player|Next round you pick from 6 pieces.
+pl-g-sugarcane|Cane Crush|hurt||Player|Heals you a little when it hits.
+pl-g-almond|Almond Crack|hurt|pierce|Player|Ignores the creature's guard.
+pl-g-brazil-nut|Brazil Nut Bash|hurt|bash|Player|Adds your guard to the hit, using it up.
+pl-g-cashew|Cashew Calm|soothe||Player|Its next hits do less.
+pl-g-chestnut|Chestnut Roast|hurt||Player|A quarter of its damage also counts as Charm.

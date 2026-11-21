@@ -1,0 +1,8 @@
+pl-g-caper|Caper Pop|guard|evade|Player|The creature's first hit misses.
+pl-g-cardamom|Cardamom Hum|charm|hum|Player|It will not hit as hard this turn.
+pl-g-grains-of-paradise|Paradise Lull|charm|lull|Player|It loses its next turn.
+pl-g-black-pepper|Pepper Sting|hurt|poison|Player|Hits again for the next 2 turns.
+pl-g-cinnamon|Cinnamon Swirl|charm||Player|Also calms the creature.
+pl-g-clove|Clove Prick|hurt|trip|Player|It skips its next turn.
+pl-g-ginseng|Ginseng Root|heal||Player|Heals 2 more.
+pl-g-nutmeg|Nutmeg Whisper|charm|hum|Player|It will not hit as hard this turn.

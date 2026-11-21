@@ -1,0 +1,8 @@
+pl-c-spice|Pepper Puff|hurt|poison|Player|It keeps sneezing.
+pl-k-cooking|Hot Soup|heal||Player|A warm bowl.
+pl-k-pantry|Pickle Splash|hurt|quick|Player|Sharp brine in the eye.
+pl-k-tools|Spare Handle|guard|hold|Player|A spare handle to block with.
+pl-k-garden|Compost Lob|hurt|poison|Player|A ripe lump of compost.
+pl-k-potions|Tonic|heal||Player|A sip of green tonic.
+pl-k-building|Stone Wall|guard||Player|Dressed stone, stacked.
+pl-k-decor|Wind Chime|charm|hum|Player|A soft tune on the breeze.

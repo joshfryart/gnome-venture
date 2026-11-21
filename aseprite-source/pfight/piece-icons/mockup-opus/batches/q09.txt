@@ -1,0 +1,8 @@
+pl-r-WCA|Laterite Crust|guard|thorns|Player|The Greatcanopy: baked red crust.
+pl-r-ESA|Thornbush|guard|thorns|Player|Thornacre Savanna: thorn scrub.
+pl-r-CSA|River Silt|heal||Player|Spicepeak: silt from the great rivers.
+pl-r-EA|Terrace Wall|guard|hold|Player|Blossomreach: a hillside terrace.
+pl-r-SEA|Steam|trick||Player|The Monsoon Tangle: thick steam.
+pl-r-OC|Island Time|guard|hold|Player|The Coralscatter: no hurry at all.
+pl-g-blueberry|Blueberry Burst|heal||Player|Heals a bit more than it looks.
+pl-g-cloudberry|Cloudberry Gold|item||Player|A rare sweet snack; also calms the creature.

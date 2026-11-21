@@ -1,0 +1,8 @@
+pl-pestring|Pest Ring|guard|thorns|Player|Counter to Critters: a swarm that bites the ring gets pricked.
+pl-scarecrow|Scarecrow Flap|hurt|trip|Player|Counter to Birds: it skips its next turn, both aims with it.
+pl-honeypot|Honey Pot|soothe||Player|Counter to Beasts: its next hits land softer, so less to hold a grudge over.
+pl-sandbag|Sandbag|guard|hold|Player|Counter to Water creatures: guard that holds through the tide.
+pl-billhook|Billhook|hurt|pierce|Player|Counter to Plants and Fungi: cuts through its thick guard.
+pl-antivenom|Antivenom|guard|evade|Player|Counter to Reptiles and Amphibians: its next hit misses and poison does nothing.
+pl-t-till|Hoe Hook|hurt|pierce|Player|The edge of a tilling tool hooks past its guard.
+pl-t-water|Cool Shower|heal||Player|A splash from the watering can.

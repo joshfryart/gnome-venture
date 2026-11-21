@@ -218,7 +218,7 @@
     });
     var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
     var cx = cv.getContext('2d'), img = cx.createImageData(W, H); img.data.set(d); cx.putImageData(img, 0, 0);
-    var tagI = !kind && foe ? P.cicoFor(o) : (!kind && !foe && o.tag ? P.tagIcon[o.tag + '|' + o.size] : null);   // a creature piece shows its own icon; a named piece of mine its tag icon
+    var tagI = !kind ? (P.cicoFor(o) || (!foe && o.tag ? P.tagIcon[o.tag + '|' + o.size] : null)) : null;   // a piece with its own icon (creature's, or 2.7.48 mine) shows it; a named piece of mine else its tag icon
     if (tagI) cx.drawImage(tagI, sz.icon.at[0], sz.icon.at[1], sz.icon.size[0], sz.icon.size[1]);   // a named piece of mine keeps its own icon
     else cx.drawImage(P.imgs[o.size + (kind ? '-envglyphs' : foe ? '-foeglyphs' : '-glyphs')], (kind ? ki : ti) * W, 0, W, H, 0, 0, W, H);
     if (!kind && String(o.num) !== '') number48(cx, o.size, sz, String(o.num));
