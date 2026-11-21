@@ -232,7 +232,7 @@ function pfd_foe_v(array $c): int
     return max(1, (int)pf_round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
 }
 
-/** 2.7.38: the key of a creature piece's hand-drawn icon (assets/img/pfight/pieces/ico-<key>.png and -s.png), or '' when that piece has none (the type emoji stays). */
+/** 2.7.44: the key of a creature piece's hand-drawn icon (assets/img/pfight/pieces/ico-<key>.png and -s.png), or '' when that piece has none (the type emoji stays). */
 function pfd_piece_icon_key(string $slug, string $name): string
 {
     static $c = [];
@@ -251,7 +251,7 @@ function pfd_foe_pieces(array $c, string $region = ''): array
     $cl = pfd_class($c); $K = pfd_classes(); $slug = (string)($c['slug'] ?? ''); $u = pfd_unique_of($c);
     $lean = in_array($u['lean'] ?? '', PFD_FAM, true) ? $u['lean'] : $K['classes'][$cl]['lean'];
     $out = []; $n = [];
-    $ikSlug = isset(pfd_uniques()[$slug]) ? $slug : '';   // 2.7.38: a creature's own 3 pieces carry the key of their hand-drawn icon (assets/img/pfight/pieces/ico-<ik>[-s].png); a lair guardian borrowing a boss's pieces keeps the type emoji
+    $ikSlug = isset(pfd_uniques()[$slug]) ? $slug : '';   // 2.7.44: a creature's own 3 pieces carry the key of their hand-drawn icon (assets/img/pfight/pieces/ico-<ik>[-s].png); a lair guardian borrowing a boss's pieces keeps the type emoji
     $add = function (string $layer, array $q) use (&$out, &$n, $v, $lean, $ikSlug) {
         $i = count($out); $n[$layer] = ($n[$layer] ?? -1) + 1;
         $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)pf_round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],

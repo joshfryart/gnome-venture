@@ -16189,10 +16189,10 @@ f08a10cd40297ed0f0209d242bec0238cacc03ea  assets/mushroom.js
 9643b3e57767a074aa3885a83c71484a4cb6788e  assets/paljobs.js
 514b96d12852700783ad02a67201877e83172d89  assets/pbox.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
-32ea573c2f1d2dc4d5865ab91f0b8a115a30cd85  assets/pfboard.js
-bf40a4137ce2ccb166416fde5bf1862c88007444  assets/pfboardv1.js
+11d797d08f75a67421163bc5b7679cabe9155c20  assets/pfboard.js
+eb41ad7765e1345f78a4e092b98bde5c11bfb67e  assets/pfboardv1.js
 7255e52e8b9a1edf4dc8f34c2bf2979811f0c495  assets/pfdebug.js
-ded95ff5983814a8acb51f74e01c4699bae743cc  assets/pfight.css
+72a8bac7f64c636fe093e38e944862a8c0bc3374  assets/pfight.css
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
 ec8a27eaa1ead7eab7bc77e244bc44c3ea861212  assets/pfparts47.js
@@ -16276,7 +16276,7 @@ c47d8c33468cea3fde94224102b43f5cdcb37217  includes/adventure_data.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-6794b0689f0a68c97286eef82c5ab6c4200855f9  includes/bootstrap.php
+0b505cd48f34f04e61adadfef0f5d70ffe2ee7c4  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
@@ -16572,7 +16572,7 @@ a2604bee70e1012cba949be7f0120d7c3c9a68ff  includes/pal_jobs.php
 3f541b5182728a8ffaae87eaa0fed54d78dcfa62  includes/pantry_view.php
 8b64f42f166fbd6fbf1b7a51fec32695d6aeaebb  includes/pest.php
 08d933ea15569ec4620624e879da874444c0370f  includes/pfboard.php
-c4d6dd89c69cd9011d8859d8a9311ecfab631698  includes/pfdeck.php
+fa62891d11ae8ff0b622d3fe25e90b7aebcac4ab  includes/pfdeck.php
 f5df008e656912fb3b0b0e3690958d0213a1dc7c  includes/pfdeck_view.php
 1fc8d9e3fd0a6bce6df16c59ea35c17afaf9af56  includes/pfight.php
 4b84d031627ea9f842c3f9d26c5d281ca6b4ca5b  includes/pfight_data.php
@@ -16668,7 +16668,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-dbcdc94c03adb46ff0e6944264af526bcf285dfd  includes/update_news.php
+7a4051a85e665fad822ad6bebacf5e5c79b32a6b  includes/update_news.php
 14987a7d98e8d33f3b07f2c03e44107caa8bc2aa  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php
