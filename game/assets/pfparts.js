@@ -5,21 +5,21 @@
   var root = document.getElementById('pfight');
   var data = {}; try { data = JSON.parse(document.getElementById('pf-data').textContent); } catch (e) { return; }
   if (!root || !data.parts) return;
-  var base = data.parts;
+  var base = data.parts, VQ = data.v ? '?v=' + data.v : '';   // 2.7.48: the art folders are cached for a month: the version in the URL makes a redrawn icon show after an update
   if (window.PFParts && window.PFParts.ok) { setTimeout(function () { document.dispatchEvent(new Event('pfparts-ready')); }, 0); return; }   // already loaded (the page was swapped in place)
   var P = window.PFParts = { ok: false, atlas: null, rim: null, imgs: {}, sheets: {}, cache: {} };
   var ROLE = { INK: 1, RIM_ME: 2, STITCH_ME: 3, RIM_FOE: 4, BAND_FOE: 5, STITCH_FOE: 6, THORN_TIP: 7, THORN_BODY: 8, PLATE: 9, PLATE_SHADE: 10 };
   var FONT = { '0': '111101101101111', '1': '010110010010111', '2': '111001111100111', '3': '111001111001111', '4': '101101111001001', '5': '111100111001111', '6': '111100111101111', '7': '111001001001001', '8': '111101111101111', '9': '111101111001111' };
 
   function loadImg(file) {
-    return new Promise(function (ok, bad) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { bad(new Error(file)); }; i.src = base + file; });
+    return new Promise(function (ok, bad) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { bad(new Error(file)); }; i.src = base + file + VQ; });
   }
   function pixels(img) {
     var c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
     var x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0);
     return { w: img.width, h: img.height, d: x.getImageData(0, 0, img.width, img.height).data };
   }
-  function getJson(file) { return fetch(base + file).then(function (r) { if (!r.ok) throw new Error(file); return r.json(); }); }
+  function getJson(file) { return fetch(base + file + VQ).then(function (r) { if (!r.ok) throw new Error(file); return r.json(); }); }
 
   var TAGICON = { quick: 'jab', heavy: 'smash', pierce: 'pierce', poison: 'sting', trip: 'trip', bash: 'bash', hold: 'brace', evade: 'roll', thorns: 'thornhide', mend: 'mending', hum: 'hum', lull: 'lull', bond: 'bond', pluck: 'pluck' };
   P.marks = {};   // 'tag-pierce', 'mod-sticky', 'rarity-1' -> image (parts/marks/), when the file exists
@@ -35,14 +35,14 @@
     if (done && P.cicoSubs.indexOf(done) < 0) P.cicoSubs.push(done);
     list.forEach(function (ik, i) {
       var k = ik + '|' + size; if (!ik || P.cicoTried[k] || list.indexOf(ik) !== i) return; P.cicoTried[k] = 1;
-      var im = new Image(); im.onload = function () { P.cico[k] = im; P.cicoNote(); }; im.src = base + 'ico-' + ik + (size === 'strip' ? '-s' : '') + '.png';
+      var im = new Image(); im.onload = function () { P.cico[k] = im; P.cicoNote(); }; im.src = base + 'ico-' + ik + (size === 'strip' ? '-s' : '') + '.png' + VQ;
     });
   };
   function loadTagIcons() {
     var jobs = [];
     Object.keys(TAGICON).forEach(function (tag) {
       [['strip', '-s'], ['hand', '']].forEach(function (z) {
-        jobs.push(new Promise(function (ok) { var i = new Image(); i.onload = function () { P.tagIcon[tag + '|' + z[0]] = i; ok(); }; i.onerror = ok; i.src = data.art + 'ico-' + TAGICON[tag] + z[1] + '.png'; }));
+        jobs.push(new Promise(function (ok) { var i = new Image(); i.onload = function () { P.tagIcon[tag + '|' + z[0]] = i; ok(); }; i.onerror = ok; i.src = data.art + 'ico-' + TAGICON[tag] + z[1] + '.png' + VQ; }));
       });
     });
     return Promise.all(jobs);
@@ -51,7 +51,7 @@
     var names = ['rarity-0', 'rarity-1', 'rarity-2'];
     Object.keys(TAGICON).forEach(function (t) { names.push('tag-' + t); });
     Object.keys(data.mods || {}).forEach(function (m) { names.push('mod-' + m); });
-    return Promise.all(names.map(function (n) { return new Promise(function (ok) { var i = new Image(); i.onload = function () { P.marks[n] = i; ok(); }; i.onerror = ok; i.src = base + 'marks/' + n + '.png'; }); }));
+    return Promise.all(names.map(function (n) { return new Promise(function (ok) { var i = new Image(); i.onload = function () { P.marks[n] = i; ok(); }; i.onerror = ok; i.src = base + 'marks/' + n + '.png' + VQ; }); }));
   }
   P.load = function () {
     var A, R;

@@ -99,7 +99,8 @@
   var SRCICO = { basic: 'ico/ico-gnome-hat.png', crop: 'ico/ico-sprout.png', legend: 'ico/ico-crown.png', craft: 'ico/ico-hammer.png', region: 'ico/ico-world-map.png', wear: 'ico/ico-gloves.png', tool: 'ico/ico-shears.png', pal: 'ico/ico-paw.png' };
   var RANKN = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'], RANKI = ['', 'items/gem-c.png', 'items/gem-u.png', 'items/gem-r.png', 'ico/ico-medal-gold.png'];
   function imgBase() { var d = null; try { d = JSON.parse(document.getElementById('pf-data').textContent); } catch (e) {} return d && d.art ? String(d.art).replace(/pfight\/?$/, '') : '/assets/img/'; }
-  function im(rel, alt) { return '<img src="' + esc(imgBase() + rel) + '" alt="' + esc(alt || '') + '" width="32" height="32">'; }
+  function imV() { try { var d = JSON.parse(document.getElementById('pf-data').textContent); return d && d.v ? '?v=' + d.v : ''; } catch (e) { return ''; } }   // 2.7.48: the version in the URL, so a redrawn icon shows after an update
+  function im(rel, alt) { return '<img src="' + esc(imgBase() + rel + imV()) + '" alt="' + esc(alt || '') + '" width="32" height="32">'; }
   function fact(icon, b, s) { return '<li><span class="fi">' + icon + '</span><span><b>' + b + '</b>' + (s ? '<small>' + s + '</small>' : '') + '</span></li>'; }
   function pcOf(btn) { try { return JSON.parse(btn.getAttribute('data-pc')); } catch (e) { return null; } }
   function boxBody(root, pc, b) {

@@ -203,7 +203,7 @@
     var ic = document.createElement('span'); ic.className = 'pf-ico'; ic.setAttribute('aria-hidden', 'true'); ic.textContent = ICON[p.t] || '❔'; el.appendChild(ic);
     if (p.ik && data.pico) {   // 2.7.44: a creature's own piece shows its drawn icon; a missing file keeps the type emoji
       var im = new Image(); im.className = 'pf-cico'; im.alt = ''; im.width = 20; im.height = 20; im.decoding = 'async';
-      im.onload = function () { ic.textContent = ''; ic.appendChild(im); }; im.src = data.pico + 'ico-' + p.ik + '-s.png';
+      im.onload = function () { ic.textContent = ''; ic.appendChild(im); }; im.src = data.pico + 'ico-' + p.ik + '-s.png' + (data.v ? '?v=' + data.v : '');
     }
     var v = document.createElement('span'); v.className = 'pf-val'; v.textContent = String(p.v); el.appendChild(v);
     return el;

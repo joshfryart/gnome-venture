@@ -27,7 +27,7 @@ function pfv_on(array $u): bool
 function pfv_assets(bool $withData = true): string
 {
     $h = '<link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><link rel="stylesheet" href="' . e(url('assets/pfv1.css?v=' . APP_VERSION)) . '">';
-    if ($withData) $h .= '<i id="pfight" hidden></i><script type="application/json" id="pf-data">' . json_encode(['art' => url('assets/img/pfight/'), 'parts' => pfight_parts_url(), 'mods' => (object)[]], JSON_HEX_TAG | JSON_HEX_AMP) . '</script>'
+    if ($withData) $h .= '<i id="pfight" hidden></i><script type="application/json" id="pf-data">' . json_encode(['art' => url('assets/img/pfight/'), 'parts' => pfight_parts_url(), 'v' => APP_VERSION, 'mods' => (object)[]], JSON_HEX_TAG | JSON_HEX_AMP) . '</script>'
         . '<script src="' . e(url('assets/pfparts47.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
     return $h . '<script src="' . e(url('assets/pfv1box.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }
