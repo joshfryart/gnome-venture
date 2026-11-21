@@ -1405,13 +1405,13 @@ ok "2.1.06 js: idle variety yawn 900, stretch 900, wash 600 x4 every 15-30 s, bi
 # the real page with the full art set installed in this suite's own copy of game/ (removed after): banner, rod, icons, room, Cat Book heads
 mkdir -p $GAME/assets/img/catfish; cp $FULL/cf-*.png $GAME/assets/img/catfish/
 curl -s -b $W/p $BASE/catfish.php > $W/art.html
-ok "page with art: banner is the heading (img with alt text, no emoji heading)" "$(grep -c '<h1 class="cfbanner"><img class="cfimg" src="[^"]*cf-banner.png[^"]*" alt="Cat Fish" width="480" height="120">' $W/art.html)$(grep -c '<h1>🐱 Cat Fish</h1>' $W/art.html)" "10"
+ok "page with art: no banner; the heading is a visually hidden h1 (2.7.38 Toy-Shop Shelf), no emoji heading" "$(grep -c '<h1 class="cfsr">Cat Fish</h1>' $W/art.html)$(grep -c '<h1>🐱 Cat Fish</h1>' $W/art.html)" "10"
 ok "page with art: rod art and 3 fish" "$(grep -c 'cf-rod.png' $W/art.html)$(grep -o 'cf-fish-[0-9].png' $W/art.html | wc -l | tr -d ' ')" "13"
 ok "page with art: kibble icon by the count, yarn icon in the Nap and Home summaries" "$(grep -o 'cf-ico-kibble.png' $W/art.html | wc -l | tr -d ' ')$(grep -o 'cf-ico-yarn.png' $W/art.html | wc -l | tr -d ' ')" "12"
 NCATS=$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_"); NSIDE=$(( NCATS - 1 )); [ $NSIDE -gt 3 ] && NSIDE=3
 ok "page with art: one stage with the room, wand, 3 fish; the old rod box and the separate room are gone" "$(grep -c 'class="cfstage"' $W/art.html)$(grep -c 'cf-room.png' $W/art.html)$(grep -c 'class="cfrod\|class="cfroom"\|class="cfrc ' $W/art.html)" "110"
 ok "page with art: the active cat has 8 frame groups and data-frame, the other cats stand at the side spots" "$(grep -o 'class="cfframe ff-' $W/art.html | wc -l | tr -d ' ')$(grep -c 'data-frame="idleA"\|data-frame="nap"' $W/art.html)$(grep -o 'class="cfspot ' $W/art.html | wc -l | tr -d ' ')" "81$NSIDE"
-ok "page with art: the cat card (name, traits, Kibble) sits under the stage and has no second sprite" "$(grep -c 'class="cfscene cfcard box"' $W/art.html)$(awk '/class="cfscene cfcard box"/{f=1} f&&/id="cf-kibble"/{print "k"; exit}' $W/art.html)$(sed -n '/class="cfscene cfcard box"/,$p' $W/art.html | sed '1s/.*class="cfscene cfcard box"//' | awk '/id="cf-kibble"/{exit} /class="cfart/{print "x"; exit}' | wc -c | tr -d ' ')" "1k0"
+ok "page with art: the Kibble counter is in the dock with the stage; the cat card sits under it and has no second sprite" "$(grep -c 'class="cfscene cfcard box"' $W/art.html)$(awk '/id="cf-kibble"/{k=1} /class="cfscene cfcard box"/{print (k ? "k" : "n"); exit}' $W/art.html)$(sed -n '/class="cfscene cfcard box"/,/<h2>Upgrades/p' $W/art.html | grep -c 'class="cfart')" "1k0"
 ok "page with art: the page is wrapped in .cfpage (centred headings) and stays one script block plus the json" "$(grep -c 'class="cfpage"' $W/art.html)$(grep -c 'type="application/json" id="cf-data"' $W/art.html)" "11"
 ok "page with art: Cat Book cells use heads, unknown cells use the question head" "$([ "$(grep -c 'cf-bookhead-' $W/art.html)" -ge 1 ] && echo y)$([ "$(grep -o 'cf-bookhead-unknown.png' $W/art.html | wc -l)" -ge 10 ] && echo y)" "yy"
 ok "page with art: three fish buttons, role=group, and no first-visit hint once the gnome has played (lifetime taps > 0)" "$(grep -o '<button type="button" class="cfsdrop sd[123] cfk-[1-5]"' $W/art.html | wc -l | tr -d ' ')$(grep -c 'class="cfstage" role="group"' $W/art.html)$(grep -c 'class="cfhint"' $W/art.html)" "310"
@@ -1813,7 +1813,7 @@ dbx "DELETE FROM shops WHERE slug='oc-pet-shop'"; dbx "DELETE FROM settings WHER
 ok "migration: a missing pet shop is made again by the next page view, the flag is set, and nothing is doubled" "$(dbv "SELECT COUNT(*) FROM shops WHERE shop_type='pets'")/$(dbv "SELECT value FROM settings WHERE name='petshops220'")/$(dbv "SELECT COUNT(*) FROM npcs WHERE slug='captain-pipi-shellback'")" "11/1/1"
 rm -rf "${GAME:?}/assets/img/catfish"
 curl -s -b $W/p $BASE/catfish.php > $W/noart.html
-ok "page without art: emoji heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1>🐱 Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art\|cfstage\|cfactive' $W/noart.html)" "110"
+ok "page without art: hidden h1 heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1 class="cfsr">Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art\|cfstage\|cfactive' $W/noart.html)" "110"
 
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

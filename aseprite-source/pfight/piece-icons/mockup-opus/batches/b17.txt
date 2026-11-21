@@ -1,0 +1,8 @@
+tawny-owl-silent-swoop|Silent Swoop|hurt|pierce|Tawny Owl|Silent wings in the dark. Listen for them.
+tawny-owl-hoot|Hoot|trick|-|Tawny Owl|Silent wings in the dark. Listen for them.
+tawny-owl-feather-fluff|Feather Fluff|guard|-|Tawny Owl|Silent wings in the dark. Listen for them.
+tawny-owl-mouse-freeze|Mouse Freeze|guard|-|Tawny Owl|Silent wings in the dark. Listen for them.
+arctic-fox-snow-dive|Snow Dive|hurt|-|Arctic Fox|A ghost of the snow.
+arctic-fox-white-out|White Out|guard|evade|Arctic Fox|A ghost of the snow.
+arctic-fox-cold-nip|Cold Nip|hurt|quick|Arctic Fox|A ghost of the snow.
+arctic-fox-snow-veil|Snow Veil|guard|evade|Arctic Fox|A ghost of the snow.

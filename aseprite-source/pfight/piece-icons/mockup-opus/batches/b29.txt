@@ -1,0 +1,8 @@
+honey-badger-brute-no-fear|No Fear|guard|thorns|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+honey-badger-brute-brute-bite|Brute Bite|hurt|-|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+honey-badger-brute-shrug-off|Shrug Off|heal|-|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+honey-badger-brute-mad-rush|Mad Rush|hurt|bash|Honey Badger Brute|Does not care. Has never cared. Is currently charging.
+thunder-yak-thunder-charge|Thunder Charge|hurt|-|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.
+thunder-yak-shaggy-coat|Shaggy Coat|guard|hold|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.
+thunder-yak-horn-toss|Horn Toss|hurt|bash|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.
+thunder-yak-hoof-stomp|Hoof Stomp|trick|bash|Thunder Yak|Its hooves on the pass sound like the sky clearing its throat.

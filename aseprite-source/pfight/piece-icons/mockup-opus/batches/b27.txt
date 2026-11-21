@@ -1,0 +1,7 @@
+cloud-leopard-branch-drop|Branch Drop|hurt|pierce|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+cloud-leopard-cloud-coat|Cloud Coat|guard|evade|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+cloud-leopard-long-tail|Long Tail|trick|-|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+cloud-leopard-rumour-step|Rumour Step|trick|evade|Cloud Leopard|Walks the high ledges as if gnomes were a rumour.
+savanna-hyena-cackle|Cackle|trick|trip|Savanna Hyena|Laughs at you first. The rest of the pack laughs later.
+savanna-hyena-bone-crunch|Bone Crunch|hurt|pierce|Savanna Hyena|Laughs at you first. The rest of the pack laughs later.
+savanna-hyena-scavenge|Scavenge|heal|-|Savanna Hyena|Laughs at you first. The rest of the pack laughs later.

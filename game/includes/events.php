@@ -354,7 +354,8 @@ function finish_event(array $u, string $token, string $choice): array
 function event_box_html(): string
 {
     require_once __DIR__ . '/chest.php';
-    return chest_stage() . event_box_html_core();
+    require_once __DIR__ . '/harvest_show.php';
+    return chest_stage() . hv_stage() . event_box_html_core();
 }
 
 function event_box_html_core(): string

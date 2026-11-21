@@ -424,3 +424,54 @@ button.cfpet.is-ready::before { content: ""; position: absolute; right: -2px; to
 .cfpown { margin-left: auto; }
 
 .cfhub button:last-child:nth-child(3n+1) { grid-column: 1 / -1; }   /* seven tiles: the odd one out takes the whole last row */
+
+/* 2.7.38 Toy-Shop Shelf: the room and Kibble counter dock together (pinned on phones), upgrades are cream toy tiles with red price tags,
+   the "More" hub is a row of honey drawers. Pure restyle: the same markup and ids, so catfish.js is untouched. */
+.cfpage { --cf-surf: #fff8e2; --cf-surf2: #f7e9bd; --cf-surf3: #efd9a0; --cf-ink: #3a2410; --cf-ink2: #5a3a1e; --cf-edge: #3a2410; --cf-dock: #3a2410; --cf-cream: #fff8e2; --cf-dockmuted: #efd9a0; --cf-honey: #d9a866; --cf-drawer: #d9a866; --cf-rug: #c8443a; --cf-rug2: #9d2f28; --cf-tabon: #4f6488; --cf-accent: #4f6488; }
+/* dark mode: the same shelf in lamp-lit browns, light ink; price tags stay red, honey drawers go to deep wood */
+:root[data-theme="dark"] .cfpage { --cf-surf: #3d2a1c; --cf-surf2: #33220f; --cf-surf3: #4a2c1a; --cf-ink: #f2e4c0; --cf-ink2: #c9a96e; --cf-edge: #74462a; --cf-dock: #1f1209; --cf-honey: #74462a; --cf-drawer: #4a2c1a; --cf-tabon: #2f6a3a; --cf-accent: #a4b86a; }
+.cfdock { position: sticky; top: 0; z-index: 5; background: var(--cf-dock); padding: 8px 0 0; margin: 0 0 12px; }
+.cfdock .cfstagewrap { margin: 0; }
+.cfdock .cfcount { display: flex; align-items: center; gap: 6px; margin: 0; padding: 6px 12px 8px; color: var(--cf-cream); font-size: 1.5rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.cfdock .cfcount img { width: 32px; height: 32px; }
+.cfdock .cfcount .muted { margin-left: auto; font-size: .8125rem; font-weight: 700; color: var(--cf-ink-dock); text-align: right; }
+.cfdock .cfspend { color: #ffb4a8; }
+.cfcard.box { background: var(--cf-surf2); color: var(--cf-ink); box-shadow: 0 0 0 3px var(--cf-edge); }
+.cfcard .cfinfo small, .cfcard .help, .cfcard .muted { color: var(--cf-ink2); }
+.cfpage > h2 { margin: 16px 0 8px; }
+/* upgrade shelf */
+.cfupwrap { background: var(--cf-surf2); color: var(--cf-ink); padding: 12px; box-shadow: 0 0 0 3px var(--cf-edge); }
+.cfupwrap .cftabs4 { gap: 6px; padding-top: 8px; margin-bottom: 12px; }
+.cfupwrap .cftabs button { min-height: 44px; border: 0; border-radius: 0; background: var(--cf-surf); box-shadow: inset 0 0 0 2px var(--cf-honey); color: var(--cf-ink); font-weight: 900; }
+.cfupwrap .cftabs button.on { background: var(--cf-tabon); box-shadow: inset 0 0 0 2px var(--cf-edge); color: var(--cf-cream); }
+.cfupwrap .cfbdg { background: var(--cf-rug); color: var(--cf-cream); border-radius: 0; box-shadow: 0 0 0 2px var(--cf-edge); }
+.cfupwrap .cftabs .on .cfbdg { background: var(--cf-rug); color: var(--cf-cream); }
+.cfupwrap .cfups { grid-template-columns: 1fr 1fr; gap: 12px 8px; padding-bottom: 6px; }
+.cfupwrap .cfup { position: relative; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px 0; text-align: center; border: 0; border-radius: 0; background: var(--cf-surf); box-shadow: 0 0 0 2px var(--cf-edge); }
+.cfupwrap .cficon img, .cfupwrap .cficon .cfimg { width: 40px; height: 40px; image-rendering: pixelated; }
+.cfupwrap .cfup .cfinfo { flex: 1 1 auto; font-size: .875rem; line-height: 1.2; }
+.cfupwrap .cfup .cfinfo > b { display: block; }
+.cfupwrap .cfup .cfinfo small { font-size: .6875rem; line-height: 1.25; color: var(--cf-ink2); }
+.cfupwrap .cfup .cfinfo small.muted { position: absolute; top: 6px; left: 6px; font-size: .8125rem; font-weight: 900; color: var(--cf-accent); }
+.cfupwrap .cfup .cfinfo br { display: none; }
+.cfupwrap .cfcost { align-self: stretch; margin: 4px -6px 0; min-height: 40px; border: 0; border-radius: 0; background: var(--cf-rug); color: var(--cf-cream); font-weight: 900; font-size: .875rem; font-variant-numeric: tabular-nums; box-shadow: inset 0 -4px 0 var(--cf-rug2); }
+.cfupwrap .cfcost:disabled { background: var(--cf-surf3); color: var(--cf-ink2); box-shadow: inset 0 2px 0 rgba(58, 36, 16, .15); opacity: 1; }
+.cfbulk { justify-content: flex-end; margin: 0 0 8px; }
+.cfbulk button { min-height: 36px; border: 0; border-radius: 0; background: var(--cf-surf); color: var(--cf-ink); box-shadow: 0 0 0 2px var(--cf-edge); font-weight: 900; }
+.cfbulk button[aria-pressed="true"] { background: var(--cf-edge); color: var(--cf-cream); }
+/* More hub: drawers */
+.cfhub { gap: 4px; }
+.cfhub button { min-height: 64px; justify-content: center; border: 0; border-radius: 0; background: var(--cf-drawer); color: var(--cf-ink); box-shadow: inset 0 0 0 2px var(--cf-edge), inset 0 -6px 0 rgba(58, 36, 16, .2); padding: 4px 2px 8px; font-weight: 900; font-size: .8125rem; line-height: 1.15; }
+.cfhub button .cfhi { font-size: 1.25rem; }
+.cfhub button small { font-size: .6875rem; font-weight: 600; opacity: 1; color: var(--cf-ink2); }
+.cfhub button[aria-selected="true"] { background: var(--cf-surf); box-shadow: inset 0 0 0 3px var(--cf-rug); }
+.cfhub .cfbdg { background: var(--cf-rug); color: var(--cf-cream); border-radius: 0; box-shadow: 0 0 0 2px var(--cf-edge); top: -6px; right: -4px; }
+.cfhubwrap .cfpanel.box, .cfbook { background: var(--cf-surf); color: var(--cf-ink); box-shadow: 0 0 0 3px var(--cf-edge); }
+.cfhubwrap .cfpanel .help, .cfhubwrap .cfpanel .muted { color: var(--cf-ink2); }
+@media (min-width: 721px) {
+  .cfdock { position: static; padding-top: 12px; box-shadow: 0 0 0 3px var(--cf-edge); }
+  .cfdock .cfstagewrap { zoom: 2; }
+  .cfdock .cfcount { font-size: 2.25rem; padding: 8px 20px 12px; } .cfdock .cfcount img { width: 48px; height: 48px; }
+  .cfdock .cfcount .muted { font-size: 1rem; }
+  .cfupwrap .cfups { grid-template-columns: repeat(3, 1fr); }
+}

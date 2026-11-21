@@ -1,0 +1,8 @@
+dune-wyrm-burrow-under|Burrow Under|guard|evade|Dune Wyrm|The sand ripples. Then the sand stands up.
+dune-wyrm-quake|Quake|hurt|trip|Dune Wyrm|The sand ripples. Then the sand stands up.
+dune-wyrm-sand-swallow|Sand Swallow|hurt|-|Dune Wyrm|The sand ripples. Then the sand stands up.
+dune-wyrm-sand-spout|Sand Spout|hurt|quick|Dune Wyrm|The sand ripples. Then the sand stands up.
+snow-owl-monarch-frost-wing|Frost Wing|hurt|trip|Snow Owl Monarch|Ruler of the white silence.
+snow-owl-monarch-snow-glare|Snow Glare|trick|evade|Snow Owl Monarch|Ruler of the white silence.
+snow-owl-monarch-royal-talon|Royal Talon|hurt|pierce|Snow Owl Monarch|Ruler of the white silence.
+snow-owl-monarch-silent-glide|Silent Glide|guard|-|Snow Owl Monarch|Ruler of the white silence.

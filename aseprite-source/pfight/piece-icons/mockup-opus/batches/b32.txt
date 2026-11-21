@@ -1,0 +1,8 @@
+hermit-crab-hoarder-borrowed-shell|Borrowed Shell|guard|hold|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+hermit-crab-hoarder-hoard-toss|Hoard Toss|hurt|-|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+hermit-crab-hoarder-shell-swap|Shell Swap|heal|-|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+hermit-crab-hoarder-spare-address|Spare Address|heal|-|Hermit Crab Hoarder|Wears three stolen shells at once and is still looking for a fourth.
+sea-otter-bandit-rock-crack|Rock Crack|hurt|bash|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+sea-otter-bandit-kelp-wrap|Kelp Wrap|guard|evade|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+sea-otter-bandit-pebble-pocket|Pebble Pocket|trick|trip|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+sea-otter-bandit-tummy-anvil|Tummy Anvil|hurt|bash|Sea Otter Bandit|Cracks mussels on its tummy and considers your lunch pail an open shellfish.

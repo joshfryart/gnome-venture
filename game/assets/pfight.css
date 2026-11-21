@@ -431,3 +431,6 @@
 .advgrid.fighting.pfover .encounter .help, .advgrid.fighting.pfover .encounter .hint, .advgrid.fighting.pfover .encounter .muted, .advgrid.fighting.pfover .encounter small { color: #e6d6b0; }
 .pf-boardmode .pf-inspect, .pf-held-chip, .pf-play { color: #f2e4c0; }
 .pf-boardmode .pf-inspect .pfi-x { color: #f2e4c0; }
+/* 2.7.44 a creature's own piece: its hand-drawn icon (20px) in place of the type emoji */
+.pf-cico { display: block; width: 1.25rem; height: 1.25rem; image-rendering: pixelated; }
+.pfb-p .pf-ico:has(.pf-cico) { background: none; padding: 0; }

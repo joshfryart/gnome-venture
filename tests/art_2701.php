@@ -28,7 +28,9 @@ foreach ($rows as $r) {
     $gs = getimagesize($g); $ss = getimagesize($s);
     $want = (int)$w ? [(int)$w, (int)$h] : [$ss[0], $ss[1]];
     if ([$gs[0], $gs[1]] !== $want) $bad[] = "$dst is {$gs[0]}x{$gs[1]}, want {$want[0]}x{$want[1]}";
-    if (!(int)$w && md5_file($g) !== md5_file($s)) $bad[] = "$dst is not the approved file $src";
+    // 2026-11-21: a non-whimsy pal's yard picture (pals/<key>.png) is now the creature cut into a jigsaw piece; the approved bytes live on in aseprite-source/v3/pals-creature/
+    $cre = (preg_match('~^pals/([a-z0-9-]+)\.png$~', $dst, $mm)) ? $repo . '/aseprite-source/v3/pals-creature/' . $mm[1] . '.png' : '';
+    if (!(int)$w && md5_file($cre !== '' && is_file($cre) ? $cre : $g) !== md5_file($s)) $bad[] = "$dst is not the approved file $src";
     if (art_path('assets/img/' . $dst) === '') $bad[] = "art_path() does not find assets/img/$dst";
 }
 ok('every file is at its game path, the size of what it replaces, the approved bytes, and art_path() finds it', !$bad, implode('; ', array_slice($bad, 0, 6)));
@@ -43,11 +45,7 @@ $p = treehouse_pal_pic(['key' => 'mw-acorn-nip'], true);
 ok('a pal with a perch picture: the perch (36 px) file', str_contains((string)($p['src'] ?? ''), 'assets/img/pals/perch/mw-acorn-nip.png'), json_encode($p));
 $p = treehouse_pal_pic(['key' => 'mw-acorn-nip']);
 ok('the same pal in the yard: the 64 px yard picture', str_contains((string)($p['src'] ?? ''), 'assets/img/pals/mw-acorn-nip.png'), json_encode($p));
-$other = null;
-foreach (glob($img . 'pals/*.png') as $f) { $k = basename($f, '.png'); if (!is_file($img . 'pals/perch/' . $k . '.png')) { $other = $k; break; } }
-$p = $other ? treehouse_pal_pic(['key' => $other], true) : [];
-ok('a pal with no perch picture keeps its yard picture on a perch (' . $other . ')', $other && str_contains((string)($p['src'] ?? ''), 'assets/img/pals/' . $other . '.png'), json_encode($p));
-ok('142 pals have a perch picture (14 + the 128 of art-2701-pals-all), each with a yard picture too', count(glob($img . 'pals/perch/*.png')) === 142 && !array_filter(glob($img . 'pals/perch/*.png'), fn($f) => !is_file($img . 'pals/' . basename($f))), (string)count(glob($img . 'pals/perch/*.png')));
+ok('all 570 pals have a perch picture (142 hand-drawn art-2701, 356 block-pal generator, 72 whimsy downscaled), each with a yard picture too', count(glob($img . 'pals/perch/*.png')) === 570 && !array_filter(glob($img . 'pals/perch/*.png'), fn($f) => !is_file($img . 'pals/' . basename($f))), (string)count(glob($img . 'pals/perch/*.png')));
 
 echo "== pals: the 128 of art-2701-pals-all (step 2), by the key the game looks up\n";
 $wl = json_decode((string)file_get_contents($repo . '/aseprite-source/v3/art-2701-pals-all/worklist.json'), true);
@@ -61,7 +59,7 @@ for ($c = 0; $c < 16; $c++) foreach ($wl[$c] as $p) {
     if (!$row || $row[0] !== $p['pic'] || $row[2] !== $p['name']) { $miss[] = $p['key'] . ' is not pic|key|name ' . $p['pic'] . '|' . $p['name'] . ' in puzzle_pals.txt'; continue; }
     $y = treehouse_pal_pic(['key' => $p['key']]); $q = treehouse_pal_pic(['key' => $p['key']], true);
     if (!str_contains((string)($y['src'] ?? ''), 'assets/img/pals/' . $p['key'] . '.png') || !str_contains((string)($q['src'] ?? ''), 'assets/img/pals/perch/' . $p['key'] . '.png')) $miss[] = $p['key'] . ' ' . json_encode([$y, $q]);
-    elseif (md5_file($img . 'pals/' . $p['key'] . '.png') !== md5_file(sprintf('%s/aseprite-source/v3/art-2701-pals-all/c%02d/opus3/%s-yard.png', $repo, $c, $p['key']))) $miss[] = $p['key'] . ' yard is not the opus3 file';
+    elseif (md5_file(is_file($repo . '/aseprite-source/v3/pals-creature/' . $p['key'] . '.png') ? $repo . '/aseprite-source/v3/pals-creature/' . $p['key'] . '.png' : $img . 'pals/' . $p['key'] . '.png') !== md5_file(sprintf('%s/aseprite-source/v3/art-2701-pals-all/c%02d/opus3/%s-yard.png', $repo, $c, $p['key']))) $miss[] = $p['key'] . ' yard is not the opus3 file';
     elseif (art_path('assets/img/pals/perch/' . $p['key'] . '.png') === '' || art_path('assets/img/pals/' . $p['key'] . '.png') === '') $miss[] = $p['key'] . ' not found by art_path()';
 }
 ok('128 pals: in puzzle_pals.txt under the same picture and name, yard (64) and perch (36) picked by treehouse_pal_pic(), the opus3 bytes, art_path() finds both', $n === 128 && !$miss, $n . ' ' . implode('; ', array_slice($miss, 0, 4)));

@@ -1,0 +1,8 @@
+mangrove-crab-king-root-grip|Root Grip|hurt|trip|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+mangrove-crab-king-king-s-pincer|King's Pincer|hurt|pierce|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+mangrove-crab-king-mud-armour|Mud Armour|guard|hold|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+mangrove-crab-king-mud-snatch|Mud Snatch|trick|trip|Mangrove Crab King|Rules the root tangle with one huge claw and a very small crown of barnacles.
+sand-viper-matriarch-viper-fang|Viper Fang|hurt|poison|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.
+sand-viper-matriarch-sidle|Sidle|guard|evade|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.
+sand-viper-matriarch-brood-hiss|Brood Hiss|trick|trip|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.
+sand-viper-matriarch-sand-sand-sting|Sand Sand Sting|hurt|poison|Sand Viper Matriarch|Hidden in the dune until the moment you step on her dinner.

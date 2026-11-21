@@ -134,7 +134,7 @@ function trail_pal_urls(array $u): array
     require_once __DIR__ . '/puzzle_pals.php';
     $o = [];
     foreach (ppal_equipped($u) as $e) {
-        $url = ppal_art_url((string)$e['pal']['key']);
+        $url = ppal_travel_url((string)$e['pal']['key']);
         if ($url !== '' && count($o) < 3) $o[] = $url;
     }
     return $o;

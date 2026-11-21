@@ -1,0 +1,8 @@
+frost-hare-hare-kick|Hare Kick|hurt|quick|Frost Hare|A white hare with breath like a winter wind.
+frost-hare-zigzag|Zigzag|guard|evade|Frost Hare|A white hare with breath like a winter wind.
+frost-hare-thump|Thump|trick|-|Frost Hare|A white hare with breath like a winter wind.
+frost-hare-frost-breath|Frost Breath|trick|evade|Frost Hare|A white hare with breath like a winter wind.
+giant-centipede-hundred-legs|Hundred Legs|hurt|quick|Giant Centipede|A hundred legs and not one of them friendly.
+giant-centipede-venom-jaws|Venom Jaws|hurt|poison|Giant Centipede|A hundred legs and not one of them friendly.
+giant-centipede-coil-up|Coil Up|guard|-|Giant Centipede|A hundred legs and not one of them friendly.
+giant-centipede-hundred-steps|Hundred Steps|hurt|quick|Giant Centipede|A hundred legs and not one of them friendly.

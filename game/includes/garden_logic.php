@@ -1444,6 +1444,8 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             if ($qty > 0 && ($gt = player_perk_pct($uid, 'green_thumb', 'perk_green_thumb')) > 0 && mt_rand(1, 100) <= $gt) { $qty++; $msgs[] = '🌱 Green Thumb: one extra!'; }   // 2.6.33
             $kept = $helper !== null && !$pal ? max(1, (int)floor($qty * (100 - (int)setting('helper_cut_percent')) / 100)) : $qty;   // v2.6.40: a crew pal keeps nothing
             give_item($uid, (int)$p['produce_item_id'], $kept);
+            require_once __DIR__ . '/harvest_show.php';
+            if ($helper === null || $pal) hv_note_add($pal ? 'pal' : 'self', $p, (int)$p['produce_item_id'], $kept, $pal ? (string)$helper : '');   // harvest show (assets/harvest.js)
             require_once __DIR__ . '/food_mastery.php';
             $mastUp = food_mastery_up_line((string)q_val('SELECT name FROM items WHERE id = ?', [$p['produce_item_id']]), food_mastery_add($uid, (int)$p['produce_item_id'], 'grown', $kept));   // 2.6.32: crop mastery
             market_note_harvest($u, $t, $p, $kept);   // v1.0.0 wave 2b: the crop's quality (its Harvest Fair score) joins the stack, for orders
@@ -1452,6 +1454,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             if ($mastUp !== '') $msgs[] = $mastUp;
             array_unshift($msgs, $helper !== null && !$pal ? "$helper harvests $qty × $pname and keeps " . ($qty - $kept) . ' as pay.'
                                                   : 'You harvest ' . $qty . ' × ' . $pname . '.');
+            if (session_status() === PHP_SESSION_ACTIVE) $_SESSION['gv_harvest_stat'] = time();   // garden status quip (assets/gardenstat.js): garden.php shows it on the next render
             job_event($uid, 'harvest', (string)$p['slug'], $kept, ['kind' => (string)$p['kind'], 'plant' => (string)$p['slug'], 'bedgrade' => $notill ? $g : -1, 'helper' => $helper !== null]);   // v0.9.4 N8: plant kind and bed grade (a hired or player helper's harvest doesn't count)
             require_once __DIR__ . '/contests.php';
             if ($show = show_measure($uid, $t, $p, $u)) $msgs[] = $show;   // the Village Show
@@ -1520,6 +1523,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             $msgs[] = '🐦 Wren the naturalist has taught you no-till gardening! Sheet mulch a square with cardboard and mulch.';
         }
     }
+    if (!$isCover && ($helper === null || $pal)) { require_once __DIR__ . '/harvest_show.php'; hv_note_info($pal ? 'pal' : 'self', $msgs, $xp); }
     return array_merge($msgs, almanac_after_harvest($uid, (int)$p['id']));
 }
 

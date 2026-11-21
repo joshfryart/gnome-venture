@@ -1,0 +1,8 @@
+thistle-beast-needle-volley|Needle Volley|hurt|poison|Thistle Beast|A walking thistle patch with a bad attitude.
+thistle-beast-thistle-spines|Thistle Spines|guard|thorns|Thistle Beast|A walking thistle patch with a bad attitude.
+thistle-beast-root-deep|Root Deep|heal|-|Thistle Beast|A walking thistle patch with a bad attitude.
+thistle-beast-spine-heap|Spine Heap|guard|thorns|Thistle Beast|A walking thistle patch with a bad attitude.
+ember-beetle-ember-spit|Ember Spit|hurt|poison|Ember Beetle|Its shell glows like a coal fresh from the fire.
+ember-beetle-hot-shell|Hot Shell|guard|thorns|Ember Beetle|Its shell glows like a coal fresh from the fire.
+ember-beetle-cinder-rush|Cinder Rush|hurt|-|Ember Beetle|Its shell glows like a coal fresh from the fire.
+ember-beetle-scorched-track|Scorched Track|trick|thorns|Ember Beetle|Its shell glows like a coal fresh from the fire.

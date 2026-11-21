@@ -395,7 +395,7 @@ function dv2_party_html(array $u, array $exp, ?array $sc): string
             if (function_exists('pj_pals')) foreach (pj_pals((int)$u['id']) as $p) $by[$p['key']] = $p;
             foreach (ppal_equipped($u) as $e) {
                 $p = $by[$e['pal']['key']] ?? null;
-                $o .= '<span class="dv2m">' . ppal_sticker_html((string)$e['pal']['key'], 28) . ' <b>' . e((string)$e['pal']['name']) . '</b>' . ($p ? ' Lv ' . (int)$p['a'] . ' · ' . (int)$p['hp'] . '/' . (int)$p['max'] . ' ❤️' : '') . '</span>';
+                $o .= '<span class="dv2m">' . ppal_sticker_html((string)$e['pal']['key'], 28, true) . ' <b>' . e((string)$e['pal']['name']) . '</b>' . ($p ? ' Lv ' . (int)$p['a'] . ' · ' . (int)$p['hp'] . '/' . (int)$p['max'] . ' ❤️' : '') . '</span>';
             }
         }
     } catch (Throwable $e) { error_log('dv2_party_html: ' . $e->getMessage()); }
