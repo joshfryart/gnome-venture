@@ -16,7 +16,12 @@
     var total = num(data, 'total'), xp = num(data, 'xp'), more = num(data, 'more');
     var seeds = data.getAttribute('data-seeds') || '', summary = data.getAttribute('data-summary') || '';
     var cards = Array.prototype.slice.call(data.querySelectorAll('li.hv-card'));
-    var notes = Array.prototype.map.call(data.querySelectorAll('ol li'), function (li) { return li.textContent; });
+    var lvl = 0;   // a level-up line becomes a small "LEVEL UP!" pop (the fight's pop, smaller) and a chip instead of text
+    var notes = Array.prototype.map.call(data.querySelectorAll('ol li'), function (li) { return li.textContent; }).filter(function (m) {
+      var x = /^🎉 You reached gnome level (\d+)/.exec(m);
+      if (x) { lvl = parseInt(x[1], 10); return false; }
+      return true;
+    });
     var st = document.querySelector('.gardenstat'), stat = null;   // garden status counts (garden page): they ride in this popover instead of their own pill
     if (st) { stat = {}; ['ready', 'thirsty', 'weedy', 'empty', 'grow'].forEach(function (k) { stat[k] = num(st, k); }); st.remove(); }
     var prevFocus = document.activeElement, art = data.getAttribute('data-art') || '';   // art: base url of the harvest-*.png pictures ('' = emoji and CSS shapes)
@@ -79,6 +84,7 @@
       });
       var chips = [['🧺 ' + total + ' crop' + (total === 1 ? '' : 's')]];
       if (xp) chips.push(['⭐ +' + xp + ' XP']);
+      if (lvl) chips.push(['🎉 Level ' + lvl]);
       if (seeds) chips.push(['🌱 ' + seeds]);
       if (stat) [['💧', 'thirsty', 'thirsty'], ['🧺', 'ready', 'still ripe'], ['🌿', 'weedy', 'weedy'], ['🟫', 'empty', 'bare'], ['🌱', 'grow', 'growing']].forEach(function (r) { if (stat[r[1]]) chips.push([r[0] + ' ' + stat[r[1]], stat[r[1]] + ' ' + r[2], 1]); });
       chips.forEach(function (c, i) { var s = el('span', 'hv-t' + (c[2] ? ' hv-st' : ''), c[0]); if (c[1]) s.title = c[1]; s.style.setProperty('--gi', i); tally.appendChild(s); });
@@ -87,6 +93,14 @@
     function count(to, ms) {
       var t = null;
       (function tick(now) { if (t === null) t = now; var p = Math.min(1, (now - t) / ms); bcount.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1 && !closed && !done) requestAnimationFrame(tick); })(performance.now());
+    }
+    function levelPop() {   // same motion as the fight's LEVEL UP! pop (scale up, rise, fade), smaller, over the basket
+      if (closed || !box.animate) return;
+      var d = el('div', 'hv-lvl', 'LEVEL UP!');
+      d.setAttribute('aria-hidden', 'true');
+      d.style.top = (basket.offsetTop - 6) + 'px';
+      box.appendChild(d);
+      d.animate([{ transform: 'translate(-50%, 6px) scale(.6)', opacity: 0 }, { transform: 'translate(-50%, -3px) scale(1.25)', opacity: 1, offset: .2 }, { transform: 'translate(-50%, -26px) scale(1)', opacity: 0 }], { duration: 950 }).finished.then(function () { d.remove(); }, function () { d.remove(); });
     }
     function close(quiet) {
       if (closed) return;
@@ -136,6 +150,7 @@
       cells.forEach(function (c) { c.classList.add('gone'); });
       count(total, 450);
       bico.classList.add('bump'); bpx.classList.add('bump'); heap.classList.add('on');
+      if (lvl) later(levelPop, 350);
       for (var k = 0; k < 3; k++) { var f = strip('spark', 'hv-spark'); f.style.setProperty('--sx', (10 + k * 22) + 'px'); f.style.setProperty('--sd', k * 110 + 'ms'); basket.appendChild(f); }
     }, t0 + cells.length * 25 + 600);
     later(function () { done = false; finish(); }, t0 + cells.length * 25 + 1300);

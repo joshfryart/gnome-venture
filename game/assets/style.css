@@ -8765,3 +8765,5 @@ dialog.hvov::backdrop { background: transparent; }
 .hvov .hv-spark { visibility: visible; }
 @keyframes hv-strip4 { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 @media (prefers-reduced-motion: reduce) { .hvov .hv-fx { display: none !important; } }
+.hvov .hv-lvl { position: absolute; left: 50%; z-index: 5; font-weight: 900; font-size: 16px; white-space: nowrap; pointer-events: none; color: #ffe27a; text-shadow: 0 2px 0 #7a5a00, 1px 0 0 #7a5a00, -1px 0 0 #7a5a00, 0 -1px 0 #7a5a00; }   /* the fight's .fe-dmg.xp, smaller */
+@media (prefers-reduced-motion: reduce) { .hvov .hv-lvl { display: none; } }
