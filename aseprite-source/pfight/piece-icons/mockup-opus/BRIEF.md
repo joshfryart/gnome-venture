@@ -19,3 +19,6 @@ Row format: `slug|Piece Name|type|tag|Creature|creature flavour text`. Type is h
 - `bNN/grids/<slug>-32.txt` and `-20.txt` for every row.
 - `bNN/make.py`: your palette/ICON table + rendering (model on `mockup-opus/mockup.py`; import `pix` via sys.path to the parent folder). Writes `bNN/ico-<slug>.png` (32x32), `bNN/ico-<slug>-s.png` (20x20) and `bNN/sheet.png` (all icons at 32 and 20, upscaled, with ico-hurt/guard/heal/trick for comparison).
 - Final report: 2-4 lines max: done count, any icon you consider weak (slug + why).
+
+## Shared-scratchpad warning
+Other agents run in parallel and share the scratchpad folder. Put ALL helper scripts and temp files in your own private subfolder (e.g. `<scratchpad>/bNN-private/`), never reuse generic names like `fix.py` in the shared root, and only ever edit files inside your own `bNN/` folder. Before relying on a helper, check it is yours.
