@@ -28,6 +28,7 @@ SPECK = {'u': (226, 236, 240)}                                               # l
 HORN = {'n': (214, 196, 150), 'N': (244, 234, 200), 'o': (150, 124, 84)}     # ibex horn (bone)
 BEARD = {'f': (150, 128, 100), 'F': (196, 176, 140), 'x': (102, 84, 64)}     # ibex beard
 GOATEYE = {'y': (244, 196, 60)}                                              # amber eye
+GOATEYE_Y = {'y': (226, 120, 36)}                                            # eye on yellow
 ROCK = {'r': (150, 144, 136), 'R': (192, 186, 176), 'q': (98, 92, 88)}       # cliff rock
 SNOUT = {'p': (236, 150, 150), 'P': (250, 200, 194), 'n': (140, 56, 70)}     # pig snout
 WHISK = {'W': (246, 240, 226), 'w': (206, 196, 176), 'v': (150, 138, 118)}   # pig beard
@@ -45,9 +46,9 @@ ICONS = [
     ('leatherback-flipper-heave', 'hurt', dict(WATER, **SPECK)),
     ('leatherback-oar-sweep', 'hurt', dict(WATER, **SPECK)),
     ('ibex-patriarch-horn-sweep', 'hurt', dict(HORN, **BEARD, **GOATEYE)),
-    ('ibex-patriarch-cliff-leap', 'trick', dict(HORN, **BEARD, **GOATEYE, **ROCK)),
+    ('ibex-patriarch-cliff-leap', 'trick', dict(HORN, **BEARD, **GOATEYE_Y, **ROCK)),
     ('ibex-patriarch-ledge-stand', 'guard', dict(HORN, **BEARD, **GOATEYE, **ROCK)),
-    ('ibex-patriarch-herd-stare', 'trick', dict(HORN, **BEARD, **GOATEYE)),
+    ('ibex-patriarch-herd-stare', 'trick', dict(HORN, **BEARD, **GOATEYE_Y)),
     ('bearded-pig-beard-barge', 'hurt', dict(SNOUT, **WHISK)),
     ('bearded-pig-mud-plough', 'hurt', dict(SNOUT, **WHISK, **MUD)),
     ('bearded-pig-nut-shield', 'guard', dict(SNOUT, **WHISK, **NUT)),

@@ -1,10 +1,10 @@
 ....................
 .LD..............LD.
 .LDLD..........LDLD.
-.LBBD...S..S...LBBD.
-.LBBD...SssS...LBBD.
-..LD.kH..SS..Bk.LD..
-..LD.kk..SS..kk.LD..
+.LBBD..........LBBD.
+.LBBD..CC..CC..LBBD.
+..LD...Ck..kC...LD..
+..LD...LD..LD...LD..
 ...LBBBBBBkBBBBBD...
 ..LBBHBBBkCBBBBBBD..
 .LBHBBBBBBkBBBBBBBD.
