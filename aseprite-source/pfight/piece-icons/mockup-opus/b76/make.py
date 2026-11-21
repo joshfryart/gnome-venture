@@ -46,7 +46,7 @@ ICONS = [
     ('tortoise-hatchling-trundle-weed-spit', 'trick', dict(SKIN, **WEED, **POISON)),
     ('tortoise-hatchling-trundle-soft-shell-tuck', 'guard', dict(SKIN)),
     ('tortoise-hatchling-trundle-trundle-roll', 'guard', dict(SKIN, u=(226, 206, 160))),
-    ('sun-bear-sun-claw', 'hurt', dict(MUZZLE, **CRESCENT)),
+    ('sun-bear-sun-claw', 'hurt', dict(MUZZLE, **CRESCENT, c=(204, 182, 140))),
     ('sun-bear-honey-rest', 'heal', dict(MUZZLE, **TONGUE, **CRESCENT, **HONEY)),
     ('sun-bear-bark-hide', 'guard', dict(MUZZLE, **CRESCENT, **BARK)),
     ('sun-bear-sniff-out', 'trick', dict(MUZZLE, **TONGUE, **CRESCENT, **WEED)),
