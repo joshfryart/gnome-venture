@@ -37,7 +37,7 @@ ICONS = [
     ('aphid-swarm-cloud-up', 'guard', dict(APHID, **WING)),
     ('aphid-swarm-sap-sip', 'hurt', dict(APHID, **STEM, **POISON)),
     ('garden-snail-slime-trail', 'guard', dict(SNAIL, **SLIME)),
-    ('garden-snail-shell-bash', 'hurt', dict(SNAIL)),
+    ('garden-snail-shell-bash', 'hurt', dict(SNAIL, o=(196, 128, 30))),
     ('garden-snail-rasp', 'hurt', dict(SNAIL, m=(122, 40, 40), r=(200, 84, 84))),
     ('garden-snail-shell-lean', 'guard', dict(SNAIL)),
 ]
