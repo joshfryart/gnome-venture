@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.45
+- **Every creature piece has its own hand-drawn icon on the fight board:** 1,012 more icons (32px and 20px) join the first 264, so all 1,276 unique creature pieces of all 319 creatures show a drawing instead of the type emoji. Files are in `assets/img/pfight/pieces/` (`ico-<creature>-<piece>.png`, `-s.png`); `pfd_piece_icon_key()` still hides the key when a file is missing, so a lair guardian borrowing a boss's pieces keeps the emoji. Sources: `aseprite-source/pfight/piece-icons/mockup-opus/b34` to `b97` (grids, `make.py`, sheets), overview `aseprite-source/pfight/piece-icons/all_icons_2_7_45.png`. `tests/pf_piece_icons.php` now expects 2,552 files and 0 pieces without an icon. Known weak spots are in the batch reports (a few animals read like a similar one at 20px).
+- **Map:** every place and road stop sits inside its own region (0 of 241 outside; Cloverholt, Honeythorpe and the rest were drawn along the road curve, so Cloverholt of The Maplewold sat beside Mistmoor). Crowded regions are spread out (at least 11 units apart).
+- **Dead-end road name:** the road that stops at Clovercove is now "The Maplewold – Clovercove", not "The Maplewold – Blossomreach" (`name_dead_end_roads()` renames it once per world).
+
 ## 2.7.44
 - **Harvest show:** a popover after the Harvest buttons (and on waking when a garden pal picked overnight): up to 8 plants are pulled up in a row and fly into a basket, then crops, XP, saved seeds, bonus lines and garden status chips show. A level-up is a small gold "LEVEL UP!" pop (the harvest.js filter now also matches the line after the site's emoji-to-icon swap). Pixel art (`assets/img/harvest-*.png`) when all 12 exist, else emoji and CSS shapes. New: `includes/harvest_show.php`, `assets/harvest.js`, `assets/gardenstat.js`, `docs/harvest-art-spec.md`; small hooks in `garden_logic.php`, `garden.php`, `events.php`, `layout.php`, `style.css`.
 - **Harvest level-up is the small pop only:** a level-up that comes from a harvest no longer also plays 2.7.43's big level-up card (`hv_note_info()` clears the `lvlup` session flag).

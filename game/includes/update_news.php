@@ -812,6 +812,9 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.45' => ['🗺️ Update 2.7.45: a tidier map and a new road name',
+        "[list][*][b]Map[/b]: villages and road stops now sit inside their own region, so The Maplewold's Cloverholt is no longer drawn beside Mistmoor. Crowded regions are spread out a little so places do not overlap.\n"
+        . "[*][b]Roads[/b]: the road that ends at Clovercove is now called The Maplewold – Clovercove, because it never reaches Blossomreach.[/list]"],
     '2.7.44' => ['🧺 Update 2.7.44: the harvest basket, new pal pictures, a Cat Fish shelf',
         "[list][*][b]Harvest show[/b]: after you tap Harvest, your plants are pulled up in a row and fly into a basket, then you see your crops, XP, saved seeds and how the garden is doing. If a garden pal picked while you slept, the same show plays when you wake. A level up is a small gold LEVEL UP! pop instead of a line of text.\n"
         . "[*][b]Pals on the road[/b]: every pal now has a small creature picture that walks beside your gnome, on the Trail and in the delve. The puzzle-piece pictures stay in the Pal Book.\n"
