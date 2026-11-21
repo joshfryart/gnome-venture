@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Batch b68 hand-drawn creature piece icons: Mudskipper Troop, Horned Viper,\nRock Viper, Yak Calf Herd
-(mockup, not wired into the game).
+"""Batch b68 hand-drawn creature piece icons: Mudskipper Troop, Horned Viper,
+Rock Viper, Yak Calf Herd (mockup, not wired into the game).
 
 The pixels live in grids/<slug>-32.txt and grids/<slug>-20.txt: one char per
 pixel, drawn by hand (each size drawn on its own, the 20px is not a downscale).

@@ -32,6 +32,7 @@ CAT = {'e': (190, 222, 150), 'n': (222, 140, 150)}                          # cu
 BONE = {'c': (204, 188, 148)}
 WIND = {'W': (226, 240, 246), 'w': (170, 204, 222)}                         # motion swish
 
+GEYE = {'y': (126, 196, 84), 'Y': (196, 234, 150)}                         # green eye on yellow bodies
 SNAKE = dict(EYE, **MOUTH)
 KOMODO = dict(EYE, **SAND)
 CUB = dict(CAT, **WIND)
@@ -41,7 +42,7 @@ ICONS = [
     # slug, type, extra palette
     ('vine-snake-vine-strike', 'hurt', dict(SNAKE, **LEAF)),
     ('vine-snake-leaf-blend', 'guard', dict(SNAKE, **LEAF)),
-    ('vine-snake-whip-flick', 'trick', dict(SNAKE, **POISON, **WIND)),
+    ('vine-snake-whip-flick', 'trick', dict(SNAKE, **POISON, **WIND, **GEYE)),
     ('vine-snake-early-lean', 'hurt', dict(SNAKE, **LEAF, **WIND)),
     ('komodo-pup-pup-tail-trip', 'hurt', dict(KOMODO, **WIND)),
     ('komodo-pup-sand-flop', 'trick', dict(KOMODO)),

@@ -40,7 +40,7 @@ ICONS = [
     ('tree-snake-bough-cover', 'guard', dict(BRANCH, **MOUTH)),
     ('tree-snake-coil-drop', 'hurt', dict(BRANCH, **LEAF, **MOUTH)),
     ('capuchin-pickpocket-pocket-snag', 'hurt', dict(FACE, **CLOTH, G=(240, 200, 60))),
-    ('capuchin-pickpocket-fruit-bomb', 'trick', dict(FACE, **FRUIT, **LEAF)),
+    ('capuchin-pickpocket-fruit-bomb', 'trick', dict(FACE, **FRUIT, **LEAF, m=MOUTH['m'])),
     ('capuchin-pickpocket-canopy-perch', 'guard', dict(FACE, **BRANCH, **LEAF)),
     ('capuchin-pickpocket-button-snatch', 'trick', dict(FACE, **FRUIT)),
     ('fox-kit-pair-den-wall', 'guard', dict(EAR, **SAND)),
