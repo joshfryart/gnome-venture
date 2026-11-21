@@ -42,7 +42,7 @@ ICONS = [
     ('jaguar-cub-pair-cub-spring', 'hurt', dict(EYE, **NOSE)),
     ('jaguar-cub-pair-tail-chase', 'trick', dict(EYE, **NOSE)),
     ('jaguar-cub-pair-mud-roll', 'guard', dict(EYE, **NOSE, **MUD)),
-    ('jaguar-cub-pair-lace-grab', 'hurt', dict(EYE, **NOSE, **LACE, r=(200, 84, 84))),
+    ('jaguar-cub-pair-lace-grab', 'hurt', dict(EYE, **NOSE, **LACE, **MOUTH)),
     ('cloud-kite-gust-buffet', 'hurt', dict(SNOW)),
     ('cloud-kite-draught-slip', 'trick', dict(SNOW)),
     ('cloud-kite-kite-cover', 'guard', dict(SNOW)),

@@ -40,7 +40,7 @@ ICONS = [
     ('goat-kid-gang-kid-huddle', 'guard', dict(GOAT)),
     ('goat-kid-gang-ledge-cover', 'guard', dict(GOAT, **ROCK)),
     ('goat-kid-gang-headbutt-nudge', 'hurt', dict(GOAT)),
-    ('goat-kid-gang-bouncy-ledge', 'trick', dict(GOAT, **ROCK)),
+    ('goat-kid-gang-bouncy-ledge', 'trick', dict(GOAT, **ROCK, y=(206, 124, 40))),
     ('stoat-stoat-dance', 'trick', dict(STOAT)),
     ('stoat-neck-bite', 'hurt', dict(STOAT, **MOUTH)),
     ('stoat-ermine-coat', 'guard', dict(STOAT)),
