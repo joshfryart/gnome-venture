@@ -73,6 +73,10 @@
       chips.forEach(function (c, i) { var s = el('span', 'hv-t' + (c[2] ? ' hv-st' : ''), c[0]); if (c[1]) s.title = c[1]; s.style.setProperty('--gi', i); tally.appendChild(s); });
       notes.forEach(function (m) { nl.appendChild(el('li', null, m)); });
     }
+    function count(to, ms) {
+      var t = null;
+      (function tick(now) { if (t === null) t = now; var p = Math.min(1, (now - t) / ms); bcount.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1 && !closed && !done) requestAnimationFrame(tick); })(performance.now());
+    }
     function close(quiet) {
       if (closed) return;
       closed = true;
@@ -105,26 +109,23 @@
     ok.focus({ preventScroll: true });
 
     if (reduce) { finish(); return; }
-    var step = cells.length > 8 ? 230 : 380, t0 = 300 + cells.length * 55 + 350, running = 0;
-    cells.forEach(function (c, i) { later(function () { c.classList.add('in'); }, 150 + i * 55); });
+    /* all plants are pulled together (a short stagger keeps it lively), then the basket count jumps once */
+    var t0 = 150 + cells.length * 30 + 300;
+    cells.forEach(function (c, i) { later(function () { c.classList.add('in'); }, 120 + i * 30); });
     cells.forEach(function (c, i) {
       later(function () {
         var a = c.querySelector('.hv-ico').getBoundingClientRect(), b = bico.getBoundingClientRect();
         c.style.setProperty('--fx', Math.round(b.left + b.width / 2 - a.left - a.width / 2) + 'px');
         c.style.setProperty('--fy', Math.round(b.top + b.height / 2 - a.top - a.height / 2) + 'px');
         c.classList.add('pick');
-        later(function () {
-          c.classList.add('gone');
-          running += parseInt(cards[i].getAttribute('data-qty'), 10) || 0;
-          bcount.textContent = running;
-          bico.classList.remove('bump'); void bico.offsetWidth; bico.classList.add('bump');
-        }, Math.min(300, step - 40));
-      }, t0 + i * step);
+      }, t0 + i * 25);
     });
     later(function () {
-      if (more) { running = total; bcount.textContent = total; }
-      done = false; finish();
-    }, t0 + cells.length * step + 500);
+      cells.forEach(function (c) { c.classList.add('gone'); });
+      count(total, 450);
+      bico.classList.add('bump');
+    }, t0 + cells.length * 25 + 600);
+    later(function () { done = false; finish(); }, t0 + cells.length * 25 + 1300);
   }
 
   function scan() { var d = document.querySelector('.hvdata'); if (d) open(d); }
