@@ -1,0 +1,16 @@
+skua-raider-skua-stoop|Skua Stoop|hurt|pierce|Skua Raider|A heavy brown seabird that robs other birds and then gnomes. Its stoop goes straight through a raised arm.
+skua-raider-beak-jab|Beak Jab|hurt|pierce|Skua Raider|A heavy brown seabird that robs other birds and then gnomes. Its stoop goes straight through a raised arm.
+skua-raider-skua-cover|Skua Cover|guard|hold|Skua Raider|A heavy brown seabird that robs other birds and then gnomes. Its stoop goes straight through a raised arm.
+skua-raider-steal-in-flight|Steal In Flight|trick|evade|Skua Raider|A heavy brown seabird that robs other birds and then gnomes. Its stoop goes straight through a raised arm.
+whip-scorpion-whip-lash|Whip Lash|hurt|trip|Whip Scorpion|A tailed beast with no sting but a whip, a sour spray, and an unusual belief in its own beauty.
+whip-scorpion-acid-sup|Acid Sup|heal|-|Whip Scorpion|A tailed beast with no sting but a whip, a sour spray, and an unusual belief in its own beauty.
+whip-scorpion-dusk-hide|Dusk Hide|guard|evade|Whip Scorpion|A tailed beast with no sting but a whip, a sour spray, and an unusual belief in its own beauty.
+whip-scorpion-tail-lift|Tail Lift|hurt|bash|Whip Scorpion|A tailed beast with no sting but a whip, a sour spray, and an unusual belief in its own beauty.
+snowshoe-leveret-dash-fur-pad|Fur Pad|guard|hold|Snowshoe Leveret Dash|A white leveret with feet like snowshoes. It sits very still in a drift, then kicks very hard.
+snowshoe-leveret-dash-snow-kick|Snow Kick|hurt|bash|Snowshoe Leveret Dash|A white leveret with feet like snowshoes. It sits very still in a drift, then kicks very hard.
+snowshoe-leveret-dash-hind-pad|Hind Pad|guard|evade|Snowshoe Leveret Dash|A white leveret with feet like snowshoes. It sits very still in a drift, then kicks very hard.
+snowshoe-leveret-dash-drift-stillness|Drift Stillness|guard|thorns|Snowshoe Leveret Dash|A white leveret with feet like snowshoes. It sits very still in a drift, then kicks very hard.
+mountain-hare-hill-kick|Hill Kick|hurt|pierce|Mountain Hare|A hill hare that mends itself in a hollow form between fights. Gnomes have been found asleep there.
+mountain-hare-clover-graze|Clover Graze|heal|-|Mountain Hare|A hill hare that mends itself in a hollow form between fights. Gnomes have been found asleep there.
+mountain-hare-form-hide|Form Hide|guard|hold|Mountain Hare|A hill hare that mends itself in a hollow form between fights. Gnomes have been found asleep there.
+mountain-hare-hollow-nap|Hollow Nap|heal|-|Mountain Hare|A hill hare that mends itself in a hollow form between fights. Gnomes have been found asleep there.

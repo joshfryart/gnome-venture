@@ -1,0 +1,16 @@
+caribou-bull-rut-charge|Rut Charge|hurt|pierce|Caribou Bull|A bull caribou in the autumn rut, antlers still furred in velvet and thoughts entirely on knocking things over.
+caribou-bull-antler-hook|Antler Hook|trick|trip|Caribou Bull|A bull caribou in the autumn rut, antlers still furred in velvet and thoughts entirely on knocking things over.
+caribou-bull-velvet-rack|Velvet Rack|guard|evade|Caribou Bull|A bull caribou in the autumn rut, antlers still furred in velvet and thoughts entirely on knocking things over.
+caribou-bull-head-shake|Head Shake|hurt|quick|Caribou Bull|A bull caribou in the autumn rut, antlers still furred in velvet and thoughts entirely on knocking things over.
+black-jaguar-night-lunge|Night Lunge|hurt|pierce|Black Jaguar|A jet-black jaguar whose rosettes only show in the rain. It waits above the path and comes down with the dark.
+black-jaguar-shadow-slip|Shadow Slip|trick|evade|Black Jaguar|A jet-black jaguar whose rosettes only show in the rain. It waits above the path and comes down with the dark.
+black-jaguar-night-coat|Night Coat|guard|hold|Black Jaguar|A jet-black jaguar whose rosettes only show in the rain. It waits above the path and comes down with the dark.
+black-jaguar-night-drop|Night Drop|hurt|trip|Black Jaguar|A jet-black jaguar whose rosettes only show in the rain. It waits above the path and comes down with the dark.
+goliath-frog-belly-slam|Belly Slam|hurt|bash|Goliath Frog|A frog the size of a haycart, flat-headed and unbothered. It sits on gnomes, slowly, as a matter of principle.
+goliath-frog-gulp-down|Gulp Down|trick|heal|Goliath Frog|A frog the size of a haycart, flat-headed and unbothered. It sits on gnomes, slowly, as a matter of principle.
+goliath-frog-rubbery-skin|Rubbery Skin|guard|hold|Goliath Frog|A frog the size of a haycart, flat-headed and unbothered. It sits on gnomes, slowly, as a matter of principle.
+goliath-frog-sit-heavy|Sit Heavy|hurt|trip|Goliath Frog|A frog the size of a haycart, flat-headed and unbothered. It sits on gnomes, slowly, as a matter of principle.
+frigatebird-air-snatch|Air Snatch|hurt|quick|Frigatebird|A forked black kite of the open sea that robs other birds mid-air. It mostly steals fish, and sometimes a hat.
+frigatebird-chase-down|Chase Down|hurt|quick|Frigatebird|A forked black kite of the open sea that robs other birds mid-air. It mostly steals fish, and sometimes a hat.
+frigatebird-storm-glide|Storm Glide|guard|evade|Frigatebird|A forked black kite of the open sea that robs other birds mid-air. It mostly steals fish, and sometimes a hat.
+frigatebird-fish-rob|Fish Rob|trick|trip|Frigatebird|A forked black kite of the open sea that robs other birds mid-air. It mostly steals fish, and sometimes a hat.

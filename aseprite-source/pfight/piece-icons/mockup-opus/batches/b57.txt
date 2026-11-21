@@ -1,0 +1,16 @@
+tree-frog-chorus-chorus-chirp|Chorus Chirp|hurt|quick|Tree Frog Chorus|A leaf of small green frogs, all singing at once. The ones nearest you have stopped singing and started jumping.
+tree-frog-chorus-dew-lap|Dew Lap|heal|-|Tree Frog Chorus|A leaf of small green frogs, all singing at once. The ones nearest you have stopped singing and started jumping.
+tree-frog-chorus-leaf-cling|Leaf Cling|guard|evade|Tree Frog Chorus|A leaf of small green frogs, all singing at once. The ones nearest you have stopped singing and started jumping.
+tree-frog-chorus-sticky-toes|Sticky Toes|trick|trip|Tree Frog Chorus|A leaf of small green frogs, all singing at once. The ones nearest you have stopped singing and started jumping.
+ghost-crab-ghost-dash|Ghost Dash|hurt|bash|Ghost Crab|A sand-coloured crab that sprints out of a burrow at night, grabs, and is gone before you look down.
+ghost-crab-sand-throw|Sand Throw|trick|quick|Ghost Crab|A sand-coloured crab that sprints out of a burrow at night, grabs, and is gone before you look down.
+ghost-crab-pale-hide|Pale Hide|guard|thorns|Ghost Crab|A sand-coloured crab that sprints out of a burrow at night, grabs, and is gone before you look down.
+ghost-crab-bolt-pinch|Bolt Pinch|hurt|quick|Ghost Crab|A sand-coloured crab that sprints out of a burrow at night, grabs, and is gone before you look down.
+land-crab-march-carapace-wall|Carapace Wall|guard|hold|Land Crab March|Thousands of red crabs march to the sea once a year, and a gnome in the way is a speed bump.
+land-crab-march-burrow-cover|Burrow Cover|guard|hold|Land Crab March|Thousands of red crabs march to the sea once a year, and a gnome in the way is a speed bump.
+land-crab-march-sidestep-clamp|Sidestep Clamp|hurt|trip|Land Crab March|Thousands of red crabs march to the sea once a year, and a gnome in the way is a speed bump.
+land-crab-march-march-trample|March Trample|hurt|bash|Land Crab March|Thousands of red crabs march to the sea once a year, and a gnome in the way is a speed bump.
+pack-rat-hoard-snatch|Hoard Snatch|hurt|trip|Pack Rat|Collects anything bright and swaps it for whatever it is holding. Its nest is a museum of small crimes.
+pack-rat-stuffed-cheeks|Stuffed Cheeks|guard|evade|Pack Rat|Collects anything bright and swaps it for whatever it is holding. Its nest is a museum of small crimes.
+pack-rat-trinket-toss|Trinket Toss|trick|bash|Pack Rat|Collects anything bright and swaps it for whatever it is holding. Its nest is a museum of small crimes.
+pack-rat-cache-gnaw|Cache Gnaw|hurt|pierce|Pack Rat|Collects anything bright and swaps it for whatever it is holding. Its nest is a museum of small crimes.

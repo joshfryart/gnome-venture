@@ -1,0 +1,16 @@
+pelican-parliament-big-scoop|Big Scoop|hurt|trip|pelican-parliament|
+pelican-parliament-pouch-slap|Pouch Slap|hurt|-|pelican-parliament|
+pelican-parliament-wing-wall|Wing Wall|guard|hold|pelican-parliament|
+pelican-parliament-committee-vote|Committee Vote|guard|-|pelican-parliament|
+beaver-foreman-tail-slap|Tail Slap|hurt|trip|beaver-foreman|
+beaver-foreman-log-wall|Log Wall|guard|hold|beaver-foreman|
+beaver-foreman-gnaw-through|Gnaw Through|hurt|pierce|beaver-foreman|
+beaver-foreman-crew-call|Crew Call|heal|-|beaver-foreman|
+giant-anteater-long-tongue|Long Tongue|trick|trip|giant-anteater|
+giant-anteater-claw-hug|Claw Hug|hurt|-|giant-anteater|
+giant-anteater-rear-up|Rear Up|guard|-|giant-anteater|
+giant-anteater-tail-cloak|Tail Cloak|guard|thorns|giant-anteater|
+giant-bumblebee-bumble-bump|Bumble Bump|hurt|-|giant-bumblebee|
+giant-bumblebee-fuzz-coat|Fuzz Coat|guard|-|giant-bumblebee|
+giant-bumblebee-pollen-puff|Pollen Puff|trick|trip|giant-bumblebee|
+giant-bumblebee-honey-sting|Honey Sting|hurt|poison|giant-bumblebee|

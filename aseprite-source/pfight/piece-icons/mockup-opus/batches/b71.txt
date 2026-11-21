@@ -1,0 +1,16 @@
+golden-mantella-gold-flick|Gold Flick|hurt|-|Golden Mantella|A golden frog the size of a thumbnail, shining on the wet moss like a spill of marmalade.
+golden-mantella-moss-rest|Moss Rest|heal|-|Golden Mantella|A golden frog the size of a thumbnail, shining on the wet moss like a spill of marmalade.
+golden-mantella-bright-warn|Bright Warn|guard|evade|Golden Mantella|A golden frog the size of a thumbnail, shining on the wet moss like a spill of marmalade.
+golden-mantella-marmalade-spill|Marmalade Spill|hurt|trip|Golden Mantella|A golden frog the size of a thumbnail, shining on the wet moss like a spill of marmalade.
+turtle-hatchling-dash-flipper-scramble|Flipper Scramble|hurt|quick|Turtle Hatchling Dash|A scramble of hatchlings racing the gulls to the water. The ones in your way will not forgive you.
+turtle-hatchling-dash-moon-sip|Moon Sip|heal|-|Turtle Hatchling Dash|A scramble of hatchlings racing the gulls to the water. The ones in your way will not forgive you.
+turtle-hatchling-dash-hatch-cover|Hatch Cover|guard|evade|Turtle Hatchling Dash|A scramble of hatchlings racing the gulls to the water. The ones in your way will not forgive you.
+turtle-hatchling-dash-last-scramble|Last Scramble|hurt|quick|Turtle Hatchling Dash|A scramble of hatchlings racing the gulls to the water. The ones in your way will not forgive you.
+sea-urchin-bed-spine-press|Spine Press|hurt|pierce|Sea Urchin Bed|A black bed of spines in a tidepool. It does not move. It does not need to.
+sea-urchin-bed-spiny-bed|Spiny Bed|guard|thorns|Sea Urchin Bed|A black bed of spines in a tidepool. It does not move. It does not need to.
+sea-urchin-bed-venom-prick|Venom Prick|trick|poison|Sea Urchin Bed|A black bed of spines in a tidepool. It does not move. It does not need to.
+sea-urchin-bed-stay-put|Stay Put|guard|thorns|Sea Urchin Bed|A black bed of spines in a tidepool. It does not move. It does not need to.
+leafcutter-column-leaf-shears|Leaf Shears|hurt|pierce|leafcutter-column|
+leafcutter-column-march-on|March On|trick|quick|leafcutter-column|
+leafcutter-column-leaf-roof|Leaf Roof|guard|hold|leafcutter-column|
+leafcutter-column-green-parade|Green Parade|guard|evade|leafcutter-column|

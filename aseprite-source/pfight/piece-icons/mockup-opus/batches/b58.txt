@@ -1,0 +1,16 @@
+ship-rat-crew-gangplank-shove|Gangplank Shove|hurt|bash|Ship Rat Crew|Rats that came ashore on a ship and kept the ship's rules. They gnaw rope for fun.
+ship-rat-crew-rope-swing|Rope Swing|trick|bash|Ship Rat Crew|Rats that came ashore on a ship and kept the ship's rules. They gnaw rope for fun.
+ship-rat-crew-hold-gnaw|Hold Gnaw|hurt|quick|Ship Rat Crew|Rats that came ashore on a ship and kept the ship's rules. They gnaw rope for fun.
+ship-rat-crew-rigging-hold|Rigging Hold|guard|hold|Ship Rat Crew|Rats that came ashore on a ship and kept the ship's rules. They gnaw rope for fun.
+rock-agama-head-bob-stab|Head Bob Stab|hurt|pierce|Rock Agama|A lizard with an orange head that bobs at everything. It sits on a warm rock and owns it.
+rock-agama-rock-flatten|Rock Flatten|guard|hold|Rock Agama|A lizard with an orange head that bobs at everything. It sits on a warm rock and owns it.
+rock-agama-dart-tail|Dart Tail|trick|poison|Rock Agama|A lizard with an orange head that bobs at everything. It sits on a warm rock and owns it.
+rock-agama-warm-rock-bask|Warm Rock Bask|heal|-|Rock Agama|A lizard with an orange head that bobs at everything. It sits on a warm rock and owns it.
+basilisk-runner-run-strike|Run Strike|hurt|trip|Basilisk Runner|A crested lizard that runs across the pond on its hind legs. It stops only once you are too slow to catch.
+basilisk-runner-crest-rest|Crest Rest|heal|-|Basilisk Runner|A crested lizard that runs across the pond on its hind legs. It stops only once you are too slow to catch.
+basilisk-runner-splash-cover|Splash Cover|guard|hold|Basilisk Runner|A crested lizard that runs across the pond on its hind legs. It stops only once you are too slow to catch.
+basilisk-runner-toe-skim|Toe Skim|trick|quick|Basilisk Runner|A crested lizard that runs across the pond on its hind legs. It stops only once you are too slow to catch.
+frilled-lizard-frill-flare|Frill Flare|guard|thorns|Frilled Lizard|Spreads a collar the size of a dinner plate and hisses. The first time it is a bluff. The second is not.
+frilled-lizard-ruff-bite|Ruff Bite|hurt|poison|Frilled Lizard|Spreads a collar the size of a dinner plate and hisses. The first time it is a bluff. The second is not.
+frilled-lizard-dust-fan|Dust Fan|trick|evade|Frilled Lizard|Spreads a collar the size of a dinner plate and hisses. The first time it is a bluff. The second is not.
+frilled-lizard-second-hiss|Second Hiss|hurt|bash|Frilled Lizard|Spreads a collar the size of a dinner plate and hisses. The first time it is a bluff. The second is not.

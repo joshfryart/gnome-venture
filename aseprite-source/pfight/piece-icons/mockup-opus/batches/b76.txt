@@ -1,0 +1,16 @@
+cockle-bed-shell-snap|Shell Snap|hurt|bash|Cockle Bed|A bed of shut cockles in the wet sand at dawn. One of them opens, and spits.
+cockle-bed-sand-seal|Sand Seal|guard|evade|Cockle Bed|A bed of shut cockles in the wet sand at dawn. One of them opens, and spits.
+cockle-bed-squirt-spray|Squirt Spray|trick|trip|Cockle Bed|A bed of shut cockles in the wet sand at dawn. One of them opens, and spits.
+cockle-bed-gape-wedge|Gape Wedge|hurt|pierce|Cockle Bed|A bed of shut cockles in the wet sand at dawn. One of them opens, and spits.
+tortoise-hatchling-trundle-sour-nibble|Sour Nibble|hurt|poison|Tortoise Hatchling Trundle|A line of soft-shelled tortoises trundling to the shade. They are slow, they have time, and they do not care.
+tortoise-hatchling-trundle-weed-spit|Weed Spit|trick|poison|Tortoise Hatchling Trundle|A line of soft-shelled tortoises trundling to the shade. They are slow, they have time, and they do not care.
+tortoise-hatchling-trundle-soft-shell-tuck|Soft Shell Tuck|guard|evade|Tortoise Hatchling Trundle|A line of soft-shelled tortoises trundling to the shade. They are slow, they have time, and they do not care.
+tortoise-hatchling-trundle-trundle-roll|Trundle Roll|guard|hold|Tortoise Hatchling Trundle|A line of soft-shelled tortoises trundling to the shade. They are slow, they have time, and they do not care.
+sun-bear-sun-claw|Sun Claw|hurt|pierce|Sun Bear|The smallest bear, with a gold crescent on its chest and a tongue longer than its manners. It climbs after honey.
+sun-bear-honey-rest|Honey Rest|heal|-|Sun Bear|The smallest bear, with a gold crescent on its chest and a tongue longer than its manners. It climbs after honey.
+sun-bear-bark-hide|Bark Hide|guard|evade|Sun Bear|The smallest bear, with a gold crescent on its chest and a tongue longer than its manners. It climbs after honey.
+sun-bear-sniff-out|Sniff Out|trick|thorns|Sun Bear|The smallest bear, with a gold crescent on its chest and a tongue longer than its manners. It climbs after honey.
+seal-pup-raft-pup-slap|Pup Slap|hurt|quick|Seal Pup Raft|A raft of round white seal pups on a rock. They are cute. Do not tell them that.
+seal-pup-raft-blubber-cover|Blubber Cover|guard|hold|Seal Pup Raft|A raft of round white seal pups on a rock. They are cute. Do not tell them that.
+seal-pup-raft-whisker-squeak|Whisker Squeak|trick|evade|Seal Pup Raft|A raft of round white seal pups on a rock. They are cute. Do not tell them that.
+seal-pup-raft-raft-shove|Raft Shove|hurt|bash|Seal Pup Raft|A raft of round white seal pups on a rock. They are cute. Do not tell them that.

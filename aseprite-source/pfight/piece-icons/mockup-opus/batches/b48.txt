@@ -1,0 +1,16 @@
+piglet-squeal-piglet-charge|Piglet Charge|hurt|-|Piglet Squeal|A litter of striped piglets that scatter squealing and then regroup behind your knees.
+piglet-squeal-squeal-dodge|Squeal Dodge|guard|evade|Piglet Squeal|A litter of striped piglets that scatter squealing and then regroup behind your knees.
+piglet-squeal-root-kick|Root Kick|trick|bash|Piglet Squeal|A litter of striped piglets that scatter squealing and then regroup behind your knees.
+piglet-squeal-behind-knees|Behind Knees|hurt|trip|Piglet Squeal|A litter of striped piglets that scatter squealing and then regroup behind your knees.
+warthog-tusk-bash|Tusk Bash|hurt|bash|Warthog|Tusks up, tail up, trotting across the savanna as if you do not exist and then, abruptly, as if you do.
+warthog-mud-shove|Mud Shove|trick|bash|Warthog|Tusks up, tail up, trotting across the savanna as if you do not exist and then, abruptly, as if you do.
+warthog-bristle-mane|Bristle Mane|guard|thorns|Warthog|Tusks up, tail up, trotting across the savanna as if you do not exist and then, abruptly, as if you do.
+warthog-tusk-lift|Tusk Lift|hurt|pierce|Warthog|Tusks up, tail up, trotting across the savanna as if you do not exist and then, abruptly, as if you do.
+muskrat-crew-lodge-wall|Lodge Wall|guard|hold|Muskrat Crew|A crew of lodge-builders in the reeds. They live in the water, and every gnome is just more work.
+muskrat-crew-reed-mat|Reed Mat|guard|evade|Muskrat Crew|A crew of lodge-builders in the reeds. They live in the water, and every gnome is just more work.
+muskrat-crew-musk-gnaw|Musk Gnaw|hurt|-|Muskrat Crew|A crew of lodge-builders in the reeds. They live in the water, and every gnome is just more work.
+muskrat-crew-musk-cloud|Musk Cloud|trick|poison|Muskrat Crew|A crew of lodge-builders in the reeds. They live in the water, and every gnome is just more work.
+capybara-herd-herd-shove|Herd Shove|hurt|trip|Capybara Herd|The biggest, calmest rodent in the marsh. Birds ride on its back and you are probably welcome too, within reason.
+capybara-herd-calm-float|Calm Float|guard|evade|Capybara Herd|The biggest, calmest rodent in the marsh. Birds ride on its back and you are probably welcome too, within reason.
+capybara-herd-water-slap|Water Slap|trick|trip|Capybara Herd|The biggest, calmest rodent in the marsh. Birds ride on its back and you are probably welcome too, within reason.
+capybara-herd-riding-birds|Riding Birds|heal|-|Capybara Herd|The biggest, calmest rodent in the marsh. Birds ride on its back and you are probably welcome too, within reason.

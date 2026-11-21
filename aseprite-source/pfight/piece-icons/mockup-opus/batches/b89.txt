@@ -1,0 +1,16 @@
+elder-mire-toad-slime-mantle|Slime Mantle|guard|hold|Elder Mire Toad|A toad old enough to be mostly moss. It mutters in the fog and does not need to hurry.
+elder-mire-toad-mire-belch|Mire Belch|hurt|-|Elder Mire Toad|A toad old enough to be mostly moss. It mutters in the fog and does not need to hurry.
+elder-mire-toad-bog-mutter|Bog Mutter|trick|trip|Elder Mire Toad|A toad old enough to be mostly moss. It mutters in the fog and does not need to hurry.
+elder-mire-toad-fog-hush|Fog Hush|trick|evade|Elder Mire Toad|A toad old enough to be mostly moss. It mutters in the fog and does not need to hurry.
+tide-crab-paladin-pauldron-spike|Pauldron Spike|guard|thorns|Tide Crab Paladin|A crab in barnacle plate who carries a scrap of weed as a banner. It holds the shoreline and trips whoever crosses it.
+tide-crab-paladin-shield-hook|Shield Hook|hurt|trip|Tide Crab Paladin|A crab in barnacle plate who carries a scrap of weed as a banner. It holds the shoreline and trips whoever crosses it.
+tide-crab-paladin-tide-banner|Tide Banner|trick|trip|Tide Crab Paladin|A crab in barnacle plate who carries a scrap of weed as a banner. It holds the shoreline and trips whoever crosses it.
+tide-crab-paladin-oath-strike|Oath Strike|hurt|bash|Tide Crab Paladin|A crab in barnacle plate who carries a scrap of weed as a banner. It holds the shoreline and trips whoever crosses it.
+peat-golem-peat-slump|Peat Slump|guard|hold|Peat Golem|A walking stack of cut peat in the fog, with reeds for hair. It is slow, wet, and extremely hard to get round.
+peat-golem-bog-fist|Bog Fist|hurt|trip|Peat Golem|A walking stack of cut peat in the fog, with reeds for hair. It is slow, wet, and extremely hard to get round.
+peat-golem-reed-bristle|Reed Bristle|guard|thorns|Peat Golem|A walking stack of cut peat in the fog, with reeds for hair. It is slow, wet, and extremely hard to get round.
+peat-golem-steam-vent|Steam Vent|heal|-|Peat Golem|A walking stack of cut peat in the fog, with reeds for hair. It is slow, wet, and extremely hard to get round.
+elder-bramble-wolf-thorn-lunge|Thorn Lunge|hurt|trip|Elder Bramble Wolf|An old wolf with a ruff of living bramble and a grey beard. It has outlived every pack and outsmarted most hunters.
+elder-bramble-wolf-bramble-snap|Bramble Snap|hurt|quick|Elder Bramble Wolf|An old wolf with a ruff of living bramble and a grey beard. It has outlived every pack and outsmarted most hunters.
+elder-bramble-wolf-hedge-dodge|Hedge Dodge|guard|evade|Elder Bramble Wolf|An old wolf with a ruff of living bramble and a grey beard. It has outlived every pack and outsmarted most hunters.
+elder-bramble-wolf-ruff-shake|Ruff Shake|trick|thorns|Elder Bramble Wolf|An old wolf with a ruff of living bramble and a grey beard. It has outlived every pack and outsmarted most hunters.

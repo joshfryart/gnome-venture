@@ -1,0 +1,16 @@
+sloth-bear-long-claw-hook|Long Claw Hook|hurt|trip|Sloth Bear|A shaggy bear that hoovers up termites and sleeps in hollows. Honey is its weakness, gnomes its second.
+sloth-bear-shaggy-charge|Shaggy Charge|hurt|quick|Sloth Bear|A shaggy bear that hoovers up termites and sleeps in hollows. Honey is its weakness, gnomes its second.
+sloth-bear-shaggy-mane|Shaggy Mane|guard|thorns|Sloth Bear|A shaggy bear that hoovers up termites and sleeps in hollows. Honey is its weakness, gnomes its second.
+sloth-bear-sloth-hollow-nap|Sloth Hollow Nap|heal|-|Sloth Bear|A shaggy bear that hoovers up termites and sleeps in hollows. Honey is its weakness, gnomes its second.
+elephant-seal-bull-bull-slam|Bull Slam|hurt|pierce|Elephant Seal Bull|A bull seal with a nose like a trumpet and a body like a barrel. It lands, rolls, and stuns.
+elephant-seal-bull-blubber-wave|Blubber Wave|hurt|trip|Elephant Seal Bull|A bull seal with a nose like a trumpet and a body like a barrel. It lands, rolls, and stuns.
+elephant-seal-bull-blubber-wall|Blubber Wall|guard|thorns|Elephant Seal Bull|A bull seal with a nose like a trumpet and a body like a barrel. It lands, rolls, and stuns.
+elephant-seal-bull-nose-trumpet|Nose Trumpet|trick|bash|Elephant Seal Bull|A bull seal with a nose like a trumpet and a body like a barrel. It lands, rolls, and stuns.
+wood-bison-snow-plough|Snow Plough|hurt|bash|Wood Bison|A dark, shaggy bison that ploughs through winter woodland. It shoulders through snowdrifts, and through gnomes.
+wood-bison-drift-shove|Drift Shove|trick|bash|Wood Bison|A dark, shaggy bison that ploughs through winter woodland. It shoulders through snowdrifts, and through gnomes.
+wood-bison-winter-coat|Winter Coat|guard|hold|Wood Bison|A dark, shaggy bison that ploughs through winter woodland. It shoulders through snowdrifts, and through gnomes.
+wood-bison-bison-barge|Bison Barge|hurt|trip|Wood Bison|A dark, shaggy bison that ploughs through winter woodland. It shoulders through snowdrifts, and through gnomes.
+wild-bactrian-hump-kick|Hump Kick|hurt|pierce|Wild Bactrian|A two-humped camel that lives on hump and spite. It spits first and apologises never.
+wild-bactrian-hump-draw|Hump Draw|heal|-|Wild Bactrian|A two-humped camel that lives on hump and spite. It spits first and apologises never.
+wild-bactrian-dust-mantle|Dust Mantle|guard|thorns|Wild Bactrian|A two-humped camel that lives on hump and spite. It spits first and apologises never.
+wild-bactrian-spit-first|Spit First|hurt|poison|Wild Bactrian|A two-humped camel that lives on hump and spite. It spits first and apologises never.

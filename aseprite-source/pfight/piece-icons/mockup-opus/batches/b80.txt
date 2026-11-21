@@ -1,0 +1,16 @@
+moray-lurker-crevice-wedge|Crevice Wedge|guard|hold|Moray Lurker|A moray in a rock crevice, all teeth and patience, in a hide like wet leather. It only comes out for gnomes.
+moray-lurker-needle-bite|Needle Bite|hurt|bash|Moray Lurker|A moray in a rock crevice, all teeth and patience, in a hide like wet leather. It only comes out for gnomes.
+moray-lurker-crevice-slip|Crevice Slip|guard|evade|Moray Lurker|A moray in a rock crevice, all teeth and patience, in a hide like wet leather. It only comes out for gnomes.
+moray-lurker-wet-leather|Wet Leather|guard|hold|Moray Lurker|A moray in a rock crevice, all teeth and patience, in a hide like wet leather. It only comes out for gnomes.
+reef-turtle-flipper-slap|Flipper Slap|hurt|-|reef-turtle|
+reef-turtle-reef-shell|Reef Shell|guard|hold|reef-turtle|
+reef-turtle-drift-off|Drift Off|heal|-|reef-turtle|
+reef-turtle-beach-snap|Beach Snap|hurt|bash|reef-turtle|
+dune-wyrmling-fang-snap|Fang Snap|hurt|pierce|Dune Wyrmling|A barn-length wyrm still learning to dive through sand. Its fangs are long and thin, and its manners are shorter.
+dune-wyrmling-sand-lance|Sand Lance|hurt|pierce|Dune Wyrmling|A barn-length wyrm still learning to dive through sand. Its fangs are long and thin, and its manners are shorter.
+dune-wyrmling-hiss|Hiss|trick|poison|Dune Wyrmling|A barn-length wyrm still learning to dive through sand. Its fangs are long and thin, and its manners are shorter.
+dune-wyrmling-fang-dribble|Fang Dribble|trick|poison|Dune Wyrmling|A barn-length wyrm still learning to dive through sand. Its fangs are long and thin, and its manners are shorter.
+bog-pike-pike-strike|Pike Strike|hurt|quick|bog-pike|
+bog-pike-weed-lurk|Weed Lurk|guard|evade|bog-pike|
+bog-pike-jaw-lock|Jaw Lock|hurt|pierce|bog-pike|
+bog-pike-boot-snag|Boot Snag|hurt|trip|bog-pike|

@@ -1,0 +1,16 @@
+griffon-vulture-carrion-rake|Carrion Rake|hurt|poison|griffon-vulture|
+griffon-vulture-wait-it-out|Wait It Out|heal|-|griffon-vulture|
+griffon-vulture-bald-glare|Bald Glare|trick|trip|griffon-vulture|
+griffon-vulture-thermal-glide|Thermal Glide|guard|evade|griffon-vulture|
+black-bear-bear-swipe|Bear Swipe|hurt|-|black-bear|
+black-bear-stand-tall|Stand Tall|guard|-|black-bear|
+black-bear-honey-lick|Honey Lick|heal|-|black-bear|
+black-bear-huge-bluff|Huge Bluff|trick|thorns|black-bear|
+salt-sea-lion-bull-bark|Bull Bark|trick|-|salt-sea-lion|
+salt-sea-lion-flipper-smack|Flipper Smack|hurt|-|salt-sea-lion|
+salt-sea-lion-blubber-roll|Blubber Roll|guard|-|salt-sea-lion|
+salt-sea-lion-bay-bounce|Bay Bounce|hurt|bash|salt-sea-lion|
+glacier-bear-ice-paw|Ice Paw|hurt|trip|glacier-bear|
+glacier-bear-blubber|Blubber|guard|hold|glacier-bear|
+glacier-bear-glacier-roar|Glacier Roar|trick|-|glacier-bear|
+glacier-bear-long-shadow|Long Shadow|guard|evade|glacier-bear|

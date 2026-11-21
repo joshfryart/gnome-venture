@@ -1,0 +1,16 @@
+reef-eel-tyrant-tyrant-lunge|Tyrant Lunge|hurt|pierce|Reef Eel Tyrant|The lord's successor, who took the reef by biting the right fins. It rests in coral cracks and comes out bigger.
+reef-eel-tyrant-coral-sip|Coral Sip|heal|-|Reef Eel Tyrant|The lord's successor, who took the reef by biting the right fins. It rests in coral cracks and comes out bigger.
+reef-eel-tyrant-slip-crevice|Slip Crevice|guard|evade|Reef Eel Tyrant|The lord's successor, who took the reef by biting the right fins. It rests in coral cracks and comes out bigger.
+reef-eel-tyrant-spine-crown|Spine Crown|guard|thorns|Reef Eel Tyrant|The lord's successor, who took the reef by biting the right fins. It rests in coral cracks and comes out bigger.
+alpha-dingo-alpha-bite|Alpha Bite|hurt|bash|Alpha Dingo|The dingo the pack follows. One howl and the others know where you will be standing.
+alpha-dingo-pack-signal|Pack Signal|trick|trip|Alpha Dingo|The dingo the pack follows. One howl and the others know where you will be standing.
+alpha-dingo-burr-coat|Burr Coat|guard|thorns|Alpha Dingo|The dingo the pack follows. One howl and the others know where you will be standing.
+alpha-dingo-flank-run|Flank Run|hurt|quick|Alpha Dingo|The dingo the pack follows. One howl and the others know where you will be standing.
+kraken-spawn-tentacle-wall|Tentacle Wall|guard|hold|Kraken Spawn|A young kraken the size of a cottage. It is learning to wrap, to hide, and to take things down.
+kraken-spawn-ink-shroud|Ink Shroud|guard|evade|Kraken Spawn|A young kraken the size of a cottage. It is learning to wrap, to hide, and to take things down.
+kraken-spawn-suction-crush|Suction Crush|hurt|pierce|Kraken Spawn|A young kraken the size of a cottage. It is learning to wrap, to hide, and to take things down.
+kraken-spawn-jet-dash|Jet Dash|trick|evade|Kraken Spawn|A young kraken the size of a cottage. It is learning to wrap, to hide, and to take things down.
+giant-otter-gang-gang-pounce|Gang Pounce|hurt|-|Giant Otter Gang|Five long river wolves with whiskers. They fish as a crew and charge as a rush.
+giant-otter-gang-fish-slap|Fish Slap|hurt|pierce|Giant Otter Gang|Five long river wolves with whiskers. They fish as a crew and charge as a rush.
+giant-otter-gang-whisker-wall|Whisker Wall|guard|thorns|Giant Otter Gang|Five long river wolves with whiskers. They fish as a crew and charge as a rush.
+giant-otter-gang-pile-on|Pile On|hurt|bash|Giant Otter Gang|Five long river wolves with whiskers. They fish as a crew and charge as a rush.

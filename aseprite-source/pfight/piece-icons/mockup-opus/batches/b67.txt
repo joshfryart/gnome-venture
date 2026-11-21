@@ -1,0 +1,16 @@
+vine-snake-vine-strike|Vine Strike|hurt|pierce|Vine Snake|A thread of green with a keyhole pupil, so like a vine that gnomes lean on it. It strikes before they finish leaning.
+vine-snake-leaf-blend|Leaf Blend|guard|evade|Vine Snake|A thread of green with a keyhole pupil, so like a vine that gnomes lean on it. It strikes before they finish leaning.
+vine-snake-whip-flick|Whip Flick|trick|poison|Vine Snake|A thread of green with a keyhole pupil, so like a vine that gnomes lean on it. It strikes before they finish leaning.
+vine-snake-early-lean|Early Lean|hurt|quick|Vine Snake|A thread of green with a keyhole pupil, so like a vine that gnomes lean on it. It strikes before they finish leaning.
+komodo-pup-pup-tail-trip|Pup Tail Trip|hurt|trip|Komodo Pup|A young komodo that has learnt to trip things and not yet to share. It keeps low and watches.
+komodo-pup-sand-flop|Sand Flop|trick|evade|Komodo Pup|A young komodo that has learnt to trip things and not yet to share. It keeps low and watches.
+komodo-pup-dune-hide|Dune Hide|guard|hold|Komodo Pup|A young komodo that has learnt to trip things and not yet to share. It keeps low and watches.
+komodo-pup-low-watch|Low Watch|guard|hold|Komodo Pup|A young komodo that has learnt to trip things and not yet to share. It keeps low and watches.
+snow-leopard-cub-cub-leap|Cub Leap|hurt|bash|Snow Leopard Cub|A smoke-grey cub with a tail as long as itself. It has been told to wait here. It is not waiting.
+snow-leopard-cub-rock-hold|Rock Hold|guard|hold|Snow Leopard Cub|A smoke-grey cub with a tail as long as itself. It has been told to wait here. It is not waiting.
+snow-leopard-cub-tail-swish|Tail Swish|trick|trip|Snow Leopard Cub|A smoke-grey cub with a tail as long as itself. It has been told to wait here. It is not waiting.
+snow-leopard-cub-not-waiting|Not Waiting|hurt|trip|Snow Leopard Cub|A smoke-grey cub with a tail as long as itself. It has been told to wait here. It is not waiting.
+striped-hyena-scavenge-shove|Scavenge Shove|hurt|bash|Striped Hyena|A shy, striped scavenger that raises its mane to double its size. It is still bigger than you.
+striped-hyena-bone-drag|Bone Drag|trick|bash|Striped Hyena|A shy, striped scavenger that raises its mane to double its size. It is still bigger than you.
+striped-hyena-mane-bristle|Mane Bristle|guard|thorns|Striped Hyena|A shy, striped scavenger that raises its mane to double its size. It is still bigger than you.
+striped-hyena-mane-double|Mane Double|guard|thorns|Striped Hyena|A shy, striped scavenger that raises its mane to double its size. It is still bigger than you.

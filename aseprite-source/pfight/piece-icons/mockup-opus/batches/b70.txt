@@ -1,0 +1,16 @@
+coconut-hermit-husk-thump|Husk Thump|hurt|pierce|Coconut Hermit|A hermit crab that has found a coconut shell and is not going back. It drinks the milk and mends.
+coconut-hermit-milk-sip|Milk Sip|heal|-|Coconut Hermit|A hermit crab that has found a coconut shell and is not going back. It drinks the milk and mends.
+coconut-hermit-husk-cover|Husk Cover|guard|thorns|Coconut Hermit|A hermit crab that has found a coconut shell and is not going back. It drinks the milk and mends.
+coconut-hermit-coconut-mend|Coconut Mend|heal|-|Coconut Hermit|A hermit crab that has found a coconut shell and is not going back. It drinks the milk and mends.
+rock-crab-pincher-clamp-snap|Clamp Snap|hurt|quick|Rock Crab Pincher|A flat red crab wedged into a rock crack with only its claws out. It does not come to you. You go to it.
+rock-crab-pincher-pool-hide|Pool Hide|trick|evade|Rock Crab Pincher|A flat red crab wedged into a rock crack with only its claws out. It does not come to you. You go to it.
+rock-crab-pincher-tide-pool-cover|Tide Pool Cover|guard|evade|Rock Crab Pincher|A flat red crab wedged into a rock crack with only its claws out. It does not come to you. You go to it.
+rock-crab-pincher-wedged-claw|Wedged Claw|hurt|pierce|Rock Crab Pincher|A flat red crab wedged into a rock crack with only its claws out. It does not come to you. You go to it.
+dune-racer-racer-spit|Racer Spit|hurt|poison|Dune Racer|The fastest snake on the dune, a pale streak with a sting at each end of every dash.
+dune-racer-fang-flick|Fang Flick|hurt|poison|Dune Racer|The fastest snake on the dune, a pale streak with a sting at each end of every dash.
+dune-racer-mirage-flit|Mirage Flit|trick|evade|Dune Racer|The fastest snake on the dune, a pale streak with a sting at each end of every dash.
+dune-racer-sting-dash|Sting Dash|hurt|quick|Dune Racer|The fastest snake on the dune, a pale streak with a sting at each end of every dash.
+glass-frog-glass-lunge|Glass Lunge|hurt|pierce|Glass Frog|A small green frog with a clear belly and a very clear opinion of your finger.
+glass-frog-clear-hide|Clear Hide|guard|evade|Glass Frog|A small green frog with a clear belly and a very clear opinion of your finger.
+glass-frog-dew-trick|Dew Trick|trick|quick|Glass Frog|A small green frog with a clear belly and a very clear opinion of your finger.
+glass-frog-clear-opinion|Clear Opinion|hurt|quick|Glass Frog|A small green frog with a clear belly and a very clear opinion of your finger.

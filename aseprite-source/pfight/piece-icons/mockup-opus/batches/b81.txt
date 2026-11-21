@@ -1,0 +1,16 @@
+desert-gila-dragon-gila-chew|Gila Chew|hurt|poison|desert-gila-dragon|
+desert-gila-dragon-bead-hide|Bead Hide|guard|hold|desert-gila-dragon|
+desert-gila-dragon-slow-stomp|Slow Stomp|hurt|-|desert-gila-dragon|
+desert-gila-dragon-lingering-bite|Lingering Bite|hurt|poison|desert-gila-dragon|
+cliff-ram-ram-butt|Ram Butt|hurt|bash|cliff-ram|
+cliff-ram-sure-hooves|Sure Hooves|guard|-|cliff-ram|
+cliff-ram-head-down|Head Down|trick|bash|cliff-ram|
+cliff-ram-ledge-claim|Ledge Claim|guard|hold|cliff-ram|
+wolverine-grump-snarl|Grump Snarl|trick|-|wolverine|
+wolverine-ripping-bite|Ripping Bite|hurt|pierce|wolverine|
+wolverine-thick-fur|Thick Fur|guard|hold|wolverine|
+wolverine-cornered-rage|Cornered Rage|hurt|bash|wolverine|
+wild-boar-tusk-gore|Tusk Gore|hurt|pierce|wild-boar|
+wild-boar-mud-wallow|Mud Wallow|guard|-|wild-boar|
+wild-boar-boar-rush|Boar Rush|hurt|bash|wild-boar|
+wild-boar-root-up|Root Up|trick|trip|wild-boar|

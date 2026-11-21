@@ -1,0 +1,16 @@
+booby-colony-blue-foot-strut|Blue Foot Strut|trick|evade|Booby Colony|A whole cliff of blue-footed seabirds, stamping and whistling. A gnome is a rude interruption.
+booby-colony-plunge|Plunge|hurt|bash|Booby Colony|A whole cliff of blue-footed seabirds, stamping and whistling. A gnome is a rude interruption.
+booby-colony-guano-cover|Guano Cover|guard|thorns|Booby Colony|A whole cliff of blue-footed seabirds, stamping and whistling. A gnome is a rude interruption.
+booby-colony-rude-stamp|Rude Stamp|trick|quick|Booby Colony|A whole cliff of blue-footed seabirds, stamping and whistling. A gnome is a rude interruption.
+tamandua-claw-hook|Claw Hook|hurt|pierce|Tamandua|A tree anteater with a black vest and a long, long tongue. It hangs by its tail and dares you to try.
+tamandua-tree-hug|Tree Hug|guard|hold|Tamandua|A tree anteater with a black vest and a long, long tongue. It hangs by its tail and dares you to try.
+tamandua-tongue-flick|Tongue Flick|trick|evade|Tamandua|A tree anteater with a black vest and a long, long tongue. It hangs by its tail and dares you to try.
+tamandua-tail-hang|Tail Hang|guard|thorns|Tamandua|A tree anteater with a black vest and a long, long tongue. It hangs by its tail and dares you to try.
+carpenter-bee-wood-drill|Wood Drill|hurt|pierce|Carpenter Bee|A shiny black bee that bores into dead wood. It mends itself on nectar and comes back for another go.
+carpenter-bee-nectar-sip|Nectar Sip|heal|-|Carpenter Bee|A shiny black bee that bores into dead wood. It mends itself on nectar and comes back for another go.
+carpenter-bee-sawdust-cover|Sawdust Cover|guard|evade|Carpenter Bee|A shiny black bee that bores into dead wood. It mends itself on nectar and comes back for another go.
+carpenter-bee-hollow-tap|Hollow Tap|hurt|bash|Carpenter Bee|A shiny black bee that bores into dead wood. It mends itself on nectar and comes back for another go.
+caracal-bird-leap|Bird Leap|hurt|quick|Caracal|A tawny cat with ear tufts like pen-nibs and a leap that takes birds out of the air. It naps, mends, and leaps again.
+caracal-dusk-rest|Dusk Rest|heal|-|Caracal|A tawny cat with ear tufts like pen-nibs and a leap that takes birds out of the air. It naps, mends, and leaps again.
+caracal-scrub-cover|Scrub Cover|guard|evade|Caracal|A tawny cat with ear tufts like pen-nibs and a leap that takes birds out of the air. It naps, mends, and leaps again.
+caracal-tuft-flick|Tuft Flick|trick|evade|Caracal|A tawny cat with ear tufts like pen-nibs and a leap that takes birds out of the air. It naps, mends, and leaps again.

@@ -1,0 +1,16 @@
+tree-snake-branch-drape|Branch Drape|trick|evade|Tree Snake|A slim green snake that hangs along a branch like a vine. You see it only after it has moved.
+tree-snake-leaf-strike|Leaf Strike|hurt|poison|Tree Snake|A slim green snake that hangs along a branch like a vine. You see it only after it has moved.
+tree-snake-bough-cover|Bough Cover|guard|evade|Tree Snake|A slim green snake that hangs along a branch like a vine. You see it only after it has moved.
+tree-snake-coil-drop|Coil Drop|hurt|quick|Tree Snake|A slim green snake that hangs along a branch like a vine. You see it only after it has moved.
+capuchin-pickpocket-pocket-snag|Pocket Snag|hurt|pierce|Capuchin Pickpocket|A small monkey with a cream face and light fingers. It takes your buttons first, then your confidence.
+capuchin-pickpocket-fruit-bomb|Fruit Bomb|trick|bash|Capuchin Pickpocket|A small monkey with a cream face and light fingers. It takes your buttons first, then your confidence.
+capuchin-pickpocket-canopy-perch|Canopy Perch|guard|evade|Capuchin Pickpocket|A small monkey with a cream face and light fingers. It takes your buttons first, then your confidence.
+capuchin-pickpocket-button-snatch|Button Snatch|trick|trip|Capuchin Pickpocket|A small monkey with a cream face and light fingers. It takes your buttons first, then your confidence.
+fox-kit-pair-den-wall|Den Wall|guard|hold|Fox Kit Pair|Two fox kits at play. The play is practice, and you are the practice.
+fox-kit-pair-pair-pounce|Pair Pounce|hurt|bash|Fox Kit Pair|Two fox kits at play. The play is practice, and you are the practice.
+fox-kit-pair-kit-cover|Kit Cover|guard|thorns|Fox Kit Pair|Two fox kits at play. The play is practice, and you are the practice.
+fox-kit-pair-practice-bite|Practice Bite|hurt|quick|Fox Kit Pair|Two fox kits at play. The play is practice, and you are the practice.
+fennec-night-snap|Night Snap|hurt|pierce|Fennec|The smallest fox with the biggest ears. It hears you coming from the next dune and has already thought of something.
+fennec-burrow-nap|Burrow Nap|heal|-|Fennec|The smallest fox with the biggest ears. It hears you coming from the next dune and has already thought of something.
+fennec-sand-curtain|Sand Curtain|guard|evade|Fennec|The smallest fox with the biggest ears. It hears you coming from the next dune and has already thought of something.
+fennec-ear-warning|Ear Warning|trick|quick|Fennec|The smallest fox with the biggest ears. It hears you coming from the next dune and has already thought of something.

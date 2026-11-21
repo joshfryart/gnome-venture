@@ -1,0 +1,16 @@
+leatherback-ocean-glide|Ocean Glide|guard|evade|Leatherback|A turtle with a shell like a boat's hull and flippers like oars. It glides away from every hit that tries to land.
+leatherback-deep-slip|Deep Slip|trick|evade|Leatherback|A turtle with a shell like a boat's hull and flippers like oars. It glides away from every hit that tries to land.
+leatherback-flipper-heave|Flipper Heave|hurt|trip|Leatherback|A turtle with a shell like a boat's hull and flippers like oars. It glides away from every hit that tries to land.
+leatherback-oar-sweep|Oar Sweep|hurt|bash|Leatherback|A turtle with a shell like a boat's hull and flippers like oars. It glides away from every hit that tries to land.
+ibex-patriarch-horn-sweep|Horn Sweep|hurt|bash|Ibex Patriarch|The old ibex with horns curled twice round. He leaps the ledge, turns, and the horns come around after.
+ibex-patriarch-cliff-leap|Cliff Leap|trick|evade|Ibex Patriarch|The old ibex with horns curled twice round. He leaps the ledge, turns, and the horns come around after.
+ibex-patriarch-ledge-stand|Ledge Stand|guard|hold|Ibex Patriarch|The old ibex with horns curled twice round. He leaps the ledge, turns, and the horns come around after.
+ibex-patriarch-herd-stare|Herd Stare|trick|trip|Ibex Patriarch|The old ibex with horns curled twice round. He leaps the ledge, turns, and the horns come around after.
+bearded-pig-beard-barge|Beard Barge|hurt|trip|Bearded Pig|A pig with a splendid beard that ploughs mud and fruit alike. It gets the fruit first.
+bearded-pig-mud-plough|Mud Plough|hurt|quick|Bearded Pig|A pig with a splendid beard that ploughs mud and fruit alike. It gets the fruit first.
+bearded-pig-nut-shield|Nut Shield|guard|hold|Bearded Pig|A pig with a splendid beard that ploughs mud and fruit alike. It gets the fruit first.
+bearded-pig-fruit-snatch|Fruit Snatch|hurt|trip|Bearded Pig|A pig with a splendid beard that ploughs mud and fruit alike. It gets the fruit first.
+albatross-squid-snatch|Squid Snatch|hurt|bash|Albatross|A bird with wings wider than a barn that sleeps on the wing. It is gentle until it lands on you.
+albatross-sea-rest|Sea Rest|heal|-|Albatross|A bird with wings wider than a barn that sleeps on the wing. It is gentle until it lands on you.
+albatross-dynamic-soar|Dynamic Soar|guard|evade|Albatross|A bird with wings wider than a barn that sleeps on the wing. It is gentle until it lands on you.
+albatross-wing-nap|Wing Nap|heal|-|Albatross|A bird with wings wider than a barn that sleeps on the wing. It is gentle until it lands on you.

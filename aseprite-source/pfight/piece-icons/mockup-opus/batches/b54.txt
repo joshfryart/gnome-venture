@@ -1,0 +1,16 @@
+rock-earwig-crevice-pinch|Crevice Pinch|hurt|poison|Rock Earwig|A flat grey earwig that lives under stones and squeezes into any gap, a gnome's boot included.
+rock-earwig-scree-hide|Scree Hide|trick|poison|Rock Earwig|A flat grey earwig that lives under stones and squeezes into any gap, a gnome's boot included.
+rock-earwig-flat-squeeze|Flat Squeeze|guard|-|Rock Earwig|A flat grey earwig that lives under stones and squeezes into any gap, a gnome's boot included.
+rock-earwig-gap-wedge|Gap Wedge|hurt|pierce|Rock Earwig|A flat grey earwig that lives under stones and squeezes into any gap, a gnome's boot included.
+shore-earwig-tide-pincer|Tide Pincer|hurt|quick|Shore Earwig|Scuttles out of the drift line at night and pinches before the tide can drag it back.
+shore-earwig-wrack-scuttle|Wrack Scuttle|trick|quick|Shore Earwig|Scuttles out of the drift line at night and pinches before the tide can drag it back.
+shore-earwig-brine-nip|Brine Nip|hurt|poison|Shore Earwig|Scuttles out of the drift line at night and pinches before the tide can drag it back.
+shore-earwig-wet-sand-dive|Wet Sand Dive|trick|evade|Shore Earwig|Scuttles out of the drift line at night and pinches before the tide can drag it back.
+glow-grub-cluster-lamp-nibble|Lamp Nibble|hurt|quick|Glow Grub Cluster|A heap of soft grubs glowing on a rotten log. They look like a lantern shop until one of them bites.
+glow-grub-cluster-soft-glow|Soft Glow|heal|-|Glow Grub Cluster|A heap of soft grubs glowing on a rotten log. They look like a lantern shop until one of them bites.
+glow-grub-cluster-cocoon-wrap|Cocoon Wrap|guard|hold|Glow Grub Cluster|A heap of soft grubs glowing on a rotten log. They look like a lantern shop until one of them bites.
+glow-grub-cluster-lantern-spill|Lantern Spill|trick|thorns|Glow Grub Cluster|A heap of soft grubs glowing on a rotten log. They look like a lantern shop until one of them bites.
+lantern-glowworm-queen-lantern-lure|Lantern Lure|trick|poison|Lantern Glowworm Queen|The queen of a cave ceiling, hung with lamps and threads. Everything below her is bait, and so are you.
+lantern-glowworm-queen-queen-strike|Queen Strike|hurt|pierce|Lantern Glowworm Queen|The queen of a cave ceiling, hung with lamps and threads. Everything below her is bait, and so are you.
+lantern-glowworm-queen-thread-curtain|Thread Curtain|guard|thorns|Lantern Glowworm Queen|The queen of a cave ceiling, hung with lamps and threads. Everything below her is bait, and so are you.
+lantern-glowworm-queen-ceiling-drop|Ceiling Drop|hurt|bash|Lantern Glowworm Queen|The queen of a cave ceiling, hung with lamps and threads. Everything below her is bait, and so are you.

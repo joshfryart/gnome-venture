@@ -155,25 +155,25 @@ function pf_data_lines(string $file): array
 /** The tile library as it was before 2.6.74 moved it to data/pf_pieces.txt: used when the file is missing or broken, and by the lint (the file must give exactly this). */
 const PF_TILES_BUILTIN = [
         // gnome base six
-        'swing'  => ['n' => 'Swing',  't' => 'hurt',   'v' => 4, 'r' => 'mind'],
-        'dodge'  => ['n' => 'Dodge',  't' => 'guard',  'v' => 4, 'r' => 'body'],
-        'rest'   => ['n' => 'Rest',   't' => 'heal',   'v' => 3, 'r' => 'craft'],
-        'charm'  => ['n' => 'Charm',  't' => 'charm',  'v' => 4, 'r' => 'craft'],
+        'swing'  => ['n' => 'Swing',  't' => 'hurt',   'v' => 6, 'r' => 'mind'],
+        'dodge'  => ['n' => 'Dodge',  't' => 'guard',  'v' => 6, 'r' => 'body'],
+        'rest'   => ['n' => 'Rest',   't' => 'heal',   'v' => 5, 'r' => 'craft'],
+        'charm'  => ['n' => 'Charm',  't' => 'charm',  'v' => 6, 'r' => 'craft'],
         'snack'  => ['n' => 'Snack',  't' => 'item',   'v' => 5, 'r' => 'body', 'tag' => 'snack'],
-        'hide'   => ['n' => 'Hide',   't' => 'trick',  'v' => 3, 'r' => 'body'],
+        'hide'   => ['n' => 'Hide',   't' => 'trick',  'v' => 5, 'r' => 'body'],
         // unlock / craft later
-        'soothe' => ['n' => 'Soothe', 't' => 'soothe', 'v' => 2, 'r' => 'mind'],
+        'soothe' => ['n' => 'Soothe', 't' => 'soothe', 'v' => 4, 'r' => 'mind'],
         'offer'  => ['n' => 'Offer',  't' => 'charm',  'v' => 6, 'r' => null],
         'taunt'  => ['n' => 'Taunt',  't' => 'trick',  'v' => 3, 'r' => 'body'],
         // Hurt tiles that play differently (unlocks: see pfight_me)
-        'jab'    => ['n' => 'Jab',    't' => 'hurt',   'v' => 3, 'r' => 'craft', 'tag' => 'quick'],
-        'pierce' => ['n' => 'Pierce', 't' => 'hurt',   'v' => 3, 'r' => 'mind',  'tag' => 'pierce'],
+        'jab'    => ['n' => 'Jab',    't' => 'hurt',   'v' => 6, 'r' => 'craft', 'tag' => 'quick'],
+        'pierce' => ['n' => 'Pierce', 't' => 'hurt',   'v' => 6, 'r' => 'mind',  'tag' => 'pierce'],
         'sting'  => ['n' => 'Sting',  't' => 'hurt',   'v' => 2, 'r' => 'body',  'tag' => 'poison'],
         'trip'   => ['n' => 'Trip',   't' => 'hurt',   'v' => 2, 'r' => 'craft', 'tag' => 'trip'],
         'bash'   => ['n' => 'Shield Bash', 't' => 'hurt', 'v' => 2, 'r' => 'mind', 'tag' => 'bash'],
         'smash'  => ['n' => 'Smash',  't' => 'hurt',   'v' => 6, 'r' => 'body',  'tag' => 'heavy'],
         // defence that works differently
-        'brace'  => ['n' => 'Brace',  't' => 'guard',  'v' => 3, 'r' => 'craft', 'tag' => 'hold'],
+        'brace'  => ['n' => 'Brace',  't' => 'guard',  'v' => 6, 'r' => 'craft', 'tag' => 'hold'],
         'roll'   => ['n' => 'Roll',   't' => 'guard',  'v' => 2, 'r' => 'body',  'tag' => 'evade'],
         'thornhide' => ['n' => 'Thorn Hide', 't' => 'guard', 'v' => 3, 'r' => 'mind', 'tag' => 'thorns'],
         'mending' => ['n' => 'Mending', 't' => 'guard', 'v' => 2, 'r' => 'craft', 'tag' => 'mend'],

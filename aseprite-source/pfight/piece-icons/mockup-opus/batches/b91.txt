@@ -1,0 +1,16 @@
+frost-owl-regent-rime-talon|Rime Talon|hurt|quick|Frost Owl Regent|A young owl regent who has taken the throne early, in a whiteout. It plans two moves ahead and vanishes in between.
+frost-owl-regent-whiteout-wing|Whiteout Wing|guard|evade|Frost Owl Regent|A young owl regent who has taken the throne early, in a whiteout. It plans two moves ahead and vanishes in between.
+frost-owl-regent-ice-glare|Ice Glare|trick|evade|Frost Owl Regent|A young owl regent who has taken the throne early, in a whiteout. It plans two moves ahead and vanishes in between.
+frost-owl-regent-throne-feint|Throne Feint|trick|quick|Frost Owl Regent|A young owl regent who has taken the throne early, in a whiteout. It plans two moves ahead and vanishes in between.
+lammergeier-bone-drop|Bone Drop|hurt|pierce|Lammergeier|A mountain vulture with a black beard that drops bones on the rocks and eats what splits. It is not fussy.
+lammergeier-marrow-meal|Marrow Meal|heal|-|Lammergeier|A mountain vulture with a black beard that drops bones on the rocks and eats what splits. It is not fussy.
+lammergeier-ridge-perch|Ridge Perch|guard|hold|Lammergeier|A mountain vulture with a black beard that drops bones on the rocks and eats what splits. It is not fussy.
+lammergeier-carrion-pick|Carrion Pick|heal|-|Lammergeier|A mountain vulture with a black beard that drops bones on the rocks and eats what splits. It is not fussy.
+saltwater-gharial-estuary-snap|Estuary Snap|hurt|pierce|Saltwater Gharial|A gharial that went to sea and came back saltier. Its snout is long, its patience is longer, and its teeth are needles.
+saltwater-gharial-death-spin|Death Spin|hurt|pierce|Saltwater Gharial|A gharial that went to sea and came back saltier. Its snout is long, its patience is longer, and its teeth are needles.
+saltwater-gharial-scute-ridge|Scute Ridge|guard|thorns|Saltwater Gharial|A gharial that went to sea and came back saltier. Its snout is long, its patience is longer, and its teeth are needles.
+saltwater-gharial-patient-float|Patient Float|guard|hold|Saltwater Gharial|A gharial that went to sea and came back saltier. Its snout is long, its patience is longer, and its teeth are needles.
+rock-python-rock-constrict|Rock Constrict|hurt|bash|Rock Python|A python the colour of a warm rock, which is the point. It warms in the sun and strikes when you sit down.
+rock-python-warm-rock|Warm Rock|heal|-|Rock Python|A python the colour of a warm rock, which is the point. It warms in the sun and strikes when you sit down.
+rock-python-rock-blend|Rock Blend|guard|evade|Rock Python|A python the colour of a warm rock, which is the point. It warms in the sun and strikes when you sit down.
+rock-python-sitter-strike|Sitter Strike|hurt|pierce|Rock Python|A python the colour of a warm rock, which is the point. It warms in the sun and strikes when you sit down.

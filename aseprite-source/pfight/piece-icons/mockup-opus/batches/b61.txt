@@ -1,0 +1,16 @@
+jackrabbit-long-leg-kick|Long Leg Kick|hurt|bash|Jackrabbit|Ears like sails and legs like springs. It zigzags through the scrub, then zigzags straight back at you.
+jackrabbit-ear-flick|Ear Flick|hurt|-|Jackrabbit|Ears like sails and legs like springs. It zigzags through the scrub, then zigzags straight back at you.
+jackrabbit-scrub-hide|Scrub Hide|guard|thorns|Jackrabbit|Ears like sails and legs like springs. It zigzags through the scrub, then zigzags straight back at you.
+jackrabbit-straight-back|Straight Back|hurt|bash|Jackrabbit|Ears like sails and legs like springs. It zigzags through the scrub, then zigzags straight back at you.
+house-centipede-skitter-skitter-wall|Skitter Wall|guard|evade|House Centipede Skitter|A grey sprint of legs running along the wall. It stops dead, and then it is on your sleeve.
+house-centipede-skitter-wall-dash|Wall Dash|hurt|quick|House Centipede Skitter|A grey sprint of legs running along the wall. It stops dead, and then it is on your sleeve.
+house-centipede-skitter-leg-rake|Leg Rake|hurt|pierce|House Centipede Skitter|A grey sprint of legs running along the wall. It stops dead, and then it is on your sleeve.
+house-centipede-skitter-sleeve-crawl|Sleeve Crawl|trick|evade|House Centipede Skitter|A grey sprint of legs running along the wall. It stops dead, and then it is on your sleeve.
+cave-centipede-cave-strike|Cave Strike|hurt|pierce|Cave Centipede|Long, pale and eyeless, it lies along a cave roof and drops when the draught changes.
+cave-centipede-moist-rest|Moist Rest|heal|-|Cave Centipede|Long, pale and eyeless, it lies along a cave roof and drops when the draught changes.
+cave-centipede-stalactite-cover|Stalactite Cover|guard|hold|Cave Centipede|Long, pale and eyeless, it lies along a cave roof and drops when the draught changes.
+cave-centipede-roof-drop|Roof Drop|hurt|pierce|Cave Centipede|Long, pale and eyeless, it lies along a cave roof and drops when the draught changes.
+giant-millipede-ring-crush|Ring Crush|hurt|bash|Giant Millipede|A huge black millipede with ten thousand red legs. It curls up when startled, which is no help to the startler.
+giant-millipede-coil-armour|Coil Armour|guard|hold|Giant Millipede|A huge black millipede with ten thousand red legs. It curls up when startled, which is no help to the startler.
+giant-millipede-poison-mist|Poison Mist|trick|poison|Giant Millipede|A huge black millipede with ten thousand red legs. It curls up when startled, which is no help to the startler.
+giant-millipede-startled-curl|Startled Curl|guard|thorns|Giant Millipede|A huge black millipede with ten thousand red legs. It curls up when startled, which is no help to the startler.

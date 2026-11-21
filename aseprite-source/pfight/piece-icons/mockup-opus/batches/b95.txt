@@ -1,0 +1,16 @@
+aardvark-burrow-claw|Burrow Claw|hurt|bash|Aardvark|A night digger with ears like spoons that breaks open anything with ants in it. Gnomes are not ants, but it checks.
+aardvark-mound-smash|Mound Smash|trick|bash|Aardvark|A night digger with ears like spoons that breaks open anything with ants in it. Gnomes are not ants, but it checks.
+aardvark-snout-jab|Snout Jab|hurt|pierce|Aardvark|A night digger with ears like spoons that breaks open anything with ants in it. Gnomes are not ants, but it checks.
+aardvark-ear-flap|Ear Flap|guard|evade|Aardvark|A night digger with ears like spoons that breaks open anything with ants in it. Gnomes are not ants, but it checks.
+snow-lynx-snow-leap|Snow Leap|hurt|trip|Snow Lynx|A lynx on paws like snowshoes that hunts across drifts it should sink into. It leaves no tracks worth following.
+snow-lynx-paw-snap|Paw Snap|hurt|quick|Snow Lynx|A lynx on paws like snowshoes that hunts across drifts it should sink into. It leaves no tracks worth following.
+snow-lynx-drift-cover|Drift Cover|guard|hold|Snow Lynx|A lynx on paws like snowshoes that hunts across drifts it should sink into. It leaves no tracks worth following.
+snow-lynx-snowshoe-glide|Snowshoe Glide|trick|evade|Snow Lynx|A lynx on paws like snowshoes that hunts across drifts it should sink into. It leaves no tracks worth following.
+spurred-tortoise-spur-jab|Spur Jab|hurt|pierce|Spurred Tortoise|The slowest thing on the dry plain, and the slowest to forgive. Its leg spurs are sharper than they look.
+spurred-tortoise-beak-spike|Beak Spike|hurt|pierce|Spurred Tortoise|The slowest thing on the dry plain, and the slowest to forgive. Its leg spurs are sharper than they look.
+spurred-tortoise-shell-hold|Shell Hold|guard|hold|Spurred Tortoise|The slowest thing on the dry plain, and the slowest to forgive. Its leg spurs are sharper than they look.
+spurred-tortoise-slow-turn|Slow Turn|guard|thorns|Spurred Tortoise|The slowest thing on the dry plain, and the slowest to forgive. Its leg spurs are sharper than they look.
+condor-updraft-dive|Updraft Dive|hurt|bash|Condor|A black bird that climbs on the wind all day and drops on whoever is smallest. It does not circle; it simply arrives.
+condor-wing-beat|Wing Beat|hurt|quick|Condor|A black bird that climbs on the wind all day and drops on whoever is smallest. It does not circle; it simply arrives.
+condor-thermal-hold|Thermal Hold|guard|hold|Condor|A black bird that climbs on the wind all day and drops on whoever is smallest. It does not circle; it simply arrives.
+condor-small-pick|Small Pick|hurt|pierce|Condor|A black bird that climbs on the wind all day and drops on whoever is smallest. It does not circle; it simply arrives.

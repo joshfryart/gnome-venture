@@ -1,0 +1,16 @@
+mole-rat-gang-gang-gnaw|Gang Gnaw|hurt|-|Mole-rat Gang|Pink, near-blind and entirely devoted to the colony. They arrive from every direction at once.
+mole-rat-gang-tooth-rush|Tooth Rush|hurt|quick|Mole-rat Gang|Pink, near-blind and entirely devoted to the colony. They arrive from every direction at once.
+mole-rat-gang-burrow-call|Burrow Call|trick|bash|Mole-rat Gang|Pink, near-blind and entirely devoted to the colony. They arrive from every direction at once.
+mole-rat-gang-colony-pile|Colony Pile|guard|-|Mole-rat Gang|Pink, near-blind and entirely devoted to the colony. They arrive from every direction at once.
+magpie-mob-shiny-snatch|Shiny Snatch|hurt|trip|Magpie Mob|Black and white and noisy, a gang that borrows anything shiny. Your buckles are sorted by value, quickly.
+magpie-mob-chatter-guard|Chatter Guard|guard|evade|Magpie Mob|Black and white and noisy, a gang that borrows anything shiny. Your buckles are sorted by value, quickly.
+magpie-mob-pilfer|Pilfer|trick|quick|Magpie Mob|Black and white and noisy, a gang that borrows anything shiny. Your buckles are sorted by value, quickly.
+magpie-mob-glitter-peck|Glitter Peck|hurt|pierce|Magpie Mob|Black and white and noisy, a gang that borrows anything shiny. Your buckles are sorted by value, quickly.
+nettle-lurker-sting-curtain|Sting Curtain|guard|thorns|Nettle Lurker|A hunched green thing that smells of cut stalks. Brush it with a sleeve and the whole patch answers.
+nettle-lurker-stem-wall|Stem Wall|guard|thorns|Nettle Lurker|A hunched green thing that smells of cut stalks. Brush it with a sleeve and the whole patch answers.
+nettle-lurker-stem-snare|Stem Snare|hurt|trip|Nettle Lurker|A hunched green thing that smells of cut stalks. Brush it with a sleeve and the whole patch answers.
+nettle-lurker-brush-sting|Brush Sting|trick|thorns|Nettle Lurker|A hunched green thing that smells of cut stalks. Brush it with a sleeve and the whole patch answers.
+bombardier-beetle-hot-spray|Hot Spray|hurt|poison|Bombardier Beetle|A neat, shiny beetle that fires a boiling puff from its tail. It always lines up the shot first.
+bombardier-beetle-repair-rest|Repair Rest|heal|-|Bombardier Beetle|A neat, shiny beetle that fires a boiling puff from its tail. It always lines up the shot first.
+bombardier-beetle-armour-plate|Armour Plate|guard|hold|Bombardier Beetle|A neat, shiny beetle that fires a boiling puff from its tail. It always lines up the shot first.
+bombardier-beetle-turn-cannon|Turn Cannon|trick|thorns|Bombardier Beetle|A neat, shiny beetle that fires a boiling puff from its tail. It always lines up the shot first.

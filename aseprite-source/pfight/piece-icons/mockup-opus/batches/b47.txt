@@ -1,0 +1,16 @@
+night-adder-fang-strike|Fang Strike|hurt|pierce|Night Adder|A dark, zigzag-backed viper that sits in the road at night to warm up. Do not tread on it.
+night-adder-quick-fangs|Quick Fangs|hurt|pierce|Night Adder|A dark, zigzag-backed viper that sits in the road at night to warm up. Do not tread on it.
+night-adder-night-coil|Night Coil|guard|-|Night Adder|A dark, zigzag-backed viper that sits in the road at night to warm up. Do not tread on it.
+night-adder-road-sit|Road Sit|guard|thorns|Night Adder|A dark, zigzag-backed viper that sits in the road at night to warm up. Do not tread on it.
+termite-column-mound-wall|Mound Wall|guard|hold|Termite Column|A pale, soft column marching inside a tunnel of its own mud. The soldiers have the heads.
+termite-column-soldier-bite|Soldier Bite|hurt|-|Termite Column|A pale, soft column marching inside a tunnel of its own mud. The soldiers have the heads.
+termite-column-clay-armour|Clay Armour|guard|thorns|Termite Column|A pale, soft column marching inside a tunnel of its own mud. The soldiers have the heads.
+termite-column-tunnel-crowd|Tunnel Crowd|hurt|bash|Termite Column|A pale, soft column marching inside a tunnel of its own mud. The soldiers have the heads.
+stickleback-shoal-spine-flick|Spine Flick|hurt|trip|Stickleback Shoal|A bright little shoal with three spines on each back. Males guard a nest of weed in spring, loudly.
+stickleback-shoal-shoal-wave|Shoal Wave|trick|trip|Stickleback Shoal|A bright little shoal with three spines on each back. Males guard a nest of weed in spring, loudly.
+stickleback-shoal-fin-jab|Fin Jab|hurt|-|Stickleback Shoal|A bright little shoal with three spines on each back. Males guard a nest of weed in spring, loudly.
+stickleback-shoal-nest-guard|Nest Guard|guard|hold|Stickleback Shoal|A bright little shoal with three spines on each back. Males guard a nest of weed in spring, loudly.
+fisher-quill-slide|Quill Slide|guard|thorns|Fisher|A long dark marten that hunts porcupines for sport and now thinks of gnomes as very small porcupines.
+fisher-fisher-bite|Fisher Bite|hurt|bash|Fisher|A long dark marten that hunts porcupines for sport and now thinks of gnomes as very small porcupines.
+fisher-tree-drop|Tree Drop|trick|trip|Fisher|A long dark marten that hunts porcupines for sport and now thinks of gnomes as very small porcupines.
+fisher-flip-hunt|Flip Hunt|hurt|bash|Fisher|A long dark marten that hunts porcupines for sport and now thinks of gnomes as very small porcupines.

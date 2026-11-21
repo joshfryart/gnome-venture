@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jobs tab, direction B: Focus and detail</title><style>
+:root{--bg:#2a1a10;--surface:#3d2a1c;--surface-2:#33231a;--ink:#f2e4c0;--ink-2:#e0cfa4;--muted:#c9a96e;--line:#74462a;--line-2:#9a6b3f;--brand:#2f5a2a;--brand-line:#7ab55c;--brand-ink:#a4b86a;--accent:#e8a317;--gold-soft:#6a4510;--gold-ink:#f5cf6a;--danger:#f08a7a;--felt:#3d2a1c;--area:#e46a9b;--area-soft:#6b1b2c;--area-ink:#f6b8cf;--drop:#291d4a;--ol:#2a1a10;--focus:#a9d6ea;--tap:44px;--gut:16px;--shadow:2px 2px 0 0 var(--drop)}
+*{box-sizing:border-box}html{background:#161009}
+body{margin:0;background:#161009;color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}
+::selection{background:var(--accent);color:var(--ol)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3,p{margin:0}h1,h2,h3{font-weight:800;line-height:1.25;text-wrap:balance}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
+.note{max-width:1180px;margin:0 auto;padding:24px var(--gut) 0;color:var(--muted)}
+.note h1{color:var(--ink);font-size:22px}.note p{max-width:78ch;margin-top:6px}.note b{color:var(--ink)}
+.note nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.note nav a{color:var(--gold-ink);border:1px solid var(--line);padding:6px 12px;min-height:36px;text-decoration:none}
+.note nav a:hover{background:var(--surface)}
+.shot{max-width:1180px;margin:28px auto 0;padding:0 var(--gut)}
+.shot>h2{font-size:13px;color:var(--gold-ink);margin:0 0 8px;font-weight:700}
+.frame{background:var(--bg);border:2px solid var(--line);position:relative;padding-bottom:0}
+.page{padding:var(--gut) var(--gut) 20px}
+@media(min-width:721px){.page{padding:20px 24px 28px}}
+/* page head */
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.head h1{font-size:1.5rem}
+.streak{font-size:.85rem;color:var(--gold-ink);background:var(--gold-soft);border:1px solid #b07a10;padding:4px 10px;min-height:28px;display:inline-flex;align-items:center;gap:6px}
+/* felt tabs w/ thread */
+.tabs{display:flex;background:var(--felt);border:1px solid var(--line);outline:1px dashed var(--accent);outline-offset:-5px;padding:6px;gap:4px;margin-top:12px}
+.tabs a{flex:1;min-height:var(--tap);display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ink-2);text-decoration:none;font-weight:600;position:relative}
+.tabs a.on{background:var(--brand);color:var(--ink)}
+.tabs small{background:var(--accent);color:var(--ol);font-weight:800;padding:0 6px;font-size:.75rem}
+/* period switcher */
+.periods{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.per{display:flex;flex-direction:column;gap:2px;min-height:64px;padding:8px 10px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none;box-shadow:var(--shadow);position:relative}
+.per .t{display:flex;align-items:center;gap:8px;font-weight:700}
+.per .s{font-size:.8rem;color:var(--muted);line-height:1.3}
+.per.on{background:var(--ink);color:var(--ol);border-color:var(--ink);box-shadow:var(--shadow)}
+.per.on .s{color:#4a2c1a}
+.per.board.on{background:var(--area-ink);border-color:var(--area-ink)}
+.dot{width:10px;height:10px;flex:none;border:2px solid var(--muted);background:transparent}
+.dot.act{background:var(--accent);border-color:var(--accent)}
+.dot.done{background:var(--brand-line);border-color:var(--brand-line)}
+.per.on .dot{border-color:var(--ol)}.per.on .dot.act{background:#b07a10;border-color:#7a4a1f}.per.on .dot.done{background:var(--brand);border-color:var(--brand)}
+.per .n{margin-left:auto;background:var(--accent);color:var(--ol);font-size:.75rem;font-weight:800;padding:0 6px}
+.reset{font-size:.85rem;color:var(--muted);margin-top:10px;display:flex;gap:6px;align-items:center}
+/* layout */
+.cols{display:grid;gap:16px;margin-top:14px}
+@media(min-width:721px){.cols{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start}.cols.even{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.card>.pad{padding:16px}
+@media(min-width:721px){.card>.pad{padding:20px}}
+.hero h2{font-size:1.5rem;margin-bottom:4px}
+@media(min-width:721px){.hero h2{font-size:1.75rem}}
+.hero .txt{color:var(--ink-2);max-width:60ch}
+.sectitle{font-size:.8rem;font-weight:800;color:var(--muted);margin:0 0 8px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:700;padding:2px 8px;border:1px solid var(--line-2);color:var(--ink-2);min-height:24px}
+.tag.act{background:var(--gold-soft);color:var(--gold-ink);border-color:#b07a10}
+.tag.done{background:#1f3f3a;color:var(--brand-ink);border-color:#2f6a3a}
+.prog{margin-top:16px}
+.prog .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700}
+.prog .row span:last-child{color:var(--muted);font-weight:400;font-size:.9rem}
+.bar{height:16px;background:var(--bg);border:2px solid var(--ol);margin-top:6px;position:relative}
+.bar i{display:block;height:100%;background:var(--accent);background-image:repeating-linear-gradient(90deg,transparent 0 10px,rgba(42,26,16,.35) 10px 12px)}
+.reward{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.reward .lbl{font-size:.85rem;color:var(--muted);margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:2px 10px;font-weight:700;border:1px solid}
+.chip.gold{background:#f5cf6a;color:var(--ol);border-color:#b07a10}
+.chip.xp{background:#1f3f3a;color:var(--brand-ink);border-color:#2f6a3a}
+.chip.item{background:var(--bg);color:var(--ink);border-color:var(--line-2)}
+.sub{font-size:.85rem;color:var(--muted);margin-top:8px}
+/* stepper */
+.steps{list-style:none;margin:18px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;counter-reset:s}
+.steps li{padding:8px;border:1px solid var(--line);background:var(--surface-2);font-size:.82rem;line-height:1.3;display:flex;flex-direction:column;gap:4px;min-height:64px;color:var(--muted)}
+.steps li b{display:flex;align-items:center;gap:6px;font-size:.78rem}
+.steps li.done{color:var(--brand-ink);border-color:#2f6a3a;background:#1f3f3a}
+.steps li.now{background:var(--ink);color:var(--ol);border-color:var(--ink);font-weight:700}
+@media(max-width:720px){.steps{grid-template-columns:1fr 1fr}}
+/* needs */
+.needs{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.needs li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px;background:var(--surface-2);border:1px solid var(--line)}
+.sq{width:36px;height:36px;background:var(--bg);border:2px solid var(--ol);box-shadow:0 0 0 1px var(--line-2);display:grid;place-items:center;color:var(--gold-ink)}
+.needs .nm{font-weight:700}.needs .hv{font-size:.8rem;color:var(--muted);display:block;font-weight:400}
+.ok{display:inline-flex;gap:6px;align-items:center;font-weight:700;color:var(--brand-ink);font-size:.85rem}
+.lack{display:inline-flex;gap:6px;align-items:center;font-weight:700;color:var(--danger);font-size:.85rem}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:0 18px;font:inherit;font-weight:700;border:2px solid var(--ol);background:var(--brand);color:#f2e4c0;cursor:pointer;text-decoration:none;box-shadow:var(--shadow)}
+.btn:hover{background:#3a6d34}
+.btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--drop)}
+.btn[disabled]{opacity:.55;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line-2);box-shadow:none}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:.9rem;position:relative}
+.btn.sm::after{content:"";position:absolute;inset:-4px 0}
+.btn.danger{color:var(--danger);border-color:#a8241f}
+.btn.block{width:100%}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;align-items:center}
+.linkbtn{background:none;border:0;color:var(--gold-ink);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:var(--tap);padding:0 4px}
+/* offers */
+.offers{display:grid;gap:8px}
+.offer{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px;background:var(--surface);border:1px solid var(--line);cursor:pointer;min-height:64px;position:relative}
+.offer input{position:absolute;opacity:0}
+.offer .rd{width:18px;height:18px;border:2px solid var(--muted);background:var(--bg);display:grid;place-items:center}
+.offer:has(input:checked){background:var(--surface-2);border-color:var(--accent);outline:2px solid var(--accent);outline-offset:-4px}
+.offer:has(input:checked) .rd{border-color:var(--accent)}.offer:has(input:checked) .rd::after{content:"";width:8px;height:8px;background:var(--accent)}
+.offer:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.offer b{display:block}.offer small{color:var(--muted);font-size:.82rem;display:block}
+.offer .pay{font-weight:800;color:var(--gold-ink);text-align:right;line-height:1.2}.offer .pay small{font-weight:400}
+.hint{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding:10px 12px;background:var(--surface-2);border:1px dashed var(--line-2);color:var(--ink-2);font-size:.9rem}
+.hint svg{margin-top:2px;color:var(--gold-ink)}
+.empty{padding:14px 16px;background:var(--surface-2);border:1px dashed var(--line-2);color:var(--ink-2)}
+.foot{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+details.fold{margin-top:16px;border-top:1px dashed var(--line);padding-top:4px}
+details.fold summary{min-height:var(--tap);display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--muted);font-weight:600;list-style:none}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold p{color:var(--ink-2);font-size:.9rem;margin-bottom:10px;max-width:60ch}
+.empty.mini{display:none}
+/* sticky bar */
+.bar-act{position:sticky;bottom:0;z-index:5;display:none;gap:10px;padding:10px var(--gut);background:var(--felt);border-top:2px solid var(--line);outline:1px dashed var(--accent);outline-offset:-5px;align-items:center}
+.bar-act .btn{flex:1}.bar-act .meta{font-size:.78rem;color:var(--muted);line-height:1.25}
+@media(max-width:720px){.bar-act{display:flex}.desk-actions{display:none!important}}
+/* board */
+.pj{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:14px;border-bottom:1px solid var(--line);align-items:center}
+.pj:last-child{border-bottom:0}
+.pj b{display:block}.pj p{color:var(--ink-2);font-size:.9rem}.pj small{color:var(--muted)}
+.pj .who{font-size:.82rem;color:var(--muted)}
+.forms{display:grid;gap:16px}
+.fc h3{display:flex;align-items:center;gap:8px;font-size:1.05rem}
+.fc .why{font-size:.85rem;color:var(--muted);margin:4px 0 12px}
+.fld{display:grid;gap:4px;font-size:.82rem;color:var(--muted);font-weight:600}
+.fld input,.fld select{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line-2);min-height:var(--tap);padding:0 10px;border-radius:0;width:100%}
+.fld input::placeholder{color:#a8865a}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g1{margin-top:10px}
+.mine{width:100%;border-collapse:collapse}
+.mine td,.mine th{padding:10px 12px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--line)}
+.mine th{font-size:.8rem;color:var(--muted)}
+.mine tr:last-child td{border-bottom:0}
+.mrow{display:grid;grid-template-columns:1.4fr 1.2fr 1fr auto;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.mrow:last-child{border-bottom:0}.mrow small{color:var(--muted);display:block}
+.mini-bar{height:8px;background:var(--bg);border:1px solid var(--ol);margin-top:4px}.mini-bar i{display:block;height:100%;background:var(--accent)}
+@media(max-width:720px){.mrow{grid-template-columns:1fr auto}.mrow>:nth-child(2),.mrow>:nth-child(3){grid-column:1/-1}}
+.pill{display:inline-flex;font-size:.78rem;font-weight:700;padding:1px 8px;border:1px solid var(--line-2);color:var(--ink-2)}
+.pill.open{background:var(--area-soft);color:var(--area-ink);border-color:var(--area)}
+.pill.taken{background:var(--gold-soft);color:var(--gold-ink);border-color:#b07a10}
+.pill.done{background:#1f3f3a;color:var(--brand-ink);border-color:#2f6a3a}
+.board-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.board-head h2{font-size:1.05rem}
+@media(max-width:720px){.periods{grid-template-columns:1fr 1fr}.per .s{font-size:.78rem}.tabs a{gap:4px;font-size:.9rem}.cols>*{min-width:0}}
+.bar-act{position:static}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .5s cubic-bezier(.16,1,.3,1)}}
+</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="sun" viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></symbol>
+<symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+<symbol id="moon" viewBox="0 0 24 24"><path d="M19 15A8 8 0 0 1 9 5a8 8 0 1 0 10 10z"/></symbol>
+<symbol id="board" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></symbol>
+<symbol id="hammer" viewBox="0 0 24 24"><path d="M14 4l6 6-3 3-6-6zM12 10L4 18l2 2 8-8"/></symbol>
+<symbol id="dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/><path d="M9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01"/></symbol>
+<symbol id="leaf" viewBox="0 0 24 24"><path d="M5 19C5 9 11 5 20 4c0 9-4 15-14 15zM5 19l8-8"/></symbol>
+<symbol id="box" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10"/></symbol>
+<symbol id="clock" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><path d="M12 7v5l4 2"/></symbol>
+<symbol id="info" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><path d="M12 11v6M12 7.5v.01"/></symbol>
+<symbol id="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="scroll" viewBox="0 0 24 24"><path d="M6 3h12v15a3 3 0 0 0 3 3H9a3 3 0 0 1-3-3zM9 8h6M9 12h6"/></symbol>
+<symbol id="pin" viewBox="0 0 24 24"><path d="M9 3h6l-1 7 3 3H7l3-3zM12 13v8"/></symbol>
+</defs></svg>
+<header class="note"><h1>Jobs tab · Direction B: Focus + master/detail</h1><p>One period at a time. The switcher shows each slot’s state (dot plus words) and countdown, with the Community board as its own fourth area. The selected period gets one large focus card; offers become a selectable list beside it (stacked on a phone, with a sticky action bar, drawn pinned to the frame bottom here). Dark theme, 390 px and 1280 px.</p><nav aria-label="States"><a href="#s1">Weekly, rebuild active</a><a href="#s2">Daily, offers</a><a href="#s3">Monthly, done</a><a href="#s4">Community board</a></nav></header>
+<section class="shot" id="s1"><h2>1 · Default: weekly rebuild, stage 2</h2><div class="frame"><div class="page"><div class="head"><h1>Tasks</h1><span class="streak"><svg class="i" aria-hidden="true"><use href="#check"/></svg> 12 dailies done · every 7 earns 500 Petals</span></div>
+<nav class="tabs" aria-label="Tasks"><a class="on" href="#"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Jobs</a><a href="#"><svg class="i" aria-hidden="true"><use href="#scroll"/></svg>Journey</a><a href="#"><svg class="i" aria-hidden="true"><use href="#pin"/></svg>Requests<small>2</small></a></nav><nav class="periods" aria-label="Job period"><a class="per  " href="#daily" ><span class="t"><span class="dot " aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#sun"/></svg>Daily</span><span class="s">Resets in 6h 12m</span></a><a class="per  on" href="#weekly" aria-current="page"><span class="t"><span class="dot act" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#cal"/></svg>Weekly</span><span class="s">Stage 2 of 4 · 4 sleeps left</span></a><a class="per  " href="#monthly" ><span class="t"><span class="dot done" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#moon"/></svg>Monthly</span><span class="s">Done · new job in 11 sleeps</span></a><a class="per board " href="#board" ><span class="t"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Community board<span class="n">3</span></span><span class="s">3 open · 1 yours</span></a></nav>
+<div class="cols">
+ <section class="card hero"><div class="pad">
+  <span class="tag act"><svg class="i" aria-hidden="true"><use href="#clock"/></svg> In progress</span>
+  <h2 style="margin-top:10px">Rebuild the Tumbledown Cottage</h2>
+  <p class="txt">The keeper’s cottage lost its roof in the last storm. Hand in materials one stage at a time.</p>
+  <div class="prog"><div class="row"><span>1 of 4 stages handed in</span><span>25%</span></div><div class="bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"><i style="width:25%"></i></div></div>
+  <ol class="steps">
+   <li class="done"><b><svg class="i" aria-hidden="true"><use href="#check"/></svg> Stage 1</b>Clear your path in</li>
+   <li class="now"><b>Stage 2</b>Shore up your corner</li>
+   <li><b>Stage 3</b>Earn the keeper’s trust</li>
+   <li><b>Stage 4</b>Finishing touches</li>
+  </ol>
+  <div class="reward"><span class="lbl">Reward</span><span class="chip gold">1,200 Petals</span><span class="chip xp">240 XP</span><span class="chip item">2 × Rare Timber</span></div><p class="sub">Part is paid at each stage.</p>
+  <details class="fold"><summary><svg class="i" aria-hidden="true"><use href="#chev"/></svg> Give up this job</summary><p>You keep anything already paid, but lose the rest. Progress does not carry over.</p><button class="btn ghost sm danger"><svg class="i" aria-hidden="true"><use href="#x"/></svg>Give up</button></details>
+ </div></section>
+ <section class="card"><div class="pad">
+  <h3 style="margin-bottom:2px">Stage 2 needs</h3>
+  <p class="sub" style="margin:0 0 12px">You have everything. Hand it in to move on.</p>
+  <ul class="needs">
+   <li><span class="sq"><svg class="i" aria-hidden="true"><use href="#box"/></svg></span><span class="nm">6 Timber Plank<span class="hv">you have 8</span></span><span class="ok"><svg class="i" aria-hidden="true"><use href="#check"/></svg>Ready</span></li>
+   <li><span class="sq"><svg class="i" aria-hidden="true"><use href="#box"/></svg></span><span class="nm">3 Rope<span class="hv">you have 4</span></span><span class="ok"><svg class="i" aria-hidden="true"><use href="#check"/></svg>Ready</span></li>
+  </ul>
+  <div class="actions desk-actions"><button class="btn"><svg class="i" aria-hidden="true"><use href="#hammer"/></svg>Hand in stage 2</button><a class="btn ghost" href="#">Craft materials</a></div>
+ </div></section>
+</div>
+</div><div class="bar-act"><button class="btn"><svg class="i" aria-hidden="true"><use href="#hammer"/></svg>Hand in stage 2</button><a class="btn ghost" href="#">Craft</a></div></div></section>
+<section class="shot" id="s2"><h2>2 · Daily with nothing taken: pick an offer</h2><div class="frame"><div class="page"><div class="head"><h1>Tasks</h1><span class="streak"><svg class="i" aria-hidden="true"><use href="#check"/></svg> 12 dailies done · every 7 earns 500 Petals</span></div>
+<nav class="tabs" aria-label="Tasks"><a class="on" href="#"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Jobs</a><a href="#"><svg class="i" aria-hidden="true"><use href="#scroll"/></svg>Journey</a><a href="#"><svg class="i" aria-hidden="true"><use href="#pin"/></svg>Requests<small>2</small></a></nav><nav class="periods" aria-label="Job period"><a class="per  on" href="#daily" aria-current="page"><span class="t"><span class="dot " aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#sun"/></svg>Daily</span><span class="s">Resets in 6h 12m</span></a><a class="per  " href="#weekly" ><span class="t"><span class="dot act" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#cal"/></svg>Weekly</span><span class="s">Stage 2 of 4 · 4 sleeps left</span></a><a class="per  " href="#monthly" ><span class="t"><span class="dot done" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#moon"/></svg>Monthly</span><span class="s">Done · new job in 11 sleeps</span></a><a class="per board " href="#board" ><span class="t"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Community board<span class="n">3</span></span><span class="s">3 open · 1 yours</span></a></nav>
+<div class="cols">
+ <section><div class="card hero" style="margin-bottom:16px"><div class="pad">
+  <span class="tag"><svg class="i" aria-hidden="true"><use href="#sun"/></svg> Selected offer</span>
+  <h2 style="margin-top:10px">Carrot Run</h2>
+  <p class="txt">Bring 12 Carrots to the market stall before the day turns.</p>
+  <div class="hint"><svg class="i" aria-hidden="true"><use href="#info"/></svg><span>You have 7 Carrots in your satchel. Five more to pull.</span></div>
+  <div class="reward"><span class="lbl">Reward</span><span class="chip gold">80 Petals</span><span class="chip xp">30 XP</span></div><p class="sub">Paid in full when you hand in.</p>
+  <div class="actions desk-actions"><button class="btn"><svg class="i" aria-hidden="true"><use href="#check"/></svg>Take this job</button></div>
+ </div></div>
+ <div class="foot"><button class="btn ghost sm"><svg class="i" aria-hidden="true"><use href="#dice"/></svg>Re-roll offers · once a day</button><span class="sub" style="margin:0">Dailies change when the day turns.</span></div></section>
+ <section>
+  <p class="sectitle">Today’s offers</p>
+  <div class="offers" role="radiogroup" aria-label="Daily offers">
+   <label class="offer"><input type="radio" name="o" checked><span class="rd"></span><span><b>Carrot Run</b><small>Bring 12 Carrots</small></span><span class="pay">80 Petals<small>30 XP</small></span></label>
+   <label class="offer"><input type="radio" name="o"><span class="rd"></span><span><b>Thirsty Rows</b><small>Water 20 plants</small></span><span class="pay">60 Petals<small>25 XP</small></span></label>
+   <label class="offer"><input type="radio" name="o"><span class="rd"></span><span><b>Tomato Haul</b><small>Harvest 8 Tomatoes</small></span><span class="pay">110 Petals<small>35 XP</small></span></label>
+  </div>
+  <p class="sectitle" style="margin-top:18px">Posted by other gnomes</p>
+  <div class="offers">
+   <label class="offer"><input type="radio" name="o"><span class="rd"></span><span><b>Tend Mossbottom’s garden</b><small>Posted by Pip · 2 days · wage held safely</small></span><span class="pay">240 Petals</span></label>
+   <label class="offer"><input type="radio" name="o"><span class="rd"></span><span><b>Bring 10 Marrows</b><small>Posted by Wick · 1 day</small></span><span class="pay">150 Petals</span></label>
+  </div>
+ </section>
+</div>
+</div><div class="bar-act"><div class="meta">Carrot Run<br>80 Petals · 30 XP</div><button class="btn"><svg class="i" aria-hidden="true"><use href="#check"/></svg>Take this job</button></div></div></section>
+<section class="shot" id="s3"><h2>3 · Monthly done</h2><div class="frame"><div class="page"><div class="head"><h1>Tasks</h1><span class="streak"><svg class="i" aria-hidden="true"><use href="#check"/></svg> 12 dailies done · every 7 earns 500 Petals</span></div>
+<nav class="tabs" aria-label="Tasks"><a class="on" href="#"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Jobs</a><a href="#"><svg class="i" aria-hidden="true"><use href="#scroll"/></svg>Journey</a><a href="#"><svg class="i" aria-hidden="true"><use href="#pin"/></svg>Requests<small>2</small></a></nav><nav class="periods" aria-label="Job period"><a class="per  " href="#daily" ><span class="t"><span class="dot " aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#sun"/></svg>Daily</span><span class="s">Resets in 6h 12m</span></a><a class="per  " href="#weekly" ><span class="t"><span class="dot act" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#cal"/></svg>Weekly</span><span class="s">Stage 2 of 4 · 4 sleeps left</span></a><a class="per  on" href="#monthly" aria-current="page"><span class="t"><span class="dot done" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#moon"/></svg>Monthly</span><span class="s">Done · new job in 11 sleeps</span></a><a class="per board " href="#board" ><span class="t"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Community board<span class="n">3</span></span><span class="s">3 open · 1 yours</span></a></nav>
+<div class="cols">
+ <section class="card hero"><div class="pad">
+  <span class="tag done"><svg class="i" aria-hidden="true"><use href="#check"/></svg> Done</span>
+  <h2 style="margin-top:10px">Grow a Giant Pumpkin</h2>
+  <p class="txt">Well grown. The whole Hollow came to look.</p>
+  <div class="prog"><div class="row"><span>Complete</span><span>1 of 1</span></div><div class="bar"><i style="width:100%;background:var(--brand-line)"></i></div></div>
+  <div class="reward"><span class="lbl">Paid</span><span class="chip gold">900 Petals</span><span class="chip xp">120 XP</span><span class="chip item">1 × Gardening Guide</span></div>
+ </div></section>
+ <section class="card"><div class="pad">
+  <h3>Next monthly job</h3>
+  <p class="txt" style="margin-top:6px;color:var(--ink-2)">Come back after the reset for a new monthly job.</p>
+  <p class="reset" style="margin-top:12px"><svg class="i" aria-hidden="true"><use href="#clock"/></svg> New offers in 11 sleeps</p>
+ </div></section>
+</div></div></div></section>
+<section class="shot" id="s4"><h2>4 · Community board: take, post, your jobs</h2><div class="frame"><div class="page"><div class="head"><h1>Tasks</h1><span class="streak"><svg class="i" aria-hidden="true"><use href="#check"/></svg> 12 dailies done · every 7 earns 500 Petals</span></div>
+<nav class="tabs" aria-label="Tasks"><a class="on" href="#"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Jobs</a><a href="#"><svg class="i" aria-hidden="true"><use href="#scroll"/></svg>Journey</a><a href="#"><svg class="i" aria-hidden="true"><use href="#pin"/></svg>Requests<small>2</small></a></nav><nav class="periods" aria-label="Job period"><a class="per  " href="#daily" ><span class="t"><span class="dot " aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#sun"/></svg>Daily</span><span class="s">Resets in 6h 12m</span></a><a class="per  " href="#weekly" ><span class="t"><span class="dot act" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#cal"/></svg>Weekly</span><span class="s">Stage 2 of 4 · 4 sleeps left</span></a><a class="per  " href="#monthly" ><span class="t"><span class="dot done" aria-hidden="true"></span><svg class="i" aria-hidden="true"><use href="#moon"/></svg>Monthly</span><span class="s">Done · new job in 11 sleeps</span></a><a class="per board on" href="#board" aria-current="page"><span class="t"><svg class="i" aria-hidden="true"><use href="#board"/></svg>Community board<span class="n">3</span></span><span class="s">3 open · 1 yours</span></a></nav>
+<div class="cols even">
+ <section class="card"><div class="board-head"><h2>Posted by other gnomes</h2><span class="tag">3 open</span></div>
+  <div class="pj"><div><b>Tend Mossbottom’s garden</b><p>Water, weed and harvest for 2 days.</p><span class="who">Pip · Weekly slot · wage held safely</span></div><div style="text-align:right"><b style="color:var(--gold-ink)">240 Petals</b><button class="btn sm" style="margin-top:6px">Take job</button></div></div>
+  <div class="pj"><div><b>Bring 10 Marrows</b><p>“Pie night is coming!”</p><span class="who">Wick · Daily slot · <a class="linkbtn" style="min-height:0" href="#">Report</a></span></div><div style="text-align:right"><b style="color:var(--gold-ink)">150 Petals</b><button class="btn sm" style="margin-top:6px">Take job</button></div></div>
+  <div class="pj"><div><b>Bring 25 Honeycomb</b><p>For the fair stall.</p><span class="who">Bramble · Weekly slot</span></div><div style="text-align:right"><b style="color:var(--gold-ink)">420 Petals</b><button class="btn sm" style="margin-top:6px">Take job</button></div></div>
+ </section>
+ <section class="forms">
+  <div class="card fc"><div class="pad"><h3><svg class="i" aria-hidden="true"><use href="#leaf"/></svg> Tend my garden</h3><p class="why">They water, weed and harvest. Harvests come to you, less a 20% share.</p>
+   <div class="g2"><label class="fld">Garden<select><option>Mossy Corner</option></select></label><label class="fld">For<select><option>2 days</option></select></label></div>
+   <div class="g2 g1"><label class="fld">Wage (Petals)<input type="number" value="120"></label><label class="fld">Note (optional)<input placeholder="The tomatoes are thirsty!"></label></div>
+   <div class="actions"><button class="btn sm">Post job</button></div></div></div>
+  <div class="card fc"><div class="pad"><h3><svg class="i" aria-hidden="true"><use href="#box"/></svg> Bring me something</h3><p class="why">Ask for anything you’ve grown or gathered. It arrives in your satchel.</p>
+   <div class="g2"><label class="fld">Item<select><option>Carrot</option></select></label><label class="fld">How many<input type="number" value="10"></label></div>
+   <div class="g2 g1"><label class="fld">Deadline<select><option>A day</option><option>A week</option></select></label><label class="fld">Wage (Petals)<input type="number" value="100"></label></div>
+   <div class="actions"><button class="btn sm">Post job</button><span class="sub" style="margin:0">Wage held until done. Listed 3 days.</span></div></div></div>
+ </section>
+</div>
+<section class="card" style="margin-top:16px"><div class="board-head"><h2>Your posted jobs</h2><span class="sub" style="margin:0">Last 6</span></div>
+ <div class="mrow"><div><b>Bring 20 Carrots</b><small>Daily slot</small></div><div><span class="pill open">Waiting for a taker</span></div><div><small>0 of 20 · paid 0 / 150</small></div><button class="btn ghost sm">Take down</button></div>
+ <div class="mrow"><div><b>Tend my garden, 3 days</b><small>Mossy Corner</small></div><div><span class="pill taken">Taken by Pip</span></div><div><small>14 of 30 · paid 56 / 120</small><div class="mini-bar"><i style="width:47%"></i></div></div><span></span></div>
+ <div class="mrow"><div><b>Bring 12 Mint</b><small>Weekly slot</small></div><div><span class="pill done">Done</span></div><div><small>12 of 12 · paid 90 / 90</small></div><span></span></div>
+</section></div></div></section>
+<div style="height:40px"></div></body></html>

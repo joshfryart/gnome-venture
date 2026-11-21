@@ -1,0 +1,16 @@
+pangolin-scale-ball|Scale Ball|guard|thorns|Pangolin|Rolls into a plated ball at the first sign of trouble, then unrolls to lick up the ants you were also looking for.
+pangolin-curl-up|Curl Up|guard|hold|Pangolin|Rolls into a plated ball at the first sign of trouble, then unrolls to lick up the ants you were also looking for.
+pangolin-tail-whack|Tail Whack|hurt|bash|Pangolin|Rolls into a plated ball at the first sign of trouble, then unrolls to lick up the ants you were also looking for.
+pangolin-ant-lick|Ant Lick|trick|quick|Pangolin|Rolls into a plated ball at the first sign of trouble, then unrolls to lick up the ants you were also looking for.
+honeybee-swarm-bee-sting|Bee Sting|hurt|quick|Honeybee Swarm|A busy golden swarm that is gentle until its hive is touched. Then it is a very small, very loud army.
+honeybee-swarm-pollen-dive|Pollen Dive|hurt|quick|Honeybee Swarm|A busy golden swarm that is gentle until its hive is touched. Then it is a very small, very loud army.
+honeybee-swarm-wax-cell|Wax Cell|guard|-|Honeybee Swarm|A busy golden swarm that is gentle until its hive is touched. Then it is a very small, very loud army.
+honeybee-swarm-hive-alarm|Hive Alarm|trick|thorns|Honeybee Swarm|A busy golden swarm that is gentle until its hive is touched. Then it is a very small, very loud army.
+wildcat-fur-bristle|Fur Bristle|guard|thorns|Wildcat|Striped, thick-tailed and wary, nothing like a housecat except in the way it looks at you.
+wildcat-claw-swipe|Claw Swipe|hurt|-|Wildcat|Striped, thick-tailed and wary, nothing like a housecat except in the way it looks at you.
+wildcat-ear-flat-guard|Ear Flat Guard|guard|evade|Wildcat|Striped, thick-tailed and wary, nothing like a housecat except in the way it looks at you.
+wildcat-tail-ring-feint|Tail Ring Feint|trick|evade|Wildcat|Striped, thick-tailed and wary, nothing like a housecat except in the way it looks at you.
+turkey-vulture-wobble-glide|Wobble Glide|guard|evade|Turkey Vulture|A red-headed glider that rides the thermals above the carrion and somehow dodges everything on the ground.
+turkey-vulture-sway-off|Sway Off|trick|evade|Turkey Vulture|A red-headed glider that rides the thermals above the carrion and somehow dodges everything on the ground.
+turkey-vulture-beak-rip|Beak Rip|hurt|pierce|Turkey Vulture|A red-headed glider that rides the thermals above the carrion and somehow dodges everything on the ground.
+turkey-vulture-thermal-shrug|Thermal Shrug|guard|hold|Turkey Vulture|A red-headed glider that rides the thermals above the carrion and somehow dodges everything on the ground.

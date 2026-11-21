@@ -1,0 +1,16 @@
+carrion-beetle-crew-carrion-feast|Carrion Feast|heal|-|Carrion Beetle Crew|A black-and-orange burying beetle that works in crews and takes the autumn leavings very seriously.
+carrion-beetle-crew-burying-shell|Burying Shell|guard|hold|Carrion Beetle Crew|A black-and-orange burying beetle that works in crews and takes the autumn leavings very seriously.
+carrion-beetle-crew-mandible-nip|Mandible Nip|hurt|poison|Carrion Beetle Crew|A black-and-orange burying beetle that works in crews and takes the autumn leavings very seriously.
+carrion-beetle-crew-bury-drop|Bury Drop|trick|trip|Carrion Beetle Crew|A black-and-orange burying beetle that works in crews and takes the autumn leavings very seriously.
+tumblebug-troupe-tumble-shove|Tumble Shove|hurt|bash|Tumblebug Troupe|Beetles in pairs, rolling one ball between them turn and turn about. The ball is heavier than it looks.
+tumblebug-troupe-ball-shield|Ball Shield|guard|thorns|Tumblebug Troupe|Beetles in pairs, rolling one ball between them turn and turn about. The ball is heavier than it looks.
+tumblebug-troupe-roll-out|Roll Out|trick|trip|Tumblebug Troupe|Beetles in pairs, rolling one ball between them turn and turn about. The ball is heavier than it looks.
+tumblebug-troupe-ball-relay|Ball Relay|hurt|bash|Tumblebug Troupe|Beetles in pairs, rolling one ball between them turn and turn about. The ball is heavier than it looks.
+earwig-matron-brood-tend|Brood Tend|heal|-|Earwig Matron|Guards a clutch of pale eggs with a very large pincer and a worrying amount of tenderness.
+earwig-matron-egg-shell-ward|Egg Shell Ward|guard|thorns|Earwig Matron|Guards a clutch of pale eggs with a very large pincer and a worrying amount of tenderness.
+earwig-matron-matron-pincer|Matron Pincer|hurt|trip|Earwig Matron|Guards a clutch of pale eggs with a very large pincer and a worrying amount of tenderness.
+earwig-matron-egg-cushion|Egg Cushion|heal|-|Earwig Matron|Guards a clutch of pale eggs with a very large pincer and a worrying amount of tenderness.
+firefly-flicker-flash-strike|Flash Strike|hurt|quick|Firefly Flicker|Summer-evening sparks that wink in time, so that you never know where the next one will be.
+firefly-flicker-blink-out|Blink Out|trick|quick|Firefly Flicker|Summer-evening sparks that wink in time, so that you never know where the next one will be.
+firefly-flicker-lamp-glow|Lamp Glow|guard|evade|Firefly Flicker|Summer-evening sparks that wink in time, so that you never know where the next one will be.
+firefly-flicker-lamp-wink|Lamp Wink|trick|quick|Firefly Flicker|Summer-evening sparks that wink in time, so that you never know where the next one will be.

@@ -1,0 +1,16 @@
+ice-bear-rimed-coat|Rimed Coat|guard|thorns|Ice Bear|A bear glazed with frost, slow to anger and very bad at stopping. Half of it is snowdrift.
+ice-bear-floe-smash|Floe Smash|hurt|bash|Ice Bear|A bear glazed with frost, slow to anger and very bad at stopping. Half of it is snowdrift.
+ice-bear-breath-fog|Breath Fog|trick|evade|Ice Bear|A bear glazed with frost, slow to anger and very bad at stopping. Half of it is snowdrift.
+ice-bear-snow-slide|Snow Slide|hurt|trip|Ice Bear|A bear glazed with frost, slow to anger and very bad at stopping. Half of it is snowdrift.
+prairie-bison-stampede|Stampede|hurt|-|prairie-bison|
+prairie-bison-wall-of-wool|Wall of Wool|guard|hold|prairie-bison|
+prairie-bison-dust-cloud|Dust Cloud|trick|evade|prairie-bison|
+prairie-bison-herd-wallop|Herd Wallop|hurt|bash|prairie-bison|
+desert-camel-camel-spit|Camel Spit|hurt|trip|desert-camel|
+desert-camel-long-kick|Long Kick|hurt|-|desert-camel|
+desert-camel-hump-store|Hump Store|heal|-|desert-camel|
+desert-camel-long-stare|Long Stare|trick|evade|desert-camel|
+lichen-reindeer-antler-sweep|Antler Sweep|hurt|-|lichen-reindeer|
+lichen-reindeer-herd-wheel|Herd Wheel|guard|evade|lichen-reindeer|
+lichen-reindeer-snow-dig|Snow Dig|heal|-|lichen-reindeer|
+lichen-reindeer-lichen-cloak|Lichen Cloak|guard|thorns|lichen-reindeer|

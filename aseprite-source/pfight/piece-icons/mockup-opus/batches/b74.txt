@@ -1,0 +1,16 @@
+goat-kid-gang-kid-huddle|Kid Huddle|guard|hold|Goat Kid Gang|Goat kids on a ledge, bouncing from rock to rock with no sense of height. A gnome is a nice new rock.
+goat-kid-gang-ledge-cover|Ledge Cover|guard|evade|Goat Kid Gang|Goat kids on a ledge, bouncing from rock to rock with no sense of height. A gnome is a nice new rock.
+goat-kid-gang-headbutt-nudge|Headbutt Nudge|hurt|trip|Goat Kid Gang|Goat kids on a ledge, bouncing from rock to rock with no sense of height. A gnome is a nice new rock.
+goat-kid-gang-bouncy-ledge|Bouncy Ledge|trick|evade|Goat Kid Gang|Goat kids on a ledge, bouncing from rock to rock with no sense of height. A gnome is a nice new rock.
+stoat-stoat-dance|Stoat Dance|trick|evade|Stoat|A long thin hunter that dances in circles until the prey forgets to run. It turns white in winter and black at the tip.
+stoat-neck-bite|Neck Bite|hurt|quick|Stoat|A long thin hunter that dances in circles until the prey forgets to run. It turns white in winter and black at the tip.
+stoat-ermine-coat|Ermine Coat|guard|thorns|Stoat|A long thin hunter that dances in circles until the prey forgets to run. It turns white in winter and black at the tip.
+stoat-hypnotic-loop|Hypnotic Loop|trick|trip|Stoat|A long thin hunter that dances in circles until the prey forgets to run. It turns white in winter and black at the tip.
+wolverine-cub-cub-mauling|Cub Mauling|hurt|bash|Wolverine Cub|A stout cub on the hunt for something to bully. It will fight a dog, a bear, or a boot.
+wolverine-cub-snow-tumble|Snow Tumble|trick|bash|Wolverine Cub|A stout cub on the hunt for something to bully. It will fight a dog, a bear, or a boot.
+wolverine-cub-scrap-nip|Scrap Nip|hurt|quick|Wolverine Cub|A stout cub on the hunt for something to bully. It will fight a dog, a bear, or a boot.
+wolverine-cub-boot-scrap|Boot Scrap|hurt|bash|Wolverine Cub|A stout cub on the hunt for something to bully. It will fight a dog, a bear, or a boot.
+cormorant-line-dive-spear|Dive Spear|hurt|pierce|Cormorant Line|A line of black birds on a post, wings out to dry. They dive in turn, and surface with one thing or another.
+cormorant-line-rapid-surface|Rapid Surface|hurt|quick|Cormorant Line|A line of black birds on a post, wings out to dry. They dive in turn, and surface with one thing or another.
+cormorant-line-wing-dry|Wing Dry|guard|evade|Cormorant Line|A line of black birds on a post, wings out to dry. They dive in turn, and surface with one thing or another.
+cormorant-line-surfaced-catch|Surfaced Catch|hurt|trip|Cormorant Line|A line of black birds on a post, wings out to dry. They dive in turn, and surface with one thing or another.

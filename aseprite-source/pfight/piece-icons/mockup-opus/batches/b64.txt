@@ -1,0 +1,16 @@
+coati-band-ringtail-screen|Ringtail Screen|guard|thorns|Coati Band|A band of coatis with tails like striped flags. They turn over every log, and take a dim view of your being under one.
+coati-band-log-cover|Log Cover|guard|hold|Coati Band|A band of coatis with tails like striped flags. They turn over every log, and take a dim view of your being under one.
+coati-band-snout-poke|Snout Poke|hurt|trip|Coati Band|A band of coatis with tails like striped flags. They turn over every log, and take a dim view of your being under one.
+coati-band-tail-flag|Tail Flag|trick|thorns|Coati Band|A band of coatis with tails like striped flags. They turn over every log, and take a dim view of your being under one.
+snowy-owl-scout-snow-swoop|Snow Swoop|hurt|quick|Snowy Owl Scout|A young snowy owl sent ahead of the rest. It sits very white on the snow, then very suddenly isn't.
+snowy-owl-scout-frost-hoot|Frost Hoot|trick|evade|Snowy Owl Scout|A young snowy owl sent ahead of the rest. It sits very white on the snow, then very suddenly isn't.
+snowy-owl-scout-feather-wall|Feather Wall|guard|hold|Snowy Owl Scout|A young snowy owl sent ahead of the rest. It sits very white on the snow, then very suddenly isn't.
+snowy-owl-scout-blank-perch|Blank Perch|guard|evade|Snowy Owl Scout|A young snowy owl sent ahead of the rest. It sits very white on the snow, then very suddenly isn't.
+arctic-fox-kit-kit-pounce|Kit Pounce|hurt|bash|Arctic Fox Kit|A grey summer-coat kit, not yet white and not yet careful, with a pounce it learned this morning.
+arctic-fox-kit-burrow-tumble|Burrow Tumble|guard|hold|Arctic Fox Kit|A grey summer-coat kit, not yet white and not yet careful, with a pounce it learned this morning.
+arctic-fox-kit-pup-yip|Pup Yip|trick|trip|Arctic Fox Kit|A grey summer-coat kit, not yet white and not yet careful, with a pounce it learned this morning.
+arctic-fox-kit-learned-pounce|Learned Pounce|hurt|pierce|Arctic Fox Kit|A grey summer-coat kit, not yet white and not yet careful, with a pounce it learned this morning.
+whiteout-fox-whiteout-snap|Whiteout Snap|hurt|bash|Whiteout Fox|A fox so white it is a rumour on the snow. It comes out of the blizzard in two bites and goes back.
+whiteout-fox-drift-bite|Drift Bite|hurt|pierce|Whiteout Fox|A fox so white it is a rumour on the snow. It comes out of the blizzard in two bites and goes back.
+whiteout-fox-snow-blind|Snow Blind|trick|evade|Whiteout Fox|A fox so white it is a rumour on the snow. It comes out of the blizzard in two bites and goes back.
+whiteout-fox-blank-dash|Blank Dash|hurt|quick|Whiteout Fox|A fox so white it is a rumour on the snow. It comes out of the blizzard in two bites and goes back.

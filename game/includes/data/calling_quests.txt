@@ -63,13 +63,13 @@ T|thornblade-1|event|page|slug^=creature:|5|Meet 5 new kinds of creature
 T|thornblade-1|event|craft|slug=wattle-fence|2|Craft Wattle Fences twice
 T|thornblade-1|give|give|item:flint:6,item:timber-plank:2|1|Bring the Captain 6 Flint and 2 Timber Planks
 
-C|thornblade-2|thornblade|3|Thorn Master|bracken-spurwing|1600|800|rich-loam|5|Hedge Knight|Captain Bracken Spurwing is polishing a very old badge.\n\n"The great beasts, the deep lairs, the far corners nobody maps. That's the Master's road. Prove you can hold a line when it matters, and keep your own beds spotless while you do."|The Captain stands to full height, which is quite tall for a beetle.\n\n"Hedge Knight. I'd follow you into any bramble. Wear the title well."
+C|thornblade-2|thornblade|3|Thorn Master|bracken-spurwing|1600|800|rich-loam|5|Hedge Knight|Captain Bracken Spurwing is polishing a very old badge.\n\n"The great beasts, the deep lairs, the far corners nobody maps. That's the Master's road. Prove you can hold a line when it matters, and fence your own beds well while you do."|The Captain stands to full height, which is quite tall for a beetle.\n\n"Hedge Knight. I'd follow you into any bramble. Wear the title well."
 T|thornblade-2|event|defeat||60|Defeat 60 creatures
 T|thornblade-2|event|defeat|size=boss|2|Defeat 2 boss creatures
 T|thornblade-2|state|clears|delve|3|Clear 3 different delves
 T|thornblade-2|state|clears|lair|1|Defeat the guardian of a lair
 T|thornblade-2|event|depth||5|Reach 5 steps off the road
-T|thornblade-2|event|tend|slug=weed|40|Weed 40 squares in your own beds
+T|thornblade-2|event|craft|slug=wattle-fence|6|Craft Wattle Fences 6 times
 T|thornblade-2|give|give|fine:3|1|Bring the Captain 3 uncommon or rare finds
 
 # ---- Seedkeeper

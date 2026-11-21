@@ -1,0 +1,16 @@
+water-monitor-tail-sweep|Tail Sweep|hurt|bash|Water Monitor|A long dark lizard that swims as easily as it walks and swings its tail like a hammer.
+water-monitor-wallow-plate|Wallow Plate|guard|hold|Water Monitor|A long dark lizard that swims as easily as it walks and swings its tail like a hammer.
+water-monitor-waterline-shove|Waterline Shove|trick|bash|Water Monitor|A long dark lizard that swims as easily as it walks and swings its tail like a hammer.
+water-monitor-silt-dive|Silt Dive|guard|evade|Water Monitor|A long dark lizard that swims as easily as it walks and swings its tail like a hammer.
+hyena-pup-cackle-pup-pounce|Pup Pounce|hurt|-|Hyena Pup Cackle|Half-grown, spotted and cheerfully horrible, giggling in the dusk until somebody trips.
+hyena-pup-cackle-cackle-cover|Cackle Cover|guard|evade|Hyena Pup Cackle|Half-grown, spotted and cheerfully horrible, giggling in the dusk until somebody trips.
+hyena-pup-cackle-yip|Yip|trick|trip|Hyena Pup Cackle|Half-grown, spotted and cheerfully horrible, giggling in the dusk until somebody trips.
+hyena-pup-cackle-giggle-fit|Giggle Fit|trick|quick|Hyena Pup Cackle|Half-grown, spotted and cheerfully horrible, giggling in the dusk until somebody trips.
+mangrove-crab-court-court-claw|Court Claw|hurt|bash|Mangrove Crab Court|A bench of small mangrove crabs in judgement, each wearing a barnacle crown. The verdict is always the same.
+mangrove-crab-court-root-hide|Root Hide|guard|hold|Mangrove Crab Court|A bench of small mangrove crabs in judgement, each wearing a barnacle crown. The verdict is always the same.
+mangrove-crab-court-mud-summons|Mud Summons|trick|bash|Mangrove Crab Court|A bench of small mangrove crabs in judgement, each wearing a barnacle crown. The verdict is always the same.
+mangrove-crab-court-barnacle-verdict|Barnacle Verdict|guard|thorns|Mangrove Crab Court|A bench of small mangrove crabs in judgement, each wearing a barnacle crown. The verdict is always the same.
+zorilla-stink-squad-spray-burst|Spray Burst|hurt|poison|Zorilla Stink Squad|Black and white, small and very sure of itself. It fires a smell that hangs about a full day.
+zorilla-stink-squad-warning-stripe|Warning Stripe|trick|evade|Zorilla Stink Squad|Black and white, small and very sure of itself. It fires a smell that hangs about a full day.
+zorilla-stink-squad-black-coat|Black Coat|guard|-|Zorilla Stink Squad|Black and white, small and very sure of itself. It fires a smell that hangs about a full day.
+zorilla-stink-squad-stink-fog|Stink Fog|trick|poison|Zorilla Stink Squad|Black and white, small and very sure of itself. It fires a smell that hangs about a full day.

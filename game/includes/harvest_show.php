@@ -26,6 +26,7 @@ function hv_note_info(string $src, array $msgs, int $xp): void
     $n['xp'] = (int)$n['xp'] + $xp;
     foreach ($msgs as $m) {
         $m = (string)$m;
+        if (preg_match('/You reached gnome level \d+/u', $m)) unset($_SESSION['lvlup']);   // 2.7.44: the harvest show has its own small LEVEL UP! pop, so the big level-up card (layout.php) stays off for this level-up
         if (preg_match('/^You saved (\d+) × (.+)\.$/u', $m, $mm)) { $n['seeds'][$mm[2]] = ($n['seeds'][$mm[2]] ?? 0) + (int)$mm[1]; continue; }
         if (preg_match('/^(🍀|💪|🐝|🪱|🏅|🌽|🐦|🍄|✂️|✨|⭐|🎉|🏡|🎩|📈|🌱 Green)/u', $m) && !in_array($m, $n['notes'], true) && count($n['notes']) < 5) $n['notes'][] = $m;
     }

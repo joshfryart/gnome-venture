@@ -1,0 +1,16 @@
+cactus-beast-spine-jab|Spine Jab|hurt|pierce|Cactus Beast|A walking barrel cactus with a pink flower on its head. It keeps a gallon of water in its middle and some very sharp ideas.
+cactus-beast-water-store|Water Store|heal|-|Cactus Beast|A walking barrel cactus with a pink flower on its head. It keeps a gallon of water in its middle and some very sharp ideas.
+cactus-beast-barrel-hide|Barrel Hide|guard|hold|Cactus Beast|A walking barrel cactus with a pink flower on its head. It keeps a gallon of water in its middle and some very sharp ideas.
+cactus-beast-barrel-roll|Barrel Roll|hurt|bash|Cactus Beast|A walking barrel cactus with a pink flower on its head. It keeps a gallon of water in its middle and some very sharp ideas.
+frost-beetle-rime-charge|Rime Charge|hurt|quick|Frost Beetle|A beetle in a shell of frost that skids over the ice at speed, bowling over whatever stands in the way.
+frost-beetle-ice-skate|Ice Skate|trick|quick|Frost Beetle|A beetle in a shell of frost that skids over the ice at speed, bowling over whatever stands in the way.
+frost-beetle-frost-plate|Frost Plate|guard|hold|Frost Beetle|A beetle in a shell of frost that skids over the ice at speed, bowling over whatever stands in the way.
+frost-beetle-bowling-ball|Bowling Ball|hurt|bash|Frost Beetle|A beetle in a shell of frost that skids over the ice at speed, bowling over whatever stands in the way.
+lava-beetle-magma-plate|Magma Plate|guard|thorns|Lava Beetle|A black beetle whose shell is cracked with red glow. It leaves a scorched track behind and will not be talked out of it.
+lava-beetle-cinder-shove|Cinder Shove|hurt|bash|Lava Beetle|A black beetle whose shell is cracked with red glow. It leaves a scorched track behind and will not be talked out of it.
+lava-beetle-ash-cloud|Ash Cloud|trick|trip|Lava Beetle|A black beetle whose shell is cracked with red glow. It leaves a scorched track behind and will not be talked out of it.
+lava-beetle-stubborn-track|Stubborn Track|guard|hold|Lava Beetle|A black beetle whose shell is cracked with red glow. It leaves a scorched track behind and will not be talked out of it.
+storm-wisp-storm-zap|Storm Zap|hurt|pierce|Storm Wisp|A pale wisp that drifts in on a storm front. It drinks the rain, and sheds sparks when it is hit.
+storm-wisp-rain-sip|Rain Sip|heal|-|Storm Wisp|A pale wisp that drifts in on a storm front. It drinks the rain, and sheds sparks when it is hit.
+storm-wisp-squall-veil|Squall Veil|guard|hold|Storm Wisp|A pale wisp that drifts in on a storm front. It drinks the rain, and sheds sparks when it is hit.
+storm-wisp-spark-shed|Spark Shed|trick|thorns|Storm Wisp|A pale wisp that drifts in on a storm front. It drinks the rain, and sheds sparks when it is hit.

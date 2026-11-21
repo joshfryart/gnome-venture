@@ -1,0 +1,16 @@
+lichen-golem-scree-tumble|Scree Tumble|hurt|bash|Lichen Golem|A heap of scree wearing grey lichen like a bad wig. It drinks every shower and comes back lumpier.
+lichen-golem-lichen-mend|Lichen Mend|heal|-|Lichen Golem|A heap of scree wearing grey lichen like a bad wig. It drinks every shower and comes back lumpier.
+lichen-golem-rain-soak|Rain Soak|heal|-|Lichen Golem|A heap of scree wearing grey lichen like a bad wig. It drinks every shower and comes back lumpier.
+lichen-golem-flake-chunk|Flake Chunk|hurt|pierce|Lichen Golem|A heap of scree wearing grey lichen like a bad wig. It drinks every shower and comes back lumpier.
+coral-golem-spiny-branch|Spiny Branch|guard|thorns|Coral Golem|A tide-worn stack of coral that stood up at low water. Its branches are sharp and the anemones in them are worse.
+coral-golem-anemone-sway|Anemone Sway|guard|evade|Coral Golem|A tide-worn stack of coral that stood up at low water. Its branches are sharp and the anemones in them are worse.
+coral-golem-anemone-sting|Anemone Sting|hurt|poison|Coral Golem|A tide-worn stack of coral that stood up at low water. Its branches are sharp and the anemones in them are worse.
+coral-golem-stack-lock|Stack Lock|guard|hold|Coral Golem|A tide-worn stack of coral that stood up at low water. Its branches are sharp and the anemones in them are worse.
+coconut-crab-youngster-husk-snip|Husk Snip|hurt|bash|Coconut Crab Youngster|A half-grown coconut crab that works the night shift with a husk for a hat. Not the titan yet, but it is practising.
+coconut-crab-youngster-husk-hide|Husk Hide|guard|evade|Coconut Crab Youngster|A half-grown coconut crab that works the night shift with a husk for a hat. Not the titan yet, but it is practising.
+coconut-crab-youngster-husk-toss|Husk Toss|trick|trip|Coconut Crab Youngster|A half-grown coconut crab that works the night shift with a husk for a hat. Not the titan yet, but it is practising.
+coconut-crab-youngster-hat-bonk|Hat Bonk|hurt|bash|Coconut Crab Youngster|A half-grown coconut crab that works the night shift with a husk for a hat. Not the titan yet, but it is practising.
+marsh-harrier-reed-skim|Reed Skim|hurt|pierce|Marsh Harrier|A low brown hawk that quarters the reeds at first and last light, always skimming, always ahead of its own shadow.
+marsh-harrier-low-rake|Low Rake|hurt|pierce|Marsh Harrier|A low brown hawk that quarters the reeds at first and last light, always skimming, always ahead of its own shadow.
+marsh-harrier-wing-fold|Wing Fold|guard|evade|Marsh Harrier|A low brown hawk that quarters the reeds at first and last light, always skimming, always ahead of its own shadow.
+marsh-harrier-shadow-lead|Shadow Lead|trick|quick|Marsh Harrier|A low brown hawk that quarters the reeds at first and last light, always skimming, always ahead of its own shadow.

@@ -1,0 +1,16 @@
+jumping-spider-pounce-leap|Pounce Leap|hurt|pierce|Jumping Spider|A hairy little spider with two big eyes and no patience for webs. It watches, bobs once, and lands on your collar.
+jumping-spider-silk-tether|Silk Tether|trick|trip|Jumping Spider|A hairy little spider with two big eyes and no patience for webs. It watches, bobs once, and lands on your collar.
+jumping-spider-hop-snare|Hop Snare|trick|trip|Jumping Spider|A hairy little spider with two big eyes and no patience for webs. It watches, bobs once, and lands on your collar.
+jumping-spider-collar-hop|Collar Hop|hurt|quick|Jumping Spider|A hairy little spider with two big eyes and no patience for webs. It watches, bobs once, and lands on your collar.
+golden-orb-weaver-gold-silk-wall|Gold Silk Wall|guard|evade|Golden Orb Weaver|Spins a web of gold silk the width of a path. It is strong enough to hold a gnome and beautiful enough to be a shame.
+golden-orb-weaver-web-dodge|Web Dodge|trick|evade|Golden Orb Weaver|Spins a web of gold silk the width of a path. It is strong enough to hold a gnome and beautiful enough to be a shame.
+golden-orb-weaver-orb-bite|Orb Bite|hurt|poison|Golden Orb Weaver|Spins a web of gold silk the width of a path. It is strong enough to hold a gnome and beautiful enough to be a shame.
+golden-orb-weaver-hammock-rest|Hammock Rest|heal|-|Golden Orb Weaver|Spins a web of gold silk the width of a path. It is strong enough to hold a gnome and beautiful enough to be a shame.
+mud-dauber-mud-plaster|Mud Plaster|guard|hold|Mud Dauber|A slim wasp that builds its nest from mud pipes. It does not fear a gnome, only rain.
+mud-dauber-pipe-jab|Pipe Jab|hurt|bash|Mud Dauber|A slim wasp that builds its nest from mud pipes. It does not fear a gnome, only rain.
+mud-dauber-nest-sealing|Nest Sealing|trick|thorns|Mud Dauber|A slim wasp that builds its nest from mud pipes. It does not fear a gnome, only rain.
+mud-dauber-pipe-stack|Pipe Stack|hurt|pierce|Mud Dauber|A slim wasp that builds its nest from mud pipes. It does not fear a gnome, only rain.
+tiger-leech-stripe-latch|Stripe Latch|hurt|quick|Tiger Leech|A striped leech that drops from the wet leaves in twos and threes. It has no interest in anything but you.
+tiger-leech-leaf-drop|Leaf Drop|hurt|-|Tiger Leech|A striped leech that drops from the wet leaves in twos and threes. It has no interest in anything but you.
+tiger-leech-skin-wrap|Skin Wrap|guard|hold|Tiger Leech|A striped leech that drops from the wet leaves in twos and threes. It has no interest in anything but you.
+tiger-leech-twin-drop|Twin Drop|trick|quick|Tiger Leech|A striped leech that drops from the wet leaves in twos and threes. It has no interest in anything but you.

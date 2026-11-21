@@ -1,0 +1,16 @@
+glacier-cub-cub-pounce|Cub Pounce|hurt|pierce|Glacier Cub|A bear cub the colour of old ice, sliding down the moraine on its belly with a gnome in the way.
+glacier-cub-ice-slide|Ice Slide|trick|evade|Glacier Cub|A bear cub the colour of old ice, sliding down the moraine on its belly with a gnome in the way.
+glacier-cub-fur-fluff|Fur Fluff|guard|evade|Glacier Cub|A bear cub the colour of old ice, sliding down the moraine on its belly with a gnome in the way.
+glacier-cub-glacier-belly-slide|Glacier Belly Slide|hurt|trip|Glacier Cub|A bear cub the colour of old ice, sliding down the moraine on its belly with a gnome in the way.
+ice-floe-seal-floe-bash|Floe Bash|hurt|bash|Ice Floe Seal|A seal that hauls out on the floe and shoulders everything into the water. You are on its floe.
+ice-floe-seal-ice-shove|Ice Shove|trick|bash|Ice Floe Seal|A seal that hauls out on the floe and shoulders everything into the water. You are on its floe.
+ice-floe-seal-fat-wall|Fat Wall|guard|hold|Ice Floe Seal|A seal that hauls out on the floe and shoulders everything into the water. You are on its floe.
+ice-floe-seal-haul-out|Haul Out|trick|evade|Ice Floe Seal|A seal that hauls out on the floe and shoulders everything into the water. You are on its floe.
+camel-calf-calf-hump-wall|Calf Hump Wall|guard|hold|Camel Calf|A camel calf, all leg and fluff and opinion. It learns to spit before it learns to walk.
+camel-calf-wobble-kick|Wobble Kick|hurt|bash|Camel Calf|A camel calf, all leg and fluff and opinion. It learns to spit before it learns to walk.
+camel-calf-sand-fold|Sand Fold|guard|evade|Camel Calf|A camel calf, all leg and fluff and opinion. It learns to spit before it learns to walk.
+camel-calf-clumsy-spit|Clumsy Spit|trick|poison|Camel Calf|A camel calf, all leg and fluff and opinion. It learns to spit before it learns to walk.
+reindeer-calf-herd-calf-huddle|Calf Huddle|guard|hold|Reindeer Calf Herd|A herd of calves with antler buds like fuzzy knobs, who cluster tight when you come and butt when you stay.
+reindeer-calf-herd-herd-screen|Herd Screen|guard|thorns|Reindeer Calf Herd|A herd of calves with antler buds like fuzzy knobs, who cluster tight when you come and butt when you stay.
+reindeer-calf-herd-antler-bud-butt|Antler Bud Butt|hurt|bash|Reindeer Calf Herd|A herd of calves with antler buds like fuzzy knobs, who cluster tight when you come and butt when you stay.
+reindeer-calf-herd-herd-bleat|Herd Bleat|trick|heal|Reindeer Calf Herd|A herd of calves with antler buds like fuzzy knobs, who cluster tight when you come and butt when you stay.

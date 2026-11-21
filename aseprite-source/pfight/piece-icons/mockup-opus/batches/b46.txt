@@ -1,0 +1,16 @@
+ratel-pair-thick-skin|Thick Skin|guard|hold|Ratel Pair|A pair of ratels, thick-skinned and tireless. They arrive together, shrug off the first blow and go back for the honey.
+ratel-pair-ratel-tear|Ratel Tear|hurt|bash|Ratel Pair|A pair of ratels, thick-skinned and tireless. They arrive together, shrug off the first blow and go back for the honey.
+ratel-pair-rough-up|Rough-Up|trick|thorns|Ratel Pair|A pair of ratels, thick-skinned and tireless. They arrive together, shrug off the first blow and go back for the honey.
+ratel-pair-back-for-more|Back For More|hurt|quick|Ratel Pair|A pair of ratels, thick-skinned and tireless. They arrive together, shrug off the first blow and go back for the honey.
+cassowary-chick-creche-chick-peck|Chick Peck|hurt|-|Cassowary Chick Creche|A creche of striped chicks, all running at once and fast. The enormous father is somewhere behind.
+cassowary-chick-creche-stripe-dash|Stripe Dash|trick|quick|Cassowary Chick Creche|A creche of striped chicks, all running at once and fast. The enormous father is somewhere behind.
+cassowary-chick-creche-down-cover|Down Cover|guard|-|Cassowary Chick Creche|A creche of striped chicks, all running at once and fast. The enormous father is somewhere behind.
+cassowary-chick-creche-chick-rush|Chick Rush|hurt|quick|Cassowary Chick Creche|A creche of striped chicks, all running at once and fast. The enormous father is somewhere behind.
+emu-mob-kick-stab|Kick Stab|hurt|pierce|Emu Mob|Big, brown and shaggy, a dozen emus move over the grass like a bad dream with feathers.
+emu-mob-claw-rake|Claw Rake|hurt|pierce|Emu Mob|Big, brown and shaggy, a dozen emus move over the grass like a bad dream with feathers.
+emu-mob-dust-flurry|Dust Flurry|trick|evade|Emu Mob|Big, brown and shaggy, a dozen emus move over the grass like a bad dream with feathers.
+emu-mob-flock-stampede|Flock Stampede|hurt|bash|Emu Mob|Big, brown and shaggy, a dozen emus move over the grass like a bad dream with feathers.
+river-otter-slide-tackle|Slide Tackle|hurt|quick|River Otter|Slides down the mud banks on its belly and treats a gnome as a slightly inconvenient rock in the stream.
+river-otter-bank-dam|Bank Dam|guard|hold|River Otter|Slides down the mud banks on its belly and treats a gnome as a slightly inconvenient rock in the stream.
+river-otter-fish-toss|Fish Toss|trick|trip|River Otter|Slides down the mud banks on its belly and treats a gnome as a slightly inconvenient rock in the stream.
+river-otter-belly-slide|Belly Slide|trick|evade|River Otter|Slides down the mud banks on its belly and treats a gnome as a slightly inconvenient rock in the stream.

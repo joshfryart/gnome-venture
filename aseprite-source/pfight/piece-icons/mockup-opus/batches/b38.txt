@@ -1,0 +1,16 @@
+cane-toad-gland-squirt|Gland Squirt|hurt|poison|Cane Toad|A big dry-skinned toad, out on the road at night, with a gland behind each eye that no gnome should lick.
+cane-toad-hop-aside|Hop Aside|guard|evade|Cane Toad|A big dry-skinned toad, out on the road at night, with a gland behind each eye that no gnome should lick.
+cane-toad-warty-dodge|Warty Dodge|trick|evade|Cane Toad|A big dry-skinned toad, out on the road at night, with a gland behind each eye that no gnome should lick.
+cane-toad-road-hop|Road Hop|trick|evade|Cane Toad|A big dry-skinned toad, out on the road at night, with a gland behind each eye that no gnome should lick.
+fiddler-crab-band-claw-wave|Claw Wave|hurt|bash|Fiddler Crab Band|Males wave one oversized claw across the mud flats like a flag. The waving is rude. The claw is worse.
+fiddler-crab-band-burrow-duck|Burrow Duck|guard|evade|Fiddler Crab Band|Males wave one oversized claw across the mud flats like a flag. The waving is rude. The claw is worse.
+fiddler-crab-band-claw-beckon|Claw Beckon|trick|trip|Fiddler Crab Band|Males wave one oversized claw across the mud flats like a flag. The waving is rude. The claw is worse.
+fiddler-crab-band-mud-flag|Mud Flag|trick|thorns|Fiddler Crab Band|Males wave one oversized claw across the mud flats like a flag. The waving is rude. The claw is worse.
+marsh-rat-reed-gnaw|Reed Gnaw|hurt|bash|Marsh Rat|Swims the reed beds, thick-furred and cross, with a burrow door at the waterline that it defends like a castle gate.
+marsh-rat-bank-burrow|Bank Burrow|guard|hold|Marsh Rat|Swims the reed beds, thick-furred and cross, with a burrow door at the waterline that it defends like a castle gate.
+marsh-rat-reed-shove|Reed Shove|trick|bash|Marsh Rat|Swims the reed beds, thick-furred and cross, with a burrow door at the waterline that it defends like a castle gate.
+marsh-rat-reed-wall|Reed Wall|guard|hold|Marsh Rat|Swims the reed beds, thick-furred and cross, with a burrow door at the waterline that it defends like a castle gate.
+star-nosed-mole-feeler-flick|Feeler Flick|hurt|quick|Star-nosed Mole|Wet-ground mole with a ring of pink feelers on its nose. It sees nothing, and needs to see nothing.
+star-nosed-mole-silt-armour|Silt Armour|guard|hold|Star-nosed Mole|Wet-ground mole with a ring of pink feelers on its nose. It sees nothing, and needs to see nothing.
+star-nosed-mole-dig-wall|Dig Wall|guard|thorns|Star-nosed Mole|Wet-ground mole with a ring of pink feelers on its nose. It sees nothing, and needs to see nothing.
+star-nosed-mole-wet-probe|Wet Probe|trick|quick|Star-nosed Mole|Wet-ground mole with a ring of pink feelers on its nose. It sees nothing, and needs to see nothing.

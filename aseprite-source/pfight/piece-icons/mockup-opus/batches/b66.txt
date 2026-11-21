@@ -1,0 +1,16 @@
+sandfish-skink-shoal-sand-sting|Sand Sting|hurt|poison|Sandfish Skink Shoal|Shiny skinks that swim through the dune sand and come up with a bite. A shoal of them is a heap of moving sand.
+sandfish-skink-shoal-dune-swim|Dune Swim|trick|poison|Sandfish Skink Shoal|Shiny skinks that swim through the dune sand and come up with a bite. A shoal of them is a heap of moving sand.
+sandfish-skink-shoal-grit-scale|Grit Scale|guard|evade|Sandfish Skink Shoal|Shiny skinks that swim through the dune sand and come up with a bite. A shoal of them is a heap of moving sand.
+sandfish-skink-shoal-shoal-tide|Shoal Tide|hurt|quick|Sandfish Skink Shoal|Shiny skinks that swim through the dune sand and come up with a bite. A shoal of them is a heap of moving sand.
+snow-owl-fledgling-fluff-pounce|Fluff Pounce|hurt|bash|Snow Owl Fledgling|A half-grown snowy owl, all fluff and beak. It cannot fly well yet, and has found a good use for its feet.
+snow-owl-fledgling-fledgling-screech|Fledgling Screech|trick|poison|Snow Owl Fledgling|A half-grown snowy owl, all fluff and beak. It cannot fly well yet, and has found a good use for its feet.
+snow-owl-fledgling-down-wall|Down Wall|guard|thorns|Snow Owl Fledgling|A half-grown snowy owl, all fluff and beak. It cannot fly well yet, and has found a good use for its feet.
+snow-owl-fledgling-clumsy-feet|Clumsy Feet|hurt|bash|Snow Owl Fledgling|A half-grown snowy owl, all fluff and beak. It cannot fly well yet, and has found a good use for its feet.
+mountain-buzzard-thermal-drop|Thermal Drop|hurt|pierce|Mountain Buzzard|A broad brown hawk that rides the thermals over the ridge. Its shadow crosses the path, and the path goes quiet.
+mountain-buzzard-talon-clutch|Talon Clutch|hurt|trip|Mountain Buzzard|A broad brown hawk that rides the thermals over the ridge. Its shadow crosses the path, and the path goes quiet.
+mountain-buzzard-soar-shadow|Soar Shadow|trick|bash|Mountain Buzzard|A broad brown hawk that rides the thermals over the ridge. Its shadow crosses the path, and the path goes quiet.
+mountain-buzzard-ridge-circle|Ridge Circle|guard|evade|Mountain Buzzard|A broad brown hawk that rides the thermals over the ridge. Its shadow crosses the path, and the path goes quiet.
+jaguarundi-river-slip|River Slip|trick|trip|Jaguarundi|A low plain-coated cat with a long body like an otter's. It crosses a path unseen and comes back seen.
+jaguarundi-otter-cat-pounce|Otter Cat Pounce|hurt|bash|Jaguarundi|A low plain-coated cat with a long body like an otter's. It crosses a path unseen and comes back seen.
+jaguarundi-bank-cover|Bank Cover|guard|evade|Jaguarundi|A low plain-coated cat with a long body like an otter's. It crosses a path unseen and comes back seen.
+jaguarundi-unseen-cross|Unseen Cross|trick|quick|Jaguarundi|A low plain-coated cat with a long body like an otter's. It crosses a path unseen and comes back seen.

@@ -1,0 +1,16 @@
+fishing-spider-water-skim|Water Skim|trick|evade|Fishing Spider|Walks on pond water and dives for minnows. A gnome's boots are, to it, a slightly larger minnow.
+fishing-spider-dive-snare|Dive Snare|hurt|trip|Fishing Spider|Walks on pond water and dives for minnows. A gnome's boots are, to it, a slightly larger minnow.
+fishing-spider-silk-float|Silk Float|guard|hold|Fishing Spider|Walks on pond water and dives for minnows. A gnome's boots are, to it, a slightly larger minnow.
+fishing-spider-float-pin|Float Pin|hurt|pierce|Fishing Spider|Walks on pond water and dives for minnows. A gnome's boots are, to it, a slightly larger minnow.
+hornet-sentry-nest-tending|Nest Tending|heal|-|Hornet Sentry|A bigger, darker wasp that guards the nest door and never takes a day off, not even for flowers.
+hornet-sentry-sentry-sting|Sentry Sting|hurt|pierce|Hornet Sentry|A bigger, darker wasp that guards the nest door and never takes a day off, not even for flowers.
+hornet-sentry-paper-wall|Paper Wall|guard|hold|Hornet Sentry|A bigger, darker wasp that guards the nest door and never takes a day off, not even for flowers.
+hornet-sentry-door-bar|Door Bar|guard|hold|Hornet Sentry|A bigger, darker wasp that guards the nest door and never takes a day off, not even for flowers.
+yellowjacket-mob-mob-sting|Mob Sting|hurt|poison|Yellowjacket Mob|Autumn wasps drunk on windfalls, bad-tempered and in a crowd. They guard every apple on the ground.
+yellowjacket-mob-zig-guard|Zig Guard|guard|evade|Yellowjacket Mob|Autumn wasps drunk on windfalls, bad-tempered and in a crowd. They guard every apple on the ground.
+yellowjacket-mob-cider-raid|Cider Raid|trick|trip|Yellowjacket Mob|Autumn wasps drunk on windfalls, bad-tempered and in a crowd. They guard every apple on the ground.
+yellowjacket-mob-windfall-rush|Windfall Rush|trick|bash|Yellowjacket Mob|Autumn wasps drunk on windfalls, bad-tempered and in a crowd. They guard every apple on the ground.
+giant-mire-leech-bog-hook|Bog Hook|hurt|trip|Giant Mire Leech|A fat black leech as long as a boot, hauling itself out of the mire in the rain. It holds on and does not discuss it.
+giant-mire-leech-muddy-coil|Muddy Coil|trick|trip|Giant Mire Leech|A fat black leech as long as a boot, hauling itself out of the mire in the rain. It holds on and does not discuss it.
+giant-mire-leech-thick-hide|Thick Hide|guard|hold|Giant Mire Leech|A fat black leech as long as a boot, hauling itself out of the mire in the rain. It holds on and does not discuss it.
+giant-mire-leech-suck-dry|Suck Dry|hurt|poison|Giant Mire Leech|A fat black leech as long as a boot, hauling itself out of the mire in the rain. It holds on and does not discuss it.

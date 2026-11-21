@@ -1,0 +1,16 @@
+bear-cub-tumble-cub-roll|Cub Roll|guard|hold|Bear Cub Tumble|A sleepy-eyed cub rolling down a hill after a bee, which is how it becomes your problem.
+bear-cub-tumble-honey-raid|Honey Raid|hurt|bash|Bear Cub Tumble|A sleepy-eyed cub rolling down a hill after a bee, which is how it becomes your problem.
+bear-cub-tumble-tumble-cover|Tumble Cover|guard|evade|Bear Cub Tumble|A sleepy-eyed cub rolling down a hill after a bee, which is how it becomes your problem.
+bear-cub-tumble-hillside-bowl|Hillside Bowl|hurt|quick|Bear Cub Tumble|A sleepy-eyed cub rolling down a hill after a bee, which is how it becomes your problem.
+bison-calf-stampede-calf-charge|Calf Charge|hurt|bash|Bison Calf Stampede|A rust-coloured calf with a head too big for sense and a stampede it brings along for company.
+bison-calf-stampede-dust-cover|Dust Cover|guard|evade|Bison Calf Stampede|A rust-coloured calf with a head too big for sense and a stampede it brings along for company.
+bison-calf-stampede-herd-bellow|Herd Bellow|trick|trip|Bison Calf Stampede|A rust-coloured calf with a head too big for sense and a stampede it brings along for company.
+bison-calf-stampede-heavy-lurch|Heavy Lurch|hurt|pierce|Bison Calf Stampede|A rust-coloured calf with a head too big for sense and a stampede it brings along for company.
+snow-flea-swarm-springtail-nip|Springtail Nip|hurt|-|Snow Flea Swarm|Black specks that spring about on the snow like spilled pepper. Each one sips a drop of gnome and comes back for more.
+snow-flea-swarm-blood-sip|Blood Sip|heal|-|Snow Flea Swarm|Black specks that spring about on the snow like spilled pepper. Each one sips a drop of gnome and comes back for more.
+snow-flea-swarm-snow-hop|Snow Hop|trick|evade|Snow Flea Swarm|Black specks that spring about on the snow like spilled pepper. Each one sips a drop of gnome and comes back for more.
+snow-flea-swarm-pepper-scatter|Pepper Scatter|trick|poison|Snow Flea Swarm|Black specks that spring about on the snow like spilled pepper. Each one sips a drop of gnome and comes back for more.
+dune-snail-sand-glide|Sand Glide|hurt|quick|Dune Snail|A chalk-white snail that races over the dunes at dawn, before the sand gets hot. Not slow at all, which is rude of it.
+dune-snail-dew-rush|Dew Rush|trick|quick|Dune Snail|A chalk-white snail that races over the dunes at dawn, before the sand gets hot. Not slow at all, which is rude of it.
+dune-snail-chalk-shell|Chalk Shell|guard|-|Dune Snail|A chalk-white snail that races over the dunes at dawn, before the sand gets hot. Not slow at all, which is rude of it.
+dune-snail-dew-lick|Dew Lick|heal|-|Dune Snail|A chalk-white snail that races over the dunes at dawn, before the sand gets hot. Not slow at all, which is rude of it.

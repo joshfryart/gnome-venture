@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jobs: board at a glance</title>
+<style>
+/* Tokens copied from game/assets/style.css (light default, dark = phone-first theme) */
+:root{color-scheme:light;--bg:#f1ece0;--surface:#fff3c8;--surface-2:#f2e4c0;--ink:#2a1a10;--ink-2:#4a2c1a;--muted:#74462a;--line:#c9a96e;--line-2:#9a6b3f;
+--brand:#2f5a2a;--brand-ink:#2f5a2a;--brand-soft:#c8d09f;--brand-line:#7ab55c;--accent:#e8a317;--accent-ink:#7a4a1f;--danger:#a8241f;--focus:#25637d;
+--brand-fill:#2f5a2a;--on-fill:#f2e4c0;--drop:#c9a96e;--ol:#2a1a10;--thread:#e8a317;--felt:#3d2a1c;--felt-ink:#f2e4c0;--felt-muted:#c9a96e;
+--chip-gold-bg:#f5cf6a;--chip-gold-ink:#2a1a10;--chip-gold-line:#b07a10;--chip-lvl-bg:#c8d09f;--chip-lvl-ink:#2f5a2a;--chip-lvl-line:#7ab55c;
+--good:#2f5a2a;--bad:#a8241f;--shadow:2px 2px 0 0 var(--drop);--shadow-2:0 0 0 2px var(--ol),6px 6px 0 0 var(--drop);
+--tap:44px;--gut:16px;--font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--scrim:rgba(42,26,16,.6)}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#2a1a10;--surface:#3d2a1c;--surface-2:#4a2c1a;--ink:#f2e4c0;--ink-2:#c9c5bc;--muted:#c9a96e;--line:#74462a;--line-2:#9a6b3f;
+--brand:#7ab55c;--brand-ink:#a4b86a;--brand-soft:#1f3f3a;--brand-line:#2f6a3a;--accent-ink:#f5cf6a;--danger:#f08a24;--focus:#a9d6ea;--drop:#291d4a;--thread:#f5cf6a;
+--chip-gold-bg:#6a4510;--chip-gold-ink:#f5cf6a;--chip-gold-line:#b07a10;--chip-lvl-bg:#1f3f3a;--chip-lvl-ink:#a4b86a;--chip-lvl-line:#2f6a3a;--good:#a4b86a;--bad:#f6b8cf;--scrim:rgba(20,12,6,.7)}
+@media (min-width:721px){:root{--gut:24px}}
+*{box-sizing:border-box}
+html{font-size:16px}
+@media (min-width:721px){html{font-size:15px}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--font);-webkit-text-size-adjust:100%}
+::selection{background:var(--accent);color:#2a1a10}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+svg.i{width:18px;height:18px;flex:none;fill:currentColor;shape-rendering:crispEdges;stroke:none}
+svg.i.s{width:14px;height:14px}
+.tn{font-variant-numeric:tabular-nums}
+
+/* felt header + tab bar (stand-in for the real shell) */
+.hdr{background:var(--felt);color:var(--felt-ink);height:52px;display:flex;align-items:center;padding:0 var(--gut);font-weight:800;border-bottom:2px dashed var(--thread)}
+main{max-width:920px;margin:0 auto;padding:0 var(--gut) 56px}
+h1{font-size:1.5rem;font-weight:800;line-height:1.25;margin:16px 0 4px}
+.tabs{display:flex;gap:8px;margin:8px 0 14px;overflow-x:auto;scrollbar-width:none}
+.tabs a{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 14px;background:var(--surface-2);color:var(--ink);font:500 14px/1.2 var(--font);text-decoration:none;white-space:nowrap;position:relative}
+.tabs a::after{content:"";position:absolute;inset:-4px -2px}
+.tabs a.on{background:var(--brand-fill);color:var(--on-fill);font-weight:600}
+.tabs small{background:var(--accent);color:#2a1a10;font:700 11px/16px var(--font);min-width:16px;text-align:center;padding:0 4px}
+
+/* summary line */
+.sum{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.streak{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.9rem}
+.pips{display:flex;gap:3px}.pips i{width:8px;height:12px;background:var(--line)}.pips i.on{background:var(--accent)}
+.streak b{color:var(--ink)}
+.note{font-size:.9rem;color:var(--muted);margin:0 0 12px}.note a{color:var(--brand-ink)}
+
+/* buttons: solid only for the main verb */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:8px 16px;background:var(--brand-fill);color:var(--on-fill);border:1px solid transparent;font:600 15px/1.25 var(--font);text-decoration:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.btn:hover{background:#3d7236}.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{min-height:36px;padding:4px 12px;font-size:14px}.btn.sm::after{content:"";position:absolute;inset:-4px -2px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.block{width:100%}
+
+/* the board */
+.board{display:grid;gap:12px;margin:0 0 20px;padding:0;list-style:none}
+.slot{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);padding:14px 16px;display:grid;gap:10px}
+.slot>header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pname{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1rem;color:var(--brand-ink)}
+.reset{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+.reset b{color:var(--ink);font-weight:600}
+.reset.soon b{color:var(--accent-ink)}
+h2.jt{margin:0;font-size:1.15rem;font-weight:800;line-height:1.25;text-wrap:balance}
+.bar{display:flex;align-items:center;gap:10px}
+.track{flex:1;height:10px;background:var(--line);overflow:hidden}
+.track i{display:block;height:100%;background:var(--brand-line)}
+:root[data-theme="dark"] .track i{background:var(--brand)}
+.bar span{font-size:.9rem;font-weight:600;white-space:nowrap}
+.pay{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.85rem;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;font-weight:600;font-size:.8rem;line-height:1.4;border:1px solid var(--chip-gold-line);background:var(--chip-gold-bg);color:var(--chip-gold-ink)}
+.chip.xp{background:var(--chip-lvl-bg);color:var(--chip-lvl-ink);border-color:var(--chip-lvl-line)}
+.acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.acts .btn.main{flex:1 1 100%}
+.acts .btn.ghost{flex:1 1 auto}
+details.more{position:relative}
+details.more>summary{list-style:none;cursor:pointer;min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line-2);color:var(--ink);font-weight:800;letter-spacing:.1em}
+details.more>summary::-webkit-details-marker{display:none}
+details.more[open]>summary{background:var(--surface-2)}
+.menu{position:absolute;right:0;bottom:calc(100% + 6px);z-index:3;background:var(--surface);border:1px solid var(--line-2);box-shadow:var(--shadow-2);padding:12px;width:min(260px,80vw);display:grid;gap:8px;font-size:.9rem}
+.menu p{margin:0;color:var(--muted)}
+.btn.warn{background:transparent;color:var(--danger);border-color:var(--danger)}
+
+/* rebuild stages */
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;list-style:none;margin:0;padding:0}
+.stages li{font-size:.72rem;line-height:1.25;padding:6px 6px 6px;background:var(--surface-2);color:var(--muted);border-top:3px solid var(--line);display:flex;gap:4px;align-items:flex-start}
+.stages li.done{border-top-color:var(--brand-line);color:var(--ink)}
+.stages li.now{border-top-color:var(--accent);color:var(--ink);font-weight:700;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--accent)}
+.needs{display:flex;gap:6px;flex-wrap:wrap}
+.need{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line-2);font-size:.88rem;font-weight:600}
+.need em{font-style:normal;font-weight:400;color:var(--muted)}
+.need.ok{border-color:var(--brand-line)}.need.ok svg{color:var(--good)}
+.need.short{border-style:dashed;border-color:var(--danger)}.need.short em{color:var(--danger);font-weight:600}
+.link{color:var(--brand-ink);font-size:.9rem;font-weight:600}
+
+/* empty slot: offers as pick tiles */
+.ask{margin:0;color:var(--muted);font-size:.9rem}
+.offers{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.pick{width:100%;text-align:left;display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;min-height:var(--tap);padding:10px 12px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line-2);font:inherit;cursor:pointer}
+.pick:hover{border-color:var(--brand-line);background:var(--surface)}
+.pick:active{transform:translateY(1px)}
+.pick b{font-size:.98rem;line-height:1.3}
+.pick .hint{grid-column:1;font-size:.82rem;color:var(--muted);line-height:1.35}
+.pick .chip{grid-row:1/3;grid-column:2;align-self:center}
+.pick .go{grid-column:2;grid-row:1;justify-self:end;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.empty-foot{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+
+/* posted by other gnomes */
+.sec{margin:0 0 20px}
+.sec>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
+h3.sh{margin:0;font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.rows{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.prow{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 14px;background:var(--surface);border:1px solid var(--line)}
+.prow b{font-size:.98rem}
+.prow .m{grid-column:1;font-size:.85rem;color:var(--muted)}
+.prow .m q{quotes:"\201C" "\201D";color:var(--ink-2)}
+.prow .why{grid-column:1/-1;font-size:.82rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.prow .btn{grid-column:2;grid-row:1/3}
+.rep{font-size:.8rem;color:var(--muted)}
+
+/* post sheet (CSS :target, no JS) */
+.sheet{display:none;position:fixed;inset:0;z-index:20;background:var(--scrim);align-items:flex-end;justify-content:center}
+.sheet:target{display:flex}
+.sheet .panel{background:var(--surface);width:100%;max-height:92vh;overflow:auto;box-shadow:var(--shadow-2);padding:8px var(--gut) 24px;position:relative}
+@media (min-width:721px){.sheet{align-items:center}.sheet .panel{width:600px;padding:12px 24px 24px;max-height:88vh}}
+.grab{width:44px;height:4px;background:var(--line-2);margin:4px auto 10px}
+@media (min-width:721px){.grab{display:none}}
+.panel>header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.panel h2{margin:0;font-size:1.2rem;font-weight:800}
+.x{min-width:var(--tap);min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;color:var(--ink);border:1px solid var(--line-2);text-decoration:none;font-weight:800}
+.panel p.help{font-size:.88rem;color:var(--muted);margin:6px 0 12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 12px}
+.seg>input{position:absolute;opacity:0;pointer-events:none}
+.seg>label{display:flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);background:var(--surface-2);border:1px solid var(--line-2);font-weight:600;font-size:.92rem;cursor:pointer;text-align:center}
+.seg>input:checked+label{background:var(--brand-fill);color:var(--on-fill);border-color:var(--brand-fill)}
+.seg>input:focus-visible+label{outline:3px solid var(--focus);outline-offset:2px}
+.f{display:none;gap:10px}
+#k-tend:checked~.f.tend,#k-bring:checked~.f.bring{display:grid}
+.f label.fld{display:grid;gap:4px;font-size:.88rem;font-weight:600}
+.f input[type=text],.f input[type=number],.f select{min-height:var(--tap);padding:8px 10px;background:var(--bg);color:var(--ink);border:1px solid var(--line-2);font:400 16px/1.3 var(--font);width:100%;caret-color:var(--accent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f .hintline{font-size:.82rem;color:var(--muted);margin:0}
+.mine{margin-top:20px;border-top:2px dashed var(--line);padding-top:14px}
+.mine h3{margin:0 0 8px;font-size:1rem;font-weight:800}
+.mrow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.mrow:last-child{border-bottom:0}
+.mrow b{font-size:.95rem}.mrow .m{font-size:.82rem;color:var(--muted);grid-column:1}
+.mrow .btn{grid-column:2;grid-row:1/3}
+.st{display:inline-flex;font-size:.75rem;font-weight:700;padding:1px 8px;margin-left:6px;border:1px solid var(--line-2);vertical-align:1px}
+.st.open{border-color:var(--accent);color:var(--accent-ink)}.st.taken{border-color:var(--brand-line);color:var(--good)}
+
+/* desktop: the board rows go wide, 3 columns inside each slot */
+@media (min-width:721px){
+  .slot{grid-template-columns:200px 1fr;column-gap:24px;align-items:start;padding:16px 20px}
+  .slot>.acts{grid-column:2}
+  .slot>header{display:grid;gap:4px;align-content:start}
+  .slot>header .reset{margin:0}
+  .slot .body{display:grid;gap:10px;min-width:0}
+  .slot .acts{justify-content:flex-start}
+  .slot .acts .btn.main,.acts .btn.ghost{flex:none}
+  .slot.pick-slot{grid-template-columns:200px 1fr}
+  .offers{grid-template-columns:1fr 1fr}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+}
+.slot .body{display:grid;gap:10px;min-width:0}
+@media (prefers-reduced-motion:no-preference){.btn,.pick{transition:background .15s cubic-bezier(.2,.8,.2,1),border-color .15s cubic-bezier(.2,.8,.2,1)}}
+.mockwrap{max-width:920px;margin:0 auto;padding:8px var(--gut) 0;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="sun" viewBox="0 0 8 8"><path d="M3 0h2v1H3zM3 7h2v1H3zM0 3h1v2H0zM7 3h1v2H7zM2 2h4v4H2zM1 1h1v1H1zM6 1h1v1H6zM1 6h1v1H1zM6 6h1v1H6z"/></symbol>
+  <symbol id="cal" viewBox="0 0 8 8"><path fill-rule="evenodd" d="M1 1h6v7H1zM2 4h4v3H2z"/><path d="M2 0h1v2H2zM5 0h1v2H5z"/></symbol>
+  <symbol id="moon" viewBox="0 0 8 8"><path d="M3 0h3v1H4v1H3v4h1v1h2v1H3V7H2V6H1V2h1V1h1z"/></symbol>
+  <symbol id="pin" viewBox="0 0 8 8"><path d="M2 0h4v4H2zM3 4h2v2H3zM3 6h1v2H3z"/></symbol>
+  <symbol id="dice" viewBox="0 0 8 8"><path fill-rule="evenodd" d="M0 0h8v8H0zM1 1v6h6V1z"/><path d="M2 2h1v1H2zM5 2h1v1H5zM3 3h2v2H3zM2 5h1v1H2zM5 5h1v1H5z"/></symbol>
+  <symbol id="clock" viewBox="0 0 8 8"><path fill-rule="evenodd" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1zM3 2v3h3V4H4V2z"/></symbol>
+  <symbol id="ok" viewBox="0 0 8 8"><path d="M1 4h1v1h1v1h1V5h1V4h1V3h1v1H6v1H5v1H4v1H3V6H2V5H1z"/></symbol>
+</svg>
+
+<div class="hdr">Gnome Venture</div>
+<main>
+  <h1>Tasks</h1>
+  <nav class="tabs" aria-label="Tasks">
+    <a class="on" href="#" aria-current="page">Jobs</a>
+    <a href="#">Journey</a>
+    <a href="#">Requests<small>2</small></a>
+  </nav>
+
+  <div class="sum">
+    <div class="streak" title="Every 5 dailies earns a 250 Petals bonus; missing a day never resets it">
+      <span class="pips" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>
+      <span><b class="tn">14</b> dailies done · bonus at 15</span>
+    </div>
+    <a class="btn ghost sm" href="#post"><svg class="i s"><use href="#pin"/></svg>Post a job</a>
+  </div>
+  <p class="note"><a href="#">2 repairs under way, see Journey</a></p>
+
+  <ul class="board">
+    <!-- DAILY: active deliver job -->
+    <li class="slot" id="daily">
+      <header>
+        <span class="pname"><svg class="i"><use href="#sun"/></svg>Daily</span>
+        <span class="reset soon"><svg class="i s"><use href="#clock"/></svg>Resets in <b class="tn">5h 12m</b></span>
+      </header>
+      <div class="body">
+        <h2 class="jt">Bring 12 Tomatoes</h2>
+        <div class="bar"><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="5" aria-label="Tomatoes handed in"><i style="width:41.6%"></i></div><span class="tn">5 / 12</span></div>
+        <div class="pay"><span class="chip tn">180 Petals</span><span class="chip xp tn">40 XP</span></div>
+      </div>
+      <div class="acts">
+        <form><button class="btn main" type="button">Hand in Tomatoes<span class="tn" style="font-weight:400">(you have 7)</span></button></form>
+        <details class="more"><summary aria-label="More for the daily job">&middot;&middot;&middot;</summary>
+          <div class="menu"><p>You keep anything already paid, but lose the rest.</p><button class="btn warn sm" type="button">Give up this job</button></div>
+        </details>
+      </div>
+    </li>
+
+    <!-- WEEKLY: rebuild with stages -->
+    <li class="slot" id="weekly">
+      <header>
+        <span class="pname"><svg class="i"><use href="#cal"/></svg>Weekly</span>
+        <span class="reset"><svg class="i s"><use href="#clock"/></svg>Resets in <b class="tn">3 days</b></span>
+      </header>
+      <div class="body">
+        <h2 class="jt">Rebuild the Old Mill</h2>
+        <ol class="stages" aria-label="Stages">
+          <li class="done"><svg class="i s" style="color:var(--good)"><use href="#ok"/></svg>Clear your path in</li>
+          <li class="now">Shore up your corner</li>
+          <li>Earn the keeper&rsquo;s trust</li>
+          <li>Finishing touches</li>
+        </ol>
+        <div class="bar"><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" aria-label="Stages built"><i style="width:25%"></i></div><span class="tn">Stage 2 of 4</span></div>
+        <div class="needs" aria-label="Stage 2 needs">
+          <span class="need ok"><svg class="i s"><use href="#ok"/></svg>6 Timber Plank <em class="tn">have 9</em></span>
+          <span class="need short">3 Rope <em class="tn">2 short</em></span>
+        </div>
+        <div class="pay"><span class="chip tn">900 Petals</span><span class="chip xp tn">120 XP</span><span>paid a bit at each stage</span></div>
+      </div>
+      <div class="acts">
+        <button class="btn main" type="button" disabled>Hand in stage 2</button>
+        <a class="btn ghost" href="#">Craft materials</a>
+        <details class="more"><summary aria-label="More for the weekly job">&middot;&middot;&middot;</summary>
+          <div class="menu"><p>You keep anything already paid, but lose the rest.</p><button class="btn warn sm" type="button">Give up this job</button></div>
+        </details>
+      </div>
+    </li>
+
+    <!-- MONTHLY: empty with offers -->
+    <li class="slot pick-slot" id="monthly">
+      <header>
+        <span class="pname"><svg class="i"><use href="#moon"/></svg>Monthly</span>
+        <span class="reset"><svg class="i s"><use href="#clock"/></svg>Resets in <b class="tn">11 days</b></span>
+      </header>
+      <div class="body">
+        <p class="ask">Slot empty. Tap one to take it.</p>
+        <ul class="offers">
+          <li><form><button class="pick" type="button">
+            <b>Cook 6 meals or feasts</b>
+            <span class="chip tn">1,200 Petals</span>
+            <span class="hint">Cook them in Crafting, Cooking. Snacks don&rsquo;t count.</span></button></form></li>
+          <li><form><button class="pick" type="button">
+            <b>Grow 40 Pumpkins</b>
+            <span class="chip tn">1,500 Petals</span>
+            <span class="hint">Grow it in your garden. Seeds are at the seed market. Also 1 rare treasure seed, 3 stages.</span></button></form></li>
+        </ul>
+        <div class="empty-foot"><span>Monthly offers can&rsquo;t be re-rolled.</span></div>
+      </div>
+    </li>
+  </ul>
+
+  <section class="sec" aria-labelledby="pg">
+    <header>
+      <h3 class="sh" id="pg"><svg class="i"><use href="#pin"/></svg>Posted by other gnomes</h3>
+      <a class="link" href="#post">Your posted jobs (1 waiting)</a>
+    </header>
+    <ul class="rows">
+      <li class="prow">
+        <b>Tend Mossy&rsquo;s garden, 3 days</b>
+        <span class="m"><q>The tomatoes are thirsty!</q> &middot; Mossy &middot; <span class="rep"><a class="link" href="#">report</a></span></span>
+        <button class="btn" type="button" disabled>Take, 240 Petals</button>
+        <span class="why"><svg class="i s"><use href="#cal"/></svg>Fills your weekly slot. Give up the mill first to take it.</span>
+      </li>
+      <li class="prow">
+        <b>Bring 20 Dandelions, by tonight</b>
+        <span class="m">Pip &middot; wage held safely until the work is done</span>
+        <button class="btn" type="button" disabled>Take, 150 Petals</button>
+        <span class="why"><svg class="i s"><use href="#sun"/></svg>Fills your daily slot. Finish or give up the tomatoes first.</span>
+      </li>
+    </ul>
+  </section>
+</main>
+
+<!-- POST SHEET -->
+<div class="sheet" id="post" role="dialog" aria-modal="true" aria-labelledby="pt">
+  <div class="panel">
+    <div class="grab" aria-hidden="true"></div>
+    <header><h2 id="pt">Post a job for other gnomes</h2><a class="x" href="#" aria-label="Close">&times;</a></header>
+    <details style="margin:6px 0 12px"><summary class="link" style="cursor:pointer;min-height:32px;display:flex;align-items:center">How it works</summary>
+      <p class="help" style="margin:4px 0 0">The wage comes out of your purse now and is held safely. The worker is paid bit by bit as they do the work; anything they don&rsquo;t earn comes back to you. Jobs stay on the board for 3 days. A one-day job fills their daily slot, longer ones their weekly slot.</p></details>
+    <form onsubmit="return false">
+      <div class="seg" role="radiogroup" aria-label="Kind of job">
+        <input type="radio" name="kind" id="k-tend" checked><label for="k-tend">Tend my garden</label>
+        <input type="radio" name="kind" id="k-bring"><label for="k-bring">Bring me something</label>
+        <div class="f tend" style="grid-column:1/-1;margin-top:6px">
+          <p class="hintline">They can only water, weed and harvest. Harvests come to you, less a 20% share for them.</p>
+          <div class="two">
+            <label class="fld">Garden<select><option>Back Plot</option><option>Hillside</option></select></label>
+            <label class="fld">For<select><option>1 day</option><option>2 days</option><option selected>3 days</option></select></label>
+          </div>
+          <label class="fld">Wage (Petals)<input type="number" value="240" min="40"></label>
+          <label class="fld">Note (optional)<input type="text" maxlength="140" placeholder="The tomatoes are thirsty!"></label>
+          <button class="btn block" type="button">Post job, 240 Petals held</button>
+        </div>
+        <div class="f bring" style="grid-column:1/-1;margin-top:6px">
+          <p class="hintline">Ask for anything you&rsquo;ve grown, gathered or held. Items arrive in your satchel as they&rsquo;re handed in.</p>
+          <label class="fld">Item<select><option>Dandelion</option><option>Tomato</option></select></label>
+          <div class="two">
+            <label class="fld">How many<input type="number" value="10" min="1" max="500"></label>
+            <label class="fld">Deadline<select><option>A day</option><option>A week</option></select></label>
+          </div>
+          <label class="fld">Wage (Petals)<input type="number" value="100" min="40"></label>
+          <label class="fld">Note (optional)<input type="text" maxlength="140"></label>
+          <button class="btn block" type="button">Post job, 100 Petals held</button>
+        </div>
+      </div>
+    </form>
+    <div class="mine">
+      <h3>Your posted jobs</h3>
+      <div class="mrow"><b>Tend my garden, 3 days<span class="st open">Waiting for a taker</span></b><span class="m tn">Paid 0 / 240 Petals</span>
+        <button class="btn ghost sm" type="button">Take down</button></div>
+      <div class="mrow"><b>Bring 10 Carrots<span class="st taken">Taken by Bramble</span></b><span class="m tn">4 / 10 handed in &middot; Paid 60 / 150 Petals</span></div>
+      <div class="mrow"><b>Bring 5 Chives<span class="st">Done</span></b><span class="m tn">5 / 5 &middot; Paid 80 / 80 Petals</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

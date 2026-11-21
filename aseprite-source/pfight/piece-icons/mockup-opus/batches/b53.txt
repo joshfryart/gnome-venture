@@ -1,0 +1,16 @@
+beach-hopper-horde-hopper-pounce|Hopper Pounce|hurt|quick|Beach Hopper Horde|A boiling heap of leaping shrimp-like hoppers that clears a dead fish in an hour and a dropped lunch in a minute.
+beach-hopper-horde-sand-feast|Sand Feast|heal|-|Beach Hopper Horde|A boiling heap of leaping shrimp-like hoppers that clears a dead fish in an hour and a dropped lunch in a minute.
+beach-hopper-horde-wrack-bury|Wrack Bury|guard|hold|Beach Hopper Horde|A boiling heap of leaping shrimp-like hoppers that clears a dead fish in an hour and a dropped lunch in a minute.
+beach-hopper-horde-boil-over|Boil Over|hurt|bash|Beach Hopper Horde|A boiling heap of leaping shrimp-like hoppers that clears a dead fish in an hour and a dropped lunch in a minute.
+salt-mite-swarm-salt-prick|Salt Prick|hurt|pierce|Salt Mite Swarm|Mites the colour of salt, living on the white flats. A gnome walking through notices them only when his ankles itch.
+salt-mite-swarm-crust-hop|Crust Hop|trick|trip|Salt Mite Swarm|Mites the colour of salt, living on the white flats. A gnome walking through notices them only when his ankles itch.
+salt-mite-swarm-brine-husk|Brine Husk|guard|evade|Salt Mite Swarm|Mites the colour of salt, living on the white flats. A gnome walking through notices them only when his ankles itch.
+salt-mite-swarm-crust-cloak|Crust Cloak|guard|hold|Salt Mite Swarm|Mites the colour of salt, living on the white flats. A gnome walking through notices them only when his ankles itch.
+snow-moth-cold-flutter|Cold Flutter|hurt|quick|Snow Moth|A furry white moth that flies in the snow-light and sheds frost dust from every flap. It is very hard to see against anything.
+snow-moth-rime-cloak|Rime Cloak|guard|hold|Snow Moth|A furry white moth that flies in the snow-light and sheds frost dust from every flap. It is very hard to see against anything.
+snow-moth-powder-fall|Powder Fall|trick|trip|Snow Moth|A furry white moth that flies in the snow-light and sheds frost dust from every flap. It is very hard to see against anything.
+snow-moth-frost-dazzle|Frost Dazzle|trick|evade|Snow Moth|A furry white moth that flies in the snow-light and sheds frost dust from every flap. It is very hard to see against anything.
+scarab-roller-gold-carapace|Gold Carapace|guard|evade|Scarab Roller|A gold-green beetle rolling a ball it believes is the sun. It will not be talked out of this.
+scarab-roller-sun-roll|Sun Roll|hurt|quick|Scarab Roller|A gold-green beetle rolling a ball it believes is the sun. It will not be talked out of this.
+scarab-roller-sacred-ball|Sacred Ball|guard|hold|Scarab Roller|A gold-green beetle rolling a ball it believes is the sun. It will not be talked out of this.
+scarab-roller-scarab-ball-shove|Scarab Ball Shove|hurt|bash|Scarab Roller|A gold-green beetle rolling a ball it believes is the sun. It will not be talked out of this.
