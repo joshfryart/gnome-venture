@@ -9,10 +9,10 @@
 .DDkLBBBBkBBBBBMMkk.
 .DkBBBBBBkBBBBMMMMD.
 .DkBBBBBBkBBBBMkkkk.
-..LBBBBBBBkBBDkCCk..
-..LBBBBBBBBkkD.kk...
-..LBBBBMMMBBD...kUU.
-..LBBMMMMMMMkBkUuuq.
+..LBBBBBBBkBBDkHHk..
+..LBBBBBBBBkkDkCCk..
+..LBBBBMMMBBD..kkkU.
+..LBBMMMMMMMkBkkuuq.
 ...LDMMMMMDD..Uuquq.
 .....LDDDD....Uuuuq.
 ..............Uqqqq.
