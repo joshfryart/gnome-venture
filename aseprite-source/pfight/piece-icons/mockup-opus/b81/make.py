@@ -27,8 +27,8 @@ MOUTH = {'m': (122, 40, 40), 'r': (200, 84, 84)}
 POISON = {'p': (150, 80, 190), 'P': (200, 150, 230), 'q': (96, 44, 130)}
 HORN = {'h': (222, 186, 124), 'n': (176, 136, 82), 'N': (116, 84, 50)}     # ram horn / hoof
 ROCK = {'S': (178, 168, 156), 's': (134, 124, 114), 'z': (92, 84, 78)}
-MUD = {'U': (156, 116, 74), 'u': (112, 78, 48), 'o': (76, 52, 34)}
-ROOT = {'t': (226, 196, 140), 'T': (180, 140, 90)}                          # dug-up root
+MUD = {'U': (132, 96, 60), 'u': (100, 70, 44), 'o': (68, 48, 30)}
+ROOT = {'t': (236, 206, 150), 'T': (200, 154, 96)}                          # dug-up root
 RED = {'R': (220, 50, 40)}                                                  # rage eye
 
 ICONS = [
@@ -48,7 +48,7 @@ ICONS = [
     ('wild-boar-tusk-gore', 'hurt', {}),
     ('wild-boar-mud-wallow', 'guard', dict(MUD)),
     ('wild-boar-boar-rush', 'hurt', {}),
-    ('wild-boar-root-up', 'trick', dict(MUD, **ROOT)),
+    ('wild-boar-root-up', 'trick', dict(MUD, **ROOT, **HORN)),
 ]
 
 def load(slug, size):
