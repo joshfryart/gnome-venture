@@ -91,6 +91,19 @@ chk('gone entry: a creature piece put down this turn is marked fnew (the page ke
 $ok = true; $seen = 0;
 for ($sd = 1; $sd <= 30; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], $sd, ['v1' => true]); for ($t = 0; $t < 4 && !$s['over']; $t++) { $m = pfb_search($s, 'me'); $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']); foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'foe' && in_array($g['id'], $s['lastfoe'] ?? [], true)) { $seen++; if (empty($g['fnew'])) $ok = false; } } }
 chk('Critter fights: every gone piece the creature placed this turn carries fnew (' . $seen . ' seen)', $ok && $seen > 0, $seen);
+// ... and the page sees the mark: the view's gone list carries fnew (it used to drop it, so such a piece showed from the replay's first frame, during YOUR chain)
+$ok = true; $seen = 0;
+for ($sd = 1; $sd <= 30; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], $sd, ['v1' => true]); for ($t = 0; $t < 4 && !$s['over']; $t++) { $m = pfb_search($s, 'me'); $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']); foreach (pfb_view($s)['gone'] as $g) { $want = $g['by'] === 'foe' && in_array($g['id'], $s['lastfoe'] ?? [], true); if ($want) $seen++; if ($want !== !empty($g['fnew'])) $ok = false; } } }
+chk('view: the gone list marks fnew exactly on the creature pieces put down and gone this turn (' . $seen . ' seen)', $ok && $seen > 0, $seen);
+// the creature's poison tick carries the bars (the replay moves its bar at that step; a tick that ends the fight still shows)
+$s = $k19('Critter'); $s['foe']['poison'] = 1; $s['foe']['poison_v'] = 5; $s['foe']['hand'] = []; $ev = pfb_foe_turn($s, 0); $tk = array_values(array_filter($ev, fn($e) => !empty($e['tick'])));
+chk('poison tick on the creature: the event carries barnow / fhnow / hpnow / gnow, fhnow as after the tick', count($tk) === 1 && isset($tk[0]['barnow'], $tk[0]['hpnow'], $tk[0]['gnow']) && abs((float)$tk[0]['fhnow'] - pf_round((float)$s['fh']['now'], 1)) < 0.01, $tk);
+// the environment's steps: each shows the bars as they stood after IT (your poison lands at the poison step, not from the first placement on)
+$ok = true; $seen = 0;
+for ($sd = 1; $sd <= 20; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium'), $sd, ['v1' => true]); $s['me']['poison'] = 3; $s['me']['poison_v'] = 4; for ($t = 0; $t < 3 && !$s['over']; $t++) { $m = pfb_search($s, 'me'); $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']); if ($r['err'] || $s['over']) break;
+    $env = array_values(array_filter($r['ev'], fn($e) => ($e['ta'] ?? '') === 'env' && isset($e['env']))); $pi = null; foreach ($env as $k => $e) if ($e['env'] === 'poison') $pi = $k; if ($pi === null) continue; $seen++;
+    $p = $env[$pi]; if ((int)$p['hpnow'] !== (int)$s['me']['hp']) $ok = false; foreach (array_slice($env, 0, $pi) as $e) if ((int)$e['hpnow'] !== (int)$p['hpnow'] + (int)$p['me']) $ok = false; } }
+chk('environment steps: a step before your poison tick shows your health before it, the tick shows it after (' . $seen . ' seen)', $ok && $seen > 0, $seen);
 
 // ---- the aim total covers the WHOLE creature turn (2.6.986): a Swarm's second piece and a Quick piece are in the number
 $bad = 0; $n = 0; $bads = [];

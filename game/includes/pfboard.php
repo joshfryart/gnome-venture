@@ -504,11 +504,11 @@ function pfb_env_wind_dir(array &$s, int $x, int $y): string
 function pfb_env_place(array &$s): void
 {
     $s['envlog'] = []; $keep = []; $P = ['x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0];
-    if (!$s['env']['next']) $s['envlog'][] = ['k' => 'pass'] + $P;
+    if (!$s['env']['next']) $s['envlog'][] = ['k' => 'pass'] + $P + ['now' => pfb_env_now($s)];
     foreach ($s['env']['next'] as $tile) {
         $full = count($s['cell']) >= (float)($s['v1']['envcap'] ?? 1) * pfb_w($s) * pfb_h($s);
         $cells = $full ? [] : pfb_env_cells($s, $tile);
-        if (!$cells) { $s['envlog'][] = ['k' => 'pass'] + $P + ['kind' => $tile['env'], 'n' => $tile['n']] + ($full ? ['full' => 1] : []); $keep[] = $tile; continue; }
+        if (!$cells) { $s['envlog'][] = ['k' => 'pass'] + $P + ['kind' => $tile['env'], 'n' => $tile['n']] + ($full ? ['full' => 1] : []) + ['now' => pfb_env_now($s)]; $keep[] = $tile; continue; }
         [$x, $y] = $cells[pf_rand($s, count($cells))];
         if ($tile['env'] === 'wind') $tile['dir'] = pfb_env_wind_dir($s, $x, $y);
         $id = ++$s['pid']; $s['seq']++;
@@ -516,7 +516,7 @@ function pfb_env_place(array &$s): void
         $s['cell']["$x,$y"] = $id;
         $L = ['k' => 'place', 'x' => $x, 'y' => $y, 'me' => 0, 'foe' => 0.0, 'id' => $id, 'kind' => $tile['env'], 'n' => $tile['n']];
         if (isset($tile['dir'])) $L['dir'] = $tile['dir'];
-        $s['envlog'][] = $L;
+        $L['now'] = pfb_env_now($s); $s['envlog'][] = $L;
     }
     $s['env']['next'] = $keep;
     pfb_env_draw($s);
@@ -686,19 +686,25 @@ function pfb_env_turn(array &$s): void
             if (($gone = pfb_ground_set($s, $e['x'], $e['y'], ['sunbeam' => 'sun', 'creep' => 'br', 'puddle' => 'mud'][$e['kind']])) !== null) $L['drop'] = $gone;
             if ($ob) $L['on'] = ['id' => $on['id'], 'by' => $ob, 'n' => $on['tile']['n']];
         }
-        $L['me'] = (int)$L['me']; $L['foe'] = pf_round($L['foe'], 1);
+        $L['me'] = (int)$L['me']; $L['foe'] = pf_round($L['foe'], 1); $L['now'] = pfb_env_now($s);
         $s['envlog'][] = $L;
     }
     if ($s['v1']['ground']) {
         $B = ['k' => 'bramble', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => []];
         foreach ($s['pcs'] as $p) if ($p['by'] !== 'none' && pfb_ter($s, $p['x'], $p['y']) === 'br') { $B[$p['by']] += pfb_env_hurt($s, $p['by'], (float)$s['v1']['bramble'], 'br'); $B['ids'][] = $p['id']; }
         $B['me'] = (int)$B['me']; $B['foe'] = pf_round($B['foe'], 1);
-        if ($B['ids']) $s['envlog'][] = $B;
+        if ($B['ids']) $s['envlog'][] = $B + ['now' => pfb_env_now($s)];
     }
     pf_check_end($s);
 }
 
-/** The terrain turn as events for the replay (after the creature's): by and ta 'env', env = the kind, the bars as they stand after the whole terrain turn. */
+/** The bars as they stand right now [charm bar, creature bar, your health, your guard]: each environment note keeps them (envlog 'now'), so its replay step shows what THAT step did (your poison at the poison step, not from the first placement on). */
+function pfb_env_now(array $s): array
+{
+    return [pf_round((float)$s['bar']['now'], 1), pf_round((float)$s['fh']['now'], 1), (int)$s['me']['hp'], (int)$s['me']['block']];
+}
+
+/** The terrain turn as events for the replay (after the creature's): by and ta 'env', env = the kind, the bars as they stood after that event (a note saved before 'now' existed: after the whole terrain turn). */
 function pfb_env_events(array $s): array
 {
     $ev = [];
@@ -707,7 +713,7 @@ function pfb_env_events(array $s): array
             'x' => $L['x'], 'y' => $L['y'], 'me' => $L['me'], 'foe' => $L['foe']];
         foreach (['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full', 'drop'] as $k) if (isset($L[$k])) $e[$k] = $L[$k];
         if (isset($L['n'])) $e['n'] = $L['n'];   // 2.6.75: an environment piece placed (or kept back): its name
-        $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
+        [$e['barnow'], $e['fhnow'], $e['hpnow'], $e['gnow']] = isset($L['now']) ? $L['now'] : pfb_env_now($s);
         $ev[] = $e;
     }
     return $ev;
@@ -1430,7 +1436,8 @@ function pfb_foe_turn(array &$s, int $extra): array
         $add = $s['foe']['poison_v'] * $s['hm'];
         $s['fh']['now'] += $add; $s['foe']['poison']--;
         if ($s['foe']['poison'] === 0) $s['foe']['poison_v'] = 0;
-        $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)pf_round($add), 'fit' => false, 'combo' => null, 'tick' => true];
+        $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)pf_round($add), 'fit' => false, 'combo' => null, 'tick' => true,
+            'barnow' => pf_round((float)$s['bar']['now'], 1), 'fhnow' => pf_round((float)$s['fh']['now'], 1), 'hpnow' => (int)$s['me']['hp'], 'gnow' => (int)$s['me']['block']];   // the bars as they stand after the tick: the replay moves the creature's bar at this step (and the poison that empties it still shows, as the fight ends)
         if (pf_check_end($s)) return $ev;
     }
     if (!empty($s['foe']['ab'])) { pfb_ab_turn($s, $ev); $s['infoe'] = 1; }   // 2.7.01: its turn count, Regrow, Plated; Ambush is live for this turn
@@ -2063,7 +2070,7 @@ function pfb_end_round(array &$s): void
         if ((int)$s['me']['poison'] > 0) {
             $pv = max(1, (int)$s['me']['poison_v']); if ((int)$s['me']['evade'] > 0 || !empty($s['me']['evd'])) $pv = 0;   // 2.6.988: Evade stops the poison tick (it still counts down); 2.7.01: also when its Hurt already used the Evade up (evd)
             $s['me']['hp'] = max(0, $s['me']['hp'] - $pv); $s['me']['poison']--;
-            $s['envlog'][] = ['k' => 'poison', 'x' => null, 'y' => null, 'me' => $pv, 'foe' => 0.0];
+            $s['envlog'][] = ['k' => 'poison', 'x' => null, 'y' => null, 'me' => $pv, 'foe' => 0.0, 'now' => pfb_env_now($s)];
             if ($s['me']['poison'] === 0) $s['me']['poison_v'] = 0;
             if (pf_check_end($s)) return;
         }
@@ -2078,7 +2085,7 @@ function pfb_end_round(array &$s): void
     $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = $slow;   // 2.6.76: the hand area says so; 2.7.06: also in learner fights (tags 0), where Stagger set the flag and nothing used it
     $gone = pfb_expire($s);
     foreach ($s['ven'] ?? [] as $vk => $vr) { if ($vr <= 1) unset($s['ven'][$vk]); else $s['ven'][$vk] = $vr - 1; }   // 2.6.98 venom fades
-    if (!empty($s['v1']['env'])) { $eg = array_values(array_map(fn($p) => $p['id'], array_filter($gone, fn($p) => $p['by'] === 'env'))); if ($eg) $s['envlog'][] = ['k' => 'expire', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => $eg]; }   // 2.6.75: environment pieces whose time is up
+    if (!empty($s['v1']['env'])) { $eg = array_values(array_map(fn($p) => $p['id'], array_filter($gone, fn($p) => $p['by'] === 'env'))); if ($eg) $s['envlog'][] = ['k' => 'expire', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => $eg, 'now' => pfb_env_now($s)]; }   // 2.6.75: environment pieces whose time is up
     pf_draw($s, 'foe', $s['foe']['hsize']);
     $s['turn']++; $s['round']++;
     if (!empty($s['v1'])) {   // 2.6.77: your guard fades when your turn starts; only a Hold guard that is still standing (not used up by the hits) carries over, once

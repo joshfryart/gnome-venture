@@ -692,7 +692,8 @@
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();
     if (data.bar !== undefined && data.barmax) setBar(willReplay && data.replay0 && data.replay0.bar !== undefined ? data.replay0.bar : data.bar, data.barmax);   // 2.6.80: the N/100 number is there from the first frame
-    if (willReplay && data.replay0) { setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }   // 2.6.88: the page is sent with the NEW health, guard and creature health in it; until the replay reaches the piece that changes them they show what they were before the turn
+    if (willReplay && data.replay0) { setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }   // 2.6.88: until the replay reaches the piece that changes them the bars show what they were before the turn
+    else { if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); }   // the server draws a turn that waits for its replay with the bars as they stood BEFORE it (pfight_board_html): no replay here (seen already), so the new values
     if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
     else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
@@ -833,7 +834,7 @@
         if (ff && fh) { submitted = true; fh.value = String(i); if (typeof ff.requestSubmit === 'function') ff.requestSubmit(); else ff.submit(); }
       });
   }
-  if (ENV && willReplay) { envPre(); if (PREV) phase = 'pre'; }
+  if (willReplay) { if (ENV) envPre(); if (PREV) phase = 'pre'; }   // the first frame (before the replay starts, e.g. while the piece art loads) already shows the board as it stood before the turn: the creature's NEW aim and pieces wait for its step
 
   var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
   // zoom and pan of the play area: wheel on a computer, pinch and drag on a phone, + - and reset buttons for everyone
@@ -1292,8 +1293,22 @@
     el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits. It fades when your turn starts, unless Hold keeps it');
   }
   function setHp(v) {
+    if (v === null || v === undefined || v === '') return;
     var h = root.querySelector('.pfc-top .pf-hp'), pr = h && h.querySelector('progress'); if (pr) pr.value = v;
     if (h) { var n = h.lastChild; while (n && !(n.nodeType === 3 && /\d/.test(n.nodeValue))) n = n.previousSibling; if (n) n.nodeValue = ' ' + v; h.setAttribute('aria-label', 'Your health ' + v + (pr ? ' of ' + pr.max : '')); }
+    siteHp(v);
+  }
+  /** The site's own health (the header's heart pill, the Trail's health line) is swapped in with the page at its NEW value: it follows the replay too, step by step, like the fight's own number. */
+  function siteHp(v) {
+    if (rewind) return;   // a rewound board shows the past in the fight only
+    Array.prototype.forEach.call(document.querySelectorAll('.statusstrip .st.hp, .thp'), function (el) {
+      if (root.contains(el)) return;
+      var sp = el.querySelector('progress'); if (sp) sp.value = Math.max(0, Math.min(+sp.max || v, v));
+      var b = el.querySelector('b');
+      if (b) b.textContent = String(v);
+      else { var t = el.lastChild; while (t && !(t.nodeType === 3 && /\d+\s*\/\s*\d+/.test(t.nodeValue))) t = t.previousSibling; if (t) t.nodeValue = t.nodeValue.replace(/\d+(\s*\/\s*\d+)/, v + '$1'); }
+      if (el.title) el.title = el.title.replace(/\d+(\s*\/\s*\d+)/, v + '$1');
+    });
   }
   function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
     showGone = false; fxOn = true; replayDone(); endReveal(); render();
