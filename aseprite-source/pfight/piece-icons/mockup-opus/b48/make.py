@@ -25,13 +25,14 @@ import pix  # noqa: E402
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 SNOUT = {'p': (236, 150, 150), 'P': (250, 200, 194), 'n': (140, 56, 70)}     # pig snout
 MOUTH = {'m': (122, 40, 40), 'r': (200, 84, 84)}
-TUSK = {'c': (206, 192, 160)}                                                   # tusk shade
+TUSK = {'t': (248, 240, 214), 'c': (176, 150, 108)}                             # tusk ivory + shade
 MUD = {'u': (128, 86, 52), 'U': (168, 122, 78), 'z': (86, 56, 36)}
-RAT = {'s': (146, 102, 66), 'S': (188, 140, 94), 'z': (96, 64, 42), 'o': (236, 146, 40)}
+RAT = {'s': (146, 102, 66), 'S': (188, 140, 94), 'z': (96, 64, 42), 'o': (236, 146, 40), 'p': (226, 140, 140)}
 REED = {'g': (120, 176, 70), 'j': (78, 124, 48), 'J': (170, 210, 110), 'y': (150, 96, 56)}
-POISON = {'v': (150, 80, 190), 'V': (200, 150, 230), 'q': (96, 44, 130)}
+POISON = {'v': (150, 80, 190), 'V': (200, 150, 230), 'q': (96, 44, 130), 'W': (236, 216, 248)}
 WATER = {'W': (210, 238, 250), 'w': (140, 200, 232), 'x': (70, 140, 196)}
 YUZU = {'o': (240, 150, 30), 'O': (255, 206, 96), 'g': (90, 150, 60)}
+EAR = {'p': (214, 136, 120)}                                                    # capybara inner ear
 BIRD = {'b': (70, 62, 66), 'a': (128, 118, 112), 'y': (240, 176, 40), 'r': (200, 64, 60)}
 
 ICONS = [
@@ -48,10 +49,10 @@ ICONS = [
     ('muskrat-crew-reed-mat', 'guard', dict(RAT, **WATER)),
     ('muskrat-crew-musk-gnaw', 'hurt', dict(RAT, **REED)),
     ('muskrat-crew-musk-cloud', 'trick', dict(RAT, **POISON)),
-    ('capybara-herd-herd-shove', 'hurt', dict(MUD)),
-    ('capybara-herd-calm-float', 'guard', dict(WATER, **YUZU)),
-    ('capybara-herd-water-slap', 'trick', dict(WATER)),
-    ('capybara-herd-riding-birds', 'heal', dict(BIRD)),
+    ('capybara-herd-herd-shove', 'hurt', dict(EAR)),
+    ('capybara-herd-calm-float', 'guard', dict(EAR, **WATER, **YUZU)),
+    ('capybara-herd-water-slap', 'trick', dict(EAR, **WATER)),
+    ('capybara-herd-riding-birds', 'heal', dict(BIRD, **EAR)),
 ]
 
 

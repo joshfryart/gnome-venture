@@ -44,7 +44,7 @@ ICONS = [
     ('ratel-pair-ratel-tear', 'hurt', dict(RATEL)),
     ('ratel-pair-rough-up', 'trick', dict(RATEL)),
     ('ratel-pair-back-for-more', 'hurt', dict(RATEL, **HONEY)),
-    ('cassowary-chick-creche-chick-peck', 'hurt', dict(CHICK)),
+    ('cassowary-chick-creche-chick-peck', 'hurt', dict(CHICK, m=(122, 40, 40))),
     ('cassowary-chick-creche-stripe-dash', 'trick', dict(CHICK)),
     ('cassowary-chick-creche-down-cover', 'guard', dict(CHICK)),
     ('cassowary-chick-creche-chick-rush', 'hurt', dict(CHICK)),

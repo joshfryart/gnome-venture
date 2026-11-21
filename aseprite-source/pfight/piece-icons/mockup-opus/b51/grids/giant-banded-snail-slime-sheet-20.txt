@@ -4,12 +4,12 @@
 ...........LLLLD....
 .........DLLDDDED...
 ........DLLDDDLEEE..
-........DLLDLLLBEE..
+.SS...SSDLLDLLLBEE..
 .kS...kSDLLDLLEBBED.
-..S...S.DLLDLBEBBEE.
-...SsS..DLLDEEEBBED.
-..SSssz.EEBBBBBBEE..
-.SSssss.DEEBBBBEEE..
+..z...z.DLLDLBEBBEE.
+...z.z..DLLDEEEBBED.
+..SSsz..EEBBBBBBEE..
+.SSsssz.DEEBBBBEEE..
 .Ssssss..DEEEEEED...
 .SsssssSSSWDEEDD....
 ...SssssssSSSSSSS...

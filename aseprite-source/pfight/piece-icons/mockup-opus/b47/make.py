@@ -24,7 +24,7 @@ import pix  # noqa: E402
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 MOUTH = {'r': (200, 64, 72), 'm': (122, 32, 44)}                            # snake mouth / tongue
 ROAD = {'s': (150, 140, 128), 'S': (186, 176, 160), 'z': (104, 96, 88)}    # night road
-TERMITE = {'p': (236, 220, 186), 'P': (252, 244, 224), 'q': (190, 166, 128),  # pale soft body
+TERMITE = {'p': (224, 200, 152), 'P': (244, 228, 192), 'q': (170, 140, 96),  # pale soft body
            'o': (198, 120, 48), 'O': (232, 166, 84), 'n': (128, 66, 26)}     # soldier head
 MUD = {'u': (150, 108, 70), 'U': (186, 146, 100), 'y': (100, 70, 46)}      # mud / clay
 FISH = {'r': (214, 58, 48), 'R': (244, 120, 96), 'm': (140, 30, 30),       # red throat
