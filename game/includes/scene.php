@@ -162,7 +162,7 @@ function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc, s
     if (empty($u['guest'])) {
         require_once __DIR__ . '/puzzle_pals.php';
         if (ppal_party_on()) foreach (ppal_equipped($u) as $i => $e) {
-            $url = ppal_art_url((string)$e['pal']['key']);
+            $url = ppal_travel_url((string)$e['pal']['key']);
             if ($url !== '' && $i < 3) $units[] = ['id' => 'pal' . $i, 'side' => 'p', 'name' => (string)($e['pal']['name'] ?? 'Pal'), 'html' => '<img class="gvs-pal pix" src="' . e($url) . '" width="40" height="40" alt="">'];
         }
     }

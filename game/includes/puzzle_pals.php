@@ -268,6 +268,14 @@ function ppal_is_placeholder(string $file): bool
     return $ref !== '' && md5_file($file) === $ref;
 }
 
+/** The picture of a pal travelling with the player (beside the gnome, in fights, on the trail, in the delve): its 36 px perch creature, else the sticker, else ''. 2.7.xx: the puzzle-piece sticker stays for the Pal Book, markers and spawns. */
+function ppal_travel_url(string $key): string
+{
+    $k = preg_replace('/[^a-z0-9_-]/i', '', $key);
+    if ($k !== '' && is_file(APP_ROOT . '/assets/img/pals/perch/' . $k . '.png')) return url('assets/img/pals/perch/' . $k . '.png');
+    return ppal_art_url($key);
+}
+
 /** The pal's sticker URL, or '' when its art is missing (callers then draw nothing or an emoji, never a broken image). */
 function ppal_art_url(string $key): string
 {
@@ -702,7 +710,7 @@ function ppal_bloom_roll(array $u): bool
 /** The pal's sticker beside the gnome: an <img> by class only (no inline style, CSP), nothing when its art is missing. */
 function ppal_companion(string $key, string $side, int $px): string
 {
-    $url = ppal_art_url($key);
+    $url = ppal_travel_url($key);
     return $url === '' ? '' : '<span class="gpal gpal-' . $side . '"><img src="' . e($url) . '" width="' . $px . '" height="' . $px . '" alt="" loading="lazy" decoding="async"></span>';
 }
 
@@ -733,8 +741,9 @@ function ppal_howto_html(): string
 }
 
 /** v2.0.91: a pal's sticker as an img (or a paw when its art is not there), px square. Used by My Gnome and the Almanac. */
-function ppal_sticker_html(string $key, int $px = 44): string
+function ppal_sticker_html(string $key, int $px = 44, bool $travel = false): string
 {
+    if ($travel && ($u = ppal_travel_url($key)) !== '') return '<img class="palstk pix" src="' . e($u) . '" alt="" width="' . $px . '" height="' . $px . '" loading="lazy">';
     $f = 'assets/img/puzzles/pals/' . preg_replace('/[^a-z0-9_-]/i', '', $key) . '.png';
     return is_file(APP_ROOT . '/' . $f) ? '<img class="palstk" src="' . e(url($f)) . '" alt="" width="' . $px . '" height="' . $px . '" loading="lazy">' : '<span class="palstk palstk-ph" aria-hidden="true">🐾</span>';
 }

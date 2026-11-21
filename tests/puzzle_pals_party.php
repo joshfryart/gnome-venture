@@ -299,9 +299,12 @@ $h = gnome_avatar_pals($u(), 90);
 ok('two companions beside the gnome, class-only (no inline style)', substr_count($h, 'class="gpal gpal-') === 2 && str_contains($h, 'gpal-l') && str_contains($h, 'gpal-r') && !str_contains($h, 'style='), $h);
 ok('the wrapper holds the plain avatar svg', str_starts_with($h, '<span class="gpw') && str_contains($h, '<svg class="gnomeart'));
 $keep = is_file($ph . 'mw-acorn-nip.png') ? file_get_contents($ph . 'mw-acorn-nip.png') : null;
+$pp = APP_ROOT . '/assets/img/pals/perch/mw-acorn-nip.png'; $keepP = is_file($pp) ? file_get_contents($pp) : null; @unlink($pp);   // 2.7.xx: companions use the perch picture, then the sticker
 @unlink($ph . 'mw-acorn-nip.png'); reset_all();
 ok('a pal with no art draws nothing (never a broken image)', substr_count(gnome_avatar_pals($u(), 90), 'class="gpal gpal-') === 1);
 if ($keep !== null) file_put_contents($ph . 'mw-acorn-nip.png', $keep);
+if ($keepP !== null) file_put_contents($pp, $keepP);
+ok('companions use the perch picture when there is one', str_contains(gnome_avatar_pals($u(), 90), 'assets/img/pals/perch/mw-acorn-nip.png'));
 ok('tiny avatars (under 30 px) stay plain', !str_contains(gnome_avatar_pals($u(), 24), 'gpw'));
 ok('trek renderers keep the plain avatar (gnome_avatar has no wrapper)', !str_contains(gnome_avatar($u(), 24), 'gpw'));
 q('UPDATE users SET level = 14 WHERE id = ?', [$uid]); reset_all();
