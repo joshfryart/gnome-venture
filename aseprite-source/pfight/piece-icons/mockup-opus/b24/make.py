@@ -23,6 +23,7 @@ import pix  # noqa: E402
 # shared chars: . clear, k ink, C cream, H white gloss, G gold
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 FEATHER = {'W': (240, 242, 246), 'w': (188, 198, 214), 'v': (120, 132, 156)}  # white head
+ROCK = {'r': (170, 166, 160), 'R': (206, 202, 192), 'x': (112, 106, 104)}       # crag
 BEAK = {'g': (200, 146, 44)}                                                  # beak / talons (G light)
 BOLT = {'Y': (255, 240, 120), 'y': (238, 196, 52)}                            # lightning
 JADE = {'J': (150, 232, 176), 'j': (52, 178, 116), 'q': (24, 110, 78)}        # jade eyes / leaves
@@ -34,7 +35,7 @@ ICONS = [
     ('storm-eagle-thunder-dive', 'hurt', dict(FEATHER, **BEAK, **BOLT)),
     ('storm-eagle-gale-wing', 'guard', dict(FEATHER, **BEAK, **BOLT)),
     ('storm-eagle-lightning-claw', 'hurt', dict(FEATHER, **BEAK, **BOLT)),
-    ('storm-eagle-eyrie-grip', 'guard', dict(FEATHER, **BEAK, **BOLT)),
+    ('storm-eagle-eyrie-grip', 'guard', dict(FEATHER, **BEAK, **ROCK)),
     ('jade-jaguar-jade-gaze', 'trick', dict(JADE, **ROSE, **FUR)),
     ('jade-jaguar-jaguar-pounce', 'hurt', dict(JADE, **ROSE, **FUR)),
     ('jade-jaguar-spirit-stalk', 'guard', dict(JADE, **ROSE, **FUR)),

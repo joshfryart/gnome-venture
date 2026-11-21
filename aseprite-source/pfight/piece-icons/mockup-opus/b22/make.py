@@ -27,7 +27,7 @@ WATER = {'W': (214, 236, 246), 'w': (156, 200, 226), 'v': (96, 146, 184)}  # wat
 FISH = {'f': (176, 186, 196), 'F': (226, 232, 238)}                        # little silver fish
 LEAF = {'y': (196, 214, 92), 'Y': (232, 238, 150), 'j': (112, 140, 50)}   # living leaves
 BARK = {'q': (150, 108, 70), 'Q': (196, 152, 104), 'z': (98, 68, 44)}      # root / bark
-THORN = {'t': (120, 60, 70), 'T': (176, 96, 104)}                          # bramble thorns
+THORN = {'t': (150, 62, 62), 'T': (222, 128, 112)}                          # bramble thorns
 STAG = dict(LEAF, **BARK, **THORN)
 
 ICONS = [

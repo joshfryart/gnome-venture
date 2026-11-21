@@ -27,6 +27,7 @@ SAND = {'S': (240, 216, 160), 's': (214, 178, 116), 'z': (160, 122, 74)}   # des
 SNOW = {'W': (238, 242, 248), 'w': (192, 206, 224), 'v': (132, 150, 178)}  # snowy plumage
 ICE = {'I': (220, 244, 252), 'i': (150, 210, 236)}                         # frost shards
 BEAK = {'b': (220, 160, 70)}                                               # owl beak / feet
+JEWEL = {'j': (200, 60, 90)}                                               # crown ruby
 
 ICONS = [
     # slug, type, extra palette
@@ -34,10 +35,10 @@ ICONS = [
     ('dune-wyrm-quake', 'hurt', dict(SAND, **MOUTH)),
     ('dune-wyrm-sand-swallow', 'hurt', dict(SAND, **MOUTH)),
     ('dune-wyrm-sand-spout', 'hurt', dict(SAND, **MOUTH)),
-    ('snow-owl-monarch-frost-wing', 'hurt', dict(SNOW, **ICE, **BEAK)),
-    ('snow-owl-monarch-snow-glare', 'trick', dict(SNOW, **ICE, **BEAK)),
-    ('snow-owl-monarch-royal-talon', 'hurt', dict(SNOW, **BEAK)),
-    ('snow-owl-monarch-silent-glide', 'guard', dict(SNOW, **BEAK)),
+    ('snow-owl-monarch-frost-wing', 'hurt', dict(SNOW, **ICE, **BEAK, **JEWEL)),
+    ('snow-owl-monarch-snow-glare', 'trick', dict(SNOW, **ICE, **BEAK, **JEWEL)),
+    ('snow-owl-monarch-royal-talon', 'hurt', dict(SNOW, **ICE, **BEAK, **JEWEL)),
+    ('snow-owl-monarch-silent-glide', 'guard', dict(SNOW, **ICE, **BEAK, **JEWEL)),
 ]
 
 

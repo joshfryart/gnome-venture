@@ -22,7 +22,7 @@ import pix  # noqa: E402
 
 # shared chars: . clear, k ink, C cream, H white gloss, G gold
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
-TIGER = {'W': (250, 244, 228), 'p': (226, 124, 132),                        # muzzle / nose
+TIGER = {'W': (250, 244, 228), 'p': (226, 124, 132), 'P': (246, 176, 180), 'c': (206, 186, 150),                      # muzzle / nose
          'y': (176, 214, 70), 'm': (122, 40, 40), 'r': (200, 84, 84)}         # eye / mouth
 GRASS = {'V': (132, 200, 100), 'v': (72, 152, 78), 'u': (36, 94, 60)}         # jungle blades
 LIZARD = {'y': (236, 206, 64), 'm': (122, 40, 40), 'r': (210, 64, 80),        # eye / mouth / tongue

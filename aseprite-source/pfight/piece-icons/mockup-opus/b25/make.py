@@ -26,12 +26,13 @@ EYE = {'y': (236, 206, 64), 'Y': (252, 240, 150)}                             # 
 LOG = {'o': (150, 100, 60), 'O': (190, 138, 88), 'q': (98, 62, 38)}           # log / branch
 WATER = {'W': (214, 238, 248), 'w': (140, 196, 226)}                          # river
 SPOT = {'W': (232, 244, 226)}                                                 # python dorsal spots
+BELLY = {'c': (214, 184, 136)}                                                # belly scale shadow
 TONGUE = {'r': (200, 58, 70), 'm': (122, 40, 40)}                             # tongue / mouth
 
 ICONS = [
     # slug, type, extra palette
     ('delta-gharial-thin-snout', 'hurt', dict(EYE, **LOG)),
-    ('delta-gharial-death-roll', 'hurt', dict(EYE, **WATER)),
+    ('delta-gharial-death-roll', 'hurt', dict(EYE, **WATER, **BELLY)),
     ('delta-gharial-river-drift', 'guard', dict(EYE, **WATER)),
     ('delta-gharial-log-nap', 'heal', dict(EYE, **LOG)),
     ('emerald-python-squeeze', 'hurt', dict(EYE, **LOG, **SPOT, **TONGUE)),
