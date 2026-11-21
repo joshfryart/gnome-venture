@@ -27,13 +27,14 @@ CRAB = {'c': (214, 92, 76), 'R': (244, 146, 120), 'x': (150, 52, 48)}      # cra
 ROCK = {'o': (112, 108, 112), 'O': (164, 160, 160), 'q': (72, 68, 76)}     # grey rock / pebble
 MUSSEL = {'n': (52, 60, 96), 'N': (96, 110, 158)}                          # blue-black mussel
 KELP = {'w': (98, 130, 52), 'W': (150, 176, 74), 'v': (62, 86, 36)}        # olive kelp
+BLEACH = {'t': (204, 182, 140), 'T': (150, 124, 92)}                     # old bleached shell
 OTTER = dict(MOUTH)
 
 ICONS = [
     # slug, type, extra palette
     ('hermit-crab-hoarder-borrowed-shell', 'guard', dict(CRAB)),
     ('hermit-crab-hoarder-hoard-toss', 'hurt', dict(CRAB)),
-    ('hermit-crab-hoarder-shell-swap', 'heal', dict(CRAB)),
+    ('hermit-crab-hoarder-shell-swap', 'heal', dict(CRAB, **BLEACH)),
     ('hermit-crab-hoarder-spare-address', 'heal', dict(CRAB)),
     ('sea-otter-bandit-rock-crack', 'hurt', dict(OTTER, **ROCK, **MUSSEL)),
     ('sea-otter-bandit-kelp-wrap', 'guard', dict(OTTER, **KELP)),
