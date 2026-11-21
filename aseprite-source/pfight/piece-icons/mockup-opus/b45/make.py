@@ -43,7 +43,7 @@ ICONS = [
     ('hyena-pup-cackle-pup-pounce', 'hurt', dict(MOUTH)),
     ('hyena-pup-cackle-cackle-cover', 'guard', dict(MOUTH)),
     ('hyena-pup-cackle-yip', 'trick', dict(MOUTH)),
-    ('hyena-pup-cackle-giggle-fit', 'trick', dict(MOUTH, W=(206, 236, 250))),
+    ('hyena-pup-cackle-giggle-fit', 'trick', dict(MOUTH, W=(206, 236, 250), w=(140, 196, 228))),
     ('mangrove-crab-court-court-claw', 'hurt', dict(BARN)),
     ('mangrove-crab-court-root-hide', 'guard', dict(BARN, **ROOT)),
     ('mangrove-crab-court-mud-summons', 'trick', dict(BARN, **WOOD, **MUD)),

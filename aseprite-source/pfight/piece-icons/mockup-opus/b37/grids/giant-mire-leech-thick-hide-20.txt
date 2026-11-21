@@ -10,11 +10,11 @@
 ...LBHDBBDBDBBBDL...
 ..LBBBDBBDDDBBDBBL..
 ..LDBBBDD..LDDBBBD..
-..LBDDD......LBBDDL.
-..LBBBD.......LBBBD.
+..LBDDD......LBBDD..
+..LBBBD.......LDBBL.
 ..LBBD.........LBBD.
-.LBBBD..........LBD.
-..LBD...........LBD.
-.MMLMMM.......MMMLMM
-....................
+.LBBBD.........LBBD.
+..LBD..........LBBD.
+.MMLMMM.......MMLDM.
+................M...
 ....................

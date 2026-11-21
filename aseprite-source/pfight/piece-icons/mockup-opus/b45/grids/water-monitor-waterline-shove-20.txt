@@ -10,9 +10,9 @@
 .WWwwwvDBBBBBDBBBBD.
 .WwwwwwvDDDDDBBBBBD.
 .WwwwwwWWWWWDBBDBBD.
-.wwvwwwwwwWWLBDWLBDW
-.wvvvwwwvvwwkCkwkCkw
-.vv.vvvvv.vvvvvvvvvv
+.wwvwwwwwwWWLBDWLBD.
+.wvvvwwwvvwwkCkwkCk.
+.vv.vvvvv.vvvvvvvvv.
 ....................
 ....................
 ....................

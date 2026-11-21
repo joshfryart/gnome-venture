@@ -39,7 +39,7 @@ ICONS = [
     ('roebuck-buck-charge', 'hurt', dict(ANTLER)),
     ('roebuck-bracken-stomp', 'trick', dict(ANTLER, **FERN)),
     ('roebuck-rut-rush', 'hurt', dict(ANTLER)),
-    ('croc-hatchling-scatter-hatchling-nip', 'hurt', dict(POISON, **MOUTH, **EYE, a=(200, 186, 150))),
+    ('croc-hatchling-scatter-hatchling-nip', 'hurt', dict(POISON, **MOUTH, **EYE, O=(232, 226, 210), o=(186, 176, 156), a=(150, 140, 120))),
     ('croc-hatchling-scatter-mud-spit', 'trick', dict(MUD, **MOUTH, **EYE)),
     ('croc-hatchling-scatter-scatter-slip', 'guard', dict(MUD, **EYE)),
     ('croc-hatchling-scatter-dozen-bites', 'hurt', dict(MOUTH, **EYE)),
