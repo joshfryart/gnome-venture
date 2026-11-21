@@ -18213,8 +18213,8 @@ f08a10cd40297ed0f0209d242bec0238cacc03ea  assets/mushroom.js
 9643b3e57767a074aa3885a83c71484a4cb6788e  assets/paljobs.js
 514b96d12852700783ad02a67201877e83172d89  assets/pbox.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
-45fa7291b681fa9f6cb38e1b7eba8f91907083eb  assets/pfboard.js
-891dc7301169d41cb6d2fa9c878118aa29ed8811  assets/pfboardv1.js
+6f90e94064935b2922945a128c8de14f26251379  assets/pfboard.js
+cbf13d58488b0282bed31990620ebb33f8a07867  assets/pfboardv1.js
 7255e52e8b9a1edf4dc8f34c2bf2979811f0c495  assets/pfdebug.js
 72a8bac7f64c636fe093e38e944862a8c0bc3374  assets/pfight.css
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
@@ -18223,7 +18223,7 @@ d247d28d15c17cb86783eeff2518301aa13b3436  assets/pfparts47.js
 c24b6c043578630faaf24f3d34d987b17cbf94e4  assets/pfstage.css
 c16b224460b58423806887475d6e3ec8e8d2214a  assets/pfstage.js
 bb69fd4ed54d2a12114b4f7180a801c72a106702  assets/pfv1.css
-8342a840a908756a9c2662b4aa1d789f7c712543  assets/pfv1box.js
+6d5ff9a500d219588aeff7c3e1c2d1d4d616861c  assets/pfv1box.js
 81bfd29eb554564643f4a471332a54aabe7cfe40  assets/pfx.js
 729b69ea888701e8921630ca27335798c8176f3a  assets/puzzlehub.js
 d9a5a99bc8f455ee1aae0a12db55aff9b9dae97d  assets/puzzles.css
@@ -18519,7 +18519,7 @@ d1bb7af2c3c375f874de9c2ba315e44d6da46117  includes/delve_map.php
 7055e8ff2a3893cd0b99f9f9ebacda2a250bf845  includes/delve_route.php
 0067c30906db7573a4e5cf7bf7ef71c137dff29e  includes/delve_stamp.php
 dd949706bea14fbb55933d4f91a91b7cd818912e  includes/delve_v2.php
-301eca1162cb4f30560b51489a36ba558340086a  includes/destination.php
+d154445c80f2c406669cf106cfd2692162d84bce  includes/destination.php
 32e45e08bb374452397176ba04b08bfcd18306a7  includes/emoji_icons.php
 bfcbad71be0d849fc57ac3968d54725fbf024bcc  includes/events.php
 608717e9ee854d18f632db9e451870559a6d3d46  includes/explore.php
@@ -18576,7 +18576,7 @@ ec632c9ea1294f0e354c9bbd28346175f6ed4596  includes/levelup.php
 730cbeaa588149c5dea0e985d6cc8d446de570ff  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php
 a3c685a8492f978ce701c803da18f71e6c5e7995  includes/mail_nudge.php
-afb69f045894a1f50a25557dc7e711e0dc33bd87  includes/maps.php
+353952a3807585ca97c942be2ea5d1b763a8266c  includes/maps.php
 be5b25e62da19d8022fbc67b9ecd88259ebaeb16  includes/maps_myc.php
 7657ac0187827031ebe7c7ce0f2a0132c1c8a61e  includes/market100.php
 b86e5058cbb4f8189f08bd70e465cf77865abc5d  includes/mentors120.php
@@ -18596,12 +18596,12 @@ a2604bee70e1012cba949be7f0120d7c3c9a68ff  includes/pal_jobs.php
 946f48ac6724ccacfb3aa1459e8ad86de9fe4b04  includes/pantry.php
 3f541b5182728a8ffaae87eaa0fed54d78dcfa62  includes/pantry_view.php
 8b64f42f166fbd6fbf1b7a51fec32695d6aeaebb  includes/pest.php
-f103ef76c3e5db9cbc8ead2d8815ca6a48882fc7  includes/pfboard.php
+08d933ea15569ec4620624e879da874444c0370f  includes/pfboard.php
 fa62891d11ae8ff0b622d3fe25e90b7aebcac4ab  includes/pfdeck.php
-802c76d465e533eeb44fdd9f5cd57aa0769c25ec  includes/pfdeck_view.php
+f5df008e656912fb3b0b0e3690958d0213a1dc7c  includes/pfdeck_view.php
 8ac74958df095126ce11f3631ede6d8471812fc2  includes/pfight.php
 4b84d031627ea9f842c3f9d26c5d281ca6b4ca5b  includes/pfight_data.php
-a4fe8402604f87333b173a4fa7f040ca43f234e6  includes/pfight_game.php
+3cf1051fdaebaf650ddf1258ae7413d18ffc1da9  includes/pfight_game.php
 2b25bcd81f4adbbd5a1059b76d5b4a01c436334a  includes/pfparts_url.php
 d396a90b45a433686d11b27c6ad7ede8272f739f  includes/pixel_art.php
 89970ae1dd8c3913f69c55a7b9c67b4c6648b3fc  includes/place_ui.php
@@ -18613,7 +18613,7 @@ e0992a8d51bdcb329f520a289938b0fb82d0b263  includes/puzzle_games.php
 5cea32bd588637a373de7e7f5f2eef866cffd5a6  includes/puzzles.php
 6a9790fcf001c5ed134031c3efc0489a8912b92c  includes/quests_view.php
 a0b15d02254c85c21c21ca486f1bbe068c467588  includes/rebuild.php
-5392c30d2622d92973bf5b3c64e28973c2a94e45  includes/region_layout.php
+0c04a8612380ca9ec2e510c4654828c932881fd5  includes/region_layout.php
 cc8951f657858df1330f5cbda5e0e7ed0f8bcce7  includes/residential.php
 f8f1d2de1c24b47ef3ba26f87e085c6fed83a534  includes/rewards.php
 94116719e387fb66642a26f94f818c7885614d93  includes/road_kinds.php

@@ -812,6 +812,10 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.46' => ['🗺️ Update 2.7.46: Blossomreach villages and fast travel',
+        "[list][*][b]Region map[/b]: Honeythorpe and Clovercove now show on the Blossomreach map.\n"
+        . "[*][b]Roads[/b]: the road that ends at Clovercove stops at its own region's edge on the world map, and the places beside it are drawn beside it.\n"
+        . "[*][b]Fast travel[/b]: \"Fast travel to ...\" is only offered when it really shortens the walk to where you are heading.[/list]"],
     '2.7.45' => ['🗺️ Update 2.7.45: a tidier map and a new road name',
         "[list][*][b]Map[/b]: villages and road stops now sit inside their own region, so The Maplewold's Cloverholt is no longer drawn beside Mistmoor. Crowded regions are spread out a little so places do not overlap.\n"
         . "[*][b]Roads[/b]: the road that ends at Clovercove is now called The Maplewold – Clovercove, because it never reaches Blossomreach.[/list]"],
