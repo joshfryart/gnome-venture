@@ -1,0 +1,16 @@
+robber-crab-baron-baron-crush|Baron Crush|hurt|bash|Robber Crab Baron|A robber crab in a stolen sash, barony self-declared. It takes the shiny thing and the fingers around it.
+robber-crab-baron-loot-snatch|Loot Snatch|hurt|quick|Robber Crab Baron|A robber crab in a stolen sash, barony self-declared. It takes the shiny thing and the fingers around it.
+robber-crab-baron-stolen-armour|Stolen Armour|guard|thorns|Robber Crab Baron|A robber crab in a stolen sash, barony self-declared. It takes the shiny thing and the fingers around it.
+robber-crab-baron-shiny-heist|Shiny Heist|trick|evade|Robber Crab Baron|A robber crab in a stolen sash, barony self-declared. It takes the shiny thing and the fingers around it.
+alligator-snapper-jaw-slam|Jaw Slam|hurt|bash|Alligator Snapper|A turtle that lies in the mud with its tongue out like a worm. It dozes between bites and wakes up cross.
+alligator-snapper-mud-doze|Mud Doze|heal|-|Alligator Snapper|A turtle that lies in the mud with its tongue out like a worm. It dozes between bites and wakes up cross.
+alligator-snapper-weedy-hide|Weedy Hide|guard|evade|Alligator Snapper|A turtle that lies in the mud with its tongue out like a worm. It dozes between bites and wakes up cross.
+alligator-snapper-pink-lure|Pink Lure|trick|quick|Alligator Snapper|A turtle that lies in the mud with its tongue out like a worm. It dozes between bites and wakes up cross.
+conger-brute-wreck-lunge|Wreck Lunge|hurt|pierce|Conger Brute|A huge grey eel that lives in a wrecked boat and has grown to fit it. The slime on it never seems to dry.
+conger-brute-slime-coat|Slime Coat|heal|-|Conger Brute|A huge grey eel that lives in a wrecked boat and has grown to fit it. The slime on it never seems to dry.
+conger-brute-wreck-hide|Wreck Hide|guard|thorns|Conger Brute|A huge grey eel that lives in a wrecked boat and has grown to fit it. The slime on it never seems to dry.
+conger-brute-hull-rake|Hull Rake|hurt|bash|Conger Brute|A huge grey eel that lives in a wrecked boat and has grown to fit it. The slime on it never seems to dry.
+red-stag-autumn-rut|Autumn Rut|hurt|-|Red Stag|A red stag in the autumn rut with antlers like a garden gate. The whole wood stops to watch it.
+red-stag-tine-hook|Tine Hook|hurt|trip|Red Stag|A red stag in the autumn rut with antlers like a garden gate. The whole wood stops to watch it.
+red-stag-bracken-dodge|Bracken Dodge|guard|evade|Red Stag|A red stag in the autumn rut with antlers like a garden gate. The whole wood stops to watch it.
+red-stag-rut-call|Rut Call|trick|trip|Red Stag|A red stag in the autumn rut with antlers like a garden gate. The whole wood stops to watch it.

@@ -1,0 +1,16 @@
+golden-mole-sand-swim|Sand Swim|hurt|pierce|Golden Mole|Swims through loose sand like water, blind and unbothered, and comes up exactly where your boot is.
+golden-mole-velvet-rest|Velvet Rest|heal|-|Golden Mole|Swims through loose sand like water, blind and unbothered, and comes up exactly where your boot is.
+golden-mole-dune-dive|Dune Dive|guard|evade|Golden Mole|Swims through loose sand like water, blind and unbothered, and comes up exactly where your boot is.
+golden-mole-sightless-lunge|Sightless Lunge|hurt|quick|Golden Mole|Swims through loose sand like water, blind and unbothered, and comes up exactly where your boot is.
+raven-pair-wing-block|Wing Block|guard|hold|Raven Pair|Two ravens on a crag, one watching you while the other watches the watching one. They talk about you.
+raven-pair-pair-peck|Pair Peck|hurt|bash|Raven Pair|Two ravens on a crag, one watching you while the other watches the watching one. They talk about you.
+raven-pair-croak-sign|Croak Sign|trick|thorns|Raven Pair|Two ravens on a crag, one watching you while the other watches the watching one. They talk about you.
+raven-pair-two-voices|Two Voices|trick|trip|Raven Pair|Two ravens on a crag, one watching you while the other watches the watching one. They talk about you.
+jungle-crow-canopy-caw|Canopy Caw|hurt|-|Jungle Crow|A big glossy crow that lives on fallen fruit and the sins of monkeys. It eats well and heals fast.
+jungle-crow-fruit-feast|Fruit Feast|heal|-|Jungle Crow|A big glossy crow that lives on fallen fruit and the sins of monkeys. It eats well and heals fast.
+jungle-crow-leaf-mantle|Leaf Mantle|guard|evade|Jungle Crow|A big glossy crow that lives on fallen fruit and the sins of monkeys. It eats well and heals fast.
+jungle-crow-bill-snatch|Bill Snatch|hurt|pierce|Jungle Crow|A big glossy crow that lives on fallen fruit and the sins of monkeys. It eats well and heals fast.
+tern-squadron-dive-strike|Dive Strike|hurt|pierce|Tern Squadron|A squadron of terns stoops from nowhere, one after another, aimed at your head. They are annoyed at the idea of you.
+tern-squadron-wing-wheel|Wing Wheel|trick|evade|Tern Squadron|A squadron of terns stoops from nowhere, one after another, aimed at your head. They are annoyed at the idea of you.
+tern-squadron-fish-snatch|Fish Snatch|hurt|bash|Tern Squadron|A squadron of terns stoops from nowhere, one after another, aimed at your head. They are annoyed at the idea of you.
+tern-squadron-fly-past-cut|Fly Past Cut|hurt|trip|Tern Squadron|A squadron of terns stoops from nowhere, one after another, aimed at your head. They are annoyed at the idea of you.

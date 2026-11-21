@@ -1,0 +1,16 @@
+willow-grouse-covey-covey-flush|Covey Flush|hurt|quick|Willow Grouse Covey|Round russet birds that sit tight in the willow scrub until you are too close, then go up all at once.
+willow-grouse-covey-wing-whirr|Wing Whirr|hurt|quick|Willow Grouse Covey|Round russet birds that sit tight in the willow scrub until you are too close, then go up all at once.
+willow-grouse-covey-willow-hide|Willow Hide|guard|thorns|Willow Grouse Covey|Round russet birds that sit tight in the willow scrub until you are too close, then go up all at once.
+willow-grouse-covey-sit-tight|Sit Tight|guard|hold|Willow Grouse Covey|Round russet birds that sit tight in the willow scrub until you are too close, then go up all at once.
+garfish-scale-plate|Scale Plate|guard|hold|Garfish|A long green-boned fish with a beak of needles, armoured in scale plate. It leaps from the water at anything shiny.
+garfish-needle-cover|Needle Cover|guard|thorns|Garfish|A long green-boned fish with a beak of needles, armoured in scale plate. It leaps from the water at anything shiny.
+garfish-needle-jab|Needle Jab|hurt|pierce|Garfish|A long green-boned fish with a beak of needles, armoured in scale plate. It leaps from the water at anything shiny.
+garfish-glint-leap|Glint Leap|hurt|pierce|Garfish|A long green-boned fish with a beak of needles, armoured in scale plate. It leaps from the water at anything shiny.
+thorny-devil-spike-nip|Spike Nip|hurt|pierce|Thorny Devil|A lizard covered in spikes that drinks dew with its skin and eats ants by the thousand. It is a very small dragon.
+thorny-devil-dew-drink|Dew Drink|heal|-|Thorny Devil|A lizard covered in spikes that drinks dew with its skin and eats ants by the thousand. It is a very small dragon.
+thorny-devil-spike-hide|Spike Hide|guard|thorns|Thorny Devil|A lizard covered in spikes that drinks dew with its skin and eats ants by the thousand. It is a very small dragon.
+thorny-devil-dew-skin|Dew Skin|heal|-|Thorny Devil|A lizard covered in spikes that drinks dew with its skin and eats ants by the thousand. It is a very small dragon.
+beaded-lizard-bead-flash|Bead Flash|guard|evade|Beaded Lizard|A heavy lizard in beads of black and orange. It chews its venom into the bite, slowly, and does not let go.
+beaded-lizard-dodge-roll|Dodge Roll|trick|evade|Beaded Lizard|A heavy lizard in beads of black and orange. It chews its venom into the bite, slowly, and does not let go.
+beaded-lizard-venom-chew|Venom Chew|hurt|poison|Beaded Lizard|A heavy lizard in beads of black and orange. It chews its venom into the bite, slowly, and does not let go.
+beaded-lizard-won-t-let-go|Won't Let Go|hurt|poison|Beaded Lizard|A heavy lizard in beads of black and orange. It chews its venom into the bite, slowly, and does not let go.

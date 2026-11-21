@@ -1,0 +1,16 @@
+night-heron-night-stab|Night Stab|hurt|pierce|Night Heron|A stout, hunched heron that waits all night on one leg. Its single stab is the whole plan.
+night-heron-stalk-still|Stalk Still|trick|evade|Night Heron|A stout, hunched heron that waits all night on one leg. Its single stab is the whole plan.
+night-heron-hooded-wing|Hooded Wing|guard|-|Night Heron|A stout, hunched heron that waits all night on one leg. Its single stab is the whole plan.
+night-heron-gulp-whole|Gulp Whole|hurt|trip|Night Heron|A stout, hunched heron that waits all night on one leg. Its single stab is the whole plan.
+egret-flock-spear-jab|Spear Jab|hurt|pierce|Egret Flock|Snow-white birds that follow the cattle, stepping where the grass is short and striking where a gnome is standing.
+egret-flock-flock-stab|Flock Stab|hurt|pierce|Egret Flock|Snow-white birds that follow the cattle, stepping where the grass is short and striking where a gnome is standing.
+egret-flock-white-wing-screen|White Wing Screen|guard|evade|Egret Flock|Snow-white birds that follow the cattle, stepping where the grass is short and striking where a gnome is standing.
+egret-flock-stepping-stride|Stepping Stride|trick|quick|Egret Flock|Snow-white birds that follow the cattle, stepping where the grass is short and striking where a gnome is standing.
+macaque-troop-troop-shove|Troop Shove|hurt|bash|Macaque Troop|A noisy, quick-fingered troop on the mountain slopes, with an elder who shoves you out of the way first.
+macaque-troop-cheek-dump|Cheek Dump|trick|bash|Macaque Troop|A noisy, quick-fingered troop on the mountain slopes, with an elder who shoves you out of the way first.
+macaque-troop-troop-huddle|Troop Huddle|guard|hold|Macaque Troop|A noisy, quick-fingered troop on the mountain slopes, with an elder who shoves you out of the way first.
+macaque-troop-quick-fingers|Quick Fingers|hurt|quick|Macaque Troop|A noisy, quick-fingered troop on the mountain slopes, with an elder who shoves you out of the way first.
+tanuki-belly-drum|Belly Drum|trick|trip|Tanuki|A round, whiskered forager that disguises itself as a stump, a kettle or a gnome. Its belly makes a lovely drum.
+tanuki-leaf-disguise|Leaf Disguise|guard|evade|Tanuki|A round, whiskered forager that disguises itself as a stump, a kettle or a gnome. Its belly makes a lovely drum.
+tanuki-rolling-barge|Rolling Barge|hurt|bash|Tanuki|A round, whiskered forager that disguises itself as a stump, a kettle or a gnome. Its belly makes a lovely drum.
+tanuki-stump-pose|Stump Pose|guard|hold|Tanuki|A round, whiskered forager that disguises itself as a stump, a kettle or a gnome. Its belly makes a lovely drum.

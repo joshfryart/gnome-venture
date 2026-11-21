@@ -1,0 +1,16 @@
+tufted-lynx-ear-twitch|Ear Twitch|trick|evade|tufted-lynx|
+tufted-lynx-lynx-spring|Lynx Spring|hurt|-|tufted-lynx|
+tufted-lynx-hook-claw|Hook Claw|hurt|pierce|tufted-lynx|
+tufted-lynx-surprise-pounce|Surprise Pounce|hurt|quick|tufted-lynx|
+clam-lurker-clamp|Clamp|hurt|trip|clam-lurker|
+clam-lurker-shut-tight|Shut Tight|guard|hold|clam-lurker|
+clam-lurker-pearl-glint|Pearl Glint|trick|-|clam-lurker|
+clam-lurker-clam-undertow|Clam Undertow|trick|trip|clam-lurker|
+giant-clam-slam-shut|Slam Shut|hurt|pierce|Giant Clam|A clam the size of a cart, lying open in the shallows like a friendly smile. It shuts without any warning at all.
+giant-clam-pearl-blind|Pearl Blind|trick|evade|Giant Clam|A clam the size of a cart, lying open in the shallows like a friendly smile. It shuts without any warning at all.
+giant-clam-shell-wall|Shell Wall|guard|hold|Giant Clam|A clam the size of a cart, lying open in the shallows like a friendly smile. It shuts without any warning at all.
+giant-clam-sudden-shut|Sudden Shut|hurt|quick|Giant Clam|A clam the size of a cart, lying open in the shallows like a friendly smile. It shuts without any warning at all.
+desert-tortoise-shell-in|Shell In|guard|hold|desert-tortoise|
+desert-tortoise-beak-nip|Beak Nip|hurt|-|desert-tortoise|
+desert-tortoise-dig-down|Dig Down|trick|evade|desert-tortoise|
+desert-tortoise-desert-long-patience|Desert Long Patience|heal|-|desert-tortoise|

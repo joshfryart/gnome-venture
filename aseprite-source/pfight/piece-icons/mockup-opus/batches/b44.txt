@@ -1,0 +1,16 @@
+roebuck-antler-lock|Antler Lock|guard|hold|Roebuck|Slim and russet, with short sharp antlers, shoving through the bracken. Autumn makes him pushier.
+roebuck-buck-charge|Buck Charge|hurt|bash|Roebuck|Slim and russet, with short sharp antlers, shoving through the bracken. Autumn makes him pushier.
+roebuck-bracken-stomp|Bracken Stomp|trick|thorns|Roebuck|Slim and russet, with short sharp antlers, shoving through the bracken. Autumn makes him pushier.
+roebuck-rut-rush|Rut Rush|hurt|pierce|Roebuck|Slim and russet, with short sharp antlers, shoving through the bracken. Autumn makes him pushier.
+croc-hatchling-scatter-hatchling-nip|Hatchling Nip|hurt|poison|Croc Hatchling Scatter|A dozen cross hatchlings that break from the mud together, each trying to bite a different gnome.
+croc-hatchling-scatter-mud-spit|Mud Spit|trick|poison|Croc Hatchling Scatter|A dozen cross hatchlings that break from the mud together, each trying to bite a different gnome.
+croc-hatchling-scatter-scatter-slip|Scatter Slip|guard|evade|Croc Hatchling Scatter|A dozen cross hatchlings that break from the mud together, each trying to bite a different gnome.
+croc-hatchling-scatter-dozen-bites|Dozen Bites|hurt|quick|Croc Hatchling Scatter|A dozen cross hatchlings that break from the mud together, each trying to bite a different gnome.
+fishing-cat-wet-plate|Wet Plate|guard|hold|Fishing Cat|Spotted and stocky, it wades in and scoops fish by hand. A gnome is a fish with opinions.
+fishing-cat-fur-shake|Fur Shake|guard|evade|Fishing Cat|Spotted and stocky, it wades in and scoops fish by hand. A gnome is a fish with opinions.
+fishing-cat-paw-flick|Paw Flick|hurt|pierce|Fishing Cat|Spotted and stocky, it wades in and scoops fish by hand. A gnome is a fish with opinions.
+fishing-cat-scoop-grab|Scoop Grab|trick|trip|Fishing Cat|Spotted and stocky, it wades in and scoops fish by hand. A gnome is a fish with opinions.
+tree-monitor-branch-lash|Branch Lash|hurt|trip|Tree Monitor|Lives high in the branches and drops on its dinner from above. Keep one eye up.
+tree-monitor-bark-blend|Bark Blend|guard|evade|Tree Monitor|Lives high in the branches and drops on its dinner from above. Keep one eye up.
+tree-monitor-venom-drip|Venom Drip|trick|poison|Tree Monitor|Lives high in the branches and drops on its dinner from above. Keep one eye up.
+tree-monitor-monitor-canopy-drop|Monitor Canopy Drop|hurt|quick|Tree Monitor|Lives high in the branches and drops on its dinner from above. Keep one eye up.

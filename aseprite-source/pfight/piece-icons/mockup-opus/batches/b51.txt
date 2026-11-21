@@ -1,0 +1,16 @@
+giant-banded-snail-banded-slam|Banded Slam|hurt|bash|Giant Banded Snail|A snail with a shell like a striped barrel. It rolls over the leaf litter and expects the leaf litter to move.
+giant-banded-snail-shell-spiral|Shell Spiral|guard|evade|Giant Banded Snail|A snail with a shell like a striped barrel. It rolls over the leaf litter and expects the leaf litter to move.
+giant-banded-snail-slime-sheet|Slime Sheet|trick|trip|Giant Banded Snail|A snail with a shell like a striped barrel. It rolls over the leaf litter and expects the leaf litter to move.
+giant-banded-snail-striped-roll|Striped Roll|hurt|-|Giant Banded Snail|A snail with a shell like a striped barrel. It rolls over the leaf litter and expects the leaf litter to move.
+fire-ant-raiders-fire-sting|Fire Sting|hurt|poison|Fire Ant Raiders|Red ants that march in a line and burn where they bite. They raid whatever smells of sugar, and that includes gnomes.
+fire-ant-raiders-ankle-tangle|Ankle Tangle|trick|trip|Fire Ant Raiders|Red ants that march in a line and burn where they bite. They raid whatever smells of sugar, and that includes gnomes.
+fire-ant-raiders-raider-rush|Raider Rush|hurt|trip|Fire Ant Raiders|Red ants that march in a line and burn where they bite. They raid whatever smells of sugar, and that includes gnomes.
+fire-ant-raiders-sugar-trail|Sugar Trail|trick|quick|Fire Ant Raiders|Red ants that march in a line and burn where they bite. They raid whatever smells of sugar, and that includes gnomes.
+army-ant-column-column-wall|Column Wall|guard|evade|Army Ant Column|A river of ants with no nest and no manners. The column goes round the obstacle, or over it, or over you.
+army-ant-column-flank-slip|Flank Slip|trick|evade|Army Ant Column|A river of ants with no nest and no manners. The column goes round the obstacle, or over it, or over you.
+army-ant-column-mandible-wave|Mandible Wave|hurt|bash|Army Ant Column|A river of ants with no nest and no manners. The column goes round the obstacle, or over it, or over you.
+army-ant-column-endless-file|Endless File|guard|hold|Army Ant Column|A river of ants with no nest and no manners. The column goes round the obstacle, or over it, or over you.
+sandfly-cloud-sand-bite|Sand Bite|hurt|-|Sandfly Cloud|Biters of the shoreline at dawn and dusk. They sip a little blood and look better for it.
+sandfly-cloud-blood-meal|Blood Meal|heal|-|Sandfly Cloud|Biters of the shoreline at dawn and dusk. They sip a little blood and look better for it.
+sandfly-cloud-salt-haze|Salt Haze|guard|-|Sandfly Cloud|Biters of the shoreline at dawn and dusk. They sip a little blood and look better for it.
+sandfly-cloud-pinprick-dusk|Pinprick Dusk|hurt|pierce|Sandfly Cloud|Biters of the shoreline at dawn and dusk. They sip a little blood and look better for it.

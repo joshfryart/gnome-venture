@@ -1,0 +1,16 @@
+mosquito-storm-whine-strike|Whine Strike|hurt|poison|Mosquito Storm|A roaring grey cloud that rises off the standing water after rain. Every gnome nearby takes it personally.
+mosquito-storm-cloud-screen|Cloud Screen|guard|hold|Mosquito Storm|A roaring grey cloud that rises off the standing water after rain. Every gnome nearby takes it personally.
+mosquito-storm-hover-drone|Hover Drone|trick|evade|Mosquito Storm|A roaring grey cloud that rises off the standing water after rain. Every gnome nearby takes it personally.
+mosquito-storm-rain-drink|Rain Drink|heal|-|Mosquito Storm|A roaring grey cloud that rises off the standing water after rain. Every gnome nearby takes it personally.
+banana-slug-slime-spit|Slime Spit|hurt|poison|Banana Slug|Bright yellow and as long as a boot. It smells of fruit and rot at once, and its slime stings.
+banana-slug-toxic-trail|Toxic Trail|trick|poison|Banana Slug|Bright yellow and as long as a boot. It smells of fruit and rot at once, and its slime stings.
+banana-slug-sunny-streak|Sunny Streak|hurt|quick|Banana Slug|Bright yellow and as long as a boot. It smells of fruit and rot at once, and its slime stings.
+banana-slug-sting-slime-coat|Sting Slime Coat|guard|thorns|Banana Slug|Bright yellow and as long as a boot. It smells of fruit and rot at once, and its slime stings.
+sea-slug-drift-frill-flick|Frill Flick|hurt|quick|Sea Slug Drift|A jewel-bright shell-less slug that drifts in at the tide line, stinging with whatever it ate last.
+sea-slug-drift-spit-flash|Spit Flash|trick|quick|Sea Slug Drift|A jewel-bright shell-less slug that drifts in at the tide line, stinging with whatever it ate last.
+sea-slug-drift-cloak-frill|Cloak Frill|guard|evade|Sea Slug Drift|A jewel-bright shell-less slug that drifts in at the tide line, stinging with whatever it ate last.
+sea-slug-drift-drift-sting|Drift Sting|trick|poison|Sea Slug Drift|A jewel-bright shell-less slug that drifts in at the tide line, stinging with whatever it ate last.
+kelp-fly-swarm-wrack-buzz|Wrack Buzz|hurt|quick|Kelp Fly Swarm|They breed in rotting kelp and rise in a swirl whenever a boot comes near. The smell goes with them.
+kelp-fly-swarm-whirl-round|Whirl Round|trick|quick|Kelp Fly Swarm|They breed in rotting kelp and rise in a swirl whenever a boot comes near. The smell goes with them.
+kelp-fly-swarm-rot-veil|Rot Veil|guard|thorns|Kelp Fly Swarm|They breed in rotting kelp and rise in a swirl whenever a boot comes near. The smell goes with them.
+kelp-fly-swarm-rot-stink|Rot Stink|trick|poison|Kelp Fly Swarm|They breed in rotting kelp and rise in a swirl whenever a boot comes near. The smell goes with them.

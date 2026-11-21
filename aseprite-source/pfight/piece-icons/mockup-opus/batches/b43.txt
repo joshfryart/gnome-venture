@@ -1,0 +1,16 @@
+bramble-pup-pack-thorn-coat|Thorn Coat|guard|thorns|Bramble Pup Pack|Pups with burrs in their fur, tumbling downhill after you. Sweet until their mother is mentioned.
+bramble-pup-pack-pup-bite|Pup Bite|hurt|-|Bramble Pup Pack|Pups with burrs in their fur, tumbling downhill after you. Sweet until their mother is mentioned.
+bramble-pup-pack-brush-cover|Brush Cover|guard|hold|Bramble Pup Pack|Pups with burrs in their fur, tumbling downhill after you. Sweet until their mother is mentioned.
+bramble-pup-pack-burr-tumble|Burr Tumble|trick|thorns|Bramble Pup Pack|Pups with burrs in their fur, tumbling downhill after you. Sweet until their mother is mentioned.
+thorn-jackal-scrub-lick|Scrub Lick|heal|-|Thorn Jackal|A rangy jackal with acacia thorns tangled in its coat and a long patience for the weak.
+thorn-jackal-thorn-snap|Thorn Snap|hurt|pierce|Thorn Jackal|A rangy jackal with acacia thorns tangled in its coat and a long patience for the weak.
+thorn-jackal-cactus-dodge|Cactus Dodge|guard|evade|Thorn Jackal|A rangy jackal with acacia thorns tangled in its coat and a long patience for the weak.
+thorn-jackal-long-patience|Long Patience|guard|hold|Thorn Jackal|A rangy jackal with acacia thorns tangled in its coat and a long patience for the weak.
+kestrel-hoverer-hover-drop|Hover Drop|hurt|pierce|Kestrel Hoverer|Hangs on the wind with its tail fanned, perfectly still, and then ceases to be still all at once.
+kestrel-hoverer-hang-still|Hang Still|trick|evade|Kestrel Hoverer|Hangs on the wind with its tail fanned, perfectly still, and then ceases to be still all at once.
+kestrel-hoverer-wing-brace|Wing Brace|guard|-|Kestrel Hoverer|Hangs on the wind with its tail fanned, perfectly still, and then ceases to be still all at once.
+kestrel-hoverer-wind-stoop|Wind Stoop|hurt|quick|Kestrel Hoverer|Hangs on the wind with its tail fanned, perfectly still, and then ceases to be still all at once.
+snapper-hatchling-bask-hatchling-snap|Hatchling Snap|hurt|-|Snapper Hatchling Bask|A snapper the size of a walnut, warming on a log. Not much of a bite yet. It needs only one.
+snapper-hatchling-bask-basking-log|Basking Log|guard|hold|Snapper Hatchling Bask|A snapper the size of a walnut, warming on a log. Not much of a bite yet. It needs only one.
+snapper-hatchling-bask-mud-stir|Mud Stir|trick|poison|Snapper Hatchling Bask|A snapper the size of a walnut, warming on a log. Not much of a bite yet. It needs only one.
+snapper-hatchling-bask-egg-tooth|Egg Tooth|hurt|pierce|Snapper Hatchling Bask|A snapper the size of a walnut, warming on a log. Not much of a bite yet. It needs only one.

@@ -1,0 +1,16 @@
+midge-cloud-haze-wall|Haze Wall|guard|thorns|Midge Cloud|Hangs over the stream in a haze thick enough to hide behind. It makes a poor wall, but a very determined one.
+midge-cloud-biting-haze|Biting Haze|hurt|pierce|Midge Cloud|Hangs over the stream in a haze thick enough to hide behind. It makes a poor wall, but a very determined one.
+midge-cloud-midge-nip|Midge Nip|hurt|quick|Midge Cloud|Hangs over the stream in a haze thick enough to hide behind. It makes a poor wall, but a very determined one.
+midge-cloud-mist-pocket|Mist Pocket|trick|thorns|Midge Cloud|Hangs over the stream in a haze thick enough to hide behind. It makes a poor wall, but a very determined one.
+ghost-slug-glow-ooze|Glow Ooze|heal|-|Ghost Slug|Colourless and faintly lit, it drifts through cave mouths at night like a puddle that has changed its mind.
+ghost-slug-pale-sheen|Pale Sheen|guard|evade|Ghost Slug|Colourless and faintly lit, it drifts through cave mouths at night like a puddle that has changed its mind.
+ghost-slug-cold-lunge|Cold Lunge|hurt|trip|Ghost Slug|Colourless and faintly lit, it drifts through cave mouths at night like a puddle that has changed its mind.
+ghost-slug-drift-veil|Drift Veil|trick|evade|Ghost Slug|Colourless and faintly lit, it drifts through cave mouths at night like a puddle that has changed its mind.
+dawn-skipper-flutter-wing-snag|Wing Snag|hurt|trip|Dawn Skipper Flutter|A stubby golden butterfly that bounces from thistle to thistle at dawn and gets under everyone's feet.
+dawn-skipper-flutter-dewy-tangle|Dewy Tangle|trick|trip|Dawn Skipper Flutter|A stubby golden butterfly that bounces from thistle to thistle at dawn and gets under everyone's feet.
+dawn-skipper-flutter-flit-away|Flit Away|guard|evade|Dawn Skipper Flutter|A stubby golden butterfly that bounces from thistle to thistle at dawn and gets under everyone's feet.
+dawn-skipper-flutter-dawn-dash|Dawn Dash|hurt|quick|Dawn Skipper Flutter|A stubby golden butterfly that bounces from thistle to thistle at dawn and gets under everyone's feet.
+luna-moth-moon-veil|Moon Veil|guard|evade|Luna Moth|A moth with wings like a table-mat, pale as milk, trailing long tails that wave like lantern ribbons.
+luna-moth-trailing-tails|Trailing Tails|trick|evade|Luna Moth|A moth with wings like a table-mat, pale as milk, trailing long tails that wave like lantern ribbons.
+luna-moth-wing-buffet|Wing Buffet|hurt|bash|Luna Moth|A moth with wings like a table-mat, pale as milk, trailing long tails that wave like lantern ribbons.
+luna-moth-lunar-hush|Lunar Hush|guard|hold|Luna Moth|A moth with wings like a table-mat, pale as milk, trailing long tails that wave like lantern ribbons.

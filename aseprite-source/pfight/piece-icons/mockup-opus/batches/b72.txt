@@ -1,0 +1,16 @@
+weaver-ant-nest-silk-nip|Silk Nip|hurt|trip|Weaver Ant Nest|Green ants that stitch leaves into a nest with their own larvae as thread. A nest is a hall of clever horrors.
+weaver-ant-nest-brood-tending|Brood Tending|heal|-|Weaver Ant Nest|Green ants that stitch leaves into a nest with their own larvae as thread. A nest is a hall of clever horrors.
+weaver-ant-nest-leaf-weave|Leaf Weave|guard|thorns|Weaver Ant Nest|Green ants that stitch leaves into a nest with their own larvae as thread. A nest is a hall of clever horrors.
+weaver-ant-nest-larva-thread|Larva Thread|trick|quick|Weaver Ant Nest|Green ants that stitch leaves into a nest with their own larvae as thread. A nest is a hall of clever horrors.
+ptarmigan-flock-snow-flurry|Snow Flurry|hurt|quick|ptarmigan-flock|
+ptarmigan-flock-huddle|Huddle|guard|hold|ptarmigan-flock|
+ptarmigan-flock-burst-up|Burst Up|trick|evade|ptarmigan-flock|
+ptarmigan-flock-white-scatter|White Scatter|guard|evade|ptarmigan-flock|
+snow-bunting-flurry-flurry-burst|Flurry Burst|hurt|pierce|Snow Bunting Flurry|A flock of little white birds that rise from the snow all at once, in a flurry that does not blow away.
+snow-bunting-flurry-snow-fan|Snow Fan|trick|bash|Snow Bunting Flurry|A flock of little white birds that rise from the snow all at once, in a flurry that does not blow away.
+snow-bunting-flurry-feather-wrap|Feather Wrap|guard|evade|Snow Bunting Flurry|A flock of little white birds that rise from the snow all at once, in a flurry that does not blow away.
+snow-bunting-flurry-snowfall-hold|Snowfall Hold|guard|hold|Snow Bunting Flurry|A flock of little white birds that rise from the snow all at once, in a flurry that does not blow away.
+rock-partridge-covey-rock-peck|Rock Peck|hurt|pierce|Rock Partridge Covey|A covey of grey partridges that run uphill instead of flying. They are hard to catch, and harder to shake off.
+rock-partridge-covey-scrape-jab|Scrape Jab|hurt|pierce|Rock Partridge Covey|A covey of grey partridges that run uphill instead of flying. They are hard to catch, and harder to shake off.
+rock-partridge-covey-covey-huddle|Covey Huddle|guard|thorns|Rock Partridge Covey|A covey of grey partridges that run uphill instead of flying. They are hard to catch, and harder to shake off.
+rock-partridge-covey-uphill-charge|Uphill Charge|hurt|pierce|Rock Partridge Covey|A covey of grey partridges that run uphill instead of flying. They are hard to catch, and harder to shake off.

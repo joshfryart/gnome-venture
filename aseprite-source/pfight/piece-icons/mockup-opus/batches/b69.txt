@@ -1,0 +1,16 @@
+garden-eel-colony-burrow-wall|Burrow Wall|guard|hold|Garden Eel Colony|Eels that stand up out of the sand like a meadow of stems. Walk through and the meadow bites.
+garden-eel-colony-pop-out|Pop Out|hurt|bash|Garden Eel Colony|Eels that stand up out of the sand like a meadow of stems. Walk through and the meadow bites.
+garden-eel-colony-sway-cover|Sway Cover|guard|thorns|Garden Eel Colony|Eels that stand up out of the sand like a meadow of stems. Walk through and the meadow bites.
+garden-eel-colony-sway-row|Sway Row|guard|thorns|Garden Eel Colony|Eels that stand up out of the sand like a meadow of stems. Walk through and the meadow bites.
+dingo-pup-pack-pup-huddle|Pup Huddle|guard|hold|Dingo Pup Pack|Dingo pups at the den mouth. They bark and nip and wait for the adults, who are not far.
+dingo-pup-pack-den-guard|Den Guard|guard|evade|Dingo Pup Pack|Dingo pups at the den mouth. They bark and nip and wait for the adults, who are not far.
+dingo-pup-pack-pup-nip|Pup Nip|hurt|trip|Dingo Pup Pack|Dingo pups at the den mouth. They bark and nip and wait for the adults, who are not far.
+dingo-pup-pack-adult-call|Adult Call|trick|quick|Dingo Pup Pack|Dingo pups at the den mouth. They bark and nip and wait for the adults, who are not far.
+blue-ring-octopus-ring-flash|Ring Flash|hurt|trip|Blue-ring Octopus|A little octopus no bigger than a fist, pale until it is cross, and then ringed in electric blue. Do not pick it up.
+blue-ring-octopus-pin-prick|Pin Prick|hurt|poison|Blue-ring Octopus|A little octopus no bigger than a fist, pale until it is cross, and then ringed in electric blue. Do not pick it up.
+blue-ring-octopus-tentacle-tangle|Tentacle Tangle|trick|trip|Blue-ring Octopus|A little octopus no bigger than a fist, pale until it is cross, and then ringed in electric blue. Do not pick it up.
+blue-ring-octopus-angry-blue|Angry Blue|hurt|poison|Blue-ring Octopus|A little octopus no bigger than a fist, pale until it is cross, and then ringed in electric blue. Do not pick it up.
+hermit-crab-convoy-shell-line|Shell Line|guard|thorns|Hermit Crab Convoy|A line of hermit crabs in borrowed shells, moving along the shore to a better address. Do not get in the queue.
+hermit-crab-convoy-convoy-bump|Convoy Bump|hurt|quick|Hermit Crab Convoy|A line of hermit crabs in borrowed shells, moving along the shore to a better address. Do not get in the queue.
+hermit-crab-convoy-spare-shell|Spare Shell|guard|evade|Hermit Crab Convoy|A line of hermit crabs in borrowed shells, moving along the shore to a better address. Do not get in the queue.
+hermit-crab-convoy-queue-jump|Queue Jump|hurt|trip|Hermit Crab Convoy|A line of hermit crabs in borrowed shells, moving along the shore to a better address. Do not get in the queue.

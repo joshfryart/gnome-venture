@@ -1,0 +1,16 @@
+saltmarsh-leech-salt-latch|Salt Latch|hurt|pierce|Saltmarsh Leech|A leech that thrives where the marsh meets the sea. The salt only seems to improve its mood.
+saltmarsh-leech-marsh-mend|Marsh Mend|heal|-|Saltmarsh Leech|A leech that thrives where the marsh meets the sea. The salt only seems to improve its mood.
+saltmarsh-leech-brine-slick|Brine Slick|guard|thorns|Saltmarsh Leech|A leech that thrives where the marsh meets the sea. The salt only seems to improve its mood.
+saltmarsh-leech-gorge-bite|Gorge Bite|hurt|bash|Saltmarsh Leech|A leech that thrives where the marsh meets the sea. The salt only seems to improve its mood.
+lemming-kit-scurry-furious-squeak|Furious Squeak|hurt|pierce|Lemming Kit Scurry|A pile of very small, very cross lemmings, each convinced it is the biggest thing in the snow.
+lemming-kit-scurry-burrow-curl|Burrow Curl|guard|hold|Lemming Kit Scurry|A pile of very small, very cross lemmings, each convinced it is the biggest thing in the snow.
+lemming-kit-scurry-tuft-throw|Tuft Throw|trick|bash|Lemming Kit Scurry|A pile of very small, very cross lemmings, each convinced it is the biggest thing in the snow.
+lemming-kit-scurry-kit-swarm-rush|Kit Swarm Rush|hurt|quick|Lemming Kit Scurry|A pile of very small, very cross lemmings, each convinced it is the biggest thing in the snow.
+pika-sentry-warning-whistle|Warning Whistle|trick|bash|Pika Sentry|A round little sentry on a scree slope. It whistles once to warn the rest, then throws things at you.
+pika-sentry-stone-pitch|Stone Pitch|hurt|bash|Pika Sentry|A round little sentry on a scree slope. It whistles once to warn the rest, then throws things at you.
+pika-sentry-hay-rampart|Hay Rampart|guard|thorns|Pika Sentry|A round little sentry on a scree slope. It whistles once to warn the rest, then throws things at you.
+pika-sentry-sentry-stand|Sentry Stand|guard|hold|Pika Sentry|A round little sentry on a scree slope. It whistles once to warn the rest, then throws things at you.
+marmot-bruiser-marmot-slam|Marmot Slam|hurt|-|Marmot Bruiser|A broad fat marmot that has eaten well all summer and is ready to prove it on the nearest gnome.
+marmot-bruiser-ground-shove|Ground Shove|hurt|trip|Marmot Bruiser|A broad fat marmot that has eaten well all summer and is ready to prove it on the nearest gnome.
+marmot-bruiser-whistle-warn|Whistle Warn|trick|evade|Marmot Bruiser|A broad fat marmot that has eaten well all summer and is ready to prove it on the nearest gnome.
+marmot-bruiser-fat-crush|Fat Crush|hurt|bash|Marmot Bruiser|A broad fat marmot that has eaten well all summer and is ready to prove it on the nearest gnome.

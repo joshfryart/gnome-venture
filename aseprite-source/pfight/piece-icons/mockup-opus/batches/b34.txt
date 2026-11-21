@@ -1,0 +1,16 @@
+fly-swarm-maggot-bite|Maggot Bite|hurt|poison|Fly Swarm|A bottle-green fly that lands on everything, including things it should not. Its bite is not clean.
+fly-swarm-rot-spit|Rot Spit|trick|poison|Fly Swarm|A bottle-green fly that lands on everything, including things it should not. Its bite is not clean.
+fly-swarm-buzz-strike|Buzz Strike|hurt|quick|Fly Swarm|A bottle-green fly that lands on everything, including things it should not. Its bite is not clean.
+fly-swarm-sticky-feet|Sticky Feet|trick|trip|Fly Swarm|A bottle-green fly that lands on everything, including things it should not. Its bite is not clean.
+mite-swarm-mite-prick|Mite Prick|hurt|quick|Mite Swarm|Red specks that boil off rotten bark and cover a gnome's boots before he sees them move.
+mite-swarm-scurry-rush|Scurry Rush|trick|quick|Mite Swarm|Red specks that boil off rotten bark and cover a gnome's boots before he sees them move.
+mite-swarm-dust-shell|Dust Shell|guard|thorns|Mite Swarm|Red specks that boil off rotten bark and cover a gnome's boots before he sees them move.
+mite-swarm-bark-salve|Bark Salve|heal|-|Mite Swarm|Red specks that boil off rotten bark and cover a gnome's boots before he sees them move.
+ramshorn-pond-snail-weed-munch|Weed Munch|heal|-|Ramshorn Pond Snail|A flat red snail that grazes pond weed and mends its scrapes on the lily pads, slowly and without fuss.
+ramshorn-pond-snail-fresh-slime|Fresh Slime|trick|heal|Ramshorn Pond Snail|A flat red snail that grazes pond weed and mends its scrapes on the lily pads, slowly and without fuss.
+ramshorn-pond-snail-coil-bump|Coil Bump|hurt|bash|Ramshorn Pond Snail|A flat red snail that grazes pond weed and mends its scrapes on the lily pads, slowly and without fuss.
+ramshorn-pond-snail-lily-slide|Lily Slide|trick|evade|Ramshorn Pond Snail|A flat red snail that grazes pond weed and mends its scrapes on the lily pads, slowly and without fuss.
+carpenter-ant-gang-mandible-clamp|Mandible Clamp|hurt|trip|Carpenter Ant Gang|Black wood-chewing ants that hollow a fallen oak into barracks and treat every gnome as a trespassing beetle.
+carpenter-ant-gang-bark-tunnel|Bark Tunnel|guard|hold|Carpenter Ant Gang|Black wood-chewing ants that hollow a fallen oak into barracks and treat every gnome as a trespassing beetle.
+carpenter-ant-gang-frass-kick|Frass Kick|trick|evade|Carpenter Ant Gang|Black wood-chewing ants that hollow a fallen oak into barracks and treat every gnome as a trespassing beetle.
+carpenter-ant-gang-hollow-stab|Hollow Stab|hurt|pierce|Carpenter Ant Gang|Black wood-chewing ants that hollow a fallen oak into barracks and treat every gnome as a trespassing beetle.

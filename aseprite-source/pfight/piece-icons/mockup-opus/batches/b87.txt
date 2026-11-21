@@ -1,0 +1,16 @@
+emperor-scorpion-pincer-clamp|Pincer Clamp|hurt|bash|Emperor Scorpion|A glossy black scorpion as long as a rowing boat. It is shy, and also very well armed.
+emperor-scorpion-stinger-arch|Stinger Arch|trick|poison|Emperor Scorpion|A glossy black scorpion as long as a rowing boat. It is shy, and also very well armed.
+emperor-scorpion-plate-fold|Plate Fold|guard|thorns|Emperor Scorpion|A glossy black scorpion as long as a rowing boat. It is shy, and also very well armed.
+emperor-scorpion-shy-scuttle|Shy Scuttle|trick|evade|Emperor Scorpion|A glossy black scorpion as long as a rowing boat. It is shy, and also very well armed.
+gorse-beast-gorse-flare|Gorse Flare|hurt|bash|Gorse Beast|A shaggy heap of gorse in full yellow bloom. It stands in the sun, mends itself, and waits for walkers.
+gorse-beast-sun-soak|Sun Soak|heal|-|Gorse Beast|A shaggy heap of gorse in full yellow bloom. It stands in the sun, mends itself, and waits for walkers.
+gorse-beast-golden-bloom|Golden Bloom|heal|-|Gorse Beast|A shaggy heap of gorse in full yellow bloom. It stands in the sun, mends itself, and waits for walkers.
+gorse-beast-prickly-hug|Prickly Hug|guard|thorns|Gorse Beast|A shaggy heap of gorse in full yellow bloom. It stands in the sun, mends itself, and waits for walkers.
+goliath-heron-fast-stab|Fast Stab|hurt|quick|Goliath Heron|A heron so tall it wades where gnomes would swim. It stands still for an hour, then stabs three times in a second.
+goliath-heron-gulp-catch|Gulp Catch|hurt|quick|Goliath Heron|A heron so tall it wades where gnomes would swim. It stands still for an hour, then stabs three times in a second.
+goliath-heron-shallow-stand|Shallow Stand|guard|hold|Goliath Heron|A heron so tall it wades where gnomes would swim. It stands still for an hour, then stabs three times in a second.
+goliath-heron-long-wait|Long Wait|heal|-|Goliath Heron|A heron so tall it wades where gnomes would swim. It stands still for an hour, then stabs three times in a second.
+mandrill-boss-mandrill-charge|Mandrill Charge|hurt|-|Mandrill Boss|A mandrill with a painted face and no sense of humour about it. Gnomes who laugh are the ones it remembers.
+mandrill-boss-fang-flash|Fang Flash|hurt|pierce|Mandrill Boss|A mandrill with a painted face and no sense of humour about it. Gnomes who laugh are the ones it remembers.
+mandrill-boss-chest-beat|Chest Beat|guard|thorns|Mandrill Boss|A mandrill with a painted face and no sense of humour about it. Gnomes who laugh are the ones it remembers.
+mandrill-boss-face-off|Face Off|trick|bash|Mandrill Boss|A mandrill with a painted face and no sense of humour about it. Gnomes who laugh are the ones it remembers.

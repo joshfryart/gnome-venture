@@ -1,0 +1,16 @@
+marsh-spark-swarm-spark-shell|Spark Shell|guard|hold|Marsh Spark Swarm|A scatter of tiny marsh lights that herd together overhead and take cover in one another when you reach.
+marsh-spark-swarm-mist-cover|Mist Cover|guard|hold|Marsh Spark Swarm|A scatter of tiny marsh lights that herd together overhead and take cover in one another when you reach.
+marsh-spark-swarm-spark-sting|Spark Sting|hurt|-|Marsh Spark Swarm|A scatter of tiny marsh lights that herd together overhead and take cover in one another when you reach.
+marsh-spark-swarm-blink-storm|Blink Storm|hurt|quick|Marsh Spark Swarm|A scatter of tiny marsh lights that herd together overhead and take cover in one another when you reach.
+foxfire-wisp-rot-glow|Rot Glow|hurt|poison|Foxfire Wisp|The green glow on a rotting stump that turns out to be moving. It lights the wood and trips the gnome.
+foxfire-wisp-glow-cap-shell|Glow Cap Shell|guard|hold|Foxfire Wisp|The green glow on a rotting stump that turns out to be moving. It lights the wood and trips the gnome.
+foxfire-wisp-spore-beckon|Spore Beckon|trick|evade|Foxfire Wisp|The green glow on a rotting stump that turns out to be moving. It lights the wood and trips the gnome.
+foxfire-wisp-stump-snare|Stump Snare|trick|trip|Foxfire Wisp|The green glow on a rotting stump that turns out to be moving. It lights the wood and trips the gnome.
+smooth-snake-coil-squeeze|Coil Squeeze|hurt|trip|Smooth Snake|A pale, harmless-looking snake that suns itself on warm stones. Harmless is the word everyone uses until it coils.
+smooth-snake-scale-slip|Scale Slip|guard|evade|Smooth Snake|A pale, harmless-looking snake that suns itself on warm stones. Harmless is the word everyone uses until it coils.
+smooth-snake-hiss-feint|Hiss Feint|trick|poison|Smooth Snake|A pale, harmless-looking snake that suns itself on warm stones. Harmless is the word everyone uses until it coils.
+smooth-snake-stone-sunning|Stone Sunning|heal|-|Smooth Snake|A pale, harmless-looking snake that suns itself on warm stones. Harmless is the word everyone uses until it coils.
+water-snake-water-snap|Water Snap|hurt|pierce|Water Snake|Olive and banded, it flows through reeds and wades in the shallows. It fishes, and you look like fishing.
+water-snake-tight-coil|Tight Coil|guard|hold|Water Snake|Olive and banded, it flows through reeds and wades in the shallows. It fishes, and you look like fishing.
+water-snake-bank-slide|Bank Slide|trick|bash|Water Snake|Olive and banded, it flows through reeds and wades in the shallows. It fishes, and you look like fishing.
+water-snake-reed-weave|Reed Weave|guard|evade|Water Snake|Olive and banded, it flows through reeds and wades in the shallows. It fishes, and you look like fishing.

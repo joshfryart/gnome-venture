@@ -1,0 +1,16 @@
+elder-tiger-elder-pounce|Elder Pounce|hurt|bash|Elder Tiger|A tiger with grey in its stripes and scars it has stopped counting. It always comes back for another go.
+elder-tiger-scar-lick|Scar Lick|heal|-|Elder Tiger|A tiger with grey in its stripes and scars it has stopped counting. It always comes back for another go.
+elder-tiger-stripe-veil|Stripe Veil|guard|thorns|Elder Tiger|A tiger with grey in its stripes and scars it has stopped counting. It always comes back for another go.
+elder-tiger-limp-feint|Limp Feint|trick|evade|Elder Tiger|A tiger with grey in its stripes and scars it has stopped counting. It always comes back for another go.
+ghost-leopard-fade-out|Fade Out|guard|evade|Ghost Leopard|A leopard so pale it is mostly rumour. Gnomes see a flicker of ice, then a very quick paw.
+ghost-leopard-ice-pelt|Ice Pelt|guard|thorns|Ghost Leopard|A leopard so pale it is mostly rumour. Gnomes see a flicker of ice, then a very quick paw.
+ghost-leopard-phantom-pounce|Phantom Pounce|hurt|quick|Ghost Leopard|A leopard so pale it is mostly rumour. Gnomes see a flicker of ice, then a very quick paw.
+ghost-leopard-flicker-step|Flicker Step|trick|evade|Ghost Leopard|A leopard so pale it is mostly rumour. Gnomes see a flicker of ice, then a very quick paw.
+mangrove-crab-emperor-imperial-claw|Imperial Claw|hurt|bash|Mangrove Crab Emperor|The crab king's grander cousin, crowned in mangrove roots and glad of the storm. It is in no hurry to leave the mud.
+mangrove-crab-emperor-brine-tonic|Brine Tonic|heal|-|Mangrove Crab Emperor|The crab king's grander cousin, crowned in mangrove roots and glad of the storm. It is in no hurry to leave the mud.
+mangrove-crab-emperor-root-cloak|Root Cloak|guard|thorns|Mangrove Crab Emperor|The crab king's grander cousin, crowned in mangrove roots and glad of the storm. It is in no hurry to leave the mud.
+mangrove-crab-emperor-shell-lock|Shell Lock|guard|hold|Mangrove Crab Emperor|The crab king's grander cousin, crowned in mangrove roots and glad of the storm. It is in no hurry to leave the mud.
+musk-ox-horn-boss|Horn Boss|hurt|bash|Musk Ox|A musk ox in a coat that sweeps the snow. It stands in a ring, horns out, and the ring is you.
+musk-ox-circle-up|Circle Up|trick|bash|Musk Ox|A musk ox in a coat that sweeps the snow. It stands in a ring, horns out, and the ring is you.
+musk-ox-qiviut-wall|Qiviut Wall|guard|thorns|Musk Ox|A musk ox in a coat that sweeps the snow. It stands in a ring, horns out, and the ring is you.
+musk-ox-wool-snag|Wool Snag|hurt|trip|Musk Ox|A musk ox in a coat that sweeps the snow. It stands in a ring, horns out, and the ring is you.

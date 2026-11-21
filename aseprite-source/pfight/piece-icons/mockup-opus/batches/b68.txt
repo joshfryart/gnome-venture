@@ -1,0 +1,16 @@
+mudskipper-troop-mud-flop|Mud Flop|hurt|trip|Mudskipper Troop|Fish that climb out of the mud on their fins and stare at you. Some of them walk away. Others do not.
+mudskipper-troop-skip-away|Skip Away|trick|evade|Mudskipper Troop|Fish that climb out of the mud on their fins and stare at you. Some of them walk away. Others do not.
+mudskipper-troop-mud-mound|Mud Mound|guard|hold|Mudskipper Troop|Fish that climb out of the mud on their fins and stare at you. Some of them walk away. Others do not.
+mudskipper-troop-stubborn-fin|Stubborn Fin|hurt|bash|Mudskipper Troop|Fish that climb out of the mud on their fins and stare at you. Some of them walk away. Others do not.
+horned-viper-horn-strike|Horn Strike|hurt|pierce|Horned Viper|A sand viper with two little horns over its eyes. It buries itself and waits, and has all day.
+horned-viper-sand-hide|Sand Hide|guard|hold|Horned Viper|A sand viper with two little horns over its eyes. It buries itself and waits, and has all day.
+horned-viper-rattle-warn|Rattle Warn|trick|poison|Horned Viper|A sand viper with two little horns over its eyes. It buries itself and waits, and has all day.
+horned-viper-buried-wait|Buried Wait|hurt|pierce|Horned Viper|A sand viper with two little horns over its eyes. It buries itself and waits, and has all day.
+rock-viper-ledge-wall|Ledge Wall|guard|hold|Rock Viper|A grey viper that lies on a ledge, looks exactly like the ledge, and bites exactly when the ledge is sat on.
+rock-viper-rock-fang|Rock Fang|hurt|bash|Rock Viper|A grey viper that lies on a ledge, looks exactly like the ledge, and bites exactly when the ledge is sat on.
+rock-viper-basking-heat|Basking Heat|trick|thorns|Rock Viper|A grey viper that lies on a ledge, looks exactly like the ledge, and bites exactly when the ledge is sat on.
+rock-viper-sat-upon|Sat Upon|hurt|bash|Rock Viper|A grey viper that lies on a ledge, looks exactly like the ledge, and bites exactly when the ledge is sat on.
+yak-calf-herd-shaggy-rush|Shaggy Rush|hurt|pierce|Yak Calf Herd|A herd of yak calves with more fur than sense and no one to tell them to stop.
+yak-calf-herd-herd-shuffle|Herd Shuffle|guard|evade|Yak Calf Herd|A herd of yak calves with more fur than sense and no one to tell them to stop.
+yak-calf-herd-bleat-call|Bleat Call|trick|trip|Yak Calf Herd|A herd of yak calves with more fur than sense and no one to tell them to stop.
+yak-calf-herd-nobody-stops|Nobody Stops|trick|bash|Yak Calf Herd|A herd of yak calves with more fur than sense and no one to tell them to stop.

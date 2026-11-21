@@ -1,0 +1,16 @@
+burrowing-owl-ground-strike|Ground Strike|hurt|pierce|Burrowing Owl|A long-legged owl in a hole in the ground. It bobs at you, then strikes before the bob ends.
+burrowing-owl-dust-spurt|Dust Spurt|hurt|pierce|Burrowing Owl|A long-legged owl in a hole in the ground. It bobs at you, then strikes before the bob ends.
+burrowing-owl-burrow-mouth|Burrow Mouth|guard|hold|Burrowing Owl|A long-legged owl in a hole in the ground. It bobs at you, then strikes before the bob ends.
+burrowing-owl-dawn-nod|Dawn Nod|trick|quick|Burrowing Owl|A long-legged owl in a hole in the ground. It bobs at you, then strikes before the bob ends.
+badger-cub-gang-burr-plate|Burr Plate|guard|thorns|Badger Cub Gang|Three half-grown badgers who were told to stay put and have decided to stay put on you.
+badger-cub-gang-cub-scrum|Cub Scrum|hurt|trip|Badger Cub Gang|Three half-grown badgers who were told to stay put and have decided to stay put on you.
+badger-cub-gang-mud-smear|Mud Smear|guard|evade|Badger Cub Gang|Three half-grown badgers who were told to stay put and have decided to stay put on you.
+badger-cub-gang-tumble-pile|Tumble Pile|hurt|bash|Badger Cub Gang|Three half-grown badgers who were told to stay put and have decided to stay put on you.
+natterjack-chorus-chorus-call|Chorus Call|trick|trip|Natterjack Chorus|A loud little toad that sings from the dune pools all night and does not mean it as a lullaby.
+natterjack-chorus-warty-slick|Warty Slick|guard|evade|Natterjack Chorus|A loud little toad that sings from the dune pools all night and does not mean it as a lullaby.
+natterjack-chorus-throat-burst|Throat Burst|hurt|poison|Natterjack Chorus|A loud little toad that sings from the dune pools all night and does not mean it as a lullaby.
+natterjack-chorus-lullaby-drone|Lullaby Drone|trick|evade|Natterjack Chorus|A loud little toad that sings from the dune pools all night and does not mean it as a lullaby.
+mud-crab-brawler-mud-mend|Mud Mend|heal|-|Mud Crab Brawler|A heavy-clawed mud crab that fights from the mire, not the beach, and mends between rounds.
+mud-crab-brawler-mud-crack|Mud Crack|hurt|trip|Mud Crab Brawler|A heavy-clawed mud crab that fights from the mire, not the beach, and mends between rounds.
+mud-crab-brawler-silt-cloak|Silt Cloak|guard|evade|Mud Crab Brawler|A heavy-clawed mud crab that fights from the mire, not the beach, and mends between rounds.
+mud-crab-brawler-mire-pinch|Mire Pinch|hurt|pierce|Mud Crab Brawler|A heavy-clawed mud crab that fights from the mire, not the beach, and mends between rounds.

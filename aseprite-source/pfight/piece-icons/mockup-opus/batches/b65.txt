@@ -1,0 +1,16 @@
+stink-badger-musk-spray|Musk Spray|hurt|poison|Stink Badger|A black-and-white nightwalker that sprays first and asks later. You will carry the answer on your boots for a week.
+stink-badger-sleep-off|Sleep Off|heal|-|Stink Badger|A black-and-white nightwalker that sprays first and asks later. You will carry the answer on your boots for a week.
+stink-badger-reek-hide|Reek Hide|guard|evade|Stink Badger|A black-and-white nightwalker that sprays first and asks later. You will carry the answer on your boots for a week.
+stink-badger-boot-stink|Boot Stink|trick|poison|Stink Badger|A black-and-white nightwalker that sprays first and asks later. You will carry the answer on your boots for a week.
+desert-spadefoot-spade-wall|Spade Wall|guard|hold|Desert Spadefoot|Sleeps under the sand for years and wakes with the first rain. Today there was rain, and a gnome.
+desert-spadefoot-dig-down-bash|Dig Down Bash|hurt|bash|Desert Spadefoot|Sleeps under the sand for years and wakes with the first rain. Today there was rain, and a gnome.
+desert-spadefoot-rain-croak|Rain Croak|trick|evade|Desert Spadefoot|Sleeps under the sand for years and wakes with the first rain. Today there was rain, and a gnome.
+desert-spadefoot-waking-rain|Waking Rain|heal|-|Desert Spadefoot|Sleeps under the sand for years and wakes with the first rain. Today there was rain, and a gnome.
+tide-crab-squire-squire-nip|Squire Nip|hurt|quick|Tide Crab Squire|A young crab learning to be a knight. It has not learnt to bow out of a fight.
+tide-crab-squire-sidle-pinch|Sidle Pinch|hurt|trip|Tide Crab Squire|A young crab learning to be a knight. It has not learnt to bow out of a fight.
+tide-crab-squire-shell-patch|Shell Patch|guard|hold|Tide Crab Squire|A young crab learning to be a knight. It has not learnt to bow out of a fight.
+tide-crab-squire-stubborn-pinch|Stubborn Pinch|hurt|bash|Tide Crab Squire|A young crab learning to be a knight. It has not learnt to bow out of a fight.
+palm-thief-crab-palm-husk-wall|Palm Husk Wall|guard|hold|Palm Thief Crab|Climbs the palm at dusk, takes what it fancies, and sits behind it. Its claws open a coconut and a gnome in one go.
+palm-thief-crab-coconut-cover|Coconut Cover|guard|hold|Palm Thief Crab|Climbs the palm at dusk, takes what it fancies, and sits behind it. Its claws open a coconut and a gnome in one go.
+palm-thief-crab-fruit-throw|Fruit Throw|hurt|bash|Palm Thief Crab|Climbs the palm at dusk, takes what it fancies, and sits behind it. Its claws open a coconut and a gnome in one go.
+palm-thief-crab-sly-fetch|Sly Fetch|trick|heal|Palm Thief Crab|Climbs the palm at dusk, takes what it fancies, and sits behind it. Its claws open a coconut and a gnome in one go.

@@ -1,0 +1,16 @@
+tundra-vole-swarm-vole-burst|Vole Burst|hurt|pierce|Tundra Vole Swarm|A heap of voles under the snow, running their tunnels in every direction. A gnome standing on the roof is a surprise.
+tundra-vole-swarm-runway-bolt|Runway Bolt|trick|quick|Tundra Vole Swarm|A heap of voles under the snow, running their tunnels in every direction. A gnome standing on the roof is a surprise.
+tundra-vole-swarm-grass-roof|Grass Roof|guard|thorns|Tundra Vole Swarm|A heap of voles under the snow, running their tunnels in every direction. A gnome standing on the roof is a surprise.
+tundra-vole-swarm-nest-rush|Nest Rush|hurt|quick|Tundra Vole Swarm|A heap of voles under the snow, running their tunnels in every direction. A gnome standing on the roof is a surprise.
+jaguar-cub-pair-cub-spring|Cub Spring|hurt|quick|Jaguar Cub Pair|Two spotted cubs learning to pounce on anything that moves, each other and your bootlaces included.
+jaguar-cub-pair-tail-chase|Tail Chase|trick|quick|Jaguar Cub Pair|Two spotted cubs learning to pounce on anything that moves, each other and your bootlaces included.
+jaguar-cub-pair-mud-roll|Mud Roll|guard|evade|Jaguar Cub Pair|Two spotted cubs learning to pounce on anything that moves, each other and your bootlaces included.
+jaguar-cub-pair-lace-grab|Lace Grab|hurt|trip|Jaguar Cub Pair|Two spotted cubs learning to pounce on anything that moves, each other and your bootlaces included.
+cloud-kite-gust-buffet|Gust Buffet|hurt|bash|Cloud Kite|A forked-tail kite that rides the front of a storm and steals from whatever is below. It is quick, rude and always hungry.
+cloud-kite-draught-slip|Draught Slip|trick|trip|Cloud Kite|A forked-tail kite that rides the front of a storm and steals from whatever is below. It is quick, rude and always hungry.
+cloud-kite-kite-cover|Kite Cover|guard|hold|Cloud Kite|A forked-tail kite that rides the front of a storm and steals from whatever is below. It is quick, rude and always hungry.
+cloud-kite-forked-dart|Forked Dart|hurt|pierce|Cloud Kite|A forked-tail kite that rides the front of a storm and steals from whatever is below. It is quick, rude and always hungry.
+tundra-fox-mouse-pounce|Mouse Pounce|hurt|bash|Tundra Fox|A summer-coated fox, brown and lean, that has not forgiven the thaw. It shoves first and pounces after.
+tundra-fox-den-shove|Den Shove|trick|bash|Tundra Fox|A summer-coated fox, brown and lean, that has not forgiven the thaw. It shoves first and pounces after.
+tundra-fox-thick-summer-coat|Thick Summer Coat|guard|thorns|Tundra Fox|A summer-coated fox, brown and lean, that has not forgiven the thaw. It shoves first and pounces after.
+tundra-fox-thaw-bite|Thaw Bite|hurt|poison|Tundra Fox|A summer-coated fox, brown and lean, that has not forgiven the thaw. It shoves first and pounces after.

@@ -1,0 +1,16 @@
+silver-fox-silver-pounce|Silver Pounce|hurt|-|Silver Fox|A fox in a silver-tipped coat that looks expensive. It hunts the snowfields and takes a little back from every bite.
+silver-fox-drift-dive|Drift Dive|hurt|trip|Silver Fox|A fox in a silver-tipped coat that looks expensive. It hunts the snowfields and takes a little back from every bite.
+silver-fox-frost-pelt-fold|Frost Pelt Fold|guard|hold|Silver Fox|A fox in a silver-tipped coat that looks expensive. It hunts the snowfields and takes a little back from every bite.
+silver-fox-pelt-tax|Pelt Tax|heal|-|Silver Fox|A fox in a silver-tipped coat that looks expensive. It hunts the snowfields and takes a little back from every bite.
+crab-eating-raccoon-claw-snatch|Claw Snatch|hurt|pierce|Crab-eating Raccoon|A masked raccoon that waits at the tide line with a crab in each paw. It saves its best swipe for the first move.
+crab-eating-raccoon-shell-crack|Shell Crack|hurt|quick|Crab-eating Raccoon|A masked raccoon that waits at the tide line with a crab in each paw. It saves its best swipe for the first move.
+crab-eating-raccoon-dusk-cover|Dusk Cover|guard|hold|Crab-eating Raccoon|A masked raccoon that waits at the tide line with a crab in each paw. It saves its best swipe for the first move.
+crab-eating-raccoon-wash-off|Wash Off|trick|evade|Crab-eating Raccoon|A masked raccoon that waits at the tide line with a crab in each paw. It saves its best swipe for the first move.
+eagle-owl-tuft-strike|Tuft Strike|hurt|quick|Eagle Owl|An owl with ear tufts like horns and eyes like lamps. The night is long, and its wings are quick.
+eagle-owl-night-swoop|Night Swoop|hurt|quick|Eagle Owl|An owl with ear tufts like horns and eyes like lamps. The night is long, and its wings are quick.
+eagle-owl-hoot-flurry|Hoot Flurry|trick|quick|Eagle Owl|An owl with ear tufts like horns and eyes like lamps. The night is long, and its wings are quick.
+eagle-owl-stare-down|Stare Down|trick|trip|Eagle Owl|An owl with ear tufts like horns and eyes like lamps. The night is long, and its wings are quick.
+old-brock-grey-maul|Grey Maul|hurt|pierce|Old Brock|A badger so old his stripes have gone silver. He knows every path in the wood and owns most of them.
+old-brock-brock-s-snap|Brock's Snap|hurt|quick|Old Brock|A badger so old his stripes have gone silver. He knows every path in the wood and owns most of them.
+old-brock-sett-wall|Sett Wall|guard|thorns|Old Brock|A badger so old his stripes have gone silver. He knows every path in the wood and owns most of them.
+old-brock-sett-tunnel|Sett Tunnel|guard|hold|Old Brock|A badger so old his stripes have gone silver. He knows every path in the wood and owns most of them.

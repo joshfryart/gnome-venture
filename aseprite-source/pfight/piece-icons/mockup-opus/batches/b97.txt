@@ -1,0 +1,4 @@
+glass-wyrm-glass-lash|Glass Lash|hurt|bash|Glass Wyrm|A wyrm that lies so long in the hot dunes its scales fuse to glass. It is slow to wake and slower to stop.
+glass-wyrm-shard-spit|Shard Spit|hurt|quick|Glass Wyrm|A wyrm that lies so long in the hot dunes its scales fuse to glass. It is slow to wake and slower to stop.
+glass-wyrm-fused-hide|Fused Hide|guard|hold|Glass Wyrm|A wyrm that lies so long in the hot dunes its scales fuse to glass. It is slow to wake and slower to stop.
+glass-wyrm-slow-wake|Slow Wake|heal|-|Glass Wyrm|A wyrm that lies so long in the hot dunes its scales fuse to glass. It is slow to wake and slower to stop.
