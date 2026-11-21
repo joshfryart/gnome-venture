@@ -214,6 +214,16 @@ function pfd_region_pieces(): array
     return $R;
 }
 
+/** data/pf_creature_names.txt (slug|class or size piece name|this creature's name for it): slug => [generic name => own name]. A creature the file does not list keeps the generic names. */
+function pfd_creature_names(): array
+{
+    static $N = null;
+    if ($N !== null) return $N;
+    $N = [];
+    foreach (pf_data_lines('pf_creature_names.txt') as $r) if (count($r) >= 3 && $r[0] !== '' && $r[1] !== '' && $r[2] !== '') $N[$r[0]][$r[1]] = $r[2];
+    return $N;
+}
+
 // ----------------------------------------------------------------- the creature's layered deck
 
 /** The archetype value of a creature ($v in pf_foe_deck): its piece values are multiples of this. */
@@ -237,10 +247,11 @@ function pfd_foe_pieces(array $c, string $region = ''): array
         $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)pf_round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
             'col' => $i % 5 < 3 ? $lean : (PF_HOLE[$q['t']] ?? 'body'), 'layer' => $layer];
     };
-    foreach ($K['classes'][$cl]['P'] as $q) $add('base', $q);
+    $own = pfd_creature_names()[$slug] ?? [];   // this creature's own names for the class and size pieces (type, value, knob and tag stay)
+    foreach ($K['classes'][$cl]['P'] as $q) $add('base', isset($own[$q['n']]) ? ['n' => $own[$q['n']]] + $q : $q);
     $rg = pfd_region_pieces()[$region] ?? null;
     if ($rg) { if ($big && isset($rg['hurt'])) $add('reg', $rg['hurt']); if (isset($rg['other'])) $add('reg', $rg['other']); }
-    foreach ($K['extra'][$size] ?? [] as $q) $add('rar', $q);
+    foreach ($K['extra'][$size] ?? [] as $q) $add('rar', isset($own[$q['n']]) ? ['n' => $own[$q['n']]] + $q : $q);
     foreach ($u['P'] ?? [] as $q) $add('uni', $q);
     return $out;
 }
