@@ -37,7 +37,7 @@ FISH = {'s': (176, 196, 206), 'S': (222, 234, 240), 'z': (110, 132, 150)}    # s
 EEL = dict(MOUTH, **EYE)
 DINGO = dict(MOUTH)
 KRAKEN = {'u': (240, 200, 210)}                                              # pale suckers
-OTTER = dict(MOUTH)
+OTTER = dict(MOUTH, h=pix.WHITE)                                            # whiskers
 
 ICONS = [
     # slug, type, extra palette

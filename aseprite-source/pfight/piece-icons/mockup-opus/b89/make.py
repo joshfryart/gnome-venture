@@ -44,7 +44,7 @@ TOAD = dict(EYE, **GOLDEYE, **MOSS)
 AMBER = {'y': (236, 150, 40), 'Y': (252, 200, 90), 'a': (160, 92, 24)}   # eye on yellow
 CRAB = dict(EYE, **SHELL, **WEED, a=(196, 146, 40))
 GOLEM = dict(EYE, **PEAT, **REED, **GOLDEYE)
-WOLF = dict(EYE, **FUR, **WEED, **BERRY, **TEETH)
+WOLF = dict(EYE, **FUR, **WEED, **BERRY, **TEETH, y=(250, 214, 74), Y=(255, 240, 150))
 
 ICONS = [
     # slug, type, extra palette
@@ -63,7 +63,7 @@ ICONS = [
     ('elder-bramble-wolf-thorn-lunge', 'hurt', WOLF),
     ('elder-bramble-wolf-bramble-snap', 'hurt', WOLF),
     ('elder-bramble-wolf-hedge-dodge', 'guard', WOLF),
-    ('elder-bramble-wolf-ruff-shake', 'trick', WOLF),
+    ('elder-bramble-wolf-ruff-shake', 'trick', dict(WOLF, **AMBER)),
 ]
 
 
