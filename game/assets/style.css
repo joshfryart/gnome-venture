@@ -8736,3 +8736,32 @@ dialog.hvov::backdrop { background: transparent; }
 @keyframes hv-plus { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px); } }
 @keyframes hv-bump { 40% { transform: scale(1.25) rotate(-8deg); } 70% { transform: scale(.95) rotate(5deg); } }
 @media (prefers-reduced-motion: reduce) { .hvov *, .hvov .hv-back, .hvov .hv-box { animation: none !important; transition: none !important; } }
+/* Harvest show pixel art (harvest-*.png). Emoji and CSS shapes show when .hv-px is off (no art, or a picture failed to load). */
+.hvov img { image-rendering: pixelated; display: block; max-width: none; }
+.hvov:not(.hv-px) .hv-bpx, .hvov:not(.hv-px) .hv-tuft, .hvov:not(.hv-px) .hv-soilpx, .hvov:not(.hv-px) .hv-fx { display: none; }
+.hvov.hv-px .hv-bico, .hvov.hv-px .hv-soil { display: none; }
+.hvov.hv-px .hv-field { padding-top: 26px; }
+.hvov.hv-px .hv-plant { height: 78px; }
+.hvov.hv-px .hv-ico { margin-bottom: 14px; }
+.hvov .hv-tuft { position: absolute; left: 50%; bottom: 100%; width: 32px; height: 24px; margin: 0 0 -6px -16px; }
+.hvov .hv-soilpx { position: absolute; left: 50%; bottom: 0; width: 48px; height: 24px; margin-left: -24px; }
+.hvov .hv-soilpx img { position: absolute; inset: 0; width: 48px; height: 24px; }
+.hvov .hv-plant .hv-sp2, .hvov .hv-plant.pick .hv-sp1 { visibility: hidden; }
+.hvov .hv-plant.pick .hv-sp2 { visibility: visible; }
+.hvov .hv-plant .hv-ico { position: relative; }
+.hvov .hv-fx { position: absolute; overflow: hidden; pointer-events: none; visibility: hidden; }
+.hvov .hv-fx img { position: absolute; left: 0; top: 0; max-width: none; }
+.hvov .hv-puff { left: 50%; bottom: 8px; width: 24px; height: 24px; margin-left: -12px; z-index: 2; }
+.hvov .hv-puff img { width: 96px; height: 24px; }
+.hvov .hv-plant.pick .hv-puff { visibility: visible; }
+.hvov .hv-plant.pick .hv-puff img { animation: hv-strip4 .32s steps(4, end) forwards; }
+.hvov .hv-spark { top: -6px; left: var(--sx, 20px); width: 16px; height: 16px; z-index: 3; }
+.hvov .hv-spark img { width: 64px; height: 16px; animation: hv-strip4 .4s steps(4, end) var(--sd, 0ms) both; }
+.hvov .hv-bpx { position: relative; display: block; width: 64px; height: 64px; transform-origin: 50% 90%; }
+.hvov .hv-bpx img { position: absolute; inset: 0; width: 64px; height: 64px; }
+.hvov .hv-bpx.bump { animation: hv-bump .35s ease-out; }
+.hvov .hv-heap { opacity: 0; transition: opacity .4s; }
+.hvov .hv-heap.on { opacity: 1; }
+.hvov .hv-spark { visibility: visible; }
+@keyframes hv-strip4 { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .hvov .hv-fx { display: none !important; } }
