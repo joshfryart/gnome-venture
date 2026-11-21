@@ -25,6 +25,15 @@
   P.marks = {};   // 'tag-pierce', 'mod-sticky', 'rarity-1' -> image (parts/marks/), when the file exists
   var MARKAT = { strip: { tag: [13, 32], mod: [49, 32], rarity: [51, 7] }, hand: { tag: [24, 64], mod: [96, 64], rarity: [98, 18] } };
   P.tagIcon = {};   // 'tag|size' -> image, when the file exists (a tag without one keeps its type icon)
+
+  /* 2.7.45: a creature's own piece icon (assets/img/pfight/pieces/ico-<ik>[-s].png): P.cico['ik|size'] -> loaded image. The builds below draw it instead of the type glyph when it is there. */
+  P.cico = {}; P.cicoTried = {};
+  P.cicoFor = function (o) { return o && o.ik ? P.cico[o.ik + '|' + o.size] || null : null; };
+  P.cicoLoad = function (base, list, size, done) {   // loads the ones not tried yet; done() only when at least one arrived (the caller redraws)
+    var todo = list.filter(function (ik, i) { var k = ik + '|' + size; if (!ik || P.cicoTried[k] || list.indexOf(ik) !== i) return false; P.cicoTried[k] = 1; return true; }), left = todo.length, got = 0;
+    if (!left) return;
+    todo.forEach(function (ik) { var im = new Image(); im.onload = function () { P.cico[ik + '|' + size] = im; got++; if (!--left && got && done) done(); }; im.onerror = function () { if (!--left && got && done) done(); }; im.src = base + 'ico-' + ik + (size === 'strip' ? '-s' : '') + '.png'; });
+  };
   function loadTagIcons() {
     var jobs = [];
     Object.keys(TAGICON).forEach(function (tag) {
@@ -69,7 +78,7 @@
 
   /* o = {size:'strip'|'hand', owner:'me'|'foe', type, edges:{L:[kind,fam],..}, old, num}. Returns a new canvas (the composed piece). */
   P.piece = function (o) {
-    var key = [o.size, o.owner, o.type, o.tag || '', o.m || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
+    var key = [o.size, o.owner, o.type, o.tag || '', o.m || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', P.cicoFor(o) ? o.ik : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
     var hit = P.cache[key];
     if (!hit) hit = P.cache[key] = build(o);
     var c = document.createElement('canvas'); c.width = hit.width; c.height = hit.height; c.getContext('2d').drawImage(hit, 0, 0);
@@ -103,7 +112,7 @@
     }
     cx.putImageData(img, 0, 0);
     var ic = P.imgs['ico-' + o.size], im = A.icons[o.size], ii = im.order.indexOf(o.type);
-    var ti = o.tag ? P.tagIcon[o.tag + '|' + o.size] : null;   // a tag with its own icon replaces the type icon
+    var ti = P.cicoFor(o) || (o.tag ? P.tagIcon[o.tag + '|' + o.size] : null);   // a creature's own icon, else a tag with its own icon, replaces the type icon
     if (ti) cx.drawImage(ti, sz.icon.at[0], sz.icon.at[1], im.cell[0], im.cell[1]);
     else cx.drawImage(ic, ii * im.cell[0], 0, im.cell[0], im.cell[1], sz.icon.at[0], sz.icon.at[1], im.cell[0], im.cell[1]);
     number(cx, sz.plate, String(o.num), o.size === 'hand' ? 2 : 1);

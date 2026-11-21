@@ -1043,6 +1043,7 @@
     boardEl.textContent = '';
     world = document.createElement('div'); world.className = 'pfb-world'; boardEl.appendChild(world);
     var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null, dropN = 0;
+    if (art && data.pico && P.cicoLoad) P.cicoLoad(data.pico, data.pcs.map(function (q) { return q.ik; }), 'strip', function () { render(); });   // 2.7.45: creature piece icons; a late one redraws the board once
     // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
     var x0 = W, x1 = -1, y0 = H, y1 = -1;
     Object.keys(b.map).forEach(function (k) { var q = k.split(','), qx = +q[0], qy = +q[1]; x0 = Math.min(x0, qx); x1 = Math.max(x1, qx); y0 = Math.min(y0, qy); y1 = Math.max(y1, qy); });
@@ -1078,7 +1079,7 @@
         if (p.id !== undefined && !p.ghost && p.gone) cell.dataset.id = String(p.id);
         else if (p.id !== undefined && !p.ghost) { cell.dataset.id = String(p.id); cell.classList.add('pfb-tap'); cell.setAttribute('role', 'button'); cell.tabIndex = 0; cell.setAttribute('aria-label', ownerLbl(p) + p.n + ', ' + p.t + ' ' + p.v + '. Press for details.'); }
         if (art) {
-          var cv = p.by === 'none' ? blankCv(P) : p.by === 'env' ? envCv(P, p, 'strip') : P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint });
+          var cv = p.by === 'none' ? blankCv(P) : p.by === 'env' ? envCv(P, p, 'strip') : P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', ik: p.ik, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint });
           cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', ownerLbl(p) + p.n + ', ' + p.t + ' ' + p.v + (isOld(p) ? ', expires this round' : ''));
           cell.appendChild(cv);
         } else cell.appendChild(pieceEl(p));
