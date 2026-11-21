@@ -18,7 +18,7 @@
     var cards = Array.prototype.slice.call(data.querySelectorAll('li.hv-card'));
     var lvl = 0;   // a level-up line becomes a small "LEVEL UP!" pop (the fight's pop, smaller) and a chip instead of text
     var notes = Array.prototype.map.call(data.querySelectorAll('ol li'), function (li) { return li.textContent; }).filter(function (m) {
-      var x = /^🎉 You reached gnome level (\d+)/.exec(m);
+      var x = /^\s*(?:🎉\s*)?You reached gnome level (\d+)/.exec(m);
       if (x) { lvl = parseInt(x[1], 10); return false; }
       return true;
     });
