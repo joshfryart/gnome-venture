@@ -44,21 +44,22 @@ def finish(p, gloss=()):
 # --- hurt / quick: a gnat cloud, one big gnat + two small, wings cream, stingers
 def ico_gnat_nip(S):
     p = Pen(S); b = TYPES['hurt']; lb, db = light_of(b), dark_of(b)
-    # small gnats (behind)
-    for ox, oy in ((2, 17), (21, 2)):
-        p.poly([(ox + 2, oy + 2), (ox + 8, oy), (ox + 9, oy + 6), (ox + 4, oy + 7)], CREAM)
-        p.ell((ox + 2, oy + 5, ox + 9, oy + 10), b)
-        p.poly([(ox + 3, oy + 10), (ox + 1, oy + 14), (ox + 5, oy + 11)], db)
-    # big gnat
-    p.poly([(11, 3), (20, 2), (22, 11), (14, 14)], CREAM)               # wing back
-    p.poly([(7, 6), (15, 5), (16, 13), (9, 15)], WHITE)                 # wing front
-    p.ell((9, 12, 25, 24), b)                                           # body
-    p.ell((20, 11, 27, 18), db)                                         # head
-    p.poly([(26, 14), (31, 17), (26, 17)], GOLD)                        # proboscis
-    p.line([(11, 22), (6, 29)], db); p.line([(15, 23), (13, 30)], db); p.line([(19, 23), (21, 30)], db)
-    p.line([(12, 16), (21, 16)], lb); p.line([(11, 19), (22, 19)], db)  # stripes
-    p.pt(24, 13, WHITE); p.pt(24, 14, INK) if S == 32 else None
-    return finish(p, [(12, 14), (13, 14)])
+    smalls = [(21, 1)] + ([(23, 22)] if S == 32 else [])
+    for ox, oy in smalls:                                               # small gnats
+        p.poly([(ox + 1, oy + 4), (ox + 3, oy), (ox + 8, oy + 1), (ox + 7, oy + 5)], CREAM)
+        p.ell((ox, oy + 4, ox + 8, oy + 8), b)
+        p.pt(ox + 8, oy + 6, GOLD)
+    p.poly([(3, 4), (13, 3), (16, 14), (6, 15)], CREAM)                 # big wing back
+    p.poly([(8, 2), (17, 4), (17, 14), (10, 14)], WHITE)                # big wing front
+    p.line([(10, 4), (14, 13)], light_of(TYPES['guard'])) if S == 32 else None
+    p.ell((4, 13, 22, 24), b)                                           # body
+    p.ell((19, 11, 28, 20), db)                                         # head
+    p.poly([(27, 15), (31, 18), (27, 18)], GOLD)                        # proboscis
+    p.poly([(2, 20), (6, 17), (6, 22)], db)                             # tail
+    p.line([(8, 23), (5, 30)], db); p.line([(12, 24), (11, 31)], db); p.line([(17, 23), (19, 30)], db)
+    p.line([(8, 16), (17, 16)], lb); p.line([(6, 19), (19, 19)], db)    # stripes
+    p.pt(24, 14, WHITE); p.pt(25, 15, INK)
+    return finish(p, [(9, 14), (10, 14)])
 
 
 # --- trick / thorns: monkey face grimace
@@ -75,30 +76,28 @@ def ico_monkey_grimace(S):
     p.rect((11, 20, 21, 24), INK)                                      # grimace
     p.rect((11, 20, 21, 21), WHITE); p.rect((13, 23, 19, 24), (232, 120, 120))
     p.rect((15, 17, 17, 18), db)                                       # nose
-    p.poly([(1, 1), (4, 3), (3, 6)], b); p.poly([(29, 1), (28, 6), (31, 3)], b)  # thorn tufts
+    p.poly([(12, 4), (14, 0), (16, 3), (18, 0), (20, 4)], db)                                   # hair tuft
+    p.ell((6, 17, 10, 21), (230, 170, 140)); p.ell((22, 17, 26, 21), (230, 170, 140))   # cheeks
     return finish(p, [(8, 5), (9, 5)])
 
 
 # --- heal: old turtle, mossy domed shell with hex plates
 def ico_turtle_patience(S):
     p = Pen(S); b = TYPES['heal']; lb, db = light_of(b), dark_of(b); skin = (150, 170, 90)
-    p.poly([(2, 22), (7, 18), (8, 23)], skin)                           # tail
-    p.ell((24, 14, 31, 22), skin)                                       # head
-    p.poly([(24, 18), (27, 21), (23, 22)], skin)
-    p.rect((7, 22, 11, 29), skin); p.rect((22, 22, 26, 29), skin)       # legs
-    p.rect((13, 22, 17, 28), skin)
-    p.ell((4, 5, 28, 26), b)                                            # shell
-    p.rect((4, 21, 28, 26), skin)
-    p.ell((4, 21, 28, 27), CREAM)                                       # underside rim
-    p.ell((4, 5, 28, 25), b)
-    for (x, y) in ((16, 10), (10, 15), (22, 15), (16, 20)):             # plates
+    p.poly([(0, 23), (5, 19), (6, 24)], skin)                           # tail
+    p.ell((22, 12, 31, 22), skin)                                       # head
+    p.poly([(24, 20), (28, 23), (22, 23)], skin)
+    p.rect((4, 22, 8, 29), skin); p.rect((19, 22, 23, 29), skin); p.rect((11, 23, 15, 28), skin)
+    p.ell((2, 6, 26, 26), b)                                            # shell
+    p.rect((2, 22, 26, 26), skin)
+    p.ell((2, 21, 26, 27), CREAM)                                       # underside rim
+    p.ell((2, 6, 26, 25), b)
+    for (x, y) in ((14, 11), (8, 16), (20, 16), (14, 21)):              # plates
         p.poly([(x - 4, y), (x - 2, y - 3), (x + 2, y - 3), (x + 4, y), (x + 2, y + 3), (x - 2, y + 3)], lb)
         p.poly([(x - 3, y), (x - 1, y - 2), (x + 1, y - 2), (x + 3, y), (x + 1, y + 2), (x - 1, y + 2)], db)
-    p.line([(6, 14), (26, 14)], db); p.line([(16, 7), (16, 24)], db)
-    p.pt(29, 16, INK); p.pt(30, 16, INK)
-    p.poly([(13, 3), (16, 0), (19, 3), (16, 6)], CREAM)                 # little heal cross
-    p.rect((15, 1, 17, 5), GOLD); p.rect((14, 2, 18, 4), GOLD)
-    return finish(p, [(9, 9), (10, 8), (11, 8)])
+    p.rect((26, 16, 26, 16), INK); p.pt(27, 16, INK); p.line([(25, 20), (29, 20)], db)
+    p.rect((12, 0, 16, 4), GOLD); p.rect((13, 0, 15, 5), GOLD); p.rect((11, 1, 17, 3), GOLD)  # heal cross
+    return finish(p, [(7, 10), (8, 9), (9, 9)])
 
 
 # --- guard / evade: blue shield, cream hyena laughing
@@ -107,7 +106,7 @@ def ico_hyena_laugh(S):
     p.poly([(2, 3), (16, 1), (30, 3), (30, 16), (24, 25), (16, 31), (8, 25), (2, 16)], b)  # shield
     p.poly([(7, 6), (10, 2), (13, 9)], fur); p.poly([(25, 6), (22, 2), (19, 9)], fur)       # ears
     p.poly([(8, 7), (16, 6), (24, 7), (25, 14), (21, 22), (16, 25), (11, 22), (7, 14)], fur)  # head
-    p.poly([(12, 5), (16, 3), (20, 5)], spot)                                               # mane tuft
+    p.poly([(12, 5), (16, 3), (20, 5)], spot); p.poly([(8, 5), (10, 2), (11, 6)], spot); p.poly([(24, 5), (22, 2), (21, 6)], spot)                                               # mane tuft
     p.rect((10, 10, 12, 12), INK); p.rect((20, 10, 22, 12), INK)                             # eyes
     p.pt(10, 10, WHITE); p.pt(20, 10, WHITE)
     p.poly([(11, 15), (21, 15), (19, 22), (16, 23), (13, 22)], INK)                          # open laugh
@@ -120,17 +119,17 @@ def ico_hyena_laugh(S):
 # --- guard / thorns: octopus, blue mantle, cream suckers on curling arms
 def ico_octopus_suckers(S):
     p = Pen(S); b = TYPES['guard']; lb, db = light_of(b), dark_of(b)
-    arms = [[(5, 20), (3, 26), (6, 30), (9, 27)], [(10, 22), (9, 29), (13, 31), (14, 26)],
-            [(18, 22), (18, 26), (22, 31), (25, 28)], [(24, 20), (27, 25), (30, 24), (28, 29)]]
-    for a in arms:
-        p.line(a, b, 3)
-    p.ell((4, 2, 28, 24), b)                                            # mantle
-    p.ell((8, 14, 24, 25), db)
-    p.ell((6, 3, 26, 22), b)
-    p.ell((7, 10, 14, 18), CREAM); p.ell((18, 10, 25, 18), CREAM)        # eyes
-    p.rect((10, 12, 13, 17), INK); p.rect((19, 12, 22, 17), INK)
-    for (x, y) in ((4, 23), (4, 26), (3, 28), (9, 26), (10, 29), (13, 29), (18, 25), (20, 28), (24, 28), (27, 25), (29, 24)):
-        p.pt(x, y, CREAM)                                               # suckers
+    for m in (False, True):
+        f = (lambda x: 31 - x) if m else (lambda x: x)
+        for a in ([(7, 19), (3, 23), (3, 28), (7, 30)], [(12, 21), (11, 27), (15, 30)]):
+            p.line([(f(x), y) for x, y in a], b, 3)
+    p.ell((4, 2, 27, 24), b)                                            # mantle
+    p.ell((8, 14, 23, 25), db)
+    p.ell((5, 3, 26, 22), b)
+    p.ell((7, 10, 14, 18), CREAM); p.ell((17, 10, 24, 18), CREAM)       # eyes
+    p.rect((10, 12, 13, 17), INK); p.rect((18, 12, 21, 17), INK)
+    for x, y in ((3, 24), (3, 27), (5, 29), (11, 25), (11, 28), (13, 29)):
+        p.pt(x, y, CREAM); p.pt(31 - x, y, CREAM)                       # suckers
     for (x, y) in ((8, 6), (11, 4), (15, 6)):
         p.pt(x, y, lb)
     return finish(p, [(9, 5), (10, 5)])
