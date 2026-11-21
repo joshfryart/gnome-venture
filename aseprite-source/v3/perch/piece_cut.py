@@ -7,10 +7,12 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import piece_mask as pm
 REPO, OUT = pm.REPO, pm.OUT
-BS, B0, S = 24, 6, 36
+YARD = os.environ.get('PIECE_YARD') == '1'   # 1: 64px yard/normal pal picture from aseprite-source/v3/pals-creature/; else 36px perch
+if YARD: BS, B0, S, K, FIT, SRC = 48, 8, 64, 1.5, 46, REPO + '/aseprite-source/v3/pals-creature/'
+else:    BS, B0, S, K, FIT, SRC = 24, 6, 36, 1.0, 22, REPO + '/game/assets/img/pals/perch/'
 def make(row):
     slug, key, rar, piece_, shape, knob = row[0], row[1], row[3], row[9], row[10], row[11]
-    sp = Image.open(REPO + '/game/assets/img/pals/perch/' + key + '.png').convert('RGBA')
+    sp = Image.open(SRC + key + '.png').convert('RGBA')
     sd = pm.sides(shape)
     # backdrop = the pal's picture cell, softened toward cream so the creature reads
     im = pm.pic(slug); c, r = map(int, piece_.split('-')); cw, ch = im.width // 12, im.height // 8
@@ -24,11 +26,11 @@ def make(row):
             for x in range(S):
                 X, Y = x + .5, y + .5
                 u, v = [(X-cx, B0-Y), (Y-cy, X-(B0+BS)), (X-cx, Y-(B0+BS)), (Y-cy, B0-X)][si]
-                if t == 'T' and pm.tab(knob, u, v): body[y, x] = True
-                if t == 'B' and v < 0 and pm.tab(knob, u, -v): hole[y, x] = True
+                if t == 'T' and pm.tab(knob, u / K, v / K): body[y, x] = True
+                if t == 'B' and v < 0 and pm.tab(knob, u / K, -v / K): hole[y, x] = True
     body &= ~hole
     # creature: crop to bbox, fit 22x22, crisp (box + palette snap)
-    a = sp.crop(sp.getbbox()); s = min(22 / a.width, 22 / a.height, 1.0)
+    a = sp.crop(sp.getbbox()); s = min(FIT / a.width, FIT / a.height, 1.0)
     sz = (max(1, round(a.width * s)), max(1, round(a.height * s)))
     src = np.array(a).astype(float); pre = src.copy(); pre[..., :3] *= pre[..., 3:] / 255
     b = np.array(Image.fromarray(np.clip(pre, 0, 255).astype('uint8'), 'RGBA').resize(sz, Image.BOX)).astype(float)
