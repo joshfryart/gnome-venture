@@ -189,6 +189,15 @@
   }
 
   // ------------------------------------------------------------------ tile instances and decks
+  // 2.7.48: a player piece's own icon key (mirrors pf_player_icon_key: 'pl-' + the key lowercased with dashes, when ico-<key>-s.png is in assets/img/pfight/pieces/); the engine runs in node for the tests
+  var plIconC = {};
+  function plIcon(k) {
+    if (!has(plIconC, k)) {
+      var s = 'pl-' + String(k).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      try { plIconC[k] = k !== '' && require('fs').existsSync(require('path').join(__dirname, '..', 'game', 'assets', 'img', 'pfight', 'pieces', 'ico-' + s + '-s.png')) ? s : ''; } catch (e) { plIconC[k] = ''; }
+    }
+    return plIconC[k];
+  }
   function makeTile(key, stats, bonus, over) {
     bonus = bonus || 0;
     var T = tiles();
@@ -197,6 +206,7 @@
     var stat = Math.max(0, toInt(nn(stats[PF_STAT[d.t]], 0)));
     var lvl = intdiv(Math.max(1, toInt(nn(stats.level, 1))), 3);
     var t = { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' };
+    if (plIcon(key) !== '') t.ik = plIcon(key);
     ['src', 'life', 'col', 'up', 'edges', 'rank', 'tool', 'cnt'].forEach(function (k) { if (d[k] !== undefined && d[k] !== null) t[k] = d[k]; });   // v1 board rules (v1Tile): source, life, authored edges
     return t;
   }

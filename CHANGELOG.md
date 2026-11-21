@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.48
+- **Every piece you play has its own hand-drawn icon:** 112 new icons (32px and 20px) for the basic extras and callings (Breather, Bark Wall, Bloom, Thorn Cut, Sow Doubt, Slip Past, Steep and the tier III ones), Soothe, Offer, Taunt, the six counter pieces, all 18 tool pieces, 9 crop pieces, 7 craft pieces, 14 region pieces and 42 legendary crop pieces. Files `ico-pl-<piece key>.png` / `-s.png` in `assets/img/pfight/pieces/` (key lowercased, `:` as a dash, e.g. `ico-pl-t-till.png`). Redrawn in the new style: the 14 skill icons (Jab, Smash, Pierce, Shield Bash, Sting, Trip, Brace, Roll, Thorn Hide, Mending, Hum, Lull, Bond, Pluck) and Gift.
+- **Wiring:** `pf_player_icon_key()` (pfight.php) gives a tile its `ik` in `pf_make_tile()` and `pfb_v1_tiles()`; the deck entries (`pfdeck.php`) carry it for the Puzzle box cards; the canvas renderer (`pfparts47.js`, build48) draws a piece's own icon first, then the tag icon, then the type glyph. `tools/pfengine.js` mirrors it (node file check). `tests/pf_piece_icons.php` counts creature and player icons apart and checks all 112.
+
 ## 2.7.47
 - **Creature icons that only half loaded:** the icon loader (`P.cicoLoad` in `pfparts.js`/`pfparts47.js`) called back only the caller that first asked for an icon, so a piece drawn by a second `mount()` while the first icons were still arriving (the pre-fight card, mounted again when a sheet opens) could stay on the type glyph (Orb Spider showed 2 of its 4 unique icons). Every caller now redraws after each icon arrives (one shared redraw function on the boards).
 
