@@ -28,7 +28,7 @@ BEAK = {'g': (200, 146, 44)}                                                  # 
 BOLT = {'Y': (255, 240, 120), 'y': (238, 196, 52)}                            # lightning
 JADE = {'J': (150, 232, 176), 'j': (52, 178, 116), 'q': (24, 110, 78)}        # jade eyes / leaves
 ROSE = {'R': (70, 44, 30)}                                                    # jaguar rosettes
-FUR = {'F': (252, 236, 190), 'f': (226, 200, 140)}                            # muzzle / belly
+FUR = {'F': (252, 236, 190), 'f': (226, 200, 140), 'N': (214, 120, 120), 'n': (150, 70, 70)}  # muzzle, nose
 
 ICONS = [
     # slug, type, extra palette
