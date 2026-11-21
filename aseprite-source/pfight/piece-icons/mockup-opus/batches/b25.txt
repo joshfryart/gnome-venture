@@ -1,0 +1,8 @@
+delta-gharial-thin-snout|Thin Snout|hurt|pierce|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+delta-gharial-death-roll|Death Roll|hurt|-|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+delta-gharial-river-drift|River Drift|guard|evade|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+delta-gharial-log-nap|Log Nap|heal|-|Delta Gharial|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+emerald-python-squeeze|Squeeze|hurt|trip|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.
+emerald-python-emerald-coil|Emerald Coil|guard|hold|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.
+emerald-python-slow-swallow|Slow Swallow|heal|-|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.
+emerald-python-rope-drop|Rope Drop|hurt|bash|Emerald Python|Hangs from the canopy like a green rope, and a rope that hugs back.

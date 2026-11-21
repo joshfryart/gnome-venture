@@ -1,0 +1,8 @@
+orb-spider-web-snare|Web Snare|hurt|trip|Orb Spider|Weaves wheels of silk across the path and waits.
+orb-spider-venom-fang|Venom Fang|hurt|poison|Orb Spider|Weaves wheels of silk across the path and waits.
+orb-spider-silk-wrap|Silk Wrap|guard|-|Orb Spider|Weaves wheels of silk across the path and waits.
+orb-spider-orb-spin|Orb Spin|trick|trip|Orb Spider|Weaves wheels of silk across the path and waits.
+paper-wasp-wasp-sting|Wasp Sting|hurt|poison|Paper Wasp|A striped guard with a short temper.
+paper-wasp-paper-nest|Paper Nest|guard|thorns|Paper Wasp|A striped guard with a short temper.
+paper-wasp-buzz-dive|Buzz Dive|hurt|quick|Paper Wasp|A striped guard with a short temper.
+paper-wasp-nest-hum|Nest Hum|guard|evade|Paper Wasp|A striped guard with a short temper.

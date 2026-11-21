@@ -1,0 +1,8 @@
+red-fox-sly-pounce|Sly Pounce|trick|-|Red Fox|To a gnome, a fox is a dragon with a smile.
+red-fox-quick-bite|Quick Bite|hurt|quick|Red Fox|To a gnome, a fox is a dragon with a smile.
+red-fox-den-dash|Den Dash|guard|evade|Red Fox|To a gnome, a fox is a dragon with a smile.
+red-fox-brush-feint|Brush Feint|guard|evade|Red Fox|To a gnome, a fox is a dragon with a smile.
+raccoon-bandit-grab|Bandit Grab|trick|trip|Raccoon|A masked bandit with clever hands.
+raccoon-scratch|Scratch|hurt|-|Raccoon|A masked bandit with clever hands.
+raccoon-bin-lid|Bin Lid|guard|-|Raccoon|A masked bandit with clever hands.
+raccoon-clever-pry|Clever Pry|hurt|pierce|Raccoon|A masked bandit with clever hands.

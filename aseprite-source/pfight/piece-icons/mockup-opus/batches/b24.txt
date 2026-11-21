@@ -1,0 +1,8 @@
+storm-eagle-thunder-dive|Thunder Dive|hurt|-|Storm Eagle|Rides the thunder above the peaks.
+storm-eagle-gale-wing|Gale Wing|guard|evade|Storm Eagle|Rides the thunder above the peaks.
+storm-eagle-lightning-claw|Lightning Claw|hurt|quick|Storm Eagle|Rides the thunder above the peaks.
+storm-eagle-eyrie-grip|Eyrie Grip|guard|hold|Storm Eagle|Rides the thunder above the peaks.
+jade-jaguar-jade-gaze|Jade Gaze|trick|trip|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.
+jade-jaguar-jaguar-pounce|Jaguar Pounce|hurt|pierce|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.
+jade-jaguar-spirit-stalk|Spirit Stalk|guard|evade|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.
+jade-jaguar-jade-canopy-drop|Jade Canopy Drop|hurt|pierce|Jade Jaguar Spirit|A spirit of the deep jungle with eyes like polished jade.

@@ -1,0 +1,8 @@
+barn-rat-gnaw|Gnaw|hurt|pierce|Barn Rat|A seed thief with a long memory.
+barn-rat-filth-bite|Filth Bite|hurt|poison|Barn Rat|A seed thief with a long memory.
+barn-rat-squeeze-by|Squeeze By|guard|evade|Barn Rat|A seed thief with a long memory.
+barn-rat-grain-nip|Grain Nip|hurt|quick|Barn Rat|A seed thief with a long memory.
+sun-lizard-sun-bask|Sun Bask|heal|-|Sun Lizard|Basks on hot stones and darts at anything that moves.
+sun-lizard-tail-drop|Tail Drop|guard|evade|Sun Lizard|Basks on hot stones and darts at anything that moves.
+sun-lizard-lizard-dart|Lizard Dart|hurt|quick|Sun Lizard|Basks on hot stones and darts at anything that moves.
+sun-lizard-stone-snap|Stone Snap|hurt|poison|Sun Lizard|Basks on hot stones and darts at anything that moves.

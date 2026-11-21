@@ -1,0 +1,8 @@
+herring-gull-chip-thief|Chip Thief|trick|trip|Herring Gull|Screams, swoops and steals.
+herring-gull-gull-swoop|Gull Swoop|hurt|-|Herring Gull|Screams, swoops and steals.
+herring-gull-screech|Screech|hurt|quick|Herring Gull|Screams, swoops and steals.
+herring-gull-bin-lid-clang|Bin Lid Clang|trick|bash|Herring Gull|Screams, swoops and steals.
+dune-scorpion-tail-sting|Tail Sting|hurt|poison|Dune Scorpion|Its tail curls like a question you don't want answered.
+dune-scorpion-claw-grab|Claw Grab|hurt|pierce|Dune Scorpion|Its tail curls like a question you don't want answered.
+dune-scorpion-plate-up|Plate Up|guard|hold|Dune Scorpion|Its tail curls like a question you don't want answered.
+dune-scorpion-sand-shuffle|Sand Shuffle|guard|hold|Dune Scorpion|Its tail curls like a question you don't want answered.

@@ -1,0 +1,8 @@
+dust-sidewinder-side-wind|Side Wind|guard|evade|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+dust-sidewinder-dust-fang|Dust Fang|hurt|poison|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+dust-sidewinder-sand-skim|Sand Skim|hurt|quick|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+dust-sidewinder-sideways-skirt|Sideways Skirt|trick|quick|Dust Sidewinder|Travels sideways, which is somehow more alarming.
+poison-dart-frog-dart-skin|Dart Skin|guard|thorns|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.
+poison-dart-frog-toxic-touch|Toxic Touch|hurt|poison|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.
+poison-dart-frog-bright-warning|Bright Warning|trick|-|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.
+poison-dart-frog-jewel-flash|Jewel Flash|trick|poison|Poison Dart Frog|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.

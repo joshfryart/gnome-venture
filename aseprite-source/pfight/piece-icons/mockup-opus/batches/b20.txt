@@ -1,0 +1,8 @@
+bramble-wolf-howl|Howl|trick|-|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+bramble-wolf-bramble-bite|Bramble Bite|hurt|bash|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+bramble-wolf-pack-circle|Pack Circle|guard|thorns|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+bramble-wolf-soil-scent|Soil Scent|trick|evade|Bramble Wolf|Woven from thorny vines, it hunts by the smell of fresh soil.
+coconut-crab-titan-husk-crack|Husk Crack|hurt|pierce|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+coconut-crab-titan-coconut-drop|Coconut Drop|hurt|trip|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+coconut-crab-titan-titan-shell|Titan Shell|guard|hold|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+coconut-crab-titan-husk-rain|Husk Rain|hurt|quick|Coconut Crab Titan|Cracks coconuts like eggs. Cracks gnomes like coconuts.
