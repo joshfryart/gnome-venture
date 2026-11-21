@@ -31,6 +31,7 @@ MUD = {'m': (132, 92, 58), 'M': (168, 124, 82), 'o': (92, 62, 38)}         # mud
 LACE = {'u': (150, 92, 54), 'U': (196, 132, 84), 'e': (104, 62, 36)}       # boot leather
 EYE = {'y': (186, 214, 96)}                                                 # cub eye
 POISON = {'p': (150, 80, 190), 'P': (200, 150, 230), 'q': (96, 44, 130)}
+BEAK = {'o': (178, 116, 24)}                                                # beak shade
 MOUTH = {'m': (122, 40, 40), 'r': (200, 84, 84)}
 
 ICONS = [
@@ -43,10 +44,10 @@ ICONS = [
     ('jaguar-cub-pair-tail-chase', 'trick', dict(EYE, **NOSE)),
     ('jaguar-cub-pair-mud-roll', 'guard', dict(EYE, **NOSE, **MUD)),
     ('jaguar-cub-pair-lace-grab', 'hurt', dict(EYE, **NOSE, **LACE, **MOUTH)),
-    ('cloud-kite-gust-buffet', 'hurt', dict(SNOW)),
-    ('cloud-kite-draught-slip', 'trick', dict(SNOW)),
-    ('cloud-kite-kite-cover', 'guard', dict(SNOW)),
-    ('cloud-kite-forked-dart', 'hurt', dict(SNOW)),
+    ('cloud-kite-gust-buffet', 'hurt', dict(SNOW, **BEAK)),
+    ('cloud-kite-draught-slip', 'trick', dict(SNOW, **BEAK)),
+    ('cloud-kite-kite-cover', 'guard', dict(SNOW, **BEAK)),
+    ('cloud-kite-forked-dart', 'hurt', dict(SNOW, **BEAK)),
     ('tundra-fox-mouse-pounce', 'hurt', dict(SNOW, **NOSE)),
     ('tundra-fox-den-shove', 'trick', dict(SNOW, **MUD)),
     ('tundra-fox-thick-summer-coat', 'guard', dict(SNOW)),

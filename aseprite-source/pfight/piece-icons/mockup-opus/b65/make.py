@@ -47,7 +47,7 @@ ICONS = [
     ('stink-badger-boot-stink', 'trick', BADGER),
     ('desert-spadefoot-spade-wall', 'guard', TOAD),
     ('desert-spadefoot-dig-down-bash', 'hurt', TOAD),
-    ('desert-spadefoot-rain-croak', 'trick', TOAD),
+    ('desert-spadefoot-rain-croak', 'trick', dict(TOAD, y=(236, 150, 40), Y=(252, 200, 90), a=(160, 92, 24))),
     ('desert-spadefoot-waking-rain', 'heal', TOAD),
     ('tide-crab-squire-squire-nip', 'hurt', SQUIRE),
     ('tide-crab-squire-sidle-pinch', 'hurt', SQUIRE),

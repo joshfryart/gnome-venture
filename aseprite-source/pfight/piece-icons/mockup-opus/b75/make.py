@@ -34,6 +34,7 @@ VEST = {'v': (60, 50, 54), 'V': (98, 86, 90), 'h': (112, 98, 94)}
 TONGUE = {'p': (222, 112, 132), 'P': (248, 168, 178), 'q': (156, 60, 82)}
 WOOD = {'w': (150, 102, 58), 'W': (194, 144, 86), 'x': (98, 64, 38)}
 # Carpenter bee: wings, sawdust, flower
+BWOOD = {'t': (150, 102, 58), 'T': (194, 144, 86), 'x': (98, 64, 38)}
 DUST = {'a': (224, 190, 128), 'A': (246, 224, 172), 'o': (178, 140, 86)}
 FLOWER = {'p': (232, 118, 168), 'P': (250, 176, 208), 'q': (166, 62, 114)}
 # Caracal: pink ear lining, nose, scrub, bird
@@ -51,10 +52,10 @@ ICONS = [
     ('tamandua-tree-hug', 'guard', dict(VEST, **WOOD)),
     ('tamandua-tongue-flick', 'trick', dict(VEST, **TONGUE)),
     ('tamandua-tail-hang', 'guard', dict(VEST, **WOOD)),
-    ('carpenter-bee-wood-drill', 'hurt', dict(WING, **WOOD, **DUST)),
+    ('carpenter-bee-wood-drill', 'hurt', dict(WING, **BWOOD, **DUST)),
     ('carpenter-bee-nectar-sip', 'heal', dict(WING, **FLOWER)),
     ('carpenter-bee-sawdust-cover', 'guard', dict(WING, **DUST)),
-    ('carpenter-bee-hollow-tap', 'hurt', dict(WING, **WOOD)),
+    ('carpenter-bee-hollow-tap', 'hurt', dict(WING, **BWOOD)),
     ('caracal-bird-leap', 'hurt', dict(CAT, W=(240, 240, 236), w=(180, 186, 196))),
     ('caracal-dusk-rest', 'heal', dict(CAT, **MOON)),
     ('caracal-scrub-cover', 'guard', dict(CAT, **SCRUB)),
