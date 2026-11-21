@@ -59,8 +59,7 @@
       field.appendChild(cell);
       return cell;
     });
-    if (more) field.appendChild(el('span', 'hv-more', '+' + more + ' more'));
-    box.appendChild(title); box.appendChild(field); box.appendChild(basket); box.appendChild(sum); box.appendChild(tally); box.appendChild(nl); box.appendChild(live); box.appendChild(ok);
+    box.appendChild(title); box.appendChild(field); if (more) box.appendChild(el('p', 'hv-more2', '+' + more + ' more')); box.appendChild(basket); box.appendChild(sum); box.appendChild(tally); box.appendChild(nl); box.appendChild(live); box.appendChild(ok);
     root.appendChild(back); root.appendChild(box);
     data.remove();
     document.body.appendChild(root);

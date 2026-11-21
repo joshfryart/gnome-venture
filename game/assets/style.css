@@ -8767,3 +8767,9 @@ dialog.hvov::backdrop { background: transparent; }
 @media (prefers-reduced-motion: reduce) { .hvov .hv-fx { display: none !important; } }
 .hvov .hv-lvl { position: absolute; left: 50%; z-index: 5; font-weight: 900; font-size: 16px; white-space: nowrap; pointer-events: none; color: #ffe27a; text-shadow: 0 2px 0 #7a5a00, 1px 0 0 #7a5a00, -1px 0 0 #7a5a00, 0 -1px 0 #7a5a00; }   /* the fight's .fe-dmg.xp, smaller */
 @media (prefers-reduced-motion: reduce) { .hvov .hv-lvl { display: none; } }
+/* one row, however many plants (at most 8): cells share the width */
+.hvov .hv-field { flex-wrap: nowrap; gap: 0 2px; }
+.hvov .hv-plant { flex: 1 1 0; width: auto; min-width: 0; max-width: 44px; }
+.hvov .hv-soilpx { left: 0; width: 100%; margin-left: 0; }
+.hvov .hv-soilpx img { width: 100%; height: auto; }
+.hvov .hv-more2 { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
