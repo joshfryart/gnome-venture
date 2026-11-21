@@ -24,7 +24,7 @@ import pix  # noqa: E402
 # shared chars: . clear, k ink, C cream, H white gloss, G gold
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 SHELL_EYE = {'e': (24, 16, 10)}
-HERMIT = {'r': (214, 96, 80), 'R': (242, 156, 126), 'q': (146, 52, 44)}   # hermit crab
+HERMIT = {'r': (150, 96, 170), 'R': (196, 152, 212), 'q': (92, 54, 118)}   # coconut-crab violet
 MILK = {'m': (250, 246, 232), 'M': (214, 206, 186)}                        # coconut milk
 HUSK = {'f': (164, 118, 70), 'F': (204, 160, 104), 'h': (110, 74, 42)}     # husk fibre
 ROCK = {'s': (150, 146, 138), 'S': (194, 190, 180), 'z': (98, 94, 90), 'Z': (62, 58, 56)}
