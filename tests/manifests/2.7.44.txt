@@ -16211,7 +16211,7 @@ a103fba30728f115898a4795e2df6e40ce7541da  assets/rainbarrel.js
 4b1e4ac4493f3a561fd40f74d399143a4b948775  assets/site.js
 bbde7acb08f6400768d21bef6e1cf78ef77e052b  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-d914d2bef135b2ca5122296715b024b19ab4fcb5  assets/style.css
+183058808912131a6805afef7b36e14628ed9ec5  assets/style.css
 1205f87a2b843b5b050d0744d46abef9d30a79f1  assets/tea.js
 0a8d9bc0626d83e40327650a936d791c89352c80  assets/tilemap.js
 a48a5bcd24b97d26a62911ccb9a486bda9b5ed90  assets/tour.js
@@ -16295,7 +16295,7 @@ b1a2b05f3ddea44606ad2c9c2ab1947913a3f5e8  includes/craft_shelves.php
 294c2fb5b9efd1657ac7accaee041f19ee4738d7  includes/craft_view.php
 2c9e8fc9c47e423187d6c15eea1468d2090056ed  includes/crafting.php
 22484df171b1efce4fb53bde09ec558f9128147f  includes/data/build_plans.txt
-6230a7b0f644355d409ce35f3d42a67035b5dce2  includes/data/calling_quests.txt
+28a89ad6622f0eb541506ee63b9cf361b5bfd521  includes/data/calling_quests.txt
 e2cb15467f8099bd450a6e28380801fc9ae2908d  includes/data/catfish_pets.php
 4a22fd430d918469e32fdfa6bfc9402cb1572b23  includes/data/companions.txt
 ed1f6a2edf905228f642eacecf4dc7184585535d  includes/data/craft_scenes.php
@@ -16329,7 +16329,7 @@ e147a1735af8ef34461a77fc139598b035fdeb6b  includes/data/pf_creature_names.txt
 b45477a75ea53c2275889ab0fc7e53f67c178c6f  includes/data/pf_creature_tune.txt
 2a71dfde97153bfd252e3c2b53a59a65d9f2a652  includes/data/pf_creatures.txt
 d723152fdd072bec6bcafc33c627aefbd0e6af9b  includes/data/pf_env.txt
-bbdf6953c684b2f7750531ffe53bb739caf94c9c  includes/data/pf_pieces.txt
+1c5bf5a20ccf775d6f6a5aa3b71fda1da42a9793  includes/data/pf_pieces.txt
 3c656a8e00ab276fbad071cd28b4779bbb28f184  includes/data/pf_region_pieces.txt
 c087b0266af422d9c26cf8f27b4ff4db61ebe1eb  includes/data/problems.txt
 2d9ffcb9797e9e46b83d046d41dce15c2bfe9356  includes/data/puzzle_pal_boons.txt
@@ -16520,7 +16520,7 @@ b5101b74887095e8c4523789ce7dc087f273ebdb  includes/garden_world.php
 4c44e4489f441744cb3d8bd7d92c619964cc753a  includes/gathering.php
 795282d8d9c0b91d73162cbcb3cc5462a2e35416  includes/gifsaw_play.php
 5dad456f9cf8ae6de38c3de4b905604caa15541b  includes/glossary.php
-cdf5a878670a5bf7dc83649306bd1970e7e40612  includes/gnome.php
+86c569a619be4d7d889713ec8d265fa45efdb711  includes/gnome.php
 5588e59242b03d137e267d19604ee4bb3de46660  includes/gnome25.php
 36e85a2f138efe170194a850d1a65b13225b7ecf  includes/gnome_rig.php
 557b87686bd97a5abdd4bee2c1022108308daaee  includes/gourmand.php
@@ -16546,8 +16546,9 @@ da2d4be912c09716c38bd4d973ef05b77610cd7a  includes/journey.php
 b6763f9cbef5b961ac723c50de2b6a5ee926cfc5  includes/journey_view.php
 4690c7c7faddb6533bd4fc4e2a77529e3e00fd3e  includes/landing_view.php
 48273481e1ea64d270036d6e00b7162dd5fe7cdf  includes/landmarks.php
-6e5010a0930c41690642972caffeae188f357245  includes/layout.php
+375a8841807a1d2c6dc672dea2a123d97c93724f  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
+ec632c9ea1294f0e354c9bbd28346175f6ed4596  includes/levelup.php
 730cbeaa588149c5dea0e985d6cc8d446de570ff  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php
 a3c685a8492f978ce701c803da18f71e6c5e7995  includes/mail_nudge.php
@@ -16574,7 +16575,7 @@ a2604bee70e1012cba949be7f0120d7c3c9a68ff  includes/pal_jobs.php
 08d933ea15569ec4620624e879da874444c0370f  includes/pfboard.php
 fa62891d11ae8ff0b622d3fe25e90b7aebcac4ab  includes/pfdeck.php
 f5df008e656912fb3b0b0e3690958d0213a1dc7c  includes/pfdeck_view.php
-1fc8d9e3fd0a6bce6df16c59ea35c17afaf9af56  includes/pfight.php
+8ac74958df095126ce11f3631ede6d8471812fc2  includes/pfight.php
 4b84d031627ea9f842c3f9d26c5d281ca6b4ca5b  includes/pfight_data.php
 3cf1051fdaebaf650ddf1258ae7413d18ffc1da9  includes/pfight_game.php
 2b25bcd81f4adbbd5a1059b76d5b4a01c436334a  includes/pfparts_url.php
@@ -16687,7 +16688,7 @@ eb5fdc82a19422ed6f2e1d822e0f01465cd73357  includes/upgrade193.php
 79de79b30b3acd87a685dcf641b28d2a9df11df3  index.php
 ca9008763813d33b21f7c3aab69ba2fb830eafe7  inventory.php
 440cedfac17fbefa5d3a84537ab235253958b7ed  jigsaw.php
-3e1df1e62715347703a72800dd45257487e48ecc  jobs.php
+587a089fe378792894c55c050a02929d036ed463  jobs.php
 683ddf1dfac3f5d978f450840b81be63763594ff  journey.php
 ca3c646ff116cc5dcb09723740439b53a5a2947a  kitchen.php
 ccef386c6b02c16fc40c4217fb3d70d44377423a  landmark.php
