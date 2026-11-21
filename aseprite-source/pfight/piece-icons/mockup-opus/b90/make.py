@@ -56,7 +56,7 @@ ICONS = [
     ('red-stag-autumn-rut', 'hurt', STAG),
     ('red-stag-tine-hook', 'hurt', STAG),
     ('red-stag-bracken-dodge', 'guard', STAG),
-    ('red-stag-rut-call', 'trick', STAG),
+    ('red-stag-rut-call', 'trick', dict(STAG, a=(190, 160, 112), A=(232, 214, 172), b=(128, 96, 60))),
 ]
 
 
