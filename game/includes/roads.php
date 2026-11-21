@@ -53,6 +53,7 @@ function ensure_roads(): void
     cut_dead_end_roads();
     name_dead_end_roads();
     link_hidden_places();
+    own_dead_end_villages();   // after the side paths are laid: their anchors stay as they were
     // The Almanac's travel page: the old "Zones & landmarks" page becomes "Roads and the wilds"
     $old = q_val("SELECT id FROM encyclopedia_entries WHERE chapter = 'General' AND title IN ('Zones & landmarks', 'Roads and the wilds') ORDER BY id LIMIT 1");
     if ($old) {
@@ -231,6 +232,34 @@ function cut_dead_end_roads(): void
         }
     }
     set_setting('road_deadends_cut', '1');
+    setting('__reload__');
+}
+
+/** 2.7.50: the villages of a dead-end road (ROAD_DEAD_ENDS: Honeythorpe and Clovercove on the Maplewold road) were laid as villages of the far region (Blossomreach), but the road is the
+ *  Maplewold's: its map draws them as stops, the world map and the Routes popover put them in Blossomreach. They now belong to the region the road starts in (same zone number there).
+ *  Their side places (Brambleburrow, Sprayholt ...) stay where they are. Safe to repeat. */
+function own_dead_end_villages(): void
+{
+    if (setting('road_deadends_owned') === '1') return;
+    foreach (ROAD_DEAD_ENDS as [$a, $b]) {
+        $ra = q_one('SELECT id, gnomish_name FROM regions WHERE code = ?', [$a]);
+        $rb = (int)q_val('SELECT id FROM regions WHERE code = ?', [$b]);
+        if (!$ra || !$rb) continue;
+        foreach (q('SELECT * FROM roads')->fetchAll() as $rd) {
+            $nodes = array_map('intval', json_decode((string)$rd['nodes'], true) ?: []);
+            if (count($nodes) < 3 || (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$nodes[0]]) !== (int)$ra['id']) continue;
+            $last = q_one('SELECT region_id, kind FROM locations WHERE id = ?', [end($nodes)]);
+            if (!$last || $last['kind'] === 'market') continue;   // it still reaches the far town: nothing to own
+            foreach ($nodes as $nid) {
+                $l = q_one('SELECT l.id, l.kind, l.region_id, z.zone_num FROM locations l LEFT JOIN zones z ON z.id = l.zone_id WHERE l.id = ?', [$nid]);
+                if (!$l || $l['kind'] !== 'village' || (int)$l['region_id'] !== $rb) continue;
+                $zid = (int)q_val('SELECT id FROM zones WHERE region_id = ? AND zone_num = ? ORDER BY id LIMIT 1', [(int)$ra['id'], (int)($l['zone_num'] ?? 1)]);
+                q('UPDATE locations SET region_id = ?, region = ?' . ($zid ? ', zone_id = ?' : '') . ' WHERE id = ?', array_merge([(int)$ra['id'], (string)$ra['gnomish_name']], $zid ? [$zid] : [], [$nid]));
+                q('UPDATE users SET location = ? WHERE location_id = ?', [(string)$ra['gnomish_name'], $nid]);
+            }
+        }
+    }
+    set_setting('road_deadends_owned', '1');
     setting('__reload__');
 }
 

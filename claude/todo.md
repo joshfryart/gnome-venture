@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2.7.50
+- DONE: 2.7.49 art URLs carry ?v= (stale cached icons); 2.7.50 Honeythorpe + Clovercove moved to The Maplewold (own_dead_end_villages), Routes popover/world map/layout fixed, test dead_end_owned. OPEN: Routes popover for places in another region still shows no pin for them (Cloverholt from Honeythorpe is now same region, so only real cross-region exits); Puzzle box icon check (user said "in puzzlebox", not reproduced yet).
+
 ## 2.7.48 (branch ccr-0596564a-drinad, not yet PR)
 - DONE: 112 unique player piece icons (`ico-pl-<key>`) + 15 skill/gift redraws, wired (pf_player_icon_key, pfparts47 build48, pfengine.js). Zip `releases/GnomeVenture-2.7.48-web-update.zip` (needs 2.7.46+). OPEN: weak icons per agents (bond, pluck, roll, sidepath, seedswap, quince/durian/salak, cacao, ackee, brazil nut, cashew, thornbush); not checked on a real phone; pals/gear without icons still use type glyph.
 

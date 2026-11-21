@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/roads.php';   // ROAD_DEAD_ENDS
 
 /**
  * v2.0.61: the region map's layout on its own: a fixed, landscape 480 × 270 frame (the size of the region map art).
@@ -109,7 +110,9 @@ function region_layout_build(string $code): ?array
         if ($nodes[0] !== $tid) continue;
         $n = count($nodes);
         $far = q_one('SELECT r.code, r.gnomish_name FROM locations l JOIN regions r ON r.id = l.region_id WHERE l.id = ?', [$nodes[$n - 1]]);
-        $fp = REGION_MAP[$far['code'] ?? ''] ?? null;
+        $fc = (string)($far['code'] ?? '');
+        if ($fc === $code) foreach (ROAD_DEAD_ENDS as [$da, $db]) if ($da === $code) $fc = $db;   // 2.7.50: a dead-end road whose villages all belong to this region still heads towards the region it leads to
+        $fp = REGION_MAP[$fc] ?? null;
         $ang = $fp ? atan2((float)($fp[1] - $wy), (float)($fp[0] - $wx)) : (crc32((string)$rd['name']) % 628) / 100;
         for ($tries = 0; $tries < 8; $tries++) {
             $clash = false;
@@ -131,7 +134,7 @@ function region_layout_build(string $code): ?array
                 'far' => $isFar ? (string)($far['code'] ?? '') : '', 'farname' => $isFar ? (string)($far['gnomish_name'] ?? $loc['region']) : ''];
             $list[] = $nodes[$i];
         }
-        $roads[] = ['id' => (int)$rd['id'], 'name' => (string)$rd['name'], 'far' => (string)($far['code'] ?? ''), 'nodes' => $list, 'ang' => $ang];
+        $roads[] = ['id' => (int)$rd['id'], 'name' => (string)$rd['name'], 'far' => $fc, 'nodes' => $list, 'ang' => $ang];
     }
 
     // 2) every off-road place (found or not) beside the stop its first side path leaves from, fanned either side of the road

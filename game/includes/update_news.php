@@ -812,6 +812,9 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.50' => ['🗺️ Update 2.7.50: Honeythorpe and Clovercove are in The Maplewold',
+        "[list][*][b]Honeythorpe and Clovercove[/b]: the last two villages on the Maplewold road now belong to The Maplewold: the page header, the world map and the Routes map show them there, with their road drawn to them. The paths to them are Level 1 again.\n"
+        . "[*][b]Their side places[/b] (Brambleburrow, Sprayholt and the rest) stay in Blossomreach.[/list]"],
     '2.7.49' => ['🖼️ Update 2.7.49: new piece pictures show up right away',
         "[list][*][b]Puzzle pieces[/b]: the redrawn piece pictures (Jab, Smash and the other skill pieces) now replace the old ones as soon as you update, instead of after your browser forgets the old files.[/list]"],
     '2.7.48' => ['🎨 Update 2.7.48: new pictures for your puzzle pieces',

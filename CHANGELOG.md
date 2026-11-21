@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.50
+- **Honeythorpe and Clovercove belong to The Maplewold:** they are the villages of the Maplewold's dead-end road (market, Cloverholt, Honeythorpe, Clovercove) but were laid as Blossomreach villages, so the Maplewold map drew them as stops while the world map, the page header and the Routes popover put them in Blossomreach (on that map they sat in free spots with no road). `own_dead_end_villages()` (`roads.php`, run by `ensure_roads()` after the side paths are laid, setting `road_deadends_owned`) moves them (region, region text, same zone number, players standing there) into the region the road starts in; their side places (Brambleburrow, Sprayholt, the Thousand Gates, the Teahouse, the Jade Dragon-fly lair) stay in Blossomreach. A fresh world is laid the same way and migrated on first load. Their routes are now Maplewold zone 1 level (Lv 1) instead of Blossomreach's.
+- **Maps:** `region_layout.php` and `map_positions()` (`maps.php`) still point that road towards Blossomreach (`ROAD_DEAD_ENDS`) although its last village is now in its own region; the Maplewold painted map is unchanged (`tools/map_layout.lua`: only the two free-spot Blossomreach items are gone). New `tests/dead_end_owned.sh`.
+
 ## 2.7.49
 - **Redrawn piece icons now show after an update:** the art folders (`assets/img/pfight/`, `parts47/`, `parts48/`, `pieces/`) were loaded by the fight board without a version in the URL and are cached for a month, so a browser kept showing the old Jab, Smash and the other redrawn icons. The fight data now carries `v` (APP_VERSION) and `pfparts47.js`, `pfparts.js`, `pfboard.js`, `pfboardv1.js` and the Puzzle box sheet (`pfv1box.js`) add `?v=<version>` to every art image they load (atlas JSON, glyphs, tag icons, marks, creature and player piece icons). `url()` already did this for single files; the folder URLs it handed to the scripts had no file name to match.
 

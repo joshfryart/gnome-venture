@@ -78,7 +78,13 @@ function map_positions(): array
         $a = $pos[$nodes[0]];
         $b = $pos[$nodes[$n - 1]];
         $lastId = $nodes[$n - 1];
-        if (($kindOf[$lastId] ?? '') !== 'market' && ($regOf[$lastId] ?? '') !== '' && isset(REGION_MAP[$regOf[$lastId]])) {   // 2.7.45: a dead-end road stops at a village: that end sits on the near edge of its own region (not past the far market)
+        $tgt = '';   // 2.7.50: a dead-end road whose villages all belong to its own region (own_dead_end_villages): it still heads for the region it leads towards
+        foreach (ROAD_DEAD_ENDS as [$da, $db]) if (($regOf[$nodes[0]] ?? '') === $da && ($regOf[$lastId] ?? '') === $da && ($kindOf[$lastId] ?? '') !== 'market' && isset(REGION_MAP[$da], REGION_MAP[$db])) $tgt = $db;
+        if ($tgt !== '') {
+            [$ex, $ey, , $er] = REGION_MAP[$regOf[$lastId]]; $vx = REGION_MAP[$tgt][0] - $ex; $vy = REGION_MAP[$tgt][1] - $ey; $vl = sqrt($vx * $vx + $vy * $vy) ?: 1.0;
+            $b = [(int)round($ex + $vx / $vl * $er * 0.85), (int)round($ey + $vy / $vl * $er * 0.85)];
+            $pos[$lastId] = $b;
+        } elseif (($kindOf[$lastId] ?? '') !== 'market' && ($regOf[$lastId] ?? '') !== '' && isset(REGION_MAP[$regOf[$lastId]])) {   // 2.7.45: a dead-end road stops at a village: that end sits on the near edge of its own region (not past the far market)
             [$ex, $ey, , $er] = REGION_MAP[$regOf[$lastId]]; $vx = $a[0] - $ex; $vy = $a[1] - $ey; $vl = sqrt($vx * $vx + $vy * $vy) ?: 1.0;
             $b = [(int)round($ex + $vx / $vl * $er * 0.85), (int)round($ey + $vy / $vl * $er * 0.85)];
             $pos[$lastId] = $b;
