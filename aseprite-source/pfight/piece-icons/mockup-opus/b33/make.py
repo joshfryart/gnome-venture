@@ -33,7 +33,7 @@ FROG = dict(MOUTH, **EYE)
 ICONS = [
     # slug, type, extra palette
     ('dust-sidewinder-side-wind', 'guard', dict(SNAKE, **SAND)),
-    ('dust-sidewinder-dust-fang', 'hurt', dict(SNAKE, **VENOM)),
+    ('dust-sidewinder-dust-fang', 'hurt', dict(SNAKE, **VENOM, **SAND)),
     ('dust-sidewinder-sand-skim', 'hurt', dict(SNAKE, **SAND)),
     ('dust-sidewinder-sideways-skirt', 'trick', dict(SNAKE, **SAND)),
     ('poison-dart-frog-dart-skin', 'guard', dict(FROG)),
