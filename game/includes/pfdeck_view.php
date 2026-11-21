@@ -72,10 +72,10 @@ function pfv_pc(array $p, array $o = []): string
     $life = PFB_LIFE;   // 2.6.96: every piece stays 3 rounds in a new fight (per-piece life is off), so the box shows 3, not the old Quick 2 / Hold 4
     $px = str_repeat('<i></i>', $life);
     $tg = PF_TAGS[(string)($p['tag'] ?? '')] ?? null; $tx = pfv_tag_text($p); $own = (string)($o['owner'] ?? 'me');
-    $art = json_encode(['t' => $p['t'], 'e' => $p['e'], 'tag' => $tg ? (string)$p['tag'] : '', 'o' => $own], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    $art = json_encode(['t' => $p['t'], 'e' => $p['e'], 'tag' => $tg ? (string)$p['tag'] : '', 'o' => $own] + (!empty($p['ik']) ? ['ik' => (string)$p['ik']] : []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     $label = $p['n'] . ', ' . (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . (int)$p['v'] . (($p['tag'] ?? '') !== '' && ($p['tag'] ?? '') !== 'pal' ? ', ' . $p['tag'] : '') . (!empty($p['rank']) ? ', ' . PFD_RANK_NAME[(int)$p['rank']] : '') . ', stays ' . $life . ' rounds';
     // 2.6.76: everything the detail sheet shows for this piece (assets/pfv1box.js, PFSheet); the tag's words come from PF_TAGS, the one table
-    $pcd = ['n' => (string)$p['n'], 't' => (string)$p['t'], 'ty' => PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t']), 'v' => (int)$p['v'], 'rk' => (int)($p['rank'] ?? 0), 'rn' => !empty($p['rank']) ? PFD_RANK_NAME[(int)$p['rank']] : '', 'src' => (string)($p['src'] ?? ''), 'life' => $life,
+    $pcd = ['ik' => (string)($p['ik'] ?? ''), 'n' => (string)$p['n'], 't' => (string)$p['t'], 'ty' => PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t']), 'v' => (int)$p['v'], 'rk' => (int)($p['rank'] ?? 0), 'rn' => !empty($p['rank']) ? PFD_RANK_NAME[(int)$p['rank']] : '', 'src' => (string)($p['src'] ?? ''), 'life' => $life,
         'tag' => $tg ? (string)$p['tag'] : '', 'ti' => $tx ? $tx[0] : '', 'tt' => $tx ? $tx[1] : '', 'tx' => pf_type_text((string)$p['t'], (int)$p['v']), 'e' => $p['e'], 'bl' => (string)($p['blurb'] ?? ''), 'note' => isset($o['d']) ? pfv_last_extra() : '', 'own' => $own]
         + (isset($o['dur']) ? ['dur' => $o['dur']] : []) + (array)($o['pcx'] ?? []);   // pcx: what the Puzzle box sheet adds (source, where from, limit, why it is blocked)
     return '<li' . (isset($o['g']) ? ' data-g="' . e((string)$o['g']) . '"' : '') . '><button type="button" class="pc' . (!empty($p['rank']) ? ' r' . (int)$p['rank'] : '') . (!empty($p['gear']) ? ' gear' : '') . (($o['cls'] ?? '') !== '' ? ' ' . e((string)$o['cls']) : '') . '"'
@@ -459,7 +459,7 @@ function pfv_foe_card(array $c, string $region): string
     $by = []; $cells = ''; $lean = (string)$row['lean'];
     foreach (pfd_foe_pieces($c, $region) as $p) {   // in layer order (a boss plays them in its own order)
         $by[$p['layer']] = ($by[$p['layer']] ?? 0) + 1; $v = pfv_foe_v($c, (int)$p['v']);
-        $q = ['n' => $p['n'], 't' => $p['t'], 'v' => $v, 'tag' => $p['tag'], 'life' => $p['life'], 'src' => 'creature', 'e' => pfb_author_edges(['t' => $p['t'], 'r' => $p['r']], (string)$p['col'])];
+        $q = ['n' => $p['n'], 't' => $p['t'], 'v' => $v, 'tag' => $p['tag'], 'life' => $p['life'], 'src' => 'creature', 'ik' => (string)($p['ik'] ?? ''), 'e' => pfb_author_edges(['t' => $p['t'], 'r' => $p['r']], (string)$p['col'])];
         $d = (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . $v . ' · ' . PFD_LAYERS[$p['layer']] . ' · stays ' . PFB_LIFE . ' rounds · plays ×' . PFB_FOE_FIRES . (isset(PFV_FOE_TAG[$p['tag']]) ? '. ' . PFV_FOE_TAG[$p['tag']] : '') . '.';
         $cells .= pfv_pc($q, ['owner' => 'foe', 'cls' => 'L-' . $p['layer'], 'a' => 'info', 'd' => $d, 'x' => ' data-info="pfv-cinfo"']);
     }
@@ -469,7 +469,7 @@ function pfv_foe_card(array $c, string $region): string
     return '<div class="foecard"><div class="pic">' . $img . '</div><div class="fx"><h3>' . e((string)$c['name']) . ' <small>lv ' . (int)$c['level'] . '</small></h3>'
         . '<div class="chips small"><span class="chip">' . (PFV_CLASS_ICON[$cl] ?? '🐾') . ' ' . e($cl) . '</span>' . ($rn !== '' ? '<span class="chip">' . e($rn) . '</span>' : '') . '<span class="chip"><i class="szd ' . e($size) . '"></i>' . e($size) . ' · ' . $dims[0] . '×' . $dims[1] . '</span><span class="chip">' . $charm . '</span><span class="chip">leans ' . e($lean) . '</span></div></div></div>'
         . (($kr = PFB_KIND_TEXT[pfb_kind_of(['class' => $cl], $size)] ?? null) && !empty(pfb_v1_cfg($size, [], max(1, (int)($c['level'] ?? 1)))['kinds']) ? '<p class="foerule"><b>' . e($kr[0]) . ':</b> ' . e($kr[1]) . '</p>' : '')   // 2.6.98: the class rule, when the fight will use it
-        . '<div class="tally" role="img" aria-label="' . array_sum($by) . ' pieces in layers">' . $tally . '</div><ul class="pcg c5">' . $cells . '</ul>'
+        . '<div class="tally" role="img" aria-label="' . array_sum($by) . ' pieces in layers">' . $tally . '</div><ul class="pcg c5" data-pico="' . e(url('assets/img/pfight/pieces/')) . '">' . $cells . '</ul>'
         . '<div class="pinfo" id="pfv-cinfo" aria-live="polite"><span>Tap one of its pieces. Each plays up to ' . PFB_FOE_FIRES . ' times.</span></div>';
 }
 
