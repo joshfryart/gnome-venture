@@ -136,14 +136,14 @@ foreach ($K['extra'] as $sz => $ps) foreach ($ps as $q) $foeRow($q, "@$sz {$q['n
 foreach ($R as $code => $pair) foreach ($pair as $slot => $q) { $foeRow($q, "$code {$q['n']}"); if (($slot === 'hurt') !== ($q['t'] === 'hurt')) $err[] = "$code $slot: the hurt slot holds the Hurt piece, the other slot does not"; }
 $names = [];
 foreach ($U as $slug => $u) {
-    if (count($u['P']) !== 3) $err[] = "$slug: 3 unique pieces";
+    if (count($u["P"]) !== 4) $err[] = "$slug: 4 unique pieces";
     if (!in_array($u['lean'], PFD_FAM, true)) $err[] = "$slug: lean";
     if (!in_array('hurt', array_column($u['P'], 't'), true)) $err[] = "$slug: no Hurt piece among its unique 3";
     if (count(array_unique(array_column($u['P'], 'r'))) < 2) $err[] = "$slug: knobs all one family";
     foreach ($u['P'] as $q) { $foeRow($q, "$slug {$q['n']}"); $names[] = $q['n']; }
 }
 chk('creature data: every base, size, region and unique piece is well formed (type, v_mult, knob, a tag its type can carry, life 2-4)', !$err, $err);
-chk('all 319 creatures (88 base + 231 variants) have 3 unique pieces (957), none for an unknown creature', !array_diff($slugs, array_keys($U)) && !array_diff(array_keys($U), $slugs) && count($names) === 957, count($names));
+chk('all 319 creatures (88 base + 231 variants) have 4 unique pieces (1276), none for an unknown creature', !array_diff($slugs, array_keys($U)) && !array_diff(array_keys($U), $slugs) && count($names) === 1276, count($names));
 chk('unique piece names are unique across all creatures, and none repeats a class, size or region piece name', count($names) === count(array_unique($names)) && !array_intersect($names, array_merge(...array_map(fn($c) => array_column($c['P'], 'n'), array_values($K['classes'])), ...array_map(fn($p) => array_column($p, 'n'), array_values($R)), ...array_map(fn($p) => array_column($p, 'n'), array_values($K['extra'])))), array_diff_key($names, array_unique($names)));
 chk('region pieces: 14 regions x 2 (a Hurt piece and another), codes as regions.txt; the player\'s region piece is the creature\'s "other" one', (function () use ($R, $codes, $C) { $k = array_keys($R); sort($k); if ($k !== $codes) return false; foreach ($R as $code => $p) if (count($p) !== 2 || $C['r:' . $code]['n'] !== $p['other']['n'] || $C['r:' . $code]['t'] !== $p['other']['t']) return false; return true; })());
 chk('every creature tag is used by some piece (pierce, poison, quick, trip, bash, hold, thorns, evade, heal)', (function () use ($K, $U, $R) { $t = []; foreach ($K['classes'] as $c) foreach ($c['P'] as $q) $t[$q['tag']] = 1; foreach ($U as $u) foreach ($u['P'] as $q) $t[$q['tag']] = 1; foreach ($R as $p) foreach ($p as $q) $t[$q['tag']] = 1; return !array_diff(['pierce', 'poison', 'quick', 'trip', 'bash', 'hold', 'thorns', 'evade', 'heal'], array_keys($t)); })());
