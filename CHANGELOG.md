@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.47
+- **Creature icons that only half loaded:** the icon loader (`P.cicoLoad` in `pfparts.js`/`pfparts47.js`) called back only the caller that first asked for an icon, so a piece drawn by a second `mount()` while the first icons were still arriving (the pre-fight card, mounted again when a sheet opens) could stay on the type glyph (Orb Spider showed 2 of its 4 unique icons). Every caller now redraws after each icon arrives (one shared redraw function on the boards).
+
 ## 2.7.46
 - **Fight board (v1):** a creature piece placed and used up in the same turn no longer shows from the first frame of your resolution (its `fnew` mark was dropped from the gone list); health lands at the step that causes it: the poison tick that ends a fight carries its bar values, each environment step keeps its own bars (new `now` field, mirrored in `tools/pfengine.js`), the page draws a waiting replay with the pre-turn bars, and the site header health pill steps with the replay. Pieces used up in a chain keep their icon (no snap back to the type glyph), and the info window shows the creature icon.
 - **Creature pre-fight card:** the creature's unique pieces show their own icons there too, and in the detail sheet.
