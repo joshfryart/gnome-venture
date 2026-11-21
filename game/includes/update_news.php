@@ -814,8 +814,7 @@ function post_update_news(string $from): void
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
     '2.7.38' => ['🧺 Update 2.7.38: the harvest basket, new pal pictures, a Cat Fish shelf',
         "[list][*][b]Harvest show[/b]: after you tap Harvest, your plants are pulled up in a row and fly into a basket, then you see your crops, XP, saved seeds and how the garden is doing. If a garden pal picked while you slept, the same show plays when you wake. A level up is a small gold LEVEL UP! pop instead of a line of text.\n"
-        . "[*][b]Pals on the road[/b]: every pal now has a small creature picture that walks beside your gnome, in fights, on the Trail and in the delve. The puzzle-piece pictures stay in the Pal Book.\n"
-        . "[*][b]Fight pieces[/b]: many creature pieces now show their own little drawing on the fight board.\n"
+        . "[*][b]Pals on the road[/b]: every pal now has a small creature picture that walks beside your gnome, on the Trail and in the delve. The puzzle-piece pictures stay in the Pal Book.\n"
         . "[*][b]Cat Fish[/b]: a new look, with the Kibble counter pinned under the stage, tidier upgrade tiles and a dark mode. The tap counter now matches what the game pays after a reload.[/list]"],
     '2.7.35' => ['🛠️ Update 2.7.35: a Trail fix and tidying up',
         "[list][*][b]Trail errors[/b]: starting or finishing something on the Trail could sometimes show a \"no active transaction\" error page. That is fixed.\n"
