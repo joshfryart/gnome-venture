@@ -29,13 +29,14 @@ SOLE = {'s': (118, 82, 60), 'S': (160, 118, 88)}
 STEEL = {'m': (176, 186, 196), 'M': (232, 238, 242), 'v': (110, 120, 136)}
 THREAD = {'t': (232, 92, 92), 'T': (250, 160, 150)}
 SPEED = {'y': (250, 244, 220)}
+THORN = {'C': (246, 236, 208), 'c': (196, 176, 136)}
 
 ICONS = [
     # slug, type, extra palette
     ('trip', 'hurt', dict(ROPE, **SOLE, **WOOD)),
     ('brace', 'guard', dict(WOOD, **GRASS)),
     ('roll', 'guard', dict(SPEED, **ROPE)),
-    ('thornhide', 'guard', dict(GRASS)),
+    ('thornhide', 'guard', dict(THORN)),
     ('mending', 'guard', dict(STEEL, **THREAD)),
 ]
 

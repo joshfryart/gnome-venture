@@ -37,7 +37,7 @@ ICONS = [
     ('pl-t-harvest', 'guard', dict(STEEL, **WOOD)),
     ('pl-t-prune', 'hurt', dict(STEEL, **LEAF)),
     ('pl-t-broadfork', 'hurt', dict(WOOD, **SOIL)),
-    ('pl-t-soiltest', 'trick', dict(STEEL, **BERRY)),
+    ('pl-t-soiltest', 'trick', dict(STEEL, **BERRY, **SOIL)),
     ('pl-t-forage', 'item', dict(LEAF, **BERRY)),
 ]
 
