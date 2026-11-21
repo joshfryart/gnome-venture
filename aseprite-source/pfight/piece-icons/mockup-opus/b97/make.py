@@ -24,14 +24,14 @@ import pix  # noqa: E402
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 GLASS = {'g': (232, 248, 250), 'q': (170, 222, 232), 'n': (92, 156, 178)}  # fused glass / shards
 EYE = {'y': (246, 206, 70), 'Y': (255, 240, 160)}                            # amber eye
-MOUTH = {'m': (122, 40, 40), 'r': (200, 84, 84)}
+MOUTH = {'m': (122, 40, 40), 'r': (200, 84, 84), 'P': (238, 146, 150)}
 
 ICONS = [
     # slug, type, extra palette
     ('glass-wyrm-glass-lash', 'hurt', dict(GLASS, **EYE)),
     ('glass-wyrm-shard-spit', 'hurt', dict(GLASS, **EYE, **MOUTH)),
     ('glass-wyrm-fused-hide', 'guard', dict(GLASS, **EYE)),
-    ('glass-wyrm-slow-wake', 'heal', dict(GLASS, **EYE)),
+    ('glass-wyrm-slow-wake', 'heal', dict(GLASS, **EYE, **MOUTH)),
 ]
 
 
