@@ -183,6 +183,7 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   await p.click('.cftabs [data-branch=fish]');
   await p.click('#cf-ups form[data-key=silk] button'); await p.waitForTimeout(1500);
   const bq = reqs.slice(nReq).find(x => /name="do"\s+buy/.test(x)) || '';
+  out.push('DBG pend0=' + pend0 + ' reqs=' + JSON.stringify(reqs.slice(nReq).map(x => x.replace(/\s+/g, ' ').slice(0, 200))));
   ok('buy: the request carries play=<pending taps>, a seq and the scene key', new RegExp('name="play"\\s+' + pend0 + '\\s').test(bq) + ',' + /name="seq"\s+\d{6,}/.test(bq) + ',' + /name="scene"/.test(bq), 'true,true,true');
   ok('buy: after the reply no tap is pending, silk is x1, and the new fish kind is in the stage', await p.evaluate(() => [document.querySelector('.cfstage').getAttribute('data-play-pending'), document.querySelector('#cf-ups form[data-key=silk] small.muted').textContent, document.querySelectorAll('.cfsdrop.cfk-2').length].join()), '0,×1,1');
   const dq = (await kib()) - (kq - 150);
