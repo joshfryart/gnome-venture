@@ -1266,7 +1266,7 @@ function pfb_place_group(array &$s, string $who, int $ox, int $oy): ?array
 /** The board as it stands right now (for rewinding the history): the pieces with everything the page needs to draw and describe them. */
 function pfb_snap(array $s): array
 {
-    return array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born']], $s['pcs']));
+    return array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'ik' => (string)($p['tile']['ik'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born']], $s['pcs']));
 }
 
 function pfb_check_after(array $s, int $id): int
@@ -2138,7 +2138,7 @@ function pfb_view(array $s): array
     $v['start'] = !empty($s['start']); $v['mode'] = 'board'; $v['w'] = pfb_w($s); $v['h'] = pfb_h($s); $v['fx'] = $s['fx'] ?? [];
     $g = $s['me']['held'] ?? null;
     $v['held'] = $g ? ['pcs' => array_map(fn($p) => ['n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'x' => $p['x'], 'y' => $p['y']], $g['pcs']), 'spots' => pfb_group_spots($s, $g), 'link' => (bool)array_filter(pfb_group_cells_all($s, $g), fn($o) => $o[2])] : null;
-    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'fl' => pfb_fire_lim($s, $p) > 0 ? max(0, pfb_fire_lim($s, $p) - (int)($p['f'] ?? 0)) : null, 'spawn' => ($s['spawn'] ?? null) === $p['id'], 'fnew' => in_array($p['id'], $s['lastfoe'] ?? [], true)], $s['pcs']));
+    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'ik' => (string)($p['tile']['ik'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'fl' => pfb_fire_lim($s, $p) > 0 ? max(0, pfb_fire_lim($s, $p) - (int)($p['f'] ?? 0)) : null, 'spawn' => ($s['spawn'] ?? null) === $p['id'], 'fnew' => in_array($p['id'], $s['lastfoe'] ?? [], true)], $s['pcs']));
     $v['gone'] = array_map(fn($g) => ['id' => $g['id'], 'by' => $g['by'], 'x' => $g['x'], 'y' => $g['y'], 'n' => $g['tile']['n'], 't' => $g['tile']['t'], 'v' => $g['tile']['v'], 'tag' => $g['tile']['tag'], 'm' => (string)($g['tile']['m'] ?? ''), 'e' => pfb_edges($g['tile']), 'age' => $g['age'], 'fell' => !empty($g['fell'])] + ($g['by'] === 'env' ? ['kind' => (string)$g['tile']['env'], 'dir' => $g['tile']['dir'] ?? null] : []), $s['gone'] ?? []);   // 2.6.75: a piece of the environment that left: its kind (and Wind's arrow) for the page
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);
     unset($v['strip'], $v['open'], $v['open_t'], $v['open_v'], $v['open_by']);

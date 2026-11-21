@@ -232,6 +232,15 @@ function pfd_foe_v(array $c): int
     return max(1, (int)pf_round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
 }
 
+/** 2.7.45: the key of a creature piece's hand-drawn icon (assets/img/pfight/pieces/ico-<key>.png and -s.png), or '' when that piece has none (the type emoji stays). */
+function pfd_piece_icon_key(string $slug, string $name): string
+{
+    static $c = [];
+    $k = trim((string)preg_replace('/[^a-z0-9]+/', '-', strtolower($slug . ' ' . $name)), '-');
+    if (!isset($c[$k])) $c[$k] = $k !== '' && is_file(__DIR__ . '/../assets/img/pfight/pieces/ico-' . $k . '-s.png') ? $k : '';
+    return $c[$k];
+}
+
 /**
  * The creature's pieces by layer, in layer order: [['k', 'n', 't', 'v', 'r', 'tag', 'life', 'col', 'layer'], ...] (values before the board factors).
  * $region = the region code the fight is in ('' or unknown: no region piece). The class lean is the column family of 3 pieces in 5 (in this order); the others stack in their type family.
@@ -242,9 +251,11 @@ function pfd_foe_pieces(array $c, string $region = ''): array
     $cl = pfd_class($c); $K = pfd_classes(); $slug = (string)($c['slug'] ?? ''); $u = pfd_unique_of($c);
     $lean = in_array($u['lean'] ?? '', PFD_FAM, true) ? $u['lean'] : $K['classes'][$cl]['lean'];
     $out = []; $n = [];
-    $add = function (string $layer, array $q) use (&$out, &$n, $v, $lean) {
+    $ikSlug = isset(pfd_uniques()[$slug]) ? $slug : '';   // 2.7.45: a creature's own 3 pieces carry the key of their hand-drawn icon (assets/img/pfight/pieces/ico-<ik>[-s].png); a lair guardian borrowing a boss's pieces keeps the type emoji
+    $add = function (string $layer, array $q) use (&$out, &$n, $v, $lean, $ikSlug) {
         $i = count($out); $n[$layer] = ($n[$layer] ?? -1) + 1;
         $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)pf_round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
+            'ik' => $layer === 'uni' && $ikSlug !== '' ? pfd_piece_icon_key($ikSlug, (string)$q['n']) : '',
             'col' => $i % 5 < 3 ? $lean : (PF_HOLE[$q['t']] ?? 'body'), 'layer' => $layer];
     };
     $own = pfd_creature_names()[$slug] ?? [];   // this creature's own names for the class and size pieces (type, value, knob and tag stay)
