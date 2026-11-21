@@ -28,6 +28,8 @@ STEEL = {'m': (176, 186, 196), 'M': (232, 238, 242), 'v': (110, 120, 136)}
 LEAF = {'g': (110, 170, 64), 'J': (170, 210, 100), 'j': (64, 112, 44)}
 SOIL = {'s': (120, 84, 60), 'S': (160, 118, 84), 'z': (78, 54, 42)}
 BERRY = {'r': (206, 58, 62), 'R': (240, 110, 104)}
+BRAMBLE = {'p': (96, 48, 112), 'P': (150, 96, 170), 'q': (58, 30, 72)}
+CREAMSH = {'c': (214, 192, 150)}
 
 ICONS = [
     # slug, type, extra palette
@@ -38,7 +40,7 @@ ICONS = [
     ('pl-t-prune', 'hurt', dict(STEEL, **LEAF)),
     ('pl-t-broadfork', 'hurt', dict(WOOD, **SOIL)),
     ('pl-t-soiltest', 'trick', dict(STEEL, **BERRY, **SOIL)),
-    ('pl-t-forage', 'item', dict(LEAF, **BERRY)),
+    ('pl-t-forage', 'item', dict(LEAF, **BRAMBLE, **CREAMSH)),
 ]
 
 
