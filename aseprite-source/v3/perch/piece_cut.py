@@ -13,6 +13,8 @@ else:    BS, B0, S, K, FIT, SRC = 24, 6, 36, 1.0, 22, REPO + '/game/assets/img/p
 def make(row):
     slug, key, rar, piece_, shape, knob = row[0], row[1], row[3], row[9], row[10], row[11]
     sp = Image.open(SRC + key + '.png').convert('RGBA')
+    if shape.startswith('whimsy'):   # novelty shapes have no jigsaw sides: pick a plain-inner piece by key so each whimsy pal still reads as a piece
+        import hashlib; shape = ['inner-TTBB', 'inner-TTTB', 'inner-TBTB', 'inner-TBBB', 'inner-TTTT'][int(hashlib.md5(key.encode()).hexdigest()[:4], 16) % 5]
     sd = pm.sides(shape)
     # backdrop = the pal's picture cell, softened toward cream so the creature reads
     im = pm.pic(slug); c, r = map(int, piece_.split('-')); cw, ch = im.width // 12, im.height // 8
@@ -62,6 +64,6 @@ if __name__ == '__main__':
     for l in open(REPO + '/game/includes/data/puzzle_pals.txt'):
         if l.startswith('#') or '|' not in l: continue
         r = l.rstrip('\n').split('|')
-        if r[10].startswith('whimsy') or (pm.ONLY and r[1] not in pm.ONLY): continue
+        if (pm.ONLY and r[1] not in pm.ONLY): continue
         make(r).save(OUT + '/' + r[1] + '.png'); n += 1
     print(n)
