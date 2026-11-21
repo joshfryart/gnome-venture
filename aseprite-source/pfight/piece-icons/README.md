@@ -13,3 +13,7 @@ Re-run
 2. `bash run_all.sh` (about 90 minutes: 4 parallel calls, thinking on for the revise).
 
 Known weak spots: no 1px ink outline on many; type corner cue is inconsistent; some scattered shapes. 49 icons kept their first try (the revise failed validation 3 times).
+
+## Opus hand-drawn pass (2026-11-21) — replaces the GLM drafts
+All 264 pieces redrawn by hand as pixel grids (`mockup-opus/`). Final PNGs: `mockup-opus/all/ico-<slug>.png` (32px) and `-s.png` (20px), 528 files, sizes checked. Overview: `all_opus.png`. Per batch (`bNN/`): `grids/<slug>-32|20.txt` (one char per pixel), `make.py`, `sheet.png`; `batches/bNN.txt` are the input rows; `BRIEF.md` is the agent brief. Rebuild a batch: `cd mockup-opus/bNN && python3 make.py`. The 5 approved mockups sit in `mockup-opus/` itself (`mockup.py`). No `.aseprite` files (no Aseprite binary in the cloud env); convert with `aseprite -b in.png --save-as out.aseprite`. NOT wired into the game. The GLM `out/` is superseded.
+Known weak spots (agents' own notes): hyena/monitor/sidewinder open-jaw heads read as dinosaur; several pieces lack a tag cue (evade/thorns/trip); a few 20px details get coarse (eyes, thin limbs).
