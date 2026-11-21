@@ -32,7 +32,7 @@ SUGAR = {'W': (250, 250, 244), 'w': (206, 210, 220)}                        # su
 FIRE = {'f': (236, 60, 30), 'F': (255, 160, 50)}                            # sting flame
 ROCK = {'r': (150, 146, 136), 'R': (194, 190, 178), 'q': (98, 94, 90)}      # obstacle stone
 BLOOD = {'r': (196, 36, 40), 'R': (240, 104, 96), 'm': (122, 20, 30)}
-SALT = {'W': (244, 248, 250)}
+SALT = {}
 DUSK = {'p': (120, 70, 120), 'P': (170, 100, 140)}                          # dusk sky band
 
 ICONS = [
@@ -51,8 +51,8 @@ ICONS = [
     ('army-ant-column-endless-file', 'guard', {}),
     ('sandfly-cloud-sand-bite', 'hurt', dict(WING, r=(196, 36, 40))),
     ('sandfly-cloud-blood-meal', 'heal', dict(WING, **BLOOD)),
-    ('sandfly-cloud-salt-haze', 'guard', dict(SALT, w=(163, 199, 216))),
-    ('sandfly-cloud-pinprick-dusk', 'hurt', dict(DUSK, W=(214, 234, 240), w=(163, 199, 216))),
+    ('sandfly-cloud-salt-haze', 'guard', dict(WING, **SALT)),
+    ('sandfly-cloud-pinprick-dusk', 'hurt', dict(DUSK, **WING)),
 ]
 
 

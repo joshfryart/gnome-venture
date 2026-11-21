@@ -13,8 +13,8 @@
 ...LBBBBBBBBBBBBD...
 ..LuBBBBBBBBBBBuBD..
 .LuUumMMMMMMMMuUuBD.
-.DmMMmmmmmmmmmmMMmD.
-.mMmmmmmmmmmmmmmmMm.
+.DDMMmmmmmmmmmmMMDD.
+..MmmmmmmmmmmmmmmM..
 .mmmmmmmmmmmmmmmmmm.
-mMmmmmmmmmmmmmmmmmMm
+.MmmmmmmmmmmmmmmmmM.
 ....................
