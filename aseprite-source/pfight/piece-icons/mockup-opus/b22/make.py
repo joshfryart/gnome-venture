@@ -28,6 +28,7 @@ FISH = {'f': (176, 186, 196), 'F': (226, 232, 238)}                        # lit
 LEAF = {'y': (196, 214, 92), 'Y': (232, 238, 150), 'j': (112, 140, 50)}   # living leaves
 BARK = {'q': (150, 108, 70), 'Q': (196, 152, 104), 'z': (98, 68, 44)}      # root / bark
 THORN = {'t': (120, 60, 70), 'T': (176, 96, 104)}                          # bramble thorns
+STAG = dict(LEAF, **BARK, **THORN)
 
 ICONS = [
     # slug, type, extra palette
@@ -35,10 +36,10 @@ ICONS = [
     ('reef-leviathan-deep-dive', 'guard', dict(WATER, **MOUTH, **FISH)),
     ('reef-leviathan-whirlpool', 'hurt', dict(WATER, **MOUTH, **FISH)),
     ('reef-leviathan-swallow-whole', 'hurt', dict(MOUTH, **FISH, **WATER)),
-    ('old-bramblehorn-horn-gore', 'hurt', dict(LEAF)),
-    ('old-bramblehorn-bramble-mantle', 'guard', dict(LEAF, **THORN)),
-    ('old-bramblehorn-ancient-root', 'heal', dict(LEAF, **BARK)),
-    ('old-bramblehorn-antler-wall', 'guard', dict(LEAF)),
+    ('old-bramblehorn-horn-gore', 'hurt', dict(STAG)),
+    ('old-bramblehorn-bramble-mantle', 'guard', dict(STAG)),
+    ('old-bramblehorn-ancient-root', 'heal', dict(STAG)),
+    ('old-bramblehorn-antler-wall', 'guard', dict(STAG)),
 ]
 
 
