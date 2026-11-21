@@ -31,10 +31,10 @@ THORN = {'t': (120, 60, 70), 'T': (176, 96, 104)}                          # bra
 
 ICONS = [
     # slug, type, extra palette
-    ('reef-leviathan-tidal-slam', 'hurt', dict(WATER, **MOUTH)),
-    ('reef-leviathan-deep-dive', 'guard', dict(WATER, **MOUTH)),
-    ('reef-leviathan-whirlpool', 'hurt', dict(WATER, **MOUTH)),
-    ('reef-leviathan-swallow-whole', 'hurt', dict(MOUTH, **FISH)),
+    ('reef-leviathan-tidal-slam', 'hurt', dict(WATER, **MOUTH, **FISH)),
+    ('reef-leviathan-deep-dive', 'guard', dict(WATER, **MOUTH, **FISH)),
+    ('reef-leviathan-whirlpool', 'hurt', dict(WATER, **MOUTH, **FISH)),
+    ('reef-leviathan-swallow-whole', 'hurt', dict(MOUTH, **FISH, **WATER)),
     ('old-bramblehorn-horn-gore', 'hurt', dict(LEAF)),
     ('old-bramblehorn-bramble-mantle', 'guard', dict(LEAF, **THORN)),
     ('old-bramblehorn-ancient-root', 'heal', dict(LEAF, **BARK)),

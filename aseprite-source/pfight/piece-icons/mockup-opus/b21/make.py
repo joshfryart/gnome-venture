@@ -28,11 +28,13 @@ SKIN = {'s': (170, 162, 96), 'S': (206, 198, 128), 'z': (112, 104, 58)}   # snap
 MOSS = {'y': (196, 214, 92), 'Y': (232, 238, 150), 'j': (120, 150, 56)}   # moss
 MUD = {'m': (128, 90, 56), 'M': (164, 122, 80), 'u': (88, 60, 38)}        # mud
 MOUTH = {'r': (200, 84, 84), 'q': (122, 40, 40)}                          # gape
+FOOT = {'Y': (244, 214, 84), 'y': (196, 154, 40)}                         # hawk feet
+BRANCH = {'p': (166, 122, 78), 'b': (124, 86, 52), 'e': (84, 56, 34)}     # perch
 
 ICONS = [
     # slug, type, extra palette
     ('great-hawk-stoop', 'hurt', dict(HAWK)),
-    ('great-hawk-talon-grip', 'hurt', dict(HAWK)),
+    ('great-hawk-talon-grip', 'hurt', dict(HAWK, **FOOT, **BRANCH)),
     ('great-hawk-high-circle', 'guard', dict(HAWK)),
     ('great-hawk-shadow-pass', 'trick', dict(HAWK)),
     ('ancient-snapper-snapping-jaw', 'hurt', dict(SKIN, **MOUTH)),
