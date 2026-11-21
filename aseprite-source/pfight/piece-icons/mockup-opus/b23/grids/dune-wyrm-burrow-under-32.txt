@@ -19,7 +19,7 @@
 ...LBBBBBD..........SsDBBBBDSS..
 ..SSSSSSSSS.........SSSSSSSSSS..
 ..SSSSSSSSSSSSSSSSSSSSSSSSSSSS..
-..sSSSSssssSSSSSSSSSSsssSSSSSSs.
+..sSSSSssssSSSSSSSSSSsssSSSSSs..
 ..zsssSSSSSSSSssssSSSSSSSSsssz..
 ...zzssssSSSSSSSSSSSSSSSssszz...
 ......zzzzzzzzzzzzzzzzzzzz......

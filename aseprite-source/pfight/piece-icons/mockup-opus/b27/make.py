@@ -23,16 +23,17 @@ import pix  # noqa: E402
 WOOD = {'w': (150, 102, 62), 'W': (192, 140, 88), 'x': (100, 66, 40)}     # branch
 FACE = {'n': (206, 112, 112), 'm': (122, 40, 40), 'r': (200, 84, 84)}     # nose / mouth
 PAD = {'p': (226, 140, 150), 'P': (246, 190, 196), 'q': (176, 92, 104)}   # paw pads
+BONE = {'o': (212, 192, 150), 'O': (160, 136, 100)}                     # bone shade
 MEAT = {'u': (196, 74, 64), 'U': (230, 120, 104), 'z': (132, 44, 40)}     # meat
 
 ICONS = [
     ('cloud-leopard-branch-drop', 'hurt', dict(WOOD, **FACE)),
     ('cloud-leopard-cloud-coat', 'guard', dict(FACE)),
     ('cloud-leopard-long-tail', 'trick', dict(FACE)),
-    ('cloud-leopard-rumour-step', 'trick', dict(PAD)),
+    ('cloud-leopard-rumour-step', 'trick', dict(PAD, **FACE)),
     ('savanna-hyena-cackle', 'trick', dict(FACE)),
-    ('savanna-hyena-bone-crunch', 'hurt', dict(FACE)),
-    ('savanna-hyena-scavenge', 'heal', dict(FACE, **MEAT)),
+    ('savanna-hyena-bone-crunch', 'hurt', dict(FACE, **BONE)),
+    ('savanna-hyena-scavenge', 'heal', dict(FACE, **MEAT, **BONE)),
 ]
 
 

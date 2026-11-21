@@ -36,7 +36,7 @@ ICONS = [
     ('delta-gharial-river-drift', 'guard', dict(EYE, **WATER)),
     ('delta-gharial-log-nap', 'heal', dict(EYE, **LOG)),
     ('emerald-python-squeeze', 'hurt', dict(EYE, **LOG, **SPOT, **TONGUE)),
-    ('emerald-python-emerald-coil', 'guard', dict(EYE, **SPOT, **TONGUE)),
+    ('emerald-python-emerald-coil', 'guard', dict(EYE, **LOG, **SPOT, **TONGUE)),
     ('emerald-python-slow-swallow', 'heal', dict(EYE, **SPOT, **TONGUE)),
     ('emerald-python-rope-drop', 'hurt', dict(EYE, **LOG, **SPOT, **TONGUE)),
 ]
