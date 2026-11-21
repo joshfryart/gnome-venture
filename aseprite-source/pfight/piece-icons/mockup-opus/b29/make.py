@@ -34,10 +34,10 @@ ICONS = [
     ('honey-badger-brute-brute-bite', 'hurt', dict(CAP, **MOUTH)),
     ('honey-badger-brute-shrug-off', 'heal', dict(CAP, **MOUTH)),
     ('honey-badger-brute-mad-rush', 'hurt', dict(CAP, **MOUTH)),
-    ('thunder-yak-thunder-charge', 'hurt', dict(HORN, **BOLT, **HOOF)),
-    ('thunder-yak-shaggy-coat', 'guard', dict(HORN, **HOOF)),
-    ('thunder-yak-horn-toss', 'hurt', dict(HORN, **HOOF)),
-    ('thunder-yak-hoof-stomp', 'trick', dict(HORN, **HOOF)),
+    ('thunder-yak-thunder-charge', 'hurt', dict(HORN, **BOLT, **HOOF, **MOUTH)),
+    ('thunder-yak-shaggy-coat', 'guard', dict(HORN, **HOOF, **MOUTH)),
+    ('thunder-yak-horn-toss', 'hurt', dict(HORN, **HOOF, **MOUTH)),
+    ('thunder-yak-hoof-stomp', 'trick', dict(HORN, **HOOF, **MOUTH)),
 ]
 
 def load(slug, size):

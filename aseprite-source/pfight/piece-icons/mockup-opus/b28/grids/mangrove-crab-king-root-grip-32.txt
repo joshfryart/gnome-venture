@@ -5,9 +5,9 @@
 ..RRRo.........LHEkkkDBBBD......
 ..orrrRo......LBHkrrrkDBBBD.....
 ...orrrrRRRRRkLBDkrrrrkLBBDkRo..
-....orrrrrrrrkLBDkrrrrkLBBDkrro.
-.....orrrrrrrkLBBDkookLBBBDkrro.
-..DkD.oooooorkLBBBDkkLBBBBBDkoo.
+....orrrrrrrrkLBDkrrrrkLBBDkro..
+.....orrrrrrrkLBBDkookLBBBDkro..
+..DkD.oooooorkLBBBDkkLBBBBBDko..
 ..LLBD......okDDDDDLLBBBBBBBD...
 ..DBBE.CCC.....CCC.LBBBBBBBBBD..
 ...LD..CkC.....CkC.HHBBBBBBBBD..
