@@ -58,7 +58,7 @@ function map_positions(): array
     $codeOf = [];
     foreach (q('SELECT id, code FROM regions')->fetchAll() as $r) $codeOf[(int)$r['id']] = $r['code'];
     $regOf = []; $kindOf = [];   // location id => region code / kind, for keeping road stops inside their own region
-    foreach (q('SELECT id, kind, region_id, slug FROM locations')->fetchAll() as $l) {
+    foreach (q('SELECT id, kind, region_id, slug FROM locations ORDER BY id')->fetchAll() as $l) {
         $id = (int)$l['id'];
         $regOf[$id] = $codeOf[(int)$l['region_id']] ?? ''; $kindOf[$id] = (string)$l['kind'];
         if ($l['kind'] === 'hub') { $pos[$id] = HUB_MAP; continue; }
@@ -71,12 +71,18 @@ function map_positions(): array
         $d = $r * (0.4 + (($h >> 10) & 255) / 255 * 0.5);
         $pos[$id] = [(int)round($x + cos($a) * $d), (int)round($y + sin($a) * $d * 0.8)];
     }
-    foreach (q('SELECT nodes FROM roads')->fetchAll() as $rd) {
+    foreach (q('SELECT nodes FROM roads ORDER BY id')->fetchAll() as $rd) {
         $nodes = array_map('intval', json_decode((string)$rd['nodes'], true) ?: []);
         $n = count($nodes);
         if ($n < 3 || !isset($pos[$nodes[0]], $pos[$nodes[$n - 1]])) continue;
         $a = $pos[$nodes[0]];
         $b = $pos[$nodes[$n - 1]];
+        $lastId = $nodes[$n - 1];
+        if (($kindOf[$lastId] ?? '') !== 'market' && ($regOf[$lastId] ?? '') !== '' && isset(REGION_MAP[$regOf[$lastId]])) {   // 2.7.45: a dead-end road stops at a village: that end sits on the near edge of its own region (not past the far market)
+            [$ex, $ey, , $er] = REGION_MAP[$regOf[$lastId]]; $vx = $a[0] - $ex; $vy = $a[1] - $ey; $vl = sqrt($vx * $vx + $vy * $vy) ?: 1.0;
+            $b = [(int)round($ex + $vx / $vl * $er * 0.85), (int)round($ey + $vy / $vl * $er * 0.85)];
+            $pos[$lastId] = $b;
+        }
         [$mx, $my] = road_ctrl($a, $b);
         for ($i = 1; $i < $n - 1; $i++) {
             $t = $i / ($n - 1);
@@ -104,6 +110,7 @@ function map_positions(): array
         for ($i = 1; $i < $n - 1; $i++) {   // which way the road runs at each stop (for placing side paths)
             $roadDir[$nodes[$i]] = [$pos[$nodes[$i + 1]][0] - $pos[$nodes[$i - 1]][0], $pos[$nodes[$i + 1]][1] - $pos[$nodes[$i - 1]][1]];
         }
+        if (($kindOf[$lastId] ?? '') !== 'market') $roadDir[$lastId] = [$pos[$lastId][0] - $pos[$nodes[$n - 2]][0], $pos[$lastId][1] - $pos[$nodes[$n - 2]][1]];   // 2.7.45: the end village of a dead-end road gets its side places beside it too
     }
     // v0.7.53: off-road places sit beside the road stop their side path leaves from, fanned out either side of the road
     $kids = [];
@@ -163,6 +170,22 @@ function map_positions(): array
         }
         foreach ($ids as $id) $pos[$id] = [(int)round($pos[$id][0]), (int)round($pos[$id][1])];
     }
+    // 2.7.45: places of NEIGHBOURING regions can still meet where two discs overlap: one pass over every non-market place, 10 units apart at least, each held inside its own region's roomy disc
+    $all = []; foreach ($byRegion as $ids) foreach ($ids as $id) $all[] = $id; sort($all); $na = count($all);
+    for ($it = 0; $it < 12; $it++) {
+        $moved = false;
+        for ($i = 0; $i < $na; $i++) for ($j = $i + 1; $j < $na; $j++) {
+            $a = $all[$i]; $b = $all[$j]; $dx = $pos[$b][0] - $pos[$a][0]; $dy = $pos[$b][1] - $pos[$a][1];
+            if (abs($dx) >= 10 || abs($dy) >= 10) continue;
+            $d = sqrt($dx * $dx + $dy * $dy); if ($d >= 10) continue;
+            if ($d < 0.01) { $dx = cos($i * 2.4 + $j); $dy = sin($i * 2.4 + $j); $d = 1.0; }
+            $push = (10 - $d) / 2 + 0.5;
+            $pos[$a] = [$pos[$a][0] - $dx / $d * $push, $pos[$a][1] - $dy / $d * $push]; $pos[$b] = [$pos[$b][0] + $dx / $d * $push, $pos[$b][1] + $dy / $d * $push]; $moved = true;
+        }
+        foreach ($all as $id) { $c = REGION_MAP[$regOf[$id]]; $lim = $c[3] * 1.15; $dx = $pos[$id][0] - $c[0]; $dy = $pos[$id][1] - $c[1]; $d = sqrt($dx * $dx + $dy * $dy); if ($d > $lim) $pos[$id] = [$c[0] + $dx / $d * $lim, $c[1] + $dy / $d * $lim]; }
+        if (!$moved) break;
+    }
+    foreach ($all as $id) $pos[$id] = [(int)round($pos[$id][0]), (int)round($pos[$id][1])];
     return $pos;
 }
 

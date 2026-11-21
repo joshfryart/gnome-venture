@@ -9,10 +9,17 @@
   }
   function mount() {   // every placeholder becomes the piece as the board draws it
     var P = window.PFParts; if (!P || !P.ok) return;
+    var drawn = [], iks = [];
     all('.pfv i.cvh').forEach(function (h) {
       var o = null; try { o = JSON.parse(h.getAttribute('data-p')); } catch (e) { return; }
-      var c = P.piece({ size: 'strip', owner: o.o === 'foe' ? 'foe' : 'me', type: o.t, edges: o.e, tag: o.tag || '', num: '' });
+      var host = h.closest('[data-pico]'); if (host && !P.picoBase) P.picoBase = host.getAttribute('data-pico');
+      var opts = { size: 'strip', owner: o.o === 'foe' ? 'foe' : 'me', ik: o.ik || '', type: o.t, edges: o.e, tag: o.tag || '', num: '' };
+      var c = P.piece(opts);
       c.className = 'pfb-cv'; c.setAttribute('aria-hidden', 'true'); h.parentNode.replaceChild(c, h);
+      if (opts.ik) { drawn.push([c, opts]); iks.push(opts.ik); }
+    });
+    if (iks.length && P.picoBase && P.cicoLoad) ['strip', 'hand'].forEach(function (z) {   // 2.7.45: a creature's own piece icons; redraw the pieces once they have arrived
+      P.cicoLoad(P.picoBase, iks, z, function () { drawn.forEach(function (d) { if (!d[0].parentNode) return; var n = P.piece(d[1]); n.className = d[0].className; n.setAttribute('aria-hidden', 'true'); d[0].parentNode.replaceChild(n, d[0]); d[0] = n; }); });
     });
   }
   /** 2.6.75: a screen that fits the window (the fight, the pre-fight screen): fixed between the site's header and its bottom bar (measured here), or the whole window inside the Trail's popover. */
@@ -81,7 +88,9 @@
   }
   function artInto(host, pc) {
     var P = window.PFParts; if (!host) return; host.textContent = '';
-    if (P && P.ok && pc.e) { try { var c = P.piece({ size: 'hand', owner: pc.own === 'foe' ? 'foe' : 'me', type: pc.t, tag: pc.tag || '', edges: pc.e, num: String(pc.v) }); c.className = 'pfi-cv'; host.appendChild(c); } catch (e) {} }
+    if (P && P.ok && pc.e) { try { var opts = { size: 'hand', owner: pc.own === 'foe' ? 'foe' : 'me', ik: pc.ik || '', type: pc.t, tag: pc.tag || '', edges: pc.e, num: String(pc.v) }; var c = P.piece(opts); c.className = 'pfi-cv'; host.appendChild(c);
+      if (opts.ik && P.picoBase && P.cicoLoad) P.cicoLoad(P.picoBase, [opts.ik], 'hand', function () { if (!c.parentNode) return; var n = P.piece(opts); n.className = c.className; c.parentNode.replaceChild(n, c); c = n; });   // 2.7.45: the creature's own icon, once it has arrived
+    } catch (e) {} }
   }
   window.PFSheet = { typeText: typeText, card: card, chips: chips, art: artInto, edges: edgeDiagram, esc: esc };
 

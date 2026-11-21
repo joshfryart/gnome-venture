@@ -29,10 +29,14 @@
   /* 2.7.45: a creature's own piece icon (assets/img/pfight/pieces/ico-<ik>[-s].png): P.cico['ik|size'] -> loaded image. The builds below draw it instead of the type glyph when it is there. */
   P.cico = {}; P.cicoTried = {};
   P.cicoFor = function (o) { return o && o.ik ? P.cico[o.ik + '|' + o.size] || null : null; };
-  P.cicoLoad = function (base, list, size, done) {   // loads the ones not tried yet; done() only when at least one arrived (the caller redraws)
-    var todo = list.filter(function (ik, i) { var k = ik + '|' + size; if (!ik || P.cicoTried[k] || list.indexOf(ik) !== i) return false; P.cicoTried[k] = 1; return true; }), left = todo.length, got = 0;
-    if (!left) return;
-    todo.forEach(function (ik) { var im = new Image(); im.onload = function () { P.cico[ik + '|' + size] = im; got++; if (!--left && got && done) done(); }; im.onerror = function () { if (!--left && got && done) done(); }; im.src = base + 'ico-' + ik + (size === 'strip' ? '-s' : '') + '.png'; });
+  P.cicoSubs = [];
+  P.cicoNote = function () { clearTimeout(P.cicoT); P.cicoT = setTimeout(function () { var fs = P.cicoSubs.slice(); P.cicoSubs = fs.slice(-60); fs.forEach(function (f) { try { f(); } catch (e) {} }); }, 40); };   // after any icon arrives every caller redraws (a second mount while the first icons are still loading was left on the type glyphs)
+  P.cicoLoad = function (base, list, size, done) {   // loads the ones not tried yet; each distinct done() is called after later arrivals (give the same function each time, so the list stays short)
+    if (done && P.cicoSubs.indexOf(done) < 0) P.cicoSubs.push(done);
+    list.forEach(function (ik, i) {
+      var k = ik + '|' + size; if (!ik || P.cicoTried[k] || list.indexOf(ik) !== i) return; P.cicoTried[k] = 1;
+      var im = new Image(); im.onload = function () { P.cico[k] = im; P.cicoNote(); }; im.src = base + 'ico-' + ik + (size === 'strip' ? '-s' : '') + '.png';
+    });
   };
   function loadTagIcons() {
     var jobs = [];
