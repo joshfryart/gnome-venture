@@ -3,8 +3,8 @@
 ..............v.....
 .............WwvM...
 .........DDDWwvLD...
-.........DDLLLLBBM..
-.........DDLBBBBBM..
+.........DDLHLLBBM..
+.........DDLHBBBBM..
 .........DDLBBBBBM..
 .........WwDBBBBBM..
 ........WwwvDDBBBM..
