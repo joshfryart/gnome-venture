@@ -10,11 +10,11 @@
 ...UuN..kUnk..nun...
 ...Unk..kUnk..kUn...
 ...nnk.kknNkk.kUN...
-..kknkLBkkkkBDknkk..
+..kknkkLkkkkDkknkk..
 .LkknkLBBkkBBDknkkD.
-.LkknkLBBBBBBDknkkD.
-.LkkNkDBBBBBBEkNkkD.
-.DBkkkkLBBBBDkkkkBE.
-..DBkBkDDDDDEkBkBE..
+.LkknkDBBBBBBEknkkD.
+.LkkNkkLBBBBDkkNkkD.
+.DBkkkkDBBBBEkkkkBE.
+..DBkBE.DDDE.DBkBE..
 ...DDE........DDE...
 ....................

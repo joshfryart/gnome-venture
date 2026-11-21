@@ -36,7 +36,7 @@ ICONS = [
     ('desert-gila-dragon-gila-chew', 'hurt', dict(MOUTH, **POISON, **HORN)),
     ('desert-gila-dragon-bead-hide', 'guard', {}),
     ('desert-gila-dragon-slow-stomp', 'hurt', dict(ROCK)),
-    ('desert-gila-dragon-lingering-bite', 'hurt', dict(MOUTH, **POISON)),
+    ('desert-gila-dragon-lingering-bite', 'hurt', dict(MOUTH, **POISON, **ROOT)),
     ('cliff-ram-ram-butt', 'hurt', dict(HORN)),
     ('cliff-ram-sure-hooves', 'guard', dict(HORN, **ROCK)),
     ('cliff-ram-head-down', 'trick', dict(HORN)),
