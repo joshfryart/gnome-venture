@@ -1,8 +1,8 @@
-.W................W.
-WWWW............WWwW
-WwwwW...k..k...Wwwwv
-Wwwww..LLLLLL..Wwwwv
-.WwwkRkLLBBBBkRkwwv.
+....................
+....................
+..WW....k..k....WW..
+.WwwWW.LLLLLL.WWwwv.
+..WwkRkLLBBBBkRkwv..
 ..WkRrrkBBBBkRrrkv..
 ...RrrrkBBBBkrrrr...
 ...RrrrrkBBkrrrrm...
