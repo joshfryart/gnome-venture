@@ -226,7 +226,7 @@
     boardEl.textContent = '';
     world = document.createElement('div'); world.className = 'pfb-world'; boardEl.appendChild(world);
     var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null, dropN = 0;
-    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.concat(data.gone || []).map(function (q) { return q.ik; }); ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, function () { render(); }); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
+    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.concat(data.gone || [], (rewind && rewind.pieces) || []).map(function (q) { return q.ik; }); ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, function () { render(); }); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
     // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
     var x0 = W, x1 = -1, y0 = H, y1 = -1;
     Object.keys(b.map).forEach(function (k) { var q = k.split(','), qx = +q[0], qy = +q[1]; x0 = Math.min(x0, qx); x1 = Math.max(x1, qx); y0 = Math.min(y0, qy); y1 = Math.max(y1, qy); });
