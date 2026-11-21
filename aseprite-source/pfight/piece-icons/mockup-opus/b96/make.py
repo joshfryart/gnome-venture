@@ -40,7 +40,7 @@ ICONS = [
     ('sloth-bear-shaggy-mane', 'guard', dict(MUZ, **MOUTH)),
     ('sloth-bear-sloth-hollow-nap', 'heal', dict(MUZ, **ZZ, **DUST)),
     ('elephant-seal-bull-bull-slam', 'hurt', dict(MUZ, **WATER, **MOUTH)),
-    ('elephant-seal-bull-blubber-wave', 'hurt', dict(MUZ, **WATER)),
+    ('elephant-seal-bull-blubber-wave', 'hurt', dict(MUZ, **WATER, **MOUTH)),
     ('elephant-seal-bull-blubber-wall', 'guard', dict(MUZ, **MOUTH)),
     ('elephant-seal-bull-nose-trumpet', 'trick', dict(MUZ, **MOUTH)),
     ('wood-bison-snow-plough', 'hurt', dict(HORN, **SNOW)),
