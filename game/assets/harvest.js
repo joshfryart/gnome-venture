@@ -19,18 +19,27 @@
     var notes = Array.prototype.map.call(data.querySelectorAll('ol li'), function (li) { return li.textContent; });
     var st = document.querySelector('.gardenstat'), stat = null;   // garden status counts (garden page): they ride in this popover instead of their own pill
     if (st) { stat = {}; ['ready', 'thirsty', 'weedy', 'empty', 'grow'].forEach(function (k) { stat[k] = num(st, k); }); st.remove(); }
-    var prevFocus = document.activeElement;
+    var prevFocus = document.activeElement, art = data.getAttribute('data-art') || '';   // art: base url of the harvest-*.png pictures ('' = emoji and CSS shapes)
     var heading = pal ? who + ' is picking…' : 'Picking time!';
     var doneHeading = total >= 12 ? pick(['Basket overflowing!', 'Veg everywhere!']) : pal ? pick([who + ' did the picking!', 'Picked while you slept!']) : pick(['Harvest in!', 'Basket full!', 'Veg secured.']);
 
-    var root = el('dialog', 'hvov');
+    function png(name, cls) {   // one of the pixel pictures; a failed load turns the whole show back to emoji and CSS shapes
+      var i = el('img', cls); i.alt = ''; i.draggable = false;
+      if (art) { i.addEventListener('error', function () { root.classList.remove('hv-px'); }); i.src = art + name + '.png'; }
+      return i;
+    }
+    var root = el('dialog', 'hvov' + (art ? ' hv-px' : ''));
     root.setAttribute('aria-label', 'The harvest');
     var back = el('div', 'hv-back'), box = el('div', 'hv-box');
     var title = el('h2', 'hv-title', heading);
     var field = el('div', 'hv-field'); field.setAttribute('aria-hidden', 'true');
     var basket = el('div', 'hv-basket'); basket.setAttribute('aria-hidden', 'true');
     var bico = el('span', 'hv-bico', '🧺'), bcount = el('b', 'hv-bcount', '0');
-    basket.appendChild(bico); basket.appendChild(bcount);
+    var bpx = el('span', 'hv-bpx'), heap = png('basket-heap', 'hv-heap');
+    bpx.appendChild(png('basket-back', 'hv-bback')); bpx.appendChild(heap); bpx.appendChild(png('basket-front', 'hv-bfront'));
+    basket.appendChild(bico); basket.appendChild(bpx); basket.appendChild(bcount);
+    function strip(name, cls) { var w = el('span', 'hv-fx ' + cls); w.appendChild(png(name, '')); return w; }
+    function tuftFor(kind) { return /^(flower|grain|herb|cover)$/.test(kind) ? 'stalk' : /^(fruit|legume|tree|nut)$/.test(kind) ? 'vine' : 'leafy'; }
     var sum = el('ul', 'hv-sum'), tally = el('p', 'hv-tally'), nl = el('ul', 'hv-notes');
     var live = el('p', 'hv-live'); live.setAttribute('aria-live', 'polite'); live.setAttribute('role', 'status');
     var ok = el('button', 'btn hv-ok', 'Yum!'); ok.type = 'button';
@@ -38,8 +47,10 @@
     var cells = cards.map(function (c, i) {
       var cell = el('div', 'hv-plant'), ico = el('span', 'hv-ico'), soil = el('i', 'hv-soil'), plus = el('b', 'hv-plus', '+' + c.getAttribute('data-qty'));
       Array.prototype.forEach.call(c.querySelector('.hv-ico').childNodes, function (n) { ico.appendChild(n.cloneNode(true)); });
+      ico.appendChild(png('tuft-' + tuftFor(c.getAttribute('data-kind') || ''), 'hv-tuft'));
+      var sp = el('span', 'hv-soilpx'); sp.appendChild(png('soil-planted', 'hv-sp1')); sp.appendChild(png('soil-pulled', 'hv-sp2'));
       cell.style.setProperty('--i', i);
-      cell.appendChild(plus); cell.appendChild(ico); cell.appendChild(soil);
+      cell.appendChild(plus); cell.appendChild(ico); cell.appendChild(soil); cell.appendChild(sp); cell.appendChild(strip('puff', 'hv-puff'));
       field.appendChild(cell);
       return cell;
     });
@@ -93,7 +104,8 @@
       if (done) return;
       done = true;
       timers.forEach(clearTimeout);
-      cells.forEach(function (c) { c.classList.add('in', 'gone'); });
+      cells.forEach(function (c) { c.classList.add('in', 'gone', 'pick'); });
+      heap.classList.add('on');
       root.classList.add('hv-done');
       bcount.textContent = total;
       if (!sum.firstChild) buildSummary();
@@ -114,16 +126,17 @@
     cells.forEach(function (c, i) { later(function () { c.classList.add('in'); }, 120 + i * 30); });
     cells.forEach(function (c, i) {
       later(function () {
-        var a = c.querySelector('.hv-ico').getBoundingClientRect(), b = bico.getBoundingClientRect();
+        var a = c.querySelector('.hv-ico').getBoundingClientRect(), b = (root.classList.contains('hv-px') ? bpx : bico).getBoundingClientRect();
         c.style.setProperty('--fx', Math.round(b.left + b.width / 2 - a.left - a.width / 2) + 'px');
-        c.style.setProperty('--fy', Math.round(b.top + b.height / 2 - a.top - a.height / 2) + 'px');
+        c.style.setProperty('--fy', Math.round(b.top + b.height * 0.3 - a.top - a.height / 2) + 'px');
         c.classList.add('pick');
       }, t0 + i * 25);
     });
     later(function () {
       cells.forEach(function (c) { c.classList.add('gone'); });
       count(total, 450);
-      bico.classList.add('bump');
+      bico.classList.add('bump'); bpx.classList.add('bump'); heap.classList.add('on');
+      for (var k = 0; k < 3; k++) { var f = strip('spark', 'hv-spark'); f.style.setProperty('--sx', (10 + k * 22) + 'px'); f.style.setProperty('--sd', k * 110 + 'ms'); basket.appendChild(f); }
     }, t0 + cells.length * 25 + 600);
     later(function () { done = false; finish(); }, t0 + cells.length * 25 + 1300);
   }

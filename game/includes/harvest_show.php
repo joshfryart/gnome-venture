@@ -13,7 +13,7 @@ function hv_note_add(string $src, array $p, int $itemId, int $qty, string $palNa
     $n = $_SESSION['hv_note'] ?? null;
     if (!is_array($n) || ($n['src'] ?? '') !== $src || time() - (int)($n['t'] ?? 0) > 60) $n = ['src' => $src, 'rows' => [], 'xp' => 0, 'seeds' => [], 'notes' => [], 'pals' => []];
     $n['t'] = time();
-    $n['rows'][] = [$itemId, $qty, (string)$p['name']];
+    $n['rows'][] = [$itemId, $qty, (string)$p['name'], (string)($p['kind'] ?? '')];
     if ($palName !== '' && !in_array($palName, $n['pals'], true)) $n['pals'][] = $palName;
     $_SESSION['hv_note'] = $n;
 }
@@ -41,12 +41,12 @@ function hv_stage(): string
     $GLOBALS['hv_shown'] = true;
     require_once __DIR__ . '/items.php';
     $total = 0; $lis = ''; $shown = 0; $more = 0; $icons = []; $names = [];
-    foreach ($n['rows'] as [$id, $qty, $pname]) {
+    foreach ($n['rows'] as [$id, $qty, $pname, $kind]) {
         $total += (int)$qty;
         $names[$pname] = ($names[$pname] ?? 0) + (int)$qty;
         if ($shown >= HV_MAX_CARDS) { $more++; continue; }
         $icons[$id] ??= (($it = q_one('SELECT * FROM items WHERE id = ?', [(int)$id])) ? item_icon($it, 'md') : '');
-        $lis .= '<li class="hv-card" data-qty="' . (int)$qty . '"><span class="hv-ico" aria-hidden="true">' . $icons[$id] . '</span><span class="hv-name">' . e($pname) . '</span></li>';
+        $lis .= '<li class="hv-card" data-qty="' . (int)$qty . '" data-kind="' . e($kind) . '"><span class="hv-ico" aria-hidden="true">' . $icons[$id] . '</span><span class="hv-name">' . e($pname) . '</span></li>';
         $shown++;
     }
     $parts = [];
@@ -56,5 +56,8 @@ function hv_stage(): string
     $sum = ($pal ? $who . ' picked ' : 'You harvested ') . implode(', ', $parts) . ((int)$n['xp'] > 0 ? '. +' . (int)$n['xp'] . ' XP' : '') . '.';
     $notes = ''; foreach ($n['notes'] as $m) $notes .= '<li>' . e($m) . '</li>';
     $seeds = []; foreach ($n['seeds'] as $nm => $q) $seeds[] = $q . ' × ' . $nm;
-    return '<div class="hvdata" hidden data-src="' . e($n['src']) . '" data-who="' . e($who) . '" data-total="' . $total . '" data-more="' . $more . '" data-xp="' . (int)$n['xp'] . '" data-seeds="' . e(implode(', ', $seeds)) . '" data-summary="' . e($sum) . '"><ul>' . $lis . '</ul><ol>' . $notes . '</ol></div>';
+    $art = '';   // pixel art (assets/img/harvest-*.png): all present = harvest.js uses it, else emoji and CSS blobs
+    $pngs = ['basket-back', 'basket-heap', 'basket-front', 'soil-planted', 'soil-pulled', 'tuft-leafy', 'tuft-vine', 'tuft-stalk', 'puff', 'spark'];
+    if (count(array_filter($pngs, fn($f) => pixel_has('assets/img/harvest-' . $f . '.png'))) === count($pngs)) $art = ' data-art="' . e(url('assets/img/harvest-')) . '"';
+    return '<div class="hvdata" hidden' . $art . ' data-src="' . e($n['src']) . '" data-who="' . e($who) . '" data-total="' . $total . '" data-more="' . $more . '" data-xp="' . (int)$n['xp'] . '" data-seeds="' . e(implode(', ', $seeds)) . '" data-summary="' . e($sum) . '"><ul>' . $lis . '</ul><ol>' . $notes . '</ol></div>';
 }
