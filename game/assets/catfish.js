@@ -9,7 +9,7 @@
   var kibble = document.getElementById('cf-kibble'), kph = document.getElementById('cf-kph');
   var shown = d.kibble, rate = d.kph, frac = 0;
   function st() { return document.querySelector('.cfstage'); }   // the stage is swapped in place after a buy (swapScene), so it is looked up each time
-  var play = d.play || { v: 1, left: 0, ever: 0 };
+  var play = d.play || { v: 1, left: 0, ever: 0, tok: 15 }, playAt = Date.now(), lastSync = 0, flushT = 0;
   var pending = 0, pendV = 0, outB = [], held = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {}, buying = {}, queue = [], reloaded = false, popTimer = 0;
   // ms clock x 100 plus a random 0-99: increasing in this tab and across page loads, and two tabs rarely mint the same id (stays within the server's 15 digits)
   function nextSeq() { lastSeq = Math.max(lastSeq + 1, Date.now() * 100 + Math.floor(Math.random() * 100)); return lastSeq; }
@@ -65,7 +65,8 @@
   function whenFree(fn) { if (busy) queue.push(fn); else fn(); }
   function setPending() { var stage = st(); if (stage) stage.setAttribute('data-play-pending', tapsHeld()); }
   function setCombo() { var stage = st(), comboEl = document.getElementById('cf-combo'); if (stage) stage.setAttribute('data-combo', combo); if (comboEl) comboEl.textContent = combo >= 2 ? '\u00d7' + combo : ''; }
-  function playView(p) { var hint = document.getElementById('cf-hint'); if (!p) return; play = p; if ((p.ever > 0 || tapsHeld() > 0) && hint) hint.hidden = true; }
+  function tokens() { return Math.min(15, (play.tok || 0) + (Date.now() - playAt) / 2000) - tapsHeld(); }   // mirrors the server's tap bucket (cap 15, +1 per 2 s) so the counter never shows Kibble the server will not pay
+  function playView(p) { var hint = document.getElementById('cf-hint'); if (!p) return; play = p; playAt = Date.now(); if ((p.ever > 0 || tapsHeld() > 0) && hint) hint.hidden = true; }
   function apply(view) {   // held = costs of buys sent or queued, not yet in view.kibble
     shown = view.kibble + unpaidV() - held; rate = view.kph; draw(); playView(view.play);
     view.ups.forEach(function (u) {
@@ -102,7 +103,7 @@
   function sync() {
     if (document.hidden || busy) return;
     var data = { do: 'tick', scene: d.scene }, b = takeBatch(data);
-    busy = true;
+    busy = true; lastSync = Date.now(); clearTimeout(flushT);
     post(data, function (r) {
       free(); settle(b, r); setPending();
       if (!r.ok || !r.view) { say(r.error, true); return; }   // 429 and the like: nothing was paid, the batch is resent next tick under a fresh seq
@@ -121,8 +122,8 @@
     var now = Date.now(), f = b.getAttribute('data-fish');
     if (cool[f] && now - cool[f] < 600) return;
     cool[f] = now;
-    var v = play.left - tapsHeld() > 0 ? play.v : 0;
-    if (v > 0 && pending < 40) { pending++; pendV += v; setPending(); shown += v; draw(); }
+    var v = play.left - tapsHeld() > 0 && tokens() >= 1 ? play.v : 0;
+    if (v > 0 && pending < 40) { pending++; pendV += v; setPending(); shown += v; draw(); clearTimeout(flushT); flushT = setTimeout(sync, Math.max(2000, 10000 - (Date.now() - lastSync))); }
     if (v > 0) {
       var pop = stage.querySelector('.cfpop.p' + f);
       if (pop) { pop.textContent = '+' + v; pop.classList.remove('go'); void pop.offsetWidth; pop.classList.add('go'); }

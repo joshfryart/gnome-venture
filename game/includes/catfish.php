@@ -907,7 +907,7 @@ function catfish_play_view(array $s, ?array $cat, float $kph, int $got = 0, int 
 {
     $m = $s['meta']; $pc = ($m['pd'] ?? '') === catfish_today() ? (int)($m['pc'] ?? 0) : 0;
     $last = CATFISH_PLAY_TIERS[count(CATFISH_PLAY_TIERS) - 1][0];
-    return ['v' => $cat ? catfish_pet_tap_value(catfish_play_value($kph, $pc + 1), $pc + 1, catfish_pet_bonus((int)($s['user_id'] ?? 0))['tap']) * (catfish_catnip_left($m, time()) > 0 ? CATFISH_CATNIP_MULT : 1) : 0, 'left' => max(0, $last - $pc), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
+    return ['v' => $cat ? catfish_pet_tap_value(catfish_play_value($kph, $pc + 1), $pc + 1, catfish_pet_bonus((int)($s['user_id'] ?? 0))['tap']) * (catfish_catnip_left($m, time()) > 0 ? CATFISH_CATNIP_MULT : 1) : 0, 'left' => max(0, $last - $pc), 'tok' => (int)floor(min((float)CATFISH_PLAY_CAP, (float)($m['pb'] ?? CATFISH_PLAY_CAP) + max(0, time() - (int)($m['pt'] ?? time())) / CATFISH_PLAY_REFILL)), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
 }
 
 /** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. The expected count for $secs is paid as its whole part plus one roll for the
