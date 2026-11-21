@@ -75,7 +75,7 @@ return {
           }
         },
         {
-          name = "The Maplewold – Blossomreach",
+          name = "The Maplewold – Clovercove",
           to = "EA",
           pts = {
             { 147, 81 },
@@ -4489,7 +4489,7 @@ return {
       code = "EA",
       w = 480,
       h = 270,
-      town = { id = 12, x = 250, y = 102, r = 16, name = "Blossomreach Market" },
+      town = { id = 12, x = 251, y = 103, r = 16, name = "Blossomreach Market" },
       stops = {
         { id = 132, kind = "village", type = "stop", x = 210, y = 123, r = 13, road = 0, anchor = nil, name = "Bramblebrook" },
         { id = 131, kind = "village", type = "stop", x = 138, y = 149, r = 13, road = 0, anchor = nil, name = "Poppywell" },
@@ -4510,18 +4510,20 @@ return {
         { id = 224, kind = "haven", type = "off", x = 367, y = 36, r = 10, road = nil, anchor = nil, name = "Cherry Blossom Teahouse" },
         { id = 225, kind = "wonder", type = "off", x = 70, y = 84, r = 10, road = nil, anchor = nil, name = "The Thousand Gates" },
         { id = 226, kind = "wonder", type = "off", x = 214, y = 167, r = 10, road = nil, anchor = 132, name = "Pearl Diver Cove" },
-        { id = 227, kind = "wonder", type = "off", x = 147, y = 187, r = 10, road = nil, anchor = 131, name = "Panda Bamboo Grove" },
+        { id = 227, kind = "wonder", type = "off", x = 146, y = 187, r = 10, road = nil, anchor = 131, name = "Panda Bamboo Grove" },
         { id = 228, kind = "delve", type = "off", x = 302, y = 155, r = 10, road = nil, anchor = 133, name = "The Long Wall Walk" },
         { id = 229, kind = "lair", type = "off", x = 454, y = 97, r = 10, road = nil, anchor = nil, name = "Lair of the Jade Dragon-fly" },
         { id = 231, kind = "wonder", type = "off", x = 290, y = 193, r = 10, road = nil, anchor = 141, name = "Lantern Festival River" },
-        { id = 232, kind = "wonder", type = "off", x = 270, y = 228, r = 10, road = nil, anchor = 142, name = "Volcano Spice Gardens" }
+        { id = 232, kind = "wonder", type = "off", x = 270, y = 228, r = 10, road = nil, anchor = 142, name = "Volcano Spice Gardens" },
+        { id = 129, kind = "village", type = "off", x = 214, y = 78, r = 12, road = nil, anchor = nil, name = "Honeythorpe" },
+        { id = 130, kind = "village", type = "off", x = 55, y = 40, r = 12, road = nil, anchor = nil, name = "Clovercove" }
       },
       roads = {
         {
           name = "Spicepeak – Blossomreach",
           to = "CSA",
           pts = {
-            { 250, 102 },
+            { 251, 103 },
             { 210, 123 },
             { 138, 149 },
             { 68, 168 },
@@ -4532,7 +4534,7 @@ return {
           name = "Blossomreach – The Monsoon Tangle",
           to = "SEA",
           pts = {
-            { 250, 102 },
+            { 251, 103 },
             { 247, 147 },
             { 248, 189 },
             { 214, 213 },
@@ -4571,7 +4573,7 @@ return {
         },
         {
           { 138, 149 },
-          { 147, 187 }
+          { 146, 187 }
         },
         {
           { 247, 147 },
@@ -4669,9 +4671,9 @@ return {
         { road = 0, to = "CSA", name = "Spicepeak", x = 16, y = 191, side = "W" },
         { road = 1, to = "SEA", name = "The Monsoon Tangle", x = 208, y = 254, side = "S" }
       },
-      pin = { x = 250, y = 102, r = 22 },
+      pin = { x = 251, y = 103, r = 22 },
       clear = {
-        { 250, 102, 22 },
+        { 251, 103, 22 },
         { 210, 123, 19 },
         { 138, 149, 19 },
         { 68, 168, 19 },
@@ -4691,11 +4693,13 @@ return {
         { 367, 36, 16 },
         { 70, 84, 16 },
         { 214, 167, 16 },
-        { 147, 187, 16 },
+        { 146, 187, 16 },
         { 302, 155, 16 },
         { 454, 97, 16 },
         { 290, 193, 16 },
-        { 270, 228, 16 }
+        { 270, 228, 16 },
+        { 214, 78, 18 },
+        { 55, 40, 18 }
       }
     },
     SEA = {

@@ -226,7 +226,7 @@
     boardEl.textContent = '';
     world = document.createElement('div'); world.className = 'pfb-world'; boardEl.appendChild(world);
     var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null, dropN = 0;
-    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.map(function (q) { return q.ik; }); ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, function () { render(); }); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
+    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.concat(data.gone || [], (rewind && rewind.pieces) || []).map(function (q) { return q.ik; }); ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, function () { render(); }); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
     // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
     var x0 = W, x1 = -1, y0 = H, y1 = -1;
     Object.keys(b.map).forEach(function (k) { var q = k.split(','), qx = +q[0], qy = +q[1]; x0 = Math.min(x0, qx); x1 = Math.max(x1, qx); y0 = Math.min(y0, qy); y1 = Math.max(y1, qy); });
@@ -387,7 +387,7 @@
     if (!insp) return;
     document.getElementById('pfi-name').textContent = name; document.getElementById('pfi-desc').textContent = desc;
     var slot = document.getElementById('pfi-art'), P = window.PFParts; if (slot) slot.textContent = '';
-    if (slot && p && P && P.ok && p.by !== 'none') { var c = P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= LIFE1, num: p.v, tint: data.tint }); c.className = 'pfi-cv'; slot.appendChild(c); }
+    if (slot && p && P && P.ok && p.by !== 'none') { var c = P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', ik: p.ik, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= LIFE1, num: p.v, tint: data.tint }); c.className = 'pfi-cv'; slot.appendChild(c); }
     insp.hidden = false;
   }
   function inspectPiece(id) {

@@ -921,11 +921,11 @@
   /** The environment's turn: it puts its face-up pieces on the board, one after the other, then turns new ones face up. Nothing fires. */
   function envPlace(s) {
     s.envlog = []; var keep = [];
-    if (!s.env.next.length) s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0 });
+    if (!s.env.next.length) s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0, now: envNow(s) });
     s.env.next.forEach(function (tile) {
       var full = Object.keys(s.cell).length >= Number(nn(s.v1.envcap, 1)) * pfbW(s) * pfbH(s);
       var cs = full ? [] : envCells(s, tile);
-      if (!cs.length) { var P = { k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }; if (full) P.full = 1; s.envlog.push(P); keep.push(tile); return; }
+      if (!cs.length) { var P = { k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }; if (full) P.full = 1; P.now = envNow(s); s.envlog.push(P); keep.push(tile); return; }
       var c = cs[rand(s, cs.length)], x = c[0], y = c[1];
       if (tile.env === 'wind') tile.dir = envWindDir(s, x, y);
       var id = ++s.pid; s.seq++;
@@ -933,7 +933,7 @@
       s.cell[x + ',' + y] = id;
       var L = { k: 'place', x: x, y: y, me: 0, foe: 0.0, id: id, kind: tile.env, n: tile.n };
       if (tile.dir !== undefined && tile.dir !== null) L.dir = tile.dir;
-      s.envlog.push(L);
+      L.now = envNow(s); s.envlog.push(L);
     });
     s.env.next = keep;
     envDraw(s);
@@ -1054,24 +1054,26 @@
         var gone = groundSet(s, e.x, e.y, KIND_GROUND[e.kind]); if (gone !== null) L.drop = gone;
         if (ob) L.on = { id: on.id, by: ob, n: on.tile.n };
       }
-      L.me = toInt(L.me); L.foe = round(L.foe, 1);
+      L.me = toInt(L.me); L.foe = round(L.foe, 1); L.now = envNow(s);
       s.envlog.push(L);
     });
     if (s.v1.ground) {
       var B = { k: 'bramble', x: null, y: null, me: 0, foe: 0.0, ids: [] };
       for (var pid in s.pcs) { var q = s.pcs[pid]; if (q.by !== 'none' && ter(s, q.x, q.y) === 'br') { B[q.by] += envHurt(s, q.by, Number(s.v1.bramble), 'br'); B.ids.push(q.id); } }
       B.me = toInt(B.me); B.foe = round(B.foe, 1);
-      if (B.ids.length) s.envlog.push(B);
+      if (B.ids.length) { B.now = envNow(s); s.envlog.push(B); }
     }
     checkEnd(s);
   }
-  /** The terrain turn as events for the replay (by and ta 'env'). */
+  /** The bars as they stand now [charm bar, creature bar, your health, your guard], kept on each environment note (as pfb_env_now). */
+  function envNow(s) { return [round(Number(s.bar.now), 1), round(Number(s.fh.now), 1), toInt(s.me.hp), toInt(s.me.block)]; }
+  /** The terrain turn as events for the replay (by and ta 'env'): the bars as they stood after that event (as pfb_env_events). */
   function envEvents(s) {
     return nn(s.envlog, []).map(function (L) {
       var e = { by: 'env', ta: 'env', env: L.k, tag: '', k: 'env:' + L.k, n: nn(PFB_EVENT_NAME[L.k], 'Terrain'), t: 'env', v: 0, fit: false, combo: null, x: L.x, y: L.y, me: L.me, foe: L.foe };
       ['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full', 'drop'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
       if (L.n !== undefined && L.n !== null) e.n = L.n;   // 2.6.75: an environment piece placed (or kept back): its name
-      e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
+      var nw = L.now ? L.now : envNow(s); e.barnow = nw[0]; e.fhnow = nw[1]; e.hpnow = nw[2]; e.gnow = nw[3];
       return e;
     });
   }
@@ -2011,7 +2013,8 @@
       var add = s.foe.poison_v * s.hm;
       s.fh.now += add; s.foe.poison--;
       if (s.foe.poison === 0) s.foe.poison_v = 0;
-      ev.push({ by: 'me', tag: 'poison', k: 'poison', n: 'Poison', t: 'hurt', v: iround(add), fit: false, combo: null, tick: true });
+      ev.push({ by: 'me', tag: 'poison', k: 'poison', n: 'Poison', t: 'hurt', v: iround(add), fit: false, combo: null, tick: true,
+        barnow: round(Number(s.bar.now), 1), fhnow: round(Number(s.fh.now), 1), hpnow: toInt(s.me.hp), gnow: toInt(s.me.block) });   // as pfb_foe_turn: the bars after the tick, for the replay
       if (checkEnd(s)) return ev;
     }
     if (hasAb(s)) { abTurn(s, ev); s.infoe = 1; }   // 2.7.01: its turn count, Regrow, Plated; Ambush is live for this turn
@@ -2245,7 +2248,7 @@
       if (toInt(s.me.poison) > 0) {
         var pv = Math.max(1, toInt(s.me.poison_v)); if (toInt(s.me.evade) > 0 || truthy(s.me.evd)) pv = 0;   // 2.6.988: Evade stops the poison tick; 2.7.01: also when its Hurt already used the Evade up (evd)
         s.me.hp = Math.max(0, s.me.hp - pv); s.me.poison--;
-        s.envlog.push({ k: 'poison', x: null, y: null, me: pv, foe: 0.0 });
+        s.envlog.push({ k: 'poison', x: null, y: null, me: pv, foe: 0.0, now: envNow(s) });
         if (s.me.poison === 0) s.me.poison_v = 0;
         if (checkEnd(s)) return;
       }
@@ -2260,7 +2263,7 @@
     slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;   // 2.7.06: also in learner fights (tags 0)
     var gone = expire(s);
     if (s.ven) Object.keys(s.ven).forEach(function (vk) { if (s.ven[vk] <= 1) delete s.ven[vk]; else s.ven[vk] = s.ven[vk] - 1; });   // 2.6.98 venom fades
-    if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg }); }   // 2.6.75
+    if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg, now: envNow(s) }); }   // 2.6.75
     draw(s, 'foe', s.foe.hsize);
     s.turn++; s.round++;
     if (s.v1 && truthy(s.v1)) { var kept = Math.min(toInt(s.me.keep), toInt(s.me.block)); s.me.faded = Math.max(0, toInt(s.me.block) - kept); s.me.kept = kept; s.me.block = kept; s.me.keep = 0; }   // 2.6.77: your guard fades when your turn starts; only a Hold guard still standing carries over, once
@@ -2402,7 +2405,7 @@
     } : null;
     v.pcs = [];
     for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), ik: String(nn(p.tile.ik, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, fl: fireLim(s, p) > 0 ? Math.max(0, fireLim(s, p) - toInt(nn(p.f, 0))) : null, spawn: nn(s.spawn, null) === p.id, fnew: nn(s.lastfoe, []).indexOf(p.id) >= 0 }); }
-    v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), e: edges(q.tile), age: q.age, fell: truthy(q.fell) }; });
+    v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), ik: String(nn(q.tile.ik, '')), e: edges(q.tile), age: q.age, fell: truthy(q.fell) }; });
     nn(s.gone, []).forEach(function (q, i) { if (q.by === 'env') { v.gone[i].kind = String(q.tile.env); v.gone[i].dir = q.tile.dir === undefined ? null : q.tile.dir; } });   // 2.6.75: an environment piece that left: its kind and Wind's arrow
     for (i = 0; i < v.hand.length; i++) v.hand[i].e = edges(s.me.hand[i]);
     delete v.strip; delete v.open; delete v.open_t; delete v.open_v; delete v.open_by;
@@ -2432,6 +2435,7 @@
       v.pcs.forEach(function (q) { var pt = s.pcs[q.id].tile; if (truthy(pt.fx)) q.fx = wxText(String(pt.fx), toInt(nn(pt.fxa, 0)), toInt(nn(pt.fxb, 0))); });   // 2.7.09: a wear piece's effect sentence
       if (v.held) v.held.pcs.forEach(function (q, gi) { var gt = g.pcs[gi].tile; q.life = toInt(nn(gt.life, PFB_LIFE)); q.src = String(nn(gt.src, '')); q.flip = truthy(gt.flip); });
       v.gone.forEach(function (q, gi) { var u = s.gone[gi].used; if (u !== undefined && u !== null) q.used = u; });
+      v.gone.forEach(function (q, gi) { if (s.gone[gi].fnew) q.fnew = true; });   // as pfb_view: a creature piece put down and gone in the same turn keeps its fnew mark
     }
     return v;
   }

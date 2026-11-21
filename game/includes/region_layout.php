@@ -142,7 +142,13 @@ function region_layout_build(string $code): ?array
     $off = q("SELECT l.id, l.name, l.slug, l.kind, l.landscape, l.region, (SELECT kind FROM landmarks WHERE location_id = l.id ORDER BY id LIMIT 1) AS lmkind
         FROM locations l WHERE (l.region_id = ? OR l.id IN (SELECT b_id FROM routes WHERE kind = 'side' AND a_id IN ($stopIn))) AND l.kind NOT IN ('market', 'hub') ORDER BY l.id", [$regionId])->fetchAll();
     $offIds = [];
-    foreach ($off as $l) if (!isset($onRoad[(int)$l['id']]) && !isset($items[(int)$l['id']])) $offIds[(int)$l['id']] = $l;
+    $late = [];   // 2.7.45: a village on a dead-end road that starts in another region (Honeythorpe, Clovercove) has no road in this layout: added after the stretch, so nothing else on the painted map moves
+    foreach ($off as $l) {
+        $lid = (int)$l['id'];
+        if (isset($items[$lid])) continue;
+        if (isset($onRoad[$lid])) { if ((string)$l['kind'] === 'village') $late[$lid] = $l; continue; }
+        $offIds[$lid] = $l;
+    }
     $anchorOf = [];
     $kids = [];
     foreach (q("SELECT a_id, b_id FROM routes WHERE kind = 'side' ORDER BY id")->fetchAll() as $rt) {
@@ -186,6 +192,19 @@ function region_layout_build(string $code): ?array
         $it['side'] = '';
     }
     unset($it);
+    foreach ($late as $lid => $l) {   // a free spot (44 from every marker, in a fixed search order), so the push-apart below has nothing to move
+        $h = crc32((string)$l['slug']); unset($l['lmkind']);
+        $bx = 2 * $pad + (($h & 1023) / 1023) * ($W - 4 * $pad); $by = 2 * $pad + ((($h >> 10) & 1023) / 1023) * ($H - 4 * $pad); $bestX = $bx; $bestY = $by; $bestD = -1.0;
+        for ($k = 0; $k < 160; $k++) {
+            $ang = $k * 2.399963; $rad = 6.0 * sqrt($k);
+            $cx = max($pad, min($W - $pad, $bx + cos($ang) * $rad)); $cy = max($pad, min($H - $pad, $by + sin($ang) * $rad));
+            $dmin = INF; foreach ($items as $o) $dmin = min($dmin, sqrt(($o['x'] - $cx) ** 2 + ($o['y'] - $cy) ** 2));
+            if ($dmin > $bestD) { $bestD = $dmin; $bestX = $cx; $bestY = $cy; }
+            if ($dmin >= 44) break;
+        }
+        $items[$lid] = ['type' => 'off', 'kind' => 'village', 'x' => $bestX, 'y' => $bestY, 'road' => null, 'idx' => 0, 'ang' => 0.0,
+            'loc' => $l, 'anchor' => 0, 'r' => RL_R['village'], 'mx' => 1.0, 'my' => 1.0, 'side' => ''];
+    }
     $T = [$items[$tid]['x'], $items[$tid]['y']];
     foreach ($items as &$it) {
         if ($it['type'] !== 'far') continue;
