@@ -1,10 +1,10 @@
 ....................
 ....................
-..LLD......LLD...c..
-.LLLDLLLLLLLLDc..c..
-.DDBBLLLLLLBBDc.c.c.
-..LLBBBBBBBBDc..c.c.
-..LLEBBBBBBEDc.CDc..
+..LLD......LLD...C..
+.LLLDLLLLLLLLDC..C..
+.DDBBLLLLLLBBDC.C.C.
+..LLBBBBBBBBDC..C.C.
+..LLEBBBBBBEDC.CDC..
 ..LLBkBBBBkBDDLBBD..
 ..LLBBSSSsBBBLBBBBD.
 ..DDBSSkkSsBDDBBBBD.

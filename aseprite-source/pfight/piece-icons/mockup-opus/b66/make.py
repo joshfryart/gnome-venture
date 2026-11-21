@@ -46,9 +46,9 @@ ICONS = [
     ('mountain-buzzard-talon-clutch', 'hurt', dict(BEAK, **EYE)),
     ('mountain-buzzard-soar-shadow', 'trick', dict(BEAK, **EYE)),
     ('mountain-buzzard-ridge-circle', 'guard', dict(BEAK, **EYE, **ROCK, W=(240, 244, 250), w=(200, 214, 230), v=(150, 168, 190), F=(250, 250, 250), f=(214, 220, 228))),
-    ('jaguarundi-river-slip', 'trick', dict(WATER, **EYE)),
+    ('jaguarundi-river-slip', 'trick', dict(WATER, **EYE, **SAND)),
     ('jaguarundi-otter-cat-pounce', 'hurt', dict(EYE)),
-    ('jaguarundi-bank-cover', 'guard', dict(EYE, **SAND)),
+    ('jaguarundi-bank-cover', 'guard', dict(EYE, **SAND, J=(168, 208, 96), j=(108, 156, 62), i=(66, 104, 44))),
     ('jaguarundi-unseen-cross', 'trick', dict(EYE)),
 ]
 

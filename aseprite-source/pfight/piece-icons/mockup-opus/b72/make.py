@@ -25,7 +25,6 @@ import pix  # noqa: E402
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 SILK = {'W': (246, 242, 230), 'w': (206, 198, 180)}                      # silk thread
 LARVA = {'c': (238, 226, 196), 'x': (196, 176, 140), 'X': (150, 128, 96)}  # grub
-LEAF = {'g': (120, 176, 70), 'j': (70, 120, 44), 'J': (176, 214, 112)}      # live leaf
 COMB = {'r': (214, 52, 48), 'R': (250, 120, 104)}                          # red comb / beak
 SNOW = {'W': (246, 250, 255), 'w': (200, 220, 238), 'v': (150, 178, 206)}  # snow
 BUNT = {'n': (52, 44, 50), 'N': (98, 88, 92), 'y': (236, 176, 64)}       # black wings, bill
@@ -36,7 +35,7 @@ ICONS = [
     ('weaver-ant-nest-silk-nip', 'hurt', dict(SILK)),
     ('weaver-ant-nest-brood-tending', 'heal', dict(LARVA)),
     ('weaver-ant-nest-leaf-weave', 'guard', dict(SILK)),
-    ('weaver-ant-nest-larva-thread', 'trick', dict(SILK, **LEAF)),
+    ('weaver-ant-nest-larva-thread', 'trick', dict(SILK, **LARVA)),
     ('ptarmigan-flock-snow-flurry', 'hurt', dict(COMB, **SNOW)),
     ('ptarmigan-flock-huddle', 'guard', dict(COMB, **SNOW)),
     ('ptarmigan-flock-burst-up', 'trick', dict(COMB, **SNOW)),
@@ -48,7 +47,7 @@ ICONS = [
     ('rock-partridge-covey-rock-peck', 'hurt', dict(COMB, **ROCK)),
     ('rock-partridge-covey-scrape-jab', 'hurt', dict(COMB, **ROCK)),
     ('rock-partridge-covey-covey-huddle', 'guard', dict(COMB, **ROCK)),
-    ('rock-partridge-covey-uphill-charge', 'hurt', dict(COMB, **ROCK)),
+    ('rock-partridge-covey-uphill-charge', 'hurt', dict(COMB, **ROCK, x=(196, 176, 140))),
 ]
 
 

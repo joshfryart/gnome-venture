@@ -43,7 +43,7 @@ ICONS = [
     ('goat-kid-gang-bouncy-ledge', 'trick', dict(GOAT, **ROCK, y=(206, 124, 40))),
     ('stoat-stoat-dance', 'trick', dict(STOAT)),
     ('stoat-neck-bite', 'hurt', dict(STOAT, **MOUTH)),
-    ('stoat-ermine-coat', 'guard', dict(STOAT)),
+    ('stoat-ermine-coat', 'guard', dict(STOAT, W=(242, 242, 236), w=(184, 192, 206))),
     ('stoat-hypnotic-loop', 'trick', dict(STOAT, v=(150, 80, 190))),
     ('wolverine-cub-cub-mauling', 'hurt', dict(MOUTH, s=(232, 200, 140))),
     ('wolverine-cub-snow-tumble', 'trick', dict(SNOW, s=(232, 200, 140))),
