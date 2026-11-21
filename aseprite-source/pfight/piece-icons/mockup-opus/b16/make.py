@@ -32,7 +32,7 @@ ICONS = [
     ('red-fox-quick-bite', 'hurt', dict(MOUTH, **SPEED)),
     ('red-fox-den-dash', 'guard', dict(SPEED)),
     ('red-fox-brush-feint', 'guard', dict(SPEED)),
-    ('raccoon-bandit-grab', 'trick', {}),
+    ('raccoon-bandit-grab', 'trick', dict(METAL)),
     ('raccoon-scratch', 'hurt', dict(SPEED)),
     ('raccoon-bin-lid', 'guard', {}),
     ('raccoon-clever-pry', 'hurt', dict(METAL)),

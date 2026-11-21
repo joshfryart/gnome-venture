@@ -26,7 +26,7 @@ FUR = {'W': (250, 246, 236), 'w': (214, 206, 196)}                          # wh
 VENOM = {'y': (170, 220, 70), 'Y': (220, 246, 140), 'n': (90, 140, 40)}
 
 HARE = dict(ICE, **EYE, **FUR)
-PEDE = dict(VENOM)
+PEDE = dict(VENOM, **EYE)
 
 ICONS = [
     ('frost-hare-hare-kick', 'hurt', HARE),
