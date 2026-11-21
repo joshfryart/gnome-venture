@@ -42,7 +42,7 @@ ICONS = [
     ('frost-beetle-rime-charge', 'hurt', dict(ICE)),
     ('frost-beetle-ice-skate', 'trick', dict(ICE)),
     ('frost-beetle-frost-plate', 'guard', dict(ICE)),
-    ('frost-beetle-bowling-ball', 'hurt', dict(ICE)),
+    ('frost-beetle-bowling-ball', 'hurt', dict(ICE, r=(200, 40, 40))),
     ('lava-beetle-magma-plate', 'guard', dict(LAVA)),
     ('lava-beetle-cinder-shove', 'hurt', dict(LAVA)),
     ('lava-beetle-ash-cloud', 'trick', dict(LAVA, **ASH)),

@@ -36,7 +36,7 @@ ICONS = [
     # slug, type, extra palette
     ('golden-mantella-gold-flick', 'hurt', dict(TONGUE)),
     ('golden-mantella-moss-rest', 'heal', dict(MOSS)),
-    ('golden-mantella-bright-warn', 'guard', {}),
+    ('golden-mantella-bright-warn', 'guard', {'m': (122, 40, 40)}),
     ('golden-mantella-marmalade-spill', 'hurt', dict(JAM)),
     ('turtle-hatchling-dash-flipper-scramble', 'hurt', dict(SAND)),
     ('turtle-hatchling-dash-moon-sip', 'heal', dict(WATER)),
