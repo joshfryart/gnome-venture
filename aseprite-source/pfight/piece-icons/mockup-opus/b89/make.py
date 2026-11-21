@@ -27,8 +27,8 @@ EYE = {'e': (24, 16, 10)}
 GOLDEYE = {'y': (250, 214, 74), 'Y': (255, 240, 150), 'a': (196, 146, 40)}  # toad eye
 MOSS = {'m': (122, 150, 64), 'M': (170, 196, 96), 'n': (78, 100, 44)}       # moss tufts
 SLIME = {'W': (222, 246, 214), 'w': (166, 216, 150), 'v': (104, 160, 100)}   # mire slime
-GAS = {'p': (150, 160, 70), 'P': (196, 206, 116), 'q': (98, 106, 44)}       # bog belch
-FOG = {'W': (232, 236, 240), 'w': (190, 200, 210), 'v': (140, 152, 168)}
+GAS = {'p': (150, 128, 170), 'P': (198, 180, 214), 'q': (100, 80, 124)}    # bog gas
+FOG = {'W': (246, 248, 250), 'w': (214, 222, 230), 'v': (168, 180, 196)}
 MOUTH = {'r': (122, 40, 40), 'R': (200, 84, 84)}
 SHELL = {'i': (214, 204, 182), 'I': (244, 238, 222), 'x': (150, 138, 116)}  # barnacle plate
 WEED = {'g': (96, 156, 70), 'J': (150, 200, 100), 'j': (52, 100, 50)}      # weed / bramble
@@ -41,6 +41,7 @@ BERRY = {'r': (200, 40, 60), 'R': (240, 110, 120)}
 TEETH = {'t': (122, 40, 40)}
 
 TOAD = dict(EYE, **GOLDEYE, **MOSS)
+AMBER = {'y': (236, 150, 40), 'Y': (252, 200, 90), 'a': (160, 92, 24)}   # eye on yellow
 CRAB = dict(EYE, **SHELL, **WEED)
 GOLEM = dict(EYE, **PEAT, **REED, **GOLDEYE)
 WOLF = dict(EYE, **FUR, **WEED, **BERRY, **TEETH)
@@ -49,8 +50,8 @@ ICONS = [
     # slug, type, extra palette
     ('elder-mire-toad-slime-mantle', 'guard', dict(TOAD, **SLIME)),
     ('elder-mire-toad-mire-belch', 'hurt', dict(TOAD, **GAS, **MOUTH)),
-    ('elder-mire-toad-bog-mutter', 'trick', dict(TOAD, **GAS, **MOUTH)),
-    ('elder-mire-toad-fog-hush', 'trick', dict(TOAD, **FOG)),
+    ('elder-mire-toad-bog-mutter', 'trick', dict(TOAD, **AMBER)),
+    ('elder-mire-toad-fog-hush', 'trick', dict(TOAD, **FOG, **AMBER)),
     ('tide-crab-paladin-pauldron-spike', 'guard', CRAB),
     ('tide-crab-paladin-shield-hook', 'hurt', CRAB),
     ('tide-crab-paladin-tide-banner', 'trick', dict(CRAB, **POLE)),

@@ -23,6 +23,7 @@ import pix  # noqa: E402
 # shared chars: . clear, k ink, C cream, H white gloss, G gold
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 SASH = {'R': (236, 96, 104), 'r': (190, 36, 52), 'm': (120, 20, 40)}       # stolen red sash
+COIN = {'h': (255, 222, 130), 'Y': (170, 104, 18)}                             # stolen coin (with G)
 GEM = {'q': (120, 210, 230), 'Q': (210, 246, 250), 'x': (40, 120, 160)}     # stolen jewel
 MOUTH = {'o': (110, 34, 40), 'O': (170, 70, 70)}                             # mouth inside
 PINK = {'p': (236, 118, 150), 'P': (255, 186, 204), 'n': (168, 58, 96)}     # worm-lure tongue
@@ -33,7 +34,7 @@ SLIME = {'W': (214, 240, 226), 'V': (150, 214, 190), 'v': (96, 160, 140)}   # sl
 BONE = {'a': (226, 206, 164), 'A': (250, 238, 206), 'b': (164, 132, 92)}    # antler
 GREY = {'S': (176, 182, 186), 's': (126, 134, 142), 'z': (82, 88, 98)}      # eel grey
 
-CRAB = dict(SASH, **GEM)
+CRAB = dict(SASH, **GEM, **COIN)
 TURT = dict(MOUTH, **PINK, **MUD, **WEED)
 EEL = dict(MOUTH, **WOOD, **SLIME, **GREY)
 STAG = dict(MOUTH, **BONE, **WEED)
