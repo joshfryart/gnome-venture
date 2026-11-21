@@ -55,6 +55,12 @@ if php "$HERE/pf_play.php" new "$T/x.json" grass-snake 14 7 v1 '' bogus >/dev/nu
 SAME=$(php -r 'require $argv[1]; $ok=1; foreach ([["grass-snake",14,7],["fly-swarm",12,512],["tide-crab-paladin",30,2517]] as [$sl,$lv,$sd]) { $c=pt_load_creatures()[$sl]; $s=pfb_new(pb_player($lv,"std"), pfd_foe_row($c, array_keys(pfd_region_pieces())[(crc32($sl)+$sd)%14]), $sd, ["blank"=>true,"v1"=>true]); $f=sys_get_temp_dir()."/pfd_h.json"; passthru(PHP_BINARY." ".escapeshellarg($argv[2])." new ".$f." ".$sl." ".$lv." ".$sd." v1 >/dev/null"); $t=json_decode(file_get_contents($f),true); if (json_encode([$s["me"]["hand"],$s["foe"]["hand"],$s["foe"]["draw"]]) !== json_encode([$t["me"]["hand"],$t["foe"]["hand"],$t["foe"]["draw"]])) $ok=0; @unlink($f); } echo $ok;' "$HERE/pf_bots.php" "$HERE/pf_play.php")
 if [ "$SAME" = 1 ]; then ok "(h) opening hands match the bots' for the same slug / level / seed"; else bad "(h) opening hands match the bots' for the same slug / level / seed"; fi
 
+# playtest pilot: a pal's aim notice (note 'palaim') prints its own line, no PHP warning (the old `'  ' . [...][$k] ?? ...` precedence bug), and names the knocked-off piece
+OUT=$(php -r 'error_reporting(E_ALL); require $argv[1]; eval(preg_match("/^function pp_events.*?^}/ms", file_get_contents($argv[2]), $m) ? $m[0] : "");
+  echo pp_events([["note" => "palaim", "n" => "Smash", "by" => "me", "tid" => 1, "x" => 1, "y" => 1, "pal" => "Bark Badger", "tv" => 5]]);' "$HERE/../game/includes/pfboard.php" "$HERE/pf_play.php" 2>&1)
+if echo "$OUT" | grep -qi "warning"; then bad "(i) palaim note prints no PHP warning"; else ok "(i) palaim note prints no PHP warning"; fi
+if echo "$OUT" | grep -q 'PAL AIM:.*"Smash"'; then ok "(i) palaim note shows the PAL AIM line with the piece name"; else bad "(i) palaim note shows the PAL AIM line with the piece name"; fi
+
 # every creature of the old playtest assignments still starts
 ASSIGN=${ASSIGN:-}
 if [ -n "$ASSIGN" ] && [ -f "$ASSIGN" ]; then
