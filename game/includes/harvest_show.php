@@ -59,5 +59,5 @@ function hv_stage(): string
     $art = '';   // pixel art (assets/img/harvest-*.png): all present = harvest.js uses it, else emoji and CSS blobs
     $pngs = ['basket-back', 'basket-heap', 'basket-front', 'soil-planted', 'soil-pulled', 'tuft-leafy', 'tuft-vine', 'tuft-stalk', 'puff', 'spark'];
     if (count(array_filter($pngs, fn($f) => pixel_has('assets/img/harvest-' . $f . '.png'))) === count($pngs)) $art = ' data-art="' . e(url('assets/img/harvest-')) . '"';
-    return '<div class="hvdata" hidden' . $art . ' data-src="' . e($n['src']) . '" data-who="' . e($who) . '" data-total="' . $total . '" data-more="' . $more . '" data-xp="' . (int)$n['xp'] . '" data-seeds="' . e(implode(', ', $seeds)) . '" data-summary="' . e($sum) . '"><ul>' . $lis . '</ul><ol>' . $notes . '</ol></div>';
+    return '<div class="hvdata" hidden' . $art . ' data-ico="' . e(url('assets/img/ico/')) . '" data-src="' . e($n['src']) . '" data-who="' . e($who) . '" data-total="' . $total . '" data-more="' . $more . '" data-xp="' . (int)$n['xp'] . '" data-seeds="' . e(implode(', ', $seeds)) . '" data-summary="' . e($sum) . '"><ul>' . $lis . '</ul><ol>' . $notes . '</ol></div>';
 }
