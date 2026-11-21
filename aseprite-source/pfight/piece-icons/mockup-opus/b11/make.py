@@ -34,7 +34,7 @@ ICONS = [
     # slug, type, extra palette
     ('herring-gull-chip-thief', 'trick', dict(BEAK, **FRY)),
     ('herring-gull-gull-swoop', 'hurt', dict(BEAK, **FOOT)),
-    ('herring-gull-screech', 'hurt', dict(BEAK, m=(122, 40, 40))),
+    ('herring-gull-screech', 'hurt', dict(BEAK, m=(122, 40, 40), t=(226, 110, 110))),
     ('herring-gull-bin-lid-clang', 'trick', dict(BEAK, **METAL)),
     ('dune-scorpion-tail-sting', 'hurt', dict(POISON)),
     ('dune-scorpion-claw-grab', 'hurt', {}),

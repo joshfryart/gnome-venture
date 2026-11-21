@@ -25,7 +25,7 @@ import pix  # noqa: E402
 GLOW = {'y': (255, 244, 190)}                                             # warm glow
 WATER = {'W': (200, 232, 246), 'w': (120, 180, 214), 'v': (70, 120, 170)}  # pond
 WOOD = {'o': (150, 104, 62), 'O': (190, 142, 90), 'q': (100, 66, 40)}      # stick / handle
-SNAKE = {'t': (210, 50, 60), 'Y': (248, 226, 120)}                         # tongue, yellow collar
+SNAKE = {'t': (210, 50, 60), 'Y': (248, 226, 120), 'm': (122, 40, 40), 'r': (200, 84, 84)}                       # tongue, yellow collar
 GREEN = {'g': (110, 170, 70), 'j': (66, 118, 50)}                          # grass / bog weed
 
 ICONS = [

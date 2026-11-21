@@ -5,8 +5,8 @@
 ..C..Hc..C............C..Hc..C..
 ..Hc.Hc.Hc............Hc.Hc.Hc..
 ..Hc.Hc.Hc............Hc.Hc.Hc..
-..Hc.Hc.Hc............Hc.Hc.Hc..
-..Hc.Hc.Hc..LLBBBBBD..Hc.Hc.Hc..
+..Hc.Hc.Hc...LBBBBD...Hc.Hc.Hc..
+..Hc.Hc.Hc..LBBBBBBD..Hc.Hc.Hc..
 ..LBBBBBBD.LBBBBBBBBD.LBBBBBBD..
 ..LBHBBBBD.LBHBBBBBBD.LBBBBBDD..
 ..LBBBBBBD.LBHBBBBBBD.LBBBBBDD..
