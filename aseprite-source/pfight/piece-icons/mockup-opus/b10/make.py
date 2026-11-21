@@ -35,7 +35,7 @@ ICONS = [
     ('tunnel-mole-mole-claw', 'hurt', dict(CLAW, **PINK)),
     ('tunnel-mole-dirt-toss', 'trick', dict(CLAW, **PINK, **DIRT)),
     ('tunnel-mole-dirt-blink', 'trick', dict(CLAW, **PINK, **DIRT)),
-    ('carrion-crow-hat-snatch', 'trick', dict(BEAK, **HAT)),
+    ('carrion-crow-hat-snatch', 'trick', dict(BEAK, **HAT, **CLAW)),
     ('carrion-crow-dive-bomb', 'hurt', dict(BEAK)),
     ('carrion-crow-mob-caw', 'hurt', dict(BEAK, **MOUTH)),
     ('carrion-crow-glint-eye', 'trick', dict(BEAK)),

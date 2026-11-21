@@ -22,7 +22,8 @@ import pix  # noqa: E402
 
 # shared chars: . clear, k ink, C cream, H white gloss, G gold
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
-BADGER = {'o': (156, 108, 66), 'O': (192, 146, 98), 'q': (104, 70, 44)}   # dirt
+BADGER = {'o': (156, 108, 66), 'O': (192, 146, 98), 'q': (104, 70, 44),   # dirt
+          'c': (206, 184, 148)}                                            # dust shade
 TOAD = {'m': (122, 40, 40), 'r': (210, 96, 110), 'R': (240, 156, 166)}   # mouth / tongue
 SLIME = {'W': (214, 236, 246), 'w': (156, 200, 226), 'v': (104, 150, 184)}
 GAS = {'p': (150, 80, 190), 'P': (200, 150, 230), 'q': (96, 44, 130)}
