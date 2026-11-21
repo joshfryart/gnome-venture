@@ -9,10 +9,10 @@
 ..LLBBBBBBBBBxxkDBD.
 ..LBBBDBBBBBxrrkDBD.
 ..LBBDBBBDBBxCrkDBD.
-..LBBAAADBBBBAAADkk.
-..LBAaaaABBBAaaaADD.
-.AAAaaaaaAAAaaaaaAA.
-.aaaaaaaaaaaaaaaaaa.
+..LBBDBBDBBBBxxkDkk.
+..LBBAAADBBBBAAADDD.
+..DBAaaaABBBAaaaAA..
+.AAAaaaaaAAAaaaaaaA.
 .oaaaaaaaaaaaaaaaao.
 ..oooooooooooooooo..
 ....................
