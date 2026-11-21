@@ -52,7 +52,7 @@ ICONS = [
     ('stickleback-shoal-fin-jab', 'hurt', dict(FISH)),
     ('stickleback-shoal-nest-guard', 'guard', dict(FISH, **WEED)),
     ('fisher-quill-slide', 'guard', dict(FUR, **QUILL)),
-    ('fisher-fisher-bite', 'hurt', dict(FUR, r=(200, 84, 84), m=(122, 40, 40))),
+    ('fisher-fisher-bite', 'hurt', dict(FUR, r=(200, 84, 84), m=(122, 40, 40), R=(236, 140, 136))),
     ('fisher-tree-drop', 'trick', dict(FUR, **BRANCH)),
     ('fisher-flip-hunt', 'hurt', dict(FUR, **QUILL)),
 ]
