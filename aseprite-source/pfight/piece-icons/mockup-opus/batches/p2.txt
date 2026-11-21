@@ -1,0 +1,5 @@
+trip|Trip|hurt|trip|player|a foot or rope that trips the foe
+brace|Brace|guard|hold|player|planted stance holding firm; a post or braced shield
+roll|Roll|guard|evade|player|curled-up ball rolling away from a hit
+thornhide|Thorn Hide|guard|thorns|player|spiky thorny hide or bush that pricks attackers
+mending|Mending|guard|mend|player|a patch or stitch repairing a shield/armour

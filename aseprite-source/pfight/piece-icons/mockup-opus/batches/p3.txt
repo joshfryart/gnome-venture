@@ -1,0 +1,5 @@
+hum|Hum|charm|hum|player|a gentle hummed tune; music note
+lull|Lull|charm|lull|player|a sleepy crescent moon; makes the foe drowsy
+bond|Bond|charm|bond|player|two linked hands or interlocked rings; friendship
+pluck|Pluck|trick|pluck|player|fingers plucking a small item/pouch from the foe
+gift|Gift|item||player|a wrapped present box with ribbon bow

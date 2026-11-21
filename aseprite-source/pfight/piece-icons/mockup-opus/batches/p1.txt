@@ -1,0 +1,5 @@
+jab|Jab|hurt|quick|player|a fast short punch; quick hit
+smash|Smash|hurt|heavy|player|a huge heavy hammer or fist slam
+pierce|Pierce|hurt|pierce|player|a spear or arrow tip going through armour
+bash|Shield Bash|hurt|bash|player|shield thrust forward into the foe
+sting|Sting|hurt|poison|player|a stinger dripping green poison
