@@ -15,7 +15,7 @@ end
 
 -- leaf polygon from base (bx,by), angle a in degrees (0 = straight up, + = right),
 -- length L, half-width W; widest at t = wpos; tip pointed
-local function leaf(c, bx, by, a, L, W, wpos, base)
+local function leaf(c, bx, by, a, L, W, wpos, base, tipw)
   wpos = wpos or 0.55
   base = base or 0.6
   local dx, dy = sin(rad(a)), -cos(rad(a))
@@ -26,7 +26,7 @@ local function leaf(c, bx, by, a, L, W, wpos, base)
     local t = i / N
     local w
     if t <= wpos then w = base + (W - base) * sin((t / wpos) * math.pi / 2)
-    else w = W * cos(((t - wpos) / (1 - wpos)) * math.pi / 2) end
+    else w = math.max(tipw or 0, W * cos(((t - wpos) / (1 - wpos)) * math.pi / 2)) end
     local px, py = bx + dx * L * t, by + dy * L * t
     left[#left + 1] = { px + nx * w, py + ny * w }
     right[#right + 1] = { px - nx * w, py - ny * w }
@@ -46,6 +46,16 @@ local function arc(cx, cy, r, a0, a1, n)
   return pts
 end
 
+local function spiral(cx, cy, r0, r1, a0, a1, n)
+  local pts = {}
+  for i = 0, n do
+    local t = i / n
+    local a, r = rad(a0 + (a1 - a0) * t), r0 + (r1 - r0) * t
+    pts[#pts + 1] = { cx + r * cos(a), cy + r * sin(a) }
+  end
+  return pts
+end
+
 local function save(c, name)
   local t = c:save(O .. "aseprite/" .. name .. ".aseprite", O .. "png/" .. name .. ".png")
   print(string.format("%-20s %s", name, GV.report(t)))
@@ -59,15 +69,11 @@ do
   local bx, by = 15.5, 21
   local P = {}
   -- outer pair (back, darker leaf), inner pair, centre leaf on top
-  P.l2 = c:part(leaf(c, bx, by, -66, 13, 3.6), "leaf", { gloss = false })
-  P.r2 = c:part(leaf(c, bx + 1, by, 66, 13, 3.6), "leaf", { gloss = false })
+  P.l2 = c:part(leaf(c, bx, by, -72, 13, 3.4), "leaf", { gloss = false })
+  P.r2 = c:part(leaf(c, bx + 1, by, 72, 13, 3.4), "leaf", { gloss = false })
   P.l1 = c:part(leaf(c, bx, by, -32, 15, 4.0), "moss", { gloss = false })
   P.r1 = c:part(leaf(c, bx + 1, by, 32, 15, 4.0), "moss", { gloss = false })
   P.c  = c:part(leaf(c, bx + 0.5, by, 0, 18, 4.4, 0.5), "moss", { gloss = { 14, 8 } })
-  -- small hand gloss dots on the side leaves (lit upper-left)
-  for _, g in ipairs({ { P.l1, -32, 15 }, { P.r1, 32, 15 } }) do
-    local x0, y0, x1, y1 = g[1].m:bbox()
-  end
   -- midribs: 1 px leaf-shade vein on the four side leaves
   local function rib(a, L, col, x)
     local dx, dy = sin(rad(a)), -cos(rad(a))
@@ -77,7 +83,7 @@ do
     end
   end
   rib(-32, 15, GV.R.moss.shade, bx); rib(32, 15, GV.R.moss.shade, bx + 1)
-  rib(-66, 13, GV.R.leaf.shade, bx); rib(66, 13, GV.R.leaf.shade, bx + 1)
+  rib(-72, 13, GV.R.leaf.shade, bx); rib(72, 13, GV.R.leaf.shade, bx + 1)
   -- the one gold stitch: a seam down the centre leaf's midrib
   c:seam({ { 16, 7 }, { 16, 17 } })
   save(c, "harvest-tuft-leafy")
@@ -90,12 +96,12 @@ do
   local stem = c:line({ { 15, 21 }, { 15, 16 }, { 16, 12 }, { 16, 8 } }, 2)
   c:part(stem, "leaf", { flat = true })
   -- left tendril: out and up from the stem, ending in an open hook curl
-  local lt = { { 15, 15 }, { 12, 14 }, { 9, 12 } }
-  for _, p in ipairs(arc(6.5, 8.5, 3.2, 60, -200, 9)) do lt[#lt + 1] = p end
+  local lt = { { 15, 16 }, { 11, 15 } }
+  for _, p in ipairs(spiral(7, 11, 4, 1.6, 75, -250, 14)) do lt[#lt + 1] = p end
   c:part(c:line(lt, 2), "moss", { flat = true, contact = false })
   -- right tendril: mirrored, higher, curling the other way
-  local rt = { { 17, 12 }, { 20, 11 }, { 23, 10 } }
-  for _, p in ipairs(arc(25.5, 7, 3, 150, 400, 9)) do rt[#rt + 1] = p end
+  local rt = { { 17, 13 }, { 21, 12 } }
+  for _, p in ipairs(spiral(25, 8, 4, 1.6, 105, 430, 14)) do rt[#rt + 1] = p end
   c:part(c:line(rt, 2), "moss", { flat = true, contact = false })
   -- three small ovate leaves: top, low-left, low-right
   c:part(leaf(c, 16, 9, 8, 8, 3.2, 0.45, 1.0), "moss", { gloss = { 15, 3 } })
@@ -114,22 +120,20 @@ do
     w = w or 1.6
     local L = math.sqrt((tx - bx) ^ 2 + (ty - 21) ^ 2)
     local a = math.deg(math.atan(tx - bx, 21 - ty))
-    return leaf(c, bx, 21, a, L, w, 0.15, w)
+    return leaf(c, bx, 21, a, L, w, 0.15, w, 1.0)
   end
   -- back blades first
-  c:part(blade(13, 5, 7), "leaf", { gloss = false, cres = 1 })
-  c:part(blade(19, 27, 8), "leaf", { gloss = false, cres = 1 })
+  c:part(blade(13, 4, 9, 1.4), "leaf", { gloss = false, cres = 1 })
+  c:part(blade(19, 27, 10, 1.4), "leaf", { gloss = false, cres = 1 })
   -- the bud stalk (2 px) with a tiny petal bud and two sepals
-  c:part(c:line({ { 17, 20 }, { 18, 12 }, { 19, 6 } }, 2), "leaf", { flat = true })
-  c:part(c:ellipse(19.5, 3.5, 1.5, 2), "petal", { gloss = false, cres = 2, deep = 1, contact = false })
-  c:px(19, 2, GV.R.petal.gloss)
-  -- sepals hugging the bud base
-  c:part(c:rect(18, 5, 18, 6):add(c:rect(21, 5, 21, 6)), "moss", { flat = true, contact = false })
+  c:part(c:line({ { 18, 20 }, { 20, 12 }, { 21, 7 } }, 2), "leaf", { flat = true })
+  c:part(c:ellipse(21.5, 3.5, 1.5, 2), "petal", { gloss = false, cres = 2, deep = 1, contact = false })
+  c:px(21, 2, GV.R.petal.gloss)
+  c:part(c:rect(20, 5, 20, 6):add(c:rect(23, 5, 23, 6)), "moss", { flat = true, contact = false })
   -- front blades
-  c:part(blade(14, 9, 2), "moss", { gloss = false, cres = 1 })
-  c:part(blade(16, 14, 1, 1.8), "moss", { gloss = false, cres = 1 })
-  c:part(blade(18, 23, 4), "moss", { gloss = false, cres = 1 })
+  c:part(blade(14, 9, 3, 1.4), "moss", { gloss = false, cres = 1 })
+  c:part(blade(16, 14, 1, 1.6), "moss", { gloss = false, cres = 1 })
   -- the one gold stitch: a seam up the tallest blade
-  c:seam({ { 15, 18 }, { 15, 6 } })
+  c:seam({ { 15, 18 }, { 14, 6 } })
   save(c, "harvest-tuft-stalk")
 end
