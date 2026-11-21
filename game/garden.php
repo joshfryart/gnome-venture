@@ -552,6 +552,17 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
               }
               if ($t['method'] === 'notill' && (int)$t['weeds'] >= 5) $nWeedy++;
           }
+          if (!empty($_SESSION['gv_harvest_stat'])) {   // status quip after a harvest: hidden counts, assets/gardenstat.js plays it once
+              $fresh = time() - (int)$_SESSION['gv_harvest_stat'] < 60; unset($_SESSION['gv_harvest_stat']);
+              if ($fresh) {
+                  $nEmpty = $nGrow = 0;
+                  foreach ($tiles as $row) foreach ($row as $t) {
+                      if ($t['plant_id'] && isset($plants[(int)$t['plant_id']])) { $ti = tile_info($t, $plants[(int)$t['plant_id']]); if (!$ti['ready'] && !$ti['thirsty']) $nGrow++; }
+                      elseif (tile_plantable($t)) $nEmpty++;
+                  }
+                  echo '<div class="gardenstat" hidden data-ready="' . $nReady . '" data-thirsty="' . $nThirsty . '" data-weedy="' . $nWeedy . '" data-empty="' . $nEmpty . '" data-grow="' . $nGrow . '"></div>';
+              }
+          }
           $nPest = 0;   // v1.0.0: beds with a pest
           foreach ($tiles as $row) foreach ($row as $t) if (!empty($t['pest']) && $t['plant_id']) $nPest++;
           $bulk = function (string $do, string $label, int $n, int $energy) {
