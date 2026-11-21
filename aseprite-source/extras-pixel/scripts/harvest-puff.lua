@@ -38,10 +38,10 @@ cloud(m, { outline = true, deep = true, gloss = { { ox + 8, 13 }, { ox + 9, 13 }
 
 -- frame 2: three round puffs, bigger, lobes clearly separate on top
 ox = 24
-m = E(ox, 6.5, 15.5, 4, 4):add(E(ox, 17, 15.5, 4, 4)):add(E(ox, 11.5, 11, 4.5, 4.5)):add(E(ox, 11.5, 17, 6, 2.5))
+local sideL, sideR, top = E(ox, 6, 16, 4, 4), E(ox, 17, 16, 4, 4), E(ox, 11.5, 10.5, 4.5, 4.5)
+m = sideL:copy():add(sideR):add(top):add(E(ox, 11.5, 18, 6, 1.5)):add(E(ox, 11.5, 15.5, 3, 2.5))
 cloud(m, { outline = true, deep = true,
-  gloss = { { ox + 4, 13 }, { ox + 5, 12 }, { ox + 9, 8 }, { ox + 10, 8 }, { ox + 15, 13 } } })
-
+  gloss = { { ox + 4, 14 }, { ox + 3, 15 }, { ox + 9, 8 }, { ox + 10, 7 }, { ox + 15, 14 } } })
 -- frame 3: spread with gaps, no outline, lighter crescent
 ox = 48
 for _, b in ipairs({ { 3.5, 14, 2.5, 2.5 }, { 19.5, 13, 2.5, 2.5 }, { 11.5, 7, 3, 2.5 }, { 7.5, 19.5, 1.5, 1.5 }, { 16, 19.5, 1.5, 1.5 } }) do

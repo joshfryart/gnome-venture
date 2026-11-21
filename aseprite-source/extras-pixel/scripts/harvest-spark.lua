@@ -8,17 +8,23 @@ local F, N = 16, 4
 local c = GV.canvas{ w = F * N, h = F, mode = "scene" }
 local RIM, BODY, CORE, LOW = "#e8a317", "#f5cf6a", "#fff3c4", "#d0862a"
 
-local function inStar(dx, dy, r) return math.sqrt(math.abs(dx)) + math.sqrt(math.abs(dy)) <= math.sqrt(r) + 0.01 end
--- star centred on pixel (ox+7, 7): rim on the outer pixel, core inside radius rc, lower-right tips warmer
-local function star(ox, r, rc)
+-- chest .cs-spark polygon: tips at R, inner corners at (a,a) (38%/62% of the box)
+local function inStar(dx, dy, R, a)
+  local x, y = math.abs(dx), math.abs(dy)
+  if x > y then x, y = y, x end
+  return y <= R and x <= a * (R - y) / (R - a) + 0.5
+end
+-- star centred on pixel (ox+7, 7): edge pixels get rim (lower-right warmer), core inside (rc, ac)
+local function star(ox, R, a, rc, ac, rim)
   local cx, cy = ox + 7, 7
   for y = 0, F - 1 do for x = ox, ox + F - 1 do
     local dx, dy = x - cx, y - cy
-    if inStar(dx, dy, r) then
-      local edge = not (inStar(dx + 1, dy, r) and inStar(dx - 1, dy, r) and inStar(dx, dy + 1, r) and inStar(dx, dy - 1, r))
+    if inStar(dx, dy, R, a) then
+      local edge = not (inStar(dx + 1, dy, R, a) and inStar(dx - 1, dy, R, a) and inStar(dx, dy + 1, R, a) and inStar(dx, dy - 1, R, a))
       local col = BODY
-      if edge then col = (dx + dy > 0) and LOW or RIM end
-      if inStar(dx, dy, rc) then col = CORE end
+      if edge and rim then col = (dx + dy > 0) and LOW or RIM end
+      if not rim and (math.abs(dx) == math.floor(R) or math.abs(dy) == math.floor(R)) then col = RIM end
+      if inStar(dx, dy, rc, ac) then col = CORE end
       c:px(x, y, col)
     end
   end end
@@ -27,9 +33,9 @@ end
 -- 1: dot
 c:paint({ ".b.", "bcb", ".b." }, 6, 6, { b = BODY, c = CORE })
 -- 2: small star
-star(16, 3.2, 0.9)
+star(16, 4, 1.1, 1, 0.3, false)
 -- 3: large star, 1 px rim
-star(32, 6.2, 1.6)
+star(32, 6.5, 1.8, 2.5, 0.8, true)
 -- 4: fade crumbs flung out on the diagonals and arms
 local ox = 48
 c:paint({ "bl" }, ox + 2, 3, { b = BODY, l = RIM })
