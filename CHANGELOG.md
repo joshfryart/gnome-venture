@@ -7,6 +7,24 @@
 - **Cat Fish:** the tap counter mirrors the server's tap bucket (cap 15, +1 per 2 s) and flushes taps 2 to 10 s after a tap, so Kibble matches after a reload. Toy-Shop Shelf restyle (no banner, a hidden `<h1 class="cfsr">`, stage and Kibble counter in a pinned `.cfdock`, cream upgrade tiles, drawer-style More hub) with dark mode. `tests/catfish.sh` banner and card assertions follow the new layout.
 - **Known:** `tests/pf_play_decks.sh` check "(a) Reptile creature holds a Bite or Venom Spit piece" already failed before this release. The Cat Fish pinned dock takes about 250 px of a phone screen and was not judged on a real device. Nothing here was run against MySQL.
 
+## 2.7.43
+- **Level-up lettering, garden style:** the level-up card now spells "LEVEL UP!" in bold pixel letters (new `includes/levelup.php`, drawn as SVG rects, no font file, strict CSP safe). The green letters sprout one after another, little seedlings and a growing vine appear on the word, then the new level pops in gold with a pink flower blooming each side. Sparks are now petals in pink, gold and leaf green. Reduced motion shows the finished card without the growth. Still pure CSS, plays once and never blocks taps.
+
+## 2.7.42
+- **Level-up animation:** when the gnome levels up, the next page shows a short burst: a "Level up!" card with the new level popping in and 12 sparks flying out, gone after about 4 seconds. Pure CSS (`.lvlup` in `style.css`), never blocks taps, and with reduced motion it is a plain card that fades. `add_xp()` leaves the new level in `$_SESSION['lvlup']`; `layout.php` plays it once (also when the message log replaces flashes). Fights still pop their own "LEVEL UP!".
+
+## 2.7.41
+- **Starter kit pieces raised:** Jab, Pierce and Brace 3 to 6; Garden Greens (vegetable crop piece) 3 to 5; Soothe 2 to 4 (shows 5 with the Charm bonus). Changed in `data/pf_pieces.txt`, `PF_TILES_BUILTIN` (the lint needs them equal) and `tools/pfengine.js`. `tests/pfdeck_v1.php`: the recorded old-fight transcript is re-recorded again.
+
+## 2.7.40
+- **Player base combat pieces +2:** Swing (Hurt 4 to 6), Dodge (Guard 4 to 6), Rest (Heal 3 to 5), Charm (4 to 6) and Hide (Trick 3 to 5). Snack and Breather are unchanged. Changed in `data/pf_pieces.txt`, the built-in fallback `PF_TILES_BUILTIN` (the lint needs them equal) and `tools/pfengine.js`. `tests/pfdeck_v1.php`: the recorded old-fight transcript is re-recorded.
+
+## 2.7.39
+- **Jobs page redesign (focus + detail):** one period at a time. The switcher shows Daily, Weekly, Monthly and the Community board, each with its state (dot plus words) and a countdown. The chosen period shows one large job card (title, progress, reward chips, the 4-step stepper for rebuild jobs) with a card beside it for what to hand in (rebuild needs with "Short by", deliver, or the tending link). Give up sits in a fold. With no job taken, the offers are a list where one opens at a time (hint, reward, Take this job); re-roll and the other gnomes' posts sit beside it. **Post a job** is now the Community board (`?p=post`): open jobs from other gnomes (Take disabled when your slot is full), two compact post forms, and Your posted jobs with Take down. All actions and forms are unchanged. CSS is scoped to `.jb` in `style.css` and adapts to the column width. `tests/jobs.sh` now looks for the new nav class.
+
+## 2.7.38
+- **Thornblade Journeyman quest (`thornblade-2`, Thorn Master):** "Weed 40 squares in your own beds" is replaced by "Craft Wattle Fences 6 times". Thornblade tiers slow weeds (tier 2 half speed) and a hedge slows them again, so the weeding task could be impossible to finish. The Captain's intro now says "fence your own beds well". Data file only (`includes/data/calling_quests.txt`); sites that already imported the chapter keep the old task until it is edited in Admin.
+
 ## 2.7.37
 - **Yard cards scroll on phones:** the card is at most the screen height (`100dvh - 24px`); the header stays put and the body scrolls (`overscroll-behavior:contain`). The fence card (long visitor lists) was cut off with no way to scroll. The fence card is also tighter: shorter intro line, smaller text and gaps. CSS only (`tools/build_gyard_assets.py`, regenerated `gyard.css`) plus one text change in `gyard.php`.
 
