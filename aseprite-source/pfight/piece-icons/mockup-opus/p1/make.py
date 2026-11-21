@@ -28,8 +28,9 @@ STEEL = {'M': (214, 222, 228), 'm': (150, 162, 174), 'n': (92, 102, 116)}
 WOOD = {'W': (200, 150, 96), 'w': (156, 104, 60), 'v': (100, 64, 38)}
 VENOM = {'J': (184, 236, 96), 'g': (104, 196, 60), 'j': (48, 128, 44)}
 GOLDS = {'o': (168, 104, 16)}
+WINGS = {'A': (214, 234, 240), 'a': (163, 199, 216), 'q': (98, 136, 160)}
 
-ALL = dict(CRM, **STEEL, **WOOD, **VENOM, **GOLDS)
+ALL = dict(CRM, **STEEL, **WOOD, **VENOM, **GOLDS, **WINGS)
 ICONS = [
     # slug, type, extra palette
     ('jab', 'hurt', ALL),
