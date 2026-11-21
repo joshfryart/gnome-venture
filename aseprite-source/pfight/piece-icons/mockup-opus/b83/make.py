@@ -24,7 +24,7 @@ import pix  # noqa: E402
 # shared chars: . clear, k ink, C cream, H white gloss, G gold
 # type chars:   B base, L light, D dark, E darkest  (from gen_pfight TYPES)
 LYNX = {'y': (176, 214, 70), 'n': (214, 120, 130), 'm': (122, 40, 40), 'r': (200, 84, 84),
-        'M': (60, 44, 40)}                                                   # eyes, nose, mouth, tufts/spots
+        'K': (186, 168, 140)}                                                # eyes, nose, mouth, claw shade
 FLESH = {'f': (230, 150, 160), 'F': (248, 200, 204), 'd': (170, 88, 108)}  # clam mantle (lurker)
 MANTLE = {'v': (150, 100, 196), 'V': (200, 166, 232), 'q': (92, 56, 132),
           'c': (90, 200, 200)}                                               # giant clam mantle + spots
