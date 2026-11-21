@@ -43,11 +43,7 @@ $p = treehouse_pal_pic(['key' => 'mw-acorn-nip'], true);
 ok('a pal with a perch picture: the perch (36 px) file', str_contains((string)($p['src'] ?? ''), 'assets/img/pals/perch/mw-acorn-nip.png'), json_encode($p));
 $p = treehouse_pal_pic(['key' => 'mw-acorn-nip']);
 ok('the same pal in the yard: the 64 px yard picture', str_contains((string)($p['src'] ?? ''), 'assets/img/pals/mw-acorn-nip.png'), json_encode($p));
-$other = null;
-foreach (glob($img . 'pals/*.png') as $f) { $k = basename($f, '.png'); if (!is_file($img . 'pals/perch/' . $k . '.png')) { $other = $k; break; } }
-$p = $other ? treehouse_pal_pic(['key' => $other], true) : [];
-ok('a pal with no perch picture keeps its yard picture on a perch (' . $other . ')', $other && str_contains((string)($p['src'] ?? ''), 'assets/img/pals/' . $other . '.png'), json_encode($p));
-ok('142 pals have a perch picture (14 + the 128 of art-2701-pals-all), each with a yard picture too', count(glob($img . 'pals/perch/*.png')) === 142 && !array_filter(glob($img . 'pals/perch/*.png'), fn($f) => !is_file($img . 'pals/' . basename($f))), (string)count(glob($img . 'pals/perch/*.png')));
+ok('all 570 pals have a perch picture (142 hand-drawn art-2701, 356 block-pal generator, 72 whimsy downscaled), each with a yard picture too', count(glob($img . 'pals/perch/*.png')) === 570 && !array_filter(glob($img . 'pals/perch/*.png'), fn($f) => !is_file($img . 'pals/' . basename($f))), (string)count(glob($img . 'pals/perch/*.png')));
 
 echo "== pals: the 128 of art-2701-pals-all (step 2), by the key the game looks up\n";
 $wl = json_decode((string)file_get_contents($repo . '/aseprite-source/v3/art-2701-pals-all/worklist.json'), true);
