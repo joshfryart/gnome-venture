@@ -45,7 +45,7 @@ ICONS = [
     ('vine-snake-whip-flick', 'trick', dict(SNAKE, **POISON, **WIND, **GEYE)),
     ('vine-snake-early-lean', 'hurt', dict(SNAKE, **LEAF, **WIND)),
     ('komodo-pup-pup-tail-trip', 'hurt', dict(KOMODO, **WIND)),
-    ('komodo-pup-sand-flop', 'trick', dict(KOMODO)),
+    ('komodo-pup-sand-flop', 'trick', dict(KOMODO, **GEYE)),
     ('komodo-pup-dune-hide', 'guard', dict(KOMODO)),
     ('komodo-pup-low-watch', 'guard', dict(KOMODO)),
     ('snow-leopard-cub-cub-leap', 'hurt', dict(CUB)),
