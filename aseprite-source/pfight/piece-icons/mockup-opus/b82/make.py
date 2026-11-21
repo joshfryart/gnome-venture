@@ -39,7 +39,7 @@ POLLEN = {'Y': (255, 238, 120), 'o': (214, 150, 20)}
 POISON = {'p': (150, 80, 190), 'P': (200, 150, 230), 'q': (96, 44, 130)}
 
 PEL = dict(PLUME, **BEAK)
-BEA = dict(HAT, **WOOD)
+BEA = dict(HAT, **WOOD, **PLUME, r=(200, 84, 84))
 ANT = dict(CLAW, **TONGUE)
 BEE = dict(WING)
 

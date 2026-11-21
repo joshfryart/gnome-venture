@@ -46,7 +46,7 @@ ICONS = [
     ('stoat-ermine-coat', 'guard', dict(STOAT, W=(242, 242, 236), w=(184, 192, 206))),
     ('stoat-hypnotic-loop', 'trick', dict(STOAT, v=(150, 80, 190))),
     ('wolverine-cub-cub-mauling', 'hurt', dict(MOUTH, s=(232, 200, 140))),
-    ('wolverine-cub-snow-tumble', 'trick', dict(SNOW, s=(232, 200, 140))),
+    ('wolverine-cub-snow-tumble', 'trick', dict(SNOW, **MOUTH, s=(196, 140, 60))),
     ('wolverine-cub-scrap-nip', 'hurt', dict(MOUTH, s=(232, 200, 140))),
     ('wolverine-cub-boot-scrap', 'hurt', dict(MOUTH, **BOOT, s=(232, 200, 140))),
     ('cormorant-line-dive-spear', 'hurt', dict(BIRD, **WATER)),
