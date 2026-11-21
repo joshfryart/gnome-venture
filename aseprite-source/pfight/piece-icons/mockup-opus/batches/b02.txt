@@ -1,0 +1,7 @@
+ant-scouts-scout-bite|Scout Bite|hurt|-|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+ant-scouts-ant-trail|Ant Trail|trick|quick|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+ant-scouts-carry-off|Carry Off|hurt|trip|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+ant-scouts-scout-sign|Scout Sign|trick|quick|Ant Scouts|A patrol of ants who think your satchel smells delicious.
+gnat-cloud-whine|Whine|trick|trip|Gnat Cloud|Thousands of tiny wings, all aimed at your ears.
+gnat-cloud-scatter|Scatter|guard|evade|Gnat Cloud|Thousands of tiny wings, all aimed at your ears.
+gnat-cloud-gnat-veil|Gnat Veil|guard|evade|Gnat Cloud|Thousands of tiny wings, all aimed at your ears.

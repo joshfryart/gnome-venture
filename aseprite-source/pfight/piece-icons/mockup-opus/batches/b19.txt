@@ -1,0 +1,8 @@
+tide-crab-knight-knight-s-claw|Knight's Claw|hurt|pierce|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+tide-crab-knight-tide-shield|Tide Shield|guard|hold|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+tide-crab-knight-joust|Joust|hurt|bash|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+tide-crab-knight-duel-call|Duel Call|trick|trip|Tide Crab Knight|Wears a shell like plate armour and duels anything on its beach.
+moss-golem-boulder-fist|Boulder Fist|hurt|-|Moss Golem|A boulder that woke up covered in moss and opinions.
+moss-golem-moss-cloak|Moss Cloak|guard|hold|Moss Golem|A boulder that woke up covered in moss and opinions.
+moss-golem-regrow|Regrow|heal|-|Moss Golem|A boulder that woke up covered in moss and opinions.
+moss-golem-shed-pebble|Shed Pebble|trick|bash|Moss Golem|A boulder that woke up covered in moss and opinions.

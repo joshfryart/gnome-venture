@@ -1,0 +1,7 @@
+grey-heron-spear-beak|Spear Beak|hurt|pierce|Grey Heron|Stands like a statue. Strikes like lightning.
+grey-heron-stand-still|Stand Still|guard|hold|Grey Heron|Stands like a statue. Strikes like lightning.
+grey-heron-wade-in|Wade In|trick|-|Grey Heron|Stands like a statue. Strikes like lightning.
+grey-heron-minnow-snap|Minnow Snap|hurt|quick|Grey Heron|Stands like a statue. Strikes like lightning.
+mischief-monkey-pocket-pick|Pocket Pick|trick|trip|Mischief Monkey|Steals your hat, then your seeds, then your dignity.
+mischief-monkey-fruit-fling|Fruit Fling|hurt|quick|Mischief Monkey|Steals your hat, then your seeds, then your dignity.
+mischief-monkey-swing-away|Swing Away|guard|evade|Mischief Monkey|Steals your hat, then your seeds, then your dignity.

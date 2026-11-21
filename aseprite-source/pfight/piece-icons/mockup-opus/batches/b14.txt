@@ -1,0 +1,8 @@
+will-o-wisp-lead-astray|Lead Astray|trick|trip|Will-o'-Wisp|A floating light that leads gnomes astray.
+will-o-wisp-wisp-burn|Wisp Burn|hurt|-|Will-o'-Wisp|A floating light that leads gnomes astray.
+will-o-wisp-flicker|Flicker|guard|evade|Will-o'-Wisp|A floating light that leads gnomes astray.
+will-o-wisp-bog-lantern|Bog Lantern|heal|-|Will-o'-Wisp|A floating light that leads gnomes astray.
+grass-snake-coil|Coil|guard|hold|Grass Snake|A green river of scales. Do not stand still.
+grass-snake-strike|Strike|hurt|quick|Grass Snake|A green river of scales. Do not stand still.
+grass-snake-constrict|Constrict|hurt|trip|Grass Snake|A green river of scales. Do not stand still.
+grass-snake-swim-away|Swim Away|trick|quick|Grass Snake|A green river of scales. Do not stand still.

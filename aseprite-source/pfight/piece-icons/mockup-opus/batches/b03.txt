@@ -1,0 +1,8 @@
+leopard-slug-slime-slick|Slime Slick|trick|trip|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+leopard-slug-slug-lunge|Slug Lunge|hurt|-|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+leopard-slug-thick-slime|Thick Slime|guard|hold|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+leopard-slug-blotch-warn|Blotch Warn|guard|thorns|Leopard Slug|A spotted slug the length of a gnome, slithering for your lettuce.
+sand-fleas-flea-hop|Flea Hop|hurt|quick|Sand Flea Pack|Hopping, nipping, impossible to pin down.
+sand-fleas-itch|Itch|hurt|poison|Sand Flea Pack|Hopping, nipping, impossible to pin down.
+sand-fleas-sand-burrow|Sand Burrow|guard|-|Sand Flea Pack|Hopping, nipping, impossible to pin down.
+sand-fleas-heap-pile|Heap Pile|guard|hold|Sand Flea Pack|Hopping, nipping, impossible to pin down.

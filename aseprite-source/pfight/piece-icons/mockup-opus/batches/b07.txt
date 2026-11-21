@@ -1,0 +1,8 @@
+bog-leech-latch|Latch|hurt|poison|Bog Leech|Wriggles out of the murk looking for a snack.
+bog-leech-slick|Slick|guard|evade|Bog Leech|Wriggles out of the murk looking for a snack.
+bog-leech-drain|Drain|heal|-|Bog Leech|Wriggles out of the murk looking for a snack.
+bog-leech-mire-slide|Mire Slide|trick|trip|Bog Leech|Wriggles out of the murk looking for a snack.
+grumpy-lemming-grumble|Grumble|trick|-|Grumpy Lemming|Small, round, furious.
+grumpy-lemming-lemming-bite|Lemming Bite|hurt|-|Grumpy Lemming|Small, round, furious.
+grumpy-lemming-dig-snow|Dig Snow|guard|evade|Grumpy Lemming|Small, round, furious.
+grumpy-lemming-sulk-stare|Sulk Stare|trick|-|Grumpy Lemming|Small, round, furious.

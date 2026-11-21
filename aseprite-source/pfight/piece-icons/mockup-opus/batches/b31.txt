@@ -1,0 +1,7 @@
+fern-cassowary-casque-butt|Casque Butt|hurt|bash|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+fern-cassowary-dagger-kick|Dagger Kick|hurt|pierce|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+fern-cassowary-fern-crouch|Fern Crouch|guard|-|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+fern-cassowary-fern-dash|Fern Dash|trick|quick|Fern Cassowary|A feathered helmet on two legs, with kicks like falling rocks.
+deep-octopus-ink-cloud|Ink Cloud|trick|evade|Deep Octopus|Eight arms, three hearts, and not one of them is friendly today.
+deep-octopus-eight-arms|Eight Arms|hurt|quick|Deep Octopus|Eight arms, three hearts, and not one of them is friendly today.
+deep-octopus-sucker-grip|Sucker Grip|hurt|trip|Deep Octopus|Eight arms, three hearts, and not one of them is friendly today.

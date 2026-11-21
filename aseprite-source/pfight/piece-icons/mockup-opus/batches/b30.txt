@@ -1,0 +1,8 @@
+reef-eel-lord-eel-shock|Eel Shock|hurt|trip|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+reef-eel-lord-lunge-from-hole|Lunge From Hole|hurt|quick|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+reef-eel-lord-slip-back|Slip Back|guard|evade|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+reef-eel-lord-toll-bite|Toll Bite|trick|poison|Reef Eel Lord|Lives in the coral keep and bites anyone who swims past without paying.
+outback-dingo-dingo-snap|Dingo Snap|hurt|quick|Outback Dingo|Pale as the dust and twice as patient.
+outback-dingo-circle-round|Circle Round|trick|-|Outback Dingo|Pale as the dust and twice as patient.
+outback-dingo-dust-roll|Dust Roll|guard|evade|Outback Dingo|Pale as the dust and twice as patient.
+outback-dingo-pale-patience|Pale Patience|guard|hold|Outback Dingo|Pale as the dust and twice as patient.

@@ -1,0 +1,8 @@
+earwig-pincer|Pincer|hurt|pierce|Pincer Earwig|All snap and swagger.
+earwig-tuck-under|Tuck Under|guard|-|Pincer Earwig|All snap and swagger.
+earwig-night-scuttle|Night Scuttle|trick|quick|Pincer Earwig|All snap and swagger.
+earwig-pincer-fold|Pincer Fold|guard|evade|Pincer Earwig|All snap and swagger.
+cave-glowworm-glow-lure|Glow Lure|trick|trip|Cave Glowworm|Lovely to look at. Sticky to touch.
+cave-glowworm-sticky-thread|Sticky Thread|hurt|-|Cave Glowworm|Lovely to look at. Sticky to touch.
+cave-glowworm-dim|Dim|guard|evade|Cave Glowworm|Lovely to look at. Sticky to touch.
+cave-glowworm-light-snare|Light Snare|hurt|trip|Cave Glowworm|Lovely to look at. Sticky to touch.

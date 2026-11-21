@@ -1,0 +1,8 @@
+aphid-swarm-swarm|Swarm|hurt|quick|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+aphid-swarm-honeydew|Honeydew|heal|-|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+aphid-swarm-cloud-up|Cloud Up|guard|evade|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+aphid-swarm-sap-sip|Sap Sip|hurt|poison|Aphid Swarm|A whining cloud of sap-suckers. Every gardener's oldest foe.
+garden-snail-slime-trail|Slime Trail|guard|hold|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.
+garden-snail-shell-bash|Shell Bash|hurt|bash|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.
+garden-snail-rasp|Rasp|hurt|-|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.
+garden-snail-shell-lean|Shell Lean|guard|evade|Garden Snail|Slow, sticky and astonishingly stubborn about who owns the path.

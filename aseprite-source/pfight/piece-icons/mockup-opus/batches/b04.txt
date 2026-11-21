@@ -1,0 +1,8 @@
+dusk-moth-wing-dust|Wing Dust|trick|evade|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dusk-moth-flutter-bump|Flutter Bump|hurt|-|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dusk-moth-dusk-veil|Dusk Veil|guard|hold|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dusk-moth-scale-puff|Scale Puff|trick|quick|Dusk Moth|Dazzles you with powdery wings in the twilight.
+dung-beetle-dung-roll|Dung Roll|hurt|-|Dung Beetle|Rolls a ball three times its size, and will roll you too.
+dung-beetle-hard-wings|Hard Wings|guard|hold|Dung Beetle|Rolls a ball three times its size, and will roll you too.
+dung-beetle-push-on|Push On|trick|bash|Dung Beetle|Rolls a ball three times its size, and will roll you too.
+dung-beetle-ball-shove|Ball Shove|hurt|bash|Dung Beetle|Rolls a ball three times its size, and will roll you too.

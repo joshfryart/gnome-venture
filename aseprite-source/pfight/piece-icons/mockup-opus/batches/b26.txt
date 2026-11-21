@@ -1,0 +1,8 @@
+jungle-tiger-stripe-stalk|Stripe Stalk|trick|evade|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+jungle-tiger-tiger-pounce|Tiger Pounce|hurt|-|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+jungle-tiger-rake-claws|Rake Claws|hurt|pierce|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+jungle-tiger-striped-dash|Striped Dash|hurt|quick|Jungle Tiger|Stripes in the shade, then suddenly a tiger-shaped problem.
+spice-monitor-spice-bite|Spice Bite|hurt|poison|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+spice-monitor-tail-whip|Tail Whip|hurt|-|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+spice-monitor-fork-tongue|Fork Tongue|trick|-|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+spice-monitor-cinnamon-cloud|Cinnamon Cloud|trick|poison|Spice Monitor|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.

@@ -1,0 +1,8 @@
+bullfrog-tongue-lash|Tongue Lash|hurt|trip|Bullfrog|One gulp and you'd be lunch. Keep moving.
+bullfrog-deep-croak|Deep Croak|trick|-|Bullfrog|One gulp and you'd be lunch. Keep moving.
+bullfrog-puff-up|Puff Up|guard|-|Bullfrog|One gulp and you'd be lunch. Keep moving.
+bullfrog-bog-gulp|Bog Gulp|hurt|bash|Bullfrog|One gulp and you'd be lunch. Keep moving.
+shore-crab-pinch|Pinch|hurt|pierce|Shore Crab|Sidesteps, then pinches.
+shore-crab-shell-up|Shell Up|guard|hold|Shore Crab|Sidesteps, then pinches.
+shore-crab-sidestep|Sidestep|trick|evade|Shore Crab|Sidesteps, then pinches.
+shore-crab-clack-warn|Clack Warn|trick|-|Shore Crab|Sidesteps, then pinches.

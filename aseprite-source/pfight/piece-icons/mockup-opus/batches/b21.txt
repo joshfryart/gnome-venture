@@ -1,0 +1,7 @@
+great-hawk-stoop|Stoop|hurt|-|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+great-hawk-talon-grip|Talon Grip|hurt|trip|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+great-hawk-high-circle|High Circle|guard|evade|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+great-hawk-shadow-pass|Shadow Pass|trick|quick|Great Hawk|A shadow that crosses the meadow, and the meadow goes quiet.
+ancient-snapper-snapping-jaw|Snapping Jaw|hurt|pierce|Ancient Snapping Turtle|Older than the marsh itself.
+ancient-snapper-mossy-shell|Mossy Shell|guard|hold|Ancient Snapping Turtle|Older than the marsh itself.
+ancient-snapper-mud-sink|Mud Sink|trick|evade|Ancient Snapping Turtle|Older than the marsh itself.

@@ -1,0 +1,8 @@
+tunnel-mole-burrow|Burrow|guard|hold|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+tunnel-mole-mole-claw|Mole Claw|hurt|-|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+tunnel-mole-dirt-toss|Dirt Toss|trick|trip|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+tunnel-mole-dirt-blink|Dirt Blink|trick|evade|Tunnel Mole|Bursts up through the soil like a furry earthquake.
+carrion-crow-hat-snatch|Hat Snatch|trick|trip|Carrion Crow|Clever, patient, and very interested in your hat.
+carrion-crow-dive-bomb|Dive Bomb|hurt|pierce|Carrion Crow|Clever, patient, and very interested in your hat.
+carrion-crow-mob-caw|Mob Caw|hurt|quick|Carrion Crow|Clever, patient, and very interested in your hat.
+carrion-crow-glint-eye|Glint Eye|trick|quick|Carrion Crow|Clever, patient, and very interested in your hat.

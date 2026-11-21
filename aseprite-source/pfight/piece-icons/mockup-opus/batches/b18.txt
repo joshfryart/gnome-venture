@@ -1,0 +1,8 @@
+badger-dig-in|Dig In|guard|hold|Badger|An armoured digger who does not like visitors.
+badger-badger-maul|Badger Maul|hurt|-|Badger|An armoured digger who does not like visitors.
+badger-bash-back|Bash Back|hurt|bash|Badger|An armoured digger who does not like visitors.
+badger-tunnel-dash|Tunnel Dash|trick|evade|Badger|An armoured digger who does not like visitors.
+mire-toad-toad-slime|Toad Slime|guard|thorns|Mire Toad|Ancient, warty, and much bigger than it has any right to be.
+mire-toad-belly-flop|Belly Flop|hurt|-|Mire Toad|Ancient, warty, and much bigger than it has any right to be.
+mire-toad-bog-breath|Bog Breath|trick|poison|Mire Toad|Ancient, warty, and much bigger than it has any right to be.
+mire-toad-tongue-gulp|Tongue Gulp|hurt|pierce|Mire Toad|Ancient, warty, and much bigger than it has any right to be.

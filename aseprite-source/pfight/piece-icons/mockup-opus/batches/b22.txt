@@ -1,0 +1,8 @@
+reef-leviathan-tidal-slam|Tidal Slam|hurt|-|Reef Leviathan|An eel as long as a village street.
+reef-leviathan-deep-dive|Deep Dive|guard|evade|Reef Leviathan|An eel as long as a village street.
+reef-leviathan-whirlpool|Whirlpool|hurt|trip|Reef Leviathan|An eel as long as a village street.
+reef-leviathan-swallow-whole|Swallow Whole|hurt|pierce|Reef Leviathan|An eel as long as a village street.
+old-bramblehorn-horn-gore|Horn Gore|hurt|pierce|Old Bramblehorn|A great stag crowned with living branches.
+old-bramblehorn-bramble-mantle|Bramble Mantle|guard|thorns|Old Bramblehorn|A great stag crowned with living branches.
+old-bramblehorn-ancient-root|Ancient Root|heal|-|Old Bramblehorn|A great stag crowned with living branches.
+old-bramblehorn-antler-wall|Antler Wall|guard|hold|Old Bramblehorn|A great stag crowned with living branches.
