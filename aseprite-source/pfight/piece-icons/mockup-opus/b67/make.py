@@ -36,7 +36,7 @@ GEYE = {'y': (126, 196, 84), 'Y': (196, 234, 150)}                         # gre
 SNAKE = dict(EYE, **MOUTH)
 KOMODO = dict(EYE, **SAND)
 CUB = dict(CAT, **WIND)
-HYENA = dict(MOUTH, **BONE)
+HYENA = dict(MOUTH, **BONE, e=(236, 190, 80))
 
 ICONS = [
     # slug, type, extra palette
