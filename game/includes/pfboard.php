@@ -2173,6 +2173,7 @@ function pfb_view(array $s): array
         foreach ($v['pcs'] as $i => $q) { $pt = $s['pcs'][$q['id']]['tile']; if (!empty($pt['fx'])) $v['pcs'][$i]['fx'] = pfb_wx_text((string)$pt['fx'], (int)($pt['fxa'] ?? 0), (int)($pt['fxb'] ?? 0)); }
         if ($v['held']) foreach ($v['held']['pcs'] as $i => $q) { $ht = $g['pcs'][$i]['tile']; $v['held']['pcs'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip'])]; }
         foreach ($v['gone'] as $i => $q) if (isset($s['gone'][$i]['used'])) $v['gone'][$i]['used'] = $s['gone'][$i]['used'];
+        foreach ($v['gone'] as $i => $q) if (!empty($s['gone'][$i]['fnew'])) $v['gone'][$i]['fnew'] = true;   // the creature put it down this turn and it left in the same turn: the page holds it back until the replay reaches its step (pfb_gone_entry marks it; the view used to drop the mark, so it showed from the first frame)
     }
     return $v;
 }

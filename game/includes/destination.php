@@ -137,6 +137,15 @@ function dest_opts_html(array $u): string
  * The 🧭 route plan for heading to $toId: every stop in order with steps, energy and danger, totals, and Set off / Forget.
  * $continue = it's the remembered destination. Empty if the place doesn't exist.
  */
+/** 2.7.45: fast travel lands at the region's market: offer it only when the walk from there to the destination is shorter than the walk from here (Clovercove is 3 legs from the Maplewold but 19 from Blossomreach Market). $n = the stops of the walk from here. */
+function dest_fast_helps(int $uid, int $regionId, int $toId, int $n): bool
+{
+    $mid = (int)q_val("SELECT id FROM locations WHERE region_id = ? AND kind = 'market' ORDER BY id LIMIT 1", [$regionId]);
+    if (!$mid) return true;
+    $p = dest_path($uid, $mid, $toId);
+    return $p !== null && count($p) < $n;
+}
+
 function dest_panel(array $u, int $toId, bool $continue = false): string
 {
     $uid = (int)$u['id'];
@@ -184,7 +193,7 @@ function dest_panel(array $u, int $toId, bool $continue = false): string
     // Another region you can fast travel to: say so (the gnome chooses)
     $rid = (int)($to['region_id'] ?? 0);
     $fast = '';
-    if ($rid && $rid !== (int)($here['region_id'] ?? 0) && $n > 1 && can_fast_travel($u, $rid)) {
+    if ($rid && $rid !== (int)($here['region_id'] ?? 0) && $n > 1 && can_fast_travel($u, $rid) && dest_fast_helps($uid, $rid, $toId, $n)) {
         require_once __DIR__ . '/seek.php';
         $fast = '<p class="dpfast"><a class="btn alt" href="' . e(url('world.php?tab=travel#fasttravel')) . '">🧭 Fast travel to ' . e((string)$to['region_name']) . ' · ' . money(seek_travel_cost($u, $rid)) . '</a></p>';
     }

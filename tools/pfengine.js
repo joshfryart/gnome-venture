@@ -2432,6 +2432,7 @@
       v.pcs.forEach(function (q) { var pt = s.pcs[q.id].tile; if (truthy(pt.fx)) q.fx = wxText(String(pt.fx), toInt(nn(pt.fxa, 0)), toInt(nn(pt.fxb, 0))); });   // 2.7.09: a wear piece's effect sentence
       if (v.held) v.held.pcs.forEach(function (q, gi) { var gt = g.pcs[gi].tile; q.life = toInt(nn(gt.life, PFB_LIFE)); q.src = String(nn(gt.src, '')); q.flip = truthy(gt.flip); });
       v.gone.forEach(function (q, gi) { var u = s.gone[gi].used; if (u !== undefined && u !== null) q.used = u; });
+      v.gone.forEach(function (q, gi) { if (s.gone[gi].fnew) q.fnew = true; });   // as pfb_view: a creature piece put down and gone in the same turn keeps its fnew mark
     }
     return v;
   }
