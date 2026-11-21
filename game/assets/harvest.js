@@ -24,10 +24,17 @@
     });
     var st = document.querySelector('.gardenstat'), stat = null;   // garden status counts (garden page): they ride in this popover instead of their own pill
     if (st) { stat = {}; ['ready', 'thirsty', 'weedy', 'empty', 'grow'].forEach(function (k) { stat[k] = num(st, k); }); st.remove(); }
-    var prevFocus = document.activeElement, art = data.getAttribute('data-art') || '';   // art: base url of the harvest-*.png pictures ('' = emoji and CSS shapes)
+    var prevFocus = document.activeElement, art = data.getAttribute('data-art') || '', icoBase = data.getAttribute('data-ico') || '';   // art: base url of the harvest-*.png pictures ('' = emoji and CSS shapes)
     var heading = pal ? who + ' is picking…' : 'Picking time!';
     var doneHeading = total >= 12 ? pick(['Basket overflowing!', 'Veg everywhere!']) : pal ? pick([who + ' did the picking!', 'Picked while you slept!']) : pick(['Harvest in!', 'Basket full!', 'Veg secured.']);
 
+    /* the site's own pixel icons (assets/img/ico) instead of emoji; with no icon base the emoji stay */
+    function ico(slug, emoji) {
+      if (!icoBase) return document.createTextNode(emoji + ' ');
+      var i = el('img', 'ico pix'); i.alt = ''; i.width = 16; i.height = 16; i.src = icoBase + 'ico-' + slug + '.png';
+      return i;
+    }
+    var NOTE_ICO = { '🍀': 'four-leaf-clover', '🐝': 'bee', '🪱': 'worm', '🏅': 'medal-gold', '🌽': 'corn', '🐦': 'bird', '🍄': 'mushroom', '✨': 'sparkle', '⭐': 'star', '🏡': 'home', '🎩': 'gnome-hat', '📈': 'chart', '💪': 'strength', '✂️': 'shears', '🌱': 'sprout' };
     function png(name, cls) {   // one of the pixel pictures; a failed load turns the whole show back to emoji and CSS shapes
       var i = el('img', cls); i.alt = ''; i.draggable = false;
       if (art) { i.addEventListener('error', function () { root.classList.remove('hv-px'); }); i.src = art + name + '.png'; }
@@ -39,9 +46,10 @@
     var title = el('h2', 'hv-title', heading);
     var field = el('div', 'hv-field'); field.setAttribute('aria-hidden', 'true');
     var basket = el('div', 'hv-basket'); basket.setAttribute('aria-hidden', 'true');
-    var bico = el('span', 'hv-bico', '🧺'), bcount = el('b', 'hv-bcount', '0');
+    var bico = el('span', 'hv-bico'), bcount = el('b', 'hv-bcount', '0');
     var bpx = el('span', 'hv-bpx'), heap = png('basket-heap', 'hv-heap');
     bpx.appendChild(png('basket-back', 'hv-bback')); bpx.appendChild(heap); bpx.appendChild(png('basket-front', 'hv-bfront'));
+    if (icoBase) { var bi = ico('basket', '🧺'); bi.width = bi.height = 40; bico.appendChild(bi); } else bico.textContent = '🧺';
     basket.appendChild(bico); basket.appendChild(bpx); basket.appendChild(bcount);
     function strip(name, cls) { var w = el('span', 'hv-fx ' + cls); w.appendChild(png(name, '')); return w; }
     function tuftFor(kind) { return /^(flower|grain|herb|cover)$/.test(kind) ? 'stalk' : /^(fruit|legume|tree|nut)$/.test(kind) ? 'vine' : 'leafy'; }
@@ -81,13 +89,17 @@
         li.appendChild(i); li.appendChild(el('span', 'hv-name', g.name)); li.appendChild(el('b', 'hv-qty', '×' + g.qty));
         sum.appendChild(li);
       });
-      var chips = [['🧺 ' + total + ' crop' + (total === 1 ? '' : 's')]];
-      if (xp) chips.push(['⭐ +' + xp + ' XP']);
-      if (lvl) chips.push(['🎉 Level ' + lvl]);
-      if (seeds) chips.push(['🌱 ' + seeds]);
-      if (stat) [['💧', 'thirsty', 'thirsty'], ['🧺', 'ready', 'still ripe'], ['🌿', 'weedy', 'weedy'], ['🟫', 'empty', 'bare'], ['🌱', 'grow', 'growing']].forEach(function (r) { if (stat[r[1]]) chips.push([r[0] + ' ' + stat[r[1]], stat[r[1]] + ' ' + r[2], 1]); });
-      chips.forEach(function (c, i) { var s = el('span', 'hv-t' + (c[2] ? ' hv-st' : ''), c[0]); if (c[1]) s.title = c[1]; s.style.setProperty('--gi', i); tally.appendChild(s); });
-      notes.forEach(function (m) { nl.appendChild(el('li', null, m)); });
+      var chips = [['basket', '🧺', total + ' crop' + (total === 1 ? '' : 's')]];
+      if (xp) chips.push(['star', '⭐', '+' + xp + ' XP']);
+      if (lvl) chips.push(['party', '🎉', 'Level ' + lvl]);
+      if (seeds) chips.push(['sprout', '🌱', seeds]);
+      if (stat) [['droplet', '💧', 'thirsty', 'thirsty'], ['basket', '🧺', 'ready', 'still ripe'], ['herb-sprig', '🌿', 'weedy', 'weedy'], ['hole', '🟫', 'empty', 'bare'], ['leaf', '🌱', 'grow', 'growing']].forEach(function (r) { if (stat[r[2]]) chips.push([r[0], r[1], String(stat[r[2]]), stat[r[2]] + ' ' + r[3], 1]); });
+      chips.forEach(function (c, i) { var s = el('span', 'hv-t' + (c[4] ? ' hv-st' : '')); s.appendChild(ico(c[0], c[1])); s.appendChild(document.createTextNode(c[2])); if (c[3]) s.title = c[3]; s.style.setProperty('--gi', i); tally.appendChild(s); });
+      notes.forEach(function (m) {
+        var li = el('li'), lead = Object.keys(NOTE_ICO).filter(function (k) { return m.indexOf(k) === 0; })[0];
+        if (lead && icoBase) { li.appendChild(ico(NOTE_ICO[lead])); li.appendChild(document.createTextNode(m.slice(lead.length).replace(/^\s+/, ''))); } else li.textContent = m;
+        nl.appendChild(li);
+      });
     }
     function count(to, ms) {
       var t = null;

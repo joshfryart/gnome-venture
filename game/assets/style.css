@@ -8773,3 +8773,7 @@ dialog.hvov::backdrop { background: transparent; }
 .hvov .hv-soilpx { left: 0; width: 100%; margin-left: 0; }
 .hvov .hv-soilpx img { width: 100%; height: auto; }
 .hvov .hv-more2 { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.hvov .ico { display: inline-block; vertical-align: -3px; margin-right: 4px; }
+.hvov .hv-bico .ico { margin: 0; vertical-align: top; }
+.hvov .hv-notes .ico { vertical-align: -4px; }
+.hvov.hv-px .hv-sum .hv-ico { margin-bottom: 0; }
