@@ -37,7 +37,7 @@ ICONS = [
     ('pl-g-tea', 'heal', dict(CRM)),
     ('pl-g-acai', 'heal', dict(CRM, **ACAI, **BERRY)),
     ('pl-g-ackee', 'item', dict(CRM, **GREEN, **SEED)),
-    ('pl-g-baobab', 'guard', dict(CRM)),
+    ('pl-g-baobab', 'guard', dict(CRM, **GREEN)),
     ('pl-g-cacao', 'charm', dict(CRM, **WAFER)),
     ('pl-g-carob', 'guard', dict(CRM, **WAFER)),
 ]

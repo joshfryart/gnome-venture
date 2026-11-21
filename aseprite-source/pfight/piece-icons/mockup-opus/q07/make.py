@@ -32,7 +32,8 @@ SOIL = {'s': (140, 96, 62), 'S': (96, 62, 40)}                           # compo
 GLASS = {'a': (200, 232, 236), 'A': (140, 186, 196)}                     # flask glass
 STONE = {'t': (40, 56, 96)}                                              # deep mortar
 
-ALL = dict(CRM, **STEEL, **WOOD, **PICKLE, **RED, **SOIL, **GLASS, **STONE)
+GOLDS = {'o': (168, 104, 16)}
+ALL = dict(CRM, **GOLDS, **STEEL, **WOOD, **PICKLE, **RED, **SOIL, **GLASS, **STONE)
 ICONS = [
     # slug, type, extra palette
     ('pl-c-spice', 'hurt', ALL),

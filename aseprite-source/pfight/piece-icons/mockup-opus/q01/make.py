@@ -38,7 +38,7 @@ ICONS = [
     ('pl-breather', 'heal', dict()),
     ('pl-bark', 'guard', dict(WOOD)),
     ('pl-bloom', 'charm', dict(LEAF)),
-    ('pl-thorn', 'hurt', dict(LEAF, **WOOD)),
+    ('pl-thorn', 'hurt', dict(WOOD, o=(176, 120, 30))),
     ('pl-sow', 'trick', dict(LEAF)),
 ]
 
