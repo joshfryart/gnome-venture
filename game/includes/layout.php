@@ -107,6 +107,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v1.4.0: Fight on replay, for the fight card and the walk bar */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/chest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.6: delve chest opening treat */ ?>
+<?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/harvest.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* harvest show: plants picked into a basket, then the numbers */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/gardenstat.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* garden status quip after a harvest */ ?>
 <?php if (!$admin && $u && pfight_stage_on($u)): /* pfight_stage: the Trail fight takes over the map's place; on every page it can be swapped into (AJAX_PAGES), and only for viewers the setting is on for */ ?><link rel="stylesheet" href="<?= e(url('assets/pfstage.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/pfstage.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
