@@ -1,5 +1,5 @@
 <?php
-// 2.7.45: a creature's own 3 pieces carry 'ik', the key of their hand-drawn icon in game/assets/img/pfight/pieces/ (ico-<ik>.png 32px, ico-<ik>-s.png 20px).
+// 2.7.38: a creature's own 3 pieces carry 'ik', the key of their hand-drawn icon in game/assets/img/pfight/pieces/ (ico-<ik>.png 32px, ico-<ik>-s.png 20px).
 // php tests/pf_piece_icons.php   (no database: reads data/pf_creature_pieces.txt and the icon folder)
 require __DIR__ . '/../game/includes/pfboard.php'; require __DIR__ . '/../game/includes/pfight_game.php'; require __DIR__ . '/../game/includes/pfdeck.php';
 $bad = 0;
