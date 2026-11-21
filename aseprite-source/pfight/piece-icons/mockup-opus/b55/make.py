@@ -31,6 +31,7 @@ WING = {'V': (214, 234, 240), 'v': (163, 199, 216), 'u': (98, 136, 160)}
 LEAF = {'g': (120, 176, 70), 'j': (78, 124, 48), 'J': (170, 210, 110)}
 POISON = {'p': (150, 80, 190), 'P': (200, 150, 230), 'z': (96, 44, 130)}
 MOUTH = {'r': (200, 84, 84), 'x': (122, 40, 40)}
+SKIN = {'S': (244, 206, 168), 's': (212, 158, 120)}                        # gnome skin
 
 ICONS = [
     # slug, type, extra palette
@@ -48,7 +49,7 @@ ICONS = [
     ('mud-dauber-pipe-stack', 'hurt', dict(MUD, **WASP, **WING)),
     ('tiger-leech-stripe-latch', 'hurt', dict(MOUTH, **LEAF)),
     ('tiger-leech-leaf-drop', 'hurt', dict(MOUTH, **LEAF)),
-    ('tiger-leech-skin-wrap', 'guard', dict(MOUTH, **LEAF)),
+    ('tiger-leech-skin-wrap', 'guard', dict(MOUTH, **SKIN)),
     ('tiger-leech-twin-drop', 'trick', dict(MOUTH, **LEAF)),
 ]
 

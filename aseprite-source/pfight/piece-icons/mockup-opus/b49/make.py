@@ -29,7 +29,8 @@ ANT = {'a': (120, 36, 30), 'A': (176, 70, 50)}
 BEE = {'n': (52, 36, 36)}                                                   # bee stripes
 POLLEN = {'y': (250, 214, 80), 'Y': (255, 240, 160), 'o': (196, 140, 20)}
 HONEY = {'a': (240, 176, 50), 'A': (255, 224, 130), 'o': (184, 116, 20)}
-CAT = {'n': (54, 40, 40), 'y': (196, 214, 80), 'p': (226, 130, 140)}         # stripes, eye, nose
+CAT = {'n': (54, 40, 40), 'y': (196, 214, 80), 'p': (226, 130, 140),         # stripes, eye, nose
+       'm': (122, 40, 40)}                                                  # mouth
 VULT = {'r': (204, 52, 52), 'R': (240, 120, 108), 'q': (130, 30, 40),       # bald red head
         'W': (242, 234, 214), 'w': (196, 184, 156),                         # ivory beak
         'S': (206, 212, 222), 's': (150, 158, 174)}                         # silver flight feathers
@@ -43,7 +44,7 @@ ICONS = [
     ('honeybee-swarm-bee-sting', 'hurt', dict(WING, **BEE)),
     ('honeybee-swarm-pollen-dive', 'hurt', dict(WING, **BEE, **POLLEN)),
     ('honeybee-swarm-wax-cell', 'guard', dict(WING, **BEE, **HONEY)),
-    ('honeybee-swarm-hive-alarm', 'trick', dict(WING, **BEE)),
+    ('honeybee-swarm-hive-alarm', 'trick', dict(WING, **BEE, **POLLEN)),
     ('wildcat-fur-bristle', 'guard', dict(CAT)),
     ('wildcat-claw-swipe', 'hurt', dict(CAT)),
     ('wildcat-ear-flat-guard', 'guard', dict(CAT)),

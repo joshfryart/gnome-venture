@@ -37,7 +37,8 @@ RED = {'X': (232, 90, 80), 'x': (190, 40, 40), 'z': (130, 24, 30)}          # ba
 MOUTH = {'M': (200, 84, 84), 'm': (122, 40, 40)}
 
 RAT = dict(PINK, **BELLY, **RED)
-LIZ = dict(HEAD, **BELLY, **MOUTH)
+LIZ = dict(HEAD, **BELLY, **MOUTH, **RED)
+FRILL = dict(LIZ, **WOOD)                                                   # brown lizard skin
 
 ICONS = [
     # slug, type, extra palette
@@ -53,10 +54,10 @@ ICONS = [
     ('basilisk-runner-crest-rest', 'heal', dict(LIZ)),
     ('basilisk-runner-splash-cover', 'guard', dict(LIZ, **WATER)),
     ('basilisk-runner-toe-skim', 'trick', dict(LIZ, **WATER)),
-    ('frilled-lizard-frill-flare', 'guard', dict(LIZ)),
-    ('frilled-lizard-ruff-bite', 'hurt', dict(LIZ, **POISON)),
-    ('frilled-lizard-dust-fan', 'trick', dict(LIZ, **DUST)),
-    ('frilled-lizard-second-hiss', 'hurt', dict(LIZ)),
+    ('frilled-lizard-frill-flare', 'guard', dict(FRILL)),
+    ('frilled-lizard-ruff-bite', 'hurt', dict(FRILL, **POISON)),
+    ('frilled-lizard-dust-fan', 'trick', dict(FRILL, **DUST)),
+    ('frilled-lizard-second-hiss', 'hurt', dict(FRILL)),
 ]
 
 

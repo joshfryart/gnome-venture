@@ -47,7 +47,7 @@ ICONS = [
     ('fishing-cat-fur-shake', 'guard', dict(WATER, **MOUTH, **EYE)),
     ('fishing-cat-paw-flick', 'hurt', dict(WATER)),
     ('fishing-cat-scoop-grab', 'trick', dict(WATER, **FISH)),
-    ('tree-monitor-branch-lash', 'hurt', dict(BARK, **FERN)),
+    ('tree-monitor-branch-lash', 'hurt', dict(BARK, **FERN, **EYE)),
     ('tree-monitor-bark-blend', 'guard', dict(BARK, **EYE)),
     ('tree-monitor-venom-drip', 'trick', dict(POISON, **MOUTH, **EYE)),
     ('tree-monitor-monitor-canopy-drop', 'hurt', dict(FERN, **EYE, **MOUTH)),

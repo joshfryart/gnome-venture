@@ -57,8 +57,10 @@ function map_positions(): array
     $GLOBALS['gv_side_of'] = [];
     $codeOf = [];
     foreach (q('SELECT id, code FROM regions')->fetchAll() as $r) $codeOf[(int)$r['id']] = $r['code'];
+    $regOf = []; $kindOf = [];   // location id => region code / kind, for keeping road stops inside their own region
     foreach (q('SELECT id, kind, region_id, slug FROM locations')->fetchAll() as $l) {
         $id = (int)$l['id'];
+        $regOf[$id] = $codeOf[(int)$l['region_id']] ?? ''; $kindOf[$id] = (string)$l['kind'];
         if ($l['kind'] === 'hub') { $pos[$id] = HUB_MAP; continue; }
         $code = $codeOf[(int)$l['region_id']] ?? '';
         if (!isset(REGION_MAP[$code])) continue;
@@ -80,6 +82,24 @@ function map_positions(): array
             $t = $i / ($n - 1);
             $pos[$nodes[$i]] = [(int)round((1 - $t) ** 2 * $a[0] + 2 * (1 - $t) * $t * $mx + $t * $t * $b[0]),
                                 (int)round((1 - $t) ** 2 * $a[1] + 2 * (1 - $t) * $t * $my + $t * $t * $b[1])];
+            // 2.7.45: a stop belongs to its own region: where the road curve carries it outside that region's disc, it sits on the disc's edge facing the road
+            // (Cloverholt, in The Maplewold, was drawn a third of the way across the world, beside Mistmoor)
+            $rc = $regOf[$nodes[$i]] ?? '';
+            if ($rc !== '' && isset(REGION_MAP[$rc]) && $regOf[$nodes[$i]] !== '') {
+                [$cx, $cy, , $cr] = REGION_MAP[$rc];
+                $dx = $pos[$nodes[$i]][0] - $cx; $dy = $pos[$nodes[$i]][1] - $cy; $dist = sqrt($dx * $dx + $dy * $dy); $lim = $cr * 0.9;
+                if ($dist > $lim && $dist > 0) {
+                    $ex = $cx + $dx / $dist * $lim; $ey = $cy + $dy / $dist * $lim;
+                    for ($tries = 0; $tries < 6; $tries++) {   // two stops of one region on one road must not land on the same spot
+                        $clash = false;
+                        for ($j = 1; $j < $i; $j++) if (($regOf[$nodes[$j]] ?? '') === $rc && abs($pos[$nodes[$j]][0] - $ex) < 10 && abs($pos[$nodes[$j]][1] - $ey) < 10) $clash = true;
+                        if (!$clash) break;
+                        $ang = atan2($ey - $cy, $ex - $cx) + 0.28;
+                        $ex = $cx + cos($ang) * $lim; $ey = $cy + sin($ang) * $lim;
+                    }
+                    $pos[$nodes[$i]] = [(int)round($ex), (int)round($ey)];
+                }
+            }
         }
         for ($i = 1; $i < $n - 1; $i++) {   // which way the road runs at each stop (for placing side paths)
             $roadDir[$nodes[$i]] = [$pos[$nodes[$i + 1]][0] - $pos[$nodes[$i - 1]][0], $pos[$nodes[$i + 1]][1] - $pos[$nodes[$i - 1]][1]];
@@ -101,9 +121,47 @@ function map_positions(): array
             $ring = intdiv($k, 2);
             $ang = $base + ($k % 2 ? M_PI : 0) + ($ring ? ($ring % 2 ? 0.55 : -0.55) * ceil($ring / 2) : 0);
             $d = 17 + $ring * 6;
-            $pos[$id] = [(int)round($pos[$anchor][0] + cos($ang) * $d), (int)round($pos[$anchor][1] + sin($ang) * $d)];
+            $kx = $pos[$anchor][0] + cos($ang) * $d; $ky = $pos[$anchor][1] + sin($ang) * $d;
+            $rc = $regOf[$id] ?? '';
+            if ($rc !== '' && isset(REGION_MAP[$rc])) {   // 2.7.45: an off-road place stays inside its own region too
+                [$cx, $cy, , $cr] = REGION_MAP[$rc];
+                for ($tries = 0; $tries < 8; $tries++) {
+                    $dx = $kx - $cx; $dy = $ky - $cy; $dist = sqrt($dx * $dx + $dy * $dy);
+                    if ($dist > $cr * 0.98 && $dist > 0) { $kx = $cx + $dx / $dist * $cr * 0.98; $ky = $cy + $dy / $dist * $cr * 0.98; }
+                    if (sqrt(($kx - $pos[$anchor][0]) ** 2 + ($ky - $pos[$anchor][1]) ** 2) >= 9) break;
+                    $rot = atan2($ky - $cy, $kx - $cx) + 0.5; $dd = min($cr * 0.98, max(sqrt(($kx - $cx) ** 2 + ($ky - $cy) ** 2), $cr * 0.5));   // too close to its stop: swing round the region
+                    $kx = $cx + cos($rot) * $dd; $ky = $cy + sin($rot) * $dd;
+                }
+            }
+            $pos[$id] = [(int)round($kx), (int)round($ky)];
             $GLOBALS['gv_side_of'][$id] = $anchor;
         }
+    }
+    // 2.7.45: keep every place inside its own region and give crowded regions some air: markets stay at the region's centre, the rest are pushed
+    // apart (at least 11 units) and held inside the region's disc (a little roomier, 1.15 x its radius)
+    $byRegion = [];
+    foreach ($regOf as $id => $code) if ($code !== '' && isset(REGION_MAP[$code], $pos[$id]) && ($kindOf[$id] ?? '') !== 'market' && ($kindOf[$id] ?? '') !== 'hub') $byRegion[$code][] = $id;
+    foreach ($byRegion as $code => $ids) {
+        [$cx, $cy, , $cr] = REGION_MAP[$code]; $lim = $cr * 1.15; $n = count($ids);
+        for ($it = 0; $it < 40; $it++) {
+            $moved = false;
+            for ($i = 0; $i < $n; $i++) for ($j = $i + 1; $j < $n; $j++) {
+                $a = $ids[$i]; $b = $ids[$j];
+                $dx = $pos[$b][0] - $pos[$a][0]; $dy = $pos[$b][1] - $pos[$a][1]; $d = sqrt($dx * $dx + $dy * $dy);
+                if ($d >= 11) continue;
+                if ($d < 0.01) { $dx = cos($i * 2.4 + $j); $dy = sin($i * 2.4 + $j); $d = 1.0; }
+                $push = (11 - $d) / 2 + 0.5;
+                $pos[$a] = [$pos[$a][0] - $dx / $d * $push, $pos[$a][1] - $dy / $d * $push];
+                $pos[$b] = [$pos[$b][0] + $dx / $d * $push, $pos[$b][1] + $dy / $d * $push];
+                $moved = true;
+            }
+            foreach ($ids as $id) {
+                $dx = $pos[$id][0] - $cx; $dy = $pos[$id][1] - $cy; $d = sqrt($dx * $dx + $dy * $dy);
+                if ($d > $lim) $pos[$id] = [$cx + $dx / $d * $lim, $cy + $dy / $d * $lim];
+            }
+            if (!$moved) break;
+        }
+        foreach ($ids as $id) $pos[$id] = [(int)round($pos[$id][0]), (int)round($pos[$id][1])];
     }
     return $pos;
 }

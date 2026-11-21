@@ -48,7 +48,7 @@ ICONS = [
     ('mangrove-crab-court-root-hide', 'guard', dict(BARN, **ROOT)),
     ('mangrove-crab-court-mud-summons', 'trick', dict(BARN, **WOOD, **MUD)),
     ('mangrove-crab-court-barnacle-verdict', 'guard', dict(BARN)),
-    ('zorilla-stink-squad-spray-burst', 'hurt', dict(POISON)),
+    ('zorilla-stink-squad-spray-burst', 'hurt', dict(POISON, **FOG)),
     ('zorilla-stink-squad-warning-stripe', 'trick', dict(MOUTH)),
     ('zorilla-stink-squad-black-coat', 'guard', dict(MOUTH)),
     ('zorilla-stink-squad-stink-fog', 'trick', dict(POISON, **FOG)),
