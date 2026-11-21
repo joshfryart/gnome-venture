@@ -10,16 +10,9 @@
 // Targets (claude/design-board-strategy.md): chain about 70% at level, smart 90% or more, fights 6-8 turns (small 4-5). The bots are tools/pfsim/v1bundle/run.php's, plus the flip.
 require_once __DIR__ . '/../game/includes/pfboard.php';
 require_once __DIR__ . '/../game/includes/pfdeck.php';
+require_once __DIR__ . '/pf_creatures_load.php';
 const TV_SEEDS = ['small' => 21, 'medium' => 8, 'large' => 5, 'boss' => 23];   // 10 small, 26 medium, 43 large, 9 boss creatures -> 210 / 208 / 215 / 207 fights
-function tv_creatures(): array
-{
-    $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10]; $o = [];
-    foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_LINES) as $l) {
-        if ($l === '' || $l[0] === '#') continue; $c = explode('|', $l); if (count($c) < 7) continue;
-        $lv = max(1, (int)$c[4]); $o[] = ['slug' => $c[0], 'name' => $c[1], 'size' => $c[2], 'level' => $lv, 'dmg_die' => $die[$c[2]] ?? 6, 'dmg_bonus' => intdiv($lv, 4)];
-    }
-    return $o;
-}
+function tv_creatures(): array { return array_values(pt_load_creatures()); }   // all 319: 88 base + 231 variants (tests/pf_creatures_load.php)
 /** Stage B: a typical gnome's sources at a level for the v1 deck model: a one-tap starter kit, a belt that grows (2 tools, 3 from level 10, 4 from 20; tiers rise with level),
  *  1 pal from level 3 and 2 from 8, crops, crafts and regions as the game is played, and up to 3 knacks switched on. Deck: 14 pieces at level 1, about 22 at level 30. */
 function tv_sources(int $lv): array

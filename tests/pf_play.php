@@ -1,6 +1,6 @@
 <?php
 // Puzzle fight BOARD playtest harness for agents and bots (no DB, no server, no browser).
-//   php tests/pf_play.php new STATE CREATURE_SLUG LEVEL SEED [classic|blank|v1|v1classic|v1old] [REGION] [old]   start a fight (the real layered creature deck and the deck-model player deck; arg 8 `old` = the archetype creature deck and the stage A player deck) (blank = blank wild centre + hidden start; v1 = the v1 board rules with the blank opening and ENVIRONMENT PIECES (2.6.75); v1old = the 2.6.74 ground and events; REGION = a region code, it leans the environment's deck)
+//   php tests/pf_play.php new STATE CREATURE_SLUG LEVEL SEED [classic|blank|v1|v1classic|v1old] [REGION] [old|BUILD]   start a fight (the real layered creature deck and the deck-model player deck; arg 8 `old` = the archetype creature deck and the stage A player deck) (blank = blank wild centre + hidden start; v1 = the v1 board rules with the blank opening and ENVIRONMENT PIECES (2.6.75); v1old = the 2.6.74 ground and events; REGION = a region code, it leans the environment's deck)
 //   php tests/pf_play.php flip STATE HANDIDX              (v1 only) flip a hand piece: swap its top and bottom edges. Free, once a turn; flip the same piece again to take it back
 //   php tests/pf_play.php show STATE                                           the board, your hand and every legal cell
 //   php tests/pf_play.php start STATE HANDIDX SIDE        (blank only) hidden start piece next to the centre: SIDE = L R T B
@@ -13,16 +13,10 @@
 // STATE is a json file. Every action is appended to STATE.log (one json line each) for data. The creature's hand and the draw pile are never shown.
 require __DIR__ . '/../game/includes/pfboard.php';
 require __DIR__ . '/../game/includes/pfdeck.php';
+require_once __DIR__ . '/pf_creatures_load.php';
+require_once __DIR__ . '/pf_bots.php';   // pb_player() for the BUILD arg (guarded: runs nothing when required)
 $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
-function pp_creatures(): array
-{
-    global $die; $o = [];
-    foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_LINES) as $l) {
-        if ($l === '' || $l[0] === '#') continue; $c = explode('|', $l); if (count($c) < 7) continue;
-        $lv = max(1, (int)$c[4]); $o[$c[0]] = ['slug' => $c[0], 'name' => $c[1], 'size' => $c[2], 'level' => $lv, 'dmg_die' => $die[$c[2]] ?? 6, 'dmg_bonus' => intdiv($lv, 4)];
-    }
-    return $o;
-}
+function pp_creatures(): array { return pt_load_creatures(); }   // all 319 (tests/pf_creatures_load.php)
 /** The player's sources at a level (the deck model's, as tests/pfboard_tune_v1.php tv_sources): a kit, a belt of tools, pals, crops, crafts, regions and knacks. */
 function pp_sources(int $lv): array
 {
@@ -156,9 +150,10 @@ if ($cmd === 'new') {
     $slug = $argv[3] ?? ''; $lv = pp_int($argv[4] ?? null, 1, 100, 'LEVEL'); $seed = pp_int($argv[5] ?? null, 0, PHP_INT_MAX, 'SEED'); $mode = $argv[6] ?? 'classic'; $all = pp_creatures();
     if (!in_array($mode, ['classic', 'blank', 'v1', 'v1classic', 'v1old'], true)) { fwrite(STDERR, "mode must be classic, blank, v1, v1classic or v1old\n"); exit(1); }
     if (!isset($all[$slug])) { fwrite(STDERR, "unknown creature (use list)\n"); exit(1); }
-    $old = ($argv[8] ?? '') === 'old'; $reg = (string)($argv[7] ?? ''); $keys = array_keys(pfd_region_pieces());
+    $old = in_array('old', [$argv[8] ?? '', $argv[9] ?? ''], true); $build = 'std'; foreach ([$argv[8] ?? '', $argv[9] ?? ''] as $x) { if (in_array($x, PB_BUILDS, true)) $build = $x; elseif ($x !== '' && $x !== 'old') { fwrite(STDERR, "arg 8/9 must be old or a BUILD (std, pals, norare)\n"); exit(1); } }
+    if ($old && $build !== 'std') { fwrite(STDERR, "BUILD (std|pals|norare) does not combine with old\n"); exit(1); } $reg = (string)($argv[7] ?? ''); $keys = array_keys(pfd_region_pieces());
     $cr = $old ? $all[$slug] + ['region' => $reg] : pfd_foe_row($all[$slug], $reg !== '' ? $reg : $keys[(crc32($slug) + $seed) % 14]) + ['region' => $reg];
-    $s = pfb_new(pp_player($lv, $old), $cr, $seed, ['blank' => in_array($mode, ['blank', 'v1', 'v1old'], true), 'v1' => $mode === 'v1old' ? ['env' => 0, 'ground' => 1, 'events' => 1] : str_starts_with($mode, 'v1')]);
+    $s = pfb_new($build !== 'std' ? pb_player($lv, $build) : pp_player($lv, $old), $cr, $seed, ['blank' => in_array($mode, ['blank', 'v1', 'v1old'], true), 'v1' => $mode === 'v1old' ? ['env' => 0, 'ground' => 1, 'events' => 1] : str_starts_with($mode, 'v1')]);
     file_put_contents($f, json_encode($s)); @unlink($f . '.log'); echo pp_show($s) . "\n"; exit;
 }
 if (!$f || !is_file($f)) { fwrite(STDERR, "no state file\n"); exit(1); }

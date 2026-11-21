@@ -43,6 +43,18 @@ OUT=$(php "$HERE/pf_play.php" pass "$T/b.json" 2>&1)
 if echo "$OUT" | grep -q "The blank centre is gone (turn 1 is over)"; then ok "(e) the blank's expiry has its own line"; else bad "(e) the blank's expiry has its own line"; fi
 if echo "$OUT" | grep -q "EXPIRED.*\"Blank\""; then bad "(e) the blank is never listed as an expired piece"; else ok "(e) the blank is never listed as an expired piece"; fi
 
+# 2.7.48 playtest pilot Phase 0: all 319 creatures (88 base + 231 variants), a BUILD arg, and the same opening hands as the bots (tests/pf_bots.php pb_fight)
+if [ "$(php "$HERE/pf_play.php" list 400 | wc -l)" = 319 ]; then ok "(f) list shows 319 creatures"; else bad "(f) list shows 319 creatures"; fi
+if php "$HERE/pf_play.php" new "$T/v.json" fly-swarm 12 7 v1 >/dev/null 2>&1; then ok "(f) a pf_creatures variant (fly-swarm) starts"; else bad "(f) a pf_creatures variant (fly-swarm) starts"; fi
+if [ "$(php -r 'require $argv[1]; echo count(tv_creatures());' "$HERE/pfboard_tune_v1.php")" = 319 ]; then ok "(f) tv_creatures() has 319 rows"; else bad "(f) tv_creatures() has 319 rows"; fi
+php "$HERE/pf_play.php" new "$T/p.json" grass-snake 14 7 v1 '' pals >/dev/null 2>&1 && php "$HERE/pf_play.php" new "$T/n.json" grass-snake 14 7 v1 '' norare >/dev/null 2>&1 && php "$HERE/pf_play.php" new "$T/d.json" grass-snake 14 7 v1 '' std >/dev/null 2>&1 || bad "(g) BUILD pals / norare / std start"
+if has "$T/p.json" me '"src":"tool"'; then bad "(g) the pals build has no belt tool"; else ok "(g) the pals build has no belt tool"; fi
+if cmp -s <(php -r '$s=json_decode(file_get_contents($argv[1]),true); echo json_encode($s["me"]);' "$T/d.json") <(php -r '$s=json_decode(file_get_contents($argv[1]),true); echo json_encode($s["me"]);' "$T/k.json"); then ok "(g) BUILD std = the default deck"; else bad "(g) BUILD std = the default deck"; fi
+if php "$HERE/pf_play.php" new "$T/x.json" grass-snake 14 7 v1 '' bogus >/dev/null 2>&1; then bad "(g) an unknown BUILD is refused"; else ok "(g) an unknown BUILD is refused"; fi
+# (h) same slug / level / seed: the opening hand (and creature deck) equals pb_fight's (pfb_new on pb_player + pfd_foe_row, region (crc32+seed)%14)
+SAME=$(php -r 'require $argv[1]; $ok=1; foreach ([["grass-snake",14,7],["fly-swarm",12,512],["tide-crab-paladin",30,2517]] as [$sl,$lv,$sd]) { $c=pt_load_creatures()[$sl]; $s=pfb_new(pb_player($lv,"std"), pfd_foe_row($c, array_keys(pfd_region_pieces())[(crc32($sl)+$sd)%14]), $sd, ["blank"=>true,"v1"=>true]); $f=sys_get_temp_dir()."/pfd_h.json"; passthru(PHP_BINARY." ".escapeshellarg($argv[2])." new ".$f." ".$sl." ".$lv." ".$sd." v1 >/dev/null"); $t=json_decode(file_get_contents($f),true); if (json_encode([$s["me"]["hand"],$s["foe"]["hand"],$s["foe"]["draw"]]) !== json_encode([$t["me"]["hand"],$t["foe"]["hand"],$t["foe"]["draw"]])) $ok=0; @unlink($f); } echo $ok;' "$HERE/pf_bots.php" "$HERE/pf_play.php")
+if [ "$SAME" = 1 ]; then ok "(h) opening hands match the bots' for the same slug / level / seed"; else bad "(h) opening hands match the bots' for the same slug / level / seed"; fi
+
 # every creature of the old playtest assignments still starts
 ASSIGN=${ASSIGN:-}
 if [ -n "$ASSIGN" ] && [ -f "$ASSIGN" ]; then
