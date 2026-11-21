@@ -47,8 +47,8 @@ ICONS = [
     ('yellowjacket-mob-cider-raid', 'trick', dict(WING, **APPLE)),
     ('yellowjacket-mob-windfall-rush', 'trick', dict(WING, **APPLE)),
     ('giant-mire-leech-bog-hook', 'hurt', dict(MUD, **FANG)),
-    ('giant-mire-leech-muddy-coil', 'trick', dict(MUD)),
-    ('giant-mire-leech-thick-hide', 'guard', dict(MUD, **WATER)),
+    ('giant-mire-leech-muddy-coil', 'trick', dict(MUD, **FANG)),
+    ('giant-mire-leech-thick-hide', 'guard', dict(MUD, **WATER, **FANG)),
     ('giant-mire-leech-suck-dry', 'hurt', dict(MUD, **FANG, **POISON)),
 ]
 

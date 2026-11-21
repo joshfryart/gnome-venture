@@ -31,7 +31,7 @@ MOUTH = {'m': (122, 40, 40), 'M': (210, 90, 96)}
 EYE = {'e': (250, 214, 74)}
 STONE = {'s': (164, 158, 148), 'S': (206, 200, 188), 'z': (116, 110, 104)}
 WATER = {'a': (128, 204, 232), 'A': (214, 244, 252), 'o': (64, 142, 192)}
-REED = {'r': (120, 170, 70), 'R': (176, 214, 112), 'j': (76, 118, 46), 'n': (140, 92, 52)}
+REED = {'r': (120, 170, 70), 'R': (176, 214, 112), 'j': (76, 118, 46), 'n': (140, 92, 52), 'U': (184, 132, 84), 'x': (92, 60, 36)}
 MUD = {'u': (150, 112, 70), 'U': (188, 152, 104), 'x': (104, 74, 46)}
 
 SNAKE = dict(MOUTH, **EYE)
@@ -52,7 +52,7 @@ ICONS = [
     ('smooth-snake-stone-sunning', 'heal', dict(SNAKE, **STONE)),
     ('water-snake-water-snap', 'hurt', dict(SNAKE, **WATER)),
     ('water-snake-tight-coil', 'guard', dict(SNAKE)),
-    ('water-snake-bank-slide', 'trick', dict(SNAKE, **MUD, a=(128, 204, 232), A=(214, 244, 252))),
+    ('water-snake-bank-slide', 'trick', dict(SNAKE, **MUD, a=(128, 204, 232), A=(214, 244, 252), o=(64, 142, 192))),
     ('water-snake-reed-weave', 'guard', dict(SNAKE, **REED)),
 ]
 
