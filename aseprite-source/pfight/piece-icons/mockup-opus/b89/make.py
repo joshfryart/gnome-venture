@@ -42,7 +42,7 @@ TEETH = {'t': (122, 40, 40)}
 
 TOAD = dict(EYE, **GOLDEYE, **MOSS)
 AMBER = {'y': (236, 150, 40), 'Y': (252, 200, 90), 'a': (160, 92, 24)}   # eye on yellow
-CRAB = dict(EYE, **SHELL, **WEED)
+CRAB = dict(EYE, **SHELL, **WEED, a=(196, 146, 40))
 GOLEM = dict(EYE, **PEAT, **REED, **GOLDEYE)
 WOLF = dict(EYE, **FUR, **WEED, **BERRY, **TEETH)
 

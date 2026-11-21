@@ -32,7 +32,8 @@ PEARL = {'W': (244, 240, 250), 'w': (196, 190, 220)}
 WATER = {'u': (120, 184, 224), 'U': (186, 224, 244), 'x': (60, 120, 176)}
 SAND = {'a': (222, 192, 130), 'A': (242, 222, 172), 'o': (172, 138, 86)}
 SKIN = {'S': (212, 180, 128), 's': (172, 140, 96), 'z': (112, 88, 60)}    # tortoise skin
-FLOWER = {'p': (226, 96, 140), 'P': (246, 170, 196), 'g': (120, 176, 70), 'j': (78, 124, 48)}
+FLOWER = {'p': (226, 96, 140), 'P': (246, 170, 196), 'g': (120, 176, 70), 'j': (78, 124, 48),
+          'J': (170, 210, 110)}
 EYE = {'e': (40, 30, 30)}
 
 ICONS = [
@@ -45,7 +46,7 @@ ICONS = [
     ('clam-lurker-shut-tight', 'guard', dict(FLESH, **EYE)),
     ('clam-lurker-pearl-glint', 'trick', dict(FLESH, **PEARL, **EYE)),
     ('clam-lurker-clam-undertow', 'trick', dict(FLESH, **WATER, **EYE)),
-    ('giant-clam-slam-shut', 'hurt', dict(MANTLE, **SAND)),
+    ('giant-clam-slam-shut', 'hurt', dict(MANTLE, **WATER)),
     ('giant-clam-pearl-blind', 'trick', dict(MANTLE, **PEARL)),
     ('giant-clam-shell-wall', 'guard', dict(MANTLE, **SAND)),
     ('giant-clam-sudden-shut', 'hurt', dict(MANTLE)),

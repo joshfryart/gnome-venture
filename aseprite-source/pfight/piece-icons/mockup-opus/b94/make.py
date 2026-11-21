@@ -36,6 +36,7 @@ MUD = {'m': (118, 82, 52), 'M': (160, 116, 76), 'Q': (82, 56, 36)}           # m
 NUT = {'o': (164, 106, 48), 'O': (210, 154, 86), 'j': (106, 66, 30)}         # nut
 FRUIT = {'f': (196, 52, 92), 'F': (244, 124, 150), 'x': (126, 30, 64),
          'g': (110, 176, 70), 'j': (66, 120, 44)}                             # fig + leaf
+PLUME = {'a': (228, 230, 222), 'A': (250, 250, 244), 'z': (164, 166, 162)}   # white head/belly
 BEAK = {'y': (240, 206, 160), 'Y': (255, 238, 210), 'o': (184, 136, 96)}     # albatross beak
 SQUID = {'p': (226, 140, 180), 'P': (250, 200, 222), 'q': (160, 76, 126)}    # squid
 
@@ -53,10 +54,10 @@ ICONS = [
     ('bearded-pig-mud-plough', 'hurt', dict(SNOUT, **WHISK, **MUD)),
     ('bearded-pig-nut-shield', 'guard', dict(SNOUT, **WHISK, **NUT)),
     ('bearded-pig-fruit-snatch', 'hurt', dict(SNOUT, **WHISK, **FRUIT)),
-    ('albatross-squid-snatch', 'hurt', dict(BEAK, **SQUID)),
-    ('albatross-sea-rest', 'heal', dict(BEAK, **WATER)),
-    ('albatross-dynamic-soar', 'guard', dict(BEAK)),
-    ('albatross-wing-nap', 'heal', dict(BEAK)),
+    ('albatross-squid-snatch', 'hurt', dict(BEAK, **PLUME, **SQUID)),
+    ('albatross-sea-rest', 'heal', dict(BEAK, **PLUME, **WATER)),
+    ('albatross-dynamic-soar', 'guard', dict(BEAK, **PLUME)),
+    ('albatross-wing-nap', 'heal', dict(BEAK, **PLUME)),
 ]
 
 
