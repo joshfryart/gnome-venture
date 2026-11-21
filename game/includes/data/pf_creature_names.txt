@@ -1,0 +1,1394 @@
+# Per-creature names for the class base and size-extra pieces (pfdeck.php pfd_creature_names). slug|generic piece name (pf_class_base.txt)|this creature's own name. Type, value, knob and tag stay the generic piece's.
+aphid-swarm|Nip|Honeydew Jab
+aphid-swarm|Sting|Stylet Dart
+aphid-swarm|Chitin Shell|Waxy Bloom
+aphid-swarm|Skitter|Ant Herd Ruse
+fly-swarm|Nip|Filthy Landing
+fly-swarm|Sting|Proboscis Dab
+fly-swarm|Chitin Shell|Iridescent Veil
+fly-swarm|Skitter|Ceiling Hop
+mite-swarm|Nip|Red Speck Flood
+mite-swarm|Sting|Long Venom Prick
+mite-swarm|Chitin Shell|Bark-Dust Cloak
+mite-swarm|Skitter|Silent Boot Creep
+garden-snail|Nip|Mucus Ram
+garden-snail|Sting|Shell Slam
+garden-snail|Chitin Shell|Retract Into Whorl
+garden-snail|Skitter|Path-Hog Glide
+ramshorn-pond-snail|Nip|Pond Weed Rasp
+ramshorn-pond-snail|Sting|Flat Red Scrape
+ramshorn-pond-snail|Chitin Shell|Lily Pad Mend
+ramshorn-pond-snail|Skitter|Slow Grazing Drift
+ant-scouts|Nip|Mandible Snip
+ant-scouts|Sting|Satchel Raid
+ant-scouts|Chitin Shell|Column Shield
+ant-scouts|Skitter|Scent Trail Lure
+carpenter-ant-gang|Nip|Timber Gnaw
+carpenter-ant-gang|Sting|Barracks Rush
+carpenter-ant-gang|Chitin Shell|Hollow Oak Wall
+carpenter-ant-gang|Skitter|Trespasser Snare
+gnat-cloud|Nip|Ear-Seeking Whine
+gnat-cloud|Sting|Hum Storm
+gnat-cloud|Chitin Shell|Thousand Wing Fog
+gnat-cloud|Skitter|Ear-Hunt Dive
+midge-cloud|Nip|Haze Nibble
+midge-cloud|Sting|Midge Mob Surge
+midge-cloud|Chitin Shell|Determined Haze Wall
+midge-cloud|Skitter|Stream Fog Veil
+leopard-slug|Nip|Spotted Crush
+leopard-slug|Sting|Slime Coil
+leopard-slug|Chitin Shell|Mottled Slime Shield
+leopard-slug|Skitter|Lettuce Lure Trail
+ghost-slug|Nip|Cold Puddle Lunge
+ghost-slug|Sting|Cave Mouth Chill
+ghost-slug|Chitin Shell|Glimmer Shroud
+ghost-slug|Skitter|Puddle Shapeshift
+dusk-moth|Nip|Powder Dazzle
+dusk-moth|Sting|Twilight Scatter
+dusk-moth|Chitin Shell|Dusty Wing Screen
+dusk-moth|Skitter|Dusk Glamour Lure
+dawn-skipper-flutter|Nip|Golden Bounce
+dawn-skipper-flutter|Sting|Underfoot Tumble
+dawn-skipper-flutter|Chitin Shell|Thistle Cushion
+dawn-skipper-flutter|Skitter|Bounce-Away Skip
+luna-moth|Nip|Lantern Ribbon Sweep
+luna-moth|Sting|Milk-Pale Gust
+luna-moth|Chitin Shell|Table-Mat Wing Shield
+luna-moth|Skitter|Lantern Glow Decoy
+dung-beetle|Nip|Ball-Roll Crush
+dung-beetle|Sting|Dung Bowl Charge
+dung-beetle|Chitin Shell|Packed Dung Wall
+dung-beetle|Skitter|Ball Heave Ruse
+carrion-beetle-crew|Nip|Burial Crew Rush
+carrion-beetle-crew|Sting|Autumn Leaving Grab
+carrion-beetle-crew|Chitin Shell|Crew Grave Shelter
+carrion-beetle-crew|Skitter|Grave-Digger Feint
+tumblebug-troupe|Nip|Turn-About Roll
+tumblebug-troupe|Sting|Heavy Ball Drop
+tumblebug-troupe|Chitin Shell|Paired Ballast
+tumblebug-troupe|Skitter|Pass-the-Ball Feint
+earwig|Nip|Forceps Clamp
+earwig|Sting|Swagger Pinch
+earwig|Chitin Shell|Folded Wing Shield
+earwig|Skitter|Cocked Tail Feint
+earwig-matron|Nip|Matron Pincer Clamp
+earwig-matron|Sting|Brood Guard Lunge
+earwig-matron|Chitin Shell|Egg Cradle Shield
+earwig-matron|Skitter|Clutch Decoy
+firefly-flicker|Nip|Wink Dazzle
+firefly-flicker|Sting|Cold Ember Flash
+firefly-flicker|Chitin Shell|Tough Lantern Husk
+firefly-flicker|Skitter|Off-Beat Blink
+orb-spider|Nip|Silk Wheel Snare
+orb-spider|Sting|Patient Lunge
+orb-spider|Chitin Shell|Orb Web Screen
+orb-spider|Skitter|Line Drop Lure
+fishing-spider|Nip|Minnow Dive Strike
+fishing-spider|Sting|Water-Walk Rush
+fishing-spider|Chitin Shell|Bristle Leg Guard
+fishing-spider|Skitter|Surface Skim Feint
+paper-wasp|Nip|Short Fuse Jab
+paper-wasp|Sting|Striped Lunge
+paper-wasp|Chitin Shell|Papery Nest Guard
+paper-wasp|Skitter|Sudden Flare Dart
+hornet-sentry|Nip|Doorway Dive
+hornet-sentry|Sting|Night-Watch Strike
+hornet-sentry|Chitin Shell|Nest Door Bulwark
+hornet-sentry|Skitter|Blossom Snub
+yellowjacket-mob|Nip|Windfall Brawl
+yellowjacket-mob|Sting|Fermented Swarm Jab
+yellowjacket-mob|Chitin Shell|Apple Guard Mob
+yellowjacket-mob|Skitter|Fallen Fruit Lure
+bog-leech|Snap|Murk Gulp
+bog-leech|Splash|Wriggle Surge
+bog-leech|Slick Hide|Slimy Sheath
+bog-leech|Undertow|Murky Hideaway
+giant-mire-leech|Snap|Boot-Length Latch
+giant-mire-leech|Splash|Rain-Haul Heave
+giant-mire-leech|Slick Hide|Black Blubber Coat
+giant-mire-leech|Undertow|Mire Clutch Lurch
+bullfrog|Bite|Gulping Maw
+bullfrog|Tail Lash|Hind-Leg Kick
+bullfrog|Scale Guard|Warty Skin Plate
+bullfrog|Venom Spit|Hop Away Bellow
+cane-toad|Bite|Eye-Gland Spray
+cane-toad|Tail Lash|Roadside Hop Crush
+cane-toad|Scale Guard|Dry Warted Hide
+cane-toad|Venom Spit|Nightroad Croak
+fiddler-crab-band|Snap|Flag-Wave Pinch
+fiddler-crab-band|Splash|Mudflat Splatter
+fiddler-crab-band|Slick Hide|Mud-Crust Plating
+fiddler-crab-band|Undertow|Burrow Dodge
+barn-rat|Claw|Seed Thief Scratch
+barn-rat|Maul|Grudge Gnaw
+barn-rat|Brace|Hay Stack Shield
+barn-rat|Shoulder Barge|Grain Sack Slip
+marsh-rat|Claw|Reed Bed Scrape
+marsh-rat|Maul|Enraged Fur Pounce
+marsh-rat|Brace|Waterline Portcullis
+marsh-rat|Shoulder Barge|Riverbank Dive
+tunnel-mole|Claw|Earthquake Burst
+tunnel-mole|Maul|Furry Quake Heave
+tunnel-mole|Brace|Packed Earth Plug
+tunnel-mole|Shoulder Barge|Sudden Soil Eruption
+star-nosed-mole|Claw|Feeler Ring Prod
+star-nosed-mole|Maul|Nose Ring Shove
+star-nosed-mole|Brace|Plated Snout Cover
+star-nosed-mole|Shoulder Barge|Wet Soil Feel
+mole-rat-gang|Claw|Colony Swarm Rake
+mole-rat-gang|Maul|Pink Pile-On
+mole-rat-gang|Brace|Huddled Pack Wall
+mole-rat-gang|Shoulder Barge|Every-Side Flank
+carrion-crow|Peck|Hatband Snatch
+carrion-crow|Talon Dive|Wait-and-Swoop
+carrion-crow|Wing Cover|Black Feather Canopy
+carrion-crow|Flutter Off|Two-Aimed Feint
+magpie-mob|Peck|Buckle Sorting Jab
+magpie-mob|Talon Dive|Noisy Gang Swoop
+magpie-mob|Wing Cover|Black-White Wing Screen
+magpie-mob|Flutter Off|Borrowed Trinket Dash
+thistle-beast|Lash Vine|Prickly Whip
+thistle-beast|Spore Puff|Thistle Down Cloud
+thistle-beast|Bramble Coat|Spiny Hide Layer
+thistle-beast|Sap Mend|Patch Re-Rooting
+nettle-lurker|Lash Vine|Brushed Stalk Strike
+nettle-lurker|Spore Puff|Cut-Stalk Stench
+nettle-lurker|Bramble Coat|Hunched Green Hide
+nettle-lurker|Sap Mend|Stalk-Shadow Lurk
+bombardier-beetle|Nip|Boiling Tail Puff
+bombardier-beetle|Sting|Scalding Jet
+bombardier-beetle|Chitin Shell|Shiny Carapace Sheen
+bombardier-beetle|Skitter|Aimed Shot Lineup
+will-o-wisp|Lash Vine|Ghostlight Tendril
+will-o-wisp|Spore Puff|Lantern Spore Cloud
+will-o-wisp|Bramble Coat|Thornveil Shroud
+will-o-wisp|Sap Mend|Wayward Glimmer
+marsh-spark-swarm|Lash Vine|Spark Swarm Dive
+marsh-spark-swarm|Spore Puff|Crackle Sparkfall
+marsh-spark-swarm|Bramble Coat|Huddle Shield
+marsh-spark-swarm|Sap Mend|Flicker Scatter
+foxfire-wisp|Lash Vine|Stump Glow Lash
+foxfire-wisp|Spore Puff|Rot Glow Puff
+foxfire-wisp|Bramble Coat|Punkwood Mantle
+foxfire-wisp|Sap Mend|Tripwire Glimmer
+smooth-snake|Bite|Warmstone Fang
+smooth-snake|Tail Lash|Coil-Snap Whip
+smooth-snake|Scale Guard|Sun-Warmed Scales
+smooth-snake|Venom Spit|Sleek Venom Feint
+water-snake|Bite|Shallows Fang
+water-snake|Tail Lash|Fishing Lash
+water-snake|Scale Guard|Olive Banded Shield
+water-snake|Venom Spit|Reed Bait Trick
+night-heron|Peck|Midnight Stiletto
+night-heron|Talon Dive|Hunched Spear Plunge
+night-heron|Wing Cover|Nightcloak Wings
+night-heron|Flutter Off|Silent Lift Off
+egret-flock|Peck|Cattle Shadow Jab
+egret-flock|Talon Dive|Snowy Stalk Strike
+egret-flock|Wing Cover|Snowplume Canopy
+egret-flock|Flutter Off|Herd Hop Away
+macaque-troop|Claw|Quick-Finger Grab
+macaque-troop|Maul|Troop Pile-On
+macaque-troop|Brace|Mountain Hunch
+macaque-troop|Shoulder Barge|Elder's Shove
+tanuki|Claw|Whiskered Paw
+tanuki|Maul|Belly Drum Slam
+tanuki|Brace|Stump Stance
+tanuki|Shoulder Barge|Disguised Charge
+burrowing-owl|Peck|Bobbing Beak
+burrowing-owl|Talon Dive|Burrow Bob Strike
+burrowing-owl|Wing Cover|Burrow Wing Hood
+burrowing-owl|Flutter Off|Hole-Hop Retreat
+badger-cub-gang|Claw|Cub Stay-Put Claws
+badger-cub-gang|Maul|Triple Cub Pile
+badger-cub-gang|Brace|Dug-In Burrow Stance
+badger-cub-gang|Shoulder Barge|Stubborn Sett Shove
+natterjack-chorus|Bite|Dune Pool Nip
+natterjack-chorus|Tail Lash|Chorus Croak Thrash
+natterjack-chorus|Scale Guard|Warty Hide
+natterjack-chorus|Venom Spit|Loud Venom Spray
+mud-crab-brawler|Snap|Mire Pincer Crush
+mud-crab-brawler|Splash|Mud Bomb Splash
+mud-crab-brawler|Slick Hide|Regrowing Carapace
+mud-crab-brawler|Undertow|Sinking Mire Pull
+bramble-pup-pack|Claw|Burrwool Claws
+bramble-pup-pack|Maul|Downhill Tumble Pile
+bramble-pup-pack|Brace|Burr-Coat Bristle
+bramble-pup-pack|Shoulder Barge|Puppy-Eyed Barge
+thorn-jackal|Claw|Thorn-Coat Raker
+thorn-jackal|Maul|Patient Jaw Rend
+thorn-jackal|Brace|Thorn Tangle Guard
+thorn-jackal|Shoulder Barge|Sly Thorn Shove
+kestrel-hoverer|Peck|Hover Beak Snap
+kestrel-hoverer|Talon Dive|Stillness Stoop
+kestrel-hoverer|Wing Cover|Wind-Hung Wings
+kestrel-hoverer|Flutter Off|Sudden Gust Escape
+snapper-hatchling-bask|Bite|Walnut-Sized Chomp
+snapper-hatchling-bask|Tail Lash|Log-Basking Flick
+snapper-hatchling-bask|Scale Guard|Soft Hatch Shell
+snapper-hatchling-bask|Venom Spit|Single Bite Ploy
+roebuck|Lash Vine|Antler Thrust
+roebuck|Spore Puff|Autumn Rut Dust
+roebuck|Bramble Coat|Russet Bracken Coat
+roebuck|Sap Mend|Roebuck Bracken Dodge
+croc-hatchling-scatter|Bite|Scattershot Snapping
+croc-hatchling-scatter|Tail Lash|Dozen Tail Flick
+croc-hatchling-scatter|Scale Guard|Mud-Caked Scales
+croc-hatchling-scatter|Venom Spit|Mud Break Scatter
+fishing-cat|Claw|Scooping Paw
+fishing-cat|Maul|Wading Pounce
+fishing-cat|Brace|Stocky Wade Stance
+fishing-cat|Shoulder Barge|Spotted Shoulder Shove
+tree-monitor|Bite|Branch Drop Bite
+tree-monitor|Tail Lash|Canopy Coil Whip
+tree-monitor|Scale Guard|Bough-Ridged Scales
+tree-monitor|Venom Spit|Overhead Venom Dribble
+water-monitor|Bite|River Lizard Bite
+water-monitor|Tail Lash|Hammer Tail Swing
+water-monitor|Scale Guard|Dark Swimmer Scales
+water-monitor|Venom Spit|Swimming Dodge Trick
+savanna-hyena|Claw|Giggle Gouge
+savanna-hyena|Maul|Scavenger Jaw Crunch
+savanna-hyena|Brace|Pack Grin Stance
+savanna-hyena|Shoulder Barge|Pack Mob Shove
+hyena-pup-cackle|Claw|Giggling Claw Swipe
+hyena-pup-cackle|Maul|Spotted Pup Pounce
+hyena-pup-cackle|Brace|Dusk Giggle Shield
+hyena-pup-cackle|Shoulder Barge|Trip-Up Tackle
+mangrove-crab-court|Snap|Verdict Pincers
+mangrove-crab-court|Splash|Judgement Splash
+mangrove-crab-court|Slick Hide|Barnacle Crown Shell
+mangrove-crab-court|Undertow|Sentence Sinking
+zorilla-stink-squad|Claw|Sure-Footed Swipe
+zorilla-stink-squad|Maul|Musk Spray Blast
+zorilla-stink-squad|Brace|Lingering Musk Shell
+zorilla-stink-squad|Shoulder Barge|Confident Charge
+ratel-pair|Claw|Honeyhunt Rake
+ratel-pair|Maul|Tireless Double Maul
+ratel-pair|Brace|Thick Skin Shrug
+ratel-pair|Shoulder Barge|Honey Dig Shove
+cassowary-chick-creche|Peck|Striped Chick Peck
+cassowary-chick-creche|Talon Dive|Kick-Stride Strike
+cassowary-chick-creche|Wing Cover|Fluffed Striped Wings
+cassowary-chick-creche|Flutter Off|Pack Sprint Scatter
+emu-mob|Peck|Shaggy Dream Peck
+emu-mob|Talon Dive|Stampede Stomp
+emu-mob|Wing Cover|Flightless Wing Wall
+emu-mob|Flutter Off|Mob Scatter Dash
+river-otter|Snap|Belly-Slide Snap
+river-otter|Splash|Stream Rock Splash
+river-otter|Slick Hide|Slippery Mud Sheen
+river-otter|Undertow|Playful Stream Tug
+night-adder|Bite|Zigzag Fang
+night-adder|Tail Lash|Roadside Coil Lash
+night-adder|Scale Guard|Zigzag Back Scales
+night-adder|Venom Spit|Warm Road Lure
+termite-column|Nip|Soldier Head Pinch
+termite-column|Sting|Column Jaw Surge
+termite-column|Chitin Shell|Mud-Tube Shell
+termite-column|Skitter|Tunnel Crawl Slip
+stickleback-shoal|Snap|Three-Spine Snap
+stickleback-shoal|Splash|Bright Shoal Burst
+stickleback-shoal|Slick Hide|Nest-Guard Scales
+stickleback-shoal|Undertow|Shoal Swirl Dodge
+fisher|Claw|Marten Raking Claw
+fisher|Maul|Sport-Hunt Maul
+fisher|Brace|Quill-Dodge Crouch
+fisher|Shoulder Barge|Sly Marten Barge
+piglet-squeal|Claw|Striped Trotter Claw
+piglet-squeal|Maul|Squeal Rush Pile
+piglet-squeal|Brace|Behind-Knee Huddle
+piglet-squeal|Shoulder Barge|Regroup Knee Trip
+warthog|Claw|Tusk Hook Swipe
+warthog|Maul|Tusk-Up Gore
+warthog|Brace|Tail-Up Stance
+warthog|Shoulder Barge|Savanna Sudden Charge
+muskrat-crew|Claw|Lodge Builder Paw
+muskrat-crew|Maul|Reed Chisel Gnaw
+muskrat-crew|Brace|Lodge Wall Guard
+muskrat-crew|Shoulder Barge|Work-Gang Shove
+capybara-herd|Claw|Placid Toe Swipe
+capybara-herd|Maul|Bulk Herd Slam
+capybara-herd|Brace|Birdback Stance
+capybara-herd|Shoulder Barge|Unhurried Hip Nudge
+pangolin|Claw|Scale-Edge Scrape
+pangolin|Maul|Ant Mound Mash
+pangolin|Brace|Armored Ball Curl
+pangolin|Shoulder Barge|Unrolling Nudge
+honeybee-swarm|Nip|Hive-Touched Pinch
+honeybee-swarm|Sting|Barbed Hive Sting
+honeybee-swarm|Chitin Shell|Wax Cloak Shield
+honeybee-swarm|Skitter|Waggle-Dance Feint
+wildcat|Claw|Striped Slash
+wildcat|Maul|Thick-Tail Mangle
+wildcat|Brace|Wary Crouch
+wildcat|Shoulder Barge|Tomcat Shove
+turkey-vulture|Peck|Red-Head Gouge
+turkey-vulture|Talon Dive|Thermal Stoop
+turkey-vulture|Wing Cover|Spread Wing Shield
+turkey-vulture|Flutter Off|Thermal Lift-Off
+bear-cub-tumble|Claw|Cub Paw Swipe
+bear-cub-tumble|Maul|Bee-Chase Bowl
+bear-cub-tumble|Brace|Roll-Up Hunker
+bear-cub-tumble|Shoulder Barge|Downhill Shoulder Roll
+bison-calf-stampede|Claw|Hard-Head Butt
+bison-calf-stampede|Maul|Stampede Trample
+bison-calf-stampede|Brace|Heavy Head Plant
+bison-calf-stampede|Shoulder Barge|Herd Charge Shove
+snow-flea-swarm|Nip|Pepper Speck Sip
+snow-flea-swarm|Sting|Frost Hop Sip
+snow-flea-swarm|Chitin Shell|Frosted Speck Coat
+snow-flea-swarm|Skitter|Snow Hop Scatter
+dune-snail|Nip|Chalk Shell Nibble
+dune-snail|Sting|Dawn Sand Sting
+dune-snail|Chitin Shell|Chalk-White Shell
+dune-snail|Skitter|Dune Sprint Dash
+giant-banded-snail|Nip|Leaf Litter Gnaw
+giant-banded-snail|Sting|Barrel-Shell Crush
+giant-banded-snail|Chitin Shell|Striped Barrel Hide
+giant-banded-snail|Skitter|Litter Roll Over
+fire-ant-raiders|Nip|Burning Mandible
+fire-ant-raiders|Sting|Sugar-Raid Burn
+fire-ant-raiders|Chitin Shell|Red Ant Armour
+fire-ant-raiders|Skitter|Marching Raid Step
+army-ant-column|Nip|Column Mandible Rush
+army-ant-column|Sting|Flood Ant Stab
+army-ant-column|Chitin Shell|Nest-Less Plating
+army-ant-column|Skitter|Obstacle-Skirt Flow
+sandfly-cloud|Nip|Dusk Blood Nip
+sandfly-cloud|Sting|Shore Proboscis
+sandfly-cloud|Chitin Shell|Cloud Cloak Veil
+sandfly-cloud|Skitter|Shoreline Swirl
+mosquito-storm|Nip|Roaring Proboscis
+mosquito-storm|Sting|Whining Needle Storm
+mosquito-storm|Chitin Shell|Stagnant Water Shroud
+mosquito-storm|Skitter|Post-Rain Rise
+banana-slug|Nip|Fruit-Rot Gnaw
+banana-slug|Sting|Yellow Slime Sting
+banana-slug|Chitin Shell|Slime Coat Guard
+banana-slug|Skitter|Boot-Sized Creep
+sea-slug-drift|Nip|Tide-Line Nip
+sea-slug-drift|Sting|Last-Meal Sting
+sea-slug-drift|Chitin Shell|Jewel-Bright Sheen
+sea-slug-drift|Skitter|Tide Drift Slide
+sand-fleas|Nip|Hopping Pack Nip
+sand-fleas|Sting|Sand Hop Jab
+sand-fleas|Chitin Shell|Slip-Free Carapace
+sand-fleas|Skitter|Elusive Hop Scatter
+kelp-fly-swarm|Nip|Rotting Kelp Nip
+kelp-fly-swarm|Sting|Kelp-Breed Sting
+kelp-fly-swarm|Chitin Shell|Rot-Smell Shroud
+kelp-fly-swarm|Skitter|Boot-Nearing Swirl
+beach-hopper-horde|Nip|Dead-Fish Pick
+beach-hopper-horde|Sting|Lunch-Drop Snatch
+beach-hopper-horde|Chitin Shell|Shrimp Shell Mass
+beach-hopper-horde|Skitter|Boiling Hop Leap
+salt-mite-swarm|Nip|Ankle Itch Nip
+salt-mite-swarm|Sting|Salt-Flat Prick
+salt-mite-swarm|Chitin Shell|Salt Crust Cover
+salt-mite-swarm|Skitter|Flats Creep Walk
+snow-moth|Nip|Frost Dust Nip
+snow-moth|Sting|Snowlight Lance
+snow-moth|Chitin Shell|Snow-Blind Fur
+snow-moth|Skitter|Flap-Shed Flutter
+scarab-roller|Nip|Sun-Ball Pinch
+scarab-roller|Sting|Beetle Horn Jab
+scarab-roller|Chitin Shell|Gold-Green Armour
+scarab-roller|Skitter|Stubborn Ball Roll
+rock-earwig|Nip|Flat Pincer Nip
+rock-earwig|Sting|Under-Stone Pinch
+rock-earwig|Chitin Shell|Flat Grey Plate
+rock-earwig|Skitter|Gap-Squeeze Slip
+shore-earwig|Nip|Night Pincer Snip
+shore-earwig|Sting|Drift-Line Venom
+shore-earwig|Chitin Shell|Tidal Hardshell
+shore-earwig|Skitter|Scuttle Out Dash
+cave-glowworm|Nip|Sticky Thread Nip
+cave-glowworm|Sting|Gleaming Glue Jab
+cave-glowworm|Chitin Shell|Sticky Silk Cloak
+cave-glowworm|Skitter|Lantern Dangle Swing
+glow-grub-cluster|Nip|Grub Lantern Nip
+glow-grub-cluster|Sting|Rotten Log Chomp
+glow-grub-cluster|Chitin Shell|Soft Grub Cushion
+glow-grub-cluster|Skitter|Lantern-Shop Wriggle
+lantern-glowworm-queen|Nip|Ceiling Lamp Bite
+lantern-glowworm-queen|Sting|Queen's Thread Lash
+lantern-glowworm-queen|Chitin Shell|Silk Lamp Cocoon
+lantern-glowworm-queen|Skitter|Bait Dangle Drop
+jumping-spider|Nip|Two-Eyed Fang
+jumping-spider|Sting|Collar-Leap Jab
+jumping-spider|Chitin Shell|Hairy Pad Shield
+jumping-spider|Skitter|Bobbing Pounce
+golden-orb-weaver|Nip|Golden Fang
+golden-orb-weaver|Sting|Silk-Wrap Sting
+golden-orb-weaver|Chitin Shell|Gilded Silk Sheet
+golden-orb-weaver|Skitter|Path-Wide Snare
+mud-dauber|Nip|Mud Pipe Nip
+mud-dauber|Sting|Wasp Needle Stab
+mud-dauber|Chitin Shell|Mud Plaster Coat
+mud-dauber|Skitter|Rain-Dodge Hover
+tiger-leech|Snap|Leech Latch Bite
+tiger-leech|Splash|Wet-Leaf Drop
+tiger-leech|Slick Hide|Striped Slick Armour
+tiger-leech|Undertow|Twin-Drop Pull
+saltmarsh-leech|Snap|Marsh-Sea Latch
+saltmarsh-leech|Splash|Brackish Splash
+saltmarsh-leech|Slick Hide|Salt Sheen Slick
+saltmarsh-leech|Undertow|Brine Drag
+grumpy-lemming|Claw|Furious Paw Swipe
+grumpy-lemming|Maul|Stubby Fury Clout
+grumpy-lemming|Brace|Grumble Hunch
+grumpy-lemming|Shoulder Barge|Cross Lemming Shove
+lemming-kit-scurry|Claw|Kit Tiny Scratch
+lemming-kit-scurry|Maul|Pile-Up Scrabble
+lemming-kit-scurry|Brace|Huddle Stand
+lemming-kit-scurry|Shoulder Barge|Snow-Boss Shove
+pika-sentry|Claw|Scree Paw Slap
+pika-sentry|Maul|Thrown Scree Hurl
+pika-sentry|Brace|Sentry Ready Stance
+pika-sentry|Shoulder Barge|Alarm Whistle Shove
+marmot-bruiser|Claw|Fat-Belly Cuff
+marmot-bruiser|Maul|Summer-Fed Crush
+marmot-bruiser|Brace|Fat Roll Bulwark
+marmot-bruiser|Shoulder Barge|Bruiser Body Check
+tree-frog-chorus|Bite|Chorus Gulp Bite
+tree-frog-chorus|Tail Lash|Hop-Chorus Lash
+tree-frog-chorus|Scale Guard|Green Slime Sheen
+tree-frog-chorus|Venom Spit|Croak Spray
+shore-crab|Snap|Sideways Snip
+shore-crab|Splash|Shoreline Spray
+shore-crab|Slick Hide|Sand Shell Shield
+shore-crab|Undertow|Sidestep Shuffle
+ghost-crab|Snap|Burrow Grab Snap
+ghost-crab|Splash|Sand Burst Flick
+ghost-crab|Slick Hide|Sand Camouflage
+ghost-crab|Undertow|Vanishing Dash
+land-crab-march|Snap|Red Pincer Snap
+land-crab-march|Splash|Sea-Bound Surge
+land-crab-march|Slick Hide|Red Shell Wall
+land-crab-march|Undertow|Speed-Bump Shove
+pack-rat|Claw|Trinket Swipe
+pack-rat|Maul|Hoard Gnaw
+pack-rat|Brace|Trinket Rampart
+pack-rat|Shoulder Barge|Swap-Out Shove
+ship-rat-crew|Snap|Rope-Gnaw Snap
+ship-rat-crew|Splash|Bilge Splash
+ship-rat-crew|Slick Hide|Tarred Crew Hide
+ship-rat-crew|Undertow|Mutiny Rope Tug
+sun-lizard|Bite|Sun-Stone Bite
+sun-lizard|Tail Lash|Dart Tail Whip
+sun-lizard|Scale Guard|Sun-Warm Scales
+sun-lizard|Venom Spit|Dart Venom Spit
+rock-agama|Bite|Bobbing Snapjaw
+rock-agama|Tail Lash|Warm Rock Whip
+rock-agama|Scale Guard|Sunbaked Scale Wall
+rock-agama|Venom Spit|Ledge Spitter
+basilisk-runner|Bite|Hindleg Jaw Lunge
+basilisk-runner|Tail Lash|Pond-Skid Whip
+basilisk-runner|Scale Guard|Crest Fan Shield
+basilisk-runner|Venom Spit|Stilt-Run Spray
+frilled-lizard|Bite|Bluffing Gape
+frilled-lizard|Tail Lash|Hiss Tail Flick
+frilled-lizard|Scale Guard|Dinner-Plate Collar
+frilled-lizard|Venom Spit|Hiss Warning Spit
+golden-mole|Claw|Sand-Swim Scoop
+golden-mole|Maul|Blind Sand Lunge
+golden-mole|Brace|Loose-Sand Hunker
+golden-mole|Shoulder Barge|Surfacing Boot Shove
+raven-pair|Peck|Double-Beak Jab
+raven-pair|Talon Dive|Crag Drop Talons
+raven-pair|Wing Cover|Sentry Wing Block
+raven-pair|Flutter Off|Talk-Behind Flap
+jungle-crow|Peck|Fruit-Thief Peck
+jungle-crow|Talon Dive|Glossy Talon Drop
+jungle-crow|Wing Cover|Ink-Black Wing Shade
+jungle-crow|Flutter Off|Monkey-Sin Scatter
+herring-gull|Peck|Scrap-Snatch Peck
+herring-gull|Talon Dive|Screaming Swoop
+herring-gull|Wing Cover|Gull-Wide Spread
+herring-gull|Flutter Off|Thief's Flap Away
+tern-squadron|Peck|Head-Aimed Stab
+tern-squadron|Talon Dive|Flock Stoop Dive
+tern-squadron|Wing Cover|Formation Wing Screen
+tern-squadron|Flutter Off|Annoyed Break Away
+skua-raider|Peck|Robber's Hooked Beak
+skua-raider|Talon Dive|Raised-Arm Stoop
+skua-raider|Wing Cover|Heavy Brown Wall
+skua-raider|Flutter Off|Loot-Grab Flight
+dune-scorpion|Nip|Pincer Snip
+dune-scorpion|Sting|Curled Question Sting
+dune-scorpion|Chitin Shell|Sand Carapace
+dune-scorpion|Skitter|Sideways Scuttle
+whip-scorpion|Nip|Whip-Arm Snip
+whip-scorpion|Sting|Sour Spray Jab
+whip-scorpion|Chitin Shell|Flat Vinegar Shell
+whip-scorpion|Skitter|Mincing Sidle
+frost-hare|Claw|Frost-Paw Rake
+frost-hare|Maul|Winter Gust Bash
+frost-hare|Brace|Drift Hunker
+frost-hare|Shoulder Barge|Snowy Haunch Shove
+snowshoe-leveret-dash|Claw|Snowshoe Flick
+snowshoe-leveret-dash|Maul|Drift-Sit Thump
+snowshoe-leveret-dash|Brace|Drift Stillness Crouch
+snowshoe-leveret-dash|Shoulder Barge|Snow-Burst Dash
+mountain-hare|Claw|Hill-Paw Raking
+mountain-hare|Maul|Hill-Den Mauling
+mountain-hare|Brace|Hollow Mending Crouch
+mountain-hare|Shoulder Barge|Sleepy Haunch Shove
+jackrabbit|Claw|Zigzag Scrabble
+jackrabbit|Maul|Sail-Ear Slap
+jackrabbit|Brace|Scrub-Dodge Stance
+jackrabbit|Shoulder Barge|Doubled-Back Barge
+giant-centipede|Nip|Hundred-Leg Nip
+giant-centipede|Sting|Forked Foot Sting
+giant-centipede|Chitin Shell|Segmented Plate
+giant-centipede|Skitter|Many-Legged Rush
+house-centipede-skitter|Nip|Wall-Run Nip
+house-centipede-skitter|Sting|Sleeve-Crawl Sting
+house-centipede-skitter|Chitin Shell|Grey Plate Guard
+house-centipede-skitter|Skitter|Sudden Stop Scuttle
+cave-centipede|Nip|Roof-Drop Nip
+cave-centipede|Sting|Pale Draught Sting
+cave-centipede|Chitin Shell|Cave-Pale Carapace
+cave-centipede|Skitter|Roof-Lurk Slither
+giant-millipede|Nip|Curl-Up Nip
+giant-millipede|Sting|Red-Leg Sting
+giant-millipede|Chitin Shell|Coiled Black Shell
+giant-millipede|Skitter|Startled Coil Roll
+cactus-beast|Lash Vine|Walking Barrel Lash
+cactus-beast|Spore Puff|Pink-Crown Spores
+cactus-beast|Bramble Coat|Barrel Spine Coat
+cactus-beast|Sap Mend|Water-Middle Mend
+ember-beetle|Nip|Coal-Glow Nip
+ember-beetle|Sting|Hot Coal Sting
+ember-beetle|Chitin Shell|Glowing Shell Plate
+ember-beetle|Skitter|Ember Scurry
+frost-beetle|Nip|Frost-Shell Nip
+frost-beetle|Sting|Ice-Edge Sting
+frost-beetle|Chitin Shell|Frozen Shell Guard
+frost-beetle|Skitter|Ice-Skid Bowl
+lava-beetle|Nip|Scorch-Track Nip
+lava-beetle|Sting|Cracked-Glow Sting
+lava-beetle|Chitin Shell|Red-Cracked Carapace
+lava-beetle|Skitter|Unstoppable Scorch Run
+storm-wisp|Lash Vine|Storm-Thread Lash
+storm-wisp|Spore Puff|Drizzle Spore Cloud
+storm-wisp|Bramble Coat|Pale Static Veil
+storm-wisp|Sap Mend|Rain-Drink Mend
+tree-snake|Bite|Branch-Drop Strike
+tree-snake|Tail Lash|Vine-Coil Lash
+tree-snake|Scale Guard|Hanging Green Shield
+tree-snake|Venom Spit|Unseen Venom Jet
+capuchin-pickpocket|Claw|Light-Finger Grab
+capuchin-pickpocket|Maul|Button Swipe
+capuchin-pickpocket|Brace|Cream-Face Shrug
+capuchin-pickpocket|Shoulder Barge|Bump-and-Lift
+fox-kit-pair|Claw|Playful Paw Swat
+fox-kit-pair|Maul|Mock-Fight Tumble
+fox-kit-pair|Brace|Kit-Tumble Guard
+fox-kit-pair|Shoulder Barge|Playground Barge
+fennec|Claw|Big-Ear Scratch
+fennec|Maul|Dune-Top Ambush
+fennec|Brace|Ear-Tuned Hunch
+fennec|Shoulder Barge|Dune-Edge Shoulder
+coati-band|Claw|Log-Turning Rake
+coati-band|Maul|Striped-Flag Pile-On
+coati-band|Brace|Tail-Flag Huddle
+coati-band|Shoulder Barge|Under-Log Barge
+snowy-owl-scout|Peck|Snow-Still Peck
+snowy-owl-scout|Talon Dive|Sudden Snow Strike
+snowy-owl-scout|Wing Cover|Snowdrift Wing Cloak
+snowy-owl-scout|Flutter Off|Vanishing Lift-Off
+arctic-fox-kit|Claw|Learned Pounce Swipe
+arctic-fox-kit|Maul|Morning Pounce
+arctic-fox-kit|Brace|Half-White Crouch
+arctic-fox-kit|Shoulder Barge|Untidy Shoulder Charge
+whiteout-fox|Claw|Blizzard Rake
+whiteout-fox|Maul|Two-Bite Blizzard
+whiteout-fox|Brace|Drift-Hidden Brace
+whiteout-fox|Shoulder Barge|White-Out Shoulder
+stink-badger|Claw|Nightwalk Scrape
+stink-badger|Maul|Sprayed-First Maul
+stink-badger|Brace|Musk Stance
+stink-badger|Shoulder Barge|Ask-Later Barge
+desert-spadefoot|Bite|Sand-Rain Gulp
+desert-spadefoot|Tail Lash|Wet Sand Lash
+desert-spadefoot|Scale Guard|Sand-Sleeper Hide
+desert-spadefoot|Venom Spit|First Rain Spit
+tide-crab-squire|Snap|Apprentice Pincer Snap
+tide-crab-squire|Splash|Tidewave Splash
+tide-crab-squire|Slick Hide|Young Shell Plate
+tide-crab-squire|Undertow|Stubborn Tide Charge
+palm-thief-crab|Snap|Coconut-Cracking Pinch
+palm-thief-crab|Splash|Dusk Palm Splash
+palm-thief-crab|Slick Hide|Palm-Shadow Shell
+palm-thief-crab|Undertow|Thieving Tide Grab
+sandfish-skink-shoal|Nip|Sand-Swim Nip
+sandfish-skink-shoal|Sting|Moving-Sand Snap
+sandfish-skink-shoal|Chitin Shell|Glittering Skink Scales
+sandfish-skink-shoal|Skitter|Heap-Shift Scatter
+snow-owl-fledgling|Peck|Fluff-Beak Peck
+snow-owl-fledgling|Talon Dive|Clumsy Foot Grab
+snow-owl-fledgling|Wing Cover|Fluffed Wing Bluff
+snow-owl-fledgling|Flutter Off|Awkward Hop Away
+mountain-buzzard|Peck|Ridge Hook Peck
+mountain-buzzard|Talon Dive|Mountain Thermal Stoop
+mountain-buzzard|Wing Cover|Broad Brown Wing
+mountain-buzzard|Flutter Off|Ridgeline Glide Off
+jaguarundi|Claw|Otter-Long Swipe
+jaguarundi|Maul|Hidden Crossing Pounce
+jaguarundi|Brace|Plain-Coat Crouch
+jaguarundi|Shoulder Barge|Reappearing Barge
+vine-snake|Bite|Keyhole Fang
+vine-snake|Tail Lash|Creeper Whip
+vine-snake|Scale Guard|Leaf-Mimic Coil
+vine-snake|Venom Spit|Ambush Spray
+spice-monitor|Bite|Cinnamon Jaw
+spice-monitor|Tail Lash|Sweeping Tail
+spice-monitor|Scale Guard|Crusted Scales
+spice-monitor|Venom Spit|Tasting Flick
+komodo-pup|Bite|Trip Bite
+komodo-pup|Tail Lash|Ankle Sweep
+komodo-pup|Scale Guard|Crouched Scales
+komodo-pup|Venom Spit|Sly Drool Trap
+snow-leopard-cub|Claw|Frost Paw Swipe
+snow-leopard-cub|Maul|Impatient Pounce
+snow-leopard-cub|Brace|Smoke Stance
+snow-leopard-cub|Shoulder Barge|Not Waiting Charge
+striped-hyena|Claw|Mane Raking Swipe
+striped-hyena|Maul|Bone Crunch Jaws
+striped-hyena|Brace|Striped Mane Bristle
+striped-hyena|Shoulder Barge|Puffed-Up Shove
+mudskipper-troop|Snap|Fin-Walk Snap
+mudskipper-troop|Splash|Mud Spatter
+mudskipper-troop|Slick Hide|Slimed Skin
+mudskipper-troop|Undertow|Stranded Slip
+horned-viper|Bite|Horned Sandfang
+horned-viper|Tail Lash|Buried Tail Whip
+horned-viper|Scale Guard|Horned Brow Coil
+horned-viper|Venom Spit|Patient Burrow
+rock-viper|Bite|Sat-On Strike
+rock-viper|Tail Lash|Stony Lash
+rock-viper|Scale Guard|Ledge Camouflage
+rock-viper|Venom Spit|Lichen Spray
+yak-calf-herd|Claw|Wild Horn Swipe
+yak-calf-herd|Maul|Herd Trample
+yak-calf-herd|Brace|Shaggy Huddle
+yak-calf-herd|Shoulder Barge|Calf Bundle Charge
+garden-eel-colony|Snap|Sand Stem Snap
+garden-eel-colony|Splash|Meadow Lunge
+garden-eel-colony|Slick Hide|Rooted Slime Coat
+garden-eel-colony|Undertow|Swaying Pull
+outback-dingo|Claw|Dust-Pale Rake
+outback-dingo|Maul|Patient Jaw Hold
+outback-dingo|Brace|Dust Crouch
+outback-dingo|Shoulder Barge|Pale Shoulder Check
+dingo-pup-pack|Claw|Puppy Scrabble
+dingo-pup-pack|Maul|Den Mouth Tussle
+dingo-pup-pack|Brace|Den Wobble Stance
+dingo-pup-pack|Shoulder Barge|Yip Barge
+blue-ring-octopus|Snap|Electric Beak
+blue-ring-octopus|Splash|Ink Jet Squirt
+blue-ring-octopus|Slick Hide|Cross-Ringed Mantle
+blue-ring-octopus|Undertow|Hidden Jet Slip
+hermit-crab-hoarder|Snap|Borrowed Pincer
+hermit-crab-hoarder|Splash|Shell Swap Splash
+hermit-crab-hoarder|Slick Hide|Triple Shell
+hermit-crab-hoarder|Undertow|Shell Hunt Dive
+hermit-crab-convoy|Snap|Queue Pinch
+hermit-crab-convoy|Splash|Shoreline Splash
+hermit-crab-convoy|Slick Hide|Line-Up Shell
+hermit-crab-convoy|Undertow|Moving Day Tug
+coconut-hermit|Snap|Coconut Clamp
+coconut-hermit|Splash|Milk Drench
+coconut-hermit|Slick Hide|Mended Coconut Shell
+coconut-hermit|Undertow|Shell Slide
+rock-crab-pincher|Snap|Crack-Wedge Pincer
+rock-crab-pincher|Splash|Crevice Jab
+rock-crab-pincher|Slick Hide|Flat Red Carapace
+rock-crab-pincher|Undertow|Rock Crack Lure
+sea-otter-bandit|Snap|Shellfish Crack
+sea-otter-bandit|Splash|Tummy Smash
+sea-otter-bandit|Slick Hide|Otter Fur Coat
+sea-otter-bandit|Undertow|Pail Snatch
+dust-sidewinder|Bite|Sideways Fang
+dust-sidewinder|Tail Lash|Sand Tail Slap
+dust-sidewinder|Scale Guard|Sidestep Scales
+dust-sidewinder|Venom Spit|Dust Sprinkle
+dune-racer|Bite|Dash Fang
+dune-racer|Tail Lash|Twin Sting Lash
+dune-racer|Scale Guard|Pale Streak Scales
+dune-racer|Venom Spit|Burst Spit
+poison-dart-frog|Bite|Jewel-Bright Nip
+poison-dart-frog|Tail Lash|Sticky Flick
+poison-dart-frog|Scale Guard|Warning Colours
+poison-dart-frog|Venom Spit|Gnome-Length Dart
+glass-frog|Bite|Opinion Chomp
+glass-frog|Tail Lash|Clear Flick
+glass-frog|Scale Guard|Transparent Belly
+glass-frog|Venom Spit|Glassy Stare
+golden-mantella|Bite|Marmalade Nip
+golden-mantella|Tail Lash|Moss Flick
+golden-mantella|Scale Guard|Golden Sheen
+golden-mantella|Venom Spit|Spill Spray
+turtle-hatchling-dash|Bite|Gull-Dodge Nip
+turtle-hatchling-dash|Tail Lash|Flipper Flail
+turtle-hatchling-dash|Scale Guard|Shell Shrug
+turtle-hatchling-dash|Venom Spit|Surf Dash
+sea-urchin-bed|Bite|Spine Prick
+sea-urchin-bed|Tail Lash|Spine Sweep
+sea-urchin-bed|Scale Guard|Black Spine Wall
+sea-urchin-bed|Venom Spit|Unmoving Trap
+leafcutter-column|Nip|Leaf-Bearer Nip
+leafcutter-column|Sting|Opinionated Sting
+leafcutter-column|Chitin Shell|Leaf Parade Shield
+leafcutter-column|Skitter|Column Scatter
+weaver-ant-nest|Nip|Larva Thread Nip
+weaver-ant-nest|Sting|Clever Stitch Sting
+weaver-ant-nest|Chitin Shell|Stitched Leaf Wall
+weaver-ant-nest|Skitter|Hall Scurry
+ptarmigan-flock|Peck|Winter White Peck
+ptarmigan-flock|Talon Dive|Cross Talon Dive
+ptarmigan-flock|Wing Cover|Brown Summer Wing
+ptarmigan-flock|Flutter Off|Snowdrift Fade
+snow-bunting-flurry|Peck|Flurry Pinprick
+snow-bunting-flurry|Talon Dive|Snow Burst Dive
+snow-bunting-flurry|Wing Cover|Flurry Cloak
+snow-bunting-flurry|Flutter Off|Lift-All Scatter
+rock-partridge-covey|Peck|Hill Run Peck
+rock-partridge-covey|Talon Dive|Uphill Talon
+rock-partridge-covey|Wing Cover|Rock-Grey Wing
+rock-partridge-covey|Flutter Off|Sprint Uphill
+willow-grouse-covey|Peck|Scrub Peck
+willow-grouse-covey|Talon Dive|Tight Sit Dive
+willow-grouse-covey|Wing Cover|Russet Feather Shield
+willow-grouse-covey|Flutter Off|All-At-Once Burst
+garfish|Snap|Needle Beak Snap
+garfish|Splash|Shiny Leap
+garfish|Slick Hide|Bony Scale Plate
+garfish|Undertow|Surface Glint
+thorny-devil|Bite|Spike Jaw
+thorny-devil|Tail Lash|Thorn Tail Flick
+thorny-devil|Scale Guard|Dew Skin Spikes
+thorny-devil|Venom Spit|Ant Hoard Lure
+beaded-lizard|Bite|Slow Gnaw Hold
+beaded-lizard|Tail Lash|Bead Tail Thrash
+beaded-lizard|Scale Guard|Beaded Hide
+beaded-lizard|Venom Spit|Oozing Chew
+goat-kid-gang|Claw|Ledge Hop Scrape
+goat-kid-gang|Maul|Headbutt Pile
+goat-kid-gang|Brace|Bouncy Stance
+goat-kid-gang|Shoulder Barge|Kid Pile-On
+stoat|Claw|Dancing Scratch
+stoat|Maul|Hunter Pounce
+stoat|Brace|Stoat Winter Coat
+stoat|Shoulder Barge|Circle Shove
+wolverine-cub|Claw|Bully Gouge
+wolverine-cub|Maul|Stout Grapple
+wolverine-cub|Brace|Stubborn Stance
+wolverine-cub|Shoulder Barge|Bully Shove
+cormorant-line|Peck|Post Spear Peck
+cormorant-line|Talon Dive|Fish Plunge
+cormorant-line|Wing Cover|Sun-Dried Wings
+cormorant-line|Flutter Off|Line Shuffle
+booby-colony|Peck|Whistle Peck
+booby-colony|Talon Dive|Stamping Dive
+booby-colony|Wing Cover|Cliff Wall Wings
+booby-colony|Flutter Off|Rude Interruption
+tamandua|Claw|Vest Slash
+tamandua|Maul|Tail Hang Hook
+tamandua|Brace|Black Vest
+tamandua|Shoulder Barge|Dare Shove
+carpenter-bee|Nip|Carpenter Mandible Snip
+carpenter-bee|Sting|Needle Stinger
+carpenter-bee|Chitin Shell|Glossy Carapace
+carpenter-bee|Skitter|Hover Dart
+caracal|Claw|Pen-Tuft Rake
+caracal|Maul|Bird-Snatch Leap
+caracal|Brace|Tufted Crouch
+caracal|Shoulder Barge|Sly Bush-Slink
+cockle-bed|Snap|Shell Clamp
+cockle-bed|Splash|Brine Spit
+cockle-bed|Slick Hide|Hinged Lid
+cockle-bed|Undertow|Sand-Sink Drag
+tortoise-hatchling-trundle|Bite|Soft-Beak Chomp
+tortoise-hatchling-trundle|Tail Lash|Trundle Swipe
+tortoise-hatchling-trundle|Scale Guard|Domed Shell
+tortoise-hatchling-trundle|Venom Spit|Dribble Venom
+sun-bear|Claw|Honey-Paw Swipe
+sun-bear|Maul|Crescent Bear-Hug
+sun-bear|Brace|Gold-Crescent Stance
+sun-bear|Shoulder Barge|Long-Tongue Raid
+seal-pup-raft|Snap|Whisker Nip
+seal-pup-raft|Splash|Raft Belly-Flop
+seal-pup-raft|Slick Hide|Blubber Slick
+seal-pup-raft|Undertow|Rock-Slide Dive
+glacier-cub|Claw|Moraine Swipe
+glacier-cub|Maul|Frost Cuffing
+glacier-cub|Brace|Frosted Pelt
+glacier-cub|Shoulder Barge|Gnome-Bowl Slide
+ice-floe-seal|Snap|Floe-Edge Snap
+ice-floe-seal|Splash|Haul-Out Splash
+ice-floe-seal|Slick Hide|Oily Floe-Hide
+ice-floe-seal|Undertow|Overboard Sweep
+camel-calf|Claw|Lanky Hoof Kick
+camel-calf|Maul|Gangly Stomp
+camel-calf|Brace|Fluff Plating
+camel-calf|Shoulder Barge|Stubborn Sidestep
+reindeer-calf-herd|Claw|Antler-Bud Jab
+reindeer-calf-herd|Maul|Fuzzy-Knob Butt
+reindeer-calf-herd|Brace|Huddle Wall
+reindeer-calf-herd|Shoulder Barge|Huddle Shuffle
+tundra-vole-swarm|Claw|Tunnel-Mouth Nip
+tundra-vole-swarm|Maul|Pile-On Swarm
+tundra-vole-swarm|Brace|Snow-Roof Packing
+tundra-vole-swarm|Shoulder Barge|Tunnel Pop-Up
+jaguar-cub-pair|Claw|Spotted Pounce
+jaguar-cub-pair|Maul|Twin Cub Tackle
+jaguar-cub-pair|Brace|Rosette Stance
+jaguar-cub-pair|Shoulder Barge|Bootlace Swat
+cloud-kite|Peck|Thief Beak Snatch
+cloud-kite|Talon Dive|Storm-Front Stoop
+cloud-kite|Wing Cover|Storm Wing-Fold
+cloud-kite|Flutter Off|Pilfer Flit
+grass-snake|Bite|River-Fang Strike
+grass-snake|Tail Lash|Reed-Whip Tail
+grass-snake|Scale Guard|Green Scale Coil
+grass-snake|Venom Spit|Musk Trail Spray
+grass-snake|Slam|Coil-Drop Crash
+grey-heron|Peck|Lightning Spear-Bill
+grey-heron|Talon Dive|Reed-Stalk Plunge
+grey-heron|Wing Cover|Grey Mantle Fold
+grey-heron|Flutter Off|Heron Lift-Off
+grey-heron|Slam|Heavy Stilt Stomp
+mischief-monkey|Claw|Hat-Snatch Grab
+mischief-monkey|Maul|Tail-Swing Bonk
+mischief-monkey|Brace|Cheeky Shrug
+mischief-monkey|Shoulder Barge|Pocket-Pick Pinch
+mischief-monkey|Slam|Tree-Drop Slam
+red-fox|Claw|Dragon-Smile Rake
+red-fox|Maul|Rusty Scruff Lunge
+red-fox|Brace|Russet Ruff
+red-fox|Shoulder Barge|Sidle Past
+red-fox|Slam|Vixen Body-Check
+raccoon|Claw|Clever Paw Pinch
+raccoon|Maul|Ringtail Wallop
+raccoon|Brace|Masked Hunch
+raccoon|Shoulder Barge|Nimble Pocket-Dip
+raccoon|Slam|Trash-Lid Slam
+tawny-owl|Peck|Hooked Beak Strike
+tawny-owl|Talon Dive|Silent Talon Drop
+tawny-owl|Wing Cover|Hush Feathers
+tawny-owl|Flutter Off|Ghost Glide
+tawny-owl|Slam|Night Wing Buffet
+arctic-fox|Claw|Snowdrift Scratch
+arctic-fox|Maul|Blizzard Mangle
+arctic-fox|Brace|Snow-White Hunch
+arctic-fox|Shoulder Barge|Whiteout Vanish
+arctic-fox|Slam|Snowblind Slam
+tundra-fox|Claw|Thaw-Grudge Rake
+tundra-fox|Maul|Tawny Pounce
+tundra-fox|Brace|Lean-Brown Guard
+tundra-fox|Shoulder Barge|Unforgiving Shove
+tundra-fox|Slam|Pounce-After Slam
+badger|Claw|Spade-Claw Dig
+badger|Maul|Armoured Snout Ram
+badger|Brace|Striped Plate
+badger|Shoulder Barge|Burrow Dive
+badger|Slam|Warren Bulldoze
+mire-toad|Bite|Warty Gulp
+mire-toad|Tail Lash|Sticky Tongue Lash
+mire-toad|Scale Guard|Wart-Crust Shell
+mire-toad|Venom Spit|Mire Glandular Spit
+mire-toad|Slam|Belly-Flop Slam
+tide-crab-knight|Snap|Duelling Pincer
+tide-crab-knight|Splash|Breaker Splash
+tide-crab-knight|Slick Hide|Shell Plate Mail
+tide-crab-knight|Undertow|Retreat Scuttle
+tide-crab-knight|Slam|Gauntlet Slam
+moss-golem|Lash Vine|Moss Creeper Whip
+moss-golem|Spore Puff|Mossy Spore Burst
+moss-golem|Bramble Coat|Mossy Mantle
+moss-golem|Sap Mend|Sap Patch-Up
+moss-golem|Slam|Rockfall Slam
+lichen-golem|Lash Vine|Lichen Tendril
+lichen-golem|Spore Puff|Grey Dust Puff
+lichen-golem|Bramble Coat|Grey Lichen Cloak
+lichen-golem|Sap Mend|Rain-Drink Refill
+lichen-golem|Slam|Scree Tumble Slam
+coral-golem|Lash Vine|Sharp Branch Whip
+coral-golem|Spore Puff|Coral Anemone Sting
+coral-golem|Bramble Coat|Polyp Plating
+coral-golem|Sap Mend|Low-Tide Mend
+coral-golem|Slam|Stack Crumble
+bramble-wolf|Claw|Briar Hook Swipe
+bramble-wolf|Maul|Thorn-Wrap Maul
+bramble-wolf|Brace|Vine-Woven Bristle
+bramble-wolf|Shoulder Barge|Scent-Trail Dodge
+bramble-wolf|Slam|Thicket Slam
+coconut-crab-youngster|Snap|Pincer Practice
+coconut-crab-youngster|Splash|Night-Shift Splash
+coconut-crab-youngster|Slick Hide|Half-Grown Husk
+coconut-crab-youngster|Undertow|Scuttle Sidle
+coconut-crab-youngster|Slam|Apprentice Slam
+marsh-harrier|Peck|Reed Snatch Beak
+marsh-harrier|Talon Dive|Skimming Talon Swoop
+marsh-harrier|Wing Cover|Shadow Wing-Fold
+marsh-harrier|Flutter Off|Reed-Hop Flit
+marsh-harrier|Slam|Quartering Stoop
+moray-lurker|Snap|Crevice Teeth Snap
+moray-lurker|Splash|Lurking Surge
+moray-lurker|Slick Hide|Wet-Leather Hide
+moray-lurker|Undertow|Crevice Slink
+moray-lurker|Slam|Rockside Lunge
+delta-gharial|Bite|Long-Nose Clamp
+delta-gharial|Tail Lash|Mudbank Tail Sweep
+delta-gharial|Scale Guard|Riverlog Plate
+delta-gharial|Venom Spit|Mud-Gob Spit
+delta-gharial|Slam|Mudbank Flop
+emerald-python|Bite|Hanging Fang Strike
+emerald-python|Tail Lash|Liana Tail Whip
+emerald-python|Scale Guard|Emerald Scale Mail
+emerald-python|Venom Spit|Hiss Mist Spray
+emerald-python|Slam|Constrict Hug
+jungle-tiger|Claw|Stripe-Shade Rake
+jungle-tiger|Maul|Shade-Pounce Mangle
+jungle-tiger|Brace|Dappled Stance
+jungle-tiger|Shoulder Barge|Shade Slip
+jungle-tiger|Slam|Leaf-Fall Slam
+cloud-leopard|Claw|Ledge-Grip Rake
+cloud-leopard|Maul|Cloud Rend
+cloud-leopard|Brace|Ledge-Hold Stance
+cloud-leopard|Shoulder Barge|Phantom Ledge Slink
+cloud-leopard|Slam|Ledge Plunge
+reef-turtle|Bite|Beak Snap
+reef-turtle|Tail Lash|Flipper Sweep
+reef-turtle|Scale Guard|Boulder Shell
+reef-turtle|Venom Spit|Brine Squirt
+reef-turtle|Slam|Paddle Crush
+dune-wyrmling|Bite|Long-Fang Stab
+dune-wyrmling|Tail Lash|Sand-Dive Tail
+dune-wyrmling|Scale Guard|Sand-Sheen Scales
+dune-wyrmling|Venom Spit|Burrow Spit
+dune-wyrmling|Slam|Barn Sweep
+bog-pike|Snap|Reed-Lunge Snap
+bog-pike|Splash|Boot-Bait Splash
+bog-pike|Slick Hide|Bog-Slime Coat
+bog-pike|Undertow|Reed-Lurk Dart
+bog-pike|Slam|Pike Tail Thrash
+desert-gila-dragon|Bite|Hold-On Bite
+desert-gila-dragon|Tail Lash|Slow-Turn Tail Whip
+desert-gila-dragon|Scale Guard|Beaded Scale Plate
+desert-gila-dragon|Venom Spit|Stubborn Spit
+desert-gila-dragon|Slam|Sudden Quake Slam
+cliff-ram|Claw|Ledge Hoof Scrape
+cliff-ram|Maul|Curled Horn Gore
+cliff-ram|Brace|Ridge Stance
+cliff-ram|Shoulder Barge|Territory Shove
+cliff-ram|Slam|Horn-Down Ram
+wolverine|Claw|Snarling Rake
+wolverine|Maul|Grudge Gnash
+wolverine|Brace|Stubborn Hunker
+wolverine|Shoulder Barge|Tantrum Shove
+wolverine|Slam|Sulky Pounce
+wild-boar|Claw|Wild Tusk Gore
+wild-boar|Maul|Plough Rip
+wild-boar|Brace|Bristle Wall
+wild-boar|Shoulder Barge|Hog Ram
+wild-boar|Slam|Trotter Stomp
+pelican-parliament|Peck|Pouch Scoop
+pelican-parliament|Talon Dive|Bill Plunge
+pelican-parliament|Wing Cover|Committee Canopy
+pelican-parliament|Flutter Off|Adjourned Flap
+pelican-parliament|Slam|Gavel Slap
+beaver-foreman|Claw|Chisel Paw
+beaver-foreman|Maul|Timber Wallop
+beaver-foreman|Brace|Dam Buttress
+beaver-foreman|Shoulder Barge|Crew Shove
+beaver-foreman|Slam|Flat Tail Slap
+giant-anteater|Claw|Foreclaw Rake
+giant-anteater|Maul|Sticky Tongue
+giant-anteater|Brace|Cloak Curl
+giant-anteater|Shoulder Barge|Snout Shove
+giant-anteater|Slam|Cloaked Thrash
+giant-bumblebee|Nip|Fuzzy Nibble
+giant-bumblebee|Sting|Barb Jab
+giant-bumblebee|Chitin Shell|Velvet Armour
+giant-bumblebee|Skitter|Drone Dart
+giant-bumblebee|Slam|Buzzing Bulk
+tufted-lynx|Claw|Tufted Swipe
+tufted-lynx|Maul|Soft Paw Pin
+tufted-lynx|Brace|Tuft Crouch
+tufted-lynx|Shoulder Barge|Sudden Brush
+tufted-lynx|Slam|Ear Tuft Pounce
+clam-lurker|Snap|Gate Clamp
+clam-lurker|Splash|Yawning Spray
+clam-lurker|Slick Hide|Slimy Mantle
+clam-lurker|Undertow|Gulping Pull
+clam-lurker|Slam|Shutter Thump
+giant-clam|Snap|Giant Sudden Shut
+giant-clam|Splash|Shallow Spurt
+giant-clam|Slick Hide|Glossy Mantle
+giant-clam|Undertow|Tidal Suck
+giant-clam|Slam|Cart-Size Clap
+desert-tortoise|Bite|Hill Chomp
+desert-tortoise|Tail Lash|Dune Cudgel
+desert-tortoise|Scale Guard|Hilltop Shell
+desert-tortoise|Venom Spit|Crawl Trail Spit
+desert-tortoise|Slam|Boulder Flop
+griffon-vulture|Peck|Griffon Carrion Pick
+griffon-vulture|Talon Dive|Patient Swoop
+griffon-vulture|Wing Cover|Shawl Wings
+griffon-vulture|Flutter Off|Lazy Lift
+griffon-vulture|Slam|Circling Thud
+black-bear|Claw|Berry-Stained Rake
+black-bear|Maul|Trouble Wallop
+black-bear|Brace|Rear-Up Stance
+black-bear|Shoulder Barge|Shoulder Bowl
+black-bear|Slam|Rolling Flop
+salt-sea-lion|Snap|Barking Lunge
+salt-sea-lion|Splash|Salt Spray Flop
+salt-sea-lion|Slick Hide|Salted Blubber
+salt-sea-lion|Undertow|Bay Drag
+salt-sea-lion|Slam|Salt Belly Flop
+glacier-bear|Claw|Glacier Rake
+glacier-bear|Maul|Frozen Cuff
+glacier-bear|Brace|Blue Ice Plant
+glacier-bear|Shoulder Barge|Shadow Shove
+glacier-bear|Slam|Slow Sledge
+ice-bear|Claw|Frostbite Swipe
+ice-bear|Maul|Glazed Maul
+ice-bear|Brace|Snowdrift Heap
+ice-bear|Shoulder Barge|Skidding Bulk
+ice-bear|Slam|Glaze Plough
+prairie-bison|Claw|Hoof Scrape
+prairie-bison|Maul|Prairie Horn Toss
+prairie-bison|Brace|Herd Huddle
+prairie-bison|Shoulder Barge|Herd Charge
+prairie-bison|Slam|Thunder Stampede
+desert-camel|Claw|Splay Kick
+desert-camel|Maul|Cud Chomp
+desert-camel|Brace|Hump Plant
+desert-camel|Shoulder Barge|Sand Shoulder
+desert-camel|Slam|Knee Drop
+lichen-reindeer|Claw|Cloven Hoof
+lichen-reindeer|Maul|Lichen Antler Sweep
+lichen-reindeer|Brace|Moss Mantle
+lichen-reindeer|Shoulder Barge|Tundra Nudge
+lichen-reindeer|Slam|Antler Lunge
+caribou-bull|Claw|Velvet Hoof
+caribou-bull|Maul|Rutting Clash
+caribou-bull|Brace|Rut Stance
+caribou-bull|Shoulder Barge|Autumn Bulldoze
+caribou-bull|Slam|Knockdown Toss
+black-jaguar|Claw|Rosette Rake
+black-jaguar|Maul|Downpour Maul
+black-jaguar|Brace|Rain Crouch
+black-jaguar|Shoulder Barge|Ledge Leap
+black-jaguar|Slam|Dark Descent
+goliath-frog|Bite|Haycart Gulp
+goliath-frog|Tail Lash|Hind Leg Kick
+goliath-frog|Scale Guard|Goliath Warty Hide
+goliath-frog|Venom Spit|Sticky Spit
+goliath-frog|Slam|Sitting Smother
+frigatebird|Peck|Pirate Snatch
+frigatebird|Talon Dive|Mid-Air Robbery
+frigatebird|Wing Cover|Sea Kite Canopy
+frigatebird|Flutter Off|Hat Swipe
+frigatebird|Slam|Forked Wallop
+emperor-scorpion|Nip|Pincer Pinch
+emperor-scorpion|Sting|Stinger Thrust
+emperor-scorpion|Chitin Shell|Emperor Glossy Carapace
+emperor-scorpion|Skitter|Emperor Shy Scuttle
+emperor-scorpion|Slam|Armoured Ram
+gorse-beast|Lash Vine|Gorse Whip
+gorse-beast|Spore Puff|Bloom Cloud
+gorse-beast|Bramble Coat|Spiky Thicket
+gorse-beast|Sap Mend|Sunbathe Mend
+gorse-beast|Slam|Shaggy Heap Crash
+goliath-heron|Peck|Triple Stab
+goliath-heron|Talon Dive|Still-Water Strike
+goliath-heron|Wing Cover|Plume Fan
+goliath-heron|Flutter Off|Long Stride
+goliath-heron|Slam|Stilt Crash
+mandrill-boss|Claw|Painted Swipe
+mandrill-boss|Maul|Humourless Grab
+mandrill-boss|Brace|Painted Stance
+mandrill-boss|Shoulder Barge|Mandrill Troop Shove
+mandrill-boss|Slam|Furious Stomp
+silver-fox|Claw|Silver Tip Swipe
+silver-fox|Maul|Tithe Bite
+silver-fox|Brace|Silver Wary Crouch
+silver-fox|Shoulder Barge|Sly Sidestep
+silver-fox|Slam|Snowdrop Pounce
+crab-eating-raccoon|Claw|Tide Line Swipe
+crab-eating-raccoon|Maul|Crab Clutch
+crab-eating-raccoon|Brace|Crab Masked Hunch
+crab-eating-raccoon|Shoulder Barge|Tide Shoulder
+crab-eating-raccoon|Slam|Opening Swat
+eagle-owl|Peck|Lamp-Eyed Peck
+eagle-owl|Talon Dive|Silent Stoop
+eagle-owl|Wing Cover|Ear Tuft Veil
+eagle-owl|Flutter Off|Quiet Glide
+eagle-owl|Slam|Ear-Horn Ram
+old-brock|Claw|Digger's Rake
+old-brock|Maul|Path Toll Maul
+old-brock|Brace|Silvered Hide
+old-brock|Shoulder Barge|Tunnel Shove
+old-brock|Slam|Grizzled Slam
+elder-mire-toad|Bite|Fog Gulp
+elder-mire-toad|Tail Lash|Mire Tongue Flick
+elder-mire-toad|Scale Guard|Mossy Hide
+elder-mire-toad|Venom Spit|Lingering Gob
+elder-mire-toad|Slam|Patient Plop
+tide-crab-paladin|Snap|Holy Pincer
+tide-crab-paladin|Splash|Banner Spray
+tide-crab-paladin|Slick Hide|Barnacle Plate
+tide-crab-paladin|Undertow|Shoreline Trip
+tide-crab-paladin|Slam|Crusader Bash
+peat-golem|Lash Vine|Reed Whip
+peat-golem|Spore Puff|Peat Dust Cloud
+peat-golem|Bramble Coat|Packed Peat Wall
+peat-golem|Sap Mend|Bog Refill
+peat-golem|Slam|Stack Collapse
+elder-bramble-wolf|Claw|Bramble Ruff Swipe
+elder-bramble-wolf|Maul|Grey Beard Maul
+elder-bramble-wolf|Brace|Living Ruff
+elder-bramble-wolf|Shoulder Barge|Veteran Shoulder
+elder-bramble-wolf|Slam|Wily Pounce
+coconut-crab-titan|Snap|Coconut Crack
+coconut-crab-titan|Splash|Surf Spout
+coconut-crab-titan|Slick Hide|Husk Armour
+coconut-crab-titan|Undertow|Sand Yank
+coconut-crab-titan|Scheme|Coconut Bait
+coconut-crab-titan|Crush|Titan Pinch
+robber-crab-baron|Snap|Robber Shiny Snatch
+robber-crab-baron|Splash|Sash Spatter
+robber-crab-baron|Slick Hide|Looted Shell
+robber-crab-baron|Undertow|Bounty Dredge
+robber-crab-baron|Scheme|Royal Decree
+robber-crab-baron|Crush|Finger Clamp
+great-hawk|Peck|Meadow Pluck
+great-hawk|Talon Dive|Shadow Stoop
+great-hawk|Wing Cover|Pinion Shade
+great-hawk|Flutter Off|Thermal Lift
+great-hawk|Scheme|Hush Circle
+great-hawk|Crush|Razor Grip
+ancient-snapper|Bite|Ancient Jaw
+ancient-snapper|Tail Lash|Mossy Tail Swing
+ancient-snapper|Scale Guard|Ageless Shell
+ancient-snapper|Venom Spit|Murk Spray
+ancient-snapper|Scheme|Wriggle Lure
+ancient-snapper|Crush|Shell Grind
+alligator-snapper|Bite|Bitter Chomp
+alligator-snapper|Tail Lash|Mud Bank Thrash
+alligator-snapper|Scale Guard|Keeled Shell
+alligator-snapper|Venom Spit|Worm Tongue Lure
+alligator-snapper|Slam|Waking Lunge
+reef-leviathan|Snap|Eel Snap
+reef-leviathan|Splash|Breaker Thrash
+reef-leviathan|Slick Hide|Eel Slime Coat
+reef-leviathan|Undertow|Riptide Drag
+reef-leviathan|Scheme|Coral Lurk
+reef-leviathan|Crush|Coiling Crush
+conger-brute|Snap|Wreck Jaw
+conger-brute|Splash|Wreck Slosh
+conger-brute|Slick Hide|Wreck Slime
+conger-brute|Undertow|Wreck Drag
+conger-brute|Slam|Wreck Coil
+old-bramblehorn|Lash Vine|Thicket Lash
+old-bramblehorn|Spore Puff|Thicket Dust
+old-bramblehorn|Bramble Coat|Thicket Mantle
+old-bramblehorn|Sap Mend|Thicket Sap
+old-bramblehorn|Scheme|Thicket Ruse
+old-bramblehorn|Crush|Antler Crush
+red-stag|Lash Vine|Rut Antler Swing
+red-stag|Spore Puff|Rut Snort
+red-stag|Bramble Coat|Rut Hide
+red-stag|Sap Mend|Rut Forage
+red-stag|Slam|Red Rut Charge
+dune-wyrm|Bite|Dune Maw
+dune-wyrm|Tail Lash|Dune Tail-Whip
+dune-wyrm|Scale Guard|Dune Plate
+dune-wyrm|Venom Spit|Dune Spit
+dune-wyrm|Scheme|Dune Burrow
+dune-wyrm|Crush|Dune Heave
+snow-owl-monarch|Peck|Hush Beak
+snow-owl-monarch|Talon Dive|Hush Stoop
+snow-owl-monarch|Wing Cover|Hush Veil
+snow-owl-monarch|Flutter Off|Hush Lift
+snow-owl-monarch|Scheme|Hush Plan
+snow-owl-monarch|Crush|Hush Talons
+frost-owl-regent|Peck|Frost Beak
+frost-owl-regent|Talon Dive|Frost Swoop
+frost-owl-regent|Wing Cover|Frost Shroud
+frost-owl-regent|Flutter Off|Frost Vanish
+frost-owl-regent|Scheme|Frost Edict
+frost-owl-regent|Crush|Frost Crown
+storm-eagle|Peck|Storm Hook
+storm-eagle|Talon Dive|Storm Plunge
+storm-eagle|Wing Cover|Storm Pinion
+storm-eagle|Flutter Off|Storm Updraft
+storm-eagle|Scheme|Storm Gust
+storm-eagle|Crush|Storm Clutch
+lammergeier|Peck|Lammergeier Bone Drop
+lammergeier|Talon Dive|Bone Swoop
+lammergeier|Wing Cover|Bone Shelter
+lammergeier|Flutter Off|Bone Glide
+lammergeier|Slam|Bone Splitter
+jade-jaguar|Claw|Jade Rake
+jade-jaguar|Maul|Jade Pounce
+jade-jaguar|Brace|Jade Poise
+jade-jaguar|Shoulder Barge|Jade Slink
+jade-jaguar|Scheme|Jade Stalk
+jade-jaguar|Crush|Jade Throttle
+saltwater-gharial|Bite|Brine Gnash
+saltwater-gharial|Tail Lash|Brine Sweep
+saltwater-gharial|Scale Guard|Brine Scales
+saltwater-gharial|Venom Spit|Brine Spray
+saltwater-gharial|Slam|Brine Wallop
+rock-python|Bite|Basking Strike
+rock-python|Tail Lash|Basking Tail-Whip
+rock-python|Scale Guard|Basking Cloak
+rock-python|Venom Spit|Basking Hiss
+rock-python|Slam|Basking Squeeze
+elder-tiger|Claw|Grizzle Swipe
+elder-tiger|Maul|Grizzle Mangle
+elder-tiger|Brace|Grizzle Stance
+elder-tiger|Shoulder Barge|Grizzle Lurch
+elder-tiger|Slam|Grizzle Return
+ghost-leopard|Claw|Ghost Flicker
+ghost-leopard|Maul|Ghost Strike
+ghost-leopard|Brace|Ghost Mist
+ghost-leopard|Shoulder Barge|Ghost Slip
+ghost-leopard|Slam|Ghost Rush
+mangrove-crab-king|Snap|Mangrove Pincer
+mangrove-crab-king|Splash|Mangrove Spatter
+mangrove-crab-king|Slick Hide|Mangrove Shell
+mangrove-crab-king|Undertow|Mangrove Scuttle
+mangrove-crab-king|Slam|Mangrove Hammer
+mangrove-crab-emperor|Snap|Imperial Pinch
+mangrove-crab-emperor|Splash|Imperial Wave
+mangrove-crab-emperor|Slick Hide|Imperial Mudcoat
+mangrove-crab-emperor|Undertow|Imperial Mire
+mangrove-crab-emperor|Slam|Imperial Smash
+sand-viper-matriarch|Bite|Sand Viper Fang
+sand-viper-matriarch|Tail Lash|Viper Sidewind
+sand-viper-matriarch|Scale Guard|Viper Sheen
+sand-viper-matriarch|Venom Spit|Viper Spittle
+sand-viper-matriarch|Slam|Viper Ambush
+honey-badger-brute|Claw|Badger Tear
+honey-badger-brute|Maul|Badger Gouge
+honey-badger-brute|Brace|Badger Hide
+honey-badger-brute|Shoulder Barge|Badger Shrug
+honey-badger-brute|Slam|Badger Frenzy
+thunder-yak|Claw|Yak Hoof
+thunder-yak|Maul|Yak Stomp
+thunder-yak|Brace|Yak Wool
+thunder-yak|Shoulder Barge|Yak Sidle
+thunder-yak|Slam|Yak Thunderclap
+musk-ox|Claw|Musk Horn Sweep
+musk-ox|Maul|Musk Trample
+musk-ox|Brace|Musk Coat
+musk-ox|Shoulder Barge|Musk Wedge
+musk-ox|Slam|Musk Ring-Press
+reef-eel-lord|Snap|Coral Toll
+reef-eel-lord|Splash|Coral Spray
+reef-eel-lord|Slick Hide|Coral Slime
+reef-eel-lord|Undertow|Coral Lure
+reef-eel-lord|Slam|Coral Coil
+reef-eel-tyrant|Snap|Reef Gnaw
+reef-eel-tyrant|Splash|Reef Ripple
+reef-eel-tyrant|Slick Hide|Reef Slickcoat
+reef-eel-tyrant|Undertow|Reef Rip
+reef-eel-tyrant|Slam|Reef Crack
+alpha-dingo|Claw|Dingo Scrabble
+alpha-dingo|Maul|Dingo Pack Rush
+alpha-dingo|Brace|Dingo Stand
+alpha-dingo|Shoulder Barge|Dingo Howl
+alpha-dingo|Slam|Dingo Pounce
+fern-cassowary|Peck|Fern Stab
+fern-cassowary|Talon Dive|Fern Kick
+fern-cassowary|Wing Cover|Fern Helm
+fern-cassowary|Flutter Off|Fern Scatter
+fern-cassowary|Slam|Fern Stomp
+deep-octopus|Snap|Abyss Beak
+deep-octopus|Splash|Abyss Ink Jet
+deep-octopus|Slick Hide|Abyss Mantle
+deep-octopus|Undertow|Abyss Mimic
+deep-octopus|Slam|Abyss Embrace
+kraken-spawn|Snap|Kraken Maw
+kraken-spawn|Splash|Kraken Spout
+kraken-spawn|Slick Hide|Kraken Hood
+kraken-spawn|Undertow|Kraken Lurk
+kraken-spawn|Slam|Kraken Wrap
+giant-otter-gang|Snap|Otter Crew Snap
+giant-otter-gang|Splash|Otter Belly-Flop
+giant-otter-gang|Slick Hide|Otter Pelt
+giant-otter-gang|Undertow|Otter Net-Haul
+giant-otter-gang|Slam|Otter Rush
+leatherback|Bite|Leather Nip
+leatherback|Tail Lash|Leather Flipper
+leatherback|Scale Guard|Leather Shell
+leatherback|Venom Spit|Leather Glide
+leatherback|Slam|Leather Oar Blow
+ibex-patriarch|Claw|Ibex Hoof
+ibex-patriarch|Maul|Ibex Horn Sweep
+ibex-patriarch|Brace|Ibex Ledge
+ibex-patriarch|Shoulder Barge|Ibex Leap
+ibex-patriarch|Slam|Ibex Turnabout
+bearded-pig|Claw|Bristle Root
+bearded-pig|Maul|Bristle Plough
+bearded-pig|Brace|Bristle Shield
+bearded-pig|Shoulder Barge|Bristle Snatch
+bearded-pig|Slam|Bristle Ram
+albatross|Peck|Albatross Beak
+albatross|Talon Dive|Albatross Landing
+albatross|Wing Cover|Albatross Span
+albatross|Flutter Off|Albatross Doze
+albatross|Slam|Albatross Crash
+aardvark|Claw|Burrow Dig
+aardvark|Maul|Burrow Smash
+aardvark|Brace|Burrow Hide
+aardvark|Shoulder Barge|Burrow Snuffle
+aardvark|Slam|Burrow Rip
+snow-lynx|Claw|Lynx Swipe
+snow-lynx|Maul|Lynx Drift Pounce
+snow-lynx|Brace|Lynx Snowshoe
+snow-lynx|Shoulder Barge|Lynx Stealth
+snow-lynx|Slam|Lynx Dive
+spurred-tortoise|Bite|Spur Nip
+spurred-tortoise|Tail Lash|Spur Lash
+spurred-tortoise|Scale Guard|Spur Shell
+spurred-tortoise|Venom Spit|Spur Dust
+spurred-tortoise|Slam|Spur Stomp
+condor|Peck|Condor Gouge
+condor|Talon Dive|Condor Arrival
+condor|Wing Cover|Condor Shadow
+condor|Flutter Off|Condor Rising
+condor|Slam|Condor Swoop
+sloth-bear|Claw|Sloth Hook
+sloth-bear|Maul|Sloth Hoover
+sloth-bear|Brace|Sloth Hollow
+sloth-bear|Shoulder Barge|Sloth Sniff
+sloth-bear|Slam|Sloth Swat
+elephant-seal-bull|Snap|Trumpet Gape
+elephant-seal-bull|Splash|Trumpet Blast
+elephant-seal-bull|Slick Hide|Trumpet Blubber
+elephant-seal-bull|Undertow|Trumpet Haul
+elephant-seal-bull|Slam|Trumpet Roll
+wood-bison|Claw|Bison Scrape
+wood-bison|Maul|Bison Plough
+wood-bison|Brace|Bison Winter Coat
+wood-bison|Shoulder Barge|Bison Drift
+wood-bison|Slam|Bison Charge
+wild-bactrian|Claw|Bactrian Kick
+wild-bactrian|Maul|Bactrian Bite
+wild-bactrian|Brace|Bactrian Hump
+wild-bactrian|Shoulder Barge|Bactrian Spit
+wild-bactrian|Slam|Bactrian Spite
+glass-wyrm|Bite|Glass Fang
+glass-wyrm|Tail Lash|Glass Tail Shatter
+glass-wyrm|Scale Guard|Glass Armour
+glass-wyrm|Venom Spit|Glass Sandfling
+glass-wyrm|Slam|Glass Waking Blow
