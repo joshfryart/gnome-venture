@@ -434,13 +434,46 @@
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
       + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
+      + '<div class="sl">Piece effects</div><div class="spdrow pfa-row">' + [['full', 'Full'], ['light', 'Light'], ['off', 'Off']].map(function (o) { return '<button type="button" class="btn small' + (pfaMode() === o[0] ? ' primary' : ' ghost') + '" data-pfx="' + o[0] + '" aria-pressed="' + (pfaMode() === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'
+      + '<p class="hint">How the pieces land and fire in the replay. Light: they land with a wiggle, no edge effects. Off: none.' + (pfaRm() && !pfaChosen() ? ' Your device asks for less motion, so they are off until you pick one.' : '') + '</p>'
       + '</div></div>';
     (root.closest('dialog') || document.body).appendChild(sheetEl);   // inside the Trail's popover when the fight is in one (a modal dialog covers the page)
     sheetEl.addEventListener('click', function (ev) {
       if (ev.target.closest('[data-x]')) { closeSheet(); return; }
       var sb = ev.target.closest('[data-spd]'); if (sb) { setSpd(+sb.dataset.spd); helpSheet(); }
+      var fb = ev.target.closest('[data-pfx]'); if (fb) { setPfx(fb.dataset.pfx); helpSheet(); }
     });
     var done = sheetEl.querySelector('.btn'); if (done) done.focus();
+  }
+  // ---- 2.7.55 piece effects (assets/pfanim.js, one overlay canvas): the replay's hooks. Purely visual: they start an effect and return at once; they never add a timer to
+  // playTimers or move tt, so the replay's steps come at the same times with the effects on or off. The setting is per device like the animation speed (localStorage pfvfx:
+  // full | light | off; none chosen = full, or off when the device asks for reduced motion).
+  var pfaCh = null, pfaFx = 0, pfaDone = {};
+  function pfaRm() { try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
+  function pfaChosen() { var v = ''; try { v = window.localStorage.getItem('pfvfx') || ''; } catch (e) {} return v === 'full' || v === 'light' || v === 'off' ? v : ''; }
+  function pfaMode() { return pfaChosen() || (pfaRm() ? 'off' : 'full'); }
+  function setPfx(v) { if (window.PFAnim) PFAnim.set(v); else try { window.localStorage.setItem('pfvfx', v); } catch (e) {} root.classList.toggle('pfa-place', playing && pfaMode() !== 'off'); }
+  function pfaCtx(step) { return { board: boardEl, root: root, w: W, h: H, step: step, slug: data.cslug || '' }; }
+  function pfaReset() { pfaCh = null; pfaFx = 0; pfaDone = {}; if (window.PFAnim) { try { PFAnim.cancel(); } catch (e) {} } }
+  function pfaStart() { pfaReset(); root.classList.toggle('pfa-place', !!window.PFAnim && pfaMode() !== 'off'); }   // the replay starts: PFAnim lands the pieces (the old 400 ms drop steps aside)
+  /** a piece appears at this step (revealed, the environment's, or yours as its chain starts): it is put down */
+  function pfaPlace(id, step) { if (!window.PFAnim || rewind || pfaDone[id]) return; var p = pieceById(id); if (!p) return; pfaDone[id] = 1; try { PFAnim.place(p, pfaCtx(step)); } catch (e) {} }
+  /** the chain (pieces in firing order, data.fx) a firing piece belongs to: the replay's events of one chain come one after another, in that order */
+  function pfaChain(id) {
+    var fx = data.fx || [], j;
+    if (pfaCh && pfaCh.ids[pfaCh.i + 1] === id) { pfaCh.i++; return pfaCh.pcs; }
+    for (j = pfaFx; j < fx.length; j++) if (fx[j].ids && fx[j].ids[0] === id) { pfaFx = j + 1; pfaCh = { ids: fx[j].ids, i: 0, pcs: fx[j].ids.map(pieceById).filter(function (q) { return !!q; }) }; return pfaCh.pcs; }
+    pfaCh = null; var p = pieceById(id); return p ? [p] : [];
+  }
+  function pfaStep(ev, step) {
+    if (!window.PFAnim || rewind) return;
+    try {
+      PFAnim.tick();   // the step's own time (tests compare them with the effects on and off)
+      if (ev.cs && ev.rid) { var rp = pieceById(ev.rid); if (rp && rp.by === 'me') pfaPlace(ev.rid, step); }   // your own piece was on the board from the first frame: it lands as its chain starts
+      if (ev.note === 'aoe') { var ao = (PREV && PREV.aoe) || data.aoe; if (ao && ao.cells) PFAnim.aoe(ao.cells, pfaCtx(step)); return; }
+      if (!ev.id || ev.note || ev.strike || (ev.env && ev.env !== 'fire')) return;
+      var p = pieceById(ev.id); if (p) PFAnim.fire(ev, p, pfaChain(ev.id), pfaCtx(step));
+    } catch (e) {}
   }
   function setSpd(v) { SPD = v === 2 ? 2 : v === 0 ? 0 : 1; try { window.localStorage.setItem('pfvspd', String(SPD)); } catch (e) {} drawLegend(); if (!SPD && playing) stopPlay(true); }
   function onKey(ev) { if (ev.key === 'Escape') { if (sheetEl) closeSheet(); else closePop(); } }

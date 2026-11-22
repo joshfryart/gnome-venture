@@ -826,3 +826,7 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 @keyframes pfv-aoeflash { 50% { background: rgba(255, 59, 31, .75); } }
 .pf-v1 .tg.aoe svg { width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; color: #ff6a4a; }
 @media (prefers-reduced-motion: reduce) { .pf-v1 .mk.aoe.aoeflash { animation: none; } }
+/* 2.7.55 piece effects (assets/pfanim.js): one overlay canvas over the board, above the joints (3) and stamps (4), below the resolve flash (.pfb-scoring, 8); it never takes a tap.
+   While it lands the pieces in a replay (.pfa-place on the fight) the old drop and the environment's grow-in step aside. */
+.pf-v1 .pfb-world > .pfa-fx { position: absolute; z-index: 7; pointer-events: none; image-rendering: crisp-edges; image-rendering: pixelated; }
+.pf-v1.pfa-place .pfb-cell.pfb-drop, .pf-v1.pfa-place .pfb-cell.pfv-envin { animation: none; }
