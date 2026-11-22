@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.52
+- **Workshop popover on phones:** smaller squares, four to a row (icons 48px, smaller names and chips; `style.css`, `max-width: 720px`). Ready squares now fit their content, so there is no empty strip under the name (`.shqf` / `.shquick`). Desktop and the Satchel list page are unchanged.
+- **Not checked:** only Garden at phone width; other areas, MySQL, light theme.
+
 ## 2.7.51
 - **Workshop popover is a grid:** the area popover on the workshop picture has no folds any more. "Can craft now" shows full-colour item squares (tap one to make one; a x5 chip makes five when five fit; a small (i) opens the usual panel with ingredients, mastery and the Cook/Make buttons). Under a dashed line, "One trip away" and "Need more" squares are faded; tap one to see what is missing. "To discover" stays one closed fold. Pantry is untouched; the Satchel list page looks and works as before (`craft_shelves()` / `sh_shelves()` take a `$pop` option, set when `craft_in_popover` is on; `shqf`, `shquick`, `shx5`, `shinfo` styles at the end of `style.css`; `site.js` skips `data-nofold` shelves).
 - **Craft links go to the workshop:** the Satchel's Crafting tab and the other craft links (ready-pot and jar badges, jobs, rebuild, gnome, garden, pal jobs, guide) use the new `craft_url($area)` (`includes/here_schema.php`): the workshop picture (`workshop.php?o=<area>`) when `gnav_craft` is open for the viewer, the old `inventory.php?tab=craft` page otherwise.
