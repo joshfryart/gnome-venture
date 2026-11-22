@@ -912,7 +912,7 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 .pfi-card:focus-visible { outline: 2px solid var(--brand-fill, #2f7d6b); outline-offset: -4px; }
 @media (min-width: 700px) { .pfi { align-items: center; } .pfi-card { border-bottom: 2px solid var(--ol); border-radius: 18px; } }
 .pfi-head { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
-.pfi-head h2 { margin: 0; font-size: 19px; line-height: 1.2; }
+.pfi .pfi-head h2 { margin: 0; font-size: 19px; line-height: 1.2; text-align: left; }
 .pfi-chest { position: relative; width: 40px; height: 40px; flex: none; }
 .pfi-chest img { position: absolute; inset: 0; image-rendering: pixelated; }
 .pfi-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -921,7 +921,7 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 .pfi-step[hidden] { display: none; }
 .pfi-ic img { display: block; width: 48px; height: 48px; image-rendering: pixelated; }
 .pfi-tx { min-width: 0; }
-.pfi-tx h3 { margin: 2px 0 6px; font-size: 17px; line-height: 1.25; }
+.pfi .pfi-tx h3 { margin: 2px 0 6px; font-size: 17px; line-height: 1.25; text-align: left; }   /* .encounter h3 centres headings on the fight page */
 .pfi-n { display: block; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; opacity: .7; margin-bottom: 2px; }
 .pfi-tx ul { margin: 0; padding-left: 18px; }
 .pfi-tx li { margin: 0 0 5px; line-height: 1.4; }
