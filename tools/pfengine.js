@@ -618,7 +618,7 @@
     s.foe.ab = ids; s.foe.abp = abpm; s.foe.enr = 0; s.foe.amb = abOf(s, 'ambush') ? 1 : 0; s.foe.turns = 0; s.me.tough = 0;
   }
   function abNote(s, kind, n) {
-    var e = note(kind, n); e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
+    var e = note(kind, n); e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); e.fgnow = toInt(s.foe.block);
     return e;
   }
   /** After one of its Hurt pieces landed dmg on you: Drain, Stagger (pfb_ab_hit). */
@@ -1066,14 +1066,14 @@
     checkEnd(s);
   }
   /** The bars as they stand now [charm bar, creature bar, your health, your guard], kept on each environment note (as pfb_env_now). */
-  function envNow(s) { return [round(Number(s.bar.now), 1), round(Number(s.fh.now), 1), toInt(s.me.hp), toInt(s.me.block)]; }
+  function envNow(s) { return [round(Number(s.bar.now), 1), round(Number(s.fh.now), 1), toInt(s.me.hp), toInt(s.me.block), toInt(s.foe.block)]; }
   /** The terrain turn as events for the replay (by and ta 'env'): the bars as they stood after that event (as pfb_env_events). */
   function envEvents(s) {
     return nn(s.envlog, []).map(function (L) {
       var e = { by: 'env', ta: 'env', env: L.k, tag: '', k: 'env:' + L.k, n: nn(PFB_EVENT_NAME[L.k], 'Terrain'), t: 'env', v: 0, fit: false, combo: null, x: L.x, y: L.y, me: L.me, foe: L.foe };
       ['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full', 'drop'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
       if (L.n !== undefined && L.n !== null) e.n = L.n;   // 2.6.75: an environment piece placed (or kept back): its name
-      var nw = L.now ? L.now : envNow(s); e.barnow = nw[0]; e.fhnow = nw[1]; e.hpnow = nw[2]; e.gnow = nw[3];
+      var nw = L.now ? L.now : envNow(s); e.barnow = nw[0]; e.fhnow = nw[1]; e.hpnow = nw[2]; e.gnow = nw[3]; e.fgnow = nw[4] !== undefined ? nw[4] : 0;
       return e;
     });
   }
@@ -1526,7 +1526,7 @@
       if (who === 'env') {   // 2.6.75: an environment piece: its effect goes to the side whose chain this is
         var ee = envFire(s, p, rb); s.fired.push(id);
         s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;
-        ee.barnow = round(Number(s.bar.now), 1); ee.fhnow = round(Number(s.fh.now), 1); ee.hpnow = toInt(s.me.hp); ee.gnow = toInt(s.me.block);
+        ee.barnow = round(Number(s.bar.now), 1); ee.fhnow = round(Number(s.fh.now), 1); ee.hpnow = toInt(s.me.hp); ee.gnow = toInt(s.me.block); ee.fgnow = toInt(s.foe.block);
         ev.push(ee); checkEnd(s); continue;
       }
       var pt = par !== null ? s.pcs[par] : null;
@@ -1572,7 +1572,7 @@
       if (wcl !== null) { wcx.g = tile.t === 'guard' ? val : 0; for (var wi = 0; wi < wcl.length; wi++) { var wo = wcl[wi]; if (wo.st === 'post' && wxConds(s, wo.c0.filter(wxIsTgt), wcx)) wxAct(s, wo, wcx, e); } }   // 2.7.09 wear effects
       if (who === 'foe' && tile.t === 'hurt' && truthy(s.wfx)) wxGuard(s, e, id);   // 2.7.09: blocked or missed
       s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used
-      e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
+      e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); e.fgnow = toInt(s.foe.block);
       ev.push(e);
       if (truthy(e.drained)) ev.push(abNote(s, 'drain', String(e.drained)));   // 2.7.01 notices
       if (truthy(e.staggered)) ev.push(abNote(s, 'stagger', ''));
@@ -1977,7 +1977,7 @@
     var ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe';
     [['fade', toInt(nn(s.me.faded, 0))], ['hold', toInt(nn(s.me.kept, 0))], ['simmer', toInt(nn(s.me.simmer, 0))]].forEach(function (q) {
       if (q[1] <= 0) return;
-      var e = note(q[0], String(q[1])); e.by = 'me'; e.ta = ta; e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); ev.push(e);
+      var e = note(q[0], String(q[1])); e.by = 'me'; e.ta = ta; e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); e.fgnow = toInt(s.foe.block); ev.push(e);
     });
   }
   function note(kind, n) { return { by: 'foe', note: kind, k: 'note', n: n === undefined ? '' : n, t: 'note', tag: '', v: 0, fit: false, combo: null }; }   // 2.6.76: a notice event (pfb_note)
@@ -2014,7 +2014,7 @@
       s.fh.now += add; s.foe.poison--;
       if (s.foe.poison === 0) s.foe.poison_v = 0;
       ev.push({ by: 'me', tag: 'poison', k: 'poison', n: 'Poison', t: 'hurt', v: iround(add), fit: false, combo: null, tick: true,
-        barnow: round(Number(s.bar.now), 1), fhnow: round(Number(s.fh.now), 1), hpnow: toInt(s.me.hp), gnow: toInt(s.me.block) });   // as pfb_foe_turn: the bars after the tick, for the replay
+        barnow: round(Number(s.bar.now), 1), fhnow: round(Number(s.fh.now), 1), hpnow: toInt(s.me.hp), gnow: toInt(s.me.block), fgnow: toInt(s.foe.block) });   // as pfb_foe_turn: the bars after the tick, for the replay
       if (checkEnd(s)) return ev;
     }
     if (hasAb(s)) { abTurn(s, ev); s.infoe = 1; }   // 2.7.01: its turn count, Regrow, Plated; Ambush is live for this turn
@@ -2488,7 +2488,7 @@
   /** One history chip for one scored event (board mode). snapId = the snapshot index the page keeps for the rewind. */
   function chipEvent(e, snapId) {
     if (snapId === undefined) snapId = null;
-    var base = { id: (e.id !== undefined && e.id !== null) ? toInt(e.id) : null, sn: snapId, bar: nn(e.barnow, null), fh: nn(e.fhnow, null), hp: nn(e.hpnow, null), g: nn(e.gnow, null), chain: false };
+    var base = { id: (e.id !== undefined && e.id !== null) ? toInt(e.id) : null, sn: snapId, bar: nn(e.barnow, null), fh: nn(e.fhnow, null), hp: nn(e.hpnow, null), g: nn(e.gnow, null), fg: nn(e.fgnow, null), chain: false };
     var ext = function (o) { for (var k in o) base[k] = o[k]; return base; };
     if (truthy(e.connect)) return ext({ by: 'me', types: e.types, tags: [], txt: 'joined ' + toInt(e.size), tg: null });
     if (e.env !== undefined && e.env !== null) {   // v1: a terrain event

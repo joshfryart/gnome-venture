@@ -420,6 +420,13 @@
 .pf-guard::before { content: '\1F6E1'; position: absolute; left: 1px; top: -1px; z-index: 1; font-size: .55rem; line-height: 11px; }
 .pf-guard-0 { opacity: .45; }
 @media (prefers-reduced-motion: reduce) { .pf-guard .gfill { transition: none; } }
+/* the creature's guard beside its bars (same blue bar as yours): hidden at 0, it soaks your Hurts and clears when its next turn starts */
+.pf-fguard { position: relative; display: block; height: 13px; border: 2px solid #0a3a63; border-radius: 3px; background: rgba(0, 20, 40, .65); overflow: hidden; box-sizing: border-box; }
+.pf-fguard[hidden] { display: none; }
+.pf-fguard .gfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: repeating-linear-gradient(135deg, #3f9bd0 0 3px, #0072b2 3px 6px); transition: width .45s ease-out; }
+.pf-fguard b { position: relative; z-index: 1; display: block; text-align: center; font: 700 .62rem/9px system-ui, sans-serif; color: #fff; text-shadow: 0 0 2px #00203a, 0 0 2px #00203a; }
+.pf-fguard::before { content: '\1F6E1'; position: absolute; left: 1px; top: -1px; z-index: 1; font-size: .55rem; line-height: 11px; }
+@media (prefers-reduced-motion: reduce) { .pf-fguard .gfill { transition: none; } }
 
 /* 2.6.66: numbers on a lit spot (damage, charm, health you lose, the creature's reply) */
 .pfb-num { position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%); z-index: 3; max-width: 96%; padding: 0 .3em; border-radius: .6em; background: rgba(20, 20, 20, .82); color: #fff; font: 700 .62rem/1.25 system-ui, sans-serif; white-space: nowrap; pointer-events: none; }

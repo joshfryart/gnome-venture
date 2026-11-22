@@ -692,8 +692,8 @@
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();
     if (data.bar !== undefined && data.barmax) setBar(willReplay && data.replay0 && data.replay0.bar !== undefined ? data.replay0.bar : data.bar, data.barmax);   // 2.6.80: the N/100 number is there from the first frame
-    if (willReplay && data.replay0) { setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }   // 2.6.88: until the replay reaches the piece that changes them the bars show what they were before the turn
-    else { if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); }   // the server draws a turn that waits for its replay with the bars as they stood BEFORE it (pfight_board_html): no replay here (seen already), so the new values
+    if (willReplay && data.replay0) { setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); setFoeGuard(data.replay0.fg); }   // 2.6.88: until the replay reaches the piece that changes them the bars show what they were before the turn
+    else { if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard); }   // the server draws a turn that waits for its replay with the bars as they stood BEFORE it (pfight_board_html): no replay here (seen already), so the new values
     if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
     else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
@@ -1241,7 +1241,7 @@
     if (!rewind) return;
     rewind = null; if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (c) { c.classList.remove('pf-chip-sel'); });
     if (rewindEl) rewindEl.hidden = true; root.classList.remove('pf-rewound');
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard);
     if (insp) insp.hidden = true; fxOn = true; render();
   }
   function enterRewind(c) {
@@ -1250,7 +1250,7 @@
     rewind = { sn: c.dataset.sn, id: +c.dataset.id || 0, chip: c, pieces: pcs };
     if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (x) { x.classList.remove('pf-chip-sel'); });
     c.classList.add('pf-chip-sel');
-    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g);
+    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g); setFoeGuard(c.dataset.fg);
     var rt = c.querySelector('.pfh-txt'); if (rwT) rwT.textContent = 'Rewound to: ' + (c.classList.contains('foe') ? (data.foe || 'Creature') : 'You') + ', ' + (rt ? rt.textContent : 'a move') + '.';
     if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
   }
@@ -1293,6 +1293,11 @@
     var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
     el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits. It fades when your turn starts, unless Hold keeps it');
   }
+  function setFoeGuard(g) {   // the creature's guard beside its bars: hidden at 0, follows the replay as it builds guard and your Hurts are blocked
+    var el = root.querySelector('.pf-fguard'); if (!el || g === null || g === undefined || g === '') return; g = Math.max(0, +g);
+    var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
+    el.hidden = g <= 0; el.setAttribute('aria-label', 'The creature\u2019s guard ' + g + ': it soaks up your Hurt pieces first. It clears when its next turn starts.');
+  }
   function setHp(v) {
     if (v === null || v === undefined || v === '') return;
     var h = root.querySelector('.pfc-top .pf-hp'), pr = h && h.querySelector('progress'); if (pr) pr.value = v;
@@ -1322,7 +1327,7 @@
     clearTimeout(turnTimer); if (turnEl && skipped === true) turnEl.hidden = true; replayDone();
     revealAllChips();
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard);
     if (insp) insp.hidden = true; root.classList.remove('pf-playing');
     var gone = boardEl.querySelectorAll('.pfb-gone');
     if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800 * RF / Math.max(1, SPD))); }
@@ -1336,7 +1341,7 @@
     try { window.sessionStorage.setItem(replayKey, '1'); } catch (e) {}
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
     if (skipBtn) skipBtn.hidden = false;
-    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
+    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); setFoeGuard(data.replay0.fg); }
     if (!SPD) { render(); stopPlay(true); return; }   // speed: skip
     replayStart();
     RF = replayScale(); banMs = 700;   // 2.6.96: at most 5 s from End turn at 1x: the creature's banner is short, no banner for your own chain or for the environment, the steps shrink to fit
@@ -1360,7 +1365,7 @@
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); if (c && ev.strike) { c.classList.add('pfv-struck'); var sk = c; setTimeout(function () { sk.classList.remove('pfv-struck'); }, 900); } var pc = pieceById(ev.id); if (pc && ev.env !== 'place') { picked = ev.id; if (!dockOn) showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.fh !== null && ev.fh !== undefined) setFh(ev.fh, data.fhmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
-        setGuard(ev.g);
+        setGuard(ev.g); setFoeGuard(ev.fg);
       }, tt));
       tt += step;
     });

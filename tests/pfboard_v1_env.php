@@ -1,6 +1,6 @@
 <?php
-/** An envlog without the bars each note keeps ('now' = [charm bar, creature bar, your health, your guard] after that note: the replay step shows them); the checks below compare the rest. */
-if (!function_exists('pfb_test_nonow')) { function pfb_test_nonow(array $log): array { return array_map(fn($L) => is_array($L['now'] ?? null) && count($L['now']) === 4 ? array_diff_key($L, ['now' => 1]) : $L + ['now' => 'MISSING'], $log); } }
+/** An envlog without the bars each note keeps ('now' = [charm bar, creature bar, your health, your guard, the creature's guard] after that note: the replay step shows them); the checks below compare the rest. */
+if (!function_exists('pfb_test_nonow')) { function pfb_test_nonow(array $log): array { return array_map(fn($L) => is_array($L['now'] ?? null) && count($L['now']) === 5 ? array_diff_key($L, ['now' => 1]) : $L + ['now' => 'MISSING'], $log); } }
 // 2.6.75 ENVIRONMENT PIECES (section 13 of tests/pfboard_v1.php, which includes this file: it uses that file's helpers chk, v1_bare, v1_tile, v1_put, v1_place, v1_env, v1_me, v1_foe).
 // Each check: arrange a small board, act through the engine, assert exact numbers. Data lint of game/includes/data/pf_env.txt first.
 
