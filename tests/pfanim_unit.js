@@ -40,6 +40,33 @@ for (const [t, tag, want] of [['hurt', 'poison', 'drip'], ['hurt', 'quick', 'sho
   ok(`fallback ${t}/${tag} -> ${want}`, A.look({ by: 'me', n: 'No Such Piece ' + t + tag, t, tag }).fam === want && A.look({ by: 'foe', n: 'No Such', t, tag }, 'no-such-creature').fam === want);
 ok('a creature piece with no data is heavy (creature variant)', A.look({ by: 'foe', n: 'Zzz', t: 'hurt', tag: '' }, 'nobody').h === true);
 ok('the environment: Sun sparkles, Bramble thorns', A.look({ by: 'env', kind: 'sun', n: 'Sun', t: 'env' }).fam === 'sparkle' && A.look({ by: 'env', kind: 'bramble', n: 'Bramble', t: 'env' }).fam === 'thorn' && A.look({ by: 'env', kind: 'sun', n: 'Sun' }).env === true);
+// ---- 2.7.56 the environment's eight pieces: each kind has its own place motion, place effect and fire effect; they draw on a 2D context without errors or NaN
+//      at several times, on a 3x3 board and a 5x5 one (390 px wide page = the same art pixels), in every arrow direction, with and without a target / push / falls
+const KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn', 'quake', 'spring'];
+ok('every environment kind has an effect module (' + A.envKinds().join(',') + ')', JSON.stringify(A.envKinds()) === JSON.stringify(KINDS.slice().sort()), A.envKinds());
+function stubCtx(bad) {
+  const num = (fn, a) => { for (const v of a) if (typeof v === 'number' && !isFinite(v)) bad.push(fn + ' ' + JSON.stringify(a)); };
+  const c = { n: 0, _a: 1, set globalAlpha(v) { if (typeof v !== 'number' || !isFinite(v)) bad.push('alpha ' + v); this._a = v; }, get globalAlpha() { return this._a; }, fillStyle: '', strokeStyle: '', lineWidth: 1 };
+  for (const fn of ['fillRect', 'strokeRect', 'rect', 'translate', 'rotate', 'drawImage', 'moveTo', 'lineTo']) c[fn] = function (...a) { num(fn, a); if (fn === 'fillRect' || fn === 'strokeRect') c.n++; };
+  for (const fn of ['save', 'restore', 'beginPath', 'clip', 'stroke', 'fill']) c[fn] = () => {};
+  c.createPattern = () => null; return c;
+}
+for (const kind of KINDS) {
+  let errs = [], bad = [], drawnPl = 0, drawnFi = 0, maxN = 0, motionOk = true;
+  for (const [w, x, y, tg, dir] of [[3, 1, 1, { x: 0, y: 1, id: 2 }, 'R'], [5, 2, 2, { x: 2, y: 1, id: 3 }, 'T'], [5, 0, 4, null, 'L'], [5, 4, 0, { x: 4, y: 1, id: 4 }, 'B']]) {
+    const o = { w, x, y, tg, dir, fr: x % 2 ? 'me' : 'foe', mv: kind === 'wind' && tg ? { id: 9, fx: x + 1, fy: y, tx: x + 2, ty: y } : null, falls: kind === 'quake' ? [{ id: 7, x: Math.max(0, x - 1), y }] : [] };
+    for (const ms of [0, 1, 150, 240, 300, 450, 599, 600]) {
+      try { const ps = A.envDraw(kind, 'ps', ms, null, o); if (!ps || !['s', 'q', 'x', 'y', 'r', 'sh', 'a'].every(k => isFinite(ps[k] || 0))) motionOk = false;
+        const c = stubCtx(bad), n = A.envDraw(kind, 'pl', ms, c, o); drawnPl += c.n; maxN = Math.max(maxN, n); } catch (e) { errs.push('pl ' + ms + ' ' + e.message); } }
+    for (const ms of [0, 1, 100, 300, 500, 700, 900, 1100, 1199, 1200]) {
+      try { const c = stubCtx(bad), n = A.envDraw(kind, 'fi', ms, c, o); drawnFi += c.n; maxN = Math.max(maxN, n); } catch (e) { errs.push('fi ' + ms + ' ' + e.message); } }
+  }
+  ok(`env ${kind}: place motion, place effect and fire effect draw with no error`, errs.length === 0, errs.slice(0, 3));
+  ok(`env ${kind}: no NaN / Infinity reaches the canvas`, bad.length === 0, bad.slice(0, 3));
+  ok(`env ${kind}: the place motion is a finite transform at every time`, motionOk);
+  ok(`env ${kind}: the place effect draws (${drawnPl}) and the fire effect draws (${drawnFi})`, drawnPl > 0 && drawnFi > 0, [drawnPl, drawnFi]);
+  ok(`env ${kind}: stays in the glyph budget (max ${maxN} particles a frame of 220)`, maxN <= 220, maxN);
+}
 // ---- perimeter
 const F = { L: 'f', R: 'f', T: 'f', B: 'f' }, cells = a => a.map(([x, y], i) => ({ id: i, x, y, e: F }));
 const BW = 56, BH = 47;
