@@ -1,6 +1,7 @@
 <?php
 // Playtest DATA COLLECTION for the v1 puzzle-fight board (Josh 2026-11-22: the 10-creature test). No DB, the REAL engine, ground truth from the engine state and events.
 //   php tests/pf_collect.php OUTDIR [SHARD/NSHARDS=0/1] [SLUGS=the 10] [SEEDS=3]       one shard: writes OUTDIR/<table>.<shard>.csv
+//   GRID=cp php tests/pf_collect.php OUTDIR SHARD/N all 3   creature-piece run: all creatures x chain, look x Balanced, Grit x offsets 0, -4 (lean; fights, pieces, creature_pieces)
 //   php tests/pf_collect.php profiles OUTDIR                                            the Gnome profiles table (stats, HP and unlocks by level per profile)
 //   Tables: fights, turns, options (one row per legal option per turn: CSV only, too big for a sheet), regret, pieces. tests/pf_collect_agg.py merges the shards,
 //   builds the runs row, the Sonnet findings and the sheet-sized summaries.
@@ -109,7 +110,8 @@ $PC_H = [
    'gnome_level', 'offset', 'profile', 'stat_points_spent', 'grit', 'nimble', 'hardiness', 'charm', 'lore', 'luck', 'sense', 'mod_grit', 'mod_nimble', 'mod_hardiness', 'mod_charm', 'mod_lore', 'mod_luck', 'max_hp',
    'deck_size', 'deck_by_source', 'deck_by_type', 'tool_tiers', 'pals', 'crops', 'crafts', 'calling', 'calling_tier', 'build', 'bot', 'seed',
    'result', 'win', 'end_reason', 'turns', 'hp_lost', 'hp_left', 'hp_lost_pct', 'damage_end', 'charm_end', 'bar_fill_pct', 'passes', 'refused', 'flips', 'longest_chain', 'chain_count', 'combos', 'teamwork_fires', 'env_pieces_fired_mine', 'turn_cap_hit',
-   'forecast_n', 'forecast_abs_err_mean', 'regret_look_mean', 'dead_hand_turns', 'secs'],
+   'forecast_n', 'forecast_abs_err_mean', 'regret_look_mean', 'dead_hand_turns', 'secs',
+   'cr_pieces_total', 'cr_pieces_placed', 'cr_pieces_fired', 'cr_dmg_total', 'cr_blocked_total'],
  'turns' => ['fight_id', 'turn', 'bot', 'profile', 'creature', 'offset', 'hp_start', 'hp_end', 'max_hp', 'dmg_start', 'dmg_end', 'charm_start', 'charm_end', 'bar_max', 'my_guard', 'creature_guard', 'draw_n', 'discard_n', 'board', 'env_next', 'hazards',
    'hand', 'legal_n', 'chosen', 'chosen_piece', 'chosen_cell', 'chosen_flip', 'pv_d', 'pv_c', 'pv_h', 'pv_n', 'pv_flags', 'aim_cell', 'aim_piece', 'aim_forecast_before', 'aim_forecast_after',
    'my_chain_len', 'my_pieces_fired', 'used_up', 'act_dmg', 'act_charm', 'act_hp_lost_my_chain', 'pred_d_err', 'pred_c_err', 'pred_h_err',
@@ -118,6 +120,8 @@ $PC_H = [
  'options' => ['fight_id', 'turn', 'opt', 'piece', 'hand_idx', 'cell', 'flip', 'd', 'c', 'h', 'n', 'used_up', 'teamwork', 'sun', 'evade_miss', 'pal_knock', 'end', 'guard_gain', 'evade_risk', 'aim_forecast_hp', 'aim_broken',
    'turn_hp_lost', 'turn_dmg', 'turn_charm', 'turn_over', 'die_after', 's_chain', 's_look', 's_newbie', 's_charm', 's_greedy', 's_defensive', 'useful', 'chosen'],
  'regret' => ['fight_id', 'turn', 'bot', 'profile', 'creature', 'offset', 'chosen', 'best_look', 'same', 'gap_look_value', 'gap_dmg', 'gap_charm', 'gap_hp_lost', 'dead_hand', 'legal_n'],
+ 'creature_pieces' => ['fight_id', 'creature', 'size', 'creature_level', 'class_rule', 'bot', 'profile', 'offset', 'uid', 'key', 'name', 'type', 'tag', 'mod', 'base', 'value', 'edges', 'drawn', 'placed', 'placed_turns', 'fired', 'fired_own', 'fired_mine',
+   'fired_val', 'dmg', 'blocked', 'evaded', 'evaded_dmg', 'guard_gain', 'healed', 'riposte', 'quick', 'poisoned', 'tripped', 'grudge_fires', 'swarm_fires', 'swarm_bonus', 'ambush', 'bait_dmg', 'struck', 'struck_broke', 'used_up', 'used_by_me', 'fell', 'expired', 'fight_win', 'fight_turns'],
  'pieces' => ['fight_id', 'uid', 'key', 'name', 'type', 'base', 'stat', 'stat_contrib', 'level_contrib', 'bonus', 'value', 'source', 'rank', 'tag', 'edges', 'drawn', 'played', 'fired', 'flipped', 'expired', 'used_up', 'fell', 'dmg', 'charm', 'hp'],
 ];
 
@@ -128,16 +132,24 @@ function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $
     $t0 = microtime(true); mt_srand($seed); $rng = fn(int $n) => $n > 0 ? mt_rand(0, $n - 1) : 0;
     [$pl, $pm] = pc_player($lv, $prof, $ctrl, $build);
     $region = array_keys(pfd_region_pieces())[(crc32($c['slug']) + $seed) % 14]; $cr = pfd_foe_row($c, $region);
+    foreach ($cr['deck'] as $i => $ft0) $cr['deck'][$i]['uid'] = $i;   // our tracking id for creature pieces
     $s = pfb_new($pl, $cr, $seed, ['blank' => true, 'v1' => true]);
     $fid ??= pc_fid($c['slug'], $lv, $bot, $prof, $seed, $ctrl, $build, $d);
     $P = []; foreach ($pl['deck'] as $i => $t) $P[$i] = ['drawn' => 0, 'played' => 0, 'fired' => 0, 'flipped' => 0, 'expired' => 0, 'used_up' => 0, 'fell' => 0, 'dmg' => 0.0, 'charm' => 0.0, 'hp' => 0];
     $idu = []; $prevHand = [];
+    $CT = []; $CC = []; $idc = []; $prevFH = [];   // creature pieces: tile by uid, counters by uid, board id -> uid
+    foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $ft0) if (isset($ft0['uid'])) { $CT[$ft0['uid']] = $ft0; $CC[$ft0['uid']] = array_fill_keys(['drawn', 'placed', 'fired', 'fired_own', 'fired_mine', 'fired_val', 'dmg', 'blocked', 'evaded', 'evaded_dmg', 'guard_gain', 'healed', 'riposte', 'quick', 'poisoned', 'tripped', 'grudge_fires', 'swarm_fires', 'swarm_bonus', 'ambush', 'bait_dmg', 'struck', 'struck_broke', 'used_up', 'used_by_me', 'fell', 'expired'], 0) + ['turns' => []]; }
+    foreach ($s['foe']['hand'] as $ft0) { $CC[$ft0['uid']]['drawn']++; $prevFH[$ft0['uid']] = 1; }
+    $cscan = function (int $tn) use (&$s, &$idc, &$CC) { foreach ($s['pcs'] as $q) if ($q['by'] === 'foe' && isset($q['tile']['uid']) && !isset($idc[$q['id']])) { $idc[$q['id']] = $q['tile']['uid']; $CC[$q['tile']['uid']]['placed']++; $CC[$q['tile']['uid']]['turns'][] = $tn; }
+        foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'foe' && isset($g['tile']['uid']) && !isset($idc[$g['id']])) { $idc[$g['id']] = $g['tile']['uid']; $CC[$g['tile']['uid']]['placed']++; $CC[$g['tile']['uid']]['turns'][] = $tn; } };
+    $cscan(0);
     $hand = $s['me']['hand'];
     foreach ($hand as $t) { $P[$t['uid']]['drawn']++; $prevHand[$t['uid']] = 1; }
     if ($hand) { $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i; $su = $hand[$bi]['uid']; pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$seed % 4]); $P[$su]['played']++; foreach ($s['pcs'] as $p) if ($p['by'] === 'me') $idu[$p['id']] = $p['tile']['uid']; }
     $F = ['passes' => 0, 'refused' => 0, 'flips' => 0, 'longest' => 0, 'chains' => 0, 'combos' => [], 'tw' => 0, 'envmine' => 0, 'fcn' => 0, 'fcerr' => 0.0, 'reg' => 0.0, 'regn' => 0, 'dead' => 0];
     $t = 0;
     while (!$s['over'] && $t++ < 40) {
+        if ($t > 1) { $nf = []; foreach ($s['foe']['hand'] as $ft0) { if (isset($ft0['uid']) && !isset($prevFH[$ft0['uid']])) $CC[$ft0['uid']]['drawn']++; if (isset($ft0['uid'])) $nf[$ft0['uid']] = 1; } $prevFH = $nf; }
         if ($t > 1) { $nh = []; foreach ($s['me']['hand'] as $ht) { if (!isset($prevHand[$ht['uid']])) $P[$ht['uid']]['drawn']++; $nh[$ht['uid']] = 1; } $prevHand = $nh; }
         $places = tv_places($s); $a = pb_choose($s, $bot, $places, $rng);
         $hp0 = (int)$s['me']['hp']; $fh0 = (float)$s['fh']['now']; $b0 = (float)$s['bar']['now']; $max = (int)$s['me']['max'];
@@ -161,7 +173,8 @@ function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $
         $chUid = is_int($a[0]) ? ($s['me']['hand'][$a[0]]['uid'] ?? null) : null;
         if ($a[0] === 'pass') $F['passes']++; if (!empty($a[3])) { $F['flips']++; if ($chUid !== null) $P[$chUid]['flipped']++; }
         foreach ($s['pcs'] as $p) if ($p['by'] === 'me' && isset($p['tile']['uid'])) $idu[$p['id']] = $p['tile']['uid'];
-        $s0hand = $s['me']['hand']; $r = tv_act($s, $a);
+        $s0hand = $s['me']['hand']; $fhk = []; foreach ($s['foe']['hand'] as $ft0) if (isset($ft0['uid']) && !isset($fhk[$ft0['k']])) $fhk[$ft0['k']] = $ft0['uid'];
+        $r = tv_act($s, $a);
         if ($r['err']) { $F['refused']++; $chUid = null; $r = pfb_pass($s, $s['turn']); if ($r['err']) { if (!$places) break; $r = tv_act($s, $places[0]); if ($r['err']) break; $chUid = is_int($places[0][0]) ? ($s0hand[$places[0][0]]['uid'] ?? null) : null; } }
         if ($chUid !== null) $P[$chUid]['played']++;
         // parse the events: my chain, the creature's reply, the terrain
@@ -188,6 +201,22 @@ function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $
                 if ($by === 'me' && isset($e['id'])) { $X['fm']++; $X['bait'] += (float)($e['fh'] ?? 0); }
             }
         }
+        $cscan($t);
+        foreach ($r['ev'] as $e) {   // creature pieces: whose piece fired, what it did
+            if (($e['by'] ?? '') !== 'foe') continue;
+            if (!empty($e['strike'])) { $u = $fhk[$e['k']] ?? null; if ($u !== null) { $CC[$u]['struck']++; $CC[$u]['fired']++; $CC[$u]['fired_val'] += (int)$e['v']; if (!empty($e['broke'])) $CC[$u]['struck_broke']++; } continue; }
+            if (!isset($e['id']) || !isset($idc[$e['id']]) || !isset($e['barnow'])) continue;
+            $u = $idc[$e['id']]; $C = &$CC[$u]; $C['fired']++; if (($e['ta'] ?? '') === 'me') $C['fired_mine']++; else $C['fired_own']++; $C['fired_val'] += (int)$e['v'];
+            if (($e['t'] ?? '') === 'hurt') { $C['dmg'] += (int)($e['dmg'] ?? 0); $C['blocked'] += (int)($e['blocked'] ?? 0); if (isset($e['evaded'])) { $C['evaded']++; $C['evaded_dmg'] += (int)$e['evaded']; } if (($e['ta'] ?? '') === 'me') $C['bait_dmg'] += (int)($e['dmg'] ?? 0); }
+            if (($e['t'] ?? '') === 'guard') $C['guard_gain'] += (int)$e['v'];
+            if (isset($e['healed'])) $C['healed'] += (float)$e['healed'];
+            if (($e['combo'] ?? '') === 'Riposte') { $C['riposte']++; $C['dmg'] += (int)($e['reflect'] ?? 0); }
+            if (!empty($e['root']) && ($e['tag'] ?? '') === 'quick') $C['quick']++;
+            if (isset($e['poisoned'])) $C['poisoned']++; if (isset($e['tripped'])) $C['tripped']++;
+            if (!empty($e['gr'])) $C['grudge_fires']++; if (!empty($e['sw'])) { $C['swarm_fires']++; $C['swarm_bonus'] += (int)$e['sw']; } if (!empty($e['amb'])) $C['ambush']++;
+            unset($C);
+        }
+        foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'foe' && isset($g['tile']['uid'])) { $u = $g['tile']['uid']; if (isset($g['used'])) { $CC[$u]['used_up']++; if ($g['used'] === 'me') $CC[$u]['used_by_me']++; } elseif (!empty($g['fell'])) $CC[$u]['fell']++; else $CC[$u]['expired']++; }
         // the first creature chain starts after my chain: recompute health at its start
         $hpMid = $hp0;
         foreach ($r['ev'] as $e) if (($e['ta'] ?? '') === 'me' && isset($e['hpnow'])) $hpMid = (int)$e['hpnow'];
@@ -220,7 +249,11 @@ function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $
         (int)$s['turn'], $pm['max'] - max(0, (int)$s['me']['hp']), max(0, (int)$s['me']['hp']), round(1 - max(0, (int)$s['me']['hp']) / max(1, $pm['max']), 3),
         round($s['fh']['now'], 1), round($s['bar']['now'], 1), round(($s['fh']['now'] + $s['bar']['now']) / max(1, $s['fh']['max']), 3),
         $F['passes'], $F['refused'], $F['flips'], $F['longest'], $F['chains'], $kv($F['combos']), $F['tw'], $F['envmine'], $cap,
-        $F['fcn'], $F['fcn'] ? round($F['fcerr'] / $F['fcn'], 2) : '', $full && $F['regn'] ? round($F['reg'] / $F['regn'], 4) : '', $full ? $F['dead'] : '', round(microtime(true) - $t0, 2)]);
+        $F['fcn'], $F['fcn'] ? round($F['fcerr'] / $F['fcn'], 2) : '', $full && $F['regn'] ? round($F['reg'] / $F['regn'], 4) : '', $full ? $F['dead'] : '', round(microtime(true) - $t0, 2),
+        count($CT), array_sum(array_map(fn($c) => $c['placed'], $CC)), array_sum(array_map(fn($c) => $c['fired'], $CC)), array_sum(array_map(fn($c) => $c['dmg'], $CC)), array_sum(array_map(fn($c) => $c['blocked'], $CC))]);
+    if ($wantPieces && isset($out['creature_pieces'])) foreach ($CT as $u => $tl) { $k = $CC[$u]; $q = $k; unset($q['turns']);
+        pc_csv($out['creature_pieces'], [$fid, $c['slug'], $c['size'], $c['level'], $kind, $bot, $prof, $d, $u, $tl['k'], $tl['n'], $tl['t'], (string)($tl['tag'] ?? ''), (string)($tl['m'] ?? ''), (int)($cr['deck'][$u]['v'] ?? 0), (int)$tl['v'], pc_e($tl),
+            $k['drawn'], $k['placed'], implode(' ', $k['turns']), $k['fired'], $k['fired_own'], $k['fired_mine'], $k['fired_val'], $k['dmg'], $k['blocked'], $k['evaded'], $k['evaded_dmg'], $k['guard_gain'], round($k['healed'], 1), $k['riposte'], $k['quick'], $k['poisoned'], $k['tripped'], $k['grudge_fires'], $k['swarm_fires'], $k['swarm_bonus'], $k['ambush'], $k['bait_dmg'], $k['struck'], $k['struck_broke'], $k['used_up'], $k['used_by_me'], $k['fell'], $k['expired'], $win, (int)$s['turn']]); }
     if ($wantPieces) foreach ($pl['deck'] as $i => $tl) {
         $e = $pm['ent'][$i]; $st = PF_STAT[$tl['t']] ?? ''; $sc = max(0, (int)($pm['mods'][$st] ?? 0)); $lc = intdiv(max(1, $lv), 3);
         pc_csv($out['pieces'], [$fid, $i, $e['k'], $tl['n'], $tl['t'], (int)$e['v'], $st, $sc, $lc, (int)$tl['v'] - (int)$e['v'] - $sc - $lc, (int)$tl['v'], $e['src'], (int)$e['rank'], $tl['tag'] . (($tl['m'] ?? '') ? '+' . $tl['m'] : ''), pc_e(pfb_v1_tile($tl, $s['v1'])),
@@ -249,6 +282,13 @@ function pc_jobs_full(array $slugs, int $seeds): array
         foreach ($blocks as [$bots, $profs, $offs, $builds]) foreach ($builds as $bd) foreach ($bots as $b) foreach ($profs as $p) foreach ($offs as $d) for ($k = 0; $k < $seeds; $k++) $J[] = [$sl, $b, $p, $d, $k, null, $bd];
         if ($i++ % 5 === 0) foreach (['chain', 'look'] as $b) for ($k = 0; $k < $seeds; $k++) foreach (PC_FIGHT6 as $st) foreach ([2, -2] as $dv) $J[] = [$sl, $b, 'Balanced', 0, $k, [$st, $dv], 'std'];
     }
+    return $J;
+}
+
+/** GRID=cp (creature pieces): every creature x bots chain and look x profiles Balanced and Grit x offsets 0 and -4 x seeds, build std. LEAN (chosen option priced only), the fights, pieces and creature_pieces tables only. */
+function pc_jobs_cp(array $slugs, int $seeds): array
+{
+    $J = []; foreach ($slugs as $sl) foreach (['chain', 'look'] as $b) foreach (['Balanced', 'Grit'] as $p) foreach ([0, -4] as $d) for ($k = 0; $k < $seeds; $k++) $J[] = [$sl, $b, $p, $d, $k, null, 'std'];
     return $J;
 }
 
@@ -282,8 +322,9 @@ $meta0 = ['run' => getenv('RUN_ID') ?: 'pfc-' . date('Ymd'), 'ver' => '2.7.48', 
 if (preg_match("/define\('APP_VERSION', '([^']+)'/", (string)@file_get_contents(__DIR__ . '/../game/includes/bootstrap.php'), $mm)) $meta0['ver'] = $mm[1];
 $n = 0;
 $fullGrid = getenv('GRID') === 'full'; $only = ($f = getenv('ONLY')) ? array_flip(array_filter(array_map('trim', file($f)))) : null;
-if ($slugs === PC_SLUGS && $fullGrid) $slugs = array_keys($all);
-foreach (($fullGrid ? pc_jobs_full($slugs, $seeds) : pc_jobs($slugs, $seeds)) as $ji => $job) {
+$cpGrid = getenv('GRID') === 'cp';
+if ($slugs === PC_SLUGS && ($fullGrid || $cpGrid)) $slugs = array_keys($all);
+foreach (($cpGrid ? pc_jobs_cp($slugs, $seeds) : ($fullGrid ? pc_jobs_full($slugs, $seeds) : pc_jobs($slugs, $seeds))) as $ji => $job) {
     [$sl, $b, $p, $d, $k, $ctrl] = $job; $bd = $job[6] ?? 'std';
     if ($ji % $nsh !== $shard) continue; if ($lim && $n >= $lim) break;
     $c = $all[$sl]; $lv = max(1, $c['level'] + $d); $seed = 500 + 13 * $k + $c['level'] + 1000 * (crc32($sl) % 97);
@@ -291,6 +332,6 @@ foreach (($fullGrid ? pc_jobs_full($slugs, $seeds) : pc_jobs($slugs, $seeds)) as
     if ($only !== null && !isset($only[$fid])) continue;
     $n++;
     // lean: only the chosen option priced; pieces kept for chain, seed 0, offset 0 (+ every full-pass fight)
-    pc_fight($c, $lv, $b, $p, $seed, $d, $ctrl, $out, $meta0, $bd, $only !== null || !$fullGrid, $only !== null || !$fullGrid || ($b === 'chain' && $k === 0 && $d === 0 && !$ctrl), $fid);
+    pc_fight($c, $lv, $b, $p, $seed, $d, $ctrl, $out, $meta0, $bd, $only !== null || (!$fullGrid && !$cpGrid), $cpGrid || $only !== null || !$fullGrid || ($b === 'chain' && $k === 0 && $d === 0 && !$ctrl), $fid);
 }
 fwrite(STDERR, "shard $shard: $n fights\n");
