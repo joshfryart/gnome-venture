@@ -18,7 +18,7 @@ All times at 1x. z-order (bottom to top): piece cell (z by DOM) < `.pfb-glow` 2 
 |---|---|---|---|---|
 | 0-180 | raise | scale .90 -> 1.10 (ease-out), y 0 -> -3 px, opacity 0 -> 1 in 60 ms | offset grows 0 -> (3,5) px | "lifted from the table" |
 | 180-230 | click | scale 1.10 -> .97, y -3 -> +1 | collapses to 0 | at 230: one 50 ms bright outline frame (impact) |
-| 230-470 | wiggle | rotate +-2.6 deg, 2.5 damped swings, x +-1.2 px, scale .97 -> 1 | none | settles to rest |
+| 230-470 | wiggle | rotate +-3.4 deg, 2.5 damped swings, x +-2.6 px (Josh 2026-11-22: a bit more side to side), scale .97 -> 1 | none | settles to rest |
 | 230-400 | sound lines | 3-6 short strokes, 2 px, grow 6 -> 12 px and vanish (last 40 ms stipple) | - | style per piece: click (4 corner dashes), pop (arc of 6 lines), tink (3 small crosses), zig (buzz zigzags), thud (2 low lines + dust) |
 Sound lines are a burst sprite on the FX canvas (4 frames x 40 ms), colour from the piece's family. No audio. The wiggle never moves the hit area (the cell box does not move; only the inner canvas transforms).
 Who gets it: every piece that appears during a replay (yours, the creature's, `p.fnew`), at its reveal step (`revealId`), also env pieces in a plainer variant (`raise`+`click`, no wiggle). Not on first load, history rewind, or `hiddenIds` re-renders.

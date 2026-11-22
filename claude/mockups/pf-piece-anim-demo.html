@@ -92,7 +92,7 @@ function placeState(dt, reduce) {
   if (dt < 180) { u = eo(dt / 180); return { s: .90 + .20 * u, x: 0, y: -3 * u, r: 0, sh: u, a: Math.min(1, dt / 60), hit: 0 }; }   /* raise: grows as if lifted from the table */
   if (dt < 230) { u = (dt - 180) / 50; return { s: 1.10 - .13 * u, x: 0, y: -3 + 4 * u, r: 0, sh: 1 - u, a: 1, hit: 0 }; }          /* click: snaps down */
   if (dt < 470) { u = (dt - 230) / 240; var d = Math.pow(1 - u, 1.5), w = Math.sin(u * Math.PI * 5);   /* wiggle: 2.5 damped swings */
-    return { s: .97 + .03 * eo(u), x: 1.2 * Math.sin(u * Math.PI * 5 + 1) * d, y: 1 - u, r: .045 * w * d, sh: 0, a: 1, hit: dt < 280 ? 1 : 0 }; }
+    return { s: .97 + .03 * eo(u), x: 2.6 * Math.sin(u * Math.PI * 5 + 1) * d, y: 1 - u, r: .06 * w * d, sh: 0, a: 1, hit: dt < 280 ? 1 : 0 }; }
   return { s: 1, x: 0, y: 0, r: 0, sh: 0, a: 1, hit: 0 };
 }
 /* sound lines, 230..400 ms after placing: style per piece (click, pop, tink, zig) */
