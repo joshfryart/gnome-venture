@@ -519,7 +519,7 @@
   }
 
   // ------------------------------------------------------------------ v1 board rules (pfboard.php "v1 board rules"; a fight started with opt.v1 carries s.v1, every other fight plays as before)
-  var PFB_SIZE = { small: [4, 4], medium: [4, 4], large: [4, 4], boss: [4, 4] };
+  var PFB_SIZE = { small: [3, 3], medium: [4, 4], large: [5, 5], boss: [5, 5] };   // 2.7.55: small 3x3, medium 4x4, large and boss 5x5
   var PFB_GROUND = { small: [2, 2, 1], medium: [3, 2, 1], large: [3, 3, 1], boss: [4, 3, 1] }, PFB_GROUND_DIST = [1, 2];
   var PFB_EVENTS = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];
   var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble', poison: 'Poison', place: 'Environment', pass: 'Environment', expire: 'Environment' };
@@ -534,7 +534,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.8;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 0, abil: 0, style: 0, cset: 0, envopen: 0, tagfx: 0, paltgt: 0, firex: 0 };   // paltgt (2.7.08): pal targeting (pfb_pal_target)
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, nothorn: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 0, abil: 0, style: 0, cset: 0, envopen: 0, tagfx: 0, paltgt: 0, firex: 0, aoe: 0, envmax: 0, envonce: 0 };   // aoe / envmax / envonce (2.7.55)   // paltgt (2.7.08): pal targeting (pfb_pal_target)
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -648,7 +648,9 @@
   function v1Lvx(c, lv) { return round(Math.max(Number(c[2]), Math.min(Number(c[3]), 1 + Number(c[0]) * (lv - toInt(c[1])))), 4); }   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
-  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 2, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.20, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
+  var PFB_ENV_BIG = ['quake', 'spring'], PFB_ENV_BIG_SIZES = ['large', 'boss'], PFB_QUAKE_N = 2, PFB_SPRING = 0.10;   // 2.7.55: Tremor and Spring, large and boss decks only
+  var PFB_ENV_MAX = { small: 1, medium: 3, large: 5, boss: 5 }, PFB_ENV_ONCE = { small: 1, medium: 0, large: 0, boss: 0 };   // 2.7.55 field cap; a small fight's env piece fires once
+  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn', 'quake', 'spring'], PFB_ENV_N = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.20, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
   var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
   // 2.7.09 wear piece effects: the rows of game/includes/data/wear_fx.txt (comments left out; tests/pfengine_js.sh checks they match pfb_wx_data)
   var PFB_WEAR_FX_ROWS = [
@@ -810,9 +812,11 @@
     ['rain', 'Rain', 'rain', 'hc,kb,km,hm', 3, [2, 2, 2, 2], 'Fire it in your chain: you get guard.'],
     ['wind', 'Wind', 'wind', 'hb,kc,hm,km', 2, [1, 1, 1, 1], 'Fire it in your chain: the piece its arrow points at slides one cell.'],
     ['mud', 'Mud', 'mud', 'f,f,f,f', 3, [1, 1, 1, 1], 'Nothing links to it, and a piece next to it counts a quarter less.'],
-    ['thorn', 'Thornburst', 'thorn', 'hm,kb,hc,kc', 3, [1, 2, 2, 2], 'Fire it in your chain and you lose a tenth of your health. The creature loses half as much.']
+    ['thorn', 'Thornburst', 'thorn', 'hm,kb,hc,kc', 3, [1, 2, 2, 2], 'Fire it in your chain and you lose a tenth of your health. The creature loses half as much.'],
+    ['quake', 'Tremor', 'quake', 'hc,kb,hm,km', 2, [0, 0, 1, 1], 'Fire it in your chain: up to two of the other side\'s pieces touching it fall off the board.'],
+    ['spring', 'Spring', 'spring', 'hm,kc,hb,kc', 3, [0, 0, 1, 1], 'Fire it in your chain: you recover a tenth of your health. If the creature fires it, its Yield bar empties a tenth.']
   ];
-  var PFB_ENV_REGIONS = { NA: { wind: 1 }, CA: { sun: 1 }, CB: { sun: 1 }, SA: { rain: 1 }, NWE: { rain: 1 }, SE: { sun: 1 }, EE: { bramble: 1 }, MENA: { wind: 1 }, WCA: { bramble: 1 }, ESA: { thorn: 1 }, CSA: { mud: 1 }, EA: { rain: 1 }, SEA: { rain: 1, mud: 1 }, OC: { wind: 1 } };
+  var PFB_ENV_REGIONS = { NA: { wind: 1, quake: 1 }, CA: { sun: 1, quake: 1 }, CB: { sun: 1, spring: 1 }, SA: { rain: 1, spring: 1 }, NWE: { rain: 1, spring: 1 }, SE: { sun: 1, spring: 1 }, EE: { bramble: 1, spring: 1 }, MENA: { wind: 1, quake: 1 }, WCA: { bramble: 1, quake: 1 }, ESA: { thorn: 1, quake: 1 }, CSA: { mud: 1, quake: 1 }, EA: { rain: 1, spring: 1 }, SEA: { rain: 1, mud: 1, spring: 1 }, OC: { wind: 1, quake: 1 } };
   var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
 
   function isNumeric(v) { return (typeof v === 'number' && isFinite(v)) || (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v))); }
@@ -842,9 +846,9 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,   // 2.7.06: Teamwork on again
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 0, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1, envopen: 0, tagfx: 1, paltgt: 1, firex: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 0, nothorn: 0, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0, abil: 1, style: 1, cset: 1, envopen: 0, tagfx: 1, paltgt: 1, firex: 1, aoe: 1, envmax: PFB_ENV_MAX[size], envonce: PFB_ENV_ONCE[size], quake: PFB_QUAKE_N, spring: PFB_SPRING };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, envopen: 1, tagfx: 1, paltgt: 1, firex: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, nothorn: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, abil: 1, style: 1, cset: 1, envopen: 1, tagfx: 1, paltgt: 1, firex: 1, aoe: 1, envmax: 1, envonce: 1, quake: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -879,6 +883,7 @@
       var p = T.pieces[key];
       if (nothorn && p.env === 'thorn') continue;
       if (nowm && (p.env === 'wind' || p.env === 'mud')) continue;
+      if (PFB_ENV_BIG.indexOf(p.env) >= 0 && PFB_ENV_BIG_SIZES.indexOf(size) < 0) continue;   // 2.7.55: Tremor and Spring only in large and boss fights
       var n = Math.max(0, toInt(p.w[size]) + toInt(nn(bias[p.env], 0)));
       for (var i = 0; i < n; i++) deck.push({ k: p.k, n: p.n, t: 'env', v: 0, r: null, tag: '', m: '', src: 'env', env: p.env, life: p.life, ed: clone(p.ed) });
     }
@@ -924,10 +929,13 @@
   function envPlace(s) {
     s.envlog = []; var keep = [];
     if (!s.env.next.length) s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0, now: envNow(s) });
+    var cap = v1r(s, 'envmax');   // 2.7.55 field cap (0 = none): its own Plant Brambles do not count
     s.env.next.forEach(function (tile) {
-      var full = Object.keys(s.cell).length >= Number(nn(s.v1.envcap, 1)) * pfbW(s) * pfbH(s);
+      var ne = 0; for (var pk in s.pcs) if (s.pcs[pk].by === 'env' && !truthy(s.pcs[pk].tile.own)) ne++;
+      var capd = cap > 0 && ne >= cap;
+      var full = capd || Object.keys(s.cell).length >= Number(nn(s.v1.envcap, 1)) * pfbW(s) * pfbH(s);
       var cs = full ? [] : envCells(s, tile);
-      if (!cs.length) { var P = { k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }; if (full) P.full = 1; P.now = envNow(s); s.envlog.push(P); keep.push(tile); return; }
+      if (!cs.length) { var P = { k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }; if (full) P.full = 1; if (capd) P.cap = cap; P.now = envNow(s); s.envlog.push(P); keep.push(tile); return; }
       var c = cs[rand(s, cs.length)], x = c[0], y = c[1];
       if (tile.env === 'wind') tile.dir = envWindDir(s, x, y);
       var id = ++s.pid; s.seq++;
@@ -959,6 +967,17 @@
         delete s.cell[x + ',' + y]; s.cell[nx + ',' + ny] = q.id; s.pcs[q.id].x = nx; s.pcs[q.id].y = ny;
         e.moved = { id: q.id, by: q.by, n: q.tile.n, x: nx, y: ny };
       }
+    } else if (kind === 'quake') {   // 2.7.55 Tremor: the other side's pieces touching it fall after the chain (spend)
+      var qs = [];
+      for (var qd in PFB_SIDE) { var qn = pieceAt(s, p.x + PFB_SIDE[qd][0], p.y + PFB_SIDE[qd][1]); if (qn && qn.by === ot) qs.push(qn); }
+      qs.sort(function (a, b) { return a.seq - b.seq; }); qs = qs.slice(0, toInt(nn(v1.quake, PFB_QUAKE_N)));
+      e.falls = qs.map(function (n) { return { id: toInt(n.id), by: n.by, n: String(n.tile.n) }; });
+      if (!s.qk) s.qk = [];
+      qs.forEach(function (n) { s.qk.push([toInt(n.id), rb]); });
+    } else if (kind === 'spring') {   // 2.7.55 Spring: the side that fires it recovers a share of its maximum
+      var sp = Number(nn(v1.spring, PFB_SPRING)), h;
+      if (rb === 'me') { h = Math.max(0, Math.min(toInt(s.me.max) - toInt(s.me.hp), Math.max(1, iround(sp * s.me.max)))); s.me.hp += h; e.heal = h; e.v = h; }
+      else { h = foeHeal(s, sp * Number(s.fh.max)); e.heal = round(h, 1); e.v = iround(h); }
     }
     e.me = toInt(e.me); e.foe = round(Number(e.foe), 1);
     return e;
@@ -1073,7 +1092,7 @@
   function envEvents(s) {
     return nn(s.envlog, []).map(function (L) {
       var e = { by: 'env', ta: 'env', env: L.k, tag: '', k: 'env:' + L.k, n: nn(PFB_EVENT_NAME[L.k], 'Terrain'), t: 'env', v: 0, fit: false, combo: null, x: L.x, y: L.y, me: L.me, foe: L.foe };
-      ['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full', 'drop'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
+      ['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full', 'drop', 'cap'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
       if (L.n !== undefined && L.n !== null) e.n = L.n;   // 2.6.75: an environment piece placed (or kept back): its name
       var nw = L.now ? L.now : envNow(s); e.barnow = nw[0]; e.fhnow = nw[1]; e.hpnow = nw[2]; e.gnow = nw[3]; e.fgnow = nw[4] !== undefined ? nw[4] : 0;
       return e;
@@ -1094,10 +1113,12 @@
           case 'thorn': return '🌵 Thornburst' + (c !== '' ? c : ': nothing happens') + '.';
           case 'rain': return '🌧️ Rain: ' + (mine ? 'you get ' : 'the ' + foe + ' gets ') + toInt(nn(e.guard, 0)) + ' guard.';
           case 'wind': return e.moved ? '💨 Wind: ' + whose(e.moved) + ' is pushed one cell.' : '💨 Wind: nothing moves.';
+          case 'quake': return (e.falls && e.falls.length) ? '🪨 Tremor: ' + e.falls.map(whose).join(' and ') + (e.falls.length === 1 ? ' falls' : ' fall') + ' off the board.' : '🪨 Tremor: nothing falls.';
+          case 'spring': return '⛲ Spring: ' + (mine ? 'you recover ' + toInt(nn(e.heal, 0)) + ' health.' : 'the ' + foe + ' recovers ' + iround(Number(nn(e.heal, 0))) + '.');
           default: return '🟫 ' + String(e.n) + '.';
         }
       case 'place': return '🍃 The environment places ' + String(e.n) + '.';
-      case 'pass': return (e.kind !== undefined && e.kind !== null) ? (truthy(e.full) ? '🍃 The board is full: the environment keeps ' + String(e.n) + '.' : '🍃 The environment finds no place for ' + String(e.n) + '.') : '🍃 The environment has no piece to place.';
+      case 'pass': return (e.kind !== undefined && e.kind !== null) ? (truthy(e.cap) ? '🍃 ' + toInt(e.cap) + ' environment piece' + (toInt(e.cap) === 1 ? ' is' : 's are') + ' out: the environment keeps ' + String(e.n) + ' for later.' : truthy(e.full) ? '🍃 The board is full: the environment keeps ' + String(e.n) + '.' : '🍃 The environment finds no place for ' + String(e.n) + '.') : '🍃 The environment has no piece to place.';
       case 'expire': return '🍂 ' + (nn(e.ids, []).length === 1 ? 'An environment piece fades.' : nn(e.ids, []).length + ' environment pieces fade.');
       case 'sunbeam': return '☀️ Sunbeam: a cell turns sunny' + (e.on ? ' under ' + whose(e.on) : '') + '.';
       case 'creep': return '🌿 Bramble creep: a cell turns to bramble' + (e.on ? ' under ' + whose(e.on) : '') + '.';
@@ -1592,7 +1613,7 @@
     if (n > 0 && firex) n += (boss ? PFB_FIREX_BOSS : 0) + (nn(p.tile.t, '') === 'guard' || nn(p.tile.tag, '') === 'hold' ? PFB_FIREX_HOLD : 0);   // 2.7.31 firex: bosses and guards stick longer
     return n;
   }
-  function fireLim(s, p) { return fireLimit(p, v1r(s, 'tagfx') === 1, v1r(s, 'firex') === 1, truthy(s.boss)); }
+  function fireLim(s, p) { if (p.by === 'env') return v1r(s, 'envonce') === 1 ? 1 : 0; return fireLimit(p, v1r(s, 'tagfx') === 1, v1r(s, 'firex') === 1, truthy(s.boss)); }
   function goneEntry(s, p, fell) {
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
@@ -1604,6 +1625,7 @@
   function spend(s) {
     var fired = nn(s.fired, []), by = nn(s.firedby, 'me'), froot = has(s, 'firedroot') ? s.firedroot : null, used = []; delete s.fired; delete s.firedby; delete s.firedroot;
     var wst = nn(s.wstay, []), wkn = nn(s.wkn, []); if (truthy(s.wfx)) { s.wstay = []; s.wkn = []; }   // 2.7.09 wear 'stay' and 'knock'
+    var qk = nn(s.qk, []); delete s.qk;   // 2.7.55 Tremor: [id, whose chain]
     if (s.over) return used;
     var lim3 = s.v1 ? toInt(nn(s.v1.limit, 0)) : 0;
     if (lim3 > 0 && fired.length >= lim3) {   // v1 USE-UP: a chain of 3 or more uses up every piece that fired
@@ -1629,6 +1651,11 @@
         delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
       }
     }
+    qk.forEach(function (k2) {   // 2.7.55 Tremor: they fall like a use-up by the side whose chain fired it
+      var kid = k2[0]; if (!has(s.pcs, kid)) return;
+      var q = s.pcs[kid]; discardPiece(s, q); q.used = k2[1]; if (!Array.isArray(s.spent)) s.spent = []; s.spent.push(q); venom(s, q); used.push(kid);
+      delete s.cell[q.x + ',' + q.y]; delete s.pcs[kid];
+    });
     wkn.forEach(function (kid) {   // 2.7.09 wear 'knock' (0 = its weakest piece) and 'kill'
       if (kid === 0) kid = wxFoePick(s, false);
       if (kid === null || !has(s.pcs, kid)) return;
@@ -2056,6 +2083,7 @@
     if (kind === 'beast' && toInt(s.me.hp) < hp0) s.foe.grudge = 0;   // Grudge: a hit that lands clears it
     if (truthy(s.wfx)) s.me.wx.hit = Math.max(0, hp0 - toInt(s.me.hp));   // 2.7.09
     if (kind === 'plant' && !truthy(s.over)) grow(s, ev);
+    if (s.aoed) aoeLand(s, ev);   // 2.7.55 the boss's marked AOE lands
     s.foe.agg = 0; s.foe.slow = 0;
     if (hasAb(s)) { delete s.infoe; s.foe.amb = 0; }   // 2.7.01: Ambush is for its first turn only
     return ev;
@@ -2097,7 +2125,100 @@
     }
   }
 
+  // ------------------------------------------------------------------ 2.7.55 BOSS AOE (pfb_aoe_* in pfboard.php, where the rule is explained)
+  var PFB_AOE_FIRST = 2, PFB_AOE_EVERY = 3;
+  var PFB_AOE = {
+    'coconut-crab-titan': ['sq2', 'break', 0.0, 'Husk Crush'], 'robber-crab-baron': ['pincer', 'drain', 0.05, 'Pincer Heist'], 'great-hawk': ['diag', 'hurt', 0.06, 'Shadow Swoop'],
+    'ancient-snapper': ['plus', 'break', 0.0, 'Snap'], 'reef-leviathan': ['row', 'hurt', 0.05, 'Tidal Sweep'], 'old-bramblehorn': ['ring', 'hurt', 0.04, 'Bramble Crown'],
+    'dune-wyrm': ['x', 'break', 0.0, 'Sand Burst'], 'snow-owl-monarch': ['corners', 'break', 0.0, 'Whiteout'], 'frost-owl-regent': ['diamond', 'hurt', 0.05, 'Rime Glare'],
+    'storm-eagle': ['col', 'hurt', 0.07, 'Lightning'], 'jade-jaguar': ['ell', 'drain', 0.05, 'Spirit Pounce']
+  };
+  var PFB_AOE_DEFAULT = ['plus', 'hurt', 0.05, 'Stomp'];
+  function aoeAnchors(shape, w, h) {
+    var o = [], x, y;
+    if (shape === 'row' || shape === 'pincer') { for (y = 0; y < h; y++) o.push([0, y]); }
+    else if (shape === 'col') { for (x = 0; x < w; x++) o.push([x, 0]); }
+    else if (shape === 'diag') o = [[0, 0], [1, 0]];
+    else if (shape === 'corners') o = [[0, 0]];
+    else if (shape === 'ell') o = [[0, 0], [1, 0], [0, 1], [1, 1]];
+    else if (shape === 'sq2') { for (y = 0; y < h - 1; y++) for (x = 0; x < w - 1; x++) o.push([x, y]); }
+    else { for (y = 1; y < h - 1; y++) for (x = 1; x < w - 1; x++) o.push([x, y]); }
+    return o;
+  }
+  function aoeCells(shape, ax, ay, w, h) {
+    var c = [], i, dx, dy;
+    if (shape === 'row') { for (i = 0; i < w; i++) c.push([i, ay]); }
+    else if (shape === 'col') { for (i = 0; i < h; i++) c.push([ax, i]); }
+    else if (shape === 'pincer') [0, 1, w - 2, w - 1].forEach(function (x) { c.push([x, ay]); });
+    else if (shape === 'diag') { for (i = 0; i < Math.min(w, h); i++) c.push([ax ? w - 1 - i : i, i]); }
+    else if (shape === 'corners') c = [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]];
+    else if (shape === 'ell') { var cx = ax ? w - 1 : 0, cy = ay ? h - 1 : 0, sx = ax ? -1 : 1, sy = ay ? -1 : 1; c = [[cx, cy], [cx + sx, cy], [cx + 2 * sx, cy], [cx, cy + sy], [cx, cy + 2 * sy]]; }
+    else if (shape === 'sq2') c = [[ax, ay], [ax + 1, ay], [ax, ay + 1], [ax + 1, ay + 1]];
+    else if (shape === 'plus') c = [[ax, ay], [ax - 1, ay], [ax + 1, ay], [ax, ay - 1], [ax, ay + 1]];
+    else if (shape === 'x') c = [[ax, ay], [ax - 1, ay - 1], [ax + 1, ay - 1], [ax - 1, ay + 1], [ax + 1, ay + 1]];
+    else if (shape === 'diamond') c = [[ax - 1, ay], [ax + 1, ay], [ax, ay - 1], [ax, ay + 1]];
+    else if (shape === 'ring') { for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) if (dx || dy) c.push([ax + dx, ay + dy]); }
+    var o = [], seen = {};
+    c.forEach(function (q) { var x = q[0], y = q[1]; if (x < 0 || y < 0 || x >= w || y >= h || seen[x + ',' + y]) return; seen[x + ',' + y] = 1; o.push([x, y]); });
+    return o;
+  }
+  function aoeIn(s) {
+    if (!s.aoed) return -1;
+    var r = toInt(s.round); if (r <= PFB_AOE_FIRST) return PFB_AOE_FIRST - r;
+    return (PFB_AOE_EVERY - (r - PFB_AOE_FIRST) % PFB_AOE_EVERY) % PFB_AOE_EVERY;
+  }
+  function aoeMark(s) {
+    if (!s.aoed) return;
+    s.aoe = null;
+    if (s.over || aoeIn(s) !== 0) return;
+    var shape = s.aoed[0], best = [], bn = -1;
+    aoeAnchors(shape, pfbW(s), pfbH(s)).forEach(function (a) {
+      var cells = aoeCells(shape, a[0], a[1], pfbW(s), pfbH(s)), n = 0;
+      cells.forEach(function (c) { var p = pieceAt(s, c[0], c[1]); if (p && p.by === 'me') n++; });
+      if (n > bn) { bn = n; best = []; }
+      if (n === bn) best.push([a[0], a[1], cells]);
+    });
+    if (!best.length) return;
+    var b = best[rand(s, best.length)];
+    s.aoe = { x: b[0], y: b[1], cells: b[2], r: toInt(s.round) };
+  }
+  function aoeLand(s, ev) {
+    var a = s.aoe; if (!a || !s.aoed) return;
+    s.aoe = null;
+    if (s.over) return;
+    var fx = s.aoed[1], pct = Number(s.aoed[2]), hit = [], held = [];
+    a.cells.forEach(function (c) {
+      var p = pieceAt(s, c[0], c[1]); if (!p || p.by !== 'me') return;
+      if (fx === 'break') {
+        if (nn(p.tile.t, '') === 'guard') { held.push(toInt(p.id)); return; }
+        discardPiece(s, p); p.used = 'foe'; if (!Array.isArray(s.spent)) s.spent = []; s.spent.push(p); delete s.cell[p.x + ',' + p.y]; delete s.pcs[p.id];
+      }
+      hit.push({ id: toInt(p.id), n: String(p.tile.n), x: toInt(p.x), y: toInt(p.y) });
+    });
+    var e = note('aoe', String(s.aoed[3])); e.fx = fx; e.shape = s.aoed[0]; e.cells = clone(a.cells); e.hit = hit; e.held = held; e.me = 0; e.blocked = 0; e.heal = 0.0;
+    var k = hit.length;
+    if (k > 0 && fx === 'hurt') {
+      var d = k * Math.max(1, iround(pct * Number(s.me.max))), b = Math.min(toInt(s.me.block), d);
+      s.me.block -= b; s.me.hp = Math.max(0, toInt(s.me.hp) - (d - b)); e.me = d - b; e.blocked = b;
+    } else if (k > 0 && fx === 'drain') e.heal = round(foeHeal(s, k * pct * Number(s.fh.max)), 1);
+    e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); e.fgnow = toInt(s.foe.block);
+    ev.push(e);
+    checkEnd(s);
+  }
+  function aoeLine(e, foe) {
+    var names = nn(e.hit, []).map(function (h) { return 'your ' + h.n; }), k = names.length, held = nn(e.held, []).length, what;
+    if (e.fx === 'break') what = k ? names.join(' and ') + (k === 1 ? ' breaks' : ' break') : 'nothing of yours breaks';
+    else if (e.fx === 'hurt') what = k ? 'you lose ' + toInt(e.me) + ' health' + (toInt(e.blocked) > 0 ? ' (your guard takes ' + toInt(e.blocked) + ')' : '') : 'none of your pieces are in it';
+    else what = k ? 'the ' + foe + ' recovers ' + iround(Number(e.heal)) + ' from ' + names.join(' and ') : 'none of your pieces are in it';
+    return '\uD83D\uDCA5 ' + e.n + ' lands: ' + what + (held ? (held === 1 ? '; your Guard piece holds' : '; ' + held + ' Guard pieces hold') : '') + '.';
+  }
+  function aoeChip(e) {
+    var k = nn(e.hit, []).length;
+    return '\uD83D\uDCA5 ' + e.n + ': ' + (!k ? 'missed' : e.fx === 'break' ? k + ' break' : e.fx === 'hurt' ? '-' + toInt(e.me) + ' hp' : '+' + iround(Number(e.heal)) + ' for it');
+  }
+
   function intent(s) {
+    if (s.aoed) aoeMark(s);   // 2.7.55: a boss marks its AOE a turn ahead
     if (s.v1) forecast(s);
     var kind = kindNow(s), m = null;
     if (kind === 'boss' && s.foe.nextk) m = search(s, 'foe', true, String(s.foe.nextk));   // 2.6.98 Two turns
@@ -2185,6 +2306,7 @@
         s.me.wblk = []; s.me.wmiss = []; s.me.wmend = []; s.me.wk1 = 0; s.me.wmore = 0; s.foe.wnx = 0; s.foe.whf = 0; s.foe.wsk = 0;
       }
       if (Array.isArray(c.ab) && c.ab.length && v1r(s, 'abil') === 1) abInit(s, c);   // 2.7.01 abilities (an E id replaces the class rule)
+      if (v1r(s, 'aoe') === 1 && s.size === 'boss') { s.aoed = clone(has(PFB_AOE, String(nn(c.slug, ''))) ? PFB_AOE[String(c.slug)] : PFB_AOE_DEFAULT); s.aoe = null; }   // 2.7.55 boss AOE
       if (v1r(s, 'style') === 1 && truthy(c.ai) && has(PFB_AI, String(c.ai))) { s.foe.aid = String(c.ai); var aiw = aiMake(String(c.ai), nn(c.aip, {})); if (aiw) s.foe.ai = aiw; }   // 2.7.01 play style
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
@@ -2426,6 +2548,7 @@
       v.envs = nn(s.envs, []).map(function (e) { var o = clone(e), q = pieceAt(s, e.x, e.y); o.n = PFB_EVENT_NAME[e.kind]; o.on = q && q.by !== 'none' ? { id: q.id, by: q.by, n: q.tile.n } : null; return o; });
       v.envlog = clone(nn(s.envlog, []));
       if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: truthy(nn(s.v1.life, 0)) ? toInt(nx.life) : PFB_LIFE, e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
+      if (s.aoed) v.aoe = { n: String(s.aoed[3]), shape: String(s.aoed[0]), fx: String(s.aoed[1]), pct: Number(s.aoed[2]), 'in': aoeIn(s), cells: s.aoe ? clone(s.aoe.cells) : [] };   // 2.7.55 boss AOE
       v.aim = clone(nn(s.foe.plan, null));
       if (kindNow(s) !== '') { v.kind = kindNow(s); v.grudge = toInt(nn(s.foe.grudge, 0)); v.ven = Object.keys(nn(s.ven, {})).map(function (k) { var a = k.split(','); return { x: toInt(a[0]), y: toInt(a[1]), r: s.ven[k] - 1 }; }); }   // 2.6.98 class rules
       if (nn(s.foe.aid, '') !== '') v.ai = { id: s.foe.aid, n: PFB_AI[s.foe.aid][12], t: PFB_AI[s.foe.aid][13] };   // 2.7.01: its play style for the card
@@ -2487,6 +2610,7 @@
       case 'regrow': return '\uD83C\uDF31 Regrow: the ' + foe + ' heals ' + Number(e.n) + '.';
       case 'plated': return '\uD83D\uDEE1\uFE0F Plated: the ' + foe + ' starts its turn with ' + toInt(e.n) + ' guard.';
       case 'palaim': return '\uD83D\uDC3E ' + String(nn(e.pal, 'Your pal')) + ' goes for the ' + foe + '\u2019s strongest piece: its ' + e.n + ' is knocked off the board.';
+      case 'aoe': return aoeLine(e, foe);
       default: return '\uD83E\uDDB6 Tripped: you draw 1 fewer piece next turn.';
     }
   }
@@ -2501,7 +2625,7 @@
       var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
       return ext({ by: 'env', types: ['env'], tags: [String(nn(e.kind, e.env))], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
     }
-    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : e.note === 'simmer' ? '\uD83C\uDF75 Simmer +' + toInt(e.n) : e.note === 'current' ? '\uD83C\uDF0A pushed ' + e.n : e.note === 'grows' ? '\uD83C\uDF3F grows a Bramble' : e.note === 'venom' ? '\u2620\uFE0F venom: poisoned' : e.note === 'drain' ? '\uD83E\uDE78 drains ' + Number(e.n) : e.note === 'stagger' ? '\uD83D\uDCAB staggered: 1 fewer' : e.note === 'regrow' ? '\uD83C\uDF31 regrows ' + Number(e.n) : e.note === 'plated' ? '\uD83D\uDEE1\uFE0F plated +' + toInt(e.n) : e.note === 'palaim' ? '\uD83D\uDC3E knocks off ' + e.n : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
+    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : e.note === 'simmer' ? '\uD83C\uDF75 Simmer +' + toInt(e.n) : e.note === 'current' ? '\uD83C\uDF0A pushed ' + e.n : e.note === 'grows' ? '\uD83C\uDF3F grows a Bramble' : e.note === 'venom' ? '\u2620\uFE0F venom: poisoned' : e.note === 'drain' ? '\uD83E\uDE78 drains ' + Number(e.n) : e.note === 'stagger' ? '\uD83D\uDCAB staggered: 1 fewer' : e.note === 'regrow' ? '\uD83C\uDF31 regrows ' + Number(e.n) : e.note === 'plated' ? '\uD83D\uDEE1\uFE0F plated +' + toInt(e.n) : e.note === 'palaim' ? '\uD83D\uDC3E knocks off ' + e.n : e.note === 'aoe' ? aoeChip(e) : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {
