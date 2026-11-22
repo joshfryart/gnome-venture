@@ -1,0 +1,110 @@
+{
+ "_doc": "Large batch L10 themed pass (TEMPLATE.md sections 9 and 10): tide crab knight and paladin, mangrove crab king and emperor, coconut crab youngster, clam lurker, giant clam. New motifs live in motifs/large_L10.js (37, glyph/motion ids prefixed L10-; all 7 signatures bring a custom chain effect: knight fencing footwork, paladin marching under its banner, king's procession sprouting prop-root arches, emperor trailing a train of roots, youngster tottering under its husk hat, clam lurker ploughing a sand bulge, giant clam's clap sending a wave crest along). Every creature has its own signature motif and keeps it exclusive (7 of 7). Sibling shares only where the picture is the same: gauntlet-slam (knight -> paladin Crusader Bash, gold), hammer-claw, prop-root, royal-pincer, mire-grab and mud-armour (king <-> emperor), siphon-spray, pearl-glint, undertow-swirl, shell-gate and sealed-valve (clam lurker <-> giant clam), sidestep-crab (knight and king scuttles). Reused from earlier batches where truly the same: medium surf-foam (breakers; the youngster's Night-Shift Splash adds the moon), crab-clamp (one big claw), coconut-crack (robber crab = coconut crab), large barnacle-cone (paladin barnacle armour), small mud-flop (mangrove spatter). Every piece (unique, class and x0) has a hand note. Sonnet's flagged piece coconut-crab-youngster/f:u1 Husk Hide is drawn as the husk-hide motif (the crab ducking under its husk, eyestalks peeking) scattering out and back.",
+ "creatures": {
+  "tide-crab-knight": {
+   "pal": ["#6cb8d4", "#123040", "#eef4fa"], "m": "duel-claw", "m2": "plate-mail", "pers": "scuttle", "snd": ["click", "tink"], "spd": 1.15,
+   "notes": "The grown-up tide crab squire: a sea-blue shore crab knight in shell plate mail that fences with its slender claw like a rapier, jousts down the beach and throws down its gauntlet to call a duel. Slides in sideways like a crab fencer.",
+   "p": {
+    "b0": {"m": "duel-claw", "lay": "strike", "car": "custom", "n": "Duelling Pincer: blade claws lunge en garde off the edge, thrust with a white glint at the tip and recover"},
+    "b1": {"m": "surf-foam", "c": "#8fd0e8", "lay": "strike", "car": "trail", "n": "Breaker Splash: sea-blue breakers curl off the edge and burst into white spray"},
+    "b2": {"m": "plate-mail", "lay": "hold", "car": "train", "n": "Shell Plate Mail: overlapping shell plates line the edge in three courses, rivets shining, a sheen stepping across"},
+    "b3": {"m": "sidestep-crab", "lay": "snare", "car": "zig", "x": "dust", "n": "Retreat Scuttle: knights back off sideways at spots, claws raised in guard, tied by sand-scrape lines, dust kicked up"},
+    "x0": {"m": "gauntlet-slam", "lay": "slam", "car": "hop", "x": "dust", "n": "Gauntlet Slam: armoured claw fists rise and slam down off the edge, cracks running out, dust jumping"},
+    "u0": {"m": "duel-claw", "lay": "lance", "car": "custom", "n": "Knight's Claw: a rapier claw runs the length of the edge in a fencer's lunge; the chain is the knight advancing in footwork, a half step back between steps"},
+    "u1": {"m": "tide-shield", "lay": "hold", "car": "train", "n": "Tide Shield: round shell shields with a wave-crest blazon lock along the edge, the tide sheeting over them in drops"},
+    "u2": {"m": "joust-lance", "lay": "slam", "car": "comet", "n": "Joust: crabs charge out of the edge with their long lance claws couched, pennants snapping, and drop back"},
+    "u3": {"m": "thrown-gauntlet", "lay": "snare", "car": "hop", "n": "Duel Call: a gauntlet is thrown down at spot after spot, tumbling, a challenge mark flashing, the spots tied together"}
+   }
+  },
+  "tide-crab-paladin": {
+   "pal": ["#4cc4b0", "#0e2e2a", "#f4e49a"], "m": "claw-banner", "m2": "barnacle-cone", "pers": "thud", "snd": ["crack", "croak"], "spd": 0.9,
+   "notes": "A teal island tide crab in barnacle armour that holds one claw up as a banner pole: a holy shore warrior with a haloed pincer, a hooked shield and spiked pauldrons. Lands heavy like a knight in full plate.",
+   "p": {
+    "b0": {"m": "halo-pincer", "lay": "strike", "car": "comet", "n": "Holy Pincer: pincers snap off the edge under small gold halos, a sparkle at each snap"},
+    "b1": {"m": "claw-banner", "lay": "strike", "car": "flutter", "x": "dew", "n": "Banner Spray: banners whip off the edge flinging sea spray from the cloth"},
+    "b2": {"m": "barnacle-cone", "c": "#e8e0cc", "lay": "hold", "car": "train", "n": "Barnacle Plate: pale barnacle cones crust the edge like armour, lids opening and cirri combing out"},
+    "b3": {"m": "wrack-line", "c": "#8aa860", "lay": "snare", "car": "thread", "n": "Shoreline Trip: a tideline of kelp wrack with shells caught in it is strung from spot to spot to trip on"},
+    "x0": {"m": "gauntlet-slam", "c": "#e8d070", "lay": "slam", "car": "hop", "n": "Crusader Bash: gold armoured fists slam down off the edge, cracks running out"},
+    "u0": {"m": "pauldron-spike", "lay": "bristle", "car": "train", "n": "Pauldron Spike: barnacled shoulder plates push out of the edge, three steel spikes growing from each"},
+    "u1": {"m": "shield-hook", "lay": "strike", "car": "comet", "n": "Shield Hook: a hooked claw reaches out from behind a round shield, catches and yanks back"},
+    "u2": {"m": "claw-banner", "lay": "snare", "car": "custom", "n": "Tide Banner: banners are planted at spots tied by a tide line, pennants snapping; the chain is the paladin marching under its banner, prints behind, a gold flash where it plants it"},
+    "u3": {"m": "oath-strike", "lay": "slam", "car": "rings", "n": "Oath Strike: a claw rises straight up under gold rays as an oath, then smashes down in a white flash, rings spreading"}
+   }
+  },
+  "mangrove-crab-king": {
+   "pal": ["#9cb46a", "#2a2416", "#f0d070"], "m": "root-throne", "m2": "mud-armour", "pers": "march", "snd": ["click", "squish"], "spd": 0.95,
+   "notes": "The olive mangrove crab grown into a king: holds court under the arching prop roots of the mangrove in a little gold crown, wears mud as armour and snatches from the mire. Steps up in a stately procession.",
+   "p": {
+    "b0": {"m": "crab-clamp", "lay": "strike", "car": "comet", "x": "clods", "n": "Mangrove Pincer: olive claws lunge off the edge and snap, mud clods flying"},
+    "b1": {"m": "mud-flop", "c": "#a8885a", "lay": "fall", "car": "hop", "x": "splat", "n": "Mangrove Spatter: mud splats flop off the edge and drop into a dark pool"},
+    "b2": {"m": "root-throne", "lay": "hold", "car": "custom", "n": "Mangrove Shell: the king sits back under its prop-root arch along the edge, crown glinting"},
+    "b3": {"m": "sidestep-crab", "lay": "scatter", "car": "zig", "x": "clods", "n": "Mangrove Scuttle: crabs scuttle sideways out between the roots and back, mud kicked up"},
+    "x0": {"m": "hammer-claw", "lay": "slam", "car": "hop", "n": "Mangrove Hammer: a mallet crusher claw swings out and smashes down, mud clods flying"},
+    "u0": {"m": "prop-root", "c": "#a8845a", "lay": "snare", "car": "train", "n": "Root Grip: prop roots arch up at spots tied together and curl their tips down to grip"},
+    "u1": {"m": "royal-pincer", "lay": "lance", "car": "comet", "n": "King's Pincer: the king's signet-banded pincer runs the length of the edge, opening and snapping"},
+    "u2": {"m": "mud-armour", "lay": "hold", "car": "train", "n": "Mud Armour: mud-daubed shells hold along the edge, the mud plates running off in drips"},
+    "u3": {"m": "mire-grab", "lay": "snare", "car": "tunnel", "n": "Mud Snatch: mud pools hang at spots tied together; a claw rises out of each and snaps shut, mud flicking"}
+   }
+  },
+  "mangrove-crab-emperor": {
+   "pal": ["#dcb43a", "#2a1e08", "#8ad070"], "m": "root-crown", "m2": "gold-lock", "pers": "trundle", "snd": ["crack", "squish"], "spd": 0.8,
+   "notes": "The mangrove king's elder: a vast gold-edged crab wearing a crown of living mangrove roots, drinking brine as a tonic and cloaking itself in roots. Trundles in slowly with all its weight.",
+   "p": {
+    "b0": {"m": "royal-pincer", "c": "#e0c050", "lay": "strike", "car": "comet", "n": "Imperial Pinch: gold signet pincers lunge off the edge and snap"},
+    "b1": {"m": "royal-wave", "lay": "strike", "car": "rings", "n": "Imperial Wave: claws rise off the edge in a slow regal wave, ripple rings spreading under them"},
+    "b2": {"m": "mud-armour", "c": "#c8a050", "lay": "hold", "car": "train", "x": "splat", "n": "Imperial Mudcoat: gold shells coated in mud hold along the edge, the mud dripping into dark pools"},
+    "b3": {"m": "mire-grab", "c": "#e0c050", "lay": "snare", "car": "tunnel", "n": "Imperial Mire: mire pools at spots tied together, a gold claw rising out of each and snatching"},
+    "x0": {"m": "hammer-claw", "c": "#e8c450", "lay": "slam", "car": "hop", "x": "dust", "n": "Imperial Smash: gold crusher claws smash down off the edge, mud and dust flying"},
+    "u0": {"m": "root-crown", "lay": "slam", "car": "custom", "n": "Imperial Claw: the root-crowned emperor rears out of the edge and slams down; the chain is the emperor trundling on with a train of twisting roots and gold glints"},
+    "u1": {"m": "brine-tonic", "lay": "rise", "car": "flutter", "n": "Brine Tonic: gold-rimmed shell cups brimming with brine rise off the edge, bubbles climbing, a mangrove leaf on each"},
+    "u2": {"m": "prop-root", "c": "#a8845a", "lay": "bristle", "car": "train", "n": "Root Cloak: prop roots push out of the edge like a cloak of spikes, leaves on top"},
+    "u3": {"m": "gold-lock", "lay": "hold", "car": "train", "n": "Shell Lock: gold-rimmed shell halves close along the edge and lock with a steel cross clasp, a glint"}
+   }
+  },
+  "coconut-crab-youngster": {
+   "pal": ["#8c86e4", "#1c1840", "#d8a868"], "m": "husk-hat", "m2": "husk-hide", "pers": "tumble", "snd": ["pop", "thud"], "spd": 1.2,
+   "notes": "A half-size blue-purple coconut crab still learning the trade: wears a coconut husk on its head like a hat that keeps slipping over its eyes, practises its pinch on nuts that will not crack and works the night shift on the beach. Rolls in, clumsy.",
+   "p": {
+    "b0": {"m": "practice-pinch", "lay": "strike", "car": "comet", "n": "Pincer Practice: small purple claws snap off the edge, whiffing at air, until one finally hits"},
+    "b1": {"m": "surf-foam", "c": "#9ab0f0", "lay": "strike", "car": "trail", "x": "moon", "n": "Night-Shift Splash: night wavelets curl off the edge under a moon glint and break into spray"},
+    "b2": {"m": "husk-hide", "lay": "hold", "car": "roll", "n": "Half-Grown Husk: husks sit along the edge with the youngster tucked under each, eyestalks peeking"},
+    "b3": {"m": "husk-hat", "lay": "scatter", "car": "zig", "x": "dust", "n": "Scuttle Sidle: the youngster sidles out and back with its husk hat wobbling, sand dust behind"},
+    "x0": {"m": "coconut-crack", "lay": "slam", "car": "hop", "x": "dust", "n": "Apprentice Slam: coconuts slam down off the edge and at last crack open, white flesh showing"},
+    "u0": {"m": "husk-snip", "lay": "strike", "car": "comet", "n": "Husk Snip: little claws snip at husk lumps off the edge, coir fibres flying"},
+    "u1": {"m": "husk-hide", "lay": "scatter", "car": "roll", "n": "Husk Hide: husks skitter out and back with the youngster ducked under them, eyestalks popping up and down"},
+    "u2": {"m": "husk-toss", "lay": "snare", "car": "hop", "n": "Husk Toss: husks are tossed end over end onto spots tied together by coir fibres"},
+    "u3": {"m": "husk-hat", "lay": "slam", "car": "custom", "n": "Hat Bonk: the youngster charges out head first and its husk hat bonks down over its eyes; the chain is it tottering on, the husk slipping halfway"}
+   }
+  },
+  "clam-lurker": {
+   "pal": ["#c8ae90", "#3a2a1e", "#6ad0f0"], "m": "lurk-gape", "m2": "mantle-slime", "pers": "burrow", "snd": ["squish", "hiss"], "spd": 0.8,
+   "notes": "A mottled clam that lies half buried in the coast sand, opening a crack to peer out with rows of blue mantle eyes and snapping shut on whatever steps near; spits, slimes and pulls with the undertow. Rises out of the ground.",
+   "p": {
+    "b0": {"m": "shell-gate", "lay": "slam", "car": "comet", "n": "Gate Clamp: ridged valves swing out of the edge like gates and slam shut with white streaks"},
+    "b1": {"m": "siphon-spray", "lay": "strike", "car": "comet", "n": "Yawning Spray: siphon tubes jet lines of spray off the edge that fan out at the end"},
+    "b2": {"m": "mantle-slime", "lay": "hold", "car": "trail", "n": "Slimy Mantle: frilled mantle lips line the edge, slime strands stretching and drops letting go"},
+    "b3": {"m": "lurk-gape", "lay": "feint", "car": "custom", "n": "Gulping Pull: a half-buried clam pops up at spot after spot and gulps, sand sucked into its gape"},
+    "x0": {"m": "lurk-gape", "lay": "slam", "car": "custom", "x": "dust", "n": "Shutter Thump: whole clams heave up out of the sand and thump back down shut, sand puffing"},
+    "u0": {"m": "lurk-gape", "lay": "snare", "car": "custom", "n": "Clamp: buried clams lie in wait at spots tied together, open a crack with blue eyes peering, and snap shut; the chain is a sand bulge ploughing to the next piece"},
+    "u1": {"m": "sealed-valve", "lay": "hold", "car": "train", "n": "Shut Tight: ridged clams lie shut along the edge, the seam locked, pressure ticks pulsing at the ends"},
+    "u2": {"m": "pearl-glint", "lay": "feint", "car": "blink", "n": "Pearl Glint: an opened shell shows its pearl at spot after spot, the glint flaring to a four-ray blaze"},
+    "u3": {"m": "undertow-swirl", "lay": "snare", "car": "loop", "x": "bubbles", "n": "Clam Undertow: undertow spirals turn at spots tied together, sand grains drawn in, bubbles rising"}
+   }
+  },
+  "giant-clam": {
+   "pal": ["#b8c0cc", "#2a3040", "#5ad8c0"], "m": "giant-clap", "m2": "iris-mantle", "pers": "plop", "snd": ["thud", "squish"], "spd": 0.7,
+   "notes": "A cart-sized island clam with wavy ridged grey valves and a wide pale mouth of glossy teal mantle; it never moves, it just claps shut with a boom that sends the water running. Drops onto its spot with a splash ring.",
+   "p": {
+    "b0": {"m": "shell-gate", "c": "#c8ced8", "lay": "strike", "car": "comet", "n": "Giant Sudden Shut: huge grey valves swing off the edge and slam shut like gates"},
+    "b1": {"m": "siphon-spray", "c": "#c8ced8", "lay": "strike", "car": "comet", "x": "bubbles", "n": "Shallow Spurt: wide siphons spurt water off the edge in the shallows, bubbles rising"},
+    "b2": {"m": "iris-mantle", "lay": "hold", "car": "trail", "n": "Glossy Mantle: the wavy mantle lip lines the edge, iridescent spots shimmering teal, blue and violet"},
+    "b3": {"m": "undertow-swirl", "c": "#9ad4f0", "lay": "snare", "car": "loop", "n": "Tidal Suck: tidal spirals turn at spots tied together, pulling sand into the clam"},
+    "x0": {"m": "giant-clap", "lay": "slam", "car": "custom", "x": "dust", "n": "Cart-Size Clap: the giant valves heave out, gape on the teal mantle and clap shut with a white burst"},
+    "u0": {"m": "giant-clap", "lay": "lance", "car": "custom", "n": "Slam Shut: a giant clam slams shut down the length of the edge; the chain is its clap sending a foaming wave crest along to the next piece"},
+    "u1": {"m": "pearl-glint", "c": "#f4f0ff", "lay": "scatter", "car": "blink", "x": "glint", "n": "Pearl Blind: pearls flash out and back in a blinding four-ray blaze, white glints scattering"},
+    "u2": {"m": "sealed-valve", "lay": "hold", "car": "train", "n": "Shell Wall: giant ridged shells lie shut along the edge like a wall, pressure ticks at the seams"},
+    "u3": {"m": "clap-wave", "lay": "strike", "car": "zig", "n": "Sudden Shut: valve tips smack together off the edge, a jagged shock bursting from the join, spray flying"}
+   }
+  }
+ }
+}

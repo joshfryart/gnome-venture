@@ -1,0 +1,77 @@
+{
+ "_doc": "Large batch L06 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "tawny-owl/f:b1": {
+  "family": "thrust",
+  "note": "Talon Drop: a silent drop talons-first, point-first like a lance; avoids two slashes"
+ },
+ "tawny-owl/f:u1": {
+  "family": "ripple",
+  "note": "Hoot: a hoot is sound rings; no tag or keyword, but the picture is clear"
+ },
+ "tawny-owl/f:u2": {
+  "family": "puff",
+  "note": "Feather Fluff: fluffed-up feathers = soft puffs; avoids three shields in one owl"
+ },
+ "marsh-harrier/f:u1": {
+  "family": "slash",
+  "note": "Low Rake: rake is claws raking low; art beats the pierce tag so it differs from Reed Skim (thrust)",
+  "review": true
+ },
+ "marsh-harrier/f:u3": {
+  "family": "ripple",
+  "note": "Shadow Lead: a wing shadow sliding over marsh water; shock (electric) does not fit a harrier. Best guess",
+  "review": true
+ },
+ "griffon-vulture/f:b0": {
+  "family": "bite",
+  "note": "Carrion Pick: pick = beak tearing at carrion; keyword missing from the list"
+ },
+ "griffon-vulture/f:x0": {
+  "family": "bash",
+  "note": "Circling Thud: a heavy landing thud is a bash, not a third slash",
+  "review": true
+ },
+ "eagle-owl/f:b0": {
+  "family": "bite",
+  "note": "Lamp-Eyed Peck: peck = beak; keyword missing from the list"
+ },
+ "eagle-owl/f:x0": {
+  "family": "bash",
+  "note": "Ear-Horn Ram: a ram is a bash"
+ },
+ "eagle-owl/f:u0": {
+  "family": "slash",
+  "note": "Tuft Strike: a fast tuft-and-talon strike; shock (electric) does not fit an owl"
+ },
+ "eagle-owl/f:u1": {
+  "family": "thrust",
+  "note": "Night Swoop: a dive point-first at the prey; shock does not fit; differs from Tuft Strike (slash)"
+ },
+ "eagle-owl/f:u2": {
+  "family": "ripple",
+  "note": "Hoot Flurry: a burst of hoots = sound rings (as Tawny Hoot); shock does not fit",
+  "review": true
+ },
+ "eagle-owl/f:u3": {
+  "family": "sparkle",
+  "note": "Stare Down: the glowing orange lamp eyes glint; trip tag kept mechanical, web (snare) is a best guess otherwise",
+  "review": true
+ },
+ "lammergeier/f:b0": {
+  "family": "slash",
+  "note": "Bone Drop (class): the swooping drop stays a slash; the piercing Bone Drop u0 is the thrust"
+ },
+ "lammergeier/f:x0": {
+  "family": "bash",
+  "note": "Bone Splitter: cracking a bone open is a smash, not a third slash"
+ },
+ "condor/f:b0": {
+  "family": "bite",
+  "note": "Condor Gouge: a beak gouge; gouge is not on the keyword list"
+ },
+ "condor/f:u1": {
+  "family": "puff",
+  "note": "Wing Beat: huge wing beats shove air = puffs; shock (electric) does not fit a condor",
+  "review": true
+ }
+}

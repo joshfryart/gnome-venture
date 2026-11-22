@@ -1,0 +1,140 @@
+{
+ "_doc": "Large batch L05 themed pass (TEMPLATE.md sections 9 and 10): lichen reindeer, red stag, gorse beast, the moss / lichen / peat / coral golems, emperor scorpion, giant bumblebee. New motifs live in motifs/large_L05.js (31, glyph/motion ids prefixed L05-, 4 custom chain effects: gorse fuse, rut bellow, bog steam, bumblebee flight). Every piece (unique, class and x0) has a hand note. All 9 signature motifs are used by no other creature; lichen-rosette (the lichen golem's crust) is lent to the lichen reindeer for its lichen cloak and moss mantle. The Sonnet family overrides in overrides/large/L05.json stay the Generic fallback; the repeats it left (golem mend x2/x3, coral and peat thorn x2, stag slash x2) are split here by motif or layout, and its seven review flags are answered by the pictures: Gorse Flare = flowers flaring like flame, Bog Fist = a peat fist out of the bog, Rut Call = a roar, Pollen Puff = pollen baskets puffing, Anemone Sting = anemone tentacles, Autumn Rut = a royal rack clash, Lichen Antler Sweep = a lichen-crusted rack.",
+ "creatures": {
+  "lichen-reindeer": {
+   "pal": ["#b8ae96", "#241e18", "#c4d88e"], "m": "lichen-antler", "m2": "snow-crater", "pers": "march", "snd": ["crack", "thud"], "spd": 1.0,
+   "notes": "Lichen reindeer of the tundra and mountains: a grey-fawn reindeer whose long rack is crusted with grey-green lichen, a brow shovel over the muzzle, a pale neck ruff; it paws craters in the snow to reach the lichen it lives on, the herd wheels in a circle when pressed, and it holds a grudge. It steps up like a herd on the march.",
+   "p": {
+    "u0": {"m": "lichen-antler", "n": "Antler Sweep: the lichen-crusted rack swings off the edge left then right, flakes of crust flying"},
+    "u1": {"m": "herd-wheel", "n": "Herd Wheel: reindeer trot out in a circle round the piece and back, snow kicked up behind them"},
+    "u2": {"m": "snow-crater", "n": "Snow Dig: hooves paw craters in the snow crust and green-grey lichen sprigs rise out of them"},
+    "u3": {"m": "lichen-rosette", "c": "#b4c88a", "n": "Lichen Cloak: lichen rosettes push out of the hide and spread ring by ring, crusty and bristling"},
+    "b0": {"m": "snow-crater", "lay": "strike", "x": "snow", "n": "Cloven Hoof: a cloven hoof kicks off the edge, the snow crust bursting"},
+    "b1": {"m": "lichen-antler", "lay": "lance", "n": "Lichen Antler Sweep: the crusted rack sweeps the length of the edge in one swing"},
+    "b2": {"m": "lichen-rosette", "c": "#9cb478", "n": "Moss Mantle: a mantle of lichen and moss rosettes lies along the edge, slowly growing"},
+    "b3": {"m": "lichen-antler", "lay": "slam", "x": "snow", "n": "Tundra Nudge: a rack nudges out and drops back, snow sliding off it"},
+    "x0": {"m": "lichen-antler", "lay": "strike", "x": "marks", "n": "Antler Lunge: the rack lunges off the edge with grudge marks popping"}
+   }
+  },
+  "red-stag": {
+   "pal": ["#c06a40", "#2a140c", "#e8bc64"], "m": "royal-rack", "m2": "bracken-curl", "pers": "thud", "snd": ["croak", "crack"], "spd": 1.0,
+   "notes": "Red stag of forest and mountain in the autumn rut: a red-brown coat, a shaggy neck, a wide royal rack with crowned tops; it bellows with breath steaming, clashes antlers and hides in golden bracken. It lands heavy, and the bellow (croak arcs) is its sound.",
+   "p": {
+    "u0": {"m": "royal-rack", "n": "Autumn Rut: the royal rack is lowered, tossed and clashed off the edge in a white star"},
+    "u1": {"m": "royal-rack", "lay": "lance", "x": "-", "n": "Tine Hook: the rack drives the length of the edge, the brow tines hooking the foe"},
+    "u2": {"m": "bracken-curl", "n": "Bracken Dodge: golden bracken croziers unroll out of the edge and the stag melts in and back out of them"},
+    "u3": {"m": "rut-roar", "n": "Rut Call: bellowing stags at spots round the edge, roar arcs tying them together, the roar rolling on to the next piece"},
+    "b0": {"m": "royal-rack", "lay": "slam", "x": "dust", "n": "Rut Antler Swing: the rack swings out and crashes back in a puff of dust"},
+    "b1": {"m": "rut-roar", "lay": "strike", "n": "Rut Snort: the stag snorts off the edge, breath steaming"},
+    "b2": {"m": "bracken-curl", "lay": "bristle", "n": "Rut Hide: bracken fronds bristle up out of the edge and hide the red hide"},
+    "b3": {"m": "bracken-curl", "x": "pollen", "n": "Rut Forage: fronds unroll and rise off the edge, seed and spore dust drifting"},
+    "x0": {"m": "royal-rack", "lay": "strike", "n": "Red Rut Charge: stags charge off the edge head-down, turf flying from the clash"}
+   }
+  },
+  "gorse-beast": {
+   "pal": ["#e8c030", "#22280e", "#fff2a0"], "m": "gorse-flare", "m2": "sun-bloom", "pers": "trundle", "snd": ["crack", "zig"], "spd": 0.85,
+   "notes": "Gorse beast of grassland and forest: a shaggy heap of dense green spines covered in yellow pea flowers that smell of coconut and hum with bees; gorse burns hot and its seed pods crack open in the sun. It trundles in slow and heavy.",
+   "p": {
+    "u0": {"m": "gorse-flare", "n": "Gorse Flare: gorse sprigs slam out and their yellow flowers flare up like flame, char and spit seed sparks, and the flare runs on along the edge like a fuse"},
+    "u1": {"m": "sun-bloom", "n": "Sun Soak: pea flowers open in the sun and rise off the edge, rays glinting"},
+    "u2": {"m": "sun-bloom", "lay": "hold", "x": "pollen", "n": "Golden Bloom: a row of golden flowers opens along the edge, pollen drifting, bees landing"},
+    "u3": {"m": "gorse-spine", "n": "Prickly Hug: dense spiny clumps bristle out of the edge, yellow flowers tucked between the spines"},
+    "b0": {"m": "gorse-spine", "lay": "strike", "n": "Gorse Whip: a spiny clump lashes off the edge"},
+    "b1": {"m": "sun-bloom", "lay": "strike", "x": "pollen", "n": "Bloom Cloud: flowers burst off the edge in a cloud of pollen"},
+    "b2": {"m": "gorse-spine", "lay": "hold", "n": "Spiky Thicket: a thicket of spines stands along the edge"},
+    "b3": {"m": "sun-bloom", "n": "Sunbathe Mend: flowers open to the sun and rise, a bee landing"},
+    "x0": {"m": "gorse-spine", "lay": "slam", "x": "clods", "n": "Shaggy Heap Crash: the spiny heap crashes out and back, clods flying"}
+   }
+  },
+  "moss-golem": {
+   "pal": ["#7aa84a", "#1e2614", "#d4e6a0"], "m": "moss-boulder", "m2": "moss-cloak", "pers": "burrow", "snd": ["thud", "squish"], "spd": 0.7,
+   "notes": "Moss golem of forest, rainforest and mountain: a body of grey stones under a thick green moss cushion, spore stalks with brown capsules nodding on top; it punches with boulder fists and grows its moss back. It heaves up out of the forest floor.",
+   "p": {
+    "u0": {"m": "moss-boulder", "n": "Boulder Fist: mossy stone fists wind up and punch off the edge, cracks flashing, moss shaken loose"},
+    "u1": {"m": "moss-cloak", "n": "Moss Cloak: a thick moss mat hangs along the edge, spore capsules nodding"},
+    "u2": {"m": "moss-sprout", "n": "Regrow: moss cushions grow back and rise, spore stalks shooting up, a capsule popping"},
+    "u3": {"m": "moss-boulder", "lay": "slam", "x": "clods", "n": "Shed Pebble: a mossy stone shrugs out and drops back, clods of moss falling"},
+    "b0": {"m": "moss-cloak", "lay": "strike", "n": "Moss Creeper Whip: a creeper of moss lashes off the edge"},
+    "b1": {"m": "moss-sprout", "lay": "strike", "x": "powder", "n": "Mossy Spore Burst: spore stalks burst off the edge, a fall of spores"},
+    "b2": {"m": "moss-cloak", "lay": "bristle", "n": "Mossy Mantle: the moss mat bristles out, capsules on end"},
+    "b3": {"m": "moss-sprout", "x": "dew", "n": "Sap Patch-Up: moss cushions rise beaded with sap and dew"},
+    "x0": {"m": "moss-boulder", "lay": "fall", "n": "Rockfall Slam: mossy boulders drop off the edge and fall"}
+   }
+  },
+  "lichen-golem": {
+   "pal": ["#a8b890", "#22281c", "#e2ecb8"], "m": "scree-slab", "m2": "lichen-rosette", "pers": "tumble", "snd": ["crack", "pop"], "spd": 0.9,
+   "notes": "Lichen golem of the mountains: a small body of loose scree held together by a flaky grey-green lichen crust, pixie-cup lichens drinking the rain; it tumbles like scree and sheds sharp crusted flakes. It rolls in like a falling stone.",
+   "p": {
+    "u0": {"m": "scree-slab", "n": "Scree Tumble: lichen-spotted scree slabs slam out end over end and fall back"},
+    "u1": {"m": "lichen-rosette", "n": "Lichen Mend: lichen rosettes rise off the edge, spreading ring by ring"},
+    "u2": {"m": "rain-cup", "n": "Rain Soak: pixie-cup lichens catch rain drops, fill to the brim and rise"},
+    "u3": {"m": "lichen-flake", "n": "Flake Chunk: a sharp crusted flake flips point first along the edge"},
+    "b0": {"m": "lichen-flake", "lay": "strike", "x": "threads", "n": "Lichen Tendril: grey-green tendrils lash out, a crust flake at each tip"},
+    "b1": {"m": "scree-slab", "lay": "scatter", "n": "Grey Dust Puff: scree chips burst out of the edge in grey dust and settle back"},
+    "b2": {"m": "lichen-rosette", "lay": "bristle", "n": "Grey Lichen Cloak: lichen rosettes push out of the scree and bristle"},
+    "b3": {"m": "rain-cup", "x": "dewrun", "n": "Rain-Drink Refill: cups fill and rain beads run along the crust"},
+    "x0": {"m": "scree-slab", "lay": "lance", "n": "Scree Tumble Slam: a scree slab tumbles the length of the edge"}
+   }
+  },
+  "peat-golem": {
+   "pal": ["#a27a4e", "#1a120a", "#dde4d6"], "m": "bog-fist", "m2": "peat-slab", "pers": "squelch", "snd": ["squish", "hiss"], "spd": 0.65,
+   "notes": "Peat golem of the wetlands: a dark brown body of cut peat turves full of root threads, a hair of reeds with brown seed heads, steam breathing out of its cracks; it heaves wet fists out of the bog and slumps into a wall. It arrives slow and wet.",
+   "p": {
+    "u0": {"m": "peat-slab", "n": "Peat Slump: stacked peat turves hold along the edge, the top turves slumping and settling"},
+    "u1": {"m": "bog-fist", "n": "Bog Fist: wet peat fists heave up out of bog pools and claw at the foe, mud splatting"},
+    "u2": {"m": "reed-hair", "n": "Reed Bristle: the reed hair bristles out, brown seed heads swaying"},
+    "u3": {"m": "steam-vent", "n": "Steam Vent: steam curls up out of cracks in the peat, and a bank of steam drifts on to the next piece"},
+    "b0": {"m": "reed-hair", "lay": "strike", "n": "Reed Whip: reeds lash off the edge"},
+    "b1": {"m": "peat-slab", "lay": "scatter", "x": "dust", "n": "Peat Dust Cloud: turves crumble out of the edge in brown dust and settle back"},
+    "b2": {"m": "peat-slab", "lay": "bristle", "n": "Packed Peat Wall: packed turves push out of the edge and hold"},
+    "b3": {"m": "bog-fist", "lay": "rise", "x": "bubbles", "n": "Bog Refill: bog water wells up, bubbles rising, the peat fist lifting with it"},
+    "x0": {"m": "peat-slab", "lay": "fall", "n": "Stack Collapse: the turf stack topples off the edge and falls"}
+   }
+  },
+  "coral-golem": {
+   "pal": ["#e88aa0", "#2a1018", "#f8e2d0"], "m": "coral-branch", "m2": "barnacle-cone", "pers": "bob", "snd": ["tink", "pop"], "spd": 0.8,
+   "notes": "Coral golem of coast and island: a plated body of branching pink coral with white polyps, sea anemones swaying in its cracks and barnacles welded to its armour; it bobs up like something lifted by the tide.",
+   "p": {
+    "u0": {"m": "coral-branch", "n": "Spiny Branch: branching coral bristles out of the edge, polyps opening at every tip"},
+    "u1": {"m": "anemone-sway", "n": "Anemone Sway: anemones sway out of the edge in the swell and draw back"},
+    "u2": {"m": "anemone-sway", "x": "sting", "n": "Anemone Sting: anemone tentacles drop off the edge trailing sting lines"},
+    "u3": {"m": "barnacle-cone", "n": "Stack Lock: barnacle cones lock along the edge, lids snapping shut"},
+    "b0": {"m": "coral-branch", "lay": "strike", "n": "Sharp Branch Whip: a coral branch lashes off the edge"},
+    "b1": {"m": "anemone-sway", "lay": "strike", "n": "Coral Anemone Sting: tentacles lash out, a white sting flash at the tips"},
+    "b2": {"m": "barnacle-cone", "lay": "bristle", "n": "Polyp Plating: barnacle plates push out, cirri combing"},
+    "b3": {"m": "barnacle-cone", "x": "bubbles", "n": "Low-Tide Mend: barnacles open in the returning tide and rise, bubbles going up"},
+    "x0": {"m": "coral-branch", "lay": "fall", "n": "Stack Crumble: coral branches break off the edge and fall"}
+   }
+  },
+  "emperor-scorpion": {
+   "pal": ["#9ce0cc", "#0c0e12", "#f0fff8"], "m": "emperor-claw", "m2": "plate-fold", "pers": "scuttle", "snd": ["click", "hiss"], "spd": 1.1,
+   "notes": "Emperor scorpion of desert and rainforest: huge, glossy black, with thick knobbly claws and a curled tail; under moonlight its armour glows pale blue-green, so every glyph is black with a glowing outline. Shy, it scuttles sideways, and many of them crowd together.",
+   "p": {
+    "u0": {"m": "emperor-claw", "n": "Pincer Clamp: thick black claws open wide, slam out and snap shut in a star"},
+    "u1": {"m": "stinger-arch", "n": "Stinger Arch: glowing tails arch over and pale venom beads drop off the stings"},
+    "u2": {"m": "plate-fold", "lay": "bristle", "n": "Plate Fold: glossy plates fold over each other and push out like shingles, a glint sliding across"},
+    "u3": {"m": "glow-scuttle", "n": "Shy Scuttle: glowing scorpions scuttle sideways out of the edge and back"},
+    "b0": {"m": "emperor-claw", "lay": "strike", "n": "Pincer Pinch: claws lunge off the edge and pinch"},
+    "b1": {"m": "stinger-arch", "lay": "lance", "n": "Stinger Thrust: the tail drives the length of the edge, sting first"},
+    "b2": {"m": "plate-fold", "n": "Emperor Glossy Carapace: glossy plates hold along the edge, glints sliding over them"},
+    "b3": {"m": "glow-scuttle", "n": "Emperor Shy Scuttle: glowing scorpions blink from spot to spot"},
+    "x0": {"m": "plate-fold", "lay": "slam", "x": "dust", "n": "Armoured Ram: the armour rams out and back, dust flying"}
+   }
+  },
+  "giant-bumblebee": {
+   "pal": ["#f0c030", "#1a1408", "#f4f0e6"], "m": "bumble-bump", "m2": "fuzz-coat", "pers": "hover", "snd": ["zig", "whirr"], "spd": 1.15,
+   "notes": "Giant bumblebee of grassland and forest: a huge round furry bee with a yellow band, a black band and a white tail, wings far too small for it, orange pollen baskets on its legs; it bumbles about and bumps into things. It hovers before it settles.",
+   "p": {
+    "u0": {"m": "bumble-bump", "n": "Bumble Bump: big furry bees wobble off the edge and squash flat on the foe, and one bumbles on to the next piece"},
+    "u1": {"m": "fuzz-coat", "n": "Fuzz Coat: the thick banded fuzz stands up along the edge, pollen clinging"},
+    "u2": {"m": "pollen-basket", "n": "Pollen Puff: pollen baskets puff orange clouds at spots round the edge, tied by drifting grains"},
+    "u3": {"m": "honey-barb", "n": "Honey Sting: barbed stings drip amber honey beads that fall off the edge"},
+    "b0": {"m": "bumble-bump", "lay": "strike", "x": "pollen", "n": "Fuzzy Nibble: a bee bumbles out to nibble, pollen shaken off"},
+    "b1": {"m": "honey-barb", "lay": "lance", "n": "Barb Jab: a barbed sting jabs the length of the edge"},
+    "b2": {"m": "fuzz-coat", "x": "glint", "n": "Velvet Armour: the fuzz lies smooth as velvet, a sheen running over it"},
+    "b3": {"m": "bumble-bump", "n": "Drone Dart: drones dart from spot to spot"},
+    "x0": {"m": "bumble-bump", "lay": "slam", "x": "pollen", "n": "Buzzing Bulk: a huge bee body-slams out and back in a puff of pollen"}
+   }
+  }
+ }
+}

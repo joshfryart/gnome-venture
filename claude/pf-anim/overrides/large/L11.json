@@ -1,0 +1,237 @@
+{
+ "_doc": "Large batch L11 (Sonnet generic pass): moray-lurker, reef-eel-lord, reef-eel-tyrant, conger-brute, bog-pike, elephant-seal-bull, salt-sea-lion, giant-otter-gang, deep-octopus, kraken-spawn.",
+ "moray-lurker/f:b1": {
+  "family": "ripple",
+  "note": "surge of water out of the crack",
+  "snd": "pop"
+ },
+ "moray-lurker/f:x0": {
+  "family": "thrust",
+  "note": "lunge out of the rock crack, differs from Crevice Teeth Snap",
+  "snd": "tink"
+ },
+ "moray-lurker/f:u2": {
+  "family": "puff",
+  "note": "slips into the crevice and vanishes: puff, keeps ripple for Wet Leather",
+  "snd": "pop"
+ },
+ "moray-lurker/f:u3": {
+  "family": "ripple",
+  "note": "wet slick hide: ripples, apart from Crevice Wedge shield",
+  "snd": "pop"
+ },
+ "bog-pike/f:b1": {
+  "family": "ripple",
+  "note": "bait splash on the water",
+  "snd": "pop"
+ },
+ "bog-pike/f:b3": {
+  "family": "leaf",
+  "note": "reed ambush dart: reeds, not a snare",
+  "snd": "pop",
+  "review": true
+ },
+ "bog-pike/f:u3": {
+  "family": "web",
+  "note": "boot snag is a snare, apart from Pike Tail Thrash slash",
+  "snd": "tink"
+ },
+ "salt-sea-lion/f:b0": {
+  "family": "thrust",
+  "note": "keyword hit is bark, not bark-of-a-tree: lunge thrust",
+  "snd": "tink"
+ },
+ "salt-sea-lion/f:b1": {
+  "family": "ripple",
+  "note": "salt spray: edge ripples",
+  "snd": "pop"
+ },
+ "salt-sea-lion/f:x0": {
+  "family": "bash",
+  "note": "belly flop is a heavy blow: thump blocks",
+  "snd": "thud"
+ },
+ "salt-sea-lion/f:u0": {
+  "family": "puff",
+  "note": "bark is a sound blast, no tag: puff, best guess",
+  "snd": "pop",
+  "review": true
+ },
+ "salt-sea-lion/f:u2": {
+  "family": "puff",
+  "note": "blubber roll wobbles: soft puffs, apart from Salted Blubber shield",
+  "snd": "pop"
+ },
+ "conger-brute/f:b1": {
+  "family": "ripple",
+  "note": "wreck slosh: water ripples",
+  "snd": "pop",
+  "col": "#95acc4",
+  "accent": "#232a33"
+ },
+ "reef-eel-lord/f:b0": {
+  "family": "bash",
+  "note": "toll is a heavy bell strike: bash, apart from Coral Coil",
+  "snd": "thud"
+ },
+ "reef-eel-lord/f:b1": {
+  "family": "ripple",
+  "note": "coral spray: edge ripples",
+  "snd": "pop"
+ },
+ "reef-eel-lord/f:x0": {
+  "family": "web",
+  "note": "coil binds: strands",
+  "snd": "tink"
+ },
+ "reef-eel-lord/f:u0": {
+  "family": "shock",
+  "note": "eel shock is electric: shock beats trip",
+  "snd": "zig"
+ },
+ "reef-eel-lord/f:u1": {
+  "family": "thrust",
+  "note": "lunge from the hole: lance, apart from Eel Shock",
+  "snd": "tink"
+ },
+ "reef-eel-tyrant/f:b1": {
+  "family": "ripple",
+  "note": "name says ripple (keyword not applied to hurt): reef ripples",
+  "snd": "pop"
+ },
+ "reef-eel-tyrant/f:x0": {
+  "family": "bash",
+  "note": "crack is a heavy blow: thump blocks",
+  "snd": "thud"
+ },
+ "reef-eel-tyrant/f:u2": {
+  "family": "puff",
+  "note": "slips into a crevice and vanishes: puff, apart from Reef Ripple",
+  "snd": "pop"
+ },
+ "elephant-seal-bull/f:b0": {
+  "family": "shock",
+  "note": "trumpet gape is a sound blast: zigzags",
+  "snd": "zig"
+ },
+ "elephant-seal-bull/f:b1": {
+  "family": "puff",
+  "note": "trumpet blast of breath: puffs, apart from Trumpet Gape",
+  "snd": "pop"
+ },
+ "elephant-seal-bull/f:x0": {
+  "family": "bash",
+  "note": "rolling bulk slam: thump blocks",
+  "snd": "thud"
+ },
+ "elephant-seal-bull/f:u1": {
+  "family": "ripple",
+  "note": "blubber wave: ripples",
+  "snd": "pop"
+ },
+ "giant-otter-gang/f:x0": {
+  "family": "ripple",
+  "note": "rush through the water: edge ripples, apart from Gang Pounce",
+  "snd": "pop"
+ },
+ "deep-octopus/f:b1": {
+  "family": "drip",
+  "note": "ink jet: dark drops, apart from Ink Cloud puff",
+  "snd": "pop"
+ },
+ "deep-octopus/f:b3": {
+  "family": "sparkle",
+  "note": "mimic flashes colours: sparkle, best guess",
+  "snd": "tink",
+  "review": true
+ },
+ "deep-octopus/f:x0": {
+  "family": "bash",
+  "note": "crushing embrace: thump blocks",
+  "snd": "thud"
+ },
+ "deep-octopus/f:u0": {
+  "family": "puff",
+  "note": "ink cloud: puffs, keeps its name picture",
+  "snd": "pop"
+ },
+ "deep-octopus/f:u1": {
+  "family": "slash",
+  "note": "eight arms lash: streaks, quick moves faster not shock",
+  "snd": "click"
+ },
+ "deep-octopus/f:u2": {
+  "family": "web",
+  "note": "sucker grip holds like a snare: strands",
+  "snd": "tink"
+ },
+ "kraken-spawn/f:b0": {
+  "family": "bite",
+  "note": "maw is a mouth: jaws",
+  "snd": "click"
+ },
+ "kraken-spawn/f:b1": {
+  "family": "drip",
+  "note": "storm-ink spout: dark drops",
+  "snd": "pop"
+ },
+ "kraken-spawn/f:b3": {
+  "family": "ripple",
+  "note": "lurks submerged: ripples, best guess",
+  "snd": "pop",
+  "review": true
+ },
+ "kraken-spawn/f:x0": {
+  "family": "web",
+  "note": "tentacle wrap binds: strands",
+  "snd": "tink"
+ },
+ "conger-brute/f:b0": {
+  "family": "bite",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#c4bda8",
+  "accent": "#232a33"
+ },
+ "conger-brute/f:b2": {
+  "family": "shield",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#96b5c6",
+  "accent": "#232a33"
+ },
+ "conger-brute/f:b3": {
+  "family": "web",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#b6b6c3",
+  "accent": "#232a33"
+ },
+ "conger-brute/f:x0": {
+  "family": "slash",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#ccc6ab",
+  "accent": "#232a33"
+ },
+ "conger-brute/f:u0": {
+  "family": "thrust",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#b8bcc2",
+  "accent": "#232a33"
+ },
+ "conger-brute/f:u1": {
+  "family": "mend",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#73946d",
+  "accent": "#232a33"
+ },
+ "conger-brute/f:u2": {
+  "family": "thorn",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#8ca47d",
+  "accent": "#232a33"
+ },
+ "conger-brute/f:u3": {
+  "family": "bash",
+  "note": "art line says grey eel: grey base, not rust",
+  "col": "#b59c73",
+  "accent": "#232a33"
+ }
+}

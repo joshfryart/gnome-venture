@@ -1,0 +1,143 @@
+{
+ "_doc": "Large batch L08 (Sonnet generic pass): family corrections only; colour/lift/snd left to builder defaults.",
+ "desert-gila-dragon/f:x0": {
+  "family": "ripple",
+  "note": "quake slam: ground shock rings out; best guess",
+  "review": true
+ },
+ "desert-gila-dragon/f:u2": {
+  "family": "bash",
+  "note": "stomp is a heavy thump, not a streak; keeps tail whip as the only slash"
+ },
+ "desert-gila-dragon/f:b2": {
+  "family": "sparkle",
+  "note": "beaded scales glint; keeps Bead Hide as the plain shield",
+  "review": true
+ },
+ "desert-gila-dragon/f:u0": {
+  "family": "bite",
+  "note": "a chewing bite that works the venom in; poison tag stays mechanical"
+ },
+ "dune-wyrmling/f:b0": {
+  "family": "thrust",
+  "note": "stab with thin long fangs: lance; Fang Snap keeps bite"
+ },
+ "dune-wyrmling/f:u0": {
+  "family": "bite",
+  "note": "snap = jaws; pierce tag stays mechanical"
+ },
+ "dune-wyrmling/f:u2": {
+  "family": "puff",
+  "note": "hiss is a breath cloud, not poison drops; frees a drip slot"
+ },
+ "desert-tortoise/f:x0": {
+  "family": "bash",
+  "note": "boulder flop: heavy thump"
+ },
+ "sand-viper-matriarch/f:b1": {
+  "family": "ripple",
+  "note": "sidewinding leaves sand waves; best guess",
+  "review": true
+ },
+ "sand-viper-matriarch/f:u3": {
+  "family": "thrust",
+  "note": "sting is a point-first jab; poison tag stays mechanical, Viper Fang keeps drip"
+ },
+ "glass-wyrm/f:b2": {
+  "family": "sparkle",
+  "note": "glassy translucent armour glints; Fused Hide keeps the plain shield"
+ },
+ "glass-wyrm/f:b3": {
+  "family": "puff",
+  "note": "sandfling = a flung cloud of sand",
+  "review": true
+ },
+ "glass-wyrm/f:x0": {
+  "family": "bash",
+  "note": "waking blow: big thump; Glass Lash is the other bash but only the strongest hit differs",
+  "review": true
+ },
+ "glass-wyrm/f:u1": {
+  "family": "thrust",
+  "note": "hurled glass shards fly point-first; not electric",
+  "review": true
+ },
+ "spurred-tortoise/f:b3": {
+  "family": "puff",
+  "note": "spur dust: kicked-up dust cloud, not poison",
+  "review": true
+ },
+ "spurred-tortoise/f:x0": {
+  "family": "bash",
+  "note": "stomp: heavy thump"
+ },
+ "spurred-tortoise/f:u1": {
+  "family": "bite",
+  "note": "beak spike: keyword beak; pierce stays mechanical, Spur Jab keeps thrust",
+  "review": true
+ },
+ "rock-python/f:b0": {
+  "family": "bite",
+  "note": "a snake strike is a bite; Sitter Strike keeps the lance",
+  "review": true
+ },
+ "rock-python/f:x0": {
+  "family": "bash",
+  "note": "squeeze: crushing coil thump"
+ },
+ "rock-python/f:b3": {
+  "family": "ripple",
+  "note": "non-venomous hiss over sun-warm rock: heat shimmer, not drops",
+  "review": true
+ },
+ "grass-snake/f:b1": {
+  "family": "leaf",
+  "note": "reed whip: reed lash, closest leaf; best guess",
+  "review": true
+ },
+ "grass-snake/f:b2": {
+  "family": "leaf",
+  "note": "green scale coil among grass blades; Coil keeps the shield",
+  "review": true
+ },
+ "grass-snake/f:x0": {
+  "family": "bash",
+  "note": "coil drop crash: heavy thump"
+ },
+ "grass-snake/f:u1": {
+  "family": "thrust",
+  "note": "a lunging strike goes point-first; shock (electric) does not fit a snake"
+ },
+ "grass-snake/f:u2": {
+  "family": "web",
+  "note": "constrict + trip: wrap strands; best guess",
+  "review": true
+ },
+ "grass-snake/f:u3": {
+  "family": "ripple",
+  "note": "swim away: water rings"
+ },
+ "emerald-python/f:b1": {
+  "family": "leaf",
+  "note": "liana tail whip: vine lash",
+  "review": true
+ },
+ "emerald-python/f:b2": {
+  "family": "sparkle",
+  "note": "emerald scale mail glints; Emerald Coil keeps the shield",
+  "review": true
+ },
+ "emerald-python/f:b3": {
+  "family": "puff",
+  "note": "hiss mist spray: a mist puff"
+ },
+ "emerald-python/f:x0": {
+  "family": "bash",
+  "note": "constrict hug: crushing thump"
+ },
+ "emerald-python/f:u0": {
+  "family": "web",
+  "note": "squeeze + trip: coil binding strands; best guess",
+  "review": true
+ }
+}

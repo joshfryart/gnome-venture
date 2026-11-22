@@ -1,0 +1,155 @@
+{
+ "_doc": "Large batch L02 themed pass (TEMPLATE.md sections 9 and 10). Bears (black, sloth, ice, glacier), raccoons (raccoon, crab-eating), honey badger, aardvark, giant anteater, beaver foreman. New motifs live in motifs/large_L02.js (29, glyph/motion ids prefixed L02-, 7 custom chain effects); reused: honey-paw, ice-floe-slab, yakcalf-breath, cub-belly-slide, bin-clang, loose-skin (same pictures). Every piece (unique and class) has a hand note. All 10 signature motifs are unique to their creature; the raccoon siblings share bandit-mask / ringtail-swish / nimble-hand as secondary motifs only.",
+ "creatures": {
+  "black-bear": {
+   "pal": ["#8a8296", "#17141a", "#d9a86a"], "m": "claw-rake", "m2": "bear-rear", "pers": "thud", "snd": ["crack", "thud"], "spd": 0.9,
+   "notes": "Black bear of forest and mountain: glossy black fur, tan muzzle; rakes bark with four claws, rears up to look big, licks honey and bluff-charges.",
+   "p": {
+    "u0": "Bear Swipe: four claw-rake scars rip off the edge stroke by stroke, pale wood at the root, white claw tips",
+    "u1": "Stand Tall: black bears rear up on their hind legs along the edge, tan muzzles up, forepaws high",
+    "u2": {"m": "honey-paw", "c": "#e8a317", "n": "Honey Lick: a paw comes up out of the comb dripping gold honey"},
+    "u3": {"m": "bear-rear", "lay": "bristle", "x": "dust", "n": "Huge Bluff: bears rear up and puff out from the edge in a bluff charge, dust kicked up"},
+    "b0": {"c": "#c0609a", "x": "spots", "n": "Berry-Stained Rake: berry-purple claw scars rip off the edge, juice spots splattering"},
+    "b1": {"lay": "slam", "n": "Trouble Wallop: a heavy four-claw rake slams out and drops back"},
+    "b2": {"x": "prints", "n": "Rear-Up Stance: bears stand up in a row along the edge, paw prints planted at their feet"},
+    "b3": {"m": "bear-rear", "lay": "slam", "car": "roll", "n": "Shoulder Bowl: a rearing bear drops onto all fours and bowls out shoulder-first, rolling to the next piece"},
+    "x0": {"m": "bear-rear", "lay": "strike", "car": "roll", "x": "dust", "n": "Rolling Flop: bears flop off the edge and roll over in a cloud of dust"}
+   }
+  },
+  "sloth-bear": {
+   "pal": ["#8c8478", "#1c1814", "#f2e6c4"], "m": "shaggy-mane", "m2": "hollow-nap", "pers": "trundle", "snd": ["hiss", "thud"], "spd": 0.8,
+   "notes": "Sloth bear: a shaggy black coat with a pale chest V, long ivory claws for hooking, and a tube snout that hoovers termites with a loud huff.",
+   "p": {
+    "u0": "Long Claw Hook: long ivory sickle claws hook at spots along the edge, tied by a snag line",
+    "u1": {"m": "shaggy-mane", "x": "dust", "n": "Shaggy Charge: a shaggy black mane bursts off the edge at a run, dust flying"},
+    "u2": {"m": "shaggy-mane", "n": "Shaggy Mane: the long black coat bristles out like spikes, the pale chest V showing"},
+    "u3": "Sloth Hollow Nap: shaggy balls curled asleep rise out of a hollow, Zs drifting up",
+    "b0": {"m": "sickle-hook", "n": "Sloth Hook: long curved claws swing off the edge and hook shut"},
+    "b1": {"m": "termite-hoover", "n": "Sloth Hoover: the pale tube snout pokes out and hoovers a stream of termites in; the chain sucks termites back along the edge"},
+    "b2": "Sloth Hollow: shaggy balls tuck into the edge and doze, breathing slowly",
+    "b3": {"m": "termite-hoover", "n": "Sloth Sniff: the snout slams out, huffs and snuffles back, termites flying in"},
+    "x0": {"m": "sickle-hook", "lay": "slam", "n": "Sloth Swat: a long-clawed paw swats out and drops back"}
+   }
+  },
+  "ice-bear": {
+   "pal": ["#dceefa", "#2c4a66", "#8fd0f0"], "m": "icicle-beard", "m2": "snow-bank", "pers": "glide", "snd": ["crack", "tink"], "spd": 0.85,
+   "notes": "Ice bear of the tundra: rimed white-blue fur and an icicle beard on its chin; it smashes floes, belly-slides on the ice and breathes fog.",
+   "p": {
+    "u0": {"m": "icicle-beard", "n": "Rimed Coat: rimed fur bristles out in icicles with white tips, snow falling; the chain grows an icicle fringe"},
+    "u1": {"m": "ice-floe-slab", "c": "#e8f4fc", "n": "Floe Smash: a white ice floe slab slams out, the blue crack splitting, chips flicking off"},
+    "u2": {"m": "yakcalf-breath", "c": "#e0f0ff", "n": "Breath Fog: the white muzzle blows steaming fog clouds that spread out and drift back"},
+    "u3": {"m": "cub-belly-slide", "c": "#dceefa", "lay": "lance", "n": "Snow Slide: the bear belly-slides the length of the edge, paws forward, ice streaks behind"},
+    "b0": {"x": "snow", "n": "Frostbite Swipe: an icicle-bearded swipe flies off the edge, snow spraying"},
+    "b1": {"lay": "slam", "x": "glint", "n": "Glazed Maul: an icy glazed paw slams out and back, a glint on the ice"},
+    "b2": "Snowdrift Heap: snowdrift mounds heap up along the edge, snow falling",
+    "b3": {"m": "cub-belly-slide", "c": "#dceefa", "lay": "slam", "n": "Skidding Bulk: the bulk skids out on its belly and bumps back, ice streaks"},
+    "x0": {"m": "snow-bank", "lay": "lance", "n": "Glaze Plough: a snow bank is ploughed up the length of the edge"}
+   }
+  },
+  "glacier-bear": {
+   "pal": ["#8fb0cc", "#1e2c3c", "#d8f0ff"], "m": "crevasse-paw", "m2": "long-shadow", "pers": "thud", "snd": ["thud", "croak"], "spd": 0.8,
+   "notes": "Glacier bear: a rare silver-blue bear of ice fields; huge paws crack the glacier blue, its roar calves ice, its long shadow lies over the snow.",
+   "p": {
+    "u0": "Ice Paw: huge silver-blue paw prints stamp at spots, blue cracks tying them together; the chain cracks a crevasse print by print",
+    "u1": {"m": "blubber-wobble", "n": "Blubber: thick fat humps line the edge and jiggle, soaking up the blow"},
+    "u2": {"m": "calving-roar", "lay": "hold", "n": "Glacier Roar: roaring heads open their jaws along the edge, roar arcs going out and ice chunks calving off"},
+    "u3": "Long Shadow: the bear's long dark shadow stretches out over the snow and slides back",
+    "b0": {"lay": "strike", "x": "snow", "n": "Glacier Rake: paw prints fly off the edge with cracks, snow falling"},
+    "b1": {"lay": "slam", "n": "Frozen Cuff: a huge paw slams out, stamps and cracks the ice"},
+    "b2": {"m": "crevasse-paw", "lay": "hold", "n": "Blue Ice Plant: paws plant along the edge and blue ice cracks spread under them"},
+    "b3": {"m": "long-shadow", "lay": "slam", "n": "Shadow Shove: a long shadow shoves out and snaps back"},
+    "x0": {"m": "blubber-wobble", "lay": "lance", "n": "Slow Sledge: the heavy body sledges along the edge, fat rolls wobbling"}
+   }
+  },
+  "raccoon": {
+   "pal": ["#a8a49c", "#1a1818", "#f4f0e6"], "m": "bandit-mask", "m2": "ringtail-swish", "pers": "skitter", "snd": ["click", "chirp"], "spd": 1.2,
+   "notes": "Raccoon of forest and wetland: a grey bandit with a black mask and ringed tail; clever little hands pry lids, grab loot and raid bins.",
+   "p": {
+    "u0": {"m": "nimble-hand", "n": "Bandit Grab: little black hands grab at spots along the edge, tied by a loot line"},
+    "u1": {"m": "nimble-hand", "x": "click", "n": "Scratch: spread little hands scratch off the edge, click marks"},
+    "u2": {"m": "bin-clang", "c": "#b8bcc4", "n": "Bin Lid: dented trash-can lids are held up along the edge and clang"},
+    "u3": "Clever Pry: a masked face slips along the edge peeking for a gap, eyes glinting",
+    "b0": {"m": "nimble-hand", "x": "crumbs", "n": "Clever Paw Pinch: a quick hand pinches off the edge and drops crumbs"},
+    "b1": {"m": "ringtail-swish", "lay": "slam", "n": "Ringtail Wallop: the ringed tail swishes out and wallops back"},
+    "b2": {"m": "bandit-mask", "n": "Masked Hunch: masked faces hunch down along the edge, only ears and glinting eyes showing"},
+    "b3": {"m": "nimble-hand", "lay": "feint", "n": "Nimble Pocket-Dip: a hand dips in at spot after spot, quick as a pickpocket"},
+    "x0": {"m": "bin-clang", "c": "#b8bcc4", "lay": "slam", "n": "Trash-Lid Slam: a bin lid slams out and clangs down"}
+   }
+  },
+  "crab-eating-raccoon": {
+   "pal": ["#9a8e80", "#201a16", "#bfe4f0"], "m": "crab-dunk", "m2": "bandit-mask", "pers": "bob", "snd": ["click", "pop"], "spd": 1.1,
+   "notes": "Crab-eating raccoon of coast and mangrove: a browner, wet-furred bandit with a dark mask and a red crab in its paw; it dunks, washes and cracks its catch.",
+   "p": {
+    "u0": "Claw Snatch: a wet grey hand darts the length of the edge and snatches a red crab out of the water",
+    "u1": {"x": "click", "n": "Shell Crack: crabs held in the paws crack open off the edge, white shards flying"},
+    "u2": {"x": "haze", "n": "Dusk Cover: dark masks sink into the dusk haze, only eye glints showing"},
+    "u3": {"m": "wash-spray", "n": "Wash Off: wet fur shakes out and back, flinging fans of drops"},
+    "b0": {"m": "ringtail-swish", "x": "bubbles", "n": "Tide Line Swipe: a wet ringed tail swipes off the edge along the tide line, foam bubbles"},
+    "b1": {"lay": "hold", "n": "Crab Clutch: hands clutch red crabs along the edge, dunking and lifting them"},
+    "b2": "Crab Masked Hunch: masked faces duck along the edge and peek",
+    "b3": {"m": "wash-spray", "lay": "slam", "n": "Tide Shoulder: a wet shoulder barges out in a spray of drops"},
+    "x0": {"m": "nimble-hand", "c": "#9a8e80", "n": "Opening Swat: a wet hand swats out first, fingers spread"}
+   }
+  },
+  "honey-badger-brute": {
+   "pal": ["#d8d8cc", "#141414", "#f0c040"], "m": "cape-charge", "m2": "sting-shrug", "pers": "tumble", "snd": ["crack", "hiss"], "spd": 1.3,
+   "notes": "Honey badger brute: a low black body under a silver cape, utterly fearless; it charges anything, shrugs off bee stings and twists inside its loose skin.",
+   "p": {
+    "u0": "No Fear: bees dive at the silver cape and bounce off, bent stingers falling",
+    "u1": "Brute Bite: the black-and-silver badger lunges off the edge jaws first, anger marks; the chain is a full charge round the edge",
+    "u2": {"m": "loose-skin", "c": "#d8d8cc", "n": "Shrug Off: the badger twists round inside its loose skin and rises, the mantle staying put"},
+    "u3": {"x": "marks", "n": "Mad Rush: the badger rams out head-down and bounces back, anger marks popping"},
+    "b0": {"lay": "strike", "x": "marks", "n": "Badger Tear: badgers tear off the edge jaws open"},
+    "b1": {"lay": "lance", "n": "Badger Gouge: the badger gouges a furrow the length of the edge, dust behind"},
+    "b2": {"m": "loose-skin", "c": "#d8d8cc", "n": "Badger Hide: the loose silver hide holds along the edge while the body turns under it"},
+    "b3": {"m": "sting-shrug", "lay": "slam", "n": "Badger Shrug: the caped hump shoves out and bees bounce off it"},
+    "x0": {"lay": "feint", "n": "Badger Frenzy: the badger whirls from spot to spot, jaws snapping"}
+   }
+  },
+  "aardvark": {
+   "pal": ["#d4b0b0", "#4a3434", "#f4dcd0"], "m": "tube-snout", "m2": "long-ears", "pers": "burrow", "snd": ["pop", "squish"], "spd": 0.9,
+   "notes": "Aardvark: pale pink-grey, long ears and a tube snout; it digs burrows fast, smashes termite mounds and snuffles out ants.",
+   "p": {
+    "u0": {"lay": "slam", "n": "Burrow Claw: the snout shoves up out of a burrow mound and soil clods spray"},
+    "u1": {"m": "mound-crumble", "n": "Mound Smash: clay termite mounds crack and burst, chunks and termites flying"},
+    "u2": "Snout Jab: the tube snout jabs the length of the edge, nose disc first, soil kicked up",
+    "u3": "Ear Flap: long pink-lined ears flap open and fan out and back",
+    "b0": "Burrow Dig: snouts dig off the edge out of fresh soil mounds, clods flying",
+    "b1": {"m": "mound-crumble", "lay": "strike", "n": "Burrow Smash: mound chunks are flung off the edge"},
+    "b2": "Burrow Hide: only the long ears stick up out of the burrow along the edge",
+    "b3": {"m": "tube-snout", "lay": "feint", "n": "Burrow Snuffle: the snout pops out of hole after hole, snuffling"},
+    "x0": {"m": "mound-crumble", "lay": "lance", "n": "Burrow Rip: a mound is ripped open along the edge, spires cracking one after another"}
+   }
+  },
+  "giant-anteater": {
+   "pal": ["#a89880", "#1a1612", "#f0ece0"], "m": "banner-tail", "m2": "knuckle-claw", "pers": "march", "snd": ["tink", "thud"], "spd": 0.8,
+   "notes": "Giant anteater of the rainforest: a long thin snout, a sticky tongue, huge foreclaws it walks on folded, and a banner of a tail it sleeps under like a cloak.",
+   "p": {
+    "u0": {"m": "ant-tongue", "n": "Long Tongue: sticky pink tongues whip out at spots along the edge, tied by a thread of spit, ants stuck on"},
+    "u1": {"m": "knuckle-claw", "n": "Claw Hug: pale forepaws unfold their two huge claws off the edge and close in a hug"},
+    "u2": "Rear Up: the anteater rears up, huge claws raised in a row along the edge",
+    "u3": {"m": "banner-tail", "n": "Tail Cloak: the great shaggy tail fans out like a spiky cloak; the chain sweeps it round the edge"},
+    "b0": {"m": "knuckle-claw", "lay": "slam", "n": "Foreclaw Rake: a huge foreclaw rakes out and drops back"},
+    "b1": {"m": "ant-tongue", "n": "Sticky Tongue: the tongue flicks off the edge and back, ants stuck to it"},
+    "b2": {"m": "banner-tail", "n": "Cloak Curl: the tail curls along the edge like a cloak and sweeps slowly"},
+    "b3": {"m": "ant-tongue", "lay": "slam", "n": "Snout Shove: the long snout shoves out, tongue flicking"},
+    "x0": {"m": "banner-tail", "lay": "strike", "n": "Cloaked Thrash: the tail thrashes off the edge in a sweep"}
+   }
+  },
+  "beaver-foreman": {
+   "pal": ["#b07a48", "#2a1a0e", "#f08a2a"], "m": "tail-slap", "m2": "stick-dam", "pers": "plop", "snd": ["thud", "pop"], "spd": 1.0,
+   "notes": "Beaver foreman of the wetland: brown fur, orange chisel teeth and a flat scaly tail it slaps on the water; it gnaws logs, builds the dam and calls its crew.",
+   "p": {
+    "u0": {"lay": "slam", "n": "Tail Slap: the flat scaly tail rises and slaps down, splash crowns and water rings; the chain slaps three times on the way"},
+    "u1": "Log Wall: sticks and logs stack crosswise into a dam along the edge, mud between",
+    "u2": {"m": "log-gnaw", "n": "Gnaw Through: orange teeth gnaw an hourglass notch through a log the length of the edge, chips flying"},
+    "u3": {"m": "crew-heads", "n": "Crew Call: round beaver crew heads bob up out of the water and rise, teeth showing"},
+    "b0": {"m": "log-gnaw", "n": "Chisel Paw: chisel teeth chip at logs off the edge, sawdust falling"},
+    "b1": {"m": "log-gnaw", "lay": "slam", "n": "Timber Wallop: a gnawed log swings out and thumps back"},
+    "b2": {"x": "bubbles", "n": "Dam Buttress: the dam stacks up stick by stick along the edge, bubbles rising"},
+    "b3": {"m": "crew-heads", "lay": "slam", "n": "Crew Shove: the crew surfaces and shoves out together"},
+    "x0": {"lay": "strike", "n": "Flat Tail Slap: tails slap off the edge one after another, splash after splash"}
+   }
+  }
+ }
+}

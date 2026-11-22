@@ -1,0 +1,95 @@
+{
+ "_doc": "Large batch L07 themed pass (TEMPLATE.md sections 9 and 10): grey heron, goliath heron, pelican parliament, frigatebird, albatross, fern cassowary. New motifs live in motifs/large_L07.js (26, glyph/motion ids prefixed L07-, 5 custom chain effects: heron flight, pelican vote, frigatebird fish chase, albatross dynamic soaring, cassowary fern dash). Every piece (unique, class and x0) has a hand note. All 6 signature motifs are used by no other creature; wade-step (the grey heron's wading leg) is lent to the goliath heron for Long Stride. The Sonnet family overrides in overrides/large/L07.json stay the Generic fallback; its three review flags are answered by the pictures: Big Scoop = pouches scooping at spots tied by strings of water (snare), Committee Vote = bills raised one after another like hands, Plume Fan = grey back plumes fanning up.",
+ "creatures": {
+  "grey-heron": {
+   "pal": ["#b8c0ca", "#1c2026", "#f2d24a"], "m": "heron-stab", "m2": "still-stance", "pers": "march", "snd": ["click", "croak"], "spd": 0.8,
+   "notes": "Grey heron of wetland and coast: a tall grey wader with a white face, a black stripe running back into a trailing plume and a yellow dagger bill; it stands for ages on one leg in the shallows, wades with slow high steps, then shoots its S neck out to spear a fish, and flies off on slow bowed wings with its neck folded and legs trailing. It steps up stride by stride; a bill click when it strikes, a harsh croak when it guards.",
+   "p": {
+    "u0": {"m": "heron-stab", "n": "Spear Beak: the S neck uncoils and the yellow dagger bill spears the length of the edge, a white star at the tip"},
+    "u1": {"m": "still-stance", "n": "Stand Still: herons hunch motionless on one leg along the edge, only the ripple rings round their feet moving"},
+    "u2": {"m": "wade-step", "n": "Wade In: a heron wades from spot to spot on high slow steps, setting each foot down without a splash"},
+    "u3": {"m": "minnow-snap", "n": "Minnow Snap: the bill snaps shut on a silver minnow and flicks it up in a spray of drops"},
+    "b0": {"m": "heron-stab", "lay": "strike", "x": "glint", "n": "Lightning Spear-Bill: the bill flashes off the edge faster than the eye, a glint at the tip"},
+    "b1": {"m": "heron-stab", "lay": "fall", "x": "bubbles", "n": "Reed-Stalk Plunge: the head plunges down off the edge into the reed water, bubbles rising"},
+    "b2": {"m": "still-stance", "x": "sheen", "n": "Grey Mantle Fold: the heron folds its grey mantle round its hunched shoulders, a sheen running over the feathers"},
+    "b3": {"m": "heron-flight", "n": "Heron Lift-Off: herons lift off on slow bowed wings, legs trailing, and settle back"},
+    "x0": {"m": "wade-step", "lay": "slam", "x": "splat", "n": "Heavy Stilt Stomp: a stilt leg stamps out and back, a mud splat where it lands"}
+   }
+  },
+  "goliath-heron": {
+   "pal": ["#c47a46", "#24160e", "#a8b2bc"], "m": "goliath-bill", "m2": "long-reflection", "pers": "trundle", "snd": ["crack", "croak"], "spd": 0.65,
+   "notes": "Goliath heron of the wetlands: the biggest heron, very tall, chestnut head and neck with a streaked white throat, a grey back and a huge heavy dark bill; it stands in the shallows longer than anything else, so long a dragonfly lands on its bill, then drives that bill in and swallows big fish whole. It rises slow and heavy; the strike cracks, the guard is a deep croak.",
+   "p": {
+    "u0": {"m": "goliath-bill", "n": "Fast Stab: after the long coil the heavy dark bill drives out of the edge, a hit star at the point"},
+    "u1": {"m": "big-gulp", "n": "Gulp Catch: a big fish held across the bill is turned head first and swallowed whole, the bulge sliding down the chestnut neck"},
+    "u2": {"m": "long-reflection", "n": "Shallow Stand: towering herons stand along the edge in shallow water, their reflections broken by a slow shimmer"},
+    "u3": {"m": "patience-fly", "c": "#e0563a", "n": "Long Wait: a red darter dragonfly settles on the motionless bill tip and lifts away again, the heron never moving"},
+    "b0": {"m": "goliath-bill", "lay": "lance", "n": "Triple Stab: the bill drives the length of the edge three times, one heavy stab after another"},
+    "b1": {"m": "long-reflection", "lay": "strike", "n": "Still-Water Strike: the tall heron lunges off the edge out of dead stillness, its reflection shattering"},
+    "b2": {"m": "plume-fan", "n": "Plume Fan: long grey back plumes fan up off the chestnut back and stand along the edge"},
+    "b3": {"m": "wade-step", "n": "Long Stride: the giant takes long slow strides out of the edge and back, legs lifted high"},
+    "x0": {"m": "goliath-bill", "lay": "slam", "x": "splat", "n": "Stilt Crash: the whole huge head and bill crash out and back, mud splatting"}
+   }
+  },
+  "pelican-parliament": {
+   "pal": ["#eee8dc", "#26262c", "#f0965a"], "m": "pouch-scoop", "m2": "wing-wall", "pers": "plop", "snd": ["squish", "click"], "spd": 0.9,
+   "notes": "Pelican parliament of coast and island: a crowd of big white pelicans with long yellow bills, orange throat pouches and black wing tips, who scoop fish in their pouches, stand shoulder to shoulder, fly in long lines and decide everything by committee with bills raised like hands. They plop down from a height like a diving pelican; the pouch squishes, the bills clack.",
+   "p": {
+    "u0": {"m": "pouch-scoop", "lay": "snare", "n": "Big Scoop: pouches scoop at spots round the edge, strings of water hanging between them and snaring the foe"},
+    "u1": {"m": "pouch-scoop", "lay": "slam", "x": "splat", "n": "Pouch Slap: a full pouch swings out and slaps back, water splatting"},
+    "u2": {"m": "wing-wall", "n": "Wing Wall: pelicans stand broadside along the edge and open their wings wide, black tips touching, a wall of white"},
+    "u3": {"m": "vote-bills", "n": "Committee Vote: bills go up along the edge one after another like hands in a vote, the counted ones ticked, and the vote passes on to the next piece"},
+    "b0": {"m": "pouch-scoop", "lay": "strike", "n": "Pouch Scoop: a pelican lunges off the edge, pouch scooping up the foe"},
+    "b1": {"m": "pouch-scoop", "lay": "fall", "x": "bubbles", "n": "Bill Plunge: pelicans plunge bill first off the edge into the water, bubbles rising"},
+    "b2": {"m": "wing-wall", "x": "sheen", "n": "Committee Canopy: spread wings form a white canopy along the edge, a sheen running over them"},
+    "b3": {"m": "pelican-line", "n": "Adjourned Flap: the meeting adjourns and pelicans glide out of the edge in a line and back"},
+    "x0": {"m": "vote-bills", "lay": "slam", "x": "click", "n": "Gavel Slap: a raised bill comes down like a gavel, click marks round the bang"}
+   }
+  },
+  "frigatebird": {
+   "pal": ["#e2503c", "#14121a", "#8a9cc4"], "m": "fork-swoop", "m2": "storm-soar", "pers": "hover", "snd": ["whirr", "pop"], "spd": 1.25,
+   "notes": "Frigatebird of island and coast: a glossy black sea pirate on long crooked wings with a deep forked tail and a red throat pouch the male blows up like a balloon; it hangs on the storm wind for days, then swoops on other seabirds until they drop their fish and snatches the fish in mid-air. It hangs above before it drops; the swoop whirrs, the balloon pops.",
+   "p": {
+    "u0": {"m": "fork-swoop", "n": "Air Snatch: frigatebirds swoop off the edge on crooked wings, tails scissoring, and a fish drops from the grab"},
+    "u1": {"m": "fork-swoop", "lay": "lance", "n": "Chase Down: the pirate chases the length of the edge, forked tail scissoring, and runs on after a tumbling fish"},
+    "u2": {"m": "storm-soar", "n": "Storm Glide: black kites hang on the storm wind out of the edge over curling wind streaks and drift back"},
+    "u3": {"m": "fish-rob", "n": "Fish Rob: robbed silver fish tumble at spots round the edge, tied together by the pirate's snatching line"},
+    "b0": {"m": "fish-rob", "lay": "strike", "n": "Pirate Snatch: a fish is torn away off the edge, tumbling, the hooked bill on its tail"},
+    "b1": {"m": "fork-swoop", "lay": "feint", "n": "Mid-Air Robbery: the pirate blinks from spot to spot, swooping on each one"},
+    "b2": {"m": "storm-soar", "lay": "hold", "n": "Sea Kite Canopy: crooked black wings hang still over the edge on the wind"},
+    "b3": {"m": "fork-swoop", "lay": "scatter", "x": "marks", "n": "Hat Swipe: frigatebirds swipe out of the edge and back, cheeky marks popping where the hat was"},
+    "x0": {"m": "pouch-balloon", "lay": "slam", "n": "Forked Wallop: a red throat balloon puffs up, wallops out and back, shining"}
+   }
+  },
+  "albatross": {
+   "pal": ["#f2f0ea", "#24222a", "#f4c0a8"], "m": "wingspan-soar", "m2": "wave-float", "pers": "glide", "snd": ["click", "whirr"], "spd": 0.85,
+   "notes": "Albatross of island and coast: a big white seabird with a pink hooked bill and the longest, narrowest wings of all, tipped black; it dynamic-soars over the waves for days without a flap, sleeps on the wing, rests riding the swell, snatches squid off the surface at night and lands clumsily. It glides in low with a streak; the bill clacks, the wings whirr.",
+   "p": {
+    "u0": {"m": "squid-snatch", "n": "Squid Snatch: the hooked pink bill snatches a pale squid, swings it out and slams it back, tentacles thrashing"},
+    "u1": {"m": "wave-float", "n": "Sea Rest: albatrosses rest riding the swell and rise off the edge with the waves"},
+    "u2": {"m": "wingspan-soar", "n": "Dynamic Soar: huge narrow wings bank out of the edge and back, one tip skimming the wave, and the soar runs on in S-curves to the next piece"},
+    "u3": {"m": "wing-nap", "n": "Wing Nap: albatrosses asleep on outstretched wings rise off the edge, eyes shut, little z marks drifting up"},
+    "b0": {"m": "squid-snatch", "lay": "strike", "n": "Albatross Beak: the hooked bill lunges off the edge and snaps"},
+    "b1": {"m": "wingspan-soar", "lay": "slam", "x": "splat", "n": "Albatross Landing: a clumsy landing, huge wings crashing out and back in a splash"},
+    "b2": {"m": "wingspan-soar", "lay": "hold", "n": "Albatross Span: the huge wings lie spread along the edge, banking gently"},
+    "b3": {"m": "wing-nap", "lay": "scatter", "n": "Albatross Doze: dozing albatrosses drift out of the edge on still wings and back"},
+    "x0": {"m": "wingspan-soar", "lay": "fall", "x": "bubbles", "n": "Albatross Crash: an albatross tumbles off the edge wings first into the sea, bubbles rising"}
+   }
+  },
+  "fern-cassowary": {
+   "pal": ["#6cb45a", "#141a12", "#4cc4e8"], "m": "casque-head", "m2": "fern-cloak", "pers": "thud", "snd": ["thud", "hiss"], "spd": 1.1,
+   "notes": "Fern cassowary of forest, rainforest and island: a huge flightless bird whose hair-like plumage is a cloak of drooping fern fronds, with a bright blue neck, red wattles, a tall horn casque and a long dagger claw on the inner toe; it butts with the casque, kicks with the dagger, crouches unseen in the ferns and dashes through the undergrowth. It lands heavy with a shake; the kick thuds, the guard is a low hiss.",
+   "p": {
+    "u0": {"m": "casque-head", "n": "Casque Butt: the head lowers under the tall casque, the blue neck drives it out and back with a white star"},
+    "u1": {"m": "dagger-toe", "n": "Dagger Kick: the scaly foot kicks the length of the edge, the long dagger claw leaving a white slash"},
+    "u2": {"m": "fern-cloak", "n": "Fern Crouch: the cassowary crouches under its drooping fern plumage along the edge, only the casque tip and a blue and red flash peeking out"},
+    "u3": {"m": "fern-dash", "n": "Fern Dash: a cassowary sprints from spot to spot, fronds streaming, and dashes on through ferns that part and spring back"},
+    "b0": {"m": "dagger-toe", "lay": "strike", "n": "Fern Stab: the dagger claw stabs off the edge"},
+    "b1": {"m": "dagger-toe", "lay": "slam", "x": "clods", "n": "Fern Kick: a big kick out and back, clods of forest floor flying"},
+    "b2": {"m": "casque-head", "lay": "hold", "n": "Fern Helm: casques stand along the edge like helmets, blue necks braced"},
+    "b3": {"m": "fern-cloak", "lay": "scatter", "x": "pollen", "n": "Fern Scatter: frond plumage bursts out of the edge in a puff of spores and settles back"},
+    "x0": {"m": "fern-dash", "lay": "slam", "x": "dust", "n": "Fern Stomp: the running cassowary stomps out and back, dust flying"}
+   }
+  }
+ }
+}

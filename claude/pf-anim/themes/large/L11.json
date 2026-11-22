@@ -1,0 +1,155 @@
+{
+ "_doc": "Large batch L11 themed pass (TEMPLATE.md sections 9 and 10): moray lurker, reef eel lord, reef eel tyrant, conger brute, bog pike, elephant seal bull, salt sea lion, giant otter gang, deep octopus, kraken spawn. New motifs live in motifs/large_L11.js (52, glyph/motion ids prefixed L11-, 7 custom chain effects: a moray sliding under a rock ridge to the next crack, a rusted anchor chain dragged along, a pike torpedoing through reeds that bend after it, a ball bounced nose to nose in three hops, three giant otters porpoising in a line, an octopus arm reaching along the edge, a kraken tentacle arching out of the sea and slapping down). All 10 signature motifs are new and used by no other creature (100%). Shared only as secondary motifs inside the batch: hole-slip (reef eel lord and tyrant: the same slip into a coral hole), eel-knot (reef eel lord and conger: eels knot themselves for leverage), rip-pull (tyrant Reef Rip and sea lion Bay Drag: the same rip current), each in its own colours. Reused from earlier catalogues where truly the same: flipper-slap (L09 turtle flipper smacking the water = sea lion Flipper Smack), otter-slide (medium m06 belly-sliding otters), ink-cloud and salt-glint and flipper-track (small). Every piece (unique, class and x0) has a hand note. The Sonnet family overrides in overrides/large/L11.json stay the Generic fallback; its four review flags are answered by the pictures: Bull Bark = barking head with white bark marks popping up spot to spot (sea-bark, fam puff), Abyss Mimic = a skin patch flashing stripes / spots / bumps / pale (mimic-flash, fam sparkle), Kraken Lurk = a hooded storm eye opening at spots under the water, tied together (kraken-hood snare), Reed-Lurk Dart = the pike darting from reed clump to reed clump (reed-lurk feint).",
+ "creatures": {
+  "moray-lurker": {
+   "pal": ["#a0965a", "#1e1c12", "#f0e6a8"], "m": "crack-moray", "m2": "crack-wedge", "pers": "burrow", "snd": ["click", "hiss"], "spd": 0.8,
+   "notes": "Moray lurker of coast and island reefs: a mottled green-brown moray that lives with only its head out of a rock crack, mouth opening and closing as it breathes, a hidden second jaw in its throat, tough scaleless leather skin. It comes up out of the rock from below; teeth click on the strike, a hiss when it guards.",
+   "p": {
+    "u0": {"m": "crack-wedge", "n": "Crevice Wedge: the thick mottled body wedges itself between two rock slabs along the edge, swelling to fill the gap"},
+    "u1": {"m": "moray-gape", "n": "Needle Bite: the jaws gape on needle teeth and the hidden second jaw shoots out of the throat, slams out and snaps"},
+    "u2": {"m": "crack-moray", "x": "dust", "n": "Crevice Slip: the head slips back into its crack and pokes out further along, rock grit trickling"},
+    "u3": {"m": "moray-hide", "n": "Wet Leather: a band of scaleless mottled leather lines the edge, a wet sheen sliding over it"},
+    "b0": {"m": "crack-moray", "n": "Crevice Teeth Snap: the head shoots out of a rock crack, gapes on its needle teeth and snaps with a star"},
+    "b1": {"m": "moray-gape", "lay": "strike", "x": "bubbles", "n": "Lurking Surge: gaping jaws surge out of the dark with a rush of bubbles, the second jaw following"},
+    "b2": {"m": "moray-hide", "x": "dew", "n": "Wet-Leather Hide: the mottled leather hide holds the edge, beaded with seawater"},
+    "b3": {"m": "crack-wedge", "lay": "snare", "n": "Crevice Slink: the mottled body slinks from crack to crack, wedged at each, a line of grit joining them"},
+    "x0": {"m": "crack-moray", "lay": "lance", "n": "Rockside Lunge: the head and rock slabs run the length of the edge in one lunge out of the reef"}
+   }
+  },
+  "reef-eel-lord": {
+   "pal": ["#4a8ee0", "#0e1a34", "#f4d83a"], "m": "ribbon-eel", "m2": "coral-castle", "pers": "glide", "snd": ["zig", "pop"], "spd": 1.1,
+   "notes": "Reef eel lord of coast and island: a vivid blue ribbon eel with a yellow jaw, a yellow fin and flared nostril flags, lord of a pink coral castle, taking a toll of every fish that passes; its bite carries a shock. It glides in low over the reef; sparks zig on the strike, a bubble pop when it guards.",
+   "p": {
+    "u0": {"m": "eel-spark", "n": "Eel Shock: arched blue eels hang crackling at spots along the edge, yellow sparks jumping and a line tying them together"},
+    "u1": {"m": "ribbon-eel", "n": "Lunge From Hole: the blue ribbon eel whips up out of its coral hole, yellow jaw agape, nostril flags flaring"},
+    "u2": {"m": "hole-slip", "n": "Slip Back: the blue tail slides back down into the coral hole and is gone, bubbles left behind"},
+    "u3": {"m": "toll-coin", "c": "#f0c840", "n": "Toll Bite: gold coin-scales with a crescent bite taken out flip off the edge and fall, a green venom bead on each bite"},
+    "b0": {"m": "toll-coin", "c": "#f0c840", "lay": "strike", "x": "-", "n": "Coral Toll: the lord takes its toll, bitten gold scales flicked off the edge one after another"},
+    "b1": {"m": "coral-crumb", "c": "#f07a8a", "n": "Coral Spray: pink coral chips spray off the edge, turning over in the air and breaking apart"},
+    "b2": {"m": "coral-castle", "n": "Coral Slime: a pink coral castle lines the edge, the lord's blue head peeking from its hole, slime bubbles rising"},
+    "b3": {"m": "ribbon-eel", "lay": "snare", "n": "Coral Lure: ribbon eels wave their yellow nostril flags at spots like lures, tied by a fine line"},
+    "x0": {"m": "eel-knot", "n": "Coral Coil: the blue eel ties itself into a knot and pulls it tight, jaws bared at the end"}
+   }
+  },
+  "reef-eel-tyrant": {
+   "pal": ["#c8a84a", "#2a2210", "#dfe2e6"], "m": "spine-crown", "m2": "tyrant-band", "pers": "thud", "snd": ["crack", "hiss"], "spd": 0.85,
+   "notes": "Reef eel tyrant of the coast: a huge eel banded grey and gold, a crown of spines round its head, ruling the reef by force; it gnaws the coral, rides the hard currents and regrows by sipping from the polyps. It lands heavy; the reef cracks on the strike, a hiss when it guards.",
+   "p": {
+    "u0": {"m": "spine-crown", "n": "Tyrant Lunge: the crowned banded head drives along the edge, spines flaring, teeth bared"},
+    "u1": {"m": "coral-sip", "c": "#f08a7a", "n": "Coral Sip: coral polyps open their tentacles and green nectar beads rise off them as the tyrant sips and regrows"},
+    "u2": {"m": "hole-slip", "n": "Slip Crevice: the banded grey-gold tail slips back into a coral crevice, bubbles following"},
+    "u3": {"m": "spine-crown", "n": "Spine Crown: the crown of spines flares out like a ring of spikes and holds"},
+    "b0": {"m": "coral-crumb", "c": "#f0a040", "n": "Reef Gnaw: orange coral chunks gnawed off fly from the edge"},
+    "b1": {"m": "tyrant-band", "lay": "strike", "n": "Reef Ripple: the huge banded body ripples out from the edge in a long wave"},
+    "b2": {"m": "tyrant-band", "x": "sheen", "n": "Reef Slickcoat: the banded coat lies along the edge, a slick sheen running over the grey and gold bands"},
+    "b3": {"m": "rip-pull", "c": "#7ab8d0", "n": "Reef Rip: rip-current swirls hang at spots, tied together, pulling everything in"},
+    "x0": {"m": "coral-crumb", "c": "#f0a040", "lay": "slam", "n": "Reef Crack: the tyrant slams the reef and the coral cracks into tumbling chunks"}
+   }
+  },
+  "conger-brute": {
+   "pal": ["#9aa0a6", "#1a1c1e", "#c8643a"], "m": "wreck-conger", "m2": "rust-plate", "pers": "squelch", "snd": ["crack", "squish"], "spd": 0.7,
+   "notes": "Conger brute of the coast: a thick grey conger eel living in a shipwreck, streaked with rust and draped in weed, coming out through a porthole, slimy and draining. It lands slow and wet; the wreck cracks on the strike, a slimy squish when it guards and heals.",
+   "p": {
+    "u0": {"m": "wreck-conger", "n": "Wreck Lunge: the thick grey head lunges out through a rusted porthole and runs the edge"},
+    "u1": {"m": "conger-slime", "c": "#cfe6d4", "n": "Slime Coat: thick glossy slime wells up, stretches and rises in gobs, coating the hide again"},
+    "u2": {"m": "rust-plate", "c": "#c0703e", "n": "Wreck Hide: jagged rusted hull plates with rivets and a weed strand push out like spikes"},
+    "u3": {"m": "hull-rake", "n": "Hull Rake: the conger rakes along a barnacled hull plate, one, two, three scrape grooves, rust flakes flying"},
+    "b0": {"m": "wreck-conger", "lay": "strike", "n": "Wreck Jaw: the grey head bursts out of the porthole, jaws open, and snaps"},
+    "b1": {"m": "bilge-slosh", "c": "#7a9a8a", "n": "Wreck Slosh: murky bilge water sloshes out of the wreck, rust flakes and weed in the curl"},
+    "b2": {"m": "conger-slime", "c": "#cfe6d4", "lay": "hold", "n": "Wreck Slime: slime gobs line the edge thick and glossy"},
+    "b3": {"m": "anchor-chain", "c": "#b8643a", "n": "Wreck Drag: rusted anchor-chain links hang at spots, joined link to link, dragging you down"},
+    "x0": {"m": "eel-knot", "x": "kelp", "n": "Wreck Coil: the thick grey eel knots itself and twists, weed waving off the wreck"}
+   }
+  },
+  "bog-pike": {
+   "pal": ["#7aa84e", "#162010", "#ecea9c"], "m": "reed-pike", "m2": "reed-lurk", "pers": "pounce", "snd": ["click", "pop"], "spd": 1.2,
+   "notes": "Bog pike of the wetland: a long olive pike with rows of pale bean spots and flat duck-bill jaws full of backward teeth, lying motionless among the reeds and then striking like a torpedo; bog folk say it grabs boots. It crouches and pounces; jaws click on the strike, a pop of bog water when it guards.",
+   "p": {
+    "u0": {"m": "reed-pike", "n": "Pike Strike: the spotted pike lies still among the reeds, bends into an S and torpedoes out, duck-bill jaws snapping"},
+    "u1": {"m": "reed-lurk", "n": "Weed Lurk: reeds sway and a spotted shadow with one gleaming eye lurks between them, then sinks away"},
+    "u2": {"m": "duckbill-jaw", "n": "Jaw Lock: long flat duck-bill jaws run the edge and lock shut, backward teeth interlocking"},
+    "u3": {"m": "boot-snag", "c": "#9a6a3a", "n": "Boot Snag: old boots hang snagged on hook teeth at spots, tied together by a fishing line"},
+    "b0": {"m": "duckbill-jaw", "lay": "strike", "n": "Reed-Lunge Snap: the duck-bill jaws lunge out of the reeds and snap with a star"},
+    "b1": {"m": "boot-snag", "c": "#9a6a3a", "lay": "strike", "x": "splat", "n": "Boot-Bait Splash: a boot is flung off the edge as bait and lands with a muddy splash"},
+    "b2": {"m": "pike-flank", "n": "Bog-Slime Coat: a slimy olive flank with rows of pale bean spots holds the edge, a gloss sliding over it"},
+    "b3": {"m": "reed-lurk", "lay": "feint", "n": "Reed-Lurk Dart: the spotted shadow darts from reed clump to reed clump"},
+    "x0": {"m": "fork-thrash", "n": "Pike Tail Thrash: the forked tail fin thrashes out from side to side, throwing bog water"}
+   }
+  },
+  "elephant-seal-bull": {
+   "pal": ["#9c8a78", "#221a14", "#f0a0a0"], "m": "trunk-nose", "m2": "bull-callus", "pers": "trundle", "snd": ["croak", "thud"], "spd": 0.6,
+   "notes": "Elephant seal bull of coast and island: a huge grey-brown bull with a swollen trunk of a nose that inflates when it roars, a neck and chest calloused and pink with scars from fights, rolls of blubber; it rears up and slams its chest down on rivals. It hauls itself in very slowly and heavily; the roar booms on the strike, a thud when it guards.",
+   "p": {
+    "u0": {"m": "bull-rear", "n": "Bull Slam: the bull rears its scarred chest high and slams down flat, sand bursting, running the edge"},
+    "u1": {"m": "blubber-ripple", "n": "Blubber Wave: fat rolls ripple at spots along the edge, tied into one wobbling wave"},
+    "u2": {"m": "bull-callus", "n": "Blubber Wall: the calloused chest shield pushes out, pink scar ridges standing up like spikes"},
+    "u3": {"m": "trunk-nose", "n": "Nose Trumpet: the swollen nose inflates, the roar booms out in rings, then it slams back"},
+    "b0": {"m": "trunk-nose", "lay": "strike", "n": "Trumpet Gape: the head gapes pink under its drooping nose and lunges"},
+    "b1": {"m": "roar-ring", "n": "Trumpet Blast: a gaping pink mouth blasts roar arcs outward, spit flying"},
+    "b2": {"m": "blubber-ripple", "lay": "hold", "n": "Trumpet Blubber: rolls of blubber pile up along the edge and jiggle"},
+    "b3": {"m": "flipper-track", "c": "#d8c08a", "x": "dust", "n": "Trumpet Haul: the bull hauls itself up the beach, paired flipper marks in the sand tied in a dragged line"},
+    "x0": {"m": "blubber-ripple", "car": "roll", "n": "Trumpet Roll: the bull rolls, blubber heaving off the edge in rolls"}
+   }
+  },
+  "salt-sea-lion": {
+   "pal": ["#c08a5a", "#2a1a0e", "#f4f4ec"], "m": "nose-bounce", "m2": "surf-roll", "pers": "hop", "snd": ["chirp", "squish"], "spd": 1.1,
+   "notes": "Salt sea lion of the coast: a sleek caramel sea lion crusted with sea salt, loud and playful, barking, rolling in the surf, flopping on its belly and bouncing a ball off its nose in the bay. It bounces in; barks chirp on the strike, a wet squish when it guards.",
+   "p": {
+    "u0": {"m": "sea-bark", "lay": "feint", "n": "Bull Bark: the bull pops up at one spot after another, mouth wide and pink, white bark marks flying"},
+    "u1": {"m": "flipper-slap", "c": "#b07a4a", "n": "Flipper Smack: a broad front flipper swings up and smacks the water flat in a burst of spray"},
+    "u2": {"m": "surf-roll", "n": "Blubber Roll: sleek sea lions roll over in the surf along the edge, pale belly up and back"},
+    "u3": {"m": "nose-bounce", "n": "Bay Bounce: a striped ball bounces off the sea lion's nose, out and back, out and back"},
+    "b0": {"m": "sea-bark", "lay": "strike", "n": "Barking Lunge: the head lunges off the edge barking, bark marks flung ahead"},
+    "b1": {"m": "salt-flop", "n": "Salt Spray Flop: the body arches up and flops off the edge, white salt spray hanging after"},
+    "b2": {"m": "salt-glint", "c": "#f4f4ec", "lay": "hold", "n": "Salted Blubber: salt crystals glitter along the dried hide"},
+    "b3": {"m": "rip-pull", "c": "#6ab0c8", "n": "Bay Drag: bay currents swirl at spots, tied together, dragging under"},
+    "x0": {"m": "salt-flop", "lay": "slam", "x": "splat", "n": "Salt Belly Flop: the belly flop slams down on the edge with a wet splat"}
+   }
+  },
+  "giant-otter-gang": {
+   "pal": ["#9a7650", "#1a120a", "#f2e2bc"], "m": "otter-periscope", "m2": "whisker-wall", "pers": "swarm", "snd": ["chirp", "click"], "spd": 1.25,
+   "notes": "Giant otter gang of wetland and rainforest rivers: five dark brown giant otters, each with its own cream throat blotch, standing up out of the water to look (periscoping), screaming, mobbing together, slapping fish about and piling on. They converge as a gang; screams chirp on the strike, a click of teeth when they guard.",
+   "p": {
+    "u0": {"m": "otter-periscope", "n": "Gang Pounce: otters periscope up out of the water, cream throat blotches showing, and lunge screaming"},
+    "u1": {"m": "fish-club", "n": "Fish Slap: a silver fish swung by the tail runs the edge and is slapped flat with a star"},
+    "u2": {"m": "whisker-wall", "n": "Whisker Wall: rows of muzzles bristle stiff white whiskers out like spikes"},
+    "u3": {"m": "otter-pile", "n": "Pile On: otters pile on one after another, four high, and drop back"},
+    "b0": {"m": "fish-club", "lay": "strike", "n": "Otter Crew Snap: the crew snaps fish out of the water and swings them off the edge"},
+    "b1": {"m": "otter-slide", "n": "Otter Belly-Flop: otters belly-slide off the edge down a wet mud streak"},
+    "b2": {"m": "whisker-wall", "lay": "hold", "x": "dew", "n": "Otter Pelt: muzzles and dense wet pelts line the edge, whiskers forward, water beading off"},
+    "b3": {"m": "fish-club", "lay": "snare", "n": "Otter Net-Haul: a haul of fish hangs at spots, strung together like a net"},
+    "x0": {"m": "otter-periscope", "lay": "lance", "n": "Otter Rush: the gang rushes along the edge, heads bobbing up one after another"}
+   }
+  },
+  "deep-octopus": {
+   "pal": ["#c8584a", "#2a0e0e", "#f4c4a4"], "m": "sucker-arm", "m2": "sucker-ring", "pers": "bob", "snd": ["squish", "pop"], "spd": 0.9,
+   "notes": "Deep octopus of island and coast drop-offs: a deep red octopus with long curling arms lined with pale suckers, a hidden parrot beak, ink jets and skin that flashes through stripes, spots and bumps to mimic anything. It bobs up as if floating; a wet squish on the strike, a pop when it guards.",
+   "p": {
+    "u0": {"m": "ink-cloud", "c": "#6a5a8a", "n": "Ink Cloud: round ink puffs bloom out from the edge and close back, the octopus gone inside them"},
+    "u1": {"m": "eight-arms", "n": "Eight Arms: the red octopus splays all eight arms out from the edge and pulls them in"},
+    "u2": {"m": "sucker-arm", "n": "Sucker Grip: curling sucker arms hold at spots along the edge, tied together, gripping"},
+    "u3": {"m": "sucker-ring", "n": "Sucker Ring: rows of sucker discs push out and pulse like a ring of studs"},
+    "b0": {"m": "parrot-beak", "n": "Abyss Beak: the hidden parrot beak opens in a ring of arm bases and bites"},
+    "b1": {"m": "ink-jet", "c": "#7a6a9a", "n": "Abyss Ink Jet: the siphon jets a dark stream of ink off the edge that balloons into a blob"},
+    "b2": {"m": "mimic-flash", "lay": "hold", "n": "Abyss Mantle: the mantle skin lines the edge, flicking through stripes, spots and bumps"},
+    "b3": {"m": "mimic-flash", "lay": "feint", "n": "Abyss Mimic: a patch of skin pops up here and there, flashing a new pattern each time"},
+    "x0": {"m": "sucker-arm", "lay": "slam", "n": "Abyss Embrace: the arms wrap out and pull back in, suckers showing"}
+   }
+  },
+  "kraken-spawn": {
+   "pal": ["#9a6ac8", "#1a1024", "#bfe8ff"], "m": "kraken-arm", "m2": "kraken-hood", "pers": "plop", "snd": ["crack", "squish"], "spd": 0.8,
+   "notes": "Kraken spawn of the stormy coast: a young kraken, dark purple, with small but thick hooked tentacles, a round toothed maw, a hooded mantle with a pale storm eye and storm ink that flickers with lightning. It drops in from above with a splash; thunder cracks on the strike, a squish when it guards.",
+   "p": {
+    "u0": {"m": "kraken-arm", "lay": "hold", "n": "Tentacle Wall: purple tentacles rise out of the waves in a row along the edge and sway, a living wall"},
+    "u1": {"m": "storm-ink", "c": "#7a6a90", "n": "Ink Shroud: storm-ink clouds billow out from the edge, lightning flickering inside, and draw back"},
+    "u2": {"m": "suction-crush", "n": "Suction Crush: a big sucker cup runs the edge, presses down and crushes, crack lines and a ring mark left"},
+    "u3": {"m": "jet-dash", "lay": "feint", "n": "Jet Dash: a small kraken body jets from spot to spot, mantle pumping, arms trailing"},
+    "b0": {"m": "kraken-maw", "n": "Kraken Maw: a round maw of hooked teeth opens wide off the edge and snaps shut"},
+    "b1": {"m": "storm-ink", "c": "#7a6a90", "lay": "strike", "x": "jet", "n": "Kraken Spout: storm ink spouts up off the edge in jets, lightning cracking in the cloud"},
+    "b2": {"m": "kraken-hood", "n": "Kraken Hood: the hooded mantle lines the edge, a pale storm eye opening under it"},
+    "b3": {"m": "kraken-hood", "lay": "snare", "n": "Kraken Lurk: storm eyes open at spots under the water, tied together, watching"},
+    "x0": {"m": "kraken-arm", "lay": "strike", "n": "Kraken Wrap: a hooked tentacle lashes out off the edge and curls round"}
+   }
+  }
+ }
+}

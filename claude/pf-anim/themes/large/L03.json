@@ -1,0 +1,155 @@
+{
+ "_doc": "Large batch L03 themed pass (TEMPLATE.md sections 9 and 10): tigers (jungle, elder), black jaguar, leopards (cloud, ghost), lynxes (tufted, snow), mischief monkey, mandrill boss, bearded pig. New motifs live in motifs/large_L03.js (32 motifs, glyph/motion ids prefixed L03-, 8 custom chain effects); reused: snow-bank (L02, the same drift picture). Every piece (unique and class) has a hand note naming its picture, with an explicit motif and layout. All 10 signature motifs are new and used as a signature by no other creature; siblings share only secondary motifs (tiger-stripe/tiger-claw/tiger-leap with the elder tiger in grey, lynx-spring/hook-claw/lynx-tufts with the snow lynx in pale grey, fruit-lob with the bearded pig).",
+ "creatures": {
+  "jungle-tiger": {
+   "pal": ["#ec8a30", "#1c1008", "#f6ead0"], "m": "tiger-stripe", "m2": "leaf-dapple", "pers": "pounce", "snd": ["crack", "hiss"], "spd": 1.1,
+   "notes": "Jungle tiger of the forest and rainforest: orange with black stripes, slinking low through dappled leaf shade, freezing, then the pounce; the stripes are both its picture and its hiding place.",
+   "p": {
+    "u0": {"m": "tiger-stripe", "lay": "scatter", "n": "Stripe Stalk: a striped tiger creeps out low, freezes in the shade and melts back in; you only saw the stripes"},
+    "u1": {"m": "tiger-leap", "lay": "strike", "n": "Tiger Pounce: the tiger crouches, then flies off the edge forepaws first, jungle leaves shaken loose drifting down"},
+    "u2": {"m": "tiger-claw", "lay": "lance", "n": "Rake Claws: a paw runs the edge with its claws out; the scars it leaves darken into black stripes"},
+    "u3": {"m": "tiger-stripe", "lay": "lance", "x": "dust", "n": "Striped Dash: the stalk breaks into a sprint, a blur of stripes streaking along the edge in a dust trail"},
+    "b0": {"m": "tiger-claw", "lay": "strike", "n": "Stripe-Shade Rake: clawed paws swipe out of the shade, leaving stripe-shaped scars"},
+    "b1": {"m": "tiger-leap", "lay": "slam", "x": "dust", "n": "Shade-Pounce Mangle: the tiger leaps out of the shade, lands hard and mauls, dust flying"},
+    "b2": {"m": "leaf-dapple", "c": "#80b44e", "lay": "hold", "n": "Dappled Stance: broad jungle leaves line the edge, sun flecks blinking through them over the hidden tiger"},
+    "b3": {"m": "leaf-dapple", "c": "#80b44e", "lay": "slam", "n": "Shade Slip: the leaves shove apart and swing back as the tiger slips through the shade"},
+    "x0": {"m": "tiger-leap", "lay": "fall", "n": "Leaf-Fall Slam: the tiger drops out of the canopy onto the edge in a fall of leaves"}
+   }
+  },
+  "elder-tiger": {
+   "pal": ["#cfae8c", "#2a2018", "#ece8e0"], "m": "elder-paw", "pers": "thud", "snd": ["croak", "thud"], "spd": 0.8,
+   "notes": "Elder tiger: an old tiger with greying, faded stripes, old scars and huge paws; slower than the jungle tiger, it hits harder, licks its wounds back closed and fakes a limp.",
+   "p": {
+    "u0": {"m": "elder-paw", "lay": "slam", "n": "Elder Pounce: a huge old paw lifts and slams down, a pale scar across the pad, grey dust bursting"},
+    "u1": {"m": "scar-lick", "lay": "rise", "n": "Scar Lick: a pink tongue licks along an old stitched scar; the scar shortens and a plus rises"},
+    "u2": {"m": "tiger-stripe", "c": "#bfb2a2", "lay": "bristle", "n": "Stripe Veil: greying striped flanks push out along the edge like a veil of old stripes and hold"},
+    "u3": {"m": "limp-track", "lay": "scatter", "n": "Limp Feint: uneven tracks wander out and back, one hind paw dragging: the old tiger fakes a limp"},
+    "b0": {"m": "tiger-claw", "c": "#d2c6b6", "lay": "strike", "n": "Grizzle Swipe: a grey paw swipes, blunt old claws leaving faded stripes"},
+    "b1": {"m": "elder-paw", "lay": "strike", "x": "dust", "n": "Grizzle Mangle: the great paw hammers off the edge again and again in grey dust"},
+    "b2": {"m": "elder-paw", "lay": "hold", "n": "Grizzle Stance: huge scarred paws plant along the edge and do not move"},
+    "b3": {"m": "limp-track", "lay": "slam", "n": "Grizzle Lurch: a lurching, dragged step shoves out and back"},
+    "x0": {"m": "tiger-leap", "c": "#cfae8c", "lay": "strike", "n": "Grizzle Return: the old tiger leaps once more, greyer and slower, still deadly"}
+   }
+  },
+  "black-jaguar": {
+   "pal": ["#7c8296", "#0c0c12", "#f2d23a"], "m": "jaguar-eyes", "m2": "rosette-sheen", "pers": "plop", "snd": ["hiss", "thud"], "spd": 0.95,
+   "notes": "Black jaguar of the rainforest: jet black so that only the yellow eyes show, faint rosettes surfacing in the sheen of the coat; it drops out of the branches in the rain and kills with one crunching bite.",
+   "p": {
+    "u0": {"m": "jaguar-fang", "lay": "lance", "n": "Night Lunge: dark jaws lunge along the edge, two white fangs leading, and crunch"},
+    "u1": {"m": "jaguar-eyes", "lay": "feint", "n": "Shadow Slip: the yellow eyes blink shut and open again somewhere else along the edge"},
+    "u2": {"m": "rosette-sheen", "lay": "hold", "n": "Night Coat: faint rosettes surface in the black coat's sheen along the edge, a glint going round each"},
+    "u3": {"m": "jaguar-fang", "lay": "fall", "n": "Night Drop: the jaguar drops from above; its jaws fall onto the edge and crunch shut"},
+    "b0": {"m": "rosette-sheen", "lay": "strike", "n": "Rosette Rake: rosette marks rake off the edge, glinting in the sheen"},
+    "b1": {"m": "rain-streak", "lay": "slam", "n": "Downpour Maul: a cloudburst slams down along the edge, splash crowns and puddle rings"},
+    "b2": {"m": "rain-streak", "lay": "hold", "n": "Rain Crouch: steady rain falls past the edge on the crouched black coat"},
+    "b3": {"m": "jaguar-eyes", "lay": "slam", "n": "Ledge Leap: the eyes leap out of the dark and back"},
+    "x0": {"m": "jaguar-eyes", "lay": "fall", "n": "Dark Descent: two yellow eyes drop out of the canopy, blinking"}
+   }
+  },
+  "cloud-leopard": {
+   "pal": ["#c2b08e", "#2c2418", "#eef0f4"], "m": "cloud-blotch", "m2": "ledge-grip", "pers": "hover", "snd": ["crack", "tink"], "spd": 1.0,
+   "notes": "Cloud (clouded) leopard of the mountain forests: tawny-grey with big dark-rimmed cloud blotches, a very long thick ringed tail; it hangs from branches and rock ledges and comes and goes like mist.",
+   "p": {
+    "u0": {"m": "ledge-grip", "lay": "fall", "n": "Branch Drop: the claws let go of the ledge and the leopard drops, pebbles flying"},
+    "u1": {"m": "cloud-blotch", "lay": "scatter", "n": "Cloud Coat: dark-rimmed cloud blotches drift out like clouds and back in a mountain mist"},
+    "u2": {"m": "long-tail", "lay": "feint", "n": "Long Tail: the long ringed tail flicks up at one spot, then another, the tip hooking"},
+    "u3": {"m": "cloud-blotch", "lay": "feint", "x": "prints", "n": "Rumour Step: blotches flicker from spot to spot, faint prints where it may have stepped"},
+    "b0": {"m": "ledge-grip", "lay": "strike", "n": "Ledge-Grip Rake: paws hooked on a rock ledge rake out, white claws over the stone"},
+    "b1": {"m": "cloud-blotch", "lay": "strike", "n": "Cloud Rend: blotches tear off the edge like torn cloud"},
+    "b2": {"m": "ledge-grip", "lay": "hold", "n": "Ledge-Hold Stance: big paws grip a stone ledge all along the edge"},
+    "b3": {"m": "long-tail", "lay": "scatter", "n": "Phantom Ledge Slink: only the long tail slinks out and back along the ledge"},
+    "x0": {"m": "ledge-grip", "lay": "slam", "x": "dust", "n": "Ledge Plunge: the leopard plunges off the ledge and slams down, rock dust bursting"}
+   }
+  },
+  "ghost-leopard": {
+   "pal": ["#d6dae0", "#384048", "#a8d8f4"], "m": "ghost-rosette", "m2": "rime-pelt", "pers": "glide", "snd": ["hiss", "tink"], "spd": 0.9, "x": "haze",
+   "notes": "Ghost leopard of the high mountains: pale grey with faint rosettes, nearly invisible against snow and rock; you see half a rosette in the mist, frost in its fur, and prints in the snow with nothing making them.",
+   "p": {
+    "u0": {"m": "ghost-rosette", "lay": "scatter", "n": "Fade Out: pale rosettes drift out and fade to a few pixels in the mist, then come back"},
+    "u1": {"m": "rime-pelt", "lay": "bristle", "n": "Ice Pelt: frost-stiff fur spikes bristle out, an ice crystal on each tip"},
+    "u2": {"m": "ghost-rosette", "lay": "strike", "x": "snow", "n": "Phantom Pounce: rosettes flash almost whole for an instant as the unseen cat strikes, snow kicked up"},
+    "u3": {"m": "ghost-prints", "lay": "feint", "n": "Flicker Step: paw prints appear in the snow at one spot, then another, with nothing making them"},
+    "b0": {"m": "ghost-rosette", "lay": "feint", "n": "Ghost Flicker: half-drawn rosettes flicker at spot after spot"},
+    "b1": {"m": "rime-pelt", "lay": "strike", "n": "Ghost Strike: frosted claws of fur strike out of the mist"},
+    "b2": {"m": "ghost-rosette", "lay": "hold", "n": "Ghost Mist: faint rosettes hang along the edge in the mist"},
+    "b3": {"m": "ghost-prints", "lay": "scatter", "n": "Ghost Slip: prints step out across the snow and back, then dither away"},
+    "x0": {"m": "ghost-prints", "lay": "lance", "n": "Ghost Rush: a line of prints races along the edge, no cat to be seen"}
+   }
+  },
+  "tufted-lynx": {
+   "pal": ["#c99c64", "#24180e", "#f2e4ca"], "m": "lynx-tufts", "pers": "pounce", "snd": ["chirp", "click"], "spd": 1.15,
+   "notes": "Tufted lynx of the forest and mountain: tawny, white side ruffs, long black ear tufts that twitch, a bobtail, long hind legs for the spring and a hooked claw.",
+   "p": {
+    "u0": {"m": "lynx-tufts", "lay": "scatter", "n": "Ear Twitch: tufted ears pop out, one tuft flicks, then the other, and they duck back"},
+    "u1": {"m": "lynx-spring", "lay": "strike", "n": "Lynx Spring: a coiled lynx springs off the edge on long hind legs, bobtail up"},
+    "u2": {"m": "hook-claw", "lay": "lance", "n": "Hook Claw: one long claw runs the edge, curling into a hook as it goes"},
+    "u3": {"m": "lynx-tufts", "lay": "strike", "x": "marks", "n": "Surprise Pounce: ears shoot up out of the grass and pounce, surprise marks popping"},
+    "b0": {"m": "hook-claw", "lay": "strike", "n": "Tufted Swipe: a furry paw swipes out, its claw hooking"},
+    "b1": {"m": "lynx-spring", "lay": "slam", "n": "Soft Paw Pin: the lynx springs and pins, landing soft"},
+    "b2": {"m": "lynx-tufts", "lay": "hold", "n": "Tuft Crouch: a row of tufted ears crouches along the edge, twitching"},
+    "b3": {"m": "lynx-tufts", "lay": "feint", "n": "Sudden Brush: tufted ears brush up at one spot, then another"},
+    "x0": {"m": "lynx-spring", "lay": "strike", "x": "marks", "n": "Ear Tuft Pounce: the lynx springs ears first, angry marks popping"}
+   }
+  },
+  "snow-lynx": {
+   "pal": ["#dfe2e6", "#3c4048", "#b8d6ee"], "m": "snowshoe-paw", "m2": "snow-bank", "pers": "hop", "snd": ["tink", "pop"], "spd": 1.0,
+   "notes": "Snow lynx of the mountain and tundra: pale grey, ear tufts, and huge furry snowshoe paws that press and sink, puffing snow; it hides under drifts and drains the warmth out of its prey.",
+   "p": {
+    "u0": {"m": "lynx-spring", "c": "#dfe2e6", "lay": "strike", "x": "snow", "n": "Snow Leap: a pale lynx springs off the edge and lands in a burst of snow"},
+    "u1": {"m": "snowshoe-paw", "lay": "strike", "n": "Paw Snap: huge snowshoe paws snap out, snow puffing sideways from the pads"},
+    "u2": {"m": "snow-bank", "lay": "hold", "n": "Drift Cover: snowdrifts heap up along the edge over the lynx"},
+    "u3": {"m": "snowshoe-paw", "lay": "scatter", "n": "Snowshoe Glide: the big paws skim out over the snow and back without sinking"},
+    "b0": {"m": "hook-claw", "c": "#dfe2e6", "lay": "strike", "n": "Lynx Swipe: a pale furry paw swipes, the claw hooking"},
+    "b1": {"m": "lynx-spring", "c": "#dfe2e6", "lay": "slam", "x": "snow", "n": "Lynx Drift Pounce: the lynx springs into the drift and pins, snow flying"},
+    "b2": {"m": "snowshoe-paw", "lay": "hold", "n": "Lynx Snowshoe: wide furry paws stand along the edge, sunk in the snow"},
+    "b3": {"m": "lynx-tufts", "c": "#dfe2e6", "lay": "feint", "n": "Lynx Stealth: only the tufted ears show above the drift, at one spot, then another"},
+    "x0": {"m": "lynx-spring", "c": "#dfe2e6", "lay": "fall", "x": "snow", "n": "Lynx Dive: the lynx dives head-first into the snow"}
+   }
+  },
+  "mischief-monkey": {
+   "pal": ["#b08050", "#2a1a0e", "#f4c8a0"], "m": "monkey-swing", "m2": "cheeky-face", "pers": "tumble", "snd": ["chirp", "pop"], "spd": 1.3,
+   "notes": "Mischief monkey of the rainforest: brown with a peach face, swings by its tail, steals hats and pockets, throws fruit and pulls faces at you.",
+   "p": {
+    "u0": {"m": "pinch-loot", "lay": "snare", "n": "Pocket Pick: little hands dip in at tied spots and come back with a coin, a key, a red hat"},
+    "u1": {"m": "fruit-lob", "c": "#f0a030", "lay": "strike", "n": "Fruit Fling: ripe fruit is lobbed off the edge, spinning, and splats"},
+    "u2": {"m": "monkey-swing", "lay": "scatter", "n": "Swing Away: the monkey swings out by its tail and back, just out of reach"},
+    "u3": {"m": "cheeky-face", "lay": "bristle", "n": "Grimace: cheeky faces push out pulling grins, tongues and raised eyebrows"},
+    "b0": {"m": "pinch-loot", "lay": "strike", "n": "Hat-Snatch Grab: a quick hand darts out and comes back with a little red hat"},
+    "b1": {"m": "monkey-swing", "lay": "slam", "n": "Tail-Swing Bonk: the monkey swings in by its tail and bonks"},
+    "b2": {"m": "cheeky-face", "lay": "hold", "n": "Cheeky Shrug: a row of cheeky faces along the edge, shrugging and grinning"},
+    "b3": {"m": "pinch-loot", "lay": "slam", "n": "Pocket-Pick Pinch: a hand shoves in and pinches a coin back out"},
+    "x0": {"m": "monkey-swing", "lay": "fall", "n": "Tree-Drop Slam: the monkey lets go of the branch and drops onto the edge"}
+   }
+  },
+  "mandrill-boss": {
+   "pal": ["#d8503c", "#1c1826", "#5aa8f0"], "m": "mandrill-face", "pers": "thud", "snd": ["crack", "croak"], "spd": 0.95,
+   "notes": "Mandrill boss of the troop: red nose ridge, blue ridged cheeks, an orange beard and huge canines; it glares, yawns to show its fangs, drums its chest and charges.",
+   "p": {
+    "u0": {"m": "mandrill-face", "lay": "strike", "x": "dust", "n": "Mandrill Charge: the painted face charges off the edge, glaring, dust kicked up"},
+    "u1": {"m": "fang-yawn", "lay": "lance", "n": "Fang Flash: a threat yawn runs the edge, jaws gaping on two huge white canines, a fang flash"},
+    "u2": {"m": "chest-thump", "lay": "bristle", "n": "Chest Beat: fists drum the chest and blue shock arcs pulse out along the edge"},
+    "u3": {"m": "mandrill-face", "lay": "slam", "n": "Face Off: the red and blue face looms right up to you, brows down, nostrils flared"},
+    "b0": {"m": "mandrill-face", "lay": "lance", "n": "Painted Swipe: the painted face sweeps along the edge in red and blue"},
+    "b1": {"m": "fang-yawn", "lay": "slam", "n": "Humourless Grab: the yawn snaps shut on a grab"},
+    "b2": {"m": "mandrill-face", "lay": "hold", "n": "Painted Stance: painted faces glare along the edge"},
+    "b3": {"m": "chest-thump", "lay": "slam", "n": "Mandrill Troop Shove: fists thump out and shove back"},
+    "x0": {"m": "chest-thump", "lay": "strike", "x": "dust", "n": "Furious Stomp: fists and shock arcs pound off the edge in dust"}
+   }
+  },
+  "bearded-pig": {
+   "pal": ["#aa9a88", "#2a221a", "#f2ecdc"], "m": "beard-snout", "pers": "trundle", "snd": ["thud", "squish"], "spd": 0.9,
+   "notes": "Bearded pig of the rainforest and swamp: grey-brown, a long pointed snout and a long pale beard; it ploughs the mud, follows the nut and fruit falls and bristles up its back.",
+   "p": {
+    "u0": {"m": "beard-snout", "lay": "strike", "n": "Beard Barge: bearded snouts barge off the edge, the long pale beards swinging"},
+    "u1": {"m": "mud-plough", "lay": "strike", "n": "Mud Plough: the snout ploughs out through the mud, a bow wave ahead and clods flying"},
+    "u2": {"m": "nut-pile", "c": "#c08a4c", "lay": "hold", "n": "Nut Shield: winged forest nuts pile up along the edge, nut by nut"},
+    "u3": {"m": "fruit-lob", "c": "#e8b040", "lay": "feint", "n": "Fruit Snatch: fallen fruit at one spot after another vanishes as the snout darts at it"},
+    "b0": {"m": "mud-plough", "lay": "lance", "n": "Bristle Root: the snout roots along the edge, turning the soil over"},
+    "b1": {"m": "mud-plough", "lay": "slam", "n": "Bristle Plough: the snout ploughs in and heaves the mud up"},
+    "b2": {"m": "bristle-ridge", "lay": "hold", "n": "Bristle Shield: a ridge of stiff pale bristles stands up along the edge"},
+    "b3": {"m": "beard-snout", "lay": "slam", "n": "Bristle Snatch: the bearded snout shoves in and snatches back"},
+    "x0": {"m": "bristle-ridge", "lay": "strike", "x": "dust", "n": "Bristle Ram: the bristled back rams off the edge, dust flying"}
+   }
+  }
+ }
+}

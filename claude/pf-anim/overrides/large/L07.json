@@ -1,0 +1,197 @@
+{
+ "_doc": "Large batch L07 (Sonnet generic pass): grey-heron, goliath-heron, pelican-parliament, frigatebird, albatross, fern-cassowary.",
+ "grey-heron/f:b0": {
+  "family": "shock",
+  "note": "lightning spear-bill: a lightning-fast jab, shock arcs (thrust kept for Spear Beak)",
+  "snd": "zig"
+ },
+ "grey-heron/f:b1": {
+  "family": "ripple",
+  "note": "plunge into reed water: edge ripples",
+  "snd": "pop"
+ },
+ "grey-heron/f:x0": {
+  "family": "bash",
+  "note": "heavy stilt stomp: thump blocks",
+  "snd": "thud"
+ },
+ "grey-heron/f:u2": {
+  "family": "ripple",
+  "note": "wading into water is the trick; ripples, confident despite no tag",
+  "snd": "pop"
+ },
+ "pelican-parliament/f:b0": {
+  "family": "bite",
+  "note": "pouch scoop gulps the prey: jaws",
+  "snd": "click"
+ },
+ "pelican-parliament/f:b1": {
+  "family": "ripple",
+  "note": "bill plunge into the sea: ripples",
+  "snd": "pop"
+ },
+ "pelican-parliament/f:x0": {
+  "family": "bash",
+  "note": "gavel slap: thump blocks",
+  "snd": "thud"
+ },
+ "pelican-parliament/f:u0": {
+  "family": "web",
+  "note": "pouch scoop that snags (trip): net-like strands, best guess",
+  "snd": "tink",
+  "review": true
+ },
+ "pelican-parliament/f:u3": {
+  "family": "puff",
+  "note": "committee murmur: soft puffs so the four guards are not all shield",
+  "snd": "pop",
+  "review": true
+ },
+ "frigatebird/f:b0": {
+  "family": "bite",
+  "note": "snatch with a hooked beak: jaws",
+  "snd": "click",
+  "col": "#a89a84",
+  "accent": "#26262c"
+ },
+ "frigatebird/f:x0": {
+  "family": "bash",
+  "note": "forked tail wallop: thump blocks",
+  "snd": "thud",
+  "col": "#b0a088",
+  "accent": "#26262c"
+ },
+ "frigatebird/f:u1": {
+  "family": "thrust",
+  "note": "chase-down swoop: a lance line along the edge",
+  "snd": "tink",
+  "col": "#a8a8a8",
+  "accent": "#26262c"
+ },
+ "goliath-heron/f:b0": {
+  "family": "thrust",
+  "note": "triple stab: lance",
+  "snd": "tink"
+ },
+ "goliath-heron/f:b1": {
+  "family": "ripple",
+  "note": "strike from still water: ripples",
+  "snd": "pop"
+ },
+ "goliath-heron/f:b2": {
+  "family": "sparkle",
+  "note": "plume fan shimmer, avoids a second plain shield; best guess",
+  "snd": "tink",
+  "review": true
+ },
+ "goliath-heron/f:x0": {
+  "family": "bash",
+  "note": "stilt crash: thump blocks",
+  "snd": "thud"
+ },
+ "fern-cassowary/f:b0": {
+  "family": "thrust",
+  "note": "fern is only the name; a stab is a lance",
+  "snd": "tink"
+ },
+ "fern-cassowary/f:b1": {
+  "family": "slash",
+  "note": "kick = slash streaks, not leaf",
+  "snd": "click"
+ },
+ "fern-cassowary/f:b2": {
+  "family": "shield",
+  "note": "helm = casque guard, not leaf",
+  "snd": "tink"
+ },
+ "fern-cassowary/f:b3": {
+  "family": "puff",
+  "note": "scatter = evade puffs",
+  "snd": "pop"
+ },
+ "fern-cassowary/f:x0": {
+  "family": "bash",
+  "note": "stomp: thump blocks",
+  "snd": "thud"
+ },
+ "fern-cassowary/f:u3": {
+  "family": "shock",
+  "note": "quick dash: shock; fern only the name",
+  "snd": "zig"
+ },
+ "albatross/f:b0": {
+  "col": "#c6c0ae",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:b1": {
+  "col": "#c8c4b4",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:b2": {
+  "col": "#a9bfcc",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:b3": {
+  "col": "#bcc0c8",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:x0": {
+  "col": "#c2b494",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:u0": {
+  "col": "#c2b494",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:u1": {
+  "col": "#86a47c",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:u2": {
+  "col": "#bcc0c8",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "albatross/f:u3": {
+  "col": "#86a47c",
+  "accent": "#3a3a44",
+  "note": "art says white first: pale tone instead of dark base"
+ },
+ "frigatebird/f:b1": {
+  "col": "#a8a290",
+  "accent": "#26262c",
+  "note": "art says black first (red pouch is the accent only): dark plumage tone"
+ },
+ "frigatebird/f:b2": {
+  "col": "#8f9aa0",
+  "accent": "#26262c",
+  "note": "art says black first (red pouch is the accent only): dark plumage tone"
+ },
+ "frigatebird/f:b3": {
+  "col": "#a4a0a4",
+  "accent": "#26262c",
+  "note": "art says black first (red pouch is the accent only): dark plumage tone"
+ },
+ "frigatebird/f:u0": {
+  "col": "#b8a468",
+  "accent": "#26262c",
+  "note": "art says black first (red pouch is the accent only): dark plumage tone"
+ },
+ "frigatebird/f:u2": {
+  "col": "#a4a0a4",
+  "accent": "#26262c",
+  "note": "art says black first (red pouch is the accent only): dark plumage tone"
+ },
+ "frigatebird/f:u3": {
+  "col": "#a8a2b0",
+  "accent": "#26262c",
+  "note": "art says black first (red pouch is the accent only): dark plumage tone"
+ }
+}

@@ -1,0 +1,111 @@
+{
+ "_doc": "Large batch L09 (Sonnet generic pass): saltwater-gharial, delta-gharial, alligator-snapper, mire-toad, elder-mire-toad, goliath-frog, reef-turtle, leatherback.",
+ "saltwater-gharial/f:b0": {
+  "family": "bite",
+  "note": "gnash is a jaw grind: bite",
+  "snd": "click"
+ },
+ "saltwater-gharial/f:b1": {
+  "family": "ripple",
+  "note": "brine tail sweep: edge ripples, differs from Gnash",
+  "snd": "pop"
+ },
+ "saltwater-gharial/f:b2": {
+  "family": "shield",
+  "note": "scales are armour, salt crust: shield (ripple keyword was only brine)",
+  "snd": "tink"
+ },
+ "saltwater-gharial/f:x0": {
+  "family": "bash",
+  "note": "wallop is a heavy blow: thump blocks",
+  "snd": "thud"
+ },
+ "saltwater-gharial/f:u1": {
+  "family": "slash",
+  "note": "spinning roll: slash streaks, kept apart from the Estuary Snap lance",
+  "snd": "click"
+ },
+ "saltwater-gharial/f:u3": {
+  "family": "ripple",
+  "note": "floating in water: ripples",
+  "snd": "pop"
+ },
+ "delta-gharial/f:b1": {
+  "family": "ripple",
+  "note": "tail sweep through the delta water: ripples",
+  "snd": "pop"
+ },
+ "delta-gharial/f:x0": {
+  "family": "bash",
+  "note": "flop is a heavy belly drop: thump blocks",
+  "snd": "thud"
+ },
+ "alligator-snapper/f:x0": {
+  "family": "thrust",
+  "note": "lunge from a still wait: lance",
+  "snd": "tink"
+ },
+ "alligator-snapper/f:u2": {
+  "family": "leaf",
+  "note": "weed coat hides it: leaf (art beats evade default)",
+  "snd": "pop"
+ },
+ "mire-toad/f:x0": {
+  "family": "bash",
+  "note": "belly-flop slam: thump blocks",
+  "snd": "thud"
+ },
+ "mire-toad/f:u1": {
+  "family": "ripple",
+  "note": "belly flop splashes into mire water: ripples",
+  "snd": "pop"
+ },
+ "mire-toad/f:u2": {
+  "family": "puff",
+  "note": "breath is a gas cloud: puff over drip",
+  "snd": "pop"
+ },
+ "elder-mire-toad/f:u1": {
+  "family": "puff",
+  "note": "belch is a gas cloud: puff",
+  "snd": "pop"
+ },
+ "elder-mire-toad/f:x0": {
+  "family": "bash",
+  "note": "plop is a heavy drop: thump blocks",
+  "snd": "thud"
+ },
+ "elder-mire-toad/f:u3": {
+  "family": "ripple",
+  "note": "hush into the mire water: ripple, best guess vs puff",
+  "snd": "pop",
+  "review": true
+ },
+ "goliath-frog/f:b1": {
+  "family": "thrust",
+  "note": "straight hind-leg kick: lance",
+  "snd": "tink"
+ },
+ "goliath-frog/f:b2": {
+  "family": "thorn",
+  "note": "huge warty hide bristles: thorn (Rubbery Skin stays the only shield)",
+  "snd": "thud"
+ },
+ "goliath-frog/f:x0": {
+  "family": "puff",
+  "note": "smother = heavy dusty bulk sitting down: puff, best guess vs bash",
+  "snd": "pop",
+  "review": true
+ },
+ "reef-turtle/f:b1": {
+  "family": "ripple",
+  "note": "flipper sweep through water: ripples (Flipper Slap stays slash)",
+  "snd": "pop"
+ },
+ "reef-turtle/f:u1": {
+  "family": "leaf",
+  "note": "reef shell grown over with algae: leaf, best guess vs shield",
+  "snd": "pop",
+  "review": true
+ }
+}
