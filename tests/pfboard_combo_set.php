@@ -85,7 +85,8 @@ chk('Sticky stays one round longer than a plain piece (born the same round: the 
 echo "== events matter more (2.7.06)\n";
 foreach (['small', 'medium', 'large', 'boss'] as $sz) {
     $a = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => true]); $b = pfb_new(ab_me(), ab_foe($sz), 7, ['v1' => ['envopen' => 1]]);
-    chk("$sz: the environment puts down TWO pieces a round (Josh 2026-11-17), so two lie face up (envopen 1 adds a third for the first round)", (int)$a['v1']['envn'] === 2 && count($a['env']['next']) === 2 && count($b['env']['next']) === 3, [$a['v1']['envn'], count($a['env']['next']), count($b['env']['next'])]);
+    $en = PFB_ENV_N[$sz];   // 2.7.55: small places ONE a round (one environment piece on its 3x3 board at a time)
+    chk("$sz: the environment puts down " . ($en === 1 ? 'ONE piece a round (2.7.55: small, one at a time)' : 'TWO pieces a round (Josh 2026-11-17)') . ", so as many lie face up (envopen 1 adds one more for the first round)", (int)$a['v1']['envn'] === $en && count($a['env']['next']) === $en && count($b['env']['next']) === $en + 1, [$a['v1']['envn'], count($a['env']['next']), count($b['env']['next'])]);
 }
 chk('Rain guards 20% (was 15%), event damage on the creature 70% (was 50%)', PFB_RAIN === 0.20 && PFB_EVENT_FOE === 0.7, [PFB_RAIN, PFB_EVENT_FOE]);
 echo $bad ? "$bad FAILED\n" : "all ok\n"; exit($bad ? 1 : 0);

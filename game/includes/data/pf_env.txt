@@ -3,7 +3,7 @@
 # The environment is a third player: after the creature's turn it places ONE piece from its deck (2.6.98; 2.6.75-2.6.97 placed two) (shuffled; the discard is shuffled back in when the deck runs out). Its next pieces lie face up a round ahead.
 #
 # key|name|kind|edges L,R,T,B|life|copies small/medium/large/boss|blurb
-#   kind: sun bramble rain wind mud thorn.
+#   kind: sun bramble rain wind mud thorn; 2.7.55: quake and spring (large and boss decks only, PFB_ENV_BIG in pfboard.php, whatever a region's lean says).
 #   edges: hb km kc ... = hole / knob of body / mind / craft;  f = flat (fits anything, never links);  w = wild (fits and links with anything).
 #          Every piece that fires carries all three families, so most decks can link to it from some side.
 #   life: rounds on the board, 2-4 (it counts from the round after it is placed).
@@ -13,19 +13,21 @@ rain|Rain|rain|hc,kb,km,hm|3|2/2/2/2|Fire it in your chain: you get guard.
 wind|Wind|wind|hb,kc,hm,km|2|1/1/1/1|Fire it in your chain: the piece its arrow points at slides one cell.
 mud|Mud|mud|f,f,f,f|3|1/1/1/1|Nothing links to it, and a piece next to it counts a quarter less.
 thorn|Thornburst|thorn|hm,kb,hc,kc|3|1/2/2/2|Fire it in your chain and you lose a tenth of your health. The creature loses half as much.
+quake|Tremor|quake|hc,kb,hm,km|2|0/0/1/1|Fire it in your chain: up to two of the other side's pieces touching it fall off the board.
+spring|Spring|spring|hm,kc,hb,kc|3|0/0/1/1|Fire it in your chain: you recover a tenth of your health. If the creature fires it, its Yield bar empties a tenth.
 
-# Regions lean: =REGION CODE|kind+N or kind-N, ...  (copies more or fewer of every piece of that kind; never below 0)
-=NA|wind+1
-=CA|sun+1
-=CB|sun+1
-=SA|rain+1
-=NWE|rain+1
-=SE|sun+1
-=EE|bramble+1
-=MENA|wind+1
-=WCA|bramble+1
-=ESA|thorn+1
-=CSA|mud+1
-=EA|rain+1
-=SEA|rain+1,mud+1
-=OC|wind+1
+# Regions lean: =REGION CODE|kind+N or kind-N, ...  (copies more or fewer of every piece of that kind; never below 0). 2.7.55: each region also leans to one large/boss kind (rocky / dry: quake, wet / green: spring).
+=NA|wind+1,quake+1
+=CA|sun+1,quake+1
+=CB|sun+1,spring+1
+=SA|rain+1,spring+1
+=NWE|rain+1,spring+1
+=SE|sun+1,spring+1
+=EE|bramble+1,spring+1
+=MENA|wind+1,quake+1
+=WCA|bramble+1,quake+1
+=ESA|thorn+1,quake+1
+=CSA|mud+1,quake+1
+=EA|rain+1,spring+1
+=SEA|rain+1,mud+1,spring+1
+=OC|wind+1,quake+1

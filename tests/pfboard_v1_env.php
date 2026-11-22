@@ -6,7 +6,7 @@ if (!function_exists('pfb_test_nonow')) { function pfb_test_nonow(array $log): a
 
 echo "== 13. environment pieces (2.6.75)\n";
 $T = pfb_env_table(); $P = $T['pieces']; $fam3 = ['body', 'mind', 'craft'];
-chk('data: six pieces, one of each kind (sun, bramble, rain, wind, mud, thorn)', count($P) === 6 && array_values(array_map(fn($p) => $p['env'], $P)) === PFB_ENV_KINDS, array_keys($P));
+chk('data: eight pieces, one of each kind (sun, bramble, rain, wind, mud, thorn; 2.7.55: quake, spring for large / boss)', count($P) === 8 && array_values(array_map(fn($p) => $p['env'], $P)) === PFB_ENV_KINDS, array_keys($P));
 $okE = true; $okL = true; $okW = true;
 foreach ($P as $k => $p) {
     $kinds = array_column($p['ed'], 0); $fams = array_unique(array_filter(array_column($p['ed'], 1)));
@@ -18,9 +18,9 @@ foreach ($P as $k => $p) {
 chk('data: Mud is flat on every side; every other piece has two knobs, two holes and all three families (no flat, no wild)', $okE);
 chk('data: life 2-3 rounds, a name, a blurb, key e:KEY', $okL);
 chk('data: the Bramble blurb says what the engine does in a one-bar fight (your chain: the creature\'s Yield bar fills a tenth; its chain: you lose a tenth of your health) (2.7.01)', (bool)preg_match('/Yield bar fills a tenth.*If the creature fires it, you lose a tenth of your health/', $P['bramble']['blurb']), $P['bramble']['blurb']);
-chk('data: copies by size for the four sizes, 0-4 each; every deck has 8-12 pieces', $okW && !array_filter(array_keys(PFB_SIZE), fn($z) => count(pfb_env_deck($z)) < 8 || count(pfb_env_deck($z)) > 12), array_map(fn($z) => count(pfb_env_deck($z)), array_keys(PFB_SIZE)));
+chk('data: copies by size for the four sizes, 0-4 each; every deck has 8-14 pieces (2.7.55: large / boss add Tremor and Spring)', $okW && !array_filter(array_keys(PFB_SIZE), fn($z) => count(pfb_env_deck($z)) < 8 || count(pfb_env_deck($z)) > 14), array_map(fn($z) => count(pfb_env_deck($z)), array_keys(PFB_SIZE)));
 $codes = []; foreach (pf_data_lines('pf_region_pieces.txt') as $r) $codes[$r[0]] = 1; ksort($codes); $rk = $T['regions']; ksort($rk);
-chk('data: every region (the 14 of pf_region_pieces.txt) leans the deck, by 1 or 2 pieces of known kinds', array_keys($rk) === array_keys($codes) && !array_filter($rk, fn($b) => !$b || array_diff(array_keys($b), PFB_ENV_KINDS) || array_sum(array_map('abs', $b)) > 2), array_keys($rk));
+chk('data: every region (the 14 of pf_region_pieces.txt) leans the deck, by 1 or 2 pieces of known kinds, plus one large / boss kind (2.7.55)', array_keys($rk) === array_keys($codes) && !array_filter($rk, fn($b) => !$b || array_diff(array_keys($b), PFB_ENV_KINDS) || array_sum(array_map('abs', array_diff_key($b, array_flip(PFB_ENV_BIG)))) > 2 || count(array_intersect_key($b, array_flip(PFB_ENV_BIG))) !== 1), array_keys($rk));
 $cnt = fn(array $d) => array_count_values(array_column($d, 'env'));
 chk('deck: a medium creature with no region gets the copies of the file', $cnt(pfb_env_deck('medium')) === array_filter(array_combine(array_column($P, 'env'), array_map(fn($p) => $p['w']['medium'], $P))), $cnt(pfb_env_deck('medium')));
 $base = $cnt(pfb_env_deck('large')); $sea = $cnt(pfb_env_deck('large', 'SEA'));
@@ -32,7 +32,7 @@ foreach ($P as $p) { if ($p['env'] === 'mud') continue; $s0 = v1_bare(); $e0 = [
     $sides = [];
     foreach (['swing', 'dodge', 'rest', 'charm'] as $bk) foreach ([false, true] as $fl) { $bt = pfb_v1_tile(pf_make_tile($bk, $stats), $s0['v1']); if ($fl) $bt['flip'] = true; foreach ([[1, 2], [3, 2], [2, 1], [2, 3]] as $ci => [$x, $y]) if (pfb_has_link(pfb_check($s0, $bt, $x, $y))) $sides[$ci] = 1; }
     if (count($sides) >= 2) $any++; }
-chk('edges: the four core pieces (Swing, Dodge, Rest, Charm; flipped or not) link to every firing environment piece from 2 sides or more', $any === 5, $any);
+chk('edges: the four core pieces (Swing, Dodge, Rest, Charm; flipped or not) link to every firing environment piece from 2 sides or more', $any === count($P) - 1, $any);
 
 // ---- the start of a fight, the face-up pieces, the environment's turn
 $s = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'SE'], 21, ['v1' => V1_294, 'blank' => true]); $deckN = count(pfb_env_deck('medium', 'SE'));

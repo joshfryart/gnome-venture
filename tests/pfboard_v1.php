@@ -78,9 +78,9 @@ $o = pfb_new(v1_me(), v1_foe('medium'), 5);
 chk('flip is refused in an old fight (engine and action)', pfb_flip($o, 0, $o['turn']) !== null && pfb_play($o, [['f', 0]], $o['turn'])['err'] === 'Those moves are not valid.' && !pfb_can_flip($o, 0));
 chk('old creature values and bars use PFB_FOE_MULT / PFB_BAR_MULT', $o['bar']['max'] === round(pf_new(v1_me(), v1_foe('medium'), 5)['bar']['max'] * PFB_BAR_MULT, 1));
 
-echo "== 1. board size by creature size (the production sizes: 4 x 4 for every size since 2.6.94)\n";
+echo "== 1. board size by creature size (the production sizes: 2.7.55 small 3x3, medium 4x4, large and boss 5x5; 4 x 4 for every size 2.6.94-2.7.54)\n";
 $tsz = $GLOBALS['PFB_TEST_SIZES']; unset($GLOBALS['PFB_TEST_SIZES']);   // this section runs on the game's own sizes, the others on the old geometry
-chk('every creature size has a 4 x 4 board', array_values(array_unique(array_map(fn($d) => $d[0] . 'x' . $d[1], PFB_SIZE))) === ['4x4']);
+chk('board by creature size: small 3x3, medium 4x4, large 5x5, boss 5x5 (2.7.55)', array_map(fn($d) => $d[0] . 'x' . $d[1], PFB_SIZE) === ['small' => '3x3', 'medium' => '4x4', 'large' => '5x5', 'boss' => '5x5'], PFB_SIZE);
 foreach (PFB_SIZE as $size => [$w, $h]) {
     $s = pfb_new(v1_me(), v1_foe($size), 9, ['v1' => true, 'blank' => true]); $bl = $s['pcs'][1];
     chk("$size: board {$w}x{$h}, the blank on an inner cell (blankrand), the view says so", $s['w'] === $w && $s['h'] === $h && $bl['x'] >= 1 && $bl['x'] <= $w - 2 && $bl['y'] >= 1 && $bl['y'] <= $h - 2 && pfb_view($s)['w'] === $w && pfb_view($s)['h'] === $h, [$s['w'], $s['h'], $bl['x'], $bl['y']]);
@@ -88,7 +88,7 @@ foreach (PFB_SIZE as $size => [$w, $h]) {
     chk("$size: no cell outside the board is legal", pfb_check($s, $t, $w, 0) === null && pfb_check($s, $t, 0, $h) === null && !array_filter(pfb_cells($s, $t), fn($c) => $c[0] >= $w || $c[1] >= $h));
 }
 $s = pfb_new(v1_me(), v1_foe('small'), 9, ['v1' => true]);
-chk('classic opening (no blank): the creature starts in the centre of its own board', isset($s['cell']['2,2']) && count($s['pcs']) === 1, array_keys($s['cell']));
+chk('classic opening (no blank): the creature starts in the centre of its own board (1,1 on the small 3x3)', isset($s['cell']['1,1']) && count($s['pcs']) === 1, array_keys($s['cell']));
 
 $GLOBALS['PFB_TEST_SIZES'] = $tsz;
 echo "== 2. ground: sunny, bramble, mud (a fight started under 2.6.74: v1 without env; new fights have environment pieces, section 13)\n";
@@ -344,7 +344,7 @@ chk('level curve: \'lv\' => [slope, ref, lo, hi] replaces it (sims)', pfb_v1_cfg
 
 echo "== 11. whole fights: invariants, save and load\n";
 $n = 0; $fail = []; $over = []; $turns = []; $evs = ['bar full ends' => 0, 'charm win' => 0, 'env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0, 'mud weakens' => 0];
-foreach (['sun', 'bramble', 'rain', 'wind', 'thorn'] as $ek) { $evs["me fires $ek"] = 0; $evs["creature fires $ek"] = 0; }
+foreach (['sun', 'bramble', 'rain', 'wind', 'thorn', 'quake', 'spring'] as $ek) { $evs["me fires $ek"] = 0; $evs["creature fires $ek"] = 0; }
 $regs = array_keys(pfb_env_table()['regions']);
 foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
     if ($k === 2 && $ci % 4) continue;   // every fourth creature also plays a fight with the 2.6.74 terrain
@@ -460,11 +460,11 @@ $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
 foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
 $s = json_decode(json_encode($s), true);
 $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
-chk('a 2.6.94 state with none of the new keys resolves every key to PRE (23 keys: nothorn added in 2.7.01, abil and style for the creature pass, cset, envopen and tagfx in 2.7.06, paltgt in 2.7.08, firex in 2.7.31)', !$bad16 && count(PFB_V1_PRE) === 23, $bad16);
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE (26 keys: nothorn added in 2.7.01, abil and style for the creature pass, cset, envopen and tagfx in 2.7.06, paltgt in 2.7.08, firex in 2.7.31, aoe, envmax, envonce in 2.7.55)', !$bad16 && count(PFB_V1_PRE) === 26, $bad16);
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98; order, spawn: next release; abil, style: 2.7.01)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand', 'order', 'spawn', 'abil', 'style', 'cset', 'envopen', 'tagfx', 'paltgt', 'firex']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98; order, spawn: next release; abil, style: 2.7.01)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand', 'order', 'spawn', 'abil', 'style', 'cset', 'envopen', 'tagfx', 'paltgt', 'firex', 'aoe', 'envmax', 'envonce']), $bad16);   // 2.7.55: aoe, envmax, envonce (envonce is 0 for medium, so it may not show)
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);
