@@ -2347,7 +2347,7 @@ function gvShelves() {
   var plain = !/[?&](q|show)=/.test(location.search);
   root.querySelectorAll('details.shshelf').forEach(function (d) {
     var k = 'shf:' + d.getAttribute('data-shelf');
-    try { var v = sessionStorage.getItem(k); if (plain && v !== null && !d.querySelector('.shpill.sel')) d.open = v === '1'; } catch (e) {}
+    try { var v = sessionStorage.getItem(k); if (plain && v !== null && !d.hasAttribute('data-nofold') && !d.querySelector('.shpill.sel')) d.open = v === '1'; } catch (e) {}
     d.addEventListener('toggle', function () { if (plain) try { sessionStorage.setItem(k, d.open ? '1' : '0'); } catch (e) {} });
   });
   // live filter

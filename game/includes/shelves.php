@@ -275,7 +275,7 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
  * The shelves: one <details> per shelf (open state kept by site.js for this tab), pills in a grid, each pill followed by its panel
  * (hidden unless it is the picked one). $defs: key => [icon, label]; $open: key => open by default; $link(int $id): the no-script pick link.
  */
-function sh_shelves(array $entries, array $defs, array $open, int $selId, string $surface, callable $link, callable $close, bool $bagCounts): string
+function sh_shelves(array $entries, array $defs, array $open, int $selId, string $surface, callable $link, callable $close, bool $bagCounts, array $pop = []): string
 {
     $by = [];
     foreach ($entries as $e) $by[$e['group']][] = $e;
@@ -284,12 +284,19 @@ function sh_shelves(array $entries, array $defs, array $open, int $selId, string
         if (empty($by[$k])) continue;
         $rows = $by[$k];
         $hasSel = $selId > 0 && in_array($selId, array_column($rows, 'id'), true);
-        $o .= '<details class="shshelf sh-' . e($k) . '" data-shelf="' . e($surface . ':' . $k) . '"' . ($hasSel || !empty($open[$k]) ? ' open' : '') . '>'
+        $o .= '<details class="shshelf sh-' . e($k) . '" data-shelf="' . e($surface . ':' . $k) . '"' . (in_array($k, $pop['lock'] ?? [], true) ? ' data-nofold' : '') . ($hasSel || !empty($open[$k]) ? ' open' : '') . '>'
             . '<summary class="shsum"><span class="shsi" aria-hidden="true">' . $si . '</span><b>' . e($sl) . '</b><small>' . count($rows)
             . ($bagCounts ? ' kind' . (count($rows) === 1 ? '' : 's') . ' · ×' . number_format(array_sum(array_column($rows, 'count'))) : '') . '</small>';
         if (!$bagCounts && $k !== 'unk') { $o .= '<span class="shpeek" aria-hidden="true">'; foreach (array_slice($rows, 0, 5) as $e) $o .= '<span class="p2ic">' . ($e['item'] ? sh_icon($e['item'], 'sm') : '❔') . '</span>'; $o .= '</span>'; }
         $o .= '<span class="shchev" aria-hidden="true">▾</span></summary>' . "\n" . '<div class="shpills">';
         foreach ($rows as $e) {
+            if (!empty($pop['quick']) && $e['status'] === 'ok') {   // popover: one tap makes one (x5 chip when five fit); the rest of the squares open their panel as before
+                $o .= '<form method="post" action="' . e($pop['quick']) . '" class="shqf">' . csrf_field() . '<input type="hidden" name="recipe_id" value="' . (int)$e['id'] . '">'
+                    . '<button class="shpill ok shquick" name="qty" value="1" aria-label="Make 1 ' . e($e['name']) . '"><span class="shic"><span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'lg') : '❔') . '</span></span>'
+                    . '<span class="shpt"><b>' . e($e['name']) . '</b>' . ($e['small'] !== '' ? '<small>' . $e['small'] . '</small>' : '') . '</span></button>'
+                    . (str_contains((string)$e['acts'], 'value="5"') ? '<button class="shx5" name="qty" value="5" aria-label="Make 5 ' . e($e['name']) . '">×5</button>' : '') . "</form>\n";
+                continue;
+            }
             $isSel = $selId === $e['id'];
             $pid = ($surface === 'bag' ? 'i' : 'r') . $e['id'];
             $o .= '<a class="shpill ' . e($e['status']) . ($isSel ? ' sel' : '') . '" id="' . $pid . '" href="' . e($isSel ? $close() : $link($e['id'])) . '" data-pick="shp-' . $pid . '"'
