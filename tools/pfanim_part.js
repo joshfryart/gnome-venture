@@ -135,7 +135,7 @@
 
   /* ===================== the overlay canvas and its clock ===================== */
   var ACT = [], cv = null, g2 = null, raf = 0, FROZEN = null, LAST0 = 0, CTX = { w: 3, h: 3 }, CACHE = {}, BOARD = null;
-  var ST = { place: 0, fire: 0, car: 0, aoe: 0, frames: 0, drawn: 0, ev: [], err: 0, cancel: 0 };
+  var ST = { place: 0, fire: 0, car: 0, aoe: 0, frames: 0, drawn: 0, ev: [], err: 0, msg: '', cancel: 0 };
   function now() { return FROZEN !== null ? FROZEN : (window.performance && performance.now ? performance.now() : Date.now()); }
   function reduced() { try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
   function chosen() { var v = ''; try { v = window.localStorage.getItem('pfvfx') || ''; } catch (e) {} return v === 'full' || v === 'light' || v === 'off' ? v : ''; }
@@ -209,13 +209,13 @@
     if (!g2) { ACT = []; return; }
     g2.setTransform(1, 0, 0, 1, 0, 0); g2.clearRect(0, 0, cv.width, cv.height); g2.imageSmoothingEnabled = false; NG = 0; ST.frames++;
     for (i = 0; i < ACT.length; i++) { var it = ACT[i], on = false;
-      try { on = DRAW[it.k](it, t); } catch (e) { ST.err++; on = false; if (it.k === 'pl') try { resetCell(it); } catch (e2) {} }
+      try { on = DRAW[it.ty](it, t); } catch (e) { ST.err++; ST.msg = it.ty + ': ' + String(e && e.message || e); on = false; if (it.ty === 'pl') try { resetCell(it); } catch (e2) {} }
       g2.globalAlpha = 1; if (on) keep.push(it); }
     ACT = keep; if (ACT.length) { ST.drawn++; kick(); } else g2.clearRect(0, 0, cv.width, cv.height);
   }
   function add(it) {
     ACT.push(it);
-    var n = 0, i; for (i = ACT.length - 1; i >= 0; i--) if (ACT[i].k !== 'pl' && ++n > 18) ACT.splice(i, 1);   // at most ~3 chains of effects at once: the oldest go first
+    var n = 0, i; for (i = ACT.length - 1; i >= 0; i--) if (ACT[i].ty !== 'pl' && ++n > 18) ACT.splice(i, 1);   // at most ~3 chains of effects at once: the oldest go first
     kick();
   }
   function chainP(cells) {
@@ -234,8 +234,8 @@
       ST.ev.push(['pl', now()]);
       var m = mode(); if (m === 'off' || !p || p.x === undefined) return; load();
       try { attach(null, ctx); var root = ctx && ctx.root; if (root) root.classList.add('pfa-place');
-        ACT = ACT.filter(function (a) { return !(a.k === 'pl' && a.id === p.id); });
-        add({ k: 'pl', id: p.id, p: p, L: look(p, ctx && ctx.slug), t0: now(), k: kOf(ctx && ctx.step) }); LAST0 = now(); ST.place++; } catch (e) { ST.err++; }
+        ACT = ACT.filter(function (a) { return !(a.ty === 'pl' && a.id === p.id); });
+        add({ ty: 'pl', id: p.id, p: p, L: look(p, ctx && ctx.slug), t0: now(), k: kOf(ctx && ctx.step) }); LAST0 = now(); ST.place++; } catch (e) { ST.err++; }
     },
     /** a piece fires at its replay step: its own edges, then the carrier to the next piece of its chain (chain = the pieces in firing order) */
     fire: function (ev, p, chain, ctx) {
@@ -247,8 +247,8 @@
         if (i < 0) { chain = [p]; i = 0; }
         var cells = chain.map(function (q) { return { id: q.id, x: q.x, y: q.y, e: edges(q) }; }), P = chainP(cells), L = look(p, ctx && ctx.slug), k = kOf(ctx && ctx.step), t0 = now();
         var own = P.runs[i] && P.runs[i].length ? null : chainP([cells[i]]);   // no outer edge of its own (inside a block of pieces): its own cell's edge
-        add({ k: 'own', P: P, o: i, own: own, L: L, t0: t0, k: k, seed: ((+p.id || 0) * 7 + 3) % 997 }); ST.fire++;
-        if (i + 1 < chain.length) { add({ k: 'car', P: P, o: i, o2: i + 1, L: L, t0: t0 + 250 * k, k: k }); ST.car++; }
+        add({ ty: 'own', P: P, o: i, own: own, L: L, t0: t0, k: k, seed: ((+p.id || 0) * 7 + 3) % 997 }); ST.fire++;
+        if (i + 1 < chain.length) { add({ ty: 'car', P: P, o: i, o2: i + 1, L: L, t0: t0 + 250 * k, k: k }); ST.car++; }
         LAST0 = t0;
       } catch (e) { ST.err++; }
     },
@@ -256,18 +256,19 @@
     aoe: function (cells, ctx) {
       ST.ev.push(['a', now()]);
       if (mode() !== 'full' || !cells || !cells.length) return;
-      try { attach(null, ctx); add({ k: 'aoe', cells: cells, t0: now(), k: kOf(ctx && ctx.step) }); ST.aoe++; LAST0 = now(); } catch (e) { ST.err++; }
+      try { attach(null, ctx); add({ ty: 'aoe', cells: cells, t0: now(), k: kOf(ctx && ctx.step) }); ST.aoe++; LAST0 = now(); } catch (e) { ST.err++; }
     },
     /** skip, rewind, a new replay: everything goes at once (nothing is state, so nothing needs fast-forwarding) */
     cancel: function () {
-      ACT.forEach(function (it) { if (it.k === 'pl') try { resetCell(it); } catch (e) {} });
+      ACT.forEach(function (it) { if (it.ty === 'pl') try { resetCell(it); } catch (e) {} });
       ACT = []; ST.cancel++; if (raf) { (window.cancelAnimationFrame || clearTimeout)(raf); raf = 0; }
       if (g2 && cv) g2.clearRect(0, 0, cv.width, cv.height);
     },
+    tick: function () { ST.ev.push(['s', now()]); },
     active: function () { return ACT.length; },
     /** tests and frame captures: freeze the clock ms after the latest start (null = live again) */
     seek: function (ms) { FROZEN = ms === null || ms === undefined ? null : LAST0 + (+ms); if (FROZEN !== null && ACT.length) { if (raf) { (window.cancelAnimationFrame || clearTimeout)(raf); raf = 0; } frame(); } else kick(); },
-    look: function (p, slug) { return look(p, slug); }, ready: function () { return !!D; }, load: load, perimeter: perimeter, canvas: function () { return cv; }
+    look: function (p, slug) { return look(p, slug); }, ready: function () { return !!D; }, _prep: function (j) { prep(j); }, load: load, perimeter: perimeter, canvas: function () { return cv; }
   };
   load();
 })();

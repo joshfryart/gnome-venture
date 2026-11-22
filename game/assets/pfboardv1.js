@@ -492,6 +492,7 @@
   function pfaStep(ev, step) {
     if (!window.PFAnim || rewind) return;
     try {
+      PFAnim.tick();   // the step's own time (tests compare them with the effects on and off)
       if (ev.cs && ev.rid) { var rp = pieceById(ev.rid); if (rp && rp.by === 'me') pfaPlace(ev.rid, step); }   // your own piece was on the board from the first frame: it lands as its chain starts
       if (ev.note === 'aoe') { var ao = (PREV && PREV.aoe) || data.aoe; if (ao && ao.cells) PFAnim.aoe(ao.cells, pfaCtx(step)); return; }
       if (!ev.id || ev.note || ev.strike || (ev.env && ev.env !== 'fire')) return;

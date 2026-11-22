@@ -186,8 +186,6 @@ def main():
     need -= {'-', 'none', 'custom'}
     miss = sorted(i for i in need if ("case '%s'" % i) not in code and i not in xg and i not in xm and not (i in mnames))
     if miss: die('ids with no draw code: ' + ', '.join(miss))
-    for r in data['m']:
-        if r[0] in mnames: continue
     fams = json.dumps(fam_table(), separators=(',', ':'))
     js = open(os.path.join(R, 'tools', 'pfanim_part.js'), encoding='utf-8').read()
     for k in ('/*__DRAW__*/', '/*__MOTIFS__*/', '/*__FAMS__*/null', '/*__VER__*/'):

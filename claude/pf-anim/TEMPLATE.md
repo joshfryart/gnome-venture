@@ -335,3 +335,25 @@ PFA.motion('newmotion', function (G, pp, k, ph, H) { G.up += Math.sin(pp * 6 + k
 1. `python3 claude/pf-anim/build_small_anim.py <size>` once to read `<size>-creatures.json` (creatures, pieces, generic families).
 2. Section 9.1 identity reading per creature; write `themes/<size>/<batch>.json` (4 hand notes per creature) and any `motifs/<name>.js`; add `overrides/<size>/<batch>.json` only where the generic family is wrong.
 3. Rebuild; section 9.7 review items (0 weak spots, 0 near duplicates in your batch), open `claude/mockups/pf-<size>-anim.html#c=<slug>&t=3600` and check on the felt AND on the pieces, phone width, console clean.
+
+## 11. The game engine (production): `game/assets/pfanim.js` + `game/assets/pfanim-data.json`
+The fight page (v1 board) loads `assets/pfanim.js` before `assets/pfboardv1.js`; it fetches `assets/pfanim-data.json` (same `?v=`, cached) and draws on ONE overlay canvas
+(`.pfa-fx`, z 7 inside `.pfb-world`, art pixels, margin 26 px outside the board art). Both files are GENERATED; nothing in this folder is read at run time.
+```
+python3 tools/build_pfanim.py            # after ANY change here: a size json, themes.json, a motif module, the template's draw code
+python3 tools/build_pfanim.py --check    # tests/pfanim.sh runs this: fails when the game files are stale
+tests/pfanim.sh                          # data round trip (tests/pfanim_unit.js) + the real fight page (3x3, 4x4, 5x5, boss AOE) at 390 px
+```
+- Reads `<size>-creatures.json` for every size that exists (small, medium, large, boss; a missing size is skipped, its creatures use the type/tag fallback), the motif catalogue,
+  `small-anim.template.html` from `function hexmix(` to the gallery minus its single-loop `perimeter()` (the engine has a multi-loop one: largest outer loop; a piece with no
+  outer edge, e.g. the centre of a 3x3 block, draws on its own cell and anchors to the nearest loop point), and every `motifs/*.js` module (bundled into pfanim.js in file order).
+  So: build your size with `build_small_anim.py <size>` FIRST, then `tools/build_pfanim.py`, then `tests/pfanim.sh`.
+- Every glyph / motion / extra / carrier / personality / sound id the data uses must have a `case 'id'` in the template draw code or be registered by a module, else the build stops.
+- Look-up at run time: creature piece = `cslug` (page data) + piece name -> its themed motif (creature-heavy variant); no theme -> its generic family; no data -> the player / shared
+  table (pilot table of the proposal for the 15 base pieces, the section 3 rules for every other row of pf_pieces.txt, wear_items_pieces.txt, pf_region_pieces.txt, pf_class_base.txt);
+  else by tag, then type. Player pieces use the light variant, environment pieces the plain place (raise + click) and their kind's family (sun sparkle, bramble thorn, rain ripple ...).
+- Hooks in `pfboardv1.js` (hand-synced into `tools/pfboardv1_part.js`): `pfaPlace` at a reveal (`revealId`) and as your own piece's chain starts, `pfaStep` in every replay step
+  (fire: own edges + carrier to the next piece of `data.fx` order; a boss AOE landing pulses its cells), `pfaReset` on skip / rewind, `PFAnim.attach` after each render.
+  Effects scale with the step (k = step / 950, .3..1) and never add a timer: the replay's step times are identical with effects on and off (tested).
+- Setting: help sheet "Piece effects: Full / Light / Off", per device in localStorage `pfvfx` like the animation speed (`pfvspd`); no choice = Full, or Off under prefers-reduced-motion.
+- Budget: the JSON stays well under 250 KB for all 319 creatures (short keys, one theme per creature, motif refs by index, only what differs from the rules is stored).
