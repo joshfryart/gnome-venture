@@ -406,8 +406,8 @@ function status_strip(array $u): string
     $rest = hollow_chip(hollow_user_region($u))   // v1.0.0: season · weather · part of the day
         . ($glevel ? '<span class="st lvl glvl">🏡 Garden level <b>' . $glevel . '</b></span>' : '')
         . '<span class="st alm"><a href="' . e(url('book.php')) . '">📖 Almanac <b>' . $pages . '</b>/' . $total . '</a></span>'
-        . (($pots = cook_pots_on() ? cook_ready_count((int)$u['id']) : 0) > 0 ? '<span class="st hot"><a href="' . e(url('inventory.php?tab=craft&c=cooking')) . '">🍳 ' . $pots . ' ready</a></span>' : '')   // v0.9.4: finished pots waiting
-        . (($jars = pantry_ready_count((int)$u['id'])) > 0 ? '<span class="st hot"><a href="' . e(url('inventory.php?tab=craft&c=pantry')) . '">🫙 ' . $jars . ' ready</a></span>' : '');   // v0.9.8: finished Pantry jars waiting
+        . (($pots = cook_pots_on() ? cook_ready_count((int)$u['id']) : 0) > 0 ? '<span class="st hot"><a href="' . e(craft_url('cooking')) . '">🍳 ' . $pots . ' ready</a></span>' : '')   // v0.9.4: finished pots waiting
+        . (($jars = pantry_ready_count((int)$u['id'])) > 0 ? '<span class="st hot"><a href="' . e(craft_url('pantry')) . '">🫙 ' . $jars . ' ready</a></span>' : '');   // v0.9.8: finished Pantry jars waiting
     $sp = (int)$u['stat_points'];
     $statHot = $sp > 0 ? '<span class="st hot"><a href="' . e(url('gnome.php?tab=stats')) . '">✨ ' . $sp . ' stat point' . ($sp === 1 ? '' : 's') . ' to spend</a></span>' : '';
     $titleP = $u['title'] ? '<span class="st title">“' . e($u['title']) . '”</span>' : '';
@@ -424,8 +424,8 @@ function status_strip(array $u): string
             . ($glevel ? '<a class="stl" href="' . e(url('garden.php')) . '" title="Garden level ' . $glevel . '">🏡 <b>' . $glevel . '</b></a>' : '')
             . '<a class="stl" href="' . e(url('book.php')) . '" title="Almanac pages">📖 <b>' . $pages . '</b>/' . $total . '</a>'
             . ($fest ? '<a class="stl" href="' . e(url('festival.php')) . '" aria-label="' . e($fest['name']) . '" title="' . e($fest['name']) . '">' . e($fest['icon']) . '</a>' : '')
-            . ($pots > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=cooking')) . '" aria-label="' . $pots . ' pots ready">🍳 ' . $pots . '</a>' : '')
-            . ($jars > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=pantry')) . '" aria-label="' . $jars . ' jars ready">🫙 ' . $jars . '</a>' : '')
+            . ($pots > 0 ? '<a class="stbadge" href="' . e(craft_url('cooking')) . '" aria-label="' . $pots . ' pots ready">🍳 ' . $pots . '</a>' : '')
+            . ($jars > 0 ? '<a class="stbadge" href="' . e(craft_url('pantry')) . '" aria-label="' . $jars . ' jars ready">🫙 ' . $jars . '</a>' : '')
             . ($sp > 0 ? '<a class="stbadge" href="' . e(url('gnome.php?tab=stats')) . '" aria-label="' . $sp . ' stat points to spend">✨ ' . $sp . '</a>' : '') . '</div></div></div>';
     }
     $h = '<div class="statusstrip"><div class="statusin">'
@@ -441,8 +441,8 @@ function status_strip(array $u): string
         . $hpLine
         . '<a class="stl" href="' . e(url('world.php?tab=seasons#seasons')) . '" title="' . e($hn['season_label'] . ' day ' . (int)$hn['season_day'] . ' · ' . $hn['weather_label']) . '">' . $hn['season_emoji'] . ' ' . e($hn['season_label']) . ' ' . (int)$hn['season_day'] . ' ' . $hn['weather_emoji'] . '</a>'
         . ($fest ? '<a class="stl" href="' . e(url('festival.php')) . '" aria-label="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '" title="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '">' . e($fest['icon']) . '</a>' : '')
-        . ($pots > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=cooking')) . '" title="Pots ready" aria-label="' . $pots . ' pots ready">🍳 ' . $pots . '</a>' : '')
-        . ($jars > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=pantry')) . '" title="Jars ready" aria-label="' . $jars . ' jars ready">🫙 ' . $jars . '</a>' : '')
+        . ($pots > 0 ? '<a class="stbadge" href="' . e(craft_url('cooking')) . '" title="Pots ready" aria-label="' . $pots . ' pots ready">🍳 ' . $pots . '</a>' : '')
+        . ($jars > 0 ? '<a class="stbadge" href="' . e(craft_url('pantry')) . '" title="Jars ready" aria-label="' . $jars . ' jars ready">🫙 ' . $jars . '</a>' : '')
         . ($sp > 0 ? '<a class="stbadge" href="' . e(url('gnome.php?tab=stats')) . '" title="Stat points to spend" aria-label="' . $sp . ' stat points to spend">✨ ' . $sp . '</a>' : '') . '</div></div>'
         // v1.4.0: the low/out-of-energy band is gone (Joshua: too persistent); the ⚡ chip in the header shows energy
         . '</div>';
@@ -663,7 +663,7 @@ function right_rail(array $u): string
         foreach ($pots as $p) {
             if (!empty($p['pal'])) { $h .= '<li><span>' . e($p['name']) . '</span> <small class="rtime">🧩 ' . e($p['pal']) . ' tending</small></li>'; continue; }
             $h .= '<li><span>' . e($p['name']) . '</span> ' . ($p['left'] <= 0
-                ? '<a class="rgo" href="' . e(url('inventory.php?tab=craft&c=cooking')) . '">Ready, collect</a>'
+                ? '<a class="rgo" href="' . e(craft_url('cooking')) . '">Ready, collect</a>'
                 : '<small class="rtime">' . e(effect_time($p['left'])) . '</small>') . '</li>';
         }
         $h .= '</ul></section>';

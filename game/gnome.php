@@ -280,7 +280,7 @@ endif; ?>
           <li><span class="efi"><?= $ic ?></span> <b><?= e($nm) ?>:</b> <?= e($what) ?><?php if ($fl !== ''): ?> <span class="muted">· <?= e($fl) ?> left</span><?php endif; ?></li>
         <?php endforeach; ?></ul>
         <p class="help">A new meal replaces the old meal’s boost. Town outings<?= gnome_tea_buff($u) ? ', a cup of tea' : '' ?> and lucky moments each have their own slot, so they add up.</p>
-      <?php else: ?><p class="help">No boosts right now. Eat something from your <a href="<?= e(url('inventory.php')) ?>">satchel</a> or cook something at your <a href="<?= e(url('inventory.php?tab=craft')) ?>">workbench</a>.</p><?php endif; ?>
+      <?php else: ?><p class="help">No boosts right now. Eat something from your <a href="<?= e(url('inventory.php')) ?>">satchel</a> or cook something at your <a href="<?= e(craft_url()) ?>">workbench</a>.</p><?php endif; ?>
     </section>
     <?php $lc = q_one("SELECT SUM(CASE WHEN lm.kind = 'lair' THEN 1 ELSE 0 END) AS lairs, SUM(CASE WHEN lm.kind = 'delve' THEN 1 ELSE 0 END) AS delves
                  FROM landmark_clears c JOIN landmarks lm ON lm.id = c.landmark_id WHERE c.user_id = ?", [$uid]);

@@ -95,6 +95,13 @@ function gnav_page_open(string $flag): bool
 }
 
 
+/** Link to a crafting area: the workshop picture when it is open for this viewer (opens that area's card), else the old list page. $c = area key ('' = all). */
+function craft_url(string $c = ''): string
+{
+    if (gnav_page_open('gnav_craft')) return url('workshop.php' . ($c !== '' ? '?o=' . rawurlencode($c) : ''));
+    return url('inventory.php?tab=craft' . ($c !== '' ? '&c=' . rawurlencode($c) : ''));
+}
+
 /** When this gnome last saw a picture page ('treehouse'), or null (never, or the table is not there yet). */
 function hub_seen_get(int $uid, string $scene): ?string
 {

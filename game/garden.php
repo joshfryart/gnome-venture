@@ -831,7 +831,7 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
           <?php if ($key === 'kitchen'): ?>
             <p>🍳 All your kitchens together: meal buffs last <b>+<?= $kb['buff_pct'] ?>%</b> longer, cooking gives <b>+<?= $kb['xp_pct'] ?>%</b> XP, you have <b><?= cook_pot_limit($u) ?></b> pots<?= $kb['feasts'] ? ', and you can cook feasts' : '' ?>.</p>
             <?php if (!empty($built[$key]['pantry'])): require_once __DIR__ . '/includes/pal_jobs.php'; pj_settle_pantry($uid); $jb = pantry_busy($uid); $jr = pantry_ready_count($uid); ?>
-              <p>🫙 <b>Pantry:</b> <?= $jb ?> jars in use (<?= $kb['jars'] ?> in each of 5 rooms)<?= $jr ? ' · <b>' . $jr . ' ready</b>' : '' ?>. <a href="<?= e(url('inventory.php?tab=craft&c=pantry')) ?>">Open the Pantry →</a></p>
+              <p>🫙 <b>Pantry:</b> <?= $jb ?> jars in use (<?= $kb['jars'] ?> in each of 5 rooms)<?= $jr ? ' · <b>' . $jr . ' ready</b>' : '' ?>. <a href="<?= e(craft_url('pantry')) ?>">Open the Pantry →</a></p>
               <details class="how"><summary>How many jars?</summary>
                 <p class="help"><?= (int)setting('pantry_jars') ?> to start, +<?= (int)setting('pantry_jars_k3') ?> when a Kitchen with a Pantry is level III, and +<?= (int)setting('stack_pantry_jar_per') ?> for each Pantry in your other gardens (up to +<?= (int)setting('stack_pantry_jar_max') ?>). You have <?= $kb['pantries'] ?> Pantr<?= $kb['pantries'] === 1 ? 'y' : 'ies' ?>.</p></details>
             <?php else: [$pc, $pm] = pantry_cost(); ?>

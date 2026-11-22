@@ -79,7 +79,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
 <?= $fold('🍲', 'Cook, craft and sell') ?>
   <ul>
     <li>Reach garden level 2 to build a <b>Kitchen</b>. Snacks, meals and feasts restore energy and give boosts.</li>
-    <li><a href="<?= e(url('inventory.php?tab=craft')) ?>">Crafting</a> turns wood, stone and wild finds into tools, compost and decor.</li>
+    <li><a href="<?= e(craft_url()) ?>">Crafting</a> turns wood, stone and wild finds into tools, compost and decor.</li>
     <li>Sell to shops, <a href="<?= e(url('market.php')) ?>">trade</a> with other gnomes, or open a market stall.</li>
   </ul>
 </div></details>
