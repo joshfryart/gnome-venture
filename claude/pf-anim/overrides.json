@@ -1,0 +1,49 @@
+{
+ "_doc": "key = creature/piece_key. Fields: family (required to change), note, review (true = still a best guess: reported as needs-art-review), col, accent, lift, snd.",
+ "fire-ant-raiders/f:b0": {
+  "family": "ember",
+  "note": "fire theme beats the jaw word; best guess",
+  "review": true
+ },
+ "fire-ant-raiders/f:u0": {
+  "family": "ember",
+  "note": "poison tag but a fire sting: embers over drips"
+ },
+ "weaver-ant-nest/f:u0": {
+  "family": "web",
+  "note": "silk thread nip: web strands (best guess vs bite)",
+  "review": true
+ },
+ "weaver-ant-nest/f:b0": {
+  "family": "web",
+  "note": "thread nip: web (best guess vs bite)",
+  "review": true
+ },
+ "weaver-ant-nest/f:b2": {
+  "family": "leaf",
+  "note": "leaf wall: leaf",
+  "review": true
+ },
+ "weaver-ant-nest/f:u2": {
+  "family": "leaf",
+  "note": "leaf weave beats thorns tag visually"
+ },
+ "cave-glowworm/f:b0": {
+  "family": "web",
+  "note": "sticky thread: web",
+  "review": true
+ },
+ "dawn-skipper-flutter/f:u1": {
+  "family": "web",
+  "note": "tangle is the trip: web, dew drops come from the web family"
+ },
+ "marsh-spark-swarm/f:u2": {
+  "family": "shock",
+  "note": "spark = electric spark, not fire"
+ },
+ "marsh-spark-swarm/f:u0": {
+  "family": "sparkle",
+  "note": "spark shell: sparks on a shell",
+  "review": true
+ }
+}
