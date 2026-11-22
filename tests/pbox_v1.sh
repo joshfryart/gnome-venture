@@ -39,6 +39,7 @@ install() {   # install, register sprout, onboard: on the server at $1 with the 
   get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'garden_name=Test Patch' >/dev/null
   db "UPDATE users SET energy=100, tour_step=99 WHERE username='sprout'" >/dev/null
   db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1')" >/dev/null; db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
+  db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_v1','0')" >/dev/null; db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_intro','0')" >/dev/null   # 2.7.57: v1 and the intro card are on by default; this suite starts from v1 Off
   BASE=$B; GAME=$G
 }
 echo "== static: JS syntax, the built fork, php -l"
@@ -72,8 +73,9 @@ if git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then
   ck "flag off: the board fight page is the page of 2.6.73 (same fight state)" "$(grep -c 'id="pfb-board"' $H.new) $(diff $H.new $H.old | wc -l | tr -d ' ')" "1 0"
   db "UPDATE expeditions SET encounter=NULL" >/dev/null
 else echo "skip the comparison with commit $OLD (not in this checkout)"; fi
+set_ pfight_v1 0   # 2.7.57: v1 is on by default now; Off is set explicitly
 get puzzlebox.php >/dev/null; cp $H $H.off
-ck "flag unset: the old Puzzle box form, nothing of v1 on the page" "$(grep -c 'id="pbox"' $H) $(grep -c 'pfv\|pfboardv1' $H)" "1 0"
+ck "flag off: the old Puzzle box form, nothing of v1 on the page" "$(grep -c 'id="pbox"' $H) $(grep -c 'pfv\|pfboardv1' $H)" "1 0"
 set_ pfight_v1 admin
 get puzzlebox.php >/dev/null
 diff <(norm $H | fold -w 120) <(norm $H.off | fold -w 120) | head -16 | sed "s/^/diag /"   # what differs, when it does

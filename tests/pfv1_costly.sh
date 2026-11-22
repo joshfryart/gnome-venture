@@ -34,6 +34,7 @@ install() {   # install, register sprout, onboard: on the server at $1 with the 
 }
 install "$BASE" "$GAME"
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_v1','1')" >/dev/null
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_intro','0')" >/dev/null   # 2.7.57: the first-time intro card would cover the board
 db "UPDATE users SET level=12 WHERE username='sprout'" >/dev/null
 echo "== costly cell: red edge, named cause, End turn asks once (browser)"
 if [ -d /opt/node-tools/node_modules/playwright ] || node -e "require('playwright')" 2>/dev/null; then

@@ -17,7 +17,7 @@ function pfight_on(array $u): bool
     return $v === 'admin' && ($u['role'] ?? '') === 'admin';
 }
 
-/** Setting pfight_v1: 0 off (the default), admin = a NEW fight of an admin uses the v1 board rules (pfboard.php, "v1 board rules"); 1 = everyone (not offered in the settings yet). Only inside pfight_on(). */
+/** Setting pfight_v1: 0 off, admin = a NEW fight of an admin uses the v1 board rules (pfboard.php, "v1 board rules"); 1 = everyone (the default since 2.7.57). Only inside pfight_on(). */
 function pfight_v1_on(array $u): bool
 {
     $v = setting('pfight_v1');
@@ -760,8 +760,9 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
         require_once __DIR__ . '/pfdeck_view.php';
         $first = pf_first_fight($u, $c) || !empty($enc['retry']);   // 2.7.01 fixed first fight: fight first, box later (no box, no pre-fight screen; the box is offered from the next fight); a free retry goes straight back in too
         if (!$first && !pfd_deck($u)['starter']) pfd_ensure_starter($u);   // 2.7.01: the same starter box for everyone, packed here when the gnome has none
-        if (!$first && !pfd_deck($u)['starter']) return pfv_starter_html($u, pfd_deck($u), true) . pfv_assets();
-        if (!$first && empty($enc['pfgo'])) return pfv_prefight_html($u, $exp, $c);
+        require_once __DIR__ . '/pfintro.php';   // 2.7.57: the 4-step intro, the first time (it does not hold the fight up)
+        if (!$first && !pfd_deck($u)['starter']) return pfv_starter_html($u, pfd_deck($u), true) . pfv_assets() . pfi_card_html($u, 'adventure');
+        if (!$first && empty($enc['pfgo'])) return pfv_prefight_html($u, $exp, $c) . pfi_card_html($u, 'adventure');
     }
     $s = pfight_state($u, $exp, $enc, $c);
     if ($fresh) {   // the hand you see must be the hand the server plays: write it only if the row is still exactly what this page read (compare-and-swap)
@@ -945,6 +946,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         }
     }
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
+    if (isset($v['v1'])) { require_once __DIR__ . '/pfintro.php'; $h .= pfi_card_html($u, 'adventure', true); }   // 2.7.57: the intro card (open the first time, hidden after: the help sheet opens it again)
     return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/' . (isset($v['v1']) ? 'pfparts47.js' : 'pfparts.js') . '?v=' . APP_VERSION)) . '" data-rerun defer></script>' . (isset($v['v1']) ? '<link rel="stylesheet" href="' . e(url('assets/pfv1.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfv1box.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfanim.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfboardv1.js?v=' . APP_VERSION)) . '" data-rerun defer></script>'   // v1 (stage C): its own board script (a fork of pfboard.js), so the old one stays as it is
         : '<script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" data-rerun defer></script>');
 }

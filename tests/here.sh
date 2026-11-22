@@ -31,7 +31,7 @@ get account.php >/dev/null
 chk "Account has no Start-on box" "$(grep -q 'id="startpage"' $TD/here-p.html || echo 1)"
 
 echo "== flag on"
-cli set gnav_on 1 >/dev/null
+cli set gnav_on 1 >/dev/null; cli set pfight_open 0 >/dev/null   # 2.7.57: puzzle combat is on by default; this suite covers the old Trail fight popover
 chk "login lands on Here" "$([[ $(login) == */here.php ]] && echo 1)"
 R=$(get here.php)
 chk "here.php shows the picture" "$([[ $R == 200* ]] && grep -q 'class="hubsvg' $TD/here-p.html && echo 1)" "$R"

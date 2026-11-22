@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-22 2.7.57 puzzle combat live (branch `ccr-893d59b2-e35ovt`)
+- DONE 2.7.57: puzzle combat on for everyone (boot step `pfight_live_2757`, defaults on), 4-step intro + How it works tab (`pfintro.php`, table `pf_intro`, setting `pfight_intro`), Codex draws seen pieces (`pf_codex.pd`); slim zip `releases/GnomeVenture-2.7.57-web-update.zip` (needs 2.7.51+); NOT seen on a real phone, MySQL or light theme. Every existing gnome gets the learner flow once (Garden Snail first fight).
+
 ## 2026-11-22 2.7.56 weather piece effects (branch `ccr-893d59b2-e35ovt`)
 - DONE 2.7.56: place + fire effects for all 8 environment kinds (`claude/pf-anim/motifs/weather_env.js`), slim zip `releases/GnomeVenture-2.7.56-web-update.zip` (needs 2.7.51+); NOT seen in a real browser or phone (headless captures only).
 

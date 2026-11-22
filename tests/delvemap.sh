@@ -39,6 +39,7 @@ get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'gard
 SID=$(db "SELECT id FROM users WHERE username='sprout'")
 echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
 dbx "UPDATE settings SET value='100000' WHERE name='event_chance'"; dbx "INSERT OR IGNORE INTO settings (name, value) VALUES ('event_chance','100000')"
+dbx "INSERT OR REPLACE INTO settings (name, value) VALUES ('pfight_open','0')"   # 2.7.57: puzzle combat is on by default; this suite covers the old delve / lair fights (value=attack)
 dbx "UPDATE users SET tour_step=0, level=30, stat_grit=26, stat_hardiness=26, stat_nimble=22, energy=500, coins=5000 WHERE id=$SID"
 dbx "UPDATE expeditions SET status='done' WHERE user_id=$SID"
 

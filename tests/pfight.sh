@@ -36,7 +36,7 @@ php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 get adventure.php >/dev/null
 ck "flag off: old fight card" "$(grep -c 'id="pfight"' $H)" "0"
 ck "flag off: attack button" "$( [ $(grep -c 'value="attack"' $H) -ge 1 ] && echo yes)" "yes"
-db "UPDATE settings SET value='1' WHERE name='pfight_open'" >/dev/null
+db "UPDATE settings SET value='1' WHERE name='pfight_open'" >/dev/null; db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_v1','0')" >/dev/null   # 2.7.57: v1 is on by default; this suite covers the old (pre-v1) fights
 get adventure.php >/dev/null
 ck "flag on: puzzle card" "$(grep -c 'id="pfight"' $H)" "1"
 ck "flag on: no old attack button" "$(grep -c 'value="attack"' $H)" "0"
