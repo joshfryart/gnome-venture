@@ -11,6 +11,10 @@
 //   a piece is base + max(0, mod of PF_STAT[type]) + level / 3 + bonuses (pf_make_tile); max HP = 20 + 3 x level + 5 x Hardiness mod (gnome_combat; calling hp_bonus left out as the tuner does);
 //   luck mod = the fight's luckmod. ASSUMED: points go in pairs (a lone point does nothing), Balanced spreads pairs over all 7 stats incl. Sense (that is the tuner's model gnome,
 //   m = (level + 3) / 14), a one-stat profile fills its stat to 30 then spreads the rest like Balanced, Grit+Hardiness alternates pairs; no food, meal, tea, pal road or calling perks.
+// FULL RUN (Josh 2026-11-22: all creatures, different scenarios): GRID=full php tests/pf_collect.php OUTDIR SHARD/N all 3   runs the pc_jobs_full() grid (all creatures x profiles x level offsets -8..+4 x builds std/pals/norare
+//   x bots chain, look, newbie, charm, random, greedy, defensive x 3 seeds, plus one-stat controls on every 5th creature). That mode is LEAN: it plays every fight but only prices the chosen option (forecast error stays), so it writes
+//   the fights table (and pieces for chain, seed 0, offset 0); the per-turn, option and regret tables come from a second FULL pass over a sample: ONLY=file_of_fight_ids php tests/pf_collect.php OUTDIR SHARD/N all 3 (GRID=full) plays just
+//   those fights with everything logged. tests/pf_collect_full_agg.py builds the sheet aggregates.
 // Unlocks by level (tools, pals, crops, crafts, regions, calling tier, knacks) are tests/pfboard_tune_v1.php tv_sources().
 require_once __DIR__ . '/pf_bots.php';
 
@@ -39,11 +43,17 @@ function pc_mods(array $raw, int $lv): array { $m = ['level' => $lv]; foreach (P
 function pc_stat_mod(int $v): int { return intdiv($v - 10 - ($v < 10 ? 1 : 0), 2); }   // = stat_mod() in game/includes/gnome.php (not loaded here: it needs the DB layer)
 
 /** The gnome: player array for pfb_new, plus the meta for the tables. $ctrl = ['grit', +2] moves one raw stat (the deck sources stay the same). */
-function pc_player(int $lv, string $prof, ?array $ctrl = null): array
+function pc_player(int $lv, string $prof, ?array $ctrl = null, string $build = 'std'): array
 {
     [$raw, $spent] = pc_alloc($lv, $prof);
     if ($ctrl) $raw[$ctrl[0]] = max(3, min(30, $raw[$ctrl[0]] + $ctrl[1]));
-    $mods = pc_mods($raw, $lv); $src = tv_sources($lv); $ent = array_values(pfd_fight_entries($src));
+    $mods = pc_mods($raw, $lv); $src = tv_sources($lv);
+    if ($build === 'pals') {   // as pb_player: four pals and no belt tools
+        $src['tools'] = []; $src['belt'] = [];
+        $src['pals'] = []; foreach ([['Bark Badger', 'guard', 'craft'], ['Samara Spin', 'hurt', 'body'], ['Moss Mole', 'charm', 'body'], ['Dew Wren', 'hurt', 'craft']] as [$n, $t, $r]) $src['pals'][] = ['n' => $n, 't' => $t, 'v' => 5 + intdiv($lv, 6), 'r' => $r, 'rank' => min(3, 1 + intdiv($lv, 12))];
+    }
+    $ent = array_values(pfd_fight_entries($src));
+    if ($build === 'norare') $ent = array_values(array_filter($ent, fn($e) => (int)($e['rank'] ?? 0) <= 2));   // nothing above Uncommon
     $deck = pfd_tiles($ent, $mods, [], $src['calling'], $src['ctier']);
     foreach ($deck as $i => $t) $deck[$i]['uid'] = $i;   // our tracking id: rides on the tile through hand, board, discard
     $max = max(10, 20 + 3 * $lv + 5 * $mods['hardiness']);
@@ -113,13 +123,13 @@ $PC_H = [
 
 function pc_csv($fh, array $row): void { fputcsv($fh, array_map(fn($v) => is_bool($v) ? (int)$v : (is_float($v) ? round($v, 3) + 0.0 : $v), $row), ',', '"', ''); }
 
-function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $d, ?array $ctrl, array $out, array $meta0): void
+function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $d, ?array $ctrl, array $out, array $meta0, string $build = 'std', bool $full = true, bool $wantPieces = true, ?string $fid = null): void
 {
     $t0 = microtime(true); mt_srand($seed); $rng = fn(int $n) => $n > 0 ? mt_rand(0, $n - 1) : 0;
-    [$pl, $pm] = pc_player($lv, $prof, $ctrl);
+    [$pl, $pm] = pc_player($lv, $prof, $ctrl, $build);
     $region = array_keys(pfd_region_pieces())[(crc32($c['slug']) + $seed) % 14]; $cr = pfd_foe_row($c, $region);
     $s = pfb_new($pl, $cr, $seed, ['blank' => true, 'v1' => true]);
-    $fid = substr(md5(json_encode([$c['slug'], $lv, $bot, $prof, $seed, $ctrl])), 0, 10);
+    $fid ??= pc_fid($c['slug'], $lv, $bot, $prof, $seed, $ctrl, $build, $d);
     $P = []; foreach ($pl['deck'] as $i => $t) $P[$i] = ['drawn' => 0, 'played' => 0, 'fired' => 0, 'flipped' => 0, 'expired' => 0, 'used_up' => 0, 'fell' => 0, 'dmg' => 0.0, 'charm' => 0.0, 'hp' => 0];
     $idu = []; $prevHand = [];
     $hand = $s['me']['hand'];
@@ -133,13 +143,13 @@ function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $
         $hp0 = (int)$s['me']['hp']; $fh0 = (float)$s['fh']['now']; $b0 = (float)$s['bar']['now']; $max = (int)$s['me']['max'];
         $plan = $s['foe']['plan'] ?? null; $fcBefore = is_array($plan['tot'] ?? null) ? ($plan['tot']['hp'] ?? ($plan['tot']['broken'] ?? '')) : '';
         $opts = []; $ci = null; $bestK = null;
-        foreach ($places as $k => $op) { $o = pc_option($s, $op); if (!$o) continue; $opts[$k] = $o; if ($op === $a) $ci = $k; if ($bestK === null || $o['s_look'] > $opts[$bestK]['s_look']) $bestK = $k; }
-        foreach ($opts as $k => $o) { $op = $places[$k]; $tt = is_int($op[0]) ? $s['me']['hand'][$op[0]] : null;
+        foreach ($places as $k => $op) { if (!$full && $op !== $a) continue; $o = pc_option($s, $op); if (!$o) continue; $opts[$k] = $o; if ($op === $a) $ci = $k; if ($bestK === null || $o['s_look'] > $opts[$bestK]['s_look']) $bestK = $k; }
+        if ($full) foreach ($opts as $k => $o) { $op = $places[$k]; $tt = is_int($op[0]) ? $s['me']['hand'][$op[0]] : null;
             pc_csv($out['options'], [$fid, $t, $k, $tt['n'] ?? 'group', $op[0], $op[1] . ',' . $op[2], (int)!empty($op[3]), $o['d'], $o['c'], $o['h'], $o['n'], $o['used'], $o['tw'], $o['sun'], $o['miss'], $o['pal'], $o['end'], $o['guard'], $o['evade_risk'], $o['fc_hp'], $o['fc_broken'],
                 $o['t_hplost'], $o['t_dmg'], $o['t_ch'], $o['t_over'], $o['die_after'], $o['s_chain'], $o['s_look'], $o['s_newbie'], $o['s_charm'], $o['s_greedy'], $o['s_defensive'], $o['useful'], (int)($k === $ci)]); }
         $co = $ci !== null ? $opts[$ci] : null;
-        $dead = $opts ? (int)!array_filter($opts, fn($o) => $o['useful']) : 1; $F['dead'] += $dead;
-        if ($bestK !== null) { $bo = $opts[$bestK]; $ref = $co ?? ['s_look' => null, 't_dmg' => 0, 't_ch' => 0, 't_hplost' => 0];
+        $dead = $opts ? (int)!array_filter($opts, fn($o) => $o['useful']) : 1; if ($full) $F['dead'] += $dead;
+        if (!$full) { } elseif ($bestK !== null) { $bo = $opts[$bestK]; $ref = $co ?? ['s_look' => null, 't_dmg' => 0, 't_ch' => 0, 't_hplost' => 0];
             if ($co === null) { $w = $s; pfb_pass($w, $w['turn']); $ref = ['s_look' => tv_value($w), 't_dmg' => round($w['fh']['now'] - $fh0, 1), 't_ch' => round($w['bar']['now'] - $b0, 1), 't_hplost' => $hp0 - (int)$w['me']['hp']]; }
             $gap = $bo['s_look'] - $ref['s_look']; $F['reg'] += $gap; $F['regn']++;
             pc_csv($out['regret'], [$fid, $t, $bot, $prof, $c['slug'], $d, pc_act_s($s, $a), pc_act_s($s, $places[$bestK]), (int)($ci === $bestK), round($gap, 4), round($bo['t_dmg'] - $ref['t_dmg'], 1), round($bo['t_ch'] - $ref['t_ch'], 1), $ref['t_hplost'] - $bo['t_hplost'], $dead, count($opts)]);
@@ -189,7 +199,7 @@ function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $
         $fcAfter = $co['fc_hp'] ?? ''; $fcErr = '';
         if ($fcAfter !== '' && empty($s['reaim']) && $lastFoe !== null) { $fcErr = (int)$fcAfter - ($hpMid - (int)$lastFoe['hpnow']); $F['fcn']++; $F['fcerr'] += abs($fcErr); }
         $flags = $co ? implode(' ', array_filter([$co['used'] ? 'USES-UP' : '', $co['tw'] > 1 ? 'TEAM x' . $co['tw'] : '', $co['sun'] ? 'SUN' : '', $co['miss'] !== '' ? 'MISS' : '', $co['end'] !== '' ? 'END(' . $co['end'] . ')' : '', $co['die_after'] ? 'DIE-AFTER' : '', $co['pal'] !== '' ? 'PAL' : ''])) : '';
-        pc_csv($out['turns'], [$fid, $t, $bot, $prof, $c['slug'], $d, $hp0, (int)$s['me']['hp'], $max, round($fh0, 1), round($s['fh']['now'], 1), round($b0, 1), round($s['bar']['now'], 1), $s['fh']['max'], $pre['g'], $pre['fg'], $pre['draw'], $pre['disc'], $pre['board'], $pre['env'], $pre['haz'],
+        if ($full) pc_csv($out['turns'], [$fid, $t, $bot, $prof, $c['slug'], $d, $hp0, (int)$s['me']['hp'], $max, round($fh0, 1), round($s['fh']['now'], 1), round($b0, 1), round($s['bar']['now'], 1), $s['fh']['max'], $pre['g'], $pre['fg'], $pre['draw'], $pre['disc'], $pre['board'], $pre['env'], $pre['haz'],
             $pre['hand'], count($opts), pc_act_s(['me' => ['hand' => $s0hand]], $a), is_int($a[0]) ? ($s0hand[$a[0]]['n'] ?? '') : $a[0], $a[0] === 'pass' ? '' : $a[1] . ',' . $a[2], (int)!empty($a[3]),
             $co['d'] ?? '', $co['c'] ?? '', $co['h'] ?? '', $co['n'] ?? '', $flags, $pre['aim'], $pre['aimp'], $fcBefore, $fcAfter,
             $myLen, $myN, $usedN, round($myD, 1), round($myC, 1), $myH, $co ? round($myD - $co['d'], 1) : '', $co ? round($myC - $co['c'], 1) : '', $co ? $myH - $co['h'] : '',
@@ -205,17 +215,41 @@ function pc_fight(array $c, int $lv, string $bot, string $prof, int $seed, int $
         $tune['foe_x'] ?? 1.0, $tune['bar_x'] ?? 1.0, $s['fh']['max'], $s['cm'], $s['hm'],
         $lv, $d, $prof, $pm['spent'], $pm['raw']['grit'], $pm['raw']['nimble'], $pm['raw']['hardiness'], $pm['raw']['charm'], $pm['raw']['lore'], $pm['raw']['luck'], $pm['raw']['sense'],
         $pm['mods']['grit'], $pm['mods']['nimble'], $pm['mods']['hardiness'], $pm['mods']['charm'], $pm['mods']['lore'], $pm['mods']['luck'], $pm['max'],
-        count($pl['deck']), $kv($bySrc), $kv($byType), $kv($src['tools']), implode(',', array_map(fn($p) => $p['n'] . ' ' . $p['t'] . ' ' . $p['v'], $src['pals'])), $kv($src['crops']), $kv($src['crafts']), $src['calling'], $src['ctier'], 'std', $bot, $seed,
+        count($pl['deck']), $kv($bySrc), $kv($byType), $kv($src['tools']), implode(',', array_map(fn($p) => $p['n'] . ' ' . $p['t'] . ' ' . $p['v'], $src['pals'])), $kv($src['crops']), $kv($src['crafts']), $src['calling'], $src['ctier'], $build, $bot, $seed,
         (string)$s['over'], $win, $cap ? 'turn_cap' : ($s['over'] === 'defeat' ? 'out_of_health' : ($s['over'] === 'charmed' ? 'charm_bar' : ($s['over'] === 'seen_off' ? 'damage_bar' : (string)$s['over']))),
         (int)$s['turn'], $pm['max'] - max(0, (int)$s['me']['hp']), max(0, (int)$s['me']['hp']), round(1 - max(0, (int)$s['me']['hp']) / max(1, $pm['max']), 3),
         round($s['fh']['now'], 1), round($s['bar']['now'], 1), round(($s['fh']['now'] + $s['bar']['now']) / max(1, $s['fh']['max']), 3),
         $F['passes'], $F['refused'], $F['flips'], $F['longest'], $F['chains'], $kv($F['combos']), $F['tw'], $F['envmine'], $cap,
-        $F['fcn'], $F['fcn'] ? round($F['fcerr'] / $F['fcn'], 2) : '', $F['regn'] ? round($F['reg'] / $F['regn'], 4) : '', $F['dead'], round(microtime(true) - $t0, 2)]);
-    foreach ($pl['deck'] as $i => $tl) {
+        $F['fcn'], $F['fcn'] ? round($F['fcerr'] / $F['fcn'], 2) : '', $full && $F['regn'] ? round($F['reg'] / $F['regn'], 4) : '', $full ? $F['dead'] : '', round(microtime(true) - $t0, 2)]);
+    if ($wantPieces) foreach ($pl['deck'] as $i => $tl) {
         $e = $pm['ent'][$i]; $st = PF_STAT[$tl['t']] ?? ''; $sc = max(0, (int)($pm['mods'][$st] ?? 0)); $lc = intdiv(max(1, $lv), 3);
         pc_csv($out['pieces'], [$fid, $i, $e['k'], $tl['n'], $tl['t'], (int)$e['v'], $st, $sc, $lc, (int)$tl['v'] - (int)$e['v'] - $sc - $lc, (int)$tl['v'], $e['src'], (int)$e['rank'], $tl['tag'] . (($tl['m'] ?? '') ? '+' . $tl['m'] : ''), pc_e(pfb_v1_tile($tl, $s['v1'])),
             $P[$i]['drawn'], $P[$i]['played'], $P[$i]['fired'], $P[$i]['flipped'], $P[$i]['expired'], $P[$i]['used_up'], $P[$i]['fell'], round($P[$i]['dmg'], 1), round($P[$i]['charm'], 1), $P[$i]['hp']]);
     }
+}
+
+function pc_fid(string $slug, int $lv, string $bot, string $prof, int $seed, ?array $ctrl, string $build = 'std', int $d = 0): string
+{
+    return substr(md5(json_encode([$slug, $lv, $bot, $prof, $seed, $ctrl, $build, $d])), 0, 10);
+}
+
+/** The FULL grid (GRID=full): [slug, bot, profile, offset, seed index, ctrl, build]; every creature appears in every block's axes (Balanced and Grit at offsets 0 and -4 in every bot and build). */
+function pc_jobs_full(array $slugs, int $seeds): array
+{
+    $P8 = array_keys(PC_PROFILES); $BG = ['Balanced', 'Grit']; $J = []; $i = 0;
+    $blocks = [   // [bots, profiles, offsets, builds]
+        [['chain', 'look', 'newbie', 'charm'], $P8, [0, -4], ['std']],
+        [['random', 'greedy', 'defensive'], $BG, [0, -4], ['std']],
+        [['look'], $BG, [0, -4], ['pals', 'norare']],
+        [['chain', 'newbie', 'charm'], $P8, [0, -4], ['pals', 'norare']],
+        [['chain', 'look'], $P8, [-8, 4], ['std']],
+        [['newbie', 'charm'], $P8, [-8, 4], ['std']],
+    ];
+    foreach ($slugs as $sl) {
+        foreach ($blocks as [$bots, $profs, $offs, $builds]) foreach ($builds as $bd) foreach ($bots as $b) foreach ($profs as $p) foreach ($offs as $d) for ($k = 0; $k < $seeds; $k++) $J[] = [$sl, $b, $p, $d, $k, null, $bd];
+        if ($i++ % 5 === 0) foreach (['chain', 'look'] as $b) for ($k = 0; $k < $seeds; $k++) foreach (PC_FIGHT6 as $st) foreach ([2, -2] as $dv) $J[] = [$sl, $b, 'Balanced', 0, $k, [$st, $dv], 'std'];
+    }
+    return $J;
 }
 
 /** The job list: [slug, bot, profile, offset, seed index, ctrl]. */
@@ -247,9 +281,16 @@ foreach ($PC_H as $tb => $h) { $out[$tb] = fopen("$dir/$tb.$shard.csv", 'w'); if
 $meta0 = ['run' => getenv('RUN_ID') ?: 'pfc-' . date('Ymd'), 'ver' => '2.7.48', 'sha' => trim((string)shell_exec('git -C ' . escapeshellarg(__DIR__) . ' rev-parse --short HEAD'))];
 if (preg_match("/define\('APP_VERSION', '([^']+)'/", (string)@file_get_contents(__DIR__ . '/../game/includes/bootstrap.php'), $mm)) $meta0['ver'] = $mm[1];
 $n = 0;
-foreach (pc_jobs($slugs, $seeds) as $ji => [$sl, $b, $p, $d, $k, $ctrl]) {
-    if ($ji % $nsh !== $shard) continue; if ($lim && $n >= $lim) break; $n++;
+$fullGrid = getenv('GRID') === 'full'; $only = ($f = getenv('ONLY')) ? array_flip(array_filter(array_map('trim', file($f)))) : null;
+if ($slugs === PC_SLUGS && $fullGrid) $slugs = array_keys($all);
+foreach (($fullGrid ? pc_jobs_full($slugs, $seeds) : pc_jobs($slugs, $seeds)) as $ji => $job) {
+    [$sl, $b, $p, $d, $k, $ctrl] = $job; $bd = $job[6] ?? 'std';
+    if ($ji % $nsh !== $shard) continue; if ($lim && $n >= $lim) break;
     $c = $all[$sl]; $lv = max(1, $c['level'] + $d); $seed = 500 + 13 * $k + $c['level'] + 1000 * (crc32($sl) % 97);
-    pc_fight($c, $lv, $b, $p, $seed, $d, $ctrl, $out, $meta0);
+    $fid = pc_fid($sl, $lv, $b, $p, $seed, $ctrl, $bd, $d);
+    if ($only !== null && !isset($only[$fid])) continue;
+    $n++;
+    // lean: only the chosen option priced; pieces kept for chain, seed 0, offset 0 (+ every full-pass fight)
+    pc_fight($c, $lv, $b, $p, $seed, $d, $ctrl, $out, $meta0, $bd, $only !== null || !$fullGrid, $only !== null || !$fullGrid || ($b === 'chain' && $k === 0 && $d === 0 && !$ctrl), $fid);
 }
 fwrite(STDERR, "shard $shard: $n fights\n");
