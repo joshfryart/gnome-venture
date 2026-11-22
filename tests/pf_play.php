@@ -8,7 +8,7 @@
 //   php tests/pf_play.php join STATE A B SIDE              set hand piece B aside joined to hand piece A (B on A's SIDE), no effect
 //   php tests/pf_play.php add STATE B ANC SIDE             add hand piece B to the set-aside group, onto group piece ANC's SIDE
 //   php tests/pf_play.php group STATE X Y                  play the set-aside group, top-left at X,Y
-//   php tests/pf_play.php pass STATE                       only when nothing fits anywhere
+//   php tests/pf_play.php pass STATE                       skip your turn (allowed any time in a v1 fight: a free pass, 2.6.95; classic fights only when nothing fits)
 //   php tests/pf_play.php list [N]                         creatures (slug, size, level)
 // STATE is a json file. Every action is appended to STATE.log (one json line each) for data. The creature's hand and the draw pile are never shown.
 require __DIR__ . '/../game/includes/pfboard.php';
@@ -68,14 +68,41 @@ function pp_aside_moves(array $s): array
     $l = []; foreach ($h as $b => $tb) foreach (pfb_group_options($g, $tb) as [$anc, $side]) $l[] = "add $b $anc $side";
     return ['ADD (put one more hand piece on the group): B = hand index, ANC = the group piece number (#) in the SET-ASIDE line, SIDE = the side of that piece' => $l];
 }
+/** 2.7.51: the numbers a lit cell cannot show from your own chain alone, each from the real turn played on a copy: 'a' = health you lose from the creature's reply, the poison and the terrain after THIS move (exact: it is the same turn the game plays; a taken aim cell re-aims at full value inside it),
+ *  'w' = how an ending move ends: win (it backs off / is won over) or loss (you are out of health), 'dead' = the creature's reply then defeats you, 'miss' = your piece its Evade dodges (from pfb_cell_preview). $hi = hand index or 'c'. */
+function pp_cellx(array $s, $hi, bool $flip = false): array
+{
+    if ($s['over'] || !empty($s['start'])) return [];
+    if ($hi === 'c') { if (empty($s['me']['held'])) return []; $cells = pfb_group_spots($s, $s['me']['held']); }
+    else {
+        if ($flip) { if (!pfb_can_flip($s, (int)$hi)) return []; $t = $s['me']['hand'][(int)$hi]; if (!empty($t['flip'])) unset($t['flip']); else $t['flip'] = true; $s['me']['hand'][(int)$hi] = $t; }
+        $tile = $s['me']['hand'][(int)$hi] ?? null; if (!$tile) return []; $cells = pfb_cells($s, $tile, 'me');
+    }
+    $o = [];
+    foreach ($cells as $c) {
+        $mv = [$hi === 'c' ? 'c' : (int)$hi, $c[0], $c[1]]; $d = $s; $r = pfb_play($d, [$mv], $s['turn'], null, true); if ($r['err']) continue;
+        $f = $s; $fr = pfb_play($f, [$mv], $s['turn']); if ($fr['err']) continue;
+        $o[$c[0] . ',' . $c[1]] = ['a' => max(0, (int)$r['hp'] - (int)$f['me']['hp']), 'w' => $r['over'] === 'defeat' ? 'loss' : 'win', 'dead' => !$r['over'] && $f['over'] === 'defeat'];
+    }
+    return $o;
+}
+/** The extra marks after a cell's numbers: the exact reply (v1), the Evade miss, how an ending move ends. */
+function pp_mx(?array $q, ?array $x, bool $v1): string
+{
+    if (!$q) return '';
+    return ($v1 && $x ? ' a-' . $x['a'] : '') . (!empty($q['miss']) ? ' MISS: Evade dodges ' . $q['miss'] : '') . ($q['end'] ? ' END(' . ($x['w'] ?? 'win') . ')' : '') . (!empty($x['dead']) ? ' YOU-DIE-AFTER' : '');
+}
 function pp_show(array $s): string
 {
     $o = [];
     if (!empty($s['v1']['onebar'])) $o[] = sprintf('BAR %.1f/%.1f (damage %.1f, charm %.1f); fill it to win; the larger share decides: charmed or seen off (bosses are always seen off)', $s['fh']['now'] + $s['bar']['now'], $s['fh']['max'], $s['fh']['now'], $s['bar']['now']);   // 2.6.95: one shared bar
     if (!empty($s['v1']['redraw'])) $o[] = 'Your hand is redrawn every round (what you do not play goes to the discard).';   // 2.6.95
-    $o[] = sprintf('TURN %d | you HP %d/%d guard %d | creature guard %d (your Hurt loses this much first) | creature "%s" (%s) DAMAGE %.1f/%.1f (full = it backs off)%s | creature intends: %s', min($s['turn'], PF_TURN_CAP), $s['me']['hp'], $s['me']['max'], $s['me']['block'], (int)($s['foe']['block'] ?? 0), $s['foe']['name'], $s['size'], $s['fh']['now'], $s['fh']['max'], $s['cm'] > 0 ? sprintf(' CHARM %.1f/%.1f (full = won over)', $s['bar']['now'], $s['bar']['max']) : ' (no charm bar)', $s['foe']['intent'] ?? '-');
+    $o[] = sprintf('TURN %d | you HP %d/%d guard %d | creature guard %d (your Hurt loses this much first) | creature "%s" (%s) %s%s | creature intends: %s%s', min($s['turn'], PF_TURN_CAP), $s['me']['hp'], $s['me']['max'], $s['me']['block'], (int)($s['foe']['block'] ?? 0), $s['foe']['name'], $s['size'],
+        !empty($s['v1']['onebar']) ? sprintf('BAR %.1f/%.1f (damage %.1f + charm %.1f; full = it ends: the larger share decides)', $s['fh']['now'] + $s['bar']['now'], $s['fh']['max'], $s['fh']['now'], $s['bar']['now']) : sprintf('DAMAGE %.1f/%.1f (full = it backs off)', $s['fh']['now'], $s['fh']['max']),
+        !empty($s['v1']['onebar']) ? '' : ($s['cm'] > 0 ? sprintf(' CHARM %.1f/%.1f (full = won over)', $s['bar']['now'], $s['bar']['max']) : ' (no charm bar)'), $s['foe']['intent'] ?? '-',
+        (int)($s['foe']['evade'] ?? 0) > 0 ? ' | CREATURE EVADE is up: the first Hurt you fire this turn MISSES (it lasts until its next turn, even if the piece that gave it is used up or gone)' : '');
     $o[] = sprintf('Multipliers: your Hurt counts x%s on its damage bar, your Charm x%s on its charm bar. Guard shown is what you hold NOW; it resets when your next turn starts, so after the creature moves it reads 0 (it protected you during that move).', $s['hm'], $s['cm']);
-    if ($s['over']) $o[] = 'FIGHT OVER: ' . $s['over'];
+    if ($s['over']) $o[] = 'FIGHT OVER: ' . $s['over'] . ($s['over'] === 'defeat' ? ' (LOSS: you are out of health)' : (in_array($s['over'], ['seen_off', 'charmed'], true) ? ' (WIN)' : ''));
     $v1 = !empty($s['v1']); $envm = !empty($s['v1']['env']); $W = pfb_w($s); $H = pfb_h($s); $tm = ['sun' => '*', 'br' => '#', 'mud' => '~', '' => ' '];
     $o[] = 'BOARD (x right, y down; x 0-' . ($W - 1) . ', y 0-' . ($H - 1) . '). Y=your piece, C=creature piece, ?=blank centre' . ($envm ? '. E=environment piece. AIM = where the creature\'s next piece goes' : '') . ($v1 && !$envm ? '. GROUND after a cell: * sunny (Hurt and Charm count double), # bramble (a piece here costs its owner ' . (int)round(100 * $s['v1']['bramble']) . '% health each round), ~ mud (no links). AIM = where the creature\'s next piece goes' : '');
     for ($y = 0; $y < $H; $y++) { $r = ''; for ($x = 0; $x < $W; $x++) { $p = pfb_at($s, $x, $y); $aim = $v1 && ($s['foe']['plan']['x'] ?? -1) === $x && ($s['foe']['plan']['y'] ?? -1) === $y; $r .= ($p ? ($p['by'] === 'me' ? ' Y' : ($p['by'] === 'foe' ? ' C' : ($p['by'] === 'env' ? ' E' : ' ?'))) . $p['id'] : ($aim ? ' AIM' : ' . ')) . ($v1 ? $tm[pfb_ter($s, $x, $y)] : ''); } $o[] = '  ' . $r; }
@@ -88,8 +115,8 @@ function pp_show(array $s): string
         if (!$envm) $o[] = 'GROUND: ' . (implode(' ', array_map(fn($k, $g) => $k . '=' . ['sun' => 'sunny', 'br' => 'bramble', 'mud' => 'mud'][$g], array_keys($s['ter']), $s['ter'])) ?: 'none');
         if (($kd = pfb_kind($s)) !== '' && isset(PFB_KIND_TEXT[$kd])) $o[] = 'CLASS RULE: ' . PFB_KIND_TEXT[$kd][0] . ': ' . PFB_KIND_TEXT[$kd][1];   // 2.7.01: the creature's class rule, as the page's chip says it
         $aim = $s['foe']['plan'] ?? null; $tot = $aim['tot'] ?? null;
-        $o[] = 'CREATURE AIM: ' . ($aim ? sprintf('"%s" %s %d at %d,%d. Take the cell and it re-aims at full value (no fumble: it still plays a piece and can still hit; beasts get Grudge). ', $aim['n'], $aim['t'], $aim['v'], $aim['x'], $aim['y'])
-            . (is_array($tot) && isset($tot['hp']) ? sprintf('If it plays now (board as it is BEFORE your move; your placement can change this) it hits you for %d%s%s; your pieces it fires deal %s to it%s.', $tot['hp'], $tot['g'] > 0 ? ' (your guard takes ' . $tot['g'] . ' more)' : '', $tot['why'] ? ' (why: ' . implode(', ', $tot['why']) . ')' : '', rtrim(rtrim(number_format((float)$tot['bait'], 1, '.', ''), '0'), '.') ?: '0', $tot['heal'] > 0 ? '; it heals ' . $tot['heal'] : '')
+        $o[] = 'CREATURE AIM: ' . ($aim ? sprintf('"%s" %s %d at %d,%d. Taking that cell does NOT stop it: it picks another move at full value (no fumble; it still plays a piece and can still hit; a beast also hits harder for every block: Grudge), so blocking only reroutes the hit. ', $aim['n'], $aim['t'], $aim['v'], $aim['x'], $aim['y'])
+            . (is_array($tot) && isset($tot['hp']) ? sprintf('FORECAST on the board as it stands BEFORE your move (%s): if it played this aim right now it would hit you for %d%s%s%s%s. NOT in that number: what YOUR placement changes (a new piece of yours can be fired by its chain, take or block its cell, add guard or Evade), the move it picks instead if you take its cell (Grudge), poison ticking at the end of the round, the terrain. The exact figure for each cell is the a-N mark on it.', 'Quick second piece, Sun, Mud and combos are in', $tot['hp'], $tot['g'] > 0 ? ' (your guard takes ' . $tot['g'] . ' more)' : '', $tot['why'] ? ' (why: ' . implode(', ', $tot['why']) . ')' : '', (float)$tot['bait'] > 0 ? '; your pieces already on the board that its chain fires would raise the damage bar by ' . rtrim(rtrim(number_format((float)$tot['bait'], 1, '.', ''), '0'), '.') : '; none of your pieces on the board are in its chain now (a piece you place this turn can still be fired by it)', $tot['heal'] > 0 ? '; it heals ' . $tot['heal'] : '')
                 : 'The number is the piece value only: a Sun in its chain doubles it, Mud beside it cuts 25%, and it can fire pieces already linked.') : 'none shown (it is tripped, or has no move)') . (!empty($s['reaim']) ? ' Last turn it could NOT play its aim and picked again.' : '');
         $what = ['sunbeam' => 'the cell turns sunny (the oldest sunny cell fades)', 'creep' => 'the cell turns to bramble and pricks at once (the oldest bramble withers)', 'puddle' => 'the cell turns to mud (the old mud dries)', 'gust' => 'the piece there is pushed one cell', 'thorn' => 'every piece on it and next to it costs its owner ' . (int)round(100 * $s['v1']['thorn']) . '% health (the creature half)'];
         if (!$envm) $o[] = 'TERRAIN FORECAST (lands at the end of this round, after the creature\'s move): ' . (implode('; ', array_map(fn($e) => PFB_EVENT_NAME[$e['kind']] . ' at ' . $e['x'] . ',' . $e['y'] . ($e['kind'] === 'gust' ? ' toward ' . ['L' => 'left', 'R' => 'right', 'T' => 'up', 'B' => 'down'][$e['dir']] : '') . ': ' . $what[$e['kind']], $s['envs'] ?? [])) ?: 'nothing');
@@ -101,32 +128,58 @@ function pp_show(array $s): string
         $cells = !empty($s['start']) ? [] : pfb_cells($s, $t, 'me');
         if ($s['over']) { $o[] = sprintf('  [%d] %s | %s %d | (fight over)', $i, $t['n'], $t['t'], $t['v']); continue; }
         $pv = !empty($s['start']) ? [] : pfb_cell_preview($s, $i);   // 2.6.66: numbers per cell: dmg to creature, charm, health you lose in your own chain, pieces that fire, the creature's reply
-        $marks = array_map(function ($c) use ($pv) {
+        $ax = pp_cellx($s, $i);
+        $marks = array_map(function ($c) use ($pv, $ax, $v1) {
             $q = $pv[$c[0] . ',' . $c[1]] ?? null; if (!$q) return $c[0] . ',' . $c[1];
-            return $c[0] . ',' . $c[1] . '(d' . $q['dmg'] . ' c' . $q['ch'] . ' h-' . $q['hp'] . ' n' . $q['n'] . (isset($q['rp']) ? ' r-' . $q['rp'] : '') . (!empty($q['used']) ? ' USES-UP' : '') . (($q['tw'] ?? 1) > 1 ? ' TEAM x' . $q['tw'] : '') . (!empty($q['sun']) ? ' SUN' : '') . ($q['end'] ? ' END' : '') . ')';
+            return $c[0] . ',' . $c[1] . '(d' . $q['dmg'] . ' c' . $q['ch'] . ' h-' . $q['hp'] . ' n' . $q['n'] . (isset($q['rp']) ? ' r-' . $q['rp'] : '') . (!empty($q['used']) ? ' USES-UP' : '') . (($q['tw'] ?? 1) > 1 ? ' TEAM x' . $q['tw'] : '') . (!empty($q['sun']) ? ' SUN' : '') . pp_mx($q, $ax[$c[0] . ',' . $c[1]] ?? null, $v1) . ')';
         }, $cells);
         $fl = '';
         if ($v1 && empty($s['start'])) {   // v1: source, life, and the cells with the piece flipped (your own chain numbers)
             $fl = ' | from: ' . ($t['src'] ?? '?') . ', stays ' . (int)($t['life'] ?? PFB_LIFE) . ' rounds' . (!empty($t['flip']) ? ', FLIPPED' : '');
-            if (pfb_can_flip($s, $i)) { $fp = pfb_cell_preview($s, $i, true); $fl .= ' | if you flip it: ' . (implode(' ', array_map(fn($k, $q) => $k . '(d' . $q['dmg'] . ' c' . $q['ch'] . ' h-' . $q['hp'] . ' n' . $q['n'] . (!empty($q['used']) ? ' USES-UP' : '') . (($q['tw'] ?? 1) > 1 ? ' TEAM x' . $q['tw'] : '') . (!empty($q['sun']) ? ' SUN' : '') . ($q['end'] ? ' END' : '') . ')', array_keys($fp), $fp)) ?: 'no cells'); }
+            if (pfb_can_flip($s, $i)) { $fp = pfb_cell_preview($s, $i, true); $fx = pp_cellx($s, $i, true); $fl .= ' | if you flip it: ' . (implode(' ', array_map(fn($k, $q) => $k . '(d' . $q['dmg'] . ' c' . $q['ch'] . ' h-' . $q['hp'] . ' n' . $q['n'] . (!empty($q['used']) ? ' USES-UP' : '') . (($q['tw'] ?? 1) > 1 ? ' TEAM x' . $q['tw'] : '') . (!empty($q['sun']) ? ' SUN' : '') . pp_mx($q, $fx[$k] ?? null, true) . ')', array_keys($fp), $fp)) ?: 'no cells'); }
             elseif (isset($t['ed']) && !$s['over']) $fl .= ' | flip: already used on another piece this turn (flip that one again to take it back)';
         }
         $o[] = sprintf('  [%d] %s | %s %d | %s%s | %s | cells: %s%s', $i, $t['n'], $t['t'], $t['v'], $t['tag'], ($t['m'] ?? '') ? ' [' . $t['m'] . ']' : '', pp_e(pfb_edges($t)), $marks ? implode(' ', $marks) : 'none', $fl);
     }
     if (!empty($s['me']['held'])) {   // 2.7.08 (P7): numbered group pieces (ANC for `add`), numbers per spot as for a hand piece, ! = your chain there fires a creature Hurt piece
-        $g = $s['me']['held']; $pv = $s['over'] ? [] : pfb_cell_preview($s, 'c');
+        $g = $s['me']['held']; $pv = $s['over'] ? [] : pfb_cell_preview($s, 'c'); $gx = pp_cellx($s, 'c');
         $o[] = 'SET-ASIDE GROUP (' . count($g['pcs']) . ' pieces): ' . implode(' + ', array_map(fn($i, $p) => '#' . $i . ' ' . $p['tile']['n'] . '@' . $p['x'] . ',' . $p['y'], array_keys($g['pcs']), $g['pcs'])) . ' | places at top-left x,y in: '
-            . (implode(' ', array_map(function ($c) use ($s, $pv) { $k = $c[0] . ',' . $c[1]; $q = $pv[$k] ?? null; return $k . ($q ? '(d' . $q['dmg'] . ' c' . $q['ch'] . ' h-' . $q['hp'] . ' n' . $q['n'] . (isset($q['rp']) ? ' r-' . $q['rp'] : '') . (pp_fires_foe_hurt($s, ['c', $c[0], $c[1]]) ? ' !' : '') . ($q['end'] ? ' END' : '') . ')' : ''); }, pfb_group_spots($s, $g))) ?: 'none') . ' (! = your chain there fires a creature Hurt piece)';
+            . (implode(' ', array_map(function ($c) use ($s, $pv, $gx) { $k = $c[0] . ',' . $c[1]; $q = $pv[$k] ?? null; return $k . ($q ? '(d' . $q['dmg'] . ' c' . $q['ch'] . ' h-' . $q['hp'] . ' n' . $q['n'] . (isset($q['rp']) ? ' r-' . $q['rp'] : '') . (pp_fires_foe_hurt($s, ['c', $c[0], $c[1]]) ? ' !' : '') . pp_mx($q, $gx[$k] ?? null, !empty($s['v1'])) . ')' : ''); }, pfb_group_spots($s, $g))) ?: 'none') . ' (! = your chain there fires a creature Hurt piece)';
     }
     if (!$s['over'] && empty($s['start'])) foreach (pp_aside_moves($s) as $k => $l) $o[] = $k . ': ' . ($l ? implode(', ', $l) : 'none');
-    if ($v1) $o[] = 'Per cell (d damage to the creature, c charm gained, h NET health you lose in your own chain (a heal piece or Rain cancels what Thornburst takes, so h-0 can hide a loss), n pieces that fire; USES-UP = the chain fires ' . (int)$s['v1']['limit'] . '+ pieces, so every piece that fired leaves the board; TEAM = Teamwork bonus; SUN = fires on a sunny cell; END = the fight ends). No reply number: read the creature\'s AIM. Rules: one action a turn (a flip is free, once a turn). A piece must make a linked joint (knob into hole of the same family) unless nothing can. Every round: you, the creature, then the terrain (events land, bramble pricks, old pieces expire). Pal, tool and crop pieces of yours in one chain: 2 kinds +30%, all 3 +60%. Draw pile ' . count($s['me']['draw']) . ', discard ' . count($s['me']['discard']) . '.';
+    if ($v1) $o[] = 'Per cell (d damage to the creature, c charm gained, h NET health you lose in your own chain (a heal piece or Rain cancels what Thornburst takes, so h-0 can hide a loss), n pieces that fire; USES-UP = the chain fires ' . (int)$s['v1']['limit'] . '+ pieces, so every piece that fired leaves the board; TEAM = Teamwork bonus; SUN = fires on a sunny cell; a-N = EXACT health you lose from the creature\'s reply, poison and terrain after that move (the same turn the game plays, on a copy); MISS: Evade = that placed or chained piece of yours is dodged and the numbers already leave it out; END(win) / END(loss) = the fight ends that way; YOU-DIE-AFTER = the creature\'s reply then defeats you). Rules: one action a turn (a flip is free, once a turn). A piece must make a linked joint (knob into hole of the same family) unless nothing can. Every round: you, the creature, then the terrain (events land, bramble pricks, old pieces expire). Pal, tool and crop pieces of yours in one chain: 2 kinds +30%, all 3 +60%. Draw pile ' . count($s['me']['draw']) . ', discard ' . count($s['me']['discard']) . '.';
     else $o[] = 'Per cell (d damage to the creature, c charm gained, h NET health you lose in your own chain (a heal piece or Rain cancels what Thornburst takes, so h-0 can hide a loss), n pieces that fire, r health the creature reply takes next; END = the fight ends). Rules: one action a turn. A piece must make a linked joint (knob into hole of same family) unless nothing can. Flat edge fits anything but breaks the chain. Pieces expire after ' . PFB_LIFE . ' rounds. Draw pile ' . count($s['me']['draw']) . ', discard ' . count($s['me']['discard']) . '.';
     return implode("\n", $o);
 }
+/** 2.7.51: a replacement for the generic env line in the harness: in the one-bar fights a hit on the creature raises the damage bar, it does not lower anything. */
+function pp_envtxt(string $l): string { return preg_replace('/the creature loses (\d+)/', 'the damage bar rises by $1', $l); }
+/** 2.7.51: what the event line cannot say alone: the class rule (Grudge, Swarm) that raised a creature Hurt, the guard / Evade / Soothe that cut it, and the effect of Lull, Trip, Hum, Soothe pieces of yours. */
+function pp_ann(array $e): string
+{
+    $o = ''; $foe = ($e['by'] ?? '') === 'foe'; $t = $e['t'] ?? ''; $tag = $e['tag'] ?? '';
+    if ($foe && $t === 'hurt') {
+        if (!empty($e['gr'])) $o .= ' GRUDGE x' . (int)$e['gr'] . ' (class rule: you blocked its aim ' . (int)$e['gr'] . ' time(s), so this Hurt is harder)';
+        if (!empty($e['sw'])) $o .= ' SWARM +' . (int)$e['sw'] . ' (class rule: its other pieces on the board)';
+        if (!empty($e['amb'])) $o .= ' AMBUSH';
+        if ($tag === 'pierce') $o .= ' PIERCE (ignores your guard)';
+        if ((int)($e['soothed'] ?? 0) > 0) $o .= ' (SOOTHED -' . (int)$e['soothed'] . ': a Soothe / Hum / Lull of yours cut this Hurt)';
+        if (isset($e['evaded']) && (int)$e['evaded'] > 0) $o .= ' (MISSED: your Evade dodged it, no damage)';
+        elseif ((int)($e['blocked'] ?? 0) > 0) $o .= ' (' . (int)$e['blocked'] . ' blocked by your guard)';
+        if (isset($e['dmg'])) $o .= ' => you take ' . (int)$e['dmg'];
+    }
+    if (!$foe && ($e['by'] ?? '') === 'me' && empty($e['tick'])) {
+        if ($t === 'soothe') $o .= ' (SOOTHE: cuts its next Hurt(s) this turn by up to ' . (int)($e['v'] ?? 0) . ' in all)';
+        if ($tag === 'lull') $o .= ' (LULL: it loses its next play)';
+        if ($tag === 'hum') $o .= ' (HUM: its next Hurt is cut by 2)';
+        if ($tag === 'trip' && $t === 'hurt') $o .= ' (TRIP: it loses its next play)';
+    }
+    return $o;
+}
 function pp_events(array $ev, ?array $before = null): string
 {
+    $slowSrc = []; foreach ($ev as $e0) if (($e0['by'] ?? '') === 'me' && empty($e0['tick']) && !isset($e0['note']) && (($e0['tag'] ?? '') === 'lull' || ($e0['tag'] ?? '') === 'trip')) $slowSrc[] = ($e0['tag'] === 'lull' ? 'Lull "' : 'Trip "') . $e0['n'] . '"';
     $o = []; $dl = []; $pf = $before['fh'] ?? null; $pb = $before['bar'] ?? null; $ph = $before['hp'] ?? null;
-    foreach ($ev as $e) { $at = count($o); if ($pf !== null && isset($e['barnow'])) { $d = []; if (abs($e['fhnow'] - $pf) > 0.049) $d[] = sprintf('creature health %+.1f', $e['fhnow'] - $pf); if (abs($e['barnow'] - $pb) > 0.049) $d[] = sprintf('charm %+.1f', $e['barnow'] - $pb); if ($e['hpnow'] != $ph) $d[] = sprintf('your hp %+d', $e['hpnow'] - $ph); $pf = $e['fhnow']; $pb = $e['barnow']; $ph = $e['hpnow']; if ($d) $dl[$at] = ' [real change: ' . implode(', ', $d) . ']'; } if (isset($e['env'])) { $o[] = (($e['env'] ?? '') === 'fire' ? '  ENVIRONMENT PIECE (chain, for ' . ($e['for'] === 'me' ? 'you' : 'the creature') . ') ' : (in_array($e['env'], ['place', 'pass', 'expire'], true) ? '  ENVIRONMENT TURN: ' : '  TERRAIN ')) . preg_replace('/^[^A-Za-z]+/', '', pfb_env_line($e, 'creature')) . sprintf(' -> health %.1f charm %.1f hp %d', $e['fhnow'], $e['barnow'], $e['hpnow']); continue; } if (!empty($e['tick'])) { $o[] = sprintf('  POISON tick on the creature: +%d damage (no piece)', $e['v'] ?? 0); continue; } if (isset($e['note'])) { $nn = (string)($e['n'] ?? ''); $o[] = '  ' . (['fade' => "YOUR GUARD: $nn guard ran out at the start of your turn (it fades unless a Hold keeps it)", 'hold' => "YOUR GUARD: $nn guard held (Hold)", 'quick' => 'CREATURE QUICK: ' . ($nn !== '' ? "plays \"$nn\"" : 'plays') . ' again (an extra play this round)', 'slow' => 'CREATURE SLOW: it loses its play this round', 'trip' => 'TRIP: you draw one fewer piece next turn', 'palaim' => 'PAL AIM: your pal knocks the creature\'s piece "' . $nn . '" off the board'][$e['note']] ?? ('NOTE ' . $e['note'] . ' ' . $nn)); continue; } if (isset($e['connect'])) { $o[] = '  you set aside: ' . $e['n']; continue; } $o[] = sprintf('  %s %s "%s" %s %d%s%s', ($e['by'] ?? '?') === 'me' ? 'YOU' : 'CREATURE', !empty($e['root']) ? 'PLACED' : 'chain', $e['n'] ?? ($e['tag'] ?? ''), $e['t'] ?? '', $e['v'] ?? 0, (!empty($e['combo']) ? ' COMBO ' . $e['combo'] : '') . (!empty($e['sun']) ? ' SUN x2' : '') . (!empty($e['mud']) ? ' MUD -25%' : '') . (isset($e['tw']) ? ' TEAMWORK x' . $e['tw'] : '') . (($e['by'] ?? '') === 'me' && ($e['t'] ?? '') === 'hurt' && (int)($e['blocked'] ?? 0) > 0 ? ' (' . (int)$e['blocked'] . ' blocked by its guard)' : '') . (($e['by'] ?? '') === 'me' && ($e['t'] ?? '') === 'hurt' && (int)($e['evaded'] ?? 0) > 0 ? ' (MISSED: its Evade dodged this Hurt, no damage)' : '') . (!empty($e['used']) ? ' [this chain USES UP ' . count($e['used']) . ' pieces]' : ''), isset($e['barnow']) ? sprintf(' -> health %.1f charm %.1f hp %d', $e['fhnow'], $e['barnow'], $e['hpnow']) : ''); }
+    foreach ($ev as $e) { $at = count($o); if ($pf !== null && isset($e['barnow'])) { $d = []; if (abs($e['fhnow'] - $pf) > 0.049) $d[] = sprintf('damage bar %+.1f', $e['fhnow'] - $pf); if (abs($e['barnow'] - $pb) > 0.049) $d[] = sprintf('charm bar %+.1f', $e['barnow'] - $pb); if ($e['hpnow'] != $ph) $d[] = sprintf('your hp %+d', $e['hpnow'] - $ph); $pf = $e['fhnow']; $pb = $e['barnow']; $ph = $e['hpnow']; if ($d) $dl[$at] = ' [real change: ' . implode(', ', $d) . ']'; } if (isset($e['env'])) { $o[] = (($e['env'] ?? '') === 'fire' ? '  ENVIRONMENT PIECE (chain, for ' . ($e['for'] === 'me' ? 'you' : 'the creature') . ') ' : (in_array($e['env'], ['place', 'pass', 'expire'], true) ? '  ENVIRONMENT TURN: ' : '  TERRAIN ')) . preg_replace('/^[^A-Za-z]+/', '', pp_envtxt(pfb_env_line($e, 'creature'))) . sprintf(' -> damage bar %.1f, charm bar %.1f, your hp %d', $e['fhnow'], $e['barnow'], $e['hpnow']); continue; } if (!empty($e['tick'])) { $o[] = sprintf('  POISON tick on the creature: +%d damage (no piece)', $e['v'] ?? 0); continue; } if (isset($e['note'])) { $nn = (string)($e['n'] ?? ''); $o[] = '  ' . (['fade' => "YOUR GUARD: $nn guard ran out at the start of your turn (it fades unless a Hold keeps it)", 'hold' => "YOUR GUARD: $nn guard held (Hold)", 'quick' => 'CREATURE QUICK: ' . ($nn !== '' ? "plays \"$nn\"" : 'plays') . ' again (an extra play this round)', 'slow' => 'CREATURE SLOW: it loses its play this round' . ($slowSrc ? ' (from your ' . implode(' and your ', $slowSrc) . ')' : ' (no Lull or Trip of yours fired this turn: it comes from an effect already on it)'), 'venom' => 'CLASS RULE Venom trail: your "' . $nn . '" was put on a venom cell: you are poisoned (2 a round, 2 rounds)', 'current' => 'CLASS RULE Current: one of your pieces next to its new piece "' . $nn . '" slides a cell away', 'grows' => 'CLASS RULE Grows: a Bramble grows beside its "' . $nn . '"', 'trip' => 'TRIP: you draw one fewer piece next turn', 'palaim' => 'PAL AIM: your pal knocks the creature\'s piece "' . $nn . '" off the board'][$e['note']] ?? ('NOTE ' . $e['note'] . ' ' . $nn)); continue; } if (isset($e['connect'])) { $o[] = '  you set aside: ' . $e['n']; continue; } $o[] = sprintf('  %s %s "%s" %s %d%s%s', ($e['by'] ?? '?') === 'me' ? 'YOU' : 'CREATURE', !empty($e['root']) ? 'PLACED' : 'chain', $e['n'] ?? ($e['tag'] ?? ''), $e['t'] ?? '', $e['v'] ?? 0, (!empty($e['combo']) ? ' COMBO ' . $e['combo'] : '') . (!empty($e['sun']) ? ' SUN x2' : '') . (!empty($e['mud']) ? ' MUD -25%' : '') . (isset($e['tw']) ? ' TEAMWORK x' . $e['tw'] : '') . (($e['by'] ?? '') === 'me' && ($e['t'] ?? '') === 'hurt' && (int)($e['blocked'] ?? 0) > 0 ? ' (' . (int)$e['blocked'] . ' blocked by its guard)' : '') . (($e['by'] ?? '') === 'me' && ($e['t'] ?? '') === 'hurt' && (int)($e['evaded'] ?? 0) > 0 ? ' (MISSED: its Evade dodged this Hurt, no damage)' : '') . pp_ann($e) . (!empty($e['used']) ? ' [this chain USES UP ' . count($e['used']) . ' pieces]' : ''), isset($e['barnow']) ? sprintf(' -> damage bar %.1f, charm bar %.1f, your hp %d', $e['fhnow'], $e['barnow'], $e['hpnow']) : ''); }
     foreach ($dl as $i => $t) if (isset($o[$i])) $o[$i] .= $t;
     return implode("\n", $o);
 }
@@ -154,7 +207,7 @@ if ($cmd === 'new') {
     if ($old && $build !== 'std') { fwrite(STDERR, "BUILD (std|pals|norare) does not combine with old\n"); exit(1); } $reg = (string)($argv[7] ?? ''); $keys = array_keys(pfd_region_pieces());
     $cr = $old ? $all[$slug] + ['region' => $reg] : pfd_foe_row($all[$slug], $reg !== '' ? $reg : $keys[(crc32($slug) + $seed) % 14]) + ['region' => $reg];
     $s = pfb_new($build !== 'std' ? pb_player($lv, $build) : pp_player($lv, $old), $cr, $seed, ['blank' => in_array($mode, ['blank', 'v1', 'v1old'], true), 'v1' => $mode === 'v1old' ? ['env' => 0, 'ground' => 1, 'events' => 1] : str_starts_with($mode, 'v1')]);
-    file_put_contents($f, json_encode($s)); @unlink($f . '.log'); echo pp_show($s) . "\n"; exit;
+    file_put_contents($f, json_encode($s)); @unlink($f . '.log'); echo ($old ? '' : 'REGION: ' . ($reg !== '' ? $reg : $keys[(crc32($slug) + $seed) % 14]) . " (it leans the environment's deck)\n") . pp_show($s) . "\n"; exit;
 }
 if (!$f || !is_file($f)) { fwrite(STDERR, "no state file\n"); exit(1); }
 $s = json_decode(file_get_contents($f), true); $before = ['fh' => $s['fh']['now'] ?? 0, 'bar' => $s['bar']['now'] ?? 0, 'hp' => $s['me']['hp'] ?? 0]; $a = array_slice($argv, 3); $ev = []; $err = null;

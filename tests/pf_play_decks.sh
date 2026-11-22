@@ -61,6 +61,29 @@ OUT=$(php -r 'error_reporting(E_ALL); require $argv[1]; eval(preg_match("/^funct
 if echo "$OUT" | grep -qi "warning"; then bad "(i) palaim note prints no PHP warning"; else ok "(i) palaim note prints no PHP warning"; fi
 if echo "$OUT" | grep -q 'PAL AIM:.*"Smash"'; then ok "(i) palaim note shows the PAL AIM line with the piece name"; else bad "(i) palaim note shows the PAL AIM line with the piece name"; fi
 
+# 2.7.51 (Sonnet playtests): labels that read backwards, forecasts that did not say what they leave out, silent misses and class rules
+OUT=$(php "$HERE/pf_play.php" new "$T/t.json" saltmarsh-leech 18 23545 v1 '' norare 2>&1)
+if echo "$OUT" | grep -q "^REGION: [A-Z]"; then ok "(j) new prints the region"; else bad "(j) new prints the region"; fi
+if echo "$OUT" | grep -q "Taking that cell does NOT stop it: it picks another move at full value"; then ok "(j) AIM line says blocking only reroutes the hit"; else bad "(j) AIM line says blocking only reroutes the hit"; fi
+if echo "$OUT" | grep -q "FORECAST on the board as it stands BEFORE your move"; then ok "(j) AIM forecast is labelled as the board before your move"; else bad "(j) AIM forecast is labelled as the board before your move"; fi
+if echo "$OUT" | grep -q "your pieces it fires deal"; then bad "(j) the old 'your pieces it fires deal N to it' wording is gone"; else ok "(j) the old 'your pieces it fires deal N to it' wording is gone"; fi
+if echo "$OUT" | grep "^TURN" | grep -q "BAR [0-9.]*/[0-9.]* (damage [0-9.]* + charm [0-9.]*;" && ! echo "$OUT" | grep "^TURN" | grep -q "DAMAGE "; then ok "(j) the TURN line calls the shared bar BAR (damage + charm)"; else bad "(j) the TURN line calls the shared bar BAR (damage + charm)"; fi
+php "$HERE/pf_play.php" start "$T/t.json" 4 L >/dev/null 2>&1
+OUT=$(php "$HERE/pf_play.php" place "$T/t.json" 3 1 0 2>&1)
+if echo "$OUT" | grep -q "damage bar +12.0"; then ok "(j) WHAT HAPPENED says 'damage bar +N' when your damage raises the bar"; else bad "(j) WHAT HAPPENED says 'damage bar +N' when your damage raises the bar"; fi
+if echo "$OUT" | grep -q "creature health"; then bad "(j) no 'creature health +N' wording left"; else ok "(j) no 'creature health +N' wording left"; fi
+if echo "$OUT" | grep "YOUR HAND" -A6 | grep -q "d[0-9-]* c[0-9]* h-[0-9]* n[0-9]* a-[0-9]"; then ok "(j) lit cells carry the exact reply a-N"; else bad "(j) lit cells carry the exact reply a-N"; fi
+if echo "$OUT" | grep -qE " END( |\))"; then bad "(j) END always says win or loss"; else ok "(j) END always says win or loss"; fi
+# the event annotations: the class rule, the guard / Evade / Soothe that cut a hit, the source of a slow (pp_ann and pp_events are cut out of the harness and run here)
+if php -r '
+$src = file_get_contents($argv[1]); preg_match("/^function pp_envtxt\\(.*\$/m", $src, $m); eval($m[0]); preg_match("/^function pp_ann\\(.*?^}\$/ms", $src, $m); eval($m[0]);
+$t = pp_ann(["by" => "foe", "t" => "hurt", "tag" => "", "gr" => 2, "blocked" => 0, "dmg" => 15]); if (strpos($t, "GRUDGE x2") === false || strpos($t, "you take 15") === false) { echo "grudge: $t\n"; exit(1); }
+$t = pp_ann(["by" => "foe", "t" => "hurt", "tag" => "", "sw" => 1, "evaded" => 9, "dmg" => 0]); if (strpos($t, "SWARM +1") === false || strpos($t, "your Evade dodged it") === false) { echo "swarm/evade: $t\n"; exit(1); }
+$t = pp_ann(["by" => "foe", "t" => "hurt", "tag" => "pierce", "soothed" => 4, "blocked" => 0, "dmg" => 3]); if (strpos($t, "SOOTHED -4") === false || strpos($t, "PIERCE") === false) { echo "soothe: $t\n"; exit(1); }
+$t = pp_ann(["by" => "me", "t" => "charm", "tag" => "lull", "v" => 8]); if (strpos($t, "LULL: it loses its next play") === false) { echo "lull: $t\n"; exit(1); }
+if (pp_envtxt("Bramble: the creature loses 9.") !== "Bramble: the damage bar rises by 9.") { echo "env\n"; exit(1); }
+' "$HERE/pf_play.php" 2>&1; then ok "(k) event annotations name Grudge, Swarm, Soothe, Pierce, Evade, Lull and the Bramble's bar"; else bad "(k) event annotations name Grudge, Swarm, Soothe, Pierce, Evade, Lull and the Bramble's bar"; fi
+
 # every creature of the old playtest assignments still starts
 ASSIGN=${ASSIGN:-}
 if [ -n "$ASSIGN" ] && [ -f "$ASSIGN" ]; then

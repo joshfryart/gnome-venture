@@ -343,7 +343,7 @@ function pfb_kind_of(array $c, string $size): string
 const PFB_KIND_TEXT = [
     'critter' => ['Swarm', 'Its Hurt hits +1 for every 2 of its other pieces on the board (up to +2). Use up or outlast its pieces to shrink it.'],
     'bird' => ['Two aims', 'It shows two moves on different cells. Take the first cell and it plays the second; take both and it picks again.'],
-    'beast' => ['Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it.'],
+    'beast' => ['Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it. Blocking only sends the hit to another cell: it still plays a piece at full value.'],
     'water' => ['Current', 'After its piece lands, one of your pieces touching it slides a cell away, if that cell is free.'],
     'plant' => ['Grows', 'After its turn it grows a Bramble beside its piece (one of its own at a time). Whoever chains the Bramble fires it.'],
     'reptile' => ['Venom trail', 'When one of its pieces leaves the board, that cell is venom for 2 turns. A piece of yours put there poisons you (2 a round, 2 rounds).'],
@@ -996,7 +996,8 @@ function pfb_fire(array &$s, int $root): array
         $val = (int)pf_round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
         if (isset($p['wv'])) $val = max(1, $val + (int)$p['wv']);   // 2.7.09 wear effects: a boost (+) or a shrink (-) on this board piece
         if ($who === 'foe' && $tile['t'] === 'hurt' && ($gr = (int)($s['foe']['grudge'] ?? 0)) > 0 && pfb_kind($s) === 'beast') $val = (int)pf_round($val * (1 + (float)pfb_abp($s, 'gpct', PFB_KIND_GRUDGE) * $gr));   // 2.6.98 Grudge (2.7.01: Fury / Slow grudge change the number)
-        if ($who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'critter') { $others = 0; foreach ($s['pcs'] as $q) if ($q['by'] === 'foe' && (int)$q['id'] !== $id) $others++; $val += min((int)pfb_abp($s, 'smax', PFB_KIND_SWARM_MAX), intdiv($others, 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows: +1 Hurt for each other creature piece out
+        $grd = $who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'beast' ? (int)($s['foe']['grudge'] ?? 0) : 0; $swm = 0;   // 2.7.51: the class rule's share of this hit, named in the event (the harness's WHAT HAPPENED)
+        if ($who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'critter') { $others = 0; foreach ($s['pcs'] as $q) if ($q['by'] === 'foe' && (int)$q['id'] !== $id) $others++; $swm = min((int)pfb_abp($s, 'smax', PFB_KIND_SWARM_MAX), intdiv($others, 2)) * PFB_KIND_SWARM_ADD; $val += $swm; }   // 2.6.988 Swarm grows: +1 Hurt for each other creature piece out
         $ambp = false; $ambd = false;
         if ($who === 'foe' && $tile['t'] === 'hurt' && !empty($s['foe']['ab'])) {   // 2.7.01 Enrage (past its share of the bar) and Ambush (its first Hurt in its first turn)
             if (!empty($s['foe']['enr']) && ($en = pfb_ab($s, 'enrage'))) $val = (int)pf_round($val * (float)$en['mult']);
@@ -1027,6 +1028,8 @@ function pfb_fire(array &$s, int $root): array
         if ($ambp) $e['ambp'] = 1;
         if ($toughed) $e['tough'] = 1;
         if ($cntr) $e['cntr'] = 1;
+        if ($grd > 0) $e['gr'] = $grd;
+        if ($swm > 0) $e['sw'] = $swm;
         if ($whalf) $e['whalf'] = 1;
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
         if ($wcl !== null) { $wcx['g'] = $tile['t'] === 'guard' ? $val : 0; foreach ($wcl as $o) if ($o['st'] === 'post' && pfb_wx_conds($s, array_filter($o['c0'], fn($c) => str_starts_with(ltrim($c, '!'), 'tgt:')), $wcx)) pfb_wx_act($s, $o, $wcx, $e); }   // 2.7.09 wear effects (the tgt conditions after the boost)
@@ -2032,6 +2035,7 @@ function pfb_cell_preview(array $s, $handIdx, bool $flip = false): array
             foreach ($r['ev'] as $e) { if (!isset($e['barnow'])) continue; $n++; if (isset($e['tw'])) $tw = (float)$e['tw']; if (!empty($e['sun']) && $e['by'] === 'me') $sun++; if (!empty($e['mud']) && $e['by'] === 'me') $mud++;
                 if ((int)$e['hpnow'] < $hpp) $hw[] = [(string)$e['n'], (string)$e['by'], $hpp - (int)$e['hpnow']]; $hpp = (int)$e['hpnow']; }   // 2.7.01 costly cell: each piece of the chain that took your health (name, whose, how much)
             $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)pf_round($r['fh'] - $fh0), 'ch' => (int)pf_round($r['bar'] - $b0), 'hp' => max(0, $hp0 - (int)$r['hp']), 'n' => $n, 'used' => !empty($r['ev'][0]['used']), 'tw' => $tw, 'sun' => $sun, 'end' => (bool)$r['over']] + (!empty($s['v1']['env']) ? ['mud' => $mud] : []) + ($hp0 > (int)$r['hp'] && $hw ? ['hw' => $hw] : []);   // mud: your pieces in the chain that a Mud weakens; hw (2.7.01): only on a cell that costs health
+            foreach ($r['ev'] as $e) if (($e['by'] ?? '') === 'me' && ($e['t'] ?? '') === 'hurt' && isset($e['evaded'])) { $o[$c[0] . ',' . $c[1]]['miss'] = (string)$e['n']; break; }   // 2.7.51: its Evade makes one of your Hurts in this chain miss (the numbers already leave it out; this names it)
             foreach ($r['ev'] as $e) if (($e['note'] ?? '') === 'palaim') $o[$c[0] . ',' . $c[1]]['pal'] = ['id' => (int)$e['tid'], 'n' => (string)$e['n'], 'x' => (int)$e['x'], 'y' => (int)$e['y']];   // 2.7.08 pal targeting: the creature piece your pal knocks off from here
         }
         return $o;

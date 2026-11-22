@@ -24,7 +24,7 @@ php tests/pf_play.php new   $RUN/$SLUG-fN.json $SLUG $GNOME_LEVEL $SEED v1 '' $B
 php tests/pf_play.php start $RUN/$SLUG-fN.json HANDIDX SIDE     # hidden opening piece, SIDE = L R T B
 php tests/pf_play.php flip  $RUN/$SLUG-fN.json HANDIDX          # free, once a turn
 php tests/pf_play.php place $RUN/$SLUG-fN.json HANDIDX X Y      # one action a turn
-php tests/pf_play.php pass  $RUN/$SLUG-fN.json                  # only when nothing fits
+php tests/pf_play.php pass  $RUN/$SLUG-fN.json                  # skip your turn (free in a v1 fight: allowed any time)
 php tests/pf_play.php show  $RUN/$SLUG-fN.json                  # the current screen again (also lists join / add / group)
 ```
 `join A B SIDE`, `add B ANC SIDE`, `group ...` only when `show` lists them (set-aside is out of a new v1 fight otherwise). `new` with BUILD std is the default deck. Region argument stays `''`.

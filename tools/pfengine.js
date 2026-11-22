@@ -1536,7 +1536,8 @@
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       if (p.wv !== undefined && p.wv !== null) val = Math.max(1, val + toInt(p.wv));   // 2.7.09 wear effects: a boost or a shrink on this board piece
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + Number(abp(s, 'gpct', PFB_KIND_GRUDGE)) * toInt(s.foe.grudge)));   // 2.6.98 Grudge
-      if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); val += Math.min(toInt(abp(s, 'smax', PFB_KIND_SWARM_MAX)), Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows
+      var grd = who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'beast' ? toInt(nn(s.foe.grudge, 0)) : 0, swm = 0;   // 2.7.51 (pfb_fire)
+      if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); swm = Math.min(toInt(abp(s, 'smax', PFB_KIND_SWARM_MAX)), Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; val += swm; }   // 2.6.988 Swarm grows
       var ambp = false, ambd = false;
       if (who === 'foe' && tile.t === 'hurt' && hasAb(s)) {   // 2.7.01 Enrage and Ambush
         var en = abOf(s, 'enrage'); if (truthy(s.foe.enr) && en) val = iround(val * Number(en.mult));
@@ -1567,6 +1568,8 @@
       if (ambp) e.ambp = 1;
       if (toughed) e.tough = 1;
       if (cntr) e.cntr = 1;
+      if (grd > 0) e.gr = grd;
+      if (swm > 0) e.sw = swm;
       if (whalf) e.whalf = 1;
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
       if (wcl !== null) { wcx.g = tile.t === 'guard' ? val : 0; for (var wi = 0; wi < wcl.length; wi++) { var wo = wcl[wi]; if (wo.st === 'post' && wxConds(s, wo.c0.filter(wxIsTgt), wcx)) wxAct(s, wo, wcx, e); } }   // 2.7.09 wear effects
@@ -2387,6 +2390,7 @@
       o[c[0] + ',' + c[1]] = { dmg: iround(r.fh - fh0), ch: iround(r.bar - b0), hp: Math.max(0, hp0 - toInt(r.hp)), n: n, used: !!(r.ev[0] && r.ev[0].used && r.ev[0].used.length), tw: tw, sun: sun, end: truthy(r.over) };
       if (truthy(s.v1.env)) o[c[0] + ',' + c[1]].mud = mud;
       if (hp0 > toInt(r.hp) && hw.length) o[c[0] + ',' + c[1]].hw = hw;
+      for (var mi = 0; mi < r.ev.length; mi++) { var me0 = r.ev[mi]; if (me0.by === 'me' && me0.t === 'hurt' && me0.evaded !== undefined) { o[c[0] + ',' + c[1]].miss = String(me0.n); break; } }   // 2.7.51 (pfb_cell_preview)
       r.ev.forEach(function (e) { if (e.note === 'palaim') o[c[0] + ',' + c[1]].pal = { id: toInt(e.tid), n: String(e.n), x: toInt(e.x), y: toInt(e.y) }; });   // 2.7.08 pal targeting
     });
     return o;
