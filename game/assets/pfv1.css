@@ -830,3 +830,41 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
    While it lands the pieces in a replay (.pfa-place on the fight) the old drop and the environment's grow-in step aside. */
 .pf-v1 .pfb-world > .pfa-fx { position: absolute; z-index: 7; pointer-events: none; image-rendering: crisp-edges; image-rendering: pixelated; }
 .pf-v1.pfa-place .pfb-cell.pfb-drop, .pf-v1.pfa-place .pfb-cell.pfv-envin { animation: none; }
+
+/* 2.7.55 Creature Codex (Puzzle box tab; includes/pfcodex.php) */
+.cx { position: relative; }
+.cx-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.cx-head h3 { margin: 0; }
+.cx-head span { color: #6a7378; font-size: 13px; font-variant-numeric: tabular-nums; }
+.cx-bar { display: block; width: 100%; height: 5px; margin: 8px 0 10px; appearance: none; border: 0; border-radius: 3px; background: #e4e1dc; overflow: hidden; }
+.cx-bar::-webkit-progress-bar { background: #e4e1dc; } .cx-bar::-webkit-progress-value { background: #2f7d6b; } .cx-bar::-moz-progress-bar { background: #2f7d6b; }
+.cx-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.cx-chips a { border: 1px solid rgba(0,0,0,.18); border-radius: 99px; padding: 4px 11px; font-size: 12px; text-decoration: none; color: inherit; }
+.cx-chips a.on { background: #1d2326; color: #fff; border-color: #1d2326; }
+.cx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+.cx-tile { position: relative; display: block; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #e4e1dc; border: 1px solid rgba(0,0,0,.12); color: #fff; text-decoration: none; }
+.cx-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cx-mono { position: absolute; inset: 0; display: grid; place-items: center; font: 700 34px Georgia, serif; color: #6a7378; }
+.cx-met .cx-mono, .cx-won .cx-mono { color: #fff; background: linear-gradient(145deg, #6f8f86, #3d5750); }
+.cx-met img { filter: saturate(.3); }
+.cx-tile b { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 5px; font-size: 11px; line-height: 1.15; background: linear-gradient(transparent, rgba(0,0,0,.65)); }
+.cx-tile i { position: absolute; top: 5px; right: 6px; font-style: normal; font-size: 10px; background: rgba(0,0,0,.45); border-radius: 99px; padding: 0 6px; }
+.cx-won::after { content: ""; position: absolute; top: 6px; left: 6px; width: 9px; height: 9px; border-radius: 50%; background: #d9a82a; box-shadow: 0 0 0 2px rgba(0,0,0,.25); }
+.cx-scrim { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+.cx-back { position: absolute; inset: 0; background: rgba(10,14,16,.5); }
+.cx-sheet { position: relative; width: 100%; max-width: 560px; max-height: 88vh; overflow: auto; background: #fbfaf8; color: #1d2326; border-radius: 18px 18px 0 0; padding: 18px; box-shadow: 0 -8px 30px rgba(0,0,0,.25); }
+.cx-x { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #e4e1dc; color: inherit; text-decoration: none; font-size: 18px; }
+.cx-top { display: flex; gap: 12px; align-items: center; padding-right: 34px; }
+.cx-top h3 { margin: 0 0 4px; }
+.cx-pic { position: relative; width: 72px; height: 72px; flex: none; border-radius: 14px; overflow: hidden; background: #e4e1dc; }
+.cx-pic img { width: 100%; height: 100%; object-fit: cover; }
+.cx-tags, .cx-where { display: flex; gap: 6px; flex-wrap: wrap; margin: 0; }
+.cx-tags span, .cx-where span { border: 1px solid rgba(0,0,0,.15); border-radius: 99px; padding: 1px 8px; font-size: 12px; }
+.cx-sheet h4 { margin: 14px 0 6px; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: #6a7378; }
+.cx-lock { color: #6a7378; font-style: italic; }
+.cx-pieces { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.cx-pieces li { border: 1px solid rgba(0,0,0,.14); border-radius: 10px; padding: 8px 10px; min-height: 48px; }
+.cx-pieces li b { display: block; font-weight: 600; } .cx-pieces li span { font-size: 12px; color: #6a7378; }
+.cx-pieces li.cx-q { border-style: dashed; color: #6a7378; display: grid; place-items: center; font-size: 12px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cx-sheet { background: #1f2528; color: #e8ecec; } :root:not([data-theme="light"]) .cx-x { background: #2d3639; } }
+:root[data-theme="dark"] .cx-sheet { background: #1f2528; color: #e8ecec; } :root[data-theme="dark"] .cx-x { background: #2d3639; }

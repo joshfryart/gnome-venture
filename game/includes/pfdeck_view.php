@@ -283,7 +283,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
     $d = pfd_deck($u); $uid = (int)$u['id'];
     if (!$d['starter'] && pfd_ensure_starter($u)) $d = pfd_deck($u);   // 2.7.01: the same starter box for everyone, packed on the first visit
     if (!$d['starter']) return pfv_starter_html($u, $d) . pfv_assets();
-    if (!in_array($tab, ['kit', 'belt', 'pals'], true)) $tab = 'kit';
+    if (!in_array($tab, ['kit', 'belt', 'pals', 'codex'], true)) $tab = 'kit';
     $c = $d['counts']; $locked = !empty($d['locked']); $P = pfv_entries($u, $d['pieces']); $mods = pfight_mods($uid);
     $back = '<input type="hidden" name="t" value="' . $tab . '">';
     $kitUrl = url('puzzlebox.php'); $beltUrl = url('puzzlebox.php?t=belt');
@@ -299,8 +299,13 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
     $h = '<div class="box pbox pfv pbx" id="pfv-box" data-tab="' . $tab . '" data-caps="' . e(json_encode($caps)) . '"' . ($locked ? ' data-locked="1"' : '') . '>'
         . '<div class="hrow pbx-top"><span class="pbx-chest" aria-hidden="true">' . pfv_img('chest-body.png', 64, '', 'cb') . pfv_img('chest-lid.png', 64, '', 'cl') . '</span><h2>Puzzle box</h2>' . $pill . '</div>';
     $h .= '<nav class="tabs" aria-label="Puzzle box">';
-    foreach (['kit' => 'Kit', 'belt' => 'Belt', 'pals' => 'Pals'] as $k => $l) $h .= '<a href="' . e(url('puzzlebox.php' . ($k === 'kit' ? '' : '?t=' . $k))) . '"' . ($k === $tab ? ' class="on" aria-current="page"' : '') . '>' . $l . '</a>';
+    foreach (['kit' => 'Kit', 'belt' => 'Belt', 'pals' => 'Pals', 'codex' => 'Codex'] as $k => $l) $h .= '<a href="' . e(url('puzzlebox.php' . ($k === 'kit' ? '' : '?t=' . $k))) . '"' . ($k === $tab ? ' class="on" aria-current="page"' : '') . '>' . $l . '</a>';
     $h .= '</nav>';
+    if ($tab === 'codex') {   // 2.7.55 Creature Codex: a read-only tab (includes/pfcodex.php)
+        require_once __DIR__ . '/pfcodex.php';
+        $z = (string)($_GET['z'] ?? 'all');
+        return $h . pfcx_html($u, (string)($_GET['c'] ?? ''), in_array($z, ['small', 'medium', 'large', 'boss'], true) ? $z : 'all') . '</div>' . pfv_assets(false);
+    }
     require_once __DIR__ . '/wearables.php';
     if (wear_live($u)) { require_once __DIR__ . '/wear_view.php'; $h .= wear_strip_html($u); }   // 2.7.14: what the gnome wears (read-only; changed on My Gnome). Only worn items offer their piece
 

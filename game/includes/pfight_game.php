@@ -420,6 +420,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         foreach ($s['pcs'] as $p) if ($p['by'] === 'foe') $foe[] = 'the ' . $c['name'] . ' put ' . $p['tile']['n'] . ' (' . $p['tile']['t'] . ' ' . (int)$p['tile']['v'] . ') on the ' . $sideOf($p);
         $enc['note'] = 'You put ' . $mine . ' on the ' . $nm[$side] . '; ' . implode(', ', $foe) . '. Turn 1: place a piece.';
         $enc['last'] = []; $enc['replay'] = []; $enc['histnew'] = 0;
+        if (!empty($s['v1'])) { require_once __DIR__ . '/pfcodex.php'; pfcx_note($u, $c, $s); }   // 2.7.55 Creature Codex: met, and the pieces it opened with
     } elseif (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass'], true)) {
         $board = ($s['mode'] ?? '') === 'board';
         if ($board !== ($do !== 'pf_play')) { flash('That page is from another fight. Here is the current one.', 'err'); $exp['encounter'] = json_encode($enc); return false; }
@@ -448,6 +449,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         $won = in_array($s['over'], ['seen_off', 'charmed'], true);
         if (!empty($s['v1'])) { $loss = (array)($enc['loss'] ?? []); pf_loss_add($loss, $r['ev'], (int)$rp0['hp']); $enc['loss'] = $loss; }   // 2.7.01 defeat recap: where your health went
         pfight_unlock((int)$u['id'], array_values(array_filter($r['ev'], fn($e) => empty($e['connect']))), $won);
+        if (!empty($s['v1']) && ($s['mode'] ?? '') === 'board') { require_once __DIR__ . '/pfcodex.php'; pfcx_note($u, $c, $s, $won); }   // 2.7.55 Creature Codex
         $enc['last'] = []; $enc['replay'] = []; $enc['replay0'] = $rp0;
         if ($prev) $enc['prev'] = $prev;
         if ($board) {
