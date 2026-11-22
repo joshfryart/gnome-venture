@@ -112,12 +112,12 @@ function first_week_state(int $uid, bool $currentOnly = false): ?array
             if (!$card['claimed'] && $current === null) $current = $day;
             foreach ($tasks as $key => [$label, $link, $how]) {
                 $done = $card['claimed'] || (!$skip && first_week_check($uid, $key));
-                $card['tasks'][] = [$key, $label, $link, $how, $done];
+                $card['tasks'][] = [$key, $label, craft_link_fix($link), $how, $done];
                 if (!$done) $all = false;
             }
             $card['done'] = $all;
         } else {
-            foreach ($tasks as $key => [$label, $link, $how]) $card['tasks'][] = [$key, $label, $link, $how, false];
+            foreach ($tasks as $key => [$label, $link, $how]) $card['tasks'][] = [$key, $label, craft_link_fix($link), $how, false];
         }
         $cards[$day] = $card;
     }

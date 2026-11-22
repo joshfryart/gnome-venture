@@ -366,7 +366,7 @@ function almanac_recipe_notes(array $u, string $slug): string
         $hasB = craft_stations($uid)[$r['category']] ?? 0;
         $L[] = ($hasB ? '✔ ' : '🔒 ') . 'Needs a ' . e($b ? $b[1] . ' ' . $b[0] : $building) . ' in one of your gardens' . ($hasB ? '.' : ' (build one on the garden page).');
     }
-    $L[] = $can ? '✅ You can make it now: <a href="' . e(url('inventory.php?tab=craft&c=' . $r['category'])) . '">' . $icon . ' Make it in Crafting →</a>' : '⏳ Gather what’s missing, then make it in <a href="' . e(url('inventory.php?tab=craft&c=' . $r['category'])) . '">Satchel → Crafting</a>.';
+    $L[] = $can ? '✅ You can make it now: <a href="' . e(craft_url((string)$r['category'])) . '">' . $icon . ' Make it in Crafting →</a>' : '⏳ Gather what’s missing, then make it in <a href="' . e(craft_url((string)$r['category'])) . '">Satchel → Crafting</a>.';
     return almanac_notes_box($L);
 }
 

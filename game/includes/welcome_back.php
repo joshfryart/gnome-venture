@@ -89,10 +89,10 @@ function daily_card(array $u): ?array
     $opts = [];   // each option: [key, icon, text, link, label]
     $now = now();
     if (cook_ready_count($uid) > 0) {
-        $opts[] = ['pot', '🍲', 'A pot on your stove is ready. Collect it while it’s warm.', 'inventory.php?tab=craft&c=cooking', 'To the kitchen'];
+        $opts[] = ['pot', '🍲', 'A pot on your stove is ready. Collect it while it’s warm.', craft_path('cooking'), 'To the kitchen'];
     }
     if (pantry_ready_count($uid) > 0) {
-        $opts[] = ['jar', '🫙', 'A jar in your Pantry has finished. Take a look.', 'inventory.php?tab=craft&c=pantry', 'To the Pantry'];
+        $opts[] = ['jar', '🫙', 'A jar in your Pantry has finished. Take a look.', craft_path('pantry'), 'To the Pantry'];
     }
     if (q_val("SELECT 1 FROM player_friends WHERE friend_id = ? AND status = 'pending' LIMIT 1", [$uid])) {
         $opts[] = ['req', '🤝', 'A gnome would like to be your friend.', 'pals.php?tab=requests', 'See who'];

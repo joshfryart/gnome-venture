@@ -98,8 +98,20 @@ function gnav_page_open(string $flag): bool
 /** Link to a crafting area: the workshop picture when it is open for this viewer (opens that area's card), else the old list page. $c = area key ('' = all). */
 function craft_url(string $c = ''): string
 {
-    if (gnav_page_open('gnav_craft')) return url('workshop.php' . ($c !== '' ? '?o=' . rawurlencode($c) : ''));
-    return url('inventory.php?tab=craft' . ($c !== '' ? '&c=' . rawurlencode($c) : ''));
+    return url(craft_path($c));
+}
+
+/** Same as craft_url() but the relative path (for redirect() and stored link tables). */
+function craft_path(string $c = ''): string
+{
+    if (gnav_page_open('gnav_craft')) return 'workshop.php' . ($c !== '' ? '?o=' . rawurlencode($c) : '');
+    return 'inventory.php?tab=craft' . ($c !== '' ? '&c=' . rawurlencode($c) : '');
+}
+
+/** A stored link that points at the old crafting page ('inventory.php?tab=craft&c=cooking') becomes craft_path(); anything else is returned as it was. */
+function craft_link_fix(string $p): string
+{
+    return preg_match('/^inventory\.php\?tab=craft(?:&c=(\w+))?$/', $p, $m) ? craft_path($m[1] ?? '') : $p;
 }
 
 /** When this gnome last saw a picture page ('treehouse'), or null (never, or the table is not there yet). */

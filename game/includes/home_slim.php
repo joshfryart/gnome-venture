@@ -475,7 +475,7 @@ function home_slim_overnight(array $u): array
                     $lab = $list[$j['target']] ?? null;
                     $area = $isJars ? 'Pantry' : ($lab ? ($lab[1] === 'Whole station' ? $lab[0] : $lab[0] . ': ' . $lab[1]) : 'Station');
                     $o['stations'][] = [$isJars ? '🫙' : ($cook ? '🍳' : '🛠️'), $name . ' · ' . $area, ($n > 0 ? $n . ($isJars ? ' jars' : '') . ' made' : 'Nothing made yet') . ' · ' . $left((string)$j['ends_at']),
-                        $isJars ? url('inventory.php?tab=craft&c=pantry') : ($cook ? url('inventory.php?tab=craft&c=cooking') : url('paljobs.php'))];
+                        $isJars ? craft_url('pantry') : ($cook ? craft_url('cooking') : url('paljobs.php'))];
                 } else {
                     $t = strtotime((string)$j['ends_at']); $t0 = strtotime((string)$j['started_at']);
                     $pct = $t && $t0 && $t > $t0 ? (int)max(0, min(100, round((time() - $t0) * 100 / ($t - $t0)))) : 0;

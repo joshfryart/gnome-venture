@@ -38,7 +38,7 @@ page_header('Welcome back');
   <section class="box">
     <h2>🍲 Ready and waiting</h2>
     <p><?= $s['pots'] ? '🍲 ' . (int)$s['pots'] . ' pot' . ($s['pots'] === 1 ? '' : 's') . ' ready<br>' : '' ?><?= $s['jars'] ? '🫙 ' . (int)$s['jars'] . ' jar' . ($s['jars'] === 1 ? '' : 's') . ' ready<br>' : '' ?><?= $s['racks'] ? '🪢 ' . (int)$s['racks'] . ' drying rack' . ($s['racks'] === 1 ? '' : 's') . ' ready' : '' ?></p>
-    <p><a class="btn small" href="<?= e(url('inventory.php?tab=craft')) ?>">To the kitchen →</a></p>
+    <p><a class="btn small" href="<?= e(craft_url()) ?>">To the kitchen →</a></p>
   </section>
   <?php endif; ?>
   <section class="box">

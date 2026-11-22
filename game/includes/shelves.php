@@ -110,7 +110,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
             $b .= '<p class="help shnote">🍳 Can’t be eaten as it is' . ($i['category'] === 'flower' ? '' : ': it needs cooking first') . '.'
                 . ($dishes ? ' Cook it into ' . e(implode(', ', array_slice($dishes, 0, 4))) . (count($dishes) > 4 ? ' and more' : '') . '.' : '') . '</p>';
             if ($dishes && !$hasKitchen) $b .= '<p class="help shnote">🔒 Cooking needs a <b>Kitchen</b> in your garden: build one on the garden page once your garden reaches level 2 (every harvest helps).</p>';
-            elseif ($dishes) $acts[] = '<a class="btn alt" href="' . e(url('inventory.php?tab=craft&c=cooking&q=' . rawurlencode((string)$i['name']))) . '">🍳 Cook in Crafting</a>';
+            elseif ($dishes) $acts[] = '<a class="btn alt" href="' . e(craft_url('cooking')) . '">🍳 Cook in Crafting</a>';
         }
         if ($i['category'] === 'arrangement' && ($comp = arrangement_of($i))) {
             $b .= '<div class="arrbig">' . arrangement_svg($comp, 'full', (string)$i['name']) . '</div>';

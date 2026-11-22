@@ -86,7 +86,7 @@ page_header('Design your yard');
       <?php endforeach; ?>
       </div>
     <?php endforeach; ?>
-    <p class="help">Buy decor at the <b>Hedge &amp; Hearth</b> in Mossbottom Market, or make it on the <a href="<?= e(url('inventory.php?tab=craft')) ?>">Crafting</a> page (Yard &amp; decor).</p>
+    <p class="help">Buy decor at the <b>Hedge &amp; Hearth</b> in Mossbottom Market, or make it on the <a href="<?= e(craft_url()) ?>">Crafting</a> page (Yard &amp; decor).</p>
   </div>
 </div>
 

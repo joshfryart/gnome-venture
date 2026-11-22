@@ -404,7 +404,7 @@ function stop_adopt_panel(array $u, array $loc, callable $form): string
                 }
                 $h .= '</li>';
             }
-            $h .= '</ul><p class="help">Hand in a little at a time. The tier rises when every line is full. <a href="' . e(url('inventory.php?tab=craft&c=building')) . '">Craft building materials →</a></p>';
+            $h .= '</ul><p class="help">Hand in a little at a time. The tier rises when every line is full. <a href="' . e(craft_url('building')) . '">Craft building materials →</a></p>';
         } else {
             $h .= '<p class="good"><b>🎉 Every upgrade is built. What a stop!</b></p>';
         }

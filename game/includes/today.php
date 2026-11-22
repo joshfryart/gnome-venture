@@ -84,10 +84,10 @@ function today_data(array $u): array
     try {
         [$pw, $pa] = gclock_pot_ready($uid);
         $pots = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND ' . $pw, array_merge([$uid], $pa));
-        if ($pots > 0) $night[] = ['🍳', $pots . ' pot' . ($pots > 1 ? 's' : '') . ' done', 'Ready in your kitchen', $link('inventory.php?tab=craft&c=cooking')];
+        if ($pots > 0) $night[] = ['🍳', $pots . ' pot' . ($pots > 1 ? 's' : '') . ' done', 'Ready in your kitchen', $link(craft_path('cooking'))];
         [$jw, $ja] = gclock_jar_ready($uid);
         $jars = (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND ' . $jw, array_merge([$uid], $ja));
-        if ($jars > 0) $night[] = ['🫙', $jars . ' jar' . ($jars > 1 ? 's' : '') . ' ready', 'In your pantry', $link('inventory.php?tab=craft&c=pantry')];
+        if ($jars > 0) $night[] = ['🫙', $jars . ' jar' . ($jars > 1 ? 's' : '') . ' ready', 'In your pantry', $link(craft_path('pantry'))];
     } catch (Throwable $e) {}
 
     try {   // village: birthdays, who is away or back (known villagers only), market day
