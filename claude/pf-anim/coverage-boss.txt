@@ -1,0 +1,97 @@
+Coverage (boss creatures)
+{
+ "creatures": 11,
+ "pieces_total": 110,
+ "pieces_unique_layer": 44,
+ "pieces_class_layer": 66,
+ "per_family_all": {
+  "bash": 2,
+  "bite": 6,
+  "drip": 2,
+  "leaf": 1,
+  "mend": 3,
+  "puff": 12,
+  "ripple": 12,
+  "shield": 15,
+  "shock": 7,
+  "slash": 35,
+  "sparkle": 1,
+  "thorn": 3,
+  "thrust": 7,
+  "web": 4
+ },
+ "per_family_unique": {
+  "bash": 1,
+  "mend": 2,
+  "puff": 8,
+  "ripple": 2,
+  "shield": 5,
+  "shock": 7,
+  "slash": 9,
+  "thorn": 2,
+  "thrust": 7,
+  "web": 1
+ },
+ "creatures_per_family": {
+  "slash": 11,
+  "bite": 6,
+  "thrust": 6,
+  "shock": 6,
+  "buzz": 0,
+  "bash": 2,
+  "shield": 11,
+  "thorn": 2,
+  "puff": 7,
+  "mend": 2,
+  "drip": 2,
+  "web": 4,
+  "ripple": 10,
+  "sparkle": 1,
+  "ember": 0,
+  "leaf": 1
+ },
+ "needs_art_review": [
+  "coconut-crab-titan/f:x0 Coconut Bait (trick with no tag and no keyword)",
+  "robber-crab-baron/f:x0 Royal Decree (trick with no tag and no keyword)",
+  "great-hawk/f:x0 Hush Circle (trick with no tag and no keyword)",
+  "reef-leviathan/f:x0 Coral Lurk (trick with no tag and no keyword)",
+  "old-bramblehorn/f:x0 Thicket Ruse (trick with no tag and no keyword)",
+  "dune-wyrm/f:x0 Dune Burrow (trick with no tag and no keyword)",
+  "snow-owl-monarch/f:x0 Hush Plan (trick with no tag and no keyword)",
+  "frost-owl-regent/f:x0 Frost Edict (trick with no tag and no keyword)",
+  "storm-eagle/f:x0 Storm Gust (trick with no tag and no keyword)",
+  "jade-jaguar/f:x0 Jade Stalk (trick with no tag and no keyword)"
+ ],
+ "unused_families": [
+  "buzz",
+  "ember"
+ ],
+ "top_family_mixes": [
+  "puff+ripple+shield+shock+slash x2",
+  "bite+ripple+shield+shock+slash+thrust+web x1",
+  "bash+bite+ripple+shield+shock+slash+thorn+web x1",
+  "bite+drip+leaf+mend+puff+shield+slash+sparkle+thrust x1",
+  "bite+ripple+shield+slash+thrust+web x1",
+  "mend+ripple+shield+slash+thorn+thrust x1",
+  "drip+puff+ripple+shield+shock+slash x1",
+  "bite+puff+ripple+shield+slash+thrust x1"
+ ]
+}
+
+Themed pass coverage (themes/boss/*.json)
+{
+ "themed_creatures": 0,
+ "themeless_creatures": [
+  "coconut-crab-titan",
+  "robber-crab-baron",
+  "great-hawk",
+  "ancient-snapper",
+  "reef-leviathan",
+  "old-bramblehorn",
+  "dune-wyrm",
+  "snow-owl-monarch",
+  "frost-owl-regent",
+  "storm-eagle",
+  "jade-jaguar"
+ ]
+}
