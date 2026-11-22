@@ -51,6 +51,15 @@
     var t = ev.target; if (!t.closest) return;
     var hs = t.closest('[data-pop]');
     if (hs && hs.closest('.hubscene')) { var d = document.getElementById(hs.getAttribute('data-pop')); if (d) fill(d); return; }
+    var tg = t.closest('[data-ws-tog]');   // v2.7.53: the (i) and magnifier in the popover's facts row
+    if (tg) {
+      var root = tg.closest('.shelves'), pane = root && root.querySelector('[data-ws-pane="' + tg.getAttribute('data-ws-tog') + '"]');
+      if (pane) {
+        var on = pane.hidden; pane.hidden = !on; tg.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) { var inp = pane.querySelector('input'); if (inp) inp.focus(); }
+      }
+      return;
+    }
     var a = t.closest('.wsfrag a[href]');
     if (a && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey && ev.button === 0) {
       var href = a.getAttribute('href') || '';

@@ -46,18 +46,26 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
 <?php craft_area_header($tab, craft_can_by_obj($tab, $all, $slugOf)); ?>
 <?= craft_pop_html($tab, $all, $slugOf) /* v2.4.0: outside .shelves so the shelf handlers never see the dialogs */ ?>
 <div class="pantry2 shelves shcraft">
+<?php if ($pop):   // the workshop popover: one row of facts, the description and help behind (i), search behind the magnifier
+    $stChip = $stations[$tab] === 0 ? '🔒 ' . BUILDINGS[$building][0] . ' needed' : ($building !== null ? BUILDINGS[$building][1] . ' ' . BUILDINGS[$building][0] . ' ready' : 'No building needed'); ?>
+<div class="wsbar"><div class="wschips"><span class="wschip<?= $n['ready'] > 0 ? ' ok' : '' ?>"><?= (int)$n['ready'] ?> ready</span><span class="wschip"><?= $known ?> of <?= count($all) ?> known</span><?php if (!$potsOn): ?><span class="wschip"><?= e($stChip) ?></span><?php endif; ?></div>
+  <button type="button" class="wsib" data-ws-tog="about" aria-pressed="false" aria-label="About this area">ⓘ</button><button type="button" class="wsib" data-ws-tog="search" aria-pressed="false" aria-label="Search recipes">🔍</button></div>
+<div class="wspane" data-ws-pane="about" hidden><p class="muted"><?= e($blurb) ?></p><p class="help">A recipe appears once you’ve collected every ingredient: grown it, gathered it on an adventure, or carried it in your satchel. Once found, it stays found.<?= $tab === 'cooking' ? ' Dishes wait in the pot until you collect them. Snacks cook in minutes, meals take longer, feasts longest.' : '' ?></p></div>
+<?php else: ?>
 <div class="p2head shhead">
   <?php // v2.3.3: the area is picked on the map above (craft_map.php); this form keeps it and only filters the list ?>
   <h2 class="p2title" id="shelves"><?= $icon ?> <?= e($label) ?> <small><?= $known ?>/<?= count($all) ?> recipes known</small></h2>
   <details class="helpfold p2help"><summary>❓ How crafting works</summary><p class="help"><?= e($blurb) ?> One workbench for everything you make. A recipe appears once you’ve collected every ingredient:
     grown it, gathered it on an adventure, or carried it in your satchel. Once found, it stays found.<?= $tab === 'cooking' ? ' Dishes wait in the pot until you collect them. Snacks cook in minutes, meals take longer, feasts longest.' : '' ?></p></details>
 </div>
+<?php endif; ?>
 <?php if ($stations[$tab] === 0): $b = BUILDINGS[$building]; ?>
   <div class="box notice">You need a <b><?= e($b[1] . ' ' . $b[0]) ?></b> in one of your gardens to make these.
     A garden at <b>level <?= (int)$b[2] ?></b> can build one for <?= money((int)$b[3]) ?> from
     <a href="<?= e(url('garden.php')) ?>">the garden page</a>. Every harvest raises your garden level.
     You can still discover recipes in the meantime.</div>
 <?php endif; ?>
+<?php if (!$pop || $potsOn): ?>
 <section class="p2jars shstation" aria-label="<?= $potsOn ? 'Pots' : 'Station' ?>">
   <div class="p2jarrow<?= $potsOn ? ' p2shelf' : '' ?>">
     <?php if ($potsOn):
@@ -123,6 +131,7 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     <?php endif; ?>
   </div>
 </section>
+<?php endif; ?>
 <?php // v2.4.0: the long list is a closed fold: the scene popovers do the crafting. It opens by itself for a tapped object, a search, a List pick or an open recipe (and without JS) ?>
 <details class="craftall<?= $pop ? ' craftall--pop' : '' ?>" id="shelves-all"<?= ($pop || $obj || $qs !== '' || $show !== '' || $selId > 0) ? ' open' : '' ?>><summary><b>All recipes</b> <small class="muted"><?= $n['ready'] ?> ready · <?= $n['missing'] ?> missing · <?= $n['unknown'] ?> to discover</small></summary>
 <div class="p2head shhead craftallhd">
@@ -135,7 +144,9 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
   </form>
 </div>
 <?php // v2.5.0: the shopping list is gone: a popover's Missing tab already says what you lack ?>
+<?php if ($pop) echo '<div class="wspane" data-ws-pane="search" hidden>'; ?>
 <?= sh_search($qs, '<input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="' . e($tab) . '">' . ($show !== '' ? '<input type="hidden" name="show" value="' . e($show) . '">' : ''), '🔍 Search ' . $known . ' recipes or an ingredient…') ?>
+<?php if ($pop) echo '</div>'; ?>
 <?php if ($obj) echo craft_obj_line($obj, url('inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs], 'strlen'))) . '#shelves', count($shown)); ?>
 <?php if (!$shown): ?>
   <p class="muted"><?= $obj ? 'Nothing here on this list.' : '' ?><?= $obj ? '' : ($qs !== '' ? 'Nothing matches “' . e($qs) . '”.' : (['ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?? 'No recipes yet.')) ?></p>

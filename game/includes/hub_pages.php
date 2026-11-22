@@ -61,7 +61,8 @@ function workshop_view(array $u, string $open = ''): string
     foreach (CRAFT_CATEGORIES as $k => [$label, $icon, , $desc]) {
         $f = $facts[$k] ?? ['locked' => false, 'badge' => '', 'have' => 0, 'total' => 0];
         $chip = $f['locked'] ? '🔒 ' . $f['badge'] : (string)$f['badge'];
-        $body = '<p class="muted">' . e((string)$desc) . '</p><p>' . (int)$f['have'] . ' of ' . (int)$f['total'] . ' recipes known.' . ($f['locked'] ? ' <b>Locked: ' . e((string)$f['badge']) . '.</b>' : ($f['badge'] !== '' ? ' <b>' . e((string)$f['badge']) . '.</b>' : '')) . '</p>'
+        $intro = '<p class="muted">' . e((string)$desc) . '</p><p>' . (int)$f['have'] . ' of ' . (int)$f['total'] . ' recipes known.' . ($f['locked'] ? ' <b>Locked: ' . e((string)$f['badge']) . '.</b>' : ($f['badge'] !== '' ? ' <b>' . e((string)$f['badge']) . '.</b>' : '')) . '</p>';
+        $body = ($f['locked'] ? $intro : '<noscript>' . $intro . '</noscript>')  // v2.7.53: unlocked areas show the facts row inside the popover instead
             . ($f['locked'] ? '' : '<div class="wsfrag" data-frag="' . e($k) . '" data-url="' . e(url('workshop.php')) . '"><p class="muted">Loading…</p></div>')
             . '<p><a class="btn' . ($f['locked'] ? '' : ' alt') . '" href="' . e(url('inventory.php?tab=craft&c=' . $k)) . '">' . ($f['locked'] ? 'See what unlocks it' : 'Open ' . e($label) . ' as a page') . ' →</a></p>';
         $todo = !$f['locked'] && (int)preg_match('/\b(ready|done)\b/i', (string)$f['badge']);   // something to make or collect

@@ -8936,3 +8936,13 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   .shelves .shqf .shinfo { width: 26px; min-height: 26px; font-size: 14px; }
   .shelves .shqf .shx5 { min-width: 26px; min-height: 22px; padding: 0 4px; font-size: 11px; }
 }
+
+/* v2.7.53 workshop popover, slim header: facts row + (i) + search toggles; the description, help and search sit behind them */
+.shelves .wsbar { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+.shelves .wschips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
+.shelves .wschip { border: 1px solid var(--line); padding: 3px 9px; font-size: 13px; border-radius: 999px; color: var(--muted); }
+.shelves .wschip.ok { border-color: var(--brand); color: var(--brand-ink, var(--ink)); }
+.shelves .wsib { flex: none; width: 40px; min-height: 40px; padding: 0; display: grid; place-items: center; font: inherit; font-size: 18px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.shelves .wsib[aria-pressed="true"] { border-color: var(--brand); background: var(--surface-2); }
+.shelves .wspane[hidden] { display: none; }
+.shelves .wspane .help, .shelves .wspane .muted { margin: 0 0 8px; }
