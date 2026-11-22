@@ -35,8 +35,9 @@ foreach ($recipes as $r) $slugOf[(int)$r['id']] = (string)($r['slug'] ?? '');
 $shelfOf = ['ready' => ['ready'], 'missing' => ['close', 'far'], 'unknown' => ['unk']];
 $shown = array_values(array_filter($all, fn($e) => ($show === '' || in_array($e['group'], $shelfOf[$show], true)) && ($qs === '' || mb_stripos($e['hay'], $qs) !== false)
     && (!$obj || craft_tag_match($obj['globs'], $slugOf[(int)$e['id']] ?? ''))));
-$defs = ['ready' => ['✅', 'Ready to ' . ($tab === 'cooking' ? 'cook' : 'make')], 'close' => ['🧺', 'One trip away'], 'far' => ['📋', 'Need more'], 'unk' => ['❔', 'To discover']];
-$open = $show !== '' || $qs !== '' || $obj ? array_fill_keys(array_keys($defs), true) : ['ready' => true, 'close' => true];
+$pop = !empty($GLOBALS['craft_in_popover']);   // the workshop popover: no folds, one-tap squares (can make = colour on top, the rest faded below the line)
+$defs = ['ready' => ['✅', $pop ? 'Can craft now' : 'Ready to ' . ($tab === 'cooking' ? 'cook' : 'make')], 'close' => ['🧺', 'One trip away'], 'far' => ['📋', 'Need more'], 'unk' => ['❔', 'To discover']];
+$open = $pop ? ['ready' => true, 'close' => true, 'far' => true] : ($show !== '' || $qs !== '' || $obj ? array_fill_keys(array_keys($defs), true) : ['ready' => true, 'close' => true]);
 $base = 'inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs, 'o' => $obj['id'] ?? ''], 'strlen'));
 $link = fn(int $id) => url($base . '&r=' . $id) . '#r' . $id;
 $close = fn() => url($base);
@@ -123,7 +124,7 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
   </div>
 </section>
 <?php // v2.4.0: the long list is a closed fold: the scene popovers do the crafting. It opens by itself for a tapped object, a search, a List pick or an open recipe (and without JS) ?>
-<details class="craftall" id="shelves-all"<?= ($obj || $qs !== '' || $show !== '' || $selId > 0) ? ' open' : '' ?>><summary><b>All recipes</b> <small class="muted"><?= $n['ready'] ?> ready · <?= $n['missing'] ?> missing · <?= $n['unknown'] ?> to discover</small></summary>
+<details class="craftall<?= $pop ? ' craftall--pop' : '' ?>" id="shelves-all"<?= ($pop || $obj || $qs !== '' || $show !== '' || $selId > 0) ? ' open' : '' ?>><summary><b>All recipes</b> <small class="muted"><?= $n['ready'] ?> ready · <?= $n['missing'] ?> missing · <?= $n['unknown'] ?> to discover</small></summary>
 <div class="p2head shhead craftallhd">
   <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="<?= e($tab) ?>"><?php if ($obj): ?><input type="hidden" name="o" value="<?= e($obj['id']) ?>"><?php endif; ?>
     <label>List <select name="show" data-autosubmit>
@@ -139,7 +140,7 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
 <?php if (!$shown): ?>
   <p class="muted"><?= $obj ? 'Nothing here on this list.' : '' ?><?= $obj ? '' : ($qs !== '' ? 'Nothing matches “' . e($qs) . '”.' : (['ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?? 'No recipes yet.')) ?></p>
 <?php endif; ?>
-<?= sh_shelves($shown, $defs, $open, $selId, 'craft-' . $tab, $link, $close, false) ?>
+<?= sh_shelves($shown, $defs, $open, $selId, 'craft-' . $tab, $link, $close, false, $pop ? ['quick' => url('crafting.php?c=' . $tab), 'lock' => ['ready', 'close', 'far']] : []) ?>
 <p class="muted shnone" hidden>Nothing matches.</p>
 </details>
 </div>

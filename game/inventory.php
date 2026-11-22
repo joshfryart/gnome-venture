@@ -57,7 +57,7 @@ page_header(['craft' => 'Crafting', 'belt' => 'Toolbelt', 'arrange' => 'Arrangin
 <h1>👜 Your Satchel</h1>
 <nav class="tabs bagtabs tabs4">   <?php // v1.6.3: four equal columns, one row (icon over a short word) ?>
   <a class="<?= $view === 'bag' ? 'on' : '' ?>" href="<?= e(url('inventory.php')) ?>"><span aria-hidden="true">👜</span> Satchel</a>
-  <a class="<?= $view === 'craft' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=craft')) ?>"><span aria-hidden="true">🔨</span> Crafting</a>
+  <a class="<?= $view === 'craft' ? 'on' : '' ?>" href="<?= e(url(gnav_page_open('gnav_craft') ? 'workshop.php' : 'inventory.php?tab=craft')) ?>"><span aria-hidden="true">🔨</span> Crafting</a>
   <a class="<?= $view === 'belt' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=belt')) ?>"><span aria-hidden="true">🧰</span> Belt</a>
   <a class="<?= $view === 'arrange' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=arrange')) ?>"><span aria-hidden="true">💐</span> Arrange</a>
 </nav>

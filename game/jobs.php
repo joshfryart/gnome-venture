@@ -153,7 +153,7 @@ $jbAct = e(url('jobs.php?t=jobs&p=' . $tab));
     <div class="jb-actions">
       <form method="post" class="inline" action="<?= $jbAct ?>"><?= csrf_field() ?><input type="hidden" name="period" value="<?= $period ?>"><input type="hidden" name="do" value="build">
         <button class="btn" <?= $ready ? '' : 'disabled' ?>>🧱 Hand in stage <?= $stage ?></button></form>
-      <a class="btn alt" href="<?= e(url('inventory.php?tab=craft&c=building')) ?>">Craft materials →</a></div>
+      <a class="btn alt" href="<?= e(craft_url('building')) ?>">Craft materials →</a></div>
   <?php elseif (str_starts_with((string)$job['kind'], 'deliver') || $job['kind'] === 'p_deliver'):
       $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $job['target_item_id']]); ?>
     <h3>Hand in</h3>

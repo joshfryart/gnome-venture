@@ -123,7 +123,7 @@ page_header('Pal Jobs');
     <?= ppal_hub_tabs_html('jobs') ?>
     <ul class="chips pjcounts" aria-label="Today">
       <li class="chip<?= $runsLeft < 1 ? ' pjnone-left' : '' ?>"><b><?= $runsLeft ?></b> runs left</li>
-      <li class="chip"><a href="<?= e(url('inventory.php?tab=craft&c=potions')) ?>" title="Craft Healing Potions at the Alchemy Table">🧪 <b><?= $potions ?></b> Potion<?= $potions === 1 ? '' : 's' ?></a></li>
+      <li class="chip"><a href="<?= e(craft_url('potions')) ?>" title="Craft Healing Potions at the Alchemy Table">🧪 <b><?= $potions ?></b> Potion<?= $potions === 1 ? '' : 's' ?></a></li>
     </ul>
   </div>
 
