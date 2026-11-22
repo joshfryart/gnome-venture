@@ -1,0 +1,56 @@
+{
+ "_doc": "Boss batch B3-land-beasts-plants themed pass (TEMPLATE.md sections 9 and 10): old bramblehorn (forest), dune wyrm (desert), jade jaguar spirit (rainforest). All three have art '-', so the identity rests on name, class, land and piece names. New motifs live in motifs/boss_boss-B3-land-beasts-plants.js (19 motifs, glyph/motion ids prefixed B3-, 3 custom chain effects: a bramble runner creeping along the outer loop with the antler growing at its tip, a sand ridge racing under the edge until the wyrm breaches at the next piece, the jade spirit jaguar bounding along the outer loop with two fading afterimages). All 3 signature motifs are new and used by no other creature. One composition motif here (jade-prints: the page's paw glyph blinking with a glowing trail). Reused where the picture is truly the same: honeydew-bead (sticky beads that well up and glint) in amber for Thicket Sap, sand-swim (sand-wave arcs as something swims beneath) for Burrow Under, rot-spit (heavy drops that fall and splat) in acid green for Dune Spit, jaguar-fang (L03, jaguar jaws gaping and crunching) in jade for Jade Throttle, quake-crack (L08, zigzag cracks splitting with crust chunks jumping) in sand gold for Quake. Every piece (unique, class, x0/x1) has a hand note with an explicit motif and layout; Sonnet's 7 flagged pieces are themed here (Thicket Dust = puffball spores, Thicket Ruse = eyes in the thicket, Dune Burrow = the wyrm surfacing here and there, Jade Pounce = the spirit cat bursting out and landing, Jade Canopy Drop = dropping head-first out of the canopy, Jade Stalk = glowing jade paw prints, Jade Gaze = floating spirit eyes tied in a trance).",
+ "creatures": {
+  "old-bramblehorn": {
+   "pal": ["#9cb46a", "#2a1e12", "#ecdcb0"], "m": "bramble-antler", "m2": "antler-lattice", "pers": "trundle", "snd": ["crack", "thud"], "spd": 0.7,
+   "notes": "Old Bramblehorn of the forest: an ancient thicket stag grown out of the wood itself, mossy and bark-dark, whose great antlers are bramble canes with hooked red thorns, pale bone tips and blackberries; roots for hooves, sap for blood, and the thicket hides its eyes.",
+   "p": {
+    "u0": {"m": "bramble-antler", "lay": "lance", "n": "Horn Gore: a bramble antler drives the length of the edge tines first, red thorns hooking, the bone tips flashing white as they gore"},
+    "u1": {"m": "berry-cane", "lay": "bristle", "n": "Bramble Mantle: arched bramble canes push out of the edge and hold, hooked red thorns along their backs and blackberries hanging under them"},
+    "u2": {"m": "root-sprout", "lay": "rise", "n": "Ancient Root: gnarled old root knuckles rise out of the earth, a green shoot unfurls from each and a bead of golden sap wells up"},
+    "u3": {"m": "antler-lattice", "lay": "hold", "n": "Antler Wall: two mossy antler crowns lock tine through tine along the edge and brace, a sheen flashing where they cross"},
+    "b0": {"m": "bramble-whip", "lay": "strike", "n": "Thicket Lash: thorny bramble lashes curl out of the edge in S-bends and crack, red thorns on their backs"},
+    "b1": {"m": "puffball-spore", "lay": "strike", "n": "Thicket Dust: pale puffballs on moss tufts fly off the edge, are squeezed flat and burst rings of brown spore dust"},
+    "b2": {"m": "berry-cane", "lay": "hold", "c": "#86a85a", "x": "pollen", "n": "Thicket Mantle: a mantle of darker bramble canes lies along the edge and stays, bramble-blossom pollen drifting off it"},
+    "b3": {"m": "honeydew-bead", "lay": "rise", "c": "#e0a030", "n": "Thicket Sap: amber tree-sap beads well up out of the bark, glint and float up"},
+    "x0": {"m": "thicket-eyes", "lay": "feint", "n": "Thicket Ruse: leafy thicket mounds pop up at spot after spot, two amber eyes peering out and blinking, the leaves rustling"},
+    "x1": {"m": "bramble-antler", "lay": "slam", "x": "clods", "n": "Antler Crush: the bramble antler slams down out of the edge and crushes, soil clods flying, the tips flashing white"}
+   }
+  },
+  "dune-wyrm": {
+   "pal": ["#d8b070", "#3e2610", "#fff0c0"], "m": "wyrm-erupt", "m2": "ring-plate", "pers": "burrow", "snd": ["hiss", "thud"], "spd": 0.9,
+   "notes": "Dune Wyrm of the desert: a colossal sand-gold wyrm of armoured rings with a round mouth full of inward teeth; it swims under the dunes, erupts out of a sand mound, opens sinkholes to swallow prey whole, shakes the ground, spouts sand and spits acid.",
+   "p": {
+    "u0": {"m": "sand-swim", "lay": "scatter", "c": "#e8c888", "n": "Burrow Under: the wyrm dives and sand-wave arcs swell out from the edge as it swims beneath, a gold glint, then the sand settles back"},
+    "u1": {"m": "quake-crack", "lay": "snare", "c": "#e0bc7c", "n": "Quake: the ground splits in jagged cracks at spots along the edge, tied by taut lines, sand chunks jumping out: the foe stumbles"},
+    "u2": {"m": "sand-funnel", "lay": "slam", "n": "Sand Swallow: sinkholes open out of the edge, sand rings sliding into a dark centre, and the round red maw snaps up out of the bottom"},
+    "u3": {"m": "sand-geyser", "lay": "strike", "n": "Sand Spout: quick jets of sand shoot off the edge one after another, crown into spray and rain back down"},
+    "b0": {"m": "ring-maw", "lay": "strike", "n": "Dune Maw: the round mouth lunges off the edge face-on, rings of white teeth pointing in, the red throat irising shut with a snap"},
+    "b1": {"m": "spike-tail", "lay": "strike", "n": "Dune Tail-Whip: the banded tail whips out of the edge and the pale bone spike at its tip cracks the air"},
+    "b2": {"m": "ring-plate", "lay": "hold", "n": "Dune Plate: overlapping armour rings line the edge and hold, a sand-white sheen walking across them"},
+    "b3": {"m": "rot-spit", "lay": "fall", "c": "#c8e05a", "n": "Dune Spit: acid-green globs fall off the edge and splat sizzling into the sand"},
+    "x0": {"m": "wyrm-erupt", "lay": "feint", "x": "dust", "n": "Dune Burrow: the wyrm sinks and its ringed head surfaces at one spot after another along the edge, sand dust puffing, never where you look"},
+    "x1": {"m": "wyrm-erupt", "lay": "slam", "x": "clods", "n": "Dune Heave: the whole ringed body heaves up out of a sand mound and crashes back down, sand clods flying"}
+   }
+  },
+  "jade-jaguar": {
+   "pal": ["#5ed494", "#0e3a26", "#f4d070"], "m": "spirit-leap", "m2": "jade-mask", "pers": "pounce", "snd": ["hiss", "tink"], "spd": 1.15,
+   "notes": "Jade Jaguar Spirit of the rainforest: the ghost of a great jaguar carved in living jade, translucent green with gold rosettes and glowing eyes, the guardian of an old carved mask; it flickers between stone and spirit, stalks unseen, drops out of the canopy and holds prey with its gaze.",
+   "p": {
+    "u0": {"m": "spirit-gaze", "lay": "snare", "n": "Jade Gaze: floating pairs of gold-and-jade jaguar eyes hang at spots, glow rings pulsing, tied together by thin gold lines: the foe is held in a trance"},
+    "u1": {"m": "spirit-leap", "lay": "lance", "n": "Jaguar Pounce: the jade spirit jaguar runs the length of the edge in bounding leaps, crouch, stretch, tuck, and lands with gold paw sparks"},
+    "u2": {"m": "spirit-fade", "lay": "scatter", "n": "Spirit Stalk: the jaguar drifts out from the edge flickering between solid jade and a pale dotted spirit outline, and the blow passes through it"},
+    "u3": {"m": "canopy-drop", "lay": "fall", "n": "Jade Canopy Drop: the jade jaguar drops head-first out of the canopy, forepaws spread and claws out, leaves fluttering round it"},
+    "b0": {"m": "jade-rake", "lay": "strike", "n": "Jade Rake: four parallel claw gouges tear out of the edge diagonally, gold at the tips, flaring pale jade"},
+    "b1": {"m": "spirit-leap", "lay": "slam", "x": "glint", "n": "Jade Pounce: the spirit cat bursts out of the edge in one leap and lands back hard, a glint running over the jade"},
+    "b2": {"m": "jade-mask", "lay": "hold", "n": "Jade Poise: carved jade jaguar masks line the edge, calm and still, the gold rosette on the brow, a glint walking over the stone"},
+    "b3": {"m": "spirit-fade", "lay": "lance", "n": "Jade Slink: the jaguar slinks low along the edge, half stone and half spirit outline, then bumps in"},
+    "x0": {"m": "jade-prints", "lay": "feint", "n": "Jade Stalk: glowing jade paw prints appear one at a time at spots along the edge and fade, the stalker itself never seen"},
+    "x1": {"m": "jaguar-fang", "lay": "strike", "c": "#4cbc80", "n": "Jade Throttle: jade jaws gape off the edge, the two white fangs clamp shut and crunch"}
+   }
+  }
+ },
+ "motifs": {
+  "jade-prints": {"g": "paw", "mo": "blink", "x": "glowtrail", "car": "blink", "fam": "puff", "gap": 14, "nm": "jade prints", "desc": "glowing jade paw prints appearing one at a time and fading, a dotted afterglow trailing along the edge"}
+ }
+}
