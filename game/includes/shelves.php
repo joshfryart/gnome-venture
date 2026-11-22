@@ -290,16 +290,17 @@ function sh_shelves(array $entries, array $defs, array $open, int $selId, string
         if (!$bagCounts && $k !== 'unk') { $o .= '<span class="shpeek" aria-hidden="true">'; foreach (array_slice($rows, 0, 5) as $e) $o .= '<span class="p2ic">' . ($e['item'] ? sh_icon($e['item'], 'sm') : '❔') . '</span>'; $o .= '</span>'; }
         $o .= '<span class="shchev" aria-hidden="true">▾</span></summary>' . "\n" . '<div class="shpills">';
         foreach ($rows as $e) {
-            if (!empty($pop['quick']) && $e['status'] === 'ok') {   // popover: one tap makes one (x5 chip when five fit); the rest of the squares open their panel as before
+            $isSel = $selId === $e['id'];
+            $pid = ($surface === 'bag' ? 'i' : 'r') . $e['id'];
+            $isQ = !empty($pop['quick']) && $e['status'] === 'ok';   // popover: one tap makes one (x5 chip when five fit); the (i) opens the usual panel
+            if ($isQ) {
                 $o .= '<form method="post" action="' . e($pop['quick']) . '" class="shqf">' . csrf_field() . '<input type="hidden" name="recipe_id" value="' . (int)$e['id'] . '">'
                     . '<button class="shpill ok shquick" name="qty" value="1" aria-label="Make 1 ' . e($e['name']) . '"><span class="shic"><span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'lg') : '❔') . '</span></span>'
                     . '<span class="shpt"><b>' . e($e['name']) . '</b>' . ($e['small'] !== '' ? '<small>' . $e['small'] . '</small>' : '') . '</span></button>'
-                    . (str_contains((string)$e['acts'], 'value="5"') ? '<button class="shx5" name="qty" value="5" aria-label="Make 5 ' . e($e['name']) . '">×5</button>' : '') . "</form>\n";
-                continue;
+                    . (str_contains((string)$e['acts'], 'value="5"') ? '<button class="shx5" name="qty" value="5" aria-label="Make 5 ' . e($e['name']) . '">×5</button>' : '')
+                    . '<a class="shpill shinfo' . ($isSel ? ' sel' : '') . '" id="' . $pid . '" href="' . e($isSel ? $close() : $link($e['id'])) . '" data-pick="shp-' . $pid . '" aria-controls="shp-' . $pid . '" aria-expanded="' . ($isSel ? 'true' : 'false') . '" data-hay="' . e(mb_strtolower($e['hay'])) . '" aria-label="Details: ' . e($e['name']) . '">ⓘ</a></form>' . "\n";
             }
-            $isSel = $selId === $e['id'];
-            $pid = ($surface === 'bag' ? 'i' : 'r') . $e['id'];
-            $o .= '<a class="shpill ' . e($e['status']) . ($isSel ? ' sel' : '') . '" id="' . $pid . '" href="' . e($isSel ? $close() : $link($e['id'])) . '" data-pick="shp-' . $pid . '"'
+            if (!$isQ) $o .= '<a class="shpill ' . e($e['status']) . ($isSel ? ' sel' : '') . '" id="' . $pid . '" href="' . e($isSel ? $close() : $link($e['id'])) . '" data-pick="shp-' . $pid . '"'
                 . ' aria-controls="shp-' . $pid . '" aria-expanded="' . ($isSel ? 'true' : 'false') . '" data-hay="' . e(mb_strtolower($e['hay'])) . '" data-cat="' . e((string)($e['item']['category'] ?? '')) . '" data-qty="' . (int)($e['count'] ?? 0) . '" data-name="' . e(mb_strtolower((string)$e['name'])) . '" data-got="' . e((string)($e['item']['got_at'] ?? '')) . '"' . (!empty($e['untasted']) ? ' data-un="1"' : '') . '>'
                 . '<span class="shic"><span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'lg') : '❔') . '</span>'
                 . ($e['count'] !== null ? '<em class="shqty">×' . number_format((int)$e['count']) . '</em>' : '') . '</span>'
