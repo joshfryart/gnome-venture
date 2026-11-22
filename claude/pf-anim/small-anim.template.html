@@ -262,17 +262,17 @@ function glyph(c, g, x, y, z, fr, C, A, H, tx, ty, nx, ny) {
   switch (g) {
   case 'drop': sq(c, x, y, 3 + z, C); px(c, x, y - 2 - z, C); px(c, x - 1, y - 1, H); px(c, x + 1, y + 1, A); break;
   case 'bead': sq(c, x, y, 3 + z, C); px(c, x - 1, y - 1, WHITE); px(c, x + 1, y + 1 + (z >> 1), A); break;
-  case 'wingdot': sq(c, x, y, 2 + z, A); if (fr) { px(c, x - 2, y - 2, H); px(c, x + 2, y - 2, H); } else { px(c, x - 2, y, H); px(c, x + 2, y, H); } px(c, x, y - 1, C); px(c, x + 1, y, C); break;
+  case 'wingdot': sq(c, x, y, 2 + z, C); if (fr) { px(c, x - 2, y - 2, H); px(c, x + 2, y - 2, H); } else { px(c, x - 2, y, H); px(c, x + 2, y, H); } px(c, x, y, A); px(c, x - 1, y - 1, WHITE); break;
   case 'bee': bx(c, x - 2, y - 1, 5, 3, C); bx(c, x - 1, y - 1, 1, 3, A); bx(c, x + 1, y - 1, 1, 3, A); if (fr) { px(c, x - 1, y - 3, H); px(c, x + 1, y - 3, H); } else { px(c, x - 2, y - 2, H); px(c, x + 2, y - 2, H); } break;
   case 'speck': sq(c, x, y, 2 + (z >> 1), C); o = fr ? 1 : -1; px(c, x - 2, y + o, A); px(c, x + 2, y - o, A); px(c, x - 2, y - o, A); px(c, x + 2, y + o, A); break;
   case 'dot': sq(c, x, y, 1 + (z >> 1), C); if (fr) px(c, x + 1, y - 1, A); break;
   case 'spiral': sq(c, x, y, 5 + z, A); sq(c, x, y, 3 + z, C); px(c, x, y, A); o = fr & 3; px(c, x + (o === 1 || o === 2 ? 1 : -1), y + (o >= 2 ? 1 : -1), WHITE); break;
   case 'coil': bx(c, x - 3, y - 1, 7, 3, C); px(c, x - 1, y, A); px(c, x + 1, y, A); px(c, x, y - 1, A); o = fr & 3; px(c, x - 2 + o, y - 1, H); bx(c, x - 3, y + 2, 7, 1, A); break;
   case 'lily': bx(c, x - 3, y - 1, 7, 3, C); bx(c, x - 2, y - 2, 5, 5, C); px(c, x, y, A); px(c, x + 1, y - 1, A); if (fr) ringpx(c, x, y, 4 + fr, H); break;
-  case 'ant': for (i = -1; i <= 1; i++) sq(c, x + tx * 3 * i, y + ty * 3 * i, i === 1 ? 3 : 2, A); o = fr ? 1 : -1;
-    px(c, x + nx * 2 + tx * o, y + ny * 2 + ty * o, C); px(c, x - nx * 2 - tx * o, y - ny * 2 - ty * o, C); px(c, x + tx * 5, y + ty * 5, H); break;
-  case 'pincer': o = fr ? 3 : 1; d = 5 + z; ln(c, x, y, x + nx * d + tx * o, y + ny * d + ty * o, 1 + (z > 0 ? 1 : 0), A); ln(c, x, y, x + nx * d - tx * o, y + ny * d - ty * o, 1 + (z > 0 ? 1 : 0), A);
-    px(c, x + nx * d + tx * o, y + ny * d + ty * o, C); px(c, x + nx * d - tx * o, y + ny * d - ty * o, C); sq(c, x, y, 2, C); break;
+  case 'ant': for (i = -1; i <= 1; i++) sq(c, x + tx * 3 * i, y + ty * 3 * i, i === 1 ? 3 : 2, C); o = fr ? 1 : -1;
+    px(c, x + nx * 2 + tx * o, y + ny * 2 + ty * o, A); px(c, x - nx * 2 - tx * o, y - ny * 2 - ty * o, A); px(c, x + tx * 5, y + ty * 5, H); px(c, x, y, A); break;
+  case 'pincer': o = fr ? 3 : 1; d = 5 + z; ln(c, x, y, x + nx * d + tx * o, y + ny * d + ty * o, 1 + (z > 0 ? 1 : 0), C); ln(c, x, y, x + nx * d - tx * o, y + ny * d - ty * o, 1 + (z > 0 ? 1 : 0), C);
+    px(c, x + nx * d + tx * o, y + ny * d + ty * o, H); px(c, x + nx * d - tx * o, y + ny * d - ty * o, H); sq(c, x, y, 3, A); px(c, x, y, C); break;
   case 'plume': sq(c, x, y, 2, C); px(c, x - 2, y - 2, H); px(c, x - 1, y - 3, H); px(c, x + 2, y - 2, H); px(c, x + 1, y - 3, H); if (fr) px(c, x, y + 2, A); break;
   case 'spot': sq(c, x, y, 4 + z, C); sq(c, x + (fr ? 1 : 0), y, 2, A); px(c, x - 1, y - 2, WHITE); break;
   case 'frill': for (i = -2; i <= 2; i++) { o = ((i + fr) & 1) ? 2 : 0; px(c, x + tx * i * 1.5 + nx * o, y + ty * i * 1.5 + ny * o, i & 1 ? C : H); px(c, x + tx * i * 1.5 + nx * (o + 1), y + ty * i * 1.5 + ny * (o + 1), C); } break;
@@ -295,17 +295,17 @@ function glyph(c, g, x, y, z, fr, C, A, H, tx, ty, nx, ny) {
   case 'fluff': sq(c, x, y, 5, C); bx(c, x - 2, y - 1, 5, 1, A); bx(c, x - 2, y + 1, 5, 1, A); px(c, x + 1, y - 2, H); px(c, x - 1 + fr, y + 3, A); break;
   case 'fish': d = tx < -.3 ? -1 : 1; bx(c, x - 2, y - 1, 4, 2, C); px(c, x - 3 * d, y - (fr ? 1 : 0), C); px(c, x - 3 * d, y + (fr ? 0 : 1), C); px(c, x - d, y - 2, A); px(c, x, y - 2, A); px(c, x + d, y - 2, A); px(c, x + d, y - 1, A); px(c, x, y, H); break;
   case 'squeal': for (i = -1; i <= 1; i++) ln(c, x + i * 2, y - 1, x + i * (4 + fr), y - 4 - fr, 1, C); px(c, x, y, A); break;
-  case 'needle': sq(c, x + nx * 5, y + ny * 5, 3, A); px(c, x + nx * 5 + tx * 2, y + ny * 5 + ty * 2 - 1, WHITE); ln(c, x + nx * 4, y + ny * 4, x, y, 1, C); px(c, x, y, H); break;
-  case 'bristle': sq(c, x, y, 2 + (z >> 1), A); px(c, x - 2, y - 2, A); px(c, x + 2, y - 2, A); px(c, x - 2, y + 2, A); px(c, x + 2, y + 2, A); if (fr) px(c, x, y - 1, C); break;
+  case 'needle': sq(c, x + nx * 5, y + ny * 5, 3, C); px(c, x + nx * 5, y + ny * 5, A); px(c, x + nx * 5 + tx * 2, y + ny * 5 + ty * 2 - 1, WHITE); px(c, x + nx * 5 - tx * 2, y + ny * 5 - ty * 2 - 1, WHITE); ln(c, x + nx * 3, y + ny * 3, x, y, 1, C); px(c, x, y, H); break;
+  case 'bristle': sq(c, x, y, 3 + (z >> 1), C); px(c, x - 2, y - 2, A); px(c, x + 2, y - 2, A); px(c, x - 2, y + 2, A); px(c, x + 2, y + 2, A); px(c, x, y, A); if (fr) { px(c, x - 1, y - 2, H); px(c, x + 1, y - 2, H); } break;
   case 'shrimp': if (fr) { bx(c, x - 2, y, 1, 2, C); bx(c, x - 1, y + 2, 3, 1, C); bx(c, x + 2, y, 1, 2, C); px(c, x - 2, y + 1, A); } else { bx(c, x - 2, y - 1, 1, 2, C); bx(c, x - 1, y - 2, 3, 1, C); bx(c, x + 2, y - 1, 1, 2, C); px(c, x - 2, y - 1, A); } px(c, x + 1, y, H); break;
   case 'crystal': if (fr === 2) plus(c, x, y, 3, 1, H); plus(c, x, y, fr === 0 ? 0 : 1, 1, C); px(c, x, y, fr === 1 || fr === 2 ? WHITE : C); if (fr === 3) px(c, x + 1, y + 1, A); break;
   case 'flake': if (fr) { px(c, x - 1, y - 1, C); px(c, x + 1, y - 1, C); px(c, x - 1, y + 1, C); px(c, x + 1, y + 1, C); px(c, x, y, H); } else plus(c, x, y, 2, 1, C); px(c, x, y, WHITE); break;
   case 'seg': for (i = -1; i <= 1; i++) sq(c, x + tx * 2.5 * i, y + ty * 2.5 * i + (((i + fr) & 1) ? 1 : 0), 3, C); px(c, x - tx * 2.5, y - ty * 2.5, A); sq(c, x + tx * 5, y + ty * 5, 2, H); break;
-  case 'eye': sq(c, x - 2, y, 3, A); sq(c, x + 2, y, 3, A); px(c, x - 2, y - 1, WHITE); px(c, x + 2, y - 1, WHITE); bx(c, x - 1, y + 2, 3, 1, C); if (fr) { px(c, x - 4, y + 2, C); px(c, x + 4, y + 2, C); } break;
+  case 'eye': bx(c, x - 4, y - 2, 9, 5, C); sq(c, x - 2, y, 3, A); sq(c, x + 2, y, 3, A); px(c, x - 2, y - 1, WHITE); px(c, x + 2, y - 1, WHITE); o = fr ? 1 : 0; px(c, x - 5, y + 2 + o, C); px(c, x + 5, y + 2 + o, C); px(c, x - 5, y - 1 - o, C); px(c, x + 5, y - 1 - o, C); break;
   case 'tuft': ln(c, x, y, x - 2 - fr, y - 3, 1, C); ln(c, x, y, x, y - 4, 1, C); ln(c, x, y, x + 2 + fr, y - 3, 1, C); px(c, x, y + 1, A); break;
   case 'pad': sq(c, x - 2, y, 2, C); sq(c, x + 2, y, 2, C); sq(c, x, y - 2, 2, C); sq(c, x, y + 2 - (fr ? 0 : 1), 2, C); px(c, x, y, A); break;
   case 'foot': bx(c, x - 1, y - 2, 3, 5, C); px(c, x - 1, y - 3, H); px(c, x + 1, y - 3, H); px(c, x, y + (fr ? 1 : 0), A); break;
-  case 'legs': for (i = -2; i <= 2; i++) { px(c, x + tx * i * 1.5, y + ty * i * 1.5, A); o = ((i + fr) & 1) ? 2 : 1; px(c, x + tx * i * 1.5 + nx * o, y + ty * i * 1.5 + ny * o, C); px(c, x + tx * i * 1.5 - nx * o, y + ty * i * 1.5 - ny * o, C); } px(c, x + tx * 4, y + ty * 4, H); break;
+  case 'legs': for (i = -2; i <= 2; i++) { sq(c, x + tx * i * 1.5, y + ty * i * 1.5, 2, C); o = ((i + fr) & 1) ? 3 : 2; px(c, x + tx * i * 1.5 + nx * o, y + ty * i * 1.5 + ny * o, H); px(c, x + tx * i * 1.5 - nx * o, y + ty * i * 1.5 - ny * o, H); } px(c, x + tx * 4, y + ty * 4, A); break;
   case 'sandwave': px(c, x - 3, y + 1, C); bx(c, x - 2, y, 2, 1, C); bx(c, x, y - 1, 2, 1, C); bx(c, x + 2, y, 2, 1, C); px(c, x + 4, y + 1, A); if (fr) px(c, x, y - 2, H); break;
   case 'splat': sq(c, x, y, 3 + (z >> 1), C); px(c, x - 3, y, C); px(c, x + 3, y + 1, C); px(c, x, y - 3 + (fr ? 1 : 0), C); px(c, x + 1, y + 3, A); px(c, x - 1, y - 1, H); break;
   case 'stem': ln(c, x - nx * 7, y - ny * 7, x, y, 1 + (z > 0 ? 1 : 0), C); sq(c, x, y, 2, A); px(c, x + tx, y + ty, H); break;
@@ -323,7 +323,7 @@ function glyph(c, g, x, y, z, fr, C, A, H, tx, ty, nx, ny) {
   case 'loop': ringpx(c, x, y, 2, C); px(c, x + (fr ? 1 : -1), y - 2, H); sq(c, x - tx * 4, y - ty * 4, 2, A); break;
   case 'fan': if (fr) { bx(c, x - 3, y - 1, 7, 2, C); px(c, x - 1, y - 1, A); px(c, x + 1, y - 1, A); } else { for (i = -1; i <= 1; i++) ln(c, x, y + 2, x + i * 3, y - 2, 1, C); bx(c, x - 3, y - 3, 7, 1, H); } px(c, x, y + 2, A); break;
   case 'dome': bx(c, x - 3, y, 7, 2, C); bx(c, x - 2, y - 1, 5, 1, C); bx(c, x - 1, y - 2, 3, 1, C); px(c, x - 1, y, A); px(c, x + 1, y, A); px(c, x, y - 1, A); px(c, x - 2 + (fr ? 0 : 1), y + 2, A); px(c, x + 2 - (fr ? 0 : 1), y + 2, A); px(c, x - 1, y - 2, H); break;
-  case 'mound': bx(c, x - 3, y + 1, 7, 1, A); bx(c, x - 2, y, 5, 1, A); if (fr) { sq(c, x, y - 2, 3, C); px(c, x - 1, y - 3, WHITE); } else bx(c, x - 1, y - 1, 3, 1, C); break;
+  case 'mound': bx(c, x - 3, y + 1, 7, 2, H); bx(c, x - 2, y, 5, 1, H); px(c, x - 2, y + 2, A); px(c, x + 2, y + 2, A); if (fr) { sq(c, x, y - 2, 3, C); px(c, x - 1, y - 3, A); px(c, x + 1, y - 3, A); } else bx(c, x - 1, y - 1, 3, 1, C); break;
   case 'puff': c.fillStyle = C; c.beginPath(); c.arc(x, y, 1.5 + z * .5 + fr, 0, 7); c.fill(); px(c, x - 1, y - 1, H); break;
   default: sq(c, x, y, 2, C);
   }
@@ -442,8 +442,8 @@ function themedOwn(c, P, o, th, M, p, seed, h, col, acc, hi) {
       sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny;
       x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
       if (mp.x === 'threads') ln(c, bx0 + nx, by0 + ny, x, y, 1, hi);
-      else if (mp.x === 'silk') { P.atq(r[0]); ln(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, x, y, 1, hi); }
-      if (tie && has) ln(c, lx, ly, x, y, 1, hi);
+      else if (mp.x === 'silk') ln(c, bx0 + ny * 9 + nx, by0 - nx * 9 + ny, x, y, 1, hi);   /* short dragline from a point 9 px back along the edge */
+      if (tie && has && Math.abs(x - lx) + Math.abs(y - ly) < 30) ln(c, lx, ly, x, y, 1, hi);   /* no tie across a wrap */
       glyph(c, M.g, x, y, z, G.fr, col, acc, hi, -ny, nx, nx, ny); lx = x; ly = y; has = true;
     }
     ext(c, mp.x, P, r[0], len, ri, p, pp, col, acc, hi, seed);
