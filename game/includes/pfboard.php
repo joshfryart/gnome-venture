@@ -55,7 +55,7 @@ const PFB_RAIN = 0.20;                        // 2.7.06 events matter more (Josh
 const PFB_THORN_FOE = 0.5;                    // Thornburst fired by the creature: x this (Josh, after Sim 5: 5% for the creature, 10% for you)
 const PFB_ENV_EDGE = ['h' => 'hole', 'k' => 'knob', 'b' => 'body', 'm' => 'mind', 'c' => 'craft'];
 const PFB_V1_FOE_MULT = ['small' => 0.93, 'medium' => 0.735, 'large' => 0.428, 'boss' => 0.60];   // 2.7.01 (policy D, claude/creature-pass/balance-report.md): 2.7.00 values x option A (chain bot about 80% at level for every size; the 2.7.00 values gave 85 / 95 / 93 / 90): was 0.855 / 0.48 / 0.378 / 0.585.   // week-1 retune (T13): was 0.95 / 0.60 / 0.42 / 0.585 (one shared bar, aim total, redraw and free pass made the chain bot too strong: 95 / 92 / 90 / 91%; now 79 / 80 / 82 / 78%). After 2.6.94 (AIMSTICK): boss x1.3 (was 0.45) with its bar x0.8, so a boss hits harder in a shorter fight: chain bot at level 88 -> 88-90% (94% with AIMSTICK alone), 4 under 76 -> 73-75%, 8 under 50%, fights 8.7 -> 7.6 turns. Medium and large also take the level curve PFB_V1_LEVEL.   // 2.6.79 retune for isolated environment pieces (the creature fires them more): was 1.0 / 0.67 / 0.53 / 0.66.   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5" (second retune: 2 environment pieces a round, Mud's teeth, Thornburst halved on the creature; with 1 piece a round it was 1.0 / 0.70 / 0.53 / 0.66 and bars 0.75 / 0.92 / 1.05 / 0.66). 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
-const PFB_V1_BAR_MULT = ['small' => 1.378, 'medium' => 1.7743, 'large' => 1.7193, 'boss' => 0.9158];   // 2.7.01 (policy D): was 1.325 / 1.491 / 1.495 / 0.825.   // week-1 retune (T13): was 0.828 / 0.994 / 1.15 / 0.611, longer bars for 6-8 turn fights, see PFB_V1_FOE_MULT. After 2.6.94: boss x0.8 (was 0.764), see PFB_V1_FOE_MULT.   // 2.6.79: x0.92 (was 0.90 / 1.08 / 1.25 / 0.83)   // the creature's bars by size (replaces PFB_BAR_MULT)
+const PFB_V1_BAR_MULT = ['small' => 1.6, 'medium' => 1.7743, 'large' => 1.7193, 'boss' => 0.9158];   // 2.7.54 chain-bot refit: small was 1.378 (with the ease gone, small fights 2 -> 4-5 turns).   // 2.7.01 (policy D): was 1.325 / 1.491 / 1.495 / 0.825.   // week-1 retune (T13): was 0.828 / 0.994 / 1.15 / 0.611, longer bars for 6-8 turn fights, see PFB_V1_FOE_MULT. After 2.6.94: boss x0.8 (was 0.764), see PFB_V1_FOE_MULT.   // 2.6.79: x0.92 (was 0.90 / 1.08 / 1.25 / 0.83)   // the creature's bars by size (replaces PFB_BAR_MULT)
 
 // LEVEL CURVE (after 2.6.94, AIMSTICK retune; claude/design-board-strategy.md targets, sims in tests/pfboard_tune_v1.php): one factor f by the creature's size and level,
 // f = clamp(1 + slope x (level - ref), lo, hi), as [slope, ref, lo, hi]. Its piece values are x f; its bar is x min(1, f), so a weak creature is also shorter, a strong one only hits harder.
@@ -67,14 +67,19 @@ const PFB_V1_BAR_MULT = ['small' => 1.378, 'medium' => 1.7743, 'large' => 1.7193
 // 2.7.01 (policy D): small creatures now run to level 40 (variants), so small has a curve: x1.0 up to level 6, then +5% a level to x1.8 (a small at level 25 was 100% for the chain bot at level and 4 under).
 const PFB_V1_LEVEL = ['small' => [0.05, 6, 1.0, 1.8], 'medium' => [0.05, 12, 0.85, 1.25], 'large' => [0.025, 22, 0.85, 1.10], 'boss' => [0.0, 1, 1.0, 1.0]];
 // 2.7.01 (policy D): the Yield bar of a MEDIUM creature is eased at low levels so a gnome 4 levels under it does not fall off a cliff: bar x clamp(floor + (1 - floor) x (L - from) / (to - from), floor, 1).
-const PFB_V1_BAR_EASE_MEDIUM = [0.30, 12, 26];   // [floor, level it starts to rise, level it is 1.0]
-const PFB_V1_BAR_EASE_SMALL = [0.30, 14, 30];    // 2.7.01 balance pass 2: the same ease for the small creatures (they now run to level 40, so a gnome 4 levels under a lv 6-20 small fell off a cliff)
-/** The bar factor of PFB_V1_BAR_EASE_MEDIUM / _SMALL for a size and creature level (1.0 for every other size, and with no level). */
+// 2.7.54 (chain-bot refit, claude/playtest-fable-review.md actions 1-3): the ease is now a list of [level, factor] points, straight lines between them and flat past the ends,
+// so it can LENGTHEN the bar of a low-level creature (factor over 1) as well as shorten it. The 2.7.01 ease (medium [0.30, 12, 26], small [0.30, 14, 30] = floor 0.30, rising to 1.0)
+// made small and low-level medium fights 1.3-2.7 turns (targets 4-5 and 6-8); the creatures' piece values were refit to match (data/pf_creature_tune.txt).
+const PFB_V1_BAR_EASE_MEDIUM = [[9, 1.1], [14, 0.97], [21, 0.75], [26, 1.0]];   // from level 21 up the same as 2.7.01 ([0.30, 12, 26])
+const PFB_V1_BAR_EASE_SMALL = [[5, 0.95], [12, 0.85], [22, 1.1]];
+/** The bar factor of PFB_V1_BAR_EASE_MEDIUM / _SMALL for a size and creature level (1.0 for every other size, and with no level): points [level, factor], linear between, flat past the ends. */
 function pfb_bar_ease(string $size, int $lv): float
 {
     if (($size !== 'medium' && $size !== 'small') || $lv <= 0) return 1.0;
-    [$f, $a, $b] = $size === 'small' ? PFB_V1_BAR_EASE_SMALL : PFB_V1_BAR_EASE_MEDIUM;
-    return pf_round(max($f, min(1.0, $f + (1.0 - $f) * ($lv - $a) / ($b - $a))), 4);
+    $P = $size === 'small' ? PFB_V1_BAR_EASE_SMALL : PFB_V1_BAR_EASE_MEDIUM;
+    if ($lv <= $P[0][0]) return pf_round((float)$P[0][1], 4);
+    for ($i = 1; $i < count($P); $i++) if ($lv <= $P[$i][0]) { [$a, $fa] = $P[$i - 1]; [$b, $fb] = $P[$i]; return pf_round($fa + ($fb - $fa) * ($lv - $a) / ($b - $a), 4); }
+    return pf_round((float)$P[count($P) - 1][1], 4);
 }
 /** data/pf_creature_tune.txt (slug|foe_x|bar_x): the per-creature multipliers of piece value and bar, [] for a creature with no row. $GLOBALS['PFB_TUNE'] (slug => ['foe_x' =>, 'bar_x' =>]) replaces the file (sims). */
 function pfb_v1_tune(string $slug): array
