@@ -18,9 +18,11 @@ Every rule is a NEW-FIGHT rule: a fight saved before this keeps its own board (s
 - Rules that name cells, checked on 3x3 and 5x5: the Blank opening (blankrand: a random INNER cell = the centre on 3x3, one
   of 9 on 5x5), anchors (no-blank start = centre), ground (dist 1-2 from centre; off in new fights), Wind (arrow toward a
   piece with a free cell behind it, else any side), Plant Grows (a free cell touching its newest piece), the 0.7 board-full cap.
-- Isolated-cell rule on 3x3: after the opening (Blank + 2-3 pieces) a 3x3 board usually has NO isolated cell. Fallback
-  (unchanged order, now documented and tested): isolated cell (3 farthest) -> a cell where it fits and links to nothing ->
-  any cell where it fits -> keep it face up (pass). Tested: the small env piece is placed on 3x3 in the first rounds.
+- Isolated-cell rule on 3x3: after the opening (Blank + 2-3 pieces) a 3x3 board often has NO isolated cell. Order:
+  isolated cell (3 farthest) -> a cell where it fits and links to nothing -> any cell where it fits -> NEW (boards of
+  PFB_ENV_SMALLB = 9 cells or fewer): the free cells with the fewest neighbours, and the piece's sides that do not fit
+  there turn flat (pfb_env_fit). Measured (small, chain bot, 1085 rounds): "finds no place" 83 -> 0, rounds with no env
+  piece on the board 138 -> 59.
 
 ## 2. Field caps (items 2, 3)
 
@@ -82,7 +84,7 @@ whole shape on the board; works on any board from 3x3).
 
 ## 5. UI / harness
 
-- pfb_view: `aoe` = {n, fx, pct, cells, r}; the page marks the cells (class `mk aoe`, a red hatched ring) with a chip
+- pfb_view: `aoe` = {n, shape, fx, pct, in, cells}; the page (pfv1.css) marks the cells (class `mk aoe`, red hatched; drain purple) with a chip
   "Husk Crush: lands after its move"; the replay flashes the cells and the pieces it breaks at the `aoe` note.
 - Tiles scale: the board cell size is computed from the board width (3x3 cells larger, 5x5 smaller), so 5x5 fits 360px.
 - pf_play show: board with `!` after a marked cell and a BOSS AOE line (name, shape, cells, effect, when).
@@ -100,3 +102,20 @@ Chain-bot refit on the new boards with tests/pfboard_tune_v1.php (chain and look
 turns, medium/large/boss 6-8, chain ~80% at level, >= ~60% four under, look high. First the size constants
 PFB_V1_FOE_MULT / PFB_V1_BAR_MULT; then data/pf_creature_tune.txt scaled only where a size moved as a whole (rows keep
 their relative fit). Then a collector sample: GRID=cp php tests/pf_collect.php OUT k/4 all 3 (4 shards).
+
+## 8. Results (branch ccr-893d59b2-board-sizes)
+
+Tuner (tests/pfboard_tune_v1.php, model gnome; chain mult 0.5, look mult 0.25), win % / turns, before (2.7.54, 4x4) -> after:
+
+| size   | chain 0          | chain -4         | look 0          | look -4         |
+|--------|------------------|------------------|-----------------|-----------------|
+| small  | 66 / 4.6 -> 84 / 4.9 | 37 / 4.5 -> 62 / 4.9 | 100 / 5.1 -> 99 / 4.9 | 95 / 6.6 -> 98 / 6.2 |
+| medium | 85 / 6.8 -> 88 / 6.3 | 56 / 7.2 -> 56 / 6.7 | 100 / 6.4 -> 100 / 6.0 | 100 / 7.9 -> 100 / 7.6 |
+| large  | 73 / 8.1 -> 82 / 7.4 | 49 / 8.0 -> 61 / 7.8 | 100 / 8.0 -> 100 / 7.1 | 100 / 9.2 -> 100 / 8.4 |
+| boss   | 80 / 8.5 -> 83 / 7.4 | 58 / 8.6 -> 66 / 7.9 | 100 / 7.8 -> 100 / 6.4 | 100 / 9.0 -> 100 / 7.7 |
+
+Collector sample (GRID=cp php tests/pf_collect.php OUT k/4 all 3, 4 shards; Balanced + Grit gnomes, stronger than the tuner's):
+chain 0 small 85->95 (3.8->3.9 turns), medium 92->94 (5.6->5.2), large 85->92 (6.9->6.2), boss 98->94 (7.1->6.8);
+chain -4 small 63->78, medium 75->80, large 72->77, boss 73->82; look 97-100% everywhere.
+Open: medium 4 under stays ~56% on the tuner (the level gap is structural: the 2.7.01 / 2.7.54 eases target it); the collector
+gnome finds every size easier and shorter than the tuner's targets (the 2.7.54 refit had used the collector gnome).
