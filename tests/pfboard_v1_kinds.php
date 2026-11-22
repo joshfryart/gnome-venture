@@ -170,3 +170,15 @@ $s['foe']['hand'] = []; $s['foe']['draw'] = []; $s['foe']['discard'] = []; $hp0 
 $heal0 = $h1 - $hp0 - 2;   // the piece's own heal, then the first tick of 2 at the start of the next turn
 chk('Simmer: the piece heals its value now and 2 more as your next turn starts (1 charge left)', $heal0 >= 1 && $r1 === 1, [$hp0, $h1, $r1]);
 chk('Simmer: the second tick uses the last charge, then nothing more (a chain can fire the heal piece again: that is its own heal)', $h2 - $h1 >= 2 && $r2 === 0 && $h3 - $h2 <= $h2 - $h1 - 2, [$h1, $h2, $h3, $r2, array_map(fn($x) => $x['k'], $s['me']['hand'])]);
+
+// ---- 2.7.51 (Sonnet playtests): the log names the class rule that raised a Hurt, and a cell names an Evade miss
+$s = $k19('Beast'); $s['foe']['grudge'] = 2; $ev = v1_place($s, 'foe', $ft19($s, 'f:h', 'hurt', 10), 1, 3);
+chk('Grudge: the Hurt event carries its stacks (gr = 2) so the log can say why it hit harder', $ev && ($ev[0]['gr'] ?? 0) === 2 && $ev[0]['v'] === 15, $ev[0] ?? null);
+$s = $k19('Beast'); $ev = v1_place($s, 'foe', $ft19($s, 'f:h', 'hurt', 10), 1, 3);
+chk('Grudge: no stacks, no gr on the event', $ev && !isset($ev[0]['gr']), $ev[0] ?? null);
+$s = $k19('Critter'); $ev = v1_place($s, 'foe', $ft19($s, 'f:h', 'hurt', 5), 1, 3); $s2 = $k19('Critter'); v1_put($s2, 'foe', $ft19($s2, 'f:a', 'charm', 2), 3, 3); v1_put($s2, 'foe', $ft19($s2, 'f:b', 'charm', 2), 3, 2); $ev2 = v1_place($s2, 'foe', $ft19($s2, 'f:h', 'hurt', 5), 1, 3);
+chk('Swarm: the Hurt event carries its bonus (sw = 1 with 3 other pieces out, none with 1)', ($ev2[0]['sw'] ?? 0) === 1 && !isset($ev[0]['sw']), [$ev[0] ?? null, $ev2[0] ?? null]);
+$s = $k19('Beast'); $s['foe']['evade'] = 1; $hh = ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'h1', 'hurt', 5, 'body'); $s['me']['hand'] = [$hh]; $pv = pfb_cell_preview($s, 0);
+chk('cell preview: its Evade up, your placed Hurt is named as the miss (MISS) and the damage number leaves it out', $pv && count(array_filter($pv, fn($q) => ($q['miss'] ?? '') === $hh['n'] && $q['dmg'] === 0)) === count($pv), $pv);
+$s = $k19('Beast'); $hh = ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'h1', 'hurt', 5, 'body'); $s['me']['hand'] = [$hh]; $pv = pfb_cell_preview($s, 0);
+chk('cell preview: no Evade, no miss key', $pv && !array_filter($pv, fn($q) => isset($q['miss'])), $pv);

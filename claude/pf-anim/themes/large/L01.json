@@ -1,0 +1,155 @@
+{
+ "_doc": "Large batch L01 themed pass (TEMPLATE.md sections 9 and 10): dingo, foxes, bramble wolves, wolverine, badgers. New motifs live in motifs/large_L01.js; every piece (unique and class) has a hand note. All 10 signature motifs are new; 8 of them are used by no other creature (mousing-arc and briar-vine are lent to sibling foxes / the elder wolf).",
+ "creatures": {
+  "alpha-dingo": {
+   "pal": ["#d8984e", "#3a2210", "#f4e2c0"], "m": "ruff-jaw", "m2": "burr-hitch", "pers": "pounce", "snd": ["crack", "croak"], "spd": 1.15,
+   "notes": "Alpha dingo of the desert: sandy ginger with a thick neck ruff and a torn, scarred ear; leads the pack, howls the signal, picks up burrs in its coat.",
+   "p": {
+    "u0": {"m": "ruff-jaw", "n": "Alpha Bite: the ruffed alpha head slams out, jaws wide, and snaps shut in a puff of sand"},
+    "u1": {"m": "muzzle-howl", "c": "#e8b070", "n": "Pack Signal: dingo muzzles go up at spots round the edge, tied by signal lines, howl arcs answering each other"},
+    "u2": {"m": "burr-hitch", "n": "Burr Coat: spiky desert burrs caught in the ruff bristle out and cling"},
+    "u3": {"m": "lope-file", "n": "Flank Run: two lean dingoes peel off and run wide round the flank, sand puffing at each stride"},
+    "b0": {"m": "lope-file", "lay": "scatter", "x": "prints", "n": "Dingo Scrabble: dingoes scrabble out and back, paw prints scratched in the sand"},
+    "b1": {"m": "lope-file", "lay": "lance", "n": "Dingo Pack Rush: the whole pack streams along the edge in one file"},
+    "b2": {"m": "ruff-jaw", "x": "-", "n": "Dingo Stand: ruffed heads stand in a row along the edge, jaws half open, growling"},
+    "b3": {"m": "muzzle-howl", "c": "#e8b070", "n": "Dingo Howl: a muzzle is thrown up and the howl arcs slam out over the sand"},
+    "x0": {"m": "ruff-jaw", "x": "arc", "n": "Dingo Pounce: the alpha's head leaps off the edge on a dotted arc, jaws open"}
+   }
+  },
+  "red-fox": {
+   "pal": ["#e0702c", "#2a160c", "#f6f0e4"], "m": "brush-sweep", "pers": "hop", "snd": ["chirp", "pop"], "spd": 1.2,
+   "notes": "Red fox: russet coat and a huge white-tipped brush; sly, quick, a mousing hop; the tail is the thing you see as it slips away.",
+   "p": {
+    "u0": {"m": "mousing-arc", "lay": "feint", "n": "Sly Pounce: the fox arcs up and dives nose-first at a different spot each time, never where you look"},
+    "u1": {"m": "canine-jaws", "x": "click", "n": "Quick Bite: small sharp jaws dart off the edge and snap, click marks flashing"},
+    "u2": {"m": "sett-hole", "lay": "scatter", "x": "clods", "n": "Den Dash: little earths pop out round the edge, a face ducking into each, soil flicked up"},
+    "u3": {"m": "brush-sweep", "n": "Brush Feint: the white-tipped brush swishes out and back; the tail is all you get"},
+    "b0": {"m": "canine-jaws", "n": "Dragon-Smile Rake: a wide toothy fox grin rakes off the edge"},
+    "b1": {"m": "mousing-arc", "lay": "lance", "n": "Rusty Scruff Lunge: the rusty fox lunges the length of the edge in one long leap"},
+    "b2": {"m": "brush-sweep", "n": "Russet Ruff: russet brushes curl along the edge like a ruff and hold"},
+    "b3": {"m": "lope-file", "lay": "scatter", "x": "-", "n": "Sidle Past: a slim red fox trots out sideways and slips back"},
+    "x0": {"m": "mousing-arc", "lay": "slam", "x": "puff", "n": "Vixen Body-Check: the vixen leaps and lands shoulder-first, a dust puff where she hits"}
+   }
+  },
+  "silver-fox": {
+   "pal": ["#c8ccd8", "#16161c", "#f8faff"], "m": "silver-tip", "pers": "glide", "snd": ["tink", "hiss"], "spd": 1.0,
+   "notes": "Silver fox of the mountains: black fur with every hair tipped silver, thin pale legs; wary, slinking low, and it takes its tithe.",
+   "p": {
+    "u0": {"m": "silver-tip", "n": "Silver Pounce: silver-tipped guard hairs flare and strike off the edge, glinting"},
+    "u1": {"m": "mousing-arc", "x": "snow", "n": "Drift Dive: the dark fox dives into the drift at spot after spot, tied by its own track, snow flying"},
+    "u2": {"m": "silver-tip", "x": "snow", "n": "Frost Pelt Fold: the black pelt folds along the edge and the silver tips frost over"},
+    "u3": {"m": "toll-penny", "n": "Pelt Tax: silver coins flip up off the edge: the fox collects its tax"},
+    "b0": {"m": "silver-tip", "lay": "lance", "n": "Silver Tip Swipe: a silver-tipped swipe runs the edge, the tips flashing in turn"},
+    "b1": {"m": "canine-jaws", "x": "glint", "n": "Tithe Bite: thin dark jaws snap, a silver glint at the fang"},
+    "b2": {"m": "silver-tip", "lay": "scatter", "n": "Silver Wary Crouch: the tufts flatten and slip out and back, wary"},
+    "b3": {"m": "mousing-arc", "lay": "feint", "n": "Sly Sidestep: the slim fox hops sideways from spot to spot"},
+    "x0": {"m": "mousing-arc", "x": "snow", "n": "Snowdrop Pounce: the fox arcs high and drops into the snow, a white puff"}
+   }
+  },
+  "arctic-fox": {
+   "pal": ["#eef2f6", "#4a5a6e", "#bcd8f0"], "m": "snow-curl", "pers": "plop", "snd": ["pop", "tink"], "spd": 1.05,
+   "notes": "Arctic fox in its white winter coat: curls into a ball in the snow with its tail over its nose, vanishes in a whiteout, dives head-first into drifts.",
+   "p": {
+    "u0": {"m": "mousing-arc", "x": "snow", "n": "Snow Dive: a white fox arcs and dives head-first into the drift, snow bursting up"},
+    "u1": {"m": "snow-curl", "x": "snow", "n": "White Out: curled white foxes scatter into the snow and come back, lost in the white"},
+    "u2": {"m": "canine-jaws", "x": "snow", "c": "#dfe8f2", "n": "Cold Nip: small white jaws nip off the edge, snow flicking"},
+    "u3": {"m": "frost-flake", "lay": "hold", "c": "#ffffff", "n": "Snow Veil: a veil of snowflakes drifts down along the edge over the hidden fox"},
+    "b0": {"m": "paw-tumble", "x": "snow", "n": "Snowdrift Scratch: white paw prints scratch out of the drift"},
+    "b1": {"m": "canine-jaws", "lay": "slam", "x": "snow", "n": "Blizzard Mangle: jaws gnash out and back in a whirl of snow"},
+    "b2": {"m": "snow-curl", "n": "Snow-White Hunch: the fox hunches into a white ball along the edge, tail over its nose"},
+    "b3": {"m": "snow-curl", "lay": "feint", "n": "Whiteout Vanish: the white ball blinks out and turns up somewhere else in the snow"},
+    "x0": {"m": "mousing-arc", "lay": "slam", "x": "snow", "n": "Snowblind Slam: the fox leaps and slams down in a burst of snow"}
+   }
+  },
+  "tundra-fox": {
+   "pal": ["#b08458", "#2a1c10", "#e8d8b8"], "m": "mousing-arc", "pers": "skitter", "snd": ["click", "chirp"], "spd": 1.25, "x": "clods",
+   "notes": "Tundra fox in its thin brown summer coat, no snow: lean and quick, mousing for lemmings in the thawing tussocks, coat full of seed burrs.",
+   "p": {
+    "u0": {"m": "mousing-arc", "n": "Mouse Pounce: a thin brown fox arcs high and slams nose-first into the tussock, soil flying"},
+    "u1": {"m": "sett-hole", "x": "clods", "n": "Den Shove: the den mouth heaves out and back, earth shoved off the edge"},
+    "u2": {"m": "burr-hitch", "c": "#c8a070", "n": "Thick Summer Coat: the brown coat bristles with caught burrs and seed heads"},
+    "u3": {"m": "canine-jaws", "x": "dewrun", "n": "Thaw Bite: jaws snap and drop away, meltwater beads running along the edge"},
+    "b0": {"m": "paw-tumble", "x": "clods", "n": "Thaw-Grudge Rake: brown paw prints rake off the edge in the thawing mud"},
+    "b1": {"m": "mousing-arc", "lay": "lance", "n": "Tawny Pounce: a tawny fox leaps the length of the edge"},
+    "b2": {"m": "mousing-arc", "x": "-", "n": "Lean-Brown Guard: thin brown foxes crouch low along the edge, ready to spring"},
+    "b3": {"m": "lope-file", "x": "clods", "n": "Unforgiving Shove: the lean fox shoulders out and back, kicking up soil"},
+    "x0": {"m": "mousing-arc", "x": "puff", "n": "Pounce-After Slam: a second pounce off the edge, a puff where it lands"}
+   }
+  },
+  "bramble-wolf": {
+   "pal": ["#90a878", "#1e2a16", "#e07a5a"], "m": "briar-vine", "pers": "march", "snd": ["crack", "croak"], "spd": 1.0,
+   "notes": "Bramble wolf of the forest: a grey-green wolf grown through with bramble canes, red-tipped hooked thorns in its fur; it hunts in a pack and howls.",
+   "p": {
+    "u0": {"m": "muzzle-howl", "lay": "feint", "n": "Howl: grey-green muzzles rise at spot after spot, howl arcs rolling out"},
+    "u1": {"m": "canine-jaws", "x": "marks", "n": "Bramble Bite: thorny jaws slam out and clamp, briar snapping"},
+    "u2": {"m": "briar-vine", "n": "Pack Circle: the pack circles and hooked briar canes bristle all round the edge"},
+    "u3": {"m": "lope-file", "x": "prints", "n": "Soil Scent: wolves cast out nose-down along the scent and come back, prints behind"},
+    "b0": {"m": "briar-vine", "n": "Briar Hook Swipe: hooked briar thorns swipe off the edge"},
+    "b1": {"m": "briar-vine", "lay": "slam", "n": "Thorn-Wrap Maul: canes wrap round and slam out with the maul"},
+    "b2": {"m": "briar-vine", "n": "Vine-Woven Bristle: woven canes line the edge, leaves opening, berries ripening"},
+    "b3": {"m": "lope-file", "lay": "feint", "x": "prints", "n": "Scent-Trail Dodge: a wolf blinks from spot to spot along its own scent trail"},
+    "x0": {"m": "lope-file", "n": "Thicket Slam: a wolf bursts out of the thicket and back"}
+   }
+  },
+  "elder-bramble-wolf": {
+   "pal": ["#b8b8ac", "#26281c", "#9cc464"], "m": "thorn-ruff", "pers": "trundle", "snd": ["crack", "hiss"], "spd": 0.8,
+   "notes": "Elder bramble wolf: grey muzzle, scarred, wearing a thick living ruff of green thorns that drains strength from what it catches; old, slow, wily.",
+   "p": {
+    "u0": {"m": "briar-vine", "c": "#a8b890", "n": "Thorn Lunge: thorny canes catch at spots along the edge, tied together, pulling tight"},
+    "u1": {"m": "canine-jaws", "c": "#d0d0c4", "n": "Bramble Snap: grey-muzzled jaws snap out quick, an old wolf's bite"},
+    "u2": {"m": "thorn-ruff", "n": "Hedge Dodge: the thorn-ruffed elder ducks into the hedge and out again"},
+    "u3": {"m": "thorn-ruff", "x": "powder", "n": "Ruff Shake: the thick thorn ruff shakes and bristles out, old leaves falling"},
+    "b0": {"m": "thorn-ruff", "n": "Bramble Ruff Swipe: the ruffed face swipes off the edge, thorns first"},
+    "b1": {"m": "canine-jaws", "lay": "slam", "c": "#d0d0c4", "n": "Grey Beard Maul: old grey jaws maul out and back"},
+    "b2": {"m": "thorn-ruff", "x": "dewrun", "n": "Living Ruff: the living ruff greens along the edge, sap beads running back to it"},
+    "b3": {"m": "lope-file", "n": "Veteran Shoulder: the old wolf shoulders out and back"},
+    "x0": {"m": "lope-file", "x": "-", "n": "Wily Pounce: the old wolf leaps out wily and low"}
+   }
+  },
+  "wolverine": {
+   "pal": ["#a8805c", "#1c140e", "#f0d890"], "m": "grump-scowl", "m2": "shag-locks", "pers": "thud", "snd": ["crack", "thud"], "spd": 0.95,
+   "notes": "Grumpy wolverine of the tundra: a squat dark-brown face with a pale headband, permanently cross, shaggy coat with a pale side band; never backs down.",
+   "p": {
+    "u0": {"m": "grump-scowl", "x": "marks", "n": "Grump Snarl: scowling faces pop up at spot after spot, snarling, grumble scribbles over them"},
+    "u1": {"m": "canine-jaws", "n": "Ripping Bite: heavy jaws rip down the edge in one line"},
+    "u2": {"m": "shag-locks", "n": "Thick Fur: shaggy fur locks hang along the edge, the pale band swaying"},
+    "u3": {"m": "grump-scowl", "x": "marks", "n": "Cornered Rage: the furious face slams out, angry marks popping"},
+    "b0": {"m": "grump-scowl", "n": "Snarling Rake: a snarling face lunges off the edge"},
+    "b1": {"m": "canine-jaws", "lay": "slam", "n": "Grudge Gnash: jaws gnash out and back, grinding"},
+    "b2": {"m": "shag-locks", "x": "snow", "n": "Stubborn Hunker: the shaggy coat flattens along the edge and will not move, snow settling on it"},
+    "b3": {"m": "grump-scowl", "x": "clods", "n": "Tantrum Shove: grumpy faces stamp out and back, kicking up dirt"},
+    "x0": {"m": "lope-file", "c": "#8e6a4a", "n": "Sulky Pounce: a squat dark shape lollops off the edge"}
+   }
+  },
+  "badger": {
+   "pal": ["#c0c0c6", "#141416", "#f4f4f0"], "m": "badger-claw", "m2": "sett-hole", "pers": "burrow", "snd": ["thud", "click"], "spd": 0.9,
+   "notes": "Badger: grizzled grey back, black-and-white striped face, huge spade claws; digs in, lives in a sett, bashes back.",
+   "p": {
+    "u0": {"m": "sett-hole", "n": "Dig In: earth arches rise along the edge, a striped face peering out of each hole"},
+    "u1": {"m": "badger-claw", "n": "Badger Maul: spade claws rake off the edge, soil flung"},
+    "u2": {"m": "badger-claw", "x": "dust", "n": "Bash Back: the badger digs in and bashes back, claws out, dust flying"},
+    "u3": {"m": "sett-hole", "x": "clods", "n": "Tunnel Dash: holes pop open round the edge and the badger dashes from one to the next"},
+    "b0": {"m": "badger-claw", "lay": "lance", "n": "Spade-Claw Dig: the claws dig a furrow along the edge, soil flung up"},
+    "b1": {"m": "sett-hole", "lay": "slam", "x": "dust", "n": "Armoured Snout Ram: a striped snout rams out of the hole and back"},
+    "b2": {"m": "shag-locks", "c": "#b4b4bc", "n": "Striped Plate: the grizzled grey coat lies along the edge like a plate"},
+    "b3": {"m": "sett-hole", "lay": "feint", "n": "Burrow Dive: the badger dives into one hole and pops out of another"},
+    "x0": {"m": "badger-claw", "x": "dust", "n": "Warren Bulldoze: the claws bulldoze off the edge in a cloud of dust"}
+   }
+  },
+  "old-brock": {
+   "pal": ["#d4d0c8", "#221e1a", "#d88a74"], "m": "brock-face", "m2": "sett-hole", "pers": "thud", "snd": ["thud", "hiss"], "spd": 0.7,
+   "notes": "Old Brock: a wide old badger with a grey-white face and a scarred snout, tough-hided; keeps the old sett and charges toll on the path.",
+   "p": {
+    "u0": {"m": "brock-face", "n": "Grey Maul: the wide grey-white face ploughs down the edge in one line, the scar showing"},
+    "u1": {"m": "canine-jaws", "c": "#e0dcd4", "n": "Brock's Snap: old jaws snap off the edge, slow but sure"},
+    "u2": {"m": "sett-hole", "x": "clods", "n": "Sett Wall: the old sett's earth arches push up like a wall, soil spraying"},
+    "u3": {"m": "sett-hole", "n": "Sett Tunnel: the sett's mouths line the edge, the old face looking out of each"},
+    "b0": {"m": "paw-tumble", "x": "clods", "n": "Digger's Rake: big clawed prints rake off the edge, soil thrown"},
+    "b1": {"m": "toll-penny", "c": "#d8a850", "n": "Path Toll Maul: brass toll coins are flung off the edge: pay to pass"},
+    "b2": {"m": "shag-locks", "c": "#e4e4ea", "n": "Silvered Hide: the silvered, tough old hide hangs thick along the edge"},
+    "b3": {"m": "sett-hole", "n": "Tunnel Shove: a tunnel mouth shoves out and back"},
+    "x0": {"m": "brock-face", "x": "dust", "n": "Grizzled Slam: the grizzled old face slams out, dust thumping up"}
+   }
+  }
+ }
+}

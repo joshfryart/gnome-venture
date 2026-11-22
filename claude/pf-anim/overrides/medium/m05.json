@@ -1,0 +1,77 @@
+{
+ "_doc": "Medium batch m05 (Sonnet generic pass): crab family corrections only; colour/lift/snd left to the builder defaults.",
+ "mud-crab-brawler/f:b1": {
+  "family": "drip",
+  "note": "mud bomb = fat mud drops with a dark pool; slash was meaningless"
+ },
+ "mud-crab-brawler/f:u1": {
+  "family": "bash",
+  "note": "mud crack from heavy blunt claws: thump blocks, not a slash"
+ },
+ "shore-crab/f:b0": {
+  "family": "bite",
+  "note": "snip is a claw cut; not on the bite keyword list but bite reads right"
+ },
+ "shore-crab/f:b1": {
+  "family": "puff",
+  "note": "shoreline spray = mist puffs, avoids duplicate slash"
+ },
+ "shore-crab/f:u3": {
+  "family": "shock",
+  "note": "clack = sharp claw click warning; trick with no tag/keyword",
+  "review": true
+ },
+ "ghost-crab/f:u1": {
+  "family": "puff",
+  "note": "sand throw = sand cloud, avoids shock/zig on a non-electric crab"
+ },
+ "ghost-crab/f:u2": {
+  "family": "sparkle",
+  "note": "pale hide fades like a ghost shimmer; art beats thorns tag, no thorny shell",
+  "review": true
+ },
+ "land-crab-march/f:b1": {
+  "family": "ripple",
+  "note": "sea-bound surge = water rush, ripples instead of a slash"
+ },
+ "land-crab-march/f:u1": {
+  "family": "puff",
+  "note": "burrow cover = dust kicked over the hole; avoids third shield"
+ },
+ "tide-crab-squire/f:b1": {
+  "family": "puff",
+  "note": "tidewave splash = spray puffs, avoids ripple on the next piece"
+ },
+ "tide-crab-squire/f:u1": {
+  "family": "slash",
+  "note": "sidle pinch (trip): avoids a third bite, slash is the untagged default"
+ },
+ "palm-thief-crab/f:b1": {
+  "family": "ripple",
+  "note": "palm splash = water splash"
+ },
+ "palm-thief-crab/f:b3": {
+  "family": "web",
+  "note": "thieving grab = sticky snare, avoids two ripples"
+ },
+ "palm-thief-crab/f:u0": {
+  "family": "leaf",
+  "note": "palm husk fibre wall: leaf, avoids third shield"
+ },
+ "hermit-crab-hoarder/f:b1": {
+  "family": "ripple",
+  "note": "shell swap splash: water splash, avoids two slashes"
+ },
+ "hermit-crab-hoarder/f:u1": {
+  "family": "bash",
+  "note": "hoard toss = lobbed junk, blunt thump"
+ },
+ "coconut-hermit/f:b1": {
+  "family": "drip",
+  "note": "milk drench = white milk drops with a pool"
+ },
+ "rock-crab-pincher/f:u2": {
+  "family": "puff",
+  "note": "tide pool cover = crevice grit puff, avoids two ripples"
+ }
+}

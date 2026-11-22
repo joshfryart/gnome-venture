@@ -1,0 +1,95 @@
+{
+ "_doc": "Large batch L06 themed pass (TEMPLATE.md sections 9 and 10): tawny owl, eagle owl, condor, lammergeier, griffon vulture, marsh harrier. New motifs live in motifs/large_L06.js (27, glyph/motion ids prefixed L06-, 5 custom chain effects: silent owl glide, soaring condor with its shadow, bone carried and dropped, circling griffon kettle, harrier quartering the reeds). All 6 signature motifs are used by no other creature. Three medium motifs are reused where the picture is truly the same: talon-grip (tawny Silent Talon Drop), thermal-spiral (condor Thermal Hold, griffon Lazy Lift) and soar-shadow (Condor Shadow); hook-tear is the batch's shared raptor beak for the beak class pieces. Every piece (unique, class and x0) has a hand note. Sonnet's flagged pairs are split here: lammergeier Marrow Meal (golden marrow rising out of a split bone) vs Carrion Pick (bearded head picking in place); griffon Lazy Lift (thermal column) vs Thermal Glide (kettle scatter); tawny Ghost Glide (owl scatter in haze) vs Feather Fluff (fluffball hold); condor Condor Rising (soaring scatter) vs Wing Beat (wing gust strike).",
+ "creatures": {
+  "tawny-owl": {
+   "pal": ["#c48a52", "#3a2414", "#f2dcb4"], "m": "tawny-glide", "m2": "hush-plume", "pers": "flutter", "snd": ["croak", "whirr"], "spd": 0.9,
+   "notes": "Tawny owl of forest and mountain woods: round head with no ear tufts, dark eyes in a pale facial disc, warm brown barred plumage; flies without a sound on fringed wings, hoots twit-twoo, and the wood mice freeze when it is about. Floats onto its spot like a moth.",
+   "p": {
+    "u0": {"m": "tawny-glide", "n": "Silent Swoop: the round-headed owl glides the length of the edge on spread fringed wings, no sound, no trail, talons dropping at the end"},
+    "u1": {"m": "twit-twoo", "n": "Hoot: a small owl head pops up at spots round the edge, a short white twit, then the long twoo rings widening out"},
+    "u2": {"m": "tawny-fluffball", "n": "Feather Fluff: the owl puffs itself up into round barred balls along the edge, eyes shut to slits, feather tips bristling"},
+    "u3": {"m": "mouse-freeze", "n": "Mouse Freeze: grey wood mice freeze stiff along the edge, tails rigid, a shiver and a white ! over each: the owl is near"},
+    "b0": {"m": "hook-tear", "n": "Hooked Beak Strike: a brown owl head lunges off the edge, the hooked beak gaping and snapping shut"},
+    "b1": {"m": "talon-grip", "lay": "fall", "c": "#d4a06a", "n": "Silent Talon Drop: feathered legs drop off the edge talons open and clench as they fall"},
+    "b2": {"n": "Hush Feathers: soft barred feathers with fringed edges lie along the edge, swaying without a sound"},
+    "b3": {"m": "tawny-glide", "x": "haze", "n": "Ghost Glide: owls slip out from the edge in a pale haze and drift back, like a ghost in the trees"},
+    "x0": {"m": "tawny-glide", "lay": "slam", "x": "puff", "n": "Night Wing Buffet: wings beat out from the edge and back, puffs of air slapping off them"}
+   }
+  },
+  "eagle-owl": {
+   "pal": ["#b8834c", "#2a1a0e", "#ff8c1a"], "m": "lamp-eyes", "m2": "ear-horns", "pers": "pounce", "snd": ["crack", "croak"], "spd": 1.0,
+   "notes": "Eagle owl of mountain crags and forest: the biggest owl, mottled brown, two great ear tufts like horns and blazing orange lamp eyes; a deep BOO-hoo with a white throat puffing; it drops from a ledge onto prey. Crouches and leaps onto its spot.",
+   "p": {
+    "u0": {"m": "ear-horns", "n": "Tuft Strike: tufted heads lunge off the edge one after another, ear tufts flicking up like horns"},
+    "u1": {"m": "night-stoop", "lay": "lance", "n": "Night Swoop: a huge owl on spread wings runs the length of the edge under the moon, folding into a stoop and throwing its talons forward"},
+    "u2": {"m": "boom-hoot", "n": "Hoot Flurry: tufted heads pop up at spots, white throats puffing, deep flat rings rolling away low"},
+    "u3": {"m": "lamp-eyes", "n": "Stare Down: pairs of orange lamp eyes hang at spots round the edge, tied by their gaze, pupils shrinking, never blinking until the end"},
+    "b0": {"m": "hook-tear", "n": "Lamp-Eyed Peck: an orange-eyed head darts off the edge and pecks with its hooked beak"},
+    "b1": {"m": "night-stoop", "n": "Silent Stoop: great owls fold and stoop off the edge one after another, the moon behind"},
+    "b2": {"n": "Ear Tuft Veil: tufted heads line the edge, the ear tufts flicking up and flattening as they keep watch"},
+    "b3": {"m": "night-stoop", "x": "haze", "n": "Quiet Glide: owls spread out from the edge in a night haze and glide back"},
+    "x0": {"m": "ear-horns", "lay": "slam", "x": "dust", "n": "Ear-Horn Ram: a tufted head rams out horns first and drops back in a puff of dust"}
+   }
+  },
+  "condor": {
+   "pal": ["#d4d0c8", "#1a1818", "#d8503a"], "m": "condor-span", "m2": "thermal-spiral", "pers": "hover", "snd": ["whirr", "thud"], "spd": 0.7,
+   "notes": "Andean condor of the high mountains: huge flat black wings with a white band and fingered tips, a white ruff and a bald wrinkled red head; it soars for hours on thermals without a beat, then drops. Hangs above its spot before it lands.",
+   "p": {
+    "u0": {"m": "condor-span", "x": "arc", "n": "Updraft Dive: the condor folds off the edge and the updraft throws it back up, its dotted flight arc behind"},
+    "u1": {"m": "wing-gust", "n": "Wing Beat: one great black wing with its white band sweeps down off the edge, gusts of air bursting out"},
+    "u2": {"m": "thermal-spiral", "c": "#f0c890", "n": "Thermal Hold: shimmering warm columns rise along the edge, a tiny condor circling up in each, held aloft"},
+    "u3": {"m": "bald-peck", "n": "Small Pick: bald red heads on white ruffs run the length of the edge, stretching and pecking with hooked ivory beaks"},
+    "b0": {"m": "bald-peck", "lay": "slam", "n": "Condor Gouge: a bald red head shoots out, gouges with its beak and pulls back tearing a scrap"},
+    "b1": {"m": "condor-span", "x": "dust", "n": "Condor Arrival: huge black-and-white wings sail off the edge one after another, dust kicked up as they come in"},
+    "b2": {"m": "soar-shadow", "c": "#8a8078", "n": "Condor Shadow: the vast cross-shaped shadow of the condor lies along the edge, a light rim on it"},
+    "b3": {"m": "condor-span", "x": "haze", "n": "Condor Rising: condors lift off the edge on the warm haze, spread out and settle back"},
+    "x0": {"m": "condor-span", "lay": "lance", "n": "Condor Swoop: a condor sweeps the length of the edge on flat wings, rocking"}
+   }
+  },
+  "lammergeier": {
+   "pal": ["#e0883e", "#221810", "#f2ead6"], "m": "ossifrage-bone", "m2": "ledge-perch", "pers": "thud", "snd": ["crack", "thud"], "spd": 0.85,
+   "notes": "Lammergeier, the bearded vulture of the high crags: rust-orange chest from bathing in iron mud, a black beard of bristles, red eye ring, long narrow wings and a long wedge tail; it carries bones high and drops them on the rocks to shatter, then eats the marrow. Lands heavily.",
+   "p": {
+    "u0": {"m": "ossifrage-bone", "lay": "fall", "n": "Bone Drop: bones tumble end over end off the edge and shatter into splinters below, a fleck of marrow showing"},
+    "u1": {"m": "marrow-split", "n": "Marrow Meal: bones crack and split along the edge and the golden marrow inside rises up glowing"},
+    "u2": {"m": "ledge-perch", "n": "Ridge Perch: the bearded vulture sits upright on rock ledges along the edge, long wedge tail hanging over, looking about"},
+    "u3": {"m": "beard-pick", "lay": "hold", "n": "Carrion Pick: bearded heads stay at the edge dipping to pick a carcass clean, bone flecks flicked away as it feeds"},
+    "b0": {"m": "ossifrage-bone", "n": "Lammergeier Bone Drop: spinning bones are flung off the edge one after another and burst into splinters"},
+    "b1": {"m": "wedge-glide", "lay": "lance", "n": "Bone Swoop: the long-winged wedge-tailed silhouette sweeps the length of the edge"},
+    "b2": {"m": "ossifrage-bone", "lay": "hold", "n": "Bone Shelter: a wall of big bones lies along the edge, turning slowly, and crumbles to splinters as the guard is spent"},
+    "b3": {"m": "wedge-glide", "n": "Bone Glide: wedge-tailed birds glide out from the edge, spread and come back"},
+    "x0": {"m": "ossifrage-bone", "lay": "slam", "x": "dust", "n": "Bone Splitter: a bone is slammed out against the rock and drops back in splinters and dust"}
+   }
+  },
+  "griffon-vulture": {
+   "pal": ["#d6bf96", "#3a2c20", "#f6f0e4"], "m": "griffon-kettle", "m2": "down-ruff", "pers": "trundle", "snd": ["hiss", "squish"], "spd": 0.7,
+   "notes": "Griffon vulture of mountain and desert: pale buff body, dark flight feathers, a white downy ruff round a long bare neck and a pale bald head; they circle patiently in kettles on thermals, plunge their necks into carcasses, hiss and squabble, then sit gorged and dozing. Lands slow and heavy.",
+   "p": {
+    "u0": {"m": "carrion-rake", "n": "Carrion Rake: long bare necks plunge out of white ruffs, hooked beaks tearing; dark gore drips off the edge and falls"},
+    "u1": {"m": "patient-hunch", "n": "Wait It Out: gorged vultures hunch on the edge, heads sunk in their ruffs, eyes closing, and rise slowly as they doze off"},
+    "u2": {"m": "bald-glare", "n": "Bald Glare: pale bald heads on thin necks peer from spots round the edge, linked by the stare, then glare with one amber eye"},
+    "u3": {"m": "griffon-kettle", "n": "Thermal Glide: the circling kettle spreads out from the edge on a thermal and drifts back in"},
+    "b0": {"m": "hook-tear", "c": "#d8cfc0", "n": "Griffon Carrion Pick: pale heads lunge off the edge and tear at a scrap with hooked beaks"},
+    "b1": {"m": "griffon-kettle", "lay": "lance", "n": "Patient Swoop: a kettle of griffons circles the length of the edge, waiting, then closes in"},
+    "b2": {"n": "Shawl Wings: white downy ruffs line the edge like shawls, dark wings drawn round them, necks pulled in"},
+    "b3": {"m": "thermal-spiral", "c": "#e8c08a", "n": "Lazy Lift: shimmering warm-air columns rise off the edge, a griffon circling lazily up in each"},
+    "x0": {"m": "griffon-kettle", "lay": "slam", "x": "dust", "n": "Circling Thud: the circling kettle drops out onto the edge with a heavy thud of dust and lifts back"}
+   }
+  },
+  "marsh-harrier": {
+   "pal": ["#b07c52", "#2a1c10", "#f2e2b4"], "m": "v-quarter", "m2": "reed-drop", "pers": "glide", "snd": ["chirp", "whirr"], "spd": 1.1,
+   "notes": "Marsh harrier of wetland and grassland: low brown body, pale cream head and shoulders, long narrow wings held in a shallow V; it quarters low over the reedbeds tilting side to side, drops its long yellow legs to rake prey out of the reeds, and folds into them to hide. Slides in low from the side.",
+   "p": {
+    "u0": {"m": "v-quarter", "n": "Reed Skim: harriers run the length of the edge on wings held in a shallow V, tilting side to side, skimming just above"},
+    "u1": {"m": "leg-dangle", "lay": "strike", "n": "Low Rake: harriers drop off the edge with long yellow legs dangling, talons spreading and raking through the reeds"},
+    "u2": {"m": "reed-drop", "n": "Wing Fold: reed beds spring up along the edge, the harrier folds its wings and drops in, the reeds close over and spread back"},
+    "u3": {"m": "v-shadow", "n": "Shadow Lead: a narrow V shadow flits from spot to spot over marsh water, glints rippling, leading the foe astray"},
+    "b0": {"m": "hook-tear", "x": "kelp", "n": "Reed Snatch Beak: a cream-headed beak lunges off the edge, snapping, reed strands waving under it"},
+    "b1": {"m": "leg-dangle", "lay": "lance", "n": "Skimming Talon Swoop: dangling yellow legs skim the length of the edge, talons raking"},
+    "b2": {"m": "v-shadow", "lay": "hold", "n": "Shadow Wing-Fold: V shadows lie along the edge over glinting water, wings folded flat"},
+    "b3": {"m": "reed-drop", "lay": "feint", "n": "Reed-Hop Flit: the harrier hops from reed clump to reed clump round the edge, vanishing in each"},
+    "x0": {"m": "v-quarter", "lay": "slam", "n": "Quartering Stoop: a quartering harrier tilts and stoops out from the edge and swings back up"}
+   }
+  }
+ }
+}

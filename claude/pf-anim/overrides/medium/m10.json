@@ -1,0 +1,97 @@
+{
+ "_doc": "Medium batch m10 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "stink-badger/f:u3": {
+  "family": "puff",
+  "note": "boot stink is a reek cloud: puff, keeps Musk Spray as the only drip"
+ },
+ "stink-badger/f:u2": {
+  "family": "leaf",
+  "note": "hiding in undergrowth; avoids a second puff next to Boot Stink; best guess",
+  "review": true
+ },
+ "tunnel-mole/f:u2": {
+  "family": "bash",
+  "note": "flung clods hit hard: bash (trip tag, no keyword); best guess",
+  "review": true
+ },
+ "tunnel-mole/f:b3": {
+  "family": "puff",
+  "note": "soil eruption = dust burst: puff; Dirt Toss keeps bash weight"
+ },
+ "tunnel-mole/f:u3": {
+  "family": "ripple",
+  "note": "ground tremor rings as it vanishes, avoids a second puff; best guess",
+  "review": true
+ },
+ "star-nosed-mole/f:u3": {
+  "family": "ripple",
+  "note": "wetland probe in wet silt: ripple, not a second shock"
+ },
+ "star-nosed-mole/f:b0": {
+  "family": "thrust",
+  "note": "a prod is a lance poke: thrust"
+ },
+ "mole-rat-gang/f:u1": {
+  "family": "thrust",
+  "note": "buck-tooth jab rush: thrust, shock needs a Critter swarm; best guess",
+  "review": true
+ },
+ "mole-rat-gang/f:u2": {
+  "family": "puff",
+  "note": "burrow call kicks up dust: puff, art beats bash tag; best guess",
+  "review": true
+ },
+ "mole-rat-gang/f:b1": {
+  "family": "bash",
+  "note": "pile-on of many bodies: bash, separates it from Colony Swarm Rake"
+ },
+ "golden-mole/f:u0": {
+  "family": "ripple",
+  "note": "sand swimming = sand waves: ripple, art beats pierce tag; best guess",
+  "review": true
+ },
+ "golden-mole/f:u3": {
+  "family": "thrust",
+  "note": "blind lunge head-first: thrust, not shock"
+ },
+ "barn-rat/f:b2": {
+  "family": "leaf",
+  "note": "hay stack: leaf (plant wall), distinct from other shields"
+ },
+ "barn-rat/f:u3": {
+  "family": "slash",
+  "note": "quick nip at grain: slash, avoids a second bite with Grudge Gnaw"
+ },
+ "marsh-rat/f:u0": {
+  "family": "bite",
+  "note": "reed gnaw is a chew: bite, art beats bash tag; best guess",
+  "review": true
+ },
+ "marsh-rat/f:u1": {
+  "family": "puff",
+  "note": "bank burrow digging dust: puff; best guess",
+  "review": true
+ },
+ "marsh-rat/f:u2": {
+  "family": "leaf",
+  "note": "reed shove: leaf, reed is a plant"
+ },
+ "pack-rat/f:u2": {
+  "family": "sparkle",
+  "note": "tossed shiny trinkets: sparkle, art beats bash tag; best guess",
+  "review": true
+ },
+ "bramble-pup-pack/f:u2": {
+  "family": "leaf",
+  "note": "brush cover: leaf"
+ },
+ "bramble-pup-pack/f:u3": {
+  "family": "puff",
+  "note": "burr tumble raises dust: puff; best guess, avoids second thorn",
+  "review": true
+ },
+ "thorn-jackal/f:b2": {
+  "family": "thorn",
+  "note": "thorn tangle in the coat: thorn beats web keyword"
+ }
+}

@@ -1,0 +1,155 @@
+{
+ "_doc": "Large batch L04 themed pass (TEMPLATE.md sections 9 and 10): camels, boar, ram, yak, ibex, musk ox, bison, caribou. New motifs live in motifs/large_L04.js (28, glyph/motion ids prefixed L04-, 4 custom chain effects: spit arc, lightning bolt, snow wave, galloping herd). Every piece (unique, class and x0) has a hand note. 9 of the 10 signature motifs are used by no other creature; spit-glob (desert camel) is lent to its sibling the wild bactrian for its spit pieces, and bison-brow is a secondary motif shared by the two bison. The Sonnet family overrides in overrides/large/L04.json stay the Generic fallback; the pairs it left repeating (yak hoof/stomp/charge, musk sweep/trample, bison scrape/barge, bactrian kick/spite, ibex hoof/turnabout, boar gore/plough rip, ram and yak triple shields) are split here by motif or layout.",
+ "creatures": {
+  "desert-camel": {
+   "pal": ["#d8aa6a", "#3e2a14", "#f2e6c8"], "m": "spit-glob", "m2": "hump-well", "pers": "bob", "snd": ["hiss", "croak"], "spd": 0.85,
+   "notes": "Dunegrass camel of the desert: one sandy hump that stores water, long legs with splayed two-toed feet, heavy-lidded eyes and long lashes, unimpressed; it spits cud and kicks. Ships of the desert sway as they arrive.",
+   "p": {
+    "u0": {"m": "spit-glob", "lay": "snare", "n": "Camel Spit: globs of green-white cud hang off the edge strung together on slimy strings, catching the foe"},
+    "u1": {"m": "splay-kick", "n": "Long Kick: a long camel leg folds and kicks straight out, the splayed foot flaring sand"},
+    "u2": {"m": "hump-well", "c": "#e0b878", "n": "Hump Store: water beads rise inside the hump and pop out of the top in a sparkle"},
+    "u3": {"m": "lidded-stare", "n": "Long Stare: heavy-lidded eyes drift out and back, half shut, unimpressed, a slow blink"},
+    "b0": {"m": "splay-kick", "x": "prints", "n": "Splay Kick: two-toed feet kick off the edge, leaving splayed prints in the sand"},
+    "b1": {"m": "spit-glob", "lay": "slam", "c": "#b8c48a", "n": "Cud Chomp: a wad of chewed green cud is ground out and slapped back"},
+    "b2": {"n": "Hump Plant: humps settle along the edge, water beads glinting inside"},
+    "b3": {"m": "hump-well", "lay": "slam", "x": "dust", "n": "Sand Shoulder: the hump shoulders out and drops back in a puff of sand"},
+    "x0": {"m": "splay-kick", "lay": "slam", "n": "Knee Drop: the long leg folds and the camel drops onto its knee, sand thumping up"}
+   }
+  },
+  "wild-bactrian": {
+   "pal": ["#ae9a7c", "#2a2218", "#ece2ca"], "m": "twin-hump", "m2": "wool-moult", "pers": "trundle", "snd": ["thud", "squish"], "spd": 0.8,
+   "notes": "Wild bactrian of desert and mountain: two humps, thick grey-brown wool that moults in clumps, tough and spiteful, draws on its humps to recover; walks in a rolling caravan gait.",
+   "p": {
+    "u0": {"m": "twin-hump", "n": "Hump Kick: the two-humped camel rocks the length of the edge and lashes out at the end"},
+    "u1": {"m": "twin-hump", "lay": "rise", "x": "dewrun", "n": "Hump Draw: the camels rise off the edge as both humps swell back up, beads of water running along"},
+    "u2": {"m": "wool-moult", "x": "dust", "n": "Dust Mantle: shaggy clumps of moulting wool bristle out in a mantle of dust"},
+    "u3": {"m": "spit-glob", "c": "#bcc890", "n": "Spit First: green globs of spit drop off the edge and splat into a dark pool"},
+    "b0": {"m": "twin-hump", "x": "dust", "n": "Bactrian Kick: the camel lunges off the edge kicking, dust flying"},
+    "b1": {"m": "twin-hump", "lay": "slam", "x": "-", "n": "Bactrian Bite: the long neck snakes out and back with a yellow-toothed bite"},
+    "b2": {"n": "Bactrian Hump: thick wool hangs along the edge, tufts peeling away"},
+    "b3": {"m": "spit-glob", "lay": "slam", "c": "#bcc890", "n": "Bactrian Spit: a fat glob is hawked out and slapped back"},
+    "x0": {"m": "wool-moult", "lay": "strike", "x": "marks", "n": "Bactrian Spite: wool tufts are flung off the edge in a huff, angry marks popping"}
+   }
+  },
+  "wild-boar": {
+   "pal": ["#a0806a", "#1e1610", "#f0e6d0"], "m": "boar-tusk", "m2": "mud-wallow", "pers": "burrow", "snd": ["crack", "squish"], "spd": 1.1,
+   "notes": "Wild boar of forest and grassland: bristly brown-black, a bristle crest, ivory tusks that hook upward; roots up turf with its snout, wallows in mud, charges head-down. It comes up out of the ground like it is rooting.",
+   "p": {
+    "u0": {"m": "boar-tusk", "n": "Tusk Gore: boar heads run the length of the edge and hook up with their ivory tusks"},
+    "u1": {"m": "mud-wallow", "n": "Mud Wallow: a dark mud pool lies along the edge, bubbles popping, a boar's back breaking the surface"},
+    "u2": {"m": "boar-tusk", "x": "clods", "n": "Boar Rush: the boar head slams out and back, turf clods flying"},
+    "u3": {"m": "snout-root", "n": "Root Up: snouts shove up out of turf mounds at spots round the edge, the roots they drag up tying the foe down"},
+    "b0": {"m": "boar-tusk", "x": "-", "n": "Wild Tusk Gore: tusked heads lunge off the edge and hook up"},
+    "b1": {"m": "snout-root", "lay": "slam", "n": "Plough Rip: the snout ploughs out of the turf and rips back, clods thrown"},
+    "b2": {"m": "boar-tusk", "lay": "bristle", "n": "Bristle Wall: boar heads push out bristle-crest first and hold, tusks forward"},
+    "b3": {"m": "boar-tusk", "lay": "slam", "x": "dust", "n": "Hog Ram: a boar head rams out and drops back in a puff of dust"},
+    "x0": {"m": "mud-wallow", "lay": "slam", "n": "Trotter Stomp: trotters stamp into the wallow, mud splashing out"}
+   }
+  },
+  "cliff-ram": {
+   "pal": ["#c8b89c", "#2c2620", "#f6f0e2"], "m": "curl-horn", "m2": "cloven-ledge", "pers": "pounce", "snd": ["crack", "tink"], "spd": 1.0,
+   "notes": "Cliff ram of the mountains: pale fleece, two thick curled horns, sure cloven hooves on narrow ledges; it rears back and butts with a crack that echoes. Leaps onto its ledge.",
+   "p": {
+    "u0": {"m": "curl-horn", "n": "Ram Butt: curled-horn heads rear back, charge out and clash in a white star with cracks"},
+    "u1": {"m": "cloven-ledge", "n": "Sure Hooves: cloven hooves grip a rock ledge along the edge, toes shifting, never slipping"},
+    "u2": {"m": "curl-horn", "lay": "bristle", "n": "Head Down: ram heads lower and push out horns-first, held there pointing at the foe"},
+    "u3": {"m": "curl-horn", "lay": "hold", "x": "-", "n": "Ledge Claim: curled-horn heads line the ledge and stare down, claiming it"},
+    "b0": {"m": "cloven-ledge", "lay": "strike", "x": "dust", "n": "Ledge Hoof Scrape: hooves scrape off the ledge, chips and dust flying"},
+    "b1": {"m": "curl-horn", "lay": "lance", "n": "Curled Horn Gore: the curled horns drive the length of the edge in one charge"},
+    "b2": {"m": "cloven-ledge", "x": "clods", "n": "Ridge Stance: hooves planted on the ridge, loose stones rattling off"},
+    "b3": {"m": "curl-horn", "lay": "slam", "x": "marks", "n": "Territory Shove: a ram head shoves out and back, angry marks popping"},
+    "x0": {"m": "curl-horn", "lay": "strike", "n": "Horn-Down Ram: horns down, the rams launch off the edge and clash"}
+   }
+  },
+  "thunder-yak": {
+   "pal": ["#8e98ac", "#16181e", "#ffe27a"], "m": "storm-yak", "m2": "static-skirt", "pers": "thud", "snd": ["zig", "thud"], "spd": 0.85,
+   "notes": "Thunder yak of the high mountains: a huge black shaggy yak with a long skirt of hair and wide pale horns, so charged with mountain storms that static crackles off its horns and coat; its charge comes with a lightning bolt.",
+   "p": {
+    "u0": {"m": "storm-yak", "n": "Thunder Charge: shaggy yak heads charge off the edge, static crackling off the horns, a lightning bolt carrying it on"},
+    "u1": {"m": "static-skirt", "n": "Shaggy Coat: the long hair skirt hangs thick along the edge, sparks jumping between the strands"},
+    "u2": {"m": "storm-yak", "x": "dust", "n": "Horn Toss: a yak head tosses its wide horns out and back, dust and sparks flying"},
+    "u3": {"m": "thunder-hoof", "n": "Hoof Stomp: a big hoof lifts and stamps down, cracks running out from the impact"},
+    "b0": {"m": "thunder-hoof", "lay": "strike", "x": "-", "n": "Yak Hoof: hooves strike off the edge with speed lines"},
+    "b1": {"m": "thunder-hoof", "lay": "lance", "n": "Yak Stomp: stomps run the length of the edge one after another, cracking"},
+    "b2": {"m": "static-skirt", "x": "snow", "n": "Yak Wool: the hair skirt holds along the edge, snow settling on it"},
+    "b3": {"m": "static-skirt", "lay": "slam", "n": "Yak Sidle: the shaggy flank sidles out and swings back, crackling"},
+    "x0": {"m": "storm-yak", "lay": "feint", "x": "-", "n": "Yak Thunderclap: the yak flashes up at spot after spot in a clap of lightning"}
+   }
+  },
+  "ibex-patriarch": {
+   "pal": ["#bca88c", "#2a241c", "#ece0c4"], "m": "scimitar-horn", "m2": "crag-leap", "pers": "hop", "snd": ["crack", "click"], "spd": 1.05,
+   "notes": "Ibex patriarch of mountain and desert cliffs: grey-brown, a long pale beard, huge backswept scimitar horns ridged with knobs; leaps from crag to crag and stares the herd into line.",
+   "p": {
+    "u0": {"m": "scimitar-horn", "n": "Horn Sweep: the huge knobbed horn sweeps out and crashes back"},
+    "u1": {"m": "crag-leap", "n": "Cliff Leap: ibexes spring off rock pinnacles out and back, tucked in the air"},
+    "u2": {"m": "crag-leap", "n": "Ledge Stand: ibexes stand on pinnacles along the edge, sure-footed"},
+    "u3": {"m": "beard-stare", "n": "Herd Stare: bearded old faces stare from spots round the edge, slotted eyes narrowing, tied by the stare"},
+    "b0": {"m": "crag-leap", "lay": "strike", "x": "dust", "n": "Ibex Hoof: an ibex springs off its crag at the foe, dust flying"},
+    "b1": {"m": "scimitar-horn", "lay": "lance", "n": "Ibex Horn Sweep: the long horn sweeps the length of the edge"},
+    "b2": {"m": "crag-leap", "x": "clods", "n": "Ibex Ledge: the ibex keeps its ledge, loose stones rattling off"},
+    "b3": {"m": "crag-leap", "lay": "slam", "n": "Ibex Leap: an ibex leaps out and lands back on its pinnacle"},
+    "x0": {"m": "scimitar-horn", "lay": "strike", "x": "dust", "n": "Ibex Turnabout: the patriarch wheels round, horn sweeping off the edge in a spray of dust"}
+   }
+  },
+  "musk-ox": {
+   "pal": ["#a08468", "#1c140e", "#e6d6b4"], "m": "horn-boss", "m2": "qiviut-skirt", "pers": "march", "snd": ["thud", "croak"], "spd": 0.75,
+   "notes": "Musk ox of the tundra and mountains: a long dark skirt of guard hair over soft qiviut underwool, a pale horn boss across the brow with horns hooking down and out; the herd forms a ring, horns out, and enrages when pressed.",
+   "p": {
+    "u0": {"m": "horn-boss", "n": "Horn Boss: the head drops and rams out, the pale boss ringing white on impact"},
+    "u1": {"m": "ring-stand", "n": "Circle Up: musk oxen stand shoulder to shoulder horns out and shove the ring out and back"},
+    "u2": {"m": "qiviut-skirt", "n": "Qiviut Wall: the dark skirt bristles out, pale underwool puffing between the hairs"},
+    "u3": {"m": "qiviut-skirt", "lay": "snare", "x": "-", "n": "Wool Snag: loose strands of qiviut catch at spots and tie the foe in soft wool"},
+    "b0": {"m": "horn-boss", "x": "snow", "n": "Musk Horn Sweep: hooked horns lunge off the edge, snow kicked up"},
+    "b1": {"m": "ring-stand", "lay": "lance", "n": "Musk Trample: the herd tramples the length of the edge, prints left behind"},
+    "b2": {"n": "Musk Coat: the long dark skirt hangs along the edge, underwool puffing, snow settling"},
+    "b3": {"m": "ring-stand", "x": "snow", "n": "Musk Wedge: the herd wedges out shoulder to shoulder and back through the snow"},
+    "x0": {"m": "ring-stand", "lay": "strike", "x": "-", "n": "Musk Ring-Press: the ring presses in, horned oxen stepping off the edge one by one"}
+   }
+  },
+  "wood-bison": {
+   "pal": ["#9a7658", "#1a120c", "#f4f8ff"], "m": "snow-hump", "m2": "snow-hump", "pers": "plop", "snd": ["thud", "pop"], "spd": 0.85,
+   "notes": "Wood bison of forest and tundra: a dark shaggy hump with snow lying on its shoulders; it shrugs the snow off and ploughs through drifts head-down. It drops into the snow and a white ring splashes out.",
+   "p": {
+    "u0": {"m": "plough-spray", "n": "Snow Plough: the bison head shoves a curling snow wave out and back, and the wave rolls on to the next piece"},
+    "u1": {"m": "snow-hump", "lay": "slam", "n": "Drift Shove: the snowy hump shoves out and drops back, snow sliding off it"},
+    "u2": {"m": "snow-hump", "n": "Winter Coat: shaggy humps hold along the edge under a cap of snow"},
+    "u3": {"m": "bison-brow", "x": "snow", "c": "#8c6a4c", "n": "Bison Barge: woolly bison brows barge off the edge, snow flying"},
+    "b0": {"m": "plough-spray", "lay": "strike", "n": "Bison Scrape: the head scrapes snow off the edge in a spray"},
+    "b1": {"m": "plough-spray", "lay": "lance", "n": "Bison Plough: the snow wave is ploughed the length of the edge"},
+    "b2": {"x": "-", "n": "Bison Winter Coat: the dark hump holds, the snow shrugged off it"},
+    "b3": {"m": "snow-hump", "lay": "scatter", "n": "Bison Drift: snowy humps drift out of the edge and settle back"},
+    "x0": {"m": "bison-brow", "lay": "lance", "c": "#8c6a4c", "n": "Bison Charge: a woolly brow charges head-down the length of the edge"}
+   }
+  },
+  "prairie-bison": {
+   "pal": ["#b08254", "#2a1a0e", "#e8d098"], "m": "stampede-dust", "m2": "bison-brow", "pers": "glide", "snd": ["crack", "thud"], "spd": 1.0,
+   "notes": "Prairie bison of the grassland: a brown herd animal with a high hump and low head, short black horns, a beard; the herd stampedes in a rolling dust cloud and huddles in a wall of wool. It slides in low like a herd arriving.",
+   "p": {
+    "u0": {"m": "stampede-dust", "n": "Stampede: bison gallop off the edge in a dust cloud and the herd thunders on to the next piece"},
+    "u1": {"m": "bison-brow", "n": "Wall of Wool: woolly bison brows stand along the edge, glaring, horns up"},
+    "u2": {"m": "prairie-dust", "n": "Dust Cloud: dust clouds roll out of the edge and back, grass seeds flying"},
+    "u3": {"m": "bison-brow", "lay": "slam", "x": "dust", "n": "Herd Wallop: a bison brow slams out and back in a cloud of dust"},
+    "b0": {"m": "prairie-dust", "lay": "strike", "x": "clods", "n": "Hoof Scrape: a hoof scrapes the prairie, dust and clods flying"},
+    "b1": {"m": "bison-brow", "lay": "strike", "n": "Prairie Horn Toss: bison heads toss off the edge, short horns hooking"},
+    "b2": {"m": "stampede-dust", "lay": "hold", "x": "-", "n": "Herd Huddle: bison stand in file along the edge, heads low"},
+    "b3": {"m": "stampede-dust", "lay": "slam", "n": "Herd Charge: the herd charges out and wheels back in the dust"},
+    "x0": {"m": "stampede-dust", "lay": "lance", "n": "Thunder Stampede: the herd thunders the length of the edge"}
+   }
+  },
+  "caribou-bull": {
+   "pal": ["#a88a6c", "#241a14", "#ece4d6"], "m": "velvet-rack", "m2": "velvet-shed", "pers": "skitter", "snd": ["click", "tink"], "spd": 1.0,
+   "notes": "Caribou bull of the tundra: dark brown with a thick pale neck mane and a huge rack in velvet (two sweeping beams, a brow shovel), shedding strips of velvet in the rut; its knees click as it walks.",
+   "p": {
+    "u0": {"m": "velvet-rack", "n": "Rut Charge: the velvet rack drives the length of the edge, tines first"},
+    "u1": {"m": "velvet-rack", "n": "Antler Hook: antler tines hook at spots round the edge, tied together by the tangle"},
+    "u2": {"m": "velvet-shed", "n": "Velvet Rack: antler beams duck out and back, velvet strips flapping raw red"},
+    "u3": {"m": "velvet-rack", "n": "Head Shake: racks shake off the edge, the tips flashing"},
+    "b0": {"m": "knee-click", "n": "Velvet Hoof: caribou legs step off the edge, the knees clicking with each stride"},
+    "b1": {"m": "velvet-rack", "lay": "slam", "x": "marks", "n": "Rutting Clash: racks clash out and back, clash marks popping"},
+    "b2": {"n": "Rut Stance: antler beams hold along the edge, the velvet peeling"},
+    "b3": {"m": "knee-click", "lay": "slam", "x": "clods", "n": "Autumn Bulldoze: hooves bulldoze out and back, turf flying"},
+    "x0": {"m": "velvet-rack", "lay": "strike", "x": "dust", "n": "Knockdown Toss: the rack hooks and tosses off the edge in a spray of dust"}
+   }
+  }
+ }
+}

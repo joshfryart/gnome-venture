@@ -1,0 +1,102 @@
+{
+ "_doc": "Large batch L04 (Sonnet generic pass): family corrections only; colour/lift/snd left to builder defaults.",
+ "cliff-ram/f:b1": {
+  "family": "thrust",
+  "note": "gore = horn point, keeps slash for the hoof scrape only"
+ },
+ "cliff-ram/f:u2": {
+  "family": "thrust",
+  "note": "head lowered, horns pointing at the foe; ram keeps bash for Butt, Horn-Down Ram and Shove"
+ },
+ "wild-boar/f:b0": {
+  "family": "slash",
+  "note": "a tusk gore is an upward rip, not jaws (tusk keyword misfires); thrust stays with Tusk Gore"
+ },
+ "wild-boar/f:x0": {
+  "family": "bash",
+  "note": "stomp = heavy trotter thump"
+ },
+ "wild-boar/f:u1": {
+  "family": "ripple",
+  "note": "a wallow is a mud pool: ripples instead of a plain shield",
+  "review": true
+ },
+ "wild-boar/f:u3": {
+  "family": "leaf",
+  "note": "rooting up turf and roots: leaf is the nearest picture",
+  "review": true
+ },
+ "prairie-bison/f:b1": {
+  "family": "thrust",
+  "note": "horn toss = horn point lifting, slash kept for hoof scrape and Stampede"
+ },
+ "prairie-bison/f:x0": {
+  "family": "bash",
+  "note": "thundering herd = pounding hooves"
+ },
+ "desert-camel/f:u0": {
+  "family": "drip",
+  "note": "spit = drops flung out (trip tag is the mechanic)"
+ },
+ "desert-camel/f:u1": {
+  "family": "thrust",
+  "note": "a long straight leg kick, not a slash"
+ },
+ "desert-camel/f:x0": {
+  "family": "bash",
+  "note": "knee drop = heavy thump"
+ },
+ "caribou-bull/f:b1": {
+  "family": "bash",
+  "note": "antler clash = thump of two heads"
+ },
+ "caribou-bull/f:x0": {
+  "family": "thrust",
+  "note": "antler toss lifts on the tines"
+ },
+ "caribou-bull/f:u1": {
+  "family": "thorn",
+  "note": "antler tines hook: web is wrong for antlers",
+  "review": true
+ },
+ "caribou-bull/f:u3": {
+  "family": "slash",
+  "note": "head shake flicks the antlers; shock (electric) does not fit"
+ },
+ "thunder-yak/f:x0": {
+  "family": "shock",
+  "note": "Thunderclap = crack and zigzag"
+ },
+ "musk-ox/f:x0": {
+  "family": "thrust",
+  "note": "horns pressed in a ring point inward"
+ },
+ "musk-ox/f:u3": {
+  "family": "web",
+  "note": "wool snag = wool tangled on the foe (trip)",
+  "review": true
+ },
+ "ibex-patriarch/f:b1": {
+  "family": "thrust",
+  "note": "horn sweep with huge curved horns reads as points; Horn Sweep unique keeps bash"
+ },
+ "ibex-patriarch/f:u3": {
+  "family": "sparkle",
+  "note": "a stare, not a web: glint of the eyes",
+  "review": true
+ },
+ "wood-bison/f:b1": {
+  "family": "puff",
+  "note": "plough = snow thrown up, greyer puffs",
+  "review": true
+ },
+ "wood-bison/f:x0": {
+  "family": "thrust",
+  "note": "head-down charge"
+ },
+ "wild-bactrian/f:u2": {
+  "family": "puff",
+  "note": "dust mantle = a cloak of dust, art beats thorns tag",
+  "review": true
+ }
+}

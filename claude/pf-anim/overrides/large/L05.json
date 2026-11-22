@@ -1,0 +1,118 @@
+{
+ "_doc": "Large batch L05 (Sonnet generic pass): family corrections only; colour/lift/snd left to builder defaults.",
+ "moss-golem/f:b1": {
+  "family": "puff",
+  "note": "spore burst = a soft spore cloud; keeps leaf for the creeper whip only"
+ },
+ "moss-golem/f:u0": {
+  "family": "bash",
+  "note": "boulder fist = a stone punch, no tag but the art is a rock fist"
+ },
+ "lichen-golem/f:b0": {
+  "family": "leaf",
+  "note": "tendril = a creeping vine-like strand; lichen crust is plant growth"
+ },
+ "lichen-golem/f:b1": {
+  "family": "puff",
+  "note": "grey dust puff: the name says puff, dust cloud over a slash"
+ },
+ "coral-golem/f:b1": {
+  "family": "web",
+  "note": "anemone sting = trailing tentacle strands (best guess, poison family already used by u2)",
+  "review": true
+ },
+ "coral-golem/f:x0": {
+  "family": "bash",
+  "note": "a coral stack crumbling down = rubble thump, not a slash"
+ },
+ "coral-golem/f:u1": {
+  "family": "ripple",
+  "note": "anemone sways under water: ripples beat plain puff for a coral creature"
+ },
+ "giant-bumblebee/f:b1": {
+  "family": "thrust",
+  "note": "barb jab = stinger stab, point-first"
+ },
+ "giant-bumblebee/f:b3": {
+  "family": "buzz",
+  "note": "drone dart on a swarm critter: buzzing dots instead of shock zigzag"
+ },
+ "giant-bumblebee/f:x0": {
+  "family": "buzz",
+  "note": "name says Buzzing; swarm critter bulk drone"
+ },
+ "giant-bumblebee/f:u0": {
+  "family": "bash",
+  "note": "a bumble bump is a body slam, not a slash"
+ },
+ "giant-bumblebee/f:u2": {
+  "family": "puff",
+  "note": "pollen puff: the name says puff; trip is minor (best guess)",
+  "review": true
+ },
+ "lichen-reindeer/f:b0": {
+  "family": "bash",
+  "note": "cloven hoof = a stomp, not a streak"
+ },
+ "lichen-reindeer/f:b1": {
+  "family": "leaf",
+  "note": "lichen-crusted antlers shed flakes; avoids a twin of Antler Sweep (best guess)",
+  "review": true
+ },
+ "lichen-reindeer/f:x0": {
+  "family": "thrust",
+  "note": "antler lunge = point-first charge"
+ },
+ "red-stag/f:b1": {
+  "family": "puff",
+  "note": "a snort = a breath of steam puffs"
+ },
+ "red-stag/f:x0": {
+  "family": "thrust",
+  "note": "rut charge: head-down antler lance"
+ },
+ "red-stag/f:u0": {
+  "family": "bash",
+  "note": "autumn rut = antler clash, the heaviest hit of the stag (no keyword; best guess)",
+  "review": true
+ },
+ "red-stag/f:u2": {
+  "family": "leaf",
+  "note": "art line names autumn bracken: leaf fronds hide the dodge"
+ },
+ "red-stag/f:u3": {
+  "family": "ripple",
+  "note": "a rut call is a bellow: sound rings, not a snare (trick/trip default web)",
+  "review": true
+ },
+ "gorse-beast/f:x0": {
+  "family": "bash",
+  "note": "shaggy heap crash = a heavy slump"
+ },
+ "gorse-beast/f:u0": {
+  "family": "ember",
+  "note": "gorse flare: yellow bloom burst flares like a flame; art beats bash tag (best guess)",
+  "review": true
+ },
+ "peat-golem/f:b1": {
+  "family": "puff",
+  "note": "peat dust cloud: the name says dust puff"
+ },
+ "peat-golem/f:x0": {
+  "family": "bash",
+  "note": "a stack of peat collapsing = rubble thump"
+ },
+ "peat-golem/f:u1": {
+  "family": "drip",
+  "note": "bog fist: wet mud flung off the trip; avoids a plain slash (best guess)",
+  "review": true
+ },
+ "emperor-scorpion/f:b1": {
+  "family": "thrust",
+  "note": "stinger thrust = point-first stab"
+ },
+ "emperor-scorpion/f:x0": {
+  "family": "bash",
+  "note": "armoured ram = a shoulder slam"
+ }
+}

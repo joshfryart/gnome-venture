@@ -1,0 +1,16 @@
+{
+ "_doc": "Boss batch B1 (Sonnet generic pass): coconut-crab-titan, robber-crab-baron, reef-leviathan, ancient-snapper. Family/snd corrections only; colour left to builder defaults.",
+ "coconut-crab-titan/f:b0": {"family": "bash", "snd": "crack", "note": "cracking a coconut = hard bash with crack lines; frees slash for Coconut Drop"},
+ "coconut-crab-titan/f:b1": {"family": "ripple", "note": "water spout = rings of spray, not a third slash"},
+ "coconut-crab-titan/f:x0": {"family": "sparkle", "note": "bait = a lure glint; builder default ripple was a no-signal guess", "review": true},
+ "coconut-crab-titan/f:u3": {"family": "leaf", "note": "husk fibres raining down; shock (electric) does not fit a crab", "review": true},
+ "robber-crab-baron/f:b0": {"family": "thrust", "note": "claw snatch = point-first grab; separates it from Sash Spatter slash"},
+ "robber-crab-baron/f:x0": {"family": "sparkle", "note": "royal ring and sash glint on the decree; no tag and no keyword", "review": true},
+ "robber-crab-baron/f:u1": {"family": "puff", "note": "quick grab-and-dash kicks up dust; shock (electric) does not fit", "review": true},
+ "ancient-snapper/f:x1": {"family": "bash", "note": "grinding shell = heavy crushing bash, differs from the two jaw pieces"},
+ "reef-leviathan/f:b1": {"family": "puff", "note": "breaking wave = spray puffs; frees slash from three repeats"},
+ "reef-leviathan/f:x1": {"family": "bash", "note": "coiling crush = squeeze/bash, not a plain slash"},
+ "reef-leviathan/f:x0": {"family": "thorn", "note": "coral lurk = spiky coral ambush; no tag and no keyword", "review": true},
+ "reef-leviathan/f:u2": {"family": "ripple", "snd": "croak", "note": "whirlpool = swirling water rings; croak arcs set it apart from Deep Dive"},
+ "reef-leviathan/f:u1": {"snd": "pop", "family": "ripple", "note": "dive rings (unchanged family), pop vs Whirlpool's croak arcs"}
+}

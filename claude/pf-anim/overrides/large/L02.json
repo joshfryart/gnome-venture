@@ -1,0 +1,36 @@
+{
+ "_doc": "Large batch L02 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "sloth-bear/f:u1": {
+  "family": "bash",
+  "note": "Shaggy Charge: a bear charge is a body slam, not an electric zig; quick tag kept for speed",
+  "review": true
+ },
+ "sloth-bear/f:b1": {
+  "family": "bite",
+  "note": "Sloth Hoover: sucking termites up the snout reads as a gulp; also breaks the four-slash run of this bear",
+  "review": true
+ },
+ "glacier-bear/f:u2": {
+  "family": "ripple",
+  "note": "Glacier Roar: no tag, no keyword; a roar is a booming shock wave, ripple rings. Best guess",
+  "review": true
+ },
+ "crab-eating-raccoon/f:u1": {
+  "family": "bash",
+  "note": "Shell Crack: cracking a shell is a smash, not a zig; quick tag kept for speed",
+  "review": true
+ },
+ "crab-eating-raccoon/f:u3": {
+  "family": "ripple",
+  "note": "Wash Off: wet fur shaken out in water rings (evade beaten by the wash picture)"
+ },
+ "beaver-foreman/f:u0": {
+  "family": "bash",
+  "note": "Tail Slap: a flat tail slap is a thump, not a slash"
+ },
+ "beaver-foreman/f:u2": {
+  "family": "bite",
+  "note": "Gnaw Through: the art is teeth on wood; art beats the pierce tag (as Fire Sting)",
+  "review": true
+ }
+}

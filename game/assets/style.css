@@ -8677,6 +8677,12 @@ dialog.clpick .hpick-act { margin-top: 8px; }
   .advgrid.dv2 .encounter { max-width: 480px; max-height: none; margin-inline: auto; width: 100%; box-sizing: border-box; }
   .advgrid.dv2 .encounter:not(:has(h3, p, .choicelist, button, form, img, svg, canvas)) { display: none; }
 }
+/* 2.7.55: when a puzzle fight ends on the trail or a wander map, the result card sits over the map and the page stays ONE centred column (it jumped to the map-left, text-right desktop grid); the encounter text goes under the map */
+@media (min-width: 1000px) {
+  .advgrid.pfres, .advgrid.pfres.withrings { grid-template-columns: minmax(0, 480px); justify-content: center; }
+  .advgrid.pfres .encounter { max-width: 480px; max-height: none; margin-inline: auto; width: 100%; box-sizing: border-box; }
+  .advgrid.pfres .encounter:not(:has(h3, p, .choicelist, button, form, img, svg, canvas)) { display: none; }
+}
 /* 2.7.30: pfstage.js places its dialog in document coordinates, so on a delve the overlay grid must not be the dialog's containing block (it pushed the fight off to the right) */
 .advgrid.dv2.fighting.pfover:has(dialog.pfst) { position: static; }
 .advgrid.dv2.fighting.pfover > dialog.pfst { grid-area: auto; }

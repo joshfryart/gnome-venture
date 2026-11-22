@@ -1,0 +1,145 @@
+{
+ "_doc": "Batch m12 (medium, opus themed pass): fisher, wolverine cub, pangolin, tamandua, roebuck, goat kid gang, yak calf herd, snow leopard cub, arctic fox kit, whiteout fox. Motifs in motifs/medium_m12.js; all 10 creatures have their own signature motif, each with its own chain effect. Shared inside the batch: foxkit-dive (the mouse pounce) for both arctic foxes, in their own palettes. Reused from elsewhere: hoof-dust from m09 (roebuck Autumn Rut Dust, russet), frost-flake from the small catalogue (whiteout-fox Blizzard Rake, ice blue).",
+ "creatures": {
+  "fisher": {
+   "pal": ["#9a7458", "#24180f", "#d8c4a0"], "m": "fisher-bound", "m2": "fisher-quillslide", "pers": "skitter", "snd": ["hiss", "click"], "spd": 1.25,
+   "notes": "A long dark-brown fisher of the northern forest with a grizzled head and a long bushy tail: it bounds in arcs, comes down trees head first, and is the one hunter that dares porcupines, flipping them over to reach the soft belly.",
+   "p": {
+    "u0": {"m": "fisher-quillslide", "n": "Quill Slide: fans of cream porcupine quills bristle out of the edge, the fisher's nose sliding in underneath them unhurt"},
+    "u1": "Fisher Bite: the long dark fisher lunges out of the edge jaws first and drops back, bushy tail whipping, leaves falling",
+    "u2": {"m": "fisher-treedrop", "n": "Tree Drop: bark trunks hang at spots tied in a tripping line, a fisher coming down each one head first"},
+    "u3": {"m": "fisher-quillflip", "n": "Flip Hunt: a quill-ball porcupine is shoved out of the edge and flipped belly-up, little feet in the air, then drops back"},
+    "b0": "Marten Raking Claw: fishers launch off the edge one after another, back arched, claws raking",
+    "b1": {"lay": "lance", "n": "Sport-Hunt Maul: one fisher hunts the length of the edge in long bounds, the others close behind"},
+    "b2": "Quill-Dodge Crouch: porcupine quills line the edge and the fisher crouches low beneath them, nose darting in and out",
+    "b3": {"m": "fisher-treedrop", "lay": "slam", "n": "Sly Marten Barge: the fisher drops down its trunk and barges out of the edge, then back up"}
+   }
+  },
+  "wolverine-cub": {
+   "pal": ["#8e7662", "#1e1814", "#f0dca0"], "m": "wolverine-stripe", "pers": "thud", "snd": ["crack", "thud"], "spd": 1.0,
+   "notes": "A stout dark wolverine cub of tundra and mountain with a cream stripe down each flank and a pale brow: a small bully that shoves, snarls, rolls in the snow and steals anything from a camp, boots included.",
+   "p": {
+    "u0": "Cub Mauling: stout striped cubs shove out of the edge snarling, claws first, and drop back in the snow",
+    "u1": {"m": "wolverine-snowball", "n": "Snow Tumble: the cub rolls up in a snowball that tumbles out of the edge and back, a paw and the tail poking out, snow falling"},
+    "u2": {"m": "wolverine-snarl", "n": "Scrap Nip: small snarling faces snap off the edge fast, pale brow up, white teeth flashing"},
+    "u3": {"m": "wolverine-boot", "n": "Boot Scrap: a stolen camp boot is shaken out of the edge and dropped back, laces flapping, bite holes in the leather"},
+    "b0": {"m": "wolverine-snarl", "x": "marks", "n": "Bully Gouge: snarling faces lunge off the edge, angry marks popping over them"},
+    "b1": "Stout Grapple: stout cubs launch off the edge and grapple, cream stripes flashing, snow flying",
+    "b2": "Stubborn Stance: cubs plant their big clawed paws along the edge and will not budge, stripe showing",
+    "b3": {"m": "wolverine-snowball", "lay": "strike", "n": "Bully Shove: snowballed cubs barrel off the edge one after another"}
+   }
+  },
+  "pangolin": {
+   "pal": ["#b88a5a", "#3a2410", "#f0d4a0"], "m": "pangolin-walk", "m2": "pangolin-ball", "pers": "tumble", "snd": ["thud", "click"], "spd": 0.7,
+   "notes": "A brown pangolin of grassland and forest covered in overlapping plates: it walks upright on its hind legs with the tail held out, rolls into a hard scale ball when threatened, and licks ants out of termite mounds with a very long tongue.",
+   "p": {
+    "u0": "Scale Ball: rolled scale balls push out of the edge, the scale tips flaring sharp like spikes",
+    "u1": {"x": "click", "n": "Curl Up: scale balls line the edge and hold tight, the plates clicking shut"},
+    "u2": {"m": "pangolin-tail", "n": "Tail Whack: thick scaly tails swing out of the edge and whack, a star at the end of each swing"},
+    "u3": {"m": "pangolin-mound", "n": "Ant Lick: termite mounds blink up at spots, a long pink tongue flicking into each, red ants scattering"},
+    "b0": "Scale-Edge Scrape: upright pangolins launch off the edge, the sharp scale edges scraping",
+    "b1": {"m": "pangolin-mound", "lay": "slam", "x": "crumbs", "n": "Ant Mound Mash: termite mounds slam out of the edge and crumble back, ants and crumbs flying"},
+    "b2": "Armored Ball Curl: scale balls park along the edge, armour shut and turning slowly",
+    "b3": "Unrolling Nudge: a pangolin uncurls out of the edge, nudges with its scaly shoulder and drops back"
+   }
+  },
+  "tamandua": {
+   "pal": ["#e4cc98", "#141010", "#f08a9a"], "m": "tamandua-vest", "m2": "tamandua-hug", "pers": "march", "snd": ["hiss", "squish"], "spd": 0.8,
+   "notes": "A pale tree anteater (tamandua) of the rainforest wearing a black vest, with a long tube snout, a pink tongue for ants, hooked fore-claws and a gripping tail; cornered, it hangs by the tail and spreads its arms wide. The forest calls it the stinker.",
+   "p": {
+    "u0": {"m": "tamandua-hook", "n": "Claw Hook: one huge hooked claw rakes the length of the edge, two smaller claws behind it"},
+    "u1": "Tree Hug: tamanduas hug branches along the edge, black vests showing, squeezing tight",
+    "u2": {"m": "tamandua-tongue", "n": "Tongue Flick: tube snouts dart out and back, long pink tongues flicking, ants stuck on them"},
+    "u3": {"m": "tamandua-tailhang", "n": "Tail Hang: tamanduas hang by the tail from branches and spread their arms wide, claws out, pushing off the edge like spikes"},
+    "b0": "Vest Slash: tamanduas lunge off the edge vest first, claws raking",
+    "b1": {"m": "tamandua-tailhang", "lay": "strike", "n": "Tail Hang Hook: hanging tamanduas swing off the edge on their tails, claws hooking"},
+    "b2": {"m": "tamandua-vest", "n": "Black Vest: tamanduas line the edge side-on, the black vest showing like armour"},
+    "b3": {"m": "tamandua-hook", "lay": "slam", "n": "Dare Shove: the hooked claw shoves out of the edge and back, daring anyone closer"}
+   }
+  },
+  "roebuck": {
+   "pal": ["#c46e3c", "#2a1408", "#f4ecd8"], "m": "roe-bound", "m2": "roe-antlerlock", "pers": "hop", "snd": ["crack", "chirp"], "spd": 1.15,
+   "notes": "A slim russet roebuck of forest edge and bracken with short sharp three-point antlers and a white rump that flashes when it bounds; in the rut bucks lock antlers and stamp, and the roe has twin spotted fawns hidden in the bracken.",
+   "p": {
+    "u0": "Antler Lock: pairs of bucks with antlers locked line the edge, straining to and fro",
+    "u1": {"m": "roe-antler", "n": "Buck Charge: a lowered russet head charges out of the edge, short sharp antlers first, and drops back"},
+    "u2": {"m": "roe-bracken", "n": "Bracken Stomp: russet bracken fronds spring out of the edge and uncurl, a hoof stamping each one flat"},
+    "u3": "Rut Rush: a bounding roebuck rushes the length of the edge, white rump flashing, leaves falling behind",
+    "b0": {"m": "roe-antler", "n": "Antler Thrust: short antlers jab off the edge one after another, white points glinting"},
+    "b1": {"m": "hoof-dust", "c": "#c8946a", "n": "Autumn Rut Dust: scraped dust clouds bloom off the edge, dark hooves kicking in them"},
+    "b2": {"m": "roe-bracken", "lay": "hold", "n": "Russet Bracken Coat: bracken fronds line the edge like a russet coat, fiddleheads uncurling"},
+    "b3": {"m": "roe-twinfawn", "n": "Roebuck Bracken Dodge: twin spotted fawns rise out of the bracken, ears twitching, the roe's twins safe"}
+   }
+  },
+  "goat-kid-gang": {
+   "pal": ["#f0ece4", "#4a4038", "#c8b8a0"], "m": "goatkid-boing", "m2": "goatkid-heap", "pers": "hop", "snd": ["chirp", "pop"], "spd": 1.35,
+   "notes": "A gang of small white mountain goat kids with horn buds: they boing straight up on stiff legs, stand on each other's backs, perch on impossible ledges and butt heads all day, knocking pebbles loose.",
+   "p": {
+    "u0": "Kid Huddle: kids stand on each other's backs along the edge, wobbling but holding",
+    "u1": {"m": "goatkid-ledge", "n": "Ledge Cover: rock ledges pop out of the edge with a kid perched on each, then tuck back, pebbles falling"},
+    "u2": {"m": "goatkid-butt", "lay": "snare", "n": "Headbutt Nudge: pairs of kid heads butt at spots tied in a tripping line, a star on every contact"},
+    "u3": "Bouncy Ledge: white kids boing straight up off the edge on stiff legs and come back, pebbles knocked loose",
+    "b0": {"m": "goatkid-ledge", "lay": "strike", "n": "Ledge Hop Scrape: kids hop off the edge from ledge to ledge, hooves scraping, pebbles falling"},
+    "b1": {"m": "goatkid-butt", "lay": "slam", "n": "Headbutt Pile: kid heads butt out of the edge and bounce back, stars flying"},
+    "b2": {"m": "goatkid-boing", "n": "Bouncy Stance: kids bounce in place along the edge on stiff legs"},
+    "b3": {"m": "goatkid-heap", "lay": "slam", "n": "Kid Pile-On: a kid jumps on another kid's back and the wobbling pile shoves out and back"}
+   }
+  },
+  "yak-calf-herd": {
+   "pal": ["#9c8672", "#201812", "#f2eee4"], "m": "yakcalf-shag", "m2": "yakcalf-skirt", "pers": "trundle", "snd": ["thud", "croak"], "spd": 0.7,
+   "notes": "A herd of shaggy yak calves from the high cold grassland: long fur skirts sway to the ground, wide cream horns are already growing, breath steams in the thin air and they grunt and bleat as they plod on in file, nobody giving way.",
+   "p": {
+    "u0": "Shaggy Rush: a shaggy calf plods the length of the edge at a run, fringe swinging, the herd behind",
+    "u1": "Herd Shuffle: curtains of shaggy fur sway out of the edge and back as the herd shuffles round, frost on the tips",
+    "u2": {"m": "yakcalf-breath", "n": "Bleat Call: steaming breath clouds hang at spots tied in a line, bleat marks rising from them"},
+    "u3": {"m": "yakcalf-horns", "n": "Nobody Stops: wide-horned heads shove out of the edge and drop back, no one giving way"},
+    "b0": {"m": "yakcalf-horns", "n": "Wild Horn Swipe: wide cream horns swipe off the edge one after another"},
+    "b1": {"lay": "slam", "x": "dust", "n": "Herd Trample: calves trample out of the edge and back in a cloud of dust"},
+    "b2": "Shaggy Huddle: a curtain of shaggy fur hangs along the edge and holds the cold out",
+    "b3": {"lay": "lance", "n": "Calf Bundle Charge: a bundle of calves charges the length of the edge in file"}
+   }
+  },
+  "snow-leopard-cub": {
+   "pal": ["#bcb8ae", "#2a2a30", "#f4f0e8"], "m": "snowleo-tail", "m2": "snowleo-crag", "pers": "pounce", "snd": ["hiss", "chirp"], "spd": 1.1,
+   "notes": "A smoky grey snow leopard cub of the high crags with dark rosettes, big fluffy paws and a huge thick ringed tail it swishes, chases and wraps over its nose to sleep; impatient, it always pounces too early.",
+   "p": {
+    "u0": {"m": "snowleo-cub", "n": "Cub Leap: chubby rosetted cubs crouch and leap out of the edge, then drop back"},
+    "u1": "Rock Hold: cubs curl flat on grey crags along the edge, the thick tail wrapped over the nose, an ear flicking",
+    "u2": "Tail Swish: huge ringed tails swish at spots tied in a tripping line, snow drifting",
+    "u3": {"m": "snowleo-paw", "n": "Not Waiting: big fluffy paws swat off the edge before anyone is ready, claws out"},
+    "b0": {"m": "snowleo-paw", "x": "snow", "n": "Frost Paw Swipe: fluffy paws swipe off the edge in a puff of snow"},
+    "b1": {"m": "snowleo-cub", "n": "Impatient Pounce: cubs pounce off the edge one after another, too early"},
+    "b2": {"m": "snowleo-tail", "n": "Smoke Stance: smoky ringed tails curl along the edge and hold"},
+    "b3": {"m": "snowleo-cub", "lay": "lance", "n": "Not Waiting Charge: one cub charges the length of the edge, the others scrambling after"}
+   }
+  },
+  "arctic-fox-kit": {
+   "pal": ["#ab9682", "#2e241c", "#f0e8dc"], "m": "foxkit-den", "pers": "burrow", "snd": ["chirp", "pop"], "spd": 1.25,
+   "notes": "Small grey-brown arctic fox kits with round ears from a tundra den: they pop out of the den holes, tumble over each other, yip, and practise the mouse dive, arcing up and plunging nose-first into the snow.",
+   "p": {
+    "u0": {"m": "foxkit-dive", "n": "Kit Pounce: kits crouch, arc up and nose-dive out of the edge into the snow, tails sticking up"},
+    "u1": "Burrow Tumble: den holes line the edge, round-eared kits popping up one and two at a time",
+    "u2": {"m": "foxkit-yip", "n": "Pup Yip: yipping kit faces hang at spots tied in a line, chirp marks rising"},
+    "u3": {"m": "foxkit-dive", "n": "Learned Pounce: one kit runs the length of the edge and finishes with a proper nose-dive"},
+    "b0": {"m": "foxkit-dive", "n": "Learned Pounce Swipe: kits arc off the edge one after another, nose-first"},
+    "b1": {"m": "foxkit-dive", "lay": "fall", "n": "Morning Pounce: kits drop off the edge nose-first into the snow"},
+    "b2": {"c": "#d4ccc2", "n": "Half-White Crouch: kits in their half-white moult crouch at den holes along the edge"},
+    "b3": "Untidy Shoulder Charge: kits tumble out of the den holes and back in an untidy heap"
+   }
+  },
+  "whiteout-fox": {
+   "pal": ["#f4f6f8", "#1a1c22", "#bcd4ec"], "m": "whiteout-eyes", "m2": "whiteout-drift", "pers": "swarm", "snd": ["hiss", "tink"], "spd": 1.2,
+   "notes": "A pure white winter arctic fox that is almost invisible on the snow: all anyone sees are two black eyes and a black nose moving in a blizzard, ears cutting through a drift, and jaws snapping out of nowhere.",
+   "p": {
+    "u0": {"m": "whiteout-jaws", "n": "Whiteout Snap: jaws snap out of snow mounds and drop back, only a dark mouth, white teeth and black eyes showing"},
+    "u1": {"m": "whiteout-drift", "n": "Drift Bite: a drift ridge cuts the length of the edge, only ear tips and a black nose showing, snow spraying ahead"},
+    "u2": {"m": "whiteout-eyes", "n": "Snow Blind: the edge whites out; only pairs of black eyes and noses scatter out and back as outlines flicker"},
+    "u3": {"m": "foxkit-dive", "c": "#f4f6f8", "x": "snow", "n": "Blank Dash: white foxes arc off the edge and vanish nose-first into the snow"},
+    "b0": {"m": "frost-flake", "c": "#bcd4ec", "x": "snow", "n": "Blizzard Rake: ice-blue flakes rake off the edge in a blizzard"},
+    "b1": {"m": "whiteout-jaws", "lay": "strike", "x": "snow", "n": "Two-Bite Blizzard: jaws snap off the edge twice in a flurry of snow"},
+    "b2": "Drift-Hidden Brace: drift ridges hold along the edge, ear tips just showing",
+    "b3": {"m": "whiteout-eyes", "n": "White-Out Shoulder: an invisible shoulder shoves out of the edge; only eyes and a nose give it away"}
+   }
+  }
+ }
+}

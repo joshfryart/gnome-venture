@@ -1,0 +1,551 @@
+{
+ "_doc": "Batch m02 (medium, opus themed pass): termite-column, leafcutter-column, army-ant-column, paper-wasp, hornet-sentry, mud-dauber, carpenter-bee, lantern-glowworm-queen, earwig-matron, luna-moth. Every piece has a hand note and an explicit motif. New motifs (19, all 10 signatures unique) are drawn by claude/pf-anim/motifs/medium_m02.js; reused catalogue motifs: pincer-snap (earwig-matron, sibling of earwig), mud-flop (mud-dauber b2).",
+ "creatures": {
+  "termite-column": {
+   "pal": [
+    "#e6dcc2",
+    "#3c2412",
+    "#a86a3c"
+   ],
+   "m": "termite-soldier",
+   "m2": "clay-spire",
+   "pers": "burrow",
+   "snd": [
+    "click",
+    "thud"
+   ],
+   "spd": 1.2,
+   "notes": "Termite column: pale soft workers and big brown-headed soldiers that drum their heads, building clay mound spires; they travel in tunnels.",
+   "p": {
+    "b0": {
+     "m": "termite-soldier",
+     "n": "Soldier Head Pinch: brown soldier heads push out into a jaw fence and pinch, click marks",
+     "lay": "bristle",
+     "x": "click"
+    },
+    "b1": {
+     "m": "termite-soldier",
+     "n": "Column Jaw Surge: a file of soldiers surges along the edge, heads drumming",
+     "lay": "lance",
+     "car": "train"
+    },
+    "b2": {
+     "m": "clay-spire",
+     "n": "Mud-Tube Shell: clay spires wall the edge while workers plaster, soil clods tossed up",
+     "x": "clods"
+    },
+    "b3": {
+     "m": "termite-soldier",
+     "n": "Tunnel Crawl Slip: workers vanish and pop up at new spots; the chain tunnels under the felt"
+    },
+    "u0": {
+     "m": "clay-spire",
+     "n": "Mound Wall: clay spires rise one by one into a mound wall along the edge"
+    },
+    "u1": {
+     "m": "termite-soldier",
+     "n": "Soldier Bite: big-headed soldiers lunge off the edge, jaws snapping, dust kicked up"
+    },
+    "u2": {
+     "m": "clay-spire",
+     "n": "Clay Armour: baked clay spires bristle out like a hard crust, dust blowing",
+     "x": "dust"
+    },
+    "u3": {
+     "m": "termite-soldier",
+     "n": "Tunnel Crowd: a crowd of soldiers bursts out of the ground and slams back, clods flying",
+     "x": "clods"
+    }
+   }
+  },
+  "leafcutter-column": {
+   "pal": [
+    "#8cd04e",
+    "#2e1a0c",
+    "#d8783a"
+   ],
+   "m": "leaf-carry",
+   "m2": "leaf-snip",
+   "pers": "march",
+   "snd": [
+    "chirp",
+    "click"
+   ],
+   "spd": 1.1,
+   "notes": "Leafcutter column: rust ants marching under raised green leaf pieces; scissor jaws cut crescents (they chirp as they cut).",
+   "p": {
+    "b0": {
+     "m": "leaf-carry",
+     "n": "Leaf-Bearer Nip: bearers dip out from under their leaves and nip"
+    },
+    "b1": {
+     "m": "leaf-snip",
+     "n": "Opinionated Sting: snipping jaws lunge out, little anger marks above them",
+     "x": "marks"
+    },
+    "b2": {
+     "m": "leaf-carry",
+     "n": "Leaf Parade Shield: raised leaf pieces line the edge like a row of parasols"
+    },
+    "b3": {
+     "m": "leaf-carry",
+     "n": "Column Scatter: the column breaks up, bearers vanish in dust puffs and reappear",
+     "x": "puff"
+    },
+    "u0": {
+     "m": "leaf-snip",
+     "n": "Leaf Shears: scissor jaws cut along the edge in one line, leaf crescents flutter down"
+    },
+    "u1": {
+     "m": "leaf-carry",
+     "n": "March On: the leaf column marches on along the edge in one unbroken file",
+     "lay": "lance"
+    },
+    "u2": {
+     "m": "leaf-snip",
+     "n": "Leaf Roof: cut leaf crescents overlap along the edge like roof tiles",
+     "lay": "hold"
+    },
+    "u3": {
+     "m": "leaf-carry",
+     "n": "Green Parade: the parade swings out round the edge and back, leaves bobbing"
+    }
+   }
+  },
+  "army-ant-column": {
+   "pal": [
+    "#c0703e",
+    "#1a0c06",
+    "#f2dcaa"
+   ],
+   "m": "army-flood",
+   "m2": "jaw-wall",
+   "pers": "swarm",
+   "snd": [
+    "crack",
+    "click"
+   ],
+   "spd": 1.35,
+   "notes": "Army ants: dark-red ants with huge pale sickle jaws in an endless flooding file; at rest they hook together into a living wall.",
+   "p": {
+    "b0": {
+     "m": "army-flood",
+     "n": "Column Mandible Rush: sickle-jawed ants rush off the edge in waves"
+    },
+    "b1": {
+     "m": "army-flood",
+     "n": "Flood Ant Stab: the flood surges the length of the edge, jaws first",
+     "lay": "lance"
+    },
+    "b2": {
+     "m": "jaw-wall",
+     "n": "Nest-Less Plating: ant bodies hook into a living plate along the edge"
+    },
+    "b3": {
+     "m": "army-flood",
+     "n": "Obstacle-Skirt Flow: the swarm skips spot to spot, flowing round whatever is in the way"
+    },
+    "u0": {
+     "m": "jaw-wall",
+     "n": "Column Wall: the bivouac wall bristles out, a fence of hooked jaws",
+     "lay": "bristle"
+    },
+    "u1": {
+     "m": "army-flood",
+     "n": "Flank Slip: the column splits round both flanks and closes up again"
+    },
+    "u2": {
+     "m": "army-flood",
+     "n": "Mandible Wave: a wave of huge jaws slams out and drops back, dust thrown up",
+     "x": "dust"
+    },
+    "u3": {
+     "m": "army-flood",
+     "n": "Endless File: the file never stops pouring along the edge, prey crumbs left behind",
+     "lay": "hold",
+     "x": "crumbs"
+    }
+   }
+  },
+  "paper-wasp": {
+   "pal": [
+    "#e8a838",
+    "#3a1c10",
+    "#d0c8b8"
+   ],
+   "m": "dangle-wasp",
+   "m2": "paper-cell",
+   "pers": "flutter",
+   "snd": [
+    "zig",
+    "pop"
+   ],
+   "spd": 1.0,
+   "notes": "Paper wasps: slim amber wasps that fly with long legs dangling, guarding an open grey paper comb.",
+   "p": {
+    "b0": {
+     "m": "dangle-wasp",
+     "n": "Short Fuse Jab: a wasp jabs out legs-first and is back in a blink, sting lines",
+     "lay": "slam",
+     "x": "sting"
+    },
+    "b1": {
+     "m": "dangle-wasp",
+     "n": "Striped Lunge: one striped wasp lunges the length of the edge, legs trailing",
+     "lay": "lance"
+    },
+    "b2": {
+     "m": "paper-cell",
+     "n": "Papery Nest Guard: grey paper cells build up along the edge, an egg in each",
+     "c": "#d2c8b4"
+    },
+    "b3": {
+     "m": "dangle-wasp",
+     "n": "Sudden Flare Dart: wasps flare up at new spots and zigzag between them",
+     "car": "zig"
+    },
+    "u0": {
+     "m": "dangle-wasp",
+     "n": "Wasp Sting: wasps drop sting-first off the edge, sting lines flashing",
+     "x": "sting"
+    },
+    "u1": {
+     "m": "paper-cell",
+     "n": "Paper Nest: the open comb bristles out cell by cell, a shield of paper",
+     "c": "#d2c8b4"
+    },
+    "u2": {
+     "m": "dangle-wasp",
+     "n": "Buzz Dive: wasps dive off the edge with legs swinging"
+    },
+    "u3": {
+     "m": "dangle-wasp",
+     "n": "Nest Hum: wasps fan out from the comb, hover humming and settle back"
+    }
+   }
+  },
+  "hornet-sentry": {
+   "pal": [
+    "#e88a2c",
+    "#2e160a",
+    "#f0d090"
+   ],
+   "m": "hornet-guard",
+   "m2": "nest-door",
+   "pers": "thud",
+   "snd": [
+    "zig",
+    "thud"
+   ],
+   "spd": 1.0,
+   "notes": "Hornet sentry: big orange-brown hornets with dark eyes pacing at the round door of a scalloped paper nest.",
+   "p": {
+    "b0": {
+     "m": "hornet-guard",
+     "n": "Doorway Dive: hornets launch out of the nest door one after another"
+    },
+    "b1": {
+     "m": "hornet-guard",
+     "n": "Night-Watch Strike: a sentry sweeps the edge under a moon glint",
+     "lay": "lance",
+     "x": "moon"
+    },
+    "b2": {
+     "m": "nest-door",
+     "n": "Nest Door Bulwark: scalloped envelope bands line the edge round a dark door"
+    },
+    "b3": {
+     "m": "hornet-guard",
+     "n": "Blossom Snub: hornets blink from spot to spot shaking off pollen",
+     "x": "pollen"
+    },
+    "u0": {
+     "m": "nest-door",
+     "n": "Nest Tending: fresh paper bands rise as the nest is patched, wood fibre falling"
+    },
+    "u1": {
+     "m": "hornet-guard",
+     "n": "Sentry Sting: the sentry runs the edge sting-first, sting lines flashing",
+     "x": "sting"
+    },
+    "u2": {
+     "m": "nest-door",
+     "n": "Paper Wall: the envelope's scalloped layers hold the edge, chewed wood fibre drifting"
+    },
+    "u3": {
+     "m": "hornet-guard",
+     "n": "Door Bar: sentries stand shoulder to shoulder across the door, pacing and turning"
+    }
+   }
+  },
+  "mud-dauber": {
+   "pal": [
+    "#c89a62",
+    "#141016",
+    "#ead2a0"
+   ],
+   "m": "mud-pipe",
+   "m2": "mud-wasp",
+   "pers": "plop",
+   "snd": [
+    "zig",
+    "squish"
+   ],
+   "spd": 0.95,
+   "notes": "Mud dauber: slim black thread-waisted wasps hauling mud balls and building organ-pipe mud tubes.",
+   "p": {
+    "b0": {
+     "m": "mud-wasp",
+     "n": "Mud Pipe Nip: black wasps dart out from their pipes and nip"
+    },
+    "b1": {
+     "m": "mud-wasp",
+     "n": "Wasp Needle Stab: a thread-waisted wasp needles along the edge, sting lines",
+     "lay": "lance",
+     "x": "sting"
+    },
+    "b2": {
+     "m": "mud-flop",
+     "n": "Mud Plaster Coat: mud splats slap onto the edge and flatten",
+     "lay": "slam"
+    },
+    "b3": {
+     "m": "mud-wasp",
+     "n": "Rain-Dodge Hover: wasps blink between dry spots, raindrops flung off",
+     "x": "dew"
+    },
+    "u0": {
+     "m": "mud-pipe",
+     "n": "Mud Plaster: organ-pipe tubes grow ring by ring along the edge, wet mud sliding"
+    },
+    "u1": {
+     "m": "mud-pipe",
+     "n": "Pipe Jab: mud pipes jab out and drop back, wet beads flicking"
+    },
+    "u2": {
+     "m": "mud-wasp",
+     "n": "Nest Sealing: wasps press mud balls into the edge like spikes, clods flicked off",
+     "x": "clods"
+    },
+    "u3": {
+     "m": "mud-pipe",
+     "n": "Pipe Stack: a row of pipes stacks up along the edge in one line"
+    }
+   }
+  },
+  "carpenter-bee": {
+   "pal": [
+    "#7a88e8",
+    "#0e1020",
+    "#f0dca0"
+   ],
+   "m": "bore-bee",
+   "m2": "drill-hole",
+   "pers": "hover",
+   "snd": [
+    "zig",
+    "click"
+   ],
+   "spd": 1.05,
+   "notes": "Carpenter bee: round glossy blue-black bee that hovers then darts, drilling perfectly round holes in wood.",
+   "p": {
+    "b0": {
+     "m": "bore-bee",
+     "n": "Carpenter Mandible Snip: glossy bees dart out and snip, sawdust spraying",
+     "x": "sawdust"
+    },
+    "b1": {
+     "m": "bore-bee",
+     "n": "Needle Stinger: one glossy bee runs the edge stinger first",
+     "lay": "lance",
+     "x": "sting"
+    },
+    "b2": {
+     "m": "bore-bee",
+     "n": "Glossy Carapace: round blue-black bees hold the edge, a gloss streak running over them"
+    },
+    "b3": {
+     "m": "bore-bee",
+     "n": "Hover Dart: a bee hangs in the air, then darts to the next spot"
+    },
+    "u0": {
+     "m": "drill-hole",
+     "n": "Wood Drill: round bore holes drill along the edge in one line, sawdust spinning out",
+     "c": "#d0a468"
+    },
+    "u1": {
+     "m": "bore-bee",
+     "n": "Nectar Sip: bees rise from the edge dusted with yellow pollen",
+     "x": "pollen"
+    },
+    "u2": {
+     "m": "bore-bee",
+     "n": "Sawdust Cover: bees scatter into a cloud of falling sawdust and come back",
+     "x": "sawdust"
+    },
+    "u3": {
+     "m": "drill-hole",
+     "n": "Hollow Tap: the bee knocks at its holes, they jump out and back with tap marks",
+     "c": "#d0a468",
+     "x": "click"
+    }
+   }
+  },
+  "lantern-glowworm-queen": {
+   "pal": [
+    "#8cf0d8",
+    "#0a1a20",
+    "#f4fff0"
+   ],
+   "m": "lamp-queen",
+   "m2": "silk-curtain",
+   "pers": "bob",
+   "snd": [
+    "tink",
+    "croak"
+   ],
+   "spd": 0.8,
+   "notes": "Glowworm queen: big glowing lamps swinging on long threads over a curtain of beaded silk in a mountain cave.",
+   "p": {
+    "b0": {
+     "m": "lamp-queen",
+     "n": "Ceiling Lamp Bite: lamps swing out on their threads and snap at the edge"
+    },
+    "b1": {
+     "m": "silk-curtain",
+     "n": "Queen's Thread Lash: long glowing threads lash off the edge"
+    },
+    "b2": {
+     "m": "silk-curtain",
+     "n": "Silk Lamp Cocoon: a curtain of beaded threads hangs along the edge"
+    },
+    "b3": {
+     "m": "lamp-queen",
+     "n": "Bait Dangle Drop: a lamp bait blinks from thread to thread"
+    },
+    "u0": {
+     "m": "lamp-queen",
+     "n": "Lantern Lure: lamps lower on their threads and drip sticky glowing beads"
+    },
+    "u1": {
+     "m": "lamp-queen",
+     "n": "Queen Strike: the queen's big lamp runs the edge on its thread"
+    },
+    "u2": {
+     "m": "silk-curtain",
+     "n": "Thread Curtain: the curtain threads bristle out, beads sliding to the tips"
+    },
+    "u3": {
+     "m": "lamp-queen",
+     "n": "Ceiling Drop: the biggest lamp drops on its thread, slams and springs back"
+    }
+   }
+  },
+  "earwig-matron": {
+   "pal": [
+    "#c87a48",
+    "#2a120a",
+    "#f4ecd8"
+   ],
+   "m": "egg-brood",
+   "m2": "pincer-snap",
+   "pers": "trundle",
+   "snd": [
+    "click",
+    "squish"
+   ],
+   "spd": 0.8,
+   "notes": "Earwig matron: a big chestnut earwig mother guarding and licking a clutch of pale eggs; shares the earwig forceps (pincer-snap) in her palette.",
+   "p": {
+    "b0": {
+     "m": "pincer-snap",
+     "n": "Matron Pincer Clamp: big chestnut forceps lunge out and clamp"
+    },
+    "b1": {
+     "m": "pincer-snap",
+     "n": "Brood Guard Lunge: her forceps sweep the edge in front of the brood",
+     "lay": "lance"
+    },
+    "b2": {
+     "m": "egg-brood",
+     "n": "Egg Cradle Shield: pale egg clutches line the edge, jostled as she shields them"
+    },
+    "b3": {
+     "m": "egg-brood",
+     "n": "Clutch Decoy: egg clutches blink at decoy spots"
+    },
+    "u0": {
+     "m": "egg-brood",
+     "n": "Brood Tend: eggs rise licked clean, little shines blinking on them"
+    },
+    "u1": {
+     "m": "pincer-snap",
+     "n": "Egg Shell Ward: forceps bristle out over the clutch like a ring of spikes"
+    },
+    "u2": {
+     "m": "pincer-snap",
+     "n": "Matron Pincer: forceps clamp at spots, tied together in a snare line"
+    },
+    "u3": {
+     "m": "egg-brood",
+     "n": "Egg Cushion: soft eggs settle along the edge in a cushion, soft puffs",
+     "lay": "hold",
+     "x": "puff"
+    }
+   }
+  },
+  "luna-moth": {
+   "pal": [
+    "#b8f0b0",
+    "#4a2a5a",
+    "#f8e070"
+   ],
+   "m": "luna-tail",
+   "m2": "moon-veil",
+   "pers": "glide",
+   "snd": [
+    "whirr",
+    "tink"
+   ],
+   "spd": 0.75,
+   "notes": "Luna moth: huge pale green wings with purple leading edges and eyespots, long trailing tails, flying by moonlight.",
+   "p": {
+    "b0": {
+     "m": "luna-tail",
+     "n": "Lantern Ribbon Sweep: moths sweep off the edge trailing their long tail ribbons"
+    },
+    "b1": {
+     "m": "moon-veil",
+     "n": "Milk-Pale Gust: a wingbeat gust blows pale crescents and scale powder off",
+     "x": "powder"
+    },
+    "b2": {
+     "m": "luna-tail",
+     "n": "Table-Mat Wing Shield: wings spread flat along the edge like table mats"
+    },
+    "b3": {
+     "m": "luna-tail",
+     "n": "Lantern Glow Decoy: eyespot moths flash at decoy spots",
+     "x": "glint"
+    },
+    "u0": {
+     "m": "moon-veil",
+     "n": "Moon Veil: pale crescents drift out in a haze and draw back"
+    },
+    "u1": {
+     "m": "luna-tail",
+     "n": "Trailing Tails: moths swirl out and back, tails streaming"
+    },
+    "u2": {
+     "m": "luna-tail",
+     "n": "Wing Buffet: huge pale wings slam out, scale powder bursting",
+     "x": "powder"
+    },
+    "u3": {
+     "m": "moon-veil",
+     "n": "Lunar Hush: moon crescents hang still along the edge in a quiet haze"
+    }
+   }
+  }
+ }
+}

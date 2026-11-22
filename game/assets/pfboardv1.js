@@ -54,7 +54,10 @@
     guard: '<path d="M8 1l6 2.2v4.3c0 3.6-2.6 6.2-6 7.5-3.4-1.3-6-3.9-6-7.5V3.2z" stroke="currentColor" stroke-width="1.7" fill="none"/>',
     flip: '<path d="M4 2v11M1.5 10.5L4 13l2.5-2.5M12 14V3M9.5 5.5L12 3l2.5 2.5" stroke="currentColor" stroke-width="1.8" fill="none"/>',
     num: '<path d="M5.5 1.5L4 14.5M12 1.5l-1.5 13M1.5 5.5h13M1 10.5h13" stroke="currentColor" stroke-width="1.7" fill="none"/>',
-    combo: '<path d="M1 12l4-4 3 3 6-8" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/>'
+    combo: '<path d="M1 12l4-4 3 3 6-8" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/>',
+    quake: '<path d="M1 12h14M3 12l2-5 3 3 2-6 3 8" stroke="currentColor" stroke-width="1.7" fill="none"/>',   // 2.7.55 Tremor
+    spring: '<path d="M8 1.5C6 5 4 7 4 9.5a4 4 0 0 0 8 0C12 7 10 5 8 1.5z" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M6.4 10a1.8 1.8 0 0 0 1.8 1.6" stroke="currentColor" stroke-width="1.4" fill="none"/>',   // 2.7.55 Spring
+    aoe: '<path d="M8 0l1.6 4.6L14 2.2l-2.4 4.4L16 8l-4.4 1.4L14 13.8l-4.4-2.4L8 16l-1.6-4.6L2 13.8l2.4-4.4L0 8l4.4-1.4L2 2.2l4.4 2.4z" fill="currentColor"/>'   // 2.7.55 boss AOE
   };
   function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function svg(k, rot) { return '<svg viewBox="0 0 16 16" aria-hidden="true"' + (rot ? ' class="pfv-r' + rot + '"' : '') + '>' + SVG[k] + '</svg>'; }
@@ -63,13 +66,14 @@
   function times(x) { return x === 2 ? 'double' : x === 3 ? 'triple' : x === 1 ? 'as normal' : '×' + x; }
   // ---- 2.6.75 ENVIRONMENT PIECES (design-board-strategy.md, "Sim 5"): a third player that puts pieces on the board. Texts and numbers come from the fight's own rule values (V1).
   var EK = { sun: { n: 'Sun', s: 'Sun', c: '#ffd65a', h: 46, i: 'sun' }, bramble: { n: 'Bramble', s: 'Bramble', c: '#7ab55c', h: 105, i: 'br' }, rain: { n: 'Rain', s: 'Rain', c: '#6db4d0', h: 200, i: 'rain' },
-    wind: { n: 'Wind', s: 'Wind', c: '#c3cde0', h: 220, i: 'wind' }, mud: { n: 'Mud', s: 'Mud', c: '#a67c52', h: 28, i: 'mud' }, thorn: { n: 'Thornburst', s: 'Thorn', c: '#ff6a4a', h: 8, i: 'thorn' } };
+    wind: { n: 'Wind', s: 'Wind', c: '#c3cde0', h: 220, i: 'wind' }, mud: { n: 'Mud', s: 'Mud', c: '#a67c52', h: 28, i: 'mud' }, thorn: { n: 'Thornburst', s: 'Thorn', c: '#ff6a4a', h: 8, i: 'thorn' },
+    quake: { n: 'Tremor', s: 'Tremor', c: '#b39a7a', h: 34, i: 'quake' }, spring: { n: 'Spring', s: 'Spring', c: '#5fd3b8', h: 165, i: 'spring' } };   // 2.7.55: large and boss fights only
   var DIRW = { L: 'left', R: 'right', T: 'up', B: 'down' }, DXY = { L: [-1, 0], R: [1, 0], T: [0, -1], B: [0, 1] };
-  var ENAME = { Sun: 'sun', Bramble: 'bramble', Rain: 'rain', Wind: 'wind', Mud: 'mud', Thornburst: 'thorn' };
+  var ENAME = { Sun: 'sun', Bramble: 'bramble', Rain: 'rain', Wind: 'wind', Mud: 'mud', Thornburst: 'thorn', Tremor: 'quake', Spring: 'spring' };
   (data.gone || []).forEach(function (g) { if (g.by === 'env' && !g.kind) g.kind = ENAME[g.n] || 'mud'; });   // an older save: no kind on a piece that left
   function envKind(k) { return EK[k] || EK.mud; }
   function envBadge(kind) {
-    return { sun: '×' + (V1.sun || 2), bramble: '−' + pc100(V1.bramble || 0), rain: '+' + pc100(V1.rain || 0), mud: '−' + pc100(V1.mud || 0), thorn: '−' + pc100(V1.thorn || 0) }[kind] || '';
+    return { sun: '×' + (V1.sun || 2), bramble: '−' + pc100(V1.bramble || 0), rain: '+' + pc100(V1.rain || 0), mud: '−' + pc100(V1.mud || 0), thorn: '−' + pc100(V1.thorn || 0), quake: '↓' + (V1.quake || 2), spring: '+' + pc100(V1.spring || 0.1) }[kind] || '';
   }
   function envText(kind, life) {
     var who = 'Goes to whoever fires it: you or the creature.', lf = life ? ' It goes after ' + life + ' rounds.' : '', N = (V1.limit || 3);
@@ -78,6 +82,8 @@
       bramble: { l: ['Fire it in your chain: ' + (ONE ? 'it adds ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of the ' + YIELD + ' bar' : 'the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health') + '. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
       rain: { l: ['Fire it in your chain: you get guard worth ' + pc100(V1.rain || 0) + ' of your health. If the creature fires it, it gets the guard.'], chip: 'guard' },
       wind: { l: ['Fire it in your chain: the piece its arrow points at slides one cell along the arrow, if that cell is free.'], chip: 'pushes a piece' },
+      quake: { l: ['Fire it in your chain: up to ' + (V1.quake || 2) + ' of the creature\u2019s pieces touching it fall off the board after the chain. If the creature fires it, yours fall. Only in fights with large creatures and bosses.'], chip: 'knocks off ' + (V1.quake || 2) },
+      spring: { l: ['Fire it in your chain: you recover ' + pc100(V1.spring || 0.1) + ' of your health. If the creature fires it, its ' + YIELD + ' bar empties ' + pc100(V1.spring || 0.1) + '. Only in fights with large creatures and bosses.'], chip: '+' + pc100(V1.spring || 0.1) + ' for whoever fires it' },
       mud: { l: ['Nothing links to it, so chains stop here. A piece next to it counts ' + pc100(V1.mud || 0) + ' less.' + lf], chip: 'no links, −' + pc100(V1.mud || 0) + ' next to it' },
       thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. ' + (ONE ? 'The ' + YIELD + ' bar takes ' : 'The creature loses ') + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when the creature fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
     }[kind];
@@ -195,6 +201,9 @@
   function dispEnvs() { return (phase === 'pre' && PREV ? PREV.envs : data.envs) || []; }
   var qAim = null;   // 2.7.06: the aim marker of Quick's second piece during the replay
   function setQuickAim(a) { if (a === null && qAim === null) return; qAim = a; render(); }
+  var aoeFlash = false, aoeLanded = false;   // 2.7.55 boss AOE in the replay: its old marks stay until it lands, then they flash once
+  function dispAoe() { if (phase === 'pre' && PREV) return aoeLanded && !aoeFlash ? null : (PREV.aoe || null); return data.aoe || null; }
+  function aoeWhat(ao) { var p = pc100(ao.pct || 0); return ao.n + ' (' + ({ sq2: '2x2 square', pincer: 'pincer', diag: 'diagonal', plus: 'plus', row: 'row', ring: 'ring', x: 'X', corners: 'corners', diamond: 'diamond', col: 'column', ell: 'L' }[ao.shape] || ao.shape) + '): lands after its move. ' + (ao.fx === 'break' ? 'Your pieces here break; a Guard piece holds.' : ao.fx === 'hurt' ? 'You lose ' + p + ' of your health for each of your pieces here; your guard takes it first.' : 'It recovers ' + p + ' of its ' + YIELD + ' bar for each of your pieces here.') + ' Keep out, or chain your pieces here away.'; }
   function dispAim() { if (qAim) return qAim; return phase === 'pre' && PREV ? (aimHide ? null : PREV.aim) : data.aim; }
   function pipsEl(n, max) { var s = document.createElement('span'); s.className = 'xp' + (n <= 1 && max > 1 ? ' last' : ''); s.setAttribute('aria-hidden', 'true'); for (var i = 0; i < max; i++) { var d = document.createElement('i'); if (i >= n) d.className = 'e'; s.appendChild(d); } return s; }
   /** 2.7.08 (puzzle clarity P7, expiry label): a piece on the board says how long it stays, not only in pips: a number beside them, a tooltip and the cell's spoken label ("fades in 2 rounds" / "fades at the end of this round"). */
@@ -239,6 +248,13 @@
         a2.appendChild(svgEl('aim')); var b2 = document.createElement('b'); b2.textContent = String(aim.alt.v); a2.appendChild(b2); putBody(a2, aim.alt.x, aim.alt.y);
       }
     }
+    var ao = dispAoe();   // 2.7.55 boss AOE: the marked cells (it lands after the boss's move this round)
+    if (ao && ao.cells && ao.cells.length) ao.cells.forEach(function (c, ci) {
+      var z = document.createElement('div'); z.className = 'mk aoe fx-' + ao.fx + (aoeFlash ? ' aoeflash' : ''); z.setAttribute('role', 'img');
+      z.setAttribute('aria-label', ao.n + ' lands here after its move, column ' + (c[0] + 1) + ' row ' + (c[1] + 1)); z.title = aoeWhat(ao);
+      if (ci === 0) z.appendChild(svgEl('aoe'));
+      putBody(z, c[0], c[1]);
+    });
     (data.ven || []).forEach(function (vc) {   // 2.6.98 Venom trail
       var vm = document.createElement('div'); vm.className = 'mk venom'; vm.setAttribute('role', 'img'); vm.setAttribute('aria-label', 'Venom, column ' + (vc.x + 1) + ' row ' + (vc.y + 1) + ': a piece of yours put here poisons you'); vm.title = 'Venom: a piece of yours put here poisons you (2 a round, 2 rounds)'; vm.textContent = '\u2620'; putBody(vm, vc.x, vc.y);
     });
@@ -312,7 +328,7 @@
     return { head: head, why: why };
   }
   var KIND = { critter: ['Swarm', 'Its Hurt hits +1 for every 2 of its other pieces on the board (up to +2). Use up or outlast its pieces to shrink it.'], bird: ['Two aims', 'It shows two moves on different cells. Take the first cell and it plays the second; take both and it picks again.'],
-    beast: ['Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it.'], water: ['Current', 'After its piece lands, one of your pieces touching it slides a cell away, if that cell is free.'],
+    beast: ['Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it. Blocking only sends the hit to another cell: it still plays a piece at full value.'], water: ['Current', 'After its piece lands, one of your pieces touching it slides a cell away, if that cell is free.'],
     plant: ['Grows', 'After its turn it grows a Bramble beside its piece (one of its own at a time). Whoever chains the Bramble fires it.'], reptile: ['Venom trail', 'When one of its pieces leaves the board, that cell is venom for 2 turns. A piece of yours put there poisons you (2 a round, 2 rounds).'],
     boss: ['Two turns', 'It also shows the piece it will play next round. That piece is forced; its cell is chosen then.'] };
   function kindChip() {
@@ -353,6 +369,7 @@
       var aim = dispAim();
       if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? aimChip(aim) : '<span class="tg aim">no aim</span>';
       h += kindChip();   // 2.6.98: the creature's class rule
+      var ao2 = dispAoe(); if (ao2) h += ao2.cells && ao2.cells.length ? '<span class="tg bad aoe" title="' + esc(aoeWhat(ao2)) + '">' + svg('aoe') + esc(ao2.n) + ': lands after its move</span>' : (ao2.in > 0 ? '<span class="tg aoe" title="' + esc(aoeWhat(ao2)) + '">' + svg('aoe') + esc(ao2.n) + ' in ' + ao2.in + '</span>' : '');   // 2.7.55 boss AOE
       dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
       if (st.slowdraw) h += '<span class="tg bad">tripped −1 draw</span>';
@@ -426,7 +443,7 @@
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">Win and lose</div><ul class="helpl">' + row({ n: 'How a fight ends', g: 'win', l: [ONE ? 'You win when the ' + YIELD + ' bar is full: Hurt and Charm both fill it.' : 'You win when the creature\u2019s health is empty (Hurt) or its charm bar is full (Charm).', 'You lose when your health reaches 0. After ' + (data.turncap || 24) + ' turns the creature loses interest and wanders off (a boss does not).'], who: '' }) + '</ul>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
-      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell, or put a piece beside it that no longer fits, and it has to pick again (the chip then says \u201cpicked again\u201d: that is normal, about once every few turns).' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
+      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell, or put a piece beside it that no longer fits, and it has to pick again (the chip then says \u201cpicked again\u201d: that is normal, about once every few turns). Blocking only reroutes the hit: the new move is as strong as the old one (a beast also hits harder for each block), so it is not a way to stop damage.' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now, with your move included (poison ticking at the end of the round and the terrain come on top); tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
       + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
       + row({ n: 'Chains', g: 'chain', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pieces from different sources in one chain (pal, tool, crop, craft, region, knack, calling): 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, 3 or more +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'Resolve order: environment pieces, then Guard and Soothe, then Trick, then Hurt and Charm, then Heal and Item. Pieces of one type fire in the order they linked.', 'Tags on your pieces: Quick fires first in its chain, Heavy fires last and then falls away; a Sticky upgrade keeps the piece on the board one round longer.', 'Combos: a piece gets its combo when a partner of your own is anywhere in the same chain, whatever order you put them down in. Trick + Hurt = Ambush, Guard + Hurt = Riposte, Hurt + Hurt = Double Swing (the second Hurt), Soothe + Charm = Calm Charm, Charm + Item = Win Over, Trick + Guard = Bait.', 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Numbers on a lit spot', g: 'num', l: ['Pick a piece and every spot it can go shows what your chain would do there: \u2694 hurt to the creature, \u273F charm, \u2764\u2212 health YOU lose (a creature piece or a Thornburst in your chain). A spot with a red edge costs you health; tap it to see why.', '\u00d7N used: the chain is long enough to use its pieces up. \u2013 nothing counted. \u2605 the fight ends.'], who: '' })
@@ -441,13 +458,46 @@
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
       + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
+      + '<div class="sl">Piece effects</div><div class="spdrow pfa-row">' + [['full', 'Full'], ['light', 'Light'], ['off', 'Off']].map(function (o) { return '<button type="button" class="btn small' + (pfaMode() === o[0] ? ' primary' : ' ghost') + '" data-pfx="' + o[0] + '" aria-pressed="' + (pfaMode() === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'
+      + '<p class="hint">How the pieces land and fire in the replay. Light: they land with a wiggle, no edge effects. Off: none.' + (pfaRm() && !pfaChosen() ? ' Your device asks for less motion, so they are off until you pick one.' : '') + '</p>'
       + '</div></div>';
     (root.closest('dialog') || document.body).appendChild(sheetEl);   // inside the Trail's popover when the fight is in one (a modal dialog covers the page)
     sheetEl.addEventListener('click', function (ev) {
       if (ev.target.closest('[data-x]')) { closeSheet(); return; }
       var sb = ev.target.closest('[data-spd]'); if (sb) { setSpd(+sb.dataset.spd); helpSheet(); }
+      var fb = ev.target.closest('[data-pfx]'); if (fb) { setPfx(fb.dataset.pfx); helpSheet(); }
     });
     var done = sheetEl.querySelector('.btn'); if (done) done.focus();
+  }
+  // ---- 2.7.55 piece effects (assets/pfanim.js, one overlay canvas): the replay's hooks. Purely visual: they start an effect and return at once; they never add a timer to
+  // playTimers or move tt, so the replay's steps come at the same times with the effects on or off. The setting is per device like the animation speed (localStorage pfvfx:
+  // full | light | off; none chosen = full, or off when the device asks for reduced motion).
+  var pfaCh = null, pfaFx = 0, pfaDone = {};
+  function pfaRm() { try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } }
+  function pfaChosen() { var v = ''; try { v = window.localStorage.getItem('pfvfx') || ''; } catch (e) {} return v === 'full' || v === 'light' || v === 'off' ? v : ''; }
+  function pfaMode() { return pfaChosen() || (pfaRm() ? 'off' : 'full'); }
+  function setPfx(v) { if (window.PFAnim) PFAnim.set(v); else try { window.localStorage.setItem('pfvfx', v); } catch (e) {} root.classList.toggle('pfa-place', playing && pfaMode() !== 'off'); }
+  function pfaCtx(step) { return { board: boardEl, root: root, w: W, h: H, step: step, slug: data.cslug || '' }; }
+  function pfaReset() { pfaCh = null; pfaFx = 0; pfaDone = {}; if (window.PFAnim) { try { PFAnim.cancel(); } catch (e) {} } }
+  function pfaStart() { pfaReset(); root.classList.toggle('pfa-place', !!window.PFAnim && pfaMode() !== 'off'); }   // the replay starts: PFAnim lands the pieces (the old 400 ms drop steps aside)
+  /** a piece appears at this step (revealed, the environment's, or yours as its chain starts): it is put down */
+  function pfaPlace(id, step) { if (!window.PFAnim || rewind || pfaDone[id]) return; var p = pieceById(id); if (!p) return; pfaDone[id] = 1; try { PFAnim.place(p, pfaCtx(step)); } catch (e) {} }
+  /** the chain (pieces in firing order, data.fx) a firing piece belongs to: the replay's events of one chain come one after another, in that order */
+  function pfaChain(id) {
+    var fx = data.fx || [], j;
+    if (pfaCh && pfaCh.ids[pfaCh.i + 1] === id) { pfaCh.i++; return pfaCh.pcs; }
+    for (j = pfaFx; j < fx.length; j++) if (fx[j].ids && fx[j].ids[0] === id) { pfaFx = j + 1; pfaCh = { ids: fx[j].ids, i: 0, pcs: fx[j].ids.map(pieceById).filter(function (q) { return !!q; }) }; return pfaCh.pcs; }
+    pfaCh = null; var p = pieceById(id); return p ? [p] : [];
+  }
+  function pfaStep(ev, step) {
+    if (!window.PFAnim || rewind) return;
+    try {
+      PFAnim.tick();   // the step's own time (tests compare them with the effects on and off)
+      if (ev.cs && ev.rid) { var rp = pieceById(ev.rid); if (rp && rp.by === 'me') pfaPlace(ev.rid, step); }   // your own piece was on the board from the first frame: it lands as its chain starts
+      if (ev.note === 'aoe') { var ao = (PREV && PREV.aoe) || data.aoe; if (ao && ao.cells) PFAnim.aoe(ao.cells, pfaCtx(step)); return; }
+      if (!ev.id || ev.note || ev.strike || (ev.env && ev.env !== 'fire')) return;
+      var p = pieceById(ev.id); if (p) PFAnim.fire(ev, p, pfaChain(ev.id), pfaCtx(step));
+    } catch (e) {}
   }
   function setSpd(v) { SPD = v === 2 ? 2 : v === 0 ? 0 : 1; try { window.localStorage.setItem('pfvspd', String(SPD)); } catch (e) {} drawLegend(); if (!SPD && playing) stopPlay(true); }
   function onKey(ev) { if (ev.key === 'Escape') { if (sheetEl) closeSheet(); else closePop(); } }
@@ -456,7 +506,7 @@
   function replayStart() {
     if (insp) { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); }   // 2.6.77: the card never stays open into a replay
     if (PREV) phase = 'pre';
-    terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = '';
+    terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; aoeFlash = false; aoeLanded = false;
     stripRem = []; stripBad = false; slideIds = {}; fadeIds = {}; fxPop = null;
     if (ENV) { envPre(); drawLegend(); }
     (data.replay || []).forEach(function (ev) { if (ev.env === 'gust' && ev.moved && ev.moved.id !== undefined && typeof ev.x === 'number') movedBack[ev.moved.id] = { x: ev.x, y: ev.y }; });
@@ -474,7 +524,7 @@
     (data.replay || []).forEach(function (ev) { if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined && typeof ev.moved.fx === 'number') movedBack[ev.moved.id] = { x: ev.moved.fx, y: ev.moved.fy }; });   // 2.6.985: a Water current pushes your piece at its own step, not before
   }
   function replayDone() { qAim = null; root.classList.remove('pf-turnhold'); banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
-    fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
+    fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; aoeFlash = false; aoeLanded = false; }
   function envStepE(ev) {   // one step of the environment's own events: a piece fires in a chain, the environment places, finds no place, pieces fade
     var K = envKind(ev.kind);
     flashIds = {}; fxPop = null; slideIds = {}; fadeIds = {}; stripBad = false;
@@ -498,6 +548,7 @@
     else if (ev.env === 'expire') { (ev.ids || []).forEach(function (id) { fadeIds[id] = 1; }); }
     else if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined) { delete movedBack[ev.moved.id]; flashIds[ev.moved.id] = 1; }   // 2.6.985
     else if (ev.note === 'grows' && ev.id) { flashIds[ev.id] = 1; fxPop = { id: ev.id, t: 'Bramble', kind: 'bramble' }; }
+    else if (ev.note === 'aoe') { aoeLanded = true; aoeFlash = true; (ev.hit || []).forEach(function (h) { flashIds[h.id] = 1; }); (ev.held || []).forEach(function (id) { flashIds[id] = 1; }); playTimers.push(setTimeout(function () { aoeFlash = false; render(); }, 900)); }   // 2.7.55 boss AOE lands
     render(); drawLegend();
   }
   function envStep(ev) {
@@ -692,8 +743,8 @@
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();
     if (data.bar !== undefined && data.barmax) setBar(willReplay && data.replay0 && data.replay0.bar !== undefined ? data.replay0.bar : data.bar, data.barmax);   // 2.6.80: the N/100 number is there from the first frame
-    if (willReplay && data.replay0) { setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }   // 2.6.88: until the replay reaches the piece that changes them the bars show what they were before the turn
-    else { if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); }   // the server draws a turn that waits for its replay with the bars as they stood BEFORE it (pfight_board_html): no replay here (seen already), so the new values
+    if (willReplay && data.replay0) { setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); setFoeGuard(data.replay0.fg); }   // 2.6.88: until the replay reaches the piece that changes them the bars show what they were before the turn
+    else { if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard); }   // the server draws a turn that waits for its replay with the bars as they stood BEFORE it (pfight_board_html): no replay here (seen already), so the new values
     if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
     else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
@@ -1137,6 +1188,7 @@
       if (!glowTimer && glows.length) startGlow();
     }
     drawMarks(putBody, b);
+    if (window.PFAnim) PFAnim.attach(world, pfaCtx(0));   // 2.7.55: the piece effects' canvas moves into the new world (render() makes a new one)
     var vk = [x0, y0, x1, y1].join(',');
     if (vk !== viewKey) { viewKey = vk; vz = 1; vx = 0; vy = 0; }   // the pieces moved the view: back to the whole area
     boardEl.appendChild(zoomControls());
@@ -1241,16 +1293,16 @@
     if (!rewind) return;
     rewind = null; if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (c) { c.classList.remove('pf-chip-sel'); });
     if (rewindEl) rewindEl.hidden = true; root.classList.remove('pf-rewound');
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard);
     if (insp) insp.hidden = true; fxOn = true; render();
   }
   function enterRewind(c) {
     var pcs = data.snaps && data.snaps[c.dataset.sn]; if (!pcs) return;
-    exitRewind(); moves = []; selected = null; hideOpts(); clearPicks(); if (insp) insp.hidden = true;
+    exitRewind(); moves = []; selected = null; hideOpts(); clearPicks(); if (insp) insp.hidden = true; pfaReset();
     rewind = { sn: c.dataset.sn, id: +c.dataset.id || 0, chip: c, pieces: pcs };
     if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (x) { x.classList.remove('pf-chip-sel'); });
     c.classList.add('pf-chip-sel');
-    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g);
+    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g); setFoeGuard(c.dataset.fg);
     var rt = c.querySelector('.pfh-txt'); if (rwT) rwT.textContent = 'Rewound to: ' + (c.classList.contains('foe') ? (data.foe || 'Creature') : 'You') + ', ' + (rt ? rt.textContent : 'a move') + '.';
     if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
   }
@@ -1293,6 +1345,11 @@
     var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
     el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits. It fades when your turn starts, unless Hold keeps it');
   }
+  function setFoeGuard(g) {   // the creature's guard beside its bars: dimmed at 0, follows the replay as it builds guard and your Hurts are blocked
+    var el = root.querySelector('.pf-fguard'); if (!el || g === null || g === undefined || g === '') return; g = Math.max(0, +g);
+    var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
+    el.classList.toggle('pf-fguard-0', g <= 0); el.setAttribute('aria-label', 'The creature\u2019s guard ' + g + ': it soaks up your Hurt pieces first. It clears when its next turn starts.');
+  }
   function setHp(v) {
     if (v === null || v === undefined || v === '') return;
     var h = root.querySelector('.pfc-top .pf-hp'), pr = h && h.querySelector('progress'); if (pr) pr.value = v;
@@ -1317,12 +1374,12 @@
     if (hideSpawn) { hideSpawn = false; animateSpawn = true; render(); animateSpawn = false; }
   }
   function stopPlay(skipped) {
-    playTimers.forEach(clearTimeout); playTimers = []; playing = false; replayed = true; hiddenIds = {};
+    playTimers.forEach(clearTimeout); playTimers = []; playing = false; replayed = true; hiddenIds = {}; if (skipped === true) pfaReset();   // 2.7.55: a skip drops the piece effects
     if (skipBtn) skipBtn.hidden = true;
     clearTimeout(turnTimer); if (turnEl && skipped === true) turnEl.hidden = true; replayDone();
     revealAllChips();
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard);
     if (insp) insp.hidden = true; root.classList.remove('pf-playing');
     var gone = boardEl.querySelectorAll('.pfb-gone');
     if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800 * RF / Math.max(1, SPD))); }
@@ -1336,9 +1393,9 @@
     try { window.sessionStorage.setItem(replayKey, '1'); } catch (e) {}
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
     if (skipBtn) skipBtn.hidden = false;
-    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
+    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); setFoeGuard(data.replay0.fg); }
     if (!SPD) { render(); stopPlay(true); return; }   // speed: skip
-    replayStart();
+    replayStart(); pfaStart();
     RF = replayScale(); banMs = 700;   // 2.6.96: at most 5 s from End turn at 1x: the creature's banner is short, no banner for your own chain or for the environment, the steps shrink to fit
     var step = 950 * RF / SPD, BAN = 700 / SPD, tt = 200, lastBy = null, foeName = data.foe || 'Creature';   // each side: its banner shows, holds for a second, fades, and only then its pieces play
     data.replay.forEach(function (ev, k) {
@@ -1353,14 +1410,14 @@
         if (ev.note === 'quick') { var nx = data.replay[k + 1], qp = nx && nx.id ? pieceById(nx.id) : null; if (qp) setQuickAim({ x: qp.x, y: qp.y, n: qp.n || nx.n, t: qp.t || nx.t, v: nx.v }); }
         else if (ev.id) setQuickAim(null);
         if ((ev.ta || ev.by) === 'foe') aimHide = true;   // its aim was on the board while its banner showed
-        if (ev.cs && ev.rid && hiddenIds[ev.rid]) { delete hiddenIds[ev.rid]; revealId = ev.rid; render(); revealId = null; }   // next release: the placed piece appears when its chain starts, even when other pieces of the chain (environment, guard, trick) fire before it
-        if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores
+        if (ev.cs && ev.rid && hiddenIds[ev.rid]) { delete hiddenIds[ev.rid]; revealId = ev.rid; render(); revealId = null; pfaPlace(ev.rid, step); }   // next release: the placed piece appears when its chain starts, even when other pieces of the chain (environment, guard, trick) fire before it
+        if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; pfaPlace(ev.id, step); }   // its piece is put down now, then it scores
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
-        stepNote = ev.ln || ''; envStep(ev);
+        stepNote = ev.ln || ''; envStep(ev); pfaStep(ev, step);   // 2.7.55 piece effects: started here, they never add a timer
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); if (c && ev.strike) { c.classList.add('pfv-struck'); var sk = c; setTimeout(function () { sk.classList.remove('pfv-struck'); }, 900); } var pc = pieceById(ev.id); if (pc && ev.env !== 'place') { picked = ev.id; if (!dockOn) showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.fh !== null && ev.fh !== undefined) setFh(ev.fh, data.fhmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
-        setGuard(ev.g);
+        setGuard(ev.g); setFoeGuard(ev.fg);
       }, tt));
       tt += step;
     });
@@ -1405,6 +1462,7 @@
       if (q.dmg) { bits.push('\u2694' + q.dmg); aria.push(q.dmg + (ONE ? ' hurt' : ' damage')); }
       if (q.ch) { bits.push('\u273F' + q.ch); aria.push(q.ch + ' charm'); }
       if (q.hp) { bits.push('\u2764\u2212' + q.hp); aria.push('costs you ' + q.hp + ' health'); }
+      if (q.miss) { bits.push('MISS'); aria.push('MISS: its Evade dodges your ' + q.miss); c.title = (c.title ? c.title + '. ' : '') + 'MISS: its Evade dodges your ' + q.miss + ' (the numbers leave it out)'; }
       if (q.rp) { bits.push('\u21A9\u2212' + q.rp); aria.push('the creature then takes about ' + q.rp + ' from you'); }
       var s = document.createElement('span'); s.className = 'pfb-num' + (q.hp ? ' pfb-num-hurt' : ''); s.setAttribute('aria-hidden', 'true'); s.textContent = bits.join(' ') || (q.end ? '\u2605' : '\u2013'); c.appendChild(s);
       if (q.hp) { c.classList.add('pfv-costly'); var cw = costNames(q); if (cw) aria.push('it fires ' + cw); c.title = 'Costs you ' + q.hp + ' health' + (cw ? ': it fires ' + cw : ''); }

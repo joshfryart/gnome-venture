@@ -69,11 +69,11 @@ ck "T12 free pass: no Pass (nothing fits) button, End turn does the passing" "$(
 ck "T12 flip is free any number of times: no 'once a turn' on the button" "$(grep -o 'id="pf-flip"[^>]*>' $H | grep -c 'once a turn')" "0"
 ck "page data (2.6.75): the environment's two face-up pieces (a list), no ground cells, no forecast" "$(grep -c '"env":true.*"ter":{}.*"envs":\[\].*"env":{"next":\[{"k":"e:[a-z]*","n":"[A-Za-z]*","kind":"[a-z]*","life":[23],"e":{' $H)" "1"
 ck "page (2.6.75): the legend row is the environment strip (no terrain legend)" "$(grep -c 'id="pfv-legend" role="group" aria-label="The environment: its next pieces"' $H) $(grep -c 'aria-label="Terrain legend"' $H)" "1 0"
-ck "page data: the board size of the creature (large here: 4x4 since 2.6.94, every size is 4x4)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "large 4x4"; ck "page data carries that size" "$(grep -c '"w":4,"h":4' $H)" "1"
+ck "page data: the board size of the creature (large here: 5x5 since 2.7.55; 4x4 for every size 2.6.94-2.7.54)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "large 5x5"; ck "page data carries that size" "$(grep -c '"w":5,"h":5' $H)" "1"
 ck "page data: hand pieces carry life, source, flip" "$(grep -c '"life":[234],"src":"[a-z]*","flip":false,"canflip":true' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
 ck "no draw pile or seed in the page" "$(grep -c '"rng"\|"draw"' $H)" "0"
 BL=$(encq '$s["pcs"][1]["x"] . "," . $s["pcs"][1]["y"]'); BX=${BL%,*}; BY=${BL#*,}
-ck "the blank starts on an inner cell (2.6.981), not only the centre" "$(( BX >= 1 && BX <= 2 && BY >= 1 && BY <= 2 ))" "1"
+ck "the blank starts on an inner cell (2.6.981), not only the centre" "$(( BX >= 1 && BX <= 3 && BY >= 1 && BY <= 3 ))" "1"
 ck "opening: start piece next to the blank wherever it stands (blank $BL, 2.6.983)" "$(pf pfb_play -d moves="0,$((BX-1)),$BY")" "302"
 ck "the fight started" "$(encq 'empty($s["start"]) ? "started" : "opening"')" "started"
 get adventure.php >/dev/null; ck "the creature's aim is in the page" "$(grep -c '"aim":{"k":"f:' $H)" "1"

@@ -1,0 +1,125 @@
+{
+ "_doc": "Large batch L09 themed pass (TEMPLATE.md sections 9 and 10): saltwater gharial, delta gharial, alligator snapper, mire toad, elder mire toad, goliath frog, reef turtle, leatherback. New motifs live in motifs/large_L09.js (32, glyph/motion ids prefixed L09-, 5 custom chain effects: gharial cruising eyes-only with a V wake, a fish lured to the snapper's pink worm, the goliath frog's one huge leap with a splash, a hawksbill swimming over coral, a leatherback diving under and resurfacing). All 8 signature motifs are new and used by no other creature (100%). Sibling lends only as secondary motifs: tail-sweep and death-spin between the two gharials, fly-tongue, bog-breath and belly-flop from the mire toad to the elder. Reused from earlier catalogues where truly the same: bask-log, bog-gulp, wart-hide, bull-kick, gland-squirt (medium m07) and mud-flop, croak-ring (small). Every piece (unique, class and x0) has a hand note. The Sonnet family overrides in overrides/large/L09.json stay the Generic fallback; its three review flags are answered by the pictures: Fog Hush = marsh fog banks rolling out with a half-shut eye fading into them (puff), Sitting Smother = the rubbery granular hide bulging out and smothering (bash), Reef Shell = overlapping tortoiseshell scutes with a cleaner fish nibbling (shield).",
+ "creatures": {
+  "saltwater-gharial": {
+   "pal": ["#9aae94", "#1c2620", "#f2f4ec"], "m": "salt-snout", "m2": "brine-scute", "pers": "glide", "snd": ["click", "hiss"], "spd": 0.9,
+   "notes": "Saltwater gharial of coast and wetland: a big grey-green crocodilian with a salt crust on its scutes and a very long thin snout lined with needle teeth, swept sideways through the water to catch fish; it lies for hours with only its eyes above water and spins in a death roll. It slides in low off the bank; teeth click on the strike, a hiss when it guards.",
+   "p": {
+    "u0": {"m": "salt-snout", "n": "Estuary Snap: the salt-crusted needle-toothed snout swings sideways along the edge through brackish water and snaps shut with a white star"},
+    "u1": {"m": "death-spin", "n": "Death Spin: the long grey-green body spins over and over along the edge, dark back and pale belly turning, spray flung round"},
+    "u2": {"m": "brine-scute", "n": "Scute Ridge: three keeled bony scutes push up along the edge like spikes, salt crystals glittering on the keels"},
+    "u3": {"m": "eye-float", "n": "Patient Float: only the raised eyes and the nostril knob sit above a water line along the edge, a slow blink, rings spreading"},
+    "b0": {"m": "salt-snout", "lay": "strike", "x": "glint", "n": "Brine Gnash: the long snout lunges off the edge and gnashes, a glint running down the needle teeth"},
+    "b1": {"m": "tail-sweep", "n": "Brine Sweep: the crested tail sweeps out from one side to the other, brine spray off the tip"},
+    "b2": {"m": "brine-scute", "x": "glint", "n": "Brine Scales: rows of salt-crusted scutes line up along the edge and hold, crystals glinting"},
+    "b3": {"m": "brine-spray", "n": "Brine Spray: brine drops are flung off and fall, drying into little white salt cubes"},
+    "x0": {"m": "tail-sweep", "lay": "slam", "x": "splat", "n": "Brine Wallop: the heavy crested tail wallops out and drops back, a wet splat where it lands"}
+   }
+  },
+  "delta-gharial": {
+   "pal": ["#b0a872", "#2a2414", "#dcc8a0"], "m": "ghara-snout", "m2": "log-mimic", "pers": "bob", "snd": ["zig", "pop"], "spd": 0.85,
+   "notes": "Delta gharial of the river wetlands: an olive-tan gharial with a thin snout ending in the ghara, the pot-shaped knob that buzzes and blows bubbles; it drifts among the floating logs looking like one and naps on the sandbars. It bobs up as if floating; a bubbly buzz on the strike, a pop on guard and heal.",
+   "p": {
+    "u0": {"m": "ghara-snout", "n": "Thin Snout: the thin snout with its round ghara knob buzzes bubbles, then drives the length of the edge with a strike star"},
+    "u1": {"m": "death-spin", "c": "#a8905a", "x": "clods", "n": "Death Roll: the muddy body rolls over off the edge, back and belly turning, river mud thrown up"},
+    "u2": {"m": "log-mimic", "n": "River Drift: logs drift out and back on the water... until two eyes open on one of them and sink again"},
+    "u3": {"m": "bask-log", "n": "Log Nap: the gharial basks on a warm log, rising gently as it soaks up the sun"},
+    "b0": {"m": "ghara-snout", "lay": "strike", "x": "bubbles", "n": "Long-Nose Clamp: the ghara snout lunges off the edge and clamps, bubbles rising from the knob"},
+    "b1": {"m": "tail-sweep", "c": "#a8905a", "x": "clods", "n": "Mudbank Tail Sweep: the crested tail sweeps across the mudbank, clods flying"},
+    "b2": {"m": "log-mimic", "lay": "hold", "n": "Riverlog Plate: log after log lines up along the edge like a raft; one of them has eyes"},
+    "b3": {"m": "mud-flop", "c": "#9c8262", "lay": "fall", "n": "Mud-Gob Spit: gobs of river mud are spat off the edge and splat as they fall"},
+    "x0": {"m": "mud-flop", "c": "#9c8262", "lay": "slam", "n": "Mudbank Flop: the gharial flops out onto the mudbank and back, mud splatting up"}
+   }
+  },
+  "alligator-snapper": {
+   "pal": ["#a09a6a", "#1e1c12", "#f08ab4"], "m": "worm-lure", "m2": "keel-shell", "pers": "burrow", "snd": ["crack", "squish"], "spd": 0.8,
+   "notes": "Alligator snapper of the wetland and coast: a huge turtle with a three-keeled spiked shell and a coat of weed, lying still on the bottom with its jaws wide open, wiggling a pink worm-shaped tongue lure until a fish swims in, then a crushing hooked beak. It rises up out of the mud; the beak cracks, a wet squish on guard and heal.",
+   "p": {
+    "u0": {"m": "hook-jaw", "n": "Jaw Slam: the huge hooked beak gapes on its pink mouth, slams out and shut with a star and crack lines"},
+    "u1": {"m": "mud-doze", "n": "Mud Doze: the snapper dozes half sunk in the mud, only the spiked shell top showing, bubbles rising from its nostrils"},
+    "u2": {"m": "weed-coat", "n": "Weedy Hide: long weed strands wave off the spiked shell and scatter out and back, the snapper vanishing into the pond bottom"},
+    "u3": {"m": "worm-lure", "n": "Pink Lure: jaws gape at spot after spot, a pink worm tongue wriggling in each, until a fish comes close and they snap"},
+    "b0": {"m": "hook-jaw", "lay": "strike", "n": "Bitter Chomp: the hooked beak lunges off the edge and chomps"},
+    "b1": {"m": "keel-shell", "lay": "strike", "x": "clods", "n": "Mud Bank Thrash: the spiked keeled shell thrashes out off the bank, mud clods flying"},
+    "b2": {"m": "keel-shell", "n": "Keeled Shell: shells with three spiked keels line up along the edge like a mountain range, weed waving"},
+    "b3": {"m": "worm-lure", "lay": "snare", "n": "Worm Tongue Lure: gaping jaws hang at spots tied by thin pink lines, worm tongues wriggling as bait"},
+    "x0": {"m": "hook-jaw", "lay": "lance", "x": "bubbles", "n": "Waking Lunge: the old snapper wakes and lunges along the edge, beak first, bubbles streaming off it"}
+   }
+  },
+  "mire-toad": {
+   "pal": ["#7ab8a2", "#16281e", "#e8dc5a"], "m": "toad-slime", "m2": "toad-slime", "pers": "squelch", "snd": ["squish", "croak"], "spd": 0.9,
+   "notes": "Mire toad of the wetland: a fat teal-green toad with warts and yellow poison glands, slick with slime, that belly-flops into the bog, breathes swamp gas and catches flies on a sticky pink tongue. It rises slow and wet; squish on the strike, a croak on guard and heal.",
+   "p": {
+    "u0": {"m": "toad-slime", "n": "Toad Slime: strings of slime stretch off the warty back like spikes, yellow glands shining, drops snapping off"},
+    "u1": {"m": "belly-flop", "n": "Belly Flop: a fat toad jumps up off the edge with its legs spread and flops flat on its belly, mud splashing out"},
+    "u2": {"m": "bog-breath", "n": "Bog Breath: bog-gas bubbles well up, swell and burst into stink curls that drift down off the edge"},
+    "u3": {"m": "fly-tongue", "n": "Tongue Gulp: the sticky pink tongue shoots the length of the edge, catches a fly and reels it in"},
+    "b0": {"m": "bog-gulp", "n": "Warty Gulp: a wide warty mouth lunges off the edge and gulps"},
+    "b1": {"m": "fly-tongue", "lay": "strike", "n": "Sticky Tongue Lash: tongues lash off the edge, a fly stuck on the tip"},
+    "b2": {"m": "wart-hide", "n": "Wart-Crust Shell: dry crusty warts bump up along the edge and hold"},
+    "b3": {"m": "toad-slime", "lay": "fall", "n": "Mire Glandular Spit: gland slime strings drip off the edge and fall in drops"},
+    "x0": {"m": "belly-flop", "lay": "slam", "x": "splat", "n": "Belly-Flop Slam: the fat toad slams out flat on its belly and drops back, a mud splat"}
+   }
+  },
+  "elder-mire-toad": {
+   "pal": ["#94b464", "#1e2618", "#dce6d2"], "m": "moss-back", "m2": "fog-hush", "pers": "trundle", "snd": ["croak", "hiss"], "spd": 0.6,
+   "notes": "Elder mire toad of the wetland: an ancient, enormous toad with moss growing on its back, huge warts and heavy half-closed eyes; it hardly moves, belches foul gas, mutters in the bog and hides in the marsh fog. It rises very slow and heavy; a deep croak on the strike, a hiss of fog on guard and heal.",
+   "p": {
+    "u0": {"m": "moss-back", "x": "sheen", "n": "Slime Mantle: the mossy warty back lines the edge and holds, a sheen of slime running over the moss"},
+    "u1": {"m": "belch-blast", "n": "Mire Belch: the pale throat sac swells off the edge and bursts in a ring of foul green belch, spit flying"},
+    "u2": {"m": "croak-ring", "n": "Bog Mutter: low croak rings throb at spots, tied together by muttered lines"},
+    "u3": {"m": "fog-hush", "n": "Fog Hush: marsh fog rolls out in bands and back, the old toad's half-shut eye fading into it"},
+    "b0": {"m": "bog-gulp", "x": "haze", "n": "Fog Gulp: the old wide mouth lunges out and gulps a mouthful of fog"},
+    "b1": {"m": "fly-tongue", "n": "Mire Tongue Flick: a slow old tongue flicks off the edge and still gets its fly"},
+    "b2": {"m": "moss-back", "lay": "bristle", "n": "Mossy Hide: moss sprigs push up off the warty back like a lawn and stay"},
+    "b3": {"m": "bog-breath", "x": "haze", "n": "Lingering Gob: a gob of bog gas falls off the edge and lingers in a haze"},
+    "x0": {"m": "belly-flop", "lay": "slam", "n": "Patient Plop: after a long wait the huge toad plops out flat and back"}
+   }
+  },
+  "goliath-frog": {
+   "pal": ["#c4925e", "#2a1a10", "#eadcb4"], "m": "goliath-leap", "m2": "rubber-hide", "pers": "thud", "snd": ["thud", "croak"], "spd": 0.85,
+   "notes": "Goliath frog of wetland and rainforest rivers: the biggest frog of all, sandy brown with a wide flat head and thick granular skin; it leaps huge distances, swallows crabs whole (pressing its eyes down to push them in) and shoves river stones into nest pools. It lands heavy with a thud; thud on the strike, a croak on guard and heal.",
+   "p": {
+    "u0": {"m": "goliath-leap", "n": "Belly Slam: the giant flat-headed frog launches out and comes down splayed flat, a splash ring round it"},
+    "u1": {"m": "crab-gulp", "n": "Gulp Down: a red crab is swallowed whole, the eyes press down to push it in and the frog rises refreshed"},
+    "u2": {"m": "rubber-hide", "n": "Rubbery Skin: thick granular skin lines the edge, bulging under blows and springing back"},
+    "u3": {"m": "rock-nest", "n": "Sit Heavy: round river stones are shoved into a nest ring at spots, a pool fills and the frog sits heavy on top"},
+    "b0": {"m": "crab-gulp", "lay": "strike", "n": "Haycart Gulp: the wide flat mouth lunges off the edge and takes a crab whole"},
+    "b1": {"m": "bull-kick", "n": "Hind Leg Kick: a huge hind leg kicks out off the edge"},
+    "b2": {"m": "rubber-hide", "x": "dew", "n": "Goliath Warty Hide: the warty granular hide holds along the edge, wet with river dew"},
+    "b3": {"m": "gland-squirt", "n": "Sticky Spit: sticky spit squirts off the edge and drips"},
+    "x0": {"m": "rubber-hide", "lay": "slam", "n": "Sitting Smother: the huge rubbery body bulges out over the edge, smothers and drops back"}
+   }
+  },
+  "reef-turtle": {
+   "pal": ["#d0a656", "#3a2210", "#7ad8d0"], "m": "reef-glide", "m2": "scute-tiles", "pers": "hover", "snd": ["tink", "pop"], "spd": 0.9,
+   "notes": "Reef turtle of the islands: a hawksbill with overlapping amber tortoiseshell scutes and a pointed hooked beak for picking sponges off the coral; it flies over the reef on its front flippers, sleeps wedged under ledges and cries salt tears. It hangs above the spot like over a reef and settles; a tink on the strike, a pop on guard and heal.",
+   "p": {
+    "u0": {"m": "flipper-slap", "n": "Flipper Slap: a broad front flipper rises off the edge and slaps flat on the water in a burst of spray"},
+    "u1": {"m": "scute-tiles", "n": "Reef Shell: overlapping tortoiseshell scutes line the edge like roof tiles, a yellow cleaner fish nibbling along them"},
+    "u2": {"m": "reef-glide", "x": "bubbles", "n": "Drift Off: the hawksbill drifts up off the edge on slow flipper strokes, bubbles rising"},
+    "u3": {"m": "hawk-beak", "n": "Beach Snap: the pointed hawksbill beak slams out and nips a sponge to bits"},
+    "b0": {"m": "hawk-beak", "lay": "strike", "n": "Beak Snap: the hooked beak lunges off the edge and snaps"},
+    "b1": {"m": "flipper-slap", "lay": "lance", "x": "jet", "n": "Flipper Sweep: a flipper sweeps the length of the edge, water jetting off it"},
+    "b2": {"m": "scute-tiles", "x": "kelp", "n": "Boulder Shell: the tortoiseshell sits like a boulder along the edge, kelp waving round it"},
+    "b3": {"m": "brine-spray", "c": "#7ad8d0", "n": "Brine Squirt: salt tears well up and drop off the edge, drying to salt"},
+    "x0": {"m": "flipper-slap", "lay": "slam", "x": "splat", "n": "Paddle Crush: the flipper paddles out hard and crushes down, a splat of water"}
+   }
+  },
+  "leatherback": {
+   "pal": ["#8e8a9c", "#121016", "#f4f4f8"], "m": "ridge-dive", "m2": "ridge-dive", "pers": "flutter", "snd": ["whirr", "pop"], "spd": 0.8,
+   "notes": "Leatherback of island and coast: the giant sea turtle with no hard shell, a black leathery carapace with seven ridges and white spots, enormous front flippers it rows like oars; it dives deeper than any turtle and lives on jellyfish, swallowed past a throat full of spines. It rises floating and swaying as if swimming; flipper whirr on the strike, a pop on guard and heal.",
+   "p": {
+    "u0": {"m": "ridge-dive", "n": "Ocean Glide: ridged spotted leatherbacks glide out on huge flipper strokes and come back"},
+    "u1": {"m": "abyss-sink", "n": "Deep Slip: the shell outline shrinks into a dark ring as it slips down into the deep, glowing specks left behind"},
+    "u2": {"m": "great-flipper", "n": "Flipper Heave: enormous flippers row at spots tied together by lines of water, heaving the target off balance"},
+    "u3": {"m": "great-flipper", "lay": "slam", "x": "splat", "n": "Oar Sweep: one enormous flipper rows round like an oar, slams out and drops back with a splash"},
+    "b0": {"m": "jelly-snatch", "lay": "strike", "n": "Leather Nip: a spotted beak lunges off the edge and gulps a pale jellyfish, the spiny throat showing"},
+    "b1": {"m": "great-flipper", "n": "Leather Flipper: a huge spotted flipper strikes out off the edge, a swirl off its tip"},
+    "b2": {"m": "ridge-dive", "lay": "hold", "x": "sheen", "n": "Leather Shell: the ridged leathery backs line up along the edge, a sheen running over the white spots"},
+    "b3": {"m": "abyss-sink", "lay": "fall", "x": "bubbles", "n": "Leather Glide: the turtle glides down off the edge into dark water, bubbles and glowing specks"},
+    "x0": {"m": "great-flipper", "lay": "lance", "x": "jet", "n": "Leather Oar Blow: the oar flipper drives the length of the edge, a jet of water behind it"}
+   }
+  }
+ }
+}

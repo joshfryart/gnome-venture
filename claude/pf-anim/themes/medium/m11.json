@@ -1,0 +1,159 @@
+{
+ "_doc": "Batch m11 (medium, opus themed pass): tanuki, coati band, macaque troop, capuchin pickpocket, wildcat, caracal, fishing cat, jaguarundi, jaguar cub pair, bear cub tumble, sun bear. Motifs in motifs/medium_m11.js; every creature has its own signature motif with its own chain effect. Shared inside the batch: cat-claw (wildcat, caracal; own palettes), honey-paw (bear cub, sun bear). Reused from the catalogue: mud-flop (jaguar cubs Mud Roll), bee-pollen (bear cub Bee-Chase Bowl).",
+ "creatures": {
+  "tanuki": {
+   "pal": ["#b48a5a", "#241a14", "#7ac04a"], "m": "leaf-hat", "m2": "stump-pose", "pers": "plop", "snd": ["pop", "thud"], "spd": 0.9,
+   "notes": "A round masked tanuki from folk tales: a leaf on its head lets it shape-shift into a leaf, a stump or a kettle, and it drums on its round belly. The thing to draw is the dark mask and the leaf.",
+   "p": {
+    "u0": "Belly Drum: round pale bellies drum at spots along the edge, a beat ring popping out on every beat, tied in a tripping rhythm line",
+    "u1": {"m": "leaf-poof", "n": "Leaf Disguise: the tanuki puts its leaf on and vanishes in a white poof, then peeks back out of the smoke"},
+    "u2": {"m": "belly-roll", "n": "Rolling Barge: the tanuki curls into a furry ball, rolls out of the edge with its mask band turning and drops back"},
+    "u3": {"m": "stump-pose", "n": "Stump Pose: the tanuki turns into a ring-cut stump with a leaf on top along the edge, its striped tail peeking out, eyes blinking in the bark"},
+    "b0": "Whiskered Paw: masked faces launch off the edge, whiskers bristling and a paw swiping",
+    "b1": {"m": "belly-drum", "n": "Belly Drum Slam: drumming bellies launch off the edge one after another, beat rings popping"},
+    "b2": {"m": "stump-pose", "x": "dust", "n": "Stump Stance: leaf-topped stumps plant along the edge, dust settling round the roots"},
+    "b3": {"m": "leaf-poof", "lay": "slam", "n": "Disguised Charge: a harmless leaf shoves out of the edge, poofs, and the tanuki inside barges and drops back"}
+   }
+  },
+  "coati-band": {
+   "pal": ["#c88a50", "#2a1c12", "#f0e0c0"], "m": "tail-flag", "m2": "log-cover", "pers": "march", "snd": ["click", "chirp"], "spd": 1.1,
+   "notes": "A band of rainforest coatis walking in a line with their long ringed tails held straight up like flags, rooting under logs and leaf litter with long, upturned snouts.",
+   "p": {
+    "u0": {"m": "ring-screen", "n": "Ringtail Screen: ringed tails cross into a picket screen that pushes out of the edge, the dark and pale bands pulsing"},
+    "u1": {"m": "log-cover", "n": "Log Cover: a mossy fallen log lines the edge, coati snouts poking out from under it in turn"},
+    "u2": {"m": "snout-probe", "n": "Snout Poke: long upturned snouts poke at spots round the edge, tips twitching, tied in a tripping line"},
+    "u3": "Tail Flag: ringed tails shoot up out of the edge like flags, tips curling, leaves falling past",
+    "b0": {"m": "snout-probe", "x": "clods", "n": "Log-Turning Rake: snouts dig out of the edge one after another, rotten-log crumbs thrown"},
+    "b1": {"lay": "slam", "n": "Striped-Flag Pile-On: a thicket of ringed tails piles out of the edge and drops back"},
+    "b2": {"m": "ring-screen", "n": "Tail-Flag Huddle: ringed tails huddle in a screen along the edge, bands breathing"},
+    "b3": {"m": "log-cover", "lay": "slam", "n": "Under-Log Barge: the log heaves out of the edge with coatis barging under it and drops back"}
+   }
+  },
+  "macaque-troop": {
+   "pal": ["#b8aa94", "#3a3028", "#f08a90"], "m": "pink-face", "m2": "hot-spring-huddle", "pers": "swarm", "snd": ["chirp", "pop"], "spd": 1.15,
+   "notes": "A troop of grey-brown mountain macaques with bare pink faces and short tails: snow monkeys that soak in steaming hot springs, stuff their cheek pouches and flash an open-mouth threat.",
+   "p": {
+    "u0": "Troop Shove: pink faces shove out of the edge with an open-mouth threat and drop back",
+    "u1": {"m": "cheek-pouch", "n": "Cheek Dump: cheeks bulge with food, the faces push out and dump seeds and fruit scraps on the foe"},
+    "u2": {"m": "hot-spring-huddle", "n": "Troop Huddle: macaques huddle in a steaming hot spring along the edge, snow on their crowns, steam curling up"},
+    "u3": {"m": "quick-hand", "n": "Quick Fingers: pink-palmed hands launch off the edge, fingers spread, and snatch shut"},
+    "b0": {"m": "quick-hand", "x": "crumbs", "n": "Quick-Finger Grab: grabbing hands fly off the edge, food crumbs dropping from them"},
+    "b1": {"m": "hot-spring-huddle", "lay": "strike", "n": "Troop Pile-On: the whole steaming huddle piles off the edge one head after another"},
+    "b2": {"x": "snow", "n": "Mountain Hunch: hunched pink faces hold the edge in falling snow, brows raised"},
+    "b3": {"lay": "slam", "n": "Elder's Shove: one big old face shoves out of the edge with a wide threat and drops back"}
+   }
+  },
+  "capuchin-pickpocket": {
+   "pal": ["#ecd8ac", "#2a2018", "#f2c83a"], "m": "capuchin-cap", "m2": "canopy-perch", "pers": "skitter", "snd": ["chirp", "click"], "spd": 1.3,
+   "notes": "A small, clever rainforest capuchin with a cream face and shoulders under a dark cap: it picks pockets, steals shiny buttons and pelts you with fruit from the canopy.",
+   "p": {
+    "u0": {"m": "pocket-dip", "n": "Pocket Snag: a little hand dips pocket to pocket along the whole edge and comes out with a glinting coin"},
+    "u1": {"m": "fruit-bomb", "n": "Fruit Bomb: round orange fruit are lobbed out of the edge and splat with juice"},
+    "u2": {"m": "canopy-perch", "n": "Canopy Perch: the capuchin swings out on a leafy branch, hanging by its curled tail, and swings back"},
+    "u3": {"m": "button-snatch", "n": "Button Snatch: shiny four-hole buttons hang at spots on their threads, glinting, tied in a tripping line"},
+    "b0": {"m": "pocket-dip", "n": "Light-Finger Grab: hands dip out of the edge one after another, each lifting a coin"},
+    "b1": {"m": "button-snatch", "lay": "strike", "n": "Button Swipe: snatched buttons fly off the edge on their threads, glinting"},
+    "b2": "Cream-Face Shrug: cream faces under dark caps hold the edge, shrugging with a cheeky grin",
+    "b3": {"lay": "slam", "n": "Bump-and-Lift: a grinning face bumps out of the edge and is gone again"}
+   }
+  },
+  "wildcat": {
+   "pal": ["#aaa69c", "#2a2622", "#e8b040"], "m": "tabby-tail", "m2": "flat-ears", "pers": "pounce", "snd": ["hiss", "click"], "spd": 1.0,
+   "notes": "A grey striped wildcat of forest edge and grassland, like a big tabby: the thing to draw is the thick blunt tail with dark rings and a black tip; it bristles, flattens its ears and hisses.",
+   "p": {
+    "u0": {"m": "fur-bristle", "n": "Fur Bristle: arched tabby backs push out of the edge with the fur standing up in spikes"},
+    "u1": {"m": "cat-claw", "n": "Claw Swipe: tabby paws launch off the edge with claws sprung, three curved slash marks behind"},
+    "u2": {"m": "flat-ears", "n": "Ear Flat Guard: amber-eyed faces flatten their ears and hiss, springing out and back"},
+    "u3": "Tail Ring Feint: thick ringed tails lash out of the edge and whip back, drawing the eye",
+    "b0": {"m": "cat-claw", "x": "marks", "n": "Striped Slash: claw paws streak off the edge, angry marks popping"},
+    "b1": {"lay": "slam", "n": "Thick-Tail Mangle: the heavy ringed tail slams out of the edge and drops back, the wildcat behind it"},
+    "b2": {"m": "flat-ears", "n": "Wary Crouch: faces hold the edge with ears half back, watching"},
+    "b3": {"m": "fur-bristle", "lay": "slam", "n": "Tomcat Shove: a bristling arched back shoves out of the edge and drops back"}
+   }
+  },
+  "caracal": {
+   "pal": ["#d49c5c", "#1c1410", "#f4e8d0"], "m": "ear-tuft", "m2": "dusk-rest", "pers": "pounce", "snd": ["hiss", "tink"], "spd": 1.2,
+   "notes": "A plain tawny caracal of desert scrub with very long black ear tufts that it flicks to signal; it leaps straight up to swat birds out of the air and rests in the grass at dusk.",
+   "p": {
+    "u0": {"m": "bird-swat", "n": "Bird Leap: small birds flush off the edge and a tawny paw leaps up after each, feathers bursting"},
+    "u1": {"m": "dusk-rest", "n": "Dusk Rest: a caracal lies low in the grass before an orange half sun, ear tufts twitching, and rises"},
+    "u2": {"m": "scrub-bush", "n": "Scrub Cover: dry thorny scrub springs up round the edge, two black ear tufts poking above it, and sinks back"},
+    "u3": "Tuft Flick: the long black ear tufts flick out of the edge one way and the other and pull back",
+    "b0": {"m": "cat-claw", "x": "dust", "n": "Pen-Tuft Rake: tawny paws rake off the edge, claws out, desert dust behind"},
+    "b1": {"m": "bird-swat", "lay": "slam", "n": "Bird-Snatch Leap: a caracal springs straight out of the edge, snatches a bird and drops back"},
+    "b2": "Tufted Crouch: tufted heads hold the edge, the tufts twitching",
+    "b3": {"m": "scrub-bush", "lay": "slam", "n": "Sly Bush-Slink: a scrub bush slinks out of the edge, ear tufts showing, and drops back"}
+   }
+  },
+  "fishing-cat": {
+   "pal": ["#a4ae94", "#1e2620", "#8ad0e8"], "m": "fish-scoop", "m2": "wet-coat", "pers": "bob", "snd": ["pop", "squish"], "spd": 0.9,
+   "notes": "A stocky, spotted, olive-grey fishing cat of wetland and mangrove: it wades and dives, its webbed paws scooping fish out of the water, and its dense coat sheds the wet.",
+   "p": {
+    "u0": {"m": "wet-coat", "n": "Wet Plate: stocky spotted backs line the edge half under water, drops beading and running off"},
+    "u1": {"m": "spray-shake", "n": "Fur Shake: fur shakes out of the edge flinging a ring of drops and pulls back"},
+    "u2": {"m": "webbed-paw", "n": "Paw Flick: one webbed paw flicks its way along the whole edge, drops flying"},
+    "u3": "Scoop Grab: webbed paws scoop silver fish out of the water at spots, tied in a tripping line",
+    "b0": {"m": "webbed-paw", "n": "Scooping Paw: webbed paws launch off the edge one after another, claws hooked"},
+    "b1": {"lay": "slam", "n": "Wading Pounce: the cat pounces out of the shallows with a splash and drops back"},
+    "b2": {"m": "wet-coat", "x": "bubbles", "n": "Stocky Wade Stance: wet spotted backs hold the edge, bubbles rising"},
+    "b3": {"m": "wet-coat", "lay": "slam", "n": "Spotted Shoulder Shove: a wet spotted shoulder shoves out of the edge and drops back"}
+   }
+  },
+  "jaguarundi": {
+   "pal": ["#8e8898", "#1e1c22", "#d8884e"], "m": "otter-cat", "m2": "grass-slip", "pers": "glide", "snd": ["chirp", "click"], "spd": 1.05,
+   "notes": "A long, low, plain-coated jaguarundi with a small round head and a long tail: the otter-cat of riverbanks and tall grass, slipping past unseen and chirping to its kind.",
+   "p": {
+    "u0": {"m": "river-slip", "n": "River Slip: slick wet streaks hang at spots, a dark back slipping into the water at each, splash rings tied in a tripping line"},
+    "u1": {"lay": "slam", "n": "Otter Cat Pounce: a long low body pounces out of the edge like an otter and drops back"},
+    "u2": {"m": "grass-slip", "n": "Bank Cover: tall bank grass parts round the edge and the plain dark back slips away between"},
+    "u3": {"m": "shadow-cross", "n": "Unseen Cross: a dark silhouette blinks from spot to spot, only two eyes glinting"},
+    "b0": "Otter-Long Swipe: long low bodies streak off the edge one after another",
+    "b1": {"m": "shadow-cross", "lay": "strike", "n": "Hidden Crossing Pounce: dark silhouettes strike off the edge, eyes glinting as they come"},
+    "b2": {"lay": "hold", "n": "Plain-Coat Crouch: long low bodies flatten along the edge, all but invisible"},
+    "b3": {"m": "grass-slip", "lay": "slam", "n": "Reappearing Barge: the grass bursts open as the cat barges out of the edge and closes as it drops back"}
+   }
+  },
+  "jaguar-cub-pair": {
+   "pal": ["#e4b452", "#1e1610", "#f4ecd8"], "m": "rosette-cub", "m2": "big-paw", "pers": "tumble", "snd": ["chirp", "pop"], "spd": 1.2,
+   "notes": "Two small spotted jaguar cubs with oversized paws and stubby tails: they play-wrestle, chase their own tails, roll in mud and steal bootlaces.",
+   "p": {
+    "u0": {"m": "big-paw", "n": "Cub Spring: oversized spotted paws spring off the edge, toes spreading as they bat"},
+    "u1": {"m": "tail-chase", "n": "Tail Chase: a cub spins in a circle after its own stubby tail, popping up at one spot after another"},
+    "u2": {"m": "mud-flop", "c": "#8a6a44", "n": "Mud Roll: the cubs roll out of the edge in a spray of mud splats and come back muddy"},
+    "u3": {"m": "bootlace", "n": "Lace Grab: bootlace bows hang at spots and a paw tugs each loose, the laces tying the foe up"},
+    "b0": "Spotted Pounce: wrestling cub pairs tumble off the edge one after another",
+    "b1": {"lay": "slam", "n": "Twin Cub Tackle: both cubs tackle out of the edge together and tumble back"},
+    "b2": {"m": "big-paw", "n": "Rosette Stance: big spotted paws plant along the edge, toes flexing"},
+    "b3": {"m": "bootlace", "lay": "slam", "n": "Bootlace Swat: a paw swats a bootlace out of the edge and it flops back"}
+   }
+  },
+  "bear-cub-tumble": {
+   "pal": ["#b07a4c", "#2a1a10", "#f0c040"], "m": "cub-ball", "m2": "fern-hide", "pers": "tumble", "snd": ["thud", "pop"], "spd": 1.0,
+   "notes": "Round, fluffy brown bear cubs of forest and mountain that curl into balls and roll downhill, raid hives for honey and get chased by the bees.",
+   "p": {
+    "u0": "Cub Roll: fluffy cubs curl up tight in balls along the edge, rocking",
+    "u1": {"m": "honey-paw", "n": "Honey Raid: a sticky paw slams out of a honeycomb, honey dripping, and drops back"},
+    "u2": {"m": "fern-hide", "n": "Tumble Cover: ferns spring up round the edge and part, a round cub head peeking out, then sink back"},
+    "u3": {"lay": "strike", "n": "Hillside Bowl: curled cub balls bowl off the edge one after another, rolling"},
+    "b0": {"m": "honey-paw", "n": "Cub Paw Swipe: sticky paws swipe off the edge, honey flying"},
+    "b1": {"m": "bee-pollen", "c": "#f0c040", "n": "Bee-Chase Bowl: angry striped bees loop off the edge after the cub, pollen trailing"},
+    "b2": {"x": "puff", "n": "Roll-Up Hunker: the cubs roll up in balls along the edge, a puff where each settles"},
+    "b3": {"lay": "slam", "n": "Downhill Shoulder Roll: a cub ball rolls out of the edge and bumps back"}
+   }
+  },
+  "sun-bear": {
+   "pal": ["#e0b440", "#1a1414", "#f07a8a"], "m": "sun-crescent", "m2": "tree-hug", "pers": "hover", "snd": ["crack", "squish"], "spd": 0.85,
+   "notes": "A small, black rainforest sun bear with a pale gold muzzle and a gold crescent on its chest like a rising sun: it climbs, rips bark with long claws and licks honey with a very long tongue.",
+   "p": {
+    "u0": {"m": "bark-claw", "n": "Sun Claw: one paw of long pale sickle claws rips its way along the whole edge, bark strips peeling"},
+    "u1": {"m": "honey-paw", "n": "Honey Rest: a honey-dripping paw rises from the comb as the bear licks it clean"},
+    "u2": {"m": "tree-hug", "n": "Bark Hide: the bear presses itself to a trunk, arms wrapped round, springs out and back peeking one side then the other"},
+    "u3": {"m": "snout-sniff", "n": "Sniff Out: pale gold muzzles push out of the edge snuffling, scent lines curling, termites scattering"},
+    "b0": {"m": "honey-paw", "n": "Honey-Paw Swipe: sticky paws swipe off the edge, honey dripping"},
+    "b1": {"lay": "slam", "n": "Crescent Bear-Hug: the gold crescent glows as the bear lunges out of the edge for a hug and drops back"},
+    "b2": "Gold-Crescent Stance: black bears hold the edge, their gold chest crescents glowing like rising suns",
+    "b3": {"m": "long-tongue", "lay": "slam", "n": "Long-Tongue Raid: a muzzle shoves out to a bark hole and the long pink tongue raids it for honey"}
+   }
+  }
+ }
+}

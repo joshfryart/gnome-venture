@@ -1,0 +1,13 @@
+{
+ "_doc": "Medium batch m14 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "thistle-beast/f:b1": {"family": "puff", "note": "thistle down is a drifting seed cloud: puff, avoids a second slash"},
+ "thistle-beast/f:u3": {"family": "bash", "note": "a heaped pile of spines dropped down: bash, avoids a third thorn guard", "review": true},
+ "nettle-lurker/f:b1": {"family": "puff", "note": "stench is a foul cloud: puff, avoids a second slash", "review": true},
+ "nettle-lurker/f:u0": {"family": "web", "note": "a curtain of stinging hairs hangs like strands: web, avoids three thorns", "review": true},
+ "nettle-lurker/f:u1": {"family": "leaf", "note": "wall of green stems: leaf (art beats thorns tag), Brush Sting keeps thorn"},
+ "foxfire-wisp/f:b0": {"family": "sparkle", "note": "the stump glow is a green glow: sparkle, avoids a second slash", "review": true},
+ "foxfire-wisp/f:b1": {"family": "puff", "note": "a puff of rotten glow: puff, name says puff"},
+ "storm-wisp/f:b0": {"family": "shock", "note": "storm thread = lightning thread, crackling art: shock (not web)"},
+ "storm-wisp/f:b1": {"family": "puff", "note": "drizzle cloud: puff (spore keyword would give leaf)"},
+ "storm-wisp/f:u3": {"family": "sparkle", "note": "shed sparks: sparkle (art beats thorns tag), best guess", "review": true}
+}

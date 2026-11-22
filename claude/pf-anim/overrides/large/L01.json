@@ -1,0 +1,92 @@
+{
+ "_doc": "Large batch L01 (Sonnet generic pass): family corrections only; colour/lift/snd left to builder defaults.",
+ "alpha-dingo/f:x0": {
+  "family": "thrust",
+  "note": "pounce = a leap that lands point-first; keeps slash for the two rakes only"
+ },
+ "alpha-dingo/f:u0": {
+  "family": "bite",
+  "note": "art says Bite (alpha jaws); bash tag stays mechanical, Howl keeps the only bash"
+ },
+ "alpha-dingo/f:u1": {
+  "family": "ripple",
+  "note": "a pack howl signal = sound rings, not a snare",
+  "review": true
+ },
+ "alpha-dingo/f:u3": {
+  "family": "puff",
+  "note": "flank run kicks up desert dust; shock (electric) does not fit a dingo",
+  "review": true
+ },
+ "red-fox/f:b1": {
+  "family": "thrust",
+  "note": "lunge = point-first leap, avoids three slashes"
+ },
+ "red-fox/f:u0": {
+  "family": "sparkle",
+  "note": "sly feint = a quick wink/glint; no tag and no keyword",
+  "review": true
+ },
+ "red-fox/f:u3": {
+  "family": "leaf",
+  "note": "brush = undergrowth cover; differs from Den Dash puff"
+ },
+ "silver-fox/f:u0": {
+  "family": "sparkle",
+  "note": "silver-tipped fur glints on the pounce"
+ },
+ "silver-fox/f:u1": {
+  "family": "puff",
+  "note": "drift dive into a snow drift: snow puff instead of a 4th slash"
+ },
+ "arctic-fox/f:b1": {
+  "family": "bite",
+  "note": "mangle = jaws"
+ },
+ "arctic-fox/f:u0": {
+  "family": "thrust",
+  "note": "snow dive lands head-first like a lance"
+ },
+ "arctic-fox/f:u3": {
+  "family": "sparkle",
+  "note": "snow veil = frost glitter; White Out keeps puff"
+ },
+ "tundra-fox/f:b1": {
+  "family": "thrust",
+  "note": "pounce = leap point-first; avoids three slashes"
+ },
+ "tundra-fox/f:u1": {
+  "family": "puff",
+  "note": "den shove throws up burrow dust; Mouse Pounce keeps bash",
+  "review": true
+ },
+ "bramble-wolf/f:b1": {
+  "family": "thorn",
+  "note": "thorn-wrapped maul: spikes instead of a plain slash",
+  "review": true
+ },
+ "bramble-wolf/f:u1": {
+  "family": "bite",
+  "note": "art says Bite; bash tag stays on Scent-Trail Dodge only"
+ },
+ "elder-bramble-wolf/f:u0": {
+  "family": "thrust",
+  "note": "thorn lunge = point-first; slash kept for Maul and Pounce"
+ },
+ "wolverine/f:b1": {
+  "family": "bite",
+  "note": "gnash = grinding jaws"
+ },
+ "badger/f:b1": {
+  "family": "thrust",
+  "note": "snout ram = head-first jab; differs from the claw slashes"
+ },
+ "badger/f:u1": {
+  "family": "bite",
+  "note": "maul = jaws; Spade-Claw Dig and Warren Bulldoze keep slash"
+ },
+ "old-brock/f:x0": {
+  "family": "bash",
+  "note": "grizzled slam = heavy body slam; Rake and Maul keep slash"
+ }
+}

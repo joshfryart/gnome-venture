@@ -336,7 +336,7 @@ if ($wi && !$isWalk): ?>
 </div>
 <?php endif; ?>
 <?php $hasMap = $trailSc || $wanderView || $mapMode || ($dv2Scene && $dv2Scene['map']); $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
-<div class="advgrid<?= $dv2Scene || $kind === 'delve' ? ' dv2' : '' ?><?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() && !pfight_on($u) ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?><?= $fighting && pfight_on($u) ? ' pfover' : '' ?>">
+<div class="advgrid<?= $dv2Scene || $kind === 'delve' ? ' dv2' : '' ?><?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() && !pfight_on($u) ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?><?= $fighting && pfight_on($u) ? ' pfover' : '' ?><?= $pfStageRes !== '' ? ' pfres' : '' ?>">
 <div class="mapcol"<?= $fighting && pfight_on($u) ? ' inert aria-hidden="true"' : '' ?>>
 <?php if ($pfStageRes !== ''): /* pfight_stage: the result card over the map's place, with one button to send it away (assets/pfstage.js); nothing is kept server side */ ?><dialog class="picker hubpop trailpop pfdlg pfst"<?= $enc ? '' : ' id="trailpop"' ?> open aria-label="Fight result"><div class="pickbox"><div class="hubcard trailui pfst-res"><?= $pfStageRes ?><p class="actrow pfst-act"><button type="button" class="btn primary" data-pfst-dismiss>Back to the map</button></p></div></div></dialog><?php endif; ?>
 <?php $pfAct = $fighting && pfight_on($u);   // puzzle combat: no old stage, no old dock

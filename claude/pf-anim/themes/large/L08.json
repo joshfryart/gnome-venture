@@ -1,0 +1,146 @@
+{
+ "_doc": "Large batch L08 themed pass (TEMPLATE.md sections 9 and 10): gila dragon, dune wyrmling, glass wyrm, desert and spurred tortoise, sand viper matriarch, rock python, grass snake, emerald python. New motifs live in motifs/large_L08.js (35, glyph/motion ids prefixed L08-; all 9 signatures bring a custom chain effect: gila plod with tail groove, wyrm humps breaching the dunes, hollow glass serpent with a prism glint, tortoise track, spurred charge, viper mother with her brood in file, python creeping in a straight line, collared snake swimming with a V wake, liana growing with the python on it) plus 4 composition motifs below. Every creature has its own signature motif and 8 of 9 keep it exclusive (barrel-coil, the rock python's, is lent to its sibling the emerald python for Squeeze). Reused only where the picture is truly the same: medium reptile motifs bead-hide and fat-tail (gila), venom-fang, venom-spit, scale-shingle, sidewind-track, tail-lash, smooth-coil; small musk-wave (grass snake musk) and glass-glint (glass armour). Sibling shares: needle-fangs (dune wyrmling -> glass wyrm Glass Fang), cactus-chomp, gopher-dig and shell-in (desert -> spurred tortoise). Every piece (unique, class and x0) has a hand note. Sonnet's flagged pieces are all given distinct pictures: gila x0 quake cracks vs u2 beaded stomp, b2 bead plate with glint; viper b1 sidewind tracks; glass b3 hot sand fling, x0 shattering blow, u1 glass splinters; spurred b3 dig dust, u1 gular ram; rock python b0 gape, b3 hiss gape in haze; grass snake b1 tail lash, b2 scale shingles, u2 smooth coils; emerald b1 liana tail, b2 scale mail, u0 barrel coil squeeze.",
+ "motifs": {
+  "sand-fling": {"g": "speck", "mo": "burst", "x": "glint", "car": "cloud", "fam": "puff", "gap": 10, "nm": "flung hot sand", "desc": "a burst of hot sand grains flung out, glinting as they cool into glass beads"},
+  "glass-splinter": {"g": "shard", "mo": "race", "x": "glint", "car": "comet", "fam": "shock", "gap": 10, "nm": "glass splinters", "desc": "sharp glass splinters spat out in a fast run, a white glint flashing"},
+  "bladder-splash": {"g": "drop", "mo": "none", "x": "splat", "car": "comet", "fam": "drip", "gap": 14, "nm": "stored-water squirt", "desc": "heavy drops of a desert tortoise's stored water squirted out and splashing into a pool"},
+  "hiss-mist": {"g": "puff", "mo": "bloom", "x": "haze", "car": "cloud", "fam": "puff", "gap": 14, "nm": "hiss mist", "desc": "round puffs of hissed breath blooming into a damp rainforest haze"}
+ },
+ "creatures": {
+  "desert-gila-dragon": {
+   "pal": ["#e8907a", "#1e1210", "#f8dcb0"], "m": "gila-grind", "m2": "bead-hide", "pers": "thud", "snd": ["crack", "thud"], "spd": 0.8,
+   "notes": "A gila monster grown to dragon size in the desert: pink and black bead scales, a fat stored-fat tail, a heavy head that bites, clamps on and grinds venom in rather than striking. Slow, stubborn, never lets go. Lands heavy with a shake.",
+   "p": {
+    "u0": {"m": "gila-grind", "lay": "fall", "car": "custom", "n": "Gila Chew: the beaded jaws clamp onto the edge and grind, pale venom running down the jaw grooves and dripping off"},
+    "u1": {"m": "bead-hide", "lay": "hold", "car": "train", "c": "#e8907a", "n": "Bead Hide: rows of round bead scales line the edge and flip pink and black in a warning flash"},
+    "u2": {"m": "gila-stomp", "lay": "slam", "car": "hop", "x": "dust", "n": "Slow Stomp: a fat five-clawed beaded foot lifts and slams down, cracks running out to the sides, dust jumping"},
+    "u3": {"m": "lingering-bite", "lay": "hold", "car": "rings", "n": "Lingering Bite: two arcs of tooth punctures stay on the edge, venom in the middle, ache rings throbbing out and out"},
+    "b0": {"m": "gila-grind", "lay": "strike", "car": "custom", "n": "Hold-On Bite: the heavy beaded head lunges off the edge, clamps shut and hangs on grinding"},
+    "b1": {"m": "fat-tail", "lay": "strike", "car": "roll", "c": "#e8907a", "n": "Slow-Turn Tail Whip: the fat banded tail swings slowly round off the edge and thumps"},
+    "b2": {"m": "bead-hide", "lay": "hold", "car": "train", "x": "glint", "c": "#f0a890", "n": "Beaded Scale Plate: pale bead scales plate the edge, a glint rolling over the bumps"},
+    "b3": {"m": "venom-spit", "lay": "fall", "car": "comet", "c": "#d8e890", "n": "Stubborn Spit: a beaded snout gapes and spits a fan of pale venom that drops off the edge"},
+    "x0": {"m": "quake-crack", "lay": "slam", "car": "zig", "n": "Sudden Quake Slam: the dragon drops its whole weight; zigzag cracks split out from the edge and crust chunks jump"}
+   }
+  },
+  "dune-wyrmling": {
+   "pal": ["#e4d4aa", "#5a4628", "#ffffff"], "m": "dune-breach", "m2": "scale-shingle", "pers": "burrow", "snd": ["hiss", "thud"], "spd": 1.0,
+   "notes": "A young sand wyrm the length of a barn, pale as the dunes, that swims through the sand and breaches in humps; thin long needle fangs drip venom. Rises out of the ground onto its spot.",
+   "p": {
+    "u0": {"m": "needle-fangs", "lay": "lance", "car": "comet", "n": "Fang Snap: wyrm heads run the length of the edge, gaping and stabbing with two long thin needle fangs"},
+    "u1": {"m": "dune-breach", "lay": "lance", "car": "custom", "x": "dust", "n": "Sand Lance: the wyrm shoots along the edge under the sand, coils breaching and diving in a line, sand spraying"},
+    "u2": {"m": "sand-hiss", "lay": "strike", "car": "cloud", "n": "Hiss: gaping heads blow S-shaped hisses off the edge with sand grains swept along in them"},
+    "u3": {"m": "needle-fangs", "lay": "fall", "car": "comet", "x": "splat", "n": "Fang Dribble: the needle fangs hang open and venom beads dribble off their tips and splat below"},
+    "b0": {"m": "needle-fangs", "lay": "strike", "car": "comet", "n": "Long-Fang Stab: a head lunges off the edge and stabs with its thin long fangs"},
+    "b1": {"m": "dune-breach", "lay": "strike", "car": "custom", "x": "dust", "n": "Sand-Dive Tail: coils arch out of the sand off the edge and dive back in a puff of dust"},
+    "b2": {"m": "scale-shingle", "lay": "hold", "car": "train", "x": "glint", "c": "#f0e4c4", "n": "Sand-Sheen Scales: pale keeled scales shingle the edge, a sheen sliding over them"},
+    "b3": {"m": "venom-spit", "lay": "fall", "car": "comet", "x": "dust", "c": "#d8e890", "n": "Burrow Spit: a snout pokes out of the sand and spits venom that falls through a dust puff"},
+    "x0": {"m": "dune-breach", "lay": "slam", "car": "custom", "x": "dust", "n": "Barn Sweep: the barn-length body heaves out in one long arch and crashes back down, sand flying"}
+   }
+  },
+  "glass-wyrm": {
+   "pal": ["#bfe8e4", "#2c5a5a", "#ffffff"], "m": "glass-coil", "m2": "prism-scale", "pers": "glide", "snd": ["tink", "crack"], "spd": 0.9,
+   "notes": "A long desert wyrm whose scales have fused to glass where lightning struck the sand: you see through its body, only the outline and a light glint, rainbows inside. Slides in low, sun-slow until it warms.",
+   "p": {
+    "u0": {"m": "glass-coil", "lay": "slam", "car": "custom", "n": "Glass Lash: hollow glass coils lash out from the edge and drop back, a rainbow glint running through them"},
+    "u1": {"m": "glass-splinter", "lay": "strike", "car": "comet", "n": "Shard Spit: sharp glass splinters are spat off the edge in a fast run, a white glint flashing"},
+    "u2": {"m": "prism-scale", "lay": "hold", "car": "train", "n": "Fused Hide: hollow hexagon glass scales fuse along the edge, a rainbow band sweeping across them"},
+    "u3": {"m": "glass-wake", "lay": "rise", "car": "blink", "n": "Slow Wake: glass eyes rise off the edge and open slowly in the sun, a slit pupil, a glint, warm rays"},
+    "b0": {"m": "needle-fangs", "lay": "strike", "car": "comet", "c": "#e8fbff", "n": "Glass Fang: a clear head lunges off the edge, needle fangs of glass stabbing"},
+    "b1": {"m": "glass-shatter", "lay": "strike", "car": "comet", "n": "Glass Tail Shatter: glass tail tips whip off the edge, crack and fly apart into glinting shards"},
+    "b2": {"m": "glass-glint", "lay": "hold", "car": "blink", "c": "#bfe8e4", "n": "Glass Armour: see-through outline plates line the edge, a light glint crossing them"},
+    "b3": {"m": "sand-fling", "lay": "fall", "car": "cloud", "c": "#f0d8a0", "n": "Glass Sandfling: hot sand is flung off the edge and falls glinting as it cools to glass beads"},
+    "x0": {"m": "glass-shatter", "lay": "slam", "car": "comet", "x": "dust", "n": "Glass Waking Blow: a glass tail slams out and shatters on impact, shards and dust bursting"}
+   }
+  },
+  "desert-tortoise": {
+   "pal": ["#c8a070", "#3a2a18", "#f0dca8"], "m": "ringed-scute", "m2": "shell-in", "pers": "trundle", "snd": ["click", "thud"], "spd": 0.6,
+   "notes": "Desert tortoise: a high dome of scutes with growth rings, elephant legs, a horny beak that crunches cactus; it digs burrows with shovel forelegs, stores water and waits months for rain. Very slow, very heavy landing.",
+   "p": {
+    "u0": {"m": "shell-in", "lay": "hold", "car": "train", "n": "Shell In: tortoises along the edge pull head in, fold the scaly forelegs over the opening and shut with a tink"},
+    "u1": {"m": "cactus-chomp", "lay": "strike", "car": "hop", "n": "Beak Nip: a horny beak lunges off the edge and crunches a notch out of a prickly-pear pad"},
+    "u2": {"m": "gopher-dig", "lay": "scatter", "car": "tunnel", "x": "dust", "n": "Dig Down: shovel forelegs dig out from the edge, domes sinking into burrows, sand thrown back, then they come back up"},
+    "u3": {"m": "rain-wait", "lay": "rise", "car": "flutter", "n": "Desert Long Patience: sun, then a cloud, then rain rises off the edge, and a beak sips the puddle at last"},
+    "b0": {"m": "cactus-chomp", "lay": "slam", "car": "hop", "c": "#d4ac7c", "n": "Hill Chomp: a big beak pushes out from the edge, crunches the cactus pad and pulls back chewing"},
+    "b1": {"m": "ringed-scute", "lay": "strike", "car": "custom", "n": "Dune Cudgel: the high ringed dome shoves off the edge like a club, legs stamping"},
+    "b2": {"m": "ringed-scute", "lay": "hold", "car": "custom", "x": "dust", "n": "Hilltop Shell: high domes settle along the edge like little hills, dust settling round them"},
+    "b3": {"m": "bladder-splash", "lay": "fall", "car": "comet", "c": "#a8d8f0", "n": "Crawl Trail Spit: a scared tortoise squirts its stored water; drops fall off the edge and splash"},
+    "x0": {"m": "boulder-flop", "lay": "slam", "car": "roll", "x": "dust", "n": "Boulder Flop: a tortoise flops onto its back like a boulder, rocks with legs waving, then thumps over in dust"}
+   }
+  },
+  "spurred-tortoise": {
+   "pal": ["#e0bc3a", "#4a3410", "#fff0b0"], "m": "spur-ram", "m2": "shell-in", "pers": "thud", "snd": ["crack", "thud"], "spd": 0.75,
+   "notes": "Spurred tortoise of dry grass and desert: a stout dry-yellow shell with a serrated rim and a forked gular horn under the chin, three big conical spurs on each thigh; males ram each other. Lands hard and fast for a tortoise.",
+   "p": {
+    "u0": {"m": "thigh-spur", "lay": "lance", "car": "train", "n": "Spur Jab: thick scaly legs run along the edge, three conical spurs jutting out and jabbing"},
+    "u1": {"m": "spur-ram", "lay": "lance", "car": "custom", "n": "Beak Spike: a stout tortoise charges along the edge and crashes the forked gular horn home"},
+    "u2": {"m": "shell-in", "lay": "hold", "car": "train", "c": "#e8c84a", "n": "Shell Hold: yellow shells line the edge, heads drawn in and spurred forelegs folded across, shut with a tink"},
+    "u3": {"m": "thigh-spur", "lay": "bristle", "car": "train", "n": "Slow Turn: the tortoise turns slowly in place and spurred legs bristle out all round the edge"},
+    "b0": {"m": "cactus-chomp", "lay": "strike", "car": "hop", "c": "#e0bc3a", "n": "Spur Nip: a yellow beak lunges off the edge and nips a chunk out of a cactus pad"},
+    "b1": {"m": "thigh-spur", "lay": "strike", "car": "train", "n": "Spur Lash: spurred legs kick off the edge, the spurs flashing"},
+    "b2": {"m": "spur-ram", "lay": "hold", "car": "custom", "n": "Spur Shell: stout serrated shells brace along the edge, gular horns forward"},
+    "b3": {"m": "gopher-dig", "lay": "scatter", "car": "tunnel", "x": "dust", "c": "#e0bc3a", "n": "Spur Dust: spurred forelegs scrape out from the edge and kick up a cloud of dry dust"},
+    "x0": {"m": "thigh-spur", "lay": "slam", "car": "train", "x": "dust", "n": "Spur Stomp: a spurred leg stamps out from the edge and drops back in a burst of dust"}
+   }
+  },
+  "sand-viper-matriarch": {
+   "pal": ["#d8a878", "#3a2416", "#f6dcb8"], "m": "viper-brood", "m2": "sidewind-track", "pers": "scuttle", "snd": ["hiss", "click"], "spd": 1.0,
+   "notes": "The mother of the sand vipers: a heavy horned viper whose live-born brood peeks out of her coils and follows her sidewinding in a file; she ambushes from under the sand with a broad arrowhead and heat pits. Slides in sideways.",
+   "p": {
+    "u0": {"m": "arrow-head", "lay": "fall", "car": "comet", "n": "Viper Fang: broad arrowhead heads with glowing heat pits rear and strike off the edge, venom drops falling"},
+    "u1": {"m": "viper-brood", "lay": "scatter", "car": "custom", "n": "Sidle: the mother and her brood slip sideways out from the edge and back, little heads popping up from her coils"},
+    "u2": {"m": "brood-hiss", "lay": "snare", "car": "cloud", "n": "Brood Hiss: rows of tiny viper heads hang at spots round the edge, gaping and hissing, tied together"},
+    "u3": {"m": "sand-ambush", "lay": "fall", "car": "tunnel", "x": "dust", "n": "Sand Sand Sting: horns and eyes in the sand, a bulge, a head erupts with a sting and sand rains down"},
+    "b0": {"m": "venom-fang", "lay": "strike", "car": "comet", "n": "Sand Viper Fang: two curved fangs lunge off the edge, a venom bead swelling at each tip"},
+    "b1": {"m": "sidewind-track", "lay": "strike", "car": "custom", "n": "Viper Sidewind: slanted vipers step sideways off the edge leaving rows of J-shaped tracks"},
+    "b2": {"m": "scale-shingle", "lay": "hold", "car": "train", "x": "glint", "c": "#e8bc8c", "n": "Viper Sheen: keeled sand-coloured scales shingle the edge with a sheen sliding over"},
+    "b3": {"m": "venom-spit", "lay": "fall", "car": "comet", "c": "#e8e0a0", "n": "Viper Spittle: a gaping snout spits a fan of venom that drops off the edge"},
+    "x0": {"m": "sand-ambush", "lay": "strike", "car": "tunnel", "n": "Viper Ambush: only horns and eyes show in the sand until the head erupts off the edge in a spray"}
+   }
+  },
+  "rock-python": {
+   "pal": ["#a89a84", "#3a3026", "#ecdcb4"], "m": "barrel-coil", "m2": "sun-rock", "pers": "trundle", "snd": ["hiss", "thud"], "spd": 0.7,
+   "notes": "African rock python of grass and hills: grey-brown blotches, thick as a barrel, basking sun-warm on boulders; sits and waits, senses warm prey with heat pits in its lips, strikes open-mouthed and squeezes. Slowest, heaviest landing.",
+   "p": {
+    "u0": {"m": "barrel-coil", "lay": "slam", "car": "custom", "n": "Rock Constrict: barrel-thick blotched coils heave out from the edge, tighten with a creak and drop back"},
+    "u1": {"m": "sun-rock", "lay": "rise", "car": "hop", "n": "Warm Rock: sun-warmed boulders with a python loop draped over rise off the edge in heat shimmer"},
+    "u2": {"m": "rock-blend", "lay": "scatter", "car": "blink", "n": "Rock Blend: blotchy rocks spread out from the edge; one opens an eye and slides: it was the python"},
+    "u3": {"m": "lip-pits", "lay": "lance", "car": "comet", "n": "Sitter Strike: a long head runs the edge, heat pits along its lip lighting one by one, then the strike"},
+    "b0": {"m": "python-gape", "lay": "strike", "car": "comet", "n": "Basking Strike: a python head lunges off the edge with its jaws wide on rows of hooked teeth and snaps"},
+    "b1": {"m": "barrel-coil", "lay": "strike", "car": "custom", "n": "Basking Tail-Whip: a thick blotched coil swings off the edge, heavy and slow"},
+    "b2": {"m": "sun-rock", "lay": "hold", "car": "hop", "n": "Basking Cloak: warm boulders line the edge with the python draped over them, heat shimmering"},
+    "b3": {"m": "python-gape", "lay": "fall", "car": "comet", "x": "haze", "n": "Basking Hiss: open jaws hiss off the edge in a warm haze and sink"},
+    "x0": {"m": "barrel-coil", "lay": "bristle", "car": "custom", "x": "dust", "n": "Basking Squeeze: stacked coils bulge out from the edge and clamp tight, dust squeezed out"}
+   }
+  },
+  "grass-snake": {
+   "pal": ["#8fb04a", "#1e2a10", "#f6dc3a"], "m": "collar-swim", "m2": "play-dead", "pers": "bob", "snd": ["hiss", "squish"], "spd": 1.1,
+   "notes": "Grass snake of meadows and ponds: olive with a bright yellow and black collar behind the head; a strong swimmer, harmless, it sprays a foul musk and, if that fails, plays dead belly up with its tongue lolling. Bobs in like floating.",
+   "p": {
+    "u0": {"m": "play-dead", "lay": "hold", "car": "roll", "n": "Coil: along the edge the snake writhes, rolls belly up to show its chequered belly and goes limp, tongue lolling"},
+    "u1": {"m": "collar-flash", "lay": "strike", "car": "comet", "n": "Strike: collared heads lunge off the edge, the yellow collar flashing, a red tongue flicking after"},
+    "u2": {"m": "smooth-coil", "lay": "snare", "car": "thread", "c": "#8fb04a", "n": "Constrict: olive coils hang at spots round the edge and tighten, tied by thin lines"},
+    "u3": {"m": "collar-swim", "lay": "feint", "car": "custom", "n": "Swim Away: the collared snake swims in an S from spot to spot round the edge and is gone"},
+    "b0": {"m": "collar-swim", "lay": "strike", "car": "custom", "n": "River-Fang Strike: a snake swims off the edge out of the river, head up, collar bright"},
+    "b1": {"m": "tail-lash", "lay": "strike", "car": "comet", "c": "#8fb04a", "n": "Reed-Whip Tail: long thin olive tails uncoil off the edge and crack straight like reeds"},
+    "b2": {"m": "scale-shingle", "lay": "hold", "car": "train", "c": "#a0c060", "n": "Green Scale Coil: olive keeled scales shingle the edge, a glint sliding along"},
+    "b3": {"m": "musk-wave", "lay": "rise", "car": "trail", "c": "#c8c890", "n": "Musk Trail Spray: wavy musk lines curl up off the edge: the grass snake's stink"},
+    "x0": {"m": "collar-flash", "lay": "slam", "car": "comet", "n": "Coil-Drop Crash: a collared head drops out of its coil, slams out from the edge and falls back"}
+   }
+  },
+  "emerald-python": {
+   "pal": ["#3cc070", "#0e3a1e", "#f4fff0"], "m": "branch-saddle", "m2": "branch-saddle", "pers": "hover", "snd": ["hiss", "pop"], "spd": 0.8,
+   "notes": "Emerald python of the rainforest: vivid green with a row of white flecks down the back, it rests saddled over a branch in loose coils with its head in the middle, hangs down to strike with long front teeth and drops like a rope. Hangs above its spot, then drops.",
+   "p": {
+    "u0": {"m": "barrel-coil", "lay": "snare", "car": "custom", "c": "#3cc070", "n": "Squeeze: green coils hang stacked at spots round the edge and tighten, tied together"},
+    "u1": {"m": "branch-saddle", "lay": "hold", "car": "custom", "n": "Emerald Coil: coils saddle over a branch along the edge, white flecks on the back, the head resting in the middle"},
+    "u2": {"m": "slow-swallow", "lay": "rise", "car": "trail", "n": "Slow Swallow: long pythons rise off the edge, the lump of a meal sliding slowly down each body"},
+    "u3": {"m": "hang-strike", "lay": "slam", "car": "thread", "n": "Rope Drop: the python drops off its branch like a rope, swings out from the edge and back"},
+    "b0": {"m": "hang-strike", "lay": "strike", "car": "thread", "n": "Hanging Fang Strike: pythons hanging from branch stubs swing off the edge and bite with long front teeth"},
+    "b1": {"m": "liana-tail", "lay": "strike", "car": "comet", "n": "Liana Tail Whip: a tail wound round a liana uncoils off the edge and whips straight with a crack"},
+    "b2": {"m": "scale-shingle", "lay": "hold", "car": "train", "x": "glint", "c": "#4cd080", "n": "Emerald Scale Mail: bright green scales shingle the edge, a glint sliding over"},
+    "b3": {"m": "hiss-mist", "lay": "strike", "car": "cloud", "c": "#cfeedd", "n": "Hiss Mist Spray: hissed breath blooms off the edge into a damp rainforest haze"},
+    "x0": {"m": "branch-saddle", "lay": "slam", "car": "custom", "n": "Constrict Hug: the saddled coils heave out from the edge, hug tight round the branch and drop back"}
+   }
+  }
+ }
+}

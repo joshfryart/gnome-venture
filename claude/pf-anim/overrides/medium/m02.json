@@ -1,0 +1,77 @@
+{
+ "_doc": "Batch m02 (medium creatures, sonnet generic pass). Same format as overrides.json.",
+ "leafcutter-column/f:b0": {
+  "family": "bite",
+  "note": "jaw nip on a leaf piece: bite (best guess vs leaf, the column is leaf-heavy already)",
+  "review": true
+ },
+ "leafcutter-column/f:u3": {
+  "family": "leaf",
+  "note": "green parade of carried leaf pieces: leaf, identity of the creature"
+ },
+ "leafcutter-column/f:b3": {
+  "family": "puff",
+  "note": "scatter of the column: dust puffs, so it differs from March On (shock)"
+ },
+ "army-ant-column/f:u0": {
+  "family": "thorn",
+  "note": "wall of jaws bristling; differs from Flank Slip (both were puff)",
+  "review": true
+ },
+ "army-ant-column/f:b3": {
+  "family": "ripple",
+  "note": "flow around obstacles: ripple runs, differs from the shock trick family"
+ },
+ "paper-wasp/f:b0": {
+  "family": "thrust",
+  "note": "short jab: thrust so it differs from Striped Lunge (both were slash)"
+ },
+ "hornet-sentry/f:b0": {
+  "family": "buzz",
+  "note": "dive-bombing hornet: buzz, differs from Night-Watch Strike (both were slash)"
+ },
+ "hornet-sentry/f:b3": {
+  "family": "leaf",
+  "note": "blossom snub: leaf petals instead of generic shock"
+ },
+ "hornet-sentry/f:u2": {
+  "family": "web",
+  "note": "paper wall of the nest: papery strands, differs from Door Bar (both shield)",
+  "review": true
+ },
+ "mud-dauber/f:b2": {
+  "family": "bash",
+  "note": "plastered mud blocks: bash, differs from Mud Plaster (both shield)"
+ },
+ "mud-dauber/f:b3": {
+  "family": "ripple",
+  "note": "rain dodge: rain ripples instead of generic shock"
+ },
+ "lantern-glowworm-queen/f:b2": {
+  "family": "sparkle",
+  "note": "rule 4 order: lamp keyword (sparkle) before web; the lamp is the creature identity",
+  "review": true
+ },
+ "lantern-glowworm-queen/f:b3": {
+  "family": "web",
+  "note": "bait dangling on threads: web strands"
+ },
+ "earwig-matron/f:u3": {
+  "family": "puff",
+  "note": "soft egg cushion: puffs, differs from Brood Tend (both mend); heal override, best guess",
+  "review": true
+ },
+ "luna-moth/f:b1": {
+  "family": "puff",
+  "note": "gust of wind: puffs, differs from Ribbon Sweep (both slash)"
+ },
+ "luna-moth/f:u0": {
+  "family": "sparkle",
+  "note": "moonlit veil: shimmer sparkles, differs from Trailing Tails/Gust puffs"
+ },
+ "luna-moth/f:u1": {
+  "family": "leaf",
+  "note": "long trailing tails drifting: leaf-drift ribbons (best guess)",
+  "review": true
+ }
+}

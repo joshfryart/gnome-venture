@@ -1,0 +1,69 @@
+{
+ "_doc": "Boss batch B1 themed pass (TEMPLATE.md sections 9 and 10): coconut-crab-titan, robber-crab-baron, reef-leviathan, ancient-snapper. New motifs live in motifs/boss_boss-B1-coast-water-crabs-reef.js (12 motifs, 3 with their own chain effect). All 4 signature motifs are new and used by no other creature (titan-stride, baron-sash, leviathan-coil, moss-beak). Reused catalogue motifs only where the picture is truly the same: coconut-crack, husk-fibre, surf-foam, crab-clamp (medium m05), rip-pull, coral-castle (large L11), keel-shell, worm-lure, tail-sweep (large L09: the alligator snapper is this boss's smaller cousin), ink-cloud (themes.json). Every piece, unique and class, has a hand note.",
+ "creatures": {
+  "coconut-crab-titan": {
+   "pal": ["#d8683a", "#2a1018", "#f0dcb0"], "m": "titan-stride", "m2": "titan-plate", "pers": "thud", "snd": ["crack", "thud"], "spd": 0.85,
+   "notes": "Coconut crab titan of the islands: a colossal orange-red coconut crab with purple-dark joints, so big you mostly see its spiky legs stepping over you; it climbs palms, drops and cracks coconuts and wears husk on its armour.",
+   "p": {
+    "u0": {"x": "sawdust", "n": "Husk Crack: a colossal leg tip stabs its way along the edge like a pick, husk fibres tearing loose behind it"},
+    "u1": {"m": "coconut-plummet", "c": "#b07a44", "n": "Coconut Drop: heavy coconuts plummet in from the titan's palm, land with a bonk and split white"},
+    "u2": {"n": "Titan Shell: the vast ridged back plate locks along the edge and braces, a white sheen sliding over the knobs"},
+    "u3": {"m": "husk-fibre", "c": "#d0a868", "lay": "fall", "n": "Husk Rain: shredded coir husk rains down off the edge in quick tan tufts"},
+    "b0": {"m": "coconut-crack", "c": "#b07a44", "lay": "slam", "n": "Coconut Crack: hairy coconuts are slammed out and crack open in the titan's grip, white flesh showing"},
+    "b1": {"m": "surf-foam", "c": "#a8d8e8", "x": "jet", "n": "Surf Spout: surf breaks on the edge and a water spout jets up where the titan stamps"},
+    "b2": {"x": "sawdust", "n": "Husk Armour: husk-padded armour plates line the edge, loose fibres drifting off"},
+    "b3": {"x": "dust", "n": "Sand Yank: giant leg tips hook into the sand at spots tied by drag lines and yank, sand spraying"},
+    "x0": {"m": "coconut-plummet", "c": "#b07a44", "lay": "feint", "x": "glint", "n": "Coconut Bait: a tempting coconut turns up at spot after spot, a glint on the husk, then it is gone"},
+    "x1": {"m": "crab-clamp", "n": "Titan Pinch: the huge orange-red claw lunges off the edge and snaps shut with a white pip"}
+   }
+  },
+  "robber-crab-baron": {
+   "pal": ["#86a2c4", "#141c28", "#ecc85a"], "m": "baron-sash", "m2": "plunder-lid", "pers": "march", "snd": ["click", "tink"], "spd": 1.0,
+   "notes": "Robber crab baron of coast and island: a blue-grey robber crab who calls himself a baron, wearing a stolen red sash and a gold ring; pompous and staggering, his armour and shell are patched with loot.",
+   "p": {
+    "u0": {"x": "dust", "n": "Baron Crush: the sashed baron rears up and slams down claws first, dust bursting, the sash flapping"},
+    "u1": {"m": "ruby-signet", "c": "#ecc85a", "n": "Loot Snatch: gold rings are flicked off the edge one after another as the claw snatches and darts away"},
+    "u2": {"n": "Stolen Armour: a dented pot lid, a stuck-through fork and a red bottle cap bristle out of the stolen armour"},
+    "u3": {"m": "ruby-signet", "c": "#ecc85a", "x": "glint", "n": "Shiny Heist: ruby rings scatter out and slip back, gone with a glint before anyone can grab them"},
+    "b0": {"lay": "lance", "n": "Robber Shiny Snatch: the baron sidles the length of the edge, ringed claw first, plucking as he goes"},
+    "b1": {"m": "sash-ribbon", "c": "#d04444", "n": "Sash Spatter: the red silk sash whips off the edge in S-curves, the gold fringe flicking"},
+    "b2": {"x": "glint", "n": "Looted Shell: pot lids and plunder line the edge as a shell, a glint on the loot"},
+    "b3": {"m": "ruby-signet", "c": "#ecc85a", "x": "dust", "n": "Bounty Dredge: rings are dredged up out of the sand at spots, tied by drag lines"},
+    "x0": {"m": "baron-decree", "c": "#eadcae", "n": "Royal Decree: scrolls unroll at spot after spot and the red wax seal stamps down"},
+    "x1": {"m": "crab-clamp", "lay": "slam", "n": "Finger Clamp: one big blue-grey claw clamps out and back, a white snap pip"}
+   }
+  },
+  "reef-leviathan": {
+   "pal": ["#4fb08e", "#0a2420", "#e6e070"], "m": "leviathan-coil", "pers": "plop", "snd": ["hiss", "pop"], "spd": 0.9,
+   "notes": "Reef leviathan of the coast: a vast mottled green sea serpent with a yellow fin crest and yellow eyes; its humps breach out of the reef water, it lurks in coral, whips up whirlpools and swallows prey whole.",
+   "p": {
+    "u0": {"lay": "slam", "x": "puff", "n": "Tidal Slam: the great humps heave up out of the water and crash down, spray bursting"},
+    "u1": {"x": "bubbles", "n": "Deep Dive: the humps roll away under the surface and come back up, bubbles streaming"},
+    "u2": {"m": "rip-pull", "c": "#8cc8e0", "n": "Whirlpool: whirlpools spin up off the edge, foam on the rim"},
+    "u3": {"m": "leviathan-maw", "n": "Swallow Whole: the serpent head runs the length of the edge, lower jaw unhinged, swallowing a fish whole"},
+    "b0": {"m": "leviathan-maw", "n": "Eel Snap: serpent heads lunge off the edge, jaws gaping on needle teeth, and gulp"},
+    "b1": {"m": "surf-foam", "c": "#bfe0ec", "lay": "slam", "n": "Breaker Thrash: breakers curl over and thrash down on the edge"},
+    "b2": {"x": "trail", "n": "Eel Slime Coat: the humps lie along the edge under a glossy slime trail"},
+    "b3": {"m": "rip-pull", "c": "#8cc8e0", "n": "Riptide Drag: rip currents spin at spots tied together, dragging"},
+    "x0": {"m": "coral-castle", "lay": "feint", "n": "Coral Lurk: pink coral heads appear at spot after spot, the leviathan's green head peeking out of the hole"},
+    "x1": {"lay": "bristle", "n": "Coiling Crush: the humps rise and press out along the edge and hold, squeezing"}
+   }
+  },
+  "ancient-snapper": {
+   "pal": ["#8c9a5c", "#1c2012", "#f08c8c"], "m": "moss-beak", "m2": "keel-shell", "pers": "trundle", "snd": ["crack", "hiss"], "spd": 0.7,
+   "notes": "Ancient snapping turtle of the wetland: an alligator snapper centuries old, olive and rough, barnacles and moss on its head and keeled shell; it lies patient on the bottom with its pink worm lure, then the hooked beak slams shut.",
+   "p": {
+    "u0": {"n": "Snapping Jaw: the mossy beak runs the edge, gaping on its pink lure, then slams shut with a crack"},
+    "u1": {"x": "kelp", "n": "Mossy Shell: the three-keeled shell settles along the edge, long weed waving up off the keels"},
+    "u2": {"c": "#988a5a", "x": "bubbles", "n": "Mud Sink: the keeled shell sinks into the murk and slips out and back, mud bubbles rising"},
+    "u3": {"m": "age-scute", "c": "#c8b070", "n": "Ancient Patience: shell scutes rise, a new growth ring added for every year waited"},
+    "b0": {"n": "Ancient Jaw: the barnacled head lunges off the edge and the hooked beak snaps"},
+    "b1": {"m": "tail-sweep", "n": "Mossy Tail Swing: the heavy crested tail sweeps out from side to side, spray off the tip"},
+    "b2": {"m": "age-scute", "c": "#c8b070", "n": "Ageless Shell: ringed scutes line the edge and hold, each ring a century"},
+    "b3": {"m": "ink-cloud", "c": "#94805a", "n": "Murk Spray: murky mud clouds bloom and sink off the edge"},
+    "x0": {"m": "worm-lure", "n": "Wriggle Lure: hooked jaws gape at spot after spot, the pink worm tongue wriggling inside"},
+    "x1": {"m": "keel-shell", "lay": "slam", "x": "dust", "n": "Shell Grind: the heavy keeled shell grinds out and back, grit flying"}
+   }
+  }
+ }
+}

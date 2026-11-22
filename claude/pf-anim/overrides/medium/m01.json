@@ -1,0 +1,110 @@
+{
+ "_doc": "Medium batch m01 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "orb-spider/f:b2": {
+  "family": "sparkle",
+  "note": "dew-beaded orb web screen: sparkle dew, not another web",
+  "review": true
+ },
+ "orb-spider/f:u3": {
+  "family": "ripple",
+  "note": "orb spin = concentric wheel rings",
+  "review": true
+ },
+ "fishing-spider/f:b0": {
+  "family": "drip",
+  "note": "minnow dive: splashing water drops instead of a plain slash",
+  "review": true
+ },
+ "fishing-spider/f:b2": {
+  "family": "thorn",
+  "note": "bristle legs guard: spiky leg bristles",
+  "review": true
+ },
+ "golden-orb-weaver/f:b2": {
+  "family": "sparkle",
+  "note": "gilded silk sheet: gold glitter on the sheet",
+  "review": true
+ },
+ "golden-orb-weaver/f:u0": {
+  "family": "shield",
+  "note": "silk wall that blocks: dash-scroll wall rather than a fourth web"
+ },
+ "golden-orb-weaver/f:u1": {
+  "family": "puff",
+  "note": "web dodge: dust puff of a quick sidestep",
+  "review": true
+ },
+ "dune-scorpion/f:u3": {
+  "family": "puff",
+  "note": "sand shuffle: sand dust puffs (hold tag already used by Plate Up)",
+  "review": true
+ },
+ "whip-scorpion/f:b0": {
+  "family": "bite",
+  "note": "whip-arm snip is a pincer snap; avoids a second slash beside Whip Lash"
+ },
+ "whip-scorpion/f:b1": {
+  "family": "drip",
+  "note": "sour spray = acid drops"
+ },
+ "whip-scorpion/f:b2": {
+  "family": "shield",
+  "note": "keyword false match: vinegar starts with vine; it is a flat shell guard"
+ },
+ "giant-centipede/f:b1": {
+  "family": "thrust",
+  "note": "forked foot sting: two-point stab",
+  "review": true
+ },
+ "giant-centipede/f:u2": {
+  "family": "ripple",
+  "note": "coil up: rings of a coiling body",
+  "review": true
+ },
+ "giant-centipede/f:u3": {
+  "family": "slash",
+  "note": "hundred steps raking claws; Hundred Legs keeps the buzz"
+ },
+ "cave-centipede/f:u3": {
+  "family": "drip",
+  "note": "roof drop: falls from the cave roof like dripping water (pierce already on Cave Strike)",
+  "review": true
+ },
+ "giant-millipede/f:u2": {
+  "family": "puff",
+  "note": "poison mist is a cloud: puff, greenish by base tone",
+  "review": true
+ },
+ "scarab-roller/f:b1": {
+  "family": "thrust",
+  "note": "horn jab: single horn lance",
+  "review": true
+ },
+ "scarab-roller/f:u0": {
+  "family": "sparkle",
+  "note": "gold carapace shine, not a dust evade"
+ },
+ "ember-beetle/f:u3": {
+  "family": "ember",
+  "note": "scorched track: scorch keyword beats thorns tag visually; art-led",
+  "review": true
+ },
+ "frost-beetle/f:b2": {
+  "family": "sparkle",
+  "note": "glinting frost shell: glint sparks"
+ },
+ "frost-beetle/f:u1": {
+  "family": "ripple",
+  "note": "ice skate: glide ripples, differs from Ice-Skid Bowl shock"
+ },
+ "lava-beetle/f:b0": {
+  "family": "bite",
+  "note": "nip is the attack, scorch the track; bite+ember tie, best guess bite",
+  "review": true
+ },
+ "lava-beetle/f:u2": {
+  "family": "puff",
+  "note": "ash cloud billows: puff, differs from Scorch Run ember",
+  "review": true
+ }
+}

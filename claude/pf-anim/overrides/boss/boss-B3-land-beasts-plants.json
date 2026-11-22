@@ -1,0 +1,70 @@
+{
+ "_doc": "Boss batch B3-land-beasts-plants (Sonnet generic pass): family corrections only; colour/lift/snd left to builder defaults.",
+ "old-bramblehorn/f:b2": {
+  "family": "leaf",
+  "note": "thicket wall of branches; Bramble Mantle keeps the thorn spikes"
+ },
+ "old-bramblehorn/f:b1": {
+  "family": "leaf",
+  "note": "thrown dust/spores of the thicket; avoids third slash",
+  "review": true
+ },
+ "old-bramblehorn/f:x1": {
+  "family": "bash",
+  "note": "antler crush = heavy blunt blow; avoids third slash"
+ },
+ "old-bramblehorn/f:x0": {
+  "family": "leaf",
+  "note": "thicket hiding ruse, no tag/keyword; best guess",
+  "review": true
+ },
+ "dune-wyrm/f:b0": {
+  "family": "bite",
+  "note": "maw = jaws (keyword not in list)"
+ },
+ "dune-wyrm/f:x1": {
+  "family": "bash",
+  "note": "heave = heavy body slam; avoids slash pile"
+ },
+ "dune-wyrm/f:u1": {
+  "family": "bash",
+  "note": "quake = ground shaking thump (trip)"
+ },
+ "dune-wyrm/f:u2": {
+  "family": "bite",
+  "note": "swallow = gulp; maw-like bite"
+ },
+ "dune-wyrm/f:u3": {
+  "family": "puff",
+  "note": "spout of sand is a dust jet, not electric shock"
+ },
+ "dune-wyrm/f:x0": {
+  "family": "ripple",
+  "note": "burrowing sand wave, no tag/keyword; best guess",
+  "review": true
+ },
+ "jade-jaguar/f:b1": {
+  "family": "shock",
+  "note": "quick pounce flash; best guess vs slash",
+  "review": true
+ },
+ "jade-jaguar/f:x1": {
+  "family": "bite",
+  "note": "throttle = jaws clamp on the throat"
+ },
+ "jade-jaguar/f:x0": {
+  "family": "puff",
+  "note": "silent stalk, no tag/keyword; soft dust best guess",
+  "review": true
+ },
+ "jade-jaguar/f:u0": {
+  "family": "sparkle",
+  "note": "jade gaze glints; trip tag is the hold, art beats web",
+  "review": true
+ },
+ "jade-jaguar/f:u3": {
+  "family": "leaf",
+  "note": "canopy drop: leaves fall with the jaguar; pierce tag overridden by art",
+  "review": true
+ }
+}

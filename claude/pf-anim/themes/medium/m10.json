@@ -1,0 +1,159 @@
+{
+ "_doc": "Batch m10 (medium, opus themed pass): badger cubs, stink badger, moles (tunnel, star-nosed, golden), naked mole-rats, rats (barn, marsh, pack), bramble pups, thorn jackal. Motifs in motifs/medium_m10.js; every creature has its own signature motif. Shared inside the batch: burr-clump (badger cubs, bramble pups, jackal coat-thorns are separate), spade-claw (tunnel mole, star-nosed mole, badger claws). Reused from the catalogue: mud-flop (badger Mud Smear), rot-spit (barn-rat Filth Bite), silt-cloud from m08 (star-nosed Silt Armour).",
+ "creatures": {
+  "badger-cub-gang": {
+   "pal": ["#b8bec6", "#1c1c22", "#f6f6f0"], "m": "cub-stripe-face", "m2": "sett-mouth", "pers": "tumble", "snd": ["chirp", "thud"], "spd": 1.0,
+   "notes": "A gang of small grey badger cubs from a grassland sett: the thing to draw is the white face with two black stripes over the eyes; they jostle, pile on each other and tumble.",
+   "p": {
+    "u0": {"m": "burr-clump", "n": "Burr Plate: hooked burrs caught in the cubs' grey fur bristle out of the edge like a spiky plate"},
+    "u1": "Cub Scrum: striped cub faces jostle at spots along the edge, tied together in a tripping scrum line",
+    "u2": {"m": "mud-flop", "c": "#9a7a54", "n": "Mud Smear: the cubs scatter in a spray of mud splats and come back smeared"},
+    "u3": {"m": "cub-pile", "n": "Tumble Pile: three cubs heap up, shove out of the edge and the top one tips over the pile"},
+    "b0": {"m": "spade-claw", "c": "#e8e4dc", "n": "Cub Stay-Put Claws: pale digging claws rake out of the edge one after another, soil flicked behind"},
+    "b1": {"m": "cub-pile", "lay": "strike", "n": "Triple Cub Pile: wobbling three-cub heaps launch off the edge"},
+    "b2": "Dug-In Burrow Stance: sett mouths line the edge, a cub face peering out of each dark arch",
+    "b3": {"lay": "slam", "n": "Stubborn Sett Shove: cub faces shove out of the edge head-first and drop back, chirring"}
+   }
+  },
+  "stink-badger": {
+   "pal": ["#9a94a6", "#141218", "#d8e86a"], "m": "stink-rump", "m2": "reek-haze", "pers": "thud", "snd": ["hiss", "squish"], "spd": 0.9,
+   "notes": "A dark island stink badger (teledu) with a white stripe down its back: it raises its rump and sprays musk, then sleeps off any trouble; the forest reeks round it.",
+   "p": {
+    "u0": "Musk Spray: stink badgers raise the rump and fire a yellow-green musk jet; the drops fall off the edge",
+    "u1": {"m": "snore-curl", "n": "Sleep Off: a curled badger snoozes, the white stripe round it, Zs drifting up as it mends"},
+    "u2": "Reek Hide: stench lines burst out of the edge and drift back, a fly circling, the badger hidden in its reek",
+    "u3": {"m": "reek-haze", "x": "haze", "n": "Boot Stink: yellow-green stench lines sink off the edge in a haze band, a fly buzzing after them"},
+    "b0": {"x": "moon", "n": "Nightwalk Scrape: badgers scrape out of the edge under a moon glint, stripe flashing"},
+    "b1": {"lay": "slam", "n": "Sprayed-First Maul: the badger sprays first, shoves out and mauls, then drops back"},
+    "b2": "Musk Stance: still stench lines hold the edge, a fly circling the reek",
+    "b3": {"lay": "lance", "n": "Ask-Later Barge: one badger barges the length of the edge, rump up, a reek line behind"}
+   }
+  },
+  "tunnel-mole": {
+   "pal": ["#8e8a9a", "#1e1a1c", "#f2a6b0"], "m": "molehill-heave", "pers": "burrow", "snd": ["crack", "thud"], "spd": 0.85,
+   "notes": "A velvet-grey tunnel mole of field and forest that is mostly seen as molehills: the ground heaves, a pink snout and two big pink spade hands push out, and it is gone again.",
+   "p": {
+    "u0": "Burrow: a row of molehills along the edge, a mole pushing its snout and spade hands up out of each",
+    "u1": {"m": "spade-claw", "n": "Mole Claw: big pink spade hands rake out of the edge, five white claws each, soil flying behind"},
+    "u2": {"m": "soil-clod", "n": "Dirt Toss: flung soil clods hang at spots, tied in a tripping line, crumbling"},
+    "u3": {"lay": "feint", "n": "Dirt Blink: a molehill heaves at one spot, the mole sinks and heaves up somewhere else"},
+    "b0": {"lay": "slam", "x": "clods", "n": "Earthquake Burst: molehills burst out of the edge and drop back, clods thrown"},
+    "b1": "Furry Quake Heave: molehills heave off the edge one after another, the velvet mole riding each",
+    "b2": {"m": "soil-clod", "lay": "hold", "n": "Packed Earth Plug: packed soil clods line the edge and settle"},
+    "b3": {"m": "soil-clod", "lay": "slam", "n": "Sudden Soil Eruption: a clod of soil erupts out of the edge and crumbles back"}
+   }
+  },
+  "star-nosed-mole": {
+   "pal": ["#e07aaa", "#2a1e24", "#ffd0e4"], "m": "star-nose", "pers": "skitter", "snd": ["tink", "squish"], "spd": 1.3,
+   "notes": "A dark wetland mole with a pink star of 22 feelers on its nose, touching everything many times a second; underwater it smells by blowing a bubble and sniffing it back.",
+   "p": {
+    "u0": "Feeler Flick: pink nose stars twitch open and shut so fast they flicker, launching off the edge",
+    "u1": {"m": "silt-cloud", "c": "#a08a6a", "n": "Silt Armour: brown silt clouds bloom round the edge and hold, bubbles rising, the mole hidden in them"},
+    "u2": {"m": "spade-claw", "c": "#c4a0b0", "n": "Dig Wall: spade hands push out of the wet bank like a wall of claws and hold"},
+    "u3": {"m": "bubble-sniff", "n": "Wet Probe: the star nose blinks between spots, blowing a bubble and sniffing it back at each"},
+    "b0": {"lay": "lance", "n": "Feeler Ring Prod: one star nose prods its way along the whole edge, feelers twitching"},
+    "b1": {"lay": "slam", "n": "Nose Ring Shove: star noses shove out of the edge and drop back, waterline rocking"},
+    "b2": "Plated Snout Cover: star noses fold shut in a row along the edge, twitching under cover",
+    "b3": {"m": "bubble-sniff", "lay": "slam", "n": "Wet Soil Feel: the nose pushes out into wet soil and blows a bubble back"}
+   }
+  },
+  "mole-rat-gang": {
+   "pal": ["#e8a0a8", "#5a2a30", "#fff4d0"], "m": "buck-teeth", "m2": "colony-heap", "pers": "swarm", "snd": ["click", "chirp"], "spd": 1.15,
+   "notes": "A colony of pink, wrinkled naked mole-rats: huge cream incisors outside the lips, running nose to tail through their tunnels and sleeping in a warm heap.",
+   "p": {
+    "u0": "Gang Gnaw: wrinkled pink faces launch off the edge, huge incisors chattering",
+    "u1": {"m": "molerat-rush", "lay": "lance", "n": "Tooth Rush: a line of mole-rats rushes the length of the edge, teeth first"},
+    "u2": {"m": "tunnel-call", "n": "Burrow Call: tunnel holes shove out, pink snouts poking out and chirps rising"},
+    "u3": "Colony Pile: mole-rats heap up along the edge in a warm pile, the top ones shuffling round",
+    "b0": {"m": "molerat-rush", "n": "Colony Swarm Rake: mole-rats burst off the edge one after another, nose to tail"},
+    "b1": {"m": "colony-heap", "lay": "slam", "n": "Pink Pile-On: a heap of mole-rats piles out of the edge and drops back"},
+    "b2": {"x": "puff", "n": "Huddled Pack Wall: the heap huddles tight along the edge, warm puffs rising"},
+    "b3": {"lay": "scatter", "n": "Every-Side Flank: buck-toothed faces pop out on every side and pull back"}
+   }
+  },
+  "golden-mole": {
+   "pal": ["#e0b83a", "#4a3410", "#b8f0a0"], "m": "gold-sand-swim", "m2": "gold-curl", "pers": "glide", "snd": ["hiss", "pop"], "spd": 0.95,
+   "notes": "A small eyeless desert golden mole that swims through loose sand with a leathery nose pad, its fur shimmering iridescent gold-green; it finds prey by feeling vibrations.",
+   "p": {
+    "u0": "Sand Swim: a golden mole swims the length of the edge under the sand, its shimmering back breaking the surface",
+    "u1": "Velvet Rest: the mole curls in a velvet ball and rises, a rainbow-gold sheen running round it",
+    "u2": {"m": "gold-sand-swim", "x": "dust", "n": "Dune Dive: the moles dive out of the edge into loose sand and resurface, sand dust kicked up"},
+    "u3": {"m": "blind-lunge", "n": "Sightless Lunge: a blind wedge head lunges off the edge nose-pad first, vibration arcs spreading"},
+    "b0": {"x": "dust", "n": "Sand-Swim Scoop: moles swim out of the edge and scoop, sand flying"},
+    "b1": {"m": "blind-lunge", "lay": "slam", "n": "Blind Sand Lunge: the nose pad slams out of the edge, feeling arcs ahead"},
+    "b2": {"m": "gold-sand-swim", "n": "Loose-Sand Hunker: the moles sink into the sand along the edge, gold backs just showing"},
+    "b3": {"lay": "slam", "n": "Surfacing Boot Shove: a golden mole surfaces out of the edge with a shove and sinks back"}
+   }
+  },
+  "barn-rat": {
+   "pal": ["#a8825e", "#2a1c12", "#f0a8a8"], "m": "grain-rat", "m2": "hay-stack", "pers": "skitter", "snd": ["chirp", "click"], "spd": 1.25,
+   "notes": "A brown barn rat with a long pink tail living in the grain store and the hay: it gnaws, squeezes through any gap between planks and makes off with the grain.",
+   "p": {
+    "u0": {"lay": "lance", "n": "Gnaw: a barn rat runs the length of the edge gnawing, a grain kernel in its teeth"},
+    "u1": {"m": "rot-spit", "c": "#8a9a4a", "n": "Filth Bite: grimy drops fall off the edge and splat into a dirty pool"},
+    "u2": {"m": "plank-squeeze", "n": "Squeeze By: the rat flattens through the gap between two barn planks and out the other side"},
+    "u3": {"m": "grain-nip", "n": "Grain Nip: grain kernels get nipped and fly off the edge, chaff and crumbs behind"},
+    "b0": "Seed Thief Scratch: barn rats scurry off the edge with stolen grain",
+    "b1": {"m": "grain-nip", "lay": "slam", "n": "Grudge Gnaw: a kernel is bitten through, shoves out and drops back split"},
+    "b2": "Hay Stack Shield: little haystacks line the edge, a pink rat tail swishing out from under one",
+    "b3": {"lay": "scatter", "n": "Grain Sack Slip: rats slip out of a slit sack in all directions and back, kernels in their teeth"}
+   }
+  },
+  "marsh-rat": {
+   "pal": ["#9c8a6c", "#1e1a14", "#bfe8f0"], "m": "wet-fur-shake", "m2": "bank-burrow", "pers": "plop", "snd": ["squish", "pop"], "spd": 0.8,
+   "notes": "A blunt-snouted marsh rat with thick fur that is always wet, living in a bank burrow at the waterline among the reeds; it shakes off spray wherever it stops.",
+   "p": {
+    "u0": {"m": "reed-gnaw", "n": "Reed Gnaw: reed stems get gnawed through at a slant and shoved out, the cut tops falling over"},
+    "u1": "Bank Burrow: muddy banks line the edge with a round burrow at the waterline, eyes glinting inside",
+    "u2": {"lay": "slam", "n": "Reed Shove: the wet rat barges out of the edge through the reeds and shakes off a spray of drops"},
+    "u3": {"m": "reed-shove", "n": "Reed Wall: three reeds stand along the edge and lean out with their cattail heads"},
+    "b0": {"m": "reed-gnaw", "lay": "strike", "n": "Reed Bed Scrape: gnawed reed tips fly off the edge, straw chips behind"},
+    "b1": {"x": "marks", "n": "Enraged Fur Pounce: the shaggy wet rat pounces off the edge, fur on end, angry marks popping"},
+    "b2": {"x": "bubbles", "n": "Waterline Portcullis: burrow mouths close the waterline along the edge, bubbles rising"},
+    "b3": {"lay": "fall", "x": "bubbles", "n": "Riverbank Dive: wet rats plop off the edge into the water, bubbles rising after them"}
+   }
+  },
+  "pack-rat": {
+   "pal": ["#c9964a", "#3a2410", "#fff0a0"], "m": "trinket-trade", "m2": "stick-midden", "pers": "march", "snd": ["tink", "click"], "spd": 1.0,
+   "notes": "A big-eared desert pack rat with bulging cheeks that hoards shiny things in a stick midden, always dropping what it carries to take something shinier.",
+   "p": {
+    "u0": {"m": "trinket-hoard", "n": "Hoard Snatch: stolen trinkets (coin, key, bottle cap, spoon) hang at spots, tied in a tripping line, glinting"},
+    "u1": {"m": "stuffed-cheek", "n": "Stuffed Cheeks: pack rat faces scatter out, cheeks stuffing wider and wider, and come back"},
+    "u2": {"m": "trinket-hoard", "x": "arc", "n": "Trinket Toss: a shiny trinket is lobbed out of the edge on a dotted arc and lands back"},
+    "u3": {"lay": "lance", "n": "Cache Gnaw: a pack rat runs the length of the edge with a glinting trinket in its teeth"},
+    "b0": "Trinket Swipe: pack rats dash off the edge, each with a trinket in its mouth",
+    "b1": {"m": "trinket-hoard", "lay": "strike", "n": "Hoard Gnaw: trinkets fly off the edge one after another, glinting"},
+    "b2": "Trinket Rampart: a stick midden builds along the edge, cactus bits and a shiny thing on top",
+    "b3": {"lay": "slam", "n": "Swap-Out Shove: the pack rat shoves out, drops its trinket for a shinier one and drops back"}
+   }
+  },
+  "bramble-pup-pack": {
+   "pal": ["#c0bab4", "#26222a", "#c8a050"], "m": "burr-pup", "m2": "bramble-arch", "pers": "hop", "snd": ["chirp", "crack"], "spd": 1.15,
+   "notes": "A pack of small grey forest pups that live under the brambles: fluffy balls with burrs stuck all over them, tumbling out of the thicket.",
+   "p": {
+    "u0": {"m": "burr-clump", "n": "Thorn Coat: hooked burrs stuck in the grey fur bristle out of the edge and hold"},
+    "u1": "Pup Bite: burr-covered pups tumble off the edge, nipping",
+    "u2": "Brush Cover: bramble canes arch along the edge with blackberries, pup eyes blinking underneath",
+    "u3": {"lay": "scatter", "x": "dust", "n": "Burr Tumble: burr-balled pups roll out in all directions and roll back, dust kicked up"},
+    "b0": {"m": "burr-clump", "lay": "strike", "n": "Burrwool Claws: burrs fly off the edge, tufts of grey wool hooked on them"},
+    "b1": {"lay": "lance", "x": "dust", "n": "Downhill Tumble Pile: pups roll the length of the edge like it is downhill, dust behind"},
+    "b2": {"m": "burr-clump", "n": "Burr-Coat Bristle: a row of burrs holds the edge, hooks turning"},
+    "b3": {"m": "bramble-arch", "lay": "slam", "n": "Puppy-Eyed Barge: the bramble arch shoves out, big pup eyes blinking under it"}
+   }
+  },
+  "thorn-jackal": {
+   "pal": ["#d4a46a", "#2e1c10", "#f2ead8"], "m": "jackal-lope", "m2": "jackal-sit", "pers": "pounce", "snd": ["crack", "chirp"], "spd": 1.05,
+   "notes": "A rangy sandy jackal of thorn scrub and desert, its coat full of pale thorns: it lopes, waits a very long time, snaps, and licks its wounds clean.",
+   "p": {
+    "u0": {"m": "scrub-lick", "n": "Scrub Lick: a jackal muzzle laps its wounds, the pink tongue out and back, scrub leaf bits rising"},
+    "u1": {"m": "thorn-jaw", "n": "Thorn Snap: long narrow jaws with thorn-pale teeth run the edge and snap shut with a crack"},
+    "u2": {"m": "cactus-dodge", "n": "Cactus Dodge: prickly-pear pads push out, the jackal's ears dodging behind them"},
+    "u3": "Long Patience: jackals sit tall and still along the edge, eyes closing slowly and opening again",
+    "b0": "Thorn-Coat Raker: rangy jackals lope off the edge, pale thorns in the coat",
+    "b1": {"m": "thorn-jaw", "lay": "slam", "n": "Patient Jaw Rend: the jaw shoves out, snaps and drags back"},
+    "b2": {"m": "cactus-dodge", "lay": "hold", "n": "Thorn Tangle Guard: prickly-pear pads stand along the edge like a thorn hedge"},
+    "b3": {"lay": "slam", "n": "Sly Thorn Shove: a jackal lunges out of the edge sideways and slinks back"}
+   }
+  }
+ }
+}

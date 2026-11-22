@@ -1,0 +1,86 @@
+{
+ "_doc": "Boss batch B2-birds (Sonnet generic pass): family corrections only; colour/lift/snd left to builder defaults.",
+ "great-hawk/f:b0": {
+  "family": "bite",
+  "note": "pluck = beak grab; keyword-style bite for the beak"
+ },
+ "great-hawk/f:b1": {
+  "family": "thrust",
+  "note": "stoop = dive that lands point-first; avoids four slashes"
+ },
+ "great-hawk/f:u1": {
+  "family": "web",
+  "note": "talon grip that trips = snared prey; best guess vs slash",
+  "review": true
+ },
+ "great-hawk/f:x0": {
+  "family": "ripple",
+  "note": "silent circling, no tag/keyword; best guess",
+  "review": true
+ },
+ "great-hawk/f:u3": {
+  "family": "puff",
+  "note": "a shadow passing quickly is a soft air puff; electric shock does not fit a hawk"
+ },
+ "snow-owl-monarch/f:b1": {
+  "family": "thrust",
+  "note": "silent stoop = point-first dive; differs from Hush Beak bite and Talons slash"
+ },
+ "snow-owl-monarch/f:u0": {
+  "family": "sparkle",
+  "note": "frost wing that trips = ice glints; best guess vs slash",
+  "review": true
+ },
+ "snow-owl-monarch/f:u1": {
+  "family": "sparkle",
+  "note": "glare = icy glint (glare/glint like lure/sheen)"
+ },
+ "snow-owl-monarch/f:u3": {
+  "family": "puff",
+  "note": "silent glide of soft feathers; keeps shield for Hush Veil"
+ },
+ "snow-owl-monarch/f:x0": {
+  "family": "ripple",
+  "note": "no tag/keyword; a plan spreading out quietly, best guess",
+  "review": true
+ },
+ "frost-owl-regent/f:x1": {
+  "family": "sparkle",
+  "note": "thin silver crown strike glints; art line crown",
+  "review": true
+ },
+ "frost-owl-regent/f:u0": {
+  "family": "thrust",
+  "note": "rime talon stab; frost is not electric, quick tag stays mechanical"
+ },
+ "frost-owl-regent/f:u2": {
+  "family": "sparkle",
+  "note": "ice glare = glint"
+ },
+ "frost-owl-regent/f:u3": {
+  "family": "ripple",
+  "note": "feint = a ripple of unease; not electric"
+ },
+ "frost-owl-regent/f:x0": {
+  "family": "shield",
+  "note": "a royal decree as a ward; no tag/keyword, best guess",
+  "review": true
+ },
+ "storm-eagle/f:b0": {
+  "family": "bite",
+  "note": "storm hook = hooked beak"
+ },
+ "storm-eagle/f:u0": {
+  "family": "thrust",
+  "note": "thunder dive lands point-first; keeps shock for Lightning Claw"
+ },
+ "storm-eagle/f:b3": {
+  "family": "ripple",
+  "note": "updraft = rising air waves; keeps puff for Gale Wing"
+ },
+ "storm-eagle/f:x0": {
+  "family": "puff",
+  "note": "gust of wind; no tag/keyword, best guess",
+  "review": true
+ }
+}

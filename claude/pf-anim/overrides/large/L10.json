@@ -1,0 +1,100 @@
+{
+ "_doc": "Large batch L10 (Sonnet generic pass): family corrections only; colour/lift/snd left to builder defaults.",
+ "tide-crab-knight/f:b1": {
+  "family": "ripple",
+  "note": "breaker splash is a wave of water; keeps Gauntlet Slam as the plain slash"
+ },
+ "tide-crab-knight/f:b3": {
+  "family": "puff",
+  "note": "scuttle retreat kicks up dust; Duel Call keeps the web snare"
+ },
+ "coconut-crab-youngster/f:b1": {
+  "family": "ripple",
+  "note": "night-shift splash is water"
+ },
+ "coconut-crab-youngster/f:b3": {
+  "family": "puff",
+  "note": "sidle scuttle kicks up dust; Husk Toss keeps web"
+ },
+ "coconut-crab-youngster/f:u0": {
+  "family": "bite",
+  "note": "a snip is a pincer bite; bash tag stays mechanical, Hat Bonk is the bash"
+ },
+ "coconut-crab-youngster/f:u1": {
+  "family": "leaf",
+  "note": "hiding in the coconut husk: fibrous leaf look, best guess",
+  "review": true
+ },
+ "clam-lurker/f:b0": {
+  "family": "slash",
+  "note": "gate swings shut as one streak; Clamp stays the bite"
+ },
+ "clam-lurker/f:b1": {
+  "family": "puff",
+  "note": "yawning spray is a mist puff"
+ },
+ "clam-lurker/f:b2": {
+  "family": "drip",
+  "note": "slimy mantle drips slime; Shut Tight keeps the shield"
+ },
+ "clam-lurker/f:x0": {
+  "family": "bash",
+  "note": "shutter thump is a heavy thump"
+ },
+ "clam-lurker/f:u2": {
+  "family": "sparkle",
+  "note": "pearl glint: sparkle, clear from the name"
+ },
+ "clam-lurker/f:u3": {
+  "family": "ripple",
+  "note": "undertow is current water; Gulping Pull keeps web"
+ },
+ "giant-clam/f:b0": {
+  "family": "bite",
+  "note": "giant shut is jaws closing; Sudden Shut keeps the shock"
+ },
+ "giant-clam/f:b1": {
+  "family": "puff",
+  "note": "shallow spurt is a spray puff"
+ },
+ "giant-clam/f:b2": {
+  "family": "sparkle",
+  "note": "glossy mantle sheen; Shell Wall keeps the plain shield"
+ },
+ "giant-clam/f:b3": {
+  "family": "ripple",
+  "note": "tidal suck pulls water in"
+ },
+ "giant-clam/f:x0": {
+  "family": "bash",
+  "note": "cart-size clap is a heavy thump"
+ },
+ "giant-clam/f:u1": {
+  "family": "sparkle",
+  "note": "pearl blinds with its glint; ripple is used by Tidal Suck"
+ },
+ "tide-crab-paladin/f:b1": {
+  "family": "puff",
+  "note": "banner spray is a mist puff; Tide Banner keeps ripple"
+ },
+ "mangrove-crab-king/f:b1": {
+  "family": "drip",
+  "note": "mud spatter drips"
+ },
+ "mangrove-crab-king/f:b3": {
+  "family": "puff",
+  "note": "scuttle dust; Mud Snatch keeps web"
+ },
+ "mangrove-crab-king/f:x0": {
+  "family": "bash",
+  "note": "hammer is a heavy thump"
+ },
+ "mangrove-crab-emperor/f:b1": {
+  "family": "ripple",
+  "note": "imperial wave is water"
+ },
+ "mangrove-crab-emperor/f:b2": {
+  "family": "drip",
+  "note": "mudcoat drips mud; Shell Lock keeps the shield"
+ }
+}

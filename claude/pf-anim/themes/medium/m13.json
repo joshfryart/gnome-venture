@@ -1,0 +1,145 @@
+{
+ "_doc": "Batch m13 (medium, opus themed pass): fox kits, fennec, three hares (frost, mountain, jackrabbit), grumpy lemming, pika, marmot, glacier cub, reindeer calves. Motifs in motifs/medium_m13.js; every creature has its own signature motif with its own chain effect. Shared inside the batch: hare-hind-kick (frost hare, mountain hare, jackrabbit: the same big hind foot in three palettes and layouts). The hares share one side-view drawing routine so they read as relatives. Distinct from the small snowshoe-leveret-dash (snow-print) and lemming-kit-scurry (fury-tuft).",
+ "creatures": {
+  "fox-kit-pair": {
+   "pal": ["#e0884a", "#2a1810", "#f6efe4"], "m": "kit-pair-romp", "m2": "kit-den", "pers": "pounce", "snd": ["chirp", "pop"], "spd": 1.2,
+   "notes": "Two fluffy russet fox kits from a tundra den, all big dark-tipped ears and white muzzles: they never stop play-fighting, pouncing on each other, nipping ears and tumbling.",
+   "p": {
+    "u0": {"m": "kit-den", "n": "Den Wall: den mouths line the edge, two pairs of ear tips and bright eyes peering out of each dark arch"},
+    "u1": "Pair Pounce: the two kits crouch, pounce out of the edge one on top of the other and drop back",
+    "u2": {"m": "kit-brush-tail", "n": "Kit Cover: bushy white-tipped tails curl out of the edge and fluff up into a soft hedge"},
+    "u3": {"m": "kit-ear-nip", "n": "Practice Bite: a kit nips its sibling's ear tip and tugs as they launch off the edge, a tiny yelp mark"},
+    "b0": "Playful Paw Swat: kit pairs bounce off the edge one after another, one pouncing on the other",
+    "b1": {"lay": "lance", "n": "Mock-Fight Tumble: one tumbling pair of kits rolls the length of the edge"},
+    "b2": {"m": "kit-brush-tail", "n": "Kit-Tumble Guard: the kits curl nose in tail along the edge, white tail tips breathing"},
+    "b3": "Playground Barge: a kit pair barges out of the edge shoulder first and drops back"
+   }
+  },
+  "fennec": {
+   "pal": ["#f0dcb0", "#4a3420", "#f4a8a0"], "m": "fennec-ears", "m2": "fennec-curl", "pers": "skitter", "snd": ["click", "chirp"], "spd": 1.3,
+   "notes": "A tiny pale desert fennec that is mostly ears: two huge pink-lined ears swivel to hear prey under the sand; it hunts at night, digs in a blink and sleeps curled in its burrow.",
+   "p": {
+    "u0": {"x": "moon", "n": "Night Snap: a fennec runs the length of the edge under a moon glint, ears pricked forward, and snaps"},
+    "u1": {"m": "fennec-curl", "n": "Burrow Nap: a fennec curls up with its ears folded flat and its tail over its nose; Zs rise as it mends"},
+    "u2": {"m": "fennec-sand-curtain", "n": "Sand Curtain: digging forepaws fling fans of sand out of the edge, the fennec gone behind them"},
+    "u3": {"m": "fennec-ear-ping", "n": "Ear Warning: the ears snap up at spots along the edge, listening arcs spreading from both tips"},
+    "b0": "Big-Ear Scratch: big-eared fennec faces launch off the edge one after another, ears swivelling",
+    "b1": {"m": "fennec-sand-curtain", "lay": "strike", "n": "Dune-Top Ambush: sand bursts off the edge as the fennec drops out of the dune top"},
+    "b2": {"m": "fennec-ear-ping", "n": "Ear-Tuned Hunch: fennec faces hunch along the edge, listening arcs pulsing from the ear tips"},
+    "b3": "Dune-Edge Shoulder: a fennec shoulders out of the edge and drops back, a sand ripple behind it"
+   }
+  },
+  "frost-hare": {
+   "pal": ["#eef2f8", "#3a4050", "#9cd4f0"], "m": "frost-hare-bound", "m2": "hare-frost-breath", "pers": "hop", "snd": ["thud", "tink"], "spd": 1.25,
+   "notes": "A white tundra hare with black ear tips and frost in its fur: it bounds in huge arcs leaving Y-shaped tracks, jinks in zigzags, thumps a warning and breathes frost.",
+   "p": {
+    "u0": {"m": "hare-hind-kick", "n": "Hare Kick: big white hind feet kick straight out of the edge one after another, snow puffing where they strike"},
+    "u1": {"m": "hare-zigzag", "n": "Zigzag: white hares jink left and right in sharp zigzags out from the edge and back, snow kicked up"},
+    "u2": {"m": "hare-thump", "n": "Thump: a hind foot stamps flat at spots along the edge, shock rings spreading over the snow"},
+    "u3": {"m": "hare-frost-breath", "n": "Frost Breath: twitching noses breathe frost rings that bloom out of the edge with an ice crystal, then pull back"},
+    "b0": "Frost-Paw Rake: white hares bound off the edge and land in frost sprays",
+    "b1": {"m": "hare-frost-breath", "lay": "slam", "n": "Winter Gust Bash: a frost breath gusts out of the edge and drops back"},
+    "b2": "Drift Hunker: white hares hunker in a row along the edge, black ear tips up, snow sifting on them",
+    "b3": {"m": "hare-hind-kick", "lay": "slam", "n": "Snowy Haunch Shove: a haunch and big hind foot shove out of the edge and drop back, snow puffing"}
+   }
+  },
+  "mountain-hare": {
+   "pal": ["#b4a48c", "#3a3028", "#eceff2"], "m": "hare-form", "m2": "hare-hollow-nap", "pers": "thud", "snd": ["thud", "pop"], "spd": 1.0,
+   "notes": "A grey-brown hill hare with long ears and big pale feet: it lies pressed into its form (a scraped hollow) all day, grazes clover at dusk and naps in its hollow; when it runs it lopes uphill.",
+   "p": {
+    "u0": {"m": "hare-hind-kick", "n": "Hill Kick: one big pale hind foot kicks the length of the edge, a puff where it strikes"},
+    "u1": {"m": "hare-clover", "n": "Clover Graze: three-leaf clovers along the edge are nibbled away, the green bits rising as it mends"},
+    "u2": "Form Hide: the hare lies pressed into its scraped hollow along the edge, ears flat, grass tufts round it, eye blinking",
+    "u3": {"m": "hare-hollow-nap", "n": "Hollow Nap: a round loaf of hare naps in its hollow, ears folded along its back; it rises breathing slow with a Z"},
+    "b0": {"m": "hare-lope", "n": "Hill-Paw Raking: loping hares launch off the edge, big pale feet raking"},
+    "b1": {"m": "hare-lope", "lay": "slam", "n": "Hill-Den Mauling: a hare lopes out of the edge, mauls and drops back"},
+    "b2": {"m": "hare-hollow-nap", "n": "Hollow Mending Crouch: napping hare loaves line the edge, breathing slow"},
+    "b3": {"m": "hare-hollow-nap", "lay": "slam", "n": "Sleepy Haunch Shove: a sleeping loaf of hare shoves out with its haunch and drops back, still asleep"}
+   }
+  },
+  "jackrabbit": {
+   "pal": ["#d4a868", "#3a2814", "#f4b8a8"], "m": "sail-ears", "m2": "jackrabbit-scrub", "pers": "glide", "snd": ["click", "thud"], "spd": 1.4,
+   "notes": "A lean, long-legged desert jackrabbit with enormous ears that glow pink with red veins in the sun: it sprints low and straight, hides in thorny scrub with only the ear tips showing.",
+   "p": {
+    "u0": {"m": "hare-hind-kick", "n": "Long Leg Kick: a long hind leg shoves out of the edge in a straight kick and drops back, dust where it lands"},
+    "u1": "Ear Flick: huge sunlit ears flick off the edge one after another, pink with red veins",
+    "u2": {"m": "jackrabbit-scrub", "n": "Scrub Hide: thorny grey-green scrub bristles out of the edge, two tall ear tips twitching behind it"},
+    "u3": {"m": "jack-sprint", "lay": "lance", "n": "Straight Back: a lean jackrabbit at full stretch sprints straight down the length of the edge, dust behind"},
+    "b0": {"m": "jack-sprint", "n": "Zigzag Scrabble: lean jackrabbits scrabble off the edge, dust off their hind feet"},
+    "b1": {"lay": "slam", "n": "Sail-Ear Slap: a huge ear swings out of the edge and slaps back"},
+    "b2": {"m": "jackrabbit-scrub", "n": "Scrub-Dodge Stance: scrub bushes line the edge, ear tips twitching behind them"},
+    "b3": {"m": "jack-sprint", "lay": "slam", "n": "Doubled-Back Barge: a jackrabbit doubles back and barges out of the edge, dust flying"}
+   }
+  },
+  "grumpy-lemming": {
+   "pal": ["#e0a060", "#1a1410", "#f4e8c8"], "m": "grump-face", "m2": "lemming-snow-dig", "pers": "thud", "snd": ["crack", "hiss"], "spd": 1.2,
+   "notes": "A round black-capped tundra lemming that is always cross: scowling brows, puffed cheeks, bared buck teeth, a little storm cloud of a mood; it digs into the snow to sulk and stares you down.",
+   "p": {
+    "u0": {"m": "grumble-cloud", "n": "Grumble: little dark storm clouds blink at spots along the edge, muttering a rumble zigzag and dripping rain"},
+    "u1": "Lemming Bite: scowling lemmings fly off the edge teeth bared, an anger mark popping",
+    "u2": {"m": "lemming-snow-dig", "n": "Dig Snow: lemmings dive head first into snow out from the edge, bums up, flinging snow chunks, then come back"},
+    "u3": {"m": "sulk-stare", "n": "Sulk Stare: narrowed slit eyes glare from fur balls at spots along the edge, red glare dashes reaching out"},
+    "b0": {"x": "marks", "n": "Furious Paw Swipe: scowling lemmings fly off the edge, angry marks popping"},
+    "b1": {"lay": "slam", "n": "Stubby Fury Clout: a cross lemming shoves out of the edge, clouts and drops back"},
+    "b2": {"m": "grumble-cloud", "n": "Grumble Hunch: little storm clouds sit along the edge muttering, rain dripping"},
+    "b3": {"m": "sulk-stare", "lay": "slam", "n": "Cross Lemming Shove: a glaring fur ball shoves out of the edge and drops back"}
+   }
+  },
+  "pika-sentry": {
+   "pal": ["#bcae9c", "#3a3030", "#f4f0e8"], "m": "pika-call", "m2": "pika-rock", "pers": "hop", "snd": ["chirp", "tink"], "spd": 1.3,
+   "notes": "A round grey-brown pika with round ears and no tail, sitting sentry on a boulder in the scree: it calls a sharp eep, pitches stones and carries mouthfuls of hay and flowers to its haypile.",
+   "p": {
+    "u0": "Warning Whistle: pikas pop out of the edge calling eep, call marks flying, and drop back",
+    "u1": {"m": "pebble-pitch", "lay": "strike", "n": "Stone Pitch: lichen-spotted scree stones are pitched off the edge one after another, spinning"},
+    "u2": {"m": "pika-haypile", "n": "Hay Rampart: bunches of hay stalks and flower heads bristle out of the edge like a little rampart"},
+    "u3": {"m": "pika-rock", "n": "Sentry Stand: pikas sit on lichen-spotted boulders along the edge, turning their heads left, front, right"},
+    "b0": "Scree Paw Slap: pikas launch off the edge paw first, scree pebbles rattling",
+    "b1": {"m": "pebble-pitch", "lay": "fall", "n": "Thrown Scree Hurl: stones lobbed off the edge fall away spinning"},
+    "b2": {"m": "pika-call", "n": "Sentry Ready Stance: pikas sit round along the edge, ears up, calling now and then"},
+    "b3": {"m": "pika-rock", "lay": "slam", "n": "Alarm Whistle Shove: a pika on its rock shoves out of the edge and drops back"}
+   }
+  },
+  "marmot-bruiser": {
+   "pal": ["#dcaa4c", "#3a2410", "#f4e4b8"], "m": "marmot-stand", "m2": "marmot-belly-flop", "pers": "trundle", "snd": ["thud", "chirp"], "spd": 0.85,
+   "notes": "A fat, summer-fed golden marmot that stands tall with a dark face mask and pale belly: it whistles alarms, shoves turf about and simply drops its whole weight on things.",
+   "p": {
+    "u0": {"m": "marmot-belly-flop", "n": "Marmot Slam: marmots belly-flop off the edge one after another, dust puffing out both sides"},
+    "u1": {"m": "marmot-turf-shove", "n": "Ground Shove: slabs of turf shoved by fat paws hang at spots, a crack opening behind each, tied in a tripping line"},
+    "u2": {"m": "marmot-whistle", "n": "Whistle Warn: standing marmots whistle sharply and scatter out from the edge, white whistle marks flying, then come back"},
+    "u3": "Fat Crush: a fat marmot stands tall, shoves out of the edge and drops its whole weight into a squashed sit",
+    "b0": "Fat-Belly Cuff: fat golden marmots launch off the edge belly first",
+    "b1": {"m": "marmot-belly-flop", "lay": "slam", "n": "Summer-Fed Crush: a belly flop shoves out of the edge and drops back with a dust thud"},
+    "b2": {"m": "marmot-belly-flop", "n": "Fat Roll Bulwark: flattened marmots line the edge like sandbags"},
+    "b3": {"m": "marmot-turf-shove", "lay": "slam", "n": "Bruiser Body Check: a turf slab is body-checked out of the edge and drops back"}
+   }
+  },
+  "glacier-cub": {
+   "pal": ["#dceaf6", "#2a4a6a", "#8fd0f0"], "m": "glacier-cub-face", "m2": "cub-frost-fluff", "pers": "tumble", "snd": ["crack", "tink"], "spd": 1.1,
+   "notes": "A small round blue-white cub of the glacier with frost crystals on its crown: it belly-slides on the ice, skids on all fours and fluffs itself into a frosty fur ball.",
+   "p": {
+    "u0": {"lay": "lance", "n": "Cub Pounce: a round blue-white cub bounds the length of the edge and pounces, frost glinting on its crown"},
+    "u1": {"m": "cub-ice-skid", "n": "Ice Slide: cubs skid out from the edge on splayed legs, ice chips spraying, and skid back"},
+    "u2": {"m": "cub-frost-fluff", "n": "Fur Fluff: cubs puff into round fur balls out from the edge, frosty tufts bristling, then settle back"},
+    "u3": {"m": "cub-belly-slide", "n": "Glacier Belly Slide: belly-sliding cubs hang at spots, tied together by their ice streaks in a tripping line"},
+    "b0": {"x": "clods", "n": "Moraine Swipe: cub faces launch off the edge, moraine grit thrown"},
+    "b1": {"m": "cub-frost-fluff", "lay": "strike", "n": "Frost Cuffing: frosty fur balls fly off the edge one after another"},
+    "b2": {"m": "cub-frost-fluff", "n": "Frosted Pelt: fluffed frosty fur balls line the edge, tufts turning"},
+    "b3": {"m": "cub-belly-slide", "lay": "slam", "n": "Gnome-Bowl Slide: a belly-sliding cub bowls out of the edge and slides back"}
+   }
+  },
+  "reindeer-calf-herd": {
+   "pal": ["#b4825a", "#3a2418", "#f0e0c8"], "m": "velvet-bud", "m2": "calf-huddle", "pers": "march", "snd": ["click", "croak"], "spd": 0.95,
+   "notes": "A small herd of fuzzy brown reindeer calves with two velvet antler buds each and cream muzzles: they huddle rump to rump in the snow, butt with their buds, bleat for each other and trot with clicking knees.",
+   "p": {
+    "u0": {"m": "calf-huddle", "n": "Calf Huddle: calves huddle rump to rump along the edge, warm breath steaming up"},
+    "u1": "Herd Screen: calf faces push out of the edge velvet buds first and hold like a soft fence",
+    "u2": {"lay": "slam", "n": "Antler Bud Butt: a calf lowers its head and butts out of the edge with its velvet buds, then drops back"},
+    "u3": {"m": "calf-bleat", "n": "Herd Bleat: calf muzzles bleat, soft arcs and warm breath rising as the herd mends"},
+    "b0": "Antler-Bud Jab: calf faces jab off the edge one after another, heads lowering",
+    "b1": {"lay": "lance", "n": "Fuzzy-Knob Butt: one calf trots the length of the edge head down and butts at the end"},
+    "b2": {"m": "calf-huddle", "n": "Huddle Wall: a wall of huddled calves holds the edge, breath steaming"},
+    "b3": {"m": "calf-huddle", "lay": "slam", "n": "Huddle Shuffle: the huddle shuffles out of the edge and back, steaming"}
+   }
+  }
+ }
+}

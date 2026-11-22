@@ -1,0 +1,87 @@
+{
+ "_doc": "Medium batch m09 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "horned-viper/f:b3": {
+  "family": "puff",
+  "note": "sand kicked up around a burrow: puff, avoids a second drip (poison tag, viper still has Rattle Warn)"
+ },
+ "horned-viper/f:u2": {
+  "family": "shock",
+  "note": "rattle = buzzing zigzag warning, not a drip; best guess",
+  "review": true
+ },
+ "rock-viper/f:b3": {
+  "family": "leaf",
+  "note": "lichen spray: lichen is a plant, leaf over drip"
+ },
+ "rock-viper/f:u2": {
+  "family": "ember",
+  "note": "basking heat: sun-warmed rock, embers; best guess vs thorns tag",
+  "review": true
+ },
+ "vine-snake/f:b2": {
+  "family": "shield",
+  "note": "coil guard is a body coil: shield, keeps leaf for Leaf Blend"
+ },
+ "vine-snake/f:u2": {
+  "family": "leaf",
+  "note": "whip flick of a vine-like body: leaf, avoids two drips with Ambush Spray",
+  "review": true
+ },
+ "camel-calf/f:b1": {
+  "family": "bash",
+  "note": "stomp is a heavy foot slam: bash; Lanky Hoof Kick keeps slash"
+ },
+ "outback-dingo/f:u1": {
+  "family": "ripple",
+  "note": "circling the prey: widening rings, no tag/keyword; best guess",
+  "review": true
+ },
+ "savanna-hyena/f:u0": {
+  "family": "shock",
+  "note": "cackle = laugh zigzags (trip tag, but the laugh is the picture); best guess",
+  "review": true
+ },
+ "striped-hyena/f:u1": {
+  "family": "slash",
+  "note": "bone drag is a scrape: slash, avoids third bash"
+ },
+ "striped-hyena/f:b3": {
+  "family": "puff",
+  "note": "puffed-up mane swells like a cloud: puff; best guess vs bash tag",
+  "review": true
+ },
+ "warthog/f:b0": {
+  "family": "slash",
+  "note": "hook swipe of tusks is a slash; Tusk-Up Gore keeps the stab"
+ },
+ "warthog/f:b1": {
+  "family": "thrust",
+  "note": "gore is an upward stab: thrust"
+ },
+ "warthog/f:u1": {
+  "family": "drip",
+  "note": "mud shove flings mud: drip (dark mud), avoids third bash"
+ },
+ "bison-calf-stampede/f:b0": {
+  "family": "bash",
+  "note": "head butt: bash"
+ },
+ "bison-calf-stampede/f:b1": {
+  "family": "puff",
+  "note": "stampede dust cloud: puff; best guess",
+  "review": true
+ },
+ "bison-calf-stampede/f:u2": {
+  "family": "ripple",
+  "note": "bellow = sound rings; trip tag but sound is the picture; best guess",
+  "review": true
+ },
+ "ratel-pair/f:b1": {
+  "family": "bash",
+  "note": "maul is a heavy crush: bash"
+ },
+ "ratel-pair/f:b3": {
+  "family": "puff",
+  "note": "digging dust: puff, avoids third bash"
+ }
+}

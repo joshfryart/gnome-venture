@@ -1,0 +1,111 @@
+{
+ "_doc": "Large batch L03 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "jungle-tiger/f:b1": {
+  "family": "bite",
+  "note": "Shade-Pounce Mangle: a mangle is jaws; also breaks the slash run (b0, b1, u1)",
+  "review": true
+ },
+ "mandrill-boss/f:b1": {
+  "family": "bite",
+  "note": "Humourless Grab: a clamping grab reads as jaws; breaks the four-slash run",
+  "review": true
+ },
+ "elder-tiger/f:b1": {
+  "family": "bite",
+  "note": "Grizzle Mangle: mangle = jaws; breaks the slash run (b0, b1, x0)",
+  "review": true
+ },
+ "black-jaguar/f:b1": {
+  "family": "bite",
+  "note": "Downpour Maul: a maul is jaws and teeth; breaks the four-slash run",
+  "review": true
+ },
+ "black-jaguar/f:u3": {
+  "family": "bash",
+  "note": "Night Drop: dropping from a branch onto the prey is a heavy landing, not a slash",
+  "review": true
+ },
+ "black-jaguar/f:b2": {
+  "family": "ripple",
+  "note": "Rain Crouch: art is rain, ripple rings; stops two plain shields (u2 is hold shield)",
+  "review": true
+ },
+ "cloud-leopard/f:x0": {
+  "family": "bash",
+  "note": "Ledge Plunge: a plunge from a ledge is a drop-slam; breaks the slash run",
+  "review": true
+ },
+ "cloud-leopard/f:u2": {
+  "family": "web",
+  "note": "Long Tail: no tag and no keyword; a long tail trailing like a thread (best guess, default ripple is weaker)",
+  "review": true
+ },
+ "cloud-leopard/f:u3": {
+  "family": "sparkle",
+  "note": "Rumour Step: whispery glints; stops a second puff next to Cloud Coat (best guess)",
+  "review": true
+ },
+ "ghost-leopard/f:b1": {
+  "family": "thrust",
+  "note": "Ghost Strike: one clean straight ghostly strike, lance; breaks the three-slash run",
+  "review": true
+ },
+ "tufted-lynx/f:b1": {
+  "family": "bash",
+  "note": "Soft Paw Pin: pinning the prey down is a press, thump; breaks the four-slash run",
+  "review": true
+ },
+ "snow-lynx/f:u0": {
+  "family": "puff",
+  "note": "Snow Leap: the leap kicks up a snow cloud; breaks the four-slash run",
+  "review": true
+ },
+ "snow-lynx/f:b1": {
+  "family": "bash",
+  "note": "Lynx Drift Pounce: a heavy pounce landing in a drift, thump"
+ },
+ "snow-lynx/f:b2": {
+  "family": "sparkle",
+  "note": "Lynx Snowshoe: snow glitter round the wide paws; stops two shields (u2 is hold shield)",
+  "review": true
+ },
+ "mischief-monkey/f:b1": {
+  "family": "bash",
+  "note": "Tail-Swing Bonk: a bonk is a thump, not a slash"
+ },
+ "mischief-monkey/f:b3": {
+  "family": "bite",
+  "note": "Pocket-Pick Pinch: pinch = nip; keyword beats the bash tag here (pinch, not a hit)",
+  "review": true
+ },
+ "mischief-monkey/f:x0": {
+  "family": "leaf",
+  "note": "Tree-Drop Slam: dropping out of the jungle canopy, leaves fall with him (best guess)",
+  "review": true
+ },
+ "mischief-monkey/f:u1": {
+  "family": "drip",
+  "note": "Fruit Fling: thrown fruit splats into juice drops, not an electric zig"
+ },
+ "bearded-pig/f:b0": {
+  "family": "thrust",
+  "note": "Bristle Root: rooting is the pointed snout driven in; leaf keyword is a false hit on 'root'"
+ },
+ "bearded-pig/f:x0": {
+  "family": "bash",
+  "note": "Bristle Ram: a ram is a head-first thump; breaks the slash run"
+ },
+ "bearded-pig/f:u1": {
+  "family": "drip",
+  "note": "Mud Plough: mud spatters off the snout, drops, not a zig (quick kept for speed)"
+ },
+ "bearded-pig/f:u3": {
+  "family": "bite",
+  "note": "Fruit Snatch: snatching with the mouth; breaks the four-slash run",
+  "review": true
+ },
+ "bearded-pig/f:b2": {
+  "family": "thorn",
+  "note": "Bristle Shield: a bristle coat of spines; stops two plain shields (u2 is hold shield)"
+ }
+}

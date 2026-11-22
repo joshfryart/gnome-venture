@@ -1,0 +1,99 @@
+{
+ "_doc": "Medium batch m12 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "roebuck/f:b0": {
+  "family": "thrust",
+  "note": "antler thrust is a lance jab: thrust; Rut Rush keeps the pierce thrust too"
+ },
+ "roebuck/f:b1": {
+  "family": "puff",
+  "note": "rut dust is a kicked-up cloud: puff, avoids a second slash",
+  "review": true
+ },
+ "roebuck/f:b2": {
+  "family": "leaf",
+  "note": "bracken coat is a fern wall: leaf (art beats thorns tag), Bracken Stomp keeps thorn",
+  "review": true
+ },
+ "fisher/f:u1": {
+  "family": "bite",
+  "note": "the fisher's own bite: jaws (name beats bash tag); frees bash for Flip Hunt and Barge"
+ },
+ "fisher/f:u2": {
+  "family": "leaf",
+  "note": "drops out of the tree canopy: leaf (trip tag would give web); best guess",
+  "review": true
+ },
+ "pangolin/f:b1": {
+  "family": "bash",
+  "note": "mound mash is a smash: bash (mash keyword missing from list)"
+ },
+ "pangolin/f:u3": {
+  "family": "web",
+  "note": "sticky tongue lick on ants: web strands, not an electric quick zig",
+  "review": true
+ },
+ "arctic-fox-kit/f:u2": {
+  "family": "ripple",
+  "note": "a yip is a sound: ripple rings (trip tag would give web); best guess",
+  "review": true
+ },
+ "whiteout-fox/f:b2": {
+  "family": "puff",
+  "note": "drift is snow here, not water: puff (drift keyword gives ripple, not Water class)"
+ },
+ "whiteout-fox/f:u2": {
+  "family": "sparkle",
+  "note": "snow blindness = glare: sparkle; keeps Brace as the only puff",
+  "review": true
+ },
+ "snow-leopard-cub/f:b2": {
+  "family": "puff",
+  "note": "smoky grey coat: smoke puffs, not a plain shield"
+ },
+ "snow-leopard-cub/f:u2": {
+  "family": "ripple",
+  "note": "tail swish is a sweeping wave: ripple (trip tag would give web); best guess",
+  "review": true
+ },
+ "snow-leopard-cub/f:b1": {
+  "family": "thrust",
+  "note": "impatient pounce is a lance leap: thrust; frees a third slash",
+  "review": true
+ },
+ "yak-calf-herd/f:b1": {
+  "family": "bash",
+  "note": "herd trample is a heavy stomp: bash"
+ },
+ "yak-calf-herd/f:u2": {
+  "family": "ripple",
+  "note": "a bleat is a sound: ripple rings (trip tag would give web); best guess",
+  "review": true
+ },
+ "goat-kid-gang/f:b1": {
+  "family": "bash",
+  "note": "headbutt pile is a butt: bash"
+ },
+ "goat-kid-gang/f:u3": {
+  "family": "sparkle",
+  "note": "springy bouncing kids: sparkle; Ledge Cover keeps the puff",
+  "review": true
+ },
+ "wolverine-cub/f:u1": {
+  "family": "puff",
+  "note": "snow tumble kicks up snow: puff; keeps bash to Mauling, Shove"
+ },
+ "wolverine-cub/f:u3": {
+  "family": "slash",
+  "note": "boot scrap is a scrappy scratch: slash; frees a fourth bash"
+ },
+ "tamandua/f:u2": {
+  "family": "web",
+  "note": "sticky tongue flick: web strands (not the evade puff)",
+  "review": true
+ },
+ "tamandua/f:u3": {
+  "family": "leaf",
+  "note": "hangs from a branch by its tail, no thorns: leaf",
+  "review": true
+ }
+}

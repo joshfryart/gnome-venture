@@ -1,0 +1,548 @@
+{
+ "_doc": "Batch m08 (medium, opus themed pass): beaded lizard, monitors (tree, water, spice, komodo pup) and snakes (smooth, water, tree, night adder, sidewinder, dune racer). Motifs in motifs/medium_m08.js; every creature has its own signature motif, shared reptile motifs: fork-tongue, venom-fang, scale-shingle, venom-spit (+ m06 fish-toss).",
+ "creatures": {
+  "beaded-lizard": {
+   "pal": [
+    "#e8893a",
+    "#1c1210",
+    "#f6d6a0"
+   ],
+   "m": "gila-plod",
+   "m2": "bead-hide",
+   "pers": "trundle",
+   "snd": [
+    "crack",
+    "thud"
+   ],
+   "spd": 0.65,
+   "notes": "A heavy, slow beaded lizard (Gila kin) of desert and dry forest, its hide rows of orange and black beads; it does not strike, it bites, clamps on and chews its venom in.",
+   "p": {
+    "u0": "Bead Flash: the orange-and-black bead hide flips colours in a warning flash, beads scattering out and snapping back",
+    "u1": {
+     "m": "gila-plod",
+     "x": "dust",
+     "n": "Dodge Roll: the heavy beaded lizard lumbers aside off the edge and plods back, desert dust kicked up"
+    },
+    "u2": "Venom Chew: blunt beaded jaws clamp and chew, venom welling along the jaw grooves and dripping off the edge",
+    "u3": {
+     "m": "gila-chew",
+     "lay": "bristle",
+     "x": "marks",
+     "n": "Won't Let Go: the jaws lock out on the edge and stay clamped, chewing, angry marks popping"
+    },
+    "b0": {
+     "m": "gila-chew",
+     "lay": "slam",
+     "n": "Slow Gnaw Hold: the beaded head shoves out, gnaws and drags back slowly"
+    },
+    "b1": {
+     "m": "fat-tail",
+     "n": "Bead Tail Thrash: fat banded tails thrash out of the edge like clubs"
+    },
+    "b2": {
+     "lay": "hold",
+     "n": "Beaded Hide: bead-scales line the edge in a tight armoured mosaic, a slow orange-black ripple through them"
+    },
+    "b3": {
+     "m": "gila-chew",
+     "x": "splat",
+     "n": "Oozing Chew: chewing jaws let venom ooze and splat into a dark pool below"
+    }
+   }
+  },
+  "tree-monitor": {
+   "pal": [
+    "#5cbc4a",
+    "#1a3014",
+    "#d8f0a0"
+   ],
+   "m": "branch-monitor",
+   "m2": "bark-blend",
+   "pers": "hover",
+   "snd": [
+    "hiss",
+    "click"
+   ],
+   "spd": 0.9,
+   "notes": "A slim green tree monitor of forest and island canopies that lies flat along a branch with its long tail curled round it, then drops onto prey from above.",
+   "p": {
+    "u0": {
+     "m": "tail-lash",
+     "n": "Branch Lash: long banded tails whip out between spots and crack, tied in a tripping line"
+    },
+    "u1": "Bark Blend: bark patches line the edge, a lizard eye opens in the bark, glances, and is gone",
+    "u2": {
+     "m": "canopy-drip",
+     "n": "Venom Drip: green venom beads swell on leaf tips and drop on their threads"
+    },
+    "u3": {
+     "lay": "slam",
+     "n": "Monitor Canopy Drop: the monitor lets go of its branch, slams out of the edge and drops back"
+    },
+    "b0": "Branch Drop Bite: monitors on their branches lunge off the edge and bite",
+    "b1": {
+     "m": "tail-lash",
+     "lay": "lance",
+     "n": "Canopy Coil Whip: one long tail uncoils and cracks along the whole edge"
+    },
+    "b2": {
+     "m": "scale-shingle",
+     "x": "-",
+     "n": "Bough-Ridged Scales: green keeled scales shingle along the edge like bark ridges"
+    },
+    "b3": {
+     "m": "canopy-drip",
+     "x": "dew",
+     "n": "Overhead Venom Dribble: leaf tips drip venom beads from overhead, dew running"
+    }
+   }
+  },
+  "water-monitor": {
+   "pal": [
+    "#8a9670",
+    "#141a10",
+    "#bfe4d8"
+   ],
+   "m": "monitor-swim",
+   "m2": "wallow-mud",
+   "pers": "bob",
+   "snd": [
+    "hiss",
+    "squish"
+   ],
+   "spd": 0.85,
+   "notes": "A long dark water monitor of wetland and coast that swims with its tail sculling side to side and wallows in mud with only its eyes showing.",
+   "p": {
+    "u0": {
+     "m": "tail-hammer",
+     "lay": "slam",
+     "n": "Tail Sweep: a heavy tail winds up and hammers out of the edge, water bursting in a splash fan"
+    },
+    "u1": "Wallow Plate: mud slabs line the edge, the monitor's eyes and nostrils just above, ripples widening",
+    "u2": {
+     "lay": "slam",
+     "x": "bubbles",
+     "n": "Waterline Shove: the swimming monitor shoves out along the waterline and slides back, bubbles rising"
+    },
+    "u3": {
+     "m": "silt-cloud",
+     "n": "Silt Dive: the monitor dives, silt clouds bloom out and settle, a tail tip vanishing"
+    },
+    "b0": "River Lizard Bite: swimming monitors launch off the edge, V wakes behind",
+    "b1": {
+     "m": "tail-hammer",
+     "n": "Hammer Tail Swing: tails swing out one after another, splashes bursting"
+    },
+    "b2": {
+     "m": "scale-shingle",
+     "x": "sheen",
+     "n": "Dark Swimmer Scales: wet dark scales glint in a row, sheen flecks"
+    },
+    "b3": {
+     "lay": "scatter",
+     "x": "bubbles",
+     "n": "Swimming Dodge Trick: monitors scull out in all directions and slip back, bubbles left behind"
+    }
+   }
+  },
+  "spice-monitor": {
+   "pal": [
+    "#d0773a",
+    "#3a1a0c",
+    "#f4c66a"
+   ],
+   "m": "spice-monitor",
+   "m2": "cinnamon-quill",
+   "pers": "skitter",
+   "snd": [
+    "hiss",
+    "pop"
+   ],
+   "spd": 1.0,
+   "notes": "A cinnamon-red island monitor with clove-dark spots and a saffron throat; it smells of spice and leaves a trail of spice dust that stings.",
+   "p": {
+    "u0": {
+     "lay": "strike",
+     "n": "Spice Bite: the spice monitor lunges off the edge, a fall of cinnamon dust stinging after it"
+    },
+    "u1": {
+     "m": "tail-lash",
+     "n": "Tail Whip: cinnamon-banded tails uncoil and crack off the edge"
+    },
+    "u2": {
+     "m": "fork-tongue",
+     "n": "Fork Tongue: snouts blink up at spots and flick forked tongues to taste the air"
+    },
+    "u3": {
+     "m": "star-anise",
+     "lay": "scatter",
+     "n": "Cinnamon Cloud: star-anise pods burst out of the edge in a cloud of spice powder and drift back"
+    },
+    "b0": {
+     "lay": "slam",
+     "n": "Cinnamon Jaw: a spice monitor shoves out jaw-first and drops back in a puff of spice"
+    },
+    "b1": {
+     "m": "tail-lash",
+     "lay": "lance",
+     "n": "Sweeping Tail: one long tail sweeps the length of the edge"
+    },
+    "b2": "Crusted Scales: curled cinnamon-bark quills line the edge like a crusted hide, turning",
+    "b3": {
+     "m": "fork-tongue",
+     "x": "powder",
+     "n": "Tasting Flick: tongues flick in and out, spice powder falling off them"
+    }
+   }
+  },
+  "komodo-pup": {
+   "pal": [
+    "#b0a272",
+    "#2a2416",
+    "#f2e8c8"
+   ],
+   "m": "komodo-pup",
+   "m2": "sand-eye",
+   "pers": "hop",
+   "snd": [
+    "click",
+    "chirp"
+   ],
+   "spd": 1.1,
+   "notes": "A gangly young komodo of island beaches: sand-spotted, big-headed, with a long yellow forked tongue it never stops flicking; it trips, hides in sand and drools.",
+   "p": {
+    "u0": {
+     "lay": "snare",
+     "x": "prints",
+     "n": "Pup Tail Trip: pups sprawl at spots, their tails hooked together into an ankle-high tripline"
+    },
+    "u1": {
+     "lay": "scatter",
+     "x": "dust",
+     "n": "Sand Flop: the pups flop belly-down and scoot out in a spray of sand, then scamper back"
+    },
+    "u2": {
+     "x": "dust",
+     "n": "Dune Hide: sand mounds line the edge, a pup's eye peeping out of each and blinking"
+    },
+    "u3": {
+     "m": "fork-tongue",
+     "lay": "hold",
+     "n": "Low Watch: pups lie low along the edge, only their forked tongues flicking to watch"
+    },
+    "b0": "Trip Bite: komodo pups launch off the edge tongue-first and snap",
+    "b1": {
+     "lay": "lance",
+     "n": "Ankle Sweep: one pup scampers the length of the edge at ankle height"
+    },
+    "b2": {
+     "m": "scale-shingle",
+     "lay": "bristle",
+     "n": "Crouched Scales: spotted scales bristle up along the edge as the pup crouches"
+    },
+    "b3": {
+     "m": "drool-string",
+     "lay": "snare",
+     "n": "Sly Drool Trap: sticky drool strings hang at spots, tied in a trap"
+    }
+   }
+  },
+  "smooth-snake": {
+   "pal": [
+    "#bcb8b0",
+    "#3a3632",
+    "#f2eee4"
+   ],
+   "m": "smooth-coil",
+   "m2": "warm-stone",
+   "pers": "burrow",
+   "snd": [
+    "hiss",
+    "squish"
+   ],
+   "spd": 0.8,
+   "notes": "A pale grey, glossy, round-pupilled grassland snake that lives under warm stones, suns itself on them and squeezes its prey in its coils.",
+   "p": {
+    "u0": {
+     "lay": "snare",
+     "n": "Coil Squeeze: grey coils grip at spots and tighten, bound together by a glossy line"
+    },
+    "u1": {
+     "m": "scale-shingle",
+     "lay": "scatter",
+     "x": "sheen",
+     "n": "Scale Slip: glossy smooth scales slip out of reach and back, a sheen running over them"
+    },
+    "u2": {
+     "lay": "feint",
+     "n": "Hiss Feint: coils rear up at one spot then another, hissing, never striking"
+    },
+    "u3": "Stone Sunning: a flat warm stone with the snake draped on it rises, heat shimmering off it",
+    "b0": {
+     "m": "venom-fang",
+     "n": "Warmstone Fang: small fangs launch off the edge, a bead at each tip"
+    },
+    "b1": {
+     "lay": "slam",
+     "n": "Coil-Snap Whip: a coil springs out of the edge and snaps back tight"
+    },
+    "b2": "Sun-Warmed Scales: warm stones line the edge, the smooth snake basking along them",
+    "b3": {
+     "m": "venom-fang",
+     "lay": "feint",
+     "n": "Sleek Venom Feint: fangs flash at spots and vanish"
+    }
+   }
+  },
+  "water-snake": {
+   "pal": [
+    "#9aa858",
+    "#22280e",
+    "#dceaa4"
+   ],
+   "m": "banded-swim",
+   "m2": "reed-weave",
+   "pers": "bob",
+   "snd": [
+    "hiss",
+    "pop"
+   ],
+   "spd": 0.95,
+   "notes": "An olive water snake with dark crossbands and a flat head, swimming the shallows of wetland and coast in an S, hunting fish among the reeds.",
+   "p": {
+    "u0": {
+     "lay": "lance",
+     "x": "bubbles",
+     "n": "Water Snap: a banded snake shoots along the waterline head-first, bubbles in its wake"
+    },
+    "u1": {
+     "m": "banded-swim",
+     "lay": "hold",
+     "n": "Tight Coil: banded snakes lie in tight S folds along the edge, bands breathing"
+    },
+    "u2": {
+     "lay": "slam",
+     "x": "splat",
+     "n": "Bank Slide: the snake slides off a mud bank out of the edge and slaps back, mud splats"
+    },
+    "u3": "Reed Weave: reed stems stand along the edge, the banded snake weaving in and out of them",
+    "b0": {
+     "x": "bubbles",
+     "n": "Shallows Fang: banded swimmers launch off the edge, bubbles behind"
+    },
+    "b1": {
+     "m": "fish-toss",
+     "c": "#d6dee6",
+     "n": "Fishing Lash: silver fish flipped up out of the shallows end over end"
+    },
+    "b2": {
+     "x": "-",
+     "n": "Olive Banded Shield: reeds stand in a row with the banded snake woven through them"
+    },
+    "b3": {
+     "m": "reed-weave",
+     "lay": "feint",
+     "n": "Reed Bait Trick: a reed twitches at one spot, then another, the snake waiting behind"
+    }
+   }
+  },
+  "tree-snake": {
+   "pal": [
+    "#5ad85a",
+    "#123a14",
+    "#eaff9c"
+   ],
+   "m": "vine-drape",
+   "m2": "leaf-mimic",
+   "pers": "hover",
+   "snd": [
+    "hiss",
+    "tink"
+   ],
+   "spd": 1.1,
+   "notes": "A slim, long, bright-green rainforest snake that drapes from boughs like a vine and hides among leaves until one of the leaves strikes.",
+   "p": {
+    "u0": {
+     "lay": "scatter",
+     "n": "Branch Drape: green snakes drape off the boughs out of reach and coil back up"
+    },
+    "u1": {
+     "m": "leaf-mimic",
+     "lay": "strike",
+     "n": "Leaf Strike: a spray of leaves flies off the edge and one of them bites, red tongue flicking"
+    },
+    "u2": {
+     "m": "leaf-mimic",
+     "lay": "hold",
+     "n": "Bough Cover: leaves line the edge, rustling; now and then one leaf has an eye"
+    },
+    "u3": {
+     "lay": "slam",
+     "n": "Coil Drop: the snake lets go of its bough, drops out of the edge and springs back"
+    },
+    "b0": "Branch-Drop Strike: draped snakes drop off their boughs and fly out",
+    "b1": {
+     "lay": "snare",
+     "n": "Vine-Coil Lash: snakes hang at spots, coiled together like vines"
+    },
+    "b2": {
+     "x": "dew",
+     "n": "Hanging Green Shield: leaves hang along the edge, dew running down them"
+    },
+    "b3": {
+     "m": "venom-spit",
+     "lay": "fall",
+     "n": "Unseen Venom Jet: a hidden snout spits a fan of venom that falls"
+    }
+   }
+  },
+  "night-adder": {
+   "pal": [
+    "#a08e7e",
+    "#141012",
+    "#ff8a6a"
+   ],
+   "m": "zigzag-adder",
+   "m2": "red-eye",
+   "pers": "pounce",
+   "snd": [
+    "hiss",
+    "crack"
+   ],
+   "spd": 1.0,
+   "notes": "A dark, thick night adder of grassland and desert with a zigzag down its back and red eyes; it lies on warm roads at night and strikes from an S-coil.",
+   "p": {
+    "u0": {
+     "lay": "lance",
+     "n": "Fang Strike: an adder strikes the full length of the edge from its S-coil"
+    },
+    "u1": {
+     "m": "venom-fang",
+     "lay": "strike",
+     "n": "Quick Fangs: pairs of fangs launch off the edge one after another, venom beads flying"
+    },
+    "u2": "Night Coil: dark coils lie along the edge, two red eyes glowing and blinking in each",
+    "u3": {
+     "m": "warm-road",
+     "n": "Road Sit: a strip of warm night road pushes out of the edge with an adder on it, heat rising"
+    },
+    "b0": "Zigzag Fang: zigzag adders launch off the edge",
+    "b1": {
+     "lay": "slam",
+     "n": "Roadside Coil Lash: an adder coil shoves out and snaps back"
+    },
+    "b2": {
+     "m": "zigzag-adder",
+     "lay": "hold",
+     "n": "Zigzag Back Scales: adders lie along the edge, the dark zigzag down their backs"
+    },
+    "b3": {
+     "m": "warm-road",
+     "lay": "feint",
+     "n": "Warm Road Lure: warm road patches shimmer at spots, luring"
+    }
+   }
+  },
+  "dust-sidewinder": {
+   "pal": [
+    "#dcc08a",
+    "#5a4426",
+    "#fff0c8"
+   ],
+   "m": "sidewind-track",
+   "m2": "horn-peek",
+   "pers": "scuttle",
+   "snd": [
+    "hiss",
+    "click"
+   ],
+   "spd": 1.15,
+   "notes": "A small pale desert sidewinder that moves sideways in loops, leaving J-shaped tracks in the sand, with little horns over its eyes for burying itself.",
+   "p": {
+    "u0": {
+     "lay": "scatter",
+     "n": "Side Wind: sidewinders loop sideways out of the edge and back, J-tracks pressed in the sand"
+    },
+    "u1": {
+     "m": "venom-fang",
+     "lay": "fall",
+     "x": "dust",
+     "n": "Dust Fang: fangs drop venom beads into the sand, dust puffing"
+    },
+    "u2": {
+     "lay": "lance",
+     "x": "dust",
+     "n": "Sand Skim: one sidewinder skims the length of the edge sideways, sand dust behind"
+    },
+    "u3": {
+     "m": "horn-peek",
+     "lay": "feint",
+     "n": "Sideways Skirt: the horned head pops out of the sand at one spot, then another"
+    },
+    "b0": {
+     "m": "venom-fang",
+     "n": "Sideways Fang: fangs launch off the edge"
+    },
+    "b1": {
+     "lay": "slam",
+     "n": "Sand Tail Slap: a sidewinder loop slaps out of the edge and back"
+    },
+    "b2": "Sidestep Scales: horned heads peep out of the sand along the edge",
+    "b3": {
+     "lay": "fall",
+     "x": "dust",
+     "n": "Dust Sprinkle: sidewinders slip off the edge in a sprinkle of dust"
+    }
+   }
+  },
+  "dune-racer": {
+   "pal": [
+    "#e8e0c8",
+    "#4a4030",
+    "#c89a50"
+   ],
+   "m": "racer-streak",
+   "m2": "mirage-shimmer",
+   "pers": "glide",
+   "snd": [
+    "zig",
+    "hiss"
+   ],
+   "spd": 1.3,
+   "notes": "A thin, pale, striped desert-and-coast racer, the fastest snake on the dunes: a straight streak, a spit of venom, gone into the heat mirage.",
+   "p": {
+    "u0": {
+     "m": "venom-spit",
+     "lay": "strike",
+     "n": "Racer Spit: snouts spit fans of venom off the edge"
+    },
+    "u1": {
+     "m": "venom-fang",
+     "lay": "feint",
+     "n": "Fang Flick: fangs flick at one spot, then another, too fast to follow"
+    },
+    "u2": "Mirage Flit: heat-mirage lines wobble out of the edge with a ghost racer in them, then flicker back",
+    "u3": {
+     "lay": "lance",
+     "n": "Sting Dash: one striped racer streaks the full length of the edge"
+    },
+    "b0": "Dash Fang: racers dart off the edge in straight streaks",
+    "b1": {
+     "m": "venom-fang",
+     "lay": "slam",
+     "n": "Twin Sting Lash: twin fangs shove out of the edge and snap back"
+    },
+    "b2": {
+     "m": "scale-shingle",
+     "x": "glint",
+     "n": "Pale Streak Scales: pale scales shingle along the edge, a gold glint"
+    },
+    "b3": {
+     "m": "venom-spit",
+     "lay": "scatter",
+     "n": "Burst Spit: spitting snouts burst out in all directions"
+    }
+   }
+  }
+ }
+}

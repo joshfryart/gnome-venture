@@ -403,7 +403,7 @@
     if (!rewind) return;
     rewind = null; if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (c) { c.classList.remove('pf-chip-sel'); });
     if (rewindEl) rewindEl.hidden = true; root.classList.remove('pf-rewound');
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard);
     if (insp) insp.hidden = true; fxOn = true; render();
   }
   function enterRewind(c) {
@@ -412,7 +412,7 @@
     rewind = { sn: c.dataset.sn, id: +c.dataset.id || 0, chip: c, pieces: pcs };
     if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (x) { x.classList.remove('pf-chip-sel'); });
     c.classList.add('pf-chip-sel');
-    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g);
+    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g); setFoeGuard(c.dataset.fg);
     var rt = c.querySelector('.pfh-txt'); if (rwT) rwT.textContent = 'Rewound to: ' + (c.classList.contains('foe') ? (data.foe || 'Creature') : 'You') + ', ' + (rt ? rt.textContent : 'a move') + '.';
     if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
   }
@@ -449,6 +449,11 @@
     var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
     el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits until your next turn');
   }
+  function setFoeGuard(g) {   // the creature's guard beside its bars: dimmed at 0, follows the replay as it builds guard and your Hurts are blocked
+    var el = root.querySelector('.pf-fguard'); if (!el || g === null || g === undefined || g === '') return; g = Math.max(0, +g);
+    var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
+    el.classList.toggle('pf-fguard-0', g <= 0); el.setAttribute('aria-label', 'The creature\u2019s guard ' + g + ': it soaks up your Hurt pieces first. It clears when its next turn starts.');
+  }
   function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }
   function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
     showGone = false; fxOn = true; render();
@@ -460,7 +465,7 @@
     if (skipBtn) skipBtn.hidden = true;
     revealAllChips();
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard); setFoeGuard(data.fguard);
     if (insp) insp.hidden = true; root.classList.remove('pf-playing');
     var gone = boardEl.querySelectorAll('.pfb-gone');
     if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800)); }
@@ -474,7 +479,7 @@
     try { window.sessionStorage.setItem(replayKey, '1'); } catch (e) {}
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
     if (skipBtn) skipBtn.hidden = false;
-    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
+    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); setFoeGuard(data.replay0.fg); }
     var step = 950, BAN = 1500, tt = 300, lastBy = null, foeName = data.foe || 'Creature';   // each side: its banner shows, holds for a second, fades, and only then its pieces play
     data.replay.forEach(function (ev, k) {
       var side = ev.ta || ev.by;   // the turn it belongs to: a chain through the other side's pieces stays in one turn
@@ -489,7 +494,7 @@
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.fh !== null && ev.fh !== undefined) setFh(ev.fh, data.fhmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
-        setGuard(ev.g);
+        setGuard(ev.g); setFoeGuard(ev.fg);
       }, tt));
       tt += step;
     });

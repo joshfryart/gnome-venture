@@ -1,0 +1,69 @@
+{
+ "_doc": "Boss batch B2-birds themed pass (TEMPLATE.md sections 9 and 10): great hawk (grassland), snow owl monarch (tundra/mountain), frost owl regent (tundra, smaller, ice-blue edge, thin silver crown), storm eagle (mountain). New motifs live in motifs/boss_boss-B2-birds.js (22 motifs, glyph/motion ids prefixed B2-, 4 custom chain effects: the hawk circling high then stooping onto the next piece, the snowy monarch gliding low and dusting snow off its wingtips, rime creeping along the edge under the regent's circlet, the storm eagle dropping a forked bolt on the next piece). All 4 signature motifs are new and used as a signature by no other creature. Reused where the picture is truly the same: thermal-spiral and talon-grip (m03) for the hawk's Thermal Lift and Razor Grip, snow-gaze (m03, the snowy owl stare) for Snow Glare, hush-plume (L06, silent fringed owl feathers) for Hush Veil, hook-tear (L06, hooked raptor beak) and wing-gust (L06, one wing's downstroke) for the eagle's Storm Hook and Storm Gust. The two owls share hush-beak and monarch-glide on class pieces only, in their own palettes. Every piece (unique, class, x0/x1) has a hand note with an explicit motif and layout; Sonnet's flagged pieces are themed here (Talon Grip = tethered talons, Hush Circle = silent circling, Frost Wing = frost-crystal snare, Hush Plan = listening for a lemming under the snow, Frost Crown = circlet points flashing, Frost Edict = frost ferns spelled on the edge, Storm Gust = a wing downstroke).",
+ "creatures": {
+  "great-hawk": {
+   "pal": ["#c98a50", "#3a2414", "#f4e4c2"], "m": "hawk-stoop", "m2": "pinion-mantle", "pers": "plop", "snd": ["crack", "whirr"], "spd": 1.15,
+   "notes": "Great hawk of the grassland: a big red-tailed hawk, warm brown with a pale chest and a rufous fan tail; it circles high over the meadow, its shadow sweeping the grass, then folds and stoops onto prey and mantles over it with spread wings.",
+   "p": {
+    "u0": {"m": "hawk-stoop", "lay": "strike", "n": "Stoop: the red-tailed hawk folds its wings and stoops off the edge in a teardrop, speed lines behind, talons thrown at the end"},
+    "u1": {"m": "hawk-talon", "lay": "snare", "n": "Talon Grip: yellow hawk feet hang at spots and clench, tied together by taut lines: the foe is pinned and tripped"},
+    "u2": {"m": "sky-circle", "lay": "scatter", "n": "High Circle: the hawk lifts off the edge and circles high on a dotted ring, out of reach, then drops back"},
+    "u3": {"m": "grass-shadow", "lay": "feint", "n": "Shadow Pass: the hawk's cross-shaped shadow flicks over the meadow at spot after spot, the grass bending away, too quick to follow"},
+    "b0": {"m": "meadow-pluck", "lay": "strike", "n": "Meadow Pluck: talons drop into the meadow grass off the edge and pluck a vole out, the blades flicking back"},
+    "b1": {"m": "hawk-stoop", "c": "#a87446", "lay": "slam", "x": "dust", "n": "Shadow Stoop: a shadow-dark hawk stoops out of the sun and slams into the edge, grass dust flying"},
+    "b2": {"m": "pinion-mantle", "lay": "hold", "n": "Pinion Shade: the hawk mantles along the edge, wings draped down like a tent, shade underneath, eyes flashing over the top"},
+    "b3": {"m": "thermal-spiral", "c": "#e8c88e", "lay": "scatter", "n": "Thermal Lift: shimmering warm-air columns rise off the sunny meadow, a tiny hawk riding up inside them and sliding back"},
+    "x0": {"m": "sky-circle", "lay": "feint", "x": "haze", "n": "Hush Circle: the hawk circles silently above a heat haze, a dotted ring appearing at one spot after another, never where you look"},
+    "x1": {"m": "talon-grip", "lay": "strike", "n": "Razor Grip: feathered legs shoot out off the edge and the hooked toes snap shut like razors"}
+   }
+  },
+  "snow-owl-monarch": {
+   "pal": ["#f4f3ee", "#262630", "#cfe6f6"], "m": "monarch-glide", "m2": "hush-plume", "pers": "hover", "snd": ["hiss", "croak"], "spd": 0.85,
+   "notes": "Snow owl monarch of the tundra and mountains: a huge pure-white snowy owl with black flecks, yellow eyes and furry 'slipper' feet; it glides without a sound, listens for lemmings under the snow, leaves wing prints where it lifts off, and rules the white silence (all its class pieces are 'Hush').",
+   "p": {
+    "u0": {"m": "frost-wing", "lay": "snare", "n": "Frost Wing: a long white barred wing sweeps through and its frost crystals hang at spots, tied in a frozen web that trips the foe"},
+    "u1": {"m": "snow-gaze", "lay": "scatter", "n": "Snow Glare: round white owl faces with blazing yellow eyes spread out in the snow, stare, blink and draw back"},
+    "u2": {"m": "slipper-talon", "lay": "lance", "n": "Royal Talon: a furry white slipper foot runs the length of the edge, black talons out, raking frost scratches as it goes"},
+    "u3": {"m": "monarch-glide", "lay": "hold", "n": "Silent Glide: the great white owl lines the edge with its spread wings, gliding in place without a sound, a wall of white feathers"},
+    "b0": {"m": "hush-beak", "lay": "strike", "n": "Hush Beak: round feathered owl faces lunge off the edge and the small black beak nips, with not a sound"},
+    "b1": {"m": "monarch-glide", "lay": "strike", "x": "snow", "n": "Hush Stoop: the white owl drops off the edge on silent wings, feet out at the end, snow falling around it"},
+    "b2": {"m": "hush-plume", "lay": "hold", "c": "#f4f3ee", "n": "Hush Veil: soft white fringed feathers line the edge and sway without a sound, a veil the blow sinks into"},
+    "b3": {"m": "wing-print", "lay": "scatter", "n": "Hush Lift: the owl lifts off the snow and is gone, leaving only fanned wing prints pressed into the drift and a snow puff"},
+    "x0": {"m": "snow-listen", "lay": "feint", "n": "Hush Plan: at one snow mound after another the owl cocks its head and listens to a lemming tunnelling below, then plunges"},
+    "x1": {"m": "slipper-talon", "lay": "slam", "n": "Hush Talons: furry white feet slam out of the edge, the black talons curl and grip"}
+   }
+  },
+  "frost-owl-regent": {
+   "pal": ["#d4e6f4", "#28465e", "#8fd0f2"], "m": "regent-circlet", "m2": "frost-fern", "pers": "glide", "snd": ["tink", "croak"], "spd": 0.95,
+   "notes": "Frost owl regent of the tundra: a smaller pale owl whose feathers are rimmed in ice blue, wearing a thin silver crown; it rules with frost: rime creeps where it passes, frost ferns spell its edicts, its glare freezes and its wings vanish into whiteout.",
+   "p": {
+    "u0": {"m": "rime-claw", "lay": "strike", "n": "Rime Talon: frost-crusted talons rake off the edge in a quick flurry, a white rime line growing where they scratch"},
+    "u1": {"m": "whiteout", "lay": "scatter", "n": "Whiteout Wing: the pale wing spreads out and blurs into driving snow until only the snow is left, then draws back"},
+    "u2": {"m": "ice-glare", "lay": "bristle", "n": "Ice Glare: pale eyes with ice-blue irises push out along the edge, the glare streaming out and freezing into icicle tips"},
+    "u3": {"m": "regent-circlet", "lay": "feint", "n": "Throne Feint: the small crowned head blinks from spot to spot along the edge, a glint running over the silver circlet each time"},
+    "b0": {"m": "hush-beak", "lay": "strike", "n": "Frost Beak: ice-rimmed owl faces lunge out and the little black beak nips"},
+    "b1": {"m": "monarch-glide", "lay": "lance", "n": "Frost Swoop: the smaller ice-edged owl swoops low along the length of the edge on silent wings"},
+    "b2": {"m": "frost-fern", "lay": "hold", "n": "Frost Shroud: frost ferns grow up along the edge like window frost and stay, a shroud of ice fronds"},
+    "b3": {"m": "whiteout", "lay": "feint", "n": "Frost Vanish: the owl blinks out into a snow flurry here and there along the edge, never twice in the same place"},
+    "x0": {"m": "frost-fern", "lay": "snare", "n": "Frost Edict: frost ferns are spelled out at spots along the edge, tied by thin ice lines like a written decree"},
+    "x1": {"m": "regent-circlet", "lay": "slam", "n": "Frost Crown: the crowned head butts out of the edge and the circlet points flash white"}
+   }
+  },
+  "storm-eagle": {
+   "pal": ["#9aa4b2", "#1e2430", "#fff07a"], "m": "thunder-eagle", "m2": "eyrie-nest", "pers": "thud", "snd": ["crack", "thud"], "spd": 1.05,
+   "notes": "Storm eagle of the mountain peaks: a huge storm-grey eagle with white-edged fingered wings and a yellow hooked beak; it rides the gale, nests on a crag eyrie, and dives with the storm so that lightning seems to come down with it.",
+   "p": {
+    "u0": {"m": "thunder-eagle", "lay": "slam", "n": "Thunder Dive: the grey eagle folds and dives out of the edge with a crackle, slams down talons first, sparks at the wingtips"},
+    "u1": {"m": "gale-wing", "lay": "scatter", "n": "Gale Wing: great grey wings beat out from the edge, white gale curls and slanting rain push the blow away, then fold back"},
+    "u2": {"m": "bolt-claw", "lay": "strike", "n": "Lightning Claw: yellow feet clutching forked lightning bolts flash off the edge one after another, white afterglow"},
+    "u3": {"m": "eyrie-nest", "lay": "hold", "n": "Eyrie Grip: stick nests on grey crags line the edge, the eagle sitting tall and gripping the rim while the wind tears twigs away"},
+    "b0": {"m": "hook-tear", "lay": "strike", "n": "Storm Hook: the hooked eagle beak lunges off the edge, gapes and tears"},
+    "b1": {"m": "thunder-eagle", "lay": "fall", "n": "Storm Plunge: eagles fold and plunge straight down off the edge like falling stones"},
+    "b2": {"m": "gale-wing", "lay": "hold", "n": "Storm Pinion: broad grey pinions line the edge and beat against the gale, rain streaming off them"},
+    "b3": {"m": "storm-cloud", "lay": "rise", "n": "Storm Updraft: storm clouds billow up off the edge on the updraft, lightning flickering inside, rain trailing"},
+    "x0": {"m": "wing-gust", "lay": "slam", "n": "Storm Gust: one great wing gives a downstroke and a burst of white gust lines shoves out from the edge"},
+    "x1": {"m": "bolt-claw", "lay": "slam", "n": "Storm Clutch: an eagle foot slams out gripping a lightning bolt that forks and flashes"}
+   }
+  }
+ }
+}

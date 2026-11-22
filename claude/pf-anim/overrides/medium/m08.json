@@ -1,0 +1,156 @@
+{
+ "_doc": "Batch m08 (medium creatures, sonnet generic pass): reptiles (lizards, monitors, snakes). Family corrections only; colour/lift/snd left to the builder defaults. Same format as overrides.json.",
+ "smooth-snake/f:b1": {
+  "family": "slash",
+  "note": "whip of the coils is a lash; keyword snap is false (not a jaw), avoids bite twice"
+ },
+ "smooth-snake/f:u0": {
+  "family": "web",
+  "note": "constricting coil squeeze: strand wrap (trip), differs from the slash lash",
+  "review": true
+ },
+ "smooth-snake/f:u1": {
+  "family": "sparkle",
+  "note": "smooth scales slip away: sheen glint, differs from Hiss Feint puff",
+  "review": true
+ },
+ "smooth-snake/f:u2": {
+  "family": "puff",
+  "note": "hiss breath mist; differs from Sleek Venom Feint drip"
+ },
+ "water-snake/f:b2": {
+  "family": "ripple",
+  "note": "olive banded water-snake: banded ripples on the shield, differs from Tight Coil shield",
+  "review": true
+ },
+ "water-snake/f:u3": {
+  "family": "leaf",
+  "note": "reed weave: reed leaves, differs from the other evade puff-like pieces"
+ },
+ "tree-monitor/f:b1": {
+  "family": "thrust",
+  "note": "long-tail coil whip cracks out as a lance; avoids two slashes",
+  "review": true
+ },
+ "tree-monitor/f:u2": {
+  "family": "web",
+  "note": "venom drip hangs as a thread from the branch; differs from Overhead Venom Dribble drip",
+  "review": true
+ },
+ "tree-monitor/f:u3": {
+  "family": "bash",
+  "note": "drop from the canopy lands with a thud, not a shock zigzag",
+  "review": true
+ },
+ "water-monitor/f:b2": {
+  "family": "sparkle",
+  "note": "dark swimmer scales glint wet; differs from Wallow Plate shield",
+  "review": true
+ },
+ "water-monitor/f:u2": {
+  "family": "ripple",
+  "note": "waterline shove pushes waves out; differs from Tail Sweep bash",
+  "review": true
+ },
+ "night-adder/f:u1": {
+  "family": "shock",
+  "note": "quick fangs flicker as zigzag strikes; differs from Fang Strike thrust",
+  "review": true
+ },
+ "night-adder/f:u2": {
+  "family": "web",
+  "note": "night coil: coiled strand loops; differs from Zigzag Back Scales shield",
+  "review": true
+ },
+ "tree-snake/f:b1": {
+  "family": "web",
+  "note": "vine coil lash is a strand wrap; keyword vine would give leaf twice with Leaf Strike",
+  "review": true
+ },
+ "tree-snake/f:u1": {
+  "family": "leaf",
+  "note": "Leaf Strike is named for the leaf; mechanical poison drip already on Unseen Venom Jet"
+ },
+ "tree-snake/f:u2": {
+  "family": "sparkle",
+  "note": "bough cover: dappled light camouflage glints; differs from Branch Drape puff",
+  "review": true
+ },
+ "tree-snake/f:u3": {
+  "family": "thrust",
+  "note": "coil drop from above is a lunging strike, not a shock zigzag",
+  "review": true
+ },
+ "spice-monitor/f:b1": {
+  "family": "bash",
+  "note": "sweeping tail knock: bash so it differs from Tail Whip slash"
+ },
+ "spice-monitor/f:b3": {
+  "family": "ember",
+  "note": "tasting the air: spice heat embers; ripple already on Fork Tongue",
+  "review": true
+ },
+ "spice-monitor/f:u2": {
+  "family": "ripple",
+  "note": "forked tongue flick ripples the air; no tag and no keyword, best guess",
+  "review": true
+ },
+ "spice-monitor/f:u3": {
+  "family": "puff",
+  "note": "cinnamon cloud is a dust puff; differs from Spice Bite drip"
+ },
+ "komodo-pup/f:b2": {
+  "family": "thorn",
+  "note": "crouched scales bristle low; differs from Dune Hide shield",
+  "review": true
+ },
+ "komodo-pup/f:u0": {
+  "family": "bash",
+  "note": "pup tail trip knocks the foe over; differs from Ankle Sweep slash",
+  "review": true
+ },
+ "komodo-pup/f:u3": {
+  "family": "sparkle",
+  "note": "low watch: eyes glint in the grass; three hold shields would repeat",
+  "review": true
+ },
+ "dust-sidewinder/f:b3": {
+  "family": "sparkle",
+  "note": "dust sprinkle glitters in the sun; differs from Dust Fang drip",
+  "review": true
+ },
+ "dust-sidewinder/f:u2": {
+  "family": "ripple",
+  "note": "sand skim is sand-wave ripples; differs from Sideways Skirt shock",
+  "review": true
+ },
+ "dune-racer/f:b3": {
+  "family": "puff",
+  "note": "burst of spit mist; differs from Racer Spit drip",
+  "review": true
+ },
+ "dune-racer/f:u1": {
+  "family": "thrust",
+  "note": "fast fang flick is a jab; differs from Racer Spit drip",
+  "review": true
+ },
+ "dune-racer/f:u2": {
+  "family": "sparkle",
+  "note": "mirage flit: shimmering heat glints",
+  "review": true
+ },
+ "beaded-lizard/f:b3": {
+  "family": "ripple",
+  "note": "oozing chew: slow murky ripples; differs from Venom Chew drip",
+  "review": true
+ },
+ "beaded-lizard/f:u0": {
+  "family": "sparkle",
+  "note": "bead flash: glinting beads, differs from Dodge Roll puff"
+ },
+ "beaded-lizard/f:u3": {
+  "family": "thorn",
+  "note": "Won't Let Go: clamped bead studs dig in; differs from Slow Gnaw Hold bite",
+  "review": true
+ }
+}

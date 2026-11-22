@@ -1,0 +1,130 @@
+{
+ "_doc": "Batch m03 (medium creatures, sonnet generic pass). Same format as overrides.json.",
+ "ghost-slug/f:b0": {
+  "family": "ripple",
+  "note": "puddle lunge: ripple rings off a puddle (best guess)",
+  "review": true
+ },
+ "ghost-slug/f:b1": {
+  "family": "puff",
+  "note": "cave-mouth chill: cold breath mist puff, differs from the two slashes",
+  "review": true
+ },
+ "ghost-slug/f:b3": {
+  "family": "drip",
+  "note": "slime shapeshift: pale ooze drips, not a shock",
+  "review": true
+ },
+ "giant-banded-snail/f:b0": {
+  "family": "bite",
+  "note": "gnaw is the action, leaf litter is the food: bite (best guess vs leaf)",
+  "review": true
+ },
+ "giant-banded-snail/f:b1": {
+  "family": "bash",
+  "note": "barrel-shell crush: heavy bash, differs from Striped Roll slash"
+ },
+ "giant-banded-snail/f:u2": {
+  "family": "drip",
+  "note": "slime sheet: slimy drops, not a web"
+ },
+ "giant-banded-snail/f:b3": {
+  "family": "leaf",
+  "note": "litter roll over: leaf litter spin",
+  "review": true
+ },
+ "herring-gull/f:b0": {
+  "family": "bite",
+  "note": "scrap-snatch peck: bite (peck is a beak action)"
+ },
+ "herring-gull/f:u1": {
+  "family": "thrust",
+  "note": "gull swoop: diving lance, differs from Screaming Swoop slash"
+ },
+ "tern-squadron/f:b0": {
+  "family": "thrust",
+  "note": "head-aimed stab: lance"
+ },
+ "tern-squadron/f:b3": {
+  "family": "shock",
+  "note": "annoyed break-away: sharp scatter, differs from Wing Wheel puff",
+  "review": true
+ },
+ "skua-raider/f:u1": {
+  "family": "bite",
+  "note": "beak jab: bite of the hooked bill, differs from Skua Stoop lance"
+ },
+ "skua-raider/f:u3": {
+  "family": "web",
+  "note": "stealing in flight: snatch strands, differs from Loot-Grab Flight puff",
+  "review": true
+ },
+ "cormorant-line/f:b0": {
+  "family": "bite",
+  "note": "post spear peck: bite, differs from Dive Spear lance"
+ },
+ "cormorant-line/f:b1": {
+  "family": "ripple",
+  "note": "fish plunge: water ripples"
+ },
+ "cormorant-line/f:u2": {
+  "family": "drip",
+  "note": "wing dry: water drops shaken off, differs from Line Shuffle puff"
+ },
+ "cormorant-line/f:u3": {
+  "family": "bite",
+  "note": "surfaced catch: fish gripped in hooked bill"
+ },
+ "booby-colony/f:b0": {
+  "family": "bite",
+  "note": "whistle peck: bite"
+ },
+ "booby-colony/f:u0": {
+  "family": "sparkle",
+  "note": "blue foot strut: bright display glints, differs from Rude Interruption puff",
+  "review": true
+ },
+ "booby-colony/f:u3": {
+  "family": "bash",
+  "note": "rude stamp: stamping feet, bash"
+ },
+ "turkey-vulture/f:b0": {
+  "family": "bite",
+  "note": "red-head gouge: beak gouge, bite"
+ },
+ "turkey-vulture/f:u0": {
+  "family": "ripple",
+  "note": "wobble glide: wavering ripples"
+ },
+ "turkey-vulture/f:b3": {
+  "family": "ember",
+  "note": "thermal lift-off: rising heat shimmer, ember (best guess)",
+  "review": true
+ },
+ "mountain-buzzard/f:b0": {
+  "family": "bite",
+  "note": "ridge hook peck: hooked beak, bite"
+ },
+ "mountain-buzzard/f:b3": {
+  "family": "ripple",
+  "note": "ridgeline glide off: soft gliding ripples, differs from Ridge Circle puff",
+  "review": true
+ },
+ "burrowing-owl/f:u1": {
+  "family": "bash",
+  "note": "dust spurt: kicked dust, bash dust blocks, differs from Ground Strike lance"
+ },
+ "snowy-owl-scout/f:b0": {
+  "family": "bite",
+  "note": "snow-still peck: beak, bite"
+ },
+ "snowy-owl-scout/f:u1": {
+  "family": "ripple",
+  "note": "frost hoot: sound rings, ripple"
+ },
+ "snowy-owl-scout/f:b3": {
+  "family": "sparkle",
+  "note": "vanishing lift-off: snow glints fade, differs from Blank Perch puff",
+  "review": true
+ }
+}

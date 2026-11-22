@@ -1,0 +1,124 @@
+{
+ "_doc": "Medium batch m11 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "tanuki/f:b2": {
+  "family": "thorn",
+  "note": "stump = splintered wood, spikes; best guess",
+  "review": true
+ },
+ "tanuki/f:u0": {
+  "family": "ripple",
+  "note": "belly drum = beat rings spreading; best guess vs trip web",
+  "review": true
+ },
+ "coati-band/f:b2": {
+  "family": "puff",
+  "note": "huddle of fluffy bodies: puff, keeps Log Cover as shield"
+ },
+ "coati-band/f:u0": {
+  "family": "ripple",
+  "note": "ringed tail screen: rings; best guess vs thorns tag",
+  "review": true
+ },
+ "coati-band/f:u2": {
+  "family": "thrust",
+  "note": "snout poke is a jab: thrust over trip slash"
+ },
+ "macaque-troop/f:b2": {
+  "family": "puff",
+  "note": "hunch of fluffy fur: puff, Troop Huddle keeps shield"
+ },
+ "macaque-troop/f:u1": {
+  "family": "leaf",
+  "note": "cheeks dump fruit scraps: leaf over bash; best guess",
+  "review": true
+ },
+ "capuchin-pickpocket/f:b2": {
+  "family": "puff",
+  "note": "shrug: soft puff, not a second shield"
+ },
+ "capuchin-pickpocket/f:u2": {
+  "family": "leaf",
+  "note": "canopy perch: leaves over puff"
+ },
+ "capuchin-pickpocket/f:u3": {
+  "family": "sparkle",
+  "note": "shiny button snatch: sparkle over web; best guess",
+  "review": true
+ },
+ "wildcat/f:b1": {
+  "family": "bite",
+  "note": "mangle is a bite/maul: avoids third slash; best guess",
+  "review": true
+ },
+ "wildcat/f:u3": {
+  "family": "ripple",
+  "note": "ringed tail feint: ring ripples over puff; best guess",
+  "review": true
+ },
+ "caracal/f:b1": {
+  "family": "bite",
+  "note": "snatching with the jaws: bite, avoids slash x3; best guess",
+  "review": true
+ },
+ "caracal/f:u2": {
+  "family": "leaf",
+  "note": "scrub bush cover: leaf over puff"
+ },
+ "fishing-cat/f:b2": {
+  "family": "ripple",
+  "note": "wade stance in water: ripple"
+ },
+ "fishing-cat/f:u3": {
+  "family": "ripple",
+  "note": "scoop from the water: ripple over web trip; best guess",
+  "review": true
+ },
+ "jaguarundi/f:u0": {
+  "family": "ripple",
+  "note": "river slip: ripple over web trip"
+ },
+ "jaguarundi/f:u2": {
+  "family": "leaf",
+  "note": "riverbank vegetation cover: leaf over puff"
+ },
+ "jaguar-cub-pair/f:u1": {
+  "family": "puff",
+  "note": "tail chase kicks up dust: puff, avoids second shock; best guess",
+  "review": true
+ },
+ "jaguar-cub-pair/f:u2": {
+  "family": "ripple",
+  "note": "mud roll: murky ripples over puff; best guess",
+  "review": true
+ },
+ "jaguar-cub-pair/f:u3": {
+  "family": "web",
+  "note": "bootlace is a thread: web over slash trip"
+ },
+ "bear-cub-tumble/f:b1": {
+  "family": "buzz",
+  "note": "bees chasing: buzz dots on a Beast; best guess",
+  "review": true
+ },
+ "bear-cub-tumble/f:b2": {
+  "family": "puff",
+  "note": "roll-up hunker: fluffy puff, Cub Roll keeps shield"
+ },
+ "bear-cub-tumble/f:u1": {
+  "family": "drip",
+  "note": "honey raid: honey drips over bash tag; best guess",
+  "review": true
+ },
+ "bear-cub-tumble/f:u2": {
+  "family": "leaf",
+  "note": "tumbling through grass: leaf over puff"
+ },
+ "sun-bear/f:b0": {
+  "family": "drip",
+  "note": "honey paw: honey drips over slash"
+ },
+ "sun-bear/f:b2": {
+  "family": "sparkle",
+  "note": "gold crescent: sparkle over shield"
+ }
+}
