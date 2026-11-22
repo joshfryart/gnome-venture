@@ -30,6 +30,7 @@ echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
 db "UPDATE users SET energy=100 WHERE username='sprout'" >/dev/null
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=$e["max"]=900; $e["fhp"]=900; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'   # a foe that survives the test's hits
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','0')" >/dev/null   # 2.7.57: puzzle combat is on by default; this suite covers the old fight
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('fight_scene','0')" >/dev/null   # default is on since 2.5.97: the off case is set explicitly
 get adventure.php >/dev/null
 echo "off: trailpop=$(grep -c 'id="trailpop"' $H) scene=$(grep -c 'id="fightscene"' $H)"

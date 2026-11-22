@@ -17,7 +17,7 @@ get() { curl -s -c $C -b $C "$BASE/$1" -o $TD/here-p.html -w '%{http_code} %{red
 post() { curl -s -c $C -b $C -X POST "$BASE/$1" --data-urlencode "csrf=$(csrf $TD/here-p.html)" "${@:2}" -o $TD/here-post.html -w '%{http_code} %{redirect_url}'; }
 
 
-cli set gnav_on 1 >/dev/null; cli set gnav_tiles 1 >/dev/null; cli set fight_scene 0 >/dev/null; login >/dev/null
+cli set gnav_on 1 >/dev/null; cli set gnav_tiles 1 >/dev/null; cli set fight_scene 0 >/dev/null; cli set pfight_open 0 >/dev/null; login >/dev/null   # 2.7.57: puzzle combat is on by default; this suite covers the old fight scene
 chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"
 get adventure.php >/dev/null
 chk "what just happened rides in the one toast stack (data-gvtoast), no second fixed box over the message bar" "$(grep -q 'class="trailtoast"' $TD/here-p.html && echo 0 || (grep -q 'data-gvtoast' $TD/here-p.html && echo 1))"

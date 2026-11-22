@@ -417,6 +417,7 @@
     sheetEl = document.createElement('div');
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
+      + (document.getElementById('pfi') ? '<p class="hint pfi-again"><button type="button" class="btn small ghost" data-pfintro="1">New to puzzle fights? Read the 4-step intro</button></p>' : '')   // 2.7.57: assets/pfintro.js opens the card in place
       + '<div class="sl">Win and lose</div><ul class="helpl">' + row({ n: 'How a fight ends', g: 'win', l: [ONE ? 'You win when the ' + YIELD + ' bar is full: Hurt and Charm both fill it.' : 'You win when the creature\u2019s health is empty (Hurt) or its charm bar is full (Charm).', 'You lose when your health reaches 0. After ' + (data.turncap || 24) + ' turns the creature loses interest and wanders off (a boss does not).'], who: '' }) + '</ul>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
       + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell, or put a piece beside it that no longer fits, and it has to pick again (the chip then says \u201cpicked again\u201d: that is normal, about once every few turns). Blocking only reroutes the hit: the new move is as strong as the old one (a beast also hits harder for each block), so it is not a way to stop damage.' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now, with your move included (poison ticking at the end of the round and the terrain come on top); tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
@@ -440,6 +441,7 @@
     (root.closest('dialog') || document.body).appendChild(sheetEl);   // inside the Trail's popover when the fight is in one (a modal dialog covers the page)
     sheetEl.addEventListener('click', function (ev) {
       if (ev.target.closest('[data-x]')) { closeSheet(); return; }
+      if (ev.target.closest('[data-pfintro]')) { closeSheet(); return; }   // the intro script (listening on the document) opens its card
       var sb = ev.target.closest('[data-spd]'); if (sb) { setSpd(+sb.dataset.spd); helpSheet(); }
       var fb = ev.target.closest('[data-pfx]'); if (fb) { setPfx(fb.dataset.pfx); helpSheet(); }
     });

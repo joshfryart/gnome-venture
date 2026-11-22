@@ -35,6 +35,7 @@ pf() { local d=$1; shift; get adventure.php >/dev/null
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1')" >/dev/null
 db "UPDATE users SET energy=100, tour_step=99, level=12 WHERE username='sprout'" >/dev/null
 for k in pfight_open pfight_v1; do db "INSERT OR REPLACE INTO settings (name,value) VALUES ('$k','1')" >/dev/null; done
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_intro','0')" >/dev/null   # 2.7.57: the first-time intro card would cover the board
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
 FAILS=0
 php $HERE/here.php $GAME cli tilewalk >/dev/null 2>&1   # a Trail tile walk: the fight then plays in the modal #trailpop

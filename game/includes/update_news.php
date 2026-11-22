@@ -812,6 +812,10 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.57' => ['🧩 Update 2.7.57: puzzle fights for everyone',
+        "[list][*][b]Puzzle combat is open to everyone[/b]: fights on the road, in lairs and in delves are now played with jigsaw pieces on a board. Your first fights are gentle, with tips as you go. (Treks keep the old fights for now.)\n"
+        . "[*][b]Puzzle box[/b]: find it in the menu under Hobbies. The first time you open it (or start a fight) a short 4-step card shows how it all works. You can read it again any time on the box's new How it works tab.\n"
+        . "[*][b]Creature Codex[/b]: the Codex tab in the Puzzle box fills up as you meet creatures. Tap one to see the pieces it has played, drawn just as they look on the board. Win once to learn what it is and what it does.[/list]"],
     '2.7.54' => ['🛡️ Update 2.7.54: the creature\'s guard meter',
         "[list][*][b]Fights[/b]: the creature now has a blue guard bar with a number beside its bars, just like yours under your head. It is dimmed when the creature has no guard. Your Hurt pieces lose that much before they reach its Yield bar, and it clears when its next turn starts. It follows the replay.[/list]"],
     '2.7.52' => ['🔨 Update 2.7.52: smaller workshop squares on phones',

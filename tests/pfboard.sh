@@ -35,6 +35,7 @@ pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   post adventure.php -d do=$d -d nonce=${NONCE_X:-$n} -d turn=${TURN_X:-$t} "$@"; }
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1')" >/dev/null; db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_v1','0')" >/dev/null   # 2.7.57: v1 is on by default; this suite covers the old (pre-v1) board
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_blank','0')" >/dev/null   # the classic opening for the long body below; the blank-centre opening is tested at the end
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 get adventure.php >/dev/null

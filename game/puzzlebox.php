@@ -17,6 +17,12 @@ $cap = pf_box_capacity($lvl);
 if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
+    if ($do === 'pfi_seen') {   // 2.7.57: the intro card was closed (assets/pfintro.js sends it quietly; without script the form posts here and goes back)
+        require_once __DIR__ . '/includes/pfintro.php';
+        pfi_mark($uid);
+        if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'pfintro') { http_response_code(204); exit; }
+        redirect(($_POST['back'] ?? '') === 'adventure' ? 'adventure.php' : 'puzzlebox.php');
+    }
     if (str_starts_with($do, 'pfd_') && pfight_v1_on($u)) {   // 2.6.74, v1 deck model (admin setting pfight_v1): starter, switch a piece, belt, auto-use, fix a tool (includes/pfdeck.php, pfd_post). The page for them is the UI stage
         require_once __DIR__ . '/includes/pfdeck.php';
         require_once __DIR__ . '/includes/pfdeck_view.php';
@@ -46,7 +52,8 @@ if (pfight_v1_on($u)) {   // 2.6.74 stage C: the v1 Puzzle box (deck bar, kit / 
     require_once __DIR__ . '/includes/pfdeck_view.php';
     $GLOBALS['AJAX_PAGE'] = true;   // its buttons update in place
     page_header('Puzzle box');
-    echo pfv_box_html($u, (string)($_GET['t'] ?? 'kit'));
+    require_once __DIR__ . '/includes/pfintro.php';
+    echo pfv_box_html($u, (string)($_GET['t'] ?? 'kit')) . pfi_card_html($u, 'puzzlebox');   // 2.7.57: the 4-step intro, the first time (the How it works tab keeps the text)
     page_footer();
     exit;
 }

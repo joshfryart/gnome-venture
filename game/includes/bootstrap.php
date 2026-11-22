@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.7.56');
+define('APP_VERSION', '2.7.57');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -611,6 +611,17 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 set_setting('game_clock_on', '1');
                 set_setting('gclock_started', gmdate('Y-m-d H:i:s'));
             }
+        });
+        boot_step('pfight_live_2757', function () {   // 2.7.57 (Josh): puzzle combat with the v1 rules goes live for everyone, once. Only on a world upgraded from before 2.7.57 (a fresh install has the defaults on);
+            if (setting('pfight_live_2757') !== '') return;   // marker: a later admin Off is kept on every later upgrade
+            if (version_compare((string)setting('db_version'), '2.7.57', '<')) {
+                set_setting('pfight_open', '1');
+                set_setting('pfight_v1', '1');
+                setting('__reload__');
+                require_once __DIR__ . '/pfdeck.php';
+                pfd_content_once();   // the fight belts on Twigg's shelf and the Tool Repair Kit (+ recipe), made now instead of on the first fight
+            }
+            set_setting('pfight_live_2757', '1');
         });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
