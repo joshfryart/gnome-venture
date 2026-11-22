@@ -631,6 +631,879 @@ window.PFA = { seek: function (ms) { FIX = ms === null ? null : +ms; }, end: fun
      meta (also read by the build): {nm, desc, fam, gap, g, mo, x, car, carDraw(c, env, H) optional chain effect used when the piece's carrier is 'custom'}. */
   motif: function (name, draw, meta) { var m = MOTIF[name] || (MOTIF[name] = {}), k; for (k in (meta || {})) m[k] = meta[k]; m.draw = draw; },
   glyph: function (id, fn) { XG[id] = fn; }, motion: function (id, fn) { XM[id] = fn; } };
+/* ---- motifs/boss_boss-B1-coast-water-crabs-reef.js ---- */
+/* Motif module, boss batch B1 (coconut-crab-titan, robber-crab-baron, reef-leviathan, ancient-snapper). TEMPLATE.md sections 9 and 10.3.
+   12 motifs, each with its own pixel glyph (ids prefixed bossB1-) and motion; three have their own chain effect (carDraw): the titan's legs
+   striding over the edge, the baron's red sash streaming behind him, and the leviathan's humps breaching along the outer loop behind its head.
+   Boss pieces sit on a 5x5 board (cells 40 x 34), so the sprites are a little bigger and richer than the small ones, but still cheap:
+   glyph coordinates are written as (a, b): a along the edge tangent, b outward along the normal, so every sprite turns with its edge.
+   Every draw is a stateless function of p: hash noise only, no Math.random / Date, no allocation inside the frame loops (scratch H.Q / H.G,
+   static tables built once at load). Glyphs go through H.glyph so the MAXG budget counts them; chain bodies are capped at ~40 small blocks.
+   The wiggle, the outer-edge chain rule, visual-only sound lines and the creature-heavy default are untouched (they live in the page). */
+(function () {
+  var SASH = '#d04444', GOLD = '#ecc85a', RUBY = '#e0303e', MOSS = '#5f8c3c', BARN = '#e8e4d4', FLESH = '#fbf6ea';
+  /* titan leg pose per frame: knee (a, b) and tip (a, b); the base sits at (-4, 0). 0 planted, 1 lifting, 2 swinging over, 3 stabbing down */
+  var KNEE_A = [-1, 0, 1, 1], KNEE_B = [6, 7, 8, 6], TIP_A = [3, 3, 5, 6], TIP_B = [0, 3, 4, 0];
+  var COIL_H = [5, 4, 3, 4];                       /* leviathan hump height per frame: the hump rolls as it breaches */
+  var SCROLL_W = [1, 3, 6, 6];                     /* decree scroll: paper width per frame (rolled, unrolling, open, sealed) */
+  var RING_W = [5, 3, 1, 3];                       /* signet ring seen turning: face, three-quarter, edge-on, back */
+  var MAW_O = [0, 1, 3, 0];                        /* leviathan maw: lower jaw drop per frame (shut, opening, unhinged, gulped) */
+  var BEAK_G = [0, 1, 2, 0];                       /* moss beak: gape per frame */
+
+  /* (a, b) -> screen helpers: no closures, no allocation */
+  function pt(c, K, x, y, tx, ty, nx, ny, a, b, col) { K.px(c, x + tx * a + nx * b, y + ty * a + ny * b, col); }
+  function st(c, K, x, y, tx, ty, nx, ny, a, b, w, col) { K.sq(c, x + tx * a + nx * b, y + ty * a + ny * b, w, col); }
+  function seg(c, K, x, y, tx, ty, nx, ny, a0, b0, a1, b1, col) {           /* a 1 px segment between two (a, b) points */
+    var n = Math.max(1, Math.round(Math.max(Math.abs(a1 - a0), Math.abs(b1 - b0)))), i, u;
+    for (i = 0; i <= n; i++) { u = i / n; pt(c, K, x, y, tx, ty, nx, ny, a0 + (a1 - a0) * u, b0 + (b1 - b0) * u, col); }
+  }
+
+  /* ---------- shared own-edge composition: the page's themedOwn() with this module's glyph / motion ---------- */
+  function comp(c, e, H) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, p = e.p, pp = p * mp.spd, Q = H.Q, G = H.G, P = e.P,
+      tie = mp.x === 'thread' || mp.lay === 'snare', ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, lx = 0, ly = 0, has;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(7, Math.round(len / (M.gap || 12)))); if (mp.lay === 'lance') n = Math.min(n, 4); has = false;
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, p, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.d > 20) G.d = 20;                                            /* stay within ~22 px of the edge */
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, p)) { has = false; continue; }
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (mp.x === 'threads') H.ln(c, bx0 + nx, by0 + ny, x, y, 1, e.hi);
+        else if (mp.x === 'silk') H.ln(c, bx0 + ny * 9 + nx, by0 - nx * 9 + ny, x, y, 1, e.hi);
+        if (tie && has && Math.abs(x - lx) + Math.abs(y - ly) < 30) H.ln(c, lx, ly, x, y, 1, e.hi);
+        H.glyph(c, M.g, x, y, z, G.fr, e.col, e.acc, e.hi, -ny, nx, nx, ny); lx = x; ly = y; has = true;
+      }
+      H.ext(c, mp.x, P, r[0], len, ri, p, pp, e.col, e.acc, e.hi, e.seed);
+    }
+  }
+
+  /* ================= coconut crab titan ================= */
+  PFA.glyph('bossB1-leg', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* one colossal spiky walking leg arching over the edge: lift, swing over, stab down */
+    var f = fr & 3, ka = KNEE_A[f], kb = KNEE_B[f] + (z > 1 ? 1 : 0), ta = TIP_A[f], tb = TIP_B[f], i, u;
+    seg(c, K, x, y, tx, ty, nx, ny, -4, 0, ka, kb, C); seg(c, K, x, y, tx, ty, nx, ny, -3, 0, ka + 1, kb, C);          /* thick upper segment */
+    if (z > 0) seg(c, K, x, y, tx, ty, nx, ny, -5, 0, ka - 1, kb, C);
+    seg(c, K, x, y, tx, ty, nx, ny, ka + 1, kb, ta, tb + 1, C);                                                          /* lower segment */
+    pt(c, K, x, y, tx, ty, nx, ny, ka, kb, A); pt(c, K, x, y, tx, ty, nx, ny, ka + 1, kb - 1, A);                       /* purple-dark knee joint */
+    for (i = 1; i <= 3; i++) { u = i / 4; pt(c, K, x, y, tx, ty, nx, ny, -4 + (ka + 4) * u - 1, kb * u + 1, Hi); }   /* cream bristles along the top */
+    pt(c, K, x, y, tx, ty, nx, ny, ta, tb, A);                                                                           /* dark claw tip */
+    if (f === 3) { pt(c, K, x, y, tx, ty, nx, ny, ta - 2, 0, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, ta + 2, 0, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, ta, 2, K.WHITE); }
+  });
+  PFA.glyph('bossB1-coconut', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a coconut plummeting, bonk, split white, halves rocking apart */
+    var f = fr & 3, R = 2 + (z > 1 ? 1 : 0), a, b, g, sa;
+    if (f < 2) {
+      for (a = -R; a <= R; a++) for (b = -R; b <= R; b++) if (a * a + b * b <= R * R + 1) pt(c, K, x, y, tx, ty, nx, ny, a + (f === 1 && a > 0 ? 1 : 0), b - (f === 1 && b > 0 ? 1 : 0), C);
+      pt(c, K, x, y, tx, ty, nx, ny, -1, 1, A); pt(c, K, x, y, tx, ty, nx, ny, 1, 1, A); pt(c, K, x, y, tx, ty, nx, ny, 0, -1, A);   /* the three eyes */
+      pt(c, K, x, y, tx, ty, nx, ny, -R, 0, Hi); pt(c, K, x, y, tx, ty, nx, ny, R - 1, -R + 1, Hi);                                     /* hairy husk flecks */
+      if (f === 0) { pt(c, K, x, y, tx, ty, nx, ny, 0, R + 2, Hi); pt(c, K, x, y, tx, ty, nx, ny, 0, R + 4, Hi); pt(c, K, x, y, tx, ty, nx, ny, 1, R + 6, Hi); }   /* fall streak */
+      else { pt(c, K, x, y, tx, ty, nx, ny, -R - 2, 1, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, R + 3, 1, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, -R - 1, 3, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, R + 2, 3, K.WHITE); }   /* bonk */
+      return;
+    }
+    g = f === 3 ? 2 : 1;
+    for (a = -R; a <= R; a++) for (b = -R; b <= R; b++) { if (a * a + b * b > R * R + 1) continue; sa = a < 0 ? -g : a > 0 ? g : 0;
+      if (a === 0) { pt(c, K, x, y, tx, ty, nx, ny, -g, b, FLESH); pt(c, K, x, y, tx, ty, nx, ny, g, b, FLESH); }
+      else pt(c, K, x, y, tx, ty, nx, ny, a + sa, b - (f === 3 ? Math.abs(a) * .3 : 0), Math.abs(a) === 1 && Math.abs(b) < R ? Hi : C); }
+    if (f === 3) { pt(c, K, x, y, tx, ty, nx, ny, -1, R + 2, FLESH); pt(c, K, x, y, tx, ty, nx, ny, 1, R + 3, FLESH); }                   /* milk flecks */
+  });
+  PFA.glyph('bossB1-plate', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* the titan's vast ridged back plate: grooves, knobs, a rim of short spines, a sheen sliding over */
+    var w = 5 + (z > 1 ? 1 : 0), a, b, h;
+    for (a = -w; a <= w; a++) { h = Math.abs(a) >= w - 1 ? 1 : 2;
+      for (b = 0; b <= h; b++) pt(c, K, x, y, tx, ty, nx, ny, a, b, (a === -2 || a === 2) && b > 0 ? A : C);
+      if (((a + w) % 3) === 0) { pt(c, K, x, y, tx, ty, nx, ny, a, h + 1, C); pt(c, K, x, y, tx, ty, nx, ny, a, h + 2, A); } }
+    pt(c, K, x, y, tx, ty, nx, ny, -4, 1, Hi); pt(c, K, x, y, tx, ty, nx, ny, 0, 1, Hi); pt(c, K, x, y, tx, ty, nx, ny, 4, 1, Hi);    /* knobs */
+    pt(c, K, x, y, tx, ty, nx, ny, -w - 1, 0, A); pt(c, K, x, y, tx, ty, nx, ny, w + 1, 0, A);
+    pt(c, K, x, y, tx, ty, nx, ny, -w + 1 + (fr & 3) * 3, 2, K.WHITE);                                                                    /* sheen */
+  });
+  PFA.motion('bossB1-stride', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 7 + ph * 4) + k) & 3; if (G.fr === 3) G.d -= 1; });   /* lift, swing, stab, plant */
+  PFA.motion('bossB1-plummet', function (G, pp, k, ph) { var u = (pp * 1.4 + ph) % 1, v;                                              /* falls in from far out, bonk, split */
+    if (u < .45) { v = u / .45; G.d += 14 * (1 - v * v); G.fr = 0; } else G.fr = u < .6 ? 1 : u < .85 ? 2 : 3; });
+  PFA.motion('bossB1-brace', function (G, pp, k) { G.fr = (Math.floor(pp * 6) + k) & 3; if (G.fr === 1) G.d -= 1; });                  /* the plate braces, the sheen slides */
+  function carStride(c, e, H) {         /* the colossus walks to the next piece: three legs stepping along the outer loop, footfall pips, a shadow below */
+    var P = e.P, Q = H.Q, k, u, fr, sd = e.d < 0 ? -1 : 1;
+    for (u = 0; u <= e.hh; u += .04) { if (((u * 25) | 0) & 1) continue; P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, e.acc); }
+    for (k = 0; k < 3; k++) { u = e.hh - k * .11; if (u < 0) break; P.atq(e.a + e.d * u); fr = (Math.floor(e.p * 10) + k * 2) & 3;
+      H.glyph(c, 'bossB1-leg', Q.x + Q.nx * 2, Q.y + Q.ny * 2, e.z > 1 ? 1 : e.z, fr, e.col, e.acc, e.hi, -Q.ny * sd, Q.nx * sd, Q.nx, Q.ny);
+      if (fr === 3) H.sq(c, Q.x + Q.nx * 3 + Q.ny * sd * -6, Q.y + Q.ny * 3 - Q.nx * sd * -6, 2, e.hi); }
+  }
+  PFA.motif('titan-stride', comp, { nm: 'titan legs', desc: 'one colossal orange-red walking leg with a purple knee and cream bristles arching over the edge: it lifts, swings over and stabs its dark tip down with a white impact; the chain is the titan stepping along on three legs', fam: 'thrust', gap: 18, g: 'bossB1-leg', mo: 'bossB1-stride', x: '-', car: 'custom', carDraw: carStride });
+  PFA.motif('coconut-plummet', comp, { nm: 'falling coconuts', desc: 'hairy coconuts with three eyes plummeting in from far out with a fall streak, landing with a bonk, splitting white and rocking apart', fam: 'bash', gap: 14, g: 'bossB1-coconut', mo: 'bossB1-plummet', x: '-', car: 'hop' });
+  PFA.motif('titan-plate', comp, { nm: 'titan plates', desc: 'a vast ridged armour plate with dark grooves, cream knobs and a rim of short spines, bracing as a white sheen slides across', fam: 'shield', gap: 16, g: 'bossB1-plate', mo: 'bossB1-brace', x: '-', car: 'train' });
+
+  /* ================= robber crab baron ================= */
+  PFA.glyph('bossB1-baron', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* the baron front-on: blue-grey shell, a red sash across it, a gold ring on one claw, strutting */
+    var f = fr & 3, l = f === 1 ? 1 : 0, a, b, w = z > 1 ? 1 : 0;
+    for (a = -3 - w; a <= 3 + w; a++) for (b = 1; b <= 3; b++) pt(c, K, x, y, tx, ty, nx, ny, a, b, C);
+    pt(c, K, x, y, tx, ty, nx, ny, -4 - w, 2, C); pt(c, K, x, y, tx, ty, nx, ny, 4 + w, 2, C);
+    for (a = -3; a <= 2; a++) pt(c, K, x, y, tx, ty, nx, ny, a, 1 + ((a + 3) >> 1), SASH);                                                 /* the stolen sash */
+    pt(c, K, x, y, tx, ty, nx, ny, 0, 2, GOLD);                                                                                           /* sash pin */
+    pt(c, K, x, y, tx, ty, nx, ny, -1, 4, C); pt(c, K, x, y, tx, ty, nx, ny, 1, 4, C); pt(c, K, x, y, tx, ty, nx, ny, -1, 5, A); pt(c, K, x, y, tx, ty, nx, ny, 1, 5, A);   /* eyestalks */
+    pt(c, K, x, y, tx, ty, nx, ny, -5 - w, 2 + l, C); pt(c, K, x, y, tx, ty, nx, ny, -6 - w, 3 + l, C); pt(c, K, x, y, tx, ty, nx, ny, -6 - w, 4 + l, C); pt(c, K, x, y, tx, ty, nx, ny, -5 - w, 5 + l, C);   /* left claw */
+    pt(c, K, x, y, tx, ty, nx, ny, 5 + w, 2 + l, C); pt(c, K, x, y, tx, ty, nx, ny, 6 + w, 3 + l, C); pt(c, K, x, y, tx, ty, nx, ny, 6 + w, 4 + l, C); pt(c, K, x, y, tx, ty, nx, ny, 5 + w, 5 + l, C);    /* right claw */
+    pt(c, K, x, y, tx, ty, nx, ny, 5 + w, 3 + l, f === 3 ? K.WHITE : GOLD);                                                              /* the gold ring, glinting */
+    pt(c, K, x, y, tx, ty, nx, ny, -4, 0, A); pt(c, K, x, y, tx, ty, nx, ny, 4, 0, A); pt(c, K, x, y, tx, ty, nx, ny, (f & 1) ? -3 : -5, -1, A); pt(c, K, x, y, tx, ty, nx, ny, (f & 1) ? 5 : 3, -1, A);   /* legs */
+    if (f === 2) { pt(c, K, x, y, tx, ty, nx, ny, 3, 4, SASH); pt(c, K, x, y, tx, ty, nx, ny, 4, 5, SASH); }                              /* the sash end flaps */
+  });
+  PFA.glyph('bossB1-sash', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a silk sash whipping in S-curves, a gold fringe on the end */
+    var j, a, b, ph = (fr & 3) * 1.2;
+    for (j = 0; j < 10; j++) { a = j - 5; b = 3 + Math.sin(j * .7 + ph) * 2;
+      st(c, K, x, y, tx, ty, nx, ny, a, b, 2, C); if (j & 1) pt(c, K, x, y, tx, ty, nx, ny, a, b - 1, A); if (j === 3 && z > 1) pt(c, K, x, y, tx, ty, nx, ny, a, b + 1, Hi); }
+    b = 3 + Math.sin(9 * .7 + ph) * 2; pt(c, K, x, y, tx, ty, nx, ny, 5, b - 1, GOLD); pt(c, K, x, y, tx, ty, nx, ny, 5, b + 1, GOLD); pt(c, K, x, y, tx, ty, nx, ny, 6, b, GOLD);
+  });
+  PFA.glyph('bossB1-ring', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a gold signet ring with a ruby, turning: face, three-quarter, edge-on, back */
+    var w = RING_W[fr & 3], h = 5 + (z > 1 ? 2 : 0), x0, y0;
+    x = x + nx * 2; y = y + ny * 2; x0 = Math.round(x - (w >> 1)); y0 = Math.round(y - (h >> 1));
+    if (w === 1) { K.bx(c, x0, y0, 1, h, Hi); K.px(c, x0, y0 - 1, RUBY); K.px(c, x0, y0 + 2, K.WHITE); return; }
+    K.bx(c, x0 + 1, y0, w - 2, 1, C); K.bx(c, x0 + 1, y0 + h - 1, w - 2, 1, A); K.bx(c, x0, y0 + 1, 1, h - 2, C); K.bx(c, x0 + w - 1, y0 + 1, 1, h - 2, Hi);
+    K.bx(c, x0 + (w >> 1) - (w > 3 ? 1 : 0), y0 - 2, w > 3 ? 3 : 1, 2, RUBY); K.px(c, x0 + (w >> 1), y0 - 2, K.WHITE);
+  });
+  PFA.glyph('bossB1-lid', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* looted armour: a dented pot lid with a knob, a fork stuck through, a bottle cap glint */
+    var f = fr & 3, a, j = (f & 1) ? 1 : 0, w = 4 + (z > 1 ? 1 : 0);
+    for (a = -w; a <= w; a++) { pt(c, K, x, y, tx, ty, nx, ny, a, 0, C); if (Math.abs(a) < w) pt(c, K, x, y, tx, ty, nx, ny, a, 1, C); if (Math.abs(a) < w - 1) pt(c, K, x, y, tx, ty, nx, ny, a, 2, Hi); }
+    pt(c, K, x, y, tx, ty, nx, ny, 2, 1, A); pt(c, K, x, y, tx, ty, nx, ny, 1, 2, A);                                                   /* the dent */
+    pt(c, K, x, y, tx, ty, nx, ny, -1, 3, A); pt(c, K, x, y, tx, ty, nx, ny, -1, 4, C);                                                 /* knob */
+    seg(c, K, x, y, tx, ty, nx, ny, 3 + j, 2, 4 + j, 6, BARN);                                                                         /* fork handle and tines */
+    pt(c, K, x, y, tx, ty, nx, ny, 3 + j, 7, BARN); pt(c, K, x, y, tx, ty, nx, ny, 5 + j, 7, BARN); pt(c, K, x, y, tx, ty, nx, ny, 4 + j, 8, BARN);
+    pt(c, K, x, y, tx, ty, nx, ny, -4, 2, f === 2 ? K.WHITE : RUBY); pt(c, K, x, y, tx, ty, nx, ny, -3, 3, RUBY);                       /* bottle cap */
+  });
+  PFA.glyph('bossB1-scroll', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a decree scroll unrolling between its two rolled ends, then the red wax seal */
+    var f = fr & 3, w = SCROLL_W[f] + (z > 1 && f > 1 ? 1 : 0), h = w >> 1, a, b;
+    for (a = -h; a <= w - h - 1; a++) for (b = 1; b <= 3; b++) pt(c, K, x, y, tx, ty, nx, ny, a, b, C);
+    for (a = -h + 1; a < w - h - 1; a += 2) pt(c, K, x, y, tx, ty, nx, ny, a, 2, A);                                                   /* lines of the decree */
+    for (b = 0; b <= 4; b++) { pt(c, K, x, y, tx, ty, nx, ny, -h - 1, b, Hi); pt(c, K, x, y, tx, ty, nx, ny, w - h, b, Hi); }          /* rolled ends */
+    pt(c, K, x, y, tx, ty, nx, ny, -h - 1, 2, A); pt(c, K, x, y, tx, ty, nx, ny, w - h, 2, A);
+    if (f === 3) { st(c, K, x, y, tx, ty, nx, ny, 0, 1, 2, RUBY); pt(c, K, x, y, tx, ty, nx, ny, -1, -1, RUBY); pt(c, K, x, y, tx, ty, nx, ny, 1, -1, RUBY); pt(c, K, x, y, tx, ty, nx, ny, 0, 5, K.WHITE); }
+  });
+  PFA.motion('bossB1-strut', function (G, pp, k) { G.fr = (Math.floor(pp * 8) + k) & 3; G.up += G.fr & 1; G.t += Math.sin(pp * 6 + k) * 1.5; });   /* a pompous strut */
+  PFA.motion('bossB1-whip', function (G, pp, k) { G.fr = (Math.floor(pp * 12) + k) & 3; G.t += Math.sin(pp * 9 + k) * 2; });                       /* the sash cracks like a whip */
+  PFA.motion('bossB1-flick', function (G, pp, k) { G.fr = (Math.floor(pp * 12) + k) & 3; G.up += Math.abs(Math.sin(pp * 5 + k)) * 3; });          /* rings flicked and spinning */
+  PFA.motion('bossB1-rattle', function (G, pp, k) { G.fr = (Math.floor(pp * 10) + k) & 3; G.t += ((Math.floor(pp * 24) + k) & 1) ? 1 : -1; });    /* stolen tin rattling */
+  PFA.motion('bossB1-unroll', function (G, pp, k, ph) { G.fr = Math.min(3, Math.floor(((pp * 1.4 + ph) % 1) * 4.5)); });                         /* unroll, read, seal */
+  function carSash(c, e, H) {           /* the baron struts to the next piece, his long red sash streaming behind him, a gold fringe at the tail */
+    var P = e.P, Q = H.Q, u, i = 0, b, u0 = Math.max(0, e.hh - .4), sd = e.d < 0 ? -1 : 1;
+    for (u = u0; u <= e.hh; u += .02, i++) { P.atq(e.a + e.d * u); b = 5 + Math.sin(i * .6 + e.p * 18) * 2;
+      H.sq(c, Q.x + Q.nx * b, Q.y + Q.ny * b, 2, i === 0 ? GOLD : SASH); if ((i & 3) === 1) H.px(c, Q.x + Q.nx * (b - 1), Q.y + Q.ny * (b - 1), e.acc); }
+    P.atq(e.a + e.d * e.hh);
+    H.glyph(c, 'bossB1-baron', Q.x + Q.nx * 4, Q.y + Q.ny * 4 - ((Math.floor(e.p * 12) & 1)), e.z > 1 ? 1 : e.z, Math.floor(e.p * 12) & 3, e.col, e.acc, e.hi, -Q.ny * sd, Q.nx * sd, Q.nx, Q.ny);
+  }
+  PFA.motif('baron-sash', comp, { nm: 'sashed barons', desc: 'a blue-grey robber crab front-on wearing a stolen red sash with a gold pin and a gold ring on one claw, strutting pompously, the ring glinting; the chain is the baron strutting on with his sash streaming behind', fam: 'bash', gap: 18, g: 'bossB1-baron', mo: 'bossB1-strut', x: '-', car: 'custom', carDraw: carSash });
+  PFA.motif('sash-ribbon', comp, { nm: 'whipping sashes', desc: 'a red silk sash whipping off the edge in S-curves, a gold fringe flicking at its end', fam: 'slash', gap: 16, g: 'bossB1-sash', mo: 'bossB1-whip', x: '-', car: 'comet' });
+  PFA.motif('ruby-signet', comp, { nm: 'ruby signets', desc: 'gold signet rings with a ruby turning in the air: full face, three-quarter, edge-on, a white glint on the stone', fam: 'sparkle', gap: 12, g: 'bossB1-ring', mo: 'bossB1-flick', x: '-', car: 'blink' });
+  PFA.motif('plunder-lid', comp, { nm: 'plunder armour', desc: 'stolen armour: a dented pot lid with a knob, a fork stuck through it and a red bottle cap, rattling', fam: 'thorn', gap: 16, g: 'bossB1-lid', mo: 'bossB1-rattle', x: '-', car: 'train' });
+  PFA.motif('baron-decree', comp, { nm: 'decrees', desc: 'a parchment scroll unrolling between its rolled ends, lines of writing, then a red wax seal stamped on with a white flash', fam: 'sparkle', gap: 16, g: 'bossB1-scroll', mo: 'bossB1-unroll', x: '-', car: 'hop' });
+
+  /* ================= reef leviathan ================= */
+  PFA.glyph('bossB1-coil', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a sea-serpent hump breaching: thick mottled body, yellow fin crest, dark belly, foam at the water line */
+    var f = fr & 3, hh = COIL_H[f] + (z > 1 ? 1 : 0), a, b, t;
+    for (a = -5; a <= 5; a++) { t = Math.sin(Math.PI * (a + 5) / 10); b = Math.round(t * hh);
+      pt(c, K, x, y, tx, ty, nx, ny, a, b, ((a + f) & 3) === 0 ? Hi : C); pt(c, K, x, y, tx, ty, nx, ny, a, b + 1, C);
+      if (t > .3) pt(c, K, x, y, tx, ty, nx, ny, a, b - 1, A);
+      if (!(a & 1) && t > .45) pt(c, K, x, y, tx, ty, nx, ny, a, b + 2, Hi); }
+    if (!(f & 1)) { pt(c, K, x, y, tx, ty, nx, ny, -6, 1, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, 6, 1, K.WHITE); }
+    else { pt(c, K, x, y, tx, ty, nx, ny, -7, 0, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, 7, 0, K.WHITE); }
+  });
+  PFA.glyph('bossB1-maw', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* the leviathan head pointing out, lower jaw unhinging wide, needle teeth, a fish sucked in, gulp */
+    var f = fr & 3, o = MAW_O[f], L = 7 + (z > 1 ? 1 : 0), b, ua, la, q;
+    for (b = 0; b <= 2; b++) { pt(c, K, x, y, tx, ty, nx, ny, -2, b, C); pt(c, K, x, y, tx, ty, nx, ny, -1, b, C); pt(c, K, x, y, tx, ty, nx, ny, 0, b, C); pt(c, K, x, y, tx, ty, nx, ny, 1, b, f === 3 ? C : A); }
+    for (b = 3; b <= L; b++) { q = (b - 3) / (L - 3); ua = -1 - Math.round(o * .4 * q); la = 1 + Math.round(o * q);
+      pt(c, K, x, y, tx, ty, nx, ny, ua - 1, b, C); pt(c, K, x, y, tx, ty, nx, ny, ua, b, C);
+      if (b < L) pt(c, K, x, y, tx, ty, nx, ny, la, b, C);
+      for (q = ua + 1; q < la; q++) pt(c, K, x, y, tx, ty, nx, ny, q, b, A);
+      if (o && (b & 1) && la - ua > 2) { pt(c, K, x, y, tx, ty, nx, ny, ua + 1, b, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, la - 1, b, K.WHITE); } }
+    pt(c, K, x, y, tx, ty, nx, ny, -3, 5, Hi); pt(c, K, x, y, tx, ty, nx, ny, -2, 6, Hi);                                                   /* yellow eye, mottle */
+    pt(c, K, x, y, tx, ty, nx, ny, -1 - Math.round(o * .4), L + 1, C);                                                                      /* snout tip */
+    if (f === 2) { pt(c, K, x, y, tx, ty, nx, ny, 1, L + 2, K.DEW); pt(c, K, x, y, tx, ty, nx, ny, 2, L + 2, K.DEW); pt(c, K, x, y, tx, ty, nx, ny, 3, L + 3, K.DEW); pt(c, K, x, y, tx, ty, nx, ny, 3, L + 1, K.DEW); }   /* a fish sucked in */
+    if (f === 3) { pt(c, K, x, y, tx, ty, nx, ny, -4, L + 1, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, 3, L + 1, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, 0, 1, Hi); pt(c, K, x, y, tx, ty, nx, ny, 0, 2, Hi); }   /* gulp: the lump goes down */
+  });
+  PFA.motion('bossB1-breach', function (G, pp, k) { G.s += pp * .22; G.fr = (Math.floor(pp * 10) + k) & 3; G.d += Math.sin(pp * 8 + k) - 1; });   /* humps rolling on through the water */
+  PFA.motion('bossB1-gulp', function (G, pp, k, ph) { var u = (pp * 1.8 + ph) % 1;                                                                  /* draw back, unhinge, lunge, gulp */
+    if (u < .3) { G.fr = 1; G.d -= 1; } else if (u < .6) { G.fr = 2; G.d += 3; } else G.fr = u < .8 ? 3 : 0; });
+  function carSerpent(c, e, H) {        /* the leviathan swims to the next piece: humps breach along the outer loop behind its head, foam where they cut the water */
+    var P = e.P, Q = H.Q, k, u, b, sd = e.d < 0 ? -1 : 1, s;
+    for (k = 1; k <= 16; k++) { u = e.hh - k * .025; if (u < 0) break; P.atq(e.a + e.d * u); s = Math.sin(k * .5 - e.p * 9);
+      b = 3 + Math.max(0, s) * 6; H.sq(c, Q.x + Q.nx * b, Q.y + Q.ny * b, 2, s > .6 && (k & 1) ? e.hi : e.col);
+      if (s > .5 && !(k & 1)) H.px(c, Q.x + Q.nx * (b + 2), Q.y + Q.ny * (b + 2), e.hi);
+      else if (s < -.2 && (k & 3) === 0) H.px(c, Q.x + Q.nx * 3, Q.y + Q.ny * 3, H.WHITE); }
+    P.atq(e.a + e.d * e.hh);
+    H.glyph(c, 'bossB1-maw', Q.x + Q.nx * 2, Q.y + Q.ny * 2, e.z > 1 ? 1 : e.z, e.hh > .92 ? 3 : (Math.floor(e.p * 8) & 1) ? 2 : 1, e.col, e.acc, e.hi, -Q.ny * sd, Q.nx * sd, Q.nx, Q.ny);
+  }
+  PFA.motif('leviathan-coil', comp, { nm: 'breaching coils', desc: 'thick mottled sea-serpent humps breaching out of the water along the edge, a yellow fin crest on top, dark belly, foam where they cut the surface; the chain is the whole leviathan swimming on, humps rolling behind its head', fam: 'slash', gap: 18, g: 'bossB1-coil', mo: 'bossB1-breach', x: '-', car: 'custom', carDraw: carSerpent });
+  PFA.motif('leviathan-maw', comp, { nm: 'unhinged maws', desc: 'a huge serpent head pointing out: the lower jaw unhinges wide on white needle teeth, a fish is sucked in and the lump goes down the throat', fam: 'bite', gap: 18, g: 'bossB1-maw', mo: 'bossB1-gulp', x: '-', car: 'comet' });
+
+  /* ================= ancient snapping turtle ================= */
+  PFA.glyph('bossB1-mossbeak', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* an ancient head front-on: barnacled brow, moss growing on top, the hooked beak gaping like a trap and slamming shut */
+    var f = fr & 3, g = BEAK_G[f], w = 4 + (z > 1 ? 1 : 0), a, b, sw = (f & 1) ? 1 : -1;
+    for (a = -w; a <= w; a++) { pt(c, K, x, y, tx, ty, nx, ny, a, 0, C); if (Math.abs(a) < w) pt(c, K, x, y, tx, ty, nx, ny, a, 1, C); }   /* lower jaw */
+    for (b = 2; b < 2 + g; b++) for (a = -w + 1; a <= w - 1; a++) pt(c, K, x, y, tx, ty, nx, ny, a, b, A);                              /* the dark gape */
+    if (g) { pt(c, K, x, y, tx, ty, nx, ny, -1, 2, Hi); pt(c, K, x, y, tx, ty, nx, ny, 1, 2, Hi); }                                       /* pink lure on the tongue */
+    for (a = -w; a <= w; a++) { pt(c, K, x, y, tx, ty, nx, ny, a, 2 + g, C); if (Math.abs(a) < w) pt(c, K, x, y, tx, ty, nx, ny, a, 3 + g, C); }   /* upper jaw */
+    for (a = -w + 2; a <= w - 2; a++) { pt(c, K, x, y, tx, ty, nx, ny, a, 4 + g, C); pt(c, K, x, y, tx, ty, nx, ny, a, 5 + g, C); }    /* brow */
+    pt(c, K, x, y, tx, ty, nx, ny, 0, 1 + g, C); pt(c, K, x, y, tx, ty, nx, ny, 0, g, A);                                                 /* the hook, hanging into the gape */
+    pt(c, K, x, y, tx, ty, nx, ny, -2, 4 + g, A); pt(c, K, x, y, tx, ty, nx, ny, 2, 4 + g, A);                                            /* small deep-set eyes */
+    pt(c, K, x, y, tx, ty, nx, ny, 1, 5 + g, BARN); pt(c, K, x, y, tx, ty, nx, ny, -3, 3 + g, BARN);                                      /* barnacles */
+    for (b = 1; b <= 2 + (z > 1 ? 1 : 0); b++) { pt(c, K, x, y, tx, ty, nx, ny, -2 + sw * b * .5, 5 + g + b, MOSS); pt(c, K, x, y, tx, ty, nx, ny, 1 + sw * b * .5, 5 + g + b, MOSS); }   /* moss tufts */
+    if (f === 3) { pt(c, K, x, y, tx, ty, nx, ny, -w - 2, 1, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, -w - 3, 3, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, w + 2, 1, K.WHITE); pt(c, K, x, y, tx, ty, nx, ny, w + 3, 3, K.WHITE); }
+  });
+  PFA.glyph('bossB1-scute', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a shell scute gaining growth rings one by one: the years it waited */
+    var n = Math.min(3, (fr & 3) + 1), r, cx = x + nx * 2, cy = y + ny * 2, o = z > 1 ? 1 : 0;
+    K.sq(c, cx, cy, 3, Hi); K.px(c, cx, cy, A);
+    for (r = 2; r <= n + 1; r++) K.ringpx(c, cx, cy, r + o, (r & 1) ? Hi : C);
+    if (n === 3) K.px(c, cx - 2 - o, cy - 2 - o, K.WHITE);
+  });
+  PFA.motion('bossB1-trap', function (G, pp, k, ph) { var u = (pp * 1.3 + ph) % 1;                                                    /* patient gape, then the trap slams */
+    if (u < .6) G.fr = u < .25 ? 1 : 2; else if (u < .72) { G.fr = 3; G.d += 3; } else G.fr = 0; });
+  PFA.motion('bossB1-years', function (G, pp, k, ph) { G.fr = Math.min(3, Math.floor(pp * 5 + ph * 2)); });                          /* rings added slowly */
+  PFA.motif('moss-beak', comp, { nm: 'mossy beaks', desc: 'an ancient snapping turtle head front-on, barnacles on the brow and moss tufts growing on top, gaping patiently on a pink lure, then the hooked beak slams shut with white crack marks', fam: 'bite', gap: 18, g: 'bossB1-mossbeak', mo: 'bossB1-trap', x: '-', car: 'trail' });
+  PFA.motif('age-scute', comp, { nm: 'growth rings', desc: 'shell scutes gaining concentric growth rings one by one, a glint on the last: centuries of waiting', fam: 'mend', gap: 14, g: 'bossB1-scute', mo: 'bossB1-years', x: '-', car: 'rings' });
+})();
+
+/* ---- motifs/boss_boss-B2-birds.js ---- */
+/* Motif module, boss batch B2-birds (great-hawk, snow-owl-monarch, frost-owl-regent, storm-eagle): the four boss birds.
+   TEMPLATE.md sections 9 and 10.3. 22 motifs, each with its own pixel glyph (ids prefixed B2-) and motion; the four signature motifs have their own
+   chain effect (carDraw): the hawk circling high and stooping onto the next piece, the snowy monarch gliding low and dusting snow off its wingtips,
+   rime creeping along the edge under the regent's silver circlet, the storm eagle flying over and dropping a lightning bolt on the next piece.
+   Glyph coordinates are (a, b): a along the edge tangent, b outward along the normal, so every sprite turns with the edge it sits on.
+   fr0() stores the glyph frame in module scratch variables; p()/row()/cl() then plot in (a, b). Glyph draws never nest, so the scratch is safe.
+   Nothing is allocated per frame (lookup tables are built once at load); no Math.random / Date: every effect is a stateless function of p.
+   Glyphs go through H.glyph so the MAXG budget counts them. Boss birds are drawn a little bigger than small ones (wingspans up to ~23 px) but the
+   sprites stay within ~12 px of their anchor so the effect stays within ~22 px of the edge. The wiggle, the outer-edge chain rule, visual-only sound
+   lines and the creature-heavy default are untouched (they live in the page). */
+(function () {
+  var X0 = 0, Y0 = 0, TX = 1, TY = 0, NX = 0, NY = -1, KK = null;
+  var YEL = '#f0c838', RUF = '#c8502a', ICE = '#9fdcf4', SILVER = '#dfe6ee', BOLT = '#fff27a', GRASS = '#a4cc5e', GRASSD = '#5e7e34',
+    STICK = '#8c6a42', ROCK = '#78736c', RAIN = '#a9c6e6', LEM = '#c89a64';
+  var CA = [], CB = [], i0, t0;                                                /* 8-point circle (kite orbit) */
+  for (i0 = 0; i0 < 8; i0++) { t0 = i0 / 8 * Math.PI * 2; CA.push(Math.cos(t0)); CB.push(Math.sin(t0)); }
+  var WO = [[-4, 3], [-2, 5], [0, 2], [2, 6], [4, 4], [-3, 7], [1, 8], [3, 1], [-1, 4], [5, 6], [-5, 5], [0, 9]];   /* whiteout snow points */
+  var ZB = [0, 1, 2, 3, 1, -1, 0, 1, 2, 0, -2, -1, 0];                         /* lightning zigzag: lateral offset per b step */
+  var ZC = [0, 2, -1, 2, -2, 1, 0];                                            /* chain bolt: lateral offset per segment */
+  var GA = [-2, 0, 2, 0];                                                      /* circlet glint position per frame */
+  var TS = [[-1, 1, 0], [0, 0, 0], [1, -1, 0]];                                /* slipper talons: (spread, curl, grip) lateral shift of the tip per toe */
+
+  function fr0(x, y, tx, ty, nx, ny, K) { X0 = x; Y0 = y; TX = tx; TY = ty; NX = nx; NY = ny; KK = K; }
+  function p(c, a, b, col) { KK.px(c, X0 + TX * a + NX * b, Y0 + TY * a + NY * b, col); }
+  function row(c, a0, a1, b, col) { for (var a = a0; a <= a1; a++) p(c, a, b, col); }
+  function cl(c, a, b0, b1, col) { for (var b = b0; b <= b1; b++) p(c, a, b, col); }
+  function disc(c, ca, cb, r, col, rim) { var a, b, d, rr = r * r + 1; for (b = -r; b <= r; b++) for (a = -r; a <= r; a++) { d = a * a + b * b; if (d > rr) continue; p(c, ca + a, cb + b, rim && d >= rr - r - 1 ? rim : col); } }
+
+  /* ---------- shared own-edge composition: the page's themedOwn() with this module's glyph / motion ---------- */
+  function comp(c, e, H) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, pr = e.p, pp = pr * mp.spd, Q = H.Q, G = H.G, P = e.P,
+      tie = mp.x === 'thread' || mp.lay === 'snare', ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, lx = 0, ly = 0, has;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(7, Math.round(len / (M.gap || 12)))); if (mp.lay === 'lance') n = Math.min(n, 4); has = false;
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, pr, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, pr)) { has = false; continue; }
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (mp.x === 'threads') H.ln(c, bx0 + nx, by0 + ny, x, y, 1, e.hi);
+        else if (mp.x === 'silk') H.ln(c, bx0 + ny * 9 + nx, by0 - nx * 9 + ny, x, y, 1, e.hi);
+        if (tie && has && Math.abs(x - lx) + Math.abs(y - ly) < 30) H.ln(c, lx, ly, x, y, 1, e.hi);
+        H.glyph(c, M.g, x, y, z, G.fr, e.col, e.acc, e.hi, -ny, nx, nx, ny); lx = x; ly = y; has = true;
+      }
+      H.ext(c, mp.x, P, r[0], len, ri, pr, pp, e.col, e.acc, e.hi, e.seed);
+    }
+  }
+
+  /* ================= glyphs ================= */
+  /* --- great hawk (red-tailed grassland hawk) --- */
+  PFA.glyph('B2-hawk', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* hawk from above, head to the edge, rufous fan tail: soaring, wings half back, folded stoop, talons thrown */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, W = 8 + w, a, b = 4, sh;
+    p(c, 0, 0, A); row(c, -1, 1, 1, C); row(c, -1, 1, 2, C); p(c, -1, 1, Hi); p(c, 1, 1, Hi);
+    if (fr === 2) {
+      for (b = 3; b <= 8; b++) { sh = b > 6 ? 1 : 0; row(c, -2 + sh, 2 - sh, b, C); }
+      cl(c, -2, 3, 6, A); cl(c, 2, 3, 6, A); p(c, 0, 4, Hi); p(c, 0, 5, Hi);
+      row(c, -1, 1, 9, RUF); p(c, 0, 10, RUF);
+      for (b = 11; b <= 12 + w; b += 2) { p(c, -3, b, Hi); p(c, 3, b + 1, Hi); }   /* speed lines trailing the stoop */
+      return;
+    }
+    cl(c, 0, 3, 7, C); cl(c, -1, 3, 6, C); cl(c, 1, 3, 6, C); p(c, 0, 4, Hi); p(c, -1, 6, A); p(c, 1, 6, A);
+    row(c, -1, 1, 8, RUF); row(c, -2, 2, 9, RUF); p(c, -2, 10, RUF); p(c, 0, 10, RUF); p(c, 2, 10, RUF); p(c, 0, 8, A);
+    for (a = 2; a <= W; a++) {
+      b = fr === 1 ? 4 + ((a - 1) >> 1) : fr === 3 ? 3 + ((a - 1) >> 1) : 4 - (a > W - 2 ? 1 : 0);
+      p(c, a, b, C); p(c, -a, b, C);
+      if (a < W - 1) { p(c, a, b + 1, a % 3 === 0 ? A : C); p(c, -a, b + 1, a % 3 === 0 ? A : C); }
+      if (a < 5 && fr !== 1) { p(c, a, b - 1, Hi); p(c, -a, b - 1, Hi); }
+    }
+    p(c, W + 1, b, A); p(c, -W - 1, b, A); p(c, W + 1, b + 1, A); p(c, -W - 1, b + 1, A);
+    if (fr === 3) { p(c, -1, -1, YEL); p(c, 1, -1, YEL); p(c, -2, -2, A); p(c, 0, -2, A); p(c, 2, -2, A); }
+  });
+  PFA.glyph('B2-grass', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* meadow grass, a vole in it; talons come down, close, lift the vole out, the grass flicks */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, i, a0, h, tp, b, vb, tb;
+    for (i = -1; i <= 1; i++) {
+      a0 = i * 4; h = 5 + w + (i === 0 ? 1 : 0); tp = fr === 3 && i !== 0 ? i : 0;
+      for (b = 0; b <= h; b++) p(c, a0 + Math.round(tp * b / h), b, b > h - 2 ? GRASS : GRASSD);
+    }
+    vb = [1, 2, 5, 8][fr & 3]; tb = [9, 4, 7, 10][fr & 3];
+    row(c, -1, 1, vb, LEM); row(c, -2, 1, vb + 1, LEM); p(c, 1, vb + 1, A); p(c, -3, vb + 1, A); p(c, -4, vb, A);
+    cl(c, 0, tb + 1, tb + 2, YEL); row(c, -1, 1, tb + 3, C); p(c, 0, tb + 4, C);
+    p(c, -1, tb, YEL); p(c, 1, tb, YEL); p(c, 0, tb, YEL);
+    if (fr === 0) { p(c, -2, tb - 1, A); p(c, 2, tb - 1, A); p(c, 0, tb - 1, A); } else { p(c, -1, tb - 1, A); p(c, 1, tb - 1, A); }
+  });
+  PFA.glyph('B2-mantle', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* the hawk mantling: wings draped down like a tent over the edge, shade under it, eyes flashing over the top */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, W = 7 + w, lift = fr === 1 ? 1 : 0, a, b;
+    for (a = -W + 2; a <= W - 2; a += 2) p(c, a, 1 + ((a + fr) & 1), A);
+    cl(c, 0, 3, 7, C); cl(c, -1, 4, 6, C); cl(c, 1, 4, 6, C); row(c, -1, 1, 8, C); p(c, 0, 9, C); p(c, 0, 5, Hi);
+    if (fr === 3) { p(c, -1, 9, YEL); p(c, 1, 9, YEL); } else { p(c, -1, 9, A); p(c, 1, 9, A); }
+    for (a = 2; a <= W; a++) {
+      b = Math.max(1, 7 + lift - Math.round((a - 1) * 6 / (W - 1)));
+      p(c, a, b, C); p(c, -a, b, C); p(c, a, b + 1, A); p(c, -a, b + 1, A);
+      if ((a & 1) === 0) { p(c, a, b - 1, C); p(c, -a, b - 1, C); }
+    }
+    p(c, W, 0, A); p(c, -W, 0, A); p(c, W + 1, 1, RUF); p(c, -W - 1, 1, RUF);
+    if (fr === 2) { p(c, W + 1, 0, A); p(c, -W - 1, 0, A); }
+  });
+  PFA.glyph('B2-hfoot', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a yellow scaly hawk foot with black talons: spread wide, closing, clenched, a squeeze */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, sp = [3, 2, 1, 1][fr & 3], e;
+    cl(c, 0, 4, 8, YEL); p(c, 0, 5, A); p(c, 0, 7, A);
+    cl(c, -1, 8, 10 + w, C); cl(c, 1, 8, 10 + w, C); row(c, -1, 1, 11 + w, C); p(c, 0, 9, Hi);
+    for (e = -1; e <= 1; e += 2) { p(c, e, 4, YEL); p(c, e * sp, 3, YEL); p(c, e * sp, 2, A); if (fr >= 1) p(c, e * (sp - 1), 1, A); else p(c, e * (sp + 1), 1, A); }
+    p(c, 0, 3, YEL); p(c, 0, 2, A); p(c, 0, 1, fr >= 2 ? A : Hi);
+    if (fr === 3) { p(c, -4, 3, Hi); p(c, 4, 3, Hi); p(c, -5, 2, Hi); p(c, 5, 2, Hi); }
+  });
+  PFA.glyph('B2-kite', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a hawk silhouette circling high on a dotted orbit, rufous tail flashing (fr 0..7 = place on the circle) */
+    fr0(x, y, tx, ty, nx, ny, K); var r = 4 + (z > 1 ? 1 : 0), i, idx = fr & 7, ca = Math.round(CA[idx] * r), cb = Math.round(6 + CB[idx] * r * .6), fl = idx & 1;
+    for (i = 0; i < 8; i++) if (((i + idx) & 1) === 0) p(c, Math.round(CA[i] * (r + 2)), Math.round(6 + CB[i] * (r + 2) * .6), Hi);
+    row(c, ca - 3, ca + 3, cb, C); p(c, ca - 4, cb + fl, A); p(c, ca + 4, cb + fl, A); p(c, ca - 3, cb + 1, A); p(c, ca + 3, cb + 1, A);
+    p(c, ca, cb + 1, C); p(c, ca, cb - 1, RUF); p(c, ca, cb + 2, A);
+  });
+  PFA.glyph('B2-gshadow', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {  /* the hawk passes over the meadow: its cross shadow slides over the grass, the blades bend away from it */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, a0 = -6 + (fr & 3) * 4, a, h, tp, b, dd;
+    row(c, a0 - 4 - w, a0 + 4 + w, 2, A); row(c, a0 - 1, a0 + 1, 1, A); row(c, a0 - 1, a0 + 1, 3, A); p(c, a0, 4, A);
+    for (a = -8; a <= 8; a += 3) {
+      dd = a - a0; h = 4 + ((a + 9) % 3); tp = Math.abs(dd) < 4 ? (dd < 0 ? -2 : 2) : 0;
+      for (b = 0; b <= h; b++) p(c, a + Math.round(tp * b / h), b, b >= h - 1 ? GRASS : GRASSD);
+    }
+    row(c, a0 - 3, a0 + 3, 9, C); p(c, a0, 10, C); p(c, a0, 8, RUF); p(c, a0 - 4, 10, A); p(c, a0 + 4, 10, A);
+  });
+  /* --- snow owl monarch (great white snowy owl) --- */
+  PFA.glyph('B2-snowy', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* the huge white snowy owl, black flecks, yellow eyes, wings spread silent: level, up, down, feathered feet out */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, W = 9 + w, a, b = 5;
+    row(c, -1, 1, 0, C); row(c, -2, 2, 1, C); row(c, -2, 2, 2, C); row(c, -2, 2, 3, C); row(c, -1, 1, 4, C);
+    p(c, -1, 2, YEL); p(c, 1, 2, YEL); p(c, 0, 1, A);
+    row(c, -2, 2, 5, C); row(c, -2, 2, 6, C); row(c, -2, 2, 7, C); row(c, -1, 1, 8, C); p(c, -1, 6, A); p(c, 1, 7, A); p(c, 0, 8, A);
+    for (a = 3; a <= W; a++) {
+      b = fr === 1 ? 5 + ((a - 2) >> 1) : fr === 2 ? Math.max(2, 5 - ((a - 2) >> 1)) : 5;
+      p(c, a, b, C); p(c, -a, b, C);
+      if (a < W - 1) { p(c, a, b + 1, a % 3 === 1 ? A : C); p(c, -a, b + 1, a % 3 === 1 ? A : C); }
+      if ((a & 1) === 0 && a < W - 2) { p(c, a, b - 1, Hi); p(c, -a, b - 1, Hi); }
+    }
+    p(c, W + 1, b, A); p(c, -W - 1, b, A);
+    if (fr === 3) { p(c, -1, -1, C); p(c, 1, -1, C); p(c, -1, -2, A); p(c, 1, -2, A); p(c, -2, -2, A); p(c, 2, -2, A); }
+  });
+  PFA.glyph('B2-fwing', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* one long white barred owl wing sweeping, frost crystals shed off its trailing edge */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, L = 9 + w, ang = [.8, .3, -.1, .3][fr & 3], i, b = 2, k, ia, cb;
+    cl(c, -1, 1, 4, C); p(c, -1, 5, A);
+    for (i = 0; i <= L; i++) { b = 2 + Math.round(i * ang); p(c, i, b, C); p(c, i, b + 1, i % 3 === 1 ? A : C); if (i >= 2 && (i & 1)) p(c, i, b - 1, Hi); }
+    p(c, L + 1, b, A); p(c, L + 1, b + 1, A);
+    for (k = 0; k < 3; k++) {
+      ia = 3 + k * 3; cb = 2 + Math.round(ia * ang) + 3 + ((fr + k) % 3);
+      p(c, ia, cb, K.WHITE); p(c, ia - 1, cb, ICE); p(c, ia + 1, cb, ICE); p(c, ia, cb - 1, ICE); p(c, ia, cb + 1, ICE);
+    }
+  });
+  PFA.glyph('B2-slipper', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {  /* the owl's furry white "slipper" foot with black talons: spread, curled, raking (frost scratches), gripping */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, b, hw, k, ta, g = fr & 3, ex = g === 2 ? 1 : 0, sh;
+    for (b = 3; b <= 8 + w; b++) { hw = b < 4 || b > 7 + w ? 2 : 3; row(c, -hw, hw, b, C); }
+    p(c, -2, 5, Hi); p(c, 1, 6, Hi); p(c, 2, 4, Hi); p(c, -1, 7, Hi);
+    for (k = 0; k < 3; k++) {
+      ta = (k - 1) * 2; sh = g === 0 ? TS[k][0] : g === 1 ? TS[k][1] : g === 2 ? TS[k][0] : -TS[k][0];
+      p(c, ta, 2, A); p(c, ta + sh, 1 - ex, A); if (g !== 1) p(c, ta + sh * 2, -ex, A);
+    }
+    if (g === 2) { row(c, -4, -2, -2, ICE); row(c, 0, 1, -2, ICE); row(c, 3, 4, -2, ICE); }
+  });
+  PFA.glyph('B2-hbeak', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a round feathered owl face, dark rim, yellow eyes, the small black beak nips without a sound */
+    fr0(x, y, tx, ty, nx, ny, K); var r = 4 + (z > 1 ? 1 : 0), tn = fr === 3 ? 1 : 0;
+    disc(c, 0, r + 1, r, C, A);
+    p(c, -2 + tn, r + 2, YEL); p(c, -1 + tn, r + 2, YEL); p(c, 1 + tn, r + 2, YEL); p(c, 2 + tn, r + 2, YEL); p(c, -1 + tn, r + 2, A); p(c, 2 + tn, r + 2, A);
+    p(c, tn, r + 1, A); p(c, tn, r, A);
+    if (fr === 1) { p(c, tn - 1, r - 1, A); p(c, tn + 1, r - 1, A); }
+    if (fr === 2) { p(c, tn, r - 1, A); p(c, -3, 1, Hi); p(c, 3, 1, Hi); p(c, -2, 0, Hi); p(c, 2, 0, Hi); }
+  });
+  PFA.glyph('B2-wprint', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* snow patch; the owl lifts off and leaves fanned wing prints pressed into the snow, a snow puff rising */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, g = fr & 3, e, k, t, pb;
+    row(c, -7 - w, 7 + w, 0, C); row(c, -6, 6, 1, C); row(c, -4, 4, 2, C);
+    if (g >= 1) for (e = -1; e <= 1; e += 2) for (k = 0; k < 4; k++) for (t = 1; t <= 3; t++) p(c, e * Math.round((2 + k * 1.3) * t / 3 + 1), t === 3 ? 1 + (k & 1) : 1, A);
+    if (g === 0) { row(c, -4, 4, 5, C); p(c, 0, 6, C); p(c, -1, 6, YEL); p(c, 1, 6, YEL); }
+    if (g >= 2) { pb = g === 2 ? 4 : 6; p(c, -2, pb, K.WHITE); p(c, 2, pb, K.WHITE); p(c, 0, pb + 1, K.WHITE); p(c, -1, pb - 1, Hi); p(c, 1, pb + 2, Hi); row(c, -3, 3, pb + 4, C); p(c, 0, pb + 5, C); }
+  });
+  PFA.glyph('B2-listen', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a snow mound with a lemming under it; the owl head cocks to listen, sound rings rise, then it plunges */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, g = fr & 3, hb = g === 3 ? 5 : 8, tl = g === 1 ? -1 : g === 2 ? 1 : 0, r;
+    row(c, -5 - w, 5 + w, 0, C); row(c, -4, 4, 1, C); row(c, -3, 3, 2, C); row(c, -1, 1, 3, C);
+    if (g < 3) { p(c, g - 1, 1, LEM); p(c, g, 1, LEM); }
+    if (g === 1 || g === 2) { r = 3 + g; p(c, -r, 1 + g, Hi); p(c, r, 1 + g, Hi); p(c, -r + 1, 2 + g, Hi); p(c, r - 1, 2 + g, Hi); }
+    row(c, -2, 2, hb, C); row(c, -2, 2, hb + 1, C); row(c, -1, 1, hb + 2, C);
+    p(c, -1 + tl, hb + 1, YEL); p(c, 1 + tl, hb + 1, YEL); p(c, tl, hb, A);
+    if (g === 3) { p(c, -3, 3, K.WHITE); p(c, 3, 3, K.WHITE); p(c, -4, 2, K.WHITE); p(c, 4, 4, K.WHITE); p(c, 0, 4, Hi); }
+  });
+  /* --- frost owl regent (smaller owl, ice-blue edge, thin silver crown) --- */
+  PFA.glyph('B2-circlet', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {  /* a small round owl head rimmed in ice blue, a thin silver crown on top, a glint walking along the points */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, r = 3, cb = 2 * r + 2, g = fr & 3;
+    disc(c, 0, r + 1, r, C, Hi);
+    p(c, -1, r + 2, YEL); p(c, 1, r + 2, YEL); p(c, 0, r + 1, A);
+    row(c, -2 - w, 2 + w, cb, SILVER); p(c, -2, cb + 1, SILVER); p(c, 0, cb + 1, SILVER); p(c, 2, cb + 1, SILVER); p(c, 0, cb + 2, SILVER);
+    p(c, GA[g], cb + 1 + (g & 1), K.WHITE);
+    if (g === 3) { p(c, 0, cb + 3, K.WHITE); p(c, -1, cb + 2, ICE); p(c, 1, cb + 2, ICE); }
+  });
+  PFA.glyph('B2-rimeclaw', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) { /* a frost-crusted owl talon scratching: a rime line grows along the edge where it rakes */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, g = fr & 3, a, k;
+    cl(c, 0, 5, 9 + w, C); p(c, -1, 8, C); p(c, 1, 8, C); row(c, -1, 1, 9 + w, C);
+    row(c, -1, 1, 4, A);
+    for (k = -1; k <= 1; k++) { p(c, k * 2, 3, A); p(c, k * 2 + (g >= 2 ? 0 : k), 2, A); p(c, k * 2, 1, Hi); }
+    p(c, -2, 4, ICE); p(c, 2, 4, ICE); p(c, 0, 6, ICE); p(c, -1, 7, K.WHITE);
+    for (a = -4; a <= -4 + g * 3; a++) p(c, a, 0, Hi);
+    if (g === 3) { p(c, -3, -1, K.WHITE); p(c, 1, -1, K.WHITE); p(c, 4, -1, ICE); }
+  });
+  PFA.glyph('B2-whiteout', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) { /* a pale wing that blurs into driving snow: seen, half lost, gone (only snow), back */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, g = fr & 3, a, b, k;
+    if (g !== 2) for (a = -6 - w; a <= 6 + w; a++) { if (g !== 0 && (a & 1)) continue; b = 3 + Math.round(Math.abs(a) * .4); p(c, a, b, C); if (Math.abs(a) < 5) p(c, a, b + 1, a % 3 === 0 ? A : C); }
+    for (k = 0; k < WO.length; k++) { if (g === 0 && k > 4) break; p(c, WO[(k + g * 3) % WO.length][0], WO[k][1], k & 1 ? K.WHITE : Hi); }
+  });
+  PFA.glyph('B2-iceeye', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* two pale owl eyes with ice-blue irises; the glare streams out and freezes into icicle tips that break off */
+    fr0(x, y, tx, ty, nx, ny, K); var g = fr & 3, L = [2, 4, 6, 5][g] + (z > 1 ? 1 : 0), e, ca, k, tb;
+    for (e = -1; e <= 1; e += 2) {
+      ca = e * 3; row(c, ca - 1, ca + 1, 1, C); row(c, ca - 2, ca + 2, 2, C); row(c, ca - 2, ca + 2, 3, C); row(c, ca - 1, ca + 1, 4, C);
+      p(c, ca, 2, Hi); p(c, ca + e, 2, Hi); p(c, ca, 3, Hi); p(c, ca + e, 3, A);
+      for (k = 0; k < L; k++) p(c, ca + e * Math.round(k * .3), 5 + k, k & 1 ? Hi : K.WHITE);
+      tb = 5 + L; if (g === 3) { p(c, ca + e * 3, tb + 1, Hi); p(c, ca - e, tb + 2, ICE); } else { p(c, ca + e * Math.round(L * .3), tb, K.WHITE); p(c, ca + e * Math.round(L * .3) - 1, tb - 1, ICE); p(c, ca + e * Math.round(L * .3) + 1, tb - 1, ICE); }
+    }
+  });
+  PFA.glyph('B2-fern', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a frost fern spelled out on the edge: an ice stem grows with paired fronds, a white curl at the tip */
+    fr0(x, y, tx, ty, nx, ny, K); var g = fr & 3, L = [3, 6, 9, 11][g] + (z > 1 ? 1 : 0), b, j, k;
+    for (b = 0; b <= L; b++) p(c, 0, b, Hi);
+    for (b = 2; b < L; b += 2) { k = Math.min(3, (L - b) >> 1) + 1; for (j = 1; j <= k; j++) { p(c, -j, b + j, C); p(c, j, b + j - 1, C); } p(c, -k - 1, b + k, A); }
+    p(c, 0, L + 1, K.WHITE); p(c, 1, L + 1, K.WHITE); p(c, 1, L, K.WHITE);
+  });
+  /* --- storm eagle --- */
+  PFA.glyph('B2-eagle', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a storm-grey eagle on broad fingered wings, yellow hooked beak: gliding, wings up, folded dive with a crackle, talons and a spark */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, W = 10 + w, a, b = 4, f, sh;
+    p(c, 0, 0, YEL); p(c, -1, 1, YEL); row(c, -1, 1, 2, C); row(c, -1, 1, 3, C); p(c, -1, 2, A); p(c, 1, 2, A);
+    if (fr === 2) {
+      for (b = 4; b <= 9; b++) { sh = b > 7 ? 1 : 0; row(c, -2 + sh, 2 - sh, b, C); }
+      cl(c, -2, 4, 7, A); cl(c, 2, 4, 7, A); row(c, -1, 1, 10, A);
+      p(c, -3, 10, Hi); p(c, -2, 11, Hi); p(c, -3, 12, Hi); p(c, 3, 11, Hi); p(c, 3, 13, Hi);   /* crackle trailing the dive */
+      return;
+    }
+    cl(c, 0, 4, 8, C); cl(c, -1, 4, 7, C); cl(c, 1, 4, 7, C); row(c, -2, 2, 9, A); row(c, -2, 2, 10, C); p(c, 0, 10, A);
+    for (a = 2; a <= W; a++) {
+      b = fr === 1 ? 4 + ((a - 1) >> 1) : 4;
+      p(c, a, b - 1, A); p(c, -a, b - 1, A); p(c, a, b, C); p(c, -a, b, C); p(c, a, b + 1, C); p(c, -a, b + 1, C);
+      if ((a & 1) === 0 && a > 3) { p(c, a, b + 2, K.WHITE); p(c, -a, b + 2, K.WHITE); }
+    }
+    for (f = 0; f < 4; f += 2) { p(c, W + 1, b - 1 + f, A); p(c, -W - 1, b - 1 + f, A); p(c, W + 2, b + f, A); p(c, -W - 2, b + f, A); }
+    if (fr === 3) { p(c, -1, -1, YEL); p(c, 1, -1, YEL); p(c, W, b + 3, Hi); p(c, W - 1, b + 4, Hi); p(c, W, b + 5, Hi); }
+  });
+  PFA.glyph('B2-gale', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* one great grey wing beating, white gale curls spinning off it, rain driven slantwise */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, L = 8 + w, g = fr & 3, ang = [.7, .3, -.1, -.1][g], i, b = 2, k, ca, cb, ra, rb;
+    cl(c, -1, 2, 5, A);
+    for (i = 0; i <= L; i++) { b = 2 + Math.round(i * ang); p(c, i, b, C); p(c, i, b + 1, C); if (i > 2 && (i & 1)) p(c, i, b + 2, K.WHITE); if (i % 3 === 0) p(c, i, b - 1, A); }
+    p(c, L + 1, b, A); p(c, L + 1, b + 2, A); p(c, L + 2, b + 1, A);
+    if (g >= 1) for (k = 0; k < 2; k++) { ca = -4 - k * 3; cb = 4 + k * 3 + g; p(c, ca, cb, K.WHITE); p(c, ca + 1, cb + 1, K.WHITE); p(c, ca + 2, cb, K.WHITE); p(c, ca + 1, cb - 1, K.WHITE); p(c, ca - 1, cb - 1, Hi); p(c, ca - 2, cb - 1, Hi); }
+    for (k = 0; k < 3; k++) { ra = -6 + k * 5 + g; rb = 10 - ((g * 2 + k * 3) % 5); p(c, ra, rb, RAIN); p(c, ra + 1, rb - 1, RAIN); p(c, ra + 2, rb - 2, RAIN); }
+  });
+  PFA.glyph('B2-bolt', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a yellow eagle foot clutching a forked lightning bolt: dim, flash, fork, white afterglow */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, g = fr & 3, col = g === 0 ? Hi : g === 3 ? K.WHITE : BOLT, b, pa, fb = 6;
+    for (b = 1; b <= 10 + w; b++) { pa = ZB[b % ZB.length]; p(c, pa, b, col); if (g === 1 || g === 2) p(c, pa + 1, b, col); }
+    if (g === 2) { p(c, -1, 7, BOLT); p(c, -2, 8, BOLT); p(c, -3, 8, BOLT); p(c, 3, 3, BOLT); p(c, 4, 2, BOLT); }
+    p(c, -2, fb, YEL); p(c, 3, fb, YEL); p(c, -2, fb + 1, YEL); p(c, 3, fb + 1, YEL); p(c, -1, fb + 2, YEL); p(c, 2, fb + 2, YEL); p(c, 0, fb + 3, YEL); p(c, 1, fb + 3, YEL);
+    p(c, -1, fb - 1, A); p(c, 2, fb - 1, A); p(c, -3, fb, A); p(c, 4, fb, A);
+    row(c, -1, 2, fb + 4, C); row(c, 0, 1, fb + 5, C); p(c, 0, fb + 6, A);
+    if (g === 3) { p(c, -3, 2, Hi); p(c, 3, 9, Hi); p(c, -2, 11, Hi); }
+  });
+  PFA.glyph('B2-eyrie', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* the eyrie: a stick nest on a crag, the eagle sitting tall gripping the rim, head turning; a twig torn off by the wind */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, g = fr & 3, hd = (g & 1) ? 1 : -1, a;
+    row(c, -6 - w, 6 + w, 0, ROCK); row(c, -5, 5, 1, ROCK); p(c, -6, 1, A); p(c, 4, 0, A);
+    for (a = -5; a <= 5; a++) p(c, a, 2 + ((a + 1) & 1), STICK);
+    row(c, -4, 4, 3, STICK); p(c, -6, 4, STICK); p(c, 6, 3, STICK); p(c, -5, 4, STICK); p(c, 5, 4, STICK); p(c, -3, 2, A); p(c, 2, 3, A);
+    cl(c, 0, 4, 9, C); cl(c, -1, 4, 8, C); cl(c, 1, 4, 8, C); cl(c, -2, 4, 7, A); cl(c, 2, 4, 7, A); p(c, 0, 6, Hi);
+    row(c, -1, 1, 10, C); row(c, -1, 1, 11, C); p(c, hd * 2, 11, YEL); p(c, hd * 2, 10, YEL); p(c, hd, 11, A);
+    p(c, -1, 3, YEL); p(c, 1, 3, YEL);
+    if (g === 3) { p(c, 7, 6, STICK); p(c, 8, 7, STICK); row(c, -9, -6, 8, K.WHITE); row(c, -8, -6, 10, Hi); }
+  });
+  PFA.glyph('B2-cloud', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a rolling storm cloud, dark underside, rain slanting to the edge, a flicker of lightning inside */
+    fr0(x, y, tx, ty, nx, ny, K); var w = z > 1 ? 1 : 0, g = fr & 3, k, ra, rb;
+    disc(c, -4, 7, 2, C, null); disc(c, 4, 7, 2, C, null); disc(c, 0, 8 + (g & 1), 3 + w, C, null);
+    row(c, -5, 5, 5, A); row(c, -6, -3, 6, A); row(c, 3, 6, 6, A);
+    for (k = 0; k < 4; k++) { ra = -5 + k * 3 + (g & 1); rb = 3 - ((g + k) % 3); p(c, ra, rb, RAIN); p(c, ra - 1, rb - 1, RAIN); }
+    if (g === 2) { p(c, 0, 4, BOLT); p(c, 1, 3, BOLT); p(c, 0, 2, BOLT); p(c, 1, 1, BOLT); }
+    if (g === 3) { p(c, -1, 8, K.WHITE); p(c, 1, 9, Hi); }
+  });
+
+  /* ================= motions (mutate the scratch G; fr picks the glyph frame) ================= */
+  PFA.motion('B2-stoop', function (G, pp, k, ph) { var w = (pp * 1.4 + ph) % 1; G.fr = w < .35 ? 0 : w < .55 ? 1 : w < .85 ? 2 : 3; if (G.fr === 0) G.t += Math.sin(pp * 5 + k) * 2; if (G.fr === 2) G.d += (1 - (w - .55) / .3) * 4; });   /* soar, fold, stoop, strike */
+  PFA.motion('B2-snatch', function (G, pp, k, ph) { var w = (pp * 2 + ph) % 1; G.fr = w < .3 ? 0 : w < .5 ? 1 : w < .8 ? 2 : 3; });                                                /* talons down, close, lift, gone */
+  PFA.motion('B2-mantle', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 3 + ph * 2) + k) & 3; });                                                                              /* wings tent, lift, spread fingers, eyes */
+  PFA.motion('B2-grip', function (G, pp, k, ph) { var w = (pp * 2.2 + ph) % 1; G.fr = w < .3 ? 0 : w < .5 ? 1 : w < .8 ? 2 : 3; G.d += G.fr === 0 ? 1 : 0; });                  /* reach open, close, clench, squeeze */
+  PFA.motion('B2-circle', function (G, pp, k) { G.fr = (Math.floor(pp * 12) + k * 3) & 7; });                                                                                     /* round and round, high up */
+  PFA.motion('B2-sweep', function (G, pp, k) { G.fr = (Math.floor(pp * 10) + k) & 3; G.s += pp * .15; });                                                                          /* the shadow slides over the grass */
+  PFA.motion('B2-hushglide', function (G, pp, k) { G.t += Math.sin(pp * 3 + k) * 2; G.up += Math.sin(pp * 2 + k); G.fr = G.u > .6 && G.u < 1 ? 3 : [0, 1, 0, 2][(Math.floor(pp * 4) + k) & 3]; });   /* slow silent glide */
+  PFA.motion('B2-sweepwing', function (G, pp, k, ph) { G.fr = Math.floor(((pp * 2 + ph) % 1) * 4); });                                                                             /* one wing sweeps through */
+  PFA.motion('B2-rake', function (G, pp, k, ph) { var w = (pp * 2.4 + ph) % 1; G.fr = w < .3 ? 0 : w < .5 ? 1 : w < .8 ? 2 : 3; G.d += G.fr === 2 ? 1 : 0; });                  /* spread, curl, rake, grip */
+  PFA.motion('B2-nip', function (G, pp, k, ph) { G.fr = [0, 0, 1, 2, 0, 3][(Math.floor(pp * 6 + ph * 3) + k) % 6]; });                                                            /* stare, open, nip, turn */
+  PFA.motion('B2-stamp', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 4 + ph * 2) + k) & 3; });                                                                              /* sit, lift, print, puff */
+  PFA.motion('B2-listen', function (G, pp, k, ph) { var w = (pp * 1.5 + ph) % 1; G.fr = w < .4 ? 0 : w < .6 ? 1 : w < .85 ? 2 : 3; });                                            /* still, cock left, right, plunge */
+  PFA.motion('B2-regal', function (G, pp, k) { G.fr = (Math.floor(pp * 6) + k) & 3; G.up += G.fr === 1 ? 1 : 0; });                                                               /* a small royal nod, the crown glints */
+  PFA.motion('B2-scratch', function (G, pp, k, ph) { G.fr = Math.floor(((pp * 3 + ph) % 1) * 4); });                                                                              /* rake, rake, rime grows */
+  PFA.motion('B2-whirl', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 5 + ph * 2) + k) & 3; G.t += Math.sin(pp * 6 + k) * 2; });                                            /* lost in the snow and back */
+  PFA.motion('B2-glare', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 5 + ph * 3) + k) & 3; });                                                                              /* glare grows, freezes, breaks */
+  PFA.motion('B2-grow', function (G, pp, k) { G.fr = Math.min(3, Math.floor(pp * 5 + k * .3)); });                                                                                 /* the frost fern spreads and stays */
+  PFA.motion('B2-thunder', function (G, pp, k, ph) { var w = (pp * 1.3 + ph) % 1; G.fr = w < .4 ? 0 : w < .55 ? 1 : w < .85 ? 2 : 3; G.d += G.fr === 2 ? 2 : 0; });             /* glide, wings up, dive, strike */
+  PFA.motion('B2-gust', function (G, pp, k) { G.fr = (Math.floor(pp * 7) + k) & 3; G.t += G.fr * .5; });                                                                         /* beat after beat, the gale curls */
+  PFA.motion('B2-flash', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 9 + ph * 4) + k) & 3; });                                                                              /* dim, flash, fork, afterglow */
+  PFA.motion('B2-perch', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 3 + ph * 2) + k) & 3; });                                                                              /* sits tight, looks round */
+  PFA.motion('B2-billow', function (G, pp, k) { G.fr = (Math.floor(pp * 4) + k) & 3; G.t += Math.sin(pp * 3 + k) * 1.5; });                                                       /* the cloud rolls */
+
+  /* ================= custom chain effects (along the OUTER loop from e.a over e.d, eased e.hh) ================= */
+  function carStoop(c, e, H) {          /* the hawk circles high over the start, then folds and stoops along the outer edge onto the next piece, speed lines behind */
+    var P = e.P, Q = H.Q, s, h, j, fr, ox = 0, zz = e.z > 1 ? 1 : e.z;
+    if (e.hh < .45) { P.atq(e.a + e.d * e.hh * .3); ox = Math.cos(e.p * 14) * 4; h = 13 + Math.sin(e.p * 14) * 2; fr = 0;
+      H.px(c, Q.x + Q.nx * 2 - Q.ny * ox, Q.y + Q.ny * 2 + Q.nx * ox, e.acc); }
+    else { s = (e.hh - .45) / .55; P.atq(e.a + e.d * (.135 + .865 * s)); h = 13 * (1 - s) + 4; fr = s > .88 ? 3 : 2;
+      for (j = 1; j <= 3; j++) H.px(c, Q.x + Q.nx * (h + 6 + j * 2), Q.y + Q.ny * (h + 6 + j * 2), e.hi); }
+    H.glyph(c, 'B2-hawk', Q.x + Q.nx * h - Q.ny * ox, Q.y + Q.ny * h + Q.nx * ox, zz, fr, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+  }
+  function carMonarch(c, e, H) {        /* the snowy monarch glides low and silent to the next piece, its wingtips dusting a little snow off the edge; feet out on arrival */
+    var P = e.P, Q = H.Q, k, u, h, fr;
+    for (k = 1; k <= 4; k++) { u = e.hh - k * .06; if (u < 0) break; P.atq(e.a + e.d * u); h = 2 + ((k * 3 + Math.floor(e.p * 20)) % 5); H.px(c, Q.x + Q.nx * h, Q.y + Q.ny * h, H.WHITE); }
+    P.atq(e.a + e.d * e.hh); h = 7 + Math.sin(e.hh * Math.PI) * 3; fr = e.hh > .88 ? 3 : [0, 0, 1, 2][Math.floor(e.p * 5) & 3];
+    H.glyph(c, 'B2-snowy', Q.x + Q.nx * h, Q.y + Q.ny * h, e.z > 1 ? 1 : e.z, fr, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+  }
+  function carRime(c, e, H) {           /* rime creeps along the outer edge from piece to piece, ice crystals every few px, the crowned regent riding the tip */
+    var P = e.P, Q = H.Q, u, i = 0, b, s;
+    for (u = 0; u <= e.hh; u += .03, i++) {
+      P.atq(e.a + e.d * u); b = 2 + (i % 3);
+      H.px(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, e.hi);
+      if (i % 3 === 0) { H.px(c, Q.x + Q.nx * b, Q.y + Q.ny * b, H.WHITE); H.px(c, Q.x + Q.nx * (b + 1) - Q.ny, Q.y + Q.ny * (b + 1) + Q.nx, e.hi); }
+    }
+    P.atq(e.a + e.d * e.hh); s = Math.floor(e.p * 16) & 3;
+    H.glyph(c, 'B2-circlet', Q.x + Q.nx * 4, Q.y + Q.ny * 4, 0, s, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+  }
+  function carThunder(c, e, H) {        /* the storm eagle flies high along the edge; on arrival a forked bolt cracks down from it onto the next piece */
+    var P = e.P, Q = H.Q, h = 13, j, x0, y0, x1, y1, lo, fl, sx, sy, nx, ny, bx, by;
+    P.atq(e.a + e.d * Math.min(1, e.hh * 1.1)); sx = Q.x; sy = Q.y; nx = Q.nx; ny = Q.ny;
+    H.glyph(c, 'B2-eagle', sx + nx * h, sy + ny * h, e.z > 1 ? 1 : e.z, e.hh > .8 ? 3 : Math.floor(e.p * 6) & 1, e.col, e.acc, e.hi, -ny, nx, nx, ny);
+    if (e.hh > .78) {
+      fl = Math.floor(e.p * 20) & 1; P.atq(e.a + e.d); bx = Q.x; by = Q.y;
+      x0 = sx + nx * (h - 3); y0 = sy + ny * (h - 3);
+      for (j = 1; j < ZC.length; j++) {
+        lo = ZC[(j + fl) % ZC.length]; x1 = x0 + (bx + nx * 2 - x0) / (ZC.length - j) - ny * lo; y1 = y0 + (by + ny * 2 - y0) / (ZC.length - j) + nx * lo;
+        H.ln(c, x0, y0, x1, y1, 1, fl ? e.hi : H.WHITE); x0 = x1; y0 = y1;
+      }
+      if (fl) H.plus(c, bx + nx * 2, by + ny * 2, 3, 1, H.WHITE);
+    }
+  }
+
+  /* ================= motifs ================= */
+  function M(name, meta) { PFA.motif(name, comp, meta); }
+  /* great hawk */
+  M('hawk-stoop', { nm: 'hawk stoop', desc: 'a red-tailed hawk seen from above, head to the edge, rufous fan tail: soaring, folding its wings back, a teardrop stoop with speed lines, talons thrown forward; the chain is the hawk circling high and stooping onto the next piece', fam: 'thrust', gap: 20, g: 'B2-hawk', mo: 'B2-stoop', x: '-', car: 'custom', carDraw: carStoop });
+  M('meadow-pluck', { nm: 'meadow pluck', desc: 'three meadow grass blades with a vole in them; yellow talons come down, close on it and lift it out, the grass flicking back', fam: 'bite', gap: 16, g: 'B2-grass', mo: 'B2-snatch', x: '-', car: 'hop' });
+  M('pinion-mantle', { nm: 'mantling wings', desc: 'the hawk mantling over its catch: wings draped down like a tent to the edge, a stipple of shade under them, rufous tips, eyes flashing over the top', fam: 'shield', gap: 18, g: 'B2-mantle', mo: 'B2-mantle', x: '-', car: 'train' });
+  M('hawk-talon', { nm: 'hawk talons', desc: 'a yellow scaly hawk foot with black talons spread wide, closing, clenched, squeeze marks', fam: 'web', gap: 14, g: 'B2-hfoot', mo: 'B2-grip', x: '-', car: 'comet' });
+  M('sky-circle', { nm: 'high circles', desc: 'a small hawk silhouette with a rufous tail circling high on a dotted orbit', fam: 'puff', gap: 16, g: 'B2-kite', mo: 'B2-circle', x: '-', car: 'loop' });
+  M('grass-shadow', { nm: 'grass shadow', desc: 'the hawk passing over the meadow: its cross-shaped shadow slides over the grass and the blades bend away from it', fam: 'puff', gap: 18, g: 'B2-gshadow', mo: 'B2-sweep', x: '-', car: 'blink' });
+  /* snow owl monarch */
+  M('monarch-glide', { nm: 'snowy monarch', desc: 'a huge white snowy owl with black flecks and yellow eyes, wings spread wide, gliding without a sound, feathered feet out at the end; the chain is the owl gliding low to the next piece, its wingtips dusting snow off the edge', fam: 'shield', gap: 22, g: 'B2-snowy', mo: 'B2-hushglide', x: '-', car: 'custom', carDraw: carMonarch });
+  M('frost-wing', { nm: 'frost wing', desc: 'one long white barred owl wing sweeping through, frost crystals shed off its trailing edge', fam: 'sparkle', gap: 16, g: 'B2-fwing', mo: 'B2-sweepwing', x: '-', car: 'flutter' });
+  M('slipper-talon', { nm: 'slipper talons', desc: 'the owl\'s furry white "slipper" foot with black talons spreading, curling, raking frost scratches, gripping', fam: 'thrust', gap: 16, g: 'B2-slipper', mo: 'B2-rake', x: '-', car: 'comet' });
+  M('hush-beak', { nm: 'hush beaks', desc: 'a round feathered owl face with a dark rim and yellow eyes; the small black beak opens and nips without a sound', fam: 'bite', gap: 16, g: 'B2-hbeak', mo: 'B2-nip', x: '-', car: 'hop' });
+  M('wing-print', { nm: 'wing prints', desc: 'a snow patch where the owl lifts off and leaves fanned wing prints pressed into the snow, a snow puff rising', fam: 'puff', gap: 18, g: 'B2-wprint', mo: 'B2-stamp', x: '-', car: 'hop' });
+  M('snow-listen', { nm: 'listening', desc: 'a snow mound with a lemming moving under it; the owl head above cocks left and right to listen, sound rings rise, then it plunges into the snow', fam: 'ripple', gap: 18, g: 'B2-listen', mo: 'B2-listen', x: '-', car: 'blink' });
+  /* frost owl regent */
+  M('regent-circlet', { nm: 'silver circlet', desc: 'a small round owl head rimmed in ice blue wearing a thin silver crown, a glint walking along its points; the chain is rime creeping along the edge with the crowned head riding the tip', fam: 'sparkle', gap: 14, g: 'B2-circlet', mo: 'B2-regal', x: '-', car: 'custom', carDraw: carRime });
+  M('rime-claw', { nm: 'rime claws', desc: 'a frost-crusted owl talon raking, a rime line growing along the edge where it scratches', fam: 'slash', gap: 14, g: 'B2-rimeclaw', mo: 'B2-scratch', x: '-', car: 'comet' });
+  M('whiteout', { nm: 'whiteout', desc: 'a pale wing that blurs into driving snow: seen, half lost, gone into the snow, back again', fam: 'puff', gap: 16, g: 'B2-whiteout', mo: 'B2-whirl', x: 'snow', car: 'cloud' });
+  M('ice-glare', { nm: 'ice glare', desc: 'two pale owl eyes with ice-blue irises; the glare streams out and freezes into icicle tips that break off', fam: 'sparkle', gap: 18, g: 'B2-iceeye', mo: 'B2-glare', x: '-', car: 'blink' });
+  M('frost-fern', { nm: 'frost ferns', desc: 'frost ferns spelled along the edge like window frost: an ice stem grows with paired fronds and a white curl at the tip', fam: 'shield', gap: 10, g: 'B2-fern', mo: 'B2-grow', x: '-', car: 'trail' });
+  /* storm eagle */
+  M('thunder-eagle', { nm: 'thunder eagle', desc: 'a storm-grey eagle on broad fingered white-edged wings with a yellow hooked beak: gliding, wings up, a folded dive with a crackle, talons out and a spark; the chain is the eagle flying high to the next piece and a forked bolt cracking down onto it', fam: 'thrust', gap: 22, g: 'B2-eagle', mo: 'B2-thunder', x: '-', car: 'custom', carDraw: carThunder });
+  M('gale-wing', { nm: 'gale wings', desc: 'one great grey wing beating, white gale curls spinning off it and rain driven slantwise', fam: 'puff', gap: 16, g: 'B2-gale', mo: 'B2-gust', x: '-', car: 'flutter' });
+  M('bolt-claw', { nm: 'bolt claws', desc: 'a yellow eagle foot clutching a zigzag lightning bolt: dim, flash, fork, white afterglow', fam: 'shock', gap: 14, g: 'B2-bolt', mo: 'B2-flash', x: '-', car: 'zig' });
+  M('eyrie-nest', { nm: 'eyrie', desc: 'a stick nest on a grey crag, the eagle sitting tall and gripping the rim, head turning, a twig torn away by the wind', fam: 'shield', gap: 18, g: 'B2-eyrie', mo: 'B2-perch', x: '-', car: 'train' });
+  M('storm-cloud', { nm: 'storm clouds', desc: 'a rolling storm cloud with a dark underside, rain slanting to the edge and a flicker of lightning inside', fam: 'shock', gap: 16, g: 'B2-cloud', mo: 'B2-billow', x: '-', car: 'cloud' });
+})();
+
+/* ---- motifs/boss_boss-B3-land-beasts-plants.js ---- */
+/* Motif module, boss batch B3-land-beasts-plants (old-bramblehorn, dune-wyrm, jade-jaguar). TEMPLATE.md sections 9 and 10.3.
+   19 motifs, each with its own pixel glyph (ids prefixed B3-) and motion; the three signature motifs have their own chain effect (carDraw):
+   a bramble runner creeping along the outer loop with the antler growing at its tip, a sand ridge racing under the edge until the wyrm breaches
+   at the next piece, and the jade spirit jaguar bounding along the outer loop with two fading afterimages behind it.
+   Glyph coordinates are (a, b): a along the edge tangent, b outward along the normal, so every sprite turns with the edge it sits on
+   (the canopy drop is the one exception: it falls straight down the screen, so it is drawn in screen axes).
+   fr0() stores the glyph frame in module scratch variables; p()/row()/cl()/sg() then plot in (a, b). Glyph draws never nest, so the scratch is safe.
+   Nothing is allocated per frame (lookup tables are built once at load); no Math.random / Date: every effect is a stateless function of p.
+   Glyphs go through H.glyph so the MAXG budget counts them; chain bodies are capped at ~40 small blocks. Boss sprites reach ~11 px from their
+   anchor so the effect stays within ~22 px of the edge. The wiggle, the outer-edge chain rule, visual-only sound lines and the creature-heavy
+   default are untouched (they live in the page). */
+(function () {
+  var X0 = 0, Y0 = 0, TX = 1, TY = 0, NX = 0, NY = -1, KK = null;
+  var THORN = '#d8583a', BERRY = '#5a2462', LEAF = '#7cc05a', BARK = '#8a6a42', SPORE = '#b89a62', AMBER = '#f0b030',
+    MAW = '#a8323a', SANDL = '#f4dca0', ACID = '#c8e05a', JADEL = '#b8f4d0', GOLD = '#f4d070', INK = '#08261a';
+  var CA = [], CB = [], i0, t0;                                                 /* 12-point circle, built once */
+  for (i0 = 0; i0 < 12; i0++) { t0 = i0 / 12 * Math.PI * 2; CA.push(Math.cos(t0)); CB.push(Math.sin(t0)); }
+  var ANT_L = [4, 7, 9, 9];                                                     /* bramble antler: stem length per grow frame */
+  var JET = [1, 6, 10, 5];                                                      /* sand geyser: jet height per frame */
+  var IRIS = [2, 1, 0, 0];                                                      /* ring maw: open throat radius per frame */
+  var RAKE = [2, 5, 8, 8];                                                      /* claw rake: gouge length per frame */
+
+  function fr0(x, y, tx, ty, nx, ny, K) { X0 = x; Y0 = y; TX = tx; TY = ty; NX = nx; NY = ny; KK = K; }
+  function p(c, a, b, col) { KK.px(c, X0 + TX * a + NX * b, Y0 + TY * a + NY * b, col); }
+  function row(c, a0, a1, b, col) { for (var a = a0; a <= a1; a++) p(c, a, b, col); }
+  function cl(c, a, b0, b1, col) { for (var b = b0; b <= b1; b++) p(c, a, b, col); }
+  function sg(c, a0, b0, a1, b1, col) {                                         /* 1 px segment between two (a, b) points */
+    var n = Math.max(1, Math.round(Math.max(Math.abs(a1 - a0), Math.abs(b1 - b0)))), i, u;
+    for (i = 0; i <= n; i++) { u = i / n; p(c, Math.round(a0 + (a1 - a0) * u), Math.round(b0 + (b1 - b0) * u), col); }
+  }
+
+  /* ---------- shared own-edge composition: the page's themedOwn() with this module's glyph / motion ---------- */
+  function comp(c, e, H) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, pr = e.p, pp = pr * mp.spd, Q = H.Q, G = H.G, P = e.P,
+      tie = mp.x === 'thread' || mp.lay === 'snare', ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, lx = 0, ly = 0, has;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(7, Math.round(len / (M.gap || 12)))); if (mp.lay === 'lance') n = Math.min(n, 4); has = false;
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, pr, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.d > 20) G.d = 20;                                                 /* stay within ~22 px of the edge */
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, pr)) { has = false; continue; }
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (mp.x === 'threads') H.ln(c, bx0 + nx, by0 + ny, x, y, 1, e.hi);
+        else if (mp.x === 'silk') H.ln(c, bx0 + ny * 9 + nx, by0 - nx * 9 + ny, x, y, 1, e.hi);
+        if (tie && has && Math.abs(x - lx) + Math.abs(y - ly) < 30) H.ln(c, lx, ly, x, y, 1, e.hi);
+        H.glyph(c, M.g, x, y, z, G.fr, e.col, e.acc, e.hi, -ny, nx, nx, ny); lx = x; ly = y; has = true;
+      }
+      H.ext(c, mp.x, P, r[0], len, ri, pr, pp, e.col, e.acc, e.hi, e.seed);
+    }
+  }
+  function grow(G) { return Math.min(3, Math.floor(G.u * 5)); }                /* frame from the layout's own progress: grow, grow, full, flash */
+
+  /* ================= old bramblehorn (ancient thicket stag: antlers of bramble cane) ================= */
+  PFA.glyph('B3-antler', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a bramble-cane antler growing out of the edge: thorny stem, tines tipped in pale bone, a leaf and a blackberry */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, L = ANT_L[f] + (z > 1 ? 1 : 0), b, a;
+    for (b = 0; b <= L; b++) { a = b > 5 ? 1 : 0; p(c, a, b, C); if (b < 3) p(c, a + 1, b, A);
+      if (b & 1) p(c, a + ((b & 2) ? 1 : -1), b, THORN); }                     /* hooked red thorns alternating sides */
+    if (f >= 1) { sg(c, 0, 3, -3, 6, C); p(c, -4, 7, Hi); p(c, -2, 4, LEAF); p(c, -3, 4, LEAF); }       /* first tine + leaf */
+    if (f >= 1) { sg(c, 1, 5, 3, 7, C); p(c, 4, 8, Hi); }                                               /* second tine */
+    if (f >= 2) { sg(c, 1, 7, -1, 9, C); p(c, -2, 10, Hi); p(c, 2, L + 1, Hi);                         /* crown tine, bone tip */
+      p(c, 4, 6, BERRY); p(c, 5, 6, BERRY); p(c, 4, 5, BERRY); p(c, 5, 5, f === 3 ? K.WHITE : BERRY); } /* blackberry on the tine */
+    if (f === 3) { p(c, -5, 8, K.WHITE); p(c, 5, 9, K.WHITE); p(c, 2, L + 3, K.WHITE); }                /* gore flash at the tips */
+  });
+  PFA.glyph('B3-cane', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* an arched bramble cane with hooked red thorns on top and blackberries hanging under it */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, w = z > 1 ? 5 : 4, a, b, j = f & 1;
+    for (a = -w; a <= w; a++) { b = Math.round((6 + j) * Math.sin(Math.PI * (a + w) / (2 * w + 2))); p(c, a, b, C); if (Math.abs(a) > w - 2) p(c, a, b - 1, A);
+      if (((a + w) % 2) === 0 && a > -w) { p(c, a, b + 1, THORN); if (f === 3) p(c, a + 1, b + 2, K.WHITE); } }
+    p(c, -2, 2, BERRY); p(c, -1, 2, BERRY); p(c, -2, 1, BERRY); p(c, -1, 1, f === 2 ? K.WHITE : BERRY);
+    p(c, 2, 3, BERRY); p(c, 3, 3, BERRY); p(c, 2, 2, BERRY); p(c, 3, 2, f === 0 ? K.WHITE : BERRY);
+    p(c, -3, 4 + j, LEAF); p(c, -4, 5 + j, LEAF); p(c, 1, 7 + j, LEAF); p(c, 0, 7 + j, Hi);
+  });
+  PFA.glyph('B3-root', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a gnarled old root knuckle arching out of the earth; a fresh green shoot unfurls from it, a bead of golden sap */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, w = z > 1 ? 5 : 4, a, b, sh = 1 + f * 2;
+    for (a = -w; a <= w; a++) { b = Math.round(3 - Math.abs(a) * 3 / w); p(c, a, b, BARK); p(c, a, b - 1, BARK); if (b > 0) p(c, a, b - 2, A); }
+    p(c, -2, 2, Hi); p(c, 2, 2, Hi); p(c, -w - 1, 0, BARK); p(c, w + 1, 0, BARK); p(c, -w - 2, -1, A); p(c, w + 2, -1, A);   /* knots, rootlets */
+    cl(c, 0, 4, 3 + sh, C);
+    if (f >= 1) { p(c, -1, 5, C); p(c, -2, 5, LEAF); p(c, 1, 6, C); p(c, 2, 6, LEAF); }
+    if (f >= 2) { p(c, -1, 8, C); p(c, -2, 9, LEAF); p(c, 1, 8, LEAF); p(c, 0, 10, Hi); }
+    if (f === 3) { p(c, 1, 4, AMBER); p(c, 2, 4, AMBER); p(c, 1, 3, K.WHITE); }
+  });
+  PFA.glyph('B3-lattice', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {  /* two mossy antler crowns locked together into a wall, pale bone tips, a sheen at the crossing */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, s = f === 1 ? 1 : 0, w = z > 1 ? 6 : 5;
+    sg(c, -w, 0, 1 - s, 8, C); sg(c, -w + 1, 0, 2 - s, 8, C); sg(c, w, 0, -1 + s, 8, C); sg(c, w - 1, 0, -2 + s, 8, C);
+    sg(c, -3, 3, -6, 6, C); sg(c, 3, 3, 6, 6, C); sg(c, -1, 6, -3, 9, C); sg(c, 1, 6, 3, 9, C);
+    p(c, -7, 7, Hi); p(c, 7, 7, Hi); p(c, -4, 10, Hi); p(c, 4, 10, Hi); p(c, 1 - s, 9, Hi); p(c, -1 + s, 9, Hi);
+    row(c, -w - 1, -w + 2, 0, A); row(c, w - 2, w + 1, 0, A); p(c, -w, 1, LEAF); p(c, w, 1, LEAF); p(c, -w + 1, 1, LEAF);   /* moss at the base */
+    if (f === 3) { p(c, 0, 5, K.WHITE); p(c, 0, 6, K.WHITE); }
+  });
+  PFA.glyph('B3-whip', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a thorny bramble lash curling through the air, thorns on its back, a hooked tip */
+    fr0(x, y, tx, ty, nx, ny, K); var j, a, b, ph = (fr & 3) * 1.3, n = z > 1 ? 11 : 10;
+    for (j = 0; j < n; j++) { a = j - 5; b = Math.round(3 + Math.sin(j * .7 + ph) * 2.5); p(c, a, b, C); if (j < 3) p(c, a, b - 1, C);
+      if (j % 3 === 1) p(c, a, b + 1, THORN); }
+    b = Math.round(3 + Math.sin((n - 1) * .7 + ph) * 2.5); p(c, n - 5, b + 1, C); p(c, n - 6, b + 2, Hi);
+    if ((fr & 3) === 3) { p(c, n - 3, b + 1, K.WHITE); p(c, n - 3, b + 3, K.WHITE); }      /* crack */
+  });
+  PFA.glyph('B3-puffball', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) { /* a pale puffball on a moss tuft: pressed, then a brown spore cloud bursts out of its top */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, r = f === 1 ? 2 : 3, a, b, i, R;
+    row(c, -3, 3, 0, C); p(c, -4, 1, C); p(c, 4, 1, C);
+    for (a = -r; a <= r; a++) for (b = 0; b <= 4; b++) if (a * a + (b - 2) * (b - 2) * (f === 1 ? 2 : 1) <= r * r) p(c, a, b + 1, Hi);
+    p(c, -1, 3, A); p(c, 1, 2, A); p(c, 0, 5 - (f === 1 ? 1 : 0), A);
+    if (f >= 2) { R = f === 2 ? 3 : 5;
+      for (i = 0; i < 12; i += (f === 2 ? 2 : 1)) p(c, Math.round(CA[i] * R), Math.round(7 + CB[i] * R * .8), (i & 1) ? SPORE : A);
+      p(c, 0, 7, SPORE); p(c, -1, 8, SPORE); }
+  });
+  PFA.glyph('B3-bush', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a leafy thicket mound with two amber eyes peering out of it, blinking; leaves rustle */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, r = z > 1 ? 6 : 5, a, b, rs = f === 3 ? 1 : 0;
+    for (a = -r; a <= r; a++) for (b = 0; b <= r; b++) if (a * a + b * b * 1.6 <= r * r) p(c, a + (b > 3 ? rs : 0), b, ((a * 3 + b * 5) & 7) === 0 ? A : (((a + b) & 3) === 0 ? LEAF : C));
+    if (f !== 2) { p(c, -2, 2, AMBER); p(c, 2, 2, AMBER); p(c, -2, 3, AMBER); p(c, 2, 3, AMBER); p(c, -2, 2, f === 1 ? K.WHITE : AMBER); }
+    else { p(c, -2, 2, A); p(c, -1, 2, A); p(c, 2, 2, A); p(c, 3, 2, A); }                /* blink */
+    if (rs) { p(c, r + 1, 3, LEAF); p(c, -r - 1, 2, LEAF); }
+  });
+  PFA.motion('B3-grow', function (G, pp, k) { G.fr = grow(G); G.t += Math.sin(pp * 5 + k) * .6; });
+  PFA.motion('B3-flex', function (G, pp, k) { G.fr = (Math.floor(pp * 8) + k) & 3; });
+  PFA.motion('B3-sprout', function (G) { G.fr = grow(G); });
+  PFA.motion('B3-brace', function (G, pp, k) { G.fr = (Math.floor(pp * 6) + k) & 3; if (G.fr === 1) G.d -= 1; });
+  PFA.motion('B3-lash', function (G, pp, k) { G.fr = (Math.floor(pp * 14) + k) & 3; G.t += Math.sin(pp * 9 + k) * 2; });
+  PFA.motion('B3-squeeze', function (G) { G.fr = Math.min(3, Math.floor(G.u * 4.5)); });
+  PFA.motion('B3-peek', function (G, pp, k) { G.fr = (Math.floor(pp * 9) + k) & 3; });
+  function carBramble(c, e, H) {        /* a bramble runner creeps along the outer loop to the next piece: cane, alternating thorns, leaves, the antler growing at its tip */
+    var P = e.P, Q = H.Q, u, i = 0, s;
+    for (u = 0; u <= e.hh && i < 36; u += .03, i++) { P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, e.col);
+      if (i % 3 === 0) { s = (i & 1) ? 3 : 1; H.px(c, Q.x + Q.nx * s, Q.y + Q.ny * s, THORN); }
+      if (i % 6 === 4) { H.px(c, Q.x + Q.nx * 3 - Q.ny, Q.y + Q.ny * 3 + Q.nx, LEAF); H.px(c, Q.x + Q.nx * 4 - Q.ny, Q.y + Q.ny * 4 + Q.nx, LEAF); } }
+    P.atq(e.a + e.d * e.hh);
+    H.glyph(c, 'B3-antler', Q.x + Q.nx * 2, Q.y + Q.ny * 2, e.z > 1 ? 1 : e.z, e.hh > .9 ? 3 : e.hh > .5 ? 2 : 1, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+  }
+
+  /* ================= dune wyrm (colossal ringed sand wyrm with a round toothed maw) ================= */
+  PFA.glyph('B3-wyrm', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* the wyrm breaching: sand mound bulges, the ringed head bursts out, the round maw opens on white teeth, it sinks in a sand spray */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, w = z > 1 ? 3 : 2, a, b, H = f === 3 ? 3 : 6 + (z > 1 ? 1 : 0);
+    for (a = -6; a <= 6; a++) { b = Math.round(2 - Math.abs(a) / 3); if (b >= 0) { p(c, a, b, SANDL); if (b > 0) p(c, a, b - 1, Hi); } }   /* the sand mound */
+    if (f === 0) { p(c, -1, 3, SANDL); p(c, 0, 3, SANDL); p(c, 1, 3, SANDL); p(c, -3, 3, Hi); p(c, 3, 4, Hi); return; }
+    for (b = 1; b <= H; b++) { row(c, -w, w, b, (b & 1) ? C : A); p(c, -w, b, A); p(c, w, b, A); }      /* ringed body: banded segments */
+    if (f === 1) { row(c, -w + 1, w - 1, H + 1, C); p(c, -w - 2, H - 1, SANDL); p(c, w + 2, H, SANDL); p(c, -w - 1, H + 1, SANDL); return; }
+    if (f === 2) { row(c, -w - 1, w + 1, H + 1, C); row(c, -w, w, H + 2, MAW); p(c, -w - 1, H + 2, C); p(c, w + 1, H + 2, C);   /* the round maw seen from the side */
+      for (a = -w; a <= w; a += 2) p(c, a, H + 2, K.WHITE); row(c, -w, w, H + 3, C); p(c, -w - 3, H, SANDL); p(c, w + 3, H + 1, SANDL); p(c, -w - 2, H + 3, SANDL); return; }
+    row(c, -w + 1, w - 1, H + 1, C);                                                                    /* sinking: sand spray thrown off */
+    for (a = -5; a <= 5; a += 2) p(c, a, H + 2 + ((a + 5) % 3), SANDL);
+  });
+  PFA.glyph('B3-funnel', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a sinkhole: sand rings slide in toward a dark centre, then the round maw snaps up out of it */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, i, R, rr, sh = (f & 1) ? .6 : 0;
+    for (rr = 0; rr < 2; rr++) { R = (rr ? 3 : 6) - sh + (z > 1 ? 1 : 0);
+      for (i = 0; i < 12; i++) p(c, Math.round(CA[i] * R), Math.round(4 + CB[i] * R * .6), rr ? C : ((i + f) & 1 ? Hi : SANDL)); }
+    p(c, 0, 4, A); p(c, -1, 4, A); p(c, 1, 4, A); p(c, 0, 5, A); p(c, 0, 3, A);
+    if (f === 3) { p(c, -1, 5, MAW); p(c, 1, 5, MAW); p(c, -2, 5, K.WHITE); p(c, 2, 5, K.WHITE); p(c, 0, 6, K.WHITE); p(c, 0, 7, C); }
+  });
+  PFA.glyph('B3-geyser', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a sand spout: a jet of sand shoots up, crowns into spray and rains back down */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, h = JET[f] + (z > 1 && f === 2 ? 1 : 0), b;
+    row(c, -2, 2, 0, A); row(c, -3, 3, 0 + (f === 0 ? 1 : 0), f === 0 ? SANDL : A);
+    for (b = 1; b <= h; b++) { p(c, 0, b, C); if (b < h - 1) { p(c, (b & 1) ? -1 : 1, b, SANDL); } }
+    if (f === 2) { p(c, -1, h + 1, C); p(c, 1, h + 1, C); p(c, -3, h, Hi); p(c, 3, h, Hi); p(c, -4, h - 2, SANDL); p(c, 4, h - 2, SANDL); p(c, 0, h + 2, K.WHITE); }
+    if (f === 3) { p(c, -3, 6, Hi); p(c, 3, 5, Hi); p(c, -4, 4, SANDL); p(c, 4, 3, SANDL); p(c, -5, 2, C); p(c, 5, 2, C); }
+  });
+  PFA.glyph('B3-ringmaw', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {  /* the wyrm's mouth face-on: a ringed rim, rows of white teeth pointing in, the red throat irising shut, a snap */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, R = 4 + (z > 1 ? 1 : 0), i, a, b, o = IRIS[f];
+    for (i = 0; i < 12; i++) { p(c, Math.round(CA[i] * R), Math.round(5 + CB[i] * R), (i & 1) ? C : A); p(c, Math.round(CA[i] * (R + 1)), Math.round(5 + CB[i] * (R + 1)), (i % 3) ? C : Hi); }
+    for (a = -2; a <= 2; a++) for (b = -2; b <= 2; b++) if (a * a + b * b <= 5) p(c, a, 5 + b, a * a + b * b <= o * o ? MAW : A);
+    for (i = 0; i < 12; i += 2) p(c, Math.round(CA[i] * (R - 1.5)), Math.round(5 + CB[i] * (R - 1.5)), K.WHITE);
+    if (f === 3) { p(c, -R - 3, 5, K.WHITE); p(c, R + 3, 5, K.WHITE); p(c, 0, R + 8, K.WHITE); }
+  });
+  PFA.glyph('B3-tail', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* the ringed tail whipping round, tapering to a pale bone spike that cracks */
+    fr0(x, y, tx, ty, nx, ny, K); var j, a, b, ph = (fr & 3) * 1.1, n = z > 1 ? 11 : 10;
+    for (j = 0; j < n; j++) { a = j - 5; b = Math.round(2 + Math.sin(j * .55 + ph) * 2 + j * .3); p(c, a, b, (j & 1) ? C : A); if (j < 6) p(c, a, b + 1, C); if (j < 3) p(c, a, b - 1, C); }
+    b = Math.round(2 + Math.sin((n - 1) * .55 + ph) * 2 + (n - 1) * .3); p(c, n - 5, b + 1, Hi); p(c, n - 4, b + 1, K.WHITE); p(c, n - 4, b + 2, Hi);
+    if ((fr & 3) === 2) { p(c, n - 2, b + 1, K.WHITE); p(c, n - 3, b + 3, K.WHITE); p(c, n - 3, b - 1, K.WHITE); }
+  });
+  PFA.glyph('B3-plate', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* overlapping ring plates of the wyrm's hide, dark seams, a sand-white sheen walking over them */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, k, a, b, a0, w = z > 1 ? 1 : 0;
+    for (k = -1; k <= 1; k++) { a0 = k * 4;
+      for (a = a0 - 2 - w; a <= a0 + 2 + w; a++) { b = Math.abs(a - a0) > 1 + w ? 2 : 3; cl(c, a, 0, b, C); p(c, a, b + 1, a === a0 - 2 - w ? A : Hi); }
+      cl(c, a0 + 2 + w, 0, 2, A); }
+    p(c, (f - 1) * 4, 3, K.WHITE); p(c, (f - 1) * 4 + 1, 2, K.WHITE);
+  });
+  PFA.motion('B3-erupt', function (G, pp, k, ph) { var u = (pp * 1.5 + ph) % 1; G.fr = Math.floor(u * 4); if (G.fr === 0) G.d -= 1; });
+  PFA.motion('B3-swirl', function (G, pp, k) { G.fr = (Math.floor(pp * 8) + k) & 3; });
+  PFA.motion('B3-jet', function (G, pp, k, ph) { G.fr = Math.floor(((pp * 1.8 + ph) % 1) * 4); });
+  PFA.motion('B3-snap', function (G, pp, k, ph) { var u = (pp * 1.8 + ph) % 1; G.fr = Math.floor(u * 4); if (G.fr === 3) G.d += 2; });
+  PFA.motion('B3-whip', function (G, pp, k) { G.fr = (Math.floor(pp * 12) + k) & 3; G.t += Math.sin(pp * 9 + k) * 2; });
+  PFA.motion('B3-shimmer', function (G, pp, k) { G.fr = (Math.floor(pp * 6) + k) & 3; });
+  function carWyrm(c, e, H) {           /* a sand ridge races under the outer loop to the next piece, spray flicking off its crest; the wyrm breaches at the end */
+    var P = e.P, Q = H.Q, u, i = 0, b, s, u0 = Math.max(0, e.hh - .35);
+    for (u = u0; u <= e.hh && i < 16; u += .025, i++) { P.atq(e.a + e.d * u); s = (u - u0) / Math.max(.01, e.hh - u0); b = 1 + Math.round(Math.sin(s * Math.PI * .5) * 3);
+      H.px(c, Q.x + Q.nx * b, Q.y + Q.ny * b, SANDL); H.px(c, Q.x + Q.nx * (b - 1), Q.y + Q.ny * (b - 1), e.col);
+      if ((i + Math.floor(e.p * 20)) % 4 === 0) H.px(c, Q.x + Q.nx * (b + 2) + Q.ny, Q.y + Q.ny * (b + 2) - Q.nx, e.hi); }
+    P.atq(e.a + e.d * e.hh);
+    H.glyph(c, 'B3-wyrm', Q.x + Q.nx, Q.y + Q.ny, e.z > 1 ? 1 : e.z, e.hh > .93 ? 2 : e.hh > .8 ? 1 : 0, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+  }
+
+  /* ================= jade jaguar spirit (a jaguar of living jade, gold rosettes, a ghost of the canopy) ================= */
+  PFA.glyph('B3-jag', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* the jade jaguar side-on, running along the edge: crouch, stretched leap, tucked flight, landing; frames 4-7 = spirit outline only */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, gh = fr > 3, lf = f === 1 ? 2 : f === 2 ? 3 : 0, a, b, top, col, bc = gh ? JADEL : C;
+    for (a = -5; a <= 4; a++) { top = 4 + lf - (a < -3 || a > 2 ? 1 : 0) - (f === 0 ? 1 : 0);
+      for (b = 2 + lf; b <= top; b++) { if (gh && b !== top && b !== 2 + lf && a !== -5 && a !== 4) continue; if (gh && ((a + b) & 1)) continue; p(c, a, b, bc); } }
+    for (a = 5; a <= 7; a++) for (b = 3 + lf; b <= 5 + lf; b++) if (!gh || b !== 4 + lf || a === 7) p(c, a, b, bc);                    /* head */
+    p(c, 5, 6 + lf, bc); p(c, 7, 6 + lf, bc); p(c, 7, 4 + lf, gh ? K.WHITE : GOLD);                                                    /* ears, glowing eye */
+    sg(c, -6, 4 + lf, -8, 7 + lf - (f & 1), bc); p(c, -9, 7 + lf - (f & 1), gh ? JADEL : A);                                            /* tail */
+    if (!gh) { p(c, -3, 4 + lf, Hi); p(c, -1, 3 + lf, Hi); p(c, 1, 4 + lf, Hi); p(c, 3, 3 + lf, Hi); p(c, -2, 3 + lf, A); p(c, 2, 4 + lf, A); }   /* gold rosettes */
+    if (f === 0) { p(c, -4, 1, bc); p(c, -3, 1, bc); p(c, 3, 1, bc); p(c, 4, 1, bc); }                                                 /* crouched paws */
+    else if (f === 1) { sg(c, 4, 2 + lf, 7, 1 + lf, bc); sg(c, -4, 2 + lf, -7, 0 + lf, bc); }                                         /* stretched legs */
+    else if (f === 2) { p(c, 2, 1 + lf, bc); p(c, -2, 1 + lf, bc); }                                                                   /* tucked */
+    else { sg(c, 4, 2, 6, 0, bc); sg(c, -3, 2, -4, 0, bc); if (!gh) { p(c, 7, 0, GOLD); p(c, 5, -1, GOLD); } }                         /* landing, gold paw sparks */
+  });
+  PFA.glyph('B3-gaze', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* two floating almond jaguar eyes, gold irises with black slits, jade glow rings pulsing out of them */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, s, e, R = 2 + f;
+    for (s = -1; s <= 1; s += 2) { e = s * 4;
+      if (f === 2) { row(c, e - 2, e + 2, 4, C); continue; }                                                                             /* blink */
+      row(c, e - 1, e + 1, 6, C); row(c, e - 1, e + 1, 2, C); p(c, e - 2, 5, C); p(c, e + 2, 5, C); p(c, e - 2, 3, C); p(c, e + 2, 3, C); p(c, e - 3, 4, C); p(c, e + 3, 4, C);
+      row(c, e - 1, e + 1, 3, Hi); row(c, e - 2, e + 2, 4, Hi); row(c, e - 1, e + 1, 5, Hi); cl(c, e, 3, 5, INK); }
+    if (z > 1 || f === 3) for (s = 0; s < 12; s += 2) p(c, Math.round(CA[s] * (R + 5)), Math.round(4 + CB[s] * (R + 2)), JADEL);
+    else for (s = 1; s < 12; s += 3) p(c, Math.round(CA[s] * (R + 5)), Math.round(4 + CB[s] * (R + 2)), JADEL);
+  });
+  PFA.glyph('B3-mask', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a carved jade jaguar mask front-on: round ears, step-fret carving, a gold rosette on the brow, slit eyes glowing, white fangs */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, w = z > 1 ? 5 : 4, a, b;
+    for (b = 1; b <= 8; b++) row(c, -w + (b === 1 || b === 8 ? 1 : 0), w - (b === 1 || b === 8 ? 1 : 0), b, C);
+    p(c, -w, 9, C); p(c, -w + 1, 9, C); p(c, w, 9, C); p(c, w - 1, 9, C); p(c, -w + 1, 10, C); p(c, w - 1, 10, C);                    /* ears */
+    row(c, -w + 1, -1, 4, A); p(c, -1, 3, A); row(c, 1, w - 1, 4, A); p(c, 1, 3, A);                                                    /* step-fret carving */
+    p(c, -2, 6, f === 3 ? K.WHITE : INK); p(c, -3, 6, Hi); p(c, 2, 6, f === 3 ? K.WHITE : INK); p(c, 3, 6, Hi);                        /* slit eyes */
+    p(c, 0, 8, Hi); p(c, -1, 7, Hi); p(c, 1, 7, Hi); p(c, 0, 7, A);                                                                     /* gold brow rosette */
+    p(c, -1, 1, K.WHITE); p(c, 1, 1, K.WHITE); p(c, -1, 2, K.WHITE); p(c, 1, 2, K.WHITE);                                               /* fangs */
+    p(c, -w + 1 + f * 2, 8, JADEL); p(c, -w + 2 + f * 2, 7, JADEL);                                                                     /* a glint walking over the stone */
+  });
+  PFA.glyph('B3-canopy', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* drawn in screen axes: the jade jaguar drops head-first out of the canopy, forepaws spread, claws out, leaves fluttering round it */
+    var f = fr & 3, s = f & 1, i;
+    K.bx(c, x - 1, y - 6, 3, 6, C); K.bx(c, x - 2, y, 5, 3, C); K.px(c, x - 2, y + 3, C); K.px(c, x + 2, y + 3, C);                   /* body, head, ears down */
+    K.px(c, x - 1, y + 1, GOLD); K.px(c, x + 1, y + 1, GOLD); K.px(c, x, y - 3, Hi); K.px(c, x - 1, y - 5, Hi); K.px(c, x + 1, y - 2, Hi);
+    K.px(c, x - 3 - s, y - 1, C); K.px(c, x - 4 - s, y, C); K.px(c, x + 3 + s, y - 1, C); K.px(c, x + 4 + s, y, C);                    /* forepaws spread */
+    K.px(c, x - 4 - s, y + 1, K.WHITE); K.px(c, x + 4 + s, y + 1, K.WHITE);                                                             /* claws */
+    for (i = 7; i <= 9 - s; i++) K.px(c, x + (i & 1), y - i, C); K.px(c, x + 1, y - 10 + s, A);                                       /* tail up */
+    K.px(c, x - 5 + f, y - 6, LEAF); K.px(c, x - 4 + f, y - 7, LEAF); K.px(c, x + 5 - f, y - 3 + s, LEAF); K.px(c, x + 6 - f, y - 4 + s, LEAF);
+  });
+  PFA.glyph('B3-rake', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* four parallel claw gouges tearing out diagonally, gold at the leading tips, jade sparks */
+    fr0(x, y, tx, ty, nx, ny, K); var f = fr & 3, L = RAKE[f] + (z > 1 ? 1 : 0), i, a0;
+    for (i = 0; i < 4; i++) { a0 = -4 + i * 2; sg(c, a0, 1, a0 + Math.round(L * .5), 1 + L, f === 3 ? JADEL : C); p(c, a0 + Math.round(L * .5), 2 + L, f === 3 ? K.WHITE : Hi); }
+    if (f === 3) { p(c, -5, L, Hi); p(c, 6, L - 1, Hi); p(c, 2, L + 4, JADEL); }
+  });
+  PFA.motion('B3-bound', function (G, pp, k, ph) { var u = (pp * 2 + ph) % 1; G.fr = Math.floor(u * 4); if (G.fr === 1 || G.fr === 2) G.up += Math.sin((u - .25) * 2 * Math.PI) * 3 + 2; });
+  PFA.motion('B3-phase', function (G, pp, k, ph) { G.fr = ((Math.floor(pp * 5 + ph * 2) & 1) ? 4 : 0) + ((Math.floor(pp * 10) + k) & 3); G.t += Math.sin(pp * 4 + k) * 2; });
+  PFA.motion('B3-stare', function (G, pp, k) { G.fr = (Math.floor(pp * 5) + k) & 3; });
+  PFA.motion('B3-poise', function (G, pp, k) { G.fr = (Math.floor(pp * 5) + k) & 3; G.up += Math.sin(pp * 6 + k) * .8; });
+  PFA.motion('B3-drop', function (G, pp, k) { G.fr = (Math.floor(pp * 10) + k) & 3; G.t += Math.sin(pp * 7 + k); });
+  PFA.motion('B3-claw', function (G) { G.fr = grow(G); });
+  function carSpirit(c, e, H) {         /* the jade spirit jaguar bounds along the outer loop to the next piece: two fading outline afterimages behind it, gold pips where it lands */
+    var P = e.P, Q = H.Q, k, u, h, ph, fr, sd = e.d < 0 ? -1 : 1, zz = e.z > 1 ? 1 : e.z;
+    for (k = 1; k <= 3; k++) { u = k / 3; if (e.hh < u) break; P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 2 - Q.ny * 2, Q.y + Q.ny * 2 + Q.nx * 2, GOLD); H.px(c, Q.x + Q.nx * 2 + Q.ny * 2, Q.y + Q.ny * 2 - Q.nx * 2, GOLD); }
+    for (k = 2; k >= 0; k--) { u = e.hh - k * .12; if (u < 0) continue; ph = (u * 3) % 1; h = 2 + Math.sin(ph * Math.PI) * 7;
+      fr = ph < .2 ? 0 : ph < .45 ? 1 : ph < .8 ? 2 : 3; if (k) fr += 4; if (k === 2 && (Math.floor(e.p * 20) & 1)) continue;
+      P.atq(e.a + e.d * u);
+      H.glyph(c, 'B3-jag', Q.x + Q.nx * h, Q.y + Q.ny * h, zz, fr, e.col, e.acc, e.hi, -Q.ny * sd, Q.nx * sd, Q.nx, Q.ny); }
+  }
+
+  /* ================= motifs ================= */
+  function M(name, meta) { PFA.motif(name, comp, meta); }
+  /* old bramblehorn */
+  M('bramble-antler', { nm: 'bramble antlers', desc: 'an antler grown of bramble cane rising out of the edge: a thorny stem with hooked red thorns, tines tipped in pale bone, a leaf and a blackberry, the tips flashing white as it gores; the chain is a bramble runner creeping along the outer loop with the antler growing at its tip', fam: 'thrust', gap: 18, g: 'B3-antler', mo: 'B3-grow', x: '-', car: 'custom', carDraw: carBramble });
+  M('berry-cane', { nm: 'berry canes', desc: 'arched bramble canes with hooked red thorns along the top and ripe blackberries hanging beneath, flexing, a glint on the berries', fam: 'thorn', gap: 14, g: 'B3-cane', mo: 'B3-flex', x: '-', car: 'train' });
+  M('root-sprout', { nm: 'root sprouts', desc: 'a gnarled old root knuckle arching out of the earth; a fresh green shoot unfurls from it in three steps and a bead of golden sap wells up', fam: 'mend', gap: 16, g: 'B3-root', mo: 'B3-sprout', x: '-', car: 'train' });
+  M('antler-lattice', { nm: 'antler lattice', desc: 'two mossy antler crowns locked tine through tine into a wall, pale bone tips, moss at the base, a sheen flashing at the crossing', fam: 'shield', gap: 16, g: 'B3-lattice', mo: 'B3-brace', x: '-', car: 'train' });
+  M('bramble-whip', { nm: 'bramble lash', desc: 'a thorny bramble lash curling through the air in S-bends, red thorns on its back, a hooked tip cracking', fam: 'slash', gap: 14, g: 'B3-whip', mo: 'B3-lash', x: '-', car: 'comet' });
+  M('puffball-spore', { nm: 'puffballs', desc: 'a pale puffball on a moss tuft is squeezed flat and bursts a ring of brown spore dust out of its top', fam: 'puff', gap: 14, g: 'B3-puffball', mo: 'B3-squeeze', x: '-', car: 'cloud' });
+  M('thicket-eyes', { nm: 'eyes in the thicket', desc: 'a leafy thicket mound with two amber eyes peering out of it, blinking, the leaves rustling', fam: 'leaf', gap: 16, g: 'B3-bush', mo: 'B3-peek', x: '-', car: 'blink' });
+  /* dune wyrm */
+  M('wyrm-erupt', { nm: 'erupting wyrm', desc: 'a sand mound bulges, the ringed banded head of the wyrm bursts out of it, its round maw opens on a ring of white teeth, then it sinks in a spray of sand; the chain is a sand ridge racing under the outer loop and the wyrm breaching at the next piece', fam: 'bash', gap: 18, g: 'B3-wyrm', mo: 'B3-erupt', x: '-', car: 'custom', carDraw: carWyrm });
+  M('sand-funnel', { nm: 'sinkholes', desc: 'a sinkhole: sand rings slide inward toward a dark centre, then the round red maw snaps up out of the bottom on white teeth', fam: 'bite', gap: 16, g: 'B3-funnel', mo: 'B3-swirl', x: '-', car: 'rings' });
+  M('sand-geyser', { nm: 'sand spouts', desc: 'a jet of sand shoots up out of a dark vent, crowns into spray at the top and rains back down at the sides', fam: 'puff', gap: 12, g: 'B3-geyser', mo: 'B3-jet', x: '-', car: 'hop' });
+  M('ring-maw', { nm: 'ring maws', desc: 'the wyrm mouth seen face-on: a ringed rim, a ring of white teeth pointing inward, the red throat irising shut, then a snap', fam: 'bite', gap: 16, g: 'B3-ringmaw', mo: 'B3-snap', x: '-', car: 'comet' });
+  M('spike-tail', { nm: 'spike tails', desc: 'a banded ringed tail whipping round in a curve and tapering to a pale bone spike that cracks the air', fam: 'slash', gap: 14, g: 'B3-tail', mo: 'B3-whip', x: '-', car: 'comet' });
+  M('ring-plate', { nm: 'ring plates', desc: 'three overlapping armour rings of the wyrm hide with dark seams, a sand-white sheen walking across them', fam: 'shield', gap: 14, g: 'B3-plate', mo: 'B3-shimmer', x: '-', car: 'train' });
+  /* jade jaguar spirit */
+  M('spirit-leap', { nm: 'jade spirit jaguar', desc: 'a jaguar of translucent jade with gold rosettes and a glowing eye running and leaping along the edge: crouch, stretched leap, tucked flight, landing with gold paw sparks; the chain is the spirit jaguar bounding along the outer loop with two fading outline afterimages behind it', fam: 'thrust', gap: 20, g: 'B3-jag', mo: 'B3-bound', x: '-', car: 'custom', carDraw: carSpirit });
+  M('spirit-fade', { nm: 'fading spirit', desc: 'the jade jaguar flickering between solid jade and a pale dotted spirit outline as it drifts, never quite there', fam: 'puff', gap: 20, g: 'B3-jag', mo: 'B3-phase', x: '-', car: 'blink' });
+  M('spirit-gaze', { nm: 'spirit gaze', desc: 'two floating almond jaguar eyes with gold irises and black slits staring, pale jade glow rings pulsing out round them, a slow blink', fam: 'web', gap: 18, g: 'B3-gaze', mo: 'B3-stare', x: '-', car: 'blink' });
+  M('jade-mask', { nm: 'jade masks', desc: 'a carved jade jaguar mask front-on: round ears, step-fret carving, a gold rosette on the brow, white fangs, slit eyes that flash white, a glint walking over the stone', fam: 'shield', gap: 16, g: 'B3-mask', mo: 'B3-poise', x: '-', car: 'train' });
+  M('canopy-drop', { nm: 'canopy drop', desc: 'the jade jaguar dropping head-first out of the canopy, forepaws spread with white claws out, tail up, leaves fluttering round it', fam: 'thrust', gap: 18, g: 'B3-canopy', mo: 'B3-drop', x: '-', car: 'comet' });
+  M('jade-rake', { nm: 'jade rakes', desc: 'four parallel claw gouges tearing out of the edge diagonally, gold at the leading tips, flaring pale jade with sparks', fam: 'slash', gap: 14, g: 'B3-rake', mo: 'B3-claw', x: '-', car: 'comet' });
+})();
+
 /* ---- motifs/large_L01.js ---- */
 /* Motif module, large batch L01 (alpha-dingo, red-fox, silver-fox, arctic-fox, tundra-fox, bramble-wolf, elder-bramble-wolf, wolverine, badger, old-brock).
    TEMPLATE.md sections 9 and 10.3. 17 motifs, each with its own pixel glyph (ids prefixed L01-) and motion; four have their own chain effect (carDraw).

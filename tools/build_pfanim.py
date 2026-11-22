@@ -185,6 +185,8 @@ def main():
             if len(r) > 4: need |= {r[4].get('l', 'hold'), r[4].get('x', '-'), r[4].get('car', 'train')}
     need -= {'-', 'none', 'custom'}
     miss = sorted(i for i in need if ("case '%s'" % i) not in code and i not in xg and i not in xm and not (i in mnames))
+    dyn = set(re.findall(r"PFA\.(?:glyph|motion|motif)\(\s*'([A-Za-z0-9]+-)' *\+", msrc))   # modules that register ids in a loop ('L08-' + name)
+    miss = [i for i in miss if not any(i.startswith(d) for d in dyn)]
     if miss: die('ids with no draw code: ' + ', '.join(miss))
     fams = json.dumps(fam_table(), separators=(',', ':'))
     js = open(os.path.join(R, 'tools', 'pfanim_part.js'), encoding='utf-8').read()
