@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.51
+- **Workshop popover is a grid:** the area popover on the workshop picture has no folds any more. "Can craft now" shows full-colour item squares (tap one to make one; a x5 chip makes five when five fit; a small (i) opens the usual panel with ingredients, mastery and the Cook/Make buttons). Under a dashed line, "One trip away" and "Need more" squares are faded; tap one to see what is missing. "To discover" stays one closed fold. Pantry is untouched; the Satchel list page looks and works as before (`craft_shelves()` / `sh_shelves()` take a `$pop` option, set when `craft_in_popover` is on; `shqf`, `shquick`, `shx5`, `shinfo` styles at the end of `style.css`; `site.js` skips `data-nofold` shelves).
+- **Craft links go to the workshop:** the Satchel's Crafting tab and the other craft links (ready-pot and jar badges, jobs, rebuild, gnome, garden, pal jobs, guide) use the new `craft_url($area)` (`includes/here_schema.php`): the workshop picture (`workshop.php?o=<area>`) when `gnav_craft` is open for the viewer, the old `inventory.php?tab=craft` page otherwise.
+- **Not checked:** MySQL, light theme, the full test list. Cooking, Tools, Garden and Building were driven in headless Chromium at phone width (Tools and Building quick make was not clicked; faded squares seen in Cooking only).
+
 ## 2.7.47
 - **Creature icons that only half loaded:** the icon loader (`P.cicoLoad` in `pfparts.js`/`pfparts47.js`) called back only the caller that first asked for an icon, so a piece drawn by a second `mount()` while the first icons were still arriving (the pre-fight card, mounted again when a sheet opens) could stay on the type glyph (Orb Spider showed 2 of its 4 unique icons). Every caller now redraws after each icon arrives (one shared redraw function on the boards).
 

@@ -607,7 +607,7 @@ function repair_box(array $u, array $repair, string $back): string
             . '<button class="btn small"' . ($workedToday ? ' disabled' : '') . '>' . build_verb_img('clear') . 'Work here today <span class="cost">' . (int)$def['needs'][0][1] . '⚡' . e(gclock_cost_tag(null, null, 'repair')) . '</span></button></form> '
         : '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_hand">' . $hidden
             . '<button class="btn small"' . ($ready ? '' : ' disabled') . '>' . build_verb_img($def['verb']) . 'Hand in stage ' . $stage . '</button></form> '));
-    if (!$isClear && !$isWait && !$isVigil && in_array($def['verb'], ['haul', 'carry'], true)) $h .= '<a class="btn small alt" href="' . e(url('inventory.php?tab=craft&c=building')) . '">Craft materials →</a> ';
+    if (!$isClear && !$isWait && !$isVigil && in_array($def['verb'], ['haul', 'carry'], true)) $h .= '<a class="btn small alt" href="' . e(craft_url('building')) . '">Craft materials →</a> ';
     $h .= '<form method="post" class="inline" action="' . e(url('landmark.php')) . '" data-confirm="Give up this repair? The materials you’ve handed in are not returned.">' . csrf_field() . '<input type="hidden" name="do" value="repair_drop">' . $hidden
         . '<button class="btn small alt">Give up</button></form></div>';
     return $h;
