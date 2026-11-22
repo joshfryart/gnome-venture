@@ -78,9 +78,9 @@ $o = pfb_new(v1_me(), v1_foe('medium'), 5);
 chk('flip is refused in an old fight (engine and action)', pfb_flip($o, 0, $o['turn']) !== null && pfb_play($o, [['f', 0]], $o['turn'])['err'] === 'Those moves are not valid.' && !pfb_can_flip($o, 0));
 chk('old creature values and bars use PFB_FOE_MULT / PFB_BAR_MULT', $o['bar']['max'] === round(pf_new(v1_me(), v1_foe('medium'), 5)['bar']['max'] * PFB_BAR_MULT, 1));
 
-echo "== 1. board size by creature size (the production sizes: 4 x 4 for every size since 2.6.94)\n";
+echo "== 1. board size by creature size (the production sizes: 2.7.55 small 3x3, medium 4x4, large and boss 5x5; 4 x 4 for every size 2.6.94-2.7.54)\n";
 $tsz = $GLOBALS['PFB_TEST_SIZES']; unset($GLOBALS['PFB_TEST_SIZES']);   // this section runs on the game's own sizes, the others on the old geometry
-chk('every creature size has a 4 x 4 board', array_values(array_unique(array_map(fn($d) => $d[0] . 'x' . $d[1], PFB_SIZE))) === ['4x4']);
+chk('board by creature size: small 3x3, medium 4x4, large 5x5, boss 5x5 (2.7.55)', array_map(fn($d) => $d[0] . 'x' . $d[1], PFB_SIZE) === ['small' => '3x3', 'medium' => '4x4', 'large' => '5x5', 'boss' => '5x5'], PFB_SIZE);
 foreach (PFB_SIZE as $size => [$w, $h]) {
     $s = pfb_new(v1_me(), v1_foe($size), 9, ['v1' => true, 'blank' => true]); $bl = $s['pcs'][1];
     chk("$size: board {$w}x{$h}, the blank on an inner cell (blankrand), the view says so", $s['w'] === $w && $s['h'] === $h && $bl['x'] >= 1 && $bl['x'] <= $w - 2 && $bl['y'] >= 1 && $bl['y'] <= $h - 2 && pfb_view($s)['w'] === $w && pfb_view($s)['h'] === $h, [$s['w'], $s['h'], $bl['x'], $bl['y']]);
@@ -88,7 +88,7 @@ foreach (PFB_SIZE as $size => [$w, $h]) {
     chk("$size: no cell outside the board is legal", pfb_check($s, $t, $w, 0) === null && pfb_check($s, $t, 0, $h) === null && !array_filter(pfb_cells($s, $t), fn($c) => $c[0] >= $w || $c[1] >= $h));
 }
 $s = pfb_new(v1_me(), v1_foe('small'), 9, ['v1' => true]);
-chk('classic opening (no blank): the creature starts in the centre of its own board', isset($s['cell']['2,2']) && count($s['pcs']) === 1, array_keys($s['cell']));
+chk('classic opening (no blank): the creature starts in the centre of its own board (1,1 on the small 3x3)', isset($s['cell']['1,1']) && count($s['pcs']) === 1, array_keys($s['cell']));
 
 $GLOBALS['PFB_TEST_SIZES'] = $tsz;
 echo "== 2. ground: sunny, bramble, mud (a fight started under 2.6.74: v1 without env; new fights have environment pieces, section 13)\n";
