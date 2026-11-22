@@ -101,6 +101,26 @@ const ok = (what, cond, got) => { if (cond) console.log('ok   ' + what); else { 
       if (R) { await p.waitForTimeout(400); const s = await stats(p); ok(`${name}: rewinding to an old chip starts no effect`, s.fire === R.f0 && s.place === R.p0 && s.active === 0, s); }
     }
   }
+  // 2.7.56 the environment's eight pieces on the real page (the last board, 390 px wide): each kind's place and fire effect draws, raises no error and stays on the board art
+  const EV = await p.evaluate(async () => {
+    const A = window.PFAnim, d = JSON.parse(document.getElementById('pf-data').textContent), pcs = (d.pcs || []).filter(q => q.x !== undefined && q.by !== 'none'), out = {};
+    if (!A || !pcs.length) return { none: true };
+    const q0 = pcs[0], nb = pcs.find(q => Math.abs(q.x - q0.x) + Math.abs(q.y - q0.y) === 1) || null, ctx = { board: document.getElementById('pfb-board'), w: d.w, h: d.h, step: 950 };
+    const ink = () => { const c = A.canvas(); if (!c) return [0, 0]; const D = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, m = 26, aw = c.width - 2 * m, ah = c.height - 2 * m; let n = 0, outside = 0;
+      for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (D[(y * c.width + x) * 4 + 3]) { n++; if (x < m || y < m || x >= m + aw || y >= m + ah) outside++; } return [n, outside]; };
+    const e0 = A.st.err;
+    for (const kind of A.envKinds()) {
+      const env = Object.assign({}, q0, { by: 'env', kind, dir: 'R', t: 'env' }), r = { pl: [], fi: [] };
+      A.seek(null); A.cancel(); A.place(env, ctx); for (const ms of [150, 300, 500]) { A.seek(ms); r.pl.push(ink()); }
+      A.seek(null); A.cancel(); A.fire({ env: 'fire', kind, id: env.id, for: 'me', falls: nb ? [{ id: nb.id }] : [] }, env, nb ? [nb, env] : [env], ctx); for (const ms of [200, 500, 800, 1100]) { A.seek(ms); r.fi.push(ink()); }
+      A.seek(null); A.cancel(); out[kind] = r;
+    }
+    return { out, err: A.st.err - e0, msg: A.st.msg, active: A.active() };
+  });
+  ok('environment effects: all 8 kinds on the real page', EV.out && Object.keys(EV.out).length === 8, EV);
+  for (const k of Object.keys(EV.out || {})) { const r = EV.out[k], pl = Math.max(...r.pl.map(x => x[0])), fi = Math.max(...r.fi.map(x => x[0])), outside = [...r.pl, ...r.fi].reduce((a, x) => a + x[1], 0);
+    ok(`environment ${k}: place effect draws (${pl} px), fire effect draws (${fi} px), nothing outside the board art (${outside})`, pl > 20 && fi > 20 && outside === 0, r); }
+  ok('environment effects: no engine error, all cancelled', EV.err === 0 && EV.active === 0, EV);
   ok(`3 screenshots written (${shot})`, shot === 3, shot);
   ok('no page errors (full / light / off / skip)', errs.length === 0, errs);
   // reduced motion: no choice = off; Full chosen = full; the help sheet has the setting

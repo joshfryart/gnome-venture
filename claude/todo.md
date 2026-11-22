@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-22 2.7.56 weather piece effects (branch `ccr-893d59b2-e35ovt`)
+- DONE 2.7.56: place + fire effects for all 8 environment kinds (`claude/pf-anim/motifs/weather_env.js`), slim zip `releases/GnomeVenture-2.7.56-web-update.zip` (needs 2.7.51+); NOT seen in a real browser or phone (headless captures only).
+
 ## 2026-11-22 Sonnet creature playtest + 2.7.48 (branch `ccr-893d59b2-e35ovt`, not on main)
 - Josh: all earlier checks clear. Proposal `claude/proposal-creature-playtest-sonnet.md`; tester prompt `claude/pf-agents/pf-sonnet-tester.md`; harness now loads all 319 creatures (`tests/pf_creatures_load.php`) and `pf_play.php new` takes a BUILD (std|pals|norare). `palaim` warning fixed; harness text now shows Evade misses, own-piece FELL AWAY, AIM "before your move". Bot baseline on all 319 done (scratch only).
 - DONE 2.7.48: creature guard meter (`.pf-fguard`, dimmed at 0 like the player's, replay `fgnow`); `tests/pf_foeguard_meter.php` 15/15. NOT SEEN in a browser or phone. `build_pfboardv1.py` still fails (pfboardv1.js patched by hand). No release zip / manifest built.

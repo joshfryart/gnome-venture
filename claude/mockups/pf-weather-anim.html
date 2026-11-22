@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weather piece animations</title>
+<style>
+/* THROWAWAY example for claude/proposal-piece-animations.md: weather (environment) pieces sun, rain, wind, mud.
+   Piece art = the real v48 strip tiles (aseprite-source/pfight/v48/strip, embedded below). Joints/knobs, digits and the resolve rings/numbers are stand-ins.
+   All effects are stateless functions of time. #kind=sun|rain|wind|mud&shape=single|chain&t=1234 freezes the clock; window.__setT(ms) does the same (frame capture). No network. */
+:root{--ink:#2a1a10;--cream:#f2e4c0;--gold:#e8a317;--felt:#4a3322;--bg:#f1ece0}
+*{box-sizing:border-box}body{margin:0;padding:12px 16px;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,sans-serif}
+h1{font-size:1.2rem;margin:.2rem 0}p.s{margin:.2rem 0 .8rem;color:#74462a;font-size:.85rem;max-width:60rem}
+.bar{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;margin:.5rem 0 .8rem}
+button,select{font:inherit;padding:.4rem .8rem;min-height:44px;border:2px solid var(--ink);background:var(--gold);color:var(--ink);cursor:pointer}
+button.on{background:var(--ink);color:var(--cream)}
+label{display:flex;gap:.35rem;align-items:center;min-height:44px}
+.card{background:#fff3c8;border:2px solid var(--ink);padding:8px;display:inline-block;max-width:100%}
+canvas{display:block;width:640px;max-width:100%;height:auto;image-rendering:pixelated;background:var(--felt)}
+.ph{font:12px/1.3 ui-monospace,monospace;min-height:2.6em;color:#4a2c1a;margin-top:.3rem}
+.what{max-width:40rem;margin:.6rem 0;font-size:.9rem}
+</style></head><body>
+<h1>Weather pieces: place, fire</h1>
+<p class="s">Example for four kinds (sun, rain, wind, mud). The weather piece arrives (about 0.6 s: raise, click, settle), then fires (about 1.2 s) while the resolve numbers play on top. "Single" = the weather piece beside one player piece; "Chain" = the weather piece firing as the second link of a two-piece chain (mud cannot be linked: it acts next to the piece that fires). Real v48 tile art; the resolve rings and numbers are stand-ins.</p>
+<div class="bar">
+<span id="kinds"></span><span id="shapes"></span>
+<button id="rp">Replay</button>
+<label>Speed <select id="sp"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select></label>
+<label><input type="checkbox" id="lp" checked> Loop</label></div>
+<div class="card"><canvas id="cv"></canvas><div class="ph" id="ph"></div></div>
+<div class="what" id="what"></div>
+<script>
+(function () {
+'use strict';
+var IMGS = {"hurt": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFIAAABJCAYAAACuPXHDAAAAAXNSR0IArs4c6QAAAl1JREFUeJzt27FLG2EcxvHHUpE4yGG2tE5OYrtIFsEt2TpluHSwgrtQunTpH2AHN0cnsV00QybTEu62QoeGG7QqCE5qt0ompXRIh/Q97yCJ8L6vvL9Xn8928fJ69/W93Bl4ASIiIiIiIiIigcZsDLJYKvZsjOPK91+/jTs8NXmzCvjl3Vz62mTl9cB9r+Ndk191b7Z2EgD98zAJqv3GxVKxpwJe/vymO4wIz14sYWsnQfOqoB3zielB+B4Rls5B69JWs/EhRFReLVwDCQAUezqz0nhGUh9DWqIdctjd+bHijLREO6TU50JXOCMtYUhLGNIShrTE+5BhFLg+BMD02x9XsvGan96itrKJRrXr9Ji8CxlGAY5Ovqbbp52W0+NRvLq0pUaETyGzEbMBJVzW8CXkoIiSZiN8CDlsJkLQbIT0kL5EhKS7dvaRplHtehURUkKGUYDOXiXdLtdjryJC6qWtovoSEVJCNqpdlOtx7rWbw43ctuSIkBJSKbx8n9uemTgCPIgIaSExIqZ0zkOGUYAwCvBmYRYfl9dw2mnh/M98bp/1VTnf8gzj9K6dvVu3WzGOD2ZRW9lMf97Zq6DdikeMIIeIxx/lc3KW+yws12OsrwIftiH+M9J5yFEzrlHtItwOxEeE65AqVHZ70D4+cD4jfQl1F+d37YeCIS1hSEsY0hKGtIQhLWFIS7RD9tenkKId8sfVlN0jEcDknIwWLNWmbwC1tMJj+8kkABgtWDL6FzH9C3p+ld/OxL/aYxgtZlRrEZ9j3GQY5y7+B3SyFjGLq2OJiIiIiIiIiIT6B/LE4aPcvOkGAAAAAElFTkSuQmCC", "foe": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFIAAABJCAYAAACuPXHDAAAAAXNSR0IArs4c6QAAAmlJREFUeJzt27FLG2EYx/GfpYNTyWK6OLRbEV2ks/Tv6Jalg0OHCCVTQeiQpaE4OBTBqUsoRRA6SCni5CAlJEEcRDMUBwOSOIjYgE53nPq+8c17T+59zv4+k7y83r35+kQRcgARERERERERkUITEheZKRSvJa4Tyn7vNHWHVBeIAu4167fWW9tbeP6ng2L53b31fz8aaW7pbH7lg/HepvXS+zUgZVDvb5wpFK+/vnkNADg4PsfbzU/xwVqfd+J9tvUsuJ7p1ctnqDfO8Kt35B0zdciD4/N4bW5pwRjLtp4F1zM1+4PsQ5oiPgZpYj4Zz5H+PwwpxDvk9IuC7ElyjhMpxDvk305P9iQ5x4kUwpBCGFIIQwpRGbLWbY9l7zipC1nrtrFeXbwXyBTMtjcEdSFNNAWzURWy1m1jb3dDfG8W1ISMwrS2t4zrLntDUhMyqVRZRXlq1mnqor2hqQiZ57d0REVIk2QwTW9hm+AhXSesVFkFAJXTCA0hk5KT91AwbVOqKiQSkxcZFkzLHxpoCjlKMG3TiNAh7/5+HBbsob2hqZjIvE8jtITEiMG0TSM0hDT9S7heXQRyNI3QEBKWCbNNncZpROiQ5alZ5zCj7A1B5Wd/at12kGCP7rM/WqduGJUh84ghhTCkEIYUwpBCGFIIQwrxDllvnMmeJOe8Qx5eXcqeRIE0r8kr5H7vdKJzcYJmf4BmfxCvzy0tGPfb1rPgcqbodXQuTryfs3nqf8TET7A/iepONV7/9vF3/LVtPQuuZ5J4d43tWcTlyk983/1iXM+C7d6m9aDPIibx6VgiIiIiIiIiIqVuAG2rceDu/TalAAAAAElFTkSuQmCC", "sun": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFIAAABJCAYAAACuPXHDAAAAAXNSR0IArs4c6QAAArFJREFUeJztm7FrFEEYxV/EQiQRTKFNOBIQhYiFxTUpZf+BI43FVXZpUtv6L6S5yquuuEZCrNdrhDRbpAgGlIBB0mhxggaxOwvzHeNm1rvMTHa+2bxfdQyzc7uPN9+bnWUAQgghhBBCCCGEEIUshBhkY311EmKcWOwfnXjr4DWACPju/dtp260796x9f//45vNXV0aR7+Hlq9eAp6DOF26sr05EwO9fv7gOo4K791tTQV3FvOl7EyLizzfb07alzZ2gbSahx17a3AliBCf1xY2pO7HM8eGBsytv+P55lXNSIsQzeAtJ/uIsZFU6X1e8HSkFPGVCPIOzkFrXhbFg2DBsdEEhA8GwiR02dZFlXWRZN/ZtzER12GRZF7tby9jdWr5SMRsVNpd1njaneu/+hECcJ78BIM8HlX0B/NO/qm+dqNn9McUEgE5vbO1X7hNSRJ/dHxWOtFH0W9b20+Ks9nuZBzVhk+cDdHpjdHpjrLQXAQC3H9troPQL5cbGhY0pjIhYFlNEzvMBw8bEDI8s61ZOaZOi30L7vKbOCqe6iBo25YCB4Ticu/HXh4sC2epkiKme7KcGsy7CktT/E9G8xlfEEDUy+tQWAaRGtueY3iKcljUkNIXNvOEhU1+TiAjhyFC7P2a9rForrrQXcVqcBX+rCfEM0ad2FdY3m974QjhpQcWC3HRjOTxk9weWcAq1K9SIsEGpPs6aqmY4zdO/LlQICQdBtAgoqAkbG5dxqg+NDhtBm/OqUBE2sWnU7k/qUMhA8Lv2dfmunQoMG4aNLpyFLPK9sHeSOM5Cfvr4GWhY2MgzueD0ZrN/dLKA4Wjy8NEaAODBk6dJn7M5PjwAAPSHI+cDS14nv148fwYAEEFTRZwYRUgYZxFF0FTpD0dArLOIJjwdSwghhBBCCCGEEKKUP5X5hilCQNMPAAAAAElFTkSuQmCC", "rain": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFIAAABJCAYAAACuPXHDAAAAAXNSR0IArs4c6QAAAmVJREFUeJztmzFLHEEUx/+GK6xC0kSwCAZCIkKKNBaWYT6AhYXFFpI6HyCl+QQ2tpEUV2xhodaTawIWWlgIYoIQSSGYJpIqhXApwizr3W2Uee9u3qz/X3W8253d+fF235uFAQghhBBCCCGEEEIMMqUxyNLCXF9jnFTsn5yLPYgGCAI/f9mrYtMPn4w89s/vn5JLjY1Dv4v3Hz4CQqHRJy4tzPWDwF+XP2KHMcHjmaeV0FiZHelNBIkrO9dVbHu5oxqroz329nJHJRGi7IdszD0TBzk7PorOygfSizdlTk5ozEEskvwjWmRTdb6viDMyvMBzRmMO0SKt9oWpYLFhsbEFRSrBYqM0B9MWnCuGYt53k9zLbYhFruxcjyUrnStwcHoxFF+cn1WXqTEHk+/IJokAcHB6MTJTU2Pm0a7LaZJY/38cmSlBLFLjsf5fBjahKTPpykaLGIkBS4959iub9Y1SLJMrG0NQpBJc2VhZ2UibWe+7WJyfxfpGKb2VaDQachPp5H0Xzq2Kzk+NCZGoyXCuGBJz11hKTL0jnSvw6N2nG+3MXWMSWtGQB4IcreMmjemGfFLSWtOQ556NsCLS+y6uNtduxG6TdrW5ZqrYmPj6g6oFKqrfGPi0NhjTlGiiIddkUM4oWZaysI7pYjMpWlNs2gBFKmFqZZOKVq1scofFhsXGFtEiD/2u7p1kTrTIb1+/Ay0rNmFOMURZ2D85n0LZ6794+QwA8PzV66z32ZwdHwEAtspe9IYl0c6vt6tvAABBaK6ETEwiErW9iEFormyVPSDVXsQ63B1LCCGEEEIIIYQQYpS/KfY0FDezizwAAAAASUVORK5CYII=", "wind": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFIAAABJCAYAAACuPXHDAAAAAXNSR0IArs4c6QAAAk5JREFUeJzt279KA0EQBvBRBK0EG+0kgigIFraWkryAlUUq7fIC2lrmBdLFKkUqQVvXNIJNihRCQAkodtoIVlrFQva46J2cO3PMrH6/8rhs7j5md+4PRwQAAAAAAAAAYNCUxCDbG5WxxDharocP7BxYA/gAL6/Ok21z84uZ+769PnP+qjR9d0ZHx20iZqDBP9zeqIx9gC9Pj6HDmLCwtJwEGhrmDPcgfIjN0/dk2+HurOi2NOmxD3dnRQohKH1fjbFX4lejm0FwVU5z/zyvcmIicQ7sIOFTcJB53fm/YlekX8BjJnEOwUFavS7UgmaDZmMLghSCZiN0DuxbxLJVq/Vv25zrqBzLT9hBNk/fS6vKarVOtUY7c7tkmBLnYLYi0yFetA6S7bVGm2qNtniYXNE0G0uhZWFXZFnT2rlOsj6WHWL0zSarkXD206TWbPIaSREXrQNzzUZtjXSuM9FEipIOUYrq1E6vg7/5jUWqzSZk7SvjAt1Es9FYI7PG4oT5L9fILP4CXVN0a+RXUlXNpf70p8iU9Pv40JzriDYdE2skV5G1Ml21FqZxFtNPf/JIT+c/8fSnyDrpp3Fe9Vq4SFcPkn5xHZgXunaIpH1BHqKM0FTfa8MkvNfGe21bEKQQ9TsbC9BsDEGzQbOxJTjIvjuTPZLIBQd5d3tP9MeajT+nEEG3iNfDhynq9sZr6ytERLS6uRX1dzajmwEREZ10e8EfLLG+/Nrf2yEiIh9orHwlqgRJqW8RfaCxOun2iLS+RUzD17EAAAAAAAAAAEZ9ALDLLy7cYoQlAAAAAElFTkSuQmCC", "mud": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFIAAABJCAYAAACuPXHDAAAAAXNSR0IArs4c6QAAArVJREFUeJzt2zFo20AYBeCX0qFToUu9lZSUFgJ1aLwELYGi3WsHDcK7By+hW/CaxUPnGg0avKazaigFUwhJaAKBloSGbu5S6NTNHeoTF0VKk7tz7k5932Rk+Ww9ft0vSxxAREREREREROSgJRODBKvLMxPj2DI5OdfOQWsAEeD7j+/ybffuPyzd9/evHzpftTB72S5e998CmoEqfzBYXZ6JAH9Ov6sO44QHjUd5oKph3tX9ESLEZGs73xbv9I1uk5keO97pGykEpfRFNfpeiUWnx4fKVXlH98urKscnJo5BO0j6SznIqu78v9KuSDGB+8zEMSgH6ep1oS1sNmw2bmGQhrDZ2G42dJGzzSYMo4WMW8bEMWjftFiEMIwwiAOEYYQsS/NtMrHdFc4FKUJc29xAdDTNAxzEwaX9XArT2WYzfLN7adva5kb+OlpfMXb617LZZFmKXjIBAKQHZxeq7vOHTxZ/2dWcbTbpwRlQ0XT2j6ZoNRuV799UrZqNHEhxPixqNRvoJRMM4gD783nU9nxpPciqZoJ55clEFcr7t5qNvHptsvqoQXRoQQTX6bZLm02RHGwvmWhXpZePGspC7HTb6HTbwDxM8bqKXLE6XbxWcyQqLnl84czlj3ya3vQzxbnUBqfmyKKrmk1xn+I1pwqdOdLqqZ1lKcIwQrS+ApQEVVWlxYBNhKhLO8hka1vrL5YIE/NARKj/Il/y6IaoewywXZGCHMR1O6/tCixyIkiZawFdl7N3f25TLe/++MrZuz+3ic+1HcIgDWGzYbNxC5sNm41blIPcy/y9d7gIykF+/fINqFmzEcekQum/9uTkfAmj8ezps8cAgCfPX3i9zub0+BAAMByNlRcsaa386rx6CQAQgfpKVKKVICGtRRSB+mo4GgO21iLKuDqWiIiIiIiIiMhRfwCKG16/MKwcrAAAAABJRU5ErkJggg=="};
+var BW = 56, BH = 47, PAD = 20, COLS = 5, ROWS = 5, W = COLS * BW + 2 * PAD, H = ROWS * BH + 2 * PAD, END = 3600, DUR_PLACE = 600, DUR_FIRE = 1200;
+var INK = '#2a1a10', CREAM = '#f2e4c0', GOLD = '#e8a317';
+var KINDS = { sun: 'Sun', rain: 'Rain', wind: 'Wind', mud: 'Mud' };
+var WHAT = {
+  sun: 'Place: warm pop, four short rays at the click. Fire: slow-turning rays, a glint band sweeps to your chain piece, two gold shimmer pulses, its number doubles (x2).',
+  rain: 'Place: drops fall onto the piece, splash along its top. Fire: rain streaks fall through the neighbouring 3x3 cells and splash at the bottom edge; a pixel shield rises (+guard).',
+  wind: 'Place: leans back, dust specks blow out sideways. Fire: gust lines, leaves and dust sweep right and push the piece its arrow points at one cell (trail + destination outline).',
+  mud: 'Place: heavy squash, brown splat. Fire: a mud pool spreads under the piece, drips fall, the neighbour gets a dark dithered ring and its number drops a quarter.'
+};
+var img = {}, loaded = 0, nImg = 0;
+Object.keys(IMGS).forEach(function (k) { nImg++; var i = new Image(); i.onload = function () { loaded++; draw(); }; i.src = IMGS[k]; img[k] = i; });
+
+function hash(n) { n = Math.sin(n * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); }
+function eo(u) { u = Math.min(1, Math.max(0, u)); return 1 - (1 - u) * (1 - u); }
+function eio(u) { u = Math.min(1, Math.max(0, u)); return u * u * (3 - 2 * u); }
+function cl(u) { return Math.min(1, Math.max(0, u)); }
+function sq(c, x, y, w, col) { c.fillStyle = col; c.fillRect(Math.round(x - w / 2), Math.round(y - w / 2), w, w); }
+function rc(c, x, y, w, h, col) { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+function CX(x) { return PAD + (x + .5) * BW; }
+function CY(y) { return PAD + (y + .5) * BH; }
+function checker(c, x, y, w, h, col, par) { c.fillStyle = col; for (var yy = 0; yy < h; yy += 2) for (var xx = 0; xx < w; xx += 2) if ((((xx + yy) >> 1) + par) % 2 === 0) c.fillRect(x + xx, y + yy, Math.min(2, w - xx), Math.min(2, h - yy)); }
+function ell(c, cx, cy, rx, ry, col) { for (var y = -ry; y <= ry; y += 2) { var hw = Math.round(rx * Math.sqrt(Math.max(0, 1 - (y / ry) * (y / ry))) / 2) * 2; if (hw > 0) rc(c, cx - hw, cy + y, hw * 2, 2, col); } }
+function shield(c, x, y, a) {   /* pixel shield, 3 px squares, 21 x 24, top-left at x,y */
+  c.globalAlpha = a; var rows = [7, 7, 7, 7, 7, 5, 3, 1], k, q = 3;
+  for (k = 0; k < rows.length; k++) rc(c, x + (7 - rows[k]) * q / 2 * 1 - q / 2 * 0 - 2 + (7 - rows[k]) * 0, y + k * q - 2, rows[k] * q + 4, q + 2, '#14385e');
+  for (k = 0; k < rows.length; k++) rc(c, x + (7 - rows[k]) * q / 2, y + k * q, rows[k] * q, q, '#6fb8f0');
+  rc(c, x + 9, y + 3, 3, 12, '#fff'); rc(c, x + 4, y + 6, 13, 3, '#fff'); c.globalAlpha = 1;
+}
+function num(c, txt, x, y, col, sc, a) {
+  c.save(); c.globalAlpha = a == null ? 1 : a; c.translate(Math.round(x), Math.round(y)); c.scale(sc || 1, sc || 1); c.textAlign = 'center'; c.font = 'bold 15px monospace';
+  c.lineWidth = 4; c.lineJoin = 'round'; c.strokeStyle = INK; c.strokeText(txt, 0, 0); c.fillStyle = col || '#fff'; c.fillText(txt, 0, 0); c.restore();
+}
+function ring(c, cx, cy, p) {   /* resolve stand-in: gold ring around a cell */
+  if (p < 0 || p > 1) return; c.strokeStyle = GOLD; c.lineWidth = 3; c.globalAlpha = 1 - p * .8; var g = 2 + 5 * eo(p);
+  c.strokeRect(Math.round(cx - BW / 2 - g), Math.round(cy - BH / 2 - g), BW + 2 * g, BH + 2 * g); c.globalAlpha = 1;
+}
+
+/* ---------- layout and timeline ---------- */
+function setup(kind, shape) {
+  var S = { kind: kind, shape: shape, pcs: [], tPlace: 300 };
+  var w = { id: 'W', img: kind, x: 2, y: 2 };
+  if (shape === 'chain') { S.pcs.push({ id: 'A', img: 'hurt', x: 1, y: 2 }); S.pcs.push(w); S.tA = 1400; S.tW = 1950; S.tgt = 'A'; if (kind === 'wind') { S.pcs.push({ id: 'F', img: 'foe', x: 3, y: 2 }); S.tgt = 'F'; } }
+  else { S.pcs.push(w); S.pcs.push({ id: 'P', img: 'hurt', x: 3, y: 2 }); S.tW = 1500; S.tgt = 'P'; }
+  S.W = w; return S;
+}
+var cur = { kind: 'sun', shape: 'chain' };
+function pc(S, id) { for (var i = 0; i < S.pcs.length; i++) if (S.pcs[i].id === id) return S.pcs[i]; return null; }
+
+/* ---------- place (stateless): dt = ms since the weather piece was put down ---------- */
+function placeState(kind, dt) {
+  if (dt < 0) return null;
+  var o = { s: 1, sx: 1, sy: 1, x: 0, y: 0, r: 0, sh: 0, a: 1, hit: 0 }, heavy = kind === 'mud', lean = kind === 'wind', u;
+  if (dt < 220) { u = eo(dt / 220); o.s = (heavy ? .86 : .90) + (heavy ? .30 : .22) * u; o.y = -(heavy ? 6 : 4) * u; o.sh = u; o.a = Math.min(1, dt / 70); if (lean) o.r = -.09 * u; }
+  else if (dt < 280) { u = (dt - 220) / 60; o.s = (heavy ? 1.16 : 1.12) - (heavy ? .20 : .16) * u; o.y = -(heavy ? 6 : 4) * (1 - u); o.sh = 1 - u; o.hit = 1; if (lean) o.r = -.09 * (1 - u) + .03 * u; if (heavy) { o.sx = 1 + .07 * u; o.sy = 1 - .10 * u; } }
+  else if (dt < 600) { u = (dt - 280) / 320; var d = Math.pow(1 - u, 1.6), w = Math.sin(u * Math.PI * 3);
+    o.s = .96 + .04 * eo(u); o.x = (heavy ? 1 : 1.6) * Math.sin(u * Math.PI * 3 + 1) * d; o.r = (lean ? .045 : .03) * w * d; if (heavy) { o.sx = 1 + .07 * d; o.sy = 1 - .10 * d; } o.hit = dt < 320 ? 1 : 0; }
+  return o;
+}
+function placeUnder(c, kind, cx, cy, dt) {   /* beneath the piece */
+  if (kind === 'mud' && dt > 220 && dt < 600) { var u = (dt - 220) / 380, a = 1 - cl((dt - 450) / 150); c.globalAlpha = a; ell(c, cx, cy + 14, 14 + 20 * eo(u), 6 + 5 * eo(u), '#b07a44'); ell(c, cx, cy + 14, 12 + 20 * eo(u), 4 + 5 * eo(u), '#2e1a0d'); c.globalAlpha = 1; }
+}
+function placeOver(c, kind, cx, cy, dt) {   /* sound-line style effects above the piece */
+  var k, u, a;
+  if (kind === 'sun') {
+    if (dt > 200 && dt < 560) { u = (dt - 200) / 360; a = 1 - u; c.globalAlpha = a;
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (q) { for (k = 0; k < 3; k++) sq(c, cx + q[0] * (30 + 5 * k + 12 * eo(u)), cy + q[1] * (25 + 4 * k + 10 * eo(u)), k ? 2 : 3, k === 0 ? '#fff3a0' : '#ffc23a'); });
+      c.strokeStyle = '#ffd24a'; c.lineWidth = 2; var g = 2 + 10 * eo(u); c.strokeRect(Math.round(cx - BW / 2 - g), Math.round(cy - BH / 2 - g), BW + 2 * g, BH + 2 * g); c.globalAlpha = 1; }
+  } else if (kind === 'rain') {
+    if (dt < 230) { for (k = 0; k < 6; k++) { var x = cx - 22 + k * 9 + (hash(k) - .5) * 4, y = cy - 52 + ((dt / 230 + k * .13) % 1) * 36; if (dt / 230 + k * .13 > 1.05) continue; rc(c, x, y, 2, 7, '#9ad0f0'); sq(c, x + 1, y + 7, 2, '#fff'); } }
+    if (dt > 220 && dt < 480) { u = (dt - 220) / 260; c.globalAlpha = 1 - u;
+      for (k = 0; k < 7; k++) { var sd = k % 2 ? 1 : -1, off = (k >> 1) * 8 + 4; sq(c, cx + sd * (off + 10 * eo(u)), cy - BH / 2 - 3 - 8 * Math.sin(Math.PI * u) , 3, k % 3 ? '#9ad0f0' : '#fff'); } c.globalAlpha = 1; }
+  } else if (kind === 'wind') {
+    if (dt > 180 && dt < 600) { u = (dt - 180) / 420; c.globalAlpha = 1 - u;
+      for (k = 0; k < 8; k++) { var sd = k % 2 ? 1 : -1, sp = 20 + hash(k + 4) * 26; sq(c, cx + sd * (22 + sp * eo(u)), cy + 20 - hash(k + 9) * 14 - 6 * u, k % 3 ? 2 : 3, k % 3 ? '#e9e2c8' : '#b9a27a'); }
+      for (k = 0; k < 3; k++) rc(c, cx + 30 + 8 * eo(u) + k * 4, cy - 8 + k * 9, 12 + 6 * eo(u), 2, '#e9e2c8'); c.globalAlpha = 1; }
+  } else if (kind === 'mud') {
+    if (dt > 220 && dt < 560) { u = (dt - 220) / 340; c.globalAlpha = 1 - u * u;
+      for (k = 0; k < 8; k++) { var ang = Math.PI * (.1 + .8 * k / 7), r = 22 + (14 + hash(k) * 12) * eo(u); sq(c, cx + Math.cos(ang) * r * 1.3 * (k % 2 ? 1 : -1) * 0 + (k - 3.5) * 8 * (1 + eo(u)), cy + 6 - Math.sin(Math.PI * u) * (14 + hash(k + 2) * 10) + 14 * u, k % 3 ? 4 : 3, k % 3 ? '#2e1a0d' : '#a87a48'); } c.globalAlpha = 1; }
+  }
+}
+/* ---------- drawing a tile (real art), with a transform about the body centre ---------- */
+function tile(c, im, cx, cy, st) {
+  if (!im || !im.complete) return; st = st || { s: 1, sx: 1, sy: 1, x: 0, y: 0, r: 0, sh: 0, a: 1, hit: 0 };
+  c.save(); c.globalAlpha = st.a; c.translate(Math.round(cx + st.x), Math.round(cy + st.y)); c.rotate(st.r); c.scale(st.s * st.sx, st.s * st.sy);
+  if (st.sh > 0) { c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(-BW / 2 + 2 + 3 * st.sh, -BH / 2 + 3 + 5 * st.sh, BW, BH); }
+  c.drawImage(im, -41, -36.5);
+  if (st.hit) { c.strokeStyle = '#fff'; c.lineWidth = 2; c.strokeRect(-BW / 2 - 1, -BH / 2 - 1, BW + 2, BH + 2); }
+  c.restore();
+}
+
+/* ---------- fire effects (stateless; f = ms since the weather piece fired, 0..1200) ---------- */
+function targetOf(S) { return pc(S, S.tgt); }
+function sunFx(c, S, f, under) {
+  var W0 = S.W, cx = CX(W0.x), cy = CY(W0.y), env = Math.sin(Math.PI * cl(f / DUR_FIRE)), k, j, t = targetOf(S), dirx = t.x > W0.x ? 1 : -1, tx = CX(t.x);
+  if (under) { /* warm dithered glow under the pieces, pulsing */
+    var gr = 8 + 26 * env; c.globalAlpha = .38 * env; checker(c, Math.round(cx - BW / 2 - gr), Math.round(cy - BH / 2 - gr * .8), BW + 2 * gr, Math.round(BH + 1.6 * gr), '#ffb52e', 0); c.globalAlpha = 1; return; }
+  /* rays: 8, slowly turning, extend and retract */
+  var n = Math.round(5 * Math.min(1, env * 1.6));
+  for (k = 0; k < 8; k++) { var ang = k * Math.PI / 4 + f * .0006 + (k % 2) * .08, lg = k % 2 ? 0 : 1; for (j = 0; j < n; j++) { var r = 33 + j * 8 + 8 * env + lg * 8; sq(c, cx + Math.cos(ang) * r * 1.1, cy + Math.sin(ang) * r * .95, j < 2 ? 4 : 3, j < 2 ? '#fff3a0' : j < 4 ? '#ffc23a' : '#ff9a1e'); } }
+  /* glint band sweeping from the sun to the chain piece, then two shimmer pulses on it */
+  var sw = cl((f - 120) / 560);
+  if (sw > 0 && sw < 1) { var bx = cx + (tx - cx) * eio(sw); for (k = 0; k < 4; k++) for (j = -4; j <= 4; j++) { var yy = cy + j * 6, xx = bx - dirx * (k * 5) + j * 1.5 * dirx; sq(c, xx, yy, k === 0 ? 3 : 2, k === 0 ? '#fffbe0' : k < 3 ? '#ffd24a' : '#e8a317'); } }
+  var tl = f - 560;
+  if (tl > 0 && tl < 700) { var pu = Math.max(0, Math.sin(tl / 350 * Math.PI * 2 - .3)) * (1 - cl((tl - 500) / 200)), tcx = CX(t.x), tcy = CY(t.y);
+    c.globalAlpha = .55 * pu; checker(c, Math.round(tcx - BW / 2), Math.round(tcy - BH / 2), BW, BH, '#ffe27a', 0); c.globalAlpha = pu; c.strokeStyle = '#ffe27a'; c.lineWidth = 2; c.strokeRect(Math.round(tcx - BW / 2) + 1, Math.round(tcy - BH / 2) + 1, BW - 2, BH - 2); c.globalAlpha = 1;
+    for (k = 0; k < 5; k++) { var u = cl((tl - k * 70) / 260); if (u <= 0 || u >= 1) continue; var sx = tcx - 22 + hash(k + 20) * 44, sy = tcy - 18 + hash(k + 30) * 36, rr = 1 + Math.round(3 * Math.sin(Math.PI * u)); c.fillStyle = '#fffbe0'; c.fillRect(Math.round(sx - 1), Math.round(sy - rr), 2, rr * 2 + 1); c.fillRect(Math.round(sx - rr), Math.round(sy - 1), rr * 2 + 1, 2); } }
+}
+function rainFx(c, S, f, under) {
+  if (under) return;
+  var W0 = S.W, x0 = PAD + (W0.x - 1) * BW, y0 = PAD + (W0.y - 1) * BH, rw = 3 * BW, rh = 3 * BH, i, PER;
+  for (i = 0; i < 28; i++) {
+    var st = hash(i + 3) * 260, en = DUR_FIRE - 30 - hash(i + 7) * 140; if (f < st || f > en) continue;
+    PER = 330 + hash(i + 11) * 120; var ph = ((f - st) + hash(i) * PER) % PER, fr = ph / PER, x = x0 + 3 + i * 6, y = y0 + fr * (rh + 12) - 12;
+    if (y + 11 <= y0 + rh) { var yt = Math.max(y0, y); rc(c, x, yt, 3, y + 11 - yt, '#8cc8f0'); rc(c, x, Math.max(yt, y + 8), 3, Math.max(0, y + 11 - Math.max(yt, y + 8)), '#fff'); }
+    else { var u = cl((y - (y0 + rh - 11)) / 12); if (u < 1) { var sp = 2 + 6 * u, sy = y0 + rh - 3 - 5 * Math.sin(Math.PI * u); sq(c, x - sp, sy, 3, '#cfe8fa'); sq(c, x + 3 + sp, sy, 3, '#8cc8f0'); } }
+  }
+  var cx = CX(W0.x), cy = CY(W0.y), su = cl((f - 300) / 600), g = S.shape === 'chain' ? pc(S, 'A') : null;
+  if (su > 0) { var sy = cy - 14 - 28 * eo(su); shield(c, cx - 25, sy - 4, Math.min(1, su * 3)); }
+  if (g && f > 500 && f < 1100) { var pu2 = Math.sin(Math.PI * cl((f - 500) / 600)); c.strokeStyle = '#6fb8f0'; c.globalAlpha = pu2; c.lineWidth = 3; c.strokeRect(CX(g.x) - BW / 2 - 1, CY(g.y) - BH / 2 - 1, BW + 2, BH + 2); c.globalAlpha = 1; }
+}
+function windSlide(S, f) { return BW * eio((f - 320) / 480); }
+function windFx(c, S, f, under) {
+  var W0 = S.W, t = targetOf(S), cx = CX(W0.x), cy = CY(W0.y), k, left = PAD + W0.x * BW + 6, right = PAD + COLS * BW - 2, env = Math.sin(Math.PI * cl(f / DUR_FIRE));
+  if (under) { /* destination outline (dashed) and dust left in the old cell */
+    if (f > 60 && f < 900) { var a = (f < 360 ? cl((f - 60) / 200) : 1 - cl((f - 700) / 200)), dx = PAD + (t.x + 1) * BW, dy = PAD + t.y * BH; c.globalAlpha = a; for (k = 0; k < BW; k += 8) { rc(c, dx + k, dy + 1, 4, 2, '#ffe27a'); rc(c, dx + k, dy + BH - 3, 4, 2, '#ffe27a'); } for (k = 0; k < BH; k += 8) { rc(c, dx + 1, dy + k, 2, 4, '#ffe27a'); rc(c, dx + BW - 3, dy + k, 2, 4, '#ffe27a'); } c.globalAlpha = 1; }
+    return; }
+  /* arrow on the weather piece (stand-in) */
+  if (f > -2000) { var ax = cx + BW / 2 - 8 + 3 * Math.sin(f / 90), ay = cy + 17; rc(c, ax - 8, ay - 1, 8, 3, '#2c3e66'); rc(c, ax, ay - 4, 3, 9, '#2c3e66'); rc(c, ax + 3, ay - 2, 3, 5, '#2c3e66'); rc(c, ax + 6, ay - 1, 2, 3, '#2c3e66'); }
+  /* gust lines in the rows around the weather piece's row */
+  var rows = [-2.4, -1.8, -1.0, -.4, .4, 1.0, 1.8, 2.4], PER = 600;
+  rows.forEach(function (rw, i) { var st = i * 60, L = 22 + hash(i + 2) * 18; if (f < st || f > 1050) return; var ph = ((f - st) / PER), x = left + ph * (right - left + L) - L, y = cy + rw * 14 + (hash(i) - .5) * 3;
+    if (ph > 1.02) return; var xa = Math.max(left, x), xb = Math.min(right, x + L); if (xb > xa) { rc(c, xa, y, xb - xa, 3, i % 2 ? '#e9e2c8' : '#c7d6ea'); if (xb - xa > 10) { rc(c, xb - 6, y - 3, 6, 3, '#fff'); rc(c, xb - 3, y + 3, 3, 3, '#e9e2c8'); } } });
+  /* leaf and dust specks */
+  for (k = 0; k < 14; k++) { var st2 = hash(k + 40) * 400, ph2 = (f - st2) / 700; if (ph2 < 0 || ph2 > 1) continue; var x2 = left + ph2 * (right - left), y2 = cy - 34 + hash(k + 50) * 68 + Math.sin(ph2 * 9 + k) * 6; if (x2 > right) continue;
+    var kind = k % 3; if (kind === 0) { rc(c, x2, y2, 6, 3, '#a8c85a'); rc(c, x2 + 3, y2 - 3, 3, 3, '#6f9a3a'); } else if (kind === 1) sq(c, x2, y2, 3, '#fff'); else { rc(c, x2, y2, 4, 3, '#d9a85a'); } }
+  /* speed lines and dust where the piece leaves its cell */
+  var ph3 = cl((f - 320) / 480);
+  if (ph3 > 0 && ph3 < 1) { var bx = CX(t.x) + BW * eio(ph3); for (k = 0; k < 5; k++) rc(c, bx - 34 - k * 3 - 10 * ph3, CY(t.y) - 18 + k * 9, 12, 2, '#e9e2c8'); }
+  var du = cl((f - 320) / 600); if (du > 0 && du < 1) { c.globalAlpha = 1 - du; for (k = 0; k < 6; k++) sq(c, CX(t.x) + (k - 2.5) * 6 + du * 6, CY(t.y) + 22 - du * 8 - hash(k) * 8, 3, '#b9a27a'); c.globalAlpha = 1; }
+  /* weather piece itself shudders in the gust */
+}
+function mudNeighbour(S) { return S.shape === 'chain' ? pc(S, 'A') : pc(S, 'P'); }
+function mudFx(c, S, f, under) {
+  var W0 = S.W, cx = CX(W0.x), cy = CY(W0.y), n = mudNeighbour(S), k, e = eo(f / 650), fade = 1 - cl((f - 1000) / 200);
+  if (under) {
+    c.globalAlpha = fade; var rx = 14 + 52 * e, ry = 8 + 30 * e; ell(c, cx, cy + 8, rx + 2, ry + 2, '#b07a44'); ell(c, cx, cy + 8, rx, ry, '#2e1a0d');
+    for (k = 0; k < 6; k++) sq(c, cx + (hash(k + 60) - .5) * rx * 1.5, cy + 8 + (hash(k + 70) - .5) * ry * 1.4, 2, '#7a4a26');
+    c.globalAlpha = 1; return; }
+  c.globalAlpha = fade;
+  /* drips from the bottom edge of the piece */
+  for (k = 0; k < 5; k++) { var st = k * 110, u = cl((f - st) / 380); if (u <= 0) continue; var x = cx - 20 + k * 10, y0 = cy + BH / 2 - 1;
+    if (u < .75) { var y = y0 + 1 + 12 * (u / .75) * (u / .75); rc(c, x - 2, y, 5, 7, '#a87a48'); rc(c, x - 1, y + 1, 3, 6, '#2e1a0d'); } else { var v = (u - .75) / .25; ell(c, x, y0 + 17, 4 + 4 * v, 2, '#b07a44'); ell(c, x, y0 + 17, 3 + 4 * v, 1, '#2e1a0d'); } }
+  c.globalAlpha = 1;
+  /* darkened dithered ring on the neighbour showing the quarter loss */
+  if (n) { var ra = cl((f - 330) / 220) * fade, ncx = CX(n.x), ncy = CY(n.y), x0 = Math.round(ncx - BW / 2), y0b = Math.round(ncy - BH / 2);
+    if (ra > 0) { c.globalAlpha = ra; checker(c, x0, y0b, BW, BH, 'rgba(24,12,6,.55)', 0); c.strokeStyle = '#1a0e06'; c.lineWidth = 3; c.strokeRect(x0 - 1, y0b - 1, BW + 2, BH + 2); c.strokeStyle = '#a8723c'; c.lineWidth = 1; c.strokeRect(x0 - 3.5, y0b - 3.5, BW + 7, BH + 7); c.globalAlpha = 1;
+      for (k = 0; k < 3; k++) { var u2 = cl((f - 420 - k * 120) / 420); if (u2 <= 0 || u2 >= 1) continue; c.globalAlpha = Math.sin(Math.PI * u2) * ra; var yy = ncy - 8 + 22 * u2 * 0 + (-10 + 22 * u2), xx = ncx - 10 + k * 10; rc(c, xx - 1, yy, 3, 4, '#d9a85a'); rc(c, xx - 3, yy + 4, 7, 2, '#d9a85a'); rc(c, xx - 1, yy + 6, 3, 2, '#d9a85a'); c.globalAlpha = 1; } } }
+}
+var FX = { sun: sunFx, rain: rainFx, wind: windFx, mud: mudFx };
+
+/* ---------- resolve numbers (stand-ins, drawn last = on top of every effect) ---------- */
+function resolve(c, S, t) {
+  var kind = S.kind, W0 = S.W, wf = t - S.tW, cx = CX(W0.x), cy = CY(W0.y), A = pc(S, 'A'), af = t - (S.tA || 0), P = pc(S, 'P');
+  if (A) { var base = kind === 'mud' ? 8 : 8; if (af >= 0) {
+      ring(c, CX(A.x), CY(A.y), af / 560);
+      var y = CY(A.y) - 30 - 8 * eo(af / 400), txt = '-' + base, col = '#fff', sc = 1, a = 1 - cl((t - (S.tW + 1150)) / 300);
+      if (kind === 'sun' && wf > 520) { txt = '-16'; col = '#ffe27a'; sc = 1 + .5 * Math.sin(Math.PI * cl((wf - 520) / 260)); }
+      if (kind === 'mud' && wf > 650) { txt = '-6'; col = '#f0a070'; sc = 1 + .4 * Math.sin(Math.PI * cl((wf - 650) / 260)); }
+      num(c, txt, CX(A.x), y, col, sc, a); } }
+  if (wf >= 0) {
+    var a2 = 1 - cl((wf - 1000) / 200), y2 = cy - 31 - 6 * eo(wf / 300);
+    if (kind === 'sun') { var sc2 = 1 + .35 * Math.sin(Math.PI * cl((wf - 80) / 300)); if (wf > 60) num(c, 'x2', cx, y2, '#ffe27a', sc2, a2); }
+    else if (kind === 'rain') { if (wf > 560) num(c, '+5', cx + 14, y2 + 6, '#cfe8fa', 1 + .35 * Math.sin(Math.PI * cl((wf - 560) / 260)), a2); }
+    else if (kind === 'wind') { if (wf > 100) { var tg = targetOf(S); num(c, '→ 1', cx + 6, y2 + 4, '#e9e2c8', 1, a2); } }
+    else if (kind === 'mud') { if (!A && wf > 400) { num(c, '-25%', CX(P.x), CY(P.y) - 31 - 6 * eo((wf - 400) / 300), '#f0a070', 1, a2); } else if (wf > 100) num(c, '-25%', cx, y2, '#f0a070', 1, a2); }
+    ring(c, cx, cy, wf / 560);
+  }
+}
+
+/* ---------- scene render: a pure function of t ---------- */
+var cv = document.getElementById('cv'), c = cv.getContext('2d'), phEl = document.getElementById('ph');
+cv.width = W; cv.height = H;
+function render(t) {
+  var S = setup(cur.kind, cur.shape), kind = S.kind, ph = [], fxu = FX[kind], i;
+  c.imageSmoothingEnabled = false; c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#4a3322'; c.fillRect(0, 0, W, H);
+  c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1;
+  for (var gx = 0; gx <= COLS; gx++) { c.beginPath(); c.moveTo(PAD + gx * BW + .5, PAD); c.lineTo(PAD + gx * BW + .5, PAD + ROWS * BH); c.stroke(); }
+  for (var gy = 0; gy <= ROWS; gy++) { c.beginPath(); c.moveTo(PAD, PAD + gy * BH + .5); c.lineTo(PAD + COLS * BW, PAD + gy * BH + .5); c.stroke(); }
+  var dtp = t - S.tPlace, wf = t - S.tW, W0 = S.W, wcx = CX(W0.x), wcy = CY(W0.y);
+  /* effects beneath the pieces, clipped to the board */
+  c.save(); c.beginPath(); c.rect(PAD, PAD, COLS * BW, ROWS * BH); c.clip();
+  if (dtp > 0) placeUnder(c, kind, wcx, wcy, dtp);
+  if (wf >= 0 && wf <= DUR_FIRE) fxu(c, S, wf, true);
+  c.restore();
+  /* pieces */
+  S.pcs.forEach(function (p) {
+    var px = CX(p.x), py = CY(p.y), st = null;
+    if (p.id === 'W') st = placeState(kind, dtp); else st = { s: 1, sx: 1, sy: 1, x: 0, y: 0, r: 0, sh: 0, a: 1, hit: 0 };
+    if (!st) return;
+    if (kind === 'wind' && p.id === S.tgt && wf > 320) { var sl = windSlide(S, wf), g; for (g = 3; g >= 1; g--) { var sg = BW * eio((wf - 320 - g * 40) / 480); if (sg > 1 && sg < BW - 1) { var s2 = { s: 1, sx: 1, sy: 1, x: sg, y: 0, r: 0, sh: 0, a: .22, hit: 0 }; tile(c, img[p.img], px, py, s2); } } st.x = sl; st.r = wf < 800 ? -.05 * Math.sin(Math.PI * cl((wf - 320) / 480)) : 0; }
+    if (kind === 'wind' && p.id === 'W' && wf > 0 && wf < 700) st.x += Math.sin(wf / 35) * 1.2 * (1 - wf / 700);
+    tile(c, img[p.img], px, py, st);
+  });
+  c.save(); c.beginPath(); c.rect(PAD - 6, PAD - 12, COLS * BW + 12, ROWS * BH + 24); c.clip();
+  if (dtp > 0) placeOver(c, kind, wcx, wcy, dtp);
+  if (wf >= 0 && wf <= DUR_FIRE) fxu(c, S, wf, false);
+  c.restore();
+  resolve(c, S, t);
+  if (dtp >= 0 && dtp < DUR_PLACE) ph.push('place ' + Math.round(dtp) + ' ms: ' + (dtp < 220 ? 'raise' : dtp < 280 ? 'click' : 'settle'));
+  if (S.tA != null && t - S.tA >= 0 && t - S.tA < 560) ph.push('chain piece fires (stand-in ring and number)');
+  if (wf >= 0 && wf <= DUR_FIRE) ph.push('weather fires ' + Math.round(wf) + ' ms, resolve numbers on top');
+  phEl.textContent = Math.round(t) + ' ms | ' + (ph.join(' | ') || (t < S.tPlace ? 'waiting' : 'idle'));
+}
+
+/* ---------- controls ---------- */
+var FIX = null, t0 = performance.now(), spEl = document.getElementById('sp'), lpEl = document.getElementById('lp'), lastT = 0;
+function draw() { render(FIX != null ? FIX : lastT); }
+function mk(id, items, key) {
+  var box = document.getElementById(id); box.innerHTML = '';
+  Object.keys(items).forEach(function (k) { var b = document.createElement('button'); b.textContent = items[k]; b.className = cur[key] === k ? 'on' : ''; b.onclick = function () { cur[key] = k; t0 = performance.now(); build(); }; box.appendChild(b); box.appendChild(document.createTextNode(' ')); });
+}
+function build() { mk('kinds', KINDS, 'kind'); mk('shapes', { single: 'Single', chain: 'Chain (2 pieces)' }, 'shape'); document.getElementById('what').textContent = WHAT[cur.kind]; draw(); }
+var m = /[#&]kind=(\w+)/.exec(location.hash); if (m && KINDS[m[1]]) cur.kind = m[1];
+m = /[#&]shape=(\w+)/.exec(location.hash); if (m && (m[1] === 'single' || m[1] === 'chain')) cur.shape = m[1];
+m = /[#&]t=(\d+)/.exec(location.hash); if (m) FIX = +m[1];
+window.__setT = function (ms, kind, shape) { FIX = ms; if (kind) cur.kind = kind; if (shape) cur.shape = shape; build(); };
+window.__END = END;
+document.getElementById('rp').onclick = function () { t0 = performance.now(); FIX = null; };
+function loop(now) { if (FIX == null) { var el = (now - t0) * +spEl.value; lastT = lpEl.checked ? el % END : Math.min(END, el); render(lastT); } requestAnimationFrame(loop); }
+build(); requestAnimationFrame(loop);
+})();
+</script></body></html>

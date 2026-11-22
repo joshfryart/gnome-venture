@@ -16,13 +16,14 @@
   var BW = 56, BH = 47, TAB = 13, MG = 26, PAD = TAB + MG, PW = 82, PH = 73;   // art pixels: cell pitch (= body), knob margin, the canvas' extra margin outside the board art, piece image
   var INK = '#2a1a10', CREAM = '#f2e4c0', GOLD = '#e8a317';
   var TYPE = { hurt: '#b8442c', guard: '#4f7fa8', heal: '#5f9a4a', charm: '#c46a9b', trick: '#7a5aa8' };
-  var PERS = {}, MOTIF = {};
+  var PERS = {}, MOTIF = {}, WENV = {};   // WENV: the environment's own place / fire effect per kind (2.7.56, motifs/weather_env.js)
 
   /* ===================== draw code of the approved mock-up (claude/pf-anim/small-anim.template.html), bundled by the build ===================== */
 /*__DRAW__*/
   /* ===================== motif modules (claude/pf-anim/motifs/*.js) ===================== */
   var PFA = { motif: function (name, draw, meta) { var m = MOTIF[name] || (MOTIF[name] = {}), k; for (k in (meta || {})) m[k] = meta[k]; m.draw = draw; },
-    glyph: function (id, fn) { XG[id] = fn; }, motion: function (id, fn) { XM[id] = fn; } };
+    glyph: function (id, fn) { XG[id] = fn; }, motion: function (id, fn) { XM[id] = fn; },
+    env: function (kind, def) { WENV[kind] = def; } };   // 2.7.56: def = { ps(dt) place motion, pl(c, A, dt) place effect (0..600), fi(c, A, f) fire effect (0..1200) }
 /*__MOTIFS__*/
 
   /* ===================== the chain's outer edge: perimeter of a set of cells (any shape; several loops tolerated: the largest outer loop is walked) ===================== */
@@ -164,6 +165,7 @@
   function cxOf(x) { return PAD + (x + .5) * BW; } function cyOf(y) { return PAD + (y + .5) * BH; }
 
   function drawPlace(it, t) {
+    if (it.W) return drawEnvPlace(it, t);
     var L = it.L, dt = (t - it.t0) / it.k, T = timing(L.h), R = T.r * (L.pz ? PERS[L.pz].rf : 1), E = L.env ? R + T.c : R + T.c + T.w;
     if (dt > E) { resetCell(it); return false; }
     var ps = placeState(dt, false, L.h, L.lift, L.pz), cc = cellCv(it.id), cx = cxOf(it.p.x), cy = cyOf(it.p.y);
@@ -202,14 +204,68 @@
     });
     return true;
   }
-  var DRAW = { pl: drawPlace, own: drawOwn, car: drawCar, aoe: drawAoe };
+  /* ---- 2.7.56 the environment's pieces: each kind its own place (~600 ms) and fire (~1200 ms) effect, drawn by its module (WENV[kind]); visual only ---- */
+  function envA(it) {   // what a kind's effect may know: its cell, its target, the board, and a few draw helpers (all art pixels on the overlay)
+    var A = it.A;
+    if (!A) { A = it.A = { x: it.p.x, y: it.p.y, cx: cxOf(it.p.x), cy: cyOf(it.p.y), BW: BW, BH: BH, PAD: PAD, w: CTX.w || 3, h: CTX.h || 3, seed: ((+it.p.id || 0) * 7 + 3) % 997,
+      tg: it.tg || null, dir: it.dir || it.p.dir || 'R', mv: it.mv || null, falls: it.falls || [], fr: it.fr || 'me', it: it, ghost: envGhost, shake: envShake, clipOut: envClipOut, put: envPut, cxOf: cxOf, cyOf: cyOf }; }
+    return A;
+  }
+  function envPut(c, x, y, w, h, col) { if (++NG > MAXG) return false; c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); return true; }   // one particle (counts against the glyph budget)
+  function envClip(c) { var A0 = PAD - TAB, w = (CTX.w || 3) * BW + 2 * TAB, h = (CTX.h || 3) * BH + 2 * TAB; c.save(); c.beginPath(); c.rect(A0, A0, w, h); c.clip(); }
+  /** clip to the board minus these cells' bodies ([[x, y], ...]): a pool or a glow seen around a piece, never over it */
+  function envClipOut(c, cells) { c.beginPath(); c.rect(PAD - TAB, PAD - TAB, (CTX.w || 3) * BW + 2 * TAB, (CTX.h || 3) * BH + 2 * TAB);
+    cells.forEach(function (q) { c.rect(PAD + q[0] * BW + BW, PAD + q[1] * BH, -BW, BH); }); c.clip('evenodd'); }
+  /** an afterimage of a piece (its own board art) centred at art pixel (x, y) */
+  function envGhost(c, id, x, y, a) { var cc = cellCv(id); if (!cc || !cc[1] || !cc[1].width) return; c.globalAlpha = Math.max(0, Math.min(1, a)); c.drawImage(cc[1], Math.round(x - PW / 2), Math.round(y - PH / 2), PW, PH); c.globalAlpha = 1; }
+  /** shake a piece on the board (its own canvas, moved by CSS; reset when the effect ends or is cancelled) */
+  function envShake(id, dx, dy, r) { var cc = cellCv(id), it = this && this.it; if (!cc || !cc[1]) return; if (it) (it.sh = it.sh || {})[id] = 1;
+    cc[1].style.transform = 'translate(' + (dx * 100 / PW).toFixed(2) + '%,' + (dy * 100 / PH).toFixed(2) + '%) rotate(' + (r || 0).toFixed(4) + 'rad)'; }
+  function envUnshake(it) { Object.keys(it.sh || {}).forEach(function (id) { var cc = cellCv(id); if (cc && cc[1]) cc[1].style.transform = ''; }); it.sh = {}; }
+  function drawEnvPlace(it, t) {
+    var dt = (t - it.t0) / it.k, W = it.W; if (dt > 600) { resetCell(it); return false; }
+    var ps = W.ps ? W.ps(dt, envA(it)) : null, cc = cellCv(it.id);
+    if (cc && cc[1] && ps) { var sc = (cc[1].getBoundingClientRect().width || PW) / PW, st = cc[1].style, q = ps.q || 0;
+      cc[0].style.zIndex = '6';
+      st.transform = 'translate(' + (ps.x * 100 / PW).toFixed(2) + '%,' + (ps.y * 100 / PH).toFixed(2) + '%) rotate(' + ps.r.toFixed(4) + 'rad) scale(' + (ps.s * (1 + q)).toFixed(4) + ',' + (ps.s * (1 - q)).toFixed(4) + ')';
+      st.opacity = String(Math.round(ps.a * 100) / 100);
+      st.filter = ps.sh > .02 ? 'drop-shadow(' + (3 * ps.sh * sc).toFixed(1) + 'px ' + (5 * ps.sh * sc).toFixed(1) + 'px 0 rgba(0,0,0,.35))' : ''; }
+    if (it.full && W.pl) { envClip(g2); try { W.pl(g2, envA(it), dt); } finally { g2.restore(); g2.globalAlpha = 1; } }
+    if (ps && ps.hit) { var A = envA(it); g2.strokeStyle = '#ffffff'; g2.lineWidth = 2; g2.strokeRect(Math.round(A.cx - BW / 2) - 1, Math.round(A.cy - BH / 2) - 1, BW + 2, BH + 2); }
+    return true;
+  }
+  function drawEnv(it, t) {
+    var dt = (t - it.t0) / it.k; if (dt < 0) return true; if (dt > 1200) { envUnshake(it); return false; }
+    envClip(g2); try { it.W.fi(g2, envA(it), dt); } finally { g2.restore(); g2.globalAlpha = 1; }
+    return true;
+  }
+  /** a piece's board cell (column, row) from the page (the cell's centre over the overlay); null when it is not on the board now */
+  function gridOf(id) {
+    var cc = cellCv(id); if (!cc || !cv) return null;
+    var r = cc[0].getBoundingClientRect(), R = cv.getBoundingClientRect(), s = R.width / cv.width; if (!s || !r.width) return null;
+    var x = Math.floor(((r.left + r.width / 2 - R.left) / s - PAD) / BW), y = Math.floor(((r.top + r.height / 2 - R.top) / s - PAD) / BH);
+    return isFinite(x) && isFinite(y) ? [x, y] : null;
+  }
+  function envItem(W, ev, p, chain, i, t0, k) {
+    var q = chain[i - 1] || chain[i + 1] || null, it = { ty: 'env', W: W, p: p, id: p.id, t0: t0, k: k, fr: ev['for'] === 'foe' ? 'foe' : 'me', dir: ev.dir || p.dir || 'R' };
+    if (q && q.x !== undefined) it.tg = { x: q.x, y: q.y, id: q.id };
+    if (ev.moved && ev.moved.x !== undefined) { var d = { L: [-1, 0], R: [1, 0], T: [0, -1], B: [0, 1] }[it.dir] || [1, 0]; it.mv = { id: ev.moved.id, tx: ev.moved.x, ty: ev.moved.y, fx: ev.moved.x - d[0], fy: ev.moved.y - d[1] }; }
+    (ev.falls || []).forEach(function (f) { var gq = gridOf(f.id); if (gq && Math.abs(gq[0] - p.x) + Math.abs(gq[1] - p.y) === 1) (it.falls = it.falls || []).push({ id: f.id, x: gq[0], y: gq[1] }); });
+    return it;
+  }
+  function mudNext(p, t0, k) {
+    if (!BOARD) return;
+    [].slice.call(BOARD.querySelectorAll('.pfb-cell.k-mud[data-id]')).forEach(function (c) { var id = c.getAttribute('data-id'), gq = gridOf(id);
+      if (gq && Math.abs(gq[0] - p.x) + Math.abs(gq[1] - p.y) === 1) add({ ty: 'env', W: WENV.mud, p: { id: id, x: gq[0], y: gq[1], kind: 'mud' }, id: id, t0: t0, k: k, fr: p.by === 'foe' ? 'foe' : 'me', tg: { x: p.x, y: p.y, id: p.id } }); });
+  }
+  var DRAW = { pl: drawPlace, own: drawOwn, car: drawCar, aoe: drawAoe, env: drawEnv };
   function frame() {
     raf = 0; var t = now(), i, keep = [];
     if (!cv || !cv.parentNode || (BOARD && !BOARD.contains(cv))) attach(null);
     if (!g2) { ACT = []; return; }
     g2.setTransform(1, 0, 0, 1, 0, 0); g2.clearRect(0, 0, cv.width, cv.height); g2.imageSmoothingEnabled = false; NG = 0; ST.frames++;
     for (i = 0; i < ACT.length; i++) { var it = ACT[i], on = false;
-      try { on = DRAW[it.ty](it, t); } catch (e) { ST.err++; ST.msg = it.ty + ': ' + String(e && e.message || e); on = false; if (it.ty === 'pl') try { resetCell(it); } catch (e2) {} }
+      try { on = DRAW[it.ty](it, t); } catch (e) { ST.err++; ST.msg = it.ty + ': ' + String(e && e.message || e); on = false; if (it.ty === 'pl') try { resetCell(it); } catch (e2) {} if (it.sh) try { envUnshake(it); } catch (e3) {} }
       g2.globalAlpha = 1; if (on) keep.push(it); }
     ACT = keep; if (ACT.length) { ST.drawn++; kick(); } else g2.clearRect(0, 0, cv.width, cv.height);
   }
@@ -235,7 +291,8 @@
       var m = mode(); if (m === 'off' || !p || p.x === undefined) return; load();
       try { attach(null, ctx); var root = ctx && ctx.root; if (root) root.classList.add('pfa-place');
         ACT = ACT.filter(function (a) { return !(a.ty === 'pl' && a.id === p.id); });
-        add({ ty: 'pl', id: p.id, p: p, L: look(p, ctx && ctx.slug), t0: now(), k: kOf(ctx && ctx.step) }); LAST0 = now(); ST.place++; } catch (e) { ST.err++; }
+        var Lp = look(p, ctx && ctx.slug), Wp = Lp.env ? WENV[p.kind || p.env] : null;
+        add({ ty: 'pl', id: p.id, p: p, L: Lp, W: Wp && Wp.ps ? Wp : null, full: m === 'full', t0: now(), k: kOf(ctx && ctx.step) }); LAST0 = now(); ST.place++; } catch (e) { ST.err++; }
     },
     /** a piece fires at its replay step: its own edges, then the carrier to the next piece of its chain (chain = the pieces in firing order) */
     fire: function (ev, p, chain, ctx) {
@@ -247,7 +304,11 @@
         if (i < 0) { chain = [p]; i = 0; }
         var cells = chain.map(function (q) { return { id: q.id, x: q.x, y: q.y, e: edges(q) }; }), P = chainP(cells), L = look(p, ctx && ctx.slug), k = kOf(ctx && ctx.step), t0 = now();
         var own = P.runs[i] && P.runs[i].length ? null : chainP([cells[i]]);   // no outer edge of its own (inside a block of pieces): its own cell's edge
-        add({ ty: 'own', P: P, o: i, own: own, L: L, t0: t0, k: k, seed: ((+p.id || 0) * 7 + 3) % 997 }); ST.fire++;
+        var W = L.env ? WENV[p.kind || p.env] : null;
+        if (W && W.fi) add(envItem(W, ev || {}, p, chain, i, t0, k));   // 2.7.56: the environment's piece plays its kind's own fire effect
+        else add({ ty: 'own', P: P, o: i, own: own, L: L, t0: t0, k: k, seed: ((+p.id || 0) * 7 + 3) % 997 });
+        ST.fire++;
+        if (ev && ev.mud && !L.env && WENV.mud && WENV.mud.fi) mudNext(p, t0, k);   // a piece next to a Mud fires (it counts a quarter less): the Mud plays at it
         if (i + 1 < chain.length) { add({ ty: 'car', P: P, o: i, o2: i + 1, L: L, t0: t0 + 250 * k, k: k }); ST.car++; }
         LAST0 = t0;
       } catch (e) { ST.err++; }
@@ -260,7 +321,7 @@
     },
     /** skip, rewind, a new replay: everything goes at once (nothing is state, so nothing needs fast-forwarding) */
     cancel: function () {
-      ACT.forEach(function (it) { if (it.ty === 'pl') try { resetCell(it); } catch (e) {} });
+      ACT.forEach(function (it) { if (it.ty === 'pl') try { resetCell(it); } catch (e) {} if (it.sh) try { envUnshake(it); } catch (e) {} });
       ACT = []; ST.cancel++; if (raf) { (window.cancelAnimationFrame || clearTimeout)(raf); raf = 0; }
       if (g2 && cv) g2.clearRect(0, 0, cv.width, cv.height);
     },
@@ -268,7 +329,11 @@
     active: function () { return ACT.length; },
     /** tests and frame captures: freeze the clock ms after the latest start (null = live again) */
     seek: function (ms) { FROZEN = ms === null || ms === undefined ? null : LAST0 + (+ms); if (FROZEN !== null && ACT.length) { if (raf) { (window.cancelAnimationFrame || clearTimeout)(raf); raf = 0; } frame(); } else kick(); },
-    look: function (p, slug) { return look(p, slug); }, ready: function () { return !!D; }, _prep: function (j) { prep(j); }, load: load, perimeter: perimeter, canvas: function () { return cv; }
+    look: function (p, slug) { return look(p, slug); }, envKinds: function () { return Object.keys(WENV).sort(); },
+    /** tests: draw one kind's place motion ('ps', returns it), place effect ('pl') or fire effect ('fi') at ms on any 2D context c; returns the particles drawn */
+    envDraw: function (kind, ph, ms, c, o) { var W = WENV[kind]; if (!W) return -1; o = o || {}; if (o.w) { CTX.w = o.w; CTX.h = o.h || o.w; }
+      var p = { id: 5, x: o.x === undefined ? 1 : o.x, y: o.y === undefined ? 1 : o.y, kind: kind, dir: o.dir }, it = { W: W, p: p, id: 5, tg: o.tg, mv: o.mv, falls: o.falls, fr: o.fr, dir: o.dir };
+      NG = 0; var A = envA(it); if (ph === 'ps') return W.ps(ms, A); (ph === 'pl' ? W.pl : W.fi)(c, A, ms); return NG; }, ready: function () { return !!D; }, _prep: function (j) { prep(j); }, load: load, perimeter: perimeter, canvas: function () { return cv; }
   };
   load();
 })();

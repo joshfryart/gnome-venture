@@ -356,4 +356,5 @@ tests/pfanim.sh                          # data round trip (tests/pfanim_unit.js
   (fire: own edges + carrier to the next piece of `data.fx` order; a boss AOE landing pulses its cells), `pfaReset` on skip / rewind, `PFAnim.attach` after each render.
   Effects scale with the step (k = step / 950, .3..1) and never add a timer: the replay's step times are identical with effects on and off (tested).
 - Setting: help sheet "Piece effects: Full / Light / Off", per device in localStorage `pfvfx` like the animation speed (`pfvspd`); no choice = Full, or Off under prefers-reduced-motion.
+- Environment pieces (2.7.56): `motifs/weather_env.js` registers each of the 8 kinds with `PFA.env(kind, { ps, pl, fi })` (place motion, place effect ~600 ms, fire effect ~1200 ms); the engine plays them instead of the family look (Light = place motion only). A piece next to a Mud that fires (`ev.mud`) makes the Mud play at it. Wind pushes / Tremor falls are afterimages and shakes only.
 - Budget: the JSON stays well under 250 KB for all 319 creatures (short keys, one theme per creature, motif refs by index, only what differs from the rules is stored).
