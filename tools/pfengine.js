@@ -649,6 +649,7 @@
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
   var PFB_ENV_BIG = ['quake', 'spring'], PFB_ENV_BIG_SIZES = ['large', 'boss'], PFB_QUAKE_N = 2, PFB_SPRING = 0.10;   // 2.7.55: Tremor and Spring, large and boss decks only
+  var PFB_ENV_SMALLB = 9;   // 2.7.55: 3x3 env fallback
   var PFB_ENV_MAX = { small: 1, medium: 3, large: 5, boss: 5 }, PFB_ENV_ONCE = { small: 1, medium: 0, large: 0, boss: 0 };   // 2.7.55 field cap; a small fight's env piece fires once
   var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn', 'quake', 'spring'], PFB_ENV_N = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.20, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
   var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
@@ -912,9 +913,24 @@
     if (iso.length) { iso.sort(function (a, b) { return b[0] - a[0] || a[1] - b[1] || a[2] - b[2]; }); return iso.slice(0, 3).map(function (o) { return [o[2], o[1]]; }); }
     var fit = [], link = [];
     for (y = 0; y < pfbH(s); y++) for (x = 0; x < pfbW(s); x++) { var j = check(s, tile, x, y); if (j === null) continue; fit.push([x, y]); if (hasLink(j)) link.push([x, y]); }
+    if (!fit.length && pfbW(s) * pfbH(s) <= PFB_ENV_SMALLB) {   // 2.7.55 a 3x3 board: the free cells with the fewest neighbours (envPlace makes the misfit sides flat)
+      var best = 9, o = [];
+      for (y = 0; y < pfbH(s); y++) for (x = 0; x < pfbW(s); x++) {
+        if (has(s.cell, x + ',' + y)) continue;
+        var nb = 0; for (k in PFB_SIDE) { sd = PFB_SIDE[k]; if (pieceAt(s, x + sd[0], y + sd[1])) nb++; }
+        if (nb < best) { best = nb; o = []; } if (nb === best) o.push([x, y]);
+      }
+      return o;
+    }
     var seen = {}; link.forEach(function (c) { seen[c[0] + ',' + c[1]] = 1; });
     var free = fit.filter(function (c) { return !seen[c[0] + ',' + c[1]]; });
     return free.length ? free : fit;
+  }
+  function envFit(s, tile, x, y) {   // 2.7.55 (pfb_env_fit): the sides that do not fit turn flat
+    if (check(s, tile, x, y) !== null) return tile;
+    var e = edges(tile);
+    for (var sd in PFB_SIDE) { var d = PFB_SIDE[sd], n = pieceAt(s, x + d[0], y + d[1]); if (n && !joint(e[sd], edges(n.tile)[d[2]])[0]) tile.ed[sd] = ['flat', null]; }
+    return tile;
   }
   function envWindDir(s, x, y) {
     var ok = [];
@@ -937,6 +953,7 @@
       var cs = full ? [] : envCells(s, tile);
       if (!cs.length) { var P = { k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }; if (full) P.full = 1; if (capd) P.cap = cap; P.now = envNow(s); s.envlog.push(P); keep.push(tile); return; }
       var c = cs[rand(s, cs.length)], x = c[0], y = c[1];
+      tile = envFit(s, tile, x, y);   // 2.7.55
       if (tile.env === 'wind') tile.dir = envWindDir(s, x, y);
       var id = ++s.pid; s.seq++;
       s.pcs[id] = { id: id, by: 'env', tile: tile, x: x, y: y, born: s.round + 1, seq: s.seq };

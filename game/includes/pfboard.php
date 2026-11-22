@@ -51,6 +51,7 @@ const PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn', 'quake'
 const PFB_ENV_BIG = ['quake', 'spring'], PFB_ENV_BIG_SIZES = ['large', 'boss'];   // 2.7.55 (ASSUMPTION, claude/proposal-board-sizes-2.7.55.md sec 3): these kinds are only in large and boss decks, whatever a region's lean says
 const PFB_QUAKE_N = 2, PFB_SPRING = 0.10;     // Tremor: up to this many of the other side's pieces touching it fall off the board; Spring: the side that fires it recovers this share of its maximum
 const PFB_ENV_MAX = ['small' => 1, 'medium' => 3, 'large' => 5, 'boss' => 5];   // 2.7.55 field cap: environment pieces standing at once (rule envmax; its own Plant Brambles do not count); while it is reached the face-up piece waits
+const PFB_ENV_SMALLB = 9;   // 2.7.55: a board of this many cells or fewer (3x3) lets an environment piece that fits nowhere go on the free cell with the fewest neighbours, its misfit sides flat
 const PFB_ENV_ONCE = ['small' => 1, 'medium' => 0, 'large' => 0, 'boss' => 0];   // 2.7.55 (rule envonce): a small fight's environment piece leaves after it fires once, so the next one comes in
 const PFB_ENV_N = ['small' => 1, 'medium' => 2, 'large' => 2, 'boss' => 2];   // 2.7.06 (Josh: long fights got boring, one environment piece a turn was the only place to play): TWO a round again (1 since 2.6.98).   // pieces the environment places a round (Josh 2026-11-14: 1 everywhere; 2.6.75-2.6.97 had 2); as many lie face up a round ahead
 const PFB_ENV_CAP = 0.7;                      // the environment places nothing while this share of the board's cells (or more) is taken
@@ -491,7 +492,20 @@ function pfb_env_cells(array $s, array $tile): array
     if ($iso) { usort($iso, fn($a, $b) => [$b[0], $a[1], $a[2]] <=> [$a[0], $b[1], $b[2]]); return array_map(fn($o) => [$o[2], $o[1]], array_slice($iso, 0, 3)); }
     $fit = []; $link = [];
     for ($y = 0; $y < pfb_h($s); $y++) for ($x = 0; $x < pfb_w($s); $x++) { $j = pfb_check($s, $tile, $x, $y); if ($j === null) continue; $fit[] = [$x, $y]; if (pfb_has_link($j)) $link[] = [$x, $y]; }
+    if (!$fit && pfb_w($s) * pfb_h($s) <= PFB_ENV_SMALLB) {   // 2.7.55 a 3x3 board: when it fits nowhere, the free cells with the fewest neighbours (pfb_env_place makes the sides that do not fit flat)
+        $best = 9; $o = [];
+        for ($y = 0; $y < pfb_h($s); $y++) for ($x = 0; $x < pfb_w($s); $x++) { if (isset($s['cell']["$x,$y"])) continue; $n = 0; foreach (PFB_SIDE as [$dx, $dy]) if (pfb_at($s, $x + $dx, $y + $dy)) $n++; if ($n < $best) { $best = $n; $o = []; } if ($n === $best) $o[] = [$x, $y]; }
+        return $o;
+    }
     return array_values(array_filter($fit, fn($c) => !in_array($c, $link, true))) ?: $fit;
+}
+/** 2.7.55: an environment piece put on a cell where some of its edges do not fit (a 3x3 board, pfb_env_cells): those sides turn flat (they fit, and never link). */
+function pfb_env_fit(array $s, array $tile, int $x, int $y): array
+{
+    if (pfb_check($s, $tile, $x, $y) !== null) return $tile;
+    $e = pfb_edges($tile);
+    foreach (PFB_SIDE as $side => [$dx, $dy, $opp]) { $n = pfb_at($s, $x + $dx, $y + $dy); if ($n && !pfb_joint($e[$side], pfb_edges($n['tile'])[$opp])[0]) $tile['ed'][$side] = ['flat', null]; }
+    return $tile;
 }
 
 /** Wind: the arrow it gets when it is placed. A side where a piece stands with a free cell behind it, if there is one (L, R, T, B order, one drawn by the seeded roll); else any side. */
@@ -522,6 +536,7 @@ function pfb_env_place(array &$s): void
         $cells = $full ? [] : pfb_env_cells($s, $tile);
         if (!$cells) { $s['envlog'][] = ['k' => 'pass'] + $P + ['kind' => $tile['env'], 'n' => $tile['n']] + ($full ? ['full' => 1] : []) + ($capd ? ['cap' => $cap] : []) + ['now' => pfb_env_now($s)]; $keep[] = $tile; continue; }
         [$x, $y] = $cells[pf_rand($s, count($cells))];
+        $tile = pfb_env_fit($s, $tile, $x, $y);   // 2.7.55: on a 3x3 board a side that does not fit turns flat
         if ($tile['env'] === 'wind') $tile['dir'] = pfb_env_wind_dir($s, $x, $y);
         $id = ++$s['pid']; $s['seq']++;
         $s['pcs'][$id] = ['id' => $id, 'by' => 'env', 'tile' => $tile, 'x' => $x, 'y' => $y, 'born' => $s['round'] + 1, 'seq' => $s['seq']];
