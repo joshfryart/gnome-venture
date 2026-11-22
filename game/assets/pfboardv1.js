@@ -1293,10 +1293,10 @@
     var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
     el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits. It fades when your turn starts, unless Hold keeps it');
   }
-  function setFoeGuard(g) {   // the creature's guard beside its bars: hidden at 0, follows the replay as it builds guard and your Hurts are blocked
+  function setFoeGuard(g) {   // the creature's guard beside its bars: dimmed at 0, follows the replay as it builds guard and your Hurts are blocked
     var el = root.querySelector('.pf-fguard'); if (!el || g === null || g === undefined || g === '') return; g = Math.max(0, +g);
     var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
-    el.hidden = g <= 0; el.setAttribute('aria-label', 'The creature\u2019s guard ' + g + ': it soaks up your Hurt pieces first. It clears when its next turn starts.');
+    el.classList.toggle('pf-fguard-0', g <= 0); el.setAttribute('aria-label', 'The creature\u2019s guard ' + g + ': it soaks up your Hurt pieces first. It clears when its next turn starts.');
   }
   function setHp(v) {
     if (v === null || v === undefined || v === '') return;

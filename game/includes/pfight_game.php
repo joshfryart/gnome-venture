@@ -622,11 +622,11 @@ function pfight_guard_html(int $g): string
     return '<span class="pf-guard' . ($g > 0 ? '' : ' pf-guard-0') . '" role="img" aria-label="Guard ' . $g . ': blocks the creature\'s hits until your next turn" title="Guard: blocks the creature\'s hits until your next turn"><span class="pfx-fill gfill" data-w="' . min(100, (int)pf_round($g * 100 / 16)) . '"></span><b>' . $g . '</b></span>';
 }
 
-/** The creature's guard beside its bars (v1 Josh 2.7.48: the player has one, the creature did not): same blue bar as yours; absorbs your Hurts and clears when its next turn begins. Hidden at 0; the board page moves it with the replay (assets/pfboard.js setFoeGuard). */
+/** The creature's guard beside its bars (v1 Josh 2.7.48: the player has one, the creature did not): same blue bar as yours; absorbs your Hurts and clears when its next turn begins. Dimmed at 0 like yours; the board page moves it with the replay (assets/pfboard.js setFoeGuard). */
 function pfight_foeguard_html(int $g): string
 {
     $lab = 'The creature\'s guard ' . $g . ': it soaks up your Hurt pieces first. It clears when its next turn starts.';
-    return '<span class="pf-fguard" role="img" aria-label="' . e($lab) . '" title="' . e($lab) . '"' . ($g > 0 ? '' : ' hidden') . '><span class="pfx-fill gfill" data-w="' . min(100, (int)pf_round($g * 100 / 16)) . '"></span><b>' . $g . '</b></span>';
+    return '<span class="pf-fguard' . ($g > 0 ? '' : ' pf-fguard-0') . '" role="img" aria-label="' . e($lab) . '" title="' . e($lab) . '"><span class="pfx-fill gfill" data-w="' . min(100, (int)pf_round($g * 100 / 16)) . '"></span><b>' . $g . '</b></span>';
 }
 
 function pfight_bar_html(array $v): string
