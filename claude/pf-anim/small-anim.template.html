@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Small creature piece animations</title>
+<title>@@SIZEWORD@@ creature piece animations</title>
 <style>
-/* Mock-up, built by claude/pf-anim/build_small_anim.py from claude/pf-anim/small-creatures.json (data embedded, no network). Stand-in pieces (flat colour, not the real art);
+/* Mock-up, built by claude/pf-anim/build_small_anim.py from claude/pf-anim/@@SIZE@@-creatures.json (data embedded, no network). Stand-in pieces (flat colour, not the real art);
    every effect is a stateless function of time (same rule as claude/proposal-piece-animations.md). Variant shown: creature-heavy (rougher, heavier, duller). */
 :root{--ink:#2a1a10;--cream:#f2e4c0;--gold:#e8a317;--felt:#4a3322;--bg:#f1ece0;--card:#fff3c8;--mut:#74462a;--line:#2a1a10;--sel:#ffe9a8;--warn:#b8442c;--pale:#fff8e0}
 *{box-sizing:border-box}
@@ -38,8 +38,8 @@ canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background
 .mt{display:inline-block;padding:0 5px;border:1px solid var(--ink);font-size:.72rem;background:#e8f0d0}
 .gen .mt{background:#eee;color:#777}
 </style></head><body>
-<h1>Small creature piece animations (3x3 board)</h1>
-<p class="s">67 small creatures. Pick one: its pieces are put down one after another (raise, click, wiggle, sound lines), then played as a chain along the OUTER edge of the chain on a 3x3 board. Creature-heavy variant: harder slam, bigger wobble, duller colours. Stand-in pieces; the gold ring and number is the resolve stand-in.
+<h1>@@SIZEWORD@@ creature piece animations (@@COLS@@x@@ROWS@@ board)</h1>
+<p class="s">@@N@@ @@SIZE@@ creatures. Pick one: its pieces are put down one after another (raise, click, wiggle, sound lines), then played as a chain along the OUTER edge of the chain on a @@COLS@@x@@ROWS@@ board. Creature-heavy variant: harder slam, bigger wobble, duller colours. Stand-in pieces; the gold ring and number is the resolve stand-in.
  <b>Themed</b> look (default): every creature has its own palette, motif (glyph + motion + extra), place personality and sound lines (claude/pf-anim/themes.json); <b>Generic</b> shows the 16 shared families for comparison.</p>
 <div class="bar"><input type="search" id="q" placeholder="Filter: name, class, ability, motif" aria-label="Filter creatures"><select id="ff" aria-label="Family filter"><option value="">All families</option></select><span id="cnt" class="s"></span></div>
 <div id="gal" role="list"></div>
@@ -48,7 +48,7 @@ canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background
   <div class="bar"><button id="rp">Replay</button>
    <label>Look&nbsp;<select id="lk"><option value="themed" selected>Themed</option><option value="generic">Generic</option></select></label>
    <label>Speed&nbsp;<select id="sp"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select></label>
-   <label>Shape&nbsp;<select id="shp"><option value="single">Single</option><option value="row2">Row of 2</option><option value="row3">Row of 3</option><option value="l3">L of 3</option><option value="sq2" selected>2x2</option></select></label>
+   <label>Shape&nbsp;<select id="shp"></select></label>
    <label>At&nbsp;<select id="pos"></select></label>
    <label>From piece&nbsp;<select id="st"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option></select></label>
    <label>Pieces&nbsp;<select id="set"><option value="u">Unique 4</option><option value="a">All 8</option></select></label>
@@ -65,10 +65,14 @@ canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background
 var D = /*__DATA__*/null;
 var FAM = D.families, CR = D.creatures, EN = D.entries, MOTIF = D.motifs, PERS = D.pers, SNDS = D.snds, byC = {};
 EN.forEach(function (e) { (byC[e.creature] = byC[e.creature] || []).push(e); });
-var BW = 56, BH = 47, PAD = 22, COLS = 3, ROWS = 3, W = COLS * BW + 2 * PAD, H = ROWS * BH + 2 * PAD;
+var BW = /*__BW__*/56, BH = /*__BH__*/47, PAD = 22, COLS = /*__COLS__*/3, ROWS = /*__ROWS__*/3, W = COLS * BW + 2 * PAD, H = ROWS * BH + 2 * PAD;
 var INK = '#2a1a10', CREAM = '#f2e4c0', GOLD = '#e8a317';
 var TYPE = { hurt: '#b8442c', guard: '#4f7fa8', heal: '#5f9a4a', charm: '#c46a9b', trick: '#7a5aa8' };
-var SHAPES = { single: [[0, 0]], row2: [[0, 0], [1, 0]], row3: [[0, 0], [1, 0], [2, 0]], l3: [[0, 0], [0, 1], [1, 1]], sq2: [[0, 0], [1, 0], [1, 1], [0, 1]] };
+/* shape picker: [label, cells, smallest board edge it is offered on]. chain4/chain5 = bent chains for the bigger boards (cells in piece order). */
+var SHAPE_DEFS = [['single', 'Single', [[0, 0]], 1], ['row2', 'Row of 2', [[0, 0], [1, 0]], 2], ['row3', 'Row of 3', [[0, 0], [1, 0], [2, 0]], 3], ['l3', 'L of 3', [[0, 0], [0, 1], [1, 1]], 2],
+  ['sq2', '2x2', [[0, 0], [1, 0], [1, 1], [0, 1]], 2], ['chain4', 'Bent chain of 4', [[0, 0], [1, 0], [2, 0], [2, 1]], 4], ['chain5', 'Bent chain of 5', [[0, 0], [1, 0], [2, 0], [2, 1], [2, 2]], 5]];
+var SHAPES = {};
+SHAPE_DEFS.forEach(function (d) { if (Math.min(COLS, ROWS) >= d[3]) SHAPES[d[0]] = d[2]; });
 function hexmix(a, b, t) { var i, o = '#'; for (i = 1; i < 7; i += 2) { var v = Math.round(parseInt(a.substr(i, 2), 16) * (1 - t) + parseInt(b.substr(i, 2), 16) * t); o += (v < 16 ? '0' : '') + v.toString(16); } return o; }
 function hash(n) { n = Math.sin(n * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); }
 function eo(u) { u = Math.min(1, Math.max(0, u)); return 1 - (1 - u) * (1 - u); }
@@ -180,7 +184,7 @@ function drawPiece(c, p, ps, cx, cy, col, acc) {
   c.fillStyle = CREAM; c.font = 'bold 10px monospace'; c.textAlign = 'left'; c.fillText(String(p.v), x0 + 7, y0 + 12);
   c.fillStyle = acc; c.fillRect(x0 + 21, y0 + 5, 14, 14); c.fillStyle = col; c.fillRect(x0 + 23, y0 + 7, 10, 10);
   var words = p.n.split(' '), lines = [], cur = ''; words.forEach(function (w) { if (cur && (cur + ' ' + w).length > 10) { lines.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; }); if (cur) lines.push(cur); lines = lines.slice(0, 2);
-  c.fillStyle = CREAM; c.textAlign = 'center'; lines.forEach(function (ln, i) { var fs = 9; do { c.font = 'bold ' + fs + 'px monospace'; fs--; } while (c.measureText(ln).width > 50 && fs > 5); c.fillText(ln, 0, 8 + i * 10); }); c.textAlign = 'left';
+  c.fillStyle = CREAM; c.textAlign = 'center'; lines.forEach(function (ln, i) { var fs = 9; do { c.font = 'bold ' + fs + 'px monospace'; fs--; } while (c.measureText(ln).width > BW - 6 && fs > 5); c.fillText(ln, 0, 8 + i * 10); }); c.textAlign = 'left';
   c.strokeStyle = INK; c.lineWidth = 2; c.strokeRect(x0 + 1, y0 + 1, BW - 2, BH - 2);
   c.fillStyle = INK; for (var q = 0; q < BW; q += 8) { c.fillRect(x0 + q, y0, 3, 3); c.fillRect(x0 + q + 4, y0 + BH - 3, 3, 3); }
   [['L', -BW / 2, 0, -1, 0], ['R', BW / 2, 0, 1, 0], ['T', 0, -BH / 2, 0, -1], ['B', 0, BH / 2, 0, 1]].forEach(function (d) {
@@ -250,6 +254,7 @@ function resolveFx(c, cx, cy, p, v) {
    A piece's own-edge effect = layout (from type/tag: strike, lance, slam, fall, hold, scatter, bristle, rise, feint, snare) x motif (glyph + motion + extra);
    its chain effect = the motif's carrier. All stateless functions of time; hash noise only; no allocation inside the draw loops (Q/G scratch objects);
    at most MAXG glyphs per frame (NG counter, reset each frame). The 16 families above stay the fallback (Generic look). ---------- */
+var XG = {}, XM = {}, HLP = null;   /* extra glyphs / motions registered by motif modules (PFA.glyph / PFA.motion) */
 var Q = { x: 0, y: 0, nx: 0, ny: 0 }, G = { s: 0, d: 0, t: 0, up: 0, fr: 0, vis: 1, u: 0 }, NG = 0, MAXG = 220, DEW = '#cfeeff', WHITE = '#ffffff';
 function px(c, x, y, col) { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), 1, 1); }
 function bx(c, x, y, w, h, col) { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); }
@@ -259,6 +264,7 @@ function stip(v, k, p) { return v >= 1 || (v > 0 && hash(k * 3.1 + Math.floor(p 
 /* glyph = one small pixel-art sprite at the demo's resolution. z 0..2 = size step (heavy +1), fr = animation frame from the motion */
 function glyph(c, g, x, y, z, fr, C, A, H, tx, ty, nx, ny) {
   if (++NG > MAXG) return; x = Math.round(x); y = Math.round(y); var i, o, d;
+  if (XG[g]) { XG[g](c, x, y, z, fr, C, A, H, tx, ty, nx, ny, hlp()); return; }
   switch (g) {
   case 'drop': sq(c, x, y, 3 + z, C); px(c, x, y - 2 - z, C); px(c, x - 1, y - 1, H); px(c, x + 1, y + 1, A); break;
   case 'bead': sq(c, x, y, 3 + z, C); px(c, x - 1, y - 1, WHITE); px(c, x + 1, y + 1 + (z >> 1), A); break;
@@ -348,6 +354,7 @@ function lay(L, p, f, ph, k) {
 /* motion: the creature's way of moving, added on top of the layout (pp = time x speed) */
 function mot(m, pp, k, ph) {
   var w, rr;
+  if (XM[m]) { XM[m](G, pp, k, ph, hlp()); return; }
   switch (m) {
   case 'bounce': G.up += Math.abs(Math.sin((pp * 3 + ph) * Math.PI)) * 5; G.fr = (Math.floor(pp * 12) + k) & 1; break;
   case 'hop': G.up += Math.abs(Math.sin((pp * 2 + ph) * Math.PI)) * 10; G.fr = G.up > 5 ? 1 : 0; break;
@@ -433,7 +440,9 @@ function ext(c, x, P, s0, len, ri, p, pp, col, acc, hi, seed) {
   }
 }
 /* own-edge effect of one piece (themed): its runs on the chain's outer loop, glyphs placed by layout x motion, then the run extra */
+function hlp() { return HLP || (HLP = { px: px, bx: bx, sq: sq, ln: ln, plus: plus, ringpx: ringpx, hash: hash, hexmix: hexmix, eo: eo, stip: stip, glyph: glyph, Q: Q, G: G, lay: lay, mot: mot, ext: ext, carHead: carHead, WHITE: WHITE, DEW: DEW }); }
 function themedOwn(c, P, o, th, M, p, seed, h, col, acc, hi) {
+  if (M.draw) { M.draw(c, { P: P, o: o, runs: P.runs[o], th: th, mp: th.mp, M: M, p: p, seed: seed, h: h, z: Math.min(2, th.mp.z + (h ? 1 : 0)), col: col, acc: acc, hi: hi }, hlp()); return; }   /* module motif */
   var runs = P.runs[o], mp = th.mp, z = Math.min(2, mp.z + (h ? 1 : 0)), pp = p * mp.spd, ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, lx = 0, ly = 0, has, tie = mp.x === 'thread' || mp.lay === 'snare';
   for (ri = 0; ri < runs.length; ri++) { r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(8, Math.round(len / M.gap))); if (mp.lay === 'lance') n = Math.min(n, 4); has = false;
     for (k = 0; k < n; k++) { f = (k + .5) / n; ph = hash(seed * 13 + k * 7 + ri * 31);
@@ -454,6 +463,7 @@ function carHead(c, P, s, g, z, f, ox, oy, col, acc, hi) { P.atq(s); glyph(c, g,
 function themedCar(c, P, o, o2, th, M, p, h, col, acc, hi) {
   var a = P.anchor[o], d = P.anchor[o2] - a; d = ((d % P.len) + P.len) % P.len; if (d > P.len / 2) d -= P.len;
   var hh = eo(p), z = Math.min(2, th.mp.z + (h ? 1 : 0)), fr = Math.floor(p * 16) & 1, k, u, X, Y, x0, y0, g = M.g;
+  if (M.carDraw && th.carrier === 'custom') { M.carDraw(c, { P: P, a: a, d: d, hh: hh, p: p, h: h, z: z, fr: fr, th: th, M: M, col: col, acc: acc, hi: hi }, hlp()); return; }   /* module motif chain effect */
   switch (th.carrier) {
   case 'train': for (k = 0; k < 5; k++) { u = hh - k * .07; if (u < 0) break; P.atq(a + d * u); glyph(c, g, Q.x + Q.nx * 5, Q.y + Q.ny * 5 - ((fr + k) & 1), z, (fr + k) & 1, col, acc, hi, -Q.ny, Q.nx, Q.nx, Q.ny); } break;
   case 'comet': for (k = 6; k >= 1; k--) { u = hh - k * .035; if (u < 0) continue; P.atq(a + d * u); sq(c, Q.x + Q.nx * 4, Q.y + Q.ny * 4, k < 3 ? 2 : 1, k < 3 ? col : acc); } carHead(c, P, a + d * hh, g, z, fr, 0, 0, col, acc, hi); break;
@@ -507,10 +517,10 @@ function uniq(slug) { return byC[slug].filter(function (e) { return e.layer === 
 function renderGal() {
   var q = qEl.value.trim().toLowerCase(), ff = ffEl.value, n = 0; gal.innerHTML = '';
   CR.forEach(function (c) {
-    var txt = (c.name + ' ' + c.cls + ' ' + c.ab.join(' ') + ' ' + c.lands + ' ' + c.theme.motif + ' ' + (c.theme.motif2 || '') + ' ' + c.theme.place_personality).toLowerCase();
+    var txt = (c.name + ' ' + c.cls + ' ' + c.ab.join(' ') + ' ' + c.lands + ' ' + (c.theme ? c.theme.motif + ' ' + (c.theme.motif2 || '') + ' ' + c.theme.place_personality : '')).toLowerCase();
     if (q && txt.indexOf(q) < 0) return; if (ff && !byC[c.slug].some(function (e) { return e.family === ff; })) return; n++;
     var b = document.createElement('button'); b.className = 'cr'; b.type = 'button'; b.dataset.slug = c.slug; b.setAttribute('aria-pressed', c.slug === cur.slug ? 'true' : 'false'); b.setAttribute('role', 'listitem');
-    var th = isThemed(), sw = th ? c.theme.palette.map(function (h) { return '<span class="sw" style="background:' + h + '"></span>'; }).join('') + ' <span class="mt"></span>'
+    var th = lkEl.value === 'themed' && !!c.theme, sw = th ? c.theme.palette.map(function (h) { return '<span class="sw" style="background:' + h + '"></span>'; }).join('') + ' <span class="mt"></span>'
       : uniq(c.slug).map(function (e) { return '<span class="sw" style="background:' + e.col + '" title="' + e.family + '"></span>'; }).join('');
     b.innerHTML = '<b></b><span class="m"></span>' + sw; b.firstChild.textContent = c.name; b.querySelector('.m').textContent = 'Lv ' + c.level + ' - ' + c.cls + (c.ab.length ? ' - ' + c.ab.join(', ') : '');
     if (th) b.querySelector('.mt').textContent = c.theme.motif + ' / ' + c.theme.place_personality;
@@ -524,6 +534,11 @@ var cv = $('cv'), ctx = cv.getContext('2d'), t0 = performance.now(), STEP = 760,
 cv.width = W; cv.height = H;
 function hv(k) { var m = new RegExp('[#&]' + k + '=([\\w-]+)').exec(HASH); return m ? m[1] : null; }
 var FIX = hv('t') !== null ? +hv('t') : null;
+function fillShapes() {
+  var sel = $('shp'), keep = sel.value; sel.innerHTML = '';
+  SHAPE_DEFS.forEach(function (d) { if (!SHAPES[d[0]]) return; var o = document.createElement('option'); o.value = d[0]; o.textContent = d[1]; sel.appendChild(o); });
+  sel.value = SHAPES[keep] ? keep : 'sq2';
+}
 function fillPos() {
   var sh = SHAPES[$('shp').value], w = 0, h = 0; sh.forEach(function (c) { w = Math.max(w, c[0] + 1); h = Math.max(h, c[1] + 1); });
   var pos = $('pos'), keep = pos.value, i, j; pos.innerHTML = '';
@@ -536,7 +551,7 @@ function build() {
     cells.push({ x: c[0] + po[0], y: c[1] + po[1], e: { L: 'h', R: 'k', T: up ? 'k' : 'h', B: up ? 'h' : 'k' }, d: e, n: e.name, t: e.type, v: e.v }); });
   S = { cells: cells, P: perimeter(cells), step: STEP };
   cells.forEach(function (p, i) { p.tp = 300 + i * 650; }); S.tPlay = cells[n - 1].tp + 520 + 500; S.end = S.tPlay + n * STEP + 900 + 700;
-  $('ttl').textContent = cur.name + ' - Lv ' + cur.level + ' - ' + n + ' piece' + (n > 1 ? 's' : '') + ' on 3x3';
+  $('ttl').textContent = cur.name + ' - Lv ' + cur.level + ' - ' + n + ' piece' + (n > 1 ? 's' : '') + ' on ' + COLS + 'x' + ROWS;
   S.rows = []; var det = $('det'); det.innerHTML = '';
   byC[cur.slug].forEach(function (e) { if ($('set').value !== 'a' && e.layer !== 'unique') return;
     var d = document.createElement('div'), th = isThemed(), t = e.th; d.className = 'pr' + (th ? '' : ' gen');
@@ -551,8 +566,9 @@ function build() {
     det.appendChild(d); S.rows.push([e, d]); });
   S.active = null; t0 = performance.now(); themePanel();
 }
-function isThemed() { return lkEl.value === 'themed'; }
+function isThemed() { return lkEl.value === 'themed' && !!cur.theme; }   /* a creature with no theme fragment yet is shown with the generic families */
 function themePanel() {
+  if (!cur.theme) { $('thm').innerHTML = '<p class="s">No theme yet for this creature: shown with the 16 shared families (Generic look).</p>'; return; }
   var T = cur.theme, m = MOTIF[T.motif], m2 = T.motif2 ? MOTIF[T.motif2] : null, el = $('thm'), others = {};
   byC[cur.slug].forEach(function (e) { if (e.th.motif !== T.motif && e.th.motif !== T.motif2) others[e.th.motif] = 1; });
   el.innerHTML = '<div class="pal"></div><dl></dl>' + (isThemed() ? '' : '<p class="s">Generic look is showing: the shared families. Switch Look to Themed to see this theme.</p>');
@@ -569,7 +585,7 @@ function select(slug) {
   cur = CR.filter(function (c) { return c.slug === slug; })[0] || CR[0]; build();
   Array.prototype.forEach.call(gal.children, function (b) { b.setAttribute('aria-pressed', b.dataset.slug === cur.slug ? 'true' : 'false'); });
 }
-$('shp').onchange = function () { fillPos(); build(); };
+$('shp').onchange = function () { if (SHAPES[$('shp').value].length > 4) $('set').value = 'a'; fillPos(); build(); };
 ['pos', 'st', 'set'].forEach(function (id) { $(id).onchange = build; });
 $('rp').onclick = function () { t0 = performance.now(); };
 var rmEl = $('rm'), pthEl = $('pth'), rsEl = $('rs'), spEl = $('sp'), fxEl = $('fx'), ltEl = $('lt');
@@ -610,8 +626,14 @@ function frame(now) {
 }
 /* start options in the URL hash: #c=slug  #shape=sq2  #pos=1-1  #t=ms (frozen clock)  #fx=light  #set=a  #lt=1  #rm=1  #path=1  #st=1  #look=generic (default themed)
    window.PFA.seek(ms) sets the frozen clock (null = live) without a reload: used for frame-by-frame captures. */
-window.PFA = { seek: function (ms) { FIX = ms === null ? null : +ms; }, end: function () { return S.end; } };
+window.PFA = { seek: function (ms) { FIX = ms === null ? null : +ms; }, end: function () { return S.end; },
+  /* motif modules (claude/pf-anim/motifs/<name>.js): PFA.motif(name, drawFn, meta). drawFn(c, env, H) draws the own-edge effect (env = {P, o, runs, th, mp, p 0..1, seed, h heavy, z, col, acc, hi}, H = helpers);
+     meta (also read by the build): {nm, desc, fam, gap, g, mo, x, car, carDraw(c, env, H) optional chain effect used when the piece's carrier is 'custom'}. */
+  motif: function (name, draw, meta) { var m = MOTIF[name] || (MOTIF[name] = {}), k; for (k in (meta || {})) m[k] = meta[k]; m.draw = draw; },
+  glyph: function (id, fn) { XG[id] = fn; }, motion: function (id, fn) { XM[id] = fn; } };
+/*__MOTIFS__*/
 window.addEventListener('hashchange', function () { HASH = location.hash; var v = hv('t'); FIX = v !== null ? +v : null; });
+fillShapes();
 if (hv('look') === 'generic') lkEl.value = 'generic';
 var c0 = hv('c'); if (c0) cur = CR.filter(function (c) { return c.slug === c0; })[0] || cur;
 if (hv('shape') && SHAPES[hv('shape')]) $('shp').value = hv('shape'); if (hv('set') === 'a') $('set').value = 'a'; if (hv('fx')) $('fx').value = hv('fx'); if (hv('lt')) ltEl.checked = true; if (hv('st')) $('st').value = hv('st'); if (hv('rm')) rmEl.checked = true; if (hv('path')) pthEl.checked = true;

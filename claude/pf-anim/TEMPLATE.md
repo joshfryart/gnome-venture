@@ -268,3 +268,70 @@ whirr (curved wing arcs), croak (3 concentric arcs above), crack (jagged broken 
 6. Compare with `#look=generic`: the themed version must say more about the animal than the family does; if it does not, change the motif, not the family.
 7. Light (player) variant, Effects Light/Off and Reduced motion behave as in section 8; console clean; phone 360-390 px without horizontal scroll.
 8. Frame captures: `PFA.seek(ms)` sets the frozen clock without a reload (GIFs at 25 fps = seek in 40 ms steps and screenshot the canvas).
+
+## 10. Larger sizes (medium 4x4, large 5x5, boss 5x5)
+The same pipeline runs for every size. Parallel authors never edit a shared file: each writes only its own new files in the three folders below.
+
+```
+python3 claude/pf-anim/build_small_anim.py <small|medium|large|boss>     (php; node only when motifs/*.js exist)
+  -> claude/pf-anim/<size>-creatures.json, coverage-<size>.txt (small: coverage.txt), claude/mockups/pf-<size>-anim.html
+php claude/pf-anim/dump_small.php [repo-root] <size>                       (the raw creature + deck dump the build reads)
+```
+Small keeps its file names and is byte-identical to the pre-size-aware build (regression check: rebuild small, `git diff` shows no change in `small-creatures.json` / `coverage.txt`).
+
+| size | board | cell (canvas px) | creatures |
+|---|---|---|---|
+| small | 3x3 | 56 x 47 | 67 |
+| medium | 4x4 | 48 x 41 | 146 |
+| large | 5x5 | 40 x 34 | 95 |
+| boss | 5x5 | 40 x 34 | 11 |
+Cells shrink with the board so the canvas stays 212-244 px wide and scales cleanly to a phone column (360-390 px). Shape picker: Single, Row of 2, Row of 3, L of 3, 2x2, and on 4x4+ "Bent chain of 4",
+on 5x5 also "Bent chain of 5" (a shape with more than 4 cells switches Pieces to "All 8"). Only shapes that fit the board are offered. `#shape=chain4|chain5` works in the URL hash.
+
+### 10.1 Theme fragments: `claude/pf-anim/themes/<size>/<anything>.json`
+One file per author or batch (e.g. `themes/medium/batch-03.json`). All fragments of a size are merged; a creature defined twice, or a slug that is not of that size, stops the build.
+```json
+{"_doc": "free text, ignored",
+ "creatures": { "<slug>": { "pal": ["#main", "#dark", "#hi"], "m": "<motif>", "m2": "<motif, optional>", "pers": "<personality>", "snd": ["<hurt/trick style>", "<guard/heal style>"],
+                "spd": 1, "x": "<extra override, optional>", "notes": "identity sentence",
+                "p": { "u0": "Name: one-line note", "u1": { "m": "<motif>", "c": "#colour", "n": "Name: note", "lay": "<layout>", "car": "<carrier>", "x": "<extra>" } } } },
+ "motifs": { "<new-motif>": { "g": "glyph", "mo": "motion", "x": "extra or -", "car": "carrier", "fam": "<one of the 16 families>", "gap": 12, "nm": "short name", "desc": "what it looks like" } } }
+```
+- `creatures.<slug>` is exactly the themes.json entry of section 9.2 (same keys, same meaning, same rules: 4 hand notes for the unique pieces `u0..u3`, `pal` lightness >= ~45%, `fam` fallback for Generic).
+- `motifs` (optional) = composition-only motifs built from ids the page already implements (glyph + motion + extra + carrier, section 9.4). The name must be new (not in themes.json, not in another fragment, not a module).
+- A creature without a theme is allowed on medium/large/boss: it is built and shown with the generic families (Look: Generic is forced for it) and listed in `coverage-<size>.txt` under `themeless_creatures`. Small must have a theme for every creature.
+- Every motif named anywhere in a fragment must exist (themes.json catalogue, fragment `motifs`, or a module). Unknown ids fail the build with the slug.
+
+### 10.2 Family overrides: `claude/pf-anim/overrides/<size>/<anything>.json`
+Same schema as `overrides.json` (small keeps using that file; small may also have `overrides/small/*.json`). Key = `<creature>/<piece_key>`:
+```json
+{"_doc": "ignored", "<slug>/f:u0": {"family": "ember", "note": "why", "review": true, "col": "#hex", "accent": "#hex", "lift": 1, "snd": "pop"}}
+```
+`family` must be one of the 16; `review: true` = still a best guess (reported as needs-art-review). A key twice, or a key that matches no piece, stops the build.
+
+### 10.3 Motif modules: `claude/pf-anim/motifs/<name>.js`
+New drawing code is loaded from modules; the build concatenates every `motifs/*.js` (sorted by file name) into the page at `/*__MOTIFS__*/`. Name a file after its motif; one author = one file = no merge conflict.
+A module is plain ES5 that runs inside the page and calls the registration functions (the build also runs it once in a node sandbox with a stub `PFA` to read the meta, so the top level must only register):
+```js
+PFA.motif('ant-bridge', function (c, e, H) {            // own-edge effect, called every frame for the piece's own outer edge, p = 0..1 over 650 ms
+  e.runs.forEach(function (r, ri) {                      // e.runs = the piece's outer edge runs [[s0, s1, idx], ...] (distance along the OUTER loop)
+    for (var k = 0; k < 5; k++) { e.P.atq(r[0] + (r[1] - r[0]) * (k + .5) / 5);   // writes H.Q = {x, y, nx, ny} (point on the edge + outward normal)
+      H.sq(c, H.Q.x + H.Q.nx * (3 + e.p * 12), H.Q.y + H.Q.ny * (3 + e.p * 12), 3, e.col); } });
+}, { nm: 'bridge ants', desc: 'ants link up into a bridge', fam: 'bite', gap: 10, g: 'ant', mo: 'march', x: '-', car: 'custom',
+     carDraw: function (c, e, H) { /* chain effect, only when the piece's carrier is 'custom' */ } });
+PFA.glyph('newglyph', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, H) { H.sq(c, x, y, 3, C); });   // optional: a new glyph id usable by composition motifs
+PFA.motion('newmotion', function (G, pp, k, ph, H) { G.up += Math.sin(pp * 6 + k) * 3; });               // optional: a new motion id (mutates the scratch G)
+```
+- Meta: `nm`, `desc`, `fam` (one of the 16 families = Generic fallback) are required; `gap` (default 12), `g`/`mo`/`x` (defaults dot/bounce/-) and `car` (default train, or `custom` when `carDraw` exists) are used for the catalogue, the coverage report and the id check.
+  Without `carDraw` the motif's chain effect is the standard carrier named by `car`. A module motif with a `draw` function replaces the whole own-edge effect (layouts and motions are then yours to draw; `e.th.mp.lay` tells you the layout verb).
+- `e` (own): `P` (perimeter: `P.atq(s)` scratch point, `P.at(s)` allocating, `P.len`, `P.runs[o]`), `o` (piece index), `runs`, `th`, `mp` = {lay, spd, z, x}, `p`, `seed`, `h` (true = creature-heavy), `z` (size step 0..2), `col`, `acc`, `hi`.
+  `e` (carDraw): `P`, `a` (start distance), `d` (signed distance to the next piece, short way round), `hh` (eased 0..1), `p`, `h`, `z`, `fr`, `col`, `acc`, `hi`.
+- `H` helpers: `px bx sq ln plus ringpx hash hexmix eo stip glyph lay mot ext carHead`, scratch objects `Q` and `G`, colours `WHITE DEW`. Draw only with these 1 px / small-block primitives, no allocation per frame, no `Math.random` / `Date`: every effect is a stateless function of `p`.
+- Fixed rules still apply (Decisions in claude/proposal-piece-animations.md): the wiggle (x 2.6 px, rot .06) is never touched, the chain effect runs along the OUTER edge only, sound lines are visual only, the creature-heavy variant is the default. Stay within about 22 px of the edge.
+- Names must be unique across all modules, fragments and themes.json (a clash stops the build). Small's existing motifs stay in the template/themes.json; modules only add. A module motif is written into a size's json/page catalogue once a theme of that size uses it.
+- Test a module without touching the shared folders: `PFA_MOTIFS_DIR=<scratch dir> PFA_THEMES_DIR=<scratch dir with <size>/*.json> python3 claude/pf-anim/build_small_anim.py medium`.
+
+### 10.4 Checklist for a batch author (medium / large / boss)
+1. `python3 claude/pf-anim/build_small_anim.py <size>` once to read `<size>-creatures.json` (creatures, pieces, generic families).
+2. Section 9.1 identity reading per creature; write `themes/<size>/<batch>.json` (4 hand notes per creature) and any `motifs/<name>.js`; add `overrides/<size>/<batch>.json` only where the generic family is wrong.
+3. Rebuild; section 9.7 review items (0 weak spots, 0 near duplicates in your batch), open `claude/mockups/pf-<size>-anim.html#c=<slug>&t=3600` and check on the felt AND on the pieces, phone width, console clean.

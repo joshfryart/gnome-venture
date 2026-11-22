@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Builds claude/pf-anim/small-creatures.json (+ coverage.txt) and claude/mockups/pf-small-anim.html for every SMALL creature.
-Reads the real data through dump_small.php (pfd_foe_row of every small creature: class, ability, lands, art and the layered deck), applies the
-mapping rules of TEMPLATE.md (section 3) and then claude/pf-anim/overrides.json.  Run:  python3 claude/pf-anim/build_small_anim.py   (needs php)
+"""Builds claude/pf-anim/<size>-creatures.json (+ coverage) and claude/mockups/pf-<size>-anim.html for every creature of one size.
+  python3 claude/pf-anim/build_small_anim.py [small|medium|large|boss]      (default small; needs php, and node when claude/pf-anim/motifs/*.js exist)
+small keeps its original names (small-creatures.json, coverage.txt, pf-small-anim.html); the other sizes write <size>-creatures.json, coverage-<size>.txt, pf-<size>-anim.html.
+Reads the real data through dump_small.php (pfd_foe_row of every creature of the size: class, ability, lands, art and the layered deck), applies the
+mapping rules of TEMPLATE.md (section 3) and then the overrides (small: overrides.json; every size: overrides/<size>/*.json).
+Larger sizes (TEMPLATE.md section 10): themes merge from themes/<size>/*.json fragments, motif drawing code loads from motifs/*.js (PFA.motif(name, drawFn, meta)).
 Themed pass: claude/pf-anim/themes.json (hand-authored motif catalogue + one theme per creature) adds a `th` block to every entry and a `theme`
 block to every creature (TEMPLATE.md section 9); the 16 families stay as the engine fallback (`family`).
 Deterministic: no randomness, same input = same output."""
-import colorsys, json, os, re, subprocess, sys, collections
+import colorsys, glob, json, os, re, subprocess, sys, collections
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 
 # ---- closed list of families: tone = player effect colour, snd = place sound-line style (visual only), own/carrier = effect ids drawn by the page,
@@ -157,7 +160,7 @@ def theme_piece(c, p, t, MOT):
     return dict(motif=m, mp=dict(lay=lay, spd=spd, z=z, x=x), carrier=o.get('car', MOT[m]['car']), snd=snd, col=col, acc=pal[1], hi=hi,
                 colL=mix(col, '#ffffff', .45), note=note, hand=bool(o.get('n')), fam=MOT[m]['fam'])
 
-def check_impl(tpl, MOT, CT):
+def check_impl(tpl, MOT, CT, xg=(), xm=()):
     """Every glyph / motion / extra / carrier / personality / sound style used must have a `case 'id'` in the page template."""
     need = set()
     for m in MOT.values(): need |= {m['g'], m['mo'], m['x'], m['car']}
@@ -166,7 +169,7 @@ def check_impl(tpl, MOT, CT):
         for o in t.get('p', {}).values():
             if isinstance(o, dict): need |= {o.get('lay', 'hold'), o.get('x', '-'), o.get('car', 'train')}
     need |= set(LAYOUTS) | set(CARRIERS)
-    miss = sorted(i for i in need - {'-', 'none'} if ("case '%s'" % i) not in tpl)
+    miss = sorted(i for i in need - {'-', 'none', 'custom'} - set(xg) - set(xm) if ("case '%s'" % i) not in tpl)
     if miss: sys.exit('themed ids with no page code (add a case to small-anim.template.html): ' + ', '.join(miss))
 
 def theme_cov(creatures, entries, MOT):
@@ -199,6 +202,69 @@ def theme_cov(creatures, entries, MOT):
             'hand_notes': sum(1 for e in entries if e['th']['hand']), 'auto_notes': sum(1 for e in entries if not e['th']['hand']),
             'weak_spots': weak, 'near_duplicate_themes': dup}
 
+SIZES = {   # board (cols x rows) and cell size in canvas px (smaller cells on bigger boards keep the canvas near phone width)
+    'small': dict(cols=3, rows=3, bw=56, bh=47), 'medium': dict(cols=4, rows=4, bw=48, bh=41),
+    'large': dict(cols=5, rows=5, bw=40, bh=34), 'boss': dict(cols=5, rows=5, bw=40, bh=34)}
+
+def jload(path):
+    try: return json.load(open(path))
+    except ValueError as ex: sys.exit('bad JSON in %s: %s' % (path, ex))
+
+def load_modules():
+    """claude/pf-anim/motifs/*.js -> (concatenated source, {motif name: meta}, glyph ids, motion ids). Each file is run once in a node sandbox with a stub PFA
+    (only the registration calls run, never the draw functions) to read the meta. A name used twice (two modules, or a module and themes.json) is an error."""
+    files = sorted(glob.glob(os.path.join(os.environ.get('PFA_MOTIFS_DIR') or os.path.join(HERE, 'motifs'), '*.js')))   # env var: test a module from a scratch folder
+    if not files: return '', {}, set(), set()
+    stub = ("const vm=require('vm'),fs=require('fs');const out=[],gl=[],mo=[];"
+            "const PFA={motif(n,d,m){m=m||{};out.push({name:n,draw:typeof d==='function',car:typeof m.carDraw==='function',meta:JSON.parse(JSON.stringify(m))})},glyph(i){gl.push(i)},motion(i){mo.push(i)}};"
+            "try{vm.runInNewContext(fs.readFileSync(process.argv[1],'utf8'),{PFA:PFA,Math:Math},{timeout:2000})}catch(e){console.error(String(e));process.exit(3)}"
+            "console.log(JSON.stringify({out:out,gl:gl,mo:mo}))")
+    src, mots, gl, mo = [], {}, set(), set()
+    for f in files:
+        r = subprocess.run(['node', '-e', stub, f], capture_output=True, text=True)
+        if r.returncode: sys.exit('motif module %s does not load: %s' % (os.path.basename(f), r.stderr.strip()))
+        j = json.loads(r.stdout); gl |= set(j['gl']); mo |= set(j['mo'])
+        for m in j['out']:
+            n, meta = m['name'], m['meta']
+            if n in mots: sys.exit('motif %s is registered twice (%s)' % (n, os.path.basename(f)))
+            if not m['draw']: sys.exit('motif %s (%s): PFA.motif needs a draw function as 2nd argument' % (n, os.path.basename(f)))
+            for k in ('nm', 'desc', 'fam'):
+                if not meta.get(k): sys.exit('motif %s (%s): meta.%s is required' % (n, os.path.basename(f), k))
+            if meta['fam'] not in FAMILIES: sys.exit('motif %s: meta.fam %s is not one of the 16 families' % (n, meta['fam']))
+            mots[n] = dict(g=meta.get('g', 'dot'), mo=meta.get('mo', 'bounce'), x=meta.get('x', '-'), car=meta.get('car', 'custom' if m['car'] else 'train'), fam=meta['fam'],
+                           gap=meta.get('gap', 12), nm=meta['nm'], desc=meta['desc'])
+        src.append('/* ---- motifs/%s ---- */\n%s\n' % (os.path.basename(f), open(f).read()))
+    return ''.join(src), mots, gl, mo
+
+def load_themes(size, slugs, base):
+    """themes.json (small only) + themes/<size>/*.json fragments -> (creature themes, extra composition motifs). Fragment = {"creatures": {slug: theme}, "motifs": {name: catalogue entry}}."""
+    CT, extra = {}, {}
+    if size == 'small': CT.update({k: v for k, v in base['creatures'].items() if k in slugs})
+    for f in sorted(glob.glob(os.path.join(os.environ.get('PFA_THEMES_DIR') or os.path.join(HERE, 'themes'), size, '*.json'))):
+        fr = jload(f); nm = os.path.basename(f)
+        for k in fr:
+            if k not in ('_doc', 'creatures', 'motifs'): sys.exit('%s: unknown top-level key %s (allowed: creatures, motifs)' % (nm, k))
+        for slug, t in fr.get('creatures', {}).items():
+            if slug not in slugs: sys.exit('%s: %s is not a %s creature' % (nm, slug, size))
+            if slug in CT: sys.exit('%s: theme for %s is already defined elsewhere' % (nm, slug))
+            for k in ('pal', 'm', 'pers', 'snd', 'notes'):
+                if k not in t: sys.exit('%s: theme %s lacks "%s"' % (nm, slug, k))
+            CT[slug] = t
+        for n, m in fr.get('motifs', {}).items():
+            if n in extra or n in base['motifs']: sys.exit('%s: motif %s is already defined' % (nm, n))
+            extra[n] = m
+    return CT, extra
+
+def load_overrides(size):
+    ov = {}
+    files = ([os.path.join(HERE, 'overrides.json')] if size == 'small' else []) + sorted(glob.glob(os.path.join(HERE, 'overrides', size, '*.json')))
+    for f in files:
+        for k, v in jload(f).items():
+            if k.startswith('_'): continue
+            if k in ov: sys.exit('override %s is defined twice (%s)' % (k, os.path.basename(f)))
+            ov[k] = v
+    return ov
+
 def lift_of(p, fam):
     """1 light, 2 normal, 3 heavy slam (creature-heavy variant scales raise height, slam force and wobble)."""
     k = 2
@@ -208,14 +274,28 @@ def lift_of(p, fam):
     return k
 
 def main():
-    out = subprocess.run(['php', os.path.join(HERE, 'dump_small.php'), ROOT], check=True, capture_output=True, text=True).stdout
+    size = sys.argv[1] if len(sys.argv) > 1 else 'small'
+    if size not in SIZES: sys.exit('size must be one of ' + ', '.join(SIZES))
+    B = SIZES[size]; sm = size == 'small'
+    out = subprocess.run(['php', os.path.join(HERE, 'dump_small.php'), ROOT, size], check=True, capture_output=True, text=True).stdout
     data = json.loads(out)
-    ov = json.load(open(os.path.join(HERE, 'overrides.json'))) if os.path.exists(os.path.join(HERE, 'overrides.json')) else {}
-    ovr = {k: v for k, v in ov.items() if not k.startswith('_')}
-    TH = json.load(open(os.path.join(HERE, 'themes.json'))); MOT, CT = TH['motifs'], TH['creatures']
-    tpl = open(os.path.join(HERE, 'small-anim.template.html')).read(); check_impl(tpl, MOT, CT)
+    ovr = load_overrides(size)
+    TH = jload(os.path.join(HERE, 'themes.json')); MOT = dict(TH['motifs'])
+    msrc, modm, xg, xm = load_modules()
+    for n in modm:
+        if n in MOT: sys.exit('module motif %s clashes with a themes.json motif' % n)
+    CT, extra = load_themes(size, {c['slug'] for c in data}, TH)
+    for n in extra:
+        if n in modm: sys.exit('fragment motif %s clashes with a module motif' % n)
+    MOT.update(extra); MOT.update(modm)
+    tpl = open(os.path.join(HERE, 'small-anim.template.html')).read(); check_impl(tpl, MOT, CT, xg, xm)
     missing = [c['slug'] for c in data if c['slug'] not in CT]
-    if missing: sys.exit('no theme in themes.json for: ' + ', '.join(missing))
+    if missing and sm: sys.exit('no theme in themes.json for: ' + ', '.join(missing))
+    for slug, t in CT.items():
+        for m in [t['m'], t.get('m2')] + [(o.get('m') if isinstance(o, dict) else None) for o in t.get('p', {}).values()]:
+            if m and m not in MOT: sys.exit('unknown motif %s in theme %s' % (m, slug))
+    used_mod = {n for n in modm if any(n == t['m'] or n == t.get('m2') or any(isinstance(o, dict) and o.get('m') == n for o in t.get('p', {}).values()) for t in CT.values())}
+    CAT = {k: v for k, v in MOT.items() if k not in modm or k in used_mod}   # catalogue written to the json / page: modules only when a theme of this size uses them
     creatures, entries, used = [], [], set()
     for c in data:
         fams = []
@@ -230,14 +310,18 @@ def main():
                      family=fam, variant='creature-heavy', place=dict(lift=o.get('lift', lift_of(p, fam)), snd=snd), play=dict(own=f['own'], carrier=f['carrier']), col=col, accent=acc,
                      note=why + ('; palette ' + bwhy))
             if not ok: e['review'] = 'needs-art-review'
-            t = CT[c['slug']]; e['colL'] = mix(col, '#ffffff', .45); e['th'] = theme_piece(c, p, t, MOT)
-            e['th']['place'] = dict(pers=t['pers'], lift=e['place']['lift'], snd=e['th']['snd'])
+            e['colL'] = mix(col, '#ffffff', .45)
+            if c['slug'] in CT:
+                t = CT[c['slug']]; e['th'] = theme_piece(c, p, t, MOT)
+                e['th']['place'] = dict(pers=t['pers'], lift=e['place']['lift'], snd=e['th']['snd'])
             entries.append(e); fams.append(fam)
         col0, acc0, base, bwhy = palette(c, 'slash')
-        t = CT[c['slug']]; unk = [k for k in t.get('p', {}) if not any(p['k'] == 'f:' + k for p in c['pieces'])]
-        if unk: sys.exit('theme piece key(s) %s match no piece of %s' % (unk, c['slug']))
-        creatures.append(dict(slug=c['slug'], name=c['name'], level=c['level'], cls=c['class'], ab=c['ab'], lands=c['lands'], art=c['art'], base=base, theme_src=bwhy, families=sorted(set(fams)),
-                              theme=dict(palette=t['pal'], motif=t['m'], motif2=t.get('m2'), place_personality=t['pers'], snd_set=t['snd'], spd=t.get('spd', 1), x=t.get('x', MOT[t['m']]['x']), notes=t['notes'])))
+        cr = dict(slug=c['slug'], name=c['name'], level=c['level'], cls=c['class'], ab=c['ab'], lands=c['lands'], art=c['art'], base=base, theme_src=bwhy, families=sorted(set(fams)))
+        if c['slug'] in CT:
+            t = CT[c['slug']]; unk = [k for k in t.get('p', {}) if not any(p['k'] == 'f:' + k for p in c['pieces'])]
+            if unk: sys.exit('theme piece key(s) %s match no piece of %s' % (unk, c['slug']))
+            cr['theme'] = dict(palette=t['pal'], motif=t['m'], motif2=t.get('m2'), place_personality=t['pers'], snd_set=t['snd'], spd=t.get('spd', 1), x=t.get('x', MOT[t['m']]['x']), notes=t['notes'])
+        creatures.append(cr)
     for k in ovr:
         if k not in used: sys.exit('override key matches no piece: ' + k)
     # ---- coverage
@@ -247,20 +331,27 @@ def main():
            'creatures_per_family': {f: sum(1 for c in creatures if f in c['families']) for f in FAMILIES}, 'needs_art_review': [e['creature'] + '/' + e['piece_key'] + ' ' + e['name'] + ' (' + e['note'].split(';')[0] + ')' for e in entries if e.get('review')],
            'unused_families': [f for f in FAMILIES if not any(e['family'] == f for e in entries)]}
     mixes = collections.Counter(tuple(c['families']) for c in creatures); cov['top_family_mixes'] = ['+'.join(k) + ' x' + str(v) for k, v in mixes.most_common(8)]
-    tcov = theme_cov(creatures, entries, MOT)
+    tcreatures = [c for c in creatures if 'theme' in c]; tentries = [e for e in entries if 'th' in e]
+    tcov = theme_cov(tcreatures, tentries, CAT) if tcreatures else {}
+    if not sm: tcov = dict(tcov, themed_creatures=len(tcreatures), themeless_creatures=[c['slug'] for c in creatures if 'theme' not in c])
     J = dict(meta=dict(note='Generated by claude/pf-anim/build_small_anim.py from the real piece data; do not edit by hand, use overrides.json.', variant='creature-heavy', layers='unique = the creature\'s own 4 (pf_creature_pieces / pf_creatures deck); class = its 4 class pieces (shared effect rules, own names)'),
-             families=FAMILIES, motifs=MOT, personalities=PERSONALITIES, snd_styles=SND_STYLES, layouts=LAYOUTS, creatures=creatures, entries=entries, coverage=cov, theme_coverage=tcov)
-    json.dump(J, open(os.path.join(HERE, 'small-creatures.json'), 'w'), indent=1, ensure_ascii=False)
-    with open(os.path.join(HERE, 'coverage.txt'), 'w') as f:
-        f.write('Coverage (small creatures)\n' + json.dumps(cov, indent=1, ensure_ascii=False) + '\n')
-        f.write('\nThemed pass coverage (themes.json)\n' + json.dumps(tcov, indent=1, ensure_ascii=False) + '\n')
-    mini = dict(families=FAMILIES, motifs=MOT, pers=PERSONALITIES, snds=SND_STYLES, creatures=creatures, entries=entries)
+             families=FAMILIES, motifs=CAT, personalities=PERSONALITIES, snd_styles=SND_STYLES, layouts=LAYOUTS, creatures=creatures, entries=entries, coverage=cov, theme_coverage=tcov)
+    json.dump(J, open(os.path.join(HERE, size + '-creatures.json'), 'w'), indent=1, ensure_ascii=False)
+    with open(os.path.join(HERE, 'coverage.txt' if sm else 'coverage-%s.txt' % size), 'w') as f:
+        f.write('Coverage (%s creatures)\n' % size + json.dumps(cov, indent=1, ensure_ascii=False) + '\n')
+        f.write('\nThemed pass coverage (%s)\n' % ('themes.json' if sm else 'themes/%s/*.json' % size) + json.dumps(tcov, indent=1, ensure_ascii=False) + '\n')
+    mini = dict(families=FAMILIES, motifs=CAT, pers=PERSONALITIES, snds=SND_STYLES, creatures=creatures, entries=entries)
     html = tpl.replace('/*__DATA__*/null', json.dumps(mini, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/'))
-    open(os.path.join(ROOT, 'claude', 'mockups', 'pf-small-anim.html'), 'w').write(html)
+    for k in ('BW', 'BH', 'COLS', 'ROWS'): html = html.replace('/*__%s__*/%d' % (k, {'BW': 56, 'BH': 47, 'COLS': 3, 'ROWS': 3}[k]), str(B[k.lower()]))
+    for k, v in (('@@SIZEWORD@@', size.capitalize()), ('@@SIZE@@', size), ('@@COLS@@', str(B['cols'])), ('@@ROWS@@', str(B['rows'])), ('@@N@@', str(len(creatures)))): html = html.replace(k, v)
+    html = html.replace('/*__MOTIFS__*/', msrc.replace('</', '<\\/'))
+    open(os.path.join(ROOT, 'claude', 'mockups', 'pf-%s-anim.html' % size), 'w').write(html)
     print(json.dumps({k: cov[k] for k in ('creatures', 'pieces_total', 'pieces_unique_layer', 'per_family_unique', 'per_family_all', 'unused_families')}))
-    print('themed: %d distinct motifs used (%d in catalogue), %d signature motifs, %d hand notes, %d weak spots, %d near-duplicate themes' % (
-        tcov['distinct_motifs_used'], tcov['motifs_in_catalogue'], tcov['signature_motifs'], tcov['hand_notes'], len(tcov['weak_spots']), len(tcov['near_duplicate_themes'])))
-    for w in tcov['weak_spots'] + tcov['near_duplicate_themes']: print('   theme:', w)
+    if tcreatures:
+        print('themed: %d distinct motifs used (%d in catalogue), %d signature motifs, %d hand notes, %d weak spots, %d near-duplicate themes' % (
+            tcov['distinct_motifs_used'], tcov['motifs_in_catalogue'], tcov['signature_motifs'], tcov['hand_notes'], len(tcov['weak_spots']), len(tcov['near_duplicate_themes'])))
+        for w in tcov['weak_spots'] + tcov['near_duplicate_themes']: print('   theme:', w)
+    if not sm: print('themed creatures: %d of %d (the rest show the generic families)' % (len(tcreatures), len(creatures)))
     print('needs-art-review:', len(cov['needs_art_review']))
     for r in cov['needs_art_review']: print('  ', r)
 if __name__ == '__main__': main()
