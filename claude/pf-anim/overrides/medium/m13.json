@@ -1,0 +1,73 @@
+{
+ "_doc": "Medium batch m13 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "fox-kit-pair/f:u2": {
+  "family": "puff",
+  "note": "fluffy kits huddle over each other: puff over thorns tag; best guess",
+  "review": true
+ },
+ "frost-hare/f:b2": {
+  "family": "puff",
+  "note": "snow drift hunker: puff, drift is snow not water"
+ },
+ "frost-hare/f:u0": {
+  "family": "thrust",
+  "note": "hind-leg kick is a straight jab: thrust over quick shock"
+ },
+ "frost-hare/f:u1": {
+  "family": "shock",
+  "note": "zigzag dodge: zigzag lines; best guess vs puff",
+  "review": true
+ },
+ "frost-hare/f:u2": {
+  "family": "ripple",
+  "note": "foot thump: ground rings spreading; best guess (trick, no tag)",
+  "review": true
+ },
+ "mountain-hare/f:u1": {
+  "family": "leaf",
+  "note": "clover graze: leaf; heal stays green, keeps Hollow Nap as the mend piece"
+ },
+ "jackrabbit/f:u3": {
+  "family": "thrust",
+  "note": "straight-line dash: thrust over bash tag; best guess",
+  "review": true
+ },
+ "grumpy-lemming/f:u0": {
+  "family": "ripple",
+  "note": "grumble rumble: rings; best guess (trick, no tag)",
+  "review": true
+ },
+ "grumpy-lemming/f:u3": {
+  "family": "shock",
+  "note": "angry stare: sparks of temper; best guess (trick, no tag)",
+  "review": true
+ },
+ "pika-sentry/f:u0": {
+  "family": "ripple",
+  "note": "whistle = sound rings spreading; best guess vs bash tag",
+  "review": true
+ },
+ "pika-sentry/f:u2": {
+  "family": "leaf",
+  "note": "hay rampart is a grass wall: leaf over thorns tag"
+ },
+ "marmot-bruiser/f:u0": {
+  "family": "bash",
+  "note": "slam = heavy thump: bash"
+ },
+ "marmot-bruiser/f:u2": {
+  "family": "ripple",
+  "note": "whistle warning: sound rings rather than puff",
+  "review": true
+ },
+ "glacier-cub/f:u1": {
+  "family": "sparkle",
+  "note": "ice glitter on the slide: sparkle, keeps Fur Fluff as puff",
+  "review": true
+ },
+ "reindeer-calf-herd/f:b3": {
+  "family": "puff",
+  "note": "huddle shuffle kicks up fluff and snow: puff over bash; best guess",
+  "review": true
+ }
+}

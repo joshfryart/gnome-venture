@@ -1,0 +1,187 @@
+{
+ "_doc": "Medium batch m01 themed pass (TEMPLATE.md sections 9 and 10). Spiders, scorpions, centipedes/millipede and beetles. New motifs live in motifs/medium_m01.js; every piece (unique and class) has a hand note.",
+ "creatures": {
+  "orb-spider": {
+   "pal": ["#d8b878", "#2a1c0e", "#f0f4ff"], "m": "orb-wheel", "m2": "silk-bundle", "pers": "hover", "snd": ["tink", "pop"], "spd": 0.9,
+   "notes": "Garden orb spider: a round tan spider sitting at the hub of a dewy wheel web; it waits, drops on a dragline and wraps its catch.",
+   "p": {
+    "u0": "Web Snare: small wheel webs hang at spots, tied together by silk lines, the spider waiting at each hub",
+    "u1": {"x": "silk", "n": "Venom Fang: the spider drops off the edge on its dragline, wheel and all, to bite"},
+    "u2": "Silk Wrap: white silk-wrapped bundles hang along the edge and twirl on their threads",
+    "u3": {"lay": "hold", "x": "dewrun", "n": "Orb Spin: a row of wheels spins up along the edge, dew running down the spokes"},
+    "b0": "Silk Wheel Snare: wheel webs are flung off the edge and spin out",
+    "b1": {"lay": "lance", "x": "silk", "n": "Patient Lunge: the spider rushes down its radial line in one run, the dragline behind"},
+    "b2": {"m": "orb-wheel", "x": "dew", "n": "Orb Web Screen: dewy orb webs held up in a row as a screen, beads flicked off"},
+    "b3": {"x": "silk", "n": "Line Drop Lure: the spider bobs on its line at spot after spot, luring"}
+   }
+  },
+  "fishing-spider": {
+   "pal": ["#b8905a", "#1c1610", "#a8dcef"], "m": "water-walker", "pers": "bob", "snd": ["click", "pop"], "spd": 1.1,
+   "notes": "Fishing spider standing on the water film: long banded legs splayed, a dimple ring under every foot; it darts, dives and snatches minnows.",
+   "p": {
+    "u0": "Water Skim: banded legs splay and the spider skates out and back, dimples under each foot",
+    "u1": {"x": "bubbles", "n": "Dive Snare: spiders hold spots under the film, tied by a silk line, bubbles rising"},
+    "u2": {"x": "dewrun", "n": "Silk Float: the spiders sit in a row on silk rafts, water beads running along the line"},
+    "u3": "Float Pin: one spider darts the length of the edge over the water and pins, dimple rings behind",
+    "b0": {"m": "spine-fish", "c": "#c8d8e0", "lay": "strike", "n": "Minnow Dive Strike: a silver minnow is flicked up out of the water"},
+    "b1": "Water-Walk Rush: legs reach off the edge in a rush, dimples popping",
+    "b2": {"x": "dew", "n": "Bristle Leg Guard: hairy banded legs held out like a fence, water beads flicked off"},
+    "b3": "Surface Skim Feint: the spider blinks from dimple to dimple across the surface"
+   }
+  },
+  "golden-orb-weaver": {
+   "pal": ["#e8c040", "#2a2008", "#fff4b0"], "m": "gold-silk", "pers": "march", "snd": ["click", "tink"], "spd": 0.8,
+   "notes": "Huge golden orb weaver: long jointed legs and a long gold body walking on strong golden silk that glints in the sun.",
+   "p": {
+    "u0": {"lay": "hold", "n": "Gold Silk Wall: two golden strands draw along the edge, the long-legged weaver standing guard on them"},
+    "u1": "Web Dodge: the weaver steps out along its gold lines and back again",
+    "u2": "Orb Bite: the weaver drops below its gold strands to bite, falling away",
+    "u3": {"m": "silk-bundle", "c": "#f0d878", "lay": "rise", "n": "Hammock Rest: little golden silk hammocks rise and sway"},
+    "b0": "Golden Fang: long golden legs strike out over the strands",
+    "b1": {"m": "silk-bundle", "c": "#f0d878", "lay": "strike", "n": "Silk-Wrap Sting: gold-wrapped bundles are flung off the edge"},
+    "b2": {"x": "glint", "n": "Gilded Silk Sheet: the gold strands are held taut, a white glint crossing"},
+    "b3": {"lay": "snare", "n": "Path-Wide Snare: gold lines tie spot to spot across the path"}
+   }
+  },
+  "dune-scorpion": {
+   "pal": ["#e0b468", "#3a2410", "#fff0c0"], "m": "sting-arc", "pers": "burrow", "snd": ["click", "hiss"], "x": "dust",
+   "notes": "Sandy desert scorpion: comes up out of the dunes, tail curled over in a question mark, claws forward; sand everywhere.",
+   "p": {
+    "u0": "Tail Sting: curled tails stab down off the edge and fall away, venom bulbs pale",
+    "u1": {"m": "pincer-snap", "lay": "lance", "n": "Claw Grab: a pair of sandy claws runs the edge snapping shut"},
+    "u2": "Plate Up: tails curl over in a row like raised shields and hold",
+    "u3": {"m": "sand-swim", "c": "#e8c890", "lay": "scatter", "n": "Sand Shuffle: the scorpion shuffles under, sand waves heave out and settle"},
+    "b0": {"m": "pincer-snap", "n": "Pincer Snip: sandy pincers snap out off the edge"},
+    "b1": "Curled Question Sting: question-mark tails rear and strike outward",
+    "b2": {"x": "powder", "n": "Sand Carapace: tails tuck down along the edge, fine sand sifting off the plates"},
+    "b3": "Sideways Scuttle: the tail pops up at a new spot each blink"
+   }
+  },
+  "whip-scorpion": {
+   "pal": ["#a49ab4", "#141018", "#d8f070"], "m": "vinegar-whip", "pers": "scuttle", "snd": ["crack", "hiss"],
+   "notes": "Vinegaroon: slim black body, two big feeler arms, a long thin whip tail; sprays sour vinegar mist and sidles at dusk.",
+   "p": {
+    "u0": {"lay": "strike", "n": "Whip Lash: thin whip tails lash out and crack, a yellow spark at the tip"},
+    "u1": "Acid Sup: curled whips rise off the edge in a puff of vinegar mist",
+    "u2": {"x": "haze", "n": "Dusk Hide: slim bodies slip out and back under a dusk haze"},
+    "u3": "Tail Lift: the whip lifts high and the body slams down",
+    "b0": {"lay": "lance", "n": "Whip-Arm Snip: the thick feeler arms snip their way along the edge"},
+    "b1": {"x": "jet", "n": "Sour Spray Jab: a vinegar jet squirts from the tail base"},
+    "b2": "Flat Vinegar Shell: flat dark bodies line the edge, whips laid back",
+    "b3": "Mincing Sidle: the slim body sidles from spot to spot, whip trailing"
+   }
+  },
+  "giant-centipede": {
+   "pal": ["#d8682c", "#1a0c06", "#f0d040"], "m": "fang-coil", "pers": "skitter", "snd": ["crack", "click"], "spd": 1.3,
+   "notes": "Giant forest centipede: a long orange body rippling in an S, yellow legs, big poison fangs at the head; very fast.",
+   "p": {
+    "u0": "Hundred Legs: orange bodies lunge off the edge, yellow legs rippling",
+    "u1": "Venom Jaws: fangs open and the bodies drop away, poison falling",
+    "u2": "Coil Up: bodies curl tight along the edge and hold",
+    "u3": {"lay": "lance", "n": "Hundred Steps: one long body races the length of the edge"},
+    "b0": {"lay": "slam", "n": "Hundred-Leg Nip: the head darts out, fangs snap, and pulls back"},
+    "b1": {"lay": "lance", "x": "sting", "n": "Forked Foot Sting: the body runs the edge, sting marks where the hind feet strike"},
+    "b2": {"x": "sheen", "n": "Segmented Plate: armoured segments line up along the edge, a sheen on the plates"},
+    "b3": "Many-Legged Rush: bodies flicker from spot to spot in a blur of legs"
+   }
+  },
+  "cave-centipede": {
+   "pal": ["#d8d4c4", "#2a2620", "#a8c8d8"], "m": "fang-coil", "m2": "stalactite-drip", "pers": "plop", "snd": ["crack", "pop"], "spd": 0.85, "x": "dewrun",
+   "notes": "Pale eyeless cave centipede: a slower, ghost-white sibling of the giant centipede with huge legs; drops from the roof among dripping stalactites.",
+   "p": {
+    "u0": "Cave Strike: a pale eyeless body shoots along the edge on huge legs, damp beads running",
+    "u1": "Moist Rest: cool drips rise and bead off stone tips",
+    "u2": "Stalactite Cover: stone teeth grow out along the edge, drips forming and falling",
+    "u3": {"lay": "fall", "n": "Roof Drop: pale bodies drop off the edge like falling from a cave roof"},
+    "b0": "Roof-Drop Nip: the pale head lunges out, fangs open",
+    "b1": {"x": "haze", "n": "Pale Draught Sting: pale bodies strike through a cold draught haze"},
+    "b2": "Cave-Pale Carapace: pale stone teeth line the edge like a carapace",
+    "b3": "Roof-Lurk Slither: the pale body slips in and out of the dark at spots"
+   }
+  },
+  "giant-millipede": {
+   "pal": ["#d4503a", "#120a0a", "#e8e4dc"], "m": "millipede-curl", "pers": "trundle", "snd": ["thud", "click"], "spd": 0.7,
+   "notes": "Huge black millipede with red legs: glossy coils that unroll into a wave of legs and curl back up; slow and heavy, poison mist when startled.",
+   "p": {
+    "u0": "Ring Crush: black coils slam out, red legs rippling, and drop back",
+    "u1": "Coil Armour: tight glossy coils sit along the edge and hold",
+    "u2": {"m": "musk-wave", "c": "#c8d070", "lay": "rise", "n": "Poison Mist: yellow-green defensive mist curls up off the edge"},
+    "u3": "Startled Curl: coils snap shut and red legs bristle out",
+    "b0": "Curl-Up Nip: a coil unrolls and nips out off the edge",
+    "b1": {"x": "sting", "n": "Red-Leg Sting: coils lunge out, red legs jabbing"},
+    "b2": {"x": "sheen", "n": "Coiled Black Shell: glossy coils hold the edge, sheen flecks"},
+    "b3": {"lay": "lance", "n": "Startled Coil Roll: a curled millipede rolls along the edge"}
+   }
+  },
+  "scarab-roller": {
+   "pal": ["#b8c040", "#1c1a08", "#ffe070"], "m": "sun-ball", "pers": "tumble", "snd": ["thud", "tink"], "spd": 0.9,
+   "notes": "Sacred scarab: a gold-green beetle pushing a huge ball like the sun, head down and stubborn.",
+   "p": {
+    "u0": {"x": "glint", "n": "Gold Carapace: scarabs pop out from behind their balls and back, a gold glint crossing"},
+    "u1": {"lay": "lance", "n": "Sun Roll: a rayed sun ball rolls the length of the edge, the beetle pushing"},
+    "u2": "Sacred Ball: sun balls held in a row, rays turning slowly",
+    "u3": "Scarab Ball Shove: big balls are shoved out and thump back, dust flying",
+    "b0": "Sun-Ball Pinch: scarabs lunge out from behind their balls",
+    "b1": {"lay": "slam", "n": "Beetle Horn Jab: the beetle rams its ball out and back like a horn jab"},
+    "b2": {"x": "sheen", "n": "Gold-Green Armour: balls and shells hold the edge, sheen flecks"},
+    "b3": "Stubborn Ball Roll: balls pop up at spots and keep rolling"
+   }
+  },
+  "bombardier-beetle": {
+   "pal": ["#e88a30", "#0e1420", "#f4f0e8"], "m": "boil-jet", "pers": "pounce", "snd": ["pop", "tink"], "spd": 1.1,
+   "notes": "Bombardier beetle: orange head, shiny blue-black shell, a tail turret that swings round and fires boiling steam with a pop.",
+   "p": {
+    "u0": "Hot Spray: beetles aim down and boiling drops fall in a puff of steam",
+    "u1": "Repair Rest: resting beetles rise, steam wisps curling off",
+    "u2": {"x": "sheen", "n": "Armour Plate: shiny blue-black shells line the edge, sheen flecks"},
+    "u3": "Turn Cannon: tail turrets swing out like spikes and pop steam",
+    "b0": "Boiling Tail Puff: steam puffs pop off the edge",
+    "b1": {"lay": "lance", "x": "jet", "n": "Scalding Jet: a beetle runs the edge, a hot jet squirting"},
+    "b2": {"x": "glint", "n": "Shiny Carapace Sheen: shells held along the edge, a white glint crossing"},
+    "b3": "Aimed Shot Lineup: beetles blink into spots and aim their turrets"
+   }
+  },
+  "ember-beetle": {
+   "pal": ["#f08a30", "#2a1008", "#ffe070"], "m": "coal-glow", "pers": "swarm", "snd": ["crack", "pop"], "spd": 1.2,
+   "notes": "Ember beetles: a swarm of small beetles glowing like live coals, sparks lifting, a scorched track behind.",
+   "p": {
+    "u0": "Ember Spit: glowing coal beetles spit, embers falling and fading",
+    "u1": "Hot Shell: coal backs flare out like spikes of heat",
+    "u2": "Cinder Rush: a swarm of live coals scurries off the edge",
+    "u3": {"lay": "lance", "x": "prints", "n": "Scorched Track: a coal beetle runs the edge, scorched footprints behind"},
+    "b0": {"lay": "slam", "n": "Coal-Glow Nip: glowing beetles dart out and back"},
+    "b1": {"lay": "lance", "x": "sting", "n": "Hot Coal Sting: a hot beetle runs the edge, sting flashes"},
+    "b2": "Glowing Shell Plate: coal backs line the edge, glowing",
+    "b3": "Ember Scurry: coals blink from spot to spot"
+   }
+  },
+  "frost-beetle": {
+   "pal": ["#a8d0f0", "#142838", "#ffffff"], "m": "rime-shell", "pers": "glide", "snd": ["tink", "crack"], "spd": 1.15,
+   "notes": "Frost beetles: blue-white glinting domes that skate on ice, rime needles on their backs, frost creeping where they pass.",
+   "p": {
+    "u0": {"x": "snow", "n": "Rime Charge: frosted shells charge off the edge, snow flying"},
+    "u1": {"lay": "lance", "n": "Ice Skate: one shell skates the whole edge, a white skid line behind"},
+    "u2": "Frost Plate: frost shells line the edge, rime needles growing",
+    "u3": "Bowling Ball: shells tuck and bowl out, thudding back",
+    "b0": "Frost-Shell Nip: shells lunge out, glints sliding",
+    "b1": {"x": "glint", "n": "Ice-Edge Sting: shells strike out, a hard white glint"},
+    "b2": {"x": "glint", "n": "Frozen Shell Guard: frozen shells hold the edge, a glint crossing"},
+    "b3": "Ice-Skid Bowl: shells skid from spot to spot"
+   }
+  },
+  "lava-beetle": {
+   "pal": ["#f0602a", "#1a0e0c", "#ffc040"], "m": "magma-crack", "pers": "thud", "snd": ["crack", "thud"], "spd": 0.8,
+   "notes": "Lava beetles: heavy black plates split by glowing red cracks, magma oozing, heat shimmer; stubborn and unstoppable.",
+   "p": {
+    "u0": "Magma Plate: black plates push out like spikes, red cracks glowing between",
+    "u1": "Cinder Shove: cracked plates slam out and drop back, magma beads oozing",
+    "u2": {"m": "ink-cloud", "c": "#b4aca8", "lay": "scatter", "n": "Ash Cloud: grey ash puffs bloom out and hang, blinding"},
+    "u3": "Stubborn Track: cracked plates hold the edge, heat shimmer above",
+    "b0": "Scorch-Track Nip: plates lunge off the edge, cracks flaring",
+    "b1": {"lay": "lance", "n": "Cracked-Glow Sting: a glowing plate grinds the length of the edge"},
+    "b2": {"x": "embers", "n": "Red-Cracked Carapace: plates hold the edge, embers rising from the cracks"},
+    "b3": {"lay": "lance", "x": "embers", "n": "Unstoppable Scorch Run: a plate scorches along the edge, embers behind"}
+   }
+  }
+ }
+}

@@ -1,0 +1,114 @@
+{
+ "_doc": "Medium batch m06 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "bog-leech/f:u3": {
+  "family": "drip",
+  "note": "slime trail left in the mire: drip, avoids a second web trip",
+  "review": true
+ },
+ "giant-mire-leech/f:b0": {
+  "family": "bite",
+  "note": "latch is a leech mouth: bite, avoids three slashes"
+ },
+ "giant-mire-leech/f:b1": {
+  "family": "bash",
+  "note": "heavy haul heave: bash, avoids three slashes"
+ },
+ "giant-mire-leech/f:u0": {
+  "family": "thrust",
+  "note": "hook sinks in: thrust, avoids three slashes",
+  "review": true
+ },
+ "giant-mire-leech/f:b3": {
+  "family": "ripple",
+  "note": "mire clutch: mud ripples, avoids a second web"
+ },
+ "river-otter/f:b1": {
+  "family": "ripple",
+  "note": "stream splash: water ripples"
+ },
+ "river-otter/f:u2": {
+  "family": "slash",
+  "note": "fish flung in an arc: slash streak, avoids a second web",
+  "review": true
+ },
+ "tiger-leech/f:b1": {
+  "family": "drip",
+  "note": "wet drop: drip, avoids a doubled leaf"
+ },
+ "tiger-leech/f:u0": {
+  "family": "slash",
+  "note": "tiger stripes: slash streaks"
+ },
+ "tiger-leech/f:u3": {
+  "family": "sparkle",
+  "note": "twin dew drops glint: sparkle, not a second shock",
+  "review": true
+ },
+ "saltmarsh-leech/f:b0": {
+  "family": "bite",
+  "note": "leech latch: bite, avoids two slashes"
+ },
+ "saltmarsh-leech/f:b1": {
+  "family": "puff",
+  "note": "brackish spray burst: puff, avoids two slashes",
+  "review": true
+ },
+ "ship-rat-crew/f:b1": {
+  "family": "ripple",
+  "note": "bilge water splash: ripple"
+ },
+ "ship-rat-crew/f:u2": {
+  "family": "buzz",
+  "note": "swarming crew gnaw: buzz, avoids a second bite",
+  "review": true
+ },
+ "sea-otter-bandit/f:b0": {
+  "family": "bite",
+  "note": "cracking shellfish with teeth: bite, avoids two slashes"
+ },
+ "sea-otter-bandit/f:b2": {
+  "family": "puff",
+  "note": "soft otter fur coat: puff, not shield"
+ },
+ "sea-otter-bandit/f:u1": {
+  "family": "leaf",
+  "note": "kelp wrap: leaf strands"
+ },
+ "sea-otter-bandit/f:u2": {
+  "family": "sparkle",
+  "note": "pebble glint in the pocket: sparkle, avoids a second web",
+  "review": true
+ },
+ "garfish/f:u3": {
+  "family": "sparkle",
+  "note": "silver glint leap: sparkle, avoids a doubled thrust",
+  "review": true
+ },
+ "seal-pup-raft/f:b3": {
+  "family": "ripple",
+  "note": "dive splash off the rocks: ripple"
+ },
+ "seal-pup-raft/f:u2": {
+  "family": "puff",
+  "note": "squeak puffs out, Water evade as soft puff",
+  "review": true
+ },
+ "ice-floe-seal/f:b1": {
+  "family": "ripple",
+  "note": "haul-out splash: ripple"
+ },
+ "ice-floe-seal/f:b3": {
+  "family": "slash",
+  "note": "overboard sweep: slash"
+ },
+ "ice-floe-seal/f:u1": {
+  "family": "sparkle",
+  "note": "ice shards glint: sparkle, avoids a second bash",
+  "review": true
+ },
+ "ice-floe-seal/f:u3": {
+  "family": "puff",
+  "note": "heave out spray: puff",
+  "review": true
+ }
+}

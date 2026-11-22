@@ -1,0 +1,482 @@
+{
+ "_doc": "Batch m09 (medium, opus themed pass): vipers (horned, rock), vine snake, camel calf, outback dingo, two hyenas (savanna, striped), warthog, bison calf stampede, ratel pair. Motifs in motifs/medium_m09.js; every creature has its own signature motif with its own chain effect; the two hyenas share bone-snap; reptile class pieces reuse m08 venom-fang, venom-spit and tail-lash with their own palettes.",
+ "creatures": {
+  "horned-viper": {
+   "pal": [
+    "#d8b47a",
+    "#5a4026",
+    "#f4e6c0"
+   ],
+   "m": "horn-sink",
+   "m2": "scale-rasp",
+   "pers": "burrow",
+   "snd": [
+    "hiss",
+    "click"
+   ],
+   "spd": 0.8,
+   "notes": "A sand-coloured desert viper with a small horn over each eye; it shimmies sideways down into the sand until only the horns and eyes show, and warns by rubbing its saw-edged scales together in C-shaped coils.",
+   "p": {
+    "u0": "Horn Strike: a sand ridge runs the length of the edge with two little horns poking up, then the viper bursts out of the sand",
+    "u1": {
+     "m": "horn-sink",
+     "x": "dust",
+     "n": "Sand Hide: vipers shimmy down into the sand along the edge until only their horns and eyes show, sand settling"
+    },
+    "u2": {
+     "m": "scale-rasp",
+     "lay": "bristle",
+     "n": "Rattle Warn: C-shaped coils press out of the edge and rub their saw scales, rasp ticks flying"
+    },
+    "u3": {
+     "lay": "strike",
+     "x": "dust",
+     "n": "Buried Wait: buried vipers burst up out of the sand one after another, sand thrown off"
+    },
+    "b0": {
+     "m": "venom-fang",
+     "x": "dust",
+     "n": "Horned Sandfang: sand-pale fangs launch off the edge, a venom bead at each tip, sand grains flying"
+    },
+    "b1": {
+     "m": "tail-lash",
+     "x": "dust",
+     "n": "Buried Tail Whip: sandy tails whip up out of the sand and crack, dust kicked"
+    },
+    "b2": "Horned Brow Coil: rasping C-coils line the edge in a tight guard, saw scales ticking",
+    "b3": {
+     "m": "horn-sink",
+     "x": "dust",
+     "n": "Patient Burrow: vipers sink down below the edge into the sand and wait, only horns left"
+    }
+   }
+  },
+  "rock-viper": {
+   "pal": [
+    "#aaa69c",
+    "#3a3630",
+    "#dcd4bc"
+   ],
+   "m": "scree-viper",
+   "m2": "ledge-slab",
+   "pers": "trundle",
+   "snd": [
+    "crack",
+    "thud"
+   ],
+   "spd": 0.75,
+   "notes": "A grey, rock-patterned, flat-headed mountain viper that lies among the scree like one more stone; tough-hided, it basks on hot rock and bites whatever sits on it.",
+   "p": {
+    "u0": "Ledge Wall: stone slabs stack along the edge into a ledge wall, a flat head sliding out of a crack",
+    "u1": {
+     "lay": "slam",
+     "n": "Rock Fang: the coiled scree viper shoves out among its pebbles, flat head lifting, and drops back"
+    },
+    "u2": {
+     "m": "hot-scree",
+     "n": "Basking Heat: hot rocks push out of the edge glowing at the base, a viper draped on each, heat rising"
+    },
+    "u3": {
+     "m": "sat-rock",
+     "n": "Sat Upon: a flat rock is pressed down from above, cracks, and the viper under it bites up with white fangs"
+    },
+    "b0": "Sat-On Strike: blotched vipers launch off the edge from among the pebbles",
+    "b1": {
+     "lay": "lance",
+     "n": "Stony Lash: one rock-blotched viper lashes the length of the edge, pebbles kicked aside"
+    },
+    "b2": {
+     "x": "dust",
+     "n": "Ledge Camouflage: slabs line the edge in grit dust, the viper among them only a flat head in a crack"
+    },
+    "b3": {
+     "m": "venom-spit",
+     "c": "#c4d070",
+     "n": "Lichen Spray: snouts spit a fan of lichen-green venom droplets off the edge"
+    }
+   }
+  },
+  "vine-snake": {
+   "pal": [
+    "#7ccc4a",
+    "#1e3814",
+    "#e8e070"
+   ],
+   "m": "vine-sway",
+   "m2": "tendril-hide",
+   "pers": "glide",
+   "snd": [
+    "whirr",
+    "hiss"
+   ],
+   "spd": 1.15,
+   "notes": "A vine-thin bright-green tree snake with a pointed snout and a horizontal keyhole pupil; it holds its body out stiff like a twig, sways with the leaves and leans out to strike.",
+   "p": {
+    "u0": "Vine Strike: one stiff vine-thin snake shoots along the length of the edge, pointed snout first",
+    "u1": "Leaf Blend: tendrils and leaves scatter out of the edge and back, a thin snake lying along each stem, its eye showing now and then",
+    "u2": {
+     "lay": "slam",
+     "x": "dew",
+     "n": "Whip Flick: thin bodies flick out of the edge like whips and snap back, venom drops flung off"
+    },
+    "u3": {
+     "m": "keyhole-gaze",
+     "n": "Early Lean: big golden keyhole eyes lock on and lean out off the edge before the strike"
+    },
+    "b0": {
+     "m": "venom-fang",
+     "n": "Keyhole Fang: thin green rear fangs launch off the edge, a venom bead at each tip"
+    },
+    "b1": "Creeper Whip: vine snakes lash out stiff from the edge like creepers whipping in the wind",
+    "b2": "Leaf-Mimic Coil: vine stems and leaves line the edge, a snake coiled along each, almost invisible",
+    "b3": {
+     "m": "venom-spit",
+     "n": "Ambush Spray: pointed snouts spit fans of green venom from the leaves"
+    }
+   }
+  },
+  "camel-calf": {
+   "pal": [
+    "#dcb47e",
+    "#5a3c20",
+    "#fff0d8"
+   ],
+   "m": "calf-wobble",
+   "m2": "hump-fluff",
+   "pers": "tumble",
+   "snd": [
+    "pop",
+    "squish"
+   ],
+   "spd": 0.85,
+   "notes": "A knobbly, fluffy desert camel calf on stilt legs it has not learned to use, with a little fluffy hump, long eyelashes against the sand, and a habit of spitting cud.",
+   "p": {
+    "u0": "Calf Hump Wall: fluffy hump mounds line the edge into a soft wall, fluff tufts waving",
+    "u1": {
+     "lay": "slam",
+     "n": "Wobble Kick: gangly calves wobble out of the edge, one stilt leg kicking, and totter back"
+    },
+    "u2": {
+     "m": "lash-blink",
+     "x": "dust",
+     "n": "Sand Fold: calves fold down and shut their long lashes against the blowing sand, then open again"
+    },
+    "u3": {
+     "m": "cud-spit",
+     "lay": "strike",
+     "n": "Clumsy Spit: floppy lips spit green cud blobs off the edge that splat flat"
+    },
+    "b0": "Lanky Hoof Kick: lanky calves launch off the edge, knobbly knees splaying",
+    "b1": {
+     "lay": "slam",
+     "x": "dust",
+     "n": "Gangly Stomp: calves stomp out of the edge on splayed stilt legs, dust puffing"
+    },
+    "b2": "Fluff Plating: fluffy humps press together along the edge like soft plates",
+    "b3": {
+     "lay": "scatter",
+     "n": "Stubborn Sidestep: calves wobble off sideways out of the edge and wander back"
+    }
+   }
+  },
+  "outback-dingo": {
+   "pal": [
+    "#d8904a",
+    "#3a2010",
+    "#f8ecd4"
+   ],
+   "m": "dingo-lope",
+   "m2": "howl-rise",
+   "pers": "pounce",
+   "snd": [
+    "click",
+    "croak"
+   ],
+   "spd": 1.2,
+   "notes": "A lean ginger outback dingo with pale socks, pricked ears and a white-tipped bushy tail; it lopes for miles through red dust, circles its prey, and howls instead of barking.",
+   "p": {
+    "u0": {
+     "m": "dingo-snap",
+     "n": "Dingo Snap: ginger muzzles flash off the edge, white teeth gaping then snapping shut"
+    },
+    "u1": {
+     "lay": "feint",
+     "x": "prints",
+     "n": "Circle Round: dingoes lope from spot to spot round the edge, paw prints left behind"
+    },
+    "u2": {
+     "m": "red-dust-roll",
+     "n": "Dust Roll: dingoes roll out of the edge in red dust, paws up, and roll back"
+    },
+    "u3": "Pale Patience: dingoes sit along the edge, muzzles raised, a long howl rising",
+    "b0": {
+     "x": "dust",
+     "n": "Dust-Pale Rake: dingoes launch off the edge in a spray of red dust"
+    },
+    "b1": {
+     "m": "dingo-snap",
+     "lay": "hold",
+     "n": "Patient Jaw Hold: muzzles line the edge, jaws clamped shut and holding"
+    },
+    "b2": {
+     "m": "red-dust-roll",
+     "n": "Dust Crouch: dingoes lie low in red dust along the edge"
+    },
+    "b3": {
+     "lay": "slam",
+     "n": "Pale Shoulder Check: a dingo lopes out shoulder first and drops back"
+    }
+   }
+  },
+  "savanna-hyena": {
+   "pal": [
+    "#c8a46a",
+    "#2a1c10",
+    "#fff4dc"
+   ],
+   "m": "spot-lope",
+   "m2": "giggle-burst",
+   "pers": "swarm",
+   "snd": [
+    "zig",
+    "chirp"
+   ],
+   "spd": 1.1,
+   "notes": "A spotted grassland hyena: sloping back, big head with round ears and a dark muzzle, jaws that crack bone; it runs in a giggling pack and never forgets who wronged it.",
+   "p": {
+    "u0": {
+     "m": "giggle-burst",
+     "lay": "snare",
+     "n": "Cackle: grinning hyena heads hang at spots, their giggles tied together in a tripping line"
+    },
+    "u1": {
+     "m": "bone-snap",
+     "n": "Bone Crunch: bones run the length of the edge, bend, crack and snap in two"
+    },
+    "u2": {
+     "m": "bone-snap",
+     "x": "crumbs",
+     "n": "Scavenge: bone scraps rise off the edge, gnawed and cracked, crumbs falling"
+    },
+    "u3": "Laugh It Off: grinning heads scatter out of the edge on a laugh and come back",
+    "b0": {
+     "m": "giggle-burst",
+     "n": "Giggle Gouge: giggling heads launch off the edge, hee marks bouncing"
+    },
+    "b1": {
+     "m": "bone-snap",
+     "lay": "slam",
+     "n": "Scavenger Jaw Crunch: bones shove out of the edge and snap with a crunch"
+    },
+    "b2": {
+     "m": "spot-lope",
+     "n": "Pack Grin Stance: spotted hyenas stand shoulder to shoulder along the edge"
+    },
+    "b3": {
+     "lay": "slam",
+     "n": "Pack Mob Shove: the pack lopes out of the edge together and drops back"
+    }
+   }
+  },
+  "striped-hyena": {
+   "pal": [
+    "#c4c0b4",
+    "#1c1a18",
+    "#eeeae0"
+   ],
+   "m": "mane-raise",
+   "m2": "mane-crest",
+   "pers": "skitter",
+   "snd": [
+    "crack",
+    "hiss"
+   ],
+   "spd": 0.95,
+   "notes": "A grey, black-striped desert and mountain hyena with a long mane down its back that it raises to look twice its size; a quiet scavenger that drags bones away.",
+   "p": {
+    "u0": {
+     "lay": "slam",
+     "n": "Scavenge Shove: a striped hyena shoves out of the edge, mane rising, and drops back"
+    },
+    "u1": {
+     "m": "bone-snap",
+     "lay": "lance",
+     "x": "dust",
+     "n": "Bone Drag: a bone is dragged the length of the edge, dust scuffed behind it"
+    },
+    "u2": "Mane Bristle: long black-tipped mane hairs bristle up out of the edge",
+    "u3": {
+     "m": "mane-raise",
+     "lay": "bristle",
+     "n": "Mane Double: striped hyenas push out of the edge and raise their manes to twice their size"
+    },
+    "b0": {
+     "m": "mane-crest",
+     "lay": "strike",
+     "n": "Mane Raking Swipe: mane hairs rake off the edge like claws"
+    },
+    "b1": {
+     "m": "bone-snap",
+     "lay": "slam",
+     "n": "Bone Crunch Jaws: bones shove out of the edge and snap"
+    },
+    "b2": "Striped Mane Bristle: mane crests line the edge, grey and black-tipped",
+    "b3": {
+     "lay": "slam",
+     "x": "dust",
+     "n": "Puffed-Up Shove: a hyena puffs up its mane and shoves out of the edge, dust kicked"
+    }
+   }
+  },
+  "warthog": {
+   "pal": [
+    "#aaa8a2",
+    "#2c2622",
+    "#e8d0a0"
+   ],
+   "m": "tail-trot",
+   "m2": "wire-bristle",
+   "pers": "march",
+   "snd": [
+    "thud",
+    "squish"
+   ],
+   "spd": 1.15,
+   "notes": "A grey grassland warthog with warts, upturned tusks and a wiry tawny mane; it trots off with its tail held straight up like an antenna and shoves through mud.",
+   "p": {
+    "u0": {
+     "m": "tusk-hook",
+     "lay": "slam",
+     "n": "Tusk Bash: warty faces shove out of the edge, curved tusks hooking up"
+    },
+    "u1": {
+     "m": "mud-fling",
+     "n": "Mud Shove: snouts shove out of the edge flinging clods of mud"
+    },
+    "u2": "Bristle Mane: wiry tawny bristles spring out of the edge with forked tips",
+    "u3": {
+     "m": "tusk-hook",
+     "lay": "lance",
+     "n": "Tusk Lift: one warthog face runs the edge, tusks lifting under"
+    },
+    "b0": {
+     "m": "tusk-hook",
+     "n": "Tusk Hook Swipe: tusked faces launch off the edge, tusks hooking"
+    },
+    "b1": {
+     "lay": "lance",
+     "n": "Tusk-Up Gore: a warthog charges the length of the edge, tusks up, tail up"
+    },
+    "b2": {
+     "m": "tail-trot",
+     "n": "Tail-Up Stance: warthogs stand along the edge, tails straight up like flags"
+    },
+    "b3": {
+     "lay": "slam",
+     "x": "dust",
+     "n": "Savanna Sudden Charge: a warthog bolts out of the edge, tail up, dust flying"
+    }
+   }
+  },
+  "bison-calf-stampede": {
+   "pal": [
+    "#c8643c",
+    "#2a160c",
+    "#f0d8b0"
+   ],
+   "m": "calf-stampede",
+   "m2": "head-plant",
+   "pers": "thud",
+   "snd": [
+    "thud",
+    "croak"
+   ],
+   "spd": 1.05,
+   "notes": "A stampede of rust-coloured grassland bison calves with oversized dark woolly heads and shoulder humps; they charge head-down, plant their heads, and bellow for the herd.",
+   "p": {
+    "u0": {
+     "lay": "slam",
+     "n": "Calf Charge: calves gallop out of the edge head-down and pull up"
+    },
+    "u1": {
+     "m": "hoof-dust",
+     "n": "Dust Cover: dust clouds billow out of the edge, hooves and tails kicking inside them"
+    },
+    "u2": {
+     "m": "bellow-call",
+     "lay": "snare",
+     "n": "Herd Bellow: calves bellow at spots, the bellow arcs tied into one tripping roar"
+    },
+    "u3": {
+     "m": "head-plant",
+     "lay": "lance",
+     "n": "Heavy Lurch: one oversized woolly head lurches the length of the edge"
+    },
+    "b0": {
+     "m": "head-plant",
+     "lay": "slam",
+     "n": "Hard-Head Butt: big woolly heads butt out of the edge and drop back"
+    },
+    "b1": {
+     "m": "hoof-dust",
+     "n": "Stampede Trample: dust clouds with hooves fly off the edge"
+    },
+    "b2": "Heavy Head Plant: woolly heads plant along the edge, hooves dug in",
+    "b3": {
+     "lay": "slam",
+     "x": "dust",
+     "n": "Herd Charge Shove: the herd shoves out of the edge in its own dust"
+    }
+   }
+  },
+  "ratel-pair": {
+   "pal": [
+    "#c8c8c0",
+    "#141414",
+    "#f0ecd8"
+   ],
+   "m": "ratel-duo",
+   "m2": "loose-skin",
+   "pers": "burrow",
+   "snd": [
+    "crack",
+    "thud"
+   ],
+   "spd": 1.0,
+   "notes": "A pair of grassland honey badgers, grey-white mantle over a black body, loose tough skin they can twist inside, long digging claws; fearless, tireless, they always come back for more.",
+   "p": {
+    "u0": "Thick Skin: ratels line the edge, twisting round inside their loose skins",
+    "u1": {
+     "lay": "slam",
+     "n": "Ratel Tear: the pair shoves out of the edge together and tears back"
+    },
+    "u2": {
+     "m": "dig-claw",
+     "n": "Rough-Up: long pale digging claws bristle out of the edge, soil flying"
+    },
+    "u3": {
+     "x": "marks",
+     "n": "Back For More: ratel pairs launch off the edge again and again, angry marks popping"
+    },
+    "b0": {
+     "m": "dig-claw",
+     "n": "Honeyhunt Rake: digging claws rake off the edge, soil flecks flying"
+    },
+    "b1": {
+     "lay": "slam",
+     "x": "dust",
+     "n": "Tireless Double Maul: the pair mauls out of the edge, dust kicked"
+    },
+    "b2": {
+     "lay": "scatter",
+     "n": "Thick Skin Shrug: ratels shrug out of the edge inside their loose skins and come back"
+    },
+    "b3": {
+     "m": "honey-dig",
+     "c": "#f0a820",
+     "n": "Honey Dig Shove: torn comb shoves out of the edge, honey dripping, bees buzzing"
+    }
+   }
+  }
+ }
+}

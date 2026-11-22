@@ -1,0 +1,139 @@
+{
+ "_doc": "Batch m03 (medium, opus themed pass): ghost-slug, giant-banded-snail, herring-gull, tern-squadron, skua-raider, cormorant-line, booby-colony, turkey-vulture, mountain-buzzard, burrowing-owl, snowy-owl-scout. Every piece (unique and class) has a hand note. New motifs (24, all 11 signatures unique) are drawn by claude/pf-anim/motifs/medium_m03.js; one composition motif (guano-splat) is defined below. Shared secondaries on purpose: plunge-splash (tern, cormorant, booby: all plunge divers), hook-jab (skua, turkey-vulture, mountain-buzzard: hooked bills), thermal-spiral (turkey-vulture, mountain-buzzard: thermal soarers), talon-grip (buzzard, snowy owl), stolen-fish (skua, cormorant). Reused catalogue motifs: glass-glint (ghost-slug b2, see-through glimmer), croak-ring (snowy-owl u1, hoot rings), bunting-flurry (snowy-owl u2, white feathers in snow).",
+ "motifs": {
+  "guano-splat": {"g": "splat", "mo": "stick", "x": "spots", "car": "hop", "fam": "thorn", "gap": 12, "nm": "guano crust", "desc": "white guano splats slapped down and sticking, crusting into a rough rim with dark flecks"}
+ },
+ "creatures": {
+  "ghost-slug": {"pal": ["#c8d4e0", "#2a3440", "#b8ffe8"], "m": "ghost-ooze", "m2": "chill-mist", "pers": "squelch", "snd": ["squish", "hiss"], "spd": 0.7,
+   "notes": "Ghost slug: a pale see-through cave slug with a faint glow inside; it fades in and out and breathes cold cave air.",
+   "p": {
+    "u0": {"m": "ghost-ooze", "x": "glowtrail", "n": "Glow Ooze: see-through slugs rise off the edge, their glow cores brightening, a dotted afterglow behind"},
+    "u1": {"m": "ghost-ooze", "x": "sheen", "n": "Pale Sheen: the pale slugs slip out and back, fading half away, white sheen flecks where they were"},
+    "u2": {"m": "ghost-ooze", "lay": "lance", "x": "haze", "n": "Cold Lunge: one ghost slug lunges along the whole edge in a cold haze"},
+    "u3": {"m": "chill-mist", "n": "Drift Veil: a veil of cold breath curls up and drifts out and back"},
+    "b0": {"m": "ghost-ooze", "x": "dew", "n": "Cold Puddle Lunge: slugs lunge out of a cold puddle, drops flicked off"},
+    "b1": {"m": "chill-mist", "n": "Cave Mouth Chill: cold cave breath curls off the edge, frost specks at the tips"},
+    "b2": {"m": "glass-glint", "c": "#d8f0ff", "n": "Glimmer Shroud: hollow glassy outlines line the edge, a glint crossing them"},
+    "b3": {"m": "ghost-ooze", "x": "splat", "n": "Puddle Shapeshift: the slug melts to a puddle and re-forms at spot after spot"}}},
+
+  "giant-banded-snail": {"pal": ["#e0b83a", "#3a2410", "#fff4c0"], "m": "banded-barrel", "m2": "slime-sheet", "pers": "trundle", "snd": ["thud", "squish"], "spd": 0.6,
+   "notes": "Giant banded snail: a huge glossy yellow-brown shell with a dark spiral band, rolling slowly through rainforest leaf litter on a slimy foot.",
+   "p": {
+    "u0": {"m": "banded-barrel", "x": "dust", "n": "Banded Slam: the big banded shell slams out and drops back, dust thrown up"},
+    "u1": {"m": "banded-barrel", "x": "sheen", "n": "Shell Spiral: shells roll out and back, the gloss highlight turning"},
+    "u2": {"m": "slime-sheet", "n": "Slime Sheet: glossy slime films hang at spots, tied together by sticky strings"},
+    "u3": {"m": "banded-barrel", "lay": "lance", "x": "trail", "n": "Striped Roll: one banded shell rolls the length of the edge on a wet trail"},
+    "b0": {"m": "banded-barrel", "x": "crumbs", "n": "Leaf Litter Gnaw: shells lunge in, chewed leaf crumbs left behind"},
+    "b1": {"m": "banded-barrel", "lay": "slam", "x": "dust", "n": "Barrel-Shell Crush: the barrel shell crashes down hard"},
+    "b2": {"m": "banded-barrel", "x": "-", "n": "Striped Barrel Hide: shells sit tight along the edge, the snail pulled in"},
+    "b3": {"m": "slime-sheet", "lay": "feint", "x": "clods", "n": "Litter Roll Over: slime and leaf litter flip at spot after spot"}}},
+
+  "herring-gull": {"pal": ["#e8ecef", "#4a5560", "#f2c21a"], "m": "gull-snatch", "m2": "bin-clang", "pers": "hop", "snd": ["crack", "chirp"], "spd": 1.1,
+   "notes": "Herring gull: a big white seaside gull with grey wings, black wingtips and a yellow bill with a red spot; a loud chip thief that raids the bins.",
+   "p": {
+    "u0": {"m": "chip-loot", "c": "#f0c860", "n": "Chip Thief: stolen hot chips dangle at spots, tied together, crumbs dropping"},
+    "u1": {"m": "gull-snatch", "lay": "lance", "n": "Gull Swoop: a gull swoops the length of the edge, down and up"},
+    "u2": {"m": "gull-screech", "n": "Screech: gull heads throw back and screech, the wedges spreading out"},
+    "u3": {"m": "bin-clang", "c": "#b8c4cc", "n": "Bin Lid Clang: bin lids slam down and clang, clang marks flying"},
+    "b0": {"m": "chip-loot", "c": "#f0c860", "lay": "strike", "n": "Scrap-Snatch Peck: chips are snatched off the edge and tumble away"},
+    "b1": {"m": "gull-snatch", "x": "marks", "n": "Screaming Swoop: gulls swoop off the edge, angry marks above"},
+    "b2": {"m": "gull-snatch", "lay": "hold", "n": "Gull-Wide Spread: gulls hang along the edge, grey wings spread wide"},
+    "b3": {"m": "gull-snatch", "x": "crumbs", "n": "Thief's Flap Away: the gulls flap off and back, crumbs falling from their bills"}}},
+
+  "tern-squadron": {"pal": ["#f4f4f0", "#18161a", "#e84030"], "m": "tern-fork", "m2": "plunge-splash", "pers": "plop", "snd": ["chirp", "whirr"], "spd": 1.3,
+   "notes": "Tern squadron: slim white terns with black caps, red bills and long forked tails, flying in formation and plunging for fish.",
+   "p": {
+    "u0": {"m": "tern-fork", "x": "jet", "n": "Dive Strike: the squadron streaks along the edge in a V, a spray jet where it hits"},
+    "u1": {"m": "tern-fork", "x": "arc", "n": "Wing Wheel: the terns wheel out and back on a dotted arc"},
+    "u2": {"m": "plunge-splash", "n": "Fish Snatch: terns fold and plunge, crown splashes jump up and fall"},
+    "u3": {"m": "tern-fork", "x": "sting", "n": "Fly Past Cut: terns cut past off the edge, sharp cut lines behind"},
+    "b0": {"m": "tern-fork", "lay": "lance", "n": "Head-Aimed Stab: a tight V darts down the edge, red bills first"},
+    "b1": {"m": "plunge-splash", "lay": "strike", "n": "Flock Stoop Dive: the flock stoops off the edge, a splash for each"},
+    "b2": {"m": "tern-fork", "x": "-", "n": "Formation Wing Screen: terns hold a staggered line along the edge"},
+    "b3": {"m": "tern-fork", "lay": "feint", "n": "Annoyed Break Away: the formation breaks and terns flick between spots"}}},
+
+  "skua-raider": {"pal": ["#a87850", "#2a1a0e", "#f0e8d8"], "m": "skua-pirate", "m2": "hook-jab", "pers": "thud", "snd": ["crack", "thud"], "spd": 1.15,
+   "notes": "Skua raider: a heavy brown sea pirate with white wing flashes and a hooked bill; it chases other birds until they drop their catch.",
+   "p": {
+    "u0": {"m": "skua-pirate", "n": "Skua Stoop: a heavy skua stoops down the edge, swerving hard"},
+    "u1": {"m": "hook-jab", "n": "Beak Jab: hooked bills jab out of the edge one after another and tear"},
+    "u2": {"m": "skua-pirate", "x": "-", "n": "Skua Cover: skuas hang along the edge, white wing flashes held out"},
+    "u3": {"m": "stolen-fish", "n": "Steal In Flight: stolen fish tumble out and back through the air, drops flung"},
+    "b0": {"m": "hook-jab", "n": "Robber's Hooked Beak: the hooked bill snaps out and tears"},
+    "b1": {"m": "skua-pirate", "x": "marks", "n": "Raised-Arm Stoop: skuas stoop off the edge with wings raised, angry marks"},
+    "b2": {"m": "skua-pirate", "lay": "hold", "x": "dust", "n": "Heavy Brown Wall: heavy brown birds stand shoulder to shoulder, dust at their feet"},
+    "b3": {"m": "stolen-fish", "lay": "feint", "n": "Loot-Grab Flight: a fish is grabbed and flicks from spot to spot"}}},
+
+  "cormorant-line": {"pal": ["#7c8c94", "#101418", "#40d0b0"], "m": "wing-dry", "m2": "snake-neck", "pers": "bob", "snd": ["croak", "pop"], "spd": 0.9,
+   "notes": "Cormorant line: dark cormorants with snake necks, hooked bills and emerald eyes, lined up on a post holding their wings out to dry, then diving low in the water.",
+   "p": {
+    "u0": {"m": "snake-neck", "n": "Dive Spear: a snake neck spears along the edge underwater, bubbles rising"},
+    "u1": {"m": "snake-neck", "x": "dew", "n": "Rapid Surface: necks pop up out of the water, drops flung off"},
+    "u2": {"m": "wing-dry", "n": "Wing Dry: the line shuffles out and back, wings held out, drips falling"},
+    "u3": {"m": "stolen-fish", "lay": "snare", "c": "#c8d4dc", "n": "Surfaced Catch: caught fish hang at spots, tied to the bills by a line"},
+    "b0": {"m": "snake-neck", "x": "-", "n": "Post Spear Peck: necks strike off the edge from the water"},
+    "b1": {"m": "plunge-splash", "c": "#c8d4dc", "n": "Fish Plunge: cormorants plunge in, crown splashes and rings"},
+    "b2": {"m": "wing-dry", "x": "dewrun", "n": "Sun-Dried Wings: cormorants line the edge, wings hung out, drops running down"},
+    "b3": {"m": "wing-dry", "lay": "feint", "n": "Line Shuffle: the birds on the post swap places spot to spot"}}},
+
+  "booby-colony": {"pal": ["#5ab0e8", "#1e2a38", "#ffffff"], "m": "blue-foot-strut", "m2": "guano-splat", "pers": "march", "snd": ["chirp", "thud"], "spd": 1.0,
+   "notes": "Booby colony: white seabirds on bright blue feet, strutting and lifting each foot high, plunging for fish from the cliff and crusting the rocks with guano.",
+   "p": {
+    "u0": {"m": "blue-foot-strut", "n": "Blue Foot Strut: boobies strut out and back, one blue foot high, then the other"},
+    "u1": {"m": "plunge-splash", "c": "#f4f4f4", "n": "Plunge: white boobies slam into the water, a big crown splash"},
+    "u2": {"m": "guano-splat", "c": "#f2f0e6", "n": "Guano Cover: white guano splats crust the edge into a rough spiky rim"},
+    "u3": {"m": "blue-foot-strut", "x": "-", "n": "Rude Stamp: a blue foot stamps down at spot after spot"},
+    "b0": {"m": "blue-foot-strut", "x": "-", "n": "Whistle Peck: boobies lunge off the edge, blue feet flashing"},
+    "b1": {"m": "plunge-splash", "c": "#f4f4f4", "lay": "lance", "n": "Stamping Dive: a run of splashes races along the edge"},
+    "b2": {"m": "guano-splat", "c": "#f2f0e6", "lay": "hold", "n": "Cliff Wall Wings: a guano-white cliff wall lines the edge"},
+    "b3": {"m": "blue-foot-strut", "x": "marks", "n": "Rude Interruption: boobies barge out and back, cross marks above"}}},
+
+  "turkey-vulture": {"pal": ["#b0a89c", "#201814", "#e04030"], "m": "wobble-v", "m2": "thermal-spiral", "pers": "glide", "snd": ["hiss", "whirr"], "spd": 0.85,
+   "notes": "Turkey vulture: dark wings with silver flight feathers held in a shallow V, teetering on the wind, a tiny bare red head; it rides thermals and hisses.",
+   "p": {
+    "u0": {"m": "wobble-v", "n": "Wobble Glide: teetering Vs glide out and back, rocking side to side"},
+    "u1": {"m": "wobble-v", "lay": "feint", "n": "Sway Off: the vulture sways away and turns up at another spot"},
+    "u2": {"m": "hook-jab", "c": "#e04030", "lay": "lance", "n": "Beak Rip: a bare red head rips along the edge, the hooked bill tearing"},
+    "u3": {"m": "thermal-spiral", "n": "Thermal Shrug: heat columns stand along the edge, a vulture circling in each"},
+    "b0": {"m": "hook-jab", "c": "#e04030", "n": "Red-Head Gouge: the bare red head jabs out and gouges"},
+    "b1": {"m": "wobble-v", "x": "haze", "n": "Thermal Stoop: Vs tip off the edge out of a heat haze"},
+    "b2": {"m": "wobble-v", "lay": "hold", "n": "Spread Wing Shield: wide dark Vs hang along the edge, silver feathers showing"},
+    "b3": {"m": "thermal-spiral", "lay": "rise", "n": "Thermal Lift-Off: a thermal lifts the bird straight up off the edge"}}},
+
+  "mountain-buzzard": {"pal": ["#b88a5a", "#2e1e10", "#f0e0c0"], "m": "broad-soar", "m2": "talon-grip", "pers": "hover", "snd": ["chirp", "whirr"], "spd": 0.8,
+   "notes": "Mountain buzzard: a broad mottled-brown hawk on very wide rounded wings, circling the ridges in thermals, its shadow sweeping the ground.",
+   "p": {
+    "u0": {"m": "broad-soar", "x": "arc", "n": "Thermal Drop: a broad buzzard drops along the edge on a dotted stoop line"},
+    "u1": {"m": "talon-grip", "n": "Talon Clutch: talons reach off the edge, open, close and clench"},
+    "u2": {"m": "soar-shadow", "n": "Soar Shadow: the buzzard's cross-shaped shadow slams over the edge and away"},
+    "u3": {"m": "broad-soar", "x": "haze", "n": "Ridge Circle: buzzards circle out and back over a heat haze"},
+    "b0": {"m": "hook-jab", "c": "#e8c060", "n": "Ridge Hook Peck: a hooked yellow-based bill jabs and tears"},
+    "b1": {"m": "talon-grip", "x": "dust", "n": "Mountain Thermal Stoop: talons first off the edge, grit kicked up"},
+    "b2": {"m": "broad-soar", "x": "-", "n": "Broad Brown Wing: very wide mottled wings line the edge"},
+    "b3": {"m": "thermal-spiral", "c": "#f0e0c0", "n": "Ridgeline Glide Off: the buzzard slips into a thermal and out again"}}},
+
+  "burrowing-owl": {"pal": ["#c8a070", "#3a2a18", "#f8f4e0"], "m": "bob-owl", "m2": "burrow-hole", "pers": "burrow", "snd": ["hiss", "click"], "spd": 1.1,
+   "notes": "Burrowing owl: a small sandy spotted owl on long legs with a round head, white brows and yellow eyes, bobbing at the mouth of its burrow.",
+   "p": {
+    "u0": {"m": "bob-owl", "x": "prints", "n": "Ground Strike: a long-legged owl runs the length of the edge, prints behind"},
+    "u1": {"m": "burrow-hole", "lay": "slam", "x": "dust", "n": "Dust Spurt: burrow mouths burst out of the edge, dust spurting"},
+    "u2": {"m": "burrow-hole", "x": "-", "n": "Burrow Mouth: burrow mouths line the edge, yellow eyes blinking inside"},
+    "u3": {"m": "bob-owl", "n": "Dawn Nod: the owl bobs its head at spot after spot"},
+    "b0": {"m": "bob-owl", "n": "Bobbing Beak: owls bob and peck off the edge"},
+    "b1": {"m": "bob-owl", "lay": "slam", "x": "dust", "n": "Burrow Bob Strike: an owl springs out of the burrow and drops back, dust"},
+    "b2": {"m": "bob-owl", "lay": "hold", "n": "Burrow Wing Hood: owls stand guard along the edge, bobbing"},
+    "b3": {"m": "burrow-hole", "n": "Hole-Hop Retreat: the owls duck into their holes and pop back out"}}},
+
+  "snowy-owl-scout": {"pal": ["#f0f0ea", "#3a3a42", "#f2c81a"], "m": "snow-gaze", "m2": "talon-grip", "pers": "pounce", "snd": ["croak", "whirr"], "spd": 0.9,
+   "notes": "Snowy owl scout: a white black-flecked tundra owl with big yellow eyes, sitting dead still on the snow, then dropping silently on its prey.",
+   "p": {
+    "u0": {"m": "talon-grip", "c": "#f0f0ea", "x": "snow", "n": "Snow Swoop: white feathered talons strike off the edge, snow thrown"},
+    "u1": {"m": "croak-ring", "c": "#d8ecff", "x": "snow", "n": "Frost Hoot: hoot rings pulse out and back, snow falling through them"},
+    "u2": {"m": "bunting-flurry", "c": "#f4f4ee", "lay": "hold", "n": "Feather Wall: white feathers settle along the edge in the snow"},
+    "u3": {"m": "snow-gaze", "n": "Blank Perch: blank white faces slip out and back, staring"},
+    "b0": {"m": "snow-gaze", "x": "-", "n": "Snow-Still Peck: a staring face lunges out of the snow"},
+    "b1": {"m": "talon-grip", "c": "#f0f0ea", "x": "puff", "n": "Sudden Snow Strike: talons drop off the edge, snow puffs"},
+    "b2": {"m": "snow-gaze", "lay": "hold", "n": "Snowdrift Wing Cloak: owl faces sit in a snowdrift along the edge, blinking"},
+    "b3": {"m": "snow-gaze", "lay": "feint", "n": "Vanishing Lift-Off: the owl vanishes into the snow and stares back from another spot"}}}
+ }
+}

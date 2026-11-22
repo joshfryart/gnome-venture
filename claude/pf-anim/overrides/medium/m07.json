@@ -1,0 +1,61 @@
+{
+ "_doc": "Medium batch m07 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "muskrat-crew/f:u1": {
+  "family": "leaf",
+  "note": "reed mat is woven reeds: leaf, avoids puff"
+ },
+ "muskrat-crew/f:u3": {
+  "family": "puff",
+  "note": "musk cloud is a smell cloud: puff beats poison tag"
+ },
+ "capybara-herd/f:b1": {
+  "family": "bash",
+  "note": "bulk herd slam is a body slam: bash, avoids three slashes"
+ },
+ "capybara-herd/f:u1": {
+  "family": "puff",
+  "note": "calm float is drifting calm, not a splash: puff; Water Slap keeps ripple"
+ },
+ "bullfrog/f:u2": {
+  "family": "puff",
+  "note": "puff up inflates the body: puff, avoids shield repeat"
+ },
+ "cane-toad/f:b0": {
+  "family": "drip",
+  "note": "gland spray is toxin spray: drip, avoids slash"
+ },
+ "cane-toad/f:b1": {
+  "family": "bash",
+  "note": "hop crush is a landing crush: bash"
+ },
+ "cane-toad/f:b3": {
+  "family": "ripple",
+  "note": "croak is sound rings: ripple, avoids three drips"
+ },
+ "cane-toad/f:u2": {
+  "family": "thorn",
+  "note": "warty skin bristles on the dodge: thorn, best guess",
+  "review": true
+ },
+ "poison-dart-frog/f:u2": {
+  "family": "sparkle",
+  "note": "bright warning colours flash: sparkle, best guess vs ripple",
+  "review": true
+ },
+ "poison-dart-frog/f:u3": {
+  "family": "sparkle",
+  "note": "jewel flash: sparkle, avoids third drip"
+ },
+ "golden-mantella/f:u3": {
+  "family": "drip",
+  "note": "spill is a toxin spill: drip, avoids slash repeat"
+ },
+ "snapper-hatchling-bask/f:u2": {
+  "family": "ripple",
+  "note": "mud stir muddies the water: ripple, avoids second drip"
+ },
+ "frilled-lizard/f:b0": {
+  "family": "bite",
+  "note": "gape is an open mouth bluff: bite, avoids three slashes"
+ }
+}

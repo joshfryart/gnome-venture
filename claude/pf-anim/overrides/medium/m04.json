@@ -1,0 +1,113 @@
+{
+ "_doc": "Medium batch m04 (Sonnet generic pass): family corrections only; colour/lift/snd left to the builder defaults.",
+ "snow-owl-fledgling/f:u2": {
+  "family": "puff",
+  "note": "downy fluff wall: down puffs beat thorns tag visually",
+  "review": true
+ },
+ "carrion-crow/f:u0": {
+  "family": "web",
+  "note": "trip grab of a hat: no keyword, web strands as best guess",
+  "review": true
+ },
+ "carrion-crow/f:u3": {
+  "family": "sparkle",
+  "note": "glint of a bright eye: sparkle, not a second shock"
+ },
+ "magpie-mob/f:u0": {
+  "family": "sparkle",
+  "note": "shiny snatch: glitter on the stolen trinket, avoids a third slash"
+ },
+ "raven-pair/f:u3": {
+  "family": "ripple",
+  "note": "two voices echo: sound rings instead of a web trip",
+  "review": true
+ },
+ "jungle-crow/f:b0": {
+  "family": "bite",
+  "note": "big bill peck: bite, avoids three slashes"
+ },
+ "jungle-crow/f:u0": {
+  "family": "shock",
+  "note": "caw = sharp noise burst: shock, avoids a third slash",
+  "review": true
+ },
+ "kestrel-hoverer/f:u1": {
+  "family": "ripple",
+  "note": "hanging still in the air: shimmer rings rather than another puff",
+  "review": true
+ },
+ "cloud-kite/f:u1": {
+  "family": "ripple",
+  "note": "slip on a draught: air rings, not a web (no thread in the art)",
+  "review": true
+ },
+ "ptarmigan-flock/f:b0": {
+  "family": "bite",
+  "note": "winter white peck: bite, avoids two slashes"
+ },
+ "ptarmigan-flock/f:u2": {
+  "family": "shock",
+  "note": "burst of wings: shock flash, avoids three puffs",
+  "review": true
+ },
+ "ptarmigan-flock/f:u3": {
+  "family": "sparkle",
+  "note": "white scatter: snow glints instead of a third puff"
+ },
+ "rock-partridge-covey/f:b0": {
+  "family": "bite",
+  "note": "peck on the run: bite, avoids slash pair"
+ },
+ "rock-partridge-covey/f:u1": {
+  "family": "slash",
+  "note": "scrape jab: scratching slash, avoids three thrusts",
+  "review": true
+ },
+ "rock-partridge-covey/f:u3": {
+  "family": "bash",
+  "note": "uphill charge: shoulder-barge bash, avoids three thrusts",
+  "review": true
+ },
+ "night-heron/f:b0": {
+  "family": "thrust",
+  "note": "stiletto bill: lance"
+ },
+ "night-heron/f:b1": {
+  "family": "drip",
+  "note": "spear plunge into water: splash drops, avoids slash pair",
+  "review": true
+ },
+ "night-heron/f:u1": {
+  "family": "ripple",
+  "note": "stalking still in the shallows: water rings, avoids two puffs",
+  "review": true
+ },
+ "egret-flock/f:b0": {
+  "family": "bite",
+  "note": "cattle-shadow jab with the bill: bite, avoids slash pair",
+  "review": true
+ },
+ "egret-flock/f:u2": {
+  "family": "sparkle",
+  "note": "white plumes shimmer: sparkle, avoids two puffs"
+ },
+ "egret-flock/f:u3": {
+  "family": "ripple",
+  "note": "wading stride in the shallows: ripple rather than shock",
+  "review": true
+ },
+ "emu-mob/f:b0": {
+  "family": "bite",
+  "note": "peck: bite, avoids slash pair"
+ },
+ "emu-mob/f:b1": {
+  "family": "bash",
+  "note": "stampede stomp: heavy bash",
+  "review": true
+ },
+ "emu-mob/f:u1": {
+  "family": "slash",
+  "note": "claw rake: slash, since Kick Stab keeps thrust"
+ }
+}

@@ -1,0 +1,89 @@
+{
+ "_doc": "Batch m14 (medium, opus themed pass): thistle beast, nettle lurker, cactus beast, will-o'-wisp, foxfire wisp, storm wisp. Motifs in motifs/medium_m14.js (35 motifs, glyph ids m14-*). All 6 creatures have their own signature motif, each with its own chain effect. The three wisps are not siblings and share nothing: the will-o'-wisp is a cold marsh light that leads travellers astray (flame, lantern, sinking footprints), the foxfire wisp is fungal glow on rotten wood (stump, glow caps, mycelium), the storm wisp is coastal ball lightning (bolts, squall, sparks). Every piece has a hand note and an explicit motif. Place personalities: burrow (thistle rooted in soil), pounce (the lurker springs), trundle (heavy barrel), hover (marsh light), swarm (glow motes gather), glide (drifting storm).",
+ "creatures": {
+  "thistle-beast": {
+   "pal": ["#b884d8", "#26401a", "#f4eefa"], "m": "thistle-head", "m2": "thistle-heap", "pers": "burrow", "snd": ["crack", "thud"], "spd": 0.9,
+   "notes": "A walking clump of field thistle from grassland and mountain pasture: spiny green bulbs topped with purple brush flowers, leaves edged in spines, and in the wind it sheds clouds of white thistle down; it roots deep and comes back wherever a scrap of root is left.",
+   "p": {
+    "u0": {"m": "thistle-needle", "n": "Needle Volley: a rain of spiny leaf darts drops off the edge point first, purple shafts and green side spikes, white points glinting"},
+    "u1": {"m": "thistle-head", "n": "Thistle Spines: thistle heads push out of the edge like a row of spikes, the green bracts bristling and the purple brushes nodding"},
+    "u2": {"m": "thistle-sprout", "n": "Root Deep: tan roots fork down under a soil line while green shoots rise out of the edge and open purple buds"},
+    "u3": {"m": "thistle-heap", "lay": "hold", "n": "Spine Heap: mounds of crossed spiny leaves pile up along the edge and sit there, purple heads on top, spine tips bristling"},
+    "b0": {"m": "thistle-whip", "n": "Prickly Whip: spiny thistle stems lash off the edge one after another in an arc, a purple head on each tip"},
+    "b1": {"m": "thistle-down", "lay": "scatter", "n": "Thistle Down Cloud: a cloud of white thistle-down parachutes blows out of the edge, drifts and settles back"},
+    "b2": {"m": "thistle-needle", "lay": "bristle", "n": "Spiny Hide Layer: a layer of spine darts juts out of the edge point first and holds, a hide of needles"},
+    "b3": {"m": "thistle-sprout", "lay": "feint", "n": "Patch Re-Rooting: shoots pop up at scattered spots along the edge, roots forking under each one, the thistle re-rooting wherever a scrap was left"}
+   }
+  },
+  "nettle-lurker": {
+   "pal": ["#7cc05a", "#183014", "#eef8dc"], "m": "nettle-lurk", "m2": "nettle-stem", "pers": "pounce", "snd": ["hiss", "squish"], "spd": 1.0,
+   "notes": "A hunched green thing that lurks in the nettle beds of forest and wetland: square stalks with serrated leaves grow out of its back, its whole hide is furred with fine stinging hairs that glint, and two yellow eyes watch from the stalk shadows before it springs; anything that brushes past comes away in white welts.",
+   "p": {
+    "u0": {"m": "nettle-hairs", "n": "Sting Curtain: a curtain of fine stinging hairs hangs off a serrated leaf strip and pushes out of the edge, the hair tips glinting white"},
+    "u1": {"m": "nettle-stem", "lay": "hold", "n": "Stem Wall: square nettle stems stand shoulder to shoulder along the edge, paired leaves rustling, a green wall nobody wants to touch"},
+    "u2": {"m": "nettle-noose", "n": "Stem Snare: nettle stems bent into loops hang at spots tied together by a tripping line, each loop cinching tight"},
+    "u3": {"m": "nettle-welt", "n": "Brush Sting: serrated nettle leaves brush out of the edge and white welts on red rings pop up behind each one"},
+    "b0": {"m": "nettle-lurk", "n": "Brushed Stalk Strike: the hunched lurker lunges off the edge one after another, stalks on its back swishing, eyes first"},
+    "b1": {"m": "nettle-stench", "n": "Cut-Stalk Stench: cut nettle stalks fling out of the edge, two yellow-green stink lines curling up from each pale wound"},
+    "b2": {"m": "nettle-lurk", "lay": "hold", "n": "Hunched Green Hide: hunched lurkers squat along the edge, backs of stalks up, hairs glinting, eyes low"},
+    "b3": {"m": "nettle-eyes", "lay": "feint", "n": "Stalk-Shadow Lurk: pockets of shadow open between stalks at scattered spots, a pair of yellow eyes blinking in each while the hide knits"}
+   }
+  },
+  "cactus-beast": {
+   "pal": ["#78c060", "#1c3a1a", "#f48ab8"], "m": "cactus-walk", "m2": "cactus-hide", "pers": "trundle", "snd": ["click", "thud"], "spd": 0.7,
+   "notes": "A round green barrel cactus of the desert that walks on stubby feet: ribbed sides bristling with cream spines, a crown of pink flowers on top, and a middle full of stored water; it can sink into the sand to hide or tip over and roll.",
+   "p": {
+    "u0": {"m": "cactus-spine", "n": "Spine Jab: one long cream spine with a gold point jabs the length of the edge, three more close behind it"},
+    "u1": {"m": "cactus-water", "n": "Water Store: cut wedges of cactus rise out of the edge, blue water welling up from the pale flesh and glinting"},
+    "u2": {"m": "cactus-hide", "n": "Barrel Hide: barrels sink into the sand along the edge until only their ribbed tops show, spines bristling, heat shimmering above"},
+    "u3": {"m": "cactus-roll", "n": "Barrel Roll: a barrel tips onto its side and rolls out of the edge and back, ribs, spines and pink crown turning over, dust kicked up"},
+    "b0": {"m": "cactus-walk", "n": "Walking Barrel Lash: barrels waddle off the edge one after another on stubby feet and swing their spines"},
+    "b1": {"m": "cactus-bloom", "n": "Pink-Crown Spores: pink crown flowers burst open off the edge and puff gold pollen"},
+    "b2": {"m": "cactus-spine", "lay": "bristle", "c": "#9ad07c", "n": "Barrel Spine Coat: a coat of long cream spines juts out of the edge from green areoles and holds, trembling"},
+    "b3": {"m": "cactus-water", "lay": "feint", "c": "#8ad0a0", "n": "Water-Middle Mend: blue drops well up from cut flesh at scattered spots along the edge, the water middle mending the barrel"}
+   }
+  },
+  "will-o-wisp": {
+   "pal": ["#9cf0d4", "#10302a", "#f4fff8"], "m": "willo-lure", "m2": "willo-lantern", "pers": "hover", "snd": ["chirp", "pop"], "spd": 1.1,
+   "notes": "The marsh light of the wetland: a pale cold teardrop flame with a white heart that bobs just out of reach over the bog, curling its tail like a beckoning finger; it carries a little lantern glow, burns without heat, winks out when you look at it, and leads travellers off the path into the mud.",
+   "p": {
+    "u0": {"m": "willo-lure", "n": "Lead Astray: marsh lights hang at spots tied together by a winding false path, each tail curling come this way, mist breathing on the bog"},
+    "u1": {"m": "willo-flame", "n": "Wisp Burn: tongues of pale cold flame lick off the edge one after another, white tips flickering, cold embers flying"},
+    "u2": {"m": "willo-flicker", "n": "Flicker: marsh lights scatter out of the edge, wink out and come back a little to the side, never where you look"},
+    "u3": {"m": "willo-lantern", "n": "Bog Lantern: little lanterns rise out of the edge swinging, a cold light inside, a glow ring pulsing out of each"},
+    "b0": {"m": "willo-tendril", "n": "Ghostlight Tendril: wavering see-through filaments of pale light reach off the edge and curl at the tip"},
+    "b1": {"m": "willo-spores", "n": "Lantern Spore Cloud: clusters of glowing spores drift off the edge circling each other, halos winking"},
+    "b2": {"m": "willo-tendril", "lay": "bristle", "c": "#7ad8c0", "n": "Thornveil Shroud: ghostlight tendrils push out of the edge like a veil of thorns and hold, curling at the tips"},
+    "b3": {"m": "willo-flicker", "lay": "feint", "n": "Wayward Glimmer: a glimmer winks on at one spot of the edge, then another, wandering where it pleases"}
+   }
+  },
+  "foxfire-wisp": {
+   "pal": ["#8cf06a", "#2a1c10", "#e8ffd0"], "m": "foxfire-stump", "m2": "foxfire-caps", "pers": "swarm", "snd": ["squish", "pop"], "spd": 0.8,
+   "notes": "Foxfire: the green glow that lives in a rotten forest stump, fungal light in soft punkwood. Patches of cold green pulse in turn on the wood, glowing mushroom caps grow from it, and pale mycelium threads creep out under the leaf litter, lighting up as they spread.",
+   "p": {
+    "u0": {"m": "foxfire-punk", "n": "Rot Glow: crumbs of soft rotten punkwood with glowing green rims drop off the edge and tumble, glow motes rising"},
+    "u1": {"m": "foxfire-caps", "n": "Glow Cap Shell: clumps of glowing mushroom caps stand along the edge like a shell, the gills lighting up one cap at a time"},
+    "u2": {"m": "foxfire-spores", "n": "Spore Beckon: puffs of glowing spores swell out of the edge and back, each curling a beckoning wisp, a faint haze"},
+    "u3": {"m": "foxfire-mycel", "n": "Stump Snare: glowing mycelium knots hang at spots tied together by luminous threads, the forked strands spreading"},
+    "b0": {"m": "foxfire-stump", "n": "Stump Glow Lash: rotten stumps lurch off the edge one after another, foxfire patches flaring on the wood"},
+    "b1": {"m": "foxfire-spores", "lay": "strike", "n": "Rot Glow Puff: glowing spore puffs burst off the edge one after another"},
+    "b2": {"m": "foxfire-punk", "lay": "bristle", "c": "#a8f080", "n": "Punkwood Mantle: jagged punkwood chunks jut out of the edge and hold, their glowing rims lit like a mantle"},
+    "b3": {"m": "foxfire-mycel", "lay": "rise", "n": "Tripwire Glimmer: glowing mycelium knots rise off the edge and fade, the threads mending what they pass"}
+   }
+  },
+  "storm-wisp": {
+   "pal": ["#a8d0f8", "#1c2a44", "#fff6b0"], "m": "stormwisp-ball", "m2": "stormwisp-squall", "pers": "glide", "snd": ["crack", "zig"], "spd": 1.3,
+   "notes": "Ball lightning off the coast and islands: a blue-white crackling ball that drifts low with the wind, tendrils of spark snapping round it, forked bolts jumping from it, and a squall of slanting rain following it, which it drinks.",
+   "p": {
+    "u0": {"m": "stormwisp-bolt", "n": "Storm Zap: one forked bolt runs the length of the edge with three more behind it, white cores crackling, rain streaking past"},
+    "u1": {"m": "stormwisp-rain", "n": "Rain Sip: raindrops are drawn up out of the edge into the wisp, streaks trailing below, a white glint on each"},
+    "u2": {"m": "stormwisp-squall", "n": "Squall Veil: small grey-blue clouds line the edge, slanting curtains of rain driven under them"},
+    "u3": {"m": "stormwisp-spark", "n": "Spark Shed: crackling sparks push out of the edge like spikes, changing shape every frame: plus, cross, jag, wink"},
+    "b0": {"m": "stormwisp-ball", "n": "Storm-Thread Lash: balls of lightning lash off the edge one after another, tendrils snapping"},
+    "b1": {"m": "stormwisp-squall", "lay": "scatter", "n": "Drizzle Spore Cloud: little rain clouds scatter out of the edge drizzling and drift back"},
+    "b2": {"m": "stormwisp-spark", "lay": "hold", "c": "#c8e0fc", "n": "Pale Static Veil: pale sparks hang along the edge crackling, a veil of static"},
+    "b3": {"m": "stormwisp-rain", "lay": "feint", "n": "Rain-Drink Mend: raindrops are sipped up at scattered spots along the edge as the wisp drinks the squall"}
+   }
+  }
+ }
+}
