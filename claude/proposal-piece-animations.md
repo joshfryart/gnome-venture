@@ -116,3 +116,10 @@ Release: pilot ships with the next normal version bump (not part of this proposa
 - Screenshots: headless Chrome at fixed `seek` times (place 100/230/300/450 ms; play 200/500; chain carrier mid-flight) for A, B, C, plus a 2x2 and a ring; compare to approved PNGs by eye (like `claude/mockups` sheets), phone width 360 px and 4x4 / largest board.
 - Perf: Chrome CPU throttle 4x, 12-piece chain, record frame times (< 1.5 ms script); check memory flat over 50 replays.
 - Reduced motion: emulate `prefers-reduced-motion`, assert no sound lines, no carrier, place = fade.
+
+## Decisions (Josh, 2026-11-22)
+- Chain effect: along the OUTER edge of the whole chain (not through joints).
+- Creature pieces: a rougher, heavier variant set (harder slam, bigger wobble, darker effects), not just recoloured player animations. Needs a second variant per family.
+- Setting: one "Piece effects" setting, Full / Light / Off (Light keeps the place wiggle, drops edge effects; Off follows reduced motion).
+- Sound lines: visual only (no audio).
+- Not asked, defaults assumed (change if wrong): a planned ghost piece gets no lift, only the real placement at replay does; pilot mapping as proposed (buzz Swarm, drip Sap Sip, puff Cloud Up, amber mend Honeydew).
