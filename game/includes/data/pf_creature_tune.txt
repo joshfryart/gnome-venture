@@ -23,6 +23,8 @@ bison-calf-stampede|0.755|1.000
 black-bear|1.118|0.991
 black-jaguar|1.034|1.000
 blue-ring-octopus|0.828|1.000
+bog-leech|0.972|1.000
+bog-pike|0.984|0.981
 bombardier-beetle|0.904|1.000
 booby-colony|0.727|0.992
 bramble-pup-pack|1.071|1.000
@@ -36,6 +38,7 @@ capuchin-pickpocket|0.458|0.987
 capybara-herd|0.878|1.008
 caracal|0.620|1.000
 caribou-bull|0.760|0.991
+carpenter-ant-gang|0.983|0.993
 carpenter-bee|0.752|1.000
 carrion-beetle-crew|1.147|1.000
 carrion-crow|0.540|1.000
@@ -55,14 +58,17 @@ conger-brute|1.077|0.991
 coral-golem|1.310|1.009
 cormorant-line|0.821|1.017
 crab-eating-raccoon|0.635|0.992
+croc-hatchling-scatter|0.983|1.000
 dawn-skipper-flutter|1.143|0.992
 deep-octopus|0.962|1.009
 delta-gharial|0.896|1.013
+desert-camel|1.019|0.989
 desert-gila-dragon|1.041|1.000
 desert-spadefoot|0.767|1.010
 desert-tortoise|1.110|1.000
 dingo-pup-pack|1.249|1.000
 dune-racer|0.652|0.993
+dune-scorpion|0.979|1.000
 dune-snail|1.372|1.000
 dune-wyrm|0.880|1.000
 dung-beetle|1.392|1.020
@@ -135,6 +141,7 @@ honeybee-swarm|0.902|1.000
 horned-viper|0.669|1.000
 hornet-sentry|0.731|1.000
 house-centipede-skitter|1.453|1.135
+hyena-pup-cackle|1.017|1.000
 ibex-patriarch|1.073|1.000
 ice-floe-seal|0.767|0.992
 jackrabbit|0.764|1.000
@@ -144,6 +151,7 @@ jaguarundi|0.695|0.991
 jumping-spider|0.976|1.896
 jungle-crow|0.692|1.010
 jungle-tiger|0.895|0.982
+kelp-fly-swarm|0.983|1.000
 kestrel-hoverer|0.513|1.000
 komodo-pup|0.877|0.992
 kraken-spawn|1.381|0.992
@@ -156,6 +164,7 @@ lemming-kit-scurry|1.086|1.010
 leopard-slug|1.507|1.024
 lichen-golem|1.186|1.008
 luna-moth|0.842|1.010
+macaque-troop|1.017|1.000
 magpie-mob|0.728|0.992
 mangrove-crab-court|1.186|1.000
 mangrove-crab-emperor|0.947|0.991
@@ -173,6 +182,7 @@ moray-lurker|0.643|1.000
 mosquito-storm|1.326|1.000
 moss-golem|1.908|0.991
 mountain-buzzard|0.641|1.000
+mountain-hare|1.000|1.000
 mud-crab-brawler|0.763|1.000
 mud-dauber|0.445|1.000
 mudskipper-troop|0.902|1.000
@@ -208,6 +218,7 @@ reef-eel-tyrant|1.101|1.000
 reef-leviathan|0.738|1.000
 reef-turtle|0.447|1.000
 reindeer-calf-herd|1.040|1.000
+river-otter|0.991|1.000
 robber-crab-baron|0.606|1.000
 rock-agama|0.966|1.000
 rock-crab-pincher|0.887|0.992
@@ -218,6 +229,7 @@ rock-viper|0.676|0.991
 roebuck|1.080|0.991
 salt-mite-swarm|1.322|1.000
 salt-sea-lion|1.360|0.981
+saltmarsh-leech|0.983|0.982
 saltwater-gharial|1.050|1.000
 sand-fleas|1.518|1.000
 sand-viper-matriarch|1.161|0.981
@@ -262,6 +274,7 @@ termite-column|1.207|1.000
 tern-squadron|0.559|1.010
 thistle-beast|0.959|1.010
 thorn-jackal|0.664|1.009
+thorny-devil|1.026|1.008
 thunder-yak|0.594|1.000
 tide-crab-paladin|1.449|0.992
 tide-crab-squire|0.400|0.981
