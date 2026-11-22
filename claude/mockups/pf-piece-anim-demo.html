@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Piece animations demo</title>
+<style>
+/* THROWAWAY demo for claude/proposal-piece-animations.md. Stand-in pieces (flat colour, not the real art); all effects are stateless functions of time (same rule as the proposal). No network. */
+:root{--ink:#2a1a10;--cream:#f2e4c0;--gold:#e8a317;--felt:#4a3322;--bg:#f1ece0}
+*{box-sizing:border-box}body{margin:0;padding:12px 16px;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,sans-serif}
+h1{font-size:1.2rem;margin:.2rem 0}p.s{margin:.2rem 0 .8rem;color:#74462a;font-size:.85rem}
+.bar{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin:.5rem 0 1rem}
+button,select{font:inherit;padding:.4rem .8rem;min-height:44px;border:2px solid var(--ink);background:var(--gold);color:var(--ink);cursor:pointer}
+label{display:flex;gap:.35rem;align-items:center;min-height:44px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:#fff3c8;border:2px solid var(--ink);padding:8px}
+.card h2{font-size:1rem;margin:0 0 .3rem}.card .ph{font:12px/1.3 ui-monospace,monospace;min-height:2.6em;color:#4a2c1a}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background:var(--felt)}
+</style></head><body>
+<h1>Piece animations: place, play, chain</h1>
+<p class="s">Stand-in pieces on a 4x4 board. Layers (bottom to top): piece, place anim, play effect on the piece's own edges, chain effect travelling along the outer perimeter, then the resolve stand-in (gold ring and number). Pieces arrive one after another here only for the demo; in a fight each arrives on its own turn.</p>
+<div class="bar"><button id="rp">Replay</button>
+<label>Speed <select id="sp"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select></label>
+<label><input type="checkbox" id="rm"> Reduced motion</label>
+<label><input type="checkbox" id="pth"> Show perimeter path</label>
+<label><input type="checkbox" id="rs" checked> Resolve stand-in</label></div>
+<div class="row" id="row"></div>
+<script>
+(function () {
+'use strict';
+var BW = 56, BH = 47, PAD = 14, COLS = 4, ROWS = 4, W = COLS * BW + 2 * PAD, H = ROWS * BH + 2 * PAD;
+var INK = '#2a1a10', CREAM = '#f2e4c0', GOLD = '#e8a317';
+var TYPE = { hurt: '#b8442c', guard: '#4f7fa8', heal: '#5f9a4a', charm: '#c46a9b', trick: '#7a5aa8' };
+/* family table (the proposal's data): own effect, colour, place sound-line style */
+var FAM = { buzz: { col: '#9bd05a', snd: 'zig' }, slash: { col: '#fff3c8', snd: 'click' }, shield: { col: '#a9d6ea', snd: 'tink' },
+            puff: { col: '#dfe6ee', snd: 'pop' }, drip: { col: '#7fd35a', snd: 'pop' } };
+/* e: edge per side, k = knob, h = hole, f = flat. A linked joint is knob on one side and hole on the other. */
+var SCENES = [
+  { title: 'A. Single piece: Swarm (aphid-swarm, hurt, quick)', step: 700, cells: [
+    { x: 1, y: 1, n: 'Swarm', t: 'hurt', f: 'buzz', foe: 1, e: { L: 'h', R: 'k', T: 'f', B: 'f' }, v: 6 } ] },
+  { title: 'B. Two-piece chain: Dodge then Swing (Riposte)', step: 760, cells: [
+    { x: 1, y: 2, n: 'Dodge', t: 'guard', f: 'shield', e: { L: 'h', R: 'k', T: 'f', B: 'f' }, v: 6 },
+    { x: 2, y: 2, n: 'Swing', t: 'hurt', f: 'slash', e: { L: 'h', R: 'k', T: 'f', B: 'f' }, v: 6 } ] },
+  { title: 'C. Three-piece L chain: Cloud Up, Swarm, Sap Sip', step: 760, cells: [
+    { x: 1, y: 0, n: 'Cloud Up', t: 'guard', f: 'puff', foe: 1, e: { L: 'f', R: 'f', T: 'h', B: 'k' }, v: 3 },
+    { x: 1, y: 1, n: 'Swarm', t: 'hurt', f: 'buzz', foe: 1, e: { L: 'f', R: 'k', T: 'h', B: 'f' }, v: 6 },
+    { x: 2, y: 1, n: 'Sap Sip', t: 'hurt', f: 'drip', foe: 1, e: { L: 'h', R: 'k', T: 'f', B: 'f' }, v: 5 } ] }
+];
+
+/* ---------- perimeter of the union of cells: directed edges (clockwise), traced into a loop, knob bumps inserted ---------- */
+function perimeter(cells) {
+  var at = {}, E = [], i; cells.forEach(function (c, k) { at[c.x + ',' + c.y] = k; });
+  cells.forEach(function (c, k) { var x = c.x, y = c.y;
+    if (!((x + ',' + (y - 1)) in at)) E.push({ a: [x, y], b: [x + 1, y], o: k, s: 'T' });
+    if (!(((x + 1) + ',' + y) in at)) E.push({ a: [x + 1, y], b: [x + 1, y + 1], o: k, s: 'R' });
+    if (!((x + ',' + (y + 1)) in at)) E.push({ a: [x + 1, y + 1], b: [x, y + 1], o: k, s: 'B' });
+    if (!(((x - 1) + ',' + y) in at)) E.push({ a: [x, y + 1], b: [x, y], o: k, s: 'L' }); });
+  var from = {}; E.forEach(function (e, j) { (from[e.a] = from[e.a] || []).push(j); });
+  var used = {}, loop = [], cur = 0, start = 0;
+  while (!used[cur]) { used[cur] = 1; loop.push(E[cur]); var d = [E[cur].b[0] - E[cur].a[0], E[cur].b[1] - E[cur].a[1]], best = -1, bc = -9;
+    (from[E[cur].b] || []).forEach(function (j) { if (used[j] && j !== start) return; var c = [E[j].b[0] - E[j].a[0], E[j].b[1] - E[j].a[1]], cr = d[0] * c[1] - d[1] * c[0]; if (cr > bc) { bc = cr; best = j; } });
+    if (best < 0 || best === start) break; cur = best; }
+  /* rotate so the first and last segment have different owners (no run is cut by the loop start) */
+  for (i = 0; i < loop.length && loop.length > 1 && loop[i].o === loop[(i + loop.length - 1) % loop.length].o; i++);
+  loop = loop.slice(i).concat(loop.slice(0, i));
+  var pts = [], so = [];   /* polyline points and the owner of each segment pts[k] -> pts[k+1] */
+  function px(p) { return [PAD + p[0] * BW, PAD + p[1] * BH]; }
+  loop.forEach(function (e) {
+    var p0 = px(e.a), p1 = px(e.b), dx = p1[0] - p0[0], dy = p1[1] - p0[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, nx = uy, ny = -ux;   /* n = outward */
+    var dec = cells[e.o].e[e.s], dep = dec === 'k' ? 10 : dec === 'h' ? -8 : 0, seq = [0];
+    if (dep) seq = [0, .5 - 9 / L, .5 - 6 / L, .5 + 6 / L, .5 + 9 / L];
+    var ofs = dep ? [0, 0, dep, dep, 0] : [0];
+    seq.forEach(function (f, q) { pts.push([p0[0] + dx * f + nx * ofs[q], p0[1] + dy * f + ny * ofs[q]]); so.push(e.o); });
+  });
+  var n = pts.length, cum = [0], k;
+  for (k = 0; k < n; k++) { var a = pts[k], b = pts[(k + 1) % n]; cum.push(cum[k] + Math.hypot(b[0] - a[0], b[1] - a[1])); }
+  var P = { pts: pts, so: so, cum: cum, len: cum[n], n: n, runs: [], anchor: [] };
+  cells.forEach(function (c, o) { P.runs[o] = []; });
+  for (k = 0; k < n; k++) { var r = P.runs[so[k]], last = r[r.length - 1]; if (last && last[2] === k - 1) { last[1] = cum[k + 1]; last[2] = k; } else r.push([cum[k], cum[k + 1], k]); }
+  cells.forEach(function (c, o) { var b = P.runs[o][0]; P.runs[o].forEach(function (r) { if (r[1] - r[0] > b[1] - b[0]) b = r; }); P.anchor[o] = (b[0] + b[1]) / 2; });
+  P.at = function (s) { s = ((s % P.len) + P.len) % P.len; var lo = 0, hi = n; while (hi - lo > 1) { var m = (lo + hi) >> 1; if (P.cum[m] <= s) lo = m; else hi = m; }
+    var a = P.pts[lo], b = P.pts[(lo + 1) % n], f = (s - P.cum[lo]) / Math.max(1e-6, P.cum[lo + 1] - P.cum[lo]), dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+    return { x: a[0] + dx * f, y: a[1] + dy * f, nx: dy / L, ny: -dx / L }; };   /* nx,ny outward */
+  return P;
+}
+function hash(n) { n = Math.sin(n * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); }
+function eo(u) { u = Math.min(1, Math.max(0, u)); return 1 - (1 - u) * (1 - u); }
+function sq(c, x, y, w, col) { c.fillStyle = col; c.fillRect(Math.round(x - w / 2), Math.round(y - w / 2), w, w); }
+
+/* ---------- layer 1: place (stateless). dt = ms since the piece was put down ---------- */
+function placeState(dt, reduce) {
+  if (dt < 0) return null;
+  if (reduce) return { s: 1, x: 0, y: 0, r: 0, sh: 0, a: Math.min(1, dt / 120), hit: 0 };
+  var u;
+  if (dt < 180) { u = eo(dt / 180); return { s: .90 + .20 * u, x: 0, y: -3 * u, r: 0, sh: u, a: Math.min(1, dt / 60), hit: 0 }; }   /* raise: grows as if lifted from the table */
+  if (dt < 230) { u = (dt - 180) / 50; return { s: 1.10 - .13 * u, x: 0, y: -3 + 4 * u, r: 0, sh: 1 - u, a: 1, hit: 0 }; }          /* click: snaps down */
+  if (dt < 470) { u = (dt - 230) / 240; var d = Math.pow(1 - u, 1.5), w = Math.sin(u * Math.PI * 5);   /* wiggle: 2.5 damped swings */
+    return { s: .97 + .03 * eo(u), x: 1.2 * Math.sin(u * Math.PI * 5 + 1) * d, y: 1 - u, r: .045 * w * d, sh: 0, a: 1, hit: dt < 280 ? 1 : 0 }; }
+  return { s: 1, x: 0, y: 0, r: 0, sh: 0, a: 1, hit: 0 };
+}
+/* sound lines, 230..400 ms after placing: style per piece (click, pop, tink, zig) */
+function soundLines(c, cx, cy, dt, style, col) {
+  var u = (dt - 230) / 170; if (u < 0 || u > 1) return; var r0 = 30 + 6 * u, r1 = r0 + 7 + 5 * u, k, ang, n;
+  c.strokeStyle = col; c.lineWidth = 2; c.lineCap = 'butt'; c.beginPath();
+  if (style === 'click') { [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (q) { var ax = cx + q[0] * 27, ay = cy + q[1] * 22; c.moveTo(Math.round(ax + q[0] * (3 + 5 * u)), Math.round(ay + q[1] * (3 + 5 * u))); c.lineTo(Math.round(ax + q[0] * (10 + 6 * u)), Math.round(ay + q[1] * (10 + 6 * u))); }); }
+  else if (style === 'pop') { for (k = 0; k < 6; k++) { ang = -Math.PI * (.15 + .7 * k / 5) - 0; c.moveTo(Math.round(cx + Math.cos(ang) * (r0 - 4)), Math.round(cy + Math.sin(ang) * (r0 - 8))); c.lineTo(Math.round(cx + Math.cos(ang) * (r1 - 2)), Math.round(cy + Math.sin(ang) * (r1 - 6))); } }
+  else if (style === 'tink') { for (k = 0; k < 3; k++) { var tx = cx - 20 + k * 20, ty = cy - 30 - 4 * u - (k % 2) * 5; c.moveTo(tx - 3, ty); c.lineTo(tx + 3, ty); c.moveTo(tx, ty - 3); c.lineTo(tx, ty + 3); } }
+  else { [-1, 1].forEach(function (sd) { for (k = 0; k < 2; k++) { var zx = cx + sd * (32 + 3 * u), zy = cy - 10 + k * 14; c.moveTo(zx, zy); c.lineTo(zx + sd * 3, zy + 3); c.lineTo(zx + sd * 0, zy + 6); c.lineTo(zx + sd * 4, zy + 9); } }); }
+  c.stroke();
+}
+/* ---------- the stand-in piece ---------- */
+function drawPiece(c, p, ps, cx, cy) {
+  var col = TYPE[p.t], x0 = -BW / 2, y0 = -BH / 2, E = p.e;
+  c.save(); c.globalAlpha = ps.a; c.translate(Math.round(cx + ps.x), Math.round(cy + ps.y)); c.rotate(ps.r); c.scale(ps.s, ps.s);
+  if (ps.sh > 0) { c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(x0 + 2 + 3 * ps.sh, y0 + 3 + 5 * ps.sh, BW, BH); }   /* shadow grows while raised */
+  c.fillStyle = col; c.fillRect(x0, y0, BW, BH);
+  c.fillStyle = p.foe ? '#6d2a1c' : '#d9a85a'; c.fillRect(x0 + 3, y0 + 3, 16, 12);
+  c.fillStyle = CREAM; c.font = 'bold 10px monospace'; c.fillText(String(p.v), x0 + 7, y0 + 12);
+  c.fillStyle = CREAM; c.font = 'bold 9px monospace'; c.textAlign = 'center'; c.fillText(p.n, 0, 12); c.textAlign = 'left';
+  c.fillStyle = INK; c.fillRect(x0 + 21, y0 + 5, 14, 14); c.fillStyle = FAM[p.f].col; c.fillRect(x0 + 23, y0 + 7, 10, 10);
+  c.strokeStyle = p.foe ? INK : CREAM; c.lineWidth = 2; c.strokeRect(x0 + 1, y0 + 1, BW - 2, BH - 2);
+  if (p.foe) { c.fillStyle = INK; for (var q = 0; q < BW; q += 8) { c.fillRect(x0 + q, y0, 3, 3); c.fillRect(x0 + q + 4, y0 + BH - 3, 3, 3); } }
+  [['L', -BW / 2, 0, -1, 0], ['R', BW / 2, 0, 1, 0], ['T', 0, -BH / 2, 0, -1], ['B', 0, BH / 2, 0, 1]].forEach(function (d) {   /* knob out, hole in */
+    var k = E[d[0]]; if (k === 'f') return; var w = d[3] ? 8 : 10, h = d[3] ? 10 : 8, ox = d[1] + (k === 'k' ? d[3] * 5 : d[3] * -4), oy = d[2] + (k === 'k' ? d[4] * 5 : d[4] * -4);
+    c.fillStyle = k === 'k' ? col : '#1c120a'; c.fillRect(ox - w / 2, oy - h / 2, w, h); c.strokeStyle = INK; c.lineWidth = 1; c.strokeRect(ox - w / 2 + .5, oy - h / 2 + .5, w - 1, h - 1); });
+  if (ps.hit) { c.strokeStyle = '#fff'; c.lineWidth = 2; c.strokeRect(x0 - 1, y0 - 1, BW + 2, BH + 2); }   /* one bright frame at the click */
+  c.restore();
+}
+/* ---------- layers 2 and 3: play effect on the piece's own edges, chain effect along the perimeter (stateless) ---------- */
+function ownFx(c, P, o, f, p, seed) {   /* p = 0..1 over 650 ms */
+  var col = FAM[f].col, env = Math.sin(Math.PI * Math.min(1, p)), runs = P.runs[o];
+  runs.forEach(function (r, ri) { var len = r[1] - r[0], k, s, q;
+    if (f === 'slash') { var hd = eo(p / .55); if (p > .85) return; for (k = 0; k < 9; k++) { s = r[0] + (hd * len) - k * 4; if (s < r[0]) break; q = P.at(s); sq(c, q.x + q.nx * 2, q.y + q.ny * 2, k < 3 ? 3 : 2, k < 5 ? '#fff' : col); } }
+    else if (f === 'shield') { for (s = 0; s < len; s += 3) { var on = ((s / 3 + Math.floor(p * 14)) % 3) === 0; if (!on) continue; q = P.at(r[0] + s); sq(c, q.x + q.nx * 2, q.y + q.ny * 2, 2, env > .12 ? col : INK); } }
+    else if (f === 'buzz') { for (k = 0; k < 7; k++) { s = r[0] + (((k / 7) + p * 1.6 + ri * .2) % 1) * len; q = P.at(s); var w = Math.sin(k * 2.3 + p * 38) * 2.5, hv = Math.floor(p * 30 + k) % 2; sq(c, q.x + q.nx * (5 + w), q.y + q.ny * (5 + w), 3, INK); sq(c, q.x + q.nx * (5 + w) + (hv ? -2 : 2), q.y + q.ny * (5 + w) - 2, 2, col); } }
+    else if (f === 'puff') { for (k = 0; k < 5; k++) { var u = (p * 1.2 - k * .1); if (u < 0 || u > 1) continue; q = P.at(r[0] + len * (k + .5) / 5); c.fillStyle = col; c.beginPath(); c.arc(Math.round(q.x + q.nx * (4 + 9 * u)), Math.round(q.y + q.ny * (4 + 9 * u)), 2 + 4 * eo(u), 0, 7); c.fill(); } }
+    else if (f === 'drip') { for (k = 0; k < 6; k++) { var u2 = p * 1.3 - hash(seed + k) * .3; if (u2 < 0 || u2 > 1) continue; q = P.at(r[0] + len * (k + .5) / 6); sq(c, q.x + q.nx * 1, q.y + q.ny * 1 + 14 * u2 * u2, 3, col); if (u2 > .85) sq(c, q.x, q.y + 14, 5, '#3c6a2a'); } }
+  });
+}
+function carrier(c, P, o, o2, f, p) {   /* from the anchor of piece o to the anchor of the next piece, the short way round the loop */
+  var a = P.anchor[o], d = P.anchor[o2] - a; d = ((d % P.len) + P.len) % P.len; if (d > P.len / 2) d -= P.len;
+  var col = FAM[f].col, k, s, q, h = eo(p);
+  for (k = 0; k < 8; k++) { s = a + d * Math.max(0, h - k * .035); q = P.at(s); var j = f === 'buzz' ? (hash(k + Math.floor(p * 20)) - .5) * 8 : 0; sq(c, q.x + q.nx * (2 + j), q.y + q.ny * (2 + j), k === 0 ? 4 : k < 4 ? 3 : 2, k === 0 ? '#fff' : col); }
+}
+/* resolve stand-in (layer 4, on top): gold ring and a number; the real resolve effects replace it */
+function resolveFx(c, cx, cy, p, v) {
+  var u = p; if (u < 0 || u > 1) return; c.strokeStyle = GOLD; c.lineWidth = 3; c.globalAlpha = 1 - u * .8; var g = 2 + 5 * eo(u); c.strokeRect(Math.round(cx - BW / 2 - g), Math.round(cy - BH / 2 - g), BW + 2 * g, BH + 2 * g); c.globalAlpha = 1;
+  c.fillStyle = '#fff'; c.strokeStyle = INK; c.lineWidth = 3; c.font = 'bold 15px monospace'; c.textAlign = 'center'; c.strokeText('-' + v, cx, cy - 16 - 14 * eo(u)); c.fillText('-' + v, cx, cy - 16 - 14 * eo(u)); c.textAlign = 'left';
+}
+/* ---------- scene runner ---------- */
+var row = document.getElementById('row'), spEl = document.getElementById('sp'), rmEl = document.getElementById('rm'), pthEl = document.getElementById('pth'), rsEl = document.getElementById('rs'), t0 = performance.now();
+var reduceOS = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; if (reduceOS) rmEl.checked = true;
+var FIX = /[#&]t=(\d+)/.exec(location.hash);   /* #t=3000 freezes the clock (for screenshots) */
+var scenes = SCENES.map(function (S) {
+  var card = document.createElement('div'); card.className = 'card'; card.innerHTML = '<h2></h2><canvas></canvas><div class="ph"></div>'; card.firstChild.textContent = S.title; row.appendChild(card);
+  var cv = card.querySelector('canvas'); cv.width = W; cv.height = H; var P = perimeter(S.cells), n = S.cells.length;
+  S.cells.forEach(function (p, i) { p.tp = 300 + i * 650; }); S.tPlay = S.cells[n - 1].tp + 470 + 500; S.end = S.tPlay + n * S.step + 900 + 700;
+  return { S: S, cv: cv, c: cv.getContext('2d'), P: P, ph: card.querySelector('.ph') };
+});
+function frame(now) {
+  var sp = +spEl.value, rm = rmEl.checked;
+  scenes.forEach(function (sc) {
+    var S = sc.S, c = sc.c, P = sc.P, n = S.cells.length, t = (FIX ? +FIX[1] : (now - t0) * sp) % S.end, ph = [];
+    c.imageSmoothingEnabled = false; c.fillStyle = '#4a3322'; c.fillRect(0, 0, W, H); c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1;
+    for (var gx = 0; gx <= COLS; gx++) { c.beginPath(); c.moveTo(PAD + gx * BW + .5, PAD); c.lineTo(PAD + gx * BW + .5, PAD + ROWS * BH); c.stroke(); }
+    for (var gy = 0; gy <= ROWS; gy++) { c.beginPath(); c.moveTo(PAD, PAD + gy * BH + .5); c.lineTo(PAD + COLS * BW, PAD + gy * BH + .5); c.stroke(); }
+    var cx = function (p) { return PAD + (p.x + .5) * BW; }, cy = function (p) { return PAD + (p.y + .5) * BH; };
+    S.cells.forEach(function (p, i) { var ps = placeState(t - p.tp, rm); if (!ps) return; drawPiece(c, p, ps, cx(p), cy(p));
+      var dt = t - p.tp; if (dt < 230) ph.push(p.n + ': ' + (dt < 180 ? 'raise (grows)' : 'click')); else if (dt < 470) ph.push(p.n + ': wiggle' + (dt < 400 && !rm ? ' + sound lines' : '')); });
+    S.cells.forEach(function (p, i) { var dt = t - p.tp; if (dt >= 230 && dt <= 400 && !rm) soundLines(c, cx(p), cy(p), dt, FAM[p.f].snd, p.foe ? '#ffe27a' : '#fff'); });
+    if (pthEl.checked) { c.strokeStyle = '#ff5ad0'; c.lineWidth = 1; c.beginPath(); P.pts.forEach(function (q, k) { if (k) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.closePath(); c.stroke(); P.anchor.forEach(function (s) { var q = P.at(s); sq(c, q.x, q.y, 5, '#ff5ad0'); }); }
+    S.cells.forEach(function (p, i) {   /* play: runs on the replay step clock; effects overlap the next step and never delay it */
+      var tf = S.tPlay + i * S.step, dt = t - tf; if (dt < 0) return;
+      if (rm) { if (dt < 260) { c.strokeStyle = GOLD; c.lineWidth = 2; c.strokeRect(PAD + p.x * BW + 1, PAD + p.y * BH + 1, BW - 2, BH - 2); ph.push(p.n + ': plays (reduced: outline only)'); } }
+      else { if (dt < 650) { ownFx(c, P, i, p.f, dt / 650, i * 7); ph.push(p.n + ': own-edge effect (' + p.f + ')'); }
+        if (i + 1 < n && dt > 250 && dt < 700) { carrier(c, P, i, i + 1, p.f, (dt - 250) / 450); ph.push('chain effect ' + p.n + ' -> ' + S.cells[i + 1].n); } }
+      if (rsEl.checked && dt < 560) { resolveFx(c, cx(p), cy(p), dt / 560, p.v); ph.push('resolve (stand-in) on top'); }
+    });
+    sc.ph.textContent = (Math.round(t) + ' ms | ') + (ph.length ? ph.join(' | ') : (t > S.tPlay + n * S.step ? 'idle: pieces keep their look' : 'waiting'));
+  });
+  requestAnimationFrame(frame);
+}
+document.getElementById('rp').onclick = function () { t0 = performance.now(); };
+requestAnimationFrame(frame);
+})();
+</script></body></html>
