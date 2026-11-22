@@ -812,6 +812,9 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.7.53' => ['🔨 Update 2.7.53: a tidier workshop',
+        "[list][*][b]Workshop[/b]: the things you can make now start near the top. The description and help are behind the (i) button, and search is behind the magnifier.\n"
+        . "[*][b]Links[/b]: more Crafting links take you to the workshop picture.[/list]"],
     '2.7.52' => ['🔨 Update 2.7.52: smaller workshop squares on phones',
         "[list][*][b]Workshop[/b]: on a phone the squares are smaller, four to a row, and have no empty space under the name.[/list]"],
     '2.7.51' => ['🔨 Update 2.7.51: the workshop is faster',

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.53
+- **Workshop popover, slim header:** the items start near the top. One row of facts ("3 ready", "3 of 21 known", the building status) replaces the repeated title, the description, the "how crafting works" fold and the station box. A (i) button opens the description and help; a magnifier opens the search box (`craft_shelves()` in popover mode, `data-ws-tog` / `data-ws-pane`, handler in `workshop.js`, `.wsbar` / `.wschip` / `.wsib` in `style.css`). Cooking still shows its pots. Locked areas keep their intro. Without script the popover card shows the intro in a `noscript` block.
+- **More craft links go to the workshop** (when `gnav_craft` is open, else the old page): welcome back, Today, first-week tasks, almanac recipe notes, stop adopt, home pal jobs, back, yard, kitchen redirect and the Satchel "Cook in Crafting" button (new `craft_path()` and `craft_link_fix()` beside `craft_url()` in `here_schema.php`). The "Cook in Crafting" link no longer carries the search by name.
+- **Not checked:** Garden and Cooking at phone width only; MySQL, light theme, the full test list.
+
 ## 2.7.52
 - **Workshop popover on phones:** smaller squares, four to a row (icons 48px, smaller names and chips; `style.css`, `max-width: 720px`). Ready squares now fit their content, so there is no empty strip under the name (`.shqf` / `.shquick`). Desktop and the Satchel list page are unchanged.
 - **Not checked:** only Garden at phone width; other areas, MySQL, light theme.
