@@ -48,9 +48,11 @@ Done (admin preview):
 
 - **Satchel Quick slot (phase 2b):** `users.quick_item_id` (added on demand by `quick_ensure_schema()`, also in `schema.php`), `includes/quick_slot.php` and `quick.php` (`do=set|clear|use`, CSRF, own item only, food and healing potions; refused in a fight). Satchel left piece: Quick (empty) → pick an item → Confirm; then it shows the item and uses it; ✕ clears, long-press (650 ms) clears. The dock posts a form to `quick.php`; `site.js` loads the reply in place. Tested on a SQLite install: set, use (qty 3→2), clear, bad item, no CSRF (400), GET (302), dock JSON `quick` filled. Fights and adventure use of Quick are phase 3.
 
+- **Shop (Buy | Sell):** left works the page's basket button (Buy all / Sell all, grey until something is picked), right is the switch to the other tab. Checked on the SQLite install (dock JSON on both tabs). The Single/Several submenu is not needed: the shop's tiles already pick several into the basket.
+
 Not done yet in this phase:
 - Garden **Tools** (the single-bed tool you cycle and tap beds with): needs a new tool mode in the page script (a tap on a bed does the armed action). Until then the right piece is All.
-- Tasks Journey and Post tabs, World/Here/Town (Do here, Go), Shop (Buy | Sell switch, Single and Several), Crafting (All), Gnome/Hovel (Rest strip, Heal), Friends, Trading, Market day.
+- Tasks Journey and Post tabs, World/Here/Town (Do here, Go), Crafting (All), Gnome/Hovel (Rest strip, Heal), Friends, Trading, Market day.
 
 How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 

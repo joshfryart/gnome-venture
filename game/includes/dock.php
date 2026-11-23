@@ -278,6 +278,14 @@ function dock_page_spec(string $page): array
             $t = (string)($_GET['tab'] ?? '');
             if ($t !== '' && $t !== 'items') return ['L' => dock_action('Items', '🎒', $u('inventory.php')), 'R' => dock_action('Hovel', 'hovel', $u('gnome.php'))];
             return ['watch' => true, 'L' => dock_remote('Quick', '⚡', ['quick' => 'slot']), 'R' => dock_action('Arrange', '🗂️', $u('inventory.php?tab=arrange'))];
+        case 'shop.php':
+            // Left: the basket's own button (Buy all / Sell all), greyed until something is picked (the basket form is hidden while empty). Right: the Buy | Sell switch, a link to the other tab.
+            $sid = (int)($_GET['id'] ?? 0);
+            if ($sid <= 0) return [];
+            $sell = ($_GET['tab'] ?? '') === 'sell';
+            return ['watch' => true,
+                'L' => dock_remote($sell ? 'Sell all' : 'Buy all', '🧺', ['sel' => '.basket:not([hidden]) .bgo']),
+                'R' => dock_action($sell ? 'Buy' : 'Sell', $sell ? '🛒' : '💰', $u('shop.php?id=' . $sid . ($sell ? '' : '&tab=sell')))];
         case 'jobs.php':
             require_once __DIR__ . '/jobs.php';   // JOB_PERIODS
             $T = (string)($_GET['t'] ?? '');
