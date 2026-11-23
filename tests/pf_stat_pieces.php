@@ -20,10 +20,10 @@ $S = pfd_stat_pieces();
 chk('data_loads_all_24_pieces', count($S) === 24, count($S));
 $per = []; foreach ($S as $p) $per[$p['stat']][] = $p['tier'];
 chk('data_each_stat_has_one_piece_per_tier_0_to_30', count($per) === 4 && !array_filter($per, fn($t) => $t !== PFD_STAT_TIERS), $per);
-chk('data_only_built_slices_live (Luck; the others come in their own slices)', !array_filter($S, fn($p) => $p['live'] && $p['stat'] !== 'luck'), array_keys(array_filter($S, fn($p) => $p['live'])));
+chk('data_only_built_slices_live (Luck, Nimble; the others come in their own slices)', !array_filter($S, fn($p) => $p['live'] && !in_array($p['stat'], ['luck', 'nimble'], true)), array_keys(array_filter($S, fn($p) => $p['live'])));
 chk('data_engine_side_reads_same_rows', array_keys(pfb_stat_data()) === array_keys($S) && pfb_stat_data()['stat-long-shot'][0] === 'roll again ; !roll next:hurt:1:a');
 chk('data_tags_are_engine_tags_or_none', !array_filter($S, fn($p) => $p['tag'] !== '' && !isset(PF_TAGS[$p['tag']]) && !isset(PF_TAGS_V1[$p['tag']])));
-chk('clauses_unknown_actions_load_harmlessly (Wrong Turn: no clauses yet)', pfb_wx_clauses('S:stat-wrong-turn') === [] && pfb_wx_clauses('S:nonesuch') === []);
+chk('clauses_unknown_actions_load_harmlessly (Lantern Chain: no clauses yet)', pfb_wx_clauses('S:stat-lantern-chain') === [] && pfb_wx_clauses('S:nonesuch') === []);
 chk('clauses_known_actions_parse (Long Shot: roll again, !roll next)', count(pfb_wx_clauses('S:stat-long-shot')) === 2 && pfb_wx_clauses('S:stat-long-shot')[0]['a'] === 'again' && pfb_wx_clauses('S:stat-long-shot')[1]['c0'] === ['!roll']);
 chk('text_fills_numbers', pfb_wx_text('S:stat-soft-spot', 4, 2) === 'Pierce. If the creature has guard up, it loses 4 guard. Your next Hurt this fight gets +2.', pfb_wx_text('S:stat-soft-spot', 4, 2));
 
