@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.79
+- **Puzzle fight, End turn flash.** I could not make a full page reload happen in a headless test (the turn posts and swaps in place), but sampling every frame showed what looks like it: at each swap the new fight screen was one frame un-fitted (height jumps, e.g. 356 to 367 px) and its board canvases were empty for about 60 ms. The un-fitted frame is fixed: `site.js` now marks the swapped-in `#pfight` / `#pfv-pre` as fitted when the old one was, so it keeps its place and does not scroll the page to the top. The empty board for a moment is not fixed (the board is redrawn by script after each swap). Not confirmed on a phone.
+- **Not checked:** the old (non-v1) fight screen under the dock layout.
+
 ## 2.7.78
 - **Puzzle fight on a phone on its side (dock layout).** The fight and the pre-fight screen used the whole height and ran under the dock, and in a short window the board got no height at all. Now a puzzle fight uses the thin rail instead of the full dock (Menu on the rail still opens it), stops above it, and is two columns: the board on the left; the bars, the coaching tip, the chips, a short last-plays line, the buttons and your hand on the right (the long last-plays list, the legend and the preview line are hidden in this layout). The pre-fight screen is wider (up to 820 px) and its Let's fight button is on screen. Checked in a headless 844 x 390 browser on a fake Wander, road, delve and lair fight (opening move, board and pre-fight). Not checked: the later turns and end-of-fight screens (win, loss recap, Pluck), a fight over the Trail's tile map, or a real phone.
 - **Wander result card:** the result card ("An abandoned camp", "Call back ...") sits under the picture like the Latest line, not at the bottom right.
