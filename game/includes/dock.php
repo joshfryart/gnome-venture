@@ -55,9 +55,24 @@ function dock_declare(array $spec): void
  * One action piece. $icon is a dock icon name (see dock_icon_url()) or an emoji. A piece is a link ($href), a strip of links ($menu: list of dock_action()s),
  * or inert ($why set = greyed, with that short reason). $badge is a count or '!'.
  */
-function dock_action(string $label, string $icon, string $href = '', array $menu = [], string $why = '', string $badge = '', string $mlabel = ''): array
+function dock_action(string $label, string $icon, string $href = '', array $menu = [], string $why = '', string $badge = '', string $mlabel = '', array $remote = [], array $cands = []): array
 {
-    return ['label' => $label, 'icon' => $icon, 'href' => $href, 'menu' => $menu, 'why' => $why, 'badge' => $badge, 'mlabel' => $mlabel];
+    return ['label' => $label, 'icon' => $icon, 'href' => $href, 'menu' => $menu, 'why' => $why, 'badge' => $badge, 'mlabel' => $mlabel, 'remote' => $remote, 'cands' => $cands];
+}
+
+/**
+ * Phase 2: a piece that works the page's own control. The dock never posts anything itself: it clicks a button the page already has (so the page's CSRF token,
+ * confirm dialog and in-place update all apply, and nothing new has to exist on the server). $remote is one of:
+ *   ['doForm' => 'water_all', 'count' => ['.gardenstat', 'data-thirsty']]  the first form on the page whose hidden `do` is that value; the count (optional) is a data attribute
+ *   ['sel' => 'css selector']                                              any element on the page
+ *   ['select' => 'garden']                                                 the garden's "select squares" panel (a Pick strip and a Then strip while it is on)
+ *   ['selectInfo' => 'garden']                                             a piece that shows how many squares are picked while that panel is on
+ * The script (assets/dock.js) looks the control up each time the dock is drawn: a missing or disabled control greys the piece ("none"). A piece with $cands takes the
+ * first of its candidates whose control exists, so one piece can be Give up or Re-roll depending on the page's state.
+ */
+function dock_remote(string $label, string $icon, array $remote, array $extra = []): array
+{
+    return dock_action($label, $icon, '', [], '', '', '', $remote) + $extra;
 }
 
 /** Dock icon names that have a drawn icon (assets/img/nav/dock-<name>.png, from art-nav-dock/). */
@@ -213,6 +228,7 @@ function dock_actions(array $u, string $page): array
     $def = ['L' => dock_action('Back', '↩'), 'R' => dock_action($slim ? 'Hovel' : 'Home', 'hovel', url('gnome.php'))];
     $out = [];
     foreach (['L', 'R'] as $s) $out[$s] = array_key_exists($s, $spec) ? $spec[$s] : $def[$s];   // null = an empty slot
+    $out['watch'] = !empty($spec['watch']);   // the script redraws the dock when this page's own buttons change (select mode, disabled buttons)
     return $out;
 }
 
@@ -244,6 +260,32 @@ function dock_page_spec(string $page): array
             return ['L' => dock_action('Contests', '↩', $u('games.php?tab=contests')), 'R' => dock_action('Games', '🎲', $u('games.php'))];
         case 'feedback.php':
             return ['L' => dock_action('Replies', '📮', $u('community.php?t=msgs')), 'R' => null];
+        case 'garden.php':
+            $t = (string)($_GET['t'] ?? '');
+            if ($t !== '' && $t !== 'beds') return ['L' => dock_action('Beds', '🏡', $u('garden.php')), 'R' => dock_action('Hovel', 'hovel', $u('gnome.php'))];
+            // Beds tab: Select works the page's own "select squares" panel; the right piece is a strip of the page's own bulk buttons (the single-bed Tools piece needs a new in-page tool mode: phase 2b)
+            return ['watch' => true,
+                'L' => dock_remote('Select', '☑️', ['select' => 'garden']),
+                'R' => dock_action('All', '🧺', '', [
+                    dock_remote('Water all', '💧', ['doForm' => 'water_all', 'count' => ['.gardenstat', 'data-thirsty']]),
+                    dock_remote('Weed all', '🌿', ['doForm' => 'weed_all', 'count' => ['.gardenstat', 'data-weedy']]),
+                    dock_remote('Harvest all', '🧺', ['doForm' => 'harvest_all', 'count' => ['.gardenstat', 'data-ready']]),
+                    dock_remote('Pick pests', '✂️', ['doForm' => 'pick_all']),
+                    dock_remote('Collect all', '📥', ['doForm' => 'collect_all']),
+                ], '', '', 'All beds', ['selectInfo' => 'garden'])];
+        case 'jobs.php':
+            require_once __DIR__ . '/jobs.php';   // JOB_PERIODS
+            $T = (string)($_GET['t'] ?? '');
+            $p = (string)($_GET['p'] ?? 'daily');
+            if (isset(JOB_PERIODS[$T]) || $T === 'post') { $p = $T; $T = 'jobs'; }
+            if ($T === 'requests') {
+                return ['watch' => true, 'L' => null, 'R' => dock_action('Deliver', '📜', '', [], '', '', '', [], [
+                    dock_remote('Deliver', '📜', ['doForm' => 'order']), dock_remote('Favour', '🤝', ['doForm' => 'favour'])])];
+            }
+            if ($T === 'journey' || $p === 'post') return [];
+            return ['watch' => true,
+                'L' => dock_action('Re-roll', '🎲', '', [], '', '', '', [], [dock_remote('Give up', '🏳️', ['doForm' => 'abandon']), dock_remote('Re-roll', '🎲', ['doForm' => 'reroll'])]),
+                'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Hand in', '✋', ['doForm' => 'deliver']), dock_remote('Build', '🧱', ['doForm' => 'build']), dock_remote('Take', '📋', ['doForm' => 'take'])])];
     }
     return [];
 }

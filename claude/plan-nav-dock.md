@@ -38,13 +38,20 @@ Design rules the code follows (CSP `style-src 'self'`):
 
 Checked here: PHP lint, JS syntax, a static harness page (1) under the exact CSP, (2) with the game's `style.css`, at 844 x 390, light and strips/popover opened, no CSP violations. **Not run:** the game against a database (no MySQL in this environment), a real phone, the dark theme with the real stylesheet.
 
-## Phase 2: page actions that post (admin preview)
+## Phase 2: page actions (admin preview). Started.
 
-Each page declares its pieces with `dock_declare()` (or a row in `dock_page_spec()`), returning the same shape the mockup uses. Needs: a form-post path from a dock piece (CSRF token in `.dockdata`, in-place result via the existing AJAX swap), per-tab overrides (the page reports its tab), disabled pieces with a reason chip.
+Decision: the dock never posts anything itself. A piece works a control the page already has (`dock_remote()` in `includes/dock.php`, resolved by `assets/dock.js`): it finds the first form on the page whose hidden `do` has a given value (or any element by selector) and clicks its button. So the page's own CSRF token, `data-confirm` dialog and in-place update all apply, nothing new has to exist on the server, and a page that does not have the control greys the piece ("none"). A piece can list candidates (the first one whose control is on the page wins: Give up or Re-roll), and a count badge can be read from a data attribute on the page. Pages that set `watch` get the dock redrawn when the page's buttons change (a `MutationObserver` on `<main>`, debounced).
 
-Order (by use and risk): Garden (Select mode, Tools cycle), Satchel (Quick slot, Arrange), Tasks (Deliver, Post), World/Here/Town (Do here, Go), Shop (Buy | Sell switch, Single/Several), Crafting (All), Gnome/Hovel (Rest strip, Heal), Friends, Trading, Market day. The per-page proposal and its reasons are in the mockup's audit table and edge-case list.
+Done (admin preview):
+- **Garden, Beds tab:** left **Select** works the page's own "select squares" panel (`.selbar`). While it is on, a **Pick** strip (Empty, Improver, Tilling, Thirsty, Ready, None, with counts read from the page's `data-tiles`) and a green **Then** strip (Plant…, Work in…, Mulch…, Sheet mulch…, Till, Water, Harvest, Dig up) show by themselves, the left piece becomes **Done**, the right piece shows **Picked** with the count, and the four menus wait. Every tile clicks the page's own button, so the "…" choosers, the confirm for Till and Dig up and the energy checks are the page's. Right **All** is a strip of the page's own bulk forms (water_all, weed_all, harvest_all, pick_all, collect_all) with the page's counts. Other garden tabs: left Beds, right Hovel.
+- **Tasks, Jobs tab:** left is Give up or Re-roll (whichever the page has), right is Hand in, Build or Take. **Requests tab:** right is Deliver or Favour.
 
-Server pieces to add: a dock endpoint (or the existing page POSTs reused) for Select mode loops over per-square calls (Tend, Tasks requests, Friends requests/blocked, Pal jobs), Quit for Rain Barrel / Gnome Beds / Spit / Pest, a results screen for Worms / Memory / Spit / Pest, claim-all on First Week.
+Not done yet in this phase:
+- Garden **Tools** (the single-bed tool you cycle and tap beds with): needs a new tool mode in the page script (a tap on a bed does the armed action). Until then the right piece is All.
+- **Satchel Quick slot:** needs storage (a column on `users`), an assign flow and a use endpoint (food and potions). It is the first piece of phase 2b because it is new server work.
+- Tasks Journey and Post tabs, World/Here/Town (Do here, Go), Shop (Buy | Sell switch, Single and Several), Crafting (All), Gnome/Hovel (Rest strip, Heal), Friends, Trading, Market day.
+
+How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 
 ## Phase 3: play mode, adventure, combat
 

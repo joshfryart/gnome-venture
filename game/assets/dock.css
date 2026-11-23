@@ -183,3 +183,10 @@ body.dock-on { --dock-h: 106px; }
 :root[data-theme="dark"] .dockroot .dk-util .th-to-dark { display: none; }
 
 .dockroot a { text-decoration: none; }
+
+/* phase 2: green "then" tiles of the select mode, the picked-count piece, menus that wait */
+.dockroot .dockslip .dk-pc.dk-do { --dk-fill: var(--dk-brand); --dk-ring: #1f3d1c; --dk-tx: #fff; }
+:root[data-theme="dark"] .dockroot .dockslip .dk-pc.dk-do { --dk-tx: #1c110a; }
+.dockroot .dk-pc.dk-act.dk-info { --dk-fill: var(--dk-felt2); --dk-tx: var(--dk-ink); --dk-ring: var(--dk-accentink); cursor: default; }
+.dockroot .dk-pc.dk-menu[disabled] { --dk-fill: var(--dk-felt2); --dk-ring: var(--dk-line2); --dk-tx: var(--dk-dis); cursor: not-allowed; }
+.dockroot .dk-pc.dk-act[disabled] { --dk-fill: var(--dk-felt2); --dk-ring: var(--dk-line2); --dk-tx: var(--dk-dis); cursor: not-allowed; }

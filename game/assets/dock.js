@@ -136,6 +136,86 @@
       + '</defs></svg>';
   }
 
+  /* ---- phase 2: pieces that work the page's own controls (includes/dock.php, dock_remote()) ----
+     The dock never posts anything itself: it clicks a button the page already has, so the page's CSRF token, confirm dialog and in-place update all apply. */
+  var REM = [], ACT = { L: null, R: null }, selOn = false;
+  function q1(sel) { try { return document.querySelector(sel); } catch (e) { return null; } }
+  function formBtn(doVal) {
+    var fs = document.querySelectorAll('main form'), i, f, inp, b;
+    for (i = 0; i < fs.length; i++) {
+      f = fs[i]; inp = f.querySelector('input[name="do"]');
+      if (inp && inp.value === doVal) { b = f.querySelector('button, input[type="submit"]'); return { btn: b, dis: !b || b.disabled }; }
+    }
+    return null;
+  }
+  function attrCount(c) { var el = c && q1(c[0]), v = el ? parseInt(el.getAttribute(c[1]), 10) : 0; return v > 0 ? String(v) : ''; }
+  function resolveOne(a) {   // -> { why, badge } for a piece or tile that works a control on the page
+    var r = a.remote || {}, t, e;
+    if (r.doForm) { t = formBtn(r.doForm); if (!t || t.dis) return { why: 'none' }; return { badge: attrCount(r.count) }; }
+    if (r.sel) { e = q1(r.sel); if (!e) return { why: 'n/a' }; if (e.disabled) return { why: 'none' }; return {}; }
+    return {};
+  }
+  function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
+    var t, e;
+    if (!spec) return;
+    if (spec.doForm) { t = formBtn(spec.doForm); if (t && !t.dis) t.btn.click(); return; }
+    if (spec.sel) { e = q1(spec.sel); if (e && !e.disabled) e.click(); }
+  }
+  function remKey(spec) { REM.push(spec); return REM.length - 1; }
+  /* the garden's own select panel: .selbar (data-tiles: a flag letter string per square), .selon while it is on, .selcount, the Pick buttons [data-q], the action buttons in .selacts */
+  var G_PICK = [['P', '🟫', 'Empty'], ['A', '🌿', 'Improver'], ['T', '⛏️', 'Tilling'], ['W', '💧', 'Thirsty'], ['H', '🧺', 'Ready'], ['none', '✕', 'None']];
+  var G_THEN = [['🌱', 'Plant…', '.selacts [data-open="seed"]'], ['🪱', 'Work in…', '.selacts [data-open="soil"]'], ['🍂', 'Mulch…', '.selacts [data-open="mulch"]:not([data-act])'],
+    ['📰', 'Sheet mulch…', '.selacts [data-open="mulch"][data-act="sheet"]'], ['⛏️', 'Till', '.selacts [data-act="till"]'], ['💧', 'Water', '.selacts [data-act="water"]'],
+    ['🧺', 'Harvest', '.selacts [data-act="harvest"]'], ['🕳️', 'Dig up', '.selacts [data-act="dig"]']];
+  function gSelOn() { var e = q1('.selbar .selon'); return !!(e && !e.hidden); }
+  function gCount() { var e = q1('.selbar .selcount'); return e ? parseInt(e.textContent, 10) || 0 : 0; }
+  function gFlagCount(letter) {
+    var bar = q1('.selbar'), raw = bar ? bar.getAttribute('data-tiles') : '', n = 0;
+    if (!raw) return '';
+    raw.split(',').forEach(function (s) { var p = s.split(':'); if (p[1] && p[1].indexOf(letter) >= 0) n++; });
+    return n ? String(n) : '';
+  }
+  function copy(o) { var r = {}, k; for (k in o) r[k] = o[k]; return r; }
+  function finalItem(t) {
+    var o = copy(t), r;
+    if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); }
+    return o;
+  }
+  function finalAct(a) {
+    var o, pick = null, r;
+    if (!a) return null;
+    if (a.cands && a.cands.length) {   // the first candidate whose control is on the page
+      a.cands.some(function (c) { var rr = resolveOne(c); if (!rr.why) { pick = { c: c, r: rr }; return true; } return false; });
+      if (pick) { o = copy(pick.c); o.badge = pick.r.badge || ''; o.rem = remKey(pick.c.remote); }
+      else { o = copy(a.cands[0]); o.why = 'nothing here'; }
+      o.menu = []; return o;
+    }
+    o = copy(a);
+    if (a.remote && a.remote.select === 'garden') {
+      if (!q1('.selbar')) { o.why = 'Beds'; return o; }
+      if (selOn) { o.label = 'Done'; o.icon = '✓'; o.rem = remKey({ sel: '.selbar [data-sel="off"]' }); }
+      else o.rem = remKey({ sel: '.selbar [data-sel="on"]' });
+      return o;
+    }
+    if (a.remote && a.remote.selectInfo === 'garden' && selOn) return { label: 'Picked', icon: '🔲', href: '', menu: [], why: '', badge: String(gCount()), info: true, remote: {}, cands: [], mlabel: '' };
+    if (a.remote && (a.remote.doForm || a.remote.sel)) { r = resolveOne(a); o.why = r.why || a.why; o.badge = r.badge || a.badge; o.rem = remKey(a.remote); }
+    if (a.menu && a.menu.length) o.menu = a.menu.map(finalItem);
+    return o;
+  }
+  function selStrips() {   // the garden's select mode: Pick on the left, Then on the right (the page's own buttons)
+    var cnt = gCount(), pick = G_PICK.map(function (p) { return { label: p[2], icon: p[1], badge: p[0] === 'none' ? '' : gFlagCount(p[0]), rem: remKey({ sel: '.selon [data-q="' + p[0] + '"]' }), why: '' }; }), then = [];
+    G_THEN.forEach(function (t) { if (q1(t[2])) then.push({ label: t[1], icon: t[0], rem: remKey({ sel: t[2] }), why: cnt ? '' : 'pick', cls: 'do' }); });
+    return [{ items: pick, label: 'Pick squares', side: 'L', flat: false, small: true }, { items: then, label: 'Then do this to the picked ones', side: 'R', flat: false, small: true }];
+  }
+  var mo = null;
+  function watch() {   // pages that set "watch": redraw when the page's own buttons change (select mode on or off, a button disabled)
+    var main, t = 0;
+    if (mo || !window.MutationObserver) return;
+    main = document.querySelector('main'); if (!main) return;
+    mo = new MutationObserver(function () { if (D && D.actions.watch) { clearTimeout(t); t = setTimeout(render, 120); } });
+    mo.observe(main, { subtree: true, attributes: true, attributeFilter: ['hidden', 'disabled'], childList: true, characterData: true });
+  }
+
   /* ---- the chain of pieces along the curve ---- */
   function chain(W, g) {
     var pw = g.pw, mw = Math.max(58, Math.min(72, (W - pw - 2 * 64 - 8) / 4)), menus = {}, i;
@@ -162,7 +242,7 @@
       if (o.k === 'ghost') row0 += pc({ x: base.x, y: base.y, w: base.w, h: base.h, rot: base.rot, tabs: base.tabs, tag: 'div', cls: 'ghost', ghost: true, op: Math.max(.25, .8 - .16 * (o.d - 1)).toFixed(2) });
       else if (o.k === 'm') main += menuPiece(o, base, menus[o.m]);
       else if (o.k === 'plate') main += platePiece(base);
-      else main += actPiece(o.k === 'aL' ? 'L' : 'R', D.actions[o.k === 'aL' ? 'L' : 'R'], base);
+      else main += actPiece(o.k === 'aL' ? 'L' : 'R', ACT[o.k === 'aL' ? 'L' : 'R'], base);
       x += o.w;
     });
     return row1 + row0 + main;
@@ -171,7 +251,7 @@
     if (!m) return '';
     var here = D.here === m.k, open = slip === m.k, b = menuBadge(m);
     base.pat = PAT[m.k]; base.cls = 'menu' + (here ? ' here' : '') + (open ? ' open' : '');
-    base.attrs = 'data-m="' + m.k + '" aria-expanded="' + open + '" aria-haspopup="true" aria-label="' + esc(m.name) + ' menu"';
+    base.attrs = 'data-m="' + m.k + '" aria-expanded="' + open + '" aria-haspopup="true" aria-label="' + esc(m.name) + ' menu"' + (selOn ? ' disabled' : '');   // the menus wait while squares are being picked
     base.inner = ic(m.k) + '<span class="lb">' + esc(m.name) + '</span>' + (b ? '<b class="badge">' + esc(b) + '</b>' : '');
     return pc(base);
   }
@@ -187,40 +267,45 @@
   }
   function actPiece(side, a, base) {
     if (!a) { base.cls = 'act empty'; base.attrs = 'disabled aria-label="No action"'; base.inner = '<span class="ic">·</span>'; return pc(base); }
-    var open = slip === 'act' + side, label = a.label.length > 10 ? a.label.slice(0, 9) + '…' : a.label, link = !a.menu.length && a.href;
-    base.cls = 'act' + (side === 'R' && !a.why ? ' go' : '') + (open ? ' open' : '');
+    var open = slip === 'act' + side, label = a.label.length > 10 ? a.label.slice(0, 9) + '…' : a.label, link = !a.menu.length && a.href && a.rem === undefined;
+    base.cls = 'act' + (side === 'R' && !a.why && !a.info ? ' go' : '') + (a.info ? ' info' : '') + (open ? ' open' : '');
     base.tag = link && !a.why ? 'a' : 'button';
-    base.attrs = 'data-act="' + side + '" aria-label="' + esc(a.label) + '"' + (link && !a.why ? ' href="' + esc(a.href) + '"' : '') + (a.menu.length ? ' aria-haspopup="true" aria-expanded="' + open + '"' : '') + (a.why ? ' disabled' : '');
+    base.attrs = 'data-act="' + side + '" aria-label="' + esc(a.label) + '"' + (link && !a.why ? ' href="' + esc(a.href) + '"' : '') + (a.rem !== undefined && !a.why ? ' data-rem="' + a.rem + '"' : '') + (a.menu.length ? ' aria-haspopup="true" aria-expanded="' + open + '"' : '') + (a.why ? ' disabled' : '') + (a.info ? ' aria-disabled="true"' : '');
     base.inner = ic(a.icon) + '<span class="lb">' + esc(label) + '</span>' + (a.badge && !a.why ? '<b class="badge">' + esc(a.badge) + '</b>' : '') + (a.why ? '<span class="chip">' + esc(a.why) + '</span>' : '');
     if (a.menu.length) base.after = '<span class="pip" aria-hidden="true">▴</span>';
     return pc(base);
   }
 
   /* ---- strips and the popover ---- */
-  function stripItems() {
+  function stripList() {
     var m, a;
+    if (slip === 'sel') return selStrips();
     if (slip === 'actL' || slip === 'actR') {
-      a = D.actions[slip === 'actL' ? 'L' : 'R'];
-      return a ? { items: a.menu.map(function (t) { return { href: t.href, label: t.label, icon: t.icon, badge: t.badge, why: t.why, on: false }; }), label: a.mlabel || a.label, flat: true, side: 'C' } : null;
+      a = ACT[slip === 'actL' ? 'L' : 'R'];
+      return a ? [{ items: a.menu.map(function (t) { return { href: t.href, label: t.label, icon: t.icon, badge: t.badge, why: t.why, on: false, rem: t.rem }; }), label: a.mlabel || a.label, flat: true, side: 'C' }] : [];
     }
     D.menus.forEach(function (x) { if (x.k === slip) m = x; });
-    return m ? { items: m.tiles, label: m.name, flat: false, side: (slip === 'you' || slip === 'hobby') ? 'L' : 'R' } : null;
+    return m ? [{ items: m.tiles, label: m.name, flat: false, side: (slip === 'you' || slip === 'hobby') ? 'L' : 'R' }] : [];
+  }
+  function stripHTML(s, W, g) {
+    var n = s.items.length, th = 54, per = Math.floor((W / 2 - 16) / Math.max(1, n)), tw = s.small ? Math.max(44, Math.min(50, per)) : Math.max(44, Math.min(58, per)), o = '', prev = 0;
+    var startX = s.flat ? W / 2 - n * tw / 2 : (s.side === 'L' ? 8 : W - 8 - n * tw);
+    s.items.forEach(function (t, i) {
+      var r = i < n - 1 ? (i % 2 ? -1 : 1) : 0, l = i > 0 ? -prev : 0, ps, fromRight = s.flat || s.side !== 'R', rem = t.rem !== undefined && !t.why, link = t.href && !t.why && !rem;
+      prev = r; ps = place(g, startX + tw * (i + .5), -(th / 2 + 9));
+      o += pc({ x: ps.x - tw / 2, y: ps.y - th / 2, w: tw, h: th, rot: ps.rot, tabs: [0, r, 0, l], tag: rem ? 'button' : link ? 'a' : 'span', cls: 'tile' + (t.on ? ' on' : '') + (t.why ? ' dis' : '') + (t.cls ? ' ' + t.cls : ''),
+        attrs: (rem ? 'data-rem="' + t.rem + '"' : link ? 'href="' + esc(t.href) + '"' : 'aria-disabled="true"') + (t.on ? ' aria-current="page"' : '') + ' aria-label="' + esc(t.label) + '"', o: fromRight ? i : n - 1 - i, fx: fromRight ? 22 : -22,
+        inner: ic(t.icon) + '<span class="lb">' + esc(t.label) + '</span>' + (t.badge && !t.why ? '<b class="badge">' + esc(t.badge) + '</b>' : '') + (t.why ? '<span class="chip">' + esc(t.why) + '</span>' : '') });
+    });
+    var f = place(g, startX + tw / 2, -(th / 2 + 9));
+    return o + '<div class="gname" data-pl="' + startX + ',' + (f.y - th / 2 - 26) + '">' + esc(s.label) + '</div>';
   }
   function slipHTML(W, g) {
     if (!slip) return '';
     if (slip === 'status') return popHTML(W, g);
-    var s = stripItems(); if (!s) return '';
-    var n = s.items.length, th = 54, tw = Math.max(44, Math.min(58, Math.floor((W / 2 - 16) / Math.max(1, n)))), o = '', prev = 0, startX = s.flat ? W / 2 - n * tw / 2 : (s.side === 'L' ? 8 : W - 8 - n * tw);
-    s.items.forEach(function (t, i) {
-      var r = i < n - 1 ? (i % 2 ? -1 : 1) : 0, l = i > 0 ? -prev : 0, ps, fromRight = s.flat || s.side !== 'R', link = t.href && !t.why;
-      prev = r; ps = place(g, startX + tw * (i + .5), -(th / 2 + 9));
-      o += pc({ x: ps.x - tw / 2, y: ps.y - th / 2, w: tw, h: th, rot: ps.rot, tabs: [0, r, 0, l], tag: link ? 'a' : 'span', cls: 'tile' + (t.on ? ' on' : '') + (t.why ? ' dis' : ''),
-        attrs: (link ? 'href="' + esc(t.href) + '"' : 'aria-disabled="true"') + (t.on ? ' aria-current="page"' : '') + ' aria-label="' + esc(t.label) + '"', o: fromRight ? i : n - 1 - i, fx: fromRight ? 22 : -22,
-        inner: ic(t.icon) + '<span class="lb">' + esc(t.label) + '</span>' + (t.badge && !t.why ? '<b class="badge">' + esc(t.badge) + '</b>' : '') + (t.why ? '<span class="chip">' + esc(t.why) + '</span>' : '') });
-    });
-    var f = place(g, startX + tw / 2, -(th / 2 + 9));
-    return o + '<div class="gname" data-pl="' + (s.flat ? W / 2 - n * tw / 2 : (s.side === 'L' ? 8 : W - 8 - n * tw)) + ',' + (f.y - th / 2 - 26) + '">' + esc(s.label) + '</div>';
+    return stripList().map(function (s) { return stripHTML(s, W, g); }).join('');
   }
+
   function popHTML(W, g) {
     var w = Math.min(460, W - 24), h, x, y, body = '', tabs = [['now', 'Now'], ['rail', 'Pots, boosts, tasks'], ['more', 'More']];
     function rows(list, empty) {
@@ -248,6 +333,10 @@
     if (!D || !mq.matches) { if (stage) stage.innerHTML = ''; document.body.classList.remove('dock-ready'); return; }
     var VW = root.clientWidth || window.innerWidth, W, g, old = stage && stage.querySelector('.dockslip'), oldN = old ? old.querySelectorAll('.dk-pc').length : 0;
     if (old && old.parentNode) old.parentNode.removeChild(old);   // kept as an element (not as markup): inline style attributes cannot be re-parsed under the CSP
+    REM = [];
+    selOn = !!(D.actions.watch && gSelOn());
+    if (selOn) { if (slip !== 'status') slip = 'sel'; } else if (slip === 'sel') slip = null;   // select mode shows its two strips by itself
+    ACT = { L: finalAct(D.actions.L), R: finalAct(D.actions.R) };
     var key = slip || '';
     K = scaleFor(VW, window.innerHeight); W = Math.round(VW / K); LW = W; g = geom(W);
     if (!stage) { stage = document.createElement('div'); stage.className = 'dockstage'; root.appendChild(stage); }
@@ -268,10 +357,12 @@
   root.addEventListener('click', function (e) {
     var m = e.target.closest('[data-m]'), a = e.target.closest('button[data-act]'), p = e.target.closest('#dockplate'), pt = e.target.closest('[data-poptab]');
     if (pt) { popTab = pt.getAttribute('data-poptab'); render(); return; }
+    var rm = e.target.closest('[data-rem]');
+    if (rm && !rm.disabled) { remoteGo(REM[parseInt(rm.getAttribute('data-rem'), 10)]); if (!selOn) slip = null; render(); return; }   // a piece that works a control on the page
     if (m) { open(m.getAttribute('data-m')); return; }
     if (p) { open('status'); return; }
     if (a && !a.disabled) {
-      var side = a.getAttribute('data-act'), act = D.actions[side];
+      var side = a.getAttribute('data-act'), act = ACT[side];
       if (act && act.menu.length) { open('act' + side); return; }
       if (act && !act.href && act.label === 'Back') {   // Back: one step back in the game, else home
         var ok = false; try { ok = history.length > 1 && document.referrer && new URL(document.referrer).origin === location.origin; } catch (x) { ok = false; }
@@ -281,12 +372,12 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && slip) { slip = null; render(); } });
   document.addEventListener('click', function (e) { if (slip && e.target.isConnected && !root.contains(e.target)) { slip = null; render(); } });   // a click on a piece re-draws the dock, so its target is no longer in the page: that is a click inside
-  document.addEventListener('gv:swapped', function () { slip = null; if (readData()) render(); });   // an in-place page load: new plate numbers and actions
+  document.addEventListener('gv:swapped', function () { if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);
   window.addEventListener('orientationchange', relayout);
   if (mq.addEventListener) mq.addEventListener('change', render); else if (mq.addListener) mq.addListener(render);
 
-  try { if (readData()) render(); } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
+  try { if (readData()) { watch(); render(); } } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
 })();
