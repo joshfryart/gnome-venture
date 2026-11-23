@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.69
+- **Here: the Perks popover fits a landscape phone.** On short landscape screens it is wide (up to 780 px) with a slim banner and two columns (your perks left, the meters and the acts that raise them right). It was one column about 560 px tall; it now fits in the screen height (about 380 px at 390). Seen in a headless browser at 844 x 390.
+
 ## 2.7.68
 - **Dock layout, landscape: page survey.** About 90 pages were loaded at 844 x 390 in a headless browser (heights, anything wider than the screen, oversized pictures, a screenshot each). No page scrolls sideways. One fix: on the My Gnome tabs other than Today and Furnish (Gnome, Closet, Stats, Calling) the hovel room banner is hidden, so each tab starts at its own content (about 100 px less scrolling). Still tall and unchanged: Villagers (122 cards), the Season page, World travel and map, the Almanac, the guide, the Passport, the garden tabs and the Crafting areas picture. Many mini-game pages sent the test player to Games (they are gated in the test world), so their own screens were not surveyed.
 
