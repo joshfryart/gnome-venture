@@ -190,3 +190,9 @@ body.dock-on { --dock-h: 106px; }
 .dockroot .dk-pc.dk-act.dk-info { --dk-fill: var(--dk-felt2); --dk-tx: var(--dk-ink); --dk-ring: var(--dk-accentink); cursor: default; }
 .dockroot .dk-pc.dk-menu[disabled] { --dk-fill: var(--dk-felt2); --dk-ring: var(--dk-line2); --dk-tx: var(--dk-dis); cursor: not-allowed; }
 .dockroot .dk-pc.dk-act[disabled] { --dk-fill: var(--dk-felt2); --dk-ring: var(--dk-line2); --dk-tx: var(--dk-dis); cursor: not-allowed; }
+
+/* Quick slot: the small x, the soft (greyed but tappable) look, the hold bar */
+.dockroot .dk-qx { position: absolute; left: -8px; bottom: -8px; z-index: 4; width: 22px; height: 22px; display: grid; place-items: center; background: var(--dk-danger); color: #fff; font-size: 11px; font-weight: 800; border: 2px solid var(--dk-felt); cursor: pointer; line-height: 1; }
+.dockroot .dk-pc.dk-act.dk-soft { --dk-fill: var(--dk-felt2); --dk-tx: var(--dk-dis); --dk-ring: var(--dk-line2); }
+.dockroot .dk-pc.dk-holding .dk-in::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 2px; height: 4px; background: var(--dk-danger); animation: dkholdbar .65s linear both; }
+@keyframes dkholdbar { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }

@@ -138,7 +138,7 @@
 
   /* ---- phase 2: pieces that work the page's own controls (includes/dock.php, dock_remote()) ----
      The dock never posts anything itself: it clicks a button the page already has, so the page's CSRF token, confirm dialog and in-place update all apply. */
-  var REM = [], ACT = { L: null, R: null }, selOn = false;
+  var REM = [], ACT = { L: null, R: null }, selOn = false, qMode = false, lp = false, lpT = 0;
   function q1(sel) { try { return document.querySelector(sel); } catch (e) { return null; } }
   function formBtn(doVal) {
     var fs = document.querySelectorAll('main form'), i, f, inp, b;
@@ -175,6 +175,25 @@
     raw.split(',').forEach(function (s) { var p = s.split(':'); if (p[1] && p[1].indexOf(letter) >= 0) n++; });
     return n ? String(n) : '';
   }
+  function postTo(url, fields) {   // a form the page's own submit handler loads in place (assets/site.js allows .dockroot forms): the token is the page's
+    var f = document.createElement('form'), k, i;
+    f.method = 'post'; f.action = url; f.hidden = true; f.className = 'dockpost';
+    fields.csrf = D.csrf; fields._n = Math.random().toString(16).slice(2, 10);
+    for (k in fields) { i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = fields[k]; f.appendChild(i); }
+    root.appendChild(f);
+    if (f.requestSubmit) f.requestSubmit(); else f.submit();
+    setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 8000);
+  }
+  function satchelPick() {   // the item popup open in the Satchel: its Eat or Drink form names the item and shows it can go on the Quick button
+    var d = q1('main details.itile[open]'), forms, i, dd, it;
+    if (!d) return null;
+    forms = d.querySelectorAll('form');
+    for (i = 0; i < forms.length; i++) {
+      dd = forms[i].querySelector('input[name="do"]'); it = forms[i].querySelector('input[name="item_id"]');
+      if (dd && it && (dd.value === 'eat' || dd.value === 'drink_heal')) return { id: it.value };
+    }
+    return { id: '', no: true };
+  }
   function copy(o) { var r = {}, k; for (k in o) r[k] = o[k]; return r; }
   function finalItem(t) {
     var o = copy(t), r;
@@ -191,6 +210,12 @@
       o.menu = []; return o;
     }
     o = copy(a);
+    if (a.remote && a.remote.quick === 'slot') {   // the Quick slot: empty (＋ Quick), assigning (open an item in the Satchel, then Confirm), or holding an item (tap to use, x or hold to clear)
+      var qk = D.quick, pk;
+      if (qMode) { o.label = 'Confirm'; o.icon = '✔'; o.qk = 'confirm'; o.qx = 'cancel'; pk = satchelPick(); if (!pk) o.chip = 'open an item'; else if (pk.no) o.chip = 'can\u2019t use'; return o; }
+      if (qk) { o.label = qk.name; o.icon = qk.kind === 'heal' ? '🧪' : '🍽️'; o.badge = qk.qty > 0 ? String(qk.qty) : ''; o.qk = 'use'; o.qx = 'clear'; if (qk.qty <= 0) o.chip = '0 left'; return o; }
+      o.label = 'Quick'; o.icon = '＋'; o.qk = 'empty'; return o;
+    }
     if (a.remote && a.remote.select === 'garden') {
       if (!q1('.selbar')) { o.why = 'Beds'; return o; }
       if (selOn) { o.label = 'Done'; o.icon = '✓'; o.rem = remKey({ sel: '.selbar [data-sel="off"]' }); }
@@ -213,7 +238,7 @@
     if (mo || !window.MutationObserver) return;
     main = document.querySelector('main'); if (!main) return;
     mo = new MutationObserver(function () { if (D && D.actions.watch) { clearTimeout(t); t = setTimeout(render, 120); } });
-    mo.observe(main, { subtree: true, attributes: true, attributeFilter: ['hidden', 'disabled'], childList: true, characterData: true });
+    mo.observe(main, { subtree: true, attributes: true, attributeFilter: ['hidden', 'disabled', 'open'], childList: true, characterData: true });
   }
 
   /* ---- the chain of pieces along the curve ---- */
@@ -268,11 +293,11 @@
   function actPiece(side, a, base) {
     if (!a) { base.cls = 'act empty'; base.attrs = 'disabled aria-label="No action"'; base.inner = '<span class="ic">·</span>'; return pc(base); }
     var open = slip === 'act' + side, label = a.label.length > 10 ? a.label.slice(0, 9) + '…' : a.label, link = !a.menu.length && a.href && a.rem === undefined;
-    base.cls = 'act' + (side === 'R' && !a.why && !a.info ? ' go' : '') + (a.info ? ' info' : '') + (open ? ' open' : '');
+    base.cls = 'act' + (side === 'R' && !a.why && !a.info ? ' go' : '') + (a.info ? ' info' : '') + (a.chip && !a.why ? ' soft' : '') + (a.qk === 'confirm' ? ' open' : '') + (open ? ' open' : '');
     base.tag = link && !a.why ? 'a' : 'button';
-    base.attrs = 'data-act="' + side + '" aria-label="' + esc(a.label) + '"' + (link && !a.why ? ' href="' + esc(a.href) + '"' : '') + (a.rem !== undefined && !a.why ? ' data-rem="' + a.rem + '"' : '') + (a.menu.length ? ' aria-haspopup="true" aria-expanded="' + open + '"' : '') + (a.why ? ' disabled' : '') + (a.info ? ' aria-disabled="true"' : '');
-    base.inner = ic(a.icon) + '<span class="lb">' + esc(label) + '</span>' + (a.badge && !a.why ? '<b class="badge">' + esc(a.badge) + '</b>' : '') + (a.why ? '<span class="chip">' + esc(a.why) + '</span>' : '');
-    if (a.menu.length) base.after = '<span class="pip" aria-hidden="true">▴</span>';
+    base.attrs = 'data-act="' + side + '" aria-label="' + esc(a.label) + '"' + (link && !a.why ? ' href="' + esc(a.href) + '"' : '') + (a.rem !== undefined && !a.why ? ' data-rem="' + a.rem + '"' : '') + (a.qk ? ' data-quick="' + a.qk + '"' : '') + (a.menu.length ? ' aria-haspopup="true" aria-expanded="' + open + '"' : '') + (a.why ? ' disabled' : '') + (a.info ? ' aria-disabled="true"' : '');
+    base.inner = ic(a.icon) + '<span class="lb">' + esc(label) + '</span>' + (a.badge && !a.why ? '<b class="badge">' + esc(a.badge) + '</b>' : '') + ((a.why || a.chip) ? '<span class="chip">' + esc(a.why || a.chip) + '</span>' : '');
+    base.after = (a.menu.length ? '<span class="pip" aria-hidden="true">▴</span>' : '') + (a.qx ? '<span class="qx" role="button" data-qx="' + a.qx + '" aria-label="' + (a.qx === 'cancel' ? 'Cancel' : 'Clear the Quick button') + '">✕</span>' : '');
     return pc(base);
   }
 
@@ -357,6 +382,16 @@
   root.addEventListener('click', function (e) {
     var m = e.target.closest('[data-m]'), a = e.target.closest('button[data-act]'), p = e.target.closest('#dockplate'), pt = e.target.closest('[data-poptab]');
     if (pt) { popTab = pt.getAttribute('data-poptab'); render(); return; }
+    var qx = e.target.closest('[data-qx]'), qb = e.target.closest('[data-quick]'), pk;
+    if (qx) { if (qx.getAttribute('data-qx') === 'cancel') { qMode = false; render(); } else postTo(D.quickUrl, { do: 'clear', back: D.back }); return; }
+    if (qb && !qb.disabled) {
+      var qk = qb.getAttribute('data-quick');
+      if (lp) { lp = false; return; }
+      if (qk === 'empty') { qMode = true; render(); }
+      else if (qk === 'confirm') { pk = satchelPick(); if (pk && !pk.no) { qMode = false; postTo(D.quickUrl, { do: 'set', item_id: pk.id, back: D.back }); render(); } }
+      else if (qk === 'use') postTo(D.quickUrl, { do: 'use', back: D.back });
+      return;
+    }
     var rm = e.target.closest('[data-rem]');
     if (rm && !rm.disabled) { remoteGo(REM[parseInt(rm.getAttribute('data-rem'), 10)]); if (!selOn) slip = null; render(); return; }   // a piece that works a control on the page
     if (m) { open(m.getAttribute('data-m')); return; }
@@ -370,9 +405,15 @@
       }
     }
   });
+  root.addEventListener('pointerdown', function (e) {   // hold the Quick piece to clear it (the x does the same; a held press never also counts as a tap)
+    var b = e.target.closest('[data-quick="use"]');
+    lp = false; clearTimeout(lpT);
+    if (b && !e.target.closest('[data-qx]')) { b.classList.add('dk-holding'); lpT = setTimeout(function () { lp = true; b.classList.remove('dk-holding'); postTo(D.quickUrl, { do: 'clear', back: D.back }); }, 650); }
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { root.addEventListener(ev, function () { clearTimeout(lpT); Array.prototype.forEach.call(root.querySelectorAll('.dk-holding'), function (x) { x.classList.remove('dk-holding'); }); }); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && slip) { slip = null; render(); } });
   document.addEventListener('click', function (e) { if (slip && e.target.isConnected && !root.contains(e.target)) { slip = null; render(); } });   // a click on a piece re-draws the dock, so its target is no longer in the page: that is a click inside
-  document.addEventListener('gv:swapped', function () { if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
+  document.addEventListener('gv:swapped', function () { qMode = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);

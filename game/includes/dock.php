@@ -273,6 +273,11 @@ function dock_page_spec(string $page): array
                     dock_remote('Pick pests', '✂️', ['doForm' => 'pick_all']),
                     dock_remote('Collect all', '📥', ['doForm' => 'collect_all']),
                 ], '', '', 'All beds', ['selectInfo' => 'garden'])];
+        case 'inventory.php':
+            // Satchel, Items tab: the Quick slot (assign: open an item, tap Confirm; use: tap; clear: the x or a hold). Other tabs: left Items, right Hovel.
+            $t = (string)($_GET['tab'] ?? '');
+            if ($t !== '' && $t !== 'items') return ['L' => dock_action('Items', '🎒', $u('inventory.php')), 'R' => dock_action('Hovel', 'hovel', $u('gnome.php'))];
+            return ['watch' => true, 'L' => dock_remote('Quick', '⚡', ['quick' => 'slot']), 'R' => dock_action('Arrange', '🗂️', $u('inventory.php?tab=arrange'))];
         case 'jobs.php':
             require_once __DIR__ . '/jobs.php';   // JOB_PERIODS
             $T = (string)($_GET['t'] ?? '');
@@ -299,10 +304,14 @@ function dock_html(array $u, string $page): string
     require_once __DIR__ . '/theme.php';
     [$menus, $here] = dock_menus($u, $page);
     $st = dock_status($u);
+    $quick = null;
+    try { require_once __DIR__ . '/quick_slot.php'; $quick = quick_get($u); } catch (Throwable $e) { error_log('dock quick: ' . $e->getMessage()); }
+    $back = $page . (($qs = (string)($_SERVER['QUERY_STRING'] ?? '')) !== '' && preg_match('~^[A-Za-z0-9=&_.-]*$~', $qs) ? '?' . $qs : '');   // where a dock form sends the gnome back to (quick.php uses safe_back())
     $data = [
         'menus' => $menus, 'here' => $here, 'plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'],
         'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'rail' => dock_rail($u), 'more' => dock_more($u, $page),
         'logoutForm' => '<form method="post" action="' . e(url('logout.php')) . '" class="inline" data-noajax="1">' . csrf_field() . '<button type="submit">Log out</button></form>', 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
+        'quick' => $quick, 'csrf' => csrf_token(), 'quickUrl' => url('quick.php'), 'back' => $back,
         'iconBase' => url('assets/img/nav/dock-'), 'iconNames' => DOCK_ICONS, 'home' => url('gnome.php'),
     ];
     $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
