@@ -106,7 +106,7 @@ a{color:var(--focus)}
 
 /* slips: strips of interlocking pieces */
 .slip{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none;z-index:5}
-.slip .pc{pointer-events:auto;--fill:var(--surface);--ring:var(--line2);--tx:var(--ink);animation:rise .22s steps(4) both;animation-delay:calc(var(--i)*30ms)}
+.slip .pc{pointer-events:auto;--fill:var(--surface);--ring:var(--line2);--tx:var(--ink);animation:snapin .34s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--o,0)*70ms)}
 .slip .pc .ic{font-size:19px;line-height:1}
 .slip .pc .lb{font-size:10px;font-weight:800;line-height:1.05;margin-top:1px}
 .slip .pc.on{--fill:var(--accent);--ring:#2a1a10;--tx:#2a1a10}
@@ -129,9 +129,29 @@ a{color:var(--focus)}
 .pop button.row b{margin-left:auto}
 .pop .util{grid-column:1/-1;display:flex;gap:6px;margin-top:6px}
 .pop .util button{font:inherit;font-size:11px;font-weight:700;padding:3px 8px;min-height:28px;background:var(--bg);color:var(--ink);border:2px solid var(--line2);cursor:pointer;border-radius:0}
+.beds{display:grid;grid-template-columns:repeat(8,34px);gap:4px;margin:6px 0}
+.bed{width:34px;height:34px;font-size:16px;background:#6b4a2e;border:2px solid #4a2c1a;color:#fff;cursor:pointer;padding:0;border-radius:0;position:relative}
+.bed.empty{background:#8a6a48;border-style:dashed}
+.bed.sel{outline:3px solid var(--accent);outline-offset:1px}
+.bed.sel::after{content:"✓";position:absolute;top:-6px;right:-6px;font-size:10px;background:var(--accent);color:#2a1a10;width:14px;height:14px;line-height:14px;font-weight:800}
+.selhint{font-size:12px;margin:4px 0}
+.slip .pc.do{--fill:var(--brand);--ring:#1f3d1c;--tx:#fff}
+:root[data-theme="dark"] .slip .pc.do{--tx:#1c110a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .slip .pc.do{--tx:#1c110a}}
+.slip .pc.iconly .lb{display:none}
+.pc.act.act-info[disabled]{--fill:var(--felt2);--tx:var(--felt-ink);--ring:var(--accent-ink);cursor:default}
+.pc.menu[disabled]{opacity:.45;cursor:not-allowed}
+/* snap-together: pieces click into the chain one after the other, leave in reverse; a new menu leaves and arrives at the same time */
+.slip.still .pc,.slip.still .gname,.slip.still .pop{animation:none}
+.slip.ghost,.slip.ghost .pc{pointer-events:none}
+.slip.ghost .pc{animation:snapout .26s ease-in both;animation-delay:calc((var(--n,6) - 1 - var(--o,0))*55ms)}
+.slip.ghost .gname,.slip.ghost .pop{animation:fadeout .2s ease-in both}
+@keyframes snapin{0%{translate:var(--fx,22px) -34px;opacity:0}45%{translate:calc(var(--fx,22px)*.25) -3px;opacity:1}70%{translate:calc(var(--fx,22px)*-.12) 1px;scale:1.05}100%{translate:0 0;scale:1;opacity:1}}
+@keyframes snapout{0%{translate:0 0;opacity:1}30%{translate:calc(var(--fx,22px)*-.12) 1px;scale:1.05;opacity:1}100%{translate:var(--fx,22px) -34px;scale:1;opacity:0}}
+@keyframes fadeout{to{opacity:0}}
 .toast{position:absolute;left:50%;top:10px;translate:-50% 0;background:var(--felt);color:#ffcf6a;border:2px solid var(--accent);font-size:12px;font-weight:800;padding:4px 12px;z-index:8;animation:rise .2s steps(4) both}
 @keyframes rise{from{translate:0 40px;opacity:0}to{translate:0 0;opacity:1}}
-@media (prefers-reduced-motion:reduce){.slip .pc,.slip .gname,.pop,.toast{animation:none}.dock,.pc{transition:none}}
+@media (prefers-reduced-motion:reduce){.slip .pc,.slip.ghost .pc,.slip .gname,.pop,.toast{animation:none}.dock,.pc{transition:none}}
 
 /* play mode: the arc drops away, a thin rail keeps Quit + the primary verb */
 .dock.play{transform:translateY(128px)}
@@ -174,7 +194,7 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
 
 <div class="wrap">
 <h1>Gnome Venture dock</h1>
-<p class="lede">Version 2. The dock is a garden hedge with jigsaw pieces locked along the curve. Four menu pieces, two action pieces, the status piece in the middle. Sub-menus are strips of interlocking pieces that slide up. Try Garden: left piece is All, right piece is the tool you cycle with.</p>
+<p class="lede">Version 2. The dock is a garden hedge with jigsaw pieces locked along the curve. Four menu pieces, two action pieces, the status piece in the middle. Sub-menus are strips of interlocking pieces that slide up. Try Garden: left piece is Select (your multi-select panel), right piece is the tool you cycle with.</p>
 
 <div class="ctl" role="group" aria-label="Mockup controls">
   <label for="pgSel">Page<select id="pgSel"></select></label>
@@ -194,7 +214,8 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
 <div class="rules">
   <div><h3>Puzzle pieces, garden dock</h3><p>The dock is soil with a grass and flower edge. Pieces lock together along the curve, knob into socket, and tilt with the slope. Slips are strips of pieces that click together too. Menu pieces keep the area hues (purple, moss, water, petal). Gold means open or primary.</p></div>
   <div><h3>Four menus, same groups</h3><p>You and Hobbies on the left, Out & about and Together on the right. Tap one: it lifts and turns gold, a strip slides up. Your current page's piece is gold with "you are here". A gold bar on the menu piece marks the section you are in while the strip is closed.</p></div>
-  <div><h3>Left action: All</h3><p>Where a page has bulk verbs, the left piece is All. Tap opens a strip of bulk actions with counts. Garden: Water all, Weed all, Harvest all, Pick all. Crafting: Pots, Jars, Both. Pages with no bulk verb keep a plain helper.</p></div>
+  <div><h3>Left action: Select (Garden)</h3><p>Garden's left piece is your existing "select multiple" panel. Tap Select: squares become pickable, a Pick strip (Empty, Improver, Tilling, Thirsty, Ready, None, with counts) snaps in on the left and a Then strip (Plant…, Work in…, Mulch…, Sheet mulch…, Till, Water, Harvest, Dig up) on the right. The left piece becomes Done, the right piece counts what is picked, menus lock. Crafting keeps a small All (Pots, Jars, Both).</p></div>
+  <div><h3>Pieces snap together</h3><p>A strip builds one piece at a time, each sliding into the socket of the one before, with a small overshoot and click. Closing plays it backwards, last piece first. Tap a different menu while one is open: the old strip comes apart while the new one snaps together, at the same moment.</p></div>
   <div><h3>Right action: one at a time</h3><p>On Garden the right piece is the active tool. Tap cycles to the next tool that has something to do (skips empty ones). Hold, or press the little arrow on top, to open the strip and pick directly. Keyboard: Enter cycles, Arrow Up opens.</p></div>
   <div><h3>Center plate and popover</h3><p>The plate shows energy, level, time and pals' locations. Tap it: a piece pops up out of its socket with "Right now" numbers and "Jump to" links. See the table below for what is in it and what was left out.</p></div>
   <div><h3>Play mode</h3><p>Games and fights need the screen. The dock drops to a thin rail with Quit and the main verb. Menus lock until the round ends.</p></div>
@@ -254,6 +275,9 @@ const BADGE={'garden.php':'3','games.php':'4','jobs.php':'2','community.php':'!'
 // P(file, title, icon, main, sub, mode, L, R, extra)   mode: n normal, p play, f form, i picture, x none
 const P=(f,t,i,m,s,mode,L,R,x={})=>({f,t,i,m,s,mode,L,R,...x});
 const CRAFT_ALL=[A('🍳','Pots',{ok:1,b:2}),A('🫙','Jars',{ok:1,b:1}),A('📥','Both',{ok:1,b:3})];
+const SEL_PICK=[['empty','🟫','Empty','empty & ready to plant'],['impr','🌿','Improver','can take a soil improver'],['till','⛏️','Tilling','needs tilling'],['thirsty','💧','Thirsty','thirsty'],['ready','🧺','Ready','ready'],['none','✕','None','none']];
+const SEL_DO=[['Plant…','🌱','empty',1,'not empty'],['Work in…','🪱','impr',1,'cannot take one'],['Mulch…','🍂',null,0,'empty'],['Sheet mulch…','📰',null,0,'empty'],['Till','⛏️','till',1,'no tilling needed'],['Water','💧','thirsty',1,'not thirsty'],['Harvest','🧺','ready',0,'not ready'],['Dig up','🕳️',null,1,'empty']];
+const BEDS=Array.from({length:32},(_,i)=>{const t=new Set();if(i%7===0)t.add('empty');else{if(i%3===1)t.add('thirsty');if(i%5===2)t.add('ready');if(i%11===3)t.add('till')}if(i%4===1)t.add('impr');return t});
 const PAGES=[
 // ---- You
 P('gnome.php','Hovel (Today, My Gnome)','🛏️','you','hovel','n',A('📋','Daily',{ok:1}),A('✨','Stats',{ok:1,b:2}),{tabs:['Today','My Gnome','Furnish','Closet'],why:'Right follows a priority chain: unspent stat points show Stats, low health shows Heal, otherwise Rest. Left ticks the daily card. Guests: right becomes Save my garden. With slim home off the page is called Home.'}),
@@ -277,9 +301,9 @@ P('daily.php','Daily tick (handler)','📋','you','hovel','x',null,null,{why:'PO
 P('event.php','Random event (handler)','🎲','you','hovel','x',null,null,{why:'Finishes a random event that needs a choice. The choice shows as a dialog; while it is open the dock is locked like play mode.'}),
 // ---- Hobbies
 P('garden.php','Garden','🏡','hobby','garden','n',
-  A('📚','All',{menu:[A('💧','Water all',{ok:1,e:1,b:5}),A('🌿','Weed all',{ok:1,e:1,b:2}),A('🧺','Harvest all',{ok:1,b:3}),A('✂️','Pick all',{ok:1,b:2})]}),
+  A('☑','Select',{ok:1,select:true}),
   A('🪴','Tools',{cycle:true,menu:[A('💧','Water',{ok:1,e:1,b:5}),A('🌿','Weed',{n:1,e:1,b:2}),A('🧺','Harvest',{ok:1,b:3}),A('✂️','Pick',{ok:1,b:0}),A('🌱','Plant',{ok:1,b:4}),A('🐛','Feed',{ok:1,b:1}),A('🔨','Build',{ok:1})]}),
-  {tabs:['Beds','Build','Grow','Analysis','Help','Jobs','Pic'],tabAct:{Build:[A('⬆️','Upgrade',{ok:1}),A('🔨','Build',{ok:1})]},why:'Left is All: opens a strip of bulk actions (water_all, weed_all, harvest_all, pick_all), each with a count, one tap each. Right is the single-bed tool: tap cycles to the next tool that has something to do, hold (or the little arrow) opens the strip of tools. Tools with nothing to do or no energy are skipped and shown greyed. Build tab swaps in Upgrade and Build.'}),
+  {tabs:['Beds','Build','Grow','Analysis','Help','Jobs','Pic'],tabAct:{Build:[A('⬆️','Upgrade',{ok:1}),A('🔨','Build',{ok:1})]},why:'Left is Select: the existing "select multiple" panel, moved into the dock. Tap it, the page squares become pickable, a Pick strip appears on the left (Empty, Improver, Tilling, Thirsty, Ready, None, each with a count) and a Then strip on the right (Plant…, Work in…, Mulch…, Sheet mulch…, Till, Water, Harvest, Dig up). Left piece turns into Done, right piece shows how many are picked, menus lock. Squares that cannot take an action are skipped with a reason; it stops when energy runs out. Right is the single-bed tool: tap cycles, hold opens. Build tab swaps in Upgrade and Build.'}),
 P('tend.php','Tend a garden for a job','💧','tog','tasks','n',A('✔','Done'),A('💧','Water',{ok:1,e:1}),{why:'Only water, weed and harvest are allowed here, so those are the buttons. Done returns to the job.'}),
 P('visit.php','Visit a garden','👀','tog','friends','n',A('↩','Back'),A('👫','Add friend',{ok:1}),{why:'Look-only. Right is disabled with "friends" chip when you already are.'}),
 P('yard.php','Design your yard','✏️','hobby','garden','f',A('↺','Reset'),A('💾','Save'),{why:'Editor. Same unsaved-changes guard as Customise.'}),
@@ -369,6 +393,8 @@ const EDGES=[
 ['Back button and Esc','First press closes the slip or status plate, second goes back. Never both at once.'],
 ['Seven tiles in You','Getting started (level under 5) and Tailor (late) never overlap, so the slip stays at six or fewer. Rule for new tiles: a slip holds six; add a seventh and something merges into a page.'],
 ['Tile appears or vanishes','Gourmand, Treks, Tailor, Festival, Puzzle Pals and Puzzle box depend on level, settings or events. The slip reads the same checks as today\'s menu, per page load. Dashed border marks tiles that are not always there.'],
+['Snap animation','Order runs from the outer edge toward the middle on both sides. Enter about 70ms per piece, leave about 55ms per piece in reverse. Rapid taps replace the leaving strip rather than queueing. Changes inside a strip (picking squares, cycling) do not replay it. Reduced motion: pieces appear and disappear with no movement.'],
+['Select mode','Menus and the plate lock until Done, so a half-made selection is never lost by a stray tap. Changing tab or page also ends it. Strips hold 8 pieces: 50px each on a phone, 42px icon-only on a small phone (full name in the tooltip and aria-label). Actions grey with "pick" until something is picked, and with ⚡0 when energy runs out. The "…" actions (Plant, Work in, Mulch, Sheet mulch) open their chooser as a replacement strip with a Back piece.'],
 ['All and tool strips','Both open above the middle pieces, not over the page header. Esc, a tap on the page, or any other piece closes them. A bulk action that changes many things shows a toast with the count. Nothing destructive lives in All.'],
 ['Tool cycling','Cycling skips tools with nothing to do or no energy. If none are left the right piece greys with "nothing to do". The armed tool stays when you change tabs on the same page and resets when you leave Garden.'],
 ['Hold to open is hidden','The little arrow on the right piece shows there is more. First visit shows a one-line hint. Keyboard: Enter cycles, Arrow Up opens. Screen readers get aria-haspopup="menu".'],
@@ -391,7 +417,7 @@ const EDGES=[
 ];
 
 /* ------------ state + render ------------ */
-const S={pg:'garden.php',tab:null,slip:null,tired:false,kb:false,late:true,trip:false,tool:0,W:844,H:390};
+const S={pg:'garden.php',tab:null,slip:null,selMode:false,sel:new Set(),tired:false,kb:false,late:true,trip:false,tool:0,W:844,H:390};
 const $=id=>document.getElementById(id);
 const stage=$('stage'),box=$('box');
 const byFile=f=>PAGES.find(p=>p.f===f);
@@ -443,6 +469,7 @@ function dockSVG(W,g){
 function itemWhy(a){if(a.dis)return a.dis;if(S.tired&&a.e)return '⚡0';if(a.b===0)return 'none';return null}
 function curTool(R){const m=R.menu,n=m.length;for(let k=0;k<n;k++){const a=m[(S.tool+k)%n];if(!itemWhy(a)){S.tool=(S.tool+k)%n;return a}}return null}
 function curActions(p){
+  if(S.selMode&&p.f==='garden.php')return [A('✓','Done',{selDone:true}),{i:'🔲',l:'Picked',b:S.sel.size,info:true}];
   let L=p.L,R=p.R;
   if(p.tabAct&&S.tab&&p.tabAct[S.tab])[L,R]=p.tabAct[S.tab];
   if(!L&&!R&&p.mode!=='x'&&p.mode!=='f'){L=A('↩','Back');R=A('🛏️','Hovel')}
@@ -450,6 +477,7 @@ function curActions(p){
   return [L,R];
 }
 
+let lastKey='';
 function render(){
   const p=byFile(S.pg)||PAGES[0];
   const {W,H}=S,g=geom(W),dh=g.dh;
@@ -457,6 +485,8 @@ function render(){
   stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='scale('+scale+')';box.style.height=(H*scale)+'px';
   const [L,R]=curActions(p);
   const play=p.mode==='p',none=p.mode==='x',hideDock=none||S.kb;
+  const key=hideDock?'':(S.selMode&&p.f==='garden.php')?'sel':(S.slip||'');
+  const prevSlip=stage.querySelector('.slip:not(.ghost)'),prevHTML=prevSlip?prevSlip.innerHTML:'',prevN=prevSlip?prevSlip.querySelectorAll('.pc').length:0;
   const tabs=p.tabs?'<div class="tabsrow" role="tablist">'+p.tabs.map(t=>'<button role="tab" data-tab="'+esc(t)+'" aria-selected="'+((S.tab||p.tabs[0])===t)+'">'+esc(t)+'</button>').join('')+'</div>':'';
   const head='<div class="pgh"><span style="font-size:22px">'+p.i+'</span><b>'+esc(p.t)+'</b><small>'+esc(p.f)+'</small></div>'+tabs;
   let body;
@@ -464,16 +494,26 @@ function render(){
   else if(p.mode==='p') body=head+'<div class="canvas"><div>ROUND 3 · 0:42<small>demo game stage. The dock has dropped away.</small></div></div>';
   else if(p.mode==='f') body=head+'<div class="form"><label for="f1">Subject</label><input id="f1" placeholder="Tap to type"><label for="f2">Message</label><input id="f2" placeholder="Keyboard hides the dock"></div>';
   else if(p.mode==='x') body=head+'<div class="card"><b>No screen of its own</b>Handler, redirect or image. The dock does not load here.</div>';
+  else if(p.f==='garden.php'&&(!S.tab||S.tab==='Beds')){
+    const n=S.sel.size;
+    body=head+(S.selMode?'<p class="selhint"><b>'+n+' selected.</b> Tap squares to pick them, or use the Pick strip below.</p>':'<p class="selhint">Tap <b>Select</b> to pick several squares at once.</p>')
+      +'<div class="beds">'+BEDS.map((t,i)=>{const ic=t.has('empty')?'＋':t.has('ready')?'🧺':t.has('thirsty')?'💧':t.has('till')?'⛏️':'🌱';return '<button class="bed'+(t.has('empty')?' empty':'')+(S.sel.has(i)?' sel':'')+'" data-bed="'+i+'" aria-pressed="'+S.sel.has(i)+'" aria-label="Square '+(i+1)+'">'+ic+'</button>'}).join('')+'</div>'
+      +(S.selMode?'<p class="selhint" style="color:var(--muted)">Squares that cannot take it are skipped (you will be told why), and it stops if you run out of energy.</p>':'');
+  }
   else body=head+'<div class="cards">'+[1,2,3,4,5,6].map(n=>'<div class="card"><b>'+esc(p.t)+' · card '+n+'</b><i></i><i></i></div>').join('')+'</div>';
   let h='<div class="page">'+body+'</div>';
   if(none)h+='<div class="notice">no dock on this file</div>';
   if(!hideDock){
     h+='<div class="dock'+(play?' play':'')+'" style="top:'+(H-dh)+'px;height:'+dh+'px">'+dockSVG(W,g)+chainHTML(W,g,p,L,R)+'</div>';
-    h+='<div class="slip" style="top:'+(H-dh)+'px">'+slipHTML(W,g,p,L,R)+'</div>';
+    h+='<div class="slip'+(key===lastKey?' still':'')+'" style="top:'+(H-dh)+'px">'+(S.selMode&&p.f==='garden.php'?selSlip(W,g):slipHTML(W,g,p,L,R))+'</div>';
     if(play)h+='<div class="rail on"><button>'+(L?esc(L.i+' '+L.l):'')+'</button><span>ROUND 3 · 0:42</span><button class="go">'+(R?esc(R.i+' '+R.l):'')+'</button></div>';
   }
   h+='<div class="kbd'+(S.kb?' on':'')+'">on-screen keyboard (about 150px)</div>';
   stage.innerHTML=h;
+  if(key!==lastKey&&prevHTML&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const gh=document.createElement('div');gh.className='slip ghost';gh.style.top=(S.H-dh)+'px';gh.style.setProperty('--n',String(lastKey==='sel'?8:prevN));gh.innerHTML=prevHTML;stage.appendChild(gh);setTimeout(()=>gh.remove(),900);
+  }
+  lastKey=key;
   $('stageNote').textContent=noteFor(p);
   fillBelow(p,L,R);
 }
@@ -491,7 +531,7 @@ function chainHTML(W,g,p,L,R){
     if(o.k==='deco') out+=pc({...base,tag:'div',cls:'deco',inner:'<span class="ic">'+o.i+'</span>'});
     else if(o.k==='m'){
       const here=p.m===o.m,open=S.slip===o.m;
-      out+=pc({...base,cls:'menu'+(here?' here':'')+(open?' open':''),attrs:'data-m="'+o.m+'" aria-expanded="'+open+'" aria-label="'+MAIN[o.m].n+' menu"',
+      out+=pc({...base,cls:'menu'+(here?' here':'')+(open?' open':''),attrs:'data-m="'+o.m+'" aria-expanded="'+open+'" aria-label="'+MAIN[o.m].n+' menu"'+(S.selMode?' disabled':''),
         inner:'<span class="ic">'+MAIN[o.m].i+'</span><span class="lb">'+MAIN[o.m].n+'</span>'+(o.m==='tog'?'<b class="badge">!</b>':'')+(o.m==='hobby'?'<b class="badge">3</b>':'')});
     }
     else if(o.k==='plate'){
@@ -505,13 +545,14 @@ function chainHTML(W,g,p,L,R){
 }
 function actPiece(side,a,base){
   if(!a) return pc({...base,cls:'act empty',attrs:'disabled aria-label="No action"',inner:'<span class="ic">·</span>'});
-  const why=itemWhy(a),open=S.slip==='act'+side;
+  const why=itemWhy(a),open=S.slip==='act'+side||!!a.selDone;
   const label=a.l.length>10?a.l.slice(0,9)+'…':a.l;
-  return pc({...base,cls:'act'+(side==='R'&&!why?' go':'')+(open?' open':''),
-    attrs:'data-act="'+side+'" '+(a.menu?'data-menu="1" aria-haspopup="menu" aria-expanded="'+open+'" ':'')+(why?'disabled ':'')+'aria-label="'+esc(a.l)+'"',
+  return pc({...base,cls:'act'+(side==='R'&&!why&&!a.info?' go':'')+(a.info?' act-info':'')+(open?' open':''),
+    attrs:'data-act="'+side+'" '+(a.menu?'data-menu="1" aria-haspopup="menu" aria-expanded="'+open+'" ':'')+(why||a.info?'disabled ':'')+'aria-label="'+esc(a.l)+'"',
     inner:'<span class="ic">'+a.i+'</span><span class="lb">'+esc(label)+'</span>'+(a.b&&!why?'<b class="badge">'+a.b+'</b>':'')+(why?'<span class="chip">'+why+'</span>':''),
     after:a.menu?'<span class="pip" aria-hidden="true">▴</span>':''});
 }
+function slipVars(i,n,side,flat){const fromRight=flat||side!=='R';return '--o:'+(fromRight?i:n-1-i)+';--fx:'+(fromRight?22:-22)+'px'}
 function slipHTML(W,g,p,L,R){
   if(!S.slip) return '';
   if(S.slip==='status') return popHTML(W,g);
@@ -533,12 +574,35 @@ function slipHTML(W,g,p,L,R){
     const cx=startX+tw*(i+.5),ps=place(g,cx,-(th/2+9));
     o+=pc({x:ps.x-tw/2,y:ps.y-th/2,w:tw,h:th,rot:ps.rot,tabs:[0,r,0,l],
       cls:(t.on?'on ':'')+(t.cond?'cond ':'')+(t.armed?'armed':''),
-      attrs:(t.go?'data-go="'+t.go+'"':'data-item="'+t.item+'" data-from="'+from+'"')+(t.why?' disabled':'')+' aria-label="'+esc(t.l)+'"'+(t.on?' aria-current="page"':'')+' style="--i:'+i+'"',
+      attrs:(t.go?'data-go="'+t.go+'"':'data-item="'+t.item+'" data-from="'+from+'"')+(t.why?' disabled':'')+' aria-label="'+esc(t.l)+'"'+(t.on?' aria-current="page"':''),
+      style:slipVars(i,n,side,flat),
       inner:'<span class="ic">'+t.i+'</span><span class="lb">'+esc(t.l)+'</span>'+(t.b&&!t.why?'<b class="badge">'+t.b+'</b>':'')+(t.why?'<span class="chip">'+t.why+'</span>':'')});
   });
   const first=place(g,startX+tw/2,-(th/2+9));
   const lx=flat?W/2-n*tw/2:(side==='L'?8:W-8-Math.min(200,label.length*6+14));
   o+='<div class="gname" style="left:'+lx+'px;top:'+(first.y-th/2-26)+'px">'+esc(label)+'</div>';
+  return o;
+}
+function selSlip(W,g){
+  const tw=W<720?42:50,th=54,iconly=tw<46;
+  const counts=k=>k==='none'?undefined:BEDS.filter(t=>t.has(k)).length;
+  const picks=SEL_PICK.map(d=>({i:d[1],l:d[2],t:d[3],b:counts(d[0]),data:'data-pick="'+d[0]+'"'}));
+  const dos=SEL_DO.map((d,i)=>({i:d[1],l:d[0],t:d[0],data:'data-do="'+i+'"',why:S.sel.size===0?'pick':(S.tired&&d[3]?'⚡0':null),cls:'do'}));
+  let o='';
+  const strip=(items,startX,label,lx,side)=>{
+    const n=items.length;let prev=0;
+    items.forEach((t,i)=>{
+      const r=i<n-1?(i%2?-1:1):0,l=i>0?-prev:0;prev=r;
+      const ps=place(g,startX+tw*(i+.5),-(th/2+9));
+      o+=pc({x:ps.x-tw/2,y:ps.y-th/2,w:tw,h:th,rot:ps.rot,tabs:[0,r,0,l],cls:(t.cls||'')+(iconly?' iconly':''),
+        attrs:t.data+(t.why?' disabled':'')+' title="'+esc(t.t)+'" aria-label="'+esc(t.t)+'"',style:slipVars(i,n,side,false),
+        inner:'<span class="ic">'+t.i+'</span><span class="lb">'+esc(t.l)+'</span>'+(t.b&&!t.why?'<b class="badge">'+t.b+'</b>':'')+(t.why?'<span class="chip">'+t.why+'</span>':'')});
+    });
+    const f=place(g,startX+tw/2,-(th/2+9));
+    o+='<div class="gname" style="left:'+lx+'px;top:'+(f.y-th/2-26)+'px">'+label+'</div>';
+  };
+  strip(picks,8,'Pick squares',8,'L');
+  strip(dos,W-8-dos.length*tw,'Then do this to the picked ones',W-8-dos.length*tw,'R');
   return o;
 }
 function popHTML(W,g){
@@ -582,23 +646,37 @@ stage.addEventListener('keydown',e=>{
   if(b&&b.dataset.menu&&e.key==='ArrowUp'){e.preventDefault();S.slip='actR';render()}
 });
 stage.addEventListener('click',e=>{
+  const bd=e.target.closest('[data-bed]');
+  if(bd){const i=+bd.dataset.bed;if(S.selMode){S.sel.has(i)?S.sel.delete(i):S.sel.add(i);render()}else toast('Tap Select first, or use a tool');return}
+  const pk=e.target.closest('[data-pick]');
+  if(pk){const k=pk.dataset.pick;S.sel=new Set(k==='none'?[]:BEDS.map((t,i)=>t.has(k)?i:-1).filter(i=>i>=0));render();return}
+  const dd=e.target.closest('[data-do]');
+  if(dd&&!dd.disabled){doSel(+dd.dataset.do);return}
   const ab=e.target.closest('[data-act]');
   if(ab&&!ab.disabled){onAct(ab.dataset.act);return}
   const mb=e.target.closest('.pc.menu');
   if(mb){const m=mb.dataset.m;S.slip=S.slip===m?null:m;render();return}
-  if(e.target.closest('#plate')){S.slip=S.slip==='status'?null:'status';render();return}
+  if(e.target.closest('#plate')){if(S.selMode){toast('Tap Done first');return}S.slip=S.slip==='status'?null:'status';render();return}
   const it=e.target.closest('[data-item]');
   if(it&&!it.disabled){runItem(+it.dataset.item,it.dataset.from);return}
   const t=e.target.closest('[data-go]');
   if(t){go(t.dataset.go);return}
   const tb=e.target.closest('[data-tab]');
-  if(tb){S.tab=tb.dataset.tab;S.slip=null;render();return}
+  if(tb){S.tab=tb.dataset.tab;S.slip=null;S.selMode=false;S.sel=new Set();render();return}
   if(e.target.id==='themeBtn'){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');$('themeSel').value=document.documentElement.getAttribute('data-theme');return}
   if(e.target.closest('.page')&&S.slip){S.slip=null;render()}
 });
+function doSel(idx){
+  const d=SEL_DO[idx],ids=[...S.sel];
+  const ok=ids.filter(i=>d[2]?BEDS[i].has(d[2]):!BEDS[i].has('empty'));
+  const sk=ids.length-ok.length;
+  toast(d[1]+' '+d[0].replace('…','')+': '+ok.length+' done'+(sk?', '+sk+' skipped ('+d[4]+')':''));
+}
 function onAct(side){
   const p=byFile(S.pg),[L,R]=curActions(p),a=side==='L'?L:R;
   if(!a)return;
+  if(a.select){S.selMode=true;S.sel=new Set();S.slip=null;render();return}
+  if(a.selDone){S.selMode=false;S.sel=new Set();render();return}
   if(side==='R'&&a.cycle){
     if(lp){lp=false;return}
     S.tool=(S.tool+1)%a.menu.length;S.slip=null;render();
@@ -614,7 +692,7 @@ function runItem(i,from){
 }
 document.addEventListener('focusin',e=>{if(stage.contains(e.target)&&e.target.matches('input')&&!S.kb){S.kb=true;$('kbChk').checked=true;S.slip=null;render()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.slip){S.slip=null;render()}});
-function go(file){S.pg=file;S.tab=null;S.slip=null;$('pgSel').value=file;render()}
+function go(file){S.pg=file;S.tab=null;S.slip=null;S.selMode=false;S.sel=new Set();$('pgSel').value=file;render()}
 function setTheme(v){if(v)document.documentElement.setAttribute('data-theme',v);else document.documentElement.removeAttribute('data-theme')}
 $('tripChk').addEventListener('change',e=>{S.trip=e.target.checked;render()});
 
@@ -649,7 +727,7 @@ $('tripChk').addEventListener('change',e=>{S.trip=e.target.checked;render()});
     const rows=PAGES.filter(p=>cur==='all'||(cur==='x'?p.mode==='x':cur==='none'?(p.m===null):p.m===cur&&p.mode!=='x'));
     $('rows').innerHTML=rows.map(p=>{
       const under=p.m?MAIN[p.m].n+' > '+((SUB[p.m].find(s=>s[0]===p.s)||[,,'—'])[2]):'—';
-      const a=x=>x?'<span>'+esc(x.i+' '+x.l)+'</span>'+(x.menu?' <span class="pill">'+(x.cycle?'cycles + menu':'menu')+'</span><br><small>'+esc(x.menu.map(m=>m.l).join(', '))+'</small>':'')+(x.n?' <span class="pill new">new</span>':'')+(x.e?' <span class="pill">⚡</span>':'')+(x.b?' <span class="pill">badge</span>':''):'<span class="pill">empty</span>';
+      const a=x=>x?'<span>'+esc(x.i+' '+x.l)+'</span>'+(x.select?' <span class="pill">select mode</span><br><small>Pick: '+esc(SEL_PICK.map(m=>m[2]).join(', '))+'. Then: '+esc(SEL_DO.map(m=>m[0]).join(', '))+'</small>':'')+(x.menu?' <span class="pill">'+(x.cycle?'cycles + menu':'menu')+'</span><br><small>'+esc(x.menu.map(m=>m.l).join(', '))+'</small>':'')+(x.n?' <span class="pill new">new</span>':'')+(x.e?' <span class="pill">⚡</span>':'')+(x.b?' <span class="pill">badge</span>':''):'<span class="pill">empty</span>';
       let L=p.L,R=p.R;
       const tabs=p.tabAct?'<br><small>'+Object.entries(p.tabAct).map(([t,v])=>esc(t)+': '+esc(v[0].l)+' / '+esc(v[1].l)).join(' · ')+'</small>':'';
       const mode={n:'normal',p:'play',f:'form',i:'picture',x:'none'}[p.mode];
