@@ -255,7 +255,7 @@
       if (ci === 0) z.appendChild(svgEl('aoe'));
       putBody(z, c[0], c[1]);
     });
-    if (phase !== 'pre') (data.snares || []).forEach(function (sn) {   // stat pieces (Snare Field): your hidden snares, a dashed ring; the creature cannot see them. It is faint by dashing, not by alpha (art: stat/snare-*.png later)
+    if (phase === 'pre' ? PREV : true) ((phase === 'pre' ? PREV.snares : data.snares) || []).forEach(function (sn) {   // stat pieces (Snare Field): your hidden snares, a dashed ring; the creature cannot see them. It is faint by dashing, not by alpha (art: stat/snare-*.png later)
       var sm = document.createElement('div'); sm.className = 'mk snare'; sm.setAttribute('role', 'img'); sm.setAttribute('aria-label', 'Snare, column ' + (sn.x + 1) + ' row ' + (sn.y + 1) + ': a piece of the creature put here comes down at half value; it holds ' + (sn.left > 1 ? sn.left + ' more rounds' : 'to the end of this round'));
       sm.title = 'Snare: a creature piece put here is worth half. ' + (sn.left > 1 ? sn.left + ' more rounds.' : 'Ends this round.'); var KP = window.PFParts; if (KP && KP.ok && KP.kit && KP.kit['snare|strip']) { sm.classList.add('art'); var si = document.createElement('img'); si.src = data.art + 'stat/snare-strip.png'; si.alt = ''; si.setAttribute('aria-hidden', 'true'); sm.appendChild(si); }   // the kit's dashed twine noose (stat/README.md); without it the CSS ring
       putBody(sm, sn.x, sn.y);

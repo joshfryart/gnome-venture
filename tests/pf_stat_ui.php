@@ -50,7 +50,9 @@ chk('stat_source_group_has_its_own_filter_and_legend', pfv_src_group('stat') ===
 // ---------------------------------------------------------------- the scripts
 $A = __DIR__ . '/../game/assets/';
 $js = file_get_contents($A . 'pfboardv1.js'); $css = file_get_contents($A . 'pfv1.css'); $bx = file_get_contents($A . 'pfv1box.js');
-chk('board_script_draws_snares_only_from_view_data', str_contains($js, "(data.snares || [])") && str_contains($js, "'mk snare'") && str_contains($css, '.mk.snare'));
+chk('board_script_draws_snares_only_from_view_data', str_contains($js, "data.snares) || []") && str_contains($js, "'mk snare'") && str_contains($css, '.mk.snare'));
+chk('snares_ride_in_prev_so_the_replay_shows_them_before_the_creature_moves', str_contains($js, "PREV.snares") && str_contains(file_get_contents(__DIR__ . '/../game/includes/pfight_game.php'), "['snares' => pfb_view(\$s)['snares'] ?? []]"));
+chk('gone_view_keeps_a_stat_pieces_st_in_php_and_js', str_contains(file_get_contents(__DIR__ . '/../game/includes/pfboard.php'), "\$v['gone'][\$i]['st']") && str_contains(file_get_contents(__DIR__ . '/../tools/pfengine.js'), "q.st = String(nn(s.gone[gi].tile.st"));
 chk('board_script_has_sense_chips_for_sight_and_eyes', str_contains($js, 'function senseChips') && str_contains($js, 'data.sight') && str_contains($js, 'data.eyes') && str_contains($js, 'h += senseChips()') && str_contains($css, '.tg.sense'));
 chk('board_script_marks_a_stolen_piece', str_contains($js, 'pfb-ws') && str_contains($js, 'pfv-stolen') && str_contains($js, 'Stolen from the creature') && str_contains($css, '.pfb-ws'));
 chk('board_script_tells_what_a_copybook_taught_piece_is', str_contains($js, 'Copybook taught it a tag'));
