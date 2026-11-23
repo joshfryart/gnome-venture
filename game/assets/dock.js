@@ -175,6 +175,7 @@
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
     var t, e;
     if (!spec) return;
+    if (spec.dlg) { if (spec.dlg.isConnected) { if (window.gvOpenDlg) window.gvOpenDlg(spec.dlg); else if (spec.dlg.showModal) spec.dlg.showModal(); } return; }
     if (spec.node) { if (spec.node.isConnected) spec.node.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); return; }   // may be an SVG link (no click())
     if (spec.tend) { tendOn = spec.tend === 'on'; tSel = {}; tPaint(); return; }
     if (spec.tendpick) { tSel = {}; if (spec.tendpick !== 'none') { var tp = T_PICK.filter(function (p) { return p[0] === spec.tendpick; })[0]; tBeds().filter(tp[3]).forEach(function (e) { tSel[e.getAttribute('data-bed')] = 1; }); } tPaint(); return 'keep'; }
@@ -259,10 +260,10 @@
       else { o.label = 'Quick'; o.icon = '＋'; o.why = 'set in Satchel'; }
       return o;
     }
-    if (a.remote && a.remote.hereDo) {   // the Here picture: the doable things (the map's "Do" spots), the first few; each tile opens that spot's own card
-      var hs = [].slice.call(document.querySelectorAll('a.hs[aria-label$=", Do"]')).slice(0, a.remote.hereDo);
-      o.menu = hs.map(function (e) { return { label: (e.getAttribute('aria-label') || '').replace(/, Do$/, ''), icon: 'dohere', href: '', menu: [], why: '', badge: '', mlabel: '', remote: {}, cands: [], rem: remKey({ node: e }) }; });
-      if (!o.menu.length) o.why = 'nothing to do';
+    if (a.remote && a.remote.hereDo) {   // the Here picture: a few more doable things that the picture has no room for (hidden cards from the server); each tile opens its card
+      var ds = [].slice.call(document.querySelectorAll('dialog[data-xname]')).slice(0, a.remote.hereDo);
+      o.menu = ds.map(function (e) { return { label: e.getAttribute('data-xname'), icon: 'dohere', href: '', menu: [], why: '', badge: '', mlabel: '', remote: {}, cands: [], rem: remKey({ dlg: e }) }; });
+      if (!o.menu.length) o.why = 'nothing more';
       return o;
     }
     if (a.remote && a.remote.select === 'tend') {

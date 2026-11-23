@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.64
+- **Dock, Here page: "Do here" lists the other things.** It used to repeat the "Do" spots already on the picture. Now it lists up to three more doable things at the stop that the picture has no room for (chosen per visit, done ones left out; stalls are not included), and each opens its own card and runs in place. Greyed "nothing more" when the picture already shows them all. New `here_extra_do()` in `includes/here_view.php` (hidden cards, only when the dock is on); `dock.js` `hereDo`.
+
 ## 2.7.63
 - **Puzzle box piece panel keeps the page in place.** Opening the side panel (2.7.61, short landscape screens) narrowed the page and the old "keep the piece above the sheet" scroll then jumped the page to the bottom. Now the tapped piece stays where it was on the screen (`pfv1box.js`: `sideSheet`, `anchorY`); stepping to the next or previous piece only scrolls if that piece is off screen. Checked in a headless 844 x 390 browser: scroll position and piece position unchanged after opening.
 
