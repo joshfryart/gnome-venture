@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/garden_logic.php';
 require_once __DIR__ . '/world.php';
 require_once __DIR__ . '/items.php';
+require_once __DIR__ . '/parts.php';
 require_once __DIR__ . '/pfight_game.php';   // pfight_v1_on, pf_foe_numbers (pfboard.php)
 
 /** The notes box for a page, from its unlock key ('' when there's nothing to add). */
@@ -355,7 +356,8 @@ function almanac_recipe_notes(array $u, string $slug): string
     $bits = [];
     foreach (json_decode((string)$r['ingredients'], true) ?: [] as $is => $n) {
         $ii = q_one('SELECT id, name FROM items WHERE slug = ?', [$is]);
-        $have = $ii ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $ii['id']]) : 0;
+        $have = $ii ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $ii['id']]) : (part_stock($uid, (string)$is, (int)$n)['have'] ?? 0);
+        if (!$ii && ($pl = part_ingredient_label((string)$is))) $ii = ['name' => $pl];
         if ($have < (int)$n) $can = false;
         $bits[] = ($have >= (int)$n ? '✔' : '✖') . ' ' . (int)$n . ' × ' . e((string)($ii['name'] ?? $is)) . ' <span class="muted">(have ' . $have . ')</span>';
     }
@@ -383,7 +385,7 @@ function almanac_locked_hint(array $entry): string
         $h = 'Grow and harvest it.' . ($home ? ' Native to ' . $home . '.' : '') . ($shop ? ' Seeds at ' . $shop . '.' : '');
     } elseif (str_starts_with($key, 'recipe:') && ($rr = q_one('SELECT name, ingredients FROM recipes WHERE slug = ?', [substr($key, 7)]))) {   // 2.7.06 (Josh): an undiscovered recipe still says what it needs
         $bits = [];
-        foreach (json_decode((string)$rr['ingredients'], true) ?: [] as $is => $n) $bits[] = (int)$n . ' × ' . (string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is);
+        foreach (json_decode((string)$rr['ingredients'], true) ?: [] as $is => $n) $bits[] = (int)$n . ' × ' . (string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: (part_ingredient_label((string)$is) ?? $is));
         $h = 'Needs ' . implode(', ', $bits) . '. Collect them all and it is yours.';
     } elseif (str_starts_with($key, 'creature:') && ($c = q_one('SELECT level, landscapes FROM creatures WHERE slug = ?', [substr($key, 9)]))) {
         $h = 'Defeat or befriend it. Found in ' . ($c['landscapes'] === 'any' ? 'every landscape' : str_replace(',', ', ', (string)$c['landscapes'])) . ', around level ' . (int)$c['level'] . '.';

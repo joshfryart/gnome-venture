@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/gardens.php';
 require_once __DIR__ . '/gnome.php';
+require_once __DIR__ . '/parts.php';
 
 /** category => [label, icon, building needed (or null), blurb] */
 const CRAFT_CATEGORIES = [
@@ -52,6 +53,7 @@ function ensure_crafts(): int
             [$s, $n] = array_map('trim', explode(':', $pair) + [1 => 1]);
             if ($s !== '') $ing[$s] = max(1, (int)$n);
         }
+        if (in_array($cat, ['cooking', 'pantry'], true) && array_filter(array_keys($ing), fn($k) => part_key((string)$k))) continue;   // 2.7.58: any-/rare- parts only in the untimed categories
         if ($slug === 'food-scrap-compost') $ing = ['food-scrap' => max(1, (int)setting('scrap_compost_cost'))];   // v0.9.4
         db_insert('recipes', ['name' => $name, 'slug' => $slug, 'category' => $cat, 'output_item_id' => $outId,
             'output_qty' => max(1, (int)$outQty), 'ingredients' => json_encode($ing), 'energy' => energy_cost_scale(max(0, (int)$energy)),
@@ -76,7 +78,7 @@ function recipe_ingredient_text(string $json): string
 {
     $parts = [];
     foreach (json_decode($json, true) ?: [] as $slug => $n) {
-        $name = q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug;
+        $name = part_ingredient_label((string)$slug) ?? (q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug);
         $parts[] = (int)$n . ' × ' . $name;
     }
     return implode(', ', $parts);
@@ -111,7 +113,14 @@ function craft_stations(int $uid): array
 function craft_recipes(int $uid, ?string $category = null): array
 {
     $have = [];
-    foreach (q('SELECT i.slug, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ?', [$uid])->fetchAll() as $r) $have[$r['slug']] = (int)$r['qty'];
+    $famHave = [];   // 2.7.58: family => [any, rare, [slugs held]] for any-<family> / rare-<family> ingredients
+    foreach (q('SELECT i.slug, i.category, i.rarity, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ?', [$uid])->fetchAll() as $r) {
+        $have[$r['slug']] = (int)$r['qty'];
+        if (($fam = part_family((string)$r['slug'], (string)$r['category'])) !== null && (int)$r['qty'] > 0) {
+            $famHave[$fam]['any'] = ($famHave[$fam]['any'] ?? 0) + (int)$r['qty'];
+            if (part_is_rare($r)) $famHave[$fam]['rare'] = ($famHave[$fam]['rare'] ?? 0) + (int)$r['qty'];
+        }
+    }
     $seen = collected_slugs($uid);
     $learned = array_fill_keys(q('SELECT recipe_id FROM user_recipes WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN), true);
     $names = [];
@@ -136,11 +145,12 @@ function craft_recipes(int $uid, ?string $category = null): array
         $can = true;
         foreach (json_decode((string)$r['ingredients'], true) ?: [] as $slug => $qty) {
             $qty = craft_mastery_qty((int)$qty, $mt);   // lighter materials at mastery tiers
-            $names[$slug] ??= (string)$slug;
-            $h = $have[$slug] ?? 0;
-            $all = $all && isset($seen[$slug]);
+            $names[$slug] ??= part_ingredient_label((string)$slug) ?? (string)$slug;
+            $pk = part_key((string)$slug);
+            $h = $pk ? ($famHave[$pk[1]][$pk[0]] ?? 0) : ($have[$slug] ?? 0);
+            $all = $all && ($pk ? ($h > 0 || part_family_seen($pk, $seen)) : isset($seen[$slug]));
             $can = $can && $h >= $qty;
-            $ings[] = ['slug' => $slug, 'name' => $names[$slug], 'qty' => (int)$qty, 'have' => $h, 'seen' => isset($seen[$slug])];
+            $ings[] = ['slug' => $slug, 'name' => $names[$slug], 'qty' => (int)$qty, 'have' => $h, 'seen' => $pk ? ($h > 0 || part_family_seen($pk, $seen)) : isset($seen[$slug])];
         }
         $known = isset($learned[$r['id']]);
         if (!$known && $all && $ings) {
@@ -167,21 +177,39 @@ function craft_stock(int $uid, string $json, int $recipeId = 0): array
     $mt = craft_mastery_recipe_tier($uid, $recipeId);   // mastery: lighter materials, never below 1 or half the base
     $need = json_decode($json, true) ?: [];
     if (!$need) return [];
-    $slugs = array_map('strval', array_keys($need));
+    $slugs = array_values(array_filter(array_map('strval', array_keys($need)), fn($k) => !part_key($k)));   // 2.7.58: any-/rare- keys are not item slugs
     $in = implode(',', array_fill(0, count($slugs), '?'));
     $by = [];
-    foreach (q("SELECT i.id, i.slug, i.name, COALESCE(ui.qty, 0) AS have FROM items i
+    if ($slugs) foreach (q("SELECT i.id, i.slug, i.name, COALESCE(ui.qty, 0) AS have FROM items i
                 LEFT JOIN user_items ui ON ui.item_id = i.id AND ui.user_id = ?
                 WHERE i.slug IN ($in)", array_merge([$uid], $slugs))->fetchAll() as $row) {
         $by[(string)$row['slug']] = $row;
     }
     $stock = [];
     foreach ($need as $slug => $qty) {
+        if (($ps = part_stock($uid, (string)$slug, craft_mastery_qty(max(1, (int)$qty), $mt))) !== null) { $stock[(string)$slug] = $ps; continue; }
         $row = $by[(string)$slug] ?? null;
         $stock[(string)$slug] = ['id' => (int)($row['id'] ?? 0), 'name' => (string)($row['name'] ?? $slug),
             'qty' => craft_mastery_qty(max(1, (int)$qty), $mt), 'have' => (int)($row['have'] ?? 0)];
     }
     return $stock;
+}
+
+/**
+ * 2.7.58: take $n of one craft_stock() entry. A normal ingredient is one stack; an any-/rare- entry is taken from its stacks cheapest first.
+ * False when the gnome holds too little. Call inside the craft transaction: a partial take is rolled back by the caller.
+ */
+function craft_take(int $uid, array $s, int $n): bool
+{
+    if ($n < 1) return true;
+    if (!isset($s['any'])) return (int)$s['id'] >= 1 && give_item($uid, (int)$s['id'], -$n);
+    foreach ($s['any'] as [$id, $held]) {
+        $use = min($n, (int)$held);
+        if ($use > 0 && !give_item($uid, (int)$id, -$use)) return false;
+        $n -= $use;
+        if ($n <= 0) return true;
+    }
+    return false;
 }
 
 /** v0.9.1: the energy one make costs this gnome. Used by craft(), craft_fit and the card. v0.9.4: by dish tier (setting cook_energy_tiers); Brewroot no longer cooks free. */
@@ -278,7 +306,7 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
         return [false, $short()];
     }
     foreach ($stock as $s) {
-        if ($s['id'] < 1 || !give_item($uid, $s['id'], -($s['qty'] * $qty))) {
+        if (!craft_take($uid, $s, $s['qty'] * $qty)) {
             db()->rollBack();
             return [false, $short()];
         }

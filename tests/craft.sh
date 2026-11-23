@@ -83,4 +83,5 @@ dbx "UPDATE users SET buff=NULL, buff_until=NULL, buff2=NULL, buff2_until=NULL W
 curl -s -c $C -b $C -X POST "$BASE/inventory.php" --data-urlencode "csrf=$(csrf $T/c.html)" -d do=eat -d item_id=$LID -o /dev/null
 B=$(db "SELECT buff FROM users WHERE id=$UID_"); [ "$B" = '{"luck":6}' ] && echo "Satchel drink: buff $B" || echo "FAIL Satchel drink buff: $B"
 php "$(dirname "$0")/alchemy.php" "$GAME" || echo "FAIL alchemy.php"
+php "$(dirname "$0")/parts.php" "$GAME" || echo "FAIL parts.php"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' $T/craft-php.log || echo "(none)"

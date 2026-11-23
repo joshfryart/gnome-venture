@@ -38,6 +38,7 @@ shell-meal-mussel|Shell Meal (mussel shells)|garden|shell-meal:2|blue-mussels:3|
 shell-meal-spiral|Shell Meal (spiral shells)|garden|shell-meal:2|spiral-shell:4|2
 shell-meal-urchin|Shell Meal (urchin shells)|garden|shell-meal:2|urchin-test:1|2
 shell-meal-fossil|Shell Meal (fossil shells)|garden|shell-meal:3|fossil-shell:1|2
+shell-meal-plate|Shell Meal (creature plates)|garden|shell-meal:1|any-plate:2|2
 worm-tea|Worm Tea|garden|worm-tea:3|worm-castings:1|1
 fern-tea|Fern Tea|garden|fern-tea:2|fiddleheads:2|1
 wood-ash|Wood Ash|garden|wood-ash:4|wood-chips:2|1
