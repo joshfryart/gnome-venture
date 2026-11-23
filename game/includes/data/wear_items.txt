@@ -117,7 +117,7 @@ sa-warp-stripe-jacket|SA|coat|3|Uncommon|Warp-Stripe Jacket|7200|2|5|palm-trunk:
 sa-bark-cloth-tunic-coat|SA|coat|4|Uncommon|Bark-Cloth Tunic Coat|7200|2|5|palm-trunk:3,fiddleheads:2|Long straight beaten bark-cloth coat with wide sleeves, printed with dotted leaf marks.
 sa-kapok-puffer|SA|coat|5|Rare|Kapok Puffer|18000|3|6|palm-trunk:4,fiddleheads:3|A plump quilted coat stuffed with kapok floss, cocoa-brown, puffed in rows.
 sa-striped-poncho|SA|cloak|1|Common|Striped Poncho|2700|1|4|palm-trunk:2,fiddleheads:1|Wide square poncho worn point-down, chevron stripes following the edges, knotted fringe.
-sa-thatch-rain-cape|SA|cloak|2|Common|Thatch Rain Cape|2700|1|4|palm-trunk:2,fiddleheads:1|Shaggy layered palm-fibre rain cape, three tiers of fringe, tied at the neck.
+sa-thatch-rain-cape|SA|cloak|2|Common|Savanna Thatch Rain Cape|2700|1|4|palm-trunk:2,fiddleheads:1|Shaggy layered palm-fibre rain cape, three tiers of fringe, tied at the neck.
 sa-feather-shoulder-mantle|SA|cloak|3|Uncommon|Feather Shoulder Mantle|7200|2|5|palm-trunk:3,fiddleheads:2|Short curved shoulder mantle with rows of red, yellow and blue feathers.
 sa-cloud-forest-shawl|SA|cloak|4|Uncommon|Cloud-Forest Shawl|7200|2|5|palm-trunk:3,fiddleheads:2|A light misty lilac stole worn over the shoulders, two long ends hanging down with a knotted fringe.
 sa-indigo-hooded-cloak|SA|cloak|5|Rare|Indigo Hooded Cloak|18000|3|6|palm-trunk:4,fiddleheads:3|Long dark indigo felt cloak, pointed hood flopping sideways, cochineal-red lining showing at the open front.
@@ -214,7 +214,7 @@ sea-water-jar-pack|SEA|backpack|5|Rare|Water-Jar Pack|28000|3|6|coir-fibre:4,pal
 sea-indigo-batik-smock|SEA|coat|1|Common|Indigo Batik Smock|4200|1|4|coir-fibre:2,palm-trunk:1|Loose, wide-sleeved smock, airy in the heat, indigo with rows of pale wax-resist dots and waves.
 sea-pandan-weave-vest|SEA|coat|2|Common|Pandan Weave Vest|4200|1|4|coir-fibre:2,palm-trunk:1|Sleeveless open vest plaited of two-tone palm-leaf strips with dark bound edges and two pockets.
 sea-ikat-wrap-jacket|SEA|coat|3|Uncommon|Ikat Wrap-Jacket|11200|2|5|coir-fibre:3,palm-trunk:2|Short jacket that wraps across the chest and ties at the side, banded with rust, cream and indigo ikat diamonds.
-sea-kapok-puffer|SEA|coat|4|Uncommon|Kapok Puffer|11200|2|5|coir-fibre:3,palm-trunk:2|Round, quilted coat stuffed with kapok fluff, diamond quilting, puffy short sleeves, stand collar.
+sea-kapok-puffer|SEA|coat|4|Uncommon|Jungle Kapok Puffer|11200|2|5|coir-fibre:3,palm-trunk:2|Round, quilted coat stuffed with kapok fluff, diamond quilting, puffy short sleeves, stand collar.
 sea-mangrove-oilcloth|SEA|coat|5|Rare|Mangrove Oilcloth|28000|3|6|coir-fibre:4,palm-trunk:3|Long, knee-length waxed coat in mud olive with a high collar, big flap pockets and brass buttons.
 sea-palm-frond-rain-cape|SEA|cloak|1|Common|Palm-Frond Rain Cape|4200|1|4|coir-fibre:2,palm-trunk:1|A bell-shaped shoulder cape of four shaggy tiers of dried palm fronds, tied at the neck.
 sea-banana-leaf-hood|SEA|cloak|2|Common|Banana-Leaf Hood|4200|1|4|coir-fibre:2,palm-trunk:1|One huge glossy banana leaf worn as a hooded cape: the tip curls into a hood, the midrib runs down the back, the edges split.
@@ -230,7 +230,7 @@ wca-calabash-pack|WCA|backpack|1|Common|Calabash Pack|4500|1|4|laterite-clay:2,p
 wca-raffia-cone-basket|WCA|backpack|2|Common|Raffia Cone Basket|4500|1|4|laterite-clay:2,palm-trunk:1|Tall tapering raffia basket with a coiled rim and two wide shoulder bands.
 wca-indigo-bundle|WCA|backpack|3|Uncommon|Indigo Bundle|12000|2|5|laterite-clay:3,palm-trunk:2|A round cloth bundle dyed indigo with resist dots, its corners knotted into two ears.
 wca-tooled-satchel|WCA|backpack|4|Uncommon|Tooled Satchel|12000|2|5|laterite-clay:3,palm-trunk:2|Square leather satchel with a pointed flap, tooled zig-zag border and a leather fringe.
-wca-bamboo-frame-pack|WCA|backpack|5|Rare|Bamboo Frame Pack|30000|3|6|laterite-clay:4,palm-trunk:3|An open bamboo ladder frame with a rolled sleeping mat lashed on and a water gourd hanging below.
+wca-bamboo-frame-pack|WCA|backpack|5|Rare|Congo Bamboo Frame Pack|30000|3|6|laterite-clay:4,palm-trunk:3|An open bamboo ladder frame with a rolled sleeping mat lashed on and a water gourd hanging below.
 wca-strip-weave-smock|WCA|coat|1|Common|Strip-Weave Smock|4500|1|4|laterite-clay:2,palm-trunk:1|Loose wide-sleeved smock sewn from narrow woven strips in gold, green and rust.
 wca-mudcloth-vest|WCA|coat|2|Common|Mudcloth Vest|4500|1|4|laterite-clay:2,palm-trunk:1|Sleeveless vest of dark mud-dyed cloth with plain cream dots and dashes.
 wca-raffia-rain-coat|WCA|coat|3|Uncommon|Raffia Rain Coat|12000|2|5|laterite-clay:3,palm-trunk:2|Shaggy coat of three tiers of raffia fringe that shed rain like a thatch roof.
@@ -247,7 +247,7 @@ esa-sisal-slippers|ESA|footwear|3|Uncommon|Sisal Slippers|12800|2|5|flint:3,red-
 esa-stripe-gaiters|ESA|footwear|4|Uncommon|Stripe Gaiters|12800|2|5|flint:3,red-ochre:2|Tall wrapped shin gaiters in dark/cream stripe felt over small round-toed shoes, tied with cord.
 esa-baobab-clogs|ESA|footwear|5|Rare|Baobab Clogs|32000|3|6|flint:4,red-ochre:3|Chunky carved wooden clogs with an upturned toe and bark-textured sides.
 esa-coiled-basket-pack|ESA|backpack|1|Common|Coiled Basket Pack|4800|1|4|flint:2,red-ochre:1|A tall round basket of coiled sisal with dyed bands, a woven lid and leather straps.
-esa-calabash-carrier|ESA|backpack|2|Common|Calabash Carrier|4800|1|4|flint:2,red-ochre:1|A big round gourd held in a knotted cord net, a wooden stopper on top.
+esa-calabash-carrier|ESA|backpack|2|Common|Rift Calabash Carrier|4800|1|4|flint:2,red-ochre:1|A big round gourd held in a knotted cord net, a wooden stopper on top.
 esa-grain-sack-pack|ESA|backpack|3|Uncommon|Grain Sack Pack|12800|2|5|flint:3,red-ochre:2|A plump burlap grain sack with a cinched drawstring neck and rope shoulder loops.
 esa-acacia-frame-pack|ESA|backpack|4|Uncommon|Acacia Frame Pack|12800|2|5|flint:3,red-ochre:2|An open frame of lashed acacia poles carrying a bundle of firewood and a rolled striped cloth.
 esa-herders-satchel|ESA|backpack|5|Rare|Herder's Satchel|32000|3|6|flint:4,red-ochre:3|A wide soft leather satchel with a rounded flap, long fringe and a row of plain coloured beads.
@@ -269,7 +269,7 @@ oc-mangrove-clog|OC|footwear|5|Rare|Mangrove Clog|34000|3|6|coir-fibre:4,spiral-
 oc-flax-basket-pack|OC|backpack|1|Common|Flax Basket Pack|5100|1|4|coir-fibre:2,spiral-shell:1|A wide woven flax basket with checkerboard plait, two handle loops and a cord shoulder sling.
 oc-coconut-string-bag|OC|backpack|2|Common|Coconut String Bag|5100|1|4|coir-fibre:2,spiral-shell:1|A sagging looped string bag (open net) in banded colours, hung from a head strap, coconuts showing through.
 oc-bushmans-swag|OC|backpack|3|Uncommon|Bushman's Swag|13600|2|5|coir-fibre:3,spiral-shell:2|A long canvas bedroll rolled and buckled with two leather straps, a tin billy can swinging from one end.
-oc-bamboo-frame-pack|OC|backpack|4|Uncommon|Bamboo Frame Pack|13600|2|5|coir-fibre:3,spiral-shell:2|An open A-frame of lashed bamboo poles carrying a bundle wrapped in leaf cloth and tied with coir.
+oc-bamboo-frame-pack|OC|backpack|4|Uncommon|Reef Bamboo Frame Pack|13600|2|5|coir-fibre:3,spiral-shell:2|An open A-frame of lashed bamboo poles carrying a bundle wrapped in leaf cloth and tied with coir.
 oc-pouch-pack|OC|backpack|5|Rare|Pouch Pack|34000|3|6|coir-fibre:4,spiral-shell:3|A round soft suede pack with a deep front pouch and a drawstring top.
 oc-drovers-oilskin|OC|coat|1|Common|Drover's Oilskin|5100|1|4|coir-fibre:2,spiral-shell:1|A long waxed oilskin coat with a shoulder capelet, flared skirt split at the back, high collar.
 oc-bush-check-smock|OC|coat|2|Common|Bush Check Smock|5100|1|4|coir-fibre:2,spiral-shell:1|A heavy wool pullover smock in red and charcoal check, laced neck, big front pocket, short hood.
