@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.81
+- **World and region maps full size in the dock layout.** The 2.7.65 rule that fitted the maps to the height above the dock is removed (the maps are tapped and zoomed, so small was wrong): both are the full page width again, about 796 x 446 (world) and 796 x 476 (region) at 844 x 390, and they match.
+- **Puzzle fight, End turn flash (second attempt).** Frame-by-frame captures showed what you see: after each End turn the swapped-in fight screen sat for a moment in the old tall layout (bars, tip and a small board stacked) until its script had run and added its fitted class; headless about 55 ms, longer on a phone. The two-column layout and the fixed position now apply to `#pfight.pf-v1` from the first frame (`dock.css`), without touching the scripts (the 2.7.79 route broke the board). The screen now keeps its columns through the swap. Still happening in a headless sample: the board's pieces are blank for the same moment, and the coaching tip appears a moment later. Not confirmed on a phone.
+
 ## 2.7.80
 - **Fixes 2.7.79, which broke the puzzle fight board.** 2.7.79 marked the swapped-in fight screen as fitted before its scripts ran, and on a pre-fight or turn swap the board never drew (no board, unstyled hand). That change is removed (`site.js` is back to its 2.7.78 content). Do not use 2.7.79. The End turn flash notes under 2.7.79 stand as findings only.
 - **Pre-fight popover reaches its button.** The pre-fight screen was drawn under the dock (the full dock was on screen), so its Let's fight button could not be reached; since 2.7.78 it stops above the rail, and I checked that a finger drag scrolls it (large 5 x 5 creature, headless touch drag) and that Let's fight is on screen at the bottom.

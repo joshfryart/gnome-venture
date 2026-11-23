@@ -233,7 +233,6 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh-room) * 1.77); width: 100%; margin-inline: auto; }
   body.dock-on .hs-banner .hs-side { display: none; }   /* Sleep and Nap are the Rest piece */
   body.dock-on .ph-art { max-width: calc(var(--imgh) * 2); margin-inline: auto; }
-  body.dock-on .mapwrap { max-width: calc(var(--imgh) * 1.785); margin-inline: auto; }
   body.dock-on .herepage .crumbs, body.dock-on .herepage .hereinfo { display: none; }
   body.dock-on .herepage h1 { font-size: 18px; margin: 2px 0 4px; }
   body.dock-on .hs-banner { padding-block: 6px; }
@@ -385,22 +384,23 @@ body.dock-on .cbed { cursor: pointer; }
 
 /* dock layout, landscape: screens that fit themselves to the window (the puzzle fight and its pre-fight screen) stop above the dock or its thin rail */
 @media (orientation: landscape) {
-  body.dock-on #pfight.pf-v1.pfv-fit, body.dock-on #pfv-pre.pfv-fit { bottom: var(--dock-h, 0px); }
+  body.dock-on #pfight.pf-v1, body.dock-on #pfv-pre.pfv-fit { bottom: var(--dock-h, 0px); }
 }
 
 /* dock layout, landscape: the puzzle fight is two columns, the board on the left and the bars, tips, buttons and your hand on the right (the portrait column left the board no height at all) */
 @media (orientation: landscape) and (max-height: 520px) {
-  body.dock-on #pfight.pf-v1.pfv-fit { width: min(100vw, 880px); display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); grid-auto-rows: min-content; column-gap: 8px; align-content: center; }
-  body.dock-on #pfight.pf-v1.pfv-fit > * { grid-column: 2; }
-  body.dock-on #pfight.pf-v1.pfv-fit > .pfv-bwrap { grid-column: 1; grid-row: 1 / span 12; align-self: stretch; min-height: 240px; }
-  body.dock-on #pfight.pf-v1.pfv-fit > .pfv-legend, body.dock-on #pfight.pf-v1.pfv-fit > .pf-preview, body.dock-on #pfight.pf-v1.pfv-fit > .pfc-histrow { display: none; }
-  body.dock-on #pfight.pf-v1.pfv-fit .pfv-guide { padding-block: 3px; }
+  body.dock-on #pfight.pf-v1 { width: min(100vw, 880px); display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); grid-auto-rows: min-content; column-gap: 8px; align-content: center; }
+  body.dock-on #pfight.pf-v1 > * { grid-column: 2; }
+  body.dock-on #pfight.pf-v1 > .pfv-bwrap, body.dock-on #pfight.pf-v1 > .pfb-board { grid-column: 1; grid-row: 1 / span 12; align-self: stretch; min-height: 240px; }
+  body.dock-on #pfight.pf-v1 > .pfb-board { max-height: 340px; }
+  body.dock-on #pfight.pf-v1 > .pfv-legend, body.dock-on #pfight.pf-v1 > .pf-preview, body.dock-on #pfight.pf-v1 > .pfc-histrow { display: none; }
+  body.dock-on #pfight.pf-v1 .pfv-guide { padding-block: 3px; }
 }
 @media (orientation: landscape) and (max-height: 520px) {
-  body.dock-on #pfight.pf-v1.pfv-fit .pfv-dock { max-height: 60px; overflow-y: auto; }
-  body.dock-on #pfight.pf-v1.pfv-fit .pfv-dock .pfv-dockidle { min-height: 0; max-height: 60px; overflow-y: auto; font-size: 12px; }
-  body.dock-on #pfight.pf-v1.pfv-fit .pfv-guide { font-size: 13px; line-height: 1.2; min-height: 0; max-height: 44px; overflow: hidden; }
-  body.dock-on #pfight.pf-v1.pfv-fit .pf-buttons .btn, body.dock-on #pfight.pf-v1.pfv-fit .pf-buttons #pf-go { min-height: 38px; }
+  body.dock-on #pfight.pf-v1 .pfv-dock { max-height: 60px; overflow-y: auto; }
+  body.dock-on #pfight.pf-v1 .pfv-dock .pfv-dockidle { min-height: 0; max-height: 60px; overflow-y: auto; font-size: 12px; }
+  body.dock-on #pfight.pf-v1 .pfv-guide { font-size: 13px; line-height: 1.2; min-height: 0; max-height: 44px; overflow: hidden; }
+  body.dock-on #pfight.pf-v1 .pf-buttons .btn, body.dock-on #pfight.pf-v1 .pf-buttons #pf-go { min-height: 38px; }
 }
 
 .dockroot .dk-msg { transition: none; }
@@ -415,4 +415,10 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on main:has(> .advgrid.wander) > * { flex: 1 0 100%; min-width: 0; }
   body.dock-on main:has(> .advgrid.wander) > h1, body.dock-on main:has(> .advgrid.wander) > p.status { flex: 0 1 auto; margin-block: 2px 4px; }
   body.dock-on main:has(> .advgrid.wander) > h1 { border-bottom: 0; }
+}
+
+/* the swapped-in fight screen has the fitted layout from its first frame, not only once its script has run (that took 150 to 400 ms, and the screen jumped to the tall portrait layout meanwhile: the End turn flash) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfight.pf-v1 { position: fixed; z-index: 60; top: var(--pfv-top, 0px); left: 50%; transform: translateX(-50%); margin: 0; padding: 4px 6px; box-sizing: border-box; overflow: hidden; background: #2b1d14; border-radius: 0; }
+  html:has(body.dock-on #pfight.pf-v1), html:has(body.dock-on #pfight.pf-v1) body { height: 100%; overflow: hidden; }
 }
