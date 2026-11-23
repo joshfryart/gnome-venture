@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.87
+- **Fight start: the jigsaw cover is back** (Trail Wander fight with `pfight_stage` on). The cover pieces fly in over the map before the pre-fight card shows. My 2.7.83 rule that forced the stage pop-up always visible (my guess at the End turn flash) also showed the pre-fight card at once, over the pieces, so the cover never showed. That rule is removed. Seen in frame captures of a creature appearing during Wander: pieces cover the map, then the card fades in. The pieces cover the map's part of the screen (about two thirds), not the full width.
+
 ## 2.7.86
 - **Puzzle fight, End turn flash: fixed (from the phone recording).** At End turn the fight script lays a frozen copy of the old screen (`.pfv-ghost`) over the new one, placed by inline left/top/width/height. The dock layout centres the live screen with `left: 50%` and `translateX(-50%)`, and the copy inherited that transform, so it slid half its width to the left for the turn's replay and the new screen showed beside it. The copy now has no transform in the dock layout (`dock.css`). No script was changed. Frame-by-frame captures at End turn (stage pop-up on and off) now show the same two columns throughout. Not checked on a phone.
 

@@ -457,9 +457,6 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 
 .dockroot .dk-pc.dk-plate img.dk-pt{width:14px;height:14px;flex:none;image-rendering:pixelated}
 .dockroot .pop img.dk-pt{width:14px;height:14px;vertical-align:-2px;image-rendering:pixelated}
-/* the fight stage in the dock layout never hides or fades its pop-up at a turn's swap */
-@media (orientation: landscape) and (max-height: 520px) {
-  body.dock-on dialog.trailpop.pfst .pickbox { visibility: visible !important; animation: none !important; opacity: 1 !important; }
 }
 
 /* the rail's full-screen button */
