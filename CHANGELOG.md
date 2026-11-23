@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.78
+- **Puzzle fight on a phone on its side (dock layout).** The fight and the pre-fight screen used the whole height and ran under the dock, and in a short window the board got no height at all. Now a puzzle fight uses the thin rail instead of the full dock (Menu on the rail still opens it), stops above it, and is two columns: the board on the left; the bars, the coaching tip, the chips, a short last-plays line, the buttons and your hand on the right (the long last-plays list, the legend and the preview line are hidden in this layout). The pre-fight screen is wider (up to 820 px) and its Let's fight button is on screen. Checked in a headless 844 x 390 browser on a fake Wander, road, delve and lair fight (opening move, board and pre-fight). Not checked: the later turns and end-of-fight screens (win, loss recap, Pluck), a fight over the Trail's tile map, or a real phone.
+- **Wander result card:** the result card ("An abandoned camp", "Call back ...") sits under the picture like the Latest line, not at the bottom right.
+- **Message bell** sits above the rail during a fight.
+
 ## 2.7.77
 - **Wander folds start closed in the dock layout.** The More and Gather folds were opened on any screen wider than 720 px, so a phone on its side saw the long notes under the picture. In the dock layout on a short landscape screen they now start closed (`site.js` `gvWanderFolds`); a fold you open stays open, and Gather still opens itself after a find.
 - **Gather result card (landscape):** the "Into your satchel" card sits beside the picture instead of overlapping it; the spot cards are four across with a 92 px picture, and the list of what you can find is a multi-column grid under them (`dock.css`). Checked after a real gather in a fake walk in a headless 844 x 390 browser.

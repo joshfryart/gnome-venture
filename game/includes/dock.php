@@ -262,8 +262,9 @@ function dock_foe(int $uid): ?array
 }
 
 /** Play mode: the mini-games get a thin rail instead of the full dock (the full dock opens from its menu button). Returns the rail's label and back link, or null. */
-function dock_play(string $page): ?array
+function dock_play(string $page, ?array $foe = null): ?array
 {
+    if ($page === 'adventure.php' && $foe && !empty($foe['pf'])) return ['name' => 'Fight', 'back' => '', 'backLabel' => ''];   // a puzzle fight takes the whole screen: the thin rail, not the dock
     $games = ['memory.php' => 'Memory', 'race.php' => 'Race', 'spit.php' => 'Spit', 'mushroom.php' => 'Mushroom', 'pest.php' => 'Pest', 'marrow.php' => 'Marrow', 'worms.php' => 'Worms', 'catfish.php' => 'Catfish'];
     $puz = ['jigsaw.php' => 'Jigsaw', 'gifsaw.php' => 'GIFsaw'];
     if (isset($games[$page])) return ['name' => $games[$page], 'back' => url('games.php'), 'backLabel' => 'Games'];
@@ -442,8 +443,8 @@ function dock_html(array $u, string $page): string
         'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'rail' => dock_rail($u), 'more' => dock_more($u, $page),
         'logoutForm' => '<form method="post" action="' . e(url('logout.php')) . '" class="inline" data-noajax="1">' . csrf_field() . '<button type="submit">Log out</button></form>', 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
         'quick' => $quick, 'csrf' => csrf_token(), 'quickUrl' => url('quick.php'), 'back' => $back,
-        'play' => dock_play($page),
-        'foe' => dock_foe((int)$u['id']),
+        'foe' => ($foe = dock_foe((int)$u['id'])),
+        'play' => dock_play($page, $foe),
         'iconBase' => url('assets/img/nav/dock-'), 'iconNames' => DOCK_ICONS, 'home' => url('gnome.php'),
     ];
     $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);

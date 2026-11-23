@@ -425,6 +425,11 @@
   }
 
   /* ---- render ---- */
+  var lastDockH = '';
+  function dockH(v) {   // the page clears the dock; screens that fit themselves to the window (the puzzle fight) are told when it changes
+    document.body.style.setProperty('--dock-h', v);
+    if (v !== lastDockH) { lastDockH = v; setTimeout(function () { try { window.dispatchEvent(new Event('resize')); } catch (e) {} }, 60); }
+  }
   /* play mode: a thin rail (back, the game's name, energy and time, and a button that opens the full dock) */
   var rail = null, playOpen = false;
   function renderRail() {
@@ -432,15 +437,16 @@
     if (stage) stage.innerHTML = '';
     if (!rail) { rail = document.createElement('div'); rail.className = 'dk-rail'; rail.id = 'dockrail'; root.appendChild(rail); }
     rail.hidden = false;
-    rail.innerHTML = '<a class="dk-rb" href="' + esc(D.play.back) + '">\u21a9 ' + esc(D.play.backLabel) + '</a><b class="dk-rn">' + esc(D.play.name) + '</b>'
+    rail.innerHTML = (D.play.back ? '<a class="dk-rb" href="' + esc(D.play.back) + '">\u21a9 ' + esc(D.play.backLabel) + '</a>' : '<span class="dk-rb"></span>') + '<b class="dk-rn">' + esc(D.play.name) + '</b>'
       + '<span class="dk-rs">\u26a1 ' + e[0] + '/' + e[1] + (p.time ? ' \u00b7 ' + esc(String(p.time)) : '') + '</span><button type="button" class="dk-rb" data-rail="open" aria-label="Open the menu">\u2630 Menu</button>';
-    document.body.style.setProperty('--dock-h', '34px');
+    dockH('34px'); document.body.classList.add('dock-rail');
     document.body.classList.add('dock-ready');
   }
   function render() {
     if (!D || !mq.matches) { if (stage) stage.innerHTML = ''; document.body.classList.remove('dock-ready'); return; }
     if (D.play && !playOpen) { renderRail(); return; }
     if (rail) rail.hidden = true;
+    document.body.classList.remove('dock-rail');
     var VW = root.clientWidth || window.innerWidth, W, g, old = stage && stage.querySelector('.dockslip'), oldN = old ? old.querySelectorAll('.dk-pc').length : 0;
     if (old && old.parentNode) old.parentNode.removeChild(old);   // kept as an element (not as markup): inline style attributes cannot be re-parsed under the CSP
     REM = [];
@@ -453,7 +459,7 @@
     K = scaleFor(VW, window.innerHeight); W = Math.round(VW / K); LW = W; g = geom(W);
     if (!stage) { stage = document.createElement('div'); stage.className = 'dockstage'; root.appendChild(stage); }
     stage.style.height = DH + 'px'; stage.style.width = W + 'px'; stage.style.transform = K > 1 ? 'scale(' + K + ')' : '';   // origin is the bottom left (dock.css)
-    document.body.style.setProperty('--dock-h', Math.round(DH * K) + 'px');   // the page clears the scaled dock
+    dockH(Math.round(DH * K) + 'px');   // the page clears the scaled dock
     var same = key === lastKey;
     stage.innerHTML = pref(defs() + '<div class="dock">' + dockSVG(W, g) + chain(W, g) + '</div><div class="dockslip' + (same ? ' still' : '') + '">' + slipHTML(W, g) + '</div>').replace('<!--dkTHEME-->', D.themeForm).replace('<!--dkLOGOUT-->', D.logoutForm);
     position(stage);
