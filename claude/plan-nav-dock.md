@@ -59,7 +59,9 @@ Done (admin preview):
 
 - **Fights:** the right piece is a Fight strip: Creature (a popover tab with name, level, health, size and a line about it, read from `encounter_creature()`) and Run away (the puzzle fight's own `.pf-runf` button or the old `flee` form). The Quick piece is greyed "not in a fight" (the puzzle fight's Snack is a tile with its own limits, so Quick does not bypass it). Tested with a fake expedition and encounter in the SQLite copy.
 
-Still to do (needs a live session or new design): Yard's Edit strip; Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); ~100 action icons still emoji; a real-phone and real-browser pass.
+- **Yard:** left Save, right an Edit strip (Rotate, Shape, Size, Put away, Undo), all clicking the editor's own buttons.
+
+Still to do (needs a live session or new design): Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); ~100 action icons still emoji; a real-phone and real-browser pass.
 
 How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 
