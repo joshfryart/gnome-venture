@@ -1106,3 +1106,14 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .crumbs { grid-row: 1; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopwrap { grid-row: 5; }
 }
+
+/* Shop basket (Sell all / Buy all): a slim bar pinned at the top of the screen while the items scroll under it, chips and buttons on one row, so it never takes the middle of the screen */
+@media (orientation: landscape) {
+  body.dock-on .shopwrap > .basket:not([hidden]) { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 8px; padding: 4px 10px; margin: 0 0 6px; }
+  body.dock-on .shopwrap > .basket .blist { flex: 1 1 auto; margin: 0; min-width: 0; max-height: 40px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; }
+  body.dock-on .shopwrap > .basket .bchip { flex: none; min-height: 30px; }
+  body.dock-on .shopwrap > .basket .bfoot { flex: none; flex-wrap: nowrap; }
+  body.dock-on .shopwrap > .basket .btn { min-height: 34px; padding-block: 0; }
+  body.dock-on .shopwrap > .basket .btotal { white-space: nowrap; }
+  body.dock-on .shopwrap > .basket .sbad { position: absolute; left: 10px; bottom: -18px; margin: 0; font-size: 12px; }
+}

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.100
+- **Shop basket (Sell all / Buy all) is a slim bar pinned at the top** in the dock layout: the picked items scroll sideways on one line, "You get n", Empty and Sell all / Buy all sit on the same row (50 px tall, was a big card that sat in the middle of the screen over the items). It stays at the top while the items scroll under it. Seen on a shop sell page at 844 x 390 with two chips; the error line ("not enough...") now sits under the bar, not checked.
+
 ## 2.7.99
 - **Shop pages: the picture banner sits beside the Buy / Sell tabs** (in the empty space to their right, with "What sells here" under the tabs), instead of above them. The category chips and the items start about 100 px higher (`dock.css`; shop pages only, dock layout, landscape). Seen at 844 x 390 on a shop; pet shops, dye shops and florists have a different page structure and are unchanged.
 
