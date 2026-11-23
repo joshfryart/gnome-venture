@@ -57,6 +57,7 @@ function dock_declare(array $spec): void
  */
 function dock_action(string $label, string $icon, string $href = '', array $menu = [], string $why = '', string $badge = '', string $mlabel = '', array $remote = [], array $cands = []): array
 {
+    $icon = DOCK_EMOJI_ICON[$icon] ?? $icon;
     return ['label' => $label, 'icon' => $icon, 'href' => $href, 'menu' => $menu, 'why' => $why, 'badge' => $badge, 'mlabel' => $mlabel, 'remote' => $remote, 'cands' => $cands];
 }
 
@@ -77,7 +78,11 @@ function dock_remote(string $label, string $icon, array $remote, array $extra = 
 
 /** Dock icon names that have a drawn icon (assets/img/nav/dock-<name>.png, from art-nav-dock/). */
 const DOCK_ICONS = ['you', 'hobby', 'out', 'tog', 'hovel', 'almanac', 'satchel', 'crafting', 'tailor', 'start', 'account', 'garden', 'games', 'pals', 'box', 'world', 'here',
-    'villagers', 'gourmand', 'treks', 'trading', 'together', 'tasks', 'friends', 'festival'];
+    'villagers', 'gourmand', 'treks', 'trading', 'together', 'tasks', 'friends', 'festival',
+    'water', 'harvest', 'till', 'select', 'quick', 'rest', 'heal', 'globe', 'explore', 'tag', 'trail', 'sights', 'fight', 'run', 'buy', 'sell', 'save', 'rotate', 'back', 'tend', 'wander', 'dohere', 'sneak', 'hunt', 'creature', 'craft', 'jar', 'sleep', 'nap', 'wave', 'sit', 'snack', 'game', 'bunting', 'basket', 'offer', 'journey', 'handin', 'finish', 'crate', 'messages', 'undo', 'size', 'shape', 'away', 'tools', 'cookagain'];
+
+/** Emoji used as an action icon to the drawn icon that replaces it (assets/img/nav/dock-<name>.png). */
+const DOCK_EMOJI_ICON = ['💧' => 'water', '🧺' => 'harvest', '⛏️' => 'till', '☑️' => 'select', '⚡' => 'quick', '＋' => 'quick', '🛏️' => 'rest', '💚' => 'heal', '🌍' => 'globe', '🧭' => 'explore', '🏷️' => 'tag', '🥾' => 'trail', '🔎' => 'sights', '⚔️' => 'fight', '🏃' => 'run', '🛒' => 'buy', '💰' => 'sell', '💾' => 'save', '↻' => 'rotate', '↩' => 'back', '↩️' => 'back', '🌻' => 'tend', '🌿' => 'wander', '🎈' => 'dohere', '🤫' => 'sneak', '🏹' => 'hunt', '🔍' => 'creature', '🍳' => 'craft', '🫙' => 'jar', '🌙' => 'sleep', '💤' => 'nap', '👋' => 'wave', '🪑' => 'sit', '🍎' => 'snack', '✊' => 'game', '🎪' => 'bunting', '🤝' => 'offer', '✋' => 'handin', '🏁' => 'finish', '📦' => 'crate', '💬' => 'messages', '↶' => 'undo', '⚖️' => 'size', '◧' => 'shape', '🪴' => 'tools'];
 
 /** The menu entry slug (NAV_ICONS) to the dock icon name. */
 const DOCK_SLUG_ICON = ['almanac' => 'almanac', 'satchel' => 'satchel', 'crafting' => 'crafting', 'hovel' => 'hovel', 'tailor' => 'tailor', 'start' => 'start', 'account' => 'account',
@@ -292,7 +297,7 @@ function dock_page_spec(string $page): array
             // Beds tab: Select works the page's own "select squares" panel; the right piece is a strip of the page's own bulk buttons (the single-bed Tools piece needs a new in-page tool mode: phase 2b)
             return ['watch' => true,
                 'L' => dock_remote('Select', '☑️', ['select' => 'garden']),
-                'R' => dock_action('Tools', '🧺', '', [
+                'R' => dock_action('Tools', 'tools', '', [
                     dock_remote('Water', '💧', ['tool' => 'water']), dock_remote('Harvest', '🧺', ['tool' => 'harvest']), dock_remote('Till', '⛏️', ['tool' => 'till']),
                     dock_remote('Water all', '💧', ['doForm' => 'water_all', 'count' => ['.gardenstat', 'data-thirsty']]),
                     dock_remote('Weed all', '🌿', ['doForm' => 'weed_all', 'count' => ['.gardenstat', 'data-weedy']]),

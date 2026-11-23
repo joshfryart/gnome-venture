@@ -61,7 +61,7 @@ Done (admin preview):
 
 - **Yard:** left Save, right an Edit strip (Rotate, Shape, Size, Put away, Undo), all clicking the editor's own buttons.
 
-Still to do (needs a live session or new design): Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); ~100 action icons still emoji; a real-phone and real-browser pass.
+Still to do (needs a live session or new design): Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); the remaining emoji action icons (47 are drawn now: `art-nav-dock/gen_action_icons.py`, mapped through `DOCK_EMOJI_ICON` in `includes/dock.php`; a few are weak: buy, game, offer, finish, size, shape, tools, cook again); a real-phone and real-browser pass.
 
 How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 
