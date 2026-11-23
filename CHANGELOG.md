@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.95
+- **Garden building cards no longer cut off at the dock.** When a card is opened as a plain page element (the address `garden.php?t=pic&o=...`, as in your screenshot) it is not a modal, so it sat in the page under the fixed dock and its lower part was hidden. In the dock layout on short landscape screens it is now fixed above the page, ends at the dock's top edge and scrolls inside (`gyard.css`). Checked with the worm farm card opened that way (box ends 6 px above the dock, buttons reachable by scrolling the card). Modal cards (opened by a tap) were already fine.
+
 ## 2.7.94
 - **Garden Buildings cards scroll on a phone on its side (second pass, with built buildings).** The 2.7.92 version kept the head fixed and scrolled only the body, which left a 186 to 236 px strip to scroll in and was easy to miss. Now the whole card (head and body) scrolls as one (up to 94 px more than the screen on the longest ones), and the head no longer takes a fixed block (`gyard.css`). Checked all 17 cards with built buildings in the test garden with a finger drag in a mobile-emulated browser: the cards that are taller than the screen moved 31 to 94 px; the others fit whole. Not checked: a building with an open Upgrade/Collect result.
 
