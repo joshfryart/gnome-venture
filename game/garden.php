@@ -506,7 +506,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
           // v0.7.65: anything can be planted; unstudied ones are marked
         $costs = []; foreach (['plant', 'soil', 'mulch', 'till', 'water', 'harvest', 'dig', 'sheet'] as $a) $costs[] = $a . ':' . action_cost($uid, $a); ?>
     <div class="selbar" data-tiles="<?= e(implode(',', $flags)) ?>" data-costs="<?= e(implode(',', $costs)) ?>" data-hcosts="<?= e(implode(',', $hcosts)) ?>" data-pnames="<?= e(implode(',', $pnames)) ?>" hidden>
-      <button type="button" class="btn small" data-sel="on">☑️ Select squares</button>
+      <button type="button" class="btn small selopen" data-sel="on">☑️ Select squares</button>
       <div class="selon" hidden>
         <p><b>☑️ <span class="selcount">0</span> selected.</b> Tap squares to pick them, or pick:
           <button type="button" class="btn small alt" data-q="P">🟫 empty &amp; ready to plant</button>
@@ -566,7 +566,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
           $nPest = 0;   // v1.0.0: beds with a pest
           foreach ($tiles as $row) foreach ($row as $t) if (!empty($t['pest']) && $t['plant_id']) $nPest++;
           $bulk = function (string $do, string $label, int $n, int $energy) {
-              return '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="btn small"' . ($n ? '' : ' disabled') . '>'
+              return '<form method="post" class="inline bulkf">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="btn small"' . ($n ? '' : ' disabled') . '>'
                   . $label . ($n ? ' (' . $n . ') <span class="cost">⚡' . $energy . '</span>' : '') . '</button></form> ';
           }; ?>
       <?php $freeW = isset($built['rain_barrel']) && (int)$built['rain_barrel']['level'] >= 3 && (string)$built['rain_barrel']['free_day'] !== gclock_my_date();   // v0.7.96
@@ -574,12 +574,12 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
           $perkLeft = $perkN > 0 ? max(0, $perkN - ((string)($plot['free_water_day'] ?? '') === gclock_my_date() ? (int)$plot['free_water_n'] : 0)) : 0;
           if ($perkLeft > 0) $freeW = true; ?>
       <?= $bulk('water_all', $nThirsty ? '💧 Water all thirsty' : '💧 Nothing thirsty', $nThirsty, $freeW ? 0 : action_cost($uid, 'water') * $nThirsty) ?>
-      <?php if ($perkLeft > 0): ?><span class="help">💧 Free Water all: <?= $perkLeft ?> left today</span> <?php endif; ?>
+      <?php if ($perkLeft > 0): ?><span class="help bulkhelp">💧 Free Water all: <?= $perkLeft ?> left today</span> <?php endif; ?>
       <?= $bulk('harvest_all', $nReady ? '🧺 Harvest all ready' : '🧺 Nothing ready', $nReady, $hEnergy) ?>
-      <?php if ($readyB): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="collect_all"><button class="btn small">📦 Collect all (<?= count($readyB) ?>)</button></form> <?php endif;   // v0.7.99 ?>
+      <?php if ($readyB): ?><form method="post" class="inline bulkf"><?= csrf_field() ?><input type="hidden" name="do" value="collect_all"><button class="btn small">📦 Collect all (<?= count($readyB) ?>)</button></form> <?php endif;   // v0.7.99 ?>
       <?php if ($nPest): ?><?= $bulk('pick_all', '🧤 Pick pests off', $nPest, max(0, (int)setting('pest_pick_energy')) * $nPest) ?><?php endif; ?>
       <?php if ($canNoTill): ?><?= $bulk('weed_all', $nWeedy ? '🌿 Weed all beds' : '🌿 No weeds', $nWeedy, action_cost($uid, 'weed') * $nWeedy) ?><?php endif; ?>
-      <p class="help">Energy shown is the most it can cost: good tools sometimes make squares free.</p>
+      <p class="help bulkhelp">Energy shown is the most it can cost: good tools sometimes make squares free.</p>
     </div>
     <p class="help legend"><span class="sw wild"></span> wild <span class="sw tilled"></span> tilled <span class="sw notill"></span> no-till bed (green edge). Hover a bed to see its yard bonuses.</p>
   </div>

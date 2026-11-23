@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.60
+- **Dock: garden page.** In the dock layout only (landscape, `nav_dock` on), the page's own "Select squares" button, the bulk buttons (Water all, Harvest all, Collect all, Pick pests, Weed all) and their energy note are hidden: the dock's Select piece and Tools strip do the same. Portrait and the old layout are unchanged. New classes `selopen`, `bulkf`, `bulkhelp` in `garden.php`.
+
 ## 2.7.59
 - **Dock: garden pickers on landscape phones.** The seed (Plant…), Work in and Mulch popovers showed only a sliver of the list because the search, chips and "in season" rows took most of a 390 px screen. In dock mode on short landscape screens they now share one row and the head and foot are slim (`dock.css`). Seen in a headless capture at 844 x 390 only.
 
