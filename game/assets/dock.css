@@ -469,3 +469,8 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 @media (orientation: landscape) and (max-height: 520px) {
   body.dock-on .pfight.pf-v1 > .pfc-histrow, body.dock-on #pfight.pf-v1 > .pfc-histrow { display: flex; min-height: 0; max-height: 34px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; flex-wrap: nowrap; }
 }
+
+/* End turn: the frozen copy of the old fight screen (.pfv-ghost) is placed by inline left/top/width/height taken from the old screen. The dock layout centres the live screen with left:50% + translateX(-50%), and the copy inherited that transform, so it slid half its width to the left (seen on a phone recording). The copy needs no transform. */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .pfight.pfv-ghost { transform: none !important; }
+}

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.86
+- **Puzzle fight, End turn flash: fixed (from the phone recording).** At End turn the fight script lays a frozen copy of the old screen (`.pfv-ghost`) over the new one, placed by inline left/top/width/height. The dock layout centres the live screen with `left: 50%` and `translateX(-50%)`, and the copy inherited that transform, so it slid half its width to the left for the turn's replay and the new screen showed beside it. The copy now has no transform in the dock layout (`dock.css`). No script was changed. Frame-by-frame captures at End turn (stage pop-up on and off) now show the same two columns throughout. Not checked on a phone.
+
 ## 2.7.85
 - **Puzzle fight, End turn flash: found.** At End turn the game keeps the old fight screen as an id-less copy (`.pfight`, the "ghost" the turn is replayed over) while the new one loads. The dock layout's rules were written for `#pfight`, so the copy kept the old tall portrait layout (bars across the top, a small board in the middle, no hand) for the replay, then the two-column screen came back: that was the flash. The rules now apply to `.pfight` as well as `#pfight` (25 rules in `dock.css`), so the old copy is the same two-column screen. Frame-by-frame screenshots after the change show the same columns throughout the turn. (Everything in 2.7.79 to 2.7.84 about the flash was looking in the wrong place; the full screen button in 2.7.84 is still useful for the browser bar.)
 - **History bar is back** in the right column (one scrolling line of what each side played). It was hidden to save height; the fight still fits at 844 x 390 (first-fight coaching tip shown).
