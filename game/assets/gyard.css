@@ -381,3 +381,11 @@ dialog.gycard .pickbox{width:min(330px,calc(100vw - 28px));padding:0;overflow:hi
 .gy-fence{left:-3.75%;top:56.296%;width:30%;height:41.481%}
 .gy-h-fence-i{left:3.75%;top:79.259%;width:17.917%;height:13.333%}
 .gy-bg-fence-r1{background-image:url(img/gyard/fence-r1.png)}
+
+/* a phone on its side: the building card is wider and its body may be shorter than the fixed minimum heights above, so it scrolls instead of clipping its buttons */
+@media (orientation: landscape) and (max-height: 520px) {
+  dialog.gycard .pickbox { width: min(520px, calc(100vw - 28px)); }
+  .gycard .gybd, .gycard .gybd.home, .gycard .gybd:not(.home) { min-height: 0; }
+  .gycard .gynow { min-height: 0; -webkit-line-clamp: 4; }
+  .gycard .gyhd { padding-block: 6px; }
+}

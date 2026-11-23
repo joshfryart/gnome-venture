@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.92
+- **Garden Buildings pop-ups (the yard picture's building cards) scroll and fit on a phone on its side.** The card body had fixed minimum heights (176 px, 262 px for the home card) that, with the header, were taller than a 390 px screen, so the card (clipped, no inner room to scroll) lost its Build / Upgrade / Collect buttons. On short landscape screens the minimums are gone, the card is wider (up to 520 px) and the body scrolls (`gyard.css`). Checked all 17 building cards in my test garden (all locked ones: each fits, none clipped) and a touch drag scrolls the fence card. Not checked: a card of a building you have built (its Upgrade and Collect buttons).
+- The Garden tab pages need the picture-garden flag (`gnav_garden`) for these cards; in my test it was on.
+
 ## 2.7.91
 - **Garden tabs, dock layout, landscape, one by one** (`dock.css`; 844 x 390). All tabs: the garden name and the tab bar share a row. **Beds** (1284 to 1072 px): the plot on the left, the square's card and the legend beside it; the weather line and the spot note share a row. **Buildings** (688 to 680), **Animals** (734 to 726) and **Grow** (697 to 703) were already short and only gained the shared header. **Crew** (975 to 812): the three jobs are side by side. Popovers: the Plant, Work in and Mulch choosers open inside the screen with a 199 px scrolling list (they were fixed in 2.7.59 and 2.7.61); the Animals tab has only Rename and Send buttons, no popovers. **Not checked:** the Buildings popovers (my test garden has no buildings), the animal trade card with a real trade, and the Crew job pickers (Crew needs gnome level 10 and a pal).
 
