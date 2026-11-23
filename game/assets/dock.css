@@ -471,3 +471,37 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 @media (orientation: landscape) and (max-height: 520px) {
   body.dock-on .pfight.pfv-ghost { transform: none !important; }
 }
+
+/* dock layout, landscape: the Hovel (My Gnome) is two columns: the room on the left, the tabs and what they hold on the right (the room, tabs and cards used to stack into 900+ px) */
+@media (orientation: landscape) {
+  body.dock-on .homepage.hslim.hs-tab-today { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); gap: 0 10px; align-items: start; }
+  body.dock-on .homepage.hslim.hs-tab-today > .hs-banner { grid-column: 1; grid-row: 1 / span 3; position: sticky; top: 4px; }
+  body.dock-on .homepage.hslim.hs-tab-today > :not(.hs-banner) { grid-column: 2; min-width: 0; }
+  body.dock-on .homepage.hslim .hs-banner .hs-room { max-width: none; width: 100%; }
+  body.dock-on .homepage.hslim .hstabs a { padding-inline: 4px; font-size: .8rem; }
+  body.dock-on .homepage.hslim.hs-tab-today .hs-cols { display: block; }
+  body.dock-on .homepage.hslim.hs-tab-today .hs-cols > .hs-rail { margin-top: 6px; }
+  /* Furnish: the slots on the left, the big room and the cosiness on the right; the small room crop above is not needed */
+  body.dock-on .homepage.hslim.hs-tab-furnish .hs-banner { display: none; }
+  body.dock-on .homepage.hslim .hs-cols.hs-furnish { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 10px; align-items: start; }
+}
+
+/* Stats tab: the stat description beside the spider chart and list, the back link and the box note hidden (the tabs are the way back) */
+@media (orientation: landscape) {
+  body.dock-on .homepage.hslim .homepanel > p.gvback, body.dock-on .homepage.hslim .homepanel > p.help:not(.gvrecord) { display: none; }
+  body.dock-on .homepanel .statsplit { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 8px; align-items: center; }
+  body.dock-on .homepanel .statsplit svg { max-height: 240px; }
+  body.dock-on .homepanel section.box:has(.statsplit) { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 0 12px; align-items: start; }
+  body.dock-on .homepanel section.box:has(.statsplit) > .palhead, body.dock-on .homepanel section.box:has(.statsplit) > p.help { grid-column: 1 / -1; }
+  body.dock-on .homepanel section.box:has(.statsplit) > .statsplit { grid-column: 1; grid-row: 3 / span 6; }
+  body.dock-on .homepanel section.box:has(.statsplit) > :not(.palhead):not(.statsplit):not(p.help) { grid-column: 2; }
+}
+
+/* Closet: the gnome on the left, the slots in two columns on the right */
+@media (orientation: landscape) {
+  body.dock-on .homepanel section.box.closet { display: grid; grid-template-columns: minmax(0, 40fr) minmax(0, 60fr); gap: 0 12px; align-items: start; }
+  body.dock-on .homepanel section.box.closet > .clstage { grid-column: 1; grid-row: 1 / span 4; }
+  body.dock-on .homepanel section.box.closet > :not(.clstage) { grid-column: 2; }
+  body.dock-on .homepanel section.box.closet .clslots { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  body.dock-on .homepanel section.box.closet .clslots .clpill a { min-height: 0; }
+}

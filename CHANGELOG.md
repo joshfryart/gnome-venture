@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.88
+- **Hovel (My Gnome) in two columns, dock layout, landscape** (`dock.css` only). Today: the room on the left, the tabs and the Needs you / news cards on the right (923 to 714 px tall at 844 x 390). Furnish: the room crop is gone; the slots on the left, the big room and the cosiness on the right (831 to 761 px). Stats: the back link and Puzzle box note are hidden, the stat description sits beside the list (1245 to 1027 px). Closet: the gnome on the left, the slots in two columns on the right (1021 to 748 px). The Gnome tab was already compact. Checked in screenshots at 844 x 390; Calling, the sleep and nap buttons (the Rest piece) and a hovel with a pet were not checked.
+
 ## 2.7.87
 - **Fight start: the jigsaw cover is back** (Trail Wander fight with `pfight_stage` on). The cover pieces fly in over the map before the pre-fight card shows. My 2.7.83 rule that forced the stage pop-up always visible (my guess at the End turn flash) also showed the pre-fight card at once, over the pieces, so the cover never showed. That rule is removed. Seen in frame captures of a creature appearing during Wander: pieces cover the map, then the card fades in. The pieces cover the map's part of the screen (about two thirds), not the full width.
 
