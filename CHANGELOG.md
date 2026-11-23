@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.93
+- **Page survey, dock layout, landscape (five agents, each fix tested by injection at 844 x 390; `dock.css`).** Satchel Items (1034 to 724 px: the eight category tiles in one row; an opened item card sits beside the pills instead of below), Crafting area index (965 to 667) and area pages (1302 to 873: the scene beside the text), the crafting popovers (taller scroll area), Tool belt (1301 to 1075). Tasks Jobs (1103 to 904), Community garden (1138 to 918), Hollow jar (953 to 752), Market day (953 to 765). World travel list and the Seasons tables (two across). Fair (1415 to 727), Yard editor (sticky toolbar one row), the mini-game pages (boards start higher), Snail Race cards. Almanac chapters (Plants 12934 to 4781, Creatures 20481 to 5611, Gathering 9143 to 1866), Contents (six cards in a row), Letters.
+- Fixed a stray closing brace in `dock.css` (left from 2.7.87) that could swallow the rule after it.
+- **Not checked** (the test account cannot reach them): crafting Craft buttons, Pantry, Kitchen and Tool Shed areas, the flower arranger, drying rack and show, Daily/Gourmand/Workshop/Landmark/Sights pages, Puzzle Pals and Pal jobs, Jigsaw and GIFsaw, the Post board and Trading (locked by level). Some pages still scroll a lot (the Almanac's longest chapters, Villagers, the world map tab).
+
 ## 2.7.92
 - **Garden Buildings pop-ups (the yard picture's building cards) scroll and fit on a phone on its side.** The card body had fixed minimum heights (176 px, 262 px for the home card) that, with the header, were taller than a 390 px screen, so the card (clipped, no inner room to scroll) lost its Build / Upgrade / Collect buttons. On short landscape screens the minimums are gone, the card is wider (up to 520 px) and the body scrolls (`gyard.css`). Checked all 17 building cards in my test garden (all locked ones: each fits, none clipped) and a touch drag scrolls the fence card. Not checked: a card of a building you have built (its Upgrade and Collect buttons).
 - The Garden tab pages need the picture-garden flag (`gnav_garden`) for these cards; in my test it was on.

@@ -457,7 +457,6 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 
 .dockroot .dk-pc.dk-plate img.dk-pt{width:14px;height:14px;flex:none;image-rendering:pixelated}
 .dockroot .pop img.dk-pt{width:14px;height:14px;vertical-align:-2px;image-rendering:pixelated}
-}
 
 /* the rail's full-screen button */
 .dockroot .dk-rb.dk-fs { font-size: 16px; padding: 4px 10px; }
@@ -543,4 +542,152 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 @media (orientation: landscape) {
   body.dock-on .crew .crewslots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px; }
   body.dock-on .crew .crewslot { min-height: 0; }
+}
+
+
+/* ===== 2.7.93: page survey fixes (each tested by injection in a headless 844x390 browser) ===== */
+/* survey: jobs.php (Daily/Weekly/Monthly) */
+@media (orientation: landscape) {
+  body.dock-on .jb-periods { gap: 6px; margin-top: 6px; }
+  body.dock-on .jb-per { min-height: 0; padding: 5px 10px; }
+  body.dock-on .jb-per .s { display: none; }
+  body.dock-on .jb-cols { margin-top: 8px; gap: 8px; grid-template-columns: minmax(0, 1fr); }
+  body.dock-on .jb-pick { padding: 10px 12px; }
+  body.dock-on .jb-pick .jb-sub { margin: 2px 0; }
+  body.dock-on .jb-offers { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 6px; gap: 6px; }
+  body.dock-on .jb-offer[open] { grid-column: 1 / -1; order: -1; }
+  body.dock-on .jb-offer summary { min-height: 0; padding: 8px 10px; }
+  body.dock-on .jb-offer .body { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 0 10px 10px; }
+  body.dock-on .jb-offer .body > * { margin: 0; }
+  body.dock-on .jb-offer .body .jb-hint { flex: 1 1 100%; padding: 6px 10px; }
+  body.dock-on .jb-offer .body form .btn { margin: 0; }
+}
+
+/* survey: community.php?t=garden */
+@media (orientation: landscape) {
+  body.dock-on .commwrap { grid-template-columns: 300px minmax(0, 1fr); gap: 10px; }
+  body.dock-on .commgrid { gap: 3px; padding: 6px; }
+  body.dock-on .cbed { min-height: 44px; padding: 2px; }
+  body.dock-on .cbed .ic { font-size: 18px; }
+  body.dock-on .cbed small { font-size: 10px; line-height: 1.1; }
+  body.dock-on .commside { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: start; }
+  body.dock-on .commside > .box { margin: 0; padding: 8px 10px; }
+}
+
+/* survey: community.php?t=jar */
+@media (orientation: landscape) {
+  body.dock-on .jarbox .jarwrap svg { height: 110px; width: auto; }
+  body.dock-on .jarbox .tiers { grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0; }
+  body.dock-on .jarbox .tiers li { padding: 4px 10px; }
+}
+
+/* survey: marketday.php */
+@media (orientation: landscape) {
+  body.dock-on .marketwanted .itms { --itm-cols: 6; max-width: none; padding-top: 6px; gap: 8px 6px; }
+  body.dock-on .marketwanted .itm__win { height: 64px; }
+}
+
+/* survey: world.php?tab=travel */
+@media (orientation: landscape) { body.dock-on .travelfold .regionlist { columns: 2; column-gap: 14px; } body.dock-on .travelfold .regionlist > * { break-inside: avoid; } }
+
+/* survey: town.php?view=stop&tab=seasons */
+@media (orientation: landscape) { body.dock-on .seasonfold .wxtable { display: block; width: 100%; max-width: none; } body.dock-on .seasonfold .wxtable tbody { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; } body.dock-on .seasonfold .wxtable tr { display: flex; justify-content: space-between; align-items: center; gap: 8px; } body.dock-on .seasonfold .wxtable td { padding-top: 3px; padding-bottom: 3px; } }
+
+/* survey: inventory.php Items (category tiles) */
+@media (orientation: landscape) {
+  body.dock-on .shtiles { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; margin: 4px 0 8px; }
+  body.dock-on .shtile { aspect-ratio: auto; min-height: 92px; padding: 4px 2px; }
+  body.dock-on .shtile .shti { height: 40px; line-height: 40px; }
+  body.dock-on .shtile .shti .ico, body.dock-on .shtile .shti .ico[src] { width: 40px; height: 40px; }
+}
+
+/* survey: inventory.php Items category sheets (details sheet .shbagpop) */
+@media (orientation: landscape) {
+  body.dock-on dialog.craftpop.shbagpop .pickbox { width: min(780px, 100%); max-height: 100vh; }
+  body.dock-on .shbagpop .shpdctl { margin-bottom: 4px; }
+  body.dock-on .shbagpop .shpills { --shic: 48px; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 4px; padding-bottom: 6px; }
+  body.dock-on .shbagpop .shpills:has(> .shpanel:not([hidden])) { grid-template-columns: repeat(3, minmax(0, 92px)) minmax(0, 1fr); align-items: start; }
+  body.dock-on .shbagpop .shpills > .shpanel:not([hidden]) { grid-column: 4; grid-row: 1 / span 40; position: sticky; top: 0; padding: 8px 10px; }
+}
+
+/* survey: inventory.php?tab=craft&c=* (crafting area pages) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> figure.cmap-scene) { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on main:has(> figure.cmap-scene) > * { grid-column: 1 / -1; }
+  body.dock-on main:has(> figure.cmap-scene) > figure.cmap-scene { grid-column: 1; grid-row: 4 / span 4; width: 100%; margin: 0; }
+  body.dock-on main:has(> figure.cmap-scene) > .pantry2 { grid-column: 2; grid-row: 4; }
+}
+
+/* survey: inventory.php?tab=craft (area index) */
+@media (orientation: landscape) {
+  body.dock-on .cmap-grid { grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: 6px; padding-bottom: 8px; }
+}
+
+/* survey: crafting hotspot popovers (dialog.craftpop) */
+@media (orientation: landscape) {
+  body.dock-on dialog.craftpop .pickbox { max-height: 100vh; }
+  body.dock-on dialog.craftpop .cptab { min-height: 36px; padding-block: 2px; }
+}
+
+/* survey: inventory.php?tab=belt */
+@media (orientation: landscape) {
+  body.dock-on .toolbelt { margin-top: 6px; }
+  body.dock-on .toolbelt .belt { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; padding: 6px 8px; }
+  body.dock-on .toolbelt .belt .buckle { display: none; }
+  body.dock-on .toolbelt .belt .pouch { width: auto; padding: 3px 2px; border-radius: var(--radius-sm) var(--radius-sm) 10px 10px; }
+  body.dock-on .toolbelt .belt .pouch .pname { min-height: 0; }
+  body.dock-on .toolbelt .toolcards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+}
+
+/* survey: fair.php */
+@media (orientation: landscape) { body.dock-on .fairsqs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } body.dock-on .fairsqs .chsq { aspect-ratio: auto; min-height: 0; padding: 6px 8px; gap: 2px; } body.dock-on .fairsqs .chsq .chsi { font-size: 1.6rem; } }
+
+/* survey: yard.php */
+@media (orientation: landscape) { body.dock-on .yardtools { top: 0; flex-wrap: nowrap; gap: 4px; padding: 3px 6px; margin-bottom: 6px; overflow-x: auto; } body.dock-on .yardtools .btn { min-height: 30px; padding: 2px 6px; white-space: nowrap; font-size: 13px; } body.dock-on .yardtools .multi { font-size: 13px; } body.dock-on .yardtools .yardstatus { display: none; } body.dock-on .designer { flex-wrap: nowrap; } body.dock-on .designer .tray { min-width: 0; } }
+
+/* survey: race.php */
+@media (orientation: landscape) { body.dock-on .snailcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; } body.dock-on .snailcards .snailcard { margin: 0; } }
+
+/* survey: memory.php, race.php, spit.php, pest.php, marrow.php, and other mini-game pages  */
+@media (orientation: landscape) { body.dock-on main:has(> nav.gametabs) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on main:has(> nav.gametabs) > * { flex: 1 0 100%; min-width: 0; } body.dock-on main:has(> nav.gametabs) > h1 { flex: 0 1 auto; margin: 0; font-size: 1.3rem; } body.dock-on main:has(> nav.gametabs) > nav.gametabs { flex: 0 1 auto; margin: 0 0 0 auto; } body.dock-on main:has(> nav.gametabs) > .gtagline { display: none; } }
+
+/* survey: book.php?ch=Plants / Creatures / Gathering / General (Almanac chapter spread) */
+@media (orientation: landscape) {
+  body.dock-on .book { padding: 8px 12px; }
+  body.dock-on .book > h1 { font-size: 20px; margin: 0; }
+  body.dock-on .book > progress { display: none; }
+  body.dock-on .book .tabs { margin: 4px 0; }
+  body.dock-on .book .almfilter label { font-size: 11px; }
+  body.dock-on .book .almfilter select { min-height: 32px; padding-top: 2px; padding-bottom: 2px; }
+  body.dock-on .book .leaf { padding: 10px 12px; }
+  body.dock-on .book .ctiles { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 5px; }
+  body.dock-on .book a.ctile, body.dock-on .book span.ctile { min-height: 0; padding: 4px 2px; }
+  body.dock-on .book .ctile .ci { font-size: 22px; }
+  body.dock-on .book .ctile .cn { font-size: 11px; }
+  body.dock-on .book .ctile .chint { display: none; }
+  body.dock-on .book .spread > .leaf.right { position: sticky; top: 8px; align-self: start; max-height: calc(100vh - 122px); overflow-y: auto; }
+}
+
+/* survey: book.php (Contents page) */
+@media (orientation: landscape) {
+  body.dock-on .book .contents .secgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin: 6px 0 8px; }
+  body.dock-on .book .contents .secgrid .seccard { padding: 6px 4px; }
+  body.dock-on .book .contents .cgrid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  body.dock-on .book > progress { display: none; }
+}
+
+/* survey: letters.php */
+@media (orientation: landscape) {
+  body.dock-on .letterdesk { display: grid; grid-template-columns: minmax(0, 210px) minmax(0, 1fr); gap: 0 14px; align-items: center; }
+  body.dock-on .letterdesk .envstage { margin: 0; }
+}
+
+/* survey: inventory.php?tab=craft&c=cooking (via kitchen.php) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .cmap-scene) { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on main:has(> .cmap-scene) > * { grid-column: 1 / -1; }
+  body.dock-on main:has(> .cmap-scene) > .cmap-scene { grid-column: 1; grid-row: span 6; margin: 0; }
+  body.dock-on main:has(> .cmap-scene) > .shelves { grid-column: 2; }
+  body.dock-on main:has(> .cmap-scene) .p2head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
+  body.dock-on main:has(> .cmap-scene) .p2head > * { width: auto; }
 }
