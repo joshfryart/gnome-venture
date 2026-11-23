@@ -11,7 +11,7 @@ $uid = (int)q_val("SELECT id FROM users WHERE username = 'sprout'");
 $month = job_period_key('monthly');
 
 echo "== three classes; every crop kind that was judged before is still judged\n";
-ok('classes are produce, flower, preserve', array_keys(FAIR_CATS) === ['produce', 'flower', 'preserve'], implode(',', array_keys(FAIR_CATS)));
+ok('classes are produce, flower, preserve, diorama (2.7.58)', array_keys(FAIR_CATS) === ['produce', 'flower', 'preserve', 'diorama'], implode(',', array_keys(FAIR_CATS)));
 $k = [];
 foreach (['vegetable', 'tuber', 'legume', 'fruit', 'tree', 'nut', 'grain', 'herb', 'spice'] as $kind) $k[] = fair_cat($kind);
 ok('vegetable, fruit, grain, herb kinds all go to Produce', array_unique($k) === ['produce'], implode(',', $k));
@@ -44,5 +44,33 @@ ok('ribbon recorded under the old key', (bool)q_val("SELECT 1 FROM fair_ribbons 
 ok('ribbon counted', (int)q_val('SELECT ribbons FROM users WHERE id = ?', [$uid]) >= $r0 + 1);
 ok('profile ribbon row names the old class', str_contains(fair_ribbons_html($uid), 'Grains, 2000-01'), fair_ribbons_html($uid));
 q("DELETE FROM settings WHERE name = 'fair_min_entries'"); setting('__reload__');
+
+echo "== 2.7.58 creature diorama class\n";
+require_once $argv[1] . '/includes/parts.php';
+$u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+q('DELETE FROM fair_best WHERE user_id = ?', [$uid]); q('DELETE FROM fair_entries WHERE user_id = ?', [$uid]);
+foreach (['hide', 'plate', 'wing', 'ooze', 'silk', 'gem'] as $f) foreach (part_family_items($f) as $it) q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $it['id']]);
+ok('diorama has no plant kinds (like Preserves)', FAIR_CATS['diorama'][2] === [] && fair_cat_label('diorama') === 'Creature diorama');
+[$o, $m] = fair_enter($u, 'diorama');
+ok('no parts: refused, nothing entered', !$o && !q_val("SELECT 1 FROM fair_entries WHERE user_id = ? AND cat = 'diorama'", [$uid]), $m);
+$c1 = part_family_items('hide')[0]; $c2 = part_family_items('plate')[0]; $c3 = part_family_items('wing')[0];
+$rareAny = null; foreach (['plate', 'hide', 'wing', 'ooze', 'silk', 'gem'] as $f) { $r = part_family_items($f, true); if ($r) { $rareAny = $r[0]; $rareFam = $f; break; } }
+ok('have three common parts and a rare one to test with', $c1 && $c2 && $c3 && $rareAny);
+give_item($uid, $c1['id'], 4); give_item($uid, $c2['id'], 2); give_item($uid, $c3['id'], 1); give_item($uid, $rareAny['id'], 1);
+$fams = count(array_unique(['hide', 'plate', 'wing', $rareFam]));
+ok('fair_diorama_score: families x 10 + rare parts x 5 (capped at 100)', fair_diorama_score([$c1, $c2, $c3, $rareAny]) === $fams * 10 + 5 && fair_diorama_score(array_fill(0, 12, $rareAny)) <= 100, (string)fair_diorama_score([$c1, $c2, $c3, $rareAny]));
+$want = $fams * 10 + 5;
+[$o, $m] = fair_enter($u, 'diorama');
+$e = q_one("SELECT score, label FROM fair_entries WHERE user_id = ? AND cat = 'diorama'", [$uid]);
+ok('entered: the score is families x 10 + rare x 5', $o && $e && (int)$e['score'] === $want, $m . ' ' . json_encode($e));
+$have = fn($it) => (int)q_val('SELECT COALESCE(SUM(qty), 0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $it['id']]);
+ok('one of each distinct part was used up, the spares stay', $have($c1) === 3 && $have($c2) === 1 && $have($c3) === 0 && $have($rareAny) === 0, json_encode([$have($c1), $have($c2), $have($c3), $have($rareAny)]));
+ok('the entry is in fair_best too (via fair_keep_best)', (int)q_val("SELECT score FROM fair_best WHERE user_id = ? AND cat = 'diorama' AND month = ?", [$uid, $month]) === $want);
+[$o, $m] = fair_enter($u, 'diorama');
+ok('a weaker diorama is refused and keeps the parts', !$o && $have($c1) === 3, $m);
+give_item($uid, part_family_items('ooze')[0]['id'], 1); give_item($uid, part_family_items('silk')[0]['id'], 1);
+[$o, $m] = fair_enter($u, 'diorama');
+ok('a better one (two more families) replaces the entry', $o && (int)q_val("SELECT score FROM fair_entries WHERE user_id = ? AND cat = 'diorama'", [$uid]) > $want, $m);
+q('DELETE FROM fair_best WHERE user_id = ?', [$uid]); q('DELETE FROM fair_entries WHERE user_id = ?', [$uid]);
 
 echo $fails ? "$fails FAILED\n" : "all ok\n";
