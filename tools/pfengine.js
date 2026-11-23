@@ -526,6 +526,7 @@
   var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.7, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
   var PFB_TEAM_SRC = ['pal', 'tool', 'crop', 'craft', 'region', 'knack', 'calling'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'wear', 'creature', 'env', 'stat'];
   var PFB_ROLL_BASE = 50, PFB_ROLL_PER = 2, PFB_ROLL_MAX = 90;   // the shared Luck roll of the stat pieces (pfb_wx_chance)
+  var PFB_STAT_ACTS = { again: ['fire', 'post'], fup: ['fire', 'post'], pinch: ['fire', 'post'], coin: ['fire', 'post'], streak: ['fire', 'post'] }, PFB_WX_REFIRE = ['again', 'streak'];   // stat-piece actions (pfboard.php PFB_STAT_ACTS, PFB_WX_REFIRE)
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft', wear: 'body' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2, PFB_COUNTER_ADD = 2;   // PFB_COUNTER_ADD: 2.7.08 counter pieces
@@ -812,7 +813,7 @@
   var PFB_STAT_ROWS = [
     "stat-sidestep|Sidestep|nimble|0|trick|2|5|body/body|quick|-|0|aimnext evade ; onaim skip|Quick. Next to the creature's aim: its next hit misses. On its aim: it skips its turn.",
     "stat-old-saying|Old Saying|lore|0|trick|2|5|mind/mind|-|ab|0|boost:a ; cenv more:b|Gives {a} to your linked piece that fires next. With an environment piece in the chain, {b} more.",
-    "stat-loaded-die|Loaded Die|luck|0|item|1|10|craft/craft|-|-|0|roll again|Roll 50% + 2% per Luck point (max 90%). On a hit the piece it links to fires twice, on a miss once.",
+    "stat-loaded-die|Loaded Die|luck|0|item|1|10|craft/craft|-|-|1|roll again:link|Roll 50% + 2% per Luck point (max 90%). On a hit the piece it links to fires twice, on a miss once.",
     "stat-sharp-eye|Sharp Eye|sense|0|guard|2|5|body/body|keep|a|0|keep ; fnext:a|Keeper. Held: you see the piece the creature plays after its aim. Played: its next piece loses {a}.",
     "stat-skitter|Skitter|nimble|10|guard|2|5|body/body|evade|-|0|evade ; @miss kill|Evade: the creature's next Hurt misses, and the piece that missed tumbles off the board.",
     "stat-wrong-turn|Wrong Turn|nimble|15|trick|1|5|mind/mind|quick|-|0|-|Quick. The creature's aim moves one cell, to the free cell next to it farthest from its own pieces; if its piece does not fit there, it must pick again.",
@@ -824,11 +825,11 @@
     "stat-weather-lore|Weather Lore|lore|20|item|2|5|mind/mind|-|-|0|-|When it fires, the environment's next piece becomes a Sun (a Spring on large boards), and it comes in on a free cell beside Weather Lore if there is one.",
     "stat-copybook|Copybook|lore|25|trick|3|5|craft/craft|-|-|0|-|The piece it links to learns the tag of another piece of yours in its chain (Pierce, Poison, Hold, Bash...) and keeps it for the rest of the fight, even after it is discarded.",
     "stat-turn-of-the-tale|Turn of the Tale|lore|30|trick|4|5|mind/mind|-|-|0|-|The creature piece it links to becomes yours where it stands: it keeps its number and edges and fires for you in this chain and after.",
-    "stat-hedge-rummage|Hedge Rummage|luck|10|trick|2|5|mind/mind|-|b|0|@place pluck:roll ; @place !roll fup:b|Placed: Pluck with your Luck roll (50% + 2% per point, max 90%, halved against a great creature) instead of Pluck's small chance. If it misses, the creature's next Hurt gets +{b}.",
-    "stat-long-shot|Long Shot|luck|15|hurt|2|5|body/body|-|a|0|roll again ; !roll next:hurt:1:a|Roll. Hit: it fires twice. Miss: the next Hurt you place gets +{a}.",
-    "stat-magpie-s-pinch|Magpie's Pinch|luck|20|item|2|5|body/body|-|-|0|-|Roll. Hit: take the creature's strongest hand piece; it is one of your next hand's 5 pieces, as yours. Miss: take its weakest hand piece instead.",
-    "stat-turn-of-the-coin|Turn of the Coin|luck|25|trick|2|5|mind/mind|-|b|0|-|Roll. Hit: the creature's strongest hand piece goes back into its draw pile and it draws another. Miss: it still loses {b} from that piece.",
-    "stat-lucky-streak|Lucky Streak|luck|30|trick|1|10|body/body|-|b|0|-|Roll until you miss (at most {b} times). Each hit: a random piece of yours on the board fires again.",
+    "stat-hedge-rummage|Hedge Rummage|luck|10|trick|2|5|mind/mind|-|b|1|@place pluck:roll ; @place !roll fup:b|Placed: Pluck with your Luck roll (50% + 2% per point, max 90%, halved against a great creature) instead of Pluck's small chance. If it misses, the creature's next Hurt gets +{b}.",
+    "stat-long-shot|Long Shot|luck|15|hurt|2|5|body/body|-|a|1|roll again ; !roll next:hurt:1:a|Roll. Hit: it fires twice. Miss: the next Hurt you place gets +{a}.",
+    "stat-magpie-s-pinch|Magpie's Pinch|luck|20|item|2|5|body/body|-|-|1|roll pinch:hi ; !roll pinch:lo|Roll. Hit: take the creature's strongest hand piece; it is one of your next hand's 5 pieces, as yours. Miss: take its weakest hand piece instead.",
+    "stat-turn-of-the-coin|Turn of the Coin|luck|25|trick|2|5|mind/mind|-|b|1|roll coin:back:b ; !roll coin:cut:b|Roll. Hit: the creature's strongest hand piece goes back into its draw pile and it draws another. Miss: it still loses {b} from that piece.",
+    "stat-lucky-streak|Lucky Streak|luck|30|trick|1|10|body/body|-|b|1|streak:b|Roll until you miss (at most {b} times). Each hit: a random piece of yours on the board fires again.",
     "stat-soft-spot|Soft Spot|sense|10|hurt|2|10|body/body|pierce|ab|0|fguard fstrip:a ; next:hurt:1:b|Pierce. If the creature has guard up, it loses {a} guard. Your next Hurt this fight gets +{b}.",
     "stat-not-fooled|Not Fooled|sense|15|guard|2|5|mind/mind|-|-|0|-|Guard. The creature's next chain gets no combos: no Ambush, Bait or Riposte for it.",
     "stat-saw-it-coming|Saw It Coming|sense|20|guard|3|10|body/body|hold|a|0|@block kill ; @block fnext:a|Hold. Each creature Hurt this guard blocks is knocked off the board and its next piece loses {a}.",
@@ -1077,7 +1078,7 @@
     return base + (v1r(s, 'tagfx') === 1 && p.by === 'me' && nn(p.tile.m, '') === 'sticky' ? 1 : 0) + toInt(nn(p.xl, 0));   // 2.7.09 wear 'life'
   }
   function discardPiece(s, p) {
-    if (p.by === 'none') return;
+    if (p.by === 'none' || truthy(p.tile.pin)) return;   // pin: Magpie's Pinch's piece is gone after use
     var t = clone(p.tile); delete t.flip; delete t.ft; delete t.dir; delete t.kr;
     s[p.by].discard.push(t);
   }
@@ -1378,7 +1379,7 @@
       var tk = cl.trim().split(/\s+/), last = String(tk.pop()), per = null, cap = null, i;
       if ((i = last.indexOf('^')) >= 0) { cap = last.slice(i + 1); last = last.slice(0, i); }
       if ((i = last.indexOf('*')) >= 0) { per = last.slice(i + 1); last = last.slice(0, i); }
-      var x = last.split(':'), a = x.shift(), def = has(D.act, a) ? D.act[a] : null;
+      var x = last.split(':'), a = x.shift(), def = has(D.act, a) ? D.act[a] : (has(PFB_STAT_ACTS, a) ? PFB_STAT_ACTS[a] : null);
       if (!def) return;
       var o = { ph: def[0], c0: [], c1: [], a: a, x: x, per: per, cap: cap, st: def[1] }, at = false;
       tk.forEach(function (t) { if (t[0] === '@') { o.ph = t.slice(1); at = true; return; } o[at ? 'c1' : 'c0'].push(t); });
@@ -1397,7 +1398,18 @@
   }
   function wxChance(s) { return Math.min(PFB_ROLL_MAX, PFB_ROLL_BASE + PFB_ROLL_PER * Math.max(0, toInt(nn(s.me.wx && s.me.wx.lp, 0)))); }
   function wxNeedRoll(o) { return o.c0.concat(o.c1).some(function (c) { return c.replace(/^!+/, '') === 'roll'; }); }
-  function wxRoll(s, o, cx) { if (cx.roll === undefined && wxNeedRoll(o)) cx.roll = rand(s, 100) < wxChance(s) ? 1 : 0; }   // pfb_wx_roll: once a firing
+  function wxRoll(s, o, cx) { if (cx.roll === undefined && wxNeedRoll(o)) cx.roll = rand(s, 100) < intdiv(wxChance(s), truthy(s.boss) && wxHalfRoll(String(nn(cx.t && cx.t.fx, ''))) ? 2 : 1) ? 1 : 0; }   // pfb_wx_roll: once a firing
+  function wxHalfRoll(fx) { if (fx === '') return false; return wxClauses(fx).some(function (o) { return o.a === 'pluck' && nn(o.x[0], '') === 'roll'; }); }   // pfb_wx_halfroll
+  function wxLuck(t) { return nn(t.src, '') === 'stat' && nn(t.st, '') === 'luck'; }   // pfb_wx_luck
+  function wxOwn(t) { var k = String(nn(t.k, '')); return nn(t.layer, '') === 'uni' || k.indexOf('f:u') === 0 || k.indexOf('f:sig') === 0; }   // pfb_wx_own
+  function wxRescale(s, v) {   // pfb_wx_rescale
+    var sm = 0, cm = 0, sf = 0, cf = 0;
+    ['hand', 'draw', 'discard'].forEach(function (z) { s.me[z].forEach(function (t) { sm += toInt(t.v); cm++; }); s.foe[z].forEach(function (t) { sf += toInt(t.v); cf++; }); });
+    if (cm === 0 || sf <= 0 || sm <= 0) return Math.max(1, v);
+    return Math.max(1, intdiv(2 * v * sm * cf + sf * cm, 2 * sf * cm));
+  }
+  function wxHandPick(h, strong) { var bi = 0; h.forEach(function (t, i) { if (strong ? toInt(t.v) > toInt(h[bi].v) : toInt(t.v) < toInt(h[bi].v)) bi = i; }); return bi; }   // pfb_wx_hand_pick
+  function wxReplan(s) { s.foe.nextk = null; aim(s); }   // pfb_wx_replan
   function wxText(fx, a, b) {
     var D = wxData(), p = fx.split('>'), sub = function (t) { return t.split('{a}').join(String(a)).split('{b}').join(String(b)); };
     if (fx.indexOf('R:') === 0) return has(D.rare, fx.slice(2)) ? sub(D.rare[fx.slice(2)][1]) : '';
@@ -1495,7 +1507,7 @@
   function wxCharm(s, n) { var add = n * s.cm; if (hasAb(s)) { var wy = abOf(s, 'wary'); if (wy) add *= Number(wy.mult); } s.bar.now += add; s.bar.charm += add; }
   function wxAddWv(p, n) { p.wv = toInt(nn(p.wv, 0)) + n; }
   function wxAct(s, o, cx, e) {
-    var a = o.a, x = o.x, n = ['next', 'boost', 'poison', 'mend', 'plenty', 'pluck'].indexOf(a) >= 0 ? 0 : wxN(s, o, cx), id = nn(cx.id, null), did = true, t = nn(cx.t, {}), tg, i;
+    var a = o.a, x = o.x, n = ['next', 'boost', 'poison', 'mend', 'plenty', 'pluck', 'again', 'pinch', 'coin'].indexOf(a) >= 0 ? 0 : wxN(s, o, cx), id = nn(cx.id, null), did = true, t = nn(cx.t, {}), tg, i;
     var heal = function (h) { s.me.hp = Math.max(toInt(s.me.hp), Math.min(toInt(s.me.max), toInt(s.me.hp) + h)); };
     switch (a) {
       case 'guard': s.me.block += n; cx.g = toInt(nn(cx.g, 0)) + n; break;
@@ -1524,6 +1536,7 @@
         if (!s.can_pluck || truthy(s.plucked)) { did = false; break; }
         var md = String(nn(x[0], ''));
         if (md === 'sure') { s.plucked = 1; e.pluck = 'got'; break; }
+        if (md === 'roll') { if (truthy(cx.roll)) { s.plucked = 1; e.pluck = 'got'; } else e.pluck = 'missed'; break; }   // Hedge Rummage
         var chn = Math.min(35, 8 + 3 * s.me.luckmod) * (md === 'x2' ? 2 : 1) / (s.boss ? 2 : 1);
         if (rand(s, 1000) < chn * 10) { s.plucked = 1; e.pluck = 'got'; } else e.pluck = 'missed';
         break;
@@ -1541,6 +1554,38 @@
         if (kk > 0) { var take = s.me.discard.splice(s.me.discard.length - kk, kk); s.me.draw = shuffle(s, s.me.draw.concat(take)); }
         n = kk; break;
       case 'keep1': s.me.wk1 = toInt(s.round) + 2; break;
+      // ---- stat pieces (Luck), as pfb_wx_act
+      case 'again':
+        tg = nn(x[0], '') === 'link' ? (id !== null ? wxTarget(s, id, '') : null) : id;
+        if (tg === null || !has(s.pcs, tg)) { did = false; break; }
+        if (!Array.isArray(cx.rf)) cx.rf = []; cx.rf.push(toInt(tg)); break;
+      case 'fup': s.foe.wup = Math.max(toInt(nn(s.foe.wup, 0)), n); break;
+      case 'pinch':
+        if (!s.foe.hand.length) { did = false; break; }
+        var hi = nn(x[0], '') === 'hi';
+        if (hi && truthy(s.boss) && rand(s, 100) >= wxChance(s)) hi = false;
+        var pb = wxHandPick(s.foe.hand, hi), pq = clone(s.foe.hand[pb]); pq.v = wxRescale(s, toInt(pq.v)); pq.pin = 1; delete pq.flip; delete pq.ft;
+        s.foe.hand.splice(pb, 1);
+        if (!Array.isArray(s.me.wpin)) s.me.wpin = []; s.me.wpin.push(pq); s.wrp = 1; e.pinch = String(pq.n); break;
+      case 'coin':
+        n = wxNum(String(nn(x[1], '0')), t);
+        if (!s.foe.hand.length) { did = false; break; }
+        var cb = wxHandPick(s.foe.hand, true), ct = s.foe.hand[cb];
+        if (nn(x[0], '') === 'back' && !(truthy(s.boss) && wxOwn(ct))) { s.foe.hand.splice(cb, 1); s.foe.draw.unshift(ct); draw(s, 'foe', s.foe.hand.length + 1); e.coin = 'back'; n = 0; }
+        else { var cc = clone(ct); cc.v = Math.max(1, toInt(ct.v) - n); s.foe.hand[cb] = cc; e.coin = 'cut'; }
+        s.wrp = 1; break;
+      case 'streak':
+        var pk = [];
+        for (var sk = 0; sk < n; sk++) {
+          var cand = [];
+          Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk], qi = toInt(qk); if (q.by === 'me' && qi !== id && pk.indexOf(qi) < 0 && !wxLuck(q.tile)) cand.push(qi); });
+          if (!cand.length) break;
+          cand.sort(function (u, v) { return u - v; });
+          if (rand(s, 100) >= wxChance(s)) break;
+          pk.push(cand[rand(s, cand.length)]);
+        }
+        if (!Array.isArray(cx.rf)) cx.rf = []; pk.forEach(function (q) { cx.rf.push(q); });
+        e.streak = pk.length; n = pk.length; break;
       default: did = false;
     }
     if (did) { if (!Array.isArray(e.wfx)) e.wfx = []; e.wfx.push(a + (n ? ' ' + n : '')); }
@@ -1549,6 +1594,7 @@
     var on = [];
     wxClauses(String(cx.t.fx)).forEach(function (o, i) {
       if (o.ph === 'hand' || o.ph === 'held' || (o.ph === 'place' && !placed)) return;
+      if (truthy(cx.re) && (wxNeedRoll(o) || PFB_WX_REFIRE.indexOf(o.a) >= 0)) return;   // a refire: no new Luck roll, no refire of its own
       wxRoll(s, o, cx);
       if (!wxConds(s, o.c0, cx, true)) return;
       if ((o.ph === 'fire' || o.ph === 'place') && o.c1.length && !wxConds(s, o.c1, cx, true)) return;
@@ -1602,9 +1648,11 @@
     var cset = !!(v1 && v1r(s, 'cset') === 1);
     var esun = 1.0;   // 2.6.75: a Sun piece in the chain: the pieces of the side that started it count x sun
     if (v1 && truthy(v1.env)) ch.forEach(function (c) { var cp = s.pcs[c[0]]; if (cp.by === 'env' && cp.tile.env === 'sun') esun = Number(v1.sun); });
-    for (var i = 0; i < ch.length; i++) {
-      var id = ch[i][0], par = ch[i][1];
+    var todo = ch.map(function (c, ci0) { return [ci0, c[0], c[1], false]; });   // stat pieces: refires go in after the piece that asked (pfb_fire)
+    for (var ti = 0; ti < todo.length; ti++) {
+      var i = todo[ti][0], id = todo[ti][1], par = todo[ti][2], re = todo[ti][3];
       if (s.over) break;
+      if (re && !has(s.pcs, id)) continue;
       var p = s.pcs[id], who = p.by, tile = p.tile;
       if (who === 'none') continue;   // the blank centre piece does nothing itself; the chain runs through it
       if (who === 'env') {   // 2.6.75: an environment piece: its effect goes to the side whose chain this is
@@ -1613,10 +1661,10 @@
         ee.barnow = round(Number(s.bar.now), 1); ee.fhnow = round(Number(s.fh.now), 1); ee.hpnow = toInt(s.me.hp); ee.gnow = toInt(s.me.block); ee.fgnow = toInt(s.foe.block);
         ev.push(ee); checkEnd(s); continue;
       }
-      var pt = par !== null ? s.pcs[par] : null;
+      var pt = par !== null ? nn(s.pcs[par], null) : null;
       if (pt && (pt.by === 'none' || pt.by === 'env')) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
-      if (cset) { var sc = setCombo(s, ch, i, who, tile); vv = [sc[0]]; ck = sc[1]; }   // 2.7.06 set combos
+      if (cset) { var sc = i >= 0 ? setCombo(s, ch, i, who, tile) : setCombo(s, [[id, null]], 0, who, tile); vv = [sc[0]]; ck = sc[1]; }   // 2.7.06 set combos
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       if (p.wv !== undefined && p.wv !== null) val = Math.max(1, val + toInt(p.wv));   // 2.7.09 wear effects: a boost or a shrink on this board piece
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + Number(abp(s, 'gpct', PFB_KIND_GRUDGE)) * toInt(s.foe.grudge)));   // 2.6.98 Grudge
@@ -1629,21 +1677,21 @@
       }
       var sunny = !!v1 && (tile.t === 'hurt' || tile.t === 'charm') && ter(s, p.x, p.y) === 'sun';
       if (sunny) val = iround(val * Number(v1.sun));
-      if (esun > 1 && who === rb) { val = iround(val * esun); sunny = true; }
+      if (esun > 1 && who === rb && i >= 0) { val = iround(val * esun); sunny = true; }
       var muddy = !!v1 && truthy(v1.env) && Number(nn(v1.mud, 0)) > 0 && mudNear(s, p.x, p.y);   // Mud's teeth
       if (muddy) val = iround(val * (1 - Number(v1.mud)));
-      if (tw > 1 && who === rb) val = iround(val * tw);
+      if (tw > 1 && who === rb && i >= 0) val = iround(val * tw);
       var cntr = who === 'me' && !!tile.cnt && tile.cnt === kindNow(s);   // 2.7.08 counter piece against its own class (pfb_fire)
       if (cntr) val += PFB_COUNTER_ADD;
       var toughed = false;
       if (who === 'me' && rb === 'me' && tile.t === 'hurt' && !truthy(s.me.tough) && hasAb(s)) { var th = abOf(s, 'toughhide'); if (th) { val = Math.max(1, val - toInt(th.cut)); s.me.tough = 1; toughed = true; } }   // 2.7.01 Tough hide
-      var isRoot = id === root, wcl = null, wcx = null, whalf = false;
+      var isRoot = !re && id === root, wcl = null, wcx = null, whalf = false;
       if (who === 'me' && truthy(s.wfx) && truthy(tile.fx)) {   // 2.7.09 wear effects (pfb_fire)
-        wcx = { id: id, t: tile, ch: ch, ph: 'fire', g: 0 }; wcl = wxFire(s, wcx, isRoot && rb === 'me');
+        wcx = { id: id, t: tile, ch: ch, ph: 'fire', g: 0 }; if (re) wcx.re = 1; wcl = wxFire(s, wcx, isRoot && rb === 'me');
         wcl.forEach(function (o) { if (o.a === 'dmg') val += wxN(s, o, wcx); if (o.a === 'pierce') { tile = clone(tile); tile.tag = 'pierce'; } });
       }
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.whf, 0)) > 0) { val = iround(val / 2); s.foe.whf--; whalf = true; }   // 2.7.09
-      if (v1) s.fired.push(id);
+      if (v1 && !re) s.fired.push(id);
       var e = { by: who, id: id, root: isRoot, tag: tile.tag, mod: String(nn(tile.m, '')), k: tile.k, n: tile.n, t: tile.t, v: val, fit: false, combo: ck ? PF_COMBOS[ck].name : null };
       if (sunny) e.sun = 1;
       if (muddy) e.mud = 1;
@@ -1655,15 +1703,20 @@
       if (grd > 0) e.gr = grd;
       if (swm > 0) e.sw = swm;
       if (whalf) e.whalf = 1;
+      if (re) e.re = 1;
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
       if (wcl !== null) { wcx.g = tile.t === 'guard' ? val : 0; for (var wi = 0; wi < wcl.length; wi++) { var wo = wcl[wi]; if (wo.st === 'post' && wxConds(s, wo.c0.filter(wxIsTgt), wcx)) wxAct(s, wo, wcx, e); } if (wcx.roll !== undefined) e.roll = wcx.roll ? 'hit' : 'miss'; }   // 2.7.09 wear effects
       if (who === 'foe' && tile.t === 'hurt' && truthy(s.wfx)) wxGuard(s, e, id);   // 2.7.09: blocked or missed
-      s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used
+      if (!re) s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used (a refire is free)
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); e.fgnow = toInt(s.foe.block);
       ev.push(e);
       if (truthy(e.drained)) ev.push(abNote(s, 'drain', String(e.drained)));   // 2.7.01 notices
       if (truthy(e.staggered)) ev.push(abNote(s, 'stagger', ''));
       checkEnd(s);
+      if (wcl !== null && Array.isArray(wcx.rf) && wcx.rf.length) {   // stat pieces: refires right after this piece
+        var ins = wcx.rf.map(function (rid) { var rci = -1, rpar = null; for (var k = 0; k < ch.length; k++) if (ch[k][0] === rid) { rci = k; rpar = ch[k][1]; break; } return [rci, rid, rpar, true]; });
+        Array.prototype.splice.apply(todo, [ti + 1, 0].concat(ins));
+      }
     }
     return ev;
   }
@@ -1757,12 +1810,14 @@
     if (truthy(s.wfx)) {   // 2.7.09 wear effects
       if (who === 'me') wxPlaced(s, id, tile);
       else if (who === 'foe' && toInt(s.foe.wnx) > 0) { s.pcs[id].wv = -toInt(s.foe.wnx); s.foe.wnx = 0; }
+      if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.wup, 0)) > 0) { wxAddWv(s.pcs[id], toInt(s.foe.wup)); s.foe.wup = 0; }   // stat pieces: its next Hurt gets +N
     }
     var joints = checkAfter(s, id);
     var ev = fire(s, id);
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); ev[0].cs = 1; ev[0].rid = id; }
     var used = spend(s);
     if (used.length && ev.length) ev[0].used = used;
+    if (truthy(s.wrp)) { delete s.wrp; if (!truthy(s.over)) wxReplan(s); }   // stat pieces: the creature makes its aim again
     if (ev.length && who === 'me' && !truthy(s.over) && !s.boss && v1r(s, 'paltgt') === 1 && srcOf(tile) === 'pal') { var tid = palTarget(s, x, y, toInt(tile.v)); if (tid !== null) ev.push(palNip(s, tid, String(tile.n))); }   // 2.7.08 pal targeting
     if (ev.length && who === 'me' && s.ven && has(s.ven, x + ',' + y) && kindNow(s) === 'reptile' && truthy(s.v1.tags)) {   // 2.6.98 Venom trail
       var vr = toInt(abp(s, 'vrnds', PFB_KIND_VENOM_RNDS)), vp = toInt(abp(s, 'vpoison', PFB_KIND_VENOM_POISON));
@@ -2281,6 +2336,9 @@
   function intent(s) {
     if (s.aoed) aoeMark(s);   // 2.7.55: a boss marks its AOE a turn ahead
     if (s.v1) forecast(s);
+    aim(s);
+  }
+  function aim(s) {   // pfb_aim
     var kind = kindNow(s), m = null;
     if (kind === 'boss' && s.foe.nextk) m = search(s, 'foe', true, String(s.foe.nextk));   // 2.6.98 Two turns
     s.foe.nextk = null;
@@ -2464,15 +2522,18 @@
     if (v1r(s, 'redraw')) {
       var kept = [], out = [];
       s.me.hand.forEach(function (ht) {
+        if (truthy(ht.pin)) return;   // Magpie's Pinch, not played: gone
         var wk = wfx && truthy(ht.fx);
         if (nn(ht.tag, '') === 'keep' || (wk && wxKeep(s, ht))) { if (wk) ht.kr = toInt(nn(ht.kr, 0)) + 1; kept.push(ht); return; }   // 2.6.990 Keeper (2.7.09 wear Keeper)
         var c = clone(ht); delete c.flip; delete c.ft; delete c.kr; out.push(c);
       });
       if (wfx && toInt(s.me.wk1) === toInt(s.round) && out.length) { var bi = 0; out.forEach(function (ht, oi) { if (toInt(ht.v) > toInt(out[bi].v)) bi = oi; }); kept.push(out[bi]); out.splice(bi, 1); s.me.wk1 = 0; }   // 2.7.09 wear 'keep1'
       out.forEach(function (c) { s.me.discard.push(c); });
-      s.me.hand = kept; draw(s, 'me', PF_HAND_CAP - slow + more);
+      s.me.hand = kept;
+      if (wfx && Array.isArray(s.me.wpin) && s.me.wpin.length) { s.me.wpin.forEach(function (q) { s.me.hand.push(q); }); s.me.wpin = []; }   // Magpie's Pinch
+      draw(s, 'me', PF_HAND_CAP - slow + more);
     }   // 2.6.990 Keeper   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
-    else draw(s, 'me', Math.min(PF_HAND_CAP + more, s.me.hand.length + PF_DRAW - slow));
+    else { if (wfx && Array.isArray(s.me.wpin) && s.me.wpin.length) { s.me.wpin.forEach(function (q) { s.me.hand.push(q); }); s.me.wpin = []; } draw(s, 'me', Math.min(PF_HAND_CAP + more, s.me.hand.length + PF_DRAW - slow)); }
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
     s.spawn = (truthy(s.nospawn) || !v1r(s, 'spawn')) ? null : spawn(s); delete s.nospawn;   // 2.6.99: a strike spent its turn: no free piece
     if (s.turn > PF_TURN_CAP) { s.over = s.boss ? 'defeat' : 'stall'; return; }

@@ -3,6 +3,7 @@
 const fs = require('fs');
 const PFE = require('../tools/pfengine.js');
 let nIds = 0, nEnvIds = 0, nMeIds = 0, nRollHit = 0, nRollMiss = 0;
+const luckSeen = { re: 0, pluckroll: 0, fup: 0, pinch: 0, coinback: 0, coincut: 0, streak: 0 };   // stat pieces, Luck slice: each new effect must come up in the parity fights
 const lines = fs.readFileSync(process.argv[2], 'utf8').split('\n').filter(Boolean);
 
 // JSON-roundtrip, an empty object means the same as PHP's empty array, -0 is 0. Key order is kept (PHP array order = insertion order).
@@ -93,7 +94,7 @@ for (const ln of lines.slice(1)) {
     if (st.q && fail(c + ' queries', st.q, queries(s), 'q')) { stop = true; return; }
     const res = st.op === 'redraw' ? { ok: PFE.redraw(s, st.hand, st.turn) } : st.op === 'flip' ? { err: PFE.flip(s, st.hand, st.turn) } : st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry, undefined, st.dry);
     if (fail(c + ' result', st.res, res, 'res')) { stop = true; return; }
-    if (res.ev) res.ev.forEach(e => { if (e.roll === 'hit') nRollHit++; else if (e.roll === 'miss') nRollMiss++; });   // stat pieces: the shared Luck roll
+    if (res.ev) res.ev.forEach(e => { if (e.roll === 'hit') nRollHit++; else if (e.roll === 'miss') nRollMiss++; if (e.re) luckSeen.re++; if (e.pluck && e.roll) luckSeen.pluckroll++; if (Array.isArray(e.wfx) && e.wfx.some(w => w.indexOf('fup') === 0)) luckSeen.fup++; if (e.pinch) luckSeen.pinch++; if (e.coin === 'back') luckSeen.coinback++; if (e.coin === 'cut') luckSeen.coincut++; if (e.streak) luckSeen.streak++; });   // stat pieces: the shared Luck roll
     { const ai = res.aim && res.aim.ids; if (ai) { nIds++; if (ai.some(q => q.by === 'env')) nEnvIds++; if (ai.some(q => q.by === 'me')) nMeIds++; } }   // after 2.6.96: the aim's ids are inside 'res' above (compared with PHP's)
     if (st.lines) {
       const fo = s.foe.name;
@@ -106,6 +107,7 @@ for (const ln of lines.slice(1)) {
   if (!stop) fail(ctx + ' final state', rec.final, ns(s), 'final');
 }
 if (lines.slice(1).some(l => l.includes('"mode":"v1stat"')) && (!nRollHit || !nRollMiss)) { bad++; console.log('FAIL the v1stat fights never rolled both a hit (' + nRollHit + ') and a miss (' + nRollMiss + ') of the Luck roll'); }
+if (lines.slice(1).some(l => l.includes('"mode":"v1luck"'))) { const miss = Object.keys(luckSeen).filter(k => !luckSeen[k]); if (miss.length) { bad++; console.log('FAIL the v1luck fights never showed: ' + miss.join(', ') + ' ' + JSON.stringify(luckSeen)); } else console.log('luck effects compared: ' + JSON.stringify(luckSeen)); }
 if (!nIds || !nEnvIds || !nMeIds) { bad++; console.log('FAIL the trace never had a dry aim with ids (' + nIds + '), with an environment piece (' + nEnvIds + ') or with one of yours (' + nMeIds + ')'); }
 if (!done || done.fights !== nf) { bad++; console.log('FAIL trace incomplete (php wrote ' + (done ? done.fights : '?') + ' fights, read ' + nf + ')'); }
 if (!bad) console.log('aim ids compared: ' + nIds + ' dry aims, ' + nEnvIds + ' with an environment piece, ' + nMeIds + ' with one of yours');

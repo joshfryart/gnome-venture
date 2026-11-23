@@ -20,11 +20,11 @@ $S = pfd_stat_pieces();
 chk('data_loads_all_24_pieces', count($S) === 24, count($S));
 $per = []; foreach ($S as $p) $per[$p['stat']][] = $p['tier'];
 chk('data_each_stat_has_one_piece_per_tier_0_to_30', count($per) === 4 && !array_filter($per, fn($t) => $t !== PFD_STAT_TIERS), $per);
-chk('data_no_piece_live_yet (effects come in their own slices)', !array_filter($S, fn($p) => $p['live']), array_keys(array_filter($S, fn($p) => $p['live'])));
+chk('data_only_built_slices_live (Luck; the others come in their own slices)', !array_filter($S, fn($p) => $p['live'] && $p['stat'] !== 'luck'), array_keys(array_filter($S, fn($p) => $p['live'])));
 chk('data_engine_side_reads_same_rows', array_keys(pfb_stat_data()) === array_keys($S) && pfb_stat_data()['stat-long-shot'][0] === 'roll again ; !roll next:hurt:1:a');
 chk('data_tags_are_engine_tags_or_none', !array_filter($S, fn($p) => $p['tag'] !== '' && !isset(PF_TAGS[$p['tag']]) && !isset(PF_TAGS_V1[$p['tag']])));
-chk('clauses_unknown_actions_load_harmlessly (Loaded Die: roll again = no clause yet)', pfb_wx_clauses('S:stat-loaded-die') === [] && pfb_wx_clauses('S:stat-wrong-turn') === [] && pfb_wx_clauses('S:nonesuch') === []);
-chk('clauses_known_actions_parse (Long Shot: !roll next)', count(pfb_wx_clauses('S:stat-long-shot')) === 1 && pfb_wx_clauses('S:stat-long-shot')[0]['c0'] === ['!roll']);
+chk('clauses_unknown_actions_load_harmlessly (Wrong Turn: no clauses yet)', pfb_wx_clauses('S:stat-wrong-turn') === [] && pfb_wx_clauses('S:nonesuch') === []);
+chk('clauses_known_actions_parse (Long Shot: roll again, !roll next)', count(pfb_wx_clauses('S:stat-long-shot')) === 2 && pfb_wx_clauses('S:stat-long-shot')[0]['a'] === 'again' && pfb_wx_clauses('S:stat-long-shot')[1]['c0'] === ['!roll']);
 chk('text_fills_numbers', pfb_wx_text('S:stat-soft-spot', 4, 2) === 'Pierce. If the creature has guard up, it loses 4 guard. Your next Hurt this fight gets +2.', pfb_wx_text('S:stat-soft-spot', 4, 2));
 
 // ---------------------------------------------------------------- the setting
@@ -106,13 +106,13 @@ $tile = $s['me']['draw'][0]; foreach (['hand', 'draw', 'discard'] as $z) foreach
 $sa = $s; $ca = ['t' => $tile, 'ph' => 'fire']; $la = pfb_wx_fire($sa, $ca, true);
 $sb = $s; $cb = ['t' => $tile, 'ph' => 'fire']; $lb = pfb_wx_fire($sb, $cb, true);
 chk('roll_deterministic_on_same_state', $ca['roll'] === $cb['roll'] && $sa['rng'] === $sb['rng'] && count($la) === count($lb));
-chk('roll_miss_runs_not_roll_clause_hit_does_not', count($la) === ($ca['roll'] ? 0 : 1), [$ca['roll'], count($la)]);
-$seen = [0 => 0, 1 => 0]; for ($seed = 1; $seed <= 60; $seed++) { $x = $s; $x['rng'] = $seed; $c = ['t' => $tile, 'ph' => 'fire']; $l = pfb_wx_fire($x, $c, true); $seen[$c['roll']]++; if (count($l) !== ($c['roll'] ? 0 : 1)) $agree = false; }
+chk('roll_hit_runs_roll_clause_miss_runs_not_roll_clause', count($la) === 1 && $la[0]['a'] === ($ca['roll'] ? 'again' : 'next'), [$ca['roll'], count($la)]);
+$seen = [0 => 0, 1 => 0]; for ($seed = 1; $seed <= 60; $seed++) { $x = $s; $x['rng'] = $seed; $c = ['t' => $tile, 'ph' => 'fire']; $l = pfb_wx_fire($x, $c, true); $seen[$c['roll']]++; if (count($l) !== 1 || $l[0]['a'] !== ($c['roll'] ? 'again' : 'next')) $agree = false; }
 chk('roll_fire_both_outcomes_seen_and_consistent', $seen[0] > 0 && $seen[1] > 0 && $agree, $seen);
 // act: '@place cond act' conditions after the phase are checked (Hedge Rummage form: '@place !roll ...'); a clause with no condition after @place runs
 $hd = ['t' => ['fx' => 'S:stat-hedge-rummage', 'fxa' => 3, 'fxb' => 2], 'ph' => 'fire'];
 $x = $s; $l = pfb_wx_fire($x, $hd, true);
-chk('place_clause_runs_when_placed (its !roll clause has no action yet: no roll made)', count($l) === 1 && $l[0]['a'] === 'pluck' && !isset($hd['roll']), [count($l), $hd['roll'] ?? null]);
+chk('place_clause_runs_when_placed (pluck always, fup on a miss of the one roll)', isset($hd['roll']) && count($l) === ($hd['roll'] ? 1 : 2) && $l[0]['a'] === 'pluck', [count($l), $hd['roll'] ?? null]);
 $o = ['ph' => 'place', 'c0' => [], 'c1' => ['!roll'], 'a' => 'skip', 'x' => [], 'per' => null, 'cap' => null, 'st' => 'post'];
 $hits = 0; $runs = 0; for ($seed = 1; $seed <= 200; $seed++) { $x = $s; $x['rng'] = $seed; $c = []; pfb_wx_roll($x, $o, $c); $hits += $c['roll']; $runs += pfb_wx_conds($x, $o['c1'], $c) ? 1 : 0; }
 chk('place_condition_after_phase_tests_roll', $hits + $runs === 200 && $hits > 0 && $runs > 0, [$hits, $runs]);
