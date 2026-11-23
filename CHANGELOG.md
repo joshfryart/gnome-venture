@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.11
+- **Pre-fight screen on a phone in landscape: no more scrolling.** Two columns: the creature, its rule and the Auto deck line on the left, the pieces (5 across, smaller) on the right, then Box and Let's fight. The tap-a-piece hint line is hidden there. Portrait is unchanged.
+
 ## 2.8.10
 - **Last folds and filters (landscape dock layout; the search boxes show everywhere).** Jobs, Post tab: the explaining lines fold into "How posting works" and small "Details" folds. Market day: a search box above the basket items (ticked ones stay). Pal jobs, At home: a "Find a pal" box when you have more than 12. Town Square: Where the travellers are and Festivals coming up sit side by side.
 
