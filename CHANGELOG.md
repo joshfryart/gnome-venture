@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.68
+- **Dock layout, landscape: page survey.** About 90 pages were loaded at 844 x 390 in a headless browser (heights, anything wider than the screen, oversized pictures, a screenshot each). No page scrolls sideways. One fix: on the My Gnome tabs other than Today and Furnish (Gnome, Closet, Stats, Calling) the hovel room banner is hidden, so each tab starts at its own content (about 100 px less scrolling). Still tall and unchanged: Villagers (122 cards), the Season page, World travel and map, the Almanac, the guide, the Passport, the garden tabs and the Crafting areas picture. Many mini-game pages sent the test player to Games (they are gated in the test world), so their own screens were not surveyed.
+
 ## 2.7.67
 - **Dock layout, landscape: wide instead of tall** (`dock.css`; nothing changes without the dock or in portrait). Here: the villagers stand to the right of the picture as a condensed, tappable list (a 32 px sprite and the name, two across, scrolling inside if there are many). Villagers page: small cards (portrait left, words right, 4 across; 4352 to 2850 px tall in the test world). Place headers (towns, shops): picture and words side by side. Pages of narrow boxes (Account) go two across (2626 to 1779 px). Puzzle box: wide, kit on the left, belt and pals on the right (1888 to 1623 px). Tool belt: two cards across.
 - **Still tall, not changed:** the world map tab, the Almanac, the guide, the Passport, My Gnome Stats, the garden bed grid and the shop lists. Page heights measured in a headless browser at 844 x 390 on the test world.

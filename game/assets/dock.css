@@ -293,3 +293,8 @@ body.dock-on .cbed { cursor: pointer; }
 @media (orientation: landscape) {
   body.dock-on .toolcards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
+
+/* dock layout, landscape: only Today and Furnish show the hovel room; the other My Gnome tabs start at their own content */
+@media (orientation: landscape) {
+  body.dock-on .homepage.hslim:not(.hs-tab-today):not(.hs-tab-furnish) .hs-banner { display: none; }
+}
