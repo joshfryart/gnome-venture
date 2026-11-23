@@ -276,13 +276,14 @@ function dock_page_spec(string $page): array
             // Beds tab: Select works the page's own "select squares" panel; the right piece is a strip of the page's own bulk buttons (the single-bed Tools piece needs a new in-page tool mode: phase 2b)
             return ['watch' => true,
                 'L' => dock_remote('Select', '☑️', ['select' => 'garden']),
-                'R' => dock_action('All', '🧺', '', [
+                'R' => dock_action('Tools', '🧺', '', [
+                    dock_remote('Water', '💧', ['tool' => 'water']), dock_remote('Harvest', '🧺', ['tool' => 'harvest']), dock_remote('Till', '⛏️', ['tool' => 'till']),
                     dock_remote('Water all', '💧', ['doForm' => 'water_all', 'count' => ['.gardenstat', 'data-thirsty']]),
                     dock_remote('Weed all', '🌿', ['doForm' => 'weed_all', 'count' => ['.gardenstat', 'data-weedy']]),
                     dock_remote('Harvest all', '🧺', ['doForm' => 'harvest_all', 'count' => ['.gardenstat', 'data-ready']]),
                     dock_remote('Pick pests', '✂️', ['doForm' => 'pick_all']),
                     dock_remote('Collect all', '📥', ['doForm' => 'collect_all']),
-                ], '', '', 'All beds', ['selectInfo' => 'garden'])];
+                ], '', '', 'Tools and all beds', ['selectInfo' => 'garden'])];
         case 'inventory.php':
             // Satchel, Items tab: the Quick slot (assign: open an item, tap Confirm; use: tap; clear: the x or a hold). Other tabs: left Items, right Hovel.
             $t = (string)($_GET['tab'] ?? '');
@@ -346,6 +347,11 @@ function dock_page_spec(string $page): array
             return ['watch' => true, 'L' => dock_action('Satchel', '🎒', $u('inventory.php')), 'R' => dock_action('List', '🏷️', '', [], '', '', '', [], [dock_remote('List', '🏷️', ['doForm' => 'list']), dock_remote('Offer', '🤝', ['doForm' => 'offer'])])];
         case 'marketday.php':
             return ['watch' => true, 'L' => dock_action('Back', '↩'), 'R' => dock_remote('Basket', '🧺', ['doForm' => 'basket'])];
+        case 'community.php':
+            $tc = (string)($_GET['t'] ?? '');
+            if ($tc === 'garden' || $tc === '') return ['watch' => true, 'L' => dock_action('Messages', '💬', $u('community.php?t=msgs')), 'R' => dock_action('Tend', '🌻', '', [
+                dock_remote('Tend', '🌻', ['doForm' => 'tend']), dock_remote('Take bed', '🛏️', ['doForm' => 'take_bed']), dock_remote('Take store', '📦', ['doForm' => 'take_store'])], '', '', 'Community garden')];
+            return ['L' => dock_action('Garden', '🌻', $u('community.php?t=garden')), 'R' => dock_action('Messages', '💬', $u('community.php?t=msgs'))];
         case 'shop.php':
             // Left: the basket's own button (Buy all / Sell all), greyed until something is picked (the basket form is hidden while empty). Right: the Buy | Sell switch, a link to the other tab.
             $sid = (int)($_GET['id'] ?? 0);

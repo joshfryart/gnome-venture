@@ -55,8 +55,8 @@ Done (admin preview):
 - **Play mode:** `dock_play()` names the mini-games and the two puzzles; `dock.js` draws a 34 px rail (back link, name, energy and time, Menu) instead of the dock; Menu opens the full dock, a tap outside closes it. Screenshots taken on a SQLite install (Memory, Shop).
 
 Not done yet in this phase:
-- Garden **Tools** (the single-bed tool you cycle and tap beds with): needs a new tool mode in the page script (a tap on a bed does the armed action). Until then the right piece is All.
-- Friends, Trading, Market day.
+- **Garden Tools:** the right piece's strip starts with Water, Harvest and Till tools. Arming one turns the page's select mode on and the left piece becomes Done ("tap a bed"); a tap on a bed clears the picks, picks that bed alone and clicks the page's own Water, Harvest or Till button (so the Till confirm and the energy checks are the page's). Tested on a SQLite install: a bed tap posted `do=batch&act=water&sq[]=3-0`.
+- **Community garden (Together):** right Tend strip (Tend, Take bed, Take store), left Messages.
 
 How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 

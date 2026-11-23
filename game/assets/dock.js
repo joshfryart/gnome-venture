@@ -138,6 +138,7 @@
 
   /* ---- phase 2: pieces that work the page's own controls (includes/dock.php, dock_remote()) ----
      The dock never posts anything itself: it clicks a button the page already has, so the page's CSRF token, confirm dialog and in-place update all apply. */
+  var G_TOOL = { water: '.selacts [data-act="water"]', harvest: '.selacts [data-act="harvest"]', till: '.selacts [data-act="till"]' }, tool = null;   /* garden tool mode: a tapped bed is picked alone, then the page's own action button is clicked */
   var REM = [], ACT = { L: null, R: null }, selOn = false, qMode = false, lp = false, lpT = 0;
   function q1(sel) { try { return document.querySelector(sel); } catch (e) { return null; } }
   function formBtn(doVal) {
@@ -158,6 +159,7 @@
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
     var t, e;
     if (!spec) return;
+    if (spec.tool) { tool = tool === spec.tool ? null : spec.tool; e = q1('.selbar [data-sel="' + (tool ? 'on' : 'off') + '"]'); if (tool === null) { e = q1('.selbar [data-sel="off"]'); } if (e && !e.hidden && (tool || gSelOn())) e.click(); return; }
     if (spec.doForm) { t = formBtn(spec.doForm); if (t && !t.dis) t.btn.click(); return; }
     if (spec.sel) { e = q1(spec.sel); if (e && !e.disabled) e.click(); }
   }
@@ -197,6 +199,7 @@
   function copy(o) { var r = {}, k; for (k in o) r[k] = o[k]; return r; }
   function finalItem(t) {
     var o = copy(t), r;
+    if (t.remote && t.remote.tool) { o.why = q1('.selbar') ? '' : 'n/a'; o.rem = remKey(t.remote); o.badge = tool === t.remote.tool ? '\u25cf' : ''; return o; }
     if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); }
     return o;
   }
@@ -223,7 +226,8 @@
     }
     if (a.remote && a.remote.select === 'garden') {
       if (!q1('.selbar')) { o.why = 'Beds'; return o; }
-      if (selOn) { o.label = 'Done'; o.icon = '✓'; o.rem = remKey({ sel: '.selbar [data-sel="off"]' }); }
+      if (tool) { o.label = 'Done'; o.icon = '✓'; o.chip = 'tap a bed'; o.rem = remKey({ tool: tool }); }
+      else if (selOn) { o.label = 'Done'; o.icon = '✓'; o.rem = remKey({ sel: '.selbar [data-sel="off"]' }); }
       else o.rem = remKey({ sel: '.selbar [data-sel="on"]' });
       return o;
     }
@@ -378,7 +382,7 @@
     var VW = root.clientWidth || window.innerWidth, W, g, old = stage && stage.querySelector('.dockslip'), oldN = old ? old.querySelectorAll('.dk-pc').length : 0;
     if (old && old.parentNode) old.parentNode.removeChild(old);   // kept as an element (not as markup): inline style attributes cannot be re-parsed under the CSP
     REM = [];
-    selOn = !!(D.actions.watch && gSelOn());
+    selOn = !!(D.actions.watch && gSelOn() && !tool);
     if (selOn) { if (slip !== 'status') slip = 'sel'; } else if (slip === 'sel') slip = null;   // select mode shows its two strips by itself
     ACT = { L: finalAct(D.actions.L), R: finalAct(D.actions.R) };
     var key = slip || '';
@@ -432,8 +436,15 @@
   });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { root.addEventListener(ev, function () { clearTimeout(lpT); Array.prototype.forEach.call(root.querySelectorAll('.dk-holding'), function (x) { x.classList.remove('dk-holding'); }); }); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && slip) { slip = null; render(); } });
+  document.addEventListener('click', function (e) {   /* tool mode: a bed tap picks that bed alone (None first, then the page's own pick), then the armed action runs */
+    var a, act;
+    if (!tool || !gSelOn()) return;
+    a = e.target.closest && e.target.closest('#yard a.tile'); if (!a) return;
+    q1('.selbar [data-q="none"]') && q1('.selbar [data-q="none"]').click();
+    setTimeout(function () { var b = q1(G_TOOL[tool]); if (b && gCount() === 1) b.click(); }, 40);
+  }, true);
   document.addEventListener('click', function (e) { if (D && D.play && playOpen && !slip && e.target.isConnected && !root.contains(e.target)) { playOpen = false; render(); return; } if (slip && e.target.isConnected && !root.contains(e.target)) { slip = null; render(); } });   // a click on a piece re-draws the dock, so its target is no longer in the page: that is a click inside
-  document.addEventListener('gv:swapped', function () { qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
+  document.addEventListener('gv:swapped', function () { if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);
