@@ -72,7 +72,7 @@ function pfv_pc(array $p, array $o = []): string
     $life = PFB_LIFE;   // 2.6.96: every piece stays 3 rounds in a new fight (per-piece life is off), so the box shows 3, not the old Quick 2 / Hold 4
     $px = str_repeat('<i></i>', $life);
     $tg = PF_TAGS[(string)($p['tag'] ?? '')] ?? null; $tx = pfv_tag_text($p); $own = (string)($o['owner'] ?? 'me');
-    $art = json_encode(['t' => $p['t'], 'e' => $p['e'], 'tag' => $tg ? (string)$p['tag'] : '', 'o' => $own] + (!empty($p['ik']) ? ['ik' => (string)$p['ik']] : []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    $art = json_encode(['t' => $p['t'], 'e' => $p['e'], 'tag' => $tg ? (string)$p['tag'] : '', 'o' => $own] + (!empty($p['ik']) ? ['ik' => (string)$p['ik']] : []) + (($p['src'] ?? '') === 'stat' && !empty($p['st']) ? ['st' => (string)$p['st']] : []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     $label = $p['n'] . ', ' . (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . (int)$p['v'] . (($p['tag'] ?? '') !== '' && ($p['tag'] ?? '') !== 'pal' ? ', ' . $p['tag'] : '') . (!empty($p['rank']) ? ', ' . PFD_RANK_NAME[(int)$p['rank']] : '') . ', stays ' . $life . ' rounds';
     // 2.6.76: everything the detail sheet shows for this piece (assets/pfv1box.js, PFSheet); the tag's words come from PF_TAGS, the one table
     $pcd = ['ik' => (string)($p['ik'] ?? ''), 'n' => (string)$p['n'], 't' => (string)$p['t'], 'ty' => PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t']), 'v' => (int)$p['v'], 'rk' => (int)($p['rank'] ?? 0), 'rn' => !empty($p['rank']) ? PFD_RANK_NAME[(int)$p['rank']] : '', 'src' => (string)($p['src'] ?? ''), 'life' => $life,

@@ -257,7 +257,8 @@
     });
     if (phase !== 'pre') (data.snares || []).forEach(function (sn) {   // stat pieces (Snare Field): your hidden snares, a dashed ring; the creature cannot see them. It is faint by dashing, not by alpha (art: stat/snare-*.png later)
       var sm = document.createElement('div'); sm.className = 'mk snare'; sm.setAttribute('role', 'img'); sm.setAttribute('aria-label', 'Snare, column ' + (sn.x + 1) + ' row ' + (sn.y + 1) + ': a piece of the creature put here comes down at half value; it holds ' + (sn.left > 1 ? sn.left + ' more rounds' : 'to the end of this round'));
-      sm.title = 'Snare: a creature piece put here is worth half. ' + (sn.left > 1 ? sn.left + ' more rounds.' : 'Ends this round.'); putBody(sm, sn.x, sn.y);
+      sm.title = 'Snare: a creature piece put here is worth half. ' + (sn.left > 1 ? sn.left + ' more rounds.' : 'Ends this round.'); var KP = window.PFParts; if (KP && KP.ok && KP.kit && KP.kit['snare|strip']) { sm.classList.add('art'); var si = document.createElement('img'); si.src = data.art + 'stat/snare-strip.png'; si.alt = ''; si.setAttribute('aria-hidden', 'true'); sm.appendChild(si); }   // the kit's dashed twine noose (stat/README.md); without it the CSS ring
+      putBody(sm, sn.x, sn.y);
     });
     (data.ven || []).forEach(function (vc) {   // 2.6.98 Venom trail
       var vm = document.createElement('div'); vm.className = 'mk venom'; vm.setAttribute('role', 'img'); vm.setAttribute('aria-label', 'Venom, column ' + (vc.x + 1) + ' row ' + (vc.y + 1) + ': a piece of yours put here poisons you'); vm.title = 'Venom: a piece of yours put here poisons you (2 a round, 2 rounds)'; vm.textContent = '\u2620'; putBody(vm, vc.x, vc.y);
@@ -1112,7 +1113,7 @@
     boardEl.textContent = '';
     world = document.createElement('div'); world.className = 'pfb-world'; boardEl.appendChild(world);
     var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null, dropN = 0;
-    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.concat(data.gone || [], (rewind && rewind.pieces) || []).map(function (q) { return q.ik; }); ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, cicoRedraw); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
+    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.concat(data.gone || [], data.hand || [], (rewind && rewind.pieces) || []).map(function (q) { return q.ik; }); ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, cicoRedraw); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
     // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
     var x0 = W, x1 = -1, y0 = H, y1 = -1;
     Object.keys(b.map).forEach(function (k) { var q = k.split(','), qx = +q[0], qy = +q[1]; x0 = Math.min(x0, qx); x1 = Math.max(x1, qx); y0 = Math.min(y0, qy); y1 = Math.max(y1, qy); });
@@ -1148,7 +1149,7 @@
         if (p.id !== undefined && !p.ghost && p.gone) cell.dataset.id = String(p.id);
         else if (p.id !== undefined && !p.ghost) { cell.dataset.id = String(p.id); cell.classList.add('pfb-tap'); cell.setAttribute('role', 'button'); cell.tabIndex = 0; cell.setAttribute('aria-label', ownerLbl(p) + p.n + ', ' + p.t + ' ' + p.v + '. Press for details.'); }
         if (art) {
-          var cv = p.by === 'none' ? blankCv(P) : p.by === 'env' ? envCv(P, p, 'strip') : P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', ik: p.ik, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint });
+          var cv = p.by === 'none' ? blankCv(P) : p.by === 'env' ? envCv(P, p, 'strip') : P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', ik: p.ik, st: p.st, ws: p.ws, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint });
           cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', ownerLbl(p) + p.n + ', ' + p.t + ' ' + p.v + (isOld(p) ? ', expires this round' : ''));
           cell.appendChild(cv);
         } else cell.appendChild(pieceEl(p));
@@ -1156,7 +1157,7 @@
         if (p.fl === 1 && !p.ghost && !p.gone) { var fb = document.createElement('span'); fb.className = 'pfb-fl'; fb.setAttribute('aria-hidden', 'true'); fb.textContent = '\u00d71'; fb.title = 'One more firing and it falls away'; cell.appendChild(fb); }   // fire budget: a creature piece on its last firing
         if (isOld(p) && !p.ghost) { var ob = document.createElement('span'); ob.className = 'pfb-old'; ob.setAttribute('aria-hidden', 'true'); ob.textContent = '\u231B'; ob.title = 'Leaves the board at the end of this round'; cell.appendChild(ob); }
         if (p.life && !p.ghost && !p.gone && p.by !== 'none') cell.appendChild(lifeEl(p.left, p.life, cell));   // v1: the rounds it still stays (pips, a number, the cell's label)
-        if (p.ws && !p.ghost) { var sw = document.createElement('span'); sw.className = 'pfb-ws'; sw.setAttribute('aria-hidden', 'true'); sw.textContent = '\uD83E\uDE9D'; sw.title = 'Taken from the creature: it fires for you'; cell.appendChild(sw); cell.classList.add('pfv-stolen'); cell.setAttribute('aria-label', (cell.getAttribute('aria-label') || '') + ' Stolen from the creature.'); }   // stat pieces (Turn of the Tale, Magpie's Pinch)
+        if (p.ws && !p.ghost) { if (!(art && P.kit && P.kit['stolen|strip'])) { var sw = document.createElement('span'); sw.className = 'pfb-ws'; sw.setAttribute('aria-hidden', 'true'); sw.textContent = '\uD83E\uDE9D'; sw.title = 'Taken from the creature: it fires for you'; cell.appendChild(sw); } cell.classList.add('pfv-stolen'); cell.setAttribute('aria-label', (cell.getAttribute('aria-label') || '') + ' Stolen from the creature.'); }   // stat pieces (Turn of the Tale, Magpie's Pinch)
         envDeco(cell, p);
       } else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', (selected === 'group' ? 'Place the group here, top left at ' : 'Place here, ') + 'column ' + (x + 1) + ' row ' + (y + 1));
@@ -1211,7 +1212,7 @@
     boardEl.appendChild(zoomControls());
     fitBoard();
     applyView();
-    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
+    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', ik: data.hand[i].ik, st: data.hand[i].st, type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     var busy0 = playing || submitted || !!data.won || !!rewind; handDeco(busy0);
     fan(); renderHeld(); showJoinChips(); planAsk(); numsSync(); paintRings();
@@ -1246,7 +1247,7 @@
     if (P && P.ok) {
       var S = P.atlas.sizes.strip, d = groupDims(g), cv = document.createElement('canvas');
       cv.width = (d[0] - 1) * S.pitch[0] + S.piece[0]; cv.height = (d[1] - 1) * S.pitch[1] + S.piece[1]; var cx = cv.getContext('2d');
-      g.pcs.forEach(function (p) { cx.drawImage(P.piece({ size: 'strip', owner: 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, num: p.v }), (p.x - d[2]) * S.pitch[0], (p.y - d[3]) * S.pitch[1]); });
+      g.pcs.forEach(function (p) { cx.drawImage(P.piece({ size: 'strip', owner: 'me', ik: p.ik, st: p.st, ws: p.ws, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, num: p.v }), (p.x - d[2]) * S.pitch[0], (p.y - d[3]) * S.pitch[1]); });
       cv.className = 'pf-held-cv'; cv.setAttribute('aria-hidden', 'true'); bt.appendChild(cv);
     }
     var tx = document.createElement('span'); tx.className = 'pf-held-tx'; tx.textContent = (g.planned ? 'Setting aside' : 'Set aside') + ' (' + g.pcs.length + ')' + (g.pcs.length === 3 ? ' full strength' : ''); bt.appendChild(tx);
@@ -1294,7 +1295,7 @@
     if (!insp) return;
     document.getElementById('pfi-name').textContent = name; document.getElementById('pfi-desc').textContent = desc;
     var slot = document.getElementById('pfi-art'), P = window.PFParts; if (slot) slot.textContent = '';
-    if (slot && p && P && P.ok && p.by !== 'none') { var c = p.by === 'env' ? envCv(P, p, 'hand') : P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', ik: p.ik, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint }); c.className = 'pfi-cv'; slot.appendChild(c); }
+    if (slot && p && P && P.ok && p.by !== 'none') { var c = p.by === 'env' ? envCv(P, p, 'hand') : P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', ik: p.ik, st: p.st, ws: p.ws, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint }); c.className = 'pfi-cv'; slot.appendChild(c); }
     insp.hidden = false;
   }
   function inspectPiece(id) {
@@ -1528,7 +1529,7 @@
     document.getElementById('pfi-desc').textContent = (b.dataset.desc || '') + (data.hand[i] && data.hand[i].fx ? ' ' + data.hand[i].fx : '');
     if (slot && P && P.ok && data.hand[i]) {   // the piece at hand size, edges and all
       slot.textContent = '';
-      var c = P.piece({ size: 'hand', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: b.dataset.v });
+      var c = P.piece({ size: 'hand', owner: 'me', ik: data.hand[i].ik, st: data.hand[i].st, type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: b.dataset.v });
       c.className = 'pfi-cv'; slot.appendChild(c);
     }
     inspExtra(i);

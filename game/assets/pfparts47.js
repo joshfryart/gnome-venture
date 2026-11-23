@@ -30,6 +30,16 @@
 
   /* 2.7.45: a creature's own piece icon (assets/img/pfight/pieces/ico-<ik>[-s].png): P.cico['ik|size'] -> loaded image. The builds below draw it instead of the type glyph when it is there. */
   P.cico = {}; P.cicoTried = {};
+  P.picoBase = P.picoBase || (data.art ? data.art + 'pieces/' : '');   // the Puzzle box shelf has no data-pico host: the stat pieces' icons come from the same folder
+  P.kit = {};   // 2.7.58 stat kit (assets/img/pfight/stat/, see its README): 'badges|size', 'socks|size' (pixels), 'snare|size', 'stolen|size', 'envtile|size' (pixels), 'envglyph|size' -> true when the file loaded; every piece falls back to the old art without it
+  function loadStatKit() {
+    if (!data.art) return null;
+    var jobs = [], K = ['badges-stat', 'socks-any', 'envtile-spring', 'envglyph-spring', 'snare', 'stolen'];
+    K.forEach(function (n) { ['strip', 'hand'].forEach(function (z) {
+      jobs.push(new Promise(function (ok) { var i = new Image(); i.onload = function () { P.imgs['kit-' + n + '|' + z] = i; if (/^(socks|envtile)/.test(n)) P.sheets['kit-' + n + '|' + z] = pixels(i); P.kit[n + '|' + z] = true; ok(); }; i.onerror = ok; i.src = data.art + 'stat/' + n + '-' + z + '.png'; }));
+    }); });
+    return Promise.all(jobs);
+  }
   P.cicoFor = function (o) { return o && o.ik ? P.cico[o.ik + '|' + o.size] || null : null; };
   P.cicoSubs = [];
   P.cicoNote = function () { clearTimeout(P.cicoT); P.cicoT = setTimeout(function () { var fs = P.cicoSubs.slice(); P.cicoSubs = fs.slice(-60); fs.forEach(function (f) { try { f(); } catch (e) {} }); }, 40); };   // after any icon arrives every caller redraws (a second mount while the first icons are still loading was left on the type glyphs)
@@ -61,7 +71,7 @@
       A = P.atlas = a0;
       if (A.version === 47) return load47(A).then(function () { return null; });   // 2.6.89: the jigsaw kit (final-colour sheets, no role indices)
       return getJson('rim.json').then(function (r0) { R = P.rim = r0; return loadOld(A); });
-    }).then(function () { return data.art ? loadTagIcons() : null; }).then(loadMarks).then(function () { P.ok = true; if (P.atlas && P.atlas.version === 47 && root) root.classList.add('pf-jig'); });   // pf-jig: the CSS of the jigsaw proportions
+    }).then(function () { return data.art ? loadTagIcons() : null; }).then(loadMarks).then(loadStatKit).then(function () { P.ok = true; if (P.atlas && P.atlas.version === 47 && root) root.classList.add('pf-jig'); });   // pf-jig: the CSS of the jigsaw proportions
   };
   function load47(A) {
     var files = [];
@@ -96,7 +106,7 @@
 
   /* o = {size:'strip'|'hand', owner:'me'|'foe', type, edges:{L:[kind,fam],..}, old, num}. Returns a new canvas (the composed piece). */
   P.piece = function (o) {
-    var key = [o.size, o.owner, o.type, o.tag || '', o.m || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', o.env || '', P.cicoFor(o) ? o.ik : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
+    var key = [o.size, o.owner, o.type, o.tag || '', o.m || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', o.env || '', P.cicoFor(o) ? o.ik : '', o.st || '', o.ws ? 1 : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
     var hit = P.cache[key];
     if (!hit) hit = P.cache[key] = build(o);
     var c = document.createElement('canvas'); c.width = hit.width; c.height = hit.height; c.getContext('2d').drawImage(hit, 0, 0);
@@ -203,13 +213,14 @@
   function envOf(o) { return o.env || (o.owner === 'foe' && o.num === '' && o.type === 'soothe' && o.tint != null && HUEKIND[o.tint]) || null; }
   function build48(o) {
     var A = P.atlas, sz = A.sizes[o.size], W = sz.piece[0], H = sz.piece[1], ord = A.order, ti = Math.max(0, ord.types.indexOf(o.type)), kind = envOf(o), ki = kind ? Math.max(0, ord.kinds.indexOf(kind)) : -1, foe = !kind && o.owner === 'foe', i, x, y, q;
-    var d = kind ? cell(o.size + '-envtiles', ki, W, H) : foe ? cell(o.size + '-foetile', 0, W, H) : cell(o.size + '-tiles', ti, W, H);
+    var spr = kind === 'spring' && P.kit['envtile-spring|' + o.size], d = spr ? cell('kit-envtile-spring|' + o.size, 0, W, H) : kind ? cell(o.size + '-envtiles', ki, W, H) : foe ? cell(o.size + '-foetile', 0, W, H) : cell(o.size + '-tiles', ti, W, H);
     if (o.old) for (i = 0; i < W * H; i++) { q = i * 4; if (d[q + 3]) { d[q] = d[q] * .78; d[q + 1] = d[q + 1] * .78; d[q + 2] = d[q + 2] * .78; } }   // its last round: dimmer
     var E = A.erase;
     ['L', 'R', 'T', 'B'].forEach(function (s) {
       var e = o.edges[s]; if (!e || e[0] === 'flat') return;
-      var k = ord.socks.indexOf(e[1] + '-' + e[0]); if (k < 0) return;
-      var sk = cell(o.size + '-socks', k, W, H), r = sz.socks[SIDEN[s]];
+      var any = e[0] === 'any' && P.kit['socks-any|' + o.size], k = any ? (s === 'R' || s === 'B' ? 0 : 1) : ord.socks.indexOf(e[1] + '-' + e[0]);   // Knot of Twine: any-knob on the right and bottom, any-hole on the left and top (stat/README.md)
+      if (k < 0) return;
+      var sk = any ? cell('kit-socks-any|' + o.size, k, W, H) : cell(o.size + '-socks', k, W, H), r = sz.socks[SIDEN[s]];
       for (y = r[1]; y < r[3]; y++) for (x = r[0]; x < r[2]; x++) {
         var p = (y * W + x) * 4; if (!sk[p + 3]) continue;
         if (sk[p] === E[0] && sk[p + 1] === E[1] && sk[p + 2] === E[2]) d[p + 3] = 0;   // the hole: a real cut-out
@@ -218,14 +229,17 @@
     });
     var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
     var cx = cv.getContext('2d'), img = cx.createImageData(W, H); img.data.set(d); cx.putImageData(img, 0, 0);
-    var tagI = !kind && foe ? P.cicoFor(o) : (!kind && !foe && o.tag ? P.tagIcon[o.tag + '|' + o.size] : null);   // a creature piece shows its own icon; a named piece of mine its tag icon
+    var tagI = !kind && foe ? P.cicoFor(o) : (!kind && !foe ? (P.cicoFor(o) || (o.tag ? P.tagIcon[o.tag + '|' + o.size] : null)) : null);   // a stat piece of mine (ik = ico-stat-*) shows its own icon   // a creature piece shows its own icon; a named piece of mine its tag icon
     if (tagI) cx.drawImage(tagI, sz.icon.at[0], sz.icon.at[1], sz.icon.size[0], sz.icon.size[1]);   // a named piece of mine keeps its own icon
+    else if (spr && P.kit['envglyph-spring|' + o.size]) cx.drawImage(P.imgs['kit-envglyph-spring|' + o.size], 0, 0);   // Spring: its own tile and blossom
     else cx.drawImage(P.imgs[o.size + (kind ? '-envglyphs' : foe ? '-foeglyphs' : '-glyphs')], (kind ? ki : ti) * W, 0, W, H, 0, 0, W, H);
     if (!kind && String(o.num) !== '') number48(cx, o.size, sz, String(o.num));
-    var bi = ord.badges.indexOf('eye'), bw = sz.badge[0];
+    var bi = ord.badges.indexOf('eye'), bw = sz.badge[0], si = ['nimble', 'lore', 'luck', 'sense'].indexOf(o.st || '');
+    if (si >= 0 && !kind && !foe && P.kit['badges-stat|' + o.size]) cx.drawImage(P.imgs['kit-badges-stat|' + o.size], si * bw, 0, bw, sz.badge[1], sz.owner[0], sz.owner[1], bw, sz.badge[1]);   // a stat piece: its stat in the owner badge's corner
+    if (o.ws && !kind && P.kit['stolen|' + o.size]) { var st2 = P.imgs['kit-stolen|' + o.size]; cx.drawImage(st2, o.size === 'hand' ? 25 : 15, o.size === 'hand' ? 50 : 31); }   // a creature piece taken by Turn of the Tale or Magpie's Pinch: the hook on its thread
     if (foe) cx.drawImage(P.imgs[o.size + '-badges'], bi * bw, 0, bw, sz.badge[1], sz.owner[0], sz.owner[1], bw, sz.badge[1]);
     var mz = o.size === 'hand' ? 1.5 : 1, mk = function (name, a) { var im = P.marks[name]; if (im) { cx.imageSmoothingEnabled = false; cx.drawImage(im, a[0], a[1], im.width * mz, im.height * mz); } };   // the marks are drawn once, for the strip size
-    if (o.m && !kind && !foe) { mk('mod-' + o.m, sz.extra); if (o.rar !== undefined && o.rar !== null) mk('rarity-' + o.rar, sz.owner); }
+    if (o.m && !kind && !foe) { mk('mod-' + o.m, sz.extra); if (o.rar !== undefined && o.rar !== null && si < 0) mk('rarity-' + o.rar, sz.owner); }
     return cv;
   }
   function number48(cx, size, sz, text) {   // the drawn digits on the drawn plate; a number too long for the plate falls back to the small figures
@@ -263,7 +277,7 @@
     }
     if (Math.abs(cssW(c) - w0) > .01) { var h1 = P.cache['c|' + o.size + '|' + P.keyOf(o)] || build(o); c._pfFixed = true; c.width = h1.width; c.height = h1.height; ctx.call(c, '2d').drawImage(h1, 0, 0); }   // the bitmap gives this canvas its size: hands off
   }
-  P.keyOf = function (o) { return [o.owner, o.type, o.tag || '', o.m || '', o.rar == null ? '' : o.rar, o.old ? 1 : 0, o.num, o.tint == null ? '' : o.tint, o.env || '', P.cicoFor(o) ? o.ik : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|'); };
+  P.keyOf = function (o) { return [o.owner, o.type, o.tag || '', o.m || '', o.rar == null ? '' : o.rar, o.old ? 1 : 0, o.num, o.tint == null ? '' : o.tint, o.env || '', P.cicoFor(o) ? o.ik : '', o.st || '', o.ws ? 1 : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|'); };
   P.crisp = function () { live = live.filter(function (x) { return x.isConnected; }); live.forEach(function (x) { x._pfW = 0; crisp(x); }); };
   window.addEventListener('resize', function () { P.crisp(); });
 

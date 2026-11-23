@@ -551,6 +551,8 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 /* stat pieces: Snare Field cells, the Sense chips, a stolen creature piece */
 .pf-v1 .mk.snare { pointer-events: none; border-radius: 50%; margin: 12%; box-shadow: 0 0 0 2px #2a1a10, inset 0 0 0 2px #7fd04a; background: none; opacity: .9; outline: 2px dashed #e9f2c8; outline-offset: -5px; }
 .pf-v1 .tg.sense { background: rgba(40, 90, 110, .55); color: #d4f0ff; border: 1px solid #5fa8c8; cursor: help; }
+.pf-v1 .mk.snare.art { border-radius: 0; margin: 0; box-shadow: none; outline: none; opacity: 1; }
+.pf-v1 .mk.snare img { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 .pf-v1 .pfb-ws { position: absolute; left: 2px; bottom: 14px; font-size: 11px; line-height: 1; pointer-events: none; }
 .pf-v1 .pfb-cell.pfv-stolen { box-shadow: inset 0 0 0 2px #a07be0; }
 .pf-v1 .foerule, .foecard .foerule { margin: 4px 0; font-size: 12px; color: #e6d4ff; }
