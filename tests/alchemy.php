@@ -22,7 +22,7 @@ foreach (ALCHEMY_ITEMS as $slug => [$name, $cat, , $price]) {
     ok("$slug recipe in potions", q_val('SELECT category FROM recipes WHERE slug = ?', [$slug]) === 'potions');
 }
 $n = (int)q_val("SELECT COUNT(*) FROM recipes WHERE category = 'potions'");
-ok('8 potion recipes', $n === 8, (string)$n);
+ok('13 potion recipes (8 + 5 alt rows from 2.7.58)', $n === 13, (string)$n);
 // value check: every potion sells for more than its ingredients cost, and less than twice
 foreach (q("SELECT r.slug, r.ingredients, r.output_qty, i.base_price FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.category = 'potions'")->fetchAll() as $r) {
     $cost = 0;

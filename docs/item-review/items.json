@@ -26,8 +26,7 @@
    ],
    "used_in": [],
    "sold_at": [
-    "The Dewdrop Kitchen 45 (40-55, stock 8)",
-    "the-dewdrop-kitchen 40-55 (max 8 restock 70%, stock starts 8)"
+    "The Dewdrop Kitchen stocks the shop-bought copy (bought-garden-vegetable-soup) at 90 Petals (1.0x base) from 2.7.58, was 40-55"
    ],
    "notes": [
     "dead-end: not an ingredient anywhere in recipes/stop-acts; only eaten/sold/gifted",
@@ -9384,9 +9383,7 @@
     "cook:stuffed-peppers-goat(meal,x1)",
     "cook:basil-pesto(preserve,x3)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier2 herb",
@@ -9409,9 +9406,7 @@
     "cook:ramson-pesto",
     "cook:stuffed-peppers-goat"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "beet",
@@ -9447,9 +9442,7 @@
     "cook:pickled-turnips(preserve,x1)",
     "cook:kvass(preserve,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier2 vegetable"
@@ -9474,9 +9467,7 @@
     "cook:pickled-turnips",
     "cook:roasted-roots"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "bell-pepper",
@@ -9514,9 +9505,7 @@
     "cook:sweetcorn-relish(preserve,x1)",
     "cook:smoked-paprika(preserve,x5)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier3 vegetable"
@@ -9541,9 +9530,7 @@
     "cook:stuffed-peppers-goat",
     "cook:sweetcorn-relish"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "bilberries",
@@ -10021,9 +10008,7 @@
     "Sauerkraut [cooking]",
     "cook:sauerkraut(preserve,x6)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "def: crops.txt",
@@ -10043,9 +10028,7 @@
    "recipes_out": [
     "cook:sauerkraut"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "cacao",
@@ -10287,9 +10270,7 @@
     "cook:fermented-carrots(preserve,x4)",
     "cook:quinoa-soup(meal,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "def: crops.txt",
@@ -10316,9 +10297,7 @@
     "cook:quinoa-soup",
     "cook:roasted-roots"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "cattail-root",
@@ -10434,9 +10413,7 @@
     "cook:piccalilli(preserve,x2)",
     "cook:pickled-cauliflower(preserve,x3)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier3 vegetable"
@@ -10455,9 +10432,7 @@
     "cook:piccalilli",
     "cook:pickled-cauliflower"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "celery",
@@ -11287,9 +11262,7 @@
     "cook:coriander-chutney(preserve,x3)",
     "cook:dukkah(preserve,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier2 herb",
@@ -11310,9 +11283,7 @@
     "cook:dukkah",
     "cook:salsa-verde"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "corn",
@@ -11557,9 +11528,7 @@
     "cook:piccalilli(preserve,x1)",
     "cook:cucumber-kimchi(preserve,x4)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier2 vegetable"
@@ -11580,9 +11549,7 @@
     "cook:garden-salad",
     "cook:piccalilli"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "cumin",
@@ -11913,9 +11880,7 @@
     "cook:pickled-fennel(preserve,x1)",
     "cook:soft-cheese(preserve,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "def: crops.txt",
@@ -11946,9 +11911,7 @@
     "cook:pickled-radishes",
     "cook:soft-cheese"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "egusi",
@@ -12299,7 +12262,9 @@
    "uses": [
     "cooking ingredient"
    ],
-   "sources": [],
+   "sources": [
+    "Trail Sights item (trail_sight_items.txt:4-7)"
+   ],
    "made_by": [],
    "used_in": [
     "windmill-loaf:3",
@@ -12500,9 +12465,7 @@
     "cook:hummus-jar(preserve,x1)",
     "cook:kangkong-stir-fry(meal,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "def: crops.txt",
@@ -12545,9 +12508,7 @@
     "cook:radish-kimchi",
     "cook:ramson-pesto"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "ginger",
@@ -13724,9 +13685,7 @@
     "cook:samphire-salad(meal,x1)",
     "cook:goat-cheese-salad(meal,x2)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "only one creature drops it",
@@ -13751,9 +13710,7 @@
     "cook:goat-cheese-salad",
     "cook:samphire-salad"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "lime",
@@ -14106,7 +14063,9 @@
    "uses": [
     "cooking ingredient"
    ],
-   "sources": [],
+   "sources": [
+    "Trail Sights item (trail_sight_items.txt:4-7)"
+   ],
    "made_by": [],
    "used_in": [
     "maple-sap-tea:2"
@@ -15038,9 +14997,7 @@
     "cook:sukuma-wiki(meal,x1)",
     "cook:palusami(meal,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "def: crops.txt",
@@ -15088,9 +15045,7 @@
     "cook:tomato-chutney",
     "cook:wild-rice-hotdish"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "orange",
@@ -16718,9 +16673,7 @@
     "feast-forest-roast:1",
     "cook:feast-forest-roast(feast,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier4 herb",
@@ -16739,9 +16692,7 @@
    "recipes_out": [
     "cook:feast-forest-roast"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "rye",
@@ -17308,9 +17259,7 @@
     "cook:quail-egg-rice-bowl(meal,x1)",
     "cook:egusi-soup(meal,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "tier1 vegetable"
@@ -17331,9 +17280,7 @@
     "cook:quail-egg-rice-bowl",
     "cook:spinach-quiche"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "strawberry",
@@ -17368,9 +17315,7 @@
     "cook:feast-berry-honey-cake(feast,x2)",
     "cook:strawberry-jam(preserve,x5)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "def: crops.txt",
@@ -17392,9 +17337,7 @@
     "cook:feast-berry-honey-cake",
     "cook:strawberry-jam"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "sugarcane",
@@ -17880,7 +17823,9 @@
    "uses": [
     "cooking ingredient"
    ],
-   "sources": [],
+   "sources": [
+    "Trail Sights item (trail_sight_items.txt:4-7)"
+   ],
    "made_by": [],
    "used_in": [
     "toffee-apple:1"
@@ -18013,9 +17958,7 @@
     "cook:sun-dried-tomatoes(preserve,x6)",
     "cook:sukuma-wiki(meal,x1)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "ingredient only; defined outside cooking domain (crop/forage/animal/Sights item); sources/shops not verified here",
     "def: crops.txt",
@@ -18046,9 +17989,7 @@
     "cook:tomato-chutney",
     "cook:tomato-passata"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "trout",
@@ -20878,7 +20819,9 @@
    "kinds": [
     "recipe"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [],
    "made_by": [
     "earthworm x3 + plain-compost x1 -> worm-castings x2"
@@ -20886,7 +20829,8 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "Recipe node"
+    "Recipe node",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "core-items"
@@ -20905,14 +20849,18 @@
    "kinds": [
     "soil"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [],
    "made_by": [
     "upgrade140: plain-compost x2 + leaf-mould x1"
    ],
    "used_in": [],
    "sold_at": [],
-   "notes": [],
+   "notes": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "domains": [
     "core-items"
    ],
@@ -21031,14 +20979,18 @@
    "kinds": [
     "soil"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [],
    "made_by": [
     "river-clay x2 + plain-compost x1"
    ],
    "used_in": [],
    "sold_at": [],
-   "notes": [],
+   "notes": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "domains": [
     "core-items"
    ],
@@ -21056,14 +21008,18 @@
    "kinds": [
     "soil"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [],
    "made_by": [
     "laterite-clay x2 + plain-compost x1"
    ],
    "used_in": [],
    "sold_at": [],
-   "notes": [],
+   "notes": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "domains": [
     "core-items"
    ],
@@ -21081,14 +21037,18 @@
    "kinds": [
     "mulch"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [],
    "made_by": [
     "straw-mulch x2 + chanterelle x1"
    ],
    "used_in": [],
    "sold_at": [],
-   "notes": [],
+   "notes": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "domains": [
     "core-items"
    ],
@@ -21698,7 +21658,9 @@
    "kinds": [
     "tool"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [
     "recipe"
    ],
@@ -21709,7 +21671,8 @@
    "sold_at": [],
    "notes": [
     "gather satchel (gathering.php); Gather tab shows best owned",
-    "terminal: made but never consumed by a crafting recipe"
+    "terminal: made but never consumed by a crafting recipe",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "crafting"
@@ -23112,7 +23075,9 @@
    "kinds": [
     "decor"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [
     "recipe"
    ],
@@ -23123,7 +23088,8 @@
    "sold_at": [],
    "notes": [
     "decor via animals140_items()",
-    "terminal: made but never consumed by a crafting recipe"
+    "terminal: made but never consumed by a crafting recipe",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "crafting"
@@ -25169,7 +25135,9 @@
    "kinds": [
     "decor"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [
     "recipe"
    ],
@@ -25180,7 +25148,8 @@
    "sold_at": [],
    "notes": [
     "decor via animals120_items()",
-    "terminal: made but never consumed by a crafting recipe"
+    "terminal: made but never consumed by a crafting recipe",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "crafting"
@@ -27359,7 +27328,9 @@
    "kinds": [
     "misc"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [
     "drop:ant-scouts L2 2%",
     "drop:earwig L4 2%",
@@ -27375,11 +27346,11 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "DEAD-END: no recipe, tailor, code or data use; only player market sale",
     "def: trail_sight_items.txt",
     "drop item of category misc",
     "no shop sells it; player may sell to market",
-    "rarity=None price=34"
+    "rarity=None price=34",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat"
@@ -29267,11 +29238,11 @@
    "sold_at": [],
    "notes": [
     "only one creature drops it",
-    "DEAD-END: no recipe, tailor, code or data use; only player market sale",
     "def: auto-created by importer from first drop (river-otter)",
     "not defined in any data file/const: made on the fly by drop importer (category part)",
     "no shop sells it; player may sell to market",
-    "rarity=77 price=79"
+    "rarity=77 price=79",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat"
@@ -29468,7 +29439,9 @@
    "kinds": [
     "flower"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [
     "drop:cactus-beast L19 20% @reg=MENA"
    ],
@@ -29481,7 +29454,8 @@
     "def: trail_sight_items.txt",
     "drop item of category flower",
     "no shop sells it; player may sell to market",
-    "rarity=None price=14"
+    "rarity=None price=14",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat"
@@ -29957,7 +29931,9 @@
     "trek ch2 chest \"The Drum Door\" (drumdoor) needs x1",
     "referenced in php: trek.php, trek_fight.php, trek_data.php"
    ],
-   "sources": [],
+   "sources": [
+    "Trek fight reward (trek_fight.php:340)"
+   ],
    "made_by": [],
    "used_in": [],
    "sold_at": [],
@@ -31303,31 +31279,6 @@
    "shops": []
   },
   {
-   "slug": "drumdoor-open",
-   "name": "Drumdoor_Open",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch2 gate \"The Drum Chamber\" (drumgate) needs x1"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Drumdoor_Open"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
    "slug": "dune-racer-skin",
    "name": "Dune Racer Skin",
    "kinds": [
@@ -32287,7 +32238,9 @@
    "kinds": [
     "flower"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [
     "drop:jackrabbit L25 3%"
    ],
@@ -32300,7 +32253,8 @@
     "def: trail_sight_items_shared.txt",
     "drop item of category flower",
     "no shop sells it; player may sell to market",
-    "rarity=None price=30"
+    "rarity=None price=30",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat"
@@ -32723,58 +32677,6 @@
    "kind": "flower",
    "names": [
     "Foxglove"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
-   "slug": "freed-burdock",
-   "name": "Freed_Burdock",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch1 gate \"The Fallen Stone\" (boulder) needs x1",
-    "referenced in php: trek_levels.php"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Freed_Burdock"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
-   "slug": "freed-zinnia",
-   "name": "Freed_Zinnia",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch1 gate \"The Blighted Caps\" (capwall) needs x1",
-    "referenced in php: trek.php, trek_levels.php"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Freed_Zinnia"
    ],
    "recipes_in": [],
    "recipes_out": [],
@@ -33481,11 +33383,11 @@
    "sold_at": [],
    "notes": [
     "only one creature drops it",
-    "DEAD-END: no recipe, tailor, code or data use; only player market sale",
     "def: auto-created by importer from first drop (foxfire-wisp)",
     "not defined in any data file/const: made on the fly by drop importer (category part)",
     "no shop sells it; player may sell to market",
-    "rarity=95 price=230"
+    "rarity=95 price=230",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat"
@@ -33684,31 +33586,6 @@
    "kind": "part",
    "names": [
     "Gnat Dust"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
-   "slug": "gneiss-down",
-   "name": "Gneiss_Down",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch3 gate \"The Still Gate\" (stillgate) needs x1"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Gneiss_Down"
    ],
    "recipes_in": [],
    "recipes_out": [],
@@ -35336,31 +35213,6 @@
    "shops": []
   },
   {
-   "slug": "knock-open",
-   "name": "Knock_Open",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch3 gate \"The Tapping Door\" (knockgate) needs x1"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Knock_Open"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
    "slug": "kola",
    "name": "Kola",
    "kinds": [
@@ -35677,9 +35529,7 @@
     "teas.txt: Lavender Fog",
     "teas.txt: Sleepy Meadow"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "only one creature drops it",
     "no recipe use; only text/code references (verify)",
@@ -35703,9 +35553,7 @@
     "tea:lavender-fog",
     "tea:sleepy-meadow"
    ],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "leaf-mould-clump",
@@ -35946,31 +35794,6 @@
    "kind": "part",
    "names": [
     "Leveret Tuft"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
-   "slug": "libdoor-open",
-   "name": "Libdoor_Open",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch2 gate \"The Library Door\" (libgate) needs x1"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Libdoor_Open"
    ],
    "recipes_in": [],
    "recipes_out": [],
@@ -37531,32 +37354,6 @@
    "kind": "part",
    "names": [
     "Mother-of-Pearl"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
-   "slug": "mother-down",
-   "name": "Mother_Down",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch1 gate \"The Den Door\" (dengate) needs x1",
-    "referenced in php: trek_levels.php"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Mother_Down"
    ],
    "recipes_in": [],
    "recipes_out": [],
@@ -39906,7 +39703,9 @@
    "kinds": [
     "flower"
    ],
-   "uses": [],
+   "uses": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "sources": [
     "drop:midge-cloud L11 18% @reg=SE/SA",
     "drop:thistle-beast L12 15%",
@@ -39924,7 +39723,8 @@
     "crop/flower item: plant, eat or sell; no recipe use",
     "def: flowers.txt",
     "drop item of category flower",
-    "no shop sells it; player may sell to market"
+    "no shop sells it; player may sell to market",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat"
@@ -40601,7 +40401,9 @@
    "uses": [
     "road event L457 \"Pay the raven a shiny quartz\" takes x1"
    ],
-   "sources": [],
+   "sources": [
+    "stop act (stop_acts_waves.txt:234)"
+   ],
    "made_by": [],
    "used_in": [],
    "sold_at": [],
@@ -40655,31 +40457,6 @@
    "kind": "part",
    "names": [
     "Shiny Trinket"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
-   "slug": "sign-open",
-   "name": "Sign_Open",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch2 recruit \"Tumble Waymarsh\" (tumble) needs x1"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Sign_Open"
    ],
    "recipes_in": [],
    "recipes_out": [],
@@ -40748,32 +40525,6 @@
    "kind": "part",
    "names": [
     "Silver Pelt"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
-   "slug": "silverfin-down",
-   "name": "Silverfin_Down",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch2 gate \"The Reading Room Hatch\" (silvergate) needs x1",
-    "trek ch2 gate \"The Crossroads Gate\" (crossroads) needs x1"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Silverfin_Down"
    ],
    "recipes_in": [],
    "recipes_out": [],
@@ -41602,7 +41353,7 @@
     "no shop sells it; player may sell to market",
     "tier4 grain",
     "no recipe uses it (raw eat/sell only)",
-    "DEAD-END: inedible raw, no recipe/craft/tea use; sell-only (+ jobs/gourmand/mastery)"
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat",
@@ -41745,11 +41496,11 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "DEAD-END: no recipe, tailor, code or data use; only player market sale",
     "def: auto-created by importer from first drop (ramshorn-pond-snail)",
     "not defined in any data file/const: made on the fly by drop importer (category part)",
     "no shop sells it; player may sell to market",
-    "rarity=70 price=47"
+    "rarity=70 price=47",
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat"
@@ -42531,31 +42282,6 @@
    "shops": []
   },
   {
-   "slug": "tallydoor-open",
-   "name": "Tallydoor_Open",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch3 gate \"The Counting Door\" (tallygate) needs x1"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Tallydoor_Open"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
    "slug": "tanuki-pelt",
    "name": "Tanuki Pelt",
    "kinds": [
@@ -42695,7 +42421,7 @@
     "def: crops.txt",
     "tier3 grain",
     "no recipe uses it (raw eat/sell only)",
-    "DEAD-END: inedible raw, no recipe/craft/tea use; sell-only (+ jobs/gourmand/mastery)"
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
    ],
    "domains": [
     "creatures-combat",
@@ -44378,32 +44104,6 @@
    "shops": []
   },
   {
-   "slug": "won-fight",
-   "name": "Won_Fight",
-   "kinds": [
-    ""
-   ],
-   "uses": [
-    "trek ch1 gate \"The Root Wall\" (rootwall) needs x1",
-    "referenced in php: trek.php, trek_fight.php, trek_events.php"
-   ],
-   "sources": [],
-   "made_by": [],
-   "used_in": [],
-   "sold_at": [],
-   "notes": [],
-   "domains": [
-    "creatures-combat"
-   ],
-   "kind": "",
-   "names": [
-    "Won_Fight"
-   ],
-   "recipes_in": [],
-   "recipes_out": [],
-   "shops": []
-  },
-  {
    "slug": "wyrm-fang",
    "name": "Wyrm Fang",
    "kinds": [
@@ -45000,9 +44700,7 @@
    ],
    "made_by": [],
    "used_in": [],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "tier3 vegetable",
     "no recipe uses it (raw eat/sell only)"
@@ -45017,9 +44715,7 @@
    ],
    "recipes_in": [],
    "recipes_out": [],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "bell-pepper-seed",
@@ -45469,9 +45165,7 @@
    ],
    "made_by": [],
    "used_in": [],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "tier3 vegetable",
     "no recipe uses it (raw eat/sell only)"
@@ -45486,9 +45180,7 @@
    ],
    "recipes_in": [],
    "recipes_out": [],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "kale-seed",
@@ -51918,9 +51610,7 @@
     "tea-ingredient:peppermint(herb,nimble+1)",
     "tea kettle (tea.php)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "tier2 herb",
     "not an item use: placement effect only",
@@ -51937,9 +51627,7 @@
    ],
    "recipes_in": [],
    "recipes_out": [],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "lemon-verbena-seed",
@@ -52077,9 +51765,7 @@
     "tea-ingredient:garden-sage(herb,lore+1)",
     "tea kettle (tea.php)"
    ],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "tier3 herb",
     "not an item use: placement effect only",
@@ -52096,9 +51782,7 @@
    ],
    "recipes_in": [],
    "recipes_out": [],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "tulsi-seed",
@@ -68002,9 +67686,7 @@
    ],
    "made_by": [],
    "used_in": [],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "not an item use: placement effect only"
    ],
@@ -68017,9 +67699,7 @@
    ],
    "recipes_in": [],
    "recipes_out": [],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "nasturtium",
@@ -68035,9 +67715,7 @@
    ],
    "made_by": [],
    "used_in": [],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "not an item use: placement effect only"
    ],
@@ -68050,9 +67728,7 @@
    ],
    "recipes_in": [],
    "recipes_out": [],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "seed-or-sapling-gift",
@@ -68066,9 +67742,7 @@
    "sources": [],
    "made_by": [],
    "used_in": [],
-   "sold_at": [
-    "Twigg's Seed Emporium 45-60 Petals (pal_jobs.php)"
-   ],
+   "sold_at": [],
    "notes": [
     "pseudo-node: category filter, not a single item; requires friend_gifts_on setting"
    ],
@@ -68081,9 +67755,7 @@
    ],
    "recipes_in": [],
    "recipes_out": [],
-   "shops": [
-    "twiggs-seed-emporium"
-   ]
+   "shops": []
   },
   {
    "slug": "cfpet-conch-shell",
@@ -70372,7 +70044,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70381,7 +70053,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70401,7 +70073,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70410,7 +70082,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70430,7 +70102,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70439,7 +70111,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70459,7 +70131,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70468,7 +70140,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70488,7 +70160,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70497,7 +70169,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70517,7 +70189,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70526,7 +70198,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70546,7 +70218,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70555,7 +70227,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70575,7 +70247,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70584,7 +70256,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70635,7 +70307,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70644,7 +70316,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70695,7 +70367,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70704,7 +70376,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70724,7 +70396,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70733,7 +70405,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70753,7 +70425,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70762,7 +70434,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70813,7 +70485,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70822,7 +70494,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70873,7 +70545,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70882,7 +70554,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70902,7 +70574,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70911,7 +70583,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70931,7 +70603,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -70940,7 +70612,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -70991,7 +70663,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71000,7 +70672,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71051,7 +70723,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71060,7 +70732,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71080,7 +70752,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71089,7 +70761,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71109,7 +70781,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71118,7 +70790,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71138,7 +70810,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71147,7 +70819,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71167,7 +70839,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71176,7 +70848,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71196,7 +70868,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71205,7 +70877,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71225,7 +70897,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71234,7 +70906,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71285,7 +70957,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71294,7 +70966,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71345,7 +71017,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71354,7 +71026,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71374,7 +71046,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71383,7 +71055,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71403,7 +71075,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71412,7 +71084,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71432,7 +71104,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71441,7 +71113,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71492,7 +71164,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71501,7 +71173,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71552,7 +71224,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71561,7 +71233,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71581,7 +71253,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71590,7 +71262,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71620,7 +71292,9 @@
    "sold_at": [
     "twigg-s-seed-emporium 405-540 (stock max 6, restock 60%)"
    ],
-   "notes": [],
+   "notes": [
+    "item-review 2.7.58 (uA-7/B9): flagged useless in the first pass by mistake (a recipe slug, decor item, skin, name-bound item or pool, or a use the scan missed); not a dead end"
+   ],
    "domains": [
     "shops-markets"
    ],
@@ -71641,7 +71315,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71650,7 +71324,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71701,7 +71375,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71710,7 +71384,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71730,7 +71404,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71739,7 +71413,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71759,7 +71433,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71768,7 +71442,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71819,7 +71493,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71828,7 +71502,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71879,7 +71553,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71888,7 +71562,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71939,7 +71613,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -71948,7 +71622,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -71999,7 +71673,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72008,7 +71682,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72028,7 +71702,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72037,7 +71711,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72088,7 +71762,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72097,7 +71771,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72148,7 +71822,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72157,7 +71831,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72208,7 +71882,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72217,7 +71891,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72268,7 +71942,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72277,7 +71951,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72328,7 +72002,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72337,7 +72011,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72357,7 +72031,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72366,7 +72040,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72386,7 +72060,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72395,7 +72069,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72446,7 +72120,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72455,7 +72129,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72475,7 +72149,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72484,7 +72158,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72504,7 +72178,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72513,7 +72187,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72564,7 +72238,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72573,7 +72247,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72593,7 +72267,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72602,7 +72276,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72653,7 +72327,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72662,7 +72336,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72682,7 +72356,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72691,7 +72365,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -72711,7 +72385,7 @@
     "tool-broken"
    ],
    "uses": [
-    "repair/mend source (worn-out tool); sell value ~10% base"
+    "repair/mend source (worn-out tool); cannot be sold"
    ],
    "sources": [
     "tool wears out"
@@ -72720,7 +72394,7 @@
    "used_in": [],
    "sold_at": [],
    "notes": [
-    "not sold in shops"
+    "cannot be sold (world.php:518) or bought"
    ],
    "domains": [
     "shops-markets"
@@ -78788,36 +78462,25 @@
    "id": "twiggs-seed-emporium",
    "name": "Twigg's Seed Emporium",
    "sells": [
-    "basil",
     "basil-seed",
-    "beet",
     "beet-seed",
-    "bell-pepper",
     "broadfork",
-    "broccoli",
     "broccoli-seed",
     "bug-net",
-    "cabbage",
     "cabbage-seed",
     "cane-fishing-rod",
     "cardboard-sheet",
-    "carrot",
     "carrot-seed",
-    "cauliflower",
     "cauliflower-seed",
     "celery-seed",
     "compost-scoop",
     "copper-watering-can",
-    "coriander",
     "coriander-seed",
     "crimson-clover-seed",
     "crop-seed",
-    "cucumber",
     "cucumber-seed",
-    "dill",
     "dill-seed",
     "divers-creel",
-    "eggplant",
     "fennel-seed",
     "fine-felling-axe",
     "fine-fly-rod",
@@ -78829,11 +78492,9 @@
     "foraging-knife",
     "garden-fork",
     "garden-hoe",
-    "garden-sage",
     "garden-sage-seed",
     "garden-snips",
     "garden-tonic",
-    "garlic",
     "garlic-seed",
     "gathering-basket",
     "gathering-pouch",
@@ -78857,13 +78518,10 @@
     "hovel-thing-window",
     "kale-seed",
     "kelp-meal",
-    "lavender",
     "leaf-mould",
     "lemon-balm-seed",
-    "lettuce",
     "lettuce-seed",
     "lucky-draught",
-    "marigold",
     "masterwork-barrow",
     "masterwork-gnome-seeder",
     "masterwork-harvest-cart",
@@ -78874,12 +78532,9 @@
     "miners-lantern",
     "mint-seed",
     "mulberry-leaf",
-    "nasturtium",
-    "onion",
     "onion-seed",
     "parsley-seed",
     "pea-seed",
-    "peppermint",
     "peppermint-seed",
     "plain-compost",
     "potato-seed",
@@ -78890,24 +78545,20 @@
     "rich-loam",
     "rock-pick",
     "rope",
-    "rosemary",
     "rosemary-seed",
     "sages-draught",
     "seed-drill",
-    "seed-or-sapling-gift",
     "seed-scoop",
     "shell-meal",
     "silk-net",
     "soil-probe",
     "soil-test-kit",
-    "spinach",
     "spinach-seed",
     "sprinkler-can",
     "steel-spade",
     "stirrup-hoe",
     "stoneskin-brew",
     "straw-mulch",
-    "strawberry",
     "strawberry-seed",
     "strong-healing-potion",
     "sunflower-seed",
@@ -78917,7 +78568,6 @@
     "tide-pail-and-scoop",
     "tin-lantern",
     "tin-watering-can",
-    "tomato",
     "tomato-seed",
     "trail-pack",
     "turnip-seed",
@@ -85063,17 +84713,7 @@
    "type": "recipe_input"
   },
   {
-   "from": "basil",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "basil-seed",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "beet",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85083,17 +84723,7 @@
    "type": "sold_by"
   },
   {
-   "from": "bell-pepper",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "broadfork",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "broccoli",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85104,11 +84734,6 @@
   },
   {
    "from": "bug-net",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "cabbage",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85128,17 +84753,7 @@
    "type": "sold_by"
   },
   {
-   "from": "carrot",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "carrot-seed",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "cauliflower",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85163,11 +84778,6 @@
    "type": "sold_by"
   },
   {
-   "from": "coriander",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "coriander-seed",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
@@ -85183,17 +84793,7 @@
    "type": "sold_by"
   },
   {
-   "from": "cucumber",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "cucumber-seed",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "dill",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85204,11 +84804,6 @@
   },
   {
    "from": "divers-creel",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "eggplant",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85268,11 +84863,6 @@
    "type": "sold_by"
   },
   {
-   "from": "garden-sage",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "garden-sage-seed",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
@@ -85284,11 +84874,6 @@
   },
   {
    "from": "garden-tonic",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "garlic",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85408,11 +84993,6 @@
    "type": "sold_by"
   },
   {
-   "from": "lavender",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "leaf-mould",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
@@ -85423,22 +85003,12 @@
    "type": "sold_by"
   },
   {
-   "from": "lettuce",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "lettuce-seed",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
   {
    "from": "lucky-draught",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "marigold",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85493,16 +85063,6 @@
    "type": "sold_by"
   },
   {
-   "from": "nasturtium",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "onion",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "onion-seed",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
@@ -85514,11 +85074,6 @@
   },
   {
    "from": "pea-seed",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "peppermint",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85573,11 +85128,6 @@
    "type": "sold_by"
   },
   {
-   "from": "rosemary",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
    "from": "rosemary-seed",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
@@ -85589,11 +85139,6 @@
   },
   {
    "from": "seed-drill",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "seed-or-sapling-gift",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85619,11 +85164,6 @@
   },
   {
    "from": "soil-test-kit",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "spinach",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85654,11 +85194,6 @@
   },
   {
    "from": "straw-mulch",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "strawberry",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -85704,11 +85239,6 @@
   },
   {
    "from": "tin-watering-can",
-   "to": "twiggs-seed-emporium",
-   "type": "sold_by"
-  },
-  {
-   "from": "tomato",
    "to": "twiggs-seed-emporium",
    "type": "sold_by"
   },
@@ -97505,829 +97035,12 @@
  ],
  "dupes": [
   {
-   "type": "name-variant",
-   "slug": "rice-and-beans",
-   "names": [
-    "Rice and Beans",
-    "Rice And Beans"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "potato-leek-soup",
-   "names": [
-    "Potato and Leek Soup",
-    "Potato Leek Soup"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sunflower-snack",
-   "names": [
-    "Toasted Sunflower Seeds",
-    "Sunflower Snack"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "fishermans-stew",
-   "names": [
-    "Fisherman’s Stew",
-    "Fishermans Stew"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "mackerel-rice",
-   "names": [
-    "Mackerel Rice Bowl",
-    "Mackerel Rice"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "feast-berry-honey-cake",
-   "names": [
-    "Berry and Honey Cake",
-    "Feast Berry Honey Cake"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "feast-maplewold-table",
-   "names": [
-    "Maplewold Harvest Table",
-    "Feast Maplewold Table"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "feast-maizehollow-mole",
-   "names": [
-    "Maizehollow Mole Feast",
-    "Feast Maizehollow Mole"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "feast-isles-ackee-pot",
-   "names": [
-    "Sunsprinkle Ackee Pot",
-    "Feast Isles Ackee Pot"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "feast-olivewhistle-supper",
-   "names": [
-    "Olivewhistle Shore Supper",
-    "Feast Olivewhistle Supper"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "stuffed-peppers-goat",
-   "names": [
-    "Goat Cheese Stuffed Peppers",
-    "Stuffed Peppers Goat"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "goat-cheese-tart",
-   "names": [
-    "Goat Cheese and Quail Egg Tart",
-    "Goat Cheese Tart"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "adzuki",
-   "names": [
-    "Adzuki",
-    "Adzuki Bean"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "almond",
-   "names": [
-    "Almond",
-    "Almonds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "beet",
-   "names": [
-    "Beet",
-    "Beetroot"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "black-pepper",
-   "names": [
-    "Black Pepper",
-    "Peppercorns"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cacao",
-   "names": [
-    "Cacao",
-    "Cacao Pods"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "caper",
-   "names": [
-    "Caper",
-    "Capers"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cardamom",
-   "names": [
-    "Cardamom",
-    "Cardamom Pods"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "chestnut",
-   "names": [
-    "Chestnut",
-    "Chestnuts"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cinnamon",
-   "names": [
-    "Cinnamon",
-    "Cinnamon Bark"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "clove",
-   "names": [
-    "Clove",
-    "Cloves"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "coffee",
-   "names": [
-    "Coffee",
-    "Coffee Cherries"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "collard",
-   "names": [
-    "Collard",
-    "Collard Greens"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "corn",
-   "names": [
-    "Corn",
-    "Maize"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cumin",
-   "names": [
-    "Cumin",
-    "Cumin Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "date",
-   "names": [
-    "Date",
-    "Dates"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "egusi",
-   "names": [
-    "Egusi",
-    "Egusi Melon"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "fiddleheads",
-   "names": [
-    "Fiddleheads",
-    "Fiddlehead Ferns"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "grape",
-   "names": [
-    "Grape",
-    "Grapes"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "hazelnut",
-   "names": [
-    "Hazelnut",
-    "Hazelnuts"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "hibiscus",
-   "names": [
-    "Hibiscus",
-    "Roselle Calyces",
-    "Roselle"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "kangkong",
-   "names": [
-    "Kangkong",
-    "Water Spinach"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "olive",
-   "names": [
-    "Olive",
-    "Olives"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "pecan",
-   "names": [
-    "Pecan",
-    "Pecans"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "perch",
-   "names": [
-    "Perch",
-    "River Perch"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "pistachio",
-   "names": [
-    "Pistachio",
-    "Pistachios"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "saffron",
-   "names": [
-    "Saffron",
-    "Saffron Threads"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sea-buckthorn",
-   "names": [
-    "Sea Buckthorn",
-    "Sea Buckthorn Berries"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sesame",
-   "names": [
-    "Sesame",
-    "Sesame Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sugarcane",
-   "names": [
-    "Sugarcane",
-    "Sugarcane Stalks"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sunflower",
-   "names": [
-    "Sunflower",
-    "Sunflower Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "tea",
-   "names": [
-    "Tea",
-    "Tea Leaves"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "trout",
-   "names": [
-    "Trout",
-    "Brook Trout"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "vanilla",
-   "names": [
-    "Vanilla",
-    "Vanilla Pods"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "walnut",
-   "names": [
-    "Walnut",
-    "Walnuts"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "pecan-seed",
-   "names": [
-    "Pecan Seed",
-    "Pecan Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cacao-seed",
-   "names": [
-    "Cacao Seed",
-    "Cacao Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "nutmeg-seed",
-   "names": [
-    "Nutmeg Seed",
-    "Nutmeg Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "brazil-nut-seed",
-   "names": [
-    "Brazil Nut Seed",
-    "Brazil Nut Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cloudberry-seed",
-   "names": [
-    "Cloudberry Seed",
-    "Cloudberry Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "caper-seed",
-   "names": [
-    "Caper Seed",
-    "Caper Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sea-buckthorn-seed",
-   "names": [
-    "Sea Buckthorn Seed",
-    "Sea Buckthorn Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "saffron-seed",
-   "names": [
-    "Saffron Seed",
-    "Saffron Corms"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "grains-of-paradise-seed",
-   "names": [
-    "Grains Of Paradise Seed",
-    "Grains of Paradise Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "coffee-seed",
-   "names": [
-    "Coffee Seed",
-    "Coffee Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "black-pepper-seed",
-   "names": [
-    "Black Pepper Seed",
-    "Pepper Vine Cutting"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "yuzu-seed",
-   "names": [
-    "Yuzu Seed",
-    "Yuzu Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "mangosteen-seed",
-   "names": [
-    "Mangosteen Seed",
-    "Mangosteen Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "macadamia-seed",
-   "names": [
-    "Macadamia Seed",
-    "Macadamia Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "timber-plank",
-   "names": [
-    "Timber Plank",
-    "Timber Planks"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "radish-seed",
-   "names": [
-    "Radish Seed",
-    "Radish Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "lettuce-seed",
-   "names": [
-    "Lettuce Seed",
-    "Lettuce Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "carrot-seed",
-   "names": [
-    "Carrot Seed",
-    "Carrot Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "tomato-seed",
-   "names": [
-    "Tomato Seed",
-    "Tomato Seeds"
-   ]
-  },
-  {
    "type": "slug-variant",
    "slugs": [
     "@treasure-seed",
     "treasure-seed"
    ],
    "merged_into": "treasure-seed"
-  },
-  {
-   "type": "name-variant",
-   "slug": "treasure-seed",
-   "names": [
-    "Treasure Seed",
-    "Treasure seed (pool)"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "building-stone",
-   "names": [
-    "Dressed Stone",
-    "Building Stone"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "butterfly-scales",
-   "names": [
-    "Shed Butterfly Scales",
-    "Butterfly Scales"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "dragonfly-wing",
-   "names": [
-    "Shed Dragonfly Wing",
-    "Dragonfly Wing"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "fine-mesh-net",
-   "names": [
-    "Fine-mesh Net",
-    "Fine Mesh Net"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "flint",
-   "names": [
-    "Flint Nodule",
-    "Flint"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sages-draught",
-   "names": [
-    "Sage’s Draught",
-    "Sage's Draught"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sphagnum",
-   "names": [
-    "Sphagnum Moss",
-    "Sphagnum"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "wayfarer-s-staff",
-   "names": [
-    "Wayfarer S Staff",
-    "Wayfarer's Staff"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "acai",
-   "names": [
-    "Acai",
-    "Açaí Berries"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "amaranth-seed",
-   "names": [
-    "Amaranth Seed",
-    "Amaranth Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "apricot-seed",
-   "names": [
-    "Apricot Seed",
-    "Apricot Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "baobab",
-   "names": [
-    "Baobab",
-    "Baobab Fruit"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "brazil-nut",
-   "names": [
-    "Brazil Nut",
-    "Brazil Nuts"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cabbage-seed",
-   "names": [
-    "Cabbage Seed",
-    "Cabbage Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "clove-seed",
-   "names": [
-    "Clove Seed",
-    "Clove Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "coconut-seed",
-   "names": [
-    "Coconut Seed",
-    "Coconut Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cranberry-seed",
-   "names": [
-    "Cranberry Seed",
-    "Cranberry Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "hops",
-   "names": [
-    "Hops",
-    "Hop Cones"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "hops-seed",
-   "names": [
-    "Hops Seed",
-    "Hop Rhizome"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "kola",
-   "names": [
-    "Kola",
-    "Kola Nuts"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "kola-seed",
-   "names": [
-    "Kola Seed",
-    "Kola Nut Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "macadamia",
-   "names": [
-    "Macadamia",
-    "Macadamias"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "melon-seed",
-   "names": [
-    "Melon Seed",
-    "Melon Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "olive-seed",
-   "names": [
-    "Olive Seed",
-    "Olive Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "pandanus",
-   "names": [
-    "Pandanus",
-    "Pandanus Fruit"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "potato-seed",
-   "names": [
-    "Potato Seed",
-    "Seed Potatoes"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "rhubarb-seed",
-   "names": [
-    "Rhubarb Seed",
-    "Rhubarb Crown"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "rooibos-seed",
-   "names": [
-    "Rooibos Seed",
-    "Rooibos Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "sorrel-seed",
-   "names": [
-    "Sorrel Seed",
-    "Sorrel Seeds"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "taro-seed",
-   "names": [
-    "Taro Seed",
-    "Taro Corms"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "tea-seed",
-   "names": [
-    "Tea Seed",
-    "Tea Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "yerba-mate",
-   "names": [
-    "Yerba Mate",
-    "Yerba Mate Leaves"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "yerba-mate-seed",
-   "names": [
-    "Yerba Mate Seed",
-    "Yerba Mate Seedling"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "kava",
-   "names": [
-    "Kava Root",
-    "Kava"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "star-anise",
-   "names": [
-    "Star Anise Pods",
-    "Star Anise"
-   ]
-  },
-  {
-   "type": "name-variant",
-   "slug": "cut-sakura",
-   "names": [
-    "Cherry Blossom Blossoms",
-    "Cut Sakura"
-   ]
   },
   {
    "type": "near-slug",
@@ -98478,12 +97191,12 @@
   }
  ],
  "stats": {
-  "items": 1912,
+  "items": 1901,
   "recipes": 347,
   "shops": 41,
-  "edges": 3567,
+  "edges": 3543,
   "orphans": 848,
-  "dupes": 122,
+  "dupes": 20,
   "repo_recipes": {
    "cook": 245,
    "craft": 82,
@@ -98523,9 +97236,10 @@
    "reward": 324
   },
   "orphan_flags": {
-   "no_sources": 16,
+   "no_sources": 6,
    "no_recipe_no_shop": 838,
-   "no_uses": 46
-  }
+   "no_uses": 34
+  },
+  "cleanup_2758": "H5, R19, uA-7, B9, EC12 applied: 102 name-variant dupes, 11 phantom trek-flag nodes, 24 wrong Twigg produce entries removed"
  }
 }

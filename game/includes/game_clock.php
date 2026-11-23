@@ -255,7 +255,7 @@ function gclock_gear_item_id(): int
     return (int)item_id_by_slug('camping-gear');
 }
 
-/** Parts of camping gear (decision 50), their base prices chosen so crafting the gear costs about 60 Petals against 100 in a shop (decision 31). */
+/** Parts of camping gear (decision 50). The parts' own base prices are small (1, 8, 8), but a craft's real cost is its inputs: the first recipes (bog iron, coir, cottongrass) came to about 216 Petals of base value against 100 in a shop (decision 31). 2.7.58 added cheaper alt recipes in crafts.txt (flint pins, clay pot, coir canvas, about 125 in all); the shop price stays 100. */
 const GCLOCK_CAMP_ITEMS = [
     'canvas-sheet' => ['Canvas Sheet', 'A stiff sheet of waxed canvas. Becomes a tent roof.', 8],
     'metal-pins' => ['Metal Pins', 'Short iron tent pins, hammered flat at one end.', 1],

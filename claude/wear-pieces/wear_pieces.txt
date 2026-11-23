@@ -115,7 +115,7 @@ w:sa-warp-stripe-jacket|Warp Mend|wear|sa-warp-stripe-jacket|guard|5|body|-|-|sr
 w:sa-bark-cloth-tunic-coat|Bark Ward|wear|sa-bark-cloth-tunic-coat|guard|5|mind|-|-|src|Bark-Cloth Tunic Coat: If the creature has a Hurt on the board, the creature's strongest piece loses 2.|-|foeHasH>shrink|2|5
 w:sa-kapok-puffer|Kapok Cushion|wear|sa-kapok-puffer|guard|7|craft|-|-|src|Kapok Puffer: Keeper. Gain 6 guard; if it stayed in your hand through a round, gain 6 more.|-|R:SA:coat|3|6
 w:sa-striped-poncho|Poncho Hum|wear|sa-striped-poncho|charm|4|craft|-|-|src|Striped Poncho: If it is linked to a Guard, your Charm counts 10% more for the rest of the fight.|-|linkG>bond|2|4
-w:sa-thatch-rain-cape|Thatch Cover|wear|sa-thatch-rain-cape|soothe|2|body|-|-|src|Thatch Rain Cape: If the creature has a Guard on the board, cut the creature's hits by 2 this round.|-|foeHasG>soothe|2|4
+w:sa-thatch-rain-cape|Thatch Cover|wear|sa-thatch-rain-cape|soothe|2|body|-|-|src|Savanna Thatch Rain Cape: If the creature has a Guard on the board, cut the creature's hits by 2 this round.|-|foeHasG>soothe|2|4
 w:sa-feather-shoulder-mantle|Feather Flash|wear|sa-feather-shoulder-mantle|charm|5|mind|-|-|src|Feather Shoulder Mantle: If its Yield bar is past half, add 5 Charm.|-|yHalf>charm|2|5
 w:sa-cloud-forest-shawl|Shawl Veil|wear|sa-cloud-forest-shawl|trick|4|craft|-|-|src|Cloud-Forest Shawl: If an environment piece is in its chain, the piece it links to gets +2.|-|linkEnv>boost|2|5
 w:sa-indigo-hooded-cloak|Dusk Lull|wear|sa-indigo-hooded-cloak|charm|7|body|-|-|src|Indigo Hooded Cloak: Add 6 Charm and cut the creature's hits by 3 this round. If its Yield bar is past half, the creature skips its next turn.|-|R:SA:cloak|3|6
@@ -212,7 +212,7 @@ w:sea-water-jar-pack|Jar Plenty|wear|sea-water-jar-pack|heal|8|body|-|-|src|Wate
 w:sea-indigo-batik-smock|Smock Wall|wear|sea-indigo-batik-smock|guard|6|body|-|-|src|Indigo Batik Smock: If you have played 2 or more Hurts this fight, gain 7 guard.|-|h2>guard|3|7
 w:sea-pandan-weave-vest|Pandan Vest|wear|sea-pandan-weave-vest|guard|6|mind|-|-|src|Pandan Weave Vest: If you hold a Charm in your hand, it stays 3 more round(s) on the board.|-|handC>life|3|7
 w:sea-ikat-wrap-jacket|Ikat Wrap Mend|wear|sea-ikat-wrap-jacket|guard|7|craft|-|-|src|Ikat Wrap-Jacket: If you are under half health, end your poison and heal 3.|-|hpLow>cleanse|3|8
-w:sea-kapok-puffer|Kapok Keep|wear|sea-kapok-puffer|guard|7|body|-|-|src|Kapok Puffer: If the creature has guard up, Keeper: it stays in your hand if you do not play it.|-|foeG>keep|3|8
+w:sea-kapok-puffer|Kapok Keep|wear|sea-kapok-puffer|guard|7|body|-|-|src|Jungle Kapok Puffer: If the creature has guard up, Keeper: it stays in your hand if you do not play it.|-|foeG>keep|3|8
 w:sea-mangrove-oilcloth|Oilcloth Slip|wear|sea-mangrove-oilcloth|guard|9|mind|-|-|src|Mangrove Oilcloth: Gain 9 guard; the creature's next Hurt misses. If the creature has no pieces on the board, its next piece loses 4.|-|R:SEA:coat|4|9
 w:sea-palm-frond-rain-cape|Palm Frond Hum|wear|sea-palm-frond-rain-cape|charm|6|mind|-|-|src|Palm-Frond Rain Cape: If it sits next to the creature's aim cell, cut the creature's hits by 3 this round.|-|aimNext>soothe|3|7
 w:sea-banana-leaf-hood|Hood Calm|wear|sea-banana-leaf-hood|soothe|4|craft|-|-|src|Banana-Leaf Hood: If it sits in a corner, cut the creature's hits by 3 this round.|-|corner>soothe|3|7
@@ -228,7 +228,7 @@ w:wca-calabash-pack|Gourd Plenty|wear|wca-calabash-pack|item|7|body|-|-|src|Cala
 w:wca-raffia-cone-basket|Cone Snack|wear|wca-raffia-cone-basket|item|7|mind|-|-|src|Raffia Cone Basket: If you played a Hurt last turn, heal 7.|-|hurtLast>heal|3|7
 w:wca-indigo-bundle|Indigo Bundle|wear|wca-indigo-bundle|trick|6|craft|-|-|src|Indigo Bundle: If you hold 2 or more Hurts in your hand, small chance to lift an item from the creature.|-|handH>pluck|3|8
 w:wca-tooled-satchel|Satchel Brew|wear|wca-tooled-satchel|heal|6|body|-|-|src|Tooled Satchel: If the creature has guard up, heal 3 at the start of each of your next 2 turns.|-|foeG>mend|3|8
-w:wca-bamboo-frame-pack|Frame Stew|wear|wca-bamboo-frame-pack|heal|8|mind|-|-|src|Bamboo Frame Pack: Heal 9 now and 4 at the start of each of your next 2 turns. Your next hand has 1 extra piece.|-|R:WCA:backpack|4|9
+w:wca-bamboo-frame-pack|Frame Stew|wear|wca-bamboo-frame-pack|heal|8|mind|-|-|src|Congo Bamboo Frame Pack: Heal 9 now and 4 at the start of each of your next 2 turns. Your next hand has 1 extra piece.|-|R:WCA:backpack|4|9
 w:wca-strip-weave-smock|Smock Thorn|wear|wca-strip-weave-smock|guard|6|mind|-|-|src|Strip-Weave Smock: From round 3 on, each hit this guard blocks adds 3 to the bar.|-|r3>thorns|3|7
 w:wca-mudcloth-vest|Mudcloth Hold|wear|wca-mudcloth-vest|guard|6|craft|-|-|src|Mudcloth Vest: If it is linked to a Hurt, it stays 3 more round(s) on the board.|-|linkH>life|3|7
 w:wca-raffia-rain-coat|Raffia Rain Slip|wear|wca-raffia-rain-coat|guard|7|body|-|-|src|Raffia Rain Coat: If it is linked to a Guard, the creature's next Hurt misses.|-|linkG>evade|3|8
@@ -245,7 +245,7 @@ w:esa-sisal-slippers|Slip Pierce|wear|esa-sisal-slippers|hurt|8|craft|-|-|src|Si
 w:esa-stripe-gaiters|Gaiter Finish|wear|esa-stripe-gaiters|hurt|8|body|-|-|src|Stripe Gaiters: If its Yield bar is past half, deal 9 extra damage.|-|yHalf>dmg|4|9
 w:esa-baobab-clogs|Baobab Thud|wear|esa-baobab-clogs|hurt|10|mind|-|-|src|Baobab Clogs: Deal 8 extra damage for each piece in its chain and remove the creature's weakest piece from the board.|-|R:ESA:footwear|5|8
 w:esa-coiled-basket-pack|Pack Plenty|wear|esa-coiled-basket-pack|item|8|mind|-|-|src|Coiled Basket Pack: If its chain has 3 or more pieces, heal 8.|-|combo3>heal|4|8
-w:esa-calabash-carrier|Gourd Brew|wear|esa-calabash-carrier|heal|6|craft|-|-|src|Calabash Carrier: If you are under three quarters health, heal 8.|-|hp75>heal|4|8
+w:esa-calabash-carrier|Gourd Brew|wear|esa-calabash-carrier|heal|6|craft|-|-|src|Rift Calabash Carrier: If you are under three quarters health, heal 8.|-|hp75>heal|4|8
 w:esa-grain-sack-pack|Grain Sack Meal|wear|esa-grain-sack-pack|item|9|body|-|-|src|Grain Sack Pack: If the creature has a Guard on the board, heal 9.|-|foeHasG>heal|4|9
 w:esa-acacia-frame-pack|Frame Rummage|wear|esa-acacia-frame-pack|trick|7|mind|-|-|src|Acacia Frame Pack: If its Yield bar is past half, the piece it links to gets +4.|-|yHalf>boost|4|9
 w:esa-herders-satchel|Herder Satchel|wear|esa-herders-satchel|heal|9|craft|-|-|src|Herder's Satchel: Heal 10 and next round pick from 6 pieces; each Hurt you place that round gets +5.|-|R:ESA:backpack|5|10
@@ -267,7 +267,7 @@ w:oc-mangrove-clog|Clog Crush|wear|oc-mangrove-clog|hurt|10|craft|-|-|src|Mangro
 w:oc-flax-basket-pack|Flax Plenty|wear|oc-flax-basket-pack|item|8|craft|-|-|src|Flax Basket Pack: If you hold a Charm in your hand, next round you pick from 6 pieces.|-|handC>plenty|4|9
 w:oc-coconut-string-bag|Coconut Snack|wear|oc-coconut-string-bag|item|8|body|-|-|src|Coconut String Bag: If a creature piece is in its chain, heal 9.|-|linkFoe>heal|4|9
 w:oc-bushmans-swag|Swag Rummage|wear|oc-bushmans-swag|trick|7|mind|-|-|src|Bushman's Swag: If you played no Hurt last turn, small chance to lift an item from the creature.|-|noHurt>pluck|4|10
-w:oc-bamboo-frame-pack|Frame Simmer|wear|oc-bamboo-frame-pack|heal|7|craft|-|-|src|Bamboo Frame Pack: If it sits in a corner, heal 4 at the start of each of your next 2 turns.|-|corner>mend|4|10
+w:oc-bamboo-frame-pack|Frame Simmer|wear|oc-bamboo-frame-pack|heal|7|craft|-|-|src|Reef Bamboo Frame Pack: If it sits in a corner, heal 4 at the start of each of your next 2 turns.|-|corner>mend|4|10
 w:oc-pouch-pack|Pouch Provision|wear|oc-pouch-pack|heal|9|body|-|-|src|Pouch Pack: Heal 11. Next round pick from 6 pieces, and at the end of that round your strongest unplayed piece stays in your hand.|-|R:OC:backpack|5|11
 w:oc-drovers-oilskin|Oilskin Thorn|wear|oc-drovers-oilskin|guard|7|body|-|-|src|Drover's Oilskin: If the creature has a Hurt on the board, each hit this guard blocks adds 4 to the bar.|-|foeHasH>thorns|4|9
 w:oc-bush-check-smock|Check Hold|wear|oc-bush-check-smock|guard|7|mind|-|-|src|Bush Check Smock: If it is linked to a Guard, the next Guard you place gets +9.|-|linkG>ward|4|9

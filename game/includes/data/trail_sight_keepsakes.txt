@@ -2,3 +2,21 @@
 # Written into the item's effects JSON as {"keepsake":{"gather":"axe","qty":1}} (merged, kept on admin edits); while the gnome carries one, every find with that tool gives that many more.
 teeny-axe|axe|1|The very small axe helps the big one.
 squirrels-spare-key|forage|1|The squirrel's key seems to know where the acorns are.
+# 2.7.58 item review (uA-3, B4): the misc curios and Sight trinkets that did nothing now help a tool a little (at most two keepsakes count at once, whatever you carry).
+brass-button|basket|1|Sewn on the basket strap, it never lets a berry slip.
+dew-pearl|bucket|1|A bucket that holds a never-drying dewdrop fills a little fuller.
+echo-pebble|pick|1|Tap it against the rock and the rock answers where the good bits are.
+frost-window-pane|lantern|1|Held up to the flame it shows what else is hiding in the dark.
+lagoon-glass-bead|rod|1|The striped minnow in it keeps the fish curious.
+lost-sock|forage|1|It has been under every bramble. It knows where things are.
+mirage-marble|staff|1|Roll it ahead and it shows a path that is, probably, there.
+mirror-pebble|net|1|The smiling reflection makes the small things come close.
+wishing-coin|forage|1|Still warm with someone's wish. Some of it rubs off.
+raindrop-bead|bucket|1|Clear as a window, it shows where the water is sweetest.
+squeaky-ice-chip|rod|1|Its squeak seems to wake up the sleepy fish.
+seaside-stationery|net|1|A note to the crab, and the crab sends friends.
+taper|lantern|1|A steady flame by the lantern lights up one more find.
+old-river-pebble|pick|1|Cool to the touch where the stone is richest.
+rivers-postcard|rod|1|The old river points at where the fish are hiding.
+root-race-ribbon|axe|1|Tied round the handle, it makes the swing a little faster.
+visitors-book-page|staff|1|Silly notes from past guests that happen to name the good spots.

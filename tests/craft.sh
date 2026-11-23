@@ -51,16 +51,16 @@ page "inventory.php?tab=craft&c=cooking&q=soup"; echo "soup search: $(grep -c 's
 echo "-- 2.3.7 per-object recipe tags (coverage: tests/craft_tags.php)"; php "$(dirname "$0")/craft_tags.php" "$GAME" | tail -1
 pills() { grep -o 'class="shpill[ "]' $T/c.html | wc -l; }
 page "inventory.php?tab=craft&c=garden"; grep -q 'href="[^"]*c=garden&amp;o=seeds#shelves"' $T/c.html || echo "FAIL garden seed trays do not link to ?o=seeds"; grep -q 'q=meal' $T/c.html && echo "FAIL garden still searches meal"
-for x in garden:seeds:6 tools:anvil:7 building:stones:3 decor:path:4 cooking:oven:15; do IFS=: read a o want <<<"$x"; page "inventory.php?tab=craft&c=$a&o=$o"; n=$(pills); grep -q 'class="cmap-on"' $T/c.html || echo "FAIL $a/$o has no Showing line"; grep -q 'aria-current="true"' $T/c.html || echo "FAIL $a/$o hotspot not marked current"; [ "$n" = "$want" ] && echo "$a/$o: $n recipes" || echo "FAIL $a/$o shows $n recipes, want $want"; done
+for x in garden:seeds:7 tools:anvil:7 building:stones:3 decor:path:4 cooking:oven:16; do IFS=: read a o want <<<"$x"; page "inventory.php?tab=craft&c=$a&o=$o"; n=$(pills); grep -q 'class="cmap-on"' $T/c.html || echo "FAIL $a/$o has no Showing line"; grep -q 'aria-current="true"' $T/c.html || echo "FAIL $a/$o hotspot not marked current"; [ "$n" = "$want" ] && echo "$a/$o: $n recipes" || echo "FAIL $a/$o shows $n recipes, want $want"; done
 page "inventory.php?tab=craft&c=garden&o=nope"; grep -q 'class="cmap-on"' $T/c.html && echo "FAIL unknown object still filters"
-page "inventory.php?tab=craft&c=pantry&o=cheese"; n=$(grep -o 'class="p2row ' $T/c.html | wc -l); grep -q 'Hanging cheese' $T/c.html && grep -q 'class="cmap-on"' $T/c.html && [ "$n" = 13 ] && echo "pantry/cheese: $n preserves" || echo "FAIL pantry/cheese shows $n preserves, want 13"
+page "inventory.php?tab=craft&c=pantry&o=cheese"; n=$(grep -o 'class="p2row ' $T/c.html | wc -l); grep -q 'Hanging cheese' $T/c.html && grep -q 'class="cmap-on"' $T/c.html && [ "$n" = 12 ] && echo "pantry/cheese: $n preserves" || echo "FAIL pantry/cheese shows $n preserves, want 12"
 page "inventory.php?tab=craft&c=pantry&o=kraut"; grep -q 'Sauerkraut\|???' $T/c.html && echo "pantry/kraut: $(grep -o 'class="p2row ' $T/c.html | wc -l) preserves" || echo "FAIL pantry/kraut empty"
 echo "-- 2.4.0 popovers: one dialog per tagged scene object, 3 tabs, no inline style/script"
 for k in cooking pantry tools garden building decor; do page "inventory.php?tab=craft&c=$k"; D=$(grep -o '<dialog class="picker craftpop"' $T/c.html | wc -l); [ "$D" -ge 1 ] || echo "FAIL $k has no craft popovers"; P=$(grep -o 'data-pop="pop-' $T/c.html | wc -l); [ "$P" = 5 ] || echo "FAIL $k: $P of 5 hotspots carry data-pop"; [ "$(grep -o 'role="tab"' $T/c.html | wc -l)" = "$((D * 3))" ] || echo "FAIL $k popovers do not have 3 tabs each"; done
 page "inventory.php?tab=craft&c=cooking"; php -r '$h=file_get_contents($argv[1]); preg_match_all("~<dialog class=\"picker craftpop\".*?</dialog>~s",$h,$m); foreach($m[0] as $d){ if(str_contains($d," style=")||str_contains($d,"<script")) echo "FAIL popover has inline style or script\n"; }' $T/c.html
 echo "-- landing badges: one recipe pass"; give bladderwrack 6; page "inventory.php?tab=craft"; grep -oE 'cmap-badge[^>]*>[^<]*ready' $T/c.html | head -3 | sed 's/.*>/badge: /'; grep -q 'ready</span>' $T/c.html || grep -q '[0-9] ready' $T/c.html || echo "FAIL no ready badge with 6 bladderwrack"
 echo "== Alchemy Table potions"
-N=$(db "SELECT COUNT(*) FROM recipes WHERE category='potions'"); echo "potion recipes: $N"; [ "$N" = 8 ] || echo "FAIL $N of 8 potion recipes"
+N=$(db "SELECT COUNT(*) FROM recipes WHERE category='potions'"); echo "potion recipes: $N"; [ "$N" = 13 ] || echo "FAIL $N of 13 potion recipes"
 give healing-potion 2; give pine-resin 1; R6=$(db "SELECT id FROM recipes WHERE slug='strong-healing-potion'")
 page "inventory.php?tab=craft&c=potions"   # discovers it
 echo "strong potion: $(make potions $R6)"

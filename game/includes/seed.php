@@ -92,8 +92,9 @@ function seed_starter_content(): void
     require_once __DIR__ . '/town.php';
     ensure_towns();       // town squares, their places and local lore
     if ($soup) {
-        db_insert('shop_stock', ['shop_id' => $kitchen, 'item_id' => $soup, 'price_min' => 40, 'price_max' => 55,
-            'max_stock' => 8, 'restock_chance' => 70, 'current_stock' => 8, 'current_price' => 45]);
+        $soupPrice = max(1, (int)q_val('SELECT base_price FROM items WHERE id = ?', [$soup]));
+        db_insert('shop_stock', ['shop_id' => $kitchen, 'item_id' => $soup, 'price_min' => $soupPrice, 'price_max' => $soupPrice,   // 2.7.58 (E6): 1.0x the home dish's base (was 40-55 against a base of 90)
+            'max_stock' => 8, 'restock_chance' => 70, 'current_stock' => 8, 'current_price' => $soupPrice]);
     }
 
     // NPCs: three shifts per shop so both are staffed 24 hours.

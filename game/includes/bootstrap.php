@@ -629,6 +629,10 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             q("UPDATE items SET name = ? WHERE slug = 'sacred-lotus-seed'", ['Sacred Lotus Tuber']);
             set_setting('item_review_names_2758', '1');
         });
+        boot_step('item_review_data_2758', function () {   // 2.7.58 item review group A: weak dish buffs raised and the Dewdrop Kitchen soup at 1.0x base, on worlds that still have the old numbers (once; new recipes and keepsakes are added by ensure_crafts / trail_sight_b_ensure)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_data();
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players
