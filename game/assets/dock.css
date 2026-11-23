@@ -1430,3 +1430,9 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on #pfv-pre .pfv-act .btn, body.dock-on #pfv-pre .pfv-act button { min-height: 34px; padding-top: 2px; padding-bottom: 2px; }
   body.dock-on #pfv-pre .pfv-deckfold { display: none; }
 }
+
+/* v2.8.14: Puzzle Pals region folds: a smaller heading so long region names fit their column */
+@media (orientation: landscape) {
+  body.dock-on details.ppfold > summary h2 { font-size: 15px; line-height: 1.2; }
+  body.dock-on details.ppfold > summary small { margin-left: auto; }
+}
