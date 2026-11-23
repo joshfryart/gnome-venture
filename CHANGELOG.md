@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.72
+- **Dock layout, Wander:** the choices on the right no longer scroll (the panel is split into the grid: choices right, the notes ("Deeper is ...", "If you're knocked out ...") under the picture on the left, Gather along the bottom). Checked with a fake off-the-path walk at step 0 in a headless 844 x 390 browser: Go deeper and Head to the road show whole; the notes run under the dock edge and scroll with the page.
+
 ## 2.7.71
 - **Dock layout, landscape: the Wander page is one screen.** The scene picture, the rings and the choices (Go deeper, Keep exploring, Step back, Head to the road) sit side by side, with a slimmer heading and status line; the long notes and Gather stay in their folds under the choices. (The flavour line above the choices is hidden in the dock layout.) At 844 x 390 the three parts end above the dock; before, the page was 2840 px tall. Checked with a fake off-the-path walk in a headless browser; a real Wander fight, find or Gather fold open was not checked.
 
