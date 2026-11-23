@@ -232,6 +232,22 @@ function dock_actions(array $u, string $page): array
     return $out;
 }
 
+/** The creature in the current fight (for the dock's Creature popover), or null. Read-only. */
+function dock_foe(int $uid): ?array
+{
+    try {
+        if (!function_exists('active_expedition')) return null;
+        $exp = active_expedition($uid);
+        $enc = $exp && !empty($exp['encounter']) ? (is_array($exp['encounter']) ? $exp['encounter'] : json_decode((string)$exp['encounter'], true)) : null;
+        if (!is_array($enc) || ($enc['type'] ?? '') !== 'creature') return null;
+        $c = encounter_creature($enc);
+        if (!$c) return null;
+        $hp = isset($enc['hp']) ? (int)$enc['hp'] : (int)$c['hp'];
+        $max = isset($enc['max']) ? (int)$enc['max'] : (int)$c['hp'];
+        return ['name' => (string)$c['name'], 'level' => (int)$c['level'], 'hp' => max(0, $hp), 'max' => max(1, $max), 'size' => (string)$c['size'], 'text' => (string)$c['description']];
+    } catch (Throwable $e) { return null; }
+}
+
 /** Play mode: the mini-games get a thin rail instead of the full dock (the full dock opens from its menu button). Returns the rail's label and back link, or null. */
 function dock_play(string $page): ?array
 {
@@ -323,7 +339,7 @@ function dock_page_spec(string $page): array
             $exA = function_exists('active_expedition') ? active_expedition((int)$uA['id']) : null;
             $enc = $exA && !empty($exA['encounter']);
             $R = $enc
-                ? dock_action('Run', '🏃', '', [], '', '', '', [], [dock_remote('Run away', '🏃', ['sel' => '.pf-runf button']), dock_remote('Run away', '🏃', ['doForm' => 'flee'])])
+                ? dock_action('Fight', '⚔️', '', [dock_remote('Creature', '🔍', ['foe' => 1]), dock_remote('Run away', '🏃', ['sel' => '.pf-runf button, form:has(input[name="do"][value="flee"]) button'])], '', '', 'In a fight')
                 : dock_action('Trail', '🥾', '', [
                     dock_remote('Sights', '🔎', ['sel' => '.trailfoot .trailsights']),
                     dock_remote('Gather', '🧺', ['sel' => '.trailfoot [data-pop="hubpop-tgather"]']),
@@ -397,6 +413,7 @@ function dock_html(array $u, string $page): string
         'logoutForm' => '<form method="post" action="' . e(url('logout.php')) . '" class="inline" data-noajax="1">' . csrf_field() . '<button type="submit">Log out</button></form>', 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
         'quick' => $quick, 'csrf' => csrf_token(), 'quickUrl' => url('quick.php'), 'back' => $back,
         'play' => dock_play($page),
+        'foe' => dock_foe((int)$u['id']),
         'iconBase' => url('assets/img/nav/dock-'), 'iconNames' => DOCK_ICONS, 'home' => url('gnome.php'),
     ];
     $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);

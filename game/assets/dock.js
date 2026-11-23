@@ -159,6 +159,7 @@
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
     var t, e;
     if (!spec) return;
+    if (spec.foe) { slip = 'status'; popTab = 'foe'; return 'keep'; }
     if (spec.tool) { tool = tool === spec.tool ? null : spec.tool; e = q1('.selbar [data-sel="' + (tool ? 'on' : 'off') + '"]'); if (tool === null) { e = q1('.selbar [data-sel="off"]'); } if (e && !e.hidden && (tool || gSelOn())) e.click(); return; }
     if (spec.doForm) { t = formBtn(spec.doForm); if (t && !t.dis) t.btn.click(); return; }
     if (spec.sel) { e = q1(spec.sel); if (e && !e.disabled) e.click(); }
@@ -199,6 +200,7 @@
   function copy(o) { var r = {}, k; for (k in o) r[k] = o[k]; return r; }
   function finalItem(t) {
     var o = copy(t), r;
+    if (t.remote && t.remote.foe) { o.rem = remKey(t.remote); o.why = D.foe ? '' : 'none'; return o; }
     if (t.remote && t.remote.tool) { o.why = q1('.selbar') ? '' : 'n/a'; o.rem = remKey(t.remote); o.badge = tool === t.remote.tool ? '\u25cf' : ''; return o; }
     if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); }
     return o;
@@ -220,7 +222,8 @@
       o.label = 'Quick'; o.icon = '＋'; o.qk = 'empty'; return o;
     }
     if (a.remote && a.remote.quick === 'use') {   // use only (adventure): the Quick item, no assign, no x, no hold; empty = set it in the Satchel
-      if (D.quick) { o.label = D.quick.name; o.icon = D.quick.kind === 'heal' ? '🧪' : '🍽️'; o.badge = D.quick.qty > 0 ? String(D.quick.qty) : ''; o.qk = 'useonly'; if (D.quick.qty <= 0) o.chip = '0 left'; }
+      if (D.foe) { o.label = D.quick ? D.quick.name : 'Quick'; o.icon = '\u26a1'; o.why = 'not in a fight'; }
+      else if (D.quick) { o.label = D.quick.name; o.icon = D.quick.kind === 'heal' ? '🧪' : '🍽️'; o.badge = D.quick.qty > 0 ? String(D.quick.qty) : ''; o.qk = 'useonly'; if (D.quick.qty <= 0) o.chip = '0 left'; }
       else { o.label = 'Quick'; o.icon = '＋'; o.why = 'set in Satchel'; }
       return o;
     }
@@ -342,11 +345,15 @@
 
   function popHTML(W, g) {
     var w = Math.min(460, W - 24), h, x, y, body = '', tabs = [['now', 'Now'], ['rail', 'Pots, boosts, tasks'], ['more', 'More']];
+    if (D.foe) tabs.unshift(['foe', 'Creature']);
     function rows(list, empty) {
       if (!list.length) return '<div class="row empty">' + esc(empty) + '</div>';
       return list.map(function (r) { return (r[2] ? '<a class="row" href="' + esc(r[2]) + '">' : '<div class="row">') + '<span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b>' + (r[2] ? '</a>' : '</div>'); }).join('');
     }
-    if (popTab === 'rail') {
+    if (popTab === 'foe' && D.foe) {
+      body = '<div><h4>' + esc(D.foe.name) + '</h4><div class="row"><span>Level</span><b>' + D.foe.level + '</b></div><div class="row"><span>Health</span><b>' + D.foe.hp + '/' + D.foe.max + '</b></div><div class="row"><span>Size</span><b>' + esc(D.foe.size) + '</b></div></div><div><h4>About</h4><div class="row"><span>' + esc(D.foe.text) + '</span></div></div>';
+      h = 150;
+    } else if (popTab === 'rail') {
       body = '<div><h4>🍳 Pots</h4>' + rows(D.rail.pots, 'None cooking') + '</div><div><h4>✨ Boosts</h4>' + rows(D.rail.boosts, 'No boosts. Eat or cook something.') + '</div><div><h4>📋 Tasks</h4>' + rows(D.rail.tasks, 'No job yet') + '</div>';
       h = 96 + 28 * Math.max(1, D.rail.pots.length, D.rail.boosts.length, D.rail.tasks.length);
     } else if (popTab === 'more') {
@@ -417,7 +424,7 @@
       return;
     }
     var rm = e.target.closest('[data-rem]');
-    if (rm && !rm.disabled) { remoteGo(REM[parseInt(rm.getAttribute('data-rem'), 10)]); if (!selOn) slip = null; render(); return; }   // a piece that works a control on the page
+    if (rm && !rm.disabled) { if (remoteGo(REM[parseInt(rm.getAttribute('data-rem'), 10)]) !== 'keep' && !selOn) slip = null; render(); return; }   // a piece that works a control on the page
     if (m) { open(m.getAttribute('data-m')); return; }
     if (p) { open('status'); return; }
     if (a && !a.disabled) {

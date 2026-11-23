@@ -57,7 +57,9 @@ Done (admin preview):
 - **Garden Tools:** the right piece's strip starts with Water, Harvest and Till tools. Arming one turns the page's select mode on and the left piece becomes Done ("tap a bed"); a tap on a bed clears the picks, picks that bed alone and clicks the page's own Water, Harvest or Till button (so the Till confirm and the energy checks are the page's). Tested on a SQLite install: a bed tap posted `do=batch&act=water&sq[]=3-0`.
 - **Community garden (Together):** right Tend strip (Tend, Take bed, Take store), left Messages.
 
-Still to do (needs a live session or new design): the puzzle fight's Creature popover and the Quick item in fights; Yard's Edit strip; Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); ~100 action icons still emoji; a real-phone and real-browser pass.
+- **Fights:** the right piece is a Fight strip: Creature (a popover tab with name, level, health, size and a line about it, read from `encounter_creature()`) and Run away (the puzzle fight's own `.pf-runf` button or the old `flee` form). The Quick piece is greyed "not in a fight" (the puzzle fight's Snack is a tile with its own limits, so Quick does not bypass it). Tested with a fake expedition and encounter in the SQLite copy.
+
+Still to do (needs a live session or new design): Yard's Edit strip; Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); ~100 action icons still emoji; a real-phone and real-browser pass.
 
 How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 
