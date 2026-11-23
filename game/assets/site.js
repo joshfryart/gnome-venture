@@ -1176,7 +1176,7 @@ if (!window.gvMycBound) {
 }
 /* v2.1.11: the wander page folds (gather, notes) start closed on a phone and open on a larger screen; set once per fold, so a fold the gnome opened stays open. */
 function gvWanderFolds() {
-  var phone = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+  var phone = window.matchMedia && (window.matchMedia('(max-width: 720px)').matches || (document.body.classList.contains('dock-on') && window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches));   // 2.7.77: a phone on its side with the dock keeps them closed too
   document.querySelectorAll('details.wfold:not([data-init])').forEach(function (d) {
     d.setAttribute('data-init', '1');
     if (!phone) d.open = true;

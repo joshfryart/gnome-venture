@@ -361,9 +361,18 @@ body.dock-on .cbed { cursor: pointer; }
 /* dock layout, landscape: Gather here is the picture on the left, the tool belt and spots beside it */
 @media (orientation: landscape) {
   body.dock-on .gx.gatherbox { display: grid; grid-template-columns: minmax(0, calc(var(--imgh) * 1.78)) minmax(0, 1fr); gap: 0 12px; align-items: start; max-width: none; width: 100%; }
-  body.dock-on .gx.gatherbox > .gx-hero { grid-column: 1; grid-row: 1 / span 6; width: 100%; }
-  body.dock-on .gx.gatherbox > :not(.gx-hero) { grid-column: 2; min-width: 0; }
+  body.dock-on .gx.gatherbox > .gx-hero { grid-column: 1; grid-row: 1 / span 4; width: 100%; }
+  body.dock-on .gx.gatherbox > .gx-banner, body.dock-on .gx.gatherbox > .gx-h--belt, body.dock-on .gx.gatherbox > ul.belt, body.dock-on .gx.gatherbox > p.belt__now { grid-column: 2; min-width: 0; }
+  body.dock-on .gx.gatherbox > .gx-banner { margin: 0 0 4px; }   /* the result card ("Into your satchel"): beside the picture, not over it */
+  body.dock-on .gx.gatherbox > .gx-h:not(.gx-h--belt), body.dock-on .gx.gatherbox > form.gx-form, body.dock-on .gx.gatherbox > ul.finds { grid-column: 1 / -1; }
+  body.dock-on .gx.gatherbox > ul.finds { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 8px; }
   body.dock-on .gx.gatherbox .gx-h { margin: 2px 0; }
   body.dock-on .gx.gatherbox ul.belt { flex-wrap: wrap; gap: 4px; }
   body.dock-on .gx.gatherbox .belt__slot { width: 60px; }
+}
+@media (orientation: landscape) {
+  body.dock-on .gx.gatherbox .gcards { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  body.dock-on .gx.gatherbox .gcard__art { height: 92px; overflow: hidden; }
+  body.dock-on .gx.gatherbox .gcard__art img { width: 100%; height: 100%; object-fit: cover; }
+  body.dock-on .gx.gatherbox .gcard { align-content: start; }
 }

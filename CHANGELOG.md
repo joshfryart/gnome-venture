@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.77
+- **Wander folds start closed in the dock layout.** The More and Gather folds were opened on any screen wider than 720 px, so a phone on its side saw the long notes under the picture. In the dock layout on a short landscape screen they now start closed (`site.js` `gvWanderFolds`); a fold you open stays open, and Gather still opens itself after a find.
+- **Gather result card (landscape):** the "Into your satchel" card sits beside the picture instead of overlapping it; the spot cards are four across with a 92 px picture, and the list of what you can find is a multi-column grid under them (`dock.css`). Checked after a real gather in a fake walk in a headless 844 x 390 browser.
+
 ## 2.7.76
 - **Dock layout, Gather here:** the picture is smaller (about 340 x 190 at 844 x 390, was 560 x 315) with your tool belt and the gather spots beside it instead of under it (page 1176 to 900 px). Checked with a fake off-the-path walk in a headless browser; a gather that has just paid out (the result card) was not checked.
 
