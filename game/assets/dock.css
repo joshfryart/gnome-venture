@@ -691,3 +691,374 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on main:has(> .cmap-scene) .p2head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
   body.dock-on main:has(> .cmap-scene) .p2head > * { width: auto; }
 }
+
+
+/* ===== 2.7.96: second page survey (seeded test world; each fix tested by injection) ===== */
+/* survey2: dialog.craftpop (craft hotspot popovers + item sheets) */
+@media (orientation: landscape) {
+ body.dock-on dialog.craftpop .pickhead, body.dock-on dialog.craftpop .cptabs, body.dock-on dialog.craftpop .cppal { flex: none; }
+ body.dock-on dialog.craftpop .pickhead { padding: 2px 12px; }
+ body.dock-on dialog.craftpop .pickhead .pickx { height: 32px; }
+ body.dock-on dialog.craftpop .cppal { margin: 0; padding: 0 12px; }
+ body.dock-on dialog.craftpop .cptabs { padding-top: 4px; }
+ body.dock-on dialog.craftpop .cptab { min-height: 32px; }
+ body.dock-on dialog.craftpop .cptab small { display: inline; margin-left: 4px; }
+ body.dock-on dialog.craftpop .cpact .btn { min-height: 36px; }
+ body.dock-on dialog.craftpop .pickbox { width: min(780px, 100%); }
+ body.dock-on dialog.craftpop .cpact { max-width: 55%; }
+}
+
+/* survey2: inventory.php (all four tabs: Satchel, Crafting, Belt, Arrange) */
+@media (orientation: landscape) {
+ body.dock-on main > h1:has(+ nav.bagtabs) { display: none; }
+ body.dock-on nav.bagtabs { margin: 4px 0; }
+ body.dock-on nav.bagtabs a { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 2px 6px; }
+ body.dock-on .cmap-in { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; margin: 0 0 6px; }
+ body.dock-on .cmap-in .cmap-all { flex: none; min-height: 36px; padding: 2px 10px; }
+ body.dock-on .cmap-in .cmap-strip { flex: 1 1 auto; min-width: 0; padding-bottom: 0; }
+}
+
+/* survey2: inventory.php?tab=craft&c=<area> (recipe list, 'All recipes' fold open */
+@media (orientation: landscape) {
+ body.dock-on main:has(> .cmap-scene) .shelves .shpills { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding-bottom: 8px; }
+ body.dock-on main:has(> .cmap-scene) .shelves .shpill { flex-direction: row; align-items: center; text-align: left; gap: 6px; padding: 2px 6px; --shic: 40px; }
+ body.dock-on main:has(> .cmap-scene) .shelves .shpt { justify-items: start; }
+ body.dock-on main:has(> .cmap-scene) > .cmap-scene { position: sticky; top: 8px; }
+}
+
+/* survey2: inventory.php?tab=arrange */
+@media (orientation: landscape) {
+ body.dock-on #arrform .arrgrid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px; margin-bottom: 4px; }
+ body.dock-on #arrform .arrstage { display: grid; grid-template-columns: 200px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 12px; align-items: center; padding: 8px 12px; }
+ body.dock-on #arrform .arrstage > .arrvessels { grid-column: 2; grid-row: 1; margin: 0; }
+ body.dock-on #arrform .arrstage > .arrcanvas { grid-column: 1; grid-row: 1 / span 3; width: 200px; max-height: 210px; }
+ body.dock-on #arrform .arrstage > .arrcount { grid-column: 2; margin: 0; }
+ body.dock-on #arrform .arrstage > .arrbtns { grid-column: 2; }
+ body.dock-on #arrform .arrvessel { padding: 2px 10px; min-height: 32px; }
+ body.dock-on #arrform .arrside { padding: 8px 12px; }
+ body.dock-on #arrform .arrside h2 { margin: 0 0 4px; font-size: 1.05rem; }
+ body.dock-on #arrform > h2 { margin: 6px 0 4px; font-size: 1.05rem; }
+ body.dock-on #arrform .arrstock { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px; }
+ body.dock-on #arrform .arrtile { padding: 4px 2px; gap: 0; }
+ body.dock-on #arrform .arrparts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 10px; margin: 4px 0; padding: 0; }
+ body.dock-on #arrform .arrparts li { margin: 0; }
+ body.dock-on #arrform .arrside > .help { display: none; }
+ body.dock-on #arrform .arrtotal, body.dock-on #arrform .arrname { margin-block: 0 2px; }
+}
+
+/* survey2: tailor.php */
+@media (orientation: landscape) {
+ body.dock-on main:has(> ul.rcards.tlr) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px; align-items: start; }
+ body.dock-on main:has(> ul.rcards.tlr) > * { grid-column: 1 / -1; }
+ body.dock-on main:has(> ul.rcards.tlr) > details.box { grid-column: auto; }
+ body.dock-on main:has(> ul.rcards.tlr) > details.box[open] { grid-column: 1 / -1; }
+ body.dock-on main:has(> ul.rcards.tlr) > h1 { margin: 2px 0; }
+ body.dock-on main:has(> ul.rcards.tlr) > details.box > summary { padding-block: 4px; }
+ body.dock-on ul.rcards.tlr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+ body.dock-on ul.rcards.tlr > li { margin: 0; }
+ body.dock-on ul.rcards.tlr form.inline { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+ body.dock-on ul.rcards.tlr form.inline select { flex: 1 1 120px; min-width: 0; max-width: 100%; }
+}
+
+/* survey2: workshop.php */
+@media (orientation: landscape) {
+ body.dock-on main > h1:has(+ .hubscene) { margin: 2px 0; font-size: 1.2rem; }
+ body.dock-on .hubscene > svg { grid-column: 1; grid-row: 1 / span 4; width: min(500px, 62vw); height: auto; }
+ body.dock-on .hubscene > ul.hubleg { grid-column: 2; grid-row: 1; flex-direction: column; align-items: stretch; gap: 4px; padding: 0; margin: 0; max-height: 290px; overflow-y: auto; }
+ body.dock-on .hubscene > ul.hubleg > li > * { min-height: 34px; padding-block: 2px; width: 100%; }
+ body.dock-on .hubscene > details.hubtwin { grid-column: 2; }
+}
+
+/* survey2: inventory.php?tab=belt&b=mend */
+@media (orientation: landscape) {
+ body.dock-on .toolbelt .toolcards:has(.wearbox) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ body.dock-on .toolcards .tc:has(> .wearbox) { gap: 8px; padding: 6px 10px; }
+ body.dock-on .toolcards .tc > .wearbox { flex: 0 0 52%; min-width: 0; }
+ body.dock-on .toolcards .tc > .wearbox .btn { width: 100%; min-height: 36px; padding-inline: 6px; }
+ body.dock-on .toolcards .tc > .wearbox progress { width: 100%; }
+ body.dock-on .toolcards .tc > p:empty { display: none; }
+ body.dock-on .toolbelt .belt .pouch { min-height: 0; }
+ body.dock-on .toolbelt .belt .pouch .pwear, body.dock-on .toolbelt .belt .pouch .pname { font-size: .65rem; line-height: 1.1; }
+ body.dock-on .toolbelt .belt .pouch .ptier { font-size: .6rem; padding: 0 3px; }
+}
+
+/* survey2: jobs.php active job + Tasks header (shared by Journey/Requests) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> nav.jqtabs) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
+  body.dock-on main:has(> nav.jqtabs) > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on main:has(> nav.jqtabs) > h1 { flex: 0 0 auto; margin: 0; font-size: 1.3rem; }
+  body.dock-on main:has(> nav.jqtabs) > nav.jqtabs { flex: 1 1 0; margin: 0; }
+  body.dock-on nav.jqtabs a { min-height: 36px; flex-direction: row; gap: 6px; }
+  body.dock-on .jb-streak { margin: 2px 0 0; font-size: 12px; }
+  body.dock-on .jb-cols:has(> .jb-hero) { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: start; }
+  body.dock-on .jb-card { padding: 10px 12px; }
+  body.dock-on .jb-hero h2 { font-size: 1.2rem; margin: 6px 0 2px; }
+  body.dock-on .jb-prog { margin-top: 8px; }
+  body.dock-on .jb-reward { margin-top: 8px; }
+  body.dock-on .jb-chip { min-height: 26px; }
+  body.dock-on .jb-fold { margin-top: 8px; }
+  body.dock-on .jb-actions { margin-top: 8px; }
+}
+/* file: /tmp/dockgame/c1.css. Not checked: the rebuild steps variant (.jb-steps) of the hero */
+
+/* survey2: jobs.php?t=post */
+@media (orientation: landscape) {
+  body.dock-on .jb-cols.even { grid-template-columns: minmax(0, 1fr); }
+  body.dock-on .jb-cols.even > .jb-board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 16px; align-items: start; }
+  body.dock-on .jb-cols.even > .jb-board > h2, body.dock-on .jb-cols.even > .jb-board > .jb-empty { grid-column: 1 / -1; }
+  body.dock-on .jb-cols.even > .jb-board > .jb-pj { border-top: 1px solid var(--line); padding: 8px 0; }
+  body.dock-on .jb-cols.even > .jb-board > .jb-pj:nth-of-type(-n+2) { border-top: 0; }
+  body.dock-on .jb-forms { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: start; }
+  body.dock-on .jb-forms > .jb-sub { grid-column: 1 / -1; margin: 0; }
+  body.dock-on .jb-form .g2 { gap: 6px 8px; margin: 6px 0; }
+  body.dock-on .jb-per { white-space: nowrap; }
+}
+/* file: /tmp/dockgame/c2.css; combine with the c1 header rules */
+
+/* survey2: jobs.php?t=requests */
+@media (orientation: landscape) {
+  body.dock-on .qsec .qlist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; }
+}
+/* file: /tmp/dockgame/c3.css. Its 3-column orders rule added nothing and should be left out */
+
+/* survey2: market.php Gifts / Trades / Saplings / stall */
+@media (orientation: landscape) {
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; align-items: start; }
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) label { margin-bottom: 8px; }
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) > .btn { justify-self: start; grid-column: 1 / -1; margin-bottom: 4px; }
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) select { max-width: calc(100% - 130px); display: inline-block; }
+  body.dock-on .mkadd .form.inline { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0 10px; }
+  body.dock-on .mkadd summary { min-height: 36px; }
+  body.dock-on .mkgrid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 6px; }
+  body.dock-on .mkinbox { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.dock-on .tradeform .tradecols { gap: 4px 20px; }
+  body.dock-on .tradeform .tradecols h4 { margin: 0; }
+  body.dock-on .tradeform .tradecols > div > div { margin: 3px 0; }
+  body.dock-on .tradeform .tradecols select { max-width: none; flex: 1 1 0; min-width: 0; min-height: 34px; padding-top: 2px; padding-bottom: 2px; }
+  body.dock-on .tradeform > label { display: inline-block; margin-right: 10px; }
+  body.dock-on main > .box > table.grid td, body.dock-on main > .box > table.grid th { padding: 3px 8px; }
+  body.dock-on main > .box > table.grid td form { margin: 0; }
+  body.dock-on main > .box > table.grid td .btn { min-height: 32px; padding-top: 2px; padding-bottom: 2px; }
+}
+/* file: /tmp/dockgame/c4.css. The Gifts item select + qty is slightly ragged but usable. The saplings gain is small */
+
+/* survey2: shared dialog.isheet (market buy sheet, festival stall sheet, other sh */
+@media (orientation: landscape) {
+  body.dock-on dialog.isheet { padding: 8px 14px 10px; }
+  body.dock-on dialog.isheet .shead { flex-direction: row; justify-content: center; gap: 10px; margin: 0 0 2px; }
+  body.dock-on dialog.isheet .sico img, body.dock-on dialog.isheet .sico svg { width: 44px; height: 44px; }
+  body.dock-on dialog.isheet p { margin: 3px 0; }
+  body.dock-on dialog.isheet .sheetform { margin: 6px 0 0; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 12px; }
+  body.dock-on dialog.isheet .sheetform .sgo { min-width: 120px; }
+}
+/* file: /tmp/dockgame/c5b.css. The sheet is a modal that sits above the dock, so it needs no dock offset */
+
+/* survey2: community.php?t=garden (on shift) */
+@media (orientation: landscape) {
+  body.dock-on .commwrap { grid-template-columns: minmax(0, 470px) minmax(0, 1fr); }
+  body.dock-on .commside { grid-template-columns: minmax(0, 1fr); }
+  body.dock-on .tendform > .help { margin: 0 0 4px; font-size: 12px; }
+  body.dock-on .tendform > .help select { max-width: 200px; min-height: 30px; display: inline-block; }
+  body.dock-on .cbed:has(.bedacts) { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 3px; min-height: 40px; }
+  body.dock-on .cbed:has(.bedacts) small { display: none; }
+  body.dock-on .cbed .bedacts { margin-top: 0; flex-wrap: nowrap; }
+  body.dock-on .cbed .bedacts button { min-height: 30px; padding: 2px 6px; }
+  body.dock-on .cbed em { top: 0; }
+}
+/* file: /tmp/dockgame/c6.css. The side column gets taller (single column), but the grid is the thing you work in */
+
+/* survey2: community.php?t=msgs */
+@media (orientation: landscape) {
+  body.dock-on main > .msgthread { padding: 8px 12px; }
+  body.dock-on .msgthread form.form { display: flex; gap: 8px; align-items: flex-end; margin-top: 6px; }
+  body.dock-on .msgthread form.form textarea { flex: 1 1 auto; max-width: none; height: 44px; min-height: 44px; margin: 0; resize: none; }
+  body.dock-on .msgthread form.form > p { margin: 0; }
+}
+/* file: /tmp/dockgame/c7.css */
+
+/* survey2: feedback.php */
+@media (orientation: landscape) {
+  body.dock-on main form.form textarea { height: 76px; min-height: 76px; }
+}
+/* file: /tmp/dockgame/c8.css. Drop the grid rule in that file; only the textarea rule is needed */
+
+/* survey2: festival.php */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .festhero) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px; align-items: start; }
+  body.dock-on main:has(> .festhero) > * { grid-column: 1 / -1; margin-top: 0; margin-bottom: 0; }
+  body.dock-on main:has(> .festhero) > .festhero { padding: 8px 12px; }
+  body.dock-on main:has(> .festhero) > .festhero .festdates { margin: 0; }
+  body.dock-on main:has(> .festhero) > .festhero p { margin: 2px 0; }
+  body.dock-on main:has(> .festhero) > section.box:nth-of-type(1), body.dock-on main:has(> .festhero) > section.festjar { grid-column: span 1; }
+  body.dock-on main:has(> .festhero) .flagrow { margin: 4px 0; font-size: 18px; }
+  body.dock-on main:has(> .festhero) .flagrew { margin: 2px 0 6px; }
+  body.dock-on .stall .itms { --itm-cols: 2; }
+  body.dock-on .festjar .jarwrap svg { height: 90px; width: auto; }
+}
+/* file: /tmp/dockgame/c9.css. Flag and jar sit side by side; stall tiles become legible */
+
+/* survey2: marketday.php */
+@media (orientation: landscape) {
+  body.dock-on .mkstalls { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: start; }
+  body.dock-on .mkstall { padding: 6px 10px; }
+  body.dock-on .mkstall h3 { margin: 0 0 2px; }
+  body.dock-on .mkstall .itms { --itm-cols: 2; max-width: none; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 6px; }
+  body.dock-on .mkstall .itm__win { height: 64px; }
+  body.dock-on .mkpick { max-height: 210px; }
+}
+/* file: /tmp/dockgame/c10.css. Drop the .mkpick .itms rule from that file; it had no effect */
+
+/* survey2: puzzles.php, gifsaw.php, jigsaw.php */
+@media (orientation: landscape) { body.dock-on .pzbanner { display: none; } }
+
+/* survey2: jigsaw.php */
+@media (orientation: landscape) { body.dock-on #pz.jig .pzgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } body.dock-on #pz.jig .pzcard { flex-direction: row; align-items: center; } body.dock-on #pz.jig .pzthumb { flex: 0 0 42%; aspect-ratio: 4/3; align-self: stretch; min-height: 110px; } body.dock-on #pz.jig .pzbody { flex: 1; min-width: 0; padding: 6px 8px; gap: 4px; } body.dock-on #pz.jig .pzbody .btn { min-height: 32px; padding-top: 2px; padding-bottom: 2px; } }  /* plus the .pzbanner rule above */
+
+/* survey2: puzzlepals.php */
+@media (orientation: landscape) { body.dock-on .ppalbook .ppalslot .ppalperk { display: none; } body.dock-on .ppalsec { margin-top: 6px; } body.dock-on .ppalgrid { margin-top: 4px; } }  /* optional: it hides perk info */
+
+/* survey2: paljobs.php */
+@media (orientation: landscape) { body.dock-on .pjposts { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px 12px; } body.dock-on .pjpost .pjdesc { max-width: none; } body.dock-on .pjtop { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on .pjtop h1 { margin: 0; font-size: 1.3rem; } body.dock-on .pjtop .pjcounts { margin: 0 0 auto auto; } }
+
+/* survey2: show.php and any page using main:has(> nav.gametabs) with a p.help */
+@media (orientation: landscape) { body.dock-on main:has(> nav.gametabs) > p.help { order: 5; margin: 0 0 4px; } }
+
+/* survey2: mushroom.php */
+@media (orientation: landscape) { body.dock-on main:has(> form.mushboard) { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 14px; align-items: start; } body.dock-on main:has(> form.mushboard) > * { grid-column: 1; min-width: 0; } body.dock-on main:has(> form.mushboard) > nav.gametabs { grid-column: 2; grid-row: 1; margin: 0; } body.dock-on main:has(> form.mushboard) > form.mushboard { grid-column: 2; grid-row: 2 / span 6; margin: 0; grid-template-columns: repeat(6, 40px); gap: 3px; padding: 6px; } body.dock-on main:has(> form.mushboard) .gmchips { flex-wrap: wrap; } }
+
+/* survey2: worms.php */
+@media (orientation: landscape) { body.dock-on main:has(> form.digboard) { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 14px; align-items: start; } body.dock-on main:has(> form.digboard) > * { grid-column: 1; min-width: 0; } body.dock-on main:has(> form.digboard) > nav.gametabs { grid-column: 2; grid-row: 1; margin: 0; } body.dock-on main:has(> form.digboard) > form.digboard { grid-column: 2; grid-row: 2 / span 6; margin: 0; grid-template-columns: repeat(6, 42px); gap: 3px; } body.dock-on .digboard .soil, body.dock-on .digboard .dug { font-size: 18px; } }
+
+/* survey2: marrow.php */
+@media (orientation: landscape) { body.dock-on .marrowbox.on { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 0 16px; align-items: center; } body.dock-on .marrowbox.on > * { grid-column: 2; } body.dock-on .marrowbox.on > h2 { grid-column: 1 / -1; } body.dock-on .marrowbox.on > .scalestage { grid-column: 1; grid-row: 2 / span 3; } body.dock-on .marrowbox.on .scalestage svg { height: 200px; width: auto; max-width: 100%; margin: 0 auto; display: block; } }
+
+/* survey2: spit.php */
+@media (orientation: landscape) { body.dock-on .spitgame.on { max-width: none; display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 0 14px; align-items: center; } body.dock-on .spitgame.on > .spitwind { grid-column: 1 / -1; margin: 0 0 2px; } body.dock-on .spitgame.on > .spitwrap { grid-column: 1; grid-row: 2 / span 2; margin: 0; } body.dock-on .spitgame.on > .spitform { grid-column: 2; grid-row: 2; margin: 0; max-width: none; } body.dock-on .spitgame.on > .spithow { grid-column: 2; grid-row: 3; margin: 4px 0 0; } }
+
+/* survey2: world.php?tab=map&r=N (#region.regionpanel) */
+@media (orientation: landscape) {
+  body.dock-on .regionpanel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; align-items: start; position: relative; }
+  body.dock-on .regionpanel > * { grid-column: 1 / -1; min-width: 0; margin-top: 0; margin-bottom: 4px; }
+  body.dock-on .regionpanel > .metro { grid-column: auto; margin: 2px 0 4px; }
+  body.dock-on .regionpanel > .phbanner { position: absolute; right: 12px; top: 10px; width: 56px; height: auto; margin: 0; }
+  body.dock-on .regionpanel > h2 { padding-right: 70px; }
+  body.dock-on .regionpanel .mstop { flex-basis: 56px; }
+  body.dock-on .regionpanel .mdot { width: 34px; height: 34px; margin: 2px 0; font-size: 16px; }
+  body.dock-on .regionpanel .mstop.town .mdot { width: 40px; height: 40px; margin: 0; }
+  body.dock-on .regionpanel .mstop::before { top: 19px; height: 4px; }
+  body.dock-on .regionpanel .mname { font-size: 11px; padding: 0 1px 2px; }
+  body.dock-on .regionpanel .metrohead .muted { display: none; }
+}
+
+/* survey2: world.php?tab=travel (.gomap) - also the Go tab */
+@media (orientation: landscape) {
+  body.dock-on .gomap { display: grid; grid-template-columns: 190px minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 0 12px; align-items: start; }
+  body.dock-on .gomap > .gomaphead { grid-column: 1; grid-row: 1; flex-wrap: wrap; }
+  body.dock-on .gomap > .help { grid-column: 1; grid-row: 2; margin: 2px 0 6px; }
+  body.dock-on .gomap > .mapwrap { grid-column: 2; grid-row: 1 / -1; min-width: 0; }
+  body.dock-on .gomap .rzoom { position: relative; }
+  body.dock-on .gomap .rzoom .rzctl { position: absolute; top: 4px; right: 4px; z-index: 3; margin: 0; }
+  body.dock-on .gomap .rzoom .regionmap { display: block; width: 100%; height: calc(100vh - var(--dock-h, 106px) - 40px); max-height: 250px; }
+}
+
+/* survey2: world.php?tab=map&r=N (.regionmapbox) */
+@media (orientation: landscape) {
+  body.dock-on .regionmapbox { display: grid; grid-template-columns: 170px minmax(0, 1fr); grid-template-rows: auto auto auto 1fr auto; gap: 0 12px; align-items: start; }
+  body.dock-on .regionmapbox > .regchips { grid-column: 1 / -1; grid-row: 1; margin: 0 0 6px; }
+  body.dock-on .regionmapbox > .regnav { grid-column: 1; grid-row: 2; flex-direction: column; align-items: stretch; gap: 4px; margin: 0 0 6px; }
+  body.dock-on .regionmapbox > .maphelp { grid-column: 1; grid-row: 3; margin: 0; }
+  body.dock-on .regionmapbox > .mapwrap { grid-column: 2; grid-row: 2 / span 3; min-width: 0; }
+  body.dock-on .regionmapbox > .maplegend { grid-column: 1 / -1; grid-row: 5; margin: 6px 0 0; }
+  body.dock-on .regionmapbox .rzoom .rzctl { position: absolute; top: 4px; right: 4px; z-index: 3; margin: 0; }
+  body.dock-on .regionmapbox .rzoom .regionmap { display: block; width: 100%; height: calc(100vh - var(--dock-h, 106px) - 40px); max-height: 250px; }
+}
+
+/* survey2: here.php / world.php Fast travel popover #hubpop-ft */
+@media (orientation: landscape) {
+  body.dock-on dialog.hubpop:has(.hubreg) .pickbox { width: min(760px, 100%); max-width: none; }
+  body.dock-on dialog.hubpop .hubreg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+  body.dock-on dialog.hubpop .hubreg .rrow { min-width: 0; }
+}
+
+/* survey2: shop.php item sheets, buy and sell (dialog.isheet, not .dosheet) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on dialog.isheet[open]:not(.dosheet) { width: min(680px, calc(100% - 32px)); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 18px; align-content: start; padding: 10px 16px 12px; }
+  body.dock-on dialog.isheet[open]:not(.dosheet) > * { grid-column: 1; min-width: 0; }
+  body.dock-on dialog.isheet[open]:not(.dosheet) > .sheetform, body.dock-on dialog.isheet[open]:not(.dosheet) > .confirmform { grid-column: 2; grid-row: 1 / span 8; align-self: center; margin: 0; }
+  body.dock-on dialog.isheet:not(.dosheet) .shead { padding: 0; margin: 0 0 4px; }
+  body.dock-on dialog.isheet:not(.dosheet) .sico img, body.dock-on dialog.isheet:not(.dosheet) .sico svg { width: 44px; height: 44px; }
+  body.dock-on dialog.isheet:not(.dosheet) p { margin: 3px 0; }
+}
+
+/* survey2: shop.php buy/sell tile grids */
+@media (orientation: landscape) {
+  body.dock-on .shopwrap .itms { --itm-cols: 8; gap: 8px 6px; padding-top: 6px; max-width: none; }
+}
+
+/* survey2: shop.php header */
+@media (orientation: landscape) {
+  body.dock-on main > header.ph { grid-template-columns: 200px minmax(0, 1fr); align-items: center; }
+  body.dock-on main > header.ph .ph-art, body.dock-on main > header.ph .ph-art img { height: 96px; width: 100%; object-fit: cover; }
+  body.dock-on main > header.ph .ph-body { padding: 4px 12px; }
+  body.dock-on main > header.ph .ph-body h1 { font-size: 22px; margin: 0; }
+  body.dock-on main > header.ph .ph-amb { display: none; }
+  body.dock-on main > .crumbs { margin: 0 0 4px; }
+  body.dock-on main > .shopintro { margin: 4px 0; }
+}
+
+/* survey2: shop.php basket (any orientation) */
+:root[data-theme] .shopwrap > .basket .btn.bclear, body.dock-on .shopwrap > .basket .btn.bclear { color: #2a1a10; }
+
+/* survey2: world.php?tab=gather */
+@media (orientation: landscape) {
+  body.dock-on .gx.gatherbox .gcards { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 6px; }
+  body.dock-on .gx.gatherbox > ul.finds { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+/* survey2: trek.php (in a run) */
+@media (orientation: landscape) {
+  body.dock-on .trekplay { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 6px 12px; align-items: start; }
+  body.dock-on .trekplay > *, body.dock-on .trekplay > .trekcol > * { grid-column: 2; }
+  body.dock-on .trekplay .trekmapform { grid-column: 1; grid-row: 1 / span 12; position: sticky; top: 6px; }
+  body.dock-on .trekplay .gvs { max-width: 100%; }
+}
+
+/* survey2: trek.php tabs (Map, Party, Pack, Log) */
+@media (orientation: landscape) {
+  body.dock-on.tkpage main { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
+  body.dock-on.tkpage main > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on.tkpage main > nav.tabs { flex: 0 1 auto; margin: 0; }
+  body.dock-on.tkpage main > .tksmuterow { flex: 1 1 0; margin: 0; text-align: right; }
+}
+
+/* survey2: gourmand.php (Now tab) */
+@media (orientation: landscape) {
+  body.dock-on main > .box > .npchead { gap: 12px; }
+  body.dock-on main > .box > .npchead .npcpic { width: 104px; }
+  body.dock-on main > .box > .npchead .npcpic .portrait { width: 96px; height: auto; }
+  body.dock-on main > .box > .npchead .npcid p { margin: 2px 0; }
+  body.dock-on main > section.box:has(> .box.inset) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; align-items: start; }
+  body.dock-on main > section.box:has(> .box.inset) > * { grid-column: 1 / -1; margin: 0; }
+  body.dock-on main > section.box:has(> .box.inset) > .box.inset { grid-column: auto; min-width: 0; }
+}
+
+/* survey2: gourmand.php?t=journal */
+@media (orientation: landscape) {
+  body.dock-on .gcards.gcards--2 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0; }
+  body.dock-on .gcards--2 > .box { margin: 0; padding: 6px 10px; }
+  body.dock-on .gcards--2 > .box h3 { margin: 0 0 2px; }
+  body.dock-on .gcards--2 > .box p { margin: 2px 0; }
+  body.dock-on .gcards--2 > .box ul.plain { margin: 2px 0 0; padding-left: 4px; list-style: none; }
+}
+
+/* survey2: landmark panels: .lmpanel inline on world.php and in here.php popovers */
+@media (orientation: landscape) {
+  body.dock-on dialog.hubpop:has(.lmpanel) .pickbox { width: min(760px, 100%); max-width: none; }
+  body.dock-on .lmpanel { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on .lmpanel > * { grid-column: 2; min-width: 0; }
+  body.dock-on .lmpanel > .lmscene { grid-column: 1; grid-row: 1 / span 8; width: 100%; height: auto; margin: 0; }
+  body.dock-on .lmpanel > form.inline { display: block; margin: 0 0 6px; }
+}
+
+/* survey2: Satchel message-bottle popover (sights_shared.php send form) */
+@media (orientation: landscape) { body.dock-on form.shf input[type="text"] { width: 100%; max-width: none; box-sizing: border-box; } }

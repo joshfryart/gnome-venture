@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.96
+- **Second page survey, on a seeded test world** (four agents; every fix was tested by injection at 844 x 390; `dock.css`, 41 rule blocks). Reached this time: crafting with real recipes, flowers and broken tools; an active job, the Post board, Trading tabs; Puzzle Pals, Pal jobs, mini-games played; Gourmand, Trek, Landmark and message-bottle pop-ups. Highlights: the craft pop-ups' head and tabs were squashed (title and X clipped) and are fixed; the Fast travel pop-up is two columns; the shop item sheets and the Market buy sheet fit without scrolling; the Tool-mend cards no longer overlap their text; the shop basket text is readable (dark on light; was cream on cream); World travel map 569 to 274 px and the region panel 762 to 522; Trek run page 1912 to 1130; the Arrange page (1345 to 962), Tailor (1931 to 1406), Workshop (1050 to 752), Gourmand, Puzzle Pals (6368 to 4804), Jigsaw (2759 to 1837), Mushroom, Worms, Marrow and Spit boards visible on the first screen; Satchel/Crafting/Tasks headers slimmer.
+- **Not checked** (about 30 states; the lists are in the survey notes): touch drag scrolling inside the craft pop-ups, real Cook / Make / Mend presses, fight and reward overlays in Trek, race and spit result cards, puzzle play, pals out on jobs, mentor states, the cat home after adoption.
+
 ## 2.7.95
 - **Garden building cards no longer cut off at the dock.** When a card is opened as a plain page element (the address `garden.php?t=pic&o=...`, as in your screenshot) it is not a modal, so it sat in the page under the fixed dock and its lower part was hidden. In the dock layout on short landscape screens it is now fixed above the page, ends at the dock's top edge and scrolls inside (`gyard.css`). Checked with the worm farm card opened that way (box ends 6 px above the dock, buttons reachable by scrolling the card). Modal cards (opened by a tap) were already fine.
 
