@@ -149,7 +149,10 @@ function dock_status(array $u): array
         if (cook_pots_on() && ($pots = cook_ready_count((int)$u['id'])) > 0) $links[] = ['🍳 Pots ready', (string)$pots, craft_url('cooking')];
         if (($jars = pantry_ready_count((int)$u['id'])) > 0) $links[] = ['🫙 Jars ready', (string)$jars, craft_url('pantry')];
         require_once __DIR__ . '/destination.php';
-        if (function_exists('dest_status') && ($ds = dest_status($u))) $links[] = ['🏁 Trip: ' . dest_name((int)$u['id'], $ds[0]), (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's'), url('adventure.php')];
+        if (function_exists('dest_status') && ($ds = dest_status($u))) {   // the trip strip is gone in dock mode: it is here (walking: the trail; standing still: the route card)
+            require_once __DIR__ . '/adventure.php';
+            $links[] = ['🏁 Trip: ' . dest_name((int)$u['id'], $ds[0]), (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's'), url(active_expedition((int)$u['id']) ? 'adventure.php' : 'world.php#gopanel')];
+        }
     } catch (Throwable $e) {
         error_log('dock_status: ' . $e->getMessage());   // the plate is never worth a broken page
     }

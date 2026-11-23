@@ -10,7 +10,7 @@
   try { if (!(window.CSS && CSS.supports('translate', '0 0') && CSS.supports('rotate', '0deg'))) return; } catch (e) { return; }
   var mq = window.matchMedia('(orientation: landscape)');
   var DH = 106, AMP = 40, uid = 0;
-  var D = null, slip = null, lastKey = '', stage = null, ghostTimer = 0, popTab = 'now';
+  var D = null, slip = null, lastKey = '', stage = null, ghostTimer = 0, popTab = 'now', K = 1, LW = 844;   // K = how much the whole dock is scaled up on a big screen, LW = the screen width in dock units
   var DOME = [[-4, 0], [-4, -3], [-6, -4], [-8, -6], [-8, -10], [-6, -12], [-4, -13], [4, -13], [6, -12], [8, -10], [8, -6], [6, -4], [4, -3], [4, 0]];
   var KEY = [[-8, 0], [-6, -2], [-3, -4], [-3, -7], [-6, -8], [-7, -10], [-6, -13], [-3, -14], [3, -14], [6, -13], [7, -10], [6, -8], [3, -7], [3, -4], [6, -2], [8, 0]];
   var PAT = { you: 'dk-diamond', hobby: 'dk-leaf', out: 'dk-wave', tog: 'dk-flower' };
@@ -76,6 +76,12 @@
       var p = el.getAttribute('data-pl').split(',');
       el.style.left = p[0] + 'px'; el.style.top = p[1] + 'px'; if (p[2]) el.style.width = p[2] + 'px'; if (p[3]) el.style.height = p[3] + 'px';
     });
+  }
+  /* bigger screens get a bigger dock: the dock is drawn at one size (about 106 px high at 844 wide) and scaled in steps of a quarter, never taller than about 28% of the screen */
+  function scaleFor(vw, vh) {
+    var k = Math.max(1, Math.min(2, Math.round(vw / 860 * 4) / 4));
+    k = Math.min(k, Math.max(1, 0.28 * vh / DH));
+    return Math.max(1, Math.round(k * 4) / 4);
   }
   function geom(W) {
     var A = AMP, pw = W < 720 ? 170 : W < 900 ? 244 : 300, cw = pw + 136, half = (W - cw) / 2;
@@ -176,7 +182,7 @@
     base.after = '<span class="pip" aria-hidden="true">▴</span>';
     var ep = p.energy[1] ? Math.round(100 * p.energy[0] / p.energy[1]) : 0;
     base.inner = '<span>⚡<progress max="100" value="' + ep + '"></progress></span><span>🌱 <b>' + p.level + '</b><progress class="xp" max="100" value="' + p.xp + '"></progress></span>'
-      + '<span>' + (p.time ? '🕐 ' + esc(p.time) + ' <span class="tag">' + (window.innerWidth < 720 ? 'd' + p.day : 'day ' + p.day) + '</span>' : '🪙 <span class="tag">' + p.coins + '</span>') + '</span><span>🪙 <span class="tag">' + p.coins + '</span></span>';
+      + '<span>' + (p.time ? '🕐 ' + esc(p.time) + ' <span class="tag">' + (LW < 720 ? 'd' + p.day : 'day ' + p.day) + '</span>' : '🪙 <span class="tag">' + p.coins + '</span>') + '</span><span>🪙 <span class="tag">' + p.coins + '</span></span>';
     return pc(base);
   }
   function actPiece(side, a, base) {
@@ -232,7 +238,7 @@
         + '<div><h4>Jump to</h4>' + D.links.map(function (r) { return '<a class="row" href="' + esc(r[2]) + '">' + esc(r[0]) + (r[1] ? '<b>' + esc(r[1]) + '</b>' : '') + '</a>'; }).join('') + '</div>';
       h = 96 + 28 * Math.max(D.rows.length, D.links.length);
     }
-    h = Math.max(150, Math.min(Math.max(150, window.innerHeight - DH - 24), h)); x = W / 2 - w / 2; y = g.A + 3 - h;
+    h = Math.max(150, Math.min(Math.max(150, window.innerHeight / K - DH - 24), h)); x = W / 2 - w / 2; y = g.A + 3 - h;
     return '<div class="pop' + (popTab === 'rail' ? ' wide' : '') + '" data-pl="' + x + ',' + y + ',' + w + ',' + h + '" role="dialog" aria-label="Status">' + pieceSVG(w, h, 0, 0, 1, 0, 0)
       + '<div class="body"><div class="poptabs" role="tablist">' + tabs.map(function (t) { return '<button type="button" role="tab" data-poptab="' + t[0] + '" aria-selected="' + (popTab === t[0]) + '">' + esc(t[1]) + '</button>'; }).join('') + '</div>' + body + '</div></div>';
   }
@@ -240,11 +246,13 @@
   /* ---- render ---- */
   function render() {
     if (!D || !mq.matches) { if (stage) stage.innerHTML = ''; document.body.classList.remove('dock-ready'); return; }
-    var W = root.clientWidth || window.innerWidth, g = geom(W), old = stage && stage.querySelector('.dockslip'), oldN = old ? old.querySelectorAll('.dk-pc').length : 0;
+    var VW = root.clientWidth || window.innerWidth, W, g, old = stage && stage.querySelector('.dockslip'), oldN = old ? old.querySelectorAll('.dk-pc').length : 0;
     if (old && old.parentNode) old.parentNode.removeChild(old);   // kept as an element (not as markup): inline style attributes cannot be re-parsed under the CSP
     var key = slip || '';
+    K = scaleFor(VW, window.innerHeight); W = Math.round(VW / K); LW = W; g = geom(W);
     if (!stage) { stage = document.createElement('div'); stage.className = 'dockstage'; root.appendChild(stage); }
-    stage.style.height = DH + 'px';
+    stage.style.height = DH + 'px'; stage.style.width = W + 'px'; stage.style.transform = K > 1 ? 'scale(' + K + ')' : '';   // origin is the bottom left (dock.css)
+    document.body.style.setProperty('--dock-h', Math.round(DH * K) + 'px');   // the page clears the scaled dock
     var same = key === lastKey;
     stage.innerHTML = pref(defs() + '<div class="dock">' + dockSVG(W, g) + chain(W, g) + '</div><div class="dockslip' + (same ? ' still' : '') + '">' + slipHTML(W, g) + '</div>').replace('<!--dkTHEME-->', D.themeForm).replace('<!--dkLOGOUT-->', D.logoutForm);
     position(stage);

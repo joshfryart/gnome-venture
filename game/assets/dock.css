@@ -3,12 +3,11 @@
    Everything is scoped under .dockroot. No inline styles (CSP): assets/dock.js sets positions through the style object. Hard pixel corners, no blur.
    The piece art is built from the mockup nav_dock_mockups.html: 2.5D jigsaw pieces (side face, bevel strips, grain, stitch) on a dirt and grass band. */
 .dockroot {
-  --dock-h: 106px;
   --dk-felt: #3d2a1c; --dk-felt2: #52382a; --dk-ink: #f2e4c0; --dk-accent: #e8a317; --dk-accentink: #7a4a1f;
   --dk-surface: #fff3c8; --dk-surface2: #f2e4c0; --dk-fg: #2a1a10; --dk-muted: #74462a; --dk-line: #c9a96e; --dk-line2: #9a6b3f; --dk-dis: #c9a96e;
   --dk-purple: #4e3a8a; --dk-brand: #2f5a2a; --dk-info: #1f4a6a; --dk-petal: #9b3d63; --dk-danger: #a8241f;
   --dk-circ: polygon(30% 0,70% 0,70% 10%,85% 10%,85% 20%,90% 20%,90% 30%,100% 30%,100% 70%,90% 70%,90% 80%,85% 80%,85% 90%,70% 90%,70% 100%,30% 100%,30% 90%,15% 90%,15% 80%,10% 80%,10% 70%,0 70%,0 30%,10% 30%,10% 20%,15% 20%,15% 10%,30% 10%);
-  position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px)); z-index: 45; pointer-events: none; display: none;
+  position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--dock-h, 106px) + env(safe-area-inset-bottom, 0px)); z-index: 45; pointer-events: none; display: none;
   -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; font-family: var(--font, system-ui, sans-serif);
 }
 :root[data-theme="dark"] .dockroot {
@@ -17,7 +16,8 @@
 }
 .dockdata { display: none; }
 .dockroot::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--dk-felt); }
-.dockroot .dockstage { position: absolute; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); }
+.dockroot .dockstage { position: absolute; left: 0; bottom: env(safe-area-inset-bottom, 0px); transform-origin: left bottom; }
+body.dock-on { --dock-h: 106px; }
 .dockroot .dkdefs { position: absolute; width: 0; height: 0; }
 .dockroot .dockfb { display: none; }
 .dockroot svg { max-width: none; max-height: none; }   /* the game's stylesheet caps svg and img at 100% of their parent: the pieces overflow their box on purpose (knobs, side face) */
@@ -137,7 +137,7 @@
 /* the dock replaces the header, status strip, bottom bar, menu sheet and right rail (any landscape screen: phone, tablet, desktop) */
 @media (orientation: landscape) {
   .dockroot { display: block; }
-  body.dock-on header.banner, body.dock-on .statusstrip, body.dock-on .bottombar, body.dock-on nav.side, body.dock-on .rail { display: none !important; }
+  body.dock-on header.banner, body.dock-on .statusstrip, body.dock-on .bottombar, body.dock-on nav.side, body.dock-on .rail, body.dock-on .tripstrip { display: none !important; }   /* the trip is in the popover now */
   body.dock-on .wrap { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px); justify-content: center; }
   body.dock-on footer { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px); }
   body.dock-on .toasts { bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px); }

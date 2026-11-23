@@ -79,9 +79,10 @@ Checklist of code that references the old chrome and must move first:
 
 ## Decisions and open questions
 
-Decided: (1) preview is for admins only; (2) the dock is for desktop as well as phones and tablets; (3) the right rail folds into the popover.
+Decided: (1) preview is for admins only; (2) the dock is for desktop as well as phones and tablets; (3) the right rail folds into the popover; (4) bigger screens get a bigger dock; (5) there is no trip strip in dock mode.
+
+How (4) works: the dock is drawn at one size (about 106 px high at 844 wide) and `dock.js` scales the whole stage in steps of a quarter, from 1x up to 2x by screen width, never taller than about 28% of the screen height (1024 x 600 gets 1.25x, 1280 x 720 gets 1.5x, 1920 x 1080 gets 2x). The page clears it through `--dock-h` on the body. How (5) works: `.tripstrip` is hidden inside the landscape media query; the trip is a row in the popover's Now tab (the trail while walking, the route card while standing still). Portrait keeps its trip strip.
 
 Still open:
-1. Desktop pieces are the same size as on a phone (about 58 px) and the faded earth pieces fill the width. Scale them up on large screens, or keep the dock a fixed, centred width?
-2. The trip strip (`dest_strip_html()`) still shows under the top of the page; it moves into the popover in a later phase.
-3. Action icons (about 100 more emoji) stay emoji until drawn.
+1. Action icons (about 100 more emoji) stay emoji until drawn.
+2. Phase 2 (page actions that post): Garden, Satchel, Tasks first.
