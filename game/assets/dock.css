@@ -1379,3 +1379,12 @@ body.dock-on .st-pass .st-next li > span:first-child { min-width: 0; overflow-wr
 /* v2.8.06: energy ghost ("-1 bolt" / "+3 bolt") floats up from the bar; lives on <body> so the dock's clipped plate cannot cut it */
 .dockghost { position: fixed; z-index: 2147483000; pointer-events: none; font: 800 12px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; color: #ffe9a0; text-shadow: 0 0 2px #000, 0 1px 2px #000, 0 0 5px #000; }
 .dockghost.up { color: #c8ffb0; }
+
+/* v2.8.07: folds in the landscape dock layout (summaries hold the old headings) */
+body.dock-on details.catfold > summary, body.dock-on details.ppfold > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 6px; min-height: 34px; }
+body.dock-on details.catfold > summary::-webkit-details-marker, body.dock-on details.ppfold > summary::-webkit-details-marker, body.dock-on details.regfold > summary::-webkit-details-marker { display: none; }
+body.dock-on details.catfold > summary h3, body.dock-on details.ppfold > summary h2 { margin: 0; }
+body.dock-on details.catfold > summary::before, body.dock-on details.ppfold > summary::before, body.dock-on details.regfold > summary::before { content: "▸"; display: inline-block; width: 1em; }
+body.dock-on details[open].catfold > summary::before, body.dock-on details[open].ppfold > summary::before, body.dock-on details[open].regfold > summary::before { content: "▾"; }
+body.dock-on details.regfold > summary { cursor: pointer; list-style: none; font-weight: 700; min-height: 34px; display: flex; align-items: center; }
+body.dock-on .vunmetline { margin: 6px 0; }

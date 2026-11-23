@@ -71,9 +71,9 @@ page_header('Puzzle Pals');
   <div class="pzempty box"><?= puzzle_cast('empty-box', '') ?><p class="muted">No pals yet. Solve a picture at Advanced to release its six.</p></div>
   <?php endif; ?>
 
-  <?php foreach ($book['released'] as $sec): $pic = $sec['pic']; $roster = $sec['roster']; usort($roster, fn($a, $b) => ($ordr[$a['rarity']] ?? 3) <=> ($ordr[$b['rarity']] ?? 3)); ?>
+  <?php $ppDock = dock_on($u); $ppI = 0; foreach ($book['released'] as $sec): $ppI++; $pic = $sec['pic']; $roster = $sec['roster']; usort($roster, fn($a, $b) => ($ordr[$a['rarity']] ?? 3) <=> ($ordr[$b['rarity']] ?? 3)); ?>
   <section class="box ppalsec<?= $sec['n'] === count($roster) ? ' full' : '' ?>" aria-label="<?= e((string)$pic['title']) ?>">
-    <h2><?= e((string)$pic['title']) ?></h2>
+    <details class="ppfold"<?= (!$ppDock || $ppI === 1 || $sec['n'] < count($roster) && $ppI < 3) ? ' open' : '' ?>><summary><h2><?= e((string)$pic['title']) ?></h2> <small class="muted"><?= (int)$sec['n'] ?>/<?= count($roster) ?></small></summary>
     <p class="help"><b><?= (int)$sec['n'] ?></b> of <?= count($roster) ?> found<?= $sec['n'] === count($roster) ? ' · roster complete' : '' ?>
       <?php if ($sec['trophy']): ?><span class="ppaltrophychip" title="Expert trophy"><span aria-hidden="true">🏆</span> Expert trophy</span><?php endif; ?></p>
     <ul class="ppalgrid">
@@ -101,6 +101,7 @@ page_header('Puzzle Pals');
       </li>
       <?php endforeach; ?>
     </ul>
+    </details>
   </section>
   <?php endforeach; ?>
 

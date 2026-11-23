@@ -33,7 +33,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
   <?php if (!$u): ?><div class="lp-cta lp-top"><a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.button')) ?></a><a class="lp-login" href="<?= e(url('login.php')) ?>">Already a gnome? <b>Log in</b></a></div><?php endif; ?>
 </div>
 
-<?= $fold('🌱', 'Your first day', true) ?>
+<?= $fold('🌱', 'Your first day', !($u && dock_on($u))) ?>
   <ol>
     <li><b>Till</b> a square in your <a href="<?= e(url('garden.php')) ?>">Garden</a>.</li>
     <li><b>Plant</b> a seed. Radishes are quick.</li>
@@ -45,7 +45,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
 </div></details>
 
 <?php if (gclock_on()): ?>
-<?= $fold('🌙', 'Sleep, the clock and days', true) ?>
+<?= $fold('🌙', 'Sleep, the clock and days', !($u && dock_on($u))) ?>
   <ul>
     <li>Your gnome has their own <b>clock</b>, at the top of the screen. The day runs from <b>06:00 to 22:00</b>. After 22:00 you get tired: actions cost more energy, but you are never locked out.</li>
     <li><b>A day only passes when you sleep.</b> Sleep in your hovel, at an inn, on a park bench (a bit of energy only), at a friend's house, or on the road with camping gear. See the <a href="<?= e(url('hovel.php')) ?>">Rest page</a>.</li>

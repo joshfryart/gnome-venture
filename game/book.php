@@ -477,7 +477,9 @@ page_header('My Almanac');
           $list = array_values(array_filter($list, fn($x) => $regionOk($x) && ($fshow === '' || ($fshow === 'found' && $x['unlocked_at']) || ($fshow === 'missing' && !$x['unlocked_at']) || ($fshow === 'new' && $x['unlocked_at'] && !$x['read_at']))));
           if (!$list && ($fshow !== '' || $freg || $ftier !== '')) continue;
           $n = count(array_filter($list, fn($x) => $x['unlocked_at'])); ?>
-        <h3><?= e($cat) ?> <small><?= $n ?>/<?= count($list) ?></small></h3>
+        <?php $bkFold = isset($u) && $u && function_exists('dock_on') && dock_on($u) && count($byCat) > 1;   // v2.8.07: landscape dock: one fold per category, the one with the open page (or the first) open
+              $bkFirst = $bkFirst ?? $cat; $bkOpen = !$bkFold || ($cur && count(array_filter($list, fn($x) => (int)$x['id'] === (int)$cur['id']))) || (!$cur && $cat === $bkFirst) || $fshow !== '' || $fcat !== ''; ?>
+        <?php if ($bkFold): ?><details class="catfold"<?= $bkOpen ? ' open' : '' ?>><summary><h3><?= e($cat) ?> <small><?= $n ?>/<?= count($list) ?></small></h3></summary><?php else: ?><h3><?= e($cat) ?> <small><?= $n ?>/<?= count($list) ?></small></h3><?php endif; ?>
         <div class="ctiles">
         <?php foreach ($list as $en):
             $isCur = $cur && (int)$cur['id'] === (int)$en['id'];
@@ -499,6 +501,7 @@ page_header('My Almanac');
             <?php endif; ?>
         <?php endforeach; ?>
         </div>
+        <?php if ($bkFold) echo '</details>'; ?>
       <?php endforeach; ?>
       </details>
     </div>
