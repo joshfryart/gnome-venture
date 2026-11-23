@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.7.101
+## 2.8.00
 - **Dock: a Shops piece in the Out & about menu** (after Villagers), opening the world page's Shops tab. It is greyed "on the road" while walking, like World. The old menu sheet is unchanged. Seen in the strip at 844 x 390.
 
 ## 2.7.100
