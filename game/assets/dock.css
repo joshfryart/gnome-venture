@@ -227,9 +227,11 @@ body.dock-on .cbed { cursor: pointer; }
 /* dock layout, landscape: the big pictures fit the screen above the dock, so the page is not mostly scrolling past them. --imgh is the height left for a picture;
    each rule keeps the picture's own proportion (width = height x ratio) and centres it. */
 @media (orientation: landscape) {
-  body.dock-on { --imgh: max(150px, calc(100dvh - var(--dock-h, 106px) - 104px)); }
+  body.dock-on { --imgh: max(150px, calc(100dvh - var(--dock-h, 106px) - 92px)); --imgh-room: max(160px, calc(100dvh - var(--dock-h, 106px) - 58px)); }
   body.dock-on .hubstage { max-width: calc(var(--imgh) * 1.769); margin-inline: auto; }
-  body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh) * 1.77); }
+  body.dock-on .hs-banner { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh-room) * 1.77); width: 100%; margin-inline: auto; }
+  body.dock-on .hs-banner .hs-side { display: none; }   /* Sleep and Nap are the Rest piece */
   body.dock-on .ph-art { max-width: calc(var(--imgh) * 2); margin-inline: auto; }
   body.dock-on .mapwrap { max-width: calc(var(--imgh) * 1.785); margin-inline: auto; }
   body.dock-on .herepage .crumbs, body.dock-on .herepage .hereinfo { display: none; }

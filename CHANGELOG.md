@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.66
+- **Dock layout, landscape: bigger pictures, hovel room centred.** The picture height allowance grew (about 12 px more for the Here, place and map pictures); the hovel room has its own, larger allowance, is centred in its banner, and the banner's greeting and Sleep / Nap column is hidden (they are the Rest piece). At 844 x 390 the room is about 400 x 227 (was 319 x 181).
+- **More popovers checked** (short landscape, headless): the Puzzle box tabs (Codex, Belt, Pals, How it works) and an adventure on the road have no dialogs that fail. Still not covered: the trail's popups and a fight's own cards (they need a live walk).
+
 ## 2.7.65
 - **Dock layout, landscape: pictures fit the screen.** The Here picture, the hovel room, the place pictures (towns, shops) and the world map are sized to the height left above the dock (`--imgh`, each keeps its own proportion and is centred), so they are seen whole instead of scrolled past. The Here page hides its crumbs and info line (the place name stays). The garden bed grid is left full size (smaller squares would be too small to tap). Seen in a headless browser at 844 x 390 and 1280 x 720.
 - **Dock, Here page: the right piece is "Menu".** The row of round buttons under the picture (Routes, World, Perks, Fast travel, GPS, Wander) moved into the right piece as a strip; the row itself is hidden in the dock layout. Each tile opens its own popover.
