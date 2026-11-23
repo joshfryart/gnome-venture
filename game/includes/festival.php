@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * A festival is one entry in festival_defs(): a name, a blurb, a shared Hollow jar (kind "any" counts whatever gnomes do),
  * a few stalls run by townsfolk selling one-off goods, a flag to find every festival day, and a few rewards for the flags.
- * Its dates are settings (fest_<slug>_start / fest_<slug>_end, Hollow dates; Admin → Settings), so a festival can be moved or
+ * Its dates are settings (fest_<slug>_start / fest_<slug>_end, Hollow dates; Admin → Settings) and repeat every year (fest_<slug>_yearly), so a festival can be moved or
  * switched off (clear the dates) without code. While it runs: a bunting strip on every game page, the festival page (festival.php),
  * a jar beside the weekly one, an extra gate stamp, and the festival stall goods. Nothing in it is a limited-time currency:
  * cosmetics come back at the next festival.
@@ -54,8 +54,21 @@ function festival_date(string $s): string
     return preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $s, $m) && checkdate((int)$m[2], (int)$m[3], (int)$m[1]) ? $s : '';
 }
 
-/** [first day, last day] of a festival (Hollow dates), or null when it has no dates. */
-function festival_window(string $slug): ?array
+/** A Y-m-d moved by whole years, keeping month and day (29 Feb becomes 28 Feb in a non-leap year). */
+function festival_shift_year(string $d, int $years): string
+{
+    [$y, $m, $dd] = array_map('intval', explode('-', $d));
+    $y += $years;
+    if ($m === 2 && $dd === 29 && !checkdate(2, 29, $y)) $dd = 28;
+    return sprintf('%04d-%02d-%02d', $y, $m, $dd);
+}
+
+/**
+ * 2.7.58 EC4: [first day, last day] of a festival (Hollow dates), or null when it has no dates. The admin sets one run's dates; unless fest_<slug>_yearly is 0
+ * the festival comes round again on the same dates every year: once the set window is over, this is the next occurrence (same month and day, same length).
+ * With $past true it is instead the latest occurrence that has finished (for the "it was lovely" line), or null.
+ */
+function festival_window(string $slug, bool $past = false): ?array
 {
     $a = festival_date(setting('fest_' . $slug . '_start'));
     $b = festival_date(setting('fest_' . $slug . '_end'));
@@ -63,7 +76,15 @@ function festival_window(string $slug): ?array
     if ($b === '' || $b < $a) $b = $a;
     $max = gmdate('Y-m-d', strtotime($a . ' UTC') + 30 * 86400);   // a typo can't make a 35,000-day festival
     if ($b > $max) $b = $max;
-    return [$a, $b];
+    $today = gclock_my_date();
+    $n = 0;
+    if (setting('fest_' . $slug . '_yearly') !== '0' && $b < $today) {
+        while (festival_shift_year($b, $n) < $today && $n < 200) $n++;
+        if ($past) $n--;   // the occurrence before the one now on or coming
+    } elseif ($past && $b >= $today) {
+        return null;
+    }
+    return [festival_shift_year($a, $n), festival_shift_year($b, $n)];
 }
 
 /** The festival on today, or null: def + slug, starts, ends, day (1-based), days, left (seconds to the end of the last day), left_days (whole days after today). */
@@ -126,7 +147,7 @@ function festival_last(): ?array
     $today = gclock_my_date();
     $best = null;
     foreach (festival_defs() as $slug => $def) {
-        if (!($w = festival_window($slug)) || $w[1] >= $today) continue;
+        if (!($w = festival_window($slug, true)) || $w[1] >= $today) continue;
         if (!$best || $w[1] > $best['ends']) $best = $def + ['slug' => $slug, 'starts' => $w[0], 'ends' => $w[1]];
     }
     return $best;

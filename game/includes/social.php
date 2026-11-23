@@ -38,6 +38,7 @@ function social100_settings(): array
         $nm = ucwords(str_replace('_', ' ', $slug));
         $s['fest_' . $slug . '_start'] = ['label' => "Festival “{$nm}”: first day (YYYY-MM-DD, Hollow date; empty = not scheduled)", 'type' => 'text', 'default' => ''];
         $s['fest_' . $slug . '_end'] = ['label' => "Festival “{$nm}”: last day (YYYY-MM-DD)", 'type' => 'text', 'default' => ''];
+        $s['fest_' . $slug . '_yearly'] = ['label' => "Festival “{$nm}”: comes round again every year on the same dates", 'type' => 'bool', 'default' => '1'];
     }
     return $s;
 }
