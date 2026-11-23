@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.73
+- **Dock layout, landscape: the message bar is a bell.** The bar across the top (latest message, ▾) is hidden; a round bell sits at the far right of the dock, beside Together, with a red count when there is something you have not opened. It opens the message list as a popover above the dock that scrolls and closes on a tap outside, Esc or the ✕ (`dock.js` reads the page's own list, so links in messages still work and the list follows in-place page changes). Seen in a headless 844 x 390 browser; an in-place new message while the popover is open was not checked.
+
 ## 2.7.72
 - **Dock layout, Wander:** the choices on the right no longer scroll (the panel is split into the grid: choices right, the notes ("Deeper is ...", "If you're knocked out ...") under the picture on the left, Gather along the bottom). Checked with a fake off-the-path walk at step 0 in a headless 844 x 390 browser: Go deeper and Head to the road show whole; the notes run under the dock edge and scroll with the page.
 

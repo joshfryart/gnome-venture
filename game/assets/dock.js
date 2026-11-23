@@ -527,5 +527,36 @@
   window.addEventListener('orientationchange', relayout);
   if (mq.addEventListener) mq.addEventListener('change', render); else if (mq.addListener) mq.addListener(render);
 
-  try { if (readData()) { watch(); render(); } } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
+  /* the message bell: the page's own top message list (.msglog.top, hidden in this layout) opens as a scrollable popover from a bell at the far right of the dock */
+  var mBtn = null, mPop = null;
+  function msgLi() { return [].slice.call(document.querySelectorAll('.msglog.top .mllist li')).filter(function (l) { return !l.classList.contains('mlempty'); }); }
+  function msgSeenKey() { var l = msgLi()[0]; return l ? l.textContent.trim().slice(0, 80) : ''; }
+  function msgUpdate() {
+    var n = msgLi().length, seen = '';
+    if (!D) return;
+    if (!mBtn) {
+      mBtn = document.createElement('button'); mBtn.type = 'button'; mBtn.className = 'dk-msg'; mBtn.setAttribute('aria-label', 'Messages'); mBtn.setAttribute('aria-haspopup', 'dialog');
+      mBtn.innerHTML = '<img src="' + esc(D.iconBase.replace('img/nav/dock-', 'img/ico/ico-bell.png')) + '" alt=""><span class="dk-msgn" hidden></span>';
+      mPop = document.createElement('div'); mPop.className = 'dk-msgpop'; mPop.setAttribute('role', 'dialog'); mPop.setAttribute('aria-label', 'Messages');
+      root.appendChild(mBtn); root.appendChild(mPop);
+      mBtn.addEventListener('click', function (e) { e.stopPropagation(); if (mPop.classList.contains('dk-on')) { mPop.classList.remove('dk-on'); return; } msgFill(); mPop.classList.add('dk-on'); try { sessionStorage.setItem('dkmsg', msgSeenKey()); } catch (x) {} msgUpdate(); });
+      document.addEventListener('click', function (e) { if (mPop.classList.contains('dk-on') && !mPop.contains(e.target) && !mBtn.contains(e.target)) mPop.classList.remove('dk-on'); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') mPop.classList.remove('dk-on'); });
+      mPop.addEventListener('click', function (e) { if (e.target.closest('[data-msgx]')) mPop.classList.remove('dk-on'); });
+    }
+    root.classList.toggle('dk-has', n > 0);
+    try { seen = sessionStorage.getItem('dkmsg') || ''; } catch (x) {}
+    var dot = mBtn.querySelector('.dk-msgn'), fresh = n > 0 && msgSeenKey() !== seen;
+    dot.hidden = !fresh; dot.textContent = fresh ? String(Math.min(n, 99)) : '';
+    if (mPop.classList.contains('dk-on')) msgFill();
+  }
+  function msgFill() {
+    var src = document.querySelector('.msglog.top .mllist');
+    mPop.innerHTML = '<header><span>Messages</span><button type="button" data-msgx aria-label="Close">\u2715</button></header>';
+    if (src) { var ul = src.cloneNode(true); mPop.appendChild(ul); }
+  }
+  document.addEventListener('gv:swapped', function () { setTimeout(msgUpdate, 0); });
+  var dockMo = window.MutationObserver ? new MutationObserver(function () { clearTimeout(msgUpdate.t); msgUpdate.t = setTimeout(msgUpdate, 150); }) : null;
+  if (dockMo) { var cw = document.querySelector('.chrome2'); if (cw) dockMo.observe(cw, { subtree: true, childList: true, characterData: true }); }
+  try { if (readData()) { watch(); render(); msgUpdate(); } } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
 })();
