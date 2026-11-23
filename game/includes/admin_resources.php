@@ -425,8 +425,9 @@ function admin_resources(): array
             'fields' => [
                 'period' => ['type' => 'select', 'options' => ['daily' => 'Daily', 'weekly' => 'Weekly', 'monthly' => 'Monthly']],
                 'kind' => ['type' => 'select', 'options' => ['harvest' => 'Harvest any crops', 'harvest_crop' => 'Harvest one crop', 'deliver_crop' => 'Deliver a crop',
-                    'deliver_gather' => 'Deliver a gathered find', 'deliver_dish' => 'Deliver a dish', 'water' => 'Water plants', 'gather' => 'Gather on adventures',
+                    'deliver_gather' => 'Deliver a gathered find', 'deliver_part' => 'Deliver a creature part family', 'deliver_dish' => 'Deliver a dish', 'water' => 'Water plants', 'gather' => 'Gather on adventures',
                     'cook' => 'Cook meals', 'craft' => 'Craft anything', 'defeat' => 'Defeat or befriend creatures', 'grade' => 'Reach a soil grade']],
+                'part_token' => ['type' => 'text', 'max' => 30, 'help' => 'Only for "Deliver a creature part family": any-hide, rare-plate, ... (any-/rare- plus hide, plate, wing, ooze, silk, gem)'],
                 'title' => ['type' => 'text', 'required' => true, 'max' => 80],
                 'text' => ['type' => 'textarea', 'required' => true, 'help' => 'Use {qty}, {item} and {npc}'],
                 'qty_min' => ['type' => 'int', 'min' => 1, 'help' => 'For "Reach a soil grade": grade index (C = 4, A = 8, S = 10)'],

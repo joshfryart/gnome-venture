@@ -1436,6 +1436,7 @@ function schema_statements(string $driver): array
         ['plants', 'nutrient', 'VARCHAR(1) NULL'],
         ['users', 'job_dailies', 'INT NOT NULL DEFAULT 0'],
         ['user_jobs', 'player_job_id', 'INT NULL'],
+        ['job_templates', 'part_token', 'VARCHAR(30) NULL'],     // 2.7.58: a deliver_part template's family token (any-hide, rare-plate)
         ['users', 'sapling_day', 'VARCHAR(10) NULL'],                    // v0.7.10 saplings raised today
         ['users', 'sapling_count', 'INT NOT NULL DEFAULT 0'],
         ['users', 'community_day', 'VARCHAR(10) NULL'],                  // v0.7.14 community garden

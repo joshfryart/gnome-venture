@@ -155,11 +155,11 @@ $jbAct = e(url('jobs.php?t=jobs&p=' . $tab));
         <button class="btn" <?= $ready ? '' : 'disabled' ?>>🧱 Hand in stage <?= $stage ?></button></form>
       <a class="btn alt" href="<?= e(craft_url('building')) ?>">Craft materials →</a></div>
   <?php elseif (str_starts_with((string)$job['kind'], 'deliver') || $job['kind'] === 'p_deliver'):
-      $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $job['target_item_id']]); ?>
+      $have = job_deliver_stock($uid, $job)['have']; ?>
     <h3>Hand in</h3>
     <p class="jb-sub">You have <b><?= $have ?></b> <?= e((string)$job['target_name']) ?> in your satchel.</p>
     <div class="jb-actions"><form method="post" class="inline" action="<?= $jbAct ?>"><?= csrf_field() ?><input type="hidden" name="period" value="<?= $period ?>"><input type="hidden" name="do" value="deliver">
-      <button class="btn" <?= $have ? '' : 'disabled' ?>>Hand in <?= item_pic(['id' => $job['target_item_id'], 'name' => (string)$job['target_name']], 'sm') ?><?= e((string)$job['target_name']) ?></button></form></div>
+      <button class="btn" <?= $have ? '' : 'disabled' ?>>Hand in <?= $job['kind'] === 'deliver_part' ? '🦴 ' : item_pic(['id' => $job['target_item_id'], 'name' => (string)$job['target_name']], 'sm') ?><?= e((string)$job['target_name']) ?></button></form></div>
   <?php elseif ($job['kind'] === 'p_tend'): ?>
     <h3>Go tend</h3>
     <p class="jb-sub">Water, weed and harvest in <?= e((string)$job['npc']) ?>’s garden.</p>

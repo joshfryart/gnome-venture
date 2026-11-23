@@ -1,8 +1,9 @@
 # Job Board templates (v0.7.8). Imported into the job_templates table; edit them in Admin → Job templates.
 # period | kind | title | text | min | max | stages | coins | xp | reward (item slug:qty, or @treasure-seed / @guide / @rare-gather / @rare-material :qty, or -)
 #
-# kinds: harvest (any crops) · harvest_crop (one crop) · deliver_crop · deliver_gather · deliver_dish
+# kinds: harvest (any crops) · harvest_crop (one crop) · deliver_crop · deliver_gather · deliver_part (a creature part family) · deliver_dish
 #        water · gather · cook · craft · defeat · grade (reach a no-till soil grade; min = grade index, C = 4, A = 8)
+# An optional 11th column is a deliver_part row's family token: any-hide, any-plate, any-wing, any-ooze, any-silk, any-gem, or rare-<family> (rare parts only). Rows are inserted by title, never rewritten.
 # {qty} {item} {npc} are filled in. Amounts for harvest/deliver jobs grow a little with your garden size.
 # Monthly jobs pay part of the reward at every stage, and the rest plus the item at the end.
 
@@ -13,11 +14,14 @@ daily|water|Thirsty weather|It hasn’t rained in days. Water plants {qty} times
 daily|gather|Bits and bobs|{npc} collects curiosities. Gather {qty} things on an adventure.|2|4|1|70|25|-
 daily|cook|Lunch for the workers|{npc} is feeding a work crew. Cook {qty} meal.|1|1|1|80|25|-
 daily|craft|Handy gnome|{npc} needs a hand at the workbench. Craft {qty} things (any tab).|1|2|1|70|25|-
+daily|deliver_part|Hides for the tanner|{npc} is short of hides. Bring {qty} {item}, whichever you have.|2|4|1|90|25|-|any-hide
 daily|defeat|Pests on the path|Creatures are bothering travellers. Defeat or befriend {qty} on an adventure.|2|4|1|80|30|-
 
 weekly|harvest_crop|Bulk order|{npc} is stocking up on {item} for the week. Harvest {qty}.|30|60|1|450|120|rich-loam:2
 weekly|deliver_crop|The big shop|{npc} is putting on a feast and needs {qty} {item}.|20|40|1|550|130|worm-castings:3
 weekly|deliver_gather|Collector’s request|{npc} is building a collection and wants {qty} {item}.|5|10|1|500|130|@rare-gather:1
+weekly|deliver_part|Plates for the smith|{npc} is mending armour and wants {qty} {item}.|4|8|1|480|130|@rare-material:1|any-plate
+weekly|deliver_part|Fine feathers|{npc} is making a feather cloak and wants {qty} {item}.|1|2|1|550|140|@treasure-seed:1|rare-wing
 weekly|deliver_dish|Feast day|{npc} is hosting a feast. Bring {qty} {item}.|3|5|1|600|140|@treasure-seed:1
 weekly|gather|Field notes|Wren wants specimens. Gather {qty} things on adventures this week.|15|25|1|500|140|@rare-gather:1
 weekly|cook|Week of suppers|{npc} is laid up and needs feeding. Cook {qty} meals this week.|5|8|1|450|120|kelp-meal:2
