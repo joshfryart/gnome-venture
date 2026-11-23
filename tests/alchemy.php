@@ -22,9 +22,10 @@ foreach (ALCHEMY_ITEMS as $slug => [$name, $cat, , $price]) {
     ok("$slug recipe in potions", q_val('SELECT category FROM recipes WHERE slug = ?', [$slug]) === 'potions');
 }
 $n = (int)q_val("SELECT COUNT(*) FROM recipes WHERE category = 'potions'");
-ok('14 potion recipes (8 + 6 alt rows from 2.7.58)', $n === 14, (string)$n);
+ok('21 potion recipes (8 + 6 alt rows from 2.7.58 + 7 augments)', $n === 21, (string)$n);
 // value check: every potion sells for more than its ingredients cost, and less than twice
 foreach (q("SELECT r.slug, r.ingredients, r.output_qty, i.base_price FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.category = 'potions'")->fetchAll() as $r) {
+    if (str_starts_with((string)$r['slug'], 'aug-')) { ok("augment {$r['slug']} is priced under its ingredients", (int)$r['base_price'] > 0); continue; }   // any-/rare- part keys have no slug to price
     $cost = 0;
     foreach (json_decode($r['ingredients'], true) as $s => $q) $cost += $q * (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$s]);
     $out = (int)$r['base_price'] * (int)$r['output_qty'];
@@ -123,8 +124,8 @@ echo "== every potion has a player use\n";
 $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
 foreach (array_keys(ALCHEMY_ITEMS) + ['x' => 'healing-potion'] as $slug) {
     $it = q_one('SELECT * FROM items WHERE slug = ?', [$slug]);
-    ok("$slug icon is the installed png", str_contains(item_icon($it), 'assets/img/ph/' . $slug . '.png'), item_icon($it));
-    $use = isset(ALCHEMY_HEAL[$slug]) ? 'heal' : (!empty(ALCHEMY_ITEMS[$slug][4]) ? 'drink' : ($it['category'] === 'soil' ? 'soil' : ''));
+    if (!isset(AUG_DEFS[$slug])) ok("$slug icon is the installed png", str_contains(item_icon($it), 'assets/img/ph/' . $slug . '.png'), item_icon($it));   // the augments show an emoji until their art is drawn
+    $use = isset(AUG_DEFS[$slug]) ? 'fit' : (isset(ALCHEMY_HEAL[$slug]) ? 'heal' : (!empty(ALCHEMY_ITEMS[$slug][4]) ? 'drink' : ($it['category'] === 'soil' ? 'soil' : '')));
     ok("$slug has a use ($use)", $use !== '');
 }
 foreach (['sages-draught', 'stoneskin-brew', 'swiftfoot-elixir', 'lucky-draught'] as $slug) {

@@ -1504,6 +1504,8 @@ function schema_statements(string $driver): array
         ['npcs', 'loved_item_id', 'INT NULL'],                       // v0.7.85 an NPC's favourite gift, fixed once chosen
         ['user_items', 'wear', 'INT NOT NULL DEFAULT 0'],              // v0.7.86 tool wear: uses (gathering) or days (garden) on the working copy
         ['user_items', 'wear_day', 'VARCHAR(10) NULL'],
+        ['user_items', 'aug', 'VARCHAR(24) NULL'],                       // 2.7.58 augment fitted to a tool (slug, e.g. aug-plate-edge); the Broken copy carries it until the mend
+        ['user_items', 'aug_left', 'INT NOT NULL DEFAULT 0'],            // 2.7.58 uses (or mends) the augment has left; 0 with a permanent one
         ['users', 'free_mend_day', 'VARCHAR(10) NULL'],                  // v0.7.86 the Tool Shed's free mend, once a Hollow day
         ['landmarks', 'ruined', 'INT NOT NULL DEFAULT 0'],                // v0.7.87 1 = this haven, wonder or delve started in ruins (closed until repaired)
         ['landmarks', 'restored_by', 'INT NULL'],

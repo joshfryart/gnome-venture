@@ -723,6 +723,7 @@ function settings_schema(): array
         'gather_tool_uses'   => ['label' => 'Tools: gathering tools, walking staff and lantern: uses before breaking, for Worn, Sturdy, Fine, Masterwork (0 = never wears)', 'type' => 'text', 'default' => '60,150,300,600'],
         'garden_tool_days'   => ['label' => 'Tools: garden tools, days of use before breaking, Worn to Masterwork (0 = never wears)', 'type' => 'text', 'default' => '0,45,90,180'],
         'tool_mend_percent'  => ['label' => 'Tools: mending a worn or broken tool costs this % of its price (at least 5 Petals)', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 1000],
+        'tool_mend_kits'     => ['label' => 'Tools: Tool Repair Kits a mend takes, tier 1 to 4 (tier 3 also takes 1 creature part, tier 4 a rare one; 0 = kits do not mend that tier)', 'type' => 'text', 'default' => '1,2,4,8'],
         'life_tree_days'     => ['label' => 'Perennials: lifespan of trees and nut trees (days)', 'type' => 'int', 'default' => '60', 'min' => 1, 'max' => 3650],
         'life_fruit_days'    => ['label' => 'Perennials: lifespan of fruit bushes and vines (days)', 'type' => 'int', 'default' => '45', 'min' => 1, 'max' => 3650],
         'life_other_days'    => ['label' => 'Perennials: lifespan of herbs, flowers, spices and the rest (days)', 'type' => 'int', 'default' => '30', 'min' => 1, 'max' => 3650],

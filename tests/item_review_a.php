@@ -12,7 +12,7 @@ $ing = fn(string $slug) => json_decode((string)($rec($slug)['ingredients'] ?? '{
 $price = fn(string $s) => (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$s]);
 $value = function (array $ings) use ($price) { $v = 0; foreach ($ings as $s => $n) $v += $price($s) * $n; return $v; };
 /** Every ingredient of a recipe is a real item (a typo in a data row would make it forever uncraftable). */
-$real = function (string $slug) use ($ing) { foreach (array_keys($ing($slug)) as $s) if (!q_val('SELECT 1 FROM items WHERE slug = ?', [$s])) return false; return (bool)$ing($slug); };
+$real = function (string $slug) use ($ing) { foreach (array_keys($ing($slug)) as $s) if (!part_key((string)$s) && !q_val('SELECT 1 FROM items WHERE slug = ?', [$s])) return false; return (bool)$ing($slug); };
 $usedAnywhere = function (string $item) { foreach (q('SELECT ingredients FROM recipes')->fetchAll(PDO::FETCH_COLUMN) as $j) if (isset((json_decode((string)$j, true) ?: [])[$item])) return true; return false; };
 
 echo "== E1 camping gear: cheaper alt rows (the 100-Petal shop price is unchanged)\n";

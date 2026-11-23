@@ -60,7 +60,7 @@ for k in cooking pantry tools garden building decor; do page "inventory.php?tab=
 page "inventory.php?tab=craft&c=cooking"; php -r '$h=file_get_contents($argv[1]); preg_match_all("~<dialog class=\"picker craftpop\".*?</dialog>~s",$h,$m); foreach($m[0] as $d){ if(str_contains($d," style=")||str_contains($d,"<script")) echo "FAIL popover has inline style or script\n"; }' $T/c.html
 echo "-- landing badges: one recipe pass"; give bladderwrack 6; page "inventory.php?tab=craft"; grep -oE 'cmap-badge[^>]*>[^<]*ready' $T/c.html | head -3 | sed 's/.*>/badge: /'; grep -q 'ready</span>' $T/c.html || grep -q '[0-9] ready' $T/c.html || echo "FAIL no ready badge with 6 bladderwrack"
 echo "== Alchemy Table potions"
-N=$(db "SELECT COUNT(*) FROM recipes WHERE category='potions'"); echo "potion recipes: $N"; [ "$N" = 14 ] || echo "FAIL $N of 14 potion recipes"
+N=$(db "SELECT COUNT(*) FROM recipes WHERE category='potions'"); echo "potion recipes: $N"; [ "$N" = 21 ] || echo "FAIL $N of 21 potion recipes"
 give healing-potion 2; give pine-resin 1; R6=$(db "SELECT id FROM recipes WHERE slug='strong-healing-potion'")
 page "inventory.php?tab=craft&c=potions"   # discovers it
 echo "strong potion: $(make potions $R6)"

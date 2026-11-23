@@ -305,6 +305,13 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
         db()->rollBack();
         return [false, $short()];
     }
+    $carry = null;   // 2.7.58: a tool upgrade that uses up a tool hands its augment on to the new one
+    foreach ($stock as $s) {
+        if ($carry === null && (int)$s['id'] > 0 && q_val("SELECT category FROM items WHERE id = ?", [(int)$s['id']]) === 'tool') {
+            $ar = q_one('SELECT aug, aug_left FROM user_items WHERE user_id = ? AND item_id = ? AND aug IS NOT NULL AND qty <= ?', [$uid, (int)$s['id'], $s['qty'] * $qty]);   // only when the stack is used up (spare copies keep the shared one)
+            if ($ar) $carry = $ar;
+        }
+    }
     foreach ($stock as $s) {
         if (!craft_take($uid, $s, $s['qty'] * $qty)) {
             db()->rollBack();
@@ -314,6 +321,9 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
     require_once __DIR__ . '/craft_mastery.php';
     $made = craft_mastery_yield($uid, $cat, (int)$r['output_qty'] * $qty);   // category mastery: +5% yield a tier
     give_item($uid, (int)$r['output_item_id'], $made);
+    if ($carry && q_val("SELECT category FROM items WHERE id = ?", [(int)$r['output_item_id']]) === 'tool') {
+        q('UPDATE user_items SET aug = ?, aug_left = ? WHERE user_id = ? AND item_id = ? AND aug IS NULL', [$carry['aug'], (int)$carry['aug_left'], $uid, (int)$r['output_item_id']]);
+    }
     q('UPDATE user_recipes SET made = made + ? WHERE user_id = ? AND recipe_id = ?', [$qty, $uid, $recipeId]);
     require_once __DIR__ . '/jobs.php';
     job_event($uid, 'craft', (string)$r['slug'], $qty, ['cat' => $cat]);   // v0.9.4 N10: craft carries recipe slug + category (cooking's cook event fires at pot collect)

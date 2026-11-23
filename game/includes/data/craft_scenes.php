@@ -27,7 +27,7 @@ return [
     ["grindstone", "Grindstone", 71.33, 44.00, 28.00, 50.00, ["*pick", "garden-hoe", "masterwork-*-hoe", "masterwork-secateurs"]],
   ]],
   'garden' => ['alt' => "Garden shed scene", 'hot' => [
-    ["can", "Watering can and trowels", 1.33, 7.00, 32.00, 41.00, ["worm-tea", "fern-tea", "kelp-meal"]],
+    ["can", "Watering can and trowels", 1.33, 7.00, 32.00, 41.00, ["worm-tea", "fern-tea", "kelp-meal", "tool-repair-kit*"]],
     ["sacks", "Sacks of loam", 2.00, 52.00, 30.67, 44.00, ["*-loam", "rock-dust*", "shell-meal-*"]],
     ["compost", "Compost bin", 34.00, 14.00, 32.00, 76.00, ["*compost", "worm-bedding", "worm-bin", "*leaf-mould", "bug-castings"]],
     ["seeds", "Seed trays", 67.33, 7.00, 32.00, 41.00, ["worm-bedding", "*leaf-mould", "kelp-meal", "wood-ash", "worm-tea", "fern-tea"]],
@@ -35,10 +35,10 @@ return [
   ]],
   'potions' => ['alt' => "Alchemy station scene", 'hot' => [
     ["flasks", "Potion shelf", 1.33, 4.00, 32.00, 38.00, ["lucky-draught*", "sages-draught"]],
-    ["mortar", "Mortar and pestle", 2.67, 42.00, 28.00, 52.00, ["garden-tonic*", "stoneskin-brew*"]],
+    ["mortar", "Mortar and pestle", 2.67, 42.00, 28.00, 52.00, ["garden-tonic*", "stoneskin-brew*", "aug-*"]],
     ["cauldron", "Cauldron", 34.00, 16.00, 33.33, 79.00, ["healing-potion*", "strong-healing-potion*"]],
     ["book", "Spellbook", 70.00, 6.00, 28.67, 34.00, ["grand-healing-elixir*", "swiftfoot-elixir"]],
-    ["still", "Copper still", 68.67, 42.00, 30.67, 52.00, ["stoneskin-brew*", "swiftfoot-elixir"]],
+    ["still", "Copper still", 68.67, 42.00, 30.67, 52.00, ["stoneskin-brew*", "swiftfoot-elixir", "aug-*"]],
   ]],
   'building' => ['alt' => "Builders\u2019 yard scene", 'hot' => [
     ["pulley", "Crane pulley", 4.67, 3.00, 26.00, 43.00, ["rope*", "building-stone*"]],

@@ -58,11 +58,7 @@ function sh_bag_form(string $do, int $itemId, string $label, string $hid, string
 /** the mend button's words, the same as tool_wear_html() shows (free once a day with a Tool Shed) */
 function sh_mend_label(int $uid, array $item): string
 {
-    $tool = ($item['category'] ?? '') === 'broken' ? tool_of_broken($item) : $item;
-    if (!$tool) return '🔧 Mend';
-    $fm = q_one('SELECT free_mend_day, free_mend_n FROM users WHERE id = ?', [$uid]) ?: [];
-    $free = ($allow = tool_free_mends($uid)) > 0 && ((string)($fm['free_mend_day'] ?? '') !== gclock_my_date() || (int)($fm['free_mend_n'] ?? 0) < $allow);
-    return $free ? '🛠️ Mend free' : '🔧 Mend ' . money((int)tool_mend_cost((int)$tool['base_price']));
+    return tool_mend_label($uid, $item);   // 2.7.58: free (Tool Shed), kits, Ooze Salve or Petals
 }
 
 /** Satchel rows as entries. $items: user_items joined with items (qty > 0). $hid: the hidden cat / sort fields every form carries back. */

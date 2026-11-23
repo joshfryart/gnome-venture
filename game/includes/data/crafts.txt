@@ -103,6 +103,14 @@ sages-draught|Sage’s Draught|potions|sages-draught:1|chanterelle:1,bilberries:
 stoneskin-brew|Stoneskin Brew|potions|stoneskin-brew:1|cattail-root:2,river-clay:1,stag-beetle-shell:1|2
 swiftfoot-elixir|Swiftfoot Elixir|potions|swiftfoot-elixir:1|dragonfly-wing:1,crowberries:2,ramsons:1|2
 garden-tonic|Garden Tonic|potions|garden-tonic:2|bladderwrack:2,meadowsweet:1,sphagnum:1|1
+# 2.7.58 tool augments (items: includes/alchemy.php, rules: includes/augments.php). any-/rare- ingredients take creature parts of that family.
+aug-hide-binding|Hide Binding|potions|aug-hide-binding:1|any-hide:3,rope:1|2
+aug-hide-binding-2|Hide Binding II|potions|aug-hide-binding-2:1|rare-hide:1,any-hide:3,beeswax:1|2
+aug-plate-edge|Plate Edge|potions|aug-plate-edge:1|any-plate:5,flint:1|2
+aug-wing-fletch|Wing Fletch|potions|aug-wing-fletch:1|any-wing:4|2
+aug-gem-charm|Gem Charm|potions|aug-gem-charm:1|any-gem:1,any-ooze:2|2
+aug-ooze-salve|Ooze Salve|potions|aug-ooze-salve:1|any-ooze:3|2
+aug-silk-lashing|Silk Lashing|potions|aug-silk-lashing:1|any-silk:4,tool-repair-kit:1|2
 
 # Sleep-days camping gear (decisions 31, 50): crafted for about 60 Petals of parts; a shop sells it for 100
 canvas-sheet|Canvas Sheet|building|canvas-sheet:1|coir-fibre:3,cottongrass:2|3
@@ -112,6 +120,7 @@ camping-gear|Camping Gear|building|camping-gear:1|rope:2,metal-pins:4,canvas-she
 
 # 2.6.74 (puzzle combat, v1 deck model): fixes one fight tool on the Puzzle box belt (item: includes/pfdeck.php, pfd_ensure_content). No building needed.
 tool-repair-kit|Tool Repair Kit|garden|tool-repair-kit:1|flint:1,pine-resin:1,coir-fibre:1|2
+tool-repair-kit-silk|Tool Repair Kit (silk)|garden|tool-repair-kit:2|any-silk:2,flint:1|2
 
 # 2.7.58 item review group A: alternate rows (new slugs, same output; insert-only, existing rows untouched).
 # E1 camping gear: the pins, pot and canvas from cheap finds, so the whole kit costs about what the shop asks (100 Petals; the shop price is unchanged).
