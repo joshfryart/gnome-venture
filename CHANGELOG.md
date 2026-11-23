@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.8.00
+- **Shops page (world.php?tab=markets): the market picture is big** (640 px wide, about 400 px tall at 844 x 390, was 340 x 214), since tapping a shop in it is the way in; the shop list is under it.
 - **Dock: a Shops piece in the Out & about menu** (after Villagers), opening the world page's Shops tab. It is greyed "on the road" while walking, like World. The old menu sheet is unchanged. Seen in the strip at 844 x 390.
 
 ## 2.7.100

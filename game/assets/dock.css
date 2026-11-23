@@ -1117,3 +1117,9 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .shopwrap > .basket .btotal { white-space: nowrap; }
   body.dock-on .shopwrap > .basket .sbad { position: absolute; left: 10px; bottom: -18px; margin: 0; font-size: 12px; }
 }
+
+/* Shops list page (world.php?tab=markets): the market picture is the way into each shop, so it is big (the list is below it) */
+@media (orientation: landscape) {
+  body.dock-on .hubscene:has(~ #shops-list) { display: block; }
+  body.dock-on .hubscene:has(~ #shops-list) .hubstage { max-width: none; width: min(100%, 640px); margin-inline: auto; }
+}
