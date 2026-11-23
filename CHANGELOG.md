@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.82
+- **Dock status plate:** energy shows its numbers (x/y) beside its bar, and a health bar with its x/y sits just below it (red bar, from the same numbers as the popover's Health row; it follows the adventure's health during a walk). The time is shorter ("07:25 d0") so the coins fit. Seen in a headless capture.
+- **End-of-fight card (win, loss, charmed) fits without scrolling** in the dock layout on a short landscape screen: picture left, title and words right, the detail lines small, the buttons always on screen. Seen after a real lost fight in a fake walk (the Puzzle box / Try again / Go home buttons are all visible); a win card with loot was not checked.
+- **Wander, after a fight:** the small round thing under the heading was the end-of-fight stage (the chest and loot coming in, `#fightscene`) collapsed to a few dozen pixels by the new Wander grid. It now takes the picture's place at full size. Not seen with a real win here (my test fights were losses), so it is a best fix from the markup.
+
 ## 2.7.81
 - **World and region maps full size in the dock layout.** The 2.7.65 rule that fitted the maps to the height above the dock is removed (the maps are tapped and zoomed, so small was wrong): both are the full page width again, about 796 x 446 (world) and 796 x 476 (region) at 844 x 390, and they match.
 - **Puzzle fight, End turn flash (second attempt).** Frame-by-frame captures showed what you see: after each End turn the swapped-in fight screen sat for a moment in the old tall layout (bars, tip and a small board stacked) until its script had run and added its fitted class; headless about 55 ms, longer on a phone. The two-column layout and the fixed position now apply to `#pfight.pf-v1` from the first frame (`dock.css`), without touching the scripts (the 2.7.79 route broke the board). The screen now keeps its columns through the swap. Still happening in a headless sample: the board's pieces are blank for the same moment, and the coaching tip appears a moment later. Not confirmed on a phone.

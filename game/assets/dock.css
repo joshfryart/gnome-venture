@@ -422,3 +422,28 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on #pfight.pf-v1 { position: fixed; z-index: 60; top: var(--pfv-top, 0px); left: 50%; transform: translateX(-50%); margin: 0; padding: 4px 6px; box-sizing: border-box; overflow: hidden; background: #2b1d14; border-radius: 0; }
   html:has(body.dock-on #pfight.pf-v1), html:has(body.dock-on #pfight.pf-v1) body { height: 100%; overflow: hidden; }
 }
+
+/* dock layout, landscape: the end-of-fight card (win, loss, charmed) is compact and does not scroll: picture left, words right, the details small, the buttons always on screen */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfight .pfv.res { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 2px 10px; align-content: center; justify-items: start; text-align: left; padding: 8px 12px; overflow: hidden; max-height: 100%; }
+  body.dock-on #pfight .pfv.res > .resbadge { grid-column: 2; grid-row: 1; justify-self: start; }
+  body.dock-on #pfight .pfv.res > h2 { grid-column: 2; grid-row: 2; font-size: 16px; text-align: left; }
+  body.dock-on #pfight .pfv.res > .pic { grid-column: 1; grid-row: 1 / span 3; width: 72px; height: 72px; }
+  body.dock-on #pfight .pfv.res > .pic img { max-width: 64px; max-height: 64px; }
+  body.dock-on #pfight .pfv.res > .big { grid-column: 2; grid-row: 3; font-size: 12px; max-width: none; line-height: 1.25; }
+  body.dock-on #pfight .pfv.res > .rows, body.dock-on #pfight .pfv.res > .pfv-recap, body.dock-on #pfight .pfv.res > .actrow { grid-column: 1 / -1; width: 100%; }
+  body.dock-on #pfight .pfv.res > .rows { gap: 2px; }
+  body.dock-on #pfight .pfv.res > .pfv-recap { font-size: 11px; line-height: 1.25; margin: 2px 0; }
+  body.dock-on #pfight .pfv.res > .sl, body.dock-on #pfight .pfv.res > p.hint:not(.pfv-recap) { display: none; }
+  body.dock-on #pfight .pfv.res .actrow .btn { min-height: 38px; }
+}
+
+/* the status plate: energy and health show their numbers (x/y) */
+.dockroot .dk-pc.dk-plate .bn{flex:none;font-size:10px;font-weight:700;color:var(--dk-ink);min-width:3.2em;text-align:right}
+.dockroot .dk-pc.dk-plate progress.hp::-webkit-progress-value{background:#c0392b}
+.dockroot .dk-pc.dk-plate progress.hp::-moz-progress-bar{background:#c0392b}
+
+/* dock layout, Wander: the end-of-fight stage (the chest and the loot coming in) takes the picture's place, full size, instead of collapsing to a small circle */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings .fightscene:not(.fs-over) { grid-column: 1; grid-row: 1; width: 100%; max-width: none; margin: 0; max-height: var(--imgh); overflow: hidden; }
+}

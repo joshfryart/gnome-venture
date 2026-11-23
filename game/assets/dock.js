@@ -352,9 +352,11 @@
     base.pat = 'dk-dirt2'; base.cls = 'plate' + (open ? ' open' : '');
     base.attrs = 'id="dockplate" aria-label="Status, tap for more" aria-expanded="' + open + '"';
     base.after = '<span class="pip" aria-hidden="true">▴</span>';
-    var ep = p.energy[1] ? Math.round(100 * p.energy[0] / p.energy[1]) : 0;
-    base.inner = '<span>⚡<progress max="100" value="' + ep + '"></progress></span><span>🌱 <b>' + p.level + '</b><progress class="xp" max="100" value="' + p.xp + '"></progress></span>'
-      + '<span>' + (p.time ? '🕐 ' + esc(p.time) + ' <span class="tag">' + (LW < 720 ? 'd' + p.day : 'day ' + p.day) + '</span>' : '🪙 <span class="tag">' + p.coins + '</span>') + '</span><span>🪙 <span class="tag">' + p.coins + '</span></span>';
+    var ep = p.energy[1] ? Math.round(100 * p.energy[0] / p.energy[1]) : 0, hp = p.hp, hpp = hp && hp[1] ? Math.round(100 * hp[0] / hp[1]) : 0;
+    base.inner = '<span>\u26a1<progress max="100" value="' + ep + '"></progress><b class="bn">' + p.energy[0] + '/' + p.energy[1] + '</b></span>'
+      + '<span>\ud83c\udf31 <b>' + p.level + '</b><progress class="xp" max="100" value="' + p.xp + '"></progress></span>'
+      + (hp ? '<span>\u2764\ufe0f<progress class="hp" max="100" value="' + hpp + '"></progress><b class="bn">' + hp[0] + '/' + hp[1] + '</b></span>' : '<span></span>')
+      + '<span>' + (p.time ? esc(p.time) + ' <span class="tag">' + 'd' + p.day + '</span> ' : '') + '\ud83e\ude99 <span class="tag">' + p.coins + '</span></span>';
     return pc(base);
   }
   function actPiece(side, a, base) {

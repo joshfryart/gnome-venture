@@ -158,7 +158,7 @@ function dock_status(array $u): array
             $rows[] = ['🕐', 'Day ' . (int)$gs['day'], $plate['time']];
         }
         require_once __DIR__ . '/health.php';
-        if (hp_on()) { [$hp, $hpm] = hp_display($u); $rows[] = ['❤️', 'Health', $hp . '/' . $hpm]; }
+        if (hp_on()) { [$hp, $hpm] = hp_display($u); $rows[] = ['❤️', 'Health', $hp . '/' . $hpm]; $plate['hp'] = [(int)$hp, (int)$hpm]; }
         $rows[] = ['🪙', 'Petals', number_format((int)$u['coins'])];
         require_once __DIR__ . '/hollow_clock.php';
         $hn = hollow_now(hollow_user_region($u));
