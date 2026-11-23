@@ -309,11 +309,12 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .advgrid.wander.withrings .mapwrap .hoopcap { font-size: 11px; margin: 0; }
   body.dock-on .advgrid.wander.withrings > .panel { display: contents; }   /* its parts are placed in the grid: choices right (no scrolling), notes under the picture, Gather along the bottom */
   body.dock-on .advgrid.wander.withrings > .panel > * { grid-column: 3; }
-  body.dock-on .advgrid.wander.withrings > .panel > .choicelist { grid-row: 1 / span 2; padding: 6px; background: var(--surface); border: 2px solid var(--ol); align-self: start; }
-  body.dock-on .advgrid.wander.withrings > .panel > details.wmore { grid-column: 1; grid-row: 2; margin: 0; font-size: 11px; line-height: 1.3; }
+  body.dock-on .advgrid.wander.withrings > .panel > .choicelist { grid-row: 1 / span 3; padding: 6px; background: var(--surface); border: 2px solid var(--ol); align-self: start; }
+  body.dock-on .advgrid.wander.withrings > .panel > .advlatest { grid-column: 1; grid-row: 2; margin: 0; }   /* what just happened: under the picture, above More */
+  body.dock-on .advgrid.wander.withrings > .panel > details.wmore { grid-column: 1; grid-row: 3; margin: 0; font-size: 11px; line-height: 1.3; }
   body.dock-on .advgrid.wander.withrings > .panel > details.wmore p { margin: 3px 0; }
-  body.dock-on .advgrid.wander.withrings > .panel > details.wgather { grid-column: 1 / -1; grid-row: 3; margin: 0; }
-  body.dock-on .advgrid.wander.withrings .mapwrap.small { grid-row: 1 / span 2; }
+  body.dock-on .advgrid.wander.withrings > .panel > details.wgather { grid-column: 1 / -1; grid-row: 4; margin: 0; }
+  body.dock-on .advgrid.wander.withrings .mapwrap.small { grid-row: 1 / span 3; }
   body.dock-on .advgrid.wander .choicelist .choiceform { margin: 0 0 4px; }
   body.dock-on .advgrid.wander .panel h3 { font-size: .9rem; margin: 0 0 4px; }
 }

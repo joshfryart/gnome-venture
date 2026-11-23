@@ -351,6 +351,13 @@ function dock_page_spec(string $page): array
             $uA = current_user() ?? ['id' => 0];
             $exA = function_exists('active_expedition') ? active_expedition((int)$uA['id']) : null;
             $enc = $exA && !empty($exA['encounter']);
+            $wander = $exA && ($exA['kind'] ?? '') === 'explore' && !$enc;
+            if ($wander) {   // off the path: the moves, Gather (opens the page's own fold) and the way back to the road
+                return ['watch' => true, 'L' => dock_remote('Quick', '＋', ['quick' => 'use']), 'R' => dock_action('Wander', '🌿', '', [
+                    dock_remote('Go deeper', '🌿', ['doForm' => 'deeper']), dock_remote('Keep exploring', '🔁', ['doForm' => 'roam']), dock_remote('Step back', '↩️', ['doForm' => 'back']),
+                    dock_remote('Gather', '🧺', ['sel' => 'details.wgather > summary']), dock_remote('To the road', '🛣️', ['doForm' => 'return']),
+                ], '', '', 'Wander')];
+            }
             $R = $enc
                 ? dock_action('Fight', '⚔️', '', [dock_remote('Creature', '🔍', ['foe' => 1]), dock_remote('Run away', '🏃', ['sel' => '.pf-runf button, form:has(input[name="do"][value="flee"]) button'])], '', '', 'In a fight')
                 : dock_action('Trail', '🥾', '', [

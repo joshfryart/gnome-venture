@@ -188,7 +188,7 @@
     if (spec.foe) { slip = 'status'; popTab = 'foe'; return 'keep'; }
     if (spec.tool) { tool = tool === spec.tool ? null : spec.tool; e = q1('.selbar [data-sel="' + (tool ? 'on' : 'off') + '"]'); if (tool === null) { e = q1('.selbar [data-sel="off"]'); } if (e && !e.hidden && (tool || gSelOn())) e.click(); return; }
     if (spec.doForm) { t = formBtn(spec.doForm); if (t && !t.dis) t.btn.click(); return; }
-    if (spec.sel) { e = q1(spec.sel); if (e && !e.disabled) e.click(); }
+    if (spec.sel) { e = q1(spec.sel); if (e && !e.disabled) { if (!(e.tagName === 'SUMMARY' && e.parentNode && e.parentNode.open)) e.click(); if (e.tagName === 'SUMMARY') { try { e.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (x) { e.scrollIntoView(); } } } }
   }
   function remKey(spec) { REM.push(spec); return REM.length - 1; }
   /* the garden's own select panel: .selbar (data-tiles: a flag letter string per square), .selon while it is on, .selcount, the Pick buttons [data-q], the action buttons in .selacts */

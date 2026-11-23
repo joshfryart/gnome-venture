@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.74
+- **Dock layout, Wander:** what just happened (the "Latest:" result of the last step) sits under the picture, above the More fold. The right piece is now "Wander": Go deeper, Keep exploring, Step back, Gather (opens the page's Gather fold and scrolls to it) and To the road, each working the page's own control. Checked with a fake off-the-path walk in a headless 844 x 390 browser: the strip lists the five tiles, Gather opens the fold, To the road posts `do=return`.
+
 ## 2.7.73
 - **Dock layout, landscape: the message bar is a bell.** The bar across the top (latest message, ▾) is hidden; a round bell sits at the far right of the dock, beside Together, with a red count when there is something you have not opened. It opens the message list as a popover above the dock that scrolls and closes on a tap outside, Esc or the ✕ (`dock.js` reads the page's own list, so links in messages still work and the list follows in-place page changes). Seen in a headless 844 x 390 browser; an in-place new message while the popover is open was not checked.
 
