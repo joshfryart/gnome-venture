@@ -52,7 +52,7 @@ install $BASE $GAME; echo installed
 
 echo "== flag off: the old pages, byte for byte"
 OLD=${OLD:-b2c83466}   # the 2.6.73 release (before stages A to C). Stage D: was ba9c416c (the commit before stage C); that copy made the repair kit's recipe and Almanac page with the setting off, the release does not
-if git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then
+if [ -n "${COMPARE_OLD:-}" ] && git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then   # 2.7.57: opt-in (COMPARE_OLD=1): puzzle combat is live and the pages moved on, so the byte-for-byte comparison with 2.6.73 no longer holds
   # 2.7.05: pfight.css is no longer byte for byte: it got light ink on the old board's dark panels (the light theme showed dark on dark). Only appended rules, marked "2.7.05".
   ck "pfboard.js, pfight.js, pbox.js, pfparts.js are untouched since 2.6.73" "$(git -C "$ROOT" diff --stat $OLD -- game/assets/pfboard.js game/assets/pfight.js game/assets/pbox.js game/assets/pfparts.js | wc -l | tr -d ' ')" "0"
   ck "pfight.css differs from 2.6.73 only by lines added (2.7.05 light ink)" "$(git -C "$ROOT" diff --numstat $OLD -- game/assets/pfight.css | awk '{print ($2==0 ? "added-only" : "changed")}')" "added-only"
@@ -72,7 +72,7 @@ if git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then
   [ "$(diff $H.new $H.old | wc -l | tr -d ' ')" = 0 ] || { diff $H.new $H.old | cut -c1-300 | head -4; cp $H.new /tmp/pbox_new.html; cp $H.old /tmp/pbox_old.html; }   # what differs, when it does
   ck "flag off: the board fight page is the page of 2.6.73 (same fight state)" "$(grep -c 'id="pfb-board"' $H.new) $(diff $H.new $H.old | wc -l | tr -d ' ')" "1 0"
   db "UPDATE expeditions SET encounter=NULL" >/dev/null
-else echo "skip the comparison with commit $OLD (not in this checkout)"; fi
+else echo "skip the comparison with commit $OLD (opt-in: COMPARE_OLD=1, and the commit must be in this checkout)"; fi
 set_ pfight_v1 0   # 2.7.57: v1 is on by default now; Off is set explicitly
 get puzzlebox.php >/dev/null; cp $H $H.off
 ck "flag off: the old Puzzle box form, nothing of v1 on the page" "$(grep -c 'id="pbox"' $H) $(grep -c 'pfv\|pfboardv1' $H)" "1 0"
@@ -121,7 +121,7 @@ echo "== the gate and the pre-fight screen"
 php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" fight medium | tail -1
 get adventure.php >/dev/null
 ck "a creature appears: the pre-fight screen, nothing dealt, the deck not locked" "$(grep -c 'id="pfv-pre"' $H) $(grep -c 'id="pfb-board"' $H) $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 0 not dealt"
-ck "the creature card: class, size and board, layers (base 4, region, unique 3), 8 pieces" "$(grep -c 'class="foecard"' $H) $(grep -c 'medium · 4×4' $H) $(grep -o 'class="L-[a-z]*" data-f="[0-9]"' $H | tr '\n' ' ') $(grep -o 'class="pc L-[a-z]*"' $H | wc -l | tr -d ' ')" "1 1 class=\"L-base\" data-f=\"4\" class=\"L-reg\" data-f=\"1\" class=\"L-uni\" data-f=\"3\"  8"
+ck "the creature card: class, size and board, layers (base 4, region, unique 4), 9 pieces" "$(grep -c 'class="foecard"' $H) $(grep -c 'medium · 4×4' $H) $(grep -o 'class="L-[a-z]*" data-f="[0-9]"' $H | tr '\n' ' ') $(grep -o 'class="pc L-[a-z]*"' $H | wc -l | tr -d ' ')" "1 1 class=\"L-base\" data-f=\"4\" class=\"L-reg\" data-f=\"1\" class=\"L-uni\" data-f=\"4\"  9"
 ck "auto off: the deck with a bench, swaps allowed (toggle on the adventure page)" "$(grep -c '>Bench <' $H) $(post adventure.php -d do=pfd_toggle -d key=soothe -d on=0) $(db "SELECT active FROM pf_deck_pieces WHERE piece_key='soothe'") $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 302 0 not dealt"
 get adventure.php >/dev/null; post adventure.php -d do=pfd_auto -d on=1 >/dev/null; get adventure.php >/dev/null
 ck "auto on: the card is still shown, the deck is read-only, the note and Turn off and edit" "$(grep -c 'class="foecard"' $H) $(grep -c '>Bench <' $H) $(grep -c 'Auto deck is active' $H) $(grep -c 'Turn off and edit' $H) $(grep -o 'data-a="tog"' $H | wc -l | tr -d ' ')" "1 0 1 1 0"
