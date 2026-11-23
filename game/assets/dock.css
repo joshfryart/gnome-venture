@@ -204,3 +204,7 @@ body.dock-on { --dock-h: 106px; }
 .dockroot .dk-rn { flex: 1; text-align: center; }
 .dockroot .dk-rb { color: #f3e6c8; background: none; border: 0; font: inherit; text-decoration: none; padding: 6px 8px; min-height: 30px; cursor: pointer; }
 .dockroot .dk-rs { opacity: .85; }
+
+/* the tour's ring on a dock piece (pieces are placed absolutely, so keep that) */
+.dockroot .tourhl { position: absolute; z-index: 6; border-radius: 0; outline: 4px solid #ffcb2e !important; outline-offset: 2px; clip-path: none !important; }
+.dockroot .tourhl::before { bottom: auto; top: -28px; }

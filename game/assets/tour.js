@@ -45,7 +45,7 @@
       if (cur) cur.hidden = false;
       var t = []; try { t = JSON.parse(box.getAttribute('data-targets') || '[]'); } catch (e) { t = []; }
       var m = pick(t);
-      if (hint) hint.textContent = m ? m[1] : '';
+      if (hint && hint.textContent !== (m ? m[1] : '')) hint.textContent = m ? m[1] : '';   // only when it changed: a same-text write is a DOM mutation, and the dock redraws on those
       if (!m) return;
       hl = m[0]; hl.classList.add('tourhl');
       var key = (box.getAttribute('data-step') || '') + '|' + (hl.id || hl.className || hl.tagName) + '|' + location.pathname + location.search;
@@ -61,7 +61,8 @@
   }
   function soon() { clearTimeout(soon.t); soon.t = setTimeout(aim, 60); }
   document.addEventListener('gv:swapped', soon);
+  document.addEventListener('gv:dockdrawn', soon);
   window.addEventListener('resize', soon);
-  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.menubtn')) setTimeout(aim, 350); });   // the menu opened or closed
+  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.menubtn, #dockroot')) setTimeout(aim, 350); });   // the menu opened or closed
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', soon); else soon();
 })();

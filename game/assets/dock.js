@@ -406,6 +406,7 @@
     }
     lastKey = key;
     document.body.classList.add('dock-ready');
+    document.dispatchEvent(new Event('gv:dockdrawn'));   // the tour points at dock pieces; they are new elements after every draw
   }
   function open(k) { slip = slip === k ? null : k; render(); }
 

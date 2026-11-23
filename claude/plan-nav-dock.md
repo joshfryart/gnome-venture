@@ -75,7 +75,7 @@ How it was tested here: the generated dock JSON for Garden and Tasks was loaded 
 ## Phase 4: retire the old chrome (only after phases 2 and 3 are stable)
 
 Checklist of code that references the old chrome and must move first:
-- `includes/tour.php`, `assets/tour.js`: steps point at `.bottombar a[href$="inventory.php"]`, `.shquick` and the menu button. Give the dock pieces stable anchors (`data-m`, `data-act`, `#dockplate`) and update every step that says "tap Satchel" or "open the menu".
+- **Done:** `includes/tour.php`, `assets/tour.js`: every step now also lists the dock's tile and its menu piece ("Tap You, then Almanac"); the old targets stay for portrait. `dock.js` fires `gv:dockdrawn` after each draw so the tour re-rings the new piece; the ring is drawn on dock pieces (`dock.css`). Found and fixed on the way: the tour wrote its hint text on every pass, which the dock saw as a page change and redrew in a loop. Old text, for reference: steps point at `.bottombar a[href$="inventory.php"]`, `.shquick` and the menu button. Give the dock pieces stable anchors (`data-m`, `data-act`, `#dockplate`) and update every step that says "tap Satchel" or "open the menu".
 - `assets/site.js`: bottombar (line ~1206, ~2337), sidenav and menubtn handlers (~2065), statusstrip swaps (~772, ~879).
 - `assets/pfstage.js`, `assets/pfboardv1.js`, `assets/pfv1box.js`, `assets/workshop.js`: reference the old chrome; check each.
 - Tests: `tests/here.sh` (checks the bottom bar Here link), `tests/polish_audit.js`, `tests/pbox_v1_shots.js` (clicks `.menubtn.more`).
