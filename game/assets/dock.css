@@ -1388,3 +1388,11 @@ body.dock-on details.catfold > summary::before, body.dock-on details.ppfold > su
 body.dock-on details[open].catfold > summary::before, body.dock-on details[open].ppfold > summary::before, body.dock-on details[open].regfold > summary::before { content: "▾"; }
 body.dock-on details.regfold > summary { cursor: pointer; list-style: none; font-weight: 700; min-height: 34px; display: flex; align-items: center; }
 body.dock-on .vunmetline { margin: 6px 0; }
+
+/* v2.8.10: Town Square: the two small folds sit side by side; folded explainers on Jobs; basket and pal search rows */
+@media (orientation: landscape) {
+  body.dock-on details.fold.travellers, body.dock-on details.fold.festivals { display: inline-block; vertical-align: top; width: calc(50% - 6px); box-sizing: border-box; margin-top: 4px; }
+  body.dock-on details.jb-info { margin: 2px 0; }
+  body.dock-on .mkfindrow, body.dock-on .pjfindrow { margin: 2px 0 4px; }
+  body.dock-on .mkfindrow input, body.dock-on .pjfindrow input { width: 100%; min-height: 34px; box-sizing: border-box; }
+}

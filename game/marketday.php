@@ -95,6 +95,7 @@ if ($wanted) {
     <?php if (!$cand): ?><p class="muted">Your Satchel has no crops, flowers, dishes, finds or arrangements to show.</p>
     <?php elseif ($reach): ?>
       <form method="post" action="<?= e(url($self)) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="basket"><?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
+        <p class="mkfindrow"><input type="search" class="mkfind" placeholder="Search your items…" aria-label="Search your items" autocomplete="off"></p>
         <div class="mkpick"><?php require_once __DIR__ . '/includes/item_square.php';
           $sq = '';   // v2.0.67: item squares; the checkbox sits in the label with the square (label.mkopt.itmcell), checked = picked
           foreach ($cand as $c) {

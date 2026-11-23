@@ -2488,3 +2488,22 @@ function gvSellFirstCat() {
 document.addEventListener('DOMContentLoaded', gvSellFirstCat);
 document.addEventListener('gv:swapped', gvSellFirstCat);
 if (document.readyState !== 'loading') gvSellFirstCat();
+
+/* v2.8.10: Market day basket picker: a search box filters the squares (ticked ones always stay) */
+document.addEventListener('input', function (e) {
+  var f = e.target.closest && e.target.closest('input.mkfind');
+  if (!f) return;
+  var q = f.value.trim().toLowerCase(), form = f.closest('form');
+  form.querySelectorAll('label.mkopt').forEach(function (l) {
+    var on = !q || l.textContent.toLowerCase().indexOf(q) !== -1 || (l.querySelector('input') || {}).checked;
+    l.hidden = !on;
+  });
+});
+
+/* v2.8.10: Pal jobs, At home: a search box filters the pal rows by name */
+document.addEventListener('input', function (e) {
+  var f = e.target.closest && e.target.closest('input.pjfind');
+  if (!f) return;
+  var q = f.value.trim().toLowerCase();
+  f.closest('section').querySelectorAll('li.pjpal').forEach(function (li) { li.hidden = !!q && li.textContent.toLowerCase().indexOf(q) === -1; });
+});

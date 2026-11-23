@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/items.php';   // v0.9.8: item_pic
 $u = require_login();
 $uid = (int)$u['id'];
+$jbDockFold = dock_on($u);   // v2.8.10: landscape dock: the long explaining lines fold
 
 settle_player_jobs();
 // v1.7.2 tasks: one Tasks page, tabs ?t= jobs | journey | requests. Inside Jobs, ?p= is daily | weekly | monthly | post.
@@ -234,10 +235,10 @@ $jbAct = e(url('jobs.php?t=jobs&p=' . $tab));
       <?php endforeach; ?>
     </section>
     <div class="jb-forms">
-      <p class="jb-sub">The wage comes out of your purse now and is held safely. The worker is paid bit by bit as they do the work; anything they don’t earn comes back to you. Jobs stay on the board for <?= (int)setting('player_job_listing_days') ?> days. A one-day job fills their daily slot, longer ones their weekly slot.</p>
+      <?php if ($jbDockFold): ?><details class="helpfold jb-info"><summary>ℹ️ How posting works</summary><p class="jb-sub">The wage comes out of your purse now and is held safely. The worker is paid bit by bit as they do the work; anything they don’t earn comes back to you. Jobs stay on the board for <?= (int)setting('player_job_listing_days') ?> days. A one-day job fills their daily slot, longer ones their weekly slot.</p></details><?php else: ?><p class="jb-sub">The wage comes out of your purse now and is held safely. The worker is paid bit by bit as they do the work; anything they don’t earn comes back to you. Jobs stay on the board for <?= (int)setting('player_job_listing_days') ?> days. A one-day job fills their daily slot, longer ones their weekly slot.</p><?php endif; ?>
       <form method="post" class="jb-card jb-form" action="<?= $jbAct ?>"><?= csrf_field() ?><input type="hidden" name="do" value="post"><input type="hidden" name="kind" value="tend">
         <h3>🌱 Tend my garden</h3>
-        <p class="jb-sub">They can only water, weed and harvest. Harvests come to you, less a <?= (int)setting('helper_cut_percent') ?>% share for them. Full pay = <?= (int)setting('player_tend_actions_per_day') ?> jobs a day.</p>
+        <?php if ($jbDockFold): ?><details class="helpfold jb-info"><summary>ℹ️ Details</summary><p class="jb-sub">They can only water, weed and harvest. Harvests come to you, less a <?= (int)setting('helper_cut_percent') ?>% share for them. Full pay = <?= (int)setting('player_tend_actions_per_day') ?> jobs a day.</p></details><?php else: ?><p class="jb-sub">They can only water, weed and harvest. Harvests come to you, less a <?= (int)setting('helper_cut_percent') ?>% share for them. Full pay = <?= (int)setting('player_tend_actions_per_day') ?> jobs a day.</p><?php endif; ?>
         <div class="g2">
           <label>Garden <select name="plot_id"><?php foreach ($gardens as $g): ?><option value="<?= (int)$g['id'] ?>"><?= eu((string)$g['garden_name']) ?></option><?php endforeach; ?></select></label>
           <label>For <select name="days"><?php foreach (PJOB_TEND_DAYS as $d): ?><option value="<?= $d ?>"><?= $d ?> day<?= $d > 1 ? 's' : '' ?></option><?php endforeach; ?></select></label>
@@ -248,7 +249,7 @@ $jbAct = e(url('jobs.php?t=jobs&p=' . $tab));
       </form>
       <form method="post" class="jb-card jb-form" action="<?= $jbAct ?>"><?= csrf_field() ?><input type="hidden" name="do" value="post"><input type="hidden" name="kind" value="deliver">
         <h3>📦 Bring me something</h3>
-        <p class="jb-sub">Ask for anything you’ve grown, gathered or held. Items arrive in your satchel as they’re handed in.</p>
+        <?php if ($jbDockFold): ?><details class="helpfold jb-info"><summary>ℹ️ Details</summary><p class="jb-sub">Ask for anything you’ve grown, gathered or held. Items arrive in your satchel as they’re handed in.</p></details><?php else: ?><p class="jb-sub">Ask for anything you’ve grown, gathered or held. Items arrive in your satchel as they’re handed in.</p><?php endif; ?>
         <div class="g2">
           <label>Item <select name="item_id"><?php foreach ($wantable as $it): ?><option value="<?= (int)$it['id'] ?>"><?= e($it['name']) ?></option><?php endforeach; ?></select></label>
           <label>How many <input type="number" name="qty" min="1" max="500" value="10"></label>

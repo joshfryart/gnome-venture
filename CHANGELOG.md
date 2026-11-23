@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.10
+- **Last folds and filters (landscape dock layout; the search boxes show everywhere).** Jobs, Post tab: the explaining lines fold into "How posting works" and small "Details" folds. Market day: a search box above the basket items (ticked ones stay). Pal jobs, At home: a "Find a pal" box when you have more than 12. Town Square: Where the travellers are and Festivals coming up sit side by side.
+
 ## 2.8.09
 - **More folds (landscape dock layout only).** Almanac Glossary: one fold per letter, A open, the letter links open theirs (3606→1213 px). Almanac search: "Not found yet" folds. Creature Codex: undiscovered tiles become one "N not met yet. Show them" line (2025→519 px). Shop Sell: starts on the first category (Crops) instead of all items, All is one tap away (2883→1294 px).
 

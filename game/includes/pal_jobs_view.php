@@ -238,6 +238,7 @@ function pjv_home(array $c): string
     <section class="box pjpanel pjathome" aria-labelledby="pjhomeh">
       <header class="pjpanelhd"><h2 id="pjhomeh">At home</h2><small class="muted">HP grows back at home</small></header>
       <?php if (!$home): ?><p class="muted pjnone">Everyone is out on a job.</p><?php endif; ?>
+      <?php if (count($home) > 12): ?><p class="pjfindrow"><input type="search" class="pjfind" placeholder="Find a pal…" aria-label="Find a pal" autocomplete="off"></p><?php endif; ?>
       <ul class="pjrows">
         <?php foreach ($home as $p): $back = ($byUid[$p['uid']]['state'] ?? '') === 'ready'; ?>
         <li class="pjrow pjpal ppr-<?= e($p['pal']['rarity']) ?>">
