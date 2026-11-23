@@ -35,6 +35,7 @@ function ensure_crafts(): int
     require_once __DIR__ . '/pfdeck.php';
     pfd_ensure_content();      // 2.6.74: the fight belts (shop) and the Tool Repair Kit must exist before its recipe (only once the setting pfight_v1 is on)
     gclock_ensure_camping();   // sleep-days: canvas, pins, pot and the camping gear itself (items and shop stock) before the crafts file
+    if (!q_val("SELECT 1 FROM recipes WHERE slug = 'opening-day-bunting'")) { require_once __DIR__ . '/festival.php'; festival_ensure_items(); }   // 2.7.58 EC4: the Opening Day Bunting must exist before its recipe
     $stats = ['items' => 0];
     $added = import_recipes($stats);
     // Recipes made before v0.7.5 have no slug: give them their dish's slug

@@ -638,6 +638,18 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             upgrade_2758_broken();
             upgrade_2758_kit_text();
         });
+        boot_step('drop_twins_2758', function () {   // 2.7.58 item review uA-1 / uA-2: flower and crop drop twins merged into the cut flower / produce (drops and satchel stock moved, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_drop_twins();
+        });
+        boot_step('stop_acts_2758', function () {   // 2.7.58 item review R4: three rest-stop crafts make their dedicated dish (a row still at the old spec, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_stop_acts();
+        });
+        boot_step('tool_prices_2758', function () {   // 2.7.58 item review E2: Twigg's tier 2-4 tool prices cut (a row still at the old price, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_tool_prices();
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players

@@ -27,7 +27,7 @@ $season = festival_season_line();
 page_header($f ? $f['name'] : 'Festivals');
 ?>
 <?php if ($f):
-    $goal = festival_goal($f); $st = $goal ? hollow_goal_state($goal) : null; $flags = festival_flags($f['slug'], $uid); $got = festival_flag_today($f['slug'], $uid);
+    $goal = festival_goal($f); $st = $goal ? hollow_goal_state($goal) : null; $flags = festival_flags($f['run'], $uid); $got = festival_flag_today($f['run'], $uid);
     $stalls = festival_stalls($f, $uid); ?>
 <div class="box festhero">
   <h1><?= e($f['icon'] . ' ' . $f['name']) ?></h1>
@@ -40,7 +40,7 @@ page_header($f ? $f['name'] : 'Festivals');
   <p class="help">One flag is hung somewhere in the Hollow every festival day. Find it here (no hunting required). Collect <?= e(implode(', ', array_keys($f['flag_rewards']))) ?> flags for rewards. You don’t need every day.</p>
   <p class="flagrow" aria-label="<?= $flags ?> of <?= (int)$f['days'] ?> flags"><?php for ($i = 1; $i <= (int)$f['days']; $i++): ?><span class="flagdot<?= $i <= $flags ? ' on' : '' ?>"><?= $i <= $flags ? '🎏' : '○' ?></span><?php endfor; ?></p>
   <ul class="flagrew">
-    <?php foreach ($f['flag_rewards'] as $need => $r): $ok = (bool)q_val('SELECT 1 FROM festival_claims WHERE festival = ? AND user_id = ? AND reward = ?', [$f['slug'], $uid, 'flags' . $need]); ?>
+    <?php foreach ($f['flag_rewards'] as $need => $r): $ok = (bool)q_val('SELECT 1 FROM festival_claims WHERE festival = ? AND user_id = ? AND reward = ?', [$f['run'], $uid, 'flags' . $need]); ?>
       <li class="<?= $ok ? 'done' : '' ?>"><?= $ok ? '✅' : ($flags >= $need ? '🎁' : '⬜') ?> <?= (int)$need ?> flags: <?= e($r['text']) ?></li>
     <?php endforeach; ?>
   </ul>
@@ -75,7 +75,7 @@ page_header($f ? $f['name'] : 'Festivals');
       <?php if ($s['keeper']): ?><p class="help">Run by <b><?= e($s['keeper']) ?></b> 🏡</p><?php endif; ?>
       <div class="shopwrap"><div class="itmwrap"><div class="itms">
       <?php foreach ($s['goods'] as $g): $left = $g['limit'] - $g['bought']; ?>
-        <?= sink_tile(['id' => (int)$g['item']['id'], 'item' => $g['item'], 'price' => (int)$g['price'], 'action' => url('festival.php'), 'verb' => 'Buy', 'do' => 'buy',
+        <?= sink_tile(['id' => (int)$g['item']['id'], 'item' => $g['item'], 'price' => (int)$g['price'], 'action' => url('festival.php'), 'verb' => $g['qty'] > 1 ? 'Buy ×' . $g['qty'] : 'Buy', 'do' => 'buy',
             'fields' => ['stall' => $s['key'], 'idx' => (int)$g['idx']], 'open' => $left > 0, 'dim' => $left < 1, 'coins' => (int)$u['coins'], 'badge' => (string)max(0, $left), 'badgeTitle' => 'Left for you',
             'note' => 'You have all you can carry', 'offNote' => 'Sold out', 'mini' => '']) ?>
       <?php endforeach; ?>

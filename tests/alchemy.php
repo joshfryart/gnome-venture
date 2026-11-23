@@ -22,7 +22,7 @@ foreach (ALCHEMY_ITEMS as $slug => [$name, $cat, , $price]) {
     ok("$slug recipe in potions", q_val('SELECT category FROM recipes WHERE slug = ?', [$slug]) === 'potions');
 }
 $n = (int)q_val("SELECT COUNT(*) FROM recipes WHERE category = 'potions'");
-ok('13 potion recipes (8 + 5 alt rows from 2.7.58)', $n === 13, (string)$n);
+ok('14 potion recipes (8 + 6 alt rows from 2.7.58)', $n === 14, (string)$n);
 // value check: every potion sells for more than its ingredients cost, and less than twice
 foreach (q("SELECT r.slug, r.ingredients, r.output_qty, i.base_price FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.category = 'potions'")->fetchAll() as $r) {
     $cost = 0;
@@ -129,6 +129,7 @@ foreach (array_keys(ALCHEMY_ITEMS) + ['x' => 'healing-potion'] as $slug) {
 }
 foreach (['sages-draught', 'stoneskin-brew', 'swiftfoot-elixir', 'lucky-draught'] as $slug) {
     give_item($uid, alchemy_item_id($slug), 1);
+    q('UPDATE users SET buff = NULL, buff_until = NULL, buff2 = NULL, buff2_until = NULL WHERE id = ?', [$uid]);   // 2.7.58 E8: a weaker potion asks before it replaces a stronger buff
     [$dk, $dm] = alchemy_drink($u, alchemy_item_id($slug));
     $buff = json_decode((string)q_val('SELECT buff FROM users WHERE id = ?', [$uid]), true) ?: [];
     ok("drink $slug", $dk && $buff === array_diff_key(ALCHEMY_ITEMS[$slug][5]['temp'], ['minutes' => 1]), $dm . ' ' . json_encode($buff));

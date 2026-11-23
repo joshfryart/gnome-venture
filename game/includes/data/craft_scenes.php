@@ -49,9 +49,9 @@ return [
   ]],
   'decor' => ['alt' => "Yard corner scene", 'hot' => [
     ["lantern", "Lantern post", 6.67, 0.00, 24.00, 64.00, ["*lantern", "firefly-jar*", "beeswax-candles", "paper-comb-candles"]],
-    ["planter", "Flower planter", 0.67, 65.00, 30.00, 34.00, ["glazed-garden-pot", "rock-garden", "toadstool-ring*", "fairy-house"]],
+    ["planter", "Flower planter", 0.67, 65.00, 30.00, 34.00, ["glazed-garden-pot", "rock-garden*", "toadstool-ring*", "fairy-house"]],
     ["birdbath", "Birdbath", 30.67, 16.00, 38.67, 78.00, ["bird-box*", "*wind-chime", "fairy-house", "toadstool-ring*"]],
-    ["fence", "Picket fence", 69.33, 32.00, 30.00, 35.00, ["*-fence", "stone-wall", "silk-*", "log-*"]],
-    ["path", "Stepping stones", 71.33, 67.00, 28.67, 33.00, ["stepping-stones", "rock-garden", "stone-wall", "log-seat"]],
+    ["fence", "Picket fence", 69.33, 32.00, 30.00, 35.00, ["*-fence", "stone-wall", "silk-*", "log-*", "opening-day-bunting"]],
+    ["path", "Stepping stones", 71.33, 67.00, 28.67, 33.00, ["stepping-stones", "rock-garden*", "stone-wall", "log-seat"]],
   ]],
 ];

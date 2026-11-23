@@ -112,7 +112,7 @@ function hovel_decor_set(int $uid, string $slot, string $item): array
     if (!$s) return [false, 'There is no such spot in your hovel.', ''];
     $it = $s['items'][$item] ?? null;
     if (!$it) return [false, 'That does not go there.', ''];
-    if (empty(hovel_decor_owned($uid)[$slot][$item])) return [false, $it['name'] . ' is locked' . ($it['where'] !== '' ? ': ' . $it['where'] . '.' : '.'), ''];
+    if (empty(hovel_decor_owned($uid)[$slot][$item])) return [false, $it['name'] . ' is coming soon.', ''];   // 2.7.58 EC11: no source is wired yet ('where' in hovel_decor.json is the planned one), so the label no longer promises one
     $prev = hovel_decor_chosen($uid)[$slot] ?? '';
     if (!hovel_decor_ensure()) return [false, 'Your hovel cannot be changed just now. Try again soon.', ''];
     if (q('UPDATE user_hovel_decor SET item = ?, updated_at = ? WHERE user_id = ? AND slot = ?', [$item, now(), $uid, $slot])->rowCount() < 1) {
@@ -808,7 +808,7 @@ function home_slim_picker_html(int $uid, array $s, string $cur, bool $open, stri
         $thumb = '<svg class="hpick-th" viewBox="0 0 ' . $s['w'] . ' ' . $s['h'] . '" width="' . $iw . '" height="' . $ih . '" aria-hidden="true" focusable="false">'
             . ($src !== '' ? '<image href="' . e($src) . '" x="0" y="0" width="' . $s['w'] . '" height="' . $s['h'] . '" image-rendering="pixelated"/>' : '<rect class="hd-ph" x="1" y="1" width="' . max(1, $s['w'] - 2) . '" height="' . max(1, $s['h'] - 2) . '"/>') . '</svg>';
         if (empty($own[$ik])) {
-            $h .= '<div class="hpick-it lock" aria-disabled="true">' . $thumb . '<span class="nm">' . e($it['name']) . '</span><span class="wh">Locked: ' . e($it['where']) . '</span></div>';
+            $h .= '<div class="hpick-it lock" aria-disabled="true">' . $thumb . '<span class="nm">' . e($it['name']) . '</span><span class="wh">Coming soon</span></div>';   // 2.7.58 EC11
             continue;
         }
         $on = $ik === $cur;

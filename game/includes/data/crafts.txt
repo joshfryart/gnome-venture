@@ -138,3 +138,7 @@ moth-wing-lantern|Wing Scale Lantern (moth wings)|decor|wing-scale-lantern:1|mot
 grand-healing-elixir-newt|Grand Healing Elixir (newt tail)|potions|grand-healing-elixir:1|strong-healing-potion:2,newt-tail:1|3
 quartz-wind-chime|Scute Wind Chime (quartz)|decor|scute-wind-chime:1|quartz-shell:2,pale-scale:1,silk-thread:1|2
 silverfish-lantern|Wing Scale Lantern (silverfish)|decor|wing-scale-lantern:1|silverfish-scales:3,silk-thread:1|2
+# 2.7.58 item review group B: R3 the cut flower counts as edelweiss (a gatherable and a flower both exist); EC4 the Opening Day Bunting has a source outside the festival stall (insert-only)
+rock-garden-cut|Rock Garden (cut edelweiss)|decor|rock-garden:1|building-stone:1,cut-edelweiss:1,flint:2|2
+grand-healing-elixir-cut|Grand Healing Elixir (cut edelweiss)|potions|grand-healing-elixir:1|strong-healing-potion:2,cut-edelweiss:1|3
+opening-day-bunting|Opening Day Bunting|decor|opening-day-bunting:1|rope:2,silk-thread:3,red-ochre:2|2

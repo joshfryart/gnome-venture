@@ -405,7 +405,8 @@ function creature_window_drops_1119(): int
     foreach (CREATURE_WINDOW_DROPS_1119 as $slug => [$item, $old, $new]) {
         $cid = (int)q_val('SELECT id FROM creatures WHERE slug = ?', [$slug]);
         if (!$cid) continue;
-        foreach (q('SELECT cd.id FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.reg = ? AND (i.slug = ? OR LOWER(i.name) = LOWER(?))', [$cid, $old, slugify($item), $item])->fetchAll() as $d) {
+        // 2.7.58 uA-2: a drop named like a crop (Prickly Pear Cactus) is the crop's produce item now
+        foreach (q('SELECT cd.id FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.reg = ? AND (i.slug = ? OR LOWER(i.name) = LOWER(?) OR i.id = (SELECT MIN(produce_item_id) FROM plants WHERE LOWER(name) = LOWER(?)))', [$cid, $old, slugify($item), $item, $item])->fetchAll() as $d) {
             q('UPDATE creature_drops SET reg = ? WHERE id = ?', [$new, (int)$d['id']]);
             $n++;
         }
@@ -473,11 +474,20 @@ function import_creatures_txt(array &$stats, string $file = 'creatures.txt'): vo
  * The items that ship with other parts of the game (gatherables, Sight items) are made first (adds only), so a fresh install and an upgrade bind the same way
  * whatever order the install runs in. 0 = nothing of that name exists: the caller makes a new 'part' item.
  */
+/** 2.7.58 uA-1: drop names that stay their own 'part' item although a flower of the name exists: the teas use the part Lavender as an ingredient (data/teas.txt, tea_ingredients.txt). */
+const PFC_KEEP_PART_TWINS = ['lavender'];
+
 function pfc_item_for_drop(string $name): int
 {
     $look = function () use ($name): int {
         $id = item_id_by_slug(slugify($name));
-        return $id ?: (int)q_val('SELECT id FROM items WHERE LOWER(name) = LOWER(?) ORDER BY id LIMIT 1', [$name]);
+        $id = $id ?: (int)q_val('SELECT id FROM items WHERE LOWER(name) = LOWER(?) ORDER BY id LIMIT 1', [$name]);
+        if (in_array(slugify($name), PFC_KEEP_PART_TWINS, true)) return $id;   // stays its own part (the teas use it); 0 = the caller makes it
+        // 2.7.58 uA-1 / uA-2: a drop named like a flower or a crop is that plant's real item (the cut flower, the produce), never a 'part' twin that cannot be arranged or planted.
+        // A real non-part item of the name (a gatherable, a Sight item, the produce itself) still wins.
+        if ($id && (string)q_val('SELECT category FROM items WHERE id = ?', [$id]) !== 'part') return $id;
+        $real = (int)q_val("SELECT p.produce_item_id FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE LOWER(p.name) = LOWER(?) AND i.category <> 'part' ORDER BY p.id LIMIT 1", [$name]);
+        return $real ?: item_id_by_slug('cut-' . slugify($name)) ?: $id;
     };
     if ($id = $look()) return $id;
     static $shipped = false;

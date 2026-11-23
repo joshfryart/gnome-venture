@@ -29,9 +29,10 @@ function festival_defs(): array
             'flag_rewards' => [3 => ['coins' => 150, 'text' => '150 Petals'], 5 => ['item' => 'opening-day-bunting:1', 'text' => 'an Opening Day Bunting for your yard'],
                                7 => ['title' => 'Opening Day Gnome', 'coins' => 250, 'text' => '250 Petals and the title “Opening Day Gnome”']],
             'stalls' => [
-                ['key' => 'compost', 'name' => 'Compost Corner', 'icon' => '🪱', 'sells' => [['plain-compost', 40, 6], ['worm-castings', 120, 4]]],
+                // 2.7.58 E7: [item, price, limit per gnome, bundle size]. A bundle is the festival's own deal: the price per piece is under what Twigg's charges (it was about 3x base, so nobody bought).
+                ['key' => 'compost', 'name' => 'Compost Corner', 'icon' => '🪱', 'sells' => [['plain-compost', 50, 4, 6], ['worm-castings', 110, 3, 3]]],
                 ['key' => 'bunting', 'name' => 'Bunting & Baubles', 'icon' => '🎏', 'sells' => [['opening-day-bunting', 300, 3]]],
-                ['key' => 'fare', 'name' => 'Festival Fare', 'icon' => '🍯', 'sells' => [['rich-loam', 200, 3], ['rope', 60, 5]]],
+                ['key' => 'fare', 'name' => 'Festival Fare', 'icon' => '🍯', 'sells' => [['rich-loam', 150, 3, 3], ['rope', 45, 4, 6]]],
             ],
         ],
     ];
@@ -79,9 +80,31 @@ function festival_active(): ?array
         $cache = $def + ['slug' => $slug, 'starts' => $w[0], 'ends' => $w[1], 'days' => $days,
             'day' => (int)round((strtotime($today . ' UTC') - strtotime($w[0] . ' UTC')) / 86400) + 1, 'left' => festival_end_ts($w[1]) - time()];
         $cache['left_days'] = max(0, $days - $cache['day']);   // game days after today (the player's own calendar)
+        $cache['run'] = festival_run_key($cache);
         return $cache;
     }
     return null;
+}
+
+/**
+ * 2.7.58 EC4: the key the festival tables (flags, claims, stall buys) use for THIS run of a festival. They were keyed by the festival slug alone, so a second run
+ * (next year) found every flag, reward and stall limit already used. The first run keeps the plain slug (existing rows stay valid); a later run is slug@start.
+ * Dates moved by up to a month stay the same run (an admin can shift a festival). Remembered in the setting fest_<slug>_run ("start|key").
+ */
+function festival_run_key(array $f): string
+{
+    $slug = (string)$f['slug']; $starts = (string)$f['starts'];
+    $cur = trim(setting('fest_' . $slug . '_run'));
+    if ($cur !== '' && str_contains($cur, '|')) {
+        [$d, $key] = explode('|', $cur, 2);
+        if ($d !== '' && abs(strtotime($starts . ' UTC') - strtotime($d . ' UTC')) <= 31 * 86400) return $key;
+    }
+    // a new run: the plain slug if no flag from before this window exists, else slug@start
+    $old = $cur === '' && q_val('SELECT 1 FROM festival_flags WHERE festival = ? AND day < ?', [$slug, $starts]);
+    $key = $cur === '' && !$old ? $slug : $slug . '@' . $starts;
+    set_setting('fest_' . $slug . '_run', $starts . '|' . $key);
+    setting('__reload__');
+    return $key;
 }
 
 /** The next festival that has not started: def + slug, starts, ends. */
@@ -171,11 +194,11 @@ function festival_find_flag(array $u): array
     if (!$f) return [false, 'There’s no festival on right now.'];
     $uid = (int)$u['id'];
     try {
-        db_insert('festival_flags', ['festival' => $f['slug'], 'user_id' => $uid, 'day' => gclock_my_date(), 'at' => now()]);
+        db_insert('festival_flags', ['festival' => $f['run'], 'user_id' => $uid, 'day' => gclock_my_date(), 'at' => now()]);
     } catch (PDOException $e) {
         return [false, 'You’ve found today’s flag. A new one is hung tomorrow.'];
     }
-    $n = festival_flags($f['slug'], $uid);
+    $n = festival_flags($f['run'], $uid);
     $msgs = ['🎏 You find today’s flag! That’s ' . $n . '.'];
     foreach (($f['flag_rewards'] ?? []) as $need => $r) {
         if ($n < $need) continue;
@@ -189,7 +212,7 @@ function festival_find_flag(array $u): array
 function festival_take_reward(array $f, int $uid, string $key, array $r): string
 {
     try {
-        db_insert('festival_claims', ['festival' => $f['slug'], 'user_id' => $uid, 'reward' => $key, 'at' => now()]);
+        db_insert('festival_claims', ['festival' => $f['run'], 'user_id' => $uid, 'reward' => $key, 'at' => now()]);
     } catch (PDOException $e) {
         return '';
     }
@@ -209,11 +232,12 @@ function festival_stalls(array $f, int $uid): array
     $out = [];
     foreach ($f['stalls'] as $i => $s) {
         $goods = [];
-        foreach ($s['sells'] as $j => [$slug, $price, $limit]) {
+        foreach ($s['sells'] as $j => $row) {
+            [$slug, $price, $limit, $qty] = $row + [3 => 1];   // 2.7.58 E7: an optional 4th number is the bundle size
             $item = q_one('SELECT * FROM items WHERE slug = ?', [$slug]);
             if (!$item) continue;
-            $bought = (int)q_val('SELECT qty FROM festival_buys WHERE festival = ? AND user_id = ? AND stall = ?', [$f['slug'], $uid, $s['key'] . ':' . $j]);
-            $goods[] = ['idx' => $j, 'item' => $item, 'price' => $price, 'limit' => $limit, 'bought' => $bought];
+            $bought = (int)q_val('SELECT qty FROM festival_buys WHERE festival = ? AND user_id = ? AND stall = ?', [$f['run'], $uid, $s['key'] . ':' . $j]);
+            $goods[] = ['idx' => $j, 'item' => $item, 'price' => $price, 'limit' => $limit, 'bought' => $bought, 'qty' => max(1, (int)$qty)];
         }
         $out[] = $s + ['goods' => $goods, 'keeper' => $folk[$i]['name'] ?? null];
     }
@@ -227,15 +251,16 @@ function festival_buy(array $u, string $stallKey, int $idx): array
     $uid = (int)$u['id'];
     foreach ($f['stalls'] as $s) {
         if ($s['key'] !== $stallKey || !isset($s['sells'][$idx])) continue;
-        [$slug, $price, $limit] = $s['sells'][$idx];
+        [$slug, $price, $limit, $qty] = $s['sells'][$idx] + [3 => 1];
+        $qty = max(1, (int)$qty);
         $item = q_one('SELECT id, name FROM items WHERE slug = ?', [$slug]);
         if (!$item) return [false, 'That’s sold out.'];
         $key = $s['key'] . ':' . $idx;
         db()->beginTransaction();
-        if (!q_val('SELECT 1 FROM festival_buys WHERE festival = ? AND user_id = ? AND stall = ?', [$f['slug'], $uid, $key])) {
-            try { db_insert('festival_buys', ['festival' => $f['slug'], 'user_id' => $uid, 'stall' => $key, 'qty' => 0]); } catch (PDOException $e) { /* a double tap */ }
+        if (!q_val('SELECT 1 FROM festival_buys WHERE festival = ? AND user_id = ? AND stall = ?', [$f['run'], $uid, $key])) {
+            try { db_insert('festival_buys', ['festival' => $f['run'], 'user_id' => $uid, 'stall' => $key, 'qty' => 0]); } catch (PDOException $e) { /* a double tap */ }
         }
-        if (q('UPDATE festival_buys SET qty = qty + 1 WHERE festival = ? AND user_id = ? AND stall = ? AND qty < ?', [$f['slug'], $uid, $key, $limit])->rowCount() !== 1) {
+        if (q('UPDATE festival_buys SET qty = qty + 1 WHERE festival = ? AND user_id = ? AND stall = ? AND qty < ?', [$f['run'], $uid, $key, $limit])->rowCount() !== 1) {
             db()->rollBack();
             return [false, 'You’ve taken all you can of that one (' . $limit . ').'];
         }
@@ -243,9 +268,9 @@ function festival_buy(array $u, string $stallKey, int $idx): array
             db()->rollBack();
             return [false, 'You need ' . money($price) . ' for that.'];
         }
-        give_item($uid, (int)$item['id'], 1);
+        give_item($uid, (int)$item['id'], $qty);
         db()->commit();
-        return [true, '🛍️ You buy ' . $item['name'] . ' for ' . money($price) . '.'];
+        return [true, '🛍️ You buy ' . ($qty > 1 ? $qty . ' × ' : '') . $item['name'] . ' for ' . money($price) . '.'];
     }
     return [false, 'No such stall.'];
 }
