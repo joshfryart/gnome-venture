@@ -347,3 +347,13 @@ body.dock-on .cbed { cursor: pointer; }
 .dockroot .dk-msgpop .mllist li { padding: 4px 0; border-bottom: 1px solid var(--line, #6a4a30); font-size: 13px; }
 .dockroot .dk-msgpop .mlwhen { opacity: .7; margin-left: 4px; }
 @media (orientation: landscape) { .dockroot.dk-has .dk-msg { display: flex; } }
+
+/* Wander, an event or a skill check: the panel stays one block in the right column, story text above the choices */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings > .panel:has(> .scenecard) { display: block; grid-column: 3; grid-row: 1 / span 3; padding: 6px 8px; }
+  body.dock-on .advgrid.wander.withrings > .panel:has(> .scenecard) > * { grid-column: auto; grid-row: auto; }
+  body.dock-on .advgrid.wander.withrings > .panel > .scenecard { margin: 0 0 4px; padding: 0; }
+  body.dock-on .advgrid.wander.withrings > .panel > .scenecard h3 { font-size: .85rem; margin: 2px 0; line-height: 1.25; }
+  body.dock-on .advgrid.wander.withrings > .panel > .scenecard .help { margin: 0; font-size: 11px; }
+  body.dock-on .advgrid.wander.withrings > .panel:has(> .scenecard) > .choicelist { padding: 0; border: 0; background: none; }
+}

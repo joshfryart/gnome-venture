@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.75
+- **Dock layout, Wander event or check:** the story text ("A beaver dam backs up a pond...") and its choices stay together in one box in the right column (the text used to land far below the choices). Checked with a fake off-the-path event in a headless 844 x 390 browser; the left column has no scene picture during an event, so it is empty there.
+
 ## 2.7.74
 - **Dock layout, Wander:** what just happened (the "Latest:" result of the last step) sits under the picture, above the More fold. The right piece is now "Wander": Go deeper, Keep exploring, Step back, Gather (opens the page's Gather fold and scrolls to it) and To the road, each working the page's own control. Checked with a fake off-the-path walk in a headless 844 x 390 browser: the strip lists the five tiles, Gather opens the fold, To the road posts `do=return`.
 
