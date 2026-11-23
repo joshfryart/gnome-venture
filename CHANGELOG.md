@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.09
+- **More folds (landscape dock layout only).** Almanac Glossary: one fold per letter, A open, the letter links open theirs (3606→1213 px). Almanac search: "Not found yet" folds. Creature Codex: undiscovered tiles become one "N not met yet. Show them" line (2025→519 px). Shop Sell: starts on the first category (Crops) instead of all items, All is one tap away (2883→1294 px).
+
 ## 2.8.08
 - **Fix: the old "−1 energy" pop-up still showed in the landscape layout** (wander steps). Energy-only messages are now dropped there (the dock bar animation shows it); "(−N energy)" is also stripped from other pop-ups.
 

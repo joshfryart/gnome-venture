@@ -2466,3 +2466,25 @@ function gvEvClose() {
 document.addEventListener('DOMContentLoaded', gvEvClose);
 document.addEventListener('gv:swapped', gvEvClose);
 if (document.readyState !== 'loading') gvEvClose();
+
+/* v2.8.09: a letter link in the Glossary opens that letter's fold (landscape dock layout) */
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('.gletters a');
+  if (!a) return;
+  var d = document.getElementById((a.getAttribute('href') || '').slice(1));
+  if (d && d.tagName === 'DETAILS') d.open = true;
+});
+
+/* v2.8.09: Shop, Sell tab, landscape dock layout: start on the first category instead of all 200+ items (All stays one tap away) */
+function gvSellFirstCat() {
+  if (!document.body.classList.contains('dock-on')) return;
+  var nav = document.querySelector('.shopwrap nav.shopcats:not([data-first])');
+  if (!nav || !document.querySelector('.shopwrap [data-mode="sell"], .shopwrap .itms [data-mode="sell"]')) return;
+  nav.setAttribute('data-first', '1');
+  var all = nav.querySelector('button[data-cat="all"].on'), first = nav.querySelector('button[data-cat]:not([data-cat="all"])');
+  var n = nav.querySelector('button[data-cat="all"] small');
+  if (all && first && n && parseInt(n.textContent, 10) > 24) first.click();
+}
+document.addEventListener('DOMContentLoaded', gvSellFirstCat);
+document.addEventListener('gv:swapped', gvSellFirstCat);
+if (document.readyState !== 'loading') gvSellFirstCat();
