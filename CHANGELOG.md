@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.84
+- **Full screen in fights (the browser's top bar).** A web page cannot hide the address bar by itself, but it can ask for full screen on a tap. On a puzzle fight (and its pre-fight screen) the first tap enters full screen with the bar hidden, and the rail has a ⛶ button to enter or leave it by hand (it shows ✕ while in full screen). Leaving by the browser's own gesture, or with the button, stops the automatic entry for the rest of the page. It leaves full screen by itself when you are no longer in a fight. Where the browser has no full-screen support (iPhone Safari) the button is not shown. Tested in headless Chromium (a tap enters it, the button leaves it); not on a phone.
+- **End turn flash, a better theory:** with the address bar showing and hiding, the visible height changes, and the fight screen resized with it. The stage pop-up was sized in `dvh`; it is now anchored to the top and the rail instead, so the bar cannot resize it, and full screen keeps the bar from moving at all.
+
 ## 2.7.83
 - **Petal symbol:** the dock plate and its popover show the Petal icon instead of the gold coin emoji. The plate's health bar is red.
 - **Fight stage (Trail Wander fight, `pfight_stage` on), dock layout:** the stage pop-up now uses the same two-column screen as the plain fight (the stage's own geometry cut your hand off at the right edge), and its content is never hidden or faded at a turn's swap (`dock.css`: `dialog.trailpop.pfst .pickbox` forced visible, no animation). This targets "the pop-up goes away and comes back at End turn". In my headless runs the pop-up was never closed or replaced during a turn (same dialog node, `open` and modal all the time), so I could not see it go away; the only visible changes were the board's pieces blank for about 55 ms and, in the stage, a stacked layout in the screencast that the DOM did not show. Not confirmed on a phone.

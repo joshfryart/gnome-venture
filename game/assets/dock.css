@@ -450,7 +450,7 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 
 /* the fight stage (pfight_stage, the Trail's Wander fight in a pop-up): in the dock layout it is the same two-column screen as the plain fight, full width above the rail, and looks the same before and after its script has run (the stage's own geometry was cutting the hand off at the right and flashed at every End turn) */
 @media (orientation: landscape) and (max-height: 520px) {
-  body.dock-on dialog.trailpop.pfst { position: fixed; left: 0; top: 0; width: 100vw; height: calc(100dvh - var(--dock-h, 0px)); right: auto; bottom: auto; }
+  body.dock-on dialog.trailpop.pfst { position: fixed; left: 0; top: 0; right: 0; bottom: var(--dock-h, 0px); width: auto; height: auto; }   /* anchored to both edges, not sized in dvh: the browser's address bar hiding and showing must not resize it */
   body.dock-on dialog.trailpop.pfst #pfight.pf-v1, body.dock-on dialog.trailpop.pfst #pfight.pf-v1.pfv-fit { position: fixed; top: 0; bottom: var(--dock-h, 0px); left: 50%; right: auto; width: min(100vw, 880px); transform: translateX(-50%); display: grid; }
   body.dock-on dialog.trailpop.pfst #pfv-pre.pfv-fit { position: fixed; top: 0; bottom: var(--dock-h, 0px); left: 50%; right: auto; width: min(100vw, 820px); transform: translateX(-50%); }
 }
@@ -461,3 +461,6 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 @media (orientation: landscape) and (max-height: 520px) {
   body.dock-on dialog.trailpop.pfst .pickbox { visibility: visible !important; animation: none !important; opacity: 1 !important; }
 }
+
+/* the rail's full-screen button */
+.dockroot .dk-rb.dk-fs { font-size: 16px; padding: 4px 10px; }

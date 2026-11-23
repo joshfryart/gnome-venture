@@ -434,6 +434,22 @@
     if (v !== lastDockH) { lastDockH = v; setTimeout(function () { try { window.dispatchEvent(new Event('resize')); } catch (e) {} }, 60); }
   }
   /* play mode: a thin rail (back, the game's name, energy and time, and a button that opens the full dock) */
+  /* full screen: the browser's address bar hides and shows as the page changes and resizes a fight screen (the End turn flash); full screen keeps it away. It needs a tap, so the first tap on a fight enters it, and the rail has a button to leave or enter it. */
+  function fsEl() { return document.documentElement; }
+  function fsOk() { var el = fsEl(); return !!(el.requestFullscreen || el.webkitRequestFullscreen); }
+  function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function fsEnter() { var el = fsEl(); try { var r = el.requestFullscreen ? el.requestFullscreen({ navigationUI: 'hide' }) : el.webkitRequestFullscreen(); if (r && r.catch) r.catch(function () {}); } catch (x) {} }
+  function fsLeave() { try { var r = document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen(); if (r && r.catch) r.catch(function () {}); } catch (x) {} }
+  var fsAuto = true;   // the first tap on a fight enters full screen once; leaving it by hand stops that for the rest of the page
+  function inFight() { return !!document.querySelector('#pfight.pf-v1, #pfv-pre'); }
+  document.addEventListener('pointerup', function (e) {
+    if (!fsAuto || isFs() || !fsOk() || !inFight() || !mq.matches) return;
+    if (e.target.closest && e.target.closest('#dockroot')) return;
+    fsEnter();
+  }, true);
+  var fsSelf = false;
+  document.addEventListener('fullscreenchange', function () { if (!isFs()) { if (!fsSelf) fsAuto = false; fsSelf = false; } if (D && D.play) render(); });   // left by the browser's own gesture: do not pull the player back in
+  document.addEventListener('gv:swapped', function () { if (isFs() && !inFight()) { fsSelf = true; fsLeave(); } });
   var rail = null, playOpen = false;
   function renderRail() {
     var p = D.plate, e = p.energy || [0, 1];
@@ -441,7 +457,7 @@
     if (!rail) { rail = document.createElement('div'); rail.className = 'dk-rail'; rail.id = 'dockrail'; root.appendChild(rail); }
     rail.hidden = false;
     rail.innerHTML = (D.play.back ? '<a class="dk-rb" href="' + esc(D.play.back) + '">\u21a9 ' + esc(D.play.backLabel) + '</a>' : '<span class="dk-rb"></span>') + '<b class="dk-rn">' + esc(D.play.name) + '</b>'
-      + '<span class="dk-rs">\u26a1 ' + e[0] + '/' + e[1] + (p.time ? ' \u00b7 ' + esc(String(p.time)) : '') + '</span><button type="button" class="dk-rb" data-rail="open" aria-label="Open the menu">\u2630 Menu</button>';
+      + '<span class="dk-rs">\u26a1 ' + e[0] + '/' + e[1] + (p.time ? ' \u00b7 ' + esc(String(p.time)) : '') + '</span>' + (fsOk() ? '<button type="button" class="dk-rb dk-fs" data-rail="fs" aria-label="Full screen">' + (isFs() ? '\u2715' : '\u26f6') + '</button>' : '') + '<button type="button" class="dk-rb" data-rail="open" aria-label="Open the menu">\u2630 Menu</button>';
     dockH('34px'); document.body.classList.add('dock-rail');
     document.body.classList.add('dock-ready');
   }
@@ -479,6 +495,7 @@
   root.addEventListener('click', function (e) {
     var m = e.target.closest('[data-m]'), a = e.target.closest('button[data-act]'), p = e.target.closest('#dockplate'), pt = e.target.closest('[data-poptab]');
     if (pt) { popTab = pt.getAttribute('data-poptab'); render(); return; }
+    if (e.target.closest('[data-rail="fs"]')) { if (isFs()) { fsAuto = false; fsLeave(); } else fsEnter(); return; }
     if (e.target.closest('[data-rail="open"]')) { playOpen = true; render(); return; }
     var qx = e.target.closest('[data-qx]'), qb = e.target.closest('[data-quick]'), pk;
     if (qx) { if (qx.getAttribute('data-qx') === 'cancel') { qMode = false; render(); } else postTo(D.quickUrl, { do: 'clear', back: D.back }); return; }
