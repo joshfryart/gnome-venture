@@ -1415,3 +1415,16 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on #pfv-pre .pfv-scroll > .pinfo#pfv-cinfo { display: none; }
   body.dock-on #pfv-pre .pfv-act { margin: 4px 0 0; }
 }
+
+/* v2.8.12: pre-fight screen on a very short phone view (the browser's own bars use up the height): smaller pieces so both rows stay in view above Let's fight */
+@media (orientation: landscape) and (max-height: 340px) {
+  body.dock-on #pfv-pre .pfv-scroll > ul.pcg li { zoom: .6; }
+  body.dock-on #pfv-pre .pfv-scroll { gap: 2px 8px; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard .chips .chip:nth-child(n+3) { display: none; }
+  body.dock-on #pfv-pre .pfv-scroll > .foerule { -webkit-line-clamp: 2; font-size: 10.5px; }
+  body.dock-on #pfv-pre .pfv-scroll > .pinfo.pfv-autostrip { font-size: 10px; padding: 2px 5px; }
+  body.dock-on #pfv-pre .pfv-autostrip .btn { min-height: 24px; font-size: 10px; }
+  body.dock-on #pfv-pre .pfv-act { margin: 2px 0 0; padding: 2px; }
+  body.dock-on #pfv-pre .pfv-act .btn, body.dock-on #pfv-pre .pfv-act button { min-height: 34px; padding-top: 2px; padding-bottom: 2px; }
+  body.dock-on #pfv-pre .pfv-deckfold { display: none; }
+}

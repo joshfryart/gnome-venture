@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.12
+- **Pre-fight screen on a very short phone view: you see all of the creature's pieces again.** When the browser's own bars leave little height, the pieces shrink so both rows show above Let's fight (before, the button covered the second row). The creature card is trimmed to its name and first two tags, the rule text to two lines, and the read-only deck fold is hidden there.
+
 ## 2.8.11
 - **Pre-fight screen on a phone in landscape: no more scrolling.** Two columns: the creature, its rule and the Auto deck line on the left, the pieces (5 across, smaller) on the right, then Box and Let's fight. The tap-a-piece hint line is hidden there. Portrait is unchanged.
 
