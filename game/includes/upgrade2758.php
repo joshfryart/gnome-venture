@@ -32,3 +32,17 @@ function upgrade_2758_data(): void
     }
     set_setting('item_review_data_2758', '1');
 }
+
+/** 2.7.58 EC6: Broken tool copies made before this release are tradable=1; they cannot be gifted or traded now (idempotent). */
+function upgrade_2758_broken(): void
+{
+    q("UPDATE items SET tradable = 0 WHERE category = 'broken' AND tradable <> 0");
+}
+
+/** 2.7.58 EC7: the Glowcap kit's text says what it mends (only while it still reads the old text, so an admin edit is kept). */
+function upgrade_2758_kit_text(): void
+{
+    q("UPDATE items SET description = ? WHERE slug = 'glowcap-repair-kit' AND description = ?", [
+        'A tin of wicks, a spare glass and a very small screwdriver for a tired glowcap lantern. It mends a lantern only (the Tool Repair Kit is for fight belts), and a free Tool Shed mend is used first.',
+        'A tin of wicks, a spare glass and a very small screwdriver for a tired glowcap lantern.']);
+}

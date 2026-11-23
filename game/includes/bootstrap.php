@@ -633,6 +633,11 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             require_once __DIR__ . '/upgrade2758.php';
             upgrade_2758_data();
         });
+        boot_step('broken_untradable_2758', function () {   // 2.7.58 item review EC6: Broken tool copies cannot be traded or gifted (UPDATE is idempotent)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_broken();
+            upgrade_2758_kit_text();
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players

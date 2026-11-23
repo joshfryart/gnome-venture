@@ -372,7 +372,7 @@ function broken_item_id(array $tool): int
     $id = item_id_by_slug($slug);
     if ($id) return $id;
     return db_insert('items', ['name' => 'Broken ' . $tool['name'], 'slug' => $slug, 'category' => 'broken',
-        'base_price' => max(1, (int)round((int)$tool['base_price'] * 0.1)), 'rarity' => 1, 'tradable' => 1, 'edible' => 0,
+        'base_price' => max(1, (int)round((int)$tool['base_price'] * 0.1)), 'rarity' => 1, 'tradable' => 0, 'edible' => 0,   // 2.7.58 EC6: a Broken copy cannot be gifted or traded (friends farmed free shed mends)
         'description' => 'Broken. Mend it in your Satchel to use it again.', 'effects' => null]);
 }
 
@@ -428,14 +428,17 @@ function mend_tool(int $uid, int $itemId): array
     $today = gclock_my_date();
     db()->beginTransaction();
     $allow = tool_free_mends($uid);   // v0.7.96: 1 a day with a Tool Shed, 2 with a level 3 one
-    $kit = $kitId > 0 && give_item($uid, $kitId, -1);
-    $free = $kit || ($allow > 0
+    // 2.7.58 EC7: the day's free Tool Shed mend first; the Glowcap kit (a 5% drop) is spent only when there is none left
+    $shed = $allow > 0
         && q('UPDATE users SET free_mend_n = CASE WHEN free_mend_day = ? THEN free_mend_n + 1 ELSE 1 END, free_mend_day = ?
-              WHERE id = ? AND (free_mend_day IS NULL OR free_mend_day <> ? OR free_mend_n < ?)', [$today, $today, $uid, $today, $allow])->rowCount() === 1);
+              WHERE id = ? AND (free_mend_day IS NULL OR free_mend_day <> ? OR free_mend_n < ?)', [$today, $today, $uid, $today, $allow])->rowCount() === 1;
+    $kit = !$shed && $kitId > 0 && give_item($uid, $kitId, -1);
+    $free = $shed || $kit;
     if (!$free && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Mending it costs ' . number_format($cost) . ' ' . setting('currency_name') . '. You don’t have that many.'];
     }
+    $hadWorking = $broken && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']]) > 0;
     if ($broken) {
         if (!give_item($uid, $itemId, -1)) {
             db()->rollBack();
@@ -443,7 +446,7 @@ function mend_tool(int $uid, int $itemId): array
         }
         give_item($uid, (int)$tool['id'], 1);
     }
-    q('UPDATE user_items SET wear = 0, wear_day = NULL WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']]);
+    if (!$broken || !$hadWorking) q('UPDATE user_items SET wear = 0, wear_day = NULL WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']]);   // 2.7.58 EC5: a Broken copy joining a working stack leaves that stack's wear alone
     db()->commit();
     tool_cache_reset();
     return [true, $kit ? '🧰 The repair kit made it good as new (and is used up).' : ($free ? '🛠️ Your Tool Shed mended it for free today.'
@@ -455,6 +458,7 @@ function tool_trade_block(int $uid, int $itemId): ?string
 {
     $r = q_one("SELECT i.name, i.category, ui.wear FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.item_id = ? AND ui.qty > 0",
         [$uid, $itemId]);
+    if ($r && $r['category'] === 'broken') return 'A broken tool can’t be traded or given away. Mend it first.';   // 2.7.58 EC6
     return $r && $r['category'] === 'tool' && (int)$r['wear'] > 0 ? 'Your ' . $r['name'] . ' is worn. Mend it first.' : null;
 }
 

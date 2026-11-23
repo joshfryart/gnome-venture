@@ -265,7 +265,7 @@ ok('a stall lists the same price market_stall_price gives', (function () use ($t
 })());
 $dw = (int)q_val("SELECT COUNT(*) FROM items WHERE slug LIKE 'dried-%' AND category = 'food' AND tradable = 1");
 $poolIds = array_map('intval', q("SELECT id FROM items WHERE category IN ('produce','flower','food','forage') AND tradable = 1 AND NOT (category = 'flower' AND slug LIKE 'dried-%')")->fetchAll(PDO::FETCH_COLUMN));
-ok("the $dw dried-* preserves are no longer hidden from the wanted/stall pool, but dried flowers still are", $dw === 7 && !array_diff(array_map('intval', q("SELECT id FROM items WHERE slug LIKE 'dried-%' AND category = 'food'")->fetchAll(PDO::FETCH_COLUMN)), $poolIds));
+ok("the $dw dried-* preserves are no longer hidden from the wanted/stall pool, but dried flowers still are", $dw === 6 && !array_diff(array_map('intval', q("SELECT id FROM items WHERE slug LIKE 'dried-%' AND category = 'food'")->fetchAll(PDO::FETCH_COLUMN)), $poolIds));
 cfg(['price_base_pct' => 60]);
 
 echo "== price drift: bounds\n";

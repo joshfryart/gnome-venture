@@ -33,9 +33,21 @@ function item_lookups(): array
     return $L;
 }
 
+/** The cut flower a Dried item was made from (items.effects: dried, of = the plant slug), or null. 2.7.58 EC2. */
+function dried_cut_item(array $i): ?array
+{
+    static $c = [];
+    $fx = json_decode((string)($i['effects'] ?? ''), true) ?: [];
+    if (empty($fx['dried']) || empty($fx['of'])) return null;
+    $k = (string)$fx['of'];
+    if (!array_key_exists($k, $c)) $c[$k] = q_one('SELECT i.* FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.slug = ?', [$k]) ?: null;
+    return $c[$k];
+}
+
 /** [letter, word] for an item. */
 function item_rarity(array $i, array $L): array
 {
+    if (($cut = dried_cut_item($i)) && (int)$cut['id'] !== (int)$i['id']) return item_rarity($cut, $L);   // 2.7.58 EC2: a dried flower keeps its cut flower's tier
     $id = (int)$i['id'];
     $plant = $L['seed'][$id] ?? $L['produce'][$id] ?? null;
     $fx = json_decode((string)($i['effects'] ?? ''), true) ?: [];

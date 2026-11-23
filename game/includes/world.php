@@ -116,7 +116,7 @@ function shop_restock(int $shopId): void
         $max = max(1, (int)$s['max_stock']);
         $qty = random_int(max(1, intdiv($max, 2)), $max);
         $price = random_int((int)$s['price_min'], max((int)$s['price_min'], (int)$s['price_max']));
-        $price = max(1, (int)round($price * (100 + (int)$shop['markup_percent']) / 100));
+        $price = max(1, (int)round($price * (100 + max(0, (int)$shop['markup_percent'])) / 100));
         q('UPDATE shop_stock SET current_stock = ?, current_price = ? WHERE id = ?', [max($qty, (int)$s['current_stock']), $price, $s['id']]);
     }
 }
@@ -391,16 +391,30 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
 /** What a player pays in a shop: Charm, then any friendship discount with the staff (v0.7.13). */
 function shop_price(array $u, int $price, int $shopId, int $itemId = 0): int
 {
-    require_once __DIR__ . '/friends.php';
     $p = charm_price($u, $price, true);
-    $d = friend_discount((int)$u['id'], $shopId);
-    $sale = q_val('SELECT ev_sale_until FROM users WHERE id = ?', [$u['id']]);
+    $d = shop_discount_pct($u, $shopId, $itemId);
+    $p = $d ? max(1, (int)round($p * (100 - $d) / 100)) : $p;
+    return $itemId > 0 ? max(1, (int)round($p * market_buy_mult($itemId))) : $p;   // v1.0.0: seasonal seeds and crops cost a little less in season
+}
+
+/**
+ * 2.7.58 EC3: the percent off a shop's prices for this gnome (max 60): friendship with the staff, the weather vane, Silver Tongue, a Trail Sight's
+ * shop discount and one scoped to the item's category. shop_price and shop_buy_floor both use it, so the buy-back floor can never sit above what buying costs.
+ */
+function shop_discount_pct(array $u, int $shopId, int $itemId = 0): int
+{
+    static $fd = [];
+    require_once __DIR__ . '/friends.php';
+    $uid = (int)$u['id'];
+    $sale = array_key_exists('ev_sale_until', $u) ? $u['ev_sale_until'] : q_val('SELECT ev_sale_until FROM users WHERE id = ?', [$uid]);
+    $key = $uid . '|' . $shopId . '|' . ($sale ?? '');
+    $fd[$key] ??= friend_discount($uid, $shopId);
+    $d = $fd[$key];
     if ($sale && strtotime($sale . ' UTC') > time()) $d += 20;   // the weather vane (v0.7.31)
     require_once __DIR__ . '/player_perks.php';
-    $d += player_perk_pct((int)$u['id'], 'silver_tongue', 'perk_silver_tongue');   // 2.6.33
-    require_once __DIR__ . '/trail_sight_extras.php'; $d += trail_sight_disc_pct((int)$u['id'], 'shop') + sights5_disc_item_pct((int)$u['id'], $itemId);   // 2.7.00: a Trail Sight's shop discount; fifth pass: one scoped to this item's category (disc=shop:20:60:seed)
-    $p = $d ? max(1, (int)round($p * (100 - min(60, $d)) / 100)) : $p;
-    return $itemId > 0 ? max(1, (int)round($p * market_buy_mult($itemId))) : $p;   // v1.0.0: seasonal seeds and crops cost a little less in season
+    $d += player_perk_pct($uid, 'silver_tongue', 'perk_silver_tongue');   // 2.6.33
+    require_once __DIR__ . '/trail_sight_extras.php'; $d += trail_sight_disc_pct($uid, 'shop') + sights5_disc_item_pct($uid, $itemId);   // 2.7.00: a Trail Sight's shop discount; fifth pass: one scoped to this item's category (disc=shop:20:60:seed)
+    return max(0, min(60, $d));
 }
 
 function charm_price(array $u, int $price, bool $buying): int
@@ -419,7 +433,8 @@ function flat_sell_value(array $item, array $L): int
 {
     $pct = max(1, mk_int('price_base_pct', 60));
     $base = max(1, (int)floor((int)$item['base_price'] * $pct / 100));
-    if (in_array($item['category'] ?? '', ['arrangement', 'packet'], true)) return $base;
+    if (($item['category'] ?? '') === 'packet') return packet_sell_cap($item, $pct, $base);
+    if (($item['category'] ?? '') === 'arrangement') return $base;
     require_once __DIR__ . '/items.php';
     [$r] = item_rarity($item, $L);
     $mult = ['C' => 100, 'U' => (int)setting('sell_mult_uncommon'), 'R' => (int)setting('sell_mult_rare'), 'L' => (int)setting('sell_mult_legendary')][$r] ?? 100;
@@ -429,11 +444,21 @@ function flat_sell_value(array $item, array $L): int
     return $base;
 }
 
+/** 2.7.58 EC1: a Seed Packet sells for at most its seeds' flat value (seed base x seeds x the sell share): seeds cannot be sold, so the packet used to turn them into Petals at a profit. */
+function packet_sell_cap(array $item, int $pct, int $base): int
+{
+    $fx = json_decode((string)($item['effects'] ?? ''), true) ?: [];
+    $seed = (int)q_val('SELECT si.base_price FROM plants p JOIN items si ON si.id = p.seed_item_id WHERE p.id = ?', [(int)($fx['packet'] ?? 0)]);
+    if ($seed < 1) return $base;
+    return max(1, min($base, (int)floor($seed * max(1, (int)($fx['seeds'] ?? 1)) * $pct / 100)));
+}
+
 function sell_price(array $item, ?array $u = null): int
 {
     $pct = market_sell_pct($item);   // v1.0.0: the shop's share of the base price drifts (45-80%) with the week, season, demand and sales
     $base = max(1, (int)floor((int)$item['base_price'] * $pct / 100));
     if (in_array($item['category'] ?? '', ['arrangement', 'packet'], true)) {   // v0.9.9: their value already carries the score, so no rarity multiplier
+        if ($item['category'] === 'packet') $base = packet_sell_cap($item, $pct, $base);   // 2.7.58 EC1: never worth more than its seeds
         return $u ? charm_price($u, $base, false) : $base;
     }
     // v0.7.61: rarer things fetch much more (admin: sell_mult_* settings)
@@ -453,6 +478,10 @@ function sell_price(array $item, ?array $u = null): int
     // v1.0.0: never sell anything back for more than the cheapest a shop would charge THIS gnome for it (after Charm, friendship
     // discounts, the weather vane and the season), so buying and selling again can never make money. Items no shop stocks keep the drift.
     $cap = shop_buy_floor((int)($item['id'] ?? 0), $u);
+    if ($cap === null && ($cut = dried_cut_item($item))) {   // 2.7.58 EC2: no shop stocks a dried flower; it is capped at dried_price_pct of what the cut flower costs (so drying never beats buying and reselling)
+        $cf = shop_buy_floor((int)$cut['id'], $u);
+        if ($cf !== null) $cap = max(1, (int)floor($cf * max(50, mk_int('dried_price_pct', 125)) / 100));
+    }
     return $cap !== null ? max(1, min($base, $cap)) : $base;
 }
 
@@ -467,7 +496,6 @@ function shop_stock_rows(int $itemId): array
 /** v1.0.0: the cheapest price any shop charges this gnome (or a gnome with no discounts, when $u is null) for an item; null if no shop stocks it. */
 function shop_buy_floor(int $itemId, ?array $u): ?int
 {
-    static $disc = [];
     if ($itemId <= 0) return null;
     $rows = shop_stock_rows($itemId);
     if (!$rows) return null;
@@ -478,16 +506,8 @@ function shop_buy_floor(int $itemId, ?array $u): ?int
     foreach ($rows as $r) {
         $p = (int)$r['p'];
         if ($u) {
-            $sale = array_key_exists('ev_sale_until', $u) ? $u['ev_sale_until'] : q_val('SELECT ev_sale_until FROM users WHERE id = ?', [$u['id']]);
-            $key = $u['id'] . '|' . $r['shop_id'] . '|' . ($sale ?? '');
-            if (!isset($disc[$key])) {
-                require_once __DIR__ . '/friends.php';
-                $d = friend_discount((int)$u['id'], (int)$r['shop_id']);
-                if ($sale && strtotime($sale . ' UTC') > time()) $d += 20;
-                $disc[$key] = $d;
-            }
             $p = charm_price($u, $p, true);
-            if ($disc[$key]) $p = max(1, (int)round($p * (100 - min(60, $disc[$key])) / 100));
+            if ($d = shop_discount_pct($u, (int)$r['shop_id'], $itemId)) $p = max(1, (int)round($p * (100 - $d) / 100));   // 2.7.58 EC3: the same discounts shop_price applies
         }
         $p = max(1, (int)round($p * $mult));
         if ($best === null || $p < $best) $best = $p;
@@ -523,10 +543,17 @@ function sell_to_shop(array $u, int $itemId, int $qty, int $shopId = 0): array
         db()->rollBack();
         return [false, 'You don’t have ' . $qty . ' × ' . $item['name'] . '.'];
     }
-    $total = sell_price_with_bonus($item, $u, shop_sell_bonus((int)$u['id'], $shopId)) * $qty;
+    // 2.7.58 EC9: priced in price_vol_units chunks, each chunk's sales lowering the price of the next, so a big batch pays what the same sales one by one would
+    $bonus = shop_sell_bonus((int)$u['id'], $shopId);
+    $chunk = max(1, mk_int('price_vol_units', 8));
+    $total = 0;
+    for ($left = $qty; $left > 0; $left -= $chunk) {
+        $n = min($chunk, $left);
+        $total += sell_price_with_bonus($item, $u, $bonus) * $n;
+        try { market_volume_add($itemId, $n); } catch (PDOException $e) { /* pressure is a nicety */ }   // v1.0.0: selling lots of one thing lowers its price a little
+    }
     q('UPDATE users SET coins = coins + ? WHERE id = ?', [$total, $u['id']]);
     db()->commit();
-    try { market_volume_add($itemId, $qty); } catch (PDOException $e) { /* pressure is a nicety */ }   // v1.0.0: selling lots of one thing lowers its price a little
     calling_event((int)$u['id'], 'sell', (string)$item['slug'], $qty, ['cat' => (string)$item['category'], 'coins' => $total]);   // v0.9.4 N6: sold to a shop
     return [true, "You sell $qty × {$item['name']} for " . number_format($total) . ' ' . setting('currency_name') . '.', $total, (string)$item['name']];
 }
