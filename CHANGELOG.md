@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.70
+- **Perks popover (Here), compact.** On short landscape screens the banner is slim (40 px), the stop perks and your account perks are small cards in a row (three across), and the meters with the acts that raise them sit under them, so the whole popover shows without scrolling (with three running perks it is about 380 px tall at 390). Replaces the 2.7.69 two-column version, which split the perk cards from the meters.
+- **Activity cards (the picture's Do spots, a town's actions):** picture and name on the left, words and choices on the right on short landscape screens, so three choices fit without scrolling.
+- **Popover crawl:** 70 pages were loaded at 844 x 390 and up to 8 popover triggers on each were clicked (102 clicks; 89 opened a popover or sheet), each measured for being inside the screen, having a usable scroll area and having its buttons on screen. One failed (the activity card above) and is fixed. Not covered: triggers past the first 8 per page, popups that need a live walk or fight, and popups that only appear after a game action.
+
 ## 2.7.69
 - **Here: the Perks popover fits a landscape phone.** On short landscape screens it is wide (up to 780 px) with a slim banner and two columns (your perks left, the meters and the acts that raise them right). It was one column about 560 px tall; it now fits in the screen height (about 380 px at 390). Seen in a headless browser at 844 x 390.
 

@@ -8964,12 +8964,36 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   dialog.hubpop .pickbox { max-height: calc(100dvh - 8px); overflow-y: auto; }
 }
 
-/* short landscape: the Perks popover is wide, in two columns under a slim banner, instead of one long column */
+/* short landscape: the Perks popover is compact and wide: a slim banner, the perks (stop and account) as small cards in a row, then the meters and the acts that raise them under them */
 @media (orientation: landscape) and (max-height: 520px) {
-  #hubpop-perks .pickbox { width: min(780px, calc(100vw - 16px)); max-width: none; }
-  #hubpop-perks .hubcard { column-count: 2; column-gap: 16px; }
-  #hubpop-perks .pkban { column-span: all; max-height: 62px; overflow: hidden; margin-bottom: 4px; }
-  #hubpop-perks .pkban img { width: 100%; height: 62px; object-fit: cover; object-position: center; }
-  #hubpop-perks .hubcard h4 { break-after: avoid; margin: 6px 0 4px; }
-  #hubpop-perks .pkc, #hubpop-perks .pkempty, #hubpop-perks .pkfoot { break-inside: avoid; }
+  #hubpop-perks .pickbox { width: min(800px, calc(100vw - 16px)); max-width: none; }
+  #hubpop-perks .hubcard { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 8px; align-content: start; }
+  #hubpop-perks .pkban { grid-column: 1 / -1; height: 40px; max-height: 40px; margin: 0; }
+  #hubpop-perks .pkban img { width: 100%; height: 40px; object-fit: cover; }
+  #hubpop-perks .pkban .pkbt { transform: scale(.8); transform-origin: left bottom; }
+  #hubpop-perks .hubcard h4 { grid-column: 1 / -1; margin: 2px 0 0; font-size: .85rem; }
+  #hubpop-perks .pkperk { margin: 0; padding: 4px 8px; gap: 8px; min-width: 0; }
+  #hubpop-perks .pkperk .pkbadge { transform: scale(.7); transform-origin: left center; width: 32px; flex: none; }
+  #hubpop-perks .pkperk .pkpt b { font-size: .85rem; }
+  #hubpop-perks .pkperk .pkfx { font-size: 11px; line-height: 1.2; }
+  #hubpop-perks .pkperk .pkpips { display: none; }
+  #hubpop-perks .pkperk .pkleft small { font-size: 11px; white-space: nowrap; }
+  #hubpop-perks .pkempty { margin: 0; padding: 4px 8px; grid-column: span 2; }
+  #hubpop-perks .pkc { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: start; }
+  #hubpop-perks .pkc > .pktiles { grid-column: 1; grid-row: 1; gap: 4px; }
+  #hubpop-perks .pkc > .pkacts { grid-column: 2; grid-row: 1; margin: 0; padding: 0; border: 0; }
+  #hubpop-perks .pktile { padding: 2px; }
+  #hubpop-perks .pkplant { width: 44px; height: 44px; }
+  #hubpop-perks .pksign { width: 58px; height: 40px; margin-top: -4px; }
+  #hubpop-perks .pkact { margin: 2px 0; padding: 2px 8px; }
+  #hubpop-perks .pkact .pkthumb { width: 28px; height: 28px; }
+  #hubpop-perks .pkfoot { grid-column: 1 / -1; margin: 0; font-size: 11px; }
+}
+
+/* short landscape: an activity card (Do spots, town actions) puts its picture and name on the left and the words and choices on the right, so three choices fit */
+@media (orientation: landscape) and (max-height: 520px) {
+  dialog.isheet.dosheet[open] { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 2px 14px; align-items: start; width: min(680px, calc(100vw - 16px)); }
+  dialog.isheet.dosheet > .shead { grid-column: 1; grid-row: 1 / span 4; padding: 0; }
+  dialog.isheet.dosheet > :not(.shead):not(.sheetx) { grid-column: 2; margin-block: 2px; }
+  dialog.isheet.dosheet .sico.doart { width: 150px; height: auto; }
 }
