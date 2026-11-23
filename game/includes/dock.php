@@ -1,0 +1,226 @@
+<?php
+declare(strict_types=1);
+/**
+ * Nav dock, phase 1 (plan: claude/plan-nav-dock.md; mockup: nav_dock_mockups.html).
+ * The landscape bottom dock that will replace the header, status strip, bottom bar and menu sheet. Everything is additive:
+ * with the setting nav_dock = 0 (the default) the game is exactly as before. 'admin' shows it to admins only (preview); '1' shows it to everyone.
+ * Phase 1 draws the four menus with their tiles (the same groups, badges and unlock rules as the menu sheet: nav_groups() in layout.php), the status
+ * plate with its popover, and two action pieces. Actions are plain links and strips of links; forms and bulk actions come in phase 2.
+ * The dock only appears in landscape on short screens (CSS media query in assets/dock.css); portrait and wide screens keep today's chrome.
+ * CSP: no inline styles. All positions are set by assets/dock.js through the style object; the data is a JSON data block, which browsers never run.
+ */
+
+/** Admin setting, merged into settings_schema(). */
+function dock_settings(): array
+{
+    return [
+        'nav_dock' => ['label' => 'Nav dock: the landscape bottom dock (menus, status plate, two page actions). 0 = off (today’s header, bottom bar and menu), admin = admins only (preview; an admin can add ?dock=off or ?dock=on to the address to switch their own copy), 1 = everyone. Portrait and wide screens always keep today’s chrome.', 'type' => 'text', 'default' => '0'],
+    ];
+}
+
+/** Is the dock drawn for this viewer? (logged in, past onboarding, and the setting says so) */
+function dock_on(?array $u = null): bool
+{
+    static $memo = null;
+    $cu = current_user();
+    $u = $u ?? $cu;
+    $mine = $cu !== null && $u !== null && (int)$cu['id'] === (int)$u['id'];   // the viewer themselves (the preview switch and the per-request memo apply to them only)
+    if ($mine && $memo !== null) return $memo;
+    $r = false;
+    if ($u && (int)($u['onboarded'] ?? 1) === 1) {
+        $s = trim((string)setting('nav_dock'));
+        $admin = ($u['role'] ?? '') === 'admin';
+        if ($s === '1') $r = true;
+        elseif ($s === 'admin' && $admin) $r = true;
+        if ($r && $admin && $mine) {   // an admin can switch their own preview off and on: ?dock=off / ?dock=on (a cookie)
+            $q = (string)($_GET['dock'] ?? '');
+            if (($q === 'off' || $q === 'on') && !headers_sent()) {
+                setcookie('gv_dock', $q, ['expires' => time() + 86400 * 60, 'path' => '/', 'samesite' => 'Lax', 'httponly' => true]);
+                $_COOKIE['gv_dock'] = $q;
+            }
+            if (($_COOKIE['gv_dock'] ?? '') === 'off') $r = false;
+        }
+    }
+    if ($mine) $memo = $r;
+    return $r;
+}
+
+/** A page can set its own two actions (phase 2 pages call this). Shape: ['L' => action|null, 'R' => action|null]; see dock_action(). */
+function dock_declare(array $spec): void
+{
+    $GLOBALS['gv_dock'] = $spec;
+}
+
+/**
+ * One action piece. $icon is a dock icon name (see dock_icon_url()) or an emoji. A piece is a link ($href), a strip of links ($menu: list of dock_action()s),
+ * or inert ($why set = greyed, with that short reason). $badge is a count or '!'.
+ */
+function dock_action(string $label, string $icon, string $href = '', array $menu = [], string $why = '', string $badge = '', string $mlabel = ''): array
+{
+    return ['label' => $label, 'icon' => $icon, 'href' => $href, 'menu' => $menu, 'why' => $why, 'badge' => $badge, 'mlabel' => $mlabel];
+}
+
+/** Dock icon names that have a drawn icon (assets/img/nav/dock-<name>.png, from art-nav-dock/). */
+const DOCK_ICONS = ['you', 'hobby', 'out', 'tog', 'hovel', 'almanac', 'satchel', 'crafting', 'tailor', 'start', 'account', 'garden', 'games', 'pals', 'box', 'world', 'here',
+    'villagers', 'gourmand', 'treks', 'trading', 'together', 'tasks', 'friends', 'festival'];
+
+/** The menu entry slug (NAV_ICONS) to the dock icon name. */
+const DOCK_SLUG_ICON = ['almanac' => 'almanac', 'satchel' => 'satchel', 'crafting' => 'crafting', 'hovel' => 'hovel', 'tailor' => 'tailor', 'start' => 'start', 'account' => 'account',
+    'garden' => 'garden', 'games' => 'games', 'puzzlepals' => 'pals', 'puzzlebox' => 'box', 'world' => 'world', 'town' => 'here', 'villagers' => 'villagers', 'gourmand' => 'gourmand',
+    'treks' => 'treks', 'trading' => 'trading', 'together' => 'together', 'tasks' => 'tasks', 'friends' => 'friends', 'festival' => 'festival', 'today' => 'hovel'];
+
+/** The tile of the menu that lights for this page (same rules as the menu sheet). */
+function dock_current_tile(string $page): string
+{
+    $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');
+    if ($page === 'folk.php') $cur = 'villagers.php';
+    if (in_array($page, ['catfish.php', 'puzzles.php', 'jigsaw.php', 'gifsaw.php', 'rainbarrel.php', 'gnomebeds.php', 'fair.php', 'show.php', 'gotm.php'], true)) $cur = 'games.php';
+    if ($page === 'paljobs.php') $cur = 'puzzlepals.php';
+    if ($page === 'adventure.php' && gnav_on()) $cur = 'here.php';   // the walk is the Here page
+    return $cur;
+}
+
+/**
+ * The four menus with their tiles: [['k' => 'you', 'name' => 'You', 'tiles' => [['href', 'label', 'icon', 'badge', 'on', 'why'], ...]], ...], plus which menu is current.
+ * On the road (an active expedition) the game refuses World, Treks and the places: those tiles are greyed with "on the road" and Here becomes Trail.
+ */
+function dock_menus(array $u, string $page): array
+{
+    [$groups] = nav_groups($u, $page);
+    require_once __DIR__ . '/home_slim.php';
+    $slim = home_slim_on();
+    $road = false;
+    try { require_once __DIR__ . '/adventure.php'; $road = active_expedition((int)$u['id']) !== null; } catch (Throwable $e) { $road = false; }
+    $cur = dock_current_tile($page);
+    $keys = ['You' => 'you', 'Hobbies' => 'hobby', 'Out & about' => 'out', 'Together' => 'tog'];
+    $mk = function (string $file, string $label, string $slug, string $badge) use ($cur, $road): array {
+        $why = '';
+        $icon = DOCK_SLUG_ICON[$slug] ?? '';
+        if ($road) {
+            if (in_array($file, ['world.php', 'trek.php'], true)) $why = 'on the road';
+            if (in_array($file, ['here.php', 'town.php'], true)) { $file = 'adventure.php'; $label = 'Trail'; $icon = 'treks'; }
+        }
+        $b = $badge === '!' ? '!' : (preg_match('/^(\d+)/', $badge, $m) ? $m[1] : ($badge !== '' ? '•' : ''));
+        return ['href' => url($file), 'label' => $label, 'icon' => $icon, 'badge' => $b, 'on' => $cur === $file || ($road && $file === 'adventure.php' && in_array($cur, ['here.php', 'adventure.php'], true)), 'why' => $why];
+    };
+    $menus = [];
+    foreach ($keys as $name => $k) {
+        $tiles = [];
+        if ($k === 'you') $tiles[] = $mk('gnome.php', $slim ? 'Hovel' : 'Home', $slim ? 'hovel' : 'today', '');   // the one home entry (the menu sheet puts it in its header row)
+        foreach (($groups[$name] ?? []) as $t) $tiles[] = $mk((string)$t[0], (string)$t[2], (string)($t[4] ?? ''), (string)($t[3] ?? ''));
+        if ($k === 'you') $tiles[] = $mk('account.php', 'Account', 'account', '');   // Account sits last under You (the menu sheet has it under the groups)
+        $menus[] = ['k' => $k, 'name' => $name, 'tiles' => $tiles];
+    }
+    $here = '';
+    foreach ($menus as $m) foreach ($m['tiles'] as $t) if (!empty($t['on'])) $here = $m['k'];
+    if ($here === '') $here = ['garden' => 'hobby', 'world' => 'out', 'kitchen' => 'you', 'book' => 'you', 'market' => 'tog', 'community' => 'tog'][page_area($page)] ?? '';
+    return [$menus, $here];
+}
+
+/** The status plate and its popover: numbers and the few links the menu cannot reach (stat points, ready pots and jars, the trip). */
+function dock_status(array $u): array
+{
+    $plate = ['energy' => [0, 1], 'level' => (int)$u['level'], 'xp' => 0, 'time' => '', 'day' => 0, 'coins' => (int)$u['coins']];
+    $rows = [];
+    $links = [];
+    try {
+        [$e, $emax] = current_energy($u);
+        $plate['energy'] = [(int)$e, (int)$emax];
+        $lo = xp_for_level((int)$u['level']);
+        $hi = xp_for_level((int)$u['level'] + 1);
+        $plate['xp'] = (int)round(100 * max(0, min(1, ((int)$u['xp'] - $lo) / max(1, $hi - $lo))));
+        $rows[] = ['⚡', 'Energy', $e . '/' . $emax . ((string)energy_line($u) !== '' ? ' · ' . energy_next_text($u) : '')];
+        $rows[] = ['🌱', 'Level ' . (int)$u['level'], number_format((int)$u['xp']) . ' / ' . number_format($hi) . ' XP'];
+        if (gclock_on()) {
+            $gs = gclock_state($u);
+            $plate['time'] = sprintf('%02d:%02d', intdiv($gs['minute'], 60) % 24, $gs['minute'] % 60);
+            $plate['day'] = (int)$gs['day'];
+            $rows[] = ['🕐', 'Day ' . (int)$gs['day'], $plate['time']];
+        }
+        require_once __DIR__ . '/health.php';
+        if (hp_on()) { [$hp, $hpm] = hp_display($u); $rows[] = ['❤️', 'Health', $hp . '/' . $hpm]; }
+        $rows[] = ['🪙', 'Petals', number_format((int)$u['coins'])];
+        require_once __DIR__ . '/hollow_clock.php';
+        $hn = hollow_now(hollow_user_region($u));
+        $links[] = [$hn['season_emoji'] . ' ' . $hn['season_label'] . ' ' . (int)$hn['season_day'] . ' ' . $hn['weather_emoji'], '', url('town.php?view=stop&tab=seasons#seasons')];
+        if ((int)$u['stat_points'] > 0) $links[] = ['✨ Stat points', (string)(int)$u['stat_points'], url('gnome.php?tab=stats')];
+        require_once __DIR__ . '/crafting.php';
+        require_once __DIR__ . '/pantry.php';
+        if (cook_pots_on() && ($pots = cook_ready_count((int)$u['id'])) > 0) $links[] = ['🍳 Pots ready', (string)$pots, craft_url('cooking')];
+        if (($jars = pantry_ready_count((int)$u['id'])) > 0) $links[] = ['🫙 Jars ready', (string)$jars, craft_url('pantry')];
+        require_once __DIR__ . '/destination.php';
+        if (function_exists('dest_status') && ($ds = dest_status($u))) $links[] = ['🏁 Trip: ' . dest_name((int)$u['id'], $ds[0]), (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's'), url('adventure.php')];
+    } catch (Throwable $e) {
+        error_log('dock_status: ' . $e->getMessage());   // the plate is never worth a broken page
+    }
+    return ['plate' => $plate, 'rows' => $rows, 'links' => $links];
+}
+
+/** The page's two actions: the page's own (dock_declare / dock_page_spec) or the defaults, Back and Hovel. */
+function dock_actions(array $u, string $page): array
+{
+    $spec = $GLOBALS['gv_dock'] ?? dock_page_spec($page);
+    $slim = false;
+    try { require_once __DIR__ . '/home_slim.php'; $slim = home_slim_on(); } catch (Throwable $e) {}
+    $def = ['L' => dock_action('Back', '↩'), 'R' => dock_action($slim ? 'Hovel' : 'Home', 'hovel', url('gnome.php'))];
+    $out = [];
+    foreach (['L', 'R'] as $s) $out[$s] = array_key_exists($s, $spec) ? $spec[$s] : $def[$s];   // null = an empty slot
+    return $out;
+}
+
+/** Phase 1 specs for pages whose actions are only links (no new endpoints). Phase 2 adds the pages with forms. */
+function dock_page_spec(string $page): array
+{
+    $u = fn(string $f) => url($f);
+    switch ($page) {
+        case 'games.php':
+        case 'treehouse.php':
+            if (($_GET['tab'] ?? '') === 'contests') {
+                return ['L' => dock_action('Games', '🎲', $u('games.php')), 'R' => dock_action('Enter', '🏅', '', [
+                    dock_action('Show', '🏅', $u('show.php')), dock_action('Garden', '🌼', $u('gotm.php')), dock_action('Fair', '🌽', $u('fair.php')), dock_action('Carve', '🎃', $u('carve.php')),
+                ], '', '', 'Contests')];
+            }
+            return ['L' => dock_action('Contests', '🏆', $u('games.php?tab=contests')), 'R' => dock_action('Play', '🎲', '', [
+                dock_action('Memory', '🃏', $u('memory.php')), dock_action('Race', '🐌', $u('race.php')), dock_action('Spit', '🍉', $u('spit.php')),
+                dock_action('Mushroom', '🍄', $u('mushroom.php')), dock_action('Pest', '🪰', $u('pest.php')), dock_action('Marrow', '⚖️', $u('marrow.php')), dock_action('Worms', '🪱', $u('worms.php')),
+            ], '', '', 'Play a game')];
+        case 'puzzles.php':
+            return ['L' => dock_action('Games', '↩', $u('games.php')), 'R' => dock_action('Play', '🧩', '', [
+                dock_action('Jigsaw', '🧩', $u('jigsaw.php')), dock_action('GIFsaw', '🎞️', $u('gifsaw.php')), dock_action('Pals', '🐾', $u('puzzlepals.php')),
+                dock_action('Barrel', '🛢️', $u('rainbarrel.php')), dock_action('Beds', '🛏️', $u('gnomebeds.php')),
+            ], '', '', 'Puzzles')];
+        case 'show.php':
+        case 'fair.php':
+        case 'gotm.php':
+        case 'carve.php':
+            return ['L' => dock_action('Contests', '↩', $u('games.php?tab=contests')), 'R' => dock_action('Games', '🎲', $u('games.php'))];
+        case 'feedback.php':
+            return ['L' => dock_action('Replies', '📮', $u('community.php?t=msgs')), 'R' => null];
+    }
+    return [];
+}
+
+/**
+ * The dock markup: a plain list of links (visible only until assets/dock.js has drawn the dock, so the menu never vanishes if the script fails)
+ * and the JSON the script reads (a data block, replaced by the in-place page swap so the plate and the actions stay current).
+ */
+function dock_html(array $u, string $page): string
+{
+    require_once __DIR__ . '/theme.php';
+    [$menus, $here] = dock_menus($u, $page);
+    $st = dock_status($u);
+    $data = [
+        'menus' => $menus, 'here' => $here, 'plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'],
+        'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
+        'iconBase' => url('assets/img/nav/dock-'), 'iconNames' => DOCK_ICONS, 'home' => url('gnome.php'),
+    ];
+    $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    $fb = '';
+    foreach ($menus as $m) {
+        $fb .= '<li><b>' . e($m['name']) . '</b><ul>';
+        foreach ($m['tiles'] as $t) $fb .= '<li>' . ($t['why'] !== '' ? '<span>' . e($t['label']) . ' (' . e($t['why']) . ')</span>' : '<a href="' . e($t['href']) . '"' . (!empty($t['on']) ? ' aria-current="page"' : '') . '>' . e($t['label']) . '</a>') . '</li>';
+        $fb .= '</ul></li>';
+    }
+    return '<nav class="dockroot" id="dockroot" aria-label="Game menu"><ul class="dockfb">' . $fb . '</ul></nav>'
+        . '<div class="dockdata" hidden><script type="application/json" id="dockjson">' . $json . '</script></div>';
+}

@@ -381,6 +381,7 @@ function settings_schema(): array
     require_once __DIR__ . '/trek_data.php';   // v1.8.0: Treks
     require_once __DIR__ . '/delve_map.php';   // v2.0.6: Delves: map view
     require_once __DIR__ . '/here_schema.php';   // graphical navigation: gnav_* settings
+    require_once __DIR__ . '/dock.php';   // nav dock: nav_dock setting
     require_once __DIR__ . '/emoji_icons.php';   // v2.0.23: emoji to icons
     require_once __DIR__ . '/trail_sights_6.php';   // Sights sixth pass B: sights_shared_* settings
     return $schema = [
@@ -773,7 +774,7 @@ function settings_schema(): array
 
         'travel_needs_visit' => ['label' => 'Travel: only fast-travel to regions a gnome has already walked to', 'type' => 'bool', 'default' => '1'],
         'gotm_thanks'        => ['label' => 'Garden of the Month: Petals for every other entry', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 1000000],
-    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + hp_settings() + gclock_settings() + ico_settings() + here_settings() + sights6_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
+    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + hp_settings() + gclock_settings() + ico_settings() + here_settings() + dock_settings() + sights6_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
 }
 
 /** v1.7.6: scale a mini-game's Petal payout by games_petals_percent (never below 1 if the game paid something). */

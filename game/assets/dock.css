@@ -1,0 +1,165 @@
+/* Nav dock, phase 1 (plan: claude/plan-nav-dock.md; includes/dock.php; assets/dock.js).
+   Loaded only when the setting nav_dock is on for the viewer (admins first). Shown only in landscape on short screens; portrait and wide screens keep today's chrome.
+   Everything is scoped under .dockroot. No inline styles (CSP): assets/dock.js sets positions through the style object. Hard pixel corners, no blur.
+   The piece art is built from the mockup nav_dock_mockups.html: 2.5D jigsaw pieces (side face, bevel strips, grain, stitch) on a dirt and grass band. */
+.dockroot {
+  --dock-h: 106px;
+  --dk-felt: #3d2a1c; --dk-felt2: #52382a; --dk-ink: #f2e4c0; --dk-accent: #e8a317; --dk-accentink: #7a4a1f;
+  --dk-surface: #fff3c8; --dk-surface2: #f2e4c0; --dk-fg: #2a1a10; --dk-muted: #74462a; --dk-line: #c9a96e; --dk-line2: #9a6b3f; --dk-dis: #c9a96e;
+  --dk-purple: #4e3a8a; --dk-brand: #2f5a2a; --dk-info: #1f4a6a; --dk-petal: #9b3d63; --dk-danger: #a8241f;
+  --dk-circ: polygon(30% 0,70% 0,70% 10%,85% 10%,85% 20%,90% 20%,90% 30%,100% 30%,100% 70%,90% 70%,90% 80%,85% 80%,85% 90%,70% 90%,70% 100%,30% 100%,30% 90%,15% 90%,15% 80%,10% 80%,10% 70%,0 70%,0 30%,10% 30%,10% 20%,15% 20%,15% 10%,30% 10%);
+  position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px)); z-index: 45; pointer-events: none; display: none;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; font-family: var(--font, system-ui, sans-serif);
+}
+:root[data-theme="dark"] .dockroot {
+  --dk-felt: #1c110a; --dk-felt2: #2b1b10; --dk-surface: #3d2a1c; --dk-surface2: #33231a; --dk-fg: #f2e4c0; --dk-muted: #d3b68a; --dk-line: #6a4a30; --dk-dis: #b89a6e;
+  --dk-purple: #b7a6f0; --dk-brand: #7ab55c; --dk-info: #a9d6ea; --dk-petal: #e88aab;
+}
+.dockdata { display: none; }
+.dockroot::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--dk-felt); }
+.dockroot .dockstage { position: absolute; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); }
+.dockroot .dkdefs { position: absolute; width: 0; height: 0; }
+.dockroot .dockfb { display: none; }
+.dockroot svg { max-width: none; max-height: none; }   /* the game's stylesheet caps svg and img at 100% of their parent: the pieces overflow their box on purpose (knobs, side face) */
+.dockroot img { max-width: none; }
+.dockroot .dockslip { position: absolute; left: 0; right: 0; top: 0; height: 0; }
+.dockroot .dock{position:absolute;left:0;right:0;bottom:0;height:100%;pointer-events:none;transition:transform .25s steps(5)}
+.dockroot .dock>*{pointer-events:auto}
+.dockroot .dock svg.dk-arc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.dockroot .dk-soil{fill:url(#dk-dirt)}
+.dockroot .dk-g1{fill:#5f9a47}
+.dockroot .dk-g2{fill:#7ab55c}
+.dockroot .dk-g3{fill:#3f7a35}
+.dockroot .dk-db{fill:var(--dk-felt)}
+.dockroot .dk-db2{fill:color-mix(in srgb,var(--dk-felt),var(--dk-ink) 20%)}
+.dockroot .dk-dd{fill:color-mix(in srgb,var(--dk-felt),#000 40%)}
+.dockroot .dk-dl{fill:color-mix(in srgb,var(--dk-felt),var(--dk-ink) 14%)}
+.dockroot .dk-pb{fill:color-mix(in srgb,var(--dk-line2),var(--dk-felt) 45%)}
+.dockroot .dk-ph{fill:color-mix(in srgb,var(--dk-line),var(--dk-felt) 30%)}
+.dockroot .dk-rt{fill:color-mix(in srgb,var(--dk-felt),#000 55%)}
+.dockroot .dk-pw{fill:#fff;fill-opacity:.22}
+.dockroot .dk-gf{fill:url(#dk-dirt2);stroke:color-mix(in srgb,var(--dk-felt),var(--dk-ink) 38%);stroke-width:2}
+.dockroot .dk-pc.dk-ghost{pointer-events:none;cursor:default}
+.dockroot .dk-fl1{fill:#e88aab}
+.dockroot .dk-fl2{fill:#ffd45a}
+.dockroot .dk-fl3{fill:#fff3c8}
+.dockroot .dk-stem{fill:#3f7a35}
+.dockroot .dk-pc{position:absolute;display:block;border:0;padding:0;background:none;cursor:pointer;font:inherit;color:var(--dk-tx,var(--dk-fg));
+  --dk-fill:var(--dk-felt2);--dk-ring:var(--dk-accentink);rotate:var(--rot,0deg);transition:translate .15s steps(3)}
+.dockroot .dk-pc svg.dk-ps{position:absolute;left:-16px;top:-16px;overflow:visible;pointer-events:none}
+.dockroot .dk-pc,.dockroot .dk-pop{--dk-hi:color-mix(in srgb,var(--dk-fill),var(--dk-ink) 35%);--dk-lo:color-mix(in srgb,var(--dk-fill),var(--dk-felt) 35%);--dk-side:color-mix(in srgb,var(--dk-fill),var(--dk-felt) 60%)}
+:root[data-theme="dark"] .dockroot .dk-pc,:root[data-theme="dark"] .dockroot .dk-pop{--dk-hi:color-mix(in srgb,var(--dk-fill),var(--dk-ink) 22%)}
+.dockroot .dk-ps .dk-sd{fill:var(--dk-side);stroke:var(--dk-side);stroke-width:2}
+.dockroot .dk-ps .dk-fc{fill:var(--dk-fill);stroke:var(--dk-ring);stroke-width:2;stroke-linejoin:miter}
+.dockroot .dk-ps .dk-hi{fill:var(--dk-hi)}
+.dockroot .dk-ps .dk-lo{fill:var(--dk-lo)}
+.dockroot .dk-ps .dk-gr{fill:url(#dk-grain)}
+.dockroot .dk-ps .dk-st{fill:none;stroke:var(--dk-lo);stroke-width:2;stroke-dasharray:4 4}
+.dockroot .dk-g-d{fill:var(--dk-felt);fill-opacity:.10}
+.dockroot .dk-g-l{fill:var(--dk-ink);fill-opacity:.10}
+.dockroot .dk-pc.dk-here .dk-st,.dockroot .dockslip .dk-pc.dk-on .dk-st{stroke:var(--dk-accent)}
+.dockroot .dk-pc:has(.dk-badge){z-index:2}
+.dockroot .dk-pc .dk-in{position:relative;z-index:1;width:100%;height:100%;padding:0 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;rotate:calc(var(--rot,0deg)*-1);pointer-events:none}
+.dockroot .dk-pc .dk-ic{color:#2a1a10;position:relative;isolation:isolate;display:grid;place-items:center;width:30px;height:30px;font-size:17px;line-height:1;background:#2a1a10;clip-path:var(--dk-circ)}
+.dockroot .dk-pc .dk-ic::before{content:"";position:absolute;inset:2px;background:#f2e4c0;clip-path:var(--dk-circ);z-index:-1}
+.dockroot .dk-pc .dk-ic::after{content:"";position:absolute;inset:4px;border:1px dashed #e8a317;clip-path:var(--dk-circ);z-index:-1}
+.dockroot .dk-pc.dk-act[disabled] .dk-ic::before,.dockroot .dk-pc.dk-act.dk-soft .dk-ic::before{background:color-mix(in srgb,#f2e4c0,var(--dk-felt2) 55%)}
+.dockroot .dk-pc.dk-menu{--dk-ring:#2a1a10}
+.dockroot .dk-pc .dk-ic.dk-pi{width:36px;height:36px}
+.dockroot .dk-pc .dk-ic.dk-pi::after{display:none}
+.dockroot .dk-pc .dk-ic.dk-pi img{width:32px;height:32px;image-rendering:pixelated;display:block}
+.dockroot .dockslip .dk-pc .dk-ic.dk-pi{width:36px;height:36px}
+.dockroot .dockslip .dk-pc .dk-ic.dk-pi img{width:32px;height:32px}
+.dockroot .dk-pc .dk-lb{font-size:11px;font-weight:800;margin-top:3px;max-width:100%}
+.dockroot .dk-pc.dk-menu[data-m="you"]{--dk-fill:var(--dk-purple)}
+.dockroot .dk-pc.dk-menu[data-m="hobby"]{--dk-fill:var(--dk-brand)}
+.dockroot .dk-pc.dk-menu[data-m="out"]{--dk-fill:var(--dk-info)}
+.dockroot .dk-pc.dk-menu[data-m="tog"]{--dk-fill:var(--dk-petal)}
+:root[data-theme="dark"] .dockroot .dk-pc.dk-menu{--dk-tx:#1c110a}
+.dockroot .dk-pc.dk-menu.dk-open{--dk-ring:#fff3c8;--dk-tx:#fff;translate:0 -4px}
+.dockroot .dk-pc.dk-act{--dk-fill:var(--dk-surface);--dk-ring:var(--dk-accentink);--dk-tx:var(--dk-fg)}
+.dockroot .dk-pc.dk-act.dk-go{--dk-fill:var(--dk-accent);--dk-ring:#fff3c8;--dk-tx:#2a1a10}
+.dockroot .dk-pc.dk-act.dk-open{--dk-fill:#fff3c8;--dk-ring:var(--dk-accent);translate:0 -4px}
+.dockroot .dk-pc.dk-act[disabled]{--dk-fill:var(--dk-felt2);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-dis);cursor:not-allowed}
+.dockroot .dk-pc.dk-act.dk-empty{--dk-fill:var(--dk-felt);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-dis);cursor:default}
+.dockroot .dk-pc:active:not([disabled]):not(.dk-deco){translate:0 4px}
+.dockroot .dk-pc:active:not([disabled]) .dk-sd{visibility:hidden}
+.dockroot .dk-pc .dk-badge{position:absolute;top:-4px;right:-4px;z-index:3;min-width:18px;height:18px;padding:0 4px;background:var(--dk-danger);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid var(--dk-felt)}
+.dockroot .dk-pc .dk-chip{position:absolute;z-index:3;left:50%;bottom:-3px;translate:-50% 0;white-space:nowrap;background:var(--dk-felt);color:#ffcf6a;font-size:10px;font-weight:800;padding:0 4px;border:2px solid var(--dk-line2)}
+.dockroot .dk-pip{position:absolute;z-index:3;left:50%;top:-14px;margin-left:-6px;font-size:11px;line-height:1;color:var(--dk-accent);font-weight:800;pointer-events:none}
+.dockroot .dk-pc.dk-plate .dk-in{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px 8px;padding:12px 10px 4px;align-items:center;color:var(--dk-ink);font-size:11px;font-weight:700;text-align:left;rotate:none}
+.dockroot .dk-pc.dk-plate{--dk-fill:var(--dk-felt2);--dk-tx:var(--dk-ink)}
+.dockroot .dk-pc.dk-plate.dk-open{--dk-ring:#fff3c8}
+.dockroot .dk-pc.dk-plate .dk-in>span{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;min-width:0}
+.dockroot .dk-pc.dk-plate progress{width:100%;height:7px;appearance:none;border:1px solid var(--dk-line2);background:var(--dk-felt);min-width:0}
+.dockroot .dk-pc.dk-plate progress::-webkit-progress-bar{background:var(--dk-felt)}
+.dockroot .dk-pc.dk-plate progress::-webkit-progress-value{background:var(--dk-accent)}
+.dockroot .dk-pc.dk-plate progress::-moz-progress-bar{background:var(--dk-accent)}
+.dockroot .dk-pc.dk-plate progress.dk-xp::-webkit-progress-value{background:#7ab55c}
+.dockroot .dk-pc.dk-plate progress.dk-xp::-moz-progress-bar{background:#7ab55c}
+.dockroot .dk-pc.dk-plate .dk-tag{color:#ffcf6a}
+.dockroot .dockslip{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none;z-index:5}
+.dockroot .dockslip .dk-pc{pointer-events:auto;--dk-fill:var(--dk-surface);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-fg);animation:dksnapin .18s steps(4) both;animation-delay:calc(var(--o,0)*30ms)}
+.dockroot .dockslip .dk-pc .dk-ic{width:26px;height:26px;font-size:15px;line-height:1}
+.dockroot .dockslip .dk-pc .dk-lb{font-size:10px;font-weight:800;line-height:1.05;margin-top:1px}
+.dockroot .dockslip .dk-pc.dk-on{--dk-ring:var(--dk-accent)}
+.dockroot .dockslip .dk-pc.dk-cond .dk-fc{stroke-dasharray:6 3}
+.dockroot .dockslip .dk-pc.dk-armed{--dk-fill:#c8d09f;--dk-ring:var(--dk-brand)}
+.dockroot .dockslip .dk-pc[disabled]{--dk-fill:var(--dk-surface2);--dk-tx:var(--dk-muted);cursor:not-allowed}
+.dockroot .dockslip .dk-pc .dk-badge{border-color:var(--dk-bg)}
+.dockroot .dockslip .dk-pc .dk-chip{background:var(--dk-felt)}
+.dockroot .dockslip .dk-gname{position:absolute;pointer-events:none;font-size:10px;font-weight:800;color:var(--dk-ink);background:var(--dk-felt);padding:1px 6px;border:1px solid var(--dk-accentink);animation:dkrise .22s steps(4) both}
+.dockroot .dk-pop{position:absolute;pointer-events:auto;animation:dkrise .22s steps(4) both;color:var(--dk-fg);--dk-fill:var(--dk-surface);--dk-ring:var(--dk-line2)}
+.dockroot .dk-pop svg.dk-ps{position:absolute;left:-16px;top:-16px;overflow:visible;pointer-events:none}
+.dockroot .dk-pop .dk-body{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding:8px 12px 10px;font-size:11px}
+.dockroot .dk-pop h4{grid-column:auto;margin:0 0 3px;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--dk-muted)}
+.dockroot .dk-pop .dk-row{display:flex;gap:6px;align-items:center;min-height:25px;width:100%;text-align:left;font:inherit;font-size:11px;font-weight:600;background:none;border:0;border-top:1px solid var(--dk-line);color:var(--dk-fg);padding:0}
+.dockroot .dk-pop .dk-row b{margin-left:auto;font-weight:800}
+.dockroot .dk-pop button.dk-row{cursor:pointer;min-height:28px}
+.dockroot .dk-pop button.dk-row::after{content:"›";margin-left:6px;color:var(--focus);font-weight:800;font-size:14px}
+.dockroot .dk-pop button.dk-row b{margin-left:auto}
+.dockroot .dk-pop .dk-util{grid-column:1/-1;display:flex;gap:6px;margin-top:6px}
+.dockroot .dk-pop .dk-util button{font:inherit;font-size:11px;font-weight:700;padding:3px 8px;min-height:28px;background:var(--dk-bg);color:var(--dk-fg);border:2px solid var(--dk-line2);cursor:pointer;border-radius:0}
+.dockroot .dockslip .dk-pc.dk-do{--dk-fill:var(--dk-brand);--dk-ring:#1f3d1c;--dk-tx:#fff}
+:root[data-theme="dark"] .dockroot .dockslip .dk-pc.dk-do{--dk-tx:#1c110a}
+.dockroot .dockslip .dk-pc.dk-iconly .dk-lb{display:none}
+.dockroot :root .dk-pc.dk-menu[disabled]{--dk-fill:var(--dk-felt2);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-dis);cursor:not-allowed}
+.dockroot .dockslip.dk-still .dk-pc,.dockroot .dockslip.dk-still .dk-gname,.dockroot .dockslip.dk-still .dk-pop{animation:none}
+.dockroot .dockslip.dk-ghost,.dockroot .dockslip.dk-ghost .dk-pc{pointer-events:none}
+.dockroot .dockslip.dk-ghost .dk-pc{animation:dksnapout .12s steps(3) both;animation-delay:calc((var(--n,6) - 1 - var(--o,0))*20ms)}
+.dockroot .dockslip.dk-ghost .dk-gname,.dockroot .dockslip.dk-ghost .dk-pop{animation:dkfadeout .2s ease-in both}
+@keyframes dksnapin{0%{translate:var(--fx,22px) -34px;opacity:0}75%{translate:0 -4px;opacity:1}100%{translate:0 0;opacity:1}}
+@keyframes dksnapout{0%{translate:0 0;opacity:1}100%{translate:var(--fx,22px) -30px;opacity:0}}
+@keyframes dkfadeout{to{opacity:0}}
+.dockroot .dk-pc.dk-act.dk-soft{--dk-fill:var(--dk-felt2);--dk-tx:var(--dk-dis);--dk-ring:var(--dk-line2)}
+.dockroot .dockslip .dk-pc.dk-danger{--dk-fill:#f6b8cf;--dk-ring:var(--dk-danger);--dk-tx:#5a0f0f}
+@keyframes dkrise{from{translate:0 40px;opacity:0}to{translate:0 0;opacity:1}}
+/* the dock replaces the header, status strip, bottom bar and menu sheet (landscape on short screens only) */
+@media (orientation: landscape) and (max-height: 600px) {
+  .dockroot { display: block; }
+  body.dock-on header.banner, body.dock-on .statusstrip, body.dock-on .bottombar, body.dock-on nav.side { display: none !important; }
+  body.dock-on .wrap { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px); }
+  body.dock-on .toasts { bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px); }
+  /* until dock.dk-js has drawn the dock (or if it cannot) the menu is a plain list of links, so it never disappears */
+  body.dock-on:not(.dock-ready) .dockroot .dockfb { display: flex; flex-wrap: wrap; gap: 2px 14px; position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 6px 12px; max-height: var(--dock-h); overflow: auto;
+    list-style: none; pointer-events: auto; background: var(--dk-felt); color: var(--dk-ink); font-size: 12px; }
+  .dockroot .dockfb ul { display: inline; margin: 0; padding: 0; list-style: none; }
+  .dockroot .dockfb li li { display: inline; margin-left: 8px; }
+  .dockroot .dockfb a { color: var(--dk-ink); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dockroot .dockslip .dk-pc, .dockroot .dockslip.dk-ghost .dk-pc, .dockroot .dockslip .dk-gname, .dockroot .dk-pop { animation: none; }
+  .dockroot .dock, .dockroot .dk-pc { transition: none; }
+}
+
+/* menu label colours (white on the area colours; dark on the pastel pieces of the dark theme) */
+.dockroot .dk-pc.dk-menu { --dk-tx: #fff; }
+:root[data-theme="dark"] .dockroot .dk-pc.dk-menu { --dk-tx: #1c110a; }
+.dockroot .dk-util form { margin: 0; }
+.dockroot .dk-util button { font: inherit; font-size: 11px; font-weight: 700; padding: 3px 8px; min-height: 32px; background: var(--dk-surface2); color: var(--dk-fg); border: 2px solid var(--dk-line2); border-radius: 0; cursor: pointer; margin-right: 4px; }
+.dockroot .dk-util .thl { display: inline; }
+.dockroot .dk-util .th-to-light { display: none; }
+:root[data-theme="dark"] .dockroot .dk-util .th-to-light { display: inline-block; }
+:root[data-theme="dark"] .dockroot .dk-util .th-to-dark { display: none; }
+
+.dockroot a { text-decoration: none; }

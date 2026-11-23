@@ -879,6 +879,7 @@ gvAdvFold();
         swap(doc, '.statusstrip');
         swap(doc, '.userbar');
         swap(doc, '.advbar');
+        swap(doc, '.dockdata');   // nav dock: the plate numbers and the page's two actions (assets/dock.js reads them on gv:swapped)
         swap(doc, '.railsrv');   // v0.9.6: pots, boosts and chores in the right column
         if (doc.title) document.title = doc.title;
         if (res.url !== location.href) history.replaceState(history.state, '', res.url);
