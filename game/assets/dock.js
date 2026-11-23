@@ -175,6 +175,7 @@
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
     var t, e;
     if (!spec) return;
+    if (spec.node) { if (spec.node.isConnected) spec.node.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); return; }   // may be an SVG link (no click())
     if (spec.tend) { tendOn = spec.tend === 'on'; tSel = {}; tPaint(); return; }
     if (spec.tendpick) { tSel = {}; if (spec.tendpick !== 'none') { var tp = T_PICK.filter(function (p) { return p[0] === spec.tendpick; })[0]; tBeds().filter(tp[3]).forEach(function (e) { tSel[e.getAttribute('data-bed')] = 1; }); } tPaint(); return 'keep'; }
     if (spec.tendgo) {
@@ -256,6 +257,12 @@
       }
       else if (D.quick) { o.label = D.quick.name; o.icon = D.quick.kind === 'heal' ? '🧪' : '🍽️'; o.badge = D.quick.qty > 0 ? String(D.quick.qty) : ''; o.qk = 'useonly'; if (D.quick.qty <= 0) o.chip = '0 left'; }
       else { o.label = 'Quick'; o.icon = '＋'; o.why = 'set in Satchel'; }
+      return o;
+    }
+    if (a.remote && a.remote.hereDo) {   // the Here picture: the doable things (the map's "Do" spots), the first few; each tile opens that spot's own card
+      var hs = [].slice.call(document.querySelectorAll('a.hs[aria-label$=", Do"]')).slice(0, a.remote.hereDo);
+      o.menu = hs.map(function (e) { return { label: (e.getAttribute('aria-label') || '').replace(/, Do$/, ''), icon: 'dohere', href: '', menu: [], why: '', badge: '', mlabel: '', remote: {}, cands: [], rem: remKey({ node: e }) }; });
+      if (!o.menu.length) o.why = 'nothing to do';
       return o;
     }
     if (a.remote && a.remote.select === 'tend') {

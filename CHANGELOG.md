@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.62
+- **Dock, Here page:** the left piece "Do here" no longer links to the town list page. It opens a strip of the first three doable things on the stop's picture (its "Do" spots); each tile opens that spot's own card in place. Greyed "nothing to do" when the stop has none. (`dock.js`: remote `hereDo`, and a remote can now click an SVG link.)
+
 ## 2.7.61
 - **Popovers on short landscape screens (a phone on its side).** The Puzzle box piece sheet (`.pfv-dsheet`, Pack it / Take out) was 45% of the height, which left about 70 px for the piece and its facts; it is now a panel on the right (about half the width, full height) so the piece, its facts and the button all show, and the page keeps scrolling beside it. The seed, soil and mulch choosers (`dialog.picker`) put the search, chips and "in season" on one row and have slim head and foot (this was dock-only in 2.7.59; now it applies everywhere). Other sheets (item sheets, codex, intro, plan) are 86 to 90% high and scroll, so they were left.
 - **Dock layout, landscape:** the garden's own selected-squares panel is hidden (the dock's Pick and Then strips do the same); Wren's tour bubble sits top right so it no longer covers the strips.
