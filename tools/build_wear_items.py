@@ -2,7 +2,7 @@
 """Build the data files of the 280 Tailor wearables from the design (claude/wear-pieces/):
   game/includes/data/wear_items.txt         one row per item: what it is, its region, the Tailor fee and level, energy, materials
   game/includes/data/wear_items_pieces.txt  its piece: the catalog row of claude/wear-pieces/wear_pieces.txt, copied as is (fx|a|b carried for the engine)
-Materials: the two local materials of the item's region (game/includes/data/region_locals.txt, both gatherables): Common 2+1, Uncommon 3+2, Rare 4+3.
+Materials: the two local materials of the item's region (game/includes/data/region_locals.txt, both gatherables): Common 2+1, Uncommon 3+2, Rare 4+3 (+ 1 any-hide, a creature part).
 usage: python3 tools/build_wear_items.py   (rewrites both files; same input, same output)
 """
 import json
@@ -33,6 +33,8 @@ def main():
     for p in pieces:
         a, b = loc[p['region']]; na, nb = MATS[p['rarity']]
         mats = '%s:%d,%s:%d' % (a, na, b, nb) if a != b else '%s:%d' % (a, na + nb)
+        if p['rarity'] == 'Rare':
+            mats += ',any-hide:1'   # 2.7.58 creature parts: a Rare piece also takes one Hide part of any kind
         cells = [p['slug'], p['region'], p['cat'], str(p['n']), p['rarity'], p['item'], str(p['petals']), str(p['tailor']), str(p['energy']), mats, p['artDesc']]
         assert all('|' not in c for c in cells), p['slug']
         rows.append('|'.join(cells))

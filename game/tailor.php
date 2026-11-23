@@ -86,7 +86,7 @@ page_header('Tailor');
       <?php if ($has): ?>
         <?php if ($rank < 3): $mats = wear_line_mats($rank); ?>
         <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="line"><input type="hidden" name="slug" value="<?= e($slug) ?>">
-          <button class="btn small"><?= $rank === 1 ? 'Line it' : 'Finish it' ?></button> <small class="muted"><?= $lf ? $lf . ' Petals · ' : '' ?><?= e(wear_mats_text($mats)) ?> · ⚡2</small>
+          <button class="btn small"><?= $rank === 1 ? 'Line it' : 'Finish it' ?></button> <small class="muted"><?= $lf ? $lf . ' Petals · ' : '' ?><?= e(implode(' or ', array_map('wear_mats_text', wear_line_mat_options($rank)))) ?> · ⚡2</small>
           <?php if ($threads >= WEAR_PITY): ?><button class="btn small alt" name="pity" value="1">A sure thing <small><?= WEAR_PITY ?> Threads</small></button><?php endif; ?></form>
         <?php endif; ?>
         <?php if (count($d['cuts']) > 1): ?>

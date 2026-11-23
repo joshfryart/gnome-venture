@@ -220,5 +220,29 @@ set_setting('wear_open', '0'); setting('__reload__');
 ok('wear_open Off: nobody sees the outfitter or buys from it, admin or not', wear_shop_hidden($na, ['id' => $uid, 'role' => 'player']) && wear_shop_hidden($na, ['id' => $uid, 'role' => 'admin']) && wear_shop_block(['id' => $uid, 'level' => 35, 'role' => 'player'], $oc) === 'That is not on the shelf.');
 set_setting('pfight_v1', '1'); set_setting('wear_open', '1'); setting('__reload__');
 
+echo "== creature parts as Tailor materials (2.7.58 phase 3)\n";
+$cheapHide = (string)(part_family_items('hide')[0]['slug'] ?? '');   // common first, cheapest first
+$cheapSilk = (string)q_val("SELECT slug FROM items WHERE category = 'part' AND slug LIKE '%-silk' ORDER BY base_price, id LIMIT 1");
+ok('have a hide and a silk part to test with', $cheapHide !== '' && $cheapSilk !== '', "$cheapHide / $cheapSilk");
+foreach ([$cheapHide, $cheapSilk] as $ps) q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, item_id_by_slug($ps)]);
+ok('wear_qty any-hide counts hide parts (0 held)', wear_qty($uid, 'any-hide') === 0);
+$give($cheapHide, 3);
+ok('wear_qty any-hide sums them; rare-hide ignores common ones', wear_qty($uid, 'any-hide') === 3 && wear_qty($uid, 'rare-hide') === 0, (string)wear_qty($uid, 'any-hide'));
+ok('wear_take is all or nothing for a family it cannot cover', !wear_take($uid, ['any-hide' => 4]) && $qty($cheapHide) === 3);
+$give('cottongrass', 1);
+ok('wear_take takes 2 any-hide plus a plain material together', wear_take($uid, ['any-hide' => 2, 'cottongrass' => 1]) && $qty($cheapHide) === 1);
+ok('a part key reads as "any Hide part" in the materials text', str_contains(wear_mats_text(['any-hide' => 2]), '2 × any Hide part'), wear_mats_text(['any-hide' => 2]));
+echo "== lining with Silk instead\n";
+q('DELETE FROM user_items WHERE user_id = ? AND item_id IN (SELECT id FROM items WHERE slug IN (?, ?))', [$uid, 'cottongrass', 'butterfly-scales']);
+$give('work-gloves', 1); $give($cheapSilk, 2);
+ok('the lining has a second way: 2 any Silk part', in_array(['any-silk' => 2], wear_line_mat_options(1), true), json_encode(wear_line_mat_options(1)));
+[$a, $m] = tailor_line($u, 'work-gloves', false, fn($pct) => true);
+ok('no cottongrass or scales: lined with 2 Silk parts instead', $a && $qty('work-gloves-lined') === 1 && $qty($cheapSilk) === 0, $m);
+$g0 = $qty('work-gloves'); $give($cheapSilk, 1);
+[$a, $m] = tailor_line($u, 'work-gloves', false, fn($pct) => true);
+ok('one Silk part is not enough', !$a && str_contains($m, 'You need') && $qty('work-gloves') === $g0 && $qty($cheapSilk) === 1, $m);
+$rare = array_values(array_filter(wear_tailor_defs(), fn($d) => $d['rarity'] === 'Rare'))[0] ?? null;
+ok('a Rare Tailor wearable asks for a hide part (from the generator)', $rare && isset($rare['mats']['any-hide']), json_encode($rare['mats'] ?? null));
+
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);
