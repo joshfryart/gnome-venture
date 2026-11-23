@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.91
+- **Garden tabs, dock layout, landscape, one by one** (`dock.css`; 844 x 390). All tabs: the garden name and the tab bar share a row. **Beds** (1284 to 1072 px): the plot on the left, the square's card and the legend beside it; the weather line and the spot note share a row. **Buildings** (688 to 680), **Animals** (734 to 726) and **Grow** (697 to 703) were already short and only gained the shared header. **Crew** (975 to 812): the three jobs are side by side. Popovers: the Plant, Work in and Mulch choosers open inside the screen with a 199 px scrolling list (they were fixed in 2.7.59 and 2.7.61); the Animals tab has only Rename and Send buttons, no popovers. **Not checked:** the Buildings popovers (my test garden has no buildings), the animal trade card with a real trade, and the Crew job pickers (Crew needs gnome level 10 and a pal).
+
 ## 2.7.90
 - **Dock, Garden (Beds tab):** the left piece is now a strip: Select, then the Water, Harvest and Till tools (one bed at a time). The right piece is "All": Water all, Weed all, Harvest all, Pick pests and Collect, and it lists only the ones that have something to do (the others used to show greyed "none"); greyed "nothing to do" when none do. The "Collect all" label that was cut off is now "Collect". Checked in a headless 844 x 390 browser on a garden with nothing thirsty or ready (the left strip works, Select turns the Done piece on; the right strip showed nothing to do, so its tiles were not seen).
 

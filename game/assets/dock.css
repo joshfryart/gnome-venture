@@ -520,3 +520,27 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .homepanel .wall .polaroid.unmet .muted, body.dock-on .homepanel .wall .polaroid.unmet .hand { display: none; }
   body.dock-on .homepanel .wall .polaroid.unmet img, body.dock-on .homepanel .wall .polaroid.unmet .portrait { max-height: 34px; width: auto; }
 }
+
+/* Garden, Beds tab, dock layout, landscape: the plot on the left; the square's card and the notes beside it, not under it */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on .gardenwrap > div:first-child { grid-column: 1; grid-row: 1 / span 3; }
+  body.dock-on .gardenwrap > .panel.box { grid-column: 2; grid-row: 1; margin: 0; max-width: none; }
+  body.dock-on .gardenwrap > .legend { grid-column: 2; grid-row: 2; text-align: left; margin: 4px 0; }
+  body.dock-on .gardenwrap .needhelp { margin-top: 0; }
+}
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+  body.dock-on main:has(> .gardentabnav) > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on main:has(> .gardentabnav) > .ghead, body.dock-on main:has(> .gardentabnav) > .gardentabnav { flex: 0 1 auto; margin: 0; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav { margin-left: auto; }
+  body.dock-on main:has(> .gardenwrap) > details.gardeninfo { flex: 0 1 34%; }
+  body.dock-on main:has(> .gardenwrap) > .wx-warn { flex: 1 1 55%; margin: 0; padding: 4px 8px; }
+  body.dock-on main:has(> .gardenwrap) > .gardenwrap { align-self: flex-start; }
+}
+
+/* Garden crew: the three jobs side by side */
+@media (orientation: landscape) {
+  body.dock-on .crew .crewslots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px; }
+  body.dock-on .crew .crewslot { min-height: 0; }
+}
