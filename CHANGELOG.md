@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.101
+- **Dock: a Shops piece in the Out & about menu** (after Villagers), opening the world page's Shops tab. It is greyed "on the road" while walking, like World. The old menu sheet is unchanged. Seen in the strip at 844 x 390.
+
 ## 2.7.100
 - **Shop basket (Sell all / Buy all) is a slim bar pinned at the top** in the dock layout: the picked items scroll sideways on one line, "You get n", Empty and Sell all / Buy all sit on the same row (50 px tall, was a big card that sat in the middle of the screen over the items). It stays at the top while the items scroll under it. Seen on a shop sell page at 844 x 390 with two chips; the error line ("not enough...") now sits under the bar, not checked.
 

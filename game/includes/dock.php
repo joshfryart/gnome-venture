@@ -85,7 +85,7 @@ const DOCK_ICONS = ['you', 'hobby', 'out', 'tog', 'hovel', 'almanac', 'satchel',
 const DOCK_EMOJI_ICON = ['💧' => 'water', '🧺' => 'harvest', '⛏️' => 'till', '☑️' => 'select', '⚡' => 'quick', '＋' => 'quick', '🛏️' => 'rest', '💚' => 'heal', '🌍' => 'globe', '🧭' => 'explore', '🏷️' => 'tag', '🥾' => 'trail', '🔎' => 'sights', '⚔️' => 'fight', '🏃' => 'run', '🛒' => 'buy', '💰' => 'sell', '💾' => 'save', '↻' => 'rotate', '↩' => 'back', '↩️' => 'back', '🌻' => 'tend', '🌿' => 'wander', '🎈' => 'dohere', '🤫' => 'sneak', '🏹' => 'hunt', '🔍' => 'creature', '🍳' => 'craft', '🫙' => 'jar', '🌙' => 'sleep', '💤' => 'nap', '👋' => 'wave', '🪑' => 'sit', '🍎' => 'snack', '✊' => 'game', '🎪' => 'bunting', '🤝' => 'offer', '✋' => 'handin', '🏁' => 'finish', '📦' => 'crate', '💬' => 'messages', '↶' => 'undo', '⚖️' => 'size', '◧' => 'shape', '🪴' => 'tools'];
 
 /** The menu entry slug (NAV_ICONS) to the dock icon name. */
-const DOCK_SLUG_ICON = ['almanac' => 'almanac', 'satchel' => 'satchel', 'crafting' => 'crafting', 'hovel' => 'hovel', 'tailor' => 'tailor', 'start' => 'start', 'account' => 'account',
+const DOCK_SLUG_ICON = ['shops' => 'buy', 'almanac' => 'almanac', 'satchel' => 'satchel', 'crafting' => 'crafting', 'hovel' => 'hovel', 'tailor' => 'tailor', 'start' => 'start', 'account' => 'account',
     'garden' => 'garden', 'games' => 'games', 'puzzlepals' => 'pals', 'puzzlebox' => 'box', 'world' => 'world', 'town' => 'here', 'villagers' => 'villagers', 'gourmand' => 'gourmand',
     'treks' => 'treks', 'trading' => 'trading', 'together' => 'together', 'tasks' => 'tasks', 'friends' => 'friends', 'festival' => 'festival', 'today' => 'hovel'];
 
@@ -117,7 +117,7 @@ function dock_menus(array $u, string $page): array
         $why = '';
         $icon = DOCK_SLUG_ICON[$slug] ?? '';
         if ($road) {
-            if (in_array($file, ['world.php', 'trek.php'], true)) $why = 'on the road';
+            if (in_array($file, ['trek.php'], true) || str_starts_with($file, 'world.php')) $why = 'on the road';
             if (in_array($file, ['here.php', 'town.php'], true)) { $file = 'adventure.php'; $label = 'Trail'; $icon = 'treks'; }
         }
         $b = $badge === '!' ? '!' : (preg_match('/^(\d+)/', $badge, $m) ? $m[1] : ($badge !== '' ? '•' : ''));
@@ -128,6 +128,7 @@ function dock_menus(array $u, string $page): array
         $tiles = [];
         if ($k === 'you') $tiles[] = $mk('gnome.php', $slim ? 'Hovel' : 'Home', $slim ? 'hovel' : 'today', '');   // the one home entry (the menu sheet puts it in its header row)
         foreach (($groups[$name] ?? []) as $t) $tiles[] = $mk((string)$t[0], (string)$t[2], (string)($t[4] ?? ''), (string)($t[3] ?? ''));
+        if ($k === 'out') { $at = 0; foreach ($tiles as $i => $t) if ($t['label'] === 'Villagers') $at = $i + 1; array_splice($tiles, $at, 0, [$mk('world.php?tab=markets', 'Shops', 'shops', '')]); }   // the shops list (the world page's Shops tab)
         if ($k === 'you') $tiles[] = $mk('account.php', 'Account', 'account', '');   // Account sits last under You (the menu sheet has it under the groups)
         $menus[] = ['k' => $k, 'name' => $name, 'tiles' => $tiles];
     }
