@@ -248,6 +248,7 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
   <div><h3>Left action: Quick slot (Satchel)</h3><p>The player decides what this button does. Empty: tap, pick a food or potion in the satchel, tap Confirm. Filled: tap uses it, a small red ✕ at the bottom left clears it, and holding the piece clears it on phones. Saved per gnome.</p></div>
   <div><h3>Left action in places: Do here</h3><p>In a town, stop, haven, delve, lair or wonder the left piece opens what can be done right now. Towns have many tiny interactions, so the dock offers 3 per visit (quest beats first, then a rotating pick, ticks for the ones done) plus More for the full list on the page. The graphical map stays.</p></div>
   <div><h3>On the trail</h3><p>Left is your Quick item from the Satchel, read-only. Right opens Trail: Sights, Wander, Gather, Sneak, Hunt, Turn back. In an encounter it becomes Fight on and Flee.</p></div>
+  <div><h3>Puzzle combat</h3><p>Left keeps your Quick item. Right opens Creature (an info popover about what you are fighting) and Flee (red, asks first). Menus lock for the length of the fight.</p></div>
   <div><h3>Shops</h3><p>The right piece is a Buy | Sell switch: tap flips the mode. Hold it, or tap the little arrow, for a strip of Single and Several. Each opens its fold on the page and closes the other. The left piece does the deal for what is picked.</p></div>
   <div><h3>Pieces snap together</h3><p>A strip builds one piece at a time, each sliding into the socket of the one before, with a small overshoot and click. Closing plays it backwards, last piece first. Tap a different menu while one is open: the old strip comes apart while the new one snaps together, at the same moment.</p></div>
   <div><h3>Right action: one at a time</h3><p>On Garden the right piece is the active tool. Tap cycles to the next tool that has something to do (skips empty ones). Hold, or press the little arrow on top, to open the strip and pick directly. Keyboard: Enter cycles, Arrow Up opens.</p></div>
@@ -357,7 +358,8 @@ P('treehouse.php','Great Treehouse (picture)','🌳','hobby','games','i',A('📋
 P('puzzlepals.php','Puzzle Pals','🧩','hobby','pals','n',A('↩','Back'),A('🔁','Swap pal',{ok:1}),{why:'Tile only once the feature is open and not for guests.'}),
 P('palyard.php','Pal Yard (picture)','🐾','hobby','pals','i',A('📋','Pal jobs'),A('📦','Collect',{ok:1}),{why:'Picture page with text twin. Collect is greyed with "none" when no job is done.'}),
 P('paljobs.php','Pal jobs','📋','hobby','pals','n',A('↩','Pals'),A('📌','Assign',{n:1}),{why:'Tab of the Pals hub.'}),
-P('puzzlebox.php','Puzzle box','🧩','hobby','box','n',A('📚','Codex'),A('⚔️','Fight'),{why:'Fight screen takes over the stage (pfstage), so the dock goes to play mode there. Needs the pfight_v1 setting.'}),
+P('puzzlebox.php','Puzzle box','🧩','hobby','box','n',A('📚','Codex'),A('⚔️','Fight'),{why:'Menu page for the Puzzle box. Needs the pfight_v1 setting. Starting a fight switches to the Puzzle combat dock (next row).'}),
+P('puzzlebox.php?fight','Puzzle combat','⚔️','hobby','box','n',A('⚡','Quick',{quick:true,ro:true}),A('⚔️','Combat',{menu:[A('🔍','Creature',{ok:1,info:true}),A('🏃','Flee',{n:1,flee:true,cls:'danger'})],mlabel:'Puzzle combat'}),{lock:true,why:'Applies to every puzzle fight, in the Puzzle box and the trail fight stage (pfstage) that swaps into AJAX pages. Left is the Quick item (use-only). Right opens a strip: Creature opens an info popover about the creature you are fighting, Flee (red, asks first) leaves the fight. The four menu pieces lock while a fight is on, so there is no wandering off mid-fight. The board keeps the whole stage; only the thin dock sits below it.'}),
 P('puzzles.php','Puzzles hub','🧩','hobby','games','n',A('↩','Games'),A('▶','Play'),{why:'Tournaments list. Each puzzle below runs in play mode.'}),
 P('jigsaw.php','Jigsaw','🧩','hobby','games','p',A('✖','Quit'),A('💡','Hint',{n:1}),{why:'Play mode. Quit asks first. Round over: dock returns with Again on the right.'}),
 P('gifsaw.php','Gifsaw','🧩','hobby','games','p',A('✖','Quit'),A('💡','Hint',{n:1}),{why:'As Jigsaw.'}),
@@ -383,7 +385,7 @@ P('residential.php','Street of homes','🏠','out','here','i',A('↩','Here'),A(
 P('door.php','A villager\'s door','🚪','out','villagers','i',A('🎁','Leave gift'),A('✊','Knock'),{why:'Knock greys with "not home". Back is the Villagers tile.'}),
 P('villagers.php','Villagers','👥','out','villagers','n',A('↩','Here'),A('🚪','Visit door',{n:1}),{why:'Long list with a select filter, no tab strip.'}),
 P('adventure.php','Adventure (trail)','🏁','out','world','n',A('⚡','Quick',{quick:true,ro:true}),A('🥾','Trail',{trail:true,menu:TRAIL,mlabel:'On the trail'}),{why:'Left is the player\'s Quick item from the Satchel (read-only here: use it, but set or clear it in the Satchel). Right opens the Trail strip: Sights, Wander, Gather, Sneak, Hunt, Turn back. Sneak and Hunt are stances: tap to switch on, tap again to switch off, and the right piece shows the stance. Turn back is red and asks first. Wander and Gather cost energy.'}),
-P('adventure.php?fight','Adventure (encounter)','⚔️','out','world','n',A('⚡','Quick',{quick:true,ro:true}),A('⚔️','Fight',{menu:[A('⚔️','Fight on',{ok:1,e:1}),A('🏃','Flee',{n:1})],mlabel:'Encounter'}),{why:'During an encounter the stance buttons are hidden, so the right strip becomes Fight on and Flee. Quick item stays on the left for potions. The dock stays up here instead of dropping to play mode, because the Quick item matters mid-fight. Puzzle fights (pfstage) still use play mode.'}),
+P('adventure.php?fight','Adventure (encounter)','⚔️','out','world','n',A('⚡','Quick',{quick:true,ro:true}),A('⚔️','Fight',{menu:[A('⚔️','Fight on',{ok:1,e:1}),A('🏃','Flee',{n:1})],mlabel:'Encounter'}),{why:'During an encounter the stance buttons are hidden, so the right strip becomes Fight on and Flee. Quick item stays on the left for potions. The dock stays up here instead of dropping to play mode, because the Quick item matters mid-fight. Puzzle combat has its own dock, see the Puzzle combat row.'}),
 P('gourmand.php','Gourmand','🥄','out','gourmand','n',A('📓','Journal'),A('🍽️','Serve',{ok:1}),{tabs:['Now','Journal','Menu','How it works'],why:'Tile only while he is open. Serve greys with "nothing to serve".'}),
 P('trek.php','Treks','🥾','out','treks','n',A('⛺','Camp',{ok:1}),A('🥾','Go',{ok:1,e:1}),{tabs:['Map','Party','Pack','Log'],why:'Level gated. Fights use play mode (Flee, Strike). Party and Pack tabs: right becomes Map.'}),
 P('mentor.php','Mentor lodge','📜','tog','friends','n',A('↩','Back'),A('📜','Take chapter',{ok:1}),{why:'Reached from Friends (calling, mentor tabs).'}),
@@ -440,6 +442,7 @@ const EDGES=[
 ['Seven tiles in You','Getting started (level under 5) and Tailor (late) never overlap, so the slip stays at six or fewer. Rule for new tiles: a slip holds six; add a seventh and something merges into a page.'],
 ['Tile appears or vanishes','Gourmand, Treks, Tailor, Festival, Puzzle Pals and Puzzle box depend on level, settings or events. The slip reads the same checks as today\'s menu, per page load. Dashed border marks tiles that are not always there.'],
 ['Quick slot rules','Only items that can be used from a button (food, potions) can be assigned; anything else gets a message and stays unassigned. Cancel assigning with the ✕ or by leaving the page. When the count hits 0 the piece greys with "0 left" and keeps the item, so restocking brings it back; the ✕ clears it. If the item is sold or traded away it reads "0 left" the same way. Using at full energy or health shows a "full" chip instead of spending the item. The hold shows a red bar filling for 0.65s so it is never an accident, and tapping the ✕ asks for nothing but shows a toast. Quick slot lives on Satchel only; Hovel and Garden are natural next places.'],
+['Puzzle combat','Creature is read-only and closes with a tap anywhere, Esc or the same piece again. If the fight has a clock, opening it pauses it (check the fight engine). Flee spells out what you keep and lose before it asks. The four menu pieces are disabled for the whole fight, and come back the moment it ends, win or lose. If the fight starts on a page that is not Puzzle box (the trail stage swaps into AJAX pages), the page\'s own left and right pieces are replaced for the fight and restored after.'],
 ['Do here picks','Picks are fixed for the visit so the strip does not shuffle while you use it. Order: quest beats first (a notice that wants doing), then actions you have not done, rotating each visit. Done ones keep their slot with a tick. If everything is done the piece shows no badge. New visit shuffles. Spots are data (town_actions), so the pool changes per town; a spot with 4 or fewer shows them all and no More.'],
 ['Place cannot be used','Greyed with a reason from the game: closed (hours or months), repairs (Wren\'s Journey lock, with a Repair piece instead), on a walk, wrong region. Same messages the page gives today.'],
 ['Quick on the trail','Read-only: tap uses it, nothing can be assigned or cleared here, so a thumb that slips while walking cannot lose the setting. Empty shows "in Satchel". Treks could get the same left piece; say if you want it.'],
@@ -596,6 +599,9 @@ function render(){
   else if(p.mode==='p') body=head+'<div class="canvas"><div>ROUND 3 · 0:42<small>demo game stage. The dock has dropped away.</small></div></div>';
   else if(p.mode==='f') body=head+'<div class="form"><label for="f1">Subject</label><input id="f1" placeholder="Tap to type"><label for="f2">Message</label><input id="f2" placeholder="Keyboard hides the dock"></div>';
   else if(p.mode==='x') body=head+'<div class="card"><b>No screen of its own</b>Handler, redirect or image. The dock does not load here.</div>';
+  else if(p.f==='puzzlebox.php?fight'){
+    body=head+'<div class="canvas"><div>PUZZLE BOARD<small>demo fight stage. Creature info and Flee are on the right piece.</small></div></div>';
+  }
   else if(p.f==='shop.php'){
     const list=shopList(),multi=S.shopMode==='multi',pk=shopPicked(),tot=pk.reduce((a,t)=>a+t.p,0);
     const sub=t=>S.shop==='buy'?t.p+' 🪙':'x'+t.q+' · '+t.p+' 🪙 each';
@@ -647,7 +653,7 @@ function chainHTML(W,g,p,L,R){
     if(o.k==='deco') out+=pc({...base,tag:'div',cls:'deco',inner:'<span class="ic">'+o.i+'</span>'});
     else if(o.k==='m'){
       const here=p.m===o.m,open=S.slip===o.m;
-      out+=pc({...base,cls:'menu'+(here?' here':'')+(open?' open':''),attrs:'data-m="'+o.m+'" aria-expanded="'+open+'" aria-label="'+MAIN[o.m].n+' menu"'+(S.selMode?' disabled':''),
+      out+=pc({...base,cls:'menu'+(here?' here':'')+(open?' open':''),attrs:'data-m="'+o.m+'" aria-expanded="'+open+'" aria-label="'+MAIN[o.m].n+' menu"'+(S.selMode||p.lock?' disabled':''),
         inner:'<span class="ic">'+MAIN[o.m].i+'</span><span class="lb">'+MAIN[o.m].n+'</span>'+(o.m==='tog'?'<b class="badge">!</b>':'')+(o.m==='hobby'?'<b class="badge">3</b>':'')});
     }
     else if(o.k==='plate'){
@@ -672,6 +678,7 @@ function slipVars(i,n,side,flat){const fromRight=flat||side!=='R';return '--o:'+
 function slipHTML(W,g,p,L,R){
   if(!S.slip) return '';
   if(S.slip==='status') return popHTML(W,g);
+  if(S.slip==='creature') return creaturePop(W,g);
   const th=54,tw=W<720?52:58;
   let items,flat=false,label,from='';
   if(SUB[S.slip]){
@@ -720,6 +727,16 @@ function selSlip(W,g){
   strip(picks,8,'Pick squares',8,'L');
   strip(dos,W-8-dos.length*tw,'Then do this to the picked ones',W-8-dos.length*tw,'R');
   return o;
+}
+function creaturePop(W,g){
+  const w=300,h=176,x=W/2-w/2,y=g.A+3-h;
+  return '<div class="pop" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px">'+pieceSVG(w,h,0,0,1,0)
+   +'<div class="body" style="grid-template-columns:1fr"><div><h4>Creature (example)</h4>'
+   +'<div class="row"><span>🐛</span>Thistle Grub<b>Lv 4</b></div>'
+   +'<div class="row"><span>❤️</span>Health<b>18 / 24</b></div>'
+   +'<div class="row"><span>🧩</span>Pieces seen<b>5 of 8</b></div>'
+   +'<div class="row"><span>🏅</span>Beaten before<b>3 times</b></div>'
+   +'<button class="row" data-go="puzzlebox.php"><span>📚</span>Codex entry</button></div></div></div>';
 }
 function popHTML(W,g){
   const w=372,h=232,x=W/2-w/2,y=g.A+3-h;
@@ -849,6 +866,8 @@ function runItem(i,from){
   const p=byFile(S.pg),[L,R]=curActions(p),act=from==='L'?L:R,a=act.menu[i];
   if(from==='R'&&act.cycle){S.tool=i;S.slip=null;render();toast(a.i+' '+a.l+' armed: tap a bed');return}
   S.slip=null;
+  if(a.info){S.slip='creature';render();return}
+  if(a.flee){render();toast('Asks first: flee this fight? It says what you keep and what you lose.');return}
   if(a.more){render();toast('Opens the full list on the page ('+a.b+' more)');return}
   if(a.stance){S.stance=S.stance===a.stance?null:a.stance;render();toast(a.i+' '+a.l+(S.stance?' on':' off'));return}
   if(a.back){render();toast('Asks first: turn back to the last stop?');return}
