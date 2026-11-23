@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.13
+- **Pre-fight screen with Auto deck off: the creature's pieces show first again.** Your deck and bench were drawn on top of the creature's pieces in the two-column layout. Now the creature and its pieces stay at the top, and your deck and bench follow below them (scroll for those).
+
 ## 2.8.12
 - **Pre-fight screen on a very short phone view: you see all of the creature's pieces again.** When the browser's own bars leave little height, the pieces shrink so both rows show above Let's fight (before, the button covered the second row). The creature card is trimmed to its name and first two tags, the rule text to two lines, and the read-only deck fold is hidden there.
 

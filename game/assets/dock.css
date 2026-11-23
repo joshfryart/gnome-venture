@@ -1410,7 +1410,9 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on #pfv-pre .pfv-scroll > .pinfo.pfv-autostrip { grid-column: 1; grid-row: 4; margin: 0; padding: 3px 6px; font-size: 11px; display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; text-align: left; }
   body.dock-on #pfv-pre .pfv-autostrip .btn { min-height: 30px; padding: 2px 8px; font-size: 11px; }
   body.dock-on #pfv-pre .pfv-scroll > .tally { grid-column: 2; grid-row: 1; margin: 0; }
-  body.dock-on #pfv-pre .pfv-scroll > ul.pcg { grid-column: 2; grid-row: 2 / span 3; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 0; }
+  body.dock-on #pfv-pre .pfv-scroll > .tally + ul.pcg { grid-column: 2; grid-row: 2 / span 3; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 0; }
+  body.dock-on #pfv-pre .pfv-scroll > :not(.foecard):not(.foerule):not(.tally):not(.pfv-autostrip):not(.tally + ul.pcg) { grid-column: 1 / -1; grid-row: auto; }   /* deck editing (Auto deck off): your deck and bench come below the creature's pieces */
+  body.dock-on #pfv-pre .pfv-scroll > ul.pcg:not(.tally + ul.pcg) { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 0; }
   body.dock-on #pfv-pre .pfv-scroll > ul.pcg li { zoom: .78; }
   body.dock-on #pfv-pre .pfv-scroll > .pinfo#pfv-cinfo { display: none; }
   body.dock-on #pfv-pre .pfv-act { margin: 4px 0 0; }
