@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.03
+- **Wander: the "Past here it gets dangerous" warning is one slim line right under the picture, rings and choices** (12 px text, full width), instead of a tall red box far down below Gather and the journal. Seen on a fake step-4 wander at 844 x 390.
+
 ## 2.8.02
 - **Puzzle fight, landscape: the Redraw option no longer hides the creature's yield bar.** The right column was centred and too tall (the "Redraw a piece" button was a full 44 px row), so it was cut off at both ends, hiding the top bar. The column now starts at the top, the redraw note and its button are a small chip over the lower right corner, the hand is 12% smaller and the last-plays box is capped at 46 px (scrolls). Seen on a fight with a first-fight tip and a forced redraw chip at 844 x 390; the bottom of the hand's tabs still dips under the rail.
 

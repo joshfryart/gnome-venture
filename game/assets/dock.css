@@ -1137,3 +1137,9 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .pfight.pf-v1 .pf-tray { zoom: .88; }
   body.dock-on .pfight.pf-v1 .pfv-pair { max-height: 46px; overflow-y: auto; }
 }
+
+/* Wander: the "Past here it gets dangerous" warning is one slim line right under the picture, rings and choices (it used to land below Gather, off screen) */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings > .panel > .flash.err { grid-column: 1 / -1; grid-row: 4; margin: 2px 0; padding: 3px 10px; font-size: 12px; line-height: 1.25; text-align: left; }
+  body.dock-on .advgrid.wander.withrings > .panel > details.wgather { grid-row: 5; }
+}
