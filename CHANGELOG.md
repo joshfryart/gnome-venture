@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.98
+- **Satchel item card scrolls to its buttons** (Sell, Gift, Eat, Cook in Crafting). The card is pinned beside the item list (2.7.93) but was taller than the sheet's scroll area, so its lower part could never be reached. It is now limited to the visible height and scrolls inside itself (finger drag moves it; Sell and Gift show after the drag). `dock.css`.
+- **Crafting pop-ups: every quantity button is reachable.** The Cook x1 / x2 / x3 / x4 / x5 / All n buttons were squeezed into a narrow corner of each recipe row (since 2.7.93/2.7.96) and some were clipped. They now have a full-width row under each recipe, with Cook x1 the widest. Checked in the Bread oven pop-up (x1, x2, All 3 on one row; x1 to x5 on another). Not pressed for real.
+
 ## 2.7.97
 - **The three long catalogue pages, denser** (`dock.css`). Puzzle Pals 4804 to 3105 px (each region is one slim box: title and count on one line, six small pals, no rarity or date lines), Villagers 2813 to 1982 px (smaller cards), Shop sell 3627 to 2977 px. These are real catalogues (15 regions, 122 villagers, 226 sellable items in the test world), so they stay long; going much further needs a change to the pages themselves (a region or category folded by default, or paging), which I did not make. Shop sell barely moved because its tiles are already close to their minimum size; the category chips (Crops, Flowers, Food...) are the quick way down.
 

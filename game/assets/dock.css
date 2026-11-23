@@ -1083,3 +1083,14 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .shopwrap .itms .stile { font-size: 11px; }
 }
 @media (orientation: landscape) { body.dock-on .ppalslot .ppiece { display: none; } body.dock-on .ppalslot .ppalart { margin-bottom: 2px; } }
+
+/* Crafting pop-ups: the quantity buttons (Cook x1, x2, x3 ... x5, All n) get their own full-width row under the recipe so none is squeezed off or hidden; and the Satchel item card is not pinned (a pinned card taller than the sheet could not be scrolled to its buttons, so Sell / Gift / Eat were out of reach) */
+@media (orientation: landscape) {
+  body.dock-on dialog.craftpop .cprow { flex-wrap: wrap; }
+  body.dock-on dialog.craftpop .cpin { flex: 1 1 0; min-width: 0; }
+  body.dock-on dialog.craftpop .cpact { max-width: none; flex: 1 0 100%; }
+  body.dock-on dialog.craftpop .cpact .ccbtns { flex-wrap: wrap; justify-content: stretch; gap: 4px; }
+  body.dock-on dialog.craftpop .cpact .ccbtns .btn { flex: 1 1 56px; min-width: 56px; white-space: nowrap; }
+  body.dock-on dialog.craftpop .cpact .ccbtns .btn:first-child { flex: 2 1 130px; }
+  body.dock-on .shbagpop .shpills > .shpanel:not([hidden]) { position: sticky; top: 0; max-height: calc(100dvh - 165px); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+}
