@@ -2,15 +2,15 @@
    Draws the landscape bottom dock from the JSON data block #dockjson: four menu pieces with strips of tile pieces, the status plate with its popover,
    and two page actions (a link, or a strip of links). Pieces are jigsaw SVGs locked along a curve; strips snap in one piece after another and come
    apart in reverse. CSP: no inline styles, so positions are set through the style object. If anything here fails, assets/dock.css leaves the plain list of
-   links (.dockfb) visible, so the menu never disappears. Shown only in landscape on short screens (the same media query as dock.css). */
+   links (.dockfb) visible, so the menu never disappears. Shown in landscape (the same media query as dock.css): phones, tablets and desktops. */
 (function () {
   'use strict';
   var root = document.getElementById('dockroot');
   if (!root || !window.matchMedia || !document.querySelector) return;
   try { if (!(window.CSS && CSS.supports('translate', '0 0') && CSS.supports('rotate', '0deg'))) return; } catch (e) { return; }
-  var mq = window.matchMedia('(orientation: landscape) and (max-height: 600px)');
+  var mq = window.matchMedia('(orientation: landscape)');
   var DH = 106, AMP = 40, uid = 0;
-  var D = null, slip = null, lastKey = '', stage = null, ghostTimer = 0;
+  var D = null, slip = null, lastKey = '', stage = null, ghostTimer = 0, popTab = 'now';
   var DOME = [[-4, 0], [-4, -3], [-6, -4], [-8, -6], [-8, -10], [-6, -12], [-4, -13], [4, -13], [6, -12], [8, -10], [8, -6], [6, -4], [4, -3], [4, 0]];
   var KEY = [[-8, 0], [-6, -2], [-3, -4], [-3, -7], [-6, -8], [-7, -10], [-6, -13], [-3, -14], [3, -14], [6, -13], [7, -10], [6, -8], [3, -7], [3, -4], [6, -2], [8, 0]];
   var PAT = { you: 'dk-diamond', hobby: 'dk-leaf', out: 'dk-wave', tog: 'dk-flower' };
@@ -216,12 +216,25 @@
     return o + '<div class="gname" data-pl="' + (s.flat ? W / 2 - n * tw / 2 : (s.side === 'L' ? 8 : W - 8 - n * tw)) + ',' + (f.y - th / 2 - 26) + '">' + esc(s.label) + '</div>';
   }
   function popHTML(W, g) {
-    var w = 372, h = 232, x, y, rows = '', links = '';
-    D.rows.forEach(function (r) { rows += '<div class="row"><span>' + esc(r[0]) + '</span>' + esc(r[1]) + '<b>' + esc(r[2]) + '</b></div>'; });
-    D.links.forEach(function (r) { links += '<a class="row" href="' + esc(r[2]) + '">' + esc(r[0]) + (r[1] ? '<b>' + esc(r[1]) + '</b>' : '') + '</a>'; });
-    h = Math.max(120, Math.min(232, 44 + Math.max(D.rows.length, D.links.length) * 28 + 44)); x = W / 2 - w / 2; y = g.A + 3 - h;   // as tall as its longer column, with room for the theme switch
-    return '<div class="pop" data-pl="' + x + ',' + y + ',' + w + ',' + h + '" role="dialog" aria-label="Status">' + pieceSVG(w, h, 0, 0, 1, 0, 0)
-      + '<div class="body"><div><h4>Right now</h4>' + rows + '</div><div><h4>Jump to</h4>' + links + '</div><div class="util"><!--dkTHEME--></div></div></div>';   // the theme form is the game's own markup: put in after the dk- prefixing
+    var w = Math.min(460, W - 24), h, x, y, body = '', tabs = [['now', 'Now'], ['rail', 'Pots, boosts, tasks'], ['more', 'More']];
+    function rows(list, empty) {
+      if (!list.length) return '<div class="row empty">' + esc(empty) + '</div>';
+      return list.map(function (r) { return (r[2] ? '<a class="row" href="' + esc(r[2]) + '">' : '<div class="row">') + '<span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b>' + (r[2] ? '</a>' : '</div>'); }).join('');
+    }
+    if (popTab === 'rail') {
+      body = '<div><h4>🍳 Pots</h4>' + rows(D.rail.pots, 'None cooking') + '</div><div><h4>✨ Boosts</h4>' + rows(D.rail.boosts, 'No boosts. Eat or cook something.') + '</div><div><h4>📋 Tasks</h4>' + rows(D.rail.tasks, 'No job yet') + '</div>';
+      h = 96 + 28 * Math.max(1, D.rail.pots.length, D.rail.boosts.length, D.rail.tasks.length);
+    } else if (popTab === 'more') {
+      body = '<div><h4>The game</h4>' + D.more.map(function (r) { return '<a class="row" href="' + esc(r[1]) + '"><span>' + esc(r[0]) + '</span></a>'; }).join('') + '</div><div><h4>You</h4><div class="util"><!--dkTHEME--><!--dkLOGOUT--></div></div>';
+      h = 96 + 28 * Math.max(3, D.more.length);
+    } else {
+      body = '<div><h4>Right now</h4>' + D.rows.map(function (r) { return '<div class="row"><span>' + esc(r[0]) + '</span>' + esc(r[1]) + '<b>' + esc(r[2]) + '</b></div>'; }).join('') + '</div>'
+        + '<div><h4>Jump to</h4>' + D.links.map(function (r) { return '<a class="row" href="' + esc(r[2]) + '">' + esc(r[0]) + (r[1] ? '<b>' + esc(r[1]) + '</b>' : '') + '</a>'; }).join('') + '</div>';
+      h = 96 + 28 * Math.max(D.rows.length, D.links.length);
+    }
+    h = Math.max(150, Math.min(Math.max(150, window.innerHeight - DH - 24), h)); x = W / 2 - w / 2; y = g.A + 3 - h;
+    return '<div class="pop' + (popTab === 'rail' ? ' wide' : '') + '" data-pl="' + x + ',' + y + ',' + w + ',' + h + '" role="dialog" aria-label="Status">' + pieceSVG(w, h, 0, 0, 1, 0, 0)
+      + '<div class="body"><div class="poptabs" role="tablist">' + tabs.map(function (t) { return '<button type="button" role="tab" data-poptab="' + t[0] + '" aria-selected="' + (popTab === t[0]) + '">' + esc(t[1]) + '</button>'; }).join('') + '</div>' + body + '</div></div>';
   }
 
   /* ---- render ---- */
@@ -233,7 +246,7 @@
     if (!stage) { stage = document.createElement('div'); stage.className = 'dockstage'; root.appendChild(stage); }
     stage.style.height = DH + 'px';
     var same = key === lastKey;
-    stage.innerHTML = pref(defs() + '<div class="dock">' + dockSVG(W, g) + chain(W, g) + '</div><div class="dockslip' + (same ? ' still' : '') + '">' + slipHTML(W, g) + '</div>').replace('<!--dkTHEME-->', D.themeForm);
+    stage.innerHTML = pref(defs() + '<div class="dock">' + dockSVG(W, g) + chain(W, g) + '</div><div class="dockslip' + (same ? ' still' : '') + '">' + slipHTML(W, g) + '</div>').replace('<!--dkTHEME-->', D.themeForm).replace('<!--dkLOGOUT-->', D.logoutForm);
     position(stage);
     if (!same && old && oldN && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {   // the old strip comes apart (last piece first) while the new one snaps together
       old.className = 'dockslip dk-ghost'; old.style.setProperty('--n', String(oldN)); stage.appendChild(old);
@@ -245,7 +258,8 @@
   function open(k) { slip = slip === k ? null : k; render(); }
 
   root.addEventListener('click', function (e) {
-    var m = e.target.closest('[data-m]'), a = e.target.closest('button[data-act]'), p = e.target.closest('#dockplate');
+    var m = e.target.closest('[data-m]'), a = e.target.closest('button[data-act]'), p = e.target.closest('#dockplate'), pt = e.target.closest('[data-poptab]');
+    if (pt) { popTab = pt.getAttribute('data-poptab'); render(); return; }
     if (m) { open(m.getAttribute('data-m')); return; }
     if (p) { open('status'); return; }
     if (a && !a.disabled) {

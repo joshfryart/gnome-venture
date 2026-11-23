@@ -134,19 +134,39 @@
 .dockroot .dk-pc.dk-act.dk-soft{--dk-fill:var(--dk-felt2);--dk-tx:var(--dk-dis);--dk-ring:var(--dk-line2)}
 .dockroot .dockslip .dk-pc.dk-danger{--dk-fill:#f6b8cf;--dk-ring:var(--dk-danger);--dk-tx:#5a0f0f}
 @keyframes dkrise{from{translate:0 40px;opacity:0}to{translate:0 0;opacity:1}}
-/* the dock replaces the header, status strip, bottom bar and menu sheet (landscape on short screens only) */
-@media (orientation: landscape) and (max-height: 600px) {
+/* the dock replaces the header, status strip, bottom bar, menu sheet and right rail (any landscape screen: phone, tablet, desktop) */
+@media (orientation: landscape) {
   .dockroot { display: block; }
-  body.dock-on header.banner, body.dock-on .statusstrip, body.dock-on .bottombar, body.dock-on nav.side { display: none !important; }
-  body.dock-on .wrap { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px); }
+  body.dock-on header.banner, body.dock-on .statusstrip, body.dock-on .bottombar, body.dock-on nav.side, body.dock-on .rail { display: none !important; }
+  body.dock-on .wrap { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px); justify-content: center; }
+  body.dock-on footer { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px); }
   body.dock-on .toasts { bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px); }
-  /* until dock.dk-js has drawn the dock (or if it cannot) the menu is a plain list of links, so it never disappears */
+  /* the message list: the rail is gone, so it sits under the top of the page, as on a phone */
+  body.dock-on .msglog.mlside { display: none; }
+  body.dock-on .msglog.top { display: block; margin: 0; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 13px; }
+  body.dock-on .msglog.top:has(.mlempty) { display: none; }
+  body.dock-on .msglog.top > summary { cursor: pointer; list-style: none; min-height: 36px; padding: 6px var(--gut); display: flex; align-items: center; gap: 6px; }
+  body.dock-on .msglog.top > summary::-webkit-details-marker { display: none; }
+  body.dock-on .msglog.top > summary::after { content: '▾'; margin-left: auto; color: var(--muted); }
+  body.dock-on .msglog.top[open] > summary::after { content: '▴'; }
+  body.dock-on .msglog.top .mlpeek { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  body.dock-on .msglog.top.hasnew > summary { background: var(--accent-soft); }
+  body.dock-on .msglog.top.haserr > summary { background: var(--danger-soft); color: var(--danger-ink); }
+  body.dock-on .msglog.top .mllist { max-height: 50vh; padding: 0 var(--gut) 8px; }
+  /* until dock.js has drawn the dock (or if it cannot) the menu is a plain list of links, so it never disappears */
   body.dock-on:not(.dock-ready) .dockroot .dockfb { display: flex; flex-wrap: wrap; gap: 2px 14px; position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 6px 12px; max-height: var(--dock-h); overflow: auto;
     list-style: none; pointer-events: auto; background: var(--dk-felt); color: var(--dk-ink); font-size: 12px; }
   .dockroot .dockfb ul { display: inline; margin: 0; padding: 0; list-style: none; }
   .dockroot .dockfb li li { display: inline; margin-left: 8px; }
   .dockroot .dockfb a { color: var(--dk-ink); }
 }
+/* popover tabs and the three-column rail tab */
+.dockroot .dk-poptabs { grid-column: 1 / -1; display: flex; gap: 4px; margin-bottom: 4px; }
+.dockroot .dk-poptabs button { font: inherit; font-size: 11px; font-weight: 700; min-height: 30px; padding: 0 10px; background: var(--dk-surface2); color: var(--dk-fg); border: 2px solid var(--dk-line); border-radius: 0; cursor: pointer; }
+.dockroot .dk-poptabs button[aria-selected="true"] { background: var(--dk-felt); color: var(--dk-ink); border-color: var(--dk-accent); }
+.dockroot .dk-pop.dk-wide .dk-body { grid-template-columns: 1fr 1fr 1fr; }
+.dockroot .dk-row.dk-empty { color: var(--dk-muted); font-weight: 400; }
+.dockroot .dk-util button { margin-top: 4px; }
 @media (prefers-reduced-motion: reduce) {
   .dockroot .dockslip .dk-pc, .dockroot .dockslip.dk-ghost .dk-pc, .dockroot .dockslip .dk-gname, .dockroot .dk-pop { animation: none; }
   .dockroot .dock, .dockroot .dk-pc { transition: none; }

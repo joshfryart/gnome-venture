@@ -6,7 +6,7 @@ declare(strict_types=1);
  * with the setting nav_dock = 0 (the default) the game is exactly as before. 'admin' shows it to admins only (preview); '1' shows it to everyone.
  * Phase 1 draws the four menus with their tiles (the same groups, badges and unlock rules as the menu sheet: nav_groups() in layout.php), the status
  * plate with its popover, and two action pieces. Actions are plain links and strips of links; forms and bulk actions come in phase 2.
- * The dock only appears in landscape on short screens (CSS media query in assets/dock.css); portrait and wide screens keep today's chrome.
+ * The dock appears in landscape (CSS media query in assets/dock.css), on phones, tablets and desktops; portrait keeps today's chrome. On a wide screen it also folds in the right rail (pots, boosts, tasks) and the message list moves under the top of the page, as on a phone.
  * CSP: no inline styles. All positions are set by assets/dock.js through the style object; the data is a JSON data block, which browsers never run.
  */
 
@@ -14,7 +14,7 @@ declare(strict_types=1);
 function dock_settings(): array
 {
     return [
-        'nav_dock' => ['label' => 'Nav dock: the landscape bottom dock (menus, status plate, two page actions). 0 = off (today’s header, bottom bar and menu), admin = admins only (preview; an admin can add ?dock=off or ?dock=on to the address to switch their own copy), 1 = everyone. Portrait and wide screens always keep today’s chrome.', 'type' => 'text', 'default' => '0'],
+        'nav_dock' => ['label' => 'Nav dock: the landscape bottom dock (menus, status plate, two page actions). 0 = off (today’s header, bottom bar and menu), admin = admins only (preview; an admin can add ?dock=off or ?dock=on to the address to switch their own copy), 1 = everyone. Portrait screens always keep today’s chrome.', 'type' => 'text', 'default' => '0'],
     ];
 }
 
@@ -156,6 +156,51 @@ function dock_status(array $u): array
     return ['plate' => $plate, 'rows' => $rows, 'links' => $links];
 }
 
+/** What the right rail showed (ready pots, boosts, tasks), for the popover's second tab: the dock folds the rail in, so wide screens lose nothing. */
+function dock_rail(array $u): array
+{
+    $uid = (int)$u['id'];
+    $pots = $boosts = $tasks = [];
+    try {
+        require_once __DIR__ . '/crafting.php';
+        foreach (cook_pots_list($uid) as $p) {
+            if (!empty($p['pal'])) $pots[] = [(string)$p['name'], '🧩 ' . $p['pal'] . ' tending', ''];
+            elseif ($p['left'] <= 0) $pots[] = [(string)$p['name'], 'Ready, collect', craft_url('cooking')];
+            else $pots[] = [(string)$p['name'], effect_time((int)$p['left']), ''];
+        }
+        foreach (active_effects($u) as $fx) {
+            [$ic, $nm, $what] = $fx;
+            $boosts[] = [$ic . ' ' . ($nm === 'Meal' ? $what : $nm), effect_left($fx), ''];
+        }
+        foreach (q("SELECT period, title, qty, progress, stages, stages_paid FROM user_jobs WHERE user_id = ? AND status = 'active' ORDER BY id", [$uid])->fetchAll() as $j) {
+            $multi = (int)$j['stages'] > 1;
+            $d = $multi ? (int)$j['stages_paid'] : (int)$j['progress'];
+            $m = max(1, $multi ? (int)$j['stages'] : (int)$j['qty']);
+            $tasks[] = [(string)$j['title'], min($d, $m) . '/' . $m, url('jobs.php')];
+        }
+    } catch (Throwable $e) {
+        error_log('dock_rail: ' . $e->getMessage());
+    }
+    return ['pots' => $pots, 'boosts' => $boosts, 'tasks' => $tasks];
+}
+
+/** The popover's third tab: what the old menu sheet kept at its foot (feedback, rules, privacy, the site's own pages, staff tools) plus Log out. */
+function dock_more(array $u, string $page): array
+{
+    $links = [['💬 Send feedback', url('feedback.php?from=' . urlencode($page))], ['📜 Rules', url('page.php?p=rules')], ['🔒 Privacy', url('page.php?p=privacy')]];
+    try {
+        foreach (q('SELECT slug, title FROM pages WHERE published = 1 AND show_in_nav = 1 ORDER BY title')->fetchAll() as $p) {
+            if (in_array($p['slug'], ['rules', 'privacy'], true)) continue;
+            $links[] = ['📄 ' . $p['title'], url('page.php?p=' . urlencode((string)$p['slug']))];
+        }
+    } catch (Throwable $e) {
+        error_log('dock_more: ' . $e->getMessage());
+    }
+    if (in_array($u['role'] ?? '', ['admin', 'mod'], true)) $links[] = ['🛡️ Moderation', url('modtools.php')];
+    if (($u['role'] ?? '') === 'admin') $links[] = ['🛠️ Admin panel', url('admin/index.php')];
+    return $links;
+}
+
 /** The page's two actions: the page's own (dock_declare / dock_page_spec) or the defaults, Back and Hovel. */
 function dock_actions(array $u, string $page): array
 {
@@ -211,7 +256,8 @@ function dock_html(array $u, string $page): string
     $st = dock_status($u);
     $data = [
         'menus' => $menus, 'here' => $here, 'plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'],
-        'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
+        'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'rail' => dock_rail($u), 'more' => dock_more($u, $page),
+        'logoutForm' => '<form method="post" action="' . e(url('logout.php')) . '" class="inline" data-noajax="1">' . csrf_field() . '<button type="submit">Log out</button></form>', 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
         'iconBase' => url('assets/img/nav/dock-'), 'iconNames' => DOCK_ICONS, 'home' => url('gnome.php'),
     ];
     $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);

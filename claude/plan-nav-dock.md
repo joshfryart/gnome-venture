@@ -10,13 +10,13 @@ A landscape bottom dock replaces the header, status strip, bottom bar, menu shee
 - a status plate (energy, level, time, Petals) whose popover holds the numbers and the few links the menu cannot reach;
 - play mode (a thin rail) for mini-games, typing hides the dock.
 
-Portrait and wide screens keep today's chrome. The dock only draws in landscape on short screens (`@media (orientation: landscape) and (max-height: 600px)`).
+Portrait screens keep today's chrome. The dock draws in landscape on every screen size: phones, tablets and desktops (`@media (orientation: landscape)`). On a wide screen it also folds in the right rail: pots, boosts and tasks are the popover's second tab, and the message list sits under the top of the page, as on a phone. The popover's third tab holds what the menu sheet kept at its foot (feedback, rules, privacy, the site's own pages, moderation and admin links) plus Log out and the theme switch.
 
 ## Flag and rollout
 
 Setting `nav_dock` (Admin → Settings, text): `0` off (default, the game is exactly as before), `admin` admins only (preview), `1` everyone. An admin can add `?dock=off` or `?dock=on` to any address to switch their own copy (cookie `gv_dock`).
 
-Order: admin preview → a few testers (`1` for everyone is the only other value, so test accounts need `admin` role or a per-user switch, see open question 1) → everyone in landscape → portrait lock in `manifest.json` → retire the old chrome.
+Order: admin preview (decided: admins only, no tester list) → everyone in landscape → portrait lock in `manifest.json` → retire the old chrome.
 
 Rollback: set `nav_dock` to `0`. Nothing is migrated in the database.
 
@@ -34,7 +34,7 @@ Design rules the code follows (CSP `style-src 'self'`):
 - every class the dock draws is prefixed `dk-` (the game stylesheet already uses `tag`, `chip`, `badge`, `tile`, `row`, `st`, `soil`...);
 - the game's `svg { max-width: 100% }` is reset inside `.dockroot` (the pieces overflow their box on purpose);
 - if the script fails or the browser lacks `translate`/`rotate`, a plain list of links (`.dockfb`) stays visible, so the menu never disappears;
-- the dock hides `header.banner`, `.statusstrip`, `.bottombar` and `nav.side` only inside the landscape media query.
+- the dock hides `header.banner`, `.statusstrip`, `.bottombar`, `nav.side` and `.rail` only inside the landscape media query; `.msglog.top` (the phone's message fold) is shown instead of the rail's message list.
 
 Checked here: PHP lint, JS syntax, a static harness page (1) under the exact CSP, (2) with the game's `style.css`, at 844 x 390, light and strips/popover opened, no CSP violations. **Not run:** the game against a database (no MySQL in this environment), a real phone, the dark theme with the real stylesheet.
 
@@ -77,9 +77,11 @@ Checklist of code that references the old chrome and must move first:
 | In-place swaps | the dock lives outside `<main>`; `.dockdata` is swapped; `dock.js` re-reads on `gv:swapped` |
 | Two navigation systems at once | accepted until phase 4; the flag keeps them apart |
 
-## Open questions
+## Decisions and open questions
 
-1. Per-user switch: today `admin` means the admin role. A tester list (a setting with usernames, or a `users` column) would let non-admins preview. Add in phase 2?
-2. Dock height cutoff: `max-height: 600px` also catches small laptop windows in landscape. Keep, or add a `pointer: coarse` condition so mouse desktops never get it?
-3. Right rail on tablets in landscape (width 1024–1200): keep it, or fold its pots, boosts and chores into the popover?
-4. Action icons (about 100 more emoji) stay emoji until drawn.
+Decided: (1) preview is for admins only; (2) the dock is for desktop as well as phones and tablets; (3) the right rail folds into the popover.
+
+Still open:
+1. Desktop pieces are the same size as on a phone (about 58 px) and the faded earth pieces fill the width. Scale them up on large screens, or keep the dock a fixed, centred width?
+2. The trip strip (`dest_strip_html()`) still shows under the top of the page; it moves into the popover in a later phase.
+3. Action icons (about 100 more emoji) stay emoji until drawn.
