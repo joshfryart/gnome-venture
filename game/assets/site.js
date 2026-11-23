@@ -2441,3 +2441,17 @@ document.addEventListener('click', function (ev) {
   if (t.closest('[data-closedlg]')) { gvCloseDlg(t.closest('dialog')); return; }
   if (t.tagName === 'DIALOG' && t.classList.contains('fairsheet')) gvCloseDlg(t);
 });
+
+/* v2.8.04: every finished random-event / prize banner gets an ✕ that hides it in place (no reload). Banners that wait for a choice keep no ✕. */
+function gvEvClose() {
+  document.querySelectorAll('.eventbox:not(.waiting):not(.hasx), .prizebox:not(.hasx)').forEach(function (b) {
+    b.classList.add('hasx');
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'evclose'; x.setAttribute('aria-label', 'Close'); x.textContent = '✕';
+    x.addEventListener('click', function () { b.classList.add('evgone'); setTimeout(function () { b.remove(); }, 180); });
+    b.appendChild(x);
+  });
+}
+document.addEventListener('DOMContentLoaded', gvEvClose);
+document.addEventListener('gv:swapped', gvEvClose);
+if (document.readyState !== 'loading') gvEvClose();

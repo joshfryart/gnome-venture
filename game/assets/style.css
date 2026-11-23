@@ -8997,3 +8997,15 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   dialog.isheet.dosheet > :not(.shead):not(.sheetx) { grid-column: 2; margin-block: 2px; }
   dialog.isheet.dosheet .sico.doart { width: 150px; height: auto; }
 }
+
+/* v2.8.04: sleeker event / prize banners with a close ✕ */
+.eventbox:not(.waiting), .prizebox { position: relative; padding: 8px 34px 8px 12px; gap: 10px; margin-bottom: 8px; transition: opacity .18s, transform .18s; }
+.eventbox:not(.waiting) .evicon, .prizebox .pzicon { font-size: 28px; }
+.eventbox:not(.waiting) .evtitle, .prizebox .pztitle { font-size: 15px; }
+.eventbox:not(.waiting) .evkicker { font-size: 10px; }
+.eventbox:not(.waiting) p { margin: 2px 0 0; font-size: 13px; }
+.eventbox:not(.waiting) ul, .prizebox ul { margin: 2px 0 0; font-size: 13px; }
+.pzbig { font-size: 20px; }
+.evclose { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; padding: 0; border: 0; background: transparent; color: var(--purple-ink, inherit); font: 700 15px/26px inherit; cursor: pointer; opacity: .7; border-radius: 50%; }
+.evclose:hover, .evclose:focus-visible { opacity: 1; background: rgba(0,0,0,.08); }
+.evgone { opacity: 0; transform: translateY(-6px); }

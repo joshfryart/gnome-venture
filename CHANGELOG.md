@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.04
+- **Random-event and prize banners are sleeker and have an ✕.** Smaller icon, title and text; tap ✕ to fade the banner out in place (no reload). Banners that still wait for your choice keep no ✕.
+
 ## 2.8.03
 - **Wander: the "Past here it gets dangerous" warning is one slim line right under the picture, rings and choices** (12 px text, full width), instead of a tall red box far down below Gather and the journal. Seen on a fake step-4 wander at 844 x 390.
 
