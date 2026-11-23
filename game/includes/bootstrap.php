@@ -650,6 +650,11 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             require_once __DIR__ . '/upgrade2758.php';
             upgrade_2758_tool_prices();
         });
+        boot_step('almanac_mending_2758', function () {   // 2.7.58: the Exploring & fighting page tells how mending works (kits, augments; once)
+            if (setting('almanac_mending_2758') !== '' || !isset(ALMANAC_HOWTO['Exploring & fighting'])) return;
+            q("UPDATE encyclopedia_entries SET body = ? WHERE chapter = 'General' AND title = 'Exploring & fighting'", [ALMANAC_HOWTO['Exploring & fighting'][2]]);
+            set_setting('almanac_mending_2758', '1');
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players
