@@ -8,6 +8,7 @@
   --line:#c9a96e; --line2:#9a6b3f; --brand:#2f5a2a; --accent:#e8a317; --accent-ink:#7a4a1f; --danger:#a8241f;
   --info:#1f4a6a; --info-soft:#a9d6ea; --purple:#4e3a8a; --petal:#9b3d63; --felt:#3d2a1c; --felt2:#52382a; --felt-ink:#f2e4c0;
   --focus:#25637d; --good:#2f5a2a; --drop:#c9a96e; --dis:#c9a96e;
+  --circ:polygon(30% 0,70% 0,70% 10%,85% 10%,85% 20%,90% 20%,90% 30%,100% 30%,100% 70%,90% 70%,90% 80%,85% 80%,85% 90%,70% 90%,70% 100%,30% 100%,30% 90%,15% 90%,15% 80%,10% 80%,10% 70%,0 70%,0 30%,10% 30%,10% 20%,15% 20%,15% 10%,30% 10%);
   --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -64,11 +65,17 @@ a{color:var(--focus)}
 .dock{position:absolute;left:0;right:0;bottom:0;height:128px;pointer-events:none;transition:transform .25s steps(5)}
 .dock>*{pointer-events:auto}
 .dock svg.arc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.soil{fill:var(--felt)}.speck{fill:var(--felt2)}.g1{fill:#5f9a47}.g2{fill:#7ab55c}.g3{fill:#3f7a35}
+.soil{fill:url(#pz-dirt)}.g1{fill:#5f9a47}.g2{fill:#7ab55c}.g3{fill:#3f7a35}
+.db{fill:var(--felt)}.db2{fill:color-mix(in srgb,var(--felt),var(--felt-ink) 20%)}
+.dd{fill:color-mix(in srgb,var(--felt),#000 40%)}.dl{fill:color-mix(in srgb,var(--felt),var(--felt-ink) 14%)}
+.pb{fill:color-mix(in srgb,var(--line2),var(--felt) 45%)}.ph{fill:color-mix(in srgb,var(--line),var(--felt) 30%)}.rt{fill:color-mix(in srgb,var(--felt),#000 55%)}
+.pw{fill:#fff;fill-opacity:.22}
+.gf{fill:url(#pz-dirt2);stroke:color-mix(in srgb,var(--felt),var(--felt-ink) 38%);stroke-width:2}
+.pc.ghost{pointer-events:none;cursor:default}
 .fl1{fill:#e88aab}.fl2{fill:#ffd45a}.fl3{fill:#fff3c8}.stem{fill:#3f7a35}
 .pc{position:absolute;display:block;border:0;padding:0;background:none;cursor:pointer;font:inherit;color:var(--tx,var(--ink));
   --fill:var(--felt2);--ring:var(--accent-ink);rotate:var(--rot,0deg);transition:translate .15s steps(3)}
-.pc svg.ps{position:absolute;left:-10px;top:-10px;overflow:visible;pointer-events:none}
+.pc svg.ps{position:absolute;left:-16px;top:-16px;overflow:visible;pointer-events:none}
 .pc,.pop{--hi:color-mix(in srgb,var(--fill),var(--felt-ink) 35%);--lo:color-mix(in srgb,var(--fill),var(--felt) 35%);--side:color-mix(in srgb,var(--fill),var(--felt) 60%)}
 :root[data-theme="dark"] .pc,:root[data-theme="dark"] .pop{--hi:color-mix(in srgb,var(--fill),var(--felt-ink) 22%)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pc,:root:not([data-theme="light"]) .pop{--hi:color-mix(in srgb,var(--fill),var(--felt-ink) 22%)}}
@@ -80,7 +87,11 @@ a{color:var(--focus)}
 .pc.here .st,.slip .pc.on .st{stroke:var(--accent)}
 .pc:has(.badge){z-index:2}
 .pc .in{position:relative;z-index:1;width:100%;height:100%;padding:0 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;rotate:calc(var(--rot,0deg)*-1);pointer-events:none}
-.pc .ic{font-size:20px;line-height:1;background:var(--lo);padding:2px 6px;box-shadow:inset 2px 2px 0 var(--side),inset -2px -2px 0 var(--hi)}
+.pc .ic{color:#2a1a10;position:relative;isolation:isolate;display:grid;place-items:center;width:30px;height:30px;font-size:17px;line-height:1;background:#2a1a10;clip-path:var(--circ)}
+.pc .ic::before{content:"";position:absolute;inset:2px;background:#f2e4c0;clip-path:var(--circ);z-index:-1}
+.pc .ic::after{content:"";position:absolute;inset:4px;border:1px dashed #e8a317;clip-path:var(--circ);z-index:-1}
+.pc.act[disabled] .ic::before,.pc.act.soft .ic::before{background:color-mix(in srgb,#f2e4c0,var(--felt2) 55%)}
+.pc.menu{--ring:#2a1a10}
 .pc .lb{font-size:11px;font-weight:800;margin-top:3px;max-width:100%}
 .pc.menu[data-m="you"]{--fill:var(--purple)}
 .pc.menu[data-m="hobby"]{--fill:var(--brand)}
@@ -90,7 +101,7 @@ a{color:var(--focus)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pc.menu{--tx:#1c110a}}
 :root[data-theme="dark"] .pc.menu{--tx:#1c110a}
 .pc.menu.open{--ring:#fff3c8;--tx:#fff;translate:0 -4px}
-.pc.menu.open .ic{background:var(--lo)}
+
 .pc.deco{--fill:var(--felt2);--ring:var(--accent-ink);cursor:default}
 .pc.deco .in{display:none}
 .pc.act{--fill:var(--surface);--ring:var(--accent-ink);--tx:var(--ink)}
@@ -118,7 +129,7 @@ a{color:var(--focus)}
 /* slips: strips of interlocking pieces */
 .slip{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none;z-index:5}
 .slip .pc{pointer-events:auto;--fill:var(--surface);--ring:var(--line2);--tx:var(--ink);animation:snapin .18s steps(4) both;animation-delay:calc(var(--o,0)*30ms)}
-.slip .pc .ic{font-size:19px;line-height:1}
+.slip .pc .ic{width:26px;height:26px;font-size:15px;line-height:1}
 .slip .pc .lb{font-size:10px;font-weight:800;line-height:1.05;margin-top:1px}
 .slip .pc.on{--ring:var(--accent)}
 
@@ -129,7 +140,7 @@ a{color:var(--focus)}
 .slip .pc .chip{background:var(--felt)}
 .slip .gname{position:absolute;pointer-events:none;font-size:10px;font-weight:800;color:var(--felt-ink);background:var(--felt);padding:1px 6px;border:1px solid var(--accent-ink);animation:rise .22s steps(4) both}
 .pop{position:absolute;pointer-events:auto;animation:rise .22s steps(4) both;color:var(--ink);--fill:var(--surface);--ring:var(--line2)}
-.pop svg.ps{position:absolute;left:-10px;top:-10px;overflow:visible;pointer-events:none}
+.pop svg.ps{position:absolute;left:-16px;top:-16px;overflow:visible;pointer-events:none}
 
 .pop .body{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding:8px 12px 10px;font-size:11px}
 .pop h4{grid-column:auto;margin:0 0 3px;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
@@ -527,10 +538,13 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 function visibleSubs(m){return SUB[m].filter(s=>!s[4]||(s[4]==='late'&&S.late)||(s[4]==='early'&&!S.late))}
 
 /* jigsaw geometry: square-knob pieces, tab out (+1), socket in (-1), flat (0) */
+const DOME=[[-4,0],[-4,-3],[-6,-4],[-8,-6],[-8,-10],[-6,-12],[-4,-13],[4,-13],[6,-12],[8,-10],[8,-6],[6,-4],[4,-3],[4,0]];
+const KEY=[[-8,0],[-6,-2],[-3,-4],[-3,-7],[-6,-8],[-7,-10],[-6,-13],[-3,-14],[3,-14],[6,-13],[7,-10],[6,-8],[3,-7],[3,-4],[6,-2],[8,0]];
+/* knob shapes, like the combat pieces: 1 = dome on a neck, 2 = keyhole; sign = out (+) or in (-) */
 function edgePts(len,s,cc){
   if(!s) return [[len,0]];
-  const c=cc===undefined?len/2:cc;
-  return [[c-5,0],[c-5,-4*s],[c-8,-4*s],[c-8,-10*s],[c+8,-10*s],[c+8,-4*s],[c+5,-4*s],[c+5,0],[len,0]];
+  const c=cc===undefined?len/2:cc,sg=s>0?1:-1,P=Math.abs(s)===2?KEY:DOME;
+  return P.map(q=>[c+q[0],q[1]*sg]).concat([[len,0]]);
 }
 let pzUid=0;
 function pathD(w,h,t,r,b,l,ox,oy){
@@ -543,19 +557,21 @@ function pathD(w,h,t,r,b,l,ox,oy){
   return d+' Z';
 }
 /* 2.5D piece: side face (4px extrusion, always straight down in screen space), face, top-left and bottom-right bevel strips, grain, stitch */
-function pieceSVG(w,h,t,r,b,l,rot){
+function pieceSVG(w,h,t,r,b,l,rot,pat,ghost){
   const id='pz'+(pzUid++),D=pathD(w,h,t,r,b,l,0,0),rad=(rot||0)*Math.PI/180;
+  const open='<svg class="ps" width="'+(w+32)+'" height="'+(h+36)+'" viewBox="-16 -16 '+(w+32)+' '+(h+36)+'"><defs><path id="'+id+'" d="'+D+'"/><clipPath id="c'+id+'"><use href="#'+id+'"/></clipPath></defs>';
+  if(ghost) return open+'<use href="#'+id+'" class="gf"/></svg>';
   const dx=(4*Math.sin(rad)).toFixed(1),dy=(4*Math.cos(rad)).toFixed(1);
   const hi=D+' '+pathD(w,h,t,r,b,l,2,2),lo=D+' '+pathD(w,h,t,r,b,l,-2,-2);
   const st='M7,5H'+(w-7)+'M7,'+(h-5)+'H'+(w-7);
-  return '<svg class="ps" width="'+(w+20)+'" height="'+(h+24)+'" viewBox="-10 -10 '+(w+20)+' '+(h+24)+'"><defs><path id="'+id+'" d="'+D+'"/><clipPath id="c'+id+'"><use href="#'+id+'"/></clipPath></defs>'
+  return open
     +'<use href="#'+id+'" class="sd" transform="translate('+dx+' '+dy+')"/><use href="#'+id+'" class="fc"/>'
-    +'<g clip-path="url(#c'+id+')"><path class="hi" fill-rule="evenodd" d="'+hi+'"/><path class="lo" fill-rule="evenodd" d="'+lo+'"/><rect class="gr" x="-10" y="-10" width="'+(w+20)+'" height="'+(h+20)+'"/></g><path class="st" d="'+st+'"/></svg>';
+    +'<g clip-path="url(#c'+id+')">'+(pat?'<rect fill="url(#'+pat+')" x="-16" y="-16" width="'+(w+32)+'" height="'+(h+32)+'"/>':'')+'<path class="hi" fill-rule="evenodd" d="'+hi+'"/><path class="lo" fill-rule="evenodd" d="'+lo+'"/><rect class="gr" x="-16" y="-16" width="'+(w+32)+'" height="'+(h+32)+'"/></g><path class="st" d="'+st+'"/></svg>';
 }
 function pc(o){
   const tg=o.tag||'button',t=o.tabs||[0,0,0,0];
   return '<'+tg+' class="pc '+(o.cls||'')+'" style="left:'+o.x.toFixed(1)+'px;top:'+o.y.toFixed(1)+'px;width:'+o.w+'px;height:'+o.h+'px;--rot:'+(o.rot||0).toFixed(1)+'deg;'+(o.style||'')+'" '+(o.attrs||'')+'>'
-    +pieceSVG(o.w,o.h,t[0],t[1],t[2],t[3],o.rot)+'<span class="in">'+(o.inner||'')+'</span>'+(o.after||'')+'</'+tg+'>';
+    +pieceSVG(o.w,o.h,t[0],t[1],t[2],t[3],o.rot,o.pat,o.ghost)+'<span class="in">'+(o.inner||'')+'</span>'+(o.after||'')+'</'+tg+'>';
 }
 function geom(W){
   const dh=106,A=40,pw=W<720?170:W<900?244:300,cw=pw+136,half=(W-cw)/2;
@@ -570,7 +586,6 @@ function place(g,cx,off){ // point on the arc moved along the inward normal (neg
 function dockSVG(W,g){
   const pts=[];for(let x=0;x<=W;x+=6)pts.push(x+','+g.ay(x).toFixed(1));
   let h='<svg class="arc" viewBox="0 0 '+W+' '+g.dh+'" preserveAspectRatio="none"><path class="soil" d="M'+pts.join(' L')+' L'+W+','+g.dh+' L0,'+g.dh+' Z"/>';
-  for(let i=0;i<70;i++){const x=(i*97)%W,y=g.ay(x)+12+((i*53)%60);if(y<g.dh-3)h+='<rect class="speck" x="'+x+'" y="'+y.toFixed(0)+'" width="4" height="3"/>'}
   for(let x=0;x<W;x+=9){const y=g.ay(x),k=(x*7+3)%5,hh=5+k*2;
     h+='<rect class="'+(k%2?'g1':'g2')+'" x="'+x+'" y="'+(y-hh+2).toFixed(0)+'" width="3" height="'+hh+'"/><rect class="g3" x="'+(x+4)+'" y="'+(y-hh/2+2).toFixed(0)+'" width="3" height="'+Math.round(hh/2)+'"/>'}
   let f=0;for(let x=26;x<W;x+=61){const y=g.ay(x),c=['fl1','fl2','fl3'][f++%3];
@@ -684,7 +699,7 @@ function render(){
       +(S.selMode?'<p class="selhint" style="color:var(--muted)">Squares that cannot take it are skipped (you will be told why), and it stops if you run out of energy.</p>':'');
   }
   else body=head+'<div class="cards">'+[1,2,3,4,5,6].map(n=>'<div class="card"><b>'+esc(p.t)+' · card '+n+'</b><i></i><i></i></div>').join('')+'</div>';
-  let h='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><pattern id="pz-grain" width="8" height="8" patternUnits="userSpaceOnUse"><rect class="g-d" x="1" y="2" width="2" height="2"/><rect class="g-l" x="5" y="6" width="2" height="2"/></pattern></defs></svg><div class="page'+(key?' slipopen':'')+'">'+body+'</div>';
+  let h='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><pattern id="pz-grain" width="8" height="8" patternUnits="userSpaceOnUse"><rect class="g-d" x="1" y="2" width="2" height="2"/><rect class="g-l" x="5" y="6" width="2" height="2"/></pattern><pattern id="pz-dirt" width="64" height="48" patternUnits="userSpaceOnUse"><rect class="db" width="64" height="48"/><rect class="dd" x="4" y="6" width="10" height="4"/><rect class="dd" x="30" y="2" width="6" height="4"/><rect class="dd" x="46" y="20" width="12" height="4"/><rect class="dd" x="10" y="30" width="8" height="6"/><rect class="dd" x="36" y="38" width="10" height="4"/><rect class="dl" x="18" y="14" width="6" height="4"/><rect class="dl" x="40" y="10" width="8" height="4"/><rect class="dl" x="2" y="22" width="6" height="4"/><rect class="dl" x="24" y="26" width="10" height="4"/><rect class="dl" x="52" y="34" width="6" height="4"/><rect class="pb" x="20" y="36" width="6" height="4"/><rect class="ph" x="21" y="36" width="2" height="2"/><rect class="pb" x="48" y="4" width="6" height="4"/><rect class="ph" x="49" y="4" width="2" height="2"/><rect class="rt" x="0" y="18" width="6" height="2"/><rect class="rt" x="6" y="16" width="6" height="2"/><rect class="rt" x="12" y="18" width="4" height="2"/><rect class="rt" x="38" y="30" width="6" height="2"/><rect class="rt" x="44" y="32" width="6" height="2"/></pattern><pattern id="pz-dirt2" width="64" height="48" patternUnits="userSpaceOnUse"><rect class="db2" width="64" height="48"/><rect class="dd" x="8" y="10" width="8" height="4" opacity=".5"/><rect class="dd" x="40" y="6" width="6" height="4" opacity=".5"/><rect class="dd" x="26" y="30" width="10" height="4" opacity=".5"/><rect class="dl" x="20" y="4" width="6" height="4"/><rect class="dl" x="50" y="26" width="8" height="4"/><rect class="pb" x="4" y="36" width="6" height="4"/><rect class="ph" x="5" y="36" width="2" height="2"/><rect class="rt" x="34" y="18" width="6" height="2"/></pattern><pattern id="pt-diamond" width="8" height="8" patternUnits="userSpaceOnUse"><rect class="pw" x="3" y="0" width="2" height="2"/><rect class="pw" x="1" y="2" width="2" height="2"/><rect class="pw" x="5" y="2" width="2" height="2"/><rect class="pw" x="3" y="4" width="2" height="2"/></pattern><pattern id="pt-leaf" width="10" height="8" patternUnits="userSpaceOnUse"><rect class="pw" x="1" y="1" width="2" height="2"/><rect class="pw" x="3" y="3" width="2" height="2"/><rect class="pw" x="5" y="1" width="2" height="2"/><rect class="pw" x="3" y="5" width="2" height="2"/></pattern><pattern id="pt-wave" width="12" height="8" patternUnits="userSpaceOnUse"><rect class="pw" x="0" y="4" width="4" height="2"/><rect class="pw" x="6" y="4" width="2" height="2"/><rect class="pw" x="9" y="1" width="2" height="2"/></pattern><pattern id="pt-flower" width="10" height="10" patternUnits="userSpaceOnUse"><rect class="pw" x="4" y="1" width="2" height="6"/><rect class="pw" x="2" y="3" width="6" height="2"/></pattern></defs></svg><div class="page'+(key?' slipopen':'')+'">'+body+'</div>';
   if(none)h+='<div class="notice">no dock on this file</div>';
   if(!hideDock){
     h+='<div class="dock'+(play?' play':'')+'" style="top:'+(H-dh)+'px;height:'+dh+'px">'+dockSVG(W,g)+chainHTML(W,g,p,L,R)+'</div>';
@@ -701,30 +716,40 @@ function render(){
   fillBelow(p,L,R);
 }
 
+const MENU_PAT={you:'pt-diamond',hobby:'pt-leaf',out:'pt-wave',tog:'pt-flower'};
 function chainHTML(W,g,p,L,R){
-  const pw=g.pw,decoW=30,mw=Math.max(58,Math.min(72,(W-pw-2*64-2*decoW-8)/4));
-  const it=[{k:'deco',w:decoW},{k:'m',m:'you',w:mw},{k:'m',m:'hobby',w:mw},{k:'aL',w:64},{k:'plate',w:pw},{k:'aR',w:64},{k:'m',m:'out',w:mw},{k:'m',m:'tog',w:mw},{k:'deco',w:decoW}];
-  it.forEach(o=>o.w=o.w||58);
-  const n=it.length,total=it.reduce((s,o)=>s+o.w,0),tabs=it.map(()=>[0,0,0,0]);
-  for(let i=0;i<n-1;i++){const s=i%2?-1:1;tabs[i][1]=s;tabs[i+1][3]=-s}
-  tabs[4][0]=-1; // the plate has a socket on top for the popover
-  let x=(W-total)/2,out='';
+  const pw=g.pw,mw=Math.max(58,Math.min(72,(W-pw-2*64-8)/4));
+  const core=[{k:'m',m:'you',w:mw},{k:'m',m:'hobby',w:mw},{k:'aL',w:64},{k:'plate',w:pw},{k:'aR',w:64},{k:'m',m:'out',w:mw},{k:'m',m:'tog',w:mw}];
+  const coreW=core.reduce((a,o)=>a+o.w,0);let gn=Math.max(1,Math.ceil(((W-coreW)/2)/58)+1);if(gn%2===0)gn++;
+  const ghL=Array.from({length:gn},(_,j)=>({k:'ghost',w:58,d:gn-j})),ghR=Array.from({length:gn},(_,j)=>({k:'ghost',w:58,d:j+1}));
+  const it=[...ghL,...core,...ghR],n=it.length,total=it.reduce((a,o)=>a+o.w,0);
+  const tabs=it.map(()=>[0,0,0,0]);
+  for(let i=0;i<n-1;i++){const k=i%3===0?2:1,sg=i%2?-1:1;tabs[i][1]=sg*k;tabs[i+1][3]=-sg*k}
+  tabs[gn+3][0]=-1; // the plate has a socket on top for the popover
+  // vertical links: menu pieces and ghosts get a tab on the bottom edge, the faded row below has the matching sockets
+  const has1=it.map(o=>o.k==='m'||o.k==='ghost');
+  it.forEach((o,i)=>{if(has1[i])tabs[i][2]=(o.k==='m'||i%2===0)?1:2});
+  let x=(W-total)/2,row1='',row0='',main='';
   it.forEach((o,i)=>{
     const ps=place(g,x+o.w/2,30),X=ps.x-o.w/2,Y=ps.y-29,base={x:X,y:Y,w:o.w,h:58,rot:ps.rot,tabs:tabs[i]};
-    if(o.k==='deco') out+=pc({...base,tag:'div',cls:'deco',inner:''});
+    if(has1[i]){
+      const p1=place(g,x+o.w/2,30+58),t1=[-tabs[i][2],(has1[i+1]?(i%2?1:-1):0),0,(has1[i-1]?(i%2?-1:1):0)];
+      row1+=pc({x:p1.x-o.w/2,y:p1.y-29,w:o.w,h:58,rot:p1.rot,tabs:t1,tag:'div',cls:'ghost',ghost:true,style:'opacity:'+Math.max(.18,.62-.14*((o.d||1)-1))});
+    }
+    if(o.k==='ghost') row0+=pc({...base,tag:'div',cls:'ghost',ghost:true,style:'opacity:'+Math.max(.25,.8-.16*(o.d-1))});
     else if(o.k==='m'){
       const here=p.m===o.m,open=S.slip===o.m;
-      out+=pc({...base,cls:'menu'+(here?' here':'')+(open?' open':''),attrs:'data-m="'+o.m+'" aria-expanded="'+open+'" aria-label="'+MAIN[o.m].n+' menu"'+(S.selMode?' disabled':''),
+      main+=pc({...base,pat:MENU_PAT[o.m],cls:'menu'+(here?' here':'')+(open?' open':''),attrs:'data-m="'+o.m+'" aria-expanded="'+open+'" aria-label="'+MAIN[o.m].n+' menu"'+(S.selMode?' disabled':''),
         inner:'<span class="ic">'+MAIN[o.m].i+'</span><span class="lb">'+MAIN[o.m].n+'</span>'+(o.m==='tog'?'<b class="badge">!</b>':'')+(o.m==='hobby'?'<b class="badge">3</b>':'')+(o.m==='out'&&p.f==='adventure.php?fight'?'<b class="badge" style="background:var(--accent);color:#2a1a10">⚔</b>':'')});
     }
     else if(o.k==='plate'){
-      out+=pc({...base,cls:'plate'+(S.slip==='status'?' open':''),after:'<span class="pip" aria-hidden="true">▴</span>',attrs:'id="plate" aria-label="Status, tap for more" aria-expanded="'+(S.slip==='status')+'"',
+      main+=pc({...base,pat:'pz-dirt2',cls:'plate'+(S.slip==='status'?' open':''),after:'<span class="pip" aria-hidden="true">▴</span>',attrs:'id="plate" aria-label="Status, tap for more" aria-expanded="'+(S.slip==='status')+'"',
         inner:'<span>⚡<progress max="60" value="'+(S.tired?0:48)+'"></progress></span><span>🌱 <b>12</b><progress class="xp" max="100" value="62"></progress></span><span>🕐 3:40pm <span class="tag">'+(S.W<720?'d14':'day 14')+'</span></span><span>🐾 <span class="tag">Pals: 2 out</span></span>'});
     }
-    else out+=actPiece(o.k==='aL'?'L':'R',o.k==='aL'?L:R,base);
+    else main+=actPiece(o.k==='aL'?'L':'R',o.k==='aL'?L:R,base);
     x+=o.w;
   });
-  return out;
+  return row1+row0+main;
 }
 function actPiece(side,a,base){
   if(!a) return pc({...base,cls:'act empty',attrs:'disabled aria-label="No action"',inner:'<span class="ic">·</span>'});
