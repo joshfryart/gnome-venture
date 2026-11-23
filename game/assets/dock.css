@@ -1062,3 +1062,24 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 
 /* survey2: Satchel message-bottle popover (sights_shared.php send form) */
 @media (orientation: landscape) { body.dock-on form.shf input[type="text"] { width: 100%; max-width: none; box-sizing: border-box; } }
+
+/* the three long catalogues (Puzzle Pals 15 regions, Shop sell 226 items, Villagers 122): denser, still tappable */
+@media (orientation: landscape) {
+  body.dock-on .ppalsec { padding: 6px 10px; margin-bottom: 6px; }
+  body.dock-on .ppalsec > h2 { font-size: .95rem; margin: 0; display: inline; }
+  body.dock-on .ppalsec > .help { display: inline; margin: 0 0 0 8px; font-size: 11px; }
+  body.dock-on .ppalgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; margin-top: 4px; }
+  body.dock-on .ppalslot { padding: 3px 2px; gap: 1px; }
+  body.dock-on .ppalslot .ppalart { width: 44px; height: 44px; }
+  body.dock-on .ppalslot .ppalart .ppalimg { width: 44px; height: 44px; }
+  body.dock-on .ppalslot .ppalrar, body.dock-on .ppalslot > small.muted { display: none; }
+  body.dock-on .ppalslot .ppalname { font-size: 11px; }
+  body.dock-on .ppalslot .ppaltake .btn { min-height: 30px; padding: 0 6px; font-size: 11px; }
+  body.dock-on .vgrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; }
+  body.dock-on .vgrid .vcard { padding: 3px 5px; }
+  body.dock-on .vgrid .vcard.unmet { grid-template-columns: 30px minmax(0, 1fr); }
+  body.dock-on .vgrid .vcard.unmet > small { display: none; }
+  body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 4px; }
+  body.dock-on .shopwrap .itms .stile { font-size: 11px; }
+}
+@media (orientation: landscape) { body.dock-on .ppalslot .ppiece { display: none; } body.dock-on .ppalslot .ppalart { margin-bottom: 2px; } }
