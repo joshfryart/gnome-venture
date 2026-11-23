@@ -1123,3 +1123,17 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .hubscene:has(~ #shops-list) { display: block; }
   body.dock-on .hubscene:has(~ #shops-list) .hubstage { max-width: none; width: min(100%, 640px); margin-inline: auto; }
 }
+
+/* the fight's right column: the redraw row is slim (small button beside its note), and the column starts at the top instead of being centred (a centred column that is too tall was cut off at both ends, hiding the creature's yield bar) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .pfight.pf-v1.pfv-fit, body.dock-on #pfight.pf-v1 { align-content: start; }
+  body.dock-on .pfight.pf-v1 .pf-extra { gap: 6px; }
+  body.dock-on .pfight.pf-v1 .pf-extra .btn, body.dock-on .pfight.pf-v1 #pf-redraw { min-height: 28px; padding: 0 8px; font-size: 12px; width: auto; flex: none; }
+  body.dock-on .pfight.pf-v1 .pf-extra small { font-size: 11px; }
+  body.dock-on .pfight.pf-v1 .pf-extra .pf-box { font-size: 12px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .pfight.pf-v1 .pf-extra { position: absolute; right: 8px; bottom: 2px; z-index: 5; margin: 0; background: rgba(43, 29, 20, .85); padding: 2px 6px; }
+  body.dock-on .pfight.pf-v1 .pf-tray { zoom: .88; }
+  body.dock-on .pfight.pf-v1 .pfv-pair { max-height: 46px; overflow-y: auto; }
+}

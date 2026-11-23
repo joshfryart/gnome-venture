@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.02
+- **Puzzle fight, landscape: the Redraw option no longer hides the creature's yield bar.** The right column was centred and too tall (the "Redraw a piece" button was a full 44 px row), so it was cut off at both ends, hiding the top bar. The column now starts at the top, the redraw note and its button are a small chip over the lower right corner, the hand is 12% smaller and the last-plays box is capped at 46 px (scrolls). Seen on a fight with a first-fight tip and a forced redraw chip at 844 x 390; the bottom of the hand's tabs still dips under the rail.
+
 ## 2.8.01
 - **Shops page (world.php?tab=markets): the market picture is big** (640 px wide, about 400 px tall at 844 x 390, was 340 x 214), since tapping a shop in it is the way in; the shop list is under it.
 
