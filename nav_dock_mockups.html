@@ -231,6 +231,7 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
   <label for="placeSel">Standing at<select id="placeSel"><option value="town">Town (Mossy Bridge)</option><option value="stop">Rest stop</option><option value="haven">Haven</option><option value="delve">Delve</option><option value="lair">Lair</option><option value="wonder">Wonder</option></select></label>
   <button type="button" id="visitBtn">New visit</button>
   <label class="chk" for="repairChk"><input type="checkbox" id="repairChk">Under repair</label>
+  <label for="advSel">Adventure<select id="advSel"><option value="none">Not adventuring</option><option value="walk">On the road (walk)</option><option value="fight">In a fight</option></select></label>
   <label class="chk" for="tripChk"><input type="checkbox" id="tripChk">On a trip</label>
   <label class="chk" for="kbChk"><input type="checkbox" id="kbChk">Keyboard open</label>
   <label for="themeSel">Theme<select id="themeSel"><option value="">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
@@ -274,6 +275,24 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
 <tr><td>🌗 Theme</td><td>Light / dark</td><td>(switch)</td><td>A switch, not a link. Also in You &gt; Account.</td></tr>
 <tr><td>📖 Almanac count</td><td>removed</td><td>removed</td><td>You &gt; Almanac already has it. Count lives on the Almanac page.</td></tr>
 <tr><td>🏡 Garden level, title quote</td><td>removed</td><td>removed</td><td>Garden level moves onto the Garden page. Title shows on Hovel.</td></tr>
+</tbody></table></div>
+
+<h2>While adventuring: what the game blocks</h2>
+<p>An expedition is any walk, explore, lair or delve. A fight is one moment inside it, saved in <code>expeditions.encounter</code>, so the same rules cover both. I read these from the page and include code, by searching every guard on an active expedition. Pages not listed had no such check. Try it with the Adventure switch above: blocked pages send you back to the trail, as the game does.</p>
+<div class="tw"><table style="min-width:720px"><thead><tr><th>Where</th><th>What the code does on an expedition</th><th>Dock mapping</th></tr></thead><tbody>
+<tr><td class="f">here.php<br>town.php<br>residential.php</td><td>Redirect to adventure.php ("You are still on the road").</td><td>The Here tile becomes <b>Trail</b> (adventure.php) and lights. Do here never shows.</td></tr>
+<tr><td class="f">world.php</td><td>Redirect to adventure.php for every tab. Fast travel buttons are disabled and the "Set off" route bar is hidden.</td><td>World tile greyed "on the road". The way out is Turn back in the Trail strip.</td></tr>
+<tr><td class="f">shop.php</td><td>"Shops wait until you arrive", back to adventure.php.</td><td>Shops unreachable. Trading (market.php) has no check and stays.</td></tr>
+<tr><td class="f">landmark.php</td><td>Everything blocked except repair_*.</td><td>No landmark pieces on the road.</td></tr>
+<tr><td class="f">gather.php</td><td>"Finish your trip first".</td><td>Gather is the Trail strip piece instead.</td></tr>
+<tr><td class="f">door.php<br>stopfolk.php</td><td>A door opens only at its home place, else you land on Villagers. The villager overlay refuses.</td><td>Villagers tile stays. Visit door greys "on the road".</td></tr>
+<tr><td class="f">trek.php</td><td>Entering a trek is refused ("already out on the road"). The page itself has no check.</td><td>Treks tile greyed "on the road".</td></tr>
+<tr><td class="f">Heal (potions, Heal button)</td><td>hp_use refuses: "Heal up in town or between adventures". Eating food for energy has no check.</td><td>A healing potion on Quick shows "town only". Food still works.</td></tr>
+<tr><td class="f">hovel.php (Rest)</td><td>Only "Camp for the night" and "Nap at camp", and they need camping gear.</td><td>Hovel left and right pieces become Camp nap and Camp.</td></tr>
+<tr><td class="f">Puzzle box deck</td><td>Deck locked during a fight, banner "Back to the fight".</td><td>Right piece becomes Back to fight.</td></tr>
+<tr><td class="f">Fight (puzzle combat)</td><td>Saved server side. Plays only on adventure.php.</td><td>Combat dock, menus open, ⚔ tag on Out &amp; about, "Back to the fight" in the center popover.</td></tr>
+<tr><td class="f">Community shift, explore, start a walk</td><td>Each refuses while one is running.</td><td>No pieces yet. If added they grey "on the road".</td></tr>
+<tr><td class="f">Everything else</td><td>No expedition check found: garden, tasks, market, games and mini-games, almanac, friends, letters, community, festival, crafting, tailor, satchel (eating), account. Some check where you stand rather than the walk (shops, markets).</td><td>Dock unchanged.</td></tr>
 </tbody></table></div>
 
 <h2>Every page, one row each</h2>
@@ -327,7 +346,7 @@ const TRAIL=[A('👁️','Sights',{ok:1,b:2}),A('🚶','Wander',{ok:1,e:1}),A('�
 const PAGES=[
 // ---- You
 P('gnome.php','Hovel (Today, My Gnome)','🛏️','you','hovel','n',A('📋','Daily',{ok:1}),A('✨','Stats',{ok:1,b:2}),{tabs:['Today','My Gnome','Furnish','Closet'],why:'Right follows a priority chain: unspent stat points show Stats, low health shows Heal, otherwise Rest. Left ticks the daily card. Guests: right becomes Save my garden. With slim home off the page is called Home.'}),
-P('hovel.php','Rest (sleep, nap, inn)','🕐','you','hovel','n',A('💤','Nap',{ok:1}),A('🛏️','Sleep',{ok:1}),{tabs:['Today','Sleep','Tasks','Pals','Costs'],why:'Only exists when the game clock is on. While asleep, right becomes Wake (check the page for that state). Inn costs Petals: disable with a chip when short.'}),
+P('hovel.php','Rest (sleep, nap, inn)','🕐','you','hovel','n',A('💤','Nap',{ok:1}),A('🛏️','Sleep',{ok:1}),{advAct:{L:A('💤','Camp nap'),R:A('⛺','Camp')},tabs:['Today','Sleep','Tasks','Pals','Costs'],why:'Only exists when the game clock is on. While asleep, right becomes Wake (check the page for that state). Inn costs Petals: disable with a chip when short.'}),
 P('book.php','Almanac','📖','you','almanac','n',A('🏷️','Title',{ok:1}),A('🧭','Journey'),{tabs:['Pages','Journey','Villagers','Titles'],why:'Reading page, so actions only jump to the two doers inside it. After level 5 it also holds the tour.'}),
 P('inventory.php','Satchel','🎒','you','satchel','n',A('⚡','Quick',{quick:true}),A('🗂️','Arrange'),{tabs:['Items','Arrange','Belt','Craft'],tabAct:{Arrange:[A('↶','Undo',{n:1}),A('✔','Done')],Craft:[A('📚','All',{menu:CRAFT_ALL}),A('🍳','Cook again',{ok:1})]},why:'Left is the Quick slot, set by the player. Empty: tap, pick an item in the satchel, tap Confirm. Filled: tap uses the item (food, potions), a small red x at the bottom left clears it, and holding the piece for a moment clears it too (phones). Quick slot is saved per gnome. Arrange tab swaps in Undo and Done, Craft tab swaps in All and Cook again.'}),
 P('workshop.php','Crafting (picture)','🔨','you','crafting','i',A('📚','All',{menu:CRAFT_ALL}),A('🍳','Cook again',{ok:1}),{why:'Left is All: Collect pots, Collect jars, or Both (collect_all, jar_collect_all). Each is greyed with "none" when nothing is done. Picture page with a text twin.'}),
@@ -358,7 +377,7 @@ P('treehouse.php','Great Treehouse (picture)','🌳','hobby','games','i',A('📋
 P('puzzlepals.php','Puzzle Pals','🧩','hobby','pals','n',A('↩','Back'),A('🔁','Swap pal',{ok:1}),{why:'Tile only once the feature is open and not for guests.'}),
 P('palyard.php','Pal Yard (picture)','🐾','hobby','pals','i',A('📋','Pal jobs'),A('📦','Collect',{ok:1}),{why:'Picture page with text twin. Collect is greyed with "none" when no job is done.'}),
 P('paljobs.php','Pal jobs','📋','hobby','pals','n',A('↩','Pals'),A('📌','Assign',{n:1}),{why:'Tab of the Pals hub.'}),
-P('puzzlebox.php','Puzzle box','🧩','hobby','box','n',A('📚','Codex'),A('⚔️','Fight'),{why:'Menu page for the Puzzle box. Needs the pfight_v1 setting. Fights are adventure combat, see the Adventure combat row.'}),
+P('puzzlebox.php','Puzzle box','🧩','hobby','box','n',A('📚','Codex'),A('⚔️','Fight'),{fightAct:{R:A('↩','Back to fight',{goto:'adventure.php?fight'})},why:'Menu page for the Puzzle box. Needs the pfight_v1 setting. Fights are adventure combat, see the Adventure combat row.'}),
 P('puzzles.php','Puzzles hub','🧩','hobby','games','n',A('↩','Games'),A('▶','Play'),{why:'Tournaments list. Each puzzle below runs in play mode.'}),
 P('jigsaw.php','Jigsaw','🧩','hobby','games','p',A('✖','Quit'),A('💡','Hint',{n:1}),{why:'Play mode. Quit asks first. Round over: dock returns with Again on the right.'}),
 P('gifsaw.php','Gifsaw','🧩','hobby','games','p',A('✖','Quit'),A('💡','Hint',{n:1}),{why:'As Jigsaw.'}),
@@ -382,9 +401,9 @@ P('here.php','Here (picture)','📍','out','here','i',A('📍','Do here',{place:
 P('town.php','Town (stop)','🏘️','out','here','n',A('📍','Do here',{place:true}),A('🗺️','Map'),{tabs:['Here','Markets','Requests','Passport'],tabAct:{Passport:[A('↩','Here'),A('🛂','Stamp',{n:1})]},why:'Left is Do here: a strip of what can be done in this place right now (wave, bench, snack, rock paper scissors, festival, spot actions). Towns have many small interactions, so the dock shows 3 per visit, quest beats first, then a rotating pick; ones already done show a tick; More opens the full list on the page. The graphical map stays. Closed spots, repairs, being on a walk and out-of-region grey the piece with a reason.'}),
 P('residential.php','Street of homes','🏠','out','here','i',A('↩','Here'),A('▶','Next street'),{why:'Right flips to Previous on the last page.'}),
 P('door.php','A villager\'s door','🚪','out','villagers','i',A('🎁','Leave gift'),A('✊','Knock'),{why:'Knock greys with "not home". Back is the Villagers tile.'}),
-P('villagers.php','Villagers','👥','out','villagers','n',A('↩','Here'),A('🚪','Visit door',{n:1}),{why:'Long list with a select filter, no tab strip.'}),
-P('adventure.php','Adventure (trail)','🏁','out','world','n',A('⚡','Quick',{quick:true,ro:true}),A('🥾','Trail',{trail:true,menu:TRAIL,mlabel:'On the trail'}),{why:'Left is the player\'s Quick item from the Satchel (read-only here: use it, but set or clear it in the Satchel). Right opens the Trail strip: Sights, Wander, Gather, Sneak, Hunt, Turn back. Sneak and Hunt are stances: tap to switch on, tap again to switch off, and the right piece shows the stance. Turn back is red and asks first. Wander and Gather cost energy.'}),
-P('adventure.php?fight','Adventure combat (puzzle)','⚔️','out','world','n',A('⚡','Quick',{quick:true,ro:true}),A('⚔️','Combat',{menu:[A('🔍','Creature',{ok:1,info:true}),A('🏃','Flee',{n:1,flee:true,cls:'danger'})],mlabel:'Puzzle combat'}),{why:'Puzzle combat is adventuring combat: the puzzle board is the fight, so there is no Fight on button. Left is the Quick item (use-only), for potions mid-fight. Right opens a strip: Creature opens an info popover about what you are fighting, Flee (red, asks first) leaves. Stance buttons are hidden in a fight, as today. All four menus stay usable: the fight is saved, so you can check the Satchel or Almanac and come back to the same board. The board keeps the whole stage, only the thin dock sits below it. The same dock shows when the fight stage swaps into other pages (pfstage).'}),
+P('villagers.php','Villagers','👥','out','villagers','n',A('↩','Here'),A('🚪','Visit door',{n:1}),{advAct:{R:A('🚪','Visit door',{n:1,dis:'on the road'})},why:'Long list with a select filter, no tab strip.'}),
+P('adventure.php','Adventure (trail)','🏁','out','here','n',A('⚡','Quick',{quick:true,ro:true}),A('🥾','Trail',{trail:true,menu:TRAIL,mlabel:'On the trail'}),{why:'Left is the player\'s Quick item from the Satchel (read-only here: use it, but set or clear it in the Satchel). Right opens the Trail strip: Sights, Wander, Gather, Sneak, Hunt, Turn back. Sneak and Hunt are stances: tap to switch on, tap again to switch off, and the right piece shows the stance. Turn back is red and asks first. Wander and Gather cost energy.'}),
+P('adventure.php?fight','Adventure combat (puzzle)','⚔️','out','here','n',A('⚡','Quick',{quick:true,ro:true}),A('⚔️','Combat',{menu:[A('🔍','Creature',{ok:1,info:true}),A('🏃','Flee',{n:1,flee:true,cls:'danger'})],mlabel:'Puzzle combat'}),{why:'Puzzle combat is adventuring combat: the puzzle board is the fight, so there is no Fight on button. Left is the Quick item (use-only), for potions mid-fight. Right opens a strip: Creature opens an info popover about what you are fighting, Flee (red, asks first) leaves. Stance buttons are hidden in a fight, as today. All four menus stay usable: the fight is saved, so you can check the Satchel or Almanac and come back to the same board. The board keeps the whole stage, only the thin dock sits below it. The same dock shows when the fight stage swaps into other pages (pfstage).'}),
 P('gourmand.php','Gourmand','🥄','out','gourmand','n',A('📓','Journal'),A('🍽️','Serve',{ok:1}),{tabs:['Now','Journal','Menu','How it works'],why:'Tile only while he is open. Serve greys with "nothing to serve".'}),
 P('trek.php','Treks','🥾','out','treks','n',A('⛺','Camp',{ok:1}),A('🥾','Go',{ok:1,e:1}),{tabs:['Map','Party','Pack','Log'],why:'Level gated. Fights use play mode (Flee, Strike). Party and Pack tabs: right becomes Map.'}),
 P('mentor.php','Mentor lodge','📜','tog','friends','n',A('↩','Back'),A('📜','Take chapter',{ok:1}),{why:'Reached from Friends (calling, mentor tabs).'}),
@@ -444,6 +463,7 @@ const EDGES=[
 ['Adventure combat','Puzzle combat is adventuring combat. Creature is read-only and closes with a tap anywhere, Esc or the same piece again. If the fight has a clock, opening it pauses it (check the fight engine). Flee spells out what you keep and lose before it asks. Menus are not locked: the fight is saved server-side, so leaving for the Satchel or Almanac and coming back lands on the same board; only Flee or finishing ends it. While a fight is on, a gold "fight" tag sits on the Out & about piece so you can find your way back. When the stage swaps into other pages (pfstage), those pages\' own left and right pieces are replaced for the fight and restored after.'],
 ['Do here picks','Picks are fixed for the visit so the strip does not shuffle while you use it. Order: quest beats first (a notice that wants doing), then actions you have not done, rotating each visit. Done ones keep their slot with a tick. If everything is done the piece shows no badge. New visit shuffles. Spots are data (town_actions), so the pool changes per town; a spot with 4 or fewer shows them all and no More.'],
 ['Place cannot be used','Greyed with a reason from the game: closed (hours or months), repairs (Wren\'s Journey lock, with a Repair piece instead), on a walk, wrong region. Same messages the page gives today.'],
+['Road rules','Greyed tiles keep their place in the strip and show "on the road" so players learn why. Healing potions cannot be used on a walk or in a fight (the game says heal in town), so a potion on Quick greys with "town only" there; the in-fight Snack (home-cooked food, uses your turn) is the existing way to heal mid-fight, and the Quick piece is a good home for it. Puzzle combat dropped the old Fight on button as you decided.'],
 ['Quick on the trail','Read-only: tap uses it, nothing can be assigned or cleared here, so a thumb that slips while walking cannot lose the setting. Empty shows "in Satchel". Treks could get the same left piece; say if you want it.'],
 ['Stances','Sneak and Hunt are toggles: one at a time, tap the armed one to turn it off. The right piece shows Sneaking or Hunting while one is on. They disappear during an encounter, as the buttons do today.'],
 ['Turn back','Red piece, last in the strip, always asks first (gvAsk). It is the only piece that leaves the trail.'],
@@ -472,7 +492,7 @@ const EDGES=[
 ];
 
 /* ------------ state + render ------------ */
-const S={pg:'garden.php',tab:null,slip:null,place:'town',visit:0,done:new Set(),repair:false,stance:null,shop:'buy',shopSel:null,shopMode:'single',shopMulti:new Set(),qMode:false,sat:null,quickIdx:null,selMode:false,sel:new Set(),tired:false,kb:false,late:true,trip:false,tool:0,W:844,H:390};
+const S={pg:'garden.php',tab:null,slip:null,adv:'none',place:'town',visit:0,done:new Set(),repair:false,stance:null,shop:'buy',shopSel:null,shopMode:'single',shopMulti:new Set(),qMode:false,sat:null,quickIdx:null,selMode:false,sel:new Set(),tired:false,kb:false,late:true,trip:false,tool:0,W:844,H:390};
 const $=id=>document.getElementById(id);
 const stage=$('stage'),box=$('box');
 const byFile=f=>PAGES.find(p=>p.f===f);
@@ -525,7 +545,7 @@ function itemWhy(a){if(a.dis)return a.dis;if(S.tired&&a.e)return '⚡0';if(a.b==
 function curTool(R){const m=R.menu,n=m.length;for(let k=0;k<n;k++){const a=m[(S.tool+k)%n];if(!itemWhy(a)){S.tool=(S.tool+k)%n;return a}}return null}
 function quickPiece(ro){
   if(!ro&&S.qMode){const it=S.sat!=null?ITEMS[S.sat]:null;return {i:it?it.i:'☑',l:'Confirm',qk:'confirm',qx:'cancel',chip:it?null:'pick item'}}
-  if(S.quickIdx!=null){const it=ITEMS[S.quickIdx];return {i:it.i,l:it.l,b:it.q>0?it.q:0,qk:ro?'useonly':'use',qx:ro?undefined:'clear',chip:it.q>0?null:'0 left'}}
+  if(S.quickIdx!=null){const it=ITEMS[S.quickIdx];return {i:it.i,l:it.l,b:it.q>0?it.q:0,qk:ro?'useonly':'use',qx:ro?undefined:'clear',chip:it.q<=0?'0 left':((S.adv!=='none'&&/health/.test(it.use||''))?'town only':null)}}
   return ro?{i:'＋',l:'Quick',qk:'none',chip:'in Satchel'}:{i:'＋',l:'Quick',qk:'empty'}
 }
 function placeItems(){
@@ -569,6 +589,10 @@ function curActions(p){
   if(S.selMode&&p.f==='garden.php')return [A('✓','Done',{selDone:true}),{i:'🔲',l:'Picked',b:S.sel.size,info:true}];
   let L=p.L,R=p.R;
   if(p.tabAct&&S.tab&&p.tabAct[S.tab])[L,R]=p.tabAct[S.tab];
+  if(S.adv!=='none'){
+    if(p.advAct){if(p.advAct.L!==undefined)L=p.advAct.L;if(p.advAct.R!==undefined)R=p.advAct.R}
+    if(S.adv==='fight'&&p.fightAct){if(p.fightAct.L!==undefined)L=p.fightAct.L;if(p.fightAct.R!==undefined)R=p.fightAct.R}
+  }
   if(L&&L.quick)L=quickPiece(!!L.ro);
   if(L&&L.place)L=placePiece();
   if(L&&L.deal)L=dealPiece();
@@ -681,7 +705,9 @@ function slipHTML(W,g,p,L,R){
   const th=54,tw=W<720?52:58;
   let items,flat=false,label,from='';
   if(SUB[S.slip]){
-    items=visibleSubs(S.slip).map(s=>({i:s[1],l:s[2],go:s[3],cond:!!s[4],on:p.m===S.slip&&p.s===s[0],b:BADGE[s[3]]}));label=MAIN[S.slip].n;
+    items=visibleSubs(S.slip).map(s=>{let ic=s[1],l=s[2],gf=s[3],why=null;
+      if(S.adv!=='none'){if(s[3]==='here.php'){ic='🥾';l='Trail';gf=S.adv==='fight'?'adventure.php?fight':'adventure.php'}else if(['world.php','trek.php'].includes(s[3]))why='on the road'}
+      return {i:ic,l,go:gf,why,cond:!!s[4],on:p.m===S.slip&&p.s===s[0],b:BADGE[s[3]]}});label=MAIN[S.slip].n;
   } else {
     flat=true;from=S.slip==='actL'?'L':'R';
     const a=from==='L'?L:R;
@@ -738,9 +764,10 @@ function creaturePop(W,g){
    +'<button class="row" data-go="puzzlebox.php"><span>📚</span>Codex entry</button></div></div></div>';
 }
 function popHTML(W,g){
-  const w=372,h=232,x=W/2-w/2,y=g.A+3-h;
+  const w=372,h=S.adv!=='none'||S.trip?258:232,x=W/2-w/2,y=g.A+3-h;
   const info=[['⚡','Energy','48/60 · +1 in 4:10'],['🌱','Level 12','620 / 1,000 XP'],['❤️','Health','18/20'],['🪙','Petals','1,240'],['🕐','Day 14','3:40pm'],['🎏','Opening Day','day 2 of 3']];
   const links=[['🌸','Spring day 6 🌤','','world.php'],['✨','Stat points','2','gnome.php'],['🍳','Pots ready','2','workshop.php'],['🫙','Jars ready','1','workshop.php'],['🐾','Pals out','2','palyard.php']];
+  if(S.adv==='fight')links.unshift(['⚔️','Back to the fight','','adventure.php?fight']);else if(S.adv==='walk')links.unshift(['🥾','Back to the trail','','adventure.php']);
   if(S.trip)links.push(['🏁','Trip: Mossy Bridge','3 stops','adventure.php']);
   return '<div class="pop" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px">'+pieceSVG(w,h,0,0,1,0)
    +'<div class="body"><div><h4>Right now</h4>'+info.map(r=>'<div class="row"><span>'+r[0]+'</span>'+esc(r[1])+'<b>'+esc(r[2])+'</b></div>').join('')+'</div>'
@@ -837,6 +864,7 @@ function onAct(side){
     S.shopSel=null;S.shopMulti=new Set();render();
     toast('🛒 Bought '+pk.length+(pk.length===1?' item':' items')+' · −'+tot+'🪙');return;
   }
+  if(a.goto){go(a.goto);return}
   if(a.qk==='none'){toast('Nothing on Quick. Set one in the Satchel.');return}
   if(a.qk==='empty'){S.qMode=true;S.sat=null;render();toast('Pick an item in your satchel, then tap Confirm');return}
   if(a.qk==='confirm'){
@@ -848,6 +876,7 @@ function onAct(side){
   if(a.qk==='use'||a.qk==='useonly'){
     if(lp){lp=false;return}
     const it=ITEMS[S.quickIdx];
+    if(S.adv!=='none'&&/health/.test(it.use||'')){toast('Heal up in town or between adventures. Food still works on the road.');return}
     if(it.q<=0){toast(it.i+' none left. Tap ✕ to clear, or restock.');return}
     it.q--;render();toast(it.i+' '+it.use+' · '+it.q+' left');return;
   }
@@ -876,8 +905,17 @@ function runItem(i,from){
 }
 document.addEventListener('focusin',e=>{if(stage.contains(e.target)&&e.target.matches('input')&&!S.kb){S.kb=true;$('kbChk').checked=true;S.slip=null;render()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.slip){S.slip=null;render()}});
-function go(file){S.pg=file;S.tab=null;S.slip=null;S.shopSel=null;S.shopMulti=new Set();S.shopMode='single';S.qMode=false;S.sat=null;S.selMode=false;S.sel=new Set();$('pgSel').value=file;render()}
+const ADV_BLOCK=['here.php','town.php','residential.php','world.php','shop.php','door.php'];
+function go(file){
+  let msg='';
+  if(S.adv!=='none'&&ADV_BLOCK.includes(file)){file=S.adv==='fight'?'adventure.php?fight':'adventure.php';msg='You are still on the road: sent back to the trail'}
+  if(S.adv==='walk'&&file==='adventure.php?fight')file='adventure.php';
+  if(S.adv==='fight'&&file==='adventure.php')file='adventure.php?fight';
+  if(S.adv==='none'&&file.startsWith('adventure.php')){file='world.php';msg='Not on a walk: sent to the World page'}
+  if(msg)setTimeout(()=>toast(msg),0);
+  S.pg=file;S.tab=null;S.slip=null;S.shopSel=null;S.shopMulti=new Set();S.shopMode='single';S.qMode=false;S.sat=null;S.selMode=false;S.sel=new Set();$('pgSel').value=file;render()}
 function setTheme(v){if(v)document.documentElement.setAttribute('data-theme',v);else document.documentElement.removeAttribute('data-theme')}
+$('advSel').addEventListener('change',e=>{S.adv=e.target.value;S.slip=null;go(S.pg)});
 $('tripChk').addEventListener('change',e=>{S.trip=e.target.checked;render()});
 $('placeSel').addEventListener('change',e=>{S.place=e.target.value;S.done=new Set();S.slip=null;render()});
 $('visitBtn').addEventListener('click',()=>{S.visit++;S.done=new Set();S.slip=null;render();toast('New visit: the picks changed')});
