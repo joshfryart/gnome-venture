@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.59
+- **Dock: garden pickers on landscape phones.** The seed (Plant…), Work in and Mulch popovers showed only a sliver of the list because the search, chips and "in season" rows took most of a 390 px screen. In dock mode on short landscape screens they now share one row and the head and foot are slim (`dock.css`). Seen in a headless capture at 844 x 390 only.
+
 ## 2.7.58
 - **Nav dock (admin preview, off by default).** A landscape bottom dock (four jigsaw menu pieces, two page actions, a status plate, a play-mode rail) replaces the header, status strip, bottom bar and menu sheet in landscape. Setting `nav_dock`: `0` off (default, nothing changes), `admin` admins only, `1` everyone; admins can add `?dock=on` or `?dock=off`. Portrait keeps today's chrome. Design: `nav_dock_mockups.html`; plan and status per page: `claude/plan-nav-dock.md`. New: `includes/dock.php`, `assets/dock.js`, `assets/dock.css`, 72 icons in `assets/img/nav/` (source `art-nav-dock/`).
 - **Page actions.** Left and right pieces work the page's own controls (the page's CSRF, confirms and in-place update apply): Garden (Select with Pick and Then strips; Tools Water, Harvest, Till on one bed; bulk buttons), Tasks, Shop (basket button, Buy | Sell), Crafting, Hovel and Gnome (Rest, Heal), Town, World, Trading, Market day, Community garden (Select mode), Pal jobs, Yard editor, mini-game rail.
