@@ -1,0 +1,4 @@
+﻿- **Stem is a blob, not a curl:** it's a stubby brown lump on the upper-right shoulder. Redraw it at x52–59, y15–25 as a 3px-wide stalk that arcs up and hooks right, using #7a5a2c with a #8a4f2a highlight. The reference stem is a thin curled tendril.
+- **Stripes are muddy and lens-shaped:** the brown-olive arcs form one eye shape across the middle. Replace them with three pale 2px lengthwise lines in #a4b86a and #7ab55c. Run them the full body length, bowing slightly along the curve, and drop the brown.
+- **Weak silhouette and shading:** the thick brown outline and the shadow feet look like a turtle shell. Thin the outline to 1px dark green (#2f5a2a). Make the ground shadow one flat ellipse. Add a clear #2f5a2a crescent along the lower right (y44–55) for volume. Enlarge the blossom to a 5px #e8a317 petal with a #d6c24a highlight.
+
