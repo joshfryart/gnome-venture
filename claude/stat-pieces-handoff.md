@@ -18,7 +18,7 @@ Each gnome auto-owns unique stat pieces by stat points: stats Nimble, Lore, Luck
 - Earlier: test fixes for main 2.7.57 (all pushed).
 - Tests: `tests/pf_stat_pieces.{php,sh}`, `tests/pf_stat_luck.php`, `tests/pf_stat_nimble.php`. Run: `PORT_BASE=<20000..29000> bash tests/ci_suites.sh <suite>` (suite names in `.github/workflows/ci.yml`).
 
-## In flight (may be partly or fully done by a background workflow; CHECK `git status` and `git log` first)
+## In flight: Lore slice committed as WIP snapshot (pf_stat_pieces and pf_stat_lore tests pass; parity suite and full run not rechecked). A background workflow may still add commits: check `git log` first
 A Claude Workflow (run `whtw8o5q3`) was building slices in order: Lore, Sense, UI/layout, anim motifs into real pfanim build, art wiring, 3 reviewers, fixer plus full test run plus docs. At handoff the working tree held UNCOMMITTED Lore work: `game/includes/pfboard.php`, `game/includes/pfdeck.php`, `game/includes/data/pf_stat_pieces.txt`, `tools/pfengine.js`, `game/assets/pfboardv1.js` (1 line), `tests/pf_stat_pieces.*`, `tests/pfengine_js.{js,php}`, untracked `tests/pf_stat_lore.php`. If the workflow is dead or the tree is unchanged for a while, finish the Lore slice yourself (run its tests, `git add` explicit paths, commit). Do not clobber a running agent's edits.
 
 ## Unfinished (in order)

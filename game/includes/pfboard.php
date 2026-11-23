@@ -41,7 +41,8 @@ const PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'r
 const PFB_ROLL_BASE = 50, PFB_ROLL_PER = 2, PFB_ROLL_MAX = 90;
 /** Stat-piece actions (the clause parser looks here after data/wear_fx.txt's act rows, which a generator writes): name => [phase, step]. */
 const PFB_STAT_ACTS = ['again' => ['fire', 'post'], 'fup' => ['fire', 'post'], 'pinch' => ['fire', 'post'], 'coin' => ['fire', 'post'], 'streak' => ['fire', 'post'],
-    'shove' => ['fire', 'post'], 'phantom' => ['fire', 'post'], 'stance' => ['stand', 'stand'], 'shadow' => ['react', 'react']];   // Nimble: stance and shadow only mark the piece (Pinning Stance on the board, Shadow Step in your hand); the engine reads them in the creature's turn
+    'shove' => ['fire', 'post'], 'phantom' => ['fire', 'post'], 'stance' => ['stand', 'stand'], 'shadow' => ['react', 'react'],
+    'boostall' => ['fire', 'post'], 'weather' => ['fire', 'post'], 'teach' => ['fire', 'post'], 'retell' => ['fire', 'post']];   // Lore: Lantern Chain, Weather Lore, Copybook, Turn of the Tale   // Nimble: stance and shadow only mark the piece (Pinning Stance on the board, Shadow Step in your hand); the engine reads them in the creature's turn
 const PFB_WX_REFIRE = ['again', 'streak'];   // actions that make pieces fire again: a refire never runs them (nor a clause that rolls)   // the shared Luck roll of the stat pieces: 50% + 2% per Luck point, at most 90%   // where a piece comes from (tile field 'src')
 const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craft' => 'craft', 'legend' => 'mind', 'wear' => 'body'];   // authored edges: the column family (top and bottom) of a sourced piece; other pieces use their type family
 const PFB_UP = ['hurt' => 1, 'charm' => 1, 'trick' => 1];   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round
@@ -538,9 +539,11 @@ function pfb_env_place(array &$s): void
     foreach ($s['env']['next'] as $tile) {
         $capd = $cap > 0 && count(array_filter($s['pcs'], fn($q) => $q['by'] === 'env' && empty($q['tile']['own']))) >= $cap;
         $full = $capd || count($s['cell']) >= (float)($s['v1']['envcap'] ?? 1) * pfb_w($s) * pfb_h($s);
-        $cells = $full ? [] : pfb_env_cells($s, $tile);
+        $pc = !$full && isset($tile['wpref']) ? pfb_env_pref($s, $tile) : null;   // Weather Lore's called piece: a free cell beside it
+        $cells = $full ? [] : ($pc !== null ? [$pc] : pfb_env_cells($s, $tile));
         if (!$cells) { $s['envlog'][] = ['k' => 'pass'] + $P + ['kind' => $tile['env'], 'n' => $tile['n']] + ($full ? ['full' => 1] : []) + ($capd ? ['cap' => $cap] : []) + ['now' => pfb_env_now($s)]; $keep[] = $tile; continue; }
-        [$x, $y] = $cells[pf_rand($s, count($cells))];
+        [$x, $y] = $pc ?? $cells[pf_rand($s, count($cells))];
+        unset($tile['wpref']);
         $tile = pfb_env_fit($s, $tile, $x, $y);   // 2.7.55: on a 3x3 board a side that does not fit turns flat
         if ($tile['env'] === 'wind') $tile['dir'] = pfb_env_wind_dir($s, $x, $y);
         $id = ++$s['pid']; $s['seq']++;
@@ -552,6 +555,21 @@ function pfb_env_place(array &$s): void
     }
     $s['env']['next'] = $keep;
     pfb_env_draw($s);
+}
+
+/** Weather Lore: the free cell beside where it stood (tile 'wpref') for its called piece: of the cells where the piece fits, the one with most links to your pieces (ties L R T B);
+ *  if it fits on none, the first free one (pfb_env_fit makes the sides that do not fit flat); null = no free cell beside it (the usual cells). */
+function pfb_env_pref(array $s, array $tile): ?array
+{
+    [$px, $py] = $tile['wpref']; $best = null; $bl = -1; $free = null;
+    foreach (PFB_SIDE as [$dx, $dy]) {
+        $x = (int)$px + $dx; $y = (int)$py + $dy;
+        if ($x < 0 || $y < 0 || $x >= pfb_w($s) || $y >= pfb_h($s) || isset($s['cell']["$x,$y"])) continue;
+        $free ??= [$x, $y]; $j = pfb_check($s, $tile, $x, $y); if ($j === null) continue;
+        $nl = 0; foreach ($j as [, $nid, $lk]) if ($lk && $s['pcs'][$nid]['by'] === 'me') $nl++;
+        if ($nl > $bl) { $bl = $nl; $best = [$x, $y]; }
+    }
+    return $best ?? $free;
 }
 
 /** An environment piece's effect costs a side a share of its maximum (your health, the creature's bar; guard does not help). Returns what it cost. */
@@ -666,7 +684,7 @@ function pfb_discard(array &$s, array $p): void
 {
     if ($p['by'] === 'none' || !empty($p['tile']['pin'])) return;   // pin: a piece Magpie's Pinch took from the creature is gone after use
     $t = $p['tile']; unset($t['flip'], $t['ft'], $t['dir'], $t['kr']);   // kr: rounds a wear piece waited in your hand
-    $s[$p['by']]['discard'][] = $t;
+    $s[!empty($p['ws']) ? 'foe' : $p['by']]['discard'][] = $t;   // ws: a piece Turn of the Tale stole goes back to the creature's discard (never your deck)
 }
 
 /** v1 ground: sunny, bramble and mud cells 1-2 steps from the centre (the counts by creature size). */
@@ -881,13 +899,17 @@ function pfb_edges(array $t): array
     return $cache[$key] = ['L' => ['hole', PF_HOLE[$t['t']] ?? 'body'], 'R' => ($t['r'] ?? null) ? ['knob', $t['r']] : ['flat', null], 'T' => $mk('|T'), 'B' => $mk('|B')];
 }
 
-/** Do two touching edges fit? [fits, linked]: linked = both are knob/hole (so the chain runs through the joint). */
+/** Do two touching edges fit? [fits, linked]: linked = both are knob/hole (so the chain runs through the joint). 'any' (Knot of Twine) fits and links any knob, hole or any, of any family; a flat side still never links. */
 function pfb_joint(array $a, array $b): array
 {
     if ($a[0] === 'wild' || $b[0] === 'wild') return [true, true];
     if ($a[0] === 'flat' || $b[0] === 'flat') return [true, false];
+    if ($a[0] === 'any' || $b[0] === 'any') return [true, true];
     return [$a[0] !== $b[0] && $a[1] === $b[1], $a[0] !== $b[0] && $a[1] === $b[1]];
 }
+
+/** Does a tile have a side of the edge kind 'any' (Knot of Twine: never a combo partner)? */
+function pfb_anyedge(array $t): bool { if (empty($t['ed'])) return false; foreach ($t['ed'] as $e) if ($e[0] === 'any') return true; return false; }
 
 function pfb_at(array $s, int $x, int $y): ?array
 {
@@ -999,6 +1021,7 @@ function pfb_set_combo(array $s, array $chain, int $ci, string $who, array $tile
             $q = $s['pcs'][$cid] ?? null;
             if (!$q || $q['by'] !== $who || ($q['tile']['t'] ?? '') !== $a) continue;
             if ($a === $b && $cj >= $ci) continue;
+            if (pfb_anyedge($q['tile'])) continue;   // Knot of Twine is never a combo partner
             $pv = max($pv ?? 0, (int)$q['tile']['v']);
         }
         if ($pv === null) continue;
@@ -1037,7 +1060,7 @@ function pfb_fire(array &$s, int $root, bool $alone = false): array
             $ev[] = $e; pf_check_end($s); continue;
         }
         $pt = $par !== null ? ($s['pcs'][$par] ?? null) : null;
-        if ($pt && ($pt['by'] === 'none' || $pt['by'] === 'env')) $pt = null;   // and a piece after it (or after an environment piece) has no combo parent
+        if ($pt && ($pt['by'] === 'none' || $pt['by'] === 'env' || pfb_anyedge($pt['tile']))) $pt = null;   // (Knot of Twine is never a combo partner) and a piece after it (or after an environment piece) has no combo parent
         [$val, , $ck] = pf_value($pt['tile'] ?? null, $tile, $pt !== null && $pt['by'] === $who, false);   // combos only off your own piece; no fit bonus (every link fits)
         if ($cset) [$val, $ck] = $ci >= 0 ? pfb_set_combo($s, $chain, $ci, $who, $tile) : pfb_set_combo($s, [[$id, null]], 0, $who, $tile);   // 2.7.06 (Josh): a combo needs the partner anywhere in the same chain (your pieces), not the piece it linked to
         $val = (int)pf_round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
@@ -1107,7 +1130,8 @@ function pfb_fire_limit(array $p, bool $tagfx = false, bool $firex = false, bool
 /** The fire limit of a piece in this fight (reads the fight's own rules, so a fight under way keeps its old limit). */
 function pfb_fire_lim(array $s, array $p): int
 {
-    if ($p['by'] === 'env') return pfb_v1r($s, 'envonce') === 1 ? 1 : 0;   // 2.7.55: a small fight's environment piece fires once, then leaves (the next one comes in)
+    if ($p['by'] === 'env') return pfb_v1r($s, 'envonce') === 1 ? 1 : 0;
+    if (!empty($p['ws'])) $p['by'] = 'foe';   // Turn of the Tale: a stolen piece keeps the creature's fire budget   // 2.7.55: a small fight's environment piece fires once, then leaves (the next one comes in)
     return pfb_fire_limit($p, pfb_v1r($s, 'tagfx') === 1, pfb_v1r($s, 'firex') === 1, !empty($s['boss']));
 }
 
@@ -1872,6 +1896,63 @@ function pfb_wx_shadow(array &$s, array $plan): array
     if (!$s['over']) $s['wshid'] = $id;
     return $ev;
 }
+/** Lantern Chain: your other pieces in its chain that have not fired yet get +n (wv), at most +a (the piece's fxa) a piece from all Lanterns of one chain ('wbl' = [chain mark, given]). Returns how many got some. */
+function pfb_wx_boostall(array &$s, ?int $id, int $n, array $cx): int
+{
+    if ($id === null || $n <= 0) return 0;
+    $cap = (int)($cx['t']['fxa'] ?? 0); $mk = (int)($s['firedroot'] ?? 0) . ':' . (int)$s['seq']; $k = 0;
+    foreach ($cx['ch'] ?? [] as [$qid]) {
+        $q = $s['pcs'][$qid] ?? null;
+        if (!$q || $qid === $id || $q['by'] !== 'me' || in_array($qid, $s['fired'] ?? [], true)) continue;
+        $had = ($q['wbl'][0] ?? '') === $mk ? (int)$q['wbl'][1] : 0; $add = min($n, $cap - $had);
+        if ($add <= 0) continue;
+        $s['pcs'][$qid]['wv'] = (int)($q['wv'] ?? 0) + $add; $s['pcs'][$qid]['wbl'] = [$mk, $had + $add]; $k++;
+    }
+    return $k;
+}
+/** Weather Lore: the environment's next face-up piece becomes a Sun (a Spring on large / boss boards), marked to come in beside this piece (wpref); the piece it replaces goes back on top of its draw pile. Once a round. */
+function pfb_wx_weather(array &$s, ?int $id, array &$e): bool
+{
+    if ($id === null || !isset($s['pcs'][$id], $s['env']) || empty($s['v1']['env']) || (int)($s['me']['wwl'] ?? 0) === (int)$s['round']) return false;
+    $kind = in_array((string)$s['size'], PFB_ENV_BIG_SIZES, true) ? 'spring' : 'sun'; $p = null;
+    foreach (pfb_env_table()['pieces'] as $q) if ($q['env'] === $kind) { $p = $q; break; }
+    if ($p === null) return false;
+    $t = ['k' => $p['k'], 'n' => $p['n'], 't' => 'env', 'v' => 0, 'r' => null, 'tag' => '', 'm' => '', 'src' => 'env', 'env' => $p['env'], 'life' => $p['life'], 'ed' => $p['ed'], 'wpref' => [(int)$s['pcs'][$id]['x'], (int)$s['pcs'][$id]['y']]];
+    if ($s['env']['next']) { $old = $s['env']['next'][0]; unset($old['wpref']); $s['env']['draw'][] = $old; $s['env']['next'][0] = $t; }
+    else $s['env']['next'][] = $t;
+    $s['me']['wwl'] = (int)$s['round']; $e['weather'] = $kind;
+    return true;
+}
+/** Copybook: the piece of yours it links to with no tag (not fired yet first, newest first; not a stolen one) learns the first tag of another of your pieces in the chain, for the fight (tile 'tt'). At most b (fxb) a fight. */
+function pfb_wx_teach(array &$s, ?int $id, array $cx, array &$e): bool
+{
+    if ($id === null || (int)($s['me']['wcb'] ?? 0) >= (int)($cx['t']['fxb'] ?? 0)) return false;
+    $tg = null; $tg2 = null;
+    foreach (pfb_links($s, $id) as $nid) {
+        $q = $s['pcs'][$nid]; if ($q['by'] !== 'me' || !empty($q['ws']) || (string)($q['tile']['tag'] ?? '') !== '') continue;
+        if (!in_array($nid, $s['fired'] ?? [], true)) { $tg = $nid; break; }
+        $tg2 ??= $nid;
+    }
+    $tg ??= $tg2; if ($tg === null) return false;
+    $tag = '';
+    foreach ($cx['ch'] ?? [] as [$qid]) {
+        $q = $s['pcs'][$qid] ?? null; if (!$q || $qid === $id || $qid === $tg || $q['by'] !== 'me') continue;
+        $g = (string)($q['tile']['tag'] ?? ''); if ($g !== '' && (isset(PF_TAGS[$g]) || isset(PF_TAGS_V1[$g]))) { $tag = $g; break; }
+    }
+    if ($tag === '') return false;
+    $s['pcs'][$tg]['tile']['tag'] = $tag; $s['pcs'][$tg]['tile']['tt'] = 1; $s['me']['wcb'] = (int)($s['me']['wcb'] ?? 0) + 1; $e['teach'] = $tag;
+    return true;
+}
+/** Turn of the Tale: the strongest creature piece it links to (ties: the newest) becomes yours where it stands (by me, ws 1: the creature's fire budget, its discard). Once a fight, bosses too. */
+function pfb_wx_retell(array &$s, ?int $id, array &$e): bool
+{
+    if ($id === null || !empty($s['me']['wtt'])) return false;
+    $best = null; $bv = null;
+    foreach (pfb_links($s, $id) as $nid) { $q = $s['pcs'][$nid]; if ($q['by'] !== 'foe') continue; $v = (int)$q['tile']['v'] + (int)($q['wv'] ?? 0); if ($bv === null || $v > $bv) { $bv = $v; $best = $nid; } }
+    if ($best === null) return false;
+    $s['pcs'][$best]['by'] = 'me'; $s['pcs'][$best]['ws'] = 1; $s['me']['wtt'] = 1; $s['wtot'] = 1; $e['retell'] = (string)$s['pcs'][$best]['tile']['n'];
+    return true;
+}
 /** Does this fight's deck hold a wear piece with an effect? */
 function pfb_wx_has(array $s): bool
 {
@@ -2077,6 +2158,11 @@ function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
         // ---- stat pieces (Nimble)
         case 'shove': $did = pfb_wx_shove($s, $e); break;   // Wrong Turn
         case 'phantom': if (isset($s['me']['wph'])) { $did = false; break; } $s['me']['wph'] = [(int)$s['round'], $n]; break;   // Phantom Footing: you pick its landing cell in the next n rounds (once a fight)
+        // ---- stat pieces (Lore)
+        case 'boostall': $k = pfb_wx_boostall($s, $id, $n, $cx); if (!$k) { $did = false; break; } $e['lantern'] = $k; break;   // Lantern Chain
+        case 'weather': $did = pfb_wx_weather($s, $id, $e); break;   // Weather Lore
+        case 'teach': $did = pfb_wx_teach($s, $id, $cx, $e); break;   // Copybook
+        case 'retell': $did = pfb_wx_retell($s, $id, $e); break;   // Turn of the Tale
         default: $did = false;
     }
     if ($did) $e['wfx'][] = $a . ($n ? ' ' . $n : '');
@@ -2549,7 +2635,7 @@ function pfb_view(array $s): array
             if ($p['by'] === 'env') $v['pcs'][$i] += ['kind' => (string)$p['tile']['env'], 'dir' => $p['tile']['dir'] ?? null];   // 2.6.75: an environment piece: its kind, Wind's arrow
         }
         foreach ($v['hand'] as $i => $t) { $ht = $s['me']['hand'][$i]; $v['hand'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip']), 'canflip' => pfb_can_flip($s, $i), 'rank' => (int)($ht['rank'] ?? 0), 'tool' => (string)($ht['tool'] ?? '')]; if (!empty($ht['fx'])) $v['hand'][$i]['fx'] = pfb_wx_text((string)$ht['fx'], (int)($ht['fxa'] ?? 0), (int)($ht['fxb'] ?? 0)); }   // 2.7.09: a wear piece's effect sentence
-        foreach ($v['pcs'] as $i => $q) { $pt = $s['pcs'][$q['id']]['tile']; if (!empty($pt['fx'])) $v['pcs'][$i]['fx'] = pfb_wx_text((string)$pt['fx'], (int)($pt['fxa'] ?? 0), (int)($pt['fxb'] ?? 0)); }
+        foreach ($v['pcs'] as $i => $q) { $pt = $s['pcs'][$q['id']]['tile']; if (!empty($pt['fx'])) $v['pcs'][$i]['fx'] = pfb_wx_text((string)$pt['fx'], (int)($pt['fxa'] ?? 0), (int)($pt['fxb'] ?? 0)); if (!empty($s['pcs'][$q['id']]['ws'])) $v['pcs'][$i]['ws'] = 1; if (!empty($pt['tt'])) $v['pcs'][$i]['tt'] = 1; }   // ws: stolen by Turn of the Tale, tt: a tag Copybook taught
         if ($v['held']) foreach ($v['held']['pcs'] as $i => $q) { $ht = $g['pcs'][$i]['tile']; $v['held']['pcs'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip'])]; }
         foreach ($v['gone'] as $i => $q) if (isset($s['gone'][$i]['used'])) $v['gone'][$i]['used'] = $s['gone'][$i]['used'];
         foreach ($v['gone'] as $i => $q) if (!empty($s['gone'][$i]['fnew'])) $v['gone'][$i]['fnew'] = true;   // the creature put it down this turn and it left in the same turn: the page holds it back until the replay reaches its step (pfb_gone_entry marks it; the view used to drop the mark, so it showed from the first frame)

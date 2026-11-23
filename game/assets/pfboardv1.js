@@ -948,6 +948,7 @@
   function joint(a, b) {   // [fits, linked]
     if (a[0] === 'wild' || b[0] === 'wild') return [true, true];   // the blank centre piece (blank-start variant) fits and links with everything
     if (a[0] === 'flat' || b[0] === 'flat') return [true, false];
+    if (a[0] === 'any' || b[0] === 'any') return [true, true];   // Knot of Twine (stat piece): links any knob or hole of any family (pfb_joint)
     var ok = a[0] !== b[0] && a[1] === b[1];
     return [ok, ok];
   }

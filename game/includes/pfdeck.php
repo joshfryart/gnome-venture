@@ -86,6 +86,7 @@ function pfd_stat_pieces(): array
         $S[$r[0]] = ['k' => $r[0], 'n' => $r[1], 'stat' => $r[2], 'tier' => (int)$r[3], 't' => $r[4], 'v' => (int)$r[5], 'vd' => max(0, (int)$r[6]),
             'r' => in_array($e[0], PFD_FAM, true) ? $e[0] : null, 'col' => in_array($e[1] ?? '', PFD_FAM, true) ? $e[1] : null, 'tag' => $r[8] === '-' ? '' : $r[8],
             'ab' => $r[9] === '-' ? '' : $r[9], 'live' => $r[10] === '1', 'fx' => $r[11] === '-' ? '' : $r[11], 'text' => $r[12]];
+        if ($r[7] === 'any') $S[$r[0]]['edges'] = ['L' => ['any', null], 'R' => ['any', null], 'T' => ['any', null], 'B' => ['any', null]];   // Knot of Twine: four sides of the edge kind any (pfb_joint)
     }
     return $S;
 }
@@ -107,6 +108,7 @@ function pfd_stat_entry(array $p, int $pts): array
     $x = ['k' => $p['k'], 'n' => $p['n'], 'src' => 'stat', 'ref' => $p['stat'] . ':' . $p['tier'], 't' => $p['t'], 'v' => $p['v'] + ($p['vd'] > 0 ? intdiv(max(0, $pts), $p['vd']) : 0), 'r' => $p['r'],
         'tag' => $p['tag'], 'life' => 0, 'rar' => 0, 'blurb' => strtr($p['text'], ['{a}' => (string)$a, '{b}' => (string)$b]), 'st' => $p['stat'], 'sm' => pfd_stat_mod($pts), 'fa' => $a, 'fb' => $b];
     if ($p['col'] !== null) $x['col'] = $p['col'];
+    if (isset($p['edges'])) $x['edges'] = $p['edges'];   // authored edges (Knot of Twine: any)
     if ($p['live'] && $p['fx'] !== '') $x['fx'] = 'S:' . $p['k'];
     return $x;
 }
@@ -434,7 +436,7 @@ function pfd_build(array $src): array
         $e = ['key' => $key, 'k' => $p['k'], 'n' => $p['n'], 't' => $p['t'], 'v' => (int)$p['v'], 'r' => $p['r'], 'tag' => (string)$p['tag'], 'src' => $p['src'], 'ref' => (string)($p['ref'] ?? ''), 'rank' => $rank,
             'life' => (int)($p['life'] ?? 0) ?: ($rank >= 4 ? 4 : ($p['tag'] === 'quick' ? 2 : ($p['tag'] === 'hold' ? 4 : PFB_LIFE))), 'blurb' => (string)($p['blurb'] ?? ''),
             'gear' => false, 'tool' => '', 'starter' => false, 'core' => false, 'on' => false, 'out' => ''];
-        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb', 'st', 'sm'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];   // fx fa fb: a Tailor wearable's effect code and numbers (includes/wearables.php); st sm: a stat piece's stat and its modifier
+        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb', 'st', 'sm', 'edges'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];   // edges: a stat piece's own four edges (Knot of Twine); fx fa fb: a Tailor wearable's effect code and numbers (includes/wearables.php); st sm: a stat piece's stat and its modifier
         return $x + $e;
     };
     $pieces = []; $seen = [];
@@ -534,7 +536,7 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
         if ($e['src'] === 'calling') $b += max(0, $ctier - 1) * 2;
         if ($e['src'] !== 'pal') $b += PFD_RANK_BONUS[(int)$e['rank']] ?? 0;
         $over = ['n' => $e['n'], 't' => $t, 'v' => (int)$e['v'], 'r' => $e['r'], 'tag' => (string)$e['tag'], 'src' => $e['src'], 'life' => (int)$e['life'], 'rank' => (int)$e['rank']];
-        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb', 'st', 'sm'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
+        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb', 'st', 'sm', 'edges'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
         if ($e['tool'] !== '') $over['tool'] = $e['tool'];
         $tile = pf_make_tile($k, $stats, $b, $over);
         if (!empty($e['fx'])) { $tile['fx'] = (string)$e['fx']; $tile['fxa'] = (int)($e['fa'] ?? 0); $tile['fxb'] = (int)($e['fb'] ?? 0); }
@@ -547,6 +549,7 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
 /** The four authored edges of a deck entry (as the board gives them: pfb_v1_tile). */
 function pfd_edges(array $e): array
 {
+    if (is_array($e['edges'] ?? null)) return $e['edges'];   // its own four edges (Knot of Twine)
     return pfb_author_edges(['t' => $e['t'], 'r' => $e['r']], (string)($e['col'] ?? PFB_SRC_FAM[$e['src']] ?? PF_HOLE[$e['t']] ?? 'body'), isset($e['up']) ? (bool)$e['up'] : null);
 }
 

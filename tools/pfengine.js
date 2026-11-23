@@ -526,7 +526,7 @@
   var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.7, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
   var PFB_TEAM_SRC = ['pal', 'tool', 'crop', 'craft', 'region', 'knack', 'calling'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'wear', 'creature', 'env', 'stat'];
   var PFB_ROLL_BASE = 50, PFB_ROLL_PER = 2, PFB_ROLL_MAX = 90;   // the shared Luck roll of the stat pieces (pfb_wx_chance)
-  var PFB_STAT_ACTS = { again: ['fire', 'post'], fup: ['fire', 'post'], pinch: ['fire', 'post'], coin: ['fire', 'post'], streak: ['fire', 'post'], shove: ['fire', 'post'], phantom: ['fire', 'post'], stance: ['stand', 'stand'], shadow: ['react', 'react'] }, PFB_WX_REFIRE = ['again', 'streak'];   // stat-piece actions (pfboard.php PFB_STAT_ACTS, PFB_WX_REFIRE)
+  var PFB_STAT_ACTS = { again: ['fire', 'post'], fup: ['fire', 'post'], pinch: ['fire', 'post'], coin: ['fire', 'post'], streak: ['fire', 'post'], shove: ['fire', 'post'], phantom: ['fire', 'post'], stance: ['stand', 'stand'], shadow: ['react', 'react'], boostall: ['fire', 'post'], weather: ['fire', 'post'], teach: ['fire', 'post'], retell: ['fire', 'post'] }, PFB_WX_REFIRE = ['again', 'streak'];   // stat-piece actions (pfboard.php PFB_STAT_ACTS, PFB_WX_REFIRE)
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft', wear: 'body' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2, PFB_COUNTER_ADD = 2;   // PFB_COUNTER_ADD: 2.7.08 counter pieces
@@ -812,7 +812,7 @@
   // stat pieces: the rows of game/includes/data/pf_stat_pieces.txt (comments left out; tests/pfengine_js.sh checks key => [fx, text] matches pfb_stat_data)
   var PFB_STAT_ROWS = [
     "stat-sidestep|Sidestep|nimble|0|trick|2|5|body/body|quick|-|1|aimnext evade ; onaim skip|Quick. Next to the creature's aim: its next hit misses. On its aim: it skips its turn.",
-    "stat-old-saying|Old Saying|lore|0|trick|2|5|mind/mind|-|ab|0|boost:a ; cenv more:b|Gives {a} to your linked piece that fires next. With an environment piece in the chain, {b} more.",
+    "stat-old-saying|Old Saying|lore|0|trick|2|5|mind/mind|-|ab|1|boost:a ; cenv more:b|Gives {a} to your linked piece that fires next. With an environment piece in the chain, {b} more.",
     "stat-loaded-die|Loaded Die|luck|0|item|1|10|craft/craft|-|-|1|roll again:link|Roll 50% + 2% per Luck point (max 90%). On a hit the piece it links to fires twice, on a miss once.",
     "stat-sharp-eye|Sharp Eye|sense|0|guard|2|5|body/body|keep|a|0|keep ; fnext:a|Keeper. Held: you see the piece the creature plays after its aim. Played: its next piece loses {a}.",
     "stat-skitter|Skitter|nimble|10|guard|2|5|body/body|evade|-|1|evade ; @miss kill|Evade: the creature's next Hurt misses, and the piece that missed tumbles off the board.",
@@ -820,11 +820,11 @@
     "stat-pinning-stance|Pinning Stance|nimble|20|guard|2|5|mind/mind|hold|-|1|stance|Hold. While it stands, if the creature has to pick again it may only pick a cell touching this piece; if none fits, it loses that move.",
     "stat-shadow-step|Shadow Step|nimble|25|guard|2|5|mind/mind|keep|-|1|@hand keep ; shadow|Keeper. When the creature places its aimed piece, this jumps from your hand onto a free cell touching it and fires there.",
     "stat-phantom-footing|Phantom Footing|nimble|30|guard|2|5|body/body|evade|-|1|evade ; phantom:2|Evade. For the next two rounds you choose where the creature's aimed piece lands: any free cell next to its aim where it fits.",
-    "stat-knot-of-twine|Knot of Twine|lore|10|trick|2|5|craft/craft|-|b|0|boost:b|Its four sides fit and link any knob or hole, whatever the family (a flat side or a Mud still does not link). The piece it links to gets +{b}.",
-    "stat-lantern-chain|Lantern Chain|lore|15|trick|2|5|craft/craft|-|ab|0|-|Every other piece of yours in its chain gets +{b}. If the chain has 4 or more pieces, they get +{a} instead.",
-    "stat-weather-lore|Weather Lore|lore|20|item|2|5|mind/mind|-|-|0|-|When it fires, the environment's next piece becomes a Sun (a Spring on large boards), and it comes in on a free cell beside Weather Lore if there is one.",
-    "stat-copybook|Copybook|lore|25|trick|3|5|craft/craft|-|-|0|-|The piece it links to learns the tag of another piece of yours in its chain (Pierce, Poison, Hold, Bash...) and keeps it for the rest of the fight, even after it is discarded.",
-    "stat-turn-of-the-tale|Turn of the Tale|lore|30|trick|4|5|mind/mind|-|-|0|-|The creature piece it links to becomes yours where it stands: it keeps its number and edges and fires for you in this chain and after.",
+    "stat-knot-of-twine|Knot of Twine|lore|10|trick|2|5|any|-|b|1|boost:b|Its four sides fit and link any knob or hole, whatever the family (a flat side or a Mud still does not link). The piece it links to gets +{b}.",
+    "stat-lantern-chain|Lantern Chain|lore|15|trick|2|5|craft/craft|-|ab|1|clen:0:3 boostall:b ; clen:4 boostall:a|Every other piece of yours in its chain gets +{b}. If the chain has 4 or more pieces, they get +{a} instead.",
+    "stat-weather-lore|Weather Lore|lore|20|item|2|5|mind/mind|-|-|1|weather|When it fires, the environment's next piece becomes a Sun (a Spring on large boards), and it comes in on a free cell beside Weather Lore if there is one. Once a round.",
+    "stat-copybook|Copybook|lore|25|trick|3|5|craft/craft|-|b|1|teach|The piece it links to learns the tag of another piece of yours in its chain (Pierce, Poison, Hold, Bash...) and keeps it for the rest of the fight, even after it is discarded. Never over a tag it has; at most {b} pieces a fight.",
+    "stat-turn-of-the-tale|Turn of the Tale|lore|30|trick|4|5|mind/mind|-|-|1|retell|The creature piece it links to becomes yours where it stands: it keeps its number and edges and fires for you in this chain and after. Once a fight.",
     "stat-hedge-rummage|Hedge Rummage|luck|10|trick|2|5|mind/mind|-|b|1|@place pluck:roll ; @place !roll fup:b|Placed: Pluck with your Luck roll (50% + 2% per point, max 90%, halved against a great creature) instead of Pluck's small chance. If it misses, the creature's next Hurt gets +{b}.",
     "stat-long-shot|Long Shot|luck|15|hurt|2|5|body/body|-|a|1|roll again ; !roll next:hurt:1:a|Roll. Hit: it fires twice. Miss: the next Hurt you place gets +{a}.",
     "stat-magpie-s-pinch|Magpie's Pinch|luck|20|item|2|5|body/body|-|-|1|roll pinch:hi ; !roll pinch:lo|Roll. Hit: take the creature's strongest hand piece; it is one of your next hand's 5 pieces, as yours. Miss: take its weakest hand piece instead.",
@@ -961,6 +961,18 @@
     for (var sd in PFB_SIDE) { var d = PFB_SIDE[sd], n = pieceAt(s, x + d[0], y + d[1]); if (n && !joint(e[sd], edges(n.tile)[d[2]])[0]) tile.ed[sd] = ['flat', null]; }
     return tile;
   }
+  function envPref(s, tile) {   // pfb_env_pref (Weather Lore)
+    var px = toInt(tile.wpref[0]), py = toInt(tile.wpref[1]), best = null, bl = -1, free = null;
+    for (var sd in PFB_SIDE) {
+      var x = px + PFB_SIDE[sd][0], y = py + PFB_SIDE[sd][1];
+      if (!inb(s, x, y) || has(s.cell, x + ',' + y)) continue;
+      if (free === null) free = [x, y];
+      var j = check(s, tile, x, y); if (j === null) continue;
+      var nl = 0; j.forEach(function (jt) { if (jt[2] && s.pcs[jt[1]].by === 'me') nl++; });
+      if (nl > bl) { bl = nl; best = [x, y]; }
+    }
+    return best !== null ? best : free;
+  }
   function envWindDir(s, x, y) {
     var ok = [];
     for (var d in PFB_SIDE) {
@@ -979,9 +991,11 @@
       var ne = 0; for (var pk in s.pcs) if (s.pcs[pk].by === 'env' && !truthy(s.pcs[pk].tile.own)) ne++;
       var capd = cap > 0 && ne >= cap;
       var full = capd || Object.keys(s.cell).length >= Number(nn(s.v1.envcap, 1)) * pfbW(s) * pfbH(s);
-      var cs = full ? [] : envCells(s, tile);
+      var pc = !full && tile.wpref !== undefined ? envPref(s, tile) : null;   // Weather Lore's called piece
+      var cs = full ? [] : (pc !== null ? [pc] : envCells(s, tile));
       if (!cs.length) { var P = { k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }; if (full) P.full = 1; if (capd) P.cap = cap; P.now = envNow(s); s.envlog.push(P); keep.push(tile); return; }
-      var c = cs[rand(s, cs.length)], x = c[0], y = c[1];
+      var c = pc !== null ? pc : cs[rand(s, cs.length)], x = c[0], y = c[1];
+      delete tile.wpref;
       tile = envFit(s, tile, x, y);   // 2.7.55
       if (tile.env === 'wind') tile.dir = envWindDir(s, x, y);
       var id = ++s.pid; s.seq++;
@@ -1080,7 +1094,7 @@
   function discardPiece(s, p) {
     if (p.by === 'none' || truthy(p.tile.pin)) return;   // pin: Magpie's Pinch's piece is gone after use
     var t = clone(p.tile); delete t.flip; delete t.ft; delete t.dir; delete t.kr;
-    s[p.by].discard.push(t);
+    s[truthy(p.ws) ? 'foe' : p.by].discard.push(t);   // ws: Turn of the Tale's stolen piece goes back to the creature
   }
   function seedGround(s) {
     s.ter = {}; if (!s.v1.ground) return;
@@ -1254,10 +1268,12 @@
   function joint(a, b) {
     if (a[0] === 'wild' || b[0] === 'wild') return [true, true];
     if (a[0] === 'flat' || b[0] === 'flat') return [true, false];
+    if (a[0] === 'any' || b[0] === 'any') return [true, true];   // Knot of Twine: any knob, hole or any of any family (pfb_joint)
     var ok = a[0] !== b[0] && a[1] === b[1];
     return [ok, ok];
   }
 
+  function anyEdge(t) { if (!t || !t.ed) return false; for (var k in t.ed) if (t.ed[k] && t.ed[k][0] === 'any') return true; return false; }   // pfb_anyedge: Knot of Twine is never a combo partner
   function pieceAt(s, x, y) {
     var id = s.cell[x + ',' + y];
     return (id === undefined || id === null) ? null : s.pcs[id];
@@ -1347,6 +1363,7 @@
         var q = s.pcs[ch[cj][0]];
         if (!q || q.by !== who || nn(q.tile.t, '') !== a) continue;
         if (a === b && cj >= ci) continue;
+        if (anyEdge(q.tile)) continue;   // Knot of Twine is never a combo partner
         pv = Math.max(pv === null ? 0 : pv, toInt(q.tile.v));
       }
       if (pv === null) return;
@@ -1476,6 +1493,56 @@
     var used = spend(s); if (used.length && ev.length) ev[0].used = used;
     if (!truthy(s.over)) s.wshid = id;
     return ev;
+  }
+  var PFB_TEACH_TAGS = ['quick', 'heavy', 'pierce', 'poison', 'trip', 'bash', 'hold', 'thorns', 'evade', 'mend', 'hum', 'lull', 'bond', 'pluck', 'keep', 'plenty', 'simmer'];   // PF_TAGS + PF_TAGS_V1 (pfb_wx_teach)
+  function wxBoostAll(s, id, n, cx) {   // pfb_wx_boostall (Lantern Chain)
+    if (id === null || n <= 0) return 0;
+    var cap = toInt(nn(cx.t && cx.t.fxa, 0)), mk = toInt(nn(s.firedroot, 0)) + ':' + toInt(s.seq), k = 0, ch = nn(cx.ch, []), fired = nn(s.fired, []);
+    for (var i = 0; i < ch.length; i++) {
+      var qid = toInt(ch[i][0]), q = has(s.pcs, qid) ? s.pcs[qid] : null;
+      if (!q || qid === id || q.by !== 'me' || fired.indexOf(qid) >= 0) continue;
+      var had = q.wbl && q.wbl[0] === mk ? toInt(q.wbl[1]) : 0, add = Math.min(n, cap - had);
+      if (add <= 0) continue;
+      q.wv = toInt(nn(q.wv, 0)) + add; q.wbl = [mk, had + add]; k++;
+    }
+    return k;
+  }
+  function wxWeather(s, id, e) {   // pfb_wx_weather (Weather Lore)
+    if (id === null || !has(s.pcs, id) || !s.env || !s.v1 || !truthy(s.v1.env) || toInt(nn(s.me.wwl, 0)) === toInt(s.round)) return false;
+    var kind = PFB_ENV_BIG_SIZES.indexOf(String(s.size)) >= 0 ? 'spring' : 'sun', P = envTable().pieces, p = null;
+    for (var key in P) if (P[key].env === kind) { p = P[key]; break; }
+    if (p === null) return false;
+    var t = { k: p.k, n: p.n, t: 'env', v: 0, r: null, tag: '', m: '', src: 'env', env: p.env, life: p.life, ed: clone(p.ed), wpref: [toInt(s.pcs[id].x), toInt(s.pcs[id].y)] };
+    if (s.env.next.length) { var old = s.env.next[0]; delete old.wpref; s.env.draw.push(old); s.env.next[0] = t; }
+    else s.env.next.push(t);
+    s.me.wwl = toInt(s.round); e.weather = kind;
+    return true;
+  }
+  function wxTeach(s, id, cx, e) {   // pfb_wx_teach (Copybook)
+    if (id === null || toInt(nn(s.me.wcb, 0)) >= toInt(nn(cx.t && cx.t.fxb, 0))) return false;
+    var tg = null, tg2 = null, ln = links(s, id), fired = nn(s.fired, []), i;
+    for (i = 0; i < ln.length; i++) {
+      var q = s.pcs[ln[i]]; if (q.by !== 'me' || truthy(q.ws) || String(nn(q.tile.tag, '')) !== '') continue;
+      if (fired.indexOf(ln[i]) < 0) { tg = ln[i]; break; }
+      if (tg2 === null) tg2 = ln[i];
+    }
+    if (tg === null) tg = tg2; if (tg === null) return false;
+    var tag = '', ch = nn(cx.ch, []);
+    for (i = 0; i < ch.length; i++) {
+      var qid = toInt(ch[i][0]), r = has(s.pcs, qid) ? s.pcs[qid] : null; if (!r || qid === id || qid === tg || r.by !== 'me') continue;
+      var g = String(nn(r.tile.tag, '')); if (g !== '' && PFB_TEACH_TAGS.indexOf(g) >= 0) { tag = g; break; }
+    }
+    if (tag === '') return false;
+    s.pcs[tg].tile.tag = tag; s.pcs[tg].tile.tt = 1; s.me.wcb = toInt(nn(s.me.wcb, 0)) + 1; e.teach = tag;
+    return true;
+  }
+  function wxRetell(s, id, e) {   // pfb_wx_retell (Turn of the Tale)
+    if (id === null || truthy(s.me.wtt)) return false;
+    var best = null, bv = null, ln = links(s, id);
+    for (var i = 0; i < ln.length; i++) { var q = s.pcs[ln[i]]; if (q.by !== 'foe') continue; var v = toInt(q.tile.v) + toInt(nn(q.wv, 0)); if (bv === null || v > bv) { bv = v; best = ln[i]; } }
+    if (best === null) return false;
+    s.pcs[best].by = 'me'; s.pcs[best].ws = 1; s.me.wtt = 1; s.wtot = 1; e.retell = String(s.pcs[best].tile.n);
+    return true;
   }
   function wxText(fx, a, b) {
     var D = wxData(), p = fx.split('>'), sub = function (t) { return t.split('{a}').join(String(a)).split('{b}').join(String(b)); };
@@ -1659,6 +1726,11 @@
       // ---- stat pieces (Nimble), as pfb_wx_act
       case 'shove': did = wxShove(s, e); break;
       case 'phantom': if (s.me.wph !== undefined) { did = false; break; } s.me.wph = [toInt(s.round), n]; break;
+      // ---- stat pieces (Lore), as pfb_wx_act
+      case 'boostall': var bk = wxBoostAll(s, id, n, cx); if (!bk) { did = false; break; } e.lantern = bk; break;
+      case 'weather': did = wxWeather(s, id, e); break;
+      case 'teach': did = wxTeach(s, id, cx, e); break;
+      case 'retell': did = wxRetell(s, id, e); break;
       default: did = false;
     }
     if (did) { if (!Array.isArray(e.wfx)) e.wfx = []; e.wfx.push(a + (n ? ' ' + n : '')); }
@@ -1737,7 +1809,7 @@
         ev.push(ee); checkEnd(s); continue;
       }
       var pt = par !== null ? nn(s.pcs[par], null) : null;
-      if (pt && (pt.by === 'none' || pt.by === 'env')) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
+      if (pt && (pt.by === 'none' || pt.by === 'env' || anyEdge(pt.tile))) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       if (cset) { var sc = i >= 0 ? setCombo(s, ch, i, who, tile) : setCombo(s, [[id, null]], 0, who, tile); vv = [sc[0]]; ck = sc[1]; }   // 2.7.06 set combos
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
@@ -1802,7 +1874,7 @@
     if (n > 0 && firex) n += (boss ? PFB_FIREX_BOSS : 0) + (nn(p.tile.t, '') === 'guard' || nn(p.tile.tag, '') === 'hold' ? PFB_FIREX_HOLD : 0);   // 2.7.31 firex: bosses and guards stick longer
     return n;
   }
-  function fireLim(s, p) { if (p.by === 'env') return v1r(s, 'envonce') === 1 ? 1 : 0; return fireLimit(p, v1r(s, 'tagfx') === 1, v1r(s, 'firex') === 1, truthy(s.boss)); }
+  function fireLim(s, p) { if (p.by === 'env') return v1r(s, 'envonce') === 1 ? 1 : 0; if (truthy(p.ws)) { p = clone(p); p.by = 'foe'; } return fireLimit(p, v1r(s, 'tagfx') === 1, v1r(s, 'firex') === 1, truthy(s.boss)); }
   function goneEntry(s, p, fell) {
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
@@ -2770,7 +2842,7 @@
       v.wear = clone(nn(s.wear, {}));
       v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); q.rank = toInt(nn(p.tile.rank, 0)); q.layer = String(nn(p.tile.layer, '')); if (p.by === 'env') { q.kind = String(p.tile.env); q.dir = nn(p.tile.dir, null); } });
       for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); v.hand[i].rank = toInt(nn(ht.rank, 0)); v.hand[i].tool = String(nn(ht.tool, '')); if (truthy(ht.fx)) v.hand[i].fx = wxText(String(ht.fx), toInt(nn(ht.fxa, 0)), toInt(nn(ht.fxb, 0))); }
-      v.pcs.forEach(function (q) { var pt = s.pcs[q.id].tile; if (truthy(pt.fx)) q.fx = wxText(String(pt.fx), toInt(nn(pt.fxa, 0)), toInt(nn(pt.fxb, 0))); });   // 2.7.09: a wear piece's effect sentence
+      v.pcs.forEach(function (q) { var pt = s.pcs[q.id].tile; if (truthy(pt.fx)) q.fx = wxText(String(pt.fx), toInt(nn(pt.fxa, 0)), toInt(nn(pt.fxb, 0))); if (truthy(s.pcs[q.id].ws)) q.ws = 1; if (truthy(pt.tt)) q.tt = 1; });   // 2.7.09: a wear piece's effect sentence
       if (v.held) v.held.pcs.forEach(function (q, gi) { var gt = g.pcs[gi].tile; q.life = toInt(nn(gt.life, PFB_LIFE)); q.src = String(nn(gt.src, '')); q.flip = truthy(gt.flip); });
       v.gone.forEach(function (q, gi) { var u = s.gone[gi].used; if (u !== undefined && u !== null) q.used = u; });
       v.gone.forEach(function (q, gi) { if (s.gone[gi].fnew) q.fnew = true; });   // as pfb_view: a creature piece put down and gone in the same turn keeps its fnew mark
