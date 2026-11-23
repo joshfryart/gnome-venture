@@ -14,10 +14,13 @@
 #   boostall:N = your other pieces in its chain not yet fired get +N (at most +a a piece a chain), weather = the environment's next piece becomes a Sun (a Spring on large / boss boards) and comes in
 #   on a free cell beside it (once a round; the field cap still holds), teach = the piece of yours it links to (untagged) learns the tag of another of your pieces in the chain for the fight (at most b a fight),
 #   retell = its strongest linked creature piece becomes yours where it stands (keeps the creature's fire budget, goes back to the creature's discard; once a fight, bosses too).
+#   Sense: sight = while held (Keeper) pfb_view shows the piece the creature plays after its aim ('sight'), eyes = while held pfb_view shows its whole hand and its draw top ('eyes') and every piece it places loses {a},
+#   nocombo = the creature's next turn gets no combos (Ambush, Bait, Riposte, Double Swing...), over when that turn ends, snare = up to {b} free cells next to it (nearest the creature's aim first) become snares for 2 rounds:
+#   a creature piece placed on one plays at half value and the mark is used up; the creature's search does not see them (pfb_view 'snares').
 stat-sidestep|Sidestep|nimble|0|trick|2|5|body/body|quick|-|1|aimnext evade ; onaim skip|Quick. Next to the creature's aim: its next hit misses. On its aim: it skips its turn.
 stat-old-saying|Old Saying|lore|0|trick|2|5|mind/mind|-|ab|1|boost:a ; cenv more:b|Gives {a} to your linked piece that fires next. With an environment piece in the chain, {b} more.
 stat-loaded-die|Loaded Die|luck|0|item|1|10|craft/craft|-|-|1|roll again:link|Roll 50% + 2% per Luck point (max 90%). On a hit the piece it links to fires twice, on a miss once.
-stat-sharp-eye|Sharp Eye|sense|0|guard|2|5|body/body|keep|a|0|keep ; fnext:a|Keeper. Held: you see the piece the creature plays after its aim. Played: its next piece loses {a}.
+stat-sharp-eye|Sharp Eye|sense|0|guard|2|5|body/body|keep|a|1|keep ; sight ; fnext:a|Keeper. Held: you see the piece the creature plays after its aim. Played: its next piece loses {a}.
 stat-skitter|Skitter|nimble|10|guard|2|5|body/body|evade|-|1|evade ; @miss kill|Evade: the creature's next Hurt misses, and the piece that missed tumbles off the board.
 stat-wrong-turn|Wrong Turn|nimble|15|trick|1|5|mind/mind|quick|-|1|shove|Quick. The creature's aim moves one cell, to the free cell next to it farthest from its own pieces; if its piece does not fit there, it must pick again.
 stat-pinning-stance|Pinning Stance|nimble|20|guard|2|5|mind/mind|hold|-|1|stance|Hold. While it stands, if the creature has to pick again it may only pick a cell touching this piece; if none fits, it loses that move.
@@ -33,8 +36,8 @@ stat-long-shot|Long Shot|luck|15|hurt|2|5|body/body|-|a|1|roll again ; !roll nex
 stat-magpie-s-pinch|Magpie's Pinch|luck|20|item|2|5|body/body|-|-|1|roll pinch:hi ; !roll pinch:lo|Roll. Hit: take the creature's strongest hand piece; it is one of your next hand's 5 pieces, as yours. Miss: take its weakest hand piece instead.
 stat-turn-of-the-coin|Turn of the Coin|luck|25|trick|2|5|mind/mind|-|b|1|roll coin:back:b ; !roll coin:cut:b|Roll. Hit: the creature's strongest hand piece goes back into its draw pile and it draws another. Miss: it still loses {b} from that piece.
 stat-lucky-streak|Lucky Streak|luck|30|trick|1|10|body/body|-|b|1|streak:b|Roll until you miss (at most {b} times). Each hit: a random piece of yours on the board fires again.
-stat-soft-spot|Soft Spot|sense|10|hurt|2|10|body/body|pierce|ab|0|fguard fstrip:a ; next:hurt:1:b|Pierce. If the creature has guard up, it loses {a} guard. Your next Hurt this fight gets +{b}.
-stat-not-fooled|Not Fooled|sense|15|guard|2|5|mind/mind|-|-|0|-|Guard. The creature's next chain gets no combos: no Ambush, Bait or Riposte for it.
-stat-saw-it-coming|Saw It Coming|sense|20|guard|3|10|body/body|hold|a|0|@block kill ; @block fnext:a|Hold. Each creature Hurt this guard blocks is knocked off the board and its next piece loses {a}.
-stat-snare-field|Snare Field|sense|25|soothe|1|10|craft/craft|-|b|0|-|Up to {b} empty cells next to it become snares for 2 rounds; a creature piece placed on one loses half its value. The creature cannot see them.
-stat-eyes-of-the-wood|Eyes of the Wood|sense|30|item|0|0|mind/mind|keep|a|0|-|Keeper. Held: you see the creature's whole hand and the piece it draws next, and every piece it aims loses {a}.
+stat-soft-spot|Soft Spot|sense|10|hurt|2|10|body/body|pierce|ab|1|fguard fstrip:a ; next:hurt:1:b|Pierce. If the creature has guard up, it loses {a} guard. Your next Hurt this fight gets +{b}.
+stat-not-fooled|Not Fooled|sense|15|guard|2|5|mind/mind|-|-|1|nocombo|Guard. The creature's next chain gets no combos: no Ambush, Bait or Riposte for it.
+stat-saw-it-coming|Saw It Coming|sense|20|guard|3|10|body/body|hold|a|1|@block kill ; @block fnext:a|Hold. Each creature Hurt this guard blocks is knocked off the board and its next piece loses {a}.
+stat-snare-field|Snare Field|sense|25|soothe|1|10|craft/craft|-|b|1|snare|Up to {b} empty cells next to it become snares for 2 rounds; a creature piece placed on one loses half its value. The creature cannot see them.
+stat-eyes-of-the-wood|Eyes of the Wood|sense|30|item|0|0|mind/mind|keep|a|1|eyes|Keeper. Held: you see the creature's whole hand and the piece it draws next, and every piece it aims loses {a}.

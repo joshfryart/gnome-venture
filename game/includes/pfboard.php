@@ -42,7 +42,8 @@ const PFB_ROLL_BASE = 50, PFB_ROLL_PER = 2, PFB_ROLL_MAX = 90;
 /** Stat-piece actions (the clause parser looks here after data/wear_fx.txt's act rows, which a generator writes): name => [phase, step]. */
 const PFB_STAT_ACTS = ['again' => ['fire', 'post'], 'fup' => ['fire', 'post'], 'pinch' => ['fire', 'post'], 'coin' => ['fire', 'post'], 'streak' => ['fire', 'post'],
     'shove' => ['fire', 'post'], 'phantom' => ['fire', 'post'], 'stance' => ['stand', 'stand'], 'shadow' => ['react', 'react'],
-    'boostall' => ['fire', 'post'], 'weather' => ['fire', 'post'], 'teach' => ['fire', 'post'], 'retell' => ['fire', 'post']];   // Lore: Lantern Chain, Weather Lore, Copybook, Turn of the Tale   // Nimble: stance and shadow only mark the piece (Pinning Stance on the board, Shadow Step in your hand); the engine reads them in the creature's turn
+    'boostall' => ['fire', 'post'], 'weather' => ['fire', 'post'], 'teach' => ['fire', 'post'], 'retell' => ['fire', 'post'],
+    'sight' => ['hand', 'hand'], 'eyes' => ['hand', 'hand'], 'nocombo' => ['fire', 'post'], 'snare' => ['fire', 'post']];   // Sense: sight (Sharp Eye) and eyes (Eyes of the Wood) only mark the piece in your hand (pfb_view and pfb_place read them), nocombo (Not Fooled), snare (Snare Field)   // Lore: Lantern Chain, Weather Lore, Copybook, Turn of the Tale   // Nimble: stance and shadow only mark the piece (Pinning Stance on the board, Shadow Step in your hand); the engine reads them in the creature's turn
 const PFB_WX_REFIRE = ['again', 'streak'];   // actions that make pieces fire again: a refire never runs them (nor a clause that rolls)   // the shared Luck roll of the stat pieces: 50% + 2% per Luck point, at most 90%   // where a piece comes from (tile field 'src')
 const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craft' => 'craft', 'legend' => 'mind', 'wear' => 'body'];   // authored edges: the column family (top and bottom) of a sourced piece; other pieces use their type family
 const PFB_UP = ['hurt' => 1, 'charm' => 1, 'trick' => 1];   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round
@@ -1063,8 +1064,10 @@ function pfb_fire(array &$s, int $root, bool $alone = false): array
         if ($pt && ($pt['by'] === 'none' || $pt['by'] === 'env' || pfb_anyedge($pt['tile']))) $pt = null;   // (Knot of Twine is never a combo partner) and a piece after it (or after an environment piece) has no combo parent
         [$val, , $ck] = pf_value($pt['tile'] ?? null, $tile, $pt !== null && $pt['by'] === $who, false);   // combos only off your own piece; no fit bonus (every link fits)
         if ($cset) [$val, $ck] = $ci >= 0 ? pfb_set_combo($s, $chain, $ci, $who, $tile) : pfb_set_combo($s, [[$id, null]], 0, $who, $tile);   // 2.7.06 (Josh): a combo needs the partner anywhere in the same chain (your pieces), not the piece it linked to
+        if ($ck !== null && $who === 'foe' && !empty($s['foe']['nocombo'])) { $val = (int)pf_round((float)$tile['v']); $ck = null; }   // stat pieces (Not Fooled): its chain gets no combos
         $val = (int)pf_round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
         if (isset($p['wv'])) $val = max(1, $val + (int)$p['wv']);   // 2.7.09 wear effects: a boost (+) or a shrink (-) on this board piece
+        if ($who === 'foe' && !empty($p['snr'])) $val = max(1, $val - intdiv($val, 2));   // stat pieces (Snare Field): it came down on a snare: half its value
         if ($who === 'foe' && $tile['t'] === 'hurt' && ($gr = (int)($s['foe']['grudge'] ?? 0)) > 0 && pfb_kind($s) === 'beast') $val = (int)pf_round($val * (1 + (float)pfb_abp($s, 'gpct', PFB_KIND_GRUDGE) * $gr));   // 2.6.98 Grudge (2.7.01: Fury / Slow grudge change the number)
         $grd = $who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'beast' ? (int)($s['foe']['grudge'] ?? 0) : 0; $swm = 0;   // 2.7.51: the class rule's share of this hit, named in the event (the harness's WHAT HAPPENED)
         if ($who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'critter') { $others = 0; foreach ($s['pcs'] as $q) if ($q['by'] === 'foe' && (int)$q['id'] !== $id) $others++; $swm = min((int)pfb_abp($s, 'smax', PFB_KIND_SWARM_MAX), intdiv($others, 2)) * PFB_KIND_SWARM_ADD; $val += $swm; }   // 2.6.988 Swarm grows: +1 Hurt for each other creature piece out
@@ -1211,9 +1214,10 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     if ($who === 'me' && isset($tile['tool'])) $s['wear'][$tile['tool']] = (int)($s['wear'][$tile['tool']] ?? 0) + PFB_TOOL_WEAR;   // tool wear: its piece was played
     if (!empty($s['wfx'])) {   // 2.7.09 wear effects
         if ($who === 'me') pfb_wx_placed($s, $id, $tile);
-        elseif ($who === 'foe' && (int)$s['foe']['wnx'] > 0) { $s['pcs'][$id]['wv'] = -(int)$s['foe']['wnx']; $s['foe']['wnx'] = 0; }   // its next piece loses N
+        elseif ($who === 'foe' && ($ls = (int)$s['foe']['wnx'] + (pfb_wx_eyes($s) ?? 0)) > 0) { $s['pcs'][$id]['wv'] = -$ls; $s['foe']['wnx'] = 0; }   // its next piece loses N (Eyes of the Wood held: every piece it places loses a more)
         if ($who === 'foe' && $tile['t'] === 'hurt' && (int)($s['foe']['wup'] ?? 0) > 0) { $s['pcs'][$id]['wv'] = (int)($s['pcs'][$id]['wv'] ?? 0) + (int)$s['foe']['wup']; $s['foe']['wup'] = 0; }   // stat pieces (Hedge Rummage's miss): its next Hurt gets +N
     }
+    if ($who === 'foe' && !empty($s['snr']["$x,$y"])) { $s['pcs'][$id]['snr'] = 1; unset($s['snr']["$x,$y"]); if (!$s['snr']) unset($s['snr']); }   // stat pieces (Snare Field): it came down on a snare: the mark is used up
     $joints = pfb_check_after($s, $id);
     $ev = pfb_fire($s, $id);
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); $ev[0]['cs'] = 1; $ev[0]['rid'] = $id; }   // cs / rid: this event opens the chain and the placed piece is rid (after the firing order changed the placed piece is not always the first to fire); linked: how many linked joints the new piece made; snap: the board for the history rewind
@@ -1437,7 +1441,7 @@ function pfb_score(array $b, array $a, string $who, ?array &$ctx = null): float
 function pfb_search(array $s, string $who, bool $allowHeavy = true, ?string $onlyK = null, ?array $avoid = null, ?array $only = null): ?array
 {
     $best = null; $ctx = [];
-    if ($who === 'foe') { $s = pfb_foe_base($s); $infoe = !empty($s['foe']['ab']); } else $infoe = false;   // 2.7.01: with a play style it searches the turn it will play; Ambush is live in its first turn
+    if ($who === 'foe') { unset($s['snr']); $s = pfb_foe_base($s); $infoe = !empty($s['foe']['ab']); } else $infoe = false;   // stat pieces (Snare Field): it cannot see the snares   // 2.7.01: with a play style it searches the turn it will play; Ambush is live in its first turn
     foreach ($s[$who]['hand'] as $i => $tile) {
         if (!$allowHeavy && $tile['tag'] === 'heavy' && ($tile['m'] ?? '') !== 'steady') continue;
         if ($onlyK !== null && $tile['k'] !== $onlyK) continue;   // 2.6.98: a boss's committed piece
@@ -1570,7 +1574,7 @@ function pfb_foe_turn(array &$s, int $extra): array
     if (!empty($s['wfx'])) $s['me']['wx']['hit'] = max(0, $hp0 - (int)$s['me']['hp']);   // 2.7.09: what its turn took from you
     if ($kind === 'plant' && !$s['over']) pfb_grow($s, $ev);
     if (!empty($s['aoed'])) pfb_aoe_land($s, $ev);   // 2.7.55 the boss's marked AOE lands
-    $s['foe']['agg'] = 0; $s['foe']['slow'] = 0;
+    $s['foe']['agg'] = 0; $s['foe']['slow'] = 0; unset($s['foe']['nocombo']);   // stat pieces (Not Fooled): one chain only
     if (!empty($s['foe']['ab'])) { unset($s['infoe']); $s['foe']['amb'] = 0; }   // 2.7.01: Ambush is for its first turn only
     return $ev;
 }
@@ -1896,6 +1900,41 @@ function pfb_wx_shadow(array &$s, array $plan): array
     if (!$s['over']) $s['wshid'] = $id;
     return $ev;
 }
+/** Eyes of the Wood: its number a while one is held in your hand (the most of them), else null. */
+function pfb_wx_eyes(array $s): ?int
+{
+    $a = null;
+    foreach ($s['me']['hand'] as $t) if (pfb_wx_hasact($t, 'eyes')) $a = max($a ?? 0, (int)($t['fxa'] ?? 0));
+    return $a;
+}
+/** Snare Field: up to $b free cells next to piece $id become snares ($s['snr'] "x,y" => the round they were laid), the ones nearest the creature's aim first (ties: L R T B). Returns how many. */
+function pfb_wx_snare(array &$s, ?int $id, int $b): int
+{
+    $p = $id !== null ? ($s['pcs'][$id] ?? null) : null; if (!$p || $b < 1) return 0;
+    $pl = $s['foe']['plan'] ?? null; $c = [];
+    foreach (PFB_SIDE as [$dx, $dy]) {
+        $x = (int)$p['x'] + $dx; $y = (int)$p['y'] + $dy;
+        if ($x < 0 || $y < 0 || $x >= pfb_w($s) || $y >= pfb_h($s) || isset($s['cell']["$x,$y"])) continue;
+        $c[] = [$pl ? abs($x - (int)$pl['x']) + abs($y - (int)$pl['y']) : 0, count($c), $x, $y];
+    }
+    usort($c, fn($u, $v) => [$u[0], $u[1]] <=> [$v[0], $v[1]]);
+    $c = array_slice($c, 0, $b);
+    foreach ($c as [, , $x, $y]) { $s['snr'] ??= []; $s['snr']["$x,$y"] = (int)$s['round']; }
+    return count($c);
+}
+/** Sharp Eye held: the piece the creature plays after its aim (null: none), as the aim's own k, n, t, v, tag. */
+function pfb_wx_sight(array $s): ?array
+{
+    $pl = $s['foe']['plan'] ?? null; if (!$pl) return null;
+    if (!empty($pl['next'])) return $pl['next'];   // a boss's Two turns: already worked out
+    $hi = null; foreach ($s['foe']['hand'] as $i => $t) if ($t['k'] === $pl['k']) { $hi = $i; break; }
+    if ($hi === null) return null;
+    $w = $s; $w['aimforce'] = true; $r = pfb_place($w, 'foe', $hi, (int)$pl['x'], (int)$pl['y']); unset($w['aimforce']);
+    if ($r === null || $w['over']) return null;
+    $nm = pfb_search($w, 'foe'); if (!$nm) return null;
+    $nh = $w['foe']['hand'][$nm[0]];
+    return ['k' => $nh['k'], 'n' => $nh['n'], 't' => $nh['t'], 'v' => $nh['v'], 'tag' => $nh['tag']];
+}
 /** Lantern Chain: your other pieces in its chain that have not fired yet get +n (wv), at most +a (the piece's fxa) a piece from all Lanterns of one chain ('wbl' = [chain mark, given]). Returns how many got some. */
 function pfb_wx_boostall(array &$s, ?int $id, int $n, array $cx): int
 {
@@ -2158,6 +2197,9 @@ function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
         // ---- stat pieces (Nimble)
         case 'shove': $did = pfb_wx_shove($s, $e); break;   // Wrong Turn
         case 'phantom': if (isset($s['me']['wph'])) { $did = false; break; } $s['me']['wph'] = [(int)$s['round'], $n]; break;   // Phantom Footing: you pick its landing cell in the next n rounds (once a fight)
+        // ---- stat pieces (Sense)
+        case 'nocombo': $s['foe']['nocombo'] = 1; break;   // Not Fooled: its next turn gets no combos (pfb_foe_turn ends it)
+        case 'snare': $n = pfb_wx_snare($s, $id, (int)($cx['t']['fxb'] ?? 0)); if (!$n) $did = false; break;   // Snare Field
         // ---- stat pieces (Lore)
         case 'boostall': $k = pfb_wx_boostall($s, $id, $n, $cx); if (!$k) { $did = false; break; } $e['lantern'] = $k; break;   // Lantern Chain
         case 'weather': $did = pfb_wx_weather($s, $id, $e); break;   // Weather Lore
@@ -2537,6 +2579,7 @@ function pfb_end_round(array &$s): void
         $s['me']['wmend'] = $ml; $s['me']['simmer'] = (int)($s['me']['simmer'] ?? 0) + $hh;
     }
     $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = $slow;   // 2.6.76: the hand area says so; 2.7.06: also in learner fights (tags 0), where Stagger set the flag and nothing used it
+    if (!empty($s['snr'])) { foreach ($s['snr'] as $sk => $sr) if ((int)$s['round'] - (int)$sr >= 1) unset($s['snr'][$sk]); if (!$s['snr']) unset($s['snr']); }   // stat pieces (Snare Field): laid this round or last: gone when the second round ends
     $gone = pfb_expire($s);
     foreach ($s['ven'] ?? [] as $vk => $vr) { if ($vr <= 1) unset($s['ven'][$vk]); else $s['ven'][$vk] = $vr - 1; }   // 2.6.98 venom fades
     if (!empty($s['v1']['env'])) { $eg = array_values(array_map(fn($p) => $p['id'], array_filter($gone, fn($p) => $p['by'] === 'env'))); if ($eg) $s['envlog'][] = ['k' => 'expire', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => $eg, 'now' => pfb_env_now($s)]; }   // 2.6.75: environment pieces whose time is up
@@ -2616,6 +2659,11 @@ function pfb_view(array $s): array
         $v['ter'] = (object)($s['ter'] ?? []);   // "x,y" => 'sun' | 'br' | 'mud' (oldest first)
         $v['envs'] = array_map(fn($e) => $e + ['n' => PFB_EVENT_NAME[$e['kind']], 'on' => ($q = pfb_at($s, $e['x'], $e['y'])) && $q['by'] !== 'none' ? ['id' => $q['id'], 'by' => $q['by'], 'n' => $q['tile']['n']] : null], $s['envs'] ?? []);   // the forecast: lands after the creature's move
         $v['envlog'] = $s['envlog'] ?? [];   // what the last terrain turn did
+        if (!empty($s['snr'])) $v['snares'] = array_map(fn($k, $r) => ['x' => (int)explode(',', $k)[0], 'y' => (int)explode(',', $k)[1], 'left' => (int)$r + 2 - (int)$s['round']], array_keys($s['snr']), array_values($s['snr']));   // stat pieces (Snare Field): your snares (the creature does not see them)
+        if (!empty($s['wfx'])) {   // stat pieces (Sense): Sharp Eye held = the piece it plays after its aim; Eyes of the Wood held = its whole hand and the piece it draws next
+            foreach ($s['me']['hand'] as $ht) if (pfb_wx_hasact($ht, 'sight')) { $v['sight'] = pfb_wx_sight($s); break; }
+            if (($ey = pfb_wx_eyes($s)) !== null) { $tv = fn($t) => ['k' => $t['k'], 'n' => $t['n'], 't' => $t['t'], 'v' => $t['v'], 'tag' => $t['tag'], 'e' => pfb_edges($t)]; $v['eyes'] = ['a' => $ey, 'hand' => array_map($tv, $s['foe']['hand']), 'top' => $s['foe']['draw'] ? $tv($s['foe']['draw'][count($s['foe']['draw']) - 1]) : null]; }
+        }
         if (!empty($c['env'])) {   // 2.6.75: the environment's deck: its next pieces (face up a round ahead, a list; empty = all on the board), how many wait in its deck ('deck') and in its discard ('used'; shuffled back in when the deck is empty), how many it places a round
             $v['env'] = ['next' => array_map(fn($nx) => ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => !empty($s['v1']['life']) ? (int)$nx['life'] : PFB_LIFE, 'e' => pfb_edges($nx)], $s['env']['next']), 'deck' => count($s['env']['draw']), 'used' => count($s['env']['discard']), 'n' => (int)$c['envn']];   // next: a LIST, in the order they will be placed
         }

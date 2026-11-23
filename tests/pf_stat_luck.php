@@ -50,7 +50,6 @@ function rootEv(array $ev, int $id): ?array { foreach ($ev as $e) if (($e['id'] 
 $S = pfd_stat_pieces();
 foreach (['stat-loaded-die', 'stat-hedge-rummage', 'stat-long-shot', 'stat-magpie-s-pinch', 'stat-turn-of-the-coin', 'stat-lucky-streak'] as $k)
     chk("data_{$k}_is_live_with_clauses", $S[$k]['live'] && pfb_wx_clauses('S:' . $k) !== [], [$S[$k]['live'], $S[$k]['fx']]);
-chk('data_other_stats_still_inert_here (Sharp Eye)', !$S['stat-sharp-eye']['live']);
 chk('data_luck_tile_from_a_packed_deck_carries_fx', (pfd_stat_entry($S['stat-long-shot'], 20)['fx'] ?? '') === 'S:stat-long-shot');
 
 // ---------------------------------------------------------------- Loaded Die: hit = the piece it links to fires twice, miss = once

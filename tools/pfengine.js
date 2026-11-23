@@ -526,7 +526,7 @@
   var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.7, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
   var PFB_TEAM_SRC = ['pal', 'tool', 'crop', 'craft', 'region', 'knack', 'calling'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'wear', 'creature', 'env', 'stat'];
   var PFB_ROLL_BASE = 50, PFB_ROLL_PER = 2, PFB_ROLL_MAX = 90;   // the shared Luck roll of the stat pieces (pfb_wx_chance)
-  var PFB_STAT_ACTS = { again: ['fire', 'post'], fup: ['fire', 'post'], pinch: ['fire', 'post'], coin: ['fire', 'post'], streak: ['fire', 'post'], shove: ['fire', 'post'], phantom: ['fire', 'post'], stance: ['stand', 'stand'], shadow: ['react', 'react'], boostall: ['fire', 'post'], weather: ['fire', 'post'], teach: ['fire', 'post'], retell: ['fire', 'post'] }, PFB_WX_REFIRE = ['again', 'streak'];   // stat-piece actions (pfboard.php PFB_STAT_ACTS, PFB_WX_REFIRE)
+  var PFB_STAT_ACTS = { again: ['fire', 'post'], fup: ['fire', 'post'], pinch: ['fire', 'post'], coin: ['fire', 'post'], streak: ['fire', 'post'], shove: ['fire', 'post'], phantom: ['fire', 'post'], stance: ['stand', 'stand'], shadow: ['react', 'react'], boostall: ['fire', 'post'], weather: ['fire', 'post'], teach: ['fire', 'post'], retell: ['fire', 'post'], sight: ['hand', 'hand'], eyes: ['hand', 'hand'], nocombo: ['fire', 'post'], snare: ['fire', 'post'] }, PFB_WX_REFIRE = ['again', 'streak'];   // stat-piece actions (pfboard.php PFB_STAT_ACTS, PFB_WX_REFIRE)
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft', wear: 'body' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2, PFB_COUNTER_ADD = 2;   // PFB_COUNTER_ADD: 2.7.08 counter pieces
@@ -814,7 +814,7 @@
     "stat-sidestep|Sidestep|nimble|0|trick|2|5|body/body|quick|-|1|aimnext evade ; onaim skip|Quick. Next to the creature's aim: its next hit misses. On its aim: it skips its turn.",
     "stat-old-saying|Old Saying|lore|0|trick|2|5|mind/mind|-|ab|1|boost:a ; cenv more:b|Gives {a} to your linked piece that fires next. With an environment piece in the chain, {b} more.",
     "stat-loaded-die|Loaded Die|luck|0|item|1|10|craft/craft|-|-|1|roll again:link|Roll 50% + 2% per Luck point (max 90%). On a hit the piece it links to fires twice, on a miss once.",
-    "stat-sharp-eye|Sharp Eye|sense|0|guard|2|5|body/body|keep|a|0|keep ; fnext:a|Keeper. Held: you see the piece the creature plays after its aim. Played: its next piece loses {a}.",
+    "stat-sharp-eye|Sharp Eye|sense|0|guard|2|5|body/body|keep|a|1|keep ; sight ; fnext:a|Keeper. Held: you see the piece the creature plays after its aim. Played: its next piece loses {a}.",
     "stat-skitter|Skitter|nimble|10|guard|2|5|body/body|evade|-|1|evade ; @miss kill|Evade: the creature's next Hurt misses, and the piece that missed tumbles off the board.",
     "stat-wrong-turn|Wrong Turn|nimble|15|trick|1|5|mind/mind|quick|-|1|shove|Quick. The creature's aim moves one cell, to the free cell next to it farthest from its own pieces; if its piece does not fit there, it must pick again.",
     "stat-pinning-stance|Pinning Stance|nimble|20|guard|2|5|mind/mind|hold|-|1|stance|Hold. While it stands, if the creature has to pick again it may only pick a cell touching this piece; if none fits, it loses that move.",
@@ -830,11 +830,11 @@
     "stat-magpie-s-pinch|Magpie's Pinch|luck|20|item|2|5|body/body|-|-|1|roll pinch:hi ; !roll pinch:lo|Roll. Hit: take the creature's strongest hand piece; it is one of your next hand's 5 pieces, as yours. Miss: take its weakest hand piece instead.",
     "stat-turn-of-the-coin|Turn of the Coin|luck|25|trick|2|5|mind/mind|-|b|1|roll coin:back:b ; !roll coin:cut:b|Roll. Hit: the creature's strongest hand piece goes back into its draw pile and it draws another. Miss: it still loses {b} from that piece.",
     "stat-lucky-streak|Lucky Streak|luck|30|trick|1|10|body/body|-|b|1|streak:b|Roll until you miss (at most {b} times). Each hit: a random piece of yours on the board fires again.",
-    "stat-soft-spot|Soft Spot|sense|10|hurt|2|10|body/body|pierce|ab|0|fguard fstrip:a ; next:hurt:1:b|Pierce. If the creature has guard up, it loses {a} guard. Your next Hurt this fight gets +{b}.",
-    "stat-not-fooled|Not Fooled|sense|15|guard|2|5|mind/mind|-|-|0|-|Guard. The creature's next chain gets no combos: no Ambush, Bait or Riposte for it.",
-    "stat-saw-it-coming|Saw It Coming|sense|20|guard|3|10|body/body|hold|a|0|@block kill ; @block fnext:a|Hold. Each creature Hurt this guard blocks is knocked off the board and its next piece loses {a}.",
-    "stat-snare-field|Snare Field|sense|25|soothe|1|10|craft/craft|-|b|0|-|Up to {b} empty cells next to it become snares for 2 rounds; a creature piece placed on one loses half its value. The creature cannot see them.",
-    "stat-eyes-of-the-wood|Eyes of the Wood|sense|30|item|0|0|mind/mind|keep|a|0|-|Keeper. Held: you see the creature's whole hand and the piece it draws next, and every piece it aims loses {a}."
+    "stat-soft-spot|Soft Spot|sense|10|hurt|2|10|body/body|pierce|ab|1|fguard fstrip:a ; next:hurt:1:b|Pierce. If the creature has guard up, it loses {a} guard. Your next Hurt this fight gets +{b}.",
+    "stat-not-fooled|Not Fooled|sense|15|guard|2|5|mind/mind|-|-|1|nocombo|Guard. The creature's next chain gets no combos: no Ambush, Bait or Riposte for it.",
+    "stat-saw-it-coming|Saw It Coming|sense|20|guard|3|10|body/body|hold|a|1|@block kill ; @block fnext:a|Hold. Each creature Hurt this guard blocks is knocked off the board and its next piece loses {a}.",
+    "stat-snare-field|Snare Field|sense|25|soothe|1|10|craft/craft|-|b|1|snare|Up to {b} empty cells next to it become snares for 2 rounds; a creature piece placed on one loses half its value. The creature cannot see them.",
+    "stat-eyes-of-the-wood|Eyes of the Wood|sense|30|item|0|0|mind/mind|keep|a|1|eyes|Keeper. Held: you see the creature's whole hand and the piece it draws next, and every piece it aims loses {a}."
   ];
   var PFB_ENV_ROWS = [
     ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 3, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
@@ -1428,6 +1428,35 @@
   function wxHandPick(h, strong) { var bi = 0; h.forEach(function (t, i) { if (strong ? toInt(t.v) > toInt(h[bi].v) : toInt(t.v) < toInt(h[bi].v)) bi = i; }); return bi; }   // pfb_wx_hand_pick
   function wxReplan(s) { s.foe.nextk = null; aim(s); }   // pfb_wx_replan
   function wxHasAct(t, a) { if (!t || !truthy(t.fx)) return false; return wxClauses(String(t.fx)).some(function (o) { return o.a === a; }); }   // pfb_wx_hasact
+  function wxEyes(s) {   // pfb_wx_eyes: Eyes of the Wood held in your hand: its number (the most of them), else null
+    var a = null;
+    s.me.hand.forEach(function (t) { if (wxHasAct(t, 'eyes')) a = Math.max(a === null ? 0 : a, toInt(nn(t.fxa, 0))); });
+    return a;
+  }
+  function wxSnare(s, id, b) {   // pfb_wx_snare (Snare Field): up to b free cells next to it, the ones nearest the creature's aim first (ties: L R T B)
+    var p = id !== null && has(s.pcs, id) ? s.pcs[id] : null; if (!p || b < 1) return 0;
+    var pl = nn(s.foe.plan, null), c = [];
+    for (var side in PFB_SIDE) {
+      var x = toInt(p.x) + PFB_SIDE[side][0], y = toInt(p.y) + PFB_SIDE[side][1];
+      if (x < 0 || y < 0 || x >= pfbW(s) || y >= pfbH(s) || has(s.cell, x + ',' + y)) continue;
+      c.push([pl ? Math.abs(x - toInt(pl.x)) + Math.abs(y - toInt(pl.y)) : 0, c.length, x, y]);
+    }
+    c.sort(function (u, v) { return u[0] - v[0] || u[1] - v[1]; });
+    c = c.slice(0, b);
+    c.forEach(function (q) { if (!s.snr) s.snr = {}; s.snr[q[2] + ',' + q[3]] = toInt(s.round); });
+    return c.length;
+  }
+  function wxSight(s) {   // pfb_wx_sight (Sharp Eye held): the piece it plays after its aim
+    var pl = nn(s.foe.plan, null); if (!pl) return null;
+    if (truthy(pl.next)) return clone(pl.next);
+    var hi = null; for (var i = 0; i < s.foe.hand.length; i++) if (s.foe.hand[i].k === pl.k) { hi = i; break; }
+    if (hi === null) return null;
+    var w = clone(s); w.aimforce = true; var r = place(w, 'foe', hi, toInt(pl.x), toInt(pl.y)); delete w.aimforce;
+    if (r === null || truthy(w.over)) return null;
+    var nm = search(w, 'foe'); if (!nm) return null;
+    var nh = w.foe.hand[nm[0]];
+    return { k: nh.k, n: nh.n, t: nh.t, v: nh.v, tag: nh.tag };
+  }
   function wxShove(s, e) {   // pfb_wx_shove (Wrong Turn)
     var pl = nn(s.foe.plan, null); if (!pl || pl.from !== undefined) return false;
     var best = null, bd = -1;
@@ -1726,6 +1755,9 @@
       // ---- stat pieces (Nimble), as pfb_wx_act
       case 'shove': did = wxShove(s, e); break;
       case 'phantom': if (s.me.wph !== undefined) { did = false; break; } s.me.wph = [toInt(s.round), n]; break;
+      // ---- stat pieces (Sense), as pfb_wx_act
+      case 'nocombo': s.foe.nocombo = 1; break;
+      case 'snare': n = wxSnare(s, id, toInt(nn(cx.t && cx.t.fxb, 0))); if (!n) did = false; break;
       // ---- stat pieces (Lore), as pfb_wx_act
       case 'boostall': var bk = wxBoostAll(s, id, n, cx); if (!bk) { did = false; break; } e.lantern = bk; break;
       case 'weather': did = wxWeather(s, id, e); break;
@@ -1812,8 +1844,10 @@
       if (pt && (pt.by === 'none' || pt.by === 'env' || anyEdge(pt.tile))) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       if (cset) { var sc = i >= 0 ? setCombo(s, ch, i, who, tile) : setCombo(s, [[id, null]], 0, who, tile); vv = [sc[0]]; ck = sc[1]; }   // 2.7.06 set combos
+      if (ck !== null && who === 'foe' && truthy(s.foe.nocombo)) { vv = [iround(Number(tile.v))]; ck = null; }   // stat pieces (Not Fooled): its chain gets no combos
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       if (p.wv !== undefined && p.wv !== null) val = Math.max(1, val + toInt(p.wv));   // 2.7.09 wear effects: a boost or a shrink on this board piece
+      if (who === 'foe' && truthy(p.snr)) val = Math.max(1, val - Math.trunc(val / 2));   // stat pieces (Snare Field): it came down on a snare: half its value
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + Number(abp(s, 'gpct', PFB_KIND_GRUDGE)) * toInt(s.foe.grudge)));   // 2.6.98 Grudge
       var grd = who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'beast' ? toInt(nn(s.foe.grudge, 0)) : 0, swm = 0;   // 2.7.51 (pfb_fire)
       if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); swm = Math.min(toInt(abp(s, 'smax', PFB_KIND_SWARM_MAX)), Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; val += swm; }   // 2.6.988 Swarm grows
@@ -1956,9 +1990,10 @@
     if (who === 'me' && tile.tool !== undefined && tile.tool !== null) { if (!s.wear) s.wear = {}; s.wear[tile.tool] = toInt(nn(s.wear[tile.tool], 0)) + PFB_TOOL_WEAR; }   // tool wear
     if (truthy(s.wfx)) {   // 2.7.09 wear effects
       if (who === 'me') wxPlaced(s, id, tile);
-      else if (who === 'foe' && toInt(s.foe.wnx) > 0) { s.pcs[id].wv = -toInt(s.foe.wnx); s.foe.wnx = 0; }
+      else if (who === 'foe') { var ls = toInt(s.foe.wnx) + nn(wxEyes(s), 0); if (ls > 0) { s.pcs[id].wv = -ls; s.foe.wnx = 0; } }   // its next piece loses N (Eyes of the Wood held: every piece it places loses a more)
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.wup, 0)) > 0) { wxAddWv(s.pcs[id], toInt(s.foe.wup)); s.foe.wup = 0; }   // stat pieces: its next Hurt gets +N
     }
+    if (who === 'foe' && s.snr && truthy(s.snr[x + ',' + y])) { s.pcs[id].snr = 1; delete s.snr[x + ',' + y]; if (!Object.keys(s.snr).length) delete s.snr; }   // stat pieces (Snare Field): it came down on a snare: the mark is used up
     var joints = checkAfter(s, id);
     var ev = fire(s, id);
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); ev[0].cs = 1; ev[0].rid = id; }
@@ -2235,7 +2270,7 @@
     if (allowHeavy === undefined) allowHeavy = true;
     if (onlyK === undefined) onlyK = null; if (avoid === undefined) avoid = null; if (only === undefined) only = null;
     var best = null, ctx = {}, infoe = false;
-    if (who === 'foe') { s = foeBase(s); infoe = hasAb(s); }   // 2.7.01: with a play style it searches the turn it will play; Ambush is live in its first turn
+    if (who === 'foe') { if (s.snr) { s = clone(s); delete s.snr; } s = foeBase(s); infoe = hasAb(s); }   // stat pieces (Snare Field): it cannot see the snares   // 2.7.01: with a play style it searches the turn it will play; Ambush is live in its first turn
     var hand = s[who].hand;
     for (var i = 0; i < hand.length; i++) {
       var tile = hand[i];
@@ -2353,7 +2388,7 @@
     if (truthy(s.wfx)) s.me.wx.hit = Math.max(0, hp0 - toInt(s.me.hp));   // 2.7.09
     if (kind === 'plant' && !truthy(s.over)) grow(s, ev);
     if (s.aoed) aoeLand(s, ev);   // 2.7.55 the boss's marked AOE lands
-    s.foe.agg = 0; s.foe.slow = 0;
+    s.foe.agg = 0; s.foe.slow = 0; delete s.foe.nocombo;   // stat pieces (Not Fooled): one chain only
     if (hasAb(s)) { delete s.infoe; s.foe.amb = 0; }   // 2.7.01: Ambush is for its first turn only
     return ev;
   }
@@ -2661,6 +2696,7 @@
       s.me.wmend = ml; s.me.simmer = toInt(nn(s.me.simmer, 0)) + mh;
     }
     slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;   // 2.7.06: also in learner fights (tags 0)
+    if (s.snr) { Object.keys(s.snr).forEach(function (sk) { if (toInt(s.round) - toInt(s.snr[sk]) >= 1) delete s.snr[sk]; }); if (!Object.keys(s.snr).length) delete s.snr; }   // stat pieces (Snare Field): gone when the second round ends
     var gone = expire(s);
     if (s.ven) Object.keys(s.ven).forEach(function (vk) { if (s.ven[vk] <= 1) delete s.ven[vk]; else s.ven[vk] = s.ven[vk] - 1; });   // 2.6.98 venom fades
     if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg, now: envNow(s) }); }   // 2.6.75
@@ -2828,6 +2864,12 @@
       v.ter = clone(nn(s.ter, {}));
       v.envs = nn(s.envs, []).map(function (e) { var o = clone(e), q = pieceAt(s, e.x, e.y); o.n = PFB_EVENT_NAME[e.kind]; o.on = q && q.by !== 'none' ? { id: q.id, by: q.by, n: q.tile.n } : null; return o; });
       v.envlog = clone(nn(s.envlog, []));
+      if (s.snr) v.snares = Object.keys(s.snr).map(function (k) { var a = k.split(','); return { x: toInt(a[0]), y: toInt(a[1]), left: toInt(s.snr[k]) + 2 - toInt(s.round) }; });   // stat pieces (Snare Field)
+      if (truthy(s.wfx)) {   // stat pieces (Sense): Sharp Eye held = the piece it plays after its aim; Eyes of the Wood held = its whole hand and the piece it draws next
+        for (var si = 0; si < s.me.hand.length; si++) if (wxHasAct(s.me.hand[si], 'sight')) { v.sight = wxSight(s); break; }
+        var ey = wxEyes(s);
+        if (ey !== null) { var tv = function (t) { return { k: t.k, n: t.n, t: t.t, v: t.v, tag: t.tag, e: edges(t) }; }; v.eyes = { a: ey, hand: s.foe.hand.map(tv), top: s.foe.draw.length ? tv(s.foe.draw[s.foe.draw.length - 1]) : null }; }
+      }
       if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: truthy(nn(s.v1.life, 0)) ? toInt(nx.life) : PFB_LIFE, e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
       if (s.aoed) v.aoe = { n: String(s.aoed[3]), shape: String(s.aoed[0]), fx: String(s.aoed[1]), pct: Number(s.aoed[2]), 'in': aoeIn(s), cells: s.aoe ? clone(s.aoe.cells) : [] };   // 2.7.55 boss AOE
       v.aim = clone(nn(s.foe.plan, null));
