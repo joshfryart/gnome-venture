@@ -234,6 +234,21 @@ function pfv_blocked(array $p, array $c): string
     return '';
 }
 
+/** Stat pieces (setting pfight_statpieces) the gnome does not own yet, as deck entries ready for pfv_box_pc: key => entry + 'need' (points) and 'have'. [] while the setting is Off for this gnome. */
+function pfv_stat_locked(array $u): array
+{
+    if (!pfd_statpieces_open($u)) return [];
+    $out = [];
+    foreach (pfd_stat_pieces() as $key => $sp) {
+        $have = (int)($u['stat_' . $sp['stat']] ?? 10);
+        if ($have >= $sp['tier']) continue;
+        $e = ['key' => $key] + pfd_stat_entry($sp, $have) + ['rank' => 0, 'gear' => false, 'tool' => '', 'on' => false, 'out' => '', 'starter' => false, 'core' => false, 'need' => $sp['tier'], 'have' => $have];
+        $e['e'] = pfd_edges($e);
+        $out[$key] = $e;
+    }
+    return $out;
+}
+
 /** A piece in the box or on the shelf: pfv_pc with the source badge, the rank mark, the pal perch and what the sheet needs. */
 function pfv_box_pc(array $u, array $p, array $c, array $o): string
 {
@@ -242,11 +257,17 @@ function pfv_box_pc(array $u, array $p, array $c, array $o): string
     if ($rk === 3) $in .= pfv_img('items/gem-r.png', 28, '', 'pc-r');
     elseif ($rk === 4) $in .= pfv_img('ico/ico-medal-gold.png', 32, '', 'pc-r');
     if ($p['src'] === 'pal' && ($ref = (string)($p['ref'] ?? '')) !== '' && preg_match('/^[a-z0-9-]+$/', $ref) && is_file(__DIR__ . '/../assets/img/pals/perch/' . $ref . '.png')) $in .= pfv_img('pals/perch/' . $ref . '.png', 36, '', 'pc-perch');
+    if ($p['src'] === 'stat') {   // stat pieces: the points tier it came with (tier 0 = every gnome has it) as a small plate, a locked one says what it needs
+        $tr = (int)explode(':', (string)$p['ref'] . ':0')[1];
+        if ($tr > 0) $in .= '<span class="pc-tier" aria-hidden="true">' . $tr . '</span>';
+    }
     $why = !$p['on'] && !$p['gear'] ? pfv_blocked($p, $c) : '';
+    if (isset($p['need'])) $why = 'Locked: ' . (PFD_STAT_STATS[(string)$p['st']] ?? '') . ' ' . (int)$p['need'];
     $o['in'] = $in . ($o['in'] ?? '') . ($why !== '' ? '<small class="pc-why">' . e($why) . '</small>' : '');
     $o['al'] = ', ' . PFV_SRC_META[$g][0] . ($why !== '' ? ', ' . $why : '');
-    $o['pcx'] = ['g' => $g, 'sn' => PFV_SRC_META[$g][0], 'fr' => pfv_from($u, $p), 'lg' => pfv_limit($p), 'why' => $why, 'in' => $p['on'] ? 1 : 0, 'key' => (string)$p['key']];
-    if ($why !== '') $o['cls'] = trim(($o['cls'] ?? '') . ' blk');
+    if (isset($p['need'])) { $o['a'] = 'info'; $o['cls'] = trim(($o['cls'] ?? '') . ' locked'); }
+    $o['pcx'] = ['g' => $g, 'sn' => PFV_SRC_META[$g][0], 'fr' => pfv_from($u, $p) . (isset($p['need']) ? ' (you have ' . (int)$p['have'] . ', ' . ((int)$p['need'] - (int)$p['have']) . ' more to go)' : ''), 'lg' => pfv_limit($p), 'why' => $why, 'in' => $p['on'] ? 1 : 0, 'key' => (string)$p['key']];
+    if ($why !== '' && !isset($p['need'])) $o['cls'] = trim(($o['cls'] ?? '') . ' blk');
     $li = pfv_pc($p, $o);
     if (($o['a'] ?? '') === 'tog' && empty($p['gear']) && $why === '') {   // 2.7.05: without script a piece can still be packed or taken out (its own small form)
         $on = !empty($p['on']);
@@ -401,11 +422,14 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             $md = isset($mods[$p['k']]) ? (PF_MODS[$mods[$p['k']]] ?? null) : null; $x = ($md ? 'upgrade ' . $md[0] : '');
             $col .= pfv_box_pc($u, $p, $c, ['cls' => !empty($p['new']) ? 'isnew' : '', 'a' => $locked ? 'info' : 'tog', 'g' => pfv_src_group((string)$p['src']), 'd' => pfv_desc($p, trim((!empty($p['new']) ? 'new: switched off until you pack it' : '') . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="0"']);
         }
+        $lockd = pfv_stat_locked($u);   // stat pieces not yet owned: on the shelf, greyed, with the points they need (tap to read; they cannot be packed)
+        foreach ($lockd as $p) $col .= pfv_box_pc($u, pfv_entries($u, [$p])[0] + $p, $c, ['a' => 'info', 'g' => 'stat', 'd' => pfv_desc($p, 'locked: ' . (PFD_STAT_STATS[$p['st']] ?? '') . ' ' . (int)$p['need'] . ' needed, you have ' . (int)$p['have'])]);
+        if ($lockd) $cnt['stat'] = ($cnt['stat'] ?? 0) + count($lockd);
         $fb = '';
         foreach (array_merge(['basic', 'crop', 'legend', 'craft', 'region', 'wear'], empty($cnt['stat']) ? [] : ['stat']) as $g) $fb .= '<button type="button" class="s-' . $g . '" data-g="' . $g . '" aria-pressed="false" aria-label="' . PFV_SRC_META[$g][0] . ' pieces: ' . (int)($cnt[$g] ?? 0) . '"' . (empty($cnt[$g]) ? ' disabled' : '') . '>' . pfv_img(PFV_SRC_META[$g][1], 64) . '<span>' . PFV_SRC_META[$g][0] . '</span><em>' . (int)($cnt[$g] ?? 0) . '</em></button>';
         $leg = '';
         foreach (PFV_SRC_META as $g => [$lbl, , $what]) if ($g !== 'stat' || !empty($cnt['stat'])) $leg .= '<li>' . pfv_srcb($g, 'srcb') . '<span><b>' . $lbl . '</b>' . e($what) . '</span></li>';
-        $h .= '<section class="pbx-shelf" id="pbx-shelf" aria-label="Spare pieces"><h3>' . pfv_img('ico/ico-satchel.png', 64) . 'On the shelf<span>' . count($spare) . ' spare</span></h3>'
+        $h .= '<section class="pbx-shelf" id="pbx-shelf" aria-label="Spare pieces"><h3>' . pfv_img('ico/ico-satchel.png', 64) . 'On the shelf<span>' . count($spare) . ' spare' . ($lockd ? ' · ' . count($lockd) . ' locked' : '') . '</span></h3>'
             . '<div class="srow"><label class="search">' . pfv_img('ico/ico-search.png', 64) . '<input type="search" id="pbx-q" placeholder="Search spare pieces" aria-label="Search spare pieces" autocomplete="off"></label><button type="button" class="btn ghost" id="pbx-all" hidden>All</button></div>'
             . '<nav class="pbx-fbar" id="pfv-filt" aria-label="Filter by source">' . $fb . '</nav>'
             . '<p class="pbx-kind" id="pbx-kind" hidden></p>'

@@ -255,6 +255,10 @@
       if (ci === 0) z.appendChild(svgEl('aoe'));
       putBody(z, c[0], c[1]);
     });
+    if (phase !== 'pre') (data.snares || []).forEach(function (sn) {   // stat pieces (Snare Field): your hidden snares, a dashed ring; the creature cannot see them. It is faint by dashing, not by alpha (art: stat/snare-*.png later)
+      var sm = document.createElement('div'); sm.className = 'mk snare'; sm.setAttribute('role', 'img'); sm.setAttribute('aria-label', 'Snare, column ' + (sn.x + 1) + ' row ' + (sn.y + 1) + ': a piece of the creature put here comes down at half value; it holds ' + (sn.left > 1 ? sn.left + ' more rounds' : 'to the end of this round'));
+      sm.title = 'Snare: a creature piece put here is worth half. ' + (sn.left > 1 ? sn.left + ' more rounds.' : 'Ends this round.'); putBody(sm, sn.x, sn.y);
+    });
     (data.ven || []).forEach(function (vc) {   // 2.6.98 Venom trail
       var vm = document.createElement('div'); vm.className = 'mk venom'; vm.setAttribute('role', 'img'); vm.setAttribute('aria-label', 'Venom, column ' + (vc.x + 1) + ' row ' + (vc.y + 1) + ': a piece of yours put here poisons you'); vm.title = 'Venom: a piece of yours put here poisons you (2 a round, 2 rounds)'; vm.textContent = '\u2620'; putBody(vm, vc.x, vc.y);
     });
@@ -343,6 +347,14 @@
     if (aim.next) x += ' \u00B7 then ' + esc(aim.next.n) + ' ' + aim.next.v;
     return x;
   }
+  /** Stat pieces (Sense): Sharp Eye in your hand shows the piece the creature plays after its aim; Eyes of the Wood shows its whole hand and the piece it draws next. Only while you hold them (data.sight, data.eyes). */
+  function senseChips() {
+    if (phase === 'pre' || data.won || data.start) return '';
+    var h = '', sg = data.sight, ey = data.eyes, pc = function (t) { return esc(t.n) + ' ' + esc(t.t) + ' ' + t.v; };
+    if (sg) h += '<span class="tg sense" title="Sharp Eye: after its aim the creature plays this piece">\uD83D\uDC41 then ' + pc(sg) + '</span>';
+    if (ey) h += '<span class="tg sense" title="Eyes of the Wood: its hand' + (ey.top ? ' and the piece it draws next' : '') + '">\uD83D\uDC41 hand ' + ey.hand.map(pc).join(', ') + (ey.top ? ' \u00B7 draws ' + pc(ey.top) : '') + '</span>';
+    return h;
+  }
   function aimChip(aim) {
     var b = aimBits(aim), pick = data.reaim && phase !== 'pre' ? ' (picked again)' : '';
     var rt = ' title="' + RINGHELP + '"';   // after 2.6.96: the lit rings
@@ -369,6 +381,7 @@
       var aim = dispAim();
       if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? aimChip(aim) : '<span class="tg aim">no aim</span>';
       h += kindChip();   // 2.6.98: the creature's class rule
+      h += senseChips();   // stat pieces (Sense): Sharp Eye, Eyes of the Wood
       var ao2 = dispAoe(); if (ao2) h += ao2.cells && ao2.cells.length ? '<span class="tg bad aoe" title="' + esc(aoeWhat(ao2)) + '">' + svg('aoe') + esc(ao2.n) + ': lands after its move</span>' : (ao2.in > 0 ? '<span class="tg aoe" title="' + esc(aoeWhat(ao2)) + '">' + svg('aoe') + esc(ao2.n) + ' in ' + ao2.in + '</span>' : '');   // 2.7.55 boss AOE
       dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
@@ -1143,6 +1156,7 @@
         if (p.fl === 1 && !p.ghost && !p.gone) { var fb = document.createElement('span'); fb.className = 'pfb-fl'; fb.setAttribute('aria-hidden', 'true'); fb.textContent = '\u00d71'; fb.title = 'One more firing and it falls away'; cell.appendChild(fb); }   // fire budget: a creature piece on its last firing
         if (isOld(p) && !p.ghost) { var ob = document.createElement('span'); ob.className = 'pfb-old'; ob.setAttribute('aria-hidden', 'true'); ob.textContent = '\u231B'; ob.title = 'Leaves the board at the end of this round'; cell.appendChild(ob); }
         if (p.life && !p.ghost && !p.gone && p.by !== 'none') cell.appendChild(lifeEl(p.left, p.life, cell));   // v1: the rounds it still stays (pips, a number, the cell's label)
+        if (p.ws && !p.ghost) { var sw = document.createElement('span'); sw.className = 'pfb-ws'; sw.setAttribute('aria-hidden', 'true'); sw.textContent = '\uD83E\uDE9D'; sw.title = 'Taken from the creature: it fires for you'; cell.appendChild(sw); cell.classList.add('pfv-stolen'); cell.setAttribute('aria-label', (cell.getAttribute('aria-label') || '') + ' Stolen from the creature.'); }   // stat pieces (Turn of the Tale, Magpie's Pinch)
         envDeco(cell, p);
       } else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', (selected === 'group' ? 'Place the group here, top left at ' : 'Place here, ') + 'column ' + (x + 1) + ' row ' + (y + 1));
@@ -1274,7 +1288,7 @@
     var gk = p.ter || '', gtx = gk ? ' On ' + GRN[gk].toLowerCase() + ': ' + terrText(gk).l[0] : '';
     if (p.gone) return t + (p.used ? ' Used up by a chain of ' + (V1.limit || 3) + ' or more.' : p.fell ? ' It has fired its last time.' : ' It has left the board.');
     var fbt = p.by === 'foe' && typeof p.fl === 'number' ? (p.fl <= 1 ? ' One more firing and it falls away.' : ' It falls away after ' + p.fl + ' more firings.') : '';   // fire budget
-    return t + fbt + (p.fx ? ' ' + p.fx : '') + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.') + gtx;
+    return t + fbt + (p.fx ? ' ' + p.fx : '') + (p.ws ? ' Stolen from the creature: it fires for you.' : '') + (p.tt ? ' Copybook taught it a tag.' : '') + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.') + gtx;
   }
   function showText(name, desc, p) {
     if (!insp) return;
