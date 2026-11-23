@@ -54,9 +54,10 @@ Done (admin preview):
 - **Adventure:** left is the Quick item, use only (`remote.quick = 'use'`; set it in the Satchel); right is the Trail strip (Sights, Gather, Wander, Sneak, Hunt, Turn back, each clicking the footer's own control) or, in a fight, Run away (`.pf-runf button` or the old `flee` form). Not run here: needs a live expedition. The Quick button still refuses in a fight (`quick_use`), and the puzzle fight's creature popover is not wired.
 - **Play mode:** `dock_play()` names the mini-games and the two puzzles; `dock.js` draws a 34 px rail (back link, name, energy and time, Menu) instead of the dock; Menu opens the full dock, a tap outside closes it. Screenshots taken on a SQLite install (Memory, Shop).
 
-Not done yet in this phase:
 - **Garden Tools:** the right piece's strip starts with Water, Harvest and Till tools. Arming one turns the page's select mode on and the left piece becomes Done ("tap a bed"); a tap on a bed clears the picks, picks that bed alone and clicks the page's own Water, Harvest or Till button (so the Till confirm and the energy checks are the page's). Tested on a SQLite install: a bed tap posted `do=batch&act=water&sq[]=3-0`.
 - **Community garden (Together):** right Tend strip (Tend, Take bed, Take store), left Messages.
+
+Still to do (needs a live session or new design): the puzzle fight's Creature popover and the Quick item in fights; Yard's Edit strip; Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); ~100 action icons still emoji; a real-phone and real-browser pass.
 
 How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 
