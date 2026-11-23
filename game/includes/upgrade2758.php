@@ -45,6 +45,10 @@ function upgrade_2758_kit_text(): void
     q("UPDATE items SET description = ? WHERE slug = 'glowcap-repair-kit' AND description = ?", [
         'A tin of wicks, a spare glass and a very small screwdriver for a tired glowcap lantern. It mends a lantern only (the Tool Repair Kit is for fight belts), and a free Tool Shed mend is used first.',
         'A tin of wicks, a spare glass and a very small screwdriver for a tired glowcap lantern.']);
+    // the Tool Repair Kit also mends garden and gathering tools (free Tool Shed mend first, then kits, then Petals); same rule: only the old text is replaced
+    q("UPDATE items SET description = ? WHERE slug = 'tool-repair-kit' AND description = ?", [
+        'Flint, resin and a twist of fibre. Fixes one fight tool on your Puzzle box belt: its piece is worn out by fights (2 each time it is played) and comes back at full strength. It also mends garden and gathering tools: a Tool Shed mend is free and used first, then kits, then Petals.',
+        'Flint, resin and a twist of fibre. Fixes one fight tool on your Puzzle box belt: its piece is worn out by fights (2 each time it is played) and comes back at full strength.']);
 }
 
 /**

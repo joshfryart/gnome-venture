@@ -39,7 +39,7 @@ const PFD_BELT_ITEMS = [
 ];
 const PFD_DUR_BASE = 20, PFD_DUR_RANK = 4;    // a fight tool's durability: 20, +4 per rank above Worn; its piece costs PFB_TOOL_WEAR (2) each time it is played
 const PFD_REPAIR = 'tool-repair-kit';         // the crafted item that fixes a fight tool (recipe in data/crafts.txt)
-const PFD_REPAIR_ITEM = ['Tool Repair Kit', 30, 6, 'Flint, resin and a twist of fibre. Fixes one fight tool on your Puzzle box belt: its piece is worn out by fights (2 each time it is played) and comes back at full strength.'];
+const PFD_REPAIR_ITEM = ['Tool Repair Kit', 30, 6, 'Flint, resin and a twist of fibre. Fixes one fight tool on your Puzzle box belt: its piece is worn out by fights (2 each time it is played) and comes back at full strength. It also mends garden and gathering tools: a Tool Shed mend is free and used first, then kits, then Petals.'];
 /** 2.7.08 counter pieces (claude/engine-2.7.08-notes.md "Counter piece per type"): one knack per creature class rule, data rows in pf_pieces.txt with ref LEVEL:CLASS. The class key (pfb_kind_of) => the words the Puzzle box uses. */
 const PFD_COUNTER_CLASSES = ['critter' => 'Critters', 'bird' => 'Birds', 'beast' => 'Beasts', 'water' => 'Water creatures', 'plant' => 'Plants and Fungi', 'reptile' => 'Reptiles and Amphibians'];
 /** Stat pieces (setting pfight_statpieces, data/pf_stat_pieces.txt): the stats that have pieces, and the point tiers a gnome's stat score unlocks them at (0 = every gnome). */
