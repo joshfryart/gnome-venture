@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.83
+- **Petal symbol:** the dock plate and its popover show the Petal icon instead of the gold coin emoji. The plate's health bar is red.
+- **Fight stage (Trail Wander fight, `pfight_stage` on), dock layout:** the stage pop-up now uses the same two-column screen as the plain fight (the stage's own geometry cut your hand off at the right edge), and its content is never hidden or faded at a turn's swap (`dock.css`: `dialog.trailpop.pfst .pickbox` forced visible, no animation). This targets "the pop-up goes away and comes back at End turn". In my headless runs the pop-up was never closed or replaced during a turn (same dialog node, `open` and modal all the time), so I could not see it go away; the only visible changes were the board's pieces blank for about 55 ms and, in the stage, a stacked layout in the screencast that the DOM did not show. Not confirmed on a phone.
+
 ## 2.7.82
 - **Dock status plate:** energy shows its numbers (x/y) beside its bar, and a health bar with its x/y sits just below it (red bar, from the same numbers as the popover's Health row; it follows the adventure's health during a walk). The time is shorter ("07:25 d0") so the coins fit. Seen in a headless capture.
 - **End-of-fight card (win, loss, charmed) fits without scrolling** in the dock layout on a short landscape screen: picture left, title and words right, the detail lines small, the buttons always on screen. Seen after a real lost fight in a fake walk (the Puzzle box / Try again / Go home buttons are all visible); a win card with loot was not checked.

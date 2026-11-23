@@ -347,6 +347,7 @@
     base.inner = ic(m.k) + '<span class="lb">' + esc(m.name) + '</span>' + (b ? '<b class="badge">' + esc(b) + '</b>' : '');
     return pc(base);
   }
+  function petal() { return '<img class="pt" src="' + esc(D.iconBase.replace('img/nav/dock-', 'img/ico/ico-petal.png')) + '" width="14" height="14" alt="Petals">'; }
   function platePiece(base) {
     var p = D.plate, open = slip === 'status';
     base.pat = 'dk-dirt2'; base.cls = 'plate' + (open ? ' open' : '');
@@ -356,7 +357,7 @@
     base.inner = '<span>\u26a1<progress max="100" value="' + ep + '"></progress><b class="bn">' + p.energy[0] + '/' + p.energy[1] + '</b></span>'
       + '<span>\ud83c\udf31 <b>' + p.level + '</b><progress class="xp" max="100" value="' + p.xp + '"></progress></span>'
       + (hp ? '<span>\u2764\ufe0f<progress class="hp" max="100" value="' + hpp + '"></progress><b class="bn">' + hp[0] + '/' + hp[1] + '</b></span>' : '<span></span>')
-      + '<span>' + (p.time ? esc(p.time) + ' <span class="tag">' + 'd' + p.day + '</span> ' : '') + '\ud83e\ude99 <span class="tag">' + p.coins + '</span></span>';
+      + '<span>' + (p.time ? esc(p.time) + ' <span class="tag">' + 'd' + p.day + '</span> ' : '') + petal() + ' <span class="tag">' + p.coins + '</span></span>';
     return pc(base);
   }
   function actPiece(side, a, base) {
@@ -417,7 +418,7 @@
       body = '<div><h4>The game</h4>' + D.more.map(function (r) { return '<a class="row" href="' + esc(r[1]) + '"><span>' + esc(r[0]) + '</span></a>'; }).join('') + '</div><div><h4>You</h4><div class="util"><!--dkTHEME--><!--dkLOGOUT--></div></div>';
       h = 96 + 28 * Math.max(3, D.more.length);
     } else {
-      body = '<div><h4>Right now</h4>' + D.rows.map(function (r) { return '<div class="row"><span>' + esc(r[0]) + '</span>' + esc(r[1]) + '<b>' + esc(r[2]) + '</b></div>'; }).join('') + '</div>'
+      body = '<div><h4>Right now</h4>' + D.rows.map(function (r) { return '<div class="row"><span>' + (r[0] === '\ud83e\ude99' ? petal() : esc(r[0])) + '</span>' + esc(r[1]) + '<b>' + esc(r[2]) + '</b></div>'; }).join('') + '</div>'
         + '<div><h4>Jump to</h4>' + D.links.map(function (r) { return '<a class="row" href="' + esc(r[2]) + '">' + esc(r[0]) + (r[1] ? '<b>' + esc(r[1]) + '</b>' : '') + '</a>'; }).join('') + '</div>';
       h = 96 + 28 * Math.max(D.rows.length, D.links.length);
     }

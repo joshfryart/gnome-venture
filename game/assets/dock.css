@@ -439,11 +439,25 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 }
 
 /* the status plate: energy and health show their numbers (x/y) */
-.dockroot .dk-pc.dk-plate .bn{flex:none;font-size:10px;font-weight:700;color:var(--dk-ink);min-width:3.2em;text-align:right}
-.dockroot .dk-pc.dk-plate progress.hp::-webkit-progress-value{background:#c0392b}
-.dockroot .dk-pc.dk-plate progress.hp::-moz-progress-bar{background:#c0392b}
+.dockroot .dk-pc.dk-plate .dk-bn{flex:none;font-size:10px;font-weight:700;color:var(--dk-ink);min-width:3.2em;text-align:right}
+.dockroot .dk-pc.dk-plate progress.dk-hp::-webkit-progress-value{background:#c0392b}
+.dockroot .dk-pc.dk-plate progress.dk-hp::-moz-progress-bar{background:#c0392b}
 
 /* dock layout, Wander: the end-of-fight stage (the chest and the loot coming in) takes the picture's place, full size, instead of collapsing to a small circle */
 @media (orientation: landscape) {
   body.dock-on .advgrid.wander.withrings .fightscene:not(.fs-over) { grid-column: 1; grid-row: 1; width: 100%; max-width: none; margin: 0; max-height: var(--imgh); overflow: hidden; }
+}
+
+/* the fight stage (pfight_stage, the Trail's Wander fight in a pop-up): in the dock layout it is the same two-column screen as the plain fight, full width above the rail, and looks the same before and after its script has run (the stage's own geometry was cutting the hand off at the right and flashed at every End turn) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on dialog.trailpop.pfst { position: fixed; left: 0; top: 0; width: 100vw; height: calc(100dvh - var(--dock-h, 0px)); right: auto; bottom: auto; }
+  body.dock-on dialog.trailpop.pfst #pfight.pf-v1, body.dock-on dialog.trailpop.pfst #pfight.pf-v1.pfv-fit { position: fixed; top: 0; bottom: var(--dock-h, 0px); left: 50%; right: auto; width: min(100vw, 880px); transform: translateX(-50%); display: grid; }
+  body.dock-on dialog.trailpop.pfst #pfv-pre.pfv-fit { position: fixed; top: 0; bottom: var(--dock-h, 0px); left: 50%; right: auto; width: min(100vw, 820px); transform: translateX(-50%); }
+}
+
+.dockroot .dk-pc.dk-plate img.dk-pt{width:14px;height:14px;flex:none;image-rendering:pixelated}
+.dockroot .pop img.dk-pt{width:14px;height:14px;vertical-align:-2px;image-rendering:pixelated}
+/* the fight stage in the dock layout never hides or fades its pop-up at a turn's swap */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on dialog.trailpop.pfst .pickbox { visibility: visible !important; animation: none !important; opacity: 1 !important; }
 }
