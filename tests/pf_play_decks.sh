@@ -10,7 +10,8 @@ bad() { echo "FAIL $1"; FAIL=1; }
 has() { php -r '$s=json_decode(file_get_contents($argv[1]),true); exit(strpos(json_encode($s[$argv[2]]), $argv[3]) !== false ? 0 : 1);' "$1" "$2" "$3"; }
 
 php "$HERE/pf_play.php" new "$T/s.json" grass-snake 14 7 v1 >/dev/null 2>&1 || bad "new (real decks) starts"
-if has "$T/s.json" foe '"n":"Bite"' || has "$T/s.json" foe '"n":"Venom Spit"'; then ok "(a) Reptile creature holds a Bite or Venom Spit piece"; else bad "(a) Reptile creature holds a Bite or Venom Spit piece"; fi
+# 2.7.45: creature pieces have drawn names (no plain Bite / Venom Spit); the Reptile's venom is a poison-tagged piece
+if has "$T/s.json" foe '"tag":"poison"'; then ok "(a) Reptile creature holds a poison (venom) piece"; else bad "(a) Reptile creature holds a poison (venom) piece"; fi
 if has "$T/s.json" foe '"n":"Lunge"'; then bad "(a) no archetype Lunge in the real creature deck"; else ok "(a) no archetype Lunge in the real creature deck"; fi
 if has "$T/s.json" me '"src":"tool"'; then ok "(b) player deck has a tool piece"; else bad "(b) player deck has a tool piece"; fi
 

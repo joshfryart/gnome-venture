@@ -153,7 +153,7 @@ $sz = []; $bad2 = [];
 foreach ($rows as $c) foreach (['', 'NA', 'MENA'] as $reg) {
     $r = pfd_foe_row($c, $reg); $d = $r['deck']; $lay = array_count_values(array_column($d, 'layer')) + ['base' => 0, 'reg' => 0, 'rar' => 0, 'uni' => 0];
     $big = in_array($c['size'], ['large', 'boss'], true);
-    $want = ['base' => 4, 'reg' => $reg === '' ? 0 : ($big ? 2 : 1), 'rar' => ['small' => 0, 'medium' => 0, 'large' => 1, 'boss' => 2][$c['size']], 'uni' => 3];
+    $want = ['base' => 4, 'reg' => $reg === '' ? 0 : ($big ? 2 : 1), 'rar' => ['small' => 0, 'medium' => 0, 'large' => 1, 'boss' => 2][$c['size']], 'uni' => 4];
     if ($lay != $want) $bad2[] = $c['slug'] . " $reg layers " . json_encode($lay);
     if (count(array_unique(array_column($d, 'k'))) !== count($d)) $bad2[] = $c['slug'] . ' keys repeat';
     if (count(array_unique(array_column($d, 'n'))) !== count($d)) $bad2[] = $c['slug'] . " $reg names repeat";
@@ -162,17 +162,17 @@ foreach ($rows as $c) foreach (['', 'NA', 'MENA'] as $reg) {
     if ($r['lean'] !== $K['classes'][$CM[$c['slug']]]['lean'] || $r['class'] !== $CM[$c['slug']]) $bad2[] = $c['slug'] . ' lean or class';
     if ($reg === 'NA') $sz[$c['size']] = count($d);
 }
-chk('all 88 creatures, with and without a region: 4 base + region (small / medium 1, large / boss 2) + size extras (large 1, boss 2) + 3 unique; keys and names unique; a knob in each family', !$bad2, array_slice($bad2, 0, 5));
-chk('deck sizes in a region: small 8, medium 8, large 10, boss 11', $sz === ['small' => 8, 'medium' => 8, 'large' => 10, 'boss' => 11], $sz);
+chk('all 88 creatures, with and without a region: 4 base + region (small / medium 1, large / boss 2) + size extras (large 1, boss 2) + 4 unique (2.7.45: every creature has 4 drawn pieces); keys and names unique; a knob in each family', !$bad2, array_slice($bad2, 0, 5));
+chk('deck sizes in a region: small 9, medium 9, large 11, boss 12', $sz === ['small' => 9, 'medium' => 9, 'large' => 11, 'boss' => 12], $sz);
 $bd = pfd_foe_row(dk_foe('large', 18, 'badger'), 'NWE')['deck'];
-chk('Badger in Mistmoor: Claw, Maul, Brace, Shoulder Barge + Bog Grip, Mist Veil + Slam + Dig In, Badger Maul, Bash Back', array_column($bd, 'n') === ['Claw', 'Maul', 'Brace', 'Shoulder Barge', 'Bog Grip', 'Mist Veil', 'Slam', 'Dig In', 'Badger Maul', 'Bash Back'], array_column($bd, 'n'));
-chk('values are v_mult x the archetype value (Badger, level 18: v 12 -> Claw 12, Maul 13, Brace 8, Badger Maul 16)', pfd_foe_v(dk_foe('large', 18)) === 12 && array_column($bd, 'v', 'n')['Claw'] === 12 && array_column($bd, 'v', 'n')['Maul'] === 13 && array_column($bd, 'v', 'n')['Brace'] === 8 && array_column($bd, 'v', 'n')['Badger Maul'] === 16, array_column($bd, 'v', 'n'));
-chk('the lean: 3 pieces in 5 (deck order) stack in the class family (Beast: body), the others in their type family', array_column($bd, 'col') === ['body', 'body', 'body', 'craft', 'body', 'body', 'body', 'body', 'body', 'body'], array_column($bd, 'col'));
+chk('Badger in Mistmoor (2.7.45 drawn names): 4 base + Bog Grip, Mist Veil + Warren Bulldoze + Dig In, Badger Maul, Bash Back, Tunnel Dash', array_column($bd, 'n') === ['Spade-Claw Dig', 'Armoured Snout Ram', 'Striped Plate', 'Burrow Dive', 'Bog Grip', 'Mist Veil', 'Warren Bulldoze', 'Dig In', 'Badger Maul', 'Bash Back', 'Tunnel Dash'], array_column($bd, 'n'));
+chk('values are v_mult x the archetype value (Badger, level 18: v 12 -> Spade-Claw Dig 12, Armoured Snout Ram 13, Striped Plate 8, Badger Maul 16)', pfd_foe_v(dk_foe('large', 18)) === 12 && array_column($bd, 'v', 'n')['Spade-Claw Dig'] === 12 && array_column($bd, 'v', 'n')['Armoured Snout Ram'] === 13 && array_column($bd, 'v', 'n')['Striped Plate'] === 8 && array_column($bd, 'v', 'n')['Badger Maul'] === 16, array_column($bd, 'v', 'n'));
+chk('the lean: 3 pieces in 5 (deck order) stack in the class family (Beast: body), the others in their type family', array_column($bd, 'col') === ['body', 'body', 'body', 'craft', 'body', 'body', 'body', 'body', 'body', 'body', 'body'], array_column($bd, 'col'));
 $wy = pfd_foe_row(dk_foe('boss', 30, 'dune-wyrm'), 'MENA')['deck'];
-chk('a boss plays a set order: one set-up piece, then two Hurt pieces, and again', array_slice(array_map(fn($p) => $p['t'] === 'hurt' ? 'H' : 's', $wy), 0, 9) === ['s', 'H', 'H', 's', 'H', 'H', 's', 'H', 'H'] && count($wy) === 11, array_column($wy, 't'));
+chk('a boss plays a set order: one set-up piece, then two Hurt pieces, and again', array_slice(array_map(fn($p) => $p['t'] === 'hurt' ? 'H' : 's', $wy), 0, 9) === ['s', 'H', 'H', 's', 'H', 'H', 's', 'H', 'H'] && count($wy) === 12, array_column($wy, 't'));
 $s = pfb_new(dk_me(18), pfd_foe_row(dk_foe('large', 18, 'badger'), 'NWE'), 3, ['v1' => ['life' => 1], 'blank' => true]);   // 2.6.95: a new fight has no per-piece life; this check is about the 2.6.94 rule
 $all = array_merge($s['foe']['hand'], $s['foe']['draw'], $s['foe']['discard']);
-chk('a v1 fight deals the layered deck: 10 creature pieces, each with authored edges in its column family, its life and layer', count($all) === 10 && !array_filter($all, fn($t) => !isset($t['ed'], $t['life'], $t['layer']) || $t['ed']['T'][1] !== $t['col'] || $t['src'] !== 'creature'), array_column($all, 'n'));
+chk('a v1 fight deals the layered deck: 11 creature pieces, each with authored edges in its column family, its life and layer', count($all) === 11 && !array_filter($all, fn($t) => !isset($t['ed'], $t['life'], $t['layer']) || $t['ed']['T'][1] !== $t['col'] || $t['src'] !== 'creature'), array_column($all, 'n'));
 chk('Dig In (hold) stays 4 rounds, Skitter-like quick pieces 2', (function () use ($all) { foreach ($all as $t) if ($t['n'] === 'Dig In') return $t['life'] === 4; return false; })() && pfd_foe_pieces(dk_foe('small', 1, 'aphid-swarm'))[3]['life'] === 2);
 chk('pf_foe_deck without a deck in the row is the old archetype deck (flag off: unchanged)', array_column(pf_foe_deck(dk_foe('large', 18, 'badger')), 'k') === ['f:hit1', 'f:hit2', 'f:guard', 'f:feint', 'f:rest', 'f:hit3', 'f:hit4', 'f:guard3']);
 

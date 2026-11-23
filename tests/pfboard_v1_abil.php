@@ -304,7 +304,7 @@ chk('every effect and variant played ' . count($ids) . ' x 3 fights without a st
 echo "== 13. the loader of data/pf_creatures.txt (fixture)\n";
 $GLOBALS['PF_CREATURES_FILE'] = '/nonexistent/pf_creatures.txt'; pfd_creature_rows(true); pfd_uniques(true); pfd_class_map(true);
 $old = pfd_foe_pieces(['slug' => 'grass-snake', 'size' => 'large', 'dmg_die' => 8, 'dmg_bonus' => 3], 'NA');
-chk('no file: nothing is added, old creatures unchanged, every region fits, no abilities on the row', pfd_creature_rows() === [] && pfd_creature_in_region('grass-snake', 'EE') && pfd_creature_overlay(['slug' => 'grass-snake']) === ['slug' => 'grass-snake'] && count($old) === 10, count($old));
+chk('no file: nothing is added, old creatures unchanged, every region fits, no abilities on the row', pfd_creature_rows() === [] && pfd_creature_in_region('grass-snake', 'EE') && pfd_creature_overlay(['slug' => 'grass-snake']) === ['slug' => 'grass-snake'] && count($old) === 11, count($old));
 $GLOBALS['PF_CREATURES_FILE'] = __DIR__ . '/pf_creatures_fixture.txt'; pfd_creature_rows(true); pfd_uniques(true); pfd_class_map(true);
 $R = pfd_creature_rows();
 chk('the fixture parses: 4 rows (the short line is skipped)', array_keys($R) === ['grass-snake', 'marsh-adder', 'aphid-swarm', 'fly-swarm'], array_keys($R));
@@ -315,7 +315,7 @@ chk('a variant\'s ability override is clamped, an unknown id dropped', $R['fly-s
 chk('region test: a variant is in its regions only; an unlisted creature everywhere', pfd_creature_in_region('marsh-adder', 'NA') && pfd_creature_in_region('marsh-adder', 'CA') && !pfd_creature_in_region('marsh-adder', 'EE') && !pfd_creature_in_region('fly-swarm', 'NA') && pfd_creature_in_region('fly-swarm', 'MENA') && pfd_creature_in_region('red-fox', 'SEA') && pfd_creature_in_region('marsh-adder', ''));
 chk('class: a variant has its base\'s class (Reptile for a snake, Critter for a swarm)', pfd_class(['slug' => 'marsh-adder']) === 'Reptile/Amphibian' && pfd_class(['slug' => 'fly-swarm']) === 'Critter', [pfd_class(['slug' => 'marsh-adder']), pfd_class(['slug' => 'fly-swarm'])]);
 $U = pfd_uniques();
-chk('uniques: a variant\'s 3 pieces and lean come from its deck column; a base row (deck =) keeps pf_creature_pieces.txt', count($U['marsh-adder']['P']) === 3 && $U['marsh-adder']['lean'] === 'mind' && $U['marsh-adder']['P'][0]['n'] === 'Fang Flick' && $U['marsh-adder']['P'][0]['tag'] === 'poison' && $U['marsh-adder']['P'][1]['life'] === 4 && count($U['grass-snake']['P']) === 3 && $U['grass-snake']['P'][0]['n'] !== 'Fang Flick', $U['marsh-adder'] ?? null);
+chk('uniques: a variant\'s 3 pieces and lean come from its deck column; a base row (deck =) keeps pf_creature_pieces.txt (4 pieces since 2.7.45)', count($U['marsh-adder']['P']) === 3 && $U['marsh-adder']['lean'] === 'mind' && $U['marsh-adder']['P'][0]['n'] === 'Fang Flick' && $U['marsh-adder']['P'][0]['tag'] === 'poison' && $U['marsh-adder']['P'][1]['life'] === 4 && count($U['grass-snake']['P']) === 4 && $U['grass-snake']['P'][0]['n'] !== 'Fang Flick', $U['marsh-adder'] ?? null);
 $row = pfd_foe_row(['slug' => 'marsh-adder', 'name' => 'Marsh Adder', 'size' => 'large', 'level' => 14, 'dmg_die' => 8, 'dmg_bonus' => 3], 'NA');
 $layers = array_count_values(array_column($row['deck'], 'layer'));
 chk('a large variant deck: 4 base + 2 region + 1 size + 3 unique = 10, its own pieces last', count($row['deck']) === 10 && $layers === ['base' => 4, 'reg' => 2, 'rar' => 1, 'uni' => 3] && $row['deck'][9]['n'] === 'Hiss' && $row['class'] === 'Reptile/Amphibian', [$layers, $row['class']]);
@@ -323,9 +323,9 @@ chk('the foe row carries the data: ab, abp, ai, regions, petals, family', $row['
 $s = pfb_new(ab_me(14), $row + ['region' => 'NA'], 5, ['v1' => true]);
 chk('and the fight takes them: Long venom plays (Reptile class rule with the variant\'s numbers)', pfb_kind($s) === 'reptile' && $s['foe']['ab'] === ['venom-long', 'D2'] && pfb_abp($s, 'vrnds', 2) === 3, $s['foe']);
 $row = pfd_foe_row(['slug' => 'aphid-swarm', 'name' => 'Aphid Swarm', 'size' => 'small', 'level' => 1, 'dmg_die' => 4, 'dmg_bonus' => 0], 'NA');
-chk('a base row\'s foe row: ability from the file, deck as before (4 + 1 + 3)', $row['ab'] === ['swarm'] && count($row['deck']) === 8, count($row['deck']));
+chk('a base row\'s foe row: ability from the file, deck as before (4 + 1 + 4 unique, 2.7.45)', $row['ab'] === ['swarm'] && count($row['deck']) === 9, count($row['deck']));
 $GLOBALS['PF_CREATURES_FILE'] = '/nonexistent/pf_creatures.txt'; pfd_creature_rows(true); pfd_uniques(true); pfd_class_map(true);
-chk('(back to no file: the same deck for a base creature as before the loader)', count(pfd_foe_pieces(['slug' => 'aphid-swarm', 'size' => 'small', 'dmg_die' => 4, 'dmg_bonus' => 0], 'NA')) === 8);
+chk('(back to no file: the same deck for a base creature as before the loader)', count(pfd_foe_pieces(['slug' => 'aphid-swarm', 'size' => 'small', 'dmg_die' => 4, 'dmg_bonus' => 0], 'NA')) === 9);
 
 echo "== 14. pick_creature: the region filter\n";
 $_SERVER['SCRIPT_NAME'] = '/gnome.php';

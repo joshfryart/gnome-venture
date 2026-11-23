@@ -42,7 +42,7 @@ chk('pfb_yield_max ignores the old hp column', pfb_yield_max(foe('medium', 9) + 
 $ph = pf_yield_phrase(foe('medium', 9));
 chk('the almanac phrase: "Yield bar N", no health', preg_match('/^Yield bar \d+$/', $ph) === 1, $ph);
 
-chk('almanac numbers, new rules: Yield bar, attack, defence; no health', pf_foe_numbers(foe('medium', 9), true) === 'Yield bar 75, attack +2, defence 10.', pf_foe_numbers(foe('medium', 9), true));
+chk('almanac numbers, new rules: Yield bar, attack, defence; no health', pf_foe_numbers(foe('medium', 9), true) === 'Yield bar ' . pfb_yield_max(foe('medium', 9)) . ', attack +2, defence 10.', pf_foe_numbers(foe('medium', 9), true));
 chk('almanac numbers, old rules: the old health', pf_foe_numbers(foe('medium', 9), false) === 'health 999, attack +2, defence 10.', pf_foe_numbers(foe('medium', 9), false));
 
 // the browser script: v1 words
