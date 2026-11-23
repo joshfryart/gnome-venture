@@ -8958,3 +8958,8 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   .picker .itmwrap { flex: 1 1 auto; min-height: 120px; }
   .picker .pickfoot { padding: 6px 12px; min-height: 0; }
 }
+
+/* short landscape: a Here popover never grows past the screen; it scrolls inside */
+@media (orientation: landscape) and (max-height: 520px) {
+  dialog.hubpop .pickbox { max-height: calc(100dvh - 8px); overflow-y: auto; }
+}

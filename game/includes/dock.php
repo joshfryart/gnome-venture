@@ -370,7 +370,7 @@ function dock_page_spec(string $page): array
                 ], '', '', 'Do here'), 'R' => dock_action('World', '🌍', $u('world.php'))];
         case 'here.php':
             // Do here: the doable things on this stop's picture (its "Do" spots, the first three), each opening that spot's own card in place
-            return ['watch' => true, 'L' => dock_remote('Do here', '🎈', ['hereDo' => 3], ['mlabel' => 'Do here']), 'R' => dock_action('World', '🌍', $u('world.php'))];
+            return ['watch' => true, 'L' => dock_remote('Do here', '🎈', ['hereDo' => 3], ['mlabel' => 'Do here']), 'R' => dock_remote('Menu', '🧭', ['hereMenu' => 1], ['mlabel' => 'Menu'])];
         case 'world.php':
             return ['watch' => true, 'L' => dock_action('Here', 'here', $u('here.php')), 'R' => dock_action('Explore', '🧭', '', [], '', '', '', [], [dock_remote('Explore', '🧭', ['doForm' => 'explore'])])];
         case 'market.php':

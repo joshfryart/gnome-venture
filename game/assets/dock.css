@@ -223,3 +223,21 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .selbar .selon { display: none; }
   body.dock-on.tourbub #wrentour.tour-on { top: 44px; bottom: auto; left: auto; right: 8px; width: min(380px, 46vw); max-height: calc(100vh - var(--dock-h, 106px) - 60px); }
 }
+
+/* dock layout, landscape: the big pictures fit the screen above the dock, so the page is not mostly scrolling past them. --imgh is the height left for a picture;
+   each rule keeps the picture's own proportion (width = height x ratio) and centres it. */
+@media (orientation: landscape) {
+  body.dock-on { --imgh: max(150px, calc(100dvh - var(--dock-h, 106px) - 104px)); }
+  body.dock-on .hubstage { max-width: calc(var(--imgh) * 1.769); margin-inline: auto; }
+  body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh) * 1.77); }
+  body.dock-on .ph-art { max-width: calc(var(--imgh) * 2); margin-inline: auto; }
+  body.dock-on .mapwrap { max-width: calc(var(--imgh) * 1.785); margin-inline: auto; }
+  body.dock-on .herepage .crumbs, body.dock-on .herepage .hereinfo { display: none; }
+  body.dock-on .herepage h1 { font-size: 18px; margin: 2px 0 4px; }
+  body.dock-on .hs-banner { padding-block: 6px; }
+}
+
+/* dock layout, landscape: the Here picture's round button row is the right piece (Menu) */
+@media (orientation: landscape) {
+  body.dock-on ul.hubnavbar { display: none; }
+}

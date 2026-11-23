@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.65
+- **Dock layout, landscape: pictures fit the screen.** The Here picture, the hovel room, the place pictures (towns, shops) and the world map are sized to the height left above the dock (`--imgh`, each keeps its own proportion and is centred), so they are seen whole instead of scrolled past. The Here page hides its crumbs and info line (the place name stays). The garden bed grid is left full size (smaller squares would be too small to tap). Seen in a headless browser at 844 x 390 and 1280 x 720.
+- **Dock, Here page: the right piece is "Menu".** The row of round buttons under the picture (Routes, World, Perks, Fast travel, GPS, Wander) moved into the right piece as a strip; the row itself is hidden in the dock layout. Each tile opens its own popover.
+- **Popover audit, short landscape screens.** Every dialog on 29 pages was opened in a headless browser at 844 x 390, 740 x 360 and 667 x 375 and measured (inside the screen, a scroll area of at least 130 px, not tiny): none failed after the 2.7.59 and 2.7.61 fixes. Added: Here popovers never grow past the screen. Not covered: popovers that only exist after a play action (an adventure's popups, trek camp, a fight's own cards) and non-dialog sheets other than the Puzzle box one.
+
 ## 2.7.64
 - **Dock, Here page: "Do here" lists the other things.** It used to repeat the "Do" spots already on the picture. Now it lists up to three more doable things at the stop that the picture has no room for (chosen per visit, done ones left out; stalls are not included), and each opens its own card and runs in place. Greyed "nothing more" when the picture already shows them all. New `here_extra_do()` in `includes/here_view.php` (hidden cards, only when the dock is on); `dock.js` `hereDo`.
 

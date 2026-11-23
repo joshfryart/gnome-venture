@@ -260,6 +260,16 @@
       else { o.label = 'Quick'; o.icon = '＋'; o.why = 'set in Satchel'; }
       return o;
     }
+    if (a.remote && a.remote.hereMenu) {   // the Here picture's round buttons (Routes, World, Perks, Fast travel, GPS, Wander) move into this piece; the page's own row is hidden in the dock layout
+      var HM = { 'hs-routes': 'explore', 'hs-world': 'globe', 'hs-perks': 'sights', 'hs-ft': 'trail', 'hs-gps': 'tag' };
+      var bs = [].slice.call(document.querySelectorAll('ul.hubnavbar li a, ul.hubnavbar li button'));
+      o.menu = bs.map(function (e) {
+        var li = e.closest('li'), nm = (li && li.textContent || e.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim();
+        return { label: nm, icon: HM[e.id] || 'wander', href: '', menu: [], why: '', badge: '', mlabel: '', remote: {}, cands: [], rem: remKey({ node: e }) };
+      });
+      if (!o.menu.length) o.why = 'none';
+      return o;
+    }
     if (a.remote && a.remote.hereDo) {   // the Here picture: a few more doable things that the picture has no room for (hidden cards from the server); each tile opens its card
       var ds = [].slice.call(document.querySelectorAll('dialog[data-xname]')).slice(0, a.remote.hereDo);
       o.menu = ds.map(function (e) { return { label: e.getAttribute('data-xname'), icon: 'dohere', href: '', menu: [], why: '', badge: '', mlabel: '', remote: {}, cands: [], rem: remKey({ dlg: e }) }; });
