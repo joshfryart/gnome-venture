@@ -2,7 +2,7 @@
 // and requires identical JSON: events, views, hidden-state digests, query answers, text lines, history chips and the final state.
 const fs = require('fs');
 const PFE = require('../tools/pfengine.js');
-let nIds = 0, nEnvIds = 0, nMeIds = 0;
+let nIds = 0, nEnvIds = 0, nMeIds = 0, nRollHit = 0, nRollMiss = 0;
 const lines = fs.readFileSync(process.argv[2], 'utf8').split('\n').filter(Boolean);
 
 // JSON-roundtrip, an empty object means the same as PHP's empty array, -0 is 0. Key order is kept (PHP array order = insertion order).
@@ -43,6 +43,8 @@ const hdr = JSON.parse(lines[0]);
 fail('header tiles', hdr.tiles, PFE.tiles(), 'tiles');
 fail('header combos', hdr.combos, PFE.COMBOS, 'combos');
 fail('header wear effects (data/wear_fx.txt = PFB_WEAR_FX_ROWS in tools/pfengine.js)', hdr.wearfx, PFE.wxData(), 'wearfx');
+fail('header stat piece effects (data/pf_stat_pieces.txt = PFB_STAT_ROWS in tools/pfengine.js)', hdr.statfx, PFE.statData(), 'statfx');
+fail('header Luck roll chance', hdr.chance, hdr.chance.map(([lp]) => [lp, PFE.wxChance({ me: { wx: { lp } } })]), 'chance');
 fail('header tags', hdr.tags, PFE.TAGS, 'tags');
 fail('header mods', hdr.mods, PFE.MODS, 'mods');
 fail('header abilities (PFB_ABIL in tools/pfengine.js)', hdr.abil, PFE.ABIL, 'abil');
@@ -91,6 +93,7 @@ for (const ln of lines.slice(1)) {
     if (st.q && fail(c + ' queries', st.q, queries(s), 'q')) { stop = true; return; }
     const res = st.op === 'redraw' ? { ok: PFE.redraw(s, st.hand, st.turn) } : st.op === 'flip' ? { err: PFE.flip(s, st.hand, st.turn) } : st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry, undefined, st.dry);
     if (fail(c + ' result', st.res, res, 'res')) { stop = true; return; }
+    if (res.ev) res.ev.forEach(e => { if (e.roll === 'hit') nRollHit++; else if (e.roll === 'miss') nRollMiss++; });   // stat pieces: the shared Luck roll
     { const ai = res.aim && res.aim.ids; if (ai) { nIds++; if (ai.some(q => q.by === 'env')) nEnvIds++; if (ai.some(q => q.by === 'me')) nMeIds++; } }   // after 2.6.96: the aim's ids are inside 'res' above (compared with PHP's)
     if (st.lines) {
       const fo = s.foe.name;
@@ -102,6 +105,7 @@ for (const ln of lines.slice(1)) {
   });
   if (!stop) fail(ctx + ' final state', rec.final, ns(s), 'final');
 }
+if (lines.slice(1).some(l => l.includes('"mode":"v1stat"')) && (!nRollHit || !nRollMiss)) { bad++; console.log('FAIL the v1stat fights never rolled both a hit (' + nRollHit + ') and a miss (' + nRollMiss + ') of the Luck roll'); }
 if (!nIds || !nEnvIds || !nMeIds) { bad++; console.log('FAIL the trace never had a dry aim with ids (' + nIds + '), with an environment piece (' + nEnvIds + ') or with one of yours (' + nMeIds + ')'); }
 if (!done || done.fights !== nf) { bad++; console.log('FAIL trace incomplete (php wrote ' + (done ? done.fights : '?') + ' fights, read ' + nf + ')'); }
 if (!bad) console.log('aim ids compared: ' + nIds + ' dry aims, ' + nEnvIds + ' with an environment piece, ' + nMeIds + ' with one of yours');

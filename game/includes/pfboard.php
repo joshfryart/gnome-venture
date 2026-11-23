@@ -37,7 +37,8 @@ const PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5;   // bramble: share of max heal
 const PFB_THORN = 0.10, PFB_EVENT_FOE = 0.7;  // thorn burst: share of max health per piece in the zone; event damage on the creature is halved
 const PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;       // Teamwork: your pieces in a chain you start come from 2 / 3 of the sources pal, tool, crop
 const PFB_TEAM_SRC = ['pal', 'tool', 'crop', 'craft', 'region', 'knack', 'calling'];   // 2.7.06: craft and region pieces count as sources too, so Teamwork can happen (it fired once in 20 turns with three)
-const PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'legend', 'wear', 'creature', 'env'];   // where a piece comes from (tile field 'src')
+const PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'legend', 'wear', 'creature', 'env', 'stat'];   // stat: a stat piece (setting pfight_statpieces, data/pf_stat_pieces.txt)
+const PFB_ROLL_BASE = 50, PFB_ROLL_PER = 2, PFB_ROLL_MAX = 90;   // the shared Luck roll of the stat pieces: 50% + 2% per Luck point, at most 90%   // where a piece comes from (tile field 'src')
 const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craft' => 'craft', 'legend' => 'mind', 'wear' => 'body'];   // authored edges: the column family (top and bottom) of a sourced piece; other pieces use their type family
 const PFB_UP = ['hurt' => 1, 'charm' => 1, 'trick' => 1];   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round
 const PFB_CLASS_LEAN = ['critter' => 'mind', 'insect' => 'mind', 'water' => 'body', 'bird' => 'craft', 'plant' => 'mind', 'fungus' => 'mind', 'reptile' => 'craft', 'amphibian' => 'craft', 'beast' => 'body'];   // a creature class leans to a family: 3 of its pieces in 5 stack in it
@@ -1070,7 +1071,7 @@ function pfb_fire(array &$s, int $root): array
         if ($swm > 0) $e['sw'] = $swm;
         if ($whalf) $e['whalf'] = 1;
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
-        if ($wcl !== null) { $wcx['g'] = $tile['t'] === 'guard' ? $val : 0; foreach ($wcl as $o) if ($o['st'] === 'post' && pfb_wx_conds($s, array_filter($o['c0'], fn($c) => str_starts_with(ltrim($c, '!'), 'tgt:')), $wcx)) pfb_wx_act($s, $o, $wcx, $e); }   // 2.7.09 wear effects (the tgt conditions after the boost)
+        if ($wcl !== null) { $wcx['g'] = $tile['t'] === 'guard' ? $val : 0; foreach ($wcl as $o) if ($o['st'] === 'post' && pfb_wx_conds($s, array_filter($o['c0'], fn($c) => str_starts_with(ltrim($c, '!'), 'tgt:')), $wcx)) pfb_wx_act($s, $o, $wcx, $e); if (isset($wcx['roll'])) $e['roll'] = $wcx['roll'] ? 'hit' : 'miss'; }   // stat pieces: the Luck roll of this firing, for the board   // 2.7.09 wear effects (the tgt conditions after the boost)
         if ($who === 'foe' && $tile['t'] === 'hurt' && !empty($s['wfx'])) pfb_wx_guard($s, $e, $id);   // 2.7.09: your guard blocked it or your Evade made it miss
         $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;   // fire budget: one more firing used (the placement counts as the first)
         $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block']; $e['fgnow'] = (int)$s['foe']['block'];   // for the replay: how the bar and health stand after this piece
@@ -1707,6 +1708,7 @@ function pfb_wx_clauses(string $fx): array
     if (isset($C[$fx])) return $C[$fx];
     $D = pfb_wx_data(); $src = []; $p = explode('>', $fx);
     if (str_starts_with($fx, 'R:')) { if (isset($D['rare'][substr($fx, 2)])) $src = explode(' ; ', $D['rare'][substr($fx, 2)][0]); }
+    elseif (str_starts_with($fx, 'S:')) { $sr = pfb_stat_data()[substr($fx, 2)] ?? null; if ($sr && $sr[0] !== '') $src = explode(' ; ', $sr[0]); }   // a stat piece: its clauses in data/pf_stat_pieces.txt (an action the engine does not know yet is left out)
     elseif (count($p) === 2 && isset($D['trig'][$p[0]], $D['pay'][$p[1]])) {   // a Common piece: TRIG PAY; the trigger goes after @hand / @held (it is checked then)
         $pay = $D['pay'][$p[1]][0]; $tr = $D['trig'][$p[0]][0];
         $src = [preg_match('/^@(hand|held) /', $pay, $m) ? '@' . $m[1] . ' ' . $tr . ' ' . substr($pay, strlen($m[0])) : $tr . ' ' . $pay];
@@ -1730,8 +1732,27 @@ function pfb_wx_text(string $fx, int $a, int $b): string
 {
     $D = pfb_wx_data(); $r = ['{a}' => (string)$a, '{b}' => (string)$b]; $p = explode('>', $fx);
     if (str_starts_with($fx, 'R:')) return isset($D['rare'][substr($fx, 2)]) ? strtr($D['rare'][substr($fx, 2)][1], $r) : '';
+    if (str_starts_with($fx, 'S:')) return isset(pfb_stat_data()[substr($fx, 2)]) ? strtr(pfb_stat_data()[substr($fx, 2)][1], $r) : '';
     if (count($p) !== 2 || !isset($D['trig'][$p[0]], $D['pay'][$p[1]])) return '';
     return $D['trig'][$p[0]][1] . ', ' . strtr($D['pay'][$p[1]][1], $r) . '.';
+}
+/** The stat pieces' effects (data/pf_stat_pieces.txt): key => [fx clauses ('' = none), rules text]. The deck side reads the whole file (pfd_stat_pieces in pfdeck.php). */
+function pfb_stat_data(): array
+{
+    static $S = null;
+    if ($S !== null) return $S;
+    $S = [];
+    foreach (pf_data_lines('pf_stat_pieces.txt') as $r) if (count($r) >= 13) $S[$r[0]] = [$r[11] === '-' ? '' : $r[11], $r[12]];
+    return $S;
+}
+/** The shared Luck roll's chance in percent for this fight (the gnome's Luck points, me.wx.lp). */
+function pfb_wx_chance(array $s): int { return min(PFB_ROLL_MAX, PFB_ROLL_BASE + PFB_ROLL_PER * max(0, (int)($s['me']['wx']['lp'] ?? 0))); }
+/** Does a clause test the Luck roll (roll / !roll)? */
+function pfb_wx_needroll(array $o): bool { foreach (array_merge($o['c0'], $o['c1']) as $c) if (ltrim($c, '!') === 'roll') return true; return false; }
+/** The shared Luck roll, ONCE per firing: rolled on the fight's rng the first time a clause of this firing asks, then kept in $cx['roll'] so roll and !roll agree. */
+function pfb_wx_roll(array &$s, array $o, array &$cx): void
+{
+    if (!isset($cx['roll']) && pfb_wx_needroll($o)) $cx['roll'] = pf_rand($s, 100) < pfb_wx_chance($s) ? 1 : 0;
 }
 /** Does this fight's deck hold a wear piece with an effect? */
 function pfb_wx_has(array $s): bool
@@ -1796,6 +1817,7 @@ function pfb_wx_cond(array $s, string $c, array $cx): bool
         case 'pt': return ($cx['pt'] ?? '') === $x[1];
         case 'first': return (int)($cx['blk']['u'] ?? 0) === 0;
         case 'full': return (int)($cx['e']['dmg'] ?? 1) === 0;
+        case 'roll': return !empty($cx['roll']);   // the shared Luck roll of this firing (pfb_wx_roll); no roll made = a miss
     }
     return false;
 }
@@ -1907,12 +1929,14 @@ function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
     if ($did) $e['wfx'][] = $a . ($n ? ' ' . $n : '');
 }
 /** The clauses of a firing piece of yours whose fire-time conditions hold (place clauses only when you placed it now). Block / miss clauses are registered here. */
-function pfb_wx_fire(array &$s, array $cx, bool $placed): array
+function pfb_wx_fire(array &$s, array &$cx, bool $placed): array
 {
     $on = [];
     foreach (pfb_wx_clauses((string)$cx['t']['fx']) as $i => $o) {
         if ($o['ph'] === 'hand' || $o['ph'] === 'held' || ($o['ph'] === 'place' && !$placed)) continue;
+        pfb_wx_roll($s, $o, $cx);   // stat pieces: the Luck roll, once a firing (only a clause that tests it rolls)
         if (!pfb_wx_conds($s, $o['c0'], $cx, true)) continue;
+        if (($o['ph'] === 'fire' || $o['ph'] === 'place') && $o['c1'] && !pfb_wx_conds($s, $o['c1'], $cx, true)) continue;   // '@place cond act': the conditions after the phase (no wear code has them)
         if ($o['ph'] === 'block' || $o['ph'] === 'miss') { $s['me'][$o['ph'] === 'block' ? 'wblk' : 'wmiss'][] = ['fx' => (string)$cx['t']['fx'], 'i' => $i, 'a' => (int)($cx['t']['fxa'] ?? 0), 'b' => (int)($cx['t']['fxb'] ?? 0), 'u' => 0]; continue; }
         $on[] = $o;
     }
@@ -1926,6 +1950,7 @@ function pfb_wx_guard(array &$s, array &$e, int $fid): void
     foreach ($s['me'][$k] as $i => $r) {
         $o = pfb_wx_clauses($r['fx'])[$r['i']] ?? null; if (!$o) continue;
         $cx = ['t' => ['fxa' => $r['a'], 'fxb' => $r['b']], 'e' => $e, 'blk' => $r, 'fid' => $fid, 'ph' => $k === 'wblk' ? 'block' : 'miss'];
+        pfb_wx_roll($s, $o, $cx);
         if (pfb_wx_conds($s, $o['c1'], $cx)) pfb_wx_act($s, $o, $cx, $e);
         $s['me'][$k][$i]['u']++;
     }
@@ -1943,6 +1968,7 @@ function pfb_wx_placed(array &$s, int $id, array $tile): void
     $e = [];
     foreach ($s['me']['hand'] as $h) if (!empty($h['fx'])) foreach (pfb_wx_clauses((string)$h['fx']) as $o) {
         $cx = ['t' => $h, 'pt' => $t, 'pid' => $id, 'ph' => 'held'];
+        if ($o['ph'] === 'held') pfb_wx_roll($s, $o, $cx);
         if ($o['ph'] === 'held' && pfb_wx_conds($s, $o['c1'], $cx)) pfb_wx_act($s, $o, $cx, $e);
     }
 }
@@ -1976,6 +2002,7 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
         if (pfb_wx_has($s)) {   // 2.7.09 wear piece effects: their state (only in a fight whose deck has one)
             $s['wfx'] = 1; $s['wstay'] = []; $s['wkn'] = [];
             $s['me']['wx'] = ['lt' => '', 'ct' => '', 'nd' => 1, 'hps' => (int)$s['me']['hp'], 'hit' => 0, 'pl' => [], 'nx' => []];
+            if (isset($me['lpts'])) $s['me']['wx']['lp'] = max(0, (int)$me['lpts']);   // stat pieces: the gnome's Luck points (the shared Luck roll, pfb_wx_chance)
             $s['me'] += ['wblk' => [], 'wmiss' => [], 'wmend' => [], 'wk1' => 0, 'wmore' => 0]; $s['foe'] += ['wnx' => 0, 'whf' => 0, 'wsk' => 0];
         }
         if (!empty($c['ab']) && pfb_v1r($s, 'abil') === 1) pfb_ab_init($s, $c);   // 2.7.01 abilities (an E id replaces the class rule)

@@ -240,7 +240,7 @@ function pf_learner_bump(int $uid): void
 function pfight_calc(array $u): array
 {
     $st = ['level' => (int)$u['level']];
-    foreach (['grit', 'nimble', 'hardiness', 'charm', 'lore', 'luck'] as $k) $st[$k] = eff_mod($u, $k);
+    foreach (['grit', 'nimble', 'hardiness', 'charm', 'lore', 'luck', 'sense'] as $k) $st[$k] = eff_mod($u, $k);   // sense: only stat pieces count it (pf_make_tile's stat override)
     $pals = [];
     if (setting('ppal_party') === '1') {
         require_once __DIR__ . '/puzzle_pals.php';
@@ -266,7 +266,8 @@ function pfight_me(array $u, array $exp, array $enc = [], bool $first = false): 
     if (pfight_v1_on($u)) {   // 2.6.74, the v1 deck model: the deck the gnome built (starter kit + what they switched on + fight-belt tools + party pals); pals add a piece, they no longer swap one out
         require_once __DIR__ . '/pfdeck.php';
         if ($first) return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfd_first_tiles($u, $st), 'luck' => max(0, $st['luck'])];   // 2.7.01 fixed first fight: the Bold kit only (no tools, pals, wearables, snacks or upgrades), so the deal is the same for every new gnome
-        return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfight_apply_mods(pfd_start_fight($u, $st, $bonus, $canSnack), pfight_mods((int)$u['id'])), 'luck' => max(0, $st['luck'])];
+        return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfight_apply_mods(pfd_start_fight($u, $st, $bonus, $canSnack), pfight_mods((int)$u['id'])), 'luck' => max(0, $st['luck'])]
+            + (pfd_statpieces_open($u) ? ['lpts' => eff_stat($u, 'luck')] : []);   // stat pieces: Luck POINTS for the shared Luck roll (pfb_wx_roll)
     }
     $deck = pfight_apply_mods(pf_player_deck($st, $cal, max(1, min(3, (int)calling_tier($u))), $pals, [], $bonus, $canSnack, $box), pfight_mods((int)$u['id']));
     return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'])];

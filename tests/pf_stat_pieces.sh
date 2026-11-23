@@ -1,0 +1,5 @@
+#!/bin/bash
+# Stat pieces plumbing (setting pfight_statpieces): data, ownership by tier, packing, numbers, the shared Luck roll, setting Off = unchanged; then PHP / JS parity on fights with stat pieces (tools/pfengine.js; needs node).
+HERE=$(cd "$(dirname "$0")" && pwd)
+php "$HERE/pf_stat_pieces.php" || exit 1
+T=$(mktemp); PFE_MODES=v1stat php "$HERE/pfengine_js.php" >"$T" && node "$HERE/pfengine_js.js" "$T"; rc=$?; rm -f "$T"; exit $rc

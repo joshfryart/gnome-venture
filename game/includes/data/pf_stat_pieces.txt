@@ -1,0 +1,31 @@
+# STAT PIECES (behind the admin setting pfight_statpieces): a gnome OWNS every piece whose tier its points in that stat reach (tier 0 = everyone; points = the stat score, 10 at the start, at most stat_max)
+# and packs the ones it wants (off until switched on, like the knacks). Read by pfd_stat_pieces() in includes/pfdeck.php and pfb_stat_data() in includes/pfboard.php; mirrored in tools/pfengine.js (PFB_STAT_ROWS).
+# key|name|stat|tier|type|v|vd|edges|tag|ab|live|fx|text
+#   stat: nimble lore luck sense.  v / vd: the base number is v + points / vd (vd 0 = no points part); the stat's modifier, level / 3 and the rank bonus are added as for every piece (the stat override: the piece's own stat, not PF_STAT).
+#   edges: knob family / column family.  tag: an engine tag (PF_TAGS) or -.  ab: which of the numbers a = 1 + points / 5 and b = ceil(a / 2) the piece uses (a, b, ab, -).
+#   live: 1 = its fx clauses run in a fight (the tile carries fx S:KEY); 0 = loaded but inert (no fx on the tile) until its own slice builds and tests it.
+#   fx: wear-effect clauses (pfb_wx_*, data/wear_fx.txt), ' ; ' between clauses; the condition roll / !roll = the shared Luck roll (50% + 2% per Luck point, at most 90%, once a firing).  text: {a} {b} = the numbers.
+stat-sidestep|Sidestep|nimble|0|trick|2|5|body/body|quick|-|0|aimnext evade ; onaim skip|Quick. Next to the creature's aim: its next hit misses. On its aim: it skips its turn.
+stat-old-saying|Old Saying|lore|0|trick|2|5|mind/mind|-|ab|0|boost:a ; cenv more:b|Gives {a} to your linked piece that fires next. With an environment piece in the chain, {b} more.
+stat-loaded-die|Loaded Die|luck|0|item|1|10|craft/craft|-|-|0|roll again|Roll 50% + 2% per Luck point (max 90%). On a hit the piece it links to fires twice, on a miss once.
+stat-sharp-eye|Sharp Eye|sense|0|guard|2|5|body/body|keep|a|0|keep ; fnext:a|Keeper. Held: you see the piece the creature plays after its aim. Played: its next piece loses {a}.
+stat-skitter|Skitter|nimble|10|guard|2|5|body/body|evade|-|0|evade ; @miss kill|Evade: the creature's next Hurt misses, and the piece that missed tumbles off the board.
+stat-wrong-turn|Wrong Turn|nimble|15|trick|1|5|mind/mind|quick|-|0|-|Quick. The creature's aim moves one cell, to the free cell next to it farthest from its own pieces; if its piece does not fit there, it must pick again.
+stat-pinning-stance|Pinning Stance|nimble|20|guard|2|5|mind/mind|hold|-|0|-|Hold. While it stands, if the creature has to pick again it may only pick a cell touching this piece; if none fits, it loses that move.
+stat-shadow-step|Shadow Step|nimble|25|guard|2|5|mind/mind|keep|-|0|@hand keep|Keeper. When the creature places its aimed piece, this jumps from your hand onto a free cell touching it and fires there.
+stat-phantom-footing|Phantom Footing|nimble|30|guard|2|5|body/body|evade|-|0|evade|Evade. For the next two rounds you choose where the creature's aimed piece lands: any free cell next to its aim where it fits.
+stat-knot-of-twine|Knot of Twine|lore|10|trick|2|5|craft/craft|-|b|0|boost:b|Its four sides fit and link any knob or hole, whatever the family (a flat side or a Mud still does not link). The piece it links to gets +{b}.
+stat-lantern-chain|Lantern Chain|lore|15|trick|2|5|craft/craft|-|ab|0|-|Every other piece of yours in its chain gets +{b}. If the chain has 4 or more pieces, they get +{a} instead.
+stat-weather-lore|Weather Lore|lore|20|item|2|5|mind/mind|-|-|0|-|When it fires, the environment's next piece becomes a Sun (a Spring on large boards), and it comes in on a free cell beside Weather Lore if there is one.
+stat-copybook|Copybook|lore|25|trick|3|5|craft/craft|-|-|0|-|The piece it links to learns the tag of another piece of yours in its chain (Pierce, Poison, Hold, Bash...) and keeps it for the rest of the fight, even after it is discarded.
+stat-turn-of-the-tale|Turn of the Tale|lore|30|trick|4|5|mind/mind|-|-|0|-|The creature piece it links to becomes yours where it stands: it keeps its number and edges and fires for you in this chain and after.
+stat-hedge-rummage|Hedge Rummage|luck|10|trick|2|5|mind/mind|-|b|0|@place pluck:roll ; @place !roll fup:b|Placed: Pluck with your Luck roll (50% + 2% per point, max 90%, halved against a great creature) instead of Pluck's small chance. If it misses, the creature's next Hurt gets +{b}.
+stat-long-shot|Long Shot|luck|15|hurt|2|5|body/body|-|a|0|roll again ; !roll next:hurt:1:a|Roll. Hit: it fires twice. Miss: the next Hurt you place gets +{a}.
+stat-magpie-s-pinch|Magpie's Pinch|luck|20|item|2|5|body/body|-|-|0|-|Roll. Hit: take the creature's strongest hand piece; it is one of your next hand's 5 pieces, as yours. Miss: take its weakest hand piece instead.
+stat-turn-of-the-coin|Turn of the Coin|luck|25|trick|2|5|mind/mind|-|b|0|-|Roll. Hit: the creature's strongest hand piece goes back into its draw pile and it draws another. Miss: it still loses {b} from that piece.
+stat-lucky-streak|Lucky Streak|luck|30|trick|1|10|body/body|-|b|0|-|Roll until you miss (at most {b} times). Each hit: a random piece of yours on the board fires again.
+stat-soft-spot|Soft Spot|sense|10|hurt|2|10|body/body|pierce|ab|0|fguard fstrip:a ; next:hurt:1:b|Pierce. If the creature has guard up, it loses {a} guard. Your next Hurt this fight gets +{b}.
+stat-not-fooled|Not Fooled|sense|15|guard|2|5|mind/mind|-|-|0|-|Guard. The creature's next chain gets no combos: no Ambush, Bait or Riposte for it.
+stat-saw-it-coming|Saw It Coming|sense|20|guard|3|10|body/body|hold|a|0|@block kill ; @block fnext:a|Hold. Each creature Hurt this guard blocks is knocked off the board and its next piece loses {a}.
+stat-snare-field|Snare Field|sense|25|soothe|1|10|craft/craft|-|b|0|-|Up to {b} empty cells next to it become snares for 2 rounds; a creature piece placed on one loses half its value. The creature cannot see them.
+stat-eyes-of-the-wood|Eyes of the Wood|sense|30|item|0|0|mind/mind|keep|a|0|-|Keeper. Held: you see the creature's whole hand and the piece it draws next, and every piece it aims loses {a}.

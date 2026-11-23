@@ -42,6 +42,9 @@ const PFD_REPAIR = 'tool-repair-kit';         // the crafted item that fixes a f
 const PFD_REPAIR_ITEM = ['Tool Repair Kit', 30, 6, 'Flint, resin and a twist of fibre. Fixes one fight tool on your Puzzle box belt: its piece is worn out by fights (2 each time it is played) and comes back at full strength.'];
 /** 2.7.08 counter pieces (claude/engine-2.7.08-notes.md "Counter piece per type"): one knack per creature class rule, data rows in pf_pieces.txt with ref LEVEL:CLASS. The class key (pfb_kind_of) => the words the Puzzle box uses. */
 const PFD_COUNTER_CLASSES = ['critter' => 'Critters', 'bird' => 'Birds', 'beast' => 'Beasts', 'water' => 'Water creatures', 'plant' => 'Plants and Fungi', 'reptile' => 'Reptiles and Amphibians'];
+/** Stat pieces (setting pfight_statpieces, data/pf_stat_pieces.txt): the stats that have pieces, and the point tiers a gnome's stat score unlocks them at (0 = every gnome). */
+const PFD_STAT_STATS = ['nimble' => 'Nimble', 'lore' => 'Lore', 'luck' => 'Luck', 'sense' => 'Sense'];
+const PFD_STAT_TIERS = [0, 10, 15, 20, 25, 30];
 const PFD_PAL_KNOB = ['round' => 'body', 'tri' => 'body', 'keyhole' => 'mind', 'double' => 'mind', 'peg' => 'craft', 'hook' => 'craft'];
 const PFD_FOE_TAGS = ['hurt' => ['pierce', 'poison', 'quick', 'trip', 'bash'], 'guard' => ['hold', 'thorns', 'evade'], 'trick' => ['quick', 'evade', 'bash', 'thorns', 'poison', 'trip', 'heal'], 'heal' => []];
 const PFD_LAYERS = ['base' => 'Base (class)', 'reg' => 'Region', 'rar' => 'Size or boss', 'uni' => 'Unique'];
@@ -69,6 +72,43 @@ function pfd_catalog(): array
     if (!$C) foreach (PF_TILES_BUILTIN as $k => $t) $C[$k] = ['k' => $k, 'n' => $t['n'], 'src' => in_array($k, PF_BASE_KEYS, true) || $k === 'breather' ? 'basic' : (in_array($k, PF_CALLING_TILE, true) ? 'calling' : 'knack'), 'ref' => '',
         't' => $t['t'], 'v' => $t['v'], 'r' => $t['r'], 'tag' => (string)($t['tag'] ?? ''), 'life' => 0, 'rar' => 0, 'blurb' => ''];   // no file: the old library, nothing else
     return $C;
+}
+
+/** The stat pieces of data/pf_stat_pieces.txt (file order): key => ['k', 'n', 'stat', 'tier', 't', 'v', 'vd', 'r' (knob family), 'col', 'tag', 'ab', 'live', 'fx', 'text']. Rows with an unknown stat, tier or type are left out. */
+function pfd_stat_pieces(): array
+{
+    static $S = null;
+    if ($S !== null) return $S;
+    $S = [];
+    foreach (pf_data_lines('pf_stat_pieces.txt') as $r) {
+        if (count($r) < 13 || !isset(PFD_STAT_STATS[$r[2]]) || !in_array((int)$r[3], PFD_STAT_TIERS, true) || !isset(PF_HOLE[$r[4]])) continue;
+        $e = explode('/', $r[7]);
+        $S[$r[0]] = ['k' => $r[0], 'n' => $r[1], 'stat' => $r[2], 'tier' => (int)$r[3], 't' => $r[4], 'v' => (int)$r[5], 'vd' => max(0, (int)$r[6]),
+            'r' => in_array($e[0], PFD_FAM, true) ? $e[0] : null, 'col' => in_array($e[1] ?? '', PFD_FAM, true) ? $e[1] : null, 'tag' => $r[8] === '-' ? '' : $r[8],
+            'ab' => $r[9] === '-' ? '' : $r[9], 'live' => $r[10] === '1', 'fx' => $r[11] === '-' ? '' : $r[11], 'text' => $r[12]];
+    }
+    return $S;
+}
+
+/** A stat piece's numbers from the gnome's points in its stat: a = 1 + points / 5, b = ceil(a / 2). */
+function pfd_stat_ab(int $pts): array
+{
+    $a = 1 + intdiv(max(0, $pts), 5);
+    return [$a, intdiv($a + 1, 2)];
+}
+
+/** The stat modifier of a stat score (stat_mod in gnome.php, kept here so the deck model stays pure). */
+function pfd_stat_mod(int $v): int { return intdiv($v - 10 - ($v < 10 ? 1 : 0), 2); }
+
+/** The deck entry fields of a stat piece for a gnome with $pts points in its stat: the base number (v + points / vd), a, b, the rules text with them put in, its fx code (only when live). */
+function pfd_stat_entry(array $p, int $pts): array
+{
+    [$a, $b] = pfd_stat_ab($pts);
+    $x = ['k' => $p['k'], 'n' => $p['n'], 'src' => 'stat', 'ref' => $p['stat'] . ':' . $p['tier'], 't' => $p['t'], 'v' => $p['v'] + ($p['vd'] > 0 ? intdiv(max(0, $pts), $p['vd']) : 0), 'r' => $p['r'],
+        'tag' => $p['tag'], 'life' => 0, 'rar' => 0, 'blurb' => strtr($p['text'], ['{a}' => (string)$a, '{b}' => (string)$b]), 'st' => $p['stat'], 'sm' => pfd_stat_mod($pts), 'fa' => $a, 'fb' => $b];
+    if ($p['col'] !== null) $x['col'] = $p['col'];
+    if ($p['live'] && $p['fx'] !== '') $x['fx'] = 'S:' . $p['k'];
+    return $x;
 }
 
 /** A creature piece row of a data file: [name, type, v_mult, knob, tag, life]. */
@@ -334,7 +374,10 @@ function pfd_sources_blank(int $level = 1, string $calling = '', string $home = 
         'wears' => [],              // wearable item slug => qty (includes/wearables.php): what the gnome owns
         'worn' => [],               // 2.7.14: slot => wearable item slug the gnome WEARS: each makes a Keepsake piece (only worn items do)
         'crops' => [], 'crafts' => [], 'regions' => [], 'legends' => [],   // crop kind / recipe category / region code / legendary crop slug => rank 1-4
-        'auto' => false];
+        'auto' => false,
+        'statp' => false,           // stat pieces on for this gnome (setting pfight_statpieces)
+        'sbase' => [],              // stat => the gnome's own points (stat_<stat>, no boosts): which stat pieces it owns (missing = 10, a new gnome's)
+        'spts' => []];              // stat => points as they are now (with boosts): the pieces' numbers (missing = sbase)
 }
 
 function pfd_dur_max(int $tier): int { return PFD_DUR_BASE + PFD_DUR_RANK * (max(1, min(4, $tier)) - 1); }
@@ -391,7 +434,7 @@ function pfd_build(array $src): array
         $e = ['key' => $key, 'k' => $p['k'], 'n' => $p['n'], 't' => $p['t'], 'v' => (int)$p['v'], 'r' => $p['r'], 'tag' => (string)$p['tag'], 'src' => $p['src'], 'ref' => (string)($p['ref'] ?? ''), 'rank' => $rank,
             'life' => (int)($p['life'] ?? 0) ?: ($rank >= 4 ? 4 : ($p['tag'] === 'quick' ? 2 : ($p['tag'] === 'hold' ? 4 : PFB_LIFE))), 'blurb' => (string)($p['blurb'] ?? ''),
             'gear' => false, 'tool' => '', 'starter' => false, 'core' => false, 'on' => false, 'out' => ''];
-        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];   // fx fa fb: a Tailor wearable's effect code and numbers (includes/wearables.php)
+        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb', 'st', 'sm'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];   // fx fa fb: a Tailor wearable's effect code and numbers (includes/wearables.php); st sm: a stat piece's stat and its modifier
         return $x + $e;
     };
     $pieces = []; $seen = [];
@@ -409,6 +452,11 @@ function pfd_build(array $src): array
             if (isset($seen[$wp['key']])) continue; $seen[$wp['key']] = 1;
             $pieces[] = $entry($wp['key'], $wp, (int)$wp['rank'], ['on' => (bool)($src['state'][$wp['key']] ?? false), 'new' => !isset($src['state'][$wp['key']])]);
         }
+    }
+    if (!empty($src['statp'])) foreach (pfd_stat_pieces() as $key => $sp) {   // stat pieces: owned from the gnome's points in the stat (tier 0 = everyone), off until switched on, like the knacks
+        $own = (int)($src['sbase'][$sp['stat']] ?? 10);
+        if ($own < $sp['tier'] || isset($seen[$key])) continue; $seen[$key] = 1;
+        $pieces[] = $entry($key, pfd_stat_entry($sp, (int)($src['spts'][$sp['stat']] ?? $own)), 0, ['on' => (bool)($src['state'][$key] ?? false), 'new' => !isset($src['state'][$key])]);
     }
     $belt = pfd_belt($src);
     foreach ($belt as $b) {   // gear: the tools on the belt that work
@@ -486,10 +534,11 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
         if ($e['src'] === 'calling') $b += max(0, $ctier - 1) * 2;
         if ($e['src'] !== 'pal') $b += PFD_RANK_BONUS[(int)$e['rank']] ?? 0;
         $over = ['n' => $e['n'], 't' => $t, 'v' => (int)$e['v'], 'r' => $e['r'], 'tag' => (string)$e['tag'], 'src' => $e['src'], 'life' => (int)$e['life'], 'rank' => (int)$e['rank']];
-        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
+        foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb', 'st', 'sm'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
         if ($e['tool'] !== '') $over['tool'] = $e['tool'];
         $tile = pf_make_tile($k, $stats, $b, $over);
-        if (!empty($e['fx'])) { $tile['fx'] = (string)$e['fx']; $tile['fxa'] = (int)($e['fa'] ?? 0); $tile['fxb'] = (int)($e['fb'] ?? 0); }   // 2.7.09: the wear effect rides on the tile as fx, fxa, fxb (pfb_wx_* in pfboard.php)
+        if (!empty($e['fx'])) { $tile['fx'] = (string)$e['fx']; $tile['fxa'] = (int)($e['fa'] ?? 0); $tile['fxb'] = (int)($e['fb'] ?? 0); }
+        elseif ($e['src'] === 'stat') { $tile['fxa'] = (int)($e['fa'] ?? 0); $tile['fxb'] = (int)($e['fb'] ?? 0); }   // a stat piece not live yet: its numbers ride along, no effect   // 2.7.09: the wear effect rides on the tile as fx, fxa, fxb (pfb_wx_* in pfboard.php)
         $deck[] = $tile;
     }
     return $deck;
@@ -515,6 +564,14 @@ function pfd_ensure(): bool
     }
     pfd_content_once();
     return $ok;
+}
+
+/** Stat pieces (setting pfight_statpieces: '0' Off, 'admin' Admins only, '1' Everyone): may this gnome own and pack them? $u = user row or null (the setting alone, Everyone only). */
+function pfd_statpieces_open(?array $u = null): bool
+{
+    $v = (string)setting('pfight_statpieces');
+    if ($v === '1') return true;
+    return $v === 'admin' && $u !== null && ($u['role'] ?? '') === 'admin';
 }
 
 /** Is the v1 setting on for anyone (Admins only or Everyone)? While it is Off the belts and the repair kit are not made, so players see nothing new in the shop or the craft lists. */
@@ -652,6 +709,11 @@ function pfd_sources(int|array $u): array
         }
     });
     $try(function () use (&$src, $u) { $src['slots'] = pfd_belt_slots($u); });
+    $try(function () use (&$src, $u) {   // stat pieces: owned from the gnome's own stat points, numbered from its points now (boosts count)
+        if (!pfd_statpieces_open($u)) return;
+        $src['statp'] = true;
+        foreach (array_keys(PFD_STAT_STATS) as $k) { $src['sbase'][$k] = (int)($u['stat_' . $k] ?? 10); $src['spts'][$k] = function_exists('eff_stat') ? eff_stat($u, $k) : $src['sbase'][$k]; }
+    });
     $try(function () use (&$src, $u) { $src['pals'] = pfd_pal_pieces($u); });
     $try(function () use (&$src, $uid) {   // crops: a kind is owned once a crop of it was grown; its rank is the best food mastery among them
         require_once __DIR__ . '/food_mastery.php'; $kinds = pfd_crop_kinds();

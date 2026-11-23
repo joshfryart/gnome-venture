@@ -579,7 +579,7 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
    Only #pfv-box (.pbx) and its sheet (.pbx-sheet) use these rules; the starter pick, the pre-fight screen and the fight keep theirs.
    The box itself is a thing on the page (wood and felt, like the fight card) in both themes, the wood a shade lighter in the light theme; the strip, the shelf and the sheet follow the site's tokens. */
 .pbx { --pbx-w1: #c08a58; --pbx-w2: #9a6436; --pbx-w3: #6b4123; --pbx-felt: #3d2a1c; --pbx-cream: #f2e4c0; --pbx-cream-2: #e6d3a4; --pbx-note: #ffe9b8; --pbx-gold: #f5c95a; --pbx-ember: #ef8a6a; --pbx-shadow: #2a1a10;
-  --s-basic: #e9dcb8; --s-crop: #8cc865; --s-legend: #f0c040; --s-craft: #e08a52; --s-region: #6fb8e0; --s-wear: #ee93b2; --s-tool: #b5c0c9; --s-pal: #c1a6ee; font-variant-numeric: tabular-nums; }
+  --s-basic: #e9dcb8; --s-crop: #8cc865; --s-legend: #f0c040; --s-craft: #e08a52; --s-region: #6fb8e0; --s-wear: #ee93b2; --s-tool: #b5c0c9; --s-pal: #c1a6ee; --s-stat: #f2d16b; font-variant-numeric: tabular-nums; }
 :root[data-theme="dark"] .pbx { --pbx-w1: #9a6436; --pbx-w2: #7a4a26; --pbx-w3: #55321a; --pbx-shadow: #120b06; }
 .box.pfv.pbx { padding: 12px 10px 14px; }
 .pbx img { image-rendering: pixelated; }
@@ -674,7 +674,7 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pbx .bslot:has(.dur.low, .dur.crit) small { color: var(--pbx-gold); }
 /* source colours (badges, filter bars, legend) */
 .pbx .s-basic, .pbx-sheet .s-basic { --sc: var(--s-basic); } .pbx .s-crop, .pbx-sheet .s-crop { --sc: var(--s-crop); } .pbx .s-legend, .pbx-sheet .s-legend { --sc: var(--s-legend); } .pbx .s-craft, .pbx-sheet .s-craft { --sc: var(--s-craft); }
-.pbx .s-region, .pbx-sheet .s-region { --sc: var(--s-region); } .pbx .s-wear, .pbx-sheet .s-wear { --sc: var(--s-wear); } .pbx .s-tool, .pbx-sheet .s-tool { --sc: var(--s-tool); } .pbx .s-pal, .pbx-sheet .s-pal { --sc: var(--s-pal); }
+.pbx .s-region, .pbx-sheet .s-region { --sc: var(--s-region); } .pbx .s-wear, .pbx-sheet .s-wear { --sc: var(--s-wear); } .pbx .s-tool, .pbx-sheet .s-tool { --sc: var(--s-tool); } .pbx .s-pal, .pbx-sheet .s-pal { --sc: var(--s-pal); } .pbx .s-stat, .pbx-sheet .s-stat { --sc: var(--s-stat); }
 .pbx .pc-s, .pbx .srcb, .pbx-sheet .srcb { background: var(--sc, #e9dcb8); }
 /* the shelf: spare pieces, search, the source filter (icon, word, count), the legend */
 .pbx-shelf { margin: 0 0 12px; }
