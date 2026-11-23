@@ -213,22 +213,13 @@ body.dock-on { --dock-h: 106px; }
 body.dock-on .cbed.dkpick { outline: 3px solid #e8a317; outline-offset: -3px; background-image: linear-gradient(rgba(232,163,23,.25), rgba(232,163,23,.25)); }
 body.dock-on .cbed { cursor: pointer; }
 
-/* landscape phones: the seed / chooser popovers (garden Select) keep a usable list. The search, chips and "in season" share one row, the head and foot are slim. */
-@media (orientation: landscape) and (max-height: 520px) {
-  body.dock-on .picker .pickbox { max-height: calc(100vh - 12px); }
-  body.dock-on .picker .pickhead { padding-top: 4px; padding-bottom: 4px; min-height: 0; }
-  body.dock-on .picker .pickhead .pickx { width: 36px; height: 36px; }
-  body.dock-on .picker .pickfilter { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 4px 10px; }
-  body.dock-on .picker .pickfilter .pfsearch { flex: 1 1 160px; }
-  body.dock-on .picker .pickfilter .pfsearch .pfq, body.dock-on .picker .pickfilter .pfsearch .pfx { height: 34px; min-height: 34px; }
-  body.dock-on .picker .pickfilter .pfchips { flex: 3 1 320px; display: flex; gap: 4px; overflow-x: auto; margin: 0; padding: 0; }
-  body.dock-on .picker .pickfilter .pfchip { min-height: 34px; height: 34px; padding-top: 0; padding-bottom: 0; flex: none; }
-  body.dock-on .picker .pickfilter .pfin { min-height: 0; height: auto; padding: 0; }
-  body.dock-on .picker .itmwrap { flex: 1 1 auto; min-height: 120px; }
-  body.dock-on .picker .pickfoot { padding: 6px 12px; min-height: 0; }
-}
-
 /* garden, dock layout only: the dock's Select piece and Tools strip replace the page's own Select squares button and bulk buttons */
 @media (orientation: landscape) {
   body.dock-on .selbar > .selopen, body.dock-on .bulkf, body.dock-on .bulkhelp { display: none; }
+}
+
+/* dock layout, landscape: the page's own selected-squares panel repeats the dock's Pick and Then strips; the tour bubble sits top right so it never covers the strips */
+@media (orientation: landscape) {
+  body.dock-on .selbar .selon { display: none; }
+  body.dock-on.tourbub #wrentour.tour-on { top: 44px; bottom: auto; left: auto; right: 8px; width: min(380px, 46vw); max-height: calc(100vh - var(--dock-h, 106px) - 60px); }
 }

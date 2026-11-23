@@ -8942,3 +8942,19 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   .shelves .shqf .shinfo { width: 26px; min-height: 26px; font-size: 14px; }
   .shelves .shqf .shx5 { min-width: 26px; min-height: 22px; padding: 0 4px; font-size: 11px; }
 }
+
+
+/* landscape phones: the chooser popovers (seeds, soil, mulch) keep a usable list. The search, chips and "in season" share one row, the head and foot are slim. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .picker .pickbox { max-height: calc(100vh - 12px); }
+  .picker .pickhead { padding-top: 4px; padding-bottom: 4px; min-height: 0; }
+  .picker .pickhead .pickx { width: 36px; height: 36px; }
+  .picker .pickfilter { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 4px 10px; }
+  .picker .pickfilter .pfsearch { flex: 1 1 160px; }
+  .picker .pickfilter .pfsearch .pfq, .picker .pickfilter .pfsearch .pfx { height: 34px; min-height: 34px; }
+  .picker .pickfilter .pfchips { flex: 3 1 320px; display: flex; gap: 4px; overflow-x: auto; margin: 0; padding: 0; }
+  .picker .pickfilter .pfchip { min-height: 34px; height: 34px; padding-top: 0; padding-bottom: 0; flex: none; }
+  .picker .pickfilter .pfin { min-height: 0; height: auto; padding: 0; }
+  .picker .itmwrap { flex: 1 1 auto; min-height: 120px; }
+  .picker .pickfoot { padding: 6px 12px; min-height: 0; }
+}
