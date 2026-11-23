@@ -408,3 +408,11 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 @media (orientation: landscape) and (max-height: 520px) {
   body.dock-on #pfv-pre.pfv-fit { width: min(100vw, 820px); }
 }
+
+/* dock layout, landscape: Wander's heading and its status chip share one row */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .advgrid.wander) { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 14px; }
+  body.dock-on main:has(> .advgrid.wander) > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on main:has(> .advgrid.wander) > h1, body.dock-on main:has(> .advgrid.wander) > p.status { flex: 0 1 auto; margin-block: 2px 4px; }
+  body.dock-on main:has(> .advgrid.wander) > h1 { border-bottom: 0; }
+}

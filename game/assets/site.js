@@ -768,7 +768,6 @@ gvAdvFold();
         var fresh = doc.querySelector('section.gx'), cur = document.querySelector('section.gx');
         if (!fresh || !cur) throw new Error('box');
         var wasFight = !!document.querySelector('.advgrid.fighting');
-        var hadFit = !!document.querySelector('#pfight.pfv-fit, #pfv-pre.pfv-fit');   // 2.7.79: the puzzle fight screen was fitted to the window; the new one is too, from its first frame (no jump, no scroll to the top)
         cur.replaceWith(fresh);
         ['.statusstrip', '.userbar', '.advbar', '.railsrv', '.msglog.mlside', '.msglog.top'].forEach(function (sel) {
           var a = document.querySelector(sel), b = doc.querySelector(sel);
@@ -875,7 +874,6 @@ gvAdvFold();
         var kept = keepTrailPop(doc);   // 2.6.85: true = only the fight pop-up's content was replaced, the page around it was left alone
         if (!kept) swap(doc, 'main');
         swapped = true;
-        if (hadFit) document.querySelectorAll('#pfight.pf-v1, #pfv-pre').forEach(function (e) { e.classList.add('pfv-fit'); });
         rerunScripts(document.querySelector('main'));
         document.querySelectorAll('main details').forEach(function (d) { if (openKeys.indexOf(foldKey(d)) >= 0) d.open = true; });
         swap(doc, '.statusstrip');

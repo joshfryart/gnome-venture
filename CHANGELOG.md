@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.7.80
+- **Fixes 2.7.79, which broke the puzzle fight board.** 2.7.79 marked the swapped-in fight screen as fitted before its scripts ran, and on a pre-fight or turn swap the board never drew (no board, unstyled hand). That change is removed (`site.js` is back to its 2.7.78 content). Do not use 2.7.79. The End turn flash notes under 2.7.79 stand as findings only.
+- **Pre-fight popover reaches its button.** The pre-fight screen was drawn under the dock (the full dock was on screen), so its Let's fight button could not be reached; since 2.7.78 it stops above the rail, and I checked that a finger drag scrolls it (large 5 x 5 creature, headless touch drag) and that Let's fight is on screen at the bottom.
+- **Wander:** the heading and the status chip ("Tundra · 7 steps out ...") share one row.
+- **Board sizes:** 3 x 3, 4 x 4 and 5 x 5 boards all fit the board column (about 370 x 316 at 844 x 390); the cells shrink with the grid. After four turns on a 5 x 5 board the pieces were still readable in a headless capture; not checked on a phone.
+
 ## 2.7.79
 - **Puzzle fight, End turn flash.** I could not make a full page reload happen in a headless test (the turn posts and swaps in place), but sampling every frame showed what looks like it: at each swap the new fight screen was one frame un-fitted (height jumps, e.g. 356 to 367 px) and its board canvases were empty for about 60 ms. The un-fitted frame is fixed: `site.js` now marks the swapped-in `#pfight` / `#pfv-pre` as fitted when the old one was, so it keeps its place and does not scroll the page to the top. The empty board for a moment is not fixed (the board is redrawn by script after each swap). Not confirmed on a phone.
 - **Not checked:** the old (non-v1) fight screen under the dock layout.
