@@ -382,10 +382,11 @@ dialog.gycard .pickbox{width:min(330px,calc(100vw - 28px));padding:0;overflow:hi
 .gy-h-fence-i{left:3.75%;top:79.259%;width:17.917%;height:13.333%}
 .gy-bg-fence-r1{background-image:url(img/gyard/fence-r1.png)}
 
-/* a phone on its side: the building card is wider and its body may be shorter than the fixed minimum heights above, so it scrolls instead of clipping its buttons */
+/* a phone on its side: the whole building card scrolls as one (head and body together, so the buttons are always reachable), is wider, and its head is slim */
 @media (orientation: landscape) and (max-height: 520px) {
-  dialog.gycard .pickbox { width: min(520px, calc(100vw - 28px)); }
-  .gycard .gybd, .gycard .gybd.home, .gycard .gybd:not(.home) { min-height: 0; }
-  .gycard .gynow { min-height: 0; -webkit-line-clamp: 4; }
-  .gycard .gyhd { padding-block: 6px; }
+  dialog.gycard .pickbox { width: min(520px, calc(100vw - 28px)); max-height: calc(100dvh - 12px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; display: block; }
+  .gycard .gyhd { min-height: 0; padding-block: 6px; gap: 10px; }
+  .gycard .gyhd img, .gycard .gyhd svg, .gycard .gyart { max-height: 84px; width: auto; }
+  .gycard .gybd, .gycard .gybd.home, .gycard .gybd:not(.home), .gycard .gybd.fence { min-height: 0; overflow: visible; }
+  .gycard .gynow { min-height: 0; -webkit-line-clamp: unset; display: block; overflow: visible; }
 }

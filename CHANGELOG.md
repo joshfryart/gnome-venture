@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.94
+- **Garden Buildings cards scroll on a phone on its side (second pass, with built buildings).** The 2.7.92 version kept the head fixed and scrolled only the body, which left a 186 to 236 px strip to scroll in and was easy to miss. Now the whole card (head and body) scrolls as one (up to 94 px more than the screen on the longest ones), and the head no longer takes a fixed block (`gyard.css`). Checked all 17 cards with built buildings in the test garden with a finger drag in a mobile-emulated browser: the cards that are taller than the screen moved 31 to 94 px; the others fit whole. Not checked: a building with an open Upgrade/Collect result.
+
 ## 2.7.93
 - **Page survey, dock layout, landscape (five agents, each fix tested by injection at 844 x 390; `dock.css`).** Satchel Items (1034 to 724 px: the eight category tiles in one row; an opened item card sits beside the pills instead of below), Crafting area index (965 to 667) and area pages (1302 to 873: the scene beside the text), the crafting popovers (taller scroll area), Tool belt (1301 to 1075). Tasks Jobs (1103 to 904), Community garden (1138 to 918), Hollow jar (953 to 752), Market day (953 to 765). World travel list and the Seasons tables (two across). Fair (1415 to 727), Yard editor (sticky toolbar one row), the mini-game pages (boards start higher), Snail Race cards. Almanac chapters (Plants 12934 to 4781, Creatures 20481 to 5611, Gathering 9143 to 1866), Contents (six cards in a row), Letters.
 - Fixed a stray closing brace in `dock.css` (left from 2.7.87) that could swallow the rule after it.
