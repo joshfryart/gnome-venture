@@ -59,79 +59,82 @@ a{color:var(--focus)}
 .form{display:grid;gap:6px;max-width:320px;font-size:12px}
 .form input{font:inherit;padding:8px;border:2px solid var(--line2);background:var(--surface);color:var(--ink);min-height:36px;border-radius:0}
 
-/* ===== the dock ===== */
-.dock{position:absolute;left:0;right:0;bottom:0;height:124px;pointer-events:none;transition:transform .25s steps(5)}
+/* ===== the dock: a hedge of soil and grass with jigsaw pieces locked along the curve ===== */
+.dock{position:absolute;left:0;right:0;bottom:0;height:128px;pointer-events:none;transition:transform .25s steps(5)}
 .dock>*{pointer-events:auto}
 .dock svg.arc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.dock .felt{fill:var(--felt)}
-.dock .thread{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:6 4}
-.dock .gloss{fill:none;stroke:var(--felt2);stroke-width:6}
-.btn{position:absolute;display:grid;place-items:center;border:0;padding:0;cursor:pointer;font:inherit;
-  --fill:var(--felt2);--ring:var(--accent-ink);--tx:var(--felt-ink);color:var(--tx);background:var(--ring);
-  clip-path:polygon(30% 0,70% 0,70% 10%,85% 10%,85% 20%,90% 20%,90% 30%,100% 30%,100% 70%,90% 70%,90% 80%,85% 80%,85% 90%,70% 90%,70% 100%,30% 100%,30% 90%,15% 90%,15% 80%,10% 80%,10% 70%,0 70%,0 30%,10% 30%,10% 20%,15% 20%,15% 10%,30% 10%);
-  transition:transform .15s steps(3)}
-.btn::before{content:"";position:absolute;inset:3px;background:var(--fill);z-index:0;
-  clip-path:polygon(30% 0,70% 0,70% 10%,85% 10%,85% 20%,90% 20%,90% 30%,100% 30%,100% 70%,90% 70%,90% 80%,85% 80%,85% 90%,70% 90%,70% 100%,30% 100%,30% 90%,15% 90%,15% 80%,10% 80%,10% 70%,0 70%,0 30%,10% 30%,10% 20%,15% 20%,15% 10%,30% 10%)}
-.btn>span{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;line-height:1.05;text-align:center}
-.btn .ic{font-size:20px}
-.btn .lb{font-size:9.5px;font-weight:800;margin-top:2px;max-width:50px}
-.btn.menu{width:60px;height:60px}
-.btn.act{width:56px;height:56px}
-.btn.menu[data-m="you"]{--fill:var(--purple)}
-.btn.menu[data-m="hobby"]{--fill:var(--brand)}
-.btn.menu[data-m="out"]{--fill:var(--info)}
-.btn.menu[data-m="tog"]{--fill:var(--petal)}
-:root:not([data-theme="dark"]) .btn.menu .ic,:root:not([data-theme="dark"]) .btn.menu .lb{color:#fff}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.menu .ic,:root:not([data-theme="light"]) .btn.menu .lb{color:#1c110a}}
-:root[data-theme="dark"] .btn.menu .ic,:root[data-theme="dark"] .btn.menu .lb{color:#1c110a}
-.btn.menu.here::after{content:"";position:absolute;bottom:3px;left:50%;width:14px;height:4px;margin-left:-7px;background:var(--accent);z-index:2}
-.btn.menu.open{--fill:var(--accent);--ring:#fff3c8;transform:translateY(-6px)}
-.btn.menu.open .ic,.btn.menu.open .lb{color:#2a1a10!important}
-.btn.act{--fill:var(--surface);--ring:var(--accent);--tx:var(--ink)}
-.btn.act.go{--fill:var(--accent);--ring:#fff3c8;--tx:#2a1a10}
-.btn.act[disabled]{--fill:var(--felt2);--ring:var(--line2);--tx:#a58c68;cursor:not-allowed}
-.btn.act.empty{--fill:var(--felt);--ring:var(--line2);--tx:var(--line2);cursor:default}
-.btn:active:not([disabled]){transform:translateY(2px)}
-.badge{position:absolute;top:0;right:-2px;z-index:3;min-width:18px;height:18px;padding:0 4px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid var(--felt);clip-path:none}
-.btn .badge{top:-2px;right:-4px}
-.chip{position:absolute;z-index:3;left:50%;bottom:-3px;transform:translateX(-50%);white-space:nowrap;background:var(--felt);color:#ffcf6a;font-size:9px;font-weight:800;padding:0 4px;border:1px solid var(--line2)}
-.btnwrap{position:absolute}
-.btnwrap .btn{position:relative;left:0;top:0}
+.soil{fill:var(--felt)}.speck{fill:var(--felt2)}.g1{fill:#5f9a47}.g2{fill:#7ab55c}.g3{fill:#3f7a35}
+.fl1{fill:#e88aab}.fl2{fill:#ffd45a}.fl3{fill:#fff3c8}.stem{fill:#3f7a35}
+.pc{position:absolute;display:block;border:0;padding:0;background:none;cursor:pointer;font:inherit;color:var(--tx,var(--ink));
+  --fill:var(--felt2);--ring:var(--accent-ink);rotate:var(--rot,0deg);transition:translate .15s steps(3)}
+.pc svg.ps{position:absolute;left:-10px;top:-10px;overflow:visible;pointer-events:none}
+.pc svg.ps path{fill:var(--fill);stroke:var(--ring);stroke-width:3;stroke-linejoin:miter}
+.pc .in{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;rotate:calc(var(--rot,0deg)*-1);pointer-events:none}
+.pc .ic{font-size:20px}
+.pc .lb{font-size:9.5px;font-weight:800;margin-top:2px;max-width:54px}
+.pc.menu[data-m="you"]{--fill:var(--purple)}
+.pc.menu[data-m="hobby"]{--fill:var(--brand)}
+.pc.menu[data-m="out"]{--fill:var(--info)}
+.pc.menu[data-m="tog"]{--fill:var(--petal)}
+:root:not([data-theme="dark"]) .pc.menu{--tx:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pc.menu{--tx:#1c110a}}
+:root[data-theme="dark"] .pc.menu{--tx:#1c110a}
+.pc.menu.open{--fill:var(--accent);--ring:#fff3c8;--tx:#2a1a10;translate:0 -6px}
+.pc.here::after{content:"";position:absolute;bottom:4px;left:50%;width:16px;height:4px;margin-left:-8px;background:var(--accent);z-index:2}
+.pc.deco{--fill:#4f8a3c;--ring:#2f5a2a;cursor:default}
+.pc.deco .ic{font-size:24px}
+.pc.act{--fill:var(--surface);--ring:var(--accent-ink);--tx:var(--ink)}
+.pc.act.go{--fill:var(--accent);--ring:#fff3c8;--tx:#2a1a10}
+.pc.act.open{--fill:#fff3c8;--ring:var(--accent);translate:0 -6px}
+.pc.act[disabled]{--fill:var(--felt2);--ring:var(--line2);--tx:#a58c68;cursor:not-allowed}
+.pc.act.empty{--fill:var(--felt);--ring:var(--line2);--tx:var(--line2);cursor:default}
+.pc:active:not([disabled]):not(.deco){translate:0 2px}
+.pc .badge{position:absolute;top:-4px;right:-4px;z-index:3;min-width:18px;height:18px;padding:0 4px;background:var(--danger);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid var(--felt)}
+.pc .chip{position:absolute;z-index:3;left:50%;bottom:-2px;translate:-50% 0;white-space:nowrap;background:var(--felt);color:#ffcf6a;font-size:9px;font-weight:800;padding:0 4px;border:1px solid var(--line2)}
+.pip{position:absolute;z-index:3;left:50%;top:-14px;margin-left:-6px;font-size:11px;line-height:1;color:var(--accent);font-weight:800;pointer-events:none}
+.pc.plate .in{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px 8px;padding:12px 10px 4px;align-items:center;color:var(--felt-ink);font-size:10.5px;font-weight:700;text-align:left;rotate:none}
+.pc.plate{--fill:var(--felt2);--tx:var(--felt-ink)}
+.pc.plate.open{--ring:#fff3c8}
+.pc.plate .in>span{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;min-width:0}
+.pc.plate progress{width:100%;height:7px;appearance:none;border:1px solid var(--line2);background:var(--felt);min-width:0}
+.pc.plate progress::-webkit-progress-bar{background:var(--felt)}
+.pc.plate progress::-webkit-progress-value{background:var(--accent)}
+.pc.plate progress::-moz-progress-bar{background:var(--accent)}
+.pc.plate progress.xp::-webkit-progress-value{background:#7ab55c}
+.pc.plate progress.xp::-moz-progress-bar{background:#7ab55c}
+.pc.plate .tag{color:#ffcf6a}
 
-.plate{position:absolute;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px 8px;padding:4px 8px;cursor:pointer;color:var(--felt-ink);font-size:10.5px;font-weight:700;
-  background:var(--felt2);border:2px solid var(--accent-ink);text-align:left;font-family:inherit}
-.plate>span{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;min-width:0}
-.plate progress{width:100%;height:7px;appearance:none;border:1px solid var(--line2);background:var(--felt);min-width:0}
-.plate progress::-webkit-progress-bar{background:var(--felt)}
-.plate progress::-webkit-progress-value{background:var(--accent)}
-.plate progress::-moz-progress-bar{background:var(--accent)}
-.plate progress.xp::-webkit-progress-value{background:#7ab55c}
-.plate progress.xp::-moz-progress-bar{background:#7ab55c}
-.plate .tag{color:#ffcf6a}
-.plate.open{border-color:#fff3c8}
-
-/* slips */
-.slip{position:absolute;left:0;right:0;bottom:0;height:0;pointer-events:none;z-index:5}
-.slip .tile{position:absolute;pointer-events:auto;width:64px;height:54px;background:var(--surface);color:var(--ink);border:2px solid var(--line2);box-shadow:2px 2px 0 var(--drop);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit;padding:2px;border-radius:0;
-  animation:rise .22s steps(4) both;animation-delay:calc(var(--i)*30ms)}
-.slip .tile .ic{font-size:19px;line-height:1}
-.slip .tile .lb{font-size:10px;font-weight:800;line-height:1.05;text-align:center}
-.slip .tile.on{background:var(--accent);border-color:#2a1a10;color:#2a1a10;box-shadow:0 0 0 2px #fff3c8,2px 2px 0 var(--drop)}
-.slip .tile.on::after{content:"you are here";position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:800;white-space:nowrap;background:var(--felt);color:#ffcf6a;padding:0 3px}
-.slip .tile.cond{border-style:dashed}
-.slip .tile .badge{top:-8px;right:-8px;border-color:var(--bg)}
+/* slips: strips of interlocking pieces */
+.slip{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none;z-index:5}
+.slip .pc{pointer-events:auto;--fill:var(--surface);--ring:var(--line2);--tx:var(--ink);animation:rise .22s steps(4) both;animation-delay:calc(var(--i)*30ms)}
+.slip .pc .ic{font-size:19px;line-height:1}
+.slip .pc .lb{font-size:10px;font-weight:800;line-height:1.05;margin-top:1px}
+.slip .pc.on{--fill:var(--accent);--ring:#2a1a10;--tx:#2a1a10}
+.slip .pc.on .in::after{content:"you are here";position:absolute;top:-17px;left:50%;translate:-50% 0;font-size:8px;font-weight:800;white-space:nowrap;background:var(--felt);color:#ffcf6a;padding:0 3px}
+.slip .pc.cond svg.ps path{stroke-dasharray:6 3}
+.slip .pc.armed{--fill:#c8d09f;--ring:var(--brand)}
+.slip .pc[disabled]{--fill:var(--surface2);--tx:#9a8466;cursor:not-allowed}
+.slip .pc .badge{border-color:var(--bg)}
+.slip .pc .chip{background:var(--felt)}
 .slip .gname{position:absolute;pointer-events:none;font-size:10px;font-weight:800;color:var(--felt-ink);background:var(--felt);padding:1px 6px;border:1px solid var(--accent-ink);animation:rise .22s steps(4) both}
-.slip .status{position:absolute;pointer-events:auto;background:var(--surface);color:var(--ink);border:2px solid var(--line2);box-shadow:3px 3px 0 var(--drop);padding:8px 10px;font-size:11px;
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px 12px;animation:rise .22s steps(4) both}
-.slip .status b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-.slip .status .wide{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
-.slip .status button{font:inherit;font-size:11px;font-weight:700;padding:4px 8px;min-height:32px;background:var(--bg);color:var(--ink);border:2px solid var(--line2);cursor:pointer;border-radius:0}
-@keyframes rise{from{transform:translateY(46px);opacity:0}to{transform:none;opacity:1}}
-@media (prefers-reduced-motion:reduce){.slip .tile,.slip .gname,.slip .status{animation:none}.dock,.btn{transition:none}}
+.pop{position:absolute;pointer-events:auto;animation:rise .22s steps(4) both;color:var(--ink);--fill:var(--surface);--ring:var(--line2)}
+.pop svg.ps{position:absolute;left:-10px;top:-10px;overflow:visible;pointer-events:none}
+.pop svg.ps path{fill:var(--fill);stroke:var(--ring);stroke-width:3}
+.pop .body{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding:8px 12px 10px;font-size:11px}
+.pop h4{grid-column:auto;margin:0 0 3px;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pop .row{display:flex;gap:6px;align-items:center;min-height:25px;width:100%;text-align:left;font:inherit;font-size:11px;font-weight:600;background:none;border:0;border-top:1px solid var(--line);color:var(--ink);padding:0}
+.pop .row b{margin-left:auto;font-weight:800}
+.pop button.row{cursor:pointer;min-height:28px}
+.pop button.row::after{content:"›";margin-left:6px;color:var(--focus);font-weight:800;font-size:14px}
+.pop button.row b{margin-left:auto}
+.pop .util{grid-column:1/-1;display:flex;gap:6px;margin-top:6px}
+.pop .util button{font:inherit;font-size:11px;font-weight:700;padding:3px 8px;min-height:28px;background:var(--bg);color:var(--ink);border:2px solid var(--line2);cursor:pointer;border-radius:0}
+.toast{position:absolute;left:50%;top:10px;translate:-50% 0;background:var(--felt);color:#ffcf6a;border:2px solid var(--accent);font-size:12px;font-weight:800;padding:4px 12px;z-index:8;animation:rise .2s steps(4) both}
+@keyframes rise{from{translate:0 40px;opacity:0}to{translate:0 0;opacity:1}}
+@media (prefers-reduced-motion:reduce){.slip .pc,.slip .gname,.pop,.toast{animation:none}.dock,.pc{transition:none}}
 
 /* play mode: the arc drops away, a thin rail keeps Quit + the primary verb */
-.dock.play{transform:translateY(124px)}
+.dock.play{transform:translateY(128px)}
 .rail{position:absolute;left:0;right:0;bottom:0;height:36px;background:var(--felt);border-top:2px dashed var(--accent);display:none;align-items:center;justify-content:space-between;padding:0 max(12px,env(safe-area-inset-left,0px));gap:8px;z-index:6;color:var(--felt-ink);font-size:11px;font-weight:700}
 .rail.on{display:flex}
 .rail button{font:inherit;font-size:12px;font-weight:800;min-height:34px;min-width:96px;padding:0 10px;background:var(--felt2);color:var(--felt-ink);border:2px solid var(--accent-ink);cursor:pointer;border-radius:0}
@@ -171,13 +174,14 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
 
 <div class="wrap">
 <h1>Gnome Venture dock</h1>
-<p class="lede">Proposed landscape navigation. Four big buttons open a sub-menu slip. Two page actions and the status plate sit in the flat middle. The top bar is gone. Try it: tap a big button, tap a tile, change the page, flip the switches.</p>
+<p class="lede">Version 2. The dock is a garden hedge with jigsaw pieces locked along the curve. Four menu pieces, two action pieces, the status piece in the middle. Sub-menus are strips of interlocking pieces that slide up. Try Garden: left piece is All, right piece is the tool you cycle with.</p>
 
 <div class="ctl" role="group" aria-label="Mockup controls">
   <label for="pgSel">Page<select id="pgSel"></select></label>
   <label for="devSel">Screen<select id="devSel"><option value="844x390">Phone landscape 844 x 390</option><option value="667x375">Small phone 667 x 375</option><option value="1024x600">Tablet 1024 x 600</option></select></label>
   <label for="unlockSel">Progress<select id="unlockSel"><option value="late">Late game (all unlocked)</option><option value="early">Early game (tour running)</option></select></label>
   <label class="chk" for="tiredChk"><input type="checkbox" id="tiredChk">Energy 0</label>
+  <label class="chk" for="tripChk"><input type="checkbox" id="tripChk">On a trip</label>
   <label class="chk" for="kbChk"><input type="checkbox" id="kbChk">Keyboard open</label>
   <label for="themeSel">Theme<select id="themeSel"><option value="">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
 </div>
@@ -188,13 +192,33 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
 
 <h2>How it works</h2>
 <div class="rules">
-  <div><h3>Four menus, same groups as today</h3><p>You, Hobbies, Out and about, Together. Left thumb: You and Hobbies. Right thumb: Out and about and Together. Same tiles the current menu sheet already builds, so badges and unlock rules carry over.</p></div>
-  <div><h3>Two taps to anywhere</h3><p>Big button, then tile. The tapped big button turns gold and lifts. The tile for the page you are on gets a gold fill and a "you are here" tag. Close with the same button, a tap on the page, Esc, or Back.</p></div>
-  <div><h3>Where am I, slip closed</h3><p>The big button of the current section keeps a small gold bar. Pages that are not a tile (a door, a profile, a mini-game) still light their parent section.</p></div>
-  <div><h3>Left action and right action</h3><p>Right is the one thing this page is for. Left is the helper next to it. Both are chosen by the page, with a default of Back and Hovel. Counts show as a red badge. A greyed action says why in a tiny chip.</p></div>
-  <div><h3>Status plate</h3><p>Energy, level, game time and where your pals are. Tap it for the rest: health, Petals, season and weather, festival, ready pots and jars, stat points, theme switch.</p></div>
-  <div><h3>Play mode</h3><p>Rounds, fights and games need the whole screen. The arc drops to a thin rail with Quit and the main verb. Menus are locked until the round ends.</p></div>
+  <div><h3>Puzzle pieces, garden dock</h3><p>The dock is soil with a grass and flower edge. Pieces lock together along the curve, knob into socket, and tilt with the slope. Slips are strips of pieces that click together too. Menu pieces keep the area hues (purple, moss, water, petal). Gold means open or primary.</p></div>
+  <div><h3>Four menus, same groups</h3><p>You and Hobbies on the left, Out & about and Together on the right. Tap one: it lifts and turns gold, a strip slides up. Your current page's piece is gold with "you are here". A gold bar on the menu piece marks the section you are in while the strip is closed.</p></div>
+  <div><h3>Left action: All</h3><p>Where a page has bulk verbs, the left piece is All. Tap opens a strip of bulk actions with counts. Garden: Water all, Weed all, Harvest all, Pick all. Crafting: Pots, Jars, Both. Pages with no bulk verb keep a plain helper.</p></div>
+  <div><h3>Right action: one at a time</h3><p>On Garden the right piece is the active tool. Tap cycles to the next tool that has something to do (skips empty ones). Hold, or press the little arrow on top, to open the strip and pick directly. Keyboard: Enter cycles, Arrow Up opens.</p></div>
+  <div><h3>Center plate and popover</h3><p>The plate shows energy, level, time and pals' locations. Tap it: a piece pops up out of its socket with "Right now" numbers and "Jump to" links. See the table below for what is in it and what was left out.</p></div>
+  <div><h3>Play mode</h3><p>Games and fights need the screen. The dock drops to a thin rail with Quit and the main verb. Menus lock until the round ends.</p></div>
 </div>
+
+<h2>What goes in the center popover</h2>
+<p>Rule: a link goes in only if it reaches something the menu cannot. If a tile already exists, the popover shows the number as plain text, no link. Almanac came out because You already has it.</p>
+<div class="tw"><table style="min-width:640px"><thead><tr><th>Item</th><th>Shows</th><th>Link</th><th>Why</th></tr></thead><tbody>
+<tr><td>⚡ Energy</td><td>48/60, next +1 timer</td><td>none</td><td>Number only. Was the header chip.</td></tr>
+<tr><td>🌱 Level, XP</td><td>Level 12, 620/1,000</td><td>none</td><td>Old pill linked to My Gnome, which is You &gt; Hovel. Duplicate, so no link.</td></tr>
+<tr><td>❤️ Health</td><td>18/20</td><td>none</td><td>Same: Hovel tile covers it.</td></tr>
+<tr><td>🪙 Petals</td><td>1,240</td><td>none</td><td>Number only.</td></tr>
+<tr><td>🕐 Day and time</td><td>Day 14, 3:40pm</td><td>none</td><td>Old clock pill linked to Rest. Rest is under You &gt; Hovel, so no link.</td></tr>
+<tr><td>🎏 Festival</td><td>Opening Day, day 2 of 3</td><td>none</td><td>Together shows a Festival tile while one runs.</td></tr>
+<tr><td>🌸 Season, weather</td><td>Spring day 6, sunny</td><td>World, seasons fold</td><td>Keeps its link: the fold is only reachable from here and World.</td></tr>
+<tr><td>✨ Stat points</td><td>2 to spend</td><td>Hovel, Stats tab</td><td>Keeps its link: it is an action waiting, one tap to the right tab.</td></tr>
+<tr><td>🍳 Pots ready</td><td>2</td><td>Crafting, cooking</td><td>Keeps its link: lands on the tab with the food.</td></tr>
+<tr><td>🫙 Jars ready</td><td>1</td><td>Crafting, pantry</td><td>Keeps its link: same reason.</td></tr>
+<tr><td>🐾 Pals out</td><td>2</td><td>Pal Yard</td><td>New. Your "pals' locations" idea. Links to where they are working.</td></tr>
+<tr><td>🏁 Trip</td><td>Destination, stops left</td><td>Adventure</td><td>Only while on a trip. Adventure has no tile, so this is its door. Flip "On a trip" above.</td></tr>
+<tr><td>🌗 Theme</td><td>Light / dark</td><td>(switch)</td><td>A switch, not a link. Also in You &gt; Account.</td></tr>
+<tr><td>📖 Almanac count</td><td>removed</td><td>removed</td><td>You &gt; Almanac already has it. Count lives on the Almanac page.</td></tr>
+<tr><td>🏡 Garden level, title quote</td><td>removed</td><td>removed</td><td>Garden level moves onto the Garden page. Title shows on Hovel.</td></tr>
+</tbody></table></div>
 
 <h2>Every page, one row each</h2>
 <p>All <span id="cnt">0</span> files in <code>game/*.php</code>. Pill "new" means no matching handler was seen in the page, so it needs a small endpoint or a promoted control. Everything else is a button the page already has, lifted into the dock. I read page names, tabs and <code>do=</code> handler names, not every line of every page, so check each row when you build it. "View" shows the row in the mockup.</p>
@@ -229,13 +253,14 @@ const SUB={
 const BADGE={'garden.php':'3','games.php':'4','jobs.php':'2','community.php':'!','pals.php':'1'};
 // P(file, title, icon, main, sub, mode, L, R, extra)   mode: n normal, p play, f form, i picture, x none
 const P=(f,t,i,m,s,mode,L,R,x={})=>({f,t,i,m,s,mode,L,R,...x});
+const CRAFT_ALL=[A('🍳','Pots',{ok:1,b:2}),A('🫙','Jars',{ok:1,b:1}),A('📥','Both',{ok:1,b:3})];
 const PAGES=[
 // ---- You
 P('gnome.php','Hovel (Today, My Gnome)','🛏️','you','hovel','n',A('📋','Daily',{ok:1}),A('✨','Stats',{ok:1,b:2}),{tabs:['Today','My Gnome','Furnish','Closet'],why:'Right follows a priority chain: unspent stat points show Stats, low health shows Heal, otherwise Rest. Left ticks the daily card. Guests: right becomes Save my garden. With slim home off the page is called Home.'}),
 P('hovel.php','Rest (sleep, nap, inn)','🕐','you','hovel','n',A('💤','Nap',{ok:1}),A('🛏️','Sleep',{ok:1}),{tabs:['Today','Sleep','Tasks','Pals','Costs'],why:'Only exists when the game clock is on. While asleep, right becomes Wake (check the page for that state). Inn costs Petals: disable with a chip when short.'}),
 P('book.php','Almanac','📖','you','almanac','n',A('🏷️','Title',{ok:1}),A('🧭','Journey'),{tabs:['Pages','Journey','Villagers','Titles'],why:'Reading page, so actions only jump to the two doers inside it. After level 5 it also holds the tour.'}),
-P('inventory.php','Satchel','🎒','you','satchel','n',A('🪙','Sell',{ok:1}),A('🗂️','Arrange'),{tabs:['Items','Arrange','Belt','Craft'],tabAct:{Arrange:[A('↶','Undo',{n:1}),A('✔','Done')],Craft:[A('🍳','Cook again',{ok:1}),A('📥','Collect all',{ok:1,b:2})]},why:'Tab aware. Arrange needs a "Done" so the dock never leaves a half-arranged satchel. Craft tab mirrors the Crafting page.'}),
-P('workshop.php','Crafting (picture)','🔨','you','crafting','i',A('🍳','Cook again',{ok:1}),A('📥','Collect all',{ok:1,b:2}),{why:'Picture page with a text twin. Collect all covers pots and jars (collect_all, jar_collect_all). Disabled with "0 ready" chip when nothing is done.'}),
+P('inventory.php','Satchel','🎒','you','satchel','n',A('🪙','Sell',{ok:1}),A('🗂️','Arrange'),{tabs:['Items','Arrange','Belt','Craft'],tabAct:{Arrange:[A('↶','Undo',{n:1}),A('✔','Done')],Craft:[A('📚','All',{menu:CRAFT_ALL}),A('🍳','Cook again',{ok:1})]},why:'Tab aware. Arrange needs a "Done" so the dock never leaves a half-arranged satchel. Craft tab mirrors the Crafting page.'}),
+P('workshop.php','Crafting (picture)','🔨','you','crafting','i',A('📚','All',{menu:CRAFT_ALL}),A('🍳','Cook again',{ok:1}),{why:'Left is All: Collect pots, Collect jars, or Both (collect_all, jar_collect_all). Each is greyed with "none" when nothing is done. Picture page with a text twin.'}),
 P('tailor.php','Tailor','🧵','you','tailor','n',A('🧵','Line',{ok:1}),A('✂️','Craft',{ok:1}),{why:'Tile only when a Tailor is built in one of your gardens, so the slip can lose this tile between visits. Re-cut stays in the page.'}),
 P('welcome.php','Getting started','🌱','you','start','n',A('📖','Guide'),A('➡️','Next step'),{why:'Tile only while the tour runs and level is under 5. Takes the slot Tailor uses later, so You never shows more than 6 tiles.'}),
 P('firstweek.php','Wren\'s First Week','🎴','you','hovel','n',A('↩','Back'),A('🎴','Today\'s card'),{why:'Seven cards, one a day. Right is disabled with "tomorrow" when today\'s card is done.'}),
@@ -251,7 +276,10 @@ P('journey.php','Journey actions (handler)','🧭','you','almanac','x',null,null
 P('daily.php','Daily tick (handler)','📋','you','hovel','x',null,null,{why:'POST handler for the Today card.'}),
 P('event.php','Random event (handler)','🎲','you','hovel','x',null,null,{why:'Finishes a random event that needs a choice. The choice shows as a dialog; while it is open the dock is locked like play mode.'}),
 // ---- Hobbies
-P('garden.php','Garden','🏡','hobby','garden','n',A('💧','Water all',{ok:1,e:1}),A('🧺','Harvest all',{ok:1,b:3}),{tabs:['Beds','Build','Grow','Analysis','Help','Jobs','Pic'],tabAct:{Build:[A('⬆️','Upgrade',{ok:1}),A('🔨','Build',{ok:1})]},why:'Most used page, so most used verbs. Left becomes Weed all once everything is watered. Right is disabled with "0 ripe" when nothing is ready. Energy 0 disables Water and Weed. The old "ready" badge on Garden now rides on Harvest.'}),
+P('garden.php','Garden','🏡','hobby','garden','n',
+  A('📚','All',{menu:[A('💧','Water all',{ok:1,e:1,b:5}),A('🌿','Weed all',{ok:1,e:1,b:2}),A('🧺','Harvest all',{ok:1,b:3}),A('✂️','Pick all',{ok:1,b:2})]}),
+  A('🪴','Tools',{cycle:true,menu:[A('💧','Water',{ok:1,e:1,b:5}),A('🌿','Weed',{n:1,e:1,b:2}),A('🧺','Harvest',{ok:1,b:3}),A('✂️','Pick',{ok:1,b:0}),A('🌱','Plant',{ok:1,b:4}),A('🐛','Feed',{ok:1,b:1}),A('🔨','Build',{ok:1})]}),
+  {tabs:['Beds','Build','Grow','Analysis','Help','Jobs','Pic'],tabAct:{Build:[A('⬆️','Upgrade',{ok:1}),A('🔨','Build',{ok:1})]},why:'Left is All: opens a strip of bulk actions (water_all, weed_all, harvest_all, pick_all), each with a count, one tap each. Right is the single-bed tool: tap cycles to the next tool that has something to do, hold (or the little arrow) opens the strip of tools. Tools with nothing to do or no energy are skipped and shown greyed. Build tab swaps in Upgrade and Build.'}),
 P('tend.php','Tend a garden for a job','💧','tog','tasks','n',A('✔','Done'),A('💧','Water',{ok:1,e:1}),{why:'Only water, weed and harvest are allowed here, so those are the buttons. Done returns to the job.'}),
 P('visit.php','Visit a garden','👀','tog','friends','n',A('↩','Back'),A('👫','Add friend',{ok:1}),{why:'Look-only. Right is disabled with "friends" chip when you already are.'}),
 P('yard.php','Design your yard','✏️','hobby','garden','f',A('↺','Reset'),A('💾','Save'),{why:'Editor. Same unsaved-changes guard as Customise.'}),
@@ -341,6 +369,10 @@ const EDGES=[
 ['Back button and Esc','First press closes the slip or status plate, second goes back. Never both at once.'],
 ['Seven tiles in You','Getting started (level under 5) and Tailor (late) never overlap, so the slip stays at six or fewer. Rule for new tiles: a slip holds six; add a seventh and something merges into a page.'],
 ['Tile appears or vanishes','Gourmand, Treks, Tailor, Festival, Puzzle Pals and Puzzle box depend on level, settings or events. The slip reads the same checks as today\'s menu, per page load. Dashed border marks tiles that are not always there.'],
+['All and tool strips','Both open above the middle pieces, not over the page header. Esc, a tap on the page, or any other piece closes them. A bulk action that changes many things shows a toast with the count. Nothing destructive lives in All.'],
+['Tool cycling','Cycling skips tools with nothing to do or no energy. If none are left the right piece greys with "nothing to do". The armed tool stays when you change tabs on the same page and resets when you leave Garden.'],
+['Hold to open is hidden','The little arrow on the right piece shows there is more. First visit shows a one-line hint. Keyboard: Enter cycles, Arrow Up opens. Screen readers get aria-haspopup="menu".'],
+['Piece shape carries no meaning','Knobs and sockets are decoration. State is always shown by colour, label, badge and chip too, so colour-blind players lose nothing.'],
 ['Greyed action','Always say why in a tiny chip (0 ripe, ⚡0, not home, short Petals, tomorrow). A silent grey button looks broken.'],
 ['Energy 0','Actions flagged as energy-costing grey out with ⚡0. Flip "Energy 0" above to see Garden, World and Adventure.'],
 ['Mini-game in progress','Menus lock, Quit asks first (gvAsk, never confirm). Results screen restores the full dock with Play again on the right.'],
@@ -359,147 +391,232 @@ const EDGES=[
 ];
 
 /* ------------ state + render ------------ */
-const S={pg:'garden.php',tab:null,slip:null,tired:false,kb:false,late:true,W:844,H:390};
+const S={pg:'garden.php',tab:null,slip:null,tired:false,kb:false,late:true,trip:false,tool:0,W:844,H:390};
 const $=id=>document.getElementById(id);
 const stage=$('stage'),box=$('box');
 const byFile=f=>PAGES.find(p=>p.f===f);
-function arcY(x,W,cw,dh){ // arc height (from dock top) at x; flat for the middle cw
-  const half=(W-cw)/2, d=x<half?half-x:(x>W-half?x-(W-half):0);
-  return (dh*0.58)*(1-Math.pow(1-d/half,2)*0+0)*0+ (dh*0.58)*(1-Math.pow(d/half,2));
-}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function visibleSubs(m){return SUB[m].filter(s=>!s[4]||(s[4]==='late'&&S.late)||(s[4]==='early'&&!S.late))}
+
+/* jigsaw geometry: square-knob pieces, tab out (+1), socket in (-1), flat (0) */
+function edgePts(len,s){
+  if(!s) return [[len,0]];
+  const c=len/2;
+  return [[c-5,0],[c-5,-4*s],[c-8,-4*s],[c-8,-10*s],[c+8,-10*s],[c+8,-4*s],[c+5,-4*s],[c+5,0],[len,0]];
+}
+function pieceSVG(w,h,t,r,b,l){
+  let d='M0,0';
+  const add=(pts,f)=>pts.forEach(p=>{const q=f(p[0],p[1]);d+=' L'+q[0].toFixed(1)+','+q[1].toFixed(1)});
+  add(edgePts(w,t),(a,y)=>[a,y]);
+  add(edgePts(h,r),(a,y)=>[w-y,a]);
+  add(edgePts(w,b),(a,y)=>[w-a,h-y]);
+  add(edgePts(h,l),(a,y)=>[y,h-a]);
+  return '<svg class="ps" width="'+(w+20)+'" height="'+(h+20)+'" viewBox="-10 -10 '+(w+20)+' '+(h+20)+'"><path d="'+d+' Z"/></svg>';
+}
+function pc(o){
+  const tg=o.tag||'button',t=o.tabs||[0,0,0,0];
+  return '<'+tg+' class="pc '+(o.cls||'')+'" style="left:'+o.x.toFixed(1)+'px;top:'+o.y.toFixed(1)+'px;width:'+o.w+'px;height:'+o.h+'px;--rot:'+(o.rot||0).toFixed(1)+'deg;'+(o.style||'')+'" '+(o.attrs||'')+'>'
+    +pieceSVG(o.w,o.h,t[0],t[1],t[2],t[3])+'<span class="in">'+(o.inner||'')+'</span>'+(o.after||'')+'</'+tg+'>';
+}
+function geom(W){
+  const dh=128,A=64,pw=W<720?170:W<900?244:300,cw=pw+136,half=(W-cw)/2;
+  const ay=x=>{const d=x<half?half-x:(x>W-half?x-(W-half):0);return A*(1-(d/half)*(d/half))};
+  const sl=x=>x<half?2*A*(half-x)/(half*half):(x>W-half?-2*A*(x-(W-half))/(half*half):0);
+  return {dh,A,pw,half,ay,sl};
+}
+function place(g,cx,off){ // point on the arc moved along the inward normal (negative = above the line)
+  const s=g.sl(cx),n=Math.sqrt(1+s*s);
+  return {x:cx-s/n*off,y:g.ay(cx)+off/n,rot:Math.atan(s)*180/Math.PI};
+}
+function dockSVG(W,g){
+  const pts=[];for(let x=0;x<=W;x+=6)pts.push(x+','+g.ay(x).toFixed(1));
+  let h='<svg class="arc" viewBox="0 0 '+W+' '+g.dh+'" preserveAspectRatio="none"><path class="soil" d="M'+pts.join(' L')+' L'+W+','+g.dh+' L0,'+g.dh+' Z"/>';
+  for(let i=0;i<70;i++){const x=(i*97)%W,y=g.ay(x)+12+((i*53)%60);if(y<g.dh-3)h+='<rect class="speck" x="'+x+'" y="'+y.toFixed(0)+'" width="4" height="3"/>'}
+  for(let x=0;x<W;x+=9){const y=g.ay(x),k=(x*7+3)%5,hh=5+k*2;
+    h+='<rect class="'+(k%2?'g1':'g2')+'" x="'+x+'" y="'+(y-hh+2).toFixed(0)+'" width="3" height="'+hh+'"/><rect class="g3" x="'+(x+4)+'" y="'+(y-hh/2+2).toFixed(0)+'" width="3" height="'+Math.round(hh/2)+'"/>'}
+  let f=0;for(let x=26;x<W;x+=61){const y=g.ay(x),c=['fl1','fl2','fl3'][f++%3];
+    h+='<rect class="stem" x="'+x+'" y="'+(y-11).toFixed(0)+'" width="2" height="11"/><rect class="'+c+'" x="'+(x-2)+'" y="'+(y-17).toFixed(0)+'" width="6" height="6"/><rect class="fl2" x="'+x+'" y="'+(y-15).toFixed(0)+'" width="2" height="2"/>'}
+  return h+'</svg>';
+}
+
+/* actions */
+function itemWhy(a){if(a.dis)return a.dis;if(S.tired&&a.e)return '⚡0';if(a.b===0)return 'none';return null}
+function curTool(R){const m=R.menu,n=m.length;for(let k=0;k<n;k++){const a=m[(S.tool+k)%n];if(!itemWhy(a)){S.tool=(S.tool+k)%n;return a}}return null}
 function curActions(p){
   let L=p.L,R=p.R;
-  if(p.tabAct&&S.tab&&p.tabAct[S.tab]){[L,R]=p.tabAct[S.tab]}
+  if(p.tabAct&&S.tab&&p.tabAct[S.tab])[L,R]=p.tabAct[S.tab];
   if(!L&&!R&&p.mode!=='x'&&p.mode!=='f'){L=A('↩','Back');R=A('🛏️','Hovel')}
+  if(R&&R.cycle){const t=curTool(R);R=t?Object.assign({},t,{cycle:true,menu:R.menu}):{i:'🪴',l:'Tools',cycle:true,menu:R.menu,dis:'nothing to do'}}
   return [L,R];
 }
-function disabledFor(a,p){
-  if(!a) return null;
-  if(S.tired&&a.e) return '⚡0';
-  if(p.f==='garden.php'&&a.l==='Harvest all'&&S.tired===null) return '0 ripe';
-  return null;
-}
+
 function render(){
   const p=byFile(S.pg)||PAGES[0];
-  const {W,H}=S, dh=124, pw=W<720?170:W<900?244:300, step=W<720?84:W<900?100:120, tw=W<720?52:64, tileH=54;
-  stage.style.width=W+'px';stage.style.height=H+'px';
+  const {W,H}=S,g=geom(W),dh=g.dh;
   const scale=box.clientWidth/W;
-  stage.style.transform='scale('+scale+')';box.style.height=(H*scale)+'px';
-  const cw=pw+112; // flat strip includes the action buttons' inner edge
-  const half=(W-cw)/2;
-  const ay=x=>{const d=x<half?half-x:(x>W-half?x-(W-half):0);return dh*0.5*(1-Math.pow(1-d/half,2))*0+ (dh*0.5)*(1-Math.pow(d/half,2))};
-  // note: ay(x)=0 at the screen edge (dock top) and dh*0.5 in the flat middle
-  const pts=[];for(let x=0;x<=W;x+=Math.max(4,W/120)){pts.push([x,ay(x)])}
-  const path='M'+pts.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' L')+' L'+W+','+dh+' L0,'+dh+' Z';
-  const line='M'+pts.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' L');
-  const midY=dh*0.5;
-  const actX=W/2-pw/2-34, hobX=actX-step+8, youX=hobX-step-4;
-  const pos={you:youX,hobby:hobX,out:W-hobX,tog:W-youX};
-  const actL=actX, actR=W-actX;
+  stage.style.width=W+'px';stage.style.height=H+'px';stage.style.transform='scale('+scale+')';box.style.height=(H*scale)+'px';
   const [L,R]=curActions(p);
-  const play=p.mode==='p', form=p.mode==='f', none=p.mode==='x';
-  const hideDock=none||S.kb||(form&&S.kb);
-  // page body
-  let body='';
-  const tabs=p.tabs?'<div class="tabsrow" role="tablist">'+p.tabs.map((t,i)=>'<button role="tab" data-tab="'+esc(t)+'" aria-selected="'+((S.tab||p.tabs[0])===t)+'">'+esc(t)+'</button>').join('')+'</div>':'';
+  const play=p.mode==='p',none=p.mode==='x',hideDock=none||S.kb;
+  const tabs=p.tabs?'<div class="tabsrow" role="tablist">'+p.tabs.map(t=>'<button role="tab" data-tab="'+esc(t)+'" aria-selected="'+((S.tab||p.tabs[0])===t)+'">'+esc(t)+'</button>').join('')+'</div>':'';
   const head='<div class="pgh"><span style="font-size:22px">'+p.i+'</span><b>'+esc(p.t)+'</b><small>'+esc(p.f)+'</small></div>'+tabs;
+  let body;
   if(p.mode==='i') body=head+scene(p);
-  else if(p.mode==='p') body=head+'<div class="canvas"><div>ROUND 3 · 0:42<small>demo game stage. The arc has dropped away.</small></div></div>';
+  else if(p.mode==='p') body=head+'<div class="canvas"><div>ROUND 3 · 0:42<small>demo game stage. The dock has dropped away.</small></div></div>';
   else if(p.mode==='f') body=head+'<div class="form"><label for="f1">Subject</label><input id="f1" placeholder="Tap to type"><label for="f2">Message</label><input id="f2" placeholder="Keyboard hides the dock"></div>';
   else if(p.mode==='x') body=head+'<div class="card"><b>No screen of its own</b>Handler, redirect or image. The dock does not load here.</div>';
   else body=head+'<div class="cards">'+[1,2,3,4,5,6].map(n=>'<div class="card"><b>'+esc(p.t)+' · card '+n+'</b><i></i><i></i></div>').join('')+'</div>';
-  // dock
-  let h='<div class="page" id="pgscroll">'+body+'</div>';
-  h+='<div class="notice" '+(none?'':'hidden')+'>no dock on this file</div>';
+  let h='<div class="page">'+body+'</div>';
+  if(none)h+='<div class="notice">no dock on this file</div>';
   if(!hideDock){
-    h+='<div class="dock'+(play?' play':'')+'" id="dock">';
-    h+='<svg class="arc" viewBox="0 0 '+W+' '+dh+'" preserveAspectRatio="none"><path class="felt" d="'+path+'"/><path class="thread" d="'+line+'" transform="translate(0,5)"/></svg>';
-    // menu buttons
-    for(const m of Object.keys(MAIN)){
-      const cx=pos[m], cy=ay(cx)+36, cls=['btn','menu'];
-      const here=p.m===m, open=S.slip===m;
-      h+='<div class="btnwrap" style="left:'+(cx-30)+'px;top:'+(cy-30)+'px"><button class="'+cls.join(' ')+(here?' here':'')+(open?' open':'')+'" data-m="'+m+'" aria-expanded="'+open+'" aria-label="'+MAIN[m].n+' menu"><span><span class="ic">'+MAIN[m].i+'</span><span class="lb">'+MAIN[m].n+'</span></span></button>'+(m==='tog'?'<b class="badge">!</b>':'')+(m==='hobby'?'<b class="badge">3</b>':'')+'</div>';
-    }
-    // actions
-    h+=actBtn('L',L,actL,midY+30,p)+actBtn('R',R,actR,midY+30,p);
-    // plate
-    const px=W/2-pw/2, py=midY+8;
-    h+='<button class="plate'+(S.slip==='status'?' open':'')+'" id="plate" style="left:'+px+'px;top:'+py+'px;width:'+pw+'px;height:'+(dh-py-6)+'px" aria-label="Status, tap for more">'
-      +'<span>⚡<progress max="60" value="'+(S.tired?0:48)+'"></progress></span>'
-      +'<span>🌱 <b>'+12+'</b><progress class="xp" max="100" value="62"></progress></span>'
-      +'<span>🕐 3:40pm <span class="tag">day 14</span></span>'
-      +'<span>🐾 <span class="tag">Pals: 2 out</span></span></button>';
-    h+='</div>';
-    // slip
-    h+='<div class="slip" id="slip" style="bottom:0">'+slipHTML(W,dh,ay,tw,tileH,pos,p)+'</div>';
-    if(play) h+='<div class="rail on"><button id="qL">'+(L?esc(L.i+' '+L.l):'')+'</button><span>ROUND 3 · 0:42</span><button class="go" id="qR">'+(R?esc(R.i+' '+R.l):'')+'</button></div>';
+    h+='<div class="dock'+(play?' play':'')+'" style="top:'+(H-dh)+'px;height:'+dh+'px">'+dockSVG(W,g)+chainHTML(W,g,p,L,R)+'</div>';
+    h+='<div class="slip" style="top:'+(H-dh)+'px">'+slipHTML(W,g,p,L,R)+'</div>';
+    if(play)h+='<div class="rail on"><button>'+(L?esc(L.i+' '+L.l):'')+'</button><span>ROUND 3 · 0:42</span><button class="go">'+(R?esc(R.i+' '+R.l):'')+'</button></div>';
   }
   h+='<div class="kbd'+(S.kb?' on':'')+'">on-screen keyboard (about 150px)</div>';
   stage.innerHTML=h;
   $('stageNote').textContent=noteFor(p);
   fillBelow(p,L,R);
 }
-function actBtn(side,a,cx,cy,p){
-  const x=cx-28,y=cy-28;
-  if(!a) return '<div class="btnwrap" style="left:'+x+'px;top:'+(y-4)+'px"><button class="btn act empty" disabled aria-label="No action"><span><span class="ic">·</span></span></button></div>';
-  const why=disabledFor(a,p);
-  const label=a.l.length>11?a.l.slice(0,10)+'…':a.l;
-  return '<div class="btnwrap" style="left:'+x+'px;top:'+(y-4)+'px"><button class="btn act'+(side==='R'&&!why?' go':'')+'" data-act="'+side+'" '+(why?'disabled':'')+' aria-label="'+esc(a.l)+'"><span><span class="ic">'+a.i+'</span><span class="lb">'+esc(label)+'</span></span></button>'
-   +(a.b&&!why?'<b class="badge">'+a.b+'</b>':'')+(why?'<span class="chip">'+why+'</span>':'')+'</div>';
-}
-function slipHTML(W,dh,ay,tw,tileH,pos,p){
-  if(!S.slip) return '';
-  if(S.slip==='status'){
-    const w=300,x=W/2-w/2,y=-(150);
-    return '<div class="status" style="left:'+x+'px;top:'+(-dh-8-90)+'px;width:'+w+'px"><div><b>Health</b>❤️ 18/20</div><div><b>Petals</b>🪙 1,240</div><div><b>Season</b>🌸 Spring 6 🌤</div><div><b>Festival</b>🎏 Opening Day 2/3</div><div><b>Ready</b>🍳 2 · 🫙 1</div><div><b>Stat points</b>✨ 2</div><div class="wide"><button id="themeBtn">🌗 Theme</button><button>🕐 Game clock</button><button>📖 Almanac 41/120</button></div></div>';
-  }
-  const m=S.slip, subs=visibleSubs(m), side=SIDE[m], gap=4, n=subs.length;
-  let o='';
-  const startX=side==='L'?10:W-10-n*(tw+gap)+gap;
-  o+='<div class="gname" style="left:'+(side==='L'?10:W-10-84)+'px;top:'+(-dh-tileH-30)+'px">'+MAIN[m].n+'</div>';
-  subs.forEach((s,i)=>{
-    const x=startX+i*(tw+gap), cx=x+tw/2, y=ay(cx);
-    const top=-(dh-y)-tileH-6; // above the arc line
-    const on=p.m===m&&p.s===s[0];
-    const b=BADGE[s[3]];
-    o+='<button class="tile'+(on?' on':'')+(s[4]?' cond':'')+'" style="--i:'+i+';left:'+x+'px;width:'+tw+'px;height:'+tileH+'px;top:'+top+'px" data-go="'+s[3]+'" aria-label="'+s[2]+'"'+(on?' aria-current="page"':'')+'><span class="ic">'+s[1]+'</span><span class="lb">'+s[2]+'</span>'+(b?'<b class="badge">'+b+'</b>':'')+'</button>';
+
+function chainHTML(W,g,p,L,R){
+  const pw=g.pw,decoW=Math.max(30,Math.min(80,(W-6*58-pw)/2-4));
+  const it=[{k:'deco',w:decoW,i:'🌼'},{k:'m',m:'you'},{k:'m',m:'hobby'},{k:'aL'},{k:'plate',w:pw},{k:'aR'},{k:'m',m:'out'},{k:'m',m:'tog'},{k:'deco',w:decoW,i:'🌿'}];
+  it.forEach(o=>o.w=o.w||58);
+  const n=it.length,total=it.reduce((s,o)=>s+o.w,0),tabs=it.map(()=>[0,0,0,0]);
+  for(let i=0;i<n-1;i++){const s=i%2?-1:1;tabs[i][1]=s;tabs[i+1][3]=-s}
+  tabs[4][0]=-1; // the plate has a socket on top for the popover
+  let x=(W-total)/2,out='';
+  it.forEach((o,i)=>{
+    const ps=place(g,x+o.w/2,31),X=ps.x-o.w/2,Y=ps.y-29,base={x:X,y:Y,w:o.w,h:58,rot:ps.rot,tabs:tabs[i]};
+    if(o.k==='deco') out+=pc({...base,tag:'div',cls:'deco',inner:'<span class="ic">'+o.i+'</span>'});
+    else if(o.k==='m'){
+      const here=p.m===o.m,open=S.slip===o.m;
+      out+=pc({...base,cls:'menu'+(here?' here':'')+(open?' open':''),attrs:'data-m="'+o.m+'" aria-expanded="'+open+'" aria-label="'+MAIN[o.m].n+' menu"',
+        inner:'<span class="ic">'+MAIN[o.m].i+'</span><span class="lb">'+MAIN[o.m].n+'</span>'+(o.m==='tog'?'<b class="badge">!</b>':'')+(o.m==='hobby'?'<b class="badge">3</b>':'')});
+    }
+    else if(o.k==='plate'){
+      out+=pc({...base,cls:'plate'+(S.slip==='status'?' open':''),attrs:'id="plate" aria-label="Status, tap for more" aria-expanded="'+(S.slip==='status')+'"',
+        inner:'<span>⚡<progress max="60" value="'+(S.tired?0:48)+'"></progress></span><span>🌱 <b>12</b><progress class="xp" max="100" value="62"></progress></span><span>🕐 3:40pm <span class="tag">day 14</span></span><span>🐾 <span class="tag">Pals: 2 out</span></span>'});
+    }
+    else out+=actPiece(o.k==='aL'?'L':'R',o.k==='aL'?L:R,base);
+    x+=o.w;
   });
+  return out;
+}
+function actPiece(side,a,base){
+  if(!a) return pc({...base,cls:'act empty',attrs:'disabled aria-label="No action"',inner:'<span class="ic">·</span>'});
+  const why=itemWhy(a),open=S.slip==='act'+side;
+  const label=a.l.length>10?a.l.slice(0,9)+'…':a.l;
+  return pc({...base,cls:'act'+(side==='R'&&!why?' go':'')+(open?' open':''),
+    attrs:'data-act="'+side+'" '+(a.menu?'data-menu="1" aria-haspopup="menu" aria-expanded="'+open+'" ':'')+(why?'disabled ':'')+'aria-label="'+esc(a.l)+'"',
+    inner:'<span class="ic">'+a.i+'</span><span class="lb">'+esc(label)+'</span>'+(a.b&&!why?'<b class="badge">'+a.b+'</b>':'')+(why?'<span class="chip">'+why+'</span>':''),
+    after:a.menu?'<span class="pip" aria-hidden="true">▴</span>':''});
+}
+function slipHTML(W,g,p,L,R){
+  if(!S.slip) return '';
+  if(S.slip==='status') return popHTML(W,g);
+  const th=54,tw=W<720?52:58;
+  let items,flat=false,label,from='';
+  if(SUB[S.slip]){
+    items=visibleSubs(S.slip).map(s=>({i:s[1],l:s[2],go:s[3],cond:!!s[4],on:p.m===S.slip&&p.s===s[0],b:BADGE[s[3]]}));label=MAIN[S.slip].n;
+  } else {
+    flat=true;from=S.slip==='actL'?'L':'R';
+    const a=from==='L'?L:R;
+    items=a.menu.map((m,i)=>({i:m.i,l:m.l,b:m.b,item:i,why:itemWhy(m),armed:from==='R'&&i===S.tool&&!itemWhy(m)}));
+    label=from==='L'?'All beds · one tap does the lot':'One bed at a time · tap cycles, hold opens this';
+  }
+  const n=items.length,side=SIDE[S.slip]||'C';
+  const startX=flat?W/2-n*tw/2:(side==='L'?8:W-8-n*tw);
+  let o='',prev=0;
+  items.forEach((t,i)=>{
+    const r=i<n-1?(i%2?-1:1):0,l=i>0?-prev:0;prev=r;
+    const cx=startX+tw*(i+.5),ps=place(g,cx,-(th/2+9));
+    o+=pc({x:ps.x-tw/2,y:ps.y-th/2,w:tw,h:th,rot:ps.rot,tabs:[0,r,0,l],
+      cls:(t.on?'on ':'')+(t.cond?'cond ':'')+(t.armed?'armed':''),
+      attrs:(t.go?'data-go="'+t.go+'"':'data-item="'+t.item+'" data-from="'+from+'"')+(t.why?' disabled':'')+' aria-label="'+esc(t.l)+'"'+(t.on?' aria-current="page"':'')+' style="--i:'+i+'"',
+      inner:'<span class="ic">'+t.i+'</span><span class="lb">'+esc(t.l)+'</span>'+(t.b&&!t.why?'<b class="badge">'+t.b+'</b>':'')+(t.why?'<span class="chip">'+t.why+'</span>':'')});
+  });
+  const first=place(g,startX+tw/2,-(th/2+9));
+  const lx=flat?W/2-n*tw/2:(side==='L'?8:W-8-Math.min(200,label.length*6+14));
+  o+='<div class="gname" style="left:'+lx+'px;top:'+(first.y-th/2-26)+'px">'+esc(label)+'</div>';
   return o;
 }
+function popHTML(W,g){
+  const w=372,h=232,x=W/2-w/2,y=g.A+3-h;
+  const info=[['⚡','Energy','48/60 · +1 in 4:10'],['🌱','Level 12','620 / 1,000 XP'],['❤️','Health','18/20'],['🪙','Petals','1,240'],['🕐','Day 14','3:40pm'],['🎏','Opening Day','day 2 of 3']];
+  const links=[['🌸','Spring day 6 🌤','','world.php'],['✨','Stat points','2','gnome.php'],['🍳','Pots ready','2','workshop.php'],['🫙','Jars ready','1','workshop.php'],['🐾','Pals out','2','palyard.php']];
+  if(S.trip)links.push(['🏁','Trip: Mossy Bridge','3 stops','adventure.php']);
+  return '<div class="pop" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px">'+pieceSVG(w,h,0,0,1,0)
+   +'<div class="body"><div><h4>Right now</h4>'+info.map(r=>'<div class="row"><span>'+r[0]+'</span>'+esc(r[1])+'<b>'+esc(r[2])+'</b></div>').join('')+'</div>'
+   +'<div><h4>Jump to</h4>'+links.map(r=>'<button class="row" data-go="'+r[3]+'"><span>'+r[0]+'</span>'+esc(r[1])+(r[2]?'<b>'+esc(r[2])+'</b>':'')+'</button>').join('')+'</div>'
+   +'<div class="util"><button id="themeBtn">🌗 Theme</button></div></div></div>';
+}
 function scene(p){
-  // tiny stepped-colour pixel scene, no circles, no text in the art
-  return '<svg class="pic" viewBox="0 0 480 270" role="img" aria-label="Painted scene of '+esc(p.t)+'"><rect width="480" height="270" fill="#a9d6ea"/><rect y="150" width="480" height="120" fill="#7ab55c"/><rect y="200" width="480" height="70" fill="#5f9a47"/><rect x="40" y="90" width="110" height="80" fill="#c9a96e" stroke="#4a2c1a" stroke-width="2"/><rect x="30" y="70" width="130" height="24" fill="#a8241f" stroke="#4a2c1a" stroke-width="2"/><rect x="85" y="130" width="22" height="40" fill="#4a2c1a"/><rect x="250" y="110" width="150" height="70" fill="#9a6b3f" stroke="#4a2c1a" stroke-width="2"/><rect x="240" y="92" width="170" height="22" fill="#2f5a2a" stroke="#4a2c1a" stroke-width="2"/><rect x="300" y="140" width="24" height="40" fill="#4a2c1a"/><rect x="0" y="236" width="480" height="8" fill="#9a6b3f"/></svg><p class="note-line">Scene fits the space above the arc. Hit areas sit on the buildings. Text list follows below.</p>';
+  return '<svg class="pic" viewBox="0 0 480 270" role="img" aria-label="Painted scene of '+esc(p.t)+'"><rect width="480" height="270" fill="#a9d6ea"/><rect y="150" width="480" height="120" fill="#7ab55c"/><rect y="200" width="480" height="70" fill="#5f9a47"/><rect x="40" y="90" width="110" height="80" fill="#c9a96e" stroke="#4a2c1a" stroke-width="2"/><rect x="30" y="70" width="130" height="24" fill="#a8241f" stroke="#4a2c1a" stroke-width="2"/><rect x="85" y="130" width="22" height="40" fill="#4a2c1a"/><rect x="250" y="110" width="150" height="70" fill="#9a6b3f" stroke="#4a2c1a" stroke-width="2"/><rect x="240" y="92" width="170" height="22" fill="#2f5a2a" stroke="#4a2c1a" stroke-width="2"/><rect x="300" y="140" width="24" height="40" fill="#4a2c1a"/><rect x="0" y="236" width="480" height="8" fill="#9a6b3f"/></svg><p class="note-line">Scene fits the space above the grass line. Hit areas sit on the buildings. Text list follows below.</p>';
 }
 function noteFor(p){
   const m=p.m?MAIN[p.m].n+' > '+((SUB[p.m].find(s=>s[0]===p.s)||[])[2]||'(no tile)'):'outside the menu';
-  const mode={n:'normal',p:'play mode: arc drops, menus locked',f:'form page: dock hides while a field has focus',i:'picture page',x:'no dock'}[p.mode];
+  const mode={n:'normal',p:'play mode: dock drops, menus locked',f:'form page: dock hides while a field has focus',i:'picture page',x:'no dock'}[p.mode];
   return p.f+' · lights '+m+' · '+mode;
 }
 function fillBelow(p,L,R){
-  const nm=a=>a?a.i+' '+a.l:'(empty)';
-  $('below').innerHTML='<div class="card"><b>Left action</b>'+esc(nm(L))+'</div><div class="card"><b>Right action</b>'+esc(nm(R))+'</div><div class="card"><b>Why</b>'+esc(p.why||'')+'</div>';
+  const nm=a=>a?a.i+' '+a.l+(a.menu?' · menu: '+a.menu.map(x=>x.l).join(', '):''):'(empty)';
+  $('below').innerHTML='<div class="card"><b>Left action</b>'+esc(nm(L))+'</div><div class="card"><b>Right action</b>'+esc(nm(R))+(R&&R.cycle?' · tap cycles, hold opens':'')+'</div><div class="card"><b>Why</b>'+esc(p.why||'')+'</div>';
+}
+let tt=null,lp=false,lpT=null;
+function toast(m){
+  clearTimeout(tt);const old=stage.querySelector('.toast');if(old)old.remove();
+  const d=document.createElement('div');d.className='toast';d.textContent=m;stage.appendChild(d);
+  tt=setTimeout(()=>d.remove(),1900);
 }
 
 /* ------------ events ------------ */
+stage.addEventListener('pointerdown',e=>{
+  lp=false;clearTimeout(lpT);
+  const b=e.target.closest('[data-act="R"]');
+  if(b&&b.dataset.menu&&!b.disabled)lpT=setTimeout(()=>{lp=true;S.slip='actR';render()},380);
+});
+['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,()=>clearTimeout(lpT)));
+stage.addEventListener('keydown',e=>{
+  const b=e.target.closest('[data-act="R"]');
+  if(b&&b.dataset.menu&&e.key==='ArrowUp'){e.preventDefault();S.slip='actR';render()}
+});
 stage.addEventListener('click',e=>{
-  const mb=e.target.closest('.btn.menu');
+  const ab=e.target.closest('[data-act]');
+  if(ab&&!ab.disabled){onAct(ab.dataset.act);return}
+  const mb=e.target.closest('.pc.menu');
   if(mb){const m=mb.dataset.m;S.slip=S.slip===m?null:m;render();return}
   if(e.target.closest('#plate')){S.slip=S.slip==='status'?null:'status';render();return}
-  const t=e.target.closest('.tile');
+  const it=e.target.closest('[data-item]');
+  if(it&&!it.disabled){runItem(+it.dataset.item,it.dataset.from);return}
+  const t=e.target.closest('[data-go]');
   if(t){go(t.dataset.go);return}
   const tb=e.target.closest('[data-tab]');
-  if(tb){S.tab=tb.dataset.tab;render();return}
-  if(e.target.id==='themeBtn'){const c=document.documentElement.getAttribute('data-theme');setTheme(c==='dark'?'light':'dark');$('themeSel').value=document.documentElement.getAttribute('data-theme');return}
-  const ab=e.target.closest('[data-act]');
-  if(ab&&!ab.disabled){ab.animate([{transform:'translateY(3px)'},{transform:'none'}],{duration:150});return}
+  if(tb){S.tab=tb.dataset.tab;S.slip=null;render();return}
+  if(e.target.id==='themeBtn'){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');$('themeSel').value=document.documentElement.getAttribute('data-theme');return}
   if(e.target.closest('.page')&&S.slip){S.slip=null;render()}
 });
-stage.addEventListener('focusin',e=>{if(e.target.matches('input')&&!S.kb){S.kb=true;$('kbChk').checked=true;S.slip=null;render()}});
+function onAct(side){
+  const p=byFile(S.pg),[L,R]=curActions(p),a=side==='L'?L:R;
+  if(!a)return;
+  if(side==='R'&&a.cycle){
+    if(lp){lp=false;return}
+    S.tool=(S.tool+1)%a.menu.length;S.slip=null;render();
+    const t=curActions(p)[1];toast(t.dis?'No tool available':t.i+' '+t.l+' armed: tap a bed');return;
+  }
+  if(a.menu){S.slip=S.slip==='act'+side?null:'act'+side;render();return}
+  toast(a.i+' '+a.l);
+}
+function runItem(i,from){
+  const p=byFile(S.pg),[L,R]=curActions(p),a=(from==='L'?L:R).menu[i];
+  if(from==='R'){S.tool=i;S.slip=null;render();toast(a.i+' '+a.l+' armed: tap a bed');return}
+  S.slip=null;render();toast(a.i+' '+a.l+(a.b?' · '+a.b+' done':' · done'));
+}
+document.addEventListener('focusin',e=>{if(stage.contains(e.target)&&e.target.matches('input')&&!S.kb){S.kb=true;$('kbChk').checked=true;S.slip=null;render()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.slip){S.slip=null;render()}});
 function go(file){S.pg=file;S.tab=null;S.slip=null;$('pgSel').value=file;render()}
 function setTheme(v){if(v)document.documentElement.setAttribute('data-theme',v);else document.documentElement.removeAttribute('data-theme')}
+$('tripChk').addEventListener('change',e=>{S.trip=e.target.checked;render()});
 
 /* ------------ controls ------------ */
 (function(){
@@ -532,7 +649,7 @@ function setTheme(v){if(v)document.documentElement.setAttribute('data-theme',v);
     const rows=PAGES.filter(p=>cur==='all'||(cur==='x'?p.mode==='x':cur==='none'?(p.m===null):p.m===cur&&p.mode!=='x'));
     $('rows').innerHTML=rows.map(p=>{
       const under=p.m?MAIN[p.m].n+' > '+((SUB[p.m].find(s=>s[0]===p.s)||[,,'—'])[2]):'—';
-      const a=x=>x?'<span>'+esc(x.i+' '+x.l)+'</span>'+(x.n?' <span class="pill new">new</span>':'')+(x.e?' <span class="pill">⚡</span>':'')+(x.b?' <span class="pill">badge</span>':''):'<span class="pill">empty</span>';
+      const a=x=>x?'<span>'+esc(x.i+' '+x.l)+'</span>'+(x.menu?' <span class="pill">'+(x.cycle?'cycles + menu':'menu')+'</span><br><small>'+esc(x.menu.map(m=>m.l).join(', '))+'</small>':'')+(x.n?' <span class="pill new">new</span>':'')+(x.e?' <span class="pill">⚡</span>':'')+(x.b?' <span class="pill">badge</span>':''):'<span class="pill">empty</span>';
       let L=p.L,R=p.R;
       const tabs=p.tabAct?'<br><small>'+Object.entries(p.tabAct).map(([t,v])=>esc(t)+': '+esc(v[0].l)+' / '+esc(v[1].l)).join(' · ')+'</small>':'';
       const mode={n:'normal',p:'play',f:'form',i:'picture',x:'none'}[p.mode];
