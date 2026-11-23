@@ -357,3 +357,13 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .advgrid.wander.withrings > .panel > .scenecard .help { margin: 0; font-size: 11px; }
   body.dock-on .advgrid.wander.withrings > .panel:has(> .scenecard) > .choicelist { padding: 0; border: 0; background: none; }
 }
+
+/* dock layout, landscape: Gather here is the picture on the left, the tool belt and spots beside it */
+@media (orientation: landscape) {
+  body.dock-on .gx.gatherbox { display: grid; grid-template-columns: minmax(0, calc(var(--imgh) * 1.78)) minmax(0, 1fr); gap: 0 12px; align-items: start; max-width: none; width: 100%; }
+  body.dock-on .gx.gatherbox > .gx-hero { grid-column: 1; grid-row: 1 / span 6; width: 100%; }
+  body.dock-on .gx.gatherbox > :not(.gx-hero) { grid-column: 2; min-width: 0; }
+  body.dock-on .gx.gatherbox .gx-h { margin: 2px 0; }
+  body.dock-on .gx.gatherbox ul.belt { flex-wrap: wrap; gap: 4px; }
+  body.dock-on .gx.gatherbox .belt__slot { width: 60px; }
+}

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.76
+- **Dock layout, Gather here:** the picture is smaller (about 340 x 190 at 844 x 390, was 560 x 315) with your tool belt and the gather spots beside it instead of under it (page 1176 to 900 px). Checked with a fake off-the-path walk in a headless browser; a gather that has just paid out (the result card) was not checked.
+
 ## 2.7.75
 - **Dock layout, Wander event or check:** the story text ("A beaver dam backs up a pond...") and its choices stay together in one box in the right column (the text used to land far below the choices). Checked with a fake off-the-path event in a headless 844 x 390 browser; the left column has no scene picture during an event, so it is empty there.
 
