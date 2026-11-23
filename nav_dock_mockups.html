@@ -164,6 +164,18 @@ a{color:var(--focus)}
 .pc.act.go .sw2 b{background:#fff3c8;color:#7a4a1f}
 .pc.act.go .sw2 b.on{background:#2a1a10;color:#ffcf6a}
 .slip .pc.danger{--fill:#f6b8cf;--ring:var(--danger);--tx:#5a0f0f}
+.fold{border:2px solid var(--line2);background:var(--surface);margin:6px 0;max-width:460px}
+.fold>button.fh{display:flex;width:100%;gap:6px;align-items:center;font:inherit;font-weight:800;font-size:12px;background:var(--surface2);color:var(--ink);border:0;padding:6px 8px;cursor:pointer;min-height:32px;text-align:left;border-radius:0}
+.fold>button.fh small{margin-left:auto;font-weight:400;color:var(--muted)}
+.fold.open>button.fh{background:var(--felt);color:var(--felt-ink)}
+.fold.open>button.fh small{color:#ffcf6a}
+.fold .fb{padding:6px;display:none}
+.fold.open .fb{display:block}
+.fold .fb .items{margin:0}
+.item.msel{outline:3px solid var(--accent);outline-offset:1px;background:#fff3c8;color:#2a1a10}
+.item.msel::after{content:"✓";position:absolute;top:-6px;right:-6px;font-size:10px;background:var(--accent);color:#2a1a10;width:14px;height:14px;line-height:14px;font-weight:800}
+.fbtns{display:flex;gap:6px;margin-bottom:6px}
+.fbtns button{font:inherit;font-size:11px;font-weight:700;padding:3px 8px;min-height:28px;background:var(--bg);color:var(--ink);border:2px solid var(--line2);cursor:pointer;border-radius:0}
 .toast{position:absolute;left:50%;top:10px;translate:-50% 0;background:var(--felt);color:#ffcf6a;border:2px solid var(--accent);font-size:12px;font-weight:800;padding:4px 12px;z-index:8;animation:rise .2s steps(4) both}
 @keyframes rise{from{translate:0 40px;opacity:0}to{translate:0 0;opacity:1}}
 @media (prefers-reduced-motion:reduce){.slip .pc,.slip.ghost .pc,.slip .gname,.pop,.toast{animation:none}.dock,.pc{transition:none}}
@@ -236,7 +248,7 @@ ul.tight{margin:0;padding-left:18px;font-size:.9rem}
   <div><h3>Left action: Quick slot (Satchel)</h3><p>The player decides what this button does. Empty: tap, pick a food or potion in the satchel, tap Confirm. Filled: tap uses it, a small red ✕ at the bottom left clears it, and holding the piece clears it on phones. Saved per gnome.</p></div>
   <div><h3>Left action in places: Do here</h3><p>In a town, stop, haven, delve, lair or wonder the left piece opens what can be done right now. Towns have many tiny interactions, so the dock offers 3 per visit (quest beats first, then a rotating pick, ticks for the ones done) plus More for the full list on the page. The graphical map stays.</p></div>
   <div><h3>On the trail</h3><p>Left is your Quick item from the Satchel, read-only. Right opens Trail: Sights, Wander, Gather, Sneak, Hunt, Turn back. In an encounter it becomes Fight on and Flee.</p></div>
-  <div><h3>Shops</h3><p>The right piece is a Buy/Sell switch: one tap flips the mode, no strip. The left piece does the deal for the picked item.</p></div>
+  <div><h3>Shops</h3><p>The right piece is a Buy | Sell switch: tap flips the mode. Hold it, or tap the little arrow, for a strip of Single and Several. Each opens its fold on the page and closes the other. The left piece does the deal for what is picked.</p></div>
   <div><h3>Pieces snap together</h3><p>A strip builds one piece at a time, each sliding into the socket of the one before, with a small overshoot and click. Closing plays it backwards, last piece first. Tap a different menu while one is open: the old strip comes apart while the new one snaps together, at the same moment.</p></div>
   <div><h3>Right action: one at a time</h3><p>On Garden the right piece is the active tool. Tap cycles to the next tool that has something to do (skips empty ones). Hold, or press the little arrow on top, to open the strip and pick directly. Keyboard: Enter cycles, Arrow Up opens.</p></div>
   <div><h3>Center plate and popover</h3><p>The plate shows energy, level, time and pals' locations. Tap it: a piece pops up out of its socket with "Right now" numbers and "Jump to" links. See the table below for what is in it and what was left out.</p></div>
@@ -383,7 +395,7 @@ P('folk.php','Villagers (legacy)','👥','out','villagers','x',null,null,{why:'R
 P('stopfolk.php','Stop villagers (JSON)','👥','out','here','x',null,null,{why:'Fetch only, feeds the folk overlay. No UI.'}),
 // ---- Together
 P('market.php','Trading','🤝','tog','trading','n',A('🎁','Gifts',{ok:1}),A('🏷️','List item',{ok:1}),{tabs:['Market','My stall','Trades','Gifts','Saplings'],tabAct:{Gifts:[A('↩','Market'),A('🎁','Send gift',{ok:1})]},why:'Right is greyed with "empty satchel" when nothing can be listed.'}),
-P('shop.php','Shop','🛒','tog','trading','n',A('✔','Deal',{deal:true}),A('🛒','Buy',{toggle:true}),{why:'Right is a switch, not a menu: tap flips Buy and Sell and the page list follows. Left does the deal for the picked item and shows the price; it greys with "pick item" or "short Petals". Left is my suggestion, say if you want something else there.'}),
+P('shop.php','Shop','🛒','tog','trading','n',A('✔','Deal',{deal:true}),A('🛒','Buy',{toggle:true}),{why:'Right is a Buy | Sell switch: tap flips the mode, hold (or the little arrow) opens a strip with Single and Several. Choosing one opens the matching fold on the page (Pick one, or Pick several with All and None) and closes the other. Left does the deal for what is picked: price for one, count for several. It greys with "pick item" or "short Petals". Left is my suggestion, say if you want something else there.'}),
 P('marketday.php','Market day stalls','🧺','tog','trading','n',A('↩','Trading'),A('🛒','Buy'),{why:'Only on market days.'}),
 P('community.php','Together','🌻','tog','together','n',A('✉️','Messages',{b:1}),A('🫙','Donate',{ok:1}),{tabs:['Messages','Jar','Pulse','Garden'],why:'Yellow ! on the Together big button means a reply from the keeper. Left jumps to Messages.'}),
 P('letters.php','Letters','✉️','tog','together','n',A('↩','Messages'),A('✍️','Write'),{why:'Reply and write both live in the form while typing.'}),
@@ -433,7 +445,7 @@ const EDGES=[
 ['Quick on the trail','Read-only: tap uses it, nothing can be assigned or cleared here, so a thumb that slips while walking cannot lose the setting. Empty shows "in Satchel". Treks could get the same left piece; say if you want it.'],
 ['Stances','Sneak and Hunt are toggles: one at a time, tap the armed one to turn it off. The right piece shows Sneaking or Hunting while one is on. They disappear during an encounter, as the buttons do today.'],
 ['Turn back','Red piece, last in the strip, always asks first (gvAsk). It is the only piece that leaves the trail.'],
-['Shop switch','The switch carries the state in the piece itself (Buy and Sell pills, active one highlighted) so it never needs a label change. Flipping clears the picked item so a sell price is never applied to a buy pick. Market day stalls could reuse it.'],
+['Shop switch and folds','Tap flips Buy and Sell, hold or the arrow opens Single and Several, the same gesture as the Garden tool. The two folds on the page are also tappable headers that do the same thing, so the dock and the page never disagree. Flipping Buy or Sell, or changing fold, clears the picked items so a sell price is never applied to a buy pick. Several shows a running total on the fold header and the left piece shows the count. Selling several skips anything with none left and says so. Market day stalls could reuse the whole thing.'],
 ['Snap animation','Order runs from the outer edge toward the middle on both sides. Enter about 70ms per piece, leave about 55ms per piece in reverse. Rapid taps replace the leaving strip rather than queueing. Changes inside a strip (picking squares, cycling) do not replay it. Reduced motion: pieces appear and disappear with no movement.'],
 ['Select mode','Menus and the plate lock until Done, so a half-made selection is never lost by a stray tap. Changing tab or page also ends it. Strips hold 8 pieces: 50px each on a phone, 42px icon-only on a small phone (full name in the tooltip and aria-label). Actions grey with "pick" until something is picked, and with ⚡0 when energy runs out. The "…" actions (Plant, Work in, Mulch, Sheet mulch) open their chooser as a replacement strip with a Back piece.'],
 ['All and tool strips','Both open above the middle pieces, not over the page header. Esc, a tap on the page, or any other piece closes them. A bulk action that changes many things shows a toast with the count. Nothing destructive lives in All.'],
@@ -458,7 +470,7 @@ const EDGES=[
 ];
 
 /* ------------ state + render ------------ */
-const S={pg:'garden.php',tab:null,slip:null,place:'town',visit:0,done:new Set(),repair:false,stance:null,shop:'buy',shopSel:null,qMode:false,sat:null,quickIdx:null,selMode:false,sel:new Set(),tired:false,kb:false,late:true,trip:false,tool:0,W:844,H:390};
+const S={pg:'garden.php',tab:null,slip:null,place:'town',visit:0,done:new Set(),repair:false,stance:null,shop:'buy',shopSel:null,shopMode:'single',shopMulti:new Set(),qMode:false,sat:null,quickIdx:null,selMode:false,sel:new Set(),tired:false,kb:false,late:true,trip:false,tool:0,W:844,H:390};
 const $=id=>document.getElementById(id);
 const stage=$('stage'),box=$('box');
 const byFile=f=>PAGES.find(p=>p.f===f);
@@ -530,11 +542,19 @@ function placePiece(){
   return {i:'📍',l:'Do here',menu:items,mlabel:pl.pick&&pl.acts.length>pl.pick?'Do here · '+pl.pick+' picked for this visit':'Do here · '+pl.kind,b:left,placeMenu:true};
 }
 function shopList(){return S.shop==='buy'?SHOP_BUY:ITEMS.map(t=>({i:t.i,l:t.l,p:t.use?4:2,q:t.q}))}
-function dealPiece(){
-  const it=S.shopSel!=null?shopList()[S.shopSel]:null,lbl=S.shop==='buy'?'Buy':'Sell';
-  return {i:S.shop==='buy'?'🛒':'💰',l:it?lbl+' '+it.p+'🪙':lbl,deal:true,chip:it?null:'pick item'};
+function shopPicked(){
+  const list=shopList();
+  return S.shopMode==='multi'?list.filter((t,i)=>S.shopMulti.has(i)):(S.shopSel!=null&&list[S.shopSel]?[list[S.shopSel]]:[]);
 }
-function shopToggle(){return {i:S.shop==='buy'?'🛒':'💰',l:'Buy',sw:S.shop,toggle:true}}
+function dealPiece(){
+  const pk=shopPicked(),lbl=S.shop==='buy'?'Buy':'Sell',tot=pk.reduce((a,t)=>a+t.p,0);
+  const l=!pk.length?lbl:(S.shopMode==='multi'?lbl+' ×'+pk.length:lbl+' '+tot+'🪙');
+  return {i:S.shop==='buy'?'🛒':'💰',l,deal:true,chip:pk.length?null:(S.shopMode==='multi'?'pick items':'pick item')};
+}
+function shopToggle(){
+  return {i:S.shop==='buy'?'🛒':'💰',l:'Buy',sw:S.shop,toggle:true,mlabel:'Open a fold: pick one or several',
+    menu:[A('☝️','Single',{mode:'single'}),A('☑️','Several',{mode:'multi'})]};
+}
 function trailPiece(R){
   const i=S.stance==='sneak'?'🤫':S.stance==='hunt'?'🏹':R.i,l=S.stance==='sneak'?'Sneaking':S.stance==='hunt'?'Hunting':'Trail';
   return Object.assign({},R,{i,l});
@@ -577,8 +597,13 @@ function render(){
   else if(p.mode==='f') body=head+'<div class="form"><label for="f1">Subject</label><input id="f1" placeholder="Tap to type"><label for="f2">Message</label><input id="f2" placeholder="Keyboard hides the dock"></div>';
   else if(p.mode==='x') body=head+'<div class="card"><b>No screen of its own</b>Handler, redirect or image. The dock does not load here.</div>';
   else if(p.f==='shop.php'){
-    const list=shopList();
-    body=head+'<p class="selhint"><b>'+(S.shop==='buy'?'Buying':'Selling')+'.</b> Pick an item, then tap the left piece. The right piece flips Buy and Sell.</p><div class="items">'+list.map((t,i)=>'<button class="item'+(S.shopSel===i?' sel':'')+'" data-shop="'+i+'"><span class="ic">'+t.i+'</span>'+esc(t.l)+'<small>'+(S.shop==='buy'?t.p+' 🪙':'x'+t.q+' · '+t.p+' 🪙 each')+'</small></button>').join('')+'</div>';
+    const list=shopList(),multi=S.shopMode==='multi',pk=shopPicked(),tot=pk.reduce((a,t)=>a+t.p,0);
+    const sub=t=>S.shop==='buy'?t.p+' 🪙':'x'+t.q+' · '+t.p+' 🪙 each';
+    body=head+'<p class="selhint"><b>'+(S.shop==='buy'?'Buying':'Selling')+'.</b> Right piece: tap flips Buy and Sell, hold opens Single or Several. Left piece does the deal.</p>'
+      +'<div class="fold'+(multi?'':' open')+'"><button class="fh" data-shopmode="single" aria-expanded="'+!multi+'">☝️ Pick one<small>'+(multi?'tap to open':'open')+'</small></button><div class="fb"><div class="items">'
+      +list.map((t,i)=>'<button class="item'+(S.shopSel===i&&!multi?' sel':'')+'" data-shop="'+i+'"><span class="ic">'+t.i+'</span>'+esc(t.l)+'<small>'+sub(t)+'</small></button>').join('')+'</div></div></div>'
+      +'<div class="fold'+(multi?' open':'')+'"><button class="fh" data-shopmode="multi" aria-expanded="'+multi+'">☑️ Pick several<small>'+(multi?pk.length+' picked · '+tot+' 🪙':'tap to open')+'</small></button><div class="fb"><div class="fbtns"><button data-shopall="1">All</button><button data-shopall="0">None</button></div><div class="items">'
+      +list.map((t,i)=>'<button class="item'+(S.shopMulti.has(i)&&multi?' msel':'')+'" data-shopm="'+i+'" aria-pressed="'+S.shopMulti.has(i)+'"><span class="ic">'+t.i+'</span>'+esc(t.l)+'<small>'+sub(t)+'</small></button>').join('')+'</div></div></div>';
   }
   else if(p.f==='inventory.php'&&(!S.tab||S.tab==='Items')){
     const qi=S.quickIdx!=null?ITEMS[S.quickIdx]:null;
@@ -654,7 +679,7 @@ function slipHTML(W,g,p,L,R){
   } else {
     flat=true;from=S.slip==='actL'?'L':'R';
     const a=from==='L'?L:R;
-    items=a.menu.map((m,i)=>({i:m.i,l:m.l,b:m.b,item:i,why:itemWhy(m),chip:m.chip,xc:m.cls,armed:a.cycle?(from==='R'&&i===S.tool&&!itemWhy(m)):!!(m.stance&&S.stance===m.stance)}));
+    items=a.menu.map((m,i)=>({i:m.i,l:m.l,b:m.b,item:i,why:itemWhy(m),chip:m.chip,xc:m.cls,armed:a.cycle?(from==='R'&&i===S.tool&&!itemWhy(m)):!!((m.stance&&S.stance===m.stance)||(m.mode&&S.shopMode===m.mode))}));
     label=a.mlabel||(from==='L'?'All':'One at a time · tap cycles, hold opens this');
   }
   const n=items.length,side=SIDE[S.slip]||'C';
@@ -741,6 +766,12 @@ stage.addEventListener('keydown',e=>{
 stage.addEventListener('click',e=>{
   const qx=e.target.closest('[data-qx]');
   if(qx){clearQuick(qx.dataset.qx);return}
+  const sm=e.target.closest('[data-shopmode]');
+  if(sm){S.shopMode=sm.dataset.shopmode;S.shopSel=null;S.shopMulti=new Set();render();return}
+  const smi=e.target.closest('[data-shopm]');
+  if(smi){const i=+smi.dataset.shopm;S.shopMulti.has(i)?S.shopMulti.delete(i):S.shopMulti.add(i);render();return}
+  const sma=e.target.closest('[data-shopall]');
+  if(sma){S.shopMulti=sma.dataset.shopall==='1'?new Set(shopList().map((t,i)=>i)):new Set();render();return}
   const sh=e.target.closest('[data-shop]');
   if(sh){const i=+sh.dataset.shop;S.shopSel=S.shopSel===i?null:i;render();return}
   const sat=e.target.closest('[data-sat]');
@@ -774,12 +805,21 @@ function doSel(idx){
 function onAct(side){
   const p=byFile(S.pg),[L,R]=curActions(p),a=side==='L'?L:R;
   if(!a)return;
-  if(a.sw){S.shop=S.shop==='buy'?'sell':'buy';S.shopSel=null;render();toast((S.shop==='buy'?'🛒 Buying':'💰 Selling')+': pick an item, then tap the left piece');return}
+  if(a.sw){
+    if(lp){lp=false;return}
+    S.shop=S.shop==='buy'?'sell':'buy';S.shopSel=null;S.shopMulti=new Set();S.slip=null;render();toast(S.shop==='buy'?'🛒 Buying':'💰 Selling');return}
   if(a.deal){
-    const it=S.shopSel!=null?shopList()[S.shopSel]:null;
-    if(!it){toast('Pick an item first');return}
-    if(S.shop==='sell'){if(it.q<=0){toast('None left to sell');return}ITEMS[S.shopSel].q--;render();toast('💰 Sold '+it.l+' · +'+it.p+'🪙');return}
-    toast('🛒 Bought '+it.l+' · −'+it.p+'🪙');return;
+    const pk=shopPicked();
+    if(!pk.length){toast(S.shopMode==='multi'?'Pick some items first':'Pick an item first');return}
+    const tot=pk.reduce((x,t)=>x+t.p,0);
+    if(S.shop==='sell'){
+      const ok=pk.filter(t=>t.q>0),sk=pk.length-ok.length;
+      ok.forEach(t=>{const it=ITEMS.find(z=>z.l===t.l);if(it)it.q--});
+      S.shopSel=null;S.shopMulti=new Set();render();
+      toast('💰 Sold '+ok.length+(ok.length===1?' item':' items')+' · +'+ok.reduce((x,t)=>x+t.p,0)+'🪙'+(sk?', '+sk+' skipped (none left)':''));return;
+    }
+    S.shopSel=null;S.shopMulti=new Set();render();
+    toast('🛒 Bought '+pk.length+(pk.length===1?' item':' items')+' · −'+tot+'🪙');return;
   }
   if(a.qk==='none'){toast('Nothing on Quick. Set one in the Satchel.');return}
   if(a.qk==='empty'){S.qMode=true;S.sat=null;render();toast('Pick an item in your satchel, then tap Confirm');return}
@@ -812,12 +852,13 @@ function runItem(i,from){
   if(a.more){render();toast('Opens the full list on the page ('+a.b+' more)');return}
   if(a.stance){S.stance=S.stance===a.stance?null:a.stance;render();toast(a.i+' '+a.l+(S.stance?' on':' off'));return}
   if(a.back){render();toast('Asks first: turn back to the last stop?');return}
+  if(a.mode){S.shopMode=a.mode;S.shopSel=null;S.shopMulti=new Set();render();toast(a.mode==='multi'?'Fold opened: pick several, then tap the left piece':'Fold opened: pick one, then tap the left piece');return}
   if(act.placeMenu){S.done.add(a.l);render();toast(a.i+' '+a.l+': done');return}
   render();toast(a.i+' '+a.l+(a.b?' · '+a.b+' done':' · done'));
 }
 document.addEventListener('focusin',e=>{if(stage.contains(e.target)&&e.target.matches('input')&&!S.kb){S.kb=true;$('kbChk').checked=true;S.slip=null;render()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.slip){S.slip=null;render()}});
-function go(file){S.pg=file;S.tab=null;S.slip=null;S.shopSel=null;S.qMode=false;S.sat=null;S.selMode=false;S.sel=new Set();$('pgSel').value=file;render()}
+function go(file){S.pg=file;S.tab=null;S.slip=null;S.shopSel=null;S.shopMulti=new Set();S.shopMode='single';S.qMode=false;S.sat=null;S.selMode=false;S.sel=new Set();$('pgSel').value=file;render()}
 function setTheme(v){if(v)document.documentElement.setAttribute('data-theme',v);else document.documentElement.removeAttribute('data-theme')}
 $('tripChk').addEventListener('change',e=>{S.trip=e.target.checked;render()});
 $('placeSel').addEventListener('change',e=>{S.place=e.target.value;S.done=new Set();S.slip=null;render()});
@@ -855,7 +896,7 @@ $('repairChk').addEventListener('change',e=>{S.repair=e.target.checked;S.slip=nu
     const rows=PAGES.filter(p=>cur==='all'||(cur==='x'?p.mode==='x':cur==='none'?(p.m===null):p.m===cur&&p.mode!=='x'));
     $('rows').innerHTML=rows.map(p=>{
       const under=p.m?MAIN[p.m].n+' > '+((SUB[p.m].find(s=>s[0]===p.s)||[,,'—'])[2]):'—';
-      const a=x=>x?'<span>'+esc(x.i+' '+x.l)+'</span>'+(x.place?' <span class="pill">place menu</span><br><small>Town: 3 picks + More. Rest stop: Rest, Snack, Folk, Stall. Haven: Stay, Buy. Delve: Delve. Lair: Challenge. Wonder: Try…</small>':'')+(x.toggle?' <span class="pill">switch</span><br><small>Tap flips Buy / Sell</small>':'')+(x.deal?' <span class="pill">does the deal</span>':'')+(x.ro?' <span class="pill">read-only Quick</span><br><small>Satchel Quick item; set it in Satchel</small>':'')+(x.quick&&!x.ro?' <span class="pill">quick slot</span><br><small>Player assigns one food or potion; tap uses it; red x or hold clears</small>':'')+(x.select?' <span class="pill">select mode</span><br><small>Pick: '+esc(SEL_PICK.map(m=>m[2]).join(', '))+'. Then: '+esc(SEL_DO.map(m=>m[0]).join(', '))+'</small>':'')+(x.menu?' <span class="pill">'+(x.cycle?'cycles + menu':'menu')+'</span><br><small>'+esc(x.menu.map(m=>m.l).join(', '))+'</small>':'')+(x.n?' <span class="pill new">new</span>':'')+(x.e?' <span class="pill">⚡</span>':'')+(x.b?' <span class="pill">badge</span>':''):'<span class="pill">empty</span>';
+      const a=x=>x?'<span>'+esc(x.i+' '+x.l)+'</span>'+(x.place?' <span class="pill">place menu</span><br><small>Town: 3 picks + More. Rest stop: Rest, Snack, Folk, Stall. Haven: Stay, Buy. Delve: Delve. Lair: Challenge. Wonder: Try…</small>':'')+(x.toggle?' <span class="pill">switch + strip</span><br><small>Tap flips Buy / Sell. Hold opens: Single, Several (opens that fold)</small>':'')+(x.deal?' <span class="pill">does the deal</span>':'')+(x.ro?' <span class="pill">read-only Quick</span><br><small>Satchel Quick item; set it in Satchel</small>':'')+(x.quick&&!x.ro?' <span class="pill">quick slot</span><br><small>Player assigns one food or potion; tap uses it; red x or hold clears</small>':'')+(x.select?' <span class="pill">select mode</span><br><small>Pick: '+esc(SEL_PICK.map(m=>m[2]).join(', '))+'. Then: '+esc(SEL_DO.map(m=>m[0]).join(', '))+'</small>':'')+(x.menu?' <span class="pill">'+(x.cycle?'cycles + menu':'menu')+'</span><br><small>'+esc(x.menu.map(m=>m.l).join(', '))+'</small>':'')+(x.n?' <span class="pill new">new</span>':'')+(x.e?' <span class="pill">⚡</span>':'')+(x.b?' <span class="pill">badge</span>':''):'<span class="pill">empty</span>';
       let L=p.L,R=p.R;
       const tabs=p.tabAct?'<br><small>'+Object.entries(p.tabAct).map(([t,v])=>esc(t)+': '+esc(v[0].l)+' / '+esc(v[1].l)).join(' · ')+'</small>':'';
       const mode={n:'normal',p:'play',f:'form',i:'picture',x:'none'}[p.mode];
