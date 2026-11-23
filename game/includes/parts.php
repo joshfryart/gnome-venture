@@ -16,6 +16,8 @@ const PART_FAMILIES = [
     'silk'  => ['Silk',  ['silk', 'thread', 'ball']],
     'gem'   => ['Gem',   ['pearl', 'bead']],
 ];
+/** 2.7.58: the picture for an any-/rare- ingredient (no single item to show): one emoji per family. */
+const PART_FAMILY_ICONS = ['hide' => '🐾', 'plate' => '🐚', 'wing' => '🪶', 'ooze' => '💧', 'silk' => '🕸️', 'gem' => '🦪'];
 /** Part items that end in a family word but are a currency, not a creature part. */
 const PART_FAMILY_DENY = ['tailors-thread'];
 /** items.rarity at or above this is a rare part (the R tier, items.php). */
@@ -80,4 +82,11 @@ function part_family_seen(array $key, array $seen): bool
 {
     foreach (part_family_items($key[1], $key[0] === 'rare') as $it) if (isset($seen[$it['slug']])) return true;
     return false;
+}
+
+/** The family icon for an ingredient key such as any-hide / rare-plate, or null for a normal slug. */
+function part_family_icon(string $key): ?string
+{
+    $k = part_key($key);
+    return $k ? PART_FAMILY_ICONS[$k[1]] : null;
 }

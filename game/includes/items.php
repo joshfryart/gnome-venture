@@ -262,6 +262,11 @@ function item_emoji(array $i): string
         foreach (q('SELECT produce_item_id, kind FROM plants WHERE produce_item_id IS NOT NULL')->fetchAll() as $r) $kinds[(int)$r['produce_item_id']] = $r['kind'];
     }
     require_once __DIR__ . '/catalog.php';
+    if (str_starts_with($sl = item_slug_of($i), 'aug-')) {   // 2.7.58: a tool augment has no art yet: its part family's icon (Hide Binding 🐾, Plate Edge 🐚) instead of the generic supply box
+        require_once __DIR__ . '/augments.php';
+        require_once __DIR__ . '/parts.php';
+        if (isset(AUG_DEFS[$sl], PART_FAMILY_ICONS[AUG_DEFS[$sl][1]])) return PART_FAMILY_ICONS[AUG_DEFS[$sl][1]];
+    }
     // v0.8.5: a picture that fits the thing itself (Strawberry 🍓, Berry Tart 🥧, Hatchet 🪓) before the general one for its kind
     if (in_array($i['category'], ['food', 'produce', 'forage', 'part', 'tool', 'supply', 'broken'], true) && ($n = name_emoji((string)($i['name'] ?? ''))) !== '') return $n;
     if ($i['category'] === 'produce' && isset($kinds[(int)$i['id']])) return catalog_kind_icon($kinds[(int)$i['id']]);

@@ -870,7 +870,7 @@ function home_slim_trophy_html(int $uid): string
 {
     $opt = hovel_trophy_options($uid); $n = hovel_trophy_count($uid);
     if (!$opt && !$n) return '';
-    $h = '<section class="box hs-trophy"><h3>Trophy wall <small class="new">New</small></h3><p class="help">' . $n . ' pinned. Pin one part of a creature (it is used up) to hang its trophy. One trophy for each creature.</p>';
+    $h = '<section class="box hs-trophy"><h3>🏆 Trophy wall <small class="new">New</small></h3><p class="help">' . $n . ' pinned. Pin one part of a creature (it is used up) to hang its trophy. One trophy for each creature.</p>';
     if ($opt) {
         $h .= '<form method="post" action="' . e(url('gnome.php?tab=furnish')) . '">' . csrf_field() . '<input type="hidden" name="do" value="trophy_pin"><label>Creature <select name="pin">';
         foreach ($opt as $o) $h .= '<option value="' . e($o['creature'] . '|' . $o['item']) . '">' . e($o['name'] . ' (' . $o['item_name'] . ')') . '</option>';
