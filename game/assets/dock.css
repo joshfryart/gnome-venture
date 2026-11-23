@@ -1436,3 +1436,20 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on details.ppfold > summary h2 { font-size: 15px; line-height: 1.2; }
   body.dock-on details.ppfold > summary small { margin-left: auto; }
 }
+
+/* v2.8.15: Garden, landscape dock: the garden comes first. Heading, the cat line and the tabs share one row; no Cat Fish link */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) { gap: 0 10px; }
+  body.dock-on .cfgarden a { display: none; }
+  body.dock-on main:has(> .gardentabnav) > .cfgarden { flex: 0 1 auto; margin: 0; display: flex; align-items: center; gap: 4px; font-size: 12px; max-width: 34%; }
+  body.dock-on .cfgarden img, body.dock-on .cfgarden .cfcat, body.dock-on .cfgarden > *:first-child:not(small) { width: 28px; height: 28px; max-height: 28px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead h1 { font-size: 18px; margin: 0; padding-bottom: 2px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead { margin: 2px 0; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav { margin-top: 2px; }
+}
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardenwrap) > details.gardeninfo { flex: 0 1 30%; margin: 0; }
+  body.dock-on main:has(> .gardenwrap) > p.wxline { flex: 1 1 60%; margin: 0; padding: 3px 8px; font-size: 12px; line-height: 1.25; }
+  body.dock-on main:has(> .gardenwrap) > p.wxline br { display: none; }
+  body.dock-on main:has(> .gardenwrap) > p.wxline small, body.dock-on main:has(> .gardenwrap) > p.wxline .muted { display: inline; margin-left: 6px; font-size: 11px; }
+}

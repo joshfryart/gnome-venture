@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.15
+- **Garden, landscape layout: your garden comes first.** The heading, tabs, location line and weather line now share two short rows, so the garden starts about 70 px higher (172→104 px at 844×390). The "Cat Fish" link is gone from the cat line (the cat line is also smaller and sits in the heading row).
+
 ## 2.8.14
 - Puzzle Pals region folds: smaller region headings so long names fit their column in the landscape layout.
 
