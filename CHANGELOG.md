@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.89
+- **Hovel: all tabs checked** (Today, Furnish, Gnome, Closet, Stats, Calling, Foods, Villagers, Gardens at 844 x 390). Fixed: the Villagers tab (5639 px tall) is now a dense wall of small photos, many across (1398 px); the unmet "?" cards are short. The other tabs are as in 2.7.88; Calling (locked below level 5 in my test), Foods and Gardens were already short and are unchanged. Pals and Tea tabs are not on my test account (they fall back to Today); not checked.
+
 ## 2.7.88
 - **Hovel (My Gnome) in two columns, dock layout, landscape** (`dock.css` only). Today: the room on the left, the tabs and the Needs you / news cards on the right (923 to 714 px tall at 844 x 390). Furnish: the room crop is gone; the slots on the left, the big room and the cosiness on the right (831 to 761 px). Stats: the back link and Puzzle box note are hidden, the stat description sits beside the list (1245 to 1027 px). Closet: the gnome on the left, the slots in two columns on the right (1021 to 748 px). The Gnome tab was already compact. Checked in screenshots at 844 x 390; Calling, the sleep and nap buttons (the Rest piece) and a hovel with a pet were not checked.
 

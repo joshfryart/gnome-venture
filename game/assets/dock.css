@@ -505,3 +505,18 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .homepanel section.box.closet .clslots { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   body.dock-on .homepanel section.box.closet .clslots .clpill a { min-height: 0; }
 }
+
+/* the villagers wall (My Gnome, Villagers tab): small photos, many across, no tilt */
+@media (orientation: landscape) {
+  body.dock-on .homepanel .wall { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px 6px; padding: 6px 2px; }
+  body.dock-on .homepanel .wall .polaroid { padding: 3px 3px 4px; transform: none; font-size: 11px; line-height: 1.15; }
+  body.dock-on .homepanel .wall .polaroid .portrait { aspect-ratio: 1 / 1; }
+  body.dock-on .homepanel .wall .polaroid .hand { font-size: 11px; }
+  body.dock-on .homepanel .wall .polaroid .tape { display: none; }
+}
+@media (orientation: landscape) {
+  body.dock-on .homepanel .wall { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px 5px; }
+  body.dock-on .homepanel .wall .polaroid.unmet { min-height: 0; height: 52px; padding: 2px; justify-content: center; }
+  body.dock-on .homepanel .wall .polaroid.unmet .muted, body.dock-on .homepanel .wall .polaroid.unmet .hand { display: none; }
+  body.dock-on .homepanel .wall .polaroid.unmet img, body.dock-on .homepanel .wall .polaroid.unmet .portrait { max-height: 34px; width: auto; }
+}
