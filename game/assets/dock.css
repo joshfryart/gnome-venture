@@ -196,3 +196,11 @@ body.dock-on { --dock-h: 106px; }
 .dockroot .dk-pc.dk-act.dk-soft { --dk-fill: var(--dk-felt2); --dk-tx: var(--dk-dis); --dk-ring: var(--dk-line2); }
 .dockroot .dk-pc.dk-holding .dk-in::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 2px; height: 4px; background: var(--dk-danger); animation: dkholdbar .65s linear both; }
 @keyframes dkholdbar { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* play mode: the thin rail */
+.dockroot .dk-rail { position: fixed; left: 0; right: 0; bottom: 0; height: calc(34px + env(safe-area-inset-bottom, 0px)); padding: 0 10px env(safe-area-inset-bottom, 0px); z-index: 45; pointer-events: auto;
+  display: flex; align-items: center; gap: 12px; background: #4a3426; color: #f3e6c8; border-top: 2px solid #2b1d14; font-size: 14px; }
+.dockroot .dk-rail[hidden] { display: none; }
+.dockroot .dk-rn { flex: 1; text-align: center; }
+.dockroot .dk-rb { color: #f3e6c8; background: none; border: 0; font: inherit; text-decoration: none; padding: 6px 8px; min-height: 30px; cursor: pointer; }
+.dockroot .dk-rs { opacity: .85; }

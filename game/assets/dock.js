@@ -216,6 +216,11 @@
       if (qk) { o.label = qk.name; o.icon = qk.kind === 'heal' ? '🧪' : '🍽️'; o.badge = qk.qty > 0 ? String(qk.qty) : ''; o.qk = 'use'; o.qx = 'clear'; if (qk.qty <= 0) o.chip = '0 left'; return o; }
       o.label = 'Quick'; o.icon = '＋'; o.qk = 'empty'; return o;
     }
+    if (a.remote && a.remote.quick === 'use') {   // use only (adventure): the Quick item, no assign, no x, no hold; empty = set it in the Satchel
+      if (D.quick) { o.label = D.quick.name; o.icon = D.quick.kind === 'heal' ? '🧪' : '🍽️'; o.badge = D.quick.qty > 0 ? String(D.quick.qty) : ''; o.qk = 'useonly'; if (D.quick.qty <= 0) o.chip = '0 left'; }
+      else { o.label = 'Quick'; o.icon = '＋'; o.why = 'set in Satchel'; }
+      return o;
+    }
     if (a.remote && a.remote.select === 'garden') {
       if (!q1('.selbar')) { o.why = 'Beds'; return o; }
       if (selOn) { o.label = 'Done'; o.icon = '✓'; o.rem = remKey({ sel: '.selbar [data-sel="off"]' }); }
@@ -354,8 +359,22 @@
   }
 
   /* ---- render ---- */
+  /* play mode: a thin rail (back, the game's name, energy and time, and a button that opens the full dock) */
+  var rail = null, playOpen = false;
+  function renderRail() {
+    var p = D.plate, e = p.energy || [0, 1];
+    if (stage) stage.innerHTML = '';
+    if (!rail) { rail = document.createElement('div'); rail.className = 'dk-rail'; rail.id = 'dockrail'; root.appendChild(rail); }
+    rail.hidden = false;
+    rail.innerHTML = '<a class="dk-rb" href="' + esc(D.play.back) + '">\u21a9 ' + esc(D.play.backLabel) + '</a><b class="dk-rn">' + esc(D.play.name) + '</b>'
+      + '<span class="dk-rs">\u26a1 ' + e[0] + '/' + e[1] + (p.time ? ' \u00b7 ' + esc(String(p.time)) : '') + '</span><button type="button" class="dk-rb" data-rail="open" aria-label="Open the menu">\u2630 Menu</button>';
+    document.body.style.setProperty('--dock-h', '34px');
+    document.body.classList.add('dock-ready');
+  }
   function render() {
     if (!D || !mq.matches) { if (stage) stage.innerHTML = ''; document.body.classList.remove('dock-ready'); return; }
+    if (D.play && !playOpen) { renderRail(); return; }
+    if (rail) rail.hidden = true;
     var VW = root.clientWidth || window.innerWidth, W, g, old = stage && stage.querySelector('.dockslip'), oldN = old ? old.querySelectorAll('.dk-pc').length : 0;
     if (old && old.parentNode) old.parentNode.removeChild(old);   // kept as an element (not as markup): inline style attributes cannot be re-parsed under the CSP
     REM = [];
@@ -382,6 +401,7 @@
   root.addEventListener('click', function (e) {
     var m = e.target.closest('[data-m]'), a = e.target.closest('button[data-act]'), p = e.target.closest('#dockplate'), pt = e.target.closest('[data-poptab]');
     if (pt) { popTab = pt.getAttribute('data-poptab'); render(); return; }
+    if (e.target.closest('[data-rail="open"]')) { playOpen = true; render(); return; }
     var qx = e.target.closest('[data-qx]'), qb = e.target.closest('[data-quick]'), pk;
     if (qx) { if (qx.getAttribute('data-qx') === 'cancel') { qMode = false; render(); } else postTo(D.quickUrl, { do: 'clear', back: D.back }); return; }
     if (qb && !qb.disabled) {
@@ -389,7 +409,7 @@
       if (lp) { lp = false; return; }
       if (qk === 'empty') { qMode = true; render(); }
       else if (qk === 'confirm') { pk = satchelPick(); if (pk && !pk.no) { qMode = false; postTo(D.quickUrl, { do: 'set', item_id: pk.id, back: D.back }); render(); } }
-      else if (qk === 'use') postTo(D.quickUrl, { do: 'use', back: D.back });
+      else if (qk === 'use' || qk === 'useonly') postTo(D.quickUrl, { do: 'use', back: D.back });
       return;
     }
     var rm = e.target.closest('[data-rem]');
@@ -412,8 +432,8 @@
   });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { root.addEventListener(ev, function () { clearTimeout(lpT); Array.prototype.forEach.call(root.querySelectorAll('.dk-holding'), function (x) { x.classList.remove('dk-holding'); }); }); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && slip) { slip = null; render(); } });
-  document.addEventListener('click', function (e) { if (slip && e.target.isConnected && !root.contains(e.target)) { slip = null; render(); } });   // a click on a piece re-draws the dock, so its target is no longer in the page: that is a click inside
-  document.addEventListener('gv:swapped', function () { qMode = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
+  document.addEventListener('click', function (e) { if (D && D.play && playOpen && !slip && e.target.isConnected && !root.contains(e.target)) { playOpen = false; render(); return; } if (slip && e.target.isConnected && !root.contains(e.target)) { slip = null; render(); } });   // a click on a piece re-draws the dock, so its target is no longer in the page: that is a click inside
+  document.addEventListener('gv:swapped', function () { qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);

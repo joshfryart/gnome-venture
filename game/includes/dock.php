@@ -232,6 +232,16 @@ function dock_actions(array $u, string $page): array
     return $out;
 }
 
+/** Play mode: the mini-games get a thin rail instead of the full dock (the full dock opens from its menu button). Returns the rail's label and back link, or null. */
+function dock_play(string $page): ?array
+{
+    $games = ['memory.php' => 'Memory', 'race.php' => 'Race', 'spit.php' => 'Spit', 'mushroom.php' => 'Mushroom', 'pest.php' => 'Pest', 'marrow.php' => 'Marrow', 'worms.php' => 'Worms', 'catfish.php' => 'Catfish'];
+    $puz = ['jigsaw.php' => 'Jigsaw', 'gifsaw.php' => 'GIFsaw'];
+    if (isset($games[$page])) return ['name' => $games[$page], 'back' => url('games.php'), 'backLabel' => 'Games'];
+    if (isset($puz[$page])) return ['name' => $puz[$page], 'back' => url('puzzles.php'), 'backLabel' => 'Puzzles'];
+    return null;
+}
+
 /** Phase 1 specs for pages whose actions are only links (no new endpoints). Phase 2 adds the pages with forms. */
 function dock_page_spec(string $page): array
 {
@@ -276,8 +286,66 @@ function dock_page_spec(string $page): array
         case 'inventory.php':
             // Satchel, Items tab: the Quick slot (assign: open an item, tap Confirm; use: tap; clear: the x or a hold). Other tabs: left Items, right Hovel.
             $t = (string)($_GET['tab'] ?? '');
+            if ($t === 'craft') {   // Crafting is a tab of the Satchel: right works the page's own collect and cook-again forms (the first one present)
+                return ['watch' => true, 'L' => dock_action('Items', '🎒', $u('inventory.php')), 'R' => dock_action('Craft', '🍳', '', [
+                    dock_remote('Collect all', '🧺', ['doForm' => 'collect_all']), dock_remote('Jars', '🫙', ['doForm' => 'jar_collect_all']), dock_remote('Cook again', '🍳', ['doForm' => 'cook_again'])], '', '', 'Kitchen')];
+            }
             if ($t !== '' && $t !== 'items') return ['L' => dock_action('Items', '🎒', $u('inventory.php')), 'R' => dock_action('Hovel', 'hovel', $u('gnome.php'))];
             return ['watch' => true, 'L' => dock_remote('Quick', '⚡', ['quick' => 'slot']), 'R' => dock_action('Arrange', '🗂️', $u('inventory.php?tab=arrange'))];
+        case 'gnome.php':
+        case 'hovel.php':
+            // Left: Heal (a strip of the potions and snacks the page's health box offers). Right: Rest (a strip of the sleeps and naps the bed offers). Both click the page's own buttons.
+            $u0 = current_user() ?? ['id' => 0]; $L = dock_action('Back', '↩'); $R = dock_action('Hovel', 'hovel', $u('gnome.php'));
+            try {
+                require_once __DIR__ . '/game_clock.php';
+                $uid = (int)$u0['id'];
+                if (gclock_on()) {
+                    $rest = [];
+                    foreach (gclock_rest_options($u0) as $o) {
+                        $nm = preg_replace('/ \(.*$/', '', (string)$o['label']);
+                        $rest[] = dock_remote($nm, $o['kind'] === 'nap' ? '💤' : '🌙', ['sel' => 'main button[name="do"][value="' . $o['key'] . '"]']);
+                    }
+                    if ($rest) $R = dock_action('Rest', '🛏️', '', $rest, '', '', 'Rest');
+                }
+                if (!function_exists('active_expedition') || !active_expedition($uid)) {
+                    require_once __DIR__ . '/adventure.php'; require_once __DIR__ . '/alchemy.php';
+                    $heal = [];
+                    foreach (alchemy_heals($uid) as $hv) $heal[] = dock_remote((string)$hv['name'], '🧪', ['sel' => 'main form:has(input[name="what"][value="potion"]):has(input[name="item"][value="' . (int)$hv['id'] . '"]) button']);
+                    foreach (fight_snacks($u0) as $sn) $heal[] = dock_remote((string)$sn['name'], '🍎', ['sel' => 'main form:has(input[name="what"][value="snack"]):has(input[name="item"][value="' . (int)$sn['id'] . '"]) button']);
+                    if ($heal) $L = dock_action('Heal', '💚', '', $heal, '', '', 'Heal');
+                }
+            } catch (Throwable $e) {}
+            return ['watch' => true, 'L' => $L, 'R' => $R];
+        case 'adventure.php':
+            // On the road: left = the Quick item (use only; set it in the Satchel). Right = the Trail strip (the page's own footer buttons) or, in a fight, Run away.
+            $uA = current_user() ?? ['id' => 0];
+            $exA = function_exists('active_expedition') ? active_expedition((int)$uA['id']) : null;
+            $enc = $exA && !empty($exA['encounter']);
+            $R = $enc
+                ? dock_action('Run', '🏃', '', [], '', '', '', [], [dock_remote('Run away', '🏃', ['sel' => '.pf-runf button']), dock_remote('Run away', '🏃', ['doForm' => 'flee'])])
+                : dock_action('Trail', '🥾', '', [
+                    dock_remote('Sights', '🔎', ['sel' => '.trailfoot .trailsights']),
+                    dock_remote('Gather', '🧺', ['sel' => '.trailfoot [data-pop="hubpop-tgather"]']),
+                    dock_remote('Wander', '🌿', ['sel' => '.trailfoot [data-pop="hubpop-twander"]']),
+                    dock_remote('Sneak', '🤫', ['sel' => '.trailfoot form:has(input[name="mode"][value="sneak"]) button']),
+                    dock_remote('Hunt', '🏹', ['sel' => '.trailfoot form:has(input[name="mode"][value="hunt"]) button']),
+                    dock_remote('Turn back', '↩️', ['sel' => '.trailfoot form:has(input[value="trail_back"]) button']),
+                ], '', '', 'On the Trail');
+            return ['watch' => true, 'L' => dock_remote('Quick', '＋', ['quick' => 'use']), 'R' => $R];
+        case 'town.php':
+            // Do here: the page's own small actions (wave, sit, snack, rock-paper-scissors, festival, quiz). Greyed when the page does not offer them.
+            return ['watch' => true, 'L' => dock_action('Do here', '🎈', '', [
+                    dock_remote('Wave', '👋', ['doForm' => 'wave']), dock_remote('Sit', '🪑', ['doForm' => 'bench']), dock_remote('Snack', '🍎', ['doForm' => 'snack']),
+                    dock_remote('Game', '✊', ['doForm' => 'rps']), dock_remote('Festival', '🎪', ['doForm' => 'festival']),
+                ], '', '', 'Do here'), 'R' => dock_action('World', '🌍', $u('world.php'))];
+        case 'here.php':
+            return ['L' => dock_action('Do here', '🎈', $u('town.php')), 'R' => dock_action('World', '🌍', $u('world.php'))];
+        case 'world.php':
+            return ['watch' => true, 'L' => dock_action('Here', 'here', $u('here.php')), 'R' => dock_action('Explore', '🧭', '', [], '', '', '', [], [dock_remote('Explore', '🧭', ['doForm' => 'explore'])])];
+        case 'market.php':
+            return ['watch' => true, 'L' => dock_action('Satchel', '🎒', $u('inventory.php')), 'R' => dock_action('List', '🏷️', '', [], '', '', '', [], [dock_remote('List', '🏷️', ['doForm' => 'list']), dock_remote('Offer', '🤝', ['doForm' => 'offer'])])];
+        case 'marketday.php':
+            return ['watch' => true, 'L' => dock_action('Back', '↩'), 'R' => dock_remote('Basket', '🧺', ['doForm' => 'basket'])];
         case 'shop.php':
             // Left: the basket's own button (Buy all / Sell all), greyed until something is picked (the basket form is hidden while empty). Right: the Buy | Sell switch, a link to the other tab.
             $sid = (int)($_GET['id'] ?? 0);
@@ -295,7 +363,9 @@ function dock_page_spec(string $page): array
                 return ['watch' => true, 'L' => null, 'R' => dock_action('Deliver', '📜', '', [], '', '', '', [], [
                     dock_remote('Deliver', '📜', ['doForm' => 'order']), dock_remote('Favour', '🤝', ['doForm' => 'favour'])])];
             }
-            if ($T === 'journey' || $p === 'post') return [];
+            if ($T === 'journey') return ['watch' => true, 'L' => null, 'R' => dock_action('Journey', '🧭', '', [], '', '', '', [], [
+                dock_remote('Hand in', '✋', ['doForm' => 'hand_in']), dock_remote('Finish', '🏁', ['doForm' => 'finish']), dock_remote('Crate', '📦', ['doForm' => 'crate'])])];
+            if ($p === 'post') return ['watch' => true, 'L' => null, 'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Take', '📋', ['doForm' => 'take_player'])])];
             return ['watch' => true,
                 'L' => dock_action('Re-roll', '🎲', '', [], '', '', '', [], [dock_remote('Give up', '🏳️', ['doForm' => 'abandon']), dock_remote('Re-roll', '🎲', ['doForm' => 'reroll'])]),
                 'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Hand in', '✋', ['doForm' => 'deliver']), dock_remote('Build', '🧱', ['doForm' => 'build']), dock_remote('Take', '📋', ['doForm' => 'take'])])];
@@ -320,6 +390,7 @@ function dock_html(array $u, string $page): string
         'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'rail' => dock_rail($u), 'more' => dock_more($u, $page),
         'logoutForm' => '<form method="post" action="' . e(url('logout.php')) . '" class="inline" data-noajax="1">' . csrf_field() . '<button type="submit">Log out</button></form>', 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
         'quick' => $quick, 'csrf' => csrf_token(), 'quickUrl' => url('quick.php'), 'back' => $back,
+        'play' => dock_play($page),
         'iconBase' => url('assets/img/nav/dock-'), 'iconNames' => DOCK_ICONS, 'home' => url('gnome.php'),
     ];
     $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
