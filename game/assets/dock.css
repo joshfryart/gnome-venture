@@ -1094,3 +1094,15 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on dialog.craftpop .cpact .ccbtns .btn:first-child { flex: 2 1 130px; }
   body.dock-on .shbagpop .shpills > .shpanel:not([hidden]) { position: sticky; top: 0; max-height: calc(100dvh - 165px); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 }
+
+/* Shop pages: the picture banner sits beside the Buy / Sell tabs (in the empty space), not above them */
+@media (orientation: landscape) {
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 12px; align-items: start; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > * { grid-column: 1 / -1; min-width: 0; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > nav.tabs { grid-column: 1; grid-row: 3; align-self: start; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shophelp { grid-column: 1; grid-row: 4; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > header.ph { grid-column: 2; grid-row: 3 / span 2; margin: 0; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopintro { grid-row: 2; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .crumbs { grid-row: 1; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopwrap { grid-row: 5; }
+}

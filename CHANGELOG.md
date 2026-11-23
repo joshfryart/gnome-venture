@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.99
+- **Shop pages: the picture banner sits beside the Buy / Sell tabs** (in the empty space to their right, with "What sells here" under the tabs), instead of above them. The category chips and the items start about 100 px higher (`dock.css`; shop pages only, dock layout, landscape). Seen at 844 x 390 on a shop; pet shops, dye shops and florists have a different page structure and are unchanged.
+
 ## 2.7.98
 - **Satchel item card scrolls to its buttons** (Sell, Gift, Eat, Cook in Crafting). The card is pinned beside the item list (2.7.93) but was taller than the sheet's scroll area, so its lower part could never be reached. It is now limited to the visible height and scrolls inside itself (finger drag moves it; Sell and Gift show after the drag). `dock.css`.
 - **Crafting pop-ups: every quantity button is reachable.** The Cook x1 / x2 / x3 / x4 / x5 / All n buttons were squeezed into a narrow corner of each recipe row (since 2.7.93/2.7.96) and some were clipped. They now have a full-width row under each recipe, with Cook x1 the widest. Checked in the Bread oven pop-up (x1, x2, All 3 on one row; x1 to x5 on another). Not pressed for real.
