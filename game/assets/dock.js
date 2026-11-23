@@ -139,6 +139,22 @@
   /* ---- phase 2: pieces that work the page's own controls (includes/dock.php, dock_remote()) ----
      The dock never posts anything itself: it clicks a button the page already has, so the page's CSRF token, confirm dialog and in-place update all apply. */
   var G_TOOL = { water: '.selacts [data-act="water"]', harvest: '.selacts [data-act="harvest"]', till: '.selacts [data-act="till"]' }, tool = null;   /* garden tool mode: a tapped bed is picked alone, then the page's own action button is clicked */
+  /* community garden Select mode: beds are picked on the page (.cbed[data-bed][data-state][data-weedy]); one POST does a job for each (community.php, acts[]) */
+  var tendOn = false, tSel = {};
+  function tBeds() { return [].slice.call(document.querySelectorAll('.cbed[data-bed]')); }
+  function tPicked(test) { return tBeds().filter(function (e) { return tSel[e.getAttribute('data-bed')] && test(e); }); }
+  var T_PICK = [['thirsty', '💧', 'Thirsty', function (e) { return e.getAttribute('data-state') === 'thirsty'; }], ['weedy', '🌿', 'Weedy', function (e) { return e.getAttribute('data-weedy') === '1'; }],
+    ['ripe', '🧺', 'Ripe', function (e) { return e.getAttribute('data-state') === 'ripe'; }], ['empty', '🟫', 'Empty', function (e) { return e.getAttribute('data-state') === 'empty'; }]];
+  var T_THEN = [['water', '💧', 'Water', function (e) { return e.getAttribute('data-state') === 'thirsty'; }], ['weed', '🌿', 'Weed', function (e) { return e.getAttribute('data-weedy') === '1'; }],
+    ['harvest', '🧺', 'Harvest', function (e) { return e.getAttribute('data-state') === 'ripe'; }], ['plant', '🌱', 'Plant', function (e) { return e.getAttribute('data-state') === 'empty' && !!q1('.tendform select[name="seed"]'); }]];
+  function tPaint() { tBeds().forEach(function (e) { e.classList.toggle('dkpick', !!tSel[e.getAttribute('data-bed')]); }); }
+  function tCount() { return Object.keys(tSel).length; }
+  function tendStrips() {
+    var pick = T_PICK.map(function (p) { var n = tBeds().filter(p[3]).length; return { label: p[2], icon: p[1], badge: n ? String(n) : '', rem: remKey({ tendpick: p[0] }), why: n ? '' : 'none' }; }), then = [];
+    pick.push({ label: 'None', icon: '✕', rem: remKey({ tendpick: 'none' }), why: '' });
+    T_THEN.forEach(function (t) { var n = tPicked(t[3]).length; then.push({ label: t[2], icon: t[1], badge: n ? String(n) : '', rem: remKey({ tendgo: t[0] }), why: n ? '' : 'pick', cls: 'do' }); });
+    return [{ items: pick, label: 'Pick beds', side: 'L', flat: false, small: true }, { items: then, label: 'Then do this to the picked ones', side: 'R', flat: false, small: true }];
+  }
   var REM = [], ACT = { L: null, R: null }, selOn = false, qMode = false, lp = false, lpT = 0;
   function q1(sel) { try { return document.querySelector(sel); } catch (e) { return null; } }
   function formBtn(doVal) {
@@ -159,6 +175,14 @@
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
     var t, e;
     if (!spec) return;
+    if (spec.tend) { tendOn = spec.tend === 'on'; tSel = {}; tPaint(); return; }
+    if (spec.tendpick) { tSel = {}; if (spec.tendpick !== 'none') { var tp = T_PICK.filter(function (p) { return p[0] === spec.tendpick; })[0]; tBeds().filter(tp[3]).forEach(function (e) { tSel[e.getAttribute('data-bed')] = 1; }); } tPaint(); return 'keep'; }
+    if (spec.tendgo) {
+      var tt = T_THEN.filter(function (p) { return p[0] === spec.tendgo; })[0], acts = tPicked(tt[3]).map(function (e) { return spec.tendgo + ':' + e.getAttribute('data-bed'); }), sd = q1('.tendform select[name="seed"]'), fl = { do: 'tend', acts: acts };
+      if (!acts.length) return 'keep';
+      if (sd) fl.seed = sd.value;
+      tSel = {}; tPaint(); postTo(location.pathname + '?t=garden', fl); return 'keep';
+    }
     if (spec.foe) { slip = 'status'; popTab = 'foe'; return 'keep'; }
     if (spec.tool) { tool = tool === spec.tool ? null : spec.tool; e = q1('.selbar [data-sel="' + (tool ? 'on' : 'off') + '"]'); if (tool === null) { e = q1('.selbar [data-sel="off"]'); } if (e && !e.hidden && (tool || gSelOn())) e.click(); return; }
     if (spec.doForm) { t = formBtn(spec.doForm); if (t && !t.dis) t.btn.click(); return; }
@@ -182,7 +206,10 @@
     var f = document.createElement('form'), k, i;
     f.method = 'post'; f.action = url; f.hidden = true; f.className = 'dockpost';
     fields.csrf = D.csrf; fields._n = Math.random().toString(16).slice(2, 10);
-    for (k in fields) { i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = fields[k]; f.appendChild(i); }
+    for (k in fields) {
+      if (Array.isArray(fields[k])) { fields[k].forEach(function (v) { var x = document.createElement('input'); x.type = 'hidden'; x.name = k + '[]'; x.value = v; f.appendChild(x); }); continue; }
+      i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = fields[k]; f.appendChild(i);
+    }
     root.appendChild(f);
     if (f.requestSubmit) f.requestSubmit(); else f.submit();
     setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 8000);
@@ -200,6 +227,7 @@
   function copy(o) { var r = {}, k; for (k in o) r[k] = o[k]; return r; }
   function finalItem(t) {
     var o = copy(t), r;
+    if (t.remote && (t.remote.tendpick || t.remote.tendgo)) { o.rem = remKey(t.remote); return o; }
     if (t.remote && t.remote.foe) { o.rem = remKey(t.remote); o.why = D.foe ? '' : 'none'; return o; }
     if (t.remote && t.remote.tool) { o.why = q1('.selbar') ? '' : 'n/a'; o.rem = remKey(t.remote); o.badge = tool === t.remote.tool ? '\u25cf' : ''; return o; }
     if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); }
@@ -227,6 +255,11 @@
       else { o.label = 'Quick'; o.icon = '＋'; o.why = 'set in Satchel'; }
       return o;
     }
+    if (a.remote && a.remote.select === 'tend') {
+      if (!q1('.tendform')) { o.why = 'on shift'; return o; }
+      if (tendOn) { o.label = 'Done'; o.icon = '✓'; o.rem = remKey({ tend: 'off' }); } else o.rem = remKey({ tend: 'on' });
+      return o;
+    }
     if (a.remote && a.remote.select === 'garden') {
       if (!q1('.selbar')) { o.why = 'Beds'; return o; }
       if (tool) { o.label = 'Done'; o.icon = '✓'; o.chip = 'tap a bed'; o.rem = remKey({ tool: tool }); }
@@ -234,6 +267,7 @@
       else o.rem = remKey({ sel: '.selbar [data-sel="on"]' });
       return o;
     }
+    if (a.remote && a.remote.selectInfo === 'tend' && tendOn) return { label: 'Picked', icon: '🔲', href: '', menu: [], why: '', badge: String(tCount()), info: true, remote: {}, cands: [], mlabel: '' };
     if (a.remote && a.remote.selectInfo === 'garden' && selOn) return { label: 'Picked', icon: '🔲', href: '', menu: [], why: '', badge: String(gCount()), info: true, remote: {}, cands: [], mlabel: '' };
     if (a.remote && (a.remote.doForm || a.remote.sel)) { r = resolveOne(a); o.why = r.why || a.why; o.badge = r.badge || a.badge; o.rem = remKey(a.remote); }
     if (a.menu && a.menu.length) o.menu = a.menu.map(finalItem);
@@ -316,7 +350,7 @@
   /* ---- strips and the popover ---- */
   function stripList() {
     var m, a;
-    if (slip === 'sel') return selStrips();
+    if (slip === 'sel') return tendOn ? tendStrips() : selStrips();
     if (slip === 'actL' || slip === 'actR') {
       a = ACT[slip === 'actL' ? 'L' : 'R'];
       return a ? [{ items: a.menu.map(function (t) { return { href: t.href, label: t.label, icon: t.icon, badge: t.badge, why: t.why, on: false, rem: t.rem }; }), label: a.mlabel || a.label, flat: true, side: 'C' }] : [];
@@ -389,7 +423,9 @@
     var VW = root.clientWidth || window.innerWidth, W, g, old = stage && stage.querySelector('.dockslip'), oldN = old ? old.querySelectorAll('.dk-pc').length : 0;
     if (old && old.parentNode) old.parentNode.removeChild(old);   // kept as an element (not as markup): inline style attributes cannot be re-parsed under the CSP
     REM = [];
-    selOn = !!(D.actions.watch && gSelOn() && !tool);
+    if (tendOn && !q1('.tendform')) { tendOn = false; tSel = {}; }
+    selOn = !!(D.actions.watch && ((gSelOn() && !tool) || tendOn));
+    tPaint();
     if (selOn) { if (slip !== 'status') slip = 'sel'; } else if (slip === 'sel') slip = null;   // select mode shows its two strips by itself
     ACT = { L: finalAct(D.actions.L), R: finalAct(D.actions.R) };
     var key = slip || '';
@@ -444,6 +480,12 @@
   });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { root.addEventListener(ev, function () { clearTimeout(lpT); Array.prototype.forEach.call(root.querySelectorAll('.dk-holding'), function (x) { x.classList.remove('dk-holding'); }); }); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && slip) { slip = null; render(); } });
+  document.addEventListener('click', function (e) {   /* community Select mode: a tap on a bed picks or drops it */
+    var b = tendOn && e.target.closest && e.target.closest('.cbed[data-bed]'), k;
+    if (!b || e.target.closest('button')) return;
+    k = b.getAttribute('data-bed'); if (tSel[k]) delete tSel[k]; else tSel[k] = 1;
+    e.preventDefault(); render();
+  }, true);
   document.addEventListener('click', function (e) {   /* tool mode: a bed tap picks that bed alone (None first, then the page's own pick), then the armed action runs */
     var a, act;
     if (!tool || !gSelOn()) return;
@@ -452,7 +494,7 @@
     setTimeout(function () { var b = q1(G_TOOL[tool]); if (b && gCount() === 1) b.click(); }, 40);
   }, true);
   document.addEventListener('click', function (e) { if (D && D.play && playOpen && !slip && e.target.isConnected && !root.contains(e.target)) { playOpen = false; render(); return; } if (slip && e.target.isConnected && !root.contains(e.target)) { slip = null; render(); } });   // a click on a piece re-draws the dock, so its target is no longer in the page: that is a click inside
-  document.addEventListener('gv:swapped', function () { if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
+  document.addEventListener('gv:swapped', function () { tSel = {}; if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);

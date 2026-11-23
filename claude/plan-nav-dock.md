@@ -55,13 +55,14 @@ Done (admin preview):
 - **Play mode:** `dock_play()` names the mini-games and the two puzzles; `dock.js` draws a 34 px rail (back link, name, energy and time, Menu) instead of the dock; Menu opens the full dock, a tap outside closes it. Screenshots taken on a SQLite install (Memory, Shop).
 
 - **Garden Tools:** the right piece's strip starts with Water, Harvest and Till tools. Arming one turns the page's select mode on and the left piece becomes Done ("tap a bed"); a tap on a bed clears the picks, picks that bed alone and clicks the page's own Water, Harvest or Till button (so the Till confirm and the energy checks are the page's). Tested on a SQLite install: a bed tap posted `do=batch&act=water&sq[]=3-0`.
-- **Community garden (Together):** right Tend strip (Tend, Take bed, Take store), left Messages.
+- **Community garden (Together):** left Select: tap beds (ringed), a Pick strip (Thirsty, Weedy, Ripe, Empty, None) and a Then strip (Water, Weed, Harvest, Plant) post one `do=tend` with `acts[]=verb:bed` to `community.php`, which does one job per bed (one energy each) and stops at tiredness or the shift cap. Right: Tend strip (Tend, Take bed, Take store). Tested on SQLite: 3 beds planted in one post; the dock Select and Pick strips seen in a screenshot.
+- **Pal jobs:** right Collect all, left Pals. Sending several pals at once was already on the page (ticked pals), so no new Select there.
 
 - **Fights:** the right piece is a Fight strip: Creature (a popover tab with name, level, health, size and a line about it, read from `encounter_creature()`) and Run away (the puzzle fight's own `.pf-runf` button or the old `flee` form). The Quick piece is greyed "not in a fight" (the puzzle fight's Snack is a tile with its own limits, so Quick does not bypass it). Tested with a fake expedition and encounter in the SQLite copy.
 
 - **Yard:** left Save, right an Edit strip (Rotate, Shape, Size, Put away, Undo), all clicking the editor's own buttons.
 
-Still to do (needs a live session or new design): Select-mode loops for Tend, Tasks requests, Friends and Pal jobs; Friends and Villagers (no page forms: they keep Back and Hovel); the remaining emoji action icons (47 are drawn now: `art-nav-dock/gen_action_icons.py`, mapped through `DOCK_EMOJI_ICON` in `includes/dock.php`; a few are weak: buy, game, offer, finish, size, shape, tools, cook again); a real-phone and real-browser pass.
+Still to do (needs a live session or new design): (Select mode was asked for Tend and Pal jobs only, in the Garden style; Tasks requests and Friends stay single-action.) Friends and Villagers (no page forms: they keep Back and Hovel); the remaining emoji action icons (47 are drawn now: `art-nav-dock/gen_action_icons.py`, mapped through `DOCK_EMOJI_ICON` in `includes/dock.php`; a few are weak: buy, game, offer, finish, size, shape, tools, cook again); a real-phone and real-browser pass.
 
 How it was tested here: the generated dock JSON for Garden and Tasks was loaded into a static page with a fake copy of the page's controls under the game's CSP; every strip tile, Select, Done and the bulk and job forms reached the right control, and the dock redrew when the fake page changed. Not tested against the real garden and tasks pages (no database here).
 

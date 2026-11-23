@@ -208,3 +208,7 @@ body.dock-on { --dock-h: 106px; }
 /* the tour's ring on a dock piece (pieces are placed absolutely, so keep that) */
 .dockroot .tourhl { position: absolute; z-index: 6; border-radius: 0; outline: 4px solid #ffcb2e !important; outline-offset: 2px; clip-path: none !important; }
 .dockroot .tourhl::before { bottom: auto; top: -28px; }
+
+/* community garden Select mode */
+body.dock-on .cbed.dkpick { outline: 3px solid #e8a317; outline-offset: -3px; background-image: linear-gradient(rgba(232,163,23,.25), rgba(232,163,23,.25)); }
+body.dock-on .cbed { cursor: pointer; }

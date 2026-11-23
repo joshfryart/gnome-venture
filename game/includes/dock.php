@@ -370,8 +370,8 @@ function dock_page_spec(string $page): array
             return ['watch' => true, 'L' => dock_action('Back', '↩'), 'R' => dock_remote('Basket', '🧺', ['doForm' => 'basket'])];
         case 'community.php':
             $tc = (string)($_GET['t'] ?? '');
-            if ($tc === 'garden' || $tc === '') return ['watch' => true, 'L' => dock_action('Messages', '💬', $u('community.php?t=msgs')), 'R' => dock_action('Tend', '🌻', '', [
-                dock_remote('Tend', '🌻', ['doForm' => 'tend']), dock_remote('Take bed', '🛏️', ['doForm' => 'take_bed']), dock_remote('Take store', '📦', ['doForm' => 'take_store'])], '', '', 'Community garden')];
+            if ($tc === 'garden' || $tc === '') return ['watch' => true, 'L' => dock_remote('Select', '☑️', ['select' => 'tend']), 'R' => dock_action('Tend', '🌻', '', [
+                dock_remote('Tend', '🌻', ['doForm' => 'tend']), dock_remote('Take bed', '🛏️', ['doForm' => 'take_bed']), dock_remote('Take store', '📦', ['doForm' => 'take_store'])], '', '', 'Community garden', ['selectInfo' => 'tend'])];
             return ['L' => dock_action('Garden', '🌻', $u('community.php?t=garden')), 'R' => dock_action('Messages', '💬', $u('community.php?t=msgs'))];
         case 'yard.php':
             // The yard editor: left Save, right an Edit strip of the editor's own buttons (they are disabled until a piece is picked; the dock greys with them).
@@ -379,6 +379,9 @@ function dock_page_spec(string $page): array
             return ['watch' => true, 'L' => dock_remote('Save', '💾', $y('save')), 'R' => dock_action('Edit', '🪴', '', [
                 dock_remote('Rotate', '↻', $y('rotate')), dock_remote('Shape', '◧', $y('shape')), dock_remote('Size', '⚖️', $y('size')),
                 dock_remote('Put away', '📦', $y('away')), dock_remote('Undo', '↶', $y('undo'))], '', '', 'Edit the picked piece')];
+        case 'paljobs.php':
+            // Pal jobs already send several pals at once (the job forms' ticked pals); the dock adds the bulk collect.
+            return ['watch' => true, 'L' => dock_action('Pals', 'pals', $u('puzzlepals.php')), 'R' => dock_remote('Collect all', '🧺', ['doForm' => 'collect_all'])];
         case 'shop.php':
             // Left: the basket's own button (Buy all / Sell all), greyed until something is picked (the basket form is hidden while empty). Right: the Buy | Sell switch, a link to the other tab.
             $sid = (int)($_GET['id'] ?? 0);

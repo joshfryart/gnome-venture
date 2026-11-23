@@ -29,6 +29,18 @@ if (is_post()) {
         'shift' => community_start_shift($u, (int)($_POST['minutes'] ?? 0)),
         'end_shift' => community_end_shift($u),
         'tend' => (function () use ($u) {
+            if (is_array($_POST['acts'] ?? null)) {   // the dock's Select mode: several beds at once, one job each, stopping at the first refusal for tiredness or the shift cap
+                $done = 0; $last = ''; $stop = '';
+                foreach (array_slice(array_values($_POST['acts']), 0, 40) as $one) {
+                    [$act, $bed] = explode(':', (string)$one) + [1 => 0];
+                    [$ok, $m] = community_tend($u, $act, (int)$bed, (int)($_POST['seed'] ?? 0));
+                    if ($ok) { $done++; $last = $m; $u = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]) ?: $u; continue; }
+                    $stop = $m;
+                    if (str_contains($m, 'tired') || str_contains($m, 'plenty')) break;
+                }
+                if ($done === 0) return [false, $stop !== '' ? $stop : 'Nothing to do.'];
+                return [true, $done . ' job' . ($done === 1 ? '' : 's') . ' done.' . ($stop !== '' ? ' ' . $stop : '')];
+            }
             [$act, $bed] = explode(':', (string)($_POST['act'] ?? ':')) + [1 => 0];
             return community_tend($u, $act, (int)$bed, (int)($_POST['seed'] ?? 0));
         })(),
@@ -112,7 +124,7 @@ page_header('Together');
     <?php foreach ($beds as $b): $p = $b['_p'];
         $state = !$p ? 'empty' : (cbed_ripe($b, $p) ? 'ripe' : (cbed_thirsty($b, $p) ? 'thirsty' : 'growing'));
         $pct = $p ? (int)min(100, (int)$b['grown'] * 100 / max(1, (int)$p['grow_minutes'] * 60)) : 0; ?>
-      <div class="cbed <?= $state ?><?= (int)$b['weeds'] >= 20 ? ' weedy' : '' ?>" title="<?= $p ? e($p['name']) . ' · ' . $pct . '%' : 'Empty bed' ?>">
+      <div class="cbed <?= $state ?><?= (int)$b['weeds'] >= 20 ? ' weedy' : '' ?>" data-bed="<?= (int)$b['id'] ?>" data-state="<?= $state ?>" data-weedy="<?= (int)$b['weeds'] >= 5 ? 1 : 0 ?>" title="<?= $p ? e($p['name']) . ' · ' . $pct . '%' : 'Empty bed' ?>">
         <span class="ic"><?= !$p ? '·' : ($state === 'ripe' ? catalog_kind_icon((string)$p['kind']) : ($pct < 34 ? '🌱' : '🌿')) ?></span>
         <small><?= $p ? e(mb_strimwidth((string)$p['name'], 0, 10, '…')) : '' ?></small>
         <?= $state === 'thirsty' ? '<em>💧</em>' : '' ?><?= (int)$b['weeds'] >= 20 ? '<em class="w">🌿</em>' : '' ?>
