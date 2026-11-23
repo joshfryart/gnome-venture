@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.7.57');
+define('APP_VERSION', '2.7.58');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -622,6 +622,12 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 pfd_content_once();   // the fight belts on Twigg's shelf and the Tool Repair Kit (+ recipe), made now instead of on the first fight
             }
             set_setting('pfight_live_2757', '1');
+        });
+        boot_step('item_review_names_2758', function () {   // 2.7.58 item review R1/R2: produce no longer shares a display name with its seed; the two lotus seeds are told apart (names only, slugs unchanged, once)
+            if (setting('item_review_names_2758') !== '') return;
+            foreach (['sunflower' => 'Sunflower Kernels', 'sesame' => 'Sesame Grains', 'cumin' => 'Cumin Spice'] as $slug => $name) q("UPDATE items SET name = ? WHERE slug = ? AND category = 'produce'", [$name, $slug]);
+            q("UPDATE items SET name = ? WHERE slug = 'sacred-lotus-seed'", ['Sacred Lotus Tuber']);
+            set_setting('item_review_names_2758', '1');
         });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
