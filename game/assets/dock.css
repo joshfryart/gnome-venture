@@ -243,3 +243,53 @@ body.dock-on .cbed { cursor: pointer; }
 @media (orientation: landscape) {
   body.dock-on ul.hubnavbar { display: none; }
 }
+
+/* dock layout, landscape: wide, not tall. Here: the villagers stand beside the picture in a condensed, tappable list. */
+@media (orientation: landscape) {
+  body.dock-on .hubscene { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 10px; align-items: start; justify-content: center; }
+  body.dock-on .hubscene > * { grid-column: 1; }
+  body.dock-on .hubscene > .hubstage { grid-column: 1; grid-row: 1 / span 6; width: calc(var(--imgh) * 1.769); max-width: none; margin: 0; }
+  body.dock-on .hubscene > .hubstreet { grid-column: 2; grid-row: 1; margin: 0; padding: 6px; max-height: var(--imgh); overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; align-content: start; justify-content: stretch; }
+  body.dock-on .hubstreet > li { display: block; }
+  body.dock-on .hubstreet .hubst { flex-direction: row; justify-content: flex-start; gap: 6px; min-width: 0; min-height: 40px; padding: 2px 6px 2px 2px; background: rgba(30, 20, 10, .55); border-radius: 8px; }
+  body.dock-on .hubstreet .hubst .stp { width: 32px; height: 40px; flex: none; }
+  body.dock-on .hubstreet .hubst .stemo { font-size: 28px; }
+  body.dock-on .hubstreet .hubst .stn { background: none; border: 0; padding: 0; font-size: .8rem; white-space: normal; text-align: left; line-height: 1.15; }
+}
+
+/* dock layout, landscape: the villagers list is a dense grid of small cards (portrait left, words right), not tall cards */
+@media (orientation: landscape) {
+  body.dock-on .vgrid { grid-template-columns: repeat(auto-fill, minmax(184px, 1fr)); gap: 5px; margin-top: 6px; }
+  body.dock-on .vgrid .vcard { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 6px; row-gap: 0; align-items: center; justify-items: start; text-align: left; padding: 4px 6px; min-height: 0; }
+  body.dock-on .vgrid .vcard .portrait { grid-row: 1 / span 3; grid-column: 1; width: 40px; height: 50px; }
+  body.dock-on .vgrid .vcard.unmet img.portrait, body.dock-on .vgrid .vcard.unmet img { width: 40px; height: 40px; }
+  body.dock-on .vgrid .vcard > b, body.dock-on .vgrid .vcard > small { grid-column: 2; font-size: .8rem; line-height: 1.2; }
+  body.dock-on .vaaround, body.dock-on .vfilter { padding-block: 6px; }
+}
+
+/* dock layout, landscape: place headers put the picture and its words side by side */
+@media (orientation: landscape) {
+  body.dock-on header.ph { grid-template-columns: auto minmax(0, 1fr); gap: 0 12px; align-items: center; justify-content: start; }
+  body.dock-on header.ph .ph-art { margin: 0; }
+}
+
+/* dock layout, landscape: stacked boxes go two across (Account and other pages made of narrow boxes) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .box.narrow) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 10px; align-items: start; }
+  body.dock-on main:has(> .box.narrow) > :not(.box.narrow) { grid-column: 1 / -1; }
+  body.dock-on main:has(> .box.narrow) > .box.narrow { max-width: none; width: 100%; margin-inline: 0; }
+}
+
+/* dock layout, landscape: the Puzzle box is wide: kit on the left, belt and pals on the right */
+@media (orientation: landscape) {
+  body.dock-on .box.pbox.pfv.pbx { max-width: none; width: 100%; }
+  body.dock-on .pbx-box { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px; align-items: start; }
+  body.dock-on .pbx-box > .pbx-lid { grid-column: 1 / -1; }
+  body.dock-on .pbx-box > .pbx-kit { grid-column: 1; grid-row: 2 / span 2; }
+  body.dock-on .pbx-box > .pbx-belt, body.dock-on .pbx-box > .pbx-pals { grid-column: 2; }
+}
+
+/* dock layout, landscape: card grids use the width */
+@media (orientation: landscape) {
+  body.dock-on .toolcards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+}

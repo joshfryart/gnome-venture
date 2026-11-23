@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.67
+- **Dock layout, landscape: wide instead of tall** (`dock.css`; nothing changes without the dock or in portrait). Here: the villagers stand to the right of the picture as a condensed, tappable list (a 32 px sprite and the name, two across, scrolling inside if there are many). Villagers page: small cards (portrait left, words right, 4 across; 4352 to 2850 px tall in the test world). Place headers (towns, shops): picture and words side by side. Pages of narrow boxes (Account) go two across (2626 to 1779 px). Puzzle box: wide, kit on the left, belt and pals on the right (1888 to 1623 px). Tool belt: two cards across.
+- **Still tall, not changed:** the world map tab, the Almanac, the guide, the Passport, My Gnome Stats, the garden bed grid and the shop lists. Page heights measured in a headless browser at 844 x 390 on the test world.
+
 ## 2.7.66
 - **Dock layout, landscape: bigger pictures, hovel room centred.** The picture height allowance grew (about 12 px more for the Here, place and map pictures); the hovel room has its own, larger allowance, is centred in its banner, and the banner's greeting and Sleep / Nap column is hidden (they are the Rest piece). At 844 x 390 the room is about 400 x 227 (was 319 x 181).
 - **More popovers checked** (short landscape, headless): the Puzzle box tabs (Codex, Belt, Pals, How it works) and an adventure on the road have no dialogs that fail. Still not covered: the trail's popups and a fight's own cards (they need a live walk).
