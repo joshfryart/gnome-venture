@@ -250,7 +250,10 @@
       o.label = 'Quick'; o.icon = '＋'; o.qk = 'empty'; return o;
     }
     if (a.remote && a.remote.quick === 'use') {   // use only (adventure): the Quick item, no assign, no x, no hold; empty = set it in the Satchel
-      if (D.foe) { o.label = D.quick ? D.quick.name : 'Quick'; o.icon = '\u26a1'; o.why = 'not in a fight'; }
+      if (D.foe) {   // in a fight: a home-cooked snack works in the old fight (the page's own Snack action); a puzzle fight's Snack is a tile on its board
+        o.label = D.quick ? D.quick.name : 'Quick'; o.icon = D.quick && D.quick.kind === 'heal' ? '🧪' : '🍽️';
+        if (!D.quick) o.why = 'set in Satchel'; else if (!D.foe.snack) o.why = 'not a snack'; else { o.qk = 'fightsnack'; o.badge = D.quick.qty > 0 ? String(D.quick.qty) : ''; }
+      }
       else if (D.quick) { o.label = D.quick.name; o.icon = D.quick.kind === 'heal' ? '🧪' : '🍽️'; o.badge = D.quick.qty > 0 ? String(D.quick.qty) : ''; o.qk = 'useonly'; if (D.quick.qty <= 0) o.chip = '0 left'; }
       else { o.label = 'Quick'; o.icon = '＋'; o.why = 'set in Satchel'; }
       return o;
@@ -457,6 +460,11 @@
       if (lp) { lp = false; return; }
       if (qk === 'empty') { qMode = true; render(); }
       else if (qk === 'confirm') { pk = satchelPick(); if (pk && !pk.no) { qMode = false; postTo(D.quickUrl, { do: 'set', item_id: pk.id, back: D.back }); render(); } }
+      else if (qk === 'fightsnack') {
+        var nn = q1('input[name="nonce"]');   // a puzzle fight: its own page carries the fight's nonce; an old fight takes the snack by item
+        if (D.foe.pf) { if (nn) postTo(D.quickUrl.replace('quick.php', 'adventure.php'), { do: 'pf_quick', nonce: nn.value }); }
+        else postTo(D.quickUrl.replace('quick.php', 'adventure.php'), { do: 'snack', item: D.quick.id });
+      }
       else if (qk === 'use' || qk === 'useonly') postTo(D.quickUrl, { do: 'use', back: D.back });
       return;
     }

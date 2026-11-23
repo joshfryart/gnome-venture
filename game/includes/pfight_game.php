@@ -377,6 +377,24 @@ function pfight_do(array $u, array &$exp, string $do): bool
     $s = pfight_state($u, $exp, $enc, $c);
     if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) { flash('That page is from another fight. Here is the current one.', 'err'); $exp['encounter'] = json_encode($enc); return false; }   // a stale page can never play into a different fight
     $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));   // the expedition's health is the truth (the flag may have been flipped mid-fight)
+    if ($do === 'pf_quick') {   // the dock's Quick button: the Quick item, if it is a fight snack, eaten between turns for its heal. Free of the turn, but it counts against the snack limit like a Snack tile.
+        require_once __DIR__ . '/quick_slot.php';
+        $qk = quick_get($u); $sn = null;
+        if ($qk) foreach (fight_snacks($u) as $x) if ($x['id'] === (int)$qk['id']) $sn = $x;
+        if (!$sn) flash('Your Quick item is not a snack you can eat in a fight.', 'err');
+        elseif (!empty($s['over'])) flash('The fight is over.', 'err');
+        elseif (snacks_left($u, $enc) <= 0) flash('You’ve already had ' . (snack_limit($u) === 1 ? 'your snack' : 'all your snacks') . ' this fight.', 'err');
+        elseif ((int)$exp['hp'] >= (int)$exp['max_hp']) flash('You’re not hurt. Save the snack.', 'err');
+        elseif (!give_item((int)$u['id'], (int)$sn['id'], -1)) flash('You have no ' . $sn['name'] . ' left.', 'err');
+        else {
+            $before = (int)$exp['hp']; $exp['hp'] = min((int)$exp['max_hp'], $before + (int)$sn['heal']);
+            $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
+            exp_log($exp, '🍽️ You eat ' . $sn['name'] . ': +' . ((int)$exp['hp'] - $before) . ' health.');
+            flash('You eat ' . $sn['name'] . ': +' . ((int)$exp['hp'] - $before) . ' health.', 'ok');
+        }
+        $exp['encounter'] = json_encode($enc);
+        return false;
+    }
     if ($do === 'pf_retry') {   // 2.7.01 free retry: a lost fight in the first fights is dealt again (same creature, a new deal, your health as it was when the last one was dealt)
         if (($s['mode'] ?? '') !== 'board' || empty($s['v1']) || ($enc['lost'] ?? '') !== 'defeat' || $s['over'] !== 'defeat' || !pf_retry_ok((int)$u['id'])) return false;
         $exp['hp'] = max(1, min((int)$exp['max_hp'], (int)($enc['hp0'] ?? $exp['max_hp'])));

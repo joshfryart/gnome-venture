@@ -249,7 +249,15 @@ function dock_foe(int $uid): ?array
         if (!$c) return null;
         $hp = isset($enc['hp']) ? (int)$enc['hp'] : (int)$c['hp'];
         $max = isset($enc['max']) ? (int)$enc['max'] : (int)$c['hp'];
-        return ['name' => (string)$c['name'], 'level' => (int)$c['level'], 'hp' => max(0, $hp), 'max' => max(1, $max), 'size' => (string)$c['size'], 'text' => (string)$c['description']];
+        $pf = false; $qs = false;
+        try {
+            require_once __DIR__ . '/pfight_game.php'; require_once __DIR__ . '/quick_slot.php';
+            $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+            $pf = $u ? pfight_on($u) : false;
+            $qk = $u ? quick_get($u) : null;
+            if ($qk && $u) foreach (fight_snacks($u) as $sn) if ($sn['id'] === (int)$qk['id']) $qs = true;
+        } catch (Throwable $e) {}
+        return ['pf' => $pf, 'snack' => $qs, 'name' => (string)$c['name'], 'level' => (int)$c['level'], 'hp' => max(0, $hp), 'max' => max(1, $max), 'size' => (string)$c['size'], 'text' => (string)$c['description']];
     } catch (Throwable $e) { return null; }
 }
 
