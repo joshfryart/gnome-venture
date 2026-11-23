@@ -29,7 +29,8 @@ $proj = (Resolve-Path (Join-Path $here "..\..")).Path
 $work = Join-Path $env:TEMP ("ollama-art\{0}-{1}" -f $Name, (Get-Date -Format "yyyyMMdd-HHmmss"))
 New-Item -ItemType Directory -Force "$work\out", "$work\gvlib" | Out-Null
 
-foreach ($f in "gvlib.lua", "README.md", "brief.md") { Copy-Item (Join-Path $proj "gvlib\$f") "$work\gvlib\" }
+$gv = @((Join-Path $proj "gvlib"), (Join-Path $proj "aseprite-source\gvlib")) | Where-Object { Test-Path "$_\gvlib.lua" } | Select-Object -First 1
+foreach ($f in "gvlib.lua", "README.md", "brief.md") { Copy-Item (Join-Path $gv $f) "$work\gvlib\" }
 Copy-Item (Resolve-Path $Spec) "$work\spec.md"
 Copy-Item "$here\render.sh", "$here\dump.lua", "$here\score.py" $work
 if ($Ref) { Copy-Item (Resolve-Path $Ref) "$work\reference.png" }
