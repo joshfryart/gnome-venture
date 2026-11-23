@@ -23,6 +23,14 @@ if (is_post()) {
         if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'pfintro') { http_response_code(204); exit; }
         redirect(($_POST['back'] ?? '') === 'adventure' ? 'adventure.php' : 'puzzlebox.php');
     }
+    if ($do === 'cx_donate') {   // 2.7.58: give a creature's parts to the Codex (includes/pfcodex.php)
+        require_once __DIR__ . '/includes/pfdeck.php';
+        require_once __DIR__ . '/includes/pfcodex.php';
+        $cs = (string)($_POST['c'] ?? ''); $cz = (string)($_POST['z'] ?? 'all');
+        [$ok, $msg] = pfcx_donate($u, $cs);
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect(pfcx_url(in_array($cz, ['small', 'medium', 'large', 'boss'], true) ? $cz : 'all', $cs));
+    }
     if (str_starts_with($do, 'pfd_') && pfight_v1_on($u)) {   // 2.6.74, v1 deck model (admin setting pfight_v1): starter, switch a piece, belt, auto-use, fix a tool (includes/pfdeck.php, pfd_post). The page for them is the UI stage
         require_once __DIR__ . '/includes/pfdeck.php';
         require_once __DIR__ . '/includes/pfdeck_view.php';

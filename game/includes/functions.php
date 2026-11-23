@@ -656,6 +656,10 @@ function settings_schema(): array
         'part_scraps_silk'   => ['label' => 'Compost: heap scraps for each Silk part', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
         'part_scraps_ooze'   => ['label' => 'Compost: heap scraps for each Ooze part', 'type' => 'int', 'default' => '4', 'min' => 1, 'max' => 1000],
         'part_shell_meal_parts' => ['label' => 'Compost: Plate parts crushed into each Shell Meal', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 1000],
+        // 2.7.58 creature parts, Codex donation: parts a creature's page takes, then a one-time reward
+        'codex_part_need'    => ['label' => 'Codex: parts to donate for one creature', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 100],
+        'codex_part_petals'  => ['label' => 'Codex: Petals per level band (10 levels) for finishing a creature\'s donation', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 100000],
+        'codex_part_xp'      => ['label' => 'Codex: XP for finishing a creature\'s donation', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 100000],
         // v0.9.4 cooking: raw food energy, tiers, scraps, bin recipes
         'raw_energy_values'  => ['label' => 'Food energy: raw everyday crops and forage, filling ones (tubers, legumes, grains), comma separated. Read when raw energy is (re)applied.', 'type' => 'text', 'default' => '1,2'],
         'cook_energy_percent' => ['label' => 'Cooking: home-cooked dishes, energy eaten is this % of the dish’s number (115 = a little extra for home cooking; 100 = as written; shop-bought and raw food are not scaled)', 'type' => 'int', 'default' => '115', 'min' => 0, 'max' => 1000], // v1.1.0
