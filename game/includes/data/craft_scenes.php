@@ -16,8 +16,8 @@ return [
     ["jams", "Jam cupboard", 0.67, 6.00, 41.33, 78.00, ["*-jam", "*-marmalade", "*-curd", "*-butter", "quince-paste", "cranberry-sauce", "dried-*", "raisins", "prunes", "banana-chips", "candied-*", "marzipan", "halva", "hazelnut-spread"]],
     ["cheese", "Hanging cheese", 42.00, 7.00, 19.33, 36.00, ["*cheese*", "yogurt", "salted-eggs", "sourdough-starter", "chai-blend", "curry-paste", "dukkah", "garam-masala", "smoked-paprika", "chili-flakes"]],
     ["cordials", "Cordial bottles", 64.00, 10.00, 35.33, 41.00, ["*-cordial", "*-syrup", "*-juice", "*-drink", "*-concentrate", "*-cider", "ginger-beer", "kombucha", "kvass", "chicha", "tepache", "cold-brew-coffee", "vanilla-extract", "pomegranate-molasses", "*hot-sauce", "soy-sauce"]],
-    ["crock", "Pickle crock", 42.00, 45.00, 22.00, 51.00, ["pickled-*", "*-pickles", "*-chutney", "*-relish", "piccalilli", "preserved-lemons", "cured-olives", "olive-tapenade", "salsa-verde", "*-pesto", "harissa", "tomato-passata", "sun-dried-tomatoes", "hummus-jar", "tahini"]],
-    ["kraut", "Sauerkraut tub", 65.33, 51.00, 34.67, 48.00, ["sauerkraut", "*kimchi", "fermented-carrots", "miso", "doenjang", "gochujang", "natto", "tempeh", "poi"]],
+    ["crock", "Pickle crock", 42.00, 45.00, 22.00, 51.00, ["pickled-*", "*-pickles", "*-chutney", "*-relish", "piccalilli", "preserved-lemons", "cured-olives", "olive-tapenade", "salsa-verde", "*-pesto", "harissa", "tomato-passata", "hummus-jar", "tahini"]],
+    ["kraut", "Sauerkraut tub", 65.33, 51.00, 34.67, 48.00, ["sauerkraut", "*kimchi", "fermented-carrots", "miso", "doenjang", "gochujang", "tempeh", "poi"]],
   ]],
   'tools' => ['alt' => "Tool shed scene", 'hot' => [
     ["rack", "Tool rack", 0.67, 3.00, 29.33, 37.00, ["*staff", "fine-mesh-net", "gathering-basket", "copper-watering-can", "masterwork-rain-wand"]],
