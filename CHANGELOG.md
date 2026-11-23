@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.63
+- **Puzzle box piece panel keeps the page in place.** Opening the side panel (2.7.61, short landscape screens) narrowed the page and the old "keep the piece above the sheet" scroll then jumped the page to the bottom. Now the tapped piece stays where it was on the screen (`pfv1box.js`: `sideSheet`, `anchorY`); stepping to the next or previous piece only scrolls if that piece is off screen. Checked in a headless 844 x 390 browser: scroll position and piece position unchanged after opening.
+
 ## 2.7.62
 - **Dock, Here page:** the left piece "Do here" no longer links to the town list page. It opens a strip of the first three doable things on the stop's picture (its "Do" spots); each tile opens that spot's own card in place. Greyed "nothing to do" when the stop has none. (`dock.js`: remote `hereDo`, and a remote can now click an SVG link.)
 

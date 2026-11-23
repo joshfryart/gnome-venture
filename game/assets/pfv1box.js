@@ -194,8 +194,17 @@
   function step(d) {
     if (!sheet) return; var i = sheetList.indexOf(sheetBtn), n = sheetList[i + d]; if (n) { openSheet(sheetRoot, n, true); }
   }
+  var anchorY = null;
+  function sideSheet() { return !!(window.matchMedia && matchMedia('(orientation: landscape) and (max-height: 520px) and (max-width: 899px)').matches); }
   function ensureVisible(b) {   // the tapped piece stays in view above the sheet; the page only moves when the sheet would hide it
     if (!sheet || !b) return;
+    if (sideSheet()) {   // a panel on the right (short landscape): the page narrows beside it; keep the tapped piece where it was on the screen, and only bring it in when stepping to another piece
+      var r0 = b.getBoundingClientRect(), d0 = anchorY === null ? 0 : Math.round(r0.top - anchorY);
+      if (anchorY === null) d0 = r0.bottom > window.innerHeight - 6 ? Math.round(r0.bottom - window.innerHeight + 12) : r0.top < 40 ? Math.round(r0.top - 52) : 0;
+      anchorY = null;
+      if (d0) { try { window.scrollBy({ top: d0, left: 0, behavior: 'instant' }); } catch (e) { window.scrollBy(0, d0); } }
+      return;
+    }
     var wide = window.innerWidth >= 900, sr = { top: window.innerHeight - (parseInt(sheet.style.getPropertyValue('--dbot'), 10) || 0) - sheet.offsetHeight }, r = b.getBoundingClientRect();   // the sheet's final place (it may still be sliding up)
     var hd = document.querySelector('.bannerin'), top = hd ? Math.max(0, hd.getBoundingClientRect().bottom) : 0, lim = wide ? window.innerHeight : sr.top;
     var dy = r.bottom > lim - 6 ? Math.round(r.bottom - lim + 12) : r.top < top + 4 ? Math.round(r.top - top - 12) : 0;
@@ -204,6 +213,7 @@
   function openSheet(root, b, keep) {
     var pc = btnData(b); if (!pc) return false;
     var first = !sheet;
+    anchorY = first && sideSheet() && b.getBoundingClientRect ? b.getBoundingClientRect().top : null;   // where the piece is before the page narrows
     if (sheetBtn && sheetBtn !== b) sheetBtn.classList.remove('pick');
     all('.tb.pick, .pc.pick', root).forEach(function (x) { x.classList.remove('pick'); }); b.classList.add('pick');
     sheetBtn = b; sheetRoot = root; sheetList = neighbours(root, b);
