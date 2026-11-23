@@ -1459,6 +1459,7 @@ function schema_statements(string $driver): array
         ['users', 'ev_stat', 'VARCHAR(10) NULL'],
         ['garden_buildings', 'level', 'INT NOT NULL DEFAULT 1'],     // v0.7.95 building upgrades
         ['garden_buildings', 'scraps', 'INT NOT NULL DEFAULT 0'],    // v0.7.95 compost heap
+        ['garden_buildings', 'scrap_bank', 'INT NOT NULL DEFAULT 0'],   // 2.7.58 heap points from creature parts that did not fit; moved in as the heap is collected
         ['garden_buildings', 'heap_made', 'INT NOT NULL DEFAULT 0'],
         ['garden_buildings', 'free_day', 'VARCHAR(10) NULL'],          // v0.7.96 rain barrel's free Water all
         ['garden_buildings', 'heap_out', "VARCHAR(40) NOT NULL DEFAULT 'plain-compost'"],   // v0.9.4 what the compost heap makes

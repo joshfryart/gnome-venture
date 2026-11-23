@@ -258,6 +258,68 @@ function add_food_scraps(array $u, int $plotId, int|string $n = 'all'): array
     return [true, '♻️ You add ' . $take . ' Food Scrap' . ($take === 1 ? '' : 's') . ' to the heap (' . ($left % $need) . '/' . $need . ' towards the next ' . HEAP_OUTPUTS[$out][0] . ').' . ($line !== '' ? ' ' . $line : '')];
 }
 
+/**
+ * 2.7.58: put creature parts on this garden's heap ($itemQty = [part slug => qty]). Hide/Wing/Silk/Ooze parts are worth part_scraps_* heap points each;
+ * the heap takes what fits and the rest banks in scrap_bank (moved into the heap as collecting frees room). Nothing is refused for being full.
+ * Plate parts are crushed straight to Shell Meal (part_shell_meal_parts parts each; a remainder stays in the satchel). Gem parts are not compostable.
+ */
+function add_parts_to_heap(array $u, int $plotId, array $itemQty): array
+{
+    require_once __DIR__ . '/parts.php';
+    $uid = (int)$u['id'];
+    $row = q_one('SELECT gb.* FROM garden_buildings gb JOIN plots p ON p.id = gb.plot_id
+                  WHERE gb.plot_id = ? AND gb.building = ? AND p.user_id = ?', [$plotId, 'compost_bin', $uid]);
+    if (!$row) return [false, 'You need a Compost Bin in this garden.'];
+    $per = ['hide' => (int)setting('part_scraps_hide'), 'wing' => (int)setting('part_scraps_wing'), 'silk' => (int)setting('part_scraps_silk'), 'ooze' => (int)setting('part_scraps_ooze')];
+    $meal = max(1, (int)setting('part_shell_meal_parts'));
+    $points = 0; $taken = 0; $mealParts = 0; $take = [];
+    foreach ($itemQty as $slug => $qty) {
+        $qty = (int)$qty;
+        $it = q_one("SELECT id, category FROM items WHERE slug = ?", [(string)$slug]);
+        if ($qty < 1 || !$it) continue;
+        $fam = part_family((string)$slug, (string)$it['category']);
+        if ($fam === 'plate') { $qty = intdiv($qty, $meal) * $meal; if ($qty < 1) continue; $mealParts += $qty; }
+        elseif (isset($per[$fam])) $points += $qty * $per[$fam];
+        else continue;
+        $take[(int)$it['id']] = $qty; $taken += $qty;
+    }
+    if (!$take) return [false, 'You have no parts the heap can use (Hide, Wing, Silk, Ooze, or Plate for Shell Meal).'];
+    db()->beginTransaction();
+    foreach ($take as $id => $qty) {
+        if (!give_item($uid, $id, -$qty)) { db()->rollBack(); return [false, 'You don’t have that many parts.']; }
+    }
+    $made = 0;
+    if ($mealParts) { $made = intdiv($mealParts, $meal); $sm = (int)q_val("SELECT id FROM items WHERE slug = 'shell-meal'"); if ($sm) give_item($uid, $sm, $made); }
+    $banked = 0;
+    if ($points) {
+        $out = heap_output($row);
+        $cap = heap_need(max(1, (int)$row['level']), $out) * max(1, (int)setting('compost_heap_max'));
+        $room = max(0, $cap - (int)$row['scraps']);
+        $into = min($room, $points);
+        $banked = $points - $into;
+        if ($into) heap_add($plotId, $into);
+        if ($banked) q("UPDATE garden_buildings SET scrap_bank = scrap_bank + ? WHERE plot_id = ? AND building = 'compost_bin'", [$banked, $plotId]);
+    }
+    db()->commit();
+    $msg = '♻️ You add ' . ($taken - $mealParts) . ' part' . (($taken - $mealParts) === 1 ? '' : 's') . ' to the heap';
+    if ($points) $msg .= ' (' . $points . ' scraps' . ($banked ? ', ' . $banked . ' banked for when you collect' : '') . ')';
+    if ($made) $msg .= ($points ? ' and' : '') . ' crush ' . $mealParts . ' Plate part' . ($mealParts === 1 ? '' : 's') . ' into ' . $made . ' Shell Meal';
+    return [true, str_replace('add 0 parts to the heap', 'add nothing to the heap', $msg) . '.'];
+}
+
+/** 2.7.58: the compostable parts in a satchel, [slug => qty] (Hide, Wing, Silk, Ooze, and Plate for Shell Meal). */
+function heap_parts_held(int $uid): array
+{
+    require_once __DIR__ . '/parts.php';
+    $out = [];
+    foreach (q("SELECT i.slug, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.category = 'part' AND ui.qty > 0", [$uid])->fetchAll() as $r) {
+        $fam = part_family((string)$r['slug'], 'part');
+        if (in_array($fam, ['hide', 'wing', 'silk', 'ooze'], true)) $out[$r['slug']] = (int)$r['qty'];
+        elseif ($fam === 'plate' && (int)$r['qty'] >= max(1, (int)setting('part_shell_meal_parts'))) $out[$r['slug']] = (int)$r['qty'];
+    }
+    return $out;
+}
+
 /** v0.9.4: choose what this garden's compost heap makes. Scraps already on the heap carry over. */
 function set_heap_output(array $u, int $plotId, string $out): array
 {
@@ -545,6 +607,14 @@ function collect_building(array $u, int $plotId, string $b): array
             return [false, 'Already collected.'];
         }
         // v0.9.4: the heap makes whatever it is set to (the old "every 4th is Worm Castings" rule is the Worm Castings recipe now)
+        // 2.7.58: parts banked while the heap was full move into the room just freed
+        $bank = (int)q_val('SELECT scrap_bank FROM garden_buildings WHERE id = ?', [$row['id']]);
+        if ($bank > 0) {
+            $cap = $need * max(1, (int)setting('compost_heap_max'));
+            $cur = (int)q_val('SELECT scraps FROM garden_buildings WHERE id = ?', [$row['id']]);
+            $mv = min($bank, max(0, $cap - $cur));
+            if ($mv > 0) q('UPDATE garden_buildings SET scraps = scraps + ?, scrap_bank = scrap_bank - ? WHERE id = ?', [$mv, $mv, $row['id']]);
+        }
         $oid = $item($hout);
         if ($oid) { give_item($uid, $oid, $heap); $got[] = $heap . ' × ' . $name($oid) . ' from the heap'; }
     }

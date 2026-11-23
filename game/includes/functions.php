@@ -650,6 +650,12 @@ function settings_schema(): array
         'compost_heap_scraps' => ['label' => 'Compost Bin: scraps (harvests, dug-up plants, weedings) for each heap compost', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 1000],
         'compost_heap_scraps_2' => ['label' => 'Compost Bin: level 2+ scraps for each heap compost', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 1000],
         'compost_heap_max'   => ['label' => 'Compost Bin: most heap compost waiting to be collected', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],
+        // 2.7.58 creature parts on the compost heap (heap points per part; Plate parts per Shell Meal)
+        'part_scraps_hide'   => ['label' => 'Compost: heap scraps for each Hide part', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
+        'part_scraps_wing'   => ['label' => 'Compost: heap scraps for each Wing part', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
+        'part_scraps_silk'   => ['label' => 'Compost: heap scraps for each Silk part', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
+        'part_scraps_ooze'   => ['label' => 'Compost: heap scraps for each Ooze part', 'type' => 'int', 'default' => '4', 'min' => 1, 'max' => 1000],
+        'part_shell_meal_parts' => ['label' => 'Compost: Plate parts crushed into each Shell Meal', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 1000],
         // v0.9.4 cooking: raw food energy, tiers, scraps, bin recipes
         'raw_energy_values'  => ['label' => 'Food energy: raw everyday crops and forage, filling ones (tubers, legumes, grains), comma separated. Read when raw energy is (re)applied.', 'type' => 'text', 'default' => '1,2'],
         'cook_energy_percent' => ['label' => 'Cooking: home-cooked dishes, energy eaten is this % of the dish’s number (115 = a little extra for home cooking; 100 = as written; shop-bought and raw food are not scaled)', 'type' => 'int', 'default' => '115', 'min' => 0, 'max' => 1000], // v1.1.0

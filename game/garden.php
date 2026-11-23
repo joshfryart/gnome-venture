@@ -48,6 +48,9 @@ if (is_post()) {
     } elseif ($do === 'add_scraps') {   // v0.9.4: Food Scraps from the satchel onto the compost heap
         [$ok, $msg] = add_food_scraps($u, active_plot_id($uid), 'all');
         flash($msg, $ok ? 'ok' : 'err');
+    } elseif ($do === 'add_parts') {   // 2.7.58: creature parts onto the heap (the excess banks); Plate parts go to Shell Meal
+        [$ok, $msg] = add_parts_to_heap($u, active_plot_id($uid), heap_parts_held($uid));
+        flash($msg, $ok ? 'ok' : 'err');
     } elseif ($do === 'heap_out') {   // v0.9.4: what the heap makes
         [$ok, $msg] = set_heap_output($u, active_plot_id($uid), (string)($_POST['out'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
@@ -806,6 +809,7 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
       $canUp = $next !== null && (int)$plot['garden_level'] >= $ul;
       if ($key === 'compost_bin') {
           $hout = heap_output($built[$key]); $need = heap_need($blv, $hout); $sc = (int)$built[$key]['scraps']; $hr = heap_ready($built[$key]);
+          $heldParts = heap_parts_held($uid); $bankPts = (int)($built[$key]['scrap_bank'] ?? 0);
           $haveScraps = (int)q_val("SELECT ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = 'food-scrap'", [$uid]);
       }
       if ($key === 'root_cellar') { $cel = cellar_plants((int)$plot['id']); $cslots = cellar_slots((int)$plot['id']); }
@@ -843,11 +847,15 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
               <p class="help"><?= count($kb['levels']) > 1 ? 'Your best kitchen counts fully; each level in your other gardens adds ' . (int)setting('stack_kitchen_buff_pct') . '% buff time and ' . (int)setting('stack_kitchen_xp_pct') . '% XP, and each other Kitchen III adds ' . (int)setting('stack_kitchen_pot_per_iii') . ' pot (up to ' . (int)setting('stack_kitchen_pot_max') . ').' : 'Build another kitchen in a second garden and it adds ' . (int)setting('stack_kitchen_buff_pct') . '% buff time and ' . (int)setting('stack_kitchen_xp_pct') . '% XP per level on top.' ?></p></details>
           <?php endif; ?>
           <?php if ($key === 'compost_bin'): ?>
-            <p>♻️ Heap: <b><?= $sc % $need ?>/<?= $need ?></b> scraps for <?= e(HEAP_OUTPUTS[$hout][0]) ?><?= $hr ? ' · <b>' . $hr . ' ready</b>' : '' ?><?= $hr >= (int)setting('compost_heap_max') ? ' (full!)' : '' ?></p>
+            <p>♻️ Heap: <b><?= $sc % $need ?>/<?= $need ?></b> scraps for <?= e(HEAP_OUTPUTS[$hout][0]) ?><?= $hr ? ' · <b>' . $hr . ' ready</b>' : '' ?><?= $hr >= (int)setting('compost_heap_max') ? ' (full!)' : '' ?><?= $bankPts > 0 ? ' · <span class="muted">' . $bankPts . ' scraps banked</span>' : '' ?></p>
             <div class="btrow">
             <?php if ($haveScraps > 0): ?>
               <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="add_scraps">
                 <button class="btn small">♻️ Add scraps (<?= $haveScraps ?>)</button></form>
+            <?php endif; ?>
+            <?php if ($heldParts): ?>
+              <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="add_parts">
+                <button class="btn small">🦴 Add parts (<?= array_sum($heldParts) ?>)</button></form>
             <?php endif; ?>
             <?php $opts = array_filter(HEAP_OUTPUTS, fn($o) => $o[1] <= $blv); if (count($opts) > 1): ?>
               <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="heap_out">
