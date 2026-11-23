@@ -1353,6 +1353,7 @@ function gvPageToasts() {
     var key = x.getAttribute('data-gvtoast') || '', seen = '';   // walk id : number of journal lines: only a NEW line is announced (a step that adds none must not repeat the last one)
     try { seen = sessionStorage.getItem('gvlatest') || ''; sessionStorage.setItem('gvlatest', key); } catch (e) { seen = window.gvLatestSeen || ''; window.gvLatestSeen = key; }
     if (key && key === seen) { x.remove(); return; }
+    if (document.body.classList.contains('dock-on') && /^[\u2212-]\d+\s*(energy|\u26a1)\.?$/i.test(x.textContent.trim())) { x.remove(); return; }   // v2.8.08: the dock bar shows energy use
     var d = document.createElement('div'); d.className = 'flash ok'; d.textContent = x.textContent.trim(); if (d.textContent && !nodes.some(function (n) { return n.textContent === d.textContent; })) nodes.push(d); x.remove();
     var view = document.querySelector('.tilemap .tmview');
     if (view && d.textContent && !view.querySelector('.fightscene')) { var pop = document.createElement('div'); pop.className = 'tmpop'; pop.setAttribute('aria-hidden', 'true'); pop.textContent = d.textContent; view.appendChild(pop); setTimeout(function () { pop.remove(); }, 4200); }
@@ -1701,6 +1702,16 @@ function gvToastDodge(box) {
    errors stay until tapped (✕). Computers: as before. Always role status (ok) or alert (error). */
 function gvShowToasts(nodes) {
   if (!nodes.length) return;
+  if (document.body.classList.contains('dock-on')) {   // v2.8.08: the dock bar animates energy use: no "-1 energy" pop-up
+    nodes = Array.prototype.filter.call(nodes, function (n) {
+      var t = (n.textContent || '').trim();
+      if (/^[\u2212-]\d+\s*(energy|\u26a1)\.?$/i.test(t)) return false;
+      var w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT), x;
+      while ((x = w.nextNode())) x.nodeValue = x.nodeValue.replace(/\s*\((?:\u2212|-)\d+ energy\)/g, '');
+      return true;
+    });
+    if (!nodes.length) return;
+  }
   /* v2.6.05: while a fight's end scene plays on the map (body.fs-hold), the messages wait for it to finish instead of covering it (they are in Messages meanwhile).
      v2.6.47: also while the end scene is still waiting to start (fightscene.js sets fs-hold a moment after the page loads, so messages used to pop up first); polled, with a 25 s cap in case the scene never runs */
   var gvHold = function () {

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.08
+- **Fix: the old "−1 energy" pop-up still showed in the landscape layout** (wander steps). Energy-only messages are now dropped there (the dock bar animation shows it); "(−N energy)" is also stripped from other pop-ups.
+
 ## 2.8.07
 - **Folds for the tall pages (landscape dock layout only; other layouts unchanged).** Almanac chapters: one fold per category, the one with the open page (or the first) open (Creatures 2016→919 px, Plants 2707→901). Puzzle Pals: one fold per region (3133→1154). World map: roads and places fold under the region banner (→1026). Villagers: the not-met placeholders become one "N more not met yet. Show them" line (→422). How to play: the first two sections start closed (→434).
 - **Fix: The Gourmand page had no footer, so no dock at all in the landscape layout.** Added the missing page footer.
