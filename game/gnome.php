@@ -39,6 +39,12 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect('gnome.php?' . http_build_query(['tab' => 'furnish'] + (isset(hovel_decor_catalog()['slots'][$slot]) ? ['slot' => $slot] : []) + ($ok && $prev !== '' ? ['prev' => $prev] : [])));
     }
+    if ($do === 'trophy_pin' && $slim) {   // 2.7.58: pin a creature part on the trophy wall
+        [$tc, $ti] = array_pad(explode('|', (string)($_POST['pin'] ?? ''), 2), 2, '');
+        [$ok, $msg] = hovel_trophy_add((int)$u['id'], $tc, (int)$ti);
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('gnome.php?tab=furnish');
+    }
     if (in_array($do, ['wear_on', 'wear_off', 'wear_lined'], true)) {   // 2.7.14: the Wearing panel (includes/wear_view.php, rules in includes/wearables.php)
         require_once __DIR__ . '/includes/wearables.php';
         [$ok, $msg] = wear_post($u, $do, $_POST);

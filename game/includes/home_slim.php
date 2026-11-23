@@ -32,6 +32,12 @@ function home_slim_schema(string $PK, string $ID, string $END): array
         item VARCHAR(24) NOT NULL,
         updated_at DATETIME NULL,
         PRIMARY KEY (user_id, slot)
+    )$END", "CREATE TABLE IF NOT EXISTS user_trophies (
+        user_id INT NOT NULL,
+        creature_slug VARCHAR(80) NOT NULL,
+        item_id INT NOT NULL,
+        pinned_at DATETIME NULL,
+        PRIMARY KEY (user_id, creature_slug)
     )$END"], [], []];
 }
 
@@ -40,7 +46,7 @@ function hovel_decor_ensure(): bool
 {
     static $ok = null;
     if ($ok !== null) return $ok;
-    try { q('SELECT 1 FROM user_hovel_decor LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM user_hovel_decor LIMIT 1'); q('SELECT 1 FROM user_trophies LIMIT 1'); return $ok = true; } catch (Throwable $e) {}   // 2.7.58: and the trophy wall's table
     try {
         $sqlite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         [$t] = home_slim_schema('', '', $sqlite ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
@@ -69,7 +75,7 @@ function hovel_decor_catalog(): array
         foreach ((array)$s['items'] as $it) {
             $ik = (string)($it['k'] ?? '');
             if (!preg_match('/^[a-z]{1,24}$/', $ik)) continue;
-            $items[$ik] = ['k' => $ik, 'name' => (string)($it['name'] ?? $ik), 'cosy' => max(0, min(2, (int)($it['cosy'] ?? 0))), 'own' => !empty($it['own']), 'where' => (string)($it['where'] ?? '')];
+            $items[$ik] = ['k' => $ik, 'name' => (string)($it['name'] ?? $ik), 'cosy' => max(0, min(2, (int)($it['cosy'] ?? 0))), 'own' => !empty($it['own']), 'new' => !empty($it['new']), 'where' => (string)($it['where'] ?? '')];
         }
         if (!$items) continue;
         $c['slots'][$k] = ['k' => $k, 'name' => (string)($s['name'] ?? $k), 'x' => (int)$s['x'], 'y' => (int)$s['y'], 'w' => max(1, (int)$s['w']), 'h' => max(1, (int)$s['h']), 'items' => $items];
@@ -85,7 +91,45 @@ function hovel_decor_owned(int $uid): array
 {
     $o = [];
     foreach (hovel_decor_catalog()['slots'] as $sk => $s) foreach ($s['items'] as $ik => $it) if ($it['own']) $o[$sk][$ik] = true;
+    $n = hovel_trophy_count($uid);   // 2.7.58 trophy wall: one trophy pinned owns "one", three own "row"
+    if ($n >= 1) $o['trophy']['one'] = true;
+    if ($n >= 3) $o['trophy']['row'] = true;
     return $o;
+}
+
+/** How many creature trophies this gnome has pinned. */
+function hovel_trophy_count(int $uid): int
+{
+    try { return (int)q_val('SELECT COUNT(*) FROM user_trophies WHERE user_id = ?', [$uid]); } catch (Throwable $e) { return 0; }
+}
+
+/** Creatures this gnome can pin a trophy for now: one part held that the creature drops, not pinned yet. [['creature' => slug, 'name', 'item' => item id, 'item_name'], ...] */
+function hovel_trophy_options(int $uid): array
+{
+    $out = [];
+    try {
+        $done = array_flip(q('SELECT creature_slug FROM user_trophies WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN));
+        foreach (q("SELECT DISTINCT c.slug AS cs, c.name AS cn, i.id AS iid, i.name AS inm FROM user_items ui JOIN items i ON i.id = ui.item_id JOIN creature_drops cd ON cd.item_id = i.id JOIN creatures c ON c.id = cd.creature_id
+                    WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'part' AND c.active = 1 ORDER BY c.name, i.id", [$uid])->fetchAll() as $r) {
+            if (isset($done[$r['cs']]) || isset($out[$r['cs']])) continue;
+            $out[$r['cs']] = ['creature' => (string)$r['cs'], 'name' => (string)$r['cn'], 'item' => (int)$r['iid'], 'item_name' => (string)$r['inm']];
+        }
+    } catch (Throwable $e) {}
+    return array_values($out);
+}
+
+/** Pin one part of a creature on the trophy wall; one trophy per creature, the part is used up. [ok, message] */
+function hovel_trophy_add(int $uid, string $creature, int $itemId): array
+{
+    if (!hovel_decor_ensure()) return [false, 'Your hovel cannot be changed just now. Try again soon.'];
+    $c = q_one("SELECT c.name FROM creatures c JOIN creature_drops cd ON cd.creature_id = c.id JOIN items i ON i.id = cd.item_id WHERE c.slug = ? AND i.id = ? AND i.category = 'part' LIMIT 1", [$creature, $itemId]);
+    if (!$c) return [false, 'That part does not come from that creature.'];
+    if (q_val('SELECT 1 FROM user_trophies WHERE user_id = ? AND creature_slug = ?', [$uid, $creature])) return [false, 'You already have a trophy of the ' . $c['name'] . '.'];
+    if ((int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $itemId]) < 1) return [false, 'You do not carry that part.'];
+    try { q('INSERT INTO user_trophies (user_id, creature_slug, item_id, pinned_at) VALUES (?, ?, ?, ?)', [$uid, $creature, $itemId, now()]); }
+    catch (Throwable $e) { return [false, 'You already have a trophy of the ' . $c['name'] . '.']; }
+    if (!give_item($uid, $itemId, -1)) { q('DELETE FROM user_trophies WHERE user_id = ? AND creature_slug = ?', [$uid, $creature]); return [false, 'You do not carry that part.']; }
+    return [true, 'The ' . $c['name'] . ' trophy is on your wall.'];
 }
 
 /** What is in each slot now: [slot => item]. A slot never chosen (or holding something no longer owned) shows its first owned item. */
@@ -808,17 +852,31 @@ function home_slim_picker_html(int $uid, array $s, string $cur, bool $open, stri
         $thumb = '<svg class="hpick-th" viewBox="0 0 ' . $s['w'] . ' ' . $s['h'] . '" width="' . $iw . '" height="' . $ih . '" aria-hidden="true" focusable="false">'
             . ($src !== '' ? '<image href="' . e($src) . '" x="0" y="0" width="' . $s['w'] . '" height="' . $s['h'] . '" image-rendering="pixelated"/>' : '<rect class="hd-ph" x="1" y="1" width="' . max(1, $s['w'] - 2) . '" height="' . max(1, $s['h'] - 2) . '"/>') . '</svg>';
         if (empty($own[$ik])) {
-            $h .= '<div class="hpick-it lock" aria-disabled="true">' . $thumb . '<span class="nm">' . e($it['name']) . '</span><span class="wh">Coming soon</span></div>';   // 2.7.58 EC11
+            $h .= '<div class="hpick-it lock" aria-disabled="true">' . $thumb . '<span class="nm">' . e($it['name']) . ($it['new'] ? ' <small class="new">New</small>' : '') . '</span><span class="wh">' . ($it['new'] && $it['where'] !== '' ? e($it['where']) : 'Coming soon') . '</span></div>';   // 2.7.58 EC11; a trophy item says how to get it
             continue;
         }
         $on = $ik === $cur;
-        $h .= '<button class="hpick-it" type="submit" name="item" value="' . e($ik) . '" aria-pressed="' . ($on ? 'true' : 'false') . '">' . $thumb . '<span class="nm">' . e($it['name']) . '</span>'
+        $h .= '<button class="hpick-it" type="submit" name="item" value="' . e($ik) . '" aria-pressed="' . ($on ? 'true' : 'false') . '">' . $thumb . '<span class="nm">' . e($it['name']) . ($it['new'] ? ' <small class="new">New</small>' : '') . '</span>'
             . '<span class="cz">' . ($on ? '<span class="in">In place</span> · ' : '') . '+' . (int)$it['cosy'] . ' cosy</span></button>';
     }
     $h .= '</div><div class="hpick-act">';
     if ($prev !== '' && $prev !== $cur && !empty($own[$prev])) $h .= '<button class="btn ghost" type="submit" name="item" value="' . e($prev) . '">Undo</button>';
     $h .= '<a class="btn" href="' . e(hovel_slot_url('')) . '" data-hdlg-close>Done</a></div></form></dialog>';
     return $h;
+}
+
+/** 2.7.58: the "pin a trophy" form: a creature whose part you carry, one trophy each. Nothing when you carry no part. */
+function home_slim_trophy_html(int $uid): string
+{
+    $opt = hovel_trophy_options($uid); $n = hovel_trophy_count($uid);
+    if (!$opt && !$n) return '';
+    $h = '<section class="box hs-trophy"><h3>Trophy wall <small class="new">New</small></h3><p class="help">' . $n . ' pinned. Pin one part of a creature (it is used up) to hang its trophy. One trophy for each creature.</p>';
+    if ($opt) {
+        $h .= '<form method="post" action="' . e(url('gnome.php?tab=furnish')) . '">' . csrf_field() . '<input type="hidden" name="do" value="trophy_pin"><label>Creature <select name="pin">';
+        foreach ($opt as $o) $h .= '<option value="' . e($o['creature'] . '|' . $o['item']) . '">' . e($o['name'] . ' (' . $o['item_name'] . ')') . '</option>';
+        $h .= '</select></label> <button class="btn small">Pin it</button></form>';
+    }
+    return $h . '</section>';
 }
 
 /** The FURNISH tab: the slot tiles and their pickers; the live room and the Cosiness meter on the side. */
@@ -838,7 +896,7 @@ function home_slim_furnish_html(array $u, array $chosen): string
     $tiles .= '<a class="hs-slot more" href="' . e(url('market.php')) . '"><span class="sn">More</span><span class="cur">Find decor</span><span class="ch">Market →</span></a></div>';
     $picks = '';
     foreach ($cat['slots'] as $sk => $s) $picks .= home_slim_picker_html($uid, $s, $chosen[$sk], $sk === $sel, $sk === $sel ? $prev : '');
-    return '<div class="hs-cols hs-furnish"><div class="hs-main"><h2 class="hs-h">Furnish your hovel</h2>' . $tiles . $picks . '</div>'
+    return '<div class="hs-cols hs-furnish"><div class="hs-main"><h2 class="hs-h">Furnish your hovel</h2>' . $tiles . $picks . home_slim_trophy_html($uid) . '</div>'
         . '<aside class="hs-rail" aria-label="Your room"><section class="box hs-preview"><h3>Your room</h3><div class="hs-pic">' . hovel_room_svg($u, $chosen, 'full', ['taps' => true, 'sel' => $sel]) . '</div><small>Tap a thing in the room to change it.</small></section>'
         . home_slim_cosy_html($chosen) . '</aside></div>';
 }
