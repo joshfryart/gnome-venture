@@ -68,7 +68,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
     await p.waitForSelector('#pfb-board .gc', { timeout: 8000 }).catch(() => {});
-    ck(T('Let\'s fight: the board of a boss (4 by 4 cells, every board is 4 x 4 since 2.6.94), no ground cells, two face-up environment pieces in the strip (2.7.06: 2 a round)'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [16, 0, 2, 0]);
+    ck(T('Let\'s fight: the board of a boss (5 by 5 cells since 2.7.55: small 3x3, medium 4x4, large and boss 5x5), no ground cells, two face-up environment pieces in the strip (2.7.06: 2 a round)'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [25, 0, 2, 0]);
     await shot('4-fight-opening');
 
     // ---- 4. the fight: a seeded position with ground, a forecast, the aim and hand pieces that cannot be played

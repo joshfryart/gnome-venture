@@ -1,0 +1,335 @@
+{
+ "stat": "Luck",
+ "ruleset": [
+  "One action a turn: you place ONE piece (or pass, free); then the creature, then the environment; the round ends.",
+  "The whole hand is redrawn every round (redraw 1): unplayed pieces go to the discard, a fresh 5 (4 when tripped). Only Keeper (tag or wear 'keep') and wear 'keep1' keep a piece.",
+  "So hand size = how many options you get next round, and a piece added to your hand mid-round is wasted unless kept. 'More pieces' = the existing Plenty tag.",
+  "Already existing payoffs, not to be re-sold as Luck pieces: Plenty tag (hand 6), wear hand:1, plenty:6/7, keep, keep1, pluck:x2, pluck:sure, fhalf, fnext.",
+  "Luck already gives a per-fight redraw budget on the board: luckmod/3 charges (max 3), each swaps one hand piece for a fresh draw; the 'lucky' upgrade adds one.",
+  "Pluck: chance min(35, 8 + 3 x luckmod)%, halved vs a great creature; only a success uses it up, so a missed Pluck can already be tried again. Luck has no other combat read.",
+  "No setting aside / groups / joining a held group (aside 0).",
+  "Flip is free, any piece, any number of times (flip1 0): never a cost or a benefit.",
+  "A piece may go on any cell where it fits, linked or not (must 0); passing is free (freepass 1).",
+  "One shared Yield bar (onebar 1): Hurt and Charm both fill it.",
+  "The creature's aim (piece + cell + total) is shown and committed; it re-plans if its cell is taken (aimhit 0).",
+  "No free creature spawn piece (spawn 0); the creature's hand refills each round, it plays one piece a turn, its pieces fall away after 2 firings (3 for great / Guard).",
+  "Links: a knob in a hole of the same family (or a wild edge) links; flat fits but never links; mud blocks links. The placed piece fires, then every piece linked to it, in resolve order.",
+  "Pieces stay on the board ~3 rounds and fire again whenever a later chain runs through them; a long enough chain uses its pieces up.",
+  "Wear clauses plenty / hand / next / keep1 / recycle act only when the piece is placed, not when it refires.",
+  "There is no dice roll in the code yet: Loaded Die's 50% + 2%/point (max 90%) roll is a new shared primitive."
+ ],
+ "tiers": {
+  "10": "Small mercies: ask for the kind of piece you need, rummage with real odds, soften the hit that gets through.",
+  "15": "Better odds: a Hurt that doubles itself, a best-of-two deal, and a Foot that rerolls every miss.",
+  "20": "Bet bigger: double your next piece, pay back a bad round, rob the creature's hand.",
+  "25": "Fortune's favour: sweep the dice, reshuffle its threat, cheat death once.",
+  "30": "Make your own luck: pick your next hand, refire your board, turn its blows into its own bar."
+ },
+ "summary": "Loaded Die (tier 0) is the base 50% + 2%/point roll; every Luck piece uses that one roll, and Rabbit's Foot rerolls its misses. Card luck is about the QUALITY of the next hand (Wishbone's sure type, Wishing Well's best-of-two, Bottomless Pocket's pick, Magpie's stolen piece), never its size, since Plenty and the redraw budget already cover that. The rest is dice doubling (Long Shot, Double or Nothing, Jackpot, Lucky Streak) and turning bad outcomes (Lucky Scrape, Bad Penny, Last Chance Clover, Fair Turnabout).",
+ "question": "Hedge Rummage lets Pluck use the full Luck roll (up to 90%, halved on great creatures) instead of the 35% cap: is that loot rate fine, or should it use half the Luck roll so items stay rare?",
+ "pieces": [
+  {
+   "tier": 10,
+   "slot": 1,
+   "name": "Lucky Scrape",
+   "type": "guard",
+   "family": "body red",
+   "tags": [
+    "luckguard (new)"
+   ],
+   "value": "v = 3 + Luck/5",
+   "text": "Gain {v} guard. The first creature Hurt that breaks through it this round rolls: on a hit you take only half of what got through.",
+   "worth_it": "A guard that also softens the hit it fails to stop: the only guard that pays off when it loses.",
+   "changes_play": "Lets you guard light and take a risk on big aimed Hurts instead of stacking guard.",
+   "risk": "Swingy defense; rail: once a round, halves only the overflow, never the guarded part.",
+   "engine_cost": "medium: a new 'through' phase beside block / miss (a creature Hurt dealt damage past your guard) and a halve-overflow action.",
+   "fx": "",
+   "motif": "Edge: a frayed, patched body knob. Fire: a scuffed shield wobbles, a little dust puff and a four-leaf sparkle on the scrape.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 10,
+   "slot": 2,
+   "name": "Wishbone",
+   "type": "item",
+   "family": "craft green",
+   "tags": [
+    "wishbone (new)"
+   ],
+   "value": "v = 1 + Luck/10 (an Item's small heal); no {a}/{b}",
+   "text": "Roll. Hit: your next hand is sure to hold a piece of the same type as the piece it links to, taken from your draw pile. Your hand stays 5.",
+   "worth_it": "The only way to ask for a KIND of piece: you set up next round's Riposte, Ambush or Heal instead of hoping for it.",
+   "changes_play": "Hand quality, not hand size: you place it beside the piece you want more of and plan a two-round combo.",
+   "risk": "Always drawing the best type; rail: one sure piece per hand, only on placing (no refire), nothing if the pile has none of that type.",
+   "engine_cost": "small: the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too); one place-phase action 'tutor:link' that, at the redraw, moves the first draw-pile piece of that type into the hand before pf_draw fills it to 5.",
+   "fx": "roll tutor:link",
+   "motif": "Edge: a little forked bone on the craft knob. Fire: the wishbone snaps, the longer half points at the linked piece and a matching card glows in the draw pile.",
+   "status": "replaced",
+   "change_note": "Replaces Penny Wish: its payoffs (plenty:7, hand:1) are the existing Plenty tag and wear payoffs, and with one placement a round and the whole hand redrawn, a bigger hand is just Plenty again."
+  },
+  {
+   "tier": 10,
+   "slot": 3,
+   "name": "Hedge Rummage",
+   "type": "trick",
+   "family": "mind blue",
+   "tags": [
+    "pluck"
+   ],
+   "value": "v = 2 + Luck/5; {b} = ceil(a/2), a = 1 + Luck/5",
+   "text": "Placed: Pluck with your Luck roll (50% + 2% per point, max 90%, halved against a great creature) instead of Pluck's small chance. If it misses, the creature's next Hurt gets +{b}.",
+   "worth_it": "Pluck tops out at 35% by Luck 9; this is the only Pluck that keeps getting better with Luck, at a price.",
+   "changes_play": "A real gamble: you pick a calm round to rummage, since a miss feeds its next hit and a missed Pluck can be tried again.",
+   "risk": "Loot faucet; rail: still lifts one item a fight, halved on great creatures, rolls only when placed (refiring in a chain does not Pluck again).",
+   "engine_cost": "small: the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too); a pluck mode 'roll' in the existing pluck action, and a creature next-Hurt bonus (the mirror of fnext, which only shrinks).",
+   "fx": "@place pluck:roll ; @place !roll fup:b",
+   "motif": "Edge: a blue knob with a sprig of hedge. Fire: a small hand rummages in a hedge, comes out with a glint (hit) or a bramble scratch that flies at the creature (miss).",
+   "status": "replaced",
+   "change_note": "Replaces Coin in the Hedge: pluck:x2 is an existing wear payoff (EE cloak), its miss paid +1 hand (Plenty again), and a missed Pluck can already be retried since only a success uses Pluck up."
+  },
+  {
+   "tier": 15,
+   "slot": 1,
+   "name": "Long Shot",
+   "type": "hurt",
+   "family": "body red",
+   "tags": [
+    "longshot (new)"
+   ],
+   "value": "v = 2 + Luck/5",
+   "text": "Roll. Hit: it fires twice. Miss: the next Hurt you place gets +{a}.",
+   "worth_it": "A Hurt that doubles itself most of the time and banks its miss into your next swing.",
+   "changes_play": "Rewards building a Hurt-heavy follow-up; a self-contained double unlike Loaded Die's linked double.",
+   "risk": "Double damage spikes; rail: low base value, doubles only itself, not the chain.",
+   "engine_cost": "small: the shared Luck roll (one new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' clauses agree); 'again' reuses Loaded Die's fire-twice code for the piece itself; next:hurt exists.",
+   "fx": "roll again ; !roll next:hurt:1:a",
+   "motif": "Edge: a long thin arrow nock on the knob. Fire: a pebble arcs far off screen, then (hit) a second pebble follows it in.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 15,
+   "slot": 2,
+   "name": "Wishing Well",
+   "type": "soothe",
+   "family": "mind blue",
+   "tags": [
+    "best2 (new)"
+   ],
+   "value": "v = 3 + Luck/5",
+   "text": "Cut the creature's hits by {a} this round. Roll: on a hit your next hand is dealt twice and you keep the stronger deal (more total value); the other goes back into your draw pile.",
+   "worth_it": "Buys a calm round and usually a better next hand without making it bigger.",
+   "changes_play": "Play it before the round you need to swing: the best-of-two deal finds your strong pieces.",
+   "risk": "Always a strong hand; rail: only on placing, one best-of-two per round, Keepers count in both deals.",
+   "engine_cost": "small: the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too); soothe exists; a place-phase action 'best2' that at the redraw draws two hands, keeps the higher total and shuffles the other back.",
+   "fx": "soothe:a ; roll best2",
+   "motif": "Edge: a round stone-well rim. Fire: a coin drops into a blue well, ripples calm the creature.",
+   "status": "fixed",
+   "change_note": "keep1 is an existing wear payoff (OC backpack); now the roll deals your next hand twice and keeps the stronger deal, a new kind of card luck."
+  },
+  {
+   "tier": 15,
+   "slot": 3,
+   "name": "Rabbit's Foot",
+   "type": "item",
+   "family": "craft green",
+   "tags": [
+    "keep",
+    "foot (new)"
+   ],
+   "value": "v = 1 + Luck/10 (an Item's small heal)",
+   "text": "Keeper. While it is in your hand or on the board, each Luck roll of yours that misses is rolled once more.",
+   "worth_it": "Turns every Luck piece (Loaded Die, Long Shot, Wishing Well, Wishbone) from 80% into about 96%: the build-around for a Luck deck.",
+   "changes_play": "You choose to play with 4 open hand slots to hold it, or play it out so the aura lasts while it stays on the board.",
+   "risk": "Near-sure rolls; rail: one reroll per roll, never past 95%, two Feet do not stack, and holding it costs a hand slot every round.",
+   "engine_cost": "small: the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too); the roll checks for a Foot in your hand or among your board pieces and rolls again on a miss; keep exists.",
+   "fx": "keep",
+   "motif": "Edge: a fluffy white knob on the craft side. Fire: the foot gives a soft thump and a puff of clover leaves rises over your other pieces.",
+   "status": "replaced",
+   "change_note": "Replaces Hoarded Acorn: Keeper + hand:1 + plenty:6 were all existing payoffs (Keeper tag, wear hand/plenty) and only grew the hand."
+  },
+  {
+   "tier": 20,
+   "slot": 1,
+   "name": "Double or Nothing",
+   "type": "trick",
+   "family": "craft green",
+   "tags": [
+    "doubleup (new)"
+   ],
+   "value": "v = 1 + Luck/10",
+   "text": "Each time it fires, roll: on a hit, the next piece you place fires twice. One doubled piece waits at a time.",
+   "worth_it": "At 90% it doubles your next whole piece, and it keeps rolling each time a later chain runs through it.",
+   "changes_play": "Place it, then link your next big piece (Guard, Heal or Hurt) so it fires twice; keep it in chains to recharge the double.",
+   "risk": "Doubling a top piece every round; rail: one waiting double at a time, it never doubles itself or another Luck piece.",
+   "engine_cost": "small: the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too); a 'dbl' flag on you that pfb_wx_placed spends on the next placement, firing it twice through the Loaded Die code.",
+   "fx": "",
+   "motif": "Edge: two pips on a craft knob. Fire: a big die tumbles, lands on double six, the next tile glows gold.",
+   "status": "fixed",
+   "change_note": "A miss used to send it back to your hand, which does nothing when you place one piece a round and the hand is redrawn; now it rolls each time it fires (pieces refire in later chains)."
+  },
+  {
+   "tier": 20,
+   "slot": 2,
+   "name": "Bad Penny",
+   "type": "hurt",
+   "family": "mind blue",
+   "tags": [
+    "penny (new)"
+   ],
+   "value": "v = 2 + Luck/5; bonus up to 2 x {a}, a = 1 + Luck/5",
+   "text": "Deal {v}. Roll: on a hit, add half of what the creature's last turn took from you (up to {a} x 2).",
+   "worth_it": "The worse its last turn hurt you, the harder this pays it back: a bad round becomes your best swing.",
+   "changes_play": "Lets you skip guarding on a weak round and hit back; unlike Riposte it needs no Guard in the chain.",
+   "risk": "Low-health burst; rail: half the damage taken, capped at 2 x {a}, reads only the last creature turn.",
+   "engine_cost": "small: the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too); dmg exists; a per count 'hithalf' from the existing wx['hit'] (what its last turn took from you).",
+   "fx": "roll dmg:1*hithalf^a2",
+   "motif": "Edge: a tarnished coin set in the mind knob. Fire: a dull penny spins back toward the creature and lands with a heavy clink.",
+   "status": "replaced",
+   "change_note": "Replaces Silver Lining: its payoff was extra hand pieces (Plenty again) and it was a third guard-reacts-to-hits piece."
+  },
+  {
+   "tier": 20,
+   "slot": 3,
+   "name": "Magpie's Pinch",
+   "type": "item",
+   "family": "body red",
+   "tags": [
+    "pinch (new)"
+   ],
+   "value": "v = 2 + Luck/5",
+   "text": "Roll. Hit: take the creature's strongest hand piece; it is one of your next hand's 5 pieces, as yours. Miss: take its weakest hand piece instead.",
+   "worth_it": "Always robs the creature: usually its big move, at worst its filler, and you get a strange piece to play.",
+   "changes_play": "Opens play with creature pieces (their edges, their types) in your own hand.",
+   "risk": "Stealing a boss Hurt; rail: on a boss it rolls twice and needs both; a stolen piece fires at your values and is gone after use.",
+   "engine_cost": "medium: move a foe hand piece into your next hand, re-owned (by = me, value rescaled).",
+   "fx": "",
+   "motif": "Edge: a black-and-white feather on the knob. Fire: a magpie swoops across the board and carries a tile to the hand tray.",
+   "status": "fixed",
+   "change_note": "The stolen piece now takes a normal slot (hand stays 5, no Plenty) and a miss takes its weakest piece instead of a twice-chance Pluck (an existing wear payoff)."
+  },
+  {
+   "tier": 25,
+   "slot": 1,
+   "name": "Jackpot",
+   "type": "hurt",
+   "family": "body red",
+   "tags": [
+    "jackpot (new)"
+   ],
+   "value": "v = 1, plus {a} per hit",
+   "text": "Roll three times. Deal {a} for each hit. Three hits: also Pluck, sure to work.",
+   "worth_it": "Hits harder than its tier for a Luck build and pays a sure Pluck when it sweeps.",
+   "changes_play": "A capstone Hurt whose value is the dice, not the chain; the spin is the show.",
+   "risk": "Big burst at the cap (90% x3); rail: low base, ignores links' boost, sure Pluck still once a fight.",
+   "engine_cost": "small: the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too) plus per-count 'rolls:N' (how many of N rolls hit) and 'allroll:N'; dmg and pluck:sure exist.",
+   "fx": "dmg:a*rolls:3 ; allroll:3 pluck:sure",
+   "motif": "Edge: three cherries along the body knob. Fire: three reels spin in the tile and stop one by one, coins burst on three of a kind.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 25,
+   "slot": 2,
+   "name": "Turn of the Coin",
+   "type": "trick",
+   "family": "mind blue",
+   "tags": [
+    "turncoin (new)"
+   ],
+   "value": "v = 2 + Luck/5",
+   "text": "Roll. Hit: the creature's strongest hand piece goes back into its draw pile and it draws another. Miss: it still loses {b} from that piece.",
+   "worth_it": "Rerolls the creature's worst threat: bad luck becomes its problem.",
+   "changes_play": "Lets you answer a scary round by reshuffling the creature's hand, not by guarding.",
+   "risk": "Erasing boss signature moves; rail: a boss's ability pieces cannot be sent back, only shrunk.",
+   "engine_cost": "small: swap one foe hand piece with its draw pile, then re-plan (pfb_intent).",
+   "fx": "",
+   "motif": "Edge: a coin set on edge in the blue knob. Fire: a big coin spins above the creature and its strongest hand tile spins away into its pile.",
+   "status": "fixed",
+   "change_note": "Mechanic unchanged; only the motif now has the coin spin instead of flip, so it does not read like the free piece flip."
+  },
+  {
+   "tier": 25,
+   "slot": 3,
+   "name": "Last Chance Clover",
+   "type": "item",
+   "family": "craft green",
+   "tags": [
+    "keep",
+    "lastchance (new)"
+   ],
+   "value": "v = 2 + Luck/5",
+   "text": "Keeper. Once a fight, while it is in your hand, a hit that would drop you to 0 rolls: on a hit you stay at 1 health, the rest of the creature's turn does you no harm, and the Clover is used up.",
+   "worth_it": "A true second chance: the piece that saves the fight from one bad round.",
+   "changes_play": "Lets a Luck gnome take risks against bosses; you never play it, you carry it.",
+   "risk": "Immortality; rail: once a fight, used up, still a roll (max 90%), and it fills one of your 5 hand slots every round you carry it.",
+   "engine_cost": "medium: a lethal-damage check in pf_apply that looks for the piece in your hand.",
+   "fx": "",
+   "motif": "Edge: a curled clover stem on the craft knob. Fire: the clover glows green, the gnome glints and stands back up.",
+   "status": "fixed",
+   "change_note": "Dropped the +2 hand pieces (Plenty again); the save now also stops the rest of that creature turn, so it truly saves the fight."
+  },
+  {
+   "tier": 30,
+   "slot": 1,
+   "name": "Bottomless Pocket",
+   "type": "item",
+   "family": "craft green",
+   "tags": [
+    "keep",
+    "pocket (new)"
+   ],
+   "value": "v = 3 + Luck/5",
+   "text": "Keeper. Played: roll. Hit: look through your draw pile and choose 2 pieces; miss: choose 1. They are in your next hand (still 5).",
+   "worth_it": "The deck-shaping capstone: you build next round exactly, the strongest form of card luck.",
+   "changes_play": "Shuffling stops mattering: you set up the round you want, two turns ahead.",
+   "risk": "Fetching a combo every fight; rail: only on placing, at most 2, the hand stays 5, and holding it costs a slot.",
+   "engine_cost": "medium: a choose-from-draw-pile prompt (UI and a pfight action) between rounds; the shared Luck roll (new pfb_wx_cond 'roll' = pf_rand < min(90, 50 + 2*Luck)%, rolled once per firing and cached in cx so 'roll' and '!roll' agree; not in the code yet, Loaded Die needs it too).",
+   "fx": "",
+   "motif": "Edge: a deep stitched pocket on the knob. Fire: the pocket opens, the draw pile fans out, one card floats up.",
+   "status": "fixed",
+   "change_note": "Dropped the hand growth while held (an existing wear payoff and Plenty); the fetch now rolls: pick 2 on a hit, 1 on a miss."
+  },
+  {
+   "tier": 30,
+   "slot": 2,
+   "name": "Lucky Streak",
+   "type": "trick",
+   "family": "body red",
+   "tags": [
+    "streak (new)"
+   ],
+   "value": "v = 1 + Luck/10",
+   "text": "Roll until you miss (at most {b} times). Each hit: a random piece of yours on the board fires again.",
+   "worth_it": "Turns a full board into a slot machine: up to {b} extra firings, any type.",
+   "changes_play": "Rewards keeping many of your own pieces out; different from Loaded Die (random board pieces, not a link).",
+   "risk": "Runaway refires; rail: at most {b}, a piece refires at most once, it never refires itself or other Luck pieces.",
+   "engine_cost": "medium: a loop of rolls that refires random own pieces through the existing fire path.",
+   "fx": "",
+   "motif": "Edge: a row of lit bulbs along the body knob. Fire: lights chase around the board, each lit tile flashes and fires.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 30,
+   "slot": 3,
+   "name": "Fair Turnabout",
+   "type": "guard",
+   "family": "mind blue",
+   "tags": [
+    "turnabout (new)"
+   ],
+   "value": "v = 3 + Luck/5",
+   "text": "Gain {v} guard. Until your next turn, each creature Hurt that gets past it rolls: on a hit, what got through goes onto the Yield bar instead of you.",
+   "worth_it": "The ultimate bad-luck reversal: its best hits fill its own Yield bar.",
+   "changes_play": "Makes the gnome want the creature to swing big this round; turns defense into a win path.",
+   "risk": "Too safe at 90%; rail: this roll is at half your chance (max 45%), only overflow is turned, once a round.",
+   "engine_cost": "medium: the 'through' phase (shared with Lucky Scrape) plus a redirect-to-bar action (bar exists).",
+   "fx": "",
+   "motif": "Edge: a horseshoe knob turned upside down. Fire: a horseshoe spins, the creature's strike bounces back into its own bar.",
+   "status": "kept",
+   "change_note": ""
+  }
+ ]
+}

@@ -2,7 +2,10 @@
 // and requires identical JSON: events, views, hidden-state digests, query answers, text lines, history chips and the final state.
 const fs = require('fs');
 const PFE = require('../tools/pfengine.js');
-let nIds = 0, nEnvIds = 0, nMeIds = 0;
+let nIds = 0, nEnvIds = 0, nMeIds = 0, nRollHit = 0, nRollMiss = 0;
+const luckSeen = { re: 0, pluckroll: 0, fup: 0, pinch: 0, coinback: 0, coincut: 0, streak: 0 };   // stat pieces, Luck slice: each new effect must come up in the parity fights
+const loreSeen = { knot: 0, oldmore: 0, lantern: 0, weather: 0, called: 0, teach: 0, retell: 0, stolenFire: 0 };   // stat pieces, Lore slice: each new effect must come up in the parity fights
+const nimSeen = { evadeAim: 0, skip: 0, kill: 0, shove: 0, pin: 0, shadow: 0, phantom: 0, pick: 0 };   // stat pieces, Nimble slice: each new effect must come up in the parity fights
 const lines = fs.readFileSync(process.argv[2], 'utf8').split('\n').filter(Boolean);
 
 // JSON-roundtrip, an empty object means the same as PHP's empty array, -0 is 0. Key order is kept (PHP array order = insertion order).
@@ -43,6 +46,8 @@ const hdr = JSON.parse(lines[0]);
 fail('header tiles', hdr.tiles, PFE.tiles(), 'tiles');
 fail('header combos', hdr.combos, PFE.COMBOS, 'combos');
 fail('header wear effects (data/wear_fx.txt = PFB_WEAR_FX_ROWS in tools/pfengine.js)', hdr.wearfx, PFE.wxData(), 'wearfx');
+fail('header stat piece effects (data/pf_stat_pieces.txt = PFB_STAT_ROWS in tools/pfengine.js)', hdr.statfx, PFE.statData(), 'statfx');
+fail('header Luck roll chance', hdr.chance, hdr.chance.map(([lp]) => [lp, PFE.wxChance({ me: { wx: { lp } } })]), 'chance');
 fail('header tags', hdr.tags, PFE.TAGS, 'tags');
 fail('header mods', hdr.mods, PFE.MODS, 'mods');
 fail('header abilities (PFB_ABIL in tools/pfengine.js)', hdr.abil, PFE.ABIL, 'abil');
@@ -84,13 +89,16 @@ for (const ln of lines.slice(1)) {
   const s = PFE.newFight(rec.me, rec.creature, rec.seed, rec.opt);
   const ns = x => { const o = JSON.parse(JSON.stringify(x)); delete o.nonce; return o; };
   if (fail(ctx + ' newFight state', rec.init.state, ns(s), 'init.state') || fail(ctx + ' newFight view', rec.init.view, slim(PFE.view(s)), 'init.view')) continue;
-  let stop = false;
+  let stop = false; const prefs = [];   // Weather Lore: cells its called piece was marked to land beside
   rec.steps.forEach((st, i) => {
     if (stop) return;
     const c = ctx + ' step ' + i + ' (turn ' + st.turn + ', ' + st.op + (st.dry ? ' dry' : '') + ' ' + JSON.stringify(st.moves || '') + ')'; na++;
     if (st.q && fail(c + ' queries', st.q, queries(s), 'q')) { stop = true; return; }
     const res = st.op === 'redraw' ? { ok: PFE.redraw(s, st.hand, st.turn) } : st.op === 'flip' ? { err: PFE.flip(s, st.hand, st.turn) } : st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry, undefined, st.dry);
     if (fail(c + ' result', st.res, res, 'res')) { stop = true; return; }
+    if (res.ev) res.ev.forEach(e => { if (e.roll === 'hit') nRollHit++; else if (e.roll === 'miss') nRollMiss++; if (e.re) luckSeen.re++; if (e.pluck && e.roll) luckSeen.pluckroll++; if (Array.isArray(e.wfx) && e.wfx.some(w => w.indexOf('fup') === 0)) luckSeen.fup++; if (e.pinch) luckSeen.pinch++; if (e.coin === 'back') luckSeen.coinback++; if (e.coin === 'cut') luckSeen.coincut++; if (e.streak) luckSeen.streak++; if (Array.isArray(e.wfx) && e.wfx.indexOf('evade') >= 0 && e.k === 'stat-sidestep') nimSeen.evadeAim++; if (Array.isArray(e.wfx) && e.wfx.indexOf('skip') >= 0) nimSeen.skip++; if (Array.isArray(e.wfx) && e.wfx.indexOf('kill') >= 0) nimSeen.kill++; if (e.shove) nimSeen.shove++; if (e.pin) nimSeen.pin++; if (e.shadow) nimSeen.shadow++; if (Array.isArray(e.wfx) && e.wfx.some(w => w.indexOf('phantom') === 0)) nimSeen.phantom++; if (e.k === 'stat-knot-of-twine' && e.cs && e.linked > 0) loreSeen.knot++; if (e.k === 'stat-old-saying' && Array.isArray(e.wfx) && e.wfx.some(w => w.indexOf('more') === 0)) loreSeen.oldmore++; if (e.lantern) loreSeen.lantern++; if (e.weather) loreSeen.weather++; if (e.teach) loreSeen.teach++; if (e.retell) loreSeen.retell++; if (e.by === 'me' && String(e.k).indexOf('f:') === 0) loreSeen.stolenFire++; });   // stat pieces: the shared Luck roll, the Luck and Nimble effects
+    if (st.op === 'play' && st.moves && st.moves[0] && st.moves[0][0] === 'p' && !res.err && !st.dry) nimSeen.pick++;
+    if (s.env && !st.dry) { (s.envlog || []).forEach(L => { if (L.k === 'place' && (L.kind === 'sun' || L.kind === 'spring') && prefs.some(q => Math.abs(q[0] - L.x) + Math.abs(q[1] - L.y) === 1)) loreSeen.called++; }); s.env.next.forEach(t => { if (t.wpref) prefs.push(t.wpref); }); }   // Weather Lore: the called piece came in beside it   // Phantom Footing picks
     { const ai = res.aim && res.aim.ids; if (ai) { nIds++; if (ai.some(q => q.by === 'env')) nEnvIds++; if (ai.some(q => q.by === 'me')) nMeIds++; } }   // after 2.6.96: the aim's ids are inside 'res' above (compared with PHP's)
     if (st.lines) {
       const fo = s.foe.name;
@@ -102,6 +110,10 @@ for (const ln of lines.slice(1)) {
   });
   if (!stop) fail(ctx + ' final state', rec.final, ns(s), 'final');
 }
+if (lines.slice(1).some(l => l.includes('"mode":"v1stat"')) && (!nRollHit || !nRollMiss)) { bad++; console.log('FAIL the v1stat fights never rolled both a hit (' + nRollHit + ') and a miss (' + nRollMiss + ') of the Luck roll'); }
+if (lines.slice(1).some(l => l.includes('"mode":"v1luck"'))) { const miss = Object.keys(luckSeen).filter(k => !luckSeen[k]); if (miss.length) { bad++; console.log('FAIL the v1luck fights never showed: ' + miss.join(', ') + ' ' + JSON.stringify(luckSeen)); } else console.log('luck effects compared: ' + JSON.stringify(luckSeen)); }
+if (lines.slice(1).some(l => l.includes('"mode":"v1lore"'))) { const miss = Object.keys(loreSeen).filter(k => !loreSeen[k]); if (miss.length) { bad++; console.log('FAIL the v1lore fights never showed: ' + miss.join(', ') + ' ' + JSON.stringify(loreSeen)); } else console.log('lore effects compared: ' + JSON.stringify(loreSeen)); }
+if (lines.slice(1).some(l => l.includes('"mode":"v1nimble"'))) { const miss = Object.keys(nimSeen).filter(k => !nimSeen[k]); if (miss.length) { bad++; console.log('FAIL the v1nimble fights never showed: ' + miss.join(', ') + ' ' + JSON.stringify(nimSeen)); } else console.log('nimble effects compared: ' + JSON.stringify(nimSeen)); }
 if (!nIds || !nEnvIds || !nMeIds) { bad++; console.log('FAIL the trace never had a dry aim with ids (' + nIds + '), with an environment piece (' + nEnvIds + ') or with one of yours (' + nMeIds + ')'); }
 if (!done || done.fights !== nf) { bad++; console.log('FAIL trace incomplete (php wrote ' + (done ? done.fights : '?') + ' fights, read ' + nf + ')'); }
 if (!bad) console.log('aim ids compared: ' + nIds + ' dry aims, ' + nEnvIds + ' with an environment piece, ' + nMeIds + ' with one of yours');

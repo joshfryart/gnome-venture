@@ -1,0 +1,19 @@
+# Art brief: stat piece art (Gnome Venture)
+
+Repo /home/user/gnome-venture. Aseprite 1.3.18 is extracted: run `/tmp/aseq/squashfs-root/AppRun -b --script <lua> [--script-param k=v ...]` (headless, ~0.1 s a render). Python 3 with Pillow is available. Scratchpad SP = /tmp/claude-0/-home-user-gnome-venture/9aa93f5c-3276-50e6-8156-dea62561b335/scratchpad (put private scratch under SP/art-<batch>/, never reuse generic file names in shared folders). Do NOT edit any .php or .js file, and do NOT run git add/commit/push (the owner commits art later). Other agents work in parallel in other folders: only write inside your own output folder named in your task.
+
+## Roles (owner's pathway, aseprite-source/extras-pixel/PATHWAY-2706.md)
+Sonnet WRITES the per-asset brief and the first scaffold (grids/Lua) and runs a first render. Opus EXECUTES the drawing pass that makes the final pixels, in Aseprite. A Sonnet checker verifies the files. Style guide v3 (aseprite-source/v3/HANDOFF.md): hard pixels, 1 px ink outline #2b1c26, no pure black or white, one quirk, reads at 20 px, light from top-left with a 1-2 px gloss.
+
+## The art needed
+A. 24 piece icons, one 32x32 and one 20x20 (`-s`) each, the same family as the existing creature piece icons: read aseprite-source/pfight/piece-icons/mockup-opus/BRIEF.md, mockup.py, pix.py and view a few of game/assets/img/pfight/pieces/ico-*.png upscaled (PIL NEAREST) and the type icons game/assets/img/pfight/ico-hurt|guard|heal|trick|item|... .png. Piece data (name, stat, type, family, rules text, tags, animation motif) is in SP/stat24.json (key = file stem, e.g. stat-skitter). Type colours as in gen_pfight.py TYPES. Each icon = one bold readable silhouette that says the piece (a die in an open trapdoor, footprints in a swerve, a scroll with ink, an eye with a lid...). The four stats should read as families: Nimble (red-brown, motion), Lore (blue, scrolls/ink/thread), Luck (green, coins/clover/dice), Sense (eyes/leaves/shields). Output per icon: aseprite-source/pfight/piece-icons/stat/<key>.aseprite (32x32, layers allowed), final PNGs game/assets/img/pfight/pieces/ico-<key>.png (32) and ico-<key>-s.png (20) (the 20 px version redrawn or cleanly reduced, not blurred; no semi-transparent pixels).
+B. Kit art for new engine features, delivered as SEPARATE small PNGs under game/assets/img/pfight/stat/ (do not modify the existing parts48 sheets or atlas.json). Study game/assets/pfparts47.js, game/assets/img/pfight/parts48/atlas.json, tools/build_parts48.py and aseprite-source/pfight/v48 to match sizes, layout and style, then write game/assets/img/pfight/stat/README.md describing each file and exactly how code should composite it:
+   1. "any" edge sockets (a knob and a hole whose edge links with ANY family: a tri-colour twine/knot look; Knot of Twine's rule) in the same orientations and the two sizes (hand, strip) as the existing socket sheet `socks-*`.
+   2. Spring environment piece art (tile + glyph, hand and strip) matching the existing Sun / Rain / Bramble / Mud / Wind / Tremor env tiles and glyphs (look at envtiles-*.png and envglyphs-*.png).
+   3. A snare mark: a small cell overlay (a hidden snare: a leaf-woven loop, faint, readable on the board cells in both themes) at the board cell sizes used by hand and strip boards.
+   4. Four stat badges (Nimble, Lore, Luck, Sense), tiny corner badges for stat pieces in the same size/layout as the existing `badges-*` sheet.
+   5. A "stolen" overlay mark (a small thread/hook mark) for a creature piece that has been taken by Turn of the Tale or Magpie's Pinch.
+   Sources for these under aseprite-source/pfight/stat-kit/.
+
+## Verify (the checker)
+Sizes exact, no partial alpha, no #000000 or #ffffff, ink outline present, 20 px copy reads, every key in SP/stat24.json has both PNGs, kit files match the sizes documented in the README; write a contact sheet PNG (32 px and 20 px, upscaled with labels) under your output folder. Report anything weak.

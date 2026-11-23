@@ -111,7 +111,7 @@ foreach ([[$st, 'bloomcaller', 2, [], ['soothe', 'jab', 'nonexistent', 'swing'],
           [$st, '', 1, $pals, [], [], true, ['swing', 'pierce', 'dodge', 'rest', 'charm', 'snack', 'bark', 'nothing']], [$st, 'wayfinder', 1, [], pf_unlocks(16), [], true, null]] as $a) {
     $decks[] = ['args' => $a, 'deck' => pf_player_deck(...$a)];
 }
-out(['hdr' => true, 'wearfx' => pfb_wx_data(), 'phpv' => PHP_VERSION_ID, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks, 'abil' => PFB_ABIL, 'abrange' => PFB_AB_RANGE, 'ai' => PFB_AI, 'aikeys' => PFB_AI_KEYS, 'env' => pfb_env_table(), 'envdecks' => array_map(fn($a) => [$a, pfb_env_deck(...$a)], [['small', ''], ['medium', 'SEA'], ['large', 'NA'], ['boss', 'ESA'], ['odd', 'nowhere']])]);
+out(['hdr' => true, 'wearfx' => pfb_wx_data(), 'statfx' => pfb_stat_data(), 'chance' => array_map(fn($lp) => [$lp, pfb_wx_chance(['me' => ['wx' => ['lp' => $lp]]])], [0, 1, 10, 19, 20, 21, 30, 99]), 'phpv' => PHP_VERSION_ID, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks, 'abil' => PFB_ABIL, 'abrange' => PFB_AB_RANGE, 'ai' => PFB_AI, 'aikeys' => PFB_AI_KEYS, 'env' => pfb_env_table(), 'envdecks' => array_map(fn($a) => [$a, pfb_env_deck(...$a)], [['small', ''], ['medium', 'SEA'], ['large', 'NA'], ['boss', 'ESA'], ['odd', 'nowhere']])]);
 
 // ---- fights
 $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
@@ -129,11 +129,11 @@ $WEAR = array_values(array_filter(pf_data_lines('wear_items_pieces.txt'), fn($r)
 $nf = 0; $na = 0;   // modes: v1 and v1d play the DEFAULT rules, v1pre plays the 2.6.94 rule set, so parity covers both from here on
 // 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot. 2.6.74: 'v1' = the v1 board rules with the blank opening (single bot, flips when stuck);
 // 'v1b' = v1 with the builder bot and made-up sources (Teamwork); 'v1chaos' = v1 with random moves, random flips and random rule switches
-foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88], ['v1old', 99], ['v1pre', 111], ['v1preb', 122], ['v1ab', 133], ['v1abc', 144], ['v1st', 155], ['v1stc', 166], ['v1wear', 177], ['v1wearc', 188]] as [$mode0, $seed]) {   // 2.6.75: v1 fights have ENVIRONMENT PIECES; 'v1old' = a fight started under 2.6.74 (ground and events), which must still play the same   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
+foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88], ['v1old', 99], ['v1pre', 111], ['v1preb', 122], ['v1ab', 133], ['v1abc', 144], ['v1st', 155], ['v1stc', 166], ['v1wear', 177], ['v1wearc', 188], ['v1stat', 199], ['v1luck', 211], ['v1nimble', 222], ['v1lore', 233]] as [$mode0, $seed]) {   // 2.6.75: v1 fights have ENVIRONMENT PIECES; 'v1old' = a fight started under 2.6.74 (ground and events), which must still play the same   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
     if (getenv('PFE_MODES') && !in_array($mode0, explode(',', (string)getenv('PFE_MODES')), true)) continue;   // PFE_MODES=v1wear,v1wearc: only these modes (tests/pf_wear_fx.sh)
     mt_srand($seed * 1000 + $ci);
-    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank', 'v1old' => 'blank', 'v1pre' => 'blank', 'v1preb' => 'builder', 'v1ab' => 'blank', 'v1abc' => 'chaos', 'v1st' => 'blank', 'v1stc' => 'chaos', 'v1wear' => 'blank', 'v1wearc' => 'chaos'][$mode0] ?? $mode0;
-    if ($v1 && $mode0 !== 'v1' && $mode0 !== 'v1d' && $mode0 !== 'v1ab' && $mode0 !== 'v1st' && $mode0 !== 'v1wear' && $mode0 !== 'v1wearc' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
+    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank', 'v1old' => 'blank', 'v1pre' => 'blank', 'v1preb' => 'builder', 'v1ab' => 'blank', 'v1abc' => 'chaos', 'v1st' => 'blank', 'v1stc' => 'chaos', 'v1wear' => 'blank', 'v1wearc' => 'chaos', 'v1stat' => 'blank', 'v1luck' => 'blank', 'v1nimble' => 'blank', 'v1lore' => 'blank'][$mode0] ?? $mode0;
+    if ($v1 && $mode0 !== 'v1' && $mode0 !== 'v1d' && $mode0 !== 'v1ab' && $mode0 !== 'v1st' && $mode0 !== 'v1wear' && $mode0 !== 'v1wearc' && $mode0 !== 'v1stat' && $mode0 !== 'v1luck' && $mode0 !== 'v1nimble' && $mode0 !== 'v1lore' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
     $opt = $mode === 'blank' ? ['blank' => true] : []; $mods = false;
     if ($mode === 'chaos') {
         $all = array_keys(pf_tiles()); $box = [];
@@ -156,6 +156,26 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
     if ($mode0 === 'v1wear' || $mode0 === 'v1wearc') {   // 2.7.09 wear piece effects: 6 of the 280 wear pieces in the deck (every piece comes up across the creatures)
         for ($j = 0; $j < 6; $j++) { $wr = $WEAR[($ci * 6 + $j + ($mode0 === 'v1wearc' ? 140 : 0)) % count($WEAR)]; $me['deck'][] = pf_make_tile($wr[0], $me['stats'], 0, ['n' => $wr[1], 't' => $wr[4], 'v' => (int)$wr[5], 'r' => 'body', 'tag' => '', 'src' => 'wear']) + ['fx' => $wr[12], 'fxa' => (int)$wr[13], 'fxb' => (int)$wr[14]]; }
         $opt['can_pluck'] = true;
+    }
+    if ($mode0 === 'v1stat') {   // stat pieces: 6 of the 24 in the deck as tiles with their fx code S:KEY (live or not: the clauses the engine knows run, so the shared Luck roll and '@place cond' are in parity), Luck points 0-24
+        $SP = array_values(pfd_stat_pieces()); $lp = ($ci * 7) % 25; $me['lpts'] = $lp;
+        for ($j = 0; $j < 6; $j++) { $sp = $SP[($ci * 5 + $j) % count($SP)]; [$sa, $sb] = pfd_stat_ab($lp); $me['deck'][] = pf_make_tile($sp['k'], $me['stats'] + ['sense' => 1], 0, ['n' => $sp['n'], 't' => $sp['t'], 'v' => $sp['v'], 'r' => $sp['r'], 'tag' => $sp['tag'], 'src' => 'stat', 'st' => $sp['stat']]) + ($sp['fx'] !== '' ? ['fx' => 'S:' . $sp['k']] : []) + ['fxa' => $sa, 'fxb' => $sb]; }
+        $SP2 = array_values(array_filter($SP, fn($p) => str_contains($p['fx'], 'roll') && $p['fx'] !== 'roll again')); $sp = $SP2[$ci % count($SP2)];   // always one piece whose clauses roll
+        $me['deck'][] = pf_make_tile($sp['k'], $me['stats'], 0, ['n' => $sp['n'], 't' => $sp['t'], 'v' => $sp['v'], 'r' => $sp['r'], 'tag' => $sp['tag'], 'src' => 'stat', 'st' => $sp['stat']]) + ['fx' => 'S:' . $sp['k'], 'fxa' => 2, 'fxb' => 1];
+        $opt['can_pluck'] = true;
+    }
+    if ($mode0 === 'v1luck') {   // stat pieces, Luck slice: all six Luck pieces (refires, Pluck by roll, the creature's next Hurt, pinch, coin, streak), Luck points 0-30, two of each so they come up often
+        $lp = ($ci * 11) % 31; $me['lpts'] = $lp; [$sa, $sb] = pfd_stat_ab($lp);
+        foreach (array_filter(pfd_stat_pieces(), fn($p) => $p['stat'] === 'luck') as $sp) for ($j = 0; $j < 2; $j++) $me['deck'][] = pf_make_tile($sp['k'], $me['stats'], 0, ['n' => $sp['n'], 't' => $sp['t'], 'v' => $sp['v'] + intdiv($lp, max(1, $sp['vd'])), 'r' => $sp['r'], 'tag' => $sp['tag'], 'src' => 'stat', 'st' => 'luck']) + ['fx' => 'S:' . $sp['k'], 'fxa' => $sa, 'fxb' => $sb];
+        $opt['can_pluck'] = true;
+    }
+    if ($mode0 === 'v1nimble') {   // stat pieces, Nimble slice: all six Nimble pieces (Sidestep, Skitter, Wrong Turn's shove, Pinning Stance, Shadow Step, Phantom Footing and its picks), two of each, half of them with wild edges so they fit often
+        $np = 10 + ($ci * 7) % 21; [$sa, $sb] = pfd_stat_ab($np);
+        foreach (array_filter(pfd_stat_pieces(), fn($p) => $p['stat'] === 'nimble') as $sp) for ($j = 0; $j < 2; $j++) $me['deck'][] = pf_make_tile($sp['k'], $me['stats'], 0, ['n' => $sp['n'], 't' => $sp['t'], 'v' => $sp['v'] + intdiv($np, max(1, $sp['vd'])), 'r' => $sp['r'], 'tag' => $sp['tag'], 'src' => 'stat', 'st' => 'nimble']) + ['fx' => 'S:' . $sp['k'], 'fxa' => $sa, 'fxb' => $sb] + ($j ? ['ed' => ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]]] : []);
+    }
+    if ($mode0 === 'v1lore') {   // stat pieces, Lore slice: all six Lore pieces (Old Saying, Knot of Twine's any edges, Lantern Chain, Weather Lore, Copybook, Turn of the Tale), two of each, the second copy with wild edges (Knot keeps its any edges)
+        $lp = 10 + ($ci * 7) % 21; [$sa, $sb] = pfd_stat_ab($lp);
+        foreach (array_filter(pfd_stat_pieces(), fn($p) => $p['stat'] === 'lore') as $sp) for ($j = 0; $j < 2; $j++) $me['deck'][] = pf_make_tile($sp['k'], $me['stats'], 0, ['n' => $sp['n'], 't' => $sp['t'], 'v' => $sp['v'] + intdiv($lp, max(1, $sp['vd'])), 'r' => $sp['r'], 'tag' => $j ? 'pierce' : $sp['tag'], 'src' => 'stat', 'st' => 'lore'] + (isset($sp['edges']) ? ['edges' => $sp['edges']] : ($j ? ['edges' => ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]]] : []))) + ['fx' => 'S:' . $sp['k'], 'fxa' => $sa, 'fxb' => $sb];
     }
     if ($mode0 === 'v1ab' || $mode0 === 'v1abc') { $set = $abSets[$ci % count($abSets)]; $c['ab'] = $set[0]; $c['abp'] = $set[1]; $c['class'] = ['Critter', 'Bird', 'Beast', 'Water', 'Plant / Fungus', 'Reptile / Amphibian'][($ci + intdiv($ci, 6)) % 6]; }   // 2.7.01: every ability (and E ids on other classes, overrides) is played in parity
     if ($mode0 === 'v1st' || $mode0 === 'v1stc') {   // 2.7.01 creature AI: every style (and an unknown id, and overrides) on every creature, with and without abilities, on every class
@@ -215,6 +235,13 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
             if (!pfb_search($s, 'me')) foreach (array_keys($s['me']['hand']) as $i) { if (!pfb_can_flip($s, $i)) continue; if ($fl($i)) continue; if (pfb_search($s, 'me')) break; $fl($i); }
             if ($mode0 === 'v1chaos' && $nh && ($s['me']['redraws'] ?? 0) > 0 && mt_rand(0, 4) === 0) { $ri = mt_rand(0, $nh); $rok = pf_redraw($s, $ri, $tn); $emit(['op' => 'redraw', 'hand' => $ri, 'turn' => $tn, 'res' => ['ok' => $rok]]); }   // 2.7.06 Luck redraw (an out-of-range index is refused)
             if ($mode0 === 'v1chaos' && $nh && mt_rand(0, 5) === 0) { $dr = (bool)mt_rand(0, 1); $r = pfb_play($s, [['f', 0]], $tn, null, $dr); $emit(['op' => 'play', 'moves' => [['f', 0]], 'turn' => $tn, 'dry' => $dr, 'res' => $r]); }
+        }
+        if ($mode0 === 'v1nimble' && !empty($s['me']['wph']) && !empty($s['foe']['plan'])) {   // Phantom Footing: try picks (a bad one now and then, a dry one, then a real one)
+            $tn = $s['turn']; $pl = $s['foe']['plan']; [$ox, $oy] = $pl['from'] ?? [$pl['x'], $pl['y']];
+            foreach ([[$ox + 2, $oy], [$ox, $oy - 1], [$ox, $oy + 1], [$ox - 1, $oy], [$ox + 1, $oy]] as $pi => [$px, $py]) {
+                $dr = $pi === 1; $r = pfb_play($s, [['p', $px, $py]], $tn, null, $dr); $emit(['op' => 'play', 'moves' => [['p', $px, $py]], 'turn' => $tn, 'dry' => $dr, 'res' => $r]);
+                if ($r['err'] === null && !$dr && mt_rand(0, 1)) break;
+            }
         }
         foreach (candidates($s, $mode) as $mv) {
             $tn = $s['turn'];

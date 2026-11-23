@@ -18,11 +18,11 @@ function m_state(array $hand): array
     $s = pfb_new(m_me(), m_foe(), 7, ['v1' => true]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = [];
     $w = ['wild', null]; $ed = ['L' => $w, 'R' => $w, 'T' => $w, 'B' => $w];
-    $mk = fn(string $k, string $t, int $v) => pfb_v1_tile(['k' => $k, 'n' => ucfirst($k), 't' => $t, 'v' => $v, 'r' => null, 'tag' => '', 'm' => '', 'src' => 'knack', 'ed' => $ed], $s['v1']);
+    $mk = function (string $k, string $t, int $v) use ($ed, $s) { $p = pfb_v1_tile(['k' => $k, 'n' => ucfirst($k), 't' => $t, 'v' => $v, 'r' => null, 'tag' => '', 'm' => '', 'src' => 'knack', 'ed' => $ed], $s['v1']); $p['ed'] = $ed; return $p; };   // pfb_v1_tile now derives its own edges: force wild ones so the open cell takes every piece
     for ($y = 0; $y < $s['h']; $y++) for ($x = 0; $x < $s['w']; $x++) {
         if ($x === 1 && $y === 1) continue;
         $id = ++$s['pid']; $s['seq']++;
-        $s['pcs'][$id] = ['id' => $id, 'by' => 'foe', 'tile' => $mk('stone', 'guard', 1), 'x' => $x, 'y' => $y, 'born' => $s['round'], 'seq' => $s['seq']]; $s['cell']["$x,$y"] = $id;
+        $s['pcs'][$id] = ['id' => $id, 'by' => 'foe', 'tile' => $mk('stone', 'trick', 0), 'x' => $x, 'y' => $y, 'born' => $s['round'], 'seq' => $s['seq']]; $s['cell']["$x,$y"] = $id;
     }
     $s['me']['hand'] = array_map(fn($h) => $mk(...$h), $hand); $s['me']['held'] = null;
     return $s;

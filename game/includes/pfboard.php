@@ -37,7 +37,13 @@ const PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 0.5;   // bramble: share of max heal
 const PFB_THORN = 0.10, PFB_EVENT_FOE = 0.7;  // thorn burst: share of max health per piece in the zone; event damage on the creature is halved
 const PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;       // Teamwork: your pieces in a chain you start come from 2 / 3 of the sources pal, tool, crop
 const PFB_TEAM_SRC = ['pal', 'tool', 'crop', 'craft', 'region', 'knack', 'calling'];   // 2.7.06: craft and region pieces count as sources too, so Teamwork can happen (it fired once in 20 turns with three)
-const PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'legend', 'wear', 'creature', 'env'];   // where a piece comes from (tile field 'src')
+const PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'legend', 'wear', 'creature', 'env', 'stat'];   // stat: a stat piece (setting pfight_statpieces, data/pf_stat_pieces.txt)
+const PFB_ROLL_BASE = 50, PFB_ROLL_PER = 2, PFB_ROLL_MAX = 90;
+/** Stat-piece actions (the clause parser looks here after data/wear_fx.txt's act rows, which a generator writes): name => [phase, step]. */
+const PFB_STAT_ACTS = ['again' => ['fire', 'post'], 'fup' => ['fire', 'post'], 'pinch' => ['fire', 'post'], 'coin' => ['fire', 'post'], 'streak' => ['fire', 'post'],
+    'shove' => ['fire', 'post'], 'phantom' => ['fire', 'post'], 'stance' => ['stand', 'stand'], 'shadow' => ['react', 'react'],
+    'boostall' => ['fire', 'post'], 'weather' => ['fire', 'post'], 'teach' => ['fire', 'post'], 'retell' => ['fire', 'post']];   // Lore: Lantern Chain, Weather Lore, Copybook, Turn of the Tale   // Nimble: stance and shadow only mark the piece (Pinning Stance on the board, Shadow Step in your hand); the engine reads them in the creature's turn
+const PFB_WX_REFIRE = ['again', 'streak'];   // actions that make pieces fire again: a refire never runs them (nor a clause that rolls)   // the shared Luck roll of the stat pieces: 50% + 2% per Luck point, at most 90%   // where a piece comes from (tile field 'src')
 const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craft' => 'craft', 'legend' => 'mind', 'wear' => 'body'];   // authored edges: the column family (top and bottom) of a sourced piece; other pieces use their type family
 const PFB_UP = ['hurt' => 1, 'charm' => 1, 'trick' => 1];   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round
 const PFB_CLASS_LEAN = ['critter' => 'mind', 'insect' => 'mind', 'water' => 'body', 'bird' => 'craft', 'plant' => 'mind', 'fungus' => 'mind', 'reptile' => 'craft', 'amphibian' => 'craft', 'beast' => 'body'];   // a creature class leans to a family: 3 of its pieces in 5 stack in it
@@ -533,9 +539,11 @@ function pfb_env_place(array &$s): void
     foreach ($s['env']['next'] as $tile) {
         $capd = $cap > 0 && count(array_filter($s['pcs'], fn($q) => $q['by'] === 'env' && empty($q['tile']['own']))) >= $cap;
         $full = $capd || count($s['cell']) >= (float)($s['v1']['envcap'] ?? 1) * pfb_w($s) * pfb_h($s);
-        $cells = $full ? [] : pfb_env_cells($s, $tile);
+        $pc = !$full && isset($tile['wpref']) ? pfb_env_pref($s, $tile) : null;   // Weather Lore's called piece: a free cell beside it
+        $cells = $full ? [] : ($pc !== null ? [$pc] : pfb_env_cells($s, $tile));
         if (!$cells) { $s['envlog'][] = ['k' => 'pass'] + $P + ['kind' => $tile['env'], 'n' => $tile['n']] + ($full ? ['full' => 1] : []) + ($capd ? ['cap' => $cap] : []) + ['now' => pfb_env_now($s)]; $keep[] = $tile; continue; }
-        [$x, $y] = $cells[pf_rand($s, count($cells))];
+        [$x, $y] = $pc ?? $cells[pf_rand($s, count($cells))];
+        unset($tile['wpref']);
         $tile = pfb_env_fit($s, $tile, $x, $y);   // 2.7.55: on a 3x3 board a side that does not fit turns flat
         if ($tile['env'] === 'wind') $tile['dir'] = pfb_env_wind_dir($s, $x, $y);
         $id = ++$s['pid']; $s['seq']++;
@@ -547,6 +555,21 @@ function pfb_env_place(array &$s): void
     }
     $s['env']['next'] = $keep;
     pfb_env_draw($s);
+}
+
+/** Weather Lore: the free cell beside where it stood (tile 'wpref') for its called piece: of the cells where the piece fits, the one with most links to your pieces (ties L R T B);
+ *  if it fits on none, the first free one (pfb_env_fit makes the sides that do not fit flat); null = no free cell beside it (the usual cells). */
+function pfb_env_pref(array $s, array $tile): ?array
+{
+    [$px, $py] = $tile['wpref']; $best = null; $bl = -1; $free = null;
+    foreach (PFB_SIDE as [$dx, $dy]) {
+        $x = (int)$px + $dx; $y = (int)$py + $dy;
+        if ($x < 0 || $y < 0 || $x >= pfb_w($s) || $y >= pfb_h($s) || isset($s['cell']["$x,$y"])) continue;
+        $free ??= [$x, $y]; $j = pfb_check($s, $tile, $x, $y); if ($j === null) continue;
+        $nl = 0; foreach ($j as [, $nid, $lk]) if ($lk && $s['pcs'][$nid]['by'] === 'me') $nl++;
+        if ($nl > $bl) { $bl = $nl; $best = [$x, $y]; }
+    }
+    return $best ?? $free;
 }
 
 /** An environment piece's effect costs a side a share of its maximum (your health, the creature's bar; guard does not help). Returns what it cost. */
@@ -659,9 +682,9 @@ function pfb_life(array $s, array $p): int
 /** A piece's tile goes back to its owner's discard (a flipped piece comes back the right way up). */
 function pfb_discard(array &$s, array $p): void
 {
-    if ($p['by'] === 'none') return;
+    if ($p['by'] === 'none' || !empty($p['tile']['pin'])) return;   // pin: a piece Magpie's Pinch took from the creature is gone after use
     $t = $p['tile']; unset($t['flip'], $t['ft'], $t['dir'], $t['kr']);   // kr: rounds a wear piece waited in your hand
-    $s[$p['by']]['discard'][] = $t;
+    $s[!empty($p['ws']) ? 'foe' : $p['by']]['discard'][] = $t;   // ws: a piece Turn of the Tale stole goes back to the creature's discard (never your deck)
 }
 
 /** v1 ground: sunny, bramble and mud cells 1-2 steps from the centre (the counts by creature size). */
@@ -876,13 +899,17 @@ function pfb_edges(array $t): array
     return $cache[$key] = ['L' => ['hole', PF_HOLE[$t['t']] ?? 'body'], 'R' => ($t['r'] ?? null) ? ['knob', $t['r']] : ['flat', null], 'T' => $mk('|T'), 'B' => $mk('|B')];
 }
 
-/** Do two touching edges fit? [fits, linked]: linked = both are knob/hole (so the chain runs through the joint). */
+/** Do two touching edges fit? [fits, linked]: linked = both are knob/hole (so the chain runs through the joint). 'any' (Knot of Twine) fits and links any knob, hole or any, of any family; a flat side still never links. */
 function pfb_joint(array $a, array $b): array
 {
     if ($a[0] === 'wild' || $b[0] === 'wild') return [true, true];
     if ($a[0] === 'flat' || $b[0] === 'flat') return [true, false];
+    if ($a[0] === 'any' || $b[0] === 'any') return [true, true];
     return [$a[0] !== $b[0] && $a[1] === $b[1], $a[0] !== $b[0] && $a[1] === $b[1]];
 }
+
+/** Does a tile have a side of the edge kind 'any' (Knot of Twine: never a combo partner)? */
+function pfb_anyedge(array $t): bool { if (empty($t['ed'])) return false; foreach ($t['ed'] as $e) if ($e[0] === 'any') return true; return false; }
 
 function pfb_at(array $s, int $x, int $y): ?array
 {
@@ -994,6 +1021,7 @@ function pfb_set_combo(array $s, array $chain, int $ci, string $who, array $tile
             $q = $s['pcs'][$cid] ?? null;
             if (!$q || $q['by'] !== $who || ($q['tile']['t'] ?? '') !== $a) continue;
             if ($a === $b && $cj >= $ci) continue;
+            if (pfb_anyedge($q['tile'])) continue;   // Knot of Twine is never a combo partner
             $pv = max($pv ?? 0, (int)$q['tile']['v']);
         }
         if ($pv === null) continue;
@@ -1004,10 +1032,10 @@ function pfb_set_combo(array $s, array $chain, int $ci, string $who, array $tile
 }
 
 /** Fire a chain. Events like the strip engine's, plus 'id' and 'root'. */
-function pfb_fire(array &$s, int $root): array
+function pfb_fire(array &$s, int $root, bool $alone = false): array
 {
     $ev = [];
-    $chain = pfb_fire_order($s, $root);
+    $chain = $alone ? [[$root, null]] : pfb_fire_order($s, $root);   // alone: only this piece fires (Shadow Step), no chain
     $v1 = $s['v1'] ?? null; $rb = $s['pcs'][$root]['by']; $tw = 1.0;
     if ($v1) {   // v1: what fired (for use-up) and Teamwork: the starter's pieces in this chain come from 2 or 3 of the sources pal, tool, crop
         $s['fired'] = []; $s['firedby'] = $rb; $s['firedroot'] = $root; $srcs = [];
@@ -1017,20 +1045,24 @@ function pfb_fire(array &$s, int $root): array
     $cset = $v1 && pfb_v1r($s, 'cset') === 1;
     $esun = 1.0;   // 2.6.75: a Sun piece in the chain: every piece of the side that started the chain counts x sun in it (once, however many Suns)
     if ($v1 && !empty($v1['env'])) foreach ($chain as [$cid]) if ($s['pcs'][$cid]['by'] === 'env' && $s['pcs'][$cid]['tile']['env'] === 'sun') $esun = (float)$v1['sun'];
-    foreach ($chain as $ci => [$id, $par]) {
-        if ($s['over']) { $s['cut'] = ($s['cut'] ?? 0) + count($chain) - $ci; break; }   // the fight ended mid-chain: how many linked pieces did not fire (for the harness and replay)
+    $todo = []; foreach ($chain as $ci => [$cid, $cpar]) $todo[] = [$ci, $cid, $cpar, false];   // stat pieces: a refire (again / streak) is put in after the piece that asked for it: [chain index (-1 = not in this chain), id, parent, refire]
+    for ($ti = 0; $ti < count($todo); $ti++) {
+        [$ci, $id, $par, $re] = $todo[$ti];
+        if ($s['over']) { $s['cut'] = ($s['cut'] ?? 0) + count(array_filter(array_slice($todo, $ti), fn($q) => !$q[3])); break; }   // the fight ended mid-chain: how many linked pieces did not fire (for the harness and replay)
+        if ($re && !isset($s['pcs'][$id])) continue;   // a refire whose piece has left the board
         $p = $s['pcs'][$id]; $who = $p['by']; $tile = $p['tile'];
         if ($who === 'none') continue;   // the blank centre piece does nothing itself; the chain runs through it
+        if ($id === ($s['wshid'] ?? null) && $rb === 'foe') continue;   // Shadow Step fired alone as it jumped in: the creature's chain runs through it without firing it again
         if ($who === 'env') {   // 2.6.75: an environment piece: its effect goes to the side whose chain this is; it counts for the chain's length and is used up like any piece
             $e = pfb_env_fire($s, $p, $rb); $s['fired'][] = $id;
             $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;
             $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block']; $e['fgnow'] = (int)$s['foe']['block'];
             $ev[] = $e; pf_check_end($s); continue;
         }
-        $pt = $par !== null ? $s['pcs'][$par] : null;
-        if ($pt && ($pt['by'] === 'none' || $pt['by'] === 'env')) $pt = null;   // and a piece after it (or after an environment piece) has no combo parent
+        $pt = $par !== null ? ($s['pcs'][$par] ?? null) : null;
+        if ($pt && ($pt['by'] === 'none' || $pt['by'] === 'env' || pfb_anyedge($pt['tile']))) $pt = null;   // (Knot of Twine is never a combo partner) and a piece after it (or after an environment piece) has no combo parent
         [$val, , $ck] = pf_value($pt['tile'] ?? null, $tile, $pt !== null && $pt['by'] === $who, false);   // combos only off your own piece; no fit bonus (every link fits)
-        if ($cset) [$val, $ck] = pfb_set_combo($s, $chain, $ci, $who, $tile);   // 2.7.06 (Josh): a combo needs the partner anywhere in the same chain (your pieces), not the piece it linked to
+        if ($cset) [$val, $ck] = $ci >= 0 ? pfb_set_combo($s, $chain, $ci, $who, $tile) : pfb_set_combo($s, [[$id, null]], 0, $who, $tile);   // 2.7.06 (Josh): a combo needs the partner anywhere in the same chain (your pieces), not the piece it linked to
         $val = (int)pf_round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
         if (isset($p['wv'])) $val = max(1, $val + (int)$p['wv']);   // 2.7.09 wear effects: a boost (+) or a shrink (-) on this board piece
         if ($who === 'foe' && $tile['t'] === 'hurt' && ($gr = (int)($s['foe']['grudge'] ?? 0)) > 0 && pfb_kind($s) === 'beast') $val = (int)pf_round($val * (1 + (float)pfb_abp($s, 'gpct', PFB_KIND_GRUDGE) * $gr));   // 2.6.98 Grudge (2.7.01: Fury / Slow grudge change the number)
@@ -1043,21 +1075,21 @@ function pfb_fire(array &$s, int $root): array
         }
         $sunny = $v1 && in_array($tile['t'], ['hurt', 'charm'], true) && pfb_ter($s, $p['x'], $p['y']) === 'sun';
         if ($sunny) $val = (int)pf_round($val * (float)$v1['sun']);
-        if ($esun > 1 && $who === $rb) { $val = (int)pf_round($val * $esun); $sunny = true; }
+        if ($esun > 1 && $who === $rb && $ci >= 0) { $val = (int)pf_round($val * $esun); $sunny = true; }   // (a refired piece outside this chain: no Sun, no Teamwork of this chain)
         $muddy = $v1 && !empty($v1['env']) && (float)($v1['mud'] ?? 0) > 0 && pfb_mud_near($s, $p['x'], $p['y']);   // Mud's teeth: a piece next to a Mud counts less (where it stands when it fires)
         if ($muddy) $val = (int)pf_round($val * (1 - (float)$v1['mud']));
-        if ($tw > 1 && $who === $rb) $val = (int)pf_round($val * $tw);
+        if ($tw > 1 && $who === $rb && $ci >= 0) $val = (int)pf_round($val * $tw);
         $cntr = $who === 'me' && !empty($tile['cnt']) && $tile['cnt'] === pfb_kind($s);   // 2.7.08 counter piece against its own class
         if ($cntr) $val += PFB_COUNTER_ADD;
         $toughed = false;
         if ($who === 'me' && $rb === 'me' && $tile['t'] === 'hurt' && empty($s['me']['tough']) && ($th = pfb_ab($s, 'toughhide'))) { $val = max(1, $val - (int)$th['cut']); $s['me']['tough'] = 1; $toughed = true; }   // 2.7.01 Tough hide: your first Hurt of the turn counts less
-        $isRoot = $id === $root; $wcl = null; $whalf = false;
+        $isRoot = !$re && $id === $root; $wcl = null; $whalf = false;
         if ($who === 'me' && !empty($s['wfx']) && !empty($tile['fx'])) {   // 2.7.09 wear effects: the conditions are checked as it fires, before its own effect; dmg and pierce change its own hit
-            $wcx = ['id' => $id, 't' => $tile, 'ch' => $chain, 'ph' => 'fire', 'g' => 0]; $wcl = pfb_wx_fire($s, $wcx, $isRoot && $rb === 'me');
+            $wcx = ['id' => $id, 't' => $tile, 'ch' => $chain, 'ph' => 'fire', 'g' => 0]; if ($re) $wcx['re'] = 1; $wcl = pfb_wx_fire($s, $wcx, $isRoot && $rb === 'me');
             foreach ($wcl as $o) { if ($o['a'] === 'dmg') $val += pfb_wx_n($s, $o, $wcx); if ($o['a'] === 'pierce') $tile['tag'] = 'pierce'; }
         }
         if ($who === 'foe' && $tile['t'] === 'hurt' && (int)($s['foe']['whf'] ?? 0) > 0) { $val = (int)pf_round($val / 2); $s['foe']['whf']--; $whalf = true; }   // 2.7.09: its next Hurts do half damage
-        if ($v1) $s['fired'][] = $id;
+        if ($v1 && !$re) $s['fired'][] = $id;
         $e = ['by' => $who, 'id' => $id, 'root' => $isRoot, 'tag' => $tile['tag'], 'mod' => (string)($tile['m'] ?? ''), 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => false, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         if ($sunny) $e['sun'] = 1;
         if ($muddy) $e['mud'] = 1;
@@ -1069,14 +1101,20 @@ function pfb_fire(array &$s, int $root): array
         if ($grd > 0) $e['gr'] = $grd;
         if ($swm > 0) $e['sw'] = $swm;
         if ($whalf) $e['whalf'] = 1;
+        if ($re) $e['re'] = 1;   // stat pieces: it fires again (Loaded Die, Long Shot, Lucky Streak)
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
-        if ($wcl !== null) { $wcx['g'] = $tile['t'] === 'guard' ? $val : 0; foreach ($wcl as $o) if ($o['st'] === 'post' && pfb_wx_conds($s, array_filter($o['c0'], fn($c) => str_starts_with(ltrim($c, '!'), 'tgt:')), $wcx)) pfb_wx_act($s, $o, $wcx, $e); }   // 2.7.09 wear effects (the tgt conditions after the boost)
+        if ($wcl !== null) { $wcx['g'] = $tile['t'] === 'guard' ? $val : 0; foreach ($wcl as $o) if ($o['st'] === 'post' && pfb_wx_conds($s, array_filter($o['c0'], fn($c) => str_starts_with(ltrim($c, '!'), 'tgt:')), $wcx)) pfb_wx_act($s, $o, $wcx, $e); if (isset($wcx['roll'])) $e['roll'] = $wcx['roll'] ? 'hit' : 'miss'; }   // stat pieces: the Luck roll of this firing, for the board   // 2.7.09 wear effects (the tgt conditions after the boost)
         if ($who === 'foe' && $tile['t'] === 'hurt' && !empty($s['wfx'])) pfb_wx_guard($s, $e, $id);   // 2.7.09: your guard blocked it or your Evade made it miss
-        $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;   // fire budget: one more firing used (the placement counts as the first)
+        if (!$re) $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;   // fire budget: one more firing used (the placement counts as the first; a refire is free)
         $e['barnow'] = pf_round((float)$s['bar']['now'], 1); $e['fhnow'] = pf_round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block']; $e['fgnow'] = (int)$s['foe']['block'];   // for the replay: how the bar and health stand after this piece
         $ev[] = $e;
         foreach (['drained' => 'drain', 'staggered' => 'stagger'] as $ek => $nk) if (!empty($e[$ek])) $ev[] = pfb_abnote($s, $nk, $nk === 'drain' ? (string)$e[$ek] : '');   // 2.7.01 notices
         pf_check_end($s);
+        if ($wcl !== null && !empty($wcx['rf'])) {   // stat pieces: the pieces this one makes fire again, right after it (their own links do not fire again)
+            $ins = [];
+            foreach ($wcx['rf'] as $rid) { $rci = -1; $rpar = null; foreach ($chain as $k => [$a, $b]) if ($a === $rid) { $rci = $k; $rpar = $b; break; } $ins[] = [$rci, $rid, $rpar, true]; }
+            array_splice($todo, $ti + 1, 0, $ins);
+        }
     }
     return $ev;
 }
@@ -1092,7 +1130,8 @@ function pfb_fire_limit(array $p, bool $tagfx = false, bool $firex = false, bool
 /** The fire limit of a piece in this fight (reads the fight's own rules, so a fight under way keeps its old limit). */
 function pfb_fire_lim(array $s, array $p): int
 {
-    if ($p['by'] === 'env') return pfb_v1r($s, 'envonce') === 1 ? 1 : 0;   // 2.7.55: a small fight's environment piece fires once, then leaves (the next one comes in)
+    if ($p['by'] === 'env') return pfb_v1r($s, 'envonce') === 1 ? 1 : 0;
+    if (!empty($p['ws'])) $p['by'] = 'foe';   // Turn of the Tale: a stolen piece keeps the creature's fire budget   // 2.7.55: a small fight's environment piece fires once, then leaves (the next one comes in)
     return pfb_fire_limit($p, pfb_v1r($s, 'tagfx') === 1, pfb_v1r($s, 'firex') === 1, !empty($s['boss']));
 }
 
@@ -1173,12 +1212,15 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     if (!empty($s['wfx'])) {   // 2.7.09 wear effects
         if ($who === 'me') pfb_wx_placed($s, $id, $tile);
         elseif ($who === 'foe' && (int)$s['foe']['wnx'] > 0) { $s['pcs'][$id]['wv'] = -(int)$s['foe']['wnx']; $s['foe']['wnx'] = 0; }   // its next piece loses N
+        if ($who === 'foe' && $tile['t'] === 'hurt' && (int)($s['foe']['wup'] ?? 0) > 0) { $s['pcs'][$id]['wv'] = (int)($s['pcs'][$id]['wv'] ?? 0) + (int)$s['foe']['wup']; $s['foe']['wup'] = 0; }   // stat pieces (Hedge Rummage's miss): its next Hurt gets +N
     }
     $joints = pfb_check_after($s, $id);
     $ev = pfb_fire($s, $id);
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); $ev[0]['cs'] = 1; $ev[0]['rid'] = $id; }   // cs / rid: this event opens the chain and the placed piece is rid (after the firing order changed the placed piece is not always the first to fire); linked: how many linked joints the new piece made; snap: the board for the history rewind
     $used = pfb_spend($s);
     if ($used && $ev) $ev[0]['used'] = $used;   // v1: the ids this chain used up
+    if (!empty($s['wrp'])) { unset($s['wrp']); if (!$s['over']) pfb_wx_replan($s); }
+    if (!empty($s['wtot'])) { unset($s['wtot']); if (!$s['over'] && !empty($s['foe']['plan']) && pfb_v1r($s, 'aimtot')) $s['foe']['plan']['tot'] = pfb_aim_total($s); }   // Wrong Turn moved its aim: what the move does there   // stat pieces: the creature's hand changed (Magpie's Pinch, Turn of the Coin): it makes its aim again
     if ($ev && $who === 'me' && !$s['over'] && empty($s['boss']) && pfb_v1r($s, 'paltgt') === 1 && pfb_src($tile) === 'pal' && ($tid = pfb_pal_target($s, $x, $y, (int)$tile['v'])) !== null) $ev[] = pfb_pal_nip($s, $tid, (string)$tile['n']);   // 2.7.08 pal targeting: after its chain, the pal knocks the creature's strongest piece off (a boss shrugs it off, as it cannot be charmed)
     if ($ev && $who === 'me' && isset($s['ven']["$x,$y"]) && pfb_kind($s) === 'reptile' && !empty($s['v1']['tags'])) {   // 2.6.98 Venom trail: you stepped on it
         $vr = (int)pfb_abp($s, 'vrnds', PFB_KIND_VENOM_RNDS); $vp = (int)pfb_abp($s, 'vpoison', PFB_KIND_VENOM_POISON);
@@ -1392,7 +1434,7 @@ function pfb_score(array $b, array $a, string $who, ?array &$ctx = null): float
 }
 
 /** The best single placement for $who by trying every tile in every legal cell on a copy. [handIdx, x, y, score] or null. Ties: first found (deterministic). */
-function pfb_search(array $s, string $who, bool $allowHeavy = true, ?string $onlyK = null, ?array $avoid = null): ?array
+function pfb_search(array $s, string $who, bool $allowHeavy = true, ?string $onlyK = null, ?array $avoid = null, ?array $only = null): ?array
 {
     $best = null; $ctx = [];
     if ($who === 'foe') { $s = pfb_foe_base($s); $infoe = !empty($s['foe']['ab']); } else $infoe = false;   // 2.7.01: with a play style it searches the turn it will play; Ambush is live in its first turn
@@ -1401,6 +1443,7 @@ function pfb_search(array $s, string $who, bool $allowHeavy = true, ?string $onl
         if ($onlyK !== null && $tile['k'] !== $onlyK) continue;   // 2.6.98: a boss's committed piece
         foreach (pfb_cells($s, $tile, $who) as [$x, $y]) {
             if ($avoid !== null && $x === $avoid[0] && $y === $avoid[1]) continue;   // 2.6.98: a Bird's second aim is on another cell
+            if ($only !== null && !in_array("$x,$y", $only, true)) continue;   // Pinning Stance: only these cells
             $w = $s; if ($infoe) $w['infoe'] = 1;
             if (pfb_place($w, $who, $i, $x, $y) === null) continue;
             unset($w['infoe']);
@@ -1507,13 +1550,17 @@ function pfb_foe_turn(array &$s, int $extra): array
             elseif ($kind === 'beast') $s['foe']['grudge'] = min((int)pfb_abp($s, 'gmax', PFB_KIND_GRUDGE_MAX), (int)($s['foe']['grudge'] ?? 0) + 1);   // 2.6.98 Grudge: you blocked it
         }
         $why = '';
-        if ($plan) { foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $s['aimforce'] = true; $r = pfb_place($s, 'foe', $hi, $plan['x'], $plan['y']); unset($s['aimforce']); $why = (string)($plan['why'] ?? ''); break; } }   // v1 AIM: it plays the piece and the cell it showed
+        if ($plan && !empty($s['wfx'])) { $ev = array_merge($ev, pfb_wx_shadow($s, $plan)); if ($s['over']) break; }   // stat pieces: Shadow Step jumps in beside its aimed piece
+        if ($plan) { foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $s['aimforce'] = true; $r = pfb_place($s, 'foe', $hi, $plan['x'], $plan['y']); if ($r === null && ($plan['wt'] ?? '') === 'pick') $r = pfb_place($s, 'foe', $hi, (int)$plan['from'][0], (int)$plan['from'][1]); unset($s['aimforce']); $why = (string)($plan['why'] ?? ''); break; } }   // v1 AIM: it plays the piece and the cell it showed (Phantom Footing: your picked cell; if it does not take it, its own aim)
+        unset($s['wshid']);
         if ($r === null) {   // no aim, or its cell is taken (or its piece is gone): it picks again at full value (no fumble)
             if ($plan) $s['reaim'] = 1;
-            $m = pfb_search($s, 'foe');
+            $only = $plan && !empty($s['wfx']) ? pfb_wx_pins($s) : null;   // Pinning Stance: only a cell touching it (none: it loses the move)
+            $m = pfb_search($s, 'foe', true, null, $plan && ($plan['wt'] ?? '') === 'shove' ? [(int)$plan['from'][0], (int)$plan['from'][1]] : null, $only);   // Wrong Turn: not back on its old cell
             if ($m === null) break;
             if (pfb_v1r($s, 'style') === 1) $why = $plan ? preg_replace('/^([^:]+): /', '$1: re-aim, ', pfb_why($s, $m), 1) : pfb_why($s, $m);   // 2.7.01: the reason of the move it picks
             $r = pfb_place($s, 'foe', $m[0], $m[1], $m[2]);
+            if ($r && $only !== null) $r[0]['pin'] = 1;
         }
         if ($r && $why !== '') $r[0]['why'] = $why;
         if ($r) { $ev = array_merge($ev, $r); $s['lastfoe'][] = $s['pid']; if ($kind === 'water') pfb_current($s, (int)$s['pid'], $ev); }
@@ -1707,6 +1754,7 @@ function pfb_wx_clauses(string $fx): array
     if (isset($C[$fx])) return $C[$fx];
     $D = pfb_wx_data(); $src = []; $p = explode('>', $fx);
     if (str_starts_with($fx, 'R:')) { if (isset($D['rare'][substr($fx, 2)])) $src = explode(' ; ', $D['rare'][substr($fx, 2)][0]); }
+    elseif (str_starts_with($fx, 'S:')) { $sr = pfb_stat_data()[substr($fx, 2)] ?? null; if ($sr && $sr[0] !== '') $src = explode(' ; ', $sr[0]); }   // a stat piece: its clauses in data/pf_stat_pieces.txt (an action the engine does not know yet is left out)
     elseif (count($p) === 2 && isset($D['trig'][$p[0]], $D['pay'][$p[1]])) {   // a Common piece: TRIG PAY; the trigger goes after @hand / @held (it is checked then)
         $pay = $D['pay'][$p[1]][0]; $tr = $D['trig'][$p[0]][0];
         $src = [preg_match('/^@(hand|held) /', $pay, $m) ? '@' . $m[1] . ' ' . $tr . ' ' . substr($pay, strlen($m[0])) : $tr . ' ' . $pay];
@@ -1716,7 +1764,7 @@ function pfb_wx_clauses(string $fx): array
         $tk = preg_split('/\s+/', trim($cl)); $last = (string)array_pop($tk); $per = null; $cap = null;
         if (str_contains($last, '^')) [$last, $cap] = explode('^', $last, 2);
         if (str_contains($last, '*')) [$last, $per] = explode('*', $last, 2);
-        $x = explode(':', $last); $a = array_shift($x); $def = $D['act'][$a] ?? null;
+        $x = explode(':', $last); $a = array_shift($x); $def = $D['act'][$a] ?? PFB_STAT_ACTS[$a] ?? null;
         if (!$def) continue;
         $o = ['ph' => $def[0], 'c0' => [], 'c1' => [], 'a' => $a, 'x' => $x, 'per' => $per, 'cap' => $cap, 'st' => $def[1]]; $at = false;
         foreach ($tk as $t) { if ($t[0] === '@') { $o['ph'] = substr($t, 1); $at = true; continue; } $o[$at ? 'c1' : 'c0'][] = $t; }
@@ -1730,8 +1778,180 @@ function pfb_wx_text(string $fx, int $a, int $b): string
 {
     $D = pfb_wx_data(); $r = ['{a}' => (string)$a, '{b}' => (string)$b]; $p = explode('>', $fx);
     if (str_starts_with($fx, 'R:')) return isset($D['rare'][substr($fx, 2)]) ? strtr($D['rare'][substr($fx, 2)][1], $r) : '';
+    if (str_starts_with($fx, 'S:')) return isset(pfb_stat_data()[substr($fx, 2)]) ? strtr(pfb_stat_data()[substr($fx, 2)][1], $r) : '';
     if (count($p) !== 2 || !isset($D['trig'][$p[0]], $D['pay'][$p[1]])) return '';
     return $D['trig'][$p[0]][1] . ', ' . strtr($D['pay'][$p[1]][1], $r) . '.';
+}
+/** The stat pieces' effects (data/pf_stat_pieces.txt): key => [fx clauses ('' = none), rules text]. The deck side reads the whole file (pfd_stat_pieces in pfdeck.php). */
+function pfb_stat_data(): array
+{
+    static $S = null;
+    if ($S !== null) return $S;
+    $S = [];
+    foreach (pf_data_lines('pf_stat_pieces.txt') as $r) if (count($r) >= 13) $S[$r[0]] = [$r[11] === '-' ? '' : $r[11], $r[12]];
+    return $S;
+}
+/** The shared Luck roll's chance in percent for this fight (the gnome's Luck points, me.wx.lp). */
+function pfb_wx_chance(array $s): int { return min(PFB_ROLL_MAX, PFB_ROLL_BASE + PFB_ROLL_PER * max(0, (int)($s['me']['wx']['lp'] ?? 0))); }
+/** Does a clause test the Luck roll (roll / !roll)? */
+function pfb_wx_needroll(array $o): bool { foreach (array_merge($o['c0'], $o['c1']) as $c) if (ltrim($c, '!') === 'roll') return true; return false; }
+/** The shared Luck roll, ONCE per firing: rolled on the fight's rng the first time a clause of this firing asks, then kept in $cx['roll'] so roll and !roll agree. */
+function pfb_wx_roll(array &$s, array $o, array &$cx): void
+{
+    if (!isset($cx['roll']) && pfb_wx_needroll($o)) $cx['roll'] = pf_rand($s, 100) < intdiv(pfb_wx_chance($s), !empty($s['boss']) && pfb_wx_halfroll((string)($cx['t']['fx'] ?? '')) ? 2 : 1) ? 1 : 0;
+}
+/** Is the roll of this piece halved against a boss? (Hedge Rummage: a Pluck with the Luck roll, pluck:roll) */
+function pfb_wx_halfroll(string $fx): bool { if ($fx === '') return false; foreach (pfb_wx_clauses($fx) as $o) if ($o['a'] === 'pluck' && ($o['x'][0] ?? '') === 'roll') return true; return false; }
+/** A Luck stat piece (Lucky Streak never refires one). */
+function pfb_wx_luck(array $t): bool { return ($t['src'] ?? '') === 'stat' && ($t['st'] ?? '') === 'luck'; }
+/** A boss's own piece (its unique layer or an old signature piece): Turn of the Coin only shrinks it. */
+function pfb_wx_own(array $t): bool { $k = (string)($t['k'] ?? ''); return ($t['layer'] ?? '') === 'uni' || str_starts_with($k, 'f:u') || str_starts_with($k, 'f:sig'); }
+/** A creature piece's number at your values: v x (your deck's average) / (its deck's average), rounded half up (Magpie's Pinch). */
+function pfb_wx_rescale(array $s, int $v): int
+{
+    $sm = 0; $cm = 0; $sf = 0; $cf = 0;
+    foreach (['hand', 'draw', 'discard'] as $z) { foreach ($s['me'][$z] as $t) { $sm += (int)$t['v']; $cm++; } foreach ($s['foe'][$z] as $t) { $sf += (int)$t['v']; $cf++; } }
+    if ($cm === 0 || $sf <= 0 || $sm <= 0) return max(1, $v);
+    return max(1, intdiv(2 * $v * $sm * $cf + $sf * $cm, 2 * $sf * $cm));
+}
+/** The creature's strongest (or weakest) hand piece by its number, ties to the first. */
+function pfb_wx_hand_pick(array $h, bool $strong): int { $bi = 0; foreach ($h as $i => $t) if ($strong ? (int)$t['v'] > (int)$h[$bi]['v'] : (int)$t['v'] < (int)$h[$bi]['v']) $bi = $i; return $bi; }
+/** Its hand changed during your turn: it makes its aim again from the hand it holds now (no forced piece; the terrain forecast and a boss's AOE stay as they are). */
+function pfb_wx_replan(array &$s): void { $s['foe']['nextk'] = null; pfb_aim($s); }
+/** Does a tile carry a stat-piece clause with this action (Pinning Stance: stance, Shadow Step: shadow)? */
+function pfb_wx_hasact(array $t, string $a): bool { if (empty($t['fx'])) return false; foreach (pfb_wx_clauses((string)$t['fx']) as $o) if ($o['a'] === $a) return true; return false; }
+/** Wrong Turn: its aim moves to the free cell next to it farthest from its own pieces (nearest of them counts; ties: L R T B). Once a round (a moved or picked aim stays). */
+function pfb_wx_shove(array &$s, array &$e): bool
+{
+    $pl = $s['foe']['plan'] ?? null; if (!$pl || isset($pl['from'])) return false;
+    $best = null; $bd = -1;
+    foreach (PFB_SIDE as [$dx, $dy]) {
+        $x = (int)$pl['x'] + $dx; $y = (int)$pl['y'] + $dy;
+        if ($x < 0 || $y < 0 || $x >= pfb_w($s) || $y >= pfb_h($s) || isset($s['cell']["$x,$y"])) continue;
+        $d = 99; foreach ($s['pcs'] as $q) if ($q['by'] === 'foe') $d = min($d, abs((int)$q['x'] - $x) + abs((int)$q['y'] - $y));
+        if ($d > $bd) { $bd = $d; $best = [$x, $y]; }
+    }
+    if ($best === null) return false;
+    $s['foe']['plan']['from'] = [(int)$pl['x'], (int)$pl['y']]; $s['foe']['plan']['wt'] = 'shove'; $s['foe']['plan']['x'] = $best[0]; $s['foe']['plan']['y'] = $best[1];
+    $s['wtot'] = 1; $e['shove'] = $best[0] . ',' . $best[1];
+    return true;
+}
+/** Pinning Stance: the cells a creature re-pick may use (touching one of your stances on the board), or null when none stands. */
+function pfb_wx_pins(array $s): ?array
+{
+    $o = null;
+    foreach ($s['pcs'] as $p) {
+        if ($p['by'] !== 'me' || !pfb_wx_hasact($p['tile'], 'stance')) continue;
+        $o ??= [];
+        foreach (PFB_SIDE as [$dx, $dy]) { $k = ((int)$p['x'] + $dx) . ',' . ((int)$p['y'] + $dy); if (!in_array($k, $o, true)) $o[] = $k; }
+    }
+    return $o;
+}
+/** Phantom Footing: you pick the cell its aimed piece lands on (next to its first aim, free, where its piece fits). null = done, else why not. */
+function pfb_wx_pick(array &$s, int $x, int $y): ?string
+{
+    $ph = $s['me']['wph'] ?? null; $rd = $ph ? (int)$s['round'] - (int)$ph[0] : 0;
+    if (empty($s['wfx']) || !$ph || $rd < 1 || $rd > (int)$ph[1]) return 'You cannot move its aim now.';
+    $pl = $s['foe']['plan'] ?? null; if (!$pl) return 'It shows no aim.';
+    [$ox, $oy] = isset($pl['from']) ? [(int)$pl['from'][0], (int)$pl['from'][1]] : [(int)$pl['x'], (int)$pl['y']];
+    if (($pl['wt'] ?? 'pick') !== 'pick' || abs($x - $ox) + abs($y - $oy) !== 1) return 'Pick a free cell next to its aim.';
+    $ft = null; foreach ($s['foe']['hand'] as $t) if ($t['k'] === $pl['k']) { $ft = $t; break; }
+    if ($ft === null) return 'It shows no aim.';
+    $s['aimforce'] = true; $j = pfb_check($s, $ft, $x, $y); unset($s['aimforce']);
+    if ($j === null) return 'Its piece does not fit there.';
+    $s['foe']['plan']['from'] = [$ox, $oy]; $s['foe']['plan']['wt'] = 'pick'; $s['foe']['plan']['x'] = $x; $s['foe']['plan']['y'] = $y;
+    if (pfb_v1r($s, 'aimtot')) $s['foe']['plan']['tot'] = pfb_aim_total($s);
+    return null;
+}
+/**
+ * Shadow Step: the creature is about to place its aimed piece. The first Shadow Step in your hand jumps onto the free cell touching that piece's cell where both fit,
+ * with the most links to your pieces (ties: L R T B), and fires alone (its own effect, no chain). Once a fight. Returns its events (the first opens it: cs, rid, snap, shadow).
+ */
+function pfb_wx_shadow(array &$s, array $plan): array
+{
+    if (!empty($s['me']['wshd']) || $s['over']) return [];
+    $hi = null; foreach ($s['me']['hand'] as $i => $t) if (pfb_wx_hasact($t, 'shadow')) { $hi = $i; break; }
+    if ($hi === null) return [];
+    $ft = null; foreach ($s['foe']['hand'] as $t) if ($t['k'] === $plan['k']) { $ft = $t; break; }
+    if ($ft === null) return [];
+    $cs = [[(int)$plan['x'], (int)$plan['y']]]; if (($plan['wt'] ?? '') === 'pick') $cs[] = [(int)$plan['from'][0], (int)$plan['from'][1]];
+    $s['aimforce'] = true; $at = null; foreach ($cs as $c) if (pfb_check($s, $ft, $c[0], $c[1]) !== null) { $at = $c; break; } unset($s['aimforce']);
+    if ($at === null) return [];   // its aimed piece will not land: nothing to answer
+    $w = $s; $fid = $w['pid'] + 1; $w['pcs'][$fid] = ['id' => $fid, 'by' => 'foe', 'tile' => $ft, 'x' => $at[0], 'y' => $at[1], 'born' => $w['round'], 'seq' => $w['seq'] + 1]; $w['cell'][$at[0] . ',' . $at[1]] = $fid;
+    $tile = $s['me']['hand'][$hi]; $best = null; $bl = -1;
+    foreach (PFB_SIDE as [$dx, $dy]) {
+        $x = $at[0] + $dx; $y = $at[1] + $dy; $j = pfb_check($w, $tile, $x, $y);
+        if ($j === null) continue;
+        $nl = 0; foreach ($j as [, $nid, $lk]) if ($lk && $w['pcs'][$nid]['by'] === 'me') $nl++;
+        if ($nl > $bl) { $bl = $nl; $best = [$x, $y]; }
+    }
+    if ($best === null) return [];
+    array_splice($s['me']['hand'], $hi, 1);
+    $id = ++$s['pid']; $s['seq']++;
+    $s['pcs'][$id] = ['id' => $id, 'by' => 'me', 'tile' => $tile, 'x' => $best[0], 'y' => $best[1], 'born' => $s['round'], 'seq' => $s['seq']];
+    $s['cell'][$best[0] . ',' . $best[1]] = $id; $s['me']['wshd'] = 1;
+    $ev = pfb_fire($s, $id, true);
+    if ($ev) { $ev[0]['cs'] = 1; $ev[0]['rid'] = $id; $ev[0]['linked'] = 0; $ev[0]['snap'] = pfb_snap($s); $ev[0]['shadow'] = 1; }
+    $used = pfb_spend($s); if ($used && $ev) $ev[0]['used'] = $used;
+    if (!$s['over']) $s['wshid'] = $id;
+    return $ev;
+}
+/** Lantern Chain: your other pieces in its chain that have not fired yet get +n (wv), at most +a (the piece's fxa) a piece from all Lanterns of one chain ('wbl' = [chain mark, given]). Returns how many got some. */
+function pfb_wx_boostall(array &$s, ?int $id, int $n, array $cx): int
+{
+    if ($id === null || $n <= 0) return 0;
+    $cap = (int)($cx['t']['fxa'] ?? 0); $mk = (int)($s['firedroot'] ?? 0) . ':' . (int)$s['seq']; $k = 0;
+    foreach ($cx['ch'] ?? [] as [$qid]) {
+        $q = $s['pcs'][$qid] ?? null;
+        if (!$q || $qid === $id || $q['by'] !== 'me' || in_array($qid, $s['fired'] ?? [], true)) continue;
+        $had = ($q['wbl'][0] ?? '') === $mk ? (int)$q['wbl'][1] : 0; $add = min($n, $cap - $had);
+        if ($add <= 0) continue;
+        $s['pcs'][$qid]['wv'] = (int)($q['wv'] ?? 0) + $add; $s['pcs'][$qid]['wbl'] = [$mk, $had + $add]; $k++;
+    }
+    return $k;
+}
+/** Weather Lore: the environment's next face-up piece becomes a Sun (a Spring on large / boss boards), marked to come in beside this piece (wpref); the piece it replaces goes back on top of its draw pile. Once a round. */
+function pfb_wx_weather(array &$s, ?int $id, array &$e): bool
+{
+    if ($id === null || !isset($s['pcs'][$id], $s['env']) || empty($s['v1']['env']) || (int)($s['me']['wwl'] ?? 0) === (int)$s['round']) return false;
+    $kind = in_array((string)$s['size'], PFB_ENV_BIG_SIZES, true) ? 'spring' : 'sun'; $p = null;
+    foreach (pfb_env_table()['pieces'] as $q) if ($q['env'] === $kind) { $p = $q; break; }
+    if ($p === null) return false;
+    $t = ['k' => $p['k'], 'n' => $p['n'], 't' => 'env', 'v' => 0, 'r' => null, 'tag' => '', 'm' => '', 'src' => 'env', 'env' => $p['env'], 'life' => $p['life'], 'ed' => $p['ed'], 'wpref' => [(int)$s['pcs'][$id]['x'], (int)$s['pcs'][$id]['y']]];
+    if ($s['env']['next']) { $old = $s['env']['next'][0]; unset($old['wpref']); $s['env']['draw'][] = $old; $s['env']['next'][0] = $t; }
+    else $s['env']['next'][] = $t;
+    $s['me']['wwl'] = (int)$s['round']; $e['weather'] = $kind;
+    return true;
+}
+/** Copybook: the piece of yours it links to with no tag (not fired yet first, newest first; not a stolen one) learns the first tag of another of your pieces in the chain, for the fight (tile 'tt'). At most b (fxb) a fight. */
+function pfb_wx_teach(array &$s, ?int $id, array $cx, array &$e): bool
+{
+    if ($id === null || (int)($s['me']['wcb'] ?? 0) >= (int)($cx['t']['fxb'] ?? 0)) return false;
+    $tg = null; $tg2 = null;
+    foreach (pfb_links($s, $id) as $nid) {
+        $q = $s['pcs'][$nid]; if ($q['by'] !== 'me' || !empty($q['ws']) || (string)($q['tile']['tag'] ?? '') !== '') continue;
+        if (!in_array($nid, $s['fired'] ?? [], true)) { $tg = $nid; break; }
+        $tg2 ??= $nid;
+    }
+    $tg ??= $tg2; if ($tg === null) return false;
+    $tag = '';
+    foreach ($cx['ch'] ?? [] as [$qid]) {
+        $q = $s['pcs'][$qid] ?? null; if (!$q || $qid === $id || $qid === $tg || $q['by'] !== 'me') continue;
+        $g = (string)($q['tile']['tag'] ?? ''); if ($g !== '' && (isset(PF_TAGS[$g]) || isset(PF_TAGS_V1[$g]))) { $tag = $g; break; }
+    }
+    if ($tag === '') return false;
+    $s['pcs'][$tg]['tile']['tag'] = $tag; $s['pcs'][$tg]['tile']['tt'] = 1; $s['me']['wcb'] = (int)($s['me']['wcb'] ?? 0) + 1; $e['teach'] = $tag;
+    return true;
+}
+/** Turn of the Tale: the strongest creature piece it links to (ties: the newest) becomes yours where it stands (by me, ws 1: the creature's fire budget, its discard). Once a fight, bosses too. */
+function pfb_wx_retell(array &$s, ?int $id, array &$e): bool
+{
+    if ($id === null || !empty($s['me']['wtt'])) return false;
+    $best = null; $bv = null;
+    foreach (pfb_links($s, $id) as $nid) { $q = $s['pcs'][$nid]; if ($q['by'] !== 'foe') continue; $v = (int)$q['tile']['v'] + (int)($q['wv'] ?? 0); if ($bv === null || $v > $bv) { $bv = $v; $best = $nid; } }
+    if ($best === null) return false;
+    $s['pcs'][$best]['by'] = 'me'; $s['pcs'][$best]['ws'] = 1; $s['me']['wtt'] = 1; $s['wtot'] = 1; $e['retell'] = (string)$s['pcs'][$best]['tile']['n'];
+    return true;
 }
 /** Does this fight's deck hold a wear piece with an effect? */
 function pfb_wx_has(array $s): bool
@@ -1796,6 +2016,7 @@ function pfb_wx_cond(array $s, string $c, array $cx): bool
         case 'pt': return ($cx['pt'] ?? '') === $x[1];
         case 'first': return (int)($cx['blk']['u'] ?? 0) === 0;
         case 'full': return (int)($cx['e']['dmg'] ?? 1) === 0;
+        case 'roll': return !empty($cx['roll']);   // the shared Luck roll of this firing (pfb_wx_roll); no roll made = a miss
     }
     return false;
 }
@@ -1857,7 +2078,7 @@ function pfb_wx_charm(array &$s, int $n): void
 /** Run one action (post step). $cx as pfb_wx_cond, plus 'g' = guard this firing gave (Hold keeps it), 'fid' = the creature Hurt (block). Adds 'name n' to $e['wfx']. */
 function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
 {
-    $a = $o['a']; $x = $o['x']; $n = in_array($a, ['next', 'boost', 'poison', 'mend', 'plenty', 'pluck'], true) ? 0 : pfb_wx_n($s, $o, $cx); $id = $cx['id'] ?? null; $did = true;
+    $a = $o['a']; $x = $o['x']; $n = in_array($a, ['next', 'boost', 'poison', 'mend', 'plenty', 'pluck', 'again', 'pinch', 'coin'], true) ? 0 : pfb_wx_n($s, $o, $cx); $id = $cx['id'] ?? null; $did = true;
     switch ($a) {
         case 'guard': $s['me']['block'] += $n; $cx['g'] = (int)($cx['g'] ?? 0) + $n; break;
         case 'heal': $s['me']['hp'] = max((int)$s['me']['hp'], min((int)$s['me']['max'], (int)$s['me']['hp'] + $n)); break;
@@ -1871,7 +2092,7 @@ function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
         case 'stay': if ($id !== null && !in_array($id, $s['wstay'], true)) $s['wstay'][] = $id; break;
         case 'cleanse': $s['me']['poison'] = 0; $s['me']['poison_v'] = 0; $s['me']['hp'] = max((int)$s['me']['hp'], min((int)$s['me']['max'], (int)$s['me']['hp'] + $n)); break;
         case 'knock': $s['wkn'][] = 0; break;
-        case 'kill': if (isset($cx['fid'])) $s['wkn'][] = (int)$cx['fid']; break;
+        case 'kill': if (!isset($cx['fid'])) break; if (!empty($cx['sfx']) && !empty($s['boss']) && isset($s['pcs'][$cx['fid']])) { if (!empty($e['wlost'])) { $did = false; break; } $s['pcs'][$cx['fid']]['f'] = (int)($s['pcs'][$cx['fid']]['f'] ?? 0) + 1; $e['wlost'] = 1; } else $s['wkn'][] = (int)$cx['fid']; break;   // stat pieces (Skitter): a boss's piece loses one firing instead of falling
         case 'boost': $n = pfb_wx_num($x[0], $cx['t']); $tg = $id !== null ? pfb_wx_target($s, $id, (string)($x[1] ?? '')) : null; if ($tg === null) { $did = false; break; } $s['pcs'][$tg]['wv'] = (int)($s['pcs'][$tg]['wv'] ?? 0) + $n; $cx['tgt'] = $tg; break;
         case 'more': if (!isset($cx['tgt'])) { $did = false; break; } $s['pcs'][$cx['tgt']]['wv'] = (int)($s['pcs'][$cx['tgt']]['wv'] ?? 0) + $n; break;
         case 'add': if (isset($cx['pid'])) $s['pcs'][$cx['pid']]['wv'] = (int)($s['pcs'][$cx['pid']]['wv'] ?? 0) + $n; break;
@@ -1885,6 +2106,7 @@ function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
             if (!$s['can_pluck'] || $s['plucked']) { $did = false; break; }
             $md = (string)($x[0] ?? '');
             if ($md === 'sure') { $s['plucked'] = 1; $e['pluck'] = 'got'; break; }
+            if ($md === 'roll') { if (!empty($cx['roll'])) { $s['plucked'] = 1; $e['pluck'] = 'got'; } else $e['pluck'] = 'missed'; break; }   // Hedge Rummage: the Luck roll of this firing (halved on a boss, pfb_wx_roll)
             $chn = min(35, 8 + 3 * $s['me']['luckmod']) * ($md === 'x2' ? 2 : 1) / ($s['boss'] ? 2 : 1);
             if (pf_rand($s, 1000) < $chn * 10) { $s['plucked'] = 1; $e['pluck'] = 'got'; } else $e['pluck'] = 'missed';
             break;
@@ -1902,17 +2124,59 @@ function pfb_wx_act(array &$s, array $o, array &$cx, array &$e): void
             if ($k > 0) { $take = array_splice($s['me']['discard'], count($s['me']['discard']) - $k); $s['me']['draw'] = pf_shuffle($s, array_merge($s['me']['draw'], $take)); }
             $n = $k; break;
         case 'keep1': $s['me']['wk1'] = (int)$s['round'] + 2; break;   // checked at the redraw that ends next round
+        // ---- stat pieces (Luck)
+        case 'again':   // fire once more, right after this piece (pfb_fire): link = the piece of yours it links to (Loaded Die), else itself (Long Shot)
+            $tg = ($x[0] ?? '') === 'link' ? ($id !== null ? pfb_wx_target($s, $id, '') : null) : $id;
+            if ($tg === null || !isset($s['pcs'][$tg])) { $did = false; break; }
+            $cx['rf'][] = $tg; break;
+        case 'fup': $s['foe']['wup'] = max((int)($s['foe']['wup'] ?? 0), $n); break;   // the creature's next Hurt gets +n (the mirror of fnext)
+        case 'pinch':   // hi = its strongest hand piece (a boss: a second roll must hit too), lo = its weakest; into your next hand, yours, at your values, gone after use
+            if (!$s['foe']['hand']) { $did = false; break; }
+            $hi = ($x[0] ?? '') === 'hi';
+            if ($hi && !empty($s['boss']) && pf_rand($s, 100) >= pfb_wx_chance($s)) $hi = false;
+            $bi = pfb_wx_hand_pick($s['foe']['hand'], $hi); $t = $s['foe']['hand'][$bi]; $t['v'] = pfb_wx_rescale($s, (int)$t['v']); $t['pin'] = 1; unset($t['flip'], $t['ft']);
+            array_splice($s['foe']['hand'], $bi, 1);
+            $s['me']['wpin'][] = $t; $s['wrp'] = 1; $e['pinch'] = (string)$t['n']; break;
+        case 'coin':   // back = its strongest hand piece goes to the bottom of its draw pile and it draws another (a boss's own piece only shrinks); cut = that piece loses n
+            $n = pfb_wx_num((string)($x[1] ?? '0'), $cx['t']);
+            if (!$s['foe']['hand']) { $did = false; break; }
+            $bi = pfb_wx_hand_pick($s['foe']['hand'], true); $t = $s['foe']['hand'][$bi];
+            if (($x[0] ?? '') === 'back' && !(!empty($s['boss']) && pfb_wx_own($t))) { array_splice($s['foe']['hand'], $bi, 1); array_unshift($s['foe']['draw'], $t); pf_draw($s, 'foe', count($s['foe']['hand']) + 1); $e['coin'] = 'back'; $n = 0; }
+            else { $s['foe']['hand'][$bi]['v'] = max(1, (int)$t['v'] - $n); $e['coin'] = 'cut'; }
+            $s['wrp'] = 1; break;
+        case 'streak':   // roll until a miss, at most n times; each hit: a random piece of yours on the board (not this one, not a Luck piece, each once) fires again
+            $pk = [];
+            for ($k = 0; $k < $n; $k++) {
+                $cand = []; foreach ($s['pcs'] as $qid => $q) if ($q['by'] === 'me' && (int)$qid !== $id && !in_array((int)$qid, $pk, true) && !pfb_wx_luck($q['tile'])) $cand[] = (int)$qid;
+                if (!$cand) break;
+                sort($cand);
+                if (pf_rand($s, 100) >= pfb_wx_chance($s)) break;
+                $pk[] = $cand[pf_rand($s, count($cand))];
+            }
+            foreach ($pk as $q) $cx['rf'][] = $q;
+            $e['streak'] = count($pk); $n = count($pk); break;
+        // ---- stat pieces (Nimble)
+        case 'shove': $did = pfb_wx_shove($s, $e); break;   // Wrong Turn
+        case 'phantom': if (isset($s['me']['wph'])) { $did = false; break; } $s['me']['wph'] = [(int)$s['round'], $n]; break;   // Phantom Footing: you pick its landing cell in the next n rounds (once a fight)
+        // ---- stat pieces (Lore)
+        case 'boostall': $k = pfb_wx_boostall($s, $id, $n, $cx); if (!$k) { $did = false; break; } $e['lantern'] = $k; break;   // Lantern Chain
+        case 'weather': $did = pfb_wx_weather($s, $id, $e); break;   // Weather Lore
+        case 'teach': $did = pfb_wx_teach($s, $id, $cx, $e); break;   // Copybook
+        case 'retell': $did = pfb_wx_retell($s, $id, $e); break;   // Turn of the Tale
         default: $did = false;
     }
     if ($did) $e['wfx'][] = $a . ($n ? ' ' . $n : '');
 }
 /** The clauses of a firing piece of yours whose fire-time conditions hold (place clauses only when you placed it now). Block / miss clauses are registered here. */
-function pfb_wx_fire(array &$s, array $cx, bool $placed): array
+function pfb_wx_fire(array &$s, array &$cx, bool $placed): array
 {
     $on = [];
     foreach (pfb_wx_clauses((string)$cx['t']['fx']) as $i => $o) {
         if ($o['ph'] === 'hand' || $o['ph'] === 'held' || ($o['ph'] === 'place' && !$placed)) continue;
+        if (!empty($cx['re']) && (pfb_wx_needroll($o) || in_array($o['a'], PFB_WX_REFIRE, true))) continue;   // a refire: no new Luck roll, no refire of its own
+        pfb_wx_roll($s, $o, $cx);   // stat pieces: the Luck roll, once a firing (only a clause that tests it rolls)
         if (!pfb_wx_conds($s, $o['c0'], $cx, true)) continue;
+        if (($o['ph'] === 'fire' || $o['ph'] === 'place') && $o['c1'] && !pfb_wx_conds($s, $o['c1'], $cx, true)) continue;   // '@place cond act': the conditions after the phase (no wear code has them)
         if ($o['ph'] === 'block' || $o['ph'] === 'miss') { $s['me'][$o['ph'] === 'block' ? 'wblk' : 'wmiss'][] = ['fx' => (string)$cx['t']['fx'], 'i' => $i, 'a' => (int)($cx['t']['fxa'] ?? 0), 'b' => (int)($cx['t']['fxb'] ?? 0), 'u' => 0]; continue; }
         $on[] = $o;
     }
@@ -1926,6 +2190,8 @@ function pfb_wx_guard(array &$s, array &$e, int $fid): void
     foreach ($s['me'][$k] as $i => $r) {
         $o = pfb_wx_clauses($r['fx'])[$r['i']] ?? null; if (!$o) continue;
         $cx = ['t' => ['fxa' => $r['a'], 'fxb' => $r['b']], 'e' => $e, 'blk' => $r, 'fid' => $fid, 'ph' => $k === 'wblk' ? 'block' : 'miss'];
+        if (str_starts_with($r['fx'], 'S:')) $cx['sfx'] = 1;   // a stat piece's clause
+        pfb_wx_roll($s, $o, $cx);
         if (pfb_wx_conds($s, $o['c1'], $cx)) pfb_wx_act($s, $o, $cx, $e);
         $s['me'][$k][$i]['u']++;
     }
@@ -1943,6 +2209,7 @@ function pfb_wx_placed(array &$s, int $id, array $tile): void
     $e = [];
     foreach ($s['me']['hand'] as $h) if (!empty($h['fx'])) foreach (pfb_wx_clauses((string)$h['fx']) as $o) {
         $cx = ['t' => $h, 'pt' => $t, 'pid' => $id, 'ph' => 'held'];
+        if ($o['ph'] === 'held') pfb_wx_roll($s, $o, $cx);
         if ($o['ph'] === 'held' && pfb_wx_conds($s, $o['c1'], $cx)) pfb_wx_act($s, $o, $cx, $e);
     }
 }
@@ -1976,6 +2243,7 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
         if (pfb_wx_has($s)) {   // 2.7.09 wear piece effects: their state (only in a fight whose deck has one)
             $s['wfx'] = 1; $s['wstay'] = []; $s['wkn'] = [];
             $s['me']['wx'] = ['lt' => '', 'ct' => '', 'nd' => 1, 'hps' => (int)$s['me']['hp'], 'hit' => 0, 'pl' => [], 'nx' => []];
+            if (isset($me['lpts'])) $s['me']['wx']['lp'] = max(0, (int)$me['lpts']);   // stat pieces: the gnome's Luck points (the shared Luck roll, pfb_wx_chance)
             $s['me'] += ['wblk' => [], 'wmiss' => [], 'wmend' => [], 'wk1' => 0, 'wmore' => 0]; $s['foe'] += ['wnx' => 0, 'whf' => 0, 'wsk' => 0];
         }
         if (!empty($c['ab']) && pfb_v1r($s, 'abil') === 1) pfb_ab_init($s, $c);   // 2.7.01 abilities (an E id replaces the class rule)
@@ -2050,6 +2318,11 @@ function pfb_intent(array &$s): void
 {
     if (!empty($s['aoed'])) pfb_aoe_mark($s);   // 2.7.55: a boss marks its AOE a turn ahead
     if (!empty($s['v1'])) pfb_forecast($s);   // v1: the next terrain events are announced first (the creature's search knows them)
+    pfb_aim($s);
+}
+/** The creature's next move and (v1) its shown aim, from its hand now. */
+function pfb_aim(array &$s): void
+{
     $kind = pfb_kind($s); $m = null;
     if ($kind === 'boss' && !empty($s['foe']['nextk'])) $m = pfb_search($s, 'foe', true, (string)$s['foe']['nextk']);   // 2.6.98 Two turns: the piece it showed last round is forced now (its cell is chosen now)
     $s['foe']['nextk'] = null;
@@ -2139,6 +2412,11 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
         if (count($mv) !== 2 || !is_int($mv[1])) return $bad;
         if ($dry) { $w = $s; return ['ev' => [], 'err' => pfb_flip($w, $mv[1], $turn), 'free' => true]; }
         return ['ev' => [], 'err' => pfb_flip($s, $mv[1], $turn), 'free' => true];
+    }
+    if ($mv[0] === 'p' && !empty($s['wfx'])) {   // stat pieces (Phantom Footing): pick the cell its aimed piece lands on; free, the turn goes on
+        if (count($mv) !== 3 || !is_int($mv[1]) || !is_int($mv[2])) return $bad;
+        $w = $s; $err = pfb_wx_pick($w, $mv[1], $mv[2]); if ($err === null && !$dry) $s = $w;
+        return ['ev' => [], 'err' => $err, 'free' => true];
     }
     $w = $s;   // work on a copy: anything illegal means nothing happens
     $w['reshuf'] = []; $w['cut'] = 0; $w['spent'] = [];
@@ -2276,14 +2554,17 @@ function pfb_end_round(array &$s): void
         $kept = []; $out = [];
         foreach ($s['me']['hand'] as $ht) {
             $wk = $wfx && !empty($ht['fx']);
+            if (!empty($ht['pin'])) continue;   // a piece Magpie's Pinch took, not played: gone
             if (($ht['tag'] ?? '') === 'keep' || ($wk && pfb_wx_keep($s, $ht))) { if ($wk) $ht['kr'] = (int)($ht['kr'] ?? 0) + 1; $kept[] = $ht; continue; }   // 2.6.990 Keeper (2.7.09: a wear Keeper, and how many rounds it waited)
             unset($ht['flip'], $ht['ft'], $ht['kr']); $out[] = $ht;
         }
         if ($wfx && (int)$s['me']['wk1'] === (int)$s['round'] && $out) { $bi = 0; foreach ($out as $i => $ht) if ((int)$ht['v'] > (int)$out[$bi]['v']) $bi = $i; $kept[] = $out[$bi]; array_splice($out, $bi, 1); $s['me']['wk1'] = 0; }   // 2.7.09 wear 'keep1': the strongest unplayed piece stays
         foreach ($out as $ht) $s['me']['discard'][] = $ht;
-        $s['me']['hand'] = $kept; pf_draw($s, 'me', PF_HAND_CAP - $slow + $more);
+        $s['me']['hand'] = $kept;
+        if ($wfx && !empty($s['me']['wpin'])) { foreach ($s['me']['wpin'] as $pt) $s['me']['hand'][] = $pt; $s['me']['wpin'] = []; }   // Magpie's Pinch: the taken piece is one of the new hand's pieces
+        pf_draw($s, 'me', PF_HAND_CAP - $slow + $more);
     }   // 2.6.990 Keeper: a Keeper piece stays in the hand   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
-    else pf_draw($s, 'me', min(PF_HAND_CAP + $more, count($s['me']['hand']) + PF_DRAW - $slow));
+    else { if ($wfx && !empty($s['me']['wpin'])) { foreach ($s['me']['wpin'] as $pt) $s['me']['hand'][] = $pt; $s['me']['wpin'] = []; } pf_draw($s, 'me', min(PF_HAND_CAP + $more, count($s['me']['hand']) + PF_DRAW - $slow)); }
     $s['gone'] = array_merge(array_map(fn($p) => pfb_gone_entry($s, $p, true), $s['spent'] ?? []), array_map(fn($p) => pfb_gone_entry($s, $p, false), $gone));   // for the replay: they are shown until everything has scored, then they go
     $s['spawn'] = (!empty($s['nospawn']) || !pfb_v1r($s, 'spawn')) ? null : pfb_spawn($s); unset($s['nospawn']);   // next release (Josh: an enemy piece popping in at the end of your resolution is a bug): new fights get no free board piece for the creature (rule 'spawn' 0); fights started earlier keep it.   // 2.6.99: a strike spent the creature's turn: no free piece pops in before yours
     if ($s['turn'] > PF_TURN_CAP) { $s['over'] = $s['boss'] ? 'defeat' : 'stall'; return; }
@@ -2354,7 +2635,7 @@ function pfb_view(array $s): array
             if ($p['by'] === 'env') $v['pcs'][$i] += ['kind' => (string)$p['tile']['env'], 'dir' => $p['tile']['dir'] ?? null];   // 2.6.75: an environment piece: its kind, Wind's arrow
         }
         foreach ($v['hand'] as $i => $t) { $ht = $s['me']['hand'][$i]; $v['hand'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip']), 'canflip' => pfb_can_flip($s, $i), 'rank' => (int)($ht['rank'] ?? 0), 'tool' => (string)($ht['tool'] ?? '')]; if (!empty($ht['fx'])) $v['hand'][$i]['fx'] = pfb_wx_text((string)$ht['fx'], (int)($ht['fxa'] ?? 0), (int)($ht['fxb'] ?? 0)); }   // 2.7.09: a wear piece's effect sentence
-        foreach ($v['pcs'] as $i => $q) { $pt = $s['pcs'][$q['id']]['tile']; if (!empty($pt['fx'])) $v['pcs'][$i]['fx'] = pfb_wx_text((string)$pt['fx'], (int)($pt['fxa'] ?? 0), (int)($pt['fxb'] ?? 0)); }
+        foreach ($v['pcs'] as $i => $q) { $pt = $s['pcs'][$q['id']]['tile']; if (!empty($pt['fx'])) $v['pcs'][$i]['fx'] = pfb_wx_text((string)$pt['fx'], (int)($pt['fxa'] ?? 0), (int)($pt['fxb'] ?? 0)); if (!empty($s['pcs'][$q['id']]['ws'])) $v['pcs'][$i]['ws'] = 1; if (!empty($pt['tt'])) $v['pcs'][$i]['tt'] = 1; }   // ws: stolen by Turn of the Tale, tt: a tag Copybook taught
         if ($v['held']) foreach ($v['held']['pcs'] as $i => $q) { $ht = $g['pcs'][$i]['tile']; $v['held']['pcs'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip'])]; }
         foreach ($v['gone'] as $i => $q) if (isset($s['gone'][$i]['used'])) $v['gone'][$i]['used'] = $s['gone'][$i]['used'];
         foreach ($v['gone'] as $i => $q) if (!empty($s['gone'][$i]['fnew'])) $v['gone'][$i]['fnew'] = true;   // the creature put it down this turn and it left in the same turn: the page holds it back until the replay reaches its step (pfb_gone_entry marks it; the view used to drop the mark, so it showed from the first frame)

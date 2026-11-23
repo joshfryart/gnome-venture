@@ -172,6 +172,7 @@ const PFV_SRC_META = [
     'wear' => ['Wear', 'ico/ico-gloves.png', 'Clothes you wear (My Gnome). Uses a Keepsake spot'],
     'tool' => ['Tool', 'ico/ico-shears.png', 'A tool on your fight belt. Wears out as you play it'],
     'pal' => ['Pal', 'ico/ico-paw.png', 'A pal in your party adds its piece'],
+    'stat' => ['Stat', 'ico/ico-sparkle.png', 'Your Nimble, Lore, Luck and Sense points: more points, more pieces'],   // stat pieces (setting pfight_statpieces); filter and legend only show while the gnome has some
 ];
 const PFV_TYPE_ORDER = ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item'];
 
@@ -179,6 +180,7 @@ function pfv_src_group(string $src): string
 {
     if (in_array($src, ['basic', 'knack', 'calling'], true)) return 'basic';
     if (in_array($src, PFD_KEEP_SRC, true)) return 'wear';
+    if ($src === 'stat') return 'stat';
     return isset(PFV_SRC_META[$src]) ? $src : 'basic';
 }
 
@@ -208,6 +210,7 @@ function pfv_from(array $u, array $p): string
         case 'region': $rn = $ref !== '' ? (string)(q_val('SELECT gnomish_name FROM regions WHERE code = ?', [$ref]) ?: $ref) : ''; return 'Found on the roads' . ($rn !== '' ? ' of ' . $rn : '');
         case 'tool': return (TOOL_TYPES[(string)($p['tool'] ?? '')][0] ?? 'A tool') . ' on your fight belt';
         case 'pal': return (string)$p['n'] . ', in your party';
+        case 'stat': [$sk, $st] = explode(':', $ref . ':0'); return (PFD_STAT_STATS[$sk] ?? ucfirst($sk)) . ' piece' . ((int)$st > 0 ? ', yours from ' . (int)$st . ' ' . (PFD_STAT_STATS[$sk] ?? ucfirst($sk)) . ' points' : ', every gnome has it');   // stat pieces: ref STAT:TIER
         case 'wear': return 'Worn: ' . (string)(function_exists('wear_items') ? (wear_items()[$ref]['name'] ?? 'something you wear') : 'something you wear');   // 2.7.14: ref = the worn item
     }
     return in_array($p['src'], PFD_KEEP_SRC, true) ? 'Something you wear' : '';
@@ -399,9 +402,9 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             $col .= pfv_box_pc($u, $p, $c, ['cls' => !empty($p['new']) ? 'isnew' : '', 'a' => $locked ? 'info' : 'tog', 'g' => pfv_src_group((string)$p['src']), 'd' => pfv_desc($p, trim((!empty($p['new']) ? 'new: switched off until you pack it' : '') . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="0"']);
         }
         $fb = '';
-        foreach (['basic', 'crop', 'legend', 'craft', 'region', 'wear'] as $g) $fb .= '<button type="button" class="s-' . $g . '" data-g="' . $g . '" aria-pressed="false" aria-label="' . PFV_SRC_META[$g][0] . ' pieces: ' . (int)($cnt[$g] ?? 0) . '"' . (empty($cnt[$g]) ? ' disabled' : '') . '>' . pfv_img(PFV_SRC_META[$g][1], 64) . '<span>' . PFV_SRC_META[$g][0] . '</span><em>' . (int)($cnt[$g] ?? 0) . '</em></button>';
+        foreach (array_merge(['basic', 'crop', 'legend', 'craft', 'region', 'wear'], empty($cnt['stat']) ? [] : ['stat']) as $g) $fb .= '<button type="button" class="s-' . $g . '" data-g="' . $g . '" aria-pressed="false" aria-label="' . PFV_SRC_META[$g][0] . ' pieces: ' . (int)($cnt[$g] ?? 0) . '"' . (empty($cnt[$g]) ? ' disabled' : '') . '>' . pfv_img(PFV_SRC_META[$g][1], 64) . '<span>' . PFV_SRC_META[$g][0] . '</span><em>' . (int)($cnt[$g] ?? 0) . '</em></button>';
         $leg = '';
-        foreach (PFV_SRC_META as $g => [$lbl, , $what]) $leg .= '<li>' . pfv_srcb($g, 'srcb') . '<span><b>' . $lbl . '</b>' . e($what) . '</span></li>';
+        foreach (PFV_SRC_META as $g => [$lbl, , $what]) if ($g !== 'stat' || !empty($cnt['stat'])) $leg .= '<li>' . pfv_srcb($g, 'srcb') . '<span><b>' . $lbl . '</b>' . e($what) . '</span></li>';
         $h .= '<section class="pbx-shelf" id="pbx-shelf" aria-label="Spare pieces"><h3>' . pfv_img('ico/ico-satchel.png', 64) . 'On the shelf<span>' . count($spare) . ' spare</span></h3>'
             . '<div class="srow"><label class="search">' . pfv_img('ico/ico-search.png', 64) . '<input type="search" id="pbx-q" placeholder="Search spare pieces" aria-label="Search spare pieces" autocomplete="off"></label><button type="button" class="btn ghost" id="pbx-all" hidden>All</button></div>'
             . '<nav class="pbx-fbar" id="pfv-filt" aria-label="Filter by source">' . $fb . '</nav>'
