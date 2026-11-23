@@ -95,13 +95,10 @@ for k in pairs(hat) do
 end
 -- outline: umber1 on the left and top, umber3 on the right; the brim's deep row is its bottom edge
 for y = 1, 16 do for x = 0, W - 1 do
-  if not hat[key(x, y)] and adj4(hat, x, y) and not (y >= 17) then
+  if not hat[key(x, y)] and adj4(hat, x, y) then
     local r = hr[y]
-    local right = r and x > r[2] or (not r and x >= 24)
-    if not r and y < 3 then right = false end
-    -- pixels above a row (row y+1 exists) right of this row's end belong to the right side
-    if r and x > r[2] then right = true elseif r and x < r[1] then right = false
-    elseif not r then right = false end
+    -- right of this row's end = right side (U3); above the hat (no row) or left of it = U1
+    local right = r ~= nil and x > r[2]
     set(x, y, right and U3 or U1)
   end
 end end

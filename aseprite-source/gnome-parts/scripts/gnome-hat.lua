@@ -1,4 +1,4 @@
-local G = dofile("C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/gnome-parts/scripts/gnome-common.lua")
+local G = dofile(((debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$")) or ".") .. "/gnome-common.lua")
 local GV = G.GV
 local c = G.canvas()
 -- TINTABLE (multiply): pointed felt hat, neutral greys only, light-thread edge stitch + brim seam

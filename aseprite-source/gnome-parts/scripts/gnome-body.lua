@@ -1,4 +1,4 @@
-local G = dofile("C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/gnome-parts/scripts/gnome-common.lua")
+local G = dofile(((debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$")) or ".") .. "/gnome-common.lua")
 local GV = G.GV
 local c = G.canvas()
 -- tunic (moss) + belt (bark), felt edge stitch, hem seam, 4x4 gold button on the belt

@@ -1,6 +1,7 @@
 -- example.lua : a felt toadstool sticker drawn with gvlib (64x64, sticker mode)
 -- Run: "C:\Program Files\Aseprite\Aseprite.exe" -b --script example.lua
-local D = "C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/gvlib/"
+local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
+local D = here .. "/"
 local GV = dofile(D .. "gvlib.lua")
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 

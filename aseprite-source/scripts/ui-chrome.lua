@@ -1,8 +1,9 @@
 -- Gnome Venture v2.0.32: Stitched Toy site chrome pieces (flat UI, hard pixels, Part A/D palette only).
 -- Run: "C:\Program Files\Aseprite\Aseprite.exe" -b --script ui-chrome.lua
 -- Writes game/assets/img/ui/*.png (+ .aseprite next to this script in ../aseprite/ui/).
-local OUT = "C:/Users/hello/OneDrive/Desktop/claude/gnomeventures/game/assets/img/ui/"
-local SRC = "C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/aseprite/ui/"
+local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
+local OUT = here .. "/../../game/assets/img/ui/"
+local SRC = here .. "/../aseprite/ui/"
 app.fs.makeAllDirectories(OUT)
 app.fs.makeAllDirectories(SRC)
 

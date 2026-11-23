@@ -2,7 +2,8 @@
 -- Every part is drawn on the same 80x100 canvas (SVG viewBox 0 0 80 100), centred on pixel column 40,
 -- so the 7 PNGs stack with no offset. Layer order: shadow, body, face, beard, hat, band, star.
 local G = {}
-G.ROOT = "C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/"
+local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
+G.ROOT = here .. "/../../"
 G.OUT = G.ROOT .. "gnome-parts/"
 G.GV = dofile(G.ROOT .. "gvlib/gvlib.lua")
 local GV = G.GV

@@ -1,7 +1,7 @@
 -- gnome-composite.lua : stacks the 7 layers (hat Moss green, beard Wheat via multiply, tier III)
 -- -> gnome-parts/preview-composite.png at native 80x100.
 -- Optional: --script-param hat=#rrggbb --script-param beard=#rrggbb --script-param tier=1..3 --script-param out=<png>
-local G = dofile("C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/gnome-parts/scripts/gnome-common.lua")
+local G = dofile(((debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$")) or ".") .. "/gnome-common.lua")
 local P = app.params or {}
 local function rgb(h) h = h:gsub("#", "") return tonumber(h:sub(1,2),16), tonumber(h:sub(3,4),16), tonumber(h:sub(5,6),16) end
 local hat, beard = P.hat or "#2e7d4f", P.beard or "#d8c9a8"

@@ -410,7 +410,7 @@ function Canvas:gloss(m, ramp, at)
   return self
 end
 
--- edge stitch: 1 px thread-gold dashes 2 px inside the edge, every 3rd diagonal; skips gloss
+-- edge stitch (side="lit"|"shade" limits it to the upper-left / lower-right half): 1 px thread-gold dashes 2 px inside the edge, every 3rd diagonal; skips gloss
 function Canvas:stitch(m, o)
   o = o or {}
   local x0, y0, x1, y1 = m:bbox()
@@ -418,7 +418,7 @@ function Canvas:stitch(m, o)
   local mcx, mcy = (x0+x1)/2, (y0+y1)/2
   for _, p in ipairs(ring2(self, m)) do
     local x, y, k = p[1], p[2], p[3]
-    if (x + y) % 3 == 0 and not self.gl.s[k] and self.pix[k] and (o.side ~= "lit" or (x-mcx)+(y-mcy) <= 0) then
+    if (x + y) % 3 == 0 and not self.gl.s[k] and self.pix[k] and (o.side == nil or (o.side == "lit" and (x-mcx)+(y-mcy) <= 0) or (o.side == "shade" and (x-mcx)+(y-mcy) >= 0)) then
       self.pix[k] = self.shd[k] and C.goldS or C.gold
     end
   end

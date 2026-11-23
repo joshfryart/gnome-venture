@@ -47,7 +47,7 @@ Modify in place: `m:add(m2)` `m:cut(m2)` `m:clip(m2)` (intersect) `m:set(x,y)` `
 
 ## Parts
 `c:part(mask, ramp, opts)` returns `{m,r,o}`. `c:build{{name,mask,ramp,opts},...}` returns `{name=part}`. Each part gets: base, lower-right crescent (shade at `cres`, deep at `deep` px), 1 px bounce on the lower-right edge, 1 px rim on the upper-left edge, an enamel gloss comma and dot (2 px in, 3 px in on parts of 16 px or more), an inner contour where it overlaps an earlier part (`#4a2c1a` lit side, `#2a1a10` elsewhere), and a 1 px contact shadow (the lower part's shade) under its bottom edge.
-opts: `cres` `deep` `light=mask` (measure the crescent on a bigger mask, e.g. the whole object) `rim=false` `bounce=false` `gloss=false|{x,y}` `contour=false|"#hex"` `contact=false` `stitch=true|{side="lit"}` `flat=true` (base + rim only, for small bits) `solid=false` (left out of the halo and outline silhouette) `outline=false` (scene) `pale=true|false`.
+opts: `cres` `deep` `light=mask` (measure the crescent on a bigger mask, e.g. the whole object) `rim=false` `bounce=false` `gloss=false|{x,y}` `contour=false|"#hex"` `contact=false` `stitch=true|{side="lit"|"shade"}` `flat=true` (base + rim only, for small bits) `solid=false` (left out of the halo and outline silhouette) `outline=false` (scene) `pale=true|false`.
 `c:limb(pts[,w=2])` lavender limb with a lit top, no shading. `c:spot(mask[,hex,glint])` marking with a glaze glint.
 
 ## Ramps
