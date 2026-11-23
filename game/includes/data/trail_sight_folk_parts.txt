@@ -1,0 +1,8 @@
+# Villagers who ask for creature parts (2.7.58 creature parts, phase 3). Same columns as trail_sight_folk.txt: sight slug | villager | when | chance % | line | rewards.
+# give=any-<suffix>[+<suffix>]:N takes N items of that kind from the satchel (a slug ending in the word; the family words of includes/parts.php). One row per family; the gift is once a day.
+# Pomeroy Crumbworth is only about while the Gourmand is open (npcs.active), so his Ooze request is invisible on a default install, by choice.
+grassland-the-shepherd-s-wall|Perrin Cobblefield|dp=day|30|Perrin Cobblefield is spinning by the wall and is short of fleece. Two tufts or fleeces of any kind would keep the wheel turning.|give=any-fleece+wool+fur+tuft:2,fp=2,xp=5,c=20
+grassland-the-sleepy-windmill|Thimble Hollowell|dp=day|30|Thimble Hollowell is hanging wind chimes on the sails and wants two shells, scales or scutes to clink in the breeze.|give=any-shell+scale+scute:2,fp=2,xp=5,c=20
+end-wonder-1-wetland|Plume Rosewader|dp=day|30|Plume Rosewader is trimming a hat and would take two feathers or plumes off your hands for a coin or two.|give=any-feather+plume+down:2,fp=2,xp=5,c=20
+end-wonder-2-grassland|Orla Cobblefield|-|30|Orla Cobblefield is mending a caravan awning and could use two lengths of silk or thread.|give=any-silk+thread:2,fp=2,xp=5,c=20
+coast-the-kelp-line|Pomeroy Crumbworth|-|25|Pomeroy Crumbworth is testing a kelp jelly and wants two spoons of slime, gland or ink to set it. He pays in coin and gossip.|give=any-slime+gland+sac+ink:2,fp=2,xp=8,c=40
