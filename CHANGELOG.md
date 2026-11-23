@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.90
+- **Dock, Garden (Beds tab):** the left piece is now a strip: Select, then the Water, Harvest and Till tools (one bed at a time). The right piece is "All": Water all, Weed all, Harvest all, Pick pests and Collect, and it lists only the ones that have something to do (the others used to show greyed "none"); greyed "nothing to do" when none do. The "Collect all" label that was cut off is now "Collect". Checked in a headless 844 x 390 browser on a garden with nothing thirsty or ready (the left strip works, Select turns the Done piece on; the right strip showed nothing to do, so its tiles were not seen).
+
 ## 2.7.89
 - **Hovel: all tabs checked** (Today, Furnish, Gnome, Closet, Stats, Calling, Foods, Villagers, Gardens at 844 x 390). Fixed: the Villagers tab (5639 px tall) is now a dense wall of small photos, many across (1398 px); the unmet "?" cards are short. The other tabs are as in 2.7.88; Calling (locked below level 5 in my test), Foods and Gardens were already short and are unchanged. Pals and Tea tabs are not on my test account (they fall back to Today); not checked.
 

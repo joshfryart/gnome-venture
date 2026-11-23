@@ -230,6 +230,7 @@
   function finalItem(t) {
     var o = copy(t), r;
     if (t.remote && (t.remote.tendpick || t.remote.tendgo)) { o.rem = remKey(t.remote); return o; }
+    if (t.remote && t.remote.select === 'garden') { o.rem = remKey({ sel: '.selbar [data-sel="on"]' }); o.why = q1('.selbar') ? '' : 'n/a'; return o; }
     if (t.remote && t.remote.foe) { o.rem = remKey(t.remote); o.why = D.foe ? '' : 'none'; return o; }
     if (t.remote && t.remote.tool) { o.why = q1('.selbar') ? '' : 'n/a'; o.rem = remKey(t.remote); o.badge = tool === t.remote.tool ? '\u25cf' : ''; return o; }
     if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); }
@@ -283,8 +284,9 @@
     }
     if (a.remote && a.remote.select === 'garden') {
       if (!q1('.selbar')) { o.why = 'Beds'; return o; }
-      if (tool) { o.label = 'Done'; o.icon = '✓'; o.chip = 'tap a bed'; o.rem = remKey({ tool: tool }); }
-      else if (selOn) { o.label = 'Done'; o.icon = '✓'; o.rem = remKey({ sel: '.selbar [data-sel="off"]' }); }
+      if (tool) { o.label = 'Done'; o.icon = '✓'; o.chip = 'tap a bed'; o.menu = []; o.rem = remKey({ tool: tool }); }
+      else if (selOn) { o.label = 'Done'; o.icon = '✓'; o.menu = []; o.rem = remKey({ sel: '.selbar [data-sel="off"]' }); }
+      else if (a.menu && a.menu.length) o.menu = a.menu.map(finalItem);   // Select and the tools are a strip
       else o.rem = remKey({ sel: '.selbar [data-sel="on"]' });
       return o;
     }
@@ -292,6 +294,7 @@
     if (a.remote && a.remote.selectInfo === 'garden' && selOn) return { label: 'Picked', icon: '🔲', href: '', menu: [], why: '', badge: String(gCount()), info: true, remote: {}, cands: [], mlabel: '' };
     if (a.remote && (a.remote.doForm || a.remote.sel)) { r = resolveOne(a); o.why = r.why || a.why; o.badge = r.badge || a.badge; o.rem = remKey(a.remote); }
     if (a.menu && a.menu.length) o.menu = a.menu.map(finalItem);
+    if (a.remote && a.remote.hideNone && o.menu) { o.menu = o.menu.filter(function (m) { return !m.why; }); if (!o.menu.length) o.why = 'nothing to do'; }
     return o;
   }
   function selStrips() {   // the garden's select mode: Pick on the left, Then on the right (the page's own buttons)

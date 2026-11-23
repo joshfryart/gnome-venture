@@ -305,15 +305,17 @@ function dock_page_spec(string $page): array
             if ($t !== '' && $t !== 'beds') return ['L' => dock_action('Beds', '🏡', $u('garden.php')), 'R' => dock_action('Hovel', 'hovel', $u('gnome.php'))];
             // Beds tab: Select works the page's own "select squares" panel; the right piece is a strip of the page's own bulk buttons (the single-bed Tools piece needs a new in-page tool mode: phase 2b)
             return ['watch' => true,
-                'L' => dock_remote('Select', '☑️', ['select' => 'garden']),
-                'R' => dock_action('Tools', 'tools', '', [
+                'L' => dock_action('Select', 'select', '', [
+                    dock_remote('Select', '☑️', ['select' => 'garden']),
                     dock_remote('Water', '💧', ['tool' => 'water']), dock_remote('Harvest', '🧺', ['tool' => 'harvest']), dock_remote('Till', '⛏️', ['tool' => 'till']),
+                ], '', '', 'Select and tools', ['select' => 'garden', 'menu' => 1]),
+                'R' => dock_action('All', '🧺', '', [
                     dock_remote('Water all', '💧', ['doForm' => 'water_all', 'count' => ['.gardenstat', 'data-thirsty']]),
                     dock_remote('Weed all', '🌿', ['doForm' => 'weed_all', 'count' => ['.gardenstat', 'data-weedy']]),
                     dock_remote('Harvest all', '🧺', ['doForm' => 'harvest_all', 'count' => ['.gardenstat', 'data-ready']]),
                     dock_remote('Pick pests', '✂️', ['doForm' => 'pick_all']),
-                    dock_remote('Collect all', '📥', ['doForm' => 'collect_all']),
-                ], '', '', 'Tools and all beds', ['selectInfo' => 'garden'])];
+                    dock_remote('Collect', '📥', ['doForm' => 'collect_all']),
+                ], '', '', 'All beds', ['selectInfo' => 'garden', 'hideNone' => 1])];
         case 'inventory.php':
             // Satchel, Items tab: the Quick slot (assign: open an item, tap Confirm; use: tap; clear: the x or a hold). Other tabs: left Items, right Hovel.
             $t = (string)($_GET['tab'] ?? '');
