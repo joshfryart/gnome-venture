@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.05
+- **Landscape dock: tall pages shortened.** Tested CSS from a page-by-page survey: Almanac chapters (Creatures 5611→2016 px, Plants 4781→2707, Flowers 4183→2173, Pals 3644→1923, Glossary 4931→3606), Puzzle Pals, Puzzle box, Codex, Jigsaw, Pal jobs, Shop sell/buy, Villagers, World map, Town, Passport, Account, Guide, Market day, Tailor, Yard, Festival, Jobs, Belt, Gourmand, Trek, Community garden.
+
 ## 2.8.04
 - **Random-event and prize banners are sleeker and have an ✕.** Smaller icon, title and text; tap ✕ to fade the banner out in place (no reload). Banners that still wait for your choice keep no ✕.
 

@@ -1143,3 +1143,235 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .advgrid.wander.withrings > .panel > .flash.err { grid-column: 1 / -1; grid-row: 4; margin: 2px 0; padding: 3px 10px; font-size: 12px; line-height: 1.25; text-align: left; }
   body.dock-on .advgrid.wander.withrings > .panel > details.wgather { grid-row: 5; }
 }
+
+/* v2.8.05: tall-page survey fixes */
+@media (orientation: landscape) {
+body.dock-on #pz.ppalbook #lib { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 5px; align-items: start; }
+body.dock-on #pz.ppalbook #lib > * { grid-column: 1 / -1; min-width: 0; }
+body.dock-on #pz.ppalbook #lib > .ppalsec { grid-column: auto; margin-bottom: 6px; }
+body.dock-on #pz.ppalbook .ppalsec { padding: 4px 6px; }
+body.dock-on #pz.ppalbook .ppalsec > h2 { display: block; }
+body.dock-on #pz.ppalbook .ppalsec > .help { display: block; margin: 0; }
+body.dock-on #pz.ppalbook .ppalgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
+body.dock-on #pz.ppalbook .ppalslot { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 3px; align-items: center; text-align: left; padding: 2px 3px; }
+body.dock-on #pz.ppalbook .ppalslot .ppalart, body.dock-on #pz.ppalbook .ppalslot .ppalart .ppalimg { width: 24px; height: 24px; margin: 0; }
+body.dock-on #pz.ppalbook .ppalslot .ppalname { font-size: 11px; line-height: 1.1; text-align: left; overflow-wrap: normal; word-break: normal; hyphens: none; letter-spacing: -.2px; }
+body.dock-on #pz.ppalbook .ppalslot .ppaltake { grid-column: 1 / -1; }
+body.dock-on #pz.ppalbook .ppalslot .ppaltake .btn { min-height: 30px; width: 100%; padding: 0 2px; }
+body.dock-on #pz.ppalbook #lib > .ppalwaiting, body.dock-on #pz.ppalbook #lib > .ppalparty { grid-column: span 2; align-self: stretch; }
+body.dock-on #pz.ppalbook .ppalwaiting { padding: 6px 10px; margin: 0 0 6px; }
+body.dock-on #pz.ppalbook .ppalwaiting > .help { display: none; }
+body.dock-on #pz.ppalbook .ppalwaitlist { display: grid; grid-template-columns: 1fr; gap: 4px; }
+body.dock-on #pz.ppalbook .ppalparty { padding: 6px 10px; margin: 0 0 6px; }
+body.dock-on #pz.ppalbook .ppalparty h2 { margin: 0 0 4px; }
+body.dock-on #pz.ppalbook .pzhost { padding: 4px 10px; margin-bottom: 6px; }
+body.dock-on #pz.ppalbook .pzhost .pzface { width: 64px; height: 64px; }
+body.dock-on #pz.ppalbook .pzhost .help { display: none; }
+}
+@media (orientation: landscape) {
+body.dock-on .cx-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 4px; }
+body.dock-on .cx-tile { border-radius: 8px; }
+body.dock-on .cx-mono { font-size: 22px; }
+body.dock-on .cx-tile b { font-size: 10px; padding: 10px 2px 2px; }
+body.dock-on .cx-bar { margin: 4px 0 6px; }
+body.dock-on .cx-chips { margin-bottom: 6px; }
+}
+@media (orientation: landscape) {
+body.dock-on .pbx .pbx-chest { transform: scale(.7); transform-origin: left center; margin-right: -14px; }
+body.dock-on .pbx .pbx-status { margin: 0 0 6px; }
+body.dock-on .pbx .stc { min-height: 0; padding: 3px 8px 4px; }
+body.dock-on .pbx .stc .meter { height: 5px; margin-top: 2px; }
+body.dock-on .pbx .pbx-kit .pcg.tray, body.dock-on .pbx .pbx-belt .pcg.tray { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body.dock-on .pbx .pbx-fbar { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+body.dock-on .pbx .pbx-fbar button { min-height: 40px; padding: 2px 2px 5px; font-size: 12px; }
+body.dock-on .pbx .pbx-fbar button img { width: 18px; height: 18px; }
+body.dock-on .pbx .pbx-shelf { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; }
+body.dock-on .pbx .pbx-shelf > * { grid-column: 1 / -1; min-width: 0; }
+body.dock-on .pbx .pbx-shelf > h3 { grid-column: 1; margin: 0; }
+body.dock-on .pbx .pbx-shelf > .srow { grid-column: 2; margin: 0; }
+body.dock-on .pbx .pbx-shelf .shelfg { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+body.dock-on .pbx .pbx-shelf .pcg .pc { min-height: 0; }
+body.dock-on .pbx .pbx-legend { display: none; }
+body.dock-on .pbx .pbx-lid .capp { padding-block: 2px; }
+body.dock-on .pbx .pbx-lid .capp span { display: none; }
+}
+@media (orientation: landscape) {
+body.dock-on #pz.jig .pzthumb { flex: 0 0 36%; min-height: 0; aspect-ratio: 3/2; }
+body.dock-on #pz.jig .pzbody { padding: 4px 6px; gap: 3px; }
+body.dock-on #pz.jig .pzbody h2 { font-size: .95rem; margin: 0; }
+body.dock-on #pz.jig .pztiers { flex-direction: row; gap: 4px; }
+body.dock-on #pz.jig .pztiers .btn { flex: 1 1 0; min-width: 0; padding: 0 2px; min-height: 36px; font-size: 12px; flex-direction: column; line-height: 1.1; }
+body.dock-on #pz.jig .pztiers .btn small { display: block; font-size: 11px; }
+body.dock-on #pz.jig .pzhost { padding: 4px 10px; margin: 0 0 4px; }
+body.dock-on #pz.jig .pzhost .pzface { width: 48px; height: 48px; }
+body.dock-on #pz.jig h1 { margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+body.dock-on .pjpage #pjpanel-home .pjrows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; }
+body.dock-on .pjpage #pjpanel-home .pjrow.pjpal { padding: 3px 6px; min-width: 0; }
+body.dock-on .pjpage #pjpanel-home .pjimg { width: 32px; height: 32px; }
+body.dock-on .pjpage #pjpanel-home .pjnmrow { display: flex; align-items: center; gap: 4px; min-width: 0; white-space: nowrap; }
+body.dock-on .pjpage #pjpanel-home .pjnmrow b { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+body.dock-on .pjpage #pjpanel-home .pjnmrow .ppalrar { flex: none; font-size: 10px; padding: 0 4px; }
+body.dock-on .pjpage #pjpanel-home .pjstats { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; white-space: nowrap; font-size: 11px; }
+body.dock-on .pjpage #pjpanel-home .pjhp meter { width: 30px; }
+body.dock-on .pjpage .pjposts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; align-items: start; }
+body.dock-on .pjpage .pjpost { margin: 0; padding: 6px 10px; }
+body.dock-on .pjpage .pjpost-station { grid-column: 1 / -1; order: 9; }
+body.dock-on .pjpage .pjpost-station .pjdesc { columns: 2; column-gap: 18px; }
+body.dock-on .pjpage .pjpost .pjopen { min-height: 36px; }
+body.dock-on .pjpage .pjboardhd p { display: none; }
+body.dock-on .pjpage .pjboardhd { margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .spread:not(:has(.bookpage:not(.blank))) { grid-template-columns: minmax(0,1fr); }
+body.dock-on .book .spread:not(:has(.bookpage:not(.blank))) > .leaf.right { display: none; }
+body.dock-on .book .spread:has(.bookpage:not(.blank)) { grid-template-columns: minmax(0,1fr) minmax(250px, 280px); min-height: 0; }
+body.dock-on .book .spread > .leaf.left > h2 { display: none; }
+body.dock-on .book .toc summary { min-height: 30px; }
+body.dock-on .book .leaf h3 { margin: 6px 0 2px; font-size: 14px; }
+body.dock-on .book .ctiles { grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 4px; margin: 3px 0; }
+body.dock-on .book .ctile .ci img, body.dock-on .book .ctile .ci .almstop, body.dock-on .book .ctile .ci svg { width: 28px; height: 28px; }
+body.dock-on .book .ctile .ci { font-size: 20px; line-height: 1; }
+body.dock-on .book .ctile .tag { display: none; }
+body.dock-on .book span.ctile.locked { padding: 3px 2px; }
+body.dock-on .book span.ctile.locked .cn { display: none; }
+body.dock-on .book a.ctile { min-height: 46px; }
+body.dock-on .book:has(.spread) > p.muted { display: none; }
+body.dock-on .book .ctile .cn { line-height: 1.1; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .journey { padding: 8px 12px; }
+body.dock-on .book .journey > h2 { margin: 0; font-size: 18px; }
+body.dock-on .book .journey > .helpfold > .help { display: none; }
+body.dock-on .book .journey > .helpfold { margin-top: 0; }
+body.dock-on .book .journey > .helpfold > summary { min-height: 30px; }
+body.dock-on .book .journey .ptext { column-count: 2; column-gap: 16px; font-size: 13px; line-height: 1.35; }
+body.dock-on .journey .jchapters { grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 5px; margin: 6px 0; }
+body.dock-on .jcard { display: grid; grid-template-columns: 26px minmax(0,1fr); column-gap: 6px; align-items: center; text-align: left; padding: 3px 6px; min-height: 44px; }
+body.dock-on .jcard .jicon { grid-row: 1 / span 2; font-size: 20px; }
+body.dock-on .jcard .jicon img { width: 24px; height: 24px; }
+body.dock-on .jcard b { font-size: 13px; line-height: 1.1; }
+body.dock-on .jcard small { font-size: 11px; line-height: 1.1; }
+body.dock-on .jdetail { padding: 8px 12px; }
+body.dock-on .jdetail .jtasks { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 16px; margin: 4px 0; }
+body.dock-on .jdetail .jtasks li { padding: 3px 0; }
+body.dock-on .jdetail .jtasks li.stage .jwhy { display: none; }
+body.dock-on .jdetail .jtasks .jwhy { font-size: 12px; line-height: 1.25; }
+body.dock-on .jdetail .jintro { margin: 4px 0; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .contents .secgrid .seccard { padding: 4px 4px 5px; gap: 1px; }
+body.dock-on .book .contents .secgrid .seccard > small.muted { display: none; }
+body.dock-on .book .contents .secgrid .seccard .secicon { font-size: 20px; line-height: 1; }
+body.dock-on .book .contents .secgrid .seccard .secicon img { width: 24px; height: 24px; }
+body.dock-on .book .contents .secgrid .seccard b { font-size: 14px; line-height: 1.2; margin-bottom: 2px; }
+body.dock-on .book .contents .secgrid .seccard small { font-size: 11px; line-height: 1.15; }
+body.dock-on .book .contents .cgrid { gap: 8px; }
+body.dock-on .book .contents .ccard { padding: 6px 10px; }
+body.dock-on .book .contents .ccard .help { display: none; }
+body.dock-on .book .contents .ccard .hitlist > li:nth-child(n+5) { display: none; }
+body.dock-on .book .contents .ccard p { margin: 3px 0; }
+body.dock-on .book .contents .ccard h3 { margin: 0 0 2px; }
+}
+@media (orientation: landscape) {
+body.dock-on .bookwide { padding: 8px 12px; }
+body.dock-on .bookwide > h2 { margin: 0 0 2px; font-size: 18px; }
+body.dock-on .bookwide .intro { font-size: 13px; line-height: 1.35; margin: 0 0 6px; }
+body.dock-on .bookwide .gtiles { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 5px; }
+body.dock-on .bookwide .gtile { padding: 4px 6px; gap: 0; }
+body.dock-on .bookwide .gicon { font-size: 20px; line-height: 1; }
+body.dock-on .bookwide .gicon img { width: 24px; height: 24px; }
+body.dock-on .bookwide .gname { font-size: 13px; line-height: 1.15; }
+body.dock-on .bookwide .gstate, body.dock-on .bookwide .gmeta { font-size: 11px; line-height: 1.2; }
+body.dock-on .bookwide .gletters { gap: 2px; margin: 0 0 2px; }
+body.dock-on .bookwide .gletters a { min-width: 34px; min-height: 34px; }
+body.dock-on .bookwide .glossary { column-count: 2; column-gap: 20px; }
+body.dock-on .bookwide .glossary dt { margin-top: 3px; break-after: avoid; }
+body.dock-on .bookwide .glossary dd { font-size: 13px; line-height: 1.35; break-inside: avoid; }
+body.dock-on .bookwide .gletter { margin: 6px 0 0; font-size: 14px; }
+body.dock-on .bookwide .mgroup { margin: 8px 0 2px; }
+body.dock-on .bookwide .mblurb { font-size: 13px; margin: 0 0 4px; }
+body.dock-on .bookwide .mcards { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 5px; }
+body.dock-on .bookwide .mcard { padding: 5px 8px; font-size: 13px; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .almpals { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 4px; margin: 3px 0 6px; }
+body.dock-on .book .almpals li { flex-wrap: wrap; gap: 0 6px; padding: 3px 5px; min-height: 40px; }
+body.dock-on .book .almpals li > img, body.dock-on .book .almpals .palstk { width: 32px; height: 32px; flex: none; }
+body.dock-on .book .almpals li b { font-size: 13px; line-height: 1.15; }
+body.dock-on .book .almpals li small { font-size: 11px; }
+body.dock-on .book .box > h2 { margin: 0 0 2px; font-size: 18px; }
+body.dock-on .book .box > h3 { margin: 6px 0 0; }
+body.dock-on .bookwide .hitlist { column-count: 2; column-gap: 20px; }
+body.dock-on .bookwide .hitlist > li { break-inside: avoid; }
+}
+body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 0 3px; padding-top: 6px; }
+body.dock-on .shopwrap .itms .itm { row-gap: 0; }
+body.dock-on .shopwrap .itms .itm__win { height: 40px; }
+body.dock-on .shopwrap .itms .itm__ic, body.dock-on .shopwrap .itms .itm__svg, body.dock-on .shopwrap .itms .itm__svg > svg { width: 36px; height: 36px; }
+body.dock-on .shopwrap .itms .itm__rib { min-height: 22px; margin: 0 -4px; }
+body.dock-on .shopwrap .itms .itm__name, body.dock-on .shopwrap .itms .itm--long .itm__name, body.dock-on .shopwrap .itms .itm--xlong .itm__name { font-size: 10px; line-height: 1.1; }
+body.dock-on .shopwrap .shopcats { margin: 2px 0 4px; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; z-index: 20; }
+body.dock-on main > .shophelp { display: none; }
+body.dock-on main > .shopintro { margin: 0 0 4px; padding: 4px 10px; font-size: 12px; }
+body.dock-on main:has(> .shopwrap) > header.ph { max-height: 64px; overflow: hidden; }
+body.dock-on main:has(> .shopwrap) > header.ph img { max-height: 64px; width: auto; object-fit: cover; }
+body.dock-on .vgrid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 3px; margin-top: 4px; grid-auto-flow: dense; }
+body.dock-on .vgrid .vcard:not(.unmet) { grid-column: span 3; }
+body.dock-on .vgrid .vcard.unmet { grid-template-columns: none; display: flex; flex-direction: row; justify-content: center; padding: 2px; min-height: 34px; }
+body.dock-on .vgrid .vcard.unmet img { width: 28px; height: 28px; }
+body.dock-on .vgrid .vcard.unmet > b { display: none; }
+body.dock-on main:has(#vlist) > h1 { margin: 0 0 4px; font-size: 1.2rem; }
+body.dock-on #vlist > p.help { display: none; }
+body.dock-on #vlist > .vaaround { display: inline-flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 4px 8px; margin: 0 0 4px; }
+body.dock-on #vlist > .vfilter { padding: 4px 8px; margin: 0 0 4px; gap: 6px; }
+body.dock-on main:has(> #worldmap) { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 0 10px; align-items: start; }
+body.dock-on main:has(> #worldmap) > * { grid-column: 1 / -1; min-width: 0; }
+body.dock-on main:has(> #worldmap) > #worldmap { grid-column: 1; grid-row: 1 / span 2; }
+body.dock-on main > #worldmap .mapwrap, body.dock-on main > #worldmap .mapzoom { max-height: 300px; }
+body.dock-on main > #worldmap svg { max-height: 300px; width: 100%; }
+body.dock-on main:has(> #worldmap) > .youpill { grid-column: 2; grid-row: 1; margin: 0; align-self: end; }
+body.dock-on main:has(> #worldmap) > .letter-reminder { grid-column: 2; grid-row: 2; margin: 6px 0 0; font-size: 12px; align-self: start; }
+body.dock-on #regionmap .maplegend, body.dock-on #regionmap .maphelp { display: none; }
+body.dock-on #regionmap .regnav { margin: 0; }
+body.dock-on main:has(> #worldmap) > #region .help { margin: 2px 0; }
+body.dock-on .gcards.placecards { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+body.dock-on .placecards .gcard { min-height: 0; }
+body.dock-on .placecards .gcard__art { height: 76px; overflow: hidden; }
+body.dock-on .placecards .gcard__art img { width: 100%; height: 100%; object-fit: cover; }
+body.dock-on .placecards .gcard__ribbon { min-height: 28px; padding: 0 2px; }
+body.dock-on .placecards .gcard__label { font-size: 11px; line-height: 1.1; }
+body.dock-on .placecards .gcard__meta { padding: 2px; min-height: 0; gap: 2px; }
+body.dock-on .placecards .pchip { font-size: 10.5px; padding: 1px 4px; }
+body.dock-on .marketbanner { display: flex; align-items: center; gap: 8px; padding: 4px 10px; }
+body.dock-on .marketbanner > div { display: block; font-size: 12px; flex: 1 1 auto; }
+body.dock-on .marketbanner > div br { display: none; }
+body.dock-on .marketbanner > div > a.btn { float: right; margin-left: 8px; }
+body.dock-on section.tday { padding: 6px 10px; }
+body.dock-on section.tday .tday__more { display: none; }
+body.dock-on section.tday .tday__stats { margin: 0 0 4px; }
+body.dock-on section.tday .tday__row { min-height: 36px; }
+body.dock-on .st-page > h2.gx-h, body.dock-on .st-page > .gx-note--top, body.dock-on .st-pass > h3.gx-h { display: none; }
+body.dock-on .st-pass { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 0 8px; align-items: start; }
+body.dock-on .st-pass > * { grid-column: 1 / -1; min-width: 0; margin-block: 0 6px; }
+body.dock-on .st-pass > .st-sum { grid-column: 1; grid-row: 1; }
+body.dock-on .st-pass > .st-setbox { grid-column: 2; grid-row: 1; }
+body.dock-on main:has(.st-page) > h1 { margin: 0 0 4px; font-size: 1.2rem; }
+body.dock-on .st-pass .st-next { column-gap: 16px; }
+body.dock-on .st-pass .st-next li { min-width: 0; }
+body.dock-on .st-pass .st-next li .tag { white-space: normal; display: inline-block; max-width: 100%; }
+body.dock-on .st-pass .st-next li > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+@media (orientation: landscape) { body.dock-on .wrap { padding-bottom: 8px; } }  /* this REPLACES the existing line 141 padding-bottom rule: keep its justify-content: center. Do not use on gourmand.php (no footer, see needs_markup) -- harmless there because it also has no dock */
+@media (orientation: landscape) { body.dock-on main:has(> #easyroads) { display: block; columns: 3; column-gap: 10px; } body.dock-on main:has(> #easyroads) > :not(.box.narrow) { column-span: all; margin-top: 0; margin-bottom: 6px; } body.dock-on main:has(> #easyroads) > h1 { display: inline-block; margin-right: 12px; } body.dock-on main:has(> #easyroads) > .box.narrow { break-inside: avoid; margin: 0 0 8px; padding: 6px 10px 8px; } body.dock-on main:has(> #easyroads) > .box.narrow h2 { margin: 0 0 4px; } body.dock-on main:has(> #easyroads) > .box.narrow > form.form { display: block; } body.dock-on main:has(> #easyroads) > .box.narrow > form.form select { max-width: 100%; display: block; } body.dock-on main:has(> #easyroads) .form label { margin-bottom: 4px; font-size: 13px; } body.dock-on main:has(> #easyroads) .form input:not([type=checkbox]) { margin-top: 2px; } body.dock-on main:has(> #easyroads) .form label.check { align-items: flex-start; font-size: 13px; min-height: 34px; margin-bottom: 2px; } body.dock-on main:has(> #easyroads) .form .help { margin: 0 0 4px; font-size: 11px; line-height: 1.3; } body.dock-on main:has(> #easyroads) > .box.narrow > .help { margin: 4px 0 0; font-size: 11px; } body.dock-on main:has(> #easyroads) .startrow label { margin-bottom: 4px; } body.dock-on main:has(> #easyroads) .gmchips, body.dock-on main:has(> #easyroads) .themechoice { flex-wrap: wrap; } }
+@media (orientation: landscape) { body.dock-on article.lpg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 10px; align-items: start; } body.dock-on article.lpg > .lpg-top { grid-column: 1 / -1; margin-bottom: 4px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; } body.dock-on article.lpg > .lpg-top h1 { margin: 0; font-size: 24px; } body.dock-on article.lpg > .lpg-top .lpg-lede { margin: 0; font-size: 13px; } body.dock-on .lpg-fold > summary { display: flex; align-items: center; gap: 8px; min-height: 40px; cursor: pointer; } body.dock-on .lpg-fold > summary h2 { margin: 0; padding: 0; border: 0; font-size: 15px; } body.dock-on .lpg-fold[open] { grid-column: 1 / -1; } body.dock-on .lpg-fold[open] > .lpg-body { columns: 2; column-gap: 24px; } body.dock-on .lpg-fold[open] .lpg-body > p { break-inside: avoid; margin: 0 0 6px; } body.dock-on .lpg-fold[open] .lpg-body li { break-inside: avoid; margin-bottom: 3px; } body.dock-on .lpg-fold[open] .lpg-body ul, body.dock-on .lpg-fold[open] .lpg-body ol { margin-block: 0 4px; } }
+@media (orientation: landscape) { body.dock-on main:has(> .mkstalls) { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: center; } body.dock-on main:has(> .mkstalls) > * { grid-column: 1 / -1; min-width: 0; } body.dock-on main:has(> .mkstalls) > h1 { grid-column: 1; margin: 0; } body.dock-on main:has(> .mkstalls) > p.status { grid-column: 2; margin: 0; padding: 6px 10px; } body.dock-on main:has(> .mkstalls) > .crumbs { margin: 0 0 2px; } body.dock-on main:has(> .mkstalls) > h2.shopintro { grid-column: 1; margin: 4px 0 2px; font-size: 1rem; text-align: left; } body.dock-on main:has(> .mkstalls) > p.help.shopintro { grid-column: 2; margin: 4px 0 2px; font-size: 11px; line-height: 1.25; } body.dock-on main:has(> .mkstalls) > p:last-child { margin: 6px 0 0; display: flex; gap: 8px; } body.dock-on main:has(> .mkstalls) > p:last-child .btn { min-height: 38px; } body.dock-on .marketwanted { padding: 4px 10px 8px; margin: 4px 0; } body.dock-on .marketwanted > h3 { display: inline; margin: 0 8px 0 0; text-align: left; } body.dock-on .marketwanted > p { display: none; } body.dock-on .marketwanted .itms { gap: 4px 6px; padding-top: 4px; } body.dock-on .marketwanted .itm__win { height: 56px; } body.dock-on .mkstall .itm__win { height: 54px; } body.dock-on .mkstall .itms { gap: 6px 6px; } body.dock-on .mkbasket { display: grid; grid-template-columns: minmax(0, 210px) minmax(0, 1fr); gap: 0 12px; align-items: start; padding: 8px 12px; margin-top: 0; } body.dock-on .mkbasket > form { display: contents; } body.dock-on .mkbasket > p { grid-column: 1; grid-row: 1; margin: 0 0 6px; font-size: 12px; line-height: 1.3; } body.dock-on .mkbasket .mkpick { grid-column: 2; grid-row: 1 / span 3; max-height: 200px; } body.dock-on .mkbasket > form > p { grid-column: 1; grid-row: 2; margin: 0; } body.dock-on .mkpick .itms { --itm-cols: 5; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; max-width: none; } body.dock-on .mkpick .itm__win { height: 56px; } }
+@media (orientation: landscape) { body.dock-on main:has(> ul.rcards.tlr) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 8px; } body.dock-on main:has(> ul.rcards.tlr) > h2 { margin: 4px 0; font-size: 1.05rem; } body.dock-on main:has(> ul.rcards.tlr) > h1 + p.help { margin: 2px 0 4px; } body.dock-on main:has(> ul.rcards.tlr) > h2 + p.help { display: none; } body.dock-on main:has(> ul.rcards.tlr) > details.box { margin: 0 0 6px; } body.dock-on main:has(> ul.rcards.tlr) > details.box > summary { padding-block: 2px; min-height: 40px; display: flex; flex-direction: column; justify-content: center; line-height: 1.25; } body.dock-on main:has(> ul.rcards.tlr) > p.muted { margin: 0 0 4px; grid-column: span 2; font-size: 12px; } body.dock-on ul.rcards.tlr > li { padding: 6px 8px; } body.dock-on ul.rcards.tlr > li > b img { width: 32px; height: 32px; } }
+@media (orientation: landscape) { body.dock-on main:has(> .designer) { display: grid; grid-template-columns: 476px minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; gap: 0 12px; align-items: start; } body.dock-on main:has(> .designer) > * { grid-column: 1 / -1; min-width: 0; } body.dock-on main:has(> .designer) > h1 { margin: 2px 0; } body.dock-on main:has(> .designer) > .designer { display: contents; } body.dock-on main:has(> .designer) .yardwrap { grid-column: 1; grid-row: 3 / span 2; } body.dock-on main:has(> .designer) .tray { grid-column: 2; grid-row: 3; margin: 0 0 6px; } body.dock-on main:has(> .designer) > p.help { grid-column: 2; grid-row: 4; margin: 0; font-size: 11px; line-height: 1.3; } body.dock-on main:has(> .designer) > .yardtools { grid-row: 2; } body.dock-on main:has(> .designer) > .box { margin: 8px 0 0; padding: 6px 12px 8px; } body.dock-on main:has(> .designer) > .box h3 { margin: 0 0 4px; font-size: 1rem; } body.dock-on .bonuslist { columns: 3; column-gap: 16px; margin: 0; padding-left: 16px; font-size: 12px; line-height: 1.3; } body.dock-on .bonuslist li { break-inside: avoid; margin: 0 0 4px; } body.dock-on main:has(> .designer) > .box:last-child { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; } body.dock-on main:has(> .designer) > .box:last-child > h3 { flex: 1 0 100%; } body.dock-on main:has(> .designer) > .box:last-child > p { flex: 1 1 300px; margin: 0; font-size: 13px; line-height: 1.3; } body.dock-on main:has(> .designer) > .box:last-child > form { margin: 0; } }
+@media (orientation: landscape) { body.dock-on main:has(> .festhero) { gap: 6px 10px; } body.dock-on main:has(> .festhero) > .festhero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: center; padding: 6px 12px; } body.dock-on main:has(> .festhero) > .festhero h1 { grid-column: 1; grid-row: 1; margin: 0; font-size: 22px; } body.dock-on main:has(> .festhero) > .festhero .festdates { grid-column: 2; grid-row: 1; } body.dock-on main:has(> .festhero) > .festhero > p:not(.festdates) { display: none; } body.dock-on main:has(> .festhero) > section.box { padding: 6px 12px 8px; } body.dock-on main:has(> .festhero) > section.box > h2 { margin: 0 0 2px; font-size: 1.05rem; } body.dock-on main:has(> .festhero) > section.box > p.help { margin: 2px 0 4px; font-size: 12px; line-height: 1.3; } body.dock-on main:has(> .festhero) > section.box:nth-of-type(1) > p.help { display: none; } body.dock-on main:has(> .festhero) .festjar .jarwrap { gap: 10px; } body.dock-on main:has(> .festhero) .festjar .jarwrap svg { height: 74px; } body.dock-on main:has(> .festhero) .festjar .jarinfo { font-size: 13px; } body.dock-on main:has(> .festhero) .festjar .jarinfo > * { margin-block: 2px; } body.dock-on main:has(> .festhero) .festjar .jarinfo > :first-child { font-size: 16px; line-height: 1.25; margin: 0; } body.dock-on main:has(> .festhero) .festjar form.help { margin: 4px 0 0; } body.dock-on main:has(> .festhero) .festjar form small { font-size: 11px; } body.dock-on main:has(> .festhero) .stalls .itm__win { height: 52px; } body.dock-on main:has(> .festhero) .stalls .itms { gap: 4px; } body.dock-on main:has(> .festhero) .stall { padding: 4px 8px 8px; } body.dock-on main:has(> .festhero) .stall h3 { margin: 0; font-size: .95rem; } body.dock-on main:has(> .festhero) .stall p { margin: 0 0 4px; font-size: 12px; } body.dock-on main:has(> .festhero) .pulselist { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 14px; } body.dock-on main:has(> .festhero) .pulse p, body.dock-on main:has(> .festhero) .pulse li { margin: 0; font-size: 13px; } body.dock-on main:has(> .festhero) .pulse > p.help, body.dock-on main:has(> .festhero) > section.box > p.help:last-child { font-size: 11px; margin: 2px 0 0; } body.dock-on main:has(> .festhero) > p:last-child { margin: 0; } }
+@media (orientation: landscape) { body.dock-on .jb-cols.even > .jb-board { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 8px; align-items: start; padding: 6px 10px 8px; } body.dock-on .jb-cols.even > .jb-board > h2 { grid-column: 1 / -1; margin: 0; font-size: 1rem; } body.dock-on .jb-cols.even > .jb-board > .jb-pj { border: 1px solid var(--line); border-top: 1px solid var(--line) !important; margin: 0; flex-direction: column; align-items: stretch; padding: 6px 8px; gap: 4px; } body.dock-on .jb-cols.even > .jb-board > .jb-pj .info { flex: 0 0 auto; } body.dock-on .jb-cols.even > .jb-board .jb-pj .info p { margin: 2px 0; font-size: 12px; line-height: 1.3; } body.dock-on .jb-cols.even > .jb-board > .jb-pj .who { font-size: 11.5px; } body.dock-on .jb-cols.even > .jb-board .jb-pj form.inline { display: flex; align-items: center; justify-content: space-between; gap: 8px; } body.dock-on .jb-cols.even > .jb-board > .jb-pj .btn { min-height: 34px; } body.dock-on .jb-forms { gap: 6px; grid-template-columns: minmax(0, 1fr); } body.dock-on .jb-forms > p.jb-sub { display: none; } body.dock-on .jb-forms > form.jb-form { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 0 12px; align-items: center; padding: 6px 12px; } body.dock-on .jb-forms > form.jb-form > h3 { grid-column: 1; grid-row: 1; margin: 0; font-size: 1rem; } body.dock-on .jb-forms > form.jb-form > p.jb-sub { grid-column: 1; grid-row: 2; margin: 2px 0 0; font-size: 11px; line-height: 1.25; } body.dock-on .jb-forms > form.jb-form > .g2 { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0 8px; } body.dock-on .jb-forms > form.jb-form > .g2 label { margin: 0; font-size: 11px; } body.dock-on .jb-forms > form.jb-form > .g2 label.wide { grid-column: auto; } body.dock-on .jb-forms > form.jb-form > .btn { grid-column: 3; grid-row: 1 / span 2; } }
+@media (orientation: landscape) { body.dock-on main:has(> nav.jqtabs) > h2:has(+ p.help), body.dock-on main:has(> nav.jqtabs) > h2 + p.help { display: none; } body.dock-on main:has(> nav.jqtabs) > .box.favours { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px; padding: 6px 12px 8px; margin: 4px 0; } body.dock-on .box.favours > h3 { grid-column: 1 / -1; margin: 0; font-size: 1rem; } body.dock-on .box.favours > p.help { grid-column: 1 / -1; margin: 2px 0 4px; font-size: 12px; line-height: 1.3; } body.dock-on .box.favours > .favour { flex-wrap: wrap; align-items: flex-start; padding: 4px 0; font-size: 13px; line-height: 1.3; } body.dock-on .box.favours > .favour form { flex: 1 0 100%; text-align: right; } body.dock-on .box.favours > .favour .btn { min-height: 34px; } body.dock-on main:has(> nav.jqtabs) > h3 { margin: 4px 0 2px; font-size: 1rem; } body.dock-on main:has(> nav.jqtabs) > .box.qsec { padding: 6px 12px; margin: 0; } body.dock-on main:has(> nav.jqtabs) .qlist { gap: 4px 14px; } body.dock-on main:has(> nav.jqtabs) .qlist li { margin: 0; padding: 2px 0; } body.dock-on main:has(> nav.jqtabs) > p.help:last-child { margin: 4px 0 0; font-size: 12px; } }
+@media (orientation: landscape) { body.dock-on .toolbelt .belt { padding: 4px 6px; gap: 3px; } body.dock-on .toolbelt .belt .pouch { padding: 2px 2px 3px; } body.dock-on .toolbelt .belt .pouch .pwear, body.dock-on .toolbelt .belt .pouch .ptier { display: none; } body.dock-on .toolbelt .belt .pouch .pname { font-size: 11px; line-height: 1.15; } body.dock-on .toolbelt .belt .pouch .picon { height: 30px; } body.dock-on .toolbelt > h2 { display: none; } body.dock-on .toolbelt > nav.belttabs { margin: 4px 0; } body.dock-on .toolbelt .toolcards { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; } body.dock-on .toolbelt .toolcards > * { padding: 6px 8px; } body.dock-on .toolbelt .toolcards .tc > .ic { display: none; } body.dock-on .toolbelt .toolcards .tc p { margin: 0; font-size: 12px; line-height: 1.3; } body.dock-on .toolbelt .toolcards .tc b { font-size: 12px; } body.dock-on .toolbelt .toolcards .tc small { font-size: 11px; line-height: 1.25; } body.dock-on main > details.helpfold { margin: 2px 0; } }  /* the 'Garden jobs' h2 is hidden because the Garden tools tab beside it already says it; the existing line 639 rule (3 cards) is overridden. Other belt sub-tabs (Gathering, Travel, Mend, Upgrades) were NOT checked: .wearbox on Mend has its own rule at line 774 */
+@media (orientation: landscape) { body.dock-on main:has(> .box > .npchead) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on main:has(> .box > .npchead) > * { flex: 1 0 100%; min-width: 0; } body.dock-on main:has(> .box > .npchead) > h1 { flex: 0 0 auto; margin: 0; font-size: 1.4rem; } body.dock-on main:has(> .box > .npchead) > nav.tabs { flex: 1 1 600px; margin: 0; } body.dock-on main > .box:has(> .npchead) { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 0 14px; align-items: start; padding: 6px 12px; margin: 6px 0; } body.dock-on main > .box > .npchead { margin: 0; } body.dock-on main > .box > .npchead .npcid > .muted { margin: 0; } body.dock-on main > .box > .npchead .npcid > .help { display: none; } body.dock-on main > .box > .story { margin: 0; font-size: 13px; line-height: 1.35; } body.dock-on main > section.box:has(> .box.inset) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 8px; padding: 6px 10px 8px; margin: 0; } body.dock-on main > section.box:has(> .box.inset) > h2 { font-size: 1.05rem; } body.dock-on main > section.box:has(> .box.inset) > p.help { font-size: 12px; } body.dock-on main > section.box:has(> .box.inset) > .box.inset { padding: 6px 8px; } body.dock-on main > section.box > .box.inset p { font-size: 13px; line-height: 1.3; margin: 2px 0; } body.dock-on main > section.box > .box.inset p.help { font-size: 11px; } body.dock-on main > section.box > .box.inset .btn { min-height: 38px; } }  /* tested with nav.tabs flex 1 1 0 (the row looked right); 1 1 600px is the safer value used here and was not re-measured. Hides the 'His camp moves with the festivals' help line. Only the Now tab was tested */
+@media (orientation: landscape) { body.dock-on .trekplay { gap: 4px 12px; } body.dock-on .trekplay > #trekstage { max-width: 320px; } body.dock-on .trekplay .trektut { display: none; } body.dock-on .trekplay .trekhud { padding: 4px 8px; } body.dock-on .trekplay .trekhud .hudparty { margin: 0; } body.dock-on .trekplay .trekhud p.trekwhere { margin: 2px 0 0; font-size: 12px; } body.dock-on .trekplay .trekspot { padding: 6px 10px; } body.dock-on .trekplay .trekspot h3 { margin: 0 0 2px; font-size: 1rem; } body.dock-on .trekplay .trekspot .trektext { font-size: 13px; line-height: 1.3; margin: 0; } body.dock-on .trekplay details.tklegend, body.dock-on .trekplay details.tkmini { margin: 0; } body.dock-on .trekplay .trekacts { margin: 0; } body.dock-on .trekplay .trekacts > p.help { margin: 2px 0 0; font-size: 11px; } }  /* #trekstage needs the id: style.css line 4791 '.trekplay > #trekstage' sets max-width 480px, which beat the old '.trekplay .gvs' rule. The scene is data-crop so it shows less at 320px wide. Fights (the 'pfight/trekfight' screen) were not tested */
+@media (orientation: landscape) { body.dock-on main:has(> .commwrap) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on main:has(> .commwrap) > * { flex: 1 0 100%; min-width: 0; } body.dock-on main:has(> .commwrap) > h1 { flex: 0 0 auto; margin: 0; font-size: 1.4rem; } body.dock-on main:has(> .commwrap) > nav.tabs { flex: 1 1 600px; margin: 0; } body.dock-on main:has(> .commwrap) > h2 { flex: 0 0 auto; margin: 6px 0 2px; font-size: 1rem; } body.dock-on main:has(> .commwrap) > h2 + p.help { flex: 1 1 0; margin: 6px 0 2px; font-size: 11.5px; line-height: 1.3; } body.dock-on .commwrap { margin-top: 4px; } body.dock-on .commside { gap: 5px; } body.dock-on .commside > .box { padding: 5px 10px 6px; } body.dock-on .commside > .box h3 { margin: 0 0 2px; font-size: .95rem; } body.dock-on .commside > .box p { margin: 0 0 3px; font-size: 12px; line-height: 1.3; } body.dock-on .commside > .box form.inline { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 0; } body.dock-on .commside > .box form.inline select { flex: 1 1 140px; min-width: 0; max-width: 100%; } body.dock-on .commside > .box .btn { min-height: 34px; } body.dock-on .commside > .box ol { margin: 0; padding-left: 20px; font-size: 13px; } }
