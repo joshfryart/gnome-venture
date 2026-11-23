@@ -549,7 +549,57 @@
     setTimeout(function () { var b = q1(G_TOOL[tool]); if (b && gCount() === 1) b.click(); }, 40);
   }, true);
   document.addEventListener('click', function (e) { if (D && D.play && playOpen && !slip && e.target.isConnected && !root.contains(e.target)) { playOpen = false; render(); return; } if (slip && e.target.isConnected && !root.contains(e.target)) { slip = null; render(); } });   // a click on a piece re-draws the dock, so its target is no longer in the page: that is a click inside
-  document.addEventListener('gv:swapped', function () { tSel = {}; if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); } });   // an in-place page load: new plate numbers and actions
+
+  /* v2.8.06: energy feedback. Spend: the bar glows, then drains while a "-x" ghost floats up from its edge. Gain: it fills, glows, "+x" rises. Replaces the "(-1 energy)" words in messages. */
+  var lastEn = null, enAnim = null;
+  var RM = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  function enStore(v, m) { try { sessionStorage.setItem('gv_en', v + '/' + m); } catch (x) {} }
+  function enRead() { try { var t = (sessionStorage.getItem('gv_en') || '').split('/'); return t.length === 2 ? [+t[0], +t[1]] : null; } catch (x) { return null; } }
+  function stripEnergyWords() {
+    document.querySelectorAll('.flash, .notice, .box.report').forEach(function (el) {
+      var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
+      while ((n = w.nextNode())) if (/\((?:\u2212|-)\d+ energy\)/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(/\s*\((?:\u2212|-)\d+ energy\)/g, '');
+    });
+  }
+  function enGhost(txt, up, anchor, pct) {
+    var r = anchor.getBoundingClientRect(), g = document.createElement('span');
+    g.className = 'dockghost' + (up ? ' up' : ''); g.setAttribute('aria-hidden', 'true'); g.textContent = txt;
+    g.style.fontSize = Math.round(12 * K) + 'px';
+    document.body.appendChild(g);
+    var gw = g.offsetWidth, gh = g.offsetHeight, x = r.left + r.width * (pct === null ? .5 : pct / 100) - gw / 2;
+    x = Math.max(r.left - 8, Math.min(r.right + 8 - gw, x));
+    g.style.left = Math.round(x) + 'px'; g.style.top = Math.round(r.top - 2 - gh) + 'px';
+    var done = function () { if (g.parentNode) g.parentNode.removeChild(g); };
+    if (!g.animate) { setTimeout(done, 1100); return; }
+    var kf = RM.matches ? [{ opacity: 1 }, { opacity: 1, offset: .8 }, { opacity: 0 }]
+      : [{ opacity: 0, transform: 'translateY(3px)' }, { opacity: 1, transform: 'translateY(0)', offset: .15 }, { opacity: 1, transform: 'translateY(-14px)', offset: .6 }, { opacity: 0, transform: 'translateY(-22px)' }];
+    g.animate(kf, { duration: 1100, easing: 'cubic-bezier(.2,.6,.3,1)' }).onfinish = done;
+  }
+  function curBar() { return root.querySelector('#dockplate progress'); }
+  function energyFx() {
+    if (!D || !D.plate || !D.plate.energy) return;
+    var cur = D.plate.energy[0], max = D.plate.energy[1], prev = enRead();
+    enStore(cur, max);
+    if (!prev || prev[1] !== max || prev[0] === cur || !mq.matches) return;
+    var d = cur - prev[0], up = d > 0, txt = (up ? '+' : '\u2212') + Math.abs(d) + '\u00a0\u26a1';
+    if (enAnim) { cancelAnimationFrame(enAnim); enAnim = null; }
+    var bar = root.querySelector('#dockplate progress');
+    if (!bar) { var rs = root.querySelector('.dk-rs'); if (rs) enGhost(txt, up, rs, null); return; }
+    var from = max ? 100 * prev[0] / max : 0, to = max ? 100 * cur / max : 0;
+    if (RM.matches) { enGhost(txt, up, bar, to); return; }
+    bar.value = from;
+    if (bar.animate) bar.animate([{ filter: 'brightness(1)' }, { filter: up ? 'brightness(1.5) saturate(1.5)' : 'brightness(1.6)', offset: up ? .6 : .17 }, { filter: 'brightness(1)' }], { duration: up ? 1000 : 820 });
+    var delay = up ? 0 : 220, dur = up ? 550 : 650, t0 = null;
+    setTimeout(function () { if (up) setTimeout(function () { var b2 = curBar(); if (b2) enGhost(txt, true, b2, to); }, 400); else var b2 = curBar(); if (b2) enGhost(txt, false, b2, to); }, up ? 0 : delay);
+    function step(t) {
+      if (t0 === null) t0 = t + delay;
+      var k = Math.max(0, Math.min(1, (t - t0) / dur)), e = 1 - Math.pow(1 - k, 3);
+      var b3 = curBar(); if (b3) b3.value = from + (to - from) * e;
+      enAnim = k < 1 ? requestAnimationFrame(step) : null;
+    }
+    enAnim = requestAnimationFrame(step);
+  }
+  document.addEventListener('gv:swapped', function () { tSel = {}; if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); energyFx(); } stripEnergyWords(); });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);
@@ -587,5 +637,5 @@
   document.addEventListener('gv:swapped', function () { setTimeout(msgUpdate, 0); });
   var dockMo = window.MutationObserver ? new MutationObserver(function () { clearTimeout(msgUpdate.t); msgUpdate.t = setTimeout(msgUpdate, 150); }) : null;
   if (dockMo) { var cw = document.querySelector('.chrome2'); if (cw) dockMo.observe(cw, { subtree: true, childList: true, characterData: true }); }
-  try { if (readData()) { watch(); render(); msgUpdate(); } } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
+  try { if (readData()) { watch(); render(); msgUpdate(); energyFx(); } stripEnergyWords(); } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
 })();

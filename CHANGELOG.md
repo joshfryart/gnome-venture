@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.06
+- **Energy use is now a small animation on the dock energy bar** instead of "(−1 energy)" in the message. Spending: the bar glows, then drains by the amount while a "−x ⚡" ghost floats up from its edge and fades. Gaining (eat, rest): the bar fills with a green glow and "+x ⚡" rises. The words "(−N energy)" are dropped from page messages in the dock layout. Reduced-motion: no movement, the ghost just fades. In play-mode rail the ghost floats over the ⚡ count.
+
 ## 2.8.05
 - **Landscape dock: tall pages shortened.** Tested CSS from a page-by-page survey: Almanac chapters (Creatures 5611→2016 px, Plants 4781→2707, Flowers 4183→2173, Pals 3644→1923, Glossary 4931→3606), Puzzle Pals, Puzzle box, Codex, Jigsaw, Pal jobs, Shop sell/buy, Villagers, World map, Town, Passport, Account, Guide, Market day, Tailor, Yard, Festival, Jobs, Belt, Gourmand, Trek, Community garden.
 
