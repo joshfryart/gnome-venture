@@ -298,3 +298,32 @@ body.dock-on .cbed { cursor: pointer; }
 @media (orientation: landscape) {
   body.dock-on .homepage.hslim:not(.hs-tab-today):not(.hs-tab-furnish) .hs-banner { display: none; }
 }
+
+/* dock layout, landscape: Wander is one screen: the picture, the rings and the choices side by side */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr) minmax(0, 1.3fr); gap: 8px; align-items: start; }
+  body.dock-on .advgrid.wander.withrings > .mapcol { display: contents; }
+  body.dock-on .advgrid.wander.withrings .gvs { grid-column: 1; grid-row: 1; width: 100%; max-width: none; max-height: var(--imgh); overflow: hidden; }
+  body.dock-on .advgrid.wander.withrings .mapwrap.small { grid-column: 2; grid-row: 1; width: 100%; max-width: var(--imgh); margin: 0 auto; }
+  body.dock-on .advgrid.wander.withrings .mapwrap.small svg { width: 100%; height: auto; max-height: calc(var(--imgh) - 36px); }
+  body.dock-on .advgrid.wander.withrings .mapwrap .hoopcap { font-size: 11px; margin: 0; }
+  body.dock-on .advgrid.wander.withrings > .panel { grid-column: 3; grid-row: 1; width: 100%; max-width: none; margin: 0; padding: 6px 8px; max-height: calc(100dvh - var(--dock-h, 106px) - 70px); overflow-y: auto; }
+  body.dock-on .advgrid.wander .choicelist .choiceform { margin: 0 0 4px; }
+  body.dock-on .advgrid.wander .panel h3 { font-size: .9rem; margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+  body.dock-on main:has(> .advgrid.wander) > h1 { font-size: 17px; margin: 2px 0; }
+  body.dock-on main:has(> .advgrid.wander) > h1 .ico { width: 18px; height: 18px; }
+  body.dock-on main:has(> .advgrid.wander) > p.status { margin: 2px auto 6px; padding: 3px 8px; font-size: 12px; }
+  body.dock-on .advgrid.wander .panel .choice { min-height: 0; padding-block: 4px; }
+  body.dock-on .advgrid.wander .panel .choice .choice-sub { display: none; }
+  body.dock-on .advgrid.wander .panel .roadline { font-size: .8rem; margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander .panel .choicelist { display: grid; gap: 3px; }
+  body.dock-on .advgrid.wander .panel .choicelist .choiceform { margin: 0; }
+  body.dock-on .advgrid.wander .panel .choice { padding-block: 2px; }
+  body.dock-on .advgrid.wander .panel .roadline { display: none; }
+  body.dock-on .advgrid.wander .panel .choice .choice-body { min-width: 0; }
+  body.dock-on .advgrid.wander .panel .choice .choice-title { font-size: .8rem; }
+}

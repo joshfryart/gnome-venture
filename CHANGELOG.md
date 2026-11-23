@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.71
+- **Dock layout, landscape: the Wander page is one screen.** The scene picture, the rings and the choices (Go deeper, Keep exploring, Step back, Head to the road) sit side by side, with a slimmer heading and status line; the long notes and Gather stay in their folds under the choices. (The flavour line above the choices is hidden in the dock layout.) At 844 x 390 the three parts end above the dock; before, the page was 2840 px tall. Checked with a fake off-the-path walk in a headless browser; a real Wander fight, find or Gather fold open was not checked.
+
 ## 2.7.70
 - **Perks popover (Here), compact.** On short landscape screens the banner is slim (40 px), the stop perks and your account perks are small cards in a row (three across), and the meters with the acts that raise them sit under them, so the whole popover shows without scrolling (with three running perks it is about 380 px tall at 390). Replaces the 2.7.69 two-column version, which split the perk cards from the meters.
 - **Activity cards (the picture's Do spots, a town's actions):** picture and name on the left, words and choices on the right on short landscape screens, so three choices fit without scrolling.
