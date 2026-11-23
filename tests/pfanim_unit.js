@@ -67,6 +67,21 @@ for (const kind of KINDS) {
   ok(`env ${kind}: the place effect draws (${drawnPl}) and the fire effect draws (${drawnFi})`, drawnPl > 0 && drawnFi > 0, [drawnPl, drawnFi]);
   ok(`env ${kind}: stays in the glyph budget (max ${maxN} particles a frame of 220)`, maxN <= 220, maxN);
 }
+// ---- stat pieces (pfight_statpieces): the gnome's own 24 pieces get a themed look (motif module in claude/pf-anim/motifs/), a creature piece of the same name does not;
+//      every motif draws its own-edge and chain effect on a real perimeter at many times with no error, no NaN and inside the glyph budget
+const SPN = JSON.parse(fs.readFileSync(path.join(root, 'game/includes/data/pf_stat_pieces.txt'), 'utf8').split('\n').filter(l => l && l[0] !== '#' && l[0] !== '=' && l.split('|').length > 2).map(l => JSON.stringify(l.split('|')[1])).join(',').replace(/^/, '[').concat(']'));
+ok('24 stat pieces have an entry', SPN.length === 24 && SPN.every(n => data.sp[n]), SPN.filter(n => !data.sp[n]));
+{
+  const FS = { L: 'f', R: 'f', T: 'f', B: 'f' }, PP = A.perimeter([{ id: 0, x: 0, y: 0, e: FS }, { id: 1, x: 1, y: 0, e: FS }, { id: 2, x: 1, y: 1, e: FS }]);
+  for (const nm of SPN) for (const [t, tag] of [['trick', ''], ['hurt', 'pierce'], ['guard', 'hold'], ['item', '']]) {
+    const L = A.look({ by: 'me', n: nm, t, tag }), bad = [], errs = []; let drawn = 0, maxN = 0;
+    if (tag === '') { ok('stat ' + nm + ': themed (motif module, own colour)', !!(L.th && L.M && L.M.draw) && /^#[0-9a-f]{6}$/.test(L.col), L.col); ok('stat ' + nm + ': a creature piece of that name is not themed here', A.look({ by: 'foe', n: nm, t, tag }, 'nobody').th === null); }
+    for (const ph of ['own', 'car']) for (const pr of [0, .05, .2, .4, .6, .8, .95, 1]) for (const o of [0, 1, 2]) {
+      try { const c = stubCtx(bad), n = A.themedDraw(c, ph, PP, o, (o + 1) % 3, L, pr, 11 + o); drawn += c.n; maxN = Math.max(maxN, n); } catch (e) { errs.push(ph + ' ' + pr + ' ' + e.message); }
+    }
+    ok('stat ' + nm + ' (' + t + '/' + tag + '): draws with no error or NaN, inside the glyph budget', errs.length === 0 && bad.length === 0 && maxN <= 220 && (drawn > 0 || tag !== ''), { errs: errs.slice(0, 2), bad: bad.slice(0, 2), maxN, drawn });
+  }
+}
 // ---- perimeter
 const F = { L: 'f', R: 'f', T: 'f', B: 'f' }, cells = a => a.map(([x, y], i) => ({ id: i, x, y, e: F }));
 const BW = 56, BH = 47;

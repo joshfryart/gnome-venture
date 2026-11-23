@@ -128,9 +128,10 @@
       }
       return L;
     }
-    var q = D && D.pp[p.n];
+    var q = D && D.pp[p.n], sq = D && !h && !env && D.sp && D.sp[p.n], sM = sq && D.m[sq[0]] && MOTIF[D.m[sq[0]][0]];   // a stat piece of the gnome: its own themed motif
     L.fam = env ? (ENVF[p.kind || p.env] || 'puff') : q ? FAMS[q[0]][0] : ruleFam(p.t, tag); fi = FI[L.fam];
     L.col = (q && q[1]) || (h ? FAMS[fi][3] : FAMS[fi][1]); L.acc = h ? FAMS[fi][4] : INK; L.snd = (q && q[2]) || famSnd(L.fam, tag); L.lift = liftOf(p, L.fam); L.hi = hexmix(L.col, '#ffffff', .55);
+    if (sM) { L.M = sM; L.col = sq[1]; L.hi = hexmix(sq[1], '#ffffff', .55); L.th = { mp: { lay: layoutOf(p.t, tag), spd: tag === 'quick' ? 1.3 : tag === 'hold' ? .8 : 1, z: 0, x: sM.x }, carrier: sM.car || 'train' }; }
     return L;
   }
 
@@ -329,6 +330,8 @@
     active: function () { return ACT.length; },
     /** tests and frame captures: freeze the clock ms after the latest start (null = live again) */
     seek: function (ms) { FROZEN = ms === null || ms === undefined ? null : LAST0 + (+ms); if (FROZEN !== null && ACT.length) { if (raf) { (window.cancelAnimationFrame || clearTimeout)(raf); raf = 0; } frame(); } else kick(); },
+    /** tests: draw a look's own-edge ('own', piece o of perimeter P) or chain effect ('car', o -> o2) at progress p on any 2D context c; returns the particles drawn */
+    themedDraw: function (c, ph, P, o, o2, L, p, seed) { NG = 0; if (ph === 'own') { if (L.th) themedOwn(c, P, o, L.th, L.M, p, seed || 1, L.h, L.col, L.acc, L.hi); else ownFx(c, P, o, L.fam, { t: 'hurt', tag: '' }, seed || 1, L.h, L.col, L.acc); } else if (L.th) themedCar(c, P, o, o2, L.th, L.M, p, L.h, L.col, L.acc, L.hi); else carrier(c, P, o, o2, L.fam, p, L.h, L.col, L.acc); return NG; },
     look: function (p, slug) { return look(p, slug); }, envKinds: function () { return Object.keys(WENV).sort(); },
     /** tests: draw one kind's place motion ('ps', returns it), place effect ('pl') or fire effect ('fi') at ms on any 2D context c; returns the particles drawn */
     envDraw: function (kind, ph, ms, c, o) { var W = WENV[kind]; if (!W) return -1; o = o || {}; if (o.w) { CTX.w = o.w; CTX.h = o.h || o.w; }

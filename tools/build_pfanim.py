@@ -8,6 +8,7 @@ Inputs (all read-only):
                                               bundled from `function hexmix(` up to the gallery, minus its single-loop perimeter (the engine has its own)
   claude/pf-anim/motifs/*.js                  motif modules (PFA.motif / PFA.glyph / PFA.motion), bundled in file-name order
   claude/pf-anim/<size>-creatures.json        small / medium / large / boss as far as they exist (built by claude/pf-anim/build_small_anim.py <size>)
+  claude/pf-anim/stat-pieces.json             the 24 stat pieces: motif catalogue + piece -> motif and colour (data key "sp")
   claude/pf-anim/themes.json                  the motif catalogue (motifs used by no size are left out)
   game/includes/data/pf_pieces.txt, wear_items_pieces.txt, pf_region_pieces.txt, pf_class_base.txt: the player's pieces and the creatures' shared pieces get a family
     (the 15-row pilot table of claude/proposal-piece-animations.md for the base pieces, else the TEMPLATE.md section 3 rules).
@@ -143,7 +144,15 @@ def build_data(sizes, MOT):
                 rec['p'][n] = r
             cr[slug] = rec
     mot = [[m, MOT[m]['g'], MOT[m]['mo'], MOT[m]['x'], MOT[m]['car'], MOT[m]['gap']] for m in mot_names]
-    return {'v': 1, 'm': mot, 'pe': dict(sorted(PE.items())), 'cr': dict(sorted(cr.items())), 'pp': dict(sorted(shared_pieces().items()))}, clash, checked
+    SPJ = json.load(open(os.path.join(AN, 'stat-pieces.json'), encoding='utf-8'))   # stat pieces (pfight_statpieces): themed look for the gnome's own pieces
+    sp = {}
+    for m, v in SPJ['motifs'].items():
+        if m in MI: die('stat motif %s is also a creature motif' % m)
+        MI[m] = len(mot); mot.append([m, v['g'], v['mo'], v['x'], v['car'], v['gap']])
+    for n, v in SPJ['pieces'].items():
+        if v['motif'] not in MI: die('stat piece %s: unknown motif %s' % (n, v['motif']))
+        sp[n] = [MI[v['motif']], v['col']]
+    return {'v': 1, 'm': mot, 'sp': dict(sorted(sp.items())), 'pe': dict(sorted(PE.items())), 'cr': dict(sorted(cr.items())), 'pp': dict(sorted(shared_pieces().items()))}, clash, checked
 
 # ---- code
 def template_code():
