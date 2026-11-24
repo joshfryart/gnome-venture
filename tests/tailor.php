@@ -162,8 +162,8 @@ $caSlug = array_key_first(array_filter(wear_tailor_defs(), fn($d) => $d['region'
 [$a, $m] = tailor_craft($u, $caSlug);
 ok('region gate: a level 3 gnome cannot make a Maizehollow (level 4) wearable', !$a && str_contains($m, 'level 4'), $m);
 q('UPDATE users SET level = 30, coins = 100 WHERE id = ?', [$uid]); $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
-$give('birch-log', -1); $give('pine-resin', -1);   // 2 + 1 left
-[$a, $m] = tailor_craft($u, 'na-birchwood-clog');
+$give('birch-log', -1); $give('pine-resin', -1);   // 2 + 1 left (the first of a pair takes 2 Birch Log + 1 Pine Resin; the second, R18, 1 + 2)
+[$a, $m] = tailor_craft($u, 'na-sugarbush-snow-boots');
 ok('not enough Petals: refused, materials kept', !$a && str_contains($m, 'Petals') && $qty('birch-log') === 2 && $coins() === 100, $m);
 q('UPDATE users SET coins = 5000 WHERE id = ?', [$uid]);
 $give('cottongrass', 2); $give('butterfly-scales', 1);

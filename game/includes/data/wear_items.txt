@@ -2,282 +2,282 @@
 # slug|region|category|n|rarity|name|petals (Common fee; Lined x1.5, Fine x2.5)|tailor level|energy|materials (slug:qty,...)|description
 # Made only at the Tailor, once the gnome has reached the region's level (REGION_LEVELS). One piece each (no cuts); its row is in wear_items_pieces.txt.
 na-sugarbush-snow-boots|NA|footwear|1|Common|Sugarbush Snow Boots|1200|1|4|birch-log:2,pine-resin:1|Pair of tall lace-up winter boots: rubber lower shell, felted leather upper, a red wool check cuff.
-na-birchwood-clog|NA|footwear|2|Common|Birchwood Clog|1200|1|4|birch-log:2,pine-resin:1|A single carved clog with a strip of white birch bark wrapped round the heel.
+na-birchwood-clog|NA|footwear|2|Common|Birchwood Clog|1200|1|4|birch-log:1,pine-resin:2|A single carved clog with a strip of white birch bark wrapped round the heel.
 na-lakeland-snowshoe|NA|footwear|3|Uncommon|Lakeland Snowshoe|3200|2|5|birch-log:3,pine-resin:2|A small leather shoe strapped on to a round wooden snowshoe frame with a criss-cross lattice.
-na-prairie-stitch-boots|NA|footwear|4|Uncommon|Prairie Stitch Boots|3200|2|5|birch-log:3,pine-resin:2|Pair of short heeled ankle boots with pull tabs and a stitched wheat-ear pattern.
+na-prairie-stitch-boots|NA|footwear|4|Uncommon|Prairie Stitch Boots|3200|2|5|birch-log:2,pine-resin:3|Pair of short heeled ankle boots with pull tabs and a stitched wheat-ear pattern.
 na-loon-down-slippers|NA|footwear|5|Rare|Loon-Down Slippers|8000|3|6|birch-log:4,pine-resin:3,any-hide:1|Pair of puffy quilted down booties for cold camp evenings, with knitted cuffs.
 na-splint-pack-basket|NA|backpack|1|Common|Splint Pack Basket|1200|1|4|birch-log:2,pine-resin:1|Tapered woven pack basket of ash splints, wider at the top, with a leather lid strap.
-na-firewood-pack-frame|NA|backpack|2|Common|Firewood Pack Frame|1200|1|4|birch-log:2,pine-resin:1|A wooden ladder frame with a bundle of split logs lashed on with rope.
+na-firewood-pack-frame|NA|backpack|2|Common|Firewood Pack Frame|1200|1|4|birch-log:1,pine-resin:2|A wooden ladder frame with a bundle of split logs lashed on with rope.
 na-portage-sack|NA|backpack|3|Uncommon|Portage Sack|3200|2|5|birch-log:3,pine-resin:2|Big slouchy waxed canvas sack with a leather head-strap and buckles.
-na-sap-run-bucket|NA|backpack|4|Uncommon|Sap-Run Bucket|3200|2|5|birch-log:3,pine-resin:2|A wooden stave bucket worn as a pack: iron hoops, lid, a sap spout on the side.
+na-sap-run-bucket|NA|backpack|4|Uncommon|Sap-Run Bucket|3200|2|5|birch-log:2,pine-resin:3|A wooden stave bucket worn as a pack: iron hoops, lid, a sap spout on the side.
 na-toboggan-pack|NA|backpack|5|Rare|Toboggan Pack|8000|3|6|birch-log:4,pine-resin:3,any-hide:1|A short curled-front wooden toboggan carried upright with a bundle lashed to it.
 na-lumber-check-jacket|NA|coat|1|Common|Lumber-Check Jacket|1200|1|4|birch-log:2,pine-resin:1|Heavy red-and-dark check wool jacket, two flap chest pockets, horn buttons.
-na-goldenrod-down-vest|NA|coat|2|Common|Goldenrod Down Vest|1200|1|4|birch-log:2,pine-resin:1|Sleeveless puffy vest with fat horizontal quilt baffles and a high collar.
+na-goldenrod-down-vest|NA|coat|2|Common|Goldenrod Down Vest|1200|1|4|birch-log:1,pine-resin:2|Sleeveless puffy vest with fat horizontal quilt baffles and a high collar.
 na-prairie-duster|NA|coat|3|Uncommon|Prairie Duster|3200|2|5|birch-log:3,pine-resin:2|Long knee-length coat with a shoulder cape and a split back hem, wheat-tan oilcloth.
-na-lodge-cardigan|NA|coat|4|Uncommon|Lodge Cardigan|3200|2|5|birch-log:3,pine-resin:2|Thick knitted open cardigan with a big shawl collar, pine-tree knit band and toggle buttons.
+na-lodge-cardigan|NA|coat|4|Uncommon|Lodge Cardigan|3200|2|5|birch-log:2,pine-resin:3|Thick knitted open cardigan with a big shawl collar, pine-tree knit band and toggle buttons.
 na-frostline-parka|NA|coat|5|Rare|Frostline Parka|8000|3|6|birch-log:4,pine-resin:3,any-hide:1|A hooded pullover parka with a ruffled hood rim, front pouch pocket and a hem drawcord.
 na-maple-mantle|NA|cloak|1|Common|Maple Mantle|1200|1|4|birch-log:2,pine-resin:1|A short shoulder capelet whose hem is cut in maple-leaf points, red fading to orange.
-na-birch-poncho|NA|cloak|2|Common|Birch Poncho|1200|1|4|birch-log:2,pine-resin:1|A square wool poncho worn as a diamond, grey-birch with dark bands and corner tassels.
+na-birch-poncho|NA|cloak|2|Common|Birch Poncho|1200|1|4|birch-log:1,pine-resin:2|A square wool poncho worn as a diamond, grey-birch with dark bands and corner tassels.
 na-northern-lights-cloak|NA|cloak|3|Uncommon|Northern Lights Cloak|3200|2|5|birch-log:3,pine-resin:2|Long hooded night-blue cloak with an aurora green-to-teal border.
-na-harbour-slicker-cape|NA|cloak|4|Uncommon|Harbour Slicker Cape|3200|2|5|birch-log:3,pine-resin:2|Waxed yellow oilskin cape with a wide-brimmed hood, for coastal rain and sleet.
+na-harbour-slicker-cape|NA|cloak|4|Uncommon|Harbour Slicker Cape|3200|2|5|birch-log:2,pine-resin:3|Waxed yellow oilskin cape with a wide-brimmed hood, for coastal rain and sleet.
 na-pine-needle-shawl|NA|cloak|5|Rare|Pine-Needle Shawl|8000|3|6|birch-log:4,pine-resin:3,any-hide:1|A big triangular knitted shawl in forest green with a lace edge.
 ca-lattice-huaraches|CA|footwear|1|Common|Lattice Huaraches|1500|1|4|red-ochre:2,laterite-clay:1|Flat leather-soled sandals with a woven strap lattice over the toes and a heel strap.
-ca-tooled-ankle-boots|CA|footwear|2|Common|Tooled Ankle Boots|1500|1|4|red-ochre:2,laterite-clay:1|Short tan boots with a stamped vine pattern and a stacked heel.
+ca-tooled-ankle-boots|CA|footwear|2|Common|Tooled Ankle Boots|1500|1|4|red-ochre:1,laterite-clay:2|Short tan boots with a stamped vine pattern and a stacked heel.
 ca-indigo-leg-wraps|CA|footwear|3|Uncommon|Indigo Leg Wraps|4000|2|5|red-ochre:3,laterite-clay:2|Tall indigo cloth gaiters spiral-wrapped up the shin over a soft shoe, tied with red cord.
-ca-ixtle-slippers|CA|footwear|4|Uncommon|Ixtle Slippers|4000|2|5|red-ochre:3,laterite-clay:2|Plump slip-ons of braided agave fibre on a rope sole.
+ca-ixtle-slippers|CA|footwear|4|Uncommon|Ixtle Slippers|4000|2|5|red-ochre:2,laterite-clay:3|Plump slip-ons of braided agave fibre on a rope sole.
 ca-market-platform-clogs|CA|footwear|5|Rare|Market Platform Clogs|10000|3|6|red-ochre:4,laterite-clay:3,any-hide:1|Chunky carved-wood platform soles with a woven palm band, for hot sand and muddy market days.
 ca-carrier-frame|CA|backpack|1|Common|Carrier Frame|1500|1|4|red-ochre:2,laterite-clay:1|An open wooden ladder frame lashed with rope, a clay water jar on the shelf and a tumpline headband.
-ca-maize-net-bag|CA|backpack|2|Common|Maize Net Bag|1500|1|4|red-ochre:2,laterite-clay:1|A bulging open-knot fibre net sack stuffed with cobs.
+ca-maize-net-bag|CA|backpack|2|Common|Maize Net Bag|1500|1|4|red-ochre:1,laterite-clay:2|A bulging open-knot fibre net sack stuffed with cobs.
 ca-palm-basket-pack|CA|backpack|3|Uncommon|Palm Basket Pack|4000|2|5|red-ochre:3,laterite-clay:2|A tall woven palm basket with a lid and shoulder cords.
-ca-loom-cloth-bundle|CA|backpack|4|Uncommon|Loom-Cloth Bundle|4000|2|5|red-ochre:3,laterite-clay:2|A square bundle of backstrap-woven striped cloth, corners knotted on top.
+ca-loom-cloth-bundle|CA|backpack|4|Uncommon|Loom-Cloth Bundle|4000|2|5|red-ochre:2,laterite-clay:3|A square bundle of backstrap-woven striped cloth, corners knotted on top.
 ca-dry-spell-water-pack|CA|backpack|5|Rare|Dry-Spell Water Pack|10000|3|6|red-ochre:4,laterite-clay:3,any-hide:1|A tooled leather pack with two big gourd bottles strapped on the sides.
 ca-bloom-smock|CA|coat|1|Common|Bloom Smock|1500|1|4|red-ochre:2,laterite-clay:1|A boxy cream cotton smock with short wide sleeves and a square yoke of embroidered flowers.
-ca-pleated-shirt-jacket|CA|coat|2|Common|Pleated Shirt-Jacket|1500|1|4|red-ochre:2,laterite-clay:1|A light sage linen jacket with vertical pleats, collar points and four patch pockets.
+ca-pleated-shirt-jacket|CA|coat|2|Common|Pleated Shirt-Jacket|1500|1|4|red-ochre:1,laterite-clay:2|A light sage linen jacket with vertical pleats, collar points and four patch pockets.
 ca-fringed-leather-vest|CA|coat|3|Uncommon|Fringed Leather Vest|4000|2|5|red-ochre:3,laterite-clay:2|A sleeveless tooled leather vest with a fringed hem and copper studs.
-ca-quilted-cotton-coat|CA|coat|4|Uncommon|Quilted Cotton Coat|4000|2|5|red-ochre:3,laterite-clay:2|A thick, puffy quilted coat in cochineal red with diamond stitching.
+ca-quilted-cotton-coat|CA|coat|4|Uncommon|Quilted Cotton Coat|4000|2|5|red-ochre:2,laterite-clay:3|A thick, puffy quilted coat in cochineal red with diamond stitching.
 ca-indigo-field-jacket|CA|coat|5|Rare|Indigo Field Jacket|10000|3|6|red-ochre:4,laterite-clay:3,any-hide:1|A long-sleeved indigo work jacket with toggle loops and a striped woven sash.
 ca-hearthstripe-poncho|CA|cloak|1|Common|Hearthstripe Poncho|1500|1|4|red-ochre:2,laterite-clay:1|A heavy woollen poncho with earthy bands, a stepped-diamond centre and a fringe.
-ca-dappled-rebozo|CA|cloak|2|Common|Dappled Rebozo|1500|1|4|red-ochre:2,laterite-clay:1|A fine teal shawl folded into a triangle and worn point-down, ikat-style broken stripes, a knotted net and long fringe on both lower edges.
+ca-dappled-rebozo|CA|cloak|2|Common|Dappled Rebozo|1500|1|4|red-ochre:1,laterite-clay:2|A fine teal shawl folded into a triangle and worn point-down, ikat-style broken stripes, a knotted net and long fringe on both lower edges.
 ca-palm-rain-cape|CA|cloak|3|Uncommon|Palm Rain Cape|4000|2|5|red-ochre:3,laterite-clay:2|A shaggy cape of overlapping dried palm leaf shingles with a peaked top.
-ca-agave-fibre-mantle|CA|cloak|4|Uncommon|Agave-Fibre Mantle|4000|2|5|red-ochre:3,laterite-clay:2|A coarse open-weave pale fibre mantle knotted at one shoulder, falling to a hanging corner with a frayed hem.
+ca-agave-fibre-mantle|CA|cloak|4|Uncommon|Agave-Fibre Mantle|4000|2|5|red-ochre:2,laterite-clay:3|A coarse open-weave pale fibre mantle knotted at one shoulder, falling to a hanging corner with a frayed hem.
 ca-sun-hood-cloak|CA|cloak|5|Rare|Sun Hood Cloak|10000|3|6|red-ochre:4,laterite-clay:3,any-hide:1|A light cream cotton cloak with a deep peaked sun hood and a cochineal-red border.
 nwe-alder-clogs|NWE|footwear|1|Common|Alder Clogs|1800|1|4|sphagnum:2,cottongrass:1|A pair of carved alder-wood clogs with a stitched leather instep band.
-nwe-drain-brogues|NWE|footwear|2|Common|Drain Brogues|1800|1|4|sphagnum:2,cottongrass:1|Low hide shoes punched with drain holes, long laces criss-crossed up the ankle.
+nwe-drain-brogues|NWE|footwear|2|Common|Drain Brogues|1800|1|4|sphagnum:1,cottongrass:2|Low hide shoes punched with drain holes, long laces criss-crossed up the ankle.
 nwe-felted-fleece-boots|NWE|footwear|3|Uncommon|Felted Fleece Boots|4800|2|5|sphagnum:3,cottongrass:2|Tall, soft grey felted wool boots with a folded-down cuff and a knitted band of little diamonds.
-nwe-birch-bark-slippers|NWE|footwear|4|Uncommon|Birch-Bark Slippers|4800|2|5|sphagnum:3,cottongrass:2|Pair of light slip-on shoes woven in a checker of birch-bark strips.
+nwe-birch-bark-slippers|NWE|footwear|4|Uncommon|Birch-Bark Slippers|4800|2|5|sphagnum:2,cottongrass:3|Pair of light slip-on shoes woven in a checker of birch-bark strips.
 nwe-herringbone-gaiters|NWE|footwear|5|Rare|Herringbone Gaiters|12000|3|6|sphagnum:4,cottongrass:3,any-hide:1|Pair of tweed shin gaiters with three brass buckles each and a strap under the instep.
 nwe-peat-creel|NWE|backpack|1|Common|Peat Creel|1800|1|4|sphagnum:2,cottongrass:1|A tapered wicker back-basket, open at the top, stacked with dark peat bricks.
-nwe-waxed-roll-top|NWE|backpack|2|Common|Waxed Roll-top|1800|1|4|sphagnum:2,cottongrass:1|Tall olive waxed-canvas sack with a rolled top, two leather clips and one buckle strap.
+nwe-waxed-roll-top|NWE|backpack|2|Common|Waxed Roll-top|1800|1|4|sphagnum:1,cottongrass:2|Tall olive waxed-canvas sack with a rolled top, two leather clips and one buckle strap.
 nwe-heather-frame|NWE|backpack|3|Uncommon|Heather Frame|4800|2|5|sphagnum:3,cottongrass:2|An open wooden ladder pack-frame with a big bundle of heather and sticks lashed on by rope.
-nwe-bark-box-pack|NWE|backpack|4|Uncommon|Bark Box Pack|4800|2|5|sphagnum:3,cottongrass:2|A square box pack of woven birch-bark strips with a lid and leather shoulder loops.
+nwe-bark-box-pack|NWE|backpack|4|Uncommon|Bark Box Pack|4800|2|5|sphagnum:2,cottongrass:3|A square box pack of woven birch-bark strips with a lid and leather shoulder loops.
 nwe-fleece-bundle|NWE|backpack|5|Rare|Fleece Bundle|12000|3|6|sphagnum:4,cottongrass:3,any-hide:1|A big lumpy cloud of raw cream fleece tied in a cross of rope, ready to spin.
 nwe-cable-knit-long-coat|NWE|coat|1|Common|Cable-Knit Long Coat|1800|1|4|sphagnum:2,cottongrass:1|Cream long cardigan-coat with raised cable ribs and wooden toggle buttons.
-nwe-waxed-field-jacket|NWE|coat|2|Common|Waxed Field Jacket|1800|1|4|sphagnum:2,cottongrass:1|Olive waxed jacket with a brown cord collar and two big bellows pockets.
+nwe-waxed-field-jacket|NWE|coat|2|Common|Waxed Field Jacket|1800|1|4|sphagnum:1,cottongrass:2|Olive waxed jacket with a brown cord collar and two big bellows pockets.
 nwe-tweed-waistcoat|NWE|coat|3|Uncommon|Tweed Waistcoat|4800|2|5|sphagnum:3,cottongrass:2|Herringbone tweed vest with brass buttons, two welt pockets and a back belt.
-nwe-tanbark-smock|NWE|coat|4|Uncommon|Tanbark Smock|4800|2|5|sphagnum:3,cottongrass:2|Loose rust-red pullover smock with a front pouch pocket and a drawstring neck.
+nwe-tanbark-smock|NWE|coat|4|Uncommon|Tanbark Smock|4800|2|5|sphagnum:2,cottongrass:3|Loose rust-red pullover smock with a front pouch pocket and a drawstring neck.
 nwe-eiderdown-coat|NWE|coat|5|Rare|Eiderdown Coat|12000|3|6|sphagnum:4,cottongrass:3,any-hide:1|A puffy quilted coat in sea-grey with diamond stitching and a high collar.
 nwe-heather-shawl|NWE|cloak|1|Common|Heather Shawl|1800|1|4|sphagnum:2,cottongrass:1|A big triangular knitted shawl in heather purple with a fringed edge.
-nwe-mustard-rain-cape|NWE|cloak|2|Common|Mustard Rain Cape|1800|1|4|sphagnum:2,cottongrass:1|Short hooded oilcloth cape with a round shoulder and toggle closure.
+nwe-mustard-rain-cape|NWE|cloak|2|Common|Mustard Rain Cape|1800|1|4|sphagnum:1,cottongrass:2|Short hooded oilcloth cape with a round shoulder and toggle closure.
 nwe-sheepskin-mantle|NWE|cloak|3|Uncommon|Sheepskin Mantle|4800|2|5|sphagnum:3,cottongrass:2|A shaggy curly fleece mantle over the shoulders, tied with leather thongs.
-nwe-rush-thatch-cape|NWE|cloak|4|Uncommon|Rush Thatch Cape|4800|2|5|sphagnum:3,cottongrass:2|A tiered cape of bundled rushes, like a little thatched roof, tied at the neck.
+nwe-rush-thatch-cape|NWE|cloak|4|Uncommon|Rush Thatch Cape|4800|2|5|sphagnum:2,cottongrass:3|A tiered cape of bundled rushes, like a little thatched roof, tied at the neck.
 nwe-woad-mist-cloak|NWE|cloak|5|Rare|Woad Mist Cloak|12000|3|6|sphagnum:4,cottongrass:3,any-hide:1|A long hooded cloak in misty grey wool with a woad-blue dyed border and a round pin.
 cb-palm-plait-sandals|CB|footwear|1|Common|Palm-Plait Sandals|2100|1|4|driftwood:2,coir-fibre:1|A pair of flat sandals seen from above: plaited palm-leaf soles, red cord toe-thong and instep band.
-cb-mahogany-clogs|CB|footwear|2|Common|Mahogany Clogs|2100|1|4|driftwood:2,coir-fibre:1|Carved wooden clogs in side view, open heel, raised heel and toe blocks, a leather instep strap.
+cb-mahogany-clogs|CB|footwear|2|Common|Mahogany Clogs|2100|1|4|driftwood:1,coir-fibre:2|Carved wooden clogs in side view, open heel, raised heel and toe blocks, a leather instep strap.
 cb-sisal-sole-slippers|CB|footwear|3|Uncommon|Sisal-Sole Slippers|5600|2|5|driftwood:3,coir-fibre:2|A single canvas slip-on on a thick coiled sisal-rope sole, with long ankle ribbons curling up.
-cb-mangrove-gaiters|CB|footwear|4|Uncommon|Mangrove Gaiters|5600|2|5|driftwood:3,coir-fibre:2|Tall cotton leg-wraps over soft moccasins, criss-crossed with rope lacing, a folded cuff at the knee.
+cb-mangrove-gaiters|CB|footwear|4|Uncommon|Mangrove Gaiters|5600|2|5|driftwood:2,coir-fibre:3|Tall cotton leg-wraps over soft moccasins, criss-crossed with rope lacing, a folded cuff at the knee.
 cb-curl-toe-reef-booties|CB|footwear|5|Rare|Curl-Toe Reef Booties|14000|3|6|driftwood:4,coir-fibre:3,any-hide:1|A puffy ankle bootie with a gnomish curled toe, sea-green leather stitched in a scale pattern, rolled cotton cuff and a tie.
 cb-market-basket-pack|CB|backpack|1|Common|Market Basket Pack|2100|1|4|driftwood:2,coir-fibre:1|A tall basket-weave backpack flaring at the top, carried on palm-cord straps, fruit and a palm leaf poking out.
-cb-calabash-carrier|CB|backpack|2|Common|Calabash Carrier|2100|1|4|driftwood:2,coir-fibre:1|A big round calabash gourd in a knotted rope net, wooden stopper, carved wave band.
+cb-calabash-carrier|CB|backpack|2|Common|Calabash Carrier|2100|1|4|driftwood:1,coir-fibre:2|A big round calabash gourd in a knotted rope net, wooden stopper, carved wave band.
 cb-net-roll-bundle|CB|backpack|3|Uncommon|Net-Roll Bundle|5600|2|5|driftwood:3,coir-fibre:2|A rolled fishing net strapped into a sausage bundle, cork floats knotted along it, a rope carry loop.
-cb-batik-sea-sack|CB|backpack|4|Uncommon|Batik Sea Sack|5600|2|5|driftwood:3,coir-fibre:2|A soft gathered drawstring sack in indigo batik with pale wave rings.
+cb-batik-sea-sack|CB|backpack|4|Uncommon|Batik Sea Sack|5600|2|5|driftwood:2,coir-fibre:3|A soft gathered drawstring sack in indigo batik with pale wave rings.
 cb-bamboo-frame-pack|CB|backpack|5|Rare|Bamboo Frame Pack|14000|3|6|driftwood:4,coir-fibre:3,any-hide:1|An open bamboo ladder frame with a lashed bundle of sugar cane and a rolled mat.
 cb-breeze-smock|CB|coat|1|Common|Breeze Smock|2100|1|4|driftwood:2,coir-fibre:1|A loose, wide sea-cotton smock with puffed short sleeves and a gathered, stitched yoke.
-cb-indigo-wrap-coat|CB|coat|2|Common|Indigo Wrap-Coat|2100|1|4|driftwood:2,coir-fibre:1|A long crossover coat in deep indigo with wide sleeves and a sun-orange sash tied at the side.
+cb-indigo-wrap-coat|CB|coat|2|Common|Indigo Wrap-Coat|2100|1|4|driftwood:1,coir-fibre:2|A long crossover coat in deep indigo with wide sleeves and a sun-orange sash tied at the side.
 cb-check-weave-jacket|CB|coat|3|Uncommon|Check-Weave Jacket|5600|2|5|driftwood:3,coir-fibre:2|A short boxy jacket in a warm orange-and-cream check with a big collar and coconut-shell buttons.
-cb-sailcloth-longcoat|CB|coat|4|Uncommon|Sailcloth Longcoat|5600|2|5|driftwood:3,coir-fibre:2|A long weathered canvas coat to the knees, rope frog toggles, deep patch pockets, a stand collar.
+cb-sailcloth-longcoat|CB|coat|4|Uncommon|Sailcloth Longcoat|5600|2|5|driftwood:2,coir-fibre:3|A long weathered canvas coat to the knees, rope frog toggles, deep patch pockets, a stand collar.
 cb-sunset-batik-vest|CB|coat|5|Rare|Sunset Batik Vest|14000|3|6|driftwood:4,coir-fibre:3,any-hide:1|A sleeveless vest dyed in sunset batik (orange to pink rings), sea-glass buttons, two pockets.
 cb-thatch-rain-cape|CB|cloak|1|Common|Thatch Rain Cape|2100|1|4|driftwood:2,coir-fibre:1|A round, conical cape of overlapping palm-frond shingles, tied at the neck with cord.
-cb-hibiscus-shawl|CB|cloak|2|Common|Hibiscus Shawl|2100|1|4|driftwood:2,coir-fibre:1|A wide triangular cotton shawl printed with hibiscus flowers, long fringe along the edges.
+cb-hibiscus-shawl|CB|cloak|2|Common|Hibiscus Shawl|2100|1|4|driftwood:1,coir-fibre:2|A wide triangular cotton shawl printed with hibiscus flowers, long fringe along the edges.
 cb-sea-breeze-poncho|CB|cloak|3|Uncommon|Sea-Breeze Poncho|5600|2|5|driftwood:3,coir-fibre:2|A square striped poncho worn as a diamond, lagoon-blue and sand bands, tassels at the corners.
-cb-mangrove-hood|CB|cloak|4|Uncommon|Mangrove Hood|5600|2|5|driftwood:3,coir-fibre:2|A long green hooded cloak whose hem is cut into rooty tabs like mangrove roots, a rope tie.
+cb-mangrove-hood|CB|cloak|4|Uncommon|Mangrove Hood|5600|2|5|driftwood:2,coir-fibre:3|A long green hooded cloak whose hem is cut into rooty tabs like mangrove roots, a rope tie.
 cb-shell-scallop-capelet|CB|cloak|5|Rare|Shell-Scallop Capelet|14000|3|6|driftwood:4,coir-fibre:3,any-hide:1|A short coral-pink shoulder capelet built from scalloped layers like a shell, high collar.
 se-rope-slips|SE|footwear|1|Common|Shoreline Rope Slips|2400|1|4|flint:2,sea-salt:1|Low canvas slip-ons in sea-and-linen stripes on a thick coiled jute sole, long ribbons to tie round the ankle.
-se-sunpath-sandals|SE|footwear|2|Common|Sunpath Sandals|2400|1|4|flint:2,sea-salt:1|Flat saddle-leather sandals seen from above: toe loop, crossed straps, a buckled heel strap and long laces.
+se-sunpath-sandals|SE|footwear|2|Common|Sunpath Sandals|2400|1|4|flint:1,sea-salt:2|Flat saddle-leather sandals seen from above: toe loop, crossed straps, a buckled heel strap and long laces.
 se-corkbark-clogs|SE|footwear|3|Uncommon|Corkbark Clogs|6400|2|5|flint:3,sea-salt:2|Chunky mules with a tall speckled cork-bark sole and a rounded terracotta-leather toe.
-se-thyme-hill-wraps|SE|footwear|4|Uncommon|Thyme-Hill Wraps|6400|2|5|flint:3,sea-salt:2|Tall goat-hair leg wraps spiralled over soft moccasins and cross-gartered with leather thongs.
+se-thyme-hill-wraps|SE|footwear|4|Uncommon|Thyme-Hill Wraps|6400|2|5|flint:2,sea-salt:3|Tall goat-hair leg wraps spiralled over soft moccasins and cross-gartered with leather thongs.
 se-harvest-treaders|SE|footwear|5|Rare|Harvest Treaders|16000|3|6|flint:4,sea-salt:3,any-hide:1|Soft slouchy pale-leather ankle boots with a folded cuff, stained purple to the ankle from treading grapes.
 se-olive-creel|SE|backpack|1|Common|Olive Picker's Creel|2400|1|4|flint:2,sea-salt:1|Tapered wicker back-basket with a rolled rim, a silvery olive branch with dark olives spilling out.
-se-float-net|SE|backpack|2|Common|Fisher's Float Net|2400|1|4|flint:2,sea-salt:1|A bulging knotted-cord net bag holding cork floats and a lemon, cinched at the top with a rope loop.
+se-float-net|SE|backpack|2|Common|Fisher's Float Net|2400|1|4|flint:1,sea-salt:2|A bulging knotted-cord net bag holding cork floats and a lemon, cinched at the top with a rope loop.
 se-amphora-frame|SE|backpack|3|Uncommon|Amphora Frame|6400|2|5|flint:3,sea-salt:2|A wooden carrying frame with a terracotta water jar lashed on with rope.
-se-sailcloth-seabag|SE|backpack|4|Uncommon|Sailcloth Seabag|6400|2|5|flint:3,sea-salt:2|An upright duffel of striped sailcloth, drawstring cinched at the top, rope shoulder loop.
+se-sailcloth-seabag|SE|backpack|4|Uncommon|Sailcloth Seabag|6400|2|5|flint:2,sea-salt:3|An upright duffel of striped sailcloth, drawstring cinched at the top, rope shoulder loop.
 se-lemon-satchel|SE|backpack|5|Rare|Lemon-Grove Satchel|16000|3|6|flint:4,sea-salt:3,any-hide:1|A rounded saddle-tan satchel with a stitched flap and a strap arcing over.
 se-net-mender-smock|SE|coat|1|Common|Net-Mender's Smock|2400|1|4|flint:2,sea-salt:1|Boxy linen smock with short wide sleeves, a square neck trimmed in sea blue and a front pocket.
-se-fleece-vest|SE|coat|2|Common|Goatherd's Fleece Vest|2400|1|4|flint:2,sea-salt:1|Sleeveless brown leather vest with curly cream fleece at the collar, armholes, front and hem.
+se-fleece-vest|SE|coat|2|Common|Goatherd's Fleece Vest|2400|1|4|flint:1,sea-salt:2|Sleeveless brown leather vest with curly cream fleece at the collar, armholes, front and hem.
 se-olive-quilt-jacket|SE|coat|3|Uncommon|Olive-Grove Quilt Jacket|6400|2|5|flint:3,sea-salt:2|Puffy olive-green jacket with diamond quilting, stand collar and wooden toggles.
-se-vintner-long-coat|SE|coat|4|Uncommon|Vintner's Long Coat|6400|2|5|flint:3,sea-salt:2|Knee-long wine-dark wool coat with a flared skirt, wide lapels and linen turned-back cuffs.
+se-vintner-long-coat|SE|coat|4|Uncommon|Vintner's Long Coat|6400|2|5|flint:2,sea-salt:3|Knee-long wine-dark wool coat with a flared skirt, wide lapels and linen turned-back cuffs.
 se-sun-stripe-tunic|SE|coat|5|Rare|Sun-Stripe Tunic Coat|16000|3|6|flint:4,sea-salt:3,any-hide:1|Hip-long woven tunic-coat with wide bell sleeves in saffron, terracotta and linen stripes, a sea-blue sash.
 se-shepherd-felt-cape|SE|cloak|1|Common|Shepherd's Felt Cape|2400|1|4|flint:2,sea-salt:1|Stiff, bell-shaped thick felt cape with a pointed hood up and a stitched hem.
-se-lemon-fringe-shawl|SE|cloak|2|Common|Lemon-Fringe Shawl|2400|1|4|flint:2,sea-salt:1|Wide triangular sun shawl in lemon yellow with a woven band and long fringe.
+se-lemon-fringe-shawl|SE|cloak|2|Common|Lemon-Fringe Shawl|2400|1|4|flint:1,sea-salt:2|Wide triangular sun shawl in lemon yellow with a woven band and long fringe.
 se-loom-stripe-poncho|SE|cloak|3|Uncommon|Loom-Stripe Poncho|6400|2|5|flint:3,sea-salt:2|Square woven poncho with a neck slit, earthy terracotta, ochre and olive stripes, corner tassels.
-se-whitewash-mantle|SE|cloak|4|Uncommon|Whitewash Sun Mantle|6400|2|5|flint:3,sea-salt:2|Long pale linen mantle with a wide hood lying back on the shoulders and a scalloped hem.
+se-whitewash-mantle|SE|cloak|4|Uncommon|Whitewash Sun Mantle|6400|2|5|flint:2,sea-salt:3|Long pale linen mantle with a wide hood lying back on the shoulders and a scalloped hem.
 se-sea-squall-capelet|SE|cloak|5|Rare|Sea-Squall Capelet|16000|3|6|flint:4,sea-salt:3,any-hide:1|Short round shoulder capelet of waxed indigo wool with a high collar.
 sa-latex-puddle-boots|SA|footwear|1|Common|Latex Puddle Boots|2700|1|4|palm-trunk:2,fiddleheads:1|Ankle-high cloth boots dipped many times in rubber-tree latex, so they dry glossy amber with drip-lumps at the toe.
-sa-puna-wool-booties|SA|footwear|2|Common|Puna Wool Booties|2700|1|4|palm-trunk:2,fiddleheads:1|Fat felted wool booties, cream with a striped knitted cuff and two pom-pom ties.
+sa-puna-wool-booties|SA|footwear|2|Common|Puna Wool Booties|2700|1|4|palm-trunk:1,fiddleheads:2|Fat felted wool booties, cream with a striped knitted cuff and two pom-pom ties.
 sa-plaited-fibre-sandals|SA|footwear|3|Uncommon|Plaited Fibre Sandals|7200|2|5|palm-trunk:3,fiddleheads:2|Low sandal with a thick plaited fibre sole and crossing leather thongs, shown 3/4 from above.
-sa-balsa-bark-clogs|SA|footwear|4|Uncommon|Balsa Bark Clogs|7200|2|5|palm-trunk:3,fiddleheads:2|Chunky carved light-wood clog with an open heel and a big leaf-shaped leather vamp over the toe.
+sa-balsa-bark-clogs|SA|footwear|4|Uncommon|Balsa Bark Clogs|7200|2|5|palm-trunk:2,fiddleheads:3|Chunky carved light-wood clog with an open heel and a big leaf-shaped leather vamp over the toe.
 sa-striped-leg-wraps|SA|footwear|5|Rare|Striped Leg Wraps|18000|3|6|palm-trunk:4,fiddleheads:3,any-hide:1|Tall woven gaiters wound up the shin over a little leather shoe, tied with cords.
 sa-striped-bundle-cloth|SA|backpack|1|Common|Striped Bundle Cloth|2700|1|4|palm-trunk:2,fiddleheads:1|A square striped carrying cloth knotted into a round bundle, two knotted ears on top.
-sa-cone-vine-basket|SA|backpack|2|Common|Cone Vine Basket|2700|1|4|palm-trunk:2,fiddleheads:1|Tall tapering basket of plaited vine, wide at the top, with a forehead strap.
+sa-cone-vine-basket|SA|backpack|2|Common|Cone Vine Basket|2700|1|4|palm-trunk:1,fiddleheads:2|Tall tapering basket of plaited vine, wide at the top, with a forehead strap.
 sa-highland-carry-frame|SA|backpack|3|Uncommon|Highland Carry Frame|7200|2|5|palm-trunk:3,fiddleheads:2|An open ladder frame of poles lashed with cord, a round water gourd tied on.
-sa-leaf-flap-satchel|SA|backpack|4|Uncommon|Leaf-Flap Satchel|7200|2|5|palm-trunk:3,fiddleheads:2|Rounded woven-palm satchel whose flap is shaped like a big leaf with a midrib.
+sa-leaf-flap-satchel|SA|backpack|4|Uncommon|Leaf-Flap Satchel|7200|2|5|palm-trunk:2,fiddleheads:3|Rounded woven-palm satchel whose flap is shaped like a big leaf with a midrib.
 sa-market-net-bag|SA|backpack|5|Rare|Market Net Bag|18000|3|6|palm-trunk:4,fiddleheads:3,any-hide:1|Knotted-string net bag bulging with fruit, hung from a single shoulder cord.
 sa-fleece-vest|SA|coat|1|Common|Fleece Vest|2700|1|4|palm-trunk:2,fiddleheads:1|Sleeveless shaggy cream wool vest, curly fleece, stitched edge, wooden toggle.
-sa-shingle-leaf-smock|SA|coat|2|Common|Shingle Leaf Smock|2700|1|4|palm-trunk:2,fiddleheads:1|A smock of overlapping waxy leaf shingles sewn in rows, so rain runs off.
+sa-shingle-leaf-smock|SA|coat|2|Common|Shingle Leaf Smock|2700|1|4|palm-trunk:1,fiddleheads:2|A smock of overlapping waxy leaf shingles sewn in rows, so rain runs off.
 sa-warp-stripe-jacket|SA|coat|3|Uncommon|Warp-Stripe Jacket|7200|2|5|palm-trunk:3,fiddleheads:2|Short boxy woven jacket in vertical warp stripes, cross-striped sleeves, turned indigo cuffs.
-sa-bark-cloth-tunic-coat|SA|coat|4|Uncommon|Bark-Cloth Tunic Coat|7200|2|5|palm-trunk:3,fiddleheads:2|Long straight beaten bark-cloth coat with wide sleeves, printed with dotted leaf marks.
+sa-bark-cloth-tunic-coat|SA|coat|4|Uncommon|Bark-Cloth Tunic Coat|7200|2|5|palm-trunk:2,fiddleheads:3|Long straight beaten bark-cloth coat with wide sleeves, printed with dotted leaf marks.
 sa-kapok-puffer|SA|coat|5|Rare|Kapok Puffer|18000|3|6|palm-trunk:4,fiddleheads:3,any-hide:1|A plump quilted coat stuffed with kapok floss, cocoa-brown, puffed in rows.
 sa-striped-poncho|SA|cloak|1|Common|Striped Poncho|2700|1|4|palm-trunk:2,fiddleheads:1|Wide square poncho worn point-down, chevron stripes following the edges, knotted fringe.
-sa-thatch-rain-cape|SA|cloak|2|Common|Savanna Thatch Rain Cape|2700|1|4|palm-trunk:2,fiddleheads:1|Shaggy layered palm-fibre rain cape, three tiers of fringe, tied at the neck.
+sa-thatch-rain-cape|SA|cloak|2|Common|Savanna Thatch Rain Cape|2700|1|4|palm-trunk:1,fiddleheads:2|Shaggy layered palm-fibre rain cape, three tiers of fringe, tied at the neck.
 sa-feather-shoulder-mantle|SA|cloak|3|Uncommon|Feather Shoulder Mantle|7200|2|5|palm-trunk:3,fiddleheads:2|Short curved shoulder mantle with rows of red, yellow and blue feathers.
-sa-cloud-forest-shawl|SA|cloak|4|Uncommon|Cloud-Forest Shawl|7200|2|5|palm-trunk:3,fiddleheads:2|A light misty lilac stole worn over the shoulders, two long ends hanging down with a knotted fringe.
+sa-cloud-forest-shawl|SA|cloak|4|Uncommon|Cloud-Forest Shawl|7200|2|5|palm-trunk:2,fiddleheads:3|A light misty lilac stole worn over the shoulders, two long ends hanging down with a knotted fringe.
 sa-indigo-hooded-cloak|SA|cloak|5|Rare|Indigo Hooded Cloak|18000|3|6|palm-trunk:4,fiddleheads:3,any-hide:1|Long dark indigo felt cloak, pointed hood flopping sideways, cochineal-red lining showing at the open front.
 ee-birchweave-shoes|EE|footwear|1|Common|Birchweave Shoes|3000|1|4|birch-log:2,river-clay:1|Low boat-shaped shoes plaited from diagonal strips of birch bark, a cream linen foot-wrap rising out of the top, long cords trailing.
-ee-snowdrift-felt-boots|EE|footwear|2|Common|Snowdrift Felt Boots|3000|1|4|birch-log:2,river-clay:1|Tall, seamless, chunky pressed-felt boots in soft grey, rounded toes, a stitched leather patch on the heel.
+ee-snowdrift-felt-boots|EE|footwear|2|Common|Snowdrift Felt Boots|3000|1|4|birch-log:1,river-clay:2|Tall, seamless, chunky pressed-felt boots in soft grey, rounded toes, a stitched leather patch on the heel.
 ee-poppy-hide-moccasins|EE|footwear|3|Uncommon|Poppy Hide Moccasins|8000|2|5|birch-log:3,river-clay:2|Soft one-piece hide shoes gathered round the ankle with a thong lace, toe turned up to a point.
-ee-riders-red-boots|EE|footwear|4|Uncommon|Rider's Red Boots|8000|2|5|birch-log:3,river-clay:2|Tall, slim boots of dyed red leather with a stacked wooden heel and a folded top.
+ee-riders-red-boots|EE|footwear|4|Uncommon|Rider's Red Boots|8000|2|5|birch-log:2,river-clay:3|Tall, slim boots of dyed red leather with a stacked wooden heel and a folded top.
 ee-sunflower-straw-sandals|EE|footwear|5|Rare|Sunflower Straw Sandals|20000|3|6|birch-log:4,river-clay:3,any-hide:1|Open sandals with a thick plaited-straw sole and two crossed leather straps.
 ee-birchbark-pester|EE|backpack|1|Common|Birchbark Pester|3000|1|4|birch-log:2,river-clay:1|Tall lidded cylinder pack of checker-plaited birch bark, leather straps, a wooden lid peg.
-ee-harvest-wicker-basket|EE|backpack|2|Common|Harvest Wicker Basket|3000|1|4|birch-log:2,river-clay:1|Wide open-topped willow basket that flares out, horizontal rib weave, carried with rope loops.
+ee-harvest-wicker-basket|EE|backpack|2|Common|Harvest Wicker Basket|3000|1|4|birch-log:1,river-clay:2|Wide open-topped willow basket that flares out, horizontal rib weave, carried with rope loops.
 ee-beekeepers-frame|EE|backpack|3|Uncommon|Beekeeper's Frame|8000|2|5|birch-log:3,river-clay:2|A wooden A-frame carrier with a small straw skep hive lashed on, a cloth tied over the hole.
-ee-flat-weave-satchel|EE|backpack|4|Uncommon|Flat-weave Satchel|8000|2|5|birch-log:3,river-clay:2|Square flat-woven wool bag with plain stepped-diamond bands and a row of tassels along the bottom.
+ee-flat-weave-satchel|EE|backpack|4|Uncommon|Flat-weave Satchel|8000|2|5|birch-log:2,river-clay:3|Square flat-woven wool bag with plain stepped-diamond bands and a row of tassels along the bottom.
 ee-fleece-drawsack|EE|backpack|5|Rare|Fleece Drawsack|20000|3|6|birch-log:4,river-clay:3,any-hide:1|Round, plump drawstring sack with the fleece side out (curly wool texture), leather base and cord.
 ee-sheepskin-longcoat|EE|coat|1|Common|Sheepskin Longcoat|3000|1|4|birch-log:2,river-clay:1|Long tan sheepskin coat flaring at the hem, thick curly fleece collar, cuffs and hem trim, toggles.
-ee-stitched-felt-vest|EE|coat|2|Common|Stitched Felt Vest|3000|1|4|birch-log:2,river-clay:1|Sleeveless deep plum felt vest with bright flower-and-leaf embroidery along the front edges.
+ee-stitched-felt-vest|EE|coat|2|Common|Stitched Felt Vest|3000|1|4|birch-log:1,river-clay:2|Sleeveless deep plum felt vest with bright flower-and-leaf embroidery along the front edges.
 ee-red-stitch-linen-smock|EE|coat|3|Uncommon|Red-stitch Linen Smock|8000|2|5|birch-log:3,river-clay:2|Loose cream linen smock-coat with red cross-stitch bands at collar, cuffs and hem, belted with a woven sash.
-ee-quilted-steppe-coat|EE|coat|4|Uncommon|Quilted Steppe Coat|8000|2|5|birch-log:3,river-clay:2|Short padded coat in ochre with vertical quilt channels, a wrap front and a stand collar.
+ee-quilted-steppe-coat|EE|coat|4|Uncommon|Quilted Steppe Coat|8000|2|5|birch-log:2,river-clay:3|Short padded coat in ochre with vertical quilt channels, a wrap front and a stand collar.
 ee-hedgehog-knit-cardigan|EE|coat|5|Rare|Hedgehog Knit Cardigan|20000|3|6|birch-log:4,river-clay:3,any-hide:1|Chunky moss-green knitted cardigan, cable rows, wooden toggle buttons, a ribbed hem.
 ee-shaggy-shepherd-cape|EE|cloak|1|Common|Shaggy Shepherd Cape|3000|1|4|birch-log:2,river-clay:1|Long, bell-shaped cape of shaggy long-pile wool, tufted all over, cord tie at the neck.
-ee-poppy-field-shawl|EE|cloak|2|Common|Poppy Field Shawl|3000|1|4|birch-log:2,river-clay:1|Big triangular wool shawl on a deep blue ground with large red poppy prints and a long fringe.
+ee-poppy-field-shawl|EE|cloak|2|Common|Poppy Field Shawl|3000|1|4|birch-log:1,river-clay:2|Big triangular wool shawl on a deep blue ground with large red poppy prints and a long fringe.
 ee-birch-hooded-mantle|EE|cloak|3|Uncommon|Birch Hooded Mantle|8000|2|5|birch-log:3,river-clay:2|Hooded mantle in cream-grey birch colours with dark bark-dash marks, a peaked hood.
-ee-wheatfield-poncho|EE|cloak|4|Uncommon|Wheatfield Poncho|8000|2|5|birch-log:3,river-clay:2|Square woven poncho with wide wheat-gold and rust stripes and a fringe all round.
+ee-wheatfield-poncho|EE|cloak|4|Uncommon|Wheatfield Poncho|8000|2|5|birch-log:2,river-clay:3|Square woven poncho with wide wheat-gold and rust stripes and a fringe all round.
 ee-fox-collar-capelet|EE|cloak|5|Rare|Fox-collar Capelet|20000|3|6|birch-log:4,river-clay:3,any-hide:1|Short storm-blue wool shoulder cape with a thick fox-orange fur collar and a cord clasp.
 mena-dune-slippers|MENA|footwear|1|Common|Dune Slippers|3300|1|4|red-ochre:2,desert-sage:1|Soft, backless saffron-leather slippers with long toes that curl up into a little point.
-mena-palm-rope-sandals|MENA|footwear|2|Common|Palm-Rope Sandals|3300|1|4|red-ochre:2,desert-sage:1|Flat sandals with plaited palm-fibre soles, a toe loop and crossed leather straps.
+mena-palm-rope-sandals|MENA|footwear|2|Common|Palm-Rope Sandals|3300|1|4|red-ochre:1,desert-sage:2|Flat sandals with plaited palm-fibre soles, a toe loop and crossed leather straps.
 mena-indigo-wrap-boots|MENA|footwear|3|Uncommon|Indigo Wrap Boots|8800|2|5|red-ochre:3,desert-sage:2|Tall boots made of indigo cloth strips wound round the leg and tied with cord over a camel-leather foot.
-mena-camel-pad-overshoes|MENA|footwear|4|Uncommon|Camel-Pad Overshoes|8800|2|5|red-ochre:3,desert-sage:2|Wide, round, padded overshoes like a camel's foot, for walking on soft dunes without sinking.
+mena-camel-pad-overshoes|MENA|footwear|4|Uncommon|Camel-Pad Overshoes|8800|2|5|red-ochre:2,desert-sage:3|Wide, round, padded overshoes like a camel's foot, for walking on soft dunes without sinking.
 mena-cedar-bath-clogs|MENA|footwear|5|Rare|Cedar Bath Clogs|22000|3|6|red-ochre:4,desert-sage:3,any-hide:1|Tall wooden platform clogs carved from cedar with a woven striped strap.
 mena-goatskin-waterskin|MENA|backpack|1|Common|Goatskin Waterskin|3300|1|4|red-ochre:2,desert-sage:1|A plump, tied-off goatskin water bag worn on the back with a wooden spout and a leather harness.
-mena-date-palm-basket|MENA|backpack|2|Common|Date-Palm Basket|3300|1|4|red-ochre:2,desert-sage:1|A tall tapering basket of plaited palm leaf, carried on the back on two rope loops.
+mena-date-palm-basket|MENA|backpack|2|Common|Date-Palm Basket|3300|1|4|red-ochre:1,desert-sage:2|A tall tapering basket of plaited palm leaf, carried on the back on two rope loops.
 mena-kilim-saddle-bag|MENA|backpack|3|Uncommon|Kilim Saddle-Bag|8800|2|5|red-ochre:3,desert-sage:2|A flat, flap-closed bag cut from striped flat-weave with a diamond row and corner tassels.
-mena-copper-pot-frame|MENA|backpack|4|Uncommon|Copper-Pot Frame|8800|2|5|red-ochre:3,desert-sage:2|A light wooden frame pack carrying a hammered copper pot and a rolled reed mat.
+mena-copper-pot-frame|MENA|backpack|4|Uncommon|Copper-Pot Frame|8800|2|5|red-ochre:2,desert-sage:3|A light wooden frame pack carrying a hammered copper pot and a rolled reed mat.
 mena-bottle-gourd-sling|MENA|backpack|5|Rare|Bottle-Gourd Sling|22000|3|6|red-ochre:4,desert-sage:3,any-hide:1|A big two-bulbed dried gourd held in a knotted cord net, slung on the back.
 mena-loom-stripe-vest|MENA|coat|1|Common|Loom-Stripe Vest|3300|1|4|red-ochre:2,desert-sage:1|A short sleeveless open vest woven in narrow vertical stripes of cream, rust and indigo.
-mena-braided-cord-jacket|MENA|coat|2|Common|Braided Cord Jacket|3300|1|4|red-ochre:2,desert-sage:1|A short teal jacket with fitted sleeves, edged all round with thick gold cord braid.
+mena-braided-cord-jacket|MENA|coat|2|Common|Braided Cord Jacket|3300|1|4|red-ochre:1,desert-sage:2|A short teal jacket with fitted sleeves, edged all round with thick gold cord braid.
 mena-sand-robe-coat|MENA|coat|3|Uncommon|Sand-Robe Coat|8800|2|5|red-ochre:3,desert-sage:2|A long, loose, pale linen over-coat with wide sleeves and a side slit, for walking in full sun.
-mena-quilted-night-coat|MENA|coat|4|Uncommon|Quilted Night Coat|8800|2|5|red-ochre:3,desert-sage:2|A short, puffy indigo coat with diamond quilting and a high collar for cold desert nights.
+mena-quilted-night-coat|MENA|coat|4|Uncommon|Quilted Night Coat|8800|2|5|red-ochre:2,desert-sage:3|A short, puffy indigo coat with diamond quilting and a high collar for cold desert nights.
 mena-caravan-leather-jerkin|MENA|coat|5|Rare|Caravan Leather Jerkin|22000|3|6|red-ochre:4,desert-sage:3,any-hide:1|A belted camel-leather jerkin with short sleeves, front lacing and two little pouches.
 mena-camel-wool-hooded-cape|MENA|cloak|1|Common|Camel-Wool Hooded Cape|3300|1|4|red-ochre:2,desert-sage:1|A bell-shaped undyed cream wool cape with a deep pointed hood.
-mena-indigo-shawl|MENA|cloak|2|Common|Indigo Shawl|3300|1|4|red-ochre:2,desert-sage:1|A long, glossy indigo shawl hanging in folds with fringed ends.
+mena-indigo-shawl|MENA|cloak|2|Common|Indigo Shawl|3300|1|4|red-ochre:1,desert-sage:2|A long, glossy indigo shawl hanging in folds with fringed ends.
 mena-palm-leaf-sun-cape|MENA|cloak|3|Uncommon|Palm-Leaf Sun Cape|8800|2|5|red-ochre:3,desert-sage:2|A stiff, shaggy cape of overlapping palm-leaf layers that throws shade.
-mena-rose-madder-mantle|MENA|cloak|4|Uncommon|Rose-Madder Mantle|8800|2|5|red-ochre:3,desert-sage:2|A short, wide shoulder mantle dyed rose-madder with a scalloped edge and fringe, closed by a brass clasp.
+mena-rose-madder-mantle|MENA|cloak|4|Uncommon|Rose-Madder Mantle|8800|2|5|red-ochre:2,desert-sage:3|A short, wide shoulder mantle dyed rose-madder with a scalloped edge and fringe, closed by a brass clasp.
 mena-goat-hair-tent-cape|MENA|cloak|5|Rare|Goat-Hair Tent Cape|22000|3|6|red-ochre:4,desert-sage:3,any-hide:1|A heavy rectangular cape of dark striped goat-hair cloth pinned with a wooden pin.
 ea-hemp-sandals|EA|footwear|1|Common|Hemp-Cord Sandals|3600|1|4|pine-log:2,slate-shard:1|Flat woven pale hemp sandals, a pair, with red cord ties looping up from the toe.
-ea-rain-clogs|EA|footwear|2|Common|Rain Clogs|3600|1|4|pine-log:2,slate-shard:1|Raised wooden clogs on two tall teeth, a green cloth thong, glossy red-brown lacquer sides.
+ea-rain-clogs|EA|footwear|2|Common|Rain Clogs|3600|1|4|pine-log:1,slate-shard:2|Raised wooden clogs on two tall teeth, a green cloth thong, glossy red-brown lacquer sides.
 ea-indigo-boots|EA|footwear|3|Uncommon|Indigo Stitch Boots|9600|2|5|pine-log:3,slate-shard:2|Soft ankle-high cloth work boots in deep indigo with rows of pale running stitch and a thick sole.
-ea-felt-boots|EA|footwear|4|Uncommon|Steppe Felt Boots|9600|2|5|pine-log:3,slate-shard:2|Tall stiff felt boots with a gently upturned toe and a rust appliqué band.
+ea-felt-boots|EA|footwear|4|Uncommon|Steppe Felt Boots|9600|2|5|pine-log:2,slate-shard:3|Tall stiff felt boots with a gently upturned toe and a rust appliqué band.
 ea-snow-straw-boots|EA|footwear|5|Rare|Snow Straw Boots|24000|3|6|pine-log:4,slate-shard:3,any-hide:1|Tall shaggy rice-straw over-boots, thatched in layers, tied at the shin.
 ea-bamboo-aframe|EA|backpack|1|Common|Bamboo A-Frame|3600|1|4|pine-log:2,slate-shard:1|An open A-shaped bamboo carrying frame with two prongs, a firewood bundle lashed on.
-ea-forager-basket|EA|backpack|2|Common|Forager's Basket|3600|1|4|pine-log:2,slate-shard:1|A tall tapered open-weave bamboo basket worn on the back, ferns and a mushroom poking out.
+ea-forager-basket|EA|backpack|2|Common|Forager's Basket|3600|1|4|pine-log:1,slate-shard:2|A tall tapered open-weave bamboo basket worn on the back, ferns and a mushroom poking out.
 ea-cloth-bundle|EA|backpack|3|Uncommon|Knotted Cloth Bundle|9600|2|5|pine-log:3,slate-shard:2|A big square of dotted shibori-dyed cloth wrapped round a load, two knot ears on top, worn on cords.
-ea-tea-chest|EA|backpack|4|Uncommon|Lacquer Tea Chest|9600|2|5|pine-log:3,slate-shard:2|A small upright lacquered wooden chest with three drawers and brass corners, carried on straps.
+ea-tea-chest|EA|backpack|4|Uncommon|Lacquer Tea Chest|9600|2|5|pine-log:2,slate-shard:3|A small upright lacquered wooden chest with three drawers and brass corners, carried on straps.
 ea-quilted-satchel|EA|backpack|5|Rare|Quilted Silk Satchel|24000|3|6|pine-log:4,slate-shard:3,any-hide:1|A soft flat satchel of jade silk quilted in a diamond grid, with a round flap and toggle.
 ea-indigo-jacket|EA|coat|1|Common|Indigo Work Jacket|3600|1|4|pine-log:2,slate-shard:1|A straight-cut short jacket with wide square sleeves and a contrasting collar band, indigo with running stitch.
-ea-padded-vest|EA|coat|2|Common|Padded Winter Vest|3600|1|4|pine-log:2,slate-shard:1|A puffy sleeveless vest in persimmon-orange cotton, quilted in horizontal channels, knotted cord buttons.
+ea-padded-vest|EA|coat|2|Common|Padded Winter Vest|3600|1|4|pine-log:1,slate-shard:2|A puffy sleeveless vest in persimmon-orange cotton, quilted in horizontal channels, knotted cord buttons.
 ea-spring-wrap|EA|coat|3|Uncommon|Spring Wrap Coat|9600|2|5|pine-log:3,slate-shard:2|A knee-length silk coat that crosses over at the front, wide sleeves, cream collar, soft sash.
-ea-fleece-jacket|EA|coat|4|Uncommon|Fleece-Lined Jacket|9600|2|5|pine-log:3,slate-shard:2|A short brown leather jacket with big curly cream fleece collar and cuffs, side fastening.
+ea-fleece-jacket|EA|coat|4|Uncommon|Fleece-Lined Jacket|9600|2|5|pine-log:2,slate-shard:3|A short brown leather jacket with big curly cream fleece collar and cuffs, side fastening.
 ea-ramie-jacket|EA|coat|5|Rare|Ramie Summer Jacket|24000|3|6|pine-log:4,slate-shard:3,any-hide:1|A light open-weave pale-blue ramie jacket with short wide sleeves, airy and crisp.
 ea-straw-rain-cape|EA|cloak|1|Common|Straw Rain Cape|3600|1|4|pine-log:2,slate-shard:1|A layered shaggy cape of palm fibre and straw, tiered like a thatched roof, tied at the neck.
-ea-plum-snow-hood|EA|cloak|2|Common|Plum Snow Hood|3600|1|4|pine-log:2,slate-shard:1|A pale grey-blue quilted hooded mantle with a soft fur rim, falling to the knee.
+ea-plum-snow-hood|EA|cloak|2|Common|Plum Snow Hood|3600|1|4|pine-log:1,slate-shard:2|A pale grey-blue quilted hooded mantle with a soft fur rim, falling to the knee.
 ea-maple-shawl|EA|cloak|3|Uncommon|Maple Shawl|9600|2|5|pine-log:3,slate-shard:2|A big square shawl draped in a point, dyed in an autumn gradient with tie-dye rings and a fringe.
-ea-felt-poncho|EA|cloak|4|Uncommon|Felt Herder's Poncho|9600|2|5|pine-log:3,slate-shard:2|A thick square felt poncho, oatmeal grey, with a stitched rust border band and a neck slit.
+ea-felt-poncho|EA|cloak|4|Uncommon|Felt Herder's Poncho|9600|2|5|pine-log:2,slate-shard:3|A thick square felt poncho, oatmeal grey, with a stitched rust border band and a neck slit.
 ea-blossom-capelet|EA|cloak|5|Rare|Blossom Capelet|24000|3|6|pine-log:4,slate-shard:3,any-hide:1|A short light silk capelet with a petal-scalloped hem in spring pink, tied with a cord.
 csa-curl-toe-slippers|CSA|footwear|1|Common|Curl-Toe Slippers|3900|1|4|slate-shard:2,pine-resin:1|Soft madder-red leather slip-ons with a long toe that curls up and back, gold running stitch on the vamp.
-csa-felted-snow-boots|CSA|footwear|2|Common|Felted Snow Boots|3900|1|4|slate-shard:2,pine-resin:1|Chunky undyed felt boots, seamless and thick, with a madder-red spiral appliqué on the shin.
+csa-felted-snow-boots|CSA|footwear|2|Common|Felted Snow Boots|3900|1|4|slate-shard:1,pine-resin:2|Chunky undyed felt boots, seamless and thick, with a madder-red spiral appliqué on the shin.
 csa-toe-ring-sandals|CSA|footwear|3|Uncommon|Toe-Ring Sandals|10400|2|5|slate-shard:3,pine-resin:2|Flat tan leather sandals seen from above, braided toe ring and crossed straps, open for monsoon heat.
-csa-stilt-clogs|CSA|footwear|4|Uncommon|Stilt Clogs|10400|2|5|slate-shard:3,pine-resin:2|Raised wooden clogs on two tall teeth with a woven jute strap, for stepping over monsoon puddles and mud.
+csa-stilt-clogs|CSA|footwear|4|Uncommon|Stilt Clogs|10400|2|5|slate-shard:2,pine-resin:3|Raised wooden clogs on two tall teeth with a woven jute strap, for stepping over monsoon puddles and mud.
 csa-wrapped-hide-boots|CSA|footwear|5|Rare|Wrapped Hide Boots|26000|3|6|slate-shard:4,pine-resin:3,any-hide:1|Tall dark yak-hide boots with a woven striped leg-wrap wound up the shin and tied with a cord.
 csa-chili-cone-basket|CSA|backpack|1|Common|Chili Cone Basket|3900|1|4|slate-shard:2,pine-resin:1|Tall conical woven bamboo basket carried on the back with a head strap, heaped with red chilies.
-csa-ikat-saddle-satchel|CSA|backpack|2|Common|Ikat Saddle Satchel|3900|1|4|slate-shard:2,pine-resin:1|Squarish woven satchel with blurred-edge ikat diamonds, a flap and tassels hanging from the corners.
+csa-ikat-saddle-satchel|CSA|backpack|2|Common|Ikat Saddle Satchel|3900|1|4|slate-shard:1,pine-resin:2|Squarish woven satchel with blurred-edge ikat diamonds, a flap and tassels hanging from the corners.
 csa-porters-frame-pack|CSA|backpack|3|Uncommon|Porter's Frame Pack|10400|2|5|slate-shard:3,pine-resin:2|A-shaped wooden carrying frame with a hammered copper pot and a rolled striped rug lashed on with rope.
-csa-block-print-bundle|CSA|backpack|4|Uncommon|Block-Print Bundle|10400|2|5|slate-shard:3,pine-resin:2|A big square of indigo block-printed cloth knotted into a bundle with two ear-like knot tips and a shoulder loop.
+csa-block-print-bundle|CSA|backpack|4|Uncommon|Block-Print Bundle|10400|2|5|slate-shard:2,pine-resin:3|A big square of indigo block-printed cloth knotted into a bundle with two ear-like knot tips and a shoulder loop.
 csa-stacked-tin-pack|CSA|backpack|5|Rare|Stacked Tin Pack|26000|3|6|slate-shard:4,pine-resin:3,any-hide:1|Three stacked round brass tins clipped together with a carry handle, on leather straps: a travelling spice and lunch stack.
 csa-ikat-robe-coat|CSA|coat|1|Common|Ikat Robe Coat|3900|1|4|slate-shard:2,pine-resin:1|Long quilted robe coat with wide sleeves and bold vertical ikat stripes, laid out flat.
-csa-kantha-patch-vest|CSA|coat|2|Common|Kantha Patch Vest|3900|1|4|slate-shard:2,pine-resin:1|Sleeveless vest made of layered old cloth patches held together with rows of white running stitch.
+csa-kantha-patch-vest|CSA|coat|2|Common|Kantha Patch Vest|3900|1|4|slate-shard:1,pine-resin:2|Sleeveless vest made of layered old cloth patches held together with rows of white running stitch.
 csa-fleece-collar-jacket|CSA|coat|3|Uncommon|Fleece-Collar Jacket|10400|2|5|slate-shard:3,pine-resin:2|Brown hide jacket with thick cream curly fleece at the collar, cuffs and hem.
-csa-mirror-work-smock|CSA|coat|4|Uncommon|Mirror-Work Smock|10400|2|5|slate-shard:3,pine-resin:2|Short pull-over smock in indigo with a madder yoke studded with small round mirrors in chain-stitch rings.
+csa-mirror-work-smock|CSA|coat|4|Uncommon|Mirror-Work Smock|10400|2|5|slate-shard:2,pine-resin:3|Short pull-over smock in indigo with a madder yoke studded with small round mirrors in chain-stitch rings.
 csa-turmeric-wrap-coat|CSA|coat|5|Rare|Turmeric Wrap Coat|26000|3|6|slate-shard:4,pine-resin:3,any-hide:1|Light cotton crossover coat that wraps across the chest and ties at the side with long strings; turmeric dyed.
 csa-palm-leaf-rain-hood|CSA|cloak|1|Common|Palm-Leaf Rain Hood|3900|1|4|slate-shard:2,pine-resin:1|A curved shell of overlapping dried palm leaves that covers head and back like a turtle shell.
-csa-fine-wool-shawl|CSA|cloak|2|Common|Fine Wool Shawl|3900|1|4|slate-shard:2,pine-resin:1|Soft, fine goat-wool shawl folded in a draped triangle, woven border and a long fringe.
+csa-fine-wool-shawl|CSA|cloak|2|Common|Fine Wool Shawl|3900|1|4|slate-shard:1,pine-resin:2|Soft, fine goat-wool shawl folded in a draped triangle, woven border and a long fringe.
 csa-felt-shepherd-cape|CSA|cloak|3|Uncommon|Felt Shepherd Cape|10400|2|5|slate-shard:3,pine-resin:2|A stiff charcoal felt cape with squared shoulders that stands on its own, spiral stitching down the front.
-csa-striped-yak-poncho|CSA|cloak|4|Uncommon|Striped Yak Poncho|10400|2|5|slate-shard:3,pine-resin:2|Square woven poncho in bold multicolour bands with a neck slit and knotted fringe along the bottom.
+csa-striped-yak-poncho|CSA|cloak|4|Uncommon|Striped Yak Poncho|10400|2|5|slate-shard:2,pine-resin:3|Square woven poncho in bold multicolour bands with a neck slit and knotted fringe along the bottom.
 csa-indigo-dot-cloak|CSA|cloak|5|Rare|Indigo Dot Cloak|26000|3|6|slate-shard:4,pine-resin:3,any-hide:1|Hooded hanging cloak in indigo with resist-dyed dot rows, the hood ending in a soft point.
 sea-paddy-stilt-clogs|SEA|footwear|1|Common|Paddy Stilt-Clogs|4200|1|4|coir-fibre:2,palm-trunk:1|Teak footboards on two tall blocks with a red cloth strap: walk the wet paddy bunds without soaking your toes.
-sea-pandan-sandals|SEA|footwear|2|Common|Pandan Sandals|4200|1|4|coir-fibre:2,palm-trunk:1|Flat sandals with soles woven from pandan leaf strips, leather cross straps, a heel loop. Seen from above.
+sea-pandan-sandals|SEA|footwear|2|Common|Pandan Sandals|4200|1|4|coir-fibre:1,palm-trunk:2|Flat sandals with soles woven from pandan leaf strips, leather cross straps, a heel loop. Seen from above.
 sea-ikat-leech-wraps|SEA|footwear|3|Uncommon|Ikat Leech-Wraps|11200|2|5|coir-fibre:3,palm-trunk:2|Tall cloth leggings wound tightly up the shin over slim soft shoes, banded in ikat zigzags, tied off with beaded cords.
-sea-rattan-trail-boot|SEA|footwear|4|Uncommon|Rattan Trail Boot|11200|2|5|coir-fibre:3,palm-trunk:2|A single ankle boot with an upper of woven split cane, leather toe cap, heel and sole, laced with cord.
+sea-rattan-trail-boot|SEA|footwear|4|Uncommon|Rattan Trail Boot|11200|2|5|coir-fibre:2,palm-trunk:3|A single ankle boot with an upper of woven split cane, leather toe cap, heel and sole, laced with cord.
 sea-mudflat-paddles|SEA|footwear|5|Rare|Mudflat Paddles|28000|3|6|coir-fibre:4,palm-trunk:3,any-hide:1|A low slipper bolted on a wide, ribbed rubber paddle so you don't sink on mangrove mud.
 sea-rattan-back-basket|SEA|backpack|1|Common|Rattan Back-Basket|4200|1|4|coir-fibre:2,palm-trunk:1|Tall flaring basket of woven cane with a wrapped rim and leather shoulder loops; open top for harvests.
-sea-bamboo-ladder-pack|SEA|backpack|2|Common|Bamboo Ladder-Pack|4200|1|4|coir-fibre:2,palm-trunk:1|Two knotted bamboo poles with crossbars, a rolled pandan mat and an indigo sack lashed on with cord.
+sea-bamboo-ladder-pack|SEA|backpack|2|Common|Bamboo Ladder-Pack|4200|1|4|coir-fibre:1,palm-trunk:2|Two knotted bamboo poles with crossbars, a rolled pandan mat and an indigo sack lashed on with cord.
 sea-batik-bundle|SEA|backpack|3|Uncommon|Batik Bundle|11200|2|5|coir-fibre:3,palm-trunk:2|A big round cloth bundle tied at the top with two knotted ears and slung on a cloth strap; indigo with pale wax-resist dots and waves.
-sea-nipa-thatch-pack|SEA|backpack|4|Uncommon|Nipa Thatch Pack|11200|2|5|coir-fibre:3,palm-trunk:2|A domed pack shingled with tiers of drooping nipa palm leaves, like a little rain-proof roof on your back.
+sea-nipa-thatch-pack|SEA|backpack|4|Uncommon|Nipa Thatch Pack|11200|2|5|coir-fibre:2,palm-trunk:3|A domed pack shingled with tiers of drooping nipa palm leaves, like a little rain-proof roof on your back.
 sea-water-jar-pack|SEA|backpack|5|Rare|Water-Jar Pack|28000|3|6|coir-fibre:4,palm-trunk:3,any-hide:1|A round celadon-glazed jar in a rope net sling with a cork and a bamboo spout: carry water for thirsty plants.
 sea-indigo-batik-smock|SEA|coat|1|Common|Indigo Batik Smock|4200|1|4|coir-fibre:2,palm-trunk:1|Loose, wide-sleeved smock, airy in the heat, indigo with rows of pale wax-resist dots and waves.
-sea-pandan-weave-vest|SEA|coat|2|Common|Pandan Weave Vest|4200|1|4|coir-fibre:2,palm-trunk:1|Sleeveless open vest plaited of two-tone palm-leaf strips with dark bound edges and two pockets.
+sea-pandan-weave-vest|SEA|coat|2|Common|Pandan Weave Vest|4200|1|4|coir-fibre:1,palm-trunk:2|Sleeveless open vest plaited of two-tone palm-leaf strips with dark bound edges and two pockets.
 sea-ikat-wrap-jacket|SEA|coat|3|Uncommon|Ikat Wrap-Jacket|11200|2|5|coir-fibre:3,palm-trunk:2|Short jacket that wraps across the chest and ties at the side, banded with rust, cream and indigo ikat diamonds.
-sea-kapok-puffer|SEA|coat|4|Uncommon|Jungle Kapok Puffer|11200|2|5|coir-fibre:3,palm-trunk:2|Round, quilted coat stuffed with kapok fluff, diamond quilting, puffy short sleeves, stand collar.
+sea-kapok-puffer|SEA|coat|4|Uncommon|Jungle Kapok Puffer|11200|2|5|coir-fibre:2,palm-trunk:3|Round, quilted coat stuffed with kapok fluff, diamond quilting, puffy short sleeves, stand collar.
 sea-mangrove-oilcloth|SEA|coat|5|Rare|Mangrove Oilcloth|28000|3|6|coir-fibre:4,palm-trunk:3,any-hide:1|Long, knee-length waxed coat in mud olive with a high collar, big flap pockets and brass buttons.
 sea-palm-frond-rain-cape|SEA|cloak|1|Common|Palm-Frond Rain Cape|4200|1|4|coir-fibre:2,palm-trunk:1|A bell-shaped shoulder cape of four shaggy tiers of dried palm fronds, tied at the neck.
-sea-banana-leaf-hood|SEA|cloak|2|Common|Banana-Leaf Hood|4200|1|4|coir-fibre:2,palm-trunk:1|One huge glossy banana leaf worn as a hooded cape: the tip curls into a hood, the midrib runs down the back, the edges split.
+sea-banana-leaf-hood|SEA|cloak|2|Common|Banana-Leaf Hood|4200|1|4|coir-fibre:1,palm-trunk:2|One huge glossy banana leaf worn as a hooded cape: the tip curls into a hood, the midrib runs down the back, the edges split.
 sea-batik-shawl|SEA|cloak|3|Uncommon|Batik Shawl|11200|2|5|coir-fibre:3,palm-trunk:2|Triangular shawl spread flat, soga-brown with cream crackle lines, spiral-fern and dot motifs, fringed edges.
-sea-net-veil-mantle|SEA|cloak|4|Uncommon|Net-Veil Mantle|11200|2|5|coir-fibre:3,palm-trunk:2|A long fine-mesh veil hanging from a bamboo hoop, flaring to a bead-weighted hem: keeps the bugs off at dusk.
+sea-net-veil-mantle|SEA|cloak|4|Uncommon|Net-Veil Mantle|11200|2|5|coir-fibre:2,palm-trunk:3|A long fine-mesh veil hanging from a bamboo hoop, flaring to a bead-weighted hem: keeps the bugs off at dusk.
 sea-monsoon-poncho|SEA|cloak|5|Rare|Monsoon Poncho|28000|3|6|coir-fibre:4,palm-trunk:3,any-hide:1|Square rubberised poncho with the hood bunched at the neck, stitched seams and a drawstring toggle.
 wca-palm-sole-sandals|WCA|footwear|1|Common|Palm-Sole Sandals|4500|1|4|laterite-clay:2,palm-trunk:1|Flat sandals with thick plaited palm-fibre soles and a red tooled-leather toe strap.
-wca-mudwader-wraps|WCA|footwear|2|Common|Mudwader Wraps|4500|1|4|laterite-clay:2,palm-trunk:1|Tall indigo cloth leg wraps bound with criss-cross cord over a low leather shoe.
+wca-mudwader-wraps|WCA|footwear|2|Common|Mudwader Wraps|4500|1|4|laterite-clay:1,palm-trunk:2|Tall indigo cloth leg wraps bound with criss-cross cord over a low leather shoe.
 wca-rainroot-clogs|WCA|footwear|3|Uncommon|Rainroot Clogs|12000|2|5|laterite-clay:3,palm-trunk:2|Carved mahogany clogs on two raised heel-blocks to stand above puddles, a woven band over the instep.
-wca-ochre-trail-boots|WCA|footwear|4|Uncommon|Ochre Trail Boots|12000|2|5|laterite-clay:3,palm-trunk:2|Soft ankle boots in ochre-dyed leather, a turned-down cuff with stitched dashes and a side tassel.
+wca-ochre-trail-boots|WCA|footwear|4|Uncommon|Ochre Trail Boots|12000|2|5|laterite-clay:2,palm-trunk:3|Soft ankle boots in ochre-dyed leather, a turned-down cuff with stitched dashes and a side tassel.
 wca-plantain-slippers|WCA|footwear|5|Rare|Plantain Slippers|30000|3|6|laterite-clay:4,palm-trunk:3,any-hide:1|Round foot-bundles wrapped in shiny plantain leaves, tied off with vine at the ankle.
 wca-calabash-pack|WCA|backpack|1|Common|Calabash Pack|4500|1|4|laterite-clay:2,palm-trunk:1|A big round gourd with a cut lid, cradled in a knotted cord net, worn on the back.
-wca-raffia-cone-basket|WCA|backpack|2|Common|Raffia Cone Basket|4500|1|4|laterite-clay:2,palm-trunk:1|Tall tapering raffia basket with a coiled rim and two wide shoulder bands.
+wca-raffia-cone-basket|WCA|backpack|2|Common|Raffia Cone Basket|4500|1|4|laterite-clay:1,palm-trunk:2|Tall tapering raffia basket with a coiled rim and two wide shoulder bands.
 wca-indigo-bundle|WCA|backpack|3|Uncommon|Indigo Bundle|12000|2|5|laterite-clay:3,palm-trunk:2|A round cloth bundle dyed indigo with resist dots, its corners knotted into two ears.
-wca-tooled-satchel|WCA|backpack|4|Uncommon|Tooled Satchel|12000|2|5|laterite-clay:3,palm-trunk:2|Square leather satchel with a pointed flap, tooled zig-zag border and a leather fringe.
+wca-tooled-satchel|WCA|backpack|4|Uncommon|Tooled Satchel|12000|2|5|laterite-clay:2,palm-trunk:3|Square leather satchel with a pointed flap, tooled zig-zag border and a leather fringe.
 wca-bamboo-frame-pack|WCA|backpack|5|Rare|Congo Bamboo Frame Pack|30000|3|6|laterite-clay:4,palm-trunk:3,any-hide:1|An open bamboo ladder frame with a rolled sleeping mat lashed on and a water gourd hanging below.
 wca-strip-weave-smock|WCA|coat|1|Common|Strip-Weave Smock|4500|1|4|laterite-clay:2,palm-trunk:1|Loose wide-sleeved smock sewn from narrow woven strips in gold, green and rust.
-wca-mudcloth-vest|WCA|coat|2|Common|Mudcloth Vest|4500|1|4|laterite-clay:2,palm-trunk:1|Sleeveless vest of dark mud-dyed cloth with plain cream dots and dashes.
+wca-mudcloth-vest|WCA|coat|2|Common|Mudcloth Vest|4500|1|4|laterite-clay:1,palm-trunk:2|Sleeveless vest of dark mud-dyed cloth with plain cream dots and dashes.
 wca-raffia-rain-coat|WCA|coat|3|Uncommon|Raffia Rain Coat|12000|2|5|laterite-clay:3,palm-trunk:2|Shaggy coat of three tiers of raffia fringe that shed rain like a thatch roof.
-wca-adire-jacket|WCA|coat|4|Uncommon|Adire Jacket|12000|2|5|laterite-clay:3,palm-trunk:2|Fitted indigo jacket with resist-dyed rings, cream piping and a wrap-over front.
+wca-adire-jacket|WCA|coat|4|Uncommon|Adire Jacket|12000|2|5|laterite-clay:2,palm-trunk:3|Fitted indigo jacket with resist-dyed rings, cream piping and a wrap-over front.
 wca-kapok-jerkin|WCA|coat|5|Rare|Kapok Jerkin|30000|3|6|laterite-clay:4,palm-trunk:3,any-hide:1|Puffy quilted cotton jerkin in diamond quilting, ochre edging, for cool wet nights.
 wca-plantain-leaf-cape|WCA|cloak|1|Common|Plantain Leaf Cape|4500|1|4|laterite-clay:2,palm-trunk:1|A cape of overlapping big plantain leaves on a vine collar.
-wca-strip-weave-shawl|WCA|cloak|2|Common|Strip-Weave Shawl|4500|1|4|laterite-clay:2,palm-trunk:1|A long shawl in bold block stripes, folded over itself, fringed ends.
+wca-strip-weave-shawl|WCA|cloak|2|Common|Strip-Weave Shawl|4500|1|4|laterite-clay:1,palm-trunk:2|A long shawl in bold block stripes, folded over itself, fringed ends.
 wca-indigo-hood-mantle|WCA|cloak|3|Uncommon|Indigo Hood Mantle|12000|2|5|laterite-clay:3,palm-trunk:2|Deep indigo hooded cloak with a scatter of white resist dots on the hem.
-wca-raffia-poncho|WCA|cloak|4|Uncommon|Raffia Poncho|12000|2|5|laterite-clay:3,palm-trunk:2|Square straw poncho with dyed red bands and a long fringe hem.
+wca-raffia-poncho|WCA|cloak|4|Uncommon|Raffia Poncho|12000|2|5|laterite-clay:2,palm-trunk:3|Square straw poncho with dyed red bands and a long fringe hem.
 wca-scaleleaf-mantle|WCA|cloak|5|Rare|Scaleleaf Mantle|30000|3|6|laterite-clay:4,palm-trunk:3,any-hide:1|Short mantle of overlapping rounded leather tabs, like pangolin plates.
 esa-acacia-sandals|ESA|footwear|1|Common|Acacia Sandals|4800|1|4|flint:2,red-ochre:1|A pair of low leather sandals on thick stacked soles, crossed toe straps and an ankle loop.
-esa-highland-trek-boots|ESA|footwear|2|Common|Highland Trek Boots|4800|1|4|flint:2,red-ochre:1|Ankle boots of coffee-brown suede, high laced fronts, a woven striped cuff.
+esa-highland-trek-boots|ESA|footwear|2|Common|Highland Trek Boots|4800|1|4|flint:1,red-ochre:2|Ankle boots of coffee-brown suede, high laced fronts, a woven striped cuff.
 esa-sisal-slippers|ESA|footwear|3|Uncommon|Sisal Slippers|12800|2|5|flint:3,red-ochre:2|Rounded slip-on shoes plaited from pale sisal cord, coiled-rope soles.
-esa-stripe-gaiters|ESA|footwear|4|Uncommon|Stripe Gaiters|12800|2|5|flint:3,red-ochre:2|Tall wrapped shin gaiters in dark/cream stripe felt over small round-toed shoes, tied with cord.
+esa-stripe-gaiters|ESA|footwear|4|Uncommon|Stripe Gaiters|12800|2|5|flint:2,red-ochre:3|Tall wrapped shin gaiters in dark/cream stripe felt over small round-toed shoes, tied with cord.
 esa-baobab-clogs|ESA|footwear|5|Rare|Baobab Clogs|32000|3|6|flint:4,red-ochre:3,any-hide:1|Chunky carved wooden clogs with an upturned toe and bark-textured sides.
 esa-coiled-basket-pack|ESA|backpack|1|Common|Coiled Basket Pack|4800|1|4|flint:2,red-ochre:1|A tall round basket of coiled sisal with dyed bands, a woven lid and leather straps.
-esa-calabash-carrier|ESA|backpack|2|Common|Rift Calabash Carrier|4800|1|4|flint:2,red-ochre:1|A big round gourd held in a knotted cord net, a wooden stopper on top.
+esa-calabash-carrier|ESA|backpack|2|Common|Rift Calabash Carrier|4800|1|4|flint:1,red-ochre:2|A big round gourd held in a knotted cord net, a wooden stopper on top.
 esa-grain-sack-pack|ESA|backpack|3|Uncommon|Grain Sack Pack|12800|2|5|flint:3,red-ochre:2|A plump burlap grain sack with a cinched drawstring neck and rope shoulder loops.
-esa-acacia-frame-pack|ESA|backpack|4|Uncommon|Acacia Frame Pack|12800|2|5|flint:3,red-ochre:2|An open frame of lashed acacia poles carrying a bundle of firewood and a rolled striped cloth.
+esa-acacia-frame-pack|ESA|backpack|4|Uncommon|Acacia Frame Pack|12800|2|5|flint:2,red-ochre:3|An open frame of lashed acacia poles carrying a bundle of firewood and a rolled striped cloth.
 esa-herders-satchel|ESA|backpack|5|Rare|Herder's Satchel|32000|3|6|flint:4,red-ochre:3,any-hide:1|A wide soft leather satchel with a rounded flap, long fringe and a row of plain coloured beads.
 esa-barkcloth-smock|ESA|coat|1|Common|Barkcloth Smock|4800|1|4|flint:2,red-ochre:1|A loose A-line smock of beaten fig-bark cloth, short wide sleeves, hammer-ribbed texture.
-esa-stripe-weave-vest|ESA|coat|2|Common|Stripe Weave Vest|4800|1|4|flint:2,red-ochre:1|An open sleeveless vest of bold striped handloom cotton with a fringed hem.
+esa-stripe-weave-vest|ESA|coat|2|Common|Stripe Weave Vest|4800|1|4|flint:1,red-ochre:2|An open sleeveless vest of bold striped handloom cotton with a fringed hem.
 esa-highland-wool-coat|ESA|coat|3|Uncommon|Highland Wool Coat|12800|2|5|flint:3,red-ochre:2|A long heavy coat of undyed cream wool with a tall collar and two rows of wooden buttons.
-esa-savanna-field-jacket|ESA|coat|4|Uncommon|Savanna Field Jacket|12800|2|5|flint:3,red-ochre:2|A khaki canvas jacket with rolled sleeves and four patch pockets.
+esa-savanna-field-jacket|ESA|coat|4|Uncommon|Savanna Field Jacket|12800|2|5|flint:2,red-ochre:3|A khaki canvas jacket with rolled sleeves and four patch pockets.
 esa-beaded-tunic-coat|ESA|coat|5|Rare|Beaded Tunic-Coat|32000|3|6|flint:4,red-ochre:3,any-hide:1|A long soft suede tunic-coat with side slits and a collar band of plain coloured beads.
 esa-check-blanket-wrap|ESA|cloak|1|Common|Check Blanket Wrap|4800|1|4|flint:2,red-ochre:1|A checked wool blanket worn as a wrap, knotted over one shoulder, hanging in a long asymmetric drape.
-esa-highland-shawl|ESA|cloak|2|Common|Highland Shawl|4800|1|4|flint:2,red-ochre:1|A thick cream cotton shawl, folded, with a coloured woven border and tasselled ends.
+esa-highland-shawl|ESA|cloak|2|Common|Highland Shawl|4800|1|4|flint:1,red-ochre:2|A thick cream cotton shawl, folded, with a coloured woven border and tasselled ends.
 esa-banana-leaf-rain-cape|ESA|cloak|3|Uncommon|Banana-Leaf Rain Cape|12800|2|5|flint:3,red-ochre:2|A cape of shingled broad banana leaves sewn onto a collar band, scalloped hem.
-esa-dust-mantle|ESA|cloak|4|Uncommon|Dust Mantle|12800|2|5|flint:3,red-ochre:2|A hooded sand-coloured mantle with a fringed hem, for the dry season's red dust.
+esa-dust-mantle|ESA|cloak|4|Uncommon|Dust Mantle|12800|2|5|flint:2,red-ochre:3|A hooded sand-coloured mantle with a fringed hem, for the dry season's red dust.
 esa-indigo-dot-shawl|ESA|cloak|5|Rare|Indigo Dot Shawl|32000|3|6|flint:4,red-ochre:3,any-hide:1|A wide triangular shawl dyed indigo with resist-dot circles, a cream border and corner tassels.
 oc-reef-sandals|OC|footwear|1|Common|Reef Sandals|5100|1|4|coir-fibre:2,spiral-shell:1|Flat woven pandanus soles with a coir toe-thong and ankle tie, shown as a pair from above.
-oc-gully-fleece-boot|OC|footwear|2|Common|Gully Fleece Boot|5100|1|4|coir-fibre:2,spiral-shell:1|One tall, plump suede pull-on boot with the fleece lining turned out at the cuff and a stitched toe.
+oc-gully-fleece-boot|OC|footwear|2|Common|Gully Fleece Boot|5100|1|4|coir-fibre:1,spiral-shell:2|One tall, plump suede pull-on boot with the fleece lining turned out at the cuff and a stitched toe.
 oc-drovers-pull-ons|OC|footwear|3|Uncommon|Drover's Pull-ons|13600|2|5|coir-fibre:3,spiral-shell:2|A pair of chestnut leather ankle boots with green elastic side panels, pull tabs and a stacked heel.
-oc-flax-wading-wraps|OC|footwear|4|Uncommon|Flax Wading Wraps|13600|2|5|coir-fibre:3,spiral-shell:2|Bulky foot-and-ankle wraps of plaited flax strips, crossed ties up the shin, for wading rock pools.
+oc-flax-wading-wraps|OC|footwear|4|Uncommon|Flax Wading Wraps|13600|2|5|coir-fibre:2,spiral-shell:3|Bulky foot-and-ankle wraps of plaited flax strips, crossed ties up the shin, for wading rock pools.
 oc-mangrove-clog|OC|footwear|5|Rare|Mangrove Clog|34000|3|6|coir-fibre:4,spiral-shell:3,any-hide:1|One chunky carved-wood clog with a raised heel block, a woven coir strap and an oiled finish.
 oc-flax-basket-pack|OC|backpack|1|Common|Flax Basket Pack|5100|1|4|coir-fibre:2,spiral-shell:1|A wide woven flax basket with checkerboard plait, two handle loops and a cord shoulder sling.
-oc-coconut-string-bag|OC|backpack|2|Common|Coconut String Bag|5100|1|4|coir-fibre:2,spiral-shell:1|A sagging looped string bag (open net) in banded colours, hung from a head strap, coconuts showing through.
+oc-coconut-string-bag|OC|backpack|2|Common|Coconut String Bag|5100|1|4|coir-fibre:1,spiral-shell:2|A sagging looped string bag (open net) in banded colours, hung from a head strap, coconuts showing through.
 oc-bushmans-swag|OC|backpack|3|Uncommon|Bushman's Swag|13600|2|5|coir-fibre:3,spiral-shell:2|A long canvas bedroll rolled and buckled with two leather straps, a tin billy can swinging from one end.
-oc-bamboo-frame-pack|OC|backpack|4|Uncommon|Reef Bamboo Frame Pack|13600|2|5|coir-fibre:3,spiral-shell:2|An open A-frame of lashed bamboo poles carrying a bundle wrapped in leaf cloth and tied with coir.
+oc-bamboo-frame-pack|OC|backpack|4|Uncommon|Reef Bamboo Frame Pack|13600|2|5|coir-fibre:2,spiral-shell:3|An open A-frame of lashed bamboo poles carrying a bundle wrapped in leaf cloth and tied with coir.
 oc-pouch-pack|OC|backpack|5|Rare|Pouch Pack|34000|3|6|coir-fibre:4,spiral-shell:3,any-hide:1|A round soft suede pack with a deep front pouch and a drawstring top.
 oc-drovers-oilskin|OC|coat|1|Common|Drover's Oilskin|5100|1|4|coir-fibre:2,spiral-shell:1|A long waxed oilskin coat with a shoulder capelet, flared skirt split at the back, high collar.
-oc-bush-check-smock|OC|coat|2|Common|Bush Check Smock|5100|1|4|coir-fibre:2,spiral-shell:1|A heavy wool pullover smock in red and charcoal check, laced neck, big front pocket, short hood.
+oc-bush-check-smock|OC|coat|2|Common|Bush Check Smock|5100|1|4|coir-fibre:1,spiral-shell:2|A heavy wool pullover smock in red and charcoal check, laced neck, big front pocket, short hood.
 oc-bark-cloth-vest|OC|coat|3|Uncommon|Bark-cloth Vest|13600|2|5|coir-fibre:3,spiral-shell:2|A sleeveless vest of beaten bark cloth, cream with plain ochre-brown stamped triangles and dots, cord ties.
-oc-reef-sail-cloth-jerkin|OC|coat|4|Uncommon|Reef Sail-cloth Jerkin|13600|2|5|coir-fibre:3,spiral-shell:2|A short quilted sea-blue jerkin of sail cloth, rope-edged collar, toggles of knotted rope.
+oc-reef-sail-cloth-jerkin|OC|coat|4|Uncommon|Reef Sail-cloth Jerkin|13600|2|5|coir-fibre:2,spiral-shell:3|A short quilted sea-blue jerkin of sail cloth, rope-edged collar, toggles of knotted rope.
 oc-gum-dyed-cardigan|OC|coat|5|Rare|Gum-dyed Cardigan|34000|3|6|coir-fibre:4,spiral-shell:3,any-hide:1|A thick shawl-collar merino cardigan dyed soft sage with gum leaves, ribbed hem, big pockets.
 oc-frond-rain-cape|OC|cloak|1|Common|Frond Rain Cape|5100|1|4|coir-fibre:2,spiral-shell:1|A shaggy shoulder cape of hanging flax fibre strands in layers, shedding rain like thatch.
-oc-fleece-mantle|OC|cloak|2|Common|Fleece Mantle|5100|1|4|coir-fibre:2,spiral-shell:1|A short round shoulder mantle of curly sheepskin, leather-lined, tied at the throat with a thong.
+oc-fleece-mantle|OC|cloak|2|Common|Fleece Mantle|5100|1|4|coir-fibre:1,spiral-shell:2|A short round shoulder mantle of curly sheepskin, leather-lined, tied at the throat with a thong.
 oc-hibiscus-pareo|OC|cloak|3|Uncommon|Hibiscus Pareo|13600|2|5|coir-fibre:3,spiral-shell:2|A bright coral cotton wrap draped diagonally and knotted on one shoulder, printed with big blossoms.
-oc-red-dust-poncho|OC|cloak|4|Uncommon|Red-dust Poncho|13600|2|5|coir-fibre:3,spiral-shell:2|A heavy woven poncho in rust ochre with cream and dark stripe bands and a tasselled fringe.
+oc-red-dust-poncho|OC|cloak|4|Uncommon|Red-dust Poncho|13600|2|5|coir-fibre:2,spiral-shell:3|A heavy woven poncho in rust ochre with cream and dark stripe bands and a tasselled fringe.
 oc-storm-petrel-hood|OC|cloak|5|Rare|Storm-petrel Hood|34000|3|6|coir-fibre:4,spiral-shell:3,any-hide:1|A long deep-blue oiled hooded cloak with wave-stitched hem, the hood up and pointed, shell clasp.

@@ -3,6 +3,8 @@
   game/includes/data/wear_items.txt         one row per item: what it is, its region, the Tailor fee and level, energy, materials
   game/includes/data/wear_items_pieces.txt  its piece: the catalog row of claude/wear-pieces/wear_pieces.txt, copied as is (fx|a|b carried for the engine)
 Materials: the two local materials of the item's region (game/includes/data/region_locals.txt, both gatherables): Common 2+1, Uncommon 3+2, Rare 4+3 (+ 1 any-hide, a creature part).
+R18 (2.7.58): the pairs n=1/2 and n=3/4 were identical but for their effect; the second of each pair (even n) swaps the two amounts (a:1,b:2 / a:2,b:3), so the pair differs in what it asks for
+(the two locals' base prices are 7 to 12, so a pair's two costs differ by at most about 16%).
 usage: python3 tools/build_wear_items.py   (rewrites both files; same input, same output)
 """
 import json
@@ -32,6 +34,7 @@ def main():
             '# Made only at the Tailor, once the gnome has reached the region\'s level (REGION_LEVELS). One piece each (no cuts); its row is in wear_items_pieces.txt.']
     for p in pieces:
         a, b = loc[p['region']]; na, nb = MATS[p['rarity']]
+        if p['n'] % 2 == 0 and p['rarity'] != 'Rare': na, nb = nb, na   # R18: the second of a pair swaps the amounts
         mats = '%s:%d,%s:%d' % (a, na, b, nb) if a != b else '%s:%d' % (a, na + nb)
         if p['rarity'] == 'Rare':
             mats += ',any-hide:1'   # 2.7.58 creature parts: a Rare piece also takes one Hide part of any kind
