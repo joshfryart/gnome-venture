@@ -39,3 +39,6 @@ Order: A data-only (no migration), B small code, C needs your decision. Finding 
 
 ## C. Your decision
 R5 (cut or raise 62 stop-craft dupes), R8, R9, B1, uA-4 (~340 creature parts: collapse into tiered parts vs add sinks), R15, R16, R18 (112 wearable pairs), R14 (kettle tea keys), H4 (gourmand opt-in), B6.
+
+### Done in 2.7.58 (group C, see CHANGELOG "Item review, group C")
+R8, R15, R14, B6, H4 (note only); second pass: R5 (8 exact stop-craft copies cut, 40 cheap ones raised), R16 (plank and rope yields, Enset rope), R18 (second item of each wearable pair swaps its two local material amounts), R9/uA-4/B1 (52 more family words, so 58 more creature parts count for any-/rare- recipes; nothing deleted). B7 and R9's "fold into generic tiers" are not done.
