@@ -235,9 +235,19 @@ body.dock-on .cbed { cursor: pointer; }
     body.dock-on .tilemap .tmstage { margin-block: calc(-100% / 9); }
   }
   /* v2.8.31: on the Trail the map sits on the left and everything that was under it (the section strip, weather, ledger, buttons) is a column on its right, so the map has the full height above the dock. Tall enough: 9 x 7 tiles; shorter: 7 x 7 (the narrow-phone crop), a square as high as the room. */
-  body.dock-on .mapcol:has(> .trailstrip) { --mapw: min(680px, calc((100dvh - var(--dock-h, 106px) - 24px) * 9 / 7)); display: grid; grid-template-columns: var(--mapw) minmax(0, 1fr); column-gap: 10px; align-items: start; align-content: start; }
-  body.dock-on .mapcol:has(> .trailstrip) > * { grid-column: 2; margin-block: 0 6px; min-width: 0; }
-  body.dock-on .mapcol:has(> .trailstrip) > .tmwrap { grid-column: 1; grid-row: 1 / span 12; width: 100%; max-width: none; margin: 4px 0 0; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) { --mapw: min(680px, calc((100dvh - var(--dock-h, 106px) + 6px) * 9 / 7)); display: grid; grid-template-columns: var(--mapw) minmax(0, 1fr); column-gap: 10px; align-items: start; align-content: start; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > * { grid-column: 2; margin-block: 0 6px; min-width: 0; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > .tmwrap { grid-column: 1; grid-row: 1 / span 12; width: 100%; max-width: none; margin: 2px 0 0; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) { margin-left: -8px; column-gap: 8px; }
+  /* the info column is small print: the map is the picture */
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > :not(.tmwrap) { font-size: 11px; line-height: 1.25; margin-block: 0 4px; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailstrip { padding: 3px 8px; gap: 2px 8px; font-size: 12px; flex-wrap: wrap; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam { gap: 3px; margin-block: 0 4px; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam > *, html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam details { padding: 3px 6px; margin: 0; font-size: 11px; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam summary { padding: 3px 8px; min-height: 0; font-size: 11px; line-height: 1.2; white-space: normal; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot { gap: 3px; margin: 0; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot .btn { min-height: 28px; padding: 2px 4px; font-size: 11px; flex: 1 1 64px; min-width: 64px; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) details.routefold > summary { padding: 3px 8px; min-height: 0; font-size: 11px; }
   body.dock-on .hs-banner { grid-template-columns: minmax(0, 1fr); justify-items: center; }
   body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh-room) * 1.77); width: 100%; margin-inline: auto; }
   body.dock-on .hs-banner .hs-side { display: none; }   /* Sleep and Nap are the Rest piece */
@@ -1534,4 +1544,4 @@ body.dock-on .vunmetline { margin: 6px 0; }
 @media (orientation: landscape) { .gvfs:not([hidden]) { display: flex; align-items: center; justify-content: center; } }
 /* the play rail already has its own full screen button (dk-fs): do not show a second one */
 body:has(.dk-fs) .gvfs { display: none !important; }
-@media (orientation: landscape) and (max-height: 438px) { body.dock-on .mapcol:has(> .trailstrip) { --mapw: max(150px, calc(100dvh - var(--dock-h, 106px) - 24px)); } }   /* v2.8.31: too short for the 9 x 7 view: the 7 x 7 square */
+@media (orientation: landscape) and (max-height: 438px) { html body.dock-on .advgrid > .mapcol:has(> .trailstrip) { --mapw: max(150px, calc(100dvh - var(--dock-h, 106px) + 6px)); } }   /* v2.8.31: too short for the 9 x 7 view: the 7 x 7 square */

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.32
+- **Trail page in landscape: bigger map, smaller print.** The map takes the whole height down to the dock and sits closer to the left edge. The info column beside it (strip, weather, ledger, buttons, Route) uses smaller text and tighter boxes. The rules also win over the Wander-off layout.
+
 ## 2.8.31
 - **Trail page in landscape: map on the left, the rest on the right.** The section strip, weather, ledger and the Gather / Sights / Wander / Turn back buttons now sit in a column beside the map instead of under it, so the map gets the whole height above the dock (9 x 7 tiles when the phone is tall enough, 7 x 7 when short).
 
