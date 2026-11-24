@@ -1458,3 +1458,14 @@ body.dock-on .vunmetline { margin: 6px 0; }
 @media (orientation: landscape) {
   body.dock-on main:has(> .gardentabnav) > .cfgarden { display: none; }
 }
+
+/* v2.8.17: Garden, landscape dock: the heading and the five tabs fit on one line even on a narrow phone view */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav { flex-wrap: nowrap; gap: 3px; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav a { padding: 3px 7px; min-height: 34px; font-size: 13px; gap: 3px; white-space: nowrap; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav a img, body.dock-on main:has(> .gardentabnav) > .gardentabnav a .ico { width: 16px; height: 16px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead { display: flex; align-items: center; gap: 6px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead h1 { font-size: 16px; white-space: nowrap; }
+  body.dock-on main:has(> .gardentabnav) > .ghead .renamefold summary { font-size: 12px; white-space: nowrap; }
+}
+@media (orientation: landscape) { body.dock-on main:has(> .gardenwrap) > details.gardeninfo > summary { white-space: nowrap; font-size: 12px; } }

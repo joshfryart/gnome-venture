@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.17
+- **Garden, landscape layout: the garden name and the five tabs are on one line** even on a narrow phone view (smaller tabs and heading). The "about this spot" line no longer wraps.
+
 ## 2.8.16
 - **Garden, landscape layout: the cat line is hidden** so the tabs move up into the heading row beside the garden name.
 
