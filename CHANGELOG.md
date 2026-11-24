@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.29
+- **Trail and delve map smaller in landscape.** On a phone held sideways the square map is capped to the height left above the dock, so the bottom no longer hides behind it.
+
 ## 2.8.28
 Creature parts (augments, mending, compost, Tailor, Codex, Fair, trophy wall, villagers), item review group C, and the balance, news and docs pass.
 

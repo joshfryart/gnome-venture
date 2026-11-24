@@ -229,6 +229,7 @@ body.dock-on .cbed { cursor: pointer; }
 @media (orientation: landscape) {
   body.dock-on { --imgh: max(150px, calc(100dvh - var(--dock-h, 106px) - 92px)); --imgh-room: max(160px, calc(100dvh - var(--dock-h, 106px) - 58px)); }
   body.dock-on .hubstage { max-width: calc(var(--imgh) * 1.769); margin-inline: auto; }
+  body.dock-on .tmwrap { max-width: min(504px, calc(var(--imgh) + 24px)); margin-block: 4px; margin-inline: auto; }   /* v2.8.29: the square Trail / delve map fits above the dock (it was cut off by it) */
   body.dock-on .hs-banner { grid-template-columns: minmax(0, 1fr); justify-items: center; }
   body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh-room) * 1.77); width: 100%; margin-inline: auto; }
   body.dock-on .hs-banner .hs-side { display: none; }   /* Sleep and Nap are the Rest piece */
