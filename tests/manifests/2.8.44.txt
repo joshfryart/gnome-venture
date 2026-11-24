@@ -18400,7 +18400,6 @@ b8f27a20d7a70c5766730b431cf36b7d4f6551d0  community.php
 3b7d4f3f88eb600eff4bfc047d53cd8f7d3a7529  crafting.php
 6033ccdf159ee9cd2c615bb54164a7c1892da2ab  customise.php
 5c53178c1402a8bae707d9da04e22f5314fb5d65  daily.php
-f501a3307e83832e730da850b05286b4bfba1a07  data/.htaccess
 7daeee1f75c1c27fd4a99910ce057cdee6af8701  dockstate.php
 ebf2eaa44cdbab60d4df138c041b34c93a0ba4fb  door.php
 542b415f68cb4a2121a5b05936734ed4631a5719  event.php
@@ -18864,7 +18863,6 @@ fa27e85d8d798073e350e1d5ed287dff5be7e677  includes/upgrade2758.php
 2e31ab0867d3e2d7e5ebe05e1e104b0555df707f  includes/world.php
 789672e1d40a25ecd7494c6fbbd2c07a390f41a1  includes/yard.php
 79de79b30b3acd87a685dcf641b28d2a9df11df3  index.php
-a6125bb3a1091442c00a35a628ceb25ffbbd94b7  install.php
 c82154bd9dc5359dc2094a001c5299c55c2f9361  inventory.php
 440cedfac17fbefa5d3a84537ab235253958b7ed  jigsaw.php
 f7966e5f771eed523e7f910caa4d6aa647262c2e  jobs.php
