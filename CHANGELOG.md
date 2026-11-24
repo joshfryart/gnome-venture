@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.42
+- **No full screen on desktop.** The first tap in a fight no longer takes a desktop browser into full screen, and the full screen button on the play rail is hidden there. Phones and tablets (touch screens) keep both.
+
 ## 2.8.41
 - **Fix: the Trail map jumped when you picked a spot (landscape).** The walking camera centred the token as if the window showed as many rows as columns, but the landscape layout crops the top and bottom rows, so the walking layer sat one tile too low and snapped back when the walk ended. The camera now uses the rows actually shown (7 on tall screens, 5 on short phones).
 
