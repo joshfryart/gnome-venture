@@ -8,7 +8,7 @@ dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]
 phpx() { php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/stops.php"; require_once "'$GAME'/includes/stop_adopt.php"; require_once "'$GAME'/includes/stop_folk.php"; require_once "'$GAME'/includes/local.php"; '"$1"; }
 
 echo "== data"
-chk "490 regional activities imported (35 for each of the 14 regions)" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE region IS NOT NULL AND region <> ''" | tr -d ' ')" = 490 ] && [ "$(db "SELECT COUNT(*) FROM (SELECT region FROM stop_acts WHERE region IS NOT NULL AND region <> '' GROUP BY region HAVING COUNT(*) = 35)" | tr -d ' ')" = 14 ] && echo 1)"
+chk "494 regional activities imported (35 for each of 11 regions; 2.7.58 B6 added one each to EA and OC, two to SA)" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE region IS NOT NULL AND region <> ''" | tr -d ' ')" = 494 ] && [ "$(db "SELECT COUNT(*) FROM (SELECT region FROM stop_acts WHERE region IS NOT NULL AND region <> '' GROUP BY region HAVING COUNT(*) = 35)" | tr -d ' ')" = 11 ] && echo 1)"
 BAD=$(phpx '$bad=[]; foreach (q("SELECT * FROM stop_acts WHERE region IS NOT NULL AND region <> \"\"")->fetchAll() as $a) {
     if (!in_array($a["kind"], ["craft","collect","tend","contest","check","pick","power","lore","rest"], true)) $bad[]=$a["slug"]." kind";
     foreach (array_filter(explode(",", $a["types"])) as $t) if ($t !== "any" && !q_val("SELECT 1 FROM stop_types WHERE slug=?", [$t])) $bad[]=$a["slug"]." type $t";

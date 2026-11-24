@@ -68,7 +68,7 @@ fern-cassowary|Fern Cassowary|large|forest,rainforest,island|36|Long Feather:55,
 deep-octopus|Deep Octopus|large|island,coast|37|Sea Glass:45,Pearl:15,Glowing Bead:25|Eight arms, three hearts, and not one of them is friendly today.
 # v1.4.0: fills the level gaps (L11-29) in every landscape; drops lean toward gardening and crafting (shells, feathers, silk, wax, fibre, logs, moss)
 hermit-crab-hoarder|Hermit Crab Hoarder|medium|island,coast|12|Spiral Shell:60,Cowrie Shell:30,Sea Glass:10|Wears three stolen shells at once and is still looking for a fourth.
-sea-otter-bandit|Sea Otter Bandit|medium|coast|13|Blue Mussels:55,Kelp Frond:35,Seed Pearl:3|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+sea-otter-bandit|Sea Otter Bandit|medium|coast|13|Blue Mussels:55,Bladderwrack:35,Seed Pearl:3|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
 dust-sidewinder|Dust Sidewinder|medium|desert|15|Snake Skin:55,Desert Rose Stone:20|Travels sideways, which is somehow more alarming.|we=heat,sun
 poison-dart-frog|Poison Dart Frog|medium|rainforest,wetland|16|Frog Skin:55,Morpho Scales:6,Fiddleheads:30|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.|we=rain
 reef-turtle|Reef Turtle|large|island|12|Tortoise Scute:45,Sea Grapes:40,Cowrie Shell:20|Paddles up the beach like a slow green boulder and snaps at anything on its path.

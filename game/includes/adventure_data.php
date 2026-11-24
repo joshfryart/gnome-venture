@@ -27,7 +27,7 @@ const VILLAGE_ENDINGS = ['bottom', 'hollow', 'burrow', 'nook', 'dell', 'by', 'wi
 
 /** Little things gnomes pick up along the way, by landscape. */
 const LANDSCAPE_FINDS = [
-    'coast' => [['Kelp Frond', 'A ribbon of seaweed. Gardeners say it’s good for the soil.'], ['Sea Glass', 'Frosted glass worn smooth by the waves.'], ['Blue Mussels', 'Shiny blue shells, still cool from the tide.'], ['Bladderwrack', 'Popping seaweed with little air bladders.']],
+    'coast' => [['Sea Salt', 'Flaky crystals scraped from a sun-dried rock pool.'], ['Sea Glass', 'Frosted glass worn smooth by the waves.'], ['Blue Mussels', 'Shiny blue shells, still cool from the tide.'], ['Bladderwrack', 'Popping seaweed with little air bladders.']],
     'mountain' => [['Shiny Quartz', 'A clear crystal that catches the light.'], ['Eagle Down', 'A wisp of feather from far above.'], ['Slate Shard', 'A flat grey chip that rings when tapped.'], ['Bilberries', 'Tiny dark berries that stain your fingers.']],
     'forest' => [['Acorn Cap', 'Makes a perfect gnome teacup.'], ['Leaf Mould Clump', 'Dark, crumbly and full of life.'], ['Chanterelle', 'Golden mushrooms that smell faintly of apricots.'], ['Pine Resin', 'A sticky amber bead from a pine trunk.']],
     'desert' => [['Desert Rose Stone', 'Sand crystals grown into a rose.'], ['Old Campfire Ash', 'Ash from a long-cold fire. Rich in potash.'], ['Desert Sage', 'Silvery leaves with a sharp, clean scent.'], ['Red Ochre', 'Soft red rock that leaves a mark on everything.']],

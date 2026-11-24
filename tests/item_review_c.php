@@ -3,7 +3,7 @@
 // php tests/item_review_c.php GAME_DIR (installed game with player "sprout").
 $_SERVER['SCRIPT_NAME'] = '/jobs.php';
 require $argv[1] . '/includes/bootstrap.php';
-foreach (['festival', 'jobs', 'parts', 'crafting', 'items', 'upgrade2758', 'pfdeck', 'augments'] as $f) require_once $argv[1] . '/includes/' . $f . '.php';
+foreach (['festival', 'jobs', 'parts', 'crafting', 'items', 'upgrade2758', 'pfdeck', 'augments', 'tea', 'stops'] as $f) require_once $argv[1] . '/includes/' . $f . '.php';
 $fails = 0;
 set_exception_handler(function (Throwable $e) { echo '  EXCEPTION ' . get_class($e) . ': ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine() . "\n"; exit(1); });
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
@@ -92,6 +92,81 @@ foreach (AUG_DEFS as $slug => $d) {
     ok("$slug shows its family icon", $e === PART_FAMILY_ICONS[$d[1]], $e);
 }
 ok('other supplies are unchanged', item_emoji(['id' => 0, 'slug' => 'zz-box', 'name' => 'Zz Box', 'category' => 'supply']) !== '');
+
+echo "== group C: R8 / R15 merged parts\n";
+$data = fn(string $f) => (string)file_get_contents($argv[1] . '/includes/data/' . $f);
+$allData = $data('pf_creatures.txt') . $data('creatures.txt') . $data('trek_creatures_ch3.txt') . $data('road_events.txt') . $data('stop_acts_waves.txt') . $data('stop_acts_regional.txt') . $data('trail_sights_maplewold.txt')
+    . (string)file_get_contents($argv[1] . '/includes/adventure_data.php') . (string)file_get_contents($argv[1] . '/includes/pfight_data.php');
+foreach (['skink-scale', 'Skink Scale', 'Glass Wyrm Scale', 'Giant Otter Pelt', 'Kelp Frond', 'kelp-frond', 'Shale Chip', 'shale-chip', 'Sawdust Heap'] as $gone) ok("no data row still names $gone", !str_contains($allData, $gone));
+ok('the skink shoal drops one Lizard Scale entry', preg_match('/^sandfish-skink-shoal\|.*\|Lizard Scale:55,Pink Sand/m', $data('pf_creatures.txt')) === 1);
+ok('the sea slug has one Bladderwrack entry (the gated twin is gone)', preg_match('/^sea-slug-drift\|.*Frill:55,Bladderwrack:40,Seed Pearl/m', $data('pf_creatures.txt')) === 1);
+$mkc = fn(string $slug) => (int)(q_val('SELECT id FROM creatures WHERE slug = ?', [$slug]) ?: db_insert('creatures', ['slug' => $slug, 'name' => ucwords(str_replace('-', ' ', $slug)), 'size' => 'small', 'landscapes' => 'coast', 'level' => 3, 'hp' => 9, 'attack' => 1, 'defense' => 9, 'dmg_die' => 4, 'dmg_bonus' => 0, 'xp' => 5, 'description' => 'test']));
+$cA = $mkc('zz-merge-a'); $cB = $mkc('zz-merge-b'); $cC = $mkc('zz-merge-c');
+$old = mk('skink-scale', 'part', 40, 20); $new = mk('lizard-scale', 'part', 40, 20);
+$kelp = mk('kelp-frond', 'forage', 15, 12); $brad = mk('bladderwrack', 'forage', 15, 12);
+$sh = mk('shale-chip', 'part', 30, 10);   // no slate-shard row yet in this test world? (it is a gatherable; mk keeps an existing one)
+$saw = mk('sawdust-heap', 'part', 30, 10);
+q('DELETE FROM creature_drops WHERE creature_id IN (?, ?, ?)', [$cA, $cB, $cC]);
+db_insert('creature_drops', ['creature_id' => $cA, 'item_id' => $old, 'chance' => 55]);
+db_insert('creature_drops', ['creature_id' => $cA, 'item_id' => $new, 'chance' => 40]);   // both on one creature: one row, the higher chance
+db_insert('creature_drops', ['creature_id' => $cB, 'item_id' => $kelp, 'chance' => 40]);
+db_insert('creature_drops', ['creature_id' => $cB, 'item_id' => $brad, 'chance' => 22, 'reg' => 'CB/SE']);   // the old row is ungated: the merged one is too
+db_insert('creature_drops', ['creature_id' => $cC, 'item_id' => $kelp, 'chance' => 25, 'reg' => 'CB']);      // only the old one: moves with its gate
+q('DELETE FROM user_items WHERE user_id = ? AND item_id IN (?, ?, ?, ?)', [$uid, $old, $new, $kelp, $brad]);
+give_item($uid, $old, 3); give_item($uid, $new, 2); give_item($uid, $kelp, 4);
+q("UPDATE stop_acts SET spec = 'kelp-frond:3>kelp-meal:1' WHERE slug = 'w1_dry_kelp'");
+q("UPDATE stop_acts SET spec = 'river-clay:2,slate-shard:1>rock-dust:7' WHERE slug = 'w5_mineral_silt'");   // an admin's own edit
+q("DELETE FROM settings WHERE name = 'merge_items_2758'"); setting('__reload__');
+upgrade_2758_merge_items();
+$qty = fn(int $i) => (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $i]);
+ok('R8: stacks of the old part land on the generic one', $qty($new) === 5 && $qty($old) === 0, $qty($new) . '/' . $qty($old));
+ok('R15: kelp-frond stack is bladderwrack now', $qty($kelp) === 0 && $qty($brad) >= 4);
+$rowsA = q('SELECT item_id, chance FROM creature_drops WHERE creature_id = ?', [$cA])->fetchAll();
+ok('R8: one Lizard Scale row at the higher chance', count($rowsA) === 1 && (int)$rowsA[0]['item_id'] === $new && (int)$rowsA[0]['chance'] === 55, json_encode($rowsA));
+$rowsB = q('SELECT item_id, chance, reg FROM creature_drops WHERE creature_id = ?', [$cB])->fetchAll();
+ok('R15: duplicate merged into one ungated Bladderwrack row', count($rowsB) === 1 && (int)$rowsB[0]['item_id'] === $brad && (int)$rowsB[0]['chance'] === 40 && $rowsB[0]['reg'] === null, json_encode($rowsB));
+$rowsC = q('SELECT item_id, chance, reg FROM creature_drops WHERE creature_id = ?', [$cC])->fetchAll();
+ok('R15: a lone old row moves with its gate', count($rowsC) === 1 && (int)$rowsC[0]['item_id'] === $brad && $rowsC[0]['reg'] === 'CB', json_encode($rowsC));
+ok('a stop craft at the old spec is re-pointed, an admin edit is kept', (string)q_val("SELECT spec FROM stop_acts WHERE slug = 'w1_dry_kelp'") === 'bladderwrack:3>kelp-meal:1' && (string)q_val("SELECT spec FROM stop_acts WHERE slug = 'w5_mineral_silt'") === 'river-clay:2,slate-shard:1>rock-dust:7');
+q("UPDATE stop_acts SET spec = 'river-clay:2,slate-shard:1>rock-dust:1' WHERE slug = 'w5_mineral_silt'");
+$cnt = (int)q_val('SELECT COUNT(*) FROM user_items');
+upgrade_2758_merge_items(); setting('__reload__');
+ok('the step is once (marker)', (int)q_val('SELECT COUNT(*) FROM user_items') === $cnt && setting('merge_items_2758') === '1');
+// a world with no row of the new item yet: the old row is renamed (stacks stay)
+$zo = mk('zz-old-part', 'part', 10, 5); give_item($uid, $zo, 2);
+merge_item_2758('zz-old-part', 'zz-new-part', 'Zz New Part');
+ok('no target row: the old row is renamed in place', (int)q_val("SELECT id FROM items WHERE slug = 'zz-new-part'") === $zo && (string)q_val('SELECT name FROM items WHERE id = ?', [$zo]) === 'Zz New Part' && $qty($zo) === 2);
+ok('merging an item that does not exist is a no-op', merge_item_2758('zz-nothing', 'lizard-scale', 'Lizard Scale') === 0);
+
+echo "== group C: R14 kettle keys\n";
+$named = tea_named();
+ok('no kettle tea key is a kitchen recipe or item slug', !array_filter(array_keys($named), fn($s) => q_val('SELECT 1 FROM recipes WHERE slug = ?', [$s]) || q_val('SELECT 1 FROM items WHERE slug = ?', [$s])));
+ok('the three renamed keys exist, the old ones do not', isset($named['kettle-mint-tea'], $named['kettle-meadowsweet-tea'], $named['kettle-desert-sage-tea']) && !isset($named['mint-tea']) && !isset($named['meadowsweet-tea']) && !isset($named['desert-sage-tea']) && count($named) === 20);
+$u2 = (int)q_val("SELECT id FROM users WHERE username <> 'sprout' ORDER BY id LIMIT 1") ?: $uid;
+q('DELETE FROM user_tea_journal WHERE user_id IN (?, ?)', [$uid, $u2]);
+q('INSERT INTO user_tea_journal (user_id, tea_slug, first_day, times) VALUES (?, ?, ?, ?)', [$uid, 'mint-tea', '2026-03-01', 4]);
+q('INSERT INTO user_tea_journal (user_id, tea_slug, first_day, times) VALUES (?, ?, ?, ?)', [$uid, 'desert-sage-tea', '2026-03-02', 1]);
+q('INSERT INTO user_tea_journal (user_id, tea_slug, first_day, times) VALUES (?, ?, ?, ?)', [$uid, 'kettle-desert-sage-tea', '2026-02-20', 2]);   // both keys: summed, earlier day
+q('INSERT INTO user_tea_journal (user_id, tea_slug, first_day, times) VALUES (?, ?, ?, ?)', [$uid, 'oswego-tea', '2026-03-03', 7]);
+q("DELETE FROM settings WHERE name = 'kettle_keys_2758'"); setting('__reload__');
+upgrade_2758_kettle_keys();
+$j = []; foreach (q('SELECT tea_slug, first_day, times FROM user_tea_journal WHERE user_id = ?', [$uid])->fetchAll() as $r) $j[$r['tea_slug']] = [$r['first_day'], (int)$r['times']];
+ok('journal rows move to the kettle keys, others stay', ($j['kettle-mint-tea'] ?? null) === ['2026-03-01', 4] && ($j['oswego-tea'] ?? null) === ['2026-03-03', 7] && !isset($j['mint-tea']) && !isset($j['desert-sage-tea']), json_encode($j));
+ok('a gnome with both keys keeps the sum and the earlier day', ($j['kettle-desert-sage-tea'] ?? null) === ['2026-02-20', 3], json_encode($j));
+$f = tea_journal($uid);
+ok('the journal shows them found', isset($f['found']['kettle-mint-tea']) && $f['n'] === 3, json_encode($f['found'] ?? null));
+q('DELETE FROM user_tea_journal WHERE user_id = ?', [$uid]);
+
+echo "== group C: B6 stop acts, H4 note\n";
+foreach ([['r_ea_perilla_pickled_leaves', 'perilla', 'EA'], ['r_sa_tamarillo_chutney', 'tamarillo', 'SA'], ['r_sa_naranjilla_cordial', 'naranjilla', 'SA'], ['r_oc_noni_juice', 'noni', 'OC']] as [$slug, $crop, $reg]) {
+    stops_import_regional();
+    $a = q_one('SELECT spec, region, kind FROM stop_acts WHERE slug = ?', [$slug]);
+    ok("$slug is a craft that takes $crop", $a && $a['kind'] === 'craft' && str_starts_with((string)$a['spec'], $crop . ':') && $a['region'] === $reg, json_encode($a));
+    $out = explode(':', explode('>', (string)($a['spec'] ?? '>'))[1] ?? '')[0];
+    ok("$slug makes an item that exists ($out)", $out !== '' && (bool)item_id_by_slug($out));
+}
+ok('the Gourmand setting says the Second Spoon needs it', str_contains((string)(settings_schema()['gourmand_open']['label'] ?? ''), 'Second Spoon'));
+ok('the admin Gourmand page says it too', str_contains((string)file_get_contents($argv[1] . '/admin/gourmand.php'), 'Second Spoon</b> decoration'));
 
 echo $fails ? "FAILED ($fails)\n" : "ok\n";
 exit($fails ? 1 : 0);

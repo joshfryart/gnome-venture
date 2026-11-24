@@ -650,6 +650,14 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             require_once __DIR__ . '/upgrade2758.php';
             upgrade_2758_tool_prices();
         });
+        boot_step('merge_items_2758', function () {   // 2.7.58 item review group C, R8 + R15: six drop-only parts merged into the existing item (drops, satchel stacks), three rest-stop crafts re-pointed (once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_merge_items();
+        });
+        boot_step('kettle_keys_2758', function () {   // 2.7.58 item review group C, R14: three kettle journal keys no longer reuse a kitchen recipe slug (rows moved, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_kettle_keys();
+        });
         boot_step('almanac_mending_2758', function () {   // 2.7.58: the Exploring & fighting page tells how mending works (kits, augments; once)
             if (setting('almanac_mending_2758') !== '' || !isset(ALMANAC_HOWTO['Exploring & fighting'])) return;
             q("UPDATE encyclopedia_entries SET body = ? WHERE chapter = 'General' AND title = 'Exploring & fighting'", [ALMANAC_HOWTO['Exploring & fighting'][2]]);

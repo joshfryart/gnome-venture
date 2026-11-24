@@ -117,3 +117,75 @@ function upgrade_2758_tool_prices(): void
     }
     set_setting('tool_prices_2758', '1');
 }
+
+/**
+ * 2.7.58 item review group C, R8 + R15: same-animal part splits and drop-only parallel materials are merged into the existing item.
+ * [old slug, new slug, new name]. The new item is the one the data files drop now; if an old world has no row of it yet, the old row is renamed (same id, so every stack stays).
+ */
+const MERGE_ITEMS_2758 = [
+    ['skink-scale', 'lizard-scale', 'Lizard Scale'], ['glass-wyrm-scale', 'wyrm-scale', 'Wyrm Scale'], ['giant-otter-pelt', 'otter-pelt', 'Otter Pelt'],   // R8
+    ['kelp-frond', 'bladderwrack', 'Bladderwrack'], ['shale-chip', 'slate-shard', 'Slate Shard'], ['sawdust-heap', 'wood-chips', 'Wood Chips'],            // R15
+];
+
+/** Merge item $old into $new: creature drops (one row per creature; the higher chance wins, an ungated old row ungates it), satchel stacks, trophy pins. Returns the rows touched. */
+function merge_item_2758(string $old, string $new, string $newName): int
+{
+    $o = (int)q_val('SELECT id FROM items WHERE slug = ?', [$old]);
+    if (!$o) return 0;
+    $n = (int)q_val('SELECT id FROM items WHERE slug = ?', [$new]);
+    if (!$n) {   // nothing to merge into yet: the old row becomes the new item
+        q('UPDATE items SET slug = ?, name = ? WHERE id = ?', [$new, $newName, $o]);
+        return 1;
+    }
+    $t = 0;
+    foreach (q('SELECT * FROM creature_drops WHERE item_id = ?', [$o])->fetchAll() as $d) {
+        $have = q_one('SELECT * FROM creature_drops WHERE creature_id = ? AND item_id = ? ORDER BY id LIMIT 1', [(int)$d['creature_id'], $n]);
+        if ($have) {
+            $ungate = $d['reg'] === null && $d['lvmin'] === null && $d['lvmax'] === null;
+            q('UPDATE creature_drops SET chance = ?' . ($ungate ? ', reg = NULL, lvmin = NULL, lvmax = NULL' : '') . ' WHERE id = ?', [max((int)$have['chance'], (int)$d['chance']), (int)$have['id']]);
+            q('DELETE FROM creature_drops WHERE id = ?', [(int)$d['id']]);
+        } else q('UPDATE creature_drops SET item_id = ? WHERE id = ?', [$n, (int)$d['id']]);
+        $t++;
+    }
+    foreach (q('SELECT user_id, qty FROM user_items WHERE item_id = ? AND qty > 0', [$o])->fetchAll() as $h) {
+        give_item((int)$h['user_id'], $n, (int)$h['qty']);
+        $t++;
+    }
+    q('DELETE FROM user_items WHERE item_id = ?', [$o]);
+    q('DELETE FROM item_quality WHERE item_id = ?', [$o]);
+    try { q('UPDATE user_trophies SET item_id = ? WHERE item_id = ?', [$n, $o]); } catch (Throwable $e) { /* the trophy table is made on first use */ }
+    return $t;
+}
+
+/** R8 + R15 for an existing world (once, marker merge_items_2758), and the three rest-stop crafts that took kelp-frond / shale-chip now take the material (only a row still at the old spec). */
+function upgrade_2758_merge_items(): void
+{
+    if (setting('merge_items_2758') !== '') return;
+    foreach (MERGE_ITEMS_2758 as [$old, $new, $name]) merge_item_2758($old, $new, $name);
+    foreach ([
+        'w1_dry_kelp' => ['kelp-frond:3>kelp-meal:1', 'bladderwrack:3>kelp-meal:1'],
+        'w5_mineral_silt' => ['river-clay:2,shale-chip:1>rock-dust:1', 'river-clay:2,slate-shard:1>rock-dust:1'],
+        'r_se_cinder_grit' => ['shale-chip:3>rock-dust:2', 'slate-shard:3>rock-dust:2'],
+    ] as $slug => [$was, $now]) q('UPDATE stop_acts SET spec = ? WHERE slug = ? AND spec = ?', [$now, $slug, $was]);
+    set_setting('merge_items_2758', '1');
+    if (function_exists('stop_acts')) stop_acts(true);
+}
+
+/** R14: the kettle's journal keys no longer reuse the kitchen recipes' slugs (data/teas.txt). Rows move to the new key; a gnome who somehow has both keeps the sum of times and the earlier day. Once. */
+const KETTLE_KEYS_2758 = ['mint-tea' => 'kettle-mint-tea', 'meadowsweet-tea' => 'kettle-meadowsweet-tea', 'desert-sage-tea' => 'kettle-desert-sage-tea'];
+function upgrade_2758_kettle_keys(): void
+{
+    if (setting('kettle_keys_2758') !== '') return;
+    try {
+        foreach (KETTLE_KEYS_2758 as $old => $new) {
+            foreach (q('SELECT user_id, first_day, times FROM user_tea_journal WHERE tea_slug = ?', [$old])->fetchAll() as $r) {
+                $has = q_one('SELECT first_day, times FROM user_tea_journal WHERE user_id = ? AND tea_slug = ?', [(int)$r['user_id'], $new]);
+                if ($has) {
+                    q('UPDATE user_tea_journal SET times = ?, first_day = ? WHERE user_id = ? AND tea_slug = ?', [(int)$has['times'] + (int)$r['times'], min((string)$has['first_day'], (string)$r['first_day']), (int)$r['user_id'], $new]);
+                    q('DELETE FROM user_tea_journal WHERE user_id = ? AND tea_slug = ?', [(int)$r['user_id'], $old]);
+                } else q('UPDATE user_tea_journal SET tea_slug = ? WHERE user_id = ? AND tea_slug = ?', [$new, (int)$r['user_id'], $old]);
+            }
+        }
+    } catch (Throwable $e) { /* no journal table yet: no old keys either */ }
+    set_setting('kettle_keys_2758', '1');
+}
