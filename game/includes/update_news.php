@@ -812,7 +812,7 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
-    '2.7.58' => ['🐾 Update 2.7.58: creature parts finally have uses',
+    '2.8.28' => ['🐾 Update 2.8.28: creature parts finally have uses',
         "[list][*][b]Tool augments[/b]: brew a Hide Binding, Plate Edge, Wing Fletch, Gem Charm, Ooze Salve or Silk Lashing from creature parts and fit it to a tool in your Satchel. Tougher tools, better and extra finds, cheaper mends.\n"
         . "[*][b]Mending[/b]: Tool Repair Kits now mend garden and gathering tools too. Order: the Tool Shed's free mend, then kits, then Petals.\n"
         . "[*][b]Parts everywhere[/b]: put parts on the compost heap, give them to the Creature Codex, line wearables with silk, pin a trophy in your hovel, enter a creature diorama at the Fair, or trade them to villagers who ask.\n"
