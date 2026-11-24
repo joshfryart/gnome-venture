@@ -1109,8 +1109,6 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on .vgrid .vcard { padding: 3px 5px; }
   body.dock-on .vgrid .vcard.unmet { grid-template-columns: 30px minmax(0, 1fr); }
   body.dock-on .vgrid .vcard.unmet > small { display: none; }
-  body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 4px; }
-  body.dock-on .shopwrap .itms .stile { font-size: 11px; }
 }
 @media (orientation: landscape) { body.dock-on .ppalslot .ppiece { display: none; } body.dock-on .ppalslot .ppalart { margin-bottom: 2px; } }
 
@@ -1336,12 +1334,20 @@ body.dock-on .book .box > h3 { margin: 6px 0 0; }
 body.dock-on .bookwide .hitlist { column-count: 2; column-gap: 20px; }
 body.dock-on .bookwide .hitlist > li { break-inside: avoid; }
 }
-body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 0 3px; padding-top: 6px; }
-body.dock-on .shopwrap .itms .itm { row-gap: 0; }
-body.dock-on .shopwrap .itms .itm__win { height: 40px; }
-body.dock-on .shopwrap .itms .itm__ic, body.dock-on .shopwrap .itms .itm__svg, body.dock-on .shopwrap .itms .itm__svg > svg { width: 36px; height: 36px; }
-body.dock-on .shopwrap .itms .itm__rib { min-height: 22px; margin: 0 -4px; }
-body.dock-on .shopwrap .itms .itm__name, body.dock-on .shopwrap .itms .itm--long .itm__name, body.dock-on .shopwrap .itms .itm--xlong .itm__name { font-size: 10px; line-height: 1.1; }
+/* desktop shop tiles: big, readable (about 130px+ wide) */
+@media (orientation: landscape) and (min-height: 521px) {
+  body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px 10px; padding-top: 12px; }
+  body.dock-on .shopwrap .itms .itm__win { height: auto; }
+}
+/* compact shop tiles only on short landscape screens (phones); desktop keeps the roomy 8-column tiles */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 4px 3px; padding-top: 6px; }
+  body.dock-on .shopwrap .itms .itm { row-gap: 0; }
+  body.dock-on .shopwrap .itms .itm__win { height: 40px; }
+  body.dock-on .shopwrap .itms .itm__ic, body.dock-on .shopwrap .itms .itm__svg, body.dock-on .shopwrap .itms .itm__svg > svg { width: 36px; height: 36px; }
+  body.dock-on .shopwrap .itms .itm__rib { min-height: 22px; margin: 0 -4px; }
+  body.dock-on .shopwrap .itms .itm__name, body.dock-on .shopwrap .itms .itm--long .itm__name, body.dock-on .shopwrap .itms .itm--xlong .itm__name { font-size: 10px; line-height: 1.1; }
+}
 body.dock-on .shopwrap .shopcats { margin: 2px 0 4px; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; z-index: 20; }
 body.dock-on main > .shophelp { display: none; }
 body.dock-on main > .shopintro { margin: 0 0 4px; padding: 4px 10px; font-size: 12px; }
