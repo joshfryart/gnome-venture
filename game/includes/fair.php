@@ -12,6 +12,7 @@ const FAIR_CATS = [
     'produce' => ['🧺', 'Produce', ['vegetable', 'tuber', 'legume', 'fruit', 'tree', 'nut', 'grain', 'herb', 'spice']],
     'flower' => ['🌻', 'Flowers', ['flower']],
     'preserve' => ['🫙', 'Preserves', []],   // v0.9.8: no plant kinds: the best jar from your Pantry this month (see fair_keep_best, pantry_collect_one)
+    'diorama' => ['🦔', 'Creature diorama', []],   // 2.7.58: no plant kinds: built from creature parts at entry (fair_diorama_pick, fair_enter)
 ];
 /** T2.1: the classes before Produce. Labels only, so old ribbons and unjudged old months still read right; nobody can enter them. */
 const FAIR_CATS_OLD = ['veg' => 'Vegetables', 'fruit' => 'Fruit', 'grain' => 'Grains', 'herb' => 'Herbs & spices'];
@@ -77,6 +78,33 @@ function fair_quality(array $u, array $t, array $p): int
     return (int)max(0, min(100, round($base + $grade + $native + $luck + $wobble + $hybrid)));
 }
 
+/** Most parts one diorama can use. */
+const FAIR_DIORAMA_MAX = 12;
+
+/** 2.7.58 creature diorama: one of each distinct part the gnome holds, a rare part and the first of each family before the rest, at most FAIR_DIORAMA_MAX. [[id, slug, name, rarity, base_price, family], ...] */
+function fair_diorama_pick(int $uid): array
+{
+    require_once __DIR__ . '/parts.php';
+    $held = [];
+    foreach (q('SELECT item_id, qty FROM user_items WHERE user_id = ? AND qty > 0', [$uid])->fetchAll() as $r) $held[(int)$r['item_id']] = 1;
+    $all = [];
+    foreach (array_keys(PART_FAMILIES) as $fam) foreach (part_family_items($fam) as $it) if (isset($held[$it['id']])) $all[] = $it + ['family' => $fam];
+    usort($all, fn($a, $b) => [!part_is_rare($a), $a['id']] <=> [!part_is_rare($b), $b['id']]);
+    $first = []; $rest = []; $seen = [];
+    foreach ($all as $it) { if (!isset($seen[$it['family']])) { $seen[$it['family']] = 1; $first[] = $it; } else $rest[] = $it; }
+    return array_slice(array_merge($first, $rest), 0, FAIR_DIORAMA_MAX);
+}
+
+/** Diorama score: distinct families x 10 + rare parts x 5, at most 100 (the same scale as a crop). */
+function fair_diorama_score(array $items): int
+{
+    require_once __DIR__ . '/parts.php';
+    $fam = []; $rare = 0;
+    foreach ($items as $it) { $fam[part_family((string)$it['slug'], 'part') ?? ''] = 1; if (part_is_rare($it)) $rare++; }
+    unset($fam['']);
+    return min(100, count($fam) * 10 + $rare * 5);
+}
+
 /** Called from do_harvest once the harvest is claimed. Keeps the gnome's best this month per category. */
 function fair_record(array $u, array $t, array $p): void
 {
@@ -118,6 +146,15 @@ function fair_enter(array $u, string $cat): array
     $label = FAIR_CATS[$cat][1];
     if (!fair_in_play($uid)) return [false, 'Only gnomes who are out and about can enter the fair.'];
     $month = job_period_key('monthly');
+    if ($cat === 'diorama') {   // 2.7.58: built now from the parts in the satchel (one of each kind, used up), kept through fair_keep_best like any best
+        $items = fair_diorama_pick($uid);
+        if (count($items) < 2) return [false, 'A diorama needs at least two different creature parts in your satchel.'];
+        $score = fair_diorama_score($items);
+        $prev = (int)q_val('SELECT MAX(score) FROM fair_best WHERE user_id = ? AND month = ? AND cat = ?', [$uid, $month, $cat]);
+        if ($prev >= $score) return [false, 'Your diorama is already as good as that (' . $prev . '). Bring parts of more families, or rare ones, to beat it.'];
+        foreach ($items as $it) if (!give_item($uid, (int)$it['id'], -1)) return [false, 'Those parts were just used.'];
+        fair_keep_best($uid, 'diorama', 0, $score, 'Diorama of ' . count($items) . ' parts');
+    }
     $best = q_one('SELECT b.score, b.plant_id, b.label, COALESCE(p.name, b.label) AS crop FROM fair_best b LEFT JOIN plants p ON p.id = b.plant_id
                    WHERE b.user_id = ? AND b.month = ? AND b.cat = ?', [$uid, $month, $cat]);
     if (!$best) return [false, $cat === 'preserve' ? 'Collect a jar from your Pantry first. Your best one goes in.' : 'Harvest ' . ($cat === 'produce' ? 'a vegetable, fruit, grain or herb' : 'a ' . strtolower($label) . ' crop') . ' first. Your best one goes in.'];

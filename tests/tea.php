@@ -114,7 +114,7 @@ $hits = fn(string $slug): array => array_keys(array_filter($objs, fn($g) => craf
 ok('a made-up xyz-tea lands on no scene object', $hits('xyz-tea') === [], json_encode($hits('xyz-tea')));
 $kettleOnly = array_values(array_filter(array_keys($NAMED), fn($s) => !q_val('SELECT 1 FROM recipes WHERE slug = ?', [$s])));
 $bad = array_filter($kettleOnly, fn($s) => $hits($s) !== []);
-ok('the kettle-only named teas (' . count($kettleOnly) . ', e.g. oswego-tea) land on no scene object', count($kettleOnly) === 17 && !$bad, implode(', ', $bad));
+ok('the kettle-only named teas (' . count($kettleOnly) . ', e.g. oswego-tea) land on no scene object', count($kettleOnly) === 20 && !$bad, implode(', ', $bad));
 ok('town teahouse spots (<town>-tea) land on no scene object', !array_filter(q("SELECT slug FROM town_spots WHERE kind = 'teahouse'")->fetchAll(PDO::FETCH_COLUMN), fn($s) => $hits((string)$s) !== []));
 ok('the three snack teas open from the Stove only, the two fertiliser teas from the can and the seed trays only',
     $hits('mint-tea') === ['cooking/stove'] && $hits('meadowsweet-tea') === ['cooking/stove'] && $hits('desert-sage-tea') === ['cooking/stove'] && $hits('worm-tea') === ['garden/can', 'garden/seeds'] && $hits('fern-tea') === ['garden/can', 'garden/seeds'],
@@ -198,7 +198,7 @@ ok('Golden Milk on Cast-Iron: Hardiness +2, Nimble +1', $pts(tea_cup(['turmeric'
 
 echo "== the B2 popover's helpers: hints, recipes, stamps\n";
 $hint = fn(string $s): string => tea_hint($NAMED[$s]);
-ok('hint: a one-part tea', $hint('mint-tea') === 'Try one herb on its own' && $hint('oswego-tea') === 'Try one flower on its own');
+ok('hint: a one-part tea', $hint('kettle-mint-tea') === 'Try one herb on its own' && $hint('oswego-tea') === 'Try one flower on its own');
 ok('hint: Masala Chai = a leaf with an herb and two spices', $hint('masala-chai') === 'Try a leaf with an herb and two spices');
 ok('hint: Sleepy Meadow = a flower with another flower and something sweet', $hint('sleepy-meadow') === 'Try a flower with another flower and something sweet');
 ok('hint: Golden Milk = an herb with another herb, a spice and milk', $hint('golden-milk') === 'Try an herb with another herb, a spice and milk');
@@ -207,14 +207,14 @@ $leak = [];
 foreach ($NAMED as $s => $t) { $x = tea_hint($t); if (!str_starts_with($x, 'Try ')) $leak[] = "$s: $x"; foreach ($t['parts'] as $p) if (stripos($x, $ING[$p]['name']) !== false && !in_array(strtolower($ING[$p]['name']), ['milk'], true)) $leak[] = "$s names {$ING[$p]['name']}"; }
 ok('every hint starts "Try" and names kinds, never the real parts', !$leak, implode('; ', $leak));
 ok('tea_recipe: the base first, then card order', tea_recipe($NAMED['masala-chai']) === ['tea', 'ginger', 'cardamom', 'cinnamon'] && tea_recipe($NAMED['mate-cocido']) === ['yerba-mate', 'cane-syrup', 'goat-milk']);
-ok('tea_lacks / tea_need_text', tea_lacks($NAMED['moroccan-mint'], ['tea', 'mint']) === ['cane-syrup'] && tea_need_text(['cane-syrup']) === 'Need 1 Cane Syrup' && tea_need_text(['vanilla', 'goat-milk']) === 'Need 1 Vanilla, 1 Goat Milk' && tea_lacks($NAMED['mint-tea'], ['mint']) === []);
-$rows = tea_recipe_rows(['tea', 'mint', 'lemon', 'garden-honey'], ['moroccan-mint' => 1, 'mint-tea' => 1, 'honey-lemon-tea' => 1], 1);
+ok('tea_lacks / tea_need_text', tea_lacks($NAMED['moroccan-mint'], ['tea', 'mint']) === ['cane-syrup'] && tea_need_text(['cane-syrup']) === 'Need 1 Cane Syrup' && tea_need_text(['vanilla', 'goat-milk']) === 'Need 1 Vanilla, 1 Goat Milk' && tea_lacks($NAMED['kettle-mint-tea'], ['mint']) === []);
+$rows = tea_recipe_rows(['tea', 'mint', 'lemon', 'garden-honey'], ['moroccan-mint' => 1, 'kettle-mint-tea' => 1, 'honey-lemon-tea' => 1], 1);
 $bySlug = array_column($rows, null, 'slug');
-ok('recipe rows: one per named tea; the ones you can make now first, then "need X", then the unknown', count($rows) === 20 && array_column(array_slice($rows, 0, 3), 'slug') === ['mint-tea', 'honey-lemon-tea', 'moroccan-mint'] && !$rows[3]['known']);
-ok('...can make now: Fill, the cup it gives (server-built text)', $bySlug['mint-tea']['can'] && $bySlug['mint-tea']['buff'] === 'Sense +1' && $bySlug['honey-lemon-tea']['can'] && $bySlug['honey-lemon-tea']['buff'] === 'Lore +2 · Sense +1');
+ok('recipe rows: one per named tea; the ones you can make now first, then "need X", then the unknown', count($rows) === 20 && array_column(array_slice($rows, 0, 3), 'slug') === ['kettle-mint-tea', 'honey-lemon-tea', 'moroccan-mint'] && !$rows[3]['known']);
+ok('...can make now: Fill, the cup it gives (server-built text)', $bySlug['kettle-mint-tea']['can'] && $bySlug['kettle-mint-tea']['buff'] === 'Sense +1' && $bySlug['honey-lemon-tea']['can'] && $bySlug['honey-lemon-tea']['buff'] === 'Lore +2 · Sense +1');
 ok('...cannot: Need 1 Cane Syrup, no buff', !$bySlug['moroccan-mint']['can'] && $bySlug['moroccan-mint']['miss'] === ['cane-syrup'] && $bySlug['moroccan-mint']['need'] === 'Need 1 Cane Syrup' && $bySlug['moroccan-mint']['buff'] === '');
 ok('...unknown: no name, a hint', $bySlug['masala-chai']['name'] === '' && $bySlug['masala-chai']['hint'] === 'Try a leaf with an herb and two spices' && !$bySlug['masala-chai']['can']);
-ok('stamps: every named tea in file order, found = true', tea_stamps(['zobo' => 1, 'mint-tea' => 1]) === array_map(fn($s) => in_array($s, ['zobo', 'mint-tea'], true), array_combine(array_keys($NAMED), array_keys($NAMED))) && count(tea_stamps([])) === 20 && !array_filter(tea_stamps([])));
+ok('stamps: every named tea in file order, found = true', tea_stamps(['zobo' => 1, 'kettle-mint-tea' => 1]) === array_map(fn($s) => in_array($s, ['zobo', 'kettle-mint-tea'], true), array_combine(array_keys($NAMED), array_keys($NAMED))) && count(tea_stamps([])) === 20 && !array_filter(tea_stamps([])));
 ok('kettle sub line', tea_kettle_sub(0, 3) === 'Tin · Copper for 150 Petals' && tea_kettle_sub(1, 5) === 'Copper · Cast-Iron at 8 teas (5/8)' && tea_kettle_sub(2, 20) === 'Cast-Iron · Samovar at 16 teas (16/16)' && tea_kettle_sub(3, 20) === 'Samovar · the finest kettle');
 
 echo "== who sees it\n";
@@ -373,7 +373,7 @@ if (preg_match('~<div class="tea-b2">.*?<div class="tea-plain">~s', $h, $mm)) $b
 ok('B2: the cup has four slots, the first is the base (bigger, marked), empty slots show a faint +', substr_count($b2, '<div class="tea-slot">') + substr_count($b2, '<div class="tea-slot base">') === 4 && substr_count($b2, '<div class="tea-slot base">') === 1 && substr_count($b2, '<span class="tea-sl empty" aria-hidden="true">+</span>') === 4 && str_contains($b2, '<span class="tea-cap">Base ×2</span>'));
 ok('B2: the result line and Brew sit in the cup form, posting do=brew with CSRF', (bool)preg_match('~<form method="post" action="[^"]*hovel\.php" class="tea-cupf" data-tea="~', $b2) && str_contains($b2, 'name="csrf"') && str_contains($b2, 'class="tea-go" type="submit" name="do" value="brew" data-tea-go disabled') && str_contains($b2, 'data-tea-pv'));
 ok('B2: three tabs (Recipes, Leaves, Extras) and three panes', substr_count($b2, 'role="tab"') === 3 && substr_count($b2, 'role="tabpanel"') === 3 && (bool)preg_match('~>Recipes</button>.*>Leaves</button>.*>Extras</button>~s', $b2));
-ok('B2: Recipes has the found Mint Tea with Fill (it can be made), 19 "???" rows with hints', str_contains($b2, 'data-tea-fill="mint-tea" data-tea-parts="mint"') && substr_count($b2, 'class="tea-rrow unk"') === 19 && str_contains($b2, '<span class="hint">Try a leaf with an herb and two spices</span>'));
+ok('B2: Recipes has the found Mint Tea with Fill (it can be made), 19 "???" rows with hints', str_contains($b2, 'data-tea-fill="kettle-mint-tea" data-tea-parts="mint"') && substr_count($b2, 'class="tea-rrow unk"') === 19 && str_contains($b2, '<span class="hint">Try a leaf with an herb and two spices</span>'));
 ok('B2: every recipe row (found or still ???) lists what it needs ("Needs ..."), the missing parts marked', str_contains($b2, '<span class="ing">Needs ') && substr_count($b2, 'class="tea-rrow" data-tea-row=') + substr_count($b2, 'class="tea-rrow unk"') === substr_count($b2, '<span class="ing">Needs '));
 ok('B2: Leaves holds tea and mint, Extras the rest (cardamom, honey, milk, chamomile)', (bool)preg_match('~id="htea-p1".*data-tea-add="tea".*data-tea-add="mint".*id="htea-p2"~s', $b2) && (bool)preg_match('~id="htea-p2".*data-tea-add="garden-honey".*data-tea-add="goat-milk".*data-tea-add="cardamom".*data-tea-add="chamomile"~s', $b2));
 ok('B2: ingredient tiles use the game pictures, not emoji (cut chamomile = flower art)', (bool)preg_match('~data-tea-add="tea"[^>]*>.*?<img class="aimg~s', $b2) && (bool)preg_match('~data-tea-add="chamomile"[^>]*>.*?<svg class="flsvg~s', $b2));

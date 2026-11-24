@@ -548,6 +548,13 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pf-v1 .mk.aim.alt { box-shadow: inset 0 0 0 2px #ffb04a; animation: none; opacity: .85; }
 .pf-v1 .mk.aim.alt svg { color: #ffc57a; }
 .pf-v1 .mk.venom { background: rgba(70, 150, 40, .35); box-shadow: inset 0 0 0 2px #7fd04a; color: #d6ffb0; font: 700 14px/1 var(--font, system-ui, sans-serif); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+/* stat pieces: Snare Field cells, the Sense chips, a stolen creature piece */
+.pf-v1 .mk.snare { pointer-events: none; border-radius: 50%; margin: 12%; box-shadow: 0 0 0 2px #2a1a10, inset 0 0 0 2px #7fd04a; background: none; opacity: .9; outline: 2px dashed #e9f2c8; outline-offset: -5px; }
+.pf-v1 .tg.sense { background: rgba(40, 90, 110, .55); color: #d4f0ff; border: 1px solid #5fa8c8; cursor: help; }
+.pf-v1 .mk.snare.art { border-radius: 0; margin: 0; box-shadow: none; outline: none; opacity: 1; }
+.pf-v1 .mk.snare img { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.pf-v1 .pfb-ws { position: absolute; left: 2px; bottom: 14px; font-size: 11px; line-height: 1; pointer-events: none; }
+.pf-v1 .pfb-cell.pfv-stolen { box-shadow: inset 0 0 0 2px #a07be0; }
 .pf-v1 .foerule, .foecard .foerule { margin: 4px 0; font-size: 12px; color: #e6d4ff; }
 /* 2.6.989 slots: a piece you have just earned arrives off, marked New */
 .pfv .pcg li.isnew { position: relative; box-shadow: 0 0 0 2px #e8a317; }
@@ -579,7 +586,7 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
    Only #pfv-box (.pbx) and its sheet (.pbx-sheet) use these rules; the starter pick, the pre-fight screen and the fight keep theirs.
    The box itself is a thing on the page (wood and felt, like the fight card) in both themes, the wood a shade lighter in the light theme; the strip, the shelf and the sheet follow the site's tokens. */
 .pbx { --pbx-w1: #c08a58; --pbx-w2: #9a6436; --pbx-w3: #6b4123; --pbx-felt: #3d2a1c; --pbx-cream: #f2e4c0; --pbx-cream-2: #e6d3a4; --pbx-note: #ffe9b8; --pbx-gold: #f5c95a; --pbx-ember: #ef8a6a; --pbx-shadow: #2a1a10;
-  --s-basic: #e9dcb8; --s-crop: #8cc865; --s-legend: #f0c040; --s-craft: #e08a52; --s-region: #6fb8e0; --s-wear: #ee93b2; --s-tool: #b5c0c9; --s-pal: #c1a6ee; font-variant-numeric: tabular-nums; }
+  --s-basic: #e9dcb8; --s-crop: #8cc865; --s-legend: #f0c040; --s-craft: #e08a52; --s-region: #6fb8e0; --s-wear: #ee93b2; --s-tool: #b5c0c9; --s-pal: #c1a6ee; --s-stat: #f2d16b; font-variant-numeric: tabular-nums; }
 :root[data-theme="dark"] .pbx { --pbx-w1: #9a6436; --pbx-w2: #7a4a26; --pbx-w3: #55321a; --pbx-shadow: #120b06; }
 .box.pfv.pbx { padding: 12px 10px 14px; }
 .pbx img { image-rendering: pixelated; }
@@ -674,7 +681,7 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pbx .bslot:has(.dur.low, .dur.crit) small { color: var(--pbx-gold); }
 /* source colours (badges, filter bars, legend) */
 .pbx .s-basic, .pbx-sheet .s-basic { --sc: var(--s-basic); } .pbx .s-crop, .pbx-sheet .s-crop { --sc: var(--s-crop); } .pbx .s-legend, .pbx-sheet .s-legend { --sc: var(--s-legend); } .pbx .s-craft, .pbx-sheet .s-craft { --sc: var(--s-craft); }
-.pbx .s-region, .pbx-sheet .s-region { --sc: var(--s-region); } .pbx .s-wear, .pbx-sheet .s-wear { --sc: var(--s-wear); } .pbx .s-tool, .pbx-sheet .s-tool { --sc: var(--s-tool); } .pbx .s-pal, .pbx-sheet .s-pal { --sc: var(--s-pal); }
+.pbx .s-region, .pbx-sheet .s-region { --sc: var(--s-region); } .pbx .s-wear, .pbx-sheet .s-wear { --sc: var(--s-wear); } .pbx .s-tool, .pbx-sheet .s-tool { --sc: var(--s-tool); } .pbx .s-pal, .pbx-sheet .s-pal { --sc: var(--s-pal); } .pbx .s-stat, .pbx-sheet .s-stat { --sc: var(--s-stat); }
 .pbx .pc-s, .pbx .srcb, .pbx-sheet .srcb { background: var(--sc, #e9dcb8); }
 /* the shelf: spare pieces, search, the source filter (icon, word, count), the legend */
 .pbx-shelf { margin: 0 0 12px; }
@@ -944,6 +951,11 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 @media (prefers-reduced-motion: no-preference) { .pfi-card { animation: pfi-up .22s ease-out; } }
 @keyframes pfi-up { from { transform: translateY(24px); opacity: .4; } to { transform: none; opacity: 1; } }
 
+/* stat pieces in the Puzzle box: the points tier plate, a locked piece on the shelf */
+.pbx .pc .pc-tier { position: absolute; left: 4px; top: 40px; z-index: 2; min-width: 18px; padding: 0 3px; font: 700 11px/16px var(--font, system-ui, sans-serif); text-align: center; background: #2a1a10; color: #f6e7c1; border-radius: 2px; }
+.pbx .shelfg .pc .pc-tier { top: 31px; font-size: 10px; line-height: 14px; min-width: 15px; }
+.pbx .pc.locked { opacity: .6; }
+.pbx .pc.locked canvas { filter: grayscale(1) brightness(.8); }
 /* short landscape screens (a phone on its side): the piece sheet is a panel on the right, as on a wide screen, so the piece, its facts and the Pack it button all fit (45vh of 390 px left about 70 px of body) */
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 899px) {
   .pfv-dsheet { left: auto; right: 6px; top: 6px; bottom: 6px !important; width: min(48vw, 400px); max-height: none; border: 3px solid var(--ol, #2a1a10); box-shadow: 0 4px 18px rgba(0, 0, 0, .35); }

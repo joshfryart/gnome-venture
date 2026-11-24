@@ -1436,6 +1436,7 @@ function schema_statements(string $driver): array
         ['plants', 'nutrient', 'VARCHAR(1) NULL'],
         ['users', 'job_dailies', 'INT NOT NULL DEFAULT 0'],
         ['user_jobs', 'player_job_id', 'INT NULL'],
+        ['job_templates', 'part_token', 'VARCHAR(30) NULL'],     // 2.7.58: a deliver_part template's family token (any-hide, rare-plate)
         ['users', 'sapling_day', 'VARCHAR(10) NULL'],                    // v0.7.10 saplings raised today
         ['users', 'sapling_count', 'INT NOT NULL DEFAULT 0'],
         ['users', 'community_day', 'VARCHAR(10) NULL'],                  // v0.7.14 community garden
@@ -1459,6 +1460,7 @@ function schema_statements(string $driver): array
         ['users', 'ev_stat', 'VARCHAR(10) NULL'],
         ['garden_buildings', 'level', 'INT NOT NULL DEFAULT 1'],     // v0.7.95 building upgrades
         ['garden_buildings', 'scraps', 'INT NOT NULL DEFAULT 0'],    // v0.7.95 compost heap
+        ['garden_buildings', 'scrap_bank', 'INT NOT NULL DEFAULT 0'],   // 2.7.58 heap points from creature parts that did not fit; moved in as the heap is collected
         ['garden_buildings', 'heap_made', 'INT NOT NULL DEFAULT 0'],
         ['garden_buildings', 'free_day', 'VARCHAR(10) NULL'],          // v0.7.96 rain barrel's free Water all
         ['garden_buildings', 'heap_out', "VARCHAR(40) NOT NULL DEFAULT 'plain-compost'"],   // v0.9.4 what the compost heap makes
@@ -1504,6 +1506,8 @@ function schema_statements(string $driver): array
         ['npcs', 'loved_item_id', 'INT NULL'],                       // v0.7.85 an NPC's favourite gift, fixed once chosen
         ['user_items', 'wear', 'INT NOT NULL DEFAULT 0'],              // v0.7.86 tool wear: uses (gathering) or days (garden) on the working copy
         ['user_items', 'wear_day', 'VARCHAR(10) NULL'],
+        ['user_items', 'aug', 'VARCHAR(24) NULL'],                       // 2.7.58 augment fitted to a tool (slug, e.g. aug-plate-edge); the Broken copy carries it until the mend
+        ['user_items', 'aug_left', 'INT NOT NULL DEFAULT 0'],            // 2.7.58 uses (or mends) the augment has left; 0 with a permanent one
         ['users', 'free_mend_day', 'VARCHAR(10) NULL'],                  // v0.7.86 the Tool Shed's free mend, once a Hollow day
         ['landmarks', 'ruined', 'INT NOT NULL DEFAULT 0'],                // v0.7.87 1 = this haven, wonder or delve started in ruins (closed until repaired)
         ['landmarks', 'restored_by', 'INT NULL'],

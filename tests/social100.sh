@@ -236,15 +236,16 @@ dbx "DELETE FROM festival_flags WHERE user_id=$SID AND day='$(halifax 0)' ";
 get $A festival.php >/dev/null; C1=$(db "SELECT coins FROM users WHERE id=$SID"); post $A festival.php -d do=flag >/dev/null
 ok "3 flags pays the first reward" "$(db "SELECT COUNT(*) FROM festival_claims WHERE user_id=$SID AND reward='flags3'")" 1
 C1=$(db "SELECT coins FROM users WHERE id=$SID"); get $A festival.php >/dev/null; post $A festival.php -d do=buy -d stall=compost -d idx=0 >/dev/null
-ok "stall sells for the price" "$(( C1 - $(db "SELECT coins FROM users WHERE id=$SID") ))" 40
+ok "stall sells for the price" "$(( C1 - $(db "SELECT coins FROM users WHERE id=$SID") ))" 50   # 2.7.58 E7: a bundle of 6 for 50
 for i in 1 2 3 4 5 6 7; do get $A festival.php >/dev/null; post $A festival.php -d do=buy -d stall=compost -d idx=0 >/dev/null; done
-ok "stall limit holds" "$(db "SELECT qty FROM festival_buys WHERE user_id=$SID AND stall='compost:0'")" 6
+ok "stall limit holds" "$(db "SELECT qty FROM festival_buys WHERE user_id=$SID AND stall='compost:0'")" 4
 get $A festival.php >/dev/null; post $A festival.php -d do=buy -d stall=bunting -d idx=0 >/dev/null
 ok "bunting decor bought" "$(db "SELECT COALESCE(qty,0) FROM user_items WHERE user_id=$SID AND item_id=(SELECT id FROM items WHERE slug='opening-day-bunting')")" 1
 dbx "DELETE FROM garden_stamps"; get $A "visit.php?g=$BPLOT" >/dev/null; has "festival adds a bunting stamp" $H 'value="bunting"'
 # seasons hook is guarded and used if present
 has "season line (if the season helper is there)" $H "stamp" 
 dbx "UPDATE settings SET value='2001-01-01' WHERE name='fest_opening_day_start'"; dbx "UPDATE settings SET value='2001-01-07' WHERE name='fest_opening_day_end'"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('fest_opening_day_yearly','0')"   # 2.7.58 EC4: a festival comes round every year unless this is 0; an old window must stay over
 get $A festival.php >/dev/null; has "ended festival page" $H 'No festival is on right now'; get $A 'gnome.php' >/dev/null; hasnt "no bunting strip when ended" $H 'class="festbar"'
 dbx "UPDATE settings SET value='2099-05-01' WHERE name='fest_opening_day_start'"; dbx "UPDATE settings SET value='2099-05-07' WHERE name='fest_opening_day_end'"
 get $A festival.php >/dev/null; has "upcoming festival shown" $H 'starts on May 1'

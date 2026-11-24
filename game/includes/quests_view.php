@@ -73,8 +73,9 @@ function tasks_counts(array $u, bool $hub = false): array
             if (!$j || $j['status'] !== 'active') continue;
             if ($j['kind'] === 'rebuild') continue;
             if ((int)$j['progress'] >= (int)$j['qty'] && (int)$j['stages'] <= 1) { $c['jobs']++; continue; }
-            if ((str_starts_with((string)$j['kind'], 'deliver') || $j['kind'] === 'p_deliver') && $j['target_item_id']
-                && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $j['target_item_id']]) > 0) $c['jobs']++;
+            if ($j['kind'] === 'deliver_part' ? job_deliver_stock($uid, $j)['have'] > 0
+                : ((str_starts_with((string)$j['kind'], 'deliver') || $j['kind'] === 'p_deliver') && $j['target_item_id']
+                && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $j['target_item_id']]) > 0)) $c['jobs']++;
         }
         require_once __DIR__ . '/journey.php';
         foreach (journey_chapters() as $ch) if (journey_ready($u, journey_status($u, $ch)) !== '') $c['journey']++;

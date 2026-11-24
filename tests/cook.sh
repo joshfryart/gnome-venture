@@ -12,7 +12,8 @@ db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query(
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
 page() { curl -s -c $C -b $C "$BASE/$1" > $TD/ck.html; }
 post() { local pg=$1 form=$2; shift 2; page "$form"; curl -s -c $C -b $C -X POST "$BASE/$pg" --data-urlencode "csrf=$(csrf $TD/ck.html)" "$@" -o /dev/null; page "$form"; grep -oE '<li class="ml (ok|err)[^"]*">.*' $TD/ck.html | head -1 | sed 's/<\/li>.*//; s/<li class="ml //; s/^\([a-z]*\)[^>]*">/\1 /; s/<[^>]*>//g'; }   # messages now start with an <img> icon, so strip the tags
-eat() { post inventory.php inventory.php -d do=eat -d item_id=$(db "SELECT id FROM items WHERE slug='$1'"); }
+eateat() { post inventory.php inventory.php -d do=eat -d item_id=$(db "SELECT id FROM items WHERE slug='$1'"); }
+eat() { dbx "UPDATE users SET buff=NULL, buff_until=NULL, buff2=NULL, buff2_until=NULL WHERE id=$UID_"; eateat "$1"; }   # 2.7.58 E8: a weaker buff asks before it replaces a stronger one, so these tests start with none live
 give() { dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) SELECT $UID_, id, $2 FROM items WHERE slug='$1'"; }
 qty() { db "SELECT COALESCE((SELECT ui.qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='$1'),0)"; }
 energy() { db "SELECT energy FROM users WHERE id=$UID_"; }
@@ -43,6 +44,11 @@ eat apple;   chk "apple: energy 3 -> 4" "$(energy)" 4; chk "apple: 1 scrap" "$(q
 eat pumpkin; chk "pumpkin: +1 energy" "$(energy)" 5;   chk "pumpkin: 3 more scraps" "$(qty food-scrap)" 4
 eat basil;   chk "basil: no energy" "$(energy)" 5
 setE 10; eat apple; chk "apple at full energy: still eaten, no gain" "$(energy)" 10; chk "apple at full: scrap still left" "$(qty food-scrap)" 6
+echo "== 2.7.58 E8: a weaker buff asks first (second try swaps)"
+give basil 2; dbx "UPDATE users SET buff='{\"nimble\":3}', buff_until=datetime('now','+4 hours'), buff2=NULL, buff2_until=NULL WHERE id=$UID_"
+eateat basil; chk "weak basil over a strong buff: refused, still 2" "$(qty basil)" 2; chk "buff kept" "$(db "SELECT buff FROM users WHERE id=$UID_")" '{"nimble":3}'
+eateat basil; chk "eat again: swapped" "$(qty basil)" 1; chk "buff is basil's" "$(db "SELECT buff FROM users WHERE id=$UID_")" '{"sense":1}'
+give food-scrap 6   # basil left a scrap; the next checks count from 6
 
 echo "== eating dishes (cook_energy_percent 150 for home-cooked only)"
 give garden-vegetable-soup 3; give mint-tea 2; give bought-garden-vegetable-soup 1; give feast-harvest-pie 1

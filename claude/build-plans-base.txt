@@ -170,7 +170,7 @@ P|Rose-red Canyon City|2|light|Light the carved halls|item:tin-lantern:2,item:ta
 P|Rose-red Canyon City|3|clear|Clear the sand drifts|days:4:3|Centuries of sand fill the street stairs. Dig out a few steps a day and the old gnome stairs come back.
 P|Rose-red Canyon City|4|feed|Feed the cliff crew|item:shakshuka:3,item:stuffed-peppers-goat:3|Climbing all day gives gnomes appetites like camels. Shakshuka in the shade is the best reward there is.
 # ------------------------------------------------------------ West & Central Africa (WCA)
-P|Drum Circle Market|1|haul|Stretch the drum skins|item:drum-skin:2,item:rope:3|A drum circle with slack skins sounds like a bag of cats. Pull them tight and let the rhythm start.
+P|Drum Circle Market|1|haul|Stretch the drum skins|item:drum-skin:1,item:rope:3|A drum circle with slack skins sounds like a bag of cats. Pull them tight and let the rhythm start.
 P|Drum Circle Market|2|gather|Gather groundnuts|item:peanut:6,item:okra:4|The groundnut stew starts in the field. Bring peanuts and okra and the pot starts to bubble.
 P|Drum Circle Market|3|feed|Feed the drummers|item:rice-and-beans:4,item:peanut-toast:3|Drummers will not drum on an empty stomach. This is the oldest law in the market.
 P|Drum Circle Market|4|light|Light the evening fires|item:tallow-wax:3,coins:250|Fire in the middle, drums all round, and a market that can finally stay open late.

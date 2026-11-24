@@ -34,10 +34,11 @@ FAILS=0; ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1 (got
 set_() { db "INSERT OR REPLACE INTO settings (name,value) VALUES ('$1','$2')" >/dev/null; }
 echo "== the Puzzle box page: gating of the deck model"
 set_ pfight_open 1
+set_ pfight_v1 0   # 2.7.57: a fresh install has puzzle combat on; these checks are about the Off state
 get 'puzzlebox.php?pfd=json' >/dev/null
 ck "pfight_v1 unset: no deck JSON (the old Puzzle box page)" "$(grep -c '"pieces":\[' $H)" "0"
 ck "pfight_v1 unset: a pfd_ action does nothing (no deck tables touched)" "$(post puzzlebox.php -d do=pfd_starter -d kit=bold) $(db "SELECT COUNT(*) FROM pf_decks") $(db "SELECT COUNT(*) FROM pf_deck_pieces")" "302 0 0"
-ck "pfight_v1 off (2.6.74 release): no fight belt, no repair kit, no shelf, no recipe after the install" "$(db "SELECT (SELECT COUNT(*) FROM items WHERE slug IN ('stitched-fight-belt','masterwork-fight-belt','tool-repair-kit')) || ' ' || (SELECT COUNT(*) FROM recipes WHERE slug='tool-repair-kit')")" "0 0"
+ck "pfight_v1 off: the fight belts and the repair kit were made at the install (2.7.57: on by default; hidden while off by pfd_gear_open)" "$(db "SELECT (SELECT COUNT(*) FROM items WHERE slug IN ('stitched-fight-belt','masterwork-fight-belt','tool-repair-kit')) || ' ' || (SELECT COUNT(*) FROM recipes WHERE slug='tool-repair-kit')")" "3 1"
 set_ pfight_v1 admin
 get 'puzzlebox.php?pfd=json' >/dev/null
 ck "pfight_v1 = admin, a player: still no deck JSON" "$(grep -c '"pieces":\[' $H)" "0"
@@ -72,7 +73,7 @@ encq() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $e=json_decode($
 pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   post adventure.php -d do=$d -d nonce=$n -d turn=$t "$@"; }
-ck "the page fight is a v1 fight with a layered creature (base, unique layers) and deck-model pieces" "$(encq '(isset($s["v1"]) ? "v1" : "old") . " " . count(array_filter(array_merge($s["foe"]["hand"], $s["foe"]["draw"]), fn($t) => in_array($t["layer"] ?? "", ["base", "uni"], true))) . " " . (count(array_filter(array_merge($s["me"]["hand"], $s["me"]["draw"]), fn($t) => isset($t["rank"], $t["src"])) ) >= 10 ? "deck" : "no deck")')" "v1 7 deck"
+ck "the page fight is a v1 fight with a layered creature (base, unique layers) and deck-model pieces" "$(encq '(isset($s["v1"]) ? "v1" : "old") . " " . count(array_filter(array_merge($s["foe"]["hand"], $s["foe"]["draw"]), fn($t) => in_array($t["layer"] ?? "", ["base", "uni"], true))) . " " . (count(array_filter(array_merge($s["me"]["hand"], $s["me"]["draw"]), fn($t) => isset($t["rank"], $t["src"])) ) >= 10 ? "deck" : "no deck")')" "v1 8 deck"
 ck "page data: status and wear" "$(grep -c "\"status\":{\"poison\":0" $H) $(grep -c "\"wear\":" $H)" "1 1"
 W0=$(db "SELECT COALESCE(SUM(wear),0) FROM pf_tool_wear")
 N=0; TOOLP=0; while [ $N -lt 70 ]; do

@@ -712,7 +712,7 @@ O|Swap 2 rice for a bundle of tea||0|take:rice:2+item:tea:1|She tips a soft gree
 O|Swap 2 ginger for tea seeds||0|take:ginger:2+item:tea-seed:1|“Plant them on a slope,” she says, “and talk to them about mist.”||
 O|Decline||0||She goes back to picking, two leaves and a bud, two leaves and a bud.||
 E|ea-trade-shore-diver|-|coast|EA|road|🤿|A grandmother diver sits on the black rocks of Pearlwave Shore in her wetsuit, wringing out her hair. Beside her, a net bag drips with kelp. “Something sweet,” she says, “and you can have your pick.”|trade|
-O|Swap 2 persimmons for kelp||0|take:persimmon:2+item:kelp-frond:1|She eats one persimmon at once, sighs happily, and hands over a long, glossy frond.||
+O|Swap 2 persimmons for kelp||0|take:persimmon:2+item:bladderwrack:1|She eats one persimmon at once, sighs happily, and hands over a long, glossy frond.||
 O|Swap 3 sweet potatoes for a seed pearl||0|take:sweet-potato:3+item:seed-pearl:1|“Roasted, these are better than pearls,” she says, and gives you one anyway.||
 O|Decline||0||She whistles out across the water, and a friend far out on the waves whistles back.||
 E|ea-sketch-cranes-snow|se=winter|wetland|EA|road|🦢|On a snowy marsh, two red-crowned cranes face each other and dance: bowing, leaping, flinging their wings wide, little red caps bright against all the white.|sketch|Cranes Dancing in Snow

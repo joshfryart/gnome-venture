@@ -25,6 +25,7 @@ page_header('The Gourmand', true);
 <h1>🥄 The Gourmand</h1>
 <p><b><?= $on ? 'On' : 'Off' ?></b> for players<?= $on ? '' : ' (admins still see him)' ?>. Change it in <a href="<?= e(url('admin/settings.php')) ?>">Game settings</a>, “World”.
   <?= $force !== '' ? 'Date forced to <code>' . e($force) . '</code> for every player.' : 'Following the real clock.' ?></p>
+<p class="help">The <b>Second Spoon</b> decoration (and the title of the same name) is granted only by his finale, so while he is Off to players nobody can earn it. That is on purpose: it is a Gourmand reward, not a general decoration.</p>
 <p class="help">Now: camp in <b><?= e($stop['town']) ?></b> (<?= e($stop['code']) ?>)<?= $stop['festival'] ? ', festival day' : '' ?>. <?= $players ?> gnome<?= $players === 1 ? ' has' : 's have' ?> a ledger. Tastes <?= (int)($claims['table'] ?? 0) ?>, golden tables <?= (int)($claims['gold'] ?? 0) ?>, feasts <?= (int)($claims['grandpay'] ?? 0) ?>, finales <?= (int)($claims['finale'] ?? 0) ?>.</p>
 <p><a class="btn small ghost" href="?tour=<?= e($prev) ?>">« <?= e($prev) ?></a> <b><?= e($tour) ?></b> <a class="btn small ghost" href="?tour=<?= e($next) ?>"><?= e($next) ?> »</a></p>
 <table class="grid">

@@ -812,6 +812,12 @@ function post_update_news(string $from): void
         . "[*][b]More meals[/b]: Smoked Trout, Grilled Sardines, Falafel, Kangkong Stir-fry, Fiddlehead Fry, Goat Milk Porridge, the salads, the toasts, Pancakes, Tropical Fruit Bowl and the eggs now count as home-cooked meals for rest stops, job boards and mentor chapters. They take a little longer to cook (15 minutes, one at a time, 1 energy) and no longer heal on adventures.[/list]"],
     '2.7.04' => ['🔨 Update 2.7.04: the workshop "!" tells the truth',
         "[list][*][b]Workshop[/b]: the \"!\" and \"ready\" counts on the workshop now only show when you can really make something right now. Too tired, all the pots busy, or a feast that needs a bigger Kitchen? No more false alarm.[/list]"],
+    '2.8.28' => ['🐾 Update 2.8.28: creature parts finally have uses',
+        "[list][*][b]Tool augments[/b]: brew a Hide Binding, Plate Edge, Wing Fletch, Gem Charm, Ooze Salve or Silk Lashing from creature parts and fit it to a tool in your Satchel. Tougher tools, better and extra finds, cheaper mends.\n"
+        . "[*][b]Mending[/b]: Tool Repair Kits now mend garden and gathering tools too. Order: the Tool Shed's free mend, then kits, then Petals.\n"
+        . "[*][b]Parts everywhere[/b]: put parts on the compost heap, give them to the Creature Codex, line wearables with silk, pin a trophy in your hovel, enter a creature diorama at the Fair, or trade them to villagers who ask.\n"
+        . "[*][b]Cheaper camping gear and decor[/b], fairer dish and tool prices, better dish buffs, and many items renamed so no crop shares its seed's name.\n"
+        . "[*][b]Sense pieces[/b] join the puzzle box: Sharp Eye, Soft Spot, Not Fooled, Saw It Coming, Snare Field and Eyes of the Wood.[/list]"],
     '2.7.57' => ['🧩 Update 2.7.57: puzzle fights for everyone',
         "[list][*][b]Puzzle combat is open to everyone[/b]: fights on the road, in lairs and in delves are now played with jigsaw pieces on a board. Your first fights are gentle, with tips as you go. (Treks keep the old fights for now.)\n"
         . "[*][b]Puzzle box[/b]: find it in the menu under Hobbies. The first time you open it (or start a fight) a short 4-step card shows how it all works. You can read it again any time on the box's new How it works tab.\n"

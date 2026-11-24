@@ -240,7 +240,7 @@ function pf_learner_bump(int $uid): void
 function pfight_calc(array $u): array
 {
     $st = ['level' => (int)$u['level']];
-    foreach (['grit', 'nimble', 'hardiness', 'charm', 'lore', 'luck'] as $k) $st[$k] = eff_mod($u, $k);
+    foreach (['grit', 'nimble', 'hardiness', 'charm', 'lore', 'luck', 'sense'] as $k) $st[$k] = eff_mod($u, $k);   // sense: only stat pieces count it (pf_make_tile's stat override)
     $pals = [];
     if (setting('ppal_party') === '1') {
         require_once __DIR__ . '/puzzle_pals.php';
@@ -266,7 +266,8 @@ function pfight_me(array $u, array $exp, array $enc = [], bool $first = false): 
     if (pfight_v1_on($u)) {   // 2.6.74, the v1 deck model: the deck the gnome built (starter kit + what they switched on + fight-belt tools + party pals); pals add a piece, they no longer swap one out
         require_once __DIR__ . '/pfdeck.php';
         if ($first) return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfd_first_tiles($u, $st), 'luck' => max(0, $st['luck'])];   // 2.7.01 fixed first fight: the Bold kit only (no tools, pals, wearables, snacks or upgrades), so the deal is the same for every new gnome
-        return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfight_apply_mods(pfd_start_fight($u, $st, $bonus, $canSnack), pfight_mods((int)$u['id'])), 'luck' => max(0, $st['luck'])];
+        return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfight_apply_mods(pfd_start_fight($u, $st, $bonus, $canSnack), pfight_mods((int)$u['id'])), 'luck' => max(0, $st['luck'])]
+            + (pfd_statpieces_open($u) ? ['lpts' => eff_stat($u, 'luck')] : []);   // stat pieces: Luck POINTS for the shared Luck roll (pfb_wx_roll)
     }
     $deck = pfight_apply_mods(pf_player_deck($st, $cal, max(1, min(3, (int)calling_tier($u))), $pals, [], $bonus, $canSnack, $box), pfight_mods((int)$u['id']));
     return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'])];
@@ -417,7 +418,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
     $one = !empty($s['v1']['onebar']);   // 2.6.95: one shared bar; the page's creature bar shows Hurt + Charm (its charm bar is not drawn)
     $rp0 = ['bar' => pf_round((float)$s['bar']['now'], 1), 'fh' => pf_round((float)$s['fh']['now'] + ($one ? (float)$s['bar']['now'] : 0.0), 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block'], 'fg' => (int)$s['foe']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
     $won = false;
-    $prev = !empty($s['v1']) ? ['ter' => (object)($s['ter'] ?? []), 'envs' => $s['envs'] ?? [], 'aim' => $s['foe']['plan'] ?? null] + (!empty($s['v1']['env']) ? ['env' => pfb_view($s)['env']] : []) + (!empty($s['aoed']) ? ['aoe' => pfb_view($s)['aoe']] : []) : null;   // 2.7.55: the boss's marked AOE   // 2.6.75: plus the environment's face-up piece   // v1 (stage C): the ground, the forecast and the aim as they stood before this turn (the page plays the turn back from there)
+    $prev = !empty($s['v1']) ? ['ter' => (object)($s['ter'] ?? []), 'envs' => $s['envs'] ?? [], 'aim' => $s['foe']['plan'] ?? null] + (!empty($s['v1']['env']) ? ['env' => pfb_view($s)['env']] : []) + (!empty($s['aoed']) ? ['aoe' => pfb_view($s)['aoe']] : []) + (!empty($s['snr']) ? ['snares' => pfb_view($s)['snares'] ?? []] : []) : null;   // 2.7.55: the boss's marked AOE   // 2.6.75: plus the environment's face-up piece   // v1 (stage C): the ground, the forecast and the aim as they stood before this turn (the page plays the turn back from there)
     if ($do === 'pf_run') {
         if (!pf_run($s)) { flash('You cannot run from this one.', 'err'); return false; }
     } elseif ($do === 'pfb_flip') {   // v1: flip a hand piece (free, once a turn; POST hand = its index, turn). Nothing else changes: no creature turn, the replay of the last turn stays

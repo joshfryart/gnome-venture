@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/garden_logic.php';
 require_once __DIR__ . '/world.php';
 require_once __DIR__ . '/items.php';
+require_once __DIR__ . '/parts.php';
 require_once __DIR__ . '/pfight_game.php';   // pfight_v1_on, pf_foe_numbers (pfboard.php)
 
 /** The notes box for a page, from its unlock key ('' when there's nothing to add). */
@@ -186,7 +187,7 @@ const ALMANAC_HOWTO = [
         . "Chat once a day and give a gift once a day to grow a friendship: Stranger → Acquaintance → Friend → Good friend → Best friend. Friends give discounts in their shops, and acquaintances post favours on the town Notice Board. "
         . "Everyone has a favourite thing, two kinds of thing they like and one they don’t: gifts teach you which."],
     'Exploring & fighting' => ['Getting started', 24,
-        "Roads run between towns. From any road stop you can 🌿 [b]wander off the path[/b]: it starts as easy as the road you left, and each step out is a little harder than the last. The deeper you go, the better the finds and the more likely you are to spot a hidden village or landmark. Wild country, with bosses, starts at step 7. Past step 9 lie the deep wilds, always a match for your own level. Once you’ve outgrown an area, its fights and finds give less XP and fewer Petals (items stay the same), so the deep wilds are where strong gnomes earn their keep. Head back to the road any time, for free. Carry an axe to chop logs (they make timber planks) and a fishing rod to catch fish for the kitchen. Gathering tools, your walking staff and your lantern wear a little with each use, and break after enough of them: mend a broken tool in your Satchel (see Tool wear).\n\n"
+        "Roads run between towns. From any road stop you can 🌿 [b]wander off the path[/b]: it starts as easy as the road you left, and each step out is a little harder than the last. The deeper you go, the better the finds and the more likely you are to spot a hidden village or landmark. Wild country, with bosses, starts at step 7. Past step 9 lie the deep wilds, always a match for your own level. Once you’ve outgrown an area, its fights and finds give less XP and fewer Petals (items stay the same), so the deep wilds are where strong gnomes earn their keep. Head back to the road any time, for free. Carry an axe to chop logs (they make timber planks) and a fishing rod to catch fish for the kitchen. Gathering tools, your walking staff and your lantern wear a little with each use, and break after enough of them: mend a broken tool in your Satchel (see Tool wear). A mend uses the Tool Shed’s free mend first, then Tool Repair Kits (garden and gathering tools too), then Petals; a creature-part augment on a tool can lengthen its life or make mends cheaper.\n\n"
         . "In a fight you and the creature take turns. Grit and Nimble help you hit and dodge, Hardiness gives you more health, and your calling gives you one special move per fight. "
         . "The coloured level badge shows the danger: green is fine, amber is a bit above you, red is well above. Losing never costs items: you wake up back where you started.\n\n"
         . "🏚️ [b]Ruins[/b]: some havens, wonders and delves have fallen into ruin, and nobody can use them until they’re made safe. Each gnome makes a ruin safe for themselves: clearing their own path in, shoring up their own corner and earning the keeper’s trust. Any gnome of level 3 or more can take on the repair at the place itself (up to three at a time). Bring building materials (Crafting → Building), home-cooked meals and a few uncommon or rare finds, one stage at a time. Each stage pays Petals and XP. Once you’ve made a place safe, it’s open to you, and it stays a little better for you: a fuller pantry, a warmer fire, an easier puzzle and a fuller chest. The first gnome to finish is its Founder, and is named first on the plaque with everyone else who made it safe. Your repairs are listed at the top of the Job Board and on Tasks → Journey, and stages can be handed in from either."],
@@ -355,7 +356,8 @@ function almanac_recipe_notes(array $u, string $slug): string
     $bits = [];
     foreach (json_decode((string)$r['ingredients'], true) ?: [] as $is => $n) {
         $ii = q_one('SELECT id, name FROM items WHERE slug = ?', [$is]);
-        $have = $ii ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $ii['id']]) : 0;
+        $have = $ii ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $ii['id']]) : (part_stock($uid, (string)$is, (int)$n)['have'] ?? 0);
+        if (!$ii && ($pl = part_ingredient_label((string)$is))) $ii = ['name' => $pl];
         if ($have < (int)$n) $can = false;
         $bits[] = ($have >= (int)$n ? '✔' : '✖') . ' ' . (int)$n . ' × ' . e((string)($ii['name'] ?? $is)) . ' <span class="muted">(have ' . $have . ')</span>';
     }
@@ -383,7 +385,7 @@ function almanac_locked_hint(array $entry): string
         $h = 'Grow and harvest it.' . ($home ? ' Native to ' . $home . '.' : '') . ($shop ? ' Seeds at ' . $shop . '.' : '');
     } elseif (str_starts_with($key, 'recipe:') && ($rr = q_one('SELECT name, ingredients FROM recipes WHERE slug = ?', [substr($key, 7)]))) {   // 2.7.06 (Josh): an undiscovered recipe still says what it needs
         $bits = [];
-        foreach (json_decode((string)$rr['ingredients'], true) ?: [] as $is => $n) $bits[] = (int)$n . ' × ' . (string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is);
+        foreach (json_decode((string)$rr['ingredients'], true) ?: [] as $is => $n) $bits[] = (int)$n . ' × ' . (string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: (part_ingredient_label((string)$is) ?? $is));
         $h = 'Needs ' . implode(', ', $bits) . '. Collect them all and it is yours.';
     } elseif (str_starts_with($key, 'creature:') && ($c = q_one('SELECT level, landscapes FROM creatures WHERE slug = ?', [substr($key, 9)]))) {
         $h = 'Defeat or befriend it. Found in ' . ($c['landscapes'] === 'any' ? 'every landscape' : str_replace(',', ', ', (string)$c['landscapes'])) . ', around level ' . (int)$c['level'] . '.';

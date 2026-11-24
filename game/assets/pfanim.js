@@ -10,13 +10,13 @@
    PFAnim.cancel() on skip / rewind, PFAnim.attach(world, ctx) after each render (the board is rebuilt every render). */
 (function () {
   'use strict';
-  var VER = '7e5a4a63ad';
+  var VER = '1fec8a49b0';
   if (window.PFAnim && window.PFAnim.ver === VER) return;   // data-rerun (a swapped page runs the script again): keep the running engine
   if (window.PFAnim && window.PFAnim.cancel) { try { window.PFAnim.cancel(); } catch (e) {} }
   var BW = 56, BH = 47, TAB = 13, MG = 26, PAD = TAB + MG, PW = 82, PH = 73;   // art pixels: cell pitch (= body), knob margin, the canvas' extra margin outside the board art, piece image
   var INK = '#2a1a10', CREAM = '#f2e4c0', GOLD = '#e8a317';
   var TYPE = { hurt: '#b8442c', guard: '#4f7fa8', heal: '#5f9a4a', charm: '#c46a9b', trick: '#7a5aa8' };
-  var PERS = {}, MOTIF = {}, WENV = {};   // WENV: the environment's own place / fire effect per kind (2.7.56, motifs/weather_env.js)
+  var PERS = {}, MOTIF = {}, WENV = {}, STATFX = {};   // WENV: the environment's own place / fire effect per kind (2.7.56, motifs/weather_env.js)
 
   /* ===================== draw code of the approved mock-up (claude/pf-anim/small-anim.template.html), bundled by the build ===================== */
 function hexmix(a, b, t) { var i, o = '#'; for (i = 1; i < 7; i += 2) { var v = Math.round(parseInt(a.substr(i, 2), 16) * (1 - t) + parseInt(b.substr(i, 2), 16) * t); o += (v < 16 ? '0' : '') + v.toString(16); } return o; }
@@ -421,7 +421,8 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
   /* ===================== motif modules (claude/pf-anim/motifs/*.js) ===================== */
   var PFA = { motif: function (name, draw, meta) { var m = MOTIF[name] || (MOTIF[name] = {}), k; for (k in (meta || {})) m[k] = meta[k]; m.draw = draw; },
     glyph: function (id, fn) { XG[id] = fn; }, motion: function (id, fn) { XM[id] = fn; },
-    env: function (kind, def) { WENV[kind] = def; } };   // 2.7.56: def = { ps(dt) place motion, pl(c, A, dt) place effect (0..600), fi(c, A, f) fire effect (0..1200) }
+    env: function (kind, def) { WENV[kind] = def; },
+    stat: function (name, def) { STATFX[name] = def; } };   // 2.7.58: def = { dur (ms, default 1200), fi(c, A, f) } the whole-piece effect of a stat piece by name ('@trapdoor' = a creature piece on a snare)   // 2.7.56: def = { ps(dt) place motion, pl(c, A, dt) place effect (0..600), fi(c, A, f) fire effect (0..1200) }
 /* ---- motifs/boss_boss-B1-coast-water-crabs-reef.js ---- */
 /* Motif module, boss batch B1 (coconut-crab-titan, robber-crab-baron, reef-leviathan, ancient-snapper). TEMPLATE.md sections 9 and 10.3.
    12 motifs, each with its own pixel glyph (ids prefixed bossB1-) and motion; three have their own chain effect (carDraw): the titan's legs
@@ -5932,6 +5933,347 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
   M('jet-dash', { nm: 'jet dashes', desc: 'a small kraken body jetting outward, mantle pumping, arms trailing, a puff behind', fam: 'ripple', gap: 16, g: 'L11-jet', mo: 'L11-dash', x: '-', car: 'blink' });
   M('kraken-maw', { nm: 'kraken maws', desc: 'a round maw ringed with hooked teeth opening wide and snapping shut', fam: 'bite', gap: 18, g: 'L11-maw', mo: 'L11-lunge', x: '-', car: 'comet' });
   M('kraken-hood', { nm: 'storm eyes', desc: 'a hooded mantle with a pale storm eye under it opening and blinking, arm tips curling below', fam: 'shield', gap: 18, g: 'L11-hood', mo: 'L11-slow', x: '-', car: 'rings' });
+})();
+
+/* ---- motifs/lore_pieces.js ---- */
+/* Motif module: the five Lore tier pieces' own-edge effects and chain effects, written like claude/pf-anim/motifs/medium_m01.js
+   and engine2-src/stat_pieces.js (same composition helper, same glyph / motion / motif registration).
+   Knot of Twine (Trick, craft): loose twine loops along the edge that cinch into knots; a twisted cord runs the edge. Chain: a strand pulls taut along the link, a knot glows at the far end.
+   Lantern Chain (Trick, craft): a string of paper lanterns along the edge that light one by one and sway. Chain: lanterns light one after another along the link.
+   Weather Lore (Item, mind): a weathervane cockerel spinning among small clouds that part into suns, wind streaks. Chain: a cloud runs the link and bursts into a sun.
+   Copybook (Trick, craft): ruled copybook lines along the edge; letters traced in pencil, then inked, the pencil at the head. Chain: a pencil traces the link, ink follows, a tag box is stamped.
+   Turn of the Tale (Trick, mind): storybook pages turning one after another along the edge, old brown ink giving way to your blue. Chain: a page flips along the link, re-inking it blue.
+   Every draw is a stateless function of p (hash noise only); glyphs go through H.glyph (MAXG budget); (a, b) = along the tangent, out along the normal. */
+(function () {
+  var WH = '#ffffff', PEN = '#e8b840', LEAD = '#4a4a4a', RUB = '#e08a8a', GREY = '#8d8d8d', RULE = '#8fb6dc', MARGIN = '#c0503a', OLD = '#7a3b2e', CLOUD = '#e8eef4';
+  var LET = ['010101111101101', '110101110101110', '011100100100011', '010101101101010', '011100010001110', '101101111111101', '101101010010010', '110101110101101'];   // A B C O S W Y R (3 x 5)
+
+  /* the shared own-edge composition (as engine2-src/stat_pieces.js): layout x motion per glyph, optional per-glyph and per-run extras */
+  function comp(c, e, H, per, deco) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, p = e.p, pp = p * mp.spd, Q = H.Q, G = H.G, P = e.P, ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, fr;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(8, Math.round(len / (M.gap || 12))));
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, p, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, p)) continue;
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny; fr = G.fr;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (per) per(c, e, H, x, y, -ny, nx, nx, ny, fr, k, bx0, by0);
+        H.glyph(c, M.g, x, y, z, fr, e.col, e.acc, e.hi, -ny, nx, nx, ny);
+      }
+      if (deco) deco(c, e, H, r[0], len, ri, pp);
+    }
+  }
+  function P2(c, K, x, y, tx, ty, nx, ny, a, b, col) { K.px(c, x + tx * a + nx * b, y + ty * a + ny * b, col); }
+  function env(p) { return Math.sin(Math.PI * Math.min(1, Math.max(0, p))); }
+
+  /* ================= Knot of Twine ================= */
+  PFA.glyph('gv-loop', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* fr 0 loose loop, 1 half cinched, 2 knot, 3 knot glowing; the loop leans out from the edge along the normal */
+    var i, t, ra, rb, s = z > 0 ? 1 : 0;
+    if (fr < 2) {
+      ra = (fr ? 2 : 3) + s; rb = (fr ? 1.6 : 2.6) + s * .5;
+      for (i = 0; i < 18; i++) { t = i / 18 * Math.PI * 2; P2(c, K, x, y, tx, ty, nx, ny, Math.cos(t) * ra, rb + Math.sin(t) * rb, (i % 6) < 3 ? C : A); }
+      for (i = -2; i <= 0; i++) P2(c, K, x, y, tx, ty, nx, ny, (i & 1) ? -1 : 0, i, C);   /* the strand back to the edge */
+      P2(c, K, x, y, tx, ty, nx, ny, 0, 2 * rb, Hi);
+    } else {
+      for (i = -1 - s; i <= 1 + s; i++) { P2(c, K, x, y, tx, ty, nx, ny, i, i, A); P2(c, K, x, y, tx, ty, nx, ny, i, -i, A); }
+      P2(c, K, x, y, tx, ty, nx, ny, 0, 0, C); P2(c, K, x, y, tx, ty, nx, ny, 1, 0, C); P2(c, K, x, y, tx, ty, nx, ny, -1, 0, C); P2(c, K, x, y, tx, ty, nx, ny, 0, 1, Hi);
+      P2(c, K, x, y, tx, ty, nx, ny, -3 - s, 2, C); P2(c, K, x, y, tx, ty, nx, ny, 3 + s, 2, C);   /* the two tails */
+      if (fr === 3) { K.px(c, x - 3 - s, y - 3 - s, Hi); K.px(c, x + 3 + s, y - 3 - s, Hi); K.px(c, x - 3 - s, y + 3 + s, Hi); K.px(c, x + 3 + s, y + 3 + s, Hi); K.px(c, x, y - 4 - s, WH); }
+    }
+  });
+  PFA.motion('gv-cinch', function (G, pp, k, ph) {   /* each loop hangs loose and swings, then pulls tight into a knot, one after another */
+    var q = (pp * 1.4 + ph * .35 + k * .09) % 1;
+    G.fr = q < .5 ? 0 : q < .66 ? 1 : q < .9 ? 2 : 3;
+    if (G.fr === 0) G.t += Math.sin(pp * 7 + k * 1.3) * 1.6; else G.d -= 1;
+  });
+  function decoCord(c, e, H, s0, len, ri, pp) {   /* a twisted cord along the edge: two-tone pixels in a slow twist */
+    var s, Q = H.Q, v = Math.min(1, env(e.p) * 2.5), d;
+    for (s = 0; s < len; s += 1) { if (!H.stip(v, s + ri * 50, e.p)) continue; e.P.atq(s0 + s); d = 2 + Math.round(Math.sin(s * .55 + pp * 9)); H.px(c, Q.x + Q.nx * d, Q.y + Q.ny * d, ((s + Math.floor(pp * 10)) & 3) < 2 ? e.col : e.acc); }
+  }
+  function carKnot(c, e, H) {   /* the strand pulls taut along the path (its wave flattens as it goes), then a knot glows where it lands */
+    var P = e.P, Q = H.Q, u, w = (1 - e.hh) * 3, X = 0, Y = 0;
+    for (u = 0; u <= e.hh; u += .012) { P.atq(e.a + e.d * u); var o = 3 + Math.sin(u * 30 - e.p * 12) * w; X = Q.x + Q.nx * o; Y = Q.y + Q.ny * o; H.px(c, X, Y, ((u * 80) | 0) % 4 < 2 ? e.col : e.acc); }
+    if (e.hh > .8) H.glyph(c, 'gv-loop', X, Y, e.z, e.p > .9 ? 3 : 2, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+    else H.glyph(c, 'gv-loop', X, Y, e.z, 0, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+  }
+  PFA.motif('gv-knot-twine', function (c, e, H) { comp(c, e, H, null, decoCord); }, { nm: 'twine knots', desc: 'loose twine loops that cinch into knots on a twisted cord; chain: a strand pulled taut, a knot glowing on the linked piece', fam: 'thread', gap: 20, g: 'gv-loop', mo: 'gv-cinch', x: '-', car: 'custom', carDraw: carKnot });
+
+  /* ================= Lantern Chain ================= */
+  PFA.glyph('gv-lantern', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* an upright paper lantern hanging from its string; fr 0 unlit, 1 lit, 2 lit with a halo */
+    var w = 2 + (z > 0 ? 1 : 0), lit = fr > 0, body = lit ? C : A, rib = lit ? A : C, i;
+    K.px(c, x, y - w - 3, A); K.bx(c, x - 1, y - w - 2, 3, 1, A);
+    K.bx(c, x - w + 1, y - w - 1, 2 * w - 1, 1, body); K.bx(c, x - w, y - w, 2 * w + 1, 2 * w, body); K.bx(c, x - w + 1, y + w, 2 * w - 1, 1, body);
+    for (i = -w; i < w; i++) { K.px(c, x - w + 1, y + i, rib); K.px(c, x + w - 1, y + i, rib); }
+    K.bx(c, x - 1, y + w + 1, 3, 1, A); K.px(c, x, y + w + 2, A);
+    if (lit) { K.px(c, x, y, Hi); K.px(c, x, y - 1, Hi); if (z > 0) K.px(c, x, y + 1, WH); }
+    if (fr === 2) { K.px(c, x - w - 2, y, Hi); K.px(c, x + w + 2, y, Hi); K.px(c, x, y - w - 5, Hi); K.px(c, x - w - 1, y - w - 1, Hi); K.px(c, x + w + 1, y - w - 1, Hi); K.px(c, x - w - 1, y + w + 1, Hi); K.px(c, x + w + 1, y + w + 1, Hi); }
+  });
+  PFA.motion('gv-swing', function (G, pp, k, ph) {   /* they sway on the string; lit one after another along the edge, a flicker now and then */
+    G.t += Math.sin(pp * 4 + k * .9) * 1.4; G.d += 7; G.up -= 3;
+    var on = pp * 2.2 - k * .16 - ph * .05;
+    G.fr = on < 0 ? 0 : ((Math.floor(pp * 9) + k * 3) % 7 === 0 ? 2 : 1);
+    if (on >= 0 && on < .12) G.fr = 2;
+  });
+  function decoString(c, e, H, s0, len, ri, pp) {   /* the string they hang from: a dotted line a little off the edge */
+    var s, Q = H.Q, v = Math.min(1, env(e.p) * 3);
+    for (s = 0; s < len; s += 2) { if (!H.stip(v, s + ri * 30, e.p)) continue; e.P.atq(s0 + s); var d = 6 + Math.abs(Math.sin((s / len) * Math.PI * 3)) * 2; H.px(c, Q.x + Q.nx * d, Q.y + Q.ny * d - 3, e.acc); }
+  }
+  function carLantern(c, e, H) {   /* lanterns light one by one along the link, a string between them */
+    var P = e.P, Q = H.Q, k, u, n = 4;
+    for (u = 0; u <= Math.min(1, e.hh + .02); u += .03) { P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 7, Q.y + Q.ny * 7 - 3, e.acc); }
+    for (k = 0; k < n; k++) { u = (k + .5) / n; P.atq(e.a + e.d * u); H.glyph(c, 'gv-lantern', Q.x + Q.nx * 8, Q.y + Q.ny * 8, e.z, e.hh >= u ? (e.hh - u < .12 ? 2 : 1) : 0, e.col, e.acc, e.hi, 1, 0, 0, -1); }
+  }
+  PFA.motif('gv-lantern-chain', function (c, e, H) { comp(c, e, H, null, decoString); }, { nm: 'paper lanterns', desc: 'a string of paper lanterns along the edge, lighting one by one and swaying; chain: lanterns lighting down the link', fam: 'sparkle', gap: 22, g: 'gv-lantern', mo: 'gv-swing', x: '-', car: 'custom', carDraw: carLantern });
+
+  /* ================= Weather Lore ================= */
+  PFA.glyph('gv-wl', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* fr >> 2: 0 weathervane (fr & 3 = heading), 1 cloud (fr & 3 = how far it has parted), 2 sun (fr & 1 = ray phase) */
+    var t = fr >> 2, s = fr & 3, i, L = 3 + (z > 0 ? 1 : 0);
+    if (t === 0) {   /* the cockerel on its rod, the arrow below it turning */
+      K.bx(c, x, y - 2, 1, 6, A);
+      var D = [[1, 0], [1, -1], [0, -1], [-1, -1]][s], f = s === 2 ? 1 : L;
+      for (i = -f; i <= f; i++) K.px(c, x + D[0] * i, y + 2 + D[1] * i * (s === 2 ? 1 : .5), C);
+      K.px(c, x + D[0] * (f + 1), y + 2 + D[1] * (f + 1) * .5, Hi);
+      K.bx(c, x - 2, y - 5, 4, 2, A); K.px(c, x + 2, y - 6, A); K.px(c, x - 3, y - 6, A); K.px(c, x - 3, y - 7, A); K.px(c, x + 2, y - 7, '#c0503a');   /* body, head, tail, comb */
+    } else if (t === 1) {
+      var o = s;   /* the two halves part */
+      K.bx(c, x - 4 - o, y - 1, 4, 3, CLOUD); K.bx(c, x - 3 - o, y - 2, 2, 1, CLOUD); K.bx(c, x + o, y - 1, 4, 3, CLOUD); K.bx(c, x + 1 + o, y - 3, 2, 2, CLOUD);
+      K.bx(c, x - 4 - o, y + 2, 4, 1, A); K.bx(c, x + o, y + 2, 4, 1, A); K.px(c, x - 2 - o, y - 1, WH); K.px(c, x + 2 + o, y - 2, WH);
+      if (o > 0) K.px(c, x, y, C);
+    } else {
+      K.bx(c, x - 1, y - 1, 3, 3, C); K.px(c, x, y, WH);
+      if (s & 1) { K.px(c, x - 3, y - 3, C); K.px(c, x + 3, y - 3, C); K.px(c, x - 3, y + 3, C); K.px(c, x + 3, y + 3, C); }
+      else { K.bx(c, x, y - L - 1, 1, 2, C); K.bx(c, x, y + L, 1, 2, C); K.bx(c, x - L - 1, y, 2, 1, C); K.bx(c, x + L, y, 2, 1, C); }
+      K.px(c, x - 2, y - 2, Hi);
+    }
+  });
+  PFA.motion('gv-wl', function (G, pp, k, ph) {   /* slot 0 of every three is the vane (spinning), the rest clouds that part and turn into suns as the effect runs */
+    G.t += Math.sin(pp * 3 + k) * 1.2;
+    if (k % 3 === 0) { G.d += 5; G.fr = (Math.floor(pp * 12) + k) & 3; return; }
+    var q = pp * 1.1 - ph * .15;
+    G.d += 4 + Math.sin(pp * 2 + k) * 1.5;
+    G.fr = q < .35 ? 4 : q < .45 ? 5 : q < .55 ? 6 : 8 | (Math.floor(pp * 8) & 1);
+  });
+  function decoWind(c, e, H, s0, len, ri, pp) {   /* wind streaks sliding along the edge */
+    var k, s, j, Q = H.Q;
+    if (e.p > .95) return;
+    for (k = 0; k < 3; k++) { if ((Math.floor(pp * 10) + k) % 4 === 0) continue; s = s0 + ((H.hash(e.seed + k * 13 + ri) * len + pp * 70) % len);
+      for (j = 0; j < 4; j++) { e.P.atq(Math.min(s0 + len, s + j)); H.px(c, Q.x + Q.nx * (12 + k * 2), Q.y + Q.ny * (12 + k * 2), j < 2 ? e.hi : CLOUD); } }
+  }
+  function carWeather(c, e, H) {   /* a cloud runs the link, wind streaks behind it, and bursts into a sun where it lands */
+    var P = e.P, Q = H.Q, k, u;
+    for (k = 1; k <= 3; k++) { u = e.hh - k * .06; if (u < 0) break; P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 5, Q.y + Q.ny * 5, e.hi); H.px(c, Q.x + Q.nx * 5 + 1, Q.y + Q.ny * 5, CLOUD); }
+    P.atq(e.a + e.d * e.hh);
+    H.glyph(c, 'gv-wl', Q.x + Q.nx * 6, Q.y + Q.ny * 6, e.z, e.hh < .75 ? 4 : e.hh < .85 ? 6 : 8 | (Math.floor(e.p * 12) & 1), e.col, e.acc, e.hi, 1, 0, 0, -1);
+  }
+  PFA.motif('gv-weather-lore', function (c, e, H) { comp(c, e, H, null, decoWind); }, { nm: 'weathervane', desc: 'a spinning weathervane cockerel among clouds that part into suns, wind streaks along the edge; chain: a cloud runs the link and bursts into a sun', fam: 'sparkle', gap: 18, g: 'gv-wl', mo: 'gv-wl', x: '-', car: 'custom', carDraw: carWeather });
+
+  /* ================= Copybook ================= */
+  PFA.glyph('gv-cb-letter', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* one upright letter; fr bit 0 = still pencil (grey), fr >> 1 = which letter */
+    var bits = LET[(fr >> 1) % LET.length], col = fr & 1 ? GREY : C, i;
+    for (i = 0; i < 15; i++) if (bits.charAt(i) === '1') K.px(c, x - 1 + (i % 3), y - 2 + ((i / 3) | 0), col);
+  });
+  PFA.glyph('gv-pencil', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a pencil leaning back from its lead tip (x, y), screen up-right */
+    var i; K.px(c, x, y, LEAD); K.px(c, x + 1, y - 1, '#d8b088');
+    for (i = 2; i < 8; i++) { K.px(c, x + i, y - i, PEN); K.px(c, x + i + 1, y - i, i & 1 ? '#b88a20' : PEN); }
+    K.px(c, x + 8, y - 8, RUB); K.px(c, x + 9, y - 8, RUB); K.px(c, x + 8, y - 9, RUB);
+    if (fr & 1) K.px(c, x - 1, y + 1, GREY);
+  });
+  function copyDraw(c, e, H) {   /* ruled lines on the edge; letters written left to right in pencil, then inked; the pencil rides the head */
+    var runs = e.runs, P = e.P, Q = H.Q, ri, r, len, k, n, f, s, w = Math.min(1, e.p * 1.5), v = Math.min(1, env(e.p) * 3), X, Y;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(9, Math.round(len / 7)));
+      for (s = 0; s < len; s += 2) { if (!H.stip(v, s + ri * 40, e.p)) continue; P.atq(r[0] + s); H.px(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, RULE); H.px(c, Q.x + Q.nx * 9, Q.y + Q.ny * 9, RULE); }
+      if (H.stip(v, ri, e.p)) { P.atq(r[0] + 3); H.px(c, Q.x + Q.nx * 4, Q.y + Q.ny * 4, MARGIN); H.px(c, Q.x + Q.nx * 6, Q.y + Q.ny * 6, MARGIN); H.px(c, Q.x + Q.nx * 8, Q.y + Q.ny * 8, MARGIN); }
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; if (f > w || !H.stip(v, k + ri * 9, e.p)) continue;
+        P.atq(r[0] + len * f); X = Q.x + Q.nx * 5.5; Y = Q.y + Q.ny * 5.5;
+        H.glyph(c, 'gv-cb-letter', X, Y, e.z, (((k + ri * 3 + Math.floor(e.seed)) % 8) << 1) | (w - f < .22 ? 1 : 0), e.col, e.acc, e.hi, 1, 0, 0, -1);
+      }
+      if (ri === 0 && w < 1 && e.p < .9) { P.atq(r[0] + len * w); H.glyph(c, 'gv-pencil', Q.x + Q.nx * 5 + 2, Q.y + Q.ny * 5 + 2, 0, Math.floor(e.p * 20) & 1, e.col, e.acc, e.hi, 1, 0, 0, -1); }
+    }
+  }
+  function carCopy(c, e, H) {   /* the pencil traces the link in grey, the ink follows a quarter behind; a little tag box is stamped where it ends */
+    var P = e.P, Q = H.Q, u, X = 0, Y = 0, ink = e.hh - .28;
+    for (u = 0; u <= e.hh; u += .02) { P.atq(e.a + e.d * u); X = Q.x + Q.nx * 4; Y = Q.y + Q.ny * 4; H.px(c, X, Y, u < ink ? e.col : GREY); if (u < ink && ((u * 50) | 0) % 3 === 0) H.px(c, X, Y - 1, e.hi); }
+    if (e.p < .92) H.glyph(c, 'gv-pencil', X, Y, 0, Math.floor(e.p * 20) & 1, e.col, e.acc, e.hi, 1, 0, 0, -1);
+    if (e.hh > .85) { P.atq(e.a + e.d); X = Q.x + Q.nx * 9; Y = Q.y + Q.ny * 9; H.ringpx(c, X, Y, 3, e.col); H.bx(c, X - 2, Y - 2, 5, 5, e.hi); H.bx(c, X - 1, Y, 3, 1, e.col); H.px(c, X + 1, Y - 1, e.col); H.px(c, X + 1, Y + 1, e.col); }
+  }
+  PFA.motif('gv-copybook', function (c, e, H) { copyDraw(c, e, H); }, { nm: 'copybook lines', desc: 'ruled copybook lines on the edge, letters traced in pencil then inked, the pencil at the head; chain: pencil then ink along the link, a tag box stamped at the end', fam: 'ripple', gap: 8, g: 'gv-cb-letter', mo: 'snap', x: '-', car: 'custom', carDraw: carCopy });
+
+  /* ================= Turn of the Tale ================= */
+  PFA.glyph('gv-page', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a storybook page turning on its spine (x - 3): fr 0 flat (old brown ink), 1 lifting, 2 edge-on, 3 over (your blue ink on its back) */
+    var h = 7 + (z > 0 ? 1 : 0), sx = x - 3, W = [6, 4, 1, 5][fr & 3], i, back = (fr & 3) === 3, x0 = back ? sx - W : sx + 1, ink = back ? A : OLD;
+    K.bx(c, sx, y - h / 2 - 1, 1, h + 2, A);
+    K.bx(c, x0, y - h / 2, W, h, back ? Hi : C);
+    if (W > 2) for (i = 1; i < h - 1; i += 2) K.bx(c, x0 + 1, Math.round(y - h / 2 + i), W - 2, 1, ink);
+    if ((fr & 3) === 1) K.px(c, x0 + W, y - h / 2 - 1, Hi);
+    if ((fr & 3) === 2) { K.bx(c, sx + 1, y - h / 2 - 2, 1, h + 3, Hi); }
+  });
+  PFA.motion('gv-turn', function (G, pp, k, ph) {   /* the pages turn one after another along the edge and stay over */
+    var q = pp * 2.4 - k * .16 - ph * .08, fr = q < 0 ? 0 : Math.min(3, Math.floor(q * 6));
+    G.fr = fr; G.d += 3; if (fr === 1 || fr === 2) G.up += 2;
+  });
+  function decoReink(c, e, H, s0, len, ri, pp) {   /* the edge re-inked: old brown ink ahead of the head, your blue behind it */
+    var s, Q = H.Q, head = Math.min(1, pp * 1.2) * len, v = Math.min(1, env(e.p) * 2.5);
+    for (s = 0; s < len; s += 2) { if (!H.stip(v, s + ri * 20, e.p)) continue; e.P.atq(s0 + s); H.px(c, Q.x + Q.nx * 1, Q.y + Q.ny * 1, s < head ? e.acc : OLD); }
+    e.P.atq(s0 + Math.min(len, head)); if (head < len) H.sq(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, 2, e.hi);
+  }
+  function carPage(c, e, H) {   /* a page flips along the link, leaving it inked in your blue; a ring where it lands */
+    var P = e.P, Q = H.Q, u;
+    for (u = 0; u <= e.hh; u += .025) { P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 3, Q.y + Q.ny * 3, e.acc); }
+    P.atq(e.a + e.d * e.hh);
+    H.glyph(c, 'gv-page', Q.x + Q.nx * 7, Q.y + Q.ny * 7 - Math.sin(e.hh * Math.PI) * 6, e.z, Math.floor(e.p * 14) & 3, e.col, e.acc, e.hi, 1, 0, 0, -1);
+    if (e.hh > .88) { P.atq(e.a + e.d); H.ringpx(c, Q.x + Q.nx * 6, Q.y + Q.ny * 6, 2 + Math.round((e.hh - .88) * 40), e.acc); }
+  }
+  PFA.motif('gv-turn-tale', function (c, e, H) { comp(c, e, H, null, decoReink); }, { nm: 'turning pages', desc: 'storybook pages turning one after another along the edge, old brown ink giving way to your blue; chain: a page flipping down the link', fam: 'ripple', gap: 18, g: 'gv-page', mo: 'gv-turn', x: '-', car: 'custom', carDraw: carPage });
+})();
+
+/* ---- motifs/luck_pieces.js ---- */
+/* Motif module: the five shortlisted Luck pieces' own-edge effects and chain effects, written like motifs/stat_pieces.js.
+   Hedge Rummage (Trick, mind, Pluck): hedge sprigs poking out of the edge and rustling, loose leaves dropping, now and then a glint in the leaves. Chain: a bramble runner grows along the link.
+   Long Shot (Hurt, body): pebbles flung out from the edge on long high arcs with a dotted flight trail. Chain: a pebble skips twice along the link.
+   Magpie's Pinch (Item, body): black-and-white feathers fluttering off the edge, a stolen glint winking. Chain: a little magpie flies the link with a glint in its beak.
+   Turn of the Coin (Trick, mind): gold coins standing on edge, spinning (face, three-quarter, edge, three-quarter). Chain: a coin rolls along the link on its rim.
+   Lucky Streak (Trick, body): a row of bulbs round the edge, lights chasing, a clover popping on the lit bulb. Chain: the bulbs light one after another along the link.
+   Every draw is a stateless function of p (hash noise only); glyphs go through H.glyph (MAXG budget); (a, b) = along the tangent, out along the normal. */
+(function () {
+  var INK = '#2a1a10', WH = '#ffffff', LEAF = '#5f9a4a', LEAFD = '#2f5a24', LEAFL = '#b8e08a', BERRY = '#b8442c', OFF = '#6d5a40';
+
+  /* ---------- shared own-edge composition (as stat_pieces.js): layout x motion per glyph, then optional per-glyph and per-run extras ---------- */
+  function comp(c, e, H, per, deco) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, p = e.p, pp = p * mp.spd, Q = H.Q, G = H.G, P = e.P, ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, fr;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(8, Math.round(len / (M.gap || 12))));
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, p, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, p)) continue;
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny; fr = G.fr;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (per) per(c, e, H, x, y, -ny, nx, nx, ny, fr, k, bx0, by0, n);
+        H.glyph(c, M.g, x, y, z, fr, e.col, e.acc, e.hi, -ny, nx, nx, ny);
+      }
+      if (deco) deco(c, e, H, r[0], len, ri, pp);
+    }
+  }
+  function P2(c, K, x, y, tx, ty, nx, ny, a, b, col) { K.px(c, x + tx * a + nx * b, y + ty * a + ny * b, col); }
+
+  /* ---------- glyphs ---------- */
+  PFA.glyph('gv-sprig', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a hedge sprig poking out: a stem along the normal, two leaves that rustle (fr bit 0 = leaves tipped), a berry on bit 1 */
+    var i, L = 4 + (z > 0 ? 1 : 0), s = fr & 1 ? 1 : -1;
+    for (i = 0; i <= L; i++) P2(c, K, x, y, tx, ty, nx, ny, 0, -i + 2, A);
+    P2(c, K, x, y, tx, ty, nx, ny, -1 * s, 1, C); P2(c, K, x, y, tx, ty, nx, ny, -2 * s, 0, C); P2(c, K, x, y, tx, ty, nx, ny, -2 * s, 1, Hi);
+    P2(c, K, x, y, tx, ty, nx, ny, 1 * s, -1, C); P2(c, K, x, y, tx, ty, nx, ny, 2 * s, -2, C); P2(c, K, x, y, tx, ty, nx, ny, 2 * s, -1, Hi);
+    P2(c, K, x, y, tx, ty, nx, ny, 0, 3, C); P2(c, K, x, y, tx, ty, nx, ny, -1, 3, C); P2(c, K, x, y, tx, ty, nx, ny, 1, 3, Hi);
+    if (fr & 2) { K.px(c, x + nx * 2 + tx, y + ny * 2 + ty, BERRY); }
+  });
+  PFA.glyph('gv-pebble', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a round pebble: ink rim, flat stone body, one light band, one shade band (fr bit 0 squashes it on a bounce) */
+    var r = 2 + (z > 0 ? 1 : 0), sq = fr & 1;
+    K.bx(c, x - r, y - r - 1 + sq, 2 * r + 1, 2 * r + 3 - sq * 2, A); K.bx(c, x - r - 1, y - r + sq, 2 * r + 3, 2 * r + 1 - sq * 2, A);
+    K.bx(c, x - r, y - r + sq, 2 * r + 1, 2 * r + 1 - sq * 2, C); K.bx(c, x - r + 1, y - r + sq, r, 1, Hi); K.bx(c, x - 1, y + r - 1 - sq, r + 1, 1, OFF);
+  });
+  PFA.glyph('gv-feather', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a magpie feather tumbling: black vane with a white base and a blue sheen tip, quill along fr's lean */
+    var i, l = 5 + (z > 0 ? 1 : 0), s = fr & 1 ? 1 : -1, a, b;
+    for (i = 0; i < l; i++) { a = i - (l >> 1); b = (i * s) >> 1; K.px(c, x + a, y + b, A); K.px(c, x + a, y + b - 1, i < 2 ? WH : C); K.px(c, x + a, y + b + 1, i < 2 ? WH : C); }
+    a = l - (l >> 1); b = (l * s) >> 1; K.px(c, x + a, y + b, Hi); K.px(c, x + a - 1, y + b - 1, Hi);
+  });
+  PFA.glyph('gv-coin', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* a gold coin standing on its rim, spinning: fr 0 face, 1 three-quarter, 2 edge, 3 three-quarter (mirrored) */
+    var r = 3 + (z > 0 ? 1 : 0), w = [r, r - 1, 0, r - 1][fr & 3], i, h;
+    for (i = -r; i <= r; i++) { h = Math.round(Math.sqrt(Math.max(0, r * r - i * i)) * (w + .5) / (r + .5)); K.bx(c, x - h - 1, y + i, 2 * h + 3, 1, A); }
+    K.bx(c, x - w, y - r - 1, 2 * w + 1, 1, A); K.bx(c, x - w, y + r + 1, 2 * w + 1, 1, A);
+    for (i = -r; i <= r; i++) { h = Math.round(Math.sqrt(Math.max(0, r * r - i * i)) * (w + .5) / (r + .5)); K.bx(c, x - h, y + i, 2 * h + 1, 1, i < 0 ? Hi : C); }
+    if (w >= r - 1 && w > 1) { K.px(c, x, y - 1, A); K.px(c, x, y + 1, A); K.px(c, x - 1, y, A); K.px(c, x + 1, y, A); }   /* the clover stamp, a four-dot cross */
+    if (fr & 1) K.bx(c, x + (fr === 1 ? w : -w), y - r + 1, 1, 2 * r - 1, '#a8741a');                                       /* the rim showing on the turn */
+  });
+  PFA.glyph('gv-bulb', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* a marquee bulb on a little socket: fr 0 off (dull), 1 lit (bright, white core, glow pixels) */
+    var r = 2 + (z > 0 ? 1 : 0);
+    K.bx(c, x - r, y - r - 1, 2 * r + 1, 2 * r + 3, A); K.bx(c, x - r - 1, y - r, 2 * r + 3, 2 * r + 1, A);
+    K.bx(c, x - r, y - r, 2 * r + 1, 2 * r + 1, fr & 1 ? C : OFF); P2(c, K, x, y, tx, ty, nx, ny, 0, -r - 1, '#8a8a8a');
+    if (fr & 1) { K.px(c, x - 1, y - 1, WH); K.px(c, x, y - 1, Hi); K.px(c, x - r - 2, y, Hi); K.px(c, x + r + 2, y, Hi); K.px(c, x, y - r - 2, Hi); K.px(c, x, y + r + 2, Hi); }
+  });
+  PFA.glyph('gv-clover', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a four-leaf clover popping (fr 0 small bud, 1 open) */
+    var o = fr & 1 ? 2 : 1, d = [[0, -1], [1, 0], [0, 1], [-1, 0]], i, X, Y;
+    for (i = 0; i < 4; i++) { X = x + d[i][0] * o; Y = y + d[i][1] * o; K.bx(c, X - 1, Y - 1, 3, 3, LEAFD); K.px(c, X, Y, i === 0 ? LEAFL : LEAF); if (o > 1) { K.px(c, X + d[i][1], Y - d[i][0], LEAF); } }
+    K.px(c, x, y, LEAFD); K.px(c, x + 1, y + o + 2, LEAFD);
+  });
+  PFA.glyph('gv-bird', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* a tiny magpie in flight facing +a: black body, white belly patch, long tail; fr bit 0 = wings up / down */
+    var up = fr & 1 ? -1 : 1, i;
+    for (i = -4; i <= 2; i++) P2(c, K, x, y, tx, ty, nx, ny, i, 0, C);
+    P2(c, K, x, y, tx, ty, nx, ny, -5, 1, C); P2(c, K, x, y, tx, ty, nx, ny, -6, 1, C); P2(c, K, x, y, tx, ty, nx, ny, -7, 2, Hi);
+    P2(c, K, x, y, tx, ty, nx, ny, -1, -1, WH); P2(c, K, x, y, tx, ty, nx, ny, 0, -1, WH);
+    P2(c, K, x, y, tx, ty, nx, ny, 3, 0, '#3a3a3a'); P2(c, K, x, y, tx, ty, nx, ny, 2, 1, C);
+    for (i = 1; i <= 3; i++) P2(c, K, x, y, tx, ty, nx, ny, -1 + (i >> 1), up * i, i === 3 ? Hi : C);
+  });
+
+  /* ---------- motions ---------- */
+  PFA.motion('gv-rustle', function (G, pp, k, ph) { var w = Math.floor(pp * 9 + ph * 5); G.t += ((w + k) & 1 ? 1 : -1) * (1 + (ph > .5 ? 1 : 0)); G.fr = ((w + k) & 1) | (ph > .7 ? 2 : 0); });   /* sprigs shake left-right, a berry on some */
+  PFA.motion('gv-lob', function (G, pp, k, ph) { var u = G.u; G.t += u * 10 * (ph > .5 ? 1 : -1); G.up += Math.sin(Math.PI * Math.min(1, u)) * 12; G.fr = u > .9 ? 1 : 0; });                 /* flung out on a high arc and dropping */
+  PFA.motion('gv-tumblef', function (G, pp, k, ph) { G.t += Math.sin(pp * 6 + k * 1.9) * 3; G.up += Math.sin(pp * 4 + k) * 2 - pp * 3; G.fr = (Math.floor(pp * 7) + k) & 1; });               /* feathers see-saw down */
+  PFA.motion('gv-spin', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 12 + ph * 4) + k) & 3; G.up += G.fr === 2 ? 1 : 0; });                                                                   /* coins spin on their rims */
+  PFA.motion('gv-chase', function (G, pp, k, ph) { G.d = 4; G.vis = 1; G.t = 0; G.up = 0; G.fr = ((k - Math.floor(pp * 14)) % 3 + 3) % 3 === 0 ? 1 : 0; });                                   /* fixed bulbs, every third lit, the lit ones run along */
+
+  /* ---------- per-glyph and per-run extras ---------- */
+  function decoLeaves(c, e, H, s0, len, ri, pp) {                     /* loose leaves dropping off the hedge, and one glint in the leaves now and then (the Pluck's prize) */
+    var k, u, Q = H.Q, X, Y;
+    for (k = 0; k < 3; k++) { u = (pp * 1.2 + H.hash(e.seed + k * 7 + ri)) % 1; e.P.atq(s0 + len * H.hash(e.seed + k * 3 + ri * 5)); X = Q.x + Q.nx * (5 + 4 * u) + Math.sin(u * 9 + k) * 2; Y = Q.y + Q.ny * (5 + 4 * u) + 10 * u; H.px(c, X, Y, k & 1 ? LEAF : LEAFL); H.px(c, X + 1, Y, LEAFD); }
+    if (ri === 0 && Math.floor(pp * 7) % 4 === 1) { e.P.atq(s0 + len * .5); H.plus(c, Q.x + Q.nx * 7, Q.y + Q.ny * 7, 2, 1, '#f6d878'); H.px(c, Q.x + Q.nx * 7, Q.y + Q.ny * 7, WH); }
+  }
+  function perArc(c, e, H, x, y, tx, ty, nx, ny, fr, k, bx0, by0) {   /* a dotted flight trail from the edge to the pebble */
+    var i, u, X, Y; for (i = 1; i < 6; i++) { u = i / 6; X = bx0 + (x - bx0) * u; Y = by0 + (y - by0) * u - Math.sin(u * Math.PI) * 4; if (i & 1) H.px(c, X, Y, e.hi); }
+  }
+  function decoShot(c, e, H, s0, len, ri, pp) {                       /* the nock: a thin long arrow line laid along the first run, flashing on the release */
+    if (ri !== 0 || e.p > .85) return; var Q = H.Q, s, X, Y; e.P.atq(s0 + len * .5); X = Q.x + Q.nx * 2; Y = Q.y + Q.ny * 2;
+    for (s = -6; s <= 6; s++) H.px(c, X - Q.ny * s, Y + Q.nx * s, (s + Math.floor(pp * 10)) % 4 === 0 ? WH : e.acc);
+    H.px(c, X - Q.ny * 7 + Q.nx, Y + Q.nx * 7 + Q.ny, e.acc); H.px(c, X - Q.ny * 7 - Q.nx, Y + Q.nx * 7 - Q.ny, e.acc);
+  }
+  function decoGlint(c, e, H, s0, len, ri, pp) {                      /* a stolen shiny winking where the feathers fall from */
+    var Q = H.Q, w = Math.floor(pp * 8 + ri * 3) % 5, L = [0, 1, 3, 1, 0][w]; if (!L || e.p > .9) return;
+    e.P.atq(s0 + len * H.hash(e.seed + ri * 7)); H.plus(c, Q.x + Q.nx * 9, Q.y + Q.ny * 9, L, 1, '#f6d878'); H.px(c, Q.x + Q.nx * 9, Q.y + Q.ny * 9, WH);
+  }
+  function decoSpark(c, e, H, s0, len, ri, pp) {                      /* a gold dotted rim under the coins, crawling */
+    var s, Q = H.Q, ph = Math.floor(pp * 6);
+    for (s = 0; s < len; s += 4) { if (((s >> 2) + ph) % 2) continue; e.P.atq(s0 + s); H.px(c, Q.x + Q.nx * 1, Q.y + Q.ny * 1, e.hi); }
+  }
+  function perClover(c, e, H, x, y, tx, ty, nx, ny, fr, k) {          /* a clover pops out beyond each lit bulb */
+    if (!(fr & 1)) return; H.glyph(c, 'gv-clover', x + nx * 6, y + ny * 6, 0, Math.floor(e.p * 20 + k) & 1, e.col, e.acc, e.hi, tx, ty, nx, ny);
+  }
+
+  /* ---------- chain effects (carDraw: along the path from e.a over e.d, eased e.hh) ---------- */
+  function carBramble(c, e, H) {                                      /* a bramble runner grows along the link, leaves budding off it, the sprig at its head */
+    var P = e.P, Q = H.Q, u, X = 0, Y = 0, i = 0;
+    for (u = 0; u <= e.hh; u += .02) { P.atq(e.a + e.d * u); X = Q.x + Q.nx * (3 + Math.sin(u * 22) * 1.5); Y = Q.y + Q.ny * (3 + Math.sin(u * 22) * 1.5); H.px(c, X, Y, LEAFD); if (++i % 6 === 0) { H.px(c, X, Y - 1, LEAF); H.px(c, X + 1, Y - 2, LEAFL); } if (i % 11 === 0) H.px(c, X, Y + 1, BERRY); }
+    H.glyph(c, 'gv-sprig', X, Y, 0, Math.floor(e.p * 12) & 1, LEAF, LEAFD, LEAFL, 1, 0, 0, -1);
+  }
+  function carSkip(c, e, H) {                                         /* a pebble skips twice along the link (two arcs: the double shot), a dust tick where it touches */
+    var P = e.P, Q = H.Q, h = e.hh, seg = h < .5 ? 0 : 1, u = seg ? (h - .5) / .5 : h / .5, s = e.a + e.d * h, k;
+    for (k = 1; k <= 2; k++) if (h >= k * .5 - .01) { P.atq(e.a + e.d * k * .5); H.px(c, Q.x + Q.nx * 2 - 2, Q.y + Q.ny * 2, e.hi); H.px(c, Q.x + Q.nx * 2 + 2, Q.y + Q.ny * 2, e.hi); H.px(c, Q.x + Q.nx * 3, Q.y + Q.ny * 3 - 1, e.hi); }
+    H.carHead(c, P, s, 'gv-pebble', e.z, u > .92 ? 1 : 0, 0, -Math.sin(Math.PI * u) * (seg ? 8 : 12), e.col, e.acc, e.hi);
+  }
+  function carMagpie(c, e, H) {                                       /* a little magpie flies the link, a glint in its beak, two feathers left behind */
+    var P = e.P, Q = H.Q, k, u;
+    for (k = 1; k <= 2; k++) { u = e.hh - k * .22; if (u < 0) break; P.atq(e.a + e.d * u); H.glyph(c, 'gv-feather', Q.x + Q.nx * 6, Q.y + Q.ny * 6 + k * 2, 0, k & 1, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny); }
+    P.atq(e.a + e.d * e.hh); var X = Q.x + Q.nx * 8, Y = Q.y + Q.ny * 8 - Math.sin(e.p * 18) * 2, dir = e.d >= 0 ? 1 : -1;
+    H.glyph(c, 'gv-bird', X, Y, 0, Math.floor(e.p * 14) & 1, e.col, e.acc, e.hi, dir, 0, 0, -1);
+    H.px(c, X + dir * 4, Y + 1, '#f6d878'); H.px(c, X + dir * 5, Y + 1, WH);
+  }
+  function carRoll(c, e, H) {                                         /* a coin rolls along the link on its rim, spinning, a gold track behind it */
+    var P = e.P, Q = H.Q, u;
+    for (u = 0; u < e.hh - .04; u += .05) { P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, e.hi); }
+    H.carHead(c, P, e.a + e.d * e.hh, 'gv-coin', e.z, Math.floor(e.p * 20) & 3, 0, -Math.abs(Math.sin(e.hh * Math.PI * 2)) * 3, e.col, e.acc, e.hi);
+  }
+  function carBulbs(c, e, H) {                                        /* bulbs along the link light one after another, the latest the brightest, a clover at the end */
+    var P = e.P, Q = H.Q, k, u, n = 6;
+    for (k = 0; k <= n; k++) { u = k / n; P.atq(e.a + e.d * u); H.glyph(c, 'gv-bulb', Q.x + Q.nx * 4, Q.y + Q.ny * 4, 0, e.hh >= u ? 1 : 0, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny); }
+    if (e.hh > .97) { P.atq(e.a + e.d); H.glyph(c, 'gv-clover', Q.x + Q.nx * 11, Q.y + Q.ny * 11, 0, 1, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny); }
+  }
+
+  PFA.motif('gv-hedge-rummage', function (c, e, H) { comp(c, e, H, null, decoLeaves); }, { nm: 'hedge sprigs', desc: 'hedge sprigs poking out and rustling, leaves dropping, a glint in the leaves', fam: 'sprout', gap: 16, g: 'gv-sprig', mo: 'gv-rustle', x: '-', car: 'custom', carDraw: carBramble });
+  PFA.motif('gv-long-shot', function (c, e, H) { comp(c, e, H, perArc, decoShot); }, { nm: 'long shots', desc: 'pebbles flung out on long high arcs with a dotted trail, a thin nock line on the edge', fam: 'strike', gap: 24, g: 'gv-pebble', mo: 'gv-lob', x: '-', car: 'custom', carDraw: carSkip });
+  PFA.motif('gv-magpie-pinch', function (c, e, H) { comp(c, e, H, null, decoGlint); }, { nm: 'magpie feathers', desc: 'black-and-white feathers fluttering off the edge, a stolen glint winking', fam: 'flutter', gap: 20, g: 'gv-feather', mo: 'gv-tumblef', x: '-', car: 'custom', carDraw: carMagpie });
+  PFA.motif('gv-turn-coin', function (c, e, H) { comp(c, e, H, null, decoSpark); }, { nm: 'spinning coins', desc: 'gold coins standing on their rims, spinning, over a gold dotted rim', fam: 'sparkle', gap: 22, g: 'gv-coin', mo: 'gv-spin', x: '-', car: 'custom', carDraw: carRoll });
+  PFA.motif('gv-lucky-streak', function (c, e, H) { comp(c, e, H, perClover, null); }, { nm: 'marquee bulbs', desc: 'a row of bulbs round the edge, lights chasing, a clover popping by each lit one', fam: 'pulse', gap: 10, g: 'gv-bulb', mo: 'gv-chase', x: '-', car: 'custom', carDraw: carBulbs });
 })();
 
 /* ---- motifs/medium_m01.js ---- */
@@ -11747,6 +12089,593 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
   M('stormwisp-spark', plain, { nm: 'shed sparks', desc: 'crackling sparks that change shape every frame: plus, cross, jag, wink', fam: 'sparkle', gap: 9, g: 'm14-spark', mo: 'm14-spit', x: '-', car: 'blink' });
 })();
 
+/* ---- motifs/sense_pieces.js ---- */
+/* Motif module: own-edge effects and chain effects of five Sense tier pieces, written like engine2's stat_pieces.js.
+   Soft Spot (Hurt, Pierce): chalk X marks drawing themselves stroke by stroke and thrust along the edge, a chalk ring and little bark cracks on fire.
+   Not Fooled (Guard, mind): narrow eyes under a raised eyebrow, glancing left and right; the slots shake "no" together; small crossed-out sparks pop off.
+   Saw It Coming (Guard, Hold): little shields with an open eye on the rim that blink, a steady guard rim, crack shards thrown off on fire.
+   Snare Field (Soothe, craft): coiled loops of twine along the edge that tighten and spring; a dry leaf now and then, a glint where a loop snaps.
+   Eyes of the Wood (Item, Keeper): leaf eyes peeking out of the edge, opening one after another, gold irises glancing; leaves drifting.
+   Every draw is a stateless function of p (hash noise only); glyphs go through H.glyph (MAXG budget); coordinates (a, b) = along the tangent, out along the normal. */
+(function () {
+  var INK = '#2a1a10', WH = '#ffffff', SHIM = '#f2c9b8', LEAF = '#6a8f3c', LEAFD = '#3d5a1e';
+
+  /* ---------- shared own-edge composition (as engine2's stat_pieces.js) ---------- */
+  function comp(c, e, H, per, deco) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, p = e.p, pp = p * mp.spd, Q = H.Q, G = H.G, P = e.P,
+      ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, fr;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(8, Math.round(len / (M.gap || 12))));
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, p, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, p)) continue;
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny; fr = G.fr;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (per) per(c, e, H, x, y, -ny, nx, nx, ny, fr, k, bx0, by0);
+        H.glyph(c, M.g, x, y, z, fr, e.col, e.acc, e.hi, -ny, nx, nx, ny);
+      }
+      if (deco) deco(c, e, H, r[0], len, ri, pp);
+    }
+  }
+  function P2(c, K, x, y, tx, ty, nx, ny, a, b, col) { K.px(c, x + tx * a + nx * b, y + ty * a + ny * b, col); }
+  /* a small open / half / shut eye, upright so it reads (st 0 open, 1 half, 2 shut); gx = glance -1, 0, 1 */
+  function eye(c, K, x, y, w, st, gx, iris, rim) {
+    if (st === 0) {
+      K.bx(c, x - w + 1, y - 2, 2 * w - 1, 1, rim); K.bx(c, x - w + 1, y + 2, 2 * w - 1, 1, rim); K.px(c, x - w, y - 1, rim); K.px(c, x + w, y - 1, rim); K.px(c, x - w, y + 1, rim); K.px(c, x + w, y + 1, rim); K.px(c, x - w - 1, y, rim); K.px(c, x + w + 1, y, rim);
+      K.bx(c, x - w + 1, y - 1, 2 * w - 1, 3, WH); K.bx(c, x - w, y, 2 * w + 1, 1, WH); K.bx(c, x - 1 + gx, y - 1, 3, 3, iris); K.px(c, x + gx, y, INK); K.px(c, x - 1 + gx, y - 1, WH);
+    } else if (st === 1) { K.bx(c, x - w, y - 1, 2 * w + 1, 1, rim); K.bx(c, x - w + 1, y, 2 * w - 1, 1, WH); K.bx(c, x - 1 + gx, y, 3, 1, iris); K.bx(c, x - w, y + 1, 2 * w + 1, 1, rim); }
+    else { K.bx(c, x - w - 1, y, 2 * w + 3, 1, rim); K.px(c, x - 2, y + 1, rim); K.px(c, x, y + 1, rim); K.px(c, x + 2, y + 1, rim); }
+  }
+
+  /* ---------- glyphs ---------- */
+  PFA.glyph('gv-chalkx', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* Soft Spot: a chalk X drawn stroke by stroke (fr 0: first stroke half, 1: first stroke, 2: both, 3: both + a pale ring tick) */
+    var L = 2 + (z > 0 ? 1 : 0), i;
+    for (i = -L; i <= L; i++) { if (fr === 0 && i > 0) break; K.px(c, x + i, y + i, C); K.px(c, x + i + 1, y + i, A); }
+    if (fr >= 2) for (i = -L; i <= L; i++) { K.px(c, x + i, y - i, C); K.px(c, x + i + 1, y - i, A); }
+    if (fr === 3) { K.px(c, x - L - 2, y, Hi); K.px(c, x + L + 2, y, Hi); K.px(c, x, y - L - 2, Hi); K.px(c, x, y + L + 2, Hi); }
+  });
+  PFA.glyph('gv-brow', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* Not Fooled: a narrowed eye under one raised eyebrow; fr bit 0 = brow up, bits 1-2 = glance (0 centre, 1 left, 2 right) */
+    var g = (fr >> 1) & 3, gx = g === 1 ? -1 : g === 2 ? 1 : 0, up = fr & 1 ? 2 : 0, w = 3 + (z > 0 ? 1 : 0);
+    K.bx(c, x - w, y, 2 * w + 1, 1, A); K.bx(c, x - w + 1, y + 1, 2 * w - 1, 1, WH); K.bx(c, x - 1 + gx, y + 1, 3, 1, C); K.px(c, x + gx, y + 1, INK); K.bx(c, x - w + 1, y + 2, 2 * w - 1, 1, A);   /* the narrowed eye */
+    K.px(c, x - w - 1, y - 2 - up, A); K.px(c, x - w, y - 3 - up, A); K.bx(c, x - w + 1, y - 4 - up, w, 1, A); K.px(c, x + 1, y - 3 - up, A); K.px(c, x + 2, y - 2 - (up >> 1), A); K.px(c, x + 3, y - 2, Hi);   /* the arched brow */
+  });
+  PFA.glyph('gv-nox', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* a tiny crossed-out spark (a combo called off) */
+    K.px(c, x - 1, y - 1, C); K.px(c, x + 1, y + 1, C); K.px(c, x + 1, y - 1, C); K.px(c, x - 1, y + 1, C); K.px(c, x, y, Hi);
+    if (fr & 1) { K.px(c, x - 2, y - 2, A); K.px(c, x + 2, y + 2, A); K.px(c, x + 2, y - 2, A); K.px(c, x - 2, y + 2, A); }
+  });
+  PFA.glyph('gv-shieldeye', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) { /* Saw It Coming: a small heater shield, an eye on its rim (fr 0 open, 1 half, 2 shut) */
+    var w = 3 + (z > 0 ? 1 : 0), i;
+    for (i = 0; i <= w + 3; i++) { var hw = i < w ? w : w - (i - w + 1); if (hw < 0) break; K.bx(c, x - hw - 1, y - 2 + i, 2 * hw + 3, 1, A); }
+    for (i = 0; i <= w + 2; i++) { var hv = i < w ? w : w - (i - w + 1); if (hv < 0) break; K.bx(c, x - hv, y - 1 + i, 2 * hv + 1, 1, i === 0 ? Hi : C); }
+    eye(c, K, x, y - 3, 2, fr % 3, 0, INK, A);
+  });
+  PFA.glyph('gv-shard', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* a crack shard (a creature piece knocked off) */
+    K.px(c, x, y, C); K.px(c, x + 1, y, C); K.px(c, x, y + 1, A); if (fr & 1) K.px(c, x - 1, y - 1, Hi); else K.px(c, x + 2, y - 1, Hi);
+  });
+  PFA.glyph('gv-snareloop', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* Snare Field: a coiled loop of twine, open (fr 0), tightening (1), snapped shut with a glint (2), springing out (3) */
+    var r = [3, 2, 1, 4][fr & 3] + (z > 0 ? 1 : 0), k, a, X, Y;
+    for (k = 0; k < 16; k++) { a = k / 16 * Math.PI * 2; X = Math.round(x + Math.cos(a) * r); Y = Math.round(y - r + Math.sin(a) * r * .8); K.px(c, X, Y, k % 4 === 0 ? A : C); }
+    P2(c, K, x, y, tx, ty, nx, ny, 0, 0, C); P2(c, K, x, y, tx, ty, nx, ny, -1, -1, A); P2(c, K, x, y, tx, ty, nx, ny, 1, -1, C); P2(c, K, x, y, tx, ty, nx, ny, 2, -2, A);   /* the knot and its tail into the edge */
+    if ((fr & 3) === 2) { K.px(c, x + r + 1, y - r - 1, WH); K.px(c, x + r + 2, y - r - 2, Hi); }
+  });
+  PFA.glyph('gv-leafeye', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {  /* Eyes of the Wood: a leaf whose middle opens as an eye; fr 0 shut, 1 half, 2 open, 3 open glancing */
+    var L = 4 + (z > 0 ? 1 : 0), i, hw;
+    for (i = -L; i <= L; i++) { hw = Math.round((L - Math.abs(i)) * .6) + 1; K.bx(c, x + i, y - hw, 1, 2 * hw + 1, C); }
+    K.px(c, x - L - 1, y, A); K.px(c, x + L + 1, y - 1, A); K.px(c, x + L + 2, y - 2, A);   /* tip and stalk */
+    var st = fr & 3;
+    if (st === 0) K.bx(c, x - 2, y, 5, 1, A);
+    else if (st === 1) { K.bx(c, x - 2, y, 5, 1, WH); K.px(c, x, y, A); K.bx(c, x - 2, y - 1, 5, 1, A); }
+    else { K.bx(c, x - 2, y - 1, 5, 3, WH); K.px(c, x - 3, y, A); K.px(c, x + 3, y, A); var gx = st === 3 ? -1 : 0; K.bx(c, x - 1 + gx, y - 1, 2, 3, Hi); K.px(c, x + gx, y, INK); }
+  });
+
+  /* ---------- motions ---------- */
+  PFA.motion('gv-mark', function (G, pp, k, ph) { var q = (pp * 2.2 + ph) % 1; G.fr = q < .18 ? 0 : q < .36 ? 1 : q < .8 ? 2 : 3; G.t += Math.sin(pp * 3 + k) * 1; });   /* each X draws in, holds, rings */
+  PFA.motion('gv-headshake', function (G, pp, k, ph) {                                   /* every eye glances left, right, left together ("no"), the brow up while it does */
+    var q = (pp * 1.1) % 1, sh = q > .5 && q < .8;
+    G.t += sh ? (Math.floor(pp * 26) & 1 ? 2 : -2) : 0; G.fr = (sh ? 1 : 0) | ((sh ? (Math.floor(pp * 13) & 1 ? 1 : 2) : 0) << 1);
+  });
+  PFA.motion('gv-wink', function (G, pp, k, ph) { var w = (pp * .8 + ph) % 1; G.fr = w < .82 ? 0 : w < .87 ? 1 : w < .93 ? 2 : 1; G.t += Math.sin(pp * 2 + k) * .8; });   /* steady watch, a blink now and then */
+  PFA.motion('gv-coil', function (G, pp, k, ph) { var q = (pp * 1.6 + ph) % 1; G.fr = q < .45 ? 0 : q < .6 ? 1 : q < .7 ? 2 : 3; if (G.fr === 3) G.d += 3; });   /* loops tighten, snap, spring */
+  PFA.motion('gv-peek', function (G, pp, k, ph) {                                        /* leaf eyes open one after another, glance, close */
+    var q = (pp * .9 + k * .17 + ph * .2) % 1; G.fr = q < .2 ? 0 : q < .3 ? 1 : q < .6 ? 2 : q < .8 ? 3 : q < .9 ? 1 : 0; G.t += Math.sin(pp * 3 + k * 1.3) * 1.2;
+  });
+
+  /* ---------- per-run extras ---------- */
+  function decoSoft(c, e, H, s0, len, ri, pp) {                      /* fire: a chalk ring scratched on the edge, three bark cracks running out from it */
+    var Q = H.Q, env = Math.sin(Math.PI * Math.min(1, e.p)), k, j, X, Y, u;
+    if (ri !== 0 || e.z < 1) return;
+    e.P.atq(s0 + len * .5); X = Q.x + Q.nx * 9; Y = Q.y + Q.ny * 9; u = H.eo(Math.min(1, e.p * 1.6));
+    for (k = 0; k < 20 * u; k++) H.px(c, X + Math.cos(k * .33) * 5, Y + Math.sin(k * .33) * 4, e.col);
+    if (e.p > .45) for (k = 0; k < 3; k++) for (j = 0; j < 6 * env; j++) H.px(c, X + Math.cos(k * 2.1 + .4) * (5 + j) + (j & 1), Y + Math.sin(k * 2.1 + .4) * (4 + j), e.acc);
+  }
+  function perNo(c, e, H, x, y, tx, ty, nx, ny, fr, k) {             /* on fire, crossed-out sparks pop off the odd slots */
+    if (e.z < 1 || !(k & 1)) return; var u = (e.p * 1.4 + k * .1) % 1; H.glyph(c, 'gv-nox', x + nx * (6 + 8 * u), y + ny * (6 + 8 * u) - 3 * u, 0, Math.floor(u * 6) & 1, e.hi, e.acc, WH, tx, ty, nx, ny);
+  }
+  function decoHold(c, e, H, s0, len, ri, pp) {                      /* the guard rim, steady (Hold); on fire, shards thrown off where the eye blinked */
+    var s, Q = H.Q, ph = Math.floor(pp * 4), env = Math.min(1, Math.sin(Math.PI * Math.min(1, e.p)) * 3), k, u;
+    for (s = 0; s < len; s += 3) { if (((s / 3 | 0) + ph) % 4 === 0 || !H.stip(env, s, e.p)) continue; e.P.atq(s0 + s); H.px(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, SHIM); }
+    if (e.z < 1) return;
+    for (k = 0; k < 4; k++) { u = H.eo(Math.min(1, e.p * 1.3 - k * .05)); if (u <= 0 || e.p > .9) continue; e.P.atq(s0 + len * H.hash(e.seed + k * 7 + ri)); H.glyph(c, 'gv-shard', Q.x + Q.nx * (4 + 12 * u), Q.y + Q.ny * (4 + 12 * u) + 6 * u * u, 0, k, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny); }
+  }
+  function decoTwine(c, e, H, s0, len, ri, pp) {                     /* a twine line hugging the edge between the loops, and a dry leaf drifting off */
+    var s, Q = H.Q, u, X, Y;
+    for (s = 0; s < len; s += 2) if ((((s / 2) | 0) + Math.floor(pp * 6)) % 5) { e.P.atq(s0 + s); H.px(c, Q.x + Q.nx * (1 + Math.sin(s * .4) * .6), Q.y + Q.ny * (1 + Math.sin(s * .4) * .6), e.col); }
+    if (ri) return; u = (pp * .7 + H.hash(e.seed)) % 1; e.P.atq(s0 + len * (.2 + .6 * H.hash(e.seed + 3)));
+    X = Q.x + Q.nx * (6 + 10 * u) + Math.sin(u * 9) * 2; Y = Q.y + Q.ny * (6 + 10 * u) + 6 * u; H.bx(c, X - 1, Y, 3, 1, u < .5 ? '#a8792e' : '#7d5a22'); H.px(c, X, Y - 1, '#c9a26a');
+  }
+  function decoWood(c, e, H, s0, len, ri, pp) {                      /* leaves drifting down past the edge; on fire, a gold glint over each open eye */
+    var k, u, Q = H.Q;
+    for (k = 0; k < 2; k++) { u = (pp * .6 + H.hash(e.seed + k * 5 + ri)) % 1; e.P.atq(s0 + len * H.hash(e.seed + k * 9 + ri)); H.bx(c, Q.x + Q.nx * (8 + 4 * u) + Math.sin(u * 7 + k) * 3, Q.y + Q.ny * (8 + 4 * u) + 10 * u, 3, 1, k ? LEAF : LEAFD); }
+    if (e.z < 1 || e.p > .85) return;
+    for (k = 0; k < 3; k++) if ((Math.floor(pp * 10) + k) % 3 === 0) { e.P.atq(s0 + len * (k + .5) / 3); H.plus(c, Q.x + Q.nx * 12, Q.y + Q.ny * 12, 2, 1, e.hi); }
+  }
+
+  /* ---------- custom chain effects (carDraw: along the path from e.a over e.d, eased e.hh) ---------- */
+  function carSoft(c, e, H) {                                        /* a chalk line scratches along, an X stamps at its head and rings when it arrives */
+    var P = e.P, Q = H.Q, u, X = 0, Y = 0;
+    for (u = 0; u <= e.hh; u += .02) { if (((u * 50) | 0) % 3 === 2) continue; P.atq(e.a + e.d * u); X = Q.x + Q.nx * 4; Y = Q.y + Q.ny * 4; H.px(c, X, Y, e.col); }
+    H.glyph(c, 'gv-chalkx', X, Y, e.z, e.hh > .92 ? 3 : 2, e.col, e.acc, e.hi, 1, 0, 0, -1);
+  }
+  function carNo(c, e, H) {                                          /* a dotted eye-line runs out, a crossed spark at its head */
+    var P = e.P, Q = H.Q, u, X = 0, Y = 0;
+    for (u = 0; u <= e.hh; u += .03) { P.atq(e.a + e.d * u); X = Q.x + Q.nx * 4; Y = Q.y + Q.ny * 4; if ((((u * 33) | 0) + Math.floor(e.p * 12)) % 2) H.px(c, X, Y, e.col); }
+    H.glyph(c, 'gv-brow', X, Y - 2, e.z, 1 | ((Math.floor(e.p * 10) & 1 ? 1 : 2) << 1), e.col, e.acc, e.hi, 1, 0, 0, -1);
+  }
+  function carEye(c, e, H) {                                         /* the shield-eye blinks its way along in three hops, crack ticks where it lands */
+    var P = e.P, Q = H.Q, k, u;
+    for (k = 1; k <= 3; k++) { u = k / 3; if (e.hh < u - .02) break; P.atq(e.a + e.d * u); H.glyph(c, 'gv-shard', Q.x + Q.nx * 3, Q.y + Q.ny * 3, 0, k, e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny); }
+    H.carHead(c, P, e.a + e.d * e.hh, 'gv-shieldeye', e.z, Math.floor(e.p * 9) % 3 === 2 ? 2 : 0, 0, -Math.abs(Math.sin(e.hh * Math.PI * 3)) * 6, e.col, e.acc, e.hi);
+  }
+  function carTwine(c, e, H) {                                       /* a twine line springs out with a slight sag and a loop at its head that snaps and glints on arrival */
+    var P = e.P, Q = H.Q, u, X = 0, Y = 0;
+    for (u = 0; u <= e.hh; u += .015) { P.atq(e.a + e.d * u); X = Q.x + Q.nx * (2 - Math.sin(u * Math.PI) * 3); Y = Q.y + Q.ny * (2 - Math.sin(u * Math.PI) * 3); H.px(c, X, Y, e.col); }
+    H.glyph(c, 'gv-snareloop', X, Y, e.z, e.hh > .95 ? 2 : 3, e.col, e.acc, e.hi, 1, 0, 0, -1);
+  }
+  function carGaze(c, e, H) {                                        /* a leaf eye drifts along the path, leaves in its wake */
+    var P = e.P, Q = H.Q, k, u;
+    for (k = 1; k <= 4; k++) { u = e.hh - k * .06; if (u < 0) break; P.atq(e.a + e.d * u); H.bx(c, Q.x + Q.nx * 4 + Math.sin(e.p * 20 + k) * 2, Q.y + Q.ny * 4 + k, 3, 1, k & 1 ? LEAF : LEAFD); }
+    H.carHead(c, P, e.a + e.d * e.hh, 'gv-leafeye', e.z, e.hh < .15 ? 1 : 2 + (Math.floor(e.p * 8) & 1), 0, 0, e.col, e.acc, e.hi);
+  }
+
+  PFA.motif('gv-soft-spot', function (c, e, H) { comp(c, e, H, null, decoSoft); }, { nm: 'chalk marks', desc: 'chalk X marks drawing themselves along the edge and thrusting out; on fire a chalk ring and bark cracks', fam: 'slash', gap: 20, g: 'gv-chalkx', mo: 'gv-mark', x: '-', car: 'custom', carDraw: carSoft });
+  PFA.motif('gv-not-fooled', function (c, e, H) { comp(c, e, H, perNo, null); }, { nm: 'raised brows', desc: 'narrowed eyes under a raised eyebrow glancing left and right together (a no); crossed-out sparks pop off on fire', fam: 'shield', gap: 24, g: 'gv-brow', mo: 'gv-headshake', x: '-', car: 'custom', carDraw: carNo });
+  PFA.motif('gv-saw-it-coming', function (c, e, H) { comp(c, e, H, null, decoHold); }, { nm: 'watching shields', desc: 'small shields with an eye on the rim, blinking now and then, over a steady guard rim; crack shards thrown off on fire', fam: 'shield', gap: 24, g: 'gv-shieldeye', mo: 'gv-wink', x: '-', car: 'custom', carDraw: carEye });
+  PFA.motif('gv-snare-field', function (c, e, H) { comp(c, e, H, null, decoTwine); }, { nm: 'twine snares', desc: 'coiled loops of twine along the edge that tighten, snap with a glint and spring out; a dry leaf drifting', fam: 'web', gap: 20, g: 'gv-snareloop', mo: 'gv-coil', x: '-', car: 'custom', carDraw: carTwine });
+  PFA.motif('gv-eyes-of-the-wood', function (c, e, H) { comp(c, e, H, null, decoWood); }, { nm: 'leaf eyes', desc: 'leaves along the border whose middles open as eyes, one after another, gold irises glancing; leaves drifting down', fam: 'leaf', gap: 20, g: 'gv-leafeye', mo: 'gv-peek', x: '-', car: 'custom', carDraw: carGaze });
+})();
+
+/* ---- motifs/stat_fx.js ---- */
+/* Motif module (2.7.58): whole-piece effects of the gnome's stat pieces (pfight_statpieces), registered with PFA.stat(name, { dur, fi(c, A, f) }) like the environment's
+   kinds (weather_env.js): the engine (tools/pfanim_part.js) clips them to the board, scales time with the step and plays them in Full only (Light = the place motion, Off = nothing).
+   Built from claude/stat-pieces-design/stat24.json (no mock-up exists, so these are the most reasonable readings of its motif lines):
+   Loaded Die  "lid opens, cell-shaded cube spins out and lands on the piece": a small hatch opens on the piece, a die pops out in an arc, tumbles and lands on the linked piece
+               (or the next cell on the board when it links to none); a hit lands a 5 or 6 with a gold ring, a miss a 1 or 2 with a grey puff. The hatch closes behind it.
+   @trapdoor   (engine name, not a piece) a creature piece came down on a Snare Field snare: the lid of the trapdoor stands open as the piece drops in, a leaf noose cinches, the lid slams shut.
+   Every draw is a stateless function of f (ms, 0 .. dur); particles go through A.put (the MAXG glyph budget); A.shake(id, dx, dy, r) moves a piece on the board (reset by the engine).
+   A: cx, cy (this piece's cell centre), tg ({ x, y, id } of the piece it links to or null), roll ('hit' | 'miss' | ''), col, acc, hi, BW, BH, w, h, x, y (its cell), cxOf, cyOf, put, shake. */
+(function () {
+  var INK = '#2a1a10', WOOD = '#a8743c', WOOD2 = '#7d5128', WOOD3 = '#c8944f', HOLE = '#1a0f0a', CREAM = '#f2e4c0', GREY = '#b9b2a6';
+  function cl(u) { return Math.min(1, Math.max(0, u)); }
+  function eio(u) { u = cl(u); return u * u * (3 - 2 * u); }
+  function eo(u) { u = cl(u); return 1 - (1 - u) * (1 - u); }
+  function lerp(a, b, u) { return a + (b - a) * u; }
+  function mix(a, b, t) { var i, o = '#', A = [1, 3, 5].map(function (j) { return parseInt(a.substr(j, 2), 16); }), B = [1, 3, 5].map(function (j) { return parseInt(b.substr(j, 2), 16); });
+    for (i = 0; i < 3; i++) { var v = Math.round(A[i] * (1 - t) + B[i] * t); o += (v < 16 ? '0' : '') + v.toString(16); } return o; }
+  function hash(n) { var x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+
+  /* ---------- the hatch: a wooden lid hinged on its top edge. open 0 = shut (planks, ring), 1 = standing up (seen edge-on, lighter underside) over a dark hole ---------- */
+  function lid(c, A, x, y, w, h, open, a) {
+    var put = A.put, lh, ly, k;
+    if (a < 1) c.globalAlpha = Math.max(0, a);
+    if (open > .02) { put(c, x - 1, y - 1, w + 2, h + 2, INK); put(c, x, y, w, h, HOLE); put(c, x + 2, y + h - 3, w - 4, 1, '#3a2418'); }   // the hole, a lip of light on its far wall
+    lh = Math.max(3, Math.round(h * (1 - .9 * open))); ly = y - Math.round(open * 5);
+    put(c, x - 1, ly - 1, w + 2, lh + 2, INK); put(c, x, ly, w, lh, open > .5 ? WOOD3 : WOOD);
+    if (open <= .5) {
+      put(c, x, ly, w, 1, WOOD3);
+      for (k = 1; k < 3; k++) if (ly + Math.round(lh * k / 3) < ly + lh - 1) put(c, x, ly + Math.round(lh * k / 3), w, 1, WOOD2);
+      put(c, x + 2, ly + 2, 2, 2, INK); put(c, x + w - 4, ly + 2, 2, 2, INK);                                   // hinge pins
+      if (lh >= 8) { put(c, x + Math.round(w / 2) - 2, ly + lh - 6, 4, 3, CREAM); put(c, x + Math.round(w / 2) - 1, ly + lh - 5, 2, 1, INK); }   // pull ring
+    } else put(c, x, ly + lh - 1, w, 1, WOOD2);
+    c.globalAlpha = 1;
+  }
+
+  /* ---------- a die (cell-shaded): body col, light top-left rim, shade bottom-right, ink outline, pips; w x h squashes it while it tumbles ---------- */
+  var PIPS = [null, [[.5, .5]], [[.2, .2], [.8, .8]], [[.2, .2], [.5, .5], [.8, .8]], [[.2, .2], [.8, .2], [.2, .8], [.8, .8]],
+    [[.2, .2], [.8, .2], [.5, .5], [.2, .8], [.8, .8]], [[.2, .12], [.2, .5], [.2, .88], [.8, .12], [.8, .5], [.8, .88]]];
+  function die(c, A, x, y, w, h, face, col, a) {
+    var put = A.put, x0 = Math.round(x - w / 2), y0 = Math.round(y - h / 2), pp, i, ps;
+    w = Math.round(w); h = Math.round(h); if (w < 3 || h < 3) return;
+    if (a < 1) c.globalAlpha = Math.max(0, a);
+    put(c, x0 - 1, y0 - 1, w + 2, h + 2, INK); put(c, x0, y0, w, h, col);
+    put(c, x0, y0, w, 1, mix(col, '#ffffff', .6)); put(c, x0, y0, 1, h, mix(col, '#ffffff', .6));
+    put(c, x0 + 1, y0 + h - 2, w - 1, 2, mix(col, INK, .3)); put(c, x0 + w - 2, y0 + 1, 2, h - 2, mix(col, INK, .3));
+    ps = w >= 10 && h >= 10 ? 2 : 1; pp = PIPS[Math.max(1, Math.min(6, face))];
+    if (w >= 6 && h >= 6) for (i = 0; i < pp.length; i++) put(c, x0 + Math.round(1 + pp[i][0] * (w - 2 - ps)), y0 + Math.round(1 + pp[i][1] * (h - 2 - ps)), ps, ps, INK);
+    c.globalAlpha = 1;
+  }
+  function shadow(c, A, x, y, r, a) { var k; for (k = -1; k <= 1; k++) A.put(c, x - r + Math.abs(k) * 2, y + k * 2, 2 * (r - Math.abs(k) * 2), 2, 'rgba(26,15,10,' + (.32 * a).toFixed(2) + ')'); }
+  function dust(c, A, x, y, u, col, n) {   /* a little ring of specks that flies out and falls */
+    var k, v = cl(u); if (v <= 0 || v >= 1) return;
+    for (k = 0; k < n; k++) { var an = Math.PI * (k + .5) / n, rr = 4 + 10 * eo(v); A.put(c, x + Math.cos(an) * rr * 1.4 - 1, y - Math.sin(an) * rr * .6 + 6 * v * v - 1, 3 - (v > .5 ? 1 : 0), 3 - (v > .5 ? 1 : 0), col); }
+  }
+  function sparkle(c, A, x, y, r, col) { A.put(c, x - 1, y - r, 2, 2 * r + 1, col); A.put(c, x - r, y - 1, 2 * r + 1, 2, col); }
+
+  /* ================= LOADED DIE ================= */
+  function dieSpot(A) {   /* where it lands: on the piece it links to, else the next cell along the board (toward the middle) */
+    if (A.tg) return [A.cxOf(A.tg.x), A.cyOf(A.tg.y) - 3];
+    var d = A.w > 1 ? (A.x * 2 < A.w - 1 ? 1 : -1) : 0, e = d ? 0 : (A.y * 2 < A.h - 1 ? 1 : -1);
+    return [A.cx + d * A.BW, A.cy + e * A.BH - 3];
+  }
+  function loadedDie(c, A, f) {
+    var cx = A.cx, cy = A.cy + 3, T = dieSpot(A), tx = T[0], ty = T[1], hit = A.roll !== 'miss', col = A.col || '#e8c84a', open, a, u, x, y, w, h, s, face, z, v, k, bx, by, tw = .5;
+    var LW = 26, LH = 16, dist = Math.abs(tx - cx) + Math.abs(ty - cy), arc = 30 + dist * .14;
+    /* the hatch: pops in, opens, stays open while the die is out, closes with a thump */
+    a = cl(f / 90); open = f < 160 ? eio(f / 160) : f < 700 ? 1 : f < 840 ? 1 - eio((f - 700) / 140) : 0;
+    if (f < 1000) lid(c, A, cx - LW / 2, cy - LH / 2, LW, LH, open, f > 900 ? cl((1000 - f) / 100) : a);
+    if (f >= 830 && f < 900) A.shake(A.it.id, Math.round(Math.sin(f / 18) * 1.5 * (1 - (f - 830) / 70)), 0, 0);
+    /* the die: pops out of the hole, flies, tumbles (squash by turns), lands, bounces twice, settles on its face, fades */
+    if (f >= 120 && f < 1120) {
+      u = cl((f - 120) / 560); face = 1 + (Math.floor(f / 55) + 2) % 6;
+      if (f < 680) {   // flight
+        z = Math.sin(Math.PI * Math.pow(u, .85)); x = lerp(cx, tx, u); y = lerp(cy - 2, ty, u) - arc * z;
+        s = lerp(8, 15, Math.min(1, u * 4)); v = u * 2.6 * Math.PI * 2; w = Math.max(8, s * (.7 + .3 * Math.abs(Math.cos(v)))); h = Math.max(8, s * (.7 + .3 * Math.abs(Math.cos(v * .8 + 1))));
+        if (f < 240) shadow(c, A, cx, cy + 6, 4, 0); else shadow(c, A, x, lerp(cy + 6, ty + 8, u), Math.round(4 + 4 * (1 - z)), .6 + .4 * u);
+        die(c, A, x, y, w, h, face, col, 1);
+        if (u < .3) for (k = 0; k < 3; k++) A.put(c, cx - 8 + k * 8 + Math.round(hash(k + A.seed) * 3), cy - 6 - Math.round(u * 40) - k * 2, 2, 2, mix(col, '#ffffff', .6));   // sparks out of the hatch
+      } else {   // landed: two bounces, then rest
+        var b1 = cl((f - 680) / 90), b2 = cl((f - 770) / 70); y = ty - Math.sin(Math.PI * b1) * 7 * (b1 < 1 ? 1 : 0) - Math.sin(Math.PI * b2) * 3 * (b2 < 1 ? 1 : 0);
+        s = 16; w = s; h = s; if (f < 700) { w = s + 3; h = s - 3; }
+        face = hit ? (A.seed & 1 ? 6 : 5) : (A.seed & 1 ? 2 : 1);
+        if (f < 850) face = 1 + (Math.floor(f / 40) + 3) % 6;
+        a = f < 1000 ? 1 : cl((1120 - f) / 120); shadow(c, A, tx, ty + 8, 7, a);
+        die(c, A, tx, y, w, h, face, col, a);
+      }
+      /* the landing: dust, a shake of the piece under it, then a gold ring (hit) or a grey puff (miss) */
+      if (f >= 680) {
+        if (f < 900) dust(c, A, tx, ty + 6, (f - 680) / 220, hit ? mix(col, '#ffffff', .5) : GREY, 6);
+        if (A.tg && f < 960) A.shake(A.tg.id, Math.round(Math.sin(f / 21) * 2.5 * (1 - (f - 680) / 280)), Math.round(Math.cos(f / 17) * 1 * (1 - (f - 680) / 280)), 0);
+        if (hit && f >= 780 && f < 1100) { u = (f - 780) / 320; v = 8 + Math.round(14 * eo(u)); for (k = 0; k < 12; k++) { var an = k / 12 * Math.PI * 2; if (hash(k * 3 + A.seed) < u) continue; A.put(c, tx + Math.round(Math.cos(an) * v * 1.5) - 1, ty + Math.round(Math.sin(an) * v) - 1, 2, 2, k & 1 ? '#fff6dc' : col); }
+          if (u < .6) { sparkle(c, A, tx - 15, ty - 9, 2, '#fff6dc'); sparkle(c, A, tx + 16, ty - 3, 3, col); } }
+      }
+    }
+  }
+
+  /* ================= TRAPDOOR: a creature piece came down on a Snare Field snare (engine name '@trapdoor'; its cell is A.cx, A.cy) ================= */
+  function trapdoor(c, A, f) {
+    var x0 = Math.round(A.cx - A.BW / 2), y0 = Math.round(A.cy - A.BH / 2), W = A.BW, H = A.BH, put = A.put, k, u, open, a, rr, LH = 12, g = 3;
+    open = f < 120 ? eio(f / 120) : f < 480 ? 1 : f < 600 ? 1 - Math.pow(eio((f - 480) / 120), 1.5) : 0;   // the lid: standing open as the piece drops, slams at ~600
+    a = f < 80 ? cl(f / 80) : f < 1000 ? 1 : cl((1200 - f) / 200);
+    c.globalAlpha = a;
+    /* the trap's frame round the cell body (a plank border with an ink line, so it shows on any piece) */
+    put(c, x0 - 1, y0 - 1, W + 2, 1, INK); put(c, x0 - 1, y0 + H, W + 2, 1, INK); put(c, x0 - 1, y0, 1, H, INK); put(c, x0 + W, y0, 1, H, INK);
+    put(c, x0, y0, W, g, WOOD3); put(c, x0, y0 + H - g, W, g, WOOD3); put(c, x0, y0 + g, g, H - 2 * g, WOOD3); put(c, x0 + W - g, y0 + g, g, H - 2 * g, WOOD3);
+    put(c, x0 + g, y0 + g, W - 2 * g, 1, INK); put(c, x0 + g, y0 + H - g - 1, W - 2 * g, 1, INK); put(c, x0 + g, y0 + g, 1, H - 2 * g, INK); put(c, x0 + W - g - 1, y0 + g, 1, H - 2 * g, INK);
+    /* the lid hinged on the top edge: up and open above the cell (underside showing), swinging down across the top with a thump */
+    if (f < 760) { var lh = Math.max(4, Math.round(LH * (1 - .55 * open))), ly = y0 - Math.round(open * lh) - 1 + (open < 1 ? Math.round((1 - open) * 2) : 0);
+      put(c, x0 - 1, ly - 1, W + 2, lh + 2, INK); put(c, x0, ly, W, lh, open > .5 ? WOOD : WOOD3);
+      if (open <= .5) { put(c, x0, ly + 4, W, 1, WOOD2); put(c, x0, ly + 8, W, 1, WOOD2); put(c, x0 + W / 2 - 3, ly + lh - 4, 6, 3, CREAM); put(c, x0 + W / 2 - 1, ly + lh - 3, 2, 1, INK); }
+      else { put(c, x0, ly + lh - 2, W, 2, WOOD2); put(c, x0 + 3, ly + 2, 3, 2, INK); put(c, x0 + W - 6, ly + 2, 3, 2, INK); } }
+    if (f >= 590 && f < 720) { u = (f - 590) / 130; A.shake(A.it.id, Math.round(Math.sin(f / 15) * 2.2 * (1 - u)), Math.round((1 - u) * 1.5), 0);
+      dust(c, A, A.cx, y0 + 4, u, '#d8c8a0', 6); }
+    c.globalAlpha = 1;
+    /* a noose of leaf-twine cinches round the piece (the snare's own loop) between 160 and 620, the knot at its foot */
+    if (f >= 160 && f < 1100) { u = eio((f - 160) / 460); rr = lerp(1, .74, u); var n = 24;
+      for (k = 0; k < n; k++) { var an = k / n * Math.PI * 2; if (f > 900 && hash(k + A.seed) < (f - 900) / 200) continue;
+        put(c, A.cx + Math.round(Math.cos(an) * (W / 2 - 4) * rr) - 1, A.cy + Math.round(Math.sin(an) * (H / 2 - 4) * rr) - 1, 3, 3, k % 3 === 0 ? '#c8e07a' : '#5f9a4a'); }
+      if (u > .8 && f < 1000) { put(c, A.cx - 4, A.cy + Math.round((H / 2 - 4) * rr) - 3, 8, 5, INK); put(c, A.cx - 3, A.cy + Math.round((H / 2 - 4) * rr) - 2, 6, 3, '#c8e07a'); } }
+    if (f >= 200 && f < 520) for (k = 0; k < 5; k++) { u = cl((f - 200 - k * 25) / 260); if (u <= 0 || u >= 1) continue; put(c, x0 + 8 + k * 10 + Math.round((hash(k + 5) - .5) * 6), y0 + H - 8 - Math.round(24 * u), 3, 3, k & 1 ? '#8fb86a' : '#c8e07a'); }   // leaf bits flung up
+  }
+
+  PFA.stat('Loaded Die', { dur: 1200, fi: loadedDie });
+  PFA.stat('@trapdoor', { dur: 1200, fi: trapdoor });
+})();
+
+/* ---- motifs/stat_nimble.js ---- */
+/* Motif module: the five Nimble tier pieces' own-edge effects and chain effects, written like motifs/stat_pieces.js (engine2).
+   Footwork language shared with Sidestep: prints, dust flicks, speed ticks, afterimages. Each piece gets its own glyph, motion and run extra:
+   Skitter (Guard, Evade, body): scuffed little prints skittering in quick hops with skid streaks; chain = a print darting in four zigzag hops, dust at each landing.
+   Wrong Turn (Trick, Quick, mind): crooked signposts whose boards spin like weathervanes; chevrons run along the edge and take a sudden wrong turn; chain = an arrow that jogs off the path and back.
+   Pinning Stance (Guard, Hold, mind): planted boots stamping in turn, push-pins driven into the edge; chain = a taut line pinned down at its head.
+   Shadow Step (Guard, Keeper, mind): a dark drop-outline hugging the edge, little hooded shadows rising out of it and sinking back; chain = a shadow puddle sliding, the figure popping up at the end.
+   Phantom Footing (Guard, Evade, body): misty pale prints appearing in step and fading, mist curls lifting off; the fire version adds a ghostly hand sliding an aim ring along the edge;
+   chain = misty prints walking the path, fading behind.
+   Every draw is a stateless function of p (hash noise only); glyphs go through H.glyph (MAXG budget); coordinates (a, b) = along the tangent, out along the normal. */
+(function () {
+  var WH = '#ffffff', PIN = '#c8402c';
+
+  /* shared own-edge composition (as stat_pieces.js comp): layout x motion per glyph, optional per-glyph and per-run extras */
+  function comp(c, e, H, per, deco) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, p = e.p, pp = p * mp.spd, Q = H.Q, G = H.G, P = e.P, ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, fr;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(8, Math.round(len / (M.gap || 12))));
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, p, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, p)) continue;
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny; fr = G.fr;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (per) per(c, e, H, x, y, -ny, nx, nx, ny, fr, k, bx0, by0);
+        H.glyph(c, M.g, x, y, z, fr, e.col, e.acc, e.hi, -ny, nx, nx, ny);
+      }
+      if (deco) deco(c, e, H, r[0], len, ri, pp);
+    }
+  }
+  function P2(c, K, x, y, tx, ty, nx, ny, a, b, col) { K.px(c, x + tx * a + nx * b, y + ty * a + ny * b, col); }
+  function env(p) { return Math.sin(Math.PI * Math.min(1, Math.max(0, p))); }
+
+  /* ---------- glyphs ---------- */
+  PFA.glyph('gv-scuff', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* Skitter: a small scuffed print, a skid streak behind it; bit 0 = skid direction, bit 1 = fresh (bigger, dust) */
+    var sd = fr & 1 ? 1 : -1, fresh = !!(fr & 2), a, b;
+    for (a = -1; a <= 1; a++) for (b = -1; b <= 1; b++) if (Math.abs(a) + Math.abs(b) < 2 || fresh) P2(c, K, x, y, tx, ty, nx, ny, a, b, C);
+    P2(c, K, x, y, tx, ty, nx, ny, 2, -1, C); P2(c, K, x, y, tx, ty, nx, ny, 2, 1, C); P2(c, K, x, y, tx, ty, nx, ny, 0, 0, A);
+    for (a = 2; a <= 4 + z; a++) P2(c, K, x, y, tx, ty, nx, ny, -sd * a, a & 1 ? 0 : 1, a > 3 ? Hi : A);   /* the skid */
+    if (fresh) { P2(c, K, x, y, tx, ty, nx, ny, sd * 3, 2, Hi); P2(c, K, x, y, tx, ty, nx, ny, sd * 4, -2, Hi); }
+  });
+  PFA.glyph('gv-sign', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* Wrong Turn: a crooked signpost (upright on screen); bit 0 = board points left, bit 1 = board edge-on mid-spin */
+    var i, d = fr & 1 ? -1 : 1, w = 4 + (z > 0 ? 1 : 0);
+    K.bx(c, x, y - 2, 1, 6, A); K.px(c, x - 1, y + 3, A); K.px(c, x + 1, y + 3, A);   /* the post, feet splayed */
+    if (fr & 2) { K.bx(c, x - 1, y - 5, 3, 3, Hi); K.bx(c, x, y - 5, 1, 3, C); return; }   /* edge-on */
+    for (i = 0; i < w; i++) { K.bx(c, x + d * i, y - 5 + (i > 2 ? 1 : 0), 1, 3, C); }   /* the board, drooping (crooked) */
+    K.px(c, x + d * w, y - 4 + 1, C); K.px(c, x + d * (w + 1), y - 3 + 0, Hi);           /* the arrow tip */
+    K.px(c, x + d, y - 4, Hi);
+  });
+  PFA.glyph('gv-chev', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* a small chevron pointing along the tangent (or out, fr 1) */
+    var ax = fr ? nx : tx, ay = fr ? ny : ty, bxn = fr ? tx : nx, byn = fr ? ty : ny;
+    K.px(c, x + ax * 1, y + ay * 1, C); K.px(c, x - bxn - ax * 0, y - byn, C); K.px(c, x + bxn, y + byn, C); K.px(c, x - 2 * bxn - ax, y - 2 * byn - ay, Hi); K.px(c, x + 2 * bxn - ax, y + 2 * byn - ay, Hi);
+  });
+  PFA.glyph('gv-boot', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* Pinning Stance: a planted boot (upright); bit 0 = just stamped (dust both sides) */
+    var s = z > 0 ? 1 : 0;
+    K.bx(c, x - 1, y - 4 - s, 3, 4 + s, C); K.bx(c, x - 1, y, 5 + s, 2, C); K.bx(c, x - 1, y + 2, 5 + s, 1, A);   /* shaft, foot, sole */
+    K.px(c, x, y - 4 - s, Hi); K.px(c, x + 3 + s, y, Hi); K.px(c, x, y + 2, Hi); K.px(c, x + 2, y + 2, Hi);
+    if (fr & 1) { K.px(c, x - 3, y + 2, A); K.px(c, x - 4, y + 1, Hi); K.px(c, x + 6 + s, y + 2, A); K.px(c, x + 7 + s, y + 1, Hi); }
+  });
+  PFA.glyph('gv-pin', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {       /* a push-pin pointing in along -normal: red head, silver needle (fr = needle length showing) */
+    var L = 1 + (fr & 3), i;
+    for (i = 0; i < L; i++) K.px(c, x - nx * i, y - ny * i, Hi);
+    K.sq(c, x + nx * 1, y + ny * 1, 3, PIN); K.px(c, x + nx * 1 - 1, y + ny * 1 - 1, WH);
+  });
+  PFA.glyph('gv-shade', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* Shadow Step: a hooded shadow figure (upright); fr 0 = risen, 1 = half sunk, 2 = only the eyes over a puddle */
+    var s = z > 0 ? 1 : 0;
+    K.bx(c, x - 3 - s, y + 2, 7 + 2 * s, 1, A);                                       /* puddle */
+    if (fr === 2) { K.px(c, x - 1, y + 1, Hi); K.px(c, x + 1, y + 1, Hi); return; }
+    var top = fr === 1 ? y - 1 : y - 5 - s;
+    K.bx(c, x - 2, top + 1, 5, y + 2 - top - 1, C); K.bx(c, x - 1, top, 3, 1, C);   /* hood and body */
+    K.px(c, x - 1, top + 2, Hi); K.px(c, x + 1, top + 2, Hi);                         /* eyes */
+    if (fr === 0) { K.px(c, x - 3, y, C); K.px(c, x + 3, y - 1, C); }                 /* ragged hem */
+  });
+  PFA.glyph('gv-mist', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* Phantom Footing: a misty print; fr 0 solid pale, 1 dotted, 2 a last few pixels; bit 2 = right foot */
+    var st = fr & 3, sd = fr & 4 ? 1 : -1, a, b, n = 0;
+    for (a = -2; a <= 2; a++) for (b = -1; b <= 1; b++) {
+      if ((a === -2 || a === 2) && b !== 0) continue; n++;
+      if (st === 1 && (n & 1)) continue; if (st === 2 && n % 4) continue;
+      P2(c, K, x, y, tx, ty, nx, ny, a, b * sd + sd, a === 2 ? Hi : C);
+    }
+    if (st === 0) { P2(c, K, x, y, tx, ty, nx, ny, 3, sd - 1, A); P2(c, K, x, y, tx, ty, nx, ny, 3, sd + 1, A); }   /* toes */
+  });
+  PFA.glyph('gv-ghand', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a ghostly hand (upright, palm down, fingers to the right), pushing; fr bit 0 = fingers flexed */
+    var f = fr & 1;
+    K.bx(c, x - 3, y - 1, 5, 4, C); K.bx(c, x - 4, y, 1, 2, A);                       /* palm, wrist edge */
+    K.bx(c, x + 2, y - 1, 3 - f, 1, C); K.bx(c, x + 2, y + 1, 4 - f, 1, C); K.bx(c, x + 2, y + 3, 3 - f, 1, C);   /* fingers */
+    K.px(c, x - 1, y - 2, C); K.px(c, x - 2, y - 2, Hi); K.px(c, x, y, Hi);
+  });
+
+  /* ---------- motions ---------- */
+  PFA.motion('gv-scurry', function (G, pp, k, ph) {                                   /* quick hops: each print darts a short way, skids, darts back the other way */
+    var q = pp * 4 + ph * 3, st = Math.floor(q), f = q - st, dir = (st + k) & 1;
+    G.s += (dir ? 1 : -1) * .05 * Math.min(1, f * 3); G.t += (dir ? 1 : -1) * 2 * Math.min(1, f * 3);
+    G.fr = (dir ? 1 : 0) | (f < .3 ? 2 : 0); if (f < .2) G.up += (1 - f / .2) * 2;
+  });
+  PFA.motion('gv-vane', function (G, pp, k, ph) {                                     /* the boards spin: right, edge-on, left, edge-on, with a little wobble */
+    var w = Math.floor(pp * 8 + ph * 4 + k), st = w & 3;
+    G.fr = st === 0 ? 0 : st === 2 ? 1 : 2; G.t += Math.sin(pp * 6 + k) * 1;
+  });
+  PFA.motion('gv-plant', function (G, pp, k, ph) {                                    /* each boot lifts and stamps in turn, then stands planted */
+    var q = (pp * 1.6 + k * .27 + ph * .1) % 1;
+    if (q < .18) { G.up += Math.sin(q / .18 * Math.PI) * 3; G.fr = 0; } else G.fr = q < .3 ? 1 : 0;
+  });
+  PFA.motion('gv-sink', function (G, pp, k, ph) {                                     /* rise out of the shadow, look about, sink back */
+    var q = (pp * 1.2 + ph) % 1; G.fr = q < .2 ? 2 : q < .3 ? 1 : q < .75 ? 0 : q < .85 ? 1 : 2; G.t += q > .3 && q < .75 ? Math.sin(pp * 8 + k) * 1 : 0; G.d -= 2;
+  });
+  PFA.motion('gv-wander', function (G, pp, k, ph) {                                   /* prints appear one after another (a walk along the edge) and fade as the next lands */
+    var q = (pp * 1.4 - k * .14 + 10) % 1; G.fr = (q < .35 ? 0 : q < .6 ? 1 : q < .8 ? 2 : 3) | ((k & 1) << 2); if ((G.fr & 3) === 3) G.vis = 0; G.up += q * 2; G.d -= 1;
+  });
+
+  /* ---------- per-glyph and per-run extras ---------- */
+  function perKick(c, e, H, x, y, tx, ty, nx, ny, fr, k) {           /* a dust kick off each fresh scuff */
+    if (!(fr & 2)) return; var i, sd = fr & 1 ? 1 : -1; for (i = 0; i < 3; i++) H.px(c, x + tx * sd * (5 + i * 2) + nx * (1 + i), y + ty * sd * (5 + i * 2) + ny * (1 + i) - i, i ? e.hi : e.acc);
+  }
+  function decoSkid(c, e, H, s0, len, ri, pp) {                      /* skid lines sliding sideways fast, flashing; dust specks thrown out */
+    var k, s, j, Q = H.Q, fl = Math.floor(pp * 18), en = env(e.p);
+    for (k = 0; k < 3; k++) { if ((fl + k) % 4 === 0) continue; s = s0 + ((H.hash(e.seed + k * 13 + ri) * len + (k & 1 ? 1 : -1) * pp * 90) % len + len) % len;
+      for (j = 0; j < 4; j++) { e.P.atq(s - j * (k & 1 ? 1 : -1)); H.px(c, Q.x + Q.nx * (9 + k * 2), Q.y + Q.ny * (9 + k * 2), j < 2 ? e.hi : e.col); } }
+    for (k = 0; k < 4; k++) { var u = (pp * 2 + H.hash(e.seed + k * 3 + ri)) % 1; if (!H.stip(en * (1 - u), k + 30, e.p)) continue; e.P.atq(s0 + len * H.hash(e.seed + k * 5 + ri + 1));
+      H.px(c, Q.x + Q.nx * (3 + 12 * u), Q.y + Q.ny * (3 + 12 * u) - Math.sin(u * Math.PI) * 3, e.hi); }
+  }
+  function decoTurn(c, e, H, s0, len, ri, pp) {                      /* chevrons march along the edge; at one point they swerve out (the wrong turn) and come back */
+    var k, u, Q = H.Q, kink = H.hash(e.seed + ri * 3) * .6 + .2, d, off;
+    for (k = 0; k < 4; k++) { u = (pp * .9 + k * .25) % 1; d = Math.abs(u - kink); off = d < .08 ? (1 - d / .08) * 7 : 0;
+      e.P.atq(s0 + len * u); H.glyph(c, 'gv-chev', Q.x + Q.nx * (8 + off), Q.y + Q.ny * (8 + off), 0, off > 3 ? 1 : 0, e.hi, e.acc, e.col, -Q.ny, Q.nx, Q.nx, Q.ny); }
+  }
+  function decoPins(c, e, H, s0, len, ri, pp) {                      /* push-pins at fixed points, driven in on the fire (needle shrinks as it sinks) */
+    var k, n = Math.max(1, Math.round(len / 30)), Q = H.Q, drive = e.z > 0 ? Math.min(1, e.p * 2.2) : .7, d;
+    for (k = 0; k < n; k++) { e.P.atq(s0 + len * (k + .5) / n); d = 1 + 6 * (1 - H.eo(drive)); H.glyph(c, 'gv-pin', Q.x + Q.nx * d, Q.y + Q.ny * d, 0, d > 4 ? 3 : d > 2 ? 2 : 1, e.col, e.acc, '#d9dde4', -Q.ny, Q.nx, Q.nx, Q.ny);
+      if (e.z > 0 && e.p > .42 && e.p < .6) { H.px(c, Q.x + Q.nx * 4 - Q.ny * 3, Q.y + Q.ny * 4 + Q.nx * 3, WH); H.px(c, Q.x + Q.nx * 4 + Q.ny * 3, Q.y + Q.ny * 4 - Q.nx * 3, WH); } }
+  }
+  function decoShadow(c, e, H, s0, len, ri, pp) {                    /* a dark drop-outline hugging the edge (offset down-right), dithered at its fringe, drips sliding off */
+    var s, Q = H.Q, en = Math.min(1, env(e.p) * 2.5), k, u;
+    for (s = 0; s < len; s += 1) { if (!H.stip(en, s, e.p)) continue; e.P.atq(s0 + s); H.px(c, Q.x + Q.nx * 2 + 1, Q.y + Q.ny * 2 + 1, e.acc); if ((s + Math.floor(pp * 6)) % 3 === 0) H.px(c, Q.x + Q.nx * 3 + 1, Q.y + Q.ny * 3 + 1, e.col); }
+    for (k = 0; k < 2; k++) { u = (pp * .8 + H.hash(e.seed + k * 7 + ri)) % 1; e.P.atq(s0 + len * H.hash(e.seed + k * 11 + ri)); H.bx(c, Q.x + Q.nx * 3, Q.y + Q.ny * 3 + 8 * u, 1, 2, e.acc); }
+  }
+  function decoMist(c, e, H, s0, len, ri, pp) {                      /* mist curls lifting off; on the fire a ghostly hand slides an aim ring along the first run */
+    var k, u, Q = H.Q, X, Y, j;
+    for (k = 0; k < 3; k++) { u = (pp * .7 + H.hash(e.seed + k * 5 + ri)) % 1; e.P.atq(s0 + len * H.hash(e.seed + k * 9 + ri + 4)); X = Q.x + Q.nx * (4 + 8 * u); Y = Q.y + Q.ny * (4 + 8 * u) - 6 * u;
+      for (j = 0; j < 5; j++) if (H.hash(j + k * 7 + Math.floor(pp * 10)) < 1 - u * .8) H.px(c, X + j - 2, Y + Math.round(Math.sin(j * 1.3 + pp * 6) * 1), j & 1 ? e.hi : e.col); }
+    if (e.z > 0 && ri === 0) {
+      u = H.eo(Math.min(1, e.p * 1.3)); e.P.atq(s0 + len * (.15 + .7 * u)); X = Q.x + Q.nx * 9; Y = Q.y + Q.ny * 9;
+      if (e.p < .9) { H.ringpx(c, X + 7, Y, 3, PIN); H.px(c, X + 7, Y, PIN); H.glyph(c, 'gv-ghand', X, Y, 0, Math.floor(e.p * 10) & 1, e.col, e.acc, e.hi, 1, 0, 0, -1); }
+    }
+  }
+
+  /* ---------- custom chain effects (carDraw: along the path from e.a over e.d, eased e.hh) ---------- */
+  function carSkitter(c, e, H) {                                     /* a scuff darts along in four zigzag hops, dust where it lands each time */
+    var P = e.P, Q = H.Q, k, u, hop = Math.min(3, Math.floor(e.hh * 4)), f = e.hh * 4 - hop;
+    for (k = 1; k <= hop; k++) { u = k / 4; P.atq(e.a + e.d * u); H.px(c, Q.x + Q.nx * 2 - 2, Q.y + Q.ny * 2, e.hi); H.px(c, Q.x + Q.nx * 2 + 2, Q.y + Q.ny * 2, e.hi); H.px(c, Q.x + Q.nx * 3, Q.y + Q.ny * 3 - 1, e.acc); }
+    H.carHead(c, P, e.a + e.d * e.hh, 'gv-scuff', e.z, (hop & 1) | (f < .3 ? 2 : 0), 0, (hop & 1 ? 3 : -3) - Math.sin(f * Math.PI) * 4, e.col, e.acc, e.hi);
+  }
+  function carTurn(c, e, H) {                                        /* an arrow runs the path, jogs off it at 55% (the wrong turn) and back on; chevrons behind */
+    var P = e.P, Q = H.Q, k, u, off, hh = e.hh;
+    function jog(u) { var d = Math.abs(u - .55); return d < .12 ? (1 - d / .12) * 9 : 0; }
+    for (k = 1; k <= 4; k++) { u = hh - k * .06; if (u < 0) break; P.atq(e.a + e.d * u); off = jog(u); H.glyph(c, 'gv-chev', Q.x + Q.nx * (4 + off), Q.y + Q.ny * (4 + off), 0, 0, e.hi, e.acc, e.col, -Q.ny, Q.nx, Q.nx, Q.ny); }
+    P.atq(e.a + e.d * hh); off = jog(hh); H.glyph(c, 'gv-sign', Q.x + Q.nx * (5 + off), Q.y + Q.ny * (5 + off), e.z, (Math.floor(e.p * 12) & 1) ? 2 : (off > 2 ? 1 : 0), e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny);
+  }
+  function carPin(c, e, H) {                                         /* a taut line draws along the path, cross-stitched; a pin is driven in at its head */
+    var P = e.P, Q = H.Q, u, X = 0, Y = 0, i = 0;
+    for (u = 0; u <= e.hh; u += .02) { P.atq(e.a + e.d * u); X = Q.x + Q.nx * 3; Y = Q.y + Q.ny * 3; H.px(c, X, Y, e.hi); if (i++ % 6 === 0) { H.px(c, X - 1, Y - 1, e.col); H.px(c, X + 1, Y + 1, e.col); } }
+    H.glyph(c, 'gv-pin', X, Y - 1, 0, e.p > .85 ? 1 : 3, e.col, e.acc, '#d9dde4', 0, 1, 0, -1);
+  }
+  function carShadow(c, e, H) {                                      /* a shadow puddle slides along; at the end the hooded figure pops up out of it */
+    var P = e.P, Q = H.Q, u;
+    for (u = Math.max(0, e.hh - .25); u <= e.hh; u += .03) { P.atq(e.a + e.d * u); H.bx(c, Q.x + Q.nx * 3 - 2, Q.y + Q.ny * 3, 4, 1, e.acc); }
+    H.carHead(c, P, e.a + e.d * e.hh, 'gv-shade', e.z, e.p > .8 ? 0 : e.p > .7 ? 1 : 2, 0, 0, e.col, e.acc, e.hi);
+  }
+  function carMist(c, e, H) {                                        /* misty prints step along the path, left and right, fading behind the newest */
+    var P = e.P, Q = H.Q, k, n = 6, u, age;
+    for (k = 0; k < n; k++) { u = (k + .5) / n; if (u > e.hh + .02) break; age = (e.hh - u) * 4; if (age > 1.2) continue; P.atq(e.a + e.d * u);
+      H.glyph(c, 'gv-mist', Q.x + Q.nx * (4 + (k & 1 ? 3 : 0)), Q.y + Q.ny * (4 + (k & 1 ? 3 : 0)), e.z, (age < .35 ? 0 : age < .8 ? 1 : 2) | ((k & 1) << 2), e.col, e.acc, e.hi, -Q.ny, Q.nx, Q.nx, Q.ny); }
+  }
+
+  PFA.motif('gv-skitter', function (c, e, H) { comp(c, e, H, perKick, decoSkid); }, { nm: 'skittering scuffs', desc: 'scuffed little prints skittering in quick hops with skid streaks, dust kicked off', fam: 'puff', gap: 18, g: 'gv-scuff', mo: 'gv-scurry', x: '-', car: 'custom', carDraw: carSkitter });
+  PFA.motif('gv-wrong-turn', function (c, e, H) { comp(c, e, H, null, decoTurn); }, { nm: 'crooked signposts', desc: 'crooked signposts spinning like weathervanes, chevrons on the edge swerving off course', fam: 'shock', gap: 22, g: 'gv-sign', mo: 'gv-vane', x: '-', car: 'custom', carDraw: carTurn });
+  PFA.motif('gv-pinning-stance', function (c, e, H) { comp(c, e, H, null, decoPins); }, { nm: 'planted boots', desc: 'planted boots stamping in turn, push-pins driven into the edge', fam: 'shield', gap: 24, g: 'gv-boot', mo: 'gv-plant', x: '-', car: 'custom', carDraw: carPin });
+  PFA.motif('gv-shadow-step', function (c, e, H) { comp(c, e, H, null, decoShadow); }, { nm: 'shadow outline', desc: 'a dark outline hugging the edge, little hooded shadows rising out of it and sinking back', fam: 'puff', gap: 24, g: 'gv-shade', mo: 'gv-sink', x: '-', car: 'custom', carDraw: carShadow });
+  PFA.motif('gv-phantom-footing', function (c, e, H) { comp(c, e, H, null, decoMist); }, { nm: 'misty footprints', desc: 'misty pale prints appearing in step and fading, mist curls lifting; on the fire a ghostly hand slides an aim ring', fam: 'ripple', gap: 16, g: 'gv-mist', mo: 'gv-wander', x: '-', car: 'custom', carDraw: carMist });
+})();
+
+/* ---- motifs/stat_pieces.js ---- */
+/* Motif module: the four stat pieces' own-edge effects and chain effects, written like claude/pf-anim/motifs/medium_m01.js.
+   Loaded Die (Item): gold glints twinkling on the edge (the die itself pops out of the piece: motifs/stat_fx.js).
+   Sidestep (Trick, Quick): footprints stamping left-right along the edge, dust flicks off each stamp, speed ticks sliding past.
+   Old Saying (Trick, Lore): ink letters lifting off the edge, a quill flourish curling out, a faint dithered ink-glow hugging the edge.
+   Sharp Eye (Guard, Keeper): gold glint stars and slow-blinking eyes drifting along the edge over a steady guard-hold shimmer.
+   Every draw is a stateless function of p (hash noise only); glyphs go through H.glyph (MAXG budget); coordinates (a, b) = along the tangent, out along the normal. */
+(function () {
+  var INKC = '#2a1a10', SHIM = '#a9d6ea', WH = '#ffffff';
+  /* 3 x 5 pixel letters for the Saying (rows top to bottom, 3 bits each) */
+  var LET = ['010101111101101', '110101110101110', '011100100100011', '010101101101010', '011100010001110', '101101111111101', '101101010010010', '110101110101101'];   // A B C O S W Y R
+
+  /* ---------- shared own-edge composition: the page's themedOwn() with this module's glyph / motion, plus optional per-glyph and per-run extras (as medium_m01.js) ---------- */
+  function comp(c, e, H, per, deco) {
+    var runs = e.runs, mp = e.mp, M = e.M, z = e.z, p = e.p, pp = p * mp.spd, Q = H.Q, G = H.G, P = e.P,
+      ri, k, r, len, n, f, ph, sf, bx0, by0, nx, ny, x, y, fr;
+    for (ri = 0; ri < runs.length; ri++) {
+      r = runs[ri]; len = r[1] - r[0]; n = Math.max(1, Math.min(8, Math.round(len / (M.gap || 12))));
+      for (k = 0; k < n; k++) {
+        f = (k + .5) / n; ph = H.hash(e.seed * 13 + k * 7 + ri * 31);
+        H.lay(mp.lay, p, f, ph, k); H.mot(M.mo, pp, k, ph);
+        if (G.vis <= 0 || !H.stip(G.vis, k + ri * 9, p)) continue;
+        sf = G.s - Math.floor(G.s); P.atq(r[0] + len * sf); bx0 = Q.x; by0 = Q.y; nx = Q.nx; ny = Q.ny; fr = G.fr;
+        x = bx0 + nx * G.d - ny * G.t; y = by0 + ny * G.d + nx * G.t - G.up;
+        if (per) per(c, e, H, x, y, -ny, nx, nx, ny, fr, k, bx0, by0);
+        H.glyph(c, M.g, x, y, z, fr, e.col, e.acc, e.hi, -ny, nx, nx, ny);
+      }
+      if (deco) deco(c, e, H, r[0], len, ri, pp);
+    }
+  }
+  function P2(c, K, x, y, tx, ty, nx, ny, a, b, col) { K.px(c, x + tx * a + nx * b, y + ty * a + ny * b, col); }
+
+  /* ---------- glyphs ---------- */
+  PFA.glyph('gv-glint', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a 4-point glint star that swells and shrinks (fr 0..3) */
+    var L = [1, 2, 3 + (z > 0 ? 1 : 0), 2][fr & 3];
+    K.bx(c, x - L, y, 2 * L + 1, 1, C); K.bx(c, x, y - L, 1, 2 * L + 1, C); K.px(c, x, y, WH);
+    if (L > 2) { K.px(c, x - 1, y - 1, Hi); K.px(c, x + 1, y + 1, Hi); }
+  });
+  PFA.glyph('gv-foot', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {      /* a little footprint pointing along the edge; fr bit 1 = left / right foot, bit 0 = just stamped (bigger, dust ring) */
+    var sd = fr & 2 ? 1 : -1, big = !(fr & 1), a, b, s = big ? 1 : 0;
+    for (a = -2 - s; a <= 1; a++) for (b = -1; b <= 1; b++) { if ((a === -2 - s || a === 1) && b !== 0) continue; P2(c, K, x, y, tx, ty, nx, ny, a, b * sd, C); }
+    P2(c, K, x, y, tx, ty, nx, ny, 3, -1 * sd, C); P2(c, K, x, y, tx, ty, nx, ny, 3, 1 * sd, C); P2(c, K, x, y, tx, ty, nx, ny, 3 + s, 0, C);
+    P2(c, K, x, y, tx, ty, nx, ny, 0, 2 * sd, Hi); P2(c, K, x, y, tx, ty, nx, ny, -1, 2 * sd, Hi);
+    if (big) { P2(c, K, x, y, tx, ty, nx, ny, -5, -2, A); P2(c, K, x, y, tx, ty, nx, ny, -5, 2, A); P2(c, K, x, y, tx, ty, nx, ny, 5, -2, A); P2(c, K, x, y, tx, ty, nx, ny, 5, 2, A); }
+  });
+  PFA.glyph('gv-letter', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {    /* one ink letter (upright, so it reads), a pale glow pixel behind; fr >> 1 picks the letter, bit 0 wobbles it */
+    var bits = LET[(fr >> 1) % LET.length], i, ox = x - 1 + (fr & 1 ? 1 : 0), oy = y - 2;
+    for (i = 0; i < 15; i++) if (bits.charAt(i) === '1') { K.px(c, ox + (i % 3), oy + ((i / 3) | 0), C); if (z > 0) K.px(c, ox + (i % 3) + 1, oy + ((i / 3) | 0), A); }
+    K.px(c, ox - 1, oy + 5, Hi); K.px(c, ox + 3, oy - 1, Hi);
+  });
+  PFA.glyph('gv-quill', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a quill feather leaning back from its nib (screen up-right), barbs on one side */
+    var i;
+    for (i = 0; i < 7; i++) { K.px(c, x + i, y - i, i < 2 ? A : Hi); if (i > 1) { K.px(c, x + i + 1, y - i + 1 + (fr & 1), C); if (i > 3) K.px(c, x + i - 1, y - i - 1, C); } }
+    K.px(c, x - 1, y + 1, A);
+  });
+  PFA.glyph('gv-watch', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* Sharp Eye: fr bit 2 = an eye (bits 0-1: open, half, shut), else a glint star (bits 0-1: size) */
+    if (!(fr & 4)) { K.glyph(c, 'gv-glint', x, y, z, fr & 3, C, A, Hi, tx, ty, nx, ny); return; }
+    var st = fr & 3, w = 3 + (z > 0 ? 1 : 0);
+    if (st === 0) {
+      K.bx(c, x - w + 1, y - 2, 2 * w - 1, 1, A); K.bx(c, x - w + 1, y + 2, 2 * w - 1, 1, A); K.px(c, x - w, y - 1, A); K.px(c, x + w, y - 1, A); K.px(c, x - w, y + 1, A); K.px(c, x + w, y + 1, A); K.px(c, x - w - 1, y, A); K.px(c, x + w + 1, y, A);
+      K.bx(c, x - w + 1, y - 1, 2 * w - 1, 3, WH); K.bx(c, x - w, y, 2 * w + 1, 1, WH); K.bx(c, x - 1, y - 1, 3, 3, C); K.px(c, x, y, A); K.px(c, x - 1, y - 1, WH);
+    } else if (st === 1) { K.bx(c, x - w, y - 1, 2 * w + 1, 1, A); K.bx(c, x - w + 1, y, 2 * w - 1, 1, WH); K.bx(c, x - 1, y, 3, 1, C); K.bx(c, x - w, y + 1, 2 * w + 1, 1, A); }
+    else { K.bx(c, x - w - 1, y, 2 * w + 3, 1, A); K.px(c, x - 2, y + 1, A); K.px(c, x, y + 1, A); K.px(c, x + 2, y + 1, A); }
+  });
+
+  /* ---------- motions ---------- */
+  PFA.motion('gv-twinkle', function (G, pp, k, ph) { G.s += pp * .04; G.t += Math.sin(pp * 3 + k * 1.7) * 1.5; G.fr = (Math.floor(pp * 7 + ph * 6) + k) & 3; });   /* the glints swell and shrink in turn, drifting a little */
+  PFA.motion('gv-skip', function (G, pp, k, ph) {                                     /* step, step: each print stamps, holds, and the next lands one stride on, left and right in turn */
+    var q = pp * 3 + ph * 2, st = Math.floor(q), f = q - st, lr = (st + k) & 1;
+    G.s += st * .07; G.d += lr ? 3 : 0; G.fr = (f < .22 ? 0 : 1) | (lr << 1); if (f < .12) G.up += (1 - f / .12) * 2;
+  });
+  PFA.motion('gv-write', function (G, pp, k, ph) { G.t += Math.sin(pp * 5 + k) * 2; G.up += pp * 2; G.fr = (((k * 3 + Math.floor(ph * 8)) % 8) << 1) | ((Math.floor(pp * 8) + k) & 1); });   /* letters float up, swaying */
+  PFA.motion('gv-watch', function (G, pp, k, ph) {                                    /* slow drift; odd slots are eyes that blink now and then, even slots glint stars that twinkle */
+    G.s += pp * .06; G.t += Math.sin(pp * 2 + k) * 1.5;
+    if (k & 1) { var w = (pp * .9 + ph) % 1; G.fr = 4 | (w < .78 ? 0 : w < .84 ? 1 : w < .9 ? 2 : 1); }
+    else G.fr = [0, 1, 2, 3, 2, 1][(Math.floor(pp * 7 + ph * 6)) % 6];
+  });
+
+  /* ---------- per-glyph and per-run extras ---------- */
+  function decoDie(c, e, H, s0, len, ri, pp) {                       /* gold glints twinkling just off the edge */
+    var k, u, Q = H.Q;
+    for (k = 0; k < 4; k++) { u = (pp * 1.3 + H.hash(e.seed + k * 5)) % 1; e.P.atq(s0 + len * H.hash(e.seed + k * 11 + ri)); H.glyph(c, 'gv-glint', Q.x + Q.nx * 7, Q.y + Q.ny * 7, 0, Math.floor(u * 4) & 3, e.hi, e.acc, H.WHITE, -Q.ny, Q.nx, Q.nx, Q.ny); }
+  }
+  function perDust(c, e, H, x, y, tx, ty, nx, ny, fr, k) {           /* a dust flick kicked back off each fresh stamp */
+    if (fr & 1) return; var i; for (i = 0; i < 3; i++) H.px(c, x - tx * (5 + i * 2) + nx * (1 + i), y - ty * (5 + i * 2) + ny * (1 + i) - i, i ? e.acc : e.hi);
+  }
+  function decoTicks(c, e, H, s0, len, ri, pp) {                     /* speed ticks sliding along the edge, flashing every other frame */
+    var k, s, j, Q = H.Q, fl = Math.floor(pp * 14);
+    if (e.p > .94) return;
+    for (k = 0; k < 3; k++) { if ((fl + k) % 3 === 0) continue; s = s0 + ((H.hash(e.seed + k * 13 + ri) * len - pp * 60) % len + len) % len;
+      for (j = 0; j < 5; j++) { e.P.atq(s - j); H.px(c, Q.x + Q.nx * (11 + (k & 1) * 3), Q.y + Q.ny * (11 + (k & 1) * 3), j < 2 ? e.hi : e.acc); } }
+  }
+  function decoInk(c, e, H, s0, len, ri, pp) {                       /* faint ink-glow dithered along the edge; on the first run a quill flourish curls out and the quill rides its tip */
+    var s, Q = H.Q, env = Math.sin(Math.PI * Math.min(1, e.p)), k, u, X, Y, a, r;
+    for (s = 0; s < len; s += 2) if (H.hash(s * .37 + ri * 5 + Math.floor(pp * 6)) < .5 * env) { e.P.atq(s0 + s); H.px(c, Q.x + Q.nx * (1 + (s & 2 ? 1 : 0)), Q.y + Q.ny * (1 + (s & 2 ? 1 : 0)), e.hi); }
+    if (ri !== 0) return;
+    u = H.eo(Math.min(1, e.p * 1.4)); e.P.atq(s0 + len * .3); X = Q.x + Q.nx * 5; Y = Q.y + Q.ny * 5;
+    for (k = 0; k < 26 * u; k++) { a = k * .32; r = 1 + k * .38; if (e.p > .85 && H.hash(k + Math.floor(e.p * 40)) > (1 - e.p) / .15) continue; H.px(c, X + Math.cos(a) * r + k * .5, Y - Math.sin(a) * r * .8 - k * .3, k > 22 ? e.acc : e.col); }
+    if (e.p < .9) { k = Math.max(0, Math.floor(26 * u) - 1); a = k * .32; r = 1 + k * .38; H.glyph(c, 'gv-quill', X + Math.cos(a) * r + k * .5, Y - Math.sin(a) * r * .8 - k * .3, 0, Math.floor(pp * 10) & 1, e.col, e.acc, e.hi, 1, 0, 0, -1); }
+  }
+  function decoShimmer(c, e, H, s0, len, ri, pp) {                   /* guard-hold: a steady dotted rim that crawls slowly, one white spark running round it */
+    var s, Q = H.Q, ph = Math.floor(pp * 5), env = Math.min(1, Math.sin(Math.PI * Math.min(1, e.p)) * 3);
+    for (s = 0; s < len; s += 3) { if (((s / 3 | 0) + ph) % 3 === 0 || !H.stip(env, s, e.p)) continue; e.P.atq(s0 + s); H.px(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, SHIM); }
+    e.P.atq(s0 + ((pp * .35) % 1) * len); H.sq(c, Q.x + Q.nx * 2, Q.y + Q.ny * 2, 2, WH);
+  }
+
+  /* ---------- custom chain effects (carDraw: along the path from e.a over e.d, eased e.hh) ---------- */
+  function carDie(c, e, H) {                                         /* a glint hops three times to the linked piece (the die itself is the piece's own effect, stat_fx.js) */
+    var P = e.P, Q = H.Q, k, u;
+    for (k = 1; k <= 3; k++) { u = k / 3; if (e.hh < u - .02) break; P.atq(e.a + e.d * u); H.glyph(c, 'gv-glint', Q.x + Q.nx * 3, Q.y + Q.ny * 3, 0, Math.min(3, Math.floor((e.hh - u + .1) * 20)) & 3, e.hi, e.acc, H.WHITE, -Q.ny, Q.nx, Q.nx, Q.ny); }
+    H.carHead(c, P, e.a + e.d * e.hh, 'gv-glint', e.z, Math.floor(e.p * 16) & 3, 0, -Math.abs(Math.sin(e.hh * Math.PI * 3)) * 12, e.col, e.acc, e.hi);
+  }
+  function carInk(c, e, H) {                                         /* an ink line writes itself along the path, the quill at its head */
+    var P = e.P, Q = H.Q, u, X = 0, Y = 0;
+    for (u = 0; u <= e.hh; u += .015) { P.atq(e.a + e.d * u); X = Q.x + Q.nx * (4 + Math.sin(u * 18) * 1.5); Y = Q.y + Q.ny * (4 + Math.sin(u * 18) * 1.5); H.px(c, X, Y, e.col); if (((u * 66) | 0) % 5 === 0) H.px(c, X, Y - 1, e.hi); }
+    if (e.p < .95) H.glyph(c, 'gv-quill', X, Y, 0, Math.floor(e.p * 20) & 1, e.col, e.acc, e.hi, 1, 0, 0, -1);
+  }
+
+  PFA.motif('gv-loaded-die', function (c, e, H) { comp(c, e, H, null, decoDie); }, { nm: 'loaded dice', desc: 'gold glints twinkling on the edge (the die pops out of the piece: stat_fx.js)', fam: 'sparkle', gap: 26, g: 'gv-glint', mo: 'gv-twinkle', x: '-', car: 'custom', carDraw: carDie });
+  PFA.motif('gv-sidestep', function (c, e, H) { comp(c, e, H, perDust, decoTicks); }, { nm: 'quick feet', desc: 'little footprints stamping left-right along the edge, dust flicks off each stamp, speed ticks sliding past', fam: 'puff', gap: 22, g: 'gv-foot', mo: 'gv-skip', x: '-', car: 'zig' });
+  PFA.motif('gv-old-saying', function (c, e, H) { comp(c, e, H, null, decoInk); }, { nm: 'ink letters', desc: 'ink letters lifting off the edge, a quill flourish curling out, a faint ink-glow on the edge', fam: 'ripple', gap: 22, g: 'gv-letter', mo: 'gv-write', x: '-', car: 'custom', carDraw: carInk });
+  PFA.motif('gv-sharp-eye', function (c, e, H) { comp(c, e, H, null, decoShimmer); }, { nm: 'watchful glints', desc: 'glint stars and slow-blinking eyes drifting along the edge over a steady guard shimmer', fam: 'shield', gap: 24, g: 'gv-watch', mo: 'gv-watch', x: '-', car: 'blink' });
+})();
+
 /* ---- motifs/weather_env.js ---- */
 /* Motif module (2.7.56): the ENVIRONMENT's eight pieces (game/includes/data/pf_env.txt), each with its own place (~600 ms) and fire (~1200 ms) effect.
    Approved look: claude/mockups/pf-weather-anim.html (sun, rain, wind, mud; contrast raised as its author flagged: thicker rain and a bigger shield, fewer wind specks
@@ -12108,7 +13037,7 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
     if (p.tag === 'quick' || f === 'mend' || f === 'puff' || f === 'sparkle' || f === 'ripple' || f === 'leaf') k = v <= 3 ? 1 : 2; if (v >= 5) k = Math.min(3, k + 1); return k; }
   /** -> {fam, h (creature-heavy), col, acc, hi, lift, snd, pz (place personality), th + M (themed motif) | null, env} */
   function look(p, slug) {
-    var h = p.by === 'foe', env = p.by === 'env', tag = p.tag || '', L = { h: h, env: env, lift: 2, pz: null, th: null, M: null, fam: 'slash', col: '', acc: INK, hi: '#ffffff', snd: 'click' };
+    var h = p.by === 'foe', env = p.by === 'env', tag = p.tag || '', L = { h: h, env: env, sp: '', lift: 2, pz: null, th: null, M: null, fam: 'slash', col: '', acc: INK, hi: '#ffffff', snd: 'click' };
     var cr = h && D && slug && D.cr[slug], r = cr && cr.p[p.n], o, fi;
     if (r) {
       o = r[4] || {}; fi = r[0]; L.fam = FAMS[fi][0]; L.lift = r[1];
@@ -12123,9 +13052,10 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
       }
       return L;
     }
-    var q = D && D.pp[p.n];
+    var q = D && D.pp[p.n], sq = D && !h && !env && D.sp && D.sp[p.n], sM = sq && D.m[sq[0]] && MOTIF[D.m[sq[0]][0]];   // a stat piece of the gnome: its own themed motif
     L.fam = env ? (ENVF[p.kind || p.env] || 'puff') : q ? FAMS[q[0]][0] : ruleFam(p.t, tag); fi = FI[L.fam];
     L.col = (q && q[1]) || (h ? FAMS[fi][3] : FAMS[fi][1]); L.acc = h ? FAMS[fi][4] : INK; L.snd = (q && q[2]) || famSnd(L.fam, tag); L.lift = liftOf(p, L.fam); L.hi = hexmix(L.col, '#ffffff', .55);
+    if (sM) { L.sp = p.n; L.M = sM; L.col = sq[1]; L.hi = hexmix(sq[1], '#ffffff', .55); L.th = { mp: { lay: layoutOf(p.t, tag), spd: tag === 'quick' ? 1.3 : tag === 'hold' ? .8 : 1, z: 0, x: sM.x }, carrier: sM.car || 'train' }; }
     return L;
   }
 
@@ -12165,6 +13095,7 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
     if (dt > E) { resetCell(it); return false; }
     var ps = placeState(dt, false, L.h, L.lift, L.pz), cc = cellCv(it.id), cx = cxOf(it.p.x), cy = cyOf(it.p.y);
     if (L.env && dt > R) { ps.x = 0; ps.r = 0; }   // the environment's piece: raise and click only, no wiggle
+    if (L.sp && ps && dt >= R + T.c && dt < R + T.c + T.w) { var sd = (dt - R - T.c) / T.w, sk = (1 - sd) * (1 - sd); ps.x += Math.sin(sd * 40) * 3.2 * sk; ps.y += Math.cos(sd * 33) * 1.4 * sk; ps.r += Math.sin(sd * 47) * .04 * sk; }   // 2.7.58 landing shake: a stat piece landing shakes (Light too: it is a place motion)
     if (cc && cc[1] && ps) {
       var sc = (cc[1].getBoundingClientRect().width || PW) / PW, st = cc[1].style;
       cc[0].style.zIndex = '6';
@@ -12174,6 +13105,7 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
     }
     if (L.pz && !L.env) persFx(g2, L.pz, dt, cx, cy, L.col, L.acc, L.hi, L.h);
     if (ps && ps.hit) { g2.strokeStyle = '#ffffff'; g2.lineWidth = 2; g2.strokeRect(Math.round(cx - BW / 2) - 1, Math.round(cy - BH / 2) - 1, BW + 2, BH + 2); }
+    if (L.sp && it.full && dt >= R + T.c && dt < R + T.c + 200) { var du = (dt - R - T.c) / 200, kd; for (kd = -2; kd <= 2; kd++) { if (!stip(1 - du, kd + 7, du)) continue; bx(g2, Math.round(cx + kd * (9 + 9 * du)), Math.round(cy + BH / 2 - 5 - 3 * du), 3, 3, L.hi); } }   // and a few specks of dust off its base (Full)
     var su = dt - R - T.c; if (!L.env && su >= 0 && su <= 170) soundLines(g2, cx, cy, su / 170, L.snd, L.col, L.acc, L.h);
     return true;
   }
@@ -12253,7 +13185,31 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
     [].slice.call(BOARD.querySelectorAll('.pfb-cell.k-mud[data-id]')).forEach(function (c) { var id = c.getAttribute('data-id'), gq = gridOf(id);
       if (gq && Math.abs(gq[0] - p.x) + Math.abs(gq[1] - p.y) === 1) add({ ty: 'env', W: WENV.mud, p: { id: id, x: gq[0], y: gq[1], kind: 'mud' }, id: id, t0: t0, k: k, fr: p.by === 'foe' ? 'foe' : 'me', tg: { x: p.x, y: p.y, id: p.id } }); });
   }
-  var DRAW = { pl: drawPlace, own: drawOwn, car: drawCar, aoe: drawAoe, env: drawEnv };
+  /* ---- 2.7.58 stat pieces: the whole-piece effect of a piece by name (STATFX: Loaded Die's die, '@trapdoor' = a snare caught a creature piece) and the empowered overlay ---- */
+  function drawSfx(it, t) {
+    var dt = (t - it.t0) / it.k; if (dt < 0) return true; if (dt > (it.S.dur || 1200)) { envUnshake(it); return false; }
+    var A = envA(it); A.roll = it.roll; A.col = it.col; A.acc = it.acc; A.hi = it.hi;
+    envClip(g2); try { it.S.fi(g2, A, dt); } finally { g2.restore(); g2.globalAlpha = 1; }
+    return true;
+  }
+  var TINT = null;
+  /** the piece's own board art as a flat colour silhouette (null when the page cannot make one) */
+  function tintOf(src, col) {
+    try { if (TINT === null || TINT.width !== PW || TINT.height !== PH) { TINT = document.createElement('canvas'); TINT.width = PW; TINT.height = PH; }
+      var q = TINT.getContext('2d'); q.globalCompositeOperation = 'source-over'; q.clearRect(0, 0, PW, PH); q.drawImage(src, 0, 0, PW, PH); q.globalCompositeOperation = 'source-in'; q.fillStyle = col; q.fillRect(0, 0, PW, PH); q.globalCompositeOperation = 'source-over'; return TINT; } catch (e) { TINT = null; return null; }
+  }
+  function drawEmp(it, t) {   // a piece empowered by a stat piece wears a 32% overlay in the stat piece's colour until it fires (then it fades in 0.3 s); gives up after 8 s
+    var cc = cellCv(it.id), a = Math.min(1, (t - it.t0) / 160), u;
+    if (!cc || !cc[1] || t - it.t0 > 8000) return false;
+    if (it.end) { u = (t - it.end) / 300; if (u >= 1) return false; a *= 1 - Math.max(0, u); }
+    if (a <= 0) return true;
+    var cx = cxOf(it.p.x), cy = cyOf(it.p.y), tc = cc[1].width ? tintOf(cc[1], it.col) : null;
+    g2.globalAlpha = .32 * a;
+    if (tc) g2.drawImage(tc, Math.round(cx - PW / 2), Math.round(cy - PH / 2), PW, PH);
+    else { g2.fillStyle = it.col; g2.fillRect(Math.round(cx - BW / 2), Math.round(cy - BH / 2), BW, BH); }
+    g2.globalAlpha = 1; return true;
+  }
+  var DRAW = { pl: drawPlace, own: drawOwn, car: drawCar, aoe: drawAoe, env: drawEnv, sfx: drawSfx, emp: drawEmp };
   function frame() {
     raf = 0; var t = now(), i, keep = [];
     if (!cv || !cv.parentNode || (BOARD && !BOARD.contains(cv))) attach(null);
@@ -12266,8 +13222,12 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
   }
   function add(it) {
     ACT.push(it);
-    var n = 0, i; for (i = ACT.length - 1; i >= 0; i--) if (ACT[i].ty !== 'pl' && ++n > 18) ACT.splice(i, 1);   // at most ~3 chains of effects at once: the oldest go first
+    var n = 0, i; for (i = ACT.length - 1; i >= 0; i--) if (ACT[i].ty !== 'pl' && ACT[i].ty !== 'emp' && ++n > 18) ACT.splice(i, 1);   // at most ~3 chains of effects at once: the oldest go first
     kick();
+  }
+  function empower(q, col, t0, k) {
+    ACT = ACT.filter(function (a) { return !(a.ty === 'emp' && a.id === q.id); });
+    add({ ty: 'emp', id: q.id, p: q, col: col, t0: t0, k: k, end: 0 });
   }
   function chainP(cells) {
     var key = cells.map(function (c) { return c.id + '@' + c.x + ',' + c.y + ':' + c.e.L + c.e.R + c.e.T + c.e.B; }).join('|');
@@ -12303,10 +13263,25 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
         if (W && W.fi) add(envItem(W, ev || {}, p, chain, i, t0, k));   // 2.7.56: the environment's piece plays its kind's own fire effect
         else add({ ty: 'own', P: P, o: i, own: own, L: L, t0: t0, k: k, seed: ((+p.id || 0) * 7 + 3) % 997 });
         ST.fire++;
+        if (L.sp) {   // 2.7.58 stat pieces: its whole-piece effect, and the pieces it empowers wear the overlay until they fire
+          var SF = STATFX[p.n], ti = -1, wf = (ev && ev.wfx) || [], j2;
+          for (j2 = i + 1; j2 < chain.length; j2++) if (chain[j2].by === 'me') { ti = j2; break; }
+          if (SF && SF.fi) add({ ty: 'sfx', S: SF, p: p, id: p.id, t0: t0, k: k, tg: ti >= 0 ? { x: chain[ti].x, y: chain[ti].y, id: chain[ti].id } : null, roll: (ev && ev.roll) || '', col: L.col, acc: L.acc, hi: L.hi });
+          wf.forEach(function (w) { var nm = String(w).split(' ')[0], q;
+            if (nm !== 'boost' && nm !== 'boostall' && nm !== 'teach') return;
+            for (q = i + 1; q < chain.length; q++) if (chain[q].by === 'me' && (q === ti || nm === 'boostall')) { empower(chain[q], L.hi, t0, k); } });
+        }
+        ACT.forEach(function (a) { if (a.ty === 'emp' && a.id === p.id && !a.end && t0 > a.t0) a.end = t0 + 350 * k; });   // an empowered piece fires: its overlay goes
         if (ev && ev.mud && !L.env && WENV.mud && WENV.mud.fi) mudNext(p, t0, k);   // a piece next to a Mud fires (it counts a quarter less): the Mud plays at it
         if (i + 1 < chain.length) { add({ ty: 'car', P: P, o: i, o2: i + 1, L: L, t0: t0 + 250 * k, k: k }); ST.car++; }
         LAST0 = t0;
       } catch (e) { ST.err++; }
+    },
+    /** a creature piece came down on a Snare Field snare (ev.snr at its placing step): the trapdoor opens, the noose cinches, the lid slams */
+    trap: function (p, ctx) {
+      ST.ev.push(['t', now()]);
+      if (mode() !== 'full' || !p || p.x === undefined || !STATFX['@trapdoor']) return;
+      try { attach(null, ctx); add({ ty: 'sfx', S: STATFX['@trapdoor'], p: p, id: p.id, t0: now(), k: kOf(ctx && ctx.step), tg: null, roll: '', col: '#8fb86a', acc: INK, hi: '#c8e07a' }); LAST0 = now(); ST.trap = (ST.trap || 0) + 1; } catch (e) { ST.err++; }
     },
     /** the boss AOE lands on these cells ([[x, y], ...]) */
     aoe: function (cells, ctx) {
@@ -12324,7 +13299,13 @@ function persFx(c, pz, dt, cx, cy, col, acc, hi, h) {
     active: function () { return ACT.length; },
     /** tests and frame captures: freeze the clock ms after the latest start (null = live again) */
     seek: function (ms) { FROZEN = ms === null || ms === undefined ? null : LAST0 + (+ms); if (FROZEN !== null && ACT.length) { if (raf) { (window.cancelAnimationFrame || clearTimeout)(raf); raf = 0; } frame(); } else kick(); },
-    look: function (p, slug) { return look(p, slug); }, envKinds: function () { return Object.keys(WENV).sort(); },
+    /** tests: draw a look's own-edge ('own', piece o of perimeter P) or chain effect ('car', o -> o2) at progress p on any 2D context c; returns the particles drawn */
+    themedDraw: function (c, ph, P, o, o2, L, p, seed) { NG = 0; if (ph === 'own') { if (L.th) themedOwn(c, P, o, L.th, L.M, p, seed || 1, L.h, L.col, L.acc, L.hi); else ownFx(c, P, o, L.fam, { t: 'hurt', tag: '' }, seed || 1, L.h, L.col, L.acc); } else if (L.th) themedCar(c, P, o, o2, L.th, L.M, p, L.h, L.col, L.acc, L.hi); else carrier(c, P, o, o2, L.fam, p, L.h, L.col, L.acc); return NG; },
+    look: function (p, slug) { return look(p, slug); }, statKinds: function () { return Object.keys(STATFX).sort(); },
+    /** tests: draw a stat piece's whole-piece effect (name = a piece name or '@trapdoor') at ms on any 2D context c; returns the particles drawn (-1 = no such effect) */
+    statDraw: function (name, ms, c, o) { var S = STATFX[name]; if (!S) return -1; o = o || {}; CTX.w = o.w || 3; CTX.h = o.h || CTX.w;
+      var p = { id: 5, x: o.x === undefined ? 1 : o.x, y: o.y === undefined ? 1 : o.y, n: name }, it = { S: S, p: p, id: 5, tg: o.tg || null }; NG = 0; var A = envA(it); A.roll = o.roll || ''; A.col = o.col || '#e8c84a'; A.acc = INK; A.hi = '#fff6dc'; S.fi(c, A, ms); return NG; },
+    envKinds: function () { return Object.keys(WENV).sort(); },
     /** tests: draw one kind's place motion ('ps', returns it), place effect ('pl') or fire effect ('fi') at ms on any 2D context c; returns the particles drawn */
     envDraw: function (kind, ph, ms, c, o) { var W = WENV[kind]; if (!W) return -1; o = o || {}; if (o.w) { CTX.w = o.w; CTX.h = o.h || o.w; }
       var p = { id: 5, x: o.x === undefined ? 1 : o.x, y: o.y === undefined ? 1 : o.y, kind: kind, dir: o.dir }, it = { W: W, p: p, id: 5, tg: o.tg, mv: o.mv, falls: o.falls, fr: o.fr, dir: o.dir };

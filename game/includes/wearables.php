@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/parts.php';   // 2.7.58: any-/rare- part materials (part_key, part_stock)
 
 /**
  * 2.7.00 WEARABLES: things a gnome wears that are also ONE puzzle piece, switched on in a Keepsake slot (includes/pfdeck.php: PFD_KEEP_SRC has 'wear').
@@ -445,6 +446,7 @@ function wear_ensure_items(): void
 /** How many of an item (by slug) the gnome has. */
 function wear_qty(int $uid, string $slug): int
 {
+    if (part_key($slug) !== null) return (int)(part_stock($uid, $slug, 1)['have'] ?? 0);   // 2.7.58: any-hide / rare-plate: the sum over the family
     $id = item_id_by_slug($slug);
     return $id > 0 ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $id]) : 0;
 }
@@ -467,19 +469,37 @@ function wear_has_boots(int $uid): bool
 /** Take the materials ([slug => qty]) if the gnome has all of them; false (nothing taken) if not. */
 function wear_take(int $uid, array $mats): bool
 {
+    require_once __DIR__ . '/crafting.php';   // craft_take
     foreach ($mats as $slug => $n) if (wear_qty($uid, (string)$slug) < (int)$n) return false;
-    foreach ($mats as $slug => $n) give_item($uid, item_id_by_slug((string)$slug), -(int)$n);
+    foreach ($mats as $slug => $n) {
+        if (part_key((string)$slug) !== null) { if (!craft_take($uid, part_stock($uid, (string)$slug, (int)$n) ?? [], (int)$n)) return false; continue; }   // 2.7.58: a part family, cheapest first
+        give_item($uid, item_id_by_slug((string)$slug), -(int)$n);
+    }
     return true;
 }
 
 function wear_mats_text(array $mats): string
 {
-    $o = []; foreach ($mats as $slug => $n) $o[] = $n . ' × ' . ((string)q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug);
+    $o = []; foreach ($mats as $slug => $n) $o[] = $n . ' × ' . (part_ingredient_label((string)$slug) ?? ((string)q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug));
     return implode(', ', $o);
 }
 
 /** The materials of a lining attempt from this rank (1 to Lined, 2 to Fine). */
-function wear_line_mats(int $fromRank): array { return $fromRank === 1 ? ['cottongrass' => 2, 'butterfly-scales' => 1] : ['seed-pearl' => 1, 'snow-moth-dust' => 1]; }
+function wear_line_mats(int $fromRank): array { return wear_line_mat_options($fromRank)[0]; }
+
+/** 2.7.58: the ways to line from this rank: the old materials, or 2 Silk parts of any kind. First is the main one (shown first, and what is asked for when neither is held). */
+function wear_line_mat_options(int $fromRank): array
+{
+    return [$fromRank === 1 ? ['cottongrass' => 2, 'butterfly-scales' => 1] : ['seed-pearl' => 1, 'snow-moth-dust' => 1], ['any-silk' => 2]];
+}
+
+/** The materials this gnome will pay for a lining: the first way they can afford, else the main one. */
+function wear_line_mats_for(int $uid, int $fromRank): array
+{
+    $opts = wear_line_mat_options($fromRank);
+    foreach ($opts as $o) { $ok = true; foreach ($o as $s => $n) if (wear_qty($uid, (string)$s) < $n) { $ok = false; break; } if ($ok) return $o; }
+    return $opts[0];
+}
 
 /** Why a gnome cannot make this Tailor wearable yet (region level, Tailor level), or null. Not the materials, energy or Petals. */
 function tailor_gate(array $u, array $d, ?array $levels = null): ?string
@@ -548,8 +568,8 @@ function tailor_line(array $u, string $slug, bool $pity = false, ?callable $roll
     if ($rank >= 3) return [false, 'That is as fine as it gets.'];
     if (!tailor_has($uid)) return [false, 'You need a Tailor built in one of your gardens first.'];
     wear_ensure_items();
-    $mats = wear_line_mats($rank);
-    foreach ($mats as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . wear_mats_text($mats) . '.'];
+    $mats = wear_line_mats_for($uid, $rank);
+    foreach ($mats as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . implode(' or ', array_map('wear_mats_text', wear_line_mat_options($rank))) . '.'];
     $sure = $pity && wear_qty($uid, WEAR_THREAD) >= WEAR_PITY;
     if ($pity && !$sure) return [false, 'You need ' . WEAR_PITY . ' Tailor’s Thread for a sure thing.'];
     $d = wear_defs()[$base];

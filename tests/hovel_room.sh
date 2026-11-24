@@ -82,7 +82,7 @@ home
 
 echo "== Furnish and the other tabs are as they were"
 get 'gnome.php?tab=furnish' >/dev/null; noerr Furnish
-chk "Furnish: a picker link per slot in the banner room and in the side preview" "$(grep -o '<a class="hd hd-[a-z]*\( sel\)\?" href="/gnome.php?tab=furnish&amp;slot=[a-z]*" data-hdlg="hpick-[a-z]*"' $H | wc -l | tr -d ' ')" 14
+chk "Furnish: a picker link per slot (8 since the 2.7.58 trophy wall) in the banner room and in the side preview" "$(grep -o '<a class="hd hd-[a-z]*\( sel\)\?" href="/gnome.php?tab=furnish&amp;slot=[a-z]*" data-hdlg="hpick-[a-z]*"' $H | wc -l | tr -d ' ')" 16
 has "...the rug's picker box" '<rect class="hd-hit" x="168" y="208" width="112" height="56"/></a>'
 hasnt "...no things" 'hroom-things'; has "...the big buttons" '<button class="btn big" type="submit" name="do" value="home_sleep"'
 chk "a slot tap still places an item" "$(post gnome.php -d do=decor -d slot=rug -d item=mossrug)" "302 $BASE/gnome.php?tab=furnish&slot=rug&prev=rush"

@@ -101,11 +101,13 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
     if (setting('ppal_party') === '1') { require_once __DIR__ . '/puzzle_pals.php'; $palG = ppal_perks($u)['gather']; }
     $total = 0;
     $weights = [];
+    $gem = [];   // 2.7.58: a Gem Charm on a tool adds Luck +4 to that tool's finds
     $now = road_now();   // v1.9.3: the weather and time of day lean the pick (x3); a "!" cond is a must. Never changes what a find is worth.
     foreach ($can as $k => $g) {
         $cw = road_cond_weight($g, $now);
         if ($cw <= 0) continue;
-        $w = GATHER_RARITY[$g['rarity']][1] + ($g['rarity'] !== 'common' ? 3 * $luck : 0);
+        $gem[$g['tool']] ??= aug_gem_luck($uid, (string)$g['tool']);
+        $w = GATHER_RARITY[$g['rarity']][1] + ($g['rarity'] !== 'common' ? 3 * ($luck + $gem[$g['tool']]) : 0);
         if ($g['rarity'] === 'rare' && $palG > 0) $w = (int)round($w * (1 + $palG / 100));   // v2.0.88: the Puzzle Pals gather perk (+1% per unit, cap +6%)
         $w = max(1, (int)round($w * $cw));
         $weights[$k] = $w;
@@ -119,10 +121,14 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
         if ($roll <= 0) { $pick = $can[$k]; break; }
     }
     $pick ??= reset($can);
+    $augNotes = [];   // 2.7.58: lines from augments that did something this find
+    $pick = aug_plate_edge($uid, $pick, $here, $now, $augNotes);   // 25%: one rarity higher, even past the tool's gate (one step); a use is spent only on a swap
+    if (($gem[$pick['tool']] ?? 0) > 0 && ($gt = tool_aug($uid, (string)$pick['tool'], 'aug-gem-charm')) && ($w = aug_spend($uid, $gt['item_id']))) $augNotes[] = $w;
     $qty = gclock_on() ? random_int(2, 3) : 1;   // sleep-days: 2 or 3 items a find at base tool level (Josh); baskets, Sense and rainbows add on top
     $basket = tool_tier($uid, 'basket');
     if ($basket > 0 && random_int(1, 3) <= min(3, $basket)) $qty++;
     require_once __DIR__ . '/trail_sight_extras.php'; [$keepQ, $keepN] = trail_sight_keepsake_bonus($uid, (string)$pick['tool']); $qty += $keepQ;   // 2.7.08 third pass B: a keepsake carried for this tool (items.effects keepsake)
+    $qty += aug_wing_bonus($uid, (string)$pick['tool'], $augNotes);   // 2.7.58 Wing Fletch
     $sense = function_exists('eff_mod') ? eff_mod($u, 'sense') : 0;
     if ($sense > 0 && random_int(1, 100) <= 5 * $sense) $qty++;
     $rainbow = q_val('SELECT ev_gather_until FROM users WHERE id = ?', [$uid]);
@@ -131,6 +137,7 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
     if (function_exists('job_event')) job_event($uid, 'gather', (string)$pick['slug'], $qty);
     $line = (TOOL_TYPES[$pick['tool']][1] ?? '🧺') . ' You gather ' . $qty . ' × ' . $pick['name'] . ($pick['rarity'] === 'rare' ? ' (rare!)' : '') . '.';
     if ($keepQ > 0) $line .= ' (' . implode(', ', $keepN) . ' helped: +' . $keepQ . ')';
+    if ($augNotes) $line .= ' ' . implode(' ', $augNotes);
     if (unlock_entries($uid, 'gather:' . $pick['slug'])) $line .= ' 📖 New Almanac page!';
     // Now and then, point out something a missing or better tool would have found here.
     if ($missing && random_int(1, 100) <= 25) {
@@ -365,7 +372,7 @@ function gather_card_html(string $art, string $label, array $meta, string $attrs
  * something here (posts do=gather, tool=... to $action) and the finds grid (??? for things not in the Almanac yet).
  * $hiddenHtml is extra hidden fields; $pick is the tool to mark as picked (the one being sought), if any.
  */
-function gather_scene_html(array $u, string $land, string $action, string $hiddenHtml, string $pick = ''): string
+function gather_scene_html(array $u, string $land, string $action, string $hiddenHtml, string $pick = '', bool $fold = false): string
 {
     $uid = (int)$u['id'];
     $L = LANDSCAPES[$land] ?? ['🌱', ucfirst($land), ''];
@@ -458,11 +465,15 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
             . '<span class="find__name">' . ($isKnown ? e($g['name']) : '???') . '</span>'
             . '<span class="find__need' . ($ok ? ' ok' : '') . '">' . (TOOL_TYPES[$g['tool']][1] ?? '') . ' ' . ($ok ? e($tierName) . ' ✔' : 'needs ' . e($tierName)) . '</span></li>';
     }
+    if ($fold) {   // v2.8.37: the Trail popover: the list of finds sits under a fold (open it to see what each tool can find here)
+        $nKnown = 0; foreach ($rows as $g) if (isset($known['gather:' . $g['slug']])) $nKnown++;
+        return $h . '<details class="gx-fold"><summary>What’s here <span class="gx-h__sub">' . e($L[1]) . ' · ' . $nKnown . ' of ' . count($rows) . ' known</span></summary><ul class="finds">' . $finds . '</ul></details></section>';
+    }
     return $h . '<h3 class="gx-h">What’s here <span class="gx-h__sub">' . e($L[1]) . '</span></h3><ul class="finds">' . $finds . '</ul></section>';
 }
 
 /** v0.7.80 name, kept for callers (the adventure page's step off the path): the satchel scene. $heading is no longer used. */
-function gather_here_box(array $u, string $land, string $action, string $hiddenHtml, bool $heading = true): string
+function gather_here_box(array $u, string $land, string $action, string $hiddenHtml, bool $heading = true, bool $fold = false): string
 {
-    return gather_scene_html($u, $land, $action, $hiddenHtml);
+    return gather_scene_html($u, $land, $action, $hiddenHtml, '', $fold);
 }

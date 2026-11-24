@@ -1,0 +1,271 @@
+{
+ "_doc": "Stat pieces (pfight_statpieces): the motif catalogue (same fields as themes.json motifs; code in motifs/stat_*.js, lore_pieces.js, luck_pieces.js, sense_pieces.js) and one entry per piece name: motif, col (effect colour; ink #2a1a10 and the hi tone are derived). Read by tools/build_pfanim.py into pfanim-data.json \"sp\"; engine look() uses it for the gnome's own pieces.",
+ "motifs": {
+  "gv-knot-twine": {
+   "g": "gv-loop",
+   "mo": "gv-cinch",
+   "x": "-",
+   "car": "custom",
+   "gap": 20
+  },
+  "gv-lantern-chain": {
+   "g": "gv-lantern",
+   "mo": "gv-swing",
+   "x": "-",
+   "car": "custom",
+   "gap": 22
+  },
+  "gv-weather-lore": {
+   "g": "gv-wl",
+   "mo": "gv-wl",
+   "x": "-",
+   "car": "custom",
+   "gap": 18
+  },
+  "gv-copybook": {
+   "g": "gv-cb-letter",
+   "mo": "snap",
+   "x": "-",
+   "car": "custom",
+   "gap": 8
+  },
+  "gv-turn-tale": {
+   "g": "gv-page",
+   "mo": "gv-turn",
+   "x": "-",
+   "car": "custom",
+   "gap": 18
+  },
+  "gv-hedge-rummage": {
+   "g": "gv-sprig",
+   "mo": "gv-rustle",
+   "x": "-",
+   "car": "custom",
+   "gap": 16
+  },
+  "gv-long-shot": {
+   "g": "gv-pebble",
+   "mo": "gv-lob",
+   "x": "-",
+   "car": "custom",
+   "gap": 24
+  },
+  "gv-magpie-pinch": {
+   "g": "gv-feather",
+   "mo": "gv-tumblef",
+   "x": "-",
+   "car": "custom",
+   "gap": 20
+  },
+  "gv-turn-coin": {
+   "g": "gv-coin",
+   "mo": "gv-spin",
+   "x": "-",
+   "car": "custom",
+   "gap": 22
+  },
+  "gv-lucky-streak": {
+   "g": "gv-bulb",
+   "mo": "gv-chase",
+   "x": "-",
+   "car": "custom",
+   "gap": 10
+  },
+  "gv-soft-spot": {
+   "g": "gv-chalkx",
+   "mo": "gv-mark",
+   "x": "-",
+   "car": "custom",
+   "gap": 20
+  },
+  "gv-not-fooled": {
+   "g": "gv-brow",
+   "mo": "gv-headshake",
+   "x": "-",
+   "car": "custom",
+   "gap": 24
+  },
+  "gv-saw-it-coming": {
+   "g": "gv-shieldeye",
+   "mo": "gv-wink",
+   "x": "-",
+   "car": "custom",
+   "gap": 24
+  },
+  "gv-snare-field": {
+   "g": "gv-snareloop",
+   "mo": "gv-coil",
+   "x": "-",
+   "car": "custom",
+   "gap": 20
+  },
+  "gv-eyes-of-the-wood": {
+   "g": "gv-leafeye",
+   "mo": "gv-peek",
+   "x": "-",
+   "car": "custom",
+   "gap": 20
+  },
+  "gv-skitter": {
+   "g": "gv-scuff",
+   "mo": "gv-scurry",
+   "x": "-",
+   "car": "custom",
+   "gap": 18
+  },
+  "gv-wrong-turn": {
+   "g": "gv-sign",
+   "mo": "gv-vane",
+   "x": "-",
+   "car": "custom",
+   "gap": 22
+  },
+  "gv-pinning-stance": {
+   "g": "gv-boot",
+   "mo": "gv-plant",
+   "x": "-",
+   "car": "custom",
+   "gap": 24
+  },
+  "gv-shadow-step": {
+   "g": "gv-shade",
+   "mo": "gv-sink",
+   "x": "-",
+   "car": "custom",
+   "gap": 24
+  },
+  "gv-phantom-footing": {
+   "g": "gv-mist",
+   "mo": "gv-wander",
+   "x": "-",
+   "car": "custom",
+   "gap": 16
+  },
+  "gv-loaded-die": {
+   "g": "gv-glint",
+   "mo": "gv-twinkle",
+   "x": "-",
+   "car": "custom",
+   "gap": 26
+  },
+  "gv-sidestep": {
+   "g": "gv-foot",
+   "mo": "gv-skip",
+   "x": "-",
+   "car": "zig",
+   "gap": 22
+  },
+  "gv-old-saying": {
+   "g": "gv-letter",
+   "mo": "gv-write",
+   "x": "-",
+   "car": "custom",
+   "gap": 22
+  },
+  "gv-sharp-eye": {
+   "g": "gv-watch",
+   "mo": "gv-watch",
+   "x": "-",
+   "car": "blink",
+   "gap": 24
+  }
+ },
+ "pieces": {
+  "Copybook": {
+   "motif": "gv-copybook",
+   "col": "#7fa8e0"
+  },
+  "Eyes of the Wood": {
+   "motif": "gv-eyes-of-the-wood",
+   "col": "#8fb86a"
+  },
+  "Hedge Rummage": {
+   "motif": "gv-hedge-rummage",
+   "col": "#e8c84a"
+  },
+  "Knot of Twine": {
+   "motif": "gv-knot-twine",
+   "col": "#7fa8e0"
+  },
+  "Lantern Chain": {
+   "motif": "gv-lantern-chain",
+   "col": "#7fa8e0"
+  },
+  "Loaded Die": {
+   "motif": "gv-loaded-die",
+   "col": "#e8c84a"
+  },
+  "Long Shot": {
+   "motif": "gv-long-shot",
+   "col": "#e8c84a"
+  },
+  "Lucky Streak": {
+   "motif": "gv-lucky-streak",
+   "col": "#e8c84a"
+  },
+  "Magpie's Pinch": {
+   "motif": "gv-magpie-pinch",
+   "col": "#e8c84a"
+  },
+  "Not Fooled": {
+   "motif": "gv-not-fooled",
+   "col": "#8fb86a"
+  },
+  "Old Saying": {
+   "motif": "gv-old-saying",
+   "col": "#7fa8e0"
+  },
+  "Phantom Footing": {
+   "motif": "gv-phantom-footing",
+   "col": "#d08a5a"
+  },
+  "Pinning Stance": {
+   "motif": "gv-pinning-stance",
+   "col": "#d08a5a"
+  },
+  "Saw It Coming": {
+   "motif": "gv-saw-it-coming",
+   "col": "#8fb86a"
+  },
+  "Shadow Step": {
+   "motif": "gv-shadow-step",
+   "col": "#d08a5a"
+  },
+  "Sharp Eye": {
+   "motif": "gv-sharp-eye",
+   "col": "#8fb86a"
+  },
+  "Sidestep": {
+   "motif": "gv-sidestep",
+   "col": "#d08a5a"
+  },
+  "Skitter": {
+   "motif": "gv-skitter",
+   "col": "#d08a5a"
+  },
+  "Snare Field": {
+   "motif": "gv-snare-field",
+   "col": "#8fb86a"
+  },
+  "Soft Spot": {
+   "motif": "gv-soft-spot",
+   "col": "#8fb86a"
+  },
+  "Turn of the Coin": {
+   "motif": "gv-turn-coin",
+   "col": "#e8c84a"
+  },
+  "Turn of the Tale": {
+   "motif": "gv-turn-tale",
+   "col": "#7fa8e0"
+  },
+  "Weather Lore": {
+   "motif": "gv-weather-lore",
+   "col": "#7fa8e0"
+  },
+  "Wrong Turn": {
+   "motif": "gv-wrong-turn",
+   "col": "#d08a5a"
+  }
+ }
+}

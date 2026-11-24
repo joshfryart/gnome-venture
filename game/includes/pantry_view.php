@@ -102,16 +102,18 @@ $ingGrid = function (array $r) use ($icons): string {
     $sq = '';
     foreach ($r['ings'] as $i) {
         $it = $icons[$i['slug']] ?? ['name' => $i['name']];
+        $fam = part_family_icon((string)$i['slug']);   // 2.7.58: an any-/rare- part family has no item of its own: its family icon, not the placeholder
+        $fx = $fam !== null ? ['icon' => $fam, 'rarity' => str_starts_with((string)$i['slug'], 'rare-') ? 'R' : 'C'] : [];
         $have = (int)$i['have']; $need = (int)$i['qty'];
         if ($r['known']) {
             $ok = $have >= $need;
-            $sq .= item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'count' => $have,
+            $sq .= item_square($fx + ['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'count' => $have,
                 'chips' => [$ok ? ['ok', '✔ uses ' . number_format($need)] : ['short', '✖ short ' . number_format($need - $have)]],
                 'vh' => '<span class="vh">' . ($ok ? 'enough' : 'not enough') . ': you have ' . $have . ', the recipe needs ' . $need . '</span>']);
         } elseif ($i['seen']) {
-            $sq .= item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'states' => ['done'], 'chips' => [['note', 'Found']]]);
+            $sq .= item_square($fx + ['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'states' => ['done'], 'chips' => [['note', 'Found']]]);
         } else {
-            $sq .= item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'icon' => '❔', 'rarity' => 'C', 'states' => ['off'], 'chips' => [['note', 'Not found yet']]]);
+            $sq .= item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'icon' => $fam ?? '❔', 'rarity' => $fx['rarity'] ?? 'C', 'states' => ['off'], 'chips' => [['note', 'Not found yet']]]);
         }
     }
     return item_grid($sq, 'itms--flush ccings p2ings');
@@ -121,7 +123,7 @@ $ingLine = function (array $r) use ($icons): string {   // phone sheet: one slim
     $o = '';
     foreach ($r['ings'] as $i) {
         $it = $icons[$i['slug']] ?? null; $ok = (int)$i['have'] >= (int)$i['qty'];
-        $o .= '<li class="' . ($ok ? 'ok' : 'short') . '"><span class="p2ic">' . ($it ? item_icon($it, 'sm', '-') : '❔') . '</span><span class="p2in">' . e((string)$i['name']) . '</span><b>' . ($ok ? '✔ ' : '✖ ') . (int)$i['have'] . '/' . (int)$i['qty'] . '</b></li>';
+        $o .= '<li class="' . ($ok ? 'ok' : 'short') . '"><span class="p2ic">' . ($it ? item_icon($it, 'sm', '-') : (part_family_icon((string)$i['slug']) ?? '❔')) . '</span><span class="p2in">' . e((string)$i['name']) . '</span><b>' . ($ok ? '✔ ' : '✖ ') . (int)$i['have'] . '/' . (int)$i['qty'] . '</b></li>';
     }
     return '<ul class="p2ingcmp" aria-label="Ingredients">' . $o . '</ul>';
 };

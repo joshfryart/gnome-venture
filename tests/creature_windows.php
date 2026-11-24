@@ -75,7 +75,7 @@ $ck('boot: admin edit kept', q_one('SELECT level, landscapes FROM creatures WHER
 $ck('boot: bootstrap runs creature_windows_2708', (bool)preg_match("/boot_step\\('creature_windows_2708'.*?creature_windows_2708\\(\\)/s", (string)file_get_contents($argv[1] . '/includes/bootstrap.php')), true);
 
 // ---- 4. 2026-11-19: the regional drops of the moved base rows sit inside their window (creature_window_drops_1119)
-$dropReg = fn(string $slug, string $item) => q_val('SELECT cd.reg FROM creature_drops cd JOIN items i ON i.id = cd.item_id JOIN creatures c ON c.id = cd.creature_id WHERE c.slug = ? AND i.name = ?', [$slug, $item]);
+$dropReg = fn(string $slug, string $item) => q_val('SELECT cd.reg FROM creature_drops cd JOIN items i ON i.id = cd.item_id JOIN creatures c ON c.id = cd.creature_id WHERE c.slug = ? AND (i.name = ? OR i.id = (SELECT MIN(produce_item_id) FROM plants WHERE LOWER(name) = LOWER(?)))', [$slug, $item, $item]);   // 2.7.58 uA-2: Prickly Pear Cactus is the crop's produce item
 $snapD = function () use ($dropReg): array { $o = []; foreach (CREATURE_WINDOW_DROPS_1119 as $s => [$item]) $o[$s] = $dropReg($s, $item); return $o; };
 $winOf = function (string $slug) use ($RL, $LANDS): array {   // the SPEC 4.1 window regions of a base row, from the world's creatures table (as in 1.)
     $c = q_one('SELECT size, level, landscapes FROM creatures WHERE slug = ?', [$slug]); $lv = (int)$c['level'];
@@ -97,7 +97,7 @@ foreach (pfd_creature_rows(true) as $slug => $r) {
 }
 $ck('drops: no base row has a regional drop gated outside its window', $deadGate, []);
 foreach (CREATURE_WINDOW_DROPS_1119 as $slug => [$item, $oldReg, $newReg])   // back to how a 2.7.08 world has it
-    q('UPDATE creature_drops SET reg = ? WHERE creature_id = (SELECT id FROM creatures WHERE slug = ?) AND item_id = (SELECT id FROM items WHERE name = ?)', [$oldReg, $slug, $item]);
+    q('UPDATE creature_drops SET reg = ? WHERE creature_id = (SELECT id FROM creatures WHERE slug = ?) AND item_id IN (SELECT id FROM items WHERE name = ? UNION SELECT produce_item_id FROM plants WHERE LOWER(name) = LOWER(?))', [$oldReg, $slug, $item, $item]);
 $ck('drops: the old world has the old gates', $snapD(), array_map(fn($x) => $x[1], CREATURE_WINDOW_DROPS_1119));
 $others = fn() => q("SELECT cd.id, cd.creature_id, cd.item_id, cd.chance, cd.reg FROM creature_drops cd WHERE cd.creature_id NOT IN (SELECT id FROM creatures WHERE slug IN ('arctic-fox', 'desert-tortoise', 'glacier-bear', 'lichen-reindeer')) ORDER BY cd.id")->fetchAll();
 $restBefore = $others(); $nAll = (int)q_val('SELECT COUNT(*) FROM creature_drops');

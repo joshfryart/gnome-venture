@@ -49,4 +49,41 @@ $ovB = pfd_creature_overlay(['slug' => $b, 'size' => $L[$b]['size']]); $hasRule 
 chk('beaten creature sheet says what it does (class rule / abilities) when it has any', !$hasRule || str_contains($h, 'What it does'));
 $z = array_values(array_filter($slugs, fn($x) => $x !== $a && $x !== $b))[0]; $h = pfcx_html($u, $z);
 chk('an unmet creature stays unknown (no name in the sheet)', !str_contains($h, '>' . htmlspecialchars($L[$z]['name']) . '</h3>') && str_contains($h, 'Unknown creature') && !str_contains($h, 'class="cxp"'));
+
+// ---- 2.7.58 creature parts, phase 3: donate parts to the Codex
+echo "== Codex donation\n";
+set_exception_handler(function (Throwable $e) { echo "FAIL exception " . get_class($e) . ": " . $e->getMessage() . " @ " . basename($e->getFile()) . ":" . $e->getLine() . "\n"; exit(1); });   // bootstrap's handler would hide it (exit 0)
+q('UPDATE users SET coins = 0 WHERE id = ?', [$u['id']]); $uid = (int)$u['id'];
+$pick = null;   // a creature of the Codex with a part drop, met by this gnome
+foreach ($slugs as $sl) { $parts = pfcx_drop_parts($sl); if ($parts) { $pick = $sl; break; } }
+chk('some Codex creature leaves a part behind (pfcx_drop_parts)', $pick !== null);
+if ($pick !== null) {
+    $pid = (int)$parts[0]['id'];
+    $meet = fn() => q("INSERT OR IGNORE INTO pf_codex (user_id, slug, piece, won) VALUES (?, ?, '', 0)", [$uid, $pick]);
+    q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $pid]);
+    [$ok, $m] = pfcx_donate($u, $pick); chk('an unmet creature takes nothing', !$ok, $m);
+    $meet();
+    [$ok, $m] = pfcx_donate($u, $pick); chk('no parts held: refused', !$ok && str_contains($m, 'part'), $m);
+    give_item($uid, $pid, 5);
+    $x0 = (int)q_val('SELECT xp FROM users WHERE id = ?', [$uid]);
+    [$ok, $m] = pfcx_donate($u, $pick);
+    $given = (int)q_val('SELECT given FROM pf_codex_parts WHERE user_id = ? AND slug = ?', [$uid, $pick]);
+    $held = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $pid]);
+    chk('3 parts given, 2 left', $given === 3 && $held === 2, [$given, $held]);
+    $lv = (int)$L[$pick]['level']; $band = 1 + intdiv(max(1, $lv) - 1, 10);
+    chk('one-time reward: 40 Petals x level band', (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) === 40 * $band, [(int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]), $band]);
+    chk('and the donation is marked done', q_val('SELECT done_at FROM pf_codex_parts WHERE user_id = ? AND slug = ?', [$uid, $pick]) !== null);
+    [$ok, $m] = pfcx_donate($u, $pick);
+    chk('a finished creature takes no more and pays nothing twice', !$ok && (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) === 40 * $band && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $pid]) === 2, $m);
+    $h = pfcx_html($u, $pick);
+    chk('the sheet says it is donated', str_contains($h, 'Donated'));
+    $o = $slugs[array_search($pick, $slugs, true) === 0 ? 1 : 0];
+    $po = pfcx_drop_parts($o);
+    if ($po) {
+        q("INSERT OR IGNORE INTO pf_codex (user_id, slug, piece, won) VALUES (?, ?, '', 0)", [$uid, $o]); give_item($uid, (int)$po[0]['id'], 2);
+        [$ok, $m] = pfcx_donate($u, $o);
+        chk('two parts: taken and counted, but no reward yet (3 needed in all)', $ok && (int)q_val('SELECT given FROM pf_codex_parts WHERE user_id = ? AND slug = ?', [$uid, $o]) === 2 && q_val('SELECT done_at FROM pf_codex_parts WHERE user_id = ? AND slug = ?', [$uid, $o]) === null, $m);
+        give_item($uid, (int)$po[0]['id'], 1); $h = pfcx_html($u, $o); chk('the sheet shows 2 of 3 and a donate button', str_contains($h, '2 of 3') && str_contains($h, 'name="do" value="cx_donate"'));
+    }
+}
 exit($bad ? 1 : 0);

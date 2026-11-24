@@ -14,7 +14,7 @@ require_once __DIR__ . '/player_jobs.php';
 require_once __DIR__ . '/calling_quests.php';   // v0.9.4: job_event() forwards to calling_event()
 
 const JOB_PERIODS = ['daily' => ['Daily', '☀️', 3], 'weekly' => ['Weekly', '📅', 3], 'monthly' => ['Monthly', '🌕', 2]];   // [label, icon, offers shown]; T2.2: 3/3/2 (was 5/5/3)
-const JOB_KINDS = ['harvest', 'harvest_crop', 'deliver_crop', 'deliver_gather', 'deliver_dish', 'water', 'gather', 'cook', 'craft', 'defeat', 'grade', 'rebuild'];
+const JOB_KINDS = ['harvest', 'harvest_crop', 'deliver_crop', 'deliver_gather', 'deliver_part', 'deliver_dish', 'water', 'gather', 'cook', 'craft', 'defeat', 'grade', 'rebuild'];
 
 /** Period key for now. v1.2.2: the day turns over at midnight Hollow time (game_timezone), not a fixed UTC hour. Same key formats as before. */
 function job_period_key(string $period, ?int $at = null): string
@@ -66,6 +66,27 @@ function job_period_left(string $period): int
     return max(0, job_period_span($period)[1] - time());
 }
 
+/** 2.7.58: a deliver_part row's token must be an any-/rare- family key (parts.php). */
+function job_part_token_ok(string $token): bool
+{
+    require_once __DIR__ . '/parts.php';
+    return part_key($token) !== null;
+}
+
+/**
+ * 2.7.58: what a gnome holds for a delivery job. A normal delivery counts the one item; a deliver_part job (target = any-/rare- token, no item id) counts the family:
+ * ['have' => n, 'stock' => part_stock() entry or null].
+ */
+function job_deliver_stock(int $uid, array $job): array
+{
+    if (($job['kind'] ?? '') === 'deliver_part') {
+        require_once __DIR__ . '/parts.php';
+        $st = part_stock($uid, (string)$job['target'], max(1, (int)$job['qty']));
+        return ['have' => (int)($st['have'] ?? 0), 'stock' => $st];
+    }
+    return ['have' => (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$job['target_item_id']]), 'stock' => null];
+}
+
 function ensure_jobs(): int
 {
     require_once __DIR__ . '/catalog.php';
@@ -73,11 +94,13 @@ function ensure_jobs(): int
     foreach (catalog_lines('jobs.txt') as $r) {
         if (count($r) < 10) continue;
         [$period, $kind, $title, $text, $min, $max, $stages, $coins, $xp, $reward] = $r;
+        $token = $r[10] ?? '';   // 2.7.58: optional 11th column, a deliver_part row's family token (any-hide, rare-plate)
         if (!isset(JOB_PERIODS[$period]) || !in_array($kind, JOB_KINDS, true)) continue;
+        if ($kind === 'deliver_part' && !job_part_token_ok($token)) continue;
         if (q_val('SELECT 1 FROM job_templates WHERE period = ? AND title = ?', [$period, $title])) continue;
         db_insert('job_templates', ['period' => $period, 'kind' => $kind, 'title' => $title, 'text' => $text,
             'qty_min' => (int)$min, 'qty_max' => max((int)$min, (int)$max), 'stages' => max(1, (int)$stages),
-            'reward_coins' => (int)$coins, 'reward_xp' => (int)$xp, 'reward_item' => $reward === '-' ? null : $reward, 'active' => 1]);
+            'reward_coins' => (int)$coins, 'reward_xp' => (int)$xp, 'reward_item' => $reward === '-' ? null : $reward, 'part_token' => $kind === 'deliver_part' ? $token : null, 'active' => 1]);
         $added++;
     }
     if (!q_val("SELECT 1 FROM encyclopedia_entries WHERE title = 'The Job Board' AND chapter = 'General'")) {
@@ -129,7 +152,9 @@ function job_context(array $u): array
     $tiles = (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE user_id = ?', [$uid]);
     $npcs = q('SELECT name FROM npcs WHERE active = 1 ORDER BY id')->fetchAll(PDO::FETCH_COLUMN) ?: ['Wren'];
     require_once __DIR__ . '/rebuild.php';
+    require_once __DIR__ . '/crafting.php';
     return $cache[$uid] = [
+        'seen' => collected_slugs($uid),   // 2.7.58: the part families a gnome has met (deliver_part)
         'ruins' => [],   // v0.7.77 repairs replaced the monthly rebuild job: no new offers (an empty pool skips the template)
         'crops' => $crops, 'gathers' => $gathers, 'dishes' => $dishes, 'kitchen' => $kitchen, 'npcs' => $npcs,
         'notill' => (int)$u['level'] >= (int)setting('notill_level'),
@@ -153,6 +178,12 @@ function job_from_template(array $tpl, array $ctx, JobRng $rng): ?array
             $item = $rng->pick($ctx['gathers']);
             if (!$item) return null;
             break;
+        case 'deliver_part':   // 2.7.58: a part family (any-hide, rare-plate), not one item; offered once the gnome has met a part of the family
+            require_once __DIR__ . '/parts.php';
+            $k = part_key((string)($tpl['part_token'] ?? ''));
+            if (!$k || !part_family_seen($k, $ctx['seen'])) return null;
+            $item = ['slug' => (string)$tpl['part_token'], 'item_id' => 0, 'item_name' => (string)part_ingredient_label((string)$tpl['part_token'])];
+            break;
         case 'deliver_dish':
             $item = $rng->pick($ctx['dishes']);
             if (!$item) return null;
@@ -175,7 +206,7 @@ function job_from_template(array $tpl, array $ctx, JobRng $rng): ?array
     }
     $qty = $rng->int((int)$tpl['qty_min'], (int)$tpl['qty_max']);
     if (in_array($tpl['kind'], ['harvest', 'harvest_crop', 'deliver_crop'], true)) $qty = (int)round($qty * $ctx['scale']);
-    if (!empty($ctx['early']) && in_array($tpl['kind'], ['harvest', 'harvest_crop', 'deliver_crop', 'water', 'gather', 'deliver_gather', 'defeat'], true)) $qty = max(1, (int)ceil($qty / 2));
+    if (!empty($ctx['early']) && in_array($tpl['kind'], ['harvest', 'harvest_crop', 'deliver_crop', 'water', 'gather', 'deliver_gather', 'deliver_part', 'defeat'], true)) $qty = max(1, (int)ceil($qty / 2));
     $npc = (string)$rng->pick($ctx['npcs']);
     $name = $item['item_name'] ?? '';
     $text = str_replace('{qty} {item}', '{qty} × {item}', (string)$tpl['text']);
@@ -358,11 +389,13 @@ function deliver_job(int $uid, string $period): array
     }
     if (!$job || $job['status'] !== 'active' || !str_starts_with((string)$job['kind'], 'deliver')) return [false, 'Nothing to deliver.'];
     $need = (int)$job['qty'] - (int)$job['progress'];
-    $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $job['target_item_id']]);
+    $ds = job_deliver_stock($uid, $job);
+    $have = $ds['have'];
     $give = min($need, $have);
     if ($give <= 0) return [false, 'You don’t have any ' . $job['target_name'] . ' to hand in.'];
     db()->beginTransaction();
-    if (!give_item($uid, (int)$job['target_item_id'], -$give)) {
+    $took = $ds['stock'] ? craft_take($uid, $ds['stock'], $give) : give_item($uid, (int)$job['target_item_id'], -$give);   // a part family: cheapest first, a rare part last
+    if (!$took) {
         db()->rollBack();
         return [false, 'You don’t have that many.'];
     }
@@ -448,6 +481,7 @@ function job_hint(array $job): string
     return match ((string)$job['kind']) {
         'harvest', 'harvest_crop' => '🌱 Grow it in your garden. Seeds are sold at the seed market in town.',
         'deliver_crop' => '🌱 Grow it, or buy it at the Trading Post.',
+        'deliver_part' => '🦴 Creature parts drop from creatures on the roads and in the wilds. Any part of the family counts, cheapest first.',
         'deliver_gather', 'gather' => '🔍 Found while wandering off the road (a foraging tool helps).',
         'deliver_dish' => '🍳 Cook it in Crafting → Cooking (needs a Kitchen in your garden).',
         'cook' => '🍳 Cook meals or feasts in Crafting → Cooking (snacks don’t count). A dish counts when you collect it from the pot.',   // v0.9.4

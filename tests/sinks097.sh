@@ -27,10 +27,10 @@ chk "curios are not on the open shelves" "$(db "SELECT COUNT(*) FROM shop_stock 
 chk "20 curios in the pool" "$(php -r 'chdir("'$GAME'"); $_SERVER["HTTP_HOST"]="x"; require "includes/bootstrap.php"; sink_load(); echo count(CURIO_DECOR);')" 20
 chk "every curio has an emoji and appeal of 7+" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); chdir("'$GAME'"); $_SERVER["HTTP_HOST"]="x"; require "includes/bootstrap.php"; sink_load(); $ok=0; foreach (array_keys(CURIO_DECOR) as $s) { $fx=json_decode($p->query("SELECT effects FROM items WHERE slug=\"$s\"")->fetchColumn(),true)["decor"]; if ($fx["icon"]!=="" && $fx["appeal"]>=7) $ok++; } echo $ok;')" 20
 chk "8 new feast recipes" "$(db "SELECT COUNT(*) FROM recipes WHERE slug IN ('feast-maplewold-table','feast-maizehollow-mole','feast-isles-ackee-pot','feast-olivewhistle-supper','feast-steppe-table','feast-dunewhisper-pilaf','feast-spicepeak-thali','feast-mistmoor-supper') AND tier='feast' AND cook_minutes=45")" 8
-chk "feast dish items are food with 480 min buff" "$(db "SELECT COUNT(*) FROM items i JOIN recipes r ON r.output_item_id=i.id WHERE r.slug LIKE 'feast-%' AND json_extract(i.effects,'\$.temp.minutes')=480 AND json_extract(i.effects,'\$.energy') BETWEEN 16 AND 26")" 15
+chk "feast dish items are food with 480 min buff" "$(db "SELECT COUNT(*) FROM items i JOIN recipes r ON r.output_item_id=i.id WHERE r.slug LIKE 'feast-%' AND json_extract(i.effects,'\$.temp.minutes')=480 AND json_extract(i.effects,'\$.energy') BETWEEN 16 AND 26")" 16
 chk "feast ingredients all exist" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $bad=0; foreach($p->query("SELECT ingredients FROM recipes WHERE slug LIKE \"feast-%\"")->fetchAll(PDO::FETCH_COLUMN) as $j) foreach(array_keys(json_decode($j,true)) as $s) if(!$p->query("SELECT 1 FROM items WHERE slug=\"$s\"")->fetch()) $bad++; echo $bad;')" 0
 chk "each new feast needs 1-2 treasure crops" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $t=[]; foreach(file("'$GAME'/includes/data/region_crops.txt") as $l){ $x=explode("|",trim($l)); if(($x[1]??"")==="treasure") foreach(explode(",",$x[2]) as $c) $t[$c]=1; } $ok=0; foreach($p->query("SELECT ingredients FROM recipes WHERE slug IN (\"feast-maplewold-table\",\"feast-maizehollow-mole\",\"feast-isles-ackee-pot\",\"feast-olivewhistle-supper\",\"feast-steppe-table\",\"feast-dunewhisper-pilaf\",\"feast-spicepeak-thali\",\"feast-mistmoor-supper\")")->fetchAll(PDO::FETCH_COLUMN) as $j){ $n=count(array_filter(array_keys(json_decode($j,true)), fn($s)=>isset($t[$s]))); if($n>=1 && $n<=2) $ok++; } echo $ok;')" 8
-chk "recipe Almanac pages for the feasts" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key LIKE 'recipe:feast-%'")" 15
+chk "recipe Almanac pages for the feasts" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key LIKE 'recipe:feast-%'")" 16
 chk "Dye Pot staffed round the clock" "$(db "SELECT COUNT(*) FROM npc_schedules WHERE shop_id=$DP AND activity='working'")" 3
 chk "Almanac page on the sinks" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Spending your Petals'")" 1
 
@@ -160,13 +160,13 @@ echo "== upgrade from 0.9.5: everything is restored once, no duplicates"
 dbx "DELETE FROM recipes WHERE slug IN ('feast-maplewold-table','feast-maizehollow-mole','feast-isles-ackee-pot','feast-olivewhistle-supper','feast-steppe-table','feast-dunewhisper-pilaf','feast-spicepeak-thali','feast-mistmoor-supper'); DELETE FROM items WHERE slug IN ('feast-maplewold-table','feast-maizehollow-mole','feast-isles-ackee-pot','feast-olivewhistle-supper','feast-steppe-table','feast-dunewhisper-pilaf','feast-spicepeak-thali','feast-mistmoor-supper','wind-harp','koi-pond');
  DELETE FROM npc_schedules WHERE shop_id=$DP; DELETE FROM shops WHERE slug='the-dye-pot'; DELETE FROM encyclopedia_entries WHERE title='Spending your Petals'; UPDATE shops SET description='Paths, fences.' WHERE slug='hedge-and-hearth'; UPDATE settings SET value='0.9.5' WHERE name='db_version'"
 curl -s -b $A "$BASE/world.php" -o /dev/null
-chk "feast recipes back" "$(db "SELECT COUNT(*) FROM recipes WHERE slug LIKE 'feast-%'")" 15
+chk "feast recipes back" "$(db "SELECT COUNT(*) FROM recipes WHERE slug LIKE 'feast-%'")" 16
 chk "curios back" "$(db "SELECT COUNT(*) FROM items WHERE slug IN ('wind-harp','koi-pond')")" 2
 chk "Dye Pot back (one shop, three staff)" "$(db "SELECT COUNT(*) FROM shops WHERE slug='the-dye-pot'")|$(db "SELECT COUNT(*) FROM npc_schedules s JOIN shops sh ON sh.id=s.shop_id WHERE sh.slug='the-dye-pot' AND s.activity='working'")" "1|3"
 chk "Almanac page back, unlocked for existing players" "$(db "SELECT COUNT(*) FROM encyclopedia_entries e JOIN user_encyclopedia ue ON ue.entry_id=e.id WHERE e.title='Spending your Petals' AND ue.user_id=$SID")" 1
 chk "Hedge & Hearth mentions the cabinet" "$(db "SELECT description LIKE '%Curio Cabinet%' FROM shops WHERE slug='hedge-and-hearth'")" 1
 chk "version set again" "$(db "SELECT value FROM settings WHERE name='db_version'")" "$(grep -oE "APP_VERSION', '[0-9.]+" $GAME/includes/bootstrap.php | grep -oE '[0-9.]+$')"
 curl -s -b $A "$BASE/world.php" -o /dev/null
-chk "second run adds nothing" "$(db "SELECT COUNT(*) FROM recipes WHERE slug LIKE 'feast-%'")|$(db "SELECT COUNT(*) FROM shops WHERE slug='the-dye-pot'")|$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Spending your Petals'")" "15|1|1"
+chk "second run adds nothing" "$(db "SELECT COUNT(*) FROM recipes WHERE slug LIKE 'feast-%'")|$(db "SELECT COUNT(*) FROM shops WHERE slug='the-dye-pot'")|$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Spending your Petals'")" "16|1|1"
 echo "== php errors"
 grep -iE 'fatal|warning|notice|deprecated' /tmp/s97-php.log || echo "(none)"

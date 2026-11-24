@@ -4,7 +4,7 @@
 # A suite counts as failed when it prints a line starting with "FAIL" (optionally indented), "N FAILED", a PHP fatal, or exits non-zero.
 # Suites that install themselves (they call walk.sh) get a copy with no data/; the others get a copy walk.sh has installed first (player "sprout", admin "admin").
 HERE=$(cd "$(dirname "$0")" && pwd)
-SELF_INSTALLING="${SELF_INSTALLING:-walk clock gourmand calling garden100 market100 mentors120 roads097 roadlife roadtext scenes social100 stops100 heredo treks trekshell villagers fix100 breeding110 security190 updrollback pfight pfight_sim pfight_js pfboard_sim pf_bots pfboard_combo_set trail_fam_collapse pfboard_fixes pfv1_charm pfv1_guide pfboard_v1 pfboard_v1_page pfdeck_v1 pfdeck_reset pbox_v1 pfboard pfboard_js pfengine_js pfmap pfstage pf_golive}"
+SELF_INSTALLING="${SELF_INSTALLING:-walk clock gourmand calling garden100 market100 mentors120 roads097 roadlife roadtext scenes social100 stops100 heredo treks trekshell villagers fix100 breeding110 security190 updrollback pfight pfight_sim pfight_js pfboard_sim pf_bots pfboard_combo_set trail_fam_collapse pfboard_fixes pfv1_charm pfv1_guide pfboard_v1 pfboard_v1_page pfdeck_v1 pfdeck_reset pbox_v1 pfboard pfboard_js pfengine_js pf_stat_pieces pfmap pfstage pf_golive}"
 LIST="${*:-$SUITES}"
 [ -n "$LIST" ] || LIST="${DEFAULT_SUITES:-}"
 [ -n "$LIST" ] || { echo "no suites given"; exit 2; }

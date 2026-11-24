@@ -113,7 +113,7 @@ function townsfolk_fair(string $month, string $cat): array
     if (!townsfolk_on() || !isset(FAIR_CATS[$cat])) return [];
     $rng = new TownRng('fair|' . $month . '|' . $cat);
     $kinds = FAIR_CATS[$cat][2];
-    $crops = $kinds ? q('SELECT name FROM plants WHERE kind IN (' . implode(',', array_fill(0, count($kinds), '?')) . ') ORDER BY id', $kinds)->fetchAll(PDO::FETCH_COLUMN) : TOWNSFOLK_JARS;
+    $crops = $cat === 'diorama' ? ['Pelt and Plume Scene', 'Shell Garden', 'Moth-Wing Mosaic', 'Little Burrow Scene'] : ($kinds ? q('SELECT name FROM plants WHERE kind IN (' . implode(',', array_fill(0, count($kinds), '?')) . ') ORDER BY id', $kinds)->fetchAll(PDO::FETCH_COLUMN) : TOWNSFOLK_JARS);
     if (!$crops) return [];
     $out = [];
     foreach (townsfolk_picks('fairpick|' . $month . '|' . $cat, 2 + $rng->int(0, 1)) as $p) {

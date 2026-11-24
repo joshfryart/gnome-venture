@@ -35,6 +35,9 @@ if (is_post()) {
         require_once __DIR__ . '/includes/trail_sights.php';
         [$ok, $msg] = sights5_use_item($u, (int)($_POST['item_id'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
+    } elseif (($_POST['do'] ?? '') === 'fit_aug') {   // 2.7.58: fit an augment (potions table) to a tool
+        [$ok, $msg] = tool_fit_aug((int)$u['id'], (int)($_POST['item_id'] ?? 0), (int)($_POST['aug_id'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
     } elseif (($_POST['do'] ?? '') === 'mend') {   // v0.7.86: mend a worn tool or a Broken copy
         [$ok, $msg] = mend_tool((int)$u['id'], (int)($_POST['item_id'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
@@ -94,7 +97,7 @@ if ($view === 'belt') {   // v0.7.88: the toolbelt, by job. Its mend forms post 
         $brokenCopy = $best ? null : tool_broken_owned($uid, $type);
         $next = null;
         foreach (TOOL_ITEMS as $ti) if ($ti[0] === $type && $ti[1] === $tier + 1) $next = $ti;
-        $info = $best ? tool_wear_info($best, (int)q_val('SELECT wear FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$best['id']])) : null;
+        $info = $best ? tool_wear_info($best, (int)q_val('SELECT wear FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$best['id']]), $uid) : null;
         $pct = $info && $info['limit'] > 0 ? max(0, min(100, (int)round($info['left'] * 100 / $info['limit']))) : -1;
         $using = $best ? '<b>' . e($best['name']) . '</b> <span class="ptier t' . $tier . '">' . e(TOOL_TIERS[$tier] ?? '') . '</span>'
             : ($byHand ? '<span class="muted">By hand</span>' : '<span class="bad">None yet</span>');

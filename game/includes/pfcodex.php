@@ -63,6 +63,68 @@ function pfcx_note(array $u, array $c, array $s, bool $won = false): void
     } catch (Throwable $e) { /* the codex is a bonus */ }
 }
 
+/** 2.7.58 creature parts: table pf_codex_parts (user_id, slug, given, done_at), created on first use like pf_codex. */
+function pfcx_parts_ensure(): bool
+{
+    static $ok = null;
+    if ($ok !== null) return $ok;
+    try { db()->exec('CREATE TABLE IF NOT EXISTS pf_codex_parts (user_id INTEGER NOT NULL, slug VARCHAR(80) NOT NULL, given INTEGER NOT NULL DEFAULT 0, done_at VARCHAR(32) NULL, PRIMARY KEY (user_id, slug))'); return $ok = true; }
+    catch (Throwable $e) { return $ok = false; }
+}
+
+/** The part items (id, slug, name) this creature (or, for a variant, its family) can drop, from creature_drops. */
+function pfcx_drop_parts(string $slug): array
+{
+    $fam = (string)(pfcx_creatures()[$slug]['family'] ?? '');
+    $in = array_values(array_unique(array_filter([$slug, $fam])));
+    return q("SELECT DISTINCT i.id, i.slug, i.name FROM creature_drops cd JOIN creatures c ON c.id = cd.creature_id JOIN items i ON i.id = cd.item_id
+        WHERE i.category = 'part' AND c.slug IN (" . implode(',', array_fill(0, count($in), '?')) . ') ORDER BY i.id', $in)->fetchAll();
+}
+
+/** [given, done] of a creature for this gnome. */
+function pfcx_parts_state(int $uid, string $slug): array
+{
+    if (!pfcx_parts_ensure()) return [0, false];
+    $r = q_one('SELECT given, done_at FROM pf_codex_parts WHERE user_id = ? AND slug = ?', [$uid, $slug]);
+    return $r ? [(int)$r['given'], $r['done_at'] !== null] : [0, false];
+}
+
+/** How many of this creature's parts the gnome holds. */
+function pfcx_parts_held(int $uid, string $slug): int
+{
+    $n = 0; foreach (pfcx_drop_parts($slug) as $p) $n += (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$p['id']]);
+    return $n;
+}
+
+/** Give a met creature the parts it drops (up to the number still needed). The last one pays once: Petals x the creature's level band, and XP. [ok, message] */
+function pfcx_donate(array $u, string $slug): array
+{
+    $uid = (int)$u['id']; $list = pfcx_creatures();
+    if (!isset($list[$slug]) || !pfcx_ensure() || !pfcx_parts_ensure()) return [false, 'The Codex cannot take that.'];
+    if (!q_val('SELECT 1 FROM pf_codex WHERE user_id = ? AND slug = ? AND piece = ?', [$uid, $slug, ''])) return [false, 'Meet that creature in a fight first.'];
+    $need = max(1, (int)setting('codex_part_need'));
+    [$given, $done] = pfcx_parts_state($uid, $slug);
+    if ($done) return [false, 'You have already given this creature’s parts to the Codex.'];
+    $want = $need - $given; $took = 0;
+    foreach (pfcx_drop_parts($slug) as $p) {
+        $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$p['id']]);
+        $use = min($want - $took, $have);
+        if ($use > 0 && give_item($uid, (int)$p['id'], -$use)) $took += $use;
+        if ($took >= $want) break;
+    }
+    if ($took < 1) return [false, 'You carry no part this creature leaves behind.'];
+    if ($given === 0 && !q_val('SELECT 1 FROM pf_codex_parts WHERE user_id = ? AND slug = ?', [$uid, $slug])) q('INSERT INTO pf_codex_parts (user_id, slug, given) VALUES (?, ?, 0)', [$uid, $slug]);
+    q('UPDATE pf_codex_parts SET given = given + ? WHERE user_id = ? AND slug = ?', [$took, $uid, $slug]);
+    $now = $given + $took; $name = (string)$list[$slug]['name'];
+    if ($now < $need) return [true, 'You give the Codex ' . $took . ' part' . ($took === 1 ? '' : 's') . ' (' . $now . ' of ' . $need . ').'];
+    if (q('UPDATE pf_codex_parts SET done_at = ? WHERE user_id = ? AND slug = ? AND done_at IS NULL', [now(), $uid, $slug])->rowCount() !== 1) return [true, 'Parts given.'];
+    $band = 1 + intdiv(max(1, (int)$list[$slug]['level']) - 1, 10);
+    $pet = (int)setting('codex_part_petals') * $band; $xp = (int)setting('codex_part_xp');
+    if ($pet > 0) give_petals($uid, $pet, 'codex parts');
+    if ($xp > 0) add_xp($uid, $xp, 'Codex');
+    return [true, '📖 The Codex now has all it needs of the ' . $name . '’s parts: +' . $pet . ' Petals, +' . $xp . ' XP.'];
+}
+
 function pfcx_human(string $s): string { return ucfirst(str_replace(['-', '_'], ' ', trim($s))); }
 
 /** [slug => row] of every creature the Codex lists: name, size, level, lands, class, description, from the creatures table and data/pf_creatures.txt. */
@@ -135,7 +197,7 @@ function pfcx_piece_li(string $name, array $d, int $tint): string
 }
 
 /** The creature's sheet: picture, name, tags, where to look, about (after a win), what it does (after a win), the pieces seen (drawn) and blanks for the rest. $seen: name => pd (array or null). */
-function pfcx_sheet(array $c, int $st, array $seen, string $size = 'all'): string
+function pfcx_sheet(array $c, int $st, array $seen, string $size = 'all', ?array $u = null): string
 {
     require_once __DIR__ . '/pfdeck.php';
     require_once __DIR__ . '/pfdeck_view.php';
@@ -191,6 +253,13 @@ function pfcx_sheet(array $c, int $st, array $seen, string $size = 'all'): strin
         }
         $h .= '</ul>' . (count($extra) ? '' : '<p class="cx-note">It may also play a piece of the region you meet it in.</p>');
     }
+    if ($u !== null && $st && pfcx_drop_parts($slug)) {   // 2.7.58: donate its parts
+        [$gv, $dn] = pfcx_parts_state((int)$u['id'], $slug); $need = max(1, (int)setting('codex_part_need')); $hv = pfcx_parts_held((int)$u['id'], $slug);
+        $h .= '<h4>Parts</h4>' . ($dn ? '<p class="cx-parts">Donated. The Codex has what it needs of this creature’s parts.</p>'
+            : '<p class="cx-parts">' . $gv . ' of ' . $need . ' given to the Codex. You carry ' . $hv . '.</p>'
+              . ($hv > 0 ? '<form method="post" action="' . e(url('puzzlebox.php')) . '" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="cx_donate"><input type="hidden" name="c" value="' . e($slug) . '"><input type="hidden" name="z" value="' . e($size) . '"><button class="btn small">Give parts</button></form>'
+                : '<p class="cx-note">Its parts come from beating it.</p>'));
+    }
     return $h . '<p class="cx-foot"><a class="btn ghost small" href="' . $close . '">Back to the Codex</a></p></section></div>';
 }
 
@@ -217,6 +286,6 @@ function pfcx_html(array $u, string $slug = '', string $size = 'all'): string
         $h .= pfcx_tile($c, $st[$c['slug']] ?? 0, count($pc[$c['slug']] ?? []), $size);
     }
     $h .= '</div>' . ($cxHid ? '<p class="help cx-unk">' . $cxHid . ' not met yet. <a href="' . e(pfcx_url($size) . (strpos(pfcx_url($size), '?') !== false ? '&' : '?') . 'cxu=1') . '">Show them</a></p>' : '');
-    if ($slug !== '' && isset($list[$slug])) $h .= pfcx_sheet($list[$slug], $st[$slug] ?? 0, $pc[$slug] ?? [], $size);
+    if ($slug !== '' && isset($list[$slug])) $h .= pfcx_sheet($list[$slug], $st[$slug] ?? 0, $pc[$slug] ?? [], $size, $u);
     return $h . '</div><script src="' . e(url('assets/pfcodex.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }

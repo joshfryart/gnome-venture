@@ -14,6 +14,8 @@ declare(strict_types=1);
  * Some jobs can be done by hand (tier 0, one square). Tilling and watering need a tool.
  */
 
+require_once __DIR__ . '/augments.php';
+
 const TOOL_TIERS = [1 => 'Worn', 2 => 'Sturdy', 3 => 'Fine', 4 => 'Masterwork'];
 
 /** type => [label, icon, what it's for, can be done by hand, reaches several squares] */
@@ -50,62 +52,62 @@ const ACTION_TOOL = ['till' => 'till', 'water' => 'water', 'plant' => 'plant', '
 /** [type, tier, name, price, rarity, flavour]. Tier 4 is rare shop stock, or crafted at a Tool Shed. */
 const TOOL_ITEMS = [
     ['till', 1, 'Worn Trowel', 25, 1, 'Has seen better days.'],
-    ['till', 2, 'Garden Hoe', 250, 8, 'A long handle saves your back.'],
-    ['till', 3, 'Steel Spade', 1200, 25, 'Bites through sod like butter.'],
-    ['till', 4, 'Masterwork Wheel Hoe', 6000, 70, 'A gnome-forged wheel hoe that rolls down a whole row.'],
+    ['till', 2, 'Garden Hoe', 150, 8, 'A long handle saves your back.'],
+    ['till', 3, 'Steel Spade', 720, 25, 'Bites through sod like butter.'],
+    ['till', 4, 'Masterwork Wheel Hoe', 4500, 70, 'A gnome-forged wheel hoe that rolls down a whole row.'],
     ['water', 1, 'Tin Watering Can', 30, 1, 'Holds just enough.'],
-    ['water', 2, 'Copper Watering Can', 300, 10, 'A wide rose that showers three plants at once.'],
-    ['water', 3, 'Sprinkler Can', 1400, 25, 'Long-spouted and generous.'],
-    ['water', 4, 'Masterwork Rain Wand', 6500, 70, 'A hollow reed charmed by the mist-gnomes of Mistmoor.'],
+    ['water', 2, 'Copper Watering Can', 180, 10, 'A wide rose that showers three plants at once.'],
+    ['water', 3, 'Sprinkler Can', 840, 25, 'Long-spouted and generous.'],
+    ['water', 4, 'Masterwork Rain Wand', 4875, 70, 'A hollow reed charmed by the mist-gnomes of Mistmoor.'],
     ['plant', 1, 'Wooden Dibber', 40, 2, 'Pokes the perfect seed hole.'],
-    ['plant', 2, 'Seed Scoop', 280, 10, 'Drops seeds in neat little threes.'],
-    ['plant', 3, 'Seed Drill', 1300, 25, 'Sows a straight row while you walk.'],
-    ['plant', 4, 'Masterwork Gnome Seeder', 6000, 70, 'Clicks and whirs and never misses a spot.'],
+    ['plant', 2, 'Seed Scoop', 170, 10, 'Drops seeds in neat little threes.'],
+    ['plant', 3, 'Seed Drill', 780, 25, 'Sows a straight row while you walk.'],
+    ['plant', 4, 'Masterwork Gnome Seeder', 4500, 70, 'Clicks and whirs and never misses a spot.'],
     ['spread', 1, 'Compost Scoop', 40, 2, 'A dented scoop, just right for a square.'],
-    ['spread', 2, 'Garden Fork', 300, 10, 'Tosses compost and mulch across three squares.'],
-    ['spread', 3, 'Wheelbarrow', 1500, 25, 'Carries enough for a whole row.'],
-    ['spread', 4, 'Masterwork Barrow', 7000, 70, 'Rolls itself, mostly.'],
+    ['spread', 2, 'Garden Fork', 180, 10, 'Tosses compost and mulch across three squares.'],
+    ['spread', 3, 'Wheelbarrow', 900, 25, 'Carries enough for a whole row.'],
+    ['spread', 4, 'Masterwork Barrow', 5250, 70, 'Rolls itself, mostly.'],
     ['weed', 1, 'Hand Fork', 35, 2, 'Little tines for little weeds.'],
-    ['weed', 2, 'Hori-hori', 260, 10, 'A soil knife that roots out the stubborn ones.'],
-    ['weed', 3, 'Stirrup Hoe', 1200, 25, 'Skims weeds off a whole row.'],
-    ['weed', 4, 'Masterwork Stirrup Hoe', 5500, 70, 'Weeds seem to leave before it arrives.'],
+    ['weed', 2, 'Hori-hori', 155, 10, 'A soil knife that roots out the stubborn ones.'],
+    ['weed', 3, 'Stirrup Hoe', 720, 25, 'Skims weeds off a whole row.'],
+    ['weed', 4, 'Masterwork Stirrup Hoe', 4125, 70, 'Weeds seem to leave before it arrives.'],
     ['harvest', 1, 'Woven Basket', 35, 2, 'Smells faintly of strawberries.'],
-    ['harvest', 2, 'Harvest Trug', 280, 10, 'A shallow wooden trug for three squares at a time.'],
-    ['harvest', 3, 'Harvest Sack', 1200, 25, 'Big enough for a whole row.'],
-    ['harvest', 4, 'Masterwork Harvest Cart', 6000, 70, 'Never tips over, even on cobbles.'],
+    ['harvest', 2, 'Harvest Trug', 170, 10, 'A shallow wooden trug for three squares at a time.'],
+    ['harvest', 3, 'Harvest Sack', 720, 25, 'Big enough for a whole row.'],
+    ['harvest', 4, 'Masterwork Harvest Cart', 4500, 70, 'Never tips over, even on cobbles.'],
     ['prune', 1, 'Garden Snips', 60, 3, 'Small but sharp.'],
-    ['prune', 2, 'Pruning Shears', 350, 10, 'Clean cuts heal fast.'],
-    ['prune', 3, 'Fine Secateurs', 1500, 25, 'Balanced like a dancer.'],
-    ['prune', 4, 'Masterwork Secateurs', 7000, 70, 'Plants seem to grow back out of gratitude.'],
+    ['prune', 2, 'Pruning Shears', 210, 10, 'Clean cuts heal fast.'],
+    ['prune', 3, 'Fine Secateurs', 900, 25, 'Balanced like a dancer.'],
+    ['prune', 4, 'Masterwork Secateurs', 5250, 70, 'Plants seem to grow back out of gratitude.'],
     ['forage', 1, 'Foraging Knife', 60, 3, 'A small curved blade with a brush on the handle for mushrooms.'],
-    ['forage', 2, 'Hooked Forager’s Knife', 420, 12, 'Reaches the high berries and the tricky stems.'],
-    ['forage', 3, 'Fine Foraging Knife', 1600, 28, 'Finds the rare things other gnomes walk past.'],
+    ['forage', 2, 'Hooked Forager’s Knife', 250, 12, 'Reaches the high berries and the tricky stems.'],
+    ['forage', 3, 'Fine Foraging Knife', 960, 28, 'Finds the rare things other gnomes walk past.'],
     ['pick', 1, 'Rock Pick', 70, 3, 'A light hammer with a pointed end.'],
-    ['pick', 2, 'Prospector’s Pick', 450, 12, 'Splits stones cleanly along their seams.'],
-    ['pick', 3, 'Fine Rock Hammer', 1700, 28, 'Rings like a bell when it finds a geode.'],
+    ['pick', 2, 'Prospector’s Pick', 270, 12, 'Splits stones cleanly along their seams.'],
+    ['pick', 3, 'Fine Rock Hammer', 1020, 28, 'Rings like a bell when it finds a geode.'],
     ['net', 1, 'Bug Net', 50, 3, 'For collecting what insects leave behind. Bugs are always let go.'],
-    ['net', 2, 'Fine-mesh Net', 380, 12, 'Catches even the smallest shed wing.'],
-    ['net', 3, 'Silk Net', 1500, 28, 'So soft the moths don’t mind it.'],
+    ['net', 2, 'Fine-mesh Net', 230, 12, 'Catches even the smallest shed wing.'],
+    ['net', 3, 'Silk Net', 900, 28, 'So soft the moths don’t mind it.'],
     ['bucket', 1, 'Tide Bucket', 45, 3, 'A dented bucket for rock pools.'],
-    ['bucket', 2, 'Tide Pail and Scoop', 350, 12, 'Sifts sand and scoops shells.'],
-    ['bucket', 3, 'Diver’s Creel', 1500, 28, 'A woven creel for the deeper pools.'],
+    ['bucket', 2, 'Tide Pail and Scoop', 210, 12, 'Sifts sand and scoops shells.'],
+    ['bucket', 3, 'Diver’s Creel', 900, 28, 'A woven creel for the deeper pools.'],
     // v0.7.81: logging and fishing
     ['axe', 1, 'Hatchet', 70, 3, 'A short axe with a leather grip. Good for fallen branches.'],
-    ['axe', 2, 'Woodcutter’s Axe', 450, 12, 'Bites clean through seasoned logs.'],
-    ['axe', 3, 'Fine Felling Axe', 1700, 28, 'Finds the heartwood other gnomes miss.'],
+    ['axe', 2, 'Woodcutter’s Axe', 270, 12, 'Bites clean through seasoned logs.'],
+    ['axe', 3, 'Fine Felling Axe', 1020, 28, 'Finds the heartwood other gnomes miss.'],
     ['rod', 1, 'Willow Fishing Rod', 60, 3, 'A bendy willow stick with a line and a bent pin.'],
-    ['rod', 2, 'Cane Fishing Rod', 420, 12, 'A proper reel and a lucky float.'],
-    ['rod', 3, 'Fine Fly Rod', 1600, 28, 'Casts like a whisper. The big ones bite.'],
+    ['rod', 2, 'Cane Fishing Rod', 250, 12, 'A proper reel and a lucky float.'],
+    ['rod', 3, 'Fine Fly Rod', 960, 28, 'Casts like a whisper. The big ones bite.'],
     ['basket', 1, 'Gathering Pouch', 80, 3, 'A pouch on a string.'],
-    ['basket', 2, 'Gathering Basket', 500, 12, 'Room for a little extra.'],
-    ['basket', 3, 'Forager’s Pack', 2000, 28, 'Pockets inside pockets.'],
+    ['basket', 2, 'Gathering Basket', 300, 12, 'Room for a little extra.'],
+    ['basket', 3, 'Forager’s Pack', 1200, 28, 'Pockets inside pockets.'],
     ['staff', 1, 'Walking Stick', 90, 3, 'A good straight stick with a knob on top.'],
-    ['staff', 2, 'Hiking Staff', 520, 12, 'Ash wood, a leather grip and a little bell.'],
-    ['staff', 3, 'Wayfarer’s Staff', 1800, 28, 'Carved with every road its owners have walked.'],
+    ['staff', 2, 'Hiking Staff', 310, 12, 'Ash wood, a leather grip and a little bell.'],
+    ['staff', 3, 'Wayfarer’s Staff', 1080, 28, 'Carved with every road its owners have walked.'],
     ['lantern', 1, 'Tin Lantern', 120, 4, 'A candle in a tin box. It does the job.'],
-    ['lantern', 2, 'Miner’s Lantern', 600, 14, 'Bright, steady and hard to blow out.'],
-    ['lantern', 3, 'Glowcap Lantern', 2000, 30, 'A jar of glowing mushrooms that never runs out.'],
-    ['soiltest', 2, 'Soil Probe', 900, 15, 'A long steel probe with a dial that reads the soil deep down.'],
+    ['lantern', 2, 'Miner’s Lantern', 360, 14, 'Bright, steady and hard to blow out.'],
+    ['lantern', 3, 'Glowcap Lantern', 1200, 30, 'A jar of glowing mushrooms that never runs out.'],
+    ['soiltest', 2, 'Soil Probe', 540, 15, 'A long steel probe with a dial that reads the soil deep down.'],
 ];
 
 function tool_slug(string $name): string
@@ -292,12 +294,12 @@ function tool_wear_limit(string $type, int $tier): int
  * How much a tool has left: ['kind' => 'use' or 'day', 'limit' => n, 'left' => n]. A limit of 0 means it never wears out.
  * Null when the item isn't a tool or wear is switched off. $wear is the wear on the gnome's copy.
  */
-function tool_wear_info(array $item, int $wear): ?array
+function tool_wear_info(array $item, int $wear, ?int $uid = null): ?array
 {
     $fx = json_decode((string)($item['effects'] ?? ''), true) ?: [];
     $type = (string)($fx['tool'] ?? '');
     if (($item['category'] ?? '') !== 'tool' || $type === '' || !tool_wear_on()) return null;
-    $limit = tool_wear_limit($type, (int)($fx['tier'] ?? $fx['power'] ?? 1));
+    $limit = $uid ? tool_wear_limit_for($uid, $item) : tool_wear_limit($type, (int)($fx['tier'] ?? $fx['power'] ?? 1));   // 2.7.58: a Hide Binding lengthens it
     return ['kind' => in_array($type, GARDEN_WEAR_TYPES, true) ? 'day' : 'use', 'limit' => $limit, 'left' => max(0, $limit - $wear)];
 }
 
@@ -316,7 +318,7 @@ function tool_left_text(int $uid, string $type): string
 {
     $best = best_tool($uid, $type);
     if (!$best) return '';
-    $info = tool_wear_info($best, (int)q_val('SELECT wear FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$best['id']]));
+    $info = tool_wear_info($best, (int)q_val('SELECT wear FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$best['id']]), $uid);
     if (!$info || $info['limit'] < 1) return '';
     return $info['left'] . ($info['kind'] === 'day' ? ' days left' : ' uses left');
 }
@@ -332,7 +334,7 @@ function tool_use(int $uid, string $type, string $kind = 'use'): ?string
     if (!tool_wear_on() || tool_tier($uid, $type) < 1) return null;
     $tool = best_tool($uid, $type);
     if (!$tool) return null;
-    $limit = tool_wear_limit($type, tool_tier($uid, $type));
+    $limit = tool_wear_limit_for($uid, $tool);   // 2.7.58: a Hide Binding lengthens it
     if ($limit < 1) return null;
     $day = $kind === 'day';
     $iid = (int)$tool['id'];
@@ -358,9 +360,14 @@ function tool_use(int $uid, string $type, string $kind = 'use'): ?string
 function tool_break(int $uid, array $tool): string
 {
     $iid = (int)$tool['id'];
+    $aug = q_one('SELECT aug, aug_left FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid]) ?: [];   // 2.7.58: the augment survives
     give_item($uid, $iid, -1);   // the row (and its wear) goes if that was the last copy
-    q('UPDATE user_items SET wear = 0, wear_day = NULL WHERE user_id = ? AND item_id = ? AND qty > 0', [$uid, $iid]);   // spare copies in the stack start fresh
-    give_item($uid, broken_item_id($tool), 1);
+    q('UPDATE user_items SET wear = 0, wear_day = NULL WHERE user_id = ? AND item_id = ? AND qty > 0', [$uid, $iid]);   // spare copies in the stack start fresh (and keep the shared augment)
+    $brokenId = broken_item_id($tool);
+    give_item($uid, $brokenId, 1);
+    if (!empty($aug['aug']) && !(int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid])) {   // no working copy left: the Broken copy carries it until the mend
+        q('UPDATE user_items SET aug = ?, aug_left = ? WHERE user_id = ? AND item_id = ?', [$aug['aug'], (int)$aug['aug_left'], $uid, $brokenId]);
+    }
     tool_cache_reset();   // the tool is gone from tool_tier for the rest of this request
     return '💥 Your ' . $tool['name'] . ' broke! Mend it in your Satchel for ' . number_format(tool_mend_cost((int)$tool['base_price'])) . ' ' . setting('currency_name') . '.';
 }
@@ -372,7 +379,7 @@ function broken_item_id(array $tool): int
     $id = item_id_by_slug($slug);
     if ($id) return $id;
     return db_insert('items', ['name' => 'Broken ' . $tool['name'], 'slug' => $slug, 'category' => 'broken',
-        'base_price' => max(1, (int)round((int)$tool['base_price'] * 0.1)), 'rarity' => 1, 'tradable' => 1, 'edible' => 0,
+        'base_price' => max(1, (int)round((int)$tool['base_price'] * 0.1)), 'rarity' => 1, 'tradable' => 0, 'edible' => 0,   // 2.7.58 EC6: a Broken copy cannot be gifted or traded (friends farmed free shed mends)
         'description' => 'Broken. Mend it in your Satchel to use it again.', 'effects' => null]);
 }
 
@@ -416,7 +423,7 @@ function tool_free_mends(int $uid): int
  */
 function mend_tool(int $uid, int $itemId): array
 {
-    $row = q_one('SELECT i.*, ui.wear FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.item_id = ? AND ui.qty > 0', [$uid, $itemId]);
+    $row = q_one('SELECT i.*, ui.wear, ui.aug, ui.aug_left FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.item_id = ? AND ui.qty > 0', [$uid, $itemId]);
     if (!$row) return [false, 'You don’t have that.'];
     $broken = $row['category'] === 'broken';
     $tool = $broken ? tool_of_broken($row) : $row;
@@ -428,10 +435,32 @@ function mend_tool(int $uid, int $itemId): array
     $today = gclock_my_date();
     db()->beginTransaction();
     $allow = tool_free_mends($uid);   // v0.7.96: 1 a day with a Tool Shed, 2 with a level 3 one
-    $kit = $kitId > 0 && give_item($uid, $kitId, -1);
-    $free = $kit || ($allow > 0
+    // 2.7.58 EC7: the day's free Tool Shed mend first; the Glowcap kit (a 5% drop) is spent only when there is none left
+    $shed = $allow > 0
         && q('UPDATE users SET free_mend_n = CASE WHEN free_mend_day = ? THEN free_mend_n + 1 ELSE 1 END, free_mend_day = ?
-              WHERE id = ? AND (free_mend_day IS NULL OR free_mend_day <> ? OR free_mend_n < ?)', [$today, $today, $uid, $today, $allow])->rowCount() === 1);
+              WHERE id = ? AND (free_mend_day IS NULL OR free_mend_day <> ? OR free_mend_n < ?)', [$today, $today, $uid, $today, $allow])->rowCount() === 1;
+    $kit = !$shed && $kitId > 0 && give_item($uid, $kitId, -1);
+    // 2.7.58: the augment that rides along: the Broken copy's, unless a working copy already holds one (the stack shares it)
+    $hadWorking = $broken && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']]) > 0;
+    $src = $row;
+    if ($hadWorking && ($wk = q_one('SELECT aug, aug_left FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']])) && !empty($wk['aug'])) $src = $wk;
+    $augSlug = (string)($src['aug'] ?? '');
+    $augLeft = (int)($src['aug_left'] ?? 0);
+    if ($augSlug !== '' && (!($ad = aug_def($augSlug)) || ($ad[2] > 0 && $augLeft < 1))) { $augSlug = ''; $augLeft = 0; }   // unknown or used up
+    // then Tool Repair Kits (a Silk Lashing takes one fewer), then the Ooze Salve's free mends, then Petals
+    $plan = !$shed && !$kit ? tool_mend_kit_plan($uid, $tool, $augSlug ?: null) : null;
+    $kits = 0;
+    if ($plan) {
+        $kits = $plan['kits'];
+        if (!give_item($uid, $plan['kit_id'], -$kits) || ($plan['part'] && !give_item($uid, $plan['part'], -1))) {
+            db()->rollBack();
+            return [false, 'Something changed while you were mending it. Nothing was used.'];
+        }
+        if ($plan['lashed'] && $augLeft > 0 && --$augLeft < 1) $augSlug = '';
+    }
+    $salve = !$shed && !$kit && !$kits && $augSlug === 'aug-ooze-salve' && $augLeft > 0;
+    if ($salve && --$augLeft < 1) $augSlug = '';
+    $free = $shed || $kit || $kits || $salve;
     if (!$free && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Mending it costs ' . number_format($cost) . ' ' . setting('currency_name') . '. You don’t have that many.'];
@@ -443,9 +472,12 @@ function mend_tool(int $uid, int $itemId): array
         }
         give_item($uid, (int)$tool['id'], 1);
     }
-    q('UPDATE user_items SET wear = 0, wear_day = NULL WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']]);
+    if (!$broken || !$hadWorking) q('UPDATE user_items SET wear = 0, wear_day = NULL WHERE user_id = ? AND item_id = ?', [$uid, (int)$tool['id']]);   // 2.7.58 EC5: a Broken copy joining a working stack leaves that stack's wear alone
+    q('UPDATE user_items SET aug = ?, aug_left = ? WHERE user_id = ? AND item_id = ?', [$augSlug !== '' ? $augSlug : null, $augSlug !== '' ? $augLeft : 0, $uid, (int)$tool['id']]);   // 2.7.58: carried back (or spent)
     db()->commit();
     tool_cache_reset();
+    if ($kits) return [true, '🧰 ' . $kits . ' repair kit' . ($kits === 1 ? '' : 's') . ($plan['part'] ? ' and a creature part' : '') . ' made your ' . $tool['name'] . ' good as new' . ($plan['lashed'] ? ' (the Silk Lashing saved a kit)' : '') . '.'];
+    if ($salve) return [true, '🔩 The Ooze Salve mended your ' . $tool['name'] . ' for free' . ($augSlug === '' ? ' (the last of it)' : ' (' . $augLeft . ' left)') . '.'];
     return [true, $kit ? '🧰 The repair kit made it good as new (and is used up).' : ($free ? '🛠️ Your Tool Shed mended it for free today.'
         : '🔧 Mended your ' . $tool['name'] . ' for ' . number_format($cost) . ' ' . setting('currency_name') . '.')];
 }
@@ -453,9 +485,44 @@ function mend_tool(int $uid, int $itemId): array
 /** A worn tool can't be traded, put on a stall or given away until it is mended. Returns the reason, or null. */
 function tool_trade_block(int $uid, int $itemId): ?string
 {
-    $r = q_one("SELECT i.name, i.category, ui.wear FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.item_id = ? AND ui.qty > 0",
+    $r = q_one("SELECT i.name, i.category, ui.wear, ui.aug FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.item_id = ? AND ui.qty > 0",
         [$uid, $itemId]);
+    if ($r && $r['category'] === 'broken') return 'A broken tool can’t be traded or given away. Mend it first.';   // 2.7.58 EC6
+    if ($r && $r['category'] === 'tool' && !empty($r['aug'])) return 'Your ' . $r['name'] . ' has an augment fitted. It can’t be traded or given away.';   // 2.7.58
     return $r && $r['category'] === 'tool' && (int)$r['wear'] > 0 ? 'Your ' . $r['name'] . ' is worn. Mend it first.' : null;
+}
+
+/** 2.7.58: what the mend button says for this tool or Broken copy: free with the Tool Shed, kits, the Ooze Salve, or the Petal price. $item: the Satchel row. */
+function tool_mend_label(int $uid, array $item): string
+{
+    $tool = ($item['category'] ?? '') === 'broken' ? tool_of_broken($item) : $item;
+    if (!$tool) return '🔧 Mend';
+    $fm = q_one('SELECT free_mend_day, free_mend_n FROM users WHERE id = ?', [$uid]) ?: [];
+    if (($allow = tool_free_mends($uid)) > 0 && ((string)($fm['free_mend_day'] ?? '') !== gclock_my_date() || (int)($fm['free_mend_n'] ?? 0) < $allow)) return '🛠️ Mend free (Tool Shed)';
+    $a = q_one('SELECT aug, aug_left FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$item['id']]) ?: [];
+    $slug = !empty($a['aug']) && ($d = aug_def((string)$a['aug'])) && ($d[2] < 1 || (int)$a['aug_left'] > 0) ? (string)$a['aug'] : null;
+    if ($plan = tool_mend_kit_plan($uid, $tool, $slug)) return '🧰 Mend (' . $plan['kits'] . ' kit' . ($plan['kits'] === 1 ? '' : 's') . ($plan['part'] ? ' + a part' : '') . ')';
+    if ($slug === 'aug-ooze-salve') return '🔩 Mend free (Ooze Salve)';
+    return '🔧 Mend (' . number_format(tool_mend_cost((int)$tool['base_price'])) . ' ' . setting('currency_name') . ')';
+}
+
+/** 2.7.58: the fitted augment line and the fit form for a working tool in the Satchel; '' for anything else. $hidden: the extra hidden fields the mend form carries. */
+function tool_aug_html(int $uid, array $tool, string $hidden = ''): string
+{
+    if (($tool['category'] ?? '') !== 'tool') return '';
+    $h = '';
+    if ($a = aug_on_item($uid, (int)$tool['id'])) {
+        $h .= '<p class="help">🔩 ' . e($a['def'][0]) . ': ' . e($a['def'][4]) . ($a['def'][2] > 0 ? ' (' . $a['left'] . ' left)' : '') . '</p>';
+    }
+    if ($fits = aug_fits_owned($uid, $tool)) {
+        $fx = json_decode((string)$tool['effects'], true) ?: [];
+        $part = (int)($fx['tier'] ?? $fx['power'] ?? 1) >= 3;
+        $h .= '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="fit_aug"><input type="hidden" name="item_id" value="' . (int)$tool['id'] . '">' . $hidden
+            . '<select name="aug_id" aria-label="Augment to fit">';
+        foreach ($fits as [$id, $name, $slug]) $h .= '<option value="' . $id . '">' . e($name) . ($part ? ' (+1 rare ' . PART_FAMILIES[AUG_DEFS[$slug][1]][0] . ' part)' : '') . '</option>';
+        $h .= '</select> <button class="btn small">🔩 Fit' . ($a ? ' (replaces)' : '') . '</button></form>';
+    }
+    return $h;
 }
 
 /**
@@ -467,7 +534,7 @@ function tool_wear_html(int $uid, array $item, int $wear, string $hidden = ''): 
     $broken = ($item['category'] ?? '') === 'broken';
     $tool = $broken ? tool_of_broken($item) : $item;
     if (!$tool) return '';
-    $info = $broken ? null : tool_wear_info($tool, $wear);
+    $info = $broken ? null : tool_wear_info($tool, $wear, $uid);
     $h = '';
     if ($broken) {
         $h = '<p class="help bad">💥 Broken. Mend it to use it again.</p>';
@@ -478,13 +545,11 @@ function tool_wear_html(int $uid, array $item, int $wear, string $hidden = ''): 
             . '<progress max="' . $info['limit'] . '" value="' . $info['left'] . '"></progress>';
     }
     if ($broken || $wear > 0) {
-        $fm = q_one('SELECT free_mend_day, free_mend_n FROM users WHERE id = ?', [$uid]) ?: [];
-        $free = ($allow = tool_free_mends($uid)) > 0 && ((string)($fm['free_mend_day'] ?? '') !== gclock_my_date() || (int)($fm['free_mend_n'] ?? 0) < $allow);
-        $cost = tool_mend_cost((int)$tool['base_price']);
-        $label = $free ? '🛠️ Mend free (Tool Shed)' : '🔧 Mend (' . number_format($cost) . ' ' . setting('currency_name') . ')';
+        $label = tool_mend_label($uid, $item);   // 2.7.58: kits and the Ooze Salve show here too
         $h .= '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="mend"><input type="hidden" name="item_id" value="' . (int)$item['id'] . '">'
             . $hidden . '<button class="btn small">' . $label . '</button></form>';
     }
+    if (!$broken) $h .= tool_aug_html($uid, $tool, $hidden);
     return $h === '' ? '' : '<div class="wearbox">' . $h . '</div>';
 }
 

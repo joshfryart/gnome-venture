@@ -58,11 +58,7 @@ function sh_bag_form(string $do, int $itemId, string $label, string $hid, string
 /** the mend button's words, the same as tool_wear_html() shows (free once a day with a Tool Shed) */
 function sh_mend_label(int $uid, array $item): string
 {
-    $tool = ($item['category'] ?? '') === 'broken' ? tool_of_broken($item) : $item;
-    if (!$tool) return '🔧 Mend';
-    $fm = q_one('SELECT free_mend_day, free_mend_n FROM users WHERE id = ?', [$uid]) ?: [];
-    $free = ($allow = tool_free_mends($uid)) > 0 && ((string)($fm['free_mend_day'] ?? '') !== gclock_my_date() || (int)($fm['free_mend_n'] ?? 0) < $allow);
-    return $free ? '🛠️ Mend free' : '🔧 Mend ' . money((int)tool_mend_cost((int)$tool['base_price']));
+    return tool_mend_label($uid, $item);   // 2.7.58: free (Tool Shed), kits, Ooze Salve or Petals
 }
 
 /** Satchel rows as entries. $items: user_items joined with items (qty > 0). $hid: the hidden cat / sort fields every form carries back. */
@@ -156,7 +152,7 @@ function sh_unk_ing_html(array $ings, array $icons = []): string
     $h = '<ul class="p2ingcmp p2ingunk">';
     foreach ($ings as $i) {
         $seen = !empty($i['seen']);
-        $h .= '<li class="' . ($seen ? 'ok' : 'short') . '"><span class="p2ic" aria-hidden="true">' . (isset($icons[$i['slug'] ?? '']) ? sh_icon($icons[$i['slug']], 'sm') : '❔') . '</span><span class="p2in">' . (int)$i['qty'] . ' × ' . e((string)$i['name'])
+        $h .= '<li class="' . ($seen ? 'ok' : 'short') . '"><span class="p2ic" aria-hidden="true">' . (isset($icons[$i['slug'] ?? '']) ? sh_icon($icons[$i['slug']], 'sm') : (part_family_icon((string)($i['slug'] ?? '')) ?? '❔')) . '</span><span class="p2in">' . (int)$i['qty'] . ' × ' . e((string)$i['name'])
             . '</span><b>' . ($seen ? '✔ found' : 'not found yet') . '</b></li>';
     }
     return $h . '</ul>';
@@ -165,7 +161,7 @@ function sh_unk_ing_html(array $ings, array $icons = []): string
 function sh_ing_line(array $i, array $icons): string
 {
     $ok = (int)$i['have'] >= (int)$i['qty'];
-    return '<li class="' . ($ok ? 'ok' : 'short') . '"><span class="p2ic" aria-hidden="true">' . (isset($icons[$i['slug']]) ? sh_icon($icons[$i['slug']], 'sm') : '❔') . '</span><span class="p2in">' . e((string)$i['name'])
+    return '<li class="' . ($ok ? 'ok' : 'short') . '"><span class="p2ic" aria-hidden="true">' . (isset($icons[$i['slug']]) ? sh_icon($icons[$i['slug']], 'sm') : (part_family_icon((string)$i['slug']) ?? '❔')) . '</span><span class="p2in">' . e((string)$i['name'])
         . '</span><b>' . ($ok ? '✔ ' : '✖ ') . number_format((int)$i['have']) . '/' . number_format((int)$i['qty']) . '</b><span class="vh">' . ($ok ? ' enough' : ' not enough') . '</span></li>';
 }
 
@@ -251,8 +247,10 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
             $sq = '';
             foreach ($r['ings'] as $i) {
                 $it = $icons[$i['slug']] ?? ['name' => $i['name']];
-                $sq .= $i['seen'] ? item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'states' => ['done'], 'chips' => [['note', 'Found']]])
-                                  : item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'icon' => '❔', 'rarity' => 'C', 'states' => ['off'], 'chips' => [['note', 'Not found yet']]]);
+                $fam = part_family_icon((string)$i['slug']);   // 2.7.58: an any-/rare- family shows its family icon, not the placeholder
+                $fx = $fam !== null ? ['icon' => $fam, 'rarity' => str_starts_with((string)$i['slug'], 'rare-') ? 'R' : 'C'] : [];
+                $sq .= $i['seen'] ? item_square($fx + ['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'states' => ['done'], 'chips' => [['note', 'Found']]])
+                                  : item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'icon' => $fam ?? '❔', 'rarity' => $fx['rarity'] ?? 'C', 'states' => ['off'], 'chips' => [['note', 'Not found yet']]]);
             }
             $body = '<p class="ccingh p2ingh">You need</p>' . sh_unk_ing_html($r['ings'], $icons) . item_grid($sq, 'itms--flush ccings p2ings');
         }

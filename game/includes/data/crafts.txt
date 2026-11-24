@@ -38,6 +38,7 @@ shell-meal-mussel|Shell Meal (mussel shells)|garden|shell-meal:2|blue-mussels:3|
 shell-meal-spiral|Shell Meal (spiral shells)|garden|shell-meal:2|spiral-shell:4|2
 shell-meal-urchin|Shell Meal (urchin shells)|garden|shell-meal:2|urchin-test:1|2
 shell-meal-fossil|Shell Meal (fossil shells)|garden|shell-meal:3|fossil-shell:1|2
+shell-meal-plate|Shell Meal (creature plates)|garden|shell-meal:1|any-plate:2|2
 worm-tea|Worm Tea|garden|worm-tea:3|worm-castings:1|1
 fern-tea|Fern Tea|garden|fern-tea:2|fiddleheads:2|1
 wood-ash|Wood Ash|garden|wood-ash:4|wood-chips:2|1
@@ -48,11 +49,11 @@ rock-dust-geo|Rock Dust (red ochre)|garden|rock-dust:2|red-ochre:2,river-clay:1|
 building-stone|Dressed Stone|building|building-stone:2|slate-shard:2,river-clay:1|3
 building-stone-flint|Dressed Stone (flint)|building|building-stone:1|flint:3|3
 building-stone-ochre|Dressed Stone (red rock)|building|building-stone:1|red-ochre:2,laterite-clay:1|3
-timber-plank|Timber Planks|building|timber-plank:2|wood-chips:3,pine-resin:1|3
-timber-plank-palm|Timber Planks (palm)|building|timber-plank:1|coir-fibre:2,wood-chips:2|3
+timber-plank|Timber Planks|building|timber-plank:3|wood-chips:3,pine-resin:1|3
+timber-plank-palm|Timber Planks (palm)|building|timber-plank:2|coir-fibre:2,wood-chips:2|3
 rope|Rope|building|rope:1|coir-fibre:2|3
-rope-cottongrass|Rope (cottongrass)|building|rope:1|cottongrass:3|3
-rope-cattail|Rope (cattail)|building|rope:1|cattail-root:3|3
+rope-cottongrass|Rope (cottongrass)|building|rope:1|cottongrass:2|3
+rope-cattail|Rope (cattail)|building|rope:1|cattail-root:2|3
 
 # Adventure gear (v0.7.30): tier 1 is sold at Twigg's; better ones are made at a Tool Shed (or bought, rarely)
 hiking-staff|Hiking Staff|tools|hiking-staff:1|walking-stick:1,timber-plank:1,rope:1|3
@@ -76,8 +77,8 @@ rock-garden|Rock Garden|decor|rock-garden:1|building-stone:1,edelweiss:1,flint:2
 # v0.7.81: planks and chips from logs (building and garden categories; no building needed beyond the category)
 timber-plank-log|Timber Planks (logs)|building|timber-plank:2|pine-log:2|2
 timber-plank-birch|Timber Planks (birch)|building|timber-plank:2|birch-log:2|2
-timber-plank-oak|Timber Planks (oak)|building|timber-plank:4|oak-log:1|2
-timber-plank-drift|Timber Planks (driftwood)|building|timber-plank:1|driftwood:2|2
+timber-plank-oak|Timber Planks (oak)|building|timber-plank:3|oak-log:1|2
+timber-plank-drift|Timber Planks (driftwood)|building|timber-plank:2|driftwood:2|2
 timber-plank-palm-trunk|Timber Planks (palm trunk)|building|timber-plank:2|palm-trunk:2|2
 wood-chips-log|Wood Chips|garden|wood-chips:4|birch-log:1|1
 beeswax-candles|Beeswax Candles|decor|beeswax-candles:1|beeswax:2,rope:1|1
@@ -86,7 +87,7 @@ beeswax-candles|Beeswax Candles|decor|beeswax-candles:1|beeswax:2,rope:1|1
 silk-thread|Silk Thread|decor|silk-thread:2|silk-cocoon:3|1
 silk-bunting|Silk Bunting|decor|silk-bunting:1|silk-thread:3|1
 scute-wind-chime|Scute Wind Chime|decor|scute-wind-chime:1|tortoise-scute:3,silk-thread:1|2
-rope-goat-hair|Rope (goat hair)|building|rope:2|goat-hair:3|3
+rope-goat-hair|Rope (goat hair)|building|rope:2|goat-hair:1|3
 
 # v1.4.0 garden animal crafts (animals140.php): Wing Scales and Snail Trail Glaze. The decor items are made by animals140_items().
 wing-scale-lantern|Wing Scale Lantern|decor|wing-scale-lantern:1|wing-scale:3,silk-thread:1|2
@@ -102,6 +103,14 @@ sages-draught|Sage’s Draught|potions|sages-draught:1|chanterelle:1,bilberries:
 stoneskin-brew|Stoneskin Brew|potions|stoneskin-brew:1|cattail-root:2,river-clay:1,stag-beetle-shell:1|2
 swiftfoot-elixir|Swiftfoot Elixir|potions|swiftfoot-elixir:1|dragonfly-wing:1,crowberries:2,ramsons:1|2
 garden-tonic|Garden Tonic|potions|garden-tonic:2|bladderwrack:2,meadowsweet:1,sphagnum:1|1
+# 2.7.58 tool augments (items: includes/alchemy.php, rules: includes/augments.php). any-/rare- ingredients take creature parts of that family.
+aug-hide-binding|Hide Binding|potions|aug-hide-binding:1|any-hide:3,rope:1|2
+aug-hide-binding-2|Hide Binding II|potions|aug-hide-binding-2:1|rare-hide:1,any-hide:3,beeswax:1|2
+aug-plate-edge|Plate Edge|potions|aug-plate-edge:1|any-plate:5,flint:1|2
+aug-wing-fletch|Wing Fletch|potions|aug-wing-fletch:1|any-wing:4|2
+aug-gem-charm|Gem Charm|potions|aug-gem-charm:1|any-gem:1,any-ooze:2|2
+aug-ooze-salve|Ooze Salve|potions|aug-ooze-salve:1|any-ooze:3|2
+aug-silk-lashing|Silk Lashing|potions|aug-silk-lashing:1|any-silk:4,tool-repair-kit:1|2
 
 # Sleep-days camping gear (decisions 31, 50): crafted for about 60 Petals of parts; a shop sells it for 100
 canvas-sheet|Canvas Sheet|building|canvas-sheet:1|coir-fibre:3,cottongrass:2|3
@@ -111,3 +120,35 @@ camping-gear|Camping Gear|building|camping-gear:1|rope:2,metal-pins:4,canvas-she
 
 # 2.6.74 (puzzle combat, v1 deck model): fixes one fight tool on the Puzzle box belt (item: includes/pfdeck.php, pfd_ensure_content). No building needed.
 tool-repair-kit|Tool Repair Kit|garden|tool-repair-kit:1|flint:1,pine-resin:1,coir-fibre:1|2
+tool-repair-kit-silk|Tool Repair Kit (silk)|garden|tool-repair-kit:2|any-silk:2,flint:1|2
+
+# 2.7.58 item review group A: alternate rows (new slugs, same output; insert-only, existing rows untouched).
+# E1 camping gear: the pins, pot and canvas from cheap finds, so the whole kit costs about what the shop asks (100 Petals; the shop price is unchanged).
+metal-pins-flint|Metal Pins (flint)|building|metal-pins:4|flint:1|3
+camping-pot-clay|Camping Pot (clay)|building|camping-pot:1|river-clay:2|3
+canvas-sheet-coir|Canvas Sheet (coir)|building|canvas-sheet:1|coir-fibre:4|3
+# E3 decor: cheaper ways to the Firefly Jar and the Toadstool Ring
+firefly-jar-small|Firefly Jar (one glow)|decor|firefly-jar:1|firefly-glow:1,river-clay:1|1
+toadstool-ring-small|Toadstool Ring (chanterelles)|decor|toadstool-ring:1|chanterelle:4|1
+# B2 early creature parts: one use each (garden supplies, potions, rope, decor)
+slime-compost|Plain Compost (slime)|garden|plain-compost:3|snail-slime:2,slug-slime:2,forager-s-crumb:1|2
+bug-castings|Worm Castings (bug bits)|garden|worm-castings:1|gnat-dust:3,aphid-wings:2,flea-legs:2,earwig-pincer:1|2
+shell-meal-chitin|Shell Meal (chitin)|garden|shell-meal:2|ant-chitin:3,centipede-plate:1|2
+pelt-leaf-mould|Leaf Mould (pelts)|garden|leaf-mould:3|rat-pelt:1,spotted-hide:1,frog-skin:1,straw-mulch:1|2
+stoneskin-brew-plate|Stoneskin Brew (scorpion plate)|potions|stoneskin-brew:1|scorpion-plate:1,river-clay:1|2
+garden-tonic-croak|Garden Tonic (croak sac)|potions|garden-tonic:2|croak-sac:1,sphagnum:1|1
+strong-healing-potion-venom|Strong Healing Potion (antivenom)|potions|strong-healing-potion:1|healing-potion:1,venom-fang:1,sphagnum:1|2
+healing-potion-leech|Healing Potion (leech salve)|potions|healing-potion:1|leech-slime:2|2
+rope-shed-skin|Rope (shed skin)|building|rope:2|shed-skin:2,snake-skin:1|3
+bird-box-magpie|Bird Box (magpie)|decor|bird-box:1|stolen-trinket:1,timber-plank:1|1
+paper-comb-candles|Beeswax Candles (paper comb)|decor|beeswax-candles:1|paper-comb:2,rope:1|1
+fang-wind-chime|Scute Wind Chime (fangs)|decor|scute-wind-chime:1|rat-tooth:2,snake-fang:1,spider-fang:1,silk-thread:1|2
+moth-wing-lantern|Wing Scale Lantern (moth wings)|decor|wing-scale-lantern:1|moth-wing:3,wing-dust:2,silk-thread:1|2
+# B3 trek parts (Trek chapters II and III): a use outside the Trek
+grand-healing-elixir-newt|Grand Healing Elixir (newt tail)|potions|grand-healing-elixir:1|strong-healing-potion:2,newt-tail:1|3
+quartz-wind-chime|Scute Wind Chime (quartz)|decor|scute-wind-chime:1|quartz-shell:2,pale-scale:1,silk-thread:1|2
+silverfish-lantern|Wing Scale Lantern (silverfish)|decor|wing-scale-lantern:1|silverfish-scales:3,silk-thread:1|2
+# 2.7.58 item review group B: R3 the cut flower counts as edelweiss (a gatherable and a flower both exist); EC4 the Opening Day Bunting has a source outside the festival stall (insert-only)
+rock-garden-cut|Rock Garden (cut edelweiss)|decor|rock-garden:1|building-stone:1,cut-edelweiss:1,flint:2|2
+grand-healing-elixir-cut|Grand Healing Elixir (cut edelweiss)|potions|grand-healing-elixir:1|strong-healing-potion:2,cut-edelweiss:1|3
+opening-day-bunting|Opening Day Bunting|decor|opening-day-bunting:1|rope:2,silk-thread:3,red-ochre:2|2

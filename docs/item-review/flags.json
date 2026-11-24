@@ -1,0 +1,797 @@
+[
+ {
+  "id": "H1",
+  "type": "hole",
+  "severity": "high",
+  "slugs": [
+   "drum-skin"
+  ],
+  "title": "Drum Circle Market stage 1 needs 3 drum-skin; solo player gets 1 per Trek run, none on default install (trek_open=0)",
+  "recommendation": "Lower to drum-skin:1 or add repeatable source; decouple from Trek"
+ },
+ {
+  "id": "H4",
+  "type": "hole",
+  "severity": "low",
+  "slugs": [
+   "second-spoon"
+  ],
+  "title": "second-spoon only from Gourmand finale; gourmand_open defaults 0",
+  "recommendation": "Fine if opt-in; else document or enable"
+ },
+ {
+  "id": "H5",
+  "type": "hole",
+  "severity": "low",
+  "slugs": [
+   "flour",
+   "maple-sap",
+   "toffee",
+   "shiny-quartz",
+   "won-fight",
+   "drumdoor-open",
+   "cistern-pearl"
+  ],
+  "title": "Inventory no_sources orphans are false positives",
+  "recommendation": "Drop from orphans.json"
+ },
+ {
+  "id": "EC1",
+  "type": "exploit",
+  "severity": "med",
+  "slugs": [
+   "*-packet",
+   "*-seed"
+  ],
+  "title": "Seed packets priced at seed*5.4 base, no rarity rule: buy seeds, packet, sell for profit",
+  "recommendation": "Price packets from seed flat sell value or cap at seed sell*packet_seeds"
+ },
+ {
+  "id": "EC2",
+  "type": "exploit",
+  "severity": "med",
+  "slugs": [
+   "dried-*",
+   "cut-*"
+  ],
+  "title": "Dried flowers jump to R rarity tier with no buy-back cap; florist buy then dry is profitable",
+  "recommendation": "Inherit cut flower tier; cap at dried_price_pct of cut buy floor"
+ },
+ {
+  "id": "EC3",
+  "type": "exploit",
+  "severity": "med",
+  "slugs": [
+   "cut-*"
+  ],
+  "title": "shop_buy_floor omits Silver Tongue/sight discounts applied by shop_price",
+  "recommendation": "Share one discount helper between price and floor"
+ },
+ {
+  "id": "EC4",
+  "type": "edge-case",
+  "severity": "med",
+  "slugs": [
+   "opening-day-bunting",
+   "plain-compost",
+   "rope",
+   "rich-loam",
+   "worm-castings"
+  ],
+  "title": "Festival tables keyed without run id; bunting lost after launch week; 7-flag reward needs perfect attendance",
+  "recommendation": "Add run key; second bunting source; yearly schedule"
+ },
+ {
+  "id": "EC5",
+  "type": "edge-case",
+  "severity": "low",
+  "slugs": [
+   "broken-*"
+  ],
+  "title": "Mending a Broken copy also zeroes wear on the working tool stack",
+  "recommendation": "Reset wear only if no working copy existed"
+ },
+ {
+  "id": "EC6",
+  "type": "exploit",
+  "severity": "low",
+  "slugs": [
+   "broken-*"
+  ],
+  "title": "Broken tools giftable via send_gift; farm free Tool Shed mends",
+  "recommendation": "tradable=0 for broken or block category broken"
+ },
+ {
+  "id": "EC7",
+  "type": "edge-case",
+  "severity": "low",
+  "slugs": [
+   "glowcap-repair-kit",
+   "glowcap-lantern"
+  ],
+  "title": "Glowcap repair kit consumed even when free shed mend available",
+  "recommendation": "Use free mend first; clarify Tool Repair Kit text"
+ },
+ {
+  "id": "EC8",
+  "type": "edge-case",
+  "severity": "low",
+  "slugs": [
+   "fight belts"
+  ],
+  "title": "items.max_stack never enforced",
+  "recommendation": "Clamp in give_item or drop column"
+ },
+ {
+  "id": "EC9",
+  "type": "exploit",
+  "severity": "low",
+  "slugs": [
+   "(all sellable)"
+  ],
+  "title": "Bulk sell priced once; volume drop never applies to the batch",
+  "recommendation": "Price in chunks of price_vol_units"
+ },
+ {
+  "id": "EC10",
+  "type": "exploit",
+  "severity": "low",
+  "slugs": [
+   "(any stocked item)"
+  ],
+  "title": "Negative markup_percent puts shelf price below buy-back floor",
+  "recommendation": "Clamp markup>=0 or include in floor"
+ },
+ {
+  "id": "EC11",
+  "type": "edge-case",
+  "severity": "low",
+  "slugs": [
+   "hovel decor: moss,map,ivy,shells,patch,lantern,hammock"
+  ],
+  "title": "7 hovel decor items labelled with sources but unobtainable (v1 placeholder)",
+  "recommendation": "Wire sources or mark coming soon"
+ },
+ {
+  "id": "EC12",
+  "type": "data-error",
+  "severity": "low",
+  "slugs": [
+   "tomato",
+   "cabbage",
+   "onion",
+   "garden-vegetable-soup",
+   "broken-*"
+  ],
+  "title": "Inventory sold_at and broken sell-value entries are wrong",
+  "recommendation": "Fix items.json"
+ },
+ {
+  "id": "R1",
+  "type": "redundancy",
+  "severity": "high",
+  "slugs": [
+   "sunflower",
+   "sunflower-seed",
+   "sesame",
+   "sesame-seed",
+   "cumin",
+   "cumin-seed"
+  ],
+  "title": "Produce and seed share display names",
+  "recommendation": "Rename produce side"
+ },
+ {
+  "id": "R2",
+  "type": "redundancy",
+  "severity": "high",
+  "slugs": [
+   "lotus-root-seed",
+   "sacred-lotus-seed"
+  ],
+  "title": "Two seeds both named Lotus Rhizome",
+  "recommendation": "Rename sacred-lotus seed to Sacred Lotus Tuber"
+ },
+ {
+  "id": "R3",
+  "type": "redundancy",
+  "severity": "high",
+  "slugs": [
+   "edelweiss",
+   "cut-edelweiss",
+   "edelweiss-seed"
+  ],
+  "title": "Gatherable edelweiss and flower cut-edelweiss are separate; recipes accept only edelweiss",
+  "recommendation": "Merge or accept both"
+ },
+ {
+  "id": "R4",
+  "type": "redundancy",
+  "severity": "med",
+  "slugs": [
+   "egusi-soup",
+   "buckwheat-kasha",
+   "hibiscus-cordial",
+   "garden-vegetable-soup",
+   "goat-milk-porridge",
+   "mixed-berry-cordial"
+  ],
+  "title": "Regional stop acts output generic items though dedicated items exist",
+  "recommendation": "Point acts at dedicated items"
+ },
+ {
+  "id": "R5",
+  "type": "redundancy",
+  "severity": "med",
+  "slugs": [
+   "mint-tea",
+   "plum-jam",
+   "goat-cheese",
+   "grilled-sardines",
+   "silk-thread",
+   "glazed-garden-pot"
+  ],
+  "title": "62/76 stop-craft outputs duplicate kitchen/craft; some cheaper",
+  "recommendation": "Cut exact dupes; raise cheaper inputs or give regional outputs"
+ },
+ {
+  "id": "R6",
+  "type": "redundancy",
+  "severity": "med",
+  "slugs": [
+   "hatchling-egg-shell",
+   "hatchling-eggshell",
+   "wyrmling-egg-shell"
+  ],
+  "title": "Eggshell spelling split creates two items",
+  "recommendation": "Unify on hatchling-eggshell"
+ },
+ {
+  "id": "R7",
+  "type": "redundancy",
+  "severity": "med",
+  "slugs": [
+   "rock-crab-claw",
+   "mud-crab-claw",
+   "land-crab-claw",
+   "ghost-crab-claw",
+   "palm-crab-claw",
+   "crab-claw"
+  ],
+  "title": "Five unused crab-claw variants",
+  "recommendation": "Rename drops to Crab Claw; cut variants"
+ },
+ {
+  "id": "R8",
+  "type": "redundancy",
+  "severity": "med",
+  "slugs": [
+   "skink-scale",
+   "glass-wyrm-scale",
+   "giant-otter-pelt",
+   "lizard-scale",
+   "wyrm-scale",
+   "otter-pelt"
+  ],
+  "title": "Same-animal part splits",
+  "recommendation": "Merge into base parts"
+ },
+ {
+  "id": "R9",
+  "type": "redundancy",
+  "severity": "med",
+  "slugs": [
+   "fox-pelt",
+   "badger-pelt",
+   "adder-scale",
+   "fly-wing",
+   "mite-husk",
+   "sawdust-heap"
+  ],
+  "title": "~340 auto-created dead-end creature parts",
+  "recommendation": "Collapse into tiered generic parts or add sink (user decision)"
+ },
+ {
+  "id": "R10",
+  "type": "redundancy",
+  "severity": "med",
+  "slugs": [
+   "hot-sauce",
+   "fermented-hot-sauce",
+   "pickled-peppers"
+  ],
+  "title": "hot-sauce/fermented identical inputs; pickled-peppers unused",
+  "recommendation": "Cut pickled-peppers; differentiate pair"
+ },
+ {
+  "id": "R11",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "natto",
+   "tempeh"
+  ],
+  "title": "natto and tempeh near-identical; natto unused",
+  "recommendation": "Cut natto or differentiate"
+ },
+ {
+  "id": "R12",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "dried-cranberries",
+   "cranberry-sauce",
+   "sun-dried-tomatoes",
+   "tomato-passata",
+   "dried-apricots",
+   "apricot-jam",
+   "cherry-jam",
+   "cherry-cordial"
+  ],
+  "title": "Single-fruit preserve pairs with identical inputs and no use",
+  "recommendation": "Cut dried-cranberries, sun-dried-tomatoes first"
+ },
+ {
+  "id": "R13",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "yogurt",
+   "goat-cheese",
+   "aged-goat-cheese",
+   "cheese-wheel"
+  ],
+  "title": "Goat-milk ladder: yogurt beats goat-cheese; top tiers unused",
+  "recommendation": "Merge aged-goat-cheese into cheese-wheel"
+ },
+ {
+  "id": "R14",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "mint-tea",
+   "meadowsweet-tea",
+   "desert-sage-tea"
+  ],
+  "title": "Kettle teas reuse kitchen tea slugs",
+  "recommendation": "Rename kettle keys or unify"
+ },
+ {
+  "id": "R15",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "kelp-frond",
+   "shale-chip",
+   "sawdust-heap",
+   "bladderwrack",
+   "slate-shard",
+   "wood-chips"
+  ],
+  "title": "Drop-only materials parallel existing ones",
+  "recommendation": "Remap drops to existing materials"
+ },
+ {
+  "id": "R16",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "timber-plank",
+   "rope"
+  ],
+  "title": "Many plank/rope variants with uneven yields; weaker stop acts",
+  "recommendation": "Normalise yields; consider cutting weak acts"
+ },
+ {
+  "id": "R17",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "cb-calabash-carrier",
+   "esa-calabash-carrier",
+   "cb-bamboo-frame-pack",
+   "wca-bamboo-frame-pack",
+   "oc-bamboo-frame-pack",
+   "cb-thatch-rain-cape",
+   "sa-thatch-rain-cape",
+   "sa-kapok-puffer",
+   "sea-kapok-puffer"
+  ],
+  "title": "Tailor wearables reuse 4 names across regions",
+  "recommendation": "Add region adjectives"
+ },
+ {
+  "id": "R18",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "na-sugarbush-snow-boots",
+   "na-birchwood-clog",
+   "na-lakeland-snowshoe",
+   "na-prairie-stitch-boots"
+  ],
+  "title": "112 wearable pairs identical except fx",
+  "recommendation": "Design call: cut or differentiate materials"
+ },
+ {
+  "id": "R19",
+  "type": "data-error",
+  "severity": "low",
+  "slugs": [
+   "prospectors-pick",
+   "miners-lantern",
+   "wayfarers-staff",
+   "divers-creel",
+   "river-perch",
+   "brook-trout"
+  ],
+  "title": "Inventory dupes mostly false positives",
+  "recommendation": "Remove from dupes list"
+ },
+ {
+  "id": "R20",
+  "type": "redundancy",
+  "severity": "low",
+  "slugs": [
+   "prospector-s-pick",
+   "healing-potion",
+   "masterwork-secateurs"
+  ],
+  "title": "Shops sell craftable tools/potions (intentional)",
+  "recommendation": "No merge"
+ },
+ {
+  "id": "uA-1",
+  "type": "useless",
+  "severity": "high",
+  "slugs": [
+   "cornflower",
+   "foxglove",
+   "goldenrod",
+   "heliconia",
+   "marsh-marigold",
+   "desert-rose",
+   "beach-naupaka",
+   "cattleya-orchid",
+   "moth-orchid",
+   "mount-atlas-daisy",
+   "heather",
+   "passionflower",
+   "rock-rose",
+   "sea-thrift",
+   "steppe-peony",
+   "sweet-pea",
+   "tibetan-gentian"
+  ],
+  "title": "Flower-named drops create unarrangeable part twins of cut-* flowers",
+  "recommendation": "Fix pfc_item_for_drop to try cut-<slug>; merge twins"
+ },
+ {
+  "id": "uA-2",
+  "type": "useless",
+  "severity": "med",
+  "slugs": [
+   "date-palm",
+   "prickly-pear-cactus",
+   "water-spinach"
+  ],
+  "title": "Crop-named drops create sell-only twins of produce",
+  "recommendation": "Rename drops to produce names"
+ },
+ {
+  "id": "uA-3",
+  "type": "useless",
+  "severity": "med",
+  "slugs": [
+   "brass-button",
+   "dew-pearl",
+   "echo-pebble",
+   "frost-window-pane",
+   "lagoon-glass-bead",
+   "lost-sock",
+   "mirage-marble",
+   "mirror-pebble"
+  ],
+  "title": "Misc curios unsellable with no consuming use",
+  "recommendation": "Give decor JSON/keepsake effects or craft use"
+ },
+ {
+  "id": "uA-4",
+  "type": "useless",
+  "severity": "med",
+  "slugs": [
+   "aardvark-ear",
+   "adder-scale",
+   "fox-pelt",
+   "golden-silk-thread",
+   "luna-silk",
+   "kraken-ink",
+   "mother-of-pearl",
+   "bactrian-wool"
+  ],
+  "title": "~147 a-m creature parts referenced only in creature tables",
+  "recommendation": "Route families into recipes or fold into generic parts"
+ },
+ {
+  "id": "uA-5",
+  "type": "useless",
+  "severity": "low",
+  "slugs": [
+   "black-truffle"
+  ],
+  "title": "Rare drop with no cooking use",
+  "recommendation": "Add to high-tier recipe"
+ },
+ {
+  "id": "uA-6",
+  "type": "useless",
+  "severity": "low",
+  "slugs": [
+   "hatchling-eggshell",
+   "hatchling-egg-shell"
+  ],
+  "title": "Two eggshell parts, both unused",
+  "recommendation": "Unify and merge"
+ },
+ {
+  "id": "uA-7",
+  "type": "data-error",
+  "severity": "low",
+  "slugs": [
+   "clay-loam",
+   "laterite-loam",
+   "mushroom-leaf-mould",
+   "canvas-satchel",
+   "glazed-garden-pot",
+   "amber-seed",
+   "five-leaf-clover",
+   "cactus-bloom",
+   "brook-trout",
+   "glow-cap-garden-light"
+  ],
+  "title": "Inventory a-m no_uses false positives",
+  "recommendation": "Drop from useless list"
+ },
+ {
+  "id": "B1",
+  "type": "useless",
+  "severity": "high",
+  "slugs": [
+   "qiviut-wool",
+   "paladin-gorget",
+   "tyrant-fang",
+   "winter-fat",
+   "termite-clay",
+   "natterjack-skin",
+   "warthog-tusk",
+   "otter-pelt"
+  ],
+  "title": "92 n-z creature parts referenced only in pf_creatures.txt",
+  "recommendation": "Shared sink or fold into generic parts"
+ },
+ {
+  "id": "B2",
+  "type": "useless",
+  "severity": "high",
+  "slugs": [
+   "rat-pelt",
+   "snake-skin",
+   "spotted-pelt",
+   "venom-fang",
+   "stolen-trinket",
+   "spider-fang",
+   "slug-slime"
+  ],
+  "title": "26 legacy creature parts referenced only at drop sources",
+  "recommendation": "Give common early drops a recipe use"
+ },
+ {
+  "id": "B3",
+  "type": "useless",
+  "severity": "med",
+  "slugs": [
+   "newt-tail",
+   "pale-scale",
+   "quartz-shell",
+   "silverfish-scales"
+  ],
+  "title": "Trek-only parts with no use",
+  "recommendation": "Use as trek gate items or drop"
+ },
+ {
+  "id": "B4",
+  "type": "useless",
+  "severity": "med",
+  "slugs": [
+   "wishing-coin",
+   "raindrop-bead",
+   "squeaky-ice-chip",
+   "seaside-stationery",
+   "taper",
+   "old-river-pebble",
+   "rivers-postcard",
+   "root-race-ribbon",
+   "visitors-book-page"
+  ],
+  "title": "Sight misc trinkets unsellable, no use beyond polite gift",
+  "recommendation": "Add keepsake effects or take= uses"
+ },
+ {
+  "id": "B5",
+  "type": "useless",
+  "severity": "low",
+  "slugs": [
+   "triticale",
+   "tritordeum",
+   "pomato",
+   "raphanobrassica",
+   "tangor",
+   "orangelo",
+   "sunrise-lime",
+   "nessberry"
+  ],
+  "title": "Hybrid crops with no recipe/act use",
+  "recommendation": "Let hybrids substitute for parents"
+ },
+ {
+  "id": "B6",
+  "type": "useless",
+  "severity": "low",
+  "slugs": [
+   "perilla",
+   "tamarillo",
+   "naranjilla",
+   "noni"
+  ],
+  "title": "Regional produce with no specific use",
+  "recommendation": "Keep as flavour or add a stop act each"
+ },
+ {
+  "id": "B7",
+  "type": "useless",
+  "severity": "low",
+  "slugs": [
+   "strawberry-jam",
+   "tomato-passata",
+   "pickled-onions",
+   "rhubarb-jam"
+  ],
+  "title": "~19 n-z buff-less preserves (intentional sale/gift role)",
+  "recommendation": "Keep; optionally add buffs/ingredient use"
+ },
+ {
+  "id": "B8",
+  "type": "useless",
+  "severity": "low",
+  "slugs": [
+   "oily-feather",
+   "pied-feather",
+   "vulture-feather"
+  ],
+  "title": "B1 feathers do fill any-feather Sight request",
+  "recommendation": "Rank lowest within B1"
+ },
+ {
+  "id": "B9",
+  "type": "data-error",
+  "severity": "low",
+  "slugs": [
+   "teff",
+   "sorghum",
+   "worm-bin",
+   "worm-bedding",
+   "sphagnum-moss",
+   "prospectors-pick",
+   "scute-wind-chime",
+   "rock-rose"
+  ],
+  "title": "Inventory n-z useless false positives",
+  "recommendation": "Exclude before acting on orphans.json"
+ },
+ {
+  "id": "E1",
+  "type": "economy",
+  "severity": "high",
+  "slugs": [
+   "camping-gear",
+   "metal-pins",
+   "camping-pot",
+   "canvas-sheet",
+   "rope",
+   "timber-plank",
+   "bog-iron"
+  ],
+  "title": "Camping gear crafting costs ~216 base vs 100 shop; comment claims ~60",
+  "recommendation": "Rebalance parts or raise price; fix comment"
+ },
+ {
+  "id": "E2",
+  "type": "economy",
+  "severity": "high",
+  "slugs": [
+   "garden-hoe",
+   "prospector-s-pick",
+   "glowcap-lantern",
+   "soil-probe",
+   "masterwork-wheel-hoe",
+   "masterwork-harvest-cart"
+  ],
+  "title": "Twigg's tier 2-4 tools 4-8x craft input value; uneven recipe coverage",
+  "recommendation": "Raise craft costs or cut shop prices"
+ },
+ {
+  "id": "E3",
+  "type": "economy",
+  "severity": "med",
+  "slugs": [
+   "firefly-jar",
+   "toadstool-ring",
+   "firefly-glow",
+   "morel"
+  ],
+  "title": "Decor crafts consume inputs worth 2-4x nominal value; decor unsellable",
+  "recommendation": "Cheaper inputs or more appeal"
+ },
+ {
+  "id": "E5",
+  "type": "economy",
+  "severity": "med",
+  "slugs": [
+   "garden-vegetable-soup",
+   "feast-summer-table",
+   "tropical-fruit-bowl"
+  ],
+  "title": "Dishes priced 1.4x base, Common; ~8% over raw uncommon, lose vs raw legendary",
+  "recommendation": "Price dishes via flat_sell_value x tier factor"
+ },
+ {
+  "id": "E6",
+  "type": "economy",
+  "severity": "med",
+  "slugs": [
+   "garden-vegetable-soup",
+   "the-dewdrop-kitchen"
+  ],
+  "title": "Kitchen stocks soup at 40-55 vs base 90, capping resale",
+  "recommendation": "Restock at 0.9-1.2x base or add dishes"
+ },
+ {
+  "id": "E7",
+  "type": "economy",
+  "severity": "med",
+  "slugs": [
+   "plain-compost",
+   "worm-castings",
+   "rich-loam",
+   "rope"
+  ],
+  "title": "Festival stalls sell supplies at ~3.3x Twigg's",
+  "recommendation": "Festival-only goods or bundles"
+ },
+ {
+  "id": "E8",
+  "type": "economy",
+  "severity": "med",
+  "slugs": [
+   "stoneskin-brew",
+   "swiftfoot-elixir",
+   "sages-draught",
+   "lucky-draught"
+  ],
+  "title": "Eating any food silently overwrites a stronger/longer buff",
+  "recommendation": "Confirm on downgrade or separate potion slot"
+ },
+ {
+  "id": "E9",
+  "type": "economy",
+  "severity": "low",
+  "slugs": [
+   "grilled-sardines",
+   "toffee-apple",
+   "sunflower-snack",
+   "goat-cheese-salad"
+  ],
+  "title": "Some dishes buff less than one raw ingredient",
+  "recommendation": "Raise dish buffs/durations"
+ }
+]

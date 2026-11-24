@@ -1,0 +1,236 @@
+<title>Gnome Venture Item Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: sticky filter/list column left, detail + neighbourhood node map right; stacks on phones */
+:root{--bg:#f5f6f2;--panel:#fff;--fg:#1d2420;--mute:#5f6b63;--line:#d9ddd5;--accent:#2f6b4f;--recipe:#b4691f;--shop:#2b5f9a;--warn:#a33a2b;--sel:#e3efe7;
+--font:'Inter',system-ui,sans-serif;--head:'Space Grotesk','Inter',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141815;--panel:#1c211d;--fg:#e6ebe5;--mute:#98a39b;--line:#2f372f;--accent:#7cc79d;--recipe:#e0a05a;--shop:#7fb1e6;--warn:#e68b7c;--sel:#26332a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141815;--panel:#1c211d;--fg:#e6ebe5;--mute:#98a39b;--line:#2f372f;--accent:#7cc79d;--recipe:#e0a05a;--shop:#7fb1e6;--warn:#e68b7c;--sel:#26332a;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 var(--font);padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font:600 22px var(--head);margin:0}
+.sub{color:var(--mute);margin:2px 0 14px}
+.wrap{display:grid;grid-template-columns:minmax(260px,340px) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:760px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:0}
+.filters{padding:10px;border-bottom:1px solid var(--line);display:grid;gap:8px}
+input[type=search]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);font:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:99px;padding:2px 9px;font:12px var(--font);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.chip:focus-visible,.row:focus-visible,.nd:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.list{max-height:60vh;overflow:auto}
+.row{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--fg);padding:6px 10px;font:inherit;cursor:pointer}
+.row:hover{background:var(--sel)}.row[aria-current=true]{background:var(--sel);font-weight:600}
+.row small{color:var(--mute);white-space:nowrap}
+.count{color:var(--mute);font-size:12px}
+.detail{padding:14px;display:grid;gap:14px}
+.detail h2{font:600 20px var(--head);margin:0}
+.tag{display:inline-block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:3px;padding:1px 6px;margin-right:4px}
+.tag.warn{color:var(--warn);border-color:var(--warn)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.cols h3{font:600 12px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 4px}
+ul{margin:0;padding-left:16px}li{margin:2px 0}
+.map{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+svg text{font:12px var(--font);fill:var(--fg)}
+.nd{cursor:pointer}.nd rect{fill:var(--panel);stroke:var(--line)}
+.nd.recipe rect{stroke:var(--recipe)}.nd.shop rect{stroke:var(--shop)}.nd.ctr rect{fill:var(--accent);stroke:var(--accent)}.nd.ctr text{fill:var(--bg);font-weight:600}
+.ed{stroke:var(--mute);stroke-opacity:.5;fill:none}
+.legend{font-size:12px;color:var(--mute);display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border:2px solid;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.err{padding:20px;color:var(--warn)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:4px;padding:6px 14px;font:600 13px var(--font);cursor:pointer}
+.tab[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.uctl{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end;padding:10px;border-bottom:1px solid var(--line)}
+.uctl label{display:grid;gap:2px;font-size:12px;color:var(--mute)}
+.uctl select,.uctl input[type=search]{padding:5px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);font:inherit;width:auto}
+.uctl input[type=search]{width:160px}
+.uctl .cb{display:flex;gap:5px;align-items:center;flex-direction:row}
+.ustage{position:relative;height:72vh;min-height:420px}
+#ucv{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.uinfo{position:absolute;left:10px;top:10px;max-width:min(280px,calc(100% - 20px));background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px}
+.uinfo b{font:600 14px var(--head);display:block}
+.uinfo button{margin-top:6px;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:4px;padding:2px 8px;font:12px var(--font);cursor:pointer}
+.ulegend{display:flex;flex-wrap:wrap;gap:4px 12px;padding:8px 10px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
+.ulegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.toprank{padding:8px 10px;border-top:1px solid var(--line);font-size:12px;display:flex;flex-wrap:wrap;gap:4px 8px}
+.toprank button{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:99px;padding:1px 8px;font:12px var(--font);cursor:pointer}
+</style>
+<h1>Gnome Venture Item Atlas</h1>
+<p class="sub" id="stats">Loading…</p>
+<div class="tabs" role="tablist"><button class="tab" role="tab" id="t-uni" aria-selected="true">Universe</button><button class="tab" role="tab" id="t-atlas" aria-selected="false">Item atlas</button></div>
+<div class="col" id="v-uni">
+ <div class="uctl">
+  <label>Search<input type="search" id="us" placeholder="highlight item"></label>
+  <label>Category<select id="ucat"></select></label>
+  <label>Show<select id="utop"><option value="0">all connected</option><option value="50">top 50 most connected</option><option value="150">top 150</option><option value="400">top 400</option></select></label>
+  <label>Min connections: <span id="umdv">1</span><input type="range" id="umd" min="0" max="20" value="1"></label>
+  <label class="cb"><input type="checkbox" id="ush"> Shops as nodes</label>
+  <label class="cb"><input type="checkbox" id="uiso"> Include isolated</label>
+  <label class="cb"><input type="checkbox" id="uuse" checked> Link by recipes</label>
+  <label class="cb"><input type="checkbox" id="upl" checked> Planned: families, augments, kit mending, compost</label>
+  <span class="count" id="ucnt"></span>
+ </div>
+ <div class="ustage"><canvas id="ucv" aria-label="Force-directed map of all items. Use the Item atlas tab for a text version."></canvas><div class="uinfo" id="uinfo">Drag to pan, scroll to zoom, click a node to light up its neighbours.</div></div>
+ <div class="toprank" id="utoprank"></div>
+ <div class="ulegend" id="ulegend"></div>
+</div>
+<div id="v-atlas" class="wrap" hidden>
+ <section class="col" aria-label="Item list">
+  <div class="filters">
+   <input type="search" id="q" placeholder="Search name or slug" aria-label="Search items">
+   <div class="chips" id="chips"></div>
+   <label class="count"><input type="checkbox" id="orph"> Only flagged: no recipe and no shop</label>
+   <div class="count" id="cnt"></div>
+  </div>
+  <div class="list" id="list"></div>
+ </section>
+ <section class="col detail" id="detail" aria-live="polite"><div class="count">Pick an item.</div></section>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+let D,BY={},MADE={},USED={},SOLD={},cat='all',sel=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+fetch('items.json').then(r=>r.json()).then(d=>{
+ D=d;d.items.forEach(i=>BY[i.s]=i);
+ d.recipes.forEach(r=>{(MADE[r.o]??=[]).push(r);r.i.forEach(s=>(USED[s]??=[]).push(r))});
+ d.shops.forEach(s=>s.s.forEach(x=>(SOLD[x]??=[]).push(s)));
+ const cs={};d.items.forEach(i=>cs[i.c]=(cs[i.c]||0)+1);
+ const top=Object.entries(cs).sort((a,b)=>b[1]-a[1]).slice(0,14);
+ $('chips').innerHTML=[['all',d.items.length],...top].map(([c,n])=>`<button class="chip" data-c="${esc(c)}" aria-pressed="${c==='all'}">${esc(c)} ${n}</button>`).join('');
+ $('stats').textContent=`${d.items.length} items · ${d.recipes.length} recipes · ${d.shops.length} shops. Categories cleaned. Dashed gold links are PLANNED (creature-part families, augments, kit mending, compost), not in the game yet.`;
+ $('chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;cat=b.dataset.c;[...$('chips').children].forEach(x=>x.setAttribute('aria-pressed',x===b));draw()};
+ $('q').oninput=draw;$('orph').onchange=draw;
+ draw();
+ const h=location.hash.slice(1);if(h&&BY[h])pick(h);else pick(d.items.find(i=>i.s==='garden-vegetable-soup')?'garden-vegetable-soup':d.items[0].s);
+}).catch(e=>{$('stats').innerHTML='<span class="err">Could not load items.json.</span>'});
+function draw(){
+ const q=$('q').value.toLowerCase().trim(),o=$('orph').checked;
+ const r=D.items.filter(i=>(cat==='all'||i.c===cat)&&(!o||(!MADE[i.s]&&!USED[i.s]&&!SOLD[i.s]))&&(!q||i.n.toLowerCase().includes(q)||i.s.includes(q)));
+ $('cnt').textContent=`${r.length} shown`+(r.length>300?' (first 300)':'');
+ $('list').innerHTML=r.slice(0,300).map(i=>`<button class="row" data-s="${esc(i.s)}" aria-current="${i.s===sel}"><span>${esc(i.n)}</span><small>${esc(i.c)}</small></button>`).join('');
+}
+$('list').onclick=e=>{const b=e.target.closest('.row');if(b)pick(b.dataset.s)};
+function pick(s){
+ sel=s;history.replaceState(null,'','#'+s);
+ [...$('list').children].forEach(b=>b.setAttribute('aria-current',b.dataset.s===s));
+ const i=BY[s];if(!i){return}
+ const made=MADE[s]||[],used=USED[s]||[],sold=SOLD[s]||[];
+ const li=a=>a.length?'<ul>'+a.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>':'<span class="count">none found</span>';
+ const nm=x=>BY[x]?`<a href="#${esc(x)}" data-s="${esc(x)}">${esc(BY[x].n)}</a>`:esc(x);
+ $('detail').innerHTML=`<div><h2>${esc(i.n)}</h2><span class="tag">${esc(i.c)}</span><span class="tag">${esc(s)}</span>${i.f?`<span class="tag">family: ${esc(i.f)}</span>`:''}${i.broken?'<span class="tag">broken copy</span>':''}${i.x?'<span class="tag warn">no recipe, no shop</span>':''}${!i.u.length?'<span class="tag warn">no use recorded</span>':''}</div>
+ <div class="cols"><div><h3>Uses</h3>${li(i.u)}</div><div><h3>Obtained</h3>${li(i.o)}</div></div>
+ <div class="cols">
+  <div><h3>Made by (${made.length})</h3>${made.length?'<ul>'+made.map(r=>`<li>${esc(r.n)} at ${esc(r.st||'?')}: ${r.i.map(nm).join(', ')}</li>`).join('')+'</ul>':'<span class="count">none</span>'}</div>
+  <div><h3>Ingredient in (${used.length})</h3>${used.length?'<ul>'+used.slice(0,12).map(r=>`<li>${nm(r.o)} (${esc(r.st||'')})</li>`).join('')+(used.length>12?`<li class="count">+${used.length-12} more</li>`:'')+'</ul>':'<span class="count">none</span>'}</div>
+  <div><h3>Sold at (${sold.length})</h3>${sold.length?'<ul>'+sold.map(x=>`<li>${esc(x.n)}</li>`).join('')+'</ul>':'<span class="count">no shop</span>'}</div></div>
+ ${i.nt.length?`<div><h3 class="count">Inventory notes</h3>${li(i.nt)}</div>`:''}
+ <div class="legend"><span><i style="border-color:var(--accent)"></i>item</span><span><i style="border-color:var(--recipe)"></i>recipe</span><span><i style="border-color:var(--shop)"></i>shop</span><span>click a node to move</span></div>
+ <div class="map">${graph(s,made,used,sold)}</div>`;
+}
+$('detail').onclick=e=>{const a=e.target.closest('[data-s]');if(a){e.preventDefault();pick(a.dataset.s)}};
+function graph(s,made,used,sold){
+ // columns: ingredients+shops (left) -> making recipes -> centre -> using recipes -> outputs (right)
+ const W=1000,cx=500,L=[],E=[];
+ const left=[],mid1=[],mid2=[],right=[];
+ made.slice(0,6).forEach(r=>{mid1.push({t:'recipe',l:r.n,s:null,r});r.i.slice(0,4).forEach(x=>left.push({t:'item',l:BY[x]?BY[x].n:x,s:x,to:r.id}))});
+ sold.slice(0,6).forEach(x=>left.push({t:'shop',l:x.n,s:null,to:'ctr'}));
+ used.slice(0,8).forEach(r=>{mid2.push({t:'recipe',l:r.n,s:null,r});right.push({t:'item',l:BY[r.o]?BY[r.o].n:r.o,s:r.o,from:r.id})});
+ const n=Math.max(left.length,mid1.length,mid2.length,right.length,1),H=Math.max(160,n*34+20);
+ const pos=(a,x)=>a.forEach((o,k)=>{o.x=x;o.y=(H/(a.length+1))*(k+1)});
+ pos(left,90);pos(mid1,300);pos(mid2,700);pos(right,910);
+ const c={x:cx,y:H/2},bw=w=>w;
+ const nodeW=140;
+ const lab=t=>esc(t.length>22?t.slice(0,21)+'…':t);
+ let svg=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Neighbourhood of ${esc(BY[s].n)}">`;
+ const edge=(a,b)=>`<path class="ed" d="M${a.x+nodeW/2},${a.y} C${(a.x+b.x)/2},${a.y} ${(a.x+b.x)/2},${b.y} ${b.x-nodeW/2},${b.y}"/>`;
+ const m1={};mid1.forEach(o=>m1[o.r.id]=o);const m2={};mid2.forEach(o=>m2[o.r.id]=o);
+ left.forEach(o=>{svg+=edge(o,o.to==='ctr'?c:m1[o.to])});
+ mid1.forEach(o=>svg+=edge(o,c));
+ mid2.forEach(o=>svg+=edge(c,o));
+ right.forEach(o=>svg+=edge(m2[o.from],o));
+ const node=(o,cls)=>`<g class="nd ${cls}" ${o.s?`tabindex="0" role="button" data-s="${esc(o.s)}"`:''} transform="translate(${o.x-nodeW/2},${o.y-13})"><rect width="${nodeW}" height="26" rx="4"/><text x="8" y="17">${lab(o.l)}</text></g>`;
+ left.forEach(o=>svg+=node(o,o.t));mid1.forEach(o=>svg+=node(o,'recipe'));mid2.forEach(o=>svg+=node(o,'recipe'));right.forEach(o=>svg+=node(o,'item'));
+ svg+=node({x:c.x,y:c.y,l:BY[s].n},'ctr');
+ svg+='</svg>';return svg;
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.classList.contains('nd'))pick(e.target.dataset.s)});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(BY[h]&&h!==sel){tab('atlas');pick(h)}});
+
+/* ---------- Universe ---------- */
+let SIM=null,NODES=[],LINKS=[],TR=d3.zoomIdentity,HOT=null,NB=new Set(),W=0,H=0,CC={},TOPSET=new Set();
+function tab(t){$('v-uni').hidden=t!=='uni';$('v-atlas').hidden=t!=='atlas';$('t-uni').setAttribute('aria-selected',t==='uni');$('t-atlas').setAttribute('aria-selected',t==='atlas');if(t==='uni'&&D)uniBuild();}
+$('t-uni').onclick=()=>tab('uni');$('t-atlas').onclick=()=>tab('atlas');
+function hue(c){if(!CC[c]){CC[c]=Object.keys(CC).length}return `hsl(${(CC[c]*47)%360} 62% 55%)`}
+function uniInit(){
+ const cs={};D.items.forEach(i=>cs[i.c]=(cs[i.c]||0)+1);
+ const list=Object.entries(cs).sort((a,b)=>b[1]-a[1]);list.forEach(([c])=>hue(c));
+ $('ucat').innerHTML='<option value="all">all categories</option>'+list.map(([c,n])=>`<option value="${esc(c)}">${esc(c)} (${n})</option>`).join('');
+ $('ulegend').innerHTML=list.slice(0,16).map(([c,n])=>`<span><i style="background:${hue(c)}"></i>${esc(c)}</span>`).join('')+'<span>Node size = connections</span><span>◆ family (planned)</span><span>▲ augment (planned)</span><span>⬡ tool group (planned)</span>';
+ ['us','ucat','utop','umd','ush','uiso','uuse','upl'].forEach(id=>$(id).addEventListener(id==='us'?'input':'change',()=>{if(id==='umd')$('umdv').textContent=$('umd').value;uniBuild()}));
+ $('umd').oninput=()=>{$('umdv').textContent=$('umd').value};
+ const cv=$('ucv');
+ d3.select(cv).call(d3.zoom().scaleExtent([0.15,8]).on('zoom',e=>{TR=e.transform;uniDraw()}));
+ cv.addEventListener('click',e=>{const r=cv.getBoundingClientRect(),x=TR.invertX(e.clientX-r.left),y=TR.invertY(e.clientY-r.top);const n=SIM&&SIM.find(x,y,14/TR.k);setHot(n?n.id:null)});
+ window.addEventListener('resize',()=>{if(!$('v-uni').hidden)uniSize()});
+}
+function uniSize(){const cv=$('ucv'),dpr=window.devicePixelRatio||1,r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;uniDraw()}
+function uniBuild(){
+ if(!window.d3)return;
+ const cat=$('ucat').value,top=+$('utop').value,md=+$('umd').value,sh=$('ush').checked,iso=$('uiso').checked,rec=$('uuse').checked,q=$('us').value.toLowerCase().trim();
+ const L={},deg={};
+ const add=(a,b,t)=>{if(a===b)return;const k=a<b?a+'|'+b:b+'|'+a;if(L[k])return;L[k]={source:a,target:b,t};deg[a]=(deg[a]||0)+1;deg[b]=(deg[b]||0)+1};
+ if(rec)D.recipes.forEach(r=>{if(!BY[r.o])return;r.i.forEach(x=>{if(BY[x])add(x,r.o,'r')})});
+ const SPM=window.SPM||(window.SPM=Object.fromEntries((D.specials||[]).map(s=>[s.id,s])));
+ if(sh)D.shops.forEach(s=>s.s.forEach(x=>{if(BY[x])add('shop:'+s.id,x,'s')}));
+ if($('upl').checked)(D.x||[]).forEach(e=>{if((BY[e[0]]||SPM[e[0]])&&(BY[e[1]]||SPM[e[1]]))add(e[0],e[1],e[2])});
+ let items=D.items.filter(i=>(cat==='all'||i.c===cat)&&(deg[i.s]||0)>=md&&(iso||(deg[i.s]||0)>0));
+ if(top){items=items.sort((a,b)=>(deg[b.s]||0)-(deg[a.s]||0)).slice(0,top)}
+ const ids=new Set(items.map(i=>i.s));
+ const nodes=items.map(i=>({id:i.s,n:i.n,c:i.c,deg:deg[i.s]||0,kind:'item'}));
+ if(sh){const sd={};Object.values(L).forEach(l=>{if(l.t==='s'&&ids.has(l.target)){sd[l.source]=(sd[l.source]||0)+1}});D.shops.forEach(s=>{if(sd['shop:'+s.id]){ids.add('shop:'+s.id);nodes.push({id:'shop:'+s.id,n:s.n,c:'shop',deg:sd['shop:'+s.id],kind:'shop'})}})}
+ if($('upl').checked)for(let pass=0;pass<2;pass++)(D.specials||[]).forEach(s=>{if(!ids.has(s.id)&&Object.values(L).some(l=>(l.source===s.id&&ids.has(l.target))||(l.target===s.id&&ids.has(l.source)))){ids.add(s.id);nodes.push({id:s.id,n:s.n,c:s.c,deg:deg[s.id]||0,kind:s.k,d:s.d})}});
+ const links=Object.values(L).filter(l=>ids.has(l.source)&&ids.has(l.target)).map(l=>({...l}));
+ NODES=nodes;LINKS=links;TOPSET=new Set([...nodes].sort((a,b)=>b.deg-a.deg).slice(0,30).map(n=>n.id));
+ if(SIM)SIM.stop();
+ uniSize();TR=d3.zoomIdentity;d3.select($('ucv')).call(d3.zoom().transform,d3.zoomIdentity);
+ nodes.forEach((n,i)=>{const a=i*2.4,r=8*Math.sqrt(i);n.x=W/2+r*Math.cos(a);n.y=H/2+r*Math.sin(a)});
+ SIM=d3.forceSimulation(nodes).force('link',d3.forceLink(links).id(d=>d.id).distance(28).strength(.5)).force('charge',d3.forceManyBody().strength(-38).distanceMax(260)).force('center',d3.forceCenter(W/2,H/2)).force('x',d3.forceX(W/2).strength(.03)).force('y',d3.forceY(H/2).strength(.03)).force('col',d3.forceCollide().radius(d=>rad(d)+1)).alphaDecay(.04).on('tick',uniDraw);
+ $('ucnt').textContent=`${nodes.length} nodes · ${links.length} links`;
+ const rk=[...nodes].sort((a,b)=>b.deg-a.deg).slice(0,14);
+ $('utoprank').innerHTML='<span class="count">Most connected:</span>'+rk.map(n=>`<button data-id="${esc(n.id)}">${esc(n.n)} ${n.deg}</button>`).join('');
+ $('utoprank').onclick=e=>{const b=e.target.closest('button');if(b)setHot(b.dataset.id,true)};
+ if(HOT&&!ids.has(HOT))HOT=null;setHot(HOT);
+}
+function rad(d){return 2.2+Math.sqrt(d.deg)*1.6}
+function setHot(id,center){
+ HOT=id;NB=new Set();
+ if(id){NB.add(id);LINKS.forEach(l=>{const s=l.source.id||l.source,t=l.target.id||l.target;if(s===id)NB.add(t);if(t===id)NB.add(s)})}
+ const n=id&&NODES.find(x=>x.id===id),info=$('uinfo');
+ if(n){if(center){const k=2.2;TR=d3.zoomIdentity.translate(W/2-n.x*k,H/2-n.y*k).scale(k);d3.select($('ucv')).call(d3.zoom().transform,TR)}
+ const nb=[...NB].filter(x=>x!==id).map(x=>NODES.find(m=>m.id===x)).filter(Boolean).sort((a,b)=>b.deg-a.deg).slice(0,8);
+ info.innerHTML=`<b>${esc(n.n)}</b>${esc(n.c)} · ${n.deg} connections<br>${n.d?esc(n.d)+'<br>':''}${nb.map(m=>esc(m.n)).join(', ')}${NB.size-1>8?'…':''}<br>${n.kind==='item'?`<button id="uopen" data-id="${esc(n.id)}">Open in atlas</button> `:''}<button id="uclr">Clear</button>`;
+ $('uopen')&&($('uopen').onclick=()=>{tab('atlas');pick(n.id)});$('uclr').onclick=()=>setHot(null)}
+ else info.textContent='Drag to pan, scroll to zoom, click a node to light up its neighbours.';
+ uniDraw();
+}
+function uniDraw(){
+ const cv=$('ucv');if(!cv||!W)return;const ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1,cs=getComputedStyle(document.documentElement);
+ const mute=cs.getPropertyValue('--mute').trim()||'#888',fg=cs.getPropertyValue('--fg').trim()||'#222';
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.save();ctx.translate(TR.x,TR.y);ctx.scale(TR.k,TR.k);
+ const q=$('us').value.toLowerCase().trim();
+ ctx.lineWidth=.6/TR.k;
+ LINKS.forEach(l=>{const s=l.source,t=l.target;if(typeof s!=='object')return;const on=HOT&&(s.id===HOT||t.id===HOT);ctx.globalAlpha=HOT?(on?.9:.04):.22;ctx.setLineDash(l.t==='r'||l.t==='s'?[]:[3/TR.k,3/TR.k]);ctx.strokeStyle=l.t==='s'?'#3b7fc4':(l.t==='r'?(on?fg:mute):'#c8962c');ctx.lineWidth=(on?1.6:.6)/TR.k;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(t.x,t.y);ctx.stroke()});
+ ctx.setLineDash([]);NODES.forEach(n=>{const dim=HOT&&!NB.has(n.id),hit=q&&(n.n.toLowerCase().includes(q)||n.id.includes(q));ctx.globalAlpha=dim?.12:1;ctx.fillStyle=n.kind==='shop'?'#3b7fc4':n.kind==='family'?'#c8962c':n.kind==='aug'?'#c0508a':n.kind==='group'?'#8a8a8a':hue(n.c);ctx.beginPath();if(n.kind==='family'){const r=rad(n)*1.5;ctx.moveTo(n.x,n.y-r);ctx.lineTo(n.x+r,n.y);ctx.lineTo(n.x,n.y+r);ctx.lineTo(n.x-r,n.y);ctx.closePath()}else if(n.kind==='aug'){const r=rad(n)*1.6+3;ctx.moveTo(n.x,n.y-r);ctx.lineTo(n.x+r,n.y+r*.8);ctx.lineTo(n.x-r,n.y+r*.8);ctx.closePath()}else if(n.kind==='group'){const r=rad(n)*1.3+3;for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.lineTo(n.x+r*Math.cos(a),n.y+r*Math.sin(a))}ctx.closePath()}else if(n.kind==='shop'){const r=rad(n)+1;ctx.rect(n.x-r,n.y-r,2*r,2*r)}else ctx.arc(n.x,n.y,rad(n),0,6.2832);ctx.fill();if(hit||n.id===HOT){ctx.lineWidth=2/TR.k;ctx.strokeStyle=fg;ctx.stroke()}});
+ ctx.globalAlpha=1;ctx.fillStyle=fg;ctx.font=`${11/TR.k}px Inter,system-ui,sans-serif`;ctx.textAlign='center';
+ NODES.forEach(n=>{const show=(HOT&&NB.has(n.id))||(q&&n.n.toLowerCase().includes(q))||(!HOT&&(TOPSET.has(n.id)||(TR.k>2.4&&n.deg>3)||TR.k>5));if(show)ctx.fillText(n.n,n.x,n.y-rad(n)-3/TR.k)});
+ ctx.restore();
+}
+</script>
+<script>
+/* init universe once data is loaded */
+(function w(){if(typeof D!=='undefined'&&D&&window.d3){try{uniInit();tab('uni')}catch(e){document.getElementById('stats').textContent='Universe failed: '+e.message}}else setTimeout(w,60)})();
+</script>

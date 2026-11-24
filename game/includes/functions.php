@@ -459,7 +459,7 @@ function settings_schema(): array
         'worm_coins_per_point' => ['label' => 'Worm Hunting: currency per point', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 1000],
         'puzzles_open' => ['label' => 'Games: Puzzles (hub + GIFsaw) open to every player (off = admins only) (v2.0.2)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'catfish_open' => ['label' => 'Games: Cat Fish (adopt a cat, upgrade the toy rod, earn Kibble) open to every player (On is the default; Off = admins only)', 'type' => 'select', 'default' => '1', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
-        'gourmand_open' => ['label' => 'Gourmand: Pomeroy Crumbworth, the travelling food writer (serve him a plate, a dish or a jar for spoons) open to every player (Off = hidden from players; admins always see him)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'gourmand_open' => ['label' => 'Gourmand: Pomeroy Crumbworth, the travelling food writer (serve him a plate, a dish or a jar for spoons) open to every player (Off = hidden from players; admins always see him). The Second Spoon decoration and title are earned only at his finale, so with this Off no player can get them', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'gourmand_force_date' => ['label' => 'Gourmand: pretend it is this Hollow date (Y-m-d) for his camp schedule and menu. For testing only: it moves him for every player. Blank = the real date', 'type' => 'text', 'default' => ''],
         'catfish_petal_cap' => ['label' => 'Cat Fish: most Petals the milestone rewards can pay one gnome per week (0 = no Petals)', 'type' => 'int', 'default' => '100', 'min' => 0, 'max' => 1000],
         'catfish_pet_shops_open' => ['label' => 'Cat Fish pet shops: selling room things for Petals (On is the default; Off = the shops are closed, items already bought keep working) (2.2.x)', 'type' => 'select', 'default' => '1', 'options' => ['0' => 'Off', '1' => 'On']],
@@ -497,6 +497,7 @@ function settings_schema(): array
         'tea_open' => ['label' => 'Tea kettle: the kettle in the Hovel room brews one cup of tea a day (a small stat boost until the next sleep), with the Tea Journal and better kettles. Off = the kettle is plain art for all; Admins only = only admins see it; Everyone = live.', 'type' => 'select', 'default' => 'admin', 'options' => ['off' => 'Off', 'admin' => 'Admins only', 'everyone' => 'Everyone']],
         'tea_cap_main' => ['label' => 'Tea kettle: the most points the best cup gives its main stat (the Silver Samovar; lesser kettles have their own lower caps). Lower it to weaken tea.', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 3],
         'tea_cap_side' => ['label' => 'Tea kettle: the most points the best cup gives its side stat. Lower it to weaken tea.', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 2],
+        'pfight_statpieces' => ['label' => 'Puzzle combat (v1): STAT PIECES. Every gnome owns the Nimble, Lore, Luck and Sense pieces its stat points reach (tiers 0, 10, 15, 20, 25, 30; data/pf_stat_pieces.txt) and may pack them in the Puzzle box. Off = no stat pieces anywhere and every fight plays as before.', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', 'admin' => 'Admins only', '1' => 'Everyone']],
         'pfight_learner_n' => ['label' => 'Puzzle combat (v1): a gnome\'s first N fights use the gentler learner rules (no Thornburst, no creature tags, creature pieces x0.8). 0 = off. (2.7.01)', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 20],
         'pfight_intro' => ['label' => 'Puzzle combat (v1): the short 4-step intro card, shown once to each gnome the first time they open the Puzzle box or start a puzzle fight (the How it works tab of the box keeps the text either way). Off = never shown by itself. (2.7.57)', 'type' => 'bool', 'default' => '1'],
         'pfight_costwarn_n' => ['label' => 'Puzzle combat (v1): in a gnome\'s first N fights, End turn asks once before a move that costs health while a free spot was open. 0 = never. (2.7.01)', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 50],
@@ -650,6 +651,16 @@ function settings_schema(): array
         'compost_heap_scraps' => ['label' => 'Compost Bin: scraps (harvests, dug-up plants, weedings) for each heap compost', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 1000],
         'compost_heap_scraps_2' => ['label' => 'Compost Bin: level 2+ scraps for each heap compost', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 1000],
         'compost_heap_max'   => ['label' => 'Compost Bin: most heap compost waiting to be collected', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],
+        // 2.7.58 creature parts on the compost heap (heap points per part; Plate parts per Shell Meal)
+        'part_scraps_hide'   => ['label' => 'Compost: heap scraps for each Hide part', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
+        'part_scraps_wing'   => ['label' => 'Compost: heap scraps for each Wing part', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
+        'part_scraps_silk'   => ['label' => 'Compost: heap scraps for each Silk part', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
+        'part_scraps_ooze'   => ['label' => 'Compost: heap scraps for each Ooze part', 'type' => 'int', 'default' => '4', 'min' => 1, 'max' => 1000],
+        'part_shell_meal_parts' => ['label' => 'Compost: Plate parts crushed into each Shell Meal', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 1000],
+        // 2.7.58 creature parts, Codex donation: parts a creature's page takes, then a one-time reward
+        'codex_part_need'    => ['label' => 'Codex: parts to donate for one creature', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 100],
+        'codex_part_petals'  => ['label' => 'Codex: Petals per level band (10 levels) for finishing a creature\'s donation', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 100000],
+        'codex_part_xp'      => ['label' => 'Codex: XP for finishing a creature\'s donation', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 100000],
         // v0.9.4 cooking: raw food energy, tiers, scraps, bin recipes
         'raw_energy_values'  => ['label' => 'Food energy: raw everyday crops and forage, filling ones (tubers, legumes, grains), comma separated. Read when raw energy is (re)applied.', 'type' => 'text', 'default' => '1,2'],
         'cook_energy_percent' => ['label' => 'Cooking: home-cooked dishes, energy eaten is this % of the dish’s number (115 = a little extra for home cooking; 100 = as written; shop-bought and raw food are not scaled)', 'type' => 'int', 'default' => '115', 'min' => 0, 'max' => 1000], // v1.1.0
@@ -723,6 +734,7 @@ function settings_schema(): array
         'gather_tool_uses'   => ['label' => 'Tools: gathering tools, walking staff and lantern: uses before breaking, for Worn, Sturdy, Fine, Masterwork (0 = never wears)', 'type' => 'text', 'default' => '60,150,300,600'],
         'garden_tool_days'   => ['label' => 'Tools: garden tools, days of use before breaking, Worn to Masterwork (0 = never wears)', 'type' => 'text', 'default' => '0,45,90,180'],
         'tool_mend_percent'  => ['label' => 'Tools: mending a worn or broken tool costs this % of its price (at least 5 Petals)', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 1000],
+        'tool_mend_kits'     => ['label' => 'Tools: Tool Repair Kits a mend takes, tier 1 to 4 (tier 3 also takes 1 creature part, tier 4 a rare one; 0 = kits do not mend that tier)', 'type' => 'text', 'default' => '1,2,4,8'],
         'life_tree_days'     => ['label' => 'Perennials: lifespan of trees and nut trees (days)', 'type' => 'int', 'default' => '60', 'min' => 1, 'max' => 3650],
         'life_fruit_days'    => ['label' => 'Perennials: lifespan of fruit bushes and vines (days)', 'type' => 'int', 'default' => '45', 'min' => 1, 'max' => 3650],
         'life_other_days'    => ['label' => 'Perennials: lifespan of herbs, flowers, spices and the rest (days)', 'type' => 'int', 'default' => '30', 'min' => 1, 'max' => 3650],

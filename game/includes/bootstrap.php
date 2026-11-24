@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.8.24');
+define('APP_VERSION', '2.8.40');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -625,6 +625,56 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 pfd_content_once();   // the fight belts on Twigg's shelf and the Tool Repair Kit (+ recipe), made now instead of on the first fight
             }
             set_setting('pfight_live_2757', '1');
+        });
+        boot_step('item_review_names_2758', function () {   // 2.7.58 item review R1/R2: produce no longer shares a display name with its seed; the two lotus seeds are told apart (names only, slugs unchanged, once)
+            if (setting('item_review_names_2758') !== '') return;
+            foreach (['sunflower' => 'Sunflower Kernels', 'sesame' => 'Sesame Grains', 'cumin' => 'Cumin Spice'] as $slug => $name) q("UPDATE items SET name = ? WHERE slug = ? AND category = 'produce'", [$name, $slug]);
+            q("UPDATE items SET name = ? WHERE slug = 'sacred-lotus-seed'", ['Sacred Lotus Tuber']);
+            set_setting('item_review_names_2758', '1');
+        });
+        boot_step('item_review_data_2758', function () {   // 2.7.58 item review group A: weak dish buffs raised and the Dewdrop Kitchen soup at 1.0x base, on worlds that still have the old numbers (once; new recipes and keepsakes are added by ensure_crafts / trail_sight_b_ensure)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_data();
+        });
+        boot_step('broken_untradable_2758', function () {   // 2.7.58 item review EC6: Broken tool copies cannot be traded or gifted (UPDATE is idempotent)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_broken();
+            upgrade_2758_kit_text();
+        });
+        boot_step('drop_twins_2758', function () {   // 2.7.58 item review uA-1 / uA-2: flower and crop drop twins merged into the cut flower / produce (drops and satchel stock moved, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_drop_twins();
+        });
+        boot_step('stop_acts_2758', function () {   // 2.7.58 item review R4: three rest-stop crafts make their dedicated dish (a row still at the old spec, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_stop_acts();
+        });
+        boot_step('tool_prices_2758', function () {   // 2.7.58 item review E2: Twigg's tier 2-4 tool prices cut (a row still at the old price, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_tool_prices();
+        });
+        boot_step('merge_items_2758', function () {   // 2.7.58 item review group C, R8 + R15: six drop-only parts merged into the existing item (drops, satchel stacks), three rest-stop crafts re-pointed (once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_merge_items();
+        });
+        boot_step('kettle_keys_2758', function () {   // 2.7.58 item review group C, R14: three kettle journal keys no longer reuse a kitchen recipe slug (rows moved, once)
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_kettle_keys();
+        });
+        boot_step('stop_tune_2758', function () {   // 2.7.58 item review group C, R5 + R16: cheap rest-stop crafts take more of their main ingredient, three rope acts (a row still at the old spec, once)
+            if (setting('stop_tune_2758') !== '') return;
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_stop_tune();
+        });
+        boot_step('plank_rope_2758', function () {   // 2.7.58 item review group C, R16: plank and rope recipes normalised (a row still at the old numbers, once)
+            if (setting('plank_rope_2758') !== '') return;
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_plank_rope();
+        });
+        boot_step('almanac_mending_2758', function () {   // 2.7.58: the Exploring & fighting page tells how mending works (kits, augments; once)
+            if (setting('almanac_mending_2758') !== '' || !isset(ALMANAC_HOWTO['Exploring & fighting'])) return;
+            q("UPDATE encyclopedia_entries SET body = ? WHERE chapter = 'General' AND title = 'Exploring & fighting'", [ALMANAC_HOWTO['Exploring & fighting'][2]]);
+            set_setting('almanac_mending_2758', '1');
         });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';

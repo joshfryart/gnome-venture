@@ -7805,6 +7805,7 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 .hpick-it.lock { border-style: dashed; background: transparent; cursor: not-allowed; }
 .hpick-it.lock .hpick-th { opacity: .45; }
 .hpick-it.lock .nm { color: var(--muted); }
+.hs-furnish .new, .hpick-it .new { font-size: .7em; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 0 .4em; border-radius: 999px; background: var(--accent, #2e7d4f); color: #fff; }   /* 2.7.58 trophy wall: the "New" label */
 .hpick-it .wh { color: var(--ink-2); font-size: 13px; line-height: 1.25; }
 .hpick-th { display: block; max-width: 100%; height: auto; image-rendering: pixelated; }
 .hpick-th .hd-ph { fill: var(--surface); stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }

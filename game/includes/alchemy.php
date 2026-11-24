@@ -26,6 +26,21 @@ const ALCHEMY_ITEMS = [
         'Light as dragonfly wings, with a berry bite. Nimble +4, Sense +2.'],
     'garden-tonic' => ['Garden Tonic', 'soil', 6, 30, 0, ['fertility' => 10, 'n' => 10, 'p' => 10, 'k' => 10, 'life' => 4, 'minutes' => 5],
         'A green bottle of seaweed and meadow herbs. Pour it on a square: fertility +10, nitrogen, phosphorus and potassium +10 each, soil life +4, within 5 minutes.'],
+    // 2.7.58 tool augments (includes/augments.php): fitted to a tool from the Satchel, one at a time
+    'aug-hide-binding' => ['Hide Binding', 'supply', 12, 15, 0, null,
+        'Strips of hide bound round the handle. Fit it to a tool from your Satchel: its wear limit is 25% longer. Stays until the tool is replaced.'],
+    'aug-hide-binding-2' => ['Hide Binding II', 'supply', 30, 105, 0, null,
+        'A rare hide, waxed and bound twice. Fit it to a tool: its wear limit is 50% longer. A Fine or Masterwork tool also takes one rare Hide part.'],
+    'aug-plate-edge' => ['Plate Edge', 'supply', 14, 26, 0, null,
+        'A creature plate ground to an edge. Fit it to a gathering tool: 25% of finds are one rarity higher, even above what the tool could gather alone. 40 uses.'],
+    'aug-wing-fletch' => ['Wing Fletch', 'supply', 14, 24, 0, null,
+        'Feathers tied on for the draught. Fit it to a gathering tool: 35% chance of one extra item per find. 25 uses.'],
+    'aug-gem-charm' => ['Gem Charm', 'supply', 20, 26, 0, null,
+        'A bead in a blob of ooze, strung on a cord. Fit it to a gathering tool: Luck +4 when the find is picked. 30 uses.'],
+    'aug-ooze-salve' => ['Ooze Salve', 'supply', 10, 9, 0, null,
+        'Sticky grey salve that seals cracks. Fit it to a tool: the next 3 mends that would cost Petals are free.'],
+    'aug-silk-lashing' => ['Silk Lashing', 'supply', 16, 49, 0, null,
+        'Silk wound tight round a repair kit. Fit it to a tool: a kit mend takes one fewer Tool Repair Kit (at least 1). 40 mends.'],
 ];
 
 /** Healing tiers, weakest first: slug => [pal HP (0 = full), gnome % of max (0 = the hp_potion_percent setting)]. */

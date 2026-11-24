@@ -460,13 +460,53 @@ function dish_energy(int $base): int
     return $base <= 0 ? 0 : max(1, (int)round($base * max(0, (int)setting('cook_energy_percent')) / 100));
 }
 
+/** 2.7.58 E8: the strength of a meal buff: stat points x minutes left. */
+function buff_strength(array $buff, int $minutes): int
+{
+    $pts = 0;
+    foreach ($buff as $stat => $n) if (isset(GNOME_STATS[$stat])) $pts += max(0, (int)$n);
+    return $pts * max(0, $minutes);
+}
+
+/**
+ * 2.7.58 E8: '' when eating a meal with this temp buff loses nothing worth a warning, else a sentence saying which stronger live buff it would replace.
+ * Replaced = both slots, or with the Brewroot two-buff perk the free slot (nothing) or the one ending sooner. Strength = stat points x minutes left.
+ */
+function buff_would_lose(array $u, array $temp, int $itemId): string
+{
+    $buff = [];
+    foreach ($temp as $stat => $n) if (isset(GNOME_STATS[$stat])) $buff[$stat] = (int)$n;
+    if (!$buff) return '';
+    $new = buff_strength($buff, buff_minutes($u, (int)($temp['minutes'] ?? 60), $itemId));
+    $cur = q_one('SELECT buff, buff_until, buff2, buff2_until FROM users WHERE id = ?', [(int)$u['id']]) ?: [];
+    $slots = [];   // [strength, label] of each live slot
+    foreach (['buff', 'buff2'] as $c) {
+        $left = !empty($cur[$c]) ? (int)floor((ts_gnome($cur[$c . '_until'] ?? null) - time()) / 60) : 0;
+        if ($left < 1) continue;
+        $b = json_decode((string)$cur[$c], true);
+        if (!is_array($b)) continue;
+        $slots[$c] = [buff_strength($b, $left), $left, $b];
+    }
+    if (!$slots) return '';
+    if (calling_perk($u, 'two_buffs')) {
+        if (count($slots) < 2) return '';   // a free slot
+        $c = ts_gnome($cur['buff2_until']) <= ts_gnome($cur['buff_until']) ? 'buff2' : 'buff';
+        $slots = [$c => $slots[$c]];
+    }
+    $lose = array_sum(array_column($slots, 0));
+    if ($lose <= $new) return '';
+    $parts = [];
+    foreach ($slots as [, $left, $b]) $parts[] = implode(', ', array_map(fn($s, $n) => GNOME_STATS[$s][0] . ' +' . $n, array_keys($b), $b)) . ' for ' . nice_minutes($left) . ' more';
+    return 'This would replace a stronger boost (' . implode(' and ', $parts) . ').';
+}
+
 /**
  * Eat something. Effects JSON: {"temp":{"grit":2,"minutes":60},"perm":{"luck":1},"energy":10}
  * - temp: becomes your one active meal buff (a new meal replaces the old one)
  * - perm: only the FIRST time this gnome eats this item, and only up to the food cap per stat
  * - energy: restores energy up to your maximum
  */
-function eat_item(array $u, int $itemId): array
+function eat_item(array $u, int $itemId, ?bool $confirm = null): array
 {
     $item = q_one('SELECT * FROM items WHERE id = ? AND edible = 1', [$itemId]);
     if (!$item) return [false, ['You can’t eat that.']];
@@ -480,6 +520,15 @@ function eat_item(array $u, int $itemId): array
     $energyFull = !empty($fx['energy']) && (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) >= max_energy($u);
     if ($energyFull && !array_filter(array_diff_key($fx, ['energy' => 1]))) {
         return [false, ['You’re already full of energy. Save this for when you’re hungry.']];
+    }
+    // 2.7.58 E8: a buff that would replace a stronger one (a raw mushroom over an 8-hour feast) asks first. $confirm null = the second try of the same item counts (session); true = already asked.
+    if (!empty($fx['temp']) && is_array($fx['temp']) && !empty($u['id'])) {
+        $had = $confirm ?? (isset($_SESSION['eat_confirm']) && $_SESSION['eat_confirm'] === [$itemId, (int)floor(time() / 120)] || isset($_SESSION['eat_confirm']) && $_SESSION['eat_confirm'] === [$itemId, (int)floor(time() / 120) - 1]);
+        if (isset($_SESSION['eat_confirm'])) unset($_SESSION['eat_confirm']);
+        if (!$had && ($lost = buff_would_lose($u, $fx['temp'], (int)$item['id'])) !== '') {
+            if ($confirm === null && session_status() === PHP_SESSION_ACTIVE) $_SESSION['eat_confirm'] = [$itemId, (int)floor(time() / 120)];
+            return [false, ['⚠️ ' . $lost . ' Eat it again to swap.'], 'confirm'];
+        }
     }
     db()->beginTransaction();
     if (!give_item($uid, $itemId, -1)) {

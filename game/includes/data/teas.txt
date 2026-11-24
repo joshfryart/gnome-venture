@@ -1,13 +1,13 @@
 # Named teas for the Hovel kettle (includes/tea.php, tea_named()). A cup whose components are exactly this set (any order)
 # takes the name, gets a stamp in the Tea Journal and +1 steep to its main stat. Every other cup is a House Blend.
 # slug|Name|components|note
-#   slug        journal key (user_tea_journal.tea_slug). Never rename one that is live.
+#   slug        journal key (user_tea_journal.tea_slug). Never rename one that is live. (2.7.58 R14: the three that reused a kitchen recipe's slug are kettle-*; boot step kettle_keys_2758 moved the journal rows.)
 #   components  ingredient slugs from tea_ingredients.txt, comma separated, 1 to 4, at least one that can steep (leaf, herb, flower).
 #   note        one short line shown in the journal once the tea is found.
 # Adding a tea later is one row. tests/tea.php checks every component and that no two teas share a set.
-mint-tea|Mint Tea|mint|The plainest cup in the Hollow, and none the worse for it.
-meadowsweet-tea|Meadowsweet Tea|meadowsweet|Smells of hay meadows after rain.
-desert-sage-tea|Desert Sage Tea|desert-sage|A dry, clear cup for long thinking.
+kettle-mint-tea|Mint Tea|mint|The plainest cup in the Hollow, and none the worse for it.
+kettle-meadowsweet-tea|Meadowsweet Tea|meadowsweet|Smells of hay meadows after rain.
+kettle-desert-sage-tea|Desert Sage Tea|desert-sage|A dry, clear cup for long thinking.
 oswego-tea|Oswego Tea|bee-balm|Bee balm, brewed the old way.
 moroccan-mint|Moroccan Mint|tea,mint,cane-syrup|Poured from a height, very sweet.
 masala-chai|Masala Chai|tea,cardamom,cinnamon,ginger|Spice first, leaf second.

@@ -67,6 +67,44 @@ for (const kind of KINDS) {
   ok(`env ${kind}: the place effect draws (${drawnPl}) and the fire effect draws (${drawnFi})`, drawnPl > 0 && drawnFi > 0, [drawnPl, drawnFi]);
   ok(`env ${kind}: stays in the glyph budget (max ${maxN} particles a frame of 220)`, maxN <= 220, maxN);
 }
+// ---- stat pieces (pfight_statpieces): the gnome's own 24 pieces get a themed look (motif module in claude/pf-anim/motifs/), a creature piece of the same name does not;
+//      every motif draws its own-edge and chain effect on a real perimeter at many times with no error, no NaN and inside the glyph budget
+const SPN = JSON.parse(fs.readFileSync(path.join(root, 'game/includes/data/pf_stat_pieces.txt'), 'utf8').split('\n').filter(l => l && l[0] !== '#' && l[0] !== '=' && l.split('|').length > 2).map(l => JSON.stringify(l.split('|')[1])).join(',').replace(/^/, '[').concat(']'));
+ok('24 stat pieces have an entry', SPN.length === 24 && SPN.every(n => data.sp[n]), SPN.filter(n => !data.sp[n]));
+{
+  const FS = { L: 'f', R: 'f', T: 'f', B: 'f' }, PP = A.perimeter([{ id: 0, x: 0, y: 0, e: FS }, { id: 1, x: 1, y: 0, e: FS }, { id: 2, x: 1, y: 1, e: FS }]);
+  for (const nm of SPN) for (const [t, tag] of [['trick', ''], ['hurt', 'pierce'], ['guard', 'hold'], ['item', '']]) {
+    const L = A.look({ by: 'me', n: nm, t, tag }), bad = [], errs = []; let drawn = 0, maxN = 0;
+    if (tag === '') { ok('stat ' + nm + ': themed (motif module, own colour)', !!(L.th && L.M && L.M.draw) && /^#[0-9a-f]{6}$/.test(L.col), L.col); ok('stat ' + nm + ': a creature piece of that name is not themed here', A.look({ by: 'foe', n: nm, t, tag }, 'nobody').th === null); }
+    for (const ph of ['own', 'car']) for (const pr of [0, .05, .2, .4, .6, .8, .95, 1]) for (const o of [0, 1, 2]) {
+      try { const c = stubCtx(bad), n = A.themedDraw(c, ph, PP, o, (o + 1) % 3, L, pr, 11 + o); drawn += c.n; maxN = Math.max(maxN, n); } catch (e) { errs.push(ph + ' ' + pr + ' ' + e.message); }
+    }
+    ok('stat ' + nm + ' (' + t + '/' + tag + '): draws with no error or NaN, inside the glyph budget', errs.length === 0 && bad.length === 0 && maxN <= 220 && (drawn > 0 || tag !== ''), { errs: errs.slice(0, 2), bad: bad.slice(0, 2), maxN, drawn });
+  }
+}
+// ---- 2.7.58 stat pieces' whole-piece effects (motifs/stat_fx.js): Loaded Die's die pops out of the piece (no tumbling pip-cubes any more) and the snare's trapdoor ('@trapdoor');
+//      both draw at every time of their 1200 ms on 3x3 and 5x5 boards, with a link target or none, hit and miss, with no error, no NaN, inside the glyph budget
+ok('stat effects registered: Loaded Die and @trapdoor', JSON.stringify(A.statKinds()) === JSON.stringify(['@trapdoor', 'Loaded Die']), A.statKinds());
+{
+  const dsrc = fs.readFileSync(path.join(root, 'game/assets/pfanim.js'), 'utf8');
+  ok('no tumbling pip-cube glyph or motion is left', !/gv-pipcube|gv-tumble'/.test(dsrc));
+  ok('Loaded Die edge motif is glints (gv-glint / gv-twinkle)', data.m.some(r => r[0] === 'gv-loaded-die' && r[1] === 'gv-glint' && r[2] === 'gv-twinkle'));
+  for (const name of ['Loaded Die', '@trapdoor']) {
+    const errs = [], bad = []; let drawn = 0, maxN = 0, early = 0;
+    for (const [w, x, y, tg, roll] of [[3, 1, 1, { x: 0, y: 1, id: 2 }, 'hit'], [3, 1, 1, { x: 2, y: 1, id: 2 }, 'miss'], [5, 4, 4, null, 'hit'], [5, 0, 0, null, 'miss'], [1, 0, 0, null, '']]) {
+      for (let ms = 0; ms <= 1200; ms += 30) {
+        try { const c = stubCtx(bad), n = A.statDraw(name, ms, c, { w, x, y, tg, roll }); drawn += c.n; maxN = Math.max(maxN, n); if (ms === 0 && c.n === 0) early++; } catch (e) { errs.push(ms + ' ' + e.message); }
+      }
+    }
+    ok(`stat effect ${name}: draws at every time with no error`, errs.length === 0 && drawn > 0, errs.slice(0, 3));
+    ok(`stat effect ${name}: no NaN / Infinity reaches the canvas`, bad.length === 0, bad.slice(0, 3));
+    ok(`stat effect ${name}: inside the glyph budget (max ${maxN} of 220)`, maxN <= 220, maxN);
+  }
+  const cn = (name, ms, o) => { const c = stubCtx([]); A.statDraw(name, ms, c, o); return c.n; };
+  ok('Loaded Die: the lid is drawn at the start, the die is out by 400 ms, the effect is empty at the end', cn('Loaded Die', 50, { roll: 'hit' }) > 0 && cn('Loaded Die', 400, { roll: 'hit' }) > cn('Loaded Die', 50, { roll: 'hit' }) && cn('Loaded Die', 1199, { roll: 'hit' }) === 0, [cn('Loaded Die', 50, {}), cn('Loaded Die', 400, {}), cn('Loaded Die', 1199, {})]);
+  ok('Loaded Die: a hit draws more (ring, sparkles) than a miss while it settles', cn('Loaded Die', 900, { roll: 'hit' }) > cn('Loaded Die', 900, { roll: 'miss' }));
+  ok('@trapdoor: the lid is up at 300 ms, shut again by 700 ms (fewer pixels, the rim thins)', cn('@trapdoor', 300, {}) > 0 && cn('@trapdoor', 300, {}) !== cn('@trapdoor', 700, {}));
+}
 // ---- perimeter
 const F = { L: 'f', R: 'f', T: 'f', B: 'f' }, cells = a => a.map(([x, y], i) => ({ id: i, x, y, e: F }));
 const BW = 56, BH = 47;

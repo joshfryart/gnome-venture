@@ -26,6 +26,12 @@ function give_item(int $userId, int $itemId, int $qty): bool
         }
         return $ok;
     }
+    // 2.7.58 EC8: items.max_stack is a ceiling (default 999), so a one-per-gnome belt cannot pile up across restocks; the extra is dropped
+    $cap = (int)q_val('SELECT max_stack FROM items WHERE id = ?', [$itemId]);
+    if ($cap > 0) {
+        $qty = min($qty, $cap - (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$userId, $itemId]));
+        if ($qty <= 0) return true;
+    }
     if (q('UPDATE user_items SET qty = qty + ?, got_at = ? WHERE user_id = ? AND item_id = ?', [$qty, now(), $userId, $itemId])->rowCount() === 1) {
         return true;
     }

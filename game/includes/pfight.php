@@ -235,11 +235,11 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
 {
     $d = (pf_tiles()[$key] ?? pf_tiles()['swing']) + ['tag' => ''];
     $d = $over + $d;
-    $stat = max(0, (int)($stats[PF_STAT[$d['t']]] ?? 0));
+    $stat = max(0, (int)(isset($d['st']) ? ($stats[$d['st']] ?? $d['sm'] ?? 0) : ($stats[PF_STAT[$d['t']]] ?? 0)));   // a stat piece (field st) counts its OWN stat's modifier, not the type's (PF_STAT)
     $lvl = intdiv(max(1, (int)($stats['level'] ?? 1)), 3);
     $t = ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
     if (!empty($d['mod'])) $t['m'] = (string)$d['mod'];   // 2.6.990: a built-in knack (a legendary crop piece)
-    foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool', 'cnt'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // cnt (2.7.08): a counter piece's creature class   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
+    foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool', 'cnt', 'st'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // cnt (2.7.08): a counter piece's creature class   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
     return $t;
 }
 

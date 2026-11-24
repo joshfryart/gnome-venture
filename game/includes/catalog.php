@@ -109,21 +109,21 @@ function import_catalog(?array $onlyCrops = null): array
         'cyclamen' => 'Cyclamen Tuber', 'gloriosa-lily' => 'Gloriosa Tuber', 'crown-anemone' => 'Anemone Corms',
         'persian-buttercup' => 'Ranunculus Corms', 'bukhara-iris' => 'Bukhara Iris Bulb', 'florentine-iris' => 'Iris Rhizome',
         'black-iris' => 'Black Iris Rhizome', 'agapanthus' => 'Agapanthus Division', 'blue-lotus' => 'Blue Lotus Tuber',
-        'sacred-lotus' => 'Lotus Rhizome', 'lily-of-the-valley' => 'Lily of the Valley Pips', 'foxtail-lily' => 'Foxtail Lily Crown',
+        'sacred-lotus' => 'Sacred Lotus Tuber', 'lily-of-the-valley' => 'Lily of the Valley Pips', 'foxtail-lily' => 'Foxtail Lily Crown',
     ];
     $produceNames = [
         'date' => 'Dates', 'sago' => 'Sago Starch', 'pandanus' => 'Pandanus Fruit', 'tea' => 'Tea Leaves',
         'coffee' => 'Coffee Cherries', 'cacao' => 'Cacao Pods', 'sugarcane' => 'Sugarcane Stalks',
         'hops' => 'Hop Cones', 'kava' => 'Kava Root', 'yerba-mate' => 'Yerba Mate Leaves',
         'saffron' => 'Saffron Threads', 'nopal' => 'Prickly Pears', 'ensete' => 'Enset Stem',
-        'hibiscus' => 'Roselle Calyces', 'sunflower' => 'Sunflower Seeds', 'sesame' => 'Sesame Seeds',
+        'hibiscus' => 'Roselle Calyces', 'sunflower' => 'Sunflower Kernels', 'sesame' => 'Sesame Grains',
         'olive' => 'Olives', 'grape' => 'Grapes', 'acai' => 'Açaí Berries', 'coconut' => 'Coconut',
         'moringa' => 'Moringa Leaves', 'baobab' => 'Baobab Fruit', 'shea' => 'Shea Nuts', 'cashew' => 'Cashews',
         'almond' => 'Almonds', 'walnut' => 'Walnuts', 'hazelnut' => 'Hazelnuts', 'pistachio' => 'Pistachios',
         'chestnut' => 'Chestnuts', 'macadamia' => 'Macadamias', 'brazil-nut' => 'Brazil Nuts', 'pecan' => 'Pecans',
         'kola' => 'Kola Nuts', 'vanilla' => 'Vanilla Pods', 'black-pepper' => 'Peppercorns', 'cinnamon' => 'Cinnamon Bark',
         'clove' => 'Cloves', 'nutmeg' => 'Nutmeg', 'cardamom' => 'Cardamom Pods', 'caper' => 'Capers',
-        'cumin' => 'Cumin Seeds', 'sea-buckthorn' => 'Sea Buckthorn Berries', 'carob' => 'Carob Pods',
+        'cumin' => 'Cumin Spice', 'sea-buckthorn' => 'Sea Buckthorn Berries', 'carob' => 'Carob Pods',
         'star-anise' => 'Star Anise Pods',
     ];
     $notRaw = ['cassava', 'kidney-bean', 'coffee', 'cacao', 'tea', 'hops', 'kava', 'wheat', 'rice', 'barley', 'rye',
@@ -630,6 +630,19 @@ function preserve_price(array $ing, int $cookMin, int $outQty, array $L): ?int
     return max(20, (int)ceil($value * $mult / max(1, $outQty) / 0.6));
 }
 
+/** 2.7.58 E5: what a cooked dish's items.base_price is: the ingredients' flat shop value (rarity multiplier included, as preserve_price) x a tier factor, at the 60% shop share. null if an ingredient does not exist. */
+const DISH_PRICE_FACTOR = ['snack' => 1.4, 'meal' => 1.6, 'feast' => 2.0];
+function dish_price(array $ing, string $tier, array $L): ?int
+{
+    $value = 0;
+    foreach ($ing as $s => $n) {
+        $it = q_one('SELECT * FROM items WHERE slug = ?', [$s]);
+        if (!$it) return null;
+        $value += flat_sell_value($it, $L) * (int)$n;
+    }
+    return max(20, (int)ceil($value * (DISH_PRICE_FACTOR[$tier] ?? 1.6) / 0.6));
+}
+
 /** Dishes from includes/data/recipes.txt. Adds only recipes whose dish doesn't exist yet. v0.9.4: energy column is the real number; tier and cook minutes columns. */
 function import_recipes(array &$stats): int
 {
@@ -671,11 +684,9 @@ function import_recipes(array &$stats): int
             if ($price === null) continue;
             $fx['preserve'] = 1;   // every townsfolk likes one as a gift (friends.php); it never spoils
         } else {
-            $value = 0;
-            foreach ($ing as $s => $n) {
-                $value += (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$s]) * $n;
-            }
-            $price = max(20, (int)round($value * 1.4));
+            $L ??= item_lookups();   // 2.7.58 E5: dishes are priced from the ingredients' flat shop value, like a preserve (rarity counts, so a legendary crop is no longer worth more raw)
+            $price = dish_price($ing, $tier, $L);
+            if ($price === null) continue;   // an ingredient does not exist yet (a hybrid): the dish is made on a later run, priced then (it used to be made at 20 Petals)
         }
         $itemId = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'food', 'rarity' => 10,
             'base_price' => $price, 'description' => $desc, 'edible' => 1, 'effects' => json_encode($fx)]);

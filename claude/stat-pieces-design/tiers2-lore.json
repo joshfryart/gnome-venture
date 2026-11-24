@@ -1,0 +1,332 @@
+{
+ "stat": "Lore",
+ "ruleset": [
+  "One action a turn: place one piece (PFB_MAX_PLACE, pfb_play). Setting aside, groups and joining a held group are off in new fights (aside 0); nothing connects pieces except board links.",
+  "A link is a knob in a hole of the same family; a flat side fits anything but never links; a wild edge (the blank, some environment pieces) fits and links anything. Chains fire along links only.",
+  "Flip (swap top and bottom edges of a hand piece) is free and unlimited (flip 1, flip1 0). It never changes an edge's family or kind.",
+  "Place on any cell where every touching edge fits; no link needed (must 0). Passing is free (freepass 1).",
+  "The whole hand is redrawn each round (redraw 1): unplayed pieces go to the discard, 5 new are drawn; Keeper pieces stay. The discard is shuffled back automatically whenever the draw pile runs out (pf_draw), so plain recycling is nearly free.",
+  "One shared Yield bar; Hurt and Charm both fill it (onebar 1). The creature's aim and its total are shown (aim 1, aimtot 1); blocking the aim only makes it pick again (aimhit 0).",
+  "No free creature piece pops in after your turn (spawn 0). A pal piece knocks the creature's strongest piece off (paltgt 1).",
+  "A chain of 3+ uses up every piece that fired, both sides and environment pieces too (limit 3); keepmine 0 and useroot 0 exist as rule keys but are off. Wear 'stay' exempts one piece.",
+  "Your pieces have no fire budget: they re-fire in every chain that links them until they fade (life 3, Quick 2, Hold 4, Sticky +1). Creature pieces fall after 2 firings (+1 boss, +1 Guard/Hold).",
+  "Resolve order: environment, Guard/Soothe, Trick, Hurt/Charm, Heal/Item; Quick first, Heavy last then falls away.",
+  "Set combos read the whole chain (cset 1): Ambush, Riposte, Double Swing, Calm Charm, Win Over, Bait; one best combo per piece. Heal and Soothe have no combo. Teamwork +30%/+60% for 2/3 sources.",
+  "Environment pieces belong to nobody and fire for whichever side's chain links them; its next pieces lie face up (envn 1-2 a round), placed away from the action, capped by envmax; small fights' weather fires once (envonce). Wind and Mud are in (nowm 0).",
+  "Sun doubles the firing side's pieces in that chain; Rain guards; Bramble costs the other side; Thornburst costs whoever fires it (half on the creature); Mud never links and weakens neighbours 25%; Tremor and Spring only on large/boss boards.",
+  "A Trick or Item does nothing alone on the board except through combos and fx clauses (an Item heals you); Lore drives Trick and Item values (PF_STAT)."
+ ],
+ "tiers": {
+  "10": "First lessons: tie any families into one chain, call back your best spent piece, keep the weather from being used up.",
+  "15": "Reading the chain: replay what just left the board, light the whole chain, take the creature's pieces apart before they fire.",
+  "20": "Teaching the board: every piece has a combo partner, the weather lands where you call it, the creature's seams come apart.",
+  "25": "Passing it on: lessons that outlive the piece (taught tags, a weather shield, combos that keep improving).",
+  "30": "Rewriting the tale: the creature's piece, the seasons and a whole standing chain answer to you."
+ },
+ "summary": "Old Saying (tier 0) boosts the linked piece, more with weather in the chain; Lore grows from it along three lines that all work through board links, never set-aside groups or flips. Chain: Knot of Twine, Lantern Chain, Old Lesson, Recipe Book, Story Quilt. Weather: Rain Barrel, Weather Lore, Sundial, Season Wheel. Memory and rewriting: Almanac Page, Pressed Flower, Bestiary Margin, Unpicked Seam, Copybook, Turn of the Tale. None changes chance, tempo, the aim or what you can see, so Lore stays the stat of long chains, owned weather and a deck that remembers and learns.",
+ "question": "Should the pieces that change a creature piece for good (Unpicked Seam, Turn of the Tale) or a piece in your deck for the rest of the fight (Copybook) also work in boss fights, or should bosses be immune so their fights stay hand-tuned?",
+ "pieces": [
+  {
+   "tier": 10,
+   "slot": 1,
+   "name": "Knot of Twine",
+   "type": "trick",
+   "family": "craft green",
+   "tags": [
+    "new: any-edge"
+   ],
+   "value": "v = 2 + stat/5; {b} = ceil(a/2)",
+   "text": "Its four sides fit and link any knob or hole, whatever the family (a flat side or a Mud still does not link). The piece it links to gets +{b}.",
+   "worth_it": "The only piece of yours that links across families on all four sides, so a hand that matches nothing on the board still makes a chain, and it can be the hub that ties two chains into one.",
+   "changes_play": "You place it where two or three pieces of different families meet and turn them into one long chain (into a weather piece, through your old pieces); that is a different act from the free flip, which only swaps a piece's top and bottom and never changes a family.",
+   "risk": "Linking on every side also pulls in touching creature pieces, which fire for the creature in your chain; rail: it is never a combo partner, flats and Mud stay unlinked, and the lit-spot numbers already show the health it would cost.",
+   "engine_cost": "small: a new edge kind 'any' in pfb_joint (links with knob or hole of any family, fits but does not link with flat); authored edges on the tile (pfb_v1_tile already takes 'edges'). The boost is the existing boost clause.",
+   "fx": "boost:b",
+   "motif": "Edges are loose twine loops that tighten onto whatever knob or hole they touch; on fire the twine cinches and a small knot glows on the linked piece.",
+   "status": "fixed",
+   "change_note": "Flat sides already fit anything (rule must 0) and the old wild joint (pfb_joint) would also link through flat sides and Mud; now it links any knob or hole only, and flats stay unlinked."
+  },
+  {
+   "tier": 10,
+   "slot": 2,
+   "name": "Almanac Page",
+   "type": "item",
+   "family": "mind blue",
+   "tags": [
+    "new: recall"
+   ],
+   "value": "v = 2 + stat/5 (item: heals v)",
+   "text": "When you place it, the strongest piece in your discard pile goes on top of your draw pile, so it is in next round's hand. A chain of 3 or more does not use it up.",
+   "worth_it": "Your best Hurt or combo partner, spent or left unplayed last round, is certain to come back next round instead of waiting for the reshuffle.",
+   "changes_play": "You can spend your strongest piece early knowing you will have it again, and plan a two-round combo: Almanac now, the recalled piece next round.",
+   "risk": "Recalling the same big piece every round; rail: never picks a stat piece (Lore or any other) or Almanac itself, once per placement, and the recalled piece takes a normal hand slot (hand size stays 5, so it is not an extra draw).",
+   "engine_cost": "small: a place action 'recall' (like the existing recycle: take the discard piece with the highest value and push it onto the end of the draw pile, which pf_draw pops first); 'stay' exists.",
+   "fx": "",
+   "motif": "Edge is a dog-eared page corner; on fire the page riffles and the recalled piece's outline lifts out of the discard pile and slides onto the top of the deck.",
+   "status": "fixed",
+   "change_note": "Recycling the discard into the draw pile is almost free: with the whole hand redrawn each round a 10-14 piece deck reshuffles its discard every 2-3 rounds anyway (pf_draw). Now it recalls one chosen piece into next round's hand."
+  },
+  {
+   "tier": 10,
+   "slot": 3,
+   "name": "Rain Barrel",
+   "type": "guard",
+   "family": "body red",
+   "tags": [
+    "hold",
+    "new: envstay"
+   ],
+   "value": "v = 2 + stat/5 (guard)",
+   "text": "Hold. Gain guard. An environment piece in its chain is not used up by that chain and stays 1 round longer.",
+   "worth_it": "The weather you just chained (Sun, Rain, Spring) is still on the board for your next chain instead of vanishing in the use-up.",
+   "changes_play": "You link the Barrel to a Sun or Rain so next turn you can chain through it again; the weather becomes a piece you keep, not a one-off.",
+   "risk": "The kept weather is free for the creature to link too, and a kept Bramble or Thornburst can turn on you; rail: only environment pieces in the Barrel's own chain, at most +1 round, never past PFB_LIFE_MAX, and not in small fights where the weather fires once (envonce).",
+   "engine_cost": "small: a new action 'envstay' (puts the environment pieces of the chain into wstay, which pfb_spend already skips, and gives them xl 1 like the existing life action); hold and cenv exist.",
+   "fx": "",
+   "motif": "Edge is a barrel stave hoop; on fire rain drips into the barrel, which brims over onto the linked weather piece and refreshes its timer ring.",
+   "status": "fixed",
+   "change_note": "A chain of 3+ uses up every piece that fired, environment pieces included, so extending the weather's life was moot in any real chain; now it keeps the weather from being used up."
+  },
+  {
+   "tier": 15,
+   "slot": 1,
+   "name": "Pressed Flower",
+   "type": "item",
+   "family": "body red",
+   "tags": [
+    "new: echo"
+   ],
+   "value": "v = copied piece's value + {a}; {a} = 1 + stat/5",
+   "text": "It plays as a copy of the strongest piece of yours that left the board last round (used up or faded: its type, number and tag), plus {a}. If none left, it is a Snack.",
+   "worth_it": "The piece your big chain just used up comes straight back as a copy, from memory rather than from the draw pile.",
+   "changes_play": "A long chain that uses up your best Hurt is no longer a loss: next round the Flower plays it again, so you dare to fire long chains.",
+   "risk": "Copying a pal, legend or boss-breaking piece is too strong; rail: copies only basic, knack, calling, crop and stat pieces (else a Snack), never another Pressed Flower, and the copy keeps the Flower's own edges.",
+   "engine_cost": "medium: remember your strongest piece that left the board in pfb_spend / pfb_expire ($s['me']['gone1'], reset each round); at placement the tile takes its t, v and tag; the hand card shows the echo.",
+   "fx": "",
+   "motif": "Edge is a pressed petal under wax paper; on fire the petal unfolds into a faint ghost of the copied piece, which then sharpens into colour.",
+   "status": "fixed",
+   "change_note": "Under the redraw rule the newest discard is usually just a piece you left unplayed in your hand; now it copies the strongest piece of yours that left the board last round."
+  },
+  {
+   "tier": 15,
+   "slot": 2,
+   "name": "Lantern Chain",
+   "type": "trick",
+   "family": "craft green",
+   "tags": [
+    "new: string"
+   ],
+   "value": "v = 2 + stat/5; each other piece +{b}, +{a} in a chain of 4+",
+   "text": "Every other piece of yours in its chain gets +{b}. If the chain has 4 or more pieces, they get +{a} instead.",
+   "worth_it": "The chain-builder's reward: one piece lifts the whole chain, not just the one it touches.",
+   "changes_play": "Pushes you to build wide chains of 4+ instead of firing small pairs, and to place it in the middle of a long line.",
+   "risk": "Stacks with Sun into burst turns, and a boost stays on a board piece (wv) for its later firings; rail: added before Sun, at most +{a} per piece per chain, your pieces only (a 3+ chain uses them up anyway).",
+   "engine_cost": "small: new action 'boostall:N' (loops the chain like ctype and adds wv to your pieces not yet fired); clen exists.",
+   "fx": "",
+   "motif": "Edge is a strung paper lantern; on fire a line of little lanterns lights piece by piece down the whole chain.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 15,
+   "slot": 3,
+   "name": "Bestiary Margin",
+   "type": "trick",
+   "family": "mind blue",
+   "tags": [
+    "new: noted"
+   ],
+   "value": "v = 3 + stat/5; each creature piece in its chain loses {a}",
+   "text": "Each creature piece in its chain loses {a} before it fires. With 2 or more creature pieces in the chain, the weakest falls off the board after the chain.",
+   "worth_it": "Knowing the creature's pieces lets you dismantle its line, not just hit its bar.",
+   "changes_play": "You aim chains THROUGH creature pieces on purpose, weakening the whole knot before it fires back.",
+   "risk": "Clears the board fast on 3x3, and creature Guards fire before Tricks so they are not shrunk; rail: removal only with 2+ creature pieces, once per chain, never a boss's piece.",
+   "engine_cost": "small: a new action 'shrinkch:N' (the existing shrink on the creature pieces in the chain) and a count form of cfoe ('cfoe:2'); the removal is the existing knock.",
+   "fx": "",
+   "motif": "Edge is an inked margin note with an arrow; on fire scribbled notes pin onto each creature piece in the chain and its numbers smudge down.",
+   "status": "fixed",
+   "change_note": "As a Hurt it fired in the same step as the creature's Hurts (resolve order), so the shrink often came too late; now a Trick, it fires before them, and it is an Ambush partner for your Hurts."
+  },
+  {
+   "tier": 20,
+   "slot": 1,
+   "name": "Old Lesson",
+   "type": "trick",
+   "family": "body red",
+   "tags": [
+    "new: lesson"
+   ],
+   "value": "v = 3 + stat/5; Heal / Soothe x1.5",
+   "text": "For set combos it counts as a partner of every type. Your Heal and Soothe pieces in its chain, which have no combo, get one too: half as much again.",
+   "worth_it": "Every piece type in your deck now has a combo in its chain, including the Heals and Soothes that never had one.",
+   "changes_play": "Combos stop depending on drawing the right pair, and a Heal or Soothe chain becomes worth building around the Lesson.",
+   "risk": "Several combos on one chain; rail: each piece still takes ONE combo (the best, as pfb_set_combo does), Old Lesson's value is never added as a 'prev' flat, and its Heal/Soothe combo needs Old Lesson itself in the chain.",
+   "engine_cost": "medium: in pfb_set_combo a tile flagged 'lesson' matches any partner type; two combo rows that only Old Lesson enables (lesson>heal, lesson>soothe, mul 150).",
+   "fx": "",
+   "motif": "Edge is a slate with chalk lines; on fire chalk arrows draw from it to each piece in the chain, writing the combo name above each.",
+   "status": "fixed",
+   "change_note": "Since 2.7.06 combos read the whole chain and a Trick already partners Ambush and Bait, so 'partner of every type' only added Calm Charm and Win Over; now it also gives Heal and Soothe pieces, which have no combo, one of their own."
+  },
+  {
+   "tier": 20,
+   "slot": 2,
+   "name": "Weather Lore",
+   "type": "item",
+   "family": "mind blue",
+   "tags": [
+    "new: forecast-turn"
+   ],
+   "value": "v = 2 + stat/5; {b} = ceil(a/2)",
+   "text": "When it fires, the environment's next piece becomes a Sun (a Spring on large boards), and it comes in on a free cell beside Weather Lore if there is one.",
+   "worth_it": "You call the weather you need and where it lands: next turn a Sun sits right next to your pieces, ready to double a chain.",
+   "changes_play": "You set up next turn's double-value chain on purpose, choosing where Weather Lore goes so the Sun arrives in your line instead of a far corner.",
+   "risk": "Too much Sun, and the creature can link the Sun first; rail: once a round, the field cap (envmax) still applies (the Sun waits as now), and the creature moves before the environment places, so it can answer.",
+   "engine_cost": "medium: rewrite $s['env']['next'][0] to the sun / spring tile from pfb_env_table(), and give pfb_env_place a preferred cell next to the Lore piece (its fit check pfb_env_fit exists).",
+   "fx": "",
+   "motif": "Edge is a weathervane cockerel; on fire it spins, clouds part, and the face-up environment card flips to a bright sun.",
+   "status": "fixed",
+   "change_note": "Dropped 'that Sun stays longer': a chain of 3+ uses the Sun up anyway, and keeping weather is now Rain Barrel's job. Instead the called Sun lands beside Weather Lore, since the environment normally drops its pieces away from the action."
+  },
+  {
+   "tier": 20,
+   "slot": 3,
+   "name": "Unpicked Seam",
+   "type": "guard",
+   "family": "craft green",
+   "tags": [
+    "hold"
+   ],
+   "value": "v = 3 + stat/5",
+   "text": "Gain guard. Every creature piece linked to it has its joints with the creature's other pieces unpicked: those sides turn flat, so its chains break there.",
+   "worth_it": "The first piece that rewrites the board's shape: it cuts the creature's chain in two before it can fire as one.",
+   "changes_play": "You place defensively INTO the creature's line to sever it, turning its 4-chain into two small ones.",
+   "risk": "Can strand your own links; rail: only joints between two creature pieces turn flat, and only on the pieces it touches now.",
+   "engine_cost": "medium: set the touching sides of creature tiles to flat (tile 'ed' already per piece on the board); edges re-render.",
+   "fx": "",
+   "motif": "Edge is a seam with a stitch-ripper; on fire stitches pop down the creature piece's sides and the knobs fold flat.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 25,
+   "slot": 1,
+   "name": "Copybook",
+   "type": "trick",
+   "family": "craft green",
+   "tags": [
+    "new: teach"
+   ],
+   "value": "v = 3 + stat/5; teaches 1 tag",
+   "text": "The piece it links to learns the tag of another piece of yours in its chain (Pierce, Poison, Hold, Bash...) and keeps it for the rest of the fight, even after it is discarded.",
+   "worth_it": "Permanently improves your deck mid-fight: a plain Swing comes back as a Pierce Swing every time it is drawn.",
+   "changes_play": "You plan which tag to teach which piece; a fight now has a deck that grows smarter round by round.",
+   "risk": "Teaching Heavy or Quick onto everything; rail: one taught tag per piece, a taught tag never replaces an existing one, at most {b} pieces taught per fight.",
+   "engine_cost": "small: write 'tag' onto the target board tile (pfb_discard already carries the tile to your discard, so the tag stays with that piece for the fight); a capped counter in $s['me'].",
+   "fx": "",
+   "motif": "Edge is a ruled copybook line; on fire the source piece's tag icon is traced in pencil and inked onto the linked piece.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 25,
+   "slot": 2,
+   "name": "Sundial",
+   "type": "item",
+   "family": "body red",
+   "tags": [
+    "new: shade"
+   ],
+   "value": "v = 3 + stat/5 (item: heals v)",
+   "text": "While Sundial is yours on the board, environment pieces cost you no health (your Thornburst, its Bramble) and Mud does not weaken your pieces.",
+   "worth_it": "Turns the risky weather into pure gain: Thornburst becomes a free hit, Bramble stops hurting you, Mud stops taxing your line.",
+   "changes_play": "Thornburst, Bramble and Mud stop being things you route around; you chain straight through them while the Sundial stands.",
+   "risk": "Thornburst becomes free damage; rail: the creature's share stays as now (half), one Sundial counts, and the shield ends when it leaves the board (it can be used up like any piece).",
+   "engine_cost": "medium: an aura check (a tile with 'shade' of yours on the board) in pfb_env_cost for 'me' and in the Mud's-teeth check of pfb_fire for your pieces.",
+   "fx": "",
+   "motif": "Edge is a brass gnomon; on fire its shadow sweeps across the board and every weather piece under it dims to a harmless grey.",
+   "status": "fixed",
+   "change_note": "Dropped the life extension (it was moot in a 3+ chain and is now Rain Barrel's job); the aura now also covers Mud's teeth, so it is a full weather shield."
+  },
+  {
+   "tier": 25,
+   "slot": 3,
+   "name": "Grandmother's Recipe Book",
+   "type": "heal",
+   "family": "mind blue",
+   "tags": [
+    "new: recipe"
+   ],
+   "value": "heal v = 2 + stat/5; combo bonus +1 per combo, up to {a}",
+   "text": "Heal. For the rest of the fight each set combo you make adds 1 to every later combo of yours, up to +{a}.",
+   "worth_it": "A fight-long engine: every Ambush or Riposte makes the next one better, rewarding a combo deck.",
+   "changes_play": "You chase combos early to bank the bonus; the fight's back half hits much harder.",
+   "risk": "Snowballs in long boss fights; rail: cap +{a}, counts only combos made after it fires, one copy's bonus does not stack with a second.",
+   "engine_cost": "medium: a counter $s['me']['rcp'] raised in pfb_set_combo when it returns a combo, added as a flat to later combo values.",
+   "fx": "",
+   "motif": "Edge is a stained recipe-book spine; on fire the book flips open, a handwritten line is added, and each later combo shows a small ink tick.",
+   "status": "kept",
+   "change_note": ""
+  },
+  {
+   "tier": 30,
+   "slot": 1,
+   "name": "Turn of the Tale",
+   "type": "trick",
+   "family": "mind blue",
+   "tags": [
+    "new: retell"
+   ],
+   "value": "v = 4 + stat/5",
+   "text": "The creature piece it links to becomes yours where it stands: it keeps its number and edges and fires for you in this chain and after.",
+   "worth_it": "The capstone of rewriting the board: the creature's strongest piece now hits for you.",
+   "changes_play": "You aim to link to its best Hurt; the creature loses its plan and you gain a piece that was never in your deck.",
+   "risk": "Stealing boss anchors, and your pieces have no fire budget so a stolen piece would never wear out; rail: once a fight, not in boss fights, it keeps the creature's fire budget, and when it leaves it goes to the creature's discard (never your deck).",
+   "engine_cost": "medium: set the board piece's 'by' to 'me' and mark it stolen (pfb_discard sends it back to the creature, pfb_fire_lim keeps its budget); the aim is recomputed by pfb_intent as now; the JS twin tools/pfengine.js needs the same.",
+   "fx": "",
+   "motif": "Edge is a storybook page mid-turn; on fire the page turns over the creature piece and it re-inks in your colours, edges unchanged.",
+   "status": "fixed",
+   "change_note": "Dropped 'its edges take your families': an edge rewrite is not needed (the piece keeps its place and edges, so its links stay) and read like a flip; it only changes owner now."
+  },
+  {
+   "tier": 30,
+   "slot": 2,
+   "name": "Season Wheel",
+   "type": "item",
+   "family": "craft green",
+   "tags": [
+    "new: season"
+   ],
+   "value": "v = 4 + stat/5; lasts {b} rounds",
+   "text": "For {b} rounds every environment piece fires for you, whichever side's chain fires it (not Thornburst), and Sun in the creature's chain doubles nothing.",
+   "worth_it": "Takes the weather away from the creature entirely: its Rain guards you, its Spring heals you, its Tremor knocks its own pieces off.",
+   "changes_play": "The creature's chains through weather pieces now feed you, so you leave weather where it must link to it.",
+   "risk": "Large boards with 5 environment pieces become lopsided; rail: {b} rounds, once a fight, Thornburst unchanged, and the creature's chains still fire its own pieces as now.",
+   "engine_cost": "medium: pfb_env_fire takes $rb = 'me' (except thorn) while $s['me']['season'] > round, and pfb_fire skips the Sun factor for a creature chain then; a round counter and a banner.",
+   "fx": "",
+   "motif": "Edge is a wheel of four seasons; on fire the wheel turns, and every environment piece on the board gets a small gnome-coloured pennant.",
+   "status": "fixed",
+   "change_note": "Added the rails the live rules need: Thornburst hurts whoever fires it, so it is left out, and Sun in the creature's chain no longer doubles its pieces."
+  },
+  {
+   "tier": 30,
+   "slot": 3,
+   "name": "Story Quilt",
+   "type": "guard",
+   "family": "body red",
+   "tags": [
+    "hold",
+    "new: quilt"
+   ],
+   "value": "v = 4 + stat/5 (guard); +{b} per other piece type in its chain",
+   "text": "Hold. Gain guard, +{b} for each other piece type in its chain. That chain uses up none of your pieces (once a round).",
+   "worth_it": "The chain capstone: a wide, mixed chain stays on the board whole, and since your pieces have no fire limit the whole chain fires again when you link to it next turn.",
+   "changes_play": "You build one big mixed-type chain, keep it standing, and add one piece a turn to re-fire all of it.",
+   "risk": "A never-used-up chain re-fires every turn; rail: once a round, creature and environment pieces in the chain are used up as now, and your pieces still fade by life.",
+   "engine_cost": "small: put your pieces of the chain into wstay (pfb_spend already skips them; the same as rule keepmine for one chain); the guard is the existing guard:b*types.",
+   "fx": "",
+   "motif": "Edge is a quilted patch border; on fire stitches run out from it, patching each chained piece into the quilt, and combo pieces get a bright patch.",
+   "status": "fixed",
+   "change_note": "Dropped the combo bonus (it duplicated Grandmother's Recipe Book); kept the core: a chain-wide, once-a-round form of the existing keepmine rule (off in v1)."
+  }
+ ]
+}

@@ -27,4 +27,5 @@ echo "-- grow, harvest row"; dbx "UPDATE plot_tiles SET growth_seconds=999999 WH
 act harvest 0 2 row
 echo "-- reach cheat: ask for row with x3 can"; act water 0 2 row
 echo "== satchel toolbelt"; curl -s -c $C -b $C $BASE/inventory.php | grep -oE '<td>[^<]*(Tilling|Planting|Pruning)</td>\s*<td><b>[^<]*' | head -3
+php "$(dirname "$0")/augments.php" "$GAME" || echo "FAIL augments.php"
 kill $PID; grep -iE 'fatal|warning|notice' /tmp/tools-php.log || echo "(no php errors)"

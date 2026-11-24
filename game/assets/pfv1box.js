@@ -96,7 +96,7 @@
 
   /* ---------- the Puzzle box (R3): the sheet is the piece big with its number, one row per fact (what it does, its tag, its rank and the limit it uses, where it is from,
      its durability, its edges), swaps of the same kind, then the actions. Paths of the game's own art come from the page's data (pf-data: assets/img/pfight/). */
-  var SRCICO = { basic: 'ico/ico-gnome-hat.png', crop: 'ico/ico-sprout.png', legend: 'ico/ico-crown.png', craft: 'ico/ico-hammer.png', region: 'ico/ico-world-map.png', wear: 'ico/ico-gloves.png', tool: 'ico/ico-shears.png', pal: 'ico/ico-paw.png' };
+  var SRCICO = { basic: 'ico/ico-gnome-hat.png', crop: 'ico/ico-sprout.png', legend: 'ico/ico-crown.png', craft: 'ico/ico-hammer.png', region: 'ico/ico-world-map.png', wear: 'ico/ico-gloves.png', tool: 'ico/ico-shears.png', pal: 'ico/ico-paw.png', stat: 'ico/ico-sparkle.png' };
   var RANKN = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'], RANKI = ['', 'items/gem-c.png', 'items/gem-u.png', 'items/gem-r.png', 'ico/ico-medal-gold.png'];
   function imgBase() { var d = null; try { d = JSON.parse(document.getElementById('pf-data').textContent); } catch (e) {} return d && d.art ? String(d.art).replace(/pfight\/?$/, '') : '/assets/img/'; }
   function im(rel, alt) { return '<img src="' + esc(imgBase() + rel) + '" alt="' + esc(alt || '') + '" width="32" height="32">'; }

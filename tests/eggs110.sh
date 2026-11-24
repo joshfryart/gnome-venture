@@ -61,7 +61,7 @@ give potato 3; give onion 1; give hen-egg 0; dbx "DELETE FROM user_items WHERE u
 page "inventory.php?tab=craft&c=cooking"
 chk "tortilla discovered with no egg in the satchel" "$(db "SELECT COUNT(*) FROM user_recipes ur JOIN recipes r ON r.id=ur.recipe_id WHERE ur.user_id=$UID_ AND r.slug='spanish-tortilla'")" 1
 echo "-- eating it: energy x115%"
-dbx "UPDATE users SET energy=0, energy_updated_at=datetime('now') WHERE id=$UID_"
+dbx "UPDATE users SET energy=0, energy_updated_at=datetime('now'), buff=NULL, buff_until=NULL, buff2=NULL, buff2_until=NULL WHERE id=$UID_"   # 2.7.58 E8: no live buff, so the eat is not held for a confirm
 post inventory.php inventory.php -d do=eat -d item_id=$(db "SELECT id FROM items WHERE slug='scrambled-eggs'")
 chk "scrambled eggs energy = round(7 x 1.15) = 8" "$(db "SELECT energy FROM users WHERE id=$UID_")" 8
 

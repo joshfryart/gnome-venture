@@ -76,7 +76,7 @@ foreach ($T as $slug => $d) {
     if (!in_array($d['rarity'], ['Common', 'Uncommon', 'Rare'], true) || $d['tailor'] !== (['Common' => 1, 'Uncommon' => 2, 'Rare' => 3][$d['rarity']] ?? 0)) $bad[] = "$slug: rarity / Tailor level";
     if ($d['petals'] < 1 || $d['energy'] < 1 || !isset(WEAR_CAT_ICON[$d['cat']])) $bad[] = "$slug: fee, energy or category";
     if (!$d['mats']) $bad[] = "$slug: no materials";
-    foreach ($d['mats'] as $m => $n) if (!isset($gath[$m])) $bad[] = "$slug: material $m is not a gatherable";
+    foreach ($d['mats'] as $m => $n) if (!isset($gath[$m]) && part_key((string)$m) === null) $bad[] = "$slug: material $m is not a gatherable";
     if (count($d['cuts']) !== 1) $bad[] = "$slug: one piece, no cuts";
     if (!preg_match('/^(R:[A-Z]+:[a-z]+|[A-Za-z0-9]+>[A-Za-z0-9]+)$/', $d['fx'])) $bad[] = "$slug: fx {$d['fx']}";
     if ($d['desc'] === '' || $d['cuts']['a'][5] === '') $bad[] = "$slug: no words";

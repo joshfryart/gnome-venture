@@ -33,9 +33,21 @@ function item_lookups(): array
     return $L;
 }
 
+/** The cut flower a Dried item was made from (items.effects: dried, of = the plant slug), or null. 2.7.58 EC2. */
+function dried_cut_item(array $i): ?array
+{
+    static $c = [];
+    $fx = json_decode((string)($i['effects'] ?? ''), true) ?: [];
+    if (empty($fx['dried']) || empty($fx['of'])) return null;
+    $k = (string)$fx['of'];
+    if (!array_key_exists($k, $c)) $c[$k] = q_one('SELECT i.* FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.slug = ?', [$k]) ?: null;
+    return $c[$k];
+}
+
 /** [letter, word] for an item. */
 function item_rarity(array $i, array $L): array
 {
+    if (($cut = dried_cut_item($i)) && (int)$cut['id'] !== (int)$i['id']) return item_rarity($cut, $L);   // 2.7.58 EC2: a dried flower keeps its cut flower's tier
     $id = (int)$i['id'];
     $plant = $L['seed'][$id] ?? $L['produce'][$id] ?? null;
     $fx = json_decode((string)($i['effects'] ?? ''), true) ?: [];
@@ -250,6 +262,11 @@ function item_emoji(array $i): string
         foreach (q('SELECT produce_item_id, kind FROM plants WHERE produce_item_id IS NOT NULL')->fetchAll() as $r) $kinds[(int)$r['produce_item_id']] = $r['kind'];
     }
     require_once __DIR__ . '/catalog.php';
+    if (str_starts_with($sl = item_slug_of($i), 'aug-')) {   // 2.7.58: a tool augment has no art yet: its part family's icon (Hide Binding 🐾, Plate Edge 🐚) instead of the generic supply box
+        require_once __DIR__ . '/augments.php';
+        require_once __DIR__ . '/parts.php';
+        if (isset(AUG_DEFS[$sl], PART_FAMILY_ICONS[AUG_DEFS[$sl][1]])) return PART_FAMILY_ICONS[AUG_DEFS[$sl][1]];
+    }
     // v0.8.5: a picture that fits the thing itself (Strawberry 🍓, Berry Tart 🥧, Hatchet 🪓) before the general one for its kind
     if (in_array($i['category'], ['food', 'produce', 'forage', 'part', 'tool', 'supply', 'broken'], true) && ($n = name_emoji((string)($i['name'] ?? ''))) !== '') return $n;
     if ($i['category'] === 'produce' && isset($kinds[(int)$i['id']])) return catalog_kind_icon($kinds[(int)$i['id']]);

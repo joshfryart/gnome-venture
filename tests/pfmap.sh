@@ -48,6 +48,7 @@ R=$(php -d display_errors=1 "$HERE/pfmap.php" "$GAME" $RANDOM 8 wander 2>&1 | ta
 case "$R" in route*) if [ -n "$SHOT" ]; then node "$HERE/pfmap.js" "$BASE" "$SHOT" wander-board || { echo "FAIL wander check"; FAILS=$((FAILS+1)); }; fi;; *) echo "FAIL could not set up a wander fight: $R"; FAILS=$((FAILS+1));; esac
 # a chain on the board: play on (smart bot moves) until the page reports one, then check the glow, the stamp and the expiring cue in the browser
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_intro','0')" >/dev/null   # 2.7.57: no first-time intro card
 for TRY in $(seq 1 30); do
   php -d display_errors=1 "$HERE/pfmap.php" "$GAME" $((RANDOM)) 6 >/dev/null 2>&1; get adventure.php >/dev/null; FX=0; T=0
   while [ $T -lt 10 ]; do

@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/gardens.php';
 require_once __DIR__ . '/gnome.php';
+require_once __DIR__ . '/parts.php';
 
 /** category => [label, icon, building needed (or null), blurb] */
 const CRAFT_CATEGORIES = [
@@ -35,6 +36,7 @@ function ensure_crafts(): int
     require_once __DIR__ . '/pfdeck.php';
     pfd_ensure_content();      // 2.6.74: the fight belts (shop) and the Tool Repair Kit must exist before its recipe (only once the setting pfight_v1 is on)
     gclock_ensure_camping();   // sleep-days: canvas, pins, pot and the camping gear itself (items and shop stock) before the crafts file
+    if (!q_val("SELECT 1 FROM recipes WHERE slug = 'opening-day-bunting'")) { require_once __DIR__ . '/festival.php'; festival_ensure_items(); }   // 2.7.58 EC4: the Opening Day Bunting must exist before its recipe
     $stats = ['items' => 0];
     $added = import_recipes($stats);
     // Recipes made before v0.7.5 have no slug: give them their dish's slug
@@ -51,6 +53,7 @@ function ensure_crafts(): int
             [$s, $n] = array_map('trim', explode(':', $pair) + [1 => 1]);
             if ($s !== '') $ing[$s] = max(1, (int)$n);
         }
+        if (in_array($cat, ['cooking', 'pantry'], true) && array_filter(array_keys($ing), fn($k) => part_key((string)$k))) continue;   // 2.7.58: any-/rare- parts only in the untimed categories
         if ($slug === 'food-scrap-compost') $ing = ['food-scrap' => max(1, (int)setting('scrap_compost_cost'))];   // v0.9.4
         db_insert('recipes', ['name' => $name, 'slug' => $slug, 'category' => $cat, 'output_item_id' => $outId,
             'output_qty' => max(1, (int)$outQty), 'ingredients' => json_encode($ing), 'energy' => energy_cost_scale(max(0, (int)$energy)),
@@ -75,7 +78,7 @@ function recipe_ingredient_text(string $json): string
 {
     $parts = [];
     foreach (json_decode($json, true) ?: [] as $slug => $n) {
-        $name = q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug;
+        $name = part_ingredient_label((string)$slug) ?? (q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug);
         $parts[] = (int)$n . ' × ' . $name;
     }
     return implode(', ', $parts);
@@ -110,7 +113,14 @@ function craft_stations(int $uid): array
 function craft_recipes(int $uid, ?string $category = null): array
 {
     $have = [];
-    foreach (q('SELECT i.slug, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ?', [$uid])->fetchAll() as $r) $have[$r['slug']] = (int)$r['qty'];
+    $famHave = [];   // 2.7.58: family => [any, rare, [slugs held]] for any-<family> / rare-<family> ingredients
+    foreach (q('SELECT i.slug, i.category, i.rarity, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ?', [$uid])->fetchAll() as $r) {
+        $have[$r['slug']] = (int)$r['qty'];
+        if (($fam = part_family((string)$r['slug'], (string)$r['category'])) !== null && (int)$r['qty'] > 0) {
+            $famHave[$fam]['any'] = ($famHave[$fam]['any'] ?? 0) + (int)$r['qty'];
+            if (part_is_rare($r)) $famHave[$fam]['rare'] = ($famHave[$fam]['rare'] ?? 0) + (int)$r['qty'];
+        }
+    }
     $seen = collected_slugs($uid);
     $learned = array_fill_keys(q('SELECT recipe_id FROM user_recipes WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN), true);
     $names = [];
@@ -135,11 +145,12 @@ function craft_recipes(int $uid, ?string $category = null): array
         $can = true;
         foreach (json_decode((string)$r['ingredients'], true) ?: [] as $slug => $qty) {
             $qty = craft_mastery_qty((int)$qty, $mt);   // lighter materials at mastery tiers
-            $names[$slug] ??= (string)$slug;
-            $h = $have[$slug] ?? 0;
-            $all = $all && isset($seen[$slug]);
+            $names[$slug] ??= part_ingredient_label((string)$slug) ?? (string)$slug;
+            $pk = part_key((string)$slug);
+            $h = $pk ? ($famHave[$pk[1]][$pk[0]] ?? 0) : ($have[$slug] ?? 0);
+            $all = $all && ($pk ? ($h > 0 || part_family_seen($pk, $seen)) : isset($seen[$slug]));
             $can = $can && $h >= $qty;
-            $ings[] = ['slug' => $slug, 'name' => $names[$slug], 'qty' => (int)$qty, 'have' => $h, 'seen' => isset($seen[$slug])];
+            $ings[] = ['slug' => $slug, 'name' => $names[$slug], 'qty' => (int)$qty, 'have' => $h, 'seen' => $pk ? ($h > 0 || part_family_seen($pk, $seen)) : isset($seen[$slug])];
         }
         $known = isset($learned[$r['id']]);
         if (!$known && $all && $ings) {
@@ -166,21 +177,39 @@ function craft_stock(int $uid, string $json, int $recipeId = 0): array
     $mt = craft_mastery_recipe_tier($uid, $recipeId);   // mastery: lighter materials, never below 1 or half the base
     $need = json_decode($json, true) ?: [];
     if (!$need) return [];
-    $slugs = array_map('strval', array_keys($need));
+    $slugs = array_values(array_filter(array_map('strval', array_keys($need)), fn($k) => !part_key($k)));   // 2.7.58: any-/rare- keys are not item slugs
     $in = implode(',', array_fill(0, count($slugs), '?'));
     $by = [];
-    foreach (q("SELECT i.id, i.slug, i.name, COALESCE(ui.qty, 0) AS have FROM items i
+    if ($slugs) foreach (q("SELECT i.id, i.slug, i.name, COALESCE(ui.qty, 0) AS have FROM items i
                 LEFT JOIN user_items ui ON ui.item_id = i.id AND ui.user_id = ?
                 WHERE i.slug IN ($in)", array_merge([$uid], $slugs))->fetchAll() as $row) {
         $by[(string)$row['slug']] = $row;
     }
     $stock = [];
     foreach ($need as $slug => $qty) {
+        if (($ps = part_stock($uid, (string)$slug, craft_mastery_qty(max(1, (int)$qty), $mt))) !== null) { $stock[(string)$slug] = $ps; continue; }
         $row = $by[(string)$slug] ?? null;
         $stock[(string)$slug] = ['id' => (int)($row['id'] ?? 0), 'name' => (string)($row['name'] ?? $slug),
             'qty' => craft_mastery_qty(max(1, (int)$qty), $mt), 'have' => (int)($row['have'] ?? 0)];
     }
     return $stock;
+}
+
+/**
+ * 2.7.58: take $n of one craft_stock() entry. A normal ingredient is one stack; an any-/rare- entry is taken from its stacks cheapest first.
+ * False when the gnome holds too little. Call inside the craft transaction: a partial take is rolled back by the caller.
+ */
+function craft_take(int $uid, array $s, int $n): bool
+{
+    if ($n < 1) return true;
+    if (!isset($s['any'])) return (int)$s['id'] >= 1 && give_item($uid, (int)$s['id'], -$n);
+    foreach ($s['any'] as [$id, $held]) {
+        $use = min($n, (int)$held);
+        if ($use > 0 && !give_item($uid, (int)$id, -$use)) return false;
+        $n -= $use;
+        if ($n <= 0) return true;
+    }
+    return false;
 }
 
 /** v0.9.1: the energy one make costs this gnome. Used by craft(), craft_fit and the card. v0.9.4: by dish tier (setting cook_energy_tiers); Brewroot no longer cooks free. */
@@ -276,8 +305,15 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
         db()->rollBack();
         return [false, $short()];
     }
+    $carry = null;   // 2.7.58: a tool upgrade that uses up a tool hands its augment on to the new one
     foreach ($stock as $s) {
-        if ($s['id'] < 1 || !give_item($uid, $s['id'], -($s['qty'] * $qty))) {
+        if ($carry === null && (int)$s['id'] > 0 && q_val("SELECT category FROM items WHERE id = ?", [(int)$s['id']]) === 'tool') {
+            $ar = q_one('SELECT aug, aug_left FROM user_items WHERE user_id = ? AND item_id = ? AND aug IS NOT NULL AND qty <= ?', [$uid, (int)$s['id'], $s['qty'] * $qty]);   // only when the stack is used up (spare copies keep the shared one)
+            if ($ar) $carry = $ar;
+        }
+    }
+    foreach ($stock as $s) {
+        if (!craft_take($uid, $s, $s['qty'] * $qty)) {
             db()->rollBack();
             return [false, $short()];
         }
@@ -285,6 +321,9 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
     require_once __DIR__ . '/craft_mastery.php';
     $made = craft_mastery_yield($uid, $cat, (int)$r['output_qty'] * $qty);   // category mastery: +5% yield a tier
     give_item($uid, (int)$r['output_item_id'], $made);
+    if ($carry && q_val("SELECT category FROM items WHERE id = ?", [(int)$r['output_item_id']]) === 'tool') {
+        q('UPDATE user_items SET aug = ?, aug_left = ? WHERE user_id = ? AND item_id = ? AND aug IS NULL', [$carry['aug'], (int)$carry['aug_left'], $uid, (int)$r['output_item_id']]);
+    }
     q('UPDATE user_recipes SET made = made + ? WHERE user_id = ? AND recipe_id = ?', [$qty, $uid, $recipeId]);
     require_once __DIR__ . '/jobs.php';
     job_event($uid, 'craft', (string)$r['slug'], $qty, ['cat' => $cat]);   // v0.9.4 N10: craft carries recipe slug + category (cooking's cook event fires at pot collect)

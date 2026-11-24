@@ -32,6 +32,7 @@ page_header('Grand Harvest Fair');
     echo game_rules_html([
         ['🎯', 'Goal.', 'Grow the best crop in each class. The best of all wins Best in Show.'],
         ['🌽', 'Classes.', implode(', ', array_map(fn($c) => $c[1], FAIR_CATS)) . '. Produce is every vegetable, fruit, grain and herb.'],
+        ['🦔', 'Creature diorama.', 'Pressing “Enter it” builds one from the creature parts in your satchel (one of each kind, used up): 10 points a family, 5 more for each rare part.'],
         ['⭐', 'Judging.', 'Every harvest is judged for quality, and your best in each class is kept for the month.'],
         ['🫙', 'Preserves.', 'Judged on jars from your Pantry. The longer the ferment, the better the score.'],
         ['📝', 'Entering.', 'Press “Enter it” to put your best in the fair. You can swap in a better one before the month ends. It is free.'],
@@ -56,14 +57,21 @@ foreach (FAIR_CATS as $key => [$icon, $label]):
               WHERE e.month = ? AND e.cat = ? AND ' . gnome_in_play_sql('u') . ' ORDER BY e.score DESC, e.at, e.id LIMIT 3', [$month, $key])->fetchAll();
     $top = townsfolk_merge($top, townsfolk_fair($month, $key), 'score');   // v1.0.0: townsfolk enter too (never judged, never paid)
     $canEnter = $inPlay && $mine && (!$entry || (int)$mine['score'] > (int)$entry['score']);
+    $dio = $key === 'diorama' ? fair_diorama_pick($uid) : [];   // 2.7.58: the diorama is built from the satchel when you press Enter
+    $dioScore = $dio ? fair_diorama_score($dio) : 0;
+    if ($key === 'diorama') $canEnter = $inPlay && count($dio) >= 2 && $dioScore > max((int)($mine['score'] ?? 0), (int)($entry['score'] ?? 0));
 ob_start(); ?>
 <dialog class="picker fairsheet" id="fs-<?= e($key) ?>" aria-label="<?= e($label) ?>"><div class="pickbox">
   <div class="pickhead"><h3><?= $icon ?> <?= e($label) ?></h3><button type="button" class="pickx" data-closedlg aria-label="Close">✕</button></div>
   <div class="fsbody">
+  <?php if ($key === 'diorama'): ?>
+    <p class="help">Arrange creature parts: one of each kind you carry (up to <?= FAIR_DIORAMA_MAX ?>) is used up. Score: 10 for each family (Hide, Plate, Wing, Ooze, Silk, Gem) plus 5 for each rare part, at most 100.</p>
+    <p><?= count($dio) >= 2 ? 'Your satchel would score <b>' . $dioScore . '</b> (' . count($dio) . ' parts).' : 'You need at least two different parts.' ?></p>
+  <?php endif; ?>
   <?php if ($mine): ?>
     <p>Your best: <b><?= e($mine['crop'] ?? 'a crop') ?></b>, <?= e(fair_word((int)$mine['score'])) ?> <?= (int)$mine['score'] ?></p>
   <?php else: ?>
-    <p class="muted"><?= $key === 'preserve' ? 'No jar collected yet this month. Fill a jar in your 🫙 Pantry, wait for it, and collect it.' : 'No harvest yet this month. ' . ($key === 'produce' ? 'Grow any vegetable, fruit, grain or herb and harvest it.' : 'Harvest one to see it here.') ?></p>
+    <p class="muted"><?= $key === 'diorama' ? 'No diorama entered yet this month.' : ($key === 'preserve' ? 'No jar collected yet this month. Fill a jar in your 🫙 Pantry, wait for it, and collect it.' : 'No harvest yet this month. ' . ($key === 'produce' ? 'Grow any vegetable, fruit, grain or herb and harvest it.' : 'Harvest one to see it here.')) ?></p>
   <?php endif; ?>
   <?php if ($entry): ?><p class="help">In the fair: <?= e($entry['crop'] ?? 'a crop') ?>, <?= e(fair_word((int)$entry['score'])) ?> <?= (int)$entry['score'] ?></p><?php endif; ?>
   <?php if ($canEnter): ?>
@@ -84,7 +92,7 @@ ob_start(); ?>
 <?php $sheets .= ob_get_clean();
     $state = $entry ? ['✔ Entered', 'cin'] : ($canEnter ? ['Ready to enter', 'ready'] : ['Not yet', 'cout']);
     $tiles .= '<button type="button" class="chsq' . ($entry ? ' in' : '') . '" data-opendlg="fs-' . e($key) . '"><span class="chsi" aria-hidden="true">' . $icon . '</span><b>' . e($label) . '</b>'
-        . '<small>' . ($mine ? e(fair_word((int)$mine['score'])) . ' ' . (int)$mine['score'] : 'No harvest yet') . '</small><span class="tag ' . $state[1] . '">' . $state[0] . '</span>'
+        . '<small>' . ($mine ? e(fair_word((int)$mine['score'])) . ' ' . (int)$mine['score'] : ($key === 'diorama' ? 'No diorama yet' : 'No harvest yet')) . '</small><span class="tag ' . $state[1] . '">' . $state[0] . '</span>'
         . '<em>' . ($top ? '🥇 ' . e((string)$top[0]['gname']) : 'No entries yet') . '</em></button>';
 endforeach; ?>
 <div class="chsqs fairsqs"><?= $tiles ?></div>
