@@ -1268,7 +1268,11 @@ body[data-area] .tabs a.on { background: var(--area-solid); color: var(--on-fill
 .shopgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 .shopcard h3 { margin-top: 0; }
 .btile { position: relative; }
-.btile.catoff { display: none; }
+.btile.catoff, .btile.filtoff { display: none; }
+.shopfilt { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; margin: 0 0 8px; font-size: 13px; font-weight: 700; }
+.shopfilt label { display: inline-flex; align-items: center; gap: 6px; }
+.shopfilt select { min-height: 34px; font: inherit; }
+.shopfilt input[type=checkbox] { width: 18px; height: 18px; }
 .basket { position: sticky; top: var(--hdr); z-index: 6; background: var(--surface); border: 1px solid var(--brand); border-radius: var(--radius); padding: 8px 12px; margin: 4px 0 8px; box-shadow: var(--shadow-2); }
 .basket .bsel { font-size: 14px; }
 .basket .bsel p { margin: 4px 0; }

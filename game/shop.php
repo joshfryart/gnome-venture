@@ -131,7 +131,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
     usort($stock, fn($a, $b) => [shop_cat_rank($a), $a['name']] <=> [shop_cat_rank($b), $b['name']]);   // v0.7.83: grouped in chip order ?>
   <div class="shopwrap">
   <?= $open ? shop_basket_html('buy', url('shop.php?id=' . $sid)) : '' ?>
-  <?= shop_chips($stock) ?>
+  <?= shop_chips($stock, 'buy') ?>
   <div class="itmwrap"><div class="itms">
   <?php foreach ($stock as $s):
       $item = ['id' => $s['iid']] + $s;
@@ -184,7 +184,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
   <?= $sellBonus ? '<p class="help">🧭 Your Journey project here: ' . $sellBonus . '% extra.</p>' : '' ?>
   <div class="shopwrap">
   <?= $open ? shop_basket_html('sell', url('shop.php?id=' . $sid . '&tab=sell')) : '' ?>
-  <?= shop_chips($sellable) ?>
+  <?= shop_chips($sellable, 'sell') ?>
   <div class="itmwrap"><div class="itms">
   <?php foreach ($sellable as $i):
       $p = sell_price_with_bonus($i, $u, $sellBonus);
