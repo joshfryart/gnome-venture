@@ -1817,6 +1817,7 @@ curl -s -b $W/p $BASE/catfish.php > $W/noart.html
 ok "page without art: hidden h1 heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1 class="cfsr">Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art\|cfstage\|cfactive' $W/noart.html)" "110"
 
 # room2 (the canvas room, setting catfish_room2): the stage markup, the data block, the drawer panels, the shell scripts, and the rod / far payout multipliers
+mkdir -p $CFART; [ -d "$CFHOLD/room2" ] && cp -r $CFHOLD/room2 $CFART/room2   # the run moved the installed art aside; room2 needs its manifest
 setg catfish_room2 2
 curl -s -b $W/p $BASE/catfish.php > $W/r2.html
 ok "room2 page: canvas, data block, drawer with three panels, shell and engine scripts" "$(grep -c 'class="cfr2cv"' $W/r2.html)$(grep -c 'class="cfr2data"' $W/r2.html)$(grep -c 'id="cf-drawer"' $W/r2.html)$(grep -o 'data-tab="[a-z]*"' $W/r2.html | sort -u | wc -l | tr -d ' ')$(grep -c 'assets/catfish_shell.js' $W/r2.html)$(grep -c 'assets/catfish_room.js' $W/r2.html)" "11131"
@@ -1828,10 +1829,10 @@ ok "room2 off: the old page, no canvas, no shell scripts" "$(grep -c 'class="cfr
 setg catfish_room2 2
 dbx "UPDATE catfish_state SET upgrades='{\"fish\":100}', kibble=0, run_kibble=0, total_kibble=0, last_tick=$(date +%s), meta=json_remove(json_remove(json_remove(meta,'$.pq'),'$.pb'),'$.pt') WHERE user_id=$UID_"
 CS=$(csrf $W/p.html); curl -s -b $W/p $BASE/catfish.php -o $W/p.html; CS=$(csrf $W/p.html)
-B0=$(cfapi -d do=tick -d play=4 -d seq=9100000000000001 | jp view.play.paid)
-B1=$(cfapi -d do=tick -d play=4 -d seq=9100000000000002 -d rod=4 | jp view.play.paid)
-B2=$(cfapi -d do=tick -d play=4 -d seq=9100000000000003 -d far=4 | jp view.play.paid)
-B3=$(cfapi -d do=tick -d play=4 -d seq=9100000000000004 -d rod=99 -d far=99 | jp view.play.paid)
+B0=$(cfapi -d do=tick -d play=4 -d seq=910001 | jp view.play.paid)
+B1=$(cfapi -d do=tick -d play=4 -d seq=910002 -d rod=4 | jp view.play.paid)
+B2=$(cfapi -d do=tick -d play=4 -d seq=910003 -d far=4 | jp view.play.paid)
+B3=$(cfapi -d do=tick -d play=4 -d seq=910004 -d rod=99 -d far=99 | jp view.play.paid)
 ok "room2 payout: a rod batch pays more than a plain one, a far batch pays in between, and an inflated claim pays no more than all-rod" "$(php -r 'echo ($argv[2] > $argv[1] ? 1 : 0), ($argv[3] > $argv[1] && $argv[3] < $argv[2] ? 1 : 0), ($argv[4] <= $argv[2] ? 1 : 0);' "$B0" "$B1" "$B2" "$B3")" "111"
 setg catfish_room2 0
 
