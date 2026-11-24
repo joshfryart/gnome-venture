@@ -1469,3 +1469,11 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on main:has(> .gardentabnav) > .ghead .renamefold summary { font-size: 12px; white-space: nowrap; }
 }
 @media (orientation: landscape) { body.dock-on main:has(> .gardenwrap) > details.gardeninfo > summary { white-space: nowrap; font-size: 12px; } }
+
+/* v2.8.18: Garden, landscape dock: the garden and the "Pick a square" panel sit side by side and never push the page sideways */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap { grid-template-columns: auto minmax(0, 176px); max-width: 100%; gap: 0 10px; }
+  body.dock-on .gardenwrap > .panel.box { width: auto; max-width: 176px; min-width: 0; padding: 8px 10px; font-size: 12px; line-height: 1.3; overflow-wrap: anywhere; }
+  body.dock-on .gardenwrap > .panel.box h3 { font-size: 14px; margin: 0 0 4px; }
+  body.dock-on .gardenwrap > .panel.box p { margin: 2px 0; }
+}
