@@ -137,6 +137,11 @@ $zo = mk('zz-old-part', 'part', 10, 5); give_item($uid, $zo, 2);
 merge_item_2758('zz-old-part', 'zz-new-part', 'Zz New Part');
 ok('no target row: the old row is renamed in place', (int)q_val("SELECT id FROM items WHERE slug = 'zz-new-part'") === $zo && (string)q_val('SELECT name FROM items WHERE id = ?', [$zo]) === 'Zz New Part' && $qty($zo) === 2);
 ok('merging an item that does not exist is a no-op', merge_item_2758('zz-nothing', 'lizard-scale', 'Lizard Scale') === 0);
+$sa = mk('zz-old-s', 'part', 10, 5); $sb = mk('zz-new-s', 'part', 10, 5);
+q('INSERT INTO stall_listings (seller_id, item_id, qty, sold, price, listed_at) VALUES (?, ?, 3, 0, 9, ?)', [$uid, $sa, date('Y-m-d H:i:s')]);
+merge_item_2758('zz-old-s', 'zz-new-s', 'Zz New S');
+ok('an open stall listing of the old part is moved to the merged item', (int)q_val('SELECT COUNT(*) FROM stall_listings WHERE seller_id = ? AND item_id = ?', [$uid, $sb]) === 1 && (int)q_val('SELECT COUNT(*) FROM stall_listings WHERE item_id = ?', [$sa]) === 0);
+q('DELETE FROM stall_listings WHERE seller_id = ? AND item_id = ?', [$uid, $sb]);
 
 echo "== group C: R14 kettle keys\n";
 $named = tea_named();

@@ -154,6 +154,7 @@ function merge_item_2758(string $old, string $new, string $newName): int
     q('DELETE FROM user_items WHERE item_id = ?', [$o]);
     q('DELETE FROM item_quality WHERE item_id = ?', [$o]);
     try { q('UPDATE user_trophies SET item_id = ? WHERE item_id = ?', [$n, $o]); } catch (Throwable $e) { /* the trophy table is made on first use */ }
+    try { q('UPDATE stall_listings SET item_id = ? WHERE item_id = ?', [$n, $o]); } catch (Throwable $e) { /* no stall table: nothing listed */ }   // open stall listings keep selling, as the merged item
     return $t;
 }
 
