@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.20
+- **Garden square / crop info, landscape layout, reworked.** The panel stays beside the garden as you scroll (sticky) and scrolls inside itself, so it never runs under the dock. Order: heading, status, chips, the Next line, then the action buttons (Till, Plant, Work in, Add mulch…, full-width and readable), then the soil numbers. The nutrient row and the upkeep chips are hidden there to shorten it (the low-nutrient warning still shows in the chips and the Next line). The "⬆ yard" link is gone.
+
 ## 2.8.19
 - **Garden, landscape layout: the "Pick a square" panel is a readable 250 px column** (left-aligned, smaller buttons), and the squares shrink to leave it room, so the garden and the panel sit side by side without sideways scrolling. 2.8.18 made the panel too thin.
 

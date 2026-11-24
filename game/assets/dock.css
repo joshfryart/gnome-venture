@@ -1479,3 +1479,24 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on .gardenwrap > .panel.box p, body.dock-on .gardenwrap > .panel.box div { text-align: left; margin-top: 2px; margin-bottom: 2px; }
   body.dock-on .gardenwrap > .panel.box .btn { min-height: 34px; font-size: 13px; padding: 3px 8px; }
 }
+
+/* v2.8.20: Garden, landscape dock: the square / crop info panel is a short column that stays beside the garden and scrolls inside itself; the status and the action buttons come first, soil numbers below */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap > .panel.box { display: flex; flex-direction: column; position: sticky; top: 4px; align-self: start; max-height: calc(100vh - var(--dock-h, 106px) - 10px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  body.dock-on .gardenwrap > .panel.box > * { order: 5; flex: 0 0 auto; }
+  body.dock-on .gardenwrap > .panel.box > h3.sqh, body.dock-on .gardenwrap > .panel.box > p.sqsum, body.dock-on .gardenwrap > .panel.box > p.sqchips, body.dock-on .gardenwrap > .panel.box > p.sqnext { order: 1; }
+  body.dock-on .gardenwrap > .panel.box > .sqactions { order: 2; }
+  body.dock-on .gardenwrap > .panel.box > p.yardbonus { order: 3; }
+  body.dock-on .gardenwrap > .panel.box > details.soildet { order: 9; }
+  body.dock-on .gardenwrap > .panel.box .backtoyard { display: none; }
+  body.dock-on .gardenwrap > .panel.box .sqchip, body.dock-on .gardenwrap > .panel.box .tag { font-size: 11px; padding: 1px 5px; }
+  body.dock-on .gardenwrap > .panel.box .soilstats { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; }
+  body.dock-on .gardenwrap > .panel.box .gradebox, body.dock-on .gardenwrap > .panel.box .upkeep { font-size: 11px; }
+  body.dock-on .gardenwrap > .panel.box .sqactions form { margin: 2px 0; }
+}
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap > .panel.box .sqactions form.inline, body.dock-on .gardenwrap > .panel.box .sqactions form { display: flex; flex-wrap: wrap; gap: 4px; align-items: stretch; }
+  body.dock-on .gardenwrap > .panel.box .sqactions .btn, body.dock-on .gardenwrap > .panel.box .sqactions button, body.dock-on .gardenwrap > .panel.box .sqactions select { flex: 1 1 100%; width: 100%; min-width: 0; white-space: normal; text-align: center; writing-mode: horizontal-tb; margin: 0; }
+  body.dock-on .gardenwrap > .panel.box .sqactions button.act, body.dock-on .gardenwrap > .panel.box .sqactions button.alt:not(.pickbtn) { flex: 1 1 calc(50% - 4px); }
+  body.dock-on .gardenwrap > .panel.box .npkwrap, body.dock-on .gardenwrap > .panel.box .upkeepchips { display: none; }
+}
