@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.34
+- **Trail page, short landscape phone: map left, text right, half and half.** The map shows 9 x 5 tiles (about 310 x 175 px, tiles about 35 px). The text column (strip, ledger, buttons) is the right half. Route, the caption and the legend sit under both (scroll to them) instead of behind the dock.
+
 ## 2.8.33
 - **Trail page on a short landscape phone: wider map, shorter text column.** The map shows 7 x 5 tiles (it was 7 x 7), so it is wider with bigger tiles. The strip is one line, the buttons one row, and the boxes are tighter.
 
