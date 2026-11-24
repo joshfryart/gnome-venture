@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.24
+- **Release notes for the new landscape layout.** A player news post ("a new layout for your phone held sideways") is published the first time 2.8.24 loads. No layout changes.
+
 ## 2.8.23
 - **Launch: the landscape dock is on for every player.** Phones and tablets held sideways get the bottom dock (menus, status plate, two page actions); portrait screens and big screens keep the classic layout, as before. The upgrade sets the setting nav_dock to 1 once; an admin can set it back to 0 (off) or admin (preview) in Admin → Settings and that choice is kept. Anyone can add ?dock=off to an address to use the classic layout on their own device (?dock=on switches back).
 
