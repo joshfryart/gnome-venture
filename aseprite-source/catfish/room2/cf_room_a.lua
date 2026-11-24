@@ -116,9 +116,25 @@ for gx = 21, 218 do
     if ye < 4 then c = K.crown elseif ye < 6 then c = K.crownS
     else
       local b = wallBand(ye)
-      if b == "wp" then c = (((xe - 42) % 16) < 6) and K.stripe or K.haze
-      elseif b == K.wain then c = (((xe - 42) % 44) < 2) and K.seamD or K.wain
+      if b == "wp" then
+        -- half-drop stitched cross lattice
+        local o, col = (gx - 21) % 8, fl((gx - 21) / 8)
+        local ph = (col % 2 == 0) and 6 or 10
+        local dy = (gy - ph) % 8
+        local cdy = (dy == 7) and -1 or dy
+        local isX = (o == 5 and (dy == 0 or dy == 1 or dy == 7)) or (dy == 0 and (o == 4 or o == 6))
+        if isX and (gy - cdy) <= 36 then c = K.stripe else c = K.haze end
+      elseif b == K.wain then
+        local o, p = (gx - 21) % 22, fl((gx - 21) / 22)
+        if o == 0 then c = K.seamD
+        elseif o == 1 then c = K.crown
+        else c = K.wain end
+        if c == K.wain then
+          local a0 = 3 + (p * 7) % 9
+          if gy == 44 + p % 3 and o >= a0 and o <= a0 + 6 then c = K.seamD end
+        end
       else c = b end
+      if gy == 52 and c == K.crown and (gx - 21) % 3 < 2 then c = K.rim end
     end
     pset(P1, gx, gy, c)
   end
@@ -139,9 +155,11 @@ local function sliver(left)
       local ye = 2 * gy + 1
       if ye < yc then
         local c
-        if ye < 4 then c = K.crown elseif ye < 6 then c = K.crownS
+        local yb = (ye - 83 * s) / (1 + s)
+        if yb < 0 then c = K.crownS
+        elseif yb < 4 then c = K.crown
+        elseif yb < 6 then c = K.crownS
         else
-          local yb = (ye - 83 * s) / (1 + s)
           local b = wallBand(yb)
           if b == "wp" then
             if left then c = stripe and K.haze or K.lit else c = stripe and K.farW or K.stripe end
@@ -155,17 +173,31 @@ end
 sliver(true); sliver(false)
 -- inner corners, 2 px
 for gy = 3, 38 do pset(P1, 20, gy, K.farW); pset(P1, 219, gy, K.farW) end
+for gy = 39, 54 do pset(P1, 20, gy, K.seamD); pset(P1, 219, gy, K.seamD) end
 
 -- doorway: frame 48..105 x 24..109, opening 54..99 x 32..109
 do
   rectE(P1, 48, 24, 105, 109, K.crown)
   rectE(P1, 48, 24, 49, 109, K.rim); rectE(P1, 48, 24, 105, 25, K.rim)          -- lit rim left + top
-  rectE(P1, 104, 26, 105, 109, K.crownS); rectE(P1, 50, 30, 53, 31, K.crownS)  -- shade right jamb, under lintel
+  rectE(P1, 104, 26, 105, 109, K.crownS)  -- shade right jamb, under lintel
+  rectG(P1, 25, 18, 25, 21, K.crownS); rectG(P1, 26, 33, 26, 36, K.crownS); rectG(P1, 25, 44, 25, 47, K.crownS)  -- jamb grain
+  rectG(P1, 51, 22, 51, 25, K.crownS); rectG(P1, 50, 38, 50, 41, K.crownS)
+  rectG(P1, 30, 14, 34, 14, K.crownS); rectG(P1, 41, 14, 45, 14, K.crownS)
   rectE(P1, 54, 32, 99, 109, K.hall)
   rectE(P1, 54, 32, 99, 35, K.wain)                                             -- lintel shadow in the hall
-  rectE(P1, 54, 36, 55, 109, K.wain)                                            -- left reveal shade
-  rectE(P1, 54, 92, 99, 97, K.rim)                                              -- hall skirting glint
-  rectE(P1, 54, 98, 99, 109, K.soil)                                            -- hall floor
+  rectE(P1, 60, 92, 99, 97, K.rim)                                              -- hall skirting glint
+  rectE(P1, 54, 98, 99, 103, K.soil)                                            -- hall floor
+  rectG(P1, 27, 16, 29, 51, K.wain)                                             -- left jamb reveal (faces the eye)
+  for gx = 27, 49 do                                                            -- threshold: top face rim, front edge crown
+    for gy = 52, 54 do
+      local c
+      if gy == 54 then c = K.crown
+      elseif gy == 52 then c = (gx <= 28) and K.wain or K.rim
+      else c = (gx == 27) and K.wain or K.rim end
+      pset(P1, gx, gy, c)
+    end
+  end
+  rectG(P1,23,11,23,54,K.umber); rectG(P1,23,11,53,11,K.umber); rectG(P1,53,11,53,54,K.umber)
 end
 
 -- low bookshelf 116..187 x 64..109 (umber outline)
@@ -225,75 +257,80 @@ do
   rectG(P1, 197, 10, 197, 41, K.crownS); rectG(P1, 149, 41, 196, 41, K.crownS)
   rectG(P1, 152, 13, 193, 38, nil)                                       -- glass: alpha 0
   for gy = 13, 38 do for gx = 152, 193 do P1.p[gy * GW + gx] = nil end end
-  rectG(P1, 172, 13, 173, 38, K.crown); rectG(P1, 172, 13, 172, 38, K.rim); rectG(P1, 173, 13, 173, 38, K.crownS)
-  rectG(P1, 152, 25, 193, 26, K.crown)
-  rectG(P1, 152, 25, 171, 25, K.rim); rectG(P1, 174, 25, 193, 25, K.rim)
-  rectG(P1, 152, 26, 171, 26, K.crownS); rectG(P1, 174, 26, 193, 26, K.crownS)
   rectG(P1, 146, 42, 199, 42, K.rim); rectG(P1, 146, 43, 199, 43, K.crown); rectG(P1, 146, 44, 199, 44, K.crownS)
-  -- glass reveal shade (left and top inner edge) drawn into the frame
-  rectG(P1, 151, 12, 193, 12, K.crownS); rectG(P1, 151, 13, 151, 38, K.crownS)
   outlineSet(P1, S, K.umber)
   -- outline must not cover glass
   for gy = 13, 38 do for gx = 152, 193 do P1.p[gy * GW + gx] = nil end end
+  -- mullion and transom (after the glass clear, so they survive)
+  rectG(P1, 172, 13, 173, 38, K.crown); rectG(P1, 172, 13, 172, 38, K.rim); rectG(P1, 173, 13, 173, 38, K.crownS)
+  rectG(P1, 152, 25, 191, 26, K.crown)
+  rectG(P1, 152, 25, 171, 25, K.rim); rectG(P1, 174, 25, 191, 25, K.rim)
+  rectG(P1, 152, 26, 171, 26, K.crownS); rectG(P1, 174, 26, 191, 26, K.crownS)
+  -- depth reveal: window sits right of the VP, so the right and bottom inner faces show
+  rectG(P1, 192, 13, 193, 36, K.crown); rectG(P1, 192, 13, 192, 36, K.rim)
+  rectG(P1, 152, 37, 193, 38, K.rim); rectG(P1, 152, 38, 193, 38, K.crown)
+  pset(P1, 193, 37, K.crown)
+  rectG(P1, 156, 11, 160, 11, K.crownS); rectG(P1, 179, 11, 183, 11, K.crownS)   -- frame grain
+  rectG(P1, 168, 40, 171, 40, K.crownS); rectG(P1, 180, 40, 183, 40, K.crownS)
+  rectG(P1, 152, 43, 156, 43, K.wain); rectG(P1, 171, 43, 175, 43, K.wain); rectG(P1, 190, 43, 193, 43, K.wain)
 end
 
 -- plant: pot 404..427 x 90..109, leaves to y 50
-do
-  local S = {}
-  local function leaf(cx, cy, len, wid, ang)
-    local ca, sa = math.cos(ang), math.sin(ang)
-    for gy = fl(cy - len - 1), fl(cy + len + 1) do for gx = fl(cx - len - 1), fl(cx + len + 1) do
-      local dx, dy = gx + .5 - cx, gy + .5 - cy
-      local a = dx * ca + dy * sa
-      local b = -dx * sa + dy * ca
-      local uu, vv = a / len, b / wid
-      if uu * uu + vv * vv <= 1 then
-        local c = K.green
-        if vv < -.35 then c = K.leafL elseif vv > .45 or uu > .75 then c = K.leafD end
-        if math.abs(vv) < .12 and uu > -.6 and uu < .8 then c = K.leafD end
-        pset(P1, gx, gy, c); S_add(S, gx, gy)
-      end
-    end end
-  end
-  local px, py = 207.5, 45
-  -- stems then leaves (angles from vertical-up fan; sa positive = down)
-  local L = { { -2.45, 8.5, 3.6, -1.9 }, { 2.6, 8, 3.4, -1.15 }, { 0, 9, 3.8, -1.57 }, { 0, 5, 3.2, -2.6 }, { 0, 5, 3.2, -0.55 },
-              { -5.5, 8, 3.2, -2.2 }, { 4.8, 9.5, 3.4, -0.9 } }
-  -- centre positions computed as base + dir*len
-  local leaves = {
-    { 205.2, 38.5, 8.5, 3.4, -1.0 }, { 211.0, 36.5, 8.5, 3.4, -2.2 }, { 207.5, 31.5, 8.2, 3.2, -1.57 },
-    { 200.0, 42.0, 6.5, 2.8, -0.2 }, { 215.0, 41.0, 6.5, 2.8, -2.95 }, { 203.0, 33.0, 7.0, 3.0, -1.2 }, { 212.5, 31.0, 7.0, 3.0, -1.95 },
-  }
-  for _, l in ipairs(leaves) do leaf(l[1], l[2], l[3], l[4], l[5]) end
-  -- stems
-  for gy = 40, 46 do pset(P1, 207, gy, K.leafD); pset(P1, 208, gy, K.leafD); S_add(S, 207, gy); S_add(S, 208, gy) end
-  -- pot: rim gy45..46 (x 202..213), body gy47..54 narrower
-  local function pot(x0, x1, y, c) for x = x0, x1 do pset(P1, x, y, c); S_add(S, x, y) end end
-  pot(202, 213, 45, K.terra); pot(202, 213, 46, K.terra)
-  for gy = 47, 54 do pot(203 + (gy > 51 and 1 or 0), 212 - (gy > 51 and 1 or 0), gy, K.terra) end
-  rectG(P1, 202, 45, 213, 45, K.rim)                      -- lit rim
-  rectG(P1, 203, 46, 213, 46, K.seamD)                    -- rim underside
-  for gy = 47, 54 do
-    local x0 = 203 + (gy > 51 and 1 or 0)
-    pset(P1, x0, gy, K.rim)                               -- lit left edge
-    pset(P1, 212 - (gy > 51 and 1 or 0), gy, K.seamD); pset(P1, 211 - (gy > 51 and 1 or 0), gy, K.seamD)
-  end
-  outlineSet(P1, S, K.umber)
-end
 
 -- sconce 16..25 x 44..59 (lit at night only)
 do
   local S = {}
   local function pt(x, y, c) pset(P1, x, y, c); S_add(S, x, y) end
   for x = 10, 11 do for y = 22, 24 do pt(x, y, K.cream) end end        -- candle
-  for x = 8, 12 do pt(x, 25, K.rim); pt(x, 26, K.crown) end              -- cup
-  pt(8, 25, K.rim); pt(12, 26, K.crownS)
-  for y = 27, 29 do for x = 9, 11 do pt(x, y, K.crown) end end          -- back plate
-  rectG(P1, 11, 27, 11, 29, K.crownS)
-  pset(P1, 9, 27, K.rim)
+  pt(8, 25, K.rim)
+  pt(9, 25, K.rim)
+  pt(10, 25, K.rim)
+  pt(11, 25, K.rim)
+  pt(12, 25, K.rim)
+  pt(8, 26, K.rim)
+  pt(9, 26, K.crown)
+  pt(10, 26, K.crown)
+  pt(11, 26, K.crown)
+  pt(12, 26, K.crownS)
+  pt(8, 27, K.rim)
+  pt(9, 27, K.crown)
+  pt(10, 27, K.crown)
+  pt(11, 27, K.crownS)
+  pt(9, 28, K.rim)
+  pt(10, 28, K.crown)
+  pt(11, 28, K.crownS)
+  pt(9, 29, K.rim)
+  pt(10, 29, K.crownS)
   outlineSet(P1, S, K.umber)
 end
+do -- remove clipped wallpaper crosses
+  local n = 0
+  for col = 0, 24 do
+    local cx = 26 + 8 * col
+    local ph = (col % 2 == 0) and 6 or 10
+    for cy = ph, 36, 8 do
+      local pts = { {cx,cy},{cx-1,cy},{cx+1,cy},{cx,cy-1},{cx,cy+1} }
+      local any, some = false, false
+      for _, p in ipairs(pts) do if pget(P1, p[1], p[2]) ~= K.stripe then any = true else some = true end end
+      if any and some then
+        for _, p in ipairs(pts) do if pget(P1, p[1], p[2]) == K.stripe then pset(P1, p[1], p[2], K.haze) end end
+        n = n + 1
+      end
+    end
+  end
+  print("wallpaper crosses removed: " .. n)
+end
 vignette(P1)
+do -- despeckle wallpaper orphans
+  for gy = 3, 38 do for gx = 21, 218 do
+    local c = pget(P1, gx, gy)
+    local dn = pget(P1, gx, gy + 1)
+    if c and pget(P1, gx - 1, gy) ~= c and pget(P1, gx + 1, gy) ~= c and pget(P1, gx, gy - 1) ~= c and dn ~= c
+       and (dn == K.lit or dn == K.haze or dn == K.stripe or dn == K.farW) then
+      pset(P1, gx, gy, dn)
+    end
+  end end
+end
 
 -------------------------------------------------------------------------------- P2: floor (rows 110..269, 18 boards)
 local P2 = Plate(GW, GH)
@@ -348,6 +385,10 @@ for b = 0, 18 do
         for gx = math.max(xs + 1, 0), math.min(xt - 1, GW - 1) do
           local cur = pget(P2, gx, gy)
           if cur == K.fl1 or cur == K.fl2 then pset(P2, gx, gy, (2 * gy >= 178) and K.seamD or K.seamL) end
+          if 2 * gy >= 178 then
+            local c2 = pget(P2, gx, gy + 1)
+            if c2 == K.fl1 then pset(P2, gx, gy + 1, K.rim) elseif c2 == K.fl2 then pset(P2, gx, gy + 1, K.fl1) end
+          end
         end
       end
     end
@@ -357,20 +398,98 @@ end
 do
   local seed = 7
   local function rnd(n) seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n end
-  for i = 1, 300 do
-    local gx, gy = rnd(GW), 58 + rnd(GH - 58)
-    local len = 2 + rnd(3)
-    local c = pget(P2, gx, gy)
-    if c == K.fl1 then
-      local ok = true
-      for q = 0, len - 1 do local cc = pget(P2, gx + q, gy); if cc ~= K.fl1 then ok = false end end
-      if ok then for q = 0, len - 1 do pset(P2, gx + q, gy, K.rim) end end
-    elseif c == K.fl2 and gy > 80 then
-      local ok = true
-      for q = 0, len - 1 do local cc = pget(P2, gx + q, gy); if cc ~= K.fl2 then ok = false end end
-      if ok then for q = 0, len - 1 do pset(P2, gx + q, gy, K.seamL) end end
+  local mineL, nL = {}, 0
+  local ATT = 200
+  local function lightGrain(att)
+    for i = 1, att do
+      local gx, gy = rnd(GW), 70 + rnd(GH - 70)
+      local len = 2 + rnd(2); len = 3
+      if pget(P2, gx, gy) == K.fl1 then
+        local sx = (2 * gx + 1 - 240) / (2 * gy + 1 + 83)
+        local ok = true
+        local px = {}
+        for q = 0, len - 1 do
+          local x, y = gx + fl(q * sx + .5), gy - q
+          px[#px + 1] = { x, y }
+          if pget(P2, x, y) ~= K.fl1 or pget(P2, x - 2, y) ~= K.fl1 or pget(P2, x + 2, y) ~= K.fl1 then ok = false end
+          local e = ((2 * x + 1 - 240) / 240) ^ 2 + ((2 * y + 1 - 135) / 135) ^ 2
+          if e > 1.15 then ok = false end
+          for dx = -1, 1 do for dy = -1, 1 do local nc = pget(P2, x + dx, y + dy); if mineL[(y + dy) * 1000 + x + dx] or nc == K.seamD or nc == K.seamL then ok = false end end end
+        end
+        if ok then
+          for _, p in ipairs(px) do pset(P2, p[1], p[2], K.rim); mineL[p[2] * 1000 + p[1]] = true end
+          nL = nL + 1
+        end
+      end
     end
   end
+  lightGrain(ATT)
+  if nL < 30 then lightGrain(100) end
+  print("floor light grain dashes: " .. nL)
+end
+-- dark grain on the fl2 boards
+do
+  local seed = 11
+  local function rnd(n) seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n end
+  local mine = {}
+  local nd = 0
+  for i = 1, 160 do
+    local gx, gy = rnd(GW), 70 + rnd(GH - 70)
+    local len = 2 + rnd(2)
+    local sx = (2 * gx + 1 - 240) / (2 * gy + 1 + 83)
+    local px = {}
+    local ok = true
+    for q = 0, len - 1 do
+      local x, y = gx + fl(q * sx + .5), gy - q
+      px[#px + 1] = { x, y }
+      if pget(P2, x, y) ~= K.fl2 or pget(P2, x - 2, y) ~= K.fl2 or pget(P2, x + 2, y) ~= K.fl2 then ok = false; break end
+    end
+    if ok then
+      for _, p in ipairs(px) do
+        for dy = -1, 1 do for dx = -1, 1 do
+          local x, y = p[1] + dx, p[2] + dy
+          local c = pget(P2, x, y)
+          if mine[y * 1000 + x] or c == K.rim then ok = false end
+        end end
+      end
+    end
+    if ok then
+      for _, p in ipairs(px) do pset(P2, p[1], p[2], K.seamL); mine[p[2] * 1000 + p[1]] = true end
+      nd = nd + 1
+    end
+  end
+  print("floor dark grain dashes: " .. nd)
+end
+-- floor knots
+do
+  local KN = { { 3, 122 }, { 5, 97 }, { 7, 108 }, { 10, 118 }, { 12, 128 }, { 15, 104 } }
+  local STAMP = { ".dd.", "dwwd", ".dd." }
+  local nk = 0
+  for _, kn in ipairs(KN) do
+    local b, gy = kn[1], kn[2]
+    local row = SEAMGX[gy]
+    local l, r = row[b - 1], row[b]
+    local cx = fl((l + r) / 2)
+    local why
+    if r - l < 10 then why = "narrow " .. (r - l) end
+    if not why then
+      for j = 1, 3 do for i = 1, 4 do
+        if STAMP[j]:sub(i, i) ~= "." then
+          local c = pget(P2, cx - 1 + i - 1, gy - 1 + j - 1)
+          if c ~= K.fl1 and c ~= K.fl2 then why = "blocked by " .. tostring(c) end
+        end
+      end end
+    end
+    if why then print("knot (" .. b .. "," .. gy .. ") skipped: " .. why)
+    else
+      for j = 1, 3 do for i = 1, 4 do
+        local ch = STAMP[j]:sub(i, i)
+        if ch ~= "." then pset(P2, cx - 1 + i - 1, gy - 1 + j - 1, ch == "d" and K.seamD or K.wain) end
+      end end
+      nk = nk + 1
+    end
+  end
+  print("floor knots placed: " .. nk .. "/6")
 end
 vignette(P2)
 
@@ -382,14 +501,15 @@ for gy = 13, 38 do for gx = 152, 193 do
   local c = (gy <= 18) and K.sky1 or K.sky2
   if gy >= hillTopA(gx) then c = K.hillA end
   if gy >= hillTopB(gx) and gy >= 36 then c = K.hillB end
-  pset(P0, gx, gy, c)
+  local open = not P1.p[gy * GW + gx]
+  if open then pset(P0, gx, gy, c) end
   local n = K.n1
   if gy >= hillTopA(gx) then n = K.n2 end
-  pset(P0n, gx, gy, n)
+  if open then pset(P0n, gx, gy, n) end
 end end
 ascii(P0, { "..XXX...", ".XXXXXX.", "XXXXXXXX" }, 156, 15, { X = K.cloud })
 ascii(P0, { "...XX..", ".XXXXXX", "XXXXXXX" }, 181, 20, { X = K.cloud })
-rectG(P0n, 159, 17, 162, 20, K.cream); pset(P0n, 161, 17, K.n1); pset(P0n, 162, 17, K.n1)
+ascii(P0n, { ".XX.", "XX..", "XX..", ".XX." }, 159, 17, { X = K.cream })
 pset(P0n, 155, 15, K.cream); pset(P0n, 167, 22, K.cream); pset(P0n, 183, 18, K.cream)
 
 -------------------------------------------------------------------------------- window overlay + bird slot
@@ -426,36 +546,51 @@ for y = 0, 9 do for x = 0, 11 do local c = pget(PB, x, y); if c then pset(PW, 17
 
 -------------------------------------------------------------------------------- P4: foreground (244 wide, x -4)
 local P4 = Plate(244, GH, -2)
-for _, x0 in ipairs({ 2, 14 }) do                       -- chair legs, plate gx 2..5 and 14..17
-  for gy = 98, 134 do
-    rectG(P4, x0, gy, x0 + 3, gy, K.legB); pset(P4, x0, gy, K.legR); pset(P4, x0 + 3, gy, K.umber)
+do  -- chair: front leg runs off-frame, rear leg is deeper (higher, thinner)
+  for gy = 102, 134 do pset(P4, 1, gy, K.legR); rectG(P4, 2, gy, 4, gy, K.legB); pset(P4, 5, gy, K.umber) end
+  for gy = 99, 130 do pset(P4, 15, gy, K.legR); rectG(P4, 16, gy, 17, gy, K.legB); pset(P4, 18, gy, K.umber) end
+  rectG(P4, 14, 131, 19, 131, K.umber)
+  for gx = 1, 18 do                                        -- side apron rising toward the back
+    local top = 96 - fl(3 * (gx - 1) / 18)
+    pset(P4, gx, top, K.legR); rectG(P4, gx, top + 1, gx, top + 4, K.legB); pset(P4, gx, top + 5, K.umber)
   end
-  for gy = 133, 134 do rectG(P4, x0 - 1, gy, x0 + 4, gy, K.legB); pset(P4, x0 - 1, gy, K.legR); pset(P4, x0 + 4, gy, K.umber) end
+  for gx = 6, 14 do                                        -- stretcher
+    local top = 124 - fl(2 * (gx - 6) / 9)
+    pset(P4, gx, top, K.legR); pset(P4, gx, top + 1, K.umber)
+  end
 end
-rectG(P4, 6, 116, 13, 118, K.legB); rectG(P4, 6, 116, 13, 116, K.legR); rectG(P4, 6, 118, 13, 118, K.umber)
-do  -- hearth-rug fringe x 300..487, rows 262..269: tufts 4 on / 2 off
+do  -- hearth-rug fringe: tufts point up, away from the binding
   for gx = 150, 243 do
     local m = (gx - 150) % 3
     local idx = fl((gx - 150) / 3)
+    pset(P4, gx, 134, K.umber)
+    pset(P4, gx, 133, K.legR)
     if m < 2 then
-      local c = (idx % 2 == 0) and K.legB or K.umber
-      rectG(P4, gx, 131, gx, 134, c)
-    else pset(P4, gx, 131, K.legB) end
+      local top = (idx % 3 == 1) and 131 or 130
+      rectG(P4, gx, top, gx, 132, (m == 0) and K.legB or K.umber)
+    end
   end
+end
+do  -- chair wood grain
+  rectG(P4, 3, 108, 3, 110, K.legR); rectG(P4, 3, 121, 3, 123, K.legR); rectG(P4, 3, 131, 3, 133, K.legR)
+  rectG(P4, 17, 107, 17, 109, K.legR); rectG(P4, 17, 120, 17, 122, K.legR)
+  rectG(P4, 3, 98, 6, 98, K.legR); rectG(P4, 13, 96, 16, 96, K.legR)
 end
 vignette(P4)
 
 -------------------------------------------------------------------------------- P5: sunbeam (remap) and P5b: night light
 local P5 = Plate(GW, GH)
-local BEAM = { { 277, 138 }, { 343, 138 }, { 330, 180 }, { 240, 180 } }
+local BEAM = { { 277, 138 }, { 372, 138 }, { 350, 180 }, { 236, 180 } }
 local beam = {}
+local quad = {}
 polyE(P5, BEAM, nil, function(gx, gy)
   local ye, xc = 2 * gy + 1, 2 * gx + 1
-  local xm = 310 + (285 - 310) * (ye - 138) / 42
-  local bar = (math.abs(xc - xm) < 2.5) or (ye >= 157 and ye <= 160)   -- 4 px mullion + 4 px transom unlit
+  quad[gy * 1000 + gx] = true
+  local xm = 345.5 - 0.7487 * (ye - 110)
+  local g0 = fl(xm / 2 - .5)
+  local bar = (gx == g0 or gx == g0 + 1) or (ye >= 157 and ye <= 160)   -- 2 grid px mullion + transom unlit
   if not bar then beam[gy * 1000 + gx] = true end
 end)
-for gy = 45, 49 do for gx = 152, 193 do beam[gy * 1000 + gx] = true end end    -- wall shaft under the sill
 local function inner(S, x, y, r)
   for dy = -r, r do for dx = -r, r do if not S[(y + dy) * 1000 + x + dx] then return false end end end
   return true
@@ -464,7 +599,7 @@ local function srcPix(gx, gy) return pget(P2, gx, gy) or pget(P1, gx, gy) end
 for k in pairs(beam) do
   local gx, gy = k % 1000, fl(k / 1000)
   local c = srcPix(gx, gy)
-  if c then pset(P5, gx, gy, inner(beam, gx, gy, 2) and UP2(c) or UP1(c)) end
+  if c then pset(P5, gx, gy, inner(quad, gx, gy, 2) and UP2(c) or UP1(c)) end
 end
 
 local P5b = Plate(GW, GH)
@@ -601,10 +736,17 @@ if #clash > 0 then ok = false end
 -- 5. P0 only through glass
 local leak = 0
 for k in pairs(P0.p) do if P1.p[k] then leak = leak + 1 end end
-local glassOpen = 0
-for gy = 13, 38 do for gx = 152, 193 do if not P1.p[gy * GW + gx] then glassOpen = glassOpen + 1 end end end
-print(string.format("P0 behind P1: %d P0 px covered by P1 (0), glass open %d/%d  %s", leak, glassOpen, 42 * 26, (leak == 0 and glassOpen == 42 * 26) and "ok" or "FAIL"))
-if leak > 0 or glassOpen ~= 42 * 26 then ok = false end
+local glassOpen, bad1, outside = 0, 0, 0
+for gy = 13, 38 do for gx = 152, 193 do
+  local inP1, inP0 = P1.p[gy * GW + gx] ~= nil, P0.p[gy * GW + gx] ~= nil
+  if inP1 == inP0 then bad1 = bad1 + 1 end
+  if not inP1 then glassOpen = glassOpen + 1 end
+end end
+for k in pairs(P0.p) do local gx, gy = k % GW, fl(k / GW); if gx < 152 or gx > 193 or gy < 13 or gy > 38 then outside = outside + 1 end end
+print(string.format("glass: P0 under P1 %d, pixels in neither/both %d, P0 outside glass %d, open %d/1092 (1092-124 bars-132 reveal=836)  %s",
+  leak, bad1, outside, glassOpen, (leak == 0 and bad1 == 0 and outside == 0) and "ok" or "FAIL"))
+print(string.format("P1 alpha (345,40)=%s (320,51)=%s", tostring(P1.p[20 * GW + 172] ~= nil), tostring(P1.p[25 * GW + 160] ~= nil)))
+if leak > 0 or bad1 > 0 or outside > 0 then ok = false end
 print("bird slot (356,58) 24x20, feet on y 77: robin bottom row y=" .. (2 * (29 + 9) + 1) .. " ok (feet on glass rail row 76..77)")
 -- 6. coat #3e2f66 separation
 do
@@ -638,7 +780,7 @@ end
 do
   local seen, n = {}, 0
   for _, P in ipairs({ P0, P1, P2 }) do for _, h in pairs(P.p) do if not seen[h] then seen[h] = true; n = n + 1 end end end
-  print("base composite P0..P2 colours: " .. n .. " (spec: base incl. cushion + plain bowl <= 32)  " .. (n <= 28 and "ok" or "WARN"))
+  print("base composite P0..P2 colours: " .. n .. " (spec: base incl. cushion + plain bowl <= 32)  " .. (n <= 30 and "ok" or "WARN"))
 end
 
 -------------------------------------------------------------------------------- room-layout-a.json
@@ -685,12 +827,12 @@ local layout = {
   wand_hook = { x = 240, y_top = 6, y_bottom = 10, note = "anchor only, painted by code on the crown; nothing drawn in P1" },
   calm_zone = { x = { 192, 292 }, y = { 6, 80 } },
   slots = {
-    doorway = { frame = { 48, 24, 105, 109 }, opening = { 54, 32, 99, 109 } },
+    doorway = { frame = { 48, 24, 105, 109 }, opening = { 54, 32, 99, 109 }, reveal_left = { 54, 32, 59, 103 }, threshold = { 54, 104, 99, 109 } },
     bookshelf = { box = { 116, 64, 187, 109 }, shelves_y = { 80, 94 } },
     pet_shelf_a = { box = { 118, 40, 137, 63 } }, pet_shelf_b = { box = { 166, 40, 185, 63 } },
     frame = { box = { 140, 22, 163, 51 }, pet_slot = "frame" },
     window = { frame = { 296, 18, 395, 83 }, glass = { 304, 26, 387, 77 }, mullion_x = { 344, 347 }, transom_y = { 50, 53 }, sill = { 292, 84, 399, 89 },
-               sill_pots = { 300, 76, 392, 83 } },
+               sill_pots = { 300, 76, 392, 83 }, reveal = { right = { 384, 26, 387, 73 }, bottom = { 304, 74, 387, 77 } } },
     bird = { x = 356, y = 58, w = 24, h = 20, feet_y = 77, file = "cf-room2-bird.png", overlay_with = "cf-room2-window.png", overlay_without = "cf-room2-window-nobird.png" },
     plant = { pot = { 404, 90, 427, 109 }, leaves_top_y = 50 },
     sconce = { box = { 16, 44, 25, 59 }, flame = { 20, 38, 23, 43 }, lit_at_night_only = true },
@@ -702,7 +844,7 @@ local layout = {
     scratch = { u = .12, d = .45, anchor = { 22, 184 }, size = { 28, 76 } }, catflap = { anchor = { 240, 109 }, size = { 24, 22 } },
     yarnpatch = { u = .36, d = .32, anchor = { 154, 204 }, patch = { 134, 186, 40, 20 }, ball = { 145, 187, 18, 18 } },
   },
-  sunbeam = { floor_quad = BEAM, bars_px = 4, wall_shaft = { 304, 90, 387, 99 }, plate = "cf-room2-p5-sunbeam.png" },
+  sunbeam = { floor_quad = BEAM, bars_px = 4, light_vp = { 490, -83 }, plate = "cf-room2-p5-sunbeam.png" },
   night = { tint = "#291d4a", opacity_dusk = .22, opacity_night = .40, p5b = { flame = { 20, 38, 4, 6 }, cone = { 0, 28, 41, 100 } } },
   plates = {
     { name = "cf-room2-p0-sky", file = "cf-room2-p0-sky.png", size = { 480, 270 }, x = 0, note = "glass only; behind P1" },

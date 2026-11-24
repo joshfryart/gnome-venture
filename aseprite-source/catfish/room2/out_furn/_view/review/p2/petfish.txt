@@ -1,0 +1,13 @@
+ 0 ..........
+ 1 ..........
+ 2 ........A.
+ 3 ...BBBAACD
+ 4 ..BEEEACCD
+ 5 .BEEEEFDGD
+ 6 BEHHEHFIDD
+ 7 BEHDHHIIHD
+ 8 BEHHHIGHHD
+ 9 .AIIIIGHDD
+10 ..DHHHHDDD
+11 ..DDDDDDD.
+A=4a2c1a B=74462a C=b8661a D=2a1a10 E=ffc27a F=f5cf6a G=e8a317 H=f2793a I=b8452f

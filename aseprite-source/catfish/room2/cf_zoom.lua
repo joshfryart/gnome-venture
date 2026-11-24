@@ -7,32 +7,32 @@ local GV = dofile(here .. "/../../gvlib/gvlib.lua")
 local OUT = here .. "/out_zoom/"
 
 -- ============================== POSE TABLE (the art director's numbers) ==============================
-local BX = 33            -- body centre column, never moves
+local BX = 35            -- body centre column, never moves
 local GROUND = 53        -- planted paw centre y
 local FRAMEMS = 50
 local NF = 6
 -- per frame: BY, L, arch, tilt, head hy (hx = S.x+9, from L), tail offsets P0..P4 incl. dy
 local POSE = {
-  { BY=43, L=32, arch=-2, tilt=0,  hy=35, tdy={1,2,2} },   -- Z1 crouch-launch
-  { BY=40, L=38, arch=0,  tilt=-3, hy=31, tdy={0,1,1} },   -- Z2 hind push
-  { BY=38, L=40, arch=0,  tilt=0,  hy=30, tdy={-1,-1,-2} }, -- Z3 full flight
-  { BY=40, L=38, arch=0,  tilt=3,  hy=31, tdy={0,0,0} },   -- Z4 fore contact
-  { BY=39, L=30, arch=-3, tilt=0,  hy=30, tdy={1,1,2} },   -- Z5 gathered, hind contact
-  { BY=41, L=34, arch=-1, tilt=-4, hy=31, tdy=nil, up=true }, -- Z6 skid, tail up
+  { BY=42, L=34, arch=-2, tilt=3,  hy=38, tdy={1,1,1} },   -- Z1 crouch-launch
+  { BY=40, L=34, arch=0,  tilt=3,  hy=35, tdy={0,-1,-1} },   -- Z2 hind push
+  { BY=38, L=36, arch=0,  tilt=3,  hy=33, tdy={1,0,-1} }, -- Z3 full flight
+  { BY=40, L=34, arch=0,  tilt=3,  hy=35, tdy={1,1,0} },   -- Z4 fore contact
+  { BY=37, L=32, arch=-4, tilt=0,  hy=33, tdy={0,1,1} },   -- Z5 gathered, hind contact
+  { BY=41, L=34, arch=-1, tilt=-4, hy=34, tdy=nil, up=true }, -- Z6 skid, tail up
 }
 local TAIL_UP = { {0,0}, {-3,-2}, {-5,-5}, {-6,-9}, {-5,-12} }
 -- Z3 far paws nudged apart from near (spec 63,46 / 14,46) so four paws read
 local LEGS = {
-  { nf={52,53}, ff={49,53}, nh={{19,50},{22,53}}, fh={{21,49},{25,53}} },
-  { nf={58,48}, ff={54,49}, nh={{18,49},{16,53}}, fh={{21,49},{20,53}} },
-  { nf={67,45}, ff={59,46}, nh={{15,46},{11,47}}, fh={{17,45},{18,46}} },
-  { nf={61,53}, ff={57,53}, nh={{21,46},{18,48}}, fh={{23,45},{21,47}} },
-  { nf={46,49}, ff={43,48}, nh={{27,50},{26,53}}, fh={{30,50},{30,53}} },
-  { nf={65,53}, ff={61,53}, nh={{24,50},{24,53}}, fh={{27,50},{28,53}} },
+  { nf={57,53}, ff={54,53}, nh={{20,50},{23,53}}, fh={{22,49},{26,53}} },
+  { nf={58,48}, ff={54,49}, nh={{22,49},{20,53}}, fh={{25,49},{24,53}} },
+  { nf={67,46}, ff={60,47}, nh={{19,46},{15,47}}, fh={{21,45},{22,46}} },
+  { nf={61,53}, ff={57,53}, nh={{25,46},{22,48}}, fh={{27,45},{25,47}} },
+  { nf={53,49}, ff={50,48}, nh={{22,50},{21,53}}, fh={{25,50},{25,53}} },
+  { nf={63,53}, ff={60,53}, nh={{26,50},{26,53}}, fh={{29,50},{30,53}} },
 }
 -- shape constants
 local BONE = { fore1 = 7, fore2 = 7, hind1 = 7, hind2 = 7 }
-local TAIL_OFF = { {0,0}, {-3,0}, {-6,-1}, {-8,-1}, {-10,-1} }   -- from root R = (rear+6, BY-5)
+local TAIL_OFF = { {0,0}, {-3,-3}, {-6,-4}, {-9,-4}, {-12,-3} }   -- from root R = (rear+3, BY-6-2*ts)
 -- ====================================================================================================
 
 local GREY = { shade = "#57516f", base = "#8a859b", light = "#cdc9d3", gloss = "#f1ebe3" }
@@ -59,13 +59,94 @@ local function edgeStitch(c, m, P, o)
   end
   table.sort(ring, function(a, b) return a[4] < b[4] end)
   local on, off = o.on or 2, o.off or 1
+  local dash = {}
+  local function flush()
+    if #dash >= 2 then for _, k in ipairs(dash) do c.pix[k] = c.shd[k] and GV.C.goldS or GV.C.gold end end
+    dash = {}
+  end
   for i, p in ipairs(ring) do
     local k = p[3]
     local lit = (p[1] - cx) + (p[2] - cy) <= (o.lit or 1e9)
+    if (i - 1) % (on + off) == 0 then flush() end
     if (i - 1) % (on + off) < on and c.own[k] == P and not c.gl.s[k] and p[2] <= (o.ymax or 1e9) and lit then
-      c.pix[k] = c.shd[k] and GV.C.goldS or GV.C.gold
+      dash[#dash + 1] = k
     end
   end
+  flush()
+end
+-- recolour isolated felt pixels (no 4-neighbour of the same colour, >= 3 neighbours sharing one other felt colour)
+local FELT = { ["#57516f"] = true, ["#8a859b"] = true, ["#cdc9d3"] = true }
+local function despeckle(c, p, hx, hy)
+  local skip = {}
+  for _, q in ipairs{ { hx + 9, hy + 4 }, { hx + 10, hy + 6 }, { hx + 8, hy + 6 } } do skip[c:key(q[1], q[2])] = true end
+  local own = { p.body, p.chest, p.haunch, p.head, p.tail }
+  local function mine(k) for _, o in ipairs(own) do if c.own[k] == o then return true end end return false end
+  local changes = {}
+  for k, col in pairs(c.pix) do
+    local x, y = c:xy(k)
+    if c:inside(x, y) and FELT[col] and not skip[k] and mine(k) then
+      local cnt, same = {}, false
+      for _, d in ipairs{ {1,0}, {-1,0}, {0,1}, {0,-1} } do
+        local nc = c:get(x + d[1], y + d[2])
+        if nc == col then same = true end
+        if nc and FELT[nc] then cnt[nc] = (cnt[nc] or 0) + 1 end
+      end
+      if not same then for nc, n in pairs(cnt) do if n >= 3 then changes[k] = nc end end end
+    end
+  end
+  local n = 0
+  for k, nc in pairs(changes) do c.pix[k] = nc; n = n + 1 end
+  -- second pass: strict 8-neighbour orphans on any felt part -> majority felt colour of the 4 neighbours (needs >= 2)
+  changes = {}
+  for k, col in pairs(c.pix) do
+    local x, y = c:xy(k)
+    if c:inside(x, y) and FELT[col] and not skip[k] and c.own[k] then
+      local same = false
+      for dy = -1, 1 do for dx = -1, 1 do if (dx ~= 0 or dy ~= 0) and c:get(x + dx, y + dy) == col then same = true end end end
+      if not same then
+        local cnt, best, bn = {}, nil, 0
+        for _, d in ipairs{ {1,0}, {-1,0}, {0,1}, {0,-1} } do
+          local nc = c:get(x + d[1], y + d[2])
+          if nc and FELT[nc] then cnt[nc] = (cnt[nc] or 0) + 1; if cnt[nc] > bn then best, bn = nc, cnt[nc] end end
+        end
+        if bn >= 2 then changes[k] = best end
+      end
+    end
+  end
+  for k, nc in pairs(changes) do c.pix[k] = nc; n = n + 1 end
+  return n
+end
+
+-- fur texture (pass 3): swept-back 3px ticks, terminator teeth, tail rim notches
+local TEX = {}
+local function furTex(c, p, list, from, to, ownset, bodyTicks, tex)
+  local n = 0
+  for _, a in ipairs(list) do
+    local ax, ay = a[1], a[2]
+    local cells = { { ax + 1, ay }, { ax + 2, ay }, { ax, ay + 1 } }
+    local own, okc = {}, true
+    for _, q in ipairs(cells) do own[c:key(q[1], q[2])] = true end
+    for _, q in ipairs(cells) do
+      local k = c:key(q[1], q[2])
+      if c:get(q[1], q[2]) ~= from or not ownset[c.own[k]] or (c.gl and c.gl.s[k]) then okc = false end
+    end
+    if okc then
+      for _, q in ipairs(cells) do
+        for dy = -1, 1 do for dx = -1, 1 do
+          local x, y = q[1] + dx, q[2] + dy
+          if not own[c:key(x, y)] then
+            local v = c:get(x, y)
+            if not (v == from or (bodyTicks and v == to)) then okc = false end
+          end
+        end end
+      end
+    end
+    if okc then
+      for _, q in ipairs(cells) do c.pix[c:key(q[1], q[2])] = to; tex[c:key(q[1], q[2])] = true end
+      n = n + 1
+    end
+  end
+  return n
 end
 local function eyeRing(c, x, y)
   c:paint({ "..uuu..", ".u...u.", "u.....u", "u.....u", "u.....u", ".u...u.", "..uuu.." }, x - 1, y - 1, { u = "umber" })
@@ -105,6 +186,25 @@ local function ikc(r, t, dir, w)
   for l = 7, 5, -1 do j = ik(r, t, l, l, dir); if j[2] + (w or 3) <= 56 then return j, l end end
   return j, 5
 end
+local UMB = { ["#2a1a10"]=true, ["#4a2c1a"]=true, ["#74462a"]=true }
+local function deSpur(c)
+  c:finish(); local n = 0
+  for y = 1, c.H - 2 do local x = 1
+    while x <= c.W - 2 do
+      if c:get(x, y) == "#000000" and not c:get(x - 1, y) then
+        local x1 = x
+        while x1 - x < 2 and c:get(x1 + 1, y) == "#000000" do x1 = x1 + 1 end
+        local ok = not c:get(x1 + 1, y) and c:get(x - 1, y + 1) == "#000000" and c:get(x1 + 1, y + 1) == "#000000"
+        for i = x, x1 do if c:get(i, y - 1) or not UMB[c:get(i, y + 1) or ""] then ok = false end end
+        if ok then for i = x, x1 do c.pix[c:key(i, y)] = nil; c.pix[c:key(i, y + 1)] = "#000000"; n = n + 1 end end
+        x = x1 + 1
+      else x = x + 1 end
+    end
+  end
+  return n
+end
+local despur = {}
+local despeckled
 local info = {}   -- per-frame data for self-check
 local function frame(f)
   local P, Lg = POSE[f], LEGS[f]
@@ -123,32 +223,33 @@ local function frame(f)
   local nhK = ik(H, Lg.nh[1], BONE.hind1, BONE.hind2, 1)
   local fhK = ik(Hf, Lg.fh[1], BONE.hind1, BONE.hind2, 1)
 
-  local earF = c:poly({ {hx + 1, hy - 9}, {hx - 3, hy - 9}, {hx - 9, hy - 12} }):grow(1)
-  local legFF = c:line({ Sf, ffE }, 5):add(c:line({ ffE, Lg.ff }, 3))
-  local legHF = c:line({ Hf, fhK }, 5):add(c:line({ fhK, Lg.fh[1] }, 3)):add(c:line({ Lg.fh[1], Lg.fh[2] }, 3))
+  local earF = c:poly({ {hx - 1, hy - 8}, {hx - 12, hy - 11}, {hx - 8, hy - 7} }):grow(1)
+  local legFF = c:line({ Sf, ffE }, 4):add(c:line({ ffE, Lg.ff }, 3))
+  local legHF = c:line({ Hf, fhK }, 4):add(c:line({ fhK, Lg.fh[1] }, 3)):add(c:line({ Lg.fh[1], Lg.fh[2] }, 3))
   -- tail
-  local R = { rear + 6, BY - 5 }
+  local R = { rear + 3, BY - 6 - 2 * ts }
   local tp = {}
   for i, o in ipairs(P.up and TAIL_UP or TAIL_OFF) do
     local dy = (i >= 3 and not P.up) and P.tdy[i - 2] or 0
     tp[i] = { R[1] + o[1], R[2] + o[2] + dy }
   end
-  local tail = c:line({ tp[1], tp[2], tp[3] }, 5):add(c:line({ tp[3], tp[4], tp[5] }, 3))
+  local tail = c:line({ tp[1], tp[2], tp[3] }, 6):add(c:line({ tp[3], tp[4], tp[5] }, 4))
+  tail = tail:closed(1)
   -- body capsule
   local body = c:line({ { rear + 7, BY - 2 * ts }, { BX, BY + P.arch }, { front - 7, BY + 2 * ts } }, 13)
   local chest = c:ellipse(S[1] + 1, S[2] - 5, 6, 5.5)
   local legHN = c:line({ H, nhK }, 5):add(c:line({ nhK, Lg.nh[1] }, 5)):add(c:line({ Lg.nh[1], Lg.nh[2] }, 3))
   local haunch = c:ellipse(H[1] - 1, H[2] - 4, 7.5, 6):add(c:line({ H, nhK }, 6))
   local legFN = c:line({ S, nfE }, 6):add(c:line({ nfE, Lg.nf }, 4))
-  local earN = c:poly({ {hx - 2, hy - 9}, {hx - 7, hy - 7}, {hx - 13, hy - 10} }):grow(1)
+  local earN = c:poly({ {hx - 3, hy - 8}, {hx - 7, hy - 6}, {hx - 13, hy - 8} }):grow(1)
   local head = c:ellipse(hx, hy, 12, 8.5):add(c:ellipse(hx + 2, hy + 4, 11, 6)):add(c:ellipse(hx + 11, hy + 4, 3.5, 3.5))
 
   local p = c:build{
-    { "earF",  earF,  g,  { cres = 2, gloss = false } },
+    { "earF",  earF,  dk,  { cres = 2, gloss = false } },
     { "legFF", legFF, dk, { cres = 2, gloss = false } },
     { "legHF", legHF, dk, { cres = 2, gloss = false } },
-    { "tail",  tail,  g,  { cres = 2, gloss = false } },
-    { "body",  body,  g,  { gloss = { rear + 8, BY - 4 } } },
+    { "tail",  tail,  g,  { cres = 1, gloss = false } },
+    { "body",  body,  g,  { gloss = { rear + 14, BY - 4 } } },
     { "chest", chest, g },
     { "legHN", legHN, g,  { cres = 2, gloss = false } },
     { "haunch", haunch, g, { cres = 1, gloss = false } },
@@ -156,7 +257,8 @@ local function frame(f)
     { "earN",  earN,  g,  { cres = 2, gloss = false } },
     { "head",  head,  h,  { gloss = { hx - 5, hy - 5 } } },
   }
-  tint(c, head:clip(c:rect(hx - 12, hy + 3, hx + 8, hy + 10)), GREY.light, GREY.base)
+  local jaw = head:copy():clip(c:rect(hx - 12, hy + 3, hx + 8, hy + 10))
+  tint(c, jaw, GREY.light, GREY.base)
   local tip = tp[5]
   tailTip(c, tail, c:rect(tip[1] - 3, tip[2] - 3, tip[1] + 3, tip[2] + 3), { { tip[1] - 3, tip[2] + 2 }, { tip[1] + 2, tip[2] + 2 } })
   -- paws
@@ -164,8 +266,8 @@ local function frame(f)
   p.pawHF = paw(c, Lg.fh[2][1] + 0.5, Lg.fh[2][2], pawDk(GREY), true, 3.5, 2.5, GREY.shade)
   p.pawHN = paw(c, Lg.nh[2][1] + 0.5, Lg.nh[2][2], nil, true, 4, 2.5)
   p.pawFN = paw(c, Lg.nf[1] + 0.5, Lg.nf[2], nil, true, 4, 2.5)
-  edgeStitch(c, body, p.body, { lit = LIT })
-  edgeStitch(c, head, p.head, { lit = LIT })
+  edgeStitch(c, body, p.body, { lit = LIT, ymax = BY - 3 })
+  edgeStitch(c, jaw, p.head, { lit = LIT })
   -- face
   catEye(c, hx + 4, hy - 3)
   c:paint({ "pp", "pp" }, hx + 13, hy + 1, { p = PINK })
@@ -174,6 +276,45 @@ local function frame(f)
   c:paint({ "uu" }, hx + 12, hy + 6, { u = "ol2" })
   c:px(hx + 9, hy + 4, GREY.shade); c:px(hx + 10, hy + 6, GREY.shade); c:px(hx + 8, hy + 6, GREY.shade)
 
+  despeckled = (despeckled or 0) + despeckle(c, p, hx, hy)
+  -- pass 3 texture
+  local tex = {}
+  local felt = { [p.body] = true, [p.chest] = true, [p.haunch] = true }
+  local nb = furTex(c, p, { {rear+2,BY-4}, {rear+5,BY+1}, {rear+14,BY-2}, {rear+20,BY+0} }, GREY.base, GREY.shade, felt, true, tex)
+  local nh = furTex(c, p, {}, GREY.light, GREY.base, { [p.head] = true }, false, tex)
+  local cand = {}
+  for k, col in pairs(c.pix) do
+    local x, y = c:xy(k)
+    if c:inside(x, y) and col == GREY.base and felt[c.own[k]] and y > BY and c.pix[c:key(x, y + 1)] == GREY.shade and felt[c.own[c:key(x, y + 1)]] then
+      local ok8 = true
+      for dy = -1, 1 do for dx = -1, 1 do if not FELT[c:get(x + dx, y + dy) or ""] then ok8 = false end end end
+      if ok8 then cand[#cand + 1] = { x, y, k } end
+    end
+  end
+  table.sort(cand, function(a, b) if a[1] ~= b[1] then return a[1] < b[1] end return a[2] < b[2] end)
+  local nt = 0
+  for i, q in ipairs(cand) do if (i - 1) % 4 < 2 then c.pix[q[3]] = GREY.shade; tex[q[3]] = true; nt = nt + 1 end end
+  local tx0 = p.tail.m:bbox()
+  local nn = 0
+  local tnotch = {}
+  local seenCol = {}
+  local tl = {}
+  for k in pairs(p.tail.m.s) do local x, y = c:xy(k); tl[#tl + 1] = { x, y, k } end
+  table.sort(tl, function(a, b) if a[1] ~= b[1] then return a[1] < b[1] end return a[2] < b[2] end)
+  for _, q in ipairs(tl) do
+    local x, y, k = q[1], q[2], q[3]
+    if (x - tx0) % 4 == 1 and not seenCol[x] and c.own[k] == p.tail then
+      seenCol[x] = true
+      if c.pix[k] == GREY.light and not FELT[c:get(x, y - 1) or ""] and c:get(x, y + 1) == GREY.base
+         and c:get(x - 1, y) == GREY.light and c:get(x + 1, y) == GREY.light then
+        c.pix[k] = GREY.base; tex[k] = true; nn = nn + 1; tnotch[k] = true
+      end
+    end
+  end
+  local ntex = 0
+  for _ in pairs(tex) do ntex = ntex + 1 end
+  print(string.format("texture px Z%d = %d (body ticks %d, head ticks %d, teeth %d, tail notches %d)", f, ntex, nb, nh, nt, nn))
+  TEX[f] = { tnotch = tnotch, tex = tex, nb = nb, nh = nh, nt = nt, nn = nn, ntex = ntex }
   info[f] = { c = c, p = p, tp = tp, R = R, rear = rear, front = front, nfE = nfE, ffE = ffE, nhK = nhK, fhK = fhK }
   return c, p
 end
@@ -211,6 +352,7 @@ local files, layerSets = {}, {}
 local checks = {}
 for f = 1, NF do
   local c, p = frame(f)
+  despur[f] = deSpur(c); print("despur Z"..f.." = "..despur[f])
   local name = string.format("cf-cat-grey-zoom%02d", f)
   local t = c:save(nil, OUT .. name .. ".png")
   checks[f] = t
@@ -281,12 +423,12 @@ end
 local pairsL = { { 1, 2 }, { 2, 3 }, { 3, 4 }, { 4, 5 }, { 5, 2 }, { 5, 6 } }
 local worst, ds = 0, {}
 for _, q in ipairs(pairsL) do local d = dmax(q[1], q[2]); worst = math.max(worst, d); ds[#ds + 1] = "Z" .. q[1] .. ">Z" .. q[2] .. "=" .. d end
-chk(worst <= 12, "joint steps max " .. worst .. " (" .. table.concat(ds, " ") .. ")")
-local tailOK, tailUp, legOK, ext = true, true, true, true
+chk(worst <= 10, "joint steps max " .. worst .. " (" .. table.concat(ds, " ") .. ")")
+local tailOK, tailUp, legOK, ext, earOK, tailN = true, true, true, true, true, true
 for f = 1, NF do
   local I = info[f]
-  if I.tp[5][1] < 9 then tailOK = false end
-  if not POSE[f].up then for i = 1, 5 do if I.R[2] - I.tp[i][2] > 3 then tailUp = false; print(string.format("  Z%d tail P%d %d above R", f, i, I.R[2] - I.tp[i][2])) end end end
+  if I.tp[5][1] < 8 then tailOK = false end
+  if not POSE[f].up then for i = 1, 5 do if I.R[2] - I.tp[i][2] > 6 then tailUp = false; print(string.format("  Z%d tail P%d %d above R", f, i, I.R[2] - I.tp[i][2])) end end end
   local gx0, gy0, gx1, gy1 = 99, 99, -1, -1
   for _, part in pairs(I.p) do
     local x0, y0, x1, y1 = part.m:bbox()
@@ -295,13 +437,26 @@ for f = 1, NF do
   if gy1 > 56 then for n,part in pairs(I.p) do local _,_,_,yy=part.m:bbox(); if yy and yy>56 then print("   over:",n,yy) end end end
   if gx0 < 6 or gy0 < 6 or gx1 > 72 or gy1 > 56 then ext = false; print(string.format("  Z%d felt extents %d,%d..%d,%d", f, gx0, gy0, gx1, gy1)) end
   -- ears never above skull top (hy - 8.5 -> row hy-9 of head); report ear top vs head top
-  local _, ey0 = I.p.earN.m:bbox(); local _, hy0 = I.p.head.m:bbox()
+  local _, ey0 = I.p.earN.m:bbox(); local _, hy0 = I.p.head.m:bbox()  -- full head mask
   local _, ey1 = I.p.earF.m:bbox()
   print(string.format("  Z%d ear top y %d/%d, skull top y %d", f, ey0, ey1, hy0))
+  local hxx, hyy = I.front - 5 + 9, POSE[f].hy
+  local ex0, _, ex1 = I.p.earN.m:bbox(); local fx0, _, fx1 = I.p.earF.m:bbox()
+  local ey = math.min(ey0, ey1)
+  if ey < hyy - 12 or math.max(ex1, fx1) > hxx + 1 then earOK = false; print(string.format("  Z%d ear bbox top %d (min %d) x1 %d (max %d)", f, ey, hyy - 12, math.max(ex1, fx1), hxx + 1)) end
+  local tn = 0
+  for k in pairs(I.p.tail.m.s) do tn = tn + 1 end
+  local tx0 = I.p.tail.m:bbox(); local hx0 = I.p.haunch.m:bbox()
+  local left = 0
+  for k in pairs(I.p.tail.m.s) do local xx = I.c:xy(k); if xx < hx0 then left = left + 1 end end
+  print(string.format("  Z%d tail px %d, left of haunch %d", f, tn, left))
+  if tn < (POSE[f].up and 45 or 34) then tailN = false end
 end
-chk(tailOK, "tail tip x >= 9")
-chk(tailUp, "tail <= 3 px above R (except Z6)")
+chk(tailOK, "tail tip x >= 8")
+chk(tailUp, "tail <= 6 px above R (except Z6)")
 chk(ext, "felt inside x 6..72, y 6..56")
+chk(earOK, "ears: top >= hy-12, bbox x1 <= hx+1")
+chk(tailN, "tail mask >= 34 px (Z6 >= 45)")
 -- Z3: four separate paws + daylight under the body
 do
   local I, ok3 = info[3], true
@@ -316,4 +471,140 @@ do
   local _, py0 = I.p.pawFN.m:bbox()
   print("  Z3 body bottom " .. by1 .. ", lowest paw top " .. py0)
 end
+
+-- ============================== PASS-2 CHECKS (read back the saved PNGs) ==============================
+print("despeckled felt pixels: " .. tostring(despeckled))
+local pcl = app.pixelColor
+local function loadPix(f)
+  local img = Image{ fromFile = files[f] }
+  local A = {}
+  for y = 0, 63 do A[y] = {} for x = 0, 79 do
+    local v = img:getPixel(x, y)
+    A[y][x] = pcl.rgbaA(v) > 0 and string.format("%02x%02x%02x", pcl.rgbaR(v), pcl.rgbaG(v), pcl.rgbaB(v)) or false
+  end end
+  return A
+end
+local holesOK, orphOK, earOwnOK, peakOK, umbOK, glossOK, tailPxOK = true, true, true, true, true, true, true
+local mx = {}
+local newOK = true
+for f = 1, NF do
+  local A, I = loadPix(f), info[f]
+  -- enclosed transparent holes (4-connected flood from border over transparent)
+  local seen, st = {}, {}
+  for y = 0, 63 do for x = 0, 79 do if (y == 0 or x == 0 or y == 63 or x == 79) and not A[y][x] then st[#st + 1] = { x, y }; seen[y * 80 + x] = true end end end
+  while #st > 0 do
+    local q = table.remove(st)
+    for _, d in ipairs{ {1,0}, {-1,0}, {0,1}, {0,-1} } do
+      local x, y = q[1] + d[1], q[2] + d[2]
+      if x >= 0 and y >= 0 and x < 80 and y < 64 and not A[y][x] and not seen[y * 80 + x] then seen[y * 80 + x] = true; st[#st + 1] = { x, y } end
+    end
+  end
+  local holes = 0
+  for y = 0, 63 do for x = 0, 79 do if not A[y][x] and not seen[y * 80 + x] then holes = holes + 1; print(string.format("  Z%d hole (%d,%d)", f, x, y)) end end end
+  if holes > 0 then holesOK = false end
+  -- orphans: colour matches none of 8 neighbours
+  local orph, orphAll = 0, 0
+  local fhx, fhy = I.front - 5 + 9, POSE[f].hy
+  for y = 1, 62 do for x = 1, 78 do
+    local col = A[y][x]
+    if col then
+      local m = false
+      for dy = -1, 1 do for dx = -1, 1 do if (dx ~= 0 or dy ~= 0) and A[y + dy][x + dx] == col then m = true end end end
+      if not m then orphAll = orphAll + 1; if not (x >= fhx + 3 and x <= fhx + 14 and y >= fhy - 5 and y <= fhy + 7) then orph = orph + 1 end end
+    end
+  end end
+  if orph > 9 then orphOK = false end
+  -- far ear owned pixels, silhouette peak
+  local en = 0
+  for _ in pairs(I.p.earF.m.s) do en = en + 1 end
+  if en < 8 then earOwnOK = false end
+  local hx, hy = I.front - 5 + 9, POSE[f].hy
+  local top = {}
+  for x = hx - 14, hx do
+    top[x] = nil
+    for y = 0, 63 do if A[y][x] and true then top[x] = y; break end end
+  end
+  local falling, peak = false, false
+  for x = hx - 13, hx do
+    if top[x] and top[x - 1] then
+      if top[x] > top[x - 1] then falling = true elseif top[x] < top[x - 1] and falling then peak = true end
+    end
+  end
+  if peak then peakOK = false; print("  Z" .. f .. " ear-top local peak") end
+  -- umber above hy-13
+  for y = 0, hy - 14 do for x = hx - 15, hx + 2 do
+    local c = A[y][x]
+    if c == "2a1a10" or c == "4a2c1a" or c == "74462a" then umbOK = false end
+  end end
+  -- tail mask
+  local tn = 0
+  for _ in pairs(I.p.tail.m.s) do tn = tn + 1 end
+  if tn < (POSE[f].up and 55 or 70) then tailPxOK = false end
+  -- gloss vs haunch contour
+  local hxs = 99
+  for k in pairs(I.p.haunch.m.s) do local xx = I.c:xy(k); hxs = math.min(hxs, 999) end
+  local hmax = -1
+  local gx, gy = I.rear + 14, POSE[f].BY - 4
+  for k in pairs(I.p.haunch.m.s) do local xx, yy = I.c:xy(k); if math.abs(yy - gy) <= 2 then hmax = math.max(hmax, xx) end end
+  if gx - hmax < 2 then glossOK = false; print(string.format("  Z%d gloss x %d haunch max %d", f, gx, hmax)) end
+  mx[f] = string.format("Z%d holes %d orphans %d (non-face; %d incl. face marks) earF %d tail %d", f, holes, orph, orphAll, en, tn)
+  do
+    local sp, edg, gold, bad = 0, 0, 0, 0
+    for y = 0, 63 do for x = 0, 79 do
+      local col = A[y][x]
+      if col then
+        local n4, tr = 0, false
+        for _, d in ipairs{ {1,0}, {-1,0}, {0,1}, {0,-1} } do
+          local nc = (A[y + d[2]] or {})[x + d[1]]
+          if nc then n4 = n4 + 1 else tr = true end
+        end
+        if n4 <= 1 then sp = sp + 1 end
+        if tr and col ~= "000000" then edg = edg + 1 end
+        if (col == "f5cf6a" or col == "e8a317") and y > POSE[f].BY - 3 and x < hx - 12 then gold = gold + 1 end
+      end
+    end end
+    local _, hy0 = I.p.head.m:bbox()
+    print(string.format("  Z%d spurs %d, non-black edge px %d, belly gold %d, head mask y0 %d (hy-8=%d)", f, sp, edg, gold, hy0, hy - 8))
+    if sp > 0 or edg > 0 or gold > 0 or hy0 > hy - 8 then newOK = false end
+  end
+  if f == 1 then
+    local dl = false
+    for y = 53, 55 do for x = 33, 42 do if not A[y][x] then dl = true end end end
+    chk(dl, "Z1 daylight rows 53-55 x 33..42")
+  end
+  if f == 5 then
+    local run, best = 0, 0
+    for x = 33, 46 do if not A[50][x] then run = run + 1; best = math.max(best, run) else run = 0 end end
+    chk(best >= 3, "Z5 transparent run on row 50 = " .. best)
+    chk(best >= 5, "Z5 notch run row 50 >= 5 (" .. best .. ")")
+  end
+end
+print(table.concat(mx, "\n"))
+-- texture checks
+do
+  local bad = { gold = true, ["f5cf6a"] = true, ["e8a317"] = true, ["f1ebe3"] = true, ["2a1a10"] = true, ["4a2c1a"] = true, ["74462a"] = true, ["000000"] = true }
+  local tOK, cOK, gOK = true, true, true
+  for f = 1, NF do
+    local T, A = TEX[f], loadPix(f)
+    if T.nb < 3 or T.nb > 4 or T.nh ~= 0 or T.nt < 6 or T.nt > 10 or (T.nn < (f == 6 and 0 or 1)) or T.nn > 2 or T.ntex < 16 or T.ntex > 30 then tOK = false end
+    for k in pairs(T.tex) do
+      local x, y = info[f].c:xy(k)
+      for _, d in ipairs{ {1,0}, {-1,0}, {0,1}, {0,-1} } do
+        local nc = A[y + d[2]] and A[y + d[2]][x + d[1]]
+        local umb = (nc == "74462a" or nc == "4a2c1a" or nc == "2a1a10") and T.tnotch[k]  -- tail rim notch sits under the umber rim by spec
+        if nc and bad[nc] and not umb then gOK = false; print(string.format("  Z%d tex px (%d,%d) touches %s", f, x, y, nc)) end
+      end
+    end
+  end
+  chk(tOK, "texture counts per frame (ticks 3-4, head 0, teeth 6-10, notches 1-2, px 16-30)")
+  chk(gOK, "no texture px 4-touches gold/gloss/umber/black")
+end
+chk(newOK, "no spurs, all edge px black, no belly gold, head mask full")
+chk(holesOK, "enclosed transparent holes = 0")
+chk(orphOK, "orphan pixels (non-face) <= 9 per frame")
+chk(earOwnOK, "far-ear owned pixels >= 8")
+chk(peakOK, "ear-top silhouette has no local peak")
+chk(umbOK, "no umber above hy-13")
+chk(tailPxOK, "tail mask >= 70 (Z6 >= 55)")
+chk(glossOK, "body gloss >= 2 px right of haunch contour")
 print(ok and "ALL CHECKS PASS" or "SOME CHECKS FAILED")

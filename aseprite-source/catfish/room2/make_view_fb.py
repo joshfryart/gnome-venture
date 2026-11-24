@@ -16,7 +16,10 @@ for view in ("toward", "away"):
     d.line([(0, 55 * 4 + 3), (2048, 55 * 4 + 3)], fill=(255, 0, 0, 255), width=1)
     for i in range(1, 8): d.line([(i * 256, 0), (i * 256, 256)], fill=(180, 180, 180, 255))
     s4.save(V + "%s_strip_4x.png" % view)
+    on_bg(fr[0]).resize((512, 512), Image.NEAREST).save(V + "%s_F1_8x.png" % view)
+    strip.resize((1024, 128), Image.NEAREST).save(V + "%s_strip_2x.png" % view)
     strip.resize((256, 32), Image.NEAREST).save(V + "%s_strip_0.5x.png" % view)
+    strip.resize((256, 32), Image.NEAREST).resize((1024, 128), Image.NEAREST).save(V + "%s_strip_0.5x_view4.png" % view)
     # 0.42x scale (27x27) shown back at 2x per frame (nearest) so it is viewable
     small = [f.resize((27, 27), Image.NEAREST) for f in fr]
     s42 = Image.new("RGBA", (27 * 8, 27), CREAM)
@@ -25,4 +28,12 @@ for view in ("toward", "away"):
     s42.resize((27 * 8 * 4, 27 * 4), Image.NEAREST).save(V + "%s_strip_0.42x_view4.png" % view)
     g = [on_bg(f.resize((256, 256), Image.NEAREST)).convert("P", palette=Image.ADAPTIVE) for f in fr]
     g[0].save(V + "run%s.gif" % view, save_all=True, append_images=g[1:], duration=70, loop=0, disposal=2)
+
+R = here + "/"
+nb = [os.path.normpath(R + "../../../game/assets/img/catfish/cf-cat-grey-idleA.png"), R + "out/cf-run-grey-1.png",
+      O + "cf-cat-grey-runtoward01.png", O + "cf-cat-grey-runaway01.png"]
+s = Image.new("RGBA", (256, 64), CREAM)
+for i, p in enumerate(nb): s.alpha_composite(Image.open(p).convert("RGBA"), (i * 64, 0))
+s.resize((1024, 256), Image.NEAREST).save(V + "neighbours_4x.png")
+s.resize((128, 32), Image.NEAREST).resize((512, 128), Image.NEAREST).save(V + "neighbours_0.5x_view4.png")
 print("views ok")

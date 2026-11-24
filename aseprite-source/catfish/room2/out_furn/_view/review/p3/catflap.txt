@@ -1,0 +1,12 @@
+ 0 .aaaaaaaabb.
+ 1 accccccccdef
+ 2 acccceeeedef
+ 3 accgbbbbbdef
+ 4 aceghhhhbdef
+ 5 aceghhihbdef
+ 6 aceghiiibdef
+ 7 acegbbbbbdef
+ 8 addjddddjdef
+ 9 bdeeeeeeeeef
+10 .bffffffffff
+a=#74462a b=#4a2c1a c=#d9a660 d=#8a4f2a e=#b07a45 f=#2a1a10 g=#b9cfd9 h=#8eaabf i=#e46a9b j=#e8a317

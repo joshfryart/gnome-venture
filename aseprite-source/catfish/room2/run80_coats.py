@@ -108,14 +108,14 @@ def ik(r, t, l1, l2, d):
 def geometry(f, P, Lg):
     BY, L = P['BY'], P['L']; rear, front = BX - L // 2, BX + L // 2
     ts = 1 if P['tilt'] >= 3 else (-1 if P['tilt'] <= -3 else 0)
-    S = (front - 5, P['Sy']); H = (rear + 5, P['Hy']); Sf = (S[0] - 1, S[1] - 1); Hf = (H[0] + 1, H[1] - 1)
+    S = (front - 5, P['Sy']); H = (rear + 5, P['Hy']); Sf = (S[0] - 1, S[1] - 2); Hf = (H[0] + 1, H[1] - 2)
     g = dict(BY=BY, L=L, ear=P['ear'], pear=P['pear'], rear=rear, front=front, ts=ts, S=S, H=H, hx=S[0] + 9, hy=P['hy'], arch=P['arch'])
     nfE = ik(S, Lg['nf'], 7, 7, -1); ffE = ik(Sf, Lg['ff'], 7, 7, -1)
     nhK = ik(H, Lg['nh'][0], 7, 7, 1); fhK = ik(Hf, Lg['fh'][0], 7, 7, 1)
     g['chains'] = {'fn': [S, nfE, Lg['nf']], 'ff': [Sf, ffE, Lg['ff']],
                    'hn': [H, nhK, Lg['nh'][0], Lg['nh'][1]], 'hf': [Hf, fhK, Lg['fh'][0], Lg['fh'][1]]}
     g['paws'] = {'fn': Lg['nf'], 'ff': Lg['ff'], 'hn': Lg['nh'][1], 'hf': Lg['fh'][1]}
-    R0 = (rear + 6, BY - 6); off = [(0, 0), (-4, -2), (-8, -2), (-11, -1), (-13, -4)]
+    R0 = (rear + 6, BY - 6); off = [(0, 0), (-4, -3), (-8, -5), (-11, -7), (-13, -10)]
     tp = []
     for i, o in enumerate(off):
         dy = P['tdy'][i - 2] if i >= 2 else 0
@@ -151,7 +151,7 @@ def classify(f, g, layers, grey):
     hx, hy = g['hx'], g['hy']; BY = g['BY']
     S, H = g['S'], g['H']
     info = {}
-    eye = (hx + 3, hx + 9, hy - 4, hy + 2)
+    eye = (hx + 1, hx + 11, hy - 4, hy + 2)
     for y in range(H_):
         for x in range(W_):
             if grey[y, x, 3] == 0: continue
@@ -171,10 +171,10 @@ def classify(f, g, layers, grey):
                 dist, arc, side, tot = chain_proj(g['tail'], x, y)
                 d.update(part='tail', arc=arc, side=side, tot=tot)
             elif lay == 'body':
-                if ((x - (H[0] - 1)) / 7.5) ** 2 + ((y - (H[1] - 4)) / 7.0) ** 2 <= 1.15:
+                if ((x - (H[0] - 1)) / 8.0) ** 2 + ((y - (H[1] - 4)) / 7.5) ** 2 <= 1.15:
                     d.update(part='haunch', lx=x - (H[0] - 1), ly=y - (H[1] - 4))
-                elif ((x - (S[0] + 1)) / 6.0) ** 2 + ((y - (S[1] - 5)) / 6.5) ** 2 <= 1.15 and x >= S[0] - 3:
-                    d.update(part='chest', lx=x - (S[0] + 1), ly=y - (S[1] - 5))
+                elif ((x - (S[0] + 2)) / 6.0) ** 2 + ((y - (S[1] - 3)) / 6.5) ** 2 <= 1.15 and x >= S[0] - 3:
+                    d.update(part='chest', lx=x - (S[0] + 2), ly=y - (S[1] - 3))
                 else:
                     d.update(part='body', u=x - BX, v=rnd(y - spine_y(g, x)), t=(x - (g['rear'] + 12)) / max(1, g['L'] - 22), L=g['L'], rear=g['rear'], spf=lambda xx, g=g: spine_y(g, xx))
             else:
@@ -254,7 +254,7 @@ def shape_role(sh, x0, y0, lx, ly):
 def spotted(d):
     p = d['part']
     if p == 'body':
-        for sh, t0, v0 in ((SHAPE_A, 0.15, -5), (SHAPE_B, 0.5, -2), (SHAPE_A, 0.85, -6)):
+        for sh, t0, v0 in ((SHAPE_A, 0.15, -5), (SHAPE_B, 0.5, -2), (SHAPE_A, 0.8, -6)):
             r = shape_role(sh, bx(d, t0), v0, d['x'], d['v'])
             if r: return r
         return None
@@ -540,7 +540,7 @@ def main():
         hx, hy = geo[f]['hx'], geo[f]['hy']
         e = np.zeros((H_, W_, 4), np.uint8)
         for y in range(hy - 4, hy + 3):
-            for x in range(hx + 3, hx + 10):
+            for x in range(hx + 1, hx + 12):
                 if tuple(greys[f][y, x, :3]) == EYECREAM and greys[f][y, x, 3]: e[y, x] = (*EYECREAM, 255)
         eyes.append(e)
     n = 0

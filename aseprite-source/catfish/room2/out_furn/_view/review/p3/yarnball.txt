@@ -1,0 +1,10 @@
+ 0 ...aaaa..
+ 1 ..abbbcd.
+ 2 .abbbbcef
+ 3 .abbbecef
+ 4 .aceeccef
+ 5 .acccccef
+ 6 ..deceeff
+ 7 ...ffffff
+ 8 ...fffff.
+a=#74462a b=#b9cfd9 c=#6f8aa8 d=#4a2c1a e=#8eaabf f=#2a1a10

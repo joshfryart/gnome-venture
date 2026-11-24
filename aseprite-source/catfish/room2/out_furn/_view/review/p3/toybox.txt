@@ -1,0 +1,18 @@
+ 0 .....aaa.........bb...
+ 1 ....accca......bbdde..
+ 2 ...acfgfga....bhddie..
+ 3 ..acgffggfaabbbddiieee
+ 4 .ajcfgfggfjjjjhiiijjee
+ 5 .abcffggfgbbbddddbbbee
+ 6 .abbggggfbbbbbiiiibbee
+ 7 ajjjjjjjjjjjjjjjjjjjje
+ 8 ajkkkkkkkkkkkkkkkkkkke
+ 9 ajlmmlllllmmllllllkkle
+10 ajhhhhhhhmnmohhhhhhhhe
+11 ajdddddddmmnodddddddde
+12 ajookookoooookookookle
+13 ajkkkkkkklllllllllllle
+14 .bbbbeeeeeeeeeeeeeeeee
+15 .ppppppppppppppppppppp
+16 ...ppppppppppppppppppp
+a=#74462a b=#4a2c1a c=#b9cfd9 d=#b8466e e=#2a1a10 f=#8eaabf g=#6f8aa8 h=#f29abb i=#e46a9b j=#d9a660 k=#8a4f2a l=#b07a45 m=#f5cf6a n=#8a4a1c o=#e8a317 p=#9a6b3f

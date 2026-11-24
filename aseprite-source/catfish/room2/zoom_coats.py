@@ -22,7 +22,7 @@ OUT = os.path.join(OUT80, 'coats')
 VIEW = os.path.join(OUT, '_view')
 NF = 6
 H_, W_ = 64, 80
-BX = 33
+BX = 35
 GREYS = {'57516f': 'shade', '8a859b': 'base', 'cdc9d3': 'light', 'f1ebe3': 'gloss'}
 OLS = {(0x2a, 0x1a, 0x10), (0x4a, 0x2c, 0x1a), (0x74, 0x46, 0x2a), (0, 0, 0)}
 def hx_(h): return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
@@ -100,7 +100,7 @@ def ikc(r, t, d, w):
         if j[1] + w <= 56: return j
     return j
 
-TAIL_OFF = [(0, 0), (-3, 0), (-6, -1), (-8, -1), (-10, -1)]
+TAIL_OFF = [(0, 0), (-3, -3), (-6, -4), (-9, -4), (-12, -3)]
 TAIL_UP = [(0, 0), (-3, -2), (-5, -5), (-6, -9), (-5, -12)]
 def geometry(f, P, Lg):
     BY, L = P['BY'], P['L']; rear, front = BX - L // 2, BX + L // 2
@@ -112,7 +112,7 @@ def geometry(f, P, Lg):
     g['chains'] = {'fn': [S, nfE, Lg['nf']], 'ff': [Sf, ffE, Lg['ff']],
                    'hn': [H, nhK, Lg['nh'][0], Lg['nh'][1]], 'hf': [Hf, fhK, Lg['fh'][0], Lg['fh'][1]]}
     g['paws'] = {'fn': Lg['nf'], 'ff': Lg['ff'], 'hn': Lg['nh'][1], 'hf': Lg['fh'][1]}
-    R0 = (rear + 6, BY - 5); off = TAIL_UP if P['up'] else TAIL_OFF
+    R0 = (rear + 3, BY - 6 - 2 * ts); off = TAIL_UP if P['up'] else TAIL_OFF
     tp = []
     for i, o in enumerate(off):
         dy = P['tdy'][i - 2] if (i >= 2 and not P['up']) else 0
@@ -173,7 +173,7 @@ def classify(f, g, layers, grey):
                 elif ((x - (S[0] + 1)) / 6.0) ** 2 + ((y - (S[1] - 5)) / 5.5) ** 2 <= 1.15 and x >= S[0] - 3:
                     d.update(part='chest', lx=x - (S[0] + 1), ly=y - (S[1] - 5))
                 else:
-                    d.update(part='body', u=x - BX, v=rnd(y - spine_y(g, x)), t=(x - (g['rear'] + 12)) / max(1, g['L'] - 22), L=g['L'], rear=g['rear'], spf=lambda xx, g=g: spine_y(g, xx))
+                    d.update(part='body', u=x - BX, v=rnd(y - spine_y(g, x)), t=(x - (g['rear'] + 12)) / 12.0, L=g['L'], rear=g['rear'], spf=lambda xx, g=g: spine_y(g, xx))
             else:
                 keys = ('fn', 'hn') if lay == 'legs-near' else ('ff', 'hf')
                 # paw?
@@ -196,7 +196,7 @@ def in_rect(lx, ly, x0, y0, x1, y1): return x0 <= lx <= x1 and y0 <= ly <= y1
 
 def bx(d, t):
     """absolute x of the body fraction t (t=0 haunch edge, t=1 chest edge)"""
-    return rnd(d['rear'] + 12 + t * max(1, d['L'] - 22))
+    return rnd(d['rear'] + 12 + t * 12)
 
 def tabby(d):
     p = d['part']
@@ -294,7 +294,7 @@ CAL_BLOT = grid(0, {-8: '.SS.', -7: 'SSSS', -6: '.SS.'})
 def calico_body(d):
     """D / S body patches by fraction t; the 4 corners of each rectangle are dropped"""
     t, v, x = d['t'], d['v'], d['x']
-    n = max(1, d['L'] - 22); base = d['rear'] + 12
+    n = 12; base = d['rear'] + 12
     for (t0, t1, v0, v1, role) in ((0.05, 0.6, None, -1, 'D'), (0.7, 1.0, -6, -1, 'S')):
         if not (t0 <= t <= t1): continue
         if role == 'D':
@@ -445,8 +445,8 @@ def components(mask):
     return comps
 
 TONECOL = {'G': GLOSS, 'L': LIGHT, 'B': BASE, 'S': SHADE, 'D': DEEP}
-NEAR = {(0, 0): grid(-12, {-11: '...LLLL...', -10: '.LLBBBBLL.', -9: 'BBBBBBBBSS', -8: 'SSSSSSSSS.'})}
-FAR = {(0, 0): grid(-1, {-11: '.BBB.', -10: 'BBSSS', -9: 'DSSSD'})}
+NEAR = {(0, 0): grid(-13, {-10: '...LLLL...', -9: '.LLBBBBLL.', -8: 'BBBBBBBBSS', -7: 'SSSSSSSSS.'})}
+FAR = {(0, 0): grid(-12, {-11: '.DDDDDD....', -10: 'DSSSSSSSSSD', -9: '.SSSSSSSS..'})}
 
 def in_head(lx, ly): return (lx / 12.0) ** 2 + (ly / 8.5) ** 2 <= 1
 
