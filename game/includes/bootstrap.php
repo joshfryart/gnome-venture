@@ -658,6 +658,16 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             require_once __DIR__ . '/upgrade2758.php';
             upgrade_2758_kettle_keys();
         });
+        boot_step('stop_tune_2758', function () {   // 2.7.58 item review group C, R5 + R16: cheap rest-stop crafts take more of their main ingredient, three rope acts (a row still at the old spec, once)
+            if (setting('stop_tune_2758') !== '') return;
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_stop_tune();
+        });
+        boot_step('plank_rope_2758', function () {   // 2.7.58 item review group C, R16: plank and rope recipes normalised (a row still at the old numbers, once)
+            if (setting('plank_rope_2758') !== '') return;
+            require_once __DIR__ . '/upgrade2758.php';
+            upgrade_2758_plank_rope();
+        });
         boot_step('almanac_mending_2758', function () {   // 2.7.58: the Exploring & fighting page tells how mending works (kits, augments; once)
             if (setting('almanac_mending_2758') !== '' || !isset(ALMANAC_HOWTO['Exploring & fighting'])) return;
             q("UPDATE encyclopedia_entries SET body = ? WHERE chapter = 'General' AND title = 'Exploring & fighting'", [ALMANAC_HOWTO['Exploring & fighting'][2]]);

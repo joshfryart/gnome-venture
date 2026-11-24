@@ -49,11 +49,11 @@ rock-dust-geo|Rock Dust (red ochre)|garden|rock-dust:2|red-ochre:2,river-clay:1|
 building-stone|Dressed Stone|building|building-stone:2|slate-shard:2,river-clay:1|3
 building-stone-flint|Dressed Stone (flint)|building|building-stone:1|flint:3|3
 building-stone-ochre|Dressed Stone (red rock)|building|building-stone:1|red-ochre:2,laterite-clay:1|3
-timber-plank|Timber Planks|building|timber-plank:2|wood-chips:3,pine-resin:1|3
-timber-plank-palm|Timber Planks (palm)|building|timber-plank:1|coir-fibre:2,wood-chips:2|3
+timber-plank|Timber Planks|building|timber-plank:3|wood-chips:3,pine-resin:1|3
+timber-plank-palm|Timber Planks (palm)|building|timber-plank:2|coir-fibre:2,wood-chips:2|3
 rope|Rope|building|rope:1|coir-fibre:2|3
-rope-cottongrass|Rope (cottongrass)|building|rope:1|cottongrass:3|3
-rope-cattail|Rope (cattail)|building|rope:1|cattail-root:3|3
+rope-cottongrass|Rope (cottongrass)|building|rope:1|cottongrass:2|3
+rope-cattail|Rope (cattail)|building|rope:1|cattail-root:2|3
 
 # Adventure gear (v0.7.30): tier 1 is sold at Twigg's; better ones are made at a Tool Shed (or bought, rarely)
 hiking-staff|Hiking Staff|tools|hiking-staff:1|walking-stick:1,timber-plank:1,rope:1|3
@@ -77,8 +77,8 @@ rock-garden|Rock Garden|decor|rock-garden:1|building-stone:1,edelweiss:1,flint:2
 # v0.7.81: planks and chips from logs (building and garden categories; no building needed beyond the category)
 timber-plank-log|Timber Planks (logs)|building|timber-plank:2|pine-log:2|2
 timber-plank-birch|Timber Planks (birch)|building|timber-plank:2|birch-log:2|2
-timber-plank-oak|Timber Planks (oak)|building|timber-plank:4|oak-log:1|2
-timber-plank-drift|Timber Planks (driftwood)|building|timber-plank:1|driftwood:2|2
+timber-plank-oak|Timber Planks (oak)|building|timber-plank:3|oak-log:1|2
+timber-plank-drift|Timber Planks (driftwood)|building|timber-plank:2|driftwood:2|2
 timber-plank-palm-trunk|Timber Planks (palm trunk)|building|timber-plank:2|palm-trunk:2|2
 wood-chips-log|Wood Chips|garden|wood-chips:4|birch-log:1|1
 beeswax-candles|Beeswax Candles|decor|beeswax-candles:1|beeswax:2,rope:1|1
@@ -87,7 +87,7 @@ beeswax-candles|Beeswax Candles|decor|beeswax-candles:1|beeswax:2,rope:1|1
 silk-thread|Silk Thread|decor|silk-thread:2|silk-cocoon:3|1
 silk-bunting|Silk Bunting|decor|silk-bunting:1|silk-thread:3|1
 scute-wind-chime|Scute Wind Chime|decor|scute-wind-chime:1|tortoise-scute:3,silk-thread:1|2
-rope-goat-hair|Rope (goat hair)|building|rope:2|goat-hair:3|3
+rope-goat-hair|Rope (goat hair)|building|rope:2|goat-hair:1|3
 
 # v1.4.0 garden animal crafts (animals140.php): Wing Scales and Snail Trail Glaze. The decor items are made by animals140_items().
 wing-scale-lantern|Wing Scale Lantern|decor|wing-scale-lantern:1|wing-scale:3,silk-thread:1|2

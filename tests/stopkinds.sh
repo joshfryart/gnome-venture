@@ -8,7 +8,7 @@ dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]
 phpx() { php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/stops.php"; require_once "'$GAME'/includes/stop_adopt.php"; require_once "'$GAME'/includes/stop_folk.php"; require_once "'$GAME'/includes/local.php"; '"$1"; }
 
 echo "== data"
-chk "494 regional activities imported (35 for each of 11 regions; 2.7.58 B6 added one each to EA and OC, two to SA)" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE region IS NOT NULL AND region <> ''" | tr -d ' ')" = 494 ] && [ "$(db "SELECT COUNT(*) FROM (SELECT region FROM stop_acts WHERE region IS NOT NULL AND region <> '' GROUP BY region HAVING COUNT(*) = 35)" | tr -d ' ')" = 11 ] && echo 1)"
+chk "490 regional activities imported (35 for each of 8 regions; 2.7.58 B6 added one each to EA and OC, two to SA; R5 cut the exact copies ca_tortilla_press, r_mena_ember_sage, r_mena_high_pour, r_ee_sunflower_toast)" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE region IS NOT NULL AND region <> ''" | tr -d ' ')" = 490 ] && [ "$(db "SELECT COUNT(*) FROM (SELECT region FROM stop_acts WHERE region IS NOT NULL AND region <> '' GROUP BY region HAVING COUNT(*) = 35)" | tr -d ' ')" = 8 ] && echo 1)"
 BAD=$(phpx '$bad=[]; foreach (q("SELECT * FROM stop_acts WHERE region IS NOT NULL AND region <> \"\"")->fetchAll() as $a) {
     if (!in_array($a["kind"], ["craft","collect","tend","contest","check","pick","power","lore","rest"], true)) $bad[]=$a["slug"]." kind";
     foreach (array_filter(explode(",", $a["types"])) as $t) if ($t !== "any" && !q_val("SELECT 1 FROM stop_types WHERE slug=?", [$t])) $bad[]=$a["slug"]." type $t";
@@ -18,7 +18,7 @@ BAD=$(phpx '$bad=[]; foreach (q("SELECT * FROM stop_acts WHERE region IS NOT NUL
     if ($a["kind"]==="contest" && count(explode("/", stop_spec_params($a["spec"])["moves"] ?? ""))!==3) $bad[]=$a["slug"]." moves";
     if (stop_act_art($a["kind"], $a["slug"]) === "") $bad[]=$a["slug"]." no art";
   } echo $bad ? "BAD: ".implode("; ",$bad) : "clean";')
-chk "waves 1-5: 265 plain activities imported, none tied to a region" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE slug GLOB 'w[1-5]_*' AND (region IS NULL OR region = '')" | tr -d ' ')" = 265 ] && echo 1)"
+chk "waves 1-5: 261 plain activities imported (R5 cut 4 exact copies of a recipe), none tied to a region" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE slug GLOB 'w[1-5]_*' AND (region IS NULL OR region = '')" | tr -d ' ')" = 261 ] && echo 1)"
 chk "every regional activity is well formed (types, regions, items, specs, art)" "$([ "$BAD" = clean ] && echo 1)" "$BAD"
 chk "placeholder art for the four new kinds exists" "$([ -f $GAME/assets/img/acts/act-craft.png ] && [ -f $GAME/assets/img/acts/act-collect.png ] && [ -f $GAME/assets/img/acts/act-tend.png ] && [ -f $GAME/assets/img/acts/act-contest.png ] && echo 1)"
 

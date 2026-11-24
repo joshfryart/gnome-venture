@@ -190,3 +190,81 @@ function upgrade_2758_kettle_keys(): void
     } catch (Throwable $e) { /* no journal table yet: no old keys either */ }
     set_setting('kettle_keys_2758', '1');
 }
+
+/**
+ * 2.7.58 item review group C, R5: rest-stop crafts that made a kitchen dish or craft output for less than 90% of that recipe's inputs (base value) take more of their main
+ * (first) ingredient, at most +3; plus R16 (the enset rope). [old spec, new spec]. Exact copies of a recipe were cut from the data files (new worlds only).
+ */
+const STOP_TUNE_2758 = [
+    'ca_cocoa_grind' => ['cacao:2>hot-cocoa:1', 'cacao:3>hot-cocoa:1'],
+    'r_ca_fruit_bowl' => ['papaya:1,mamey:1>tropical-fruit-bowl:1', 'papaya:2,mamey:1>tropical-fruit-bowl:1'],
+    'r_ca_three_sisters' => ['corn:1,black-bean:1,pumpkin:1>three-sisters-stew:1', 'corn:3,black-bean:1,pumpkin:1>three-sisters-stew:1'],
+    'r_csa_mango_chutney' => ['mango:2,ginger:1>mango-chutney:1', 'mango:3,ginger:1>mango-chutney:1'],
+    'r_csa_mung_dal' => ['mung-bean:2,turmeric:1>lentil-dal:1', 'mung-bean:4,turmeric:1>lentil-dal:1'],
+    'r_ea_bokchoy_rice' => ['bok-choy:1,rice:1,hen-egg:1>egg-fried-rice:1', 'bok-choy:3,rice:1,hen-egg:1>egg-fried-rice:1'],
+    'r_ea_kimchi' => ['napa-cabbage:2,ginger:1>kimchi:1', 'napa-cabbage:5,ginger:1>kimchi:1'],
+    'r_ea_perilla_pickled_leaves' => ['perilla:3>kimchi:1', 'perilla:6>kimchi:1'],
+    'r_ee_buckwheat_kasha' => ['buckwheat:2,goat-milk:1>buckwheat-kasha:1', 'buckwheat:3,goat-milk:1>buckwheat-kasha:1'],
+    'r_ee_elder_cordial' => ['elderberry:2,sea-buckthorn:1>elderberry-cordial:1', 'elderberry:4,sea-buckthorn:1>elderberry-cordial:1'],
+    'r_ee_plum_butter' => ['plum:3>plum-jam:1', 'plum:5>plum-jam:1'],
+    'r_ee_stuffed_peppers' => ['bell-pepper:2,goat-cheese:1>stuffed-peppers-goat:1', 'bell-pepper:4,goat-cheese:1>stuffed-peppers-goat:1'],
+    'r_esa_enset_fibre' => ['ensete:2>rope:1', 'ensete:2>rope:3'],
+    'r_esa_sorghum_porridge' => ['sorghum:2,goat-milk:1>goat-milk-porridge:1', 'sorghum:3,goat-milk:1>goat-milk-porridge:1'],
+    'r_mena_chickpea_cumin' => ['chickpea:2,cumin:1>chickpea-stew:1', 'chickpea:3,cumin:1>chickpea-stew:1'],
+    'r_na_crowberry_cordial' => ['crowberries:3>crowberry-cordial:1', 'crowberries:4>crowberry-cordial:1'],
+    'r_na_fiddlehead_fry' => ['fiddleheads:3>fiddlehead-fry:1', 'fiddleheads:4>fiddlehead-fry:1'],
+    'r_nwe_dill_beets' => ['beet:2,dill:1>pickled-beets:1', 'beet:4,dill:1>pickled-beets:1'],
+    'r_nwe_peat_trout' => ['trout:1,bog-peat:1>smoked-trout:1', 'trout:2,bog-peat:1>smoked-trout:1'],
+    'r_oc_earth_oven' => ['taro:2,coconut:1>coconut-curry:1', 'taro:3,coconut:1>coconut-curry:1'],
+    'r_oc_noni_juice' => ['noni:2>sea-buckthorn-juice:1', 'noni:5>sea-buckthorn-juice:1'],
+    'r_sa_naranjilla_cordial' => ['naranjilla:3>lime-cordial:1', 'naranjilla:4>lime-cordial:1'],
+    'r_se_fig_tart' => ['goat-cheese:1,fig:2>goat-cheese-tart:1', 'goat-cheese:2,fig:2>goat-cheese-tart:1'],
+    'r_se_hill_cheese' => ['goat-milk:2,sea-salt:1>goat-cheese:1', 'goat-milk:3,sea-salt:1>goat-cheese:1'],
+    'r_sea_lemongrass_curry' => ['coconut:1,lemongrass:1,rice:1>coconut-curry:1', 'coconut:2,lemongrass:1,rice:1>coconut-curry:1'],
+    'w1_leek_soup' => ['potato:2,leek:1>potato-leek-soup:1', 'potato:4,leek:1>potato-leek-soup:1'],
+    'w1_spring_pickle' => ['hen-egg:2,sea-salt:1>pickled-eggs:1', 'hen-egg:5,sea-salt:1>pickled-eggs:1'],
+    'w2_apple_crumble' => ['apple:3,wheat:1>apple-crumble:1', 'apple:4,wheat:1>apple-crumble:1'],
+    'w2_carrot_cake' => ['carrot:2,wheat:1,hen-egg:1>carrot-cake:1', 'carrot:5,wheat:1,hen-egg:1>carrot-cake:1'],
+    'w2_chutney_pot' => ['tomato:3,onion:1>tomato-chutney:1', 'tomato:6,onion:1>tomato-chutney:1'],
+    'w2_kraut_crock' => ['cabbage:3,sea-salt:1>sauerkraut:1', 'cabbage:5,sea-salt:1>sauerkraut:1'],
+    'w2_oat_porridge' => ['oats:2,goat-milk:1>goat-milk-porridge:1', 'oats:3,goat-milk:1>goat-milk-porridge:1'],
+    'w3_dill_jars' => ['cucumber:3,dill:1>dill-pickles:1', 'cucumber:5,dill:1>dill-pickles:1'],
+    'w3_ramson_pesto' => ['ramsons:3,basil:1>ramson-pesto:1', 'ramsons:4,basil:1>ramson-pesto:1'],
+    'w4_apple_chutney' => ['apple:3,onion:1>apple-chutney:1', 'apple:4,onion:1>apple-chutney:1'],
+    'w4_ginger_cordial' => ['apple:2,ginger:1>ginger-apple-cordial:1', 'apple:4,ginger:1>ginger-apple-cordial:1'],
+    'w4_mussel_broth' => ['blue-mussels:3>mussel-broth:1', 'blue-mussels:5>mussel-broth:1'],
+    'w5_buried_cornbread' => ['corn:2,hen-egg:1>cornbread:1', 'corn:3,hen-egg:1>cornbread:1'],
+    'w5_three_sisters' => ['corn:1,green-bean:1,pumpkin:1>three-sisters-stew:1', 'corn:4,green-bean:1,pumpkin:1>three-sisters-stew:1'],
+    'w5_warm_curds' => ['goat-milk:3>goat-cheese:1', 'goat-milk:4>goat-cheese:1'],
+    'w5_watchers_cocoa' => ['cacao:2,goat-milk:1>hot-cocoa:1', 'cacao:3,goat-milk:1>hot-cocoa:1'],
+];
+
+/** R5 / R16 for an existing world: a stop craft moves only while it still holds the old spec (an admin edit stays). Once, marker stop_tune_2758. */
+function upgrade_2758_stop_tune(): void
+{
+    if (setting('stop_tune_2758') !== '') return;
+    foreach (STOP_TUNE_2758 as $slug => [$was, $now]) q('UPDATE stop_acts SET spec = ? WHERE slug = ? AND spec = ?', [$now, $slug, $was]);
+    set_setting('stop_tune_2758', '1');
+    if (function_exists('stop_acts')) stop_acts(true);
+}
+
+/**
+ * R16: plank and rope recipes yield by what goes in. [recipe slug, old ingredients, old yield, new ingredients, new yield]. Wood-chip and palm planks (30 Petals of chips each) give more,
+ * driftwood gives as many planks as logs do, oak 3 not 4, every fibre rope takes 2 fibres, goat hair 1 for 2 rope. A row moves only while it has the old numbers.
+ */
+const PLANK_ROPE_2758 = [
+    ['timber-plank', ['wood-chips' => 3, 'pine-resin' => 1], 2, ['wood-chips' => 3, 'pine-resin' => 1], 3],
+    ['timber-plank-palm', ['coir-fibre' => 2, 'wood-chips' => 2], 1, ['coir-fibre' => 2, 'wood-chips' => 2], 2],
+    ['timber-plank-drift', ['driftwood' => 2], 1, ['driftwood' => 2], 2],
+    ['timber-plank-oak', ['oak-log' => 1], 4, ['oak-log' => 1], 3],
+    ['rope-cottongrass', ['cottongrass' => 3], 1, ['cottongrass' => 2], 1],
+    ['rope-cattail', ['cattail-root' => 3], 1, ['cattail-root' => 2], 1],
+    ['rope-goat-hair', ['goat-hair' => 3], 2, ['goat-hair' => 1], 2],
+];
+function upgrade_2758_plank_rope(): void
+{
+    if (setting('plank_rope_2758') !== '') return;
+    foreach (PLANK_ROPE_2758 as [$slug, $oldIng, $oldQty, $newIng, $newQty])
+        q('UPDATE recipes SET ingredients = ?, output_qty = ? WHERE slug = ? AND ingredients = ? AND output_qty = ?', [json_encode($newIng), $newQty, $slug, json_encode($oldIng), $oldQty]);
+    set_setting('plank_rope_2758', '1');
+}

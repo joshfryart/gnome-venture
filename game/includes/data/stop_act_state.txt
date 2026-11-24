@@ -98,7 +98,6 @@ r_mena_dune_stars|-|meter:cheer+10
 r_mena_cistern_hum|-|meter:cheer+10
 r_mena_lateen_sail|-|meter:repairs+10
 r_mena_cedar_hugs|-|meter:cheer+10
-r_mena_ember_sage|-|meter:larder+10
 r_mena_well_sand|-|meter:repairs+10
 r_mena_souk_spices|-|meter:cheer+10
 r_mena_scarab_dune|-|meter:cheer+10
