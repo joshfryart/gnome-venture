@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.37
+- **Gather popover on the Trail, landscape: no big tool cards, full width.** The five large tool cards are hidden (the tool belt buttons gather with the same form). The popover takes the screen's width: the picture on the left, the belt and the finds list on the right.
+
 ## 2.8.36
 - **Trail page in landscape: the right column holds the text.** Beside the map: the section strip, the weather and ledger, what just happened (the hint or event text), the Route fold, the legend and the place caption. They used to sit under the map, behind the dock. The map wrapper no longer needs a container query here, so tall phones get the 9 x 7 view from plain CSS.
 

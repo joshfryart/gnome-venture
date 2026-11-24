@@ -1563,3 +1563,15 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-200% / 9) 0; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmt.ring { visibility: visible; }
 }
+/* v2.8.37: the Gather popover on the Trail, landscape: the big tool cards go (the tool belt buttons gather with the same post), the popover takes the screen's width, picture left, belt and finds right */
+@media (orientation: landscape) {
+  body.dock-on dialog#hubpop-tgather .pickbox { width: calc(100vw - 16px); max-width: none; }
+  body.dock-on #hubpop-tgather .gx.gatherbox { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 4px 12px; align-items: start; }
+  body.dock-on #hubpop-tgather .gx.gatherbox > .gx-hero { grid-column: 1; grid-row: 1 / span 8; margin: 0; }
+  body.dock-on #hubpop-tgather .gx.gatherbox > :not(.gx-hero) { grid-column: 2; min-width: 0; margin-block: 0; }
+  body.dock-on #hubpop-tgather .gx.gatherbox > .gx-form, body.dock-on #hubpop-tgather .gx.gatherbox > h3.gx-h:not(.gx-h--belt):has(+ .gx-form) { display: none; }
+  body.dock-on #hubpop-tgather .gx.gatherbox > .gx-hero { max-width: calc((100dvh - var(--dock-h, 106px) - 60px) * 16 / 9); }
+  body.dock-on #hubpop-tgather .gx-h { font-size: 13px; margin: 2px 0; }
+  body.dock-on #hubpop-tgather .belt__now { font-size: 11px; margin: 0; }
+  body.dock-on #hubpop-tgather .finds { max-height: 7.5em; overflow: auto; }
+}
