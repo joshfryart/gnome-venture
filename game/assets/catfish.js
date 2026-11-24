@@ -155,10 +155,7 @@
   };
   /* Room things (2.2.x): an active item on the stage (button.cfpet) is used with do=petuse. The pending taps ride along (play, seq) and are paid first, in the same lock, like a buy;
      the reply carries the view and, when the scene changed (the item is cooling down, rain started), the new stage. The Room things panel does the same with plain forms. */
-  document.addEventListener('click', function (ev) {
-    var b = ev.target.closest ? ev.target.closest('.cfstage button.cfpet') : null;
-    if (!b || !ev.isTrusted || b.disabled || b.getAttribute('data-busy')) return;
-    var slot = b.getAttribute('data-slot'); if (!slot) return;
+  function petUse(b, slot) {   // b = the button (or a stand-in with the same three methods, for a tap on the room2 canvas)
     b.setAttribute('data-busy', '1');
     whenFree(function () {
       var data = { do: 'petuse', slot: slot, scene: d.scene }, pb = takeBatch(data);
@@ -173,7 +170,14 @@
         var live = document.getElementById('cf-playlive'); if (live) { live.textContent = ''; setTimeout(function () { live.textContent = r.message || r.error || ''; }, 50); }
       }, function () { free(); b.removeAttribute('data-busy'); say('Could not reach the game. Try again.', true); });
     });
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('.cfstage button.cfpet, .cfr2stage button.cfpet') : null;
+    if (!b || !ev.isTrusted || b.disabled || b.getAttribute('data-busy')) return;
+    var slot = b.getAttribute('data-slot'); if (slot) petUse(b, slot);
   });
+  var petBusy = {};
+  window.CFPlay.petUse = function (slot) { if (petBusy[slot]) return; petBusy[slot] = 1; petUse({ setAttribute: function () {}, getAttribute: function () { return null; }, removeAttribute: function () { petBusy[slot] = 0; } }, String(slot)); };
   document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); });
   /* Buy (2.1.07): the cost leaves the counter at once, the pressed button stays off until the reply, and the request carries the pending taps (play, seq as in a tick) so the server pays
      them before it checks the cost. A reply with a view means the server handled the taps and the buy: pending is cleared and the view (kibble, rate, rows, run) replaces the guess, a refusal

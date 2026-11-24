@@ -106,7 +106,25 @@
       ['near', 'mid', 'far'].forEach(function (s) { for (var i = 1; i <= 6; i++) want('props/cf-lure-' + s + '-' + i + '.png'); });
       for (var i = 1; i <= 4; i++) { want('props/cf-shadow-' + i + '.png'); want('props/cf-dust-' + i + '.png'); }
       for (i = 1; i <= 3; i++) want('props/cf-streak-' + i + '.png');
+      loadPets();
       D.fish.forEach(function (k) { img(D.fishUrl + 'cf-fish-' + k + '.png?v=' + D.v); });
+    }
+    /* room things: slot no => top-left of the sprite on the 480x270 plate (sprites keep the old per-slot sizes) */
+    var PSLOT = { 1: [118, 39], 2: [166, 39], 3: [300, 58], 4: [134, 16], 5: [120, 0], 6: [120, 150], 7: [440, 226] };
+    function petImg(k) { var u = D.petUrl + 'cf-pet-' + k + '.png?v=' + D.v, o = imgs[u]; return o && o.ok ? o.im : null; }
+    function loadPets() { Object.keys(D.pets || {}).forEach(function (no) { img(D.petUrl + 'cf-pet-' + D.pets[no][0] + '.png?v=' + D.v); }); }
+    function petBox(no) { var im = petImg(D.pets[no][0]), a = PSLOT[no]; if (no == 8) { var w = wandAttach(); a = [w.x - 8 + Math.sin(now / 700) * 2, w.y + 6]; } return im && a ? { x: a[0], y: a[1], w: im.naturalWidth, h: im.naturalHeight, im: im } : null; }
+    function drawPets(layer) {   // layer 'back' = wall, shelf, sill, frame, ceiling; 'front' = floor things (drawn with the cats), 'charm' = the rod charm
+      Object.keys(D.pets || {}).forEach(function (no) {
+        var floor = no == 6 || no == 7; if ((layer === 'front') !== floor) return; if (no == 8) return;
+        var b = petBox(no); if (!b) return; ctx.drawImage(b.im, Math.round(b.x), Math.round(b.y));
+        if (D.pets[no][2] && !reduced()) { var a = 0.35 + 0.35 * Math.sin(now / 260); ctx.globalAlpha = a; ctx.strokeStyle = '#fff8e2'; ctx.lineWidth = 1; ctx.strokeRect(Math.round(b.x) - 0.5, Math.round(b.y) - 0.5, b.w + 1, b.h + 1); ctx.globalAlpha = 1; }
+      });
+    }
+    function drawCharm() { if (!D.pets || !D.pets[8]) return; var b = petBox(8); if (b) ctx.drawImage(b.im, Math.round(b.x), Math.round(b.y)); }
+    function drawRain() {
+      if (!D.rain) return; ctx.strokeStyle = '#8fcbd8'; ctx.lineWidth = 1;
+      for (var i = 0; i < 26; i++) { var x = 304 + (i * 37 + Math.floor(now / 38)) % 83, y = 26 + (i * 23 + Math.floor(now / 22) * 2) % 48; ctx.beginPath(); ctx.moveTo(x + 0.5, y); ctx.lineTo(x - 1.5, y + 5); ctx.stroke(); }
     }
     function fishImg(k) { var o = imgs[D.fishUrl + 'cf-fish-' + k + '.png?v=' + D.v]; return o && o.ok ? o.im : null; }
 
@@ -117,7 +135,7 @@
     var fish = D.fish.map(function (k, i) { return { k: k, i: i, ang: 0, vel: 0, len: [26, 34, 28][i], dx: [-26, 0, 26][i], cool: 0, pop: 0, popV: 0, x: 0, y: 0 }; });
     var lure = null;       // { x0,y0,x1,y1,u,d,t,T,state:'fly'|'land'|'idle'|'reel', fr, ft, size }
     var pops = [], dusts = [], zs = [];
-    var lastThrow = 0, catchesIn20 = [], nextZoom = FAST ? 6000 : between(40000, 80000), nextTag = FAST ? 5000 : between(20000, 40000);
+    var lastThrow = 0, catchesIn20 = [], nextZoom = FAST ? 6000 : between(40000, 80000), nextTag = FAST ? 5000 : between(20000, 40000), nextTree = FAST ? 4000 : between(20000, 40000);
     function lureSize(d) { return d < 0.3 ? 'near' : (d < 0.6 ? 'mid' : 'far'); }
     var LURE = { near: { w: 32, px: 16, py: 28 }, mid: { w: 20, px: 10, py: 17 }, far: { w: 12, px: 6, py: 10 } };
 
@@ -169,6 +187,7 @@
     function think(c, dt) {
       c.moving = false; c.set = 'idle';
       var st = c.st;
+      if (st !== 'perched' && st !== 'climb' && st !== 'down') c.zo = 0;
       if (!c.vis && st !== 'zoomhide') c.vis = true;
       if (st === 'nap') { c.fi = IDLE.nap; if (c.active && !D.nap && now - (c.t || 0) > 0) { /* naps only until the first tap */ } return; }
       if (st === 'alert') { c.fi = IDLE.stalk; return; }
@@ -194,6 +213,21 @@
         return;
       }
       if (st === 'tagged') { if (moveTo(c, c.nx, c.ny, 300, dt)) { c.st = 'idle'; c.wait = now + 2000; } return; }
+      if (st === 'totree') {   // walk to the foot of the cat tree, then hop up its perches
+        if (moveTo(c, 434, 176, 200, dt)) { var pc = M.furn.cattree.perch, pk = pc[Math.floor(rnd() * pc.length)]; c.arc = { x0: c.x, y0: c.y, x1: pk[0], y1: pk[1], t0: now, T: 520, H: 26 }; c.st = 'climb'; }
+        return;
+      }
+      if (st === 'climb' || st === 'down') {
+        var a = c.arc, pr = clamp((now - a.t0) / a.T, 0, 1); c.zo = 171; c.fi = IDLE.pounce;
+        c.x = a.x0 + (a.x1 - a.x0) * pr; c.y = a.y0 + (a.y1 - a.y0) * pr - 4 * a.H * pr * (1 - pr);
+        if (pr >= 1) { if (st === 'climb') { c.st = 'perched'; c.t = now; c.dur = FAST ? between(4000, 7000) : between(9000, 18000); c.blink = now + 1500; } else { c.st = 'return'; c.zo = 0; dust(c); } }
+        return;
+      }
+      if (st === 'perched') {
+        c.zo = 171; c.fi = IDLE.idleA; if (now > c.blink && now < c.blink + 160) c.fi = IDLE.idleB; else if (now >= c.blink + 160) c.blink = now + between(2200, 5200);
+        if (now - c.t > c.dur) { c.arc = { x0: c.x, y0: c.y, x1: 420 + between(-12, 12), y1: 178, t0: now, T: 520, H: 22 }; c.st = 'down'; }
+        return;
+      }
       if (st === 'tag') {   // chase another cat, then pounce and wiggle
         var o = c.other; if (!o) { c.st = 'idle'; return; }
         if (moveTo(c, o.x, o.y + 4, 260, dt)) { c.st = 'play'; c.t = now; o.st = 'tagged'; var tx = clamp(o.x + (o.x > 240 ? -1 : 1) * between(80, 160), 60, 420), ty = clamp(o.y + between(-30, 30), FLOOR_MIN_Y + 14, FLOOR_MAX_Y - 6); o.nx = tx; o.ny = ty; }
@@ -234,6 +268,12 @@
       if (now > nextZoom && act.st === 'idle') {
         nextZoom = now + (FAST ? between(9000, 15000) : between(45000, 90000));
         act.st = 'zoom'; act.zDir = rnd() < 0.5 ? 1 : -1; act.y = yOf(between(0.12, 0.4)); act.moving = true;
+      }
+      if (owned.cattree > 0 && M && now > nextTree) {
+        nextTree = now + (FAST ? between(5000, 9000) : between(30000, 70000));
+        var cand = cats.filter(function (c) { return c.st === 'idle' && !c.onCushion && (!c.active || rnd() < 0.3); });
+        var busy = cats.some(function (c) { return c.st === 'totree' || c.st === 'climb' || c.st === 'perched' || c.st === 'down'; });
+        if (cand.length && !busy) cand[Math.floor(rnd() * cand.length)].st = 'totree';
       }
       if (now > nextTag && cats.length > 1) {
         nextTag = now + (FAST ? between(6000, 10000) : between(25000, 50000));
@@ -305,7 +345,7 @@
       draw1(night ? 'room/cf-room2-p0n-night-sky.png' : 'room/cf-room2-p0-sky.png', 0, 0);
       draw1('room/cf-room2-p1-wall.png', 0, 0); draw1('room/cf-room2-p2-floor.png', 0, 0);
       if (owned.sunbeam > 0 && ph === 0) { ctx.globalAlpha = 0.9; draw1('room/cf-room2-p5-sunbeam.png', 0, 0); ctx.globalAlpha = 1; }
-      var items = [];
+      drawPets('back'); var items = [];
       Object.keys(M.furn).forEach(function (k) {
         var f = M.furn[k]; if (!furnVisible(k, f)) return;
         if (f.kind === 'wall' || f.kind === 'floor-decal') draw1('furn/' + f.file, f.origin[0], f.origin[1]);
@@ -313,14 +353,15 @@
       });
       var vis = cats.filter(function (c) { return c.vis; });
       var all = items.map(function (i) { return { z: i.z - 0.01, fn: function () { draw1('furn/' + i.f.file, i.f.origin[0], i.f.origin[1]); } }; })
-        .concat(vis.map(function (c) { return { z: c.y, fn: function () { drawCat(c); } }; }));
+        .concat(Object.keys(D.pets || {}).filter(function (n) { return n == 6 || n == 7; }).map(function (n) { return { z: n == 7 ? 245 : 238, fn: function () { var b = petBox(n); if (b) { ctx.drawImage(b.im, Math.round(b.x), Math.round(b.y)); if (D.pets[n][2] && !reduced()) { ctx.globalAlpha = 0.35 + 0.35 * Math.sin(now / 260); ctx.strokeStyle = '#fff8e2'; ctx.strokeRect(Math.round(b.x) - 0.5, Math.round(b.y) - 0.5, b.w + 1, b.h + 1); ctx.globalAlpha = 1; } } } }; }))
+        .concat(vis.map(function (c) { return { z: c.zo || c.y, fn: function () { drawCat(c); } }; }));
       all.sort(function (a, b) { return a.z - b.z; });
       all.forEach(function (o) { o.fn(); });
       draw1(owned.window > 0 ? 'room/cf-room2-window.png' : 'room/cf-room2-window-nobird.png', 0, 0);
       draw1('room/cf-room2-p4-front.png', 0, 0);
       if (ph) { ctx.globalAlpha = ph === 2 ? M.layout.night.opacity_night : M.layout.night.opacity_dusk; ctx.fillStyle = M.layout.night.tint; ctx.fillRect(0, 0, 480, 270); ctx.globalAlpha = 1; }
       if (night) draw1('room/cf-room2-p5b-night.png', 0, 0);
-      drawLure(); drawWand(); drawPops();
+      drawRain(); drawLure(); drawWand(); drawCharm(); drawPops();
     }
 
     /* ---- loop ---- */
@@ -359,6 +400,8 @@
       if (!M) return; var p = toCanvas(ev), hit = null;
       fish.forEach(function (f) { if (Math.hypot(p.x - f.x, p.y - f.y) < 17) hit = f; });
       if (hit) { swatFish(hit, p); return; }
+      var ph = null; Object.keys(D.pets || {}).forEach(function (n) { if (!D.pets[n][1]) return; var b = petBox(n); if (b && p.x >= b.x - 2 && p.x <= b.x + b.w + 2 && p.y >= b.y - 2 && p.y <= b.y + b.h + 2) ph = n; });
+      if (ph) { if (D.pets[ph][2] && window.CFPlay && window.CFPlay.petUse) window.CFPlay.petUse(ph); else pop(p.x, p.y - 8, 0, 'not ready yet'); return; }
       if (p.y >= FLOOR_MIN_Y && p.y <= 268) castTo(p.x, clamp(p.y, FLOOR_MIN_Y, FLOOR_MAX_Y));
     }
     cv.addEventListener('pointerdown', onDown);

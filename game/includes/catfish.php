@@ -284,7 +284,7 @@ const CATFISH_SIDE_FRAMES = ['idleA' => ['idleA', 'idleB', 'stalk']];
  */
 function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false, array $pets = []): string
 {
-    if (catfish_room2_on() && catfish_art_has('room2/manifest.json')) return catfish_room2_stage_html($cats, $active, $owned, $napping, $hint);   // setting catfish_room2: the canvas room (assets/catfish_room.js)
+    if (catfish_room2_on() && catfish_art_has('room2/manifest.json')) return catfish_room2_stage_html($cats, $active, $owned, $napping, $hint, $pets);   // setting catfish_room2: the canvas room (assets/catfish_room.js)
     if (!catfish_art_has('cf-room.png')) return '';
     $h = '<div class="cfstagewrap"><div class="cfstage' . catfish_rod_classes($owned) . catfish_pet_stage_classes($pets) . '" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
     $h .= catfish_room_extras_html($owned);
@@ -349,8 +349,14 @@ function catfish_scene_key(array $cats, ?array $active, array $owned, array $pet
  * (floor throw, rod fish, charms stay in the panel) and one JSON block with the cats and what is owned. Swapped in place by catfish.js like the old stage (class cfstagewrap).
  * Game coat => art coat as CATFISH_ART_COATS; 'solid' = no pattern layer; odd eyes use the first of the two colours.
  */
-function catfish_room2_stage_html(array $cats, array $active, array $owned, bool $napping, bool $hint): string
+function catfish_room2_stage_html(array $cats, array $active, array $owned, bool $napping, bool $hint, array $pets = []): string
 {
+    $ps = [];   // room things: slot no => [item key, active (tap to use), ready now]
+    foreach ((array)($pets['slots'] ?? []) as $no => $key) {
+        if (!isset(CATFISH_PET_ITEMS[$key]) || !catfish_art_has('cf-pet-' . $key . '.png')) continue;
+        $it = CATFISH_PET_ITEMS[$key]; $act = $it['kind'] === 'A';
+        $ps[(int)$no] = [$key, $act, $act && !empty($pets['ready'][$no]), (string)$it['name']];
+    }
     $cs = [];
     foreach ($cats as $c) {
         $eye = (string)($c['eyes'] ?? 'amber'); $sd = (int)($c['seed'] ?? 0);
@@ -361,12 +367,13 @@ function catfish_room2_stage_html(array $cats, array $active, array $owned, bool
     }
     $up = []; foreach ($owned as $k => $n) if ((int)$n > 0) $up[$k] = (int)$n;
     $data = ['base' => url('assets/img/catfish/room2/'), 'v' => APP_VERSION, 'cats' => $cs, 'active' => (int)($active['id'] ?? 0), 'owned' => $up,
-             'fish' => catfish_fish_kinds($owned, $active), 'nap' => $napping, 'fishUrl' => url('assets/img/catfish/'), 'rodUrl' => catfish_art_url('cf-rod.png')];
+             'pets' => $ps, 'rain' => !empty($pets['rain']), 'petUrl' => url('assets/img/catfish/'), 'fish' => catfish_fish_kinds($owned, $active), 'nap' => $napping, 'fishUrl' => url('assets/img/catfish/'), 'rodUrl' => catfish_art_url('cf-rod.png')];
     $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
     $h = '<div class="cfstagewrap cfr2wrap"><div class="cfr2stage" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' playing in the room">';
     $h .= '<canvas class="cfr2cv" width="480" height="270" aria-hidden="true"></canvas>';
     $h .= '<button type="button" class="cfsr cfr2key" data-act="floor">Throw the lure down the room</button>';
     foreach (array_keys(catfish_fish_kinds($owned, $active)) as $i) $h .= '<button type="button" class="cfsr cfr2key" data-act="fish" data-fish="' . ($i + 1) . '">Bat the plushie fish ' . ($i + 1) . '</button>';
+    foreach ($ps as $no => [$pk, $pa, $pr, $pn]) if ($pa) $h .= '<button type="button" class="cfsr cfpet cfr2key" data-slot="' . $no . '"' . ($pr ? '' : ' disabled') . '>' . e($pn . ($pr ? ': ready, use it' : ': not ready yet')) . '</button>';
     if ($hint) $h .= '<p class="cfr2hint" id="cf-hint">Tap the floor to throw the lure. Tap a fish to play!</p>';
     $h .= '<script type="application/json" class="cfr2data">' . json_encode($data, $J) . '</script>';
     return $h . '</div></div>';
