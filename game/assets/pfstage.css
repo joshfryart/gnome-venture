@@ -35,3 +35,13 @@ dialog.trailpop.pfst.pfst-wait .pickbox { visibility: hidden; }
 /* the cover for the way out (End match): a manual popover, so it sits above the modal dialog in the top layer */
 .pfst-cover { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 0px); height: var(--pfh, 0px); margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; pointer-events: auto; }
 .pfst-cover svg { position: absolute; overflow: visible; will-change: transform; }
+/* 2.8.44, a desktop-size window (the same test as pfstage.js desk(): at least 1000 x 600): the fight is not tied to the map's box. pfstage.js gives the dialog one fixed box for the
+   pre-fight card, the combat and the result card: the visible window less a gutter, centred. The page behind is dimmed and does not scroll; the cards inside keep a readable width. */
+@media (min-width: 1000px) and (min-height: 600px) {
+  html:has(dialog.trailpop.pfst), html:has(dialog.trailpop.pfst) body { overflow: hidden; }
+  dialog.trailpop.pfdlg.pfst::backdrop, dialog.trailpop.pfst::backdrop { background: rgba(12, 7, 4, .45); }
+  dialog.trailpop.pfst.pfst-held #pfv-pre.pfv-fit, dialog.trailpop.pfst .pfst-ghost .pfv-fit { top: clamp(10px, 2vh, 28px); bottom: clamp(10px, 2vh, 28px); left: max(10px, calc(50% - 620px)); right: max(10px, calc(50% - 620px)); width: auto; }
+  dialog.trailpop.pfst .hubcard.pfst-res { width: min(calc(100% - 20px), 560px); height: auto; max-height: calc(100% - 20px); margin: 0; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  dialog.trailpop.pfst .pfst-res > .res.pfv { width: 100%; box-sizing: border-box; }
+  dialog.trailpop.pfst #pfight.pf-v1.pfv-fit { border-radius: 10px; box-shadow: 0 6px 28px rgba(0, 0, 0, .55); }
+}

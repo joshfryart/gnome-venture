@@ -1,7 +1,7 @@
 // 2.6.96 (owner: "Whole game covers over the website, we still want to see it behind it!"): the v1 fight sits OVER the site, not instead of it.
 // Both ways in (the plain adventure page, and the MODAL Trail dialog #trailpop after a tile walk), at a phone (390x844, 360x640) and a desktop (1280x720, 1440x900):
 //   - no page scroll, the fight fills the height between the site's header and bottom bar (a phone in the Trail dialog: the whole window, as before), End turn in view;
-//   - desktop: the fight is a centred column no wider than MAXW, and the site shows at its left and right AND in the header row: the pixels there keep at least
+//   - desktop (2.8.44, owner: use as much of the screen as possible): the fight is a centred panel the width of the window less a gutter (GUT, at most 1640 px), and the site shows at its left and right AND in the header row: the pixels there keep at least
 //     MINVIS of their contrast against the same page with the fight hidden (a solid cover keeps 0, the old .78 dim kept about .2);
 //   - Escape (pressed three times) never closes the Trail dialog or drops the fight; a reload lands on the same fight; End turn still works at a desktop size.
 //   node tests/pfv1_layout.js BASE GAME TESTSDIR    (tests/pfv1_layout.sh sets it up; SHOTS=dir saves screenshots)
@@ -9,7 +9,8 @@ const { chromium, devices } = require('playwright');
 const { execSync } = require('child_process');
 const [base, game, here] = process.argv.slice(2);
 const seed = (...a) => execSync(`php -d display_errors=1 ${here}/pbox_v1_seed.php ${game} ${a.join(' ')}`).toString().trim();
-const SHOTS = process.env.SHOTS || '', TAG = process.env.TAG || 'after', MAXW = 600, MINVIS = 0.4;
+const SHOTS = process.env.SHOTS || '', TAG = process.env.TAG || 'after', MINVIS = 0.4;
+const GUT = (w, h) => Math.round(Math.max(12, Math.min(40, Math.min(w, h) * 0.025)));   // the desktop gutter (pfv1.css --pfd-g)
 let fails = 0;
 const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.stringify(want); if (g === w) console.log('ok   ' + what); else { console.log(`FAIL ${what} (got ${g}, want ${w})`); fails++; } };
 const VIEWS = [[390, 844, 'light', true], [360, 640, 'dark', true], [1280, 720, 'light', false], [1440, 900, 'dark', false]];
@@ -30,17 +31,19 @@ const VIEWS = [[390, 844, 'light', true], [360, 640, 'dark', true], [1280, 720, 
       ck(`${tag} the fight is on screen (${path === 'trail' ? 'in the modal Trail dialog' : 'on the page'})`, [await p.locator('#pfight.pfv-fit').count(), inDlg, path === 'trail' ? await p.evaluate(() => document.getElementById('trailpop').matches(':modal')) : false], [1, path === 'trail' ? 1 : 0, path === 'trail']);
       const m = await p.evaluate(() => {
         const f = document.getElementById('pfight').getBoundingClientRect(), se = document.scrollingElement, go = document.getElementById('pf-go');
-        const cs = getComputedStyle(document.documentElement), top = parseFloat(cs.getPropertyValue('--pfv-top')) || 0, bot = parseFloat(cs.getPropertyValue('--pfv-bot')) || 0;
+        const cs = getComputedStyle(document.documentElement), top = parseFloat(cs.getPropertyValue('--pfv-top')) || 0, bot = parseFloat(cs.getPropertyValue('--pfv-bot')) || 0, dockh = parseFloat(getComputedStyle(document.body).getPropertyValue('--dock-h')) || 0;
         const hd = document.querySelector('.bannerin'), hr = hd ? hd.getBoundingClientRect() : null, g = go ? go.getBoundingClientRect() : null;
-        return { f: { l: Math.round(f.left), r: Math.round(f.right), t: Math.round(f.top), b: Math.round(f.bottom), w: Math.round(f.width) }, top, bot, iw: innerWidth, ih: innerHeight,
+        return { f: { l: Math.round(f.left), r: Math.round(f.right), t: Math.round(f.top), b: Math.round(f.bottom), w: Math.round(f.width) }, top, bot, dockh, iw: innerWidth, ih: innerHeight,
           scroll: se.scrollHeight - se.clientHeight, wx: se.scrollWidth - se.clientWidth, hb: hr ? Math.round(hr.bottom) : 0, go: g ? [Math.round(g.top), Math.round(g.bottom)] : null };
       });
       ck(`${tag} the page does not scroll (no vertical or sideways overflow)`, [m.scroll <= 0, m.wx <= 0], [true, true]);
-      ck(`${tag} the fight fills the height between the header and the bottom bar`, [Math.abs(m.f.t - m.top) <= 1, Math.abs(m.f.b - (m.ih - m.bot)) <= 1, m.f.b - m.f.t >= m.ih - m.top - m.bot - 2], [true, true, true]);
+      const gt = phone ? 0 : GUT(vw, vh);   // 2.8.44: a desktop panel keeps a gutter inside the header and the bottom bar
+      if (!phone) m.bot = Math.max(m.bot, m.dockh);   // 2.8.44: a desktop panel also clears the dock's rail
+      ck(`${tag} the fight fills the height between the header and the bottom bar`, [Math.abs(m.f.t - m.top - gt) <= 1, Math.abs(m.f.b - (m.ih - m.bot - gt)) <= 1, m.f.b - m.f.t >= m.ih - m.top - m.bot - 2 * gt - 2], [true, true, true]);
       ck(`${tag} End turn is in view`, !!m.go && m.go[0] >= m.f.t && m.go[1] <= m.f.b, true);
       if (phone) ck(`${tag} a phone: the fight is the full width`, m.f.w >= vw - 1, true);
       else {
-        ck(`${tag} desktop: the fight is a centred column no wider than ${MAXW}px (${m.f.w})`, [m.f.w <= MAXW, m.f.w >= 380, Math.abs((m.f.l + m.f.r) / 2 - vw / 2) <= 2], [true, true, true]);
+        ck(`${tag} desktop: the fight is a centred panel, the window less a gutter (${m.f.w})`, [m.f.w >= Math.min(vw - 2 * GUT(vw, vh), 1640) - 2, Math.abs((m.f.l + m.f.r) / 2 - vw / 2) <= 2], [true, true]);
         ck(`${tag} desktop: the site's header is in view above the fight`, [m.hb > 0, m.f.t >= m.hb - 1], [true, true]);
         // the site behind: the pixels left and right of the fight and in the header row keep their contrast (std of the luminance) against the same page with the fight hidden
         const shotA = (await p.screenshot()).toString('base64');
@@ -68,7 +71,7 @@ const VIEWS = [[390, 844, 'light', true], [360, 640, 'dark', true], [1280, 720, 
         await p.locator('#pf-hand .pf-tile:not([aria-disabled="true"])').first().click(); await p.waitForTimeout(300);
         if (await p.locator('#pfb-board .pfb-lit').count()) { await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(200); await p.locator('#pf-go').click();
           await p.waitForFunction(() => { const f = document.getElementById('pfight'); return f && !f.classList.contains('pf-playing'); }, null, { timeout: 25000 }).catch(() => {}); await p.waitForTimeout(500); }
-        ck(`${tag} after End turn: the fight is still a column of the same width, the page does not scroll`, await p.evaluate(() => { const f = document.getElementById('pfight'), r = f && f.getBoundingClientRect(), se = document.scrollingElement; return [!!f && r.width <= 600 && r.height > 300, se.scrollHeight - se.clientHeight <= 0]; }), [true, true]);
+        ck(`${tag} after End turn: the fight is still the same wide panel, the page does not scroll`, await p.evaluate(() => { const f = document.getElementById('pfight'), r = f && f.getBoundingClientRect(), se = document.scrollingElement; return [!!f && r.width >= Math.min(innerWidth - 80, 1640) && r.height > 300, se.scrollHeight - se.clientHeight <= 0]; }), [true, true]);
       }
       const before = await p.evaluate(() => document.getElementById('pfb-board').children.length);
       await p.reload({ waitUntil: 'networkidle' }); await p.waitForTimeout(700);

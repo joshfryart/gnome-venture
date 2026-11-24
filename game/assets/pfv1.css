@@ -964,3 +964,49 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   .pfv-dsheet .dacts .btn { min-height: 40px; }
   html.pfv-dopen body { padding-bottom: 0; padding-right: min(48vw, 400px); }
 }
+
+/* 2.8.44 (owner: "puzzle combat on desktop looks badly placed and loads weird ... use as much of the screen as possible"): on a desktop-size window (at least 1000 x 600; phones,
+   phone landscape and the dock's short landscape layout never match) the fight on the adventure page (Trail, wander, delve, lair; on the page or in the Trail's dialog) is one wide
+   panel instead of a 560 px column: the board on the left with your hand under it, the bars, tips, last plays and buttons in a column on the right. The board script
+   (pfboardv1.js fitDesk) sizes the board to its room. The panel is the visible window less a gutter (--pfd-g, the same as pfstage.js deskBox); with pfight_stage on, pfstage.js
+   gives its dialog that box. The geometry does not wait for the script that adds .pfv-fit (it used to: the card painted as a narrow column first, then jumped).
+   The frozen copy shown over an End turn (.pfv-ghost) has the same columns, so it does not flash the old layout. (body.game: to win over the .pfv-fit and dock rules.) */
+@media (min-width: 1000px) and (min-height: 600px) {
+  body.game { --pfd-g: clamp(12px, 2.5vmin, 40px); }
+  html body.game #pfight.pf-v1:not(dialog.pfst *), html body.game #pfv-pre.pfv:not(dialog.pfst *) { position: fixed; z-index: 60; top: calc(var(--pfv-top, 0px) + var(--pfd-g)); bottom: calc(max(var(--pfv-bot, 0px), var(--dock-h, 0px)) + var(--pfd-g)); left: 50%; transform: translateX(-50%); margin: 0; max-width: none; box-sizing: border-box; border-radius: 10px; }
+  html body.game #pfight.pf-v1:not(dialog.pfst *) { width: min(calc(100vw - 2 * var(--pfd-g)), 1640px); overflow: hidden; background: #2b1d14; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .45); clip-path: none; }
+  html body.game #pfv-pre.pfv:not(dialog.pfst *) { width: min(calc(100vw - 2 * var(--pfd-g)), 1240px); overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .45); }
+  dialog.trailpop.pfdlg #pfv-pre.pfv { box-shadow: 0 6px 28px rgba(0, 0, 0, .5); }
+  html:has(body.game #pfight.pf-v1), html:has(body.game #pfight.pf-v1) body, html:has(body.game #pfv-pre.pfv), html:has(body.game #pfv-pre.pfv) body { overflow: hidden; }
+
+  /* the combat: two columns. The rows of the right column are auto rows; the board spans them all and the 1fr row under them, the hand is in the last row under the board */
+  body.game #pfight.pf-v1, body.game .pf-v1.pfv-fit.pfv-ghost { display: grid; grid-template-columns: minmax(0, 1fr) clamp(340px, 30vw, 500px); grid-template-rows: repeat(18, auto) minmax(0, 1fr) auto; grid-auto-flow: row; column-gap: clamp(12px, 1.6vw, 32px); row-gap: 0; align-content: stretch; justify-content: stretch; padding: clamp(8px, 1.2vmin, 18px) clamp(10px, 1.4vw, 24px); }
+  body.game #pfight.pf-v1 > *, body.game .pf-v1.pfv-fit.pfv-ghost > * { grid-column: 2; margin-top: 0; margin-bottom: 6px; min-width: 0; }
+  body.game #pfight.pf-v1 > :is(.pfv-bwrap, .pfb-board), body.game .pf-v1.pfv-fit.pfv-ghost > :is(.pfv-bwrap, .pfb-board) { grid-column: 1; grid-row: 1 / 20; align-self: stretch; justify-self: stretch; margin: 0; min-height: 0; }
+  body.game #pfight.pf-v1 > .pfb-board { justify-self: center; align-self: center; }
+  body.game #pfight.pf-v1 > .pf-tray, body.game .pf-v1.pfv-fit.pfv-ghost > .pf-tray { grid-column: 1; grid-row: 20; margin: 0; }
+  /* things the script lays over the fight (position: absolute): the whole panel is their box, or the board's column for the board's pop-ups and the turn banner (a grid column would be their box) */
+  body.game #pfight.pf-v1 > :is(.pf-barhint, .pf-bartip, .pfi) { grid-column: auto; grid-row: auto; margin: 0; }
+  body.game #pfight.pf-v1 > :is(.pfv-pop, .pf-turn), body.game .pf-v1.pfv-fit.pfv-ghost > .pf-turn { grid-column: 1; grid-row: auto; margin: 0; }
+  body.game #pfight.pf-v1 > .pfv.res { grid-column: 2; left: 0; right: 0; top: 96px; bottom: 0; max-width: none; margin: 0; }   /* the end card covers the right column under the bars, the last board stays in sight */
+  body.game .pf-v1.pfv-fit .pf-preview { height: auto; max-height: 3.8em; -webkit-line-clamp: 3; }
+  body.game .pf-v1.pfv-fit .pfv-legend, body.game .pf-v1.pfv-fit .pf-opts { flex-wrap: wrap; }
+
+  /* the pre-fight card: the creature on the left, your deck on the right (two balanced columns; the break is the first thing after the creature's tip line), Let's fight across the foot */
+  body.game #pfv-pre .pfv-scroll { columns: 2; column-gap: clamp(16px, 2vw, 36px); column-fill: balance; }
+  body.game #pfv-pre .pfv-scroll > * { break-inside: avoid; }
+  body.game #pfv-pre .pfv-scroll > ul.pcg { break-inside: auto; }
+  body.game #pfv-pre .pfv-scroll > #pfv-cinfo + * { break-before: column; }
+  body.game #pfv-pre .pfv-scroll > .foecard { margin-top: 0; }
+}
+/* a big desktop (1800 x 1100 and up): the right column is wider and its rows are drawn 1.2 times larger (they are sized in px for a phone; at 2560 x 1440 they read as fine print) */
+@media (min-width: 1800px) and (min-height: 1100px) {
+  body.game #pfight.pf-v1, body.game .pf-v1.pfv-fit.pfv-ghost { grid-template-columns: minmax(0, 1fr) clamp(340px, 26vw, 640px); }
+  body.game #pfight.pf-v1 > :is(.pfc-top, .pfc-histrow, .pf-rewind, .pfv-guide, .pfv-row, .pfv-legend, .pfv-pair, .pf-preview, .pf-plan, .pf-buttons, .pf-extra, #pfv-res, .pf-won), body.game .pf-v1.pfv-fit.pfv-ghost > :is(.pfc-top, .pfc-histrow, .pfv-row, .pfv-legend, .pfv-pair, .pf-preview, .pf-buttons) { zoom: 1.2; }
+  body.game #pfv-pre > :is(.pfv-scroll, .pfv-act) { zoom: 1.15; }
+}
+/* the first-fight intro card rises from a distance that follows the window, not a fixed 24 px */
+@media (min-width: 1000px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+  .pfi-card { animation: pfi-updesk .3s ease-out; }
+}
+@keyframes pfi-updesk { from { transform: translateY(3vh) scale(.98); opacity: .4; } to { transform: none; opacity: 1; } }
