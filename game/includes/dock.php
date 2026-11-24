@@ -14,7 +14,7 @@ declare(strict_types=1);
 function dock_settings(): array
 {
     return [
-        'nav_dock' => ['label' => 'Nav dock: the landscape bottom dock (menus, status plate, two page actions). 0 = off (today’s header, bottom bar and menu), admin = admins only (preview; an admin can add ?dock=off or ?dock=on to the address to switch their own copy), 1 = everyone. Portrait screens always keep today’s chrome.', 'type' => 'text', 'default' => '0'],
+        'nav_dock' => ['label' => 'Nav dock: the landscape bottom dock (menus, status plate, two page actions). 0 = off (today’s header, bottom bar and menu), admin = admins only (preview), 1 = everyone (the default since 2.8.23). Anyone can add ?dock=off to an address to fall back to the old layout on their own device (?dock=on undoes it). Portrait screens always keep today’s chrome.', 'type' => 'text', 'default' => '1'],
     ];
 }
 
@@ -32,7 +32,7 @@ function dock_on(?array $u = null): bool
         $admin = ($u['role'] ?? '') === 'admin';
         if ($s === '1') $r = true;
         elseif ($s === 'admin' && $admin) $r = true;
-        if ($r && $admin && $mine) {   // an admin can switch their own preview off and on: ?dock=off / ?dock=on (a cookie)
+        if ($r && $mine) {   // v2.8.23: anyone can fall back to the old layout (?dock=off, a cookie; ?dock=on undoes it). Admins in preview mode use the same switch.
             $q = (string)($_GET['dock'] ?? '');
             if (($q === 'off' || $q === 'on') && !headers_sent()) {
                 setcookie('gv_dock', $q, ['expires' => time() + 86400 * 60, 'path' => '/', 'samesite' => 'Lax', 'httponly' => true]);

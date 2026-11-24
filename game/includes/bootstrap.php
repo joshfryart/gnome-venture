@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.8.22');
+define('APP_VERSION', '2.8.23');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -522,6 +522,9 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             if (version_compare((string)setting('db_version'), '2.1.00', '<')) set_setting('catfish_open', '1');   // v2.1.00: Cat Fish opens for everyone once; a later admin Off is kept
             require_once __DIR__ . '/catfish.php';
             catfish_ensure();   // tables made at upgrade too (a fresh install makes them on first page view, now that the game is open)
+        });
+        boot_step('nav_dock_launch_280', function () {
+            if (version_compare((string)setting('db_version'), '2.8.23', '<')) set_setting('nav_dock', '1');   // v2.8.23: the landscape dock launches for everyone once; an admin can set it back to 0 or admin later and it is kept
         });
         boot_step('petshops_220', function () {
             require_once __DIR__ . '/catfish.php';
