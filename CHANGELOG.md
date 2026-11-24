@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.41
+- **Fix: the Trail map jumped when you picked a spot (landscape).** The walking camera centred the token as if the window showed as many rows as columns, but the landscape layout crops the top and bottom rows, so the walking layer sat one tile too low and snapped back when the walk ended. The camera now uses the rows actually shown (7 on tall screens, 5 on short phones).
+
 ## 2.8.40
 - **Fix: Trail page in landscape broke the fight dialog test (pfstage).** The map's wrapper is a normal box again (the fight dialog and the Trail scripts measure it), so the caption and legend stay small under the map instead of in the right column. The button row is hidden only on a phone's height (up to 520 px); a wide landscape screen keeps it.
 
