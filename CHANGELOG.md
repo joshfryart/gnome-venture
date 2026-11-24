@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.25
+- **Landscape full screen on phones and tablets.** A small ⛶ button in the top-right corner (landscape, touch screens, browsers that allow it) enters full screen and asks for landscape; ✕ leaves. Browsers drop full screen on every page load and allow it again only after a tap, so the choice is remembered on the device and the first tap on each new page puts it back. Portrait leaves full screen. iPhone Safari has no full-screen API, so no button there. The web manifest now asks for full screen when the game is added to the home screen.
+
 ## 2.8.24
 - **Release notes for the new landscape layout.** A player news post ("a new layout for your phone held sideways") is published the first time 2.8.24 loads. No layout changes.
 
