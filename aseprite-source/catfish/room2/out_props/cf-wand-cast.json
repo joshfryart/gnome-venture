@@ -1,0 +1,11 @@
+{
+  "pivot": [24, -6],
+  "frames": [
+    {"file": "cf-wand-cast-1.png", "attach": [24, 55], "ms": 300, "tip": [24, 52], "capR": 3},
+    {"file": "cf-wand-cast-2.png", "attach": [24, 43], "ms": 120, "tip": [24, 40], "capR": 4},
+    {"file": "cf-wand-cast-3.png", "attach": [10, 50], "ms": 110, "tip": [10, 47], "capR": 3},
+    {"file": "cf-wand-cast-4.png", "attach": [24, 59], "ms": 110, "tip": [24, 56], "capR": 3},
+    {"file": "cf-wand-cast-5.png", "attach": [38, 50], "ms": 110, "tip": [38, 47], "capR": 3},
+    {"file": "cf-wand-cast-6.png", "attach": [25, 57], "ms": 290, "tip": [25, 54], "capR": 3}
+  ]
+}
