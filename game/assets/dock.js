@@ -360,7 +360,7 @@
     base.inner = '<span>\u26a1<progress max="100" value="' + ep + '"></progress><b class="bn">' + p.energy[0] + '/' + p.energy[1] + '</b></span>'
       + '<span>\ud83c\udf31 <b>' + p.level + '</b><progress class="xp" max="100" value="' + p.xp + '"></progress></span>'
       + (hp ? '<span>\u2764\ufe0f<progress class="hp" max="100" value="' + hpp + '"></progress><b class="bn">' + hp[0] + '/' + hp[1] + '</b></span>' : '<span></span>')
-      + '<span>' + (p.time ? esc(p.time) + ' <span class="tag">' + 'd' + p.day + '</span> ' : '') + petal() + ' <span class="tag">' + p.coins + '</span></span>';
+      + '<span>' + (p.time ? '<span class="dk-tm">' + esc(p.time) + '</span> <span class="tag">' + 'd' + p.day + '</span> ' : '') + petal() + ' <span class="tag">' + p.coins + '</span></span>';
     return pc(base);
   }
   function actPiece(side, a, base) {
@@ -575,6 +575,60 @@
       : [{ opacity: 0, transform: 'translateY(3px)' }, { opacity: 1, transform: 'translateY(0)', offset: .15 }, { opacity: 1, transform: 'translateY(-14px)', offset: .6 }, { opacity: 0, transform: 'translateY(-22px)' }];
     g.animate(kf, { duration: 1100, easing: 'cubic-bezier(.2,.6,.3,1)' }).onfinish = done;
   }
+  /* v2.8.43: game clock feedback, like the energy one: when an action moves the time, a small clock face ticks in over the time itself ("+10 min"), then fades away. */
+  function tmTick() { var p = D && D.plate; if (!p || !p.time) return null; var m = /^(\d+):(\d+)/.exec(String(p.time)); return m ? (+p.day) * 1440 + (+m[1]) * 60 + (+m[2]) : null; }
+  function tmRead() { try { var v = sessionStorage.getItem('gv_tm'); return v === null || v === '' ? null : +v; } catch (x) { return null; } }
+  function tmStore(v) { try { sessionStorage.setItem('gv_tm', String(v)); } catch (x) {} }
+  function tmText(d) { if (d < 60) return '+' + d + ' min'; if (d < 1440) { var h = Math.floor(d / 60), m = d % 60; return '+' + h + ' h' + (m ? ' ' + m + ' min' : ''); } var dd = Math.floor(d / 1440), r = d % 1440; return '+' + dd + ' d' + (r >= 60 ? ' ' + Math.floor(r / 60) + ' h' : ''); }
+  function timeFx() {
+    var cur = tmTick(); if (cur === null) return;
+    var prev = tmRead(); tmStore(cur);
+    if (prev === null || cur <= prev || !mq.matches) return;
+    var d = cur - prev, a = root.querySelector('#dockplate .dk-tm') || root.querySelector('.dk-rs'); if (!a) return;
+    var r = a.getBoundingClientRect(); if (!r.width) return;
+    var g = document.createElement('span'); g.className = 'dockghost dockclock'; g.setAttribute('aria-hidden', 'true');
+    var ang = Math.min(d, 720) * 6, hr = Math.min(d, 720) * .5;   // the minute hand turns 6 deg a minute, the hour hand half a degree
+    g.innerHTML = '<svg viewBox="0 0 20 20" width="' + Math.round(15 * K) + '" height="' + Math.round(15 * K) + '"><circle cx="10" cy="10" r="8.5" fill="#2a1a10" stroke="#ffe9a0" stroke-width="1.6"/>'
+      + '<path class="hh" d="M10 10V5.6" stroke="#ffe9a0" stroke-width="1.8" stroke-linecap="round"/><path class="mh" d="M10 10V3.4" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="10" r="1.2" fill="#ffe9a0"/></svg><b>' + esc(tmText(d)) + '</b>';
+    g.style.fontSize = Math.round(12 * K) + 'px';
+    document.body.appendChild(g);
+    var gw = g.offsetWidth, gh = g.offsetHeight;
+    g.style.left = Math.round(r.left + r.width / 2 - gw / 2) + 'px'; g.style.top = Math.round(r.top + r.height / 2 - gh / 2) + 'px';
+    var done = function () { if (g.parentNode) g.parentNode.removeChild(g); a.style.opacity = ''; };
+    var mh = g.querySelector('.mh'), hh = g.querySelector('.hh');
+    if (!g.animate || RM.matches) { a.style.opacity = '.25'; g.style.opacity = '1'; setTimeout(done, 1300); return; }   // reduced motion: no ticking, just show and fade
+    a.style.opacity = '.2';   // the old time sits under the ghost until it fades
+    var n = Math.max(3, Math.min(12, Math.ceil(d / 5)));
+    if (mh && mh.animate) mh.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(' + ang + 'deg)' }], { duration: 640, delay: 160, easing: 'steps(' + n + ', end)', fill: 'both' });
+    if (hh && hh.animate) hh.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(' + hr + 'deg)' }], { duration: 640, delay: 160, easing: 'steps(' + n + ', end)', fill: 'both' });
+    g.animate([{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)', offset: .14 }, { opacity: 1, transform: 'scale(1)', offset: .72 }, { opacity: 0, transform: 'scale(1.08)' }], { duration: 1250, easing: 'ease-out' }).onfinish = done;
+    a.animate([{ opacity: .2 }, { opacity: .2, offset: .72 }, { opacity: 1 }], { duration: 1250 });
+  }
+  /* v2.8.43: forms sent in the background (the Gather box, village scenes, the Trek, fights...) do not reload the page, so the plate would keep the old clock, energy and coins. After any same-site POST the dock asks dockstate.php for its numbers (one small JSON call, 350 ms after the answer) and redraws, with the same energy and clock effects. */
+  var stTimer = 0, stBusy = false;
+  function refreshPlate() {
+    if (!D || !D.stateUrl || stBusy) return;
+    stBusy = true;
+    fetch(D.stateUrl, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      stBusy = false; if (!j || !j.plate || !D) return;
+      D.plate = j.plate; if (j.rows) D.rows = j.rows; if (j.links) D.links = j.links;
+      render(); energyFx(); timeFx();
+    }).catch(function () { stBusy = false; });
+  }
+  (function () {
+    var of = window.fetch; if (!of || of.__gvDock) return;
+    var nf = function (input, init) {
+      var p = of.apply(this, arguments);
+      try {
+        var m = String((init && init.method) || (input && input.method) || 'GET').toUpperCase(), u = String(typeof input === 'string' ? input : (input && input.url) || '');
+        if (m === 'POST' && u.indexOf('dockstate.php') < 0 && (u.charAt(0) === '/' || u.indexOf(location.origin) === 0 || !/^[a-z]+:/i.test(u))) {
+          p.then(function () { clearTimeout(stTimer); stTimer = setTimeout(refreshPlate, 350); }, function () {});
+        }
+      } catch (x) {}
+      return p;
+    };
+    nf.__gvDock = true; window.fetch = nf;
+  })();
   function curBar() { return root.querySelector('#dockplate progress'); }
   function energyFx() {
     if (!D || !D.plate || !D.plate.energy) return;
@@ -599,7 +653,7 @@
     }
     enAnim = requestAnimationFrame(step);
   }
-  document.addEventListener('gv:swapped', function () { tSel = {}; if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); energyFx(); } stripEnergyWords(); });   // an in-place page load: new plate numbers and actions
+  document.addEventListener('gv:swapped', function () { tSel = {}; if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); energyFx(); timeFx(); } stripEnergyWords(); });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);
@@ -637,5 +691,5 @@
   document.addEventListener('gv:swapped', function () { setTimeout(msgUpdate, 0); });
   var dockMo = window.MutationObserver ? new MutationObserver(function () { clearTimeout(msgUpdate.t); msgUpdate.t = setTimeout(msgUpdate, 150); }) : null;
   if (dockMo) { var cw = document.querySelector('.chrome2'); if (cw) dockMo.observe(cw, { subtree: true, childList: true, characterData: true }); }
-  try { if (readData()) { watch(); render(); msgUpdate(); energyFx(); } stripEnergyWords(); } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
+  try { if (readData()) { watch(); render(); msgUpdate(); energyFx(); timeFx(); } stripEnergyWords(); } catch (err) { document.body.classList.remove('dock-ready'); if (window.console) console.warn('dock: ' + (err && err.message)); }
 })();

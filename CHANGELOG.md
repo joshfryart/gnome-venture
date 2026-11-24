@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.43
+- **The dock clock updates after every action, with a ticking clock.** Forms sent in the background (the Gather box, village scenes, the Trek, fights) did not reload the page, so the plate kept the old time, energy and coins. The dock now asks `dockstate.php` (one small JSON call) after any such POST and redraws. When the time moves, a small clock face ticks in over the time ("+10 min", the hand turning in steps) and fades away, like the energy effect; reduced motion: a plain fade. The plate also reads the user row fresh, so it shows the numbers after the action, not before.
+- Not checked: a real phone, the effect on every background form (tested: the Gather box).
+
 ## 2.8.42
 - **No full screen on desktop.** The first tap in a fight no longer takes a desktop browser into full screen, and the full screen button on the play rail is hidden there. Phones and tablets (touch screens) keep both.
 
