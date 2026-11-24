@@ -1847,7 +1847,8 @@
       if (ck !== null && who === 'foe' && truthy(s.foe.nocombo)) { vv = [iround(Number(tile.v))]; ck = null; }   // stat pieces (Not Fooled): its chain gets no combos
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       if (p.wv !== undefined && p.wv !== null) val = Math.max(1, val + toInt(p.wv));   // 2.7.09 wear effects: a boost or a shrink on this board piece
-      if (who === 'foe' && truthy(p.snr)) val = Math.max(1, val - Math.trunc(val / 2));   // stat pieces (Snare Field): it came down on a snare: half its value
+      var snrHit = who === 'foe' && truthy(p.snr);
+      if (snrHit) val = Math.max(1, val - Math.trunc(val / 2));   // stat pieces (Snare Field): it came down on a snare: half its value
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + Number(abp(s, 'gpct', PFB_KIND_GRUDGE)) * toInt(s.foe.grudge)));   // 2.6.98 Grudge
       var grd = who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'beast' ? toInt(nn(s.foe.grudge, 0)) : 0, swm = 0;   // 2.7.51 (pfb_fire)
       if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); swm = Math.min(toInt(abp(s, 'smax', PFB_KIND_SWARM_MAX)), Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; val += swm; }   // 2.6.988 Swarm grows
@@ -1884,6 +1885,7 @@
       if (grd > 0) e.gr = grd;
       if (swm > 0) e.sw = swm;
       if (whalf) e.whalf = 1;
+      if (snrHit) e.snr = 1;
       if (re) e.re = 1;
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
       if (wcl !== null) { wcx.g = tile.t === 'guard' ? val : 0; for (var wi = 0; wi < wcl.length; wi++) { var wo = wcl[wi]; if (wo.st === 'post' && wxConds(s, wo.c0.filter(wxIsTgt), wcx)) wxAct(s, wo, wcx, e); } if (wcx.roll !== undefined) e.roll = wcx.roll ? 'hit' : 'miss'; }   // 2.7.09 wear effects

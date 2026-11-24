@@ -1067,7 +1067,8 @@ function pfb_fire(array &$s, int $root, bool $alone = false): array
         if ($ck !== null && $who === 'foe' && !empty($s['foe']['nocombo'])) { $val = (int)pf_round((float)$tile['v']); $ck = null; }   // stat pieces (Not Fooled): its chain gets no combos
         $val = (int)pf_round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
         if (isset($p['wv'])) $val = max(1, $val + (int)$p['wv']);   // 2.7.09 wear effects: a boost (+) or a shrink (-) on this board piece
-        if ($who === 'foe' && !empty($p['snr'])) $val = max(1, $val - intdiv($val, 2));   // stat pieces (Snare Field): it came down on a snare: half its value
+        $snrHit = $who === 'foe' && !empty($p['snr']);
+        if ($snrHit) $val = max(1, $val - intdiv($val, 2));   // stat pieces (Snare Field): it came down on a snare: half its value ($e['snr'] tells the replay: the trapdoor)
         if ($who === 'foe' && $tile['t'] === 'hurt' && ($gr = (int)($s['foe']['grudge'] ?? 0)) > 0 && pfb_kind($s) === 'beast') $val = (int)pf_round($val * (1 + (float)pfb_abp($s, 'gpct', PFB_KIND_GRUDGE) * $gr));   // 2.6.98 Grudge (2.7.01: Fury / Slow grudge change the number)
         $grd = $who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'beast' ? (int)($s['foe']['grudge'] ?? 0) : 0; $swm = 0;   // 2.7.51: the class rule's share of this hit, named in the event (the harness's WHAT HAPPENED)
         if ($who === 'foe' && $tile['t'] === 'hurt' && pfb_kind($s) === 'critter') { $others = 0; foreach ($s['pcs'] as $q) if ($q['by'] === 'foe' && (int)$q['id'] !== $id) $others++; $swm = min((int)pfb_abp($s, 'smax', PFB_KIND_SWARM_MAX), intdiv($others, 2)) * PFB_KIND_SWARM_ADD; $val += $swm; }   // 2.6.988 Swarm grows: +1 Hurt for each other creature piece out
@@ -1104,6 +1105,7 @@ function pfb_fire(array &$s, int $root, bool $alone = false): array
         if ($grd > 0) $e['gr'] = $grd;
         if ($swm > 0) $e['sw'] = $swm;
         if ($whalf) $e['whalf'] = 1;
+        if ($snrHit) $e['snr'] = 1;
         if ($re) $e['re'] = 1;   // stat pieces: it fires again (Loaded Die, Long Shot, Lucky Streak)
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
         if ($wcl !== null) { $wcx['g'] = $tile['t'] === 'guard' ? $val : 0; foreach ($wcl as $o) if ($o['st'] === 'post' && pfb_wx_conds($s, array_filter($o['c0'], fn($c) => str_starts_with(ltrim($c, '!'), 'tgt:')), $wcx)) pfb_wx_act($s, $o, $wcx, $e); if (isset($wcx['roll'])) $e['roll'] = $wcx['roll'] ? 'hit' : 'miss'; }   // stat pieces: the Luck roll of this firing, for the board   // 2.7.09 wear effects (the tgt conditions after the boost)
