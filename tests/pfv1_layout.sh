@@ -1,6 +1,6 @@
 #!/bin/bash
 # 2.6.96 (owner: "Whole game covers over the website, we still want to see it behind it!"): the v1 fight's layout over the site, on the plain adventure page and in the
-# modal Trail dialog, at 390x844 / 360x640 / 1280x720 / 1440x900 (tests/pfv1_layout.js: no scroll, fills the height, a centred column on desktop with the site showing around it,
+# modal Trail dialog, at 390x844 / 360x640 / 1280x720 / 1440x900 (tests/pfv1_layout.js: no scroll, fills the height, a centred wide panel on desktop (2.8.44; it was a 560 px column) with the site showing around it,
 # Escape keeps the fight, a reload lands on it, End turn on desktop).
 # Usage: tests/pfv1_layout.sh [GAME_COPY_DIR] [PORT] [ROUTER]   (default: copies src/game to a temp dir; SHOTS=dir TAG=before|after saves screenshots)
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/.." && pwd)

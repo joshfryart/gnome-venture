@@ -11,14 +11,25 @@ function shop_cat_of(string $c): string { return isset(SHOP_CATS[$c]) ? $c : 'ot
 function shop_cat_rank(array $r): int { return (int)array_search(shop_cat_of((string)$r['category']), array_keys(SHOP_CATS + ['other' => 1]), true); }
 
 /** Category chips that only hide and show tiles inside the nearest .shopwrap. */
-function shop_chips(array $rows): string
+function shop_chips(array $rows, string $mode = ''): string
 {
+    $bar = $mode === '' ? '' : shop_filter_bar($mode);
     $n = [];
     foreach ($rows as $r) { $k = shop_cat_of((string)$r['category']); $n[$k] = ($n[$k] ?? 0) + 1; }
-    if (count($n) < 2) return '';
+    if (count($n) < 2) return $bar;
     $h = '<nav class="chips shopcats" aria-label="Show"><button type="button" class="on" data-cat="all">All <small>' . count($rows) . '</small></button>';
     foreach (SHOP_CATS + ['other' => '📦 Other'] as $k => $label) if (!empty($n[$k])) $h .= '<button type="button" data-cat="' . $k . '">' . $label . ' <small>' . $n[$k] . '</small></button>';
-    return $h . '</nav>';
+    return $h . '</nav>' . $bar;
+}
+
+/** Sort, rarity and "can afford" / "wanted" filters; site.js ("shop filters") reorders and hides tiles, nothing is posted. */
+function shop_filter_bar(string $mode): string
+{
+    return '<div class="shopfilt" role="group" aria-label="Sort and filter">'
+        . '<label>Sort <select data-sf="sort"><option value="">Default</option><option value="name">Name A–Z</option><option value="pl">Price: low to high</option><option value="ph">Price: high to low</option><option value="rar">Rarity: rarest first</option></select></label>'
+        . '<label>Rarity <select data-sf="rar"><option value="">All</option><option value="c">Common</option><option value="u">Uncommon</option><option value="r">Rare</option><option value="l">Legendary</option></select></label>'
+        . ($mode === 'buy' ? '<label class="sfck"><input type="checkbox" data-sf="afford"> Can afford</label>' : '<label class="sfck"><input type="checkbox" data-sf="want"> Wanted</label>')
+        . '</div>';
 }
 
 /** v2.0.67: the basket bar. Sheets add to it (site.js "shop basket"); one post buys or sells everything in it. */

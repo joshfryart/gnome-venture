@@ -2051,6 +2051,34 @@ document.addEventListener('click', function (ev) {
 });
 
 
+/* shop filters: sort, rarity and Can afford / Wanted. Client side only; the category chips use .catoff, these use .filtoff. */
+(function () {
+  var RK = { c: 0, u: 1, r: 2, l: 3 };
+  function rar(t) { var b = t.querySelector('.itm'); var m = b && /itm--([curl])\b/.exec(b.className); return m ? m[1] : 'c'; }
+  function apply(bar) {
+    var wrap = bar.closest('.shopwrap'); if (!wrap) return;
+    var v = function (k) { var e = bar.querySelector('[data-sf="' + k + '"]'); return e ? (e.type === 'checkbox' ? e.checked : e.value) : ''; };
+    var sort = v('sort'), rf = v('rar'), aff = v('afford'), want = v('want');
+    var grid = wrap.querySelector('.itms'); if (!grid) return;
+    var tiles = [].slice.call(grid.querySelectorAll(':scope > .btile'));
+    tiles.forEach(function (t, i) { if (t.__o === undefined) t.__o = i; });
+    tiles.sort(function (a, b) {
+      var pa = +a.getAttribute('data-price') || 0, pb = +b.getAttribute('data-price') || 0;
+      if (sort === 'name') return (a.getAttribute('data-name') || '').localeCompare(b.getAttribute('data-name') || '');
+      if (sort === 'pl') return pa - pb || a.__o - b.__o;
+      if (sort === 'ph') return pb - pa || a.__o - b.__o;
+      if (sort === 'rar') return RK[rar(b)] - RK[rar(a)] || a.__o - b.__o;
+      return a.__o - b.__o;
+    });
+    tiles.forEach(function (t) {
+      grid.appendChild(t);
+      var it = t.querySelector('.itm'), off = (rf && rar(t) !== rf) || (aff && it && it.classList.contains('is-off')) || (want && !(it && it.classList.contains('is-want')));
+      t.classList.toggle('filtoff', !!off);
+    });
+  }
+  document.addEventListener('change', function (e) { var b = e.target.closest && e.target.closest('.shopfilt'); if (b) apply(b); });
+})();
+
 // v0.8.3: swipe the menu sheet down to close it (phones)
 (function () {
   var side = document.querySelector('nav.side'), box = document.getElementById('navtoggle'), y0 = null;

@@ -141,6 +141,7 @@ function dock_menus(array $u, string $page): array
 /** The status plate and its popover: numbers and the few links the menu cannot reach (stat points, ready pots and jars, the trip). */
 function dock_status(array $u): array
 {
+    try { $fresh = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]); if ($fresh) $u = $fresh; } catch (Throwable $e) {}   // v2.8.43: the plate shows the numbers as they are NOW (an action earlier in this request moved the clock, coins and energy after $u was loaded)
     $plate = ['energy' => [0, 1], 'level' => (int)$u['level'], 'xp' => 0, 'time' => '', 'day' => 0, 'coins' => (int)$u['coins']];
     $rows = [];
     $links = [];
@@ -445,7 +446,7 @@ function dock_html(array $u, string $page): string
         'menus' => $menus, 'here' => $here, 'plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'],
         'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'rail' => dock_rail($u), 'more' => dock_more($u, $page),
         'logoutForm' => '<form method="post" action="' . e(url('logout.php')) . '" class="inline" data-noajax="1">' . csrf_field() . '<button type="submit">Log out</button></form>', 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
-        'quick' => $quick, 'csrf' => csrf_token(), 'quickUrl' => url('quick.php'), 'back' => $back,
+        'quick' => $quick, 'csrf' => csrf_token(), 'quickUrl' => url('quick.php'), 'stateUrl' => url('dockstate.php'), 'back' => $back,
         'foe' => ($foe = dock_foe((int)$u['id'])),
         'play' => dock_play($page, $foe),
         'iconBase' => url('assets/img/nav/dock-'), 'iconNames' => DOCK_ICONS, 'home' => url('gnome.php'),

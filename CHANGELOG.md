@@ -1,10 +1,26 @@
 # Changelog
 
-## 2.8.43
+## 2.8.45
 - **Cat Fish: the new room (setting `catfish_room2`, on by default).** A 480x270 room with depth: cats run into the distance (smaller) and back, zoom off one side of the screen and in from the other, and the other cats wander, nap, tag each other and climb the cat tree. Tap the floor to throw the lure; the cat chases it and the catch pays Kibble (x1.25 when the throw was far). Tap a dangling fish: x1.5. Idle cats now yawn, stretch, wash, flick their tails, twitch their ears and swat at nothing. Room things show on the stage, and active ones can be tapped there.
 - **Cat Fish page layout.** The room loads first. The shop is a drawer with Shop, Shelter and More tabs: it slides in from the right on phones and tablets, and is a permanent 360 px rail from 1000 px wide. Short landscape phones show the whole room. A one-time "turn your phone sideways" chip shows in portrait.
 - **Server.** `catfish_play` takes `rod` and `far` counts with a batch (clamped to the number of taps, best multipliers first). New setting `catfish_room2` (Off, Admins only, On for everyone). New art in `assets/img/catfish/room2/`, packed by `tools/catfish_room2_pack.py`. Notes: `claude/catfish-room2.md`.
 - **Admin > Tools: reset a player's Puzzle Pals and/or jigsaw progress** (blank name = yourself; needs the confirm box).
+
+## 2.8.44
+- **Shop Buy / Sell: bigger tiles on desktop.** The compact phone-landscape tiles (66 px) applied to every dock screen; they now apply only to short landscape screens (height 520 px or less). Desktop gets tiles at least 130 px wide.
+- **Shop filters are back:** under the category chips, Sort (name, price, rarity), Rarity, and Can afford (Buy) or Wanted (Sell). Client side only.
+- Not checked: the real shop with live data (tested on a mock page in headless Chromium).
+
+## 2.8.43
+Two parts: the desktop puzzle combat rework, and the dock clock.
+
+### Desktop puzzle combat
+- **Puzzle combat on a desktop window: the whole screen, steady placement, a calmer jigsaw.** On a window at least 1000 x 600 (phones, phone landscape and the dock's short landscape layout are unchanged) the fight on the adventure page (Trail, wander off with or without a map, delve, lair; pfight_stage on or off) is one wide panel, the window less a small gutter (up to 1640 px), instead of a 560 px column (or the 680 px map column with pfight_stage on). The board is on the left with the hand under it and grows with the room (up to 4.5x the art's size; it was 329 x 283 px at every desktop size), the bars, tips, last plays and buttons are a column on the right, and the end card covers that column with the last board in sight. The pre-fight card is two columns (the creature, your deck) up to 1240 px wide. With pfight_stage on, the pre-fight card, the combat and the result card share one box centred on the window (they used to sit on the map's box, then jump to a different box, left-aligned on a wander with no map, at Let's fight and again for the result). The jigsaw scales with that box: about 70 pieces instead of one per 72 px (700 on a 2560 window), one 340 ms wave instead of 42 ms per diagonal step (2.5 s on a big window), a travel distance and a flight time that follow the box's size. The page around is dimmed (.45, as without the stage) and does not scroll. The geometry no longer waits for the script (the pre-fight card painted as a narrow column first and then jumped). On a 1800 x 1100 window and up the right column and the pre-fight card are drawn 1.2x larger. Files: assets/pfv1.css, assets/pfstage.css, assets/pfstage.js, assets/pfboardv1.js (board sizing only; no engine change). Tests tests/pfstage.js and tests/pfv1_layout.js now expect the desktop panel.
+- **Not checked:** a real desktop browser or a real phone (headless Chromium only), Safari and Firefox (the layout uses :has(), :is(), complex :not() and CSS zoom), a tablet in landscape (it gets the desktop layout), boards larger than 3 x 3, the first-fight intro card, MySQL. Unchanged: with pfight_stage off, the card of a fight you ran from still shows in the page above the map (not over it). tests/pfv1_layout (not in CI) still fails its desktop header checks, as on 2.8.42 (this world has no header with the dock on).
+
+### Dock clock
+- **The dock clock updates after every action, with a ticking clock.** Forms sent in the background (the Gather box, village scenes, the Trek, fights) did not reload the page, so the plate kept the old time, energy and coins. The dock now asks `dockstate.php` (one small JSON call) after any such POST and redraws. When the time moves, a small clock face ticks in over the time ("+10 min", the hand turning in steps) and fades away, like the energy effect; reduced motion: a plain fade. The plate also reads the user row fresh, so it shows the numbers after the action, not before.
+- Not checked: a real phone, the effect on every background form (tested: the Gather box).
 
 ## 2.8.42
 - **No full screen on desktop.** The first tap in a fight no longer takes a desktop browser into full screen, and the full screen button on the play rail is hidden there. Phones and tablets (touch screens) keep both.
