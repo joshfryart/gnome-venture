@@ -9,12 +9,14 @@ declare(strict_types=1);
 
 /** family => [label, suffixes]; a slug is in a family when its last word is one of the suffixes. */
 const PART_FAMILIES = [
-    'hide'  => ['Hide',  ['pelt', 'skin', 'hide', 'fur', 'hair', 'wool', 'mane', 'tuft', 'fluff', 'whisker', 'fleece', 'bristle', 'ear', 'tail']],
-    'plate' => ['Plate', ['shell', 'scale', 'scute', 'plate', 'husk', 'claw', 'horn', 'fang', 'tooth', 'pincer', 'spine', 'quill', 'stinger', 'talon', 'tine', 'chitin', 'leg']],
-    'wing'  => ['Wing',  ['feather', 'plume', 'wing', 'down']],
-    'ooze'  => ['Ooze',  ['slime', 'gland', 'sac', 'ink', 'dust']],
-    'silk'  => ['Silk',  ['silk', 'thread', 'ball']],
-    'gem'   => ['Gem',   ['pearl', 'bead']],
+    'hide'  => ['Hide',  ['pelt', 'skin', 'hide', 'fur', 'hair', 'wool', 'mane', 'tuft', 'fluff', 'whisker', 'fleece', 'bristle', 'ear', 'tail',
+                       'ruff', 'velvet', 'beard', 'foot', 'patch', 'brush', 'strip', 'pad', 'frill', 'fringe']],
+    'plate' => ['Plate', ['shell', 'scale', 'scute', 'plate', 'husk', 'claw', 'horn', 'fang', 'tooth', 'pincer', 'spine', 'quill', 'stinger', 'talon', 'tine', 'chitin', 'leg',
+                       'shard', 'jaw', 'crown', 'crest', 'carapace', 'beak', 'tusk', 'spike', 'spur', 'tip', 'case', 'crust', 'proboscis', 'needle', 'tube', 'ring', 'eggshell', 'sucker', 'fin', 'gorget', 'spade']],
+    'wing'  => ['Wing',  ['feather', 'plume', 'wing', 'down', 'pinion', 'tailfeather']],
+    'ooze'  => ['Ooze',  ['slime', 'gland', 'sac', 'ink', 'dust', 'fat', 'chunk', 'wart', 'pellet']],
+    'silk'  => ['Silk',  ['silk', 'thread', 'ball', 'sash', 'knot']],
+    'gem'   => ['Gem',   ['pearl', 'bead', 'gem', 'jewel', 'eye', 'pebble', 'trinket', 'bauble', 'spark', 'mote', 'light', 'lamp', 'lantern']],
 ];
 /** 2.7.58: the picture for an any-/rare- ingredient (no single item to show): one emoji per family. */
 const PART_FAMILY_ICONS = ['hide' => '🐾', 'plate' => '🐚', 'wing' => '🪶', 'ooze' => '💧', 'silk' => '🕸️', 'gem' => '🦪'];
