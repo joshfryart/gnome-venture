@@ -527,3 +527,19 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 .pjrecipe { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 4px 10px; border: 2px solid var(--line); background: var(--surface); }
 .pjrecipe[hidden], .pjrecipes[hidden] { display: none; }
 .pjrecipe input:disabled + span { opacity: .45; }
+
+/* 2.8.26 phone held sideways (short landscape screens): the jigsaw's top area is ONE slim row so the table gets the height.
+   Title and the help line go (the Guide button still explains itself); the buttons shrink to 30px; the progress bar stays. */
+@media (orientation:landscape) and (max-height:560px){
+  #game .bar{flex-wrap:nowrap; justify-content:flex-start; gap:6px; padding-block:3px}
+  #game .brand{display:none}
+  #game .controls{flex:1; min-width:0; flex-wrap:nowrap; gap:5px; align-items:center}
+  #game .bar .btn,#game .bar select,#game .bar #back,#game .bar #copy{min-height:30px; height:30px; padding:0 9px; font-size:13px; width:auto; white-space:nowrap}
+  #game .bar select{padding:0 4px}
+  #game .zoom{gap:2px}
+  #game .zoom .btn{width:30px; padding:0; font-size:17px}
+  #zl{min-width:26px; font-size:12px}
+  #game .hud{margin-left:auto; min-width:0; font-size:13px; white-space:nowrap}
+  body.pz-play #game{top:0}   /* the empty site-header strip above the table goes too: the rail below has Puzzles (back) and Menu */
+  body.pz-play header.banner{display:none}
+}
