@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.31
+- **Trail page in landscape: map on the left, the rest on the right.** The section strip, weather, ledger and the Gather / Sights / Wander / Turn back buttons now sit in a column beside the map instead of under it, so the map gets the whole height above the dock (9 x 7 tiles when the phone is tall enough, 7 x 7 when short).
+
 ## 2.8.30
 - **Trail and delve map larger in landscape.** On a phone held sideways the map drops its top and bottom tile rows (7 rows by 9 columns), so it is wider and bigger above the dock.
 
