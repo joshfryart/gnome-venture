@@ -141,7 +141,7 @@
     tap: function (kind) {
       var now = Date.now(), mul = kind === 'rod' ? 1.5 : (kind === 'far' ? 1.25 : 1);
       var v = play.left - tapsHeld() > 0 && tokens() >= 1 ? Math.floor(play.v * mul) : 0;
-      if (v > 0 && pending < 40) {
+      if (v > 0 && 40 > pending) {
         pending++; pendV += v; if (kind === 'rod') pendRod++; else if (kind === 'far') pendFar++;
         setPending(); shown += v; draw(); clearTimeout(flushT); flushT = setTimeout(sync, Math.max(2000, 10000 - (Date.now() - lastSync)));
       } else v = 0;
