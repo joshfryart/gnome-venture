@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.40
+- **Fix: Trail page in landscape broke the fight dialog test (pfstage).** The map's wrapper is a normal box again (the fight dialog and the Trail scripts measure it), so the caption and legend stay small under the map instead of in the right column. The button row is hidden only on a phone's height (up to 520 px); a wide landscape screen keeps it.
+
 ## 2.8.39
 - **Trail Gather popover, after a gather (landscape).** The "Into your satchel" banner is one slim row, so the tool belt stays in view, and the toasts (new Almanac page, energy used) are small and sit at the bottom left over the picture instead of over the belt.
 

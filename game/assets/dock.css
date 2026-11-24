@@ -241,10 +241,9 @@ body.dock-on .cbed { cursor: pointer; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .trailfam { grid-row: 2; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .panel { grid-column: 2; grid-row: 3; margin: 0 0 4px; padding: 3px 8px; font-size: 11px; line-height: 1.25; min-width: 0; }   /* v2.8.36: what just happened */
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > details.routefold { grid-row: 4; }
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap { display: contents; }   /* its form (the map) goes left; its caption and legend (inside it) go right */
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmform { grid-column: 1; grid-row: 1 / span 12; margin: 2px 0 0; min-width: 0; width: 100%; }
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmlegend { grid-column: 2; grid-row: 5; margin: 0 0 4px; font-size: 11px; flex-wrap: wrap; white-space: normal; justify-content: flex-start; }
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmcap { grid-column: 2; grid-row: 6; margin: 0 0 4px; font-size: 11px; text-align: left; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap { grid-column: 1; grid-row: 1 / span 12; margin: 2px 0 0; min-width: 0; width: 100%; max-width: none; }   /* a real box (the fight dialog and the Trail scripts measure it); its caption and legend stay under the map */
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmlegend { margin: 2px 0 0; font-size: 10px; flex-wrap: wrap; white-space: normal; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmcap { margin: 2px 0 0; font-size: 10px; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmview { aspect-ratio: 9 / 7; }   /* the wrapper is not a container any more: the 9 x 7 crop is set here, not by @container */
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-100% / 9) 0; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmt.ring { visibility: visible; }
@@ -256,7 +255,7 @@ body.dock-on .cbed { cursor: pointer; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam { gap: 3px; margin-block: 0 4px; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam > *, html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam details { padding: 1px 4px; margin: 0; font-size: 11px; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam summary { padding: 1px 6px; min-height: 0; font-size: 11px; line-height: 1.2; white-space: normal; }
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot { display: none; }   /* v2.8.35: Gather / Sights / Wander / Sneak / Hunt / Turn back are in the dock's Trail menu (it clicks these hidden buttons); the column beside the map is for the text */
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot { gap: 3px; margin: 0; flex-wrap: nowrap; }   /* v2.8.40: on a wide landscape screen the buttons stay (a row); on a phone's height they are hidden below */
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot .btn, html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot form { min-height: 24px; padding: 1px 3px; font-size: 10px; line-height: 1.1; flex: 1 1 0; min-width: 0; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot .btn small { display: none; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) details.routefold > summary { padding: 1px 6px; min-height: 0; font-size: 11px; }
@@ -1601,3 +1600,4 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on:has(#hubpop-tgather[open]) .toasts { left: 8px; right: auto; transform: none; width: min(44vw, 330px); gap: 3px; }
   body.dock-on:has(#hubpop-tgather[open]) .toasts .flash { padding: 3px 8px; font-size: 11px; line-height: 1.25; }
 }
+@media (orientation: landscape) and (max-height: 520px) { html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot { display: none; } }   /* the dock's Trail menu has Gather / Sights / Wander / Sneak / Hunt / Turn back (it presses these hidden buttons) */
