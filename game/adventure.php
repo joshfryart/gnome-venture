@@ -382,7 +382,7 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
     <div class="hubcard sgcards"><?= trail_sight_folk_card_html($u, $fe, $trailSc) ?></div></div></dialog><?php endforeach; ?>
   <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tgather-t">🧺 Gather here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
-    <div class="hubcard"><?= gather_here_box($u, $tLand0, url('adventure.php'), '') ?></div></div></dialog>
+    <div class="hubcard"><?= gather_here_box($u, $tLand0, url('adventure.php'), '', true, true) ?></div></div></dialog>
 </div>
 <?php elseif ($isWalk): ?>
 <?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>

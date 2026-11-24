@@ -1570,8 +1570,24 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on #hubpop-tgather .gx.gatherbox > .gx-hero { grid-column: 1; grid-row: 1 / span 8; margin: 0; }
   body.dock-on #hubpop-tgather .gx.gatherbox > :not(.gx-hero) { grid-column: 2; min-width: 0; margin-block: 0; }
   body.dock-on #hubpop-tgather .gx.gatherbox > .gx-form, body.dock-on #hubpop-tgather .gx.gatherbox > h3.gx-h:not(.gx-h--belt):has(+ .gx-form) { display: none; }
-  body.dock-on #hubpop-tgather .gx.gatherbox > .gx-hero { max-width: calc((100dvh - var(--dock-h, 106px) - 60px) * 16 / 9); }
+  body.dock-on dialog#hubpop-tgather { align-items: flex-start; place-items: start center; }
+  body.dock-on dialog#hubpop-tgather .pickbox { align-self: flex-start; margin-top: 4px; }
+  body.dock-on dialog#hubpop-tgather .pickbox { max-height: calc(100dvh - var(--dock-h, 106px) - 6px); overflow: auto; }
+  body.dock-on #hubpop-tgather .gx.gatherbox > .gx-hero { max-width: calc((100dvh - var(--dock-h, 106px) - 52px) * 16 / 9); }
+  body.dock-on #hubpop-tgather .gx-hero__chips { display: none; }
+  body.dock-on #hubpop-tgather .gx-h--belt { display: none; }
+  body.dock-on #hubpop-tgather .belt { transform-origin: left top; zoom: .75; }
   body.dock-on #hubpop-tgather .gx-h { font-size: 13px; margin: 2px 0; }
   body.dock-on #hubpop-tgather .belt__now { font-size: 11px; margin: 0; }
   body.dock-on #hubpop-tgather .finds { max-height: 7.5em; overflow: auto; }
+}
+@media (orientation: landscape) {
+  body.dock-on #hubpop-tgather .gx-fold { border: 2px solid var(--ol, #2a1a10); background: var(--surface); }
+  body.dock-on #hubpop-tgather .gx-fold > summary { cursor: pointer; padding: 3px 8px; font-size: 12px; font-weight: 700; min-height: 0; }
+  body.dock-on #hubpop-tgather .gx-fold .gx-h__sub { font-weight: 400; opacity: .8; }
+  body.dock-on #hubpop-tgather .gx-fold .finds { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 3px; margin: 0; padding: 4px; list-style: none; max-height: 7em; overflow: auto; }
+  body.dock-on #hubpop-tgather .gx-fold .find { display: grid; grid-template-columns: 24px 1fr; column-gap: 4px; align-items: center; padding: 2px 4px; font-size: 10px; line-height: 1.15; border: 1px solid var(--line, rgba(127,127,127,.35)); }
+  body.dock-on #hubpop-tgather .gx-fold .find .aimg { grid-row: 1 / span 2; width: 24px; height: 24px; }
+  body.dock-on #hubpop-tgather .gx-fold .find__name { font-weight: 700; overflow-wrap: anywhere; }
+  body.dock-on #hubpop-tgather .gx-fold .find__need { font-size: 9px; opacity: .85; }
 }

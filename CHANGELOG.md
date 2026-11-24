@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.38
+- **Gather popover on the Trail: finds under a fold, fits above the dock.** "What's here" is a fold with the count of known finds ("0 of 16 known"); open it for a compact grid of finds. In landscape the popover starts at the top and ends above the dock, the belt is smaller and the picture's chips are hidden. Other gather screens are unchanged.
+
 ## 2.8.37
 - **Gather popover on the Trail, landscape: no big tool cards, full width.** The five large tool cards are hidden (the tool belt buttons gather with the same form). The popover takes the screen's width: the picture on the left, the belt and the finds list on the right.
 

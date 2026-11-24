@@ -372,7 +372,7 @@ function gather_card_html(string $art, string $label, array $meta, string $attrs
  * something here (posts do=gather, tool=... to $action) and the finds grid (??? for things not in the Almanac yet).
  * $hiddenHtml is extra hidden fields; $pick is the tool to mark as picked (the one being sought), if any.
  */
-function gather_scene_html(array $u, string $land, string $action, string $hiddenHtml, string $pick = ''): string
+function gather_scene_html(array $u, string $land, string $action, string $hiddenHtml, string $pick = '', bool $fold = false): string
 {
     $uid = (int)$u['id'];
     $L = LANDSCAPES[$land] ?? ['🌱', ucfirst($land), ''];
@@ -465,11 +465,15 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
             . '<span class="find__name">' . ($isKnown ? e($g['name']) : '???') . '</span>'
             . '<span class="find__need' . ($ok ? ' ok' : '') . '">' . (TOOL_TYPES[$g['tool']][1] ?? '') . ' ' . ($ok ? e($tierName) . ' ✔' : 'needs ' . e($tierName)) . '</span></li>';
     }
+    if ($fold) {   // v2.8.37: the Trail popover: the list of finds sits under a fold (open it to see what each tool can find here)
+        $nKnown = 0; foreach ($rows as $g) if (isset($known['gather:' . $g['slug']])) $nKnown++;
+        return $h . '<details class="gx-fold"><summary>What’s here <span class="gx-h__sub">' . e($L[1]) . ' · ' . $nKnown . ' of ' . count($rows) . ' known</span></summary><ul class="finds">' . $finds . '</ul></details></section>';
+    }
     return $h . '<h3 class="gx-h">What’s here <span class="gx-h__sub">' . e($L[1]) . '</span></h3><ul class="finds">' . $finds . '</ul></section>';
 }
 
 /** v0.7.80 name, kept for callers (the adventure page's step off the path): the satchel scene. $heading is no longer used. */
-function gather_here_box(array $u, string $land, string $action, string $hiddenHtml, bool $heading = true): string
+function gather_here_box(array $u, string $land, string $action, string $hiddenHtml, bool $heading = true, bool $fold = false): string
 {
-    return gather_scene_html($u, $land, $action, $hiddenHtml);
+    return gather_scene_html($u, $land, $action, $hiddenHtml, '', $fold);
 }
