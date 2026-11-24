@@ -956,3 +956,11 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 .pbx .shelfg .pc .pc-tier { top: 31px; font-size: 10px; line-height: 14px; min-width: 15px; }
 .pbx .pc.locked { opacity: .6; }
 .pbx .pc.locked canvas { filter: grayscale(1) brightness(.8); }
+/* short landscape screens (a phone on its side): the piece sheet is a panel on the right, as on a wide screen, so the piece, its facts and the Pack it button all fit (45vh of 390 px left about 70 px of body) */
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 899px) {
+  .pfv-dsheet { left: auto; right: 6px; top: 6px; bottom: 6px !important; width: min(48vw, 400px); max-height: none; border: 3px solid var(--ol, #2a1a10); box-shadow: 0 4px 18px rgba(0, 0, 0, .35); }
+  .pfv-dsheet .dgrab { display: none; }
+  .pfv-dsheet .dart { width: 64px; } .pfv-dsheet .dart .pfi-cv { width: 64px; max-height: 60px; }
+  .pfv-dsheet .dacts .btn { min-height: 40px; }
+  html.pfv-dopen body { padding-bottom: 0; padding-right: min(48vw, 400px); }
+}

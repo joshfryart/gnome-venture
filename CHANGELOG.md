@@ -103,6 +103,242 @@ One release, four parts: **item review A** (data fixes), **item review B** (smal
     - **Empowered overlay:** the piece a stat piece boosts (Old Saying, Knot of Twine, Copybook; every later piece of yours for Lantern Chain) wears a 32% overlay in the stat piece's light colour from its booster's step until it fires (then 0.3 s fade). The target is read from the booster's chain order and `wfx`; Turn of the Tale's steal and Weather Lore are not marked.
     - Source: `claude/pf-anim/motifs/stat_fx.js` (new, `PFA.stat`), `tools/pfanim_part.js`, `tools/pfboardv1_part.js`; rebuilt with `tools/build_pfanim.py` and `tools/build_pfboardv1.py` (`pfanim-data.json` 225 KB). Tests: `tests/pfanim_unit.js`, `tests/pfanim.js`.
 
+## 2.8.24
+- **Release notes for the new landscape layout.** A player news post ("a new layout for your phone held sideways") is published the first time 2.8.24 loads. No layout changes.
+
+## 2.8.23
+- **Launch: the landscape dock is on for every player.** Phones and tablets held sideways get the bottom dock (menus, status plate, two page actions); portrait screens and big screens keep the classic layout, as before. The upgrade sets the setting nav_dock to 1 once; an admin can set it back to 0 (off) or admin (preview) in Admin → Settings and that choice is kept. Anyone can add ?dock=off to an address to use the classic layout on their own device (?dock=on switches back).
+
+## 2.8.22
+- **Garden, landscape layout: the garden and its info panel are centred together** instead of hugging the left edge.
+
+## 2.8.21
+- **Garden, landscape layout: the garden slides to the left edge and the info panel sits right next to it, wider (290 px).** Squares resize to fit both.
+
+## 2.8.20
+- **Garden square / crop info, landscape layout, reworked.** The panel stays beside the garden as you scroll (sticky) and scrolls inside itself, so it never runs under the dock. Order: heading, status, chips, the Next line, then the action buttons (Till, Plant, Work in, Add mulch…, full-width and readable), then the soil numbers. The nutrient row and the upkeep chips are hidden there to shorten it (the low-nutrient warning still shows in the chips and the Next line). The "⬆ yard" link is gone.
+
+## 2.8.19
+- **Garden, landscape layout: the "Pick a square" panel is a readable 250 px column** (left-aligned, smaller buttons), and the squares shrink to leave it room, so the garden and the panel sit side by side without sideways scrolling. 2.8.18 made the panel too thin.
+
+## 2.8.18
+- **Garden, landscape layout: the garden and the "Pick a square" panel sit side by side with no sideways scrolling** on a narrow phone view (the panel is a slim 176 px column with smaller text).
+
+## 2.8.17
+- **Garden, landscape layout: the garden name and the five tabs are on one line** even on a narrow phone view (smaller tabs and heading). The "about this spot" line no longer wraps.
+
+## 2.8.16
+- **Garden, landscape layout: the cat line is hidden** so the tabs move up into the heading row beside the garden name.
+
+## 2.8.15
+- **Garden, landscape layout: your garden comes first.** The heading, tabs, location line and weather line now share two short rows, so the garden starts about 70 px higher (172→104 px at 844×390). The "Cat Fish" link is gone from the cat line (the cat line is also smaller and sits in the heading row).
+
+## 2.8.14
+- Puzzle Pals region folds: smaller region headings so long names fit their column in the landscape layout.
+
+## 2.8.13
+- **Pre-fight screen with Auto deck off: the creature's pieces show first again.** Your deck and bench were drawn on top of the creature's pieces in the two-column layout. Now the creature and its pieces stay at the top, and your deck and bench follow below them (scroll for those).
+
+## 2.8.12
+- **Pre-fight screen on a very short phone view: you see all of the creature's pieces again.** When the browser's own bars leave little height, the pieces shrink so both rows show above Let's fight (before, the button covered the second row). The creature card is trimmed to its name and first two tags, the rule text to two lines, and the read-only deck fold is hidden there.
+
+## 2.8.11
+- **Pre-fight screen on a phone in landscape: no more scrolling.** Two columns: the creature, its rule and the Auto deck line on the left, the pieces (5 across, smaller) on the right, then Box and Let's fight. The tap-a-piece hint line is hidden there. Portrait is unchanged.
+
+## 2.8.10
+- **Last folds and filters (landscape dock layout; the search boxes show everywhere).** Jobs, Post tab: the explaining lines fold into "How posting works" and small "Details" folds. Market day: a search box above the basket items (ticked ones stay). Pal jobs, At home: a "Find a pal" box when you have more than 12. Town Square: Where the travellers are and Festivals coming up sit side by side.
+
+## 2.8.09
+- **More folds (landscape dock layout only).** Almanac Glossary: one fold per letter, A open, the letter links open theirs (3606→1213 px). Almanac search: "Not found yet" folds. Creature Codex: undiscovered tiles become one "N not met yet. Show them" line (2025→519 px). Shop Sell: starts on the first category (Crops) instead of all items, All is one tap away (2883→1294 px).
+
+## 2.8.08
+- **Fix: the old "−1 energy" pop-up still showed in the landscape layout** (wander steps). Energy-only messages are now dropped there (the dock bar animation shows it); "(−N energy)" is also stripped from other pop-ups.
+
+## 2.8.07
+- **Folds for the tall pages (landscape dock layout only; other layouts unchanged).** Almanac chapters: one fold per category, the one with the open page (or the first) open (Creatures 2016→919 px, Plants 2707→901). Puzzle Pals: one fold per region (3133→1154). World map: roads and places fold under the region banner (→1026). Villagers: the not-met placeholders become one "N more not met yet. Show them" line (→422). How to play: the first two sections start closed (→434).
+- **Fix: The Gourmand page had no footer, so no dock at all in the landscape layout.** Added the missing page footer.
+
+## 2.8.06
+- **Energy use is now a small animation on the dock energy bar** instead of "(−1 energy)" in the message. Spending: the bar glows, then drains by the amount while a "−x ⚡" ghost floats up from its edge and fades. Gaining (eat, rest): the bar fills with a green glow and "+x ⚡" rises. The words "(−N energy)" are dropped from page messages in the dock layout. Reduced-motion: no movement, the ghost just fades. In play-mode rail the ghost floats over the ⚡ count.
+
+## 2.8.05
+- **Landscape dock: tall pages shortened.** Tested CSS from a page-by-page survey: Almanac chapters (Creatures 5611→2016 px, Plants 4781→2707, Flowers 4183→2173, Pals 3644→1923, Glossary 4931→3606), Puzzle Pals, Puzzle box, Codex, Jigsaw, Pal jobs, Shop sell/buy, Villagers, World map, Town, Passport, Account, Guide, Market day, Tailor, Yard, Festival, Jobs, Belt, Gourmand, Trek, Community garden.
+
+## 2.8.04
+- **Random-event and prize banners are sleeker and have an ✕.** Smaller icon, title and text; tap ✕ to fade the banner out in place (no reload). Banners that still wait for your choice keep no ✕.
+
+## 2.8.03
+- **Wander: the "Past here it gets dangerous" warning is one slim line right under the picture, rings and choices** (12 px text, full width), instead of a tall red box far down below Gather and the journal. Seen on a fake step-4 wander at 844 x 390.
+
+## 2.8.02
+- **Puzzle fight, landscape: the Redraw option no longer hides the creature's yield bar.** The right column was centred and too tall (the "Redraw a piece" button was a full 44 px row), so it was cut off at both ends, hiding the top bar. The column now starts at the top, the redraw note and its button are a small chip over the lower right corner, the hand is 12% smaller and the last-plays box is capped at 46 px (scrolls). Seen on a fight with a first-fight tip and a forced redraw chip at 844 x 390; the bottom of the hand's tabs still dips under the rail.
+
+## 2.8.01
+- **Shops page (world.php?tab=markets): the market picture is big** (640 px wide, about 400 px tall at 844 x 390, was 340 x 214), since tapping a shop in it is the way in; the shop list is under it.
+
+## 2.8.00
+- **Dock: a Shops piece in the Out & about menu** (after Villagers), opening the world page's Shops tab. It is greyed "on the road" while walking, like World. The old menu sheet is unchanged. Seen in the strip at 844 x 390.
+
+## 2.7.100
+- **Shop basket (Sell all / Buy all) is a slim bar pinned at the top** in the dock layout: the picked items scroll sideways on one line, "You get n", Empty and Sell all / Buy all sit on the same row (50 px tall, was a big card that sat in the middle of the screen over the items). It stays at the top while the items scroll under it. Seen on a shop sell page at 844 x 390 with two chips; the error line ("not enough...") now sits under the bar, not checked.
+
+## 2.7.99
+- **Shop pages: the picture banner sits beside the Buy / Sell tabs** (in the empty space to their right, with "What sells here" under the tabs), instead of above them. The category chips and the items start about 100 px higher (`dock.css`; shop pages only, dock layout, landscape). Seen at 844 x 390 on a shop; pet shops, dye shops and florists have a different page structure and are unchanged.
+
+## 2.7.98
+- **Satchel item card scrolls to its buttons** (Sell, Gift, Eat, Cook in Crafting). The card is pinned beside the item list (2.7.93) but was taller than the sheet's scroll area, so its lower part could never be reached. It is now limited to the visible height and scrolls inside itself (finger drag moves it; Sell and Gift show after the drag). `dock.css`.
+- **Crafting pop-ups: every quantity button is reachable.** The Cook x1 / x2 / x3 / x4 / x5 / All n buttons were squeezed into a narrow corner of each recipe row (since 2.7.93/2.7.96) and some were clipped. They now have a full-width row under each recipe, with Cook x1 the widest. Checked in the Bread oven pop-up (x1, x2, All 3 on one row; x1 to x5 on another). Not pressed for real.
+
+## 2.7.97
+- **The three long catalogue pages, denser** (`dock.css`). Puzzle Pals 4804 to 3105 px (each region is one slim box: title and count on one line, six small pals, no rarity or date lines), Villagers 2813 to 1982 px (smaller cards), Shop sell 3627 to 2977 px. These are real catalogues (15 regions, 122 villagers, 226 sellable items in the test world), so they stay long; going much further needs a change to the pages themselves (a region or category folded by default, or paging), which I did not make. Shop sell barely moved because its tiles are already close to their minimum size; the category chips (Crops, Flowers, Food...) are the quick way down.
+
+## 2.7.96
+- **Second page survey, on a seeded test world** (four agents; every fix was tested by injection at 844 x 390; `dock.css`, 41 rule blocks). Reached this time: crafting with real recipes, flowers and broken tools; an active job, the Post board, Trading tabs; Puzzle Pals, Pal jobs, mini-games played; Gourmand, Trek, Landmark and message-bottle pop-ups. Highlights: the craft pop-ups' head and tabs were squashed (title and X clipped) and are fixed; the Fast travel pop-up is two columns; the shop item sheets and the Market buy sheet fit without scrolling; the Tool-mend cards no longer overlap their text; the shop basket text is readable (dark on light; was cream on cream); World travel map 569 to 274 px and the region panel 762 to 522; Trek run page 1912 to 1130; the Arrange page (1345 to 962), Tailor (1931 to 1406), Workshop (1050 to 752), Gourmand, Puzzle Pals (6368 to 4804), Jigsaw (2759 to 1837), Mushroom, Worms, Marrow and Spit boards visible on the first screen; Satchel/Crafting/Tasks headers slimmer.
+- **Not checked** (about 30 states; the lists are in the survey notes): touch drag scrolling inside the craft pop-ups, real Cook / Make / Mend presses, fight and reward overlays in Trek, race and spit result cards, puzzle play, pals out on jobs, mentor states, the cat home after adoption.
+
+## 2.7.95
+- **Garden building cards no longer cut off at the dock.** When a card is opened as a plain page element (the address `garden.php?t=pic&o=...`, as in your screenshot) it is not a modal, so it sat in the page under the fixed dock and its lower part was hidden. In the dock layout on short landscape screens it is now fixed above the page, ends at the dock's top edge and scrolls inside (`gyard.css`). Checked with the worm farm card opened that way (box ends 6 px above the dock, buttons reachable by scrolling the card). Modal cards (opened by a tap) were already fine.
+
+## 2.7.94
+- **Garden Buildings cards scroll on a phone on its side (second pass, with built buildings).** The 2.7.92 version kept the head fixed and scrolled only the body, which left a 186 to 236 px strip to scroll in and was easy to miss. Now the whole card (head and body) scrolls as one (up to 94 px more than the screen on the longest ones), and the head no longer takes a fixed block (`gyard.css`). Checked all 17 cards with built buildings in the test garden with a finger drag in a mobile-emulated browser: the cards that are taller than the screen moved 31 to 94 px; the others fit whole. Not checked: a building with an open Upgrade/Collect result.
+
+## 2.7.93
+- **Page survey, dock layout, landscape (five agents, each fix tested by injection at 844 x 390; `dock.css`).** Satchel Items (1034 to 724 px: the eight category tiles in one row; an opened item card sits beside the pills instead of below), Crafting area index (965 to 667) and area pages (1302 to 873: the scene beside the text), the crafting popovers (taller scroll area), Tool belt (1301 to 1075). Tasks Jobs (1103 to 904), Community garden (1138 to 918), Hollow jar (953 to 752), Market day (953 to 765). World travel list and the Seasons tables (two across). Fair (1415 to 727), Yard editor (sticky toolbar one row), the mini-game pages (boards start higher), Snail Race cards. Almanac chapters (Plants 12934 to 4781, Creatures 20481 to 5611, Gathering 9143 to 1866), Contents (six cards in a row), Letters.
+- Fixed a stray closing brace in `dock.css` (left from 2.7.87) that could swallow the rule after it.
+- **Not checked** (the test account cannot reach them): crafting Craft buttons, Pantry, Kitchen and Tool Shed areas, the flower arranger, drying rack and show, Daily/Gourmand/Workshop/Landmark/Sights pages, Puzzle Pals and Pal jobs, Jigsaw and GIFsaw, the Post board and Trading (locked by level). Some pages still scroll a lot (the Almanac's longest chapters, Villagers, the world map tab).
+
+## 2.7.92
+- **Garden Buildings pop-ups (the yard picture's building cards) scroll and fit on a phone on its side.** The card body had fixed minimum heights (176 px, 262 px for the home card) that, with the header, were taller than a 390 px screen, so the card (clipped, no inner room to scroll) lost its Build / Upgrade / Collect buttons. On short landscape screens the minimums are gone, the card is wider (up to 520 px) and the body scrolls (`gyard.css`). Checked all 17 building cards in my test garden (all locked ones: each fits, none clipped) and a touch drag scrolls the fence card. Not checked: a card of a building you have built (its Upgrade and Collect buttons).
+- The Garden tab pages need the picture-garden flag (`gnav_garden`) for these cards; in my test it was on.
+
+## 2.7.91
+- **Garden tabs, dock layout, landscape, one by one** (`dock.css`; 844 x 390). All tabs: the garden name and the tab bar share a row. **Beds** (1284 to 1072 px): the plot on the left, the square's card and the legend beside it; the weather line and the spot note share a row. **Buildings** (688 to 680), **Animals** (734 to 726) and **Grow** (697 to 703) were already short and only gained the shared header. **Crew** (975 to 812): the three jobs are side by side. Popovers: the Plant, Work in and Mulch choosers open inside the screen with a 199 px scrolling list (they were fixed in 2.7.59 and 2.7.61); the Animals tab has only Rename and Send buttons, no popovers. **Not checked:** the Buildings popovers (my test garden has no buildings), the animal trade card with a real trade, and the Crew job pickers (Crew needs gnome level 10 and a pal).
+
+## 2.7.90
+- **Dock, Garden (Beds tab):** the left piece is now a strip: Select, then the Water, Harvest and Till tools (one bed at a time). The right piece is "All": Water all, Weed all, Harvest all, Pick pests and Collect, and it lists only the ones that have something to do (the others used to show greyed "none"); greyed "nothing to do" when none do. The "Collect all" label that was cut off is now "Collect". Checked in a headless 844 x 390 browser on a garden with nothing thirsty or ready (the left strip works, Select turns the Done piece on; the right strip showed nothing to do, so its tiles were not seen).
+
+## 2.7.89
+- **Hovel: all tabs checked** (Today, Furnish, Gnome, Closet, Stats, Calling, Foods, Villagers, Gardens at 844 x 390). Fixed: the Villagers tab (5639 px tall) is now a dense wall of small photos, many across (1398 px); the unmet "?" cards are short. The other tabs are as in 2.7.88; Calling (locked below level 5 in my test), Foods and Gardens were already short and are unchanged. Pals and Tea tabs are not on my test account (they fall back to Today); not checked.
+
+## 2.7.88
+- **Hovel (My Gnome) in two columns, dock layout, landscape** (`dock.css` only). Today: the room on the left, the tabs and the Needs you / news cards on the right (923 to 714 px tall at 844 x 390). Furnish: the room crop is gone; the slots on the left, the big room and the cosiness on the right (831 to 761 px). Stats: the back link and Puzzle box note are hidden, the stat description sits beside the list (1245 to 1027 px). Closet: the gnome on the left, the slots in two columns on the right (1021 to 748 px). The Gnome tab was already compact. Checked in screenshots at 844 x 390; Calling, the sleep and nap buttons (the Rest piece) and a hovel with a pet were not checked.
+
+## 2.7.87
+- **Fight start: the jigsaw cover is back** (Trail Wander fight with `pfight_stage` on). The cover pieces fly in over the map before the pre-fight card shows. My 2.7.83 rule that forced the stage pop-up always visible (my guess at the End turn flash) also showed the pre-fight card at once, over the pieces, so the cover never showed. That rule is removed. Seen in frame captures of a creature appearing during Wander: pieces cover the map, then the card fades in. The pieces cover the map's part of the screen (about two thirds), not the full width.
+
+## 2.7.86
+- **Puzzle fight, End turn flash: fixed (from the phone recording).** At End turn the fight script lays a frozen copy of the old screen (`.pfv-ghost`) over the new one, placed by inline left/top/width/height. The dock layout centres the live screen with `left: 50%` and `translateX(-50%)`, and the copy inherited that transform, so it slid half its width to the left for the turn's replay and the new screen showed beside it. The copy now has no transform in the dock layout (`dock.css`). No script was changed. Frame-by-frame captures at End turn (stage pop-up on and off) now show the same two columns throughout. Not checked on a phone.
+
+## 2.7.85
+- **Puzzle fight, End turn flash: found.** At End turn the game keeps the old fight screen as an id-less copy (`.pfight`, the "ghost" the turn is replayed over) while the new one loads. The dock layout's rules were written for `#pfight`, so the copy kept the old tall portrait layout (bars across the top, a small board in the middle, no hand) for the replay, then the two-column screen came back: that was the flash. The rules now apply to `.pfight` as well as `#pfight` (25 rules in `dock.css`), so the old copy is the same two-column screen. Frame-by-frame screenshots after the change show the same columns throughout the turn. (Everything in 2.7.79 to 2.7.84 about the flash was looking in the wrong place; the full screen button in 2.7.84 is still useful for the browser bar.)
+- **History bar is back** in the right column (one scrolling line of what each side played). It was hidden to save height; the fight still fits at 844 x 390 (first-fight coaching tip shown).
+
+## 2.7.84
+- **Full screen in fights (the browser's top bar).** A web page cannot hide the address bar by itself, but it can ask for full screen on a tap. On a puzzle fight (and its pre-fight screen) the first tap enters full screen with the bar hidden, and the rail has a ⛶ button to enter or leave it by hand (it shows ✕ while in full screen). Leaving by the browser's own gesture, or with the button, stops the automatic entry for the rest of the page. It leaves full screen by itself when you are no longer in a fight. Where the browser has no full-screen support (iPhone Safari) the button is not shown. Tested in headless Chromium (a tap enters it, the button leaves it); not on a phone.
+- **End turn flash, a better theory:** with the address bar showing and hiding, the visible height changes, and the fight screen resized with it. The stage pop-up was sized in `dvh`; it is now anchored to the top and the rail instead, so the bar cannot resize it, and full screen keeps the bar from moving at all.
+
+## 2.7.83
+- **Petal symbol:** the dock plate and its popover show the Petal icon instead of the gold coin emoji. The plate's health bar is red.
+- **Fight stage (Trail Wander fight, `pfight_stage` on), dock layout:** the stage pop-up now uses the same two-column screen as the plain fight (the stage's own geometry cut your hand off at the right edge), and its content is never hidden or faded at a turn's swap (`dock.css`: `dialog.trailpop.pfst .pickbox` forced visible, no animation). This targets "the pop-up goes away and comes back at End turn". In my headless runs the pop-up was never closed or replaced during a turn (same dialog node, `open` and modal all the time), so I could not see it go away; the only visible changes were the board's pieces blank for about 55 ms and, in the stage, a stacked layout in the screencast that the DOM did not show. Not confirmed on a phone.
+
+## 2.7.82
+- **Dock status plate:** energy shows its numbers (x/y) beside its bar, and a health bar with its x/y sits just below it (red bar, from the same numbers as the popover's Health row; it follows the adventure's health during a walk). The time is shorter ("07:25 d0") so the coins fit. Seen in a headless capture.
+- **End-of-fight card (win, loss, charmed) fits without scrolling** in the dock layout on a short landscape screen: picture left, title and words right, the detail lines small, the buttons always on screen. Seen after a real lost fight in a fake walk (the Puzzle box / Try again / Go home buttons are all visible); a win card with loot was not checked.
+- **Wander, after a fight:** the small round thing under the heading was the end-of-fight stage (the chest and loot coming in, `#fightscene`) collapsed to a few dozen pixels by the new Wander grid. It now takes the picture's place at full size. Not seen with a real win here (my test fights were losses), so it is a best fix from the markup.
+
+## 2.7.81
+- **World and region maps full size in the dock layout.** The 2.7.65 rule that fitted the maps to the height above the dock is removed (the maps are tapped and zoomed, so small was wrong): both are the full page width again, about 796 x 446 (world) and 796 x 476 (region) at 844 x 390, and they match.
+- **Puzzle fight, End turn flash (second attempt).** Frame-by-frame captures showed what you see: after each End turn the swapped-in fight screen sat for a moment in the old tall layout (bars, tip and a small board stacked) until its script had run and added its fitted class; headless about 55 ms, longer on a phone. The two-column layout and the fixed position now apply to `#pfight.pf-v1` from the first frame (`dock.css`), without touching the scripts (the 2.7.79 route broke the board). The screen now keeps its columns through the swap. Still happening in a headless sample: the board's pieces are blank for the same moment, and the coaching tip appears a moment later. Not confirmed on a phone.
+
+## 2.7.80
+- **Fixes 2.7.79, which broke the puzzle fight board.** 2.7.79 marked the swapped-in fight screen as fitted before its scripts ran, and on a pre-fight or turn swap the board never drew (no board, unstyled hand). That change is removed (`site.js` is back to its 2.7.78 content). Do not use 2.7.79. The End turn flash notes under 2.7.79 stand as findings only.
+- **Pre-fight popover reaches its button.** The pre-fight screen was drawn under the dock (the full dock was on screen), so its Let's fight button could not be reached; since 2.7.78 it stops above the rail, and I checked that a finger drag scrolls it (large 5 x 5 creature, headless touch drag) and that Let's fight is on screen at the bottom.
+- **Wander:** the heading and the status chip ("Tundra · 7 steps out ...") share one row.
+- **Board sizes:** 3 x 3, 4 x 4 and 5 x 5 boards all fit the board column (about 370 x 316 at 844 x 390); the cells shrink with the grid. After four turns on a 5 x 5 board the pieces were still readable in a headless capture; not checked on a phone.
+
+## 2.7.79
+- **Puzzle fight, End turn flash.** I could not make a full page reload happen in a headless test (the turn posts and swaps in place), but sampling every frame showed what looks like it: at each swap the new fight screen was one frame un-fitted (height jumps, e.g. 356 to 367 px) and its board canvases were empty for about 60 ms. The un-fitted frame is fixed: `site.js` now marks the swapped-in `#pfight` / `#pfv-pre` as fitted when the old one was, so it keeps its place and does not scroll the page to the top. The empty board for a moment is not fixed (the board is redrawn by script after each swap). Not confirmed on a phone.
+- **Not checked:** the old (non-v1) fight screen under the dock layout.
+
+## 2.7.78
+- **Puzzle fight on a phone on its side (dock layout).** The fight and the pre-fight screen used the whole height and ran under the dock, and in a short window the board got no height at all. Now a puzzle fight uses the thin rail instead of the full dock (Menu on the rail still opens it), stops above it, and is two columns: the board on the left; the bars, the coaching tip, the chips, a short last-plays line, the buttons and your hand on the right (the long last-plays list, the legend and the preview line are hidden in this layout). The pre-fight screen is wider (up to 820 px) and its Let's fight button is on screen. Checked in a headless 844 x 390 browser on a fake Wander, road, delve and lair fight (opening move, board and pre-fight). Not checked: the later turns and end-of-fight screens (win, loss recap, Pluck), a fight over the Trail's tile map, or a real phone.
+- **Wander result card:** the result card ("An abandoned camp", "Call back ...") sits under the picture like the Latest line, not at the bottom right.
+- **Message bell** sits above the rail during a fight.
+
+## 2.7.77
+- **Wander folds start closed in the dock layout.** The More and Gather folds were opened on any screen wider than 720 px, so a phone on its side saw the long notes under the picture. In the dock layout on a short landscape screen they now start closed (`site.js` `gvWanderFolds`); a fold you open stays open, and Gather still opens itself after a find.
+- **Gather result card (landscape):** the "Into your satchel" card sits beside the picture instead of overlapping it; the spot cards are four across with a 92 px picture, and the list of what you can find is a multi-column grid under them (`dock.css`). Checked after a real gather in a fake walk in a headless 844 x 390 browser.
+
+## 2.7.76
+- **Dock layout, Gather here:** the picture is smaller (about 340 x 190 at 844 x 390, was 560 x 315) with your tool belt and the gather spots beside it instead of under it (page 1176 to 900 px). Checked with a fake off-the-path walk in a headless browser; a gather that has just paid out (the result card) was not checked.
+
+## 2.7.75
+- **Dock layout, Wander event or check:** the story text ("A beaver dam backs up a pond...") and its choices stay together in one box in the right column (the text used to land far below the choices). Checked with a fake off-the-path event in a headless 844 x 390 browser; the left column has no scene picture during an event, so it is empty there.
+
+## 2.7.74
+- **Dock layout, Wander:** what just happened (the "Latest:" result of the last step) sits under the picture, above the More fold. The right piece is now "Wander": Go deeper, Keep exploring, Step back, Gather (opens the page's Gather fold and scrolls to it) and To the road, each working the page's own control. Checked with a fake off-the-path walk in a headless 844 x 390 browser: the strip lists the five tiles, Gather opens the fold, To the road posts `do=return`.
+
+## 2.7.73
+- **Dock layout, landscape: the message bar is a bell.** The bar across the top (latest message, ▾) is hidden; a round bell sits at the far right of the dock, beside Together, with a red count when there is something you have not opened. It opens the message list as a popover above the dock that scrolls and closes on a tap outside, Esc or the ✕ (`dock.js` reads the page's own list, so links in messages still work and the list follows in-place page changes). Seen in a headless 844 x 390 browser; an in-place new message while the popover is open was not checked.
+
+## 2.7.72
+- **Dock layout, Wander:** the choices on the right no longer scroll (the panel is split into the grid: choices right, the notes ("Deeper is ...", "If you're knocked out ...") under the picture on the left, Gather along the bottom). Checked with a fake off-the-path walk at step 0 in a headless 844 x 390 browser: Go deeper and Head to the road show whole; the notes run under the dock edge and scroll with the page.
+
+## 2.7.71
+- **Dock layout, landscape: the Wander page is one screen.** The scene picture, the rings and the choices (Go deeper, Keep exploring, Step back, Head to the road) sit side by side, with a slimmer heading and status line; the long notes and Gather stay in their folds under the choices. (The flavour line above the choices is hidden in the dock layout.) At 844 x 390 the three parts end above the dock; before, the page was 2840 px tall. Checked with a fake off-the-path walk in a headless browser; a real Wander fight, find or Gather fold open was not checked.
+
+## 2.7.70
+- **Perks popover (Here), compact.** On short landscape screens the banner is slim (40 px), the stop perks and your account perks are small cards in a row (three across), and the meters with the acts that raise them sit under them, so the whole popover shows without scrolling (with three running perks it is about 380 px tall at 390). Replaces the 2.7.69 two-column version, which split the perk cards from the meters.
+- **Activity cards (the picture's Do spots, a town's actions):** picture and name on the left, words and choices on the right on short landscape screens, so three choices fit without scrolling.
+- **Popover crawl:** 70 pages were loaded at 844 x 390 and up to 8 popover triggers on each were clicked (102 clicks; 89 opened a popover or sheet), each measured for being inside the screen, having a usable scroll area and having its buttons on screen. One failed (the activity card above) and is fixed. Not covered: triggers past the first 8 per page, popups that need a live walk or fight, and popups that only appear after a game action.
+
+## 2.7.69
+- **Here: the Perks popover fits a landscape phone.** On short landscape screens it is wide (up to 780 px) with a slim banner and two columns (your perks left, the meters and the acts that raise them right). It was one column about 560 px tall; it now fits in the screen height (about 380 px at 390). Seen in a headless browser at 844 x 390.
+
+## 2.7.68
+- **Dock layout, landscape: page survey.** About 90 pages were loaded at 844 x 390 in a headless browser (heights, anything wider than the screen, oversized pictures, a screenshot each). No page scrolls sideways. One fix: on the My Gnome tabs other than Today and Furnish (Gnome, Closet, Stats, Calling) the hovel room banner is hidden, so each tab starts at its own content (about 100 px less scrolling). Still tall and unchanged: Villagers (122 cards), the Season page, World travel and map, the Almanac, the guide, the Passport, the garden tabs and the Crafting areas picture. Many mini-game pages sent the test player to Games (they are gated in the test world), so their own screens were not surveyed.
+
+## 2.7.67
+- **Dock layout, landscape: wide instead of tall** (`dock.css`; nothing changes without the dock or in portrait). Here: the villagers stand to the right of the picture as a condensed, tappable list (a 32 px sprite and the name, two across, scrolling inside if there are many). Villagers page: small cards (portrait left, words right, 4 across; 4352 to 2850 px tall in the test world). Place headers (towns, shops): picture and words side by side. Pages of narrow boxes (Account) go two across (2626 to 1779 px). Puzzle box: wide, kit on the left, belt and pals on the right (1888 to 1623 px). Tool belt: two cards across.
+- **Still tall, not changed:** the world map tab, the Almanac, the guide, the Passport, My Gnome Stats, the garden bed grid and the shop lists. Page heights measured in a headless browser at 844 x 390 on the test world.
+
+## 2.7.66
+- **Dock layout, landscape: bigger pictures, hovel room centred.** The picture height allowance grew (about 12 px more for the Here, place and map pictures); the hovel room has its own, larger allowance, is centred in its banner, and the banner's greeting and Sleep / Nap column is hidden (they are the Rest piece). At 844 x 390 the room is about 400 x 227 (was 319 x 181).
+- **More popovers checked** (short landscape, headless): the Puzzle box tabs (Codex, Belt, Pals, How it works) and an adventure on the road have no dialogs that fail. Still not covered: the trail's popups and a fight's own cards (they need a live walk).
+
+## 2.7.65
+- **Dock layout, landscape: pictures fit the screen.** The Here picture, the hovel room, the place pictures (towns, shops) and the world map are sized to the height left above the dock (`--imgh`, each keeps its own proportion and is centred), so they are seen whole instead of scrolled past. The Here page hides its crumbs and info line (the place name stays). The garden bed grid is left full size (smaller squares would be too small to tap). Seen in a headless browser at 844 x 390 and 1280 x 720.
+- **Dock, Here page: the right piece is "Menu".** The row of round buttons under the picture (Routes, World, Perks, Fast travel, GPS, Wander) moved into the right piece as a strip; the row itself is hidden in the dock layout. Each tile opens its own popover.
+- **Popover audit, short landscape screens.** Every dialog on 29 pages was opened in a headless browser at 844 x 390, 740 x 360 and 667 x 375 and measured (inside the screen, a scroll area of at least 130 px, not tiny): none failed after the 2.7.59 and 2.7.61 fixes. Added: Here popovers never grow past the screen. Not covered: popovers that only exist after a play action (an adventure's popups, trek camp, a fight's own cards) and non-dialog sheets other than the Puzzle box one.
+
+## 2.7.64
+- **Dock, Here page: "Do here" lists the other things.** It used to repeat the "Do" spots already on the picture. Now it lists up to three more doable things at the stop that the picture has no room for (chosen per visit, done ones left out; stalls are not included), and each opens its own card and runs in place. Greyed "nothing more" when the picture already shows them all. New `here_extra_do()` in `includes/here_view.php` (hidden cards, only when the dock is on); `dock.js` `hereDo`.
+
+## 2.7.63
+- **Puzzle box piece panel keeps the page in place.** Opening the side panel (2.7.61, short landscape screens) narrowed the page and the old "keep the piece above the sheet" scroll then jumped the page to the bottom. Now the tapped piece stays where it was on the screen (`pfv1box.js`: `sideSheet`, `anchorY`); stepping to the next or previous piece only scrolls if that piece is off screen. Checked in a headless 844 x 390 browser: scroll position and piece position unchanged after opening.
+
+## 2.7.62
+- **Dock, Here page:** the left piece "Do here" no longer links to the town list page. It opens a strip of the first three doable things on the stop's picture (its "Do" spots); each tile opens that spot's own card in place. Greyed "nothing to do" when the stop has none. (`dock.js`: remote `hereDo`, and a remote can now click an SVG link.)
+
+## 2.7.61
+- **Popovers on short landscape screens (a phone on its side).** The Puzzle box piece sheet (`.pfv-dsheet`, Pack it / Take out) was 45% of the height, which left about 70 px for the piece and its facts; it is now a panel on the right (about half the width, full height) so the piece, its facts and the button all show, and the page keeps scrolling beside it. The seed, soil and mulch choosers (`dialog.picker`) put the search, chips and "in season" on one row and have slim head and foot (this was dock-only in 2.7.59; now it applies everywhere). Other sheets (item sheets, codex, intro, plan) are 86 to 90% high and scroll, so they were left.
+- **Dock layout, landscape:** the garden's own selected-squares panel is hidden (the dock's Pick and Then strips do the same); Wren's tour bubble sits top right so it no longer covers the strips.
+- **Not checked:** a real phone; screenshots are a headless browser at 844 x 390.
+
+## 2.7.60
+- **Dock: garden page.** In the dock layout only (landscape, `nav_dock` on), the page's own "Select squares" button, the bulk buttons (Water all, Harvest all, Collect all, Pick pests, Weed all) and their energy note are hidden: the dock's Select piece and Tools strip do the same. Portrait and the old layout are unchanged. New classes `selopen`, `bulkf`, `bulkhelp` in `garden.php`.
+
+## 2.7.59
+- **Dock: garden pickers on landscape phones.** The seed (Plant…), Work in and Mulch popovers showed only a sliver of the list because the search, chips and "in season" rows took most of a 390 px screen. In dock mode on short landscape screens they now share one row and the head and foot are slim (`dock.css`). Seen in a headless capture at 844 x 390 only.
+
+## 2.7.58
+- **Nav dock (admin preview, off by default).** A landscape bottom dock (four jigsaw menu pieces, two page actions, a status plate, a play-mode rail) replaces the header, status strip, bottom bar and menu sheet in landscape. Setting `nav_dock`: `0` off (default, nothing changes), `admin` admins only, `1` everyone; admins can add `?dock=on` or `?dock=off`. Portrait keeps today's chrome. Design: `nav_dock_mockups.html`; plan and status per page: `claude/plan-nav-dock.md`. New: `includes/dock.php`, `assets/dock.js`, `assets/dock.css`, 72 icons in `assets/img/nav/` (source `art-nav-dock/`).
+- **Page actions.** Left and right pieces work the page's own controls (the page's CSRF, confirms and in-place update apply): Garden (Select with Pick and Then strips; Tools Water, Harvest, Till on one bed; bulk buttons), Tasks, Shop (basket button, Buy | Sell), Crafting, Hovel and Gnome (Rest, Heal), Town, World, Trading, Market day, Community garden (Select mode), Pal jobs, Yard editor, mini-game rail.
+- **Quick item.** New `quick.php`, `includes/quick_slot.php` and column `users.quick_item_id` (added on demand and by Upgrade database). Satchel: assign (pick an item, Confirm), use, clear (x, or hold). Adventure: use. Fights: a fight snack is eaten (old fight: the page's `snack`; puzzle fight: new `pf_quick`, free of the turn, counts against the snack limit).
+- **Community garden.** `do=tend` also takes `acts[]` (verb:bed) for several beds; one job and one energy each, stops when tired or at the shift cap. Beds carry `data-bed`, `data-state`, `data-weedy`.
+- **Tour** points at dock pieces too; the tour hint is written only when it changed (it caused a dock redraw loop).
+- **Not checked:** a real phone, real MySQL, the dark theme with the real stylesheet, an old (non-puzzle) fight, Hovel rest buttons on a normal account. Checked on a fresh SQLite install (`tests/walk.sh`, headless Chromium at 844 x 390).
+
 ## 2.7.57
 - **Puzzle combat is live for everyone.** One-time boot step `pfight_live_2757` (marker setting `pfight_live_2757`, only on a world upgraded from before 2.7.57) sets `pfight_open` = 1 and `pfight_v1` = 1 and makes the fight belts, the Tool Repair Kit and its recipe (`pfd_content_once`); an admin Off afterwards is kept on later upgrades. New installs: both default to on (`pfight_v1` gets an Everyone option in the settings). Fights already under way keep their own mode and rules (the state carries them). Treks still use the old fight. Other settings checked and left as they are: `pfight_mode` (unused by v1 fights), `pfight_stage` (Off: the Trail fight is the pop-up), `pfight_learner_n` 3, `pfight_staged` / `pfight_thorn_level`, `pfight_first_fixed` / `pfight_first_seed`, `pfight_guide_n`, `pfight_hint_n`, `pfight_costwarn_n`, `pfight_stall_turn`, `pfight_retry_n`, `pfight_blank` (unset = on), `pfight_jigsaw` (parts48 kit), `pfight_board_test` (unset). New test `tests/pf_golive.sh` (fresh install, a normal player, no puzzle setting written: road fight played to its end in a 390 px browser; the boot step on an upgraded world).
 - **Puzzle combat intro.** A 4-step card (your Puzzle box; how a fight works; the Creature Codex; changing your deck) the first time a gnome opens the Puzzle box or starts a puzzle fight. Skip, Got it, Esc or a tap outside closes it and the page goes on; the seen flag is per player on the server (table `pf_intro`, made on first use). The same text is on a new **How it works** tab of the Puzzle box, and the fight's help sheet has a button that opens the card again in place. `includes/pfintro.php`, `assets/pfintro.js`, CSS `.pfi` in `assets/pfv1.css`; setting `pfight_intro` (default on) stops it opening by itself.

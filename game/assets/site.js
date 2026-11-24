@@ -879,6 +879,7 @@ gvAdvFold();
         swap(doc, '.statusstrip');
         swap(doc, '.userbar');
         swap(doc, '.advbar');
+        swap(doc, '.dockdata');   // nav dock: the plate numbers and the page's two actions (assets/dock.js reads them on gv:swapped)
         swap(doc, '.railsrv');   // v0.9.6: pots, boosts and chores in the right column
         if (doc.title) document.title = doc.title;
         if (res.url !== location.href) history.replaceState(history.state, '', res.url);
@@ -927,11 +928,11 @@ gvAdvFold();
     var form = ev.target;
     if (busy && (form.method || '').toLowerCase() === 'post' && form.closest && form.closest('#pfight')) { ev.preventDefault(); return; }   // 2.6.79: a fight form sent while another in-place load is still running is dropped, never sent the plain way (that was a full page load)
     /* 2.6.84 (debug log: a Trail step tapped while the last one was still loading, 1 to 3 seconds, went out as a plain post = a real page load): the same for every page form that is sent in place. A tap during a load is dropped. */
-    if (busy && (form.method || '').toLowerCase() === 'post' && !form.hasAttribute('data-noajax') && form.enctype !== 'multipart/form-data' && form.closest && (form.closest('main') || form.closest('.advbar'))) { try { if (new URL(form.getAttribute('action') || location.href, location.href).origin === location.origin) { ev.preventDefault(); return; } } catch (e) {} }
+    if (busy && (form.method || '').toLowerCase() === 'post' && !form.hasAttribute('data-noajax') && form.enctype !== 'multipart/form-data' && form.closest && (form.closest('main') || form.closest('.advbar') || form.closest('.dockroot'))) { try { if (new URL(form.getAttribute('action') || location.href, location.href).origin === location.origin) { ev.preventDefault(); return; } } catch (e) {} }
     if (ev.defaultPrevented || busy || (form.method || '').toLowerCase() !== 'post' || form.hasAttribute('data-noajax')) return;
     if (form.enctype === 'multipart/form-data') return;
     var main = document.querySelector('main');
-    if (!main || !main.contains(form) && !form.closest('.advbar')) return;
+    if (!main || !main.contains(form) && !form.closest('.advbar') && !form.closest('.dockroot')) return;   // nav dock: its forms (the Quick slot) load in place too
     var action = new URL(form.getAttribute('action') || location.href, location.href);
     if (action.origin !== location.origin) return;
     ev.preventDefault();
@@ -1175,7 +1176,7 @@ if (!window.gvMycBound) {
 }
 /* v2.1.11: the wander page folds (gather, notes) start closed on a phone and open on a larger screen; set once per fold, so a fold the gnome opened stays open. */
 function gvWanderFolds() {
-  var phone = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+  var phone = window.matchMedia && (window.matchMedia('(max-width: 720px)').matches || (document.body.classList.contains('dock-on') && window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches));   // 2.7.77: a phone on its side with the dock keeps them closed too
   document.querySelectorAll('details.wfold:not([data-init])').forEach(function (d) {
     d.setAttribute('data-init', '1');
     if (!phone) d.open = true;
@@ -1352,6 +1353,7 @@ function gvPageToasts() {
     var key = x.getAttribute('data-gvtoast') || '', seen = '';   // walk id : number of journal lines: only a NEW line is announced (a step that adds none must not repeat the last one)
     try { seen = sessionStorage.getItem('gvlatest') || ''; sessionStorage.setItem('gvlatest', key); } catch (e) { seen = window.gvLatestSeen || ''; window.gvLatestSeen = key; }
     if (key && key === seen) { x.remove(); return; }
+    if (document.body.classList.contains('dock-on') && /^[\u2212-]\d+\s*(energy|\u26a1)\.?$/i.test(x.textContent.trim())) { x.remove(); return; }   // v2.8.08: the dock bar shows energy use
     var d = document.createElement('div'); d.className = 'flash ok'; d.textContent = x.textContent.trim(); if (d.textContent && !nodes.some(function (n) { return n.textContent === d.textContent; })) nodes.push(d); x.remove();
     var view = document.querySelector('.tilemap .tmview');
     if (view && d.textContent && !view.querySelector('.fightscene')) { var pop = document.createElement('div'); pop.className = 'tmpop'; pop.setAttribute('aria-hidden', 'true'); pop.textContent = d.textContent; view.appendChild(pop); setTimeout(function () { pop.remove(); }, 4200); }
@@ -1700,6 +1702,16 @@ function gvToastDodge(box) {
    errors stay until tapped (✕). Computers: as before. Always role status (ok) or alert (error). */
 function gvShowToasts(nodes) {
   if (!nodes.length) return;
+  if (document.body.classList.contains('dock-on')) {   // v2.8.08: the dock bar animates energy use: no "-1 energy" pop-up
+    nodes = Array.prototype.filter.call(nodes, function (n) {
+      var t = (n.textContent || '').trim();
+      if (/^[\u2212-]\d+\s*(energy|\u26a1)\.?$/i.test(t)) return false;
+      var w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT), x;
+      while ((x = w.nextNode())) x.nodeValue = x.nodeValue.replace(/\s*\((?:\u2212|-)\d+ energy\)/g, '');
+      return true;
+    });
+    if (!nodes.length) return;
+  }
   /* v2.6.05: while a fight's end scene plays on the map (body.fs-hold), the messages wait for it to finish instead of covering it (they are in Messages meanwhile).
      v2.6.47: also while the end scene is still waiting to start (fightscene.js sets fs-hold a moment after the page loads, so messages used to pop up first); polled, with a 25 s cap in case the scene never runs */
   var gvHold = function () {
@@ -2439,4 +2451,59 @@ document.addEventListener('click', function (ev) {
   if (o) { gvOpenDlg(document.getElementById(o.getAttribute('data-opendlg'))); return; }
   if (t.closest('[data-closedlg]')) { gvCloseDlg(t.closest('dialog')); return; }
   if (t.tagName === 'DIALOG' && t.classList.contains('fairsheet')) gvCloseDlg(t);
+});
+
+/* v2.8.04: every finished random-event / prize banner gets an ✕ that hides it in place (no reload). Banners that wait for a choice keep no ✕. */
+function gvEvClose() {
+  document.querySelectorAll('.eventbox:not(.waiting):not(.hasx), .prizebox:not(.hasx)').forEach(function (b) {
+    b.classList.add('hasx');
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'evclose'; x.setAttribute('aria-label', 'Close'); x.textContent = '✕';
+    x.addEventListener('click', function () { b.classList.add('evgone'); setTimeout(function () { b.remove(); }, 180); });
+    b.appendChild(x);
+  });
+}
+document.addEventListener('DOMContentLoaded', gvEvClose);
+document.addEventListener('gv:swapped', gvEvClose);
+if (document.readyState !== 'loading') gvEvClose();
+
+/* v2.8.09: a letter link in the Glossary opens that letter's fold (landscape dock layout) */
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('.gletters a');
+  if (!a) return;
+  var d = document.getElementById((a.getAttribute('href') || '').slice(1));
+  if (d && d.tagName === 'DETAILS') d.open = true;
+});
+
+/* v2.8.09: Shop, Sell tab, landscape dock layout: start on the first category instead of all 200+ items (All stays one tap away) */
+function gvSellFirstCat() {
+  if (!document.body.classList.contains('dock-on')) return;
+  var nav = document.querySelector('.shopwrap nav.shopcats:not([data-first])');
+  if (!nav || !document.querySelector('.shopwrap [data-mode="sell"], .shopwrap .itms [data-mode="sell"]')) return;
+  nav.setAttribute('data-first', '1');
+  var all = nav.querySelector('button[data-cat="all"].on'), first = nav.querySelector('button[data-cat]:not([data-cat="all"])');
+  var n = nav.querySelector('button[data-cat="all"] small');
+  if (all && first && n && parseInt(n.textContent, 10) > 24) first.click();
+}
+document.addEventListener('DOMContentLoaded', gvSellFirstCat);
+document.addEventListener('gv:swapped', gvSellFirstCat);
+if (document.readyState !== 'loading') gvSellFirstCat();
+
+/* v2.8.10: Market day basket picker: a search box filters the squares (ticked ones always stay) */
+document.addEventListener('input', function (e) {
+  var f = e.target.closest && e.target.closest('input.mkfind');
+  if (!f) return;
+  var q = f.value.trim().toLowerCase(), form = f.closest('form');
+  form.querySelectorAll('label.mkopt').forEach(function (l) {
+    var on = !q || l.textContent.toLowerCase().indexOf(q) !== -1 || (l.querySelector('input') || {}).checked;
+    l.hidden = !on;
+  });
+});
+
+/* v2.8.10: Pal jobs, At home: a search box filters the pal rows by name */
+document.addEventListener('input', function (e) {
+  var f = e.target.closest && e.target.closest('input.pjfind');
+  if (!f) return;
+  var q = f.value.trim().toLowerCase();
+  f.closest('section').querySelectorAll('li.pjpal').forEach(function (li) { li.hidden = !!q && li.textContent.toLowerCase().indexOf(q) === -1; });
 });

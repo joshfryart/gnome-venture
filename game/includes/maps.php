@@ -782,6 +782,8 @@ function region_panel(array $u, int $regionId): string
             . '<button class="btn small">🧭 Travel here' . ($cost ? ' · ' . money($cost) . ' · ⚡' . (int)setting('travel_energy') : ($freeJ ? ' (free: your Journey project)' : ' (free: home)')) . '</button></form>';
     }
     $h .= '</p>';
+    $regFold = function_exists('dock_on') && dock_on($u);   // v2.8.07: landscape dock: the roads and places sit in a fold, closed
+    if ($regFold) $h .= '<details class="regfold"><summary>Roads and places</summary>';
     if ($town) {
         $h .= '<h3>🏘️ <a href="' . e(url('world.php?go=' . (int)$town['id'] . '#gopanel')) . '">' . e($town['name']) . '</a></h3>';   // v0.7.98
         $roads = q('SELECT * FROM roads WHERE a_town = ? OR b_town = ? ORDER BY id', [$town['id'], $town['id']])->fetchAll();
@@ -826,7 +828,7 @@ function region_panel(array $u, int $regionId): string
     $h .= '<h3>🌿 Off the road</h3>'
         . ($found ? '<p>' . implode(' · ', $found) . '</p>' : '<p class="muted">Nothing found yet.</p>')
         . ($hidden ? '<p class="help">❔ ' . $hidden . ' more hidden village' . ($hidden === 1 ? '' : 's') . ' and landmark' . ($hidden === 1 ? '' : 's') . ' to find. Wander off the road to look.</p>' : '<p class="help">✔️ You’ve found everything here!</p>');
-    return $h . '</div>';
+    return $h . ($regFold ? '</details>' : '') . '</div>';
 }
 
 /** The journey map for a walk or a wander: the whole road with you on it, or rings going out into the wild. */

@@ -896,6 +896,15 @@ function post_update_news(string $from): void
         . "[*][b]Trail[/b]: side trails lean along the road, the corner notices no longer cover the end of a fight, and hints can tell you about a lair's nights and a delve's first rooms.\n"
         . "[*][b]New region maps[/b] for all 14 regions.\n"
         . "[*][b]Also since 2.7.04[/b]: the Mentor button is back in mentor towns, pals can keep the whole Kitchen cooking (new Full time option), and recipes you have not found yet show their name and what they need.[/list]"],
+    '2.8.24' => ['🧭 Update 2.8.24: a new layout for your phone held sideways',
+        "Turn your phone or tablet sideways and the game now has a bottom dock instead of the top bar:\n\n"
+        . "[list][*][b]Four menus[/b] (You, Hobbies, Out & about, Together) open strips of shortcuts. [b]Out & about[/b] now has a Shops tile.\n"
+        . "[*][b]Status plate[/b]: tap it for energy (x/y), health, your level, the time and your Petals. Using energy now glows the bar and drains it, with a small \"−1 ⚡\" floating up. Eating or resting fills it back up.\n"
+        . "[*][b]Two page buttons[/b], one each side: they change with the page. In the garden the left one picks what to do (Select, Water, Harvest, Till) and the right one does it to everything.\n"
+        . "[*][b]Fights[/b]: a slim bar while you play, full screen on a tap, and a pre-fight screen that shows the creature's pieces without scrolling.\n"
+        . "[*][b]Shorter pages[/b]: the Almanac, Puzzle Pals, Villagers, the world map and more fold into sections, and pop-ups fit the short screen.\n"
+        . "[*][b]Random events[/b] are slimmer and have an ✕ to close them.[/list]\n\n"
+        . "Held upright, or on a big screen, the game looks the way it always did. To use the old layout sideways too, add [b]?dock=off[/b] to the address ([b]?dock=on[/b] switches back)."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

@@ -1,0 +1,1520 @@
+/* Nav dock, phase 1 (plan: claude/plan-nav-dock.md; includes/dock.php; assets/dock.js).
+   Loaded only when the setting nav_dock is on for the viewer (admins first). Shown only in landscape on short screens; portrait and wide screens keep today's chrome.
+   Everything is scoped under .dockroot. No inline styles (CSP): assets/dock.js sets positions through the style object. Hard pixel corners, no blur.
+   The piece art is built from the mockup nav_dock_mockups.html: 2.5D jigsaw pieces (side face, bevel strips, grain, stitch) on a dirt and grass band. */
+.dockroot {
+  --dk-felt: #3d2a1c; --dk-felt2: #52382a; --dk-ink: #f2e4c0; --dk-accent: #e8a317; --dk-accentink: #7a4a1f;
+  --dk-surface: #fff3c8; --dk-surface2: #f2e4c0; --dk-fg: #2a1a10; --dk-muted: #74462a; --dk-line: #c9a96e; --dk-line2: #9a6b3f; --dk-dis: #c9a96e;
+  --dk-purple: #4e3a8a; --dk-brand: #2f5a2a; --dk-info: #1f4a6a; --dk-petal: #9b3d63; --dk-danger: #a8241f;
+  --dk-circ: polygon(30% 0,70% 0,70% 10%,85% 10%,85% 20%,90% 20%,90% 30%,100% 30%,100% 70%,90% 70%,90% 80%,85% 80%,85% 90%,70% 90%,70% 100%,30% 100%,30% 90%,15% 90%,15% 80%,10% 80%,10% 70%,0 70%,0 30%,10% 30%,10% 20%,15% 20%,15% 10%,30% 10%);
+  position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--dock-h, 106px) + env(safe-area-inset-bottom, 0px)); z-index: 45; pointer-events: none; display: none;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; font-family: var(--font, system-ui, sans-serif);
+}
+:root[data-theme="dark"] .dockroot {
+  --dk-felt: #1c110a; --dk-felt2: #2b1b10; --dk-surface: #3d2a1c; --dk-surface2: #33231a; --dk-fg: #f2e4c0; --dk-muted: #d3b68a; --dk-line: #6a4a30; --dk-dis: #b89a6e;
+  --dk-purple: #b7a6f0; --dk-brand: #7ab55c; --dk-info: #a9d6ea; --dk-petal: #e88aab;
+}
+.dockdata { display: none; }
+.dockroot::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--dk-felt); }
+.dockroot .dockstage { position: absolute; left: 0; bottom: env(safe-area-inset-bottom, 0px); transform-origin: left bottom; }
+body.dock-on { --dock-h: 106px; }
+.dockroot .dkdefs { position: absolute; width: 0; height: 0; }
+.dockroot .dockfb { display: none; }
+.dockroot svg { max-width: none; max-height: none; }   /* the game's stylesheet caps svg and img at 100% of their parent: the pieces overflow their box on purpose (knobs, side face) */
+.dockroot img { max-width: none; }
+.dockroot .dockslip { position: absolute; left: 0; right: 0; top: 0; height: 0; }
+.dockroot .dock{position:absolute;left:0;right:0;bottom:0;height:100%;pointer-events:none;transition:transform .25s steps(5)}
+.dockroot .dock>*{pointer-events:auto}
+.dockroot .dock svg.dk-arc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.dockroot .dk-soil{fill:url(#dk-dirt)}
+.dockroot .dk-g1{fill:#5f9a47}
+.dockroot .dk-g2{fill:#7ab55c}
+.dockroot .dk-g3{fill:#3f7a35}
+.dockroot .dk-db{fill:var(--dk-felt)}
+.dockroot .dk-db2{fill:color-mix(in srgb,var(--dk-felt),var(--dk-ink) 20%)}
+.dockroot .dk-dd{fill:color-mix(in srgb,var(--dk-felt),#000 40%)}
+.dockroot .dk-dl{fill:color-mix(in srgb,var(--dk-felt),var(--dk-ink) 14%)}
+.dockroot .dk-pb{fill:color-mix(in srgb,var(--dk-line2),var(--dk-felt) 45%)}
+.dockroot .dk-ph{fill:color-mix(in srgb,var(--dk-line),var(--dk-felt) 30%)}
+.dockroot .dk-rt{fill:color-mix(in srgb,var(--dk-felt),#000 55%)}
+.dockroot .dk-pw{fill:#fff;fill-opacity:.22}
+.dockroot .dk-gf{fill:url(#dk-dirt2);stroke:color-mix(in srgb,var(--dk-felt),var(--dk-ink) 38%);stroke-width:2}
+.dockroot .dk-pc.dk-ghost{pointer-events:none;cursor:default}
+.dockroot .dk-fl1{fill:#e88aab}
+.dockroot .dk-fl2{fill:#ffd45a}
+.dockroot .dk-fl3{fill:#fff3c8}
+.dockroot .dk-stem{fill:#3f7a35}
+.dockroot .dk-pc{position:absolute;display:block;border:0;padding:0;background:none;cursor:pointer;font:inherit;color:var(--dk-tx,var(--dk-fg));
+  --dk-fill:var(--dk-felt2);--dk-ring:var(--dk-accentink);rotate:var(--rot,0deg);transition:translate .15s steps(3)}
+.dockroot .dk-pc svg.dk-ps{position:absolute;left:-16px;top:-16px;overflow:visible;pointer-events:none}
+.dockroot .dk-pc,.dockroot .dk-pop{--dk-hi:color-mix(in srgb,var(--dk-fill),var(--dk-ink) 35%);--dk-lo:color-mix(in srgb,var(--dk-fill),var(--dk-felt) 35%);--dk-side:color-mix(in srgb,var(--dk-fill),var(--dk-felt) 60%)}
+:root[data-theme="dark"] .dockroot .dk-pc,:root[data-theme="dark"] .dockroot .dk-pop{--dk-hi:color-mix(in srgb,var(--dk-fill),var(--dk-ink) 22%)}
+.dockroot .dk-ps .dk-sd{fill:var(--dk-side);stroke:var(--dk-side);stroke-width:2}
+.dockroot .dk-ps .dk-fc{fill:var(--dk-fill);stroke:var(--dk-ring);stroke-width:2;stroke-linejoin:miter}
+.dockroot .dk-ps .dk-hi{fill:var(--dk-hi)}
+.dockroot .dk-ps .dk-lo{fill:var(--dk-lo)}
+.dockroot .dk-ps .dk-gr{fill:url(#dk-grain)}
+.dockroot .dk-ps .dk-st{fill:none;stroke:var(--dk-lo);stroke-width:2;stroke-dasharray:4 4}
+.dockroot .dk-g-d{fill:var(--dk-felt);fill-opacity:.10}
+.dockroot .dk-g-l{fill:var(--dk-ink);fill-opacity:.10}
+.dockroot .dk-pc.dk-here .dk-st,.dockroot .dockslip .dk-pc.dk-on .dk-st{stroke:var(--dk-accent)}
+.dockroot .dk-pc:has(.dk-badge){z-index:2}
+.dockroot .dk-pc .dk-in{position:relative;z-index:1;width:100%;height:100%;padding:0 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;rotate:calc(var(--rot,0deg)*-1);pointer-events:none}
+.dockroot .dk-pc .dk-ic{color:#2a1a10;position:relative;isolation:isolate;display:grid;place-items:center;width:30px;height:30px;font-size:17px;line-height:1;background:#2a1a10;clip-path:var(--dk-circ)}
+.dockroot .dk-pc .dk-ic::before{content:"";position:absolute;inset:2px;background:#f2e4c0;clip-path:var(--dk-circ);z-index:-1}
+.dockroot .dk-pc .dk-ic::after{content:"";position:absolute;inset:4px;border:1px dashed #e8a317;clip-path:var(--dk-circ);z-index:-1}
+.dockroot .dk-pc.dk-act[disabled] .dk-ic::before,.dockroot .dk-pc.dk-act.dk-soft .dk-ic::before{background:color-mix(in srgb,#f2e4c0,var(--dk-felt2) 55%)}
+.dockroot .dk-pc.dk-menu{--dk-ring:#2a1a10}
+.dockroot .dk-pc .dk-ic.dk-pi{width:36px;height:36px}
+.dockroot .dk-pc .dk-ic.dk-pi::after{display:none}
+.dockroot .dk-pc .dk-ic.dk-pi img{width:32px;height:32px;image-rendering:pixelated;display:block}
+.dockroot .dockslip .dk-pc .dk-ic.dk-pi{width:36px;height:36px}
+.dockroot .dockslip .dk-pc .dk-ic.dk-pi img{width:32px;height:32px}
+.dockroot .dk-pc .dk-lb{font-size:11px;font-weight:800;margin-top:3px;max-width:100%}
+.dockroot .dk-pc.dk-menu[data-m="you"]{--dk-fill:var(--dk-purple)}
+.dockroot .dk-pc.dk-menu[data-m="hobby"]{--dk-fill:var(--dk-brand)}
+.dockroot .dk-pc.dk-menu[data-m="out"]{--dk-fill:var(--dk-info)}
+.dockroot .dk-pc.dk-menu[data-m="tog"]{--dk-fill:var(--dk-petal)}
+:root[data-theme="dark"] .dockroot .dk-pc.dk-menu{--dk-tx:#1c110a}
+.dockroot .dk-pc.dk-menu.dk-open{--dk-ring:#fff3c8;--dk-tx:#fff;translate:0 -4px}
+.dockroot .dk-pc.dk-act{--dk-fill:var(--dk-surface);--dk-ring:var(--dk-accentink);--dk-tx:var(--dk-fg)}
+.dockroot .dk-pc.dk-act.dk-go{--dk-fill:var(--dk-accent);--dk-ring:#fff3c8;--dk-tx:#2a1a10}
+.dockroot .dk-pc.dk-act.dk-open{--dk-fill:#fff3c8;--dk-ring:var(--dk-accent);translate:0 -4px}
+.dockroot .dk-pc.dk-act[disabled]{--dk-fill:var(--dk-felt2);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-dis);cursor:not-allowed}
+.dockroot .dk-pc.dk-act.dk-empty{--dk-fill:var(--dk-felt);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-dis);cursor:default}
+.dockroot .dk-pc:active:not([disabled]):not(.dk-deco){translate:0 4px}
+.dockroot .dk-pc:active:not([disabled]) .dk-sd{visibility:hidden}
+.dockroot .dk-pc .dk-badge{position:absolute;top:-4px;right:-4px;z-index:3;min-width:18px;height:18px;padding:0 4px;background:var(--dk-danger);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid var(--dk-felt)}
+.dockroot .dk-pc .dk-chip{position:absolute;z-index:3;left:50%;bottom:-3px;translate:-50% 0;white-space:nowrap;background:var(--dk-felt);color:#ffcf6a;font-size:10px;font-weight:800;padding:0 4px;border:2px solid var(--dk-line2)}
+.dockroot .dk-pip{position:absolute;z-index:3;left:50%;top:-14px;margin-left:-6px;font-size:11px;line-height:1;color:var(--dk-accent);font-weight:800;pointer-events:none}
+.dockroot .dk-pc.dk-plate .dk-in{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px 8px;padding:12px 10px 4px;align-items:center;color:var(--dk-ink);font-size:11px;font-weight:700;text-align:left;rotate:none}
+.dockroot .dk-pc.dk-plate{--dk-fill:var(--dk-felt2);--dk-tx:var(--dk-ink)}
+.dockroot .dk-pc.dk-plate.dk-open{--dk-ring:#fff3c8}
+.dockroot .dk-pc.dk-plate .dk-in>span{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;min-width:0}
+.dockroot .dk-pc.dk-plate progress{width:100%;height:7px;appearance:none;border:1px solid var(--dk-line2);background:var(--dk-felt);min-width:0}
+.dockroot .dk-pc.dk-plate progress::-webkit-progress-bar{background:var(--dk-felt)}
+.dockroot .dk-pc.dk-plate progress::-webkit-progress-value{background:var(--dk-accent)}
+.dockroot .dk-pc.dk-plate progress::-moz-progress-bar{background:var(--dk-accent)}
+.dockroot .dk-pc.dk-plate progress.dk-xp::-webkit-progress-value{background:#7ab55c}
+.dockroot .dk-pc.dk-plate progress.dk-xp::-moz-progress-bar{background:#7ab55c}
+.dockroot .dk-pc.dk-plate .dk-tag{color:#ffcf6a}
+.dockroot .dockslip{position:absolute;left:0;right:0;top:0;height:0;pointer-events:none;z-index:5}
+.dockroot .dockslip .dk-pc{pointer-events:auto;--dk-fill:var(--dk-surface);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-fg);animation:dksnapin .18s steps(4) both;animation-delay:calc(var(--o,0)*30ms)}
+.dockroot .dockslip .dk-pc .dk-ic{width:26px;height:26px;font-size:15px;line-height:1}
+.dockroot .dockslip .dk-pc .dk-lb{font-size:10px;font-weight:800;line-height:1.05;margin-top:1px}
+.dockroot .dockslip .dk-pc.dk-on{--dk-ring:var(--dk-accent)}
+.dockroot .dockslip .dk-pc.dk-cond .dk-fc{stroke-dasharray:6 3}
+.dockroot .dockslip .dk-pc.dk-armed{--dk-fill:#c8d09f;--dk-ring:var(--dk-brand)}
+.dockroot .dockslip .dk-pc[disabled]{--dk-fill:var(--dk-surface2);--dk-tx:var(--dk-muted);cursor:not-allowed}
+.dockroot .dockslip .dk-pc .dk-badge{border-color:var(--dk-bg)}
+.dockroot .dockslip .dk-pc .dk-chip{background:var(--dk-felt)}
+.dockroot .dockslip .dk-gname{position:absolute;pointer-events:none;font-size:10px;font-weight:800;color:var(--dk-ink);background:var(--dk-felt);padding:1px 6px;border:1px solid var(--dk-accentink);animation:dkrise .22s steps(4) both}
+.dockroot .dk-pop{position:absolute;pointer-events:auto;animation:dkrise .22s steps(4) both;color:var(--dk-fg);--dk-fill:var(--dk-surface);--dk-ring:var(--dk-line2)}
+.dockroot .dk-pop svg.dk-ps{position:absolute;left:-16px;top:-16px;overflow:visible;pointer-events:none}
+.dockroot .dk-pop .dk-body{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding:8px 12px 10px;font-size:11px}
+.dockroot .dk-pop h4{grid-column:auto;margin:0 0 3px;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--dk-muted)}
+.dockroot .dk-pop .dk-row{display:flex;gap:6px;align-items:center;min-height:25px;width:100%;text-align:left;font:inherit;font-size:11px;font-weight:600;background:none;border:0;border-top:1px solid var(--dk-line);color:var(--dk-fg);padding:0}
+.dockroot .dk-pop .dk-row b{margin-left:auto;font-weight:800}
+.dockroot .dk-pop button.dk-row{cursor:pointer;min-height:28px}
+.dockroot .dk-pop button.dk-row::after{content:"›";margin-left:6px;color:var(--focus);font-weight:800;font-size:14px}
+.dockroot .dk-pop button.dk-row b{margin-left:auto}
+.dockroot .dk-pop .dk-util{grid-column:1/-1;display:flex;gap:6px;margin-top:6px}
+.dockroot .dk-pop .dk-util button{font:inherit;font-size:11px;font-weight:700;padding:3px 8px;min-height:28px;background:var(--dk-bg);color:var(--dk-fg);border:2px solid var(--dk-line2);cursor:pointer;border-radius:0}
+.dockroot .dockslip .dk-pc.dk-do{--dk-fill:var(--dk-brand);--dk-ring:#1f3d1c;--dk-tx:#fff}
+:root[data-theme="dark"] .dockroot .dockslip .dk-pc.dk-do{--dk-tx:#1c110a}
+.dockroot .dockslip .dk-pc.dk-iconly .dk-lb{display:none}
+.dockroot :root .dk-pc.dk-menu[disabled]{--dk-fill:var(--dk-felt2);--dk-ring:var(--dk-line2);--dk-tx:var(--dk-dis);cursor:not-allowed}
+.dockroot .dockslip.dk-still .dk-pc,.dockroot .dockslip.dk-still .dk-gname,.dockroot .dockslip.dk-still .dk-pop{animation:none}
+.dockroot .dockslip.dk-ghost,.dockroot .dockslip.dk-ghost .dk-pc{pointer-events:none}
+.dockroot .dockslip.dk-ghost .dk-pc{animation:dksnapout .12s steps(3) both;animation-delay:calc((var(--n,6) - 1 - var(--o,0))*20ms)}
+.dockroot .dockslip.dk-ghost .dk-gname,.dockroot .dockslip.dk-ghost .dk-pop{animation:dkfadeout .2s ease-in both}
+@keyframes dksnapin{0%{translate:var(--fx,22px) -34px;opacity:0}75%{translate:0 -4px;opacity:1}100%{translate:0 0;opacity:1}}
+@keyframes dksnapout{0%{translate:0 0;opacity:1}100%{translate:var(--fx,22px) -30px;opacity:0}}
+@keyframes dkfadeout{to{opacity:0}}
+.dockroot .dk-pc.dk-act.dk-soft{--dk-fill:var(--dk-felt2);--dk-tx:var(--dk-dis);--dk-ring:var(--dk-line2)}
+.dockroot .dockslip .dk-pc.dk-danger{--dk-fill:#f6b8cf;--dk-ring:var(--dk-danger);--dk-tx:#5a0f0f}
+@keyframes dkrise{from{translate:0 40px;opacity:0}to{translate:0 0;opacity:1}}
+/* the dock replaces the header, status strip, bottom bar, menu sheet and right rail (any landscape screen: phone, tablet, desktop) */
+@media (orientation: landscape) {
+  .dockroot { display: block; }
+  body.dock-on header.banner, body.dock-on .statusstrip, body.dock-on .bottombar, body.dock-on nav.side, body.dock-on .rail, body.dock-on .tripstrip { display: none !important; }   /* the trip is in the popover now */
+  body.dock-on .wrap { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px); justify-content: center; }
+  body.dock-on footer { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px); }
+  body.dock-on .toasts { bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px); }
+  /* the message list: the rail is gone, so it sits under the top of the page, as on a phone */
+  body.dock-on .msglog.mlside { display: none; }
+  body.dock-on .msglog.top { display: none; }   /* the message list opens from the dock's bell, far right (dock.js) */
+  body.dock-on .msglog.top:has(.mlempty) { display: none; }
+  body.dock-on .msglog.top > summary { cursor: pointer; list-style: none; min-height: 36px; padding: 6px var(--gut); display: flex; align-items: center; gap: 6px; }
+  body.dock-on .msglog.top > summary::-webkit-details-marker { display: none; }
+  body.dock-on .msglog.top > summary::after { content: '▾'; margin-left: auto; color: var(--muted); }
+  body.dock-on .msglog.top[open] > summary::after { content: '▴'; }
+  body.dock-on .msglog.top .mlpeek { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  body.dock-on .msglog.top.hasnew > summary { background: var(--accent-soft); }
+  body.dock-on .msglog.top.haserr > summary { background: var(--danger-soft); color: var(--danger-ink); }
+  body.dock-on .msglog.top .mllist { max-height: 50vh; padding: 0 var(--gut) 8px; }
+  /* until dock.js has drawn the dock (or if it cannot) the menu is a plain list of links, so it never disappears */
+  body.dock-on:not(.dock-ready) .dockroot .dockfb { display: flex; flex-wrap: wrap; gap: 2px 14px; position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 6px 12px; max-height: var(--dock-h); overflow: auto;
+    list-style: none; pointer-events: auto; background: var(--dk-felt); color: var(--dk-ink); font-size: 12px; }
+  .dockroot .dockfb ul { display: inline; margin: 0; padding: 0; list-style: none; }
+  .dockroot .dockfb li li { display: inline; margin-left: 8px; }
+  .dockroot .dockfb a { color: var(--dk-ink); }
+}
+/* popover tabs and the three-column rail tab */
+.dockroot .dk-poptabs { grid-column: 1 / -1; display: flex; gap: 4px; margin-bottom: 4px; }
+.dockroot .dk-poptabs button { font: inherit; font-size: 11px; font-weight: 700; min-height: 30px; padding: 0 10px; background: var(--dk-surface2); color: var(--dk-fg); border: 2px solid var(--dk-line); border-radius: 0; cursor: pointer; }
+.dockroot .dk-poptabs button[aria-selected="true"] { background: var(--dk-felt); color: var(--dk-ink); border-color: var(--dk-accent); }
+.dockroot .dk-pop.dk-wide .dk-body { grid-template-columns: 1fr 1fr 1fr; }
+.dockroot .dk-row.dk-empty { color: var(--dk-muted); font-weight: 400; }
+.dockroot .dk-util button { margin-top: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .dockroot .dockslip .dk-pc, .dockroot .dockslip.dk-ghost .dk-pc, .dockroot .dockslip .dk-gname, .dockroot .dk-pop { animation: none; }
+  .dockroot .dock, .dockroot .dk-pc { transition: none; }
+}
+
+/* menu label colours (white on the area colours; dark on the pastel pieces of the dark theme) */
+.dockroot .dk-pc.dk-menu { --dk-tx: #fff; }
+:root[data-theme="dark"] .dockroot .dk-pc.dk-menu { --dk-tx: #1c110a; }
+.dockroot .dk-util form { margin: 0; }
+.dockroot .dk-util button { font: inherit; font-size: 11px; font-weight: 700; padding: 3px 8px; min-height: 32px; background: var(--dk-surface2); color: var(--dk-fg); border: 2px solid var(--dk-line2); border-radius: 0; cursor: pointer; margin-right: 4px; }
+.dockroot .dk-util .thl { display: inline; }
+.dockroot .dk-util .th-to-light { display: none; }
+:root[data-theme="dark"] .dockroot .dk-util .th-to-light { display: inline-block; }
+:root[data-theme="dark"] .dockroot .dk-util .th-to-dark { display: none; }
+
+.dockroot a { text-decoration: none; }
+
+/* phase 2: green "then" tiles of the select mode, the picked-count piece, menus that wait */
+.dockroot .dockslip .dk-pc.dk-do { --dk-fill: var(--dk-brand); --dk-ring: #1f3d1c; --dk-tx: #fff; }
+:root[data-theme="dark"] .dockroot .dockslip .dk-pc.dk-do { --dk-tx: #1c110a; }
+.dockroot .dk-pc.dk-act.dk-info { --dk-fill: var(--dk-felt2); --dk-tx: var(--dk-ink); --dk-ring: var(--dk-accentink); cursor: default; }
+.dockroot .dk-pc.dk-menu[disabled] { --dk-fill: var(--dk-felt2); --dk-ring: var(--dk-line2); --dk-tx: var(--dk-dis); cursor: not-allowed; }
+.dockroot .dk-pc.dk-act[disabled] { --dk-fill: var(--dk-felt2); --dk-ring: var(--dk-line2); --dk-tx: var(--dk-dis); cursor: not-allowed; }
+
+/* Quick slot: the small x, the soft (greyed but tappable) look, the hold bar */
+.dockroot .dk-qx { position: absolute; left: -8px; bottom: -8px; z-index: 4; width: 22px; height: 22px; display: grid; place-items: center; background: var(--dk-danger); color: #fff; font-size: 11px; font-weight: 800; border: 2px solid var(--dk-felt); cursor: pointer; line-height: 1; }
+.dockroot .dk-pc.dk-act.dk-soft { --dk-fill: var(--dk-felt2); --dk-tx: var(--dk-dis); --dk-ring: var(--dk-line2); }
+.dockroot .dk-pc.dk-holding .dk-in::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 2px; height: 4px; background: var(--dk-danger); animation: dkholdbar .65s linear both; }
+@keyframes dkholdbar { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* play mode: the thin rail */
+.dockroot .dk-rail { position: fixed; left: 0; right: 0; bottom: 0; height: calc(34px + env(safe-area-inset-bottom, 0px)); padding: 0 10px env(safe-area-inset-bottom, 0px); z-index: 45; pointer-events: auto;
+  display: flex; align-items: center; gap: 12px; background: #4a3426; color: #f3e6c8; border-top: 2px solid #2b1d14; font-size: 14px; }
+.dockroot .dk-rail[hidden] { display: none; }
+.dockroot .dk-rn { flex: 1; text-align: center; }
+.dockroot .dk-rb { color: #f3e6c8; background: none; border: 0; font: inherit; text-decoration: none; padding: 6px 8px; min-height: 30px; cursor: pointer; }
+.dockroot .dk-rs { opacity: .85; }
+
+/* the tour's ring on a dock piece (pieces are placed absolutely, so keep that) */
+.dockroot .tourhl { position: absolute; z-index: 6; border-radius: 0; outline: 4px solid #ffcb2e !important; outline-offset: 2px; clip-path: none !important; }
+.dockroot .tourhl::before { bottom: auto; top: -28px; }
+
+/* community garden Select mode */
+body.dock-on .cbed.dkpick { outline: 3px solid #e8a317; outline-offset: -3px; background-image: linear-gradient(rgba(232,163,23,.25), rgba(232,163,23,.25)); }
+body.dock-on .cbed { cursor: pointer; }
+
+/* garden, dock layout only: the dock's Select piece and Tools strip replace the page's own Select squares button and bulk buttons */
+@media (orientation: landscape) {
+  body.dock-on .selbar > .selopen, body.dock-on .bulkf, body.dock-on .bulkhelp { display: none; }
+}
+
+/* dock layout, landscape: the page's own selected-squares panel repeats the dock's Pick and Then strips; the tour bubble sits top right so it never covers the strips */
+@media (orientation: landscape) {
+  body.dock-on .selbar .selon { display: none; }
+  body.dock-on.tourbub #wrentour.tour-on { top: 44px; bottom: auto; left: auto; right: 8px; width: min(380px, 46vw); max-height: calc(100vh - var(--dock-h, 106px) - 60px); }
+}
+
+/* dock layout, landscape: the big pictures fit the screen above the dock, so the page is not mostly scrolling past them. --imgh is the height left for a picture;
+   each rule keeps the picture's own proportion (width = height x ratio) and centres it. */
+@media (orientation: landscape) {
+  body.dock-on { --imgh: max(150px, calc(100dvh - var(--dock-h, 106px) - 92px)); --imgh-room: max(160px, calc(100dvh - var(--dock-h, 106px) - 58px)); }
+  body.dock-on .hubstage { max-width: calc(var(--imgh) * 1.769); margin-inline: auto; }
+  body.dock-on .hs-banner { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh-room) * 1.77); width: 100%; margin-inline: auto; }
+  body.dock-on .hs-banner .hs-side { display: none; }   /* Sleep and Nap are the Rest piece */
+  body.dock-on .ph-art { max-width: calc(var(--imgh) * 2); margin-inline: auto; }
+  body.dock-on .herepage .crumbs, body.dock-on .herepage .hereinfo { display: none; }
+  body.dock-on .herepage h1 { font-size: 18px; margin: 2px 0 4px; }
+  body.dock-on .hs-banner { padding-block: 6px; }
+}
+
+/* dock layout, landscape: the Here picture's round button row is the right piece (Menu) */
+@media (orientation: landscape) {
+  body.dock-on ul.hubnavbar { display: none; }
+}
+
+/* dock layout, landscape: wide, not tall. Here: the villagers stand beside the picture in a condensed, tappable list. */
+@media (orientation: landscape) {
+  body.dock-on .hubscene { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 10px; align-items: start; justify-content: center; }
+  body.dock-on .hubscene > * { grid-column: 1; }
+  body.dock-on .hubscene > .hubstage { grid-column: 1; grid-row: 1 / span 6; width: calc(var(--imgh) * 1.769); max-width: none; margin: 0; }
+  body.dock-on .hubscene > .hubstreet { grid-column: 2; grid-row: 1; margin: 0; padding: 6px; max-height: var(--imgh); overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; align-content: start; justify-content: stretch; }
+  body.dock-on .hubstreet > li { display: block; }
+  body.dock-on .hubstreet .hubst { flex-direction: row; justify-content: flex-start; gap: 6px; min-width: 0; min-height: 40px; padding: 2px 6px 2px 2px; background: rgba(30, 20, 10, .55); border-radius: 8px; }
+  body.dock-on .hubstreet .hubst .stp { width: 32px; height: 40px; flex: none; }
+  body.dock-on .hubstreet .hubst .stemo { font-size: 28px; }
+  body.dock-on .hubstreet .hubst .stn { background: none; border: 0; padding: 0; font-size: .8rem; white-space: normal; text-align: left; line-height: 1.15; }
+}
+
+/* dock layout, landscape: the villagers list is a dense grid of small cards (portrait left, words right), not tall cards */
+@media (orientation: landscape) {
+  body.dock-on .vgrid { grid-template-columns: repeat(auto-fill, minmax(184px, 1fr)); gap: 5px; margin-top: 6px; }
+  body.dock-on .vgrid .vcard { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 6px; row-gap: 0; align-items: center; justify-items: start; text-align: left; padding: 4px 6px; min-height: 0; }
+  body.dock-on .vgrid .vcard .portrait { grid-row: 1 / span 3; grid-column: 1; width: 40px; height: 50px; }
+  body.dock-on .vgrid .vcard.unmet img.portrait, body.dock-on .vgrid .vcard.unmet img { width: 40px; height: 40px; }
+  body.dock-on .vgrid .vcard > b, body.dock-on .vgrid .vcard > small { grid-column: 2; font-size: .8rem; line-height: 1.2; }
+  body.dock-on .vaaround, body.dock-on .vfilter { padding-block: 6px; }
+}
+
+/* dock layout, landscape: place headers put the picture and its words side by side */
+@media (orientation: landscape) {
+  body.dock-on header.ph { grid-template-columns: auto minmax(0, 1fr); gap: 0 12px; align-items: center; justify-content: start; }
+  body.dock-on header.ph .ph-art { margin: 0; }
+}
+
+/* dock layout, landscape: stacked boxes go two across (Account and other pages made of narrow boxes) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .box.narrow) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 10px; align-items: start; }
+  body.dock-on main:has(> .box.narrow) > :not(.box.narrow) { grid-column: 1 / -1; }
+  body.dock-on main:has(> .box.narrow) > .box.narrow { max-width: none; width: 100%; margin-inline: 0; }
+}
+
+/* dock layout, landscape: the Puzzle box is wide: kit on the left, belt and pals on the right */
+@media (orientation: landscape) {
+  body.dock-on .box.pbox.pfv.pbx { max-width: none; width: 100%; }
+  body.dock-on .pbx-box { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px; align-items: start; }
+  body.dock-on .pbx-box > .pbx-lid { grid-column: 1 / -1; }
+  body.dock-on .pbx-box > .pbx-kit { grid-column: 1; grid-row: 2 / span 2; }
+  body.dock-on .pbx-box > .pbx-belt, body.dock-on .pbx-box > .pbx-pals { grid-column: 2; }
+}
+
+/* dock layout, landscape: card grids use the width */
+@media (orientation: landscape) {
+  body.dock-on .toolcards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+}
+
+/* dock layout, landscape: only Today and Furnish show the hovel room; the other My Gnome tabs start at their own content */
+@media (orientation: landscape) {
+  body.dock-on .homepage.hslim:not(.hs-tab-today):not(.hs-tab-furnish) .hs-banner { display: none; }
+}
+
+/* dock layout, landscape: Wander is one screen: the picture, the rings and the choices side by side */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr) minmax(0, 1.3fr); gap: 8px; align-items: start; }
+  body.dock-on .advgrid.wander.withrings > .mapcol { display: contents; }
+  body.dock-on .advgrid.wander.withrings .gvs { grid-column: 1; grid-row: 1; width: 100%; max-width: none; max-height: var(--imgh); overflow: hidden; }
+  body.dock-on .advgrid.wander.withrings .mapwrap.small { grid-column: 2; width: 100%; max-width: var(--imgh); margin: 0 auto; }
+  body.dock-on .advgrid.wander.withrings .mapwrap.small svg { width: 100%; height: auto; max-height: calc(var(--imgh) - 36px); }
+  body.dock-on .advgrid.wander.withrings .mapwrap .hoopcap { font-size: 11px; margin: 0; }
+  body.dock-on .advgrid.wander.withrings > .panel { display: contents; }   /* its parts are placed in the grid: choices right (no scrolling), notes under the picture, Gather along the bottom */
+  body.dock-on .advgrid.wander.withrings > .panel > * { grid-column: 3; }
+  body.dock-on .advgrid.wander.withrings > .panel > .choicelist { grid-row: 1 / span 3; padding: 6px; background: var(--surface); border: 2px solid var(--ol); align-self: start; }
+  body.dock-on .advgrid.wander.withrings > .panel > .advlatest { grid-column: 1; grid-row: 2; margin: 0; }   /* what just happened: under the picture, above More */
+  body.dock-on .advgrid.wander.withrings > .panel > details.wmore { grid-column: 1; grid-row: 3; margin: 0; font-size: 11px; line-height: 1.3; }
+  body.dock-on .advgrid.wander.withrings > .panel > details.wmore p { margin: 3px 0; }
+  body.dock-on .advgrid.wander.withrings > .panel > details.wgather { grid-column: 1 / -1; grid-row: 4; margin: 0; }
+  body.dock-on .advgrid.wander.withrings .mapwrap.small { grid-row: 1 / span 3; }
+  body.dock-on .advgrid.wander .choicelist .choiceform { margin: 0 0 4px; }
+  body.dock-on .advgrid.wander .panel h3 { font-size: .9rem; margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+  body.dock-on main:has(> .advgrid.wander) > h1 { font-size: 17px; margin: 2px 0; }
+  body.dock-on main:has(> .advgrid.wander) > h1 .ico { width: 18px; height: 18px; }
+  body.dock-on main:has(> .advgrid.wander) > p.status { margin: 2px auto 6px; padding: 3px 8px; font-size: 12px; }
+  body.dock-on .advgrid.wander .panel .choice { min-height: 0; padding-block: 4px; }
+  body.dock-on .advgrid.wander .panel .choice .choice-sub { display: none; }
+  body.dock-on .advgrid.wander .panel .roadline { font-size: .8rem; margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander .panel .choicelist { display: grid; gap: 3px; }
+  body.dock-on .advgrid.wander .panel .choicelist .choiceform { margin: 0; }
+  body.dock-on .advgrid.wander .panel .choice { padding-block: 2px; }
+  body.dock-on .advgrid.wander .panel .roadline { display: none; }
+  body.dock-on .advgrid.wander .panel .choice .choice-body { min-width: 0; }
+  body.dock-on .advgrid.wander .panel .choice .choice-title { font-size: .8rem; }
+}
+
+/* the dock's message bell (far right, beside Together) and its popover */
+.dockroot .dk-msg { position: fixed; right: 6px; bottom: calc(var(--dock-h, 106px) * .2); z-index: 46; width: 40px; height: 40px; padding: 0; border: 2px solid #2a1a10; border-radius: 50%; background: #f2e4c0; display: none; align-items: center; justify-content: center; pointer-events: auto; cursor: pointer; }
+.dockroot .dk-msg img { width: 24px; height: 24px; image-rendering: pixelated; }
+.dockroot .dk-msg .dk-msgn { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: #a8241f; color: #fff; font: 700 11px/18px system-ui, sans-serif; text-align: center; }
+.dockroot .dk-msgpop { position: fixed; right: 8px; bottom: calc(var(--dock-h, 106px) + 6px); z-index: 47; width: min(440px, calc(100vw - 16px)); max-height: calc(100dvh - var(--dock-h, 106px) - 20px); display: none; flex-direction: column; background: var(--surface, #3d2a1c); color: var(--ink, #f2e4c0); border: 3px solid #2a1a10; box-shadow: 0 4px 18px rgba(0, 0, 0, .4); pointer-events: auto; }
+.dockroot .dk-msgpop.dk-on { display: flex; }
+.dockroot .dk-msgpop header { display: flex; align-items: center; justify-content: space-between; padding: 4px 10px; border-bottom: 1px solid var(--line, #6a4a30); font-weight: 700; flex: none; }
+.dockroot .dk-msgpop header button { min-width: 36px; min-height: 36px; background: none; border: 0; color: inherit; font-size: 18px; cursor: pointer; }
+.dockroot .dk-msgpop .mllist { list-style: none; margin: 0; padding: 4px 10px 8px; overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; }
+.dockroot .dk-msgpop .mllist li { padding: 4px 0; border-bottom: 1px solid var(--line, #6a4a30); font-size: 13px; }
+.dockroot .dk-msgpop .mlwhen { opacity: .7; margin-left: 4px; }
+@media (orientation: landscape) { .dockroot.dk-has .dk-msg { display: flex; } }
+
+/* Wander, an event or a skill check: the panel stays one block in the right column, story text above the choices */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings > .panel:has(> .scenecard) { display: block; grid-column: 3; grid-row: 1 / span 3; padding: 6px 8px; }
+  body.dock-on .advgrid.wander.withrings > .panel:has(> .scenecard) > * { grid-column: auto; grid-row: auto; }
+  body.dock-on .advgrid.wander.withrings > .panel > .scenecard { margin: 0 0 4px; padding: 0; }
+  body.dock-on .advgrid.wander.withrings > .panel > .scenecard h3 { font-size: .85rem; margin: 2px 0; line-height: 1.25; }
+  body.dock-on .advgrid.wander.withrings > .panel > .scenecard .help { margin: 0; font-size: 11px; }
+  body.dock-on .advgrid.wander.withrings > .panel:has(> .scenecard) > .choicelist { padding: 0; border: 0; background: none; }
+}
+
+/* dock layout, landscape: Gather here is the picture on the left, the tool belt and spots beside it */
+@media (orientation: landscape) {
+  body.dock-on .gx.gatherbox { display: grid; grid-template-columns: minmax(0, calc(var(--imgh) * 1.78)) minmax(0, 1fr); gap: 0 12px; align-items: start; max-width: none; width: 100%; }
+  body.dock-on .gx.gatherbox > .gx-hero { grid-column: 1; grid-row: 1 / span 4; width: 100%; }
+  body.dock-on .gx.gatherbox > .gx-banner, body.dock-on .gx.gatherbox > .gx-h--belt, body.dock-on .gx.gatherbox > ul.belt, body.dock-on .gx.gatherbox > p.belt__now { grid-column: 2; min-width: 0; }
+  body.dock-on .gx.gatherbox > .gx-banner { margin: 0 0 4px; }   /* the result card ("Into your satchel"): beside the picture, not over it */
+  body.dock-on .gx.gatherbox > .gx-h:not(.gx-h--belt), body.dock-on .gx.gatherbox > form.gx-form, body.dock-on .gx.gatherbox > ul.finds { grid-column: 1 / -1; }
+  body.dock-on .gx.gatherbox > ul.finds { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 8px; }
+  body.dock-on .gx.gatherbox .gx-h { margin: 2px 0; }
+  body.dock-on .gx.gatherbox ul.belt { flex-wrap: wrap; gap: 4px; }
+  body.dock-on .gx.gatherbox .belt__slot { width: 60px; }
+}
+@media (orientation: landscape) {
+  body.dock-on .gx.gatherbox .gcards { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  body.dock-on .gx.gatherbox .gcard__art { height: 92px; overflow: hidden; }
+  body.dock-on .gx.gatherbox .gcard__art img { width: 100%; height: 100%; object-fit: cover; }
+  body.dock-on .gx.gatherbox .gcard { align-content: start; }
+}
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings > .panel > .roadresult { grid-column: 1; grid-row: 2; margin: 0; padding: 4px 8px; min-height: 0; }
+  body.dock-on .advgrid.wander.withrings > .panel > .roadresult .rr-ico { font-size: 1.4rem; }
+  body.dock-on .advgrid.wander.withrings > .panel > .roadresult .rr-title { font-size: .9rem; }
+  body.dock-on .advgrid.wander.withrings > .panel > .roadresult .rr-sub { font-size: 11px; }
+}
+
+/* dock layout, landscape: screens that fit themselves to the window (the puzzle fight and its pre-fight screen) stop above the dock or its thin rail */
+@media (orientation: landscape) {
+  body.dock-on #pfight.pf-v1, body.dock-on #pfv-pre.pfv-fit, body.dock-on .pfight.pf-v1 { bottom: var(--dock-h, 0px); }
+}
+
+/* dock layout, landscape: the puzzle fight is two columns, the board on the left and the bars, tips, buttons and your hand on the right (the portrait column left the board no height at all) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfight.pf-v1, body.dock-on .pfight.pf-v1 { width: min(100vw, 880px); display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); grid-auto-rows: min-content; column-gap: 8px; align-content: center; }
+  body.dock-on #pfight.pf-v1 > *, body.dock-on .pfight.pf-v1 > * { grid-column: 2; }
+  body.dock-on #pfight.pf-v1 > .pfv-bwrap, body.dock-on #pfight.pf-v1 > .pfb-board, body.dock-on .pfight.pf-v1 > .pfv-bwrap, body.dock-on .pfight.pf-v1 > .pfb-board { grid-column: 1; grid-row: 1 / span 12; align-self: stretch; min-height: 240px; }
+  body.dock-on #pfight.pf-v1 > .pfb-board, body.dock-on .pfight.pf-v1 > .pfb-board { max-height: 340px; }
+  body.dock-on #pfight.pf-v1 > .pfv-legend, body.dock-on #pfight.pf-v1 > .pf-preview, body.dock-on .pfight.pf-v1 > .pfv-legend, body.dock-on .pfight.pf-v1 > .pf-preview, body.dock-on .pfight.pf-v1 > .pf-preview-x { display: none; }
+  body.dock-on #pfight.pf-v1 .pfv-guide, body.dock-on .pfight.pf-v1 .pfv-guide { padding-block: 3px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfight.pf-v1 .pfv-dock, body.dock-on .pfight.pf-v1 .pfv-dock { max-height: 60px; overflow-y: auto; }
+  body.dock-on #pfight.pf-v1 .pfv-dock .pfv-dockidle, body.dock-on .pfight.pf-v1 .pfv-dock .pfv-dockidle { min-height: 0; max-height: 60px; overflow-y: auto; font-size: 12px; }
+  body.dock-on #pfight.pf-v1 .pfv-guide, body.dock-on .pfight.pf-v1 .pfv-guide { font-size: 13px; line-height: 1.2; min-height: 0; max-height: 44px; overflow: hidden; }
+  body.dock-on #pfight.pf-v1 .pf-buttons .btn, body.dock-on #pfight.pf-v1 .pf-buttons #pf-go, body.dock-on .pfight.pf-v1 .pf-buttons .btn, body.dock-on .pfight.pf-v1 .pf-buttons #pf-go { min-height: 38px; }
+}
+
+.dockroot .dk-msg { transition: none; }
+body.dock-rail .dockroot .dk-msg { bottom: 42px; }
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfv-pre.pfv-fit { width: min(100vw, 820px); }
+}
+
+/* dock layout, landscape: Wander's heading and its status chip share one row */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .advgrid.wander) { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 14px; }
+  body.dock-on main:has(> .advgrid.wander) > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on main:has(> .advgrid.wander) > h1, body.dock-on main:has(> .advgrid.wander) > p.status { flex: 0 1 auto; margin-block: 2px 4px; }
+  body.dock-on main:has(> .advgrid.wander) > h1 { border-bottom: 0; }
+}
+
+/* the swapped-in fight screen has the fitted layout from its first frame, not only once its script has run (that took 150 to 400 ms, and the screen jumped to the tall portrait layout meanwhile: the End turn flash) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfight.pf-v1, body.dock-on .pfight.pf-v1 { position: fixed; z-index: 60; top: var(--pfv-top, 0px); left: 50%; transform: translateX(-50%); margin: 0; padding: 4px 6px; box-sizing: border-box; overflow: hidden; background: #2b1d14; border-radius: 0; }
+  html:has(body.dock-on #pfight.pf-v1), html:has(body.dock-on #pfight.pf-v1) body, html:has(body.dock-on .pfight.pf-v1), html:has(body.dock-on .pfight.pf-v1) body { height: 100%; overflow: hidden; }
+}
+
+/* dock layout, landscape: the end-of-fight card (win, loss, charmed) is compact and does not scroll: picture left, words right, the details small, the buttons always on screen */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfight .pfv.res, body.dock-on .pfight .pfv.res { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 2px 10px; align-content: center; justify-items: start; text-align: left; padding: 8px 12px; overflow: hidden; max-height: 100%; }
+  body.dock-on #pfight .pfv.res > .resbadge, body.dock-on .pfight .pfv.res > .resbadge { grid-column: 2; grid-row: 1; justify-self: start; }
+  body.dock-on #pfight .pfv.res > h2, body.dock-on .pfight .pfv.res > h2 { grid-column: 2; grid-row: 2; font-size: 16px; text-align: left; }
+  body.dock-on #pfight .pfv.res > .pic, body.dock-on .pfight .pfv.res > .pic { grid-column: 1; grid-row: 1 / span 3; width: 72px; height: 72px; }
+  body.dock-on #pfight .pfv.res > .pic img, body.dock-on .pfight .pfv.res > .pic img { max-width: 64px; max-height: 64px; }
+  body.dock-on #pfight .pfv.res > .big, body.dock-on .pfight .pfv.res > .big { grid-column: 2; grid-row: 3; font-size: 12px; max-width: none; line-height: 1.25; }
+  body.dock-on #pfight .pfv.res > .rows, body.dock-on #pfight .pfv.res > .pfv-recap, body.dock-on #pfight .pfv.res > .actrow, body.dock-on .pfight .pfv.res > .rows, body.dock-on .pfight .pfv.res > .pfv-recap, body.dock-on .pfight .pfv.res > .actrow { grid-column: 1 / -1; width: 100%; }
+  body.dock-on #pfight .pfv.res > .rows, body.dock-on .pfight .pfv.res > .rows { gap: 2px; }
+  body.dock-on #pfight .pfv.res > .pfv-recap, body.dock-on .pfight .pfv.res > .pfv-recap { font-size: 11px; line-height: 1.25; margin: 2px 0; }
+  body.dock-on #pfight .pfv.res > .sl, body.dock-on #pfight .pfv.res > p.hint:not(.pfv-recap), body.dock-on .pfight .pfv.res > .sl, body.dock-on .pfight .pfv.res > p.hint:not(.pfv-recap) { display: none; }
+  body.dock-on #pfight .pfv.res .actrow .btn, body.dock-on .pfight .pfv.res .actrow .btn { min-height: 38px; }
+}
+
+/* the status plate: energy and health show their numbers (x/y) */
+.dockroot .dk-pc.dk-plate .dk-bn{flex:none;font-size:10px;font-weight:700;color:var(--dk-ink);min-width:3.2em;text-align:right}
+.dockroot .dk-pc.dk-plate progress.dk-hp::-webkit-progress-value{background:#c0392b}
+.dockroot .dk-pc.dk-plate progress.dk-hp::-moz-progress-bar{background:#c0392b}
+
+/* dock layout, Wander: the end-of-fight stage (the chest and the loot coming in) takes the picture's place, full size, instead of collapsing to a small circle */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings .fightscene:not(.fs-over) { grid-column: 1; grid-row: 1; width: 100%; max-width: none; margin: 0; max-height: var(--imgh); overflow: hidden; }
+}
+
+/* the fight stage (pfight_stage, the Trail's Wander fight in a pop-up): in the dock layout it is the same two-column screen as the plain fight, full width above the rail, and looks the same before and after its script has run (the stage's own geometry was cutting the hand off at the right and flashed at every End turn) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on dialog.trailpop.pfst { position: fixed; left: 0; top: 0; right: 0; bottom: var(--dock-h, 0px); width: auto; height: auto; }   /* anchored to both edges, not sized in dvh: the browser's address bar hiding and showing must not resize it */
+  body.dock-on dialog.trailpop.pfst #pfight.pf-v1, body.dock-on dialog.trailpop.pfst #pfight.pf-v1.pfv-fit, body.dock-on dialog.trailpop.pfst .pfight.pf-v1, body.dock-on dialog.trailpop.pfst .pfight.pf-v1.pfv-fit { position: fixed; top: 0; bottom: var(--dock-h, 0px); left: 50%; right: auto; width: min(100vw, 880px); transform: translateX(-50%); display: grid; }
+  body.dock-on dialog.trailpop.pfst #pfv-pre.pfv-fit { position: fixed; top: 0; bottom: var(--dock-h, 0px); left: 50%; right: auto; width: min(100vw, 820px); transform: translateX(-50%); }
+}
+
+.dockroot .dk-pc.dk-plate img.dk-pt{width:14px;height:14px;flex:none;image-rendering:pixelated}
+.dockroot .pop img.dk-pt{width:14px;height:14px;vertical-align:-2px;image-rendering:pixelated}
+
+/* the rail's full-screen button */
+.dockroot .dk-rb.dk-fs { font-size: 16px; padding: 4px 10px; }
+
+/* the history bar (the chips of what each side played) is back in the right column, one scrolling line */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .pfight.pf-v1 > .pfc-histrow, body.dock-on #pfight.pf-v1 > .pfc-histrow { display: flex; min-height: 0; max-height: 34px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; flex-wrap: nowrap; }
+}
+
+/* End turn: the frozen copy of the old fight screen (.pfv-ghost) is placed by inline left/top/width/height taken from the old screen. The dock layout centres the live screen with left:50% + translateX(-50%), and the copy inherited that transform, so it slid half its width to the left (seen on a phone recording). The copy needs no transform. */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .pfight.pfv-ghost { transform: none !important; }
+}
+
+/* dock layout, landscape: the Hovel (My Gnome) is two columns: the room on the left, the tabs and what they hold on the right (the room, tabs and cards used to stack into 900+ px) */
+@media (orientation: landscape) {
+  body.dock-on .homepage.hslim.hs-tab-today { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); gap: 0 10px; align-items: start; }
+  body.dock-on .homepage.hslim.hs-tab-today > .hs-banner { grid-column: 1; grid-row: 1 / span 3; position: sticky; top: 4px; }
+  body.dock-on .homepage.hslim.hs-tab-today > :not(.hs-banner) { grid-column: 2; min-width: 0; }
+  body.dock-on .homepage.hslim .hs-banner .hs-room { max-width: none; width: 100%; }
+  body.dock-on .homepage.hslim .hstabs a { padding-inline: 4px; font-size: .8rem; }
+  body.dock-on .homepage.hslim.hs-tab-today .hs-cols { display: block; }
+  body.dock-on .homepage.hslim.hs-tab-today .hs-cols > .hs-rail { margin-top: 6px; }
+  /* Furnish: the slots on the left, the big room and the cosiness on the right; the small room crop above is not needed */
+  body.dock-on .homepage.hslim.hs-tab-furnish .hs-banner { display: none; }
+  body.dock-on .homepage.hslim .hs-cols.hs-furnish { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 10px; align-items: start; }
+}
+
+/* Stats tab: the stat description beside the spider chart and list, the back link and the box note hidden (the tabs are the way back) */
+@media (orientation: landscape) {
+  body.dock-on .homepage.hslim .homepanel > p.gvback, body.dock-on .homepage.hslim .homepanel > p.help:not(.gvrecord) { display: none; }
+  body.dock-on .homepanel .statsplit { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 8px; align-items: center; }
+  body.dock-on .homepanel .statsplit svg { max-height: 240px; }
+  body.dock-on .homepanel section.box:has(.statsplit) { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 0 12px; align-items: start; }
+  body.dock-on .homepanel section.box:has(.statsplit) > .palhead, body.dock-on .homepanel section.box:has(.statsplit) > p.help { grid-column: 1 / -1; }
+  body.dock-on .homepanel section.box:has(.statsplit) > .statsplit { grid-column: 1; grid-row: 3 / span 6; }
+  body.dock-on .homepanel section.box:has(.statsplit) > :not(.palhead):not(.statsplit):not(p.help) { grid-column: 2; }
+}
+
+/* Closet: the gnome on the left, the slots in two columns on the right */
+@media (orientation: landscape) {
+  body.dock-on .homepanel section.box.closet { display: grid; grid-template-columns: minmax(0, 40fr) minmax(0, 60fr); gap: 0 12px; align-items: start; }
+  body.dock-on .homepanel section.box.closet > .clstage { grid-column: 1; grid-row: 1 / span 4; }
+  body.dock-on .homepanel section.box.closet > :not(.clstage) { grid-column: 2; }
+  body.dock-on .homepanel section.box.closet .clslots { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  body.dock-on .homepanel section.box.closet .clslots .clpill a { min-height: 0; }
+}
+
+/* the villagers wall (My Gnome, Villagers tab): small photos, many across, no tilt */
+@media (orientation: landscape) {
+  body.dock-on .homepanel .wall { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px 6px; padding: 6px 2px; }
+  body.dock-on .homepanel .wall .polaroid { padding: 3px 3px 4px; transform: none; font-size: 11px; line-height: 1.15; }
+  body.dock-on .homepanel .wall .polaroid .portrait { aspect-ratio: 1 / 1; }
+  body.dock-on .homepanel .wall .polaroid .hand { font-size: 11px; }
+  body.dock-on .homepanel .wall .polaroid .tape { display: none; }
+}
+@media (orientation: landscape) {
+  body.dock-on .homepanel .wall { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px 5px; }
+  body.dock-on .homepanel .wall .polaroid.unmet { min-height: 0; height: 52px; padding: 2px; justify-content: center; }
+  body.dock-on .homepanel .wall .polaroid.unmet .muted, body.dock-on .homepanel .wall .polaroid.unmet .hand { display: none; }
+  body.dock-on .homepanel .wall .polaroid.unmet img, body.dock-on .homepanel .wall .polaroid.unmet .portrait { max-height: 34px; width: auto; }
+}
+
+/* Garden, Beds tab, dock layout, landscape: the plot on the left; the square's card and the notes beside it, not under it */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on .gardenwrap > div:first-child { grid-column: 1; grid-row: 1 / span 3; }
+  body.dock-on .gardenwrap > .panel.box { grid-column: 2; grid-row: 1; margin: 0; max-width: none; }
+  body.dock-on .gardenwrap > .legend { grid-column: 2; grid-row: 2; text-align: left; margin: 4px 0; }
+  body.dock-on .gardenwrap .needhelp { margin-top: 0; }
+}
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+  body.dock-on main:has(> .gardentabnav) > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on main:has(> .gardentabnav) > .ghead, body.dock-on main:has(> .gardentabnav) > .gardentabnav { flex: 0 1 auto; margin: 0; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav { margin-left: auto; }
+  body.dock-on main:has(> .gardenwrap) > details.gardeninfo { flex: 0 1 34%; }
+  body.dock-on main:has(> .gardenwrap) > .wx-warn { flex: 1 1 55%; margin: 0; padding: 4px 8px; }
+  body.dock-on main:has(> .gardenwrap) > .gardenwrap { align-self: flex-start; }
+}
+
+/* Garden crew: the three jobs side by side */
+@media (orientation: landscape) {
+  body.dock-on .crew .crewslots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px; }
+  body.dock-on .crew .crewslot { min-height: 0; }
+}
+
+
+/* ===== 2.7.93: page survey fixes (each tested by injection in a headless 844x390 browser) ===== */
+/* survey: jobs.php (Daily/Weekly/Monthly) */
+@media (orientation: landscape) {
+  body.dock-on .jb-periods { gap: 6px; margin-top: 6px; }
+  body.dock-on .jb-per { min-height: 0; padding: 5px 10px; }
+  body.dock-on .jb-per .s { display: none; }
+  body.dock-on .jb-cols { margin-top: 8px; gap: 8px; grid-template-columns: minmax(0, 1fr); }
+  body.dock-on .jb-pick { padding: 10px 12px; }
+  body.dock-on .jb-pick .jb-sub { margin: 2px 0; }
+  body.dock-on .jb-offers { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 6px; gap: 6px; }
+  body.dock-on .jb-offer[open] { grid-column: 1 / -1; order: -1; }
+  body.dock-on .jb-offer summary { min-height: 0; padding: 8px 10px; }
+  body.dock-on .jb-offer .body { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 0 10px 10px; }
+  body.dock-on .jb-offer .body > * { margin: 0; }
+  body.dock-on .jb-offer .body .jb-hint { flex: 1 1 100%; padding: 6px 10px; }
+  body.dock-on .jb-offer .body form .btn { margin: 0; }
+}
+
+/* survey: community.php?t=garden */
+@media (orientation: landscape) {
+  body.dock-on .commwrap { grid-template-columns: 300px minmax(0, 1fr); gap: 10px; }
+  body.dock-on .commgrid { gap: 3px; padding: 6px; }
+  body.dock-on .cbed { min-height: 44px; padding: 2px; }
+  body.dock-on .cbed .ic { font-size: 18px; }
+  body.dock-on .cbed small { font-size: 10px; line-height: 1.1; }
+  body.dock-on .commside { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: start; }
+  body.dock-on .commside > .box { margin: 0; padding: 8px 10px; }
+}
+
+/* survey: community.php?t=jar */
+@media (orientation: landscape) {
+  body.dock-on .jarbox .jarwrap svg { height: 110px; width: auto; }
+  body.dock-on .jarbox .tiers { grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0; }
+  body.dock-on .jarbox .tiers li { padding: 4px 10px; }
+}
+
+/* survey: marketday.php */
+@media (orientation: landscape) {
+  body.dock-on .marketwanted .itms { --itm-cols: 6; max-width: none; padding-top: 6px; gap: 8px 6px; }
+  body.dock-on .marketwanted .itm__win { height: 64px; }
+}
+
+/* survey: world.php?tab=travel */
+@media (orientation: landscape) { body.dock-on .travelfold .regionlist { columns: 2; column-gap: 14px; } body.dock-on .travelfold .regionlist > * { break-inside: avoid; } }
+
+/* survey: town.php?view=stop&tab=seasons */
+@media (orientation: landscape) { body.dock-on .seasonfold .wxtable { display: block; width: 100%; max-width: none; } body.dock-on .seasonfold .wxtable tbody { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; } body.dock-on .seasonfold .wxtable tr { display: flex; justify-content: space-between; align-items: center; gap: 8px; } body.dock-on .seasonfold .wxtable td { padding-top: 3px; padding-bottom: 3px; } }
+
+/* survey: inventory.php Items (category tiles) */
+@media (orientation: landscape) {
+  body.dock-on .shtiles { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; margin: 4px 0 8px; }
+  body.dock-on .shtile { aspect-ratio: auto; min-height: 92px; padding: 4px 2px; }
+  body.dock-on .shtile .shti { height: 40px; line-height: 40px; }
+  body.dock-on .shtile .shti .ico, body.dock-on .shtile .shti .ico[src] { width: 40px; height: 40px; }
+}
+
+/* survey: inventory.php Items category sheets (details sheet .shbagpop) */
+@media (orientation: landscape) {
+  body.dock-on dialog.craftpop.shbagpop .pickbox { width: min(780px, 100%); max-height: 100vh; }
+  body.dock-on .shbagpop .shpdctl { margin-bottom: 4px; }
+  body.dock-on .shbagpop .shpills { --shic: 48px; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 4px; padding-bottom: 6px; }
+  body.dock-on .shbagpop .shpills:has(> .shpanel:not([hidden])) { grid-template-columns: repeat(3, minmax(0, 92px)) minmax(0, 1fr); align-items: start; }
+  body.dock-on .shbagpop .shpills > .shpanel:not([hidden]) { grid-column: 4; grid-row: 1 / span 40; position: sticky; top: 0; padding: 8px 10px; }
+}
+
+/* survey: inventory.php?tab=craft&c=* (crafting area pages) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> figure.cmap-scene) { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on main:has(> figure.cmap-scene) > * { grid-column: 1 / -1; }
+  body.dock-on main:has(> figure.cmap-scene) > figure.cmap-scene { grid-column: 1; grid-row: 4 / span 4; width: 100%; margin: 0; }
+  body.dock-on main:has(> figure.cmap-scene) > .pantry2 { grid-column: 2; grid-row: 4; }
+}
+
+/* survey: inventory.php?tab=craft (area index) */
+@media (orientation: landscape) {
+  body.dock-on .cmap-grid { grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: 6px; padding-bottom: 8px; }
+}
+
+/* survey: crafting hotspot popovers (dialog.craftpop) */
+@media (orientation: landscape) {
+  body.dock-on dialog.craftpop .pickbox { max-height: 100vh; }
+  body.dock-on dialog.craftpop .cptab { min-height: 36px; padding-block: 2px; }
+}
+
+/* survey: inventory.php?tab=belt */
+@media (orientation: landscape) {
+  body.dock-on .toolbelt { margin-top: 6px; }
+  body.dock-on .toolbelt .belt { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; padding: 6px 8px; }
+  body.dock-on .toolbelt .belt .buckle { display: none; }
+  body.dock-on .toolbelt .belt .pouch { width: auto; padding: 3px 2px; border-radius: var(--radius-sm) var(--radius-sm) 10px 10px; }
+  body.dock-on .toolbelt .belt .pouch .pname { min-height: 0; }
+  body.dock-on .toolbelt .toolcards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+}
+
+/* survey: fair.php */
+@media (orientation: landscape) { body.dock-on .fairsqs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } body.dock-on .fairsqs .chsq { aspect-ratio: auto; min-height: 0; padding: 6px 8px; gap: 2px; } body.dock-on .fairsqs .chsq .chsi { font-size: 1.6rem; } }
+
+/* survey: yard.php */
+@media (orientation: landscape) { body.dock-on .yardtools { top: 0; flex-wrap: nowrap; gap: 4px; padding: 3px 6px; margin-bottom: 6px; overflow-x: auto; } body.dock-on .yardtools .btn { min-height: 30px; padding: 2px 6px; white-space: nowrap; font-size: 13px; } body.dock-on .yardtools .multi { font-size: 13px; } body.dock-on .yardtools .yardstatus { display: none; } body.dock-on .designer { flex-wrap: nowrap; } body.dock-on .designer .tray { min-width: 0; } }
+
+/* survey: race.php */
+@media (orientation: landscape) { body.dock-on .snailcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; } body.dock-on .snailcards .snailcard { margin: 0; } }
+
+/* survey: memory.php, race.php, spit.php, pest.php, marrow.php, and other mini-game pages  */
+@media (orientation: landscape) { body.dock-on main:has(> nav.gametabs) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on main:has(> nav.gametabs) > * { flex: 1 0 100%; min-width: 0; } body.dock-on main:has(> nav.gametabs) > h1 { flex: 0 1 auto; margin: 0; font-size: 1.3rem; } body.dock-on main:has(> nav.gametabs) > nav.gametabs { flex: 0 1 auto; margin: 0 0 0 auto; } body.dock-on main:has(> nav.gametabs) > .gtagline { display: none; } }
+
+/* survey: book.php?ch=Plants / Creatures / Gathering / General (Almanac chapter spread) */
+@media (orientation: landscape) {
+  body.dock-on .book { padding: 8px 12px; }
+  body.dock-on .book > h1 { font-size: 20px; margin: 0; }
+  body.dock-on .book > progress { display: none; }
+  body.dock-on .book .tabs { margin: 4px 0; }
+  body.dock-on .book .almfilter label { font-size: 11px; }
+  body.dock-on .book .almfilter select { min-height: 32px; padding-top: 2px; padding-bottom: 2px; }
+  body.dock-on .book .leaf { padding: 10px 12px; }
+  body.dock-on .book .ctiles { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 5px; }
+  body.dock-on .book a.ctile, body.dock-on .book span.ctile { min-height: 0; padding: 4px 2px; }
+  body.dock-on .book .ctile .ci { font-size: 22px; }
+  body.dock-on .book .ctile .cn { font-size: 11px; }
+  body.dock-on .book .ctile .chint { display: none; }
+  body.dock-on .book .spread > .leaf.right { position: sticky; top: 8px; align-self: start; max-height: calc(100vh - 122px); overflow-y: auto; }
+}
+
+/* survey: book.php (Contents page) */
+@media (orientation: landscape) {
+  body.dock-on .book .contents .secgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin: 6px 0 8px; }
+  body.dock-on .book .contents .secgrid .seccard { padding: 6px 4px; }
+  body.dock-on .book .contents .cgrid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  body.dock-on .book > progress { display: none; }
+}
+
+/* survey: letters.php */
+@media (orientation: landscape) {
+  body.dock-on .letterdesk { display: grid; grid-template-columns: minmax(0, 210px) minmax(0, 1fr); gap: 0 14px; align-items: center; }
+  body.dock-on .letterdesk .envstage { margin: 0; }
+}
+
+/* survey: inventory.php?tab=craft&c=cooking (via kitchen.php) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .cmap-scene) { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on main:has(> .cmap-scene) > * { grid-column: 1 / -1; }
+  body.dock-on main:has(> .cmap-scene) > .cmap-scene { grid-column: 1; grid-row: span 6; margin: 0; }
+  body.dock-on main:has(> .cmap-scene) > .shelves { grid-column: 2; }
+  body.dock-on main:has(> .cmap-scene) .p2head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
+  body.dock-on main:has(> .cmap-scene) .p2head > * { width: auto; }
+}
+
+
+/* ===== 2.7.96: second page survey (seeded test world; each fix tested by injection) ===== */
+/* survey2: dialog.craftpop (craft hotspot popovers + item sheets) */
+@media (orientation: landscape) {
+ body.dock-on dialog.craftpop .pickhead, body.dock-on dialog.craftpop .cptabs, body.dock-on dialog.craftpop .cppal { flex: none; }
+ body.dock-on dialog.craftpop .pickhead { padding: 2px 12px; }
+ body.dock-on dialog.craftpop .pickhead .pickx { height: 32px; }
+ body.dock-on dialog.craftpop .cppal { margin: 0; padding: 0 12px; }
+ body.dock-on dialog.craftpop .cptabs { padding-top: 4px; }
+ body.dock-on dialog.craftpop .cptab { min-height: 32px; }
+ body.dock-on dialog.craftpop .cptab small { display: inline; margin-left: 4px; }
+ body.dock-on dialog.craftpop .cpact .btn { min-height: 36px; }
+ body.dock-on dialog.craftpop .pickbox { width: min(780px, 100%); }
+ body.dock-on dialog.craftpop .cpact { max-width: 55%; }
+}
+
+/* survey2: inventory.php (all four tabs: Satchel, Crafting, Belt, Arrange) */
+@media (orientation: landscape) {
+ body.dock-on main > h1:has(+ nav.bagtabs) { display: none; }
+ body.dock-on nav.bagtabs { margin: 4px 0; }
+ body.dock-on nav.bagtabs a { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 2px 6px; }
+ body.dock-on .cmap-in { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; margin: 0 0 6px; }
+ body.dock-on .cmap-in .cmap-all { flex: none; min-height: 36px; padding: 2px 10px; }
+ body.dock-on .cmap-in .cmap-strip { flex: 1 1 auto; min-width: 0; padding-bottom: 0; }
+}
+
+/* survey2: inventory.php?tab=craft&c=<area> (recipe list, 'All recipes' fold open */
+@media (orientation: landscape) {
+ body.dock-on main:has(> .cmap-scene) .shelves .shpills { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding-bottom: 8px; }
+ body.dock-on main:has(> .cmap-scene) .shelves .shpill { flex-direction: row; align-items: center; text-align: left; gap: 6px; padding: 2px 6px; --shic: 40px; }
+ body.dock-on main:has(> .cmap-scene) .shelves .shpt { justify-items: start; }
+ body.dock-on main:has(> .cmap-scene) > .cmap-scene { position: sticky; top: 8px; }
+}
+
+/* survey2: inventory.php?tab=arrange */
+@media (orientation: landscape) {
+ body.dock-on #arrform .arrgrid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px; margin-bottom: 4px; }
+ body.dock-on #arrform .arrstage { display: grid; grid-template-columns: 200px minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 12px; align-items: center; padding: 8px 12px; }
+ body.dock-on #arrform .arrstage > .arrvessels { grid-column: 2; grid-row: 1; margin: 0; }
+ body.dock-on #arrform .arrstage > .arrcanvas { grid-column: 1; grid-row: 1 / span 3; width: 200px; max-height: 210px; }
+ body.dock-on #arrform .arrstage > .arrcount { grid-column: 2; margin: 0; }
+ body.dock-on #arrform .arrstage > .arrbtns { grid-column: 2; }
+ body.dock-on #arrform .arrvessel { padding: 2px 10px; min-height: 32px; }
+ body.dock-on #arrform .arrside { padding: 8px 12px; }
+ body.dock-on #arrform .arrside h2 { margin: 0 0 4px; font-size: 1.05rem; }
+ body.dock-on #arrform > h2 { margin: 6px 0 4px; font-size: 1.05rem; }
+ body.dock-on #arrform .arrstock { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px; }
+ body.dock-on #arrform .arrtile { padding: 4px 2px; gap: 0; }
+ body.dock-on #arrform .arrparts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 10px; margin: 4px 0; padding: 0; }
+ body.dock-on #arrform .arrparts li { margin: 0; }
+ body.dock-on #arrform .arrside > .help { display: none; }
+ body.dock-on #arrform .arrtotal, body.dock-on #arrform .arrname { margin-block: 0 2px; }
+}
+
+/* survey2: tailor.php */
+@media (orientation: landscape) {
+ body.dock-on main:has(> ul.rcards.tlr) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px; align-items: start; }
+ body.dock-on main:has(> ul.rcards.tlr) > * { grid-column: 1 / -1; }
+ body.dock-on main:has(> ul.rcards.tlr) > details.box { grid-column: auto; }
+ body.dock-on main:has(> ul.rcards.tlr) > details.box[open] { grid-column: 1 / -1; }
+ body.dock-on main:has(> ul.rcards.tlr) > h1 { margin: 2px 0; }
+ body.dock-on main:has(> ul.rcards.tlr) > details.box > summary { padding-block: 4px; }
+ body.dock-on ul.rcards.tlr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+ body.dock-on ul.rcards.tlr > li { margin: 0; }
+ body.dock-on ul.rcards.tlr form.inline { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+ body.dock-on ul.rcards.tlr form.inline select { flex: 1 1 120px; min-width: 0; max-width: 100%; }
+}
+
+/* survey2: workshop.php */
+@media (orientation: landscape) {
+ body.dock-on main > h1:has(+ .hubscene) { margin: 2px 0; font-size: 1.2rem; }
+ body.dock-on .hubscene > svg { grid-column: 1; grid-row: 1 / span 4; width: min(500px, 62vw); height: auto; }
+ body.dock-on .hubscene > ul.hubleg { grid-column: 2; grid-row: 1; flex-direction: column; align-items: stretch; gap: 4px; padding: 0; margin: 0; max-height: 290px; overflow-y: auto; }
+ body.dock-on .hubscene > ul.hubleg > li > * { min-height: 34px; padding-block: 2px; width: 100%; }
+ body.dock-on .hubscene > details.hubtwin { grid-column: 2; }
+}
+
+/* survey2: inventory.php?tab=belt&b=mend */
+@media (orientation: landscape) {
+ body.dock-on .toolbelt .toolcards:has(.wearbox) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ body.dock-on .toolcards .tc:has(> .wearbox) { gap: 8px; padding: 6px 10px; }
+ body.dock-on .toolcards .tc > .wearbox { flex: 0 0 52%; min-width: 0; }
+ body.dock-on .toolcards .tc > .wearbox .btn { width: 100%; min-height: 36px; padding-inline: 6px; }
+ body.dock-on .toolcards .tc > .wearbox progress { width: 100%; }
+ body.dock-on .toolcards .tc > p:empty { display: none; }
+ body.dock-on .toolbelt .belt .pouch { min-height: 0; }
+ body.dock-on .toolbelt .belt .pouch .pwear, body.dock-on .toolbelt .belt .pouch .pname { font-size: .65rem; line-height: 1.1; }
+ body.dock-on .toolbelt .belt .pouch .ptier { font-size: .6rem; padding: 0 3px; }
+}
+
+/* survey2: jobs.php active job + Tasks header (shared by Journey/Requests) */
+@media (orientation: landscape) {
+  body.dock-on main:has(> nav.jqtabs) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
+  body.dock-on main:has(> nav.jqtabs) > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on main:has(> nav.jqtabs) > h1 { flex: 0 0 auto; margin: 0; font-size: 1.3rem; }
+  body.dock-on main:has(> nav.jqtabs) > nav.jqtabs { flex: 1 1 0; margin: 0; }
+  body.dock-on nav.jqtabs a { min-height: 36px; flex-direction: row; gap: 6px; }
+  body.dock-on .jb-streak { margin: 2px 0 0; font-size: 12px; }
+  body.dock-on .jb-cols:has(> .jb-hero) { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: start; }
+  body.dock-on .jb-card { padding: 10px 12px; }
+  body.dock-on .jb-hero h2 { font-size: 1.2rem; margin: 6px 0 2px; }
+  body.dock-on .jb-prog { margin-top: 8px; }
+  body.dock-on .jb-reward { margin-top: 8px; }
+  body.dock-on .jb-chip { min-height: 26px; }
+  body.dock-on .jb-fold { margin-top: 8px; }
+  body.dock-on .jb-actions { margin-top: 8px; }
+}
+/* file: /tmp/dockgame/c1.css. Not checked: the rebuild steps variant (.jb-steps) of the hero */
+
+/* survey2: jobs.php?t=post */
+@media (orientation: landscape) {
+  body.dock-on .jb-cols.even { grid-template-columns: minmax(0, 1fr); }
+  body.dock-on .jb-cols.even > .jb-board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 16px; align-items: start; }
+  body.dock-on .jb-cols.even > .jb-board > h2, body.dock-on .jb-cols.even > .jb-board > .jb-empty { grid-column: 1 / -1; }
+  body.dock-on .jb-cols.even > .jb-board > .jb-pj { border-top: 1px solid var(--line); padding: 8px 0; }
+  body.dock-on .jb-cols.even > .jb-board > .jb-pj:nth-of-type(-n+2) { border-top: 0; }
+  body.dock-on .jb-forms { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: start; }
+  body.dock-on .jb-forms > .jb-sub { grid-column: 1 / -1; margin: 0; }
+  body.dock-on .jb-form .g2 { gap: 6px 8px; margin: 6px 0; }
+  body.dock-on .jb-per { white-space: nowrap; }
+}
+/* file: /tmp/dockgame/c2.css; combine with the c1 header rules */
+
+/* survey2: jobs.php?t=requests */
+@media (orientation: landscape) {
+  body.dock-on .qsec .qlist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; }
+}
+/* file: /tmp/dockgame/c3.css. Its 3-column orders rule added nothing and should be left out */
+
+/* survey2: market.php Gifts / Trades / Saplings / stall */
+@media (orientation: landscape) {
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; align-items: start; }
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) label { margin-bottom: 8px; }
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) > .btn { justify-self: start; grid-column: 1 / -1; margin-bottom: 4px; }
+  body.dock-on main > .box > form.form:not(.tradeform):not(.inline) select { max-width: calc(100% - 130px); display: inline-block; }
+  body.dock-on .mkadd .form.inline { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0 10px; }
+  body.dock-on .mkadd summary { min-height: 36px; }
+  body.dock-on .mkgrid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 6px; }
+  body.dock-on .mkinbox { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.dock-on .tradeform .tradecols { gap: 4px 20px; }
+  body.dock-on .tradeform .tradecols h4 { margin: 0; }
+  body.dock-on .tradeform .tradecols > div > div { margin: 3px 0; }
+  body.dock-on .tradeform .tradecols select { max-width: none; flex: 1 1 0; min-width: 0; min-height: 34px; padding-top: 2px; padding-bottom: 2px; }
+  body.dock-on .tradeform > label { display: inline-block; margin-right: 10px; }
+  body.dock-on main > .box > table.grid td, body.dock-on main > .box > table.grid th { padding: 3px 8px; }
+  body.dock-on main > .box > table.grid td form { margin: 0; }
+  body.dock-on main > .box > table.grid td .btn { min-height: 32px; padding-top: 2px; padding-bottom: 2px; }
+}
+/* file: /tmp/dockgame/c4.css. The Gifts item select + qty is slightly ragged but usable. The saplings gain is small */
+
+/* survey2: shared dialog.isheet (market buy sheet, festival stall sheet, other sh */
+@media (orientation: landscape) {
+  body.dock-on dialog.isheet { padding: 8px 14px 10px; }
+  body.dock-on dialog.isheet .shead { flex-direction: row; justify-content: center; gap: 10px; margin: 0 0 2px; }
+  body.dock-on dialog.isheet .sico img, body.dock-on dialog.isheet .sico svg { width: 44px; height: 44px; }
+  body.dock-on dialog.isheet p { margin: 3px 0; }
+  body.dock-on dialog.isheet .sheetform { margin: 6px 0 0; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 12px; }
+  body.dock-on dialog.isheet .sheetform .sgo { min-width: 120px; }
+}
+/* file: /tmp/dockgame/c5b.css. The sheet is a modal that sits above the dock, so it needs no dock offset */
+
+/* survey2: community.php?t=garden (on shift) */
+@media (orientation: landscape) {
+  body.dock-on .commwrap { grid-template-columns: minmax(0, 470px) minmax(0, 1fr); }
+  body.dock-on .commside { grid-template-columns: minmax(0, 1fr); }
+  body.dock-on .tendform > .help { margin: 0 0 4px; font-size: 12px; }
+  body.dock-on .tendform > .help select { max-width: 200px; min-height: 30px; display: inline-block; }
+  body.dock-on .cbed:has(.bedacts) { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 3px; min-height: 40px; }
+  body.dock-on .cbed:has(.bedacts) small { display: none; }
+  body.dock-on .cbed .bedacts { margin-top: 0; flex-wrap: nowrap; }
+  body.dock-on .cbed .bedacts button { min-height: 30px; padding: 2px 6px; }
+  body.dock-on .cbed em { top: 0; }
+}
+/* file: /tmp/dockgame/c6.css. The side column gets taller (single column), but the grid is the thing you work in */
+
+/* survey2: community.php?t=msgs */
+@media (orientation: landscape) {
+  body.dock-on main > .msgthread { padding: 8px 12px; }
+  body.dock-on .msgthread form.form { display: flex; gap: 8px; align-items: flex-end; margin-top: 6px; }
+  body.dock-on .msgthread form.form textarea { flex: 1 1 auto; max-width: none; height: 44px; min-height: 44px; margin: 0; resize: none; }
+  body.dock-on .msgthread form.form > p { margin: 0; }
+}
+/* file: /tmp/dockgame/c7.css */
+
+/* survey2: feedback.php */
+@media (orientation: landscape) {
+  body.dock-on main form.form textarea { height: 76px; min-height: 76px; }
+}
+/* file: /tmp/dockgame/c8.css. Drop the grid rule in that file; only the textarea rule is needed */
+
+/* survey2: festival.php */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .festhero) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px; align-items: start; }
+  body.dock-on main:has(> .festhero) > * { grid-column: 1 / -1; margin-top: 0; margin-bottom: 0; }
+  body.dock-on main:has(> .festhero) > .festhero { padding: 8px 12px; }
+  body.dock-on main:has(> .festhero) > .festhero .festdates { margin: 0; }
+  body.dock-on main:has(> .festhero) > .festhero p { margin: 2px 0; }
+  body.dock-on main:has(> .festhero) > section.box:nth-of-type(1), body.dock-on main:has(> .festhero) > section.festjar { grid-column: span 1; }
+  body.dock-on main:has(> .festhero) .flagrow { margin: 4px 0; font-size: 18px; }
+  body.dock-on main:has(> .festhero) .flagrew { margin: 2px 0 6px; }
+  body.dock-on .stall .itms { --itm-cols: 2; }
+  body.dock-on .festjar .jarwrap svg { height: 90px; width: auto; }
+}
+/* file: /tmp/dockgame/c9.css. Flag and jar sit side by side; stall tiles become legible */
+
+/* survey2: marketday.php */
+@media (orientation: landscape) {
+  body.dock-on .mkstalls { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: start; }
+  body.dock-on .mkstall { padding: 6px 10px; }
+  body.dock-on .mkstall h3 { margin: 0 0 2px; }
+  body.dock-on .mkstall .itms { --itm-cols: 2; max-width: none; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 6px; }
+  body.dock-on .mkstall .itm__win { height: 64px; }
+  body.dock-on .mkpick { max-height: 210px; }
+}
+/* file: /tmp/dockgame/c10.css. Drop the .mkpick .itms rule from that file; it had no effect */
+
+/* survey2: puzzles.php, gifsaw.php, jigsaw.php */
+@media (orientation: landscape) { body.dock-on .pzbanner { display: none; } }
+
+/* survey2: jigsaw.php */
+@media (orientation: landscape) { body.dock-on #pz.jig .pzgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } body.dock-on #pz.jig .pzcard { flex-direction: row; align-items: center; } body.dock-on #pz.jig .pzthumb { flex: 0 0 42%; aspect-ratio: 4/3; align-self: stretch; min-height: 110px; } body.dock-on #pz.jig .pzbody { flex: 1; min-width: 0; padding: 6px 8px; gap: 4px; } body.dock-on #pz.jig .pzbody .btn { min-height: 32px; padding-top: 2px; padding-bottom: 2px; } }  /* plus the .pzbanner rule above */
+
+/* survey2: puzzlepals.php */
+@media (orientation: landscape) { body.dock-on .ppalbook .ppalslot .ppalperk { display: none; } body.dock-on .ppalsec { margin-top: 6px; } body.dock-on .ppalgrid { margin-top: 4px; } }  /* optional: it hides perk info */
+
+/* survey2: paljobs.php */
+@media (orientation: landscape) { body.dock-on .pjposts { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px 12px; } body.dock-on .pjpost .pjdesc { max-width: none; } body.dock-on .pjtop { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on .pjtop h1 { margin: 0; font-size: 1.3rem; } body.dock-on .pjtop .pjcounts { margin: 0 0 auto auto; } }
+
+/* survey2: show.php and any page using main:has(> nav.gametabs) with a p.help */
+@media (orientation: landscape) { body.dock-on main:has(> nav.gametabs) > p.help { order: 5; margin: 0 0 4px; } }
+
+/* survey2: mushroom.php */
+@media (orientation: landscape) { body.dock-on main:has(> form.mushboard) { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 14px; align-items: start; } body.dock-on main:has(> form.mushboard) > * { grid-column: 1; min-width: 0; } body.dock-on main:has(> form.mushboard) > nav.gametabs { grid-column: 2; grid-row: 1; margin: 0; } body.dock-on main:has(> form.mushboard) > form.mushboard { grid-column: 2; grid-row: 2 / span 6; margin: 0; grid-template-columns: repeat(6, 40px); gap: 3px; padding: 6px; } body.dock-on main:has(> form.mushboard) .gmchips { flex-wrap: wrap; } }
+
+/* survey2: worms.php */
+@media (orientation: landscape) { body.dock-on main:has(> form.digboard) { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 14px; align-items: start; } body.dock-on main:has(> form.digboard) > * { grid-column: 1; min-width: 0; } body.dock-on main:has(> form.digboard) > nav.gametabs { grid-column: 2; grid-row: 1; margin: 0; } body.dock-on main:has(> form.digboard) > form.digboard { grid-column: 2; grid-row: 2 / span 6; margin: 0; grid-template-columns: repeat(6, 42px); gap: 3px; } body.dock-on .digboard .soil, body.dock-on .digboard .dug { font-size: 18px; } }
+
+/* survey2: marrow.php */
+@media (orientation: landscape) { body.dock-on .marrowbox.on { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 0 16px; align-items: center; } body.dock-on .marrowbox.on > * { grid-column: 2; } body.dock-on .marrowbox.on > h2 { grid-column: 1 / -1; } body.dock-on .marrowbox.on > .scalestage { grid-column: 1; grid-row: 2 / span 3; } body.dock-on .marrowbox.on .scalestage svg { height: 200px; width: auto; max-width: 100%; margin: 0 auto; display: block; } }
+
+/* survey2: spit.php */
+@media (orientation: landscape) { body.dock-on .spitgame.on { max-width: none; display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 0 14px; align-items: center; } body.dock-on .spitgame.on > .spitwind { grid-column: 1 / -1; margin: 0 0 2px; } body.dock-on .spitgame.on > .spitwrap { grid-column: 1; grid-row: 2 / span 2; margin: 0; } body.dock-on .spitgame.on > .spitform { grid-column: 2; grid-row: 2; margin: 0; max-width: none; } body.dock-on .spitgame.on > .spithow { grid-column: 2; grid-row: 3; margin: 4px 0 0; } }
+
+/* survey2: world.php?tab=map&r=N (#region.regionpanel) */
+@media (orientation: landscape) {
+  body.dock-on .regionpanel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; align-items: start; position: relative; }
+  body.dock-on .regionpanel > * { grid-column: 1 / -1; min-width: 0; margin-top: 0; margin-bottom: 4px; }
+  body.dock-on .regionpanel > .metro { grid-column: auto; margin: 2px 0 4px; }
+  body.dock-on .regionpanel > .phbanner { position: absolute; right: 12px; top: 10px; width: 56px; height: auto; margin: 0; }
+  body.dock-on .regionpanel > h2 { padding-right: 70px; }
+  body.dock-on .regionpanel .mstop { flex-basis: 56px; }
+  body.dock-on .regionpanel .mdot { width: 34px; height: 34px; margin: 2px 0; font-size: 16px; }
+  body.dock-on .regionpanel .mstop.town .mdot { width: 40px; height: 40px; margin: 0; }
+  body.dock-on .regionpanel .mstop::before { top: 19px; height: 4px; }
+  body.dock-on .regionpanel .mname { font-size: 11px; padding: 0 1px 2px; }
+  body.dock-on .regionpanel .metrohead .muted { display: none; }
+}
+
+/* survey2: world.php?tab=travel (.gomap) - also the Go tab */
+@media (orientation: landscape) {
+  body.dock-on .gomap { display: grid; grid-template-columns: 190px minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 0 12px; align-items: start; }
+  body.dock-on .gomap > .gomaphead { grid-column: 1; grid-row: 1; flex-wrap: wrap; }
+  body.dock-on .gomap > .help { grid-column: 1; grid-row: 2; margin: 2px 0 6px; }
+  body.dock-on .gomap > .mapwrap { grid-column: 2; grid-row: 1 / -1; min-width: 0; }
+  body.dock-on .gomap .rzoom { position: relative; }
+  body.dock-on .gomap .rzoom .rzctl { position: absolute; top: 4px; right: 4px; z-index: 3; margin: 0; }
+  body.dock-on .gomap .rzoom .regionmap { display: block; width: 100%; height: calc(100vh - var(--dock-h, 106px) - 40px); max-height: 250px; }
+}
+
+/* survey2: world.php?tab=map&r=N (.regionmapbox) */
+@media (orientation: landscape) {
+  body.dock-on .regionmapbox { display: grid; grid-template-columns: 170px minmax(0, 1fr); grid-template-rows: auto auto auto 1fr auto; gap: 0 12px; align-items: start; }
+  body.dock-on .regionmapbox > .regchips { grid-column: 1 / -1; grid-row: 1; margin: 0 0 6px; }
+  body.dock-on .regionmapbox > .regnav { grid-column: 1; grid-row: 2; flex-direction: column; align-items: stretch; gap: 4px; margin: 0 0 6px; }
+  body.dock-on .regionmapbox > .maphelp { grid-column: 1; grid-row: 3; margin: 0; }
+  body.dock-on .regionmapbox > .mapwrap { grid-column: 2; grid-row: 2 / span 3; min-width: 0; }
+  body.dock-on .regionmapbox > .maplegend { grid-column: 1 / -1; grid-row: 5; margin: 6px 0 0; }
+  body.dock-on .regionmapbox .rzoom .rzctl { position: absolute; top: 4px; right: 4px; z-index: 3; margin: 0; }
+  body.dock-on .regionmapbox .rzoom .regionmap { display: block; width: 100%; height: calc(100vh - var(--dock-h, 106px) - 40px); max-height: 250px; }
+}
+
+/* survey2: here.php / world.php Fast travel popover #hubpop-ft */
+@media (orientation: landscape) {
+  body.dock-on dialog.hubpop:has(.hubreg) .pickbox { width: min(760px, 100%); max-width: none; }
+  body.dock-on dialog.hubpop .hubreg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+  body.dock-on dialog.hubpop .hubreg .rrow { min-width: 0; }
+}
+
+/* survey2: shop.php item sheets, buy and sell (dialog.isheet, not .dosheet) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on dialog.isheet[open]:not(.dosheet) { width: min(680px, calc(100% - 32px)); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 18px; align-content: start; padding: 10px 16px 12px; }
+  body.dock-on dialog.isheet[open]:not(.dosheet) > * { grid-column: 1; min-width: 0; }
+  body.dock-on dialog.isheet[open]:not(.dosheet) > .sheetform, body.dock-on dialog.isheet[open]:not(.dosheet) > .confirmform { grid-column: 2; grid-row: 1 / span 8; align-self: center; margin: 0; }
+  body.dock-on dialog.isheet:not(.dosheet) .shead { padding: 0; margin: 0 0 4px; }
+  body.dock-on dialog.isheet:not(.dosheet) .sico img, body.dock-on dialog.isheet:not(.dosheet) .sico svg { width: 44px; height: 44px; }
+  body.dock-on dialog.isheet:not(.dosheet) p { margin: 3px 0; }
+}
+
+/* survey2: shop.php buy/sell tile grids */
+@media (orientation: landscape) {
+  body.dock-on .shopwrap .itms { --itm-cols: 8; gap: 8px 6px; padding-top: 6px; max-width: none; }
+}
+
+/* survey2: shop.php header */
+@media (orientation: landscape) {
+  body.dock-on main > header.ph { grid-template-columns: 200px minmax(0, 1fr); align-items: center; }
+  body.dock-on main > header.ph .ph-art, body.dock-on main > header.ph .ph-art img { height: 96px; width: 100%; object-fit: cover; }
+  body.dock-on main > header.ph .ph-body { padding: 4px 12px; }
+  body.dock-on main > header.ph .ph-body h1 { font-size: 22px; margin: 0; }
+  body.dock-on main > header.ph .ph-amb { display: none; }
+  body.dock-on main > .crumbs { margin: 0 0 4px; }
+  body.dock-on main > .shopintro { margin: 4px 0; }
+}
+
+/* survey2: shop.php basket (any orientation) */
+:root[data-theme] .shopwrap > .basket .btn.bclear, body.dock-on .shopwrap > .basket .btn.bclear { color: #2a1a10; }
+
+/* survey2: world.php?tab=gather */
+@media (orientation: landscape) {
+  body.dock-on .gx.gatherbox .gcards { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 6px; }
+  body.dock-on .gx.gatherbox > ul.finds { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+/* survey2: trek.php (in a run) */
+@media (orientation: landscape) {
+  body.dock-on .trekplay { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 6px 12px; align-items: start; }
+  body.dock-on .trekplay > *, body.dock-on .trekplay > .trekcol > * { grid-column: 2; }
+  body.dock-on .trekplay .trekmapform { grid-column: 1; grid-row: 1 / span 12; position: sticky; top: 6px; }
+  body.dock-on .trekplay .gvs { max-width: 100%; }
+}
+
+/* survey2: trek.php tabs (Map, Party, Pack, Log) */
+@media (orientation: landscape) {
+  body.dock-on.tkpage main { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; }
+  body.dock-on.tkpage main > * { flex: 1 0 100%; min-width: 0; }
+  body.dock-on.tkpage main > nav.tabs { flex: 0 1 auto; margin: 0; }
+  body.dock-on.tkpage main > .tksmuterow { flex: 1 1 0; margin: 0; text-align: right; }
+}
+
+/* survey2: gourmand.php (Now tab) */
+@media (orientation: landscape) {
+  body.dock-on main > .box > .npchead { gap: 12px; }
+  body.dock-on main > .box > .npchead .npcpic { width: 104px; }
+  body.dock-on main > .box > .npchead .npcpic .portrait { width: 96px; height: auto; }
+  body.dock-on main > .box > .npchead .npcid p { margin: 2px 0; }
+  body.dock-on main > section.box:has(> .box.inset) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; align-items: start; }
+  body.dock-on main > section.box:has(> .box.inset) > * { grid-column: 1 / -1; margin: 0; }
+  body.dock-on main > section.box:has(> .box.inset) > .box.inset { grid-column: auto; min-width: 0; }
+}
+
+/* survey2: gourmand.php?t=journal */
+@media (orientation: landscape) {
+  body.dock-on .gcards.gcards--2 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0; }
+  body.dock-on .gcards--2 > .box { margin: 0; padding: 6px 10px; }
+  body.dock-on .gcards--2 > .box h3 { margin: 0 0 2px; }
+  body.dock-on .gcards--2 > .box p { margin: 2px 0; }
+  body.dock-on .gcards--2 > .box ul.plain { margin: 2px 0 0; padding-left: 4px; list-style: none; }
+}
+
+/* survey2: landmark panels: .lmpanel inline on world.php and in here.php popovers */
+@media (orientation: landscape) {
+  body.dock-on dialog.hubpop:has(.lmpanel) .pickbox { width: min(760px, 100%); max-width: none; }
+  body.dock-on .lmpanel { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on .lmpanel > * { grid-column: 2; min-width: 0; }
+  body.dock-on .lmpanel > .lmscene { grid-column: 1; grid-row: 1 / span 8; width: 100%; height: auto; margin: 0; }
+  body.dock-on .lmpanel > form.inline { display: block; margin: 0 0 6px; }
+}
+
+/* survey2: Satchel message-bottle popover (sights_shared.php send form) */
+@media (orientation: landscape) { body.dock-on form.shf input[type="text"] { width: 100%; max-width: none; box-sizing: border-box; } }
+
+/* the three long catalogues (Puzzle Pals 15 regions, Shop sell 226 items, Villagers 122): denser, still tappable */
+@media (orientation: landscape) {
+  body.dock-on .ppalsec { padding: 6px 10px; margin-bottom: 6px; }
+  body.dock-on .ppalsec > h2 { font-size: .95rem; margin: 0; display: inline; }
+  body.dock-on .ppalsec > .help { display: inline; margin: 0 0 0 8px; font-size: 11px; }
+  body.dock-on .ppalgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; margin-top: 4px; }
+  body.dock-on .ppalslot { padding: 3px 2px; gap: 1px; }
+  body.dock-on .ppalslot .ppalart { width: 44px; height: 44px; }
+  body.dock-on .ppalslot .ppalart .ppalimg { width: 44px; height: 44px; }
+  body.dock-on .ppalslot .ppalrar, body.dock-on .ppalslot > small.muted { display: none; }
+  body.dock-on .ppalslot .ppalname { font-size: 11px; }
+  body.dock-on .ppalslot .ppaltake .btn { min-height: 30px; padding: 0 6px; font-size: 11px; }
+  body.dock-on .vgrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; }
+  body.dock-on .vgrid .vcard { padding: 3px 5px; }
+  body.dock-on .vgrid .vcard.unmet { grid-template-columns: 30px minmax(0, 1fr); }
+  body.dock-on .vgrid .vcard.unmet > small { display: none; }
+  body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 4px; }
+  body.dock-on .shopwrap .itms .stile { font-size: 11px; }
+}
+@media (orientation: landscape) { body.dock-on .ppalslot .ppiece { display: none; } body.dock-on .ppalslot .ppalart { margin-bottom: 2px; } }
+
+/* Crafting pop-ups: the quantity buttons (Cook x1, x2, x3 ... x5, All n) get their own full-width row under the recipe so none is squeezed off or hidden; and the Satchel item card is not pinned (a pinned card taller than the sheet could not be scrolled to its buttons, so Sell / Gift / Eat were out of reach) */
+@media (orientation: landscape) {
+  body.dock-on dialog.craftpop .cprow { flex-wrap: wrap; }
+  body.dock-on dialog.craftpop .cpin { flex: 1 1 0; min-width: 0; }
+  body.dock-on dialog.craftpop .cpact { max-width: none; flex: 1 0 100%; }
+  body.dock-on dialog.craftpop .cpact .ccbtns { flex-wrap: wrap; justify-content: stretch; gap: 4px; }
+  body.dock-on dialog.craftpop .cpact .ccbtns .btn { flex: 1 1 56px; min-width: 56px; white-space: nowrap; }
+  body.dock-on dialog.craftpop .cpact .ccbtns .btn:first-child { flex: 2 1 130px; }
+  body.dock-on .shbagpop .shpills > .shpanel:not([hidden]) { position: sticky; top: 0; max-height: calc(100dvh - 165px); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+}
+
+/* Shop pages: the picture banner sits beside the Buy / Sell tabs (in the empty space), not above them */
+@media (orientation: landscape) {
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 12px; align-items: start; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > * { grid-column: 1 / -1; min-width: 0; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > nav.tabs { grid-column: 1; grid-row: 3; align-self: start; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shophelp { grid-column: 1; grid-row: 4; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > header.ph { grid-column: 2; grid-row: 3 / span 2; margin: 0; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopintro { grid-row: 2; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .crumbs { grid-row: 1; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopwrap { grid-row: 5; }
+}
+
+/* Shop basket (Sell all / Buy all): a slim bar pinned at the top of the screen while the items scroll under it, chips and buttons on one row, so it never takes the middle of the screen */
+@media (orientation: landscape) {
+  body.dock-on .shopwrap > .basket:not([hidden]) { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 8px; padding: 4px 10px; margin: 0 0 6px; }
+  body.dock-on .shopwrap > .basket .blist { flex: 1 1 auto; margin: 0; min-width: 0; max-height: 40px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; }
+  body.dock-on .shopwrap > .basket .bchip { flex: none; min-height: 30px; }
+  body.dock-on .shopwrap > .basket .bfoot { flex: none; flex-wrap: nowrap; }
+  body.dock-on .shopwrap > .basket .btn { min-height: 34px; padding-block: 0; }
+  body.dock-on .shopwrap > .basket .btotal { white-space: nowrap; }
+  body.dock-on .shopwrap > .basket .sbad { position: absolute; left: 10px; bottom: -18px; margin: 0; font-size: 12px; }
+}
+
+/* Shops list page (world.php?tab=markets): the market picture is the way into each shop, so it is big (the list is below it) */
+@media (orientation: landscape) {
+  body.dock-on .hubscene:has(~ #shops-list) { display: block; }
+  body.dock-on .hubscene:has(~ #shops-list) .hubstage { max-width: none; width: min(100%, 640px); margin-inline: auto; }
+}
+
+/* the fight's right column: the redraw row is slim (small button beside its note), and the column starts at the top instead of being centred (a centred column that is too tall was cut off at both ends, hiding the creature's yield bar) */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .pfight.pf-v1.pfv-fit, body.dock-on #pfight.pf-v1 { align-content: start; }
+  body.dock-on .pfight.pf-v1 .pf-extra { gap: 6px; }
+  body.dock-on .pfight.pf-v1 .pf-extra .btn, body.dock-on .pfight.pf-v1 #pf-redraw { min-height: 28px; padding: 0 8px; font-size: 12px; width: auto; flex: none; }
+  body.dock-on .pfight.pf-v1 .pf-extra small { font-size: 11px; }
+  body.dock-on .pfight.pf-v1 .pf-extra .pf-box { font-size: 12px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .pfight.pf-v1 .pf-extra { position: absolute; right: 8px; bottom: 2px; z-index: 5; margin: 0; background: rgba(43, 29, 20, .85); padding: 2px 6px; }
+  body.dock-on .pfight.pf-v1 .pf-tray { zoom: .88; }
+  body.dock-on .pfight.pf-v1 .pfv-pair { max-height: 46px; overflow-y: auto; }
+}
+
+/* Wander: the "Past here it gets dangerous" warning is one slim line right under the picture, rings and choices (it used to land below Gather, off screen) */
+@media (orientation: landscape) {
+  body.dock-on .advgrid.wander.withrings > .panel > .flash.err { grid-column: 1 / -1; grid-row: 4; margin: 2px 0; padding: 3px 10px; font-size: 12px; line-height: 1.25; text-align: left; }
+  body.dock-on .advgrid.wander.withrings > .panel > details.wgather { grid-row: 5; }
+}
+
+/* v2.8.05: tall-page survey fixes */
+@media (orientation: landscape) {
+body.dock-on #pz.ppalbook #lib { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 5px; align-items: start; }
+body.dock-on #pz.ppalbook #lib > * { grid-column: 1 / -1; min-width: 0; }
+body.dock-on #pz.ppalbook #lib > .ppalsec { grid-column: auto; margin-bottom: 6px; }
+body.dock-on #pz.ppalbook .ppalsec { padding: 4px 6px; }
+body.dock-on #pz.ppalbook .ppalsec > h2 { display: block; }
+body.dock-on #pz.ppalbook .ppalsec > .help { display: block; margin: 0; }
+body.dock-on #pz.ppalbook .ppalgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
+body.dock-on #pz.ppalbook .ppalslot { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 3px; align-items: center; text-align: left; padding: 2px 3px; }
+body.dock-on #pz.ppalbook .ppalslot .ppalart, body.dock-on #pz.ppalbook .ppalslot .ppalart .ppalimg { width: 24px; height: 24px; margin: 0; }
+body.dock-on #pz.ppalbook .ppalslot .ppalname { font-size: 11px; line-height: 1.1; text-align: left; overflow-wrap: normal; word-break: normal; hyphens: none; letter-spacing: -.2px; }
+body.dock-on #pz.ppalbook .ppalslot .ppaltake { grid-column: 1 / -1; }
+body.dock-on #pz.ppalbook .ppalslot .ppaltake .btn { min-height: 30px; width: 100%; padding: 0 2px; }
+body.dock-on #pz.ppalbook #lib > .ppalwaiting, body.dock-on #pz.ppalbook #lib > .ppalparty { grid-column: span 2; align-self: stretch; }
+body.dock-on #pz.ppalbook .ppalwaiting { padding: 6px 10px; margin: 0 0 6px; }
+body.dock-on #pz.ppalbook .ppalwaiting > .help { display: none; }
+body.dock-on #pz.ppalbook .ppalwaitlist { display: grid; grid-template-columns: 1fr; gap: 4px; }
+body.dock-on #pz.ppalbook .ppalparty { padding: 6px 10px; margin: 0 0 6px; }
+body.dock-on #pz.ppalbook .ppalparty h2 { margin: 0 0 4px; }
+body.dock-on #pz.ppalbook .pzhost { padding: 4px 10px; margin-bottom: 6px; }
+body.dock-on #pz.ppalbook .pzhost .pzface { width: 64px; height: 64px; }
+body.dock-on #pz.ppalbook .pzhost .help { display: none; }
+}
+@media (orientation: landscape) {
+body.dock-on .cx-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 4px; }
+body.dock-on .cx-tile { border-radius: 8px; }
+body.dock-on .cx-mono { font-size: 22px; }
+body.dock-on .cx-tile b { font-size: 10px; padding: 10px 2px 2px; }
+body.dock-on .cx-bar { margin: 4px 0 6px; }
+body.dock-on .cx-chips { margin-bottom: 6px; }
+}
+@media (orientation: landscape) {
+body.dock-on .pbx .pbx-chest { transform: scale(.7); transform-origin: left center; margin-right: -14px; }
+body.dock-on .pbx .pbx-status { margin: 0 0 6px; }
+body.dock-on .pbx .stc { min-height: 0; padding: 3px 8px 4px; }
+body.dock-on .pbx .stc .meter { height: 5px; margin-top: 2px; }
+body.dock-on .pbx .pbx-kit .pcg.tray, body.dock-on .pbx .pbx-belt .pcg.tray { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body.dock-on .pbx .pbx-fbar { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+body.dock-on .pbx .pbx-fbar button { min-height: 40px; padding: 2px 2px 5px; font-size: 12px; }
+body.dock-on .pbx .pbx-fbar button img { width: 18px; height: 18px; }
+body.dock-on .pbx .pbx-shelf { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; }
+body.dock-on .pbx .pbx-shelf > * { grid-column: 1 / -1; min-width: 0; }
+body.dock-on .pbx .pbx-shelf > h3 { grid-column: 1; margin: 0; }
+body.dock-on .pbx .pbx-shelf > .srow { grid-column: 2; margin: 0; }
+body.dock-on .pbx .pbx-shelf .shelfg { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+body.dock-on .pbx .pbx-shelf .pcg .pc { min-height: 0; }
+body.dock-on .pbx .pbx-legend { display: none; }
+body.dock-on .pbx .pbx-lid .capp { padding-block: 2px; }
+body.dock-on .pbx .pbx-lid .capp span { display: none; }
+}
+@media (orientation: landscape) {
+body.dock-on #pz.jig .pzthumb { flex: 0 0 36%; min-height: 0; aspect-ratio: 3/2; }
+body.dock-on #pz.jig .pzbody { padding: 4px 6px; gap: 3px; }
+body.dock-on #pz.jig .pzbody h2 { font-size: .95rem; margin: 0; }
+body.dock-on #pz.jig .pztiers { flex-direction: row; gap: 4px; }
+body.dock-on #pz.jig .pztiers .btn { flex: 1 1 0; min-width: 0; padding: 0 2px; min-height: 36px; font-size: 12px; flex-direction: column; line-height: 1.1; }
+body.dock-on #pz.jig .pztiers .btn small { display: block; font-size: 11px; }
+body.dock-on #pz.jig .pzhost { padding: 4px 10px; margin: 0 0 4px; }
+body.dock-on #pz.jig .pzhost .pzface { width: 48px; height: 48px; }
+body.dock-on #pz.jig h1 { margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+body.dock-on .pjpage #pjpanel-home .pjrows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; }
+body.dock-on .pjpage #pjpanel-home .pjrow.pjpal { padding: 3px 6px; min-width: 0; }
+body.dock-on .pjpage #pjpanel-home .pjimg { width: 32px; height: 32px; }
+body.dock-on .pjpage #pjpanel-home .pjnmrow { display: flex; align-items: center; gap: 4px; min-width: 0; white-space: nowrap; }
+body.dock-on .pjpage #pjpanel-home .pjnmrow b { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+body.dock-on .pjpage #pjpanel-home .pjnmrow .ppalrar { flex: none; font-size: 10px; padding: 0 4px; }
+body.dock-on .pjpage #pjpanel-home .pjstats { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; white-space: nowrap; font-size: 11px; }
+body.dock-on .pjpage #pjpanel-home .pjhp meter { width: 30px; }
+body.dock-on .pjpage .pjposts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; align-items: start; }
+body.dock-on .pjpage .pjpost { margin: 0; padding: 6px 10px; }
+body.dock-on .pjpage .pjpost-station { grid-column: 1 / -1; order: 9; }
+body.dock-on .pjpage .pjpost-station .pjdesc { columns: 2; column-gap: 18px; }
+body.dock-on .pjpage .pjpost .pjopen { min-height: 36px; }
+body.dock-on .pjpage .pjboardhd p { display: none; }
+body.dock-on .pjpage .pjboardhd { margin: 0 0 4px; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .spread:not(:has(.bookpage:not(.blank))) { grid-template-columns: minmax(0,1fr); }
+body.dock-on .book .spread:not(:has(.bookpage:not(.blank))) > .leaf.right { display: none; }
+body.dock-on .book .spread:has(.bookpage:not(.blank)) { grid-template-columns: minmax(0,1fr) minmax(250px, 280px); min-height: 0; }
+body.dock-on .book .spread > .leaf.left > h2 { display: none; }
+body.dock-on .book .toc summary { min-height: 30px; }
+body.dock-on .book .leaf h3 { margin: 6px 0 2px; font-size: 14px; }
+body.dock-on .book .ctiles { grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 4px; margin: 3px 0; }
+body.dock-on .book .ctile .ci img, body.dock-on .book .ctile .ci .almstop, body.dock-on .book .ctile .ci svg { width: 28px; height: 28px; }
+body.dock-on .book .ctile .ci { font-size: 20px; line-height: 1; }
+body.dock-on .book .ctile .tag { display: none; }
+body.dock-on .book span.ctile.locked { padding: 3px 2px; }
+body.dock-on .book span.ctile.locked .cn { display: none; }
+body.dock-on .book a.ctile { min-height: 46px; }
+body.dock-on .book:has(.spread) > p.muted { display: none; }
+body.dock-on .book .ctile .cn { line-height: 1.1; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .journey { padding: 8px 12px; }
+body.dock-on .book .journey > h2 { margin: 0; font-size: 18px; }
+body.dock-on .book .journey > .helpfold > .help { display: none; }
+body.dock-on .book .journey > .helpfold { margin-top: 0; }
+body.dock-on .book .journey > .helpfold > summary { min-height: 30px; }
+body.dock-on .book .journey .ptext { column-count: 2; column-gap: 16px; font-size: 13px; line-height: 1.35; }
+body.dock-on .journey .jchapters { grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 5px; margin: 6px 0; }
+body.dock-on .jcard { display: grid; grid-template-columns: 26px minmax(0,1fr); column-gap: 6px; align-items: center; text-align: left; padding: 3px 6px; min-height: 44px; }
+body.dock-on .jcard .jicon { grid-row: 1 / span 2; font-size: 20px; }
+body.dock-on .jcard .jicon img { width: 24px; height: 24px; }
+body.dock-on .jcard b { font-size: 13px; line-height: 1.1; }
+body.dock-on .jcard small { font-size: 11px; line-height: 1.1; }
+body.dock-on .jdetail { padding: 8px 12px; }
+body.dock-on .jdetail .jtasks { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 16px; margin: 4px 0; }
+body.dock-on .jdetail .jtasks li { padding: 3px 0; }
+body.dock-on .jdetail .jtasks li.stage .jwhy { display: none; }
+body.dock-on .jdetail .jtasks .jwhy { font-size: 12px; line-height: 1.25; }
+body.dock-on .jdetail .jintro { margin: 4px 0; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .contents .secgrid .seccard { padding: 4px 4px 5px; gap: 1px; }
+body.dock-on .book .contents .secgrid .seccard > small.muted { display: none; }
+body.dock-on .book .contents .secgrid .seccard .secicon { font-size: 20px; line-height: 1; }
+body.dock-on .book .contents .secgrid .seccard .secicon img { width: 24px; height: 24px; }
+body.dock-on .book .contents .secgrid .seccard b { font-size: 14px; line-height: 1.2; margin-bottom: 2px; }
+body.dock-on .book .contents .secgrid .seccard small { font-size: 11px; line-height: 1.15; }
+body.dock-on .book .contents .cgrid { gap: 8px; }
+body.dock-on .book .contents .ccard { padding: 6px 10px; }
+body.dock-on .book .contents .ccard .help { display: none; }
+body.dock-on .book .contents .ccard .hitlist > li:nth-child(n+5) { display: none; }
+body.dock-on .book .contents .ccard p { margin: 3px 0; }
+body.dock-on .book .contents .ccard h3 { margin: 0 0 2px; }
+}
+@media (orientation: landscape) {
+body.dock-on .bookwide { padding: 8px 12px; }
+body.dock-on .bookwide > h2 { margin: 0 0 2px; font-size: 18px; }
+body.dock-on .bookwide .intro { font-size: 13px; line-height: 1.35; margin: 0 0 6px; }
+body.dock-on .bookwide .gtiles { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 5px; }
+body.dock-on .bookwide .gtile { padding: 4px 6px; gap: 0; }
+body.dock-on .bookwide .gicon { font-size: 20px; line-height: 1; }
+body.dock-on .bookwide .gicon img { width: 24px; height: 24px; }
+body.dock-on .bookwide .gname { font-size: 13px; line-height: 1.15; }
+body.dock-on .bookwide .gstate, body.dock-on .bookwide .gmeta { font-size: 11px; line-height: 1.2; }
+body.dock-on .bookwide .gletters { gap: 2px; margin: 0 0 2px; }
+body.dock-on .bookwide .gletters a { min-width: 34px; min-height: 34px; }
+body.dock-on .bookwide .glossary { column-count: 2; column-gap: 20px; }
+body.dock-on .bookwide .glossary dt { margin-top: 3px; break-after: avoid; }
+body.dock-on .bookwide .glossary dd { font-size: 13px; line-height: 1.35; break-inside: avoid; }
+body.dock-on .bookwide .gletter { margin: 6px 0 0; font-size: 14px; }
+body.dock-on .bookwide .mgroup { margin: 8px 0 2px; }
+body.dock-on .bookwide .mblurb { font-size: 13px; margin: 0 0 4px; }
+body.dock-on .bookwide .mcards { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 5px; }
+body.dock-on .bookwide .mcard { padding: 5px 8px; font-size: 13px; }
+}
+@media (orientation: landscape) {
+body.dock-on .book .almpals { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 4px; margin: 3px 0 6px; }
+body.dock-on .book .almpals li { flex-wrap: wrap; gap: 0 6px; padding: 3px 5px; min-height: 40px; }
+body.dock-on .book .almpals li > img, body.dock-on .book .almpals .palstk { width: 32px; height: 32px; flex: none; }
+body.dock-on .book .almpals li b { font-size: 13px; line-height: 1.15; }
+body.dock-on .book .almpals li small { font-size: 11px; }
+body.dock-on .book .box > h2 { margin: 0 0 2px; font-size: 18px; }
+body.dock-on .book .box > h3 { margin: 6px 0 0; }
+body.dock-on .bookwide .hitlist { column-count: 2; column-gap: 20px; }
+body.dock-on .bookwide .hitlist > li { break-inside: avoid; }
+}
+body.dock-on .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 0 3px; padding-top: 6px; }
+body.dock-on .shopwrap .itms .itm { row-gap: 0; }
+body.dock-on .shopwrap .itms .itm__win { height: 40px; }
+body.dock-on .shopwrap .itms .itm__ic, body.dock-on .shopwrap .itms .itm__svg, body.dock-on .shopwrap .itms .itm__svg > svg { width: 36px; height: 36px; }
+body.dock-on .shopwrap .itms .itm__rib { min-height: 22px; margin: 0 -4px; }
+body.dock-on .shopwrap .itms .itm__name, body.dock-on .shopwrap .itms .itm--long .itm__name, body.dock-on .shopwrap .itms .itm--xlong .itm__name { font-size: 10px; line-height: 1.1; }
+body.dock-on .shopwrap .shopcats { margin: 2px 0 4px; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; z-index: 20; }
+body.dock-on main > .shophelp { display: none; }
+body.dock-on main > .shopintro { margin: 0 0 4px; padding: 4px 10px; font-size: 12px; }
+body.dock-on main:has(> .shopwrap) > header.ph { max-height: 64px; overflow: hidden; }
+body.dock-on main:has(> .shopwrap) > header.ph img { max-height: 64px; width: auto; object-fit: cover; }
+body.dock-on .vgrid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 3px; margin-top: 4px; grid-auto-flow: dense; }
+body.dock-on .vgrid .vcard:not(.unmet) { grid-column: span 3; }
+body.dock-on .vgrid .vcard.unmet { grid-template-columns: none; display: flex; flex-direction: row; justify-content: center; padding: 2px; min-height: 34px; }
+body.dock-on .vgrid .vcard.unmet img { width: 28px; height: 28px; }
+body.dock-on .vgrid .vcard.unmet > b { display: none; }
+body.dock-on main:has(#vlist) > h1 { margin: 0 0 4px; font-size: 1.2rem; }
+body.dock-on #vlist > p.help { display: none; }
+body.dock-on #vlist > .vaaround { display: inline-flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 4px 8px; margin: 0 0 4px; }
+body.dock-on #vlist > .vfilter { padding: 4px 8px; margin: 0 0 4px; gap: 6px; }
+body.dock-on main:has(> #worldmap) { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 0 10px; align-items: start; }
+body.dock-on main:has(> #worldmap) > * { grid-column: 1 / -1; min-width: 0; }
+body.dock-on main:has(> #worldmap) > #worldmap { grid-column: 1; grid-row: 1 / span 2; }
+body.dock-on main > #worldmap .mapwrap, body.dock-on main > #worldmap .mapzoom { max-height: 300px; }
+body.dock-on main > #worldmap svg { max-height: 300px; width: 100%; }
+body.dock-on main:has(> #worldmap) > .youpill { grid-column: 2; grid-row: 1; margin: 0; align-self: end; }
+body.dock-on main:has(> #worldmap) > .letter-reminder { grid-column: 2; grid-row: 2; margin: 6px 0 0; font-size: 12px; align-self: start; }
+body.dock-on #regionmap .maplegend, body.dock-on #regionmap .maphelp { display: none; }
+body.dock-on #regionmap .regnav { margin: 0; }
+body.dock-on main:has(> #worldmap) > #region .help { margin: 2px 0; }
+body.dock-on .gcards.placecards { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+body.dock-on .placecards .gcard { min-height: 0; }
+body.dock-on .placecards .gcard__art { height: 76px; overflow: hidden; }
+body.dock-on .placecards .gcard__art img { width: 100%; height: 100%; object-fit: cover; }
+body.dock-on .placecards .gcard__ribbon { min-height: 28px; padding: 0 2px; }
+body.dock-on .placecards .gcard__label { font-size: 11px; line-height: 1.1; }
+body.dock-on .placecards .gcard__meta { padding: 2px; min-height: 0; gap: 2px; }
+body.dock-on .placecards .pchip { font-size: 10.5px; padding: 1px 4px; }
+body.dock-on .marketbanner { display: flex; align-items: center; gap: 8px; padding: 4px 10px; }
+body.dock-on .marketbanner > div { display: block; font-size: 12px; flex: 1 1 auto; }
+body.dock-on .marketbanner > div br { display: none; }
+body.dock-on .marketbanner > div > a.btn { float: right; margin-left: 8px; }
+body.dock-on section.tday { padding: 6px 10px; }
+body.dock-on section.tday .tday__more { display: none; }
+body.dock-on section.tday .tday__stats { margin: 0 0 4px; }
+body.dock-on section.tday .tday__row { min-height: 36px; }
+body.dock-on .st-page > h2.gx-h, body.dock-on .st-page > .gx-note--top, body.dock-on .st-pass > h3.gx-h { display: none; }
+body.dock-on .st-pass { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 0 8px; align-items: start; }
+body.dock-on .st-pass > * { grid-column: 1 / -1; min-width: 0; margin-block: 0 6px; }
+body.dock-on .st-pass > .st-sum { grid-column: 1; grid-row: 1; }
+body.dock-on .st-pass > .st-setbox { grid-column: 2; grid-row: 1; }
+body.dock-on main:has(.st-page) > h1 { margin: 0 0 4px; font-size: 1.2rem; }
+body.dock-on .st-pass .st-next { column-gap: 16px; }
+body.dock-on .st-pass .st-next li { min-width: 0; }
+body.dock-on .st-pass .st-next li .tag { white-space: normal; display: inline-block; max-width: 100%; }
+body.dock-on .st-pass .st-next li > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+@media (orientation: landscape) { body.dock-on .wrap { padding-bottom: 8px; } }  /* this REPLACES the existing line 141 padding-bottom rule: keep its justify-content: center. Do not use on gourmand.php (no footer, see needs_markup) -- harmless there because it also has no dock */
+@media (orientation: landscape) { body.dock-on main:has(> #easyroads) { display: block; columns: 3; column-gap: 10px; } body.dock-on main:has(> #easyroads) > :not(.box.narrow) { column-span: all; margin-top: 0; margin-bottom: 6px; } body.dock-on main:has(> #easyroads) > h1 { display: inline-block; margin-right: 12px; } body.dock-on main:has(> #easyroads) > .box.narrow { break-inside: avoid; margin: 0 0 8px; padding: 6px 10px 8px; } body.dock-on main:has(> #easyroads) > .box.narrow h2 { margin: 0 0 4px; } body.dock-on main:has(> #easyroads) > .box.narrow > form.form { display: block; } body.dock-on main:has(> #easyroads) > .box.narrow > form.form select { max-width: 100%; display: block; } body.dock-on main:has(> #easyroads) .form label { margin-bottom: 4px; font-size: 13px; } body.dock-on main:has(> #easyroads) .form input:not([type=checkbox]) { margin-top: 2px; } body.dock-on main:has(> #easyroads) .form label.check { align-items: flex-start; font-size: 13px; min-height: 34px; margin-bottom: 2px; } body.dock-on main:has(> #easyroads) .form .help { margin: 0 0 4px; font-size: 11px; line-height: 1.3; } body.dock-on main:has(> #easyroads) > .box.narrow > .help { margin: 4px 0 0; font-size: 11px; } body.dock-on main:has(> #easyroads) .startrow label { margin-bottom: 4px; } body.dock-on main:has(> #easyroads) .gmchips, body.dock-on main:has(> #easyroads) .themechoice { flex-wrap: wrap; } }
+@media (orientation: landscape) { body.dock-on article.lpg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 10px; align-items: start; } body.dock-on article.lpg > .lpg-top { grid-column: 1 / -1; margin-bottom: 4px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; } body.dock-on article.lpg > .lpg-top h1 { margin: 0; font-size: 24px; } body.dock-on article.lpg > .lpg-top .lpg-lede { margin: 0; font-size: 13px; } body.dock-on .lpg-fold > summary { display: flex; align-items: center; gap: 8px; min-height: 40px; cursor: pointer; } body.dock-on .lpg-fold > summary h2 { margin: 0; padding: 0; border: 0; font-size: 15px; } body.dock-on .lpg-fold[open] { grid-column: 1 / -1; } body.dock-on .lpg-fold[open] > .lpg-body { columns: 2; column-gap: 24px; } body.dock-on .lpg-fold[open] .lpg-body > p { break-inside: avoid; margin: 0 0 6px; } body.dock-on .lpg-fold[open] .lpg-body li { break-inside: avoid; margin-bottom: 3px; } body.dock-on .lpg-fold[open] .lpg-body ul, body.dock-on .lpg-fold[open] .lpg-body ol { margin-block: 0 4px; } }
+@media (orientation: landscape) { body.dock-on main:has(> .mkstalls) { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: center; } body.dock-on main:has(> .mkstalls) > * { grid-column: 1 / -1; min-width: 0; } body.dock-on main:has(> .mkstalls) > h1 { grid-column: 1; margin: 0; } body.dock-on main:has(> .mkstalls) > p.status { grid-column: 2; margin: 0; padding: 6px 10px; } body.dock-on main:has(> .mkstalls) > .crumbs { margin: 0 0 2px; } body.dock-on main:has(> .mkstalls) > h2.shopintro { grid-column: 1; margin: 4px 0 2px; font-size: 1rem; text-align: left; } body.dock-on main:has(> .mkstalls) > p.help.shopintro { grid-column: 2; margin: 4px 0 2px; font-size: 11px; line-height: 1.25; } body.dock-on main:has(> .mkstalls) > p:last-child { margin: 6px 0 0; display: flex; gap: 8px; } body.dock-on main:has(> .mkstalls) > p:last-child .btn { min-height: 38px; } body.dock-on .marketwanted { padding: 4px 10px 8px; margin: 4px 0; } body.dock-on .marketwanted > h3 { display: inline; margin: 0 8px 0 0; text-align: left; } body.dock-on .marketwanted > p { display: none; } body.dock-on .marketwanted .itms { gap: 4px 6px; padding-top: 4px; } body.dock-on .marketwanted .itm__win { height: 56px; } body.dock-on .mkstall .itm__win { height: 54px; } body.dock-on .mkstall .itms { gap: 6px 6px; } body.dock-on .mkbasket { display: grid; grid-template-columns: minmax(0, 210px) minmax(0, 1fr); gap: 0 12px; align-items: start; padding: 8px 12px; margin-top: 0; } body.dock-on .mkbasket > form { display: contents; } body.dock-on .mkbasket > p { grid-column: 1; grid-row: 1; margin: 0 0 6px; font-size: 12px; line-height: 1.3; } body.dock-on .mkbasket .mkpick { grid-column: 2; grid-row: 1 / span 3; max-height: 200px; } body.dock-on .mkbasket > form > p { grid-column: 1; grid-row: 2; margin: 0; } body.dock-on .mkpick .itms { --itm-cols: 5; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; max-width: none; } body.dock-on .mkpick .itm__win { height: 56px; } }
+@media (orientation: landscape) { body.dock-on main:has(> ul.rcards.tlr) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 8px; } body.dock-on main:has(> ul.rcards.tlr) > h2 { margin: 4px 0; font-size: 1.05rem; } body.dock-on main:has(> ul.rcards.tlr) > h1 + p.help { margin: 2px 0 4px; } body.dock-on main:has(> ul.rcards.tlr) > h2 + p.help { display: none; } body.dock-on main:has(> ul.rcards.tlr) > details.box { margin: 0 0 6px; } body.dock-on main:has(> ul.rcards.tlr) > details.box > summary { padding-block: 2px; min-height: 40px; display: flex; flex-direction: column; justify-content: center; line-height: 1.25; } body.dock-on main:has(> ul.rcards.tlr) > p.muted { margin: 0 0 4px; grid-column: span 2; font-size: 12px; } body.dock-on ul.rcards.tlr > li { padding: 6px 8px; } body.dock-on ul.rcards.tlr > li > b img { width: 32px; height: 32px; } }
+@media (orientation: landscape) { body.dock-on main:has(> .designer) { display: grid; grid-template-columns: 476px minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; gap: 0 12px; align-items: start; } body.dock-on main:has(> .designer) > * { grid-column: 1 / -1; min-width: 0; } body.dock-on main:has(> .designer) > h1 { margin: 2px 0; } body.dock-on main:has(> .designer) > .designer { display: contents; } body.dock-on main:has(> .designer) .yardwrap { grid-column: 1; grid-row: 3 / span 2; } body.dock-on main:has(> .designer) .tray { grid-column: 2; grid-row: 3; margin: 0 0 6px; } body.dock-on main:has(> .designer) > p.help { grid-column: 2; grid-row: 4; margin: 0; font-size: 11px; line-height: 1.3; } body.dock-on main:has(> .designer) > .yardtools { grid-row: 2; } body.dock-on main:has(> .designer) > .box { margin: 8px 0 0; padding: 6px 12px 8px; } body.dock-on main:has(> .designer) > .box h3 { margin: 0 0 4px; font-size: 1rem; } body.dock-on .bonuslist { columns: 3; column-gap: 16px; margin: 0; padding-left: 16px; font-size: 12px; line-height: 1.3; } body.dock-on .bonuslist li { break-inside: avoid; margin: 0 0 4px; } body.dock-on main:has(> .designer) > .box:last-child { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; } body.dock-on main:has(> .designer) > .box:last-child > h3 { flex: 1 0 100%; } body.dock-on main:has(> .designer) > .box:last-child > p { flex: 1 1 300px; margin: 0; font-size: 13px; line-height: 1.3; } body.dock-on main:has(> .designer) > .box:last-child > form { margin: 0; } }
+@media (orientation: landscape) { body.dock-on main:has(> .festhero) { gap: 6px 10px; } body.dock-on main:has(> .festhero) > .festhero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; align-items: center; padding: 6px 12px; } body.dock-on main:has(> .festhero) > .festhero h1 { grid-column: 1; grid-row: 1; margin: 0; font-size: 22px; } body.dock-on main:has(> .festhero) > .festhero .festdates { grid-column: 2; grid-row: 1; } body.dock-on main:has(> .festhero) > .festhero > p:not(.festdates) { display: none; } body.dock-on main:has(> .festhero) > section.box { padding: 6px 12px 8px; } body.dock-on main:has(> .festhero) > section.box > h2 { margin: 0 0 2px; font-size: 1.05rem; } body.dock-on main:has(> .festhero) > section.box > p.help { margin: 2px 0 4px; font-size: 12px; line-height: 1.3; } body.dock-on main:has(> .festhero) > section.box:nth-of-type(1) > p.help { display: none; } body.dock-on main:has(> .festhero) .festjar .jarwrap { gap: 10px; } body.dock-on main:has(> .festhero) .festjar .jarwrap svg { height: 74px; } body.dock-on main:has(> .festhero) .festjar .jarinfo { font-size: 13px; } body.dock-on main:has(> .festhero) .festjar .jarinfo > * { margin-block: 2px; } body.dock-on main:has(> .festhero) .festjar .jarinfo > :first-child { font-size: 16px; line-height: 1.25; margin: 0; } body.dock-on main:has(> .festhero) .festjar form.help { margin: 4px 0 0; } body.dock-on main:has(> .festhero) .festjar form small { font-size: 11px; } body.dock-on main:has(> .festhero) .stalls .itm__win { height: 52px; } body.dock-on main:has(> .festhero) .stalls .itms { gap: 4px; } body.dock-on main:has(> .festhero) .stall { padding: 4px 8px 8px; } body.dock-on main:has(> .festhero) .stall h3 { margin: 0; font-size: .95rem; } body.dock-on main:has(> .festhero) .stall p { margin: 0 0 4px; font-size: 12px; } body.dock-on main:has(> .festhero) .pulselist { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 14px; } body.dock-on main:has(> .festhero) .pulse p, body.dock-on main:has(> .festhero) .pulse li { margin: 0; font-size: 13px; } body.dock-on main:has(> .festhero) .pulse > p.help, body.dock-on main:has(> .festhero) > section.box > p.help:last-child { font-size: 11px; margin: 2px 0 0; } body.dock-on main:has(> .festhero) > p:last-child { margin: 0; } }
+@media (orientation: landscape) { body.dock-on .jb-cols.even > .jb-board { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 8px; align-items: start; padding: 6px 10px 8px; } body.dock-on .jb-cols.even > .jb-board > h2 { grid-column: 1 / -1; margin: 0; font-size: 1rem; } body.dock-on .jb-cols.even > .jb-board > .jb-pj { border: 1px solid var(--line); border-top: 1px solid var(--line) !important; margin: 0; flex-direction: column; align-items: stretch; padding: 6px 8px; gap: 4px; } body.dock-on .jb-cols.even > .jb-board > .jb-pj .info { flex: 0 0 auto; } body.dock-on .jb-cols.even > .jb-board .jb-pj .info p { margin: 2px 0; font-size: 12px; line-height: 1.3; } body.dock-on .jb-cols.even > .jb-board > .jb-pj .who { font-size: 11.5px; } body.dock-on .jb-cols.even > .jb-board .jb-pj form.inline { display: flex; align-items: center; justify-content: space-between; gap: 8px; } body.dock-on .jb-cols.even > .jb-board > .jb-pj .btn { min-height: 34px; } body.dock-on .jb-forms { gap: 6px; grid-template-columns: minmax(0, 1fr); } body.dock-on .jb-forms > p.jb-sub { display: none; } body.dock-on .jb-forms > form.jb-form { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 0 12px; align-items: center; padding: 6px 12px; } body.dock-on .jb-forms > form.jb-form > h3 { grid-column: 1; grid-row: 1; margin: 0; font-size: 1rem; } body.dock-on .jb-forms > form.jb-form > p.jb-sub { grid-column: 1; grid-row: 2; margin: 2px 0 0; font-size: 11px; line-height: 1.25; } body.dock-on .jb-forms > form.jb-form > .g2 { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0 8px; } body.dock-on .jb-forms > form.jb-form > .g2 label { margin: 0; font-size: 11px; } body.dock-on .jb-forms > form.jb-form > .g2 label.wide { grid-column: auto; } body.dock-on .jb-forms > form.jb-form > .btn { grid-column: 3; grid-row: 1 / span 2; } }
+@media (orientation: landscape) { body.dock-on main:has(> nav.jqtabs) > h2:has(+ p.help), body.dock-on main:has(> nav.jqtabs) > h2 + p.help { display: none; } body.dock-on main:has(> nav.jqtabs) > .box.favours { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px; padding: 6px 12px 8px; margin: 4px 0; } body.dock-on .box.favours > h3 { grid-column: 1 / -1; margin: 0; font-size: 1rem; } body.dock-on .box.favours > p.help { grid-column: 1 / -1; margin: 2px 0 4px; font-size: 12px; line-height: 1.3; } body.dock-on .box.favours > .favour { flex-wrap: wrap; align-items: flex-start; padding: 4px 0; font-size: 13px; line-height: 1.3; } body.dock-on .box.favours > .favour form { flex: 1 0 100%; text-align: right; } body.dock-on .box.favours > .favour .btn { min-height: 34px; } body.dock-on main:has(> nav.jqtabs) > h3 { margin: 4px 0 2px; font-size: 1rem; } body.dock-on main:has(> nav.jqtabs) > .box.qsec { padding: 6px 12px; margin: 0; } body.dock-on main:has(> nav.jqtabs) .qlist { gap: 4px 14px; } body.dock-on main:has(> nav.jqtabs) .qlist li { margin: 0; padding: 2px 0; } body.dock-on main:has(> nav.jqtabs) > p.help:last-child { margin: 4px 0 0; font-size: 12px; } }
+@media (orientation: landscape) { body.dock-on .toolbelt .belt { padding: 4px 6px; gap: 3px; } body.dock-on .toolbelt .belt .pouch { padding: 2px 2px 3px; } body.dock-on .toolbelt .belt .pouch .pwear, body.dock-on .toolbelt .belt .pouch .ptier { display: none; } body.dock-on .toolbelt .belt .pouch .pname { font-size: 11px; line-height: 1.15; } body.dock-on .toolbelt .belt .pouch .picon { height: 30px; } body.dock-on .toolbelt > h2 { display: none; } body.dock-on .toolbelt > nav.belttabs { margin: 4px 0; } body.dock-on .toolbelt .toolcards { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; } body.dock-on .toolbelt .toolcards > * { padding: 6px 8px; } body.dock-on .toolbelt .toolcards .tc > .ic { display: none; } body.dock-on .toolbelt .toolcards .tc p { margin: 0; font-size: 12px; line-height: 1.3; } body.dock-on .toolbelt .toolcards .tc b { font-size: 12px; } body.dock-on .toolbelt .toolcards .tc small { font-size: 11px; line-height: 1.25; } body.dock-on main > details.helpfold { margin: 2px 0; } }  /* the 'Garden jobs' h2 is hidden because the Garden tools tab beside it already says it; the existing line 639 rule (3 cards) is overridden. Other belt sub-tabs (Gathering, Travel, Mend, Upgrades) were NOT checked: .wearbox on Mend has its own rule at line 774 */
+@media (orientation: landscape) { body.dock-on main:has(> .box > .npchead) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on main:has(> .box > .npchead) > * { flex: 1 0 100%; min-width: 0; } body.dock-on main:has(> .box > .npchead) > h1 { flex: 0 0 auto; margin: 0; font-size: 1.4rem; } body.dock-on main:has(> .box > .npchead) > nav.tabs { flex: 1 1 600px; margin: 0; } body.dock-on main > .box:has(> .npchead) { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 0 14px; align-items: start; padding: 6px 12px; margin: 6px 0; } body.dock-on main > .box > .npchead { margin: 0; } body.dock-on main > .box > .npchead .npcid > .muted { margin: 0; } body.dock-on main > .box > .npchead .npcid > .help { display: none; } body.dock-on main > .box > .story { margin: 0; font-size: 13px; line-height: 1.35; } body.dock-on main > section.box:has(> .box.inset) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 8px; padding: 6px 10px 8px; margin: 0; } body.dock-on main > section.box:has(> .box.inset) > h2 { font-size: 1.05rem; } body.dock-on main > section.box:has(> .box.inset) > p.help { font-size: 12px; } body.dock-on main > section.box:has(> .box.inset) > .box.inset { padding: 6px 8px; } body.dock-on main > section.box > .box.inset p { font-size: 13px; line-height: 1.3; margin: 2px 0; } body.dock-on main > section.box > .box.inset p.help { font-size: 11px; } body.dock-on main > section.box > .box.inset .btn { min-height: 38px; } }  /* tested with nav.tabs flex 1 1 0 (the row looked right); 1 1 600px is the safer value used here and was not re-measured. Hides the 'His camp moves with the festivals' help line. Only the Now tab was tested */
+@media (orientation: landscape) { body.dock-on .trekplay { gap: 4px 12px; } body.dock-on .trekplay > #trekstage { max-width: 320px; } body.dock-on .trekplay .trektut { display: none; } body.dock-on .trekplay .trekhud { padding: 4px 8px; } body.dock-on .trekplay .trekhud .hudparty { margin: 0; } body.dock-on .trekplay .trekhud p.trekwhere { margin: 2px 0 0; font-size: 12px; } body.dock-on .trekplay .trekspot { padding: 6px 10px; } body.dock-on .trekplay .trekspot h3 { margin: 0 0 2px; font-size: 1rem; } body.dock-on .trekplay .trekspot .trektext { font-size: 13px; line-height: 1.3; margin: 0; } body.dock-on .trekplay details.tklegend, body.dock-on .trekplay details.tkmini { margin: 0; } body.dock-on .trekplay .trekacts { margin: 0; } body.dock-on .trekplay .trekacts > p.help { margin: 2px 0 0; font-size: 11px; } }  /* #trekstage needs the id: style.css line 4791 '.trekplay > #trekstage' sets max-width 480px, which beat the old '.trekplay .gvs' rule. The scene is data-crop so it shows less at 320px wide. Fights (the 'pfight/trekfight' screen) were not tested */
+@media (orientation: landscape) { body.dock-on main:has(> .commwrap) { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; } body.dock-on main:has(> .commwrap) > * { flex: 1 0 100%; min-width: 0; } body.dock-on main:has(> .commwrap) > h1 { flex: 0 0 auto; margin: 0; font-size: 1.4rem; } body.dock-on main:has(> .commwrap) > nav.tabs { flex: 1 1 600px; margin: 0; } body.dock-on main:has(> .commwrap) > h2 { flex: 0 0 auto; margin: 6px 0 2px; font-size: 1rem; } body.dock-on main:has(> .commwrap) > h2 + p.help { flex: 1 1 0; margin: 6px 0 2px; font-size: 11.5px; line-height: 1.3; } body.dock-on .commwrap { margin-top: 4px; } body.dock-on .commside { gap: 5px; } body.dock-on .commside > .box { padding: 5px 10px 6px; } body.dock-on .commside > .box h3 { margin: 0 0 2px; font-size: .95rem; } body.dock-on .commside > .box p { margin: 0 0 3px; font-size: 12px; line-height: 1.3; } body.dock-on .commside > .box form.inline { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 0; } body.dock-on .commside > .box form.inline select { flex: 1 1 140px; min-width: 0; max-width: 100%; } body.dock-on .commside > .box .btn { min-height: 34px; } body.dock-on .commside > .box ol { margin: 0; padding-left: 20px; font-size: 13px; } }
+
+/* v2.8.06: energy ghost ("-1 bolt" / "+3 bolt") floats up from the bar; lives on <body> so the dock's clipped plate cannot cut it */
+.dockghost { position: fixed; z-index: 2147483000; pointer-events: none; font: 800 12px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; color: #ffe9a0; text-shadow: 0 0 2px #000, 0 1px 2px #000, 0 0 5px #000; }
+.dockghost.up { color: #c8ffb0; }
+
+/* v2.8.07: folds in the landscape dock layout (summaries hold the old headings) */
+body.dock-on details.catfold > summary, body.dock-on details.ppfold > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 6px; min-height: 34px; }
+body.dock-on details.catfold > summary::-webkit-details-marker, body.dock-on details.ppfold > summary::-webkit-details-marker, body.dock-on details.regfold > summary::-webkit-details-marker { display: none; }
+body.dock-on details.catfold > summary h3, body.dock-on details.ppfold > summary h2 { margin: 0; }
+body.dock-on details.catfold > summary::before, body.dock-on details.ppfold > summary::before, body.dock-on details.regfold > summary::before { content: "▸"; display: inline-block; width: 1em; }
+body.dock-on details[open].catfold > summary::before, body.dock-on details[open].ppfold > summary::before, body.dock-on details[open].regfold > summary::before { content: "▾"; }
+body.dock-on details.regfold > summary { cursor: pointer; list-style: none; font-weight: 700; min-height: 34px; display: flex; align-items: center; }
+body.dock-on .vunmetline { margin: 6px 0; }
+
+/* v2.8.10: Town Square: the two small folds sit side by side; folded explainers on Jobs; basket and pal search rows */
+@media (orientation: landscape) {
+  body.dock-on details.fold.travellers, body.dock-on details.fold.festivals { display: inline-block; vertical-align: top; width: calc(50% - 6px); box-sizing: border-box; margin-top: 4px; }
+  body.dock-on details.jb-info { margin: 2px 0; }
+  body.dock-on .mkfindrow, body.dock-on .pjfindrow { margin: 2px 0 4px; }
+  body.dock-on .mkfindrow input, body.dock-on .pjfindrow input { width: 100%; min-height: 34px; box-sizing: border-box; }
+}
+
+/* v2.8.11: pre-fight screen, phone landscape: two columns (the creature and its rule on the left, the pieces on the right) so it fits without scrolling */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on #pfv-pre .pfv-scroll { display: grid; grid-template-columns: 224px minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; gap: 3px 10px; align-items: start; overflow: visible; max-height: none; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard { grid-column: 1; grid-row: 1 / span 2; margin: 0; gap: 6px; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard .pic { width: 44px; height: 44px; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard .pic img { width: 36px; height: 36px; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard h3 { font-size: 15px; margin: 0; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard .chips { flex-wrap: wrap; gap: 2px; font-size: 10.5px; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard .chips .chip { padding: 0 4px; }
+  body.dock-on #pfv-pre .pfv-scroll > .foerule { grid-column: 1; grid-row: 3; margin: 0; font-size: 11px; line-height: 1.2; text-align: left; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  body.dock-on #pfv-pre .pfv-scroll > .pinfo.pfv-autostrip { grid-column: 1; grid-row: 4; margin: 0; padding: 3px 6px; font-size: 11px; display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; text-align: left; }
+  body.dock-on #pfv-pre .pfv-autostrip .btn { min-height: 30px; padding: 2px 8px; font-size: 11px; }
+  body.dock-on #pfv-pre .pfv-scroll > .tally { grid-column: 2; grid-row: 1; margin: 0; }
+  body.dock-on #pfv-pre .pfv-scroll > .tally + ul.pcg { grid-column: 2; grid-row: 2 / span 3; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 0; }
+  body.dock-on #pfv-pre .pfv-scroll > :not(.foecard):not(.foerule):not(.tally):not(.pfv-autostrip):not(.tally + ul.pcg) { grid-column: 1 / -1; grid-row: auto; }   /* deck editing (Auto deck off): your deck and bench come below the creature's pieces */
+  body.dock-on #pfv-pre .pfv-scroll > ul.pcg:not(.tally + ul.pcg) { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 0; }
+  body.dock-on #pfv-pre .pfv-scroll > ul.pcg li { zoom: .78; }
+  body.dock-on #pfv-pre .pfv-scroll > .pinfo#pfv-cinfo { display: none; }
+  body.dock-on #pfv-pre .pfv-act { margin: 4px 0 0; }
+}
+
+/* v2.8.12: pre-fight screen on a very short phone view (the browser's own bars use up the height): smaller pieces so both rows stay in view above Let's fight */
+@media (orientation: landscape) and (max-height: 340px) {
+  body.dock-on #pfv-pre .pfv-scroll > ul.pcg li { zoom: .6; }
+  body.dock-on #pfv-pre .pfv-scroll { gap: 2px 8px; }
+  body.dock-on #pfv-pre .pfv-scroll > .foecard .chips .chip:nth-child(n+3) { display: none; }
+  body.dock-on #pfv-pre .pfv-scroll > .foerule { -webkit-line-clamp: 2; font-size: 10.5px; }
+  body.dock-on #pfv-pre .pfv-scroll > .pinfo.pfv-autostrip { font-size: 10px; padding: 2px 5px; }
+  body.dock-on #pfv-pre .pfv-autostrip .btn { min-height: 24px; font-size: 10px; }
+  body.dock-on #pfv-pre .pfv-act { margin: 2px 0 0; padding: 2px; }
+  body.dock-on #pfv-pre .pfv-act .btn, body.dock-on #pfv-pre .pfv-act button { min-height: 34px; padding-top: 2px; padding-bottom: 2px; }
+  body.dock-on #pfv-pre .pfv-deckfold { display: none; }
+}
+
+/* v2.8.14: Puzzle Pals region folds: a smaller heading so long region names fit their column */
+@media (orientation: landscape) {
+  body.dock-on details.ppfold > summary h2 { font-size: 15px; line-height: 1.2; }
+  body.dock-on details.ppfold > summary small { margin-left: auto; }
+}
+
+/* v2.8.15: Garden, landscape dock: the garden comes first. Heading, the cat line and the tabs share one row; no Cat Fish link */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) { gap: 0 10px; }
+  body.dock-on .cfgarden a { display: none; }
+  body.dock-on main:has(> .gardentabnav) > .cfgarden { flex: 0 1 auto; margin: 0; display: flex; align-items: center; gap: 4px; font-size: 12px; max-width: 34%; }
+  body.dock-on .cfgarden img, body.dock-on .cfgarden .cfcat, body.dock-on .cfgarden > *:first-child:not(small) { width: 28px; height: 28px; max-height: 28px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead h1 { font-size: 18px; margin: 0; padding-bottom: 2px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead { margin: 2px 0; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav { margin-top: 2px; }
+}
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardenwrap) > details.gardeninfo { flex: 0 1 30%; margin: 0; }
+  body.dock-on main:has(> .gardenwrap) > p.wxline { flex: 1 1 60%; margin: 0; padding: 3px 8px; font-size: 12px; line-height: 1.25; }
+  body.dock-on main:has(> .gardenwrap) > p.wxline br { display: none; }
+  body.dock-on main:has(> .gardenwrap) > p.wxline small, body.dock-on main:has(> .gardenwrap) > p.wxline .muted { display: inline; margin-left: 6px; font-size: 11px; }
+}
+
+/* v2.8.16: Garden, landscape dock: the cat line is gone so the tabs sit in the heading row */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) > .cfgarden { display: none; }
+}
+
+/* v2.8.17: Garden, landscape dock: the heading and the five tabs fit on one line even on a narrow phone view */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav { flex-wrap: nowrap; gap: 3px; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav a { padding: 3px 7px; min-height: 34px; font-size: 13px; gap: 3px; white-space: nowrap; }
+  body.dock-on main:has(> .gardentabnav) > .gardentabnav a img, body.dock-on main:has(> .gardentabnav) > .gardentabnav a .ico { width: 16px; height: 16px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead { display: flex; align-items: center; gap: 6px; }
+  body.dock-on main:has(> .gardentabnav) > .ghead h1 { font-size: 16px; white-space: nowrap; }
+  body.dock-on main:has(> .gardentabnav) > .ghead .renamefold summary { font-size: 12px; white-space: nowrap; }
+}
+@media (orientation: landscape) { body.dock-on main:has(> .gardenwrap) > details.gardeninfo > summary { white-space: nowrap; font-size: 12px; } }
+
+/* v2.8.18: Garden, landscape dock: the garden and the "Pick a square" panel sit side by side and never push the page sideways; the squares shrink to leave the panel 250 px */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap { grid-template-columns: auto minmax(0, 250px); max-width: 100%; gap: 0 10px; }
+  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 250px - 40px) / var(--cw, 12))); }
+  body.dock-on .gardenwrap > .panel.box { width: auto; max-width: 250px; min-width: 0; padding: 8px 10px; font-size: 12px; line-height: 1.3; overflow-wrap: anywhere; text-align: left; }
+  body.dock-on .gardenwrap > .panel.box h3 { font-size: 14px; margin: 0 0 4px; text-align: left; }
+  body.dock-on .gardenwrap > .panel.box p, body.dock-on .gardenwrap > .panel.box div { text-align: left; margin-top: 2px; margin-bottom: 2px; }
+  body.dock-on .gardenwrap > .panel.box .btn { min-height: 34px; font-size: 13px; padding: 3px 8px; }
+}
+
+/* v2.8.20: Garden, landscape dock: the square / crop info panel is a short column that stays beside the garden and scrolls inside itself; the status and the action buttons come first, soil numbers below */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap > .panel.box { display: flex; flex-direction: column; position: sticky; top: 4px; align-self: start; max-height: calc(100vh - var(--dock-h, 106px) - 10px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  body.dock-on .gardenwrap > .panel.box > * { order: 5; flex: 0 0 auto; }
+  body.dock-on .gardenwrap > .panel.box > h3.sqh, body.dock-on .gardenwrap > .panel.box > p.sqsum, body.dock-on .gardenwrap > .panel.box > p.sqchips, body.dock-on .gardenwrap > .panel.box > p.sqnext { order: 1; }
+  body.dock-on .gardenwrap > .panel.box > .sqactions { order: 2; }
+  body.dock-on .gardenwrap > .panel.box > p.yardbonus { order: 3; }
+  body.dock-on .gardenwrap > .panel.box > details.soildet { order: 9; }
+  body.dock-on .gardenwrap > .panel.box .backtoyard { display: none; }
+  body.dock-on .gardenwrap > .panel.box .sqchip, body.dock-on .gardenwrap > .panel.box .tag { font-size: 11px; padding: 1px 5px; }
+  body.dock-on .gardenwrap > .panel.box .soilstats { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; }
+  body.dock-on .gardenwrap > .panel.box .gradebox, body.dock-on .gardenwrap > .panel.box .upkeep { font-size: 11px; }
+  body.dock-on .gardenwrap > .panel.box .sqactions form { margin: 2px 0; }
+}
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap > .panel.box .sqactions form.inline, body.dock-on .gardenwrap > .panel.box .sqactions form { display: flex; flex-wrap: wrap; gap: 4px; align-items: stretch; }
+  body.dock-on .gardenwrap > .panel.box .sqactions .btn, body.dock-on .gardenwrap > .panel.box .sqactions button, body.dock-on .gardenwrap > .panel.box .sqactions select { flex: 1 1 100%; width: 100%; min-width: 0; white-space: normal; text-align: center; writing-mode: horizontal-tb; margin: 0; }
+  body.dock-on .gardenwrap > .panel.box .sqactions button.act, body.dock-on .gardenwrap > .panel.box .sqactions button.alt:not(.pickbtn) { flex: 1 1 calc(50% - 4px); }
+  body.dock-on .gardenwrap > .panel.box .npkwrap, body.dock-on .gardenwrap > .panel.box .upkeepchips { display: none; }
+}
+
+/* v2.8.21: Garden, landscape dock: the garden slides to the left edge and the info panel sits right beside it, a little wider (290 px) */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap { grid-template-columns: max-content minmax(0, 290px); justify-content: start; gap: 0 8px; }
+  body.dock-on .gardenwrap > div:first-child { align-items: flex-start; }
+  body.dock-on .gardenwrap .yardwrap { margin-left: 0; margin-right: 0; }
+  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 290px - 24px) / var(--cw, 12))); }
+  body.dock-on .gardenwrap > .panel.box { max-width: 290px; }
+  body.dock-on .gardenwrap > .legend { text-align: left; }
+}
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap > div:first-child > :not(.yardwrap):not(dialog):not(.selbar):not(form) { width: 0; min-width: 100%; box-sizing: border-box; }
+}
+
+/* v2.8.22: Garden, landscape dock: the garden and its panel are centred as a pair */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardenwrap) > .gardenwrap { justify-content: center; width: 100%; align-self: stretch; }
+}

@@ -381,3 +381,18 @@ dialog.gycard .pickbox{width:min(330px,calc(100vw - 28px));padding:0;overflow:hi
 .gy-fence{left:-3.75%;top:56.296%;width:30%;height:41.481%}
 .gy-h-fence-i{left:3.75%;top:79.259%;width:17.917%;height:13.333%}
 .gy-bg-fence-r1{background-image:url(img/gyard/fence-r1.png)}
+
+/* a phone on its side: the whole building card scrolls as one (head and body together, so the buttons are always reachable), is wider, and its head is slim */
+@media (orientation: landscape) and (max-height: 520px) {
+  dialog.gycard .pickbox { width: min(520px, calc(100vw - 28px)); max-height: calc(100dvh - 12px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; display: block; }
+  .gycard .gyhd { min-height: 0; padding-block: 6px; gap: 10px; }
+  .gycard .gyhd img, .gycard .gyhd svg, .gycard .gyart { max-height: 84px; width: auto; }
+  .gycard .gybd, .gycard .gybd.home, .gycard .gybd:not(.home), .gycard .gybd.fence { min-height: 0; overflow: visible; }
+  .gycard .gynow { min-height: 0; -webkit-line-clamp: unset; display: block; overflow: visible; }
+}
+
+/* opened without script (garden.php?t=pic&o=...: the open attribute, not a modal) the card sits in the page, under the dock: put it above the page, stop it at the dock, and size it to what is left */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on dialog.gycard[open]:not(:modal) { position: fixed; inset: 0 0 var(--dock-h, 0px) 0; margin: 0; width: 100%; max-width: none; height: auto; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, .45); }
+  body.dock-on dialog.gycard[open]:not(:modal) .pickbox { max-height: calc(100dvh - var(--dock-h, 0px) - 12px); }
+}

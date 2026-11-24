@@ -667,6 +667,33 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts);
     if ($gate && $canWander) $h .= '<form method="post" action="' . e(url('adventure.php')) . '" id="wanderform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="explore"></form>';
     if ($more) $h .= '<p><a class="btn alt" href="' . e($more['href']) . '">' . e($more['label']) . '</a></p>';
+    return $h . here_extra_do($u, $node, $back, $spots);
+}
+
+/**
+ * The doable things a rest stop has that its picture does not show (the picture has room for a few "Do" spots): up to three more, chosen for this visit
+ * (a stable pick from the visit key), as hidden cards with the same inside as the picture's own. The dock's "Do here" strip opens them (assets/dock.js, hereDo);
+ * without the dock they are never seen. Done ones are left out.
+ */
+function here_extra_do(array $u, array $node, string $back, array $spots): string
+{
+    if ((string)$node['kind'] !== 'village' || !function_exists('dock_on') || !dock_on($u)) return '';
+    require_once __DIR__ . '/local.php';
+    $fronts = 0; $stall = false;
+    foreach ($spots as $sp) { if (str_starts_with((string)$sp['id'], 's-do')) $fronts++; elseif (str_starts_with((string)$sp['id'], 's-shops')) $stall = true; }
+    $pool = stop_pool($node, null, (int)$u['id']);
+    $visit = stop_visit_key($u);
+    [$done] = stop_state((int)$u['id'], (int)$node['id'], $visit);
+    $offer = $stall ? array_values(array_filter($pool['offer'], fn($a) => !in_array((string)$a['kind'], ['buy', 'snack'], true))) : $pool['offer'];
+    $rest = array_values(array_filter(array_slice($offer, $fronts), fn($a) => !in_array((string)$a['slug'], $done, true)));
+    usort($rest, fn($a, $b) => crc32($visit . $a['slug']) <=> crc32($visit . $b['slug']));
+    $h = '';
+    foreach (array_slice($rest, 0, 3) as $n => $a) {
+        $id = 'x-do-' . ($n + 1);
+        $h .= '<dialog class="picker hubpop" id="hubpop-' . $id . '" data-xname="' . e((string)$a['name']) . '" aria-labelledby="hubpop-' . $id . '-t"><div class="pickbox"><div class="pickhead"><h3 id="hubpop-' . $id . '-t">' . e((string)$a['name']) . '</h3>'
+            . '<button type="button" class="pickx" data-pop-close aria-label="Close">✕</button></div><div class="hubcard"><div class="doblock" data-slug="' . e((string)$a['slug']) . '" data-post="' . e(url('town.php')) . '">'
+            . here_do_block($u, $node, $back, $a, false) . '</div></div></div></dialog>';
+    }
     return $h;
 }
 

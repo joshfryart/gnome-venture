@@ -156,8 +156,10 @@ page_header('My Almanac');
         <?php if (!$hits && !$locked): ?><p class="muted">Nothing in the Almanac by that name. Try another word.</p><?php elseif (!$hits): ?><p class="muted">Nothing on the pages you’ve found so far.</p><?php endif; ?>
         <ul class="hitlist"><?php foreach ($hits as $h): ?><li><a href="<?= $open($h) ?>"><?= e($h['title']) ?></a> <small class="muted"><?= e($chapterLabel((string)$h['chapter'])) ?> · <?= e((string)$h['category']) ?></small></li><?php endforeach; ?></ul>
         <?php if ($locked): require_once __DIR__ . '/includes/almanac_notes.php'; ?>
-          <h4>🔒 Not found yet</h4>
+          <?php $lkFold = isset($u) && $u && function_exists('dock_on') && dock_on($u) && count($locked) > 4; ?>
+          <?php if ($lkFold): ?><details class="catfold"><summary><h4>🔒 Not found yet <small class="muted"><?= count($locked) ?></small></h4></summary><?php else: ?><h4>🔒 Not found yet</h4><?php endif; ?>
           <ul class="hitlist"><?php foreach ($locked as $h): $hint = almanac_locked_hint($h); ?><li><b><?= e($h['title']) ?></b> <small class="muted"><?= e($chapterLabel((string)$h['chapter'])) ?></small><?= $hint !== '' ? '<br><small>💡 ' . e($hint) . '</small>' : '' ?></li><?php endforeach; ?></ul>
+          <?php if ($lkFold) echo '</details>'; ?>
         <?php endif; ?>
       </div>
     <?php endif; ?>
@@ -378,14 +380,16 @@ page_header('My Almanac');
     <nav class="gletters" aria-label="Jump to a letter">
       <?php foreach (array_keys($byLetter) as $L): ?><a href="#gl-<?= e($L) ?>"><?= e($L) ?></a><?php endforeach; ?>
     </nav>
-    <?php foreach ($byLetter as $L => $list): ?>
-      <h3 class="gletter" id="gl-<?= e($L) ?>"><?= e($L) ?></h3>
+    <?php $glFold = isset($u) && $u && function_exists('dock_on') && dock_on($u);   // v2.8.07: landscape dock: one fold per letter, the first open
+          $glI = 0; foreach ($byLetter as $L => $list): $glI++; ?>
+      <?php if ($glFold): ?><details class="catfold glfold" id="gl-<?= e($L) ?>"<?= $glI === 1 ? ' open' : '' ?>><summary><h3 class="gletter"><?= e($L) ?> <small class="muted"><?= count($list) ?></small></h3></summary><?php else: ?><h3 class="gletter" id="gl-<?= e($L) ?>"><?= e($L) ?></h3><?php endif; ?>
       <dl class="glossary">
         <?php foreach ($list as $term => $def): ?>
           <dt id="gt-<?= e(strtolower((string)preg_replace('/[^a-z0-9]+/i', '-', $term))) ?>"><?= e($term) ?></dt>
           <dd><?= e($def) ?></dd>
         <?php endforeach; ?>
       </dl>
+      <?php if ($glFold) echo '</details>'; ?>
     <?php endforeach; ?>
   </div>
 
@@ -477,7 +481,9 @@ page_header('My Almanac');
           $list = array_values(array_filter($list, fn($x) => $regionOk($x) && ($fshow === '' || ($fshow === 'found' && $x['unlocked_at']) || ($fshow === 'missing' && !$x['unlocked_at']) || ($fshow === 'new' && $x['unlocked_at'] && !$x['read_at']))));
           if (!$list && ($fshow !== '' || $freg || $ftier !== '')) continue;
           $n = count(array_filter($list, fn($x) => $x['unlocked_at'])); ?>
-        <h3><?= e($cat) ?> <small><?= $n ?>/<?= count($list) ?></small></h3>
+        <?php $bkFold = isset($u) && $u && function_exists('dock_on') && dock_on($u) && count($byCat) > 1;   // v2.8.07: landscape dock: one fold per category, the one with the open page (or the first) open
+              $bkFirst = $bkFirst ?? $cat; $bkOpen = !$bkFold || ($cur && count(array_filter($list, fn($x) => (int)$x['id'] === (int)$cur['id']))) || (!$cur && $cat === $bkFirst) || $fshow !== '' || $fcat !== ''; ?>
+        <?php if ($bkFold): ?><details class="catfold"<?= $bkOpen ? ' open' : '' ?>><summary><h3><?= e($cat) ?> <small><?= $n ?>/<?= count($list) ?></small></h3></summary><?php else: ?><h3><?= e($cat) ?> <small><?= $n ?>/<?= count($list) ?></small></h3><?php endif; ?>
         <div class="ctiles">
         <?php foreach ($list as $en):
             $isCur = $cur && (int)$cur['id'] === (int)$en['id'];
@@ -499,6 +505,7 @@ page_header('My Almanac');
             <?php endif; ?>
         <?php endforeach; ?>
         </div>
+        <?php if ($bkFold) echo '</details>'; ?>
       <?php endforeach; ?>
       </details>
     </div>

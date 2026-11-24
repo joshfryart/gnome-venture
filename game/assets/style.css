@@ -8943,3 +8943,70 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   .shelves .shqf .shinfo { width: 26px; min-height: 26px; font-size: 14px; }
   .shelves .shqf .shx5 { min-width: 26px; min-height: 22px; padding: 0 4px; font-size: 11px; }
 }
+
+
+/* landscape phones: the chooser popovers (seeds, soil, mulch) keep a usable list. The search, chips and "in season" share one row, the head and foot are slim. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .picker .pickbox { max-height: calc(100vh - 12px); }
+  .picker .pickhead { padding-top: 4px; padding-bottom: 4px; min-height: 0; }
+  .picker .pickhead .pickx { width: 36px; height: 36px; }
+  .picker .pickfilter { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 4px 10px; }
+  .picker .pickfilter .pfsearch { flex: 1 1 160px; }
+  .picker .pickfilter .pfsearch .pfq, .picker .pickfilter .pfsearch .pfx { height: 34px; min-height: 34px; }
+  .picker .pickfilter .pfchips { flex: 3 1 320px; display: flex; gap: 4px; overflow-x: auto; margin: 0; padding: 0; }
+  .picker .pickfilter .pfchip { min-height: 34px; height: 34px; padding-top: 0; padding-bottom: 0; flex: none; }
+  .picker .pickfilter .pfin { min-height: 0; height: auto; padding: 0; }
+  .picker .itmwrap { flex: 1 1 auto; min-height: 120px; }
+  .picker .pickfoot { padding: 6px 12px; min-height: 0; }
+}
+
+/* short landscape: a Here popover never grows past the screen; it scrolls inside */
+@media (orientation: landscape) and (max-height: 520px) {
+  dialog.hubpop .pickbox { max-height: calc(100dvh - 8px); overflow-y: auto; }
+}
+
+/* short landscape: the Perks popover is compact and wide: a slim banner, the perks (stop and account) as small cards in a row, then the meters and the acts that raise them under them */
+@media (orientation: landscape) and (max-height: 520px) {
+  #hubpop-perks .pickbox { width: min(800px, calc(100vw - 16px)); max-width: none; }
+  #hubpop-perks .hubcard { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 8px; align-content: start; }
+  #hubpop-perks .pkban { grid-column: 1 / -1; height: 40px; max-height: 40px; margin: 0; }
+  #hubpop-perks .pkban img { width: 100%; height: 40px; object-fit: cover; }
+  #hubpop-perks .pkban .pkbt { transform: scale(.8); transform-origin: left bottom; }
+  #hubpop-perks .hubcard h4 { grid-column: 1 / -1; margin: 2px 0 0; font-size: .85rem; }
+  #hubpop-perks .pkperk { margin: 0; padding: 4px 8px; gap: 8px; min-width: 0; }
+  #hubpop-perks .pkperk .pkbadge { transform: scale(.7); transform-origin: left center; width: 32px; flex: none; }
+  #hubpop-perks .pkperk .pkpt b { font-size: .85rem; }
+  #hubpop-perks .pkperk .pkfx { font-size: 11px; line-height: 1.2; }
+  #hubpop-perks .pkperk .pkpips { display: none; }
+  #hubpop-perks .pkperk .pkleft small { font-size: 11px; white-space: nowrap; }
+  #hubpop-perks .pkempty { margin: 0; padding: 4px 8px; grid-column: span 2; }
+  #hubpop-perks .pkc { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: start; }
+  #hubpop-perks .pkc > .pktiles { grid-column: 1; grid-row: 1; gap: 4px; }
+  #hubpop-perks .pkc > .pkacts { grid-column: 2; grid-row: 1; margin: 0; padding: 0; border: 0; }
+  #hubpop-perks .pktile { padding: 2px; }
+  #hubpop-perks .pkplant { width: 44px; height: 44px; }
+  #hubpop-perks .pksign { width: 58px; height: 40px; margin-top: -4px; }
+  #hubpop-perks .pkact { margin: 2px 0; padding: 2px 8px; }
+  #hubpop-perks .pkact .pkthumb { width: 28px; height: 28px; }
+  #hubpop-perks .pkfoot { grid-column: 1 / -1; margin: 0; font-size: 11px; }
+}
+
+/* short landscape: an activity card (Do spots, town actions) puts its picture and name on the left and the words and choices on the right, so three choices fit */
+@media (orientation: landscape) and (max-height: 520px) {
+  dialog.isheet.dosheet[open] { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 2px 14px; align-items: start; width: min(680px, calc(100vw - 16px)); }
+  dialog.isheet.dosheet > .shead { grid-column: 1; grid-row: 1 / span 4; padding: 0; }
+  dialog.isheet.dosheet > :not(.shead):not(.sheetx) { grid-column: 2; margin-block: 2px; }
+  dialog.isheet.dosheet .sico.doart { width: 150px; height: auto; }
+}
+
+/* v2.8.04: sleeker event / prize banners with a close ✕ */
+.eventbox:not(.waiting), .prizebox { position: relative; padding: 8px 34px 8px 12px; gap: 10px; margin-bottom: 8px; transition: opacity .18s, transform .18s; }
+.eventbox:not(.waiting) .evicon, .prizebox .pzicon { font-size: 28px; }
+.eventbox:not(.waiting) .evtitle, .prizebox .pztitle { font-size: 15px; }
+.eventbox:not(.waiting) .evkicker { font-size: 10px; }
+.eventbox:not(.waiting) p { margin: 2px 0 0; font-size: 13px; }
+.eventbox:not(.waiting) ul, .prizebox ul { margin: 2px 0 0; font-size: 13px; }
+.pzbig { font-size: 20px; }
+.evclose { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; padding: 0; border: 0; background: transparent; color: var(--purple-ink, inherit); font: 700 15px/26px inherit; cursor: pointer; opacity: .7; border-radius: 50%; }
+.evclose:hover, .evclose:focus-visible { opacity: 1; background: rgba(0,0,0,.08); }
+.evgone { opacity: 0; transform: translateY(-6px); }

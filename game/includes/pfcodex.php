@@ -279,8 +279,13 @@ function pfcx_html(array $u, string $slug = '', string $size = 'all'): string
         . '<progress class="cx-bar" max="' . max(1, count($list)) . '" value="' . $met . '" aria-label="Creatures met"></progress><nav class="cx-chips" aria-label="Size">';
     foreach (['all' => 'All', 'small' => 'Small', 'medium' => 'Medium', 'large' => 'Large', 'boss' => 'Boss'] as $k => $l) $h .= '<a href="' . e(pfcx_url($k)) . '"' . ($k === $size ? ' class="on" aria-current="page"' : '') . '>' . $l . '</a>';
     $h .= '</nav>' . ($met === 0 ? '<p class="cx-empty">No creatures yet. Meet one in a fight and it shows up here.</p>' : '') . '<div class="cx-grid">';
-    foreach ($list as $c) { if ($size !== 'all' && $c['size'] !== $size) continue; $h .= pfcx_tile($c, $st[$c['slug']] ?? 0, count($pc[$c['slug']] ?? []), $size); }
-    $h .= '</div>';
+    $cxFold = function_exists('dock_on') && dock_on($u) && empty($_GET['cxu']); $cxHid = 0;   // v2.8.09: landscape dock: the undiscovered ? tiles fold into one line
+    foreach ($list as $c) {
+        if ($size !== 'all' && $c['size'] !== $size) continue;
+        if ($cxFold && !($st[$c['slug']] ?? 0) && $slug !== (string)$c['slug']) { $cxHid++; continue; }
+        $h .= pfcx_tile($c, $st[$c['slug']] ?? 0, count($pc[$c['slug']] ?? []), $size);
+    }
+    $h .= '</div>' . ($cxHid ? '<p class="help cx-unk">' . $cxHid . ' not met yet. <a href="' . e(pfcx_url($size) . (strpos(pfcx_url($size), '?') !== false ? '&' : '?') . 'cxu=1') . '">Show them</a></p>' : '');
     if ($slug !== '' && isset($list[$slug])) $h .= pfcx_sheet($list[$slug], $st[$slug] ?? 0, $pc[$slug] ?? [], $size, $u);
     return $h . '</div><script src="' . e(url('assets/pfcodex.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }

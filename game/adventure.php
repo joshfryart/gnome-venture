@@ -78,7 +78,7 @@ if (is_post()) {
             if ($do === 'pfb_hint') pfight_hint_out($u, $exp);   // 2.7.01: the Hint button (counts a free hint, answers JSON and exits)
             if ($do === 'pfb_guideoff') { pf_guide_off($uid); if (db()->inTransaction()) db()->commit(); header('Content-Type: application/json'); echo '{"ok":true}'; exit; }   // 2.7.01: the coaching line's close button
             if (($do === 'pfv_go' || str_starts_with($do, 'pfd_')) && pfight_v1_on($u)) { require_once __DIR__ . '/includes/pfdeck_view.php'; pfv_adv_post($u, $exp, $enc, $do); }   // 2.6.74 v1: the starter pick and the pre-fight screen (swap pieces, auto-use, Let's fight)
-            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pfb_flip', 'pf_run', 'pf_redraw', 'pf_finish', 'pf_retry'], true)) {
+            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pfb_flip', 'pf_run', 'pf_redraw', 'pf_finish', 'pf_retry', 'pf_quick'], true)) {
                 $fev0 = fight_ev_start($exp, $enc); fight_ev();   // the end scene (the chest and the loot drawn in) is kept for the next page, like the old fight's
                 pfight_do($u, $exp, $do);
                 fight_ev_save($fev0, $exp);

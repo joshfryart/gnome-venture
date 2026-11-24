@@ -6,6 +6,7 @@ require_once __DIR__ . '/gnome.php';
 require_once __DIR__ . '/tour.php';
 require_once __DIR__ . '/theme.php';   // v1.6.5: dark/light switch
 require_once __DIR__ . '/seo.php';   // v0.8.8: search engines and link previews
+require_once __DIR__ . '/dock.php';   // nav dock (landscape bottom dock; setting nav_dock, admin preview first)
 
 // Pages whose buttons update in place (v0.7.39): the games and adventuring. Others reload as usual.
 const AJAX_PAGES = ['worms.php', 'memory.php', 'race.php', 'spit.php', 'marrow.php', 'carve.php', 'show.php', 'games.php', 'adventure.php', 'garden.php',
@@ -67,6 +68,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* 2.6.41: the living scenes of the logged-out front page */ ?>
 <?php if ($admin): ?><link rel="stylesheet" href="<?= e(url('assets/admin.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/admin.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v1.6.3: admin look and menu, admin pages only */ ?>
 <?php if (isset($_GET['pfdebug']) || isset($_COOKIE['pfdbg'])): ?><script src="<?= e(url('assets/pfdebug.js?v=' . APP_VERSION)) ?>"></script><?php endif; /* 2.6.81: debug log for "End turn reloads", only with ?pfdebug=1 (cookie), assets/pfdebug.js */ ?>
+<?php if (!$admin && $u && !$onboarding && dock_on($u)): ?><link rel="stylesheet" href="<?= e(url('assets/dock.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/dock.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* nav dock: only when the setting nav_dock is on for this viewer (admins first); CSS shows it in landscape on short screens only */ ?>
 <script src="<?= e(url('assets/early.js?v=' . APP_VERSION)) ?>"></script>
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
@@ -118,7 +121,7 @@ function page_header(string $title, bool $admin = false): void
 <?php if (!$admin && $u && $page === 'workshop.php'): ?><script src="<?= e(url('assets/workshop.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* graphical navigation: crafting sections in the workshop popovers */ ?>
 <?php if (!$admin && $u && in_array($page, ['inventory.php', 'workshop.php'], true)): ?><script src="<?= e(url('assets/craftpop.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/shpop.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v2.4.0: crafting scene popovers */ ?>
 </head>
-<body class="<?= $admin ? 'admin' : 'game' ?>"<?= $admin ? '' : ' data-area="' . e(page_area($page)) . '"' ?><?= !$admin && (in_array($page, AJAX_PAGES, true) || !empty($GLOBALS['AJAX_PAGE'])) ? ' data-ajax' : '' ?>>
+<body class="<?= $admin ? 'admin' : 'game' ?><?= !$admin && $u && !$onboarding && dock_on($u) ? ' dock-on' : '' ?>"<?= $admin ? '' : ' data-area="' . e(page_area($page)) . '"' ?><?= !$admin && (in_array($page, AJAX_PAGES, true) || !empty($GLOBALS['AJAX_PAGE'])) ? ' data-ajax' : '' ?>>
 <a class="skip" href="#main">Skip to content</a>
 <header class="banner"><div class="bannerin">
   <a class="logo" href="<?= e(url($admin ? 'admin/index.php' : 'index.php')) ?>"><?= e($site) ?><?= $admin ? ' <small>Admin</small>' : '' ?></a>
@@ -464,6 +467,7 @@ function page_footer(): void
     ?></main>
 <?php if ($u && !$inAdmin && (int)($u['onboarded'] ?? 1) === 1) echo right_rail($u); ?>
 </div>
+<?php if ($u && !$inAdmin && (int)($u['onboarded'] ?? 1) === 1 && dock_on($u)) echo dock_html($u, $page);   // nav dock: the menu data and a plain list of links (assets/dock.js draws the dock) ?>
 <?php if ($u && !$inAdmin && (int)($u['onboarded'] ?? 1) === 1):   // v0.7.48: the places you use most, always in reach on a phone
     $tabs = [['garden.php', '🌱', 'Garden'], ['world.php', '🌍', 'World'], ['inventory.php', '👜', 'Satchel'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here'], ['jobs.php', '📋', 'Tasks']]; ?>
 <nav class="bottombar" aria-label="Quick links">
@@ -558,26 +562,7 @@ function mycelium_track(array $exp, bool $small = false): string
 function nav_sheet(array $u, string $page): string
 {
     $uid = (int)$u['id'];
-    $b = $_SESSION['nav_badges'] ?? null;
-    if (!$b || ($b['at'] ?? 0) < time() - 60 || ($page === 'garden.php' && ($b['at'] ?? 0) < time() - 5)) {   // v1.4.0: fresh on the garden page (cover crops never counted)
-        $b = ['at' => time(), 'garden' => 0, 'games' => 0, 'fair' => 0];
-        try {
-            $b['garden'] = (int)q_val('SELECT COUNT(*) FROM plot_tiles t JOIN plants p ON p.id = t.plant_id WHERE t.plot_id = ? AND p.kind <> \'cover\' AND t.growth_seconds >= p.grow_minutes * 60',
-                [(int)($u['active_plot_id'] ?? 0)]);
-            require_once __DIR__ . '/games.php';
-            foreach (array_keys(GAMES) as $g) $b['games'] += game_plays_left($uid, $g) > 0 ? 1 : 0;
-            $b['fair'] = (int)q_val('SELECT COUNT(*) FROM fair_best f WHERE f.user_id = ? AND f.month = ? AND NOT EXISTS
-                (SELECT 1 FROM fair_entries e WHERE e.user_id = f.user_id AND e.month = f.month AND e.cat = f.cat AND e.score >= f.score)', [$uid, job_period_key('monthly')]);
-            require_once __DIR__ . '/quests_view.php';   // v1.7.5: the Tasks badge = jobs + quests + orders ready (not errands carried), same sums as the tab badges
-            $tc = tasks_counts($u);
-            $b['jobs'] = (int)$tc['jobs'] + (int)$tc['journey'] + (int)$tc['orders'];
-            $np = (int)q_val("SELECT COUNT(*) FROM player_friends WHERE friend_id = ? AND status = 'pending'", [$uid]);   // v1.0.0
-            $b['pals'] = $np ? $np . ' new' : '';
-        } catch (Throwable $e) {
-            // a badge is never worth a broken page
-        }
-        $_SESSION['nav_badges'] = $b;
-    }
+    [$groups, $b] = nav_groups($u, $page);   // the dock reads the same groups (includes/dock.php)
     require_once __DIR__ . '/messages.php';   // v2.6.37: a reply from the game keeper puts a yellow ! on Together (asked fresh on every page, not with the 60 s badges)
     $tile = function (string $file, string $icon, string $label, string $badge = '', string $slug = '') use ($page): string {
         $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');
@@ -589,29 +574,6 @@ function nav_sheet(array $u, string $page): string
         return '<a class="navtile' . ($on ? ' on' : '') . ($bar ? ' inbar' : '') . '" href="' . e(url($file)) . '"' . ($on ? ' aria-current="page"' : '') . '><span class="nti">' . ($slug !== '' ? nav_icon($slug, $icon, 20) : e($icon)) . '</span>'
             . '<span class="ntl">' . e($label) . '</span>' . ($badge === '!' ? '<span class="ntb bang" role="img" aria-label="New message">!</span>' : ($badge !== '' ? '<span class="ntb">' . e($badge) . '</span>' : '')) . '</a>';   // menu icons: nav-{slug} art, else placeholder, else emoji
     };
-    // menu icons: [file, emoji, label, badge, icon slug]. Account sits under the groups; Games moved into Out & about.
-    $trekNav = (int)($u['level'] ?? 0) >= (int)setting('trek_level') && (setting('trek_open') === '1' || ($u['role'] ?? '') === 'admin');   // v1.8.0: Treks tile once the gnome may go (admins always)
-    $groups = [
-        'You' => [['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], [gnav_on() && setting('gnav_craft') === '1' ? 'workshop.php' : 'inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
-        'Hobbies' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'],   // T2.1: no Arranging tile (Satchel → Arrange, and the show is on the Village Show page)
-            [gnav_on() && setting('gnav_tree') === '1' ? 'treehouse.php' : 'games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
-        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
-            + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
-        'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', msg_unread($uid) ? '!' : '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Friends', $b['pals'] ?? '', 'friends']],
-    ];
-    require_once __DIR__ . '/catfish.php'; require_once __DIR__ . '/puzzle_pals.php';   // Hobbies: Puzzle Pals tile once open, after Games (Cat Fish and Puzzles are tiles on the Games page)
-    if (ppal_open() && !is_guest($u)) $groups['Hobbies'][] = ['puzzlepals.php', '🧩', 'Puzzle Pals', '', 'puzzlepals'];
-    if (in_array(setting('pfight_v1'), ['1', 'admin'], true)) {   // 2.6.74 v1 (admin setting pfight_v1): the Puzzle box in the menu, under Hobbies (nothing is loaded while the setting is off)
-        require_once __DIR__ . '/pfight_game.php';
-        if (pfight_on($u) && pfight_v1_on($u) && !is_guest($u)) $groups['Hobbies'][] = ['puzzlebox.php', '🧩', 'Puzzle box', '', 'puzzlebox'];   // 2.6.75: under Hobbies
-    }
-    if (!is_guest($u)) { try { require_once __DIR__ . '/wearables.php'; if (wear_live($u) && tailor_has($uid)) $groups['You'][] = ['tailor.php', '🧵', 'Tailor', '', 'tailor']; } catch (Throwable $e) {} }   // 2.7.00: the Tailor's page once a Tailor is built in one of your gardens
-    require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
-    if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
-    if (gclock_on() && !home_slim_menu()) array_splice($groups['You'], 0, 0, [['hovel.php', '🛏️', 'Hovel', '', 'hovel']]);   // sleep-days: the Rest page (sleep, nap, inn) is a menu tile (slim home: the Home entry is the hovel)
-    if (tour_active($u) && (int)$u['level'] < 5) array_unshift($groups['You'], ['welcome.php', '🌱', 'Getting started', '', 'start']);   // v1.7.0 menu: only while the tour runs and below level 5
-    require_once __DIR__ . '/festival.php';   // v1.0.0: a Festival tile while one runs
-    if (festival_active()) array_splice($groups['Together'], 3, 0, [['festival.php', festival_active()['icon'], 'Festival', '', 'festival']]);   // v1.7.0 menu: no 'on' badge (the status line shows the festival)
     require_once __DIR__ . '/destination.php';
     $ds = function_exists('dest_status') ? dest_status($u) : null;
     require_once __DIR__ . '/home_slim.php'; $slimNav = (int)($u['onboarded'] ?? 1) === 1 && home_slim_on();   // slim home: the home page is the hovel, so the menu says so
@@ -642,6 +604,60 @@ function nav_sheet(array $u, string $page): string
         $h .= ' · <a href="' . e(url('page.php?p=' . urlencode($p['slug']))) . '">' . e($p['title']) . '</a>';
     }
     return $h . '</p>';
+}
+
+/**
+ * The menu's groups and badges as data: ['You' => [[file, emoji, label, badge, icon slug], ...], 'Hobbies' => ..., 'Out & about' => ..., 'Together' => ...] and the
+ * badge counts. Split out of nav_sheet() so the menu sheet and the dock (includes/dock.php) always list the same tiles with the same unlock rules.
+ */
+function nav_groups(array $u, string $page): array
+{
+    $uid = (int)$u['id'];
+    $b = $_SESSION['nav_badges'] ?? null;
+    if (!$b || ($b['at'] ?? 0) < time() - 60 || ($page === 'garden.php' && ($b['at'] ?? 0) < time() - 5)) {   // v1.4.0: fresh on the garden page (cover crops never counted)
+        $b = ['at' => time(), 'garden' => 0, 'games' => 0, 'fair' => 0];
+        try {
+            $b['garden'] = (int)q_val('SELECT COUNT(*) FROM plot_tiles t JOIN plants p ON p.id = t.plant_id WHERE t.plot_id = ? AND p.kind <> \'cover\' AND t.growth_seconds >= p.grow_minutes * 60',
+                [(int)($u['active_plot_id'] ?? 0)]);
+            require_once __DIR__ . '/games.php';
+            foreach (array_keys(GAMES) as $g) $b['games'] += game_plays_left($uid, $g) > 0 ? 1 : 0;
+            $b['fair'] = (int)q_val('SELECT COUNT(*) FROM fair_best f WHERE f.user_id = ? AND f.month = ? AND NOT EXISTS
+                (SELECT 1 FROM fair_entries e WHERE e.user_id = f.user_id AND e.month = f.month AND e.cat = f.cat AND e.score >= f.score)', [$uid, job_period_key('monthly')]);
+            require_once __DIR__ . '/quests_view.php';   // v1.7.5: the Tasks badge = jobs + quests + orders ready (not errands carried), same sums as the tab badges
+            $tc = tasks_counts($u);
+            $b['jobs'] = (int)$tc['jobs'] + (int)$tc['journey'] + (int)$tc['orders'];
+            $np = (int)q_val("SELECT COUNT(*) FROM player_friends WHERE friend_id = ? AND status = 'pending'", [$uid]);   // v1.0.0
+            $b['pals'] = $np ? $np . ' new' : '';
+        } catch (Throwable $e) {
+            // a badge is never worth a broken page
+        }
+        $_SESSION['nav_badges'] = $b;
+    }
+    require_once __DIR__ . '/messages.php';   // v2.6.37: a reply from the game keeper puts a yellow ! on Together (asked fresh on every page, not with the 60 s badges)
+    // menu icons: [file, emoji, label, badge, icon slug]. Account sits under the groups; Games moved into Out & about.
+    $trekNav = (int)($u['level'] ?? 0) >= (int)setting('trek_level') && (setting('trek_open') === '1' || ($u['role'] ?? '') === 'admin');   // v1.8.0: Treks tile once the gnome may go (admins always)
+    $groups = [
+        'You' => [['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], [gnav_on() && setting('gnav_craft') === '1' ? 'workshop.php' : 'inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
+        'Hobbies' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'],   // T2.1: no Arranging tile (Satchel → Arrange, and the show is on the Village Show page)
+            [gnav_on() && setting('gnav_tree') === '1' ? 'treehouse.php' : 'games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
+        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
+            + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
+        'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', msg_unread($uid) ? '!' : '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Friends', $b['pals'] ?? '', 'friends']],
+    ];
+    require_once __DIR__ . '/catfish.php'; require_once __DIR__ . '/puzzle_pals.php';   // Hobbies: Puzzle Pals tile once open, after Games (Cat Fish and Puzzles are tiles on the Games page)
+    if (ppal_open() && !is_guest($u)) $groups['Hobbies'][] = ['puzzlepals.php', '🧩', 'Puzzle Pals', '', 'puzzlepals'];
+    if (in_array(setting('pfight_v1'), ['1', 'admin'], true)) {   // 2.6.74 v1 (admin setting pfight_v1): the Puzzle box in the menu, under Hobbies (nothing is loaded while the setting is off)
+        require_once __DIR__ . '/pfight_game.php';
+        if (pfight_on($u) && pfight_v1_on($u) && !is_guest($u)) $groups['Hobbies'][] = ['puzzlebox.php', '🧩', 'Puzzle box', '', 'puzzlebox'];   // 2.6.75: under Hobbies
+    }
+    if (!is_guest($u)) { try { require_once __DIR__ . '/wearables.php'; if (wear_live($u) && tailor_has($uid)) $groups['You'][] = ['tailor.php', '🧵', 'Tailor', '', 'tailor']; } catch (Throwable $e) {} }   // 2.7.00: the Tailor's page once a Tailor is built in one of your gardens
+    require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
+    if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
+    if (gclock_on() && !home_slim_menu()) array_splice($groups['You'], 0, 0, [['hovel.php', '🛏️', 'Hovel', '', 'hovel']]);   // sleep-days: the Rest page (sleep, nap, inn) is a menu tile (slim home: the Home entry is the hovel)
+    if (tour_active($u) && (int)$u['level'] < 5) array_unshift($groups['You'], ['welcome.php', '🌱', 'Getting started', '', 'start']);   // v1.7.0 menu: only while the tour runs and below level 5
+    require_once __DIR__ . '/festival.php';   // v1.0.0: a Festival tile while one runs
+    if (festival_active()) array_splice($groups['Together'], 3, 0, [['festival.php', festival_active()['icon'], 'Festival', '', 'festival']]);   // v1.7.0 menu: no 'on' badge (the status line shows the festival)
+    return [$groups, $b];
 }
 
 

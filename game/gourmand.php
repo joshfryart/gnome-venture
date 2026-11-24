@@ -186,3 +186,4 @@ page_header('The Gourmand');
   <p class="help">Your Journal tab keeps every spoon you have earned.</p>
 </section>
 <?php endif; ?>
+<?php page_footer();

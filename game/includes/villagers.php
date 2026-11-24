@@ -64,6 +64,11 @@ function villagers_grid(array $u, array $all, array $g): string
     foreach (['friend' => 'Closest friends', 'name' => 'A–Z', 'recent' => 'Newest met'] as $k => $l) $h .= '<option value="' . $k . '"' . ($k === $s ? ' selected' : '') . '>' . e($l) . '</option>';
     $h .= '</select><button class="btn small">Show</button>' . ($q !== '' || $f !== '' || $r !== '' || $s !== 'friend' ? ' <a href="' . e(url('villagers.php')) . '">Clear</a>' : '') . '</form>';
     if (!$list) return $h . '<div class="box"><p class="muted">Nobody matches that.</p></div>';
+    $hidUnmet = 0;
+    if ($f === '' && $q === '' && $r === '' && function_exists('dock_on') && dock_on($u)) {   // v2.8.07: landscape dock: the not-met placeholders fold into one line
+        $hidUnmet = count(array_filter($list, fn($n) => !$n['met']));
+        if ($hidUnmet) $list = array_values(array_filter($list, fn($n) => $n['met']));
+    }
     $h .= '<div class="vgrid">';
     foreach ($list as $n) {
         $id = (int)$n['id'];
@@ -77,7 +82,9 @@ function villagers_grid(array $u, array $all, array $g): string
             . '<small class="muted">💛 ' . e($n['level']['name']) . '</small>'
             . '<small>' . ($n['here'] ? '<span class="good">here now</span> · ' : '') . e((string)$n['now']['what']) . '</small></a>';
     }
-    return $h . '</div>';
+    $h .= '</div>';
+    if ($hidUnmet) $h .= '<p class="help vunmetline">' . $hidUnmet . ' more not met yet. <a href="' . e(url('villagers.php?f=unmet')) . '">Show them</a></p>';
+    return $h;
 }
 
 /** Do one thing to a villager: chat, give a gift, or a traveller's deal. [ok, message] */
