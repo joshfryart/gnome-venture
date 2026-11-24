@@ -526,6 +526,13 @@ function catfish_open(): bool
     return is_admin() || setting('catfish_open') === '1';
 }
 
+/** The new room page (slide-in shop drawer, wide-screen rail). Setting catfish_room2: 0 off, 1 admins only, 2 everyone. */
+function catfish_room2_on(): bool
+{
+    $m = setting('catfish_room2');
+    return $m === '2' || ($m === '1' && is_admin());
+}
+
 /** Create the tables the first time they're needed, and patch columns on databases made by earlier builds (same lazy pattern as puzzles_ensure()). */
 function catfish_ensure(): bool
 {

@@ -76,17 +76,18 @@ $catCard = function (array $c, bool $sprite = true): string {
 };
 page_header('Cat Fish');
 ?>
-<div class="cfpage<?= !empty($meta['ball']) && isset(CATFISH_BALLS[$meta['ball']]) ? ' cfball-' . e($meta['ball']) : '' ?>">
+<div class="cfpage<?= catfish_room2_on() ? ' cfr2' : '' ?><?= !empty($meta['ball']) && isset(CATFISH_BALLS[$meta['ball']]) ? ' cfball-' . e($meta['ball']) : '' ?>">
 <h1 class="cfsr">Cat Fish</h1>
 <?php if (!$cat): ?>
 <p class="help">Pick a cat to take home. Your first one is free. The shelter shows new cats every day.</p>
 <?php else: ?>
-<?php $petScene = catfish_pet_scene($uid); $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0, $petScene); $sceneKey = catfish_scene_key($cats, $cat, $ownedUp, $petScene);   // '' without cf-room.png: the old rod box, cat card and room below ?>
+<?php $petScene = catfish_pet_scene($uid); $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0, $petScene); $r2 = $stage !== '' && catfish_room2_on(); $sceneKey = catfish_scene_key($cats, $cat, $ownedUp, $petScene);   // '' without cf-room.png: the old rod box, cat card and room below ?>
 <?php ob_start(); ?><p class="cfcount"><?= catfish_ico('ico-kibble') ?><b id="cf-kibble"><?= number_format($v['kibble']) ?></b><span id="cf-spend" class="cfspend" aria-hidden="true"></span> Kibble <small class="muted">· <span id="cf-kph"><?= e((string)$v['kph']) ?></span> an hour</small></p><?php $cfCount = ob_get_clean(); ?>
 <?php if ($stage !== ''): ?>
 <div class="cfdock">
 <?= $stage ?>
 <?= $cfCount ?>
+<?php if ($r2): ?><button type="button" class="cfshopbtn" id="cf-shopbtn" aria-controls="cf-drawer" aria-expanded="false" hidden>🛒 Shop</button><?php endif; ?>
 </div>
 <div class="cfscene cfcard box">
   <div class="cfmain"><div class="cfhold"><?= $catCard($cat, false) ?></div>
@@ -99,7 +100,9 @@ page_header('Cat Fish');
     <p class="help">Your cat keeps catching fish while you are away (half speed, up to <?= rtrim(rtrim(number_format(catfish_offline_cap($cat, (int)($meta['away'] ?? 0), 60 * catfish_pet_bonus($uid)['away_min']) / 3600, 1), '0'), '.') ?> hours).<?= $v['gained'] > 0 ? ' While you were away: +' . number_format($v['gained']) . ' Kibble.' : '' ?></p></div>
 </div>
 <?= $stage === '' ? catfish_room_html($cats, $ownedUp) : '' ?>
-<h2>Upgrades</h2>
+<?php if ($r2): ?><div class="cfscrim" id="cf-scrim" hidden></div>
+<aside class="cfdrawer" id="cf-drawer" aria-label="Shop"><button type="button" class="cfdclose" id="cf-dclose" aria-label="Close the shop" hidden>✕</button>
+<?php endif; ?><h2>Upgrades</h2>
 <p id="cf-msg" role="status"></p>
 <?php if (!empty($meta['bulk'])): ?><div class="cfbulk" id="cf-bulk" role="group" aria-label="Buy amount"><button type="button" data-n="1" aria-pressed="true">Buy ×1</button><button type="button" data-n="10" aria-pressed="false">Buy ×10</button></div>
 <?php endif; ?>
@@ -306,6 +309,7 @@ if ($capWk > 0): ?>
 </section>
 <?php endif; ?>
 <?php if ($cat): ?></div><?php endif; ?>
+<?php if ($r2): ?></aside><?php endif; ?>
 </div>
 <script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null, 'play' => $v['play'], 'scene' => $sceneKey ?? '', 'cat' => (int)($cat['id'] ?? 0)], $J) ?></script>
 <?php page_footer();
