@@ -102,6 +102,21 @@ if (is_post()) {
         flash($msg, str_contains($msg, ' now waits at ') ? 'ok' : 'err');
         redirect('admin/tools.php');
     }
+    if ($do === 'reset_ppal') {   // reset one player's Puzzle Pals and/or jigsaw progress (blank name = yourself)
+        require_once __DIR__ . '/../includes/puzzle_pals.php';
+        $name = trim((string)($_POST['username'] ?? ''));
+        $target = $name === '' ? current_user() : q_one('SELECT id, username FROM users WHERE username = ?', [$name]);
+        if (empty($_POST['sure'])) {
+            flash('Tick "I am sure" first.', 'err');
+        } elseif (!$target) {
+            flash('No player called "' . $name . '".', 'err');
+        } else {
+            $msg = ppal_admin_reset((int)$target['id'], !empty($_POST['pals']), !empty($_POST['jigsaw']));
+            admin_log('reset_ppal', 'users#' . (int)$target['id'], $msg);
+            flash($target['username'] . ': ' . $msg, str_starts_with($msg, 'Reset done') ? 'ok' : 'err');
+        }
+        redirect('admin/tools.php');
+    }
     if ($do === 'clear_errors') {
         $okc = @file_put_contents(APP_ROOT . '/data/error-log.txt', '') !== false;
         if (is_file(APP_ROOT . '/data/error-log.txt.1')) $okc = @unlink(APP_ROOT . '/data/error-log.txt.1') && $okc;
@@ -141,6 +156,13 @@ page_header('Tools', true);
     at most <?= (int)setting('event_daily_max') ?> a day (change these in Game settings). Edit the events themselves in <a href="<?= e(url('admin/crud.php?r=random_events')) ?>">Random events</a>.</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="test_event"><button class="btn small">🎲 Show me one on my next page</button></form>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="test_ppal"><button class="btn small">🧩 Test a pal find</button> <small class="muted">Puzzle Pals: puts one pal on your map now.</small></form>
+  <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="do" value="reset_ppal">
+    <h3>Reset pals and jigsaws</h3>
+    <label>Player username <input name="username" placeholder="blank = me"></label>
+    <label><input type="checkbox" name="pals" value="1" checked> Pals: releases, finds, trophies, map spawns, pal jobs</label>
+    <label><input type="checkbox" name="jigsaw" value="1"> Jigsaw: practice and tournament runs (best times) and unlocked place pictures</label>
+    <label><input type="checkbox" name="sure" value="1" required> I am sure (this cannot be undone)</label>
+    <button class="btn small">Reset</button></form>
 </div>
 <div class="box" id="images">
   <h2>Images</h2>

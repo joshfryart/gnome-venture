@@ -1214,6 +1214,38 @@ function ppal_chip_html(array $u): string
 }
 
 /**
+ * Admin reset for one player (admin/tools.php): $pals wipes releases, finds, trophies, map spawns and pal jobs (and the users.ppal_* clocks);
+ * $jigsaw wipes the jigsaw runs (best times) and the unlocked place pictures. Returns a summary line. Nothing else is touched.
+ */
+function ppal_admin_reset(int $uid, bool $pals, bool $jigsaw): string
+{
+    if (!$pals && !$jigsaw) return 'Nothing ticked, nothing reset.';
+    $n = [];
+    $del = function (string $tb, string $where, array $p) use (&$n): void {
+        try { $n[$tb] = q("DELETE FROM $tb WHERE $where", $p)->rowCount(); } catch (Throwable $e) {}   // a table that does not exist yet is skipped
+    };
+    db()->beginTransaction();
+    try {
+        if ($pals) {
+            foreach (['ppal_releases', 'ppal_found', 'ppal_trophies', 'ppal_spawns', 'ppal_jobs'] as $tb) $del($tb, 'user_id = ?', [$uid]);
+            try { q('UPDATE users SET ppal_at = NULL, ppal_day = NULL, ppal_count = 0, ppal_spawn_day = NULL WHERE id = ?', [$uid]); } catch (Throwable $e) {}
+        }
+        if ($jigsaw) {
+            $del('puzzle_runs', "user_id = ? AND game = 'jigsaw'", [$uid]);
+            $del('jigsaw_unlocks', 'user_id = ?', [$uid]);
+        }
+        db()->commit();
+    } catch (Throwable $e) {
+        if (db()->inTransaction()) db()->rollBack();
+        error_log('ppal_admin_reset: ' . $e->getMessage());
+        return 'Reset failed; nothing was changed.';
+    }
+    $bits = [];
+    foreach ($n as $tb => $c) if ($c > 0) $bits[] = $c . ' ' . $tb;
+    return 'Reset done' . ($bits ? ': ' . implode(', ', $bits) : ' (there was nothing to clear)') . '.';
+}
+
+/**
  * Admin test: make a pal wait on the admin's map now, whatever the daily top-up says. With nothing released it releases the first picture that has a roster (like the old
  * test find). Adds one pal on top of those already waiting. Returns a sentence for the flash message.
  */
