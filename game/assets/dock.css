@@ -1500,3 +1500,16 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on .gardenwrap > .panel.box .sqactions button.act, body.dock-on .gardenwrap > .panel.box .sqactions button.alt:not(.pickbtn) { flex: 1 1 calc(50% - 4px); }
   body.dock-on .gardenwrap > .panel.box .npkwrap, body.dock-on .gardenwrap > .panel.box .upkeepchips { display: none; }
 }
+
+/* v2.8.21: Garden, landscape dock: the garden slides to the left edge and the info panel sits right beside it, a little wider (290 px) */
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap { grid-template-columns: max-content minmax(0, 290px); justify-content: start; gap: 0 8px; }
+  body.dock-on .gardenwrap > div:first-child { align-items: flex-start; }
+  body.dock-on .gardenwrap .yardwrap { margin-left: 0; margin-right: 0; }
+  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 290px - 24px) / var(--cw, 12))); }
+  body.dock-on .gardenwrap > .panel.box { max-width: 290px; }
+  body.dock-on .gardenwrap > .legend { text-align: left; }
+}
+@media (orientation: landscape) {
+  body.dock-on .gardenwrap > div:first-child > :not(.yardwrap):not(dialog):not(.selbar):not(form) { width: 0; min-width: 100%; box-sizing: border-box; }
+}
