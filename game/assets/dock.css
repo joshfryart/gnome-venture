@@ -1470,10 +1470,12 @@ body.dock-on .vunmetline { margin: 6px 0; }
 }
 @media (orientation: landscape) { body.dock-on main:has(> .gardenwrap) > details.gardeninfo > summary { white-space: nowrap; font-size: 12px; } }
 
-/* v2.8.18: Garden, landscape dock: the garden and the "Pick a square" panel sit side by side and never push the page sideways */
+/* v2.8.18: Garden, landscape dock: the garden and the "Pick a square" panel sit side by side and never push the page sideways; the squares shrink to leave the panel 250 px */
 @media (orientation: landscape) {
-  body.dock-on .gardenwrap { grid-template-columns: auto minmax(0, 176px); max-width: 100%; gap: 0 10px; }
-  body.dock-on .gardenwrap > .panel.box { width: auto; max-width: 176px; min-width: 0; padding: 8px 10px; font-size: 12px; line-height: 1.3; overflow-wrap: anywhere; }
-  body.dock-on .gardenwrap > .panel.box h3 { font-size: 14px; margin: 0 0 4px; }
-  body.dock-on .gardenwrap > .panel.box p { margin: 2px 0; }
+  body.dock-on .gardenwrap { grid-template-columns: auto minmax(0, 250px); max-width: 100%; gap: 0 10px; }
+  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 250px - 40px) / var(--cw, 12))); }
+  body.dock-on .gardenwrap > .panel.box { width: auto; max-width: 250px; min-width: 0; padding: 8px 10px; font-size: 12px; line-height: 1.3; overflow-wrap: anywhere; text-align: left; }
+  body.dock-on .gardenwrap > .panel.box h3 { font-size: 14px; margin: 0 0 4px; text-align: left; }
+  body.dock-on .gardenwrap > .panel.box p, body.dock-on .gardenwrap > .panel.box div { text-align: left; margin-top: 2px; margin-bottom: 2px; }
+  body.dock-on .gardenwrap > .panel.box .btn { min-height: 34px; font-size: 13px; padding: 3px 8px; }
 }

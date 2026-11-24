@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.19
+- **Garden, landscape layout: the "Pick a square" panel is a readable 250 px column** (left-aligned, smaller buttons), and the squares shrink to leave it room, so the garden and the panel sit side by side without sideways scrolling. 2.8.18 made the panel too thin.
+
 ## 2.8.18
 - **Garden, landscape layout: the garden and the "Pick a square" panel sit side by side with no sideways scrolling** on a narrow phone view (the panel is a slim 176 px column with smaller text).
 
