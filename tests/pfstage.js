@@ -34,10 +34,11 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
     await p.waitForTimeout(1200);
     const still = await st(); chk(still.layer > 0 && still.held && still.pre, `[${name}] still held a second later: the pieces cover the map until the player accepts`);
     const geo = await p.evaluate(() => { const d = document.querySelector('dialog.trailpop.pfst'), m = document.querySelector('.advgrid .tmwrap'), dr = d.getBoundingClientRect(), mr = m.getBoundingClientRect(), pre = document.getElementById('pfv-pre').getBoundingClientRect(), cs = getComputedStyle(d);
-      return { pos: cs.position, dx: dr.left, dy: dr.top, dw: dr.width, dh: dr.height, mx: mr.left, my: mr.top, mw: mr.width, mh: mr.height, px: pre.left, pw: pre.width, bd: getComputedStyle(d, '::backdrop').backgroundColor, modal: d.matches(':modal'), sw: document.documentElement.scrollWidth, iw: innerWidth }; });
-    chk(Math.abs(geo.dx - geo.mx) < 3 && Math.abs(geo.dy - geo.my) < 3 && Math.abs(geo.dw - Math.min(geo.mw, 760)) < 3 && geo.dh >= geo.mh - 3, `[${name}] the fight sits on the tile map's box (x ${Math.round(geo.dx)}/${Math.round(geo.mx)}, y ${Math.round(geo.dy)}/${Math.round(geo.my)}, w ${Math.round(geo.dw)}/${Math.round(geo.mw)}, h ${Math.round(geo.dh)}/${Math.round(geo.mh)})`);
+      return { pos: cs.position, dx: dr.left, dy: dr.top, dw: dr.width, dh: dr.height, mx: mr.left, my: mr.top, mw: mr.width, mh: mr.height, px: pre.left, pw: pre.width, bd: getComputedStyle(d, '::backdrop').backgroundColor, modal: d.matches(':modal'), sw: document.documentElement.scrollWidth, iw: innerWidth, ih: innerHeight }; });
+    if (name === 'phone') chk(Math.abs(geo.dx - geo.mx) < 3 && Math.abs(geo.dy - geo.my) < 3 && Math.abs(geo.dw - Math.min(geo.mw, 760)) < 3 && geo.dh >= geo.mh - 3, `[${name}] the fight sits on the tile map's box (x ${Math.round(geo.dx)}/${Math.round(geo.mx)}, y ${Math.round(geo.dy)}/${Math.round(geo.my)}, w ${Math.round(geo.dw)}/${Math.round(geo.mw)}, h ${Math.round(geo.dh)}/${Math.round(geo.mh)})`);
+    else chk(geo.pos === 'fixed' && Math.abs(geo.dx + geo.dw / 2 - geo.iw / 2) < 3 && geo.dw >= Math.min(geo.iw - 80, 1640) - 3 && geo.dh >= geo.ih * 0.8, `[${name}] 2.8.44 desktop: the fight takes the window (fixed, centred, less a gutter), not the map's box (x ${Math.round(geo.dx)}, w ${Math.round(geo.dw)} of ${geo.iw}, h ${Math.round(geo.dh)} of ${geo.ih}, ${geo.pos})`);
     chk(geo.px >= geo.dx - 1 && geo.px + geo.pw <= geo.dx + geo.dw + 1, `[${name}] the pre-fight card fits inside that box (it is not a full-window panel)`);
-    chk(/rgba\(0, 0, 0, 0\)|transparent/.test(geo.bd) && geo.modal && geo.sw <= geo.iw, `[${name}] not dimmed, still a real modal, no sideways scroll`);
+    chk((name === 'phone' ? /rgba\(0, 0, 0, 0\)|transparent/.test(geo.bd) : /rgba\(12, 7, 4/.test(geo.bd)) && geo.modal && geo.sw <= geo.iw, `[${name}] ${name === 'phone' ? 'not dimmed' : 'the page around is dimmed (2.8.44 desktop)'}, still a real modal, no sideways scroll (${geo.bd})`);
 
     // ---- accept the deck: the card fades into combat, the pieces leave
     await p.locator('#pfv-pre .pfv-gof button').first().click({ force: true });
@@ -84,8 +85,9 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
     chk(!!btn && btn.focus, `[${name}] and it has the focus (the card was hidden when the modal opened)`);
     await p.evaluate(() => { const m = document.querySelector('.advgrid .tmwrap'); m.style.marginTop = '60px'; });   // the map moves without any DOM change (a late stylesheet, an image): the dialog follows
     await p.waitForTimeout(400);
-    const fol = await p.evaluate(() => { const d = document.querySelector('dialog.trailpop.pfst').getBoundingClientRect(), m = document.querySelector('.advgrid .tmwrap').getBoundingClientRect(); return { d: Math.round(d.top + scrollY), m: Math.round(m.top + scrollY) }; });
-    chk(Math.abs(fol.d - fol.m) < 3, `[${name}] the dialog follows the map when it moves (dialog ${fol.d}, map ${fol.m})`);
+    const fol = await p.evaluate(() => { const d = document.querySelector('dialog.trailpop.pfst').getBoundingClientRect(), m = document.querySelector('.advgrid .tmwrap').getBoundingClientRect(); return { d: Math.round(d.top + scrollY), m: Math.round(m.top + scrollY), vt: Math.round(d.top), x: Math.round(d.left + d.width / 2), iw: innerWidth }; });
+    if (name === 'phone') chk(Math.abs(fol.d - fol.m) < 3, `[${name}] the dialog follows the map when it moves (dialog ${fol.d}, map ${fol.m})`);
+    else chk(Math.abs(fol.x - fol.iw / 2) < 3 && fol.vt < 60, `[${name}] 2.8.44 desktop: the dialog stays on the window when the map moves (top ${fol.vt}, centre ${fol.x} of ${fol.iw})`);
 
     // ---- End match: a popover cover over the swap that removes the fight (a fake form with the same do value; the swap is simulated by removing the dialog)
     php(here + '/pbox_v1_seed.php', game, 'fight', 'small'); await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await p.waitForSelector('dialog.trailpop.pfst.pfst-on', { timeout: 8000 }).catch(() => {});
@@ -144,11 +146,12 @@ const php = (...a) => execFileSync('php', ['-d', 'display_errors=1', ...a], { en
         const d = document.querySelector('dialog.trailpop.pfst'); if (!d) return null;
         const r = e => { const x = e.getBoundingClientRect(); return { l: x.left + scrollX, w: x.width, r: x.right + scrollX }; };
         const m = document.querySelector('.advgrid .tmwrap'), mn = document.querySelector('main');
-        return { d: r(d), col: m ? r(m) : r(mn), map: !!m, fixed: getComputedStyle(d).position === 'fixed', sw: document.documentElement.scrollWidth, iw: innerWidth, grid: document.querySelector('.advgrid').className };
+        return { d: r(d), col: m ? r(m) : r(mn), map: !!m, fixed: getComputedStyle(d).position === 'fixed', sx: scrollX, sw: document.documentElement.scrollWidth, iw: innerWidth, grid: document.querySelector('.advgrid').className };
       });
       const fits = (g, phone) => {   // on a phone the combat fills the window; otherwise the dialog sits on the column (centred on it, never wider than 760)
         if (!g) return false; if (g.sw > g.iw) return false;
         if (phone && g.fixed) return g.d.l >= -1 && g.d.r <= g.iw + 1;
+        if (!phone) return g.fixed && Math.abs(g.d.l - g.sx + g.d.w / 2 - g.iw / 2) < 3 && g.d.w >= Math.min(g.iw - 80, 1640) - 3;   // 2.8.44 desktop: centred on the window, not on the column
         const cc = g.col.l + g.col.w / 2, dc = g.d.l + g.d.w / 2; return Math.abs(cc - dc) < 3 && g.d.w <= Math.max(g.col.w, 760) + 3;
       };
       const g1 = await box(); chk(fits(g1, name === 'phone'), `[${name}] layout ${kind}, pre-fight: the popover sits on the content column, no sideways scroll (${g1 ? `dialog ${Math.round(g1.d.l)}+${Math.round(g1.d.w)}, column ${Math.round(g1.col.l)}+${Math.round(g1.col.w)}, page ${g1.sw}/${g1.iw}, ${g1.grid}` : 'no dialog'})`);

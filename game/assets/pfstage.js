@@ -43,10 +43,25 @@
   }
   /* a wander that began off the road (not from a Trail walk) has no map at all: the fight takes over the visible window instead (fixed to it, like the combat) */
   function noMap() { return !document.querySelector('.tmwrap'); }
-  function curBox() { var m = mapBox(); if (m || !noMap()) return m; var v = visBox(); return { x: v.x + window.pageXOffset, y: v.y + window.pageYOffset, w: v.w, h: v.h }; }
+  /* 2.8.44: a desktop-size window (at least 1000 x 600; phones, phone landscape and the dock's short landscape never match) does not tie the fight to the map's box:
+     the pre-fight card, the combat and the result card all take one box, the visible window less a gutter, centred (deskBox). The pieces scale with it (side, motion). */
+  var deskMq = window.matchMedia ? matchMedia('(min-width: 1000px) and (min-height: 600px)') : null;
+  function desk() { return !!(deskMq && deskMq.matches); }
+  function px(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
+  function deskBox() {
+    var iw = window.innerWidth, ih = window.innerHeight, g = Math.round(Math.max(12, Math.min(40, Math.min(iw, ih) * 0.025))), top = 0, bot = 0;
+    var hd = document.querySelector('.bannerin'), bb = document.querySelector('.bottombar');
+    if (hd) top = Math.max(0, Math.round(hd.getBoundingClientRect().bottom)); if (top > ih * 0.4) top = 0;
+    if (bb && getComputedStyle(bb).display !== 'none' && getComputedStyle(bb).position === 'fixed') bot = Math.max(0, Math.round(ih - bb.getBoundingClientRect().top));
+    try { bot = Math.max(bot, Math.round(px(getComputedStyle(document.body).getPropertyValue('--dock-h')))); } catch (e) {}   // the dock's rail (dock.js sets --dock-h)
+    var w = Math.min(iw - 2 * g, 1640), h = Math.max(320, ih - top - bot - 2 * g);
+    return { x: Math.round((iw - w) / 2), y: top + g, w: w, h: h, fixed: true };
+  }
+  function curBox() { if (desk()) { var k = deskBox(); return { x: k.x + window.pageXOffset, y: k.y + window.pageYOffset, w: k.w, h: k.h }; } var m = mapBox(); if (m || !noMap()) return m; var v = visBox(); return { x: v.x + window.pageXOffset, y: v.y + window.pageYOffset, w: v.w, h: v.h }; }
   function box() { var b = curBox(); if (b) lastBox = b; return b || lastBox; }   // where the tile map is NOW (the page lays out differently while a fight is on); the last box seen only when it cannot be measured
   /* the combat needs the visible window, not just the map's height: the same room the game gives it (pfv1box.js): the whole window on a phone, between the header and the bottom bar on a wide screen. Fixed to the window, so it cannot scroll away. */
   function visBox() {
+    if (desk()) return deskBox();
     var iw = window.innerWidth, ih = window.innerHeight, top = 0, bot = 0;
     if (iw >= 700) {
       var hd = document.querySelector('.bannerin'), bb = document.querySelector('.bottombar');
@@ -62,7 +77,7 @@
     return { x: x, y: top, w: w, h: Math.max(320, ih - top - bot), fixed: true };
   }
   function mainBox() { var r = document.querySelector('main').getBoundingClientRect(); return r.width >= 40 ? { x: r.left + window.pageXOffset, w: r.width } : null; }   // no map: line up with the page's column instead
-  function fixedKind(d) { return !!d && (accepting || kindOf(d) === 'fight' || noMap()); }
+  function fixedKind(d) { return !!d && (desk() || accepting || kindOf(d) === 'fight' || noMap()); }
   function boxFor(d) { return fixedKind(d) ? visBox() : box(); }
   function docBox(b) { return b && b.fixed ? { x: b.x + window.pageXOffset, y: b.y + window.pageYOffset, w: b.w, h: b.h } : b; }
   function setBox(el, b) { el.style.setProperty('--pfx', b.x + 'px'); el.style.setProperty('--pfy', b.y + 'px'); el.style.setProperty('--pfw', b.w + 'px'); el.style.setProperty('--pfh', b.h + 'px'); }
@@ -82,7 +97,7 @@
   function usable() { return canAnim && !reduce.matches && !!box(); }
 
   /* ---- jigsaw pieces ---- */
-  function jig(W, H, cols, rows) {
+  function jig(W, H, cols, rows, ico) {
     var w = W / cols, h = H / rows, m = Math.round(0.3 * Math.max(w, h)), R = [], B = [], r, c;
     var r2 = function () { return Math.random() < 0.5 ? 1 : -1; };
     for (r = 0; r < rows; r++) for (c = 0; c < cols; c++) { R[r * cols + c] = c < cols - 1 ? r2() : 0; B[r * cols + c] = r < rows - 1 ? r2() : 0; }
@@ -105,19 +120,30 @@
       svg.style.left = (c * w - m) + 'px'; svg.style.top = (r * h - m) + 'px';
       svg.innerHTML = '<path d="' + path + '" fill="' + tones[(c + r * 2) % 3] + '" stroke="#2a1a10" stroke-width="2.5" stroke-linejoin="round"/>'
         + '<path d="' + path + '" fill="none" stroke="#e8a317" stroke-width="1.5" stroke-dasharray="4 3" opacity=".75" transform="translate(' + cx + ' ' + cy + ') scale(.82) translate(' + (-cx) + ' ' + (-cy) + ')"/>'
-        + (ART ? '<image href="' + ART + 'ico-' + icons[(c * 3 + r) % 5] + '.png" x="' + (cx - 14) + '" y="' + (cy - 14) + '" width="28" height="28" opacity=".55" image-rendering="pixelated"/>' : '');
+        + (ART ? '<image href="' + ART + 'ico-' + icons[(c * 3 + r) % 5] + '.png" x="' + (cx - (ico || 28) / 2) + '" y="' + (cy - (ico || 28) / 2) + '" width="' + (ico || 28) + '" height="' + (ico || 28) + '" opacity=".55" image-rendering="pixelated"/>' : '');
       var vx = (c + 0.5) / cols - 0.5, vy = (r + 0.5) / rows - 0.5, n = Math.hypot(vx, vy) || 1;
       out.push({ svg: svg, c: c, r: r, vx: vx / n, vy: vy / n });
     }
     return out;
   }
-  function grid(b) { return [Math.max(3, Math.round(b.w / 72)), Math.max(3, Math.round(b.h / 72))]; }
+  /* the size of a piece: 72 px on a phone and on the map's box; on a desktop box about 70 pieces whatever the window (a 2560 window had 700 small pieces and 2.5 s of stagger) */
+  function side(b) { return desk() ? Math.max(72, Math.sqrt(b.w * b.h / 70)) : 72; }
+  function grid(b) { var s = side(b); return [Math.max(3, Math.round(b.w / s)), Math.max(3, Math.round(b.h / s))]; }
+  function icoOf(b) { return Math.round(28 * Math.min(2.2, side(b) / 72)); }
+  /* the motion follows the box. Not desktop: as before (distance from the box, 42 ms a diagonal step). Desktop: the pieces travel a share of the box's diagonal,
+     the whole wave has one spread (340 ms in, 300 out) however many pieces, and a piece's flight lasts a little longer on a bigger screen (x1 to x1.35) */
+  function motion(b, n) {
+    if (!desk()) return { dist: function () { return (b.w + b.h) * 0.25 + Math.random() * 120; }, dur: 1, step: function (p, inward) { return (p.c + p.r) * (inward ? 42 : 38); } };
+    var diag = Math.hypot(b.w, b.h), k = Math.max(1, Math.min(1.35, Math.sqrt(diag / 900))), span = Math.max(1, n);
+    return { dist: function () { return diag * (0.16 + Math.random() * 0.08); }, dur: k, step: function (p, inward) { return (p.c + p.r) / span * (inward ? 340 : 300); } };
+  }
   function fly(pcs, inward, b) {
-    var far = (b.w + b.h) * 0.5;
+    var mx = 0; pcs.forEach(function (p) { mx = Math.max(mx, p.c + p.r); });
+    var mo = motion(b, mx);
     var anims = pcs.map(function (p) {
-      var dist = far * 0.5 + Math.random() * 120, off = 'translate(' + (p.vx * dist) + 'px,' + (p.vy * dist) + 'px) rotate(' + (Math.random() * 100 - 50) + 'deg) scale(.7)';
+      var dist = mo.dist(), off = 'translate(' + (p.vx * dist) + 'px,' + (p.vy * dist) + 'px) rotate(' + (Math.random() * 100 - 50) + 'deg) scale(.7)';
       var kf = inward ? [{ transform: off, opacity: 0 }, { opacity: 1, offset: 0.3 }, { transform: 'none', opacity: 1 }] : [{ transform: 'none', opacity: 1 }, { transform: off, opacity: 0 }];
-      return p.svg.animate(kf, { duration: inward ? 430 : 420, delay: (p.c + p.r) * (inward ? 42 : 38), easing: inward ? 'cubic-bezier(.3,1.3,.5,1)' : 'cubic-bezier(.6,0,.9,.5)', fill: 'both' });
+      return p.svg.animate(kf, { duration: Math.round((inward ? 430 : 420) * mo.dur), delay: Math.round(mo.step(p, inward)), easing: inward ? 'cubic-bezier(.3,1.3,.5,1)' : 'cubic-bezier(.6,0,.9,.5)', fill: 'both' });
     });
     return Promise.all(anims.map(function (a) { return a.finished; }));
   }
@@ -126,7 +152,7 @@
   function mkLayer(d, b) {
     dropLayer();
     layer = document.createElement('div'); layer.className = 'pfst-layer'; layer.setAttribute('aria-hidden', 'true');
-    var g = grid(b); pieces = jig(b.w, b.h, g[0], g[1]);
+    var g = grid(b); pieces = jig(b.w, b.h, g[0], g[1], icoOf(b));
     pieces.forEach(function (p) { layer.appendChild(p.svg); });
     d.insertBefore(layer, d.firstChild);
   }
@@ -198,7 +224,7 @@
   function mkCover(b) {
     dropCover();
     cover = document.createElement('div'); cover.className = 'pfst-cover'; cover.setAttribute('popover', 'manual'); cover.setAttribute('aria-hidden', 'true'); setBox(cover, b);
-    var g = grid(b); cpieces = jig(b.w, b.h, g[0], g[1]); cpieces.forEach(function (p) { cover.appendChild(p.svg); });
+    var g = grid(b); cpieces = jig(b.w, b.h, g[0], g[1], icoOf(b)); cpieces.forEach(function (p) { cover.appendChild(p.svg); });
     document.body.appendChild(cover); cover.showPopover();
   }
   function dropCover() { if (cover) { try { cover.hidePopover(); } catch (e) {} if (cover.parentNode) cover.parentNode.removeChild(cover); } cover = null; cpieces = null; coverUp = false; }
@@ -253,7 +279,7 @@
       var cl = pre.cloneNode(true); cl.removeAttribute('id'); Array.prototype.forEach.call(cl.querySelectorAll('[id]'), function (e) { e.removeAttribute('id'); }); Array.prototype.forEach.call(cl.querySelectorAll('form, script'), function (e) { e.parentNode.removeChild(e); });
       ghost.appendChild(cl); d1.appendChild(ghost);
       top = document.createElement('div'); top.className = 'pfst-top'; top.setAttribute('aria-hidden', 'true');
-      var g = grid(bx); tpieces = jig(bx.w, bx.h, g[0], g[1]); tpieces.forEach(function (q) { top.appendChild(q.svg); }); d1.appendChild(top);
+      var g = grid(bx); tpieces = jig(bx.w, bx.h, g[0], g[1], icoOf(bx)); tpieces.forEach(function (q) { top.appendChild(q.svg); }); d1.appendChild(top);
       d1.classList.add('pfst-wait'); accepting = true; topReady = false;
       topIn = fly(tpieces, true, bx).then(function () { topReady = true; });
       ghostTimer = setTimeout(function () { dropTop(); dropLayer(); var d9 = dlg(); if (d9) { d9.classList.remove('pfst-wait'); d9.classList.add('pfst-on'); } }, 9000);   // the board never came (an error shows its own message)

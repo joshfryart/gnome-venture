@@ -811,9 +811,26 @@
     if (on === dockOn || !dockEl) return; dockOn = on; root.classList.toggle('pfv-dockon', on);
     if (insp) { if (on) dockEl.insertBefore(insp, dockEl.firstChild); else if (wrapEl) wrapEl.appendChild(insp); }   // the card docks under the board (in the flow) or, with no room to spare, lies over the board room
   }
+  /* 2.8.44: a desktop-size window (pfv1.css, the same media test) lays the fight out in two columns: the board on the left with the hand under it, the rest on the right.
+     The board is as large as its room allows, up to 4.5 times the art's size (it was 1.7: a 329 x 283 board on every desktop, 1280 to 2560 wide); the hand grows with the window's height. */
+  var deskMq = window.matchMedia ? window.matchMedia('(min-width: 1000px) and (min-height: 600px)') : null;
+  function deskFit() { return !!(deskMq && deskMq.matches && document.body.classList.contains('game')); }
+  function fitDesk() {
+    var ar = fitTW / fitTH, n = tiles.length || 5, hw0 = 112, hh0 = Math.round(hw0 * handAR()), ih = window.innerHeight;
+    setDock(true); wrapEl.style.flex = ''; wrapEl.style.height = '';
+    var trayW = handEl && handEl.parentNode ? handEl.parentNode.clientWidth : root.clientWidth;
+    var hs = Math.min(1.6, Math.max(1, ih / 700), (trayW - 16) / (hw0 * (n - 0.12 * (n - 1))));
+    hs = Math.max(0.8, Math.floor(hs * 20) / 20);
+    fitVars({ '--pfv-btn': '48px', '--pfv-gap': '6px', '--pfv-leg': '34px', '--pfv-dock': Math.round(Math.max(66, Math.min(150, ih * 0.13))) + 'px', '--pfv-hw': Math.round(hw0 * hs) + 'px', '--pfv-hh': Math.round(hh0 * hs) + 'px' });
+    var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
+    var w = Math.floor(Math.min(r.width - 8, (r.height - 8) * ar, fitTW * 4.5)), h = Math.round(w / ar);
+    boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = fitTW + ' / ' + fitTH; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
+    if (dockOn) { root.classList.toggle('pfv-docks', dockEl.clientHeight < 70); if (insp && !insp.hidden && selected === null && picked === null) insp.hidden = true; dockEl.style.setProperty('--pfv-dockh', dockEl.clientHeight + 'px'); dockFill(); }
+  }
   function fitBoard() {
     if (fitBusy || !wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
     fitBusy = true;
+    if (deskFit()) { try { fitDesk(); } finally { fitBusy = false; } fan(); return; }
     try {
       var ar = fitTW / fitTH, base = {}, r, w, h, rem, hw0 = HAND_W(), hh0 = Math.round(hw0 * handAR()), n = tiles.length || 5, d0 = 46, rows = (data.h || 5);
       fitVars({ '--pfv-btn': '44px', '--pfv-dock': d0 + 'px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; setDock(true);   // the card is docked always, never over the board

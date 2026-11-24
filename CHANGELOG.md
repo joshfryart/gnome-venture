@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.8.43
+Two parts: the desktop puzzle combat rework, and the dock clock.
+
+### Desktop puzzle combat
+- **Puzzle combat on a desktop window: the whole screen, steady placement, a calmer jigsaw.** On a window at least 1000 x 600 (phones, phone landscape and the dock's short landscape layout are unchanged) the fight on the adventure page (Trail, wander off with or without a map, delve, lair; pfight_stage on or off) is one wide panel, the window less a small gutter (up to 1640 px), instead of a 560 px column (or the 680 px map column with pfight_stage on). The board is on the left with the hand under it and grows with the room (up to 4.5x the art's size; it was 329 x 283 px at every desktop size), the bars, tips, last plays and buttons are a column on the right, and the end card covers that column with the last board in sight. The pre-fight card is two columns (the creature, your deck) up to 1240 px wide. With pfight_stage on, the pre-fight card, the combat and the result card share one box centred on the window (they used to sit on the map's box, then jump to a different box, left-aligned on a wander with no map, at Let's fight and again for the result). The jigsaw scales with that box: about 70 pieces instead of one per 72 px (700 on a 2560 window), one 340 ms wave instead of 42 ms per diagonal step (2.5 s on a big window), a travel distance and a flight time that follow the box's size. The page around is dimmed (.45, as without the stage) and does not scroll. The geometry no longer waits for the script (the pre-fight card painted as a narrow column first and then jumped). On a 1800 x 1100 window and up the right column and the pre-fight card are drawn 1.2x larger. Files: assets/pfv1.css, assets/pfstage.css, assets/pfstage.js, assets/pfboardv1.js (board sizing only; no engine change). Tests tests/pfstage.js and tests/pfv1_layout.js now expect the desktop panel.
+- **Not checked:** a real desktop browser or a real phone (headless Chromium only), Safari and Firefox (the layout uses :has(), :is(), complex :not() and CSS zoom), a tablet in landscape (it gets the desktop layout), boards larger than 3 x 3, the first-fight intro card, MySQL. Unchanged: with pfight_stage off, the card of a fight you ran from still shows in the page above the map (not over it). tests/pfv1_layout (not in CI) still fails its desktop header checks, as on 2.8.42 (this world has no header with the dock on).
+
+### Dock clock
+- **The dock clock updates after every action, with a ticking clock.** Forms sent in the background (the Gather box, village scenes, the Trek, fights) did not reload the page, so the plate kept the old time, energy and coins. The dock now asks `dockstate.php` (one small JSON call) after any such POST and redraws. When the time moves, a small clock face ticks in over the time ("+10 min", the hand turning in steps) and fades away, like the energy effect; reduced motion: a plain fade. The plate also reads the user row fresh, so it shows the numbers after the action, not before.
+- Not checked: a real phone, the effect on every background form (tested: the Gather box).
+
 ## 2.8.42
 - **No full screen on desktop.** The first tap in a fight no longer takes a desktop browser into full screen, and the full screen button on the play rail is hidden there. Phones and tablets (touch screens) keep both.
 
