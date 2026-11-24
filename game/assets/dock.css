@@ -1539,7 +1539,8 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on .gardenwrap > .panel.box .sqactions form.inline, body.dock-on .gardenwrap > .panel.box .sqactions form { display: flex; flex-wrap: wrap; gap: 4px; align-items: stretch; }
   body.dock-on .gardenwrap > .panel.box .sqactions .btn, body.dock-on .gardenwrap > .panel.box .sqactions button, body.dock-on .gardenwrap > .panel.box .sqactions select { flex: 1 1 100%; width: 100%; min-width: 0; white-space: normal; text-align: center; writing-mode: horizontal-tb; margin: 0; }
   body.dock-on .gardenwrap > .panel.box .sqactions button.act, body.dock-on .gardenwrap > .panel.box .sqactions button.alt:not(.pickbtn) { flex: 1 1 calc(50% - 4px); }
-  body.dock-on .gardenwrap > .panel.box .npkwrap, body.dock-on .gardenwrap > .panel.box .upkeepchips { display: none; }
+  /* v2.8.48: the N/P/K row and the upkeep chips show again (Josh), in the panel's own scroll */
+  body.dock-on .gardenwrap > .panel.box .npkwrap { margin: 2px 0 4px; } body.dock-on .gardenwrap > .panel.box .npkrow, body.dock-on .gardenwrap > .panel.box .upkeepchips { justify-content: flex-start; } body.dock-on .gardenwrap > .panel.box .upkeepchips { margin: 2px 0 4px; } body.dock-on .gardenwrap > .panel.box .upkeepchips li { font-size: 11px; padding: 1px 6px; }
 }
 
 /* v2.8.21: Garden, landscape dock: the garden slides to the left edge and the info panel sits right beside it, a little wider (290 px) */

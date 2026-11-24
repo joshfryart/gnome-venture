@@ -81,7 +81,9 @@
   function scaleFor(vw, vh) {
     var k = Math.max(1, Math.min(2, Math.round(vw / 860 * 4) / 4));
     k = Math.min(k, Math.max(1, 0.28 * vh / DH));
-    return Math.max(1, Math.round(k * 4) / 4);
+    k = Math.max(1, Math.round(k * 4) / 4);
+    if (k === 1 && vh < 340) k = 0.75;   // very short views (about 640x260): a smaller dock, 75%, so the page keeps more of the height
+    return k;
   }
   function geom(W) {
     var A = AMP, pw = W < 720 ? 170 : W < 900 ? 244 : 300, cw = pw + 136, half = (W - cw) / 2;
@@ -492,7 +494,7 @@
     var key = slip || '';
     K = scaleFor(VW, window.innerHeight); W = Math.round(VW / K); LW = W; g = geom(W);
     if (!stage) { stage = document.createElement('div'); stage.className = 'dockstage'; root.appendChild(stage); }
-    stage.style.height = DH + 'px'; stage.style.width = W + 'px'; stage.style.transform = K > 1 ? 'scale(' + K + ')' : '';   // origin is the bottom left (dock.css)
+    stage.style.height = DH + 'px'; stage.style.width = W + 'px'; stage.style.transform = K !== 1 ? 'scale(' + K + ')' : '';   // origin is the bottom left (dock.css)
     dockH(Math.round(DH * K) + 'px');   // the page clears the scaled dock
     var same = key === lastKey;
     stage.innerHTML = pref(defs() + '<div class="dock">' + dockSVG(W, g) + chain(W, g) + '</div><div class="dockslip' + (same ? ' still' : '') + '">' + slipHTML(W, g) + '</div>').replace('<!--dkTHEME-->', D.themeForm).replace('<!--dkLOGOUT-->', D.logoutForm);
