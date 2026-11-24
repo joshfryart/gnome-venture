@@ -439,7 +439,7 @@
   /* play mode: a thin rail (back, the game's name, energy and time, and a button that opens the full dock) */
   /* full screen: the browser's address bar hides and shows as the page changes and resizes a fight screen (the End turn flash); full screen keeps it away. It needs a tap, so the first tap on a fight enters it, and the rail has a button to leave or enter it. */
   function fsEl() { return document.documentElement; }
-  function fsOk() { var el = fsEl(); return !!(el.requestFullscreen || el.webkitRequestFullscreen); }
+  function fsOk() { var el = fsEl(); return !!(el.requestFullscreen || el.webkitRequestFullscreen) && !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); }   // v2.8.42: phones and tablets only (a desktop browser is never taken into full screen)
   function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
   function fsEnter() { var el = fsEl(); try { var r = el.requestFullscreen ? el.requestFullscreen({ navigationUI: 'hide' }) : el.webkitRequestFullscreen(); if (r && r.catch) r.catch(function () {}); } catch (x) {} }
   function fsLeave() { try { var r = document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen(); if (r && r.catch) r.catch(function () {}); } catch (x) {} }
