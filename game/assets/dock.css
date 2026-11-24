@@ -1601,3 +1601,9 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on:has(#hubpop-tgather[open]) .toasts .flash { padding: 3px 8px; font-size: 11px; line-height: 1.25; }
 }
 @media (orientation: landscape) and (max-height: 520px) { html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot { display: none; } }   /* the dock's Trail menu has Gather / Sights / Wander / Sneak / Hunt / Turn back (it presses these hidden buttons) */
+
+/* v2.8.43: the clock that ticks in over the time when an action moves it (assets/dock.js timeFx) */
+.dockghost.dockclock { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px 1px 3px; background: rgba(42, 26, 16, .92); border: 1px solid #ffe9a0; transform-origin: center; }
+.dockghost.dockclock svg { display: block; flex: none; }
+.dockghost.dockclock svg path { transform-origin: 10px 10px; }
+.dockghost.dockclock b { font-weight: 800; }
