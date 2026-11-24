@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.22
+- **Garden, landscape layout: the garden and its info panel are centred together** instead of hugging the left edge.
+
 ## 2.8.21
 - **Garden, landscape layout: the garden slides to the left edge and the info panel sits right next to it, wider (290 px).** Squares resize to fit both.
 

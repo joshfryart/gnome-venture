@@ -1513,3 +1513,8 @@ body.dock-on .vunmetline { margin: 6px 0; }
 @media (orientation: landscape) {
   body.dock-on .gardenwrap > div:first-child > :not(.yardwrap):not(dialog):not(.selbar):not(form) { width: 0; min-width: 100%; box-sizing: border-box; }
 }
+
+/* v2.8.22: Garden, landscape dock: the garden and its panel are centred as a pair */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardenwrap) > .gardenwrap { justify-content: center; width: 100%; align-self: stretch; }
+}
