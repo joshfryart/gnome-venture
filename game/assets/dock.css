@@ -235,20 +235,31 @@ body.dock-on .cbed { cursor: pointer; }
     body.dock-on .tilemap .tmstage { margin-block: calc(-100% / 9); }
   }
   /* v2.8.31: on the Trail the map sits on the left and everything that was under it (the section strip, weather, ledger, buttons) is a column on its right, so the map has the full height above the dock. Tall enough: 9 x 7 tiles; shorter: 7 x 7 (the narrow-phone crop), a square as high as the room. */
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) { --mapw: min(680px, calc((100dvh - var(--dock-h, 106px) + 6px) * 9 / 7)); display: grid; grid-template-columns: var(--mapw) minmax(0, 1fr); column-gap: 10px; align-items: start; align-content: start; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > * { grid-column: 2; margin-block: 0 6px; min-width: 0; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > .tmwrap { grid-column: 1; grid-row: 1 / span 12; width: 100%; max-width: none; margin: 2px 0 0; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) { margin-left: -8px; column-gap: 8px; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) { --mapw: min(680px, calc((100dvh - var(--dock-h, 106px) + 6px) * 9 / 7)); display: grid; grid-template-columns: var(--mapw) minmax(0, 1fr); column-gap: 10px; align-items: start; align-content: start; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > * { grid-column: 2; margin-block: 0 6px; min-width: 0; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .trailstrip { grid-row: 1; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .trailfam { grid-row: 2; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .panel { grid-column: 2; grid-row: 3; margin: 0 0 4px; padding: 3px 8px; font-size: 11px; line-height: 1.25; min-width: 0; }   /* v2.8.36: what just happened */
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > details.routefold { grid-row: 4; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap { display: contents; }   /* its form (the map) goes left; its caption and legend (inside it) go right */
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmform { grid-column: 1; grid-row: 1 / span 12; margin: 2px 0 0; min-width: 0; width: 100%; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmlegend { grid-column: 2; grid-row: 5; margin: 0 0 4px; font-size: 11px; flex-wrap: wrap; white-space: normal; justify-content: flex-start; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > .tmwrap > .tmcap { grid-column: 2; grid-row: 6; margin: 0 0 4px; font-size: 11px; text-align: left; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmview { aspect-ratio: 9 / 7; }   /* the wrapper is not a container any more: the 9 x 7 crop is set here, not by @container */
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-100% / 9) 0; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmt.ring { visibility: visible; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) { margin-left: -8px; column-gap: 8px; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol { display: contents; }
   /* the info column is small print: the map is the picture */
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > :not(.tmwrap) { font-size: 11px; line-height: 1.25; margin-block: 0 4px; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailstrip { padding: 2px 44px 2px 8px; gap: 0 8px; font-size: 11px; flex-wrap: nowrap; justify-content: flex-start; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam { gap: 3px; margin-block: 0 4px; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam > *, html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam details { padding: 1px 4px; margin: 0; font-size: 11px; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam summary { padding: 1px 6px; min-height: 0; font-size: 11px; line-height: 1.2; white-space: normal; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot { display: none; }   /* v2.8.35: Gather / Sights / Wander / Sneak / Hunt / Turn back are in the dock's Trail menu (it clicks these hidden buttons); the column beside the map is for the text */
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot .btn, html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot form { min-height: 24px; padding: 1px 3px; font-size: 10px; line-height: 1.1; flex: 1 1 0; min-width: 0; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot .btn small { display: none; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) details.routefold > summary { padding: 1px 6px; min-height: 0; font-size: 11px; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) > .mapcol > :not(.tmwrap) { font-size: 11px; line-height: 1.25; margin-block: 0 4px; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailstrip { padding: 2px 44px 2px 8px; gap: 0 8px; font-size: 11px; flex-wrap: nowrap; justify-content: flex-start; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam { gap: 3px; margin-block: 0 4px; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam > *, html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam details { padding: 1px 4px; margin: 0; font-size: 11px; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfam summary { padding: 1px 6px; min-height: 0; font-size: 11px; line-height: 1.2; white-space: normal; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot { display: none; }   /* v2.8.35: Gather / Sights / Wander / Sneak / Hunt / Turn back are in the dock's Trail menu (it clicks these hidden buttons); the column beside the map is for the text */
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot .btn, html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot form { min-height: 24px; padding: 1px 3px; font-size: 10px; line-height: 1.1; flex: 1 1 0; min-width: 0; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .trailfoot .btn small { display: none; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) details.routefold > summary { padding: 1px 6px; min-height: 0; font-size: 11px; }
   body.dock-on .hs-banner { grid-template-columns: minmax(0, 1fr); justify-items: center; }
   body.dock-on .hs-banner .hs-room { max-width: calc(var(--imgh-room) * 1.77); width: 100%; margin-inline: auto; }
   body.dock-on .hs-banner .hs-side { display: none; }   /* Sleep and Nap are the Rest piece */
@@ -1547,9 +1558,8 @@ body.dock-on .vunmetline { margin: 6px 0; }
 body:has(.dk-fs) .gvfs { display: none !important; }
 @media (orientation: landscape) and (max-height: 438px) {
   /* a short phone: map left, text right, half and half. The map shows 9 columns x 5 rows (tiles about 35 px); the top and bottom rows are cropped. */
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) { --mapw: min(52vw, max(210px, calc((100dvh - var(--dock-h, 106px) + 6px) * 9 / 5))); }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .tilemap .tmview { aspect-ratio: 9 / 5; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-200% / 9) 0; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .tilemap .tmt.ring { visibility: visible; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > details.routefold, html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > .tmcap, html body.dock-on .advgrid > .mapcol:has(> .trailstrip) > .tmlegend { grid-column: 1 / -1; grid-row: 20; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) { --mapw: min(52vw, max(210px, calc((100dvh - var(--dock-h, 106px) + 6px) * 9 / 5))); }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmview { aspect-ratio: 9 / 5; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-200% / 9) 0; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmt.ring { visibility: visible; }
 }

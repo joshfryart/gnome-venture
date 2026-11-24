@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.36
+- **Trail page in landscape: the right column holds the text.** Beside the map: the section strip, the weather and ledger, what just happened (the hint or event text), the Route fold, the legend and the place caption. They used to sit under the map, behind the dock. The map wrapper no longer needs a container query here, so tall phones get the 9 x 7 view from plain CSS.
+
 ## 2.8.35
 - **Trail page in landscape: the button row is gone.** Gather, Sights, Wander off, Sneak, Hunt and Turn back are in the dock's Trail menu, so the copies beside the map are hidden (the menu still presses them). The column beside the map is for the strip, weather, ledger and sight text.
 
