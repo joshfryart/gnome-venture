@@ -16,14 +16,15 @@
   var BW = 56, BH = 47, TAB = 13, MG = 26, PAD = TAB + MG, PW = 82, PH = 73;   // art pixels: cell pitch (= body), knob margin, the canvas' extra margin outside the board art, piece image
   var INK = '#2a1a10', CREAM = '#f2e4c0', GOLD = '#e8a317';
   var TYPE = { hurt: '#b8442c', guard: '#4f7fa8', heal: '#5f9a4a', charm: '#c46a9b', trick: '#7a5aa8' };
-  var PERS = {}, MOTIF = {}, WENV = {};   // WENV: the environment's own place / fire effect per kind (2.7.56, motifs/weather_env.js)
+  var PERS = {}, MOTIF = {}, WENV = {}, STATFX = {};   // WENV: the environment's own place / fire effect per kind (2.7.56, motifs/weather_env.js)
 
   /* ===================== draw code of the approved mock-up (claude/pf-anim/small-anim.template.html), bundled by the build ===================== */
 /*__DRAW__*/
   /* ===================== motif modules (claude/pf-anim/motifs/*.js) ===================== */
   var PFA = { motif: function (name, draw, meta) { var m = MOTIF[name] || (MOTIF[name] = {}), k; for (k in (meta || {})) m[k] = meta[k]; m.draw = draw; },
     glyph: function (id, fn) { XG[id] = fn; }, motion: function (id, fn) { XM[id] = fn; },
-    env: function (kind, def) { WENV[kind] = def; } };   // 2.7.56: def = { ps(dt) place motion, pl(c, A, dt) place effect (0..600), fi(c, A, f) fire effect (0..1200) }
+    env: function (kind, def) { WENV[kind] = def; },
+    stat: function (name, def) { STATFX[name] = def; } };   // 2.7.58: def = { dur (ms, default 1200), fi(c, A, f) } the whole-piece effect of a stat piece by name ('@trapdoor' = a creature piece on a snare)   // 2.7.56: def = { ps(dt) place motion, pl(c, A, dt) place effect (0..600), fi(c, A, f) fire effect (0..1200) }
 /*__MOTIFS__*/
 
   /* ===================== the chain's outer edge: perimeter of a set of cells (any shape; several loops tolerated: the largest outer loop is walked) ===================== */
@@ -113,7 +114,7 @@
     if (p.tag === 'quick' || f === 'mend' || f === 'puff' || f === 'sparkle' || f === 'ripple' || f === 'leaf') k = v <= 3 ? 1 : 2; if (v >= 5) k = Math.min(3, k + 1); return k; }
   /** -> {fam, h (creature-heavy), col, acc, hi, lift, snd, pz (place personality), th + M (themed motif) | null, env} */
   function look(p, slug) {
-    var h = p.by === 'foe', env = p.by === 'env', tag = p.tag || '', L = { h: h, env: env, lift: 2, pz: null, th: null, M: null, fam: 'slash', col: '', acc: INK, hi: '#ffffff', snd: 'click' };
+    var h = p.by === 'foe', env = p.by === 'env', tag = p.tag || '', L = { h: h, env: env, sp: '', lift: 2, pz: null, th: null, M: null, fam: 'slash', col: '', acc: INK, hi: '#ffffff', snd: 'click' };
     var cr = h && D && slug && D.cr[slug], r = cr && cr.p[p.n], o, fi;
     if (r) {
       o = r[4] || {}; fi = r[0]; L.fam = FAMS[fi][0]; L.lift = r[1];
@@ -131,7 +132,7 @@
     var q = D && D.pp[p.n], sq = D && !h && !env && D.sp && D.sp[p.n], sM = sq && D.m[sq[0]] && MOTIF[D.m[sq[0]][0]];   // a stat piece of the gnome: its own themed motif
     L.fam = env ? (ENVF[p.kind || p.env] || 'puff') : q ? FAMS[q[0]][0] : ruleFam(p.t, tag); fi = FI[L.fam];
     L.col = (q && q[1]) || (h ? FAMS[fi][3] : FAMS[fi][1]); L.acc = h ? FAMS[fi][4] : INK; L.snd = (q && q[2]) || famSnd(L.fam, tag); L.lift = liftOf(p, L.fam); L.hi = hexmix(L.col, '#ffffff', .55);
-    if (sM) { L.M = sM; L.col = sq[1]; L.hi = hexmix(sq[1], '#ffffff', .55); L.th = { mp: { lay: layoutOf(p.t, tag), spd: tag === 'quick' ? 1.3 : tag === 'hold' ? .8 : 1, z: 0, x: sM.x }, carrier: sM.car || 'train' }; }
+    if (sM) { L.sp = p.n; L.M = sM; L.col = sq[1]; L.hi = hexmix(sq[1], '#ffffff', .55); L.th = { mp: { lay: layoutOf(p.t, tag), spd: tag === 'quick' ? 1.3 : tag === 'hold' ? .8 : 1, z: 0, x: sM.x }, carrier: sM.car || 'train' }; }
     return L;
   }
 
@@ -171,6 +172,7 @@
     if (dt > E) { resetCell(it); return false; }
     var ps = placeState(dt, false, L.h, L.lift, L.pz), cc = cellCv(it.id), cx = cxOf(it.p.x), cy = cyOf(it.p.y);
     if (L.env && dt > R) { ps.x = 0; ps.r = 0; }   // the environment's piece: raise and click only, no wiggle
+    if (L.sp && ps && dt >= R + T.c && dt < R + T.c + T.w) { var sd = (dt - R - T.c) / T.w, sk = (1 - sd) * (1 - sd); ps.x += Math.sin(sd * 40) * 3.2 * sk; ps.y += Math.cos(sd * 33) * 1.4 * sk; ps.r += Math.sin(sd * 47) * .04 * sk; }   // 2.7.58 landing shake: a stat piece landing shakes (Light too: it is a place motion)
     if (cc && cc[1] && ps) {
       var sc = (cc[1].getBoundingClientRect().width || PW) / PW, st = cc[1].style;
       cc[0].style.zIndex = '6';
@@ -180,6 +182,7 @@
     }
     if (L.pz && !L.env) persFx(g2, L.pz, dt, cx, cy, L.col, L.acc, L.hi, L.h);
     if (ps && ps.hit) { g2.strokeStyle = '#ffffff'; g2.lineWidth = 2; g2.strokeRect(Math.round(cx - BW / 2) - 1, Math.round(cy - BH / 2) - 1, BW + 2, BH + 2); }
+    if (L.sp && it.full && dt >= R + T.c && dt < R + T.c + 200) { var du = (dt - R - T.c) / 200, kd; for (kd = -2; kd <= 2; kd++) { if (!stip(1 - du, kd + 7, du)) continue; bx(g2, Math.round(cx + kd * (9 + 9 * du)), Math.round(cy + BH / 2 - 5 - 3 * du), 3, 3, L.hi); } }   // and a few specks of dust off its base (Full)
     var su = dt - R - T.c; if (!L.env && su >= 0 && su <= 170) soundLines(g2, cx, cy, su / 170, L.snd, L.col, L.acc, L.h);
     return true;
   }
@@ -259,7 +262,31 @@
     [].slice.call(BOARD.querySelectorAll('.pfb-cell.k-mud[data-id]')).forEach(function (c) { var id = c.getAttribute('data-id'), gq = gridOf(id);
       if (gq && Math.abs(gq[0] - p.x) + Math.abs(gq[1] - p.y) === 1) add({ ty: 'env', W: WENV.mud, p: { id: id, x: gq[0], y: gq[1], kind: 'mud' }, id: id, t0: t0, k: k, fr: p.by === 'foe' ? 'foe' : 'me', tg: { x: p.x, y: p.y, id: p.id } }); });
   }
-  var DRAW = { pl: drawPlace, own: drawOwn, car: drawCar, aoe: drawAoe, env: drawEnv };
+  /* ---- 2.7.58 stat pieces: the whole-piece effect of a piece by name (STATFX: Loaded Die's die, '@trapdoor' = a snare caught a creature piece) and the empowered overlay ---- */
+  function drawSfx(it, t) {
+    var dt = (t - it.t0) / it.k; if (dt < 0) return true; if (dt > (it.S.dur || 1200)) { envUnshake(it); return false; }
+    var A = envA(it); A.roll = it.roll; A.col = it.col; A.acc = it.acc; A.hi = it.hi;
+    envClip(g2); try { it.S.fi(g2, A, dt); } finally { g2.restore(); g2.globalAlpha = 1; }
+    return true;
+  }
+  var TINT = null;
+  /** the piece's own board art as a flat colour silhouette (null when the page cannot make one) */
+  function tintOf(src, col) {
+    try { if (TINT === null || TINT.width !== PW || TINT.height !== PH) { TINT = document.createElement('canvas'); TINT.width = PW; TINT.height = PH; }
+      var q = TINT.getContext('2d'); q.globalCompositeOperation = 'source-over'; q.clearRect(0, 0, PW, PH); q.drawImage(src, 0, 0, PW, PH); q.globalCompositeOperation = 'source-in'; q.fillStyle = col; q.fillRect(0, 0, PW, PH); q.globalCompositeOperation = 'source-over'; return TINT; } catch (e) { TINT = null; return null; }
+  }
+  function drawEmp(it, t) {   // a piece empowered by a stat piece wears a 32% overlay in the stat piece's colour until it fires (then it fades in 0.3 s); gives up after 8 s
+    var cc = cellCv(it.id), a = Math.min(1, (t - it.t0) / 160), u;
+    if (!cc || !cc[1] || t - it.t0 > 8000) return false;
+    if (it.end) { u = (t - it.end) / 300; if (u >= 1) return false; a *= 1 - Math.max(0, u); }
+    if (a <= 0) return true;
+    var cx = cxOf(it.p.x), cy = cyOf(it.p.y), tc = cc[1].width ? tintOf(cc[1], it.col) : null;
+    g2.globalAlpha = .32 * a;
+    if (tc) g2.drawImage(tc, Math.round(cx - PW / 2), Math.round(cy - PH / 2), PW, PH);
+    else { g2.fillStyle = it.col; g2.fillRect(Math.round(cx - BW / 2), Math.round(cy - BH / 2), BW, BH); }
+    g2.globalAlpha = 1; return true;
+  }
+  var DRAW = { pl: drawPlace, own: drawOwn, car: drawCar, aoe: drawAoe, env: drawEnv, sfx: drawSfx, emp: drawEmp };
   function frame() {
     raf = 0; var t = now(), i, keep = [];
     if (!cv || !cv.parentNode || (BOARD && !BOARD.contains(cv))) attach(null);
@@ -272,8 +299,12 @@
   }
   function add(it) {
     ACT.push(it);
-    var n = 0, i; for (i = ACT.length - 1; i >= 0; i--) if (ACT[i].ty !== 'pl' && ++n > 18) ACT.splice(i, 1);   // at most ~3 chains of effects at once: the oldest go first
+    var n = 0, i; for (i = ACT.length - 1; i >= 0; i--) if (ACT[i].ty !== 'pl' && ACT[i].ty !== 'emp' && ++n > 18) ACT.splice(i, 1);   // at most ~3 chains of effects at once: the oldest go first
     kick();
+  }
+  function empower(q, col, t0, k) {
+    ACT = ACT.filter(function (a) { return !(a.ty === 'emp' && a.id === q.id); });
+    add({ ty: 'emp', id: q.id, p: q, col: col, t0: t0, k: k, end: 0 });
   }
   function chainP(cells) {
     var key = cells.map(function (c) { return c.id + '@' + c.x + ',' + c.y + ':' + c.e.L + c.e.R + c.e.T + c.e.B; }).join('|');
@@ -309,10 +340,25 @@
         if (W && W.fi) add(envItem(W, ev || {}, p, chain, i, t0, k));   // 2.7.56: the environment's piece plays its kind's own fire effect
         else add({ ty: 'own', P: P, o: i, own: own, L: L, t0: t0, k: k, seed: ((+p.id || 0) * 7 + 3) % 997 });
         ST.fire++;
+        if (L.sp) {   // 2.7.58 stat pieces: its whole-piece effect, and the pieces it empowers wear the overlay until they fire
+          var SF = STATFX[p.n], ti = -1, wf = (ev && ev.wfx) || [], j2;
+          for (j2 = i + 1; j2 < chain.length; j2++) if (chain[j2].by === 'me') { ti = j2; break; }
+          if (SF && SF.fi) add({ ty: 'sfx', S: SF, p: p, id: p.id, t0: t0, k: k, tg: ti >= 0 ? { x: chain[ti].x, y: chain[ti].y, id: chain[ti].id } : null, roll: (ev && ev.roll) || '', col: L.col, acc: L.acc, hi: L.hi });
+          wf.forEach(function (w) { var nm = String(w).split(' ')[0], q;
+            if (nm !== 'boost' && nm !== 'boostall' && nm !== 'teach') return;
+            for (q = i + 1; q < chain.length; q++) if (chain[q].by === 'me' && (q === ti || nm === 'boostall')) { empower(chain[q], L.hi, t0, k); } });
+        }
+        ACT.forEach(function (a) { if (a.ty === 'emp' && a.id === p.id && !a.end && t0 > a.t0) a.end = t0 + 350 * k; });   // an empowered piece fires: its overlay goes
         if (ev && ev.mud && !L.env && WENV.mud && WENV.mud.fi) mudNext(p, t0, k);   // a piece next to a Mud fires (it counts a quarter less): the Mud plays at it
         if (i + 1 < chain.length) { add({ ty: 'car', P: P, o: i, o2: i + 1, L: L, t0: t0 + 250 * k, k: k }); ST.car++; }
         LAST0 = t0;
       } catch (e) { ST.err++; }
+    },
+    /** a creature piece came down on a Snare Field snare (ev.snr at its placing step): the trapdoor opens, the noose cinches, the lid slams */
+    trap: function (p, ctx) {
+      ST.ev.push(['t', now()]);
+      if (mode() !== 'full' || !p || p.x === undefined || !STATFX['@trapdoor']) return;
+      try { attach(null, ctx); add({ ty: 'sfx', S: STATFX['@trapdoor'], p: p, id: p.id, t0: now(), k: kOf(ctx && ctx.step), tg: null, roll: '', col: '#8fb86a', acc: INK, hi: '#c8e07a' }); LAST0 = now(); ST.trap = (ST.trap || 0) + 1; } catch (e) { ST.err++; }
     },
     /** the boss AOE lands on these cells ([[x, y], ...]) */
     aoe: function (cells, ctx) {
@@ -332,7 +378,11 @@
     seek: function (ms) { FROZEN = ms === null || ms === undefined ? null : LAST0 + (+ms); if (FROZEN !== null && ACT.length) { if (raf) { (window.cancelAnimationFrame || clearTimeout)(raf); raf = 0; } frame(); } else kick(); },
     /** tests: draw a look's own-edge ('own', piece o of perimeter P) or chain effect ('car', o -> o2) at progress p on any 2D context c; returns the particles drawn */
     themedDraw: function (c, ph, P, o, o2, L, p, seed) { NG = 0; if (ph === 'own') { if (L.th) themedOwn(c, P, o, L.th, L.M, p, seed || 1, L.h, L.col, L.acc, L.hi); else ownFx(c, P, o, L.fam, { t: 'hurt', tag: '' }, seed || 1, L.h, L.col, L.acc); } else if (L.th) themedCar(c, P, o, o2, L.th, L.M, p, L.h, L.col, L.acc, L.hi); else carrier(c, P, o, o2, L.fam, p, L.h, L.col, L.acc); return NG; },
-    look: function (p, slug) { return look(p, slug); }, envKinds: function () { return Object.keys(WENV).sort(); },
+    look: function (p, slug) { return look(p, slug); }, statKinds: function () { return Object.keys(STATFX).sort(); },
+    /** tests: draw a stat piece's whole-piece effect (name = a piece name or '@trapdoor') at ms on any 2D context c; returns the particles drawn (-1 = no such effect) */
+    statDraw: function (name, ms, c, o) { var S = STATFX[name]; if (!S) return -1; o = o || {}; CTX.w = o.w || 3; CTX.h = o.h || CTX.w;
+      var p = { id: 5, x: o.x === undefined ? 1 : o.x, y: o.y === undefined ? 1 : o.y, n: name }, it = { S: S, p: p, id: 5, tg: o.tg || null }; NG = 0; var A = envA(it); A.roll = o.roll || ''; A.col = o.col || '#e8c84a'; A.acc = INK; A.hi = '#fff6dc'; S.fi(c, A, ms); return NG; },
+    envKinds: function () { return Object.keys(WENV).sort(); },
     /** tests: draw one kind's place motion ('ps', returns it), place effect ('pl') or fire effect ('fi') at ms on any 2D context c; returns the particles drawn */
     envDraw: function (kind, ph, ms, c, o) { var W = WENV[kind]; if (!W) return -1; o = o || {}; if (o.w) { CTX.w = o.w; CTX.h = o.h || o.w; }
       var p = { id: 5, x: o.x === undefined ? 1 : o.x, y: o.y === undefined ? 1 : o.y, kind: kind, dir: o.dir }, it = { W: W, p: p, id: 5, tg: o.tg, mv: o.mv, falls: o.falls, fr: o.fr, dir: o.dir };

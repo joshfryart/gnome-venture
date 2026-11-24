@@ -121,6 +121,37 @@ const ok = (what, cond, got) => { if (cond) console.log('ok   ' + what); else { 
   for (const k of Object.keys(EV.out || {})) { const r = EV.out[k], pl = Math.max(...r.pl.map(x => x[0])), fi = Math.max(...r.fi.map(x => x[0])), outside = [...r.pl, ...r.fi].reduce((a, x) => a + x[1], 0);
     ok(`environment ${k}: place effect draws (${pl} px), fire effect draws (${fi} px), nothing outside the board art (${outside})`, pl > 20 && fi > 20 && outside === 0, r); }
   ok('environment effects: no engine error, all cancelled', EV.err === 0 && EV.active === 0, EV);
+  // 2.7.58 stat pieces on the real page (the last board): Loaded Die's die + hatch, the landing shake, the empowered overlay (32%), the snare's trapdoor; Light and Off draw none of the fire effects
+  const SX = await p.evaluate(async () => {
+    const A = window.PFAnim, d = JSON.parse(document.getElementById('pf-data').textContent), pcs = (d.pcs || []).filter(q => q.x !== undefined && q.by !== 'none');
+    if (!A || pcs.length < 2) return { none: true };
+    const q0 = pcs[0], q1 = pcs.find(q => q.id !== q0.id), ctx = { board: document.getElementById('pfb-board'), root: document.getElementById('pfight'), w: d.w, h: d.h, step: 950 };
+    const host = Object.assign({}, q0, { by: 'me', n: 'Loaded Die', t: 'item', tag: '' }), tg = Object.assign({}, q1, { by: 'me' }), plain = Object.assign({}, q0, { by: 'me', n: 'Zzz Plain', t: 'item', tag: '' });
+    const cnv = () => A.canvas(), ink = () => { const c = cnv(); if (!c) return 0; const D = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < D.length; i += 4) if (D[i]) n++; return n; };
+    const veil = (q) => { const c = cnv(), cc = document.querySelector('.pfb-cell[data-id="' + q.id + '"]'); if (!c || !cc) return -1; const r = cc.getBoundingClientRect(), R = c.getBoundingClientRect(), sc = c.width / R.width;
+      const D = c.getContext('2d').getImageData(Math.max(0, Math.round((r.left - R.left) * sc)), Math.max(0, Math.round((r.top - R.top) * sc)), Math.round(r.width * sc), Math.round(r.height * sc)).data; let n = 0; for (let i = 3; i < D.length; i += 4) if (D[i] >= 70 && D[i] <= 95) n++; return n; };
+    const tf = (q) => { const cv = document.querySelector('.pfb-cell[data-id="' + q.id + '"] .pfb-cv'); return cv ? cv.style.transform : null; };
+    const reset = () => { A.seek(null); A.cancel(); };
+    const out = { e0: A.st.err }; A.set('full');
+    reset(); A.fire({ id: host.id, roll: 'hit', wfx: ['roll', 'again'] }, host, [host, tg], ctx); out.die = [250, 450, 800, 1000].map(ms => { A.seek(ms); return ink(); }); reset();
+    A.fire({ id: host.id, roll: 'miss', wfx: ['roll'] }, host, [host], ctx); A.seek(900); out.miss = ink(); reset();
+    A.place(host, ctx); A.seek(250); out.tfStat = tf(host); reset(); A.place(plain, ctx); A.seek(250); out.tfPlain = tf(plain); reset();
+    A.place(host, ctx); A.seek(150); out.fresh = A.active(); reset();
+    const boost = Object.assign({}, q0, { by: 'me', n: 'Old Saying', t: 'trick', tag: '' });
+    A.fire({ id: boost.id, wfx: ['boost 2'] }, boost, [boost, tg], ctx); A.seek(500); out.emp = veil(tg); const empActive = A.active();
+    A.seek(null); A.fire({ id: tg.id }, tg, [boost, tg], ctx); A.seek(1800); out.empGone = veil(tg); reset(); out.empActive = empActive;
+    A.trap(Object.assign({}, q1, { by: 'foe' }), ctx); out.trap = [200, 450, 650, 900].map(ms => { A.seek(ms); return ink(); }); reset();
+    A.set('light'); A.fire({ id: host.id, roll: 'hit' }, host, [host, tg], ctx); A.trap(Object.assign({}, q1, { by: 'foe' }), ctx); A.fire({ id: boost.id, wfx: ['boost 2'] }, boost, [boost, tg], ctx); out.light = A.active(); reset();
+    A.set('off'); A.place(host, ctx); A.fire({ id: host.id, roll: 'hit' }, host, [host, tg], ctx); A.trap(Object.assign({}, q1, { by: 'foe' }), ctx); out.off = A.active(); reset();
+    A.set('full'); out.err = A.st.err - out.e0; out.msg = A.st.msg; out.active = A.active(); out.left = tf(q0);
+    return out;
+  });
+  ok('stat effects: Loaded Die draws its hatch and die (250 / 450 / 800 / 1000 ms: ' + (SX.die || []).join(' ') + ' px), a miss draws too (' + SX.miss + ')', SX.die && SX.die.every(n => n > 20) && SX.miss > 20, SX);
+  ok('stat effects: a stat piece landing shakes (its place transform differs from a plain piece at 250 ms)', SX.tfStat && SX.tfPlain && SX.tfStat !== SX.tfPlain && SX.fresh > 0, SX);
+  ok('stat effects: the empowered overlay is on the piece (' + SX.emp + ' px at 32%) until it fires (then ' + SX.empGone + ')', SX.emp > 200 && SX.empGone === 0, SX);
+  ok('stat effects: the snare trapdoor draws (' + (SX.trap || []).join(' ') + ' px)', SX.trap && SX.trap.every(n => n > 20), SX);
+  ok('stat effects: Light and Off start no stat fire effect, trapdoor or overlay', SX.light === 0 && SX.off === 0, SX);
+  ok('stat effects: no engine error, all cancelled, the board piece is not left moved', SX.err === 0 && SX.active === 0 && !SX.left, SX);
   ok(`3 screenshots written (${shot})`, shot === 3, shot);
   ok('no page errors (full / light / off / skip)', errs.length === 0, errs);
   // reduced motion: no choice = off; Full chosen = full; the help sheet has the setting

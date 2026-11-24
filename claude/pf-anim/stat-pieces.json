@@ -142,8 +142,8 @@
    "gap": 16
   },
   "gv-loaded-die": {
-   "g": "gv-pipcube",
-   "mo": "gv-tumble",
+   "g": "gv-glint",
+   "mo": "gv-twinkle",
    "x": "-",
    "car": "custom",
    "gap": 26

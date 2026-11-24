@@ -1,5 +1,5 @@
 /* Motif module: the four stat pieces' own-edge effects and chain effects, written like claude/pf-anim/motifs/medium_m01.js.
-   Loaded Die (Item): tumbling pip-cubes scattering off the edge, gold glints and loose pips flicked outward.
+   Loaded Die (Item): gold glints twinkling on the edge (the die itself pops out of the piece: motifs/stat_fx.js).
    Sidestep (Trick, Quick): footprints stamping left-right along the edge, dust flicks off each stamp, speed ticks sliding past.
    Old Saying (Trick, Lore): ink letters lifting off the edge, a quill flourish curling out, a faint dithered ink-glow hugging the edge.
    Sharp Eye (Guard, Keeper): gold glint stars and slow-blinking eyes drifting along the edge over a steady guard-hold shimmer.
@@ -30,18 +30,6 @@
   function P2(c, K, x, y, tx, ty, nx, ny, a, b, col) { K.px(c, x + tx * a + nx * b, y + ty * a + ny * b, col); }
 
   /* ---------- glyphs ---------- */
-  PFA.glyph('gv-pipcube', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {   /* a tiny die tumbling: square face (1 or 2 pips) and a corner-on diamond frame */
-    var r = 2 + (z > 0 ? 1 : 0), i, w;
-    if (fr & 1) {   /* corner-on: a diamond, ink rim, one pip */
-      for (i = -r - 1; i <= r + 1; i++) { w = r + 1 - Math.abs(i); K.bx(c, x - w, y + i, 2 * w + 1, 1, A); }
-      for (i = -r; i <= r; i++) { w = r - Math.abs(i); if (w >= 0) K.bx(c, x - w, y + i, 2 * w + 1, 1, i < 0 ? Hi : C); }
-      K.px(c, x, y, A);
-    } else {
-      K.bx(c, x - r - 1, y - r - 1, 2 * r + 3, 2 * r + 3, A); K.bx(c, x - r, y - r, 2 * r + 1, 2 * r + 1, C); K.bx(c, x - r, y - r, 2 * r + 1, 1, Hi);
-      if (fr & 2) { K.px(c, x - r + 1, y - r + 1, A); K.px(c, x + r - 1, y + r - 1, A); if (r > 2) K.px(c, x, y, A); }
-      else K.px(c, x, y, A);
-    }
-  });
   PFA.glyph('gv-glint', function (c, x, y, z, fr, C, A, Hi, tx, ty, nx, ny, K) {     /* a 4-point glint star that swells and shrinks (fr 0..3) */
     var L = [1, 2, 3 + (z > 0 ? 1 : 0), 2][fr & 3];
     K.bx(c, x - L, y, 2 * L + 1, 1, C); K.bx(c, x, y - L, 1, 2 * L + 1, C); K.px(c, x, y, WH);
@@ -75,7 +63,7 @@
   });
 
   /* ---------- motions ---------- */
-  PFA.motion('gv-tumble', function (G, pp, k, ph) { G.fr = (Math.floor(pp * 10) + k) & 3; G.up += Math.abs(Math.sin(pp * 7 + k * 1.3)) * 3; G.t += Math.sin(pp * 4 + k * 1.7) * 2; });   /* the cubes turn a quarter each step and bounce */
+  PFA.motion('gv-twinkle', function (G, pp, k, ph) { G.s += pp * .04; G.t += Math.sin(pp * 3 + k * 1.7) * 1.5; G.fr = (Math.floor(pp * 7 + ph * 6) + k) & 3; });   /* the glints swell and shrink in turn, drifting a little */
   PFA.motion('gv-skip', function (G, pp, k, ph) {                                     /* step, step: each print stamps, holds, and the next lands one stride on, left and right in turn */
     var q = pp * 3 + ph * 2, st = Math.floor(q), f = q - st, lr = (st + k) & 1;
     G.s += st * .07; G.d += lr ? 3 : 0; G.fr = (f < .22 ? 0 : 1) | (lr << 1); if (f < .12) G.up += (1 - f / .12) * 2;
@@ -88,11 +76,9 @@
   });
 
   /* ---------- per-glyph and per-run extras ---------- */
-  function decoDie(c, e, H, s0, len, ri, pp) {                       /* gold glints twinkling on the edge, loose pips flicked outward */
-    var k, u, Q = H.Q, env = Math.sin(Math.PI * Math.min(1, e.p));
+  function decoDie(c, e, H, s0, len, ri, pp) {                       /* gold glints twinkling just off the edge */
+    var k, u, Q = H.Q;
     for (k = 0; k < 4; k++) { u = (pp * 1.3 + H.hash(e.seed + k * 5)) % 1; e.P.atq(s0 + len * H.hash(e.seed + k * 11 + ri)); H.glyph(c, 'gv-glint', Q.x + Q.nx * 7, Q.y + Q.ny * 7, 0, Math.floor(u * 4) & 3, e.hi, e.acc, H.WHITE, -Q.ny, Q.nx, Q.nx, Q.ny); }
-    for (k = 0; k < 5; k++) { u = (pp * 1.6 + H.hash(e.seed + k * 3 + 1)) % 1; if (!H.stip(env * (1 - u), k + 40, e.p)) continue; e.P.atq(s0 + len * H.hash(e.seed + k * 7 + ri + 2));
-      var X = Q.x + Q.nx * (4 + 14 * u), Y = Q.y + Q.ny * (4 + 14 * u) - Math.sin(u * Math.PI) * 4; H.sq(c, X, Y, 3, e.acc); H.px(c, X - 1, Y - 1, e.col); }
   }
   function perDust(c, e, H, x, y, tx, ty, nx, ny, fr, k) {           /* a dust flick kicked back off each fresh stamp */
     if (fr & 1) return; var i; for (i = 0; i < 3; i++) H.px(c, x - tx * (5 + i * 2) + nx * (1 + i), y - ty * (5 + i * 2) + ny * (1 + i) - i, i ? e.acc : e.hi);
@@ -118,10 +104,10 @@
   }
 
   /* ---------- custom chain effects (carDraw: along the path from e.a over e.d, eased e.hh) ---------- */
-  function carDie(c, e, H) {                                         /* a pip-cube hops three times to the linked piece, a glint where it lands each time */
+  function carDie(c, e, H) {                                         /* a glint hops three times to the linked piece (the die itself is the piece's own effect, stat_fx.js) */
     var P = e.P, Q = H.Q, k, u;
     for (k = 1; k <= 3; k++) { u = k / 3; if (e.hh < u - .02) break; P.atq(e.a + e.d * u); H.glyph(c, 'gv-glint', Q.x + Q.nx * 3, Q.y + Q.ny * 3, 0, Math.min(3, Math.floor((e.hh - u + .1) * 20)) & 3, e.hi, e.acc, H.WHITE, -Q.ny, Q.nx, Q.nx, Q.ny); }
-    H.carHead(c, P, e.a + e.d * e.hh, 'gv-pipcube', e.z, Math.floor(e.p * 16) & 3, 0, -Math.abs(Math.sin(e.hh * Math.PI * 3)) * 12, e.col, e.acc, e.hi);
+    H.carHead(c, P, e.a + e.d * e.hh, 'gv-glint', e.z, Math.floor(e.p * 16) & 3, 0, -Math.abs(Math.sin(e.hh * Math.PI * 3)) * 12, e.col, e.acc, e.hi);
   }
   function carInk(c, e, H) {                                         /* an ink line writes itself along the path, the quill at its head */
     var P = e.P, Q = H.Q, u, X = 0, Y = 0;
@@ -129,7 +115,7 @@
     if (e.p < .95) H.glyph(c, 'gv-quill', X, Y, 0, Math.floor(e.p * 20) & 1, e.col, e.acc, e.hi, 1, 0, 0, -1);
   }
 
-  PFA.motif('gv-loaded-die', function (c, e, H) { comp(c, e, H, null, decoDie); }, { nm: 'loaded dice', desc: 'tiny pip-cubes tumbling off the edge, gold glints, loose pips flicked outward', fam: 'sparkle', gap: 26, g: 'gv-pipcube', mo: 'gv-tumble', x: '-', car: 'custom', carDraw: carDie });
+  PFA.motif('gv-loaded-die', function (c, e, H) { comp(c, e, H, null, decoDie); }, { nm: 'loaded dice', desc: 'gold glints twinkling on the edge (the die pops out of the piece: stat_fx.js)', fam: 'sparkle', gap: 26, g: 'gv-glint', mo: 'gv-twinkle', x: '-', car: 'custom', carDraw: carDie });
   PFA.motif('gv-sidestep', function (c, e, H) { comp(c, e, H, perDust, decoTicks); }, { nm: 'quick feet', desc: 'little footprints stamping left-right along the edge, dust flicks off each stamp, speed ticks sliding past', fam: 'puff', gap: 22, g: 'gv-foot', mo: 'gv-skip', x: '-', car: 'zig' });
   PFA.motif('gv-old-saying', function (c, e, H) { comp(c, e, H, null, decoInk); }, { nm: 'ink letters', desc: 'ink letters lifting off the edge, a quill flourish curling out, a faint ink-glow on the edge', fam: 'ripple', gap: 22, g: 'gv-letter', mo: 'gv-write', x: '-', car: 'custom', carDraw: carInk });
   PFA.motif('gv-sharp-eye', function (c, e, H) { comp(c, e, H, null, decoShimmer); }, { nm: 'watchful glints', desc: 'glint stars and slow-blinking eyes drifting along the edge over a steady guard shimmer', fam: 'shield', gap: 24, g: 'gv-watch', mo: 'gv-watch', x: '-', car: 'blink' });

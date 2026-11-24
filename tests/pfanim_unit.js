@@ -82,6 +82,29 @@ ok('24 stat pieces have an entry', SPN.length === 24 && SPN.every(n => data.sp[n
     ok('stat ' + nm + ' (' + t + '/' + tag + '): draws with no error or NaN, inside the glyph budget', errs.length === 0 && bad.length === 0 && maxN <= 220 && (drawn > 0 || tag !== ''), { errs: errs.slice(0, 2), bad: bad.slice(0, 2), maxN, drawn });
   }
 }
+// ---- 2.7.58 stat pieces' whole-piece effects (motifs/stat_fx.js): Loaded Die's die pops out of the piece (no tumbling pip-cubes any more) and the snare's trapdoor ('@trapdoor');
+//      both draw at every time of their 1200 ms on 3x3 and 5x5 boards, with a link target or none, hit and miss, with no error, no NaN, inside the glyph budget
+ok('stat effects registered: Loaded Die and @trapdoor', JSON.stringify(A.statKinds()) === JSON.stringify(['@trapdoor', 'Loaded Die']), A.statKinds());
+{
+  const dsrc = fs.readFileSync(path.join(root, 'game/assets/pfanim.js'), 'utf8');
+  ok('no tumbling pip-cube glyph or motion is left', !/gv-pipcube|gv-tumble'/.test(dsrc));
+  ok('Loaded Die edge motif is glints (gv-glint / gv-twinkle)', data.m.some(r => r[0] === 'gv-loaded-die' && r[1] === 'gv-glint' && r[2] === 'gv-twinkle'));
+  for (const name of ['Loaded Die', '@trapdoor']) {
+    const errs = [], bad = []; let drawn = 0, maxN = 0, early = 0;
+    for (const [w, x, y, tg, roll] of [[3, 1, 1, { x: 0, y: 1, id: 2 }, 'hit'], [3, 1, 1, { x: 2, y: 1, id: 2 }, 'miss'], [5, 4, 4, null, 'hit'], [5, 0, 0, null, 'miss'], [1, 0, 0, null, '']]) {
+      for (let ms = 0; ms <= 1200; ms += 30) {
+        try { const c = stubCtx(bad), n = A.statDraw(name, ms, c, { w, x, y, tg, roll }); drawn += c.n; maxN = Math.max(maxN, n); if (ms === 0 && c.n === 0) early++; } catch (e) { errs.push(ms + ' ' + e.message); }
+      }
+    }
+    ok(`stat effect ${name}: draws at every time with no error`, errs.length === 0 && drawn > 0, errs.slice(0, 3));
+    ok(`stat effect ${name}: no NaN / Infinity reaches the canvas`, bad.length === 0, bad.slice(0, 3));
+    ok(`stat effect ${name}: inside the glyph budget (max ${maxN} of 220)`, maxN <= 220, maxN);
+  }
+  const cn = (name, ms, o) => { const c = stubCtx([]); A.statDraw(name, ms, c, o); return c.n; };
+  ok('Loaded Die: the lid is drawn at the start, the die is out by 400 ms, the effect is empty at the end', cn('Loaded Die', 50, { roll: 'hit' }) > 0 && cn('Loaded Die', 400, { roll: 'hit' }) > cn('Loaded Die', 50, { roll: 'hit' }) && cn('Loaded Die', 1199, { roll: 'hit' }) === 0, [cn('Loaded Die', 50, {}), cn('Loaded Die', 400, {}), cn('Loaded Die', 1199, {})]);
+  ok('Loaded Die: a hit draws more (ring, sparkles) than a miss while it settles', cn('Loaded Die', 900, { roll: 'hit' }) > cn('Loaded Die', 900, { roll: 'miss' }));
+  ok('@trapdoor: the lid is up at 300 ms, shut again by 700 ms (fewer pixels, the rim thins)', cn('@trapdoor', 300, {}) > 0 && cn('@trapdoor', 300, {}) !== cn('@trapdoor', 700, {}));
+}
 // ---- perimeter
 const F = { L: 'f', R: 'f', T: 'f', B: 'f' }, cells = a => a.map(([x, y], i) => ({ id: i, x, y, e: F }));
 const BW = 56, BH = 47;
