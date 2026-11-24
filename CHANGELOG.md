@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.43
+- **Cat Fish: the new room (setting `catfish_room2`, on by default).** A 480x270 room with depth: cats run into the distance (smaller) and back, zoom off one side of the screen and in from the other, and the other cats wander, nap, tag each other and climb the cat tree. Tap the floor to throw the lure; the cat chases it and the catch pays Kibble (x1.25 when the throw was far). Tap a dangling fish: x1.5. Idle cats now yawn, stretch, wash, flick their tails, twitch their ears and swat at nothing. Room things show on the stage, and active ones can be tapped there.
+- **Cat Fish page layout.** The room loads first. The shop is a drawer with Shop, Shelter and More tabs: it slides in from the right on phones and tablets, and is a permanent 360 px rail from 1000 px wide. Short landscape phones show the whole room. A one-time "turn your phone sideways" chip shows in portrait.
+- **Server.** `catfish_play` takes `rod` and `far` counts with a batch (clamped to the number of taps, best multipliers first). New setting `catfish_room2` (Off, Admins only, On for everyone). New art in `assets/img/catfish/room2/`, packed by `tools/catfish_room2_pack.py`. Notes: `claude/catfish-room2.md`.
+- **Admin > Tools: reset a player's Puzzle Pals and/or jigsaw progress** (blank name = yourself; needs the confirm box).
+
 ## 2.8.42
 - **No full screen on desktop.** The first tap in a fight no longer takes a desktop browser into full screen, and the full screen button on the play rail is hidden there. Phones and tablets (touch screens) keep both.
 

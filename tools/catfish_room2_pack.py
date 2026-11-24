@@ -36,13 +36,15 @@ for (key, layer), fr in sorted(groups.items()):
     man['cat'].setdefault(key, []).append(layer)
 # idle set: the old 64x64 stacked art (sitting, stalk, pounce, nap...), one strip per layer, frames in IDLE order
 OLD = os.path.join(ROOT, 'game', 'assets', 'img', 'catfish')
-IDLE = ['idleA', 'idleB', 'stalk', 'pounce', 'nap', 'wiggle', 'catch']
+IDLE = ['idleA', 'idleB', 'stalk', 'pounce', 'nap', 'wiggle', 'catch', 'blink', 'tailflick', 'eartwitch', 'yawn', 'stretch', 'washA', 'washB', 'swatA', 'swatB', 'jump', 'happy']
+ALIAS = ('blink', 'tailflick', 'eartwitch')   # these old frames own only some layers; the others are idleA's file (game/includes/catfish.php catfish_role_frame)
 COATS = ['black', 'brown', 'cream', 'grey', 'lilac', 'orange', 'silver-blue', 'white']
 PATS = ['tabby', 'tuxedo', 'calico', 'pointed', 'spotted']
 def idle_layer(layer, tmpl):
     ims = []
     for fr in IDLE:
         f = os.path.join(OLD, tmpl.format(f=fr))
+        if not os.path.isfile(f) and fr in ALIAS: f = os.path.join(OLD, tmpl.format(f='idleA'))
         ims.append(Image.open(f).convert('RGBA') if os.path.isfile(f) else Image.new('RGBA', (64, 64), (0, 0, 0, 0)))
     if not any(im.getbbox() for im in ims): return
     strip = Image.new('RGBA', (64 * len(ims), 64), (0, 0, 0, 0))

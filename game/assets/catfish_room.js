@@ -43,8 +43,25 @@
     function want(path) { return img(U(path)); }
 
     /* ---- cats ---- */
-    var CS = { run: { w: 80, h: 64, n: 12, ms: 60 }, zoom: { w: 80, h: 64, n: 6, ms: 50 }, toward: { w: 64, h: 64, n: 8, ms: 70 }, away: { w: 64, h: 64, n: 8, ms: 70 }, idle: { w: 64, h: 64, n: 7, ms: 600 } };
-    var IDLE = { idleA: 0, idleB: 1, stalk: 2, pounce: 3, nap: 4, wiggle: 5, catch: 6 };
+    var CS = { run: { w: 80, h: 64, n: 12, ms: 60 }, zoom: { w: 80, h: 64, n: 6, ms: 50 }, toward: { w: 64, h: 64, n: 8, ms: 70 }, away: { w: 64, h: 64, n: 8, ms: 70 }, idle: { w: 64, h: 64, n: 18, ms: 600 } };
+    var IDLE = { idleA: 0, idleB: 1, stalk: 2, pounce: 3, nap: 4, wiggle: 5, catch: 6, blink: 7, tailflick: 8, eartwitch: 9, yawn: 10, stretch: 11, washA: 12, washB: 13, swatA: 14, swatB: 15, jump: 16, happy: 17 };
+    /* idle variety: [frame, ms] steps. A sitting cat picks one every few seconds (the same moves as the old page: yawn, stretch, a wash, a tail flick, an ear twitch, a swat at nothing). */
+    var VARIETY = [
+      [0.22, [['yawn', 900], ['idleA', 120]]],
+      [0.2, [['stretch', 900], ['idleA', 120]]],
+      [0.26, [['washA', 600], ['washB', 600], ['washA', 600], ['washB', 600], ['idleA', 120]]],
+      [0.14, [['tailflick', 220], ['idleA', 140], ['tailflick', 220], ['idleA', 120]]],
+      [0.1, [['eartwitch', 180], ['idleA', 120], ['eartwitch', 180], ['idleA', 120]]],
+      [0.08, [['swatA', 160], ['swatB', 160], ['swatA', 160], ['swatB', 160], ['idleA', 120]]]
+    ];
+    function pickVariety() { var r = rnd(), a = 0, v; for (var i = 0; i < VARIETY.length; i++) { a += VARIETY[i][0]; if (r < a) return VARIETY[i][1]; } return VARIETY[0][1]; }
+    function playSeq(c, seq) { c.seq = seq; c.seqT = now; c.seqI = 0; }
+    function seqFrame(c) {   // the frame of the running sequence, or -1 when it is over
+      if (!c.seq) return -1;
+      var t = now - c.seqT, i = 0, acc = 0;
+      for (; i < c.seq.length; i++) { acc += c.seq[i][1]; if (t < acc) return IDLE[c.seq[i][0]]; }
+      c.seq = null; return -1;
+    }
     function layerNames(a, set) {
       var cat = a.c, c = cat.coat, o = { body: 'cat-' + c, erase: [], parts: [], pat: '', eyes: set === 'away' ? '' : 'eyes-' + cat.eyes };
       if (cat.fold) { o.erase.push('ears-clear'); o.parts.push('ears-folded-' + c); }
@@ -146,7 +163,7 @@
       if (lure) lure.dead = true;
       var seq = [[2, 120], [u < 0.4 ? 3 : (u > 0.6 ? 5 : 4), 110], [6, 290], [1, 0]];
       wand.seq = seq; wand.t = now; wand.fr = 2; wand.launched = false; wand.pend = { x: xx, y: yy, u: u, d: d };
-      if (!/^zoom/.test(act.st)) act.st = 'alert';
+      if (!/^zoom/.test(act.st)) { act.st = 'alert'; act.seq = null; }
       var hint = document.getElementById('cf-hint'); if (hint) hint.hidden = true;
       if (reduced()) { wand.seq = [[1, 0]]; wand.fr = 1; launch(); }
     }
@@ -179,7 +196,7 @@
     function dust(c) { dusts.push({ x: c.x, y: c.y, t: now, s: sOf(dOf(c.y)) }); }
     function pop(x, y, v, txt) { pops.push({ x: x, y: y, t: now, v: txt || ('+' + v) }); }
     function catchLure(c, l) {
-      c.st = 'catch'; c.t = now; l.state = 'caught'; l.t = now; c.set = 'idle'; c.fi = IDLE.catch;
+      c.st = 'catch'; c.t = now; l.state = 'caught'; l.t = now; c.set = 'idle'; c.fi = l.far ? IDLE.happy : IDLE.catch; c.happy = !!l.far; c.seq = null;
       var v = window.CFPlay ? window.CFPlay.tap(l.far ? 'far' : 'catch') : 0;
       pop(c.x, c.y - 60 * sOf(dOf(c.y)), v, v > 0 ? '+' + v + (l.far ? ' far!' : '') : (window.CFPlay && window.CFPlay.left() <= 0 ? 'rest a moment' : ''));
       c.caught++; catchesIn20.push(now);
@@ -193,7 +210,7 @@
       if (st === 'alert') { c.fi = IDLE.stalk; return; }
       if (st === 'chase') {
         var l = c.tgt; if (!l || l.dead || l.state === 'reel' || l.state === 'caught') { c.st = 'return'; c.slow = 0; return; }
-        if (l.state === 'fly') { var prog = (now - l.t) / l.T; c.face = l.x1 >= c.x ? 1 : -1; if (prog < 0.4) { c.fi = IDLE.stalk; c.set = 'idle'; } else moveTo(c, l.x1, l.y1, 200 * (c.slow || 1), dt); return; }
+        if (l.state === 'fly') { var prog = (now - l.t) / l.T; c.face = l.x1 >= c.x ? 1 : -1; if (prog < 0.4) { c.fi = prog < 0.2 ? IDLE.stalk : (Math.floor(now / 120) % 2 ? IDLE.swatA : IDLE.swatB); c.set = 'idle'; c.seq = null; } else moveTo(c, l.x1, l.y1, 200 * (c.slow || 1), dt); return; }
         var sp = (reduced() ? 5000 : 330) * (c.slow || 1);
         if (moveTo(c, l.x1, l.y1, sp, dt)) {
           if (c.active) { c.st = 'pounce'; c.t = now; dust(c); c.set = 'idle'; c.fi = IDLE.pounce; }
@@ -202,7 +219,7 @@
         return;
       }
       if (st === 'pounce') { c.fi = IDLE.pounce; if (now - c.t > 180) { if (c.tgt && !c.tgt.dead && c.tgt.state !== 'caught') catchLure(c, c.tgt); else c.st = 'return'; } return; }
-      if (st === 'catch') { c.fi = IDLE.catch; if (now - c.t > 520) { c.st = 'return'; c.tgt = null; } return; }
+      if (st === 'catch') { c.fi = c.happy ? IDLE.happy : IDLE.catch; if (now - c.t > 520) { c.st = 'return'; c.tgt = null; } return; }
       if (st === 'return') {
         var h = c.home, hx = xOf(h.u, h.d), hy = yOf(h.d);
         if (moveTo(c, hx, hy, reduced() ? 5000 : 200, dt)) { c.st = 'idle'; c.wait = now + (FAST ? between(800, 2000) : between(3000, 7000)); c.slow = 0; }
@@ -218,13 +235,14 @@
         return;
       }
       if (st === 'climb' || st === 'down') {
-        var a = c.arc, pr = clamp((now - a.t0) / a.T, 0, 1); c.zo = 171; c.fi = IDLE.pounce;
+        var a = c.arc, pr = clamp((now - a.t0) / a.T, 0, 1); c.zo = 171; c.fi = IDLE.jump;
         c.x = a.x0 + (a.x1 - a.x0) * pr; c.y = a.y0 + (a.y1 - a.y0) * pr - 4 * a.H * pr * (1 - pr);
         if (pr >= 1) { if (st === 'climb') { c.st = 'perched'; c.t = now; c.dur = FAST ? between(4000, 7000) : between(9000, 18000); c.blink = now + 1500; } else { c.st = 'return'; c.zo = 0; dust(c); } }
         return;
       }
       if (st === 'perched') {
-        c.zo = 171; c.fi = IDLE.idleA; if (now > c.blink && now < c.blink + 160) c.fi = IDLE.idleB; else if (now >= c.blink + 160) c.blink = now + between(2200, 5200);
+        c.zo = 171; c.fi = IDLE.idleA; if (now > c.blink && now < c.blink + 160) c.fi = IDLE.blink; else if (now >= c.blink + 160) c.blink = now + between(2200, 5200);
+        var pf = seqFrame(c); if (pf >= 0) c.fi = pf; else if (!reduced() && now > (c.nextVar || 0)) { c.nextVar = now + between(3000, 7000); playSeq(c, pickVariety()); }
         if (now - c.t > c.dur) { c.arc = { x0: c.x, y0: c.y, x1: 420 + between(-12, 12), y1: 178, t0: now, T: 520, H: 22 }; c.st = 'down'; }
         return;
       }
@@ -250,9 +268,11 @@
       }
       // idle: sit, blink, wiggle, now and then wander
       c.fi = IDLE.idleA;
-      if (now > c.blink && now < c.blink + 160) c.fi = IDLE.idleB;
+      if (now > c.blink && now < c.blink + 160) c.fi = IDLE.blink;
       else if (now >= c.blink + 160) c.blink = now + (FAST ? between(700, 1600) : between(2200, 5200));
       if (c.wiggle && now < c.wiggle + 450) c.fi = IDLE.wiggle;
+      var sf = seqFrame(c); if (sf >= 0) c.fi = sf;
+      else if (!reduced() && now > (c.nextVar || 0)) { c.nextVar = now + (FAST ? between(1500, 3500) : between(5000, 12000)); if (c.nextVar && c.vstarted) playSeq(c, pickVariety()); c.vstarted = true; }
       if (!c.wait) c.wait = now + (FAST ? between(1200, 3000) : between(3500, 8000));
       if (now > c.wait && !reduced()) {
         var r = rnd();
@@ -414,7 +434,7 @@
         else { var f = fish[(+b.getAttribute('data-fish') || 1) - 1]; if (f) swatFish(f, null); }
       });
     });
-    window.CFRoom = { zoom: function () { nextZoom = 0; }, state: function () { return { cats: cats.map(function (c) { return { id: c.id, st: c.st, x: Math.round(c.x), y: Math.round(c.y), set: c.set, vis: c.vis, caught: c.caught }; }), lure: lure ? lure.state : null, M: !!M, pending: pendingLoads }; }, cast: castTo };
+    window.CFRoom = { zoom: function () { nextZoom = 0; }, state: function () { return { cats: cats.map(function (c) { return { id: c.id, st: c.st, x: Math.round(c.x), y: Math.round(c.y), set: c.set, fi: c.fi, vis: c.vis, caught: c.caught }; }), lure: lure ? lure.state : null, M: !!M, pending: pendingLoads }; }, cast: castTo };
 
     manifest(function () { loadRoom(); raf = requestAnimationFrame(tick); });
     return {
