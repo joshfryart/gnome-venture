@@ -1,8 +1,8 @@
--- cf_run80.lua : Cat Fish grey template, 10-frame SIDE RUN v2 (80x64, facing right), per run80_spec.md.
+-- cf_run80.lua : Cat Fish grey template, 12-frame SIDE RUN v2 (80x64, facing right), per run80_spec.md.
 -- Run: AppRun -b --script cf_run80.lua
--- Writes out80/cf-cat-grey-run01..10.png, cf-ears-mask-run01..10.png, cf-tail-mask-run01..10.png,
--- cf-run80-grey.aseprite (10 frames, 70 ms, layers outline/legs-far/tail/body/legs-near/ears/head+face),
--- cf-run80-sheet.png (800x64). Previews are made by make_view80.py (python3 + PIL).
+-- Writes out80/cf-cat-grey-run01..12.png, cf-ears-mask-run01..12.png, cf-tail-mask-run01..12.png,
+-- cf-run80-grey.aseprite (12 frames, 60 ms, layers outline/legs-far/tail/body/legs-near/ears/head+face),
+-- cf-run80-sheet.png (960x64). Previews are made by make_view80.py (python3 + PIL).
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../gvlib/gvlib.lua")
 local OUT = here .. "/out80/"
@@ -10,37 +10,40 @@ local OUT = here .. "/out80/"
 -- ============================== POSE TABLE (the art director's numbers) ==============================
 local BX = 34            -- body centre column, never moves
 local GROUND = 53        -- planted paw centre y
-local FRAMEMS = 70
+local FRAMEMS = 60
 -- per frame: BY body centre y, L body length (even), arch (<0 humps back), tilt,
 -- S near shoulder, H near hip, hx/hy head, ex/ey ear offset, tail dy for P2/P3/P4
 local POSE = {
-  { BY=38, L=36, arch= 0, tilt= 4, S={47,43}, H={21,41}, head={56,23}, ear={-1, 0}, tdy={-1,-2,-3} }, -- 1 fore contact (far)
-  { BY=39, L=34, arch= 0, tilt= 3, S={46,44}, H={22,42}, head={55,24}, ear={-1, 0}, tdy={-1,-2,-3} }, -- 2 fore contact (near)
-  { BY=38, L=32, arch=-2, tilt= 0, S={45,42}, H={23,42}, head={55,25}, ear={-1, 0}, tdy={ 0, 0, 0} }, -- 3 fore push
-  { BY=36, L=30, arch=-3, tilt=-2, S={44,40}, H={24,40}, head={54,24}, ear={ 0,-1}, tdy={ 2, 3, 5} }, -- 4 flight gathered
-  { BY=37, L=32, arch=-2, tilt=-4, S={45,40}, H={23,42}, head={55,22}, ear={ 0, 0}, tdy={ 1, 1, 2} }, -- 5 hind contact (far)
-  { BY=38, L=32, arch=-1, tilt=-4, S={45,41}, H={23,43}, head={55,23}, ear={-1, 0}, tdy={-1,-2,-3} }, -- 6 hind contact (near)
-  { BY=37, L=34, arch= 0, tilt=-2, S={46,41}, H={22,41}, head={56,24}, ear={-1, 0}, tdy={ 0, 0, 0} }, -- 7 hind push
-  { BY=35, L=36, arch= 1, tilt= 0, S={47,39}, H={21,39}, head={57,23}, ear={-2, 1}, tdy={ 2, 3, 5} }, -- 8 flight extended
-  { BY=36, L=36, arch= 0, tilt= 2, S={47,40}, H={21,40}, head={57,21}, ear={-2, 1}, tdy={ 1, 1, 2} }, -- 9 extended, descending
-  { BY=37, L=36, arch= 0, tilt= 4, S={47,42}, H={21,40}, head={56,22}, ear={-1, 0}, tdy={-1,-2,-3} }, -- 10 pre-contact
+  { BY=38, L=36, arch=0, tilt=4, S={47,43}, H={21,41}, head={56,23}, ear={-1,0}, tdy={-2,-2,-2} }, -- 1
+  { BY=39, L=34, arch=0, tilt=3, S={46,44}, H={22,42}, head={55,24}, ear={-1,0}, tdy={-2,-3,-3} }, -- 2
+  { BY=38, L=32, arch=-2, tilt=1, S={45,42}, H={23,42}, head={54,25}, ear={-2,1}, tdy={-1,-2,-4} }, -- 3
+  { BY=37, L=30, arch=-3, tilt=0, S={44,41}, H={24,41}, head={53,24}, ear={-1,0}, tdy={0,-2,-3} }, -- 4
+  { BY=36, L=28, arch=-5, tilt=-2, S={43,40}, H={25,40}, head={52,23}, ear={0,-1}, tdy={1,0,-2} }, -- 5
+  { BY=37, L=30, arch=-3, tilt=-4, S={44,40}, H={24,42}, head={53,22}, ear={0,-1}, tdy={2,2,0} }, -- 6
+  { BY=38, L=32, arch=-2, tilt=-4, S={45,41}, H={23,43}, head={54,23}, ear={-1,0}, tdy={2,2,2} }, -- 7
+  { BY=37, L=34, arch=-1, tilt=-3, S={46,41}, H={22,42}, head={55,24}, ear={-2,1}, tdy={2,3,3} }, -- 8
+  { BY=36, L=36, arch=0, tilt=-2, S={47,40}, H={21,40}, head={56,23}, ear={-1,0}, tdy={1,2,4} }, -- 9
+  { BY=35, L=36, arch=2, tilt=0, S={47,39}, H={21,39}, head={56,22}, ear={0,-1}, tdy={0,2,3} }, -- 10
+  { BY=36, L=36, arch=1, tilt=2, S={47,40}, H={21,40}, head={56,21}, ear={0,-1}, tdy={-1,0,2} }, -- 11
+  { BY=37, L=36, arch=0, tilt=4, S={47,42}, H={21,40}, head={56,22}, ear={-1,0}, tdy={-2,-2,0} }, -- 12
 }
--- paw / hock positions (absolute): near fore paw, far fore paw, near hind hock+paw, far hind hock+paw
 local LEGS = {
-  { nf={57,51}, ff={52,53}, nh={{24,48},{23,50}}, fh={{25,47},{26,49}} },
-  { nf={54,53}, ff={47,53}, nh={{26,47},{28,49}}, fh={{28,46},{30,48}} },
-  { nf={49,53}, ff={42,51}, nh={{28,46},{31,48}}, fh={{29,45},{33,47}} },
-  { nf={43,50}, ff={38,48}, nh={{29,45},{33,47}}, fh={{31,45},{35,48}} },
-  { nf={40,46}, ff={39,45}, nh={{29,46},{32,50}}, fh={{30,48},{33,53}} },
-  { nf={45,47}, ff={43,46}, nh={{28,48},{31,53}}, fh={{25,49},{28,53}} },
-  { nf={51,46}, ff={49,45}, nh={{24,49},{26,53}}, fh={{18,47},{15,51}} },
-  { nf={58,45}, ff={55,46}, nh={{14,47},{11,50}}, fh={{17,45},{13,48}} },
-  { nf={59,47}, ff={55,49}, nh={{17,47},{14,51}}, fh={{19,46},{16,49}} },
-  { nf={58,49}, ff={54,52}, nh={{20,48},{18,51}}, fh={{22,47},{21,50}} },
+  { nf={57,51}, ff={52,53}, nh={{13,46},{15,48}}, fh={{13,45},{15,47}} },
+  { nf={55,53}, ff={47,53}, nh={{18,46},{20,48}}, fh={{17,45},{19,47}} },
+  { nf={50,53}, ff={42,53}, nh={{21,46},{24,48}}, fh={{20,45},{23,47}} },
+  { nf={45,53}, ff={40,49}, nh={{24,46},{27,48}}, fh={{23,46},{26,48}} },
+  { nf={43,48}, ff={41,46}, nh={{26,46},{29,49}}, fh={{25,46},{28,50}} },
+  { nf={44,46}, ff={43,45}, nh={{28,46},{30,50}}, fh={{25,49},{28,53}} },
+  { nf={48,45}, ff={46,45}, nh={{26,49},{29,53}}, fh={{21,49},{23,53}} },
+  { nf={52,45}, ff={50,45}, nh={{22,49},{24,53}}, fh={{17,49},{18,53}} },
+  { nf={56,45}, ff={54,46}, nh={{18,49},{19,53}}, fh={{15,47},{12,50}} },
+  { nf={58,46}, ff={56,46}, nh={{16,47},{13,50}}, fh={{12,46},{10,49}} },
+  { nf={59,47}, ff={57,47}, nh={{13,45},{11,48}}, fh={{12,46},{11,48}} },
+  { nf={58,49}, ff={54,51}, nh={{14,46},{13,48}}, fh={{12,45},{13,47}} },
 }
 -- shape constants
-local BONE = { fore1 = 7, fore2 = 7, hind1 = 7, hind2 = 6 }
-local TAIL_OFF = { {0,0}, {-4,-1}, {-8,-2}, {-11,-4}, {-12,-7} }   -- from root R = (rear+5, BY-6)
+local BONE = { fore1 = 7, fore2 = 7, hind1 = 7, hind2 = 7 }
+local TAIL_OFF = { {0,0}, {-4,-2}, {-8,-2}, {-11,-1}, {-13,-4} }   -- from root R = (rear+6, BY-6)
 -- ====================================================================================================
 
 local GREY = { shade = "#57516f", base = "#8a859b", light = "#cdc9d3", gloss = "#f1ebe3" }
@@ -115,10 +118,12 @@ local function frame(f)
   local BY, L = P.BY, P.L
   local rear, front = BX - L // 2, BX + L // 2
   local ts = P.tilt >= 3 and 1 or (P.tilt <= -3 and -1 or 0)
-  local S, H = P.S, P.H
+  local S, H = { front - 5, P.S[2] }, { rear + 5, P.H[2] }
   local Sf, Hf = { S[1] - 1, S[2] - 1 }, { H[1] + 1, H[2] - 1 }
-  local hx, hy = P.head[1], P.head[2]
+  local hx, hy = S[1] + 9, P.head[2]
   local ex, ey = P.ear[1], P.ear[2]
+  local pe = POSE[(f - 2) % 12 + 1].ear
+  local exF, eyF = pe[1], pe[2]
 
   -- legs
   local nfE = ik(S, Lg.nf, BONE.fore1, BONE.fore2, -1)
@@ -126,39 +131,40 @@ local function frame(f)
   local nhK = ik(H, Lg.nh[1], BONE.hind1, BONE.hind2, 1)
   local fhK = ik(Hf, Lg.fh[1], BONE.hind1, BONE.hind2, 1)
 
-  local earF = c:poly({ {hx - 1, hy - 7}, {hx + 3 + ex, hy - 13 + ey}, {hx + 5, hy - 6} }):grow(1)
-  local legFF = c:line({ Sf, ffE }, 4):add(c:line({ ffE, Lg.ff }, 3))
-  local legHF = c:line({ Hf, fhK }, 4):add(c:line({ fhK, Lg.fh[1] }, 3)):add(c:line({ Lg.fh[1], Lg.fh[2] }, 3))
+  local earF = c:poly({ {hx + 1, hy - 7}, {hx + 5 + exF, hy - 13 + eyF}, {hx + 8, hy - 6} }):grow(1)
+  local legFF = c:line({ Sf, ffE }, 5):add(c:line({ ffE, Lg.ff }, 3))
+  local legHF = c:line({ Hf, fhK }, 5):add(c:line({ fhK, Lg.fh[1] }, 3)):add(c:line({ Lg.fh[1], Lg.fh[2] }, 3))
   -- tail
-  local R = { rear + 5, BY - 6 }
+  local R = { rear + 6, BY - 6 }
   local tp = {}
   for i, o in ipairs(TAIL_OFF) do
     local dy = (i >= 3) and P.tdy[i - 2] or 0
     tp[i] = { R[1] + o[1], R[2] + o[2] + dy }
   end
-  local tail = c:line({ tp[1], tp[2], tp[3] }, 5):add(c:line({ tp[3], tp[4], tp[5] }, 4))
+  local tail = c:line({ tp[1], tp[2], tp[3] }, 5):add(c:line({ tp[3], tp[4], tp[5] }, 3))
   -- body capsule
   local body = c:line({ { rear + 7, BY - 2 * ts }, { BX, BY + P.arch }, { front - 7, BY + 2 * ts } }, 15)
   local chest = c:ellipse(S[1] + 1, S[2] - 5, 6, 6.5)
-  local legHN = c:line({ H, nhK }, 5):add(c:line({ nhK, Lg.nh[1] }, 4)):add(c:line({ Lg.nh[1], Lg.nh[2] }, 4))
-  local haunch = c:ellipse(H[1], H[2] - 3, 7, 7.5)
-  local legFN = c:line({ S, nfE }, 5):add(c:line({ nfE, Lg.nf }, 4))
+  local legHN = c:line({ H, nhK }, 5):add(c:line({ nhK, Lg.nh[1] }, 5)):add(c:line({ Lg.nh[1], Lg.nh[2] }, 3))
+  local haunch = c:ellipse(H[1] - 1, H[2] - 4, 7.5, 7):add(c:line({ H, nhK }, 6))
+  local legFN = c:line({ S, nfE }, 6):add(c:line({ nfE, Lg.nf }, 4))
   local earN = c:poly({ {hx - 8, hy - 5}, {hx - 5 + ex, hy - 13 + ey}, {hx + 1, hy - 7} }):grow(1)
   local head = c:ellipse(hx, hy, 12, 9.5):add(c:ellipse(hx + 2, hy + 4, 11, 6)):add(c:ellipse(hx + 11, hy + 4, 3.5, 3.5))
 
   local p = c:build{
-    { "earF",  earF,  dk, { cres = 2, gloss = false } },
+    { "earF",  earF,  g,  { cres = 2, gloss = false } },
     { "legFF", legFF, dk, { cres = 2, gloss = false } },
     { "legHF", legHF, dk, { cres = 2, gloss = false } },
     { "tail",  tail,  g,  { cres = 2, gloss = false } },
     { "body",  body,  g,  { gloss = { rear + 8, BY - 4 } } },
     { "chest", chest, g },
     { "legHN", legHN, g,  { cres = 2, gloss = false } },
-    { "haunch", haunch, g, { cres = 2, gloss = false } },
+    { "haunch", haunch, g, { cres = 1, gloss = false } },
     { "legFN", legFN, g,  { cres = 2, gloss = false } },
     { "earN",  earN,  g,  { cres = 2, gloss = false } },
     { "head",  head,  h,  { gloss = { hx - 5, hy - 5 } } },
   }
+  tint(c, head:clip(c:rect(hx - 12, hy + 3, hx + 8, hy + 10)), GREY.light, GREY.base)
   local tip = tp[5]
   tailTip(c, tail, c:rect(tip[1] - 3, tip[2] - 3, tip[1] + 3, tip[2] + 3), { { tip[1] - 3, tip[2] + 2 }, { tip[1] + 2, tip[2] + 2 } })
   -- paws
@@ -167,7 +173,6 @@ local function frame(f)
   p.pawHN = paw(c, Lg.nh[2][1] + 0.5, Lg.nh[2][2], nil, true, 4, 2.5)
   p.pawFN = paw(c, Lg.nf[1] + 0.5, Lg.nf[2], nil, true, 4, 2.5)
   edgeStitch(c, body, p.body, { lit = LIT })
-  edgeStitch(c, haunch, p.haunch, { lit = LIT })
   edgeStitch(c, head, p.head, { lit = LIT })
   -- face
   c:fill(c:poly({ {hx - 6, hy - 7}, {hx - 5 + ex, hy - 11 + ey}, {hx - 1, hy - 7} }):cut(head), PINK)
@@ -213,7 +218,7 @@ end
 
 local files, layerSets = {}, {}
 local checks = {}
-for f = 1, 10 do
+for f = 1, 12 do
   local c, p = frame(f)
   local name = string.format("cf-cat-grey-run%02d", f)
   local t = c:save(nil, OUT .. name .. ".png")
@@ -227,22 +232,22 @@ end
 
 -- .aseprite with layers
 local spr = Sprite(80, 64, ColorMode.RGB)
-for i = 2, 10 do spr:newEmptyFrame() end
+for i = 2, 12 do spr:newEmptyFrame() end
 local order = { "outline", "legs-far", "tail", "body", "legs-near", "ears", "head+face" }
 spr.layers[1].name = order[1]
 for i = 2, #order do spr:newLayer().name = order[i] end
 for _, lname in ipairs(order) do
   local layer
   for _, l in ipairs(spr.layers) do if l.name == lname then layer = l end end
-  for f = 1, 10 do spr:newCel(layer, spr.frames[f], layerSets[f][lname], Point(0, 0)) end
+  for f = 1, 12 do spr:newCel(layer, spr.frames[f], layerSets[f][lname], Point(0, 0)) end
 end
-for f = 1, 10 do spr.frames[f].duration = FRAMEMS / 1000 end
+for f = 1, 12 do spr.frames[f].duration = FRAMEMS / 1000 end
 spr:saveAs(OUT .. "cf-run80-grey.aseprite")
 spr:close()
 -- sheet 800x64
-local sheet = Image(800, 64, ColorMode.RGB)
-for f = 1, 10 do sheet:drawImage(Image{ fromFile = files[f] }, Point((f - 1) * 80, 0)) end
-local s2 = Sprite(800, 64, ColorMode.RGB)
+local sheet = Image(960, 64, ColorMode.RGB)
+for f = 1, 12 do sheet:drawImage(Image{ fromFile = files[f] }, Point((f - 1) * 80, 0)) end
+local s2 = Sprite(960, 64, ColorMode.RGB)
 s2.cels[1].image = sheet
 s2:saveCopyAs(OUT .. "cf-run80-sheet.png")
 s2:close()
@@ -251,13 +256,13 @@ s2:close()
 local ok = true
 local function chk(cond, msg) print((cond and "PASS " or "FAIL ") .. msg); if not cond then ok = false end end
 local maxCol, minMargin, semi = 0, 99, 0
-for f = 1, 10 do maxCol = math.max(maxCol, checks[f].colours); minMargin = math.min(minMargin, checks[f].margin); semi = semi + checks[f].semi end
+for f = 1, 12 do maxCol = math.max(maxCol, checks[f].colours); minMargin = math.min(minMargin, checks[f].margin); semi = semi + checks[f].semi end
 chk(maxCol <= 15, "colours (excluding transparent) max " .. maxCol .. " (<=15 + transparent = 16)")
 chk(semi == 0, "alpha only 0/255 (semi=" .. semi .. ")")
 chk(minMargin >= 3, "transparent margin min " .. minMargin)
 -- planted paws: bottom felt row 55
 local plantOK, plantMsg = true, ""
-for f = 1, 10 do
+for f = 1, 12 do
   local I, Lg = info[f], LEGS[f]
   for _, q in ipairs{ { "pawFN", Lg.nf }, { "pawFF", Lg.ff }, { "pawHN", Lg.nh[2] }, { "pawHF", Lg.fh[2] } } do
     if q[2][2] == GROUND then
@@ -269,15 +274,15 @@ end
 chk(plantOK, "planted paws bottom felt row 55" .. plantMsg)
 -- body column constant: centre of the body mask
 local cxs, bys = {}, {}
-for f = 1, 10 do
+for f = 1, 12 do
   local x0, y0, x1, y1 = info[f].p.body.m:bbox()
   cxs[f] = (x0 + x1) / 2; bys[f] = POSE[f].BY
 end
 local same = true
-for f = 2, 10 do if cxs[f] ~= cxs[1] then same = false end end
+for f = 2, 12 do if cxs[f] ~= cxs[1] then same = false end end
 chk(same, "body column constant (centres " .. table.concat(cxs, ",") .. ")")
 local bmin, bmax = 99, 0
-for f = 1, 10 do bmin = math.min(bmin, bys[f]); bmax = math.max(bmax, bys[f]) end
+for f = 1, 12 do bmin = math.min(bmin, bys[f]); bmax = math.max(bmax, bys[f]) end
 chk(bmax - bmin == 4, "body vertical travel " .. (bmax - bmin))
 -- loop continuity: joint deltas (paws, hocks, shoulder, hip, head, body BY)
 local function dmax(a, b)
@@ -290,20 +295,22 @@ local function dmax(a, b)
   return m
 end
 local worst, parts = 0, {}
-for f = 1, 10 do local n = f % 10 + 1; local d = dmax(f, n); worst = math.max(worst, d); parts[#parts + 1] = d end
-chk(worst <= 7, "joint deltas between neighbours max " .. worst .. " (per pair " .. table.concat(parts, ",") .. "; F10->F1 " .. parts[10] .. ")")
+for f = 1, 12 do local n = f % 12 + 1; local d = dmax(f, n); worst = math.max(worst, d); parts[#parts + 1] = d end
+chk(worst <= 7 and parts[12] <= 2, "joint deltas between neighbours max " .. worst .. " (per pair " .. table.concat(parts, ",") .. "; F12->F1 " .. parts[12] .. ")")
 -- head profile / tail / leg lengths / F5 gap / extents
 local tailOK, legOK = true, true
-for f = 1, 10 do
+for f = 1, 12 do
   local I = info[f]
-  if I.R[1] - I.tp[5][1] < 9 then tailOK = false end
+  if I.tp[5][1] < 9 then tailOK = false end
   local S, H, Lg = POSE[f].S, POSE[f].H, LEGS[f]
   local function dist(a, b) return math.sqrt((a[1] - b[1]) ^ 2 + (a[2] - b[2]) ^ 2) end
+  local hk = { { H, Lg.nh[1] }, { { H[1] + 1, H[2] - 1 }, Lg.fh[1] } }
+  for _, q in ipairs(hk) do local d = dist(q[1], q[2]); if d < 4 or d > 13 then legOK = false; print(string.format("  F%d hip-hock %.1f", f, d)) end end
   for _, q in ipairs{ { S, Lg.nf }, { { S[1] - 1, S[2] - 1 }, Lg.ff }, { H, Lg.nh[2] }, { { H[1] + 1, H[2] - 1 }, Lg.fh[2] } } do
     if q[2][2] == GROUND and dist(q[1], q[2]) < 10 then legOK = false end
   end
 end
-chk(tailOK, "tail P4 at least 9 px left of root in all frames")
+chk(tailOK, "tail tip x >= 9 in all frames")
 chk(legOK, "planted legs measure >= 10 px root to paw")
 do
   local function gap(A, B) local ax0, ay0, ax1, ay1 = A.m:bbox(); local bx0, by0, bx1, by1 = B.m:bbox()
@@ -312,7 +319,7 @@ do
   chk(g1 >= 1 and g2 >= 1, "F5 gap between far fore paw and hind paws (" .. g1 .. "," .. g2 .. " px)")
 end
 local ext = true
-for f = 1, 10 do
+for f = 1, 12 do
   local I = info[f]
   local gx0, gy0, gx1, gy1 = 99, 99, -1, -1
   for _, part in pairs(I.p) do
@@ -322,4 +329,7 @@ for f = 1, 10 do
   if gx0 < 6 or gy0 < 6 or gx1 > 72 or gy1 > 56 then ext = false; print(string.format("  F%d felt extents %d,%d..%d,%d", f, gx0, gy0, gx1, gy1)) end
 end
 chk(ext, "felt inside x 6..72, y 6..56")
+local hmin, hmax = 99, 0
+for f = 1, 12 do for _, q in ipairs{ { POSE[f].H, LEGS[f].nh[1] }, { { POSE[f].H[1] + 1, POSE[f].H[2] - 1 }, LEGS[f].fh[1] } } do local d = math.sqrt((q[1][1] - q[2][1]) ^ 2 + (q[1][2] - q[2][2]) ^ 2); hmin = math.min(hmin, d); hmax = math.max(hmax, d) end end
+print(string.format("hip-hock range %.1f..%.1f", hmin, hmax))
 print(ok and "ALL CHECKS PASS" or "SOME CHECKS FAILED")
