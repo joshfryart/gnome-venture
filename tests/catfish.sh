@@ -35,7 +35,7 @@ shelter() { php -r 'function is_admin(){return false;} function setting($n){retu
 
 login $W/a admin TestPassword123
 login $W/p sprout 'TestPass123!'
-dbx "DELETE FROM settings WHERE name IN ('catfish_open')"
+dbx "DELETE FROM settings WHERE name IN ('catfish_open','catfish_room2')"
 
 # gate (default is On since 2.1.00: close it explicitly first)
 ok "default: no stored row means open" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
@@ -44,6 +44,7 @@ ok "gate off: player is sent away" "$(curl -s -b $W/p -o /dev/null -w '%{http_co
 curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: no Cat Fish link while off" "$(grep -c 'href="[^"]*catfish.php"' $W/h.html)" 0
 setg festivals_on 0   # a running festival doubles Yarn from a Nap; keep the checks date-independent
 setg catfish_open 1
+setg catfish_room2 0   # these checks are about the old page; the room2 page has its own checks at the end
 ok "gate on: player gets the page" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
 curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: Cat Fish tile shows (the menu has its own Whisker Pond link too, so count the tile)" "$(grep -c 'class="gtile[^"]*" href="[^"]*catfish.php"' $W/h.html)" 1
 
@@ -1814,6 +1815,26 @@ ok "migration: a missing pet shop is made again by the next page view, the flag 
 rm -rf "${GAME:?}/assets/img/catfish"
 curl -s -b $W/p $BASE/catfish.php > $W/noart.html
 ok "page without art: hidden h1 heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1 class="cfsr">Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art\|cfstage\|cfactive' $W/noart.html)" "110"
+
+# room2 (the canvas room, setting catfish_room2): the stage markup, the data block, the drawer panels, the shell scripts, and the rod / far payout multipliers
+mkdir -p $CFART; [ -d "$CFHOLD/room2" ] && cp -r $CFHOLD/room2 $CFART/room2   # the run moved the installed art aside; room2 needs its manifest
+setg catfish_room2 2
+curl -s -b $W/p $BASE/catfish.php > $W/r2.html
+ok "room2 page: canvas, data block, drawer with its panels (shop and more at least), shell and engine scripts" "$(grep -c 'class="cfr2cv"' $W/r2.html)$(grep -c 'class="cfr2data"' $W/r2.html)$(grep -c 'id="cf-drawer"' $W/r2.html)$([ $(grep -o 'data-tab="[a-z]*"' $W/r2.html | sort -u | wc -l) -ge 2 ] && echo 1 || echo 0)$(grep -c 'assets/catfish_shell.js' $W/r2.html)$(grep -c 'assets/catfish_room.js' $W/r2.html)" "111111"
+ok "room2 page: wrapped in .cfpage.cfr2 and the old rod stage is gone" "$(grep -c 'class="cfpage[^"]* cfr2' $W/r2.html)$(grep -c 'class="cfstage[ "]' $W/r2.html)" "10"
+setg catfish_room2 0
+curl -s -b $W/p $BASE/catfish.php > $W/r2off.html
+ok "room2 off: the old page, no canvas, no shell scripts" "$(grep -c 'class="cfr2cv"' $W/r2off.html)$(grep -c 'catfish_shell.js' $W/r2off.html)" "00"
+# payout: rod taps x1.5, far catches x1.25, both clamped to the batch size and best multipliers first
+setg catfish_room2 2
+dbx "UPDATE catfish_state SET upgrades='{\"fish\":100}', kibble=0, run_kibble=0, total_kibble=0, last_tick=$(date +%s), meta=json_remove(json_remove(json_remove(meta,'$.pq'),'$.pb'),'$.pt') WHERE user_id=$UID_"
+CS=$(csrf $W/p.html); curl -s -b $W/p $BASE/catfish.php -o $W/p.html; CS=$(csrf $W/p.html)
+B0=$(cfapi -d do=tick -d play=4 -d seq=910001 | jp view.play.paid)
+B1=$(cfapi -d do=tick -d play=4 -d seq=910002 -d rod=4 | jp view.play.paid)
+B2=$(cfapi -d do=tick -d play=4 -d seq=910003 -d far=4 | jp view.play.paid)
+B3=$(cfapi -d do=tick -d play=4 -d seq=910004 -d rod=99 -d far=99 | jp view.play.paid)
+ok "room2 payout: a rod batch pays more than a plain one, a far batch pays in between, and an inflated claim pays no more than all-rod" "$(php -r 'echo ($argv[2] > $argv[1] ? 1 : 0), ($argv[3] > $argv[1] && $argv[3] < $argv[2] ? 1 : 0), ($argv[4] <= $argv[2] ? 1 : 0);' "$B0" "$B1" "$B2" "$B3")" "111"
+setg catfish_room2 0
 
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

@@ -10,14 +10,14 @@
   var shown = d.kibble, rate = d.kph, frac = 0;
   function st() { return document.querySelector('.cfstage'); }   // the stage is swapped in place after a buy (swapScene), so it is looked up each time
   var play = d.play || { v: 1, left: 0, ever: 0, tok: 15 }, playAt = Date.now(), lastSync = 0, flushT = 0;
-  var pending = 0, pendV = 0, outB = [], held = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {}, buying = {}, queue = [], reloaded = false, popTimer = 0;
+  var pending = 0, pendV = 0, pendRod = 0, pendFar = 0, outB = [], held = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {}, buying = {}, queue = [], reloaded = false, popTimer = 0;
   // ms clock x 100 plus a random 0-99: increasing in this tab and across page loads, and two tabs rarely mint the same id (stays within the server's 15 digits)
   function nextSeq() { lastSeq = Math.max(lastSeq + 1, Date.now() * 100 + Math.floor(Math.random() * 100)); return lastSeq; }
   function unpaidV() { return outB.reduce(function (a, b) { return a + b.v; }, pendV); }   // Kibble from taps the server has not confirmed yet
   function tapsHeld() { return outB.reduce(function (a, b) { return a + b.n; }, pending); }
-  function freeze() { if (pending > 0) { outB.push({ n: pending, v: pendV, seq: nextSeq() }); pending = 0; pendV = 0; } }
+  function freeze() { if (pending > 0) { outB.push({ n: pending, v: pendV, seq: nextSeq(), rod: pendRod, far: pendFar }); pending = 0; pendV = 0; pendRod = 0; pendFar = 0; } }
   /* the batch a request carries: the oldest frozen one, else the pending taps frozen now */
-  function takeBatch(data) { if (!outB.length) freeze(); var b = outB[0] || null; if (b) { data.play = b.n; data.seq = b.seq; } return b; }
+  function takeBatch(data) { if (!outB.length) freeze(); var b = outB[0] || null; if (b) { data.play = b.n; data.seq = b.seq; if (b.rod) data.rod = b.rod; if (b.far) data.far = b.far; } return b; }
   function settle(b, r) {   // the server answered: a view means the batch was handled (paid or a replay); no view means it was not, so it is retried under a fresh seq
     if (!b) return;
     var i = outB.indexOf(b); if (i >= 0) outB.splice(i, 1);
@@ -114,7 +114,7 @@
   window.addEventListener('pagehide', function () {   // the frozen batches (same seq), then the new taps under their own seq; they stay frozen in case the page comes back
     if (!navigator.sendBeacon) return;
     freeze();
-    outB.forEach(function (b) { navigator.sendBeacon(d.api, form({ do: 'tick', play: b.n, seq: b.seq })); });
+    outB.forEach(function (b) { navigator.sendBeacon(d.api, form({ do: 'tick', play: b.n, seq: b.seq, rod: b.rod || 0, far: b.far || 0 })); });
   });
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest ? ev.target.closest('.cfstage button.cfsdrop') : null, stage = b && b.closest('.cfstage');
@@ -135,12 +135,27 @@
     stage.dispatchEvent(new CustomEvent('cftap', { detail: { btn: b, fish: +f, combo: combo } }));
   });
   setInterval(sync, 30000);
+  /* room2 (catfish_room.js): window.CFPlay.tap(kind) pays one tap. kind 'rod' = the dangling fish (x1.5), 'far' = a catch of a far throw (x1.25), anything else = a catch (x1).
+     The same token bucket and batching as a tap on a fish; the server takes `rod` and `far` counts with the batch and clamps them. Returns the Kibble shown for it, or 0 when out of taps. */
+  window.CFPlay = {
+    tap: function (kind) {
+      var now = Date.now(), mul = kind === 'rod' ? 1.5 : (kind === 'far' ? 1.25 : 1);
+      var v = play.left - tapsHeld() > 0 && tokens() >= 1 ? Math.floor(play.v * mul) : 0;
+      if (v > 0 && 40 > pending) {
+        pending++; pendV += v; if (kind === 'rod') pendRod++; else if (kind === 'far') pendFar++;
+        setPending(); shown += v; draw(); clearTimeout(flushT); flushT = setTimeout(sync, Math.max(2000, 10000 - (Date.now() - lastSync)));
+      } else v = 0;
+      combo = (lastTap && now - lastTap < 2000) ? Math.min(10, Math.max(combo, 1) + 1) : 1; lastTap = now;
+      clearTimeout(comboTimer); comboTimer = setTimeout(function () { combo = 0; setCombo(); }, 2000); setCombo();
+      var hint = document.getElementById('cf-hint'); if (hint) hint.hidden = true;
+      return v;
+    },
+    left: function () { return Math.max(0, play.left - tapsHeld()); },
+    value: function () { return play.v; }
+  };
   /* Room things (2.2.x): an active item on the stage (button.cfpet) is used with do=petuse. The pending taps ride along (play, seq) and are paid first, in the same lock, like a buy;
      the reply carries the view and, when the scene changed (the item is cooling down, rain started), the new stage. The Room things panel does the same with plain forms. */
-  document.addEventListener('click', function (ev) {
-    var b = ev.target.closest ? ev.target.closest('.cfstage button.cfpet') : null;
-    if (!b || !ev.isTrusted || b.disabled || b.getAttribute('data-busy')) return;
-    var slot = b.getAttribute('data-slot'); if (!slot) return;
+  function petUse(b, slot) {   // b = the button (or a stand-in with the same three methods, for a tap on the room2 canvas)
     b.setAttribute('data-busy', '1');
     whenFree(function () {
       var data = { do: 'petuse', slot: slot, scene: d.scene }, pb = takeBatch(data);
@@ -155,7 +170,14 @@
         var live = document.getElementById('cf-playlive'); if (live) { live.textContent = ''; setTimeout(function () { live.textContent = r.message || r.error || ''; }, 50); }
       }, function () { free(); b.removeAttribute('data-busy'); say('Could not reach the game. Try again.', true); });
     });
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('.cfstage button.cfpet, .cfr2stage button.cfpet') : null;
+    if (!b || !ev.isTrusted || b.disabled || b.getAttribute('data-busy')) return;
+    var slot = b.getAttribute('data-slot'); if (slot) petUse(b, slot);
   });
+  var petBusy = {};
+  window.CFPlay.petUse = function (slot) { if (petBusy[slot]) return; petBusy[slot] = 1; petUse({ setAttribute: function () {}, getAttribute: function () { return null; }, removeAttribute: function () { petBusy[slot] = 0; } }, String(slot)); };
   document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); });
   /* Buy (2.1.07): the cost leaves the counter at once, the pressed button stays off until the reply, and the request carries the pending taps (play, seq as in a tick) so the server pays
      them before it checks the cost. A reply with a view means the server handled the taps and the buy: pending is cleared and the view (kibble, rate, rows, run) replaces the guess, a refusal

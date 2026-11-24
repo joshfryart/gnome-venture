@@ -1,0 +1,10 @@
+ 0 ...AAAA..
+ 1 ..ABBBCD.
+ 2 .ABBBBCEF
+ 3 .ABBBECEF
+ 4 .ACEECCEF
+ 5 .ACCCCCEF
+ 6 ..DECEEFF
+ 7 ...FFFFFF
+ 8 ...FFFFF.
+A=74462a B=b9cfd9 C=6f8aa8 D=4a2c1a E=8eaabf F=2a1a10

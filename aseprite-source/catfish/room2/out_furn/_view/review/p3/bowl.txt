@@ -1,0 +1,12 @@
+ 0 ....aaaaaaaaaabbbcccc.
+ 1 ..aaddddddddddddddcccc
+ 2 .addeffffffffffffedfcc
+ 3 adeghghghghghghghghfec
+ 4 afehghghghghghghghgeec
+ 5 .afffghghghghghgheeecc
+ 6 ..aaddddddddddddddcccc
+ 7 ....affififififffcccc.
+ 8 .....abjjjjjjjjcccc...
+ 9 .....kkkkkkkkkkkkk....
+10 .......kkkkkkkkkkk....
+a=#74462a b=#4a2c1a c=#2a1a10 d=#f29abb e=#e46a9b f=#b8466e g=#d9a660 h=#b07a45 i=#f2e4c0 j=#b8661a k=#9a6b3f

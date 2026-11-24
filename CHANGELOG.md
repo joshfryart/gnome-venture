@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.8.47
+- **Treehouse (and yard) picture: centred and bigger on a landscape phone.** A picture page with no list beside it now centres its picture and makes it large: its height is the space above the dock plus 30 px, so the page scrolls the last bit (about 65% wider than before on a 412 px-tall phone). Pages with a villager list beside the picture are unchanged.
+
+## 2.8.46
+- **Fix: Satchel Quick button could not pick an item (landscape).** The shelves now open a full-screen picker, which sits above the dock, so the dock's Confirm piece could not be tapped and never saw the open item. While you are choosing a Quick item, the open item's panel now has a "Set as Quick" button (only for items the Quick slot can hold). The dock's Confirm piece also finds the item in the new panel.
+
+## 2.8.45
+- **Cat Fish: the new room (setting `catfish_room2`, on by default).** A 480x270 room with depth: cats run into the distance (smaller) and back, zoom off one side of the screen and in from the other, and the other cats wander, nap, tag each other and climb the cat tree. Tap the floor to throw the lure; the cat chases it and the catch pays Kibble (x1.25 when the throw was far). Tap a dangling fish: x1.5. Idle cats now yawn, stretch, wash, flick their tails, twitch their ears and swat at nothing. Room things show on the stage, and active ones can be tapped there.
+- **Cat Fish page layout.** The room loads first. The shop is a drawer with Shop, Shelter and More tabs: it slides in from the right on phones and tablets, and is a permanent 360 px rail from 1000 px wide. Short landscape phones show the whole room. A one-time "turn your phone sideways" chip shows in portrait.
+- **Server.** `catfish_play` takes `rod` and `far` counts with a batch (clamped to the number of taps, best multipliers first). New setting `catfish_room2` (Off, Admins only, On for everyone). New art in `assets/img/catfish/room2/`, packed by `tools/catfish_room2_pack.py`. Notes: `claude/catfish-room2.md`.
+- **Admin > Tools: reset a player's Puzzle Pals and/or jigsaw progress** (blank name = yourself; needs the confirm box).
+
 ## 2.8.44
 - **Shop Buy / Sell: bigger tiles on desktop.** The compact phone-landscape tiles (66 px) applied to every dock screen; they now apply only to short landscape screens (height 520 px or less). Desktop gets tiles at least 130 px wide.
 - **Shop filters are back:** under the category chips, Sort (name, price, rarity), Rarity, and Can afford (Buy) or Wanted (Sell). Client side only.

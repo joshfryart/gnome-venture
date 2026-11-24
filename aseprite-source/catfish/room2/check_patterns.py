@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""check_patterns.py: pattern-count checks for run80 coats (grey space, recomputed from run80_coats).
+python3 -I check_patterns.py"""
+import os, sys
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import numpy as np
+import run80_coats as C
+
+layers = C.load_layers(); pose, legs = C.parse_lua()
+greys = [C.rd(os.path.join(C.OUT80, 'cf-cat-grey-run%02d.png' % (f + 1))) for f in range(C.NF)]
+geo = [C.geometry(f, pose[f], legs[f]) for f in range(C.NF)]
+infos = [C.classify(f, geo[f], layers, greys[f]) for f in range(C.NF)]
+bad = 0
+Ls = [pose[f]['L'] for f in range(C.NF)]
+for p in C.R.PATTERNS:
+    cnt = []; cov = []; body = []; comps = []
+    for f in range(C.NF):
+        img = C.make_pattern(p, infos[f]); m = img[..., 3] > 0
+        cnt.append(int(m.sum())); cov.append(m.sum() / len(infos[f]))
+        # body-zone features: pattern pixels on part 'body' and the number of separate 8-connected pieces
+        bm = np.zeros(m.shape, bool)
+        for k, d in infos[f].items():
+            if d['part'] in ('body', 'haunch', 'chest') and m[k[1], k[0]]: bm[k[1], k[0]] = True
+        body.append(int(bm.sum()))
+        bo = np.zeros(m.shape, bool)             # pieces counted on the pure body part: haunch/chest strokes may touch a stripe, that is not a merge
+        for k, d in infos[f].items():
+            if d['part'] == 'body' and m[k[1], k[0]]: bo[k[1], k[0]] = True
+        comps.append(len(C.components(bo)))
+    # fill patterns (white / calico / points) follow the silhouette; judge the jump on coverage = pattern px / felt px, others on raw count
+    core = []                                    # body+haunch+chest+head px: these follow L; tail/legs/paws follow the gait pose
+    for f in range(C.NF):
+        m = C.make_pattern(p, infos[f])[..., 3] > 0
+        core.append(sum(1 for k, d in infos[f].items() if d['part'] in ('body', 'haunch', 'chest', 'head') and m[k[1], k[0]]))
+    corefelt = [sum(1 for d in infos[f].values() if d['part'] in ('body', 'haunch', 'chest', 'head')) for f in range(C.NF)]
+    ser = [a / b for a, b in zip(core, corefelt)] if p in ('tuxedo', 'calico', 'pointed') else core
+    print('         core px', core)
+    print('         jump on', 'core coverage' if p in ('tuxedo', 'calico', 'pointed') else 'core count', '; trunk(body+haunch+chest) px below')
+    jumps = [abs(ser[(f + 1) % C.NF] - ser[f]) / ser[f] for f in range(C.NF)]
+    print('%-8s counts %s' % (p, cnt))
+    print('         L      %s' % Ls)
+    print('         body px %s  body pieces %s  max jump %.1f%%' % (body, comps, 100 * max(jumps)))
+    if max(jumps) > 0.08: print('         FAIL jump > 8%'); bad += 1
+    if p in ('tabby', 'spotted'):
+        need = 3
+        if p == 'tabby': need = 1                # stripes may touch diagonally when L is shortest; vanishing is judged by pixels too
+        if min(comps[3:6]) < need or min(body[3:6]) < 0.85 * max(body): print('         FAIL body feature vanished in frames 4-6'); bad += 1
+print('check_patterns:', 'FAILED' if bad else 'ok')
+sys.exit(1 if bad else 0)

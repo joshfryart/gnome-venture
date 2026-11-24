@@ -475,3 +475,55 @@ button.cfpet.is-ready::before { content: ""; position: absolute; right: -2px; to
   .cfdock .cfcount .muted { font-size: 1rem; }
   .cfupwrap .cfups { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ===== room2 shell (setting catfish_room2): slide-in shop drawer, wide-screen rail, landscape phones =====
+   Everything is scoped to .cfr2 so the old page is untouched. Without JS the drawer is a plain block under the room. */
+.cfr2 .cfdclose, .cfr2 .cfshopbtn { font: inherit; }
+.cfr2.js .cfdock { display: flex; flex-wrap: wrap; align-items: center; }
+.cfr2.js .cfdock .cfstagewrap { flex: 0 0 100%; }
+.cfr2.js .cfdock .cfcount { flex: 1 1 auto; min-width: 0; }
+.cfr2 .cfshopbtn { flex: none; margin: 0 12px 8px auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 0; background: var(--cf-rug); color: var(--cf-cream); font-weight: 900; box-shadow: inset 0 -4px 0 var(--cf-rug2), 0 0 0 2px var(--cf-edge); cursor:pointer; }
+.cfr2 .cfshopbtn[aria-expanded="true"] { background: var(--cf-tabon); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .25), 0 0 0 2px var(--cf-edge); }
+.cfr2.js .cfdrawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(360px, 92vw); overflow-y: auto; overscroll-behavior: contain; padding: 12px; background: var(--cf-surf2); color: var(--cf-ink); box-shadow: -3px 0 0 var(--cf-edge); transform: translateX(100%); visibility: hidden; transition: transform .22s ease-out, visibility 0s .22s; }
+.cfr2.js.shop-open .cfdrawer { transform: none; visibility: visible; transition: transform .22s ease-out, visibility 0s; }
+.cfr2.js .cfscrim { position: fixed; inset: 0; z-index: 59; background: rgba(31, 18, 9, .5); }
+.cfr2.js .cfscrim[hidden] { display: none; }
+.cfr2 .cfdclose { position: sticky; top: 0; z-index: 2; float: right; width: 44px; height: 44px; margin: -4px -4px 4px 8px; border: 0; border-radius: 0; background: var(--cf-surf); color: var(--cf-ink); font-weight: 900; box-shadow: 0 0 0 2px var(--cf-edge); cursor:pointer; }
+.cfr2 .cfdclose[hidden], .cfr2 .cfshopbtn[hidden] { display: none; }
+.cfr2 .cfdrawer h2 { margin-top: 4px; }
+.cfr2 .cfdrawer .cfupwrap .cfups { grid-template-columns: 1fr 1fr; }
+.cfr2 .cfturn { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 6px 6px 6px 12px; background: var(--cf-dock); color: var(--cf-cream); font-size: .8125rem; font-weight: 700; box-shadow: 0 0 0 2px var(--cf-edge); }
+.cfr2 .cfturn button { flex: none; width: 36px; height: 36px; margin-left: auto; border: 0; background: transparent; color: inherit; font-weight: 900; cursor:pointer; }
+@media (prefers-reduced-motion: reduce) { .cfr2.js .cfdrawer, .cfr2.js.shop-open .cfdrawer { transition: none; } }
+.cfr2.js .cfdhead { position: sticky; top: -12px; z-index: 3; display: flex; align-items: center; gap: 6px; margin: -12px -12px 8px; padding: 8px 8px 6px; background: var(--cf-surf2); box-shadow: 0 3px 0 var(--cf-edge); }
+.cfr2.js .cfdtabs { display: flex; flex: 1 1 auto; gap: 4px; min-width: 0; }
+.cfr2.js .cfdtabs button { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 4px; border: 0; border-radius: 0; background: var(--cf-surf); color: var(--cf-ink); font: inherit; font-weight: 900; box-shadow: inset 0 0 0 2px var(--cf-honey); cursor:pointer; }
+.cfr2.js .cfdtabs button[aria-selected="true"] { background: var(--cf-tabon); color: var(--cf-cream); box-shadow: inset 0 0 0 2px var(--cf-edge); }
+.cfr2.js .cfdhead .cfdclose { position: static; float: none; flex: none; margin: 0; }
+.cfr2 .cfdp[hidden] { display: none; }
+/* landscape phone: the room takes the height, the drawer takes the right edge */
+@media (orientation: landscape) and (max-height: 520px) {
+  .cfr2 .cfdock { padding-top: 0; }
+  .cfr2 .cfdock .cfcount { font-size: 1.25rem; padding: 4px 12px 6px; } .cfr2 .cfdock .cfcount img { width: 24px; height: 24px; }
+  .cfr2 .cfshopbtn { margin-bottom: 4px; min-height: 40px; }
+  .cfr2.js .cfdrawer { width: min(340px, 56vw); }
+  .cfr2.js .cfdock .cfstagewrap { flex-basis: 100%; }
+}
+/* wide screens: a permanent 360 px rail, room on the left */
+@media (min-width: 1000px) {
+  .cfr2.js { display: grid; grid-template-columns: minmax(0, 1fr) 360px; column-gap: 16px; align-items: start; max-width: 1240px; margin-inline: auto; }
+  .cfr2.js > * { grid-column: 1; }
+  .cfr2.js > .cfdrawer { grid-column: 2; grid-row: 1 / span 40; position: sticky; top: 8px; z-index: 1; max-height: calc(100vh - 16px); width: auto; transform: none; visibility: visible; transition: none; box-shadow: 0 0 0 3px var(--cf-edge); }
+  .cfr2.js .cfshopbtn, .cfr2.js .cfdclose, .cfr2.js .cfscrim { display: none; }
+  .cfr2.js .cfdrawer .cfupwrap .cfups { grid-template-columns: 1fr 1fr; }
+}
+
+/* room2 stage: one 480x270 canvas, scaled by CSS (pixelated); the width also fits the height so a short landscape phone shows the whole room */
+.cfr2wrap { --cf-chrome: 150px; display: flex; justify-content: center; margin: 0; zoom: 1 !important; overflow: hidden; background: var(--cf-dock); }
+.cfr2stage { position: relative; width: min(100%, 960px, calc((100dvh - var(--cf-chrome)) * 16 / 9)); aspect-ratio: 16 / 9; }
+.cfr2cv { display: block; width: 100%; height: 100%; image-rendering: pixelated; touch-action: manipulation; cursor:pointer; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.cfr2hint { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); width: max-content; max-width: 92%; margin: 0; padding: 6px 10px; background: #fff8e2; color: #3a2410; font-size: .8125rem; font-weight: 900; text-align: center; box-shadow: 0 0 0 2px #3a2410; pointer-events: none; }
+.cfr2hint[hidden] { display: none; }
+@media (orientation: landscape) and (max-height: 520px) { .cfr2wrap { --cf-chrome: 96px; } }
+@media (pointer: coarse) and (orientation: landscape) { .cfr2 .cfshopbtn { margin-right: 64px; } }
+@media (max-width: 520px) { .cfr2.js .cfdock .cfcount { font-size: 1.25rem; padding-right: 4px; } .cfr2.js .cfdock .cfcount img { width: 28px; height: 28px; } .cfr2.js .cfdock .cfcount .muted { font-size: .6875rem; } .cfr2 .cfshopbtn { margin-right: 8px; } }   /* clear of the site's notification bell */

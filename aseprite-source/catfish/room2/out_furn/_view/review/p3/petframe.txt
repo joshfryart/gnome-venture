@@ -1,0 +1,16 @@
+ 0 .aaaaaaaaaa.
+ 1 abbbbbbbbccd
+ 2 abbbbeeeeccd
+ 3 abbcccccccef
+ 4 abecgggggcef
+ 5 abecgggggcef
+ 6 abecghhggcef
+ 7 abechihhgcef
+ 8 abecghhhccef
+ 9 abecgghggcef
+10 abecgggggcef
+11 dbecgggggcef
+12 dcccccccccef
+13 deeeeeeeeeef
+14 .fffffffffff
+a=#74462a b=#d9a660 c=#8a4f2a d=#4a2c1a e=#b07a45 f=#2a1a10 g=#f2e4c0 h=#c8643c i=#e08a5a

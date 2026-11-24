@@ -35,7 +35,7 @@ $withScene = function (array $a, array $view) use ($uid, $do) {
 };
 if ($do === 'tick') {
     $got = 0; $paid = 0;
-    if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);   // taps batched since the last tick (see catfish_play)
+    if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0, $_POST['rod'] ?? 0, $_POST['far'] ?? 0);   // taps batched since the last tick (see catfish_play)
     $view = catfish_view($uid, $got, $paid);
     $out($withScene(['ok' => true, 'view' => $view], $view));
 }
@@ -43,7 +43,7 @@ if ($do === 'buy') {
     // 2.1.07: pending taps (play=n, seq) are paid first, in the same lock, so the cost check sees the Kibble the player already saw; the buy answers with the new view and the new scene.
     [$ok, $msg, $got, $paid] = catfish_locked($uid, function () use ($uid, $str, $int) {
         $got = 0; $paid = 0;
-        if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);
+        if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0, $_POST['rod'] ?? 0, $_POST['far'] ?? 0);
         [$ok, $msg] = catfish_buy($uid, $str('key'), $int('n', 1));
         return [$ok, $msg, $got, $paid];
     });
@@ -59,7 +59,7 @@ if ($do === 'petuse') {
     // like a buy: pending taps (play, seq) are paid first, in the same lock, so the Kibble the player already saw is real before a pop adds to it
     [$ok, $msg, $x, $got, $paid] = catfish_locked($uid, function () use ($uid, $str, $int) {
         $got = 0; $paid = 0;
-        if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);
+        if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0, $_POST['rod'] ?? 0, $_POST['far'] ?? 0);
         [$ok, $msg, $x] = catfish_pet_use($uid, $int('slot', 0), ['shelter' => $str('shelter')]);
         return [$ok, $msg, $x, $got, $paid];
     });

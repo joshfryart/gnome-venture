@@ -1,0 +1,31 @@
+ 0 ................
+ 1 ........a.......
+ 2 .......aba......
+ 3 ......abcda.....
+ 4 .....abbcdda....
+ 5 ..aeabcccddaea..
+ 6 .abaabcccddaadf.
+ 7 .abbabcccddabdf.
+ 8 .abcdbcccdcbddf.
+ 9 .abcdbcccdccdde.
+10 abccdbcccdccdde.
+11 .abccbcccdccdce.
+12 .abccbcccdccdcee
+13 .abccbcccdccdcee
+14 .abccbcccdccdcee
+15 .abccbcccdccdcee
+16 .abccbcccdccdcee
+17 .addddddddcddcee
+18 .fccccccccccccee
+19 .fgghhhhhhhhhgge
+20 ..ggggggggggggge
+21 ..iiiiiiiiiiiiie
+22 ..egggjjjjjiijee
+23 ..egjjjjjjjiijee
+24 ..ekkikkikkillee
+25 ..eiiiiiiiiiijee
+26 .eeiiiiiiiiiijee
+27 .eeijjjjjjjjjjee
+28 .eeeeeeeeeeeeeee
+29 ..eeeeeeeeeeeee.
+a=#74462a b=#a4b86a c=#7ab55c d=#4a8a3e e=#2a1a10 f=#4a2c1a g=#e08a5a h=#5e2f1e i=#8a4f2a j=#c8643c k=#f5cf6a l=#e8a317
