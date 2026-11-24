@@ -24,8 +24,14 @@ for p in C.R.PATTERNS:
             if d['part'] in ('body', 'haunch', 'chest') and m[k[1], k[0]]: bm[k[1], k[0]] = True
         body.append(int(bm.sum())); comps.append(len(C.components(bm)))
     # fill patterns (white / calico / points) follow the silhouette; judge the jump on coverage = pattern px / felt px, others on raw count
-    ser = cov if p in ('tuxedo', 'calico', 'pointed') else cnt
-    print('         jump on', 'coverage' if ser is cov else 'raw count', '; trunk(body+haunch+chest) px below')
+    core = []                                    # body+haunch+chest+head px: these follow L; tail/legs/paws follow the gait pose
+    for f in range(C.NF):
+        m = C.make_pattern(p, infos[f])[..., 3] > 0
+        core.append(sum(1 for k, d in infos[f].items() if d['part'] in ('body', 'haunch', 'chest', 'head') and m[k[1], k[0]]))
+    corefelt = [sum(1 for d in infos[f].values() if d['part'] in ('body', 'haunch', 'chest', 'head')) for f in range(C.NF)]
+    ser = [a / b for a, b in zip(core, corefelt)] if p in ('tuxedo', 'calico', 'pointed') else core
+    print('         core px', core)
+    print('         jump on', 'core coverage' if p in ('tuxedo', 'calico', 'pointed') else 'core count', '; trunk(body+haunch+chest) px below')
     jumps = [abs(ser[(f + 1) % C.NF] - ser[f]) / ser[f] for f in range(C.NF)]
     print('%-8s counts %s' % (p, cnt))
     print('         L      %s' % Ls)

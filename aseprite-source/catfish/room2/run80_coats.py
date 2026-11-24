@@ -209,7 +209,7 @@ def tabby(d):
             thr = -8 + (36 - d['L']) * 1.5       # 2 px wide below row thr, tapering to 1 px as the body shortens (smooth counts)
             w = 2 if v >= thr else 1
             for i, t0 in enumerate((0.15, 0.5, 0.85)):
-                xs = bx(d, t0) + rnd(v * 0.3)
+                xs = bx(d, t0) + rnd(v * 0.2) - ((w - 1) if i == 2 else 0)   # last stripe keeps its right edge at t
                 if 0 <= d['x'] - xs < w:
                     hi = 3 if i % 2 == 0 else 0
                     return 'S' if v >= hi - 1 else 'D'
@@ -604,6 +604,25 @@ def main():
     big = Image.new('RGBA', (rows[0].width, H_ * len(rows)))
     for i, r_ in enumerate(rows): big.paste(r_, (0, i * H_))
     big.save(os.path.join(VIEW, 'all-coats-tabby-calico.png'))
+    def crop(a, f):
+        hx, hy = geo[f]['hx'], geo[f]['hy']
+        im = Image.fromarray(a, 'RGBA'); bg = Image.new('RGBA', im.size, (245, 236, 215, 255)); bg.alpha_composite(im)
+        return bg.crop((hx - 16, hy - 17, hx + 12, hy + 9)).resize((28 * 4, 26 * 4), Image.NEAREST)
+    def closeup(name, rows):
+        FR = (0, 3, 7, 10)
+        big = Image.new('RGBA', (28 * 4 * len(FR), 26 * 4 * len(rows)))
+        for ri, rr in enumerate(rows):
+            for ci, f in enumerate(FR): big.paste(crop(rr[f], f), (ci * 112, ri * 104))
+        big.save(os.path.join(VIEW, name))
+    cs = ('grey', 'orange', 'black')
+    closeup('closeup-calico-head.png', [row(c, 'calico') for c in cs])
+    closeup('closeup-folded-ears.png', [r_ for c in cs for r_ in (row(c, None, True), row(c, 'calico', True), row(c, 'tabby', True))])
+    closeup('closeup-folded-pointed-spotted.png', [r_ for c in cs for r_ in (row(c, 'pointed', True), row(c, 'spotted', True))])
+    rows = []
+    for coat in R.COATS: rows.append(tile(row(coat, 'calico', True), 1)); rows.append(tile(row(coat, 'spotted', True), 1))
+    big = Image.new('RGBA', (rows[0].width, H_ * len(rows)))
+    for i, r_ in enumerate(rows): big.paste(r_, (0, i * H_))
+    big.save(os.path.join(VIEW, 'all-coats-folded-calico-spotted.png'))
     # parse-check of the frame-to-frame behaviour is visual; report
     print('wrote %d PNG files to %s' % (n, OUT))
     for p in problems[:40]: print('PROBLEM', p)
