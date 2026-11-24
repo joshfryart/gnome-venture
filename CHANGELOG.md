@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.35
+- **Trail page in landscape: the button row is gone.** Gather, Sights, Wander off, Sneak, Hunt and Turn back are in the dock's Trail menu, so the copies beside the map are hidden (the menu still presses them). The column beside the map is for the strip, weather, ledger and sight text.
+
 ## 2.8.34
 - **Trail page, short landscape phone: map left, text right, half and half.** The map shows 9 x 5 tiles (about 310 x 175 px, tiles about 35 px). The text column (strip, ledger, buttons) is the right half. Route, the caption and the legend sit under both (scroll to them) instead of behind the dock.
 

@@ -245,7 +245,7 @@ body.dock-on .cbed { cursor: pointer; }
   html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam { gap: 3px; margin-block: 0 4px; }
   html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam > *, html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam details { padding: 1px 4px; margin: 0; font-size: 11px; }
   html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfam summary { padding: 1px 6px; min-height: 0; font-size: 11px; line-height: 1.2; white-space: normal; }
-  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot { gap: 3px; margin: 0; flex-wrap: nowrap; }
+  html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot { display: none; }   /* v2.8.35: Gather / Sights / Wander / Sneak / Hunt / Turn back are in the dock's Trail menu (it clicks these hidden buttons); the column beside the map is for the text */
   html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot .btn, html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot form { min-height: 24px; padding: 1px 3px; font-size: 10px; line-height: 1.1; flex: 1 1 0; min-width: 0; }
   html body.dock-on .advgrid > .mapcol:has(> .trailstrip) .trailfoot .btn small { display: none; }
   html body.dock-on .advgrid > .mapcol:has(> .trailstrip) details.routefold > summary { padding: 1px 6px; min-height: 0; font-size: 11px; }
