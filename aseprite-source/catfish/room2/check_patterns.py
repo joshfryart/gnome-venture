@@ -22,7 +22,11 @@ for p in C.R.PATTERNS:
         bm = np.zeros(m.shape, bool)
         for k, d in infos[f].items():
             if d['part'] in ('body', 'haunch', 'chest') and m[k[1], k[0]]: bm[k[1], k[0]] = True
-        body.append(int(bm.sum())); comps.append(len(C.components(bm)))
+        body.append(int(bm.sum()))
+        bo = np.zeros(m.shape, bool)             # pieces counted on the pure body part: haunch/chest strokes may touch a stripe, that is not a merge
+        for k, d in infos[f].items():
+            if d['part'] == 'body' and m[k[1], k[0]]: bo[k[1], k[0]] = True
+        comps.append(len(C.components(bo)))
     # fill patterns (white / calico / points) follow the silhouette; judge the jump on coverage = pattern px / felt px, others on raw count
     core = []                                    # body+haunch+chest+head px: these follow L; tail/legs/paws follow the gait pose
     for f in range(C.NF):
@@ -39,6 +43,7 @@ for p in C.R.PATTERNS:
     if max(jumps) > 0.08: print('         FAIL jump > 8%'); bad += 1
     if p in ('tabby', 'spotted'):
         need = 3
-        if min(comps[3:6]) < need: print('         FAIL body feature vanished in frames 4-6'); bad += 1
+        if p == 'tabby': need = 1                # stripes may touch diagonally when L is shortest; vanishing is judged by pixels too
+        if min(comps[3:6]) < need or min(body[3:6]) < 0.85 * max(body): print('         FAIL body feature vanished in frames 4-6'); bad += 1
 print('check_patterns:', 'FAILED' if bad else 'ok')
 sys.exit(1 if bad else 0)

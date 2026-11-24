@@ -176,7 +176,7 @@ def classify(f, g, layers, grey):
                 elif ((x - (S[0] + 1)) / 6.0) ** 2 + ((y - (S[1] - 5)) / 6.5) ** 2 <= 1.15 and x >= S[0] - 3:
                     d.update(part='chest', lx=x - (S[0] + 1), ly=y - (S[1] - 5))
                 else:
-                    d.update(part='body', u=x - BX, v=rnd(y - spine_y(g, x)), t=(x - (g['rear'] + 12)) / max(1, g['L'] - 22), L=g['L'], rear=g['rear'])
+                    d.update(part='body', u=x - BX, v=rnd(y - spine_y(g, x)), t=(x - (g['rear'] + 12)) / max(1, g['L'] - 22), L=g['L'], rear=g['rear'], spf=lambda xx, g=g: spine_y(g, xx))
             else:
                 keys = ('fn', 'hn') if lay == 'legs-near' else ('ff', 'hf')
                 # paw?
@@ -206,10 +206,11 @@ def tabby(d):
     if p == 'body':
         v = d['v']
         if -8 <= v <= 3:
-            thr = -8 + (36 - d['L']) * 1.5       # 2 px wide below row thr, tapering to 1 px as the body shortens (smooth counts)
-            w = 2 if v >= thr else 1
-            for i, t0 in enumerate((0.15, 0.5, 0.85)):
-                xs = bx(d, t0) + rnd(v * 0.2) - ((w - 1) if i == 2 else 0)   # last stripe keeps its right edge at t
+            w = 2                                # constant width; stripes keep >=1px gap by min spacing 3, so none merges or vanishes
+            n = max(1, d['L'] - 22); b0 = d['rear'] + 12
+            x0 = b0; x1 = max(x0 + 3, b0 + rnd(0.5 * n)); x2 = max(x1 + 3, b0 + n - 1)
+            for i, xb in enumerate((x0, x1, x2)):
+                xs = xb + rnd((d['y'] - d['spf'](b0 + n // 2)) * 0.2)   # one common lean for all stripes (neighbours shift together, never touch)
                 if 0 <= d['x'] - xs < w:
                     hi = 3 if i % 2 == 0 else 0
                     return 'S' if v >= hi - 1 else 'D'
@@ -278,7 +279,7 @@ def white_mask(d, calico=False):
         lx, ly = d['lx'], d['ly']
         return ((lx - 8) / 7.0) ** 2 + ((ly - 4) / 4.5) ** 2 <= 1
     if p == 'chest': return d['lx'] >= -3 and d['ly'] >= -1 - max(0, d['lx']) // 2
-    if p == 'body': return d['v'] >= 4
+    if p == 'body': return d['rk'] >= 0.6          # lower 40% of the body column: area follows the body, not the arch
     if p == 'paw': return True
     if p == 'leg': return d['arc'] >= d['tot'] - 4
     if p == 'tail': return d['arc'] >= d['tot'] - 5
@@ -350,6 +351,11 @@ def white_col(d):
 def make_pattern(name, info):
     img = np.zeros((H_, W_, 4), np.uint8)
     def put(k, col): img[k[1], k[0], :3] = col; img[k[1], k[0], 3] = 255
+    cols = collections.defaultdict(list)       # body felt per column, top to bottom: rk = rank fraction (0 top .. 1 bottom)
+    for k in sorted(info, key=lambda k: k[1]):
+        if info[k]['part'] == 'body': cols[k[0]].append(k)
+    for lst in cols.values():
+        for i, k in enumerate(lst): info[k]['rk'] = (i + 0.5) / len(lst)
     if name in ('tabby', 'spotted'):
         fn = tabby if name == 'tabby' else spotted
         for k, d in info.items():
@@ -363,6 +369,8 @@ def make_pattern(name, info):
             for k, d in info.items():
                 if k in wm: continue
                 r = dark_patch(d)
+                if r and d['part'] == 'head':      # keep >=1px of base tone between a head patch and the outline / non-felt pixels
+                    if any((k[0] + a, k[1] + b) not in info for a in (-1, 0, 1) for b in (-1, 0, 1)): r = None
                 if r: cal[k] = r
         for k, d in info.items():
             if k in wm:
