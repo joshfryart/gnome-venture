@@ -286,6 +286,11 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .hubstreet .hubst .stn { background: none; border: 0; padding: 0; font-size: .8rem; white-space: normal; text-align: left; line-height: 1.15; }
 }
 
+/* dock layout, landscape: a picture page with no side list (the Treehouse, the yard) centres its picture and gives it the room the page has above the dock (the taller height budget the room banner uses) */
+@media (orientation: landscape) {
+  body.dock-on .hubscene.chrome:not(:has(> .hubstreet)) > .hubstage { grid-column: 1 / -1; justify-self: center; width: calc(var(--imgh-room) * 1.769); max-width: 100%; }
+}
+
 /* dock layout, landscape: the villagers list is a dense grid of small cards (portrait left, words right), not tall cards */
 @media (orientation: landscape) {
   body.dock-on .vgrid { grid-template-columns: repeat(auto-fill, minmax(184px, 1fr)); gap: 5px; margin-top: 6px; }
