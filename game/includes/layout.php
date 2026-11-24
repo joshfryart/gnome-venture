@@ -68,7 +68,7 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* 2.6.41: the living scenes of the logged-out front page */ ?>
 <?php if ($admin): ?><link rel="stylesheet" href="<?= e(url('assets/admin.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/admin.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v1.6.3: admin look and menu, admin pages only */ ?>
 <?php if (isset($_GET['pfdebug']) || isset($_COOKIE['pfdbg'])): ?><script src="<?= e(url('assets/pfdebug.js?v=' . APP_VERSION)) ?>"></script><?php endif; /* 2.6.81: debug log for "End turn reloads", only with ?pfdebug=1 (cookie), assets/pfdebug.js */ ?>
-<?php if (!$admin && $u && !$onboarding && dock_on($u)): ?><link rel="stylesheet" href="<?= e(url('assets/dock.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/dock.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php if (!$admin && $u && !$onboarding && dock_on($u)): ?><link rel="stylesheet" href="<?= e(url('assets/dock.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/dock.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/fullscreen.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* nav dock: only when the setting nav_dock is on for this viewer (admins first); CSS shows it in landscape on short screens only */ ?>
 <script src="<?= e(url('assets/early.js?v=' . APP_VERSION)) ?>"></script>
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>

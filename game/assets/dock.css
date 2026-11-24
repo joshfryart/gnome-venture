@@ -1518,3 +1518,10 @@ body.dock-on .vunmetline { margin: 6px 0; }
 @media (orientation: landscape) {
   body.dock-on main:has(> .gardenwrap) > .gardenwrap { justify-content: center; width: 100%; align-self: stretch; }
 }
+
+/* landscape full screen button (assets/fullscreen.js): a small round corner button, top right, landscape only */
+.gvfs { position: fixed; top: 6px; right: 6px; z-index: 47; width: 34px; height: 34px; padding: 0; border: 2px solid #2a1a10; border-radius: 50%; background: #f2e4c0; color: #2a1a10; font: 16px/1 sans-serif; cursor: pointer; opacity: .75; display: none; }
+.gvfs.on { opacity: .5; }
+@media (orientation: landscape) { .gvfs:not([hidden]) { display: flex; align-items: center; justify-content: center; } }
+/* the play rail already has its own full screen button (dk-fs): do not show a second one */
+body:has(.dk-fs) .gvfs { display: none !important; }
