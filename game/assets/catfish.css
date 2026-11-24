@@ -525,4 +525,5 @@ button.cfpet.is-ready::before { content: ""; position: absolute; right: -2px; to
 .cfr2hint { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); width: max-content; max-width: 92%; margin: 0; padding: 6px 10px; background: #fff8e2; color: #3a2410; font-size: .8125rem; font-weight: 900; text-align: center; box-shadow: 0 0 0 2px #3a2410; pointer-events: none; }
 .cfr2hint[hidden] { display: none; }
 @media (orientation: landscape) and (max-height: 520px) { .cfr2wrap { --cf-chrome: 96px; } }
-@media (pointer: coarse) { .cfr2 .cfshopbtn { margin-right: 64px; } }   /* clear of the site's notification bell */
+@media (pointer: coarse) and (orientation: landscape) { .cfr2 .cfshopbtn { margin-right: 64px; } }
+@media (max-width: 520px) { .cfr2.js .cfdock .cfcount { font-size: 1.25rem; padding-right: 4px; } .cfr2.js .cfdock .cfcount img { width: 28px; height: 28px; } .cfr2.js .cfdock .cfcount .muted { font-size: .6875rem; } .cfr2 .cfshopbtn { margin-right: 8px; } }   /* clear of the site's notification bell */
