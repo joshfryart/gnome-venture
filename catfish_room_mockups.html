@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cat Fish Room Mockups</title>
+<style>
+/* MOCKUP ONLY. Tokens from DESIGN.md (Stitched Toy). Room art is CSS/SVG PLACEHOLDER, not final pixel art. */
+:root{
+  --bg:#f1ece0; --surface:#fff3c8; --surface2:#f2e4c0; --ink:#2a1a10; --ink2:#4a2c1a; --muted:#74462a;
+  --line:#c9a96e; --line2:#9a6b3f; --brand:#2f5a2a; --accent:#e8a317; --accent-ink:#7a4a1f;
+  --felt:#3d2a1c; --felt2:#52382a; --felt-ink:#f2e4c0; --thread:#e8a317; --focus:#25637d;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#2a1a10; --surface:#3d2a1c; --surface2:#33231a; --ink:#f2e4c0; --ink2:#e4d2a6; --muted:#d3b68a;
+  --line:#6a4a30; --line2:#9a6b3f; --brand:#7ab55c; --accent-ink:#e8a317; --felt:#1c110a; --felt2:#2b1b10; --focus:#a9d6ea;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font)}
+.page{max-width:1100px;margin:0 auto;padding:16px}
+h1,h2,h3{line-height:1.25;font-weight:800;margin:0 0 8px}
+h1{font-size:1.6rem} h2{font-size:1.25rem;margin-top:36px} h3{font-size:1rem}
+p{margin:0 0 10px} .muted{color:var(--muted)} .small{font-size:.85rem}
+.stitch{border:0;border-top:2px dashed var(--thread);margin:20px 0}
+button,summary{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.btn{min-height:44px;padding:0 14px;border:2px solid var(--felt);background:var(--brand);color:var(--felt-ink);font-weight:700;border-radius:0}
+.btn.alt{background:var(--surface2);color:var(--ink)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tabs button{min-height:44px;padding:0 16px;background:var(--surface2);border:2px solid var(--line2);font-weight:700;border-radius:0}
+.tabs button[aria-pressed=true]{background:var(--felt);color:var(--felt-ink);border-color:var(--thread);border-style:dashed}
+.note{background:var(--surface);border:2px solid var(--line);padding:10px 12px;margin:10px 0}
+
+/* ---------- Room (480x270 stage, scaled by wrapper) ---------- */
+.roomwrap{position:relative;overflow:hidden;background:#000;background:var(--felt);touch-action:manipulation;cursor:crosshair}
+.stage{position:absolute;left:0;top:0;width:480px;height:270px;transform-origin:0 0;image-rendering:pixelated;user-select:none;-webkit-user-select:none}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;shape-rendering:crispEdges;display:block}
+.stage img{image-rendering:pixelated;display:block}
+body{--wall:#f0e2b8;--wall2:#e6d4a0;--wain:#9a6b3f;--floor:#c08a50;--floor2:#9d6c3a;--sky:#a9d6ea;--trim:#7a4a1f;--rug:#b04a3a;--rug2:#e8a317;--dark:0}
+body[data-room=B]{--wall:#3a3358;--wall2:#342d50;--wain:#2a2240;--floor:#4e3524;--floor2:#3b291c;--sky:#1c1a3a;--trim:#1c1530;--rug:#6a3a5a;--rug2:#a9742f}
+.wallpaper{fill:var(--wall)} .wstripe{fill:var(--wall2)} .wain{fill:var(--wain)} .floorfill{fill:var(--floor)}
+.seam{stroke:var(--floor2);stroke-width:2;fill:none} .skyfill{fill:var(--sky)} .trim{fill:var(--trim)} .rugA{fill:var(--rug)} .rugB{fill:var(--rug2)}
+.onlyB{display:none} body[data-room=B] .onlyB{display:inline} body[data-room=B] .onlyA{display:none}
+.dusk{position:absolute;inset:0;background:#1a1030;opacity:0;pointer-events:none;z-index:9999}
+body[data-room=B] .dusk{opacity:.28}
+.cat{position:absolute;width:64px;height:64px;transform-origin:50% 100%;pointer-events:none}
+.cat .shadow{position:absolute;left:10px;bottom:-3px;width:44px;height:10px;background:rgba(42,26,16,.38);clip-path:polygon(15% 0,85% 0,100% 50%,85% 100%,15% 100%,0 50%)}
+.cat .body{position:absolute;inset:0;transform-origin:50% 100%}
+.cat img{width:64px;height:64px}
+.body.hop{animation:hop .42s steps(6) 2} .body.flip{animation:flip .6s steps(8)}
+@keyframes hop{50%{transform:translateY(-12px)}}
+@keyframes flip{to{transform:translateY(-8px) rotate(360deg)}}
+.lure,.toy{position:absolute;transform-origin:50% 100%}
+.toy{cursor:pointer;pointer-events:auto;width:24px;height:20px}
+.toy.yarn img{width:24px;height:24px}
+.toy.mouse{background:#9b8f86;border:2px solid #4a2c1a;width:22px;height:12px;clip-path:polygon(10% 0,90% 0,100% 40%,100% 100%,0 100%,0 40%)}
+.toy.mouse::after{content:"";position:absolute;right:-9px;top:5px;width:9px;height:2px;background:#9a6b3f}
+.toy:hover{filter:brightness(1.2)}
+.pop{position:absolute;transform:translate(-50%,-100%);font:800 13px/1 var(--font);color:#ffe8a0;text-shadow:1px 1px 0 #3d2a1c,-1px -1px 0 #3d2a1c,1px -1px 0 #3d2a1c,-1px 1px 0 #3d2a1c;animation:pop 1s steps(10) forwards;white-space:nowrap;z-index:9000;pointer-events:none}
+.pop.far{color:#ffd23f}
+.pop.rod{color:#ff9ec8}
+.rodlayer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:8000}
+.rodlayer svg{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+.rodfish{position:absolute;width:30px;height:30px;margin:-4px 0 0 -15px;cursor:pointer;pointer-events:auto;transform-origin:50% 10%;image-rendering:pixelated}
+.rodfish:hover{filter:brightness(1.2)}
+@keyframes pop{from{margin-top:0;opacity:1}to{margin-top:-26px;opacity:0}}
+@media (prefers-reduced-motion:reduce){.body.hop,.body.flip,.pop{animation:none}.pop{opacity:.9}.drawer,.panel,.sheet{transition:none!important}}
+
+/* ---------- Frames ---------- */
+.fitbox{width:100%;position:relative;margin:8px 0 6px}
+.fitbox>.frame{position:absolute;left:0;top:0;transform-origin:0 0}
+.frame{background:var(--felt);border:4px solid var(--felt);outline:2px dashed var(--thread);outline-offset:-8px;position:relative;overflow:hidden;font-family:var(--font);color:var(--ink)}
+.frame .screen{position:absolute;inset:0;overflow:hidden;background:var(--bg)}
+.chip{position:absolute;background:var(--felt);color:var(--felt-ink);border:2px dashed var(--thread);padding:4px 10px;font-weight:800;line-height:1.2;z-index:20}
+.chip small{display:block;font-weight:600;opacity:.85;font-size:11px}
+.pips{position:absolute;display:flex;gap:6px;z-index:20}
+.pip{width:18px;height:18px;border:2px solid var(--felt);background:var(--thread)}
+.pip.off{background:var(--felt2);opacity:.7}
+.handle{position:absolute;z-index:30;background:var(--felt);color:var(--felt-ink);border:2px dashed var(--thread);font-weight:800;min-width:60px;min-height:44px;padding:0 12px;border-radius:0}
+
+/* Shop drawer */
+.shop{position:absolute;background:var(--surface);color:var(--ink);display:flex;flex-direction:column;z-index:25;overflow:hidden}
+.drawer-r{top:0;bottom:0;right:0;width:300px;border-left:4px solid var(--felt);transform:translateX(100%);transition:transform .28s steps(7)}
+.drawer-r.open{transform:none}
+.sheet{left:0;right:0;bottom:56px;height:420px;border-top:4px solid var(--felt);transform:translateY(calc(100% + 60px));transition:transform .28s steps(7)}
+.sheet.open{transform:none}
+.sheet .strip{display:none}
+.rail{top:0;bottom:0;right:0;width:360px;border-left:4px solid var(--felt)}
+.strip{display:flex;background:var(--felt);flex:none}
+.strip button{flex:1;min-height:44px;background:none;border:0;color:var(--felt-ink);font-weight:700;font-size:12px;padding:0 2px;border-bottom:3px solid transparent;border-radius:0}
+.strip button.on{border-bottom:3px dashed var(--thread);color:#ffe8a0}
+.sbody{position:relative;flex:1;overflow:hidden}
+.base{padding:12px;overflow:auto;height:100%}
+.panel{position:absolute;inset:0;background:var(--surface);transform:translateX(102%);transition:transform .25s steps(6);display:flex;flex-direction:column}
+.panel.on{transform:none}
+.phead{display:flex;align-items:center;gap:8px;background:var(--surface2);border-bottom:2px dashed var(--line2);padding:4px 8px;flex:none}
+.phead button{min-width:44px;min-height:44px;background:var(--felt);color:var(--felt-ink);border:0;font-weight:800;font-size:18px;border-radius:0}
+.phead b{font-size:15px}
+.pbody{flex:1;overflow:auto;padding:10px}
+.sub{display:flex;gap:4px;margin-bottom:8px}
+.sub button{flex:1;min-height:36px;border:2px solid var(--line2);background:var(--surface2);font-weight:700;font-size:12px;border-radius:0}
+.sub button.on{background:var(--brand);color:#f2e4c0;border-color:var(--felt)}
+.qty{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-bottom:8px;font-size:12px}
+.qty button{min-width:44px;min-height:32px;border:2px solid var(--line2);background:var(--surface2);font-weight:800;border-radius:0}
+.qty button.on{background:var(--felt);color:var(--felt-ink)}
+.card{display:flex;gap:10px;align-items:center;background:var(--surface2);border:2px solid var(--line);padding:8px;margin-bottom:8px}
+.ico{flex:none;width:36px;height:36px;background:var(--line);border:2px solid var(--line2);display:grid;place-items:center;font-weight:800;color:var(--ink2)}
+.card .t{flex:1;min-width:0;font-size:13px;line-height:1.3} .card .t b{display:block;font-size:14px}
+.buy{min-width:74px;min-height:44px;background:var(--brand);color:#f2e4c0;border:2px solid var(--felt);font-weight:800;font-size:13px;border-radius:0}
+.buy:disabled{background:var(--line);color:var(--muted)}
+details{border:2px solid var(--line);background:var(--surface2);margin:8px 0}
+summary{min-height:44px;display:flex;align-items:center;padding:0 10px;font-weight:800;cursor:pointer}
+details>div{padding:0 10px 10px}
+.catrow{display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px dashed var(--line2);font-size:13px}
+.catrow img{width:40px;height:40px;image-rendering:pixelated}
+.menurow{display:flex;justify-content:space-between;min-height:44px;align-items:center;padding:0 10px;margin-bottom:6px;background:var(--felt);color:var(--felt-ink);border:0;width:100%;font-weight:700;text-align:left;border-radius:0}
+
+/* portrait bottom bar, desktop header */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:56px;background:var(--felt);display:flex;z-index:40;border-top:2px dashed var(--thread)}
+.tabbar button{flex:1;background:none;border:0;color:var(--felt-ink);font-weight:700;font-size:12px;border-radius:0}
+.tabbar button.on{background:var(--felt2);color:#ffe8a0}
+.kbar{position:absolute;left:0;right:0;height:44px;background:var(--felt);color:var(--felt-ink);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-weight:800;border-bottom:2px dashed var(--thread);z-index:10}
+.hint{position:absolute;right:8px;top:8px;z-index:20;background:var(--surface);color:var(--ink);border:2px solid var(--felt);padding:2px 8px;font-size:11px;font-weight:700}
+
+/* load order, questions */
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+.flow div{flex:1 1 150px;padding:8px;background:var(--surface);border:2px solid var(--line2);font-size:13px}
+.flow div b{display:block}
+.flow .arrow{flex:0 0 auto;min-width:0;border:0;background:none;padding:0;align-self:center;font-size:20px;font-weight:800}
+.bar{height:10px;margin-top:4px;background:var(--thread)}
+fieldset{border:2px solid var(--line);background:var(--surface);margin:12px 0;padding:8px 12px}
+legend{font-weight:800;padding:0 6px}
+fieldset label{display:flex;gap:8px;align-items:center;min-height:44px}
+.rec{font-size:.75rem;font-weight:800;background:var(--accent);color:#2a1a10;padding:0 6px;margin-left:4px}
+textarea{width:100%;min-height:90px;font:inherit;background:var(--surface);color:var(--ink);border:2px solid var(--line2);padding:8px;border-radius:0}
+</style>
+</head>
+<body data-room="A">
+<div class="page">
+  <h1>Cat Fish room mockups</h1>
+  <p class="muted">Stitched Toy style. The room is a CSS/SVG <b>placeholder</b> showing layout, depth and motion; cats are the real flat sprites. Everything below is live: tap the floor.</p>
+
+  <h2>1. The room (placeholder art, two looks)</h2>
+  <div class="tabs" role="group" aria-label="Room style">
+    <button aria-pressed="true" data-variant="A">A: warm cottage</button>
+    <button aria-pressed="false" data-variant="B">B: dusk lamp-lit</button>
+  </div>
+  <div class="fitbox" data-fit="960x540"><div class="frame" id="f-hero" style="width:960px;height:540px"></div></div>
+  <p class="small muted">Tap the floor: the lure flies there (smaller when farther), the grey cat runs out (shrinks going away, grows coming back), pays Kibble (far catches x1.25), then trots home. Tap the dangling plush fish on the rod (top right) for a rod play: the cat pounces up in place and pays x1.5 (pink pop). The rod flicks toward every floor tap; the fish stay on it. Floor catches pay base, far catches x1.25. Tap the yarn or mouse for a flip. Orange and cream wander and sometimes boop. Up to 3 throws can queue (pips).</p>
+
+  <hr class="stitch">
+  <h2>2. Layouts</h2>
+  <h3>Phone landscape 844 x 390</h3>
+  <p class="small muted">Room full-bleed (cover-cropped from the top). Shop is a felt tab handle top-right; drawer slides over from the right and the room stays playable.</p>
+  <div class="fitbox" data-fit="844x390"><div class="frame" id="f-land" style="width:844px;height:390px"></div></div>
+
+  <h3>Phone portrait 412 wide</h3>
+  <p class="small muted">Room 412 x 232 sticky on top, Kibble bar below, felt bottom tab bar, drawer as bottom sheet.</p>
+  <div class="fitbox" data-fit="412x760"><div class="frame" id="f-port" style="width:412px;height:760px"></div></div>
+
+  <h3>Desktop 1280</h3>
+  <p class="small muted">Room 960 x 540 left, permanent 360 px shop rail on the right, cat card under the room.</p>
+  <div class="fitbox" data-fit="1280x720"><div class="frame" id="f-desk" style="width:1280px;height:720px"></div></div>
+
+  <hr class="stitch">
+  <h2>3. Load order</h2>
+  <div class="flow">
+    <div><b>1. HTML shell</b>felt header, empty frame<div class="bar" style="width:20%"></div></div><div class="arrow">&rarr;</div>
+    <div><b>2. Room image paints first</b>one 480x270 PNG, preloaded, lets the player see a room at once<div class="bar" style="width:55%"></div></div><div class="arrow">&rarr;</div>
+    <div><b>3. Cats and toys</b>flat sprites, then layered coats<div class="bar" style="width:75%"></div></div><div class="arrow">&rarr;</div>
+    <div><b>4. UI after</b>Kibble chip, tap pips, shop drawer content<div class="bar" style="width:100%"></div></div>
+  </div>
+
+  <hr class="stitch">
+  <h2>4. Questions for Joshua</h2>
+  <form id="qs" onsubmit="return false">
+  </form>
+  <label for="note"><b>Anything else?</b></label>
+  <textarea id="note" placeholder="Short note (not saved)"></textarea>
+</div>
+
+<script>
+"use strict";
+/* ============ shared helpers ============ */
+const IMG = "game/assets/img/catfish/";
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep = ms => new Promise(r => setTimeout(r, RM ? Math.min(ms, 40) : ms));
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+
+/* ============ floor geometry ============ */
+// floor coords: u in [-1,1] across, d in [0,1] near -> far. Horizon (back wall base) at y=108.
+const HORIZON = 108, NEAR_Y = 262, FAR_Y = 124;
+function toScreen(u, d) {
+  const s = 1 - 0.58 * d;
+  return { x: 240 + u * 225 * s, y: NEAR_Y - d * (NEAR_Y - FAR_Y), s };
+}
+function toFloor(x, y) {
+  const d = clamp((NEAR_Y - y) / (NEAR_Y - FAR_Y), 0, 1), s = 1 - 0.58 * d;
+  return { u: clamp((x - 240) / (225 * s), -1, 1), d };
+}
+
+/* ============ placeholder room (inline SVG) ============ */
+function roomSVG() {
+  let seams = "";
+  for (let xb = -480; xb <= 960; xb += 60) { // floorboards converge on VP (240,40)
+    const x0 = 240 + (xb - 240) * (HORIZON - 40) / (270 - 40);
+    seams += `<path class="seam" d="M${x0.toFixed(0)} ${HORIZON}L${xb} 270"/>`;
+  }
+  [124, 142, 166, 198, 238].forEach(y => seams += `<path class="seam" d="M0 ${y}H480"/>`);
+  let stripes = ""; for (let x = 0; x < 480; x += 16) stripes += `<rect class="wstripe" x="${x}" y="0" width="6" height="100"/>`;
+  return `<svg viewBox="0 0 480 270" aria-hidden="true">
+  <rect class="wallpaper" width="480" height="${HORIZON}"/>${stripes}
+  <rect class="wain" y="84" width="480" height="24"/><rect class="trim" y="82" width="480" height="3"/>
+  <rect class="floorfill" y="${HORIZON}" width="480" height="162"/>${seams}
+  <rect class="trim" y="${HORIZON}" width="480" height="3"/>
+  <!-- doorway at back -->
+  <rect class="trim" x="34" y="30" width="60" height="78"/><rect x="40" y="36" width="48" height="72" fill="#1c110a"/><rect x="40" y="100" width="48" height="8" fill="#52382a"/>
+  <!-- window -->
+  <rect class="trim" x="290" y="22" width="110" height="62"/><rect class="skyfill" x="296" y="28" width="98" height="50"/>
+  <rect class="trim" x="342" y="28" width="6" height="50"/><rect class="trim" x="296" y="50" width="98" height="5"/>
+  <rect x="296" y="28" width="12" height="24" fill="#c0503a"/><rect x="382" y="28" width="12" height="24" fill="#c0503a"/>
+  <g class="onlyB"><rect x="360" y="34" width="8" height="8" fill="#f2e4c0"/><rect x="306" y="62" width="3" height="3" fill="#f2e4c0"/><rect x="326" y="36" width="3" height="3" fill="#f2e4c0"/></g>
+  <g class="onlyA"><rect x="314" y="36" width="20" height="6" fill="#fff"/><rect x="318" y="32" width="12" height="4" fill="#fff"/></g>
+  <!-- bookshelf -->
+  <rect class="trim" x="130" y="38" width="64" height="70"/><rect fill="#c9a96e" x="134" y="42" width="56" height="62"/>
+  <rect class="trim" x="134" y="62" width="56" height="3"/><rect class="trim" x="134" y="82" width="56" height="3"/>
+  <rect fill="#a8241f" x="138" y="48" width="6" height="14"/><rect fill="#2f5a2a" x="146" y="50" width="6" height="12"/><rect fill="#4e3a8a" x="154" y="46" width="6" height="16"/>
+  <rect fill="#e8a317" x="140" y="68" width="8" height="14"/><rect fill="#25637d" x="150" y="70" width="6" height="12"/>
+  <!-- rug (stepped trapezoid) -->
+  <polygon class="rugA" points="150,176 330,176 350,184 366,200 382,226 98,226 114,200 130,184"/>
+  <polygon class="rugB" points="164,184 316,184 330,192 342,208 354,218 126,218 138,208 150,192"/>
+  <polygon class="rugA" points="180,192 300,192 312,200 322,212 158,212 168,200"/>
+  <!-- plant + bowl + cat tree (placeholder blocks) -->
+  <rect fill="#7a4a1f" x="420" y="82" width="22" height="22"/><rect fill="#2f5a2a" x="412" y="52" width="38" height="30"/><rect fill="#7ab55c" x="420" y="44" width="20" height="14"/>
+  <rect fill="#a8241f" x="60" y="226" width="26" height="9"/><rect fill="#e8a317" x="64" y="224" width="18" height="3"/>
+  <!-- lamp + stepped light wedge (variant B) -->
+  <g class="onlyB"><rect fill="#52382a" x="446" y="64" width="6" height="44"/><rect fill="#ffe8a0" x="438" y="50" width="22" height="16"/>
+    <polygon fill="#ffd23f" fill-opacity=".16" points="440,66 460,66 480,270 250,270 250,250 290,230 330,200 380,150 410,110"/>
+    <polygon fill="#ffd23f" fill-opacity=".16" points="442,66 458,66 480,270 330,270 340,240 380,200 420,150"/>
+    <polygon fill="#ffd23f" fill-opacity=".18" points="446,66 456,66 480,230 400,230 420,190 440,140"/></g>
+  </svg>`;
+}
+
+/* ============ room demo (one instance per frame) ============ */
+function mountRoom(wrap, o) {
+  // o: {w,h,fit:'contain'|'cover', onKibble, pips}
+  wrap.classList.add("roomwrap");
+  wrap.style.width = o.w + "px"; wrap.style.height = o.h + "px";
+  const stage = document.createElement("div"); stage.className = "stage";
+  stage.innerHTML = roomSVG() + '<div class="dusk"></div>';
+  wrap.appendChild(stage);
+  const sc = o.fit === "cover" ? Math.max(o.w / 480, o.h / 270) : Math.min(o.w / 480, o.h / 270);
+  stage.style.transform = `scale(${sc})`;
+  stage.style.left = (o.w - 480 * sc) / 2 + "px"; stage.style.top = (o.fit === "cover" ? o.h - 270 * sc : (o.h - 270 * sc) / 2) + "px";
+
+  function place(el, u, d, extra = "") {
+    const p = toScreen(u, d);
+    el.style.left = p.x + "px"; el.style.top = p.y + "px";
+    el.style.transform = `translate(-50%,-100%) scale(${p.s.toFixed(3)})`; el.style.zIndex = Math.round(p.y);
+    return p;
+  }
+  function pop(txt, x, y, far) {
+    const e = document.createElement("div"); e.className = "pop" + (far === "rod" ? " rod" : far ? " far" : ""); e.textContent = txt;
+    e.style.left = x + "px"; e.style.top = y - 50 + "px"; stage.appendChild(e); setTimeout(() => e.remove(), 1000);
+  }
+  // cats
+  function mkCat(coat, u, d) {
+    const el = document.createElement("div"); el.className = "cat";
+    el.innerHTML = `<div class="shadow"></div><div class="body"><img alt="" src="${IMG}cf-cat-${coat}-idleA.png"></div>`;
+    stage.appendChild(el);
+    const c = { el, body: $(".body", el), img: $("img", el), coat, u, d, hu: u, hd: d, busy: false };
+    place(el, u, d); return c;
+  }
+  const pose = (c, p) => c.img.src = `${IMG}cf-cat-${c.coat}-${p}.png`;
+  async function move(c, u, d, speed = 230) { // linear glide in floor space, bobbing, scale follows depth
+    const a = toScreen(c.u, c.d), b = toScreen(u, d);
+    const dur = RM ? 40 : clamp(Math.hypot(a.x - b.x, a.y - b.y) / speed * 1000, 250, 2200);
+    const u0 = c.u, d0 = c.d, t0 = performance.now(); pose(c, "stalk");
+    await new Promise(res => (function f(t) {
+      const k = clamp((t - t0) / dur, 0, 1);
+      c.u = u0 + (u - u0) * k; c.d = d0 + (d - d0) * k; place(c.el, c.u, c.d);
+      c.body.style.transform = RM ? "" : `translateY(${(-Math.abs(Math.sin(k * dur / 90)) * 4).toFixed(1)}px)`;
+      k < 1 ? requestAnimationFrame(f) : res();
+    })(t0));
+    c.body.style.transform = ""; pose(c, "idleA");
+  }
+  const active = mkCat("grey", 0, 0.05); active.hu = 0; active.hd = 0.05;
+  const others = [mkCat("orange", -0.6, 0.5), mkCat("cream", 0.6, 0.35)];
+
+  // toys
+  function mkToy(cls, u, d) {
+    const el = document.createElement("div"); el.className = "toy " + cls;
+    if (cls === "yarn") el.innerHTML = `<img alt="" src="${IMG}cf-yarn-1.png">`;
+    el.setAttribute("role", "button"); el.setAttribute("aria-label", cls + " toy"); el.tabIndex = 0;
+    place(el, u, d); stage.appendChild(el);
+    const go = e => { e.stopPropagation(); queue.push({ toy: el, u, d, tu: u, td: d }); run(); };
+    el.addEventListener("click", go); el.addEventListener("keydown", e => e.key === "Enter" && go(e));
+    el.addEventListener("pointerdown", e => e.stopPropagation());
+  }
+  mkToy("yarn", -0.35, 0.2); mkToy("mouse", 0.5, 0.62);
+
+  // toy rod from the top: handle enters above the top edge, string, 3 plush fish (front layer)
+  const rodLayer = document.createElement("div"); rodLayer.className = "rodlayer";
+  const NS = "http://www.w3.org/2000/svg";
+  rodLayer.innerHTML = `<svg viewBox="0 0 480 270" aria-hidden="true"><line class="hnd" stroke="#3d2a1c" stroke-width="7" stroke-linecap="round"/><line class="wnd" stroke="#e8a317" stroke-width="3.5" stroke-linecap="round"/><g class="strs" stroke="#f2e4c0" stroke-width="1"></g></svg>`;
+  stage.appendChild(rodLayer);
+  const hnd = $(".hnd", rodLayer), wnd = $(".wnd", rodLayer), strs = $(".strs", rodLayer);
+  const RB = { x: 420, y: -4 }, RL = 52, A0 = 0.55;
+  const rf = [[1, 44, -0.28], [3, 68, 0.02], [5, 52, 0.3]].map(([n, len, off], i) => {
+    const ln = document.createElementNS(NS, "line"); strs.appendChild(ln);
+    const img = document.createElement("img"); img.className = "rodfish"; img.alt = "Dangling plush fish (tap for rod play)"; img.src = `${IMG}cf-fish-${n}.png`;
+    img.draggable = false; img.setAttribute("role", "button"); img.tabIndex = 0;
+    rodLayer.appendChild(img);
+    return { ln, img, len, off, th: 0, ph: i * 2.1, vel: 0 };
+  });
+  let rodA = A0, flickT = [], flickStart = 0, lastTx = null, lastTv = 0;
+  const tipOf = a => ({ x: RB.x - RL * Math.sin(a), y: RB.y + RL * Math.cos(a) });
+  function drawRod(t) {
+    let a = A0;
+    if (flickT.length) {                       // timeline of [ms, angle] keyframes, eased between
+      const e = t - flickStart; let k = 0;
+      while (k < flickT.length - 1 && e > flickT[k + 1][0]) k++;
+      if (e >= flickT[flickT.length - 1][0]) { a = flickT[flickT.length - 1][1]; flickT = []; }
+      else { const [t0, a0] = flickT[k], [t1, a1] = flickT[k + 1], q = clamp((e - t0) / (t1 - t0), 0, 1); a = a0 + (a1 - a0) * (q * q * (3 - 2 * q)); }
+    } else if (!RM) a = A0 + Math.sin(t / 1400) * 0.03;
+    rodA = a;
+    const tip = tipOf(a), hb = { x: RB.x + 30 * Math.sin(a), y: RB.y - 30 * Math.cos(a) };
+    hnd.setAttribute("x1", hb.x); hnd.setAttribute("y1", hb.y); hnd.setAttribute("x2", RB.x); hnd.setAttribute("y2", RB.y);
+    wnd.setAttribute("x1", RB.x); wnd.setAttribute("y1", RB.y); wnd.setAttribute("x2", tip.x); wnd.setAttribute("y2", tip.y);
+    const tv = lastTx === null ? 0 : tip.x - lastTx; lastTx = tip.x; lastTv = tv;
+    rf.forEach(f => {
+      const sway = RM ? 0 : Math.sin(t / 700 + f.ph) * 0.12;
+      const target = sway + f.off - tv * 0.06;     // string trails the swinging tip
+      f.th += (target - f.th) * (RM ? 1 : 0.14);
+      const x = tip.x + f.len * Math.sin(f.th), y = tip.y + f.len * Math.cos(f.th);
+      f.ln.setAttribute("x1", tip.x); f.ln.setAttribute("y1", tip.y); f.ln.setAttribute("x2", x); f.ln.setAttribute("y2", y);
+      f.img.style.left = x + "px"; f.img.style.top = y + "px"; f.img.style.transform = `rotate(${(-f.th * 60).toFixed(1)}deg)`;
+    });
+    requestAnimationFrame(drawRod);
+  }
+  requestAnimationFrame(drawRod);
+  function flick(x) {                          // short windup away from the tap, snap toward it, settle back
+    const tgt = clamp(A0 + (240 - x) / 240 * 0.65, -0.2, 1.3), dir = Math.sign(tgt - A0) || 1;
+    flickStart = performance.now();
+    flickT = RM ? [[0, A0], [40, tgt], [200, A0]] : [[0, rodA], [120, A0 - dir * 0.35], [230, tgt], [520, tgt - dir * 0.1], [900, A0]];
+  }
+  rf.forEach(f => {
+    const go = e => { e.stopPropagation(); e.preventDefault && e.preventDefault(); f.th += 0.5; queue.push({ rod: true }); run(); };
+    f.img.addEventListener("pointerdown", e => e.stopPropagation());
+    f.img.addEventListener("click", go); f.img.addEventListener("keydown", e => e.key === "Enter" && go(e));
+  });
+
+  // lure throw + queue (up to 3 charges, one regenerates per 700 ms)
+  const queue = []; let charges = 3, running = false;
+  const pips = o.pips ? $$(".pip", o.pips) : [];
+  const drawPips = () => pips.forEach((p, i) => p.classList.toggle("off", i >= charges));
+  setInterval(() => { if (charges < 3) { charges++; drawPips(); } }, 700);
+
+  stage.addEventListener("pointerdown", e => {
+    const r = stage.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * 480, y = (e.clientY - r.top) / r.height * 270;
+    if (y < FAR_Y - 6 || charges < 1) return;
+    charges--; drawPips(); flick(x);
+    const f = toFloor(x, y), lure = document.createElement("div"); lure.className = "lure";
+    lure.innerHTML = `<img alt="" src="${IMG}cf-fish-1.png" style="width:30px;height:30px">`; stage.appendChild(lure);
+    const t0 = performance.now(), dur = RM ? 40 : 380, p1 = toScreen(f.u, f.d);
+    (function fly(t) {
+      const k = clamp((t - t0) / dur, 0, 1), px = 240 + (p1.x - 240) * k, py = 268 + (p1.y - 268) * k - Math.sin(k * Math.PI) * 70;
+      lure.style.left = px + "px"; lure.style.top = py + "px"; lure.style.zIndex = Math.round(py);
+      lure.style.transform = `translate(-50%,-100%) scale(${(1.3 + (p1.s - 1.3) * k).toFixed(3)}) rotate(${k * 360}deg)`;
+      k < 1 ? requestAnimationFrame(fly) : (lure.style.transform = `translate(-50%,-100%) scale(${p1.s.toFixed(3)})`);
+    })(t0);
+    queue.push({ lure, tu: f.u, td: f.d, far: f.d > 0.6 }); run();
+  });
+
+  async function run() {
+    if (running) return; running = true; active.busy = true;
+    while (queue.length) {
+      const j = queue.shift();
+      if (!j.rod) await move(active, j.tu, j.td);
+      const p = toScreen(active.u, active.d);
+      if (j.rod) {
+        pose(active, "jump"); active.body.classList.add("hop"); pop("+6 rod x1.5", p.x, p.y - 30 * p.s, "rod"); o.onKibble(6);
+        await sleep(850); active.body.classList.remove("hop");
+      } else if (j.toy) {
+        pose(active, "jump"); active.body.classList.add("flip"); pop("+2", p.x, p.y - 30 * p.s, false);
+        o.onKibble(2); await sleep(650); active.body.classList.remove("flip");
+      } else {
+        pose(active, "wiggle"); await sleep(160); pose(active, "pounce");
+        const n = j.far ? 5 : 4;                       // 4 base, x1.25 far = 5
+        pop((j.far ? "+" + n + " far!" : "+" + n), p.x, p.y - 30 * p.s, j.far); o.onKibble(n);
+        j.lure.remove(); await sleep(450);
+      }
+      pose(active, "idleA");
+    }
+    await move(active, active.hu, active.hd, 180);  // trot home
+    active.busy = false; running = false;
+    if (queue.length) run();
+  }
+
+  // wanderers: wander, sometimes meet and boop
+  async function wanderLoop() {
+    if (RM) return;
+    while (document.body.contains(wrap)) {
+      await sleep(rand(1800, 4200));
+      const [a, b] = others;
+      if (Math.random() < 0.35) {
+        const mu = (a.u + b.u) / 2, md = (a.d + b.d) / 2;
+        await Promise.all([move(a, mu - 0.1, md, 150), move(b, mu + 0.1, md, 150)]);
+        pose(a, "jump"); pose(b, "jump"); a.body.classList.add("hop"); b.body.classList.add("hop");
+        const p = toScreen(mu, md); pop("boop!", p.x, p.y - 60 * p.s, false);
+        await sleep(900); a.body.classList.remove("hop"); b.body.classList.remove("hop"); pose(a, "idleA"); pose(b, "idleA");
+      } else {
+        const c = others[Math.random() < .5 ? 0 : 1];
+        if (Math.random() < 0.3) { pose(c, "nap"); await sleep(2200); pose(c, "idleA"); }
+        await move(c, rand(-0.85, 0.85), rand(0.05, 0.85), 120);
+      }
+    }
+  }
+  wanderLoop();
+}
+
+/* ============ Kibble counter ============ */
+function kibble(els) {
+  let n = 1240, shown = n;
+  const fmt = v => Math.round(v).toLocaleString("en-US");
+  const draw = () => els.forEach(e => e.textContent = fmt(shown));
+  (function tick() { shown += (n - shown) * (RM ? 1 : 0.25); if (Math.abs(n - shown) < .5) shown = n; draw(); requestAnimationFrame(tick); })();
+  return v => { n += v; };
+}
+
+/* ============ shop drawer ============ */
+const UPG = {
+  Fish: [["Better Bait", "B", "+10% fish value", 120], ["Bigger Bucket", "U", "+1 fish per tap", 340], ["Salmon Run", "S", "Salmon appear", 900], ["Deep Pond", "P", "+25% rare fish", 2400]],
+  Rod: [["Springy Rod", "R", "Lure flies +15% faster", 90], ["Silk Line", "L", "Far catches x1.25 stronger", 410], ["Feather Lure", "F", "+1 tap charge", 1200], ["Golden Hook", "H", "Lure never misses", 3100]],
+  Room: [["Sunny Window", "W", "Cats nap more (+idle Kibble)", 150], ["Scratch Post", "P", "+5% Kibble rate", 520], ["Cat Tree", "T", "Room fits 2 more cats", 1500], ["Soft Rug", "G", "Toys give +1", 2000]],
+  Cat: [["Treat Jar", "J", "Cats catch 10% faster", 200], ["Tiny Bell", "B", "Boops give Kibble", 480], ["Warm Bed", "D", "Naps pay double", 1100], ["Fancy Collar", "C", "+5% per collared cat", 2900]]
+};
+function shopHTML(tabs) {
+  const T = ["Upgrades", "Cats", "Yarn", "Room", "More"];
+  const panels = {
+    Upgrades: `<div class="sub">${Object.keys(UPG).map((k, i) => `<button class="${i ? "" : "on"}" data-branch="${k}">${k}</button>`).join("")}</div>
+      <div class="qty">Buy <button class="on" data-q="1">x1</button><button data-q="10">x10</button></div><div data-cards></div>`,
+    Cats: `<h3>Your cats (3)</h3>
+      ${[["grey", "Smokey", "Active, Lv 4"], ["orange", "Marmalade", "Wanders, Lv 2"], ["cream", "Biscuit", "Wanders, Lv 2"]].map(c => `<div class="catrow"><img alt="" src="${IMG}cf-cat-${c[0]}-idleA.png"><div><b>${c[1]}</b><br><span class="muted">${c[2]}</span></div></div>`).join("")}
+      <details><summary>Shelter (2 waiting)</summary><div>${[["black", "Soot"], ["cream", "Mochi"]].map(c => `<div class="catrow"><img alt="" src="${IMG}cf-cat-${c[0]}-nap.png"><div><b>${c[1]}</b><br><span class="muted">Adopt for 400 Kibble</span></div></div>`).join("")}</div></details>
+      <details><summary>Cat Book (4 of 12)</summary><div class="small muted">Grey, orange, cream and black coats found. 8 to discover. Odd-eyed and legendary coats are hidden.</div></details>`,
+    Yarn: `<p class="small muted">Yarn is spent on toys. Sample data.</p>${["Mint ball|3 owned", "Rose ball|1 owned", "Gold ball|locked"].map(s => `<div class="card"><div class="ico">Y</div><div class="t"><b>${s.split("|")[0]}</b>${s.split("|")[1]}</div></div>`).join("")}`,
+    Room: `<p class="small muted">Furniture placeholders.</p>${["Cat tree|placed", "Rug|placed", "Bookshelf|placed", "Sunbeam patch|locked"].map(s => `<div class="card"><div class="ico">R</div><div class="t"><b>${s.split("|")[0]}</b>${s.split("|")[1]}</div></div>`).join("")}`,
+    More: `<button class="menurow">Sound <span>On</span></button><button class="menurow">Theme <span>Auto</span></button><button class="menurow">Reduce motion <span>Auto</span></button><button class="menurow">Help <span>&rsaquo;</span></button>`
+  };
+  return `<div class="strip">${T.map(t => `<button data-tab="${t}">${t}</button>`).join("")}</div>
+  <div class="sbody"><div class="base"><h3>Shop</h3><p class="small muted">Pick a tab. Panels slide over this overview; the room keeps running behind.</p>
+    <div class="card"><div class="ico">K</div><div class="t"><b>12 Kibble per second</b>3 cats working</div></div>
+    <div class="card"><div class="ico">!</div><div class="t"><b>Tip</b>Far corners pay x1.25; the dangling fish pay x1.5.</div></div></div>
+    ${T.map(t => `<div class="panel" data-panel="${t}"><div class="phead"><button data-back aria-label="Back">&larr;</button><b>${t}</b></div><div class="pbody">${panels[t]}</div></div>`).join("")}</div>`;
+}
+function mountShop(el, getBank) {
+  el.innerHTML = shopHTML();
+  let branch = "Fish", qty = 1;
+  const cards = $("[data-cards]", el);
+  function draw() {
+    cards.innerHTML = UPG[branch].map(u => `<div class="card"><div class="ico">${u[1]}</div><div class="t"><b>${u[0]}</b>Gives: ${u[2]}</div><button class="buy">${(u[3] * qty).toLocaleString("en-US")}</button></div>`).join("");
+  }
+  draw();
+  function show(tab) {
+    $$(".panel", el).forEach(p => p.classList.toggle("on", p.dataset.panel === tab));
+    $$(".strip button", el).forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
+  }
+  el.addEventListener("click", e => {
+    const t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.tab) show(t.dataset.tab);
+    else if (t.hasAttribute("data-back")) show(null);
+    else if (t.dataset.branch) { branch = t.dataset.branch; $$("[data-branch]", el).forEach(b => b.classList.toggle("on", b === t)); draw(); }
+    else if (t.dataset.q) { qty = +t.dataset.q; $$("[data-q]", el).forEach(b => b.classList.toggle("on", b === t)); draw(); }
+  });
+  return { show };
+}
+
+/* ============ build the frames ============ */
+const banks = [];
+function newBank(...els) { const add = kibble(els); return add; }
+
+// hero: plain room, no chrome besides a chip
+(function () {
+  const f = $("#f-hero");
+  f.innerHTML = `<div class="screen"><div data-room></div><div class="chip" style="left:12px;top:12px;font-size:18px">Kibble <span data-k></span><small>+12 / s</small></div></div>`;
+  mountRoom($("[data-room]", f), { w: 952, h: 532, fit: "contain", onKibble: newBank($("[data-k]", f)) });
+})();
+
+// landscape phone
+(function () {
+  const f = $("#f-land");
+  f.innerHTML = `<div class="screen"><div data-room></div>
+    <div class="chip" style="left:10px;top:10px">Kibble <span data-k></span><small>+12 / s</small></div>
+    <div class="pips" style="left:12px;bottom:12px"><i class="pip"></i><i class="pip"></i><i class="pip"></i></div>
+    <button class="handle" style="right:0;top:12px" aria-expanded="false">Shop</button>
+    <div class="shop drawer-r" data-shop></div></div>`;
+  mountRoom($("[data-room]", f), { w: 836, h: 382, fit: "cover", pips: $(".pips", f), onKibble: newBank($("[data-k]", f)) });
+  const shop = $("[data-shop]", f), h = $(".handle", f), api = mountShop(shop);
+  h.onclick = () => { const o = shop.classList.toggle("open"); h.setAttribute("aria-expanded", o); h.textContent = o ? "Close" : "Shop"; h.style.right = o ? "300px" : "0"; if (o && !$(".panel.on", shop)) api.show("Upgrades"); };
+  h.style.transition = RM ? "none" : "right .28s steps(7)";
+})();
+
+// portrait phone
+(function () {
+  const f = $("#f-port"), T = ["Upgrades", "Cats", "Yarn", "Room", "More"];
+  f.innerHTML = `<div class="screen"><div data-room style="position:absolute;left:0;top:0"></div>
+    <div class="hint">Rotate for a bigger room &#x21BB;</div>
+    <div class="kbar" style="top:232px"><span>Kibble <span data-k></span></span><span style="font-weight:600;font-size:13px">+12 / s</span></div>
+    <div style="position:absolute;top:276px;left:0;right:0;padding:12px" class="small muted">Sticky room on top; everything below scrolls in the real game. Tap a tab to raise the sheet; tap it again to close.</div>
+    <div class="shop sheet" data-shop></div>
+    <div class="tabbar">${T.map(t => `<button data-t="${t}">${t}</button>`).join("")}</div></div>`;
+  mountRoom($("[data-room]", f), { w: 404, h: 228, fit: "contain", onKibble: newBank($("[data-k]", f)) });
+  const shop = $("[data-shop]", f), api = mountShop(shop); let cur = null;
+  $$(".tabbar button", f).forEach(b => b.onclick = () => {
+    const t = b.dataset.t, same = cur === t && shop.classList.contains("open");
+    shop.classList.toggle("open", !same); cur = same ? null : t; if (!same) api.show(t);
+    $$(".tabbar button", f).forEach(x => x.classList.toggle("on", !same && x === b));
+  });
+})();
+
+// desktop
+(function () {
+  const f = $("#f-desk");
+  f.innerHTML = `<div class="screen">
+    <div class="kbar" style="top:0;height:56px;right:0"><span style="font-size:20px">Cat Fish &nbsp; Kibble <span data-k></span></span><span style="font-weight:600">+12 / s</span></div>
+    <div style="position:absolute;left:0;top:56px;width:912px"><div data-room></div>
+      <div class="card" style="margin:12px;border-color:var(--line2)"><img alt="" src="${IMG}cf-cat-grey-idleA.png" style="width:64px;height:64px;image-rendering:pixelated"><div class="t"><b>Smokey (active)</b>Grey tabby, Lv 4. Catches 4 Kibble, far catches 5. Likes: window naps.</div><button class="buy" style="min-width:110px">Switch cat</button></div></div>
+    <div class="shop rail" style="top:56px" data-shop></div></div>`;
+  mountRoom($("[data-room]", f), { w: 912, h: 513, fit: "contain", onKibble: newBank($("[data-k]", f)) });
+  const api = mountShop($("[data-shop]", f)); api.show("Upgrades");
+  $(".shop", f).style.width = "360px"; $(".screen", f).querySelector("[style*='width:912px']").style.width = "904px";
+})();
+
+/* ============ scale frames to the page width ============ */
+function fit() {
+  $$(".fitbox").forEach(b => {
+    const [w, h] = b.dataset.fit.split("x").map(Number), f = b.firstElementChild;
+    const k = Math.min(1, b.clientWidth / (w + 8)); // +border
+    f.style.transform = `scale(${k})`; b.style.height = (h + 8) * k + "px";
+  });
+}
+addEventListener("resize", fit); fit();
+
+/* hero style tabs */
+$$("[data-variant]").forEach(b => b.onclick = () => {
+  document.body.dataset.room = b.dataset.variant;
+  $$("[data-variant]").forEach(x => x.setAttribute("aria-pressed", x === b));
+});
+
+/* questions */
+const Q = [
+  ["1. New 480x270 perspective room, or restretch the old 320x200?", ["New 480x270 perspective room", "Restretch the old 320x200"], 0],
+  ["2. Far catches pay a x1.25 bonus?", ["Yes, x1.25 for far catches", "No, flat pay"], 0],
+  ["3. Keep the dangling-fish tap beside floor throw? Rod taps pay x1.5.", ["Yes", "Floor throw only"], 0],
+  ["4. Run frames: smoother cycle proposed: side run 8 frames, toward 6, away 6, plus start/stop skid 2 each (24 total on the grey template, recoloured by script). Who draws?", ["You draw in Aseprite", "I script rough first pass, you polish"], 1],
+  ["5. Desktop rail always open from 1000px?", ["Yes, always open from 1000px", "No, keep the toggle"], 0],
+  ["6. Rotate-hint chip on portrait phones?", ["Yes, small dismissible chip", "No hint"], 0]
+];
+$("#qs").innerHTML = Q.map((q, i) => `<fieldset><legend>${q[0]}</legend>${q[1].map((o, j) =>
+  `<label><input type="radio" name="q${i}" ${j === q[2] ? "checked" : ""}> ${o}${j === q[2] ? '<span class="rec">recommended</span>' : ""}</label>`).join("")}</fieldset>`).join("");
+</script>
+</body>
+</html>
