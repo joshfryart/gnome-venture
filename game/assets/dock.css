@@ -1453,3 +1453,8 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on main:has(> .gardenwrap) > p.wxline br { display: none; }
   body.dock-on main:has(> .gardenwrap) > p.wxline small, body.dock-on main:has(> .gardenwrap) > p.wxline .muted { display: inline; margin-left: 6px; font-size: 11px; }
 }
+
+/* v2.8.16: Garden, landscape dock: the cat line is gone so the tabs sit in the heading row */
+@media (orientation: landscape) {
+  body.dock-on main:has(> .gardentabnav) > .cfgarden { display: none; }
+}

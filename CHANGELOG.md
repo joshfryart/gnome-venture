@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.16
+- **Garden, landscape layout: the cat line is hidden** so the tabs move up into the heading row beside the garden name.
+
 ## 2.8.15
 - **Garden, landscape layout: your garden comes first.** The heading, tabs, location line and weather line now share two short rows, so the garden starts about 70 px higher (172→104 px at 844×390). The "Cat Fish" link is gone from the cat line (the cat line is also smaller and sits in the heading row).
 
