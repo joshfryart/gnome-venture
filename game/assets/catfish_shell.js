@@ -6,6 +6,25 @@
   var wide = window.matchMedia ? window.matchMedia('(min-width: 1000px)') : { matches: false };
   function store(k, v) { try { if (v === undefined) return window.localStorage.getItem(k); window.localStorage.setItem(k, v); } catch (e) {} return null; }
   page.classList.add('js');
+  /* drawer tabs: Shop (upgrades), Shelter (adopt), More (the hub). The panels are the .cfdp blocks; without this script they are all shown. */
+  var panels = [].slice.call(drawer.querySelectorAll('.cfdp')), head = document.createElement('div'), tl = document.createElement('div');
+  head.className = 'cfdhead'; tl.className = 'cfdtabs'; tl.setAttribute('role', 'tablist'); tl.setAttribute('aria-label', 'Shop sections');
+  var tabs = panels.map(function (pn, i) {
+    var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'cf-dt-' + pn.getAttribute('data-tab'); b.textContent = pn.getAttribute('data-label') || pn.getAttribute('data-tab');
+    pn.setAttribute('role', 'tabpanel'); pn.setAttribute('aria-labelledby', b.id); b.addEventListener('click', function () { pick(pn.getAttribute('data-tab')); }); tl.appendChild(b); return b;
+  });
+  function pick(name) {
+    if (!panels.some(function (pn) { return pn.getAttribute('data-tab') === name; })) name = 'shop';
+    panels.forEach(function (pn, i) { var on = pn.getAttribute('data-tab') === name; pn.hidden = !on; tabs[i].setAttribute('aria-selected', on ? 'true' : 'false'); tabs[i].tabIndex = on ? 0 : -1; });
+    store('cf_dtab', name);
+  }
+  tl.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var i = tabs.indexOf(document.activeElement); if (i < 0) return; var n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; n.focus(); n.click(); e.preventDefault();
+  });
+  if (panels.length > 1) { head.appendChild(tl); drawer.insertBefore(head, drawer.firstChild); pick(store('cf_dtab') || 'shop'); }
+  else if (panels.length) head.appendChild(tl);
+  head.appendChild(x); if (panels.length <= 1) drawer.insertBefore(head, drawer.firstChild);
   btn.hidden = false; x.hidden = false;
   var lastFocus = null;
   function open(on) {

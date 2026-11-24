@@ -60,6 +60,8 @@ const CATFISH_PLAY_TIERS = [[120, 1.0], [240, 0.5], [360, 0.25]];   // [last tap
 const CATFISH_PLAY_CAP = 15;
 const CATFISH_PLAY_REFILL = 2;
 const CATFISH_PLAY_BATCH = 40;
+const CATFISH_ROD_MULT = 1.5;           // room2: a tap on the dangling fish (the rod) pays x1.5
+const CATFISH_FAR_MULT = 1.25;          // room2: a catch of the lure thrown far down the room pays x1.25
 const CATFISH_PLAY_UP = [];             // hook for later upgrades that change play (none in 2.1.04)
 /** Petal milestones: key => [label, base Petals (then scaled by game_petals())]. Each pays once, inside the weekly cap (setting catfish_petal_cap). */
 const CATFISH_MILESTONES_PETALS = [
@@ -282,6 +284,7 @@ const CATFISH_SIDE_FRAMES = ['idleA' => ['idleA', 'idleB', 'stalk']];
  */
 function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false, array $pets = []): string
 {
+    if (catfish_room2_on() && catfish_art_has('room2/manifest.json')) return catfish_room2_stage_html($cats, $active, $owned, $napping, $hint);   // setting catfish_room2: the canvas room (assets/catfish_room.js)
     if (!catfish_art_has('cf-room.png')) return '';
     $h = '<div class="cfstagewrap"><div class="cfstage' . catfish_rod_classes($owned) . catfish_pet_stage_classes($pets) . '" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
     $h .= catfish_room_extras_html($owned);
@@ -339,6 +342,34 @@ function catfish_scene_key(array $cats, ?array $active, array $owned, array $pet
 {
     return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active)) . '|' . catfish_rod_classes($owned)
         . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats)) . (catfish_pet_key($pets) !== '' ? '|' . catfish_pet_key($pets) : '')), 0, 12);
+}
+
+/**
+ * room2: the canvas room (assets/catfish_room.js draws it from the art in assets/img/catfish/room2/). Markup = a canvas, three visually hidden buttons for the keyboard
+ * (floor throw, rod fish, charms stay in the panel) and one JSON block with the cats and what is owned. Swapped in place by catfish.js like the old stage (class cfstagewrap).
+ * Game coat => art coat as CATFISH_ART_COATS; 'solid' = no pattern layer; odd eyes use the first of the two colours.
+ */
+function catfish_room2_stage_html(array $cats, array $active, array $owned, bool $napping, bool $hint): string
+{
+    $cs = [];
+    foreach ($cats as $c) {
+        $eye = (string)($c['eyes'] ?? 'amber'); $sd = (int)($c['seed'] ?? 0);
+        if ($eye === 'odd' || !in_array($eye, CATFISH_EYE_COLOURS, true)) $eye = CATFISH_EYE_COLOURS[$sd % 4];
+        $pat = (string)($c['pattern'] ?? 'solid');
+        $cs[] = ['id' => (int)$c['id'], 'name' => (string)$c['name'], 'coat' => CATFISH_ART_COATS[$c['colour'] ?? ''] ?? 'grey', 'pat' => $pat === 'solid' ? '' : $pat, 'eyes' => $eye,
+                 'fold' => ($c['ears'] ?? '') === 'folded', 'bob' => ($c['tail'] ?? '') === 'bobtail', 'mood' => (string)($c['mood'] ?? ''), 'seed' => $sd];
+    }
+    $up = []; foreach ($owned as $k => $n) if ((int)$n > 0) $up[$k] = (int)$n;
+    $data = ['base' => url('assets/img/catfish/room2/'), 'v' => APP_VERSION, 'cats' => $cs, 'active' => (int)($active['id'] ?? 0), 'owned' => $up,
+             'fish' => catfish_fish_kinds($owned, $active), 'nap' => $napping, 'fishUrl' => url('assets/img/catfish/'), 'rodUrl' => catfish_art_url('cf-rod.png')];
+    $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+    $h = '<div class="cfstagewrap cfr2wrap"><div class="cfr2stage" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' playing in the room">';
+    $h .= '<canvas class="cfr2cv" width="480" height="270" aria-hidden="true"></canvas>';
+    $h .= '<button type="button" class="cfsr cfr2key" data-act="floor">Throw the lure down the room</button>';
+    foreach (array_keys(catfish_fish_kinds($owned, $active)) as $i) $h .= '<button type="button" class="cfsr cfr2key" data-act="fish" data-fish="' . ($i + 1) . '">Bat the plushie fish ' . ($i + 1) . '</button>';
+    if ($hint) $h .= '<p class="cfr2hint" id="cf-hint">Tap the floor to throw the lure. Tap a fish to play!</p>';
+    $h .= '<script type="application/json" class="cfr2data">' . json_encode($data, $J) . '</script>';
+    return $h . '</div></div>';
 }
 
 /** The stage for a view from catfish_view(): [scene key, markup]. The markup is exactly what catfish.php prints ('' with no cat or no room art). */
@@ -878,9 +909,10 @@ function catfish_play_value(float $kph, int $k): int
  * A batch whose seq is not above meta.pq is a replay (a retry after a lost reply): nothing is paid. n must be an integer 0..PLAY_BATCH; anything else pays 0.
  * Accepted = min(n, whole tokens in the bucket, taps left today). Play Kibble goes to kibble, run_kibble and total_kibble in ONE update with meta.
  */
-function catfish_play(int $uid, $n, $seq): array
+/** $rod = how many of the $n taps were on the rod's fish (x1.5), $far = how many were far catches (x1.25). Both are clamped to $n and the best multipliers are applied first, so a client can never claim more than $n taps' worth. */
+function catfish_play(int $uid, $n, $seq, $rod = 0, $far = 0): array
 {
-    return catfish_locked($uid, function () use ($uid, $n, $seq) {
+    return catfish_locked($uid, function () use ($uid, $n, $seq, $rod, $far) {
         $s = catfish_tick($uid);
         $cat = catfish_active($uid, $s);
         if (!$cat) return [0, 0];
@@ -899,7 +931,11 @@ function catfish_play(int $uid, $n, $seq): array
             $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid, $s));
             $dbl = catfish_catnip_left($m, $now) > 0 ? CATFISH_CATNIP_MULT : 1;   // Catnip Hour
             $tap = catfish_pet_bonus($uid)['tap'];   // 2.2.x rod charm: the first taps of the day pay more
-            for ($i = 1; $i <= $got; $i++) $paid += catfish_pet_tap_value(catfish_play_value($kph, $pc + $i), $pc + $i, $tap) * $dbl;
+            $rod = is_scalar($rod) ? max(0, min($got, (int)$rod)) : 0; $far = is_scalar($far) ? max(0, min($got - $rod, (int)$far)) : 0;
+            for ($i = 1; $i <= $got; $i++) {
+                $mul = $i <= $rod ? CATFISH_ROD_MULT : ($i <= $rod + $far ? CATFISH_FAR_MULT : 1.0);
+                $paid += (int)floor(catfish_pet_tap_value(catfish_play_value($kph, $pc + $i), $pc + $i, $tap) * $mul) * $dbl;
+            }
             $tokens -= $got;
             $m['pe'] = (int)($m['pe'] ?? 0) + $got;
         }
