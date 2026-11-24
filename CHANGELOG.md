@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.8.47
-- **Treehouse (and yard) picture: centred and bigger on a landscape phone.** A picture page with no list beside it now centres its picture and uses the taller height the room banner uses (about 20% wider on a 412 px-tall phone). Pages with a villager list beside the picture are unchanged.
+- **Treehouse (and yard) picture: centred and bigger on a landscape phone.** A picture page with no list beside it now centres its picture and makes it large: its height is the space above the dock plus 30 px, so the page scrolls the last bit (about 65% wider than before on a 412 px-tall phone). Pages with a villager list beside the picture are unchanged.
 
 ## 2.8.46
 - **Fix: Satchel Quick button could not pick an item (landscape).** The shelves now open a full-screen picker, which sits above the dock, so the dock's Confirm piece could not be tapped and never saw the open item. While you are choosing a Quick item, the open item's panel now has a "Set as Quick" button (only for items the Quick slot can hold). The dock's Confirm piece also finds the item in the new panel.
