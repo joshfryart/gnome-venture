@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.39
+- **Trail Gather popover, after a gather (landscape).** The "Into your satchel" banner is one slim row, so the tool belt stays in view, and the toasts (new Almanac page, energy used) are small and sit at the bottom left over the picture instead of over the belt.
+
 ## 2.8.38
 - **Gather popover on the Trail: finds under a fold, fits above the dock.** "What's here" is a fold with the count of known finds ("0 of 16 known"); open it for a compact grid of finds. In landscape the popover starts at the top and ends above the dock, the belt is smaller and the picture's chips are hidden. Other gather screens are unchanged.
 

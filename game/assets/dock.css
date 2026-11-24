@@ -1591,3 +1591,13 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on #hubpop-tgather .gx-fold .find__name { font-weight: 700; overflow-wrap: anywhere; }
   body.dock-on #hubpop-tgather .gx-fold .find__need { font-size: 9px; opacity: .85; }
 }
+/* v2.8.39: after a gather in the Trail popover: the "Into your satchel" banner is one slim row (the belt stays in view) and the toasts (new Almanac page, -1 energy) sit small at the bottom left over the picture, not over the belt */
+@media (orientation: landscape) {
+  body.dock-on #hubpop-tgather .gx-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 3px 10px; padding: 6px 8px 7px; margin: 0; outline-offset: -4px; }
+  body.dock-on #hubpop-tgather .gx-banner__kick { font-size: 9px; }
+  body.dock-on #hubpop-tgather .gx-banner__name { margin: 0; font-size: 15px; }
+  body.dock-on #hubpop-tgather .gx-banner__meta { gap: 3px; }
+  body.dock-on #hubpop-tgather .gx-tag { font-size: 10px; padding: 0 5px; }
+  body.dock-on:has(#hubpop-tgather[open]) .toasts { left: 8px; right: auto; transform: none; width: min(44vw, 330px); gap: 3px; }
+  body.dock-on:has(#hubpop-tgather[open]) .toasts .flash { padding: 3px 8px; font-size: 11px; line-height: 1.25; }
+}
