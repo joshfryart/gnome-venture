@@ -83,7 +83,7 @@ def parse_lua():
     s = open(os.path.join(HERE, 'cf_run80.lua')).read()
     pose = []
     for m in re.finditer(r'\{ BY=(\d+), L=(\d+), arch=(-?\d+), tilt=(-?\d+), S=\{(\d+),(\d+)\}, H=\{(\d+),(\d+)\}, head=\{(\d+),(\d+)\}, ear=\{(-?\d+),(-?\d+)\}', s):
-        v = list(map(int, m.groups())); pose.append(dict(BY=v[0], L=v[1], arch=v[2], tilt=v[3], Sy=v[5], Hy=v[7], hy=v[9]))
+        v = list(map(int, m.groups())); pose.append(dict(BY=v[0], L=v[1], arch=v[2], tilt=v[3], Sy=v[5], Hy=v[7], hy=v[9], ear=(v[10], v[11])))
     legs = []
     for m in re.finditer(r'\{ nf=\{(\d+),(\d+)\}, ff=\{(\d+),(\d+)\}, nh=\{\{(\d+),(\d+)\},\{(\d+),(\d+)\}\}, fh=\{\{(\d+),(\d+)\},\{(\d+),(\d+)\}\} \}', s):
         v = list(map(int, m.groups()))
@@ -91,6 +91,7 @@ def parse_lua():
     tdy = [list(map(int, m.groups())) for m in re.finditer(r'tdy=\{(-?\d+),(-?\d+),(-?\d+)\}', s)]
     assert len(pose) == NF and len(legs) == NF and len(tdy) == NF, (len(pose), len(legs), len(tdy))
     for p, t in zip(pose, tdy): p['tdy'] = t
+    for i, p in enumerate(pose): p['pear'] = pose[(i - 1) % NF]['ear']
     return pose, legs
 
 def rnd(v): return int(math.floor(v + 0.5))
@@ -108,7 +109,7 @@ def geometry(f, P, Lg):
     BY, L = P['BY'], P['L']; rear, front = BX - L // 2, BX + L // 2
     ts = 1 if P['tilt'] >= 3 else (-1 if P['tilt'] <= -3 else 0)
     S = (front - 5, P['Sy']); H = (rear + 5, P['Hy']); Sf = (S[0] - 1, S[1] - 1); Hf = (H[0] + 1, H[1] - 1)
-    g = dict(BY=BY, L=L, rear=rear, front=front, ts=ts, S=S, H=H, hx=S[0] + 9, hy=P['hy'], arch=P['arch'])
+    g = dict(BY=BY, L=L, ear=P['ear'], pear=P['pear'], rear=rear, front=front, ts=ts, S=S, H=H, hx=S[0] + 9, hy=P['hy'], arch=P['arch'])
     nfE = ik(S, Lg['nf'], 7, 7, -1); ffE = ik(Sf, Lg['ff'], 7, 7, -1)
     nhK = ik(H, Lg['nh'][0], 7, 7, 1); fhK = ik(Hf, Lg['fh'][0], 7, 7, 1)
     g['chains'] = {'fn': [S, nfE, Lg['nf']], 'ff': [Sf, ffE, Lg['ff']],
@@ -175,7 +176,7 @@ def classify(f, g, layers, grey):
                 elif ((x - (S[0] + 1)) / 6.0) ** 2 + ((y - (S[1] - 5)) / 6.5) ** 2 <= 1.15 and x >= S[0] - 3:
                     d.update(part='chest', lx=x - (S[0] + 1), ly=y - (S[1] - 5))
                 else:
-                    d.update(part='body', u=x - BX, v=y - spine_y(g, x))
+                    d.update(part='body', u=x - BX, v=rnd(y - spine_y(g, x)), t=(x - (g['rear'] + 12)) / max(1, g['L'] - 22), L=g['L'], rear=g['rear'])
             else:
                 keys = ('fn', 'hn') if lay == 'legs-near' else ('ff', 'hf')
                 # paw?
@@ -196,30 +197,35 @@ def classify(f, g, layers, grey):
 # ---------------------------------------------------------------- patterns  (return a role or None)
 def in_rect(lx, ly, x0, y0, x1, y1): return x0 <= lx <= x1 and y0 <= ly <= y1
 
+def bx(d, t):
+    """absolute x of the body fraction t (t=0 haunch edge, t=1 chest edge)"""
+    return rnd(d['rear'] + 12 + t * max(1, d['L'] - 22))
+
 def tabby(d):
     p = d['part']
     if p == 'body':
-        u, v = d['u'], d['v']
+        v = d['v']
         if -8 <= v <= 3:
-            for i, u0 in enumerate((-4, 1, 6)):
-                xs = u0 + rnd(v * 0.3)
-                if u - xs in (0, 1):
+            thr = -8 + (36 - d['L']) * 1.5       # 2 px wide below row thr, tapering to 1 px as the body shortens (smooth counts)
+            w = 2 if v >= thr else 1
+            for i, t0 in enumerate((0.15, 0.5, 0.85)):
+                xs = bx(d, t0) + rnd(v * 0.3)
+                if 0 <= d['x'] - xs < w:
                     hi = 3 if i % 2 == 0 else 0
-                    if v >= hi - 1: return 'S'
-                    return 'D'
+                    return 'S' if v >= hi - 1 else 'D'
         return None
     if p == 'haunch':
         dd = math.hypot(d['lx'] + 5, d['ly'] + 1)
-        if d['ly'] <= 3 and (4.5 <= dd < 6.0 or 8.5 <= dd < 10.0): return 'D' if d['ly'] < 2 else 'S'
+        if d['ly'] <= 3 and 4.5 <= dd < 6.0: return 'D' if d['ly'] < 2 else 'S'
         return None
     if p == 'chest':
         if d['ly'] in (-2, 2) and -5 <= d['lx'] <= 1: return 'D'
         return None
     if p == 'head':
         lx, ly = d['lx'], d['ly']
-        if lx in (-6, -2, 2) and -9 <= ly <= -5: return 'S' if ly >= -5 else 'D'
-        if ly in (2, 5) and -12 <= lx <= -6: return 'D' if lx >= -10 else 'S'
-        if ly == -1 and -10 <= lx <= 1: return 'D' if lx >= -8 else 'S'
+        for l0 in (-6, -3, 0):                       # forehead M, strokes lean back
+            if -9 <= ly <= -6 and lx == (l0 - 1 if ly <= -8 else l0): return 'D' if ly <= -8 else 'S'
+        if (ly == 1 and -11 <= lx <= -8) or (ly == 3 and -10 <= lx <= -7): return 'S'
         return None
     if p == 'tail':
         a = d['arc']
@@ -231,20 +237,30 @@ def tabby(d):
         return None
     return None
 
-SPOTS = {  # part -> list of (x0, y0, w, h) rect spots in local coords; lower-right pixel becomes shade
-    'body': [(-5, -5, 3, 2), (0, -6, 2, 2), (3, -2, 3, 2), (-3, 0, 2, 2), (7, -5, 2, 2)],
-    'haunch': [(-6, -3, 3, 2), (-1, 0, 2, 2), (-2, -7, 2, 2)],
-    'chest': [(-2, 0, 2, 2)],
-    'head': [(-4, -8, 2, 2), (-9, 1, 3, 2), (-3, 4, 2, 2)],
+SHAPE_A = ('.DD', 'DDS')
+SHAPE_B = ('DD.', 'DSD', '.D.')
+SPOTS = {  # part -> list of (shape, x0, y0) in local coords (body: x0 is absolute, from the fraction t)
+    'haunch': [(SHAPE_B, -6, -3), (SHAPE_A, -2, -7), (SHAPE_A, -1, 0)],
+    'chest': [(SHAPE_A, -2, 0)],
+    'head': [(('DD',), -6, -7), (('DD',), -3, -8), (SHAPE_A, -10, 1)],
 }
+def shape_role(sh, x0, y0, lx, ly):
+    r, c = ly - y0, lx - x0
+    if 0 <= r < len(sh) and 0 <= c < len(sh[0]):
+        ch = sh[r][c]
+        return {'D': 'D', 'S': 'S'}.get(ch)
+    return None
 def spotted(d):
     p = d['part']
+    if p == 'body':
+        for sh, t0, v0 in ((SHAPE_A, 0.15, -5), (SHAPE_B, 0.5, -2), (SHAPE_A, 0.85, -6)):
+            r = shape_role(sh, bx(d, t0), v0, d['x'], d['v'])
+            if r: return r
+        return None
     if p in SPOTS:
-        lx, ly = (d['u'], d['v']) if p == 'body' else (d['lx'], d['ly'])
-        for (x0, y0, w, h) in SPOTS[p]:
-            if x0 <= lx < x0 + w and y0 <= ly < y0 + h:
-                if (lx, ly) in ((x0, y0), (x0 + w - 1, y0 + h - 1)) and w * h >= 6: return 'S'
-                return 'D'
+        for sh, x0, y0 in SPOTS[p]:
+            r = shape_role(sh, x0, y0, d['lx'], d['ly'])
+            if r: return r
         return None
     if p == 'tail':
         a = d['arc']
@@ -260,29 +276,44 @@ def white_mask(d, calico=False):
     p = d['part']
     if p == 'head':
         lx, ly = d['lx'], d['ly']
-        return (ly >= 1 and lx >= 6) or (ly >= 4 and lx >= 0)
-    if p == 'chest': return d['ly'] >= -2 and d['lx'] >= -3
+        return ((lx - 8) / 7.0) ** 2 + ((ly - 4) / 4.5) ** 2 <= 1
+    if p == 'chest': return d['lx'] >= -3 and d['ly'] >= -1 - max(0, d['lx']) // 2
     if p == 'body': return d['v'] >= 4
     if p == 'paw': return True
     if p == 'leg': return d['arc'] >= d['tot'] - 4
     if p == 'tail': return d['arc'] >= d['tot'] - 5
     return False
 
+def grid(lx0, rows):
+    out = {}
+    for ly, s in rows.items():
+        for i, ch in enumerate(s):
+            if ch != '.': out[(lx0 + i, ly)] = ch
+    return out
+CAL_HEAD = grid(-11, {-9: '....DDD..', -8: '...DDDDD.', -7: '..DDDDDD.', -6: '.DDDDDD..', -5: 'DDDDDS...',
+                      -4: 'DDDDS....', -3: '.DDS.....', -2: '..S......'})
+CAL_BLOT = grid(0, {-8: '.SS.', -7: 'SSSS', -6: '.SS.'})
+def calico_body(d):
+    """D / S body patches by fraction t; the 4 corners of each rectangle are dropped"""
+    t, v, x = d['t'], d['v'], d['x']
+    n = max(1, d['L'] - 22); base = d['rear'] + 12
+    for (t0, t1, v0, v1, role) in ((0.05, 0.6, None, -1, 'D'), (0.7, 1.0, -6, -1, 'S')):
+        if not (t0 <= t <= t1): continue
+        if role == 'D':
+            v0 = -9 if 0.3 <= t <= 0.45 else (-8 if t < 0.15 else -7)
+        if not (v0 <= v <= v1): continue
+        xa, xb = math.ceil(base + t0 * n - 1e-9), math.floor(base + t1 * n + 1e-9)
+        if x in (xa, xb) and (v == v1 or v == v0): continue
+        return role
+    return None
 def dark_patch(d):
     """calico: 'D' deep / 'S' shade patches, part-local"""
     p = d['part']
     if p == 'head':
-        lx, ly = d['lx'], d['ly']
-        if ly <= -1 and lx <= -2 and not (lx >= -3 and ly >= -3): return 'D'
-        if lx <= -2 and ly <= -1: return 'D'
-        if in_rect(lx, ly, -12, 1, -8, 5): return 'S'
-        return None
-    if p == 'ear': return 'D'
-    if p == 'body':
-        u, v = d['u'], d['v']
-        if -4 <= u <= 3 and v <= -1 + (1 if u in (-1, 0, 1) else 0) and v >= -8: return 'D'
-        if 3 < u <= 8 and -7 <= v <= 1: return 'S'
-        return None
+        k = (d['lx'], d['ly'])
+        return CAL_HEAD.get(k) or CAL_BLOT.get(k)
+    if p == 'ear': return 'D' if d['lx'] <= 0 else None
+    if p == 'body': return calico_body(d)
     if p == 'haunch':
         lx, ly = d['lx'], d['ly']
         if -9 <= lx <= 0 and -9 <= ly <= -1 and lx * lx + (ly + 4) ** 2 <= 30: return 'D'
@@ -295,19 +326,23 @@ def dark_patch(d):
         if d['ly'] <= -4: return 'S'
         return None
     return None
-def hx_dummy(): return 99
+
+def pointed_val(d):
+    return ((d['lx'] - 8) / 6.0) ** 2 + ((d['ly'] - 3) / 5.0) ** 2
 
 def pointed_pts(d):
     p = d['part']
     if p == 'ear': return True
-    if p == 'head': return d['lx'] >= 2 and d['ly'] >= -4
+    if p == 'head':
+        v = pointed_val(d)
+        return v <= 1 or (v <= 1.4 and d['tone'] in ('base', 'shade'))
     if p == 'paw': return True
     if p == 'leg': return d['arc'] >= d['tot'] - 6
     if p == 'tail': return d['arc'] >= 3
     return False
 
-TONE_DOWN = {'gloss': LIGHT, 'light': BASE, 'base': SHADE, 'shade': DEEP}
-TONE_UP = {'gloss': GLOSS, 'light': GLOSS, 'base': LIGHT, 'shade': BASE}
+TONE_DOWN = {'gloss': LIGHT, 'light': BASE, 'base': SHADE, 'shade': DEEP, 'deep': DEEP}
+TONE_UP = {'gloss': GLOSS, 'light': GLOSS, 'base': LIGHT, 'shade': BASE, 'deep': SHADE}
 def white_col(d):
     if d.get('far') and d['tone'] == 'shade': return WD
     return {'gloss': WG, 'light': WG, 'base': WF, 'shade': WS}[d['tone']]
@@ -404,19 +439,33 @@ def components(mask):
         comps.append(c)
     return comps
 
-def folded_ears(grey, emask):
-    remove = np.zeros((H_, W_), bool); add = {}
-    for c in components(emask):
-        ys = [p[0] for p in c]; ymin, ymax = min(ys), max(ys); h = ymax - ymin + 1
-        cut = ymin + int(math.ceil(h * 0.5))
-        for (y, x) in c:
-            if y < cut: remove[y, x] = True
-        top = [(y, x) for (y, x) in c if y >= cut]
-        if top:
-            ty = min(p[0] for p in top)
-            for (y, x) in top:                         # fold crease along the new top edge
-                if y == ty: add[(x, y)] = SHADE
-    return reoutline(grey, remove, add)
+TONECOL = {'G': GLOSS, 'L': LIGHT, 'B': BASE, 'S': SHADE, 'D': DEEP}
+NEAR = {(-1, 0): grid(-8, {-12: '.LLLL....', -11: 'LLBBBLL..', -10: 'BBBBBBBL.', -9: 'SSSSSSBBS', -8: '......SSS'}),
+        (-2, 1): grid(-8, {-11: 'LLLLL....', -10: 'BBBBBLL..', -9: 'SSSSSBBL.', -8: '.....SSBS'}),
+        (0, -1): grid(-8, {-12: '..LLLL...', -11: 'LLBBBBLL.', -10: 'BBBBBBBBS', -9: 'SSSSSSSSS'})}
+FAR = {(-1, 0): grid(2, {-12: '..BB...', -11: '.BBBS..', -10: '.BSSSS.', -9: '.DDDSSD'}),
+       (-2, 1): grid(2, {-11: 'BBBS...', -10: '.BSSSS.', -9: '.DDDSS.'}),
+       (0, -1): grid(2, {-12: '...BB..', -11: '.BBBS..', -10: '.BSSSS.', -9: '.DDDSSD'})}
+FAR[(-2, 1)][(8, -8)] = 'D'
+
+def in_head(lx, ly): return (lx / 12.0) ** 2 + (ly / 9.5) ** 2 <= 1
+
+def folded_ears(grey, emask, hx, hy, near, far):
+    """-> (new frame, dict (x,y)->(role,lx,ly,rgb) of the new ear pixels: role 'ear' = grid pixels, 'head' = L fill inside the skull)"""
+    remove = np.zeros((H_, W_), bool); add = {}; meta = {}
+    for y in range(H_):
+        for x in range(W_):
+            ly, lx = y - hy, x - hx
+            if ly > -6 or grey[y, x, 3] == 0: continue
+            c = tuple(int(v) for v in grey[y, x, :3])
+            if emask[y, x] or (c[0] >= 190 and c[1] < 190) or (c in OLS and in_head(lx, ly)):
+                remove[y, x] = True
+                if in_head(lx, ly): add[(x, y)] = LIGHT; meta[(x, y)] = ('head', lx, ly)
+    for gr in (NEAR[near], FAR[far]):
+        for (lx, ly), ch in gr.items():
+            add[(hx + lx, hy + ly)] = TONECOL[ch]; meta[(hx + lx, hy + ly)] = ('ear', lx, ly)
+    out = reoutline(grey, remove, add)
+    return out, {k: meta[k] + (add[k],) for k in add}
 
 def bobtail(grey, tmask, g):
     pts = np.argwhere(tmask)
@@ -457,6 +506,8 @@ def compose(body, parts, pat, eye, clears):
 
 def main():
     os.makedirs(VIEW, exist_ok=True)
+    for fn in os.listdir(OUT):                      # stale outputs: everything is regenerated below
+        if fn.endswith('.png'): os.remove(os.path.join(OUT, fn))
     layers = load_layers(); pose, legs = parse_lua()
     base_tones = {k: v[0] for k, v in R.load(os.path.join(R.CF, 'tones.json'), True).items()}
     overlays = R.load(os.path.join(R.CF, 'tones_overlays.json'))
@@ -465,12 +516,18 @@ def main():
     tmasks = [rd(os.path.join(OUT80, 'cf-tail-mask-run%02d.png' % (f + 1)))[..., 3] > 0 for f in range(NF)]
     geo = [geometry(f, pose[f], legs[f]) for f in range(NF)]
     # grey-space layers
-    pats = {n: [] for n in R.PATTERNS}; ears = []; tails = []; eyes = []; eclear = []; tclear = []
+    pats = {n: [] for n in R.PATTERNS}; patsf = {n: [] for n in R.PATTERNS}; fears = []; ears = []; tails = []; eyes = []; eclear = []; tclear = []
     for f in range(NF):
         info = classify(f, geo[f], layers, greys[f])
         for n in R.PATTERNS: pats[n].append(make_pattern(n, info))
-        fe = folded_ears(greys[f], emasks[f]); bt = bobtail(greys[f], tmasks[f], geo[f])
+        g_ = geo[f]
+        fe, meta = folded_ears(greys[f], emasks[f], g_['hx'], g_['hy'], g_['ear'], g_['pear']); fears.append(fe)
+        bt = bobtail(greys[f], tmasks[f], geo[f])
         p, c = diff_layers(greys[f], fe); ears.append(p); eclear.append(c)
+        tn = {GLOSS: 'gloss', LIGHT: 'light', BASE: 'base', SHADE: 'shade', DEEP: 'deep'}
+        info_f = {k: v for k, v in info.items() if not c[k[1], k[0]]}
+        for (x, y), (role, lx, ly, rgb) in meta.items(): info_f[(x, y)] = dict(x=x, y=y, tone=tn[rgb], lay='ears', part=role, lx=lx, ly=ly)
+        for n_ in R.PATTERNS: patsf[n_].append(make_pattern(n_, info_f))
         p, c = diff_layers(greys[f], bt); tails.append(p); tclear.append(c)
         hx, hy = geo[f]['hx'], geo[f]['hy']
         e = np.zeros((H_, W_, 4), np.uint8)
@@ -496,6 +553,7 @@ def main():
             outs = [('cf-cat-%s-%s.png' % (coat, tag), greys[f]),
                     ('cf-ears-folded-%s-%s.png' % (coat, tag), ears[f]), ('cf-tail-bobtail-%s-%s.png' % (coat, tag), tails[f])]
             outs += [('cf-pat-%s-%s-%s.png' % (p, coat, tag), pats[p][f]) for p in R.PATTERNS]
+            outs += [('cf-pat-%s-%s-%s-fold.png' % (p, coat, tag), patsf[p][f]) for p in R.PATTERNS]
             for name, arr in outs:
                 o, unm = recolor_arr(arr, cmap)
                 if unm: problems.append('%s unmapped %s' % (name, unm))
@@ -512,6 +570,10 @@ def main():
         for p in R.PATTERNS:
             m = pats[p][f][..., 3] > 0
             if (m & ((greys[f][..., 3] == 0) | band)).any(): problems.append('pattern %s run%02d bleeds outside silhouette' % (p, f + 1))
+        bandf = band_of(fears[f])
+        for p in R.PATTERNS:
+            m = patsf[p][f][..., 3] > 0
+            if (m & ((fears[f][..., 3] == 0) | bandf)).any(): problems.append('fold pattern %s run%02d bleeds outside silhouette' % (p, f + 1))
     # views
     def tile(arrs, scale=2):
         im = Image.new('RGBA', (W_ * len(arrs), H_), (245, 236, 215, 255))
@@ -525,7 +587,7 @@ def main():
             body = loadc(coat, 'cf-cat-%s-%s.png', f); parts = []; clears = []
             if fold: parts.append(loadc(coat, 'cf-ears-folded-%s-%s.png', f)); clears.append(eclear[f])
             if bob: parts.append(loadc(coat, 'cf-tail-bobtail-%s-%s.png', f)); clears.append(tclear[f])
-            pt = rd(os.path.join(OUT, 'cf-pat-%s-%s-run%02d.png' % (pat, coat, f + 1))) if pat else None
+            pt = rd(os.path.join(OUT, 'cf-pat-%s-%s-run%02d%s.png' % (pat, coat, f + 1, '-fold' if fold else ''))) if pat else None
             r.append(compose(body, parts, pt, eyeamber(f), clears))
         return r
     for coat in R.COATS:
