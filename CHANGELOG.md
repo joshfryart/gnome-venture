@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.46
+- **Fix: Satchel Quick button could not pick an item (landscape).** The shelves now open a full-screen picker, which sits above the dock, so the dock's Confirm piece could not be tapped and never saw the open item. While you are choosing a Quick item, the open item's panel now has a "Set as Quick" button (only for items the Quick slot can hold). The dock's Confirm piece also finds the item in the new panel.
+
 ## 2.8.45
 - **Cat Fish: the new room (setting `catfish_room2`, on by default).** A 480x270 room with depth: cats run into the distance (smaller) and back, zoom off one side of the screen and in from the other, and the other cats wander, nap, tag each other and climb the cat tree. Tap the floor to throw the lure; the cat chases it and the catch pays Kibble (x1.25 when the throw was far). Tap a dangling fish: x1.5. Idle cats now yawn, stretch, wash, flick their tails, twitch their ears and swat at nothing. Room things show on the stage, and active ones can be tapped there.
 - **Cat Fish page layout.** The room loads first. The shop is a drawer with Shop, Shelter and More tabs: it slides in from the right on phones and tablets, and is a permanent 360 px rail from 1000 px wide. Short landscape phones show the whole room. A one-time "turn your phone sideways" chip shows in portrait.

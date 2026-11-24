@@ -216,8 +216,8 @@
     if (f.requestSubmit) f.requestSubmit(); else f.submit();
     setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 8000);
   }
-  function satchelPick() {   // the item popup open in the Satchel: its Eat or Drink form names the item and shows it can go on the Quick button
-    var d = q1('main details.itile[open]'), forms, i, dd, it;
+  function satchelPick() {   // the item panel open in the Satchel: its Eat or Drink form names the item and shows it can go on the Quick button
+    var d = q1('main .shpanel:not([hidden])') || q1('main details.itile[open]'), forms, i, dd, it;   // the Satchel's shelves: the picked item's panel (the old pop-up is the fallback)
     if (!d) return null;
     forms = d.querySelectorAll('form');
     for (i = 0; i < forms.length; i++) {
@@ -225,6 +225,18 @@
       if (dd && it && (dd.value === 'eat' || dd.value === 'drink_heal')) return { id: it.value };
     }
     return { id: '', no: true };
+  }
+  /* Assigning the Quick slot: in landscape a shelf opens in a full-screen picker dialog that sits above the dock (the top layer), so the dock's Confirm piece cannot be tapped
+     while an item is open. So the open item's panel gets its own "Set as Quick" button here (only while assigning, only for an item the Quick slot can hold). */
+  function quickPanel() {
+    var old = document.querySelectorAll('main .dkqset'), i, pn, pk, b, host;
+    for (i = 0; i < old.length; i++) if (old[i].parentNode) old[i].parentNode.removeChild(old[i]);
+    if (!qMode || !D || !D.quickUrl) return;
+    pn = q1('main .shpanel:not([hidden])'); if (!pn) return;
+    pk = satchelPick(); if (!pk || pk.no) return;
+    host = pn;
+    b = document.createElement('button'); b.type = 'button'; b.className = 'btn dkqset'; b.setAttribute('data-qset', pk.id); b.textContent = '\u26a1 Set as Quick';
+    host.insertBefore(b, host.querySelector('.shdesc') || host.firstChild);   // near the top, so it shows without scrolling the dialog
   }
   function copy(o) { var r = {}, k; for (k in o) r[k] = o[k]; return r; }
   function finalItem(t) {
@@ -490,10 +502,16 @@
       clearTimeout(ghostTimer); ghostTimer = setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, 700);
     }
     lastKey = key;
+    quickPanel();
     document.body.classList.add('dock-ready');
     document.dispatchEvent(new Event('gv:dockdrawn'));   // the tour points at dock pieces; they are new elements after every draw
   }
   function open(k) { slip = slip === k ? null : k; render(); }
+  document.addEventListener('click', function (e) {   // the Set as Quick button (quickPanel) lives in the page's picker dialog, outside the dock
+    var qs = e.target.closest ? e.target.closest('[data-qset]') : null;
+    if (!qs || !D || !D.quickUrl) return;
+    qMode = false; postTo(D.quickUrl, { do: 'set', item_id: qs.getAttribute('data-qset'), back: D.back }); render();
+  });
 
   root.addEventListener('click', function (e) {
     var m = e.target.closest('[data-m]'), a = e.target.closest('button[data-act]'), p = e.target.closest('#dockplate'), pt = e.target.closest('[data-poptab]');
