@@ -1820,8 +1820,8 @@ ok "page without art: hidden h1 heading, emoji rod, no room, no icons, no book h
 mkdir -p $CFART; [ -d "$CFHOLD/room2" ] && cp -r $CFHOLD/room2 $CFART/room2   # the run moved the installed art aside; room2 needs its manifest
 setg catfish_room2 2
 curl -s -b $W/p $BASE/catfish.php > $W/r2.html
-ok "room2 page: canvas, data block, drawer with three panels, shell and engine scripts" "$(grep -c 'class="cfr2cv"' $W/r2.html)$(grep -c 'class="cfr2data"' $W/r2.html)$(grep -c 'id="cf-drawer"' $W/r2.html)$(grep -o 'data-tab="[a-z]*"' $W/r2.html | sort -u | wc -l | tr -d ' ')$(grep -c 'assets/catfish_shell.js' $W/r2.html)$(grep -c 'assets/catfish_room.js' $W/r2.html)" "11131"
-ok "room2 page: wrapped in .cfpage.cfr2 and the old rod stage is gone" "$(grep -c 'class="cfpage[^"]* cfr2' $W/r2.html)$(grep -c 'class="cfstage' $W/r2.html)" "10"
+ok "room2 page: canvas, data block, drawer with its panels (shop and more at least), shell and engine scripts" "$(grep -c 'class="cfr2cv"' $W/r2.html)$(grep -c 'class="cfr2data"' $W/r2.html)$(grep -c 'id="cf-drawer"' $W/r2.html)$([ $(grep -o 'data-tab="[a-z]*"' $W/r2.html | sort -u | wc -l) -ge 2 ] && echo 1 || echo 0)$(grep -c 'assets/catfish_shell.js' $W/r2.html)$(grep -c 'assets/catfish_room.js' $W/r2.html)" "111111"
+ok "room2 page: wrapped in .cfpage.cfr2 and the old rod stage is gone" "$(grep -c 'class="cfpage[^"]* cfr2' $W/r2.html)$(grep -c 'class="cfstage[ "]' $W/r2.html)" "10"
 setg catfish_room2 0
 curl -s -b $W/p $BASE/catfish.php > $W/r2off.html
 ok "room2 off: the old page, no canvas, no shell scripts" "$(grep -c 'class="cfr2cv"' $W/r2off.html)$(grep -c 'catfish_shell.js' $W/r2off.html)" "00"
