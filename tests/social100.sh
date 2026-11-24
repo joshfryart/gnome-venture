@@ -245,6 +245,7 @@ dbx "DELETE FROM garden_stamps"; get $A "visit.php?g=$BPLOT" >/dev/null; has "fe
 # seasons hook is guarded and used if present
 has "season line (if the season helper is there)" $H "stamp" 
 dbx "UPDATE settings SET value='2001-01-01' WHERE name='fest_opening_day_start'"; dbx "UPDATE settings SET value='2001-01-07' WHERE name='fest_opening_day_end'"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('fest_opening_day_yearly','0')"   # 2.7.58 EC4: a festival comes round every year unless this is 0; an old window must stay over
 get $A festival.php >/dev/null; has "ended festival page" $H 'No festival is on right now'; get $A 'gnome.php' >/dev/null; hasnt "no bunting strip when ended" $H 'class="festbar"'
 dbx "UPDATE settings SET value='2099-05-01' WHERE name='fest_opening_day_start'"; dbx "UPDATE settings SET value='2099-05-07' WHERE name='fest_opening_day_end'"
 get $A festival.php >/dev/null; has "upcoming festival shown" $H 'starts on May 1'
