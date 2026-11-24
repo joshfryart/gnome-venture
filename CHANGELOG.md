@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.30
+- **Trail and delve map larger in landscape.** On a phone held sideways the map drops its top and bottom tile rows (7 rows by 9 columns), so it is wider and bigger above the dock.
+
 ## 2.8.29
 - **Trail and delve map smaller in landscape.** On a phone held sideways the square map is capped to the height left above the dock, so the bottom no longer hides behind it.
 
