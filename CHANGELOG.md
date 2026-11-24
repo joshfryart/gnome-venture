@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.44
+- **Shop Buy / Sell: bigger tiles on desktop.** The compact phone-landscape tiles (66 px) applied to every dock screen; they now apply only to short landscape screens (height 520 px or less). Desktop gets tiles at least 130 px wide.
+- **Shop filters are back:** under the category chips, Sort (name, price, rarity), Rarity, and Can afford (Buy) or Wanted (Sell). Client side only.
+- Not checked: the real shop with live data (tested on a mock page in headless Chromium).
+
 ## 2.8.43
 Two parts: the desktop puzzle combat rework, and the dock clock.
 
