@@ -55,6 +55,7 @@ function map_positions(): array
     $pos = [];
     $roadDir = [];
     $GLOBALS['gv_side_of'] = [];
+    $GLOBALS['gv_road_curves'] = [];   // 2.8.53: per road: its end points and every stop's place along its curve (player_map_pos walks the hat along it)
     $codeOf = [];
     foreach (q('SELECT id, code FROM regions')->fetchAll() as $r) $codeOf[(int)$r['id']] = $r['code'];
     $regOf = []; $kindOf = [];   // location id => region code / kind, for keeping road stops inside their own region
@@ -84,8 +85,10 @@ function map_positions(): array
             $pos[$lastId] = $b;
         }
         [$mx, $my] = road_ctrl($a, $b);
+        $tOf = []; $clamped = [];
         for ($i = 1; $i < $n - 1; $i++) {
             $t = $i / ($n - 1);
+            $tOf[$i] = $t;
             $pos[$nodes[$i]] = [(int)round((1 - $t) ** 2 * $a[0] + 2 * (1 - $t) * $t * $mx + $t * $t * $b[0]),
                                 (int)round((1 - $t) ** 2 * $a[1] + 2 * (1 - $t) * $t * $my + $t * $t * $b[1])];
             // 2.7.45: a stop belongs to its own region: where the road curve carries it outside that region's disc, it sits on the disc's edge facing the road
@@ -104,9 +107,39 @@ function map_positions(): array
                         $ex = $cx + cos($ang) * $lim; $ey = $cy + sin($ang) * $lim;
                     }
                     $pos[$nodes[$i]] = [(int)round($ex), (int)round($ey)];
+                    $clamped[$i] = $rc;
                 }
             }
         }
+        // 2.8.53: stops clamped to a region's edge used to pile up there and leave the road empty: a run of them (same region) is spread along the road's own
+        // curve instead, from where the curve enters that region's disc to the next stop, at least 14 units apart
+        for ($i = 1; $i < $n - 1; $i++) {
+            if (!isset($clamped[$i])) continue;
+            $rc = $clamped[$i]; $i1 = $i;
+            while ($i1 + 1 < $n - 1 && ($clamped[$i1 + 1] ?? null) === $rc) $i1++;
+            $m = $i1 - $i + 1; $tNext = ($i1 + 1) / ($n - 1); [$cx, $cy, , $cr] = REGION_MAP[$rc];
+            $tPrev = $i > 1 ? $tOf[$i - 1] : 0.0; $tE = null; $tX = null;
+            for ($k = 0; $k <= 200; $k++) {   // the stretch of the curve inside this region's disc
+                $tt = $k / 200; if ($tt < $tPrev) continue;
+                [$qx, $qy] = map_bez($a, [$mx, $my], $b, $tt);
+                if (hypot($qx - $cx, $qy - $cy) <= $cr * 0.9) { if ($tE === null) $tE = $tt; $tX = $tt; }
+                elseif ($tE !== null) break;
+            }
+            if ($tE !== null) {
+                $clen = max(1.0, hypot($b[0] - $a[0], $b[1] - $a[1]));
+                $tTop = min($tX, $tNext);
+                $t0 = max($tPrev + 0.01, min($tE, $tTop - ($m + 1) * 14.0 / $clen));
+                for ($j = 0; $j < $m; $j++) {
+                    $tj = $t0 + ($tTop - $t0) * ($j + 1) / ($m + 1);
+                    $tOf[$i + $j] = $tj;
+                    [$qx, $qy] = map_bez($a, [$mx, $my], $b, $tj);
+                    $pos[$nodes[$i + $j]] = [(int)round($qx), (int)round($qy)];
+                }
+            }
+            $i = $i1;
+        }
+        $tOf[0] = 0.0; $tOf[$n - 1] = 1.0; ksort($tOf);
+        $GLOBALS['gv_road_curves'][] = ['a' => $a, 'b' => $b, 'c' => [$mx, $my], 't' => array_combine(array_map(fn($k) => $nodes[$k], array_keys($tOf)), array_values($tOf))];
         for ($i = 1; $i < $n - 1; $i++) {   // which way the road runs at each stop (for placing side paths)
             $roadDir[$nodes[$i]] = [$pos[$nodes[$i + 1]][0] - $pos[$nodes[$i - 1]][0], $pos[$nodes[$i + 1]][1] - $pos[$nodes[$i - 1]][1]];
         }
@@ -189,17 +222,30 @@ function map_positions(): array
     return $pos;
 }
 
-/** Compass direction from one place to another, by where they sit on the map ('' if unknown or the same spot). */
+/**
+ * Compass direction from one place to another ('' if unknown or the same spot). 2.8.53: the way the REGION map shows it (region_layout() slots, rl_heading8())
+ * when both places have a slot in the starting place's region (the card and the region map disagreed on side paths); else by the world map.
+ */
 function compass_between(int $fromId, int $toId): string
 {
+    require_once __DIR__ . '/region_layout.php';
+    $code = (string)q_val('SELECT r.code FROM locations l JOIN regions r ON r.id = l.region_id WHERE l.id = ?', [$fromId]);
+    $codes = array_values(array_unique(array_merge($code !== '' ? [$code] : [], array_keys(REGION_MAP))));   // its own region first: a dead-end road's far villages are slots of the town's region
+    $pick = null;   // a place can be a slot of two layouts: the one that draws the way between them (side trail or same road) wins, else the first
+    foreach ($codes as $cd) {
+        $L = region_layout((string)$cd);
+        if (!$L || !isset($L['slots'][$fromId], $L['slots'][$toId])) continue;
+        $f = $L['slots'][$fromId]; $t = $L['slots'][$toId];
+        $drawn = ($t['anchor'] ?? 0) === $fromId || ($f['anchor'] ?? 0) === $toId || ($f['road'] !== null && $f['road'] === $t['road']) || $fromId === $L['town'] || $toId === $L['town'];
+        if ($pick === null || ($drawn && !$pick[1])) $pick = [[$t['x'] - $f['x'], $t['y'] - $f['y']], $drawn];
+        if ($drawn) break;
+    }
+    if ($pick) return $pick[0][0] == 0 && $pick[0][1] == 0 ? '' : rl_heading8((float)$pick[0][0], (float)$pick[0][1]);
     $pos = map_positions();
     if (!isset($pos[$fromId], $pos[$toId])) return '';
-    $dx = $pos[$toId][0] - $pos[$fromId][0];   // east-positive
-    $dy = $pos[$fromId][1] - $pos[$toId][1];   // north-positive (screen y is flipped)
+    $dx = $pos[$toId][0] - $pos[$fromId][0]; $dy = $pos[$toId][1] - $pos[$fromId][1];   // screen vector (y down)
     if ($dx === 0 && $dy === 0) return '';
-    $deg = rad2deg(atan2($dx, $dy));
-    if ($deg < 0) $deg += 360;
-    return ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][(int)round($deg / 45) % 8];
+    return rl_heading8((float)$dx, (float)$dy);
 }
 
 /** Where the gnome is on the map right now: their place, or part way along the stretch they're walking. */
@@ -211,6 +257,12 @@ function player_map_pos(array $u): ?array
         $a = $pos[(int)$exp['from_id']];
         $b = $pos[(int)$exp['to_id']];
         $t = min((int)$exp['step'], (int)$exp['steps_total']) / (max(1, (int)$exp['steps_total']) + 1);
+        foreach ($GLOBALS['gv_road_curves'] ?? [] as $rc) {   // 2.8.53: on a road the hat follows the drawn curve, not the straight line between the two stops
+            $tf = $rc['t'][(int)$exp['from_id']] ?? null; $tt = $rc['t'][(int)$exp['to_id']] ?? null;
+            if ($tf === null || $tt === null) continue;
+            [$qx, $qy] = map_bez($rc['a'], $rc['c'], $rc['b'], $tf + ($tt - $tf) * $t);
+            return [(int)round($qx), (int)round($qy)];
+        }
         return [(int)round($a[0] + ($b[0] - $a[0]) * $t), (int)round($a[1] + ($b[1] - $a[1]) * $t)];
     }
     $id = $exp ? (int)$exp['from_id'] : (int)player_node($u)['id'];
