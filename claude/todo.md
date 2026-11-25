@@ -10,6 +10,9 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - OPEN (small, unfixed): Cat Fish: (1) the active cat jumps to a random front row when the zoomies start (`act.y = yOf(between(0.12, 0.4))` in `pickEvents()` in `game/assets/catfish_room.js`); (2) a room reload while the active cat is hidden off-screen in the zoomies leaves it hidden until the next throw (`c.t` unset).
 - Tests: `shopbasket`, `here`, `market100` ok; `itemsq` fails "every line says have / need: got '9' want '271'" the same on 2.8.56 (pre-existing); `css_lint` ok; `check_versions` ok.
 
+## 2026-11-25 2.8.58 (slim zip `releases/GnomeVenture-2.8.58-web-update.zip`, needs 2.8.53+, carries 2.8.56 and 2.8.57)
+- DONE (Josh): Cat Fish napping cat drew UNDER the cushion; now on top (`c.zo = 241` for a nap on the cushion, `assets/catfish_room.js`). Seen in headless Chromium only. OPEN: the cat's shadow is a faint grey strip on the cushion front.
+
 ## 2026-11-25 2.8.56 (PR 70; slim zip `releases/GnomeVenture-2.8.56-web-update.zip`, needs 2.8.53+)
 - DONE (Josh asked): Trail strip lights Sneak / Hunt while active (`aria-pressed` on the page button; `assets/dock.js`). NOT seen in a browser; check on the phone: tap Sneak, strip tile should show gold ring and lift, tap again to see it clear.
 
