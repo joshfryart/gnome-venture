@@ -313,13 +313,22 @@
         }
         var sfold = root.querySelector('#pbx-sfold');
         function unfold() { if (sfold) sfold.open = true; }
-        try { if (sfold && matchMedia('(orientation: landscape) and (max-height: 500px)').matches) sfold.open = false; } catch (e) {}   // the fold is a landscape-dock thing: closed there, open elsewhere and without script
+        var mq = null; try { mq = matchMedia('(orientation: landscape) and (max-height: 500px)'); } catch (e) {}
+        // the fold is a landscape-dock thing: closed there (unless the player opened it this session), open elsewhere and without script
+        if (sfold && mq) {
+          var kept = ''; try { kept = sessionStorage.getItem('pbx-sfold') || ''; } catch (e) {}
+          if (mq.matches && kept !== '1') sfold.open = false;
+          sfold.addEventListener('toggle', function () { if (mq.matches) { try { sessionStorage.setItem('pbx-sfold', sfold.open ? '1' : '0'); } catch (e) {} } });
+          var fit = function () { if (!sfold.isConnected) { if (mq.removeEventListener) mq.removeEventListener('change', fit); return; } if (!mq.matches) sfold.open = true; };   // leaving landscape always opens it
+          if (mq.addEventListener) mq.addEventListener('change', fit);
+        }
         function toShelf() { unfold(); if (shelf) { try { shelf.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } catch (e) { shelf.scrollIntoView(); } } }
         if (qi) qi.addEventListener('input', function () { st.q = qi.value; apply(); });
         if (/[?&]show=hurt\b/.test(location.search) && shelf) { st.t = 'hurt'; apply(); setTimeout(toShelf, 60); }
         // after a change: the piece that went in settles into the tray, one line says what happened (only when it came true)
         var after = null; try { after = JSON.parse(sessionStorage.getItem('pbx-after') || 'null'); sessionStorage.removeItem('pbx-after'); } catch (e) {}
         if (after && after.key) {
+          if (after.where !== 'kit') unfold();   // a piece that went back to the shelf is in sight
           var hit = all(after.where === 'kit' ? '.pbx-kit .pc' : '.shelfg .pc', root).filter(function (x) { var q = pcOf(x); return q && q.key === after.key; })[0];
           var toast = root.querySelector('#pbx-toast');
           if (hit) { if (after.where === 'kit') hit.classList.add('snap'); if (toast) { toast.textContent = after.msg; toast.hidden = false; setTimeout(function () { toast.hidden = true; }, 3200); } }
