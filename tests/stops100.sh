@@ -51,6 +51,24 @@ get town.php >/dev/null; flashes=$(grep -oE 'class="flash (ok|err)">[^<]*' $H | 
 get "town.php?view=passport" >/dev/null; echo "passport -> $(get "town.php?view=passport")  stamps=$(grep -c 'class="st-stamp has' $H) sets=$(grep -c 'class="st-sets"' $H)"
 get town.php >/dev/null; grep -q 'class="pkchip"' $H || { echo "FAIL no perk circle after doing an act (v2.5.74)"; RC=1; }
 get index.php >/dev/null; echo "today card mentions the stop: $(grep -c 'rest stop' $H)"
+# 2.8.64: each activity once a game day at each stop: a done one is a greyed card saying "Done today", the Do badge counts what is left, and a second post is refused
+get town.php >/dev/null
+K1=$(grep -oE 'name="kind" value="[a-z0-9_]+"' $H | sed 's/.*value="\(.*\)"/\1/' | grep -v '^_' | head -1)
+N0=$(grep -oE 'aria-label="[0-9]+ still to do today"' $H | grep -oE '[0-9]+' | head -1)
+SID=$(db "SELECT id FROM users WHERE username='sprout'")
+HD=$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require "'$GAME'/includes/bootstrap.php"; echo gclock_my_date();')
+dbx "INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES ($SID, $VIL, 'pg-test', '$HD', '$K1', 'check', '', datetime('now'))"
+get town.php >/dev/null
+N1=$(grep -oE 'aria-label="[0-9]+ still to do today"' $H | grep -oE '[0-9]+' | head -1)
+DONE=$(grep -c 'Done today' $H)
+echo "once a day: act=$K1 left $N0 -> $N1, done cards=$DONE"
+{ [ -n "$K1" ] && [ "$DONE" -ge 1 ] && [ -n "$N0" ] && [ "$N1" = "$((N0-1))" ]; } || { echo "FAIL a done-today act is not greyed / the Do badge does not count what is left (2.8.64)"; RC=1; }
+grep -q 'left today' $H || { echo "FAIL Things to do head does not say what is left today (2.8.64)"; RC=1; }
+post town.php -d do=local -d kind=$K1 -d opt=0 -d pick=1 -d power=3 >/dev/null; get town.php >/dev/null
+grep -q 'done that here today' $H && echo "  second go refused" || { echo "FAIL a second go at $K1 the same day is not refused (2.8.64)"; RC=1; }
+dbx "UPDATE stop_log SET day='2000-01-01' WHERE user_id=$SID"
+get town.php >/dev/null; N2=$(grep -oE 'aria-label="[0-9]+ still to do today"' $H | grep -oE '[0-9]+' | head -1)
+[ "$N2" = "$N0" ] && echo "  next day: all $N2 back" || { echo "FAIL after the day changes the activities are not back ($N2 vs $N0) (2.8.64)"; RC=1; }
 echo "== admin pages"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null
 for r in stop_types stop_acts stop_folk stop_tiers stop_sets stop_adoptions locations; do echo "admin crud $r -> $(get "admin/crud.php?r=$r")  rows=$(grep -c '<tr' $H)"; done

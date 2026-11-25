@@ -8222,6 +8222,8 @@ details.sgq summary{cursor:pointer}
 .scard.is-away { opacity: .62; }
 .scard.is-away .scard__art img { filter: grayscale(.6) opacity(.8); }
 .hubsvg.chrome .hs.is-away .pill, .hubsvg.chrome .hs.is-away .tag { opacity: .6; }
+.hubsvg.chrome .hs.is-done .pill, .hubsvg.chrome .hs.is-done .tag, .hubsvg .hs.is-done .pix, .hubsvg .hs.is-done .emo { opacity: .6; }   /* 2.8.64: a Do spot done today */
+.hubchip.is-done { opacity: .7; }
 /* v2.7.01 Shop Street labels: the pill is part of its shop's link (tappable), a state square sits in its right end, a dashed leader runs to the door */
 .hubsvg.chrome .pill.lbl, .hubsvg.chrome .pill.lbl rect, .hubsvg.chrome .pill.lbl text { pointer-events: auto; }
 .hubsvg.chrome .pill.lbl text { text-anchor: start; }

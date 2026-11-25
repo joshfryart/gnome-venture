@@ -365,6 +365,7 @@ function stop_perk_body(array $u, array $node): string
         foreach (stop_act_moves($a) as [$m, $amt]) if ($amt > 0) $acts[$m][] = [$a, $amt];
     }
     $first = array_key_first($meters) ?? array_key_first(STOP_METERS);
+    $doneToday = stop_done_today((int)$u['id'], (int)$node['id']);   // 2.8.64: each activity once a game day
     $id = 'pkm' . (int)$node['id'];
     $today = gclock_my_date();
     $scene = stop_art_file(stop_type_of($node));
@@ -404,7 +405,7 @@ function stop_perk_body(array $u, array $node): string
             foreach ($acts[$k] as [$a, $amt]) {
                 $art = stop_act_art((string)($a['kind'] ?? ''), (string)$a['slug']);
                 $h .= '<div class="pkact">' . ($art !== '' ? '<img class="pkthumb" src="' . e(url($art)) . '" alt="" loading="lazy">' : '<span class="pkthumb">' . e((string)($a['icon'] ?? '')) . '</span>')
-                    . '<span class="pkan">' . e((string)$a['name']) . '</span><em>+' . $amt . '%</em></div>';
+                    . '<span class="pkan">' . e((string)$a['name']) . (in_array((string)$a['slug'], $doneToday, true) ? ' <small class="muted">✔ done today</small>' : '') . '</span><em>+' . $amt . '%</em></div>';
             }
         } else $h .= '<p class="muted">Nothing on offer here today. Check back tomorrow.</p>';
         $h .= '</div>';

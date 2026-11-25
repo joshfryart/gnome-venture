@@ -35,8 +35,13 @@ function local_card(array $u, array $loc): array
 {
     $types = stop_types();
     $t = $types[stop_type_of($loc)] ?? null;
-    // 2.8.60: no per-visit or daily limits at rest stops any more, so the card just invites you in
-    return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': things to do, as often as you like, and ' . count(stop_folk_of($loc)) . ' villagers to meet.', 'Stay a while →'];
+    // 2.8.64: each activity once a game day here, so the card says how many are still open today
+    $offer = stop_pool($loc, null, (int)$u['id'])['offer'];
+    $done = stop_done_today((int)$u['id'], (int)$loc['id']);
+    $left = count(array_filter($offer, fn($a) => !in_array((string)$a['slug'], $done, true)));
+    $folkN = count(stop_folk_of($loc));
+    if ($offer && $left === 0) return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': you’ve done everything here today. Come back tomorrow, and meet the ' . $folkN . ' villagers meanwhile.', 'See the stop →'];
+    return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': ' . $left . ' thing' . ($left === 1 ? '' : 's') . ' to do today, and ' . $folkN . ' villagers to meet.', 'Stay a while →'];
 }
 
 // ---------------------------------------------------------------- the page
@@ -174,9 +179,9 @@ function local_buy_tile(array $u, array $loc, array $a, bool $isDone, bool $lock
     $t = $GLOBALS['st_tab'] ?? 'do';
     $fields = ($t !== 'do' ? ['t' => $t] : []) + ['do' => 'local', 'kind' => (string)$a['slug']];
     $info = '<p class="help">Buy ' . $qty . ' × ' . e((string)$item['name']) . '. You have ' . $have . '.</p>'
-        . ($isDone ? '<p class="help">✔ Done this visit.</p>' : ($locked ? '<p class="help">Come back later.</p>' : shop_oneform('', $fields, money($price) . ' for ' . $qty, 'Buy')));
+        . ($isDone ? '<p class="help">✔ Done today. Come back tomorrow!</p>' : ($locked ? '<p class="help">Come back later.</p>' : shop_oneform('', $fields, money($price) . ' for ' . $qty, 'Buy')));
     return shop_tile(['id' => (int)$a['id'], 'item' => $item, 'price' => $price, 'max' => 1, 'priceHtml' => money($price), 'mini' => '×' . $qty,
-        'dim' => $off, 'offNote' => $isDone ? 'Done' : ($locked ? 'Later' : ''), 'badge' => $isDone ? '✔' : ($have > 0 ? (string)$have : ''), 'badgeTitle' => $isDone ? 'Done this visit' : 'You have', 'info' => $info]);
+        'dim' => $off, 'offNote' => $isDone ? 'Done' : ($locked ? 'Later' : ''), 'badge' => $isDone ? '✔' : ($have > 0 ? (string)$have : ''), 'badgeTitle' => $isDone ? 'Done today' : 'You have', 'info' => $info]);
 }
 
 /** v2.0.67: the short meta chunks under a Do card's sign (escaped HTML each). Never cut: the row wraps between chunks. */
@@ -265,7 +270,7 @@ function local_act_card(array $u, array $loc, array $a, bool $isDone, string $wh
     $flag = !empty($a['now']) ? '<span class="gcard__flag">Right now</span>' : ((int)$a['tier'] > 0 && ($isDone || $why === '') ? '<span class="gcard__flag">Built here</span>' : '');
     $id = 'dowhy-' . preg_replace('/[^a-z0-9_-]/i', '', $slug);
     if ($isDone) {
-        $meta = ['✔ Done this visit'];
+        $meta = ['✔ Done today'];
         $attr = ' disabled';
     } elseif ($why !== '') {
         $meta = ['<span id="' . $id . '">' . e($why) . '</span>'];
@@ -412,8 +417,10 @@ function local_panel(array $u, array $loc): string
     $wi = hollow_weather_info($now['we'], $now['dp']);
     $amb = array_map('trim', explode(';;', (string)$t['ambience']));
     $ambLine = $amb[array_search($now['dp'], ['dawn', 'day', 'dusk', 'night'], true)] ?? ($amb[0] ?? '');
-    // 2.8.60: no slots per visit, no daily cap, no "tired" halving: every thing on offer can be done as often as you like
+    // 2.8.60: no slots per visit, no daily cap, no "tired" halving. 2.8.64: each activity once a game day here (stop_done_today)
     $pool = stop_pool($loc, $now, $uid);
+    $doneToday = stop_done_today($uid, (int)$loc['id']);
+    $leftToday = count(array_filter($pool['offer'], fn($a) => !in_array((string)$a['slug'], $doneToday, true)));
     $adoption = stop_adoption((int)$loc['id']);
     $tier = $adoption ? (int)$adoption['tier'] : 0;
 
@@ -440,7 +447,7 @@ function local_panel(array $u, array $loc): string
     $tabs = ['do' => '🧭 Do', 'folk' => '👥 Villagers', 'stop' => '🏡 Stop'];
     $h .= '<nav class="tabs st-tabs" aria-label="Rest stop sections">';
     foreach ($tabs as $k => $lab) {
-        $h .= '<a class="' . ($tab === $k ? 'on' : '') . '" href="' . e(url('town.php' . ($k === 'do' ? '' : '?t=' . $k))) . '">' . $lab . ($k === 'folk' && $ready ? ' <span class="st-tabbadge" title="Ready to hand in" aria-label="' . $ready . ' ready to hand in">' . $ready . '</span>' : '') . '</a>';
+        $h .= '<a class="' . ($tab === $k ? 'on' : '') . '" href="' . e(url('town.php' . ($k === 'do' ? '' : '?t=' . $k))) . '">' . $lab . ($k === 'folk' && $ready ? ' <span class="st-tabbadge" title="Ready to hand in" aria-label="' . $ready . ' ready to hand in">' . $ready . '</span>' : '') . ($k === 'do' && $leftToday > 0 ? ' <span class="st-tabbadge soft" title="Still to do today" aria-label="' . $leftToday . ' still to do today">' . $leftToday . '</span>' : '') . '</a>';
     }
     $h .= '</nav>';
 
@@ -484,14 +491,14 @@ function local_panel(array $u, array $loc): string
     // activities
     // v2.0.67: felt scene cards (mockup2); each opens a sheet with the blurb and the same forms as before
     $h .= stop_meters_html($uid, (int)$loc['id']);   // v2.5.72
-    $head = '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">as often as you like</span></h3><div class="gcards docards">';
-    $locked = false;   // 2.8.60: nothing here is ever used up for the day or the visit
+    $head = '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">' . ($pool['offer'] && $leftToday === 0 ? 'all done today: come back tomorrow' : $leftToday . ' left today · each once a day') . '</span></h3><div class="gcards docards">';
+    $locked = false;   // 2.8.64: only the activities done today are greyed ($isDone); nothing locks the rest
     $why = '';
     $folk0 = $folk[0] ?? null;
     $shelf = '';
     $acts = '';   // v2.0.80: the stall goes above the activity cards, so the cards are collected first
     foreach ($pool['offer'] as $a) {
-        $isDone = false;
+        $isDone = in_array((string)$a['slug'], $doneToday, true);   // 2.8.64: done here today
         if (in_array((string)$a['kind'], ['buy', 'snack'], true)) { $shelf .= local_buy_tile($u, $loc, $a, $isDone, $locked); continue; }   // v2.0.17: stalls are picture tiles
         $acts .= local_act_card($u, $loc, $a, $isDone, $why, $folk0);
     }

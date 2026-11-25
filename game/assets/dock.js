@@ -415,7 +415,7 @@
     }
     if (a.remote && a.remote.hereDo) {   // the Here picture: a few more doable things that the picture has no room for (hidden cards from the server); each tile opens its card
       var ds = [].slice.call(document.querySelectorAll('dialog[data-xname]')).slice(0, a.remote.hereDo);
-      o.menu = ds.map(function (e) { return { label: e.getAttribute('data-xname'), icon: 'dohere', href: '', menu: [], why: '', badge: '', mlabel: '', remote: {}, cands: [], rem: remKey({ dlg: e }) }; });
+      o.menu = ds.map(function (e) { return { label: e.getAttribute('data-xname'), icon: 'dohere', href: '', menu: [], why: e.hasAttribute('data-done') ? 'done today' : '', badge: '', mlabel: '', remote: {}, cands: [], rem: remKey({ dlg: e }) }; });   /* 2.8.64: one done in place today shows as done (each activity once a game day) */
       if (!o.menu.length) o.why = 'nothing more';
       return o;
     }

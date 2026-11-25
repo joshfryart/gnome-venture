@@ -155,7 +155,17 @@
     var sub = ev.submitter; if (sub && sub.name && !fd.has(sub.name)) fd.append(sub.name, sub.value);
     f.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
     ask(box.getAttribute('data-post'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) {
-      if (res.html) { box.innerHTML = res.html; var r = box.querySelector('.doresult'); if (r && r.scrollIntoView) r.scrollIntoView({ block: 'nearest' }); }
+      if (res.html) {
+        box.innerHTML = res.html; var r = box.querySelector('.doresult'); if (r && r.scrollIntoView) r.scrollIntoView({ block: 'nearest' });
+        var dlg = box.closest('dialog');   /* 2.8.64: done today (each activity once a game day): its spot dims and the dock's Do here strip shows it as done */
+        if (dlg && box.querySelector('.dodone')) {
+          dlg.setAttribute('data-done', '1');
+          var hid = (dlg.id || '').replace(/^hubpop-/, '');
+          var hs = hid ? document.getElementById('hs-' + hid) : null, chip = hid ? document.querySelector('a.hubchip[data-for="hs-' + hid + '"]') : null;
+          if (hs) hs.classList.add('dim', 'is-done');
+          if (chip) { chip.classList.add('is-done'); var cc = chip.querySelector('.hubchip-c'); if (cc) cc.textContent = 'Done'; }
+        }
+      }
       else { fill(box, res); }
       gvToastsFrom(res);
       if (res.perks) {   // the Perks card follows what the activity did to the meters (keeps the meter tab you were on)
