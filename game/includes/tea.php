@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * The Hovel tea kettle (design: "Plan 2 Base and Three" + the Tea Journal; data: data/tea_ingredients.txt, data/teas.txt).
- * Flag: setting tea_open = off / admin / everyone (default admin). Guests never. No UI in this file (see tea_view.php).
+ * Flag: setting tea_open = off / admin / everyone (default everyone since 2.8.49). Guests never. No UI in this file (see tea_view.php).
  *
  * A cup: one BASE that can steep (leaf, herb, flower; it counts double) and up to three extras; no ingredient twice,
  * one sweetener, one milk, 4 components at most. The cup is drunk at once and never becomes an item.

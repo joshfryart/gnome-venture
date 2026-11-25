@@ -19,25 +19,28 @@ const HOLLOW_GOAL_POOL = [
     ['harvest', 'lettuce', 'Harvest {n} heads of lettuce', '🥬', 30, 'lettuces'],
     ['harvest', 'tomato', 'Harvest {n} tomatoes', '🍅', 30, 'tomatoes'],
     ['harvest', 'potato', 'Harvest {n} potatoes', '🥔', 30, 'potatoes'],
-    ['harvest', 'pumpkin', 'Harvest {n} pumpkins', '🎃', 12, 'pumpkins'],
+    ['harvest', 'pumpkin', 'Harvest {n} pumpkins', '🎃', 6, 'pumpkins'],
     ['harvest', '', 'Harvest {n} crops of any kind', '🧺', 50, 'crops'],
-    ['water', '', 'Water {n} thirsty plants', '💧', 80, 'waterings'],
+    ['water', '', 'Water {n} thirsty plants', '💧', 50, 'waterings'],
     ['cook', '', 'Cook {n} meals', '🍲', 10, 'meals'],
     ['arrive', '', 'Walk to {n} stops', '🥾', 12, 'stops'],
     ['gather', '', 'Gather {n} wild finds', '🌿', 35, 'finds'],
     ['craft', '', 'Make {n} things in the workshop and kitchen', '🔨', 12, 'things'],
     ['townact', '', 'Enjoy {n} outings in town squares', '🏘️', 18, 'outings'],
     ['defeat', '', 'Meet {n} creatures on the roads', '🐞', 12, 'creatures'],
-    ['serve', '', 'Serve Pomeroy {n} courses', '🥄', 3, 'courses'],   // only while the Gourmand is on (hollow_goal_make_weekly)
+    ['serve', '', 'Serve Pomeroy {n} courses', '🥄', 2, 'courses'],   // only while the Gourmand is on (hollow_goal_make_weekly)
 ];
 
-/** 2.7.27 (Josh): the weekly jar is shared by the whole Hollow, so it is 4 times the size the pool's per-gnome amounts give. Festival jars are not scaled. */
+/** 2.7.27 (Josh): the weekly jar is shared by the whole Hollow, so it is 4 times the size the pool's per-gnome amounts give. Festival jars are not scaled (they share the helper count that sizes jars, 2.8.50). */
 const HOLLOW_GOAL_SCALE = 4;
 
 /** Tier fractions and the items that come with each tier (coins come from the goal_tier_coins setting). */
 const HOLLOW_GOAL_TIERS = [25, 50, 75, 100];
 const HOLLOW_GOAL_TIER_ITEMS = ['plain-compost:10', 'plain-compost:20', 'worm-castings:30', 'rich-loam:40'];   // 2.7.27 (Josh: be nicer): 10 / 20 / 30 / 40, was none / 3 / 2 / 2
-const HOLLOW_GOAL_TIER_XP = [5, 10, 15, 25];
+const HOLLOW_GOAL_TIER_XP = [20, 40, 60, 100];   // 2.8.50 (Josh): was 5 / 10 / 15 / 25
+/** 2.8.50: a gnome who put in at least this fraction of a fair share (jar / gnomes it is sized for) gets +50% Petals on the 100% tier of a weekly jar. */
+const HOLLOW_GOAL_BONUS_SHARE = 0.5;
+const HOLLOW_GOAL_BONUS_PCT = 50;
 
 function hollow_goals_on(): bool
 {
@@ -52,11 +55,22 @@ function hollow_goal_week(?int $at = null): array
     return [hollow_date('o-\WW', $at), $start->getTimestamp(), $start->modify('+7 days')->getTimestamp()];
 }
 
-/** How many gnomes the jar is sized for: those seen in the last week, never fewer than goal_per_gnome. */
+/** How many gnomes the jar is sized for: those who helped fill last week's jar (else those seen in the last week), never fewer than goal_per_gnome. */
 function hollow_goal_gnomes(): int
 {
-    $n = (int)q_val('SELECT COUNT(*) FROM users u WHERE u.onboarded = 1 AND u.deleted_at IS NULL AND u.last_seen > ? AND ' . gnome_in_play_sql('u'), [gmdate('Y-m-d H:i:s', time() - 7 * 86400)]);
+    $n = hollow_goal_last_helpers();   // 2.8.50 (Josh): sized by last week's helpers, falling back to gnomes seen when there was no jar last week
+    if ($n <= 0) $n = (int)q_val('SELECT COUNT(*) FROM users u WHERE u.onboarded = 1 AND u.deleted_at IS NULL AND u.last_seen > ? AND ' . gnome_in_play_sql('u'), [gmdate('Y-m-d H:i:s', time() - 7 * 86400)]);
     return max(1, (int)setting('goal_per_gnome'), $n);
+}
+
+/** 2.8.50: how many gnomes put at least goal_min_share into LAST week's weekly jar (0 when there was none). */
+function hollow_goal_last_helpers(): int
+{
+    [, $start] = hollow_goal_week();
+    $prev = hollow_date('o-\WW', $start - 86400);
+    $g = q_one('SELECT id FROM hollow_goals WHERE period_key = ?', ['week:' . $prev]);
+    if (!$g) return 0;
+    return (int)q_val('SELECT COUNT(*) FROM hollow_goal_contrib c JOIN users u ON u.id = c.user_id WHERE c.goal_id = ? AND c.amount >= ? AND u.deleted_at IS NULL AND ' . gnome_in_play_sql('u'), [$g['id'], max(1, (int)setting('goal_min_share'))]);
 }
 
 /** A round target: 5s up to 100, 10s up to 500, then 25s. */
@@ -221,6 +235,23 @@ function hollow_goal_tier_text(int $tier): string
     return implode(' + ', $parts);
 }
 
+/** 2.8.50: does this amount earn the big-share Petal bonus? Weekly jars only: at least half of target / gnomes the jar was sized for. */
+function hollow_goal_bonus_ok(array $g, int $amount): bool
+{
+    $need = hollow_goal_bonus_need($g);
+    return $need !== null && $amount >= $need;
+}
+
+/** 2.8.50: the amount that earns the big-share bonus on this jar (null: no bonus, festival jars). A fair share is the pool's per-gnome amount times the jar scale. */
+function hollow_goal_bonus_need(array $g): ?int
+{
+    if (!empty($g['festival']) || strpos((string)$g['period_key'], 'week:') !== 0) return null;
+    foreach (HOLLOW_GOAL_POOL as $e) {
+        if ($e[0] === $g['kind'] && $e[1] === (string)$g['filter']) return (int)ceil($e[4] * HOLLOW_GOAL_SCALE * HOLLOW_GOAL_BONUS_SHARE);
+    }
+    return null;
+}
+
 /** A gnome's share of a jar. */
 function hollow_goal_share(int $goalId, int $uid): int
 {
@@ -238,7 +269,8 @@ function hollow_goal_settle(int $uid): array
     $min = max(1, (int)setting('goal_min_share'));
     $lines = [];
     $rows = q('SELECT g.*, c.amount FROM hollow_goals g JOIN hollow_goal_contrib c ON c.goal_id = g.id AND c.user_id = ? WHERE c.amount >= ?
-               AND (SELECT COUNT(*) FROM hollow_goal_claims k WHERE k.goal_id = g.id AND k.user_id = ?) < 4 ORDER BY g.id', [$uid, $min, $uid])->fetchAll();
+               AND ((SELECT COUNT(*) FROM hollow_goal_claims k WHERE k.goal_id = g.id AND k.user_id = ?) < 4
+               OR (g.festival IS NULL AND g.ends_at > ? AND (SELECT COUNT(*) FROM hollow_goal_claims k WHERE k.goal_id = g.id AND k.user_id = ?) = 4)) ORDER BY g.id', [$uid, $min, $uid, gmdate('Y-m-d H:i:s', time() - 2 * 86400), $uid])->fetchAll();
     foreach ($rows as $g) {
         $st = hollow_goal_state($g);
         for ($tier = 1; $tier <= $st['tier']; $tier++) {
@@ -259,6 +291,19 @@ function hollow_goal_settle(int $uid): array
             }
             db()->commit();
             $lines[] = $g['icon'] . ' ' . $g['title'] . ': tier ' . $tier . ' of 4 reached! ' . money($coins) . ' + ' . HOLLOW_GOAL_TIER_XP[$tier - 1] . ' XP' . $got . '.';
+        }
+        // 2.8.50: the big-share bonus is its own one-off claim (tier 5), so it is paid whenever the gnome's share reaches half a fair share while the jar is full, never lost by claiming tier 4 first
+        if ($st['tier'] === 4 && hollow_goal_bonus_ok($g, (int)$g['amount'])) {
+            db()->beginTransaction();
+            try {
+                db_insert('hollow_goal_claims', ['goal_id' => $g['id'], 'user_id' => $uid, 'tier' => 5, 'claimed_at' => now()]);
+                $extra = (int)round(hollow_goal_tier_coins(4) * HOLLOW_GOAL_BONUS_PCT / 100);
+                if ($extra > 0) give_petals((int)$uid, $extra);
+                db()->commit();
+                $lines[] = $g['icon'] . ' ' . $g['title'] . ': big share bonus! ' . money($extra) . '.';
+            } catch (PDOException $e) {
+                db()->rollBack();
+            }
         }
     }
     return $lines;

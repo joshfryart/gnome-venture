@@ -78,11 +78,12 @@
     });
   }
   /* bigger screens get a bigger dock: the dock is drawn at one size (about 106 px high at 844 wide) and scaled in steps of a quarter, never taller than about 28% of the screen */
+  var smallDock = false;
   function scaleFor(vw, vh) {
     var k = Math.max(1, Math.min(2, Math.round(vw / 860 * 4) / 4));
     k = Math.min(k, Math.max(1, 0.28 * vh / DH));
     k = Math.max(1, Math.round(k * 4) / 4);
-    if (k === 1 && vh < 340) k = 0.75;   // very short views (about 640x260): a smaller dock, 75%, so the page keeps more of the height
+    if (k === 1) { if (vh < 340) smallDock = true; else if (vh >= 380) smallDock = false; if (smallDock) k = 0.75; } else smallDock = false;   // very short views (about 640x260): a smaller dock, 75%, so the page keeps more of the height; it stays small until the window grows past 380 px (an address bar moving the height does not flip it)
     return k;
   }
   function geom(W) {

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.8.51
+- **Fixes from the Fable review of 2.8.48 to 2.8.50** (this release carries 2.8.49 and 2.8.50 too).
+- **Hollow jar bonus** is now its own one-off claim (tier 5, half of the 100% tier's Petals), paid when a gnome's share reaches half a fair share, even after tier 4 was claimed or the jar was already full (weekly jars, until two days after they end). The Hollow page shows the number needed for the jar on screen and no bonus text on festival jars. Last week's helper count skips guests, banned and deleted gnomes. Festival jars also get the new tier pay and the helper sizing (only the bonus skips them). The smaller pools and helper sizing apply from next week's jar; jars already made keep their size but pay the new tiers.
+- **Boot step `hollow_jar_2850`** only runs when upgrading from before 2.8.50. New installs now default `tea_open` to Everyone and `gnav_garden` to on (still needs `gnav_on`).
+- **Dock under 340 px high:** the CSS starts at the 80 px height (no 26 px jump on first paint), and once small it stays small until the window passes 380 px.
+- **Player news post** for tea, the jar and the small dock.
+
+## 2.8.50
+- **Hollow jar, nicer and fairer.** Petals per tier 150 / 300 / 450 / 700 (was 100 / 200 / 300 / 500; changed on upgrade only where the old default was still set), XP 20 / 40 / 60 / 100 (was 5 / 10 / 15 / 25). Pumpkin, watering and Pomeroy-course jars are smaller (6, 50 and 2 per gnome, were 12, 80 and 3). The jar is sized by how many gnomes helped fill LAST week's jar (falls back to gnomes seen when there was none). A gnome who puts in at least half a fair share gets 50% more Petals on the 100% tier of a weekly jar (festival jars unchanged).
+
+## 2.8.49
+- **Tea kettle open for everyone** (`tea_open` set to Everyone once on upgrade; an admin can change it back).
+- **Garden Yard picture flag on** (`gnav_garden` set to 1 once on upgrade; it still needs `gnav_on`, the Here page setting, to show for players).
+
 ## 2.8.48
 - **Dock: smaller on very short views (landscape).** Under 340 px of window height the dock draws at 75% (about 80 px instead of 106), so a 640x260 phone keeps about 26 px more page. Taller windows are unchanged.
 - **Garden (landscape dock): the N/P/K row and the upkeep chips show again** in the square info panel (they were hidden in 2.8.20).

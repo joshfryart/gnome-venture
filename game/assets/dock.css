@@ -18,6 +18,7 @@
 .dockroot::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--dk-felt); }
 .dockroot .dockstage { position: absolute; left: 0; bottom: env(safe-area-inset-bottom, 0px); transform-origin: left bottom; }
 body.dock-on { --dock-h: 106px; }
+@media (orientation: landscape) and (max-height: 339px) { body.dock-on { --dock-h: 80px; } }   /* v2.8.50: dock.js draws the dock at 75% here; start at its height so the first paint does not jump */
 .dockroot .dkdefs { position: absolute; width: 0; height: 0; }
 .dockroot .dockfb { display: none; }
 .dockroot svg { max-width: none; max-height: none; }   /* the game's stylesheet caps svg and img at 100% of their parent: the pieces overflow their box on purpose (knobs, side face) */

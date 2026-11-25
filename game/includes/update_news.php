@@ -905,6 +905,10 @@ function post_update_news(string $from): void
         . "[*][b]Shorter pages[/b]: the Almanac, Puzzle Pals, Villagers, the world map and more fold into sections, and pop-ups fit the short screen.\n"
         . "[*][b]Random events[/b] are slimmer and have an ✕ to close them.[/list]\n\n"
         . "Held upright, or on a big screen, the game looks the way it always did. To use the old layout sideways too, add [b]?dock=off[/b] to the address ([b]?dock=on[/b] switches back)."],
+    '2.8.51' => ['🫖 Update 2.8.51: tea for everyone, a kinder Hollow jar, a smaller dock',
+        "[list][*][b]Tea kettle[/b]: the kettle in your Hovel brews one cup of tea a day, a small boost until you sleep.\n"
+        . "[*][b]Hollow jar[/b]: each tier now pays more Petals (150 / 300 / 450 / 700) and more XP (20 / 40 / 60 / 100). Pumpkin, watering and Pomeroy jars are smaller, and next week's jar is sized by who helped this week. Put in at least half a fair share (the number is on the Hollow page) and you get half the 100% tier's Petals on top, even if you reach it after the jar is full.\n"
+        . "[*][b]Very short screens[/b]: held sideways on a small phone, the bottom dock is a little smaller so the page has more room. In the garden, the soil food (N/P/K) and upkeep chips are back in the square panel.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
