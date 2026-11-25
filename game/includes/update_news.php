@@ -913,6 +913,8 @@ function post_update_news(string $from): void
         "[list][*][b]The Yard[/b]: the Buildings tab in your garden is now a picture of your Yard, with every building drawn where it stands. Buildings you have not built yet show an empty plot with a BUILD sign.\n"
         . "[*][b]Tap a building[/b] in the picture to open its card, where you can Build, Upgrade or Collect. A little \"!\" bobs over a building when something is ready.\n"
         . "[*][b]Prefer the list?[/b] It is still there: tap [b]List version[/b] on the Yard.[/list]"],
+    '2.8.55' => ['🏮 Update 2.8.55: a new look for the dock',
+        "The dock got a new look: carved stone, and a lantern that follows you. It lights as the day goes: unlit by day, glowing at golden hour, and brightest at night, when the fireflies come out."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

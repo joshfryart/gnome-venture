@@ -13,7 +13,6 @@
   var D = null, slip = null, lastKey = '', stage = null, ghostTimer = 0, popTab = 'now', K = 1, LW = 844;   // K = how much the whole dock is scaled up on a big screen, LW = the screen width in dock units
   var DOME = [[-4, 0], [-4, -3], [-6, -4], [-8, -6], [-8, -10], [-6, -12], [-4, -13], [4, -13], [6, -12], [8, -10], [8, -6], [6, -4], [4, -3], [4, 0]];
   var KEY = [[-8, 0], [-6, -2], [-3, -4], [-3, -7], [-6, -8], [-7, -10], [-6, -13], [-3, -14], [3, -14], [6, -13], [7, -10], [6, -8], [3, -7], [3, -4], [6, -2], [8, 0]];
-  var PAT = { you: 'dk-diamond', hobby: 'dk-leaf', out: 'dk-wave', tog: 'dk-flower' };
 
   /* every class the dock draws is prefixed dk- so nothing in the game's own stylesheet (tag, chip, badge, tile, row...) can reach it */
   function pref(h) {
@@ -22,6 +21,7 @@
     });
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function tod() { return D && (D.tod === 'gold' || D.tod === 'night') ? D.tod : 'day'; }
   function readData() {
     var el = document.getElementById('dockjson');
     try { D = el ? JSON.parse(el.textContent) : null; } catch (e) { D = null; }
@@ -55,13 +55,154 @@
       + '<g clip-path="url(#c' + id + ')">' + (pat ? '<rect fill="url(#' + pat + ')" x="-16" y="-16" width="' + (w + 32) + '" height="' + (h + 32) + '"/>' : '')
       + '<path class="hi" fill-rule="evenodd" d="' + hi + '"/><path class="lo" fill-rule="evenodd" d="' + lo + '"/><rect class="gr" x="-16" y="-16" width="' + (w + 32) + '" height="' + (h + 32) + '"/></g><path class="st" d="' + st + '"/></svg>';
   }
+  /* ---- v2.8.55: the stone arch (approved mockup claude/mockups/dock-lantern-all.html). Every piece is a carved stone tablet with an enamel inlay in its
+     area colour; the band behind is soil, a mortar bed, a strip of sky, coping stones with moss and grass, the keystone with a sun / setting sun / moon
+     window, and ONE iron lantern on a crook over the menu the page belongs to. The clock (D.tod: day, gold, night; includes/dock.php dock_tod()) is the
+     data-tod attribute of .dockroot: every colour and what is lit is CSS (assets/dock.css), the script only draws the shapes. Flat fills, no blur, no gradients. */
+  function hsh(n) { n = (n * 2654435761) >>> 0; return (n % 1000) / 1000; }
+  function rc(c, x, y, w, h) { return '<rect class="' + c + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '"/>'; }
+  function outline(w, h, r, l) {   // a tablet with hard pixel corners and a small stepped tab on each side (r, l: 1 = out, -1 = in, 0 = none)
+    var m = Math.round(h / 2), p = [[0, 2], [2, 2], [2, 0], [w - 2, 0], [w - 2, 2], [w, 2]];
+    if (r) p.push([w, m - 4], [w + 2 * r, m - 4], [w + 2 * r, m - 7], [w + 7 * r, m - 7], [w + 7 * r, m + 7], [w + 2 * r, m + 7], [w + 2 * r, m + 4], [w, m + 4]);
+    p.push([w, h - 2], [w - 2, h - 2], [w - 2, h], [2, h], [2, h - 2], [0, h - 2]);
+    if (l) p.push([0, m + 4], [-2 * l, m + 4], [-2 * l, m + 7], [-7 * l, m + 7], [-7 * l, m - 7], [-2 * l, m - 7], [-2 * l, m - 4], [0, m - 4]);
+    return 'M' + p.map(function (q) { return q[0] + ',' + q[1]; }).join(' L') + ' Z';
+  }
+  function stepRect(x, y, w, h, c) { return 'M' + (x + c) + ',' + y + ' H' + (x + w - c) + ' V' + (y + c) + ' H' + (x + w) + ' V' + (y + h - c) + ' H' + (x + w - c) + ' V' + (y + h) + ' H' + (x + c) + ' V' + (y + h - c) + ' H' + x + ' V' + (y + c) + ' H' + (x + c) + ' Z'; }
+  /* one tablet: o = { w, h, r, l, rot, seed, ghost, plate, dis, ring (the current menu or tile: a gold stepped rim), lamp (the lantern's light on its border) } */
+  function tabletSVG(o) {
+    var w = o.w, h = o.h, id = 'dkt' + (uid++), P = outline(w, h, o.r, o.l), rad = (o.rot || 0) * Math.PI / 180, i;
+    var dx = (4 * Math.sin(rad)).toFixed(2), dy = (4 * Math.cos(rad)).toFixed(2), f = o.ghost ? ['f-gh', 'f-ghhi', 'f-ghlo'] : ['f-st', 'f-hi', 'f-lo'];
+    var s = '<svg class="ts" width="' + (w + 32) + '" height="' + (h + 40) + '" viewBox="-16 -20 ' + (w + 32) + ' ' + (h + 40) + '" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><defs><clipPath id="c' + id + '"><path d="' + P + '"/></clipPath></defs>';
+    if (o.ring) s += '<path class="rim2" d="' + stepRect(-6, -6, w + 12, h + 12, 4) + '"/><path class="rim1" d="' + stepRect(-3, -3, w + 6, h + 6, 2) + '"/>';
+    s += '<path class="f-dk side" d="' + P + '" transform="translate(' + dx + ' ' + dy + ')"/><path class="ol side" d="' + P + '" transform="translate(' + dx + ' ' + dy + ')"/>';
+    s += '<g class="face"><path class="' + f[0] + '" d="' + P + '"/><g clip-path="url(#c' + id + ')">'
+      + rc(f[1] + ' bv-hi', -8, 0, w + 16, 2) + rc(f[1] + ' bv-hi', 0, 0, 2, h) + rc(f[2] + ' bv-lo', -8, h - 2, w + 16, 2) + rc(f[2] + ' bv-lo', w - 2, 0, 2, h);
+    for (i = 0; i < (o.ghost ? 6 : 3); i++) {   // chisel marks, only where the inlay does not cover the stone
+      var a = hsh(o.seed * 7 + i * 13), b = hsh(o.seed * 11 + i * 5), cx = 4 + Math.floor(a * (w - 10) / 2) * 2, cy = 4 + Math.floor(b * (h - 10) / 2) * 2;
+      if (!o.ghost && cx > 4 && cx < w - 8 && cy > 3 && cy < h - 7) continue;
+      s += rc(f[2], cx, cy, 2, 2) + rc(f[1], cx + 2, cy + 2, 2, 2);
+    }
+    if (o.ghost) {   // the wall at the ends: a mortar course and moss along the top
+      var cy2 = 26 + Math.floor(hsh(o.seed) * 3) * 2, vx = 10 + Math.floor(hsh(o.seed + 3) * (w - 20) / 2) * 2;
+      s += rc('f-mortar', 0, cy2, w, 2) + rc(f[1], 0, cy2 + 2, w, 2) + rc('f-mortar', vx, 0, 2, cy2) + rc('f-mortar', (vx + w / 2) % w, cy2 + 4, 2, h - cy2 - 4)
+        + rc('f-moss', 0, 0, w, 3) + rc('f-mossdk', 0, 3, w, 1) + rc('f-moss', 4, 3, 6, 3) + rc('f-moss', (w / 2 | 0), 3, 8, 2) + rc('f-mosslt', 6, 0, 4, 1);
+    } else if (o.lamp) {   // the lantern's light on the stone border: two flat steps at golden hour, the side strips too at night
+      s += '<g class="lamp-light">' + rc('spot s1', Math.round((w - 40) / 2), 0, 40, 5) + rc('spot s2', Math.round((w - 24) / 2), 0, 24, 3) + rc('spot s2 side2', 2, 0, 2, h) + rc('spot s2 side2', w - 4, 0, 2, h) + '</g>';
+    }
+    s += '</g><path class="ol" d="' + P + '"/>';
+    var iw = w - 10, ih = h - 10;
+    if (o.plate) {   // the status plate: a slate panel with a gold thread
+      s += '<path class="f-lo" d="' + stepRect(4, 4, w - 7, h - 7, 2) + '"/><path class="f-hi" d="' + stepRect(5, 5, w - 7, h - 7, 2) + '"/>'
+        + '<path class="f-slate" d="' + stepRect(5, 5, w - 10, h - 10, 2) + '"/><path class="ol" d="' + stepRect(5, 5, w - 10, h - 10, 2) + '"/><path class="thread" d="' + stepRect(8.5, 8.5, w - 17, h - 17, 1) + '"/>';
+    } else if (!o.ghost && o.dis) {   // can't be used: no enamel, a bare dark recess
+      s += '<path class="f-lo" d="' + stepRect(4, 4, iw + 1, ih + 1, 2) + '"/><path class="f-hi" d="' + stepRect(5, 5, iw + 1, ih + 1, 2) + '"/><path class="f-dk" d="' + stepRect(5, 5, iw, ih, 2) + '"/>'
+        + rc('f-lo', 7, 7, iw - 4, 1) + rc('f-lo', 7, 8, 1, ih - 6);
+    } else if (!o.ghost) {   // the enamel inlay (its colour comes from the piece's en- class)
+      if (o.lamp) s += '<path class="glow g2" d="' + stepRect(1, 1, iw + 8, ih + 8, 3) + '"/><path class="glow" d="' + stepRect(3, 3, iw + 4, ih + 4, 2) + '"/>';
+      s += '<path class="f-lo" d="' + stepRect(4, 4, iw + 1, ih + 1, 2) + '"/><path class="f-hi" d="' + stepRect(5, 5, iw + 1, ih + 1, 2) + '"/>'
+        + '<path class="f-en" d="' + stepRect(5, 5, iw, ih, 2) + '"/>' + rc('f-enhi', 7, 6, iw - 4, 2) + rc('f-enhi', 6, 7, 2, ih - 4)
+        + '<path class="ol" d="' + stepRect(5, 5, iw, ih, 2) + '"/><path class="wire" d="M9,9.5 H' + (w - 9) + ' M9,' + (h - 8.5) + ' H' + (w - 9) + '"/>';
+    }
+    return s + '</g></svg>';
+  }
+  /* the sun / setting sun / moon: all three are drawn, the clock (CSS) shows one */
+  function dialSVG() {
+    var o = '<svg class="dial" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false" shape-rendering="crispEdges">';
+    o += '<g class="tw tw-day">' + rc('f-sun', 6, 0, 2, 2) + rc('f-sun', 6, 12, 2, 2) + rc('f-sun', 0, 6, 2, 2) + rc('f-sun', 12, 6, 2, 2) + '<path class="f-sun" d="M4 3H10V4H11V10H10V11H4V10H3V4H4Z"/><path class="ol" d="M4 3H10V4H11V10H10V11H4V10H3V4H4Z"/></g>';
+    o += '<g class="tw tw-gold"><path class="f-gold" d="M3 9V6H4V5H5V4H9V5H10V6H11V9Z"/><path class="ol" d="M3 9V6H4V5H5V4H9V5H10V6H11V9Z"/>' + rc('f-ember', 0, 10, 14, 2) + rc('f-gold', 2, 12, 10, 2) + '</g>';
+    o += '<g class="tw tw-night"><path class="f-cream" d="M5 1H9V2H7V3H6V5H5V9H6V11H7V12H11V13H9V14H5V13H3V12H2V10H1V5H2V3H3V2H5Z"/><path class="ol" d="M5 1H9V2H7V3H6V5H5V9H6V11H7V12H11V13H9V14H5V13H3V12H2V10H1V5H2V3H3V2H5Z"/>' + rc('f-sun', 11, 2, 2, 2) + '</g>';
+    return o + '</svg>';
+  }
+  function keystone(kx, ky) {
+    var d = 'M' + (kx - 18) + ',' + (ky - 16) + ' H' + (kx + 18) + ' V' + (ky - 13) + ' H' + (kx + 15) + ' V' + (ky - 6) + ' H' + (kx + 12) + ' V' + (ky + 4) + ' H' + (kx - 12) + ' V' + (ky - 6) + ' H' + (kx - 15) + ' V' + (ky - 13) + ' H' + (kx - 18) + ' Z';
+    var s = '<path class="f-dk" d="' + d + '" transform="translate(0 2)"/><path class="f-st" d="' + d + '"/>' + rc('f-hi', kx - 18, ky - 16, 36, 2) + rc('f-lo', kx + 10, ky - 13, 2, 14) + '<path class="ol" d="' + d + '"/>';
+    var bx = kx - 6, by = ky - 13;
+    s += rc('f-ol', bx - 1, by - 1, 14, 12) + rc('f-sky', bx, by, 12, 10);
+    s += '<g class="tw tw-day">' + rc('f-sun', bx + 3, by + 2, 6, 6) + rc('f-cream', bx + 4, by + 3, 2, 1) + '</g>';
+    s += '<g class="tw tw-gold">' + rc('f-sun', bx + 3, by + 4, 6, 4) + rc('f-gold', bx + 2, by + 6, 8, 2) + rc('f-ember', bx, by + 8, 12, 2) + '</g>';
+    s += '<g class="tw tw-night">' + rc('f-cream', bx + 4, by + 2, 4, 6) + rc('f-cream', bx + 3, by + 3, 2, 4) + rc('f-sky', bx + 6, by + 3, 2, 4) + rc('f-sun', bx + 9, by + 1, 1, 1) + rc('f-sun', bx + 1, by + 6, 1, 1) + '</g>';
+    return s;
+  }
+  /* THE lantern: iron, on a crook planted in the coping beside the current menu tablet; it hangs plumb whatever the curve. Unlit by day; lit at golden hour; brightest at night */
+  function lantern(g, cx) {
+    cx = Math.round(cx);
+    var px = cx - 9, by = Math.round(g.ay(px) - 6), top = Math.min(by - 24, Math.round(g.ay(cx) - 31)), ly = top + 5;
+    var s = '<g class="lan"><g class="night-only">' + rc('halo h1', cx - 13, ly - 6, 27, 28) + rc('halo h2', cx - 10, ly - 3, 21, 22) + '</g>'
+      + '<g class="lit-only">' + rc('halo h3', cx - 7, ly, 15, 16) + '</g>'
+      + rc('f-ol', px - 1, top - 1, 4, by - top + 1) + rc('f-iron', px, top, 2, by - top - 1)
+      + rc('f-ol', px, top - 1, cx - px + 2, 4) + rc('f-iron', px, top, cx - px + 1, 2) + rc('f-ol', cx, top + 2, 1, 3)
+      + rc('f-ol', cx - 3, ly, 7, 2) + rc('f-ol', cx - 5, ly + 2, 11, 11) + rc('f-iron', cx - 4, ly + 3, 9, 1)
+      + rc('f-glass', cx - 3, ly + 4, 7, 7) + rc('f-cream', cx - 2, ly + 5, 1, 2) + rc('f-ol', cx, ly + 4, 1, 7)
+      + '<g class="lit-only">' + rc('f-lamp', cx - 3, ly + 4, 7, 7) + rc('f-flame', cx - 1, ly + 6, 3, 3) + '</g>'
+      + '<g class="night-only">' + rc('f-flame', cx - 1, ly + 5, 3, 5) + rc('f-lamp', cx - 2, ly + 4, 1, 1) + '</g>'
+      + rc('f-ol', cx - 4, ly + 13, 9, 2) + rc('f-iron', cx - 3, ly + 13, 7, 1) + '</g>';
+    return { svg: s, gx: cx, gy: ly + 8 };
+  }
+  function disc(cx, cy, rx, ry, cls) { var h = '', y, w, m; for (y = -ry; y < ry; y += 4) { m = y + 2; w = Math.round(rx * Math.sqrt(Math.max(0, 1 - (m * m) / (ry * ry))) / 4) * 4; if (w > 0) h += rc(cls, Math.round(cx - w), Math.round(cy + y), 2 * w, 4); } return h; }
+  /* the band behind the pieces: soil, mortar bed, sky strip, coping stones, keystone, the lantern's pool, moss, grass and flowers, the lantern */
+  function bandSVG(W, g, lampX) {
+    var x, y, k, pts = [], bot = [], sky = [], skyTop = [], s = '', f = 0, kx = W / 2, L = lampX === null ? null : lantern(g, lampX), p, cx;
+    for (x = 0; x <= W; x += 4) pts.push(x + ',' + (g.ay(x) - 1).toFixed(1));
+    s += '<path class="f-soil" d="M' + pts.join(' L') + ' L' + W + ',' + DH + ' L0,' + DH + ' Z"/>';
+    for (x = 6; x < W; x += 23) {
+      k = hsh(x); y = Math.round((g.ay(x) + 62 + k * 40) / 2) * 2; if (y > DH - 4) continue;
+      s += rc(k > .5 ? 'f-soildk' : 'f-soillt', x, y, 8 + Math.round(k * 3) * 2, 4);
+      if (k > .72) s += rc('f-peb', x + 12, y - 6, 6, 4) + rc('f-ol', x + 12, y - 2, 6, 1);
+      if (k < .2) s += rc('f-root', x - 4, y + 6, 8, 2) + rc('f-root', x + 4, y + 8, 8, 2) + rc('f-root', x + 12, y + 10, 4, 2);
+    }
+    for (x = 0; x <= W; x += 4) bot.push(x + ',' + (g.ay(x) + 62).toFixed(1));
+    s += '<path class="f-mortar" d="M' + pts.join(' L') + ' L' + bot.reverse().join(' L') + ' Z"/>';
+    for (x = 0; x <= W; x += 4) { sky.push(x + ',' + (g.ay(x) + 3).toFixed(1)); skyTop.push(x + ',' + (g.ay(x) - 6).toFixed(1)); }
+    s += '<path class="f-sky" d="M' + skyTop.join(' L') + ' L' + sky.reverse().join(' L') + ' Z"/>';
+    for (x = 0; x < W; x += 22) {   // coping stones, tilted along the curve
+      cx = x + 11; if (Math.abs(cx - kx) < 24) continue;
+      p = place(g, cx, -3);
+      s += '<g transform="translate(' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ') rotate(' + p.rot.toFixed(2) + ')">' + rc('f-cap', -9, -4, 18, 8) + rc('f-caphi', -9, -4, 18, 2) + rc('f-lo', -9, 2, 18, 2) + '<rect class="ol" x="-9" y="-4" width="18" height="8"/></g>';
+    }
+    s += keystone(kx, g.ay(kx));
+    if (L) s += '<g class="lamp-light">' + disc(L.gx, L.gy + 8, 64, 26, 'pool p1') + disc(L.gx, L.gy + 6, 44, 20, 'pool p2') + disc(L.gx, L.gy + 4, 26, 13, 'pool p3') + '</g>';
+    for (x = 4; x < W; x += 13) {
+      k = hsh(x * 3 + 1); if (Math.abs(x - kx) < 22) continue; y = Math.round(g.ay(x) - 7);
+      s += rc('f-moss', x, y - 1, 6 + Math.round(k * 4) * 2, 3) + (k > .4 ? rc('f-mossdk', x + 2, y + 2, 4, 2 + Math.round(k * 2) * 2) : '') + (k > .7 ? rc('f-mosslt', x + 1, y - 1, 2, 1) : '');
+    }
+    function lit(x) { return L && Math.abs(x - L.gx) < 44 ? ' class="lit"' : ''; }
+    for (x = 0; x < W; x += 9) {
+      y = g.ay(x) - 7; k = (x * 7 + 3) % 5; var hh = 4 + k * 2; if (Math.abs(x - kx) < 20) continue; if (L && Math.abs(x - (L.gx - 9)) < 3) continue;
+      s += '<g' + lit(x) + '>' + rc(k % 2 ? 'f-g1' : 'f-g2', x, Math.round(y - hh + 1), 2, hh) + rc('f-g3', x + 4, Math.round(y - hh / 2 + 1), 2, Math.round(hh / 2)) + '</g>';
+    }
+    for (x = 30; x < W; x += 61) {
+      if (Math.abs(x - kx) < 28) continue; if (L && Math.abs(x - L.gx) < 14) continue; y = g.ay(x) - 7;
+      s += '<g' + lit(x) + '>' + rc('f-stem', x, Math.round(y - 10), 2, 10) + rc(['f-fl1', 'f-fl2', 'f-fl3'][f++ % 3], x - 2, Math.round(y - 16), 6, 6) + rc('f-fl3', x, Math.round(y - 14), 2, 2) + '</g>';
+    }
+    if (L) s += L.svg;
+    return '<svg class="band" width="' + W + '" height="' + DH + '" viewBox="0 0 ' + W + ' ' + DH + '" aria-hidden="true" focusable="false" shape-rendering="crispEdges">' + s + '</svg>';
+  }
+  /* over the pieces: moss hanging in the seams of the end walls, and the night's fireflies (open air only, never over a label) */
+  function overSVG(W, g, seams, lampX) {
+    var s = '', lx = lampX === null ? -999 : lampX;
+    seams.forEach(function (sx, i) {
+      var p = place(g, sx, 0), len = [14, 22, 18, 26][i % 4], j, sd;
+      s += '<g transform="translate(' + p.x.toFixed(1) + ' ' + (p.y - 5).toFixed(1) + ') rotate(' + p.rot.toFixed(2) + ')">' + rc('f-mossdk', -1, 0, 2, len);
+      for (j = 4; j < len; j += 6) { sd = (j / 6 | 0) % 2 ? 1 : -1; s += rc('f-moss', sd > 0 ? 1 : -5, j, 4, 3) + rc('f-mossdk', sd > 0 ? 1 : -5, j + 3, 4, 1); }
+      s += '</g>';
+    });
+    function ff(fx, fy, d) { return '<g class="ff d' + d + '">' + rc('ffr', fx - 2, fy - 2, 6, 6) + rc('ffb', fx, fy, 2, 2) + '</g>'; }
+    [[.30, 10], [.36, 22], [.41, 6], [.58, 18], [.63, 8], [.69, 20], [.46, 26], [.54, 12]].forEach(function (p, i) {
+      var fx = Math.round(W * p[0] / 2) * 2, fy = Math.round((g.ay(fx) - p[1]) / 2) * 2; if (fy < 4 || Math.abs(fx - lx) < 20) return; s += ff(fx, fy, i % 6);
+    });
+    if (lampX !== null) [[-30, -30], [26, -38], [34, -16]].forEach(function (d, i) { var fx = Math.round((lampX + d[0]) / 2) * 2, fy = Math.round((g.ay(fx) + d[1] / 2 - 6) / 2) * 2; if (fy < 4) fy = 4; s += ff(fx, fy, (i + 2) % 6); });
+    [.03, .09, .93, .975].forEach(function (p, i) { var fx = Math.round(W * p / 2) * 2, fy = Math.round((g.ay(fx) + 70 + i % 2 * 14) / 2) * 2; if (fy > DH - 6) return; s += ff(fx, fy, (i + 3) % 6); });
+    return '<svg class="over" width="' + W + '" height="' + DH + '" viewBox="0 0 ' + W + ' ' + DH + '" aria-hidden="true" focusable="false" shape-rendering="crispEdges">' + s + '</svg>';
+  }
   /* one piece: the element carries data-* for its place; position() sets the style after the markup is in the page */
   function pc(o) {
     var tg = o.tag || 'button', t = o.tabs || [0, 0, 0, 0];
     var attrs = (o.attrs || '') + (tg === 'button' && o.attrs !== undefined && !/type=/.test(o.attrs) ? ' type="button"' : '');
-    return '<' + tg + ' class="pc ' + (o.cls || '') + '" data-x="' + o.x.toFixed(1) + '" data-y="' + o.y.toFixed(1) + '" data-w="' + o.w + '" data-h="' + o.h + '" data-rot="' + (o.rot || 0).toFixed(1) + '"'
+    var art = tabletSVG({ w: o.w, h: o.h, r: t[1] > 0 ? 1 : t[1] < 0 ? -1 : 0, l: t[3] > 0 ? 1 : t[3] < 0 ? -1 : 0, rot: o.rot, seed: o.seed || 1, ghost: o.ghost, plate: o.plate, dis: o.dis, ring: o.ring, lamp: o.lamp });
+    return '<' + tg + ' class="pc ' + (o.cls || '') + (o.en && !o.dis ? ' en-' + o.en : '') + (o.dis ? ' dis' : '') + '" data-x="' + o.x.toFixed(1) + '" data-y="' + o.y.toFixed(1) + '" data-w="' + o.w + '" data-h="' + o.h + '" data-rot="' + (o.rot || 0).toFixed(1) + '"'
       + (o.op !== undefined ? ' data-op="' + o.op + '"' : '') + (o.o !== undefined ? ' data-o="' + o.o + '" data-fx="' + o.fx + '"' : '') + ' ' + attrs + '>'
-      + pieceSVG(o.w, o.h, t[0], t[1], t[2], t[3], o.rot, o.pat, o.ghost) + '<span class="in">' + (o.inner || '') + '</span>' + (o.after || '') + '</' + tg + '>';
+      + art + '<span class="in">' + (o.inner || '') + '</span>' + (o.after || '') + '</' + tg + '>';
   }
   function position(c) {
     Array.prototype.forEach.call(c.querySelectorAll('[data-x]'), function (el) {
@@ -108,20 +249,6 @@
     if (m.k === 'tog' && D.unread) return '!';
     var n = 0; m.tiles.forEach(function (t) { if (/^\d+$/.test(t.badge)) n += parseInt(t.badge, 10); });
     return n > 0 ? String(n) : '';
-  }
-  function dockSVG(W, g) {
-    var pts = [], x, y, h, k, f = 0, cls;
-    for (x = 0; x <= W; x += 6) pts.push(x + ',' + g.ay(x).toFixed(1));
-    h = '<svg class="arc" viewBox="0 0 ' + W + ' ' + g.dh + '" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="soil" d="M' + pts.join(' L') + ' L' + W + ',' + g.dh + ' L0,' + g.dh + ' Z"/>';
-    for (x = 0; x < W; x += 9) {
-      y = g.ay(x); k = (x * 7 + 3) % 5; var hh = 5 + k * 2;
-      h += '<rect class="' + (k % 2 ? 'g1' : 'g2') + '" x="' + x + '" y="' + (y - hh + 2).toFixed(0) + '" width="3" height="' + hh + '"/><rect class="g3" x="' + (x + 4) + '" y="' + (y - hh / 2 + 2).toFixed(0) + '" width="3" height="' + Math.round(hh / 2) + '"/>';
-    }
-    for (x = 26; x < W; x += 61) {
-      y = g.ay(x); cls = ['fl1', 'fl2', 'fl3'][f++ % 3];
-      h += '<rect class="stem" x="' + x + '" y="' + (y - 11).toFixed(0) + '" width="2" height="11"/><rect class="' + cls + '" x="' + (x - 2) + '" y="' + (y - 17).toFixed(0) + '" width="6" height="6"/><rect class="fl2" x="' + x + '" y="' + (y - 15).toFixed(0) + '" width="2" height="2"/>';
-    }
-    return h + '</svg>';
   }
   function defs() {
     function r(c, x, y, w, h) { return '<rect class="' + c + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '"/>'; }
@@ -339,28 +466,27 @@
     total = it.reduce(function (a, o) { return a + o.w; }, 0);
     tabs = it.map(function () { return [0, 0, 0, 0]; });
     for (i = 0; i < n - 1; i++) { var k = i % 3 === 0 ? 2 : 1, sg = i % 2 ? -1 : 1; tabs[i][1] = sg * k; tabs[i + 1][3] = -sg * k; }
-    tabs[gn + 3][0] = -1;   // the plate has a socket on top for the popover
-    has1 = it.map(function (o) { return o.k === 'm' || o.k === 'ghost'; });
-    it.forEach(function (o, j) { if (has1[j]) tabs[j][2] = (o.k === 'm' || j % 2 === 0) ? 1 : 2; });
     x = (W - total) / 2;
+    var core0 = null, core1 = null;
+    LAMP = null;
     it.forEach(function (o, j) {
-      var ps = place(g, x + o.w / 2, 30), base = { x: ps.x - o.w / 2, y: ps.y - 29, w: o.w, h: 58, rot: ps.rot, tabs: tabs[j] };
-      if (has1[j]) {
-        var p1 = place(g, x + o.w / 2, 88), t1 = [-tabs[j][2], has1[j + 1] ? (j % 2 ? 1 : -1) : 0, 0, has1[j - 1] ? (j % 2 ? -1 : 1) : 0];
-        row1 += pc({ x: p1.x - o.w / 2, y: p1.y - 29, w: o.w, h: 58, rot: p1.rot, tabs: t1, tag: 'div', cls: 'ghost', ghost: true, op: Math.max(.1, .62 - .14 * ((o.d || 1) - 1)).toFixed(2) });
-      }
-      if (o.k === 'ghost') row0 += pc({ x: base.x, y: base.y, w: base.w, h: base.h, rot: base.rot, tabs: base.tabs, tag: 'div', cls: 'ghost', ghost: true, op: Math.max(.25, .8 - .16 * (o.d - 1)).toFixed(2) });
+      var here = o.k === 'm' && menus[o.m] && D.here === o.m, ps = place(g, x + o.w / 2, here ? 26 : 30), base = { x: ps.x - o.w / 2, y: ps.y - 29, w: o.w, h: 58, rot: ps.rot, tabs: tabs[j], seed: j + 1 };   // the current menu stands 4 px proud
+      if (o.k !== 'ghost') { if (core0 === null) core0 = x; core1 = x + o.w; }
+      if (here) LAMP = x + o.w / 2;
+      if (o.k === 'ghost') row0 += pc({ x: base.x, y: base.y, w: base.w, h: base.h, rot: base.rot, tabs: base.tabs, seed: base.seed, tag: 'div', cls: 'ghost', ghost: true });
       else if (o.k === 'm') main += menuPiece(o, base, menus[o.m]);
       else if (o.k === 'plate') main += platePiece(base);
       else main += actPiece(o.k === 'aL' ? 'L' : 'R', ACT[o.k === 'aL' ? 'L' : 'R'], base);
       x += o.w;
     });
+    SEAMS = core0 === null ? [] : [core0 - 116, core0 - 58, core0, core1 + 58, core1 + 116];
     return row1 + row0 + main;
   }
+  var LAMP = null, SEAMS = [];
   function menuPiece(o, base, m) {
     if (!m) return '';
     var here = D.here === m.k, open = slip === m.k, b = menuBadge(m);
-    base.pat = PAT[m.k]; base.cls = 'menu' + (here ? ' here' : '') + (open ? ' open' : '');
+    base.en = m.k; base.ring = here; base.lamp = here; base.dis = selOn; base.cls = 'menu' + (here ? ' here' : '') + (open ? ' open' : '');
     base.attrs = 'data-m="' + m.k + '" aria-expanded="' + open + '" aria-haspopup="true" aria-label="' + esc(m.name) + ' menu"' + (selOn ? ' disabled' : '');   // the menus wait while squares are being picked
     base.inner = ic(m.k) + '<span class="lb">' + esc(m.name) + '</span>' + (b ? '<b class="badge">' + esc(b) + '</b>' : '');
     return pc(base);
@@ -368,21 +494,22 @@
   function petal() { return '<img class="pt" src="' + esc(D.iconBase.replace('img/nav/dock-', 'img/ico/ico-petal.png')) + '" width="14" height="14" alt="Petals">'; }
   function platePiece(base) {
     var p = D.plate, open = slip === 'status';
-    base.pat = 'dk-dirt2'; base.cls = 'plate' + (open ? ' open' : '');
+    base.plate = true; base.cls = 'plate' + (open ? ' open' : '');
     base.attrs = 'id="dockplate" aria-label="Status, tap for more" aria-expanded="' + open + '"';
     base.after = '<span class="pip" aria-hidden="true">▴</span>';
     var ep = p.energy[1] ? Math.round(100 * p.energy[0] / p.energy[1]) : 0, hp = p.hp, hpp = hp && hp[1] ? Math.round(100 * hp[0] / hp[1]) : 0;
     base.inner = '<span>\u26a1<progress max="100" value="' + ep + '"></progress><b class="bn">' + p.energy[0] + '/' + p.energy[1] + '</b></span>'
       + '<span>\ud83c\udf31 <b>' + p.level + '</b><progress class="xp" max="100" value="' + p.xp + '"></progress></span>'
       + (hp ? '<span>\u2764\ufe0f<progress class="hp" max="100" value="' + hpp + '"></progress><b class="bn">' + hp[0] + '/' + hp[1] + '</b></span>' : '<span></span>')
-      + '<span>' + (p.time ? '<span class="dk-tm">' + esc(p.time) + '</span> <span class="tag">' + 'd' + p.day + '</span> ' : '') + petal() + ' <span class="tag">' + p.coins + '</span></span>';
+      + '<span>' + (p.time ? dialSVG() + '<span class="dk-tm">' + esc(p.time) + '</span> <span class="tag">' + 'd' + p.day + '</span> ' : '') + petal() + ' <span class="tag">' + p.coins + '</span></span>';
     return pc(base);
   }
   function actPiece(side, a, base) {
-    if (!a) { base.cls = 'act empty'; base.attrs = 'disabled aria-label="No action"'; base.inner = '<span class="ic">·</span>'; return pc(base); }
+    if (!a) { base.cls = 'act empty'; base.dis = true; base.attrs = 'disabled aria-label="No action"'; base.inner = '<span class="ic">·</span>'; return pc(base); }
     var open = slip === 'act' + side, label = a.label.length > 10 ? a.label.slice(0, 9) + '…' : a.label, link = !a.menu.length && a.href && a.rem === undefined;
     base.cls = 'act' + (side === 'R' && !a.why && !a.info ? ' go' : '') + (a.info ? ' info' : '') + (a.chip && !a.why ? ' soft' : '') + (a.qk === 'confirm' ? ' open' : '') + (open ? ' open' : '');
     base.tag = link && !a.why ? 'a' : 'button';
+    base.dis = !!(a.why || a.info || (a.chip && !a.why && a.qk !== 'confirm')); base.en = side === 'R' ? 'r' : 'l';   // v2.8.55: helper = cream enamel, main verb = gold; greyed = a bare recess
     base.attrs = 'data-act="' + side + '" aria-label="' + esc(a.label) + '"' + (link && !a.why ? ' href="' + esc(a.href) + '"' : '') + (a.rem !== undefined && !a.why ? ' data-rem="' + a.rem + '"' : '') + (a.qk ? ' data-quick="' + a.qk + '"' : '') + (a.menu.length ? ' aria-haspopup="true" aria-expanded="' + open + '"' : '') + (a.why ? ' disabled' : '') + (a.info ? ' aria-disabled="true"' : '');
     base.inner = ic(a.icon) + '<span class="lb">' + esc(label) + '</span>' + (a.badge && !a.why ? '<b class="badge">' + esc(a.badge) + '</b>' : '') + ((a.why || a.chip) ? '<span class="chip">' + esc(a.why || a.chip) + '</span>' : '');
     base.after = (a.menu.length ? '<span class="pip" aria-hidden="true">▴</span>' : '') + (a.qx ? '<span class="qx" role="button" data-qx="' + a.qx + '" aria-label="' + (a.qx === 'cancel' ? 'Cancel' : 'Clear the Quick button') + '">✕</span>' : '');
@@ -395,10 +522,10 @@
     if (slip === 'sel') return tendOn ? tendStrips() : selStrips();
     if (slip === 'actL' || slip === 'actR') {
       a = ACT[slip === 'actL' ? 'L' : 'R'];
-      return a ? [{ items: a.menu.map(function (t) { return { href: t.href, label: t.label, icon: t.icon, badge: t.badge, why: t.why, on: false, rem: t.rem }; }), label: a.mlabel || a.label, flat: true, side: 'C' }] : [];
+      return a ? [{ items: a.menu.map(function (t) { return { href: t.href, label: t.label, icon: t.icon, badge: t.badge, why: t.why, on: false, rem: t.rem }; }), label: a.mlabel || a.label, flat: true, side: 'C', en: 'l' }] : [];
     }
     D.menus.forEach(function (x) { if (x.k === slip) m = x; });
-    return m ? [{ items: m.tiles, label: m.name, flat: false, side: (slip === 'you' || slip === 'hobby') ? 'L' : 'R' }] : [];
+    return m ? [{ items: m.tiles, label: m.name, flat: false, side: (slip === 'you' || slip === 'hobby') ? 'L' : 'R', en: m.k }] : [];
   }
   function stripHTML(s, W, g) {
     var n = s.items.length, th = 54, per = Math.floor((W / 2 - 16) / Math.max(1, n)), tw = s.small ? Math.max(44, Math.min(50, per)) : Math.max(44, Math.min(58, per)), o = '', prev = 0;
@@ -406,12 +533,12 @@
     s.items.forEach(function (t, i) {
       var r = i < n - 1 ? (i % 2 ? -1 : 1) : 0, l = i > 0 ? -prev : 0, ps, fromRight = s.flat || s.side !== 'R', rem = t.rem !== undefined && !t.why, link = t.href && !t.why && !rem;
       prev = r; ps = place(g, startX + tw * (i + .5), -(th / 2 + 9));
-      o += pc({ x: ps.x - tw / 2, y: ps.y - th / 2, w: tw, h: th, rot: ps.rot, tabs: [0, r, 0, l], tag: rem ? 'button' : link ? 'a' : 'span', cls: 'tile' + (t.on ? ' on' : '') + (t.why ? ' dis' : '') + (t.cls ? ' ' + t.cls : ''),
+      o += pc({ x: ps.x - tw / 2, y: ps.y - th / 2 - (t.on ? 4 : 0), w: tw, h: th, rot: ps.rot, tabs: [0, r, 0, l], seed: i + 40, en: t.cls === 'do' ? 'hobby' : t.cls === 'danger' ? 'tog' : (s.en || 'l'), dis: !!t.why, ring: !!t.on, tag: rem ? 'button' : link ? 'a' : 'span', cls: 'tile' + (t.on ? ' on' : '') + (t.why ? ' dis' : '') + (t.cls ? ' ' + t.cls : ''),
         attrs: (rem ? 'data-rem="' + t.rem + '"' : link ? 'href="' + esc(t.href) + '"' : 'aria-disabled="true"') + (t.on ? ' aria-current="page"' : '') + ' aria-label="' + esc(t.label) + '"', o: fromRight ? i : n - 1 - i, fx: fromRight ? 22 : -22,
         inner: ic(t.icon) + '<span class="lb">' + esc(t.label) + '</span>' + (t.badge && !t.why ? '<b class="badge">' + esc(t.badge) + '</b>' : '') + (t.why ? '<span class="chip">' + esc(t.why) + '</span>' : '') });
     });
-    var f = place(g, startX + tw / 2, -(th / 2 + 9));
-    return o + '<div class="gname" data-pl="' + startX + ',' + (f.y - th / 2 - 26) + '">' + esc(s.label) + '</div>';
+    var f = place(g, startX + tw / 2, -(th / 2 + 9)), up = s.items.some(function (t) { return t.why; }) ? 14 : 0;   // the name sits above the "why" tags
+    return o + '<div class="gname" data-pl="' + startX + ',' + Math.round(f.y - th / 2 - 26 - up) + '">' + esc(s.label) + '</div>';
   }
   function slipHTML(W, g) {
     if (!slip) return '';
@@ -498,7 +625,9 @@
     stage.style.height = DH + 'px'; stage.style.width = W + 'px'; stage.style.transform = K !== 1 ? 'scale(' + K + ')' : '';   // origin is the bottom left (dock.css)
     dockH(Math.round(DH * K) + 'px');   // the page clears the scaled dock
     var same = key === lastKey;
-    stage.innerHTML = pref(defs() + '<div class="dock">' + dockSVG(W, g) + chain(W, g) + '</div><div class="dockslip' + (same ? ' still' : '') + '">' + slipHTML(W, g) + '</div>').replace('<!--dkTHEME-->', D.themeForm).replace('<!--dkLOGOUT-->', D.logoutForm);
+    root.setAttribute('data-tod', tod());   // v2.8.55: the clock lights the arch (dock.css); a page swap or a plate refresh brings a new D.tod
+    var pieces = chain(W, g);   // sets LAMP (the x of the current menu) and SEAMS
+    stage.innerHTML = pref(defs() + '<div class="dock">' + bandSVG(W, g, LAMP) + pieces + overSVG(W, g, SEAMS, LAMP) + '</div><div class="dockslip' + (same ? ' still' : '') + '">' + slipHTML(W, g) + '</div>').replace('<!--dkTHEME-->', D.themeForm).replace('<!--dkLOGOUT-->', D.logoutForm);
     position(stage);
     if (!same && old && oldN && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {   // the old strip comes apart (last piece first) while the new one snaps together
       old.className = 'dockslip dk-ghost'; old.style.setProperty('--n', String(oldN)); stage.appendChild(old);
@@ -632,7 +761,7 @@
     stBusy = true;
     fetch(D.stateUrl, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
       stBusy = false; if (!j || !j.plate || !D) return;
-      D.plate = j.plate; if (j.rows) D.rows = j.rows; if (j.links) D.links = j.links;
+      D.plate = j.plate; if (j.rows) D.rows = j.rows; if (j.links) D.links = j.links; if (j.tod) D.tod = j.tod;
       render(); energyFx(); timeFx();
     }).catch(function () { stBusy = false; });
   }
