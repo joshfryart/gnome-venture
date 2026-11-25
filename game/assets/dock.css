@@ -1665,3 +1665,144 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on .hitpg:has(#hp1:checked) label[for="hp1"], body.dock-on .hitpg:has(#hp2:checked) label[for="hp2"], body.dock-on .hitpg:has(#hp3:checked) label[for="hp3"], body.dock-on .hitpg:has(#hp4:checked) label[for="hp4"], body.dock-on .hitpg:has(#hp5:checked) label[for="hp5"], body.dock-on .hitpg:has(#hp6:checked) label[for="hp6"], body.dock-on .hitpg:has(#hp7:checked) label[for="hp7"] { background: var(--accent, #2f6b3a); color: #fff; }
   body.dock-on .hitpg:has(.hpr:focus-visible) .hpnav { outline: 2px solid var(--accent, #2f6b3a); outline-offset: 2px; }
 }
+
+/* ===== v2.8.55: the stone arch with one lantern (approved mockup claude/mockups/dock-lantern-all.html; drawn by tabletSVG / bandSVG / overSVG in dock.js).
+   The clock is .dockroot[data-tod] (day, gold = golden hour, night; includes/dock.php dock_tod()): one flat palette step per surface, no blur, no gradients,
+   no pure black. Lit or unlit is CSS only. Labels are HTML (outlined with hard 1 px text shadows, no blur) and pass 4.5:1 in every clock and theme. ===== */
+.dockroot {
+  --dk-ol: #2a1a10; --dk-slate: #3d2a1c; --dk-thread: #e8a317; --dk-lamp: #ffcf6a; --dk-flame: #fff3c8; --dk-iron: #3d2a1c; --dk-glass: #6e5c40; --dk-gold: #e8a317;
+  --dk-st: #c7b591; --dk-sthi: #e3d6b0; --dk-stlo: #94805c; --dk-stdk: #6e5c40;
+  --dk-gh: #a89676; --dk-ghhi: #c2b28e; --dk-ghlo: #7e6c50;
+  --dk-mortar: #4a3a28; --dk-cap: #d3c39c; --dk-caphi: #ece0bc; --dk-sky: #a9d6ea;
+  --dk-moss: #7ab55c; --dk-mossdk: #2f5a2a; --dk-mosslt: #c8d09f;
+  --dk-soil: #6b4a2b; --dk-soildk: #523620; --dk-soillt: #84603a; --dk-root: #3d2a1c; --dk-pebble: #a89676;
+  --dk-grass1: #5e9a40; --dk-grass2: #7ab55c; --dk-grass3: #c8d09f; --dk-fl1: #f6b8cf; --dk-fl2: #fff3c8; --dk-fl3: #e8a317;
+  --dk-e-you: #4e3a8a; --dk-e-youhi: #6c58b0; --dk-e-hobby: #2f5a2a; --dk-e-hobbyhi: #4f8140;
+  --dk-e-out: #1f4a6a; --dk-e-outhi: #33709a; --dk-e-tog: #8a2f5e; --dk-e-toghi: #b04f80;
+  --dk-e-r: #e8a317; --dk-e-rhi: #f5c860; --dk-e-l: #f2e4c0; --dk-e-lhi: #fff3c8; --dk-dislb: #f2e8cc;
+}
+.dockroot[data-tod="gold"] {
+  --dk-st: #d0a878; --dk-sthi: #f0cf94; --dk-stlo: #9a7048; --dk-stdk: #6e4a2c;
+  --dk-gh: #b08860; --dk-ghhi: #c9a070; --dk-ghlo: #845e3c;
+  --dk-mortar: #4a2c1a; --dk-cap: #ddb47c; --dk-caphi: #f5d79a; --dk-sky: #f2a07a;
+  --dk-moss: #9aac48; --dk-mossdk: #4a5a22; --dk-mosslt: #e0d08a;
+  --dk-soil: #6e4024; --dk-soildk: #522c18; --dk-soillt: #8a5430; --dk-root: #3d2a1c; --dk-pebble: #b08860;
+  --dk-grass1: #8a9a3a; --dk-grass2: #a8b450; --dk-grass3: #e0c070; --dk-fl1: #f2a07a; --dk-fl2: #ffcf6a; --dk-fl3: #fff3c8;
+  --dk-e-you: #5e3e7a; --dk-e-youhi: #7e5a96; --dk-e-hobby: #3e6224; --dk-e-hobbyhi: #5e8a34;
+  --dk-e-out: #2c4a5a; --dk-e-outhi: #4a6e78; --dk-e-tog: #9a3a4e; --dk-e-toghi: #be5a62;
+  --dk-e-r: #e8a317; --dk-e-rhi: #ffcf6a; --dk-e-l: #f0d8a8; --dk-e-lhi: #fbe8c0; --dk-dislb: #f0cf94;
+}
+.dockroot[data-tod="night"] {
+  --dk-st: #7c7486; --dk-sthi: #a49cae; --dk-stlo: #5a5266; --dk-stdk: #3e3648;
+  --dk-gh: #625a6e; --dk-ghhi: #766e82; --dk-ghlo: #48405a;
+  --dk-mortar: #1f1726; --dk-cap: #847c8e; --dk-caphi: #a098aa; --dk-sky: #291d4a;
+  --dk-moss: #3e6a4a; --dk-mossdk: #1e3a2a; --dk-mosslt: #6a8a70;
+  --dk-soil: #3a2a2c; --dk-soildk: #2a1e22; --dk-soillt: #4a3638; --dk-root: #1f1726; --dk-pebble: #625a6e;
+  --dk-grass1: #3a6248; --dk-grass2: #4a7458; --dk-grass3: #6a8a70; --dk-fl1: #a87890; --dk-fl2: #b0a070; --dk-fl3: #9a92a0;
+  --dk-e-you: #3e2e6e; --dk-e-youhi: #5a4a8e; --dk-e-hobby: #24442a; --dk-e-hobbyhi: #3a6440;
+  --dk-e-out: #1a3a56; --dk-e-outhi: #2c5478; --dk-e-tog: #6e2650; --dk-e-toghi: #8e3e6a;
+  --dk-e-r: #b88418; --dk-e-rhi: #d8a030; --dk-e-l: #c8bca4; --dk-e-lhi: #ddd2bc; --dk-dislb: #c8c0d2;
+}
+:root[data-theme="dark"] .dockroot { --dk-ol: #1c110a; }
+:root[data-theme="dark"] .dockroot:not([data-tod="gold"]):not([data-tod="night"]) {
+  --dk-st: #b09d78; --dk-sthi: #cab993; --dk-stlo: #7f6c4c; --dk-stdk: #5a4a32; --dk-gh: #857558; --dk-ghhi: #9c8b6c; --dk-ghlo: #62533c;
+  --dk-mortar: #2a1a10; --dk-cap: #bcab85; --dk-caphi: #d3c39c; --dk-sky: #7fb4cc; --dk-soil: #4a3220; --dk-soildk: #3a2618; --dk-soillt: #5e4129; --dk-root: #2a1a10; --dk-pebble: #7e6c50;
+  --dk-grass1: #4f8a35; --dk-grass2: #6aa34e; --dk-dislb: #e3d6b0;
+}
+.dockroot::before { background: var(--dk-soil); }
+.dockroot .dock > svg.dk-band, .dockroot .dock > svg.dk-over { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.dockroot .dock > svg.dk-over { z-index: 1; }
+.dockroot .dk-f-st { fill: var(--dk-st); } .dockroot .dk-f-hi { fill: var(--dk-sthi); } .dockroot .dk-f-lo { fill: var(--dk-stlo); } .dockroot .dk-f-dk { fill: var(--dk-stdk); }
+.dockroot .dk-f-gh { fill: var(--dk-gh); } .dockroot .dk-f-ghhi { fill: var(--dk-ghhi); } .dockroot .dk-f-ghlo { fill: var(--dk-ghlo); }
+.dockroot .dk-f-mortar { fill: var(--dk-mortar); } .dockroot .dk-f-cap { fill: var(--dk-cap); } .dockroot .dk-f-caphi { fill: var(--dk-caphi); } .dockroot .dk-f-sky { fill: var(--dk-sky); }
+.dockroot .dk-f-moss { fill: var(--dk-moss); } .dockroot .dk-f-mossdk { fill: var(--dk-mossdk); } .dockroot .dk-f-mosslt { fill: var(--dk-mosslt); }
+.dockroot .dk-f-soil { fill: var(--dk-soil); } .dockroot .dk-f-soildk { fill: var(--dk-soildk); } .dockroot .dk-f-soillt { fill: var(--dk-soillt); } .dockroot .dk-f-root { fill: var(--dk-root); } .dockroot .dk-f-peb { fill: var(--dk-pebble); }
+.dockroot .dk-f-g1 { fill: var(--dk-grass1); } .dockroot .dk-f-g2 { fill: var(--dk-grass2); } .dockroot .dk-f-g3 { fill: var(--dk-grass3); }
+.dockroot .dk-f-fl1 { fill: var(--dk-fl1); } .dockroot .dk-f-fl2 { fill: var(--dk-fl2); } .dockroot .dk-f-fl3 { fill: var(--dk-fl3); } .dockroot .dk-f-stem { fill: var(--dk-mossdk); }
+.dockroot .dk-f-slate { fill: var(--dk-slate); } .dockroot .dk-f-gold { fill: var(--dk-gold); } .dockroot .dk-f-cream { fill: #f2e4c0; } .dockroot .dk-f-ol { fill: var(--dk-ol); }
+.dockroot .dk-f-lamp { fill: var(--dk-lamp); } .dockroot .dk-f-flame { fill: var(--dk-flame); } .dockroot .dk-f-iron { fill: var(--dk-iron); } .dockroot .dk-f-glass { fill: var(--dk-glass); }
+.dockroot .dk-f-ember { fill: #a8241f; } .dockroot .dk-f-sun { fill: #ffd45a; }
+.dockroot svg .dk-ol { stroke: var(--dk-ol); stroke-width: 1; fill: none; }
+.dockroot .dk-thread { fill: none; stroke: var(--dk-thread); stroke-width: 1; stroke-dasharray: 4 2; }
+/* enamel: the four area colours, cream for a page's helper action, gold for its main verb */
+.dockroot .dk-en-you { --dk-en: var(--dk-e-you); --dk-enhi: var(--dk-e-youhi); --dk-lbc: #fff3c8; }
+.dockroot .dk-en-hobby { --dk-en: var(--dk-e-hobby); --dk-enhi: var(--dk-e-hobbyhi); --dk-lbc: #fff3c8; }
+.dockroot .dk-en-out { --dk-en: var(--dk-e-out); --dk-enhi: var(--dk-e-outhi); --dk-lbc: #fff3c8; }
+.dockroot .dk-en-tog { --dk-en: var(--dk-e-tog); --dk-enhi: var(--dk-e-toghi); --dk-lbc: #fff3c8; }
+.dockroot .dk-en-r { --dk-en: var(--dk-e-r); --dk-enhi: var(--dk-e-rhi); --dk-lbc: #2a1a10; }
+.dockroot .dk-en-l { --dk-en: var(--dk-e-l); --dk-enhi: var(--dk-e-lhi); --dk-lbc: #2a1a10; }
+.dockroot .dk-f-en { fill: var(--dk-en); } .dockroot .dk-f-enhi { fill: var(--dk-enhi); }
+.dockroot .dk-wire { fill: none; stroke: var(--dk-enhi); stroke-width: 1; stroke-dasharray: 4 2; }
+.dockroot .dk-pc svg.dk-ts { position: absolute; left: -16px; top: -20px; overflow: visible; pointer-events: none; }
+.dockroot .dk-pc, .dockroot .dk-pc:active:not([disabled]):not(.dk-deco), .dockroot .dk-pc.dk-menu.dk-open, .dockroot .dk-pc.dk-act.dk-open { translate: none; }
+.dockroot button.dk-pc::after, .dockroot a.dk-pc::after { content: ""; position: absolute; left: 0; right: 0; top: -3px; bottom: -3px; }
+/* the words: tilted with their tablet, outlined on the enamel with hard 1 px shadows (no blur) */
+.dockroot .dk-pc .dk-in { rotate: none; justify-content: flex-start; padding: 3px 4px 0; }
+.dockroot .dk-pc .dk-lb { color: var(--dk-lbc, var(--dk-tx, var(--dk-fg))); line-height: 1.05; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dockroot .dk-pc.dk-en-you .dk-lb, .dockroot .dk-pc.dk-en-hobby .dk-lb, .dockroot .dk-pc.dk-en-out .dk-lb, .dockroot .dk-pc.dk-en-tog .dk-lb {
+  text-shadow: 1px 0 0 #2a1a10, -1px 0 0 #2a1a10, 0 1px 0 #2a1a10, 0 -1px 0 #2a1a10, 1px 1px 0 #2a1a10, -1px 1px 0 #2a1a10, 1px -1px 0 #2a1a10, -1px -1px 0 #2a1a10; }
+.dockroot .dk-pc .dk-ic.dk-pi { width: 32px; height: 32px; background: none; clip-path: none; flex: none; }
+.dockroot .dk-pc .dk-ic.dk-pi::before { display: none; }
+.dockroot .dockslip .dk-pc .dk-ic.dk-pi { width: 28px; height: 28px; }
+.dockroot .dockslip .dk-pc .dk-ic.dk-pi img { width: 28px; height: 28px; }
+.dockroot .dockslip .dk-pc .dk-in { padding-top: 4px; }
+.dockroot .dk-pc .dk-ic:not(.dk-pi) { flex: none; margin-top: 1px; }
+/* can't be used yet: no enamel, a bare dark recess, a worn label (dis-lb keeps 5:1 on the recess in every clock) */
+.dockroot .dk-pc.dk-dis .dk-lb { color: var(--dk-dislb); text-shadow: none; }
+.dockroot .dk-pc.dk-dis .dk-ic { opacity: .45; }
+.dockroot .dk-pc.dk-act.dk-info .dk-ic, .dockroot .dk-pc.dk-act.dk-soft .dk-ic { opacity: .8; }
+/* the current menu and the current tile: a gold wire and one stepped gold rim; the lantern is the only light */
+.dockroot .dk-rim1 { fill: none; stroke: var(--dk-gold); stroke-width: 2; }
+.dockroot .dk-rim2 { fill: none; stroke: var(--dk-gold); stroke-width: 2; opacity: .5; }
+.dockroot .dk-pc.dk-here .dk-wire, .dockroot .dk-pc.dk-on .dk-wire { stroke: var(--dk-thread); }
+/* pressed (held, or the menu whose strip is out): the side face goes, the face sinks 2 px, the bevel flips */
+.dockroot .dk-pc .dk-face { transition: transform 60ms steps(1); }
+.dockroot .dk-pc.dk-open .dk-side, .dockroot button.dk-pc:not([disabled]):active .dk-side, .dockroot a.dk-pc:active .dk-side { visibility: hidden; }
+.dockroot .dk-pc.dk-open .dk-face, .dockroot button.dk-pc:not([disabled]):active .dk-face, .dockroot a.dk-pc:active .dk-face { transform: translate(0, 2px); }
+.dockroot .dk-pc.dk-open > .dk-in, .dockroot button.dk-pc:not([disabled]):active > .dk-in, .dockroot a.dk-pc:active > .dk-in { translate: 0 2px; }
+.dockroot .dk-pc.dk-open .dk-bv-hi, .dockroot button.dk-pc:not([disabled]):active .dk-bv-hi, .dockroot a.dk-pc:active .dk-bv-hi { fill: var(--dk-stlo); }
+.dockroot .dk-pc.dk-open .dk-bv-lo, .dockroot button.dk-pc:not([disabled]):active .dk-bv-lo, .dockroot a.dk-pc:active .dk-bv-lo { fill: var(--dk-sthi); }
+.dockroot .dk-pc.dk-open .dk-wire { stroke: #fff3c8; }
+@media (hover: hover) { .dockroot button.dk-pc:not(.dk-here):not(.dk-on):not([disabled]):hover .dk-wire, .dockroot a.dk-pc:not(.dk-on):hover .dk-wire { stroke: #fff3c8; } }
+.dockroot [disabled].dk-pc, .dockroot .dk-pc[aria-disabled="true"] { cursor: not-allowed; }
+/* badge: a red tag on the top right corner; why-tag: a felt tag on the top edge */
+.dockroot .dk-pc .dk-badge { top: -7px; right: -3px; min-width: 14px; height: 16px; padding: 0 3px; background: #a8241f; color: #fff3c8; font-size: 10px; line-height: 1; border: 1px solid var(--dk-ol); box-shadow: inset 0 -2px 0 #2a1a10; }
+.dockroot .dockslip .dk-pc .dk-badge { border-color: var(--dk-ol); }
+.dockroot .dk-pc .dk-chip, .dockroot .dockslip .dk-pc .dk-chip { top: -10px; bottom: auto; background: #3d2a1c; color: #ffcf6a; font-size: 9px; line-height: 12px; padding: 0 4px; border: 1px solid var(--dk-ol); }
+.dockroot .dockslip .dk-gname { font-size: 11px; line-height: 16px; color: #f2e4c0; background: #3d2a1c; padding: 0 7px; border: 1px solid #2a1a10; box-shadow: inset 0 0 0 1px #7a4a1f; white-space: nowrap; }
+.dockroot .dk-pip { color: #ffcf6a; }
+/* the status plate: slate panel, cream words, the sun / setting sun / moon by the time */
+.dockroot .dk-pc.dk-plate .dk-in { padding: 11px 10px 7px; gap: 2px 6px; color: #f2e4c0; justify-content: initial; }
+.dockroot .dk-pc.dk-plate progress { height: 8px; border: 1px solid var(--dk-ol); background: #1c110a; }
+.dockroot .dk-pc.dk-plate progress::-webkit-progress-bar { background: #1c110a; }
+.dockroot .dk-pc.dk-plate svg.dk-dial { flex: none; width: 14px; height: 14px; }
+.dockroot .dk-tw { display: none; }
+.dockroot:not([data-tod="gold"]):not([data-tod="night"]) .dk-tw-day, .dockroot[data-tod="gold"] .dk-tw-gold, .dockroot[data-tod="night"] .dk-tw-night { display: inline; }
+/* the one lantern: unlit by day; lit at golden hour (a two-step pool on the grass, a lit band on the stone); brightest at night (three steps, glow ring, fireflies) */
+.dockroot .dk-lan .dk-lit-only, .dockroot .dk-lan .dk-night-only { display: none; }
+.dockroot[data-tod="gold"] .dk-lan .dk-lit-only, .dockroot[data-tod="night"] .dk-lan .dk-lit-only, .dockroot[data-tod="night"] .dk-lan .dk-night-only { display: inline; }
+.dockroot .dk-lamp-light { display: none; }
+.dockroot[data-tod="gold"] .dk-lamp-light, .dockroot[data-tod="night"] .dk-lamp-light { display: inline; }
+.dockroot .dk-pool { fill: var(--dk-lamp); }
+.dockroot .dk-pool.dk-p1 { fill-opacity: .12; display: none; } .dockroot .dk-pool.dk-p2 { fill-opacity: .2; } .dockroot .dk-pool.dk-p3 { fill-opacity: .3; }
+.dockroot[data-tod="night"] .dk-pool.dk-p1 { fill-opacity: .16; display: inline; } .dockroot[data-tod="night"] .dk-pool.dk-p2 { fill-opacity: .28; } .dockroot[data-tod="night"] .dk-pool.dk-p3 { fill-opacity: .42; }
+.dockroot .dk-halo { fill: var(--dk-lamp); } .dockroot .dk-halo.dk-h1 { fill-opacity: .14; } .dockroot .dk-halo.dk-h2 { fill-opacity: .28; } .dockroot .dk-halo.dk-h3 { fill-opacity: .45; }
+.dockroot .dk-spot { fill: var(--dk-lamp); } .dockroot .dk-spot.dk-s1 { fill-opacity: .32; } .dockroot .dk-spot.dk-s2 { fill-opacity: .6; }
+.dockroot .dk-spot.dk-side2 { display: none; } .dockroot[data-tod="night"] .dk-spot.dk-side2 { display: inline; }
+.dockroot .dk-glow { fill: none; stroke: var(--dk-lamp); stroke-width: 2; display: none; } .dockroot .dk-glow.dk-g2 { stroke-opacity: .45; }
+.dockroot[data-tod="night"] .dk-glow { display: inline; }
+.dockroot[data-tod="gold"] .dk-lit .dk-f-g1, .dockroot[data-tod="night"] .dk-lit .dk-f-g1 { fill: #5e9a40; }
+.dockroot[data-tod="gold"] .dk-lit .dk-f-g2, .dockroot[data-tod="night"] .dk-lit .dk-f-g2 { fill: #7ab55c; }
+.dockroot[data-tod="gold"] .dk-lit .dk-f-g3, .dockroot[data-tod="night"] .dk-lit .dk-f-g3 { fill: #e0d08a; }
+.dockroot[data-tod="gold"] .dk-lit .dk-f-fl1, .dockroot[data-tod="night"] .dk-lit .dk-f-fl1 { fill: #f6b8cf; }
+.dockroot[data-tod="gold"] .dk-lit .dk-f-fl2, .dockroot[data-tod="night"] .dk-lit .dk-f-fl2 { fill: #fff3c8; }
+/* fireflies: night only, a hard-step blink */
+.dockroot .dk-ff { display: none; }
+.dockroot[data-tod="night"] .dk-ff { display: inline; animation: dkblink 2.4s steps(1, end) infinite; }
+.dockroot .dk-ffb { fill: #ffd45a; } .dockroot .dk-ffr { fill: #ffcf6a; fill-opacity: .3; }
+.dockroot .dk-ff.dk-d1 { animation-delay: -.4s; } .dockroot .dk-ff.dk-d2 { animation-delay: -.8s; } .dockroot .dk-ff.dk-d3 { animation-delay: -1.2s; } .dockroot .dk-ff.dk-d4 { animation-delay: -1.6s; } .dockroot .dk-ff.dk-d5 { animation-delay: -2s; }
+@keyframes dkblink { 0%, 58% { opacity: 1; } 60%, 74% { opacity: .3; } 76%, 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .dockroot .dk-pc .dk-face { transition: none; } .dockroot .dk-ff { animation: none !important; } }
+.dockroot .dk-pc[disabled], .dockroot .dk-pc:disabled { opacity: 1; }   /* the game's buttons fade when disabled; a dock piece shows it with its bare recess instead */
+.dockroot .dk-pc.dk-plate .dk-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }   /* the right column holds the clock, day and Petals */
+.dockroot .dockslip .dk-pc .dk-lb { white-space: normal; overflow-wrap: anywhere; max-height: 2.1em; font-size: 10px; }   /* a long tile name takes two short lines */
