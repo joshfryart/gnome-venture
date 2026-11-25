@@ -12,9 +12,10 @@ OUT = os.path.join(ROOT, 'game/assets/img/gyard')
 KEYS = ['kitchen', 'beehive', 'greenhouse', 'tailor', 'tool_shed', 'compost_bin', 'rain_barrel', 'root_cellar', 'worm_farm', 'ladybird_lodge',
         'snail_jar', 'frog_pond', 'quail_coop', 'silk_shelf', 'tortoise_run', 'butterfly_bush', 'fence']
 # feet (ground contact) of every building on the 240x135 grid; the art puts it at (W/2, H-10) of each sprite
-POS = {'greenhouse': (20, 62), 'tailor': (58, 62), 'kitchen': (120, 62), 'tool_shed': (183, 62), 'compost_bin': (221, 62), 'beehive': (24, 92),
-       'root_cellar': (60, 92), 'worm_farm': (99, 92), 'ladybird_lodge': (141, 92), 'snail_jar': (181, 92), 'rain_barrel': (218, 92), 'fence': (27, 122),
-       'quail_coop': (64, 122), 'silk_shelf': (100, 122), 'tortoise_run': (140, 122), 'butterfly_bush': (180, 122), 'frog_pond': (219, 126)}
+POS = {'greenhouse': (20, 60), 'tailor': (61, 63), 'kitchen': (120, 60), 'tool_shed': (179, 60), 'compost_bin': (221, 60), 'beehive': (21, 94),
+       'root_cellar': (53, 90), 'worm_farm': (99, 90), 'ladybird_lodge': (148, 90), 'snail_jar': (189, 94), 'rain_barrel': (221, 94), 'fence': (19, 122),
+       'quail_coop': (61, 124), 'silk_shelf': (94, 124), 'tortoise_run': (133, 124), 'butterfly_bush': (172, 124), 'frog_pond': (219, 128)}
+# v2.8.53: spread (x, y) searched so the level 3 art hides as little of its neighbours as possible (was up to 39% of a building's pixels hidden, now about 20%)
 
 STATIC = """.gyard .gy-scene{position:relative;width:100%;aspect-ratio:480/270;border:2px solid var(--line);background:#9fc27a;overflow:hidden;margin:0 0 8px}
 .gy-ground{position:absolute;left:0;top:0;width:100%;height:100%;image-rendering:pixelated;display:block}
@@ -23,7 +24,7 @@ STATIC = """.gyard .gy-scene{position:relative;width:100%;aspect-ratio:480/270;b
 @keyframes gyf4{0%{background-position:0% 0}25%{background-position:33.3333% 0}50%{background-position:66.6667% 0}75%{background-position:100% 0}}
 .gy-locked{opacity:.55}
 .gy-hit{position:absolute;display:block;background:transparent;border:0;cursor:pointer;text-decoration:none}
-.gy-hit::before{content:"";position:absolute;inset:-10px -4px}
+.gy-hit::before{content:"";position:absolute;inset:-3px -2px}
 .gy-hit::after{content:"";position:absolute;inset:0;border:2px solid transparent;pointer-events:none}
 .gy-hit:hover::after,.gy-hit:focus-visible::after,.gy-hit.on::after{border-color:#ffe9a3;border-style:dashed}
 .gy-hit:focus-visible{outline:none}
@@ -74,6 +75,91 @@ dialog.gycard .pickbox{width:min(330px,calc(100vw - 28px));padding:0;overflow:hi
 .gywelcome input{flex:1;min-width:0}
 @media (prefers-reduced-motion:reduce){.gyt>span,.gyt-b{animation:none}}"""
 
+
+# draw order of the Yard (far row first; the same list as GYARD_ORDER in game/includes/gyard.php): a later building is drawn, and tapped, over an earlier one
+ORDER = ['greenhouse', 'tailor', 'kitchen', 'tool_shed', 'compost_bin', 'beehive', 'root_cellar', 'worm_farm', 'ladybird_lodge', 'snail_jar', 'rain_barrel',
+         'fence', 'quail_coop', 'silk_shelf', 'tortoise_run', 'butterfly_bush', 'frog_pond']
+
+# v2.8.53: level 3 art is drawn bigger than the 17 spots can hold, so it is scaled down (nearest neighbour, about the foot point, so the building stays where it stands)
+# for the buildings that hid their neighbours. The fence has no level: its one picture takes the same factor. With these factors no building hides more than 4% of its pixels at all level 3.
+SHRINK3 = {'kitchen': .9, 'beehive': .7, 'root_cellar': .8, 'snail_jar': .8, 'quail_coop': .9, 'silk_shelf': .75, 'tortoise_run': .9, 'butterfly_bush': .8, 'fence': .75}
+
+def shrink3(k, im, frames=1):
+    f = SHRINK3.get(k)
+    if not f: return im
+    W = im.width // frames; H = im.height; fx, fy = W / 2, H - 10; out = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    for i in range(frames):
+        fr = im.crop((i * W, 0, (i + 1) * W, H)).transform((W, H), Image.AFFINE, (1 / f, 0, fx - fx / f, 0, 1 / f, fy - fy / f), Image.NEAREST)
+        out.paste(fr, (i * W, 0))
+    return out
+
+def state_image(k, st):
+    d = os.path.join(SRC, k, k)
+    if k == 'fence':
+        r = Image.open(d + '-ready.png').convert('RGBA'); return shrink3(k, r.crop((0, 0, r.width // 4, r.height)))
+    im = Image.open(d + ('-empty.png' if st == 'e' else '-%s.png' % st)).convert('RGBA')
+    return im.crop((0, 0, im.width // 4, im.height)) if st == 'e' else shrink3(k, im) if st == 'l3' else im
+
+def hit_rects(st):
+    """v2.8.53: the tap rectangle of every building in one state (e, l1, l2, l3), in 240x135 grid units, as (x0, y0, x1, y1).
+    Start from the box round the pixels you can SEE (not hidden by a nearer building), then move edges one pixel at a time (coordinate descent) to
+    minimise the visible pixels whose tap would open another building (cost 1) or nothing (cost .8). A nearer building's rectangle wins where they overlap."""
+    masks = {}; box = {}
+    for k in ORDER:
+        im = state_image(k, st); W, H = im.size; x, y = POS[k]; L, T = int(x - W / 2), int(y - (H - 10)); a = im.getchannel('A').load()
+        masks[k] = {(L + i, T + j) for j in range(H) for i in range(W) if a[i, j] and 0 <= L + i < 240 and 0 <= T + j < 135}
+    vis = {}
+    for n, k in enumerate(ORDER):
+        covered = set()
+        for k2 in ORDER[n + 1:]: covered |= masks[k2]
+        v = masks[k] - covered
+        vis[k] = list(v if v else masks[k])
+        xs = [p[0] for p in vis[k]]; ys = [p[1] for p in vis[k]]
+        box[k] = [min(xs), min(ys), max(xs) + 1, max(ys) + 1]
+    grid = [[-1] * 240 for _ in range(135)]
+    def cost():
+        for row in grid: row[:] = [-1] * 240
+        for n, k in enumerate(ORDER):
+            x0, y0, x1, y1 = box[k]
+            if x1 > x0:
+                for y in range(max(0, y0), min(135, y1)): grid[y][max(0, x0):min(240, x1)] = [n] * (min(240, x1) - max(0, x0))
+        c = 0.0
+        for n, k in enumerate(ORDER):
+            for (x, y) in vis[k]:
+                o = grid[y][x]
+                if o != n: c += 0.8 if o < 0 else 1.0
+        return c
+    best = cost()
+    for _ in range(8):
+        moved = False
+        for k in ORDER:
+            for e in range(4):
+                for d in (-4, -3, -2, -1, 1, 2, 3, 4):
+                    old = box[k][e]; box[k][e] = old + d
+                    b = box[k]
+                    if b[2] - b[0] < 4 or b[3] - b[1] < 4: box[k][e] = old; continue
+                    c = cost()
+                    if c < best - 1e-9: best = c; moved = True
+                    else: box[k][e] = old
+        if not moved: break
+    return {k: tuple(v) for k, v in box.items()}
+
+# the landscape card rules that come after every per-building rule (kept here so a rebuild does not drop them)
+STATIC3 = r"""/* a phone on its side: the whole building card scrolls as one (head and body together, so the buttons are always reachable), is wider, and its head is slim */
+@media (orientation: landscape) and (max-height: 520px) {
+  dialog.gycard .pickbox { width: min(520px, calc(100vw - 28px)); max-height: calc(100dvh - 12px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; display: block; }
+  .gycard .gyhd { min-height: 0; padding-block: 6px; gap: 10px; }
+  .gycard .gyhd img, .gycard .gyhd svg, .gycard .gyart { max-height: 84px; width: auto; }
+  .gycard .gybd, .gycard .gybd.home, .gycard .gybd:not(.home), .gycard .gybd.fence { min-height: 0; overflow: visible; }
+  .gycard .gynow { min-height: 0; -webkit-line-clamp: unset; display: block; overflow: visible; }
+}
+
+/* opened without script (garden.php?t=pic&o=...: the open attribute, not a modal) the card sits in the page, under the dock: put it above the page, stop it at the dock, and size it to what is left */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on dialog.gycard[open]:not(:modal) { position: fixed; inset: 0 0 var(--dock-h, 0px) 0; margin: 0; width: 100%; max-width: none; height: auto; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, .45); }
+  body.dock-on dialog.gycard[open]:not(:modal) .pickbox { max-height: calc(100dvh - var(--dock-h, 0px) - 12px); }
+}"""
+
 def pct(v, t):
     s = ('%.3f' % (v / t * 100)).rstrip('0').rstrip('.')
     return s + '%'
@@ -118,11 +204,12 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     css = ['/* GENERATED by tools/build_gyard_assets.py (do not edit). The Garden Yard picture: sprites are placed in percentages of the 480x270 ground picture. */', STATIC, STATIC2]
     shutil.copyfile(os.path.join(ROOT, 'aseprite-source/v3/scenes/garden-ground.png'), os.path.join(OUT, 'ground.png'))
+    HIT = {st: hit_rects(st) for st in ('e', 'l1', 'l2', 'l3')}; HIT['i'] = HIT['l3']   # the idle fence has no level: it takes the level 3 rectangle
     for k in KEYS:
         d = os.path.join(SRC, k, k)
         if k == 'fence':
             r = Image.open(d + '-ready.png').convert('RGBA'); W = r.width // 4; H = r.height
-            idle = r.crop((0, 0, W, H)); idle.paste((0, 0, 0, 0), (W - 14, 0, W, 13))   # the idle fence has no badge
+            idle = r.crop((0, 0, W, H)); idle.paste((0, 0, 0, 0), (W - 14, 0, W, 13)); idle = shrink3(k, idle); r = shrink3(k, r, 4)   # the idle fence has no badge
             save(idle, 'fence-i.png'); save(r, 'fence-r1.png')
             states = {'i': (idle, 1)}
             tiles = tile_css('fence', 'i', idle, W, H, 1, idle, 'fence-i.png') + tile_css('fence', 'r1', r, W, H, 4, idle, 'fence-r1.png')
@@ -130,26 +217,32 @@ def main():
             l1 = Image.open(d + '-l1.png').convert('RGBA'); W, H = l1.size
             states = {}
             for lv in (1, 2, 3):
-                im = Image.open(d + '-l%d.png' % lv).convert('RGBA'); save(im, '%s-l%d.png' % (k, lv)); states['l%d' % lv] = (im, 1)
-                rr = Image.open(d + '-ready-l%d.png' % lv).convert('RGBA'); save(rr, '%s-r%d.png' % (k, lv))
+                im = Image.open(d + '-l%d.png' % lv).convert('RGBA')
+                if lv == 3: im = shrink3(k, im)
+                save(im, '%s-l%d.png' % (k, lv)); states['l%d' % lv] = (im, 1)
+                rr = Image.open(d + '-ready-l%d.png' % lv).convert('RGBA')
+                if lv == 3: rr = shrink3(k, rr, 4)
+                save(rr, '%s-r%d.png' % (k, lv))
             e = Image.open(d + '-empty.png').convert('RGBA'); save(e, '%s-e.png' % k); states['e'] = (e, 4)
             tiles = []
             tiles += tile_css(k, 'e', e, W, H, 4, e.crop((0, 0, W, H)), '%s-e.png' % k)
             for lv in (1, 2, 3):
                 tiles += tile_css(k, 'l%d' % lv, states['l%d' % lv][0], W, H, 1, states['l%d' % lv][0], '%s-l%d.png' % (k, lv))
                 rr = Image.open(d + '-ready-l%d.png' % lv).convert('RGBA')
+                if lv == 3: rr = shrink3(k, rr, 4)
                 tiles += tile_css(k, 'r%d' % lv, rr, W, H, 4, states['l%d' % lv][0], '%s-r%d.png' % (k, lv))
         css += tiles
         x, y = POS[k]
         left, top = (x - W / 2) * 2, (y - (H - 10)) * 2
         css.append('.gy-%s{left:%s;top:%s;width:%s;height:%s}' % (k, pct(left, 480), pct(top, 270), pct(W * 2, 480), pct(H * 2, 270)))
         for st, (im, n) in states.items():
-            bb = bbox_union(im, W, H, n)
-            hl, ht, hw, hh = left + bb[0] * 2, top + bb[1] * 2, (bb[2] - bb[0]) * 2, (bb[3] - bb[1]) * 2
+            hr = HIT[st][k]
+            hl, ht, hw, hh = hr[0] * 2, hr[1] * 2, (hr[2] - hr[0]) * 2, (hr[3] - hr[1]) * 2
             css.append('.gy-h-%s-%s{left:%s;top:%s;width:%s;height:%s}' % (k, st, pct(hl, 480), pct(ht, 270), pct(hw, 480), pct(hh, 270)))
         # animated strips: empty (e) and ready (r1..r3, fence r1)
         for st in (['e', 'r1', 'r2', 'r3'] if k != 'fence' else ['r1']):
             css.append('.gy-bg-%s-%s{background-image:url(img/gyard/%s-%s.png)}' % (k, st, k, st))
+    css.append(STATIC3)
     print('\n'.join(css))
 
 if __name__ == '__main__':
