@@ -212,7 +212,7 @@ page_header('Together');
         <li class="<?= $reached ? 'on' : '' ?>"><span class="tk"><?= $reached ? '✅' : '⬜' ?></span> <b><?= $p ?>%</b> <small class="muted">(<?= number_format((int)ceil($st['target'] * $p / 100)) ?>)</small> <span class="tr">🎁 <?= e(hollow_goal_tier_text($i + 1)) ?></span></li>
       <?php endforeach; ?>
     </ol>
-    <p class="help">Everyone who puts something in gets every tier’s reward, whenever it is reached. Put in at least half a fair share and the 100% tier pays 50% more Petals. Rewards arrive by themselves the next time you open this page or Today.</p>
+    <p class="help">Everyone who puts something in gets every tier’s reward, whenever it is reached. <?php $bn = hollow_goal_bonus_need($g); ?><?= $bn !== null ? 'Put in at least ' . number_format($bn) . ' yourself and you get a bonus of half the 100% tier’s Petals on top, even if you reach it after the jar is full. ' : '' ?>Rewards arrive by themselves the next time you open this page or Today.</p>
     <?php if ($helpers): ?><p class="help">Helping most: <?php $bits = []; foreach ($helpers as $h) $bits[] = (int)$h['garden_public'] === 1 || (int)$h['id'] === $uid ? e($h['name']) . ' (' . number_format((int)$h['amount']) . ')' : 'a quiet gnome (' . number_format((int)$h['amount']) . ')'; echo implode(', ', $bits); ?>.</p><?php endif; ?>
   </section>
 <?php endforeach; ?>

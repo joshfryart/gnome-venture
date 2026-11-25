@@ -31,7 +31,7 @@ const HOLLOW_GOAL_POOL = [
     ['serve', '', 'Serve Pomeroy {n} courses', '🥄', 2, 'courses'],   // only while the Gourmand is on (hollow_goal_make_weekly)
 ];
 
-/** 2.7.27 (Josh): the weekly jar is shared by the whole Hollow, so it is 4 times the size the pool's per-gnome amounts give. Festival jars are not scaled. */
+/** 2.7.27 (Josh): the weekly jar is shared by the whole Hollow, so it is 4 times the size the pool's per-gnome amounts give. Festival jars are not scaled (they share the helper count that sizes jars, 2.8.50). */
 const HOLLOW_GOAL_SCALE = 4;
 
 /** Tier fractions and the items that come with each tier (coins come from the goal_tier_coins setting). */
@@ -55,7 +55,7 @@ function hollow_goal_week(?int $at = null): array
     return [hollow_date('o-\WW', $at), $start->getTimestamp(), $start->modify('+7 days')->getTimestamp()];
 }
 
-/** How many gnomes the jar is sized for: those seen in the last week, never fewer than goal_per_gnome. */
+/** How many gnomes the jar is sized for: those who helped fill last week's jar (else those seen in the last week), never fewer than goal_per_gnome. */
 function hollow_goal_gnomes(): int
 {
     $n = hollow_goal_last_helpers();   // 2.8.50 (Josh): sized by last week's helpers, falling back to gnomes seen when there was no jar last week
@@ -70,7 +70,7 @@ function hollow_goal_last_helpers(): int
     $prev = hollow_date('o-\WW', $start - 86400);
     $g = q_one('SELECT id FROM hollow_goals WHERE period_key = ?', ['week:' . $prev]);
     if (!$g) return 0;
-    return (int)q_val('SELECT COUNT(*) FROM hollow_goal_contrib WHERE goal_id = ? AND amount >= ?', [$g['id'], max(1, (int)setting('goal_min_share'))]);
+    return (int)q_val('SELECT COUNT(*) FROM hollow_goal_contrib c JOIN users u ON u.id = c.user_id WHERE c.goal_id = ? AND c.amount >= ? AND u.deleted_at IS NULL AND ' . gnome_in_play_sql('u'), [$g['id'], max(1, (int)setting('goal_min_share'))]);
 }
 
 /** A round target: 5s up to 100, 10s up to 500, then 25s. */
@@ -238,11 +238,18 @@ function hollow_goal_tier_text(int $tier): string
 /** 2.8.50: does this amount earn the big-share Petal bonus? Weekly jars only: at least half of target / gnomes the jar was sized for. */
 function hollow_goal_bonus_ok(array $g, int $amount): bool
 {
-    if (!empty($g['festival']) || strpos((string)$g['period_key'], 'week:') !== 0) return false;
+    $need = hollow_goal_bonus_need($g);
+    return $need !== null && $amount >= $need;
+}
+
+/** 2.8.50: the amount that earns the big-share bonus on this jar (null: no bonus, festival jars). A fair share is the pool's per-gnome amount times the jar scale. */
+function hollow_goal_bonus_need(array $g): ?int
+{
+    if (!empty($g['festival']) || strpos((string)$g['period_key'], 'week:') !== 0) return null;
     foreach (HOLLOW_GOAL_POOL as $e) {
-        if ($e[0] === $g['kind'] && $e[1] === (string)$g['filter']) return $amount >= $e[4] * HOLLOW_GOAL_SCALE * HOLLOW_GOAL_BONUS_SHARE;   // a fair share is the pool's per-gnome amount times the jar scale
+        if ($e[0] === $g['kind'] && $e[1] === (string)$g['filter']) return (int)ceil($e[4] * HOLLOW_GOAL_SCALE * HOLLOW_GOAL_BONUS_SHARE);
     }
-    return false;
+    return null;
 }
 
 /** A gnome's share of a jar. */
@@ -262,7 +269,8 @@ function hollow_goal_settle(int $uid): array
     $min = max(1, (int)setting('goal_min_share'));
     $lines = [];
     $rows = q('SELECT g.*, c.amount FROM hollow_goals g JOIN hollow_goal_contrib c ON c.goal_id = g.id AND c.user_id = ? WHERE c.amount >= ?
-               AND (SELECT COUNT(*) FROM hollow_goal_claims k WHERE k.goal_id = g.id AND k.user_id = ?) < 4 ORDER BY g.id', [$uid, $min, $uid])->fetchAll();
+               AND ((SELECT COUNT(*) FROM hollow_goal_claims k WHERE k.goal_id = g.id AND k.user_id = ?) < 4
+               OR (g.festival IS NULL AND g.ends_at > ? AND (SELECT COUNT(*) FROM hollow_goal_claims k WHERE k.goal_id = g.id AND k.user_id = ?) = 4)) ORDER BY g.id', [$uid, $min, $uid, gmdate('Y-m-d H:i:s', time() - 2 * 86400), $uid])->fetchAll();
     foreach ($rows as $g) {
         $st = hollow_goal_state($g);
         for ($tier = 1; $tier <= $st['tier']; $tier++) {
@@ -274,8 +282,6 @@ function hollow_goal_settle(int $uid): array
                 continue;
             }
             $coins = hollow_goal_tier_coins($tier);
-            $bonus = $tier === 4 && hollow_goal_bonus_ok($g, (int)$g['amount']);
-            if ($bonus) $coins = (int)round($coins * (100 + HOLLOW_GOAL_BONUS_PCT) / 100);
             if ($coins > 0) give_petals((int)$uid, (int)$coins);
             if (function_exists('add_xp')) add_xp($uid, HOLLOW_GOAL_TIER_XP[$tier - 1], 'Hollow Goal');
             $got = '';
@@ -284,7 +290,20 @@ function hollow_goal_settle(int $uid): array
                 if ($iid = item_id_by_slug($slug)) { give_item($uid, $iid, max(1, (int)$qty)); $got = ' + ' . (int)$qty . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]); }
             }
             db()->commit();
-            $lines[] = $g['icon'] . ' ' . $g['title'] . ': tier ' . $tier . ' of 4 reached! ' . money($coins) . ($bonus ? ' (+' . HOLLOW_GOAL_BONUS_PCT . '% for a big share)' : '') . ' + ' . HOLLOW_GOAL_TIER_XP[$tier - 1] . ' XP' . $got . '.';
+            $lines[] = $g['icon'] . ' ' . $g['title'] . ': tier ' . $tier . ' of 4 reached! ' . money($coins) . ' + ' . HOLLOW_GOAL_TIER_XP[$tier - 1] . ' XP' . $got . '.';
+        }
+        // 2.8.50: the big-share bonus is its own one-off claim (tier 5), so it is paid whenever the gnome's share reaches half a fair share while the jar is full, never lost by claiming tier 4 first
+        if ($st['tier'] === 4 && hollow_goal_bonus_ok($g, (int)$g['amount'])) {
+            db()->beginTransaction();
+            try {
+                db_insert('hollow_goal_claims', ['goal_id' => $g['id'], 'user_id' => $uid, 'tier' => 5, 'claimed_at' => now()]);
+                $extra = (int)round(hollow_goal_tier_coins(4) * HOLLOW_GOAL_BONUS_PCT / 100);
+                if ($extra > 0) give_petals((int)$uid, $extra);
+                db()->commit();
+                $lines[] = $g['icon'] . ' ' . $g['title'] . ': big share bonus! ' . money($extra) . '.';
+            } catch (PDOException $e) {
+                db()->rollBack();
+            }
         }
     }
     return $lines;

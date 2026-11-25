@@ -101,6 +101,14 @@ ok "all four tiers paid at 100%" "$(db "SELECT COUNT(*) FROM hollow_goal_claims 
 get $B 'community.php?t=jar' >/dev/null; ok "bloom (no share) paid nothing" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE user_id=$BID")" 0
 dbx "INSERT INTO hollow_goal_contrib (goal_id,user_id,amount) VALUES ($GID,$BID,1)"; get $B 'community.php?t=jar' >/dev/null
 ok "bloom (1 share) gets every reached tier" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE goal_id=$GID AND user_id=$BID")" 4
+# 2.8.50: the big-share bonus is a one-off tier-5 claim of half the 100% tier's Petals, paid when the share gets big enough (even after tier 4 was paid)
+dbx "UPDATE hollow_goals SET kind='harvest', filter='' WHERE id=$GID"   # the test jar is kind any; the bonus needs a pool kind (harvest, any crop: 100 needed)
+CB=$(db "SELECT coins FROM users WHERE id=$BID")
+dbx "UPDATE hollow_goal_contrib SET amount=100000 WHERE goal_id=$GID AND user_id=$BID"; get $B 'community.php?t=jar' >/dev/null
+ok "big share: bonus claim (tier 5) paid" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE goal_id=$GID AND user_id=$BID AND tier=5")" 1
+ok "big share: bonus is half of tier 4 (350)" "$(( $(db "SELECT coins FROM users WHERE id=$BID") - CB ))" 350
+get $B 'community.php?t=jar' >/dev/null; get $B 'gnome.php' >/dev/null
+ok "big share: bonus paid once" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE goal_id=$GID AND user_id=$BID")" 5
 # history
 dbx "UPDATE hollow_goals SET ends_at=datetime('now','-1 hour'), starts_at=datetime('now','-8 days'), period_key='old-week' WHERE id=$GID"; get $A 'community.php?t=jar' >/dev/null
 has "past jars listed" $H 'Past jars'; has "this week's new jar made" $H 'This week’s jar'
