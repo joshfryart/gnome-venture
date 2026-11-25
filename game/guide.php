@@ -87,7 +87,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
 <?= $fold('🗺️', 'Travel, rest stops and fights') ?>
   <ul>
     <li>Open the <a href="<?= e(url('world.php')) ?>">World</a> and follow the roads to the next village. Walking costs energy.</li>
-    <li>Rest stops along the road have things to do and folk to meet. Each one has a few visits a day.</li>
+    <li>Rest stops along the road have things to do and folk to meet. Stay as long as you like.</li>
     <li>Wander off the path to find things and creatures. Some creatures fight back. Check the odds first and bring a snack.</li>
     <li>Shopkeepers keep their own hours<?php if (gclock_on()): ?> (most close at 22:00)<?php endif; ?>. Chat and give gifts to make friends.</li>
   </ul>

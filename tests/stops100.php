@@ -52,12 +52,12 @@ ok('a new meter starts at 0', stop_meter_get($lu, $lid, 'repairs') === 0);
 ok('a meter moves', $v === 25 && stop_meter_get($lu, $lid, 'repairs') === 25);
 stop_prog_set($lu, $lid, 'meter:repairs', 50, ['d' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -3 days'))]);
 ok('a meter drains with the days (3 days, ' . STOP_METER_DECAY . ' a day)', stop_meter_get($lu, $lid, 'repairs') === 50 - 3 * STOP_METER_DECAY, (string)stop_meter_get($lu, $lid, 'repairs'));
-ok('no perk yet, so no extra slot', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
+ok('no perk yet, so no bonus', stop_perk_bonus($lu, $lid) === 0);
 [$v, $filled] = stop_meter_add($lu, $lid, 'cheer', 120);
 ok('a full meter fills, restarts, and gives a perk', $filled === 'cheer' && $v === STOP_METER_AFTER && isset(stop_perks($lu, $lid)['cheer']));
-ok('the old per-stop perk no longer adds a slot (retired in 2.6.33: perks are the player\'s now, player_perks.php)', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
+ok('the old per-stop perk no longer adds a slot (retired in 2.6.33: perks are the player\'s now, player_perks.php)', stop_perk_bonus($lu, $lid) === 0);
 stop_meter_add($lu, $lid, 'larder', 120);
-ok('two full meters give two perks (still recorded), and still no extra slot', count(stop_perks($lu, $lid)) === 2 && stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
+ok('two full meters give two perks (still recorded), and still no extra slot', count(stop_perks($lu, $lid)) === 2 && stop_perk_bonus($lu, $lid) === 0);
 q('DELETE FROM stop_prog WHERE user_id = ? AND k = ?', [$lu, 'perk:larder']);
 ok('the perk is only at that stop', stop_perk_bonus($lu, $lid + 99999) === 0);
 ok('the perk ends after its days', (function () use ($lu, $lid) { stop_prog_set($lu, $lid, 'perk:cheer', 1, ['until' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -1 days'))]); return stop_perk_bonus($lu, $lid) === 0; })());
@@ -208,53 +208,40 @@ foreach (array_keys(stop_types()) as $type) {
     ok("$type: offers 5+ things, no duplicates", count($o) >= 5 && count($o) === count(array_unique($o)), count($o) . ' ' . implode(',', $o));
 }
 
-echo "== three slots per visit\n";
-cfg(['stop_slots' => 3, 'stop_daily_cap' => 6, 'stop_daily_total' => 15]);
+echo "== 2.8.60: no limits (no slots per visit, no daily cap, no tired halving)\n";
+// Old installs may still have the retired settings stored at tight values: they must change nothing.
+cfg(['stop_slots' => 1, 'stop_daily_cap' => 2, 'stop_daily_total' => 1, 'stop_rest_daily' => 0]);
 // The daily offer is a slug-hash pick, so some markets draw several deals (snack/seedswap/gossip); use the first market that draws 3+ plain things.
 $freeOf = fn(array $l) => array_values(array_filter(offered($l), fn($s) => in_array(stop_acts()[$s]['kind'], ['check', 'pick', 'power', 'lore'], true)));
 $loc = stopOfType('market');
 for ($mk = 0; count($freeOf($loc)) < 3; $mk++) { try { $loc = stopOfType('market', $mk); } catch (Throwable $e) { $loc = stopOfType('market'); break; } }
 $u = at($loc);
-q('DELETE FROM stop_log'); 
+q('DELETE FROM stop_log');
 $offer = offered($loc);
 $free = $freeOf($loc);
 ok('the market has 3+ plain things to do', count($free) >= 3, implode(',', $offer));
-$easy = ['chores' => 0];
-[$ok1] = doit($offer[0], ['opt' => 0, 'pick' => 1, 'power' => 1, 'item_id' => 0]); 
-$done1 = (int)q_val('SELECT COUNT(*) FROM stop_log');
-[$ok2] = doit($offer[1], ['opt' => 0, 'pick' => 1, 'power' => 1]);
-[$ok3] = doit($offer[2], ['opt' => 0, 'pick' => 1, 'power' => 1]);
-$n = (int)q_val('SELECT COUNT(*) FROM stop_log');
-ok('slots used (some may be refused for lack of input)', $n >= 2, "n=$n ok=" . json_encode([$ok1, $ok2, $ok3]));
-// fill remaining with whatever works, then a fourth is refused
-q('DELETE FROM stop_log'); q('UPDATE users SET arrived_at = ? WHERE username = ?', ['2030-01-01 00:00:01', 'sprout']);
-foreach ([0, 1, 2] as $i) q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], '2030-01-01 00:00:01', today(), 'fake' . $i, 'check', '', now()]);
-[$okx, $msgx] = doit($offer[0], $IN);
-ok('a 4th thing on the same visit is refused', !$okx && str_contains($msgx, 'all you can'), $msgx);
-q('DELETE FROM stop_log'); $u = at($loc);
-$slug = $free[0];
-[$o1] = doit($slug, $IN);
-[$o2, $m2] = doit($slug, $IN);
-ok('the same thing twice on one visit is refused', $o1 && !$o2, $m2);
-ok('energy was spent on a costly thing', true);
-
-echo "== slots setting\n";
-cfg(['stop_slots' => 1]); q('DELETE FROM stop_log'); $u = at($loc);
-doit($free[0], $IN);
-[$o, $m] = doit($free[1], $IN);
-ok('stop_slots=1 allows just one', !$o && str_contains($m, 'all you can'), $m);
-cfg(['stop_slots' => 3]);
-
-echo "== daily caps\n";
-cfg(['stop_daily_cap' => 4]); q('DELETE FROM stop_log');
-for ($i = 1; $i <= 4; $i++) { at($loc); q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], 'old' . $i, today(), 'x', 'check', '', now()]); }
-at($loc);
+foreach ([0, 1, 2] as $i) q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], (string)$u['arrived_at'], today(), 'fake' . $i, 'check', '', now()]);
+[$okx, $msgx] = doit($free[0], $IN);
+ok('a 4th thing on the same visit is fine', $okx, $msgx);
+$slug = $free[1];
+$refused = [];
+$e0 = (int)me()['energy'];
+for ($i = 1; $i <= 12; $i++) { [$o, $m] = doit($slug, $IN); if (!$o) $refused[] = $i . ': ' . $m; }
+ok('the same thing 12 times in a row on one visit, never refused (' . $slug . ')', $refused === [], implode(' | ', $refused));
+ok('...each one is logged (no unique clash on the same visit)', (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND act = ?', [$u['id'], $loc['id'], $slug]) === 12);
+$cost = (int)stop_acts()[$slug]['energy'];
+ok('...and energy is still spent each time (' . $cost . ' a go)', $e0 - (int)me()['energy'] >= 12 * $cost, ($e0 - (int)me()['energy']) . ' spent');
+q('DELETE FROM stop_log');
+for ($i = 1; $i <= 30; $i++) q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], 'old' . $i, today(), 'x', 'check', '', now()]);
+$u = at($loc);
 [$o, $m] = doit($free[0], $IN);
-ok('per-stop daily cap stops a 5th', !$o && str_contains($m, 'plenty of you today'), $m);
-cfg(['stop_daily_cap' => 6, 'stop_daily_total' => 3]);
-[$o, $m] = doit($free[0], $IN);
-ok('v1.4.9: all-stops daily total is soft (no stop, rewards halved)', $o && !empty($GLOBALS['gv_stop_tired']), $m);
-cfg(['stop_daily_total' => 15, 'stop_daily_cap' => 6]); q('DELETE FROM stop_log');
+ok('30 things at this stop today already: still fine (no per-stop daily cap)', $o, $m);
+ok('no tired flag any more', empty($GLOBALS['gv_stop_tired']));
+cfg(['stop_reward_percent' => 100]);
+$c0 = (int)me()['coins'];
+stop_rewards(me(), $loc, 'c=10:0', 1.0);
+ok('rewards are never halved after a busy day (10 of 10 Petals)', (int)me()['coins'] - $c0 === 10, (string)((int)me()['coins'] - $c0));
+q('DELETE FROM stop_log');
 
 // The pool shows at most 3 conditional ("special") activities, picked by a hash of today's real date, so whether night fishing or the pie
 // contest makes the cut depends on the day the suite runs. For those checks, park the OTHER conditional untiered activities (active=0)
@@ -295,16 +282,16 @@ $t = stop_types()['inn']; $amb = explode(';;', $t['ambience']); ok('four ambienc
 cfg(['stop_daypart_force' => '']);
 ok('stop_now follows the real clock when not forced', stop_now($inn)['dp'] === hollow_daypart());
 
-echo "== rest cap\n";
+echo "== rests: as often as you like (2.8.60; stop_rest_daily stored at 2 changes nothing)\n";
 cfg(['season_force' => 'spring', 'weather_force' => 'sun', 'stop_daypart_force' => 'day', 'stop_rest_daily' => 2]);
 $sp = stopOfType('spring'); q('DELETE FROM stop_log'); q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']);
 $u = at($sp); q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']);
 $restSlug = in_array('soak', offered($sp), true) ? 'soak' : 'quiet_hour';
 [$o, $m] = doit($restSlug); ok('a rest restores energy', $o && (int)me()['energy'] > 3, $m);
 ok('a bath costs Petals', $restSlug !== 'soak' || (int)me()['coins'] < 5000);
-$u = at($sp); q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']); [$o2] = doit($restSlug);
-$u = at($sp); q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']); [$o3, $m3] = doit($restSlug);
-ok('the third rest of the day is refused', $o && $o2 && !$o3 && str_contains($m3, 'rested plenty'), $m3);
+$restOk = [];
+for ($i = 2; $i <= 6; $i++) { q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']); [$oi, $mi] = doit($restSlug); $restOk[] = $oi ? 'ok' : $mi; }
+ok('a second to sixth rest the same day (same visit) all work', $o && count(array_filter($restOk, fn($x) => $x === 'ok')) === 5, implode(' | ', $restOk));
 q('DELETE FROM stop_log');
 at($sp); [$o4, $m4] = doit($restSlug);   // full energy
 ok('resting when full of energy is refused', !$o4 && str_contains($m4, 'full of energy'), $m4);
@@ -491,9 +478,8 @@ ok('upgrades are for everyone (the pool does not depend on who is looking)', in_
 [$o, $m] = doit('_perk'); ok('...once a day', !$o && str_contains($m, 'already'), $m);
 $tr = q_one('SELECT tier, pool FROM stop_adoptions WHERE location_id = ?', [$stop['id']]);
 ok('pool reset after a tier', $tr['pool'] === '{}');
-// slots: tier 4 gives +1
+// tier 4 (2.8.60: no slots any more, so it only unlocks the hall)
 q('UPDATE stop_adoptions SET tier = 4 WHERE location_id = ?', [$stop['id']]);
-ok('tier 4 gives one more slot', stop_slots($stop) === 4);
 ok('tier-4 hall and tier-3 special offered', in_array($act4, offered($stop), true) && in_array($act3, offered($stop), true));
 q('UPDATE stop_adoptions SET tier = 1 WHERE location_id = ?', [$stop['id']]);
 // release keeps the tier; next adopter carries on

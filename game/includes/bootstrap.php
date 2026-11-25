@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.8.59');
+define('APP_VERSION', '2.8.60');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -681,6 +681,9 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             if (setting('almanac_mending_2758') !== '' || !isset(ALMANAC_HOWTO['Exploring & fighting'])) return;
             q("UPDATE encyclopedia_entries SET body = ? WHERE chapter = 'General' AND title = 'Exploring & fighting'", [ALMANAC_HOWTO['Exploring & fighting'][2]]);
             set_setting('almanac_mending_2758', '1');
+        });
+        boot_step('stop_tier_text_2860', function () {   // 2.8.60: no limits at rest stops, so the tier-4 hall no longer says "once a day" or "one more thing on every visit" (text only; REPLACE is idempotent)
+            foreach (['stop_tiers', 'stop_tier_themes'] as $tbl) q("UPDATE $tbl SET gives = REPLACE(gives, ?, ?) WHERE gives LIKE ?", [' (+6 energy, once a day) and one more thing to do on every visit.', ' (+6 energy).', '%one more thing to do on every visit%']);
         });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';

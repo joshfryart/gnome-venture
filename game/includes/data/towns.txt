@@ -2,7 +2,7 @@
 # Every town also gets four shared places made in includes/town.php: the Green, a teahouse, the notice board and the library.
 #
 # S | region | slug | icon | name | hours (e.g. 18-23, blank = always) | months (e.g. 12,1,2, blank = all year) | description
-# A | spot slug | action slug | label | kind | effect | cost coins | cost item | energy | chance % | stat | uses a day | success text | fail text
+# A | spot slug | action slug | label | kind | effect | cost coins | cost item | energy | chance % | stat | uses a day (2.8.60: unused, no daily limits) | success text | fail text
 #     kind: effect · read (local lore) · quiz (a question from the Almanac) · link (effect = a page, e.g. jobs.php)
 #     cost item: an item slug, "anyseed" or "anyfood" (blank = none) · stat: adds 5% chance per modifier point (luck adds its own %)
 #     effect: the same as random events (coins:10-30 · item:slug:qty · rand:forage · energy:N · xp:N · tbuff:stat:amount:minutes · tip …)

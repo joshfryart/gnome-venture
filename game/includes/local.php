@@ -35,13 +35,8 @@ function local_card(array $u, array $loc): array
 {
     $types = stop_types();
     $t = $types[stop_type_of($loc)] ?? null;
-    [$done, $here, $all] = stop_state((int)$u['id'], (int)$loc['id'], stop_visit_key($u));
-    $slots = stop_slots($loc, (int)$u['id']);
-    $left = max(0, $slots - count($done));
-    $capped = $here >= max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus((int)$u['id'], (int)$loc['id']);   // v1.4.9: only the per-stop limit stops you
-    if ($capped) return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': that’s enough here for today. Walk on and see what’s happening elsewhere!', 'See the stop →'];
-    if ($left === 0) return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': you’ve done all ' . $slots . ' things this visit. Walk on and come back for more!', 'See the stop →'];
-    return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': ' . $left . ' of ' . $slots . ' things left this visit, and ' . count(stop_folk_of($loc)) . ' villagers to meet.', 'Stay a while →'];
+    // 2.8.60: no per-visit or daily limits at rest stops any more, so the card just invites you in
+    return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': things to do, as often as you like, and ' . count(stop_folk_of($loc)) . ' villagers to meet.', 'Stay a while →'];
 }
 
 // ---------------------------------------------------------------- the page
@@ -417,14 +412,7 @@ function local_panel(array $u, array $loc): string
     $wi = hollow_weather_info($now['we'], $now['dp']);
     $amb = array_map('trim', explode(';;', (string)$t['ambience']));
     $ambLine = $amb[array_search($now['dp'], ['dawn', 'day', 'dusk', 'night'], true)] ?? ($amb[0] ?? '');
-    $visit = stop_visit_key($u);
-    [$done, $here, $all, $rests] = stop_state($uid, (int)$loc['id'], $visit);
-    $slots = stop_slots($loc, $uid);
-    $left = max(0, $slots - count($done));
-    $capHere = max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus($uid, (int)$loc['id']);
-    $capAll = max(1, (int)setting('stop_daily_total'));
-    $capped = $here >= $capHere;   // v1.4.9: the daily total is a soft limit (rewards halve), never a stop
-    $tired = $all >= $capAll;
+    // 2.8.60: no slots per visit, no daily cap, no "tired" halving: every thing on offer can be done as often as you like
     $pool = stop_pool($loc, $now, $uid);
     $adoption = stop_adoption((int)$loc['id']);
     $tier = $adoption ? (int)$adoption['tier'] : 0;
@@ -438,14 +426,6 @@ function local_panel(array $u, array $loc): string
         foreach ($stampMsgs as $m) $h .= '<p>' . e($m) . '</p>';
         $h .= '<p class="help"><a href="' . e(url('town.php?view=passport')) . '">Open your passport →</a></p></div></div>';
     }
-    // slots
-    $pips = '';
-    for ($i = 0; $i < $slots; $i++) $pips .= '<span class="st-pip' . ($i < count($done) ? ' on' : '') . '"></span>';
-    if ($capped) $banner = '<b>💤 That’s enough here for today</b><span class="muted">You’ve had your ' . $capHere . ' turns at this stop today. Walk on, other stops are still open!</span>';
-    elseif ($left === 0) $banner = '<b>✔ You’ve done all ' . $slots . ' things this visit</b><span class="muted">Walk on and come back later for more (up to ' . $capHere . ' a day here).</span>';
-    else $banner = '<b>Stay a while: ' . $left . ' of ' . $slots . ' things left this visit</b><span class="muted">Do up to ' . $slots . ' different things before you walk on. ' . $here . '/' . $capHere . ' today at this stop.</span>';
-    $h .= '<div class="st-slots"><div class="st-pips" aria-hidden="true">' . $pips . '</div><div>' . $banner . '</div></div>';
-    if ($tired) $h .= '<p class="help st-tired">😴 The villagers are tired after your busy day: Petals and XP from rest stops are halved until tomorrow (items as usual).</p>';   // v1.4.9
     // v1.3.0: tabs. Do (things to do), Folk (villagers and errands), Stop (plaque, passport, adopting)
     $tab = (string)($_GET['t'] ?? 'do');
     if (!in_array($tab, ['do', 'folk', 'stop'], true)) $tab = 'do';
@@ -460,7 +440,7 @@ function local_panel(array $u, array $loc): string
     $tabs = ['do' => '🧭 Do', 'folk' => '👥 Villagers', 'stop' => '🏡 Stop'];
     $h .= '<nav class="tabs st-tabs" aria-label="Rest stop sections">';
     foreach ($tabs as $k => $lab) {
-        $h .= '<a class="' . ($tab === $k ? 'on' : '') . '" href="' . e(url('town.php' . ($k === 'do' ? '' : '?t=' . $k))) . '">' . $lab . ($k === 'folk' && $ready ? ' <span class="st-tabbadge" title="Ready to hand in" aria-label="' . $ready . ' ready to hand in">' . $ready . '</span>' : '') . ($k === 'do' && $left > 0 && !$capped ? ' <span class="st-tabbadge soft">' . $left . '</span>' : '') . '</a>';
+        $h .= '<a class="' . ($tab === $k ? 'on' : '') . '" href="' . e(url('town.php' . ($k === 'do' ? '' : '?t=' . $k))) . '">' . $lab . ($k === 'folk' && $ready ? ' <span class="st-tabbadge" title="Ready to hand in" aria-label="' . $ready . ' ready to hand in">' . $ready . '</span>' : '') . '</a>';
     }
     $h .= '</nav>';
 
@@ -504,14 +484,14 @@ function local_panel(array $u, array $loc): string
     // activities
     // v2.0.67: felt scene cards (mockup2); each opens a sheet with the blurb and the same forms as before
     $h .= stop_meters_html($uid, (int)$loc['id']);   // v2.5.72
-    $head = '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">' . ($capped ? 'enough here today' : $left . ' of ' . $slots . ' left this visit') . '</span></h3><div class="gcards docards">';
-    $locked = $capped || $left === 0;
-    $why = $capped ? 'Enough here today' : ($left === 0 ? 'Walk on for more' : '');
+    $head = '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">as often as you like</span></h3><div class="gcards docards">';
+    $locked = false;   // 2.8.60: nothing here is ever used up for the day or the visit
+    $why = '';
     $folk0 = $folk[0] ?? null;
     $shelf = '';
     $acts = '';   // v2.0.80: the stall goes above the activity cards, so the cards are collected first
     foreach ($pool['offer'] as $a) {
-        $isDone = in_array($a['slug'], $done, true);
+        $isDone = false;
         if (in_array((string)$a['kind'], ['buy', 'snack'], true)) { $shelf .= local_buy_tile($u, $loc, $a, $isDone, $locked); continue; }   // v2.0.17: stalls are picture tiles
         $acts .= local_act_card($u, $loc, $a, $isDone, $why, $folk0);
     }

@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * The slim place card for a town spot (Green, Café, Notice Board, Library, special places), shown inside a Here popover.
  * Loaded lazily by assets/hubscene.js (GET town.php?spot=N&frag=1); its forms post in place to town.php (JSON {ok, msg, html}), so nothing leaves the picture.
- * Layout: one short line about the place, the things to do as compact rows (cost chip + "left today"), who is here as little faces (tap = their popover),
+ * Layout: one short line about the place, the things to do as compact rows (cost chip, chance; 2.8.60: no daily limits), who is here as little faces (tap = their popover),
  * the board's favours / the café's gossip, and "Open full page" last.
  */
 
@@ -48,7 +48,7 @@ function spot_card_html(array $u, array $spot, bool $hub, string $msg = '', bool
     }
     if ($spot['kind'] === 'green' && ($fest = town_festival($town))) {
         $h .= '<form method="post" class="tact"><input type="hidden" name="do" value="festival"><input type="hidden" name="spot" value="' . $sid . '">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '') . csrf_field()
-            . '<button class="btn act gold">' . $fest[1] . ' Visit the festival stall</button><small class="muted">a free treat, once today</small></form>';
+            . '<button class="btn act gold">' . $fest[1] . ' Visit the festival stall</button><small class="muted">a free treat</small></form>';
     }
     $here = npcs_at_spot($spot);
     if ($here) {

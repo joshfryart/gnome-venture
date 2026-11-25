@@ -73,24 +73,15 @@ function upcoming_festivals(int $n = 3): array
     return array_slice($out, 0, $n);
 }
 
-/** The festival stall's free treat (once a day, in a town having its festival). */
+/** The festival stall's free treat (in a town having its festival). 2.8.60: as often as you like (it was once a day). */
 function festival_treat(array $u, string $town): array
 {
     $f = town_festival($town);
     if (!$f) return [false, 'There’s no festival here today.'];
     if (!can_reach($u, $town)) return [false, 'You need to be in ' . $town . '.'];
     $uid = (int)$u['id'];
-    // A town_uses slot of its own. v0.7.61: a big positive number (it was negative, which MySQL's unsigned
-    // column refused, so everyone was told they'd already had their treat).
-    $key = 2000000000 + (int)array_search($town, array_keys(TOWN_FESTIVALS), true);
-    if (q_val('SELECT 1 FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $key, town_use_day()])) {
-        return [false, 'You’ve had your festival treat today. Enjoy the rest of the party!'];
-    }
-    try {
-        db_insert('town_uses', ['user_id' => $uid, 'action_id' => $key, 'day' => town_use_day(), 'uses' => 1]);
-    } catch (PDOException $e) {
-        return [false, 'You’ve had your festival treat today. Enjoy the rest of the party!'];
-    }
+    // Still noted in town_uses (its own big positive key, v0.7.61), only as a record: it no longer limits anything.
+    town_note_use($uid, 2000000000 + (int)array_search($town, array_keys(TOWN_FESTIVALS), true));
     require_once __DIR__ . '/events.php';
     $r = region_by_name($town);
     $seed = $r ? q_one("SELECT i.id, i.name FROM plant_regions pr JOIN plants p ON p.id = pr.plant_id JOIN items i ON i.id = p.seed_item_id
@@ -122,6 +113,7 @@ function ensure_towns(): void
         $id = q_val('SELECT id FROM town_spots WHERE slug = ?', [$row['slug']]);
         $spotIds[$row['slug']] = $id ? (int)$id : db_insert('town_spots', $row + ['hours' => '', 'months' => '', 'active' => 1]);
     };
+    // 2.8.60: 'daily' below (and the towns.txt "uses a day" column) is kept as data only; nothing limits a town action by it any more.
     $addAction = function (string $spot, array $row) use (&$spotIds): void {
         if (empty($spotIds[$spot]) || q_val('SELECT 1 FROM town_actions WHERE slug = ?', [$row['slug']])) return;
         if (isset($row['effect'])) $row['effect'] = energy_scale_effect((string)$row['effect']);   // data is written in the old scale
@@ -240,13 +232,13 @@ function town_day(): string
     return hollow_date('Y-m-d');
 }
 
-/** 2.6.36: the day a gnome's daily uses (actions, festival treats) count by: their own game day (the real Hollow day when the game clock is off). */
+/** 2.6.36: the day a gnome's town uses (actions, festival treats; 2.8.60: a record only) count by: their own game day (the real Hollow day when the game clock is off). */
 function town_use_day(): string
 {
     return gclock_my_date();
 }
 
-/** Uses of each action today: [action_id => uses]. */
+/** Uses of each action today: [action_id => uses]. 2.8.60: a record only (no daily limits). */
 function town_uses_today(int $uid): array
 {
     $out = [];
@@ -291,22 +283,19 @@ function town_chance(array $u, array $a): int
     return max(1, min(100, $c));
 }
 
-/** Claim one of today's uses. False if they're all used up. */
-function town_claim_use(int $uid, array $a): bool
+/**
+ * Note one use of a town action today (2.8.60: a record only, never a limit; town_actions.daily is no longer read).
+ * The rows stay for what reads them (First Week's "done something in town", admin tidy-up).
+ */
+function town_note_use(int $uid, int $actionId): void
 {
-    if ((int)$a['daily'] <= 0) return true;   // as often as you like
     $day = town_use_day();
-    $row = q_one('SELECT id FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $a['id'], $day]);
-    if (!$row) {
-        try {
-            db_insert('town_uses', ['user_id' => $uid, 'action_id' => $a['id'], 'day' => $day, 'uses' => 1]);
-            return true;
-        } catch (PDOException $e) {
-            $row = q_one('SELECT id FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $a['id'], $day]);
-            if (!$row) return false;
-        }
+    if (q('UPDATE town_uses SET uses = uses + 1 WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $actionId, $day])->rowCount() > 0) return;
+    try {
+        db_insert('town_uses', ['user_id' => $uid, 'action_id' => $actionId, 'day' => $day, 'uses' => 1]);
+    } catch (PDOException $e) {
+        q('UPDATE town_uses SET uses = uses + 1 WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $actionId, $day]);
     }
-    return q('UPDATE town_uses SET uses = uses + 1 WHERE id = ? AND uses < ?', [$row['id'], (int)$a['daily']])->rowCount() === 1;
 }
 
 /** Do something in town. Results are shown as a prize box; returns [ok, error message]. */
@@ -335,10 +324,7 @@ function town_act(array $u, int $actionId, bool $toGo = false, int $pickId = 0):
     if ($jc = journey_lock($uid, 'spot', (string)$a['spot_slug'])) return [false, '🚧 ' . $a['spot_name'] . ' is closed for repairs. Help rebuild it in Wren’s Journey (' . $jc['region'] . ': ' . $jc['title'] . ').'];
     if (q_val("SELECT 1 FROM expeditions WHERE user_id = ? AND status = 'active'", [$uid])) return [false, 'Finish your walk first.'];
     db()->beginTransaction();
-    if (!town_claim_use($uid, $a)) {
-        db()->rollBack();
-        return [false, 'You’ve done that ' . ((int)$a['daily'] === 1 ? 'once' : (int)$a['daily'] . ' times') . ' today already. Come back tomorrow!'];
-    }
+    town_note_use($uid, (int)$a['id']);   // 2.8.60: no daily limit any more (do it as often as you like); the use is only noted
     $e = (int)$a['energy'];
     if ($e > 0 && q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$e, $uid, $e])->rowCount() !== 1) {
         db()->rollBack();

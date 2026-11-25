@@ -197,7 +197,7 @@ function action_buttons(array $s, array $u, array $uses, string $q): string
             $h .= '<a class="btn act alt" href="' . e(url((string)$a['link'])) . '">' . e($a['label']) . '</a>';
             continue;
         }
-        $left = (int)$a['daily'] > 0 ? (int)$a['daily'] - ($uses[(int)$a['id']] ?? 0) : null;
+        // 2.8.60: no daily limits: a town action is never "done for today" (only a closed place greys its buttons)
         $cost = town_cost_label($a);
         $chance = town_chance($u, $a);
         // v0.7.61: "any seed" / "any food" costs let you choose which one, in a pop-up of your satchel
@@ -206,10 +206,9 @@ function action_buttons(array $s, array $u, array $uses, string $q): string
             . '<input type="hidden" name="action_id" value="' . (int)$a['id'] . '"><input type="hidden" name="spot" value="' . (int)$s['id'] . '">'
             . ($pick ? '<input type="hidden" name="item_id" value="0">' : '')
             . ($q !== '' ? '<input type="hidden" name="hub" value="1">' : '')
-            . '<button class="btn act"' . ($closed || $left === 0 ? ' disabled' : '') . '>' . (str_ends_with((string)$a['slug'], '-drink') ? '☕ ' : '') . e($a['label']) . ($cost !== '' ? ' <span class="cost">' . e($cost) . '</span>' : '') . '</button>'
-            . (str_ends_with((string)$a['slug'], '-drink') ? ' <button class="btn act alt" name="togo" value="1"' . ($closed || $left === 0 ? ' disabled' : '') . '>🥤 Take it to go</button>' : '')
-            . '<small class="muted">' . ($left === null ? '' : ($left > 0 ? $left . ' left today' : 'done for today'))
-            . ($chance < 100 ? ' · ' . $chance . '% chance' : '') . '</small></form>';
+            . '<button class="btn act"' . ($closed ? ' disabled' : '') . '>' . (str_ends_with((string)$a['slug'], '-drink') ? '☕ ' : '') . e($a['label']) . ($cost !== '' ? ' <span class="cost">' . e($cost) . '</span>' : '') . '</button>'
+            . (str_ends_with((string)$a['slug'], '-drink') ? ' <button class="btn act alt" name="togo" value="1"' . ($closed ? ' disabled' : '') . '>🥤 Take it to go</button>' : '')
+            . ($chance < 100 ? '<small class="muted">' . $chance . '% chance</small>' : '') . '</form>';
     }
     return $h . '</div>';
 }
@@ -524,7 +523,7 @@ function felt_art_img(string $path): string
 
 /**
  * v2.0.67: one Square place card (mockup3): a felt card that links to the place (closed places stay links: a shut place can still be read).
- * States: idle; all done today (stone felt, tick); closed by the clock (padlock, the hours in words); closed for repairs (barrier);
+ * States: idle; closed by the clock (padlock, the hours in words); closed for repairs (barrier);
  * found only here (kind special: gold stitch, gold sign, star).
  */
 function town_place_card(array $s, int $uid, array $uses, string $q): string
@@ -532,14 +531,13 @@ function town_place_card(array $s, int $uid, array $uses, string $q): string
     require_once __DIR__ . '/journey.php';
     $closed = spot_closed($s);
     $acts = array_filter(town_actions((int)$s['id']), fn($a) => $a['kind'] !== 'link');
-    $todo = 0;
-    foreach ($acts as $a) if ((int)$a['daily'] <= 0 || ($uses[(int)$a['id']] ?? 0) < (int)$a['daily']) $todo++;
+    $todo = count($acts);   // 2.8.60: no daily limits, so every thing to do here is always there to do (the chip is how many things the place has)
     $jl = journey_lock($uid, 'spot', (string)$s['slug']);
     $gold = ($s['kind'] ?? '') === 'special';
-    $state = $jl ? ' is-repair' : ($closed ? ' is-closed' : ($acts && !$todo ? ' is-done' : ''));
+    $state = $jl ? ' is-repair' : ($closed ? ' is-closed' : '');
     $chip = $jl ? '<span class="pchip pchip--repair">🚧 closed for repairs</span>'
         : ($closed ? '<span class="pchip pchip--closed">🔒 ' . e($closed) . '</span>'
-        : ($acts ? ($todo ? '<span class="pchip pchip--todo">' . $todo . ' thing' . ($todo === 1 ? '' : 's') . ' to do</span>' : '<span class="pchip pchip--done">✔️ all done today</span>')
+        : ($acts ? '<span class="pchip pchip--todo">' . $todo . ' thing' . ($todo === 1 ? '' : 's') . ' to do</span>'
         : '<span class="pchip pchip--look">Have a look</span>'));
     $folk = '';
     foreach (npcs_at_spot($s) as $n) $folk .= '<span aria-hidden="true" title="' . e($n['name']) . '">' . npc_icon($n['species']) . '</span><span class="vh">' . e($n['name']) . ' is here.</span>';

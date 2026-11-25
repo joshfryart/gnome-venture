@@ -915,6 +915,8 @@ function post_update_news(string $from): void
         . "[*][b]Prefer the list?[/b] It is still there: tap [b]List version[/b] on the Yard.[/list]"],
     '2.8.55' => ['🏮 Update 2.8.55: a new look for the dock',
         "The dock got a new look: carved stone, and a lantern that follows you. It lights as the day goes: unlit by day, glowing at golden hour, and brightest at night, when the fireflies come out."],
+    '2.8.60' => ['🏘️ Update 2.8.60: no more daily limits in towns and rest stops',
+        "No more daily limits on town and rest stop actions. Do things as often as you like."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

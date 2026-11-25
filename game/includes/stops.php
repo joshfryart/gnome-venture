@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Every road village is a STOP TYPE (market hamlet, mill, inn, shrine, jetty, herb croft, workshop, orchard, ferry, watchtower,
  * hot spring, campfire). The type is worked out from the village's landscape (stable, never changes) unless the admin sets
  * locations.stop_type. Each type has a pool of ACTIVITIES (stop_acts: ~50 mini-choices with stat checks, trades, rests, tales and
- * tiny games). A visit has `stop_slots` slots (3): do up to three different things before you walk on.
+ * tiny games). 2.8.60: do any of them as often as you like (the old per-visit slots, daily caps and "tired" halving are gone).
  * Time matters: an activity can need a part of the day, a season or the weather (the Hollow clock, hollow_clock.php).
  * Everything is data (includes/data/stops.txt, stop_acts.txt, stop_tiers.txt, stop_sets.txt, stop_chat.txt), copied into tables on
  * upgrade_100_stops() and editable in Admin. Villagers, errands and friendship: stop_folk.php. Stamps: stop_pass.php. Adopt: stop_adopt.php.
@@ -511,12 +511,6 @@ function stop_act_tags(array $a): array
 
 // ---------------------------------------------------------------- what is on offer
 
-function stop_slots(array $loc, int $uid = 0): int
-{
-    require_once __DIR__ . '/stop_adopt.php';
-    return max(1, min(9, (int)setting('stop_slots') + (stop_tier((int)$loc['id']) >= 4 ? 1 : 0) + stop_perk_bonus($uid, (int)$loc['id'])));   // v2.5.72: a full meter gives one more
-}
-
 /**
  * v2.0.78: take $n from an ordered list, but prefer a kind not yet taken (or in $kinds): the first of each new kind in order, then fill
  * up from what is left in order. Same ordering rules as before, so nothing is skipped for good: it only avoids two of a kind in a row of picks.
@@ -676,7 +670,6 @@ function stop_rewards(array $u, array $loc, string $spec, float $f = 1.0, string
     $uid = (int)$u['id'];
     $lvl = stop_level($loc);
     $pct = max(0, (int)setting('stop_reward_percent')) / 100;
-    if (!empty($GLOBALS['gv_stop_tired'])) $pct /= 2;   // v1.4.9: tired villagers after a long day of rest stops
     $lines = [];
     foreach (array_filter(array_map('trim', explode(',', $spec))) as $tok) {
         $chance = 100;
@@ -824,13 +817,9 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     if (!isset($offered[$slug])) return [false, 'That isn’t on offer here right now.'];
     if ($why = gclock_closed_reason($u, $loc, gclock_time_cost('stop'))) return [false, $why];
     $visit = stop_visit_key($u);
-    [$done, $here, $all, $rests] = stop_state($uid, (int)$loc['id'], $visit);
-    if (in_array($slug, $done, true)) return [false, 'You’ve done that already on this visit.'];
-    if (count($done) >= stop_slots($loc, $uid)) return [false, 'You’ve done all you can on this visit. Walk on and come back for another go!'];
-    if ($here >= max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus($uid, (int)$loc['id'])) return [false, 'The villagers have seen plenty of you today. Come back tomorrow!'];
-    // v1.4.9: no daily total any more; after stop_daily_total things in a day, Petals and XP are halved (stop_rewards)
+    // 2.8.60: no limits on how often: not once per visit, not stop_slots things per visit, no daily cap per stop (stop_daily_cap),
+    // no rest cap (stop_rest_daily) and no "tired" halving after stop_daily_total. Energy, coin and item costs still apply.
     $kind = (string)$a['kind'];
-    if ($kind === 'rest' && $rests >= max(0, (int)setting('stop_rest_daily'))) return [false, 'You’ve rested plenty today. A rest stop can only do so much for tired feet!'];
     $folk = null;
     require_once __DIR__ . '/stop_folk.php';
     $seed = $uid . '|' . $loc['id'] . '|' . gclock_my_date() . '|' . $slug;
@@ -847,15 +836,14 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     $msg = '';
     db()->beginTransaction();
     try {
-        q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v1.0.0: one of this gnome's rest-stop actions at a time (their lock), so the limits below can't be raced
-        // Claim the slot first, so a double click can't do it twice
-        db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$loc['id'], 'visit_key' => $visit, 'day' => $day, 'act' => $slug, 'kind' => $kind, 'note' => '', 'at' => now()]);
-        [$d2, $h2, $a2, $r2] = stop_state($uid, (int)$loc['id'], $visit);   // v1.0.0: the limits again, counted with this action in (the checks above ran before the claim)
-        if (count($d2) > stop_slots($loc, $uid) || $h2 > max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus($uid, (int)$loc['id']) || ($kind === 'rest' && $r2 > max(0, (int)setting('stop_rest_daily')))) {
-            throw new UserError('You’ve done all you can here for now. Come back later!');
-        }
+        q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v1.0.0: one of this gnome's rest-stop actions at a time (their lock)
+        // The log row stays (the stop's visit count, its recent-visitors board); 2.8.60: it no longer limits anything.
+        // stop_log keeps its UNIQUE (user, stop, visit_key, act), so a repeat in the same visit is logged as "<visit>#2", "#3", …
+        $again = (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND act = ? AND (visit_key = ? OR visit_key LIKE ?)',
+            [$uid, (int)$loc['id'], $slug, $visit, $visit . '#%']);
+        db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$loc['id'], 'visit_key' => $again ? substr($visit, 0, 19) . '#' . ($again + 1) : $visit,
+            'day' => $day, 'act' => $slug, 'kind' => $kind, 'note' => '', 'at' => now()]);
         if (!spend_energy($uid, $energy, 'stop')) throw new UserError('You need ' . $energy . ' energy for that.');
-        $GLOBALS['gv_stop_tired'] = $a2 > max(1, (int)setting('stop_daily_total'));   // v1.4.9: past the day's soft limit: half Petals and XP
         $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
         $lines = [];
         $spec = (string)$a['spec'];
@@ -1057,7 +1045,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
         return [false, $e->getMessage()];
     } catch (PDOException $e) {
         if (db()->inTransaction()) db()->rollBack();
-        return [false, 'You’ve done that already on this visit.'];
+        return [false, 'Something got in a muddle there. Try again.'];   // 2.8.60: two clicks at once (the old "done that already on this visit" is gone)
     } catch (Throwable $e) {
         if (db()->inTransaction()) db()->rollBack();   // v1.0.0: never leave the transaction open
         throw $e;

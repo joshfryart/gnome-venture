@@ -373,7 +373,7 @@ function admin_resources(): array
         ],
         'town_actions' => [
             'table' => 'town_actions', 'label' => 'Town things to do', 'title_col' => 'label',
-            'list' => ['id', 'spot_id', 'label', 'kind', 'effect', 'energy', 'cost_coins', 'chance', 'daily', 'active'],
+            'list' => ['id', 'spot_id', 'label', 'kind', 'effect', 'energy', 'cost_coins', 'chance', 'active'],   // 2.8.60: no 'daily' (town actions have no daily limit; the column stays, unread)
             'search' => ['label', 'slug'], 'filters' => ['spot_id', 'kind'], 'order' => 'spot_id, sort_order',
             'fields' => [
                 'spot_id' => ['type' => 'fk', 'table' => 'town_spots', 'show' => 'name', 'label' => 'Place', 'required' => true],
@@ -387,7 +387,6 @@ function admin_resources(): array
                 'energy' => ['type' => 'int', 'min' => 0, 'default' => 0],
                 'chance' => ['type' => 'int', 'min' => 1, 'max' => 100, 'default' => 100, 'help' => '% chance of success'],
                 'stat' => ['type' => 'select', 'options' => ['' => '(none)', 'grit' => 'Grit', 'nimble' => 'Nimble', 'hardiness' => 'Hardiness', 'lore' => 'Lore', 'sense' => 'Sense', 'charm' => 'Charm', 'luck' => 'Luck'], 'help' => 'Adds 5% chance per modifier point (Luck adds its own %)'],
-                'daily' => ['type' => 'int', 'min' => 0, 'default' => 1, 'help' => 'Times a day. 0 = no limit.'],
                 'success_text' => ['type' => 'textarea'],
                 'fail_text' => ['type' => 'textarea'],
                 'sort_order' => ['type' => 'int', 'default' => 0],
@@ -682,7 +681,7 @@ function admin_resources(): array
                 'icon' => ['type' => 'text', 'max' => 12, 'default' => '🪑'],
                 'name' => ['type' => 'text', 'required' => true, 'max' => 60],
                 'needs' => ['type' => 'text', 'max' => 190, 'help' => 'item-slug:qty comma list, plus coins:N, meal:N (home-cooked meals/feasts), fine:N (uncommon or rare finds)'],
-                'gives' => ['type' => 'textarea', 'help' => 'What it gives everybody (shown to players). Activities with this Tier in Stop activities appear; tier 4 also gives one more slot per visit.'],
+                'gives' => ['type' => 'textarea', 'help' => 'What it gives everybody (shown to players). Activities with this Tier in Stop activities appear (2.8.60: no per-visit slots any more).'],
                 'plaque' => ['type' => 'text', 'max' => 190],
             ],
         ],
