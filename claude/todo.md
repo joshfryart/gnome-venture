@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-25 2.8.67 (slim zip `releases/GnomeVenture-2.8.67-web-update.zip`, needs 2.8.66+)
+- DONE: 2.8.66's toast filter missed the emoji in the real text; fixed in `site.js` (every part energy / time cost). Not seen in a browser. If an old pop-up still shows, ask Josh for its exact words.
+
 ## 2026-11-25 2.8.66 (slim zip `releases/GnomeVenture-2.8.66-web-update.zip`, needs 2.8.65+)
 - DONE: portrait world map width (dock.css grid now landscape only); "-1 energy · +10 min (now ..)" toast dropped with the dock (`site.js`). NOT seen in a browser: check portrait world map and a game-clock action on the phone (landscape) and desktop. OPEN: other old-style toasts on landscape / desktop not changed; Josh to say which.
 

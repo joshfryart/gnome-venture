@@ -1706,7 +1706,8 @@ function gvShowToasts(nodes) {
     nodes = Array.prototype.filter.call(nodes, function (n) {
       var t = (n.textContent || '').trim();
       if (/^[\u2212-]\d+\s*(energy|\u26a1)\.?$/i.test(t)) return false;
-      if (/^[\u2212-]\d+\s*(energy|\u26a1)\s*\u00b7\s*\+\d+\s*min\s*\(now\s+\d{1,2}:\d{2}\)\.?$/i.test(t)) return false;   // v2.8.66: "-1 energy · +10 min (now 10:45)": the dock shows the energy and the clock
+      var parts = t.replace(/[^\w\s\u00b7:+().\u2212-]/g, '').split('\u00b7').map(function (x) { return x.trim(); }).filter(Boolean);   // v2.8.66: the game-clock cost line "⚡ −1 energy · 🕐 +10 min (now 10:45)" (emoji or not, with or without the "waits for tomorrow" bit): the dock shows energy and time
+      if (parts.length && parts.every(function (x) { return /^[\u2212-]\d+\s*energy\.?$/i.test(x) || /^\+\d+(\.\d+)?\s*(h|min)(\s+\d+\s*min)?(\s*\(now\s+\d{1,2}:\d{2}\))?\.?$/i.test(x) || /^[\d.]+\s*h of it waits for tomorrow\.?$/i.test(x); })) return false;
       var w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT), x;
       while ((x = w.nextNode())) x.nodeValue = x.nodeValue.replace(/\s*\((?:\u2212|-)\d+ energy\)/g, '');
       return true;
