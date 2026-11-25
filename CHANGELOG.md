@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.49
+- **Tea kettle open for everyone** (`tea_open` set to Everyone once on upgrade; an admin can change it back).
+- **Garden Yard picture flag on** (`gnav_garden` set to 1 once on upgrade; it still needs `gnav_on`, the Here page setting, to show for players).
+
 ## 2.8.48
 - **Dock: smaller on very short views (landscape).** Under 340 px of window height the dock draws at 75% (about 80 px instead of 106), so a 640x260 phone keeps about 26 px more page. Taller windows are unchanged.
 - **Garden (landscape dock): the N/P/K row and the upkeep chips show again** in the square info panel (they were hidden in 2.8.20).

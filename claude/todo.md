@@ -1,6 +1,12 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-25; main = 2.8.48 (PR 64 merged; landscape dock launched for everyone in 2.8.23). PRs 55, 52, 8 closed unmerged (stale 2.7.x))
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-25; main = 2.8.48, branch `ccr-0e3dc455-1uan0i-2849` = 2.8.49 (PR 64 merged; landscape dock launched for everyone in 2.8.23). PRs 55, 52, 8 closed unmerged (stale 2.7.x))
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
+
+## 2026-11-25 Josh's decisions (2.8.49, branch `ccr-0e3dc455-1uan0i-2849`, NOT merged; slim zip `releases/GnomeVenture-2.8.49-web-update.zip`, needs 2.8.46+)
+- DONE 2.8.49: tea kettle open for everyone (`tea_open` = everyone) and Garden Yard picture flag `gnav_garden` = 1, both set once by boot step `open_tea_yard_2849` on upgrade (admin can change back). Tested on a scratch SQLite copy (upgrade from 2.8.48). `gnav_garden` still needs `gnav_on` (Here page) to show for players: CHECK in Admin that `gnav_on` is 1, else the Yard picture stays hidden. No player news post yet.
+- DECIDED: fight length ok as is (no retune). `pfight_v1` is Everyone already (since 2.7.57, `pfight_live_2757`).
+- Garden Yard still OPEN from the old list: level 3 art overlaps neighbours in the 17-spot layout, weak art (frog pond, worm farm, silkworm spool), phone check, Yard player news post.
+- Hollow jar proposals (still waiting on Josh; items per tier already done): tiers 150 / 300 / 450 / 700 Petals and 20 / 40 / 60 / 100 XP; pool pumpkins 12 to 6, waterings 80 to 50, courses 3 to 2; size the jar by last week's helpers; +50% Petals at 100% for half a fair share.
 
 ## 2026-11-24 landscape dock launch (2.7.58 to 2.8.24, branch `ccr-b0272b4c-ax6zb8`, ON MAIN)
 - DONE 2.8.23: `nav_dock` default 1 + boot step `nav_dock_launch_280` sets it to 1 once on upgrade (admin can set 0 or admin later; kept). Portrait and big screens keep the classic chrome. Fallback: any user adds `?dock=off` (cookie `gv_dock`; `?dock=on` undoes it). No visible button for it yet. 2.8.24: player news post for the new layout (`update_news.php`). Slim zips need 2.7.56+, newest `releases/GnomeVenture-2.8.24-web-update.zip` (carries everything since).
