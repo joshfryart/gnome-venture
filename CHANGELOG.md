@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.50
+- **Hollow jar, nicer and fairer.** Petals per tier 150 / 300 / 450 / 700 (was 100 / 200 / 300 / 500; changed on upgrade only where the old default was still set), XP 20 / 40 / 60 / 100 (was 5 / 10 / 15 / 25). Pumpkin, watering and Pomeroy-course jars are smaller (6, 50 and 2 per gnome, were 12, 80 and 3). The jar is sized by how many gnomes helped fill LAST week's jar (falls back to gnomes seen when there was none). A gnome who puts in at least half a fair share gets 50% more Petals on the 100% tier of a weekly jar (festival jars unchanged).
+
 ## 2.8.49
 - **Tea kettle open for everyone** (`tea_open` set to Everyone once on upgrade; an admin can change it back).
 - **Garden Yard picture flag on** (`gnav_garden` set to 1 once on upgrade; it still needs `gnav_on`, the Here page setting, to show for players).

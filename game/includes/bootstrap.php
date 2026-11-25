@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.8.49');
+define('APP_VERSION', '2.8.50');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -528,6 +528,9 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
         });
         boot_step('open_tea_yard_2849', function () {
             if (version_compare((string)setting('db_version'), '2.8.49', '<')) { set_setting('tea_open', 'everyone'); set_setting('gnav_garden', '1'); }   // v2.8.49 (Josh): the tea kettle is open for everyone and the Garden Yard picture flag is on (it still needs gnav_on); an admin can set either back
+        });
+        boot_step('hollow_jar_2850', function () {
+            if (setting('goal_tier_coins') === '100,200,300,500') set_setting('goal_tier_coins', '150,300,450,700');   // v2.8.50 (Josh): the new default, only where nobody changed the old one
         });
         boot_step('petshops_220', function () {
             require_once __DIR__ . '/catfish.php';

@@ -23,7 +23,7 @@ function social100_settings(): array
         'goals_on'           => ['label' => 'Hollow Goals: a shared jar everyone fills each week', 'type' => 'bool', 'default' => '1'],
         'goal_per_gnome'     => ['label' => 'Hollow Goals: fewest gnomes the jar is sized for (small worlds still get a reachable jar)', 'type' => 'int', 'default' => '4', 'min' => 1, 'max' => 1000],
         'goal_townsfolk_pct' => ['label' => 'Hollow Goals: % of the jar the townsfolk fill by the end of the week (so it never stalls)', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 60],
-        'goal_tier_coins'    => ['label' => 'Hollow Goals: Petals for each tier (25%, 50%, 75%, 100%), comma separated', 'type' => 'text', 'default' => '100,200,300,500'],
+        'goal_tier_coins'    => ['label' => 'Hollow Goals: Petals for each tier (25%, 50%, 75%, 100%), comma separated', 'type' => 'text', 'default' => '150,300,450,700']  /* 2.8.50, was 100,200,300,500 */,
         'goal_min_share'     => ['label' => 'Hollow Goals: smallest contribution that counts as helping (so every helper is rewarded)', 'type' => 'int', 'default' => '1', 'min' => 1, 'max' => 1000],
         'friends_max'        => ['label' => 'Gnome friends: most friends one gnome can have', 'type' => 'int', 'default' => '40', 'min' => 1, 'max' => 1000],
         'friends_pending_max' => ['label' => 'Gnome friends: most open friend requests one gnome can have waiting', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 200],
