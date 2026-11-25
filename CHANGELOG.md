@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.8.53
+- **Landscape dock folds.** Puzzle box: the spare-piece shelf folds (stays open when you filter, search, pack or take out; reopens when you leave short landscape); Tailor pages its card lists 3 at a time (`assets/tailorpage.js`); Trek: Sneak / Camp / Leave sit in the left column beside the map; Jobs post: slimmer empty board and forms; Almanac search pages 6 hits at a time (no script).
+- **Garden Yard picture.** Level 3 art no longer overlaps neighbours (level 3 shrunk, tap rectangles fitted); frog pond, worm farm and silkworm spool redrawn (`tools/redraw_gyard_weak.py`, `tools/build_gyard_assets.py`). Player news post for the Yard.
+- **Settings.** The `nav_dock` label no longer says admin preview.
+- **Hollow jar sizing.** The weekly jar is sized by the larger of last week's helpers and the average of the last two weeks, so one niche week (Pomeroy courses, creatures) no longer shrinks the next jar. New suite `hollow_sizing`.
+- **Map.** The walking hat follows the road curve; the card compass uses `rl_heading8()` and agrees with the region map; stops clamped to a region edge spread along the road. New suite `map_fixes`.
+- Built by Sonnet agents in separate worktrees, each reviewed by Opus and fixed once. Not seen on a real phone: the folds, Trek layout and Yard art were checked in headless Chromium only.
+
 ## 2.8.52
 - **Hotfix: `craft_path()` alias.** A live site's Today card (`welcome_back.php:92`) called `craft_path()`, which is not defined in this code, and the home page showed "Oops, something went wrong". `craft_path($c)` now returns `craft_url($c)`. Open: that call is not in any file in the repo; the live `welcome_back.php` differs from the repo's.
 
