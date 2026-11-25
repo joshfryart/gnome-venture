@@ -479,6 +479,20 @@ function town_quiz_question(): ?array
     return null;
 }
 
+/** The waiting question as a card: question, then one answer button per option (town.php, and the Library's Here popover via spot_card_html). */
+function town_quiz_box_html(array $quiz, bool $hub): string
+{
+    $sid = (int)q_val('SELECT spot_id FROM town_actions WHERE id = ?', [(int)$quiz['action']]);
+    $h = '<div class="eventbox waiting quizbox" role="dialog" aria-label="A question"><div class="evicon">🧠</div>'
+        . '<div class="evbody"><div class="evkicker">A question!</div><div class="evtitle">' . e((string)$quiz['q']) . '</div><div class="evbtns">';
+    foreach ($quiz['options'] as $k => $label) {
+        $h .= '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="answer"><input type="hidden" name="token" value="' . e((string)$quiz['token']) . '">'
+            . '<input type="hidden" name="choice" value="' . e((string)$k) . '"><input type="hidden" name="spot" value="' . $sid . '">'
+            . ($hub ? '<input type="hidden" name="hub" value="1">' : '') . '<button class="btn">' . e((string)$label) . '</button></form>';
+    }
+    return $h . '</div></div></div>';
+}
+
 function town_quiz_pack(string $question, array $opts, string $answer, string $clue = ''): array
 {
     shuffle($opts);

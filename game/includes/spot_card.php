@@ -37,6 +37,8 @@ function spot_card_html(array $u, array $spot, bool $hub, string $msg = '', bool
     $closed = spot_closed($spot);
     $h = '';
     if ($msg !== '') $h .= '<p class="vmsg ' . ($ok ? 'ok' : 'err') . '" role="status">' . e($msg) . '</p>';
+    $quiz = $_SESSION['town_quiz'] ?? null;   // 2.8.59: the Library's question shows in its popover (it used to wait, unseen, for the next town.php page)
+    if ($quiz && (int)q_val('SELECT spot_id FROM town_actions WHERE id = ?', [(int)$quiz['action']]) === $sid) $h .= town_quiz_box_html($quiz, $hub);
     $h .= '<p class="sdesc">' . e((string)$spot['description']) . '</p>';
     if ($closed) $h .= '<p class="notice">🔒 Closed right now. ' . e($closed) . '</p>';
     if ($jlock = journey_lock($uid, 'spot', (string)$spot['slug'])) {

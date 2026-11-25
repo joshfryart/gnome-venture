@@ -7378,6 +7378,15 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubpop .sfpic { display: block; border: 2px solid #d4a017; border-radius: 50%; background: #4a3020; width: 44px; height: 42px; image-rendering: pixelated; box-sizing: content-box; }
 .hubpop .sfemo { display: flex; align-items: center; justify-content: center; font-size: 26px; }
 .hubpop .rumours { margin: 8px 0; font-size: .88rem; } .hubpop .rumours p { margin: 2px 0; }
+/* 2.8.59: the Library's question in its popover: a slim card (small icon, question first), the answers as full-width buttons; the card scrolls it into view under the head */
+.hubpop .quizbox { gap: 10px; padding: 12px 14px; margin: 0 0 10px; animation: none; scroll-margin: 56px 0 8px; }
+.hubpop .quizbox .evicon { font-size: 28px; }
+.hubpop .quizbox .evbody { flex: 1 1 auto; min-width: 0; }
+.hubpop .quizbox .evtitle { font-size: 1rem; line-height: 1.3; overflow-wrap: anywhere; }
+.hubpop .quizbox .evbtns { flex-direction: column; flex-wrap: nowrap; gap: 6px; }
+.hubpop .quizbox .evbtns form { display: block; margin: 0; }
+.hubpop .quizbox .evbtns .btn { display: flex; width: 100%; margin: 0; min-height: 44px; padding: 6px 12px; white-space: normal; }
+.hubpop .vmsg { scroll-margin: 56px 0 8px; }
 .hubpop .favours { border: 0; padding: 0; box-shadow: none; } .hubpop .favours h3 { font-size: 1rem; margin: 6px 0; } .hubpop .favour { padding: 6px 0; }
 /* the villager card: face first, then the one-line mood, then Chat / Give */
 .hubpop .vpanel .npchead { display: flex; gap: 10px; align-items: flex-start; }

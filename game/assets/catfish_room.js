@@ -205,6 +205,7 @@
       c.moving = false; c.set = 'idle';
       var st = c.st;
       if (st !== 'perched' && st !== 'climb' && st !== 'down') c.zo = 0;
+      if (st === 'nap' && c.onCushion) c.zo = 241;   /* v2.8.58: the cushion is drawn at z 240 (manifest) and the napping cat stands at y 226, so the cushion covered it; draw the cat just above the cushion */
       if (!c.vis && st !== 'zoomhide') c.vis = true;
       if (st === 'nap') { c.fi = IDLE.nap; if (c.active && !D.nap && now - (c.t || 0) > 0) { /* naps only until the first tap */ } return; }
       if (st === 'alert') { c.fi = IDLE.stalk; return; }

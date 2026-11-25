@@ -137,7 +137,11 @@
     var fd = new FormData(f); fd.set('csrf', box.getAttribute('data-csrf'));
     var sub = ev.submitter; if (sub && sub.name && !fd.has(sub.name)) fd.append(sub.name, sub.value);   // the button that was pressed (an answer, a pick, a power) goes with the form
     f.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
-    ask(f.hasAttribute('data-sform') ? f.getAttribute('action') : box.getAttribute('data-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
+    ask(f.hasAttribute('data-sform') ? f.getAttribute('action') : box.getAttribute('data-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) {
+      fill(box, res);
+      var qz = box.querySelector('.quizbox') || (fd.get('do') === 'answer' ? box.querySelector('.vmsg') : null);   // 2.8.59: the Library's question (or its answer) comes back at the top of the card: bring it into view
+      if (qz && qz.scrollIntoView) qz.scrollIntoView({ block: 'nearest' });
+    });
   }, true);
   /* v2.5.67: a Do here / Stall popover posts in place: the activity comes back with what happened at the top (instead of the page reloading and the result landing
      in a banner behind the popover). Without script the form posts as before and the result is flashed. */

@@ -50,6 +50,13 @@ if (is_post()) {
         echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => stop_slim_card_html(require_login(), player_node(require_login()), $hub, $msg, $ok), 'toasts' => take_toasts()], JSON_UNESCAPED_SLASHES);
         exit;
     }
+    if ($ajax && $do === 'answer' && $ok && !empty($_SESSION['prizes'])) {   // 2.8.59: the answer shows in the Library popover itself (not only as a toast that fades); it still goes into Messages
+        $pz = array_pop($_SESSION['prizes']);
+        $msg = trim($pz['icon'] . ' ' . $pz['big'] . ' · ' . implode(' · ', array_filter($pz['lines'], fn($l) => !str_starts_with((string)$l, 'Q: '))));
+        $_SESSION['msglog'] ??= [];
+        array_unshift($_SESSION['msglog'], ['k' => 'prize'] + $pz + ['t' => time(), 'new' => 0]);
+        $_SESSION['msglog'] = array_slice($_SESSION['msglog'], 0, 20);
+    }
     if ($ajax && (int)($_POST['spot'] ?? 0) > 0) spot_card_reply(require_login(), $hub, (int)$_POST['spot'], $msg, $ok);   // in place: the card comes back with the result
     flash($msg, $ok ? 'ok' : 'err');
     $spot = (int)($_POST['spot'] ?? 0);
@@ -141,20 +148,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
 ?>
 <p class="crumbs"><a href="<?= e(url('world.php')) ?>">🌍 World</a> › <?php if ($spot): ?><a href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>"><?= e($town) ?></a> › <b><?= e($spot['name']) ?></b><?php else: ?><b><?= e($town) ?></b><?php endif; ?></p>
 
-<?php if ($quiz): $qa = q_one('SELECT s.id FROM town_actions a JOIN town_spots s ON s.id = a.spot_id WHERE a.id = ?', [$quiz['action']]); ?>
-  <div class="eventbox waiting quizbox" role="dialog" aria-label="A question">
-    <div class="evicon">🧠</div>
-    <div class="evbody"><div class="evkicker">A question!</div><div class="evtitle"><?= e($quiz['q']) ?></div>
-      <div class="evbtns">
-        <?php foreach ($quiz['options'] as $k => $label): ?>
-          <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="answer"><input type="hidden" name="token" value="<?= e($quiz['token']) ?>">
-            <input type="hidden" name="choice" value="<?= e($k) ?>"><input type="hidden" name="spot" value="<?= (int)($qa['id'] ?? 0) ?>">
-            <?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
-            <button class="btn"><?= e($label) ?></button></form>
-        <?php endforeach; ?>
-      </div></div>
-  </div>
-<?php endif; ?>
+<?php if ($quiz) echo town_quiz_box_html($quiz, $hub); ?>
 
 <?php if ($spot): $closed = spot_closed($spot); ?>
   <nav class="tabs placetabs">
