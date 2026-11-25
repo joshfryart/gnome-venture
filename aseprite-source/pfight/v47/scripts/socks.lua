@@ -46,10 +46,7 @@ function S.holeSide(c, side, fam)
   for d = -2, c.T + 1 do for u = -2, len + 1 do   -- ring 2: 1 px rim in the family colour; darker on the wall that faces away from the light (reads as cut deep), lighter on the lit wall
     local x, y = L.sideXY(c, side, u, -d)
     if not inH[y * 1000 + x] and not r1[y * 1000 + x] and adj(r1, x, y) and L.inBody(c, x - c.T, y - c.T) and not L.isRim(c, x - c.T, y - c.T) then
-      local col = L.FAM[fam]
-      if r1[(y + 1) * 1000 + x] or r1[y * 1000 + x + 1] then col = FAMSH[fam]
-      elseif r1[(y - 1) * 1000 + x] or r1[y * 1000 + x - 1] then col = L.FAMLIGHT[fam] end
-      ring:set(x, y, col)
+      ring:set(x, y, L.INK)   -- was a family-colour rim (pink / lavender / yellow); read as stray pixels inside the holes, so it is the dark outline now
     end
   end end
   return ring, cut

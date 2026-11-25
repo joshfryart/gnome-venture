@@ -919,6 +919,8 @@ function post_update_news(string $from): void
         "No more daily limits on town and rest stop actions. Do things as often as you like."],
     '2.8.64' => ['🪧 Update 2.8.64: rest stop activities are once a game day again',
         "Rest stop activities are once a game day again: each one, once a day at each stop. Come back after you sleep. Town actions stay unlimited."],
+    '2.8.65' => ['🧩 Update 2.8.65: cleaner puzzle piece holes',
+        "The holes in puzzle pieces no longer show stray pink, purple or yellow pixels on their rim. Clean dark outline now."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
