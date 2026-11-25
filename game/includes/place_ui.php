@@ -405,7 +405,9 @@ function stop_slim_extras(array $u, array $node, ?array $a): ?string
     $h = $state;
     if ($open) {
         $h .= '<ul class="st-extras">';
+        $doneToday = stop_done_today($uid, (int)$node['id']);   // 2.8.64: each activity once a game day here
         foreach ($open as $x) {
+            if (in_array((string)$x['slug'], $doneToday, true)) { $h .= $item($x, '<p class="muted dodone">✔ Done today. Come back tomorrow!</p>'); continue; }
             $btn = str_replace(['<form method="post"', '<input type="hidden" name="do" value="local">'], ['<form method="post" data-vform', '<input type="hidden" name="card" value="stop"><input type="hidden" name="tab" value="extras"><input type="hidden" name="do" value="local">'], local_act_buttons($u, $node, $x, false));
             $h .= $item($x, '<div class="doacts">' . $btn . '</div>');
         }

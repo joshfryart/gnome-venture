@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Every road village is a STOP TYPE (market hamlet, mill, inn, shrine, jetty, herb croft, workshop, orchard, ferry, watchtower,
  * hot spring, campfire). The type is worked out from the village's landscape (stable, never changes) unless the admin sets
  * locations.stop_type. Each type has a pool of ACTIVITIES (stop_acts: ~50 mini-choices with stat checks, trades, rests, tales and
- * tiny games). 2.8.60: do any of them as often as you like (the old per-visit slots, daily caps and "tired" halving are gone).
+ * tiny games). 2.8.64: each activity once a game day at each stop (stop_done_today; 2.8.60 removed the old per-visit slots, daily caps and "tired" halving, and they stay gone).
  * Time matters: an activity can need a part of the day, a season or the weather (the Hollow clock, hollow_clock.php).
  * Everything is data (includes/data/stops.txt, stop_acts.txt, stop_tiers.txt, stop_sets.txt, stop_chat.txt), copied into tables on
  * upgrade_100_stops() and editable in Admin. Villagers, errands and friendship: stop_folk.php. Stamps: stop_pass.php. Adopt: stop_adopt.php.
@@ -607,6 +607,19 @@ function stop_state(int $uid, int $locId, string $visit): array
     return [$done, $here, $all, $rests];
 }
 
+/**
+ * 2.8.64: the activities this gnome has already done at this stop today (act slugs). Each activity can be done once a game day at each stop:
+ * the day is the gnome's own game day (gclock_my_date(), the real Hollow day when the game clock is off), read from stop_log.day (indexed user_id, day).
+ */
+function stop_done_today(int $uid, int $locId): array
+{
+    if ($uid < 1 || $locId < 1) return [];
+    return array_values(array_unique(array_map('strval', q('SELECT act FROM stop_log WHERE user_id = ? AND location_id = ? AND day = ?', [$uid, $locId, gclock_my_date()])->fetchAll(PDO::FETCH_COLUMN))));
+}
+
+/** 2.8.64: the refusal for a second go at the same activity on the same game day. */
+const STOP_DONE_TODAY_MSG = 'You’ve done that here today. Come back tomorrow!';
+
 /** A visit starts each time you arrive somewhere. */
 function stop_visit_key(array $u): string
 {
@@ -817,8 +830,9 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     if (!isset($offered[$slug])) return [false, 'That isn’t on offer here right now.'];
     if ($why = gclock_closed_reason($u, $loc, gclock_time_cost('stop'))) return [false, $why];
     $visit = stop_visit_key($u);
-    // 2.8.60: no limits on how often: not once per visit, not stop_slots things per visit, no daily cap per stop (stop_daily_cap),
-    // no rest cap (stop_rest_daily) and no "tired" halving after stop_daily_total. Energy, coin and item costs still apply.
+    // 2.8.64: each activity once a game day at this stop (the same act again is refused until the gnome's next game day; a different act is fine).
+    // 2.8.60's removals stay: no per-visit slots, no daily cap per stop, no rest cap and no "tired" halving. Energy, coin and item costs still apply.
+    if (in_array($slug, stop_done_today($uid, (int)$loc['id']), true)) return [false, STOP_DONE_TODAY_MSG];
     $kind = (string)$a['kind'];
     $folk = null;
     require_once __DIR__ . '/stop_folk.php';
@@ -836,9 +850,10 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     $msg = '';
     db()->beginTransaction();
     try {
-        q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v1.0.0: one of this gnome's rest-stop actions at a time (their lock)
-        // The log row stays (the stop's visit count, its recent-visitors board); 2.8.60: it no longer limits anything.
-        // stop_log keeps its UNIQUE (user, stop, visit_key, act), so a repeat in the same visit is logged as "<visit>#2", "#3", …
+        q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v1.0.0: one of this gnome's rest-stop actions at a time (their lock), so the once-a-day check below can't be raced
+        if (in_array($slug, stop_done_today($uid, (int)$loc['id']), true)) throw new UserError(STOP_DONE_TODAY_MSG);   // 2.8.64: again under the lock (a double click)
+        // The log row is the stop's visit count, its recent-visitors board and (2.8.64) the once-a-game-day record (its day column).
+        // stop_log keeps its UNIQUE (user, stop, visit_key, act), so the same act on a later game day in the same visit is logged as "<visit>#2", "#3", …
         $again = (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND act = ? AND (visit_key = ? OR visit_key LIKE ?)',
             [$uid, (int)$loc['id'], $slug, $visit, $visit . '#%']);
         db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$loc['id'], 'visit_key' => $again ? substr($visit, 0, 19) . '#' . ($again + 1) : $visit,

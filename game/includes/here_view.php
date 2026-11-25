@@ -323,12 +323,12 @@ function here_do_fronts(array $u, array $node, string $back, int $fronts, bool $
     require_once __DIR__ . '/local.php';
     $pool = stop_pool($node, null, (int)$u['id']);
     $visit = stop_visit_key($u);
-    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
+    $done = stop_done_today((int)$u['id'], (int)$node['id']);   // 2.8.64: each activity once a game day here
     $out = [];
     $offer = $skipStall ? array_values(array_filter($pool['offer'], fn($a) => !in_array((string)$a['kind'], ['buy', 'snack'], true))) : $pool['offer'];   // v2.5.49: the stalls have their own front (here_stall_fronts)
     foreach (array_slice($offer, 0, $fronts) as $a) {
         $isDone = in_array((string)$a['slug'], $done, true);
-        $out[] = [(string)$a['name'], (string)$a['icon'], '<div class="doblock" data-slug="' . e((string)$a['slug']) . '" data-post="' . e(url('town.php')) . '">' . here_do_block($u, $node, $back, $a, $isDone) . '</div>'];
+        $out[] = [(string)$a['name'], (string)$a['icon'], '<div class="doblock" data-slug="' . e((string)$a['slug']) . '" data-post="' . e(url('town.php')) . '">' . here_do_block($u, $node, $back, $a, $isDone) . '</div>', $isDone];   // 2.8.64: [3] = done today (the spot is drawn dim, chip "Done")
     }
     return $out;
 }
@@ -344,7 +344,7 @@ function here_do_block(array $u, array $node, string $back, array $a, bool $isDo
         . ($hp ? '<p class="st-hap"><b>' . e($hp['icon'] . ' ' . $hp['name']) . '</b> · ' . e(str_replace('{place}', (string)$node['name'], $hp['headline'])) . '</p>' : '')
         . (!empty($a['now']) ? '<p><b>Right now</b> · ' . e(hollow_weather_info(stop_now($node)['we'], stop_now($node)['dp'])['label']) . '</p>' : '')
         . ($blurb !== '' ? '<p class="st-blurb">' . e($blurb) . '</p>' : '')
-        . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
+        . ($isDone ? '<p class="muted dodone">✔ Done today. Come back tomorrow!</p>'
             : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>');
 }
 
@@ -358,7 +358,7 @@ function here_result_html(string $msg, bool $ok): string
 function here_stall_row_html(array $u, array $node, string $back, array $a, bool $isDone, string $msg = '', bool $ok = true): string
 {
     return '<p><b>' . e((string)$a['icon']) . ' ' . e((string)$a['name']) . '</b></p>' . here_result_html($msg, $ok)
-        . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
+        . ($isDone ? '<p class="muted dodone">✔ Done today. Come back tomorrow!</p>'
             : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>');
 }
 
@@ -372,7 +372,7 @@ function here_do_reply(array $u, string $slug, string $msg, bool $ok, string $ba
     if (($node['kind'] ?? '') === 'village') foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $x) if ((string)$x['slug'] === $slug) { $a = $x; break; }
     header('Content-Type: application/json; charset=utf-8');
     if (!$a) { echo json_encode(['ok' => false, 'msg' => $msg !== '' ? $msg : 'That is not here any more.', 'html' => ''], JSON_UNESCAPED_SLASHES); exit; }
-    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
+    $done = stop_done_today((int)$u['id'], (int)$node['id']);   // 2.8.64: each activity once a game day here
     $isDone = in_array($slug, $done, true);
     $html = in_array((string)$a['kind'], ['buy', 'snack'], true) ? here_stall_row_html($u, $node, $back, $a, $isDone, $msg, $ok) : here_do_block($u, $node, $back, $a, $isDone, $msg, $ok);
     [$hdrE, $hdrMax] = current_energy($u);   // the header pills follow the result (assets/hubscene.js)
@@ -390,7 +390,7 @@ function here_stall_fronts(array $u, array $node, string $back, int $fronts): ar
     require_once __DIR__ . '/local.php';
     $stalls = array_values(array_filter(stop_pool($node, null, (int)$u['id'])['offer'], fn($a) => in_array((string)$a['kind'], ['buy', 'snack'], true)));
     if (!$stalls) return [];
-    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
+    $done = stop_done_today((int)$u['id'], (int)$node['id']);   // 2.8.64: each activity once a game day here
     $row = function (array $a) use ($u, $node, $back, $done): string {
         return '<div class="stallrow" data-slug="' . e((string)$a['slug']) . '" data-post="' . e(url('town.php')) . '">' . here_stall_row_html($u, $node, $back, $a, in_array((string)$a['slug'], $done, true)) . '</div>';
     };
@@ -442,10 +442,11 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
             if (is_array($label)) {   // v2.5.28: one entry per front, [label, emoji, card] (the town's shops); a front with no entry is left out
                 if (!isset($label[$n])) continue;
                 [$lab, $emo, $crd] = $label[$n];
-            } else { $lab = $label; $emo = $emoji; $crd = $card; }
-            $verb = $chip !== '' ? $chip : (HERE_VERBS[$k] ?? '');   // v2.5.40: the verb chip (Shop, Talk, Rest...) in the list of places
+                $doneF = !empty($label[$n][3]);   // 2.8.64: a Do front done today (each activity once a game day): dim spot, chip "Done"
+            } else { $lab = $label; $emo = $emoji; $crd = $card; $doneF = false; }
+            $verb = $doneF ? 'Done' : ($chip !== '' ? $chip : (HERE_VERBS[$k] ?? ''));   // v2.5.40: the verb chip (Shop, Talk, Rest...) in the list of places
             $id = 's-' . $k . ($n > 0 ? '-' . ($n + 1) : '');   // the id follows the behaviour (stable links), a second front with the same behaviour gets -2, -3
-            $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $lab, 'emoji' => $emo, 'chip' => $verb, 'cls' => $cls,
+            $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $lab, 'emoji' => $emo, 'chip' => $verb, 'cls' => trim($cls . ($doneF ? ' dim is-done' : '')),
                   'href' => $crd !== '' ? url($back . '?o=' . $id) : $href, 'card' => $crd];
             if (isset($sp['box'])) $h['box'] = $sp['box'];
             $hot[] = $h;
@@ -673,7 +674,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
 /**
  * The doable things a rest stop has that its picture does not show (the picture has room for a few "Do" spots): up to three more, chosen for this visit
  * (a stable pick from the visit key), as hidden cards with the same inside as the picture's own. The dock's "Do here" strip opens them (assets/dock.js, hereDo);
- * without the dock they are never seen.
+ * without the dock they are never seen. 2.8.64: activities done here today are left out (each is once a game day), so the strip only offers what can still be done.
  */
 function here_extra_do(array $u, array $node, string $back, array $spots): string
 {
@@ -683,7 +684,7 @@ function here_extra_do(array $u, array $node, string $back, array $spots): strin
     foreach ($spots as $sp) { if (str_starts_with((string)$sp['id'], 's-do')) $fronts++; elseif (str_starts_with((string)$sp['id'], 's-shops')) $stall = true; }
     $pool = stop_pool($node, null, (int)$u['id']);
     $visit = stop_visit_key($u);
-    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
+    $done = stop_done_today((int)$u['id'], (int)$node['id']);   // 2.8.64: each activity once a game day here
     $offer = $stall ? array_values(array_filter($pool['offer'], fn($a) => !in_array((string)$a['kind'], ['buy', 'snack'], true))) : $pool['offer'];
     $rest = array_values(array_filter(array_slice($offer, $fronts), fn($a) => !in_array((string)$a['slug'], $done, true)));
     usort($rest, fn($a, $b) => crc32($visit . $a['slug']) <=> crc32($visit . $b['slug']));

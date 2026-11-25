@@ -208,9 +208,9 @@ foreach (array_keys(stop_types()) as $type) {
     ok("$type: offers 5+ things, no duplicates", count($o) >= 5 && count($o) === count(array_unique($o)), count($o) . ' ' . implode(',', $o));
 }
 
-echo "== 2.8.60: no limits (no slots per visit, no daily cap, no tired halving)\n";
+echo "== 2.8.64: each activity once a game day at each stop (2.8.60's removals stay: no slots per visit, no daily cap, no tired halving)\n";
 // Old installs may still have the retired settings stored at tight values: they must change nothing.
-cfg(['stop_slots' => 1, 'stop_daily_cap' => 2, 'stop_daily_total' => 1, 'stop_rest_daily' => 0]);
+cfg(['stop_slots' => 1, 'stop_daily_cap' => 2, 'stop_daily_total' => 1, 'stop_rest_daily' => 0, 'game_clock_on' => '0']);
 // The daily offer is a slug-hash pick, so some markets draw several deals (snack/seedswap/gossip); use the first market that draws 3+ plain things.
 $freeOf = fn(array $l) => array_values(array_filter(offered($l), fn($s) => in_array(stop_acts()[$s]['kind'], ['check', 'pick', 'power', 'lore'], true)));
 $loc = stopOfType('market');
@@ -222,20 +222,53 @@ $free = $freeOf($loc);
 ok('the market has 3+ plain things to do', count($free) >= 3, implode(',', $offer));
 foreach ([0, 1, 2] as $i) q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], (string)$u['arrived_at'], today(), 'fake' . $i, 'check', '', now()]);
 [$okx, $msgx] = doit($free[0], $IN);
-ok('a 4th thing on the same visit is fine', $okx, $msgx);
-$slug = $free[1];
-$refused = [];
-$e0 = (int)me()['energy'];
-for ($i = 1; $i <= 12; $i++) { [$o, $m] = doit($slug, $IN); if (!$o) $refused[] = $i . ': ' . $m; }
-ok('the same thing 12 times in a row on one visit, never refused (' . $slug . ')', $refused === [], implode(' | ', $refused));
-ok('...each one is logged (no unique clash on the same visit)', (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND act = ?', [$u['id'], $loc['id'], $slug]) === 12);
-$cost = (int)stop_acts()[$slug]['energy'];
-ok('...and energy is still spent each time (' . $cost . ' a go)', $e0 - (int)me()['energy'] >= 12 * $cost, ($e0 - (int)me()['energy']) . ' spent');
-q('DELETE FROM stop_log');
-for ($i = 1; $i <= 30; $i++) q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], 'old' . $i, today(), 'x', 'check', '', now()]);
+ok('a 4th thing on the same visit is fine (no slots)', $okx, $msgx);
+[$o, $m] = doit($free[0], $IN);
+ok('the same thing again the same day is refused, kindly', !$o && $m === STOP_DONE_TODAY_MSG, $m);
 $u = at($loc);
 [$o, $m] = doit($free[0], $IN);
-ok('30 things at this stop today already: still fine (no per-stop daily cap)', $o, $m);
+ok('...also after walking out and back in (a new visit, same day)', !$o && $m === STOP_DONE_TODAY_MSG, $m);
+ok('...and nothing was logged for the refused tries', (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND act = ?', [$u['id'], $loc['id'], $free[0]]) === 1);
+[$o, $m] = doit($free[1], $IN);
+ok('a different thing the same day is fine', $o, $m);
+ok('stop_done_today lists both', in_array($free[0], stop_done_today((int)$u['id'], (int)$loc['id']), true) && in_array($free[1], stop_done_today((int)$u['id'], (int)$loc['id']), true));
+$other = null;
+foreach (q("SELECT * FROM locations WHERE kind = 'village' AND id <> ? ORDER BY id", [$loc['id']])->fetchAll() as $l2) if (in_array($free[0], offered($l2), true)) { $other = $l2; break; }
+if ($other) { at($other); [$o, $m] = doit($free[0], $IN); ok('the same thing at ANOTHER stop the same day is fine (once a day at each stop)', $o, $m); at($loc); }
+else ok('(no other stop offers ' . $free[0] . ' today: per-stop check skipped)', true);
+// The real Hollow day changes (game clock off): yesterday's log no longer counts
+q('UPDATE stop_log SET day = ? WHERE user_id = ?', [gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -1 day')), $u['id']]);
+$u = at($loc);
+[$o, $m] = doit($free[0], $IN);
+ok('game clock off: on the next (real Hollow) day it works again', $o, $m);
+ok('...logged on today\'s day', (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND act = ? AND day = ?', [$u['id'], $loc['id'], $free[0], today()]) === 1);
+// Game clock on: the gnome's own game day decides (sleep = a new day), not the real date
+q('DELETE FROM stop_log');
+cfg(['game_clock_on' => '1']);
+$gday = function (int $d) { q('UPDATE users SET game_day = ?, game_minute = ? WHERE username = ?', [$d, 10 * 60, 'sprout']); $GLOBALS['CURRENT_USER'] = me(); };
+$gday(40); $u = at($loc); $GLOBALS['CURRENT_USER'] = $u; $d40 = gclock_my_date(); $both40 = $freeOf($loc);
+$gday(41); $both = array_values(array_intersect($both40, $freeOf($loc))); $d41 = gclock_my_date();
+$gday(40);
+ok('game clock on: game days 40 and 41 are different dates', $d40 !== $d41, "$d40 / $d41");
+$gs = $both[0] ?? $free[0];
+[$o1, $m1] = doit($gs, $IN); [$o2, $m2] = doit($gs, $IN);
+ok('game clock on: once on game day 40, the second go refused (' . $gs . ')', $o1 && !$o2 && $m2 === STOP_DONE_TODAY_MSG, "$m1 / $m2");
+ok('...logged with the game date', (string)q_val('SELECT day FROM stop_log WHERE user_id = ? AND act = ? ORDER BY id DESC LIMIT 1', [$u['id'], $gs]) === $d40);
+q('UPDATE users SET game_minute = ? WHERE username = ?', [15 * 60, 'sprout']); $GLOBALS['CURRENT_USER'] = me();
+[$o3, $m3] = doit($gs, $IN);
+ok('game clock on: later the same game day, still refused', !$o3 && $m3 === STOP_DONE_TODAY_MSG, $m3);
+$gday(41); $u = at($loc); $GLOBALS['CURRENT_USER'] = $u;
+[$o4, $m4] = doit($gs, $IN);
+ok('game clock on: after sleeping into game day 41 it works again', $o4, $m4);
+[$o5, $m5] = doit($gs, $IN);
+ok('...and once only on game day 41 too', !$o5 && $m5 === STOP_DONE_TODAY_MSG, $m5);
+ok('...the repeat in the same visit is logged with the #2 suffix (stop_log UNIQUE kept)', (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND act = ?', [$u['id'], $gs]) === 2);
+cfg(['game_clock_on' => '0']); unset($GLOBALS['CURRENT_USER']);
+q('DELETE FROM stop_log');
+for ($i = 1; $i <= 30; $i++) q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], 'old' . $i, today(), 'x' . $i, 'check', '', now()]);
+$u = at($loc);
+[$o, $m] = doit($free[0], $IN);
+ok('30 other things at this stop today already: still fine (no per-stop daily cap)', $o, $m);
 ok('no tired flag any more', empty($GLOBALS['gv_stop_tired']));
 cfg(['stop_reward_percent' => 100]);
 $c0 = (int)me()['coins'];
@@ -282,16 +315,17 @@ $t = stop_types()['inn']; $amb = explode(';;', $t['ambience']); ok('four ambienc
 cfg(['stop_daypart_force' => '']);
 ok('stop_now follows the real clock when not forced', stop_now($inn)['dp'] === hollow_daypart());
 
-echo "== rests: as often as you like (2.8.60; stop_rest_daily stored at 2 changes nothing)\n";
-cfg(['season_force' => 'spring', 'weather_force' => 'sun', 'stop_daypart_force' => 'day', 'stop_rest_daily' => 2]);
+echo "== rests: once a game day each like any activity (2.8.64; no separate rest cap: stop_rest_daily stored at 0 changes nothing)\n";
+cfg(['season_force' => 'spring', 'weather_force' => 'sun', 'stop_daypart_force' => 'day', 'stop_rest_daily' => 0]);
 $sp = stopOfType('spring'); q('DELETE FROM stop_log'); q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']);
 $u = at($sp); q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']);
 $restSlug = in_array('soak', offered($sp), true) ? 'soak' : 'quiet_hour';
 [$o, $m] = doit($restSlug); ok('a rest restores energy', $o && (int)me()['energy'] > 3, $m);
 ok('a bath costs Petals', $restSlug !== 'soak' || (int)me()['coins'] < 5000);
-$restOk = [];
-for ($i = 2; $i <= 6; $i++) { q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']); [$oi, $mi] = doit($restSlug); $restOk[] = $oi ? 'ok' : $mi; }
-ok('a second to sixth rest the same day (same visit) all work', $o && count(array_filter($restOk, fn($x) => $x === 'ok')) === 5, implode(' | ', $restOk));
+$u = at($sp); q('UPDATE users SET energy = 3 WHERE username = ?', ['sprout']); [$o2, $m2] = doit($restSlug);
+ok('the same rest again the same day (a new visit) is refused', $o && !$o2 && $m2 === STOP_DONE_TODAY_MSG, $m2);
+$otherRest = array_values(array_filter(offered($sp), fn($s) => $s !== $restSlug && stop_acts()[$s]['kind'] === 'rest'));
+if ($otherRest) { [$o3, $m3] = doit($otherRest[0]); ok('a different rest the same day is fine (' . $otherRest[0] . ')', $o3, $m3); }
 q('DELETE FROM stop_log');
 at($sp); [$o4, $m4] = doit($restSlug);   // full energy
 ok('resting when full of energy is refused', !$o4 && str_contains($m4, 'full of energy'), $m4);
