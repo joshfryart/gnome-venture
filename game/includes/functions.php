@@ -432,10 +432,7 @@ function settings_schema(): array
         'sights_walk_cap' => ['label' => 'Trail Sights: most Sight uses on one walk (one Trail expedition, all its sections; 0 = no cap)', 'type' => 'int', 'default' => '6', 'min' => 0, 'max' => 50],   // 2.7.08: the reward tune planned 6 a walk (claude/sights-reward-tuning-2.7.08.md)
         'trail_fog_weather' => ['label' => 'Trail: foggy weather puts each newly entered Trail stretch in fog (its finds show only when the gnome is next to them; a Sight\'s lit path keeps it off)', 'type' => 'bool', 'default' => '0'],   // Sights fourth pass (trail_sights_4.php): off until Josh says
         'sights_flat_pct_per_level' => ['label' => 'Trail Sights: flat Petals / XP rewards grow by this percent for every region level above 1 (0 = off; 3 = approved 2026-11-15)', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 10],   // 2.7.00 rewards pass: claude/sights-rewards-2.7.00.md
-        'stop_slots'         => ['label' => 'Rest stops: things to do on one visit (a visit starts when you arrive)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 9],
-        'stop_daily_cap'     => ['label' => 'Rest stops: most things per day at one stop', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 50],
-        'stop_daily_total'   => ['label' => 'Rest stops: after this many things in a day (all stops), Petals and XP are halved (no hard limit)', 'type' => 'int', 'default' => '100', 'min' => 1, 'max' => 1000],   // v1.4.9: was a hard cap of 15
-        'stop_rest_daily'    => ['label' => 'Rest stops: most resting activities (baths, benches, kettles) per day', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 20],
+        // 2.8.60: stop_slots, stop_daily_cap, stop_daily_total and stop_rest_daily are gone (no limits at rest stops); rows an old install stored are ignored
         'stop_core'          => ['label' => 'Rest stops: always-there activities at each stop', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 8],
         'stop_extra'         => ['label' => 'Rest stops: extra activities that change every day', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 8],
         'stop_reward_percent' => ['label' => 'Rest stops: coin and XP rewards, as a % of the table values', 'type' => 'int', 'default' => '100', 'min' => 0, 'max' => 1000],

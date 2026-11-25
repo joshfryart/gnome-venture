@@ -1,5 +1,5 @@
 <?php
-// 2.6.36: town daily uses count by the gnome's game day, and place hours by the game hour. Run: php tests/game_time.php GAME_DIR (installed copy with a gnome)
+// 2.6.36: town uses (2.8.60: a note only, no daily limit) count by the gnome's game day, and place hours by the game hour. Run: php tests/game_time.php GAME_DIR (installed copy with a gnome)
 $_SERVER['SCRIPT_NAME'] = '/gnome.php';
 require $argv[1] . '/includes/bootstrap.php';
 require_once $argv[1] . '/includes/gnome.php';
@@ -23,14 +23,15 @@ $setClock(11, 20 * 60); $d2 = town_use_day();
 ok('a new game day is a new use day', $d1 !== $d2, "$d1 / $d2");
 $setClock(10, 21 * 60);
 ok('same game day, later hour: same use day', town_use_day() === $d1);
-$act = ['id' => 987654, 'daily' => 1];
-q('DELETE FROM town_uses WHERE user_id = ? AND action_id = ?', [$uid, $act['id']]);
+$aid = 987654;   // 2.8.60: town uses are only noted (no daily limit); the note still follows the game day
+q('DELETE FROM town_uses WHERE user_id = ? AND action_id = ?', [$uid, $aid]);
 $setClock(10, 20 * 60);
-ok('first dance of the day', town_claim_use($uid, $act) === true);
-ok('second dance, same game day, refused', town_claim_use($uid, $act) === false);
+town_note_use($uid, $aid); town_note_use($uid, $aid);
+ok('two dances the same game day: both noted on that day', (int)q_val('SELECT uses FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $aid, $d1]) === 2);
 $setClock(11, 20 * 60);
-ok('after sleeping into the next game day it is back', town_claim_use($uid, $act) === true);
+town_note_use($uid, $aid);
+ok('after sleeping into the next game day it is a new day\'s note', (int)q_val('SELECT uses FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $aid, $d2]) === 1);
+q('DELETE FROM town_uses WHERE user_id = ? AND action_id = ?', [$uid, $aid]);
 ok('NPC meetings still use the real day', town_day() === hollow_date('Y-m-d'));
-q('DELETE FROM town_uses WHERE user_id = ? AND action_id = ?', [$uid, $act['id']]);
 echo $fails ? "$fails FAILED\n" : "all ok\n";
 exit($fails ? 1 : 0);

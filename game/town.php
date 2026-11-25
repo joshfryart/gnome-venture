@@ -169,7 +169,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     <?php endif; ?>
     <?php if ($spot['kind'] === 'green' && ($fest = town_festival($town))): ?>
       <form method="post" class="tact"><?= csrf_field() ?><input type="hidden" name="do" value="festival"><input type="hidden" name="spot" value="<?= (int)$spot['id'] ?>"><?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
-        <button class="btn act gold"><?= $fest[1] ?> Visit the festival stall</button><small class="muted">a free treat, once today</small></form>
+        <button class="btn act gold"><?= $fest[1] ?> Visit the festival stall</button><small class="muted">a free treat</small></form>
     <?php endif; ?>
   </div>
   <?php $here = npcs_at_spot($spot); require_once __DIR__ . '/includes/folk_list.php'; npc_meet($uid, array_column($here, 'id')); /* v0.7.69, ids fixed 0.7.73 */ ?>
@@ -231,7 +231,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   foreach (town_spots($town) as $ts) {
       if (!spot_closed($ts)) $openNow++;
       $gnomesAll += gnome_count_at_spot((int)$ts['id'], $uid);
-      foreach (town_actions((int)$ts['id']) as $ta) if ($ta['kind'] !== 'link' && (int)$ta['daily'] > 0 && ($uses[(int)$ta['id']] ?? 0) < (int)$ta['daily'] && !spot_closed($ts) && !journey_lock($uid, 'spot', (string)$ts['slug'])) $todoAll++;
+      foreach (town_actions((int)$ts['id']) as $ta) if ($ta['kind'] !== 'link' && !spot_closed($ts) && !journey_lock($uid, 'spot', (string)$ts['slug'])) $todoAll++;   // 2.8.60: no daily limits: every open thing to do counts
   }
   $travHere = array_filter(q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1')->fetchAll(), fn($t) => traveller_stop($t)['town'] === $town);
   $favDue = 0;
@@ -241,7 +241,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   if ($glance): ?>
   <section class="tday" aria-label="Today at a glance">
     <ul class="tday__stats">
-      <li class="tday__stat"><span class="tday__ic" aria-hidden="true">📋</span><b class="tday__n"><?= $todoAll ?></b><span class="tday__l">thing<?= $todoAll === 1 ? '' : 's' ?> left to do today</span></li>
+      <li class="tday__stat"><span class="tday__ic" aria-hidden="true">📋</span><b class="tday__n"><?= $todoAll ?></b><span class="tday__l">thing<?= $todoAll === 1 ? '' : 's' ?> to do</span></li>
       <li class="tday__stat"><span class="tday__ic" aria-hidden="true">🚪</span><b class="tday__n"><?= $openNow ?></b><span class="tday__l">place<?= $openNow === 1 ? '' : 's' ?> open</span></li>
       <li class="tday__stat"><span class="tday__ic" aria-hidden="true">📌</span><b class="tday__n"><?= $favDue ?></b><span class="tday__l"><?= $ordersOn ? 'order' : 'favour' ?><?= $favDue === 1 ? '' : 's' ?> on the board</span></li>
     </ul>

@@ -37,6 +37,17 @@ for u in "world.php?tab=markets" "jobs.php?t=orders" "jobs.php?t=errands" "jobs.
 echo "  town.php?view=quests -> $(curl -s -b $C "$BASE/town.php?view=quests" -o /dev/null -w '%{http_code} %{redirect_url}' | sed 's#http://[^/]*/##')"
 K=$(db "SELECT lower(code) FROM regions WHERE gnomish_name='$HERE'")
 echo "== shared actions"; act $K-bench; act $K-bench; act $K-birds; act $K-picnic; act $K-drink; act $K-read; act $K-read
+echo "== 2.8.60: no daily limits: the bench 12 times in a row, never refused"
+BID=$(db "SELECT id FROM town_actions WHERE slug='$K-bench'"); BSP=$(db "SELECT spot_id FROM town_actions WHERE slug='$K-bench'"); U0=$(db "SELECT COALESCE(SUM(uses),0) FROM town_uses WHERE action_id=$BID")
+REF=0; for i in $(seq 1 12); do
+  curl -s -b $C -c $C "$BASE/town.php?spot=$BSP" > /tmp/t.html
+  R=$(curl -s -b $C -c $C -X POST $BASE/town.php -H 'X-Requested-With: fetch' --data-urlencode "csrf=$(csrf /tmp/t.html)" -d do=act -d action_id=$BID -d spot=$BSP)
+  echo "$R" | grep -q '"ok":true' || { REF=$((REF+1)); echo "  refused $i: $(echo "$R" | grep -o '"msg":"[^"]*"' | cut -c1-160)"; }
+done
+U1=$(db "SELECT COALESCE(SUM(uses),0) FROM town_uses WHERE action_id=$BID")
+echo "  bench: refused=$REF noted uses $U0 -> $U1"; [ "$REF" -eq 0 ] || echo "FAIL a town action was refused within 12 goes (no daily limits since 2.8.60)"; [ $((U1-U0)) -eq 12 ] || echo "FAIL town_uses did not note 12 uses ($U0 -> $U1)"
+curl -s -b $C "$BASE/town.php?spot=$BSP" -o /tmp/t.html; grep -qE 'left today|done for today|today already' /tmp/t.html && echo "FAIL the place still talks about a daily limit"
+curl -s -b $C "$BASE/town.php" -o /tmp/t.html; grep -qE 'all done today|left to do today' /tmp/t.html && echo "FAIL the square still says all done / left today"
 echo "== buff active: $(db "SELECT town_stat, town_amt, town_until > datetime('now') FROM users WHERE username='sprout'")"
 echo "== lore unlocked: $(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id=ue.entry_id JOIN users u ON u.id=ue.user_id WHERE u.username='sprout' AND e.unlock_key LIKE 'lore:%'")"
 echo "== quiz"; act $K-riddle; T=$(grep -o 'name="token" value="[a-f0-9]*"' /tmp/t.html | head -1 | sed 's/.*value="//; s/"//'); Q=$(grep -oE 'evtitle">[^<]*' /tmp/t.html | head -1); echo "  $Q"

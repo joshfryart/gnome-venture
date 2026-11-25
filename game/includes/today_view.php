@@ -38,14 +38,13 @@ function today_prepare(array $u, bool $allNews = false): array
     }
     // Your jobs
     $c['jobs'] = q("SELECT period, title, qty, progress, stages, stages_paid FROM user_jobs WHERE user_id = ? AND status = 'active' ORDER BY id", [$uid])->fetchAll();
-    // The town square: things still to do today
+    // The town square: things open to do (2.8.60: no daily limits, so it is every action in an open place)
     $c['town'] = town_for($u, false);
-    $uses = town_uses_today($uid);
     $c['todo'] = 0;
     foreach (town_spots($c['town']) as $ts) {
         if (spot_closed($ts)) continue;
         if (journey_lock($uid, 'spot', (string)$ts['slug'])) continue;   // v0.7.66: closed for repairs
-        foreach (town_actions((int)$ts['id']) as $ta) if ($ta['kind'] !== 'link' && (int)$ta['daily'] > 0 && ($uses[(int)$ta['id']] ?? 0) < (int)$ta['daily']) $c['todo']++;
+        foreach (town_actions((int)$ts['id']) as $ta) if ($ta['kind'] !== 'link') $c['todo']++;
     }
     // In a village there's no square: say what's on locally instead
     $c['node'] = player_node($u);
@@ -147,7 +146,7 @@ function today_html(array $u, array $c, array $o = []): string
         elseif (($md = market_days_until()) > 0) $mk = ' · <span class="muted">🧺 market in ' . $md . 'd</span>';
     }
     if ($localHere) $cards[] = ['', '🪧 ' . e($node['name']) . ' rest stop', e($c['lline']), e($c['lcta']), 'town.php'];
-    else $cards[] = ['', '🏘️ ' . e($town), ($c['todo'] ? '<b>' . $c['todo'] . ' thing' . ($c['todo'] === 1 ? '' : 's') . ' to do today</b>' : 'All done for today.') . $mk, 'Town square →', 'town.php'];
+    else $cards[] = ['', '🏘️ ' . e($town), ($c['todo'] ? '<b>' . $c['todo'] . ' thing' . ($c['todo'] === 1 ? '' : 's') . ' to do</b>' : 'Everything is shut just now.') . $mk, 'Town square →', 'town.php'];
     $cards[] = ['', '🌍 Adventure', $next ? 'Next: <b>' . e($next['gnomish_name']) . '</b> (level ' . (int)$next['min_level'] . ')' : 'Walk the roads and wander off the path.', 'Where to next →', 'world.php'];
     if ($trekOn) $cards[] = ['', '🥾 Treks', 'Longer walks with fights and finds.', 'Plan a trek →', 'trek.php'];
     if (!empty($o['filler']) && count($cards) + ($slotHtml ? 1 : 0) === 7) $cards[] = ['', '🧑‍🌾 Your gnome', 'Level ' . (int)$u['level'] . '. Stats, gear and looks.', 'Your gnome →', 'gnome.php?tab=gnome'];   // keep the tiles even

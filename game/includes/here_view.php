@@ -323,7 +323,7 @@ function here_do_fronts(array $u, array $node, string $back, int $fronts, bool $
     require_once __DIR__ . '/local.php';
     $pool = stop_pool($node, null, (int)$u['id']);
     $visit = stop_visit_key($u);
-    [$done] = stop_state((int)$u['id'], (int)$node['id'], $visit);
+    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
     $out = [];
     $offer = $skipStall ? array_values(array_filter($pool['offer'], fn($a) => !in_array((string)$a['kind'], ['buy', 'snack'], true))) : $pool['offer'];   // v2.5.49: the stalls have their own front (here_stall_fronts)
     foreach (array_slice($offer, 0, $fronts) as $a) {
@@ -372,7 +372,7 @@ function here_do_reply(array $u, string $slug, string $msg, bool $ok, string $ba
     if (($node['kind'] ?? '') === 'village') foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $x) if ((string)$x['slug'] === $slug) { $a = $x; break; }
     header('Content-Type: application/json; charset=utf-8');
     if (!$a) { echo json_encode(['ok' => false, 'msg' => $msg !== '' ? $msg : 'That is not here any more.', 'html' => ''], JSON_UNESCAPED_SLASHES); exit; }
-    [$done] = stop_state((int)$u['id'], (int)$node['id'], stop_visit_key($u));
+    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
     $isDone = in_array($slug, $done, true);
     $html = in_array((string)$a['kind'], ['buy', 'snack'], true) ? here_stall_row_html($u, $node, $back, $a, $isDone, $msg, $ok) : here_do_block($u, $node, $back, $a, $isDone, $msg, $ok);
     [$hdrE, $hdrMax] = current_energy($u);   // the header pills follow the result (assets/hubscene.js)
@@ -390,7 +390,7 @@ function here_stall_fronts(array $u, array $node, string $back, int $fronts): ar
     require_once __DIR__ . '/local.php';
     $stalls = array_values(array_filter(stop_pool($node, null, (int)$u['id'])['offer'], fn($a) => in_array((string)$a['kind'], ['buy', 'snack'], true)));
     if (!$stalls) return [];
-    [$done] = stop_state((int)$u['id'], (int)$node['id'], stop_visit_key($u));
+    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
     $row = function (array $a) use ($u, $node, $back, $done): string {
         return '<div class="stallrow" data-slug="' . e((string)$a['slug']) . '" data-post="' . e(url('town.php')) . '">' . here_stall_row_html($u, $node, $back, $a, in_array((string)$a['slug'], $done, true)) . '</div>';
     };
@@ -673,7 +673,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
 /**
  * The doable things a rest stop has that its picture does not show (the picture has room for a few "Do" spots): up to three more, chosen for this visit
  * (a stable pick from the visit key), as hidden cards with the same inside as the picture's own. The dock's "Do here" strip opens them (assets/dock.js, hereDo);
- * without the dock they are never seen. Done ones are left out.
+ * without the dock they are never seen.
  */
 function here_extra_do(array $u, array $node, string $back, array $spots): string
 {
@@ -683,7 +683,7 @@ function here_extra_do(array $u, array $node, string $back, array $spots): strin
     foreach ($spots as $sp) { if (str_starts_with((string)$sp['id'], 's-do')) $fronts++; elseif (str_starts_with((string)$sp['id'], 's-shops')) $stall = true; }
     $pool = stop_pool($node, null, (int)$u['id']);
     $visit = stop_visit_key($u);
-    [$done] = stop_state((int)$u['id'], (int)$node['id'], $visit);
+    $done = [];   // 2.8.60: nothing at a rest stop is ever "done this visit" (no limits); here_do_block / here_stall_row_html keep their $isDone for callers
     $offer = $stall ? array_values(array_filter($pool['offer'], fn($a) => !in_array((string)$a['kind'], ['buy', 'snack'], true))) : $pool['offer'];
     $rest = array_values(array_filter(array_slice($offer, $fronts), fn($a) => !in_array((string)$a['slug'], $done, true)));
     usort($rest, fn($a, $b) => crc32($visit . $a['slug']) <=> crc32($visit . $b['slug']));
