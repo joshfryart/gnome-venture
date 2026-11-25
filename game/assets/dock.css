@@ -1584,6 +1584,13 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-100% / 9) 0; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmt.ring { visibility: visible; }
 }
+/* 2.8.59: the Library's question, landscape: the popover is wide and stops above the dock, so the question and its answers (side by side) fit without scrolling under the dock */
+@media (orientation: landscape) {
+  body.dock-on dialog.hubpop:has(.quizbox) .pickbox { width: min(720px, calc(100vw - 16px)); max-width: none; max-height: calc(100dvh - var(--dock-h, 106px) - 6px); overflow-y: auto; align-self: flex-start; margin-top: 4px; }
+  body.dock-on dialog.hubpop:has(.quizbox) { align-items: flex-start; place-items: start center; }
+  body.dock-on dialog.hubpop .quizbox .evicon { display: none; }
+  body.dock-on dialog.hubpop .quizbox .evbtns { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+}
 /* v2.8.37: the Gather popover on the Trail, landscape: the big tool cards go (the tool belt buttons gather with the same post), the popover takes the screen's width, picture left, belt and finds right */
 @media (orientation: landscape) {
   body.dock-on dialog#hubpop-tgather .pickbox { width: calc(100vw - 16px); max-width: none; }
