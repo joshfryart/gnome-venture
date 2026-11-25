@@ -1622,7 +1622,7 @@ body:has(.dk-fs) .gvfs { display: none !important; }
 .dockghost.dockclock b { font-weight: 800; }
 
 /* v2.8.53: Trek (map screen), landscape: the left column holds the map with Sneak / Camp / Leave beside it (they were below the fold in the right column); the key, whole-map fold and latest lines follow under the map in the same column, which scrolls on its own if it is taller than the window */
-@media (orientation: landscape) {
+@media (orientation: landscape) and (max-width: 999px) {
   body.dock-on .trekplay > .trekcolL { display: flex; flex-flow: row wrap; align-items: flex-start; align-content: flex-start; gap: 4px 6px; grid-column: 1; grid-row: 1 / span 12; position: sticky; top: 6px; max-height: calc(100dvh - var(--dock-h, 106px) - 12px); overflow-y: auto; min-width: 0; }
   body.dock-on .trekplay > .trekcolL > * { grid-column: auto; grid-row: auto; min-width: 0; }
   body.dock-on .trekplay > .trekcolL > .trekmapform { order: 1; position: static; flex: 0 0 auto; margin: 0; padding: 0; width: min(calc(100% - 76px), max(120px, calc(100dvh - var(--dock-h, 106px) - 66px))); }
