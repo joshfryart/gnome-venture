@@ -1569,10 +1569,10 @@ body.dock-on .vunmetline { margin: 6px 0; }
 /* the play rail already has its own full screen button (dk-fs): do not show a second one */
 body:has(.dk-fs) .gvfs { display: none !important; }
 @media (orientation: landscape) and (max-height: 438px) {
-  /* a short phone: map left, text right, half and half. The map shows 9 columns x 5 rows (tiles about 35 px); the top and bottom rows are cropped. */
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) { --mapw: min(52vw, max(210px, calc((100dvh - var(--dock-h, 106px) + 6px) * 9 / 5))); }
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmview { aspect-ratio: 9 / 5; }
-  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-200% / 9) 0; }
+  /* a short phone: map left, text right, half and half. v2.8.54: the map shows 9 columns x 7 rows like the taller layout (it was 9 x 5, which never showed the top and bottom map rows where some exits are: the Trail keeps a 7 x 7 window inside the map, so 5 rows cut off its first and last row). */
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) { --mapw: min(52vw, max(210px, calc((100dvh - var(--dock-h, 106px) + 6px) * 9 / 7))); }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmview { aspect-ratio: 9 / 7; }
+  html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmstage { width: 100%; margin: calc(-100% / 9) 0; }
   html body.dock-on .advgrid:has(> .mapcol > .trailstrip) .tilemap .tmt.ring { visibility: visible; }
 }
 /* v2.8.37: the Gather popover on the Trail, landscape: the big tool cards go (the tool belt buttons gather with the same post), the popover takes the screen's width, picture left, belt and finds right */

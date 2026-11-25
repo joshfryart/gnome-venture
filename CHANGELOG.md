@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.54
+- **Fix: Trail maps with exits on the top or bottom row could not be left on a short landscape phone.** The short-screen layout (under 439 px high) showed the Trail map as 9 columns x 5 rows. The Trail keeps a 7 x 7 window inside the map, so the first and last map rows were never on screen and an exit there could not be seen or tapped. It now shows 9 x 7 like the taller layout, so every row is visible again (the map is a little larger and the text column a little narrower; at 640x260 the map is 239 px wide, 185 px high).
+
 ## 2.8.53
 - **Landscape dock folds.** Puzzle box: the spare-piece shelf folds (stays open when you filter, search, pack or take out; reopens when you leave short landscape); Tailor pages its card lists 3 at a time (`assets/tailorpage.js`); Trek: Sneak / Camp / Leave sit in the left column beside the map; Jobs post: slimmer empty board and forms; Almanac search pages 6 hits at a time (no script).
 - **Garden Yard picture.** Level 3 art no longer overlaps neighbours (level 3 shrunk, tap rectangles fitted); frog pond, worm farm and silkworm spool redrawn (`tools/redraw_gyard_weak.py`, `tools/build_gyard_assets.py`). Player news post for the Yard.

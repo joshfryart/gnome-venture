@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-25 2.8.54 (branch `ccr-0e3dc455-1uan0i-2854`; slim zip `releases/GnomeVenture-2.8.54-web-update.zip`, needs 2.8.52+)
+- DONE: short landscape Trail map (under 439 px high) showed 9 x 5 tiles, which hid the first and last map rows (exits there could not be reached); now 9 x 7 (`dock.css` short-phone block). Checked in headless Chromium at 640x260 and 844x390 with the player on the top row. NOT seen on a real phone. Delve maps use another layout and were not changed.
+
 ## 2026-11-25 2.8.53 (branch `ccr-0e3dc455-1uan0i-2853`; slim zip `releases/GnomeVenture-2.8.53-web-update.zip`, needs 2.8.51+, 44 files; Sonnet build + Opus review workflow)
 - DONE: dock folds (Puzzle box shelf, Tailor paging, Trek actions left column, Jobs post, Almanac search paging); Garden Yard level 3 overlap fixed and frog pond / worm farm / silkworm spool redrawn; Yard player news post (key '2.8.53'); `nav_dock` label wording; Hollow jar sizing smoothed (larger of last week and two-week average; suite `hollow_sizing`); map fixes (hat follows the road, compass via `rl_heading8()`, stops spread; suite `map_fixes`). Tests run here: `hollow_sizing`, `map_fixes`, `gyard` (no fails), `social100`. NOT run: `pbox_v1` (2 fails seen by the builder, not confirmed as old), `tailor` suites, `treks.sh`, full CI.
 - NOT seen on a real phone: the folds, Trek left column (map is small: 218 px high at 844x390), Almanac pager, the new Yard art. Trails crossing other markers still needs map art redrawn (not done).
