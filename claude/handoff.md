@@ -1,4 +1,4 @@
-# Gnome Venture handoff (current as of 2026-11-25; main = 2.8.63, 2.8.64 on branch `ccr-6aa7b252-jbqae7`; MASTER TO-DO is `claude/todo.md` (one file, read it first); blocks below the 2.8.48 note are old history)
+# Gnome Venture handoff (current as of 2026-11-25; main = 2.8.64 (PRs 64 to 74 merged); MASTER TO-DO is `claude/todo.md` (one file, read it first); blocks below the 2.8.48 note are old history)
 
 **2.8.64 (2026-11-25), BUILT on branch `ccr-6aa7b252-jbqae7` (on top of main 2.8.63; no PR opened)**: rest stop activities are once a game day again (owner decision): each activity once a game day at each stop, by the gnome's own game day (`stop_log.day`, the real Hollow day with the clock off). `stop_done_today()` in `includes/stops.php`, checked in `stop_do()` (also under the row lock); stop page greys done cards ("Done today") and counts what is left; Here picture dims done Do spots. Town actions stay unlimited; the 2.8.60 removals (slots, daily cap, rest cap, tired halving) stay. No schema change. Slim zip `releases/GnomeVenture-2.8.64-web-update.zip` (needs 2.8.53+). See CHANGELOG 2.8.64.
 
