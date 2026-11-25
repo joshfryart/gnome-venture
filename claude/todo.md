@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-25 UNRELEASED hole rim pink (branch `ccr-45e6dd21-8icyjv`)
+- DONE (Josh: pink pixels inside the holes, most pieces, seen on desktop): hole cells of `socks-hand/strip.png` (parts48 and parts47, cells 1/3/5) had a coloured rim highlight (body salmon 240,138,124, mind lavender, craft yellow). Recoloured to the dark outline (42,26,16). Not rebuilt from aseprite: `tools/build_parts48.py` would bring it back; fix the v47/v48 source too. No version bump / zip yet; not seen in a browser (composited in Python only). 2.8.63 icon stutter: Josh says fixed.
+
 ## 2026-11-25 2.8.64 (branch `ccr-6aa7b252-jbqae7`, on top of main 2.8.63; slim zip `releases/GnomeVenture-2.8.64-web-update.zip`, needs 2.8.53+)
 - DONE (Josh: "Rest stop activities should be limited to once per game day."): each stop activity once a game day at each stop (key: user, stop, act, `stop_log.day` = the gnome's game date; real Hollow day with the clock off). `stop_done_today()` + checks in `stop_do()`; greyed "Done today" cards, Do badge = left today, Here spot dimmed "Done", dock Do here strip consistent. Town actions unchanged (unlimited). No schema change. Details in CHANGELOG 2.8.64.
 - OPEN (owner to judge): a stop's offer rotates with the day and the hour, so "come back tomorrow" may find a different set of acts; core acts stay. Per stop, not global: the same act at two stops is two goes (acts are shown per stop card).
