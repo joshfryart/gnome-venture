@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.66
+- **Fix: portrait phone world map (with the dock on) was 48 px wide.** The side-by-side layout (map + 300 px column, `body.dock-on main:has(> #worldmap)` and the `.youpill` / `.letter-reminder` cells) sat outside a media query in `assets/dock.css`; it is now landscape only. Portrait keeps the normal stacked page. Not seen in a browser.
+- **Fix (owner: old notifications on horizontal and desktop): the pop-up "-1 energy · +10 min (now 10:45)" no longer shows with the dock.** `gvShowToasts()` (`assets/site.js`) already dropped a bare "-1 energy"; with the game clock on the message carries the time too, so it slipped through. The dock shows both. Other pop-ups unchanged.
+
 ## 2.8.65
 - **Fix (owner: pink pixels inside the holes of puzzle pieces, on most pieces, most visible on desktop): the hole cut-outs no longer have a coloured rim.** Cause: the hole socks (`socks-hand.png`, `socks-strip.png`) drew a 1 px rim in the edge family's colour (body salmon, mind lavender, craft yellow) round the cut-out; at desktop sizes it read as stray pink pixels. Now that rim is the dark outline. Fixed at the source: ring 2 in `aseprite-source/pfight/v47/scripts/socks.lua` is `L.INK`, the six hole `.aseprite` / `.png` files in v47 `strip/` and `hand/` redrawn, and the kits rebuilt with `tools/build_parts48.py` and `tools/build_parts47.py` (their `marks/` folders restored from git: the builders drop the tag marks). Knobs unchanged. Art only, no code.
 

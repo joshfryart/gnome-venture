@@ -921,6 +921,8 @@ function post_update_news(string $from): void
         "Rest stop activities are once a game day again: each one, once a day at each stop. Come back after you sleep. Town actions stay unlimited."],
     '2.8.65' => ['🧩 Update 2.8.65: cleaner puzzle piece holes',
         "The holes in puzzle pieces no longer show stray pink, purple or yellow pixels on their rim. Clean dark outline now."],
+    '2.8.66' => ['🗺️ Update 2.8.66: world map and pop-ups',
+        "The world map fills the screen again on a phone held upright. The \"-1 energy · +10 min\" pop-up is gone on the bar layout: the bar already shows your energy and the time."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

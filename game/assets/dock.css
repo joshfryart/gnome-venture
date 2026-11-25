@@ -1380,11 +1380,14 @@ body.dock-on main:has(#vlist) > h1 { margin: 0 0 4px; font-size: 1.2rem; }
 body.dock-on #vlist > p.help { display: none; }
 body.dock-on #vlist > .vaaround { display: inline-flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 4px 8px; margin: 0 0 4px; }
 body.dock-on #vlist > .vfilter { padding: 4px 8px; margin: 0 0 4px; gap: 6px; }
+/* v2.8.66: the world map side-by-side layout is for landscape only (in portrait the 300 px column left the map 48 px wide) */
+@media (orientation: landscape) {
 body.dock-on main:has(> #worldmap) { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 0 10px; align-items: start; }
 body.dock-on main:has(> #worldmap) > * { grid-column: 1 / -1; min-width: 0; }
 body.dock-on main:has(> #worldmap) > #worldmap { grid-column: 1; grid-row: 1 / span 2; }
 body.dock-on main > #worldmap .mapwrap, body.dock-on main > #worldmap .mapzoom { max-height: 300px; }
 body.dock-on main > #worldmap svg { max-height: 300px; width: 100%; }
+}
 /* v2.8.57: desktop windows (not the short-landscape phone dock, not portrait phones): the world map, the region map (Map tab) and the Fast travel map
    were capped at 300 / 250 px high, so a 16:9 map drew about 535 x 300 in a 900 to 1300 px column. Here they fill the column (up to 1100 px wide)
    and keep their shape; the height stops where the window ends above the dock, so the whole map is on screen. */
@@ -1394,8 +1397,10 @@ body.dock-on main > #worldmap svg { max-height: 300px; width: 100%; }
   body.dock-on .regionmapbox .rzoom, body.dock-on .gomap .rzoom { max-width: 1100px; }
   body.dock-on .regionmapbox .rzoom .regionmap, body.dock-on .gomap .rzoom .regionmap { width: 100%; max-width: 1100px; height: auto; max-height: calc(100dvh - var(--dock-h, 106px) - 40px); margin-inline: auto; }
 }
+@media (orientation: landscape) {
 body.dock-on main:has(> #worldmap) > .youpill { grid-column: 2; grid-row: 1; margin: 0; align-self: end; }
 body.dock-on main:has(> #worldmap) > .letter-reminder { grid-column: 2; grid-row: 2; margin: 6px 0 0; font-size: 12px; align-self: start; }
+}
 body.dock-on #regionmap .maplegend, body.dock-on #regionmap .maphelp { display: none; }
 body.dock-on #regionmap .regnav { margin: 0; }
 body.dock-on main:has(> #worldmap) > #region .help { margin: 2px 0; }
