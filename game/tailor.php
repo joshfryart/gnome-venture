@@ -61,7 +61,7 @@ page_header('Tailor');
       <p class="muted">🔒 <?= e($nm) ?>: <?= count($defs) ?> wearables once you reach level <?= $need ?>.</p>
     <?php continue; endif; ?>
     <details class="box"><summary><b><?= e($nm) ?></b> <small class="muted"><?= count($defs) ?> wearables · level <?= $need ?></small></summary>
-    <ul class="rcards tlr">
+    <ul class="rcards tlr" data-tpage="3">
     <?php foreach ($defs as $base => $d): $c = $d['cuts']['a']; $why = tailor_gate($u, $d, $levels); $fee = wear_fee($d, 1); ?>
       <li class="box"><b><?= ($pi = ph_path($base)) !== '' ? art_img($pi, 'md', $d['name']) : $d['icon'] ?> <?= e($d['name']) ?></b> <span class="tag"><?= e($d['rarity']) ?></span> <small class="muted"><?= e(WEAR_CAT_NAME[$d['cat']] ?? $d['cat']) ?></small><br>
         <span class="help">Piece: <b><?= e($c[0]) ?></b>, <?= e(ucfirst($c[1])) ?> <?= (int)$c[2] ?>. <?= e($c[5]) ?></span><br>
@@ -76,7 +76,7 @@ page_header('Tailor');
 <?php endif; ?>
 <h2>Your wearables</h2>
 <?php if (!$owned): ?><p class="muted">You have no wearables yet.</p><?php else: ?>
-  <ul class="rcards tlr">
+  <ul class="rcards tlr" data-tpage="3">
   <?php foreach ($owned as $slug => $qty): [$base, $cut, $rank] = wear_parse($slug); $d = wear_defs()[$base]; $c = $d['cuts'][$cut]; $lf = ($d['get'] ?? '') === 'tailor' && $rank < 3 ? wear_fee($d, $rank + 1) - wear_fee($d, $rank) : 0; ?>
     <li class="box"><b><?= ($pi = ph_path($slug)) !== '' ? art_img($pi, 'md', $d['name']) : $d['icon'] ?> <?= e($d['name']) ?></b> <span class="tag"><?= e(WEAR_RANK_NAME[$rank]) ?></span> <small class="muted">× <?= (int)$qty ?></small><br>
       <span class="help">Piece: <b><?= e($c[0]) ?></b>, <?= e(ucfirst($c[1])) ?> <?= (int)$c[2] ?>. <?= e($c[5]) ?></span>
@@ -99,4 +99,5 @@ page_header('Tailor');
   </ul>
   <p class="help">Wear it on <a href="<?= e(url('gnome.php?tab=gnome')) ?>#wearing">My Gnome</a> (one item in each of 7 spots); a worn item's piece can then be switched on in the <a href="<?= e(url('puzzlebox.php')) ?>">Puzzle box</a> (a Keepsake slot: 1 at level 1, 2 at 15, 3 at 25, 4 at 40). Flood Boots work on flooded roads from your satchel.</p>
 <?php endif; ?>
+<script src="<?= e(url('assets/tailorpage.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php page_footer();

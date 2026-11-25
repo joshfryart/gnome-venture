@@ -1620,3 +1620,14 @@ body:has(.dk-fs) .gvfs { display: none !important; }
 .dockghost.dockclock svg { display: block; flex: none; }
 .dockghost.dockclock svg path { transform-origin: 10px 10px; }
 .dockghost.dockclock b { font-weight: 800; }
+
+/* v2.8.53: folds A: Puzzle box shelf fold (pfv1box.js keeps the filter working; open outside landscape) and Tailor paging (assets/tailorpage.js) */
+@media (orientation: landscape) and (max-height: 500px) {
+  body.dock-on .pbx-sfold > summary { cursor: pointer; font-weight: 700; min-height: 30px; display: flex; align-items: center; list-style: none; }
+  body.dock-on .pbx-sfold > summary::-webkit-details-marker { display: none; }
+  body.dock-on .pbx-sfold > summary::before { content: "\25B8"; display: inline-block; width: 1em; }
+  body.dock-on .pbx-sfold[open] > summary::before { content: "\25BE"; }
+  body.dock-on .tlrpager { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 8px; }
+  body.dock-on .tlrpager[hidden] { display: none; }
+}
+@media not all and (orientation: landscape) and (max-height: 500px) { body.dock-on .pbx-sfold > summary { display: none; } }
