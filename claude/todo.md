@@ -22,6 +22,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 ## 2026-11-25 Josh ticked off (later)
 - DONE (Josh, ticked): 2.8.52 uploaded; `gnav_on` is on (the Yard picture shows); 75% dock and Hollow jar tried on his phone.
 - DROPPED (Josh crossed it out): sending the live `welcome_back.php`; the `craft_path()` alias in 2.8.52 stays as the fix.
+- DONE (Josh, 2026-11-25, "phone checks ok"): phone checks of the 75% dock text and touch targets and of the Garden Yard picture on a real phone.
 
 ## 2026-11-24 landscape dock launch (2.7.58 to 2.8.24, branch `ccr-b0272b4c-ax6zb8`, ON MAIN)
 - DONE 2.8.23: `nav_dock` default 1 + boot step `nav_dock_launch_280` sets it to 1 once on upgrade (admin can set 0 or admin later; kept). Portrait and big screens keep the classic chrome. Fallback: any user adds `?dock=off` (cookie `gv_dock`; `?dock=on` undoes it). No visible button for it yet. 2.8.24: player news post for the new layout (`update_news.php`). Slim zips need 2.7.56+, newest `releases/GnomeVenture-2.8.24-web-update.zip` (carries everything since).
