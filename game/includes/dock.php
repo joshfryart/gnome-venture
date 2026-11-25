@@ -138,6 +138,30 @@ function dock_menus(array $u, string $page): array
     return [$menus, $here];
 }
 
+/**
+ * v2.8.55: the dock's time of day (the stone arch's lighting and its lantern): 'day', 'gold' (golden hour) or 'night'.
+ * Rule, by the minute of the game day (the player's own game clock, users.game_minute; 360 = 06:00 wake, 1320 = 22:00 tired, it may pass 1440):
+ *   06:00 to 16:59 = day; 17:00 to 19:59 = golden hour; 20:00 onward (tired and past midnight included) and before 06:00 = night.
+ * With the game clock off (the old server-time play) the same bands use the real local hour of the Hollow (game_timezone, America/Halifax).
+ */
+function dock_tod_band(int $minute): string
+{
+    $m = $minute % 1440;
+    if ($minute >= 1440 || $m < 360 || $m >= 1200) return 'night';
+    return $m >= 1020 ? 'gold' : 'day';
+}
+
+function dock_tod(array $u): string
+{
+    try {
+        if (gclock_on()) return dock_tod_band((int)gclock_state($u)['minute']);
+        require_once __DIR__ . '/hollow_clock.php';
+        return dock_tod_band(60 * (int)hollow_date('G'));
+    } catch (Throwable $e) {
+        return 'day';
+    }
+}
+
 /** The status plate and its popover: numbers and the few links the menu cannot reach (stat points, ready pots and jars, the trip). */
 function dock_status(array $u): array
 {
@@ -178,7 +202,7 @@ function dock_status(array $u): array
     } catch (Throwable $e) {
         error_log('dock_status: ' . $e->getMessage());   // the plate is never worth a broken page
     }
-    return ['plate' => $plate, 'rows' => $rows, 'links' => $links];
+    return ['plate' => $plate, 'rows' => $rows, 'links' => $links, 'tod' => dock_tod($u)];
 }
 
 /** What the right rail showed (ready pots, boosts, tasks), for the popover's second tab: the dock folds the rail in, so wide screens lose nothing. */
@@ -443,7 +467,7 @@ function dock_html(array $u, string $page): string
     try { require_once __DIR__ . '/quick_slot.php'; $quick = quick_get($u); } catch (Throwable $e) { error_log('dock quick: ' . $e->getMessage()); }
     $back = $page . (($qs = (string)($_SERVER['QUERY_STRING'] ?? '')) !== '' && preg_match('~^[A-Za-z0-9=&_.-]*$~', $qs) ? '?' . $qs : '');   // where a dock form sends the gnome back to (quick.php uses safe_back())
     $data = [
-        'menus' => $menus, 'here' => $here, 'plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'],
+        'menus' => $menus, 'here' => $here, 'plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'], 'tod' => $st['tod'],
         'actions' => dock_actions($u, $page), 'themeForm' => theme_toggle('th-dock'), 'rail' => dock_rail($u), 'more' => dock_more($u, $page),
         'logoutForm' => '<form method="post" action="' . e(url('logout.php')) . '" class="inline" data-noajax="1">' . csrf_field() . '<button type="submit">Log out</button></form>', 'unread' => msg_unread((int)$u['id']) ? 1 : 0,
         'quick' => $quick, 'csrf' => csrf_token(), 'quickUrl' => url('quick.php'), 'stateUrl' => url('dockstate.php'), 'back' => $back,
@@ -458,6 +482,6 @@ function dock_html(array $u, string $page): string
         foreach ($m['tiles'] as $t) $fb .= '<li>' . ($t['why'] !== '' ? '<span>' . e($t['label']) . ' (' . e($t['why']) . ')</span>' : '<a href="' . e($t['href']) . '"' . (!empty($t['on']) ? ' aria-current="page"' : '') . '>' . e($t['label']) . '</a>') . '</li>';
         $fb .= '</ul></li>';
     }
-    return '<nav class="dockroot" id="dockroot" aria-label="Game menu"><ul class="dockfb">' . $fb . '</ul></nav>'
+    return '<nav class="dockroot" id="dockroot" data-tod="' . e($st['tod']) . '" aria-label="Game menu"><ul class="dockfb">' . $fb . '</ul></nav>'
         . '<div class="dockdata" hidden><script type="application/json" id="dockjson">' . $json . '</script></div>';
 }
