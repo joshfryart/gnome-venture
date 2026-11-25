@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.67
+- **Fix: the game-clock cost pop-up still showed with the dock ("-1 energy · +10 min (now 10:45)").** 2.8.66's filter matched the text without the emoji the server adds ("⚡ −1 energy · 🕐 +10 min (now 10:45)") and without the "N h of it waits for tomorrow" bit. `gvShowToasts()` (`assets/site.js`) now drops a pop-up whose every part is an energy cost, a time cost, the "now hh:mm" or the "waits for tomorrow" note, emoji or not; any other text keeps its pop-up. Not seen in a browser (regex tried on five texts in node).
+
 ## 2.8.66
 - **Fix: portrait phone world map (with the dock on) was 48 px wide.** The side-by-side layout (map + 300 px column, `body.dock-on main:has(> #worldmap)` and the `.youpill` / `.letter-reminder` cells) sat outside a media query in `assets/dock.css`; it is now landscape only. Portrait keeps the normal stacked page. Not seen in a browser.
 - **Fix (owner: old notifications on horizontal and desktop): the pop-up "-1 energy · +10 min (now 10:45)" no longer shows with the dock.** `gvShowToasts()` (`assets/site.js`) already dropped a bare "-1 energy"; with the game clock on the message carries the time too, so it slipped through. The dock shows both. Other pop-ups unchanged.
