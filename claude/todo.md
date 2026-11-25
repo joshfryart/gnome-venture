@@ -5,6 +5,12 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 ## 2026-11-25 HOTFIX 2.8.52 (branch `ccr-0e3dc455-1uan0i-2852`, not merged; slim zip `releases/GnomeVenture-2.8.52-web-update.zip`, needs 2.8.48+)
 - Josh's live Today card crashed: `Call to undefined function craft_path()` at `welcome_back.php:92` (Error log, 2026-11-25 00:46 UTC, after uploading 2.8.51). `craft_path` is in NO file, commit, branch or zip of this repo, so the live `welcome_back.php` (or another live file) is not the repo's. 2.8.52 adds `craft_path()` as an alias of `craft_url()` in `here_schema.php`. OPEN: ask Josh to compare live `includes/welcome_back.php` with the repo (something else may be missing); NEXT after upload: check the Error log is quiet.
 
+## 2026-11-25 Josh: DONE AND RESOLVED, marked closed (old lines below that mention them are history)
+- Puzzle combat leftovers (PR 56 branch `ccr-893d59b2-e35ovt`): second refit pass on the out-of-range creatures; Luck and Lore dead stats; the failing pre-existing test suites. CLOSED.
+- Stat pieces (2.7.58, `pfight_statpieces`, branch `item-review-a-b`): balance of Knot of Twine / Eyes of the Wood / Lucky Streak; redraw weak icons; deciding when to turn the setting on. CLOSED.
+- Art and content: 428 pal perch sprites; piece art leftovers in `pfight-art-todo.md`; the `*-p2-todo.md` Sights engine gaps (32); the 6 tea crops and final art for 8 forage items. CLOSED.
+- NOT closed (still open): map fixes (hat leaves the road, compass mismatch, trail crossings), plus the NEXT lines of the sections below.
+
 ## 2026-11-25 Josh's decisions (2.8.49 to 2.8.51, PR 65 MERGED to main 2026-11-25; slim zip `releases/GnomeVenture-2.8.51-web-update.zip`, needs 2.8.47+, carries 2.8.48 to 2.8.51; sent to Josh)
 - NEXT: Josh uploads 2.8.51, checks `gnav_on` is 1 in Admin (else the Yard picture stays hidden), tests the 75% dock and the Hollow jar on his phone. Then: dock folds not done (below), Yard art leftovers, Hollow jar second-week sizing check.
 - DONE 2.8.49: tea kettle open for everyone (`tea_open` = everyone) and Garden Yard picture flag `gnav_garden` = 1, both set once by boot step `open_tea_yard_2849` on upgrade (admin can change back). Tested on a scratch SQLite copy (upgrade from 2.8.48). `gnav_garden` still needs `gnav_on` (Here page) to show for players: CHECK in Admin that `gnav_on` is 1, else the Yard picture stays hidden. No player news post yet.
