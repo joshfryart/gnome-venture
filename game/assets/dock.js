@@ -811,7 +811,23 @@
   if (mq.addEventListener) mq.addEventListener('change', render); else if (mq.addListener) mq.addListener(render);
 
   /* the message bell: the page's own top message list (.msglog.top, hidden in this layout) opens as a scrollable popover from a bell at the far right of the dock */
-  var mBtn = null, mPop = null;
+  var mBtn = null, mPop = null, recent = [], noteEl = null, noteT = 0, glowT = 0;   // v2.8.68: pop-ups with the dock go to the bell: it glows and the newest shows beside it for a few seconds
+  window.gvDockNote = function (nodes) {   // returns true when it took the messages (landscape dock + desktop); the caller keeps errors and prizes as pop-ups
+    if (!D || !window.matchMedia || !window.matchMedia('(orientation: landscape)').matches) return false;
+    if (!mBtn) msgUpdate();
+    if (!mBtn) return false;
+    var last = '';
+    [].forEach.call(nodes, function (n) { var t = (n.textContent || '').replace(/\s+/g, ' ').trim(); if (!t) return; recent.unshift({ t: t, at: Date.now(), seen: false }); last = t; });
+    if (!last) return true;
+    recent = recent.slice(0, 12);
+    msgUpdate();
+    mBtn.classList.remove('dk-glow'); void mBtn.offsetWidth; mBtn.classList.add('dk-glow');
+    clearTimeout(glowT); glowT = setTimeout(function () { mBtn.classList.remove('dk-glow'); }, 6000);
+    if (!noteEl) { noteEl = document.createElement('button'); noteEl.type = 'button'; noteEl.className = 'dk-note'; noteEl.setAttribute('role', 'status'); root.appendChild(noteEl); noteEl.addEventListener('click', function () { noteEl.classList.remove('dk-in'); mBtn.click(); }); }
+    noteEl.textContent = last; noteEl.classList.remove('dk-in'); void noteEl.offsetWidth; noteEl.classList.add('dk-in');
+    clearTimeout(noteT); noteT = setTimeout(function () { noteEl.classList.remove('dk-in'); }, 5000);
+    return true;
+  };
   function msgLi() { return [].slice.call(document.querySelectorAll('.msglog.top .mllist li')).filter(function (l) { return !l.classList.contains('mlempty'); }); }
   function msgSeenKey() { var l = msgLi()[0]; return l ? l.textContent.trim().slice(0, 80) : ''; }
   function msgUpdate() {
@@ -827,15 +843,18 @@
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') mPop.classList.remove('dk-on'); });
       mPop.addEventListener('click', function (e) { if (e.target.closest('[data-msgx]')) mPop.classList.remove('dk-on'); });
     }
-    root.classList.toggle('dk-has', n > 0);
+    var shown = {}; msgLi().forEach(function (l) { shown[l.textContent.replace(/\s+/g, ' ').trim()] = 1; }); recent = recent.filter(function (r) { return !shown[r.t]; });   // the page list has it now
+    root.classList.toggle('dk-has', n > 0 || recent.length > 0);
     try { seen = sessionStorage.getItem('dkmsg') || ''; } catch (x) {}
     var dot = mBtn.querySelector('.dk-msgn'), fresh = n > 0 && msgSeenKey() !== seen;
-    dot.hidden = !fresh; dot.textContent = fresh ? String(Math.min(n, 99)) : '';
+    var unseen = recent.filter(function (r) { return !r.seen; }).length, cnt = (fresh ? n : 0) + unseen;
+    dot.hidden = cnt < 1; dot.textContent = cnt > 0 ? String(Math.min(cnt, 99)) : '';
     if (mPop.classList.contains('dk-on')) msgFill();
   }
   function msgFill() {
     var src = document.querySelector('.msglog.top .mllist');
     mPop.innerHTML = '<header><span>Messages</span><button type="button" data-msgx aria-label="Close">\u2715</button></header>';
+    if (recent.length) { var rl = document.createElement('ul'); rl.className = 'mllist'; recent.forEach(function (r) { r.seen = true; var li = document.createElement('li'); li.textContent = r.t; var w = document.createElement('span'); w.className = 'mlwhen'; w.textContent = 'just now'; li.appendChild(w); rl.appendChild(li); }); mPop.appendChild(rl); }
     if (src) { var ul = src.cloneNode(true); mPop.appendChild(ul); }
   }
   document.addEventListener('gv:swapped', function () { setTimeout(msgUpdate, 0); });

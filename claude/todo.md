@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-25 2.8.68 (slim zip `releases/GnomeVenture-2.8.68-web-update.zip`, needs 2.8.67+)
+- DONE (Josh: move all notifs to the bell, glow, show the newest a few seconds): see CHANGELOG 2.8.68. NOT seen in a browser. OPEN: errors / prizes still pop up; portrait still uses pop-ups (bell is landscape only); say if the 5 s / 6 s timings or the bubble place are wrong.
+
 ## 2026-11-25 2.8.67 (slim zip `releases/GnomeVenture-2.8.67-web-update.zip`, needs 2.8.66+)
 - DONE: 2.8.66's toast filter missed the emoji in the real text; fixed in `site.js` (every part energy / time cost). Not seen in a browser. If an old pop-up still shows, ask Josh for its exact words.
 
