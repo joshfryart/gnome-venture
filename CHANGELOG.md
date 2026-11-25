@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.68
+- **Pop-up messages go to the bell with the dock (landscape phone and desktop).** Owner: "Move all notifs to the new stories are bottom right. Have it glow and show the most recent for a few seconds before disappearing." `gvShowToasts()` (`assets/site.js`) hands the messages to `gvDockNote()` (`assets/dock.js`): the bell glows (gold pulse, 6 s), the newest message shows in a small bubble beside it for 5 s then fades, tapping the bubble or the bell opens Messages, where the recent ones are listed on top as "just now" (dropped from that list once the page's own message list has them), and the bell badge counts the unseen ones. Errors and prize boxes still pop up as before (they must not vanish). Portrait keeps the old pop-ups (the bell is landscape only). CSS in `assets/dock.css` after the bell rules; reduced motion: no pulse, no fade. NOT seen in a browser: check on the phone and desktop.
+
 ## 2.8.67
 - **Fix: the game-clock cost pop-up still showed with the dock ("-1 energy · +10 min (now 10:45)").** 2.8.66's filter matched the text without the emoji the server adds ("⚡ −1 energy · 🕐 +10 min (now 10:45)") and without the "N h of it waits for tomorrow" bit. `gvShowToasts()` (`assets/site.js`) now drops a pop-up whose every part is an energy cost, a time cost, the "now hh:mm" or the "waits for tomorrow" note, emoji or not; any other text keeps its pop-up. Not seen in a browser (regex tried on five texts in node).
 

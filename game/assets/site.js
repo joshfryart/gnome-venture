@@ -1729,6 +1729,11 @@ function gvShowToasts(nodes) {
     }, 250);
     return;
   }
+  if (document.body.classList.contains('dock-on') && window.gvDockNote) {   // v2.8.68: with the dock (landscape, desktop) pop-ups go to the bell; errors and prizes stay as pop-ups
+    var keepN = Array.prototype.filter.call(nodes, function (n) { return n.classList.contains('err') || n.classList.contains('prizebox') || n.classList.contains('toastprize'); });
+    var moveN = Array.prototype.filter.call(nodes, function (n) { return keepN.indexOf(n) < 0; });
+    if (moveN.length && window.gvDockNote(moveN)) { nodes = keepN; if (!nodes.length) return; }
+  }
   var phone = window.innerWidth <= 720;
   if (phone) document.querySelectorAll('.toasts').forEach(function (old) { old.remove(); });   // v1.6.2: never stack two toast boxes
   var box = document.createElement('div');
