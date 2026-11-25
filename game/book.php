@@ -154,7 +154,11 @@ page_header('My Almanac');
     <?php if ($qs !== ''): ?>
       <div class="box"><h3>🔍 “<?= e($qs) ?>” <small><?= count($hits) ?><?= count($hits) >= 40 ? '+' : '' ?> found</small></h3>
         <?php if (!$hits && !$locked): ?><p class="muted">Nothing in the Almanac by that name. Try another word.</p><?php elseif (!$hits): ?><p class="muted">Nothing on the pages you’ve found so far.</p><?php endif; ?>
-        <ul class="hitlist"><?php foreach ($hits as $h): ?><li><a href="<?= $open($h) ?>"><?= e($h['title']) ?></a> <small class="muted"><?= e($chapterLabel((string)$h['chapter'])) ?> · <?= e((string)$h['category']) ?></small></li><?php endforeach; ?></ul>
+        <?php $hpPer = 6; $hpPages = (int)ceil(count($hits) / $hpPer);
+              $hpOn = isset($u) && $u && function_exists('dock_on') && dock_on($u) && $hpPages > 1;   // v2.8.53: landscape dock: the hits page by CSS (radio + label, no script); elsewhere the whole list shows ?>
+        <?php if ($hpOn): ?><div class="hitpg"><?php for ($pg = 1; $pg <= $hpPages; $pg++): ?><input type="radio" name="hp" id="hp<?= $pg ?>" class="hpr"<?= $pg === 1 ? ' checked' : '' ?> aria-label="Results page <?= $pg ?>"><?php endfor; ?><?php endif; ?>
+        <ul class="hitlist"><?php foreach ($hits as $i => $h): ?><li<?= $hpOn ? ' class="hp' . ((int)floor($i / $hpPer) + 1) . '"' : '' ?>><a href="<?= $open($h) ?>"><?= e($h['title']) ?></a> <small class="muted"><?= e($chapterLabel((string)$h['chapter'])) ?> · <?= e((string)$h['category']) ?></small></li><?php endforeach; ?></ul>
+        <?php if ($hpOn): ?><div class="hpnav"><?php for ($pg = 1; $pg <= $hpPages; $pg++): ?><label for="hp<?= $pg ?>"><?= $pg ?></label><?php endfor; ?></div></div><?php endif; ?>
         <?php if ($locked): require_once __DIR__ . '/includes/almanac_notes.php'; ?>
           <?php $lkFold = isset($u) && $u && function_exists('dock_on') && dock_on($u) && count($locked) > 4; ?>
           <?php if ($lkFold): ?><details class="catfold"><summary><h4>🔒 Not found yet <small class="muted"><?= count($locked) ?></small></h4></summary><?php else: ?><h4>🔒 Not found yet</h4><?php endif; ?>

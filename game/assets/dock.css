@@ -1631,3 +1631,37 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on .tlrpager[hidden] { display: none; }
 }
 @media not all and (orientation: landscape) and (max-height: 500px) { body.dock-on .pbx-sfold > summary { display: none; } }
+/* v2.8.53: Trek (map screen), landscape: the left column holds the map with Sneak / Camp / Leave beside it (they were below the fold in the right column); the key, whole-map fold and latest lines follow under the map in the same column, which scrolls on its own if it is taller than the window */
+@media (orientation: landscape) and (max-width: 999px) {
+  body.dock-on .trekplay > .trekcolL { display: flex; flex-flow: row wrap; align-items: flex-start; align-content: flex-start; gap: 4px 6px; grid-column: 1; grid-row: 1 / span 12; position: sticky; top: 6px; max-height: calc(100dvh - var(--dock-h, 106px) - 12px); overflow-y: auto; min-width: 0; }
+  body.dock-on .trekplay > .trekcolL > * { grid-column: auto; grid-row: auto; min-width: 0; }
+  body.dock-on .trekplay > .trekcolL > .trekmapform { order: 1; position: static; flex: 0 0 auto; margin: 0; padding: 0; width: min(calc(100% - 76px), max(120px, calc(100dvh - var(--dock-h, 106px) - 66px))); }
+  body.dock-on .trekplay > .trekcolL > .trekacts { order: 2; flex: 0 0 auto; width: 66px; margin: 0; }
+  body.dock-on .trekplay > .trekcolL > .trekacts .trekbtns { display: flex; flex-direction: column; gap: 4px; }
+  body.dock-on .trekplay > .trekcolL > .trekacts .trekbtns .btn, body.dock-on .trekplay > .trekcolL > .trekacts .trekbtns form { width: 100%; box-sizing: border-box; }
+  body.dock-on .trekplay > .trekcolL > .trekacts .trekbtns .btn { padding: 3px 2px; font-size: 11px; min-height: 34px; }
+  body.dock-on .trekplay > .trekcolL > .trekacts > p.help { display: none; }
+  body.dock-on .trekplay > .trekcolL > :not(.trekmapform):not(.trekacts) { order: 3; flex: 1 0 100%; }
+}
+
+/* v2.8.53: Jobs, Community board, landscape: an empty board is one slim row (title and "Nothing on the board" side by side), the forms are tighter (narrower title column, shorter fields) so more of them is above the fold; the blurbs stay folded */
+@media (orientation: landscape) {
+  body.dock-on .jb-cols.even > .jb-board:not(:has(.jb-pj)) { display: flex; align-items: center; gap: 10px; padding: 4px 10px; }
+  body.dock-on .jb-cols.even > .jb-board:not(:has(.jb-pj)) > .jb-empty { margin: 0; padding: 0; border: 0; font-size: 12px; }
+  body.dock-on .jb-forms > form.jb-form { grid-template-columns: 120px minmax(0, 1fr) auto; gap: 0 8px; padding: 4px 10px; }
+  body.dock-on .jb-forms > form.jb-form > .g2 { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 0 6px; margin: 0; }
+  body.dock-on .jb-forms > form.jb-form input, body.dock-on .jb-forms > form.jb-form select { min-height: 32px; padding-block: 2px; }
+  body.dock-on .jb-forms > details.jb-info > summary { padding: 0; min-height: 0; }
+}
+
+/* v2.8.53: Almanac search, landscape: the hits page six at a time (radio + label pager from book.php, no script); portrait and wide screens show the whole list */
+.hitpg .hpr { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.hitpg .hpnav { display: none; }
+@media (orientation: landscape) {
+  body.dock-on .hitpg .hitlist > li { display: none; }
+  body.dock-on .hitpg:has(#hp1:checked) .hitlist > li.hp1, body.dock-on .hitpg:has(#hp2:checked) .hitlist > li.hp2, body.dock-on .hitpg:has(#hp3:checked) .hitlist > li.hp3, body.dock-on .hitpg:has(#hp4:checked) .hitlist > li.hp4, body.dock-on .hitpg:has(#hp5:checked) .hitlist > li.hp5, body.dock-on .hitpg:has(#hp6:checked) .hitlist > li.hp6, body.dock-on .hitpg:has(#hp7:checked) .hitlist > li.hp7 { display: list-item; }
+  body.dock-on .hitpg .hpnav { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 2px; }
+  body.dock-on .hitpg .hpnav label { min-width: 34px; min-height: 30px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; padding: 0 8px; border: 2px solid var(--ol, #2a1a10); background: var(--surface); font-weight: 700; font-size: 13px; cursor: pointer; }
+  body.dock-on .hitpg:has(#hp1:checked) label[for="hp1"], body.dock-on .hitpg:has(#hp2:checked) label[for="hp2"], body.dock-on .hitpg:has(#hp3:checked) label[for="hp3"], body.dock-on .hitpg:has(#hp4:checked) label[for="hp4"], body.dock-on .hitpg:has(#hp5:checked) label[for="hp5"], body.dock-on .hitpg:has(#hp6:checked) label[for="hp6"], body.dock-on .hitpg:has(#hp7:checked) label[for="hp7"] { background: var(--accent, #2f6b3a); color: #fff; }
+  body.dock-on .hitpg:has(.hpr:focus-visible) .hpnav { outline: 2px solid var(--accent, #2f6b3a); outline-offset: 2px; }
+}
