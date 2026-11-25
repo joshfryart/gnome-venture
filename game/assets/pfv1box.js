@@ -308,9 +308,13 @@
           all('#pfv-filt button', root).forEach(function (x) { var on = x.getAttribute('data-g') === st.g; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
           if (allB) allB.hidden = st.g === 'all' && !st.q && !st.t;
           if (kindP) { kindP.hidden = !st.t; kindP.innerHTML = st.t ? '<span>Showing ' + esc(TY[st.t] || st.t) + ' pieces only.</span><button type="button" class="btn ghost" data-pbx-kind="">Show all kinds</button>' : ''; }
+          if (st.g !== 'all' || q || st.t) unfold();   // the fold must be open when a filter is used
           if (empty) empty.hidden = n > 0 || !root.querySelector('.shelfg > li[data-g]');
         }
-        function toShelf() { if (shelf) { try { shelf.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } catch (e) { shelf.scrollIntoView(); } } }
+        var sfold = root.querySelector('#pbx-sfold');
+        function unfold() { if (sfold) sfold.open = true; }
+        try { if (sfold && matchMedia('(orientation: landscape) and (max-height: 500px)').matches) sfold.open = false; } catch (e) {}   // the fold is a landscape-dock thing: closed there, open elsewhere and without script
+        function toShelf() { unfold(); if (shelf) { try { shelf.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } catch (e) { shelf.scrollIntoView(); } } }
         if (qi) qi.addEventListener('input', function () { st.q = qi.value; apply(); });
         if (/[?&]show=hurt\b/.test(location.search) && shelf) { st.t = 'hurt'; apply(); setTimeout(toShelf, 60); }
         // after a change: the piece that went in settles into the tray, one line says what happened (only when it came true)
