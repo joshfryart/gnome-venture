@@ -946,7 +946,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $data['yieldw'] = PF_YIELD;   // the word for the creature's bar in a new-rule fight, read by the board script (assets/pfboardv1.js); a flag-off page does not carry it
         foreach (['kind', 'grudge', 'ven', 'aoe'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.98 class rules: the rule chip, the Beast's stacks, the venom cells
         foreach (['status', 'wear', 'env'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.74 deck model: what waits on each side (creature tags), tool wear so far
-        foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['life' => $t['life'], 'src' => $t['src'], 'flip' => $t['flip'], 'canflip' => $t['canflip']];
+        foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['life' => $t['life'], 'src' => $t['src'], 'flip' => $t['flip'], 'canflip' => $t['canflip']] + array_intersect_key($t, ['st' => 1, 'ik' => 1]);   // 2.8.61: a stat piece's stat (corner badge) and icon key (pfb_view gives them; the page used to drop them, so the hand drew the type glyph)
         // stage C (the v1 page script, assets/pfboardv1.js): the state before the last turn for the replay, the fight tools (durability left before this fight), whose piece is a tool piece, the box link
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['tool' => (string)($t['tool'] ?? ''), 'rank' => (int)($t['rank'] ?? 0)];
         $data['prev'] = !empty($enc['replay']) ? ($enc['prev'] ?? null) : null;

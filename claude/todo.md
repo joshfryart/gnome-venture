@@ -1,6 +1,11 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-25; main = 2.8.59, 2.8.60 on branch `ccr-6aa7b252-jbqae7`; landscape dock launched for everyone in 2.8.23). PRs 55, 52, 8 closed unmerged (stale 2.7.x))
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-25; main = 2.8.59, 2.8.60 and 2.8.61 on branch `ccr-6aa7b252-jbqae7`; landscape dock launched for everyone in 2.8.23). PRs 55, 52, 8 closed unmerged (stale 2.7.x))
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
+
+## 2026-11-25 2.8.61 (branch `ccr-6aa7b252-jbqae7`, on top of 2.8.60; slim zip `releases/GnomeVenture-2.8.61-web-update.zip`, needs 2.8.53+)
+- DONE (Josh: "im not seeing some pieces drawn, the newer stat pieces, when they are in my picked pieces"): stat pieces in a FIGHT (hand, board, replay) drew the type glyph / tag icon and no stat badge; Puzzle box kit, shelf and pre-fight deck were fine. Causes: fight tiles had no `ik` (`pf_make_tile()` drops it; `pfd_tiles()` now adds it), the page data dropped hand `st` / `ik` (`includes/pfight_game.php`), the crisp hand-size cache in `assets/pfparts47.js` was keyed by the strip icon (`P.keyOf(o, size)` now), and hand pieces were never redrawn when their icon arrived (`cicoRedraw` in `assets/pfboardv1.js`). Headless Chromium phone / landscape / desktop: all 24 now drawn with icon and badge. Test: `tests/pf_stat_art.php` (+99 checks).
+- OPEN (small): a fight already running when 2.8.61 lands keeps tiles without `ik`; its stat pieces show the type glyph until the next fight.
+- Tests: `pf_stat_pieces.sh` all ok (pf_stat_art 176 ok; 99 of the new checks fail on 2.8.60), `pfengine_js.sh` ok, `pfanim_unit.js` 6107 ok, `check_versions` ok; no CSS touched.
 
 ## 2026-11-25 2.8.60 (branch `ccr-6aa7b252-jbqae7`, on top of main 2.8.59; slim zip `releases/GnomeVenture-2.8.60-web-update.zip`)
 - DONE (owner decision, hard remove, no setting): no daily caps on town actions (`town_act()`, festival treat), no rest-stop limits (once per visit, `stop_slots` per visit, `stop_daily_cap`, `stop_rest_daily`) and no "tired" halving after `stop_daily_total`. UI texts and the four retired settings removed; `town_uses` / `stop_log` still written (no schema change). Details in CHANGELOG 2.8.60.

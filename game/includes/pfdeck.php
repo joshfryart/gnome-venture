@@ -539,6 +539,7 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
         foreach (['col', 'up', 'mod', 'cnt', 'fx', 'fa', 'fb', 'st', 'sm', 'edges', 'ik'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
         if ($e['tool'] !== '') $over['tool'] = $e['tool'];
         $tile = pf_make_tile($k, $stats, $b, $over);
+        if (!empty($e['ik'])) $tile['ik'] = (string)$e['ik'];   // 2.8.61: the drawn icon's key rides on the tile (a stat piece's ico-stat-*), so the fight's hand, board and replay draw it as the box does (pf_make_tile keeps no ik)
         if (!empty($e['fx'])) { $tile['fx'] = (string)$e['fx']; $tile['fxa'] = (int)($e['fa'] ?? 0); $tile['fxb'] = (int)($e['fb'] ?? 0); }
         elseif ($e['src'] === 'stat') { $tile['fxa'] = (int)($e['fa'] ?? 0); $tile['fxb'] = (int)($e['fb'] ?? 0); }   // a stat piece not live yet: its numbers ride along, no effect   // 2.7.09: the wear effect rides on the tile as fx, fxa, fxb (pfb_wx_* in pfboard.php)
         $deck[] = $tile;

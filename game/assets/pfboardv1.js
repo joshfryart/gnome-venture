@@ -1125,7 +1125,7 @@
     clearPicks(); selected = null; render();
   }
 
-  function cicoRedraw() { render(); }   // one function for the icon loader, so it is only listed once
+  function cicoRedraw() { tiles.forEach(function (t, i) { if (data.hand[i] && data.hand[i].ik) redrawTile(i); }); render(); }   // one function for the icon loader, so it is only listed once. 2.8.61: the hand pieces with an icon are drawn again too (a hand piece is drawn once, so a stat piece whose icon came late stayed on its type glyph)
   function render() {
     var lit = litCells(selected), b = working(); envLit = envLitSet(lit, b);
     boardEl.textContent = '';

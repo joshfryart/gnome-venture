@@ -267,7 +267,7 @@
     var ctx = HTMLCanvasElement.prototype.getContext, src = null, n;
     var whole = function (z) { var w = A.sizes[z].piece[0], k = Math.round(tw / w); return k >= 1 && Math.abs(tw - k * w) <= Math.max(1, k - 1); };   // a whole number of screen pixels per art pixel (give or take a pixel in all)
     var size = whole('strip') ? 'strip' : whole('hand') ? 'hand' : tw >= A.sizes.strip.piece[0] * 1.42 ? 'hand' : 'strip';
-    var from = P.cache['c|' + size + '|' + P.keyOf(o)]; if (!from) { var o2 = {}; for (var k2 in o) o2[k2] = o[k2]; o2.size = size; from = P.cache['c|' + size + '|' + P.keyOf(o)] = build(o2); }
+    var from = P.cache['c|' + size + '|' + P.keyOf(o, size)]; if (!from) { var o2 = {}; for (var k2 in o) o2[k2] = o[k2]; o2.size = size; from = P.cache['c|' + size + '|' + P.keyOf(o, size)] = build(o2); }   // 2.8.61: keyed by whether the icon is in at THIS size (the strip icon arrives first: a hand-size bitmap built then had no icon but was kept under the icon's key, so a stat piece stayed on its type glyph)
     var set = function (w, h, draw) { c.width = w; c.height = h; draw(ctx.call(c, '2d')); c._pfW = tw; };
     if (whole(size)) set(from.width, from.height, function (g) { g.drawImage(from, 0, 0); });   // the art as drawn: the page's own pixelated stretch is exact
     else {
@@ -277,7 +277,7 @@
     }
     if (Math.abs(cssW(c) - w0) > .01) { var h1 = P.cache['c|' + o.size + '|' + P.keyOf(o)] || build(o); c._pfFixed = true; c.width = h1.width; c.height = h1.height; ctx.call(c, '2d').drawImage(h1, 0, 0); }   // the bitmap gives this canvas its size: hands off
   }
-  P.keyOf = function (o) { return [o.owner, o.type, o.tag || '', o.m || '', o.rar == null ? '' : o.rar, o.old ? 1 : 0, o.num, o.tint == null ? '' : o.tint, o.env || '', P.cicoFor(o) ? o.ik : '', o.st || '', o.ws ? 1 : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|'); };
+  P.keyOf = function (o, z) { return [o.owner, o.type, o.tag || '', o.m || '', o.rar == null ? '' : o.rar, o.old ? 1 : 0, o.num, o.tint == null ? '' : o.tint, o.env || '', P.cicoFor(z ? { ik: o.ik, size: z } : o) ? o.ik : '', o.st || '', o.ws ? 1 : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|'); };
   P.crisp = function () { live = live.filter(function (x) { return x.isConnected; }); live.forEach(function (x) { x._pfW = 0; crisp(x); }); };
   window.addEventListener('resize', function () { P.crisp(); });
 

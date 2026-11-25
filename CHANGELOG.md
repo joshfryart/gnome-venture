@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.8.61
+- **Fix (owner: "im not seeing some pieces drawn, the newer stat pieces, when they are in my picked pieces"): the 24 stat pieces (Nimble, Lore, Luck, Sense) now draw their own icon in a fight, in the hand and on the board (and in the replay), as they already did in the Puzzle box kit, shelf and pre-fight deck.**
+- What was wrong (reproduced in headless Chromium on a scratch SQLite world, all 24 packed, phone 390x844, landscape 844x390, desktop 1280x800): in the Puzzle box and on the pre-fight screen every stat piece drew right; in the fight they showed the plain type glyph or their tag's icon (Sharp Eye a brace, Sidestep a jab, Lantern Chain a sparkle) and no stat corner badge. Four causes:
+  - `pf_make_tile()` keeps no `ik`, so a stat piece's fight tile had no icon key: board, gone and replay pieces said `ik: ''`. `pfd_tiles()` (`includes/pfdeck.php`) now puts the entry's `ik` on the tile (art only, no rule changes; the JS twin reads the same tile).
+  - The fight page data (`includes/pfight_game.php`) rebuilt each hand piece from a few fields and dropped the `st` and `ik` that `pfb_view()` gives a stat piece; they are passed on now.
+  - `assets/pfparts47.js` crisp cache: the hand-size bitmap was keyed by whether the STRIP icon had arrived, so one built while only the strip icon was in had no icon but was kept under the icon's key. `P.keyOf(o, size)` now keys by the icon at the size being built (creature piece icons were hit by this too).
+  - `assets/pfboardv1.js`: a hand piece is drawn once; when its icon arrived later only the board was redrawn. The icon loader's callback now redraws the hand pieces that have an icon.
+- Seen after the fix (same three windows, six turns each over three fights): all 24 stat pieces drawn with their icon and stat badge in the hand or on the board; kit, shelf and pre-fight deck unchanged.
+- Test: `tests/pf_stat_art.php` (in `tests/pf_stat_pieces.sh`) checks that every stat piece's fight tile carries its icon key and stat, that both icon files exist, that `pfb_view()` gives `ik` and `st` for all 24 in the hand and on the board, and the page data, crisp key and hand redraw (99 of these fail on 2.8.60).
+
 ## 2.8.60
 - **No more daily limits on town and rest stop actions (owner decision, hard removed in code, no setting).** Energy, Petals, item costs, chances and rewards are unchanged.
 - Towns (`includes/town.php`): `town_act()` no longer refuses with "You've done that once / N times today already. Come back tomorrow!"; `town_claim_use()` is replaced by `town_note_use()`, which only counts the use in `town_uses` (still read by First Week and admin tidy-up). `town_actions.daily` (and the "uses a day" column of `data/towns.txt`) is kept as data but read by nothing; the field is gone from Admin > Town things to do.
