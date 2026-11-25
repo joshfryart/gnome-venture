@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.62
+- **Landscape phone Here page (owner: "Mobile here page should have a slightly larger image and smaller villager section"): the town picture is about a fifth larger and the villagers are a compact list beside it.** CSS only, `assets/dock.css` (new block after the dock Here rules), scoped to `@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse)` with the dock on, so desktop windows and portrait phones are unchanged.
+- Picture: `.hubscene:has(> .hubstreet) > .hubstage` height is now the room above the dock less 48 px (was less 92 px), at least 175 px on a short phone (`--hereimg`). Sizes (w x h, CSS px): 844x390 340x193 -> 417x237; 800x360 287x163 -> 364x207; 736x340 265x151 -> 329x187; 640x260 265x151 -> 304x173; 932x430 410x233 -> 488x276. Scrolled to the picture it sits fully above the dock at every size (640x260: 4 px left).
+- Villagers (`.hubscene > .hubstreet`, `.hubstreet .hubst`): two fixed columns of at most 164 px that take only the width they need (one column when only you are there), 44 px rows, 28 x 35 px portraits, 4 px padding, names 14 px (were 12 px), square corners and a 1 px umber outline. Panel with 2 cards at 844x390: 446x60 -> 344x56 (4 cards: 446x108 -> 344x104); at 640x260: 333x60 -> 294x56.
+- Unchanged (headless Chromium, before / after pixel-identical): 390x844 portrait and 1280x800 desktop Here; the Heading to / Set off / Route strip has the same size and place at every size.
+
 ## 2.8.61
 - **Fix (owner: "im not seeing some pieces drawn, the newer stat pieces, when they are in my picked pieces"): the 24 stat pieces (Nimble, Lore, Luck, Sense) now draw their own icon in a fight, in the hand and on the board (and in the replay), as they already did in the Puzzle box kit, shelf and pre-fight deck.**
 - What was wrong (reproduced in headless Chromium on a scratch SQLite world, all 24 packed, phone 390x844, landscape 844x390, desktop 1280x800): in the Puzzle box and on the pre-fight screen every stat piece drew right; in the fight they showed the plain type glyph or their tag's icon (Sharp Eye a brace, Sidestep a jab, Lantern Chain a sparkle) and no stat corner badge. Four causes:

@@ -286,6 +286,18 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .hubstreet .hubst .stemo { font-size: 28px; }
   body.dock-on .hubstreet .hubst .stn { background: none; border: 0; padding: 0; font-size: .8rem; white-space: normal; text-align: left; line-height: 1.15; }
 }
+/* v2.8.62: a landscape phone (touch, at most 500 px high): the Here picture is about a fifth larger (its height is the room above the dock less 48 px,
+   at least 175 px on a short phone) and the villagers are a compact two-across list of 44 px rows that only takes the width it needs. Desktop windows keep the rules above. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  body.dock-on .hubscene:has(> .hubstreet) { --hereimg: max(min(175px, calc(100dvh - var(--dock-h, 106px) - 8px)), calc(100dvh - var(--dock-h, 106px) - 48px)); }
+  body.dock-on .hubscene:has(> .hubstreet) > .hubstage { width: calc(var(--hereimg) * 1.769); }
+  body.dock-on .hubscene > .hubstreet { justify-self: start; max-width: 100%; max-height: var(--hereimg); padding: 4px; gap: 4px; grid-template-columns: repeat(2, minmax(0, 164px)); border-radius: 0; }
+  body.dock-on .hubscene > .hubstreet:not(:has(> li + li)) { grid-template-columns: minmax(0, 164px); }
+  body.dock-on .hubstreet .hubst { min-height: 44px; gap: 5px; padding: 2px 6px 2px 2px; border: 1px solid var(--ol, #2a1a10); border-radius: 0; }
+  body.dock-on .hubstreet .hubst .stp { width: 28px; height: 35px; }
+  body.dock-on .hubstreet .hubst .stemo { font-size: 24px; }
+  body.dock-on .hubstreet .hubst .stn { font-size: 14px; }
+}
 
 /* dock layout, landscape: a picture page with no side list (the Treehouse, the yard) centres its picture and makes it large: its height is the space above the dock plus 30 px */
 @media (orientation: landscape) {
