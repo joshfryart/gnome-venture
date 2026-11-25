@@ -909,6 +909,10 @@ function post_update_news(string $from): void
         "[list][*][b]Tea kettle[/b]: the kettle in your Hovel brews one cup of tea a day, a small boost until you sleep.\n"
         . "[*][b]Hollow jar[/b]: each tier now pays more Petals (150 / 300 / 450 / 700) and more XP (20 / 40 / 60 / 100). Pumpkin, watering and Pomeroy jars are smaller, and next week's jar is sized by who helped this week. Put in at least half a fair share (the number is on the Hollow page) and you get half the 100% tier's Petals on top, even if you reach it after the jar is full.\n"
         . "[*][b]Very short screens[/b]: held sideways on a small phone, the bottom dock is a little smaller so the page has more room. In the garden, the soil food (N/P/K) and upkeep chips are back in the square panel.[/list]"],
+    '2.8.53' => ['🏡 Update 2.8.53: your garden as a picture',
+        "[list][*][b]The Yard[/b]: the Buildings tab in your garden is now a picture of your Yard, with every building drawn where it stands. Buildings you have not built yet show an empty plot with a BUILD sign.\n"
+        . "[*][b]Tap a building[/b] in the picture to open its card, where you can Build, Upgrade or Collect. A little \"!\" bobs over a building when something is ready.\n"
+        . "[*][b]Prefer the list?[/b] It is still there: tap [b]List version[/b] on the Yard.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

@@ -14,7 +14,7 @@ declare(strict_types=1);
 function dock_settings(): array
 {
     return [
-        'nav_dock' => ['label' => 'Nav dock: the landscape bottom dock (menus, status plate, two page actions). 0 = off (today’s header, bottom bar and menu), admin = admins only (preview), 1 = everyone (the default since 2.8.23). Anyone can add ?dock=off to an address to fall back to the old layout on their own device (?dock=on undoes it). Portrait screens always keep today’s chrome.', 'type' => 'text', 'default' => '1'],
+        'nav_dock' => ['label' => 'Nav dock: the landscape bottom dock (menus, status plate, two page actions). It is on for everyone (1, the default since 2.8.23). Set 0 to turn it off for everyone (today’s header, bottom bar and menu), or admin to show it to admins only. Anyone can add ?dock=off to an address to fall back to the old layout on their own device (?dock=on undoes it). Portrait screens always keep today’s chrome.', 'type' => 'text', 'default' => '1'],
     ];
 }
 
