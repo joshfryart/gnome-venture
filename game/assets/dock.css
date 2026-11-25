@@ -1373,6 +1373,15 @@ body.dock-on main:has(> #worldmap) > * { grid-column: 1 / -1; min-width: 0; }
 body.dock-on main:has(> #worldmap) > #worldmap { grid-column: 1; grid-row: 1 / span 2; }
 body.dock-on main > #worldmap .mapwrap, body.dock-on main > #worldmap .mapzoom { max-height: 300px; }
 body.dock-on main > #worldmap svg { max-height: 300px; width: 100%; }
+/* v2.8.57: desktop windows (not the short-landscape phone dock, not portrait phones): the world map, the region map (Map tab) and the Fast travel map
+   were capped at 300 / 250 px high, so a 16:9 map drew about 535 x 300 in a 900 to 1300 px column. Here they fill the column (up to 1100 px wide)
+   and keep their shape; the height stops where the window ends above the dock, so the whole map is on screen. */
+@media (min-width: 900px) and (min-height: 521px) {
+  body.dock-on main > #worldmap .mapwrap, body.dock-on main > #worldmap .mapzoom { max-height: none; }
+  body.dock-on main > #worldmap svg { width: 100%; max-width: 1100px; height: auto; max-height: calc(100dvh - var(--dock-h, 106px) - 60px); margin-inline: auto; }
+  body.dock-on .regionmapbox .rzoom, body.dock-on .gomap .rzoom { max-width: 1100px; }
+  body.dock-on .regionmapbox .rzoom .regionmap, body.dock-on .gomap .rzoom .regionmap { width: 100%; max-width: 1100px; height: auto; max-height: calc(100dvh - var(--dock-h, 106px) - 40px); margin-inline: auto; }
+}
 body.dock-on main:has(> #worldmap) > .youpill { grid-column: 2; grid-row: 1; margin: 0; align-self: end; }
 body.dock-on main:has(> #worldmap) > .letter-reminder { grid-column: 2; grid-row: 2; margin: 6px 0 0; font-size: 12px; align-self: start; }
 body.dock-on #regionmap .maplegend, body.dock-on #regionmap .maphelp { display: none; }
