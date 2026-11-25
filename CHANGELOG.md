@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.48
+- **Dock: smaller on very short views (landscape).** Under 340 px of window height the dock draws at 75% (about 80 px instead of 106), so a 640x260 phone keeps about 26 px more page. Taller windows are unchanged.
+- **Garden (landscape dock): the N/P/K row and the upkeep chips show again** in the square info panel (they were hidden in 2.8.20).
+
 ## 2.8.47
 - **Treehouse (and yard) picture: centred and bigger on a landscape phone.** A picture page with no list beside it now centres its picture and makes it large: its height is the space above the dock plus 30 px, so the page scrolls the last bit (about 65% wider than before on a 412 px-tall phone). Pages with a villager list beside the picture are unchanged.
 
