@@ -2,6 +2,14 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-25 2.8.57 (branch `ccr-6aa7b252-jbqae7`, on top of 2.8.56 / PR 70; slim zip `releases/GnomeVenture-2.8.57-web-update.zip`, needs 2.8.53+, carries 2.8.56 and 2.8.57)
+- DONE (Josh: "desktop shops popover is too thin and the item squares are too big"): on windows at least 900 x 521 a shop popover is `min(900px, 92vw)` wide with 104-112 px squares, 52 px picture, 14 px name and price (`assets/style.css`, block after the `.hubpop .shpage` rules). 1280x800 and 1920x1080: all 17 seeds of Maple & Furrow in view (was 4 / 6). Phone portrait and landscape dock pixel-identical. Long single words Chrysanthemum and Bridgewarden's still break mid-word at 14 px.
+- DONE (Josh: "desktop world map is too small"): world map, region map (Map tab) and Fast travel map fill the column up to 1100 px and the window height on desktop (`assets/dock.css`, after the `#worldmap` rules). 1280x800 world map 535x300 -> 914x512. Headless only; check on Josh's desktop browser.
+- OPEN (found, not fixed): portrait phone with the dock on: world.php world map is 48 px wide (`body.dock-on main:has(> #worldmap)` grid `minmax(0,1fr) 300px` in `assets/dock.css` is not inside a landscape media query). Needs a portrait-only fix and a phone check.
+- OPEN: Cat Fish room 2 "cut-off cat on a back-row run" reported from a phone; NOT reproducible in headless Chromium. Needs Josh's phone browser + a screen recording.
+- OPEN (small, unfixed): Cat Fish: (1) the active cat jumps to a random front row when the zoomies start (`act.y = yOf(between(0.12, 0.4))` in `pickEvents()` in `game/assets/catfish_room.js`); (2) a room reload while the active cat is hidden off-screen in the zoomies leaves it hidden until the next throw (`c.t` unset).
+- Tests: `shopbasket`, `here`, `market100` ok; `itemsq` fails "every line says have / need: got '9' want '271'" the same on 2.8.56 (pre-existing); `css_lint` ok; `check_versions` ok.
+
 ## 2026-11-25 2.8.56 (PR 70; slim zip `releases/GnomeVenture-2.8.56-web-update.zip`, needs 2.8.53+)
 - DONE (Josh asked): Trail strip lights Sneak / Hunt while active (`aria-pressed` on the page button; `assets/dock.js`). NOT seen in a browser; check on the phone: tap Sneak, strip tile should show gold ring and lift, tap again to see it clear.
 

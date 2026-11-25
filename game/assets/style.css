@@ -7409,6 +7409,20 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubpop .shpage .tabs { justify-content: center; }
 .hubpop .shpage .status, .hubpop .shpage .shopintro { font-size: .9rem; }
 .hubpop .shpage img { max-width: 100%; height: auto; }
+/* v2.8.57: a shop opened in its popover on a desktop window: a wide card and compact squares (about 104-112 px, small picture, 14 px name and price),
+   so a whole shelf fits on screen. The card was 420 px wide and the page rule for desktop shop tiles (dock.css, 130 px+ columns) made two 190 px squares per row.
+   Short landscape (the phone dock) and portrait phones are not touched. The shop list card (rows of shops) keeps its narrow width. */
+@media (min-width: 900px) and (min-height: 521px) {
+  dialog.hubpop:has(.shpage .shopwrap) .pickbox { width: min(900px, 92vw); max-width: none; }
+  dialog.hubpop .shpage .shopwrap .itms { grid-template-columns: repeat(auto-fill, minmax(104px, 112px)); justify-content: center; gap: 12px 8px; padding-top: 10px; max-width: none; }
+  dialog.hubpop .shpage .shopwrap .itms .itm__ic, dialog.hubpop .shpage .shopwrap .itms .itm__svg { max-width: 52px; }
+  dialog.hubpop .shpage .shopwrap .itms .itm__emo { height: 60%; font-size: 32px; }
+  dialog.hubpop .shpage .shopwrap .itms .itm__name, dialog.hubpop .shpage .shopwrap .itms .itm--long .itm__name, dialog.hubpop .shpage .shopwrap .itms .itm--xlong .itm__name { font-size: 14px; line-height: 1.1; letter-spacing: -.02em; hyphens: auto; -webkit-line-clamp: 2; }   /* a hair tighter so a long one-word name (Meadowsweet) fits on its line */
+  dialog.hubpop .shpage .shopwrap .itms .itm__rib { border-width: 4px 3px; border-image-width: 4px 3px; }   /* thinner ribbon ends: 4 px more room for the name */
+  dialog.hubpop .shpage .shopwrap .itms .itm__price { font-size: 14px; padding: 2px 4px; }
+  dialog.hubpop .shpage .shopwrap .itms .itm::after { top: 30px; right: auto; bottom: auto; left: -7px; width: 22px; height: 22px; }   /* the star / basket badge sits beside the picture, off the name */
+  dialog.hubpop .shpage .shopwrap .itms .itm__want { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* the star says it; the word stays for screen readers */
+}
 
 /* v2.5.30: World page with graphical navigation: the world map first, no banner */
 .worldprimary .mapwrap { margin: 0; }
