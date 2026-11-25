@@ -949,6 +949,9 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['life' => $t['life'], 'src' => $t['src'], 'flip' => $t['flip'], 'canflip' => $t['canflip']] + array_intersect_key($t, ['st' => 1, 'ik' => 1]);   // 2.8.61: a stat piece's stat (corner badge) and icon key (pfb_view gives them; the page used to drop them, so the hand drew the type glyph)
         // stage C (the v1 page script, assets/pfboardv1.js): the state before the last turn for the replay, the fight tools (durability left before this fight), whose piece is a tool piece, the box link
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['tool' => (string)($t['tool'] ?? ''), 'rank' => (int)($t['rank'] ?? 0)];
+        $dik = []; foreach (['draw', 'discard', 'hand'] as $pile) foreach ((array)($s['me'][$pile] ?? []) as $dt) if (($dt['ik'] ?? '') !== '') $dik[(string)$dt['ik']] = 1;
+        ksort($dik); $data['dik'] = array_keys($dik);   // 2.8.63: the icon keys of my pieces still to come (sorted, so the draw order is not given away): the page loads them before a piece is drawn
+        if (!empty($data['held']['pcs'])) foreach ($data['held']['pcs'] as $i => $q) { $ht = $s['me']['held']['pcs'][$i]['tile'] ?? []; if (($ht['src'] ?? '') === 'stat') $data['held']['pcs'][$i] += ['st' => (string)($ht['st'] ?? ''), 'ik' => (string)($ht['ik'] ?? '')]; }   // 2.8.63: a stat piece in the set-aside group keeps its icon and stat badge (page data only)
         $data['prev'] = !empty($enc['replay']) ? ($enc['prev'] ?? null) : null;
         $data['tripped'] = (int)($s['me']['tripped'] ?? 0);   // 2.6.76: you drew one fewer this turn
         if ((int)$s['turn'] === 1 && empty($s['start'])) $data['opened'] = count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));   // the creature's opening pieces

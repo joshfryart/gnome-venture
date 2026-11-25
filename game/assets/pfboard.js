@@ -93,10 +93,10 @@
     if (showGone) (data.gone || []).forEach(function (g) { m[g.x + ',' + g.y] = Object.assign({ gone: true }, g); n++; });
     data.pcs.forEach(function (p) { if ((hideSpawn && p.spawn) || hiddenIds[p.id]) return; m[p.x + ',' + p.y] = p; n++; });
     var mv = moves[0];
-    if (mv && mv.k === 'p') { m[mv.x + ',' + mv.y] = { x: mv.x, y: mv.y, by: 'me', t: data.hand[mv.i].t, e: data.hand[mv.i].e, tag: data.hand[mv.i].tag, m: data.hand[mv.i].m, ghost: true, n: tiles[mv.i].dataset.name, v: tiles[mv.i].dataset.v }; n++; }
+    if (mv && mv.k === 'p') { m[mv.x + ',' + mv.y] = { x: mv.x, y: mv.y, by: 'me', t: data.hand[mv.i].t, e: data.hand[mv.i].e, tag: data.hand[mv.i].tag, m: data.hand[mv.i].m, ik: data.hand[mv.i].ik, ghost: true, n: tiles[mv.i].dataset.name, v: tiles[mv.i].dataset.v }; n++; }
     if (mv && mv.k === 'c' && data.held) {
       var d = groupDims(data.held);
-      data.held.pcs.forEach(function (p) { m[(mv.x + p.x - d[2]) + ',' + (mv.y + p.y - d[3])] = { x: mv.x + p.x - d[2], y: mv.y + p.y - d[3], by: 'me', t: p.t, e: p.e, tag: p.tag, m: p.m, ghost: true, n: p.n, v: p.v }; n++; });
+      data.held.pcs.forEach(function (p) { m[(mv.x + p.x - d[2]) + ',' + (mv.y + p.y - d[3])] = { x: mv.x + p.x - d[2], y: mv.y + p.y - d[3], by: 'me', t: p.t, e: p.e, tag: p.tag, m: p.m, ik: p.ik, ghost: true, n: p.n, v: p.v }; n++; });
     }
     return { map: m, count: n };
   }
@@ -313,7 +313,7 @@
     if (vk !== viewKey) { viewKey = vk; vz = 1; vx = 0; vy = 0; }   // the pieces moved the view: back to the whole area
     boardEl.appendChild(zoomControls());
     applyView();
-    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
+    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', ik: data.hand[i].ik, type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     fan(); renderHeld(); showJoinChips(); planAsk(); numsSync();
     var busy = playing || submitted || !!data.won || !!rewind;
@@ -343,7 +343,7 @@
     if (P && P.ok) {
       var S = P.atlas.sizes.strip, d = groupDims(g), cv = document.createElement('canvas');
       cv.width = (d[0] - 1) * S.pitch[0] + S.piece[0]; cv.height = (d[1] - 1) * S.pitch[1] + S.piece[1]; var cx = cv.getContext('2d');
-      g.pcs.forEach(function (p) { cx.drawImage(P.piece({ size: 'strip', owner: 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, num: p.v }), (p.x - d[2]) * S.pitch[0], (p.y - d[3]) * S.pitch[1]); });
+      g.pcs.forEach(function (p) { cx.drawImage(P.piece({ size: 'strip', owner: 'me', ik: p.ik, type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, num: p.v }), (p.x - d[2]) * S.pitch[0], (p.y - d[3]) * S.pitch[1]); });
       cv.className = 'pf-held-cv'; cv.setAttribute('aria-hidden', 'true'); bt.appendChild(cv);
     }
     var tx = document.createElement('span'); tx.className = 'pf-held-tx'; tx.textContent = (g.planned ? 'Setting aside' : 'Set aside') + ' (' + g.pcs.length + ')' + (g.pcs.length === 3 ? ' full strength' : ''); bt.appendChild(tx);
@@ -575,7 +575,7 @@
     var slot = document.getElementById('pfi-art'), P = window.PFParts, i = tiles.indexOf(b);
     if (slot && P && P.ok && data.hand[i]) {   // the piece at hand size, edges and all
       slot.textContent = '';
-      var c = P.piece({ size: 'hand', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: b.dataset.v });
+      var c = P.piece({ size: 'hand', owner: 'me', ik: data.hand[i].ik, type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: b.dataset.v });
       c.className = 'pfi-cv'; slot.appendChild(c);
     }
     insp.hidden = false;

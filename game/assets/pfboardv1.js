@@ -995,10 +995,10 @@
     if (showGone) (data.gone || []).forEach(function (g) { if (usedGone[g.id] || hiddenIds[g.id]) return; m[g.x + ',' + g.y] = Object.assign({ gone: true }, g); n++; });
     data.pcs.forEach(function (p) { if ((hideSpawn && p.spawn) || hiddenIds[p.id]) return; var q = movedBack[p.id] ? Object.assign({}, p, movedBack[p.id]) : p; m[q.x + ',' + q.y] = q; n++; });
     var mv = moves[0];
-    if (mv && mv.k === 'p') { m[mv.x + ',' + mv.y] = { x: mv.x, y: mv.y, by: 'me', t: data.hand[mv.i].t, e: data.hand[mv.i].e, tag: data.hand[mv.i].tag, m: data.hand[mv.i].m, ghost: true, n: tiles[mv.i].dataset.name, v: tiles[mv.i].dataset.v }; n++; }
+    if (mv && mv.k === 'p') { m[mv.x + ',' + mv.y] = { x: mv.x, y: mv.y, by: 'me', t: data.hand[mv.i].t, e: data.hand[mv.i].e, tag: data.hand[mv.i].tag, m: data.hand[mv.i].m, ik: data.hand[mv.i].ik, st: data.hand[mv.i].st, ghost: true, n: tiles[mv.i].dataset.name, v: tiles[mv.i].dataset.v }; n++; }   // 2.8.63: the planned piece keeps its icon key and stat (it was drawn with the type glyph until the turn was sent)
     if (mv && mv.k === 'c' && data.held) {
       var d = groupDims(data.held);
-      data.held.pcs.forEach(function (p) { m[(mv.x + p.x - d[2]) + ',' + (mv.y + p.y - d[3])] = { x: mv.x + p.x - d[2], y: mv.y + p.y - d[3], by: 'me', t: p.t, e: p.e, tag: p.tag, m: p.m, ghost: true, n: p.n, v: p.v }; n++; });
+      data.held.pcs.forEach(function (p) { m[(mv.x + p.x - d[2]) + ',' + (mv.y + p.y - d[3])] = { x: mv.x + p.x - d[2], y: mv.y + p.y - d[3], by: 'me', t: p.t, e: p.e, tag: p.tag, m: p.m, ik: p.ik, st: p.st, ghost: true, n: p.n, v: p.v }; n++; });
     }
     return { map: m, count: n };
   }
@@ -1131,7 +1131,7 @@
     boardEl.textContent = '';
     world = document.createElement('div'); world.className = 'pfb-world'; boardEl.appendChild(world);
     var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null, dropN = 0;
-    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.concat(data.gone || [], data.hand || [], (rewind && rewind.pieces) || []).map(function (q) { return q.ik; }); ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, cicoRedraw); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
+    if (art && data.pico && P.cicoLoad) { var cks = data.pcs.concat(data.gone || [], data.hand || [], (data.held && data.held.pcs) || [], (rewind && rewind.pieces) || []).map(function (q) { return q.ik; }).concat(data.dik || []);   /* 2.8.63: and every icon still in my draw pile (data.dik), so a piece drawn next turn has its icon before it is first drawn */ ['strip', 'hand'].forEach(function (z) { P.cicoLoad(data.pico, cks, z, cicoRedraw); }); }   // 2.7.45: creature piece icons (the board may redraw a piece from the big art on a sharp screen); a late one redraws the board once
     // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
     var x0 = W, x1 = -1, y0 = H, y1 = -1;
     Object.keys(b.map).forEach(function (k) { var q = k.split(','), qx = +q[0], qy = +q[1]; x0 = Math.min(x0, qx); x1 = Math.max(x1, qx); y0 = Math.min(y0, qy); y1 = Math.max(y1, qy); });

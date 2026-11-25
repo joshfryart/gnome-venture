@@ -8,4 +8,5 @@ php "$HERE/pf_stat_lore.php" || exit 1
 php "$HERE/pf_stat_sense.php" || exit 1
 php "$HERE/pf_stat_ui.php" || exit 1
 php "$HERE/pf_stat_art.php" || exit 1
+node "$HERE/pf_piece_ik_unit.js" || exit 1
 T=$(mktemp); PFE_MODES=v1stat,v1luck,v1nimble,v1lore,v1sense php "$HERE/pfengine_js.php" >"$T" && node "$HERE/pfengine_js.js" "$T"; rc=$?; rm -f "$T"; exit $rc

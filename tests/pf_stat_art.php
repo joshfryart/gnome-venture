@@ -53,4 +53,7 @@ $pg = (string)file_get_contents(__DIR__ . '/../game/includes/pfight_game.php');
 chk('fight_page_data_hand_keeps_st_and_ik', str_contains($pg, "'canflip' => \$t['canflip']] + array_intersect_key(\$t, ['st' => 1, 'ik' => 1])"));
 chk('renderer_crisp_cache_keyed_by_icon_at_its_own_size', str_contains($js, "P.keyOf = function (o, z)") && str_contains($js, "P.cicoFor(z ? { ik: o.ik, size: z } : o)") && substr_count($js, "'c|' + size + '|' + P.keyOf(o, size)") === 2 && !str_contains($js, "'c|' + size + '|' + P.keyOf(o)]"));
 chk('board_script_redraws_hand_icons_that_came_late', str_contains($bv, 'function cicoRedraw() { tiles.forEach(function (t, i) { if (data.hand[i] && data.hand[i].ik) redrawTile(i); }); render(); }'));
+// 2.8.63 (owner: "Played pieces sometimes revert to default icons and then back"): the page data gives a held group's stat pieces their ik and st, and the icon keys of the draw pile (sorted) so they load before a piece is drawn
+chk('fight_page_data_held_group_keeps_st_and_ik', str_contains($pg, "\$data['held']['pcs'][\$i] += ['st' => (string)(\$ht['st'] ?? ''), 'ik' => (string)(\$ht['ik'] ?? '')]"));
+chk('fight_page_data_draw_pile_icons_sorted', str_contains($pg, "foreach (['draw', 'discard', 'hand'] as \$pile)") && str_contains($pg, "ksort(\$dik); \$data['dik'] = array_keys(\$dik);"));
 echo $bad ? "pf_stat_art: $bad of $n FAILED\n" : "pf_stat_art: $n ok\n"; exit($bad ? 1 : 0);
