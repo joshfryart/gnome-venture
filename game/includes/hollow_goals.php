@@ -63,13 +63,28 @@ function hollow_goal_gnomes(): int
     return max(1, (int)setting('goal_per_gnome'), $n);
 }
 
-/** 2.8.50: how many gnomes put at least goal_min_share into LAST week's weekly jar (0 when there was none). */
+/**
+ * 2.8.50: how many gnomes put at least goal_min_share into a weekly jar, counting only gnomes in play (no guests, banned or deleted).
+ * 2.8.53 sizing rule: the larger of LAST week's helpers and the average of the last two weeks' helpers (rounded up), so one quiet
+ * niche jar (Pomeroy courses, creatures) does not shrink the next jar whatever its kind. A week with no jar is not averaged in
+ * (only last week's count is used when the week before had none); no jar last week gives 0 (the caller falls back to gnomes seen).
+ * hollow_goal_gnomes() applies the goal_per_gnome floor. Festival jars share this count. Tier pay and the bonus are not touched.
+ */
 function hollow_goal_last_helpers(): int
 {
     [, $start] = hollow_goal_week();
-    $prev = hollow_date('o-\WW', $start - 86400);
-    $g = q_one('SELECT id FROM hollow_goals WHERE period_key = ?', ['week:' . $prev]);
-    if (!$g) return 0;
+    $last = hollow_goal_week_helpers(hollow_date('o-\WW', $start - 86400));
+    if ($last === null) return 0;
+    [, $s2] = hollow_goal_week($start - 86400);
+    $before = hollow_goal_week_helpers(hollow_date('o-\WW', $s2 - 86400));
+    return $before === null ? $last : max($last, intdiv($last + $before + 1, 2));
+}
+
+/** 2.8.53: helpers of the weekly jar for week key $key (e.g. 2026-W47), or null when that week had no jar. */
+function hollow_goal_week_helpers(string $key): ?int
+{
+    $g = q_one('SELECT id FROM hollow_goals WHERE period_key = ?', ['week:' . $key]);
+    if (!$g) return null;
     return (int)q_val('SELECT COUNT(*) FROM hollow_goal_contrib c JOIN users u ON u.id = c.user_id WHERE c.goal_id = ? AND c.amount >= ? AND u.deleted_at IS NULL AND ' . gnome_in_play_sql('u'), [$g['id'], max(1, (int)setting('goal_min_share'))]);
 }
 

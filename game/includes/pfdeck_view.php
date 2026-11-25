@@ -434,7 +434,8 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             . '<nav class="pbx-fbar" id="pfv-filt" aria-label="Filter by source">' . $fb . '</nav>'
             . '<p class="pbx-kind" id="pbx-kind" hidden></p>'
             . '<details class="pbx-legend"><summary>' . pfv_img('ico/ico-info.png', 64) . 'What the source icons mean</summary><ul>' . $leg . '</ul></details>'
-            . '<ul class="pcg pfv-g shelfg">' . ($col ?: pfv_slot('none')) . '</ul><p class="pbx-empty" id="pbx-empty" hidden>No spare pieces match.</p></section>';
+            . (dock_on($u) ? '<details class="pbx-sfold" id="pbx-sfold" open><summary>Show the ' . count($spare) . ' spare pieces</summary>' : '')   // v2.8.53: the dock folds the list in landscape (open in the HTML; pfv1box.js closes it in landscape and opens it again for a filter, a search or a fix button)
+            . '<ul class="pcg pfv-g shelfg">' . ($col ?: pfv_slot('none')) . '</ul><p class="pbx-empty" id="pbx-empty" hidden>No spare pieces match.</p>' . (dock_on($u) ? '</details>' : '') . '</section>';
         }
         $hint = $locked ? 'Tap a piece to read it.' : 'Tap a piece, then pack it or take it out.';
     } elseif ($tab === 'belt') {
