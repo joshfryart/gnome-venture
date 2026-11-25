@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.52
+- **Hotfix: `craft_path()` alias.** A live site's Today card (`welcome_back.php:92`) called `craft_path()`, which is not defined in this code, and the home page showed "Oops, something went wrong". `craft_path($c)` now returns `craft_url($c)`. Open: that call is not in any file in the repo; the live `welcome_back.php` differs from the repo's.
+
 ## 2.8.51
 - **Fixes from the Fable review of 2.8.48 to 2.8.50** (this release carries 2.8.49 and 2.8.50 too).
 - **Hollow jar bonus** is now its own one-off claim (tier 5, half of the 100% tier's Petals), paid when a gnome's share reaches half a fair share, even after tier 4 was claimed or the jar was already full (weekly jars, until two days after they end). The Hollow page shows the number needed for the jar on screen and no bonus text on festival jars. Last week's helper count skips guests, banned and deleted gnomes. Festival jars also get the new tier pay and the helper sizing (only the bonus skips them). The smaller pools and helper sizing apply from next week's jar; jars already made keep their size but pay the new tiers.

@@ -102,6 +102,14 @@ function craft_url(string $c = ''): string
     return url('inventory.php?tab=craft' . ($c !== '' ? '&c=' . rawurlencode($c) : ''));
 }
 
+/** 2.8.52: a live site's welcome_back.php called craft_path() (not in this repo; Error log 2026-11-25), so it is an alias of craft_url(). */
+if (!function_exists('craft_path')) {
+    function craft_path(string $c = ''): string
+    {
+        return craft_url($c);
+    }
+}
+
 /** When this gnome last saw a picture page ('treehouse'), or null (never, or the table is not there yet). */
 function hub_seen_get(int $uid, string $scene): ?string
 {

@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-25 HOTFIX 2.8.52 (branch `ccr-0e3dc455-1uan0i-2852`, not merged; slim zip `releases/GnomeVenture-2.8.52-web-update.zip`, needs 2.8.48+)
+- Josh's live Today card crashed: `Call to undefined function craft_path()` at `welcome_back.php:92` (Error log, 2026-11-25 00:46 UTC, after uploading 2.8.51). `craft_path` is in NO file, commit, branch or zip of this repo, so the live `welcome_back.php` (or another live file) is not the repo's. 2.8.52 adds `craft_path()` as an alias of `craft_url()` in `here_schema.php`. OPEN: ask Josh to compare live `includes/welcome_back.php` with the repo (something else may be missing); NEXT after upload: check the Error log is quiet.
+
 ## 2026-11-25 Josh's decisions (2.8.49 to 2.8.51, PR 65 MERGED to main 2026-11-25; slim zip `releases/GnomeVenture-2.8.51-web-update.zip`, needs 2.8.47+, carries 2.8.48 to 2.8.51; sent to Josh)
 - NEXT: Josh uploads 2.8.51, checks `gnav_on` is 1 in Admin (else the Yard picture stays hidden), tests the 75% dock and the Hollow jar on his phone. Then: dock folds not done (below), Yard art leftovers, Hollow jar second-week sizing check.
 - DONE 2.8.49: tea kettle open for everyone (`tea_open` = everyone) and Garden Yard picture flag `gnav_garden` = 1, both set once by boot step `open_tea_yard_2849` on upgrade (admin can change back). Tested on a scratch SQLite copy (upgrade from 2.8.48). `gnav_garden` still needs `gnav_on` (Here page) to show for players: CHECK in Admin that `gnav_on` is 1, else the Yard picture stays hidden. No player news post yet.
