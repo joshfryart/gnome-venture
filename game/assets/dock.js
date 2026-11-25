@@ -299,7 +299,7 @@
   function resolveOne(a) {   // -> { why, badge } for a piece or tile that works a control on the page
     var r = a.remote || {}, t, e;
     if (r.doForm) { t = formBtn(r.doForm); if (!t || t.dis) return { why: 'none' }; return { badge: attrCount(r.count) }; }
-    if (r.sel) { e = q1(r.sel); if (!e) return { why: 'n/a' }; if (e.disabled) return { why: 'none' }; return {}; }
+    if (r.sel) { e = q1(r.sel); if (!e) return { why: 'n/a' }; if (e.disabled) return { why: 'none' }; return e.getAttribute('aria-pressed') === 'true' ? { on: true } : {}; }   /* v2.8.56: a page button that says aria-pressed="true" (Sneak, Hunt on the Trail) shows as the lit, ringed tile */
     return {};
   }
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
@@ -375,7 +375,7 @@
     if (t.remote && t.remote.select === 'garden') { o.rem = remKey({ sel: '.selbar [data-sel="on"]' }); o.why = q1('.selbar') ? '' : 'n/a'; return o; }
     if (t.remote && t.remote.foe) { o.rem = remKey(t.remote); o.why = D.foe ? '' : 'none'; return o; }
     if (t.remote && t.remote.tool) { o.why = q1('.selbar') ? '' : 'n/a'; o.rem = remKey(t.remote); o.badge = tool === t.remote.tool ? '\u25cf' : ''; return o; }
-    if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); }
+    if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); if (r.on) o.on = true; }
     return o;
   }
   function finalAct(a) {

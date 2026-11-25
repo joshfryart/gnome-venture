@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-25 2.8.56 (PR 70; slim zip `releases/GnomeVenture-2.8.56-web-update.zip`, needs 2.8.53+)
+- DONE (Josh asked): Trail strip lights Sneak / Hunt while active (`aria-pressed` on the page button; `assets/dock.js`). NOT seen in a browser; check on the phone: tap Sneak, strip tile should show gold ring and lift, tap again to see it clear.
+
 ## 2026-11-25 STATE: main = 2.8.55 (branch `ccr-6aa7b252-jbqae7`, PR opened and merged by the caller). NEXT: Josh checks the new dock on his phone: all four menus (You, Hobbies, Out & about, Together) closed and open, the lantern at day / golden hour / night (set by the game clock: 06:00-16:59 day, 17:00-19:59 golden hour, 20:00 on night), label legibility at the 75% scale (under 340 px high), and that redraws stay smooth (page swaps, plate refresh after a background action, fireflies blinking). Then upload `releases/GnomeVenture-2.8.55-web-update.zip`.
 
 ## 2026-11-25 2.8.55 new dock art (branch `ccr-6aa7b252-jbqae7`; slim zip `releases/GnomeVenture-2.8.55-web-update.zip`, needs 2.8.53+, 6 changed files + index.php)

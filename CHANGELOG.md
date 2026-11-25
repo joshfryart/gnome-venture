@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.56
+- **Trail dock: Sneak and Hunt show when they are on.** In the Trail strip the active stance tile (the page button with `aria-pressed="true"`) is lit and ringed like the current page. `resolveOne()` / `finalItem()` in `assets/dock.js` (any dock piece that works a page button with `aria-pressed` now gets this). Not seen in a browser; `node --check` only.
+
 ## 2.8.55
 - **New dock art, live for everyone (no setting).** The landscape dock is the approved stone arch (`claude/mockups/dock-lantern-all.html`): carved stone tablets tilted along the curve with enamel inlays in the area colours (cream helper action, gold main verb), coping stones with moss and grass, a mortar bed, a keystone with a sun / setting sun / moon window, a slate status plate, and ONE iron lantern on a crook over the menu the current page belongs to. Pressed (open menu, held piece), greyed (a bare recess, worn label), badges and why-tags redrawn; the open strip's current tile has a gold rim. Drawn by `tabletSVG` / `bandSVG` / `overSVG` in `assets/dock.js`; colours are CSS custom properties in `assets/dock.css` (no inline styles, no blur, no gradients). Behaviour unchanged: strips, Select / Pick / Then, remote pieces, Quick slot, play rail, 75% scale, `.dockfb` fallback, tour ring, `?dock=off`. The status popover keeps its old look.
 - **Time of day.** The dock JSON and `dockstate.php` carry `tod` (`dock_tod()` in `includes/dock.php`), set as `data-tod` on `.dockroot`: the player's game clock 06:00 to 16:59 = day, 17:00 to 19:59 = golden hour (lantern lit), 20:00 on (tired and past midnight) and before 06:00 = night (brightest, glow ring, fireflies). With the game clock off the Hollow's real hour (game_timezone) uses the same bands. New suite `dock_tod`.
