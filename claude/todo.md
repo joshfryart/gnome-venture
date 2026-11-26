@@ -1,11 +1,11 @@
-# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.72). History: `claude/todo_history.md`
+# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.73). History: `claude/todo_history.md`
 
 Rules: add new items here only. Tick or delete when done, and MOVE finished blocks to `claude/todo_history.md` (newest on top). STANDING RULE (Josh, 2026-11-05): after every change or release, update this file. Items marked (2.7.x) were carried from older lists and not re-verified: check before building.
 
 ## A. Owner picks / decisions waiting
-- Stop art (owner marks 2026-11-26): REDO staged in art-review/stopart/out (icons, stamps, town place/route, shops-street, stoptiers polish); route cards also for popovers (`landmark_scene` fallback, landmarks.php:612). Owner 2026-11-26: keep the used Cut/Remove groups (stop-<type>, banner-*, villages, door/home/shop/resid); only unused banner-market and banner-village were deleted.
+- Stop art: DONE and swapped in 2.8.73 (flagged: shops-street hotspots not checked by eye; 6 stoptiers kept as before; route cards no longer show the gnome: ask if wanted back; lair route card still has glowing eyes).
 - Fair dock Enter: CUT by owner. "Visitor can smell it" reading (still-cooking dish vs last-cooked): ask.
-- Rigs: 6 still old art (bramble-wolf, badger, giant-anteater, dust-sidewinder, gnat-cloud, dune-scorpion); 5 weak per reviewer (cistern-newt, ashen-ant, bellcap-beetle, ember-beetle, grub-beetle): keep or redo? `mini-<slug>.png` still old. 69 weaker pals: pick-list?
+- Rigs: all 124 redrawn and swapped (2.8.73); `mini-<slug>.png` still old; cistern-newt unchanged; dung-beetle fails rigkit pivot lint (harness). 69 weaker pals: pick-list?
 - Confirm on the live world: 8 base creature rows got region windows (boot step `creature_windows_2708`, code done); Hollow jar second-week sizing check; `sights_shared_on` is still OFF by default (Josh ticked it as reviewed; flip in Admin if wanted); `gnav_on` / `gnav_tree` / `gnav_tiles` / `home_slim` default OFF (check Admin).
 
 ## B. Code / bugs open

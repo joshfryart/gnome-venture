@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.73
+- **Fight rigs:** the last 10 rigs redrawn in Stitched Toy and swapped in (bramble-wolf, badger, giant-anteater, dust-sidewinder, gnat-cloud, dune-scorpion, ashen-ant, bellcap-beetle, ember-beetle, grub-beetle; cistern-newt unchanged). Crew text now "They work every morning at 06:00."
+- **Stop art redrawn (owner marks):** 12 type icons, 12 passport stamps, 12 town place cards, 7 route cards, 14 shops-street scenes, 42 of 48 stoptier stickers (mill-1, workshop-1 to 4 and spring-3 kept as before). Route cards (no gnome, no baked-in animals) now also stand in as the picture of a haven / wonder / delve / lair popover that has no scene of its own (`landmark_scene`, `.lmscene-card`).
+- Removed unused `scenes/banner-market.png` and `banner-village.png`.
+
 ## 2.8.72
 - Workflows W1b, W2, W3, W4, W1, W1a plus owner asks (a workflow of agents; none seen on a real phone, all checks headless Chromium / SQLite):
 - **Dock left/right actions audited on every page (W1b):** about 29 pages got fitting L/R pieces (tend, mentor, profile, report, customise, puzzles hub and games, race, worms, letters, carve, gotm, feedback, workshop, residential, door, back, festival, palyard, market, firstweek and more). New: trek L Map / R Go (Fight, Go: one tap per page load, Go aims at the page's own objective tile), pals Find tab R Find (focuses the name box). Dock Take / Deliver pick the first offer / order that can be taken / filled; dock List opens the stall fold; dock Rest posts in place on the classic home.
