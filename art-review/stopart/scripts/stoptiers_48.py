@@ -3,12 +3,13 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from stoptiers_kit import *  # noqa
+from stoptiers_felt import widen_band
 
 NAME = 'workshop-4'
 
 
 def retouch(im):
-    pass
+    widen_band(im)   # thin 2 px felt band -> 4 px like the rest of the set
 
 
 if __name__ == '__main__':
