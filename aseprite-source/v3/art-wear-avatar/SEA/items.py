@@ -347,11 +347,11 @@ def jar_side(c, x, y, g):
 
 
 PACK = [
-    dict(slug='sea-rattan-back-basket', cat='backpack', back=basket_back, side=basket_side),
+    dict(slug='sea-rattan-back-basket', cat='backpack', front_span=(10, 55), front_lift=4, back=basket_back, side=basket_side),
     dict(slug='sea-bamboo-ladder-pack', cat='backpack', back=ladder_back, side=ladder_side),
     dict(slug='sea-batik-bundle', cat='backpack', back=bundle_back, side=bundle_side),
     dict(slug='sea-nipa-thatch-pack', cat='backpack', back=thatch_back, side=thatch_side),
-    dict(slug='sea-water-jar-pack', cat='backpack', back=jar_back, side=jar_side),
+    dict(slug='sea-water-jar-pack', cat='backpack', front_span=(10, 55), front_lift=4, back=jar_back, side=jar_side),
 ]
 
 

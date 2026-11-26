@@ -37,6 +37,8 @@ ok('the table is in the schema for SQLite and MySQL (UNIQUE user and slot)', cou
 
 echo "== nothing worn: no wear piece in the box\n";
 ok('owned but not worn: no piece offered', $wearKeys() === [], $wearKeys());
+$pk = pfd_toggle($uid, 'w:flood-boots', true); $ps = pfd_swap($uid, 'w:flood-boots', 'w:work-gloves-b');
+ok('owned but not worn: packing it (Puzzle box / pre-fight toggle, swap) is refused and nothing is saved', $pk === 'Wear it first (My Gnome, Wearing).' && $ps !== null && $wearKeys() === [] && !q_val("SELECT 1 FROM pf_deck_pieces WHERE user_id = ? AND piece_key LIKE 'w:%'", [$uid]), [$pk, $ps]);
 
 echo "== equip, replace, take off\n";
 [$a, $m] = wear_equip($U(), 'footwear', 'flood-boots');

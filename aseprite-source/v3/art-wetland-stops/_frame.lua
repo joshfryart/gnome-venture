@@ -1153,7 +1153,7 @@ function M.build(o)
     r = r or L.leaf
     local rows = { "..eb.eb.", ".bbbbbbb", "bhbbbbsb", "bbbbsssy", ".ff..ff." }
     if flip then for i, row in ipairs(rows) do rows[i] = row:reverse() end end
-    return F.sprite(rows, x - 4, y - 4, { e = L.gold.base, b = r.base, h = r.hi, s = r.shade, y = L.marigold.hi, f = r.deep })
+    return F.sprite(rows, x - 8, y - 9, { e = L.gold.base, b = r.base, h = r.hi, s = r.shade, y = L.marigold.hi, f = r.deep }, { scale = 2 })
   end
   -- a grey heron standing (or with o.wade, wading), 30 px tall, facing left (flip = right). (x, yb) = feet.
   function F.heron(x, yb, flip)
@@ -1207,8 +1207,8 @@ function M.build(o)
     if not swim then rows[#rows + 1] = "....O.O...." rows[#rows + 1] = "...OO.OO..." end
     if not flip then for i, row in ipairs(rows) do rows[i] = row:reverse() end end
     local hr = L.goose
-    local m = F.sprite(rows, x - 5, yb - #rows + 1, { b = hr.shade, G = hr.base, g = hr.deep, h = hr.hi, k = L.timber.edge, o = L.produce.base, O = L.produce.shade })
-    if swim then for xx = x - 7, x + 7 do if hash(xx, yb, 77) < .7 then px(xx, yb + 1, (xx < x) and L.water.hi or SKYREF) end end end
+    local m = F.sprite(rows, x - 10, yb - #rows * 2 + 1, { b = hr.shade, G = hr.base, g = hr.deep, h = hr.hi, k = L.timber.edge, o = L.produce.base, O = L.produce.shade }, { scale = 2 })
+    if swim then for xx = x - 13, x + 13 do if hash(xx, yb, 77) < .7 then px(xx, yb + 1, (xx < x) and L.water.hi or SKYREF) end end end
     return m
   end
   -- a flat-bottomed punt: long low hull with square ends, from x0 to x1, waterline yw. A pole leaning on it when o.pole.
@@ -1406,10 +1406,15 @@ function M.build(o)
   -- hand-placed pixel sprite: rows of chars, map char -> hex; rimmed with ink-brown (o.rim=false to skip)
   function F.sprite(rows, x0, y0, map, o)
     o = o or {}
+    local k = o.scale or 1
     local m = HP.mask()
-    for j, row in ipairs(rows) do for i = 1, #row do local ch = row:sub(i, i) if map[ch] then m:set(x0 + i - 1, y0 + j - 1) end end end
+    for j, row in ipairs(rows) do for i = 1, #row do local ch = row:sub(i, i) if map[ch] then
+      for dy = 0, k - 1 do for dx = 0, k - 1 do m:set(x0 + (i - 1) * k + dx, y0 + (j - 1) * k + dy) end end
+    end end end
     if o.rim ~= false then c:rim(m, o.rimCol or L.timber.edge) else newObj() end
-    for j, row in ipairs(rows) do for i = 1, #row do local ch = row:sub(i, i) if map[ch] then px(x0 + i - 1, y0 + j - 1, map[ch]) end end end
+    for j, row in ipairs(rows) do for i = 1, #row do local ch = row:sub(i, i) if map[ch] then
+      for dy = 0, k - 1 do for dx = 0, k - 1 do px(x0 + (i - 1) * k + dx, y0 + (j - 1) * k + dy, map[ch]) end end
+    end end end
     return m
   end
 

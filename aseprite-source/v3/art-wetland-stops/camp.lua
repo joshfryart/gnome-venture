@@ -300,10 +300,10 @@ do -- a pair of mallards
       or { "..hh.....", ".hhkY....", "..hh.....", "..hh.....", ".BBBBBBBt", "BBbbbbBtt", ".BBBBBB.." }
     local map = drake and { h = L.accent.shade, k = L.timber.edge, Y = L.marigold.base, w = L.awnB.hi, B = L.goose.shade, b = L.goose.base, t = L.goose.deep }
       or { h = L.cattail.shade, k = L.timber.edge, Y = L.gold.shade, B = L.cattail.shade, b = L.cattail.hi, t = L.cattail.deep }
-    F.sprite(rows, x, y, map)
-    for xx = x - 2, x + 10 do if hash(xx, y, 419) < .7 then px(xx, y + 7, (xx < x + 4) and L.water.hi or F.SKYREF) end end
+    F.sprite(rows, x, y - 7, map, { scale = 2 })
+    for xx = x - 3, x + 20 do if hash(xx, y, 419) < .7 then px(xx, y + 7, (xx < x + 8) and L.water.hi or F.SKYREF) end end
   end
-  duck(452, 206, true) duck(440, 210, false)
+  duck(434, 206, true) duck(414, 211, false)
 end
 F.reeds(466, 478, 228, 18, 420, { cattails = 2 })
 F.dragonfly(398, 206, L.accent, true)

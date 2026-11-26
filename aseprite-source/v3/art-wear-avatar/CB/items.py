@@ -618,7 +618,7 @@ CLOAK = [
     dict(slug='cb-hibiscus-shawl', cat='cloak', r=cotton, lining=cotton, len=63, flare=3, x0=19, x1=46, hemstyle='tri', border=hibis, border_rows=1, fx0=15, fx1=50, detail=_hibiscus),
     dict(slug='cb-sea-breeze-poncho', cat='cloak', r=turq, lining=turq, len=63, flare=4, x0=20, x1=45, hemstyle='diamond', fx0=15, fx1=50, front_flare=3, side_back=19, detail=_poncho),
     dict(slug='cb-mangrove-hood', cat='cloak', r=palm, lining=palm, len=67, flare=3, front_wide=2, side_back=18, detail=_mangrove),
-    dict(slug='cb-shell-scallop-capelet', cat='cloak', r=coral, lining=coral, len=55, flare=4, fx0=17, fx1=48, front_flare=2, side_back=19, detail=_capelet),
+    dict(slug='cb-shell-scallop-capelet', cat='cloak', r=coral, lining=coral, len=55, flare=4, side_back=19, fx0=13, fx1=52, front_flare=4, detail=_capelet),
 ]
 
 ITEMS = FOOT + PACK + COAT + CLOAK

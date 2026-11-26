@@ -98,6 +98,18 @@ local function husky(x, yb, s, pose, coat)
   if pose == "howl" then for q = 0, 2 do px(floor(hcx) + (6 + q) * s, floor(hcy) - 8 - q * 2, S.deep) px(floor(hcx) + (7 + q) * s, floor(hcy) - 8 - q * 2, S.deep) end end
   return m
 end
+-- nearest-neighbour enlarge of a row-string sprite (k about 1.4: animals read at the picture's scale)
+local function upRows(rows, k)
+  local out = {}
+  local h, w = floor(#rows * k + .5), floor(#rows[1] * k + .5)
+  for j = 1, h do
+    local sr = rows[math.min(#rows, floor((j - 1) / k) + 1)]
+    local t = {}
+    for i = 1, w do t[i] = sr:sub(math.min(#sr, floor((i - 1) / k) + 1), math.min(#sr, floor((i - 1) / k) + 1)) end
+    out[j] = table.concat(t)
+  end
+  return out
+end
 -- a curled sleeping husky (nose under tail)
 local function sleeper(x, y, coat, flip)
   local rows = {
@@ -108,10 +120,11 @@ local function sleeper(x, y, coat, flip)
     "WWWDDDDDDDDDDDtt",
     ".WWwwwwwwwwwww..",
   }
+  rows = upRows(rows, 1.5)
   if flip then for i, r in ipairs(rows) do rows[i] = r:reverse() end end
-  F.shadowM(c:ellipse(x + 9, y + 6, 9, 1))
+  F.shadowM(c:ellipse(x + 12, y + 9, 12, 1))
   F.sprite(rows, x, y, { e = coat.deep, D = coat.base, d = coat.shade, n = L.timber.edge, W = L.fur.hi, w = L.fur.shade, t = L.fur.base })
-  hline(flip and x + 12 or x + 2, flip and x + 13 or x + 3, y + 2, L.timber.edge)
+  hline(flip and x + 18 or x + 3, flip and x + 20 or x + 5, y + 3, L.timber.edge)
 end
 
 -- trampled snow clearing around the fire: boot-packed snow, with a melted bare ring near the stones
@@ -519,7 +532,7 @@ local _, ux, uy = F.gnome(174, 208, { hat = L.gold, coat = L.lav, arm = "out", f
 fill(rect(ux - 3, uy - 3, ux, uy + 1), L.awnA.base) px(ux - 3, uy - 3, L.awnA.hi) px(ux, uy - 2, L.awnA.deep) hline(ux - 3, ux, uy - 3, L.fur.hi)
 F.steam(ux - 2, uy - 5, 3, .2, 14)
 -- a husky asleep by the fire
-sleeper(154, 228, DOG)
+sleeper(150, 226, DOG)
 paws({ { 196, 236 }, { 210, 244 } }, 6)
 
 ---------------------------------------------------------------- grub-box table on a sled base, bottom-left
@@ -609,8 +622,8 @@ do
   end
   for _, b in ipairs({ { 413, 228 }, { 440, 229 } }) do fill(c:ellipse(b[1], b[2], 2, 1), IR.base) hline(b[1] - 1, b[1] + 1, b[2] - 1, IR.hi) end
   local function dog(rows, x0, yb, coat, flip)
-    local r2 = {}
-    for i, r in ipairs(rows) do r2[i] = flip and r:reverse() or r end
+    local r2 = upRows(rows, 1.5)
+    for i, r in ipairs(r2) do r2[i] = flip and r:reverse() or r end
     F.shadowM(c:ellipse(x0 + #r2[1] // 2 + 3, yb + 1, #r2[1] // 2 + 2, 1))
     F.sprite(r2, x0, yb - #r2 + 1, { K = coat.deep, D = coat.base, d = coat.shade, H = coat.hi, W = L.fur.base, w = L.fur.shade,
       B = L.fur.hi, e = L.timber.edge, n = L.timber.edge }, { rimCol = coat.edge })
@@ -633,7 +646,7 @@ do
     "DDDDdWWwWW.W....",
     "wWWWWWwwww.ww...",
   }, 394, 226, DOG, true)
-  line({ { 404, 212 }, { 404, y - 6 } }):each(function(x, yy) px(x, yy, IR.shade) end)
+  line({ { 405, 212 }, { 405, y - 6 } }):each(function(x, yy) px(x, yy, IR.shade) end)
   dog({
     ".............K.K......",
     "..DDD........DKDK.....",
@@ -651,9 +664,9 @@ do
     "....WW.WW....WW.WW....",
     "....WW.WW....WW.WW....",
     "....ww.ww....ww.ww....",
-  }, 414, 227, SABLE, false)
-  line({ { 432, 213 }, { 433, y - 6 } }):each(function(x, yy) px(x, yy, IR.shade) end)
-  sleeper(440, 220, COPPER, true)
+  }, 423, 227, SABLE, false)
+  line({ { 442, 213 }, { 443, y - 6 } }):each(function(x, yy) px(x, yy, IR.shade) end)
+  sleeper(384, 238, COPPER, true)
   paws({ { 396, 232 }, { 376, 222 }, { 340, 206 } }, 6)
 end
 F.conifer(392, 206, 20, L.foliage2, 44)

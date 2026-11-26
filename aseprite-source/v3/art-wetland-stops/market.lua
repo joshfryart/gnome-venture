@@ -139,9 +139,9 @@ local function duck(x, yb, flip, swim, hen)
     map = { G = mal.base, H = mal.hi, Y = L.marigold.base, W = L.awnB.hi, C = chest.base, c = chest.shade,
       s = L.heron.base, S = L.heron.shade, T = mal.deep, t = L.heron.hi, o = L.produce.base }
   end
-  local m = F.sprite(rows, x - 6, yb - #rows + 1, map)
-  if hen then m:each(function(xx, yy) if yy > yb - #rows + 5 and hash(xx, yy, 91) < .3 and c:get(xx, yy) == chest.base then px(xx, yy, chest.deep) end end) end
-  if swim then for xx = x - 8, x + 8 do if hash(xx, yb, 92) < .7 then px(xx, yb + 1, (xx < x) and L.water.hi or F.SKYREF) end end end
+  local m = F.sprite(rows, x - 12, yb - #rows * 2 + 1, map, { scale = 2 })
+  if hen then m:each(function(xx, yy) if yy > yb - #rows * 2 + 9 and hash(xx, yy, 91) < .3 and c:get(xx, yy) == chest.base then px(xx, yy, chest.deep) end end) end
+  if swim then for xx = x - 16, x + 16 do if hash(xx, yb, 92) < .7 then px(xx, yb + 1, (xx < x) and L.water.hi or F.SKYREF) end end end
   return m
 end
 local function duckling(x, y)
@@ -793,7 +793,7 @@ local function stall()
   px(366, 224, mal.base) px(367, 224, mal.hi) px(365, 225, L.marigold.base) px(372, 225, chest.base) px(373, 224, chest.hi) px(371, 226, L.produce.base)
   hline(362, 376, 221, L.reed.hi)
   -- ducks on the pool
-  duck(308, 232, false, true, true) duck(322, 231, false, true)
+  duck(310, 233, false, true, true) duck(338, 231, false, true)
   F.lily(400, 222, false, "yellow")
 end
 stall()

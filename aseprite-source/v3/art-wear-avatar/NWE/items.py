@@ -658,7 +658,7 @@ def _woad(c, g, m, v):
 CLOAK = [
     dict(slug='nwe-heather-shawl', cat='cloak', r=heather, lining=heather, len=64, flare=3, x0=19, x1=46, hemstyle='tri', fx0=15, fx1=50, detail=_shawl),
     dict(slug='nwe-mustard-rain-cape', cat='cloak', r=mustard, lining=mustard, len=61, flare=4, x0=20, x1=45, front_flare=2, fx0=15, fx1=50, side_back=19, folds=(), detail=_raincape),
-    dict(slug='nwe-sheepskin-mantle', cat='cloak', r=fleece, lining=fleece, len=57, flare=2, x0=19, x1=46, front_flare=0, fx0=17, fx1=48, side_back=18, folds=(), detail=_sheepskin),
+    dict(slug='nwe-sheepskin-mantle', cat='cloak', r=fleece, lining=fleece, len=57, flare=2, x0=19, x1=46, side_back=18, folds=(), fx0=13, fx1=52, front_flare=3, detail=_sheepskin),
     dict(slug='nwe-rush-thatch-cape', cat='cloak', r=straw, lining=straw, len=64, flare=5, x0=23, x1=42, front_flare=2, fx0=17, fx1=48, side_back=17, folds=(), detail=_thatch),
     dict(slug='nwe-woad-mist-cloak', cat='cloak', r=mist, lining=mist, len=68, flare=3, border=woad, border_rows=2, border_sides=True, side_back=18, detail=_woad),
 ]

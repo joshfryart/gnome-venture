@@ -465,11 +465,11 @@ local function duck(x, y, drake, flip)
     or { ".......bbb..", "......bBBbby", "..bbb.bbb.yy", ".bbbbbbbbb..", "bBBBbbbbbbb.", "BbbbbbbbbbB.", ".ddddddddd.." }
   if flip then for i, r in ipairs(rows) do rows[i] = r:reverse() end end
   local gr = drake and L.heron or L.goose
-  F.sprite(rows, x, y - 2, { g = "#2e5a46", G = "#4e8a62", y = L.marigold.base, w = L.awnB.hi, b = gr.base, B = gr.hi, d = gr.deep })
-  if drake then px(flip and x + 4 or x + 7, y + 2, KING.base) end
-  for xx = x - 2, x + 12 do if hash(xx, y, 79) < .6 then px(xx, y + 6, (xx < x + 4) and L.water.hi or SKY) end end
+  F.sprite(rows, x, y - 10, { g = "#2e5a46", G = "#4e8a62", y = L.marigold.base, w = L.awnB.hi, b = gr.base, B = gr.hi, d = gr.deep }, { scale = 2 })
+  if drake then px(flip and x + 8 or x + 14, y - 4, KING.base) px(flip and x + 9 or x + 15, y - 4, KING.base) end
+  for xx = x - 3, x + 25 do if hash(xx, y, 79) < .6 then px(xx, y + 4, (xx < x + 8) and L.water.hi or SKY) end end
 end
-duck(352, 223, true, true) duck(370, 221, false, true)
+duck(336, 223, true, true) duck(364, 221, false, true)
 
 -- quirk: an otter in a red gnome hat asleep, curled in the water-mint bed; a dragonfly resting on the hat tip
 do
