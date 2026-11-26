@@ -117,6 +117,14 @@ q('UPDATE garden_buildings SET level = 1 WHERE plot_id = ? AND building = ?', [$
 ok('a level 1 Tailor has no free craft', !tailor_free_ready($uid));
 ok('power 6 or less pays no commission', tailor_commission($uid, 'work-gloves') === 0);
 ok('every wearable has its puzzle piece picture (shop sheet), 132x92', !array_filter(array_keys(wear_tailor_defs()), fn($sl) => !is_file($argv[1] . '/assets/img/wearpiece/' . $sl . '.png') || getimagesize($argv[1] . '/assets/img/wearpiece/' . $sl . '.png')[0] !== 132));
+$plated = function (string $f): bool {   // art review (baked-in text): no cream value box (38-53, 16-27; rows 14-15 are the rim) or name ribbon (41-100, 57-67) with pixel letters on the card
+    $im = imagecreatefrompng($f);
+    foreach ([[38, 16, 53, 27], [41, 57, 100, 67]] as [$x0, $y0, $x1, $y1]) for ($y = $y0; $y <= $y1; $y++) for ($x = $x0; $x <= $x1; $x++) {
+        $c = imagecolorat($im, $x, $y); if ((($c >> 16) & 255) === 242 && (($c >> 8) & 255) === 228 && ($c & 255) === 192) return true;
+    }
+    return false;
+};
+ok('the piece pictures carry no text: no value box or name ribbon baked in (the shop sheet prints them)', !array_filter(array_keys(wear_tailor_defs()), fn($sl) => $plated($argv[1] . '/assets/img/wearpiece/' . $sl . '.png')));
 $rv = fn($sl) => (int)q_val('SELECT rarity FROM items WHERE slug = ?', [$sl]);
 ok('item rarity follows the design: Common 10, Uncommon 25, Rare 50 (+10 Lined, +20 Fine)', $rv('na-sugarbush-snow-boots') === 10 && $rv('na-sugarbush-snow-boots-lined') === 20 && $rv('na-lakeland-snowshoe') === 25 && $rv('na-lakeland-snowshoe-fine') === 45 && $rv('na-loon-down-slippers') === 50 && $rv('oc-mangrove-clog-fine') === 70, json_encode([$rv('na-sugarbush-snow-boots'), $rv('na-lakeland-snowshoe'), $rv('na-loon-down-slippers')]));
 $IL = item_lookups(); $lab = fn($sl) => item_rarity(q_one('SELECT * FROM items WHERE slug = ?', [$sl]), $IL)[1];

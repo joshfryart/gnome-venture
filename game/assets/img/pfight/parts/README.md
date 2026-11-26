@@ -21,7 +21,7 @@ so opaque pixels of two pieces never overlap (checked): draw order does not matt
 - `icons-<size>.png`: 7 cells, real RGBA icons (hand 32x32, strip 20x20), draw at the icon offset above.
 - `rim.json`: role ids, exact RGB, palettes `default` and `old`.
 - `atlas.json`: sizes, offsets, sheets, type palettes (base/mark/light/shade), erase value.
-- `extras.json` + extras PNGs (below). `example/`: worked piece and board demos.
+- `extras.json` + extras PNGs (below). `example/`: worked piece and board demos (moved out of the game to `art-review/shipped-debug/assets/img/pfight/parts/example/`, not shipped).
 
 ## Index format
 Pixel = (R=role id, G=0, B=0, A=255). A=0 = transparent (in BASE) or unchanged (in a stamp).
@@ -46,7 +46,7 @@ number: print in INK centred on the plate. Name (hand only): print inside the ri
 ```
 Hand ribbon in piece coords: at (42,58) size 58x9. Cache per (type, size, owner, edges, palette).
 
-## Worked example (`example/`)
+## Worked example (`example/`, now in `art-review/shipped-debug/assets/img/pfight/parts/example/`)
 `strip-foe-trick-part-*.png` (4x): base + the 4 stamps (L hole mind, R knob body, T hole craft, B hole mind);
 `strip-foe-trick-index.png` composed index (R channel), `strip-foe-trick-final.png` final colours (= expected pixels).
 `board-demo.png` 3x3 strip board, `board-demo-hand.png` 2x2 hand board, `board-demo-pieces.json` types/owners/edges,
@@ -56,12 +56,12 @@ Hand ribbon in piece coords: at (42,58) size 58x9. Cache per (type, size, owner,
 - `deck-book.png`, `discard-bin.png` 32x32.
 - `joint-h.png` 22x14 (centre on a vertical seam), `joint-v.png` 14x22 (centre on a horizontal seam). Linked knob/hole joint only; flat contact: draw nothing.
 - `chain-glow-h.png` / `-v.png`: 4 frames of 64x8 (8x64), stacked, tile along the long axis, period 8, ~8 fps. Place over the linked seam.
-- Ghost (lit legal spot): piece-shaped outline, built in code from the candidate piece alpha. Rule: outline px = opaque px with a 4-neighbour transparent; colour GOLD (#e8a317) if (x+y)%4<2 else CREAM (#f2e4c0). `ghost-demo-strip.png` shows it.
+- Ghost (lit legal spot): piece-shaped outline, built in code from the candidate piece alpha. Rule: outline px = opaque px with a 4-neighbour transparent; colour GOLD (#e8a317) if (x+y)%4<2 else CREAM (#f2e4c0). `ghost-demo-strip.png` shows it (moved to `art-review/shipped-debug/assets/img/pfight/parts/`, not shipped).
 - `resolve-frame.png` 96x12 (transparent window at (3,3) 90x6, centre mark at x=47), `resolve-fill-hurt.png` / `-charm.png` 90x6 (stripes vs dots, clip by width, Hurt anchored left, Charm right).
 - `intent-bubble.png` 28x24, draw the 20x20 type icon at (4,1).
 - `combo-stamp-small.png` (combo 2-3), `combo-stamp-big.png` (4+), 32x32, number plate (10,11) 12x10 left empty.
 - `chip-me.png` / `chip-foe.png` 24x24, 9-slice margin 5 (solid vs dashed border).
-- `extras-preview.png` is a 3x preview only.
+- `extras-preview.png` is a 3x preview only (moved to `art-review/shipped-debug/assets/img/pfight/parts/`, not shipped).
 
 ## Update 2
 - `combo-badge-small.png` (pill, 2-3) / `combo-badge-big.png` (swallowtail, 4+): flat 24x14, number plate (6,3) 12x8 empty. Replace the star stamps (kept, deprecated).
@@ -76,7 +76,7 @@ Hand ribbon in piece coords: at (42,58) size 58x9. Cache per (type, size, owner,
 - `rarity-0|1|2.png` 7x7: common circle (cream), uncommon diamond (blue), rare sparkle (gold). Shape carries it, not colour.
 - `pop-header-<type>.png` 24x16 9-slice (slice 9 left/right, stretch the middle), type-coloured pattern ends, cream middle: print the name in ink.
 - Anchors (top-left, piece image coords, draw over the piece at 1x): strip tag (13,32), mod (49,32), rarity (54,8); hand tag (24,64), mod (96,64), rarity (100,18). Popover: integer 2x only.
-- `marks-preview.png` is a 3x preview with marks on real pieces.
+- `marks-preview.png` is a 3x preview with marks on real pieces (moved to `art-review/shipped-debug/assets/img/pfight/parts/marks/`, not shipped).
 
 ## Update 6: rarity counts
 `marks/rarity-0|1|2.png` are now 10x12: the gem plus 1 / 2 / 3 count pips under it (common / uncommon / rare). `marks/rarity-gem-0|1|2.png` = old gem only (7x7). New anchors: strip (51,7), hand (98,18).

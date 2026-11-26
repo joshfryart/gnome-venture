@@ -1010,3 +1010,11 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   .pfi-card { animation: pfi-updesk .3s ease-out; }
 }
 @keyframes pfi-updesk { from { transform: translateY(3vh) scale(.98); opacity: .4; } to { transform: none; opacity: 1; } }
+
+/* art-review 2026-11-26 (fight, light theme): the pre-fight card (#pfv-pre) sits on the cream surface in the light theme, but the fight panel's felt-text colours (pfight.css .pfover .encounter: #f2e4c0 / #e6d6b0, .foerule #e6d4ff) leaked onto it: creature tags, the class-rule line, "lv 1" and the deck count were ~1.1:1. In the light theme they take the umber ink; the dark theme keeps the light ink. */
+:root:not([data-theme="dark"]) #pfv-pre.pfv { color: var(--ink); }
+:root:not([data-theme="dark"]) #pfv-pre.pfv .foecard .chip,
+:root:not([data-theme="dark"]) #pfv-pre.pfv .meter > b { color: var(--ink); }
+:root:not([data-theme="dark"]) #pfv-pre.pfv .foecard h3 small { color: var(--muted); }
+:root:not([data-theme="dark"]) #pfv-pre.pfv .foerule { color: var(--purple-ink); }
+:root:not([data-theme="dark"]) #pfv-pre.pfv .foerule b { color: var(--ink); }
