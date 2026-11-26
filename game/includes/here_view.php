@@ -668,6 +668,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts);
     if ($gate && $canWander) $h .= '<form method="post" action="' . e(url('adventure.php')) . '" id="wanderform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="explore"></form>';
     if ($more) $h .= '<p><a class="btn alt" href="' . e($more['href']) . '">' . e($more['label']) . '</a></p>';
+    if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $h .= '<p class="herehovel"><a class="btn alt" href="' . e(url('hovel.php')) . '">🏠 Hovel</a></p>';   // your home village: the way into your hovel
     return $h . here_extra_do($u, $node, $back, $spots);
 }
 

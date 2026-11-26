@@ -11,7 +11,7 @@ if (is_post()) {
     csrf_check();
     [$ok, $msg] = first_week_claim($u, (int)($_POST['day'] ?? 0));
     if ($msg !== '') flash($msg, $ok ? 'ok' : 'err');
-    redirect('firstweek.php');
+    redirect(safe_back('firstweek.php'));
 }
 
 $st = first_week_state($uid);

@@ -1841,7 +1841,7 @@ document.addEventListener('click', function (ev) {
       var f = dlg.querySelector('.sheetform');
       if (f) {
         var st = pick.closest('.stile'), sw = st && st.closest('.shopwrap'), inb = sw && sw.gvBasket && sw.gvBasket[st.getAttribute('data-id')];
-        f.querySelector('.qin').value = inb ? inb.n : 1;   // already in the basket: show that amount, not 1
+        f.querySelector('.qin').value = inb ? inb.n : (+f.getAttribute('data-qdef') || 1);   // already in the basket: show that amount, not 1
         gvSheetTotal(f);
       }
       gvOpenDlg(dlg);

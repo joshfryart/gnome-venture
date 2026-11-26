@@ -46,6 +46,21 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect('shop.php?id=' . $sid);
     }
+    if ($do === 'sell_crops') {   // Sell all crops: every produce stack, through the normal per-item checks
+        if (!$reachable) { flash('You need to be in ' . ($shopTown['name'] ?? 'that town') . ' to shop here.', 'err'); }
+        elseif (!staff_on_duty($sid)) { flash('Nobody is at the counter right now.', 'err'); }
+        else {
+            $n = 0; $earned = 0; $errs = [];
+            foreach (q("SELECT ui.item_id, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'produce' ORDER BY i.name", [$u['id']])->fetchAll() as $r) {
+                [$ok, $msg, $total] = sell_to_shop($u, (int)$r['item_id'], (int)$r['qty'], $sid) + [2 => 0];
+                if ($ok) { $n += (int)$r['qty']; $earned += $total; } else $errs[] = $msg;
+            }
+            if ($n) flash('💰 You sell all your crops: ' . number_format($n) . ' items for ' . number_format($earned) . ' ' . setting('currency_name') . '.');
+            elseif (!$errs) flash('You have no crops to sell.', 'err');
+            foreach (array_unique($errs) as $m) flash($m, 'err');
+        }
+        redirect('shop.php?id=' . $sid . '&tab=sell');
+    }
     $want = [];
     foreach ((array)($_POST['qty'] ?? []) as $id => $n) {
         if ((int)$id > 0 && (int)$n > 0) $want[(int)$id] = min(999, (int)$n);
@@ -183,6 +198,11 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
   <?php $anyWant = false; foreach ($sellable as $i) if (market_price_parts($i)['wanted']) { $anyWant = true; break; } ?>
   <?= $anyWant ? '<p class="help shopwlegend"><b>W</b> = Wanted</p>' : '' ?>
   <details class="helpfold shophelp"><summary>ℹ️ What sells here</summary><p class="help">Shopkeepers buy crops, flowers, arrangements, food, creature parts and finds. Rarer things fetch much more. Prices drift: ↑ pays more than usual (wanted, out of season), ↓ pays less (in season, or lots sold lately).</p></details>
+  <?php $cropN = 0; $cropV = 0; foreach ($sellable as $i) if ($i['category'] === 'produce') { $cropN += (int)$i['qty']; $cropV += sell_price_with_bonus($i, $u, $sellBonus) * (int)$i['qty']; } ?>
+  <?php if ($open && $cropN > 0): ?>
+    <form method="post" class="sellcrops" action="<?= e(url('shop.php?id=' . $sid . '&tab=sell')) ?>" data-confirm="Sell all crops: <?= $cropN ?> items for about <?= number_format($cropV) ?> <?= e(setting('currency_name')) ?>?"><?= csrf_field() ?><input type="hidden" name="do" value="sell_crops">
+      <button class="btn small">🌾 Sell all crops</button> <span class="help">Sell all crops: <?= number_format($cropN) ?> items for about <?= number_format($cropV) ?> <?= e(setting('currency_name')) ?></span></form>
+  <?php endif; ?>
   <?= $sellBonus ? '<p class="help">🧭 Your Journey project here: ' . $sellBonus . '% extra.</p>' : '' ?>
   <div class="shopwrap">
   <?= $open ? shop_basket_html('sell', url('shop.php?id=' . $sid . '&tab=sell')) : '' ?>
@@ -193,7 +213,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
       $mc = market_chip($i);   // v1.0.0: ↑/↓ and ⭐ wanted
       $info = item_origin_html($i, $IL) . '<p class="help">👜 You have ' . (int)$i['qty'] . '</p>';
       echo shop_tile(['id' => (int)$i['id'], 'item' => $i, 'price' => $p, 'max' => (int)$i['qty'], 'priceHtml' => money($p), 'mini' => shop_mini($mc), 'tags' => $mc !== '' ? [$mc] : [],
-          'info' => $info, 'badge' => (string)(int)$i['qty'], 'mode' => 'sell', 'action' => url('shop.php?id=' . $sid . '&tab=sell'), 'open' => (bool)$open, 'basket' => true]);
+          'info' => $info, 'badge' => (string)(int)$i['qty'], 'mode' => 'sell', 'qtyDefault' => (int)$i['qty'], 'action' => url('shop.php?id=' . $sid . '&tab=sell'), 'open' => (bool)$open, 'basket' => true]);
   endforeach; ?>
   </div></div>
   </div>
