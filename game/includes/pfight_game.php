@@ -850,12 +850,25 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfight.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }
 
+/** A fight begun before 2.8.61 holds stat tiles (src stat) without 'ik' (pf_make_tile drops it): give each the icon key of its catalogue piece (tile k), only when the catalogue has it. */
+function pfight_backfill_ik(array $s): array
+{
+    require_once __DIR__ . '/pfdeck.php';
+    $cat = pfd_stat_pieces();
+    $fix = function ($t) use ($cat) { if (is_array($t) && ($t['src'] ?? '') === 'stat' && empty($t['ik']) && isset($cat[(string)($t['k'] ?? '')])) $t['ik'] = (string)$t['k']; return $t; };
+    foreach (['draw', 'discard', 'hand'] as $pile) if (!empty($s['me'][$pile]) && is_array($s['me'][$pile])) foreach ($s['me'][$pile] as $i => $t) $s['me'][$pile][$i] = $fix($t);
+    foreach ((array)($s['me']['held']['pcs'] ?? []) as $i => $q) if (isset($q['tile'])) $s['me']['held']['pcs'][$i]['tile'] = $fix($q['tile']);
+    foreach (['pcs', 'gone'] as $g) foreach ((array)($s[$g] ?? []) as $i => $q) if (isset($q['tile'])) $s[$g][$i]['tile'] = $fix($q['tile']);
+    return $s;
+}
+
 /**
  * The board screen (mode 'board'). The server draws the board and the hand; assets/pfboard.js lets the player plan up to 4 placements (click a piece, click a cell,
  * or drag), shows where a piece fits, and posts them all once on End turn. Pieces are drawn with CSS until the four-sided piece art lands (parts atlas).
  */
 function pfight_board_html(array $u, array &$enc, array $c, array $s): string
 {
+    $s = pfight_backfill_ik($s);   // 2.8.64: a fight that began before 2.8.61 has stat tiles without their icon key
     $v = pfb_view($s);
     $nonce = e((string)$s['nonce']);
     $sm = fn(string $t) => ($i = pfight_art('ico-' . $t . '-s.png')) ? '<img class="pfh-ico" src="' . e($i) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">' . e(pfight_icon($t)) . '</span>';

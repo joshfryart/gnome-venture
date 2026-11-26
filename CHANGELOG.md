@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.8.69
+- Bugs and small fixes (a workflow of agents, each area checked by its own tests; none seen on a real phone):
+- Landscape phone Here page: the picture now fits above the dock at the top of the page (slimmer title, 54 px reserve; 844x390 bottom 293 -> 280 px, dock top 284). At 640x260 the picture still needs a scroll. `assets/dock.css`.
+- Almanac and Trek at 640x260 (landscape, up to 300 px high): tighter heading, search and intro spacing; one full Almanac row and the Trek Begin button now clear the dock. `assets/dock.css`.
+- Puzzle fight: stat pieces keep their stat badge in the turn replay (`pfb_snap`, `includes/pfboard.php`), and a fight begun before 2.8.61 gets stat piece icons (`pfight_backfill_ik()`, `includes/pfight_game.php`). Tests in `tests/pf_stat_art.php` (230 ok).
+- Cat Fish: the zoomies start from the cat's own row, and a reload no longer leaves a zoomies cat hidden (`assets/catfish_room.js`; not reproduced in a browser).
+- Tools: `build_parts47.py` / `build_parts48.py` no longer delete `marks/tag-*` or rewrite `marks.json`.
+- Tests: `here_bang` was date-flaky (orders expire late in a cycle; test now sets `orders_min_days` 28), `itemsq` was stale (undiscovered recipes read "found / not found yet" since 2.7.06). `pf_play_decks`, `pfdeck_v1`, `pfboard_tune_v1_metrics`, `pf_yield_text`, `pfboard_v1_abil` and `pf_creatures_import.sh` pass now (6 runs each); nothing changed for them.
+
 ## 2.8.68
 - **Pop-up messages go to the bell with the dock (landscape phone and desktop).** Owner: "Move all notifs to the new stories are bottom right. Have it glow and show the most recent for a few seconds before disappearing." `gvShowToasts()` (`assets/site.js`) hands the messages to `gvDockNote()` (`assets/dock.js`): the bell glows (gold pulse, 6 s), the newest message shows in a small bubble beside it for 5 s then fades, tapping the bubble or the bell opens Messages, where the recent ones are listed on top as "just now" (dropped from that list once the page's own message list has them), and the bell badge counts the unseen ones. Errors and prize boxes still pop up as before (they must not vanish). Portrait keeps the old pop-ups (the bell is landscape only). CSS in `assets/dock.css` after the bell rules; reduced motion: no pulse, no fade. NOT seen in a browser: check on the phone and desktop.
 

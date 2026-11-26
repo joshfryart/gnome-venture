@@ -286,10 +286,10 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .hubstreet .hubst .stemo { font-size: 28px; }
   body.dock-on .hubstreet .hubst .stn { background: none; border: 0; padding: 0; font-size: .8rem; white-space: normal; text-align: left; line-height: 1.15; }
 }
-/* v2.8.62: a landscape phone (touch, at most 500 px high): the Here picture is about a fifth larger (its height is the room above the dock less 48 px,
+/* v2.8.62: a landscape phone (touch, at most 500 px high): the Here picture is about a fifth larger (its height is the room above the dock less 54 px,
    at least 175 px on a short phone) and the villagers are a compact two-across list of 44 px rows that only takes the width it needs. Desktop windows keep the rules above. */
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  body.dock-on .hubscene:has(> .hubstreet) { --hereimg: max(min(175px, calc(100dvh - var(--dock-h, 106px) - 8px)), calc(100dvh - var(--dock-h, 106px) - 48px)); }
+  body.dock-on .hubscene:has(> .hubstreet) { --hereimg: max(min(175px, calc(100dvh - var(--dock-h, 106px) - 8px)), calc(100dvh - var(--dock-h, 106px) - 54px)); }
   body.dock-on .hubscene:has(> .hubstreet) > .hubstage { width: calc(var(--hereimg) * 1.769); }
   body.dock-on .hubscene > .hubstreet { justify-self: start; max-width: 100%; max-height: var(--hereimg); padding: 4px; gap: 4px; grid-template-columns: repeat(2, minmax(0, 164px)); border-radius: 0; }
   body.dock-on .hubscene > .hubstreet:not(:has(> li + li)) { grid-template-columns: minmax(0, 164px); }
@@ -297,6 +297,7 @@ body.dock-on .cbed { cursor: pointer; }
   body.dock-on .hubstreet .hubst .stp { width: 28px; height: 35px; }
   body.dock-on .hubstreet .hubst .stemo { font-size: 24px; }
   body.dock-on .hubstreet .hubst .stn { font-size: 14px; }
+  body.dock-on .herepage:has(.hubscene > .hubstreet) h1 { line-height: 1.1; margin: 0 0 2px; }   /* v2.8.69: a slimmer heading so the picture's bottom clears the dock without scrolling */
 }
 
 /* dock layout, landscape: a picture page with no side list (the Treehouse, the yard) centres its picture and makes it large: its height is the space above the dock plus 30 px */
@@ -1387,7 +1388,7 @@ body.dock-on main:has(#vlist) > h1 { margin: 0 0 4px; font-size: 1.2rem; }
 body.dock-on #vlist > p.help { display: none; }
 body.dock-on #vlist > .vaaround { display: inline-flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 4px 8px; margin: 0 0 4px; }
 body.dock-on #vlist > .vfilter { padding: 4px 8px; margin: 0 0 4px; gap: 6px; }
-/* v2.8.66: the world map side-by-side layout is for landscape only (in portrait the 300 px column left the map 48 px wide) */
+/* v2.8.69: the world map side-by-side layout is for landscape only (in portrait the 300 px column left the map 48 px wide) */
 @media (orientation: landscape) {
 body.dock-on main:has(> #worldmap) { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 0 10px; align-items: start; }
 body.dock-on main:has(> #worldmap) > * { grid-column: 1 / -1; min-width: 0; }
@@ -1846,3 +1847,18 @@ body:has(.dk-fs) .gvfs { display: none !important; }
 .dockroot .dk-pc[disabled], .dockroot .dk-pc:disabled { opacity: 1; }   /* the game's buttons fade when disabled; a dock piece shows it with its bare recess instead */
 .dockroot .dk-pc.dk-plate .dk-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }   /* the right column holds the clock, day and Petals */
 .dockroot .dockslip .dk-pc .dk-lb { white-space: normal; overflow-wrap: anywhere; max-height: 2.1em; font-size: 10px; }   /* a long tile name takes two short lines */
+
+/* v2.8.69: very short landscape screens (640x260): the Almanac Contents page and the Trek intro lose a little spacing, so more than one row shows above the dock */
+@media (orientation: landscape) and (max-height: 300px) {
+  body.dock-on .book { padding: 4px 10px; }
+  body.dock-on .book > h1 { font-size: 18px; line-height: 1.15; }
+  body.dock-on .book > p.muted { display: none; }
+  body.dock-on .book .contents .almsearch { margin: 4px 0; }
+  body.dock-on .book .contents .almsearch input[type="search"], body.dock-on .book .contents .almsearch .btn { min-height: 34px; padding-top: 2px; padding-bottom: 2px; }
+  body.dock-on .book .contents .secgrid { margin: 4px 0; gap: 4px; }
+  body.dock-on .trekintro { padding: 6px 10px; }
+  body.dock-on .trekintro > h3 { margin: 0; }
+  body.dock-on .trekintro .trektext { margin: 2px 0 4px; line-height: 1.3; }
+  body.dock-on .trekintro > form.inline { margin-top: 4px; }
+  body.dock-on .trekintro > form.inline .btn { min-height: 38px; }
+}

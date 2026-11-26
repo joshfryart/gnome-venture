@@ -92,7 +92,7 @@
     var cats = D.cats.map(function (c, i) {
       var k = keep[c.id], a = { c: c, id: c.id, active: c.id === D.active, sheets: {}, st: 'idle', t: 0, x: 0, y: 0, face: 1, home: null, nx: 0, ny: 0, tx: 0, ty: 0, tgt: null, wait: 0, blink: 0, frame: 0, anim: 0, vis: true, next: 0, caught: 0, rnd: mk((c.seed | 0) + 7), set: 'idle', fi: 0, sleepZ: 0 };
       a.home = c.id === D.active ? { u: 0.5, d: 0.1 } : { u: [0.3, 0.7, 0.62, 0.38][i % 4], d: [0.55, 0.3, 0.5, 0.42][i % 4] };
-      if (k) { a.x = k.x; a.y = k.y; a.st = k.st === 'chase' ? 'idle' : k.st; a.face = k.face; } else { a.x = xOf(a.home.u, a.home.d); a.y = yOf(a.home.d); }
+      if (k) { a.x = k.x; a.y = k.y; a.st = k.st === 'chase' ? 'idle' : k.st; a.face = k.face; if (k.st === 'zoom' || k.st === 'zoomhide' || k.st === 'zoomin') { a.st = 'idle'; a.vis = true; a.x = xOf(a.home.u, a.home.d); a.y = yOf(a.home.d); } } else { a.x = xOf(a.home.u, a.home.d); a.y = yOf(a.home.d); }
       if (a.active && D.nap && !k) a.st = 'nap';
       if (!a.active && c.mood === 'lazy' && !cushionTaken && !k) { cushionTaken = true; a.st = 'nap'; a.onCushion = true; a.x = 64; a.y = 226; }
       if (k && k.cush) a.onCushion = true;
@@ -288,7 +288,7 @@
       if (reduced()) return;
       if (now > nextZoom && act.st === 'idle') {
         nextZoom = now + (FAST ? between(9000, 15000) : between(45000, 90000));
-        act.st = 'zoom'; act.zDir = rnd() < 0.5 ? 1 : -1; act.y = yOf(between(0.12, 0.4)); act.moving = true;
+        act.st = 'zoom'; act.zDir = rnd() < 0.5 ? 1 : -1; act.moving = true;
       }
       if (owned.cattree > 0 && M && now > nextTree) {
         nextTree = now + (FAST ? between(5000, 9000) : between(30000, 70000));
