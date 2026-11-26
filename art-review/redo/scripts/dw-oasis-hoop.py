@@ -30,7 +30,7 @@ def hoop(c):
     c.add(body, CORAL, stitch=None)
     # life-ring cream segments on the four diagonals
     diag = lambda x, y: abs(abs(x - 32) - abs(y - 33)) < 6.5 and (abs(x - 32) > 4)
-    seg = body & c.m(diag)
+    seg = body & c.m(diag, minus=(K.ell(32, 33, 12.5, 12),))
     c.add(seg, CREAM)
     # the pool seen through the hole
     hole = c.m(K.ell(32, 33, 12.5, 12))
@@ -47,7 +47,7 @@ def hoop(c):
     # felt face peeking up from the pool
     c.eye(27.5, 31, disc=True)
     c.eye(36.5, 31, disc=True)
-    c.smile(32, 36, CREAM if not c.small else CREAM)
+    c.smile(32, 36, CREAM[2])
     if not c.small:
         c.blush(23.5, 35)
         c.blush(40, 35)
