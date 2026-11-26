@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-26 2.8.70 (slim zip `releases/GnomeVenture-2.8.70-web-update.zip`, needs 2.8.69+)
+- DONE (Josh: very large text box on the landscape Trail): Echo chain box smaller (dock.css tail). NOT seen in a browser. OPEN: the other Trail family boxes (forest, desert, wetland, rainforest...) not checked for the same size.
+
 ## 2026-11-26 2.8.69 bugs and small fixes (slim zip `releases/GnomeVenture-2.8.69-web-update.zip`, needs 2.8.68+)
 - DONE: landscape Here picture above the dock, Almanac / Trek at 640x260, replay stat badge, pre-2.8.61 fight icons, Cat Fish zoomies, builders keep marks/, `here_bang` and `itemsq` tests. See CHANGELOG 2.8.69. None seen on a real phone.
 - OPEN: Here picture at 640x260 still needs a scroll; failing-suite list shrank to flaky ones only (`pfdeck_v1` wear line may still flake); not changed: trails crossing markers (art), Hollow jar check, Mentor button at stops / villages.

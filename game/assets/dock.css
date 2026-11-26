@@ -1862,3 +1862,9 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on .trekintro > form.inline { margin-top: 4px; }
   body.dock-on .trekintro > form.inline .btn { min-height: 38px; }
 }
+/* v2.8.70: landscape phone: the Trail family boxes (Echo chain etc.) were very large: the picture 98 px high and 15 px notes filled half the screen. Smaller picture and notes. */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .tfm-svg, body.dock-on .tfc-svg, body.dock-on .tfg-svg, body.dock-on .tfi-svg { height: 52px; width: auto; max-width: 100%; margin: 2px 0; }
+  body.dock-on .tfmountain .tfm-note, body.dock-on .tfmountain .tfm-chip { font-size: 12px; line-height: 1.25; margin: 2px 0; }
+  body.dock-on .tfmountain .tfm-h { font-size: 14px; gap: 4px; }
+}

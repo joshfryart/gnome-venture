@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.70
+- **Landscape phone Trail: the family box (Echo chain on mountain stretches) was very large** (owner: "Very large text box?"). With the dock on and at most 520 px high, the family pictures (`.tfm-svg`, `.tfc-svg`, `.tfg-svg`, `.tfi-svg`) are 52 px high instead of about 98 px, and the Echo chain notes and chips are 12 px with tighter spacing. CSS only, tail of `assets/dock.css`. Not seen in a browser; if the other Trail boxes (forest, desert, wetland...) are also too big, tell me which.
+
 ## 2.8.69
 - Bugs and small fixes (a workflow of agents, each area checked by its own tests; none seen on a real phone):
 - Landscape phone Here page: the picture now fits above the dock at the top of the page (slimmer title, 54 px reserve; 844x390 bottom 293 -> 280 px, dock top 284). At 640x260 the picture still needs a scroll. `assets/dock.css`.
