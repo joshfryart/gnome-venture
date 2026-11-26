@@ -13,7 +13,7 @@ Rules: add new items here only. Tick or delete when done, and MOVE finished bloc
 
 ## B. Code / bugs open
 - DECIDED (Josh, 2026-11-26): keep `game/includes/data/trail_maps.json` (old 22x7 reference for tests; not live, all 246 routes overridden by `data/trail_maps/*_30x18.json`). Known: Admin "Trail maps check" reports it as live; silent 22x7 fallback if a region file fails validation.
-- W2 residuals (reproduced, not fixed; all at very short landscape): hovel tabs wrap to 2 rows under the dock at 640x260 (`style.css:2971` 3-col grid, plain CSS bug); tour "Show me now" ask card is 181 px in 172 px of room, top clipped at 640x260 (`dock.css:232`, `tour.js dodge()`); dock labels ~8px under 340px high (`dock.js scaleFor` k=0.75, a 2.8.50 trade-off). W3 shop / village card asks.
+- Owner: dock labels render ~8px under 340px high (`dock.js scaleFor` k=0.75, a 2.8.50 trade-off, not a bug). Options: accept; or a `dk-small` class with 13px labels (eye check "Out & about" / "Together"); or drop the 75% scale (26 px less page at 640x260). Recommended: labels only. W3 shop / village card asks. (Hovel tabs and tour ask card at 640x260: FIXED in `dock.css`, unreleased.)
 - Check `tests/trail_marks.php` (hard-codes route ids 242 / 245 / 249) and `catfish.sh` after the route-id fix: not rerun. Josh: was any live or demo world laid between commit e21c8d65 and the route-id fix? Those have ids one low from 239 up; fix needs an owner-approved one-off migration with backup (steps in todo_history).
 - DONE: crew wording now "They work every morning at 06:00." (pal_crew.php:135).
 - `aseprite-source/v3/creature25/gen.lua` would overwrite swapped rigs: do not rerun blind.
