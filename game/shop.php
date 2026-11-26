@@ -164,7 +164,9 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
       if ($wearBlock) $info .= '<p class="help">🔒 ' . e($wearBlock) . '</p>';
       $wearPiece = '';
       if (($wp = wear_parse((string)$s['slug'])) && is_file(__DIR__ . '/assets/img/wearpiece/' . preg_replace('/-(lined|fine)$/', '', (string)$s['slug']) . '.png')) {   // 2.7.xx: the puzzle piece the wearable gives (132x92, shown at 1x so it stays small and crisp), inside the About fold
-          $wearPiece = '<p class="spiece"><img src="' . e(url('assets/img/wearpiece/' . preg_replace('/-(lined|fine)$/', '', (string)$s['slug']) . '.png')) . '" width="132" height="92" alt="The puzzle piece it gives" loading="lazy"></p>';
+          $wpc = wear_defs()[$wp[0]]['cuts'][$wp[1]];   // art review: the card art has no text; its piece name, type and number are real text under it
+          $wearPiece = '<figure class="spiece"><img src="' . e(url('assets/img/wearpiece/' . preg_replace('/-(lined|fine)$/', '', (string)$s['slug']) . '.png')) . '" width="132" height="92" alt="" loading="lazy">'
+              . '<figcaption><span class="spk">Puzzle piece it gives</span> <b class="spn">' . e($wpc[0]) . '</b> <span class="spv">' . e(ucfirst($wpc[1])) . ' ' . (int)$wpc[2] . '</span></figcaption></figure>';
       }
       $priceHtml = money($myPrice) . ($myPrice < (int)$s['current_price'] ? ' <s class="muted">' . number_format((int)$s['current_price']) . '</s>' : '');
       echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'piece' => $wearPiece, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),

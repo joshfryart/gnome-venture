@@ -8640,7 +8640,12 @@ body.game:has(.fightscene) .toasts.phone { right: 8px; left: auto; width: min(70
 .toasts.toasts-tiny .prizebox ul, .toasts.toasts-tiny .pzbig, .toasts.toasts-tiny .pzicon { display: none; }
 /* 2.7.xx: the puzzle piece a wearable gives, on its shop sheet (a 132x92 picture shown at 2x; never wider than the sheet) */
 .isheet .spiece { margin: .4rem 0; text-align: center; }
-.isheet .spiece img { width: 132px; max-width: 100%; height: auto; image-rendering: pixelated; }
+.isheet .spiece img { display: block; margin: 0 auto; width: 132px; max-width: 100%; height: auto; image-rendering: pixelated; }
+/* art review (baked-in text): the card art carries no words; its piece name, type and number are text under it (shop.php) */
+.isheet .spiece figcaption { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 2px 6px; margin-top: 2px; color: var(--ink); font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
+.isheet .spiece .spk { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+.isheet .spiece .spn { font-weight: 700; }
+.isheet .spiece .spv { padding: 0 6px; border-radius: 4px; background: var(--surface-2); box-shadow: var(--frame-lite); font-weight: 700; font-variant-numeric: tabular-nums; }
 /* 2.7.14 Wearing on My Gnome (includes/wear_view.php): 7 slots, one item each; tap a slot for its picker */
 .wearing .wslots, .wearing .wpick { list-style: none; margin: 6px 0 0; padding: 0; }
 .wearing .wslot { margin: 0 0 6px; background: var(--surface-2); box-shadow: var(--frame-lite); }
