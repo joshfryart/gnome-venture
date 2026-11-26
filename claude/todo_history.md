@@ -2,6 +2,12 @@
 
 Live list: `claude/todo.md`. Newest first for release blocks; archives below.
 
+## 2.8.75 SHIPPED 2026-11-26 (PR merged to main; slim zip `releases/GnomeVenture-2.8.75-web-update.zip`, 93 files, built against 2.8.73 so it goes on 2.8.73 or newer, includes 2.8.74): villager, stop, trail and wearables art pass (see CHANGELOG). Zip not test-installed over a real 2.8.73; nothing seen on a real phone. The "DONE unreleased" art lines below are now in 2.8.75.
+## 2.8.74 SHIPPED 2026-11-26 (PR 86 merged to main; slim zip `releases/GnomeVenture-2.8.74-web-update.zip`, 8 files, goes on 2.8.73)
+- Live world checked by Josh: routes `245 | 473 | 0` = already right, so `tools/renumber_routes_239.php` is not needed (kept for any other world). Zip not test-installed over a real 2.8.73; nothing seen on a real phone or MySQL.
+## 2.8.73 SHIPPED 2026-11-26 (PR 84 merged to main; slim zip `releases/GnomeVenture-2.8.73-web-update.zip` built against 2.8.70, goes on 2.8.70 or newer, includes 2.8.71 + 2.8.72)
+- Open from it: shops-street hotspots unchecked by eye; route cards lost the gnome (ask if wanted back) and the lair card keeps its eyes; stoptiers mill-1, workshop-1..4, spring-3 kept as before (redraws were broken); `mini-<slug>.png` rigs old; zip not test-installed over a real 2.8.70.
+
 ## Section B cleanup 2026-11-26 (unreleased, after 2.8.73)
 - FIXED: gourmand nav tile double count (stale assertion in `tests/gourmand.sh`, now counts menu-sheet anchors only; no game change).
 - FIXED: Garden badge now counts crops that finished overnight under the sleep-days clock (`garden_ready_count()` in `garden_logic.php`, used by `dock_garden_ready()` and `nav_groups()`); `dock.js` patches the tile by slug `garden`. Test in `tests/dock_badges.php`.
