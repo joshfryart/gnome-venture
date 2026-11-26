@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.76
+- **Hotfix:** a live `first_week.php` called `craft_link_fix()`, which this repo never had, so Home (`gnome.php`) died with a fatal error. `first_week.php` is shipped again (it replaces the live copy) and `craft_link_fix()` exists as a harmless stand-in in `here_schema.php`.
+
 ## 2.8.75
 - **Villager art:** moth villager 1 reads as a moth (no bear snout, ringed eyes, comb antennae); butterfly villagers 1, 2 and 3 redrawn with clean round faces and visible wings; tortoise villager shells 1-3 clearly show their scutes.
 - **Stop and trail art:** lair sleeper muted from bright purple to taupe (7 sprites), taprow sap buckets with syrup and drips, a quay at the coast market, wetland animals about 2x, tundra camp / ferry animals bigger, new rainforest tower roof, stuffed-peppers-goat redrawn.

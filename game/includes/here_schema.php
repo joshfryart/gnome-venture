@@ -110,6 +110,14 @@ if (!function_exists('craft_path')) {
     }
 }
 
+/** 2.8.76: a live site's first_week.php called craft_link_fix() (not in this repo or its history; Error log 2026-11-26, fatal on gnome.php). Safe stand-in: hands the link back unchanged. The repo's own first_week.php does not call it. */
+if (!function_exists('craft_link_fix')) {
+    function craft_link_fix(...$args)
+    {
+        return $args[0] ?? '';
+    }
+}
+
 /** When this gnome last saw a picture page ('treehouse'), or null (never, or the table is not there yet). */
 function hub_seen_get(int $uid, string $scene): ?string
 {
