@@ -27,7 +27,7 @@ def fn(c):
     c.add(c.m(rect(26, 9, 38, 13.5)) & tab, BLUE)   # blue chimney cap
     # steam: a wisp curling up and right into a puff (off-axis, so it is not a hat)
     w = 3.0 if not c.small else 3.6
-    c.add(c.m(thick_path([(34, 10), (37, 7), (41, 6.5)], w), ell(46, 6, 5.2, 3.6), ell(51.5, 7.5, 3.4, 2.8)), STEAM)
+    c.add(c.m(thick_path([(34, 10.5), (37, 8), (40, 7.5)], w), ell(46, 6.5, 6.2, 4.6), ell(52.5, 8.5, 4.0, 3.4), ell(42, 4.5, 3.4, 3.0)), STEAM)
     # blue domed lid shoulder
     lid = body & c.m(rect(0, 20, 64, 26))
     c.add(lid, BLUE)
@@ -41,14 +41,13 @@ def fn(c):
             c.px(q[0] + 1, q[1], CREAM)
     # dark brass foot
     c.add(body & c.m(rect(0, 52, 64, 64)), DARKB)
-    # side handles: C-shaped loops standing out beside the blanks
-    hw = 2.6 if not c.small else 3.2
+    # side handles: short dark stubs on the shoulders, above the blanks
+    hw = 3.0 if not c.small else 3.6
     for sx, d in ((12, -1), (52, 1)):
-        c.add(c.m(thick_path([(sx, 27), (sx + 4.5 * d, 27.5), (sx + 6 * d, 30), (sx + 6 * d, 32.5)], hw)), DARKB)
-        c.add(c.m(thick_path([(sx, 49), (sx + 4.5 * d, 48.5), (sx + 6 * d, 46), (sx + 6 * d, 43.5)], hw)), DARKB)
+        c.add(c.m(thick_path([(sx + 1 * -d, 29), (sx + 3.2 * d, 29), (sx + 3.2 * d, 31.5)], hw)), DARKB)
     # spigot: tap under the band
-    c.add(c.m(rect(42, 46.5, 46, 49.5)), DARKB)
-    c.add(c.m(rect(44, 49, 48, 52)), RED)
+    c.add(c.m(rect(41, 46.5, 48, 49.5)), DARKB)
+    c.add(c.m(rect(45, 49, 49, 52.5)), RED)
     # face
     c.eye(25, 33)
     c.eye(39, 33)
