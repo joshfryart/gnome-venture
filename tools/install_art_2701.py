@@ -72,8 +72,10 @@ for d, s, k in PALS:
 # creature minis and folk portraits (same size as the game picture)
 for n in ('mini-blight-mother', 'mini-paper-wasp', 'mini-bog-leech', 'mini-dew-leech', 'mini-basalt-borer', 'mini-clam-lurker'):
     INSTALL.append((B3 + '/creatures/opus3/%s.png' % n, 'mini/%s.png' % n, None))
-for n in ('folk-butterfly-1', 'folk-moth-1', 'folk-tortoise-1'):
+for n in ('folk-butterfly-1', 'folk-tortoise-1'):
     INSTALL.append((B3 + '/creatures/opus3/%s.png' % n, 'folk/portrait/%s.png' % n, None))
+# 2026-11-26: moth villager 1 redrawn as a true moth (no snout, comb antennae): the approved portrait now lives in folk/redo-moth1/out/portrait/ (opus3's file is the old bear-snout one)
+INSTALL.append(('folk/redo-moth1/out/portrait/folk-moth-1.png', 'folk/portrait/folk-moth-1.png', None))
 
 # Trail markers 32x32: trail/mark/<name>.png (all drawn on the Trail map by trail_art.php / trail_tiles.php; tests/trail_marks.php)
 for n in ('camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight'):
