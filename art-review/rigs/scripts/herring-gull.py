@@ -59,14 +59,15 @@ bill = union(poly([(44, 7.2), (52, 7.6), (54.6, 9), (54.2, 11.5), (52.5, 10.2), 
              poly([(45, 10.4), (51, 10.6), (52, 12.6), (45.5, 12)]))
 p.add(p.m(bill), BILL, local=True, crescent=0)
 p.line([(45, 10), (52, 10)], BILL[3])                                      # gape line
-p.add(p.m(ell(51.2, 11.6, 1, 1)), (EMBER[1],) * 4, flat=True)              # the red gonys spot
+p.fill(p.m(inter(ell(50.5, 11.3, 1.3, 1.1), bill)), EMBER[1])                # the red gonys spot (inside the bill)
 p.pxs([(34, 5), (36, 4)], WHITE[2])                                        # faint streaks on the nape
 p.px(42, 12, BLUSH)
 
 p = R.part('eyes')
 ex, ey = 40, 6
 p.add(p.m(rect(ex - 1, ey, ex + 2, ey + 2)), ('#f5cf6a',) * 4, flat=True)  # pale yellow eye
+p.px(ex - 1, ey + 2, EMBER[2]); p.px(ex, ey + 2, EMBER[2])                 # a hint of the red orbital ring
 p.px(ex + 1, ey, INK); p.px(ex + 1, ey + 1, INK)
-p.line([(ex - 2, ey - 1), (ex + 3, ey)], GREY[3])                          # the mean flat brow
+p.line([(ex - 2, ey - 1), (ex + 3, ey - .2)], INK)                          # the mean flat brow
 
 R.save()

@@ -161,7 +161,7 @@ $dayBefore = (int)urow($uid)['game_day'];
 game_sleep($uid);
 $D = $dayBefore + 1;
 ok('bed A got its own seed back', (int)$t($tA)['plant_id'] === (int)$plant['id'], json_encode($t($tA)));
-ok('growth starts on the day that ended; no Water pal, so not watered', (int)$t($tA)['grow_day'] === $D - 1 && ($t($tA)['water_day'] === null || $t($tA)['water_day'] === ''), json_encode($t($tA)));
+ok('growth starts on the new day (like a bed planted by hand that morning); no Water pal, so not watered', (int)$t($tA)['grow_day'] === $D && ($t($tA)['water_day'] === null || $t($tA)['water_day'] === ''), json_encode($t($tA)));
 ok('the remembered seed ran out: bed D falls back to the ticked seed', (int)$t($tD)['plant_id'] === (int)$plant2['id'], json_encode($t($tD)));
 ok('bed B (no memory) uses the ticked seed too', (int)$t($tB)['plant_id'] === (int)$plant2['id']);
 ok('hands-off bed C stays empty', empty($t($tC)['plant_id']));

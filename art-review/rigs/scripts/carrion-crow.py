@@ -72,7 +72,7 @@ p.pxs([(33, 13), (31, 11), (34, 12)], CROW[0])                                  
 # eyes: a pale clever eye with a sly lid
 p = R.part('eyes')
 ex, ey = 37, 6
-p.add(p.m(ell(ex + 1, ey + 1, 2.0, 2.0)), (BILL[0],) * 4, flat=True)                  # pale grey ring
+p.add(p.m(ell(ex + 1, ey + 1, 2.5, 2.4)), ("#d8d4e0",) * 4, flat=True)                # pale grey ring
 p.add(p.m(rect(ex, ey, ex + 2, ey + 2)), (INK,) * 4, flat=True)
 p.px(ex, ey, CREAM)
 p.line([(ex - 2, ey - 2), (ex + 2, ey - 2)], CROW[3])                                 # a sly flat lid

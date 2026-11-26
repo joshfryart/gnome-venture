@@ -309,7 +309,7 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
             if ($np && give_item($uid, $sid, -1)) {
                 $stock[$sid]--;
                 $upd = q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = 0, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ?, harvests = 0, nipped = 0, pest = NULL, pest_at = NULL
-                          WHERE id = ? AND plant_id IS NULL', [$np['id'], gclock_maint_now((int)$plot['id']), now(), $D - 1, $fresh['id']])->rowCount();
+                          WHERE id = ? AND plant_id IS NULL', [$np['id'], gclock_maint_now((int)$plot['id']), now(), $D, $fresh['id']])->rowCount();
                 if ($upd === 1) {
                     $out['plant']++; $planted[$np['name']] = ($planted[$np['name']] ?? 0) + 1;
                     pcrew_remember((int)$fresh['id'], (int)$np['id']); $mem[(int)$fresh['id']] = ['plant_id' => (int)$np['id'], 'skip' => 0];
