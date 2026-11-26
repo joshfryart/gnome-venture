@@ -9039,3 +9039,12 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
 .evclose { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; padding: 0; border: 0; background: transparent; color: var(--purple-ink, inherit); font: 700 15px/26px inherit; cursor: pointer; opacity: .7; border-radius: 50%; }
 .evclose:hover, .evclose:focus-visible { opacity: 1; background: rgba(0,0,0,.08); }
 .evgone { opacity: 0; transform: translateY(-6px); }
+
+/* landscape dock polish: 11px floor for the energy counter and the piece chips, 34px fullscreen button (dock.css loads after this file, so the longer selectors win) */
+@media (orientation: landscape) {
+  body.dock-on .dockroot .dk-pc.dk-plate .dk-bn { font-size: 11px; }
+  body.dock-on .dockroot .dk-pc .dk-chip, body.dock-on .dockroot .dockslip .dk-pc .dk-chip { font-size: 11px; line-height: 13px; }
+  html .dockroot .dk-rb.dk-fs { min-width: 34px; }
+  /* Today cards: the main line may take 3 lines (a rest stop line such as "Market hamlet: 7 things to do" was clipped at 2) */
+  .todaygrid .tcard p:not(.muted) { -webkit-line-clamp: 3; line-clamp: 3; }
+}

@@ -120,7 +120,7 @@ function craft_map_landing(array $u): void
   <ul class="cmap-grid">
   <?php foreach ($facts as $k => $f): ?>
     <li><a class="cmap-card<?= $f['locked'] ? ' cmap-off' : '' ?>" href="<?= e(url('inventory.php?tab=craft&c=' . $k)) ?>">
-      <span class="cmap-pic"><img src="<?= e(url('assets/img/craftmap/' . $k . '-t.png')) ?>" alt="" width="450" height="300" loading="lazy">
+      <span class="cmap-pic"><img src="<?= e(url('assets/img/craftmap/' . $k . '-t2.png')) ?>" srcset="<?= e(url('assets/img/craftmap/' . $k . '-t2.png')) ?> 225w, <?= e(url('assets/img/craftmap/' . $k . '-t.png')) ?> 450w" sizes="(orientation: landscape) 115px, 170px" alt="" width="225" height="150" loading="lazy">
         <?php if ($f['badge'] !== ''): ?><span class="cmap-badge<?= $f['locked'] ? ' cmap-lockb' : '' ?>"><?= $f['locked'] ? 'Locked: ' : '' ?><?= e($f['badge']) ?></span><?php endif; ?></span>
       <span class="cmap-name"><?= e($f['label']) ?></span>
       <progress class="cmap-bar" max="<?= max(1, $f['total']) ?>" value="<?= $f['have'] ?>" aria-hidden="true"></progress>
@@ -144,7 +144,7 @@ function craft_area_header(string $tab, array $canBy = []): void
   <a class="cmap-all" href="<?= e(url('inventory.php?tab=craft')) ?>"><span aria-hidden="true">🗺️</span> All areas</a>
   <ul class="cmap-strip">
   <?php foreach (CRAFT_CATEGORIES as $k => [$l]): ?>
-    <li><a href="<?= e(url('inventory.php?tab=craft&c=' . $k)) ?>"<?= $k === $tab ? ' aria-current="page"' : '' ?>><img src="<?= e(url('assets/img/craftmap/' . $k . '-t.png')) ?>" alt="" width="68" height="45" loading="lazy"><span><?= e($l) ?></span></a></li>
+    <li><a href="<?= e(url('inventory.php?tab=craft&c=' . $k)) ?>"<?= $k === $tab ? ' aria-current="page"' : '' ?>><img src="<?= e(url('assets/img/craftmap/' . $k . '-t3.png')) ?>" alt="" width="68" height="45" loading="lazy"><span><?= e($l) ?></span></a></li>
   <?php endforeach; ?>
   </ul>
 </nav>
