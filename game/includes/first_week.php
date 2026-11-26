@@ -1,4 +1,5 @@
 <?php
+// 2.8.76: shipped again on purpose: a live copy of this file called craft_link_fix(), which this repo never had (Error log 2026-11-26); this version replaces it.
 declare(strict_types=1);
 
 /**
