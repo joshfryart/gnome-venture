@@ -36,7 +36,11 @@ set_ home_slim 1; set_ game_clock_on 1
 dbx "DELETE FROM settings WHERE name = 'tea_open'"
 get login.php >/dev/null; post login.php -d username=sprout -d 'password=TestPass123!' >/dev/null
 
-echo "== default (Admins only): a player sees plain art"
+echo "== default (Everyone): a player sees the kettle"
+get gnome.php >/dev/null; has "no setting row: the kettle hit box" 'hd-kettle'
+set_ tea_open admin
+
+echo "== Admins only: a player sees plain art"
 chk "home is 200" "$(get gnome.php)" 200; noerr home
 has "the room picture (Today: the whole room with its things)" 'class="hroom hroom-full hroom-things'; has "...the other things are links" '<a class="ht ht-door"'
 hasnt "no kettle hit box" 'hd-kettle'; hasnt "no popover" 'id="htea"'; hasnt "no tea script" 'assets/tea.js'; hasnt "no kettle line" 'hs-teal'

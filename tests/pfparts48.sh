@@ -3,8 +3,8 @@
 # the kit on disk is whole and keeps the v47 edge, the Aseprite sources pass their own check, and in a real browser: the creature's pieces carry a glyph per type
 # (owner: "Need symbols on enemy pieces"), the environment's pieces are drawn by the kit (what the board paints over them afterwards is dropped), the number is on every piece,
 # and a piece picture is redrawn for the size it is shown at (desktop scales 1.2 / 1.7 are not whole pixels) without changing the layout. The v47 kit still draws as before.
-# Usage: tests/pfparts48.sh [PORT]
-HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/.." && pwd); PORT=${1:-8857}
+# Usage: tests/pfparts48.sh [PORT]   (also accepts the ci_suites form: GAME PORT ROUTER; the game copy is not used)
+HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/.." && pwd); case ${1:-} in ''|*[!0-9]*) PORT=${2:-8857};; *) PORT=$1;; esac
 FAILS=0; ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1 (got '$2', want '$3')"; FAILS=$((FAILS+1)); fi; }
 ck "node --check assets/pfparts47.js" "$(node --check "$ROOT/game/assets/pfparts47.js" 2>&1 | wc -l | tr -d ' ')" "0"
 ck "the parts48 kit is whole: every sheet, right sizes, no semi-transparent pixel, sockets / badges / overlays are v47's" "$(python3 -W ignore "$ROOT/tools/build_parts48.py" --check 2>&1 | wc -l | tr -d ' ')" "0"

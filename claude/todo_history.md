@@ -2,6 +2,15 @@
 
 Live list: `claude/todo.md`. Newest first for release blocks; archives below.
 
+## Section B cleanup 2026-11-26 (unreleased, after 2.8.73)
+- FIXED: gourmand nav tile double count (stale assertion in `tests/gourmand.sh`, now counts menu-sheet anchors only; no game change).
+- FIXED: Garden badge now counts crops that finished overnight under the sleep-days clock (`garden_ready_count()` in `garden_logic.php`, used by `dock_garden_ready()` and `nav_groups()`); `dock.js` patches the tile by slug `garden`. Test in `tests/dock_badges.php`.
+- FIXED stale tests: tea (default is now Everyone), guest (`head -1` on csrf grep), pbox_v1 (builder anchors and hand edits ported into `tools/build_pfboardv1.py`, `norm()` tokens, gap check skipped in two-column layout), puzzle_pals (real dock bug: Pals entry gated like Barrel), pfparts48 (port arg parsing), pfv1_newfight (`pfight_intro=0`). treks passes (rc 0, 7.5 min).
+- ALREADY FIXED / not bugs: `rl_trail_heading` (2.7.08, called at `region_layout.php:311`; in-game Trail maps deliberately not regenerated, a re-bake is an owner scheduling call); market100, trail_bendy, pf_piece_text, npc25_wire (fixed 2.7.17, pass on 2.8.73).
+
+## W4 route-id offset bug FIXED (unreleased, after 2.8.73)
+- `roads.php` `lay_roads` now inserts and deletes the ROAD_DEAD_ENDS far leg so routes.id 239 stays burned (fresh install = 245 routes, ids 228-473 without 239, as the map data expects). New `tests/route_ids.sh`; `tests/road_kinds.php` skips 239. Worlds laid before e21c8d65 are fine; worlds installed between e21c8d65 and this fix have ids one low from 239 up (renumber = owner-approved one-off migration with backup: map by (a_id, b_id), UPDATE routes.id desc, expeditions.route_id, trail_sight_uses, trail_pickups, trail_decor_edits, action_log, then bump sqlite_sequence). Ask Josh whether any live or demo world was laid in that window.
+
 ## Replaced by stale review 2026-11-26
 - (2.7.x) fight length target 4-5 vs 6-8 turns (`pfboard_tune_v1.php`); flip `sights_shared_on` + blocklist `sights_shared_block`; `tea_open` to everyone; `pfight_v1` Everyone menu entry; Treks Ch IV-VI + trailmate 8; Hollow jar proposals; 4 Sights quest lines over 50 a beat; Rope price at Twigg's is a guess; 8 base creature rows without a region window (live-world change). Josh cleared parts of this on 2026-11-25: re-ask only what is still unclear.
 - Tutorial wording "They start working when you sleep" (crew now also works at 06:00).
@@ -25,7 +34,7 @@ Nothing browser-tested (Closet, avatar art). Front cloak / pack art weak; outfit
 
 ## 2026-11-26 2.8.72 (earlier notes, now shipped)
 - DONE: W1b, W2, W3, W4 fixes, W1 review, W1a ticked items, tutorial radish sleep + game days, shop W badge, trek + pals Find dock pieces. CHANGELOG 2.8.72 written, APP_VERSION 2.8.72. To ship: `bash tests/build_update.sh 2.8.72 2.8.71 $PWD/releases slim`, send zip, push, PR, merge only on the owner's word.
-- OPEN, owner decisions: fair dock R Enter (ticked AND struck: ask), "visitor can smell" reading (still-cooking dish vs last-cooked), W4 route-id offset bug (roads.php lay_roads + live-world renumber), gourmand nav tile double count, stale trail_maps.json, off-road pin clamp, rl_trail_heading, W3 shop/village card asks, W2 residuals (hovel tabs under dock at 640x260, tour "Show me now" at 640x260, dock labels ~8px under 340px high).
+- OPEN, owner decisions: fair dock R Enter (ticked AND struck: ask), "visitor can smell" reading (still-cooking dish vs last-cooked), W4 route-id offset bug (roads.php lay_roads + live-world renumber), stale trail_maps.json, off-road pin clamp, rl_trail_heading, W3 shop/village card asks, W2 residuals (hovel tabs under dock at 640x260, tour "Show me now" at 640x260, dock labels ~8px under 340px high).
 - CUT by owner: gourmand dock Serve, show option B, Satchel Sell carries item / Set as Quick.
 - Unverified in a real browser: harvest dialog timing, batch picker, quick turns, run-away buttons, Walk to the way on, Sell all crops, Hovel link, dock Take/Deliver/Rest/Fight.
 
@@ -2471,3 +2480,4 @@ Status: checked line by line 2026-11-19 (Sights fourth pass, `claude/trail-2.7.0
 - DONE sixth pass B (shared across players, `trail_sights_6.php`, setting `sights_shared_on`, default off): cairn pass stone count (shared), other players' bottle-post notes, stargazer's chalk marks (words visible to others). Cairn Token at milestones still OPEN.
 - DONE 2.7.08 third pass B: quests that start from a Notice Board favour (`board` column, `quest=<slug>`). Only Wren's Woodland Census uses it; the shared lines still begin at their first beat (set `board` per line if wanted).
 - DONE 2.7.08 third pass B: seeds that must grow (Tiny Thank-You Seed, Lantern Fruit Seed: `trail_sight_seeds.txt`).
+- DONE test-harness fixes: `tests/pfparts48.sh` now takes the ci_suites form (`GAME PORT ROUTER`) as well as `[PORT]` (it had read the game dir as the port); `tests/pfv1_newfight.sh` sets `pfight_intro=0` like its siblings so the first-time intro card no longer covers the board. Both pass; neither added to `RETRY_SUITES`.

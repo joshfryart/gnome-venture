@@ -771,7 +771,7 @@
     fetch(D.stateUrl, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
       stBusy = false; if (!j || !j.plate || !D) return;
       D.plate = j.plate; if (j.rows) D.rows = j.rows; if (j.links) D.links = j.links; if (j.tod) D.tod = j.tod;
-      if (typeof j.garden === 'number') D.menus.forEach(function (m) { m.tiles.forEach(function (t) { if (t.label === 'Garden') t.badge = j.garden > 0 ? String(j.garden) : ''; }); });
+      if (typeof j.garden === 'number') D.menus.forEach(function (m) { m.tiles.forEach(function (t) { if (t.slug === 'garden') t.badge = j.garden > 0 ? String(j.garden) : ''; }); });
       render(); energyFx(); timeFx();
     }).catch(function () { stBusy = false; });
   }

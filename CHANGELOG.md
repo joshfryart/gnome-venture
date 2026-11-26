@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (after 2.8.73)
+- **Garden badge counts crops that finished overnight:** the dock, the menu sheet and `dockstate.php` counted ripe crops from the stored growth only, so after a sleep (sleep-days clock) the Garden count lagged until the garden page was opened. New `garden_ready_count()` (`includes/garden_logic.php`) settles growth in memory (nothing saved) and is used by `dock_garden_ready()` and `nav_groups()`. Dock tiles now carry a `slug`, and `dock.js` patches the Garden badge by slug, not by the label. `tests/dock_badges.php` covers it.
+- **Route ids (W4 bug):** a fresh install numbered routes one lower from 239 up, so 234 routes picked up the neighbouring route's trail map, camp and road kind. `lay_roads` now burns the dead-end leg's id again. New suite `tests/route_ids.sh`. Worlds installed after commit e21c8d65 and before this fix keep shifted ids (needs a manual renumber).
+
 ## 2.8.73
 - **Fight rigs:** the last 10 rigs redrawn in Stitched Toy and swapped in (bramble-wolf, badger, giant-anteater, dust-sidewinder, gnat-cloud, dune-scorpion, ashen-ant, bellcap-beetle, ember-beetle, grub-beetle; cistern-newt unchanged). Crew text now "They work every morning at 06:00."
 - **Stop art redrawn (owner marks):** 12 type icons, 12 passport stamps, 12 town place cards, 7 route cards, 14 shops-street scenes, 42 of 48 stoptier stickers (mill-1, workshop-1 to 4 and spring-3 kept as before). Route cards (no gnome, no baked-in animals) now also stand in as the picture of a haven / wonder / delve / lair popover that has no scene of its own (`landmark_scene`, `.lmscene-card`).
