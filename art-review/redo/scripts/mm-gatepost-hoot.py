@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """mm-gatepost-hoot "Gatepost Hoot" (rare, whimsy-owl, keyhole).
-An owl that is a puzzle piece: square-ish owl body, rounded ear tufts at the top corners with a keyhole BLANK cut between them (N),
+An owl that is a puzzle piece: square-ish owl body with a flat straight head-top between two small rounded ear tufts (N),
 a keyhole TAB at E (the folded wing tip), a keyhole BLANK at W, and a keyhole TAB at S that is the gatepost stub it perches on.
 Colours from cell 7-4 of Mistmoor: sign-board wood browns, teapot cream face/belly, moss-green post cap, lavender heather."""
 import sys
@@ -22,15 +22,14 @@ def fn(c):
     core = rect(13, 13, 51, 50)
     rc = lambda x, y: not ((x < 16 and y > 47 and (x - 16) ** 2 + (y - 47) ** 2 > 9) or (x > 48 and y > 47 and (x - 48) ** 2 + (y - 47) ** 2 > 9))
     corefull = lambda x, y: core(x, y) and rc(x, y)
-    tuftL = poly([(13, 20), (9, 7), (12, 5), (25, 13)])
-    tuftR = poly([(51, 20), (55, 7), (52, 5), (39, 13)])
-    tuftLr = ell(11, 7.5, 3.2, 3.2)
-    tuftRr = ell(53, 7.5, 3.2, 3.2)
-    blankN = knob('B', 'keyhole', 32, 13, 0, -1, r=4.2 * k)
+    tuftL = poly([(13, 16), (12.5, 7.5), (15, 6.5), (23, 13.5)])
+    tuftR = poly([(51, 16), (51.5, 7.5), (49, 6.5), (41, 13.5)])
+    tuftLr = ell(14.5, 8.5, 2.6, 2.6)
+    tuftRr = ell(49.5, 8.5, 2.6, 2.6)
     tabE = knob('T', 'keyhole', 51, 31, 1, 0, r=4.6 * k)
     blankW = knob('B', 'keyhole', 13, 32, -1, 0, r=4.4 * k)
     tabS = knob('T', 'keyhole', 32, 50, 0, 1, r=4.6 * k)
-    body = c.m(corefull, tuftL, tuftR, tuftLr, tuftRr, minus=(blankN, blankW))
+    body = c.m(corefull, tuftL, tuftR, tuftLr, tuftRr, minus=(blankW,))
     c.add(body, OWL, stitch=None)
     # gatepost stub: the S tab, light wood, with moss cap line at the top
     post = c.m(tabS, minus=(core,))
