@@ -5648,7 +5648,8 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 .itm__trend { font-weight: 800; }
 .itm__pet { display: inline-block; width: 9px; height: 10px; margin-left: 2px; vertical-align: -1px; background: url(img/items/petal.png) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
 .itm__kind { padding: 0 2px; font-weight: 700; letter-spacing: .01em; white-space: normal; }
-.itm__want { white-space: nowrap; background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }
+.itm__want { position: absolute; z-index: 4; left: -7px; bottom: -7px; box-sizing: border-box; min-width: 18px; height: 18px; padding: 0 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; font: 800 11px/1 var(--font); white-space: nowrap; background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }   /* W = Wanted */
+.shopwlegend { margin: 0 0 6px; font-size: 12px; }
 .itm__inb, .itm__use, .itm__ok { background: var(--itm-ok); color: var(--itm-ok-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 .itm__short { background: var(--itm-short); color: var(--itm-short-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 .itm__note { padding: 0 2px; font-weight: 600; white-space: normal; text-wrap: balance; overflow-wrap: break-word; }
@@ -5674,7 +5675,7 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 .itm.is-inbasket::after, .stile.sel > .itm::after { background-image: url(img/items/badge-basket.png); }
 
 /* wanted (sell mode: a market-day or shop order) and in use (the tool a job uses) */
-.itm.is-want::after { width: 28px; height: 28px; top: -12px; right: -12px; background-image: url(img/town/badge-star.png); }
+.itm.is-want:not(.is-inbasket):not(.is-sel)::after { background-image: none; }   /* the W badge (.itm__want) replaces the star */
 .itm.is-use::after { background-image: url(img/items/badge-use.png); }
 
 /* off: sold out, too dear, broken, can't use: stone felt, pale sign, grey picture; still focusable so its sheet can say why */
@@ -6756,7 +6757,6 @@ details.itmcell, label.itmcell { display: block; grid-row: auto; grid-template-r
   .itm__gem { left: -9px; top: -9px; width: 26px; height: 26px; } .itm--u .itm__gem { width: 26px; height: 28px; } .itm--r .itm__gem { width: 28px; height: 28px; } .itm--l .itm__gem { width: 32px; height: 32px; }
   .itm__ic, .itm__svg { max-width: 96px; } .itm__emo { font-size: 48px; }
 .itm__kind--quiet { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* "Seeds" is plain from the picture: screen readers only */
-.itm__want { opacity: .72; }
 /* v2.4.80: seed picker: the count is a green chip in the tile's foot; the popover (dialog.seedpop) holds the info and the quantity */
 .pickgrid .itm .pccount:not([hidden]) { position: static; min-width: 0; padding: 1px 5px; background: var(--itm-ok); color: var(--itm-ok-ink); font: 800 11px/1.3 var(--font); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 dialog.seedpop .stags .tag { font-size: 12px; }
@@ -7430,7 +7430,6 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
   dialog.hubpop .shpage .shopwrap .itms .itm__rib { border-width: 4px 3px; border-image-width: 4px 3px; }   /* thinner ribbon ends: 4 px more room for the name */
   dialog.hubpop .shpage .shopwrap .itms .itm__price { font-size: 14px; padding: 2px 4px; }
   dialog.hubpop .shpage .shopwrap .itms .itm::after { top: 30px; right: auto; bottom: auto; left: -7px; width: 22px; height: 22px; }   /* the star / basket badge sits beside the picture, off the name */
-  dialog.hubpop .shpage .shopwrap .itms .itm__want { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* the star says it; the word stays for screen readers */
 }
 
 /* v2.5.30: World page with graphical navigation: the world map first, no banner */
@@ -9061,7 +9060,6 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   .hvov .hv-title { margin: 0 0 4px; }
   .hvov .hv-field { min-height: 0; padding-top: 6px; }
   .hvov .hv-ok { position: sticky; bottom: 0; width: 100%; margin: 6px 0 0; }
-  .itm__want { font-size: 10px; }
 }
 label.check { min-height: 44px; align-items: center; }
 label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }

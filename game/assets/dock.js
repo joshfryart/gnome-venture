@@ -501,7 +501,7 @@
     base.inner = '<span>\u26a1<progress max="100" value="' + ep + '"></progress><b class="bn">' + p.energy[0] + '/' + p.energy[1] + '</b></span>'
       + '<span>\ud83c\udf31 <b>' + p.level + '</b><progress class="xp" max="100" value="' + p.xp + '"></progress></span>'
       + (hp ? '<span>\u2764\ufe0f<progress class="hp" max="100" value="' + hpp + '"></progress><b class="bn">' + hp[0] + '/' + hp[1] + '</b></span>' : '<span></span>')
-      + '<span>' + (p.time ? dialSVG() + '<span class="dk-tm">' + esc(p.time) + '</span> <span class="tag">' + 'd' + p.day + '</span> ' : '') + petal() + ' <span class="tag">' + p.coins + '</span></span>';
+      + '<span>' + (p.time ? dialSVG() + '<span class="dk-tm">' + esc(p.time) + '</span> <span class="tag">' + 'd' + ((+p.day || 0) + 1) + '</span> ' : '') + petal() + ' <span class="tag">' + p.coins + '</span></span>';
     return pc(base);
   }
   function actPiece(side, a, base) {

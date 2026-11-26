@@ -235,7 +235,7 @@ $GLOBALS['CURRENT_USER'] = null;
 echo "== status clock pill and tired hint\n";
 $pu = ['game_day' => 7, 'game_minute' => 13 * 60 + 5, 'carry_minutes' => 0];
 $pill = gclock_pill($pu);
-ok('pill shows 13:05 and day 7, not tired', str_contains($pill, '13:05') && str_contains($pill, 'day 7') && !str_contains($pill, 'tired'));
+ok('pill shows 13:05 and day 8 (game_day 7 is the 8th day, shown from 1), not tired', str_contains($pill, '13:05') && str_contains($pill, 'day 8') && !str_contains($pill, 'tired'));
 $pill = gclock_pill(['game_day' => 7, 'game_minute' => 23 * 60, 'carry_minutes' => 120]);
 ok('pill after 22:00 is marked tired and mentions carried work', str_contains($pill, 'tired') && str_contains($pill, '2 h of work'));
 cfg(['game_clock_on' => '1']);

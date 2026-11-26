@@ -66,3 +66,26 @@ echo "== skip clears the question"
 dbx "UPDATE users SET tour_step=1, tour_ask=1 WHERE id=$UID_"
 postto tour.php garden.php -d do=skip
 chk "skip ends the tour" "$(st)" "0/0"
+
+echo "== sleep step: the radish needs one sleep in the hovel (not minutes)"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('game_clock_on','0')"
+dbx "UPDATE users SET tour_step=10, tour_ask=0 WHERE id=$UID_"
+page garden.php
+chk "clock off: the sleep step is skipped (no dead end)" "$(st)" "11/0"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('game_clock_on','1')"
+RAD=$(db "SELECT id FROM plants WHERE slug='radish'")
+TILE=$(db "SELECT t.id FROM plot_tiles t JOIN plots p ON p.id=t.plot_id WHERE p.user_id=$UID_ ORDER BY t.id LIMIT 1")
+GD=$(db "SELECT game_day FROM users WHERE id=$UID_")
+dbx "UPDATE plot_tiles SET plant_id=$RAD, planted_at=datetime('now'), growth_seconds=0, grow_day=$GD, water_day=$GD, owed_days=0 WHERE id=$TILE"
+dbx "UPDATE users SET tour_step=10, tour_ask=0, location_id=0 WHERE id=$UID_"
+page garden.php
+chk "clock on, not slept yet: stays on the sleep step" "$(st)" "10/0"
+has 'Sleep in your hovel' "card title"; has 'Go to my hovel' "link button to the hovel"; has 'hovel.php?t=sleep' "link goes to the sleep tab"; has 'home_sleep' "sleep target in the data"
+hasnt 'minutes of watered' "no minutes-of-growing wording"
+postto hovel.php hovel.php -d do=home_sleep
+chk "one sleep moves the tour on" "$(st)" "11/0"
+chk "the radish is ripe after that sleep" "$(db "SELECT growth_seconds >= grow_minutes*60 FROM plot_tiles t JOIN plants p ON p.id=t.plant_id WHERE t.id=$TILE")" "1"
+chk "game day went up by one" "$(db "SELECT game_day FROM users WHERE id=$UID_")" "$((GD + 1))"
+dbx "UPDATE users SET tour_step=10, tour_ask=0 WHERE id=$UID_"
+postto tour.php garden.php -d do=nextstep
+chk "the sleep step can be skipped by hand" "$(st)" "11/0"

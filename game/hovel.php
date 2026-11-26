@@ -77,7 +77,7 @@ if (tea_open_for($u)) $tabs['tea'] = ['🫖', 'Tea'];   // opens the kettle page
 <div class="hov-hero<?= $s['tired'] ? ' tired' : '' ?>">
   <div class="hov-time" aria-label="Game time"><?= e($clock) ?></div>
   <div class="hov-mid">
-    <div class="hov-day">Day <b><?= (int)$s['day'] + 1 ?></b><?= $s['tired'] ? ' · 😴 tired' : '' ?></div>
+    <div class="hov-day">Day <b><?= gclock_day_no($s) ?></b><?= $s['tired'] ? ' · 😴 tired' : '' ?></div>
     <div class="hov-sub"><?= e($now['season_emoji'] . ' ' . $now['season_label']) ?> <?= (int)$now['season_day'] ?> · <?= e($now['weather_emoji'] . ' ' . $now['weather_label']) ?></div>
     <?php require_once __DIR__ . '/includes/moon.php'; if ($moonL = moon_line()): ?><div class="hov-sub hov-moon"><?= e($moonL) ?></div><?php endif; ?>
   </div>
@@ -105,7 +105,7 @@ if (tea_open_for($u)) $tabs['tea'] = ['🫖', 'Tea'];   // opens the kettle page
     try { foreach (q('SELECT game_day, body FROM sleep_report WHERE user_id = ? AND game_day < ? ORDER BY game_day DESC LIMIT 2', [$uid, (int)$s['day']])->fetchAll() as $er) { $b = json_decode((string)$er['body'], true) ?: []; $bits = []; foreach (($b['crew'] ?? []) as $c) if (!empty($c['text'])) $bits[] = $c['text']; $earlier[] = [(int)$er['game_day'], $bits]; } } catch (Throwable $e) {}
     if ($earlier): ?>
     <details class="hov-earlier"><summary>Earlier reports</summary>
-      <?php foreach ($earlier as [$ed, $eb]): ?><p class="help"><b>Day <?= $ed ?></b>: <?= $eb ? e(implode(' · ', $eb)) : 'a quiet night' ?></p><?php endforeach; ?></details>
+      <?php foreach ($earlier as [$ed, $eb]): ?><p class="help"><b>Day <?= $ed + 1 ?></b>: <?= $eb ? e(implode(' · ', $eb)) : 'a quiet night' ?></p><?php endforeach; ?></details>
   <?php endif; ?>
   <p><a class="btn alt" href="<?= e(url('hovel.php?t=sleep')) ?>">Go to sleep 🌙</a></p>
 </section>

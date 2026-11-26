@@ -47,6 +47,7 @@ function page_header(string $title, bool $admin = false): void
         foreach (tour_messages() as $m) flash($m);
     }
     $tourAsk = $u ? (int)($u['tour_ask'] ?? 0) : 0;
+    if (!$admin && !$onboarding && $tourStep > 0 && $tourAsk === 0) $tourStep = tour_settle((int)$u['id'], $tourStep);   // the sleep step never dead-ends (clock off, or already slept)
     if ($tourStep > 0 && $tourAsk === 2 && empty($_SESSION['tour_later']) && !$admin) {   // v2.4.97: said "later" in an earlier login: ask again
         q('UPDATE users SET tour_ask = 1 WHERE id = ? AND tour_ask = 2', [$u['id']]);
         $tourAsk = 1;
@@ -134,7 +135,7 @@ function page_header(string $title, bool $admin = false): void
     <div class="userbar">
 <?php if (!$admin && !$onboarding): [$hdrE, $hdrMax] = current_energy($u); ?>
 <?php if (gclock_on() && empty($GLOBALS['gv_home_slim'])): $hs = gclock_state($u);   /* slim home: the time is on the banner's tag */ $ht = sprintf('%02d:%02d', intdiv($hs['minute'], 60) % 24, $hs['minute'] % 60); ?>
-      <a class="hdr-pill hdr-clock<?= $hs['tired'] ? ' tired' : '' ?>" href="<?= e(url(home_slim_menu() ? 'gnome.php' : 'hovel.php')) ?>" title="Game clock: day <?= (int)$hs['day'] ?>, <?= e($ht) ?>. Tap to rest."><span aria-hidden="true">🕐</span> <b><?= e($ht) ?></b> <small>day <?= (int)$hs['day'] ?></small></a>
+      <a class="hdr-pill hdr-clock<?= $hs['tired'] ? ' tired' : '' ?>" href="<?= e(url(home_slim_menu() ? 'gnome.php' : 'hovel.php')) ?>" title="Game clock: day <?= gclock_day_no($hs) ?>, <?= e($ht) ?>. Tap to rest."><span aria-hidden="true">🕐</span> <b><?= e($ht) ?></b> <small>day <?= gclock_day_no($hs) ?></small></a>
 <?php endif; ?>
       <span class="hdr-pill hdr-energy<?= (int)$hdrE <= 0 ? ' empty' : '' ?>" role="img" title="<?= e(energy_line($u)) ?>" aria-label="Energy <?= $hdrE ?> of <?= $hdrMax ?>">⚡ <?= $hdrE ?>/<?= $hdrMax ?></span>
       <span class="hdr-pill hdr-coins" role="img" aria-label="<?= e(money((int)$u['coins'])) ?>">🪙 <?= number_format((int)$u['coins']) ?></span>

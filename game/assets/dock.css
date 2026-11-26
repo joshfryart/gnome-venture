@@ -1169,6 +1169,7 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > * { grid-column: 1 / -1; min-width: 0; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > nav.tabs { grid-column: 1; grid-row: 3; align-self: start; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shophelp { grid-column: 1; grid-row: 4; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopwlegend { grid-column: 1; grid-row: 4; margin: 4px 0 0; }   /* "W = Wanted" under the Buy / Sell tabs, beside the banner */
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > header.ph { grid-column: 2; grid-row: 3 / span 2; margin: 0; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopintro { grid-row: 2; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .crumbs { grid-row: 1; }

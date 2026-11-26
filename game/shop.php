@@ -180,6 +180,8 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
     $sellable = q("SELECT i.id, i.name, i.slug, i.base_price, i.category, i.description, i.rarity, i.effects, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
                    WHERE ui.user_id = ? AND ui.qty > 0 AND i.category IN ('produce','flower','food','part','forage','arrangement','packet') ORDER BY i.category, i.name", [$u['id']])->fetchAll(); ?>
   <?php $sellBonus = shop_sell_bonus((int)$u['id'], $sid); ?>
+  <?php $anyWant = false; foreach ($sellable as $i) if (market_price_parts($i)['wanted']) { $anyWant = true; break; } ?>
+  <?= $anyWant ? '<p class="help shopwlegend"><b>W</b> = Wanted</p>' : '' ?>
   <details class="helpfold shophelp"><summary>ℹ️ What sells here</summary><p class="help">Shopkeepers buy crops, flowers, arrangements, food, creature parts and finds. Rarer things fetch much more. Prices drift: ↑ pays more than usual (wanted, out of season), ↓ pays less (in season, or lots sold lately).</p></details>
   <?= $sellBonus ? '<p class="help">🧭 Your Journey project here: ' . $sellBonus . '% extra.</p>' : '' ?>
   <div class="shopwrap">

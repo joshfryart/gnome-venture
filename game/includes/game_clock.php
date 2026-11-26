@@ -54,6 +54,13 @@ function gclock_state(array $u): array
     ];
 }
 
+/** The day number a player sees, everywhere (status pill, dock plate, hovel, rest summary, tour): the game clock's day, counted from 1.
+ *  users.game_day is 0-based inside the database; show this instead. Takes a users row or a gclock_state() result. */
+function gclock_day_no(array $s): int
+{
+    return max(0, (int)($s['day'] ?? $s['game_day'] ?? 0)) + 1;
+}
+
 /** The 'Y-m-d' personal systems pass to hollow_season / weather. */
 function hollow_game_date(array $u): string
 {
@@ -125,6 +132,7 @@ function game_sleep(int $uid, int $energyPct = 100): ?array
     gclock_plot_clock(0, true);
     game_new_day($uid);
     gclock_heal($u, $energyPct);   // a night's sleep heals as much as it restores energy (a bench heals less)
+    if (function_exists('tour_after_sleep')) tour_after_sleep($uid);   // Wren's tour: one sleep ripens the radish and ends the sleep step (the dock's Rest piece posts the same form)
     return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE + $carry];
 }
 
@@ -706,9 +714,9 @@ function gclock_pill(array $u, bool $line = false): string
     $s = gclock_state($u);
     $t = sprintf('%02d:%02d', intdiv($s['minute'], 60) % 24, $s['minute'] % 60);
     $carry = max(0, (int)($u['carry_minutes'] ?? 0));
-    $title = 'Day ' . ((int)$s['day'] + 1) . ', ' . $t . ($s['tired'] ? ' (tired: +' . game_surcharge_pct($u) . '% energy)' : '') . ($carry > 0 ? '; ' . round($carry / 60, 1) . ' h of work waits for tomorrow' : '') . '. Open the Rest page to nap or sleep.';
-    if ($line) return '<a class="stl gclkl' . ($s['tired'] ? ' tired' : '') . '" href="' . e(url('hovel.php')) . '" title="' . e($title) . '">🕐 <b>' . $t . '</b> <small>day ' . $s['day'] . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a>';
-    return '<span class="st gclk' . ($s['tired'] ? ' tired' : '') . '" title="' . e($title) . '"><a href="' . e(url('hovel.php')) . '">🕐 <b>' . $t . '</b> <small>day ' . $s['day'] . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a></span>';
+    $title = 'Day ' . gclock_day_no($s) . ', ' . $t . ($s['tired'] ? ' (tired: +' . game_surcharge_pct($u) . '% energy)' : '') . ($carry > 0 ? '; ' . round($carry / 60, 1) . ' h of work waits for tomorrow' : '') . '. Open the Rest page to nap or sleep.';
+    if ($line) return '<a class="stl gclkl' . ($s['tired'] ? ' tired' : '') . '" href="' . e(url('hovel.php')) . '" title="' . e($title) . '">🕐 <b>' . $t . '</b> <small>day ' . gclock_day_no($s) . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a>';
+    return '<span class="st gclk' . ($s['tired'] ? ' tired' : '') . '" title="' . e($title) . '"><a href="' . e(url('hovel.php')) . '">🕐 <b>' . $t . '</b> <small>day ' . gclock_day_no($s) . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a></span>';
 }
 
 // Drying racks: like pantry jars, ready after N sleeps (the real dry_hours read as days, minimum 1).
@@ -972,7 +980,7 @@ function gclock_rest_summary(array $before, array $after, int $hpGain = 0): stri
 {
     $fmt = fn(int $m): string => sprintf('%02d:%02d', intdiv($m, 60) % 24, $m % 60);
     $spent = ((int)$after['game_day'] * 1440 + (int)$after['game_minute']) - ((int)$before['game_day'] * 1440 + (int)$before['game_minute']);
-    $day = (int)$after['game_day'] !== (int)$before['game_day'] ? 'Day ' . ((int)$after['game_day'] + 1) . ', ' : '';
+    $day = (int)$after['game_day'] !== (int)$before['game_day'] ? 'Day ' . gclock_day_no($after) . ', ' : '';
     $bits = [$day . $fmt((int)$after['game_minute']) . ' (+' . gclock_span_text(max(0, $spent)) . ')'];
     $bits[] = '⚡ ' . (int)$before['energy'] . ' → ' . (int)$after['energy'] . ' (' . ((int)$after['energy'] >= (int)$before['energy'] ? '+' : '') . ((int)$after['energy'] - (int)$before['energy']) . ')';
     if ($hpGain > 0) $bits[] = '❤️ +' . $hpGain . ' health';
