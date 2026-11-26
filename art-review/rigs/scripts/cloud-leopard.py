@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """cloud-leopard "Cloud Leopard" (quad.feline rig, 89 x 51, 8 parts): "Walks the high ledges as if gnomes were a rumour." (mountain; Frost Fur, Spotted Pelt)
-A clouded leopard in pale cream felt: a long low body (body) printed with the big dark-rimmed "cloud" blotches and a cream belly,
+A clouded leopard in tawny felt: a long low body (body) printed with the big dark-rimmed "cloud" blotches and a cream belly,
 short thick legs with round paws (near legs cream, far legs a step darker), a very long thick tail curling up behind and ringed in
 umber (tail, sprung), a round cat head with small round ears, cream muzzle, pink nose, cheek stripes and a calm green-gold eye (eyes)."""
 import os, sys

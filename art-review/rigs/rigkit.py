@@ -119,11 +119,6 @@ def inter(p, *qs):
     return lambda x, y: p(x, y) and all(q(x, y) for q in qs)
 
 
-def half(ax, ay, bx, by):
-    """the half plane to the LEFT of a->b on screen (y down): e.g. half(0,10,10,10) = everything below y=10? no: left of a rightward line = above"""
-    return lambda x, y: (bx - ax) * (y - ay) - (by - ay) * (x - ax) < 0
-
-
 def below(a, b, off=0.0):
     """points on the down-normal side of the line a->b (for a rightward line: below it) by more than off px (negative off: also a band above)"""
     dx, dy = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dy) or 1e-9
@@ -326,10 +321,14 @@ class Rig:
 
 
 # ---------------------------------------------------------------- checks (also used by check_all.py)
+FLOATING = {'bullfrog': ('fly',)}   # parts that hover away from their parent by design (any rig with a 'fly' part)
+
+
 def check(slug, path, R=None, floating=()):
     """size/mode same as the shipped sheet; alpha only 0/255; every part inside its own column with a free 1 px border (so its ink ring fits);
     row 1 = exactly the 4-adjacent ring of row 0 (eyes: empty); pivots: every part touches its own pivot and every child's pivot lies on its parent."""
     bad = []
+    floating = tuple(floating) + FLOATING.get(slug, ())
     d = rigdef(slug); fw, fh, ids = d['fw'], d['fh'], d['parts']
     new = Image.open(path)
     old = Image.open(os.path.join(SHIPPED, 'rig-%s.png' % slug))
