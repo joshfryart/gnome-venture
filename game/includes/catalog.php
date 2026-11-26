@@ -13,7 +13,7 @@ const COMMON_CROPS = ['tomato', 'potato', 'onion', 'garlic', 'carrot', 'cabbage'
     'cucumber', 'pumpkin', 'green-bean', 'pea', 'beet', 'turnip', 'kale', 'basil', 'mint', 'parsley', 'coriander',
     'dill', 'sunflower', 'strawberry', 'white-clover', 'winter-rye', 'crimson-clover',
     'celery', 'cauliflower', 'broccoli', 'fennel', 'horseradish', 'rosemary', 'thyme',
-    'lemon-balm', 'peppermint', 'garden-sage'];   // the last three: tea crops (next release), sold at Twigg's like mint
+    'lemon-balm', 'peppermint', 'garden-sage'];   // the last three: tea crops (v2.7.31), sold at Twigg's like mint
 
 /** Hungry crops that drain soil fertility faster. */
 const HEAVY_FEEDERS = ['corn', 'tomato', 'pumpkin', 'cabbage', 'potato', 'broccoli', 'cauliflower', 'eggplant',
@@ -52,7 +52,7 @@ function guide_item_slug(string $regionCode): string
     return 'guide-' . strtolower($regionCode);
 }
 
-/** The six tea crops (data/crops.txt, next release). A live world gets them from the boot step tea_crops_ensure (bootstrap.php), once. */
+/** The six tea crops (data/crops.txt, v2.7.31). A live world gets them from the boot step tea_crops_ensure (bootstrap.php), once. */
 const TEA_CROPS = ['lemon-balm', 'peppermint', 'lemon-verbena', 'garden-sage', 'tulsi', 'star-anise'];
 
 /**

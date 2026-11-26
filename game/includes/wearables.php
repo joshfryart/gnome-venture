@@ -144,7 +144,7 @@ function wear_items(): array
         $nm = $d['name'] . ($cut === 'b' ? ' (' . $c[0] . ')' : '') . ($rank > 1 ? ', ' . WEAR_RANK_NAME[$rank] : '');
         $price = ($d['get'] ?? '') === 'tailor' ? max(1, intdiv(wear_fee($d, $rank), 2)) : (int)($d['price'] ?? 120) * $rank;
         $o[$slug] = ['name' => $nm, 'desc' => $d['desc'] . ' Piece: ' . $c[0] . ', ' . ucfirst($c[1]) . ' ' . $c[2] . '. ' . $c[5], 'base' => $base, 'cut' => $cut, 'rank' => $rank,
-            'rarity' => ($d['get'] ?? '') === 'tailor' ? (['Common' => 10, 'Uncommon' => 25, 'Rare' => 50][$d['rarity'] ?? 'Common'] ?? 10) + [1 => 0, 2 => 10, 3 => 20][$rank] : 6 + 6 * $rank,   // 2.7.xx: a Tailor wearable's rarity is its design's (Common / Uncommon / Rare = 10 / 25 / 50, +10 Lined, +20 Fine) so the shelf and the satchel show it; the old ones stay 12 / 18 / 24
+            'rarity' => ($d['get'] ?? '') === 'tailor' ? (['Common' => 10, 'Uncommon' => 25, 'Rare' => 50][$d['rarity'] ?? 'Common'] ?? 10) + [1 => 0, 2 => 10, 3 => 20][$rank] : 6 + 6 * $rank,   // a Tailor wearable's rarity is its design's (Common / Uncommon / Rare = 10 / 25 / 50, +10 Lined, +20 Fine) so the shelf and the satchel show it; the old ones stay 12 / 18 / 24
             'price' => $price];
     }
     return $o;
@@ -231,13 +231,9 @@ function tailor_commission(int $uid, string $slug, ?int $power = null): int
     return give_petals($uid, $n, 'tailor commission') ? $n : 0;
 }
 
-/** The table (schema.php) is there? */
-function wear_lined_table(): bool { return true; }
-
 /** ["base|cut", ...] the gnome wears as Lined. */
 function wear_lined_set(int $uid): array
 {
-    if (!wear_lined_table()) return [];
     return q('SELECT wkey FROM wear_lined WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN) ?: [];
 }
 
@@ -248,7 +244,6 @@ function wear_lined_toggle(array $u, string $slug): array
     if (!$p || wear_qty($uid, $slug) < 1) return [false, 'You do not have that.'];
     [$base, $cut, $rank] = $p;
     if ($rank !== 3) return [false, 'Only a Fine wearable can be worn as Lined.'];
-    if (!wear_lined_table()) return [false, 'Not now.'];
     $k = $base . '|' . $cut;
     if (in_array($k, wear_lined_set($uid), true)) { q('DELETE FROM wear_lined WHERE user_id = ? AND wkey = ?', [$uid, $k]); return [true, '🧵 The ' . wear_defs()[$base]['name'] . ' is worn as Fine again.']; }
     db_insert('wear_lined', ['user_id' => $uid, 'wkey' => $k]);
@@ -326,7 +321,7 @@ function wear_worn(int $uid, ?array $owned = null): array
 /** Why this gnome may not change what it wears now, or null. */
 function wear_change_block(array $u): ?string
 {
-    if (!wear_live($u) || (function_exists('is_guest') && is_guest($u))) return 'Not now.';
+    if (!wear_live($u) || is_guest($u)) return 'Not now.';
     if (!wear_slots_ensure()) return 'Not ready yet. Try again in a moment.';
     require_once __DIR__ . '/pfdeck.php';
     if (pfd_locked((int)$u['id'])) return 'You are in a fight. Change clothes after it.';
@@ -425,9 +420,9 @@ function wear_ensure_items(): void
         $have = []; $haveDesc = [];
         foreach (q('SELECT slug, rarity, description FROM items')->fetchAll() as $hr) { $have[$hr['slug']] = $hr['rarity']; $haveDesc[$hr['slug']] = (string)$hr['description']; }   // one query, not one per item (873 of them)
         foreach (wear_items() as $slug => $it) {
-            if (isset($have[$slug])) {   // 2.7.xx: items made before the design rarity existed hold 6 + 6 x rank: bring them to the new value (an admin-edited value is left alone)
+            if (isset($have[$slug])) {   // items made before the design rarity existed hold 6 + 6 x rank: bring them to the new value (an admin-edited value is left alone)
                 if ((int)$have[$slug] !== (int)$it['rarity'] && (int)$have[$slug] === 6 + 6 * (int)$it['rank']) q('UPDATE items SET rarity = ? WHERE slug = ?', [(int)$it['rarity'], $slug]);
-                if (($haveDesc[$slug] ?? '') !== $it['desc'] && ($it['base'] ?? '') !== '' && (wear_defs()[$it['base']]['get'] ?? '') === 'tailor') q('UPDATE items SET description = ? WHERE slug = ?', [$it['desc'], $slug]);   // 2.7.xx: a piece renamed since the item was made
+                if (($haveDesc[$slug] ?? '') !== $it['desc'] && ($it['base'] ?? '') !== '' && (wear_defs()[$it['base']]['get'] ?? '') === 'tailor') q('UPDATE items SET description = ? WHERE slug = ?', [$it['desc'], $slug]);   // a piece renamed since the item was made
                 continue;
             }
             db_insert('items', ['name' => $it['name'], 'slug' => $slug, 'category' => 'supply', 'rarity' => $it['rarity'], 'base_price' => $it['price'], 'description' => $it['desc'], 'edible' => 0, 'tradable' => 1]);
@@ -438,7 +433,7 @@ function wear_ensure_items(): void
             $id = item_id_by_slug(wear_slug($base, 'a', 1)); $price = (int)$d['price'];
             if ($id && !q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $id])) db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)round($price * 1.1), 'max_stock' => 2, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
         }
-        if (wear_live()) wear_ensure_shops();   // 2.7.xx: each region's outfitter (the 20 wearables of that region)
+        if (wear_live()) wear_ensure_shops();   // each region's outfitter (the 20 wearables of that region)
         if (!item_id_by_slug(WEAR_THREAD)) { [$n, $cat, $rar, $pr, $ds] = WEAR_THREAD_ITEM; db_insert('items', ['name' => $n, 'slug' => WEAR_THREAD, 'category' => $cat, 'rarity' => $rar, 'base_price' => $pr, 'description' => $ds, 'edible' => 0, 'tradable' => 1]); }
     } catch (Throwable $e) { error_log('wear_ensure_items: ' . $e->getMessage()); }
 }
@@ -610,7 +605,7 @@ function tailor_recut(array $u, string $slug): array
 }
 
 
-// ---------------------------------------------------------------- the regional outfitters (2.7.xx)
+// ---------------------------------------------------------------- the regional outfitters
 
 /** Shop name per region (slug = <code>-outfitters), at the region's market place. */
 const WEAR_SHOP_NAMES = ['NA' => 'Plaid & Pine Outfitters', 'CA' => 'Hilo & Hoja', 'NWE' => 'The Tweed Peg', 'CB' => 'The Salt Stitch', 'SE' => 'Sun & Thread', 'SA' => 'Llama & Loom Outfitters',
@@ -622,7 +617,7 @@ const WEAR_SHOP_STOCK = ['Common' => [3, 50, 2], 'Uncommon' => [2, 30, 1], 'Rare
 /** Price of a Tailor wearable's Common rank on the outfitter's shelf. */
 function wear_shop_price(array $d): int { return max(50, (int)(round((int)$d['petals'] * WEAR_SHOP_MARKUP / 50) * 50)); }
 
-/** Is this shop the wearables' outfitter, and may this gnome see it (the same switch as the wearables: puzzle combat v1)? */
+/** Is this shop the wearables' outfitter, and may this gnome see it (the same switch as the wearables: the wear_open setting)? */
 function wear_shop_hidden(array $shop, array $u): bool
 {
     return (string)($shop['shop_type'] ?? '') === 'outfitter' && !wear_live($u);

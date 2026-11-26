@@ -189,7 +189,7 @@ function pcrew_night(int $uid): void
             pcrew_save_report($uid, $D, ['crew' => $report]);
             $bits = [];
             foreach ($report as $r) if ($r['n'] > 0) $bits[] = $r['text'];
-            if (function_exists('notify')) notify($uid, '🧩 Your pals worked the garden: ' . ($bits ? implode(' · ', $bits) : 'nothing needed doing') . '.');
+            notify($uid, '🧩 Your pals worked the garden: ' . ($bits ? implode(' · ', $bits) : 'nothing needed doing') . '.');
         }
     } catch (Throwable $e) {
         error_log('pcrew_night: ' . $e->getMessage());
@@ -432,7 +432,7 @@ function pcrew_retire_helpers(): void
             $refund = min((int)$hire['paid'], $left * (int)$hire['wage']);
             if (q('UPDATE garden_hires SET active = 0 WHERE id = ? AND active = 1', [$hire['id']])->rowCount() !== 1) continue;
             if ($refund > 0) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$refund, $hire['user_id']]);
-            if (function_exists('notify')) notify((int)$hire['user_id'], '🧰 ' . $hire['name'] . ' has gone home: your pals do the garden work now.' . ($refund > 0 ? ' Unused wages refunded: ' . money($refund) . '.' : ''));
+            notify((int)$hire['user_id'], '🧰 ' . $hire['name'] . ' has gone home: your pals do the garden work now.' . ($refund > 0 ? ' Unused wages refunded: ' . money($refund) . '.' : ''));
         }
         set_setting('crew_helpers_retired', '1');
     } catch (Throwable $e) { error_log('pcrew_retire_helpers: ' . $e->getMessage()); }

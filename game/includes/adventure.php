@@ -435,7 +435,7 @@ function give_local_seed(array $u, array $scene): ?string
  */
 function find_popup(string $line): string
 {
-    if (function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && $line !== '' && !str_starts_with($line, '👀')) {
+    if (session_status() === PHP_SESSION_ACTIVE && $line !== '' && !str_starts_with($line, '👀')) {
         $b = $_SESSION['event_box'] ?? null;
         if ($b && !empty($b['finds'])) { $b['lines'][] = $line; $_SESSION['event_box'] = $b; }
         elseif (!$b) $_SESSION['event_box'] = ['icon' => '✨', 'title' => 'You found something!', 'text' => '', 'lines' => [$line], 'finds' => 1];

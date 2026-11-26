@@ -80,7 +80,7 @@ function rk_text(string $kind, int $tier = 0): string
     };
 }
 
-function gclock_time_cost_or(string $key, int $fallback): int { return function_exists('gclock_time_cost') ? gclock_time_cost($key) : $fallback; }
+function gclock_time_cost_or(string $key, int $fallback): int { return gclock_time_cost($key); }
 
 /** Does the gnome carry the item (by slug)? */
 function rk_has_item(int $uid, string $slug): bool
@@ -148,7 +148,7 @@ function rk_toll_paid(array $st): bool { return !empty($st['toll']); }
 function rk_enc_base(array $st): ?float
 {
     if (!rk_toll_paid($st)) return null;
-    return (function_exists('setting') ? (float)setting('trail_enc_pct') : 3.0) * RK_TOLL_ENC;
+    return (float)setting('trail_enc_pct') * RK_TOLL_ENC;
 }
 
 /** Make the road-kind items (the Toll Receipt; the Flood Boots are a wearable: includes/wearables.php) if missing. Safe to call often. */
@@ -197,7 +197,7 @@ function rk_toll_apply(array $u, bool $pay, int $sections): string
 /** Charge $minutes of game time for each of $sections stretches (no-op with the game clock off). */
 function rk_charge_travel(int $uid, int $sections, int $minPerSection): void
 {
-    if (!function_exists('gclock_on') || !gclock_on() || $minPerSection <= 0) return;
-    if (function_exists('gclock_ledger_snap')) gclock_ledger_snap($uid);
+    if (!gclock_on() || $minPerSection <= 0) return;
+    gclock_ledger_snap($uid);
     game_spend($uid, $minPerSection * max(1, $sections));
 }

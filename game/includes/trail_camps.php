@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * 2.7.00 CAMP SPOTS: every Trail route has one camp tile on one stretch (data/trail_camps.json, made by tools/gen_trail_camps.py; the game draws the tile,
+ * 2.7.00 CAMP SPOTS: every Trail route has one camp tile on one stretch (includes/data/trail_camps.json, made by tools/gen_trail_camps.py; the game draws the tile,
  * the ground pictures are untouched). Stand on it and the camp card offers:
  *   Sleep         free and safe: a full night (game_sleep), no camping gear needed
  *   Nap           free and safe: a nap (game_nap, 2 game hours, +40% energy by default)
@@ -71,7 +71,7 @@ function trail_camp(array $u, array &$exp, string $mode, int $minutes = 0, ?call
     if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
     if (!tc_here($sc)) return [false, 'Walk to the camp spot first.'];
     $uid = (int)$u['id'];
-    if (!function_exists('gclock_on') || !gclock_on()) return [false, 'Camping needs the game clock.'];
+    if (!gclock_on()) return [false, 'Camping needs the game clock.'];
     if ($mode === 'sleep') {
         if (!game_sleep($uid)) return [false, 'Something stirred. Try again.'];
         tc_refresh_hp($exp);   // 2.7.06: the sleep healed the walk's health in the database; the walk in memory must take it, or saving it puts the old health back

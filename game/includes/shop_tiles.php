@@ -81,8 +81,8 @@ function shop_tile(array $o): string
     $qtyName = (string)($o['qtyName'] ?? 'qty[' . $id . ']');
     [$rl, $rw] = item_rarity($i, $IL);
     $desc = (string)($i['description'] ?? '');
-    $pieceH = (string)($o['piece'] ?? '');   // 2.7.xx: a wearable's puzzle piece picture, inside the About fold
-    $descH = $desc === '' && $pieceH === '' ? '' : '<details class="helpfold sdesc" open><summary>About it</summary>' . ($desc === '' ? '' : '<p>' . desc_html($desc) . '</p>') . $pieceH . '</details>';   // 2.7.xx: always a fold, always open (Josh)
+    $pieceH = (string)($o['piece'] ?? '');   // a wearable's puzzle piece picture, inside the About fold
+    $descH = $desc === '' && $pieceH === '' ? '' : '<details class="helpfold sdesc" open><summary>About it</summary>' . ($desc === '' ? '' : '<p>' . desc_html($desc) . '</p>') . $pieceH . '</details>';   // always a fold, always open (Josh)
     $verb = $mode === 'buy' ? 'Buy' : 'Sell';
     $lbl = (string)($o['totalLabel'] ?? ($mode === 'buy' ? 'Total' : 'You get'));
     $hidden = '';

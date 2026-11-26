@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Player perks (2.6.33): a full stop meter (Repairs, Larder, Cheer) gives the PLAYER a perk that works everywhere for
-// player_perk_days (7) game days. Same perk again = refresh, no stack. At most player_perk_max (3) run; a 4th drops the one ending soonest.
+// perk_days (7) game days. Same perk again = refresh, no stack. At most perk_max (3) run; a 4th drops the one ending soonest.
 // Which perk: seeded by (player, stop, game day) from that meter's pool, preferring one that is not already running.
 // Numbers are admin settings (perk_*). Design notes: docs/stop-perk-ideas.md.
 

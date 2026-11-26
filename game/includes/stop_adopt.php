@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Adopt a stop (v1.0.0 wave 1). A gnome adopts one rest stop (setting stop_adopt_limit), pays a small fee, then hands in building
+ * Adopt a stop (v1.0.0 wave 1). A gnome adopts rest stops (slots: 1 plus one per finished stop, up to stop_adopt_limit), pays a small fee, then hands in building
  * materials and Petals over time (the same stone, planks, rope, meals and fine finds as repairing a ruin: rebuild.php).
  * When every need of the next tier is met the stop moves up a tier for EVERYONE: tiers unlock extra activities (stop_acts.tier); tier 4 gave
  * one more slot per visit until 2.8.60 (no slots now). The adopter's name is on the plaque, and they get a small daily perk there. Releasing keeps the tier;

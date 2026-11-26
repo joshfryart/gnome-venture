@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * TREK LEVELS (inside treks only). Every party member (the gnome and each trailmate) has a trek level (1 up) and trek XP, kept in the run state
  * under st.tl[crew key] = [level, xp toward the next level] (the gnome is "gnome"). Base stats still come from the gnome's main level; a trek level only
- * adds on top of them in trek_party_stats(): +max health, +to hit, +damage (see trek_tl_bonus()). Trek XP is never capped. It comes from won fights
+ * adds on top of them in trek_party_stats(): +max health, +to hit, +damage (see trek_tl_bonus()). Trek XP stops counting at the level cap (23). It comes from won fights
  * (and a little from trail events); it never touches the gnome's main XP.
  *
  * MAIN XP comes only from MILESTONES (Burdock, Zinnia, Bracken, the Blight Mother, Gloomtooth, the end of the chapter): once each, ever, per player.
@@ -143,7 +143,7 @@ function trek_ms_schema(string $ID, string $END): array
  * The checks that apply when a milestone is reached, over the chapter so far: [done, total, [label => bool]]. A check with nothing to judge yet is left out.
  * Chapter I is coded below. A later chapter lists its checks in trek_chapters*.txt ("check" rows: any-flag checks and the trail-event count) plus "No knock-out".
  *  - no knock-out so far (always)
- *  - side stops visited: the Stuck Cart and Mushroom Camp (from Zinnia on), the Riddle Stone (from Bracken on), the Glowworm Grotto (a Wayfinder only)
+ *  - side stops visited: the Stuck Cart and Mushroom Camp (from Zinnia on), the Riddle Stone (from Bracken on), the Glowworm Grotto (found, or a Wayfinder)
  *  - trail events resolved: 3 or more (from Zinnia on)
  *  - riddles solved: the Worm Choir (from Zinnia on), the Riddle Stone (from Bracken on)
  *  - crew moments taken: every trailmate whose moment came up has taken it

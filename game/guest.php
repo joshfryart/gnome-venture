@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * v2.0.75: "Play as a guest". GET shows Jeff and the button; POST (CSRF) makes a guest garden (includes/guest.php) and drops the visitor in it.
- * Off unless the setting guest_open is on. A signed-in player or guest just goes to their garden.
+ * Off unless the setting guest_open is on. A signed-in player or guest goes to the home page (index.php).
  */
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/guest.php';

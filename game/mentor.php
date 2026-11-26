@@ -27,7 +27,7 @@ if (is_post()) {
     $chRow = $ch ? calling_chapter($ch) : null;
     if ($do !== 'talk' && (!$chRow || $chRow['calling'] !== $calling || ($u['calling'] ?? '') !== $calling)) {
         [$ok, $msg] = [false, $npc['name'] . ' only teaches their own calling’s chapters, and only to gnomes of that calling.'];
-    } elseif ($do === 'trip') {   // next version: the free trip here, only to take on a chapter not started yet (calling_mentor_trip_check has the rules)
+    } elseif ($do === 'trip') {   // the free trip here, only to take on a chapter not started yet (calling_mentor_trip_check has the rules)
         [$ok, $msg] = calling_mentor_trip($u, $ch);
     } elseif ($do === 'trip_start') {   // 2.6.34: the free trip and taking the chapter on in one tap, from the calling page
         [$ok, $msg] = calling_mentor_trip($u, $ch);

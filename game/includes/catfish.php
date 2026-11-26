@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * A cat is ONE integer seed; every trait comes from a seeded RNG, so a cat is never stored beyond (user_id, seed, name).
  * The shelter shows 3 cats a day per gnome: seed = crc32(user_id|date|slot), re-derived on the server at adoption time.
- * Kibble is earned on the server clock only (catfish_tick): 100% while the page is polling, 50% when away, capped at CATFISH_OFFLINE_CAP seconds.
+ * Kibble is earned on the server clock only (catfish_tick): 100% while the page is polling, 50% when away, capped by catfish_offline_cap() (8 h base plus upgrades).
  */
 
 const CATFISH_BASE_KPH = 600;           // kibble per hour with nothing bought

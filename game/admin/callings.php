@@ -23,7 +23,7 @@ page_header('Calling chapters', true);
 ?>
 <?php admin_crumbs('callings.php');   // v1.6.3 ?>
 <h1>📜 Calling chapters</h1>
-<p class="help">Read-only. The chapters come from <code>includes/data/calling_quests.txt</code> and are imported once; ones already in the game are never overwritten. Mentors: <?= count(CALLING_MENTORS) ?> (<?= (int)q_val('SELECT COUNT(*) FROM npcs WHERE slug IN (' . implode(',', array_map(fn($m) => db()->quote($m[1]), CALLING_MENTORS)) . ')') ?> in the game).</p>
+<p class="help">The chapters come from <code>includes/data/calling_quests.txt</code> and are imported once; ones already in the game are never overwritten. Mentors: <?= count(CALLING_MENTORS) ?> (<?= (int)q_val('SELECT COUNT(*) FROM npcs WHERE slug IN (' . implode(',', array_map(fn($m) => db()->quote($m[1]), CALLING_MENTORS)) . ')') ?> in the game).</p>
 <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="import"><button class="btn">Import calling quests</button></form>
 <?php foreach ($chapters as $c): $tasks = calling_tasks((int)$c['id'], true); ?>
   <div class="box">

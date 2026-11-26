@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * Puzzle Combat, BOARD mode: a shared 2D jigsaw board instead of a strip. Pure PHP like pfight.php (which supplies tiles, decks, effects and RNG).
  * Rules (claude/plan-puzzle-board.md):
- *  - The board is one open area (an invisible 7x5 lattice for placement). It starts with one or two of the creature's pieces out. Each turn you place up to 4 pieces, one at a time, each next to a piece already on the board.
+ *  - The board size follows the creature size (3x3/4x4/5x5). It starts with one or two of the creature's pieces out. Each turn you take one action (place a piece, or the piece group you set aside, or set pieces aside); each placed piece goes next to a piece already on the board.
  *  - A piece fits where its edge meets the neighbour's: knob into hole of the same family, or a flat edge (fits anything). Every touching edge must fit.
  *  - Placing a piece CONNECTS it, and its chain fires, NEWEST FIRST: the piece you placed plays, then the pieces linked to it, each for its owner, until the chain ends.
  *    A joint is linked only when both edges are knob/hole (a flat side breaks the chain and any combo across it).
@@ -1296,13 +1296,6 @@ function pfb_connect(array &$s, string $who, ?int $a, int $b, string $side, ?int
     $g['pcs'][] = ['tile' => $hand[$b], 'x' => $ddx, 'y' => $ddy];
     foreach ([max($a, $b), min($a, $b)] as $i) array_splice($s[$who]['hand'], $i, 1);
     $s[$who]['held'] = $g; return null;
-}
-
-/** The cells a group would fill with its top-left at (ox,oy), or null if it does not fit there. Returns [[x, y, groupIdx], ...]. */
-function pfb_group_cells(array $s, array $g, int $ox, int $oy): ?array
-{
-    $r = pfb_group_cells_l($s, $g, $ox, $oy);
-    return $r === null ? null : $r[0];
 }
 
 /** [cells, linked]: the cells the group would fill and whether any joint with the board is linked, or null if it does not fit there. */

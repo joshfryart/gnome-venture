@@ -95,7 +95,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
 
 <?= $fold('🎲', 'Games') ?>
   <ul>
-    <li>Seven quick <a href="<?= e(url('games.php')) ?>">daily games</a>, such as Snail Race and Mushroom Sweeper.</li>
+    <li>Eight quick <a href="<?= e(url('games.php')) ?>">daily games</a>, such as Snail Race and Mushroom Sweeper.</li>
     <li>Each game has its own plays per day. Finishing one gives a little energy back.</li>
     <li>There are also contests: a weekly Village Show and a monthly Grand Harvest Fair.</li>
   </ul>

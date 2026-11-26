@@ -132,7 +132,7 @@ function gnome25_colours(array $u): array
 {
     $c = ['hat' => gnome_hat_color($u)];
     $b = (string)($u['beard_color'] ?? '');
-    $c['beard'] = (isset(BEARD_COLORS[$b]) || (function_exists('dye_valid') && dye_valid('beard', $b))) ? $b : '#f4f1ea';
+    $c['beard'] = (isset(BEARD_COLORS[$b]) || dye_valid('beard', $b)) ? $b : '#f4f1ea';
     if (!empty($u['id']) && function_exists('catfish_scarf_color')) { $s = catfish_scarf_color((int)$u['id']); if ($s !== '') $c['scarf'] = $s; }
     return array_filter($c, fn($v) => preg_match('/^#[0-9a-fA-F]{6}$/', (string)$v) === 1);
 }

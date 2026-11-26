@@ -658,7 +658,7 @@ function landmark_panel(array $u, array $node, string $back = ''): string   // $
     switch ($lm['kind']) {
         case 'haven':
             $h .= '<h3>🏕️ A haven: safe and warm</h3><p class="help">Paths next to a haven are always gentle.</p>'
-                . $form('rest', '🔥 Rest by the fire <span class="cost">+4⚡</span>', '', landmark_done_today($uid, $id, 'rest'))
+                . $form('rest', '🔥 Rest by the fire <span class="cost">+' . (landmark_rebuilt_by($lm, $uid) ? 6 : 4) . '⚡</span>', '', landmark_done_today($uid, $id, 'rest'))
                 . $form('stay', '🛏️ Stay the night <span class="cost">' . money(20) . '</span>', '', landmark_done_today($uid, $id, 'stay'))
                 . '<p class="help">Staying the night: +3 ' . e(GNOME_STATS[haven_stat($lm)][0]) . ' for 2 hours and a little energy. Each once a day.</p>'
                 . '<h4>🧺 Today’s pantry</h4>';

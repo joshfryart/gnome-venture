@@ -317,6 +317,6 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <p class="help">Each town has one festival day a month.</p></details>
   <?php endif; ?>
   <?php endif; ?>
-  <?php if ($view === 'square'): ?><p class="gx-note">Most things can be done once or a few times a day; the day turns over at midnight Hollow time. ⭐ Gold-edged places are found only in <?= e($town) ?>.</p><?php endif; ?>
+  <?php if ($view === 'square'): ?><p class="gx-note">Town things have no daily limits; your game day turns over when you sleep. ⭐ Gold-edged places are found only in <?= e($town) ?>.</p><?php endif; ?>
 <?php endif; ?>
 <?php page_footer();

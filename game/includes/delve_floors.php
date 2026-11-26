@@ -19,7 +19,7 @@ const DV_HAZARD_COST = 2;                                            // a hazard
 const DV_FOR = ['fight', 'treasure', 'mystery', 'puzzle', 'boss'];
 const DV_MAX_FINDS = 6;                                              // fewer than 7 finds a floor (the 7 dots are the progress bar)
 const DV_ROWCHARS = '#.,SE123456789KDWTCBMF';
-/** What the hazard tile W is in each delve: [icon, name, ground tint]. Icons are emoji placeholders until Joshua draws them (proposals in claude/art-delve-hazards/). */
+/** What the hazard tile W is in each delve: [icon, name, ground tint]. Icons are emoji placeholders until Joshua draws them. */
 const DV_HAZARD = [
     'beaverdam-tunnels' => ['💧', 'Shallow water', '#3f6f8c'], 'jaguar-root-caves' => ['🌧️', 'Drip pool', '#46705e'],
     'mangrove-root-maze' => ['🌱', 'Tidal mud', '#5b5a3a'], 'salt-mine-galleries' => ['🧂', 'Brine puddle', '#a8a493'],
@@ -154,7 +154,7 @@ function dv_costs(array $map, int $sx, int $sy, bool $doorOpen): array
     return $dist;
 }
 
-/** A rough walk to take everything: nearest-next tour over the finds, key, door and chest, ending at the exit (E) or, on a boss floor, the guardian then the chest. */
+/** A rough walk to take everything: nearest-next over finds, key, door and chest, then the guardian (boss floors) and the exit. */
 function dv_tour_cost(array $map): int
 {
     $stops = [];

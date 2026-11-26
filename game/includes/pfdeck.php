@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Puzzle combat, the v1 DECK MODEL (2.6.74, behind the admin setting pfight_v1; design: claude/design-deckbuilder-combat.md, handover: claude/handover-v1-stageB.md).
+ * Puzzle combat, the v1 DECK MODEL (2.6.74, setting pfight_v1; on for everyone since 2.7.57 (value admin still limits belts/repair kit to admins); design: claude/design-deckbuilder-combat.md, handover: claude/handover-v1-stageB.md).
  *
  * Part 1 (pure, no DB: also used by the tests and the balance sims): the data files, the layered creature deck, the player's deck built from a "sources" array.
  *   Data: data/pf_pieces.txt (player pieces), pf_class_base.txt (class base 4 + size extras), pf_creature_class.txt (slug=Class), pf_creature_pieces.txt (3 unique each), pf_region_pieces.txt.

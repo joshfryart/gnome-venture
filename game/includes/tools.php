@@ -9,7 +9,7 @@ declare(strict_types=1);
  *  - Energy: no tier lowers the cost. Each use has a 20/30/50% chance (Sturdy/Fine/Masterwork) to cost no energy (tool_free_chance). v0.7.85
  *  - Wear (v0.7.86): tools wear out with use and break. Gathering tools, the walking staff and the lantern wear by uses
  *    (gather_tool_uses); garden tools by days of use, one day per Hollow day they are used (garden_tool_days). A broken
- *    tool becomes a Broken copy that is mended in the Satchel (tool_mend_cost), or at a Tool Shed once a day for free.
+ *    tool becomes a Broken copy that is mended in the Satchel (tool_mend_cost), or at a Tool Shed (one free mend a day, two with a level 3 Tool Shed).
  *    The Glowcap Lantern and Worn garden tools never wear out. See tool_use(), mend_tool() and tool_trade_block().
  * Some jobs can be done by hand (tier 0, one square). Tilling and watering need a tool.
  */
@@ -156,7 +156,6 @@ function tool_tier_text(string $type, int $tier): string
     return $bits ? ucfirst(implode(', ', $bits)) . '.' : '';
 }
 
-/** Best tier of a tool type in the gnome's satchel (0 = none). Old items with "power" count as that tier. */
 /** Per-request cache of tool tiers. tool_cache_reset() empties it when a tool breaks or is mended (v0.7.86). */
 function &tool_tier_cache(): array
 {
@@ -170,6 +169,7 @@ function tool_cache_reset(): void
     $cache = [];
 }
 
+/** Best tier of a tool type in the gnome's satchel (0 = none). Old items with "power" count as that tier. */
 function tool_tier(int $uid, string $type): int
 {
     $cache = &tool_tier_cache();
@@ -408,7 +408,6 @@ function tool_broken_owned(int $uid, string $type): ?array
     return null;
 }
 
-/** Does the gnome have a Tool Shed in any of their gardens? */
 /** v0.7.96: free mends a day: 0 without a Tool Shed, 1 with one, 2 with a level 3 one. */
 function tool_free_mends(int $uid): int
 {

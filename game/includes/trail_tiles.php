@@ -13,7 +13,6 @@ declare(strict_types=1);
  * with a compare-and-swap on the scene state, so a double tap or a second tab cannot skip a section or roll twice) -> next section ... the last
  * confirm is "Head into <place>" (the existing arrive()). Fights, finds, problems and meets are the existing ones (next_step() / pick_creature() /
  * give_find()), shown by the existing encounter cards on adventure.php.
- * Not built yet: Gather and Wander off the Trail while on a section (they need a walk-free state; see claude/nav-recon.md).
  */
 require_once __DIR__ . '/delve_map.php';
 require_once __DIR__ . '/tilemap.php';
@@ -130,7 +129,7 @@ function trail_map_make(string $seed): array
 /** v2.5.93: picture URLs of the Puzzle Pals the gnome has taken along (up to 3, in the order taken); [] when take-along is off, a guest, or a pal has no art. */
 function trail_pal_urls(array $u): array
 {
-    if (!empty($u['guest']) || !function_exists('setting') || setting('ppal_party') !== '1') return [];
+    if (!empty($u['guest']) || setting('ppal_party') !== '1') return [];
     require_once __DIR__ . '/puzzle_pals.php';
     $o = [];
     foreach (ppal_equipped($u) as $e) {
@@ -155,7 +154,6 @@ function trail_escort_pic(string $who): string
     } catch (Throwable $e) { return ''; }
 }
 
-/** Start the scene of a new walk: section 1, the gnome at the entry. Never breaks the start if it fails. Returns true when made. */
 /**
  * 2.6.30: finds (✨ 'F') you took on a stretch stay gone for a while: trail_pickup_tenths tenths of a game day (default 5.5 days; real days with the
  * game clock off). Tokens [[x, y, kind, done]] come back with the first n finds of that stretch already done. Pure read except the table.
@@ -191,6 +189,7 @@ function trail_pickup_note(int $uid, int $routeId, int $sec): void
     } catch (Throwable $e) {}
 }
 
+/** Start the scene of a new walk: section 1, the gnome at the entry. Never breaks the start if it fails. Returns true when made. */
 function trail_scene_make(int $uid, int $expId, array $route, bool $rev = false): bool
 {
     try {
@@ -616,9 +615,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         if (!empty($map['art']) && trail_art_ready($map['art']) && ($mid[0] !== $sc['x'] || $mid[1] !== $sc['y'])) $tokens[] = [(int)$mid[0], (int)$mid[1], '🔓', 'gold', false];
     }
     $sightMarks = [];   // v2.6.68 Trail Sights: where a Sight is ready (a gold ! over the landmark)
-    $sightAll = function_exists('trail_sights_marks') && !$busy ? trail_sights_marks($u, $sc) : [];
+    $sightAll = !$busy ? trail_sights_marks($u, $sc) : [];
     foreach ($sightAll as $sm) $sightMarks[$sm['x'] . ',' . $sm['y']] = $sm['left'] > 0;   // 2.7.01: a used-up Sight keeps a faded spyglass (false)
-    $folkMap = !$busy && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
+    $folkMap = !$busy ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
     $folkTiles = []; foreach ($folkMap as $fi => $fe) $folkTiles[$fe[0] . ',' . $fe[1]] = $fi;   // tap a villager: their card   // villagers out and about at a Sight now
     $gate = trail_gate($sc);
     $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);
@@ -646,7 +645,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $art = !empty($map['art']) && trail_art_ready($map['art']);   // an authored section with its baked picture: the Hearth Pop v3 look
     $tints = !$art && !empty($map['art']) ? trail_decor_tints($map['art']) : [];   // 2026-11-14: no ground picture: the fallback look takes the section's decor colours (an empty list draws exactly the old look)
     $svg = $art
-        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'sights' => $sightMarks, 'folk' => $folkMap, 'escort' => $fightOver ? '' : trail_escort_pic((string)($sc['st']['escort'] ?? '')), 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'escort' => $fightOver ? '' : trail_escort_pic((string)($sc['st']['escort'] ?? '')), 'pals' => $fightOver ? [] : trail_pal_urls($u)])
+        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'sights' => $sightMarks, 'folk' => $folkMap, 'escort' => $fightOver ? '' : trail_escort_pic((string)($sc['st']['escort'] ?? '')), 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)])
         : tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
             'light' => 8, 'tints' => $tints, 'tokens' => $tokens, 'sights' => $sightMarks, 'folk' => $folkMap, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'escort' => trail_escort_pic((string)($sc['st']['escort'] ?? '')), 'pals' => $fightOver ? [] : trail_pal_urls($u)]);   // fight_scene: the fight stage draws the gnome
     // v2.5.51: a wider picture covering the whole walk, shown only while the gnome walks (assets/tilemap.js keeps the camera on the gnome, like the delve maps)

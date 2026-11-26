@@ -392,7 +392,7 @@ admin_crumbs('jigsaw.php');
     <p class="help">Everyone gets the same scramble. Best time counts. A run handed in faster than <?= PUZZLE_MIN_MS_PER_PIECE / 1000 ?> s a piece, with fewer drops than pieces − 1, or more than <?= PUZZLE_GRACE_S / 60 ?> minutes after the end is rejected.
       Results are settled <?= PUZZLE_GRACE_S / 60 ?> minutes after the end: 🏆 gold, silver, bronze and an “entered” badge (cosmetic only). Only gallery pictures can be used (never a Places picture). Reserve the picture in the Library first if you don’t want players practising it.</p>
 <?php $helpHtml = (string)ob_get_clean();
-    $btns = '<button class="btn">Save</button>' . ($cur ? '' : ' <button class="btn" name="do" value="tour_cup" title="Three tournaments (Easy, Advanced, Expert) with the same picture, times and status">Make all three tiers</button>');
+    $btns = '<button class="btn">Save</button>';
     $hid = $cur ? '<input type="hidden" name="do" value="tour_save"><input type="hidden" name="id" value="' . (int)$f['id'] . '">' : '<input type="hidden" name="id" value="0">';
     // a new tournament has no hidden "do": the two buttons carry it (Save = tour_save, the cup button = tour_cup)
     if (!$cur) $btns = '<button class="btn" name="do" value="tour_save">Save</button> <button class="btn" name="do" value="tour_cup" title="Three tournaments (Easy, Advanced, Expert) with the same picture, times and status">Make all three tiers</button>';

@@ -324,7 +324,7 @@ function pf_box_check(array $keys, int $cap): ?string
     return null;
 }
 
-/** Foe temperament: gentle creatures take Charm well (charm x1) and Hurt less well (x PF_GENTLE_HM = 0.8); hostile take Hurt x1 and Charm x PF_HOSTILE_CM = 0.6. */
+/** Foe temperament: gentle creatures take Charm well (charm x1) and Hurt less well (x PF_GENTLE_HM = 0.8); hostile take Hurt x1 and Charm x PF_HOSTILE_CM = 0.8. */
 function pf_temper(array $c): string
 {
     if (!empty($c['temper'])) return (string)$c['temper'];
@@ -447,7 +447,6 @@ function pf_open(array $s): array
     return [$x['tile'], $x['by']];
 }
 
-/** Resolve a list of tiles for one side onto the strip. Mutates state, returns events for the client. */
 /**
  * What one tile does when it fires for $who (shared by the strip engine and the board engine). $e is its event (filled in).
  * $root: this is the tile just played (draw/steal/lucky effects only happen then, not when an older tile fires again). $seam: Riposte across the seam applies (strip only).
@@ -556,6 +555,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
     unset($mine, $theirs);
 }
 
+/** Resolve a list of tiles for one side onto the strip. Mutates state, returns events for the client. */
 function pf_resolve(array &$s, string $who, array $tiles): array
 {
     $ev = [];
@@ -707,7 +707,6 @@ function pf_plan_score(array $s, array $tiles): float
     return $sc;
 }
 
-/** After the foe's reply: player's next turn begins. Refill hands, bump turn, apply stall cap, refresh intent and redraws. */
 /** The creature recovers $val. 2.6.989 (one shared bar): the heal takes the Yield bar down, the Hurt part first, then the Charm part; two bars (a 2.6.94 fight): only the health bar. */
 function pf_foe_heal(array &$s, float $val): float
 {   // the creature takes back progress on the yield bar: damage first, then charm. Returns what it actually took back (never more than the bar held)
@@ -717,6 +716,7 @@ function pf_foe_heal(array &$s, float $val): float
     return max(0.0, $d + $c);
 }
 
+/** After the foe's reply: player's next turn begins. Refill hands, bump turn, apply stall cap, refresh intent and redraws. */
 function pf_end_turn(array &$s): void
 {
     pf_draw($s, 'foe', $s['foe']['hsize']);

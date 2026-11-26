@@ -442,9 +442,3 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
     }
     return $out . '</div>';
 }
-
-/** Loads assets/hubscene.js (the layout calls this from page_header's script list for picture pages). */
-function hub_script_tag(): string
-{
-    return '<script src="' . e(url('assets/hubscene.js?v=' . APP_VERSION)) . '" defer></script>';
-}

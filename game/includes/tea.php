@@ -150,10 +150,8 @@ function tea_caps(): array
 {
     $m = 3; $s = 2;
     try {
-        if (function_exists('setting')) {
-            if (($v = setting('tea_cap_main')) !== '') $m = max(0, (int)$v);
-            if (($v = setting('tea_cap_side')) !== '') $s = max(0, (int)$v);
-        }
+        if (($v = setting('tea_cap_main')) !== '') $m = max(0, (int)$v);
+        if (($v = setting('tea_cap_side')) !== '') $s = max(0, (int)$v);
     } catch (Throwable $e) {}
     return [$m, $s];
 }

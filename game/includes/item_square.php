@@ -4,7 +4,7 @@ declare(strict_types=1);
  * v2.0.67: the item square (approved mockup 4, claude/art-variants/mockup4). ONE renderer for every item grid: Satchel, trek pack,
  * shop Buy / Sell and every shop_tile() user (market, market day, festival, village stalls, landmarks, Curio Cabinet, Dye Pot).
  * Wave 2 (crafting ingredient chips, the gift picker, garden / town pickers) reuses it as it is. CSS: the .itm block in
- * assets/style.css (source claude/build/css-items.css); art: assets/img/items/ plus img/acts (felt-off, badges) and img/town (star).
+ * assets/style.css (the .gvs-tint and .itm blocks); art: assets/img/items/ plus img/acts (felt-off, badges) and img/town (star).
  * Classes only, never a style attribute (strict CSP).
  *
  * item_square(array $o): string returns ONE element, the square itself (.itm). The caller wraps it when it needs a cell:
@@ -13,7 +13,7 @@ declare(strict_types=1);
  *   picker      <button class="itm pcard gcard" data-id=".." aria-pressed="false">...</button>   (wave 2: no wrapper needed)
  * and puts the squares in item_grid(): <div class="itmwrap"><div class="itms">...</div></div> (3 / 4 / 5 / 6 columns by the grid's own width).
  * Wave 2 users: crafting ingredients (tag 'div', class 'ccing'), gift_picker_html() (friends.php), garden picker_html() (its counter and steps ride in 'vh'),
- * town_pickers() (place_ui.php), market-day basket picks (tag 'span' inside <label class="mkopt itmcell"> with the checkbox). CSS: claude/build/css-items2.css.
+ * town_pickers() (place_ui.php), market-day basket picks (tag 'span' inside <label class="mkopt itmcell"> with the checkbox). CSS: assets/style.css.
  *
  * Options (all optional except item or name):
  *   item        array   an items row (id, slug, name, category, effects, rarity, image): picture, rarity and name come from it

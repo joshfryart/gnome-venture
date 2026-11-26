@@ -87,12 +87,6 @@ function pfv_pc(array $p, array $o = []): string
 
 function pfv_slot(string $txt): string { return '<li><div class="slot">' . $txt . '</div></li>'; }
 
-function pfv_cap_pips(int $n, int $max, string $cls, string $lab): string
-{
-    $h = ''; for ($i = 0; $i < $max; $i++) $h .= '<i' . ($i < $n ? ' class="on"' : '') . '></i>';
-    return '<span class="capp ' . $cls . '" role="img" aria-label="' . $lab . ' ' . $n . ' of ' . $max . '" title="' . $lab . ' ' . $n . ' of ' . $max . '">' . $h . '</span>';
-}
-
 function pfv_durbar(int $left, int $max): string
 {
     $f = $max > 0 ? $left / $max : 0;

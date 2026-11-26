@@ -1471,7 +1471,7 @@ function schema_statements(string $driver): array
         ['users', 'dest_chain', 'SMALLINT NOT NULL DEFAULT 0'],           // legs auto-started on this journey
         ['users', 'dest_legs', 'SMALLINT NOT NULL DEFAULT 0'],            // legs in the route when set off
         ['users', 'dest_trail', 'TEXT NULL'],                              // v0.9.5 stops already passed on this journey (location ids, comma separated)
-        ['users', 'last_cooked_id', "$ID NULL"],                       // v0.7.99 the last dish cooked (a visitor can smell it)                              // v0.7.98 where the gnome is heading           // v0.7.96 free mends used on free_mend_day
+        ['users', 'last_cooked_id', "$ID NULL"],                       // v0.7.99 the last dish cooked (a visitor can smell it)
         ['users', 'ev_amt', 'INT NOT NULL DEFAULT 0'],
         ['users', 'ev_until', 'DATETIME NULL'],
         ['users', 'ev_day', 'INT NULL'],
@@ -1512,7 +1512,7 @@ function schema_statements(string $driver): array
         ['landmarks', 'ruined', 'INT NOT NULL DEFAULT 0'],                // v0.7.87 1 = this haven, wonder or delve started in ruins (closed until repaired)
         ['landmarks', 'restored_by', 'INT NULL'],
         ['users', 'muted_until', 'DATETIME NULL'],                   // v0.7.28 moderation
-        ['users', 'banned_until', 'DATETIME NULL'],            // v0.7.27 grow times rescaled (1 = done)
+        ['users', 'banned_until', 'DATETIME NULL'],
         ['expeditions', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'walk'"],   // v0.7.25 walk or explore
         ['expeditions', 'depth', 'INT NOT NULL DEFAULT 0'],
         ['expeditions', 'chain', 'VARCHAR(40) NULL'],   // v2.0.79: the road card that follows on the next space (a chain)
@@ -1550,12 +1550,12 @@ function schema_statements(string $driver): array
         ['regions', 'min_level', 'INT NOT NULL DEFAULT 1'],
         ['user_encyclopedia', 'read_at', 'DATETIME NULL'],
         ['user_items', 'got_at', 'DATETIME NULL'],
-        ['npcs', 'image', 'VARCHAR(255) NULL'],
-        ['plot_tiles', 'harvests', 'INT NOT NULL DEFAULT 0'],
-        ['quest_chapters', 'locks', 'VARCHAR(255) NULL'],                // v0.7.66 places closed until the chapter is finished          // v0.7.64 how many times this perennial has been harvested
-        ['cellar_plants', 'harvests', 'INT NOT NULL DEFAULT 0'],                   // v0.7.61 a portrait (until then a red placeholder)
-        ['cellar_plants', 'age_seconds', 'INT NOT NULL DEFAULT 0'],      // v0.7.61 a perennial's age pauses in the cellar                 // v0.7.61 satchel sort: last time you gained some
-        ['users', 'arrived_at', 'DATETIME NULL'],                  // v0.7.48 a "visit" to a village starts when you arrive         // v0.7.48 so Wren can suggest a page you haven't read      // v0.7.43 recommended level: the way out from the Maplewold    // v0.7.35 others may visit my gardens                  // v0.7.15 show and carving placings                     // v0.7.9 player-posted jobs              // v0.7.8 daily jobs finished (streak bonus)
+        ['npcs', 'image', 'VARCHAR(255) NULL'],   // v0.7.61 a portrait (until then a red placeholder)
+        ['plot_tiles', 'harvests', 'INT NOT NULL DEFAULT 0'],   // v0.7.64 how many times this perennial has been harvested
+        ['quest_chapters', 'locks', 'VARCHAR(255) NULL'],   // v0.7.66 places closed until the chapter is finished
+        ['cellar_plants', 'harvests', 'INT NOT NULL DEFAULT 0'],
+        ['cellar_plants', 'age_seconds', 'INT NOT NULL DEFAULT 0'],   // v0.7.61 a perennial's age pauses in the cellar
+        ['users', 'arrived_at', 'DATETIME NULL'],   // v0.7.48 a "visit" to a village starts when you arrive
         ['users', 'road_recent', 'TEXT NULL'],                        // v1.9.3: the last picks on the road (tiny JSON), so the road does not repeat itself
         ['problems', 'cond', 'VARCHAR(190) NULL'],                    // v1.9.3: optional time/season/weather tag (rest-stop syntax; "!" = must hold)
         ['creatures', 'cond', 'VARCHAR(190) NULL'],
@@ -1588,7 +1588,7 @@ function schema_statements(string $driver): array
     [$pzt, $pzi, $pzc] = puzzles_schema($PK, $ID, $END);
     require_once __DIR__ . '/puzzle_pals.php';   // v2.0.88: Puzzle Pals (releases, finds, trophies, users.ppal_*)
     [$ppt, $ppi, $ppc] = ppal_schema($PK, $ID, $END);
-    require_once __DIR__ . '/gourmand.php';   // next version: the Gourmand's ledger and cook_pots.score
+    require_once __DIR__ . '/gourmand.php';   // the Gourmand's ledger and cook_pots.score
     [$gmt, $gmi, $gmc] = gourmand_schema($PK, $ID, $END);
     require_once __DIR__ . '/here_schema.php';   // graphical navigation: here_layouts + users.start_page
     [$hrt, $hri, $hrc] = here_schema($PK, $ID, $END);

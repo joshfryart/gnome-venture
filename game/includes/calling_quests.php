@@ -454,7 +454,7 @@ function calling_start(array $u, int $chapterId): array
 }
 
 /**
- * Next version: where a calling's mentor keeps their lodge. ['region' => regions row, 'loc' => the town's market stop (where a fast
+ * where a calling's mentor keeps their lodge. ['region' => regions row, 'loc' => the town's market stop (where a fast
  * travel lands, and where npc_here() finds them), 'lodge' => the lodge's name] or null.
  */
 function calling_mentor_place(string $calling): ?array
@@ -468,7 +468,7 @@ function calling_mentor_place(string $calling): ?array
 }
 
 /**
- * Next version: can this gnome take the free trip to their mentor for this chapter? '' = yes (show the button), otherwise why not.
+ * can this gnome take the free trip to their mentor for this chapter? '' = yes (show the button), otherwise why not.
  * Only for a chapter that is offered and not yet taken (state 'available'), only to a town the gnome could fast-travel to anyway
  * (can_fast_travel: home, a garden there, or been there), never while a walk, a trip into the wilds, a delve, a lair, a trek
  * or a tending shift holds them (travel_blocked), never for guests, and not when they are already with the mentor.
@@ -477,7 +477,7 @@ function calling_mentor_place(string $calling): ?array
 function calling_mentor_trip_check(array $u, array $ch, ?array $st = null): string
 {
     require_once __DIR__ . '/world.php';
-    if (function_exists('is_guest') && is_guest($u)) return 'Guests can’t take on calling chapters.';
+    if (is_guest($u)) return 'Guests can’t take on calling chapters.';
     $st ??= calling_status($u, $ch);
     if ($st['state'] !== 'available') return $st['state'] === 'active' ? 'You’ve already taken this chapter on.' : ($st['why'] !== '' ? $st['why'] : 'This chapter isn’t on offer.');
     $npc = calling_mentor((string)$ch['calling']);
@@ -490,7 +490,7 @@ function calling_mentor_trip_check(array $u, array $ch, ?array $st = null): stri
 }
 
 /**
- * Next version: the free trip to the mentor, to take a chapter on. No Petals, no energy, no time. Lands on the mentor's town market,
+ * the free trip to the mentor, to take a chapter on. No Petals, no energy, no time. Lands on the mentor's town market,
  * like a fast travel: location, location_id and arrived_at, the region visit (already there: can_fast_travel needs it) and the
  * place's Almanac page, as arrive() does. On purpose it fires no 'travel', 'arrive' or 'walk' calling event (and so
  * no Hollow jar event for them): the trip is free and can be taken again, so it must never count as walking or travelling for a task

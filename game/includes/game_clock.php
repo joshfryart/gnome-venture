@@ -3,7 +3,7 @@
  * Sleep-days: each gnome's personal game clock (design: claude/plan-sleep-days.md, section 13 and decisions 1-51).
  * users.game_day  = the day counter (+1 per sleep).
  * users.game_minute = minutes since 00:00 of the current game day (360 = 06:00 wake). May pass 1440 in a long action.
- * Nothing calls this yet; the real clock (hollow_clock.php) is unchanged.
+ * Live: started by the boot step sleep_days_start_2609 and used by gclock_rest_do (sleep, naps, resting); the real clock (hollow_clock.php) is unchanged.
  */
 
 const GAME_WAKE_MINUTE = 360;    // 06:00
@@ -146,7 +146,7 @@ function game_nap(int $uid): ?array
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Garden growth on game-days (decisions 12, 52, 53). Behind the setting game_clock_on (default off).
+// Garden growth on game-days (decisions 12, 52, 53). Behind the setting game_clock_on (default on).
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** SQL for "the game_day of the gnome who owns this tile's plot", for UPDATE plot_tiles ... SET grow_day = (...). */
@@ -239,7 +239,7 @@ function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Where a gnome can rest (decisions 21-25, 26-28, 30-33). Settings: inn_fee_petals 110, inn_chore_minutes 240,
-// bench_sleep_energy_pct 30, villager_sleep_friend_level 3 (index in FRIEND_LEVELS), camping_gear_nap_charges 2.
+// bench_sleep_energy_pct 30, villager_sleep_friend_level 4 (index in FRIEND_LEVELS), camping_gear_nap_charges 2.
 // ---------------------------------------------------------------------------------------------------------------------
 
 function gclock_setting_int(string $name, int $default): int
@@ -317,10 +317,8 @@ function gclock_rest_options(array $u): array
     $need = gclock_setting_int('villager_sleep_friend_level', 4);
     $host = null;
     require_once __DIR__ . '/friends.php';
-    if (function_exists('friend_level')) {
-        foreach (q('SELECT n.name, f.points FROM npcs n JOIN npc_friends f ON f.npc_id = n.id AND f.user_id = ? WHERE n.home_location_id = ?', [$uid, (int)$u['location_id']])->fetchAll() as $r) {
-            if (friend_level((int)$r['points'])['index'] >= $need) { $host = $r['name']; break; }
-        }
+    foreach (q('SELECT n.name, f.points FROM npcs n JOIN npc_friends f ON f.npc_id = n.id AND f.user_id = ? WHERE n.home_location_id = ?', [$uid, (int)$u['location_id']])->fetchAll() as $r) {
+        if (friend_level((int)$r['points'])['index'] >= $need) { $host = $r['name']; break; }
     }
     $opt('villager', $host ? 'Stay with ' . $host : 'Stay with a friendly villager', 'sleep', 'free', $host !== null, 'A villager here must be a ' . (FRIEND_LEVELS[$need][1] ?? 'closer friend') . ' first.');
     return $out;
@@ -494,7 +492,7 @@ function game_new_day(int $uid): void
 {
     if (!gclock_on()) return;
     gclock_freeze_pals_real($uid);
-    gclock_pal_mornings($uid, true);   // 2.7.xx: pal work is credited per 06:00 morning, not per sleep; a sleep lands on one new 06:00
+    gclock_pal_mornings($uid, true);   // pal work is credited per 06:00 morning, not per sleep; a sleep lands on one new 06:00
     require_once __DIR__ . '/pal_crew.php';
     pcrew_save_report($uid, (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]), ['slept' => true]);   // v2.6.40: the Hovel Today tab opens on this
     pcrew_night($uid);   // v2.6.40: the garden crew works the night (water, weed, pests, harvest)
@@ -773,7 +771,7 @@ function gclock_settings(): array
 }
 
 /**
- * THE ONE-TIME START (run only when Josh says; nothing calls it). Puts a gnome's game date on today's Hollow date (so festival windows,
+ * THE ONE-TIME START (called once by the boot step sleep_days_start_2609 (bootstrap.php:616)). Puts a gnome's game date on today's Hollow date (so festival windows,
  * stop_log days and seasons line up at the moment the flag is turned on) at 06:00, and clears any carried work.
  * Returns the number of gnomes changed. Safe to run twice (it sets, it does not add).
  */

@@ -6,8 +6,8 @@ declare(strict_types=1);
  *   The target is stored in game_state, so it stays put all day even if the gnome levels up.
  * - The riddle is built from the place's own facts (region, landscape, the land two steps out). Clues 1 and 2 show at once;
  *   clue 3 and the postmark's first letter come with the "Read the postmark" hint.
- * - Standing at the target and lifting the stone claims the letter: 80 Petals (+40 if the postmark was read), 15 XP,
- *   a warm letter, one a day (40 Petals instead if the postmark was read). Looking in the wrong place costs nothing.
+ * - Standing at the target and lifting the stone claims the letter: 80 Petals (40 instead if the postmark was read), 15 XP,
+ *   a warm letter, one a day. Looking in the wrong place costs nothing.
  */
 
 require_once __DIR__ . '/games.php';

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Rebuild a landmark (v0.7.29): a monthly job on the Job Board.
+ * Rebuild a landmark (v0.7.29): repairs. The monthly Job Board job is retired since v0.7.77 (old jobs still run through rebuild_hand_in).
  * A haven, wonder or delve in your home region has fallen into ruin. Four stages, each handed in at once:
  *   1 foundations (dressed stone + Petals) · 2 the frame (timber + rope) · 3 feed the crew (home-cooked meals)
  *   4 finishing touches (fine finds + Petals).
@@ -613,10 +613,10 @@ function repair_box(array $u, array $repair, string $back): string
     return $h;
 }
 
-/** v2.0.76: the little picture for a stage verb. PLACEHOLDER art until the real icons are drawn (see claude/todo-art-variety.md). */
+/** v2.0.76: the little picture for a stage verb. BUILD_VERB_ART is an empty override map (a verb borrowing another verb's picture goes there). */
 function build_verb_img(string $verb): string
 {
     $verb = isset(BUILD_VERBS[$verb]) ? $verb : 'haul';
-    $file = BUILD_VERB_ART[$verb] ?? $verb;   // 2.7.06: borrowed picture until the new ones are drawn
+    $file = BUILD_VERB_ART[$verb] ?? $verb;   // BUILD_VERB_ART is an empty override map: each verb uses its own picture
     return '<img class="ico pix buildverb" src="' . e(art_url('assets/img/steps/stage-' . $file)) . '" alt="' . e(BUILD_VERBS[$verb]) . '" title="' . e(BUILD_VERBS[$verb]) . '" width="20" height="20" loading="lazy" decoding="async"> ';
 }

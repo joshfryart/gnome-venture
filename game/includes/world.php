@@ -188,7 +188,7 @@ function ensure_shop_food(): void
             $vid = db_insert('items', ['name' => mb_substr($row['name'] . ' (shop-bought)', 0, 80), 'slug' => $slug, 'category' => 'food',
                 'description' => trim((string)$row['description']) . ' Bought at a shop: less filling than home cooking, and worth less.',
                 'rarity' => (int)$row['rarity'], 'base_price' => max(1, (int)floor(max(1, (int)$row['price_min']) * 0.5)),
-                // v0.9.1a: shop-bought copies give 1-2 energy (home cooking gives more)
+                // v0.9.1a: shop-bought copies give shop_food_energy_pct of the dish, 1-4 energy (home cooking gives more)
                 'edible' => (int)$row['edible'], 'effects' => shop_food_effects($row['effects']), 'tradable' => (int)$row['tradable'], 'max_stack' => (int)$row['max_stack']]);
         }
         q('UPDATE shop_stock SET item_id = ? WHERE id = ?', [$vid, $row['stock_id']]);
@@ -230,7 +230,7 @@ function staff_on_duty(int $shopId): array
     // 2.7.01 clockwork: a keeper who is out on one of their doings (or away today) is spelled by a free neighbour from the same town
     require_once __DIR__ . '/npc_clockwork.php';
     foreach ($out as $id => $r) {
-        if (!npc_cw_on() || (!npc_cw_out('n' . $id) && !(function_exists('gclock_npc_away') && gclock_npc_away('n' . $id)))) continue;
+        if (!npc_cw_on() || (!npc_cw_out('n' . $id) && !gclock_npc_away('n' . $id))) continue;
         unset($out[$id]);
         if (($c = npc_cw_shop_cover($shopId, $day, (float)$hour)) && !isset($out[$c['id']])) $out[$c['id']] = ['id' => $c['id'], 'name' => $c['name'], 'slug' => $c['slug'], 'species' => $c['species'], 'personality' => $c['personality'],
             'days' => 'all', 'start_hour' => 0, 'end_hour' => 0, 'covering' => $r['name']];
@@ -364,7 +364,7 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
     $slugB = (string)q_val('SELECT slug FROM items WHERE id = ?', [(int)$s['item_id']]);
     if (($needB = pfd_belt_level_need($slugB)) > (int)($u['level'] ?? 1)) return [false, 'The ' . $s['name'] . ' needs gnome level ' . $needB . '. Come back when you are old enough to wear it.'];
     require_once __DIR__ . '/wearables.php';
-    if ($wb = wear_shop_block($u, $slugB)) return [false, $wb];   // 2.7.xx: the regional outfitters (setting + region level)
+    if ($wb = wear_shop_block($u, $slugB)) return [false, $wb];   // the regional outfitters (setting + region level)
     if (!shop_reachable($u, ['location_id' => $s['location_id']])) return [false, 'You need to be in that town first.'];
     if ($why = gclock_closed_reason($u, $s)) return [false, $why];
     if (!staff_on_duty((int)$s['sid'])) return [false, 'Nobody is at the counter right now.'];
@@ -419,7 +419,7 @@ function shop_discount_pct(array $u, int $shopId, int $itemId = 0): int
 
 function charm_price(array $u, int $price, bool $buying): int
 {
-    $m = function_exists('eff_mod') ? eff_mod($u, 'charm') : 0;
+    $m = eff_mod($u, 'charm');
     $f = $buying ? 1 - 0.02 * $m : 1 + 0.02 * $m;
     return max(1, (int)round($price * max(0.5, min(1.5, $f))));
 }

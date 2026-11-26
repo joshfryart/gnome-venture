@@ -36,8 +36,8 @@ page_header('Trail decor', true);
 <?php if ($art): $cur = trail_decor(array_merge($art, ['decor' => trail_decor_edit($rid, $sec) ?? ($art['decor'] ?? null)])); $edited = trail_decor_edit($rid, $sec) !== null; $w = strlen((string)$art['rows'][0]); $h = count($art['rows']); ?>
   <h2>Route <?= (int)$rid ?>, section <?= (int)$sec ?> <small>(<?= $w ?> × <?= $h ?> tiles, x across, y down from 0)</small><?= $edited ? ' <span class="pchip">edited here</span>' : '' ?></h2>
   <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="route" value="<?= (int)$rid ?>"><input type="hidden" name="sec" value="<?= (int)$sec ?>">
-    <?php foreach (TDE_RECT_FIELDS as $f => $lab): ?><label><?= e($lab) ?> <small>(one per line: kind x0 y0 x1 y1; no overlaps)</small><textarea name="<?= e($f) ?>" rows="5" style="width:100%"><?= e(tde_lines($cur, $f)) ?></textarea></label><?php endforeach; ?>
-    <label>Props <small>(one per line: kind x y)</small><textarea name="props" rows="5" style="width:100%"><?= e(tde_lines($cur, 'props')) ?></textarea></label>
+    <?php foreach (TDE_RECT_FIELDS as $f => $lab): ?><label><?= e($lab) ?> <small>(one per line: kind x0 y0 x1 y1; no overlaps)</small><textarea name="<?= e($f) ?>" rows="5"><?= e(tde_lines($cur, $f)) ?></textarea></label><?php endforeach; ?>
+    <label>Props <small>(one per line: kind x y)</small><textarea name="props" rows="5"><?= e(tde_lines($cur, 'props')) ?></textarea></label>
     <label>Rough default <input name="rough_default" maxlength="20" value="<?= e((string)($cur['rough_default'] ?? '')) ?>"> <small>what rough tiles outside the rectangles are</small></label>
     <label>Tree <input name="tree" maxlength="20" value="<?= e((string)($cur['tree'] ?? '')) ?>"></label>
     <p class="help">Known kinds: <?= e(implode(', ', tde_kinds())) ?>. Any other lowercase word is kept but has no colour in the fallback look.</p>

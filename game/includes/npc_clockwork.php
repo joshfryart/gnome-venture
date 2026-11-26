@@ -40,9 +40,9 @@ function npc_cw_on(): bool
 function npc_cw_clock(): array
 {
     if (!empty($GLOBALS['gv_cw_time'])) return $GLOBALS['gv_cw_time'] + [2 => 20000];
-    $d = function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d');
+    $d = gclock_my_date();
     $min = 0;
-    try { if (function_exists('gclock_me') && ($s = gclock_me()) && isset($s['minute'])) $min = (int)$s['minute'] % 60; } catch (Throwable $e) {}
+    try { if (($s = gclock_me()) && isset($s['minute'])) $min = (int)$s['minute'] % 60; } catch (Throwable $e) {}
     return [gclock_my_dow(), gclock_my_hour() + $min / 60, (int)floor(strtotime($d . ' 00:00:00 UTC') / 86400)];
 }
 
@@ -399,12 +399,12 @@ function npc_cw_shop_cover(int $shopId, ?int $dow = null, ?float $hour = null): 
         $sh = npc_cw_shift((int)$k['npc_id']);
         if (empty($sh[$dow][(int)floor($hour)])) continue;
         $keeper = $k;
-        if (!npc_cw_state('n' . $k['npc_id'], $dow, $hour)['out'] && !(function_exists('gclock_npc_away') && gclock_npc_away('n' . $k['npc_id']))) return null;   // on shift and in
+        if (!npc_cw_state('n' . $k['npc_id'], $dow, $hour)['out'] && !gclock_npc_away('n' . $k['npc_id'])) return null;   // on shift and in
     }
     if (!$keeper) return null;
     $cand = array_values(array_filter(q("SELECT n.* FROM npcs n LEFT JOIN locations l ON l.id = n.home_location_id WHERE n.active = 1 AND n.traveller IS NULL AND l.region = ? ORDER BY n.id", [(string)$keeper['region']])->fetchAll(),
         fn($n) => (int)$n['id'] !== (int)$keeper['npc_id'] && empty(npc_cw_shift((int)$n['id'])[$dow][(int)floor($hour)]) && !npc_cw_state('n' . $n['id'], $dow, $hour)['out']
-            && !npc_cw_mode_fixed((string)$n['name']) && !(function_exists('gclock_npc_away') && gclock_npc_away('n' . $n['id']))));
+            && !npc_cw_mode_fixed((string)$n['name']) && !gclock_npc_away('n' . $n['id'])));
     if (!$cand) return null;
     return $cand[(int)floor(hollow_unit('cwcover|' . $shopId . '|' . $cdi) * count($cand)) % count($cand)];
 }

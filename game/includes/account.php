@@ -12,7 +12,7 @@ function mail_clean(string $v): string
 
 /**
  * Send an email. Uses SMTP when config.php has smtp_host (plus smtp_port, smtp_user, smtp_pass, smtp_from), otherwise mail().
- * If sending fails (or on a PC) it's written to data/mail-log.txt instead, readable in Admin → Tools.
+ * If mail_mode is log, or sending fails, it's written to data/mail-log.txt instead, readable in Admin → Tools.
  * $extra: more header lines as [name => value] (e.g. List-Unsubscribe). Newlines are stripped from every header.
  */
 function send_mail(string $to, string $subject, string $body, array $extra = []): bool

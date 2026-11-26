@@ -95,7 +95,7 @@ if (!isset($STEPS[$step]) || !in_array($step, $ok, true)) {
 $preview = ['hat_color' => $wf['hat'], 'beard_color' => $wf['beard'], 'gnome_name' => $wf['name'], 'username' => $u['username']];
 $region = $wf['region_id'] ? q_one('SELECT * FROM regions WHERE id = ?', [$wf['region_id']]) : null;
 
-/** Seed chips: "🫛 Soybean ×2" (kept for callers outside the redesigned welcome flow) */
+/** Seed chips for the place and garden steps */
 function seed_chips(array $list): string
 {
     $out = '';

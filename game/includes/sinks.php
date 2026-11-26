@@ -447,7 +447,7 @@ function sink_shop_post(array $u, array $shop, string $do, bool $reachable): arr
 function sink_help_html(): string
 {
     return '<details class="helpfold"><summary>❓ More ways to spend Petals</summary><ul class="help">'
-        . '<li>🗝️ <b>Curio Cabinet</b> (Hedge &amp; Hearth): five rare yard pieces that change every Monday.</li>'
+        . '<li>🗝️ <b>Curio Cabinet</b> (Hedge &amp; Hearth): ' . (int)setting('curio_count') . ' rare yard pieces that change every Monday.</li>'
         . '<li>🎨 <b>Building looks</b>: Garden page → Garden buildings → tap a building.</li>'
         . '<li>🪧 <b>Signposts</b>: Garden page → Signpost, one per garden.</li>'
         . '<li>🎩 <b>Hat and beard dyes</b>: the Dye Pot, then My Gnome → Hat and beard dyes.</li>'

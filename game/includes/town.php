@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * Town squares (v0.7.20).
  * Every region's market town (and the Mossbottom hub) has places to go: the Green, a teahouse, the notice board, the library,
- * and two places found only in that region. Each place has a few things to do (town_actions), most a few times a day.
+ * and two places found only in that region. Each place has a few things to do (town_actions).
  * Places and actions live in the database (Admin → Town places), first filled from includes/data/towns.txt.
  */
 
@@ -30,7 +30,7 @@ const TOWN_FLAVOUR = [
 
 /**
  * Festivals (v0.7.31): one day a month in each town (Hollow time). On festival day everything in that town's square
- * pays twice, and there's a festival stall on the Green with a free treat once a day.
+ * pays twice, and there's a festival stall on the Green with a free treat any time.
  * town => [festival name, icon, day of the month, blurb]
  */
 const TOWN_FESTIVALS = [

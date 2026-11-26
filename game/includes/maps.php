@@ -12,7 +12,7 @@ require_once __DIR__ . '/items.php';   // v1.5.2: ph_img (placeholders)
 require_once __DIR__ . '/adventure.php';
 require_once __DIR__ . '/world.php';
 require_once __DIR__ . '/climate.php';   // v0.8.9
-require_once __DIR__ . '/maps_myc.php';   // v1.6.0: mycelium maps (admin setting map_style; 'classic' keeps the functions below)
+require_once __DIR__ . '/maps_myc.php';   // v1.6.0: mycelium maps (map_style: fallback style when a map picture is missing; classic keeps the functions below)
 
 // Region code => [x, y, land colour, blob radius] on a 1000 × 560 map, roughly where they sit on Earth.
 const REGION_MAP = [
@@ -834,7 +834,7 @@ function region_panel(array $u, int $regionId): string
             . '<button class="btn small">🧭 Travel here' . ($cost ? ' · ' . money($cost) . ' · ⚡' . (int)setting('travel_energy') : ($freeJ ? ' (free: your Journey project)' : ' (free: home)')) . '</button></form>';
     }
     $h .= '</p>';
-    $regFold = function_exists('dock_on') && dock_on($u);   // v2.8.07: landscape dock: the roads and places sit in a fold, closed
+    $regFold = dock_on($u);   // v2.8.07: landscape dock: the roads and places sit in a fold, closed
     if ($regFold) $h .= '<details class="regfold"><summary>Roads and places</summary>';
     if ($town) {
         $h .= '<h3>🏘️ <a href="' . e(url('world.php?go=' . (int)$town['id'] . '#gopanel')) . '">' . e($town['name']) . '</a></h3>';   // v0.7.98

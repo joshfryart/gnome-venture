@@ -4,7 +4,7 @@ declare(strict_types=1);
  * Lair family layer (2.7.01): "Footprint tracker" (proposal-route-sights.md, lair end pieces). Above a section that has a lair Sight (a mark whose slug starts `end-lair-`) a strip shows
  * (1) how old the tracks are: days since the last full moon (0-5 fresh, 6-13 fading, 14+ old; tracks are freshest after a full moon), as a row of prints in words too, (2) a line per lair mouth
  * (tracks read this cooldown or not, and whether it is a track-reading Sight with a hint), (3) the true creature hint of the lair ahead (same source as `hint=creature`) and the Long Looker tally,
- * and up to 2 villager chips from npc_cw_sight_lines. Pure function of the clock (ctx['clock'] = [dow, hour, day index], moon.php). Style: assets/style.css "Lair family" block. No JS.
+ * and up to 2 villager chips from npc_cw_sight_lines. Reads the clock plus the gnome's and NPCs' state (ctx['clock'] = [dow, hour, day index], moon.php). Style: assets/style.css "Lair family" block. No JS.
  */
 
 /** Days since the last full moon (0..27) for a game day. */

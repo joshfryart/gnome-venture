@@ -77,7 +77,7 @@ function user_building_level(int $uid, string $b): int
 
 /**
  * v0.9.5: stacking. What a building that helps YOU gives, summed over all of this gnome's gardens: the best garden's level counts
- * fully, every other garden's level adds a smaller stack_* rate (docs/building-stacking.md). Only the Kitchen helps you; every other
+ * fully, every other garden's level adds a smaller stack_* rate. Only the Kitchen helps you; every other
  * building returns just its best level (they are per garden, and the Tool Shed stays per garden too).
  * Returns: best (level), extra (levels in the other gardens), levels (all, high to low), and for the Kitchen
  * buff_pct / xp_pct (percent extra), pots (extra pots from other gardens), feasts (best is level 3).

@@ -107,7 +107,7 @@ function local_act_buttons(array $u, array $loc, array $a, bool $locked): string
             return local_form($slug, choice_row('🔁', 'Swap ' . (int)$gq . ' × ' . $gn, 'for ' . (int)$rq . ' × ' . $rn . ($have < (int)$gq ? ' · you have ' . $have : ''), '', '', ltrim($dis ?: ($have < (int)$gq ? ' disabled' : ''))), 'choiceform');   // v1.6.3
         case 'snack':
             $sn = stop_snack($loc);
-            return $sn ? local_form($slug, choice_row('🥪', 'Buy 2 × ' . $sn[0]['name'], 'Fresh from today’s bake', [money_txt($sn[1]), 'cost'], '', ltrim($dis)), 'choiceform') : '<p class="muted">Sold out today.</p>';   // v1.6.3
+            return $sn ? local_form($slug, choice_row('🥪', 'Buy 2 × ' . $sn[0]['name'], 'Fresh from today’s bake', [money_txt($sn[1]), 'cost'], '', ltrim($dis)), 'choiceform') : '<p class="muted">Nothing to buy here today.</p>';   // v1.6.3
         case 'seedswap':
             $seeds = q("SELECT i.id, i.name, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'seed' ORDER BY i.name", [(int)$u['id']])->fetchAll();
             if (!$seeds) return '<p class="muted">You have no seeds to swap.</p>';
@@ -163,7 +163,7 @@ function local_buy_tile(array $u, array $loc, array $a, bool $isDone, bool $lock
     $spec = (string)$a['spec'];
     if ((string)$a['kind'] === 'snack') {
         $sn = stop_snack($loc);
-        if (!$sn) return '<p class="muted">Sold out today.</p>';
+        if (!$sn) return '<p class="muted">Nothing to buy here today.</p>';
         $item = q_one('SELECT * FROM items WHERE id = ?', [(int)$sn[0]['id']]);
         [$qty, $price] = [2, (int)$sn[1]];
         $blurb = 'Fresh from today’s bake';

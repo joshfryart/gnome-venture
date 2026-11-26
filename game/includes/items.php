@@ -65,7 +65,6 @@ function item_rarity(array $i, array $L): array
     return [$l, RARITY_WORDS[$l]];
 }
 
-/** Plain facts about an item, one short line each (already escaped HTML). */
 /** v0.9.0: a crop's tier and region(s), e.g. "Staple: The Maplewold · Uncommon: Mistmoor". '' if it isn't a regional crop. */
 function item_origin(array $i, array $L): string
 {
@@ -90,6 +89,7 @@ function item_origin_html(array $i, array $L): string
     return $o === '' ? '' : '<p class="iorigin">🌍 <b>' . e($o) . '</b></p>';
 }
 
+/** Plain facts about an item, one short line each (already escaped HTML). */
 function item_facts(array $i, array $L): array
 {
     $id = (int)$i['id'];
@@ -125,7 +125,7 @@ function item_facts(array $i, array $L): array
         foreach ($fx['perm'] as $k => $v) if (isset(GNOME_STATS[$k])) $pp[] = GNOME_STATS[$k][0] . ' +' . (int)$v;
         if ($pp) $f[] = e('✨ The first time you eat one: ' . implode(', ', $pp) . ' for good.');
     }
-    if (function_exists('flower_item_facts')) foreach (flower_item_facts($i) as $ff) $f[] = $ff;   // v0.9.9
+    foreach (flower_item_facts($i) as $ff) $f[] = $ff;   // v0.9.9
     if (isset($L['gather'][$id])) {
         $g = $L['gather'][$id];
         $lands = $g['landscapes'] === 'any' ? 'anywhere' : implode(', ', array_map(fn($k) => strtolower(LANDSCAPES[$k][1] ?? $k), explode(',', (string)$g['landscapes'])));
@@ -315,7 +315,7 @@ const NAME_EMOJI = [
     'cabbage' => '🥬', 'kale' => '🥬', 'spinach' => '🥬', 'pea' => '🫛', 'bean' => '🫘', 'lentil' => '🫘', 'chickpea' => '🫘', 'peanut' => '🥜',
     'hazelnut' => '🌰', 'chestnut' => '🌰', 'walnut' => '🌰', 'almond' => '🌰', 'acorn' => '🌰', 'nut' => '🥜', 'wheat' => '🌾', 'barley' => '🌾',
     'oat' => '🌾', 'rye' => '🌾', 'rice' => '🍚', 'ginger' => '🫚', 'mint' => '🌿', 'basil' => '🌿', 'parsley' => '🌿', 'dill' => '🌿',
-    'thyme' => '🌿', 'rosemary' => '🌿', 'sage' => '🌿', 'herb' => '🌿', 'radish' => '🔴', 'beet' => '🟣', 'turnip' => '⚪', 'sugar' => '🍬',
+    'thyme' => '🌿', 'rosemary' => '🌿', 'sage' => '🌿', 'herb' => '🌿', 'nettle' => '🌿', 'radish' => '🔴', 'beet' => '🟣', 'turnip' => '⚪', 'sugar' => '🍬',
     // tools and parts
     'hatchet' => '🪓', 'axe' => '🪓', 'rod' => '🎣', 'net' => '🦋', 'bucket' => '🪣', 'pick' => '⛏️', 'hoe' => '⛏️', 'spade' => '🪏', 'shovel' => '🪏',
     'trowel' => '🪏', 'fork' => '🔱', 'watering' => '🚿', 'shears' => '✂️', 'knife' => '🔪', 'scoop' => '🥄', 'basket' => '🧺',

@@ -56,7 +56,7 @@ function scene_stage(string $kind, string $key, array $units, string $id = 'stag
             'src' => $img !== '' ? url($img) : '', 'html' => (string)($u['html'] ?? ''), 'mini' => $mini !== '', 'hp' => (int)($u['hp'] ?? 0), 'max' => (int)($u['max'] ?? 0), 'ko' => !empty($u['ko'])];
     }
     $data = json_encode(['bg' => $bg !== '' ? url($bg) : '', 'units' => $out], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-    // v2.0.67: $look = ['dp' => daypart, 'we' => weather, 'baked' => bool] for the time-of-day tint (stage.js adds .gvs-tint; CSS in claude/build/css-stage.css)
+    // v2.0.67: $look = ['dp' => daypart, 'we' => weather, 'baked' => bool] for the time-of-day tint (stage.js adds .gvs-tint; CSS in assets/style.css (the .gvs-tint and .itm blocks))
     $attrs = '';
     if (isset($look['dp']) && preg_match('/^(dawn|day|dusk|night)$/', (string)$look['dp'])) $attrs .= ' data-dp="' . e((string)$look['dp']) . '"';
     if (isset($look['we']) && scene_key((string)$look['we']) !== '') $attrs .= ' data-we="' . e(scene_key((string)$look['we'])) . '"';

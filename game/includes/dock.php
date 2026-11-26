@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 /**
- * Nav dock, phase 1 (plan: claude/plan-nav-dock.md; mockup: nav_dock_mockups.html).
+ * Nav dock (plan: claude/plan-nav-dock.md; mockup: nav_dock_mockups.html).
  * The landscape bottom dock that will replace the header, status strip, bottom bar and menu sheet. Everything is additive:
- * with the setting nav_dock = 0 (the default) the game is exactly as before. 'admin' shows it to admins only (preview); '1' shows it to everyone.
- * Phase 1 draws the four menus with their tiles (the same groups, badges and unlock rules as the menu sheet: nav_groups() in layout.php), the status
- * plate with its popover, and two action pieces. Actions are plain links and strips of links; forms and bulk actions come in phase 2.
+ * the setting nav_dock defaults to '1' (on for everyone since 2.8.23); '0' turns it off, 'admin' shows it to admins only (preview).
+ * The dock draws the four menus with their tiles (the same groups, badges and unlock rules as the menu sheet: nav_groups() in layout.php), the status
+ * plate with its popover, and two action pieces. Actions are plain links and strips of links; pieces that work a form or bulk button click the page's own control (see dock_remote()).
  * The dock appears in landscape (CSS media query in assets/dock.css), on phones, tablets and desktops; portrait keeps today's chrome. On a wide screen it also folds in the right rail (pots, boosts, tasks) and the message list moves under the top of the page, as on a phone.
  * CSP: no inline styles. All positions are set by assets/dock.js through the style object; the data is a JSON data block, which browsers never run.
  */
@@ -45,14 +45,8 @@ function dock_on(?array $u = null): bool
     return $r;
 }
 
-/** A page can set its own two actions (phase 2 pages call this). Shape: ['L' => action|null, 'R' => action|null]; see dock_action(). */
-function dock_declare(array $spec): void
-{
-    $GLOBALS['gv_dock'] = $spec;
-}
-
 /**
- * One action piece. $icon is a dock icon name (see dock_icon_url()) or an emoji. A piece is a link ($href), a strip of links ($menu: list of dock_action()s),
+ * One action piece. $icon is a dock icon name (see DOCK_ICONS / iconBase near line 544) or an emoji. A piece is a link ($href), a strip of links ($menu: list of dock_action()s),
  * or inert ($why set = greyed, with that short reason). $badge is a count or '!'.
  */
 function dock_action(string $label, string $icon, string $href = '', array $menu = [], string $why = '', string $badge = '', string $mlabel = '', array $remote = [], array $cands = []): array
@@ -62,7 +56,7 @@ function dock_action(string $label, string $icon, string $href = '', array $menu
 }
 
 /**
- * Phase 2: a piece that works the page's own control. The dock never posts anything itself: it clicks a button the page already has (so the page's CSRF token,
+ * A piece that works the page's own control. The dock never posts anything itself: it clicks a button the page already has (so the page's CSRF token,
  * confirm dialog and in-place update all apply, and nothing new has to exist on the server). $remote is one of:
  *   ['doForm' => 'water_all', 'count' => ['.gardenstat', 'data-thirsty']]  the first form on the page whose hidden `do` is that value; the count (optional) is a data attribute
  *   ['sel' => 'css selector']                                              any element on the page
@@ -261,10 +255,10 @@ function dock_more(array $u, string $page): array
     return $links;
 }
 
-/** The page's two actions: the page's own (dock_declare / dock_page_spec) or the defaults, Back and Hovel. */
+/** The page's two actions: dock_page_spec() or the defaults, Back and Hovel. */
 function dock_actions(array $u, string $page): array
 {
-    $spec = $GLOBALS['gv_dock'] ?? dock_page_spec($page);
+    $spec = dock_page_spec($page);
     $slim = false;
     try { require_once __DIR__ . '/home_slim.php'; $slim = home_slim_on(); } catch (Throwable $e) {}
     $def = ['L' => dock_action('Back', '↩'), 'R' => dock_action($slim ? 'Hovel' : 'Home', 'hovel', url('gnome.php'))];
@@ -309,7 +303,7 @@ function dock_play(string $page, ?array $foe = null): ?array
     return null;
 }
 
-/** Phase 1 specs for pages whose actions are only links (no new endpoints). Phase 2 adds the pages with forms. */
+/** Specs for pages' two actions: plain links and strips of links, or pieces that click the page's own control. */
 function dock_page_spec(string $page): array
 {
     $u = fn(string $f) => url($f);
@@ -421,7 +415,7 @@ function dock_page_spec(string $page): array
             try {
                 require_once __DIR__ . '/game_clock.php';
                 $uid = (int)$u0['id'];
-                if ($page === 'gnome.php' && gclock_on() && !(function_exists('home_slim_menu') && home_slim_menu())) $R = dock_action('Hovel', 'hovel', $u('hovel.php'));   // classic home: the Rest buttons are on hovel.php, so the piece is the way there (slim home has them on this page; clock off: hovel.php bounces back)
+                if ($page === 'gnome.php' && gclock_on() && !home_slim_menu()) $R = dock_action('Hovel', 'hovel', $u('hovel.php'));   // classic home: the Rest buttons are on hovel.php, so the piece is the way there (slim home has them on this page; clock off: hovel.php bounces back)
                 elseif (gclock_on()) {
                     $rest = [];
                     $ropts = gclock_rest_options($u0);
