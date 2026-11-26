@@ -6,29 +6,29 @@ Rules: add new items here only. Tick or delete when done, and MOVE finished bloc
 - Stop art (mockup `/tmp/.../scratchpad/stopart/mockup.html`, sent): which swaps / popovers to build.
 - Fair dock R Enter (ticked AND struck): ask. "Visitor can smell it" reading (still-cooking dish vs last-cooked).
 - Rigs: 6 still old art (bramble-wolf, badger, giant-anteater, dust-sidewinder, gnat-cloud, dune-scorpion); 5 weak per reviewer (cistern-newt, ashen-ant, bellcap-beetle, ember-beetle, grub-beetle): keep or redo? `mini-<slug>.png` still old. 69 weaker pals: pick-list?
-- (2.7.x) fight length target 4-5 vs 6-8 turns (`pfboard_tune_v1.php`); flip `sights_shared_on` + blocklist `sights_shared_block`; `tea_open` to everyone; `pfight_v1` Everyone menu entry; Treks Ch IV-VI + trailmate 8; Hollow jar proposals; 4 Sights quest lines over 50 a beat; Rope price at Twigg's is a guess; 8 base creature rows without a region window (live-world change). Josh cleared parts of this on 2026-11-25: re-ask only what is still unclear.
+- Confirm on the live world: 8 base creature rows got region windows (boot step `creature_windows_2708`, code done); Hollow jar second-week sizing check; `sights_shared_on` is still OFF by default (Josh ticked it as reviewed; flip in Admin if wanted); `gnav_on` / `gnav_tree` / `gnav_tiles` / `home_slim` default OFF (check Admin).
 
 ## B. Code / bugs open
 - W4 route-id offset bug (`roads.php` `lay_roads` + live-world renumber); gourmand nav tile double count; stale `trail_maps.json`; off-road pin clamp; `rl_trail_heading`.
 - W2 residuals: hovel tabs under dock at 640x260, tour "Show me now" at 640x260, dock labels ~8px under 340px high. W3 shop / village card asks.
-- Tutorial wording "They start working when you sleep" (crew now also works at 06:00).
+- Wording "They start working when you sleep" (`includes/pal_crew.php:135`): crew now also works at 06:00.
 - Garden Count badge can lag under the sleep-days clock (raw growth); dock.js finds the Garden tile by label.
 - `aseprite-source/v3/creature25/gen.lua` would overwrite swapped rigs: do not rerun blind.
 - Tests failing on old code too: pbox_v1, puzzle_pals, gourmand (nav tile 2 vs 1), tea, guest, treks (+10.1 balance sim), pfparts48 (ci_suites only), pfv1_newfight (overlay blocks click). Also (2.7.x): market100, trail_bendy, pf_piece_text, npc25_wire. Flaky under load: sinks097, game_clock.sh, catfish, puzzle_pals, tour, roads, pfboard, pfdeck_v1. Do not add to `RETRY_SUITES` without telling Josh.
-- Never run: MySQL (`upgrade_check.sh`), full CI on a phone-class check, a real phone. Not seen in a real browser: harvest dialog timing, batch picker, quick turns, run-away buttons, Walk to the way on, Sell all crops, Hovel link, dock Take/Deliver/Rest/Fight, W-badge shop, event banners in the bell, Cat Fish rod upgrades, crew 06:00 pass.
-- (2.7.x) Puzzle combat: no human play session; creature card on a phone; Almanac pages for 231 creatures; player-text / tone review; phone performance of 117+ rigs unmeasured.
-- (2.7.x) Almanac `npc:<slug>` unlock keys unused; Sights balance untested; decor needs a real yard check; Treks: scenes, Thorny / Bramble, respec, Lanternroot crop, hats / stamp / trophy, trailmates 8, Snail Trail 3rd puzzle game.
-- Flags `gnav_on`, `gnav_tree`, `gnav_tiles` default 0 (check Admin). Slim Home (`home_slim`) default off.
-- Ideas: preset postcards, follow a friend's trail, seed lineage, satchel split stacks by quality, crop economy (`price_base_pct` 60 to 70), cPanel cron for reminder emails, /testvault/. SMTP untested live.
+- Never run: MySQL (`upgrade_check.sh`), full CI on a phone-class check, a real phone. Not seen in a real browser: harvest dialog timing, batch picker, quick turns, run-away buttons, Walk to the way on, Sell all crops, Hovel link, dock Take/Deliver/Rest/Fight, W-badge shop, event banners in the bell, Cat Fish rod upgrades, crew 06:00 pass. Ideas: SMTP untested live, cPanel cron for reminders.
+- (2.7.x) Puzzle combat: no human play session; creature card on a phone; Almanac pages for 231 creatures; player-text / tone review; phone performance of 117+ rigs unmeasured. Tests market100, trail_bendy, pf_piece_text, npc25_wire were fixed in 2.7.17 (todo_history): re-run to confirm.
+- (2.7.x) Sights balance untested; decor needs a real yard check; Almanac `npc:` keys probably moot (migration removes them). Treks open: scenes Gloomtooth intro / Sorrel's door / signpost riddle, Thorny / Bramble, respec, Lanternroot crop, hats / stamp / trophy, Snail Trail 3rd puzzle game (Ch IV-VI and trailmate 8 struck).
+- Garden dock badge: dock.js finds the Garden tile by label (`dock.js:774`); lag under the sleep-days clock not addressed.
+- Ideas: preset postcards, follow a friend's trail, seed lineage, satchel split stacks by quality, crop economy (`price_base_pct` 60 to 70), cPanel cron for reminder emails, /testvault/. SMTP untested live. (SMTP and cron: see Never run)
 
 ## C. Wearables / Closet open (2.7.x)
-Nothing browser-tested (Closet, avatar art). Front cloak / pack art weak; outfitter staff have no portraits; Closet picker is a page reload; Pals tab and pre-fight screen can pack a worn piece; `tools/pfdemo_v1` + `tools/sims/tailor_sims_2701.php` use `src['wears']` (need `worn`); 1-7 worn pieces and Lined untested; `oc-flax-wading-wraps` -4.6 health; human playtest needed; non-slim My Gnome still shows Wearing panel.
+Open: nothing browser-tested (Closet, avatar art); front cloak / pack art weak; outfitter staff have no portraits; Pals tab and pre-fight screen may still pack a worn piece (untraced); 1-7 worn pieces and Lined untested; `oc-flax-wading-wraps` -4.6 health; human playtest needed. By design: non-slim My Gnome keeps the Wearing panel. Done: Closet picker is an in-page dialog, demo / sims feed `worn`, 42 legendary sim (`claude/balance-legend-sim.md`).
 
 ## D. Art open
 Method: `aseprite-source/v3/HANDOFF.md`, `claude/art-audit.md`, Hearth Pop / Stitched Toy. Delete `obj/lm-*.png` before re-baking.
-- Trail ground + landmarks for 11 regions are stand-ins; trail depth-order: trees overdraw wide landmarks (305, 316, 309, 236); lair sleeper bright purple; taprow syrup thin; stop-look weak spots (coast market no quay, wetland / tundra animals small, rainforest tower roof).
-- Seed icons may be missing (Lantern Fruit, Tiny Thank-You: installed 2026-11-18, check); weak items ginseng, stone-wall-end, tomato, stuffed-peppers-goat; weakest creatures blight-mother, wasp legs, leeches, basalt-borer, clam head; butterfly / moth villager faces, tortoise shell.
-- Optional: wander-step-back, street / door animation, season variants, Cat Fish lane F, cheer pose, 2 glint-only popover scenes, more stat icons, per-villager doors, per-village pictures, town repaints, `map/` 16px tiles.
+- Trail ground for the other 11 regions is stand-in (coast / tundra / forest ground reused); landmark sprites mostly drawn. Lair sleeper bright purple; taprow syrup thin; stop-look weak spots (coast market no quay, wetland / tundra animals small, rainforest tower roof). Depth-order overdraw is FIXED.
+- Weak items: tomato kept on purpose (Josh may swap); ginseng seed keeps old picture; check wasp legs / clam head in the new 2.8.72 rigs; butterfly / moth villager faces and tortoise villager shell still open.
+- Optional: wander-step-back, street / door animation, season variants, Cat Fish lane F, cheer pose (needs arm-up gnome cut), glint-only popover scenes r_ee_stove_ledge / r_sa_frost_potatoes, more stat icons, per-villager doors, per-village pictures (2 exist), town repaints, `map/` 16px tiles.
 
 ## 6. WATCH / SMALL
 - Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).

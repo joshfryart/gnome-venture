@@ -2,6 +2,19 @@
 
 Live list: `claude/todo.md`. Newest first for release blocks; archives below.
 
+## Replaced by stale review 2026-11-26
+- (2.7.x) fight length target 4-5 vs 6-8 turns (`pfboard_tune_v1.php`); flip `sights_shared_on` + blocklist `sights_shared_block`; `tea_open` to everyone; `pfight_v1` Everyone menu entry; Treks Ch IV-VI + trailmate 8; Hollow jar proposals; 4 Sights quest lines over 50 a beat; Rope price at Twigg's is a guess; 8 base creature rows without a region window (live-world change). Josh cleared parts of this on 2026-11-25: re-ask only what is still unclear.
+- Tutorial wording "They start working when you sleep" (crew now also works at 06:00).
+- (2.7.x) Puzzle combat: no human play session; creature card on a phone; Almanac pages for 231 creatures; player-text / tone review; phone performance of 117+ rigs unmeasured.
+- (2.7.x) Almanac `npc:<slug>` unlock keys unused; Sights balance untested; decor needs a real yard check; Treks: scenes, Thorny / Bramble, respec, Lanternroot crop, hats / stamp / trophy, trailmates 8, Snail Trail 3rd puzzle game.
+- Flags `gnav_on`, `gnav_tree`, `gnav_tiles` default 0 (check Admin). Slim Home (`home_slim`) default off.
+Nothing browser-tested (Closet, avatar art). Front cloak / pack art weak; outfitter staff have no portraits; Closet picker is a page reload; Pals tab and pre-fight screen can pack a worn piece; `tools/pfdemo_v1` + `tools/sims/tailor_sims_2701.php` use `src['wears']` (need `worn`); 1-7 worn pieces and Lined untested; `oc-flax-wading-wraps` -4.6 health; human playtest needed; non-slim My Gnome still shows Wearing panel.
+- Trail ground + landmarks for 11 regions are stand-ins; trail depth-order: trees overdraw wide landmarks (305, 316, 309, 236); lair sleeper bright purple; taprow syrup thin; stop-look weak spots (coast market no quay, wetland / tundra animals small, rainforest tower roof).
+- Seed icons may be missing (Lantern Fruit, Tiny Thank-You: installed 2026-11-18, check); weak items ginseng, stone-wall-end, tomato, stuffed-peppers-goat; weakest creatures blight-mother, wasp legs, leeches, basalt-borer, clam head; butterfly / moth villager faces, tortoise shell.
+- Optional: wander-step-back, street / door animation, season variants, Cat Fish lane F, cheer pose, 2 glint-only popover scenes, more stat icons, per-villager doors, per-village pictures, town repaints, `map/` 16px tiles.
+- Never run: MySQL (`upgrade_check.sh`), full CI on a phone-class check, a real phone. Not seen in a real browser: harvest dialog timing, batch picker, quick turns, run-away buttons, Walk to the way on, Sell all crops, Hovel link, dock Take/Deliver/Rest/Fight, W-badge shop, event banners in the bell, Cat Fish rod upgrades, crew 06:00 pass.
+
+
 ## Moved out of the live todo on 2026-11-26 (old 2.8.72 notes, sections 1, 3, 4, 5, 9+ and 2.7.x release notes)
 ## 2026-11-26 2.8.72 SHIPPED (PR 83 merged to main; slim zip `releases/GnomeVenture-2.8.72-web-update.zip` built against 2.8.70, goes on 2.8.70 or newer)
 - Includes 116 more Stitched Toy fight rigs (swapped into game/). OPEN art: 6 rigs still old (bramble-wolf, badger, giant-anteater, dust-sidewinder, gnat-cloud, dune-scorpion); 5 weak per reviewer (cistern-newt, ashen-ant, bellcap-beetle, ember-beetle, grub-beetle): keep or redo?; `mini-<slug>.png` still old; `aseprite-source/v3/creature25/gen.lua` would overwrite swapped rigs (don't rerun blind).
