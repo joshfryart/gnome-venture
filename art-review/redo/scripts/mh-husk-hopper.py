@@ -5,12 +5,12 @@ from pal_kit import rect, ell, poly, knob, thick_path, ramp
 # Grasshopper corner piece: head = round tab (E), round blank in the rump (W), flat N and S sides.
 # Body = green corn husk opened on a yellow cob belly; flat base = furrowed brown soil (cell 2-6).
 HUSK = ramp('#58a83c')      # cell stalk green
-LEAF = ramp('#3f8a34')      # deeper stalk green
+LEAF = ramp('#2f7430')      # deeper stalk green
 COB = ramp('#f0c040')       # cell cob yellow
 KER = '#f8dc78'
 SOIL = ramp('#b0683c')      # cell furrow brown
 FUR = '#7a4428'
-LEG = ramp('#2f7a32')
+LEG = ramp('#9ccc4c')
 
 
 def fn(c):
@@ -58,7 +58,7 @@ def fn(c):
         c.line([(29, 38), (17, 14)], LEG[2])
         for i in range(5):
             y = 22 + i * 4
-            c.line([(21 + i * 1.8, y), (24 + i * 1.8, y - 2)], LEG[1])
+            c.line([(21 + i * 1.8, y), (24 + i * 1.8, y - 2)], '#5a8a2a')
     # face: big eye on the head tab, no mouth (says nothing at all)
     c.eye(55.5, 30, disc=False)
     c.blush(57, 35)
