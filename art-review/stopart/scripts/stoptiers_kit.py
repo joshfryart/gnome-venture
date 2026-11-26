@@ -105,7 +105,7 @@ def outline(im, width=2):
     blackw = 0
     while blackw < width:
         ring = [p for p, dd in depth.items() if dd == blackw]
-        if sum(im.getpixel(p)[:3] == (0, 0, 0) for p in ring) < 0.8 * len(ring):
+        if sum(im.getpixel(p)[:3] == (0, 0, 0) for p in ring) < 0.5 * len(ring):
             break
         blackw += 1
     for _ in range(width - blackw):

@@ -8,7 +8,14 @@ NAME = 'ferry-2'
 
 
 def retouch(im):
-    pass
+    """The see-through gap under the boom becomes sticker felt: hole filled (old black ring -> umber contour),
+    band-mid felt, and a dashed gold thread through it."""
+    fill_holes(im)
+    remap(im, (56, 48, 70, 58), {'4a2c1a': '#74462a'})
+    for x in range(58, 66, 3):  # dashed thread through the felt
+        for dx in (0, 1):
+            if hexof(im.getpixel((x + dx, 53))) == '74462a':
+                im.putpixel((x + dx, 53), hexrgba('#e8a317'))
 
 
 if __name__ == '__main__':

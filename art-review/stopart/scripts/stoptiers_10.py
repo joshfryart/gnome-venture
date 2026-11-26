@@ -7,8 +7,25 @@ from stoptiers_kit import *  # noqa
 NAME = 'herb-2'
 
 
+HEN = {'g': '#2a1a10', 'o': '#2a1a10', 'T': '#f1ece0', 'U': '#d7bfa7', 'S': '#a7664b', 'C': '#dd3a2a',
+       'B': '#f2793a', 'V': '#e8a317', 'X': '#688f41', 'Y': '#7ab55c'}
+
+
 def retouch(im):
-    pass
+    """The muddled hen is redrawn in the same spot: cream felt body lit upper left, red comb and wattle, gold beak and feet."""
+    paint(im, 29, 31, [
+        '......goBoBog',
+        '......oCCCCog',
+        '......oTTTTog',
+        '......oTTgTVg',
+        'ggggggoTTTUog',
+        'goooggTTTUCog',
+        'oTTToTTTTUogg',
+        'oUTTTTTTTUogg',
+        'oUTTTTTTUSogg',
+        'YoUUUUUSSoXgg',
+        'XXoVooVoXXXgg',
+    ], HEN)
 
 
 if __name__ == '__main__':
