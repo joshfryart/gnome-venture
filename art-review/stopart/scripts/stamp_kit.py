@@ -128,8 +128,13 @@ def angle_dash(cx=32, cy=32, r=28.5, on=2, off=2):
 def badge(hue, pale=None):
     """The round stamp body: coloured felt ring with gold dashed stitch, recessed cream centre."""
     g = Group()
-    g.add(mask(ell(32, 32, 31, 31)), ramp(hue) if isinstance(hue, str) else hue, cres=2,
-          stitch=GOLD, depth=2, dash=angle_dash(r=27.5))
+    g.add(mask(ell(32, 32, 31, 31)), ramp(hue) if isinstance(hue, str) else hue, cres=2)
+    dash = angle_dash(r=27.6, on=3, off=2)
+    for y in range(N):
+        for x in range(N):
+            r = math.hypot(x + 0.5 - 32, y + 0.5 - 32)
+            if 27.1 <= r < 28.1 and dash(x, y):
+                g.px(x, y, GOLD)
     g.add(mask(ell(32, 32, 24.2, 24.2)), pale or CREAM, inset=True)
     return g
 
