@@ -41,6 +41,10 @@ grep -q 'hov-today' $H && echo "  ok   today tab shows" || { echo "  FAIL today 
 chk "hovel pals tab" "$(get 'hovel.php?t=pals')" 200
 grep -q 'hov-pals' $H && echo "  ok   pals tab shows" || { echo "  FAIL pals tab"; FAILS=$((FAILS+1)); }
 chk "paljobs page" "$(get paljobs.php)" 200
+echo "== a page load past 06:00 (no sleep) runs the crew's morning once"
+dbx "UPDATE users SET game_minute = 1830, crew_morning = game_day WHERE username='sprout'"
+chk "garden page past 06:00" "$(get garden.php)" 200
+chk "crew_morning moved to the new morning, game_day did not" "$(db "SELECT crew_morning - game_day FROM users WHERE username='sprout'")" 1
 echo "== php errors"
 grep -iE 'fatal|warning|notice|deprecated' $LOG || echo "(none)"
 [ $FAILS -eq 0 ] && echo "all ok" || echo "$FAILS FAILED"

@@ -35,8 +35,7 @@ p = R.part('body')
 torso = union(ell(26, 15, 10.5, 7.5), ell(38.5, 13.5, 11, 7.8), ell(45, 16, 6, 5.6), capsule([(18, 15.5), (46, 14)], 12, 11))
 p.add(p.m(torso), FUR, stitch=FUR[3])
 p.add(p.m(inter(torso, lambda x, y: y > 19.4 - (x - 20) * .06)), PALE)
-for a, b in (((24, 11), (25, 13)), ((31, 10), (32, 12)), ((38, 9.5), (39, 11.5)), ((28, 15.5), (29, 17))):
-    p.line([a, b], FUR[3])
+p.line([(30, 12), (31, 14)], FUR[3]); p.line([(37, 11), (38, 13)], FUR[3])
 
 # near legs: short stubby legs with round haunches; webbed hind flipper
 p, m = K.leg(R, 'legBN', 23.5, FUR, 5.5, 5, paw=(4.6, 1.9), haunch=(22, 17, 5, 4), pad=PADC)
@@ -47,7 +46,7 @@ p, m = K.leg(R, 'legFN', 45, FUR, 4.5, 4, paw=(3, 1.8), pad=PADC, toes=PADC[3])
 
 # head: pale, broad, flat-topped head, small ears, fat whisker muzzle, bandit mask, red bandana at the neck
 p = R.part('head')
-ears = union(ell(48, 4.8, 2.1, 1.9), ell(54, 3.9, 2.1, 1.9))
+ears = union(ell(48.6, 5.0, 2.0, 1.8))
 skull = union(ell(52.5, 9.6, 7.4, 6.1), capsule([R.pv('head'), (50, 11)], 9.5, 10))
 muzzle = union(ell(59, 12, 4.6, 3.6))
 p.add(p.m(ears), FUR, local=True)
@@ -59,10 +58,12 @@ p.add(p.m(ell(62.3, 10.8, 1.7, 1.4)), (INK,) * 4, flat=True)                    
 p.px(62, 10, PALE[0])
 p.line([(62, 13), (60, 14), (57, 14)], INK)                                                       # mouth
 p.pxs([(58, 11), (60, 12), (58, 13)], PALE[3])                                                     # whisker dots
-bandana = inter(union(capsule([(44, 9.5), (47.5, 17)], 4.8, 4.8)), skull)
-p.add(p.m(bandana, poly([(43, 13), (39.5, 11), (40, 15.5), (43.5, 16)])), RED)
-p.pxs([(45, 12), (47, 15), (41, 13), (44, 16)], CREAM)                                              # polka dots
-p.edge(p.m(capsule([(44, 9.5), (47.5, 17)], 4.8, 4.8)) & p.m(bandana), RED[3], sides=((1, 0),))
+collar = capsule([(46.3, 9), (48, 16.5)], 4.2, 4.2)
+bib = poly([(45.5, 14.5), (52.5, 14), (49, 20.2)])
+knot = union(poly([(45.5, 9), (40.5, 4.5), (39.5, 7), (43, 10.5)]), poly([(45, 10.5), (40.5, 11), (42.5, 13.5)]))
+bm = p.m(collar, bib, knot)
+p.add(bm, RED)
+p.pxs([(47, 11), (48, 15), (50, 16), (48, 18), (42, 6), (43, 12)], CREAM)                          # polka dots
 p.edge({q for q in p.m(skull) if q[0] < 46}, INK, sides=((-1, 0),))
 
 # eyes: cream eye with an ink pupil peeking out of the mask

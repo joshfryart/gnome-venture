@@ -1406,7 +1406,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 // Watering also tops up a no-till bed's moisture.
                 // v0.7.27: tilled ground holds a little more water after each drink too (it used to never change)
                 $newM = $t['method'] === 'notill' ? clamp100(max((int)$t['moisture'], 20) + 10) : min(60, (int)$t['moisture'] + 4);
-                q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ?', [$p ? now() : null, now(), $newM, $t['id']]);
+                q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_WATER_DAY_SQL . ' WHERE id = ?', [$p ? now() : null, now(), $newM, $t['id']]);
                 $msgs[] = $p ? 'You water the ' . $p['name'] . '.' : 'You water the bed to keep its soil life happy.';
                 if ($p) job_event($uid, 'water', '', 1);
                 break;

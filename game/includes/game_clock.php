@@ -24,6 +24,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'pal_real_at', 'INT NULL'],   // unix time the pal clocks were last held still (real time must not move pal work)
         ['users', 'pal_morning', 'INT NULL'],   // the game day of the last 06:00 whose pal work has been credited (one morning = one day of pal work, sleep or not)
+        ['users', 'crew_morning', 'INT NULL'],  // the game day of the last 06:00 the garden crew has worked (pcrew_mornings): one pass per morning, slept or stayed up
         ['news', 'kind', "VARCHAR(10) NOT NULL DEFAULT 'news'"],   // 'news' (hand-written) or 'notes' (release notes posted per version)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['shops', 'open_minute', 'INT NULL'], ['shops', 'close_minute', 'INT NULL'],          // closing hours (decision 41); NULL = default_open/close_minute
@@ -159,6 +160,8 @@ function game_nap(int $uid): ?array
 
 /** SQL for "the game_day of the gnome who owns this tile's plot", for UPDATE plot_tiles ... SET grow_day = (...). */
 const GCLOCK_OWNER_DAY_SQL = '(SELECT u.game_day FROM plots pl JOIN users u ON u.id = pl.user_id WHERE pl.id = plot_tiles.plot_id)';
+/** "water_day = the owner's game_day", never lowering a later day: the garden crew's 06:00 pass while the gnome stayed up waters for the coming day (pcrew_mornings). */
+const GCLOCK_WATER_DAY_SQL = '(CASE WHEN water_day IS NOT NULL AND water_day > ' . GCLOCK_OWNER_DAY_SQL . ' THEN water_day ELSE ' . GCLOCK_OWNER_DAY_SQL . ' END)';
 
 function gclock_on(): bool
 {
@@ -240,7 +243,7 @@ function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
         if (!empty($fx['nip'])) $t['nipped'] = 1;
     }
     $t['growth_seconds'] = min($gs, $need);
-    $t['grow_day'] = $today;
+    $t['grow_day'] = $from === $today + 1 ? $from : $today;   // the garden crew's 06:00 pass while the gnome stayed up settles one day ahead (pcrew_mornings): a look before the sleep must not undo it, or that day would grow twice
     $t['owed_days'] = $owed;
     return $t;
 }
@@ -503,7 +506,7 @@ function game_new_day(int $uid): void
     gclock_pal_mornings($uid, true);   // pal work is credited per 06:00 morning, not per sleep; a sleep lands on one new 06:00
     require_once __DIR__ . '/pal_crew.php';
     pcrew_save_report($uid, (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]), ['slept' => true]);   // v2.6.40: the Hovel Today tab opens on this
-    pcrew_night($uid);   // v2.6.40: the garden crew works the night (water, weed, pests, harvest)
+    pcrew_mornings($uid, true);   // the garden crew works this morning, unless it already did at this 06:00 while the gnome stayed up (once per morning, not per sleep)
     // a helper tending this gnome's garden through a player job works the new day (paid pro rata)
     require_once __DIR__ . '/player_jobs.php';
     foreach (q("SELECT * FROM player_jobs WHERE poster_id = ? AND kind = 'tend' AND status = 'taken' AND ends_day IS NOT NULL", [$uid])->fetchAll() as $pj) pjob_replay_days($pj);
@@ -518,6 +521,27 @@ function gclock_freeze_pals(int $uid): void
     if (!gclock_on()) return;
     gclock_freeze_pals_real($uid);
     gclock_pal_mornings($uid);   // and every 06:00 the clock has reached since the last look gives the pals a whole day of work (whether the gnome slept or not)
+}
+
+/**
+ * Page-load hook (bootstrap): the garden crew works a 06:00 the gnome reached by staying up, without waiting for a sleep (Josh 2026-11-26: "should pick in the
+ * morning for that day, so you don't need to do anything"). Cheap: reads the users row it is given and loads the crew code only when a morning is due.
+ * True when the crew worked (the caller re-reads the users row).
+ */
+function gclock_crew_mornings(array $u): bool
+{
+    if (!gclock_on() || !empty($u['guest']) || empty($u['id'])) return false;
+    if (!array_key_exists('crew_morning', $u)) { require_once __DIR__ . '/pal_crew.php'; pcrew_boot(); return false; }   // the column comes with "Upgrade database"; pcrew_boot adds it
+    if ($u['crew_morning'] !== null && $u['crew_morning'] !== '' && gclock_crew_day($u) <= (int)$u['crew_morning']) return false;
+    require_once __DIR__ . '/pal_crew.php';
+    return pcrew_mornings((int)$u['id']);
+}
+
+/** The morning the garden crew works for a users row (game_day, game_minute): the latest 06:00 reached, at most one day past game_day (the garden's own day only moves at a sleep). */
+function gclock_crew_day(array $u): int
+{
+    $s = gclock_state($u);
+    return min((int)floor(($s['tick'] - GAME_WAKE_MINUTE) / 1440), $s['day'] + 1);
 }
 
 /** The game day of the latest 06:00 this gnome's clock has reached: a sleep lands on 06:00 of the next day, and staying up past 06:00 reaches it on its own. */

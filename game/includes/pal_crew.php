@@ -1,15 +1,21 @@
 <?php
 declare(strict_types=1);
 /**
- * v2.6.40: Garden crew. Every garden has five pal slots (Water, Weed, Pests, Harvest, Plant). A pal in a slot works while the gnome SLEEPS:
- * game_new_day() calls pcrew_night() once per sleep, in a fixed order: pests, weeds, harvest, plant, water. Time modes: 'timed' (1/3/7 sleeps,
- * counted from the next sleep) or 'full' (until called home). A pal sent home rests one game day (garden_pal_rest) and cannot be assigned until the next sleep.
+ * v2.6.40: Garden crew. Every garden has five pal slots (Water, Weed, Pests, Harvest, Plant). A pal in a slot works once every MORNING (06:00 game time):
+ * pcrew_mornings() runs pcrew_night() once per 06:00 the clock reaches, from a sleep (game_new_day) or, when the gnome stays up past 06:00, from the
+ * next page load (gclock_crew_mornings in bootstrap); users.crew_morning stops a sleep after that 06:00 from working the same morning again. Fixed order:
+ * pests, weeds, harvest, plant, water. Time modes: 'timed' (1/3/7 mornings worked, from the next one) or 'full' (until called home). A pal sent home
+ * rests one game day (garden_pal_rest) and cannot be assigned until the next sleep.
  * What happened is saved per sleep in sleep_report (the Hovel shows it). Design + mockups: claude/todo.md (2026-11-10), pal_garden_mockups.html.
  * Growth is lazy (gclock_tile_grow settles whole days from water_day). The pass runs as the new day D starts (06:00 after the sleep) and does that
  * MORNING's work for day D (Josh 2026-11-26: "should pick in the morning for that day, so you don't need to do anything"): each tile is first settled
  * through the day that just ended, so the Harvest pal picks everything ripe this morning, and the Water pal waters for day D (water_day = D), so the
  * bed is not thirsty today and grows at the next sleep. A day nobody watered is owed, not lost (gclock_tile_grow). Before 2026-11-26 the pass watered
  * for the day that ended AFTER the harvest step, so that day's growth landed after the crew had gone and the ripe crops waited for the player.
+ * Staying up past 06:00: users.game_day (the garden's day) only moves at a sleep, so the pass runs with D = game_day + 1, exactly what the sleep would have
+ * done: beds of a crewed garden are settled through game_day (grow_day = D, kept by gclock_tile_grow until the sleep catches up), ripe crops picked,
+ * beds watered for D (water_day = D counts as watered today, and no other watering lowers it: GCLOCK_WATER_DAY_SQL). The sleep that follows lands on the
+ * same 06:00 and does not run the pass again (no second harvest, no extra night counted).
  */
 require_once __DIR__ . '/pal_jobs.php';
 require_once __DIR__ . '/trade.php';   // notify()
@@ -38,6 +44,7 @@ function pcrew_boot(): void
         q('SELECT id FROM sleep_report LIMIT 1');
         q('SELECT seeds FROM garden_pal_slots LIMIT 1');
         q('SELECT tile_id FROM garden_pal_memory LIMIT 1');
+        q('SELECT crew_morning FROM users LIMIT 1');
     } catch (Throwable $e) {
         global $CONFIG;
         db_migrate(db(), (string)$CONFIG['db']['driver']);
@@ -154,15 +161,48 @@ function pcrew_free_slot(array $u, int $slotId): array
     return [true, 'That job is free again.'];
 }
 
-/** The night pass for one gnome, called from game_new_day() after the day has moved on. Never throws. */
-function pcrew_night(int $uid): void
+/**
+ * Once per 06:00 the gnome's clock reaches: the garden crew works that morning (pcrew_night), whether the gnome slept onto it ($slept, from game_new_day)
+ * or stayed up past it (gclock_crew_mornings, on a page load). A compare-and-set on users.crew_morning makes it run once per morning however many tabs
+ * or sleeps reach it. With no stamp yet (new column) the last sleep is taken to have worked the morning of game_day. True when the crew pass ran.
+ */
+function pcrew_mornings(int $uid, bool $slept = false): bool
+{
+    if (!gclock_on()) return false;
+    try {
+        pcrew_boot();
+        $u = q_one('SELECT game_day, game_minute, crew_morning FROM users WHERE id = ?', [$uid]);
+        if (!$u) return false;
+        $day = (int)$u['game_day'];
+        $D = gclock_crew_day($u);
+        $last = $u['crew_morning'];
+        if ($last === null || $last === '') {
+            $last = $slept ? $day - 1 : $day;
+            if (q('UPDATE users SET crew_morning = ? WHERE id = ? AND crew_morning IS NULL', [$last, $uid])->rowCount() !== 1) return false;   // another tab got it
+        }
+        if ($D <= (int)$last) return false;
+        if (q('UPDATE users SET crew_morning = ? WHERE id = ? AND crew_morning = ?', [$D, $uid, (int)$last])->rowCount() !== 1) return false;   // another tab got it
+        if (q_val('SELECT 1 FROM garden_pal_slots WHERE user_id = ? LIMIT 1', [$uid])) {   // no crew: nothing to load or do
+            require_once __DIR__ . '/garden_logic.php';   // do_harvest, save_growth (a page load may not have the garden code yet)
+            pcrew_night($uid, $D);
+        }
+        return true;
+    } catch (Throwable $e) {
+        error_log('pcrew_mornings: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** The crew's pass for one gnome on the morning of day $D (default: game_day, the morning a sleep has just landed on). Call through pcrew_mornings(). Never throws. */
+function pcrew_night(int $uid, ?int $D = null): void
 {
     try {
         pcrew_boot();
         $slots = q('SELECT * FROM garden_pal_slots WHERE user_id = ? ORDER BY id', [$uid])->fetchAll();
         $owner = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
         if (!$owner) return;
-        $D = (int)$owner['game_day'];
+        $today = (int)$owner['game_day'];   // the gnome's own day: a pal sent home rests until the next sleep, as ever
+        $D ??= $today;
         $report = [];
         $byPlot = [];
         foreach ($slots as $s) $byPlot[(int)$s['plot_id']][(string)$s['role']] = $s;
@@ -183,7 +223,7 @@ function pcrew_night(int $uid): void
                              'mode' => (string)$s['mode'], 'night' => $doneNow, 'nights' => (int)$s['nights'], 'ended' => $ended, 'eff' => (int)round(pcrew_eff($doneNow) * 100), 'tired' => $s['mode'] === 'full' && $doneNow + 1 >= PCREW_TIRED_NIGHT, 'warn' => (string)($did[$role . '_warn'] ?? '')];
                 if ($ended) {
                     q('DELETE FROM garden_pal_slots WHERE id = ?', [$s['id']]);
-                    pcrew_send_home($uid, (string)$s['pal_uid'], $D);
+                    pcrew_send_home($uid, (string)$s['pal_uid'], $today);
                 } else {
                     q('UPDATE garden_pal_slots SET done = ?, last_day = ? WHERE id = ?', [$doneNow, $D, $s['id']]);
                 }
