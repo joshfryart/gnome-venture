@@ -303,9 +303,12 @@
   function resolveOne(a) {   // -> { why, badge } for a piece or tile that works a control on the page
     var r = a.remote || {}, t, e;
     if (r.doForm) { t = formBtn(r.doForm, r.firstOn); if (!t || t.dis) return { why: 'none' }; return { badge: attrCount(r.count) }; }
+    if (r.focus) { e = q1(r.focus); return !e || e.disabled ? { why: 'n/a' } : {}; }   /* a piece that focuses a field (the Find box) */
+    if (r.once && onceLock) return { why: 'busy' };   /* one tap per page load: greyed until the in-place swap lands */
     if (r.sel) { e = q1(r.sel); if (!e) return r.href || r.post ? {} : { why: 'n/a' }; if (e.disabled) return { why: 'none' }; return e.getAttribute('aria-pressed') === 'true' ? { on: true } : {}; }   /* v2.8.56: a page button that says aria-pressed="true" (Sneak, Hunt on the Trail) shows as the lit, ringed tile */
     return {};
   }
+  var onceLock = false;
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
     var t, e;
     if (!spec) return;
@@ -321,6 +324,8 @@
     }
     if (spec.foe) { slip = 'status'; popTab = 'foe'; return 'keep'; }
     if (spec.tool) { tool = tool === spec.tool ? null : spec.tool; e = q1('.selbar [data-sel="' + (tool ? 'on' : 'off') + '"]'); if (tool === null) { e = q1('.selbar [data-sel="off"]'); } if (e && !e.hidden && (tool || gSelOn())) e.click(); return; }
+    if (spec.focus) { e = q1(spec.focus); if (e && !e.disabled) { try { e.focus(); e.scrollIntoView({ block: 'center' }); } catch (x) {} } return 'keep'; }   /* focus() inside the tap, so a phone opens its keyboard */
+    if (spec.once) { if (onceLock) return; onceLock = true; setTimeout(function () { onceLock = false; if (D) render(); }, 8000); }
     if (spec.doForm) { t = formBtn(spec.doForm, spec.firstOn); if (t && !t.dis) t.btn.click(); return; }
     if (spec.sel) { e = q1(spec.sel); if (!e && spec.post) { postTo(spec.post.url, { do: spec.post.do }); return; } if (!e && spec.href) { location.href = spec.href; return; } if (e && !e.disabled) { if (!(e.tagName === 'SUMMARY' && e.parentNode && e.parentNode.open)) e.click(); if (e.tagName === 'SUMMARY') { try { e.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (x) { e.scrollIntoView(); } } } }
   }
@@ -379,7 +384,7 @@
     if (t.remote && t.remote.select === 'garden') { o.rem = remKey({ sel: '.selbar [data-sel="on"]' }); o.why = q1('.selbar') ? '' : 'n/a'; return o; }
     if (t.remote && t.remote.foe) { o.rem = remKey(t.remote); o.why = D.foe ? '' : 'none'; return o; }
     if (t.remote && t.remote.tool) { o.why = q1('.selbar') ? '' : 'n/a'; o.rem = remKey(t.remote); o.badge = tool === t.remote.tool ? '\u25cf' : ''; return o; }
-    if (t.remote && (t.remote.doForm || t.remote.sel)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); if (r.on) o.on = true; }
+    if (t.remote && (t.remote.doForm || t.remote.sel || t.remote.focus)) { r = resolveOne(t); o.why = r.why || t.why; o.badge = r.badge || t.badge; o.rem = remKey(t.remote); if (r.on) o.on = true; }
     return o;
   }
   function finalAct(a) {
@@ -438,7 +443,7 @@
     }
     if (a.remote && a.remote.selectInfo === 'tend' && tendOn) return { label: 'Picked', icon: '🔲', href: '', menu: [], why: '', badge: String(tCount()), info: true, remote: {}, cands: [], mlabel: '' };
     if (a.remote && a.remote.selectInfo === 'garden' && selOn) return { label: 'Picked', icon: '🔲', href: '', menu: [], why: '', badge: String(gCount()), info: true, remote: {}, cands: [], mlabel: '' };
-    if (a.remote && (a.remote.doForm || a.remote.sel)) { r = resolveOne(a); o.why = r.why || a.why; o.badge = r.badge || a.badge; o.rem = remKey(a.remote); }
+    if (a.remote && (a.remote.doForm || a.remote.sel || a.remote.focus)) { r = resolveOne(a); o.why = r.why || a.why; o.badge = r.badge || a.badge; o.rem = remKey(a.remote); }
     if (a.menu && a.menu.length) o.menu = a.menu.map(finalItem);
     if (a.remote && a.remote.hideNone && o.menu) { o.menu = o.menu.filter(function (m) { return !m.why; }); if (!o.menu.length) o.why = 'nothing to do'; }
     return o;
@@ -808,7 +813,7 @@
     }
     enAnim = requestAnimationFrame(step);
   }
-  document.addEventListener('gv:swapped', function () { tSel = {}; if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); energyFx(); timeFx(); } stripEnergyWords(); });   // an in-place page load: new plate numbers and actions
+  document.addEventListener('gv:swapped', function () { onceLock = false; tSel = {}; if (!q1('.selbar')) tool = null; qMode = false; playOpen = false; if (!selOn) slip = null; if (readData()) { watch(); render(); energyFx(); timeFx(); } stripEnergyWords(); });   // an in-place page load: new plate numbers and actions
   var rt = 0;
   function relayout() { clearTimeout(rt); rt = setTimeout(render, 80); }
   window.addEventListener('resize', relayout);

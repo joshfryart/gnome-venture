@@ -38,7 +38,8 @@ if (!is_post() && !isset($_GET['t']) && !isset($_GET['p']) && !isset($_GET['s'])
     else {
         require_once __DIR__ . '/includes/quests_view.php';
         $cn0 = tasks_counts($u, $hub);
-        foreach (['journey', 'requests'] as $tk0) if (!empty($cn0[$tk0])) { $T = $tk0; break; }
+        if (!empty($cn0['journey'])) $T = 'journey';   // a chapter or repair ready to hand in
+        elseif (!empty($cn0['orders'])) $T = 'requests';   // an order you can already fill (errands in flight do not count as ready)
     }
 }
 

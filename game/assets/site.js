@@ -1576,6 +1576,7 @@ function gvGarden() {
           var btns = c.querySelector('.pcbtns'); if (btns) btns.hidden = !(cn > 0);
         });
         var t = kind === 'seed' ? Math.min(total(), n) : (choice ? n : 0);
+        if (kind === 'seed') go.textContent = t ? 'Plant ' + t : 'Plant';   // the sheet button says how many
         sum.textContent = kind === 'seed' ? (t + ' of ' + n + ' squares · ⚡ up to ' + t * (costs[act] || 1))
                                           : (choice ? n + ' squares · ⚡ up to ' + n * (costs[act] || 1) : 'Tap one to choose it');
         go.disabled = !t;
@@ -1635,6 +1636,11 @@ function gvGarden() {
           else f.querySelector('[name=item_id]').value = choice;
         });
       };
+      /* the last seed (the bed's, else the last one planted) is pre-picked for every square it has stock for */
+      var lastId = kind === 'seed' ? pk.getAttribute('data-last') : '';
+      if (lastId) pk.querySelectorAll('.pcard').forEach(function (c) {
+        if (c.getAttribute('data-id') === lastId && +c.getAttribute('data-qty') > 0) { counts[lastId] = Math.min(+c.getAttribute('data-qty'), n); order.push(lastId); }
+      });
       show();
       gvOpenDlg(pk);
     });

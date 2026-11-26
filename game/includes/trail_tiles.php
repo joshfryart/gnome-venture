@@ -381,6 +381,33 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     return [true, ''];
 }
 
+/**
+ * "Walk to the way on": one tap walks the rest of this stretch toward the exit (the way on) using the same trail_go() a tap on the exit tile uses, so every
+ * rule stays: a random fight or a fixed fight (E, M) stops the walk on its tile and starts it, a toll road still asks first, a tool gate or solid rock still blocks.
+ * When a fixed fight sits in the only way, the walk goes to that fight (nearest first); finds and sights off the path are never visited (the map stays optional). Free.
+ * Needs a tile walk (trail_scene), so it is inside the gnav_tiles gating like everything here. [ok, message]
+ */
+function trail_walk_on(array $u, array &$exp): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc) return [false, 'There is no tile map for this walk.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    if (($sc['st']['phase'] ?? '') !== 'section') return [false, 'Choose Continue or Turn back first.'];
+    $ex = $sc['map']['spots']['9'] ?? null;
+    if (!$ex) return [false, 'The way on is not on this map.'];
+    [$ok, $msg] = trail_go($u, $exp, (int)$ex[0], (int)$ex[1]);
+    if ($ok) return [true, ''];
+    if (!str_contains($msg, 'A fight waits')) return [false, $msg];
+    $fights = [];
+    foreach ($sc['st']['tokens'] as [$tx, $ty, $k, $done]) if (in_array($k, ['E', 'M'], true) && (int)$done === 0) $fights[] = [abs($tx - $sc['x']) + abs($ty - $sc['y']), (int)$tx, (int)$ty];
+    sort($fights);
+    foreach ($fights as [, $fx, $fy]) {
+        [$ok2] = trail_go($u, $exp, $fx, $fy);
+        if ($ok2) return [true, ''];
+    }
+    return [false, $msg];
+}
+
 /** 2.7.00: the toll road's question at the first stretch: pay (safer, faster) or take the old road. Free of energy. [ok, message] */
 function trail_toll(array $u, array &$exp, bool $pay): array
 {

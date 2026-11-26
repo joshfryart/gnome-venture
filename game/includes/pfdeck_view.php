@@ -465,6 +465,10 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
         $h .= '<form method="post" class="pfv-autof pbx-auto">' . csrf_field() . '<input type="hidden" name="do" value="pfd_auto"><input type="hidden" name="on" value="' . ($on ? '0' : '1') . '">' . $back
             . '<label class="sw"><span><b>Use this deck in every fight</b><small>' . ($on ? 'Auto deck is on: this deck goes into every fight as it is. You still see the creature first.' : 'Off: before each fight you can swap pieces.') . '</small></span><input type="checkbox" id="pfv-auto"' . ($on ? ' checked' : '') . '></label>'
             . '<noscript><button class="btn small">' . ($on ? 'Turn off' : 'Turn on') . '</button></noscript></form>';
+        $q = pfd_quick_on((int)$u['id']);
+        $h .= '<form method="post" class="pfv-autof pbx-auto pbx-quick">' . csrf_field() . '<input type="hidden" name="do" value="pfd_quick"><input type="hidden" name="on" value="' . ($q ? '0' : '1') . '">' . $back
+            . '<label class="sw"><span><b>Quick turns</b><small>' . ($q ? 'On: in a fight, End turn fires by itself a moment after you place a piece. Tap Undo in that moment to change it.' : 'Off: you tap End turn yourself.') . '</small></span><input type="checkbox" id="pfv-quick"' . ($q ? ' checked' : '') . '></label>'
+            . '<noscript><button class="btn small">' . ($q ? 'Turn off' : 'Turn on') . '</button></noscript></form>';
     }
     $h .= '<p class="pbx-toast" id="pbx-toast" role="status" hidden></p>';
     return $h . pfv_form($back) . '</div>' . pfv_assets();
@@ -532,7 +536,7 @@ function pfv_prefight_html(array $u, array $exp, array $c): string
 /** The POST actions of the starter and pre-fight screens on the adventure page (do = pfd_* or pfv_go). The caller holds the transaction; $exp is saved by the caller. */
 function pfv_adv_post(array $u, array &$exp, array $enc, string $do): void
 {
-    if (!empty($enc['pf'])) { if ($do !== 'pfd_auto') { flash('The fight has started. The deck is locked until it is over.', 'err'); return; } }
+    if (!empty($enc['pf'])) { if (!in_array($do, ['pfd_auto', 'pfd_quick'], true)) { flash('The fight has started. The deck is locked until it is over.', 'err'); return; } }
     if ($do === 'pfv_go') {
         if (!pfd_deck($u)['starter']) { flash('Pack your first Puzzle box before the fight.', 'err'); return; }
         $enc['pfgo'] = 1; $exp['encounter'] = json_encode($enc);

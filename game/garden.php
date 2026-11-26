@@ -177,6 +177,9 @@ if (is_post()) {
             if ($done || !$all) flash($done ? ($perkFree ? '💧 Your Bloomcaller touch watered ' . $done . ' plant(s) for free.' : ($freeWater ? '🛢️ The rain barrel watered ' . $done . ' plant(s) for free (once a day).' : "Watered $done plant(s).")) : 'Nothing needed doing.', $done ? 'ok' : 'err');
             foreach (array_unique($all) as $m) flash($m, str_contains($m, 'tired') ? 'err' : 'ok');
         }
+    } elseif ($do === 'replant_all') {   // Replant all / Till & replant: same seed each bed had, same energy and seeds as by hand
+        [$ok, $msgs] = garden_replant_all($uid);
+        foreach ($msgs as $m) flash($m, str_contains($m, 'tired') || (!$ok && !str_starts_with($m, 'Skipped')) ? 'err' : 'ok');
     } elseif ($do === 'cellar') {   // v0.7.56: root cellar
         [$ok, $msg] = cellar_store($uid, $x, $y);
         flash($msg, $ok ? 'ok' : 'err');
@@ -327,14 +330,14 @@ function tool_action_form(string $do, array $t, string $label, int $unused = 0, 
         . '<input type="hidden" name="y" value="' . (int)$t['y'] . '">' . $extra . $btns . '</form> ';
 }
 
-function item_select(array $items, callable $label, string $pick = ''): string
+function item_select(array $items, callable $label, string $pick = '', int $selected = 0): string
 {
-    return '<select name="item_id"' . ($pick !== '' ? ' data-pick="' . e($pick) . '"' : '') . '>' . implode('', array_map(fn($i) => '<option value="' . (int)$i['id'] . '">' . e($label($i)) . '</option>', $items)) . '</select>';
+    return '<select name="item_id"' . ($pick !== '' ? ' data-pick="' . e($pick) . '"' : '') . '>' . implode('', array_map(fn($i) => '<option value="' . (int)$i['id'] . '"' . ((int)$i['id'] === $selected ? ' selected' : '') . '>' . e($label($i)) . '</option>', $items)) . '</select>';
 }
 
 /** A pop-up grid of items to choose from (the Satchel look), used by select mode and by the square panel.
  *  v2.0.67: each choice is an item square (includes/item_square.php); hooks kept: .pcard[data-id][data-qty], .pccount, .pcbtns [data-step], .pickgrid. */
-function picker_html(string $kind, string $title, array $items, callable $icon, callable $info, string $go, ?callable $more = null): string   // v1.6.2: $more = a smaller second line
+function picker_html(string $kind, string $title, array $items, callable $icon, callable $info, string $go, ?callable $more = null, int $lastId = 0): string   // v1.6.2: $more = a smaller second line
 {
     require_once __DIR__ . '/includes/item_square.php';
     $rows = [];   // the items rows (picture, rarity); the root cellar lists plants, not items
@@ -374,7 +377,7 @@ function picker_html(string $kind, string $title, array $items, callable $icon, 
             . $chips
             . '<label class="pfin"><input type="checkbox" class="pfnow"> In season only</label></div>';
     }
-    return '<dialog class="picker" data-kind="' . e($kind) . '" aria-label="' . e($title) . '"><div class="pickbox">'
+    return '<dialog class="picker" data-kind="' . e($kind) . '"' . ($lastId > 0 ? ' data-last="' . $lastId . '"' : '') . ' aria-label="' . e($title) . '"><div class="pickbox">'
         . '<div class="pickhead"><b>' . e($title) . '</b> <span class="pickhint muted"></span><button type="button" class="pickx" aria-label="Close">✕</button></div>'
         . $filter
         . ($cards !== '' ? item_grid($cards, 'pickgrid') : '<p class="muted">You don’t have any.</p>')
@@ -503,6 +506,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
             $flags[] = (int)$t['x'] . '-' . (int)$t['y'] . ':' . $f . ':' . ($pl ? (int)$t['plant_id'] : 0);   // v0.9.1a: plant id for "select all of this crop"
             if ($pl) $pnames[(int)$t['plant_id']] = (int)$t['plant_id'] . ':' . str_replace([',', ':'], ' ', (string)$pl['name']);
         }
+        $maxFert = 0; foreach ($tiles as $trow) foreach ($trow as $tt) if (tile_plantable($tt) || (!$tt['plant_id'] && $tt['method'] !== 'notill')) $maxFert = max($maxFert, (int)$tt['fertility']);   // best soil among squares that could be planted: skip seeds none can take
         $plantableSeeds = $seeds; $ghOn = building_level((int)$plot['id'], 'greenhouse') > 0;
         foreach ($plantableSeeds as &$ps) $ps['_in'] = empty($ps['sapling']) ? plant_season_state($ps, gclock_my_date(), $ghOn) === 'in' : true;   // v2.4.87: for the in-season toggle
         unset($ps);
@@ -536,7 +540,8 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
     <?= picker_html('seed', 'Choose seeds', $plantableSeeds, fn($i) => (($pic = item_pic(['id' => $i['id'], 'name' => $i['name']], 'md')) !== '' ? $pic : (!empty($i['sapling']) ? '🌳' : catalog_kind_icon((string)($i['kind'] ?? '')))),   // v1.6.2: the packet's own picture
         fn($i) => implode(' · ', array_filter([trim(season_chip_text($i, building_level((int)$plot['id'], 'greenhouse') > 0)), (empty($i['sapling']) && empty($known[(int)$i['plant_id']]) ? '📕 unstudied' : ''), (!empty($i['perennial']) ? '🔄 regrows' : '')], fn($x) => trim((string)$x) !== '')), 'Plant',
         fn($i) => e((empty($i['sapling']) && empty($known[(int)$i['plant_id']]) ? '−' . (100 - unstudied_yield_pct($u)) . '% harvest · ' : '')
-            . ((int)$i['min_soil'] <= 0 ? 'any soil' : ((int)$i['min_soil'] < 40 ? 'decent soil' : 'rich soil')))) ?>
+            . ((int)$i['min_soil'] <= 0 ? 'any soil' : ((int)$i['min_soil'] < 40 ? 'decent soil' : 'rich soil'))),
+        garden_default_seed($plantableSeeds, (int)$plot['id'], 0, $maxFert)) ?>
     <?php if (isset($built['root_cellar'])):   // v0.7.57: the root cellar uses the same picker
         $celPick = array_map(fn($c) => ['id' => $c['id'], 'name' => $c['name'], 'qty' => 1, 'kind' => $c['kind'],
             'pct' => (int)min(100, round((int)$c['growth_seconds'] / max(1, (int)$c['grow_minutes'] * 60) * 100))], cellar_plants((int)$plot['id'])); ?>
@@ -579,6 +584,11 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
       <?= $bulk('water_all', $nThirsty ? '💧 Water all thirsty' : '💧 Nothing thirsty', $nThirsty, $freeW ? 0 : action_cost($uid, 'water') * $nThirsty) ?>
       <?php if ($perkLeft > 0): ?><span class="help bulkhelp">💧 Free Water all: <?= $perkLeft ?> left today</span> <?php endif; ?>
       <?= $bulk('harvest_all', $nReady ? '🧺 Harvest all ready' : '🧺 Nothing ready', $nReady, $hEnergy) ?>
+      <?php $rbeds = garden_replant_beds($uid, (int)$plot['id']);
+          if ($rbeds): $rTill = count(array_filter($rbeds, fn($b) => $b[2])); ?>
+        <form method="post" class="inline bulkf"><?= csrf_field() ?><input type="hidden" name="do" value="replant_all">
+          <button class="btn small" title="Puts back the seed each emptied bed last grew, the same as doing it square by square"><?= $rTill ? '🌰 Till &amp; replant' : '🌰 Replant all' ?> (<?= count($rbeds) ?>) <span class="cost">⚡<?= garden_replant_cost($uid, $rbeds) ?></span></button></form>
+      <?php endif; ?>
       <?php if ($readyB): ?><form method="post" class="inline bulkf"><?= csrf_field() ?><input type="hidden" name="do" value="collect_all"><button class="btn small">📦 Collect all (<?= count($readyB) ?>)</button></form> <?php endif;   // v0.7.99 ?>
       <?php if ($nPest): ?><?= $bulk('pick_all', '🧤 Pick pests off', $nPest, max(0, (int)setting('pest_pick_energy')) * $nPest) ?><?php endif; ?>
       <?php if ($canNoTill): ?><?= $bulk('weed_all', $nWeedy ? '🌿 Weed all beds' : '🌿 No weeds', $nWeedy, action_cost($uid, 'weed') * $nWeedy) ?><?php endif; ?>
@@ -740,7 +750,8 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
                 . (isset($s['xp_per_harvest']) ? ' · +' . (int)$s['xp_per_harvest'] . ' XP' : '')   // v2.3.94: what a harvest pays
                 . (empty($s['sapling']) && empty($known[(int)$s['plant_id']]) ? ' 📕 unstudied' : '')
                 . (!empty($s['perennial']) ? ' 🔄 Perennial' : '')
-                . ((int)$s['min_soil'] > (int)$sel['fertility'] ? ' (needs fertility ' . $s['min_soil'] . ')' : ''), 'seed')) ?>
+                . ((int)$s['min_soil'] > (int)$sel['fertility'] ? ' (needs fertility ' . $s['min_soil'] . ')' : ''), 'seed',
+                garden_default_seed($plantable, (int)$plot['id'], (int)$sel['id'], (int)$sel['fertility']))) ?>
           <?php else: ?><p class="muted">No seeds in your satchel. Visit a market!</p><?php endif; ?>
           <?php $cel = isset($built['root_cellar']) ? cellar_plants((int)$plot['id']) : [];
           if ($cel): ?>
@@ -833,9 +844,9 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
               <button class="btn small">Collect <?= $ready ?></button></form>
           <?php endif; ?>
           <?php if ($key === 'kitchen'): ?>
-            <p>🍳 All your kitchens together: meal buffs last <b>+<?= $kb['buff_pct'] ?>%</b> longer, cooking gives <b>+<?= $kb['xp_pct'] ?>%</b> XP, you have <b><?= cook_pot_limit($u) ?></b> pots<?= $kb['feasts'] ? ', and you can cook feasts' : '' ?>.</p>
+            <p>🍳 All your kitchens together: meal buffs last <b>+<?= $kb['buff_pct'] ?>%</b> longer, cooking gives <b>+<?= $kb['xp_pct'] ?>%</b> XP, you have <b><?= cook_pot_limit($u) ?></b> pots<?= $kb['feasts'] ? ', and you can cook feasts' : '' ?>.<?= empty($built[$key]['pantry']) ? ' <a href="' . e(craft_url('cooking')) . '">Cook →</a>' : '' ?></p>
             <?php if (!empty($built[$key]['pantry'])): require_once __DIR__ . '/includes/pal_jobs.php'; pj_settle_pantry($uid); $jb = pantry_busy($uid); $jr = pantry_ready_count($uid); ?>
-              <p>🫙 <b>Pantry:</b> <?= $jb ?> jars in use (<?= $kb['jars'] ?> in each of 5 rooms)<?= $jr ? ' · <b>' . $jr . ' ready</b>' : '' ?>. <a href="<?= e(craft_url('pantry')) ?>">Open the Pantry →</a></p>
+              <p>🫙 <b>Pantry:</b> <?= $jb ?> jars in use (<?= $kb['jars'] ?> in each of 5 rooms)<?= $jr ? ' · <b>' . $jr . ' ready</b>' : '' ?>. <a href="<?= e(craft_url('pantry')) ?>">Open the Pantry →</a> · <a href="<?= e(craft_url('cooking')) ?>">Cook →</a></p>
               <details class="how"><summary>How many jars?</summary>
                 <p class="help"><?= (int)setting('pantry_jars') ?> to start, +<?= (int)setting('pantry_jars_k3') ?> when a Kitchen with a Pantry is level III, and +<?= (int)setting('stack_pantry_jar_per') ?> for each Pantry in your other gardens (up to +<?= (int)setting('stack_pantry_jar_max') ?>). You have <?= $kb['pantries'] ?> Pantr<?= $kb['pantries'] === 1 ? 'y' : 'ies' ?>.</p></details>
             <?php else: [$pc, $pm] = pantry_cost(); ?>

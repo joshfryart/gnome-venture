@@ -355,6 +355,15 @@ function dock_page_spec(string $page): array
             return ['watch' => true, 'L' => null, 'R' => dock_remote('Done', '🌱', ['sel' => '.gnomemaker button.btn'])];
         case 'puzzlepals.php':
             return ['L' => dock_action('Puzzles', '↩', $u('puzzles.php')), 'R' => dock_action('Jobs', 'tasks', $u('paljobs.php'))];
+        case 'pals.php':
+            // the Find tab: the right piece puts the cursor in the name box (the dock's own "focus" key; a phone opens its keyboard). Other tabs keep the default.
+            if (($_GET['tab'] ?? '') === 'find') return ['watch' => true, 'R' => dock_remote('Find', '🔎', ['focus' => 'main form input[name="name"]'])];
+            return [];
+        case 'trek.php':
+            // L the map tab; R one tap = one action: Fight (the round button) in a fight, else Go to the next objective tile (never an arbitrary tile). 'once' greys it until the page swaps.
+            return ['watch' => true, 'L' => dock_action('Map', 'treks', $u('trek.php?t=map')), 'R' => dock_action('Go', 'trail', '', [], '', '', '', [], [
+                dock_remote('Fight', '⚔️', ['sel' => 'button.trekgo[name="do"][value="round"]', 'once' => 1]),
+                dock_remote('Go', '🥾', ['sel' => 'form.trekmapform button.obj:not([disabled])', 'once' => 1])])];
         case 'puzzlebox.php':
             return ['watch' => true, 'L' => dock_action('Back', '↩'), 'R' => dock_remote('Pack', 'box', ['doForm' => 'save'])];
         case 'gifsaw.php':
