@@ -275,30 +275,36 @@ def brow(c, x, y):
 
 
 def saffron_snip(c):
-    """Corner-BB, round: a saffron crocus. Flat W + S (the terrace step it grows from), round blanks N (the open cup) and E.
-    Two pointed outer petals rise at the top corners; the N blank is the open cup with the red saffron threads standing in it."""
+    """Corner-BB, round: a saffron crocus head. A square piece (flat W + S, round blanks N and E) whose top is one big purple crocus cup:
+    two outer petals with round tips at the top corners, a paler centre petal, and the signature three red saffron stigmas fanning
+    up around the N blank (the gap between the petals). Thin crocus leaves either side of the cup, a terrace step on the flat bottom (cell 2-6)."""
     K = 1.15 if c.small else 1.0
-    petalL = lambda x, y: x >= 10 and y < 31 and ((x - 19) / 9.5) ** 2 + ((y - 24) / 20) ** 2 < 1 and x + 0.9 * y > 17.5
-    petalR = lambda x, y: x < 53 and y < 31 and ((x - 44) / 9.5) ** 2 + ((y - 24) / 20) ** 2 < 1 and (53 - x) + 0.9 * y > 17.5
-    cup = lambda x, y: petalL(x, y) or petalR(x, y) or (19 <= x < 44 and 13 <= y < 31)
-    blankN = knob('B', 'round', 31.5, 13, 0, -1, r=5.2 * K)
-    blankE = knob('B', 'round', 53, 44, 1, 0, r=4.6 * K)
-    body = c.m(cup, rect(10, 30, 53, 57), minus=(blankN, blankE))
-    sepal = c.m(lambda x, y: y >= 32 - (4 if abs(x - 31.5) % 10 < 5 else 0) * (1 - abs(((x - 31.5) % 10) - 2.5) / 2.5))
-    c.add(body & sepal, TEA, stitch='#a4c46a')
-    c.add(body - sepal, PURP)
-    # petal splits running down from the notch shoulders
-    c.line([(22.5, 14), (20.5, 26)], PURP[1])
-    c.line([(40.5, 14), (42.5, 26)], PURP[1])
-    c.line([(14, 10), (13, 20)], PURP[2])
-    c.line([(49, 10), (50, 20)], PURP[2])
-    # saffron threads standing in the cup
+    core = rect(10, 12, 53, 57)
+    corners = lambda x, y: y < 18 and ((x < 16 and not ell(16, 18, 6, 6)(x, y)) or (x >= 47 and not ell(47, 18, 6, 6)(x, y)))
+    blankN = knob('B', 'round', 31.5, 12, 0, -1, r=4.4 * K)
+    blankE = knob('B', 'round', 53, 46, 1, 0, r=4.4 * K)
+    body = c.m(core, minus=(blankN, blankE, corners))
+    c.add(body, TEA, stitch='#a4c46a')                                        # leaves
+    cup = body & c.m(lambda x, y: y < 22 or ((x - 31.5) / 21.5) ** 2 + ((y - 22) / 18) ** 2 < 1)
+    c.add(cup, PURP)
+    centre = body & c.m(lambda x, y: ((x - 31.5) / 9.5) ** 2 + ((y - 24) / 15) ** 2 < 1)
+    c.add(centre, ('#9a7ac8', '#8a5aa8', '#c3b2ea'))
+    # petal edges: the outer petals wrap round the paler centre petal
     if not c.small:
-        c.add(c.m(thick_path([(31.5, 27), (28.4, 21.6)], 1.7), thick_path([(31.5, 27), (31.5, 20.6)], 1.7),
-                  thick_path([(31.5, 27), (34.6, 21.6)], 1.7)), SAFFRED)
-    else:
-        c.add(c.m(thick_path([(29, 22), (31.5, 25), (34, 22)], 1.9)), SAFFRED)
-    # terrace step along the flat bottom (cell 2-6: beige stone walls)
+        c.line([(20, 15), (21.5, 30), (27, 38)], PURP[1])
+        c.line([(43, 15), (41.5, 30), (36, 38)], PURP[1])
+        c.line([(14, 18), (15, 27)], '#c3b2ea')
+        c.line([(49, 18), (48, 27)], '#c3b2ea')
+    # leaf stripes either side of the cup (crocus leaves have a pale midrib)
+    c.line([(13, 50), (14, 36)], '#a4c46a')
+    c.line([(50, 50), (49, 36)], '#a4c46a')
+    # the saffron stigmas: three bold red threads with flared orange tips, fanning up around the notch
+    w = 1.7 if not c.small else 2.6
+    base = (31.5, 37)
+    tips = [(24.5, 19), (31.5, 26), (38.5, 19)]
+    c.add(c.m(*[thick_path([base, t], w) for t in tips]), SAFFRED)
+    tr = 1.9 if not c.small else 2.4
+    c.add(c.m(*[ell(t[0], t[1] - 0.5, tr, tr * 0.9) for t in tips]), ('#f08a24', '#d8481e', '#f8d060'))
     c.add(body & c.m(rect(0, 51.5, 64, 64)), WALL)
     if not c.small:
         y = c.P(0, 54)[1]
@@ -306,13 +312,11 @@ def saffron_snip(c):
             if x % 6 == 0:
                 c.px(x, y, WALL[1])
                 c.px(x, y + 1, WALL[1])
-    # a teal leaf blade (the picker's hat) up the flat side
-    c.add(body & c.m(poly([(11, 51), (13.5, 35), (17, 51)])), TEAL)
-    c.eye(24, 40)
-    c.eye(36, 40)
-    c.smile(30, 45)
-    c.blush(20, 44)
-    c.blush(39.5, 44)
+    c.eye(25, 45)
+    c.eye(38, 45)
+    c.smile(31.5, 48.5)
+    c.blush(20.5, 48)
+    c.blush(42.5, 48)
 
 
 def yak_yonder(c):
@@ -371,20 +375,23 @@ def yak_yonder(c):
 
 
 def chilli_chime(c):
-    """Inner-TBTB, peg: a chilli off the souk garland. Peg tab N (its green stalk), peg tab S (a brass chime bell hanging off its tip),
-    square peg blanks E + W pinch its shoulders. Long, tapered, tip curling right. Souk reds and golds (cell 9-6)."""
+    """Inner-TBTB, peg: a chilli bundle, square like the Yak. A square glossy red body under a green calyx cap; the N peg tab is the stalk
+    (with its curl), the S peg tab is a brass chime bell, square peg blanks E + W. Across its middle hangs a souk garland of little chillies
+    on a gold thread (cell 9-6: the chilli garlands, the spice golds)."""
     K = 1.15 if c.small else 1.0
-    pod = poly([(18, 22), (46, 22), (46, 34), (45, 44), (43, 51), (41.5, 56.5), (33, 56.5), (26, 50), (21, 43), (18, 34)])
-    shoulders = (ell(23.5, 22.5, 5.5, 6), ell(40.5, 22.5, 5.5, 6), rect(23.5, 16.5, 40.5, 24))
-    blankE = knob('B', 'peg', 46, 28.5, 1, 0, r=3.3 * K)
-    blankW = knob('B', 'peg', 18, 28.5, -1, 0, r=3.3 * K)
-    tabN = knob('T', 'peg', 32, 16.5, 0, -1, r=3.9 * K)
-    tabS = knob('T', 'peg', 37.2, 56.5, 0, 1, r=3.5 * K)
-    body = c.m(pod, *shoulders, minus=(blankE, blankW))
-    c.add(body, CHILLI, stitch='#e0483a')
-    cap = body & c.m(lambda x, y: y < 20.5 + (2 if 25 <= x < 39 and ((x - 25) // 4) % 2 == 0 else 0))
+    core = rect(12, 17, 52, 53)
+    rounded = lambda x, y: y >= 47 and ((x < 18 and not ell(18, 47, 6, 6)(x, y)) or (x >= 46 and not ell(46, 47, 6, 6)(x, y)))
+    blankE = knob('B', 'peg', 52, 35, 1, 0, r=4.0 * K)
+    blankW = knob('B', 'peg', 12, 35, -1, 0, r=4.0 * K)
+    tabN = knob('T', 'peg', 32, 17, 0, -1, r=4.4 * K)
+    tabS = knob('T', 'peg', 32, 53, 0, 1, r=4.4 * K)
+    body = c.m(core, minus=(blankE, blankW, rounded))
+    c.add(body, CHILLI)
+    # calyx cap: a smooth green cap with a rounded rim (no leafy points: those read as a strawberry)
+    cap = body & c.m(lambda x, y: y < 20.5 + 3 * (1 - ((x - 32) / 20) ** 2))
     c.add(c.m(tabN) | cap, TEA)
-    bell = c.m(tabS, minus=(lambda x, y: y < 57.5,))
+    c.add(c.m(thick_path([(32, 9), (36, 6.5), (39, 8)], 2.4 if not c.small else 3.0)), TEA)    # stalk curl
+    bell = c.m(tabS, minus=(lambda x, y: y < 54,))
     c.add(bell, GOLD)
     by = max(y for (x, y) in bell)
     xs = sorted(x for (x, y) in bell if y == by)
@@ -392,14 +399,36 @@ def chilli_chime(c):
         for x in range(xs[0], xs[-1] + 1):
             c.px(x, by - 1, GOLD[1])
     c.px((xs[0] + xs[-1]) // 2, by - (3 if not c.small else 1), UMBER2)
-    # gloss: a long curved streak down the left of the pod
-    c.line([(21.5, 24), (21.5, 34)], CHILLI[2])
-    c.line([(23, 40), (27, 46), (31, 50)], CHILLI[2])
-    c.eye(28, 37)
-    c.eye(37.5, 37)
-    c.smile(33, 42.5)
-    c.blush(25, 41.5)
-    c.blush(41, 41.5)
+    # gloss (a chilli is shiny): a long light stripe down the left, a glint top right
+    c.add(body & c.m(rect(15, 25, 17.5, 46)), ('#e0483a', '#e0483a', '#f08a4a'))
+    c.line([(46, 25), (47, 28)], '#f08a4a')
+    # souk garland: a gold thread with three hanging chillies (umber-edged so they read on the red body)
+    gy = 41
+    c.line([(14, gy), (24, gy + 1.5), (32, gy + 2), (40, gy + 1.5), (50, gy)], SAFF[0])
+    for gx in (21, 32, 43):
+        if not c.small:
+            mc = c.m(poly([(gx - 2, gy + 3), (gx + 2, gy + 3), (gx + 2, gy + 7.5), (gx + 4, gy + 10.5), (gx + 0.5, gy + 9.5), (gx - 2, gy + 6.5)]))
+            for (x, y) in mc:
+                c.px(x, y, '#f8d060' if (x - 1, y) not in mc and (x, y - 1) in mc else '#f08a24')
+            for (x, y) in mc:
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    q = (x + dx, y + dy)
+                    if q not in mc and q in body and q not in c.over:
+                        c.over[q] = UMBER2
+            x, y = c.P(gx, gy + 2)
+            for dx in (-1, 0, 1):
+                c.px(x + dx, y, TEA[0])
+        else:
+            x, y = c.P(gx, gy + 2)
+            c.px(x, y, TEA[0])
+            c.px(x, y + 1, '#f08a24')
+            c.px(x, y + 2, '#f08a24')
+            c.px(x + 1, y + 3, '#f08a24')
+    c.eye(25.5, 31)
+    c.eye(38.5, 31)
+    c.smile(32, 36)
+    c.blush(21, 35.5)
+    c.blush(43, 35.5)
 
 
 def stupa_snug(c):
@@ -452,45 +481,59 @@ def stupa_snug(c):
 
 
 def teal_ferry(c):
-    """Inner-TTBB, hook: the flower ferry. Hook tabs N (the ferryman's brass boat hook) and E (a curled wooden prow),
-    hook blanks W (cut into the cabin) and S (cut into the river). Arched teal canopy on two posts, a curved wooden hull wearing
-    the face, pink garland flowers on the rail, floating on its own band of teal river (cell 6-6)."""
+    """Inner-TTBB, hook: the flower ferry. One square piece: a heap of garland flowers aboard on top, a curved wooden hull with upswept
+    stern (left) and prow (right) wearing the face, teal river with foam below. Hook tabs: N = the top of the ferryman's pole (brass boat hook),
+    E = the prow curling out of the hull. Hook blanks: W cut into the flower heap, S cut into the river (cell 6-6)."""
     K = 1.12 if c.small else 1.0
-    core = rect(11, 17, 49, 55)
-    tabN = knob('T', 'hook', 23, 17, 0, -1, r=5.0 * K)
-    tabE = knob('T', 'hook', 49, 36, 1, 0, r=5.0 * K, flip=True)
-    blankS = knob('B', 'hook', 31, 55, 0, 1, r=3.6 * K)
+    core = rect(11, 18, 49, 55)
+    tabS = knob('T', 'hook', 31, 55, 0, 1, r=4.4 * K)
+    tabE = knob('T', 'hook', 49, 31, 1, 0, r=5.0 * K, flip=True)
+    blankN = knob('B', 'hook', 28, 18, 0, -1, r=3.6 * K)
     blankW = knob('B', 'hook', 11, 27, -1, 0, r=3.5 * K)
-    body = c.m(core, minus=(blankS, blankW))
-    c.add(body, TEAL)                                     # the river
-    c.add(body & c.m(rect(0, 17, 64, 33)), BURLAP)        # cabin
-    c.add(body & c.m(lambda x, y: y < 22.5 + 2.2 * (1 - ((x - 30) / 19) ** 2)), TEAL)   # arched canopy
-    c.add(body & c.m(rect(12, 22, 15.5, 33), rect(44.5, 22, 48, 33)), WOOD)
-    hull = body & c.m(lambda x, y: 32.5 <= y < 46.5 - 5 * ((x - 30) / 19) ** 2)
+    body = c.m(core, minus=(blankN, blankW))
+    c.add(body, TEA)                                                             # leafy flower heap
+    t = lambda x: ((x - 30) / 19) ** 2
+    hull = body & c.m(lambda x, y: 36 - 8 * t(x) <= y < 47 - 6 * t(x))
+    river = body & c.m(lambda x, y: y >= 47 - 6 * t(x) and y >= 38)
+    c.add(river, TEAL)
     c.add(hull, WOOD, stitch='#d9a35a')
-    c.add(c.m(tabN, minus=(core,)), GOLD)
-    c.add(c.m(tabE, minus=(core,)), WOOD)
-    c.line([(11, 32.5), (49, 32.5)], WOOD[1])
-    if not c.small:
-        c.line([(13, 19), (46, 19)], TEAL[2])
-    for i, fx in enumerate((19, 25, 31, 37, 42)):
-        x, y = c.P(fx, 29.5)
-        col = MAG[2] if i % 2 else MAG[0]
-        c.px(x, y, col)
+    c.add(c.m(tabS, minus=(core,)), ('#8b8f96', '#5b6470', '#c9c5bc'))     # the anchor hook under the water
+    c.add(c.m(tabE, minus=(core,)) | (c.m(tabE) & hull), WOOD)
+    # a little mast with a red pennant (the ferryman's red hat) standing in the flowers
+    c.add(body & c.m(rect(38, 18, 40, 33)), WOOD)
+    c.add(body & c.m(poly([(40, 18), (46, 20.5), (40, 23)])), ('#c8202a', '#8e1a20', '#e0483a'))
+    # gunwale rail + one plank seam following the curve
+    for x in range(c.P(11, 0)[0], c.P(49, 0)[0]):
+        X = (x + 0.5) / c.k
+        c.px(x, c.P(0, 36 - 8 * t(X))[1], WOOD[1])
         if not c.small:
-            for d in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            c.px(x, c.P(0, 43 - 7 * t(X))[1], WOOD[1])
+    # flowers heaped aboard: pink, magenta, marigold
+    blooms = [(15, 21), (21, 20.5), (34, 21), (44, 27), (35, 26), (17, 27.5), (24, 28.5), (31, 30), (43, 32), (27, 33), (20, 33.5), (35, 33)]
+    cols = (MAG[0], MAG[2], SAFF[0], '#f6b8cf')
+    for i, (fx, fy) in enumerate(blooms):
+        x, y = c.P(fx, fy)
+        col = cols[i % 4]
+        if not c.small:
+            for d in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
                 c.px(x + d[0], y + d[1], col)
-            c.px(x, y, SAFF[2])
-    for wy in ((49, 52.5) if not c.small else (50,)):
+            c.px(x, y, SAFF[2] if col != SAFF[0] else WOOD[1])
+        else:
+            if i % 2 == 0 or i > 8:
+                c.px(x, y, col)
+                c.px(x + 1, y, col)
+    # foam on the river
+    for wy in ((50, 53) if not c.small else (51.5,)):
         y = c.P(0, wy)[1]
         for x in range(c.P(11, 0)[0], c.P(49, 0)[0]):
-            if (x + (3 if wy > 50 else 0)) % (6 if not c.small else 4) in (0, 1) and (x, y) in body and (x, y) not in hull:
+            if (x + (3 if wy > 51 else 0)) % (6 if not c.small else 4) in (0, 1) and (x, y) in river:
                 c.px(x, y, TEAL[2])
-    c.eye(24.5, 36.5)
-    c.eye(35.5, 36.5)
-    c.smile(30, 39.5)
-    c.blush(20.5, 39.5)
-    c.blush(39.5, 39.5)
+    c.eye(24, 40)
+    c.eye(35, 40)
+    c.smile(29.5, 43)
+    c.blush(19.5, 42.5)
+    c.blush(39.5, 42.5)
+
 
 def lofty_kite(c):
     """Whimsy-kite, tri: a diamond kite. Tri tabs on its NW and SE edges, tri blanks on NE and SW, a ribbon tail with two bow ties.
