@@ -1,6 +1,8 @@
-# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.74). History: `claude/todo_history.md`
+# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.75). History: `claude/todo_history.md`
 
 Rules: add new items here only. Tick or delete when done, and MOVE finished blocks to `claude/todo_history.md` (newest on top). STANDING RULE (Josh, 2026-11-05): after every change or release, update this file. Items marked (2.7.x) were carried from older lists and not re-verified: check before building.
+## 2.8.75 SHIPPED 2026-11-26 (PR merged to main; slim zip `releases/GnomeVenture-2.8.75-web-update.zip`, 93 files, built against 2.8.73 so it goes on 2.8.73 or newer, includes 2.8.74): villager, stop, trail and wearables art pass (see CHANGELOG). Zip not test-installed over a real 2.8.73; nothing seen on a real phone. The "DONE unreleased" art lines below are now in 2.8.75.
+
 ## 2.8.74 SHIPPED 2026-11-26 (PR 86 merged to main; slim zip `releases/GnomeVenture-2.8.74-web-update.zip`, 8 files, goes on 2.8.73)
 - Live world checked by Josh: routes `245 | 473 | 0` = already right, so `tools/renumber_routes_239.php` is not needed (kept for any other world). Zip not test-installed over a real 2.8.73; nothing seen on a real phone or MySQL.
 

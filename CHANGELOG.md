@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.75
+- **Villager art:** moth villager 1 reads as a moth (no bear snout, ringed eyes, comb antennae); butterfly villagers 1, 2 and 3 redrawn with clean round faces and visible wings; tortoise villager shells 1-3 clearly show their scutes.
+- **Stop and trail art:** lair sleeper muted from bright purple to taupe (7 sprites), taprow sap buckets with syrup and drips, a quay at the coast market, wetland animals about 2x, tundra camp / ferry animals bigger, new rainforest tower roof, stuffed-peppers-goat redrawn.
+- **Wearables:** 7 front cloak / pack avatar layers redrawn; 42 outfitter-staff portraits (`ph/npc-<slug>.png`, placeholders from the folk portraits).
+
 ## 2.8.74
 - **Garden badge counts crops that finished overnight:** the dock, the menu sheet and `dockstate.php` counted ripe crops from the stored growth only, so after a sleep (sleep-days clock) the Garden count lagged until the garden page was opened. New `garden_ready_count()` (`includes/garden_logic.php`) settles growth in memory (nothing saved) and is used by `dock_garden_ready()` and `nav_groups()`. Dock tiles now carry a `slug`, and `dock.js` patches the Garden badge by slug, not by the label. `tests/dock_badges.php` covers it.
 - **Route ids (W4 bug):** a fresh install numbered routes one lower from 239 up, so 234 routes picked up the neighbouring route's trail map, camp and road kind. `lay_roads` now burns the dead-end leg's id again. New suite `tests/route_ids.sh`. Worlds installed after commit e21c8d65 and before this fix keep shifted ids (needs a manual renumber).
