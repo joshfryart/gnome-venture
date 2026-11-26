@@ -2495,7 +2495,22 @@ document.addEventListener('click', function (ev) {
 });
 
 /* v2.8.04: every finished random-event / prize banner gets an ✕ that hides it in place (no reload). Banners that wait for a choice keep no ✕. */
+/* v2.8.73: with the dock in landscape or on a computer, a finished purple banner (random events, Puzzle Pal hello and the like) goes to the bell (bottom right: glow + newest shown for a few seconds)
+   instead of sitting in the page. Portrait phones and banners that wait for a choice keep the banner. Prize banners stay. */
+function gvEvToBell() {
+  if (!document.body.classList.contains('dock-on') || !window.gvDockNote) return;
+  document.querySelectorAll('.eventbox:not(.waiting):not(.hasx):not(.evbell)').forEach(function (b) {
+    var q = function (sel) { var el = b.querySelector(sel); return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; };
+    var lines = [].map.call(b.querySelectorAll('li'), function (l) { return (l.textContent || '').replace(/\s+/g, ' ').trim(); }).filter(Boolean);
+    var parts = [q('.evtitle'), q('.evbody > p')].concat(lines).filter(Boolean);
+    if (!parts.length) return;
+    var note = document.createElement('span');
+    note.textContent = parts.join(' \u00b7 ');
+    if (window.gvDockNote([note])) { b.classList.add('evbell'); b.remove(); }
+  });
+}
 function gvEvClose() {
+  gvEvToBell();
   document.querySelectorAll('.eventbox:not(.waiting):not(.hasx), .prizebox:not(.hasx)').forEach(function (b) {
     b.classList.add('hasx');
     var x = document.createElement('button');
@@ -2505,6 +2520,7 @@ function gvEvClose() {
   });
 }
 document.addEventListener('DOMContentLoaded', gvEvClose);
+window.addEventListener('load', gvEvToBell);
 document.addEventListener('gv:swapped', gvEvClose);
 if (document.readyState !== 'loading') gvEvClose();
 
