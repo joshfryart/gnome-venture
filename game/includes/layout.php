@@ -621,8 +621,8 @@ function nav_groups(array $u, string $page): array
     if (!$b || ($b['at'] ?? 0) < time() - 60 || ($page === 'garden.php' && ($b['at'] ?? 0) < time() - 5)) {   // v1.4.0: fresh on the garden page (cover crops never counted)
         $b = ['at' => time(), 'garden' => 0, 'games' => 0, 'fair' => 0];
         try {
-            $b['garden'] = (int)q_val('SELECT COUNT(*) FROM plot_tiles t JOIN plants p ON p.id = t.plant_id WHERE t.plot_id = ? AND p.kind <> \'cover\' AND t.growth_seconds >= p.grow_minutes * 60',
-                [(int)($u['active_plot_id'] ?? 0)]);
+            require_once __DIR__ . '/garden_logic.php';
+            $b['garden'] = garden_ready_count((int)($u['active_plot_id'] ?? 0));
             require_once __DIR__ . '/games.php';
             foreach (array_keys(GAMES) as $g) $b['games'] += game_plays_left($uid, $g) > 0 ? 1 : 0;
             $b['fair'] = (int)q_val('SELECT COUNT(*) FROM fair_best f WHERE f.user_id = ? AND f.month = ? AND NOT EXISTS

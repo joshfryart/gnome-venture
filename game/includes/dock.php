@@ -100,7 +100,8 @@ function dock_current_tile(string $page): string
 function dock_garden_ready(array $u): int
 {
     try {
-        return (int)q_val('SELECT COUNT(*) FROM plot_tiles t JOIN plants p ON p.id = t.plant_id WHERE t.plot_id = ? AND p.kind <> \'cover\' AND t.growth_seconds >= p.grow_minutes * 60', [(int)($u['active_plot_id'] ?? 0)]);
+        require_once __DIR__ . '/garden_logic.php';
+        return garden_ready_count((int)($u['active_plot_id'] ?? 0));
     } catch (Throwable $e) { return 0; }
 }
 
@@ -128,7 +129,7 @@ function dock_menus(array $u, string $page): array
         if ($slug === 'games') $badge = '';   // game tiles carry no count in the dock (the classic menu sheet keeps its badge: it shares nav_groups())
         if ($slug === 'garden') $badge = $garden > 0 ? (string)$garden : '';   // fresh harvest-ready count, so it follows a harvest
         $b = $badge === '!' ? '!' : (preg_match('/^(\d+)/', $badge, $m) ? $m[1] : ($badge !== '' ? '•' : ''));
-        return ['href' => url($file), 'label' => $label, 'icon' => $icon, 'badge' => $b, 'on' => $cur === $file || ($road && $file === 'adventure.php' && in_array($cur, ['here.php', 'adventure.php'], true)), 'why' => $why];
+        return ['href' => url($file), 'label' => $label, 'icon' => $icon, 'badge' => $b, 'slug' => $slug, 'on' => $cur === $file || ($road && $file === 'adventure.php' && in_array($cur, ['here.php', 'adventure.php'], true)), 'why' => $why];
     };
     $menus = [];
     foreach ($keys as $name => $k) {
@@ -322,9 +323,11 @@ function dock_page_spec(string $page): array
                 dock_action('Mushroom', '🍄', $u('mushroom.php')), dock_action('Pest', '🪰', $u('pest.php')), dock_action('Marrow', '⚖️', $u('marrow.php')), dock_action('Worms', '🪱', $u('worms.php')),
             ], '', '', 'Play a game')];
         case 'puzzles.php':
+            require_once __DIR__ . '/puzzle_pals.php';   // ppal_open(): the Pals entry greys out ("soon") like the hub tile when the book is closed or the viewer is a guest
+            $palsOn = ppal_open() && !is_guest();
             require_once __DIR__ . '/puzzle_games.php';   // puzzle_game_open(): a closed game greys its tile ("coming soon") instead of bouncing the player back here
             return ['L' => dock_action('Games', '↩', $u('games.php')), 'R' => dock_action('Play', '🧩', '', [
-                dock_action('Jigsaw', '🧩', $u('jigsaw.php')), dock_action('GIFsaw', '🎞️', $u('gifsaw.php')), dock_action('Pals', '🐾', $u('puzzlepals.php')),
+                dock_action('Jigsaw', '🧩', $u('jigsaw.php')), dock_action('GIFsaw', '🎞️', $u('gifsaw.php')), dock_action('Pals', '🐾', $palsOn ? $u('puzzlepals.php') : '', [], $palsOn ? '' : 'soon'),
                 dock_action('Barrel', '🛢️', puzzle_game_open('barrel') ? $u('rainbarrel.php') : '', [], puzzle_game_open('barrel') ? '' : 'soon'),
                 dock_action('Beds', '🛏️', puzzle_game_open('beds') ? $u('gnomebeds.php') : '', [], puzzle_game_open('beds') ? '' : 'soon'),
             ], '', '', 'Puzzles')];

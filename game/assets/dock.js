@@ -630,6 +630,7 @@
     ACT = { L: finalAct(D.actions.L), R: finalAct(D.actions.R) };
     var key = slip || '';
     K = scaleFor(VW, window.innerHeight); W = Math.round(VW / K); LW = W; g = geom(W);
+    root.classList.toggle('dk-small', K < 1);   // 2.8.74: the 75% dock bumps its label size so the text still renders near 10px (dock.css)
     if (!stage) { stage = document.createElement('div'); stage.className = 'dockstage'; root.appendChild(stage); }
     stage.style.height = DH + 'px'; stage.style.width = W + 'px'; stage.style.transform = K !== 1 ? 'scale(' + K + ')' : '';   // origin is the bottom left (dock.css)
     dockH(Math.round(DH * K) + 'px');   // the page clears the scaled dock
@@ -771,7 +772,7 @@
     fetch(D.stateUrl, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
       stBusy = false; if (!j || !j.plate || !D) return;
       D.plate = j.plate; if (j.rows) D.rows = j.rows; if (j.links) D.links = j.links; if (j.tod) D.tod = j.tod;
-      if (typeof j.garden === 'number') D.menus.forEach(function (m) { m.tiles.forEach(function (t) { if (t.label === 'Garden') t.badge = j.garden > 0 ? String(j.garden) : ''; }); });
+      if (typeof j.garden === 'number') D.menus.forEach(function (m) { m.tiles.forEach(function (t) { if (t.slug === 'garden') t.badge = j.garden > 0 ? String(j.garden) : ''; }); });
       render(); energyFx(); timeFx();
     }).catch(function () { stBusy = false; });
   }

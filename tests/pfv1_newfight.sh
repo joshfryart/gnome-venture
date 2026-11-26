@@ -28,6 +28,7 @@ get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'gard
 db "UPDATE users SET energy=100, tour_step=99, level=12 WHERE username='sprout'" >/dev/null
 for s in pfight_open pfight_v1; do db "INSERT OR REPLACE INTO settings (name,value) VALUES ('$s','1')" >/dev/null; done
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_intro','0')" >/dev/null   # 2.7.57: the first-time intro card would cover the board
 # the first box is packed (a new encounter then opens on its pre-fight screen, as for a player past the starter pick)
 get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_starter -d 'pick[]=jab' -d 'pick[]=snack' -d 'pick[]=brace' -d 'pick[]=hum' -d 'pick[]=pierce' -d 'pick[]=swing#2' >/dev/null
 [ "$(db "SELECT COUNT(*) FROM pf_deck_pieces WHERE starter=1")" -gt 0 ] || { echo "STARTER NOT PACKED"; exit 1; }

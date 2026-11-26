@@ -50,7 +50,7 @@ dbx "UPDATE plot_tiles SET plant_id = (SELECT id FROM plants LIMIT 1), growth_se
 curl -s -b $W/g1 -o /dev/null -X POST $BASE/garden.php --data-urlencode "csrf=$GCS" -d do=harvest -d x=0 -d y=0
 ok "a guest harvest enters no contest" "$(dbv "SELECT (SELECT COUNT(*) FROM fair_best WHERE user_id = $GID) + (SELECT COUNT(*) FROM show_entries WHERE user_id = $GID)")" 0
 setg puzzles_open 1; setg pz_barrel_open 1
-curl -s -b $W/g1 $BASE/rainbarrel.php > $W/rb.html; RC=$(grep -o '"csrf":"[^"]*"' $W/rb.html | sed 's/.*:"\(.*\)"/\1/')
+curl -s -b $W/g1 $BASE/rainbarrel.php > $W/rb.html; RC=$(grep -o '"csrf":"[^"]*"' $W/rb.html | head -1 | sed 's/.*:"\(.*\)"/\1/')
 api() { curl -s -b $W/g1 -X POST $BASE/puzzle_game_api.php --data-urlencode "csrf=$RC" -d g=barrel "$@"; }
 api -d do=start -d mode=daily > $W/s.json; T=$(php -r 'echo json_decode(file_get_contents($argv[1]),true)["token"];' $W/s.json)
 SEED=$(dbv "SELECT seed FROM puzzle_runs WHERE token = '$T'"); dbx "UPDATE puzzle_runs SET start_ms = start_ms - 90000 WHERE token = '$T'"

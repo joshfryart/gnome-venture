@@ -220,7 +220,7 @@ ok('kettle sub line', tea_kettle_sub(0, 3) === 'Tin · Copper for 150 Petals' &&
 echo "== who sees it\n";
 $me = $row(); $adm = ['role' => 'admin'] + $me; $guest = ['guest' => 1] + $adm;
 q("DELETE FROM settings WHERE name = 'tea_open'"); setting('__reload__');
-ok('default is Admins only', setting('tea_open') === 'admin' && !tea_open_for($me) && tea_open_for($adm) && !tea_open_for($guest) && !tea_open_for(null));
+ok('default is Everyone', setting('tea_open') === 'everyone' && tea_open_for($me) && tea_open_for($adm) && !tea_open_for($guest) && !tea_open_for(null));
 cfg(['tea_open' => 'off']); ok('off: nobody', !tea_open_for($me) && !tea_open_for($adm));
 ok('closed: brewing and buying are refused', tea_brew($me, ['mint'])[0] === false && tea_kettle_buy($me)[0] === false);
 $chosen = hovel_decor_chosen($uid);

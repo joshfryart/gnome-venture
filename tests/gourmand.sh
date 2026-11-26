@@ -60,7 +60,7 @@ chk "admin preview for a month" "$(getA 'admin/gourmand.php?tour=2027-02')" 200
 chk "admin preview is not for players" "$(get admin/gourmand.php)" 403
 getA admin/index.php >/dev/null; grep -q 'admin/gourmand.php' $H2 && echo "ok   the admin menu links the preview"
 grep -q 'Closed to players' $H2 && echo "ok   admin sees the closed banner"
-chk "admin: nav tile" "$(getA gnome.php >/dev/null; grep -c 'gourmand.php' $H2)" 1
+chk "admin: nav tile" "$(getA gnome.php >/dev/null; grep -o '<a class="navtile[^"]*" href="[^"]*gourmand\.php' $H2 | wc -l | tr -d ' ')" 1
 getA 'admin/settings.php?q=gourmand' >/dev/null; grep -q 'gourmand_open' $H2 && echo "ok   settings page lists gourmand_open"
 chk "settings: Gourmand rows sit in the World section" "$(grep -o 'Gourmand: Pomeroy' $H2 | head -1)" "Gourmand: Pomeroy"
 chk "turn him on from the admin page" "$(postA admin/settings.php -d q=gourmand_open -d 's[gourmand_open]=1')" 302
@@ -75,7 +75,7 @@ grep -q 'Serve a course' $H && echo "ok   the panel offers a link, not a deal bu
 chk "player: the camp spot" "$(get "town.php?spot=$CAMP")" 200
 grep -q 'Pomeroy' $H && echo "ok   the camp spot shows him"
 chk "player: town.php" "$(get town.php)" 200
-chk "player: nav tile" "$(get gnome.php >/dev/null; grep -c 'gourmand.php' $H)" 1
+chk "player: nav tile" "$(get gnome.php >/dev/null; grep -o '<a class="navtile[^"]*" href="[^"]*gourmand\.php' $H | wc -l | tr -d ' ')" 1
 echo "== serving over HTTP, on a day outside the Maplewold's window (Oct 14)"
 dbx "UPDATE settings SET value='2026-10-14' WHERE name='gourmand_force_date'"
 give wild-rice 3 70

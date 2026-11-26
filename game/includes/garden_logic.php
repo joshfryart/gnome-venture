@@ -873,6 +873,24 @@ function water_seconds(array $t, array $p): int
 }
 
 /** Bring a square's growth up to date. Plants only grow while watered. */
+/** Harvest-ready crops in a plot (cover crops never count), growth brought up to date in memory only (nothing is saved): under the sleep-days clock a sleep moves users.game_day but does not rewrite each tile, so the stored growth_seconds alone lags. Shared by the dock, the menu badge and the reminder mail. */
+function garden_ready_count(int $plotId): int
+{
+    if ($plotId <= 0) return 0;
+    $rows = q('SELECT t.* FROM plot_tiles t JOIN plants p ON p.id = t.plant_id WHERE t.plot_id = ? AND p.kind <> \'cover\'', [$plotId])->fetchAll();
+    $plants = [];
+    $n = 0;
+    foreach ($rows as $t) {
+        $pid = (int)$t['plant_id'];
+        if (!array_key_exists($pid, $plants)) $plants[$pid] = q_one('SELECT * FROM plants WHERE id = ?', [$pid]) ?: null;
+        $p = $plants[$pid];
+        if (!$p) continue;
+        $need = (int)$p['grow_minutes'] * 60;
+        if ((int)$t['growth_seconds'] >= $need || (int)tile_grow($t, $p)['growth_seconds'] >= $need) $n++;
+    }
+    return $n;
+}
+
 function tile_grow(array $t, ?array $p, ?int $at = null): array
 {
     if (!$t['plant_id'] || !$p) return $t;

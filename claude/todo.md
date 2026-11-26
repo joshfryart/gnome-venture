@@ -1,6 +1,8 @@
-# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.73). History: `claude/todo_history.md`
+# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.73, branch ccr-d3df1991-3zcfye = 2.8.74). History: `claude/todo_history.md`
 
 Rules: add new items here only. Tick or delete when done, and MOVE finished blocks to `claude/todo_history.md` (newest on top). STANDING RULE (Josh, 2026-11-05): after every change or release, update this file. Items marked (2.7.x) were carried from older lists and not re-verified: check before building.
+## 2.8.74 BUILT 2026-11-26 (branch, not yet on main): slim zip `releases/GnomeVenture-2.8.74-web-update.zip` (8 files, goes on 2.8.73). Route-id fix is for NEW worlds only; live needs `tools/renumber_routes_239.php` only if its routes read `245 | 472 | 1`. Zip not test-installed over a real 2.8.73.
+
 
 ## 2.8.73 SHIPPED 2026-11-26 (PR 84 merged to main; slim zip `releases/GnomeVenture-2.8.73-web-update.zip` built against 2.8.70, goes on 2.8.70 or newer, includes 2.8.71 + 2.8.72)
 - Open from it: shops-street hotspots unchecked by eye; route cards lost the gnome (ask if wanted back) and the lair card keeps its eyes; stoptiers mill-1, workshop-1..4, spring-3 kept as before (redraws were broken); `mini-<slug>.png` rigs old; zip not test-installed over a real 2.8.70.
@@ -12,16 +14,16 @@ Rules: add new items here only. Tick or delete when done, and MOVE finished bloc
 - Confirm on the live world: 8 base creature rows got region windows (boot step `creature_windows_2708`, code done); Hollow jar second-week sizing check; `sights_shared_on` is still OFF by default (Josh ticked it as reviewed; flip in Admin if wanted); `gnav_on` / `gnav_tree` / `gnav_tiles` / `home_slim` default OFF (check Admin).
 
 ## B. Code / bugs open
-- W4 route-id offset bug (`roads.php` `lay_roads` + live-world renumber); gourmand nav tile double count; stale `trail_maps.json`; off-road pin clamp; `rl_trail_heading`.
-- W2 residuals: hovel tabs under dock at 640x260, tour "Show me now" at 640x260, dock labels ~8px under 340px high. W3 shop / village card asks.
+- DECIDED (Josh, 2026-11-26): keep `game/includes/data/trail_maps.json` (old 22x7 reference for tests; not live, all 246 routes overridden by `data/trail_maps/*_30x18.json`). Known: Admin "Trail maps check" reports it as live; silent 22x7 fallback if a region file fails validation.
+- DONE (2.8.74): dock labels under 340px high now 12px (renders 9px, was 8.25): `dk-small` class from `dock.js`, rules at the end of `dock.css`. 13px clipped "Out & about" (tile is 64px), so tile padding is 0 and letters -0.2px. Checked headless at 640x260, 700x320, 844x339, 844x390 and by eye; not on a real phone. W3 shop / village card asks still open.
+- Live world (2.8.73): if `SELECT COUNT(*), MAX(id), SUM(id=239) FROM routes` gives `245 | 472 | 1` it has the route-id bug; fix with `php tools/renumber_routes_239.php GAME_DIR` (dry run), then `--apply` (SQLite: copies game.sqlite; MySQL: needs `--i-have-a-db-backup`). `245 | 473 | 0` is already right. Not run on live. Tested on SQLite only (bad world, rollback, repeat); MySQL path untested.
 - DONE: crew wording now "They work every morning at 06:00." (pal_crew.php:135).
-- Garden Count badge can lag under the sleep-days clock (raw growth); dock.js finds the Garden tile by label.
 - `aseprite-source/v3/creature25/gen.lua` would overwrite swapped rigs: do not rerun blind.
-- Tests failing on old code too: pbox_v1, puzzle_pals, gourmand (nav tile 2 vs 1), tea, guest, treks (+10.1 balance sim), pfparts48 (ci_suites only), pfv1_newfight (overlay blocks click). Also (2.7.x): market100, trail_bendy, pf_piece_text, npc25_wire. Flaky under load: sinks097, game_clock.sh, catfish, puzzle_pals, tour, roads, pfboard, pfdeck_v1. Do not add to `RETRY_SUITES` without telling Josh.
+- treks: passes locally (0 FAIL) but takes about 7.5 minutes (`trek_audit_ch3b.php` is most of it) against `ci_suites.sh`'s `timeout 600`: watch for load timeouts, lower `AUDIT_N` or split if it bites. puzzle_pals dock fix greys the Pals entry as "soon" when closed or for guests (owner may prefer omitting it).
+- Flaky under load: sinks097, game_clock.sh, catfish, puzzle_pals, tour, roads, pfboard, pfdeck_v1. Do not add to `RETRY_SUITES` without telling Josh.
 - Never run: MySQL (`upgrade_check.sh`), full CI on a phone-class check, a real phone. Not seen in a real browser: harvest dialog timing, batch picker, quick turns, run-away buttons, Walk to the way on, Sell all crops, Hovel link, dock Take/Deliver/Rest/Fight, W-badge shop, event banners in the bell, Cat Fish rod upgrades, crew 06:00 pass. Ideas: SMTP untested live, cPanel cron for reminders.
-- (2.7.x) Puzzle combat: no human play session; creature card on a phone; Almanac pages for 231 creatures; player-text / tone review; phone performance of 117+ rigs unmeasured. Tests market100, trail_bendy, pf_piece_text, npc25_wire were fixed in 2.7.17 (todo_history): re-run to confirm.
+- (2.7.x) Puzzle combat: no human play session; creature card on a phone; Almanac pages for 231 creatures; player-text / tone review; phone performance of 117+ rigs unmeasured.
 - (2.7.x) Sights balance untested; decor needs a real yard check; Almanac `npc:` keys probably moot (migration removes them). Treks open: scenes Gloomtooth intro / Sorrel's door / signpost riddle, Thorny / Bramble, respec, Lanternroot crop, hats / stamp / trophy, Snail Trail 3rd puzzle game (Ch IV-VI and trailmate 8 struck).
-- Garden dock badge: dock.js finds the Garden tile by label (`dock.js:774`); lag under the sleep-days clock not addressed.
 - Ideas: preset postcards, follow a friend's trail, seed lineage, satchel split stacks by quality, crop economy (`price_base_pct` 60 to 70), cPanel cron for reminder emails, /testvault/. SMTP untested live. (SMTP and cron: see Never run)
 
 ## C. Wearables / Closet open (2.7.x)

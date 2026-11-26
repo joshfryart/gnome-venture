@@ -1964,3 +1964,19 @@ body.dock-on:has(#pfight.pf-v1, #pfi:not([hidden])) .dockroot .dk-msg { display:
   body.dock-on .pfi-foot { display: none; }
   body.dock-on .pfi .pfi-head h2 { font-size: 16px; }
 }
+
+/* very short landscape (640x260): hovel / 5+ tab rows stay on one row above the dock; the tour ask card fits the room above the dock (todo B, W2 residuals) */
+@media (orientation: landscape) and (max-height: 300px) {
+  body.dock-on main > nav.tabs.hov-tabs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-columns: none; gap: 4px; margin: 4px 0; padding: 0; }
+  body.dock-on nav.tabs.hov-tabs a { min-height: 32px; padding: 2px 4px; font-size: 12px; }
+  html.js body.dock-on.tourbub #wrentour.tour-away:not(.tour-open) { max-height: calc(100vh - var(--dock-h, 106px) - 16px); overflow-y: auto; }
+  html.js body.dock-on.tourbub #wrentour.tour-away:not(.tour-open) .tourask > div > p:not(.tourbtns) { display: none; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourbtns { display: flex; gap: 6px; margin: 2px 0 0; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourbtns form { flex: 1 1 0; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourbtns .btn { width: 100%; min-height: 36px; }
+}
+
+/* 2.8.74: the 75% dock (windows under 340px high) draws labels at 12px so they render at 9px instead of 8.25px. "Out & about" is the widest and the tile is 64px, so the tile padding goes and the letters tighten a little (13px would clip it) */
+.dockroot.dk-small .dk-pc .dk-in { padding-inline: 0; }
+.dockroot.dk-small .dk-pc .dk-lb { font-size: 12px; letter-spacing: -0.2px; }
+.dockroot.dk-small .dockslip .dk-pc .dk-lb { font-size: 11px; letter-spacing: -0.1px; }

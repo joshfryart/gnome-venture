@@ -640,7 +640,7 @@ Bar multiplier for a medium creature of level L (applied after the size constant
 
 ## 8. Out of scope (listed, not fixed)
 
-- B1 (spawn-review sec 5): a fresh install numbers routes one lower from 239 up (`roads.php:96-98`, commit e21c8d65 stopped inserting the Clovercove > Blossomreach Market leg that `cut_dead_end_roads()` later deleted); `trail_maps`, `trail_camps.json`, `road_kinds.txt`, ground pictures use the map numbering. Not fixed.
+- B1 (spawn-review sec 5): a fresh install numbers routes one lower from 239 up (`roads.php:96-98`, commit e21c8d65 stopped inserting the Clovercove > Blossomreach Market leg that `cut_dead_end_roads()` later deleted); `trail_maps`, `trail_camps.json`, `road_kinds.txt`, ground pictures use the map numbering. FIXED (2.8.74): `lay_roads` burns id 239 again (inserts and deletes the dead-end leg); test `tests/route_ids.sh`.
 - B2: lair routes' stretch count (`roads.php:141`, `steps = 2 + min(3, lvl / 8)`) differs from the authored map on a fresh install (315, 327, 340, 363, 377: 5 authored / 3; 389, 402, 415: 5 / 4; 425, 435, 458, 471: 4 / 5); existing worlds keep old steps. Not fixed.
 - B3: the boss spot on 8 of 14 lair routes can never find a boss (`trail_pick_fixed()` needs a boss of the land with level <= L+8; none for 315, 327, 340, 349, 363, 377, 389, 415 and 402 below L22), so an ordinary creature (Grumpy Lemming class) appears. Not fixed (the new variants may happen to fill it; do not add logic for it).
 - Also not in scope: Treks (own pools, `trek_creatures.txt`), the 14 inactive lair bosses, B4-B15 of the review, art generation, human playtest.
