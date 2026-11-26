@@ -5,7 +5,11 @@ declare(strict_types=1);
  * game_new_day() calls pcrew_night() once per sleep, in a fixed order: pests, weeds, harvest, plant, water. Time modes: 'timed' (1/3/7 sleeps,
  * counted from the next sleep) or 'full' (until called home). A pal sent home rests one game day (garden_pal_rest) and cannot be assigned until the next sleep.
  * What happened is saved per sleep in sleep_report (the Hovel shows it). Design + mockups: claude/todo.md (2026-11-10), pal_garden_mockups.html.
- * Growth is lazy (gclock_tile_grow settles whole days from water_day), so each tile is settled to the day that just ended, worked, then watered FOR that day.
+ * Growth is lazy (gclock_tile_grow settles whole days from water_day). The pass runs as the new day D starts (06:00 after the sleep) and does that
+ * MORNING's work for day D (Josh 2026-11-26: "should pick in the morning for that day, so you don't need to do anything"): each tile is first settled
+ * through the day that just ended, so the Harvest pal picks everything ripe this morning, and the Water pal waters for day D (water_day = D), so the
+ * bed is not thirsty today and grows at the next sleep. A day nobody watered is owed, not lost (gclock_tile_grow). Before 2026-11-26 the pass watered
+ * for the day that ended AFTER the harvest step, so that day's growth landed after the crew had gone and the ripe crops waited for the player.
  */
 require_once __DIR__ . '/pal_jobs.php';
 require_once __DIR__ . '/trade.php';   // notify()
@@ -224,17 +228,13 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
         if ($raw['plant_id']) { $pid = (int)$raw['plant_id']; $p = $plants[$pid] ??= q_one('SELECT * FROM plants WHERE id = ?', [$pid]); }
         if ($p && (int)($mem[(int)$raw['id']]['plant_id'] ?? 0) !== (int)$p['id']) { pcrew_remember((int)$raw['id'], (int)$p['id']); $mem[(int)$raw['id']] = ['plant_id' => (int)$p['id'], 'skip' => (int)($mem[(int)$raw['id']]['skip'] ?? 0)]; }   // learn what grows here
         $t = annotate_tile($raw, $p);
-        $settled = $D - 1;
         if ($p) {
-            // A bed watered by hand (or rained on) for the day that just ended has grown through it: count that day before looking for ripe crops.
-            // A dry bed is settled one day less, so the Water pal (water step below) can still water it for that day.
-            $wetFx = gfx_on() ? garden_day_fx($t, $p, hollow_date_add(hollow_season_epoch(), $D - 1)) : ['wet' => false];
-            if ((string)($t['water_day'] ?? '') === (string)($D - 1) || !empty($wetFx['wet'])) $settled = $D;
-            $t = gclock_tile_grow($t, $p, $settled);
-            $t = array_merge($t, ['grow_day' => $settled]);
+            // Josh 2026-11-26: the crew works the MORNING of day D, for day D. Every bed is settled through the day that just ended first (a watered or
+            // rained-on day grows, a dry one is owed), so whatever is ripe this morning is there for the Harvest pal and nothing ripens later the same day.
+            $t = gclock_tile_grow($t, $p, $D);
         }
         $touched = false;
-        if ($works('pests', (int)$t['id']) && !empty($t['pest'])) { q('UPDATE plot_tiles SET pest = NULL, pest_at = NULL WHERE id = ?', [$t['id']]); $t['pest'] = null; $out['pests']++; }
+        if ($works('pests', (int)$t['id']) && !empty($t['pest'])) { q('UPDATE plot_tiles SET pest = NULL, pest_at = NULL WHERE id = ?', [$t['id']]); $t['pest'] = null; $t['pest_at'] = null; $raw['pest'] = null; $raw['pest_at'] = null; $out['pests']++; }   // $raw follows, or the guarded write below sees a changed row and drops the weeding
         if ($works('weed', (int)$t['id']) && ($t['method'] ?? '') === 'notill' && (int)$t['weeds'] > 0) { $t['weeds'] = 0; $out['weed']++; $touched = true; }
         if ($p || $touched) {
             $keep = $t;
@@ -280,10 +280,10 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
         }
         if (!$fresh || !$fresh['plant_id']) continue;   // nothing growing: nothing to water
         $p = $plants[(int)$fresh['plant_id']] ??= q_one('SELECT * FROM plants WHERE id = ?', [(int)$fresh['plant_id']]);
-        if ($p && $works('water', (int)$fresh['id']) && (string)($fresh['water_day'] ?? '') !== (string)($D - 1)) {
-            $fx = gfx_on() ? garden_day_fx(annotate_tile($fresh, $p), $p, hollow_date_add(hollow_season_epoch(), $D - 1)) : ['wet' => false];
-            if (!empty($fx['wet'])) continue;   // rain did it
-            q('UPDATE plot_tiles SET water_day = ?, last_watered = ? WHERE id = ?', [$D - 1, now(), $t['id']]);
+        if ($p && $works('water', (int)$fresh['id']) && (int)($fresh['water_day'] ?? -1) < $D) {   // waters for TODAY (day D), so the bed is not thirsty all day; it grows at the next sleep
+            $fx = gfx_on() ? garden_day_fx(annotate_tile($fresh, $p), $p, hollow_date_add(hollow_season_epoch(), $D)) : ['wet' => false];
+            if (!empty($fx['wet'])) continue;   // rain does it today
+            q('UPDATE plot_tiles SET water_day = ?, last_watered = ? WHERE id = ?', [$D, now(), $t['id']]);
             $out['water']++;
         }
     }

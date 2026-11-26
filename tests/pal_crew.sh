@@ -31,6 +31,7 @@ post welcome.php -d do=place -d village_id=$VID >/dev/null
 get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'garden_name=Test Patch' >/dev/null
 php -d display_errors=1 -d error_reporting=-1 "$HERE/pal_crew.php" "$GAME" 2>&1 | tee $OUT; RC=${PIPESTATUS[0]}
 chk "pal_crew.php exit code" "$RC" 0
+chk "pal_crew.php ran to the end" "$(tail -1 $OUT)" "all ok"   # an uncaught error in the script can still exit 0
 echo "== pages"
 dbx "UPDATE users SET level = 10 WHERE username='sprout'"
 chk "garden crew tab" "$(get 'garden.php?t=help')" 200

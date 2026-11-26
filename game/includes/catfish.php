@@ -341,7 +341,8 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
 function catfish_scene_key(array $cats, ?array $active, array $owned, array $pets = []): string
 {
     return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active)) . '|' . catfish_rod_classes($owned)
-        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats)) . (catfish_pet_key($pets) !== '' ? '|' . catfish_pet_key($pets) : '')), 0, 12);
+        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats)) . (catfish_pet_key($pets) !== '' ? '|' . catfish_pet_key($pets) : '')
+        . (catfish_room2_on() ? '|r2:' . implode(',', array_keys(array_filter($owned, fn($n) => (int)$n > 0))) : '')), 0, 12);   // room2 draws every owned upgrade from its own art, so the key must not hang on the old cf-room-*.png overlays
 }
 
 /**
