@@ -357,7 +357,7 @@ def satchel_side(c, x, y, g):
 
 PACK = [
     dict(slug='se-olive-creel', cat='backpack', back=creel_back, side=creel_side),
-    dict(slug='se-float-net', cat='backpack', back=net_back, side=net_side),
+    dict(slug='se-float-net', cat='backpack', front_span=(10, 55), front_lift=4, back=net_back, side=net_side),
     dict(slug='se-amphora-frame', cat='backpack', y0=49, back=amph_back, side=amph_side),
     dict(slug='se-sailcloth-seabag', cat='backpack', back=seabag_back, side=seabag_side),
     dict(slug='se-lemon-satchel', cat='backpack', back=satchel_back, side=satchel_side),

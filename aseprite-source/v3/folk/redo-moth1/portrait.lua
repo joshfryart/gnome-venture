@@ -88,8 +88,8 @@ local function frond(x0, y0, x1, y1, w, bow)
   for i = 0, N do
     local p = pts[i]
     local s_ = p[3]
-    if s_ > 0.12 and i % 3 == 0 then
-      local bl = w * math.sin(math.pi * math.min(1, (s_ - 0.15) / 0.85) * 0.92) + 1
+    if s_ > 0.12 and i % 4 == 0 then
+      local bl = w * 0.85 * math.sin(math.pi * math.min(1, (s_ - 0.15) / 0.85) * 0.92) + 1
       for side = -1, 1, 2 do
         local L = math.floor(bl + 0.5)
         for k = 1, L do
@@ -174,15 +174,15 @@ ruff:cut(c:rect(0, 0, 79, 59))
 local rT = lit(ruff, "ruff", "ruff", { R = 3, tex = furTex(4) })
 for x = 23, 57, 3 do c:put(x, 73, S6.ruff[2], rT) c:put(x - 1, 70, S6.ruff[6], rT) c:put(x + 1, 66, S6.ruff[5], rT) end
 sepLine(ruff, head:copy():cut(ruff), S6.ruff[2], rT)
--- big dark soft moth eyes: plum rim, ink body, two glints
-local PL, PL2 = "#4a3866", "#6a5488"
+-- big moth eyes: ringed plum socket, deep-plum iris, ink pupil, cream glints (matches moth 2/3 ringed eyes)
+local PL, PL2, PL3 = "#4a3866", "#8a76a8", "#6a5488"
 for _, ex in ipairs{ 31.5, 47.5 } do
   local so = c:ellipse(ex, 49, 6, 6.5)
-  so:each(function(x, y) c:put(x, y, so:has(x + 1, y + 1) and PL2 or PL) end)
-  c:fillMask(c:ellipse(ex, 49, 4.5, 5):shift(0, 0), INK)
-  c:fillMask(c:ellipse(ex + 0.5, 50, 2.5, 3), "#3a2a4c")
-  c:put(math.floor(ex) - 2, 46, P.cream) c:put(math.floor(ex) - 1, 45, P.cream) c:put(math.floor(ex) - 2, 47, P.cream)
-  c:put(math.floor(ex) + 2, 53, "#a492c0")
+  so:each(function(x, y) c:put(x, y, so:has(x - 1, y - 1) and (so:has(x + 1, y + 1) and PL3 or PL) or PL2) end)
+  c:fillMask(c:ellipse(ex, 49, 4.2, 4.7), PL)
+  c:fillMask(c:ellipse(ex + 0.3, 49.6, 3, 3.5), INK)
+  c:put(math.floor(ex) - 2, 46, P.cream) c:put(math.floor(ex) - 1, 45, P.cream) c:put(math.floor(ex) - 2, 47, P.cream) c:put(math.floor(ex) - 1, 46, P.cream)
+  c:put(math.floor(ex) + 2, 52, "#a492c0") c:put(math.floor(ex) + 1, 53, "#a492c0")
 end
 -- tiny soft mouth, no snout
 rows(37, 57, { "i....i", ".iiii." }, { i = INK })

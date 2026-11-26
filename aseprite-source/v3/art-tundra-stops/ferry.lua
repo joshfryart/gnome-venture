@@ -600,7 +600,7 @@ do -- a kick-sled (spark) with a bundle on its chair, a sled dog lying beside it
   local bun = c:rrect(58, y - 14, 68, y - 7, 2) c:rim(bun, L.timber.edge) part(bun, SACK)
   hline(58, 68, y - 11, L.awnA.base)
   -- the sled dog: grey back, white face and belly, curled tail, pale eyes
-  F.sprite({
+  local dogRows = {
     "..k.k.............",
     ".kKkKk......t.....",
     "kKwKKKk....tTt....",
@@ -609,7 +609,18 @@ do -- a kick-sled (spark) with a bundle on its chair, a sled dog lying beside it
     ".wwWWWWWKKKKKKKk..",
     "..WWWWWWWWWWWWWw..",
     "..ww.ww...ww.ww...",
-  }, 26, y - 7, { k = "#4a4858", K = "#6a6878", w = L.fur.base, W = L.fur.hi, e = "#6a8cbc", n = INK, t = "#6a6878", T = L.fur.base })
+  }
+  do -- enlarge 1.5x (nearest) so the dog reads at the picture's scale
+    local k, up = 1.5, {}
+    for j = 1, math.floor(#dogRows * k + .5) do
+      local sr = dogRows[math.min(#dogRows, math.floor((j - 1) / k) + 1)]
+      local t = {}
+      for i = 1, math.floor(#sr * k + .5) do local q = math.min(#sr, math.floor((i - 1) / k) + 1) t[i] = sr:sub(q, q) end
+      up[j] = table.concat(t)
+    end
+    dogRows = up
+  end
+  F.sprite(dogRows, 25, y - 11, { k = "#4a4858", K = "#6a6878", w = L.fur.base, W = L.fur.hi, e = "#6a8cbc", n = INK, t = "#6a6878", T = L.fur.base })
 end
 DY = 0
 -- near sedge beds, cotton grass and willow scrub on both sides of the landing

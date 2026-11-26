@@ -349,7 +349,7 @@ def frame_side(c, x, y, g):
 PACK = [
     dict(slug='wca-calabash-pack', cat='backpack', y0=49, back=calabash_back, side=calabash_side),
     dict(slug='wca-raffia-cone-basket', cat='backpack', back=cone_back, side=cone_side),
-    dict(slug='wca-indigo-bundle', cat='backpack', back=bundle_back, side=bundle_side),
+    dict(slug='wca-indigo-bundle', cat='backpack', front_span=(10, 55), front_lift=4, back=bundle_back, side=bundle_side),
     dict(slug='wca-tooled-satchel', cat='backpack', back=satchel_back, side=satchel_side),
     dict(slug='wca-bamboo-frame-pack', cat='backpack', back=frame_back, side=frame_side),
 ]

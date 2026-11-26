@@ -378,7 +378,7 @@ def satchel_side(c, x, y, g):
 PACK = [
     dict(slug='esa-coiled-basket-pack', cat='backpack', y0=51, front_lift=5, back=basket_back, side=basket_side),
     dict(slug='esa-calabash-carrier', cat='backpack', y0=52, front_lift=5, back=calabash_back, side=calabash_side),
-    dict(slug='esa-grain-sack-pack', cat='backpack', y0=51, front_lift=5, back=sack_back, side=sack_side),
+    dict(slug='esa-grain-sack-pack', cat='backpack', y0=51, front_span=(10, 55), front_lift=7, back=sack_back, side=sack_side),
     dict(slug='esa-acacia-frame-pack', cat='backpack', y0=51, front_lift=5, back=frame_back, side=frame_side),
     dict(slug='esa-herders-satchel', cat='backpack', y0=51, front_lift=5, back=satchel_back, side=satchel_side),
 ]

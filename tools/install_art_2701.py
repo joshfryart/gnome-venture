@@ -74,10 +74,16 @@ for n in ('mini-blight-mother', 'mini-paper-wasp', 'mini-bog-leech', 'mini-dew-l
     INSTALL.append((B3 + '/creatures/opus3/%s.png' % n, 'mini/%s.png' % n, None))
 for n in ('folk-butterfly-1',):
     INSTALL.append((B3 + '/creatures/opus3/%s.png' % n, 'folk/portrait/%s.png' % n, None))
+# 2026-11-26: butterfly villager 3 redrawn (clean round head, big eyes): portrait and sprite strip live in folk/redo-butterfly3/out/
+INSTALL.append(('folk/redo-butterfly3/out/portrait/folk-butterfly-3.png', 'folk/portrait/folk-butterfly-3.png', None))
+INSTALL.append(('folk/redo-butterfly3/out/sprite/folk-butterfly-3.png', 'folk/sprite/folk-butterfly-3.png', None))
 # 2026-11-26: moth villager 1 redrawn as a true moth (no snout, comb antennae): the approved portrait now lives in folk/redo-moth1/out/portrait/ (opus3's file is the old bear-snout one)
 INSTALL.append(('folk/redo-moth1/out/portrait/folk-moth-1.png', 'folk/portrait/folk-moth-1.png', None))
 # 2026-11-26: tortoise portrait 1 redrawn with a domed, scuted shell (folk/redo-tortoise/); the approved file lives there, not in opus3
 INSTALL.append(('folk/redo-tortoise/new/portrait/folk-tortoise-1.png', 'folk/portrait/folk-tortoise-1.png', None))
+
+# 2026-11-26: butterfly portrait 2 redrawn with a clean round head and clear eyes (folk/redo-butterfly2/); the approved file lives there
+INSTALL.append(('folk/redo-butterfly2/out-portrait/folk-butterfly-2.png', 'folk/portrait/folk-butterfly-2.png', None))
 
 # Trail markers 32x32: trail/mark/<name>.png (all drawn on the Trail map by trail_art.php / trail_tiles.php; tests/trail_marks.php)
 for n in ('camp', 'ferry', 'tunnel', 'pass', 'toll', 'sight', 'villager', 'fight'):

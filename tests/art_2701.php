@@ -18,7 +18,7 @@ $img = $argv[1] . '/assets/img/';
 
 echo "== every installed file (tools/install_art_2701.py --list)\n";
 $rows = array_filter(explode("\n", trim((string)shell_exec('python3 ' . escapeshellarg($repo . '/tools/install_art_2701.py') . ' --list'))));
-ok('the install table has 386 rows (105 of the first install + step 2: 256 pal files, 19 wearable icons, 3 markers, 3 stop looks)', count($rows) === 386, (string)count($rows));
+ok('the install table has 389 rows (105 of the first install + step 2: 256 pal files, 19 wearable icons, 3 markers, 3 stop looks)', count($rows) === 389, (string)count($rows));
 $bad = [];
 foreach ($rows as $r) {
     [$src, $dst, $w, $h] = explode('|', $r);

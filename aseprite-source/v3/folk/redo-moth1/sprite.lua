@@ -52,8 +52,8 @@ local function frond(c, x0, y0, x1, y1, w, A, bow)
   for i = 0, N do
     local p = pts[i]
     local s_ = p[3]
-    if s_ > 0.12 and i % 3 == 0 then
-      local L = math.floor(w * math.sin(math.pi * math.min(1, (s_ - 0.1) / 0.9) * 0.92) + 1.5)
+    if s_ > 0.12 and i % 4 == 0 then
+      local L = math.floor(w * 0.85 * math.sin(math.pi * math.min(1, (s_ - 0.1) / 0.9) * 0.92) + 1.5)
       for side = -1, 1, 2 do
         for k = 1, L do
           local col = side < 0 and A.hi or A.shade
@@ -169,24 +169,25 @@ local function draw(p)
     if c:get(q[1], q[2] + b) == R.fur.base then c:put(q[1], q[2] + b, R.fur.shade) end end
   for _, ex in ipairs{ 25.5, 38.5 } do
     local so = c:ellipse(ex, 43 + b, 4.5, 5)
-    so:each(function(x, y) c:put(x, y, so:has(x + 1, y + 1) and "#6a5488" or "#4a3866") end)
+    so:each(function(x, y) c:put(x, y, so:has(x - 1, y - 1) and (so:has(x + 1, y + 1) and "#6a5488" or "#4a3866") or "#8a76a8") end)
     if p.blink then
       c:fillMask(c:rect(math.floor(ex) - 2, 43 + b, math.floor(ex) + 2, 44 + b), "#4a3866")
       for q = -2, 2 do c:put(math.floor(ex) + q, 44 + b, INK) end
     else
-      c:fillMask(c:ellipse(ex, 43 + b, 3.2, 3.8), INK)
+      c:fillMask(c:ellipse(ex, 43 + b, 3.2, 3.8), "#4a3866")
+      c:fillMask(c:ellipse(ex + 0.3, 43.6 + b, 2.3, 2.8), INK)
       c:put(math.floor(ex) - 1, 41 + b, P.cream) c:put(math.floor(ex) - 1, 42 + b, P.cream) c:put(math.floor(ex), 41 + b, P.cream)
       c:put(math.floor(ex) + 1, 45 + b, "#a492c0")
     end
   end
   for _, q in ipairs{ { 30, 49 }, { 31, 50 }, { 32, 50 }, { 33, 50 }, { 34, 49 } } do c:put(q[1], q[2] + b, INK) end
   c:cheek(19, 47 + b) c:cheek(43, 47 + b)
-  local ruff = c:ellipse(32, 55 + b, 15, 3.5)
-  for x = 18, 46, 3 do ruff:add(HP.ellipse(x, 58 + b + (x % 2), 2, 2)) end
-  for x = 20, 44, 3 do ruff:add(HP.ellipse(x + .5, 53 + b - (x % 2), 1.6, 1.8)) end
-  ruff:cut(c:rect(0, 0, 63, 51 + b))
+  local ruff = c:ellipse(32, 57 + b, 14, 2.2)
+  for x = 19, 45, 3 do ruff:add(HP.ellipse(x, 58 + b + (x % 2), 1.8, 1.6)) end
+  for x = 21, 43, 3 do ruff:add(HP.ellipse(x + .5, 54 + b - (x % 2), 1.4, 1.4)) end
+  ruff:cut(c:rect(0, 0, 63, 52 + b))
   part(c, ruff, R.ruff, { band = 1, rim = true })
-  for x = 19, 45, 3 do c:put(x, 59 + b, R.ruff.shade) c:put(x + 1, 56 + b, R.ruff.hi) end
+  for x = 19, 45, 3 do c:put(x, 59 + b, R.ruff.shade) c:put(x + 1, 57 + b, R.ruff.hi) end
   V.hat(c, b, p)
   for i, a in ipairs(V.ant) do
     local tx, ty = a[3], a[4] + b + (p.at or 0)
