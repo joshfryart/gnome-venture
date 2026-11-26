@@ -24,8 +24,13 @@
   }
   function minGet() { try { return sessionStorage.getItem('tourmin') === '1'; } catch (e) { return false; } }
   function minSet(on) { try { sessionStorage.setItem('tourmin', on ? '1' : '0'); } catch (e) {} }
+  function openGet() { try { return sessionStorage.getItem('tourawayopen') === '1'; } catch (e) { return false; } }
+  function openSet(on) { try { sessionStorage.setItem('tourawayopen', on ? '1' : '0'); } catch (e) {} }
   function dodge(box) {   // landscape dock: the bubble must not sit on the thing it points at
-    if (!(document.body.classList.contains('dock-on') && window.innerWidth > window.innerHeight) || !hl || (hl.closest && hl.closest('#dockroot'))) return;
+    var land = document.body.classList.contains('dock-on') && window.innerWidth > window.innerHeight;
+    box.classList.toggle('tour-away', land && (!hl || !!(hl.closest && hl.closest('#dockroot'))));   // nothing on the page to point at: a small chip, out of the page's buttons
+    if (box.classList.contains('tour-away')) box.classList.toggle('tour-open', openGet());
+    if (!land || !hl || (hl.closest && hl.closest('#dockroot'))) return;
     var r = hl.getBoundingClientRect(), b;
     box.classList.toggle('tour-l', (r.left + r.right) / 2 > window.innerWidth / 2);
     box.classList.toggle('tour-min', minGet());
@@ -56,7 +61,7 @@
       var t = []; try { t = JSON.parse(box.getAttribute('data-targets') || '[]'); } catch (e) { t = []; }
       var m = pick(t);
       if (hint && hint.textContent !== (m ? m[1] : '')) hint.textContent = m ? m[1] : '';   // only when it changed: a same-text write is a DOM mutation, and the dock redraws on those
-      if (!m) return;
+      if (!m) { dodge(box); return; }
       hl = m[0]; hl.classList.add('tourhl');
       box.classList.toggle('tour-min', minGet());
       dodge(box);
@@ -75,6 +80,7 @@
   document.addEventListener('click', function (e) {   // the title bar folds the bubble down to a strip and back
     var h = e.target.closest && e.target.closest('#wrentour .tourcur h3, #wrentour .tourask h3'), box = document.getElementById('wrentour');
     if (!h || !box) return;
+    if (box.classList.contains('tour-away')) { var o = !box.classList.contains('tour-open'); box.classList.toggle('tour-open', o); openSet(o); return; }
     var on = !box.classList.contains('tour-min'); box.classList.toggle('tour-min', on); minSet(on);
   });
   function soon() { clearTimeout(soon.t); soon.t = setTimeout(aim, 60); }

@@ -228,6 +228,11 @@ body.dock-on .cbed { cursor: pointer; }
   html.js body.dock-on #wrentour.tour-min .tbtext, html.js body.dock-on #wrentour.tour-min .tourlist, html.js body.dock-on #wrentour.tour-min .tourbox > .bird { display: none; }
   body.dock-on:has(.dockroot [aria-expanded="true"]) #wrentour { z-index: 44; }
   html.js body.dock-on #wrentour .tourcur h3 { cursor: pointer; }
+  /* tour-away: the step points at the dock (or nothing): a small chip bottom left above the dock, never over the page's buttons; tap the title to open the full card */
+  html.js body.dock-on.tourbub #wrentour.tour-away:not(.tour-open) { top: auto; right: auto; left: 8px; bottom: calc(var(--dock-h, 106px) + env(safe-area-inset-bottom, 0px) + 8px); width: min(210px, 34vw); max-height: none; padding: 4px 8px; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tbtext, html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourlist, html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourgo, html.js body.dock-on #wrentour.tour-away:not(.tour-open) p:has(> .tourgo), html.js body.dock-on #wrentour.tour-away:not(.tour-open) form:has(.skip), html.js body.dock-on #wrentour.tour-away:not(.tour-open) .skip, html.js body.dock-on #wrentour.tour-away:not(.tour-open) .bird { display: none; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) h3 { font-size: 12px; margin: 0; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourhint { font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* dock layout, landscape: the big pictures fit the screen above the dock, so the page is not mostly scrolling past them. --imgh is the height left for a picture;
@@ -1938,7 +1943,7 @@ body:has(.dk-fs) .gvfs { display: none !important; }
 
 /* landscape, short screens: tour bubble compact, first-fight card fits above the dock, toasts top left, bell clear of the fight card */
 body.dock-on:has(#pfight.pf-v1, #pfi:not([hidden])) .dockroot .dk-msg { display: none; }
-@media (orientation: landscape) {
+@media (orientation: landscape) and (max-height: 520px) {
   html body.dock-on.game .toasts:not(#_), html body.dock-on.game .toasts.phone:not(#_) { top: 8px; bottom: auto; left: 8px; right: auto; transform: none; width: min(46vw, 420px); }
 }
 @media (orientation: landscape) and (max-height: 520px) {
