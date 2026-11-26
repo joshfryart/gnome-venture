@@ -100,6 +100,14 @@ function dock_current_tile(string $page): string
     return $cur;
 }
 
+/** Harvest-ready crops in the gnome's active plot: the same rule as the menu's Garden badge in nav_groups() (cover crops never count), but asked fresh, not from the 60 s cache. */
+function dock_garden_ready(array $u): int
+{
+    try {
+        return (int)q_val('SELECT COUNT(*) FROM plot_tiles t JOIN plants p ON p.id = t.plant_id WHERE t.plot_id = ? AND p.kind <> \'cover\' AND t.growth_seconds >= p.grow_minutes * 60', [(int)($u['active_plot_id'] ?? 0)]);
+    } catch (Throwable $e) { return 0; }
+}
+
 /**
  * The four menus with their tiles: [['k' => 'you', 'name' => 'You', 'tiles' => [['href', 'label', 'icon', 'badge', 'on', 'why'], ...]], ...], plus which menu is current.
  * On the road (an active expedition) the game refuses World, Treks and the places: those tiles are greyed with "on the road" and Here becomes Trail.
@@ -112,14 +120,17 @@ function dock_menus(array $u, string $page): array
     $road = false;
     try { require_once __DIR__ . '/adventure.php'; $road = active_expedition((int)$u['id']) !== null; } catch (Throwable $e) { $road = false; }
     $cur = dock_current_tile($page);
+    $garden = dock_garden_ready($u);
     $keys = ['You' => 'you', 'Hobbies' => 'hobby', 'Out & about' => 'out', 'Together' => 'tog'];
-    $mk = function (string $file, string $label, string $slug, string $badge) use ($cur, $road): array {
+    $mk = function (string $file, string $label, string $slug, string $badge) use ($cur, $road, $garden): array {
         $why = '';
         $icon = DOCK_SLUG_ICON[$slug] ?? '';
         if ($road) {
             if (in_array($file, ['trek.php'], true) || str_starts_with($file, 'world.php')) $why = 'on the road';
             if (in_array($file, ['here.php', 'town.php'], true)) { $file = 'adventure.php'; $label = 'Trail'; $icon = 'treks'; }
         }
+        if ($slug === 'games') $badge = '';   // game tiles carry no count in the dock (the classic menu sheet keeps its badge: it shares nav_groups())
+        if ($slug === 'garden') $badge = $garden > 0 ? (string)$garden : '';   // fresh harvest-ready count, so it follows a harvest
         $b = $badge === '!' ? '!' : (preg_match('/^(\d+)/', $badge, $m) ? $m[1] : ($badge !== '' ? '•' : ''));
         return ['href' => url($file), 'label' => $label, 'icon' => $icon, 'badge' => $b, 'on' => $cur === $file || ($road && $file === 'adventure.php' && in_array($cur, ['here.php', 'adventure.php'], true)), 'why' => $why];
     };

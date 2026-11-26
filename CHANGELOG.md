@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.71
+- **Dock: no count badge over the Games tile; the Garden badge shows how many crops are ready (workflow W5).** The Games tile ("N to play" / contest mark) no longer carries a badge in the dock, and the Hobbies menu button no longer adds the games count. The Garden tile badge is the ready-crop count, computed fresh in `dock_menus()` (`dock_garden_ready()`, same rule as `nav_groups()`), returned by `dockstate.php` as `garden` and updated by `refreshPlate()` in `assets/dock.js`, so a harvest lowers it without a reload; empty at 0. The classic chrome and menu sheet are unchanged. The Quick button's number ("Wild Berr... 4") is your satchel count of that item and stays. Suite `dock_badges` (in CI). Checked in headless Chromium at 844x390 and 1280x800 (not a real phone; the portrait phone draws no dock).
+
 ## 2.8.70
 - **Landscape phone Trail: the family box (Echo chain on mountain stretches) was very large** (owner: "Very large text box?"). With the dock on and at most 520 px high, the family pictures (`.tfm-svg`, `.tfc-svg`, `.tfg-svg`, `.tfi-svg`) are 52 px high instead of about 98 px, and the Echo chain notes and chips are 12 px with tighter spacing. CSS only, tail of `assets/dock.css`. Not seen in a browser; if the other Trail boxes (forest, desert, wetland...) are also too big, tell me which.
 

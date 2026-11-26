@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
+## 2026-11-26 2.8.71 W5 dock badges (slim zip `releases/GnomeVenture-2.8.71-web-update.zip`, needs 2.8.70+)
+- DONE: Games badge gone from the dock, Garden ready-crop badge live. See CHANGELOG 2.8.71. Next in the plan: W1b + W2 (dock audit, mobile / landscape), W3, W4, W1, W1a. OPEN: under the sleep-days clock the Garden count can lag (raw growth, as the old nav badge); dock.js finds the Garden tile by label; Quick-button number kept on purpose.
+
 ## 2026-11-26 2.8.70 (slim zip `releases/GnomeVenture-2.8.70-web-update.zip`, needs 2.8.69+)
 - DONE (Josh: very large text box on the landscape Trail): Echo chain box smaller (dock.css tail). NOT seen in a browser. OPEN: the other Trail family boxes (forest, desert, wetland, rainforest...) not checked for the same size.
 
