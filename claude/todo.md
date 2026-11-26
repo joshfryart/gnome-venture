@@ -2,7 +2,7 @@
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
-## 2026-11-26 2.8.72 PREPARED, ZIP NOT BUILT (owner: "Dont make the zip until I say so")
+## 2026-11-26 2.8.72 BUILT (zip in releases/), PR + merge to main requested by owner
 - DONE: W1b, W2, W3, W4 fixes, W1 review, W1a ticked items, tutorial radish sleep + game days, shop W badge, trek + pals Find dock pieces. CHANGELOG 2.8.72 written, APP_VERSION 2.8.72. To ship: `bash tests/build_update.sh 2.8.72 2.8.71 $PWD/releases slim`, send zip, push, PR, merge only on the owner's word.
 - OPEN, owner decisions: fair dock R Enter (ticked AND struck: ask), "visitor can smell" reading (still-cooking dish vs last-cooked), W4 route-id offset bug (roads.php lay_roads + live-world renumber), gourmand nav tile double count, stale trail_maps.json, off-road pin clamp, rl_trail_heading, W3 shop/village card asks, W2 residuals (hovel tabs under dock at 640x260, tour "Show me now" at 640x260, dock labels ~8px under 340px high).
 - CUT by owner: gourmand dock Serve, show option B, Satchel Sell carries item / Set as Quick.

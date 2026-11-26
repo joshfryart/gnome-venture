@@ -14,6 +14,7 @@
 - Garden crew Plant step: a bed the crew plants now starts growing on the new day (`grow_day = D`), the same as a bed you plant by hand that morning (it was one day early, so crew-planted beds could grow one share faster). `includes/pal_crew.php`, `tests/pal_crew.php`.
 - Code review (W1): stale comments, dead guards and unused functions removed in about 100 files (no include path changed). Wording changes: `nettle` herb emoji, haven rest label +6 when rebuilt, curio count as a digit, "Nothing to buy here today.", pantry help in sleeps, town square note, guide "Eight" daily games.
 - Routes (W4): see claude/todo.md for the open route-id offset bug in `roads.php` `lay_roads`.
+- **Art:** 116 more fight rigs redrawn in Stitched Toy and swapped in (8 pilots already in). 6 still old art: bramble-wolf, badger, giant-anteater, dust-sidewinder, gnat-cloud, dune-scorpion. Mini sprites (`mini-<slug>.png`) unchanged. Fight smoke + fight_scene pass.
 - Known test state: pbox_v1, puzzle_pals, gourmand (nav tile 2 vs 1), tea and guest fail on the pre-2.8.72 code too.
 
 ## 2.8.71
