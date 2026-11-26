@@ -25,7 +25,7 @@ def fn(c):
     # bark body + root feet
     c.add(c.m(core, tabS), BARK, stitch=None)
     # lenticel dashes (birch bark marks), kept to the sides, away from the face
-    for (x0, x1, y) in ((16, 22, 44), (42, 48, 46), (20, 25, 50.5), (36, 42, 51), (15.5, 19, 37)):
+    for (x0, x1, y) in ((14, 21, 45), (41, 50, 43), (21, 27, 49.5), (35, 43, 50.5), (14, 18, 38), (46, 50, 36), (28, 33, 55), (25, 30, 30.5)):
         if c.small:
             c.add(c.m(rect(x0, y, x1, y + 2.2)), (LENT, LENT, LENT))
         else:
@@ -45,11 +45,15 @@ def fn(c):
         sx = 50 if side == 1 else 14
         strand = rect(sx - 4.5, 20, sx, 42) if side == 1 else rect(sx, 20, sx + 4.5, 42)
         cm = c.m(tab, strand)
+        # extra hanging catkin tassels from the crown edge (like the cell's dangling strands)
+        tx = 20 if side == -1 else 44
+        cm2 = c.m(thick_path([(tx, 24), (tx + 0.5 * side, 31)], 3.0 if not c.small else 3.4))
+        cm |= cm2
         c.add(cm, CATK)
         # gold pollen dots on the catkins
         for (x, y) in cm:
-            if (x + 2 * y) % (4 if not c.small else 3) == 0 and (x + y) % 2 == 0:
-                c.px(x, y, GOLD[0])
+            if y % (3 if not c.small else 2) == 0:
+                c.px(x, y, GOLD[0] if (x + y) % 2 else CATK[2])
         c.edge(cm, CATK[1])
     # a tiny gold sneeze-sparkle crown point between the lobes
     c.add(c.m(ell(32, 12, 1.8 * S, 2.2 * S)), GOLD)

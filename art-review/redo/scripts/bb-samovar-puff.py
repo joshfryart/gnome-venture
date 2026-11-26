@@ -14,49 +14,47 @@ CREAM = '#f4f0e4'
 
 def fn(c):
     k = 1.15 if c.small else 1.0
-    core = poly([(14, 22), (50, 22), (53, 26), (53, 52), (50, 57), (14, 57), (11, 52), (11, 26)])
-    tabN = knob('T', 'peg', 32, 22, 0, -1, r=5.0 * k)
-    bW = knob('B', 'peg', 11, 37, -1, 0, r=3.6 * k)
-    bE = knob('B', 'peg', 53, 37, 1, 0, r=3.6 * k)
-    bS = knob('B', 'peg', 32, 57, 0, 1, r=4.2 * k)
-    blanks = (bW, bE, bS)
-    body = c.m(core, minus=blanks)
-    c.add(body, BRASS)
-    # chimney crown (peg tab) in blue, with a brass collar
+    # urn body: domed shoulders, straight sides (piece edges), flared foot
+    core = poly([(20, 20), (44, 20), (50, 23), (52, 28), (52, 50), (49, 54), (51, 58), (13, 58), (15, 54), (12, 50), (12, 28), (14, 23)])
+    tabN = knob('T', 'peg', 32, 20, 0, -1, r=4.6 * k)
+    bW = knob('B', 'peg', 12, 38, -1, 0, r=3.4 * k)
+    bE = knob('B', 'peg', 52, 38, 1, 0, r=3.4 * k)
+    bS = knob('B', 'peg', 32, 58, 0, 1, r=4.0 * k)
+    body = c.m(core, minus=(bW, bE, bS))
+    c.add(body, BRASS, stitch=None)
     tab = c.m(tabN, minus=(core,))
-    c.add(tab, BLUE)
-    c.add(c.m(rect(28, 19, 36, 22.5)) & tab, BRASS)
-    # steam puff on top of the chimney
-    puff = c.m(ell(32, 7.5, 6.5, 4.2), ell(26.5, 9.5, 3.6, 3.0), ell(38, 9, 3.8, 3.2))
-    c.add(puff, STEAM)
-    # blue lid shoulder
-    lid = body & c.m(rect(0, 22, 64, 27))
+    c.add(tab, BRASS)
+    c.add(c.m(rect(26, 9, 38, 13.5)) & tab, BLUE)   # blue chimney cap
+    # steam: a wisp curling up and right into a puff (off-axis, so it is not a hat)
+    w = 3.0 if not c.small else 3.6
+    c.add(c.m(thick_path([(34, 10), (37, 7), (41, 6.5)], w), ell(46, 6, 5.2, 3.6), ell(51.5, 7.5, 3.4, 2.8)), STEAM)
+    # blue domed lid shoulder
+    lid = body & c.m(rect(0, 20, 64, 26))
     c.add(lid, BLUE)
-    # red folk band with cream dots (kerchief)
-    band = body & c.m(rect(0, 40, 64, 45.5))
+    # red folk band with cream dots (the doll's kerchief)
+    band = body & c.m(rect(0, 41, 64, 46.5))
     c.add(band, RED)
-    for x in range(15, 50, 5):
-        p = c.P(x + 0.5, 42.7)
-        c.px(*p, CREAM)
+    for x in range(16, 50, 5):
+        q = c.P(x + 0.5, 43.7)
+        c.px(*q, CREAM)
         if not c.small:
-            c.px(p[0] + 1, p[1], CREAM)
-    # dark brass base tray
-    base = body & c.m(rect(0, 51, 64, 64))
-    c.add(base, DARKB)
-    # side handles: little dark loops above and below the blanks
-    for sx in (11, 53):
-        d = -1 if sx == 11 else 1
-        c.add(c.m(thick_path([(sx, 29), (sx + 3.2 * d, 29.5)], 2.8 if not c.small else 3.4)), DARKB)
-        c.add(c.m(thick_path([(sx, 47.5), (sx + 3.2 * d, 47)], 2.8 if not c.small else 3.4)), DARKB)
-    # spigot: red tap on the front band
-    c.add(c.m(rect(45, 44, 49.5, 47.5)), DARKB)
-    c.add(c.m(rect(47, 47, 50.5, 50)), RED)
+            c.px(q[0] + 1, q[1], CREAM)
+    # dark brass foot
+    c.add(body & c.m(rect(0, 52, 64, 64)), DARKB)
+    # side handles: C-shaped loops standing out beside the blanks
+    hw = 2.6 if not c.small else 3.2
+    for sx, d in ((12, -1), (52, 1)):
+        c.add(c.m(thick_path([(sx, 27), (sx + 4.5 * d, 27.5), (sx + 6 * d, 30), (sx + 6 * d, 32.5)], hw)), DARKB)
+        c.add(c.m(thick_path([(sx, 49), (sx + 4.5 * d, 48.5), (sx + 6 * d, 46), (sx + 6 * d, 43.5)], hw)), DARKB)
+    # spigot: tap under the band
+    c.add(c.m(rect(42, 46.5, 46, 49.5)), DARKB)
+    c.add(c.m(rect(44, 49, 48, 52)), RED)
     # face
     c.eye(25, 33)
     c.eye(39, 33)
     c.smile(32, 36.5)
-    c.blush(21.5, 36.5)
-    c.blush(42, 36.5)
+    c.blush(21.5, 37)
+    c.blush(42, 37)
 
 
 K.render_pal(fn, 'bb-samovar-puff', 'Samovar Puff', '/home/user/gnome-venture/art-review/redo/out',
