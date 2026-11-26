@@ -326,17 +326,69 @@ function dock_page_spec(string $page): array
                 dock_action('Mushroom', '🍄', $u('mushroom.php')), dock_action('Pest', '🪰', $u('pest.php')), dock_action('Marrow', '⚖️', $u('marrow.php')), dock_action('Worms', '🪱', $u('worms.php')),
             ], '', '', 'Play a game')];
         case 'puzzles.php':
+            require_once __DIR__ . '/puzzle_games.php';   // puzzle_game_open(): a closed game greys its tile ("coming soon") instead of bouncing the player back here
             return ['L' => dock_action('Games', '↩', $u('games.php')), 'R' => dock_action('Play', '🧩', '', [
                 dock_action('Jigsaw', '🧩', $u('jigsaw.php')), dock_action('GIFsaw', '🎞️', $u('gifsaw.php')), dock_action('Pals', '🐾', $u('puzzlepals.php')),
-                dock_action('Barrel', '🛢️', $u('rainbarrel.php')), dock_action('Beds', '🛏️', $u('gnomebeds.php')),
+                dock_action('Barrel', '🛢️', puzzle_game_open('barrel') ? $u('rainbarrel.php') : '', [], puzzle_game_open('barrel') ? '' : 'soon'),
+                dock_action('Beds', '🛏️', puzzle_game_open('beds') ? $u('gnomebeds.php') : '', [], puzzle_game_open('beds') ? '' : 'soon'),
             ], '', '', 'Puzzles')];
-        case 'show.php':
         case 'fair.php':
-        case 'gotm.php':
-        case 'carve.php':
             return ['L' => dock_action('Contests', '↩', $u('games.php?tab=contests')), 'R' => dock_action('Games', '🎲', $u('games.php'))];
+        case 'show.php':
+            return ['L' => dock_action('Contests', '↩', $u('games.php?tab=contests')), 'R' => dock_action('Arrange', 'crafting', $u('inventory.php?tab=arrange'))];   // you enter an arrangement you made in the Satchel
+        case 'gotm.php':
+            // Enter works the page's own form (greyed once entered or closed); Vote stays off the dock: each vote form is for one garden
+            return ['watch' => true, 'L' => dock_action('Contests', '↩', $u('games.php?tab=contests')), 'R' => dock_action('Enter', '🏅', '', [], '', '', '', [], [dock_remote('Enter', '🏅', ['doForm' => 'enter'])])];
+        case 'carve.php':
+            return ['watch' => true, 'L' => dock_action('Contests', '↩', $u('games.php?tab=contests')), 'R' => dock_remote('Carve', 'craft', ['doForm' => 'carve'])];
         case 'feedback.php':
-            return ['L' => dock_action('Replies', '📮', $u('community.php?t=msgs')), 'R' => null];
+            return ['watch' => true, 'L' => dock_action('Replies', '📮', $u('community.php?t=msgs')), 'R' => dock_remote('Send', 'messages', ['sel' => 'main form.box.form button'])];
+        case 'tend.php':
+            // Tending is a Task job: Tasks is the parent; right is the page's three bulk buttons (greyed when the page shows none)
+            return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Tend', '🌻', '', [
+                dock_remote('Water all', '💧', ['doForm' => 'water_all']), dock_remote('Weed all', '🌿', ['doForm' => 'weed_all']), dock_remote('Harvest all', '🧺', ['doForm' => 'harvest_all'])], '', '', 'Tend this garden')];
+        case 'tailor.php':
+            return ['L' => dock_action('Satchel', '🎒', $u('inventory.php'))];   // wearables live in the Satchel; no single safe main action, so R stays Home
+        case 'mentor.php':
+            return ['watch' => true, 'L' => dock_action('World', '🌍', $u('world.php')), 'R' => dock_remote('Talk', '💬', ['doForm' => 'talk'])];
+        case 'profile.php':
+            return ['L' => dock_action('Villagers', 'villagers', $u('villagers.php')), 'R' => dock_remote('Visit', 'garden', ['sel' => 'main a[href*="visit.php"]'])];
+        case 'report.php':
+            return ['watch' => true, 'R' => dock_remote('Send', '💬', ['sel' => 'main form.form button'])];   // L stays Back (the page posts back to the referring page)
+        case 'customise.php':
+            return ['watch' => true, 'L' => null, 'R' => dock_remote('Done', '🌱', ['sel' => '.gnomemaker button.btn'])];
+        case 'puzzlepals.php':
+            return ['L' => dock_action('Puzzles', '↩', $u('puzzles.php')), 'R' => dock_action('Jobs', 'tasks', $u('paljobs.php'))];
+        case 'puzzlebox.php':
+            return ['watch' => true, 'L' => dock_action('Back', '↩'), 'R' => dock_remote('Pack', 'box', ['doForm' => 'save'])];
+        case 'gifsaw.php':
+            return ['watch' => true, 'L' => dock_action('Puzzles', '↩', $u('puzzles.php')), 'R' => dock_remote('Start', 'quick', ['sel' => '#tstart'])];
+        case 'worms.php':
+            return ['watch' => true, 'L' => dock_action('Games', '↩', $u('games.php')), 'R' => dock_remote('Dig', 'till', ['doForm' => 'start'])];
+        case 'letters.php':
+            return ['watch' => true, 'L' => dock_action('Games', '↩', $u('games.php')), 'R' => dock_remote('Look', 'sights', ['doForm' => 'look'])];   // the postmark hint halves the prize: not on the dock
+        case 'workshop.php':
+            return ['L' => dock_action('Back', '↩'), 'R' => dock_action('List', 'crafting', $u('inventory.php?tab=craft'))];
+        case 'residential.php':
+            return ['L' => dock_action('Square', '↩', $u('here.php')), 'R' => dock_action('Villagers', 'villagers', $u('villagers.php'))];
+        case 'door.php':
+            return ['L' => dock_action('Street', '↩', $u('residential.php?page=' . max(1, (int)($_GET['page'] ?? 1)))), 'R' => dock_action('Here', 'here', $u('here.php'))];
+        case 'back.php':
+            return ['L' => dock_action('Home', 'hovel', $u('gnome.php')), 'R' => dock_action('Garden', 'garden', $u('garden.php'))];
+        case 'festival.php':
+            return ['watch' => true, 'L' => dock_action('Jar', 'together', $u('community.php?t=jar')), 'R' => dock_action('Flag', 'festival', '', [], '', '', '', [], [dock_remote('Flag', 'festival', ['doForm' => 'flag']), dock_remote('Bunting', '🎪', ['doForm' => 'bunting'])])];
+        case 'palyard.php':
+            return ['L' => dock_action('Pals', 'pals', $u('puzzlepals.php')), 'R' => dock_action('Jobs', 'tasks', $u('paljobs.php'))];
+        case 'race.php':
+            return ['watch' => true, 'L' => dock_action('Games', 'games', $u('games.php')), 'R' => dock_remote('Bet', '✊', ['sel' => '.raceform .racego'])];
+        case 'gnomebeds.php':
+            return ['watch' => true, 'L' => dock_action('Puzzles', 'box', $u('puzzles.php')), 'R' => dock_remote('Play', 'start', ['sel' => '#rbdaily'])];
+        case 'rainbarrel.php':
+            return ['watch' => true, 'L' => dock_action('Puzzles', 'box', $u('puzzles.php')), 'R' => dock_remote('Play', 'water', ['sel' => '#rbdaily'])];
+        case 'firstweek.php':
+            return ['watch' => true, 'R' => dock_remote('Reward', '📦', ['sel' => 'main form button.btn.gold'])];
+        case 'unsub.php':
+            return ['R' => dock_action('Account', 'account', $u('account.php'))];
         case 'garden.php':
             $t = (string)($_GET['t'] ?? '');
             if ($t !== '' && $t !== 'beds') return ['L' => dock_action('Beds', '🏡', $u('garden.php')), 'R' => dock_action('Hovel', 'hovel', $u('gnome.php'))];
@@ -369,7 +421,8 @@ function dock_page_spec(string $page): array
             try {
                 require_once __DIR__ . '/game_clock.php';
                 $uid = (int)$u0['id'];
-                if (gclock_on()) {
+                if ($page === 'gnome.php' && gclock_on() && !(function_exists('home_slim_menu') && home_slim_menu())) $R = dock_action('Hovel', 'hovel', $u('hovel.php'));   // classic home: the Rest buttons are on hovel.php, so the piece is the way there (slim home has them on this page; clock off: hovel.php bounces back)
+                elseif (gclock_on()) {
                     $rest = [];
                     foreach (gclock_rest_options($u0) as $o) {
                         $nm = preg_replace('/ \(.*$/', '', (string)$o['label']);
@@ -421,6 +474,8 @@ function dock_page_spec(string $page): array
         case 'world.php':
             return ['watch' => true, 'L' => dock_action('Here', 'here', $u('here.php')), 'R' => dock_action('Explore', '🧭', '', [], '', '', '', [], [dock_remote('Explore', '🧭', ['doForm' => 'explore'])])];
         case 'market.php':
+            $tm = (string)($_GET['t'] ?? 'buy');
+            if ($tm !== 'stall' && $tm !== 'trades') return ['L' => dock_action('Satchel', '🎒', $u('inventory.php')), 'R' => dock_action('My stall', 'tag', $u('market.php?t=stall'))];   // the list and offer forms exist only on those two tabs
             return ['watch' => true, 'L' => dock_action('Satchel', '🎒', $u('inventory.php')), 'R' => dock_action('List', '🏷️', '', [], '', '', '', [], [dock_remote('List', '🏷️', ['doForm' => 'list']), dock_remote('Offer', '🤝', ['doForm' => 'offer'])])];
         case 'marketday.php':
             return ['watch' => true, 'L' => dock_action('Back', '↩'), 'R' => dock_remote('Basket', '🧺', ['doForm' => 'basket'])];
@@ -452,12 +507,12 @@ function dock_page_spec(string $page): array
             $p = (string)($_GET['p'] ?? 'daily');
             if (isset(JOB_PERIODS[$T]) || $T === 'post') { $p = $T; $T = 'jobs'; }
             if ($T === 'requests') {
-                return ['watch' => true, 'L' => null, 'R' => dock_action('Deliver', '📜', '', [], '', '', '', [], [
+                return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Deliver', '📜', '', [], '', '', '', [], [
                     dock_remote('Deliver', '📜', ['doForm' => 'order']), dock_remote('Favour', '🤝', ['doForm' => 'favour'])])];
             }
-            if ($T === 'journey') return ['watch' => true, 'L' => null, 'R' => dock_action('Journey', '🧭', '', [], '', '', '', [], [
+            if ($T === 'journey') return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Journey', '🧭', '', [], '', '', '', [], [
                 dock_remote('Hand in', '✋', ['doForm' => 'hand_in']), dock_remote('Finish', '🏁', ['doForm' => 'finish']), dock_remote('Crate', '📦', ['doForm' => 'crate'])])];
-            if ($p === 'post') return ['watch' => true, 'L' => null, 'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Take', '📋', ['doForm' => 'take_player'])])];
+            if ($p === 'post') return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Take', '📋', ['doForm' => 'take_player'])])];
             return ['watch' => true,
                 'L' => dock_action('Re-roll', '🎲', '', [], '', '', '', [], [dock_remote('Give up', '🏳️', ['doForm' => 'abandon']), dock_remote('Re-roll', '🎲', ['doForm' => 'reroll'])]),
                 'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Hand in', '✋', ['doForm' => 'deliver']), dock_remote('Build', '🧱', ['doForm' => 'build']), dock_remote('Take', '📋', ['doForm' => 'take'])])];
