@@ -310,12 +310,13 @@ class Rig:
                     img.putpixel((i * fw + x, y), hexrgb(c) + (255,))
         return img
 
-    def save(self, out=OUT):
+    def save(self, out=OUT, floating=()):
+        """floating: parts that hover away from their parent by design (the bullfrog's fly): the parent-touch check skips them"""
         os.makedirs(out, exist_ok=True)
         img = self.sheet()
         path = os.path.join(out, 'rig-%s.png' % self.slug)
         img.save(path, optimize=True)
-        bad = check(self.slug, path, self)
+        bad = check(self.slug, path, self, floating)
         rest = assemble(self.slug, img)
         old = assemble(self.slug, Image.open(os.path.join(SHIPPED, 'rig-%s.png' % self.slug)).convert('RGBA'))
         os.makedirs(os.path.join(out, '_assembled'), exist_ok=True)
@@ -325,7 +326,7 @@ class Rig:
 
 
 # ---------------------------------------------------------------- checks (also used by check_all.py)
-def check(slug, path, R=None):
+def check(slug, path, R=None, floating=()):
     """size/mode same as the shipped sheet; alpha only 0/255; every part inside its own column with a free 1 px border (so its ink ring fits);
     row 1 = exactly the 4-adjacent ring of row 0 (eyes: empty); pivots: every part touches its own pivot and every child's pivot lies on its parent."""
     bad = []
@@ -364,7 +365,7 @@ def check(slug, path, R=None):
         if not near(sils[pid], 1.6) and not (pid.startswith('eye') and inbox):   # a pair of eyes may straddle its pivot
             bad.append(pid + ': its pivot (%.1f, %.1f) is not on the part' % (px, py))
         par = d['bones'][pid][0]
-        if par and not near(sils[par], 1.6):
+        if par and pid not in floating and not near(sils[par], 1.6):
             bad.append(pid + ': its pivot is not on its parent ' + par)
     ncol = len(set(im.getdata())) - 1
     if ncol > 64:
