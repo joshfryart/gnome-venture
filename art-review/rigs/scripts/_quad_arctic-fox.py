@@ -94,8 +94,9 @@ def nose(p, x, y, col=INK):
 
 
 def eye(p, x, y, iris=None):
-    """a small felt button eye: 3x3 ink with a cream glint (iris: a coloured ring pixel set)"""
-    p.add(p.m(ell(int(x) + 1, int(y) + .5, 1.6, 2.1)), (INK,) * 4, flat=True)
+    """a round felt button eye (4 x 4, corners cut) with a cream glint inside; iris: a coloured rim low on its back"""
+    x, y = int(x), int(y)
+    p.add(p.m(rect(x, y - 1, x + 2, y + 3), rect(x - 1, y, x + 3, y + 2)), (INK,) * 4, flat=True)
     if iris:
-        p.px(x - 1, y, iris); p.px(x, y + 1, iris)
-    p.px(x, y - 1, CREAM)
+        p.px(x - 1, y + 1, iris); p.px(x, y + 2, iris)
+    p.px(x, y, CREAM)

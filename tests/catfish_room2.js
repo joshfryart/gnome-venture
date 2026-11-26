@@ -22,7 +22,7 @@ const off = 12 - new Date().getUTCHours(), TZ = off === 0 ? 'UTC' : 'Etc/GMT' + 
     return { c, p };
   }
   const box = (p, x0, y0, x1, y1) => p.evaluate(([x0, y0, x1, y1]) => Array.from(document.querySelector('canvas.cfr2cv').getContext('2d').getImageData(x0, y0, x1 - x0, y1 - y0).data).join(','), [x0, y0, x1, y1]);
-  const fishY = (p) => p.evaluate(() => window.CFRoom.state().fish.map(f => f[1]));
+  const fishY = (p) => p.evaluate(() => (window.CFRoom.state().fish || []).map(f => f[1]));
   // A: no Rod upgrade, reduced motion (the fish barely sway)
   let { c, p } = await load('{"fish":1}', false);
   const yA = await fishY(p), w2A = await box(p, 290, 0, 340, 16);

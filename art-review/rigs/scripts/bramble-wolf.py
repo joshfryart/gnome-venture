@@ -48,15 +48,14 @@ for pid, ramp, back in (('legBF', FARV, True), ('legFF', FARV, False)):
     g = qk.hind(R, pid, ramp, 6.5, 4.5, back=3.5) if back else qk.leg(R, pid, R.pv(pid)[0] + 1, ramp, 5.5, 4.5)
     weave(g, qk.sil(R, pid), 5, -1.0, ramp[3], ramp[0])
 
-# tail: a bushy tangle of vine held back and up, thorns along it and a leaf at the tip
+# tail: a bushy tangle of vine held back and up, tapering to a point, thorns along it and a leaf caught in it
 p = R.part('tail')
-path = [(29, 28), (21.5, 26.5), (15.5, 22), (12.5, 15.5)]
-tl = p.m(capsule(path, 6, 8), qk.fluff([(22, 30), (15.5, 26.5), (11, 20)], 2, 2.4))
+path = [(29, 28), (22.5, 25.5), (16.5, 20.5), (12.5, 14.5), (11, 9)]
+tl = p.m(capsule(path, 6, 3), capsule(path[:4], 6, 9), qk.fluff([(23, 29.5), (17, 26), (11.5, 21), (8.5, 15.5)], 2, 2.6))
 p.add(tl, VINE)
 weave(p, tl, 4, -1.0)
-thorns(p, [(20.5, 23.5), (15, 17.5)], [3, 3], lean=-1.5)
-p.add(p.m(rell(12.5, 9.5, 2.6, 4.5, -25)), LEAF, local=True)
-p.line([(13.5, 12.5), (11.5, 6.5)], LEAF[3])
+thorns(p, [(23, 22.5), (18.5, 18), (15, 13)], [3, 3, 3], lean=-1.2)
+p.add(p.m(rell(19.5, 26.5, 1.8, 3.2, 60)), LEAF, local=True)                          # one leaf caught in the tangle
 
 # body: hunched shoulders, deep chest, tucked waist, braided vine wrap, thorn crest and hackles, rose hips
 p = R.part('body')
@@ -82,21 +81,21 @@ for pid, ramp, back, ag in (('legBN', VINE, True, ('legBF', 'body')), ('legFN', 
 # head: long heavy wolf head, leaf ears, thorn ruff, cream thorn fangs
 p = R.part('head')
 skull = ell(68, 17.5, 8.5, 7)
-snout = poly([(71, 12.5), (77, 14.5), (85, 17), (87.5, 18.5), (87.5, 21.5), (80, 23), (70, 24)])
-jaw = poly([(70, 22), (83, 22), (82, 25), (76, 26.5), (69, 26.5)])
+snout = poly([(71, 12), (77, 14), (83.5, 16), (86, 17.5), (86, 22), (79, 24), (70, 25)])
+jaw = poly([(70, 22), (82, 22), (81, 25), (76, 27), (69, 27)])
 neck = capsule([R.pv('head'), (66, 20)], 11, 11)
 thorns(p, [(64, 10.5)], [4], lean=-2.5)
 ears = union(poly([(61, 13), (61.5, 2.5), (67, 11)]), poly([(65.5, 11), (69.5, 2), (72.5, 12)]))
 p.add(p.m(ears), VINE, local=True)
 p.add(p.m(union(poly([(62.5, 11.5), (62.5, 5.5), (65.5, 10.5)]), poly([(67.5, 10.5), (69.5, 5), (71, 11)]))), LEAF, flat=True)
 p.add(p.m(skull, snout, neck, jaw), VINE)
-p.add(p.m(inter(union(snout, jaw, skull), below((64, 22.5), (89, 20), 0))), PALE)          # pale muzzle and jaw
+p.add(p.m(inter(union(snout, jaw, skull), below((64, 23), (87, 20.5), 0))), PALE)          # pale muzzle and jaw
 tufts(p, [(62, 18), (61.5, 22), (63, 25.5)], PALE, d=(-1, .7), L=4.5)                         # pale cheek ruff
-weave(p, p.m(minus(union(skull, neck), below((64, 22.5), (89, 20), 0))), 5, 1.0)
-qk.nose(p, 86, 17.5)
-p.line([(87, 21.5), (81, 22), (75, 22.5)], INK)                                       # mouth
-for x in (78, 82, 85):
-    p.px(x, 22 - (x > 84), THORN[0]); p.px(x, 23 - (x > 84), THORN[1])              # thorn fangs hanging from the lip
+weave(p, p.m(minus(union(skull, neck), below((64, 23), (87, 20.5), 0))), 5, 1.0)
+qk.nose(p, 84.5, 17)
+p.line([(85.5, 21.5), (80, 22.5), (77, 23.5)], INK)                                       # mouth
+for x, y in ((80, 23), (83, 22)):
+    p.px(x, y, THORN[0]); p.px(x, y + 1, THORN[1])              # thorn fangs hanging from the lip
 p.line([(67, 13), (74, 14.5)], VINE[3])                                             # heavy brow
 
 p = R.part('eyes')

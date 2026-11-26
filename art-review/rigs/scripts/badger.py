@@ -27,19 +27,19 @@ K.leg(R, 'legFF', 56, FAR, 8, 6.5, paw=(4.4, 2.4), claws=WHITE[2])
 
 # tail: a short grey brush, pale tip
 p = R.part('tail')
-t = union(capsule([(19, 19.5), (13, 17.5)], 5, 5.5), K.fur([(12, 15.5), (11, 19)], 1.8))
+t = union(capsule([(19, 19.5), (13, 18)], 5, 6), K.fur([(12.5, 15.5), (11, 18.5), (13, 21)], 1.9))
 p.add(p.m(t), GREY)
-p.add(p.m(inter(t, lambda x, y: x < 13)), WHITE, local=True)
+p.line([(16, 18), (13, 17.5)], GREY[3])
 
 # body: low wedge, high at the hips, sloping to the shoulders; long fringed skirt; grizzle flecks
 p = R.part('body')
-torso = union(ell(26, 20, 10.5, 10), ell(44, 22, 11, 9), poly([(18, 14), (28, 9.5), (40, 11.5), (54, 16), (57, 28), (22, 29)]))
+torso = union(ell(27, 19.5, 11, 10.5), ell(44, 22, 11.5, 8.5), poly([(24, 10), (34, 10.5), (46, 14), (54, 18), (55, 28), (22, 29)]))
 skirt = K.fur([(20, 29), (24.5, 31), (29, 32), (33.5, 32.5), (38, 32.5), (42.5, 32), (47, 31.2), (51.5, 30)], 2.4, 2.4)
 whole = union(torso, skirt)
 p.add(p.m(whole), GREY, stitch=GREY[3])
-p.add(p.m(inter(whole, lambda x, y: y > 27.5 - (x - 20) * .03)), UNDER, local=True)
-for x, y in ((24, 14), (30, 13), (36, 15), (42, 17), (27, 19), (33, 18), (39, 21), (46, 21), (23, 24), (30, 24), (36, 25), (50, 23)):
-    p.px(x, y, GRIZ); p.px(x + 1, y + 1, GREY[3])                                   # grizzled guard hairs
+p.add(p.m(inter(whole, lambda x, y: y > 30.5 - (x - 20) * .03)), UNDER, local=True)
+for x, y in ((23, 13), (31, 12.5), (38, 15), (45, 17.5), (27, 18.5), (35, 19.5), (41, 22), (49, 21), (22, 22.5), (31, 23.5)):
+    p.line([(x, y), (x + 1, y + 1.5)], GREY[3]); p.px(x - 1, y, GRIZ)                # grizzled guard hairs
 for x in (24, 30, 36, 42, 48):
     p.line([(x, 31), (x + .5, 33)], UNDER[3])                                       # fringe parting
 
@@ -61,7 +61,7 @@ head = union(skull, snout)
 p.add(p.m(head), WHITE)
 p.add(p.m(inter(head, lambda x, y: y > 24.5 - max(0, x - 60) * .12)), UNDER, local=True)     # dark throat
 p.edge({q for q in p.m(skull, ears) if q[0] < 53}, INK, sides=((-1, 0), (0, -1)))
-stripe = capsule([(53, 17), (58, 17), (64, 18.8), (70, 21.2)], 4.2, 2.0)
+stripe = capsule([(54.5, 16), (58.5, 17.4), (64, 19), (70.5, 21.2)], 3.6, 1.6)
 p.add(p.m(inter(stripe, head)), STRIPE, flat=True)
 p.add(p.m(inter(capsule([(48, 19.5), (54, 20.5)], 4, 3), head)), GREY, local=True)  # grey cheek back to the body
 p.add(p.m(ell(72.4, 21.7, 1.5, 1.4)), (INK,) * 4, flat=True)                       # nose
