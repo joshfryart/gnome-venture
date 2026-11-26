@@ -597,9 +597,14 @@ function pfv_result_html(array $r, string $actions = ''): string
 }
 
 /** The summary of a fight that just ended (kept in the session by pfight_do for a loss, a run or a stall: the encounter is gone by the next page). Shown once. */
-function pfv_result_take(): string
+function pfv_result_take(?array $exp = null): string
 {
     $r = $_SESSION['pfv_res'] ?? null; unset($_SESSION['pfv_res']);
     if (!is_array($r) || (int)($r['at'] ?? 0) < time() - 900) return '';
-    return pfv_result_html($r) . pfv_assets(false);
+    $act = '';
+    if (($r['how'] ?? '') === 'run' && $exp && ($exp['kind'] ?? '') === 'explore') {   // after a run-away on an explore (wander) walk: the page's own deeper / return forms, right on the card
+        $f = fn(string $do, string $cls, string $label) => '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="btn ' . $cls . '">' . $label . '</button></form>';
+        $act = $f('deeper', 'primary', '🌿 Go deeper') . $f('return', '', '🛣️ To the road');
+    }
+    return pfv_result_html($r, $act) . pfv_assets(false);
 }

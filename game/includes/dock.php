@@ -60,6 +60,8 @@ function dock_action(string $label, string $icon, string $href = '', array $menu
  * confirm dialog and in-place update all apply, and nothing new has to exist on the server). $remote is one of:
  *   ['doForm' => 'water_all', 'count' => ['.gardenstat', 'data-thirsty']]  the first form on the page whose hidden `do` is that value; the count (optional) is a data attribute
  *   ['sel' => 'css selector']                                              any element on the page
+ *   ['firstOn' => true] beside doForm: the first such form whose button is enabled (an offer you can take, an order you can fill), not simply the first
+ *   ['post' => ['url' => .., 'do' => ..]] beside sel: with the button absent, post that do (csrf from the dock) to the url in place
  *   ['select' => 'garden']                                                 the garden's "select squares" panel (a Pick strip and a Then strip while it is on)
  *   ['selectInfo' => 'garden']                                             a piece that shows how many squares are picked while that panel is on
  * The script (assets/dock.js) looks the control up each time the dock is drawn: a missing or disabled control greys the piece ("none"). A piece with $cands takes the
@@ -422,7 +424,7 @@ function dock_page_spec(string $page): array
                     $nNap = count(array_filter($ropts, fn($o) => $o['kind'] === 'nap')); $one = $nNap === 1 && count($ropts) - $nNap === 1;   // one sleep and one nap: short names
                     foreach ($ropts as $o) {
                         $nm = $one ? ($o['kind'] === 'nap' ? 'Nap' : 'Sleep') : preg_replace('/ \(.*$/', '', (string)$o['label']);
-                        $rest[] = dock_remote($nm, $o['kind'] === 'nap' ? '💤' : '🌙', ['sel' => 'main button[name="do"][value="' . $o['key'] . '"]', 'href' => $u($page === 'gnome.php' ? 'gnome.php' : 'hovel.php?t=sleep')]);
+                        $rest[] = dock_remote($nm, $o['kind'] === 'nap' ? '💤' : '🌙', ['sel' => 'main button[name="do"][value="' . $o['key'] . '"]', 'href' => $u($page === 'gnome.php' ? 'gnome.php' : 'hovel.php?t=sleep')] + (!empty($o['ok']) ? ['post' => ['url' => $u('hovel.php?t=sleep'), 'do' => $o['key']]] : []));   // button absent (classic gnome.php): post the key in place, hovel.php accepts any rest key
                     }
                     if ($rest) $R = dock_action('Rest', '🛏️', '', $rest, '', '', 'Rest');
                 }
@@ -472,7 +474,7 @@ function dock_page_spec(string $page): array
         case 'market.php':
             $tm = (string)($_GET['t'] ?? 'buy');
             if ($tm !== 'stall' && $tm !== 'trades') return ['L' => dock_action('Satchel', '🎒', $u('inventory.php')), 'R' => dock_action('My stall', 'tag', $u('market.php?t=stall'))];   // the list and offer forms exist only on those two tabs
-            return ['watch' => true, 'L' => dock_action('Satchel', '🎒', $u('inventory.php')), 'R' => dock_action('List', '🏷️', '', [], '', '', '', [], [dock_remote('List', '🏷️', ['doForm' => 'list']), dock_remote('Offer', '🤝', ['doForm' => 'offer'])])];
+            return ['watch' => true, 'L' => dock_action('Satchel', '🎒', $u('inventory.php')), 'R' => dock_action('List', '🏷️', '', [], '', '', '', [], [dock_remote('List', '🏷️', ['sel' => 'main details.mkadd > summary']), dock_remote('Offer', '🤝', ['doForm' => 'offer'])])];
         case 'marketday.php':
             return ['watch' => true, 'L' => dock_action('Back', '↩'), 'R' => dock_remote('Basket', '🧺', ['doForm' => 'basket'])];
         case 'community.php':
@@ -504,14 +506,14 @@ function dock_page_spec(string $page): array
             if (isset(JOB_PERIODS[$T]) || $T === 'post') { $p = $T; $T = 'jobs'; }
             if ($T === 'requests') {
                 return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Deliver', '📜', '', [], '', '', '', [], [
-                    dock_remote('Deliver', '📜', ['doForm' => 'order']), dock_remote('Favour', '🤝', ['doForm' => 'favour'])])];
+                    dock_remote('Deliver', '📜', ['doForm' => 'order', 'firstOn' => true]), dock_remote('Favour', '🤝', ['doForm' => 'favour'])])];
             }
             if ($T === 'journey') return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Journey', '🧭', '', [], '', '', '', [], [
                 dock_remote('Hand in', '✋', ['doForm' => 'hand_in']), dock_remote('Finish', '🏁', ['doForm' => 'finish']), dock_remote('Crate', '📦', ['doForm' => 'crate'])])];
-            if ($p === 'post') return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Take', '📋', ['doForm' => 'take_player'])])];
+            if ($p === 'post') return ['watch' => true, 'L' => dock_action('Tasks', 'tasks', $u('jobs.php')), 'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Take', '📋', ['doForm' => 'take_player', 'firstOn' => true])])];
             return ['watch' => true,
                 'L' => dock_action('Re-roll', '🎲', '', [], '', '', '', [], [dock_remote('Give up', '🏳️', ['doForm' => 'abandon']), dock_remote('Re-roll', '🎲', ['doForm' => 'reroll'])]),
-                'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Hand in', '✋', ['doForm' => 'deliver']), dock_remote('Build', '🧱', ['doForm' => 'build']), dock_remote('Take', '📋', ['doForm' => 'take'])])];
+                'R' => dock_action('Take', '📋', '', [], '', '', '', [], [dock_remote('Hand in', '✋', ['doForm' => 'deliver']), dock_remote('Build', '🧱', ['doForm' => 'build']), dock_remote('Take', '📋', ['doForm' => 'take', 'firstOn' => true])])];
     }
     return [];
 }

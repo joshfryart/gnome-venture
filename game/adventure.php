@@ -303,7 +303,7 @@ function wander_card_html(array $u, array $exp, array $last, array $log, array $
 page_header('On the mycelium');
 $pfStageRes = '';
 $pfRes = '';
-if (!empty($_SESSION['pfv_res'])) { require_once __DIR__ . '/includes/pfdeck_view.php'; $pfRes = pfv_result_take(); }   // 2.6.74 v1: the result card of a puzzle fight that was lost or left (never set with pfight_v1 off); shown below, over the map's place when pfight_stage is on (a Trail map, the map behind a wander off the Trail, or a wander with no map: the window)
+if (!empty($_SESSION['pfv_res'])) { require_once __DIR__ . '/includes/pfdeck_view.php'; $pfRes = pfv_result_take($exp ?: null); }   // 2.6.74 v1: the result card of a puzzle fight that was lost or left (never set with pfight_v1 off); shown below, over the map's place when pfight_stage is on (a Trail map, the map behind a wander off the Trail, or a wander with no map: the window)
 // graphical navigation 2d: Wander off the Trail plays in a popover over the Trail's section; when the wander ends the walk is picked up again
 $wanderView = null;
 if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);

@@ -287,19 +287,23 @@
   }
   var REM = [], ACT = { L: null, R: null }, selOn = false, qMode = false, lp = false, lpT = 0;
   function q1(sel) { try { return document.querySelector(sel); } catch (e) { return null; } }
-  function formBtn(doVal) {
-    var fs = document.querySelectorAll('main form'), i, f, inp, b;
+  function formBtn(doVal, firstOn) {   // firstOn: take the first matching form whose button is enabled (else the first match, disabled)
+    var fs = document.querySelectorAll('main form'), i, f, inp, b, first = null, o;
     for (i = 0; i < fs.length; i++) {
       f = fs[i]; inp = f.querySelector('input[name="do"]');
-      if (inp && inp.value === doVal) { b = f.querySelector('button, input[type="submit"]'); return { btn: b, dis: !b || b.disabled }; }
+      if (inp && inp.value === doVal) {
+        b = f.querySelector('button, input[type="submit"]'); o = { btn: b, dis: !b || b.disabled };
+        if (!firstOn || !o.dis) return o;
+        if (!first) first = o;
+      }
     }
-    return null;
+    return first;
   }
   function attrCount(c) { var el = c && q1(c[0]), v = el ? parseInt(el.getAttribute(c[1]), 10) : 0; return v > 0 ? String(v) : ''; }
   function resolveOne(a) {   // -> { why, badge } for a piece or tile that works a control on the page
     var r = a.remote || {}, t, e;
-    if (r.doForm) { t = formBtn(r.doForm); if (!t || t.dis) return { why: 'none' }; return { badge: attrCount(r.count) }; }
-    if (r.sel) { e = q1(r.sel); if (!e) return r.href ? {} : { why: 'n/a' }; if (e.disabled) return { why: 'none' }; return e.getAttribute('aria-pressed') === 'true' ? { on: true } : {}; }   /* v2.8.56: a page button that says aria-pressed="true" (Sneak, Hunt on the Trail) shows as the lit, ringed tile */
+    if (r.doForm) { t = formBtn(r.doForm, r.firstOn); if (!t || t.dis) return { why: 'none' }; return { badge: attrCount(r.count) }; }
+    if (r.sel) { e = q1(r.sel); if (!e) return r.href || r.post ? {} : { why: 'n/a' }; if (e.disabled) return { why: 'none' }; return e.getAttribute('aria-pressed') === 'true' ? { on: true } : {}; }   /* v2.8.56: a page button that says aria-pressed="true" (Sneak, Hunt on the Trail) shows as the lit, ringed tile */
     return {};
   }
   function remoteGo(spec) {   // looked up again at the moment of the tap: the page may have been swapped since the dock was drawn
@@ -317,8 +321,8 @@
     }
     if (spec.foe) { slip = 'status'; popTab = 'foe'; return 'keep'; }
     if (spec.tool) { tool = tool === spec.tool ? null : spec.tool; e = q1('.selbar [data-sel="' + (tool ? 'on' : 'off') + '"]'); if (tool === null) { e = q1('.selbar [data-sel="off"]'); } if (e && !e.hidden && (tool || gSelOn())) e.click(); return; }
-    if (spec.doForm) { t = formBtn(spec.doForm); if (t && !t.dis) t.btn.click(); return; }
-    if (spec.sel) { e = q1(spec.sel); if (!e && spec.href) { location.href = spec.href; return; } if (e && !e.disabled) { if (!(e.tagName === 'SUMMARY' && e.parentNode && e.parentNode.open)) e.click(); if (e.tagName === 'SUMMARY') { try { e.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (x) { e.scrollIntoView(); } } } }
+    if (spec.doForm) { t = formBtn(spec.doForm, spec.firstOn); if (t && !t.dis) t.btn.click(); return; }
+    if (spec.sel) { e = q1(spec.sel); if (!e && spec.post) { postTo(spec.post.url, { do: spec.post.do }); return; } if (!e && spec.href) { location.href = spec.href; return; } if (e && !e.disabled) { if (!(e.tagName === 'SUMMARY' && e.parentNode && e.parentNode.open)) e.click(); if (e.tagName === 'SUMMARY') { try { e.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (x) { e.scrollIntoView(); } } } }
   }
   function remKey(spec) { REM.push(spec); return REM.length - 1; }
   /* the garden's own select panel: .selbar (data-tiles: a flag letter string per square), .selon while it is on, .selcount, the Pick buttons [data-q], the action buttons in .selacts */
