@@ -15,7 +15,7 @@ Rules: add new items here only. Tick or delete when done, and MOVE finished bloc
 
 ## B. Code / bugs open
 - DECIDED (Josh, 2026-11-26): keep `game/includes/data/trail_maps.json` (old 22x7 reference for tests; not live, all 246 routes overridden by `data/trail_maps/*_30x18.json`). Known: Admin "Trail maps check" reports it as live; silent 22x7 fallback if a region file fails validation.
-- Owner: dock labels render ~8px under 340px high (`dock.js scaleFor` k=0.75, a 2.8.50 trade-off, not a bug). Options: accept; or a `dk-small` class with 13px labels (eye check "Out & about" / "Together"); or drop the 75% scale (26 px less page at 640x260). Recommended: labels only. W3 shop / village card asks. (Hovel tabs and tour ask card at 640x260: FIXED in `dock.css`, unreleased.)
+- DONE (2.8.74): dock labels under 340px high now 12px (renders 9px, was 8.25): `dk-small` class from `dock.js`, rules at the end of `dock.css`. 13px clipped "Out & about" (tile is 64px), so tile padding is 0 and letters -0.2px. Checked headless at 640x260, 700x320, 844x339, 844x390 and by eye; not on a real phone. W3 shop / village card asks still open.
 - Live world (2.8.73): if `SELECT COUNT(*), MAX(id), SUM(id=239) FROM routes` gives `245 | 472 | 1` it has the route-id bug; fix with `php tools/renumber_routes_239.php GAME_DIR` (dry run), then `--apply` (SQLite: copies game.sqlite; MySQL: needs `--i-have-a-db-backup`). `245 | 473 | 0` is already right. Not run on live. Tested on SQLite only (bad world, rollback, repeat); MySQL path untested.
 - DONE: crew wording now "They work every morning at 06:00." (pal_crew.php:135).
 - `aseprite-source/v3/creature25/gen.lua` would overwrite swapped rigs: do not rerun blind.

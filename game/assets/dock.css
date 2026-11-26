@@ -1975,3 +1975,8 @@ body.dock-on:has(#pfight.pf-v1, #pfi:not([hidden])) .dockroot .dk-msg { display:
   html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourbtns form { flex: 1 1 0; }
   html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourbtns .btn { width: 100%; min-height: 36px; }
 }
+
+/* 2.8.74: the 75% dock (windows under 340px high) draws labels at 12px so they render at 9px instead of 8.25px. "Out & about" is the widest and the tile is 64px, so the tile padding goes and the letters tighten a little (13px would clip it) */
+.dockroot.dk-small .dk-pc .dk-in { padding-inline: 0; }
+.dockroot.dk-small .dk-pc .dk-lb { font-size: 12px; letter-spacing: -0.2px; }
+.dockroot.dk-small .dockslip .dk-pc .dk-lb { font-size: 11px; letter-spacing: -0.1px; }

@@ -47,8 +47,8 @@ cec8e30219289d53b4797d68d418562f8a7950b0  assets/catfish.js
 e53c27cee6ec75c3a11606028e4bd0503372c4f5  assets/catfish_shell.js
 366f574ba01822bbd4fd882fc395561b5698d6de  assets/chest.js
 914ea8a86077318998e4c63a6783963a7b790fcc  assets/craftpop.js
-f76a95f880e1b588e4f94d3703039e84ac3b80cb  assets/dock.css
-26c22e29fc958f919408bea80f7d0b9a2af74885  assets/dock.js
+ebb1f53c3609ffae6a2770b04840fd2aac067040  assets/dock.css
+cfbd5b102fe2d820d2cc7e0b4dc7e07b1d0dc402  assets/dock.js
 7498723927e27d9942ecd9e65b15211f612fadf2  assets/early.js
 2e6cfcb9c1311c86dd7c51e37d38e40447d4c060  assets/fightarch.js
 6690279b8e681e41b9f607f2f2b2e7dc5b8fb63c  assets/fightdemo.js
