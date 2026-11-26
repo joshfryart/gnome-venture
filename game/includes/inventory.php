@@ -87,7 +87,7 @@ function unlock_entries(int $userId, string $key): int
             if (session_status() === PHP_SESSION_ACTIVE && (int)($_SESSION['uid'] ?? 0) === $userId) $_SESSION['new_pages'][] = [(int)$r['id'], unlock_reason($key)];
         }
     }
-    if ($n > 0 && function_exists('calling_event')) calling_event($userId, 'page', $key, 1);   // v0.9.4 N0: a new Almanac page (key prefix creature: gather: recipe: item: plant: village: landmark: npc: region:)
+    if ($n > 0) calling_event($userId, 'page', $key, 1);   // v0.9.4 N0: a new Almanac page (key prefix creature: gather: recipe: item: plant: village: landmark: npc: region:)
     return $n;
 }
 

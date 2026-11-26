@@ -346,7 +346,7 @@ function cook_pots_on(): bool
     return trim((string)setting('kitchen_pots')) !== '0';
 }
 
-/** How many pots this gnome has: by the best Kitchen level (kitchen_pots, "2,3,4"), +1 for a Brewroot master. 0 without a Kitchen. */
+/** How many pots this gnome has: by the best Kitchen level (kitchen_pots, "3,4,5"), +1 for a Brewroot master. 0 without a Kitchen. */
 function cook_pot_limit(array $u): int
 {
     require_once __DIR__ . '/gardens.php';
@@ -632,7 +632,6 @@ function cook_collect_msg(array $infos, string $verb, string $spent = ''): strin
         . ($extra ? ' 🍳 Brewroot luck: ' . $extra . ' extra!' : '') . ($page ? ' 📖 New Almanac page!' : '');
 }
 
-/** Short text for a food's energy and buff: "⚡+4 (🛡️ Hardiness +3 for 6 h)". v0.9.1a: buff in brackets, time adjusted for $u when given. */
 /** v2.4.0: the one food line every surface shows: "⚡+12 energy · ✨ ..." (or '' if the item gives neither). $homeCooked = dishes at cook_energy_percent (the Brewroot perk stays hidden). */
 function item_food_line(?string $effects, ?array $u = null, bool $homeCooked = false, int $itemId = 0): string
 {
@@ -640,6 +639,7 @@ function item_food_line(?string $effects, ?array $u = null, bool $homeCooked = f
     return $t === '' ? '' : $t;
 }
 
+/** Short text for a food's energy and buff: "⚡+4 (🛡️ Hardiness +3 for 6 h)". v0.9.1a: buff in brackets, time adjusted for $u when given. */
 function buff_text(?string $effects, ?array $u = null, bool $homeCooked = false, int $itemId = 0): string
 {
     $fx = json_decode((string)$effects, true) ?: [];

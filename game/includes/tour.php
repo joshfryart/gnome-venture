@@ -11,36 +11,42 @@ declare(strict_types=1);
 const TOUR_STEPS = [
     ['till', 'Till a square', "Wild ground needs tilling before it grows anything.\nYour trowel is already in your satchel.\n{energy}", 'Go to my garden', 'garden.php'],
     ['soil', 'Work in some compost', "Compost feeds the soil slowly, over about a day.\nNo need to wait: plant right after.\n{energy}", 'Go to my garden', 'garden.php', 1],   // 6th: 1 = can be skipped (rich soil has no Work in button)
-    ['plant', 'Plant a seed', "Radishes and lettuce are quickest: a radish takes {radish} of watered growing.\nThe seed shown is fine.\n{energy}", 'Go to my garden', 'garden.php'],
+    ['plant', 'Plant a seed', "Radishes are quickest: a radish takes {radish} of watered growing.\nThe seed shown is fine.\n{energy}", 'Go to my garden', 'garden.php'],
     ['water', 'Water it', "Plants only grow while watered.\nOne watering lasts several hours, so come and go as you like.\n{energy}", 'Go to my garden', 'garden.php'],
     ['eat', 'Eat your welcome snack', "Open your satchel and eat a crop from your welcome basket.\nEven raw crops give a little energy and a short buff.\nCooked dishes give much more.", 'Open my satchel', 'inventory.php'],
     ['visit:book', 'Open your Almanac', "Your Almanac fills itself in as you:\ngrow crops and cut flowers\nvisit villages and meet creatures\nMilestones in it pay rewards.", 'Open my Almanac', 'book.php'],
     ['visit:gnome', 'Meet your gnome', "Here you will find:\nyour stats and gnome level\nyour gardens\nAt level 5 you choose a calling: a new hat and perks that grow with you.", 'See my gnome', 'gnome.php?tab=gnome'],
     ['visit:world', 'Look around the world', "This is where you are.\nTap a stop on the road to head there.\nWander off the path for finds.\nOpen Gather to forage close by.\nPlaces you have walked to are one tap away under Fast travel.", 'Look around', 'world.php'],
     ['visit:shop', 'Visit a shop', "Shops are staffed around the clock and restock now and then.\nTwigg’s Seed Emporium in Mossbottom is open to everyone, wherever you are.\nTap an item to fill your basket.", 'Find a shop', '{twigg}'],
+    ['sleep', 'Sleep in your hovel', "Plants grow while you sleep.\nGo to your hovel and sleep once: a new day starts.\nYour radish will be ready to pick when you wake.\nSleeping is free, and it refills your energy.", 'Go to my hovel', 'hovel.php?t=sleep', 1],   // 10th: 1 = can be skipped (no hovel yet, or the sleep was missed)
     ['harvest', 'Harvest your first crop', "When your plant is ready:\nYou might save some seeds.\nYour Almanac gets a new page.\nThen the Hollow is yours to explore!", 'Go to my garden', 'garden.php'],
 ];
 
 /** v2.4.97: where to point on each step, most specific first: [CSS selector, hint]. tour.js rings the first one that is on the page. */
 const TOUR_TARGETS = [
-    'till' => [['.sqactions .toolform:has(input[value=till]) button[value=one]', 'Press Till.'], ['#yard a.tile.wild', 'Tap a square of wild ground.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
-    'soil' => [['.sqactions .toolform:has(input[value=soil]) button[value=one]', 'Press Work in. The compost shown is fine.'], ['#yard a.tile.tilled', 'Tap your tilled square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
-    'plant' => [['.sqactions .toolform:has(input[value=plant]) button[value=one]', 'Press Plant. The seed shown is fine.'], ['#yard a.tile.tilled', 'Tap your tilled square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['#dockroot .dockslip a[href$="garden.php"]', 'Tap Garden.'], ['#dockroot [data-m="hobby"]', 'Tap Hobbies, then Garden.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
-    'water' => [['.piact .toolform:has(input[value=water]) button[value=one]', 'Press Water.'], ['#yard a.tile.planted', 'Tap your planted square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['#dockroot .dockslip a[href$="garden.php"]', 'Tap Garden.'], ['#dockroot [data-m="hobby"]', 'Tap Hobbies, then Garden.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'till' => [['.sqactions .toolform:has(input[value=till]) button[value=one]', 'Press Till.'], ['#yard a.tile.wild', 'Tap a square of wild ground.'], ['.gardentabnav a[href$="garden.php"]:not(.on)', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'soil' => [['.sqactions .toolform:has(input[value=soil]) button[value=one]', 'Press Work in. The compost shown is fine.'], ['#yard a.tile.tilled', 'Tap your tilled square.'], ['.gardentabnav a[href$="garden.php"]:not(.on)', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'plant' => [['.sqactions .toolform:has(input[value=plant]) button[value=one]', 'Press Plant. The seed shown is fine.'], ['#yard a.tile.tilled', 'Tap your tilled square.'], ['.gardentabnav a[href$="garden.php"]:not(.on)', 'Tap Beds.'], ['#dockroot .dockslip a[href$="garden.php"]', 'Tap Garden.'], ['#dockroot [data-m="hobby"]', 'Tap Hobbies, then Garden.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'water' => [['.piact .toolform:has(input[value=water]) button[value=one]', 'Press Water.'], ['#yard a.tile.planted', 'Tap your planted square.'], ['.gardentabnav a[href$="garden.php"]:not(.on)', 'Tap Beds.'], ['#dockroot .dockslip a[href$="garden.php"]', 'Tap Garden.'], ['#dockroot [data-m="hobby"]', 'Tap Hobbies, then Garden.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
     'eat' => [['.shquick .shf:has(input[value=eat]) button', 'Tap Eat.'], ['#dockroot .dockslip a[href$="inventory.php"]', 'Tap Satchel.'], ['#dockroot [data-m="you"]', 'Tap You, then Satchel.'], ['.bottombar a[href$="inventory.php"]:not(.on)', 'Tap Satchel.'], ['.navtile[href$="inventory.php"]', 'Tap Satchel.']],
     'visit:book' => [['.statusstrip .st.alm a', 'Tap Almanac.'], ['#dockroot .dockslip a[href$="book.php"]', 'Tap Almanac.'], ['#dockroot [data-m="you"]', 'Tap You, then Almanac.'], ['.navtile[href$="book.php"]', 'Tap Almanac.']],
-    'visit:gnome' => [['.statusstrip a.stl[href*="tab=gnome"]', 'Tap your level.'], ['#dockroot .dockslip a[href$="gnome.php"]', 'Tap Home.'], ['#dockroot [data-m="you"]', 'Tap You, then Home.'], ['.navme', 'Tap your gnome.']],
+    'visit:gnome' => [['.hometabs a[href*="tab=gnome"]', 'Tap MY GNOME.'], ['.statusstrip a.stl[href*="tab=gnome"]', 'Tap your level.'], ['#dockroot .dockslip a[href$="gnome.php"]', 'Tap Home.'], ['#dockroot [data-m="you"]', 'Tap You, then Home.'], ['.navme', 'Tap your gnome.']],
     'visit:world' => [['.bottombar a[href$="world.php"]:not(.on)', 'Tap World.'], ['#dockroot .dockslip a[href$="world.php"]', 'Tap World.'], ['#dockroot [data-m="out"]', 'Tap Out & about, then World.'], ['.navtile[href$="world.php"]', 'Tap World.']],
     'visit:shop' => [['#wrentour .tourgo', 'Tap this button.']],
-    'harvest' => [['.piact .toolform:has(input[value=harvest]) button[value=one]', 'Press Harvest.'], ['#yard a.tile.ready', 'Tap the ready square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['#dockroot .dockslip a[href$="garden.php"]', 'Tap Garden.'], ['#dockroot [data-m="hobby"]', 'Tap Hobbies, then Garden.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'sleep' => [['main button[name="do"][value="home_sleep"]', 'Press Sleep.'], ['#dockroot [aria-label="Sleep"]', 'Tap Sleep.'], ['#dockroot button[data-act="R"][aria-label="Rest"]:not([disabled])', 'Tap Rest, then Sleep.'], ['a.hdr-clock', 'Tap the clock to open your hovel.'], ['.statusstrip a.gclkl', 'Tap the clock to open your hovel.'], ['#dockroot .dockslip a[href$="hovel.php"]', 'Tap Hovel.'], ['#dockroot .dockslip a[href$="gnome.php"]', 'Tap Hovel.'], ['#dockroot [data-m="you"]', 'Tap You, then Hovel.'], ['#wrentour .tourgo', 'Tap this button to go to your hovel.']],
+    'harvest' => [['.piact .toolform:has(input[value=harvest]) button[value=one]', 'Press Harvest.'], ['#yard a.tile.ready', 'Tap the ready square.'], ['#yard a.tile.planted', 'Not ready yet. Water it, then sleep in your hovel.'], ['.gardentabnav a[href$="garden.php"]:not(.on)', 'Tap Beds.'], ['#dockroot .dockslip a[href$="garden.php"]', 'Tap Garden.'], ['#dockroot [data-m="hobby"]', 'Tap Hobbies, then Garden.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
 ];
 
 const TOUR_PAGES = ['book.php' => 'visit:book', 'gnome.php' => 'visit:gnome',
     'world.php' => 'visit:world', 'shop.php' => 'visit:shop'];
 
-/** v0.7.85: a plant's real grow time in words (the tour used to hard-code "15 minutes"; the data says 5). */
+/** v0.7.85: a plant's grow time in words. With the game clock on it is sleeps ("one sleep"), not minutes; clock off falls back to the real minutes. */
 function tour_grow_text(string $slug, string $fallback): string
 {
+    if (function_exists('gclock_on') && gclock_on()) {
+        $p = q_one('SELECT grow_minutes FROM plants WHERE slug = ?', [$slug]);
+        if ($p) { $n = gclock_grow_sleeps($p); return $n === 1 ? 'one sleep' : $n . ' sleeps'; }
+    }
     $m = (int)q_val('SELECT grow_minutes FROM plants WHERE slug = ?', [$slug]);
     if ($m < 1) return $fallback;
     if ($m >= 60) return round($m / 60, 1) . ' hours';
@@ -107,6 +113,50 @@ function tour_event(int $uid, string $event): int
     // v1.6.2: no toast + message-bar line any more; the next step's card shows once, then a one-line chip (tour_box)
     q('UPDATE users SET tour_step = ? WHERE id = ? AND tour_step = ?', [$next, $uid, $step]);
     return $next;
+}
+
+/** The tour's sleep step (index + 1), or 0. */
+function tour_sleep_step(): int
+{
+    foreach (TOUR_STEPS as $i => $st) if ($st[0] === 'sleep') return $i + 1;
+    return 0;
+}
+
+/** After a sleep in the hovel (or any bed): a quick, watered crop (one sleep) is ready the next morning, so the tour's promise always holds. */
+function tour_boost_after_sleep(int $uid): void
+{
+    q('UPDATE plot_tiles SET growth_seconds = (SELECT pp.grow_minutes * 60 FROM plants pp WHERE pp.id = plot_tiles.plant_id)
+       WHERE plant_id IS NOT NULL AND water_day IS NOT NULL
+         AND plot_id IN (SELECT id FROM plots WHERE user_id = ?)
+         AND plant_id IN (SELECT id FROM plants WHERE grow_minutes <= 20)', [$uid]);
+}
+
+/** Called from game_sleep (every bed, so the dock's Rest piece counts too): moves the tour past its sleep step. */
+function tour_after_sleep(int $uid): void
+{
+    [$step, $ask] = tour_state($uid);
+    if ($step < 1 || $ask !== 0) return;
+    $ss = tour_sleep_step();
+    if ($ss && $step <= $ss) tour_boost_after_sleep($uid);   // slept during the tour (on or before the sleep step): the quick crop is ready
+    if ($ss && $step === $ss) tour_event($uid, 'sleep');
+}
+
+/**
+ * Never a dead end: when the tour is on its sleep step but sleeping cannot (or need not) happen, move on.
+ * Clock off = no hovel to sleep in (the radish then ripens on its minutes); already slept since watering = nothing left to wait for.
+ */
+function tour_settle(int $uid, int $step): int
+{
+    if ($step < 1 || $step > count(TOUR_STEPS) || TOUR_STEPS[$step - 1][0] !== 'sleep') return $step;
+    [, $ask] = tour_state($uid);
+    if ($ask !== 0) return $step;
+    $skip = !function_exists('gclock_on') || !gclock_on();
+    if (!$skip) {
+        $skip = (bool)q_val('SELECT 1 FROM plot_tiles t JOIN plots pl ON pl.id = t.plot_id JOIN users u ON u.id = pl.user_id
+                             WHERE u.id = ? AND t.plant_id IS NOT NULL AND t.water_day IS NOT NULL AND t.water_day < u.game_day LIMIT 1', [$uid]);
+        if ($skip) tour_boost_after_sleep($uid);
+    }
+    return $skip ? tour_event($uid, 'sleep') : $step;
 }
 
 /** Still on Wren's tour? Everything else that greets a newcomer waits until it is done (or skipped). */

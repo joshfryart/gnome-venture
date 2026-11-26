@@ -81,16 +81,16 @@ function shop_tile(array $o): string
     $qtyName = (string)($o['qtyName'] ?? 'qty[' . $id . ']');
     [$rl, $rw] = item_rarity($i, $IL);
     $desc = (string)($i['description'] ?? '');
-    $pieceH = (string)($o['piece'] ?? '');   // 2.7.xx: a wearable's puzzle piece picture, inside the About fold
-    $descH = $desc === '' && $pieceH === '' ? '' : '<details class="helpfold sdesc" open><summary>About it</summary>' . ($desc === '' ? '' : '<p>' . desc_html($desc) . '</p>') . $pieceH . '</details>';   // 2.7.xx: always a fold, always open (Josh)
+    $pieceH = (string)($o['piece'] ?? '');   // a wearable's puzzle piece picture, inside the About fold
+    $descH = $desc === '' && $pieceH === '' ? '' : '<details class="helpfold sdesc" open><summary>About it</summary>' . ($desc === '' ? '' : '<p>' . desc_html($desc) . '</p>') . $pieceH . '</details>';   // always a fold, always open (Josh)
     $verb = $mode === 'buy' ? 'Buy' : 'Sell';
     $lbl = (string)($o['totalLabel'] ?? ($mode === 'buy' ? 'Total' : 'You get'));
     $hidden = '';
     foreach ((array)($o['fields'] ?? []) as $k => $v) $hidden .= '<input type="hidden" name="' . e((string)$k) . '" value="' . e((string)$v) . '">';
-    $form = empty($o['open']) || $max < 1 ? '' : '<form method="post" class="sheetform" data-mode="' . $mode . '" data-price="' . $price . '" data-max="' . $max . '" action="' . e((string)$o['action']) . '">' . csrf_field()
+    $form = empty($o['open']) || $max < 1 ? '' : '<form method="post" class="sheetform" data-mode="' . $mode . '" data-price="' . $price . '" data-max="' . $max . '"' . (!empty($o['qtyDefault']) ? ' data-qdef="' . min($max, (int)$o['qtyDefault']) . '"' : '') . ' action="' . e((string)$o['action']) . '">' . csrf_field()
         . '<input type="hidden" name="do" value="' . $mode . '">' . $hidden
         . '<div class="qctl"><button type="button" class="qbtn" data-q="-1" aria-label="One less">−</button>'
-        . '<input type="number" class="qin" name="' . e($qtyName) . '" value="1" min="1" max="' . $max . '" inputmode="numeric" aria-label="How many">'
+        . '<input type="number" class="qin" name="' . e($qtyName) . '" value="' . (!empty($o['qtyDefault']) ? min($max, (int)$o['qtyDefault']) : 1) . '" min="1" max="' . $max . '" inputmode="numeric" aria-label="How many">'
         . '<button type="button" class="qbtn" data-q="1" aria-label="One more">+</button>'
         . '<button type="button" class="qbtn qmax" data-q="max">All</button></div>'
         . '<p class="sline"><span>' . $priceHtml . ' ' . e((string)($o['each'] ?? 'each')) . '</span> · <b class="stot" data-lbl="' . e($lbl) . '"></b></p>'

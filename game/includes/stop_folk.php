@@ -163,7 +163,7 @@ function stop_chat(array $u, array $loc, int $folkId, ?string $lineText = null):
     }
     $before = stop_friend_points($uid, $folkId);
     $new = stop_friend_add($uid, $folkId, max(1, (int)setting('stop_chat_fp')));
-    if (function_exists('calling_event')) calling_event($uid, 'talk', 'stop:' . $folk['id'], 1, ['npc' => 'stop-' . $folk['id']]);
+    calling_event($uid, 'talk', 'stop:' . $folk['id'], 1, ['npc' => 'stop-' . $folk['id']]);
     return [true, $line . ' (💛 +' . ($new - $before) . ')'];
 }
 
@@ -197,7 +197,7 @@ function stop_gift(array $u, array $loc, int $folkId, int $itemId): array
     if (!give_item($uid, $itemId, -1)) { db()->rollBack(); return [false, 'You don’t have one of those.']; }
     db()->commit();
     $pts = in_array($item['category'], ['food', 'flower', 'produce', 'arrangement'], true) ? 4 : 2;
-    $pts = (int)round($pts * (1 + 0.08 * max(0, function_exists('eff_mod') ? eff_mod($u, 'charm') : 0)));
+    $pts = (int)round($pts * (1 + 0.08 * max(0, eff_mod($u, 'charm'))));
     $before = stop_friend_points($uid, $folkId);
     $new = stop_friend_add($uid, $folkId, $pts);
     return [true, npc_icon($folk['species']) . ' ' . $folk['name'] . ' takes the ' . $item['name'] . ' with a grateful smile. (💛 +' . ($new - $before) . ')'];
@@ -305,7 +305,7 @@ function stop_errand_accept(array $u, array $loc, int $folkId): array
             return [false, 'You’ve already helped ' . $folk['name'] . ' today.'];
         }
         stop_friend_add($uid, $folkId, $o['fp']);
-        if (function_exists('calling_event')) calling_event($uid, 'gift', 'stop:' . $folkId, 1, ['npc' => 'stop-' . $folkId]);
+        calling_event($uid, 'gift', 'stop:' . $folkId, 1, ['npc' => 'stop-' . $folkId]);
         return [true, npc_icon($folk['species']) . ' ' . $folk['name'] . ' is delighted with ' . $o['qty'] . ' × ' . $o['item']['name'] . '. (+' . $o['coins'] . ' ' . $cur . ', +' . $o['xp'] . ' XP, 💛 +' . $o['fp'] . ')'];
     }
     $max = max(1, (int)setting('stop_errand_max'));
@@ -334,7 +334,7 @@ function stop_errand_deliver(array $u, array $loc, int $errandId): array
     stop_friend_add($uid, (int)$target['id'], 2);
     stop_friend_add($uid, (int)$e['folk_id'], 2);
     $giver = (string)q_val('SELECT name FROM stop_folk WHERE id = ?', [(int)$e['folk_id']]);
-    if (function_exists('calling_event')) calling_event($uid, 'gift', 'stop:' . $target['id'], 1, ['npc' => 'stop-' . $target['id']]);
+    calling_event($uid, 'gift', 'stop:' . $target['id'], 1, ['npc' => 'stop-' . $target['id']]);
     return [true, npc_icon($target['species']) . ' ' . $target['name'] . ': “From ' . $giver . '? How kind. Thank you, ' . ($u['gnome_name'] ?: $u['username']) . '!” (+' . (int)$e['coins'] . ' ' . setting('currency_name') . ', +' . (int)$e['xp'] . ' XP, 💛 +2 with both)'];
 }
 

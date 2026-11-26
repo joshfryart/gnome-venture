@@ -1,7 +1,7 @@
 <?php
 /**
  * Living stops (v2.5.72): state that acts read and change.
- *  - meters (per player per stop, in stop_prog "meter:<name>"): acts fill them, time drains them, a full one gives that stop a perk for a few days
+ *  - meters (per player per stop, in stop_prog "meter:<name>"): acts fill them, time drains them
  *  - familiarity (per player per stop, from how many things you have done there)
  *  - calendar (data/stop_calendar.txt): real dates force a happening (market day, festivals)
  *  - threads (data/stop_threads.txt): little stories of a few beats over several days
@@ -69,7 +69,7 @@ function stop_perks(int $uid, int $locId): array
     return $out;
 }
 
-/** Each running perk is one more thing per visit and one more turn a day at that stop (they stack). */
+/** Retired, always 0 (perks are account-wide, player_perks.php). */
 function stop_perk_bonus(int $uid, int $locId): int
 {
     return 0;   // 2.6.33: perks are the player's now (player_perks.php); the old "one more thing here" bonus is retired

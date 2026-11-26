@@ -14,7 +14,6 @@ require_once __DIR__ . '/trail_sight_third_b.php';   // 2.7.08 third pass B (bir
 
 require_once __DIR__ . '/trail_sights_5.php';   // fifth pass (hv=, the rain charm)
 require_once __DIR__ . '/trail_sights_3a.php';   // 2.7.08 third pass A (hints snore webhum glow rut firstroom, nxt=)
-require_once __DIR__ . '/trail_sights_5.php';   // fifth pass (a folk row's miss line, scoped discounts, season limit): the functions extras calls
 
 // ---------------------------------------------------------------- names, captions
 

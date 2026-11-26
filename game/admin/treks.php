@@ -45,7 +45,7 @@ admin_crumbs('treks.php');
     <?php if ($tl): ?><p class="help">Trek levels: <?= e(implode(' · ', $tl)) ?> · milestones paid: <?= e(implode(', ', array_keys((array)($rst['ms'] ?? []))) ?: 'none') ?></p><?php endif; ?>
     <p class="help">Started <?= e((string)$r['started']) ?> UTC · <?= $r['finished'] ? 'finished ' . e((string)$r['finished']) : 'not finished' ?></p>
     <form method="post" class="form inline"><?= csrf_field() ?><input type="hidden" name="run" value="<?= (int)$r['id'] ?>">
-      <small class="muted">Resetting this chapter lets them earn its rewards again (Chapter I: 400 Petals, chest, items). Milestone XP already paid (v1.8.9) is never paid twice. Resetting a later chapter puts them back in the interlude before it.</small> <label>Type RESET to confirm <input name="confirm" size="8" autocomplete="off"></label>
+      <small class="muted">Resetting this chapter lets them earn its rewards again (Chapter I: <?= (int)setting('trek_ch1_petals') ?> Petals, chest, items). Milestone XP already paid (v1.8.9) is never paid twice. Resetting a later chapter puts them back in the interlude before it.</small> <label>Type RESET to confirm <input name="confirm" size="8" autocomplete="off"></label>
       <button class="btn small red">Reset run</button></form>
   </div>
 <?php endforeach; ?>

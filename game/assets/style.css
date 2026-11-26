@@ -5648,7 +5648,8 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 .itm__trend { font-weight: 800; }
 .itm__pet { display: inline-block; width: 9px; height: 10px; margin-left: 2px; vertical-align: -1px; background: url(img/items/petal.png) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
 .itm__kind { padding: 0 2px; font-weight: 700; letter-spacing: .01em; white-space: normal; }
-.itm__want { background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }
+.itm__want { position: absolute; z-index: 4; left: -7px; bottom: -7px; box-sizing: border-box; min-width: 18px; height: 18px; padding: 0 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; font: 800 11px/1 var(--font); white-space: nowrap; background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }   /* W = Wanted */
+.shopwlegend { margin: 0 0 6px; font-size: 12px; }
 .itm__inb, .itm__use, .itm__ok { background: var(--itm-ok); color: var(--itm-ok-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 .itm__short { background: var(--itm-short); color: var(--itm-short-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 .itm__note { padding: 0 2px; font-weight: 600; white-space: normal; text-wrap: balance; overflow-wrap: break-word; }
@@ -5674,7 +5675,7 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 .itm.is-inbasket::after, .stile.sel > .itm::after { background-image: url(img/items/badge-basket.png); }
 
 /* wanted (sell mode: a market-day or shop order) and in use (the tool a job uses) */
-.itm.is-want::after { width: 28px; height: 28px; top: -12px; right: -12px; background-image: url(img/town/badge-star.png); }
+.itm.is-want:not(.is-inbasket):not(.is-sel)::after { background-image: none; }   /* the W badge (.itm__want) replaces the star */
 .itm.is-use::after { background-image: url(img/items/badge-use.png); }
 
 /* off: sold out, too dear, broken, can't use: stone felt, pale sign, grey picture; still focusable so its sheet can say why */
@@ -6756,7 +6757,6 @@ details.itmcell, label.itmcell { display: block; grid-row: auto; grid-template-r
   .itm__gem { left: -9px; top: -9px; width: 26px; height: 26px; } .itm--u .itm__gem { width: 26px; height: 28px; } .itm--r .itm__gem { width: 28px; height: 28px; } .itm--l .itm__gem { width: 32px; height: 32px; }
   .itm__ic, .itm__svg { max-width: 96px; } .itm__emo { font-size: 48px; }
 .itm__kind--quiet { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* "Seeds" is plain from the picture: screen readers only */
-.itm__want { opacity: .72; }
 /* v2.4.80: seed picker: the count is a green chip in the tile's foot; the popover (dialog.seedpop) holds the info and the quantity */
 .pickgrid .itm .pccount:not([hidden]) { position: static; min-width: 0; padding: 1px 5px; background: var(--itm-ok); color: var(--itm-ok-ink); font: 800 11px/1.3 var(--font); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 dialog.seedpop .stags .tag { font-size: 12px; }
@@ -7062,16 +7062,16 @@ a.tile:focus-visible, .wcta a:focus-visible, .wmore summary:focus-visible, .wpac
 .tournext { margin: 0 0 4px; }
 .tourhint { margin: 0 0 6px; font-weight: 700; }
 .tourhint:empty { display: none; }
-body.game.tourbub { padding-bottom: calc(var(--bar) + var(--sab) + 240px); }
-body.tourbub #wrentour.tour-on { position: fixed; left: 8px; right: 8px; bottom: calc(var(--bar) + var(--sab) + 10px); z-index: 60; max-height: 46vh; overflow-y: auto;
+body.game.tourbub, html.js body.game:has(#wrentour) { padding-bottom: calc(var(--bar) + var(--sab) + 240px); }
+body.tourbub #wrentour.tour-on, html.js #wrentour { position: fixed; left: 8px; right: 8px; bottom: calc(var(--bar) + var(--sab) + 10px); z-index: 60; max-height: 46vh; overflow-y: auto;
   background: var(--surface); border: 2px solid var(--accent-line); border-radius: var(--radius); box-shadow: var(--shadow-2); }
-body.tourbub #wrentour.tour-on .tourbox { margin: 0; border: 0; background: transparent; padding: 8px 12px 4px; }
-body.tourbub #wrentour.tour-on .tourchip { margin: 0; border: 0; background: transparent; }
-body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 22px; bottom: -9px; width: 14px; height: 14px; background: var(--surface);
+body.tourbub #wrentour.tour-on .tourbox, html.js #wrentour .tourbox { margin: 0; border: 0; background: transparent; padding: 8px 12px 4px; }
+body.tourbub #wrentour.tour-on .tourchip, html.js #wrentour .tourchip { margin: 0; border: 0; background: transparent; }
+body.tourbub #wrentour.tour-on::after, html.js #wrentour::after { content: ""; position: absolute; left: 22px; bottom: -9px; width: 14px; height: 14px; background: var(--surface);
   border-right: 2px solid var(--accent-line); border-bottom: 2px solid var(--accent-line); transform: rotate(45deg); }
 @media (min-width: 721px) {
-  body.game.tourbub { padding-bottom: 260px; }
-  body.tourbub #wrentour.tour-on { left: auto; right: 20px; bottom: 20px; width: 400px; }
+  body.game.tourbub, html.js body.game:has(#wrentour) { padding-bottom: 260px; }
+  body.tourbub #wrentour.tour-on, html.js #wrentour { left: auto; right: 20px; bottom: 20px; width: 400px; }
 }
 .tourhl { outline: 4px solid #ffcb2e; outline-offset: 3px; border-radius: 6px; position: relative; z-index: 5; animation: tourpulse 1.2s ease-in-out infinite; }
 .tourhl::before { content: "👆"; position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); font-size: 22px; line-height: 1; pointer-events: none; animation: tourpoint 1.2s ease-in-out infinite; }
@@ -7430,7 +7430,6 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
   dialog.hubpop .shpage .shopwrap .itms .itm__rib { border-width: 4px 3px; border-image-width: 4px 3px; }   /* thinner ribbon ends: 4 px more room for the name */
   dialog.hubpop .shpage .shopwrap .itms .itm__price { font-size: 14px; padding: 2px 4px; }
   dialog.hubpop .shpage .shopwrap .itms .itm::after { top: 30px; right: auto; bottom: auto; left: -7px; width: 22px; height: 22px; }   /* the star / basket badge sits beside the picture, off the name */
-  dialog.hubpop .shpage .shopwrap .itms .itm__want { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* the star says it; the word stays for screen readers */
 }
 
 /* v2.5.30: World page with graphical navigation: the world map first, no banner */
@@ -8640,7 +8639,12 @@ body.game:has(.fightscene) .toasts.phone { right: 8px; left: auto; width: min(70
 .toasts.toasts-tiny .prizebox ul, .toasts.toasts-tiny .pzbig, .toasts.toasts-tiny .pzicon { display: none; }
 /* 2.7.xx: the puzzle piece a wearable gives, on its shop sheet (a 132x92 picture shown at 2x; never wider than the sheet) */
 .isheet .spiece { margin: .4rem 0; text-align: center; }
-.isheet .spiece img { width: 132px; max-width: 100%; height: auto; image-rendering: pixelated; }
+.isheet .spiece img { display: block; margin: 0 auto; width: 132px; max-width: 100%; height: auto; image-rendering: pixelated; }
+/* art review (baked-in text): the card art carries no words; its piece name, type and number are text under it (shop.php) */
+.isheet .spiece figcaption { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 2px 6px; margin-top: 2px; color: var(--ink); font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
+.isheet .spiece .spk { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+.isheet .spiece .spn { font-weight: 700; }
+.isheet .spiece .spv { padding: 0 6px; border-radius: 4px; background: var(--surface-2); box-shadow: var(--frame-lite); font-weight: 700; font-variant-numeric: tabular-nums; }
 /* 2.7.14 Wearing on My Gnome (includes/wear_view.php): 7 slots, one item each; tap a slot for its picker */
 .wearing .wslots, .wearing .wpick { list-style: none; margin: 6px 0 0; padding: 0; }
 .wearing .wslot { margin: 0 0 6px; background: var(--surface-2); box-shadow: var(--frame-lite); }
@@ -9039,3 +9043,28 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
 .evclose { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; padding: 0; border: 0; background: transparent; color: var(--purple-ink, inherit); font: 700 15px/26px inherit; cursor: pointer; opacity: .7; border-radius: 50%; }
 .evclose:hover, .evclose:focus-visible { opacity: 1; background: rgba(0,0,0,.08); }
 .evgone { opacity: 0; transform: translateY(-6px); }
+
+/* landscape dock polish: 11px floor for the energy counter and the piece chips, 34px fullscreen button (dock.css loads after this file, so the longer selectors win) */
+@media (orientation: landscape) {
+  body.dock-on .dockroot .dk-pc.dk-plate .dk-bn { font-size: 11px; }
+  body.dock-on .dockroot .dk-pc .dk-chip, body.dock-on .dockroot .dockslip .dk-pc .dk-chip { font-size: 11px; line-height: 13px; }
+  html .dockroot .dk-rb.dk-fs { min-width: 34px; }
+  /* Today cards: the main line may take 3 lines (a rest stop line such as "Market hamlet: 7 things to do" was clipped at 2) */
+  .todaygrid .tcard p:not(.muted) { -webkit-line-clamp: 3; line-clamp: 3; }
+}
+
+/* landscape, short screens: welcome village step, harvest modal, shop chip */
+@media (orientation: landscape) and (max-height: 520px) {
+  .welcomeflow { max-width: min(860px, 100%); }
+  .wcta { flex-direction: row; justify-content: center; gap: 12px; padding: 4px var(--gut) calc(4px + var(--sab)); }
+  .wcta .btn { width: auto; min-height: 40px; font-size: 15px; padding: 0 20px; }
+  .vcards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .vcard .vil { height: 64px; width: auto; }
+  .hvov { padding: 6px; }
+  .hvov .hv-box { width: min(100%, 560px); padding: 8px 12px 0; }
+  .hvov .hv-title { margin: 0 0 4px; }
+  .hvov .hv-field { min-height: 0; padding-top: 6px; }
+  .hvov .hv-ok { position: sticky; bottom: 0; width: 100%; margin: 6px 0 0; }
+}
+label.check { min-height: 44px; align-items: center; }
+label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }

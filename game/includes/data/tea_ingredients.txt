@@ -6,7 +6,7 @@
 #   power  steep points: 2 = true leaves, roots and spices; 1 = other herbs, flowers and fruit; 0 = sweet and milk.
 #   items  item slugs that count as this ingredient, comma separated, tried in this order (empty = the same slug).
 #          A "?" after a slug = the item is made on first use by the game (dried flowers), so it may not exist yet.
-# Next release: six tea crops (lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise) were added: one stat each, luck stays at 5 (41 stat ingredients: six stats have 6, luck 5).
+# v2.7.31: six tea crops (lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise) were added: one stat each, luck stays at 5 (41 stat ingredients: six stats have 6, luck 5).
 # Adding a plant later is one row here (and a row in teas.txt if it makes a named tea). tests/tea.php checks every item slug.
 tea|Tea Leaves|leaf|lore|2|
 yerba-mate|Yerba Mate|leaf|grit|2|

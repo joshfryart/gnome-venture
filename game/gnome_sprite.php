@@ -27,7 +27,7 @@ if (($x = (string)($_GET['x'] ?? '')) !== '') {
     ksort($items);
 }
 $dir = APP_ROOT . '/data/gnome25';
-$file = $dir . '/' . (defined('GNOME25_ART_REV') ? 'r' . GNOME25_ART_REV . '-' : '') . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . ($wear !== '' ? '-w' . $wear : '') . ($items ? '-x' . substr(md5(implode('.', array_keys($items))), 0, 12) : '') . '.png';
+$file = $dir . '/' . 'r' . GNOME25_ART_REV . '-' . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . ($wear !== '' ? '-w' . $wear : '') . ($items ? '-x' . substr(md5(implode('.', array_keys($items))), 0, 12) : '') . '.png';
 if (!in_array($view, ['front', 'back', 'side'], true)) { http_response_code(400); exit; }
 $png = is_file($file) ? (string)file_get_contents($file) : '';
 if ($png === '') {

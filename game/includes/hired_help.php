@@ -44,11 +44,6 @@ function helper_skills(array $h): array
     return array_values(array_intersect(array_map('trim', explode(',', (string)$h['skills'])), array_keys(HELP_SKILLS)));
 }
 
-function helper_skill_text(array $h): string
-{
-    return implode(', ', array_map(fn($s) => HELP_SKILLS[$s][0] . ' ' . HELP_SKILLS[$s][1], helper_skills($h)));
-}
-
 /** v0.7.99: every helper staying in this garden (a Tool Shed holds 1, 2 or 3 by its level). */
 function current_hires(int $plotId): array
 {
@@ -70,38 +65,6 @@ function hire_visits(array $hire): array
     $out = [];
     for ($v = ts($hire['last_visit']) + $step; $v <= $end && count($out) < 200; $v += $step) $out[] = $v;
     return $out;
-}
-
-function hire_helper(array $u, int $plotId, int $helperId, int $days): array
-{
-    $uid = (int)$u['id'];
-    if (!in_array($days, HELP_DAYS, true)) return [false, 'Pick 1, 3 or 7 days.'];
-    if (!q_val('SELECT 1 FROM plots WHERE id = ? AND user_id = ?', [$plotId, $uid])) return [false, 'That isn’t your garden.'];
-    if (!has_building($plotId, 'tool_shed')) return [false, 'A helper needs a Tool Shed in this garden to stay in.'];
-    $h = q_one('SELECT * FROM helpers WHERE id = ? AND active = 1', [$helperId]);
-    if (!$h) return [false, 'That helper isn’t available.'];
-    $cost = (int)$h['wage'] * $days;
-    db()->beginTransaction();
-    q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v2.3.94: lock this gnome so two hires cannot both take the last slot
-    $n = count(current_hires($plotId));
-    if ($n >= helper_slots($plotId)) {
-        db()->rollBack();
-        return [false, $n === 1 && helper_slots($plotId) < 3 ? 'This garden already has a helper. Upgrade the Tool Shed to house another.' : 'The Tool Shed is full.'];
-    }
-    if (q_val('SELECT 1 FROM garden_hires WHERE plot_id = ? AND helper_id = ? AND active = 1', [$plotId, $helperId])) {
-        db()->rollBack();
-        return [false, $h['name'] . ' is already working here.'];
-    }
-    if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) {
-        db()->rollBack();
-        return [false, $h['name'] . ' asks ' . number_format($cost) . ' ' . setting('currency_name') . ' for ' . $days . ' day' . ($days > 1 ? 's' : '') . '.'];
-    }
-    $nowT = gclock_plot_now($plotId);   // sleep-days: the contract runs in the owner's game days (the virtual clock); real time with the flag off
-    db_insert('garden_hires', ['plot_id' => $plotId, 'user_id' => $uid, 'helper_id' => $helperId, 'started_at' => gmdate('Y-m-d H:i:s', $nowT),
-        'ends_at' => gmdate('Y-m-d H:i:s', $nowT + $days * 86400), 'last_visit' => gmdate('Y-m-d H:i:s', $nowT), 'paid' => $cost, 'active' => 1]);
-    db()->commit();
-    return [true, $h['icon'] . ' ' . $h['name'] . ' moves into your Tool Shed for ' . $days . ' day' . ($days > 1 ? 's' : '') . '. They’ll visit every '
-        . (int)setting('helper_visit_hours') . ' hours.'];
 }
 
 /** Send a helper home early. Unused whole days are refunded. */

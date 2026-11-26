@@ -89,4 +89,16 @@ echo "  -> $(post "shop.php?id=$FAR" -d do=buy -d "qty[$FS]=1")"
 has "need to be there" 'You need to be in' $M
 chk "stock untouched" "$(stock $FS)" "$SF"; chk "Petals untouched" "$(coins)" "$C0"
 
+echo "== a wearable's sheet: its puzzle piece card, with the piece name, type and number as text (art review: no text baked into the card)"
+php -d session.save_path=/tmp -r '$_SERVER["SCRIPT_NAME"]="/adventure.php"; require $argv[1]."/includes/bootstrap.php"; require_once $argv[1]."/includes/wearables.php"; set_setting("wear_open","1"); wear_ensure_items(); wear_ensure_shops();' "$GAME" >/dev/null 2>&1
+OF=$(db "SELECT id FROM shops WHERE slug='na-outfitters'")
+curl -s -b $J "$BASE/shop.php?id=$OF" > $H
+has "the card is on the sheet, at 1x, with no alt text of its own (the caption says it)" '<figure class="spiece"><img src="[^"]*/assets/img/wearpiece/na-sugarbush-snow-boots.png[^"]*" width="132" height="92" alt=""' $H
+has "its caption names the piece and gives its type and number (Snowdrift Trip, Hurt 3)" '<figcaption><span class="spk">Puzzle piece it gives</span> <b class="spn">Snowdrift Trip</b> <span class="spv">Hurt 3</span></figcaption>' $H
+chk "every wearable on the shelf has a captioned card" "$(grep -o '<figure class="spiece">' $H | wc -l)" "$(grep -o '<figcaption><span class="spk">' $H | wc -l)"
+NP=${NODE_PATH:-$(npm root -g 2>/dev/null)}
+if command -v node >/dev/null && NODE_PATH=$NP node -e "require('playwright')" 2>/dev/null; then
+  NODE_PATH=$NP timeout 240 node "$(dirname "$0")/../tools/shot_wearpiece_cards.js" "$BASE" "$OF" "${WEARSHOTS:-}" 2>&1
+else echo "ok   wearable card browser pass: skipped (no playwright)"; fi
+
 grep -hE 'PHP (Warning|Notice|Deprecated|Fatal)' /tmp/sbk-php.log | head -5 | sed 's/^/FAIL php: /'

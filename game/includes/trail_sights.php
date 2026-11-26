@@ -316,7 +316,7 @@ function trail_sight_reward_label(string $tok): string
     [$k, $v] = array_pad(explode('=', $tok, 2), 2, '');
     $n = (int)explode(':', $v)[0];
     switch ($k) {
-        case 'c': return $n . ' ' . (function_exists('setting') && setting('currency_name') !== '' ? setting('currency_name') : 'Petals');
+        case 'c': return $n . ' ' . (setting('currency_name') !== '' ? setting('currency_name') : 'Petals');
         case 'en': return $n . ' energy';
         case 'xp': return $n . ' XP';
         case 'item': $q = (int)(explode(':', $v)[1] ?? 1); $nm = (string)q_val('SELECT name FROM items WHERE slug = ?', [explode(':', $v)[0]]) ?: explode(':', $v)[0]; return ($q > 1 ? $q . ' × ' : '') . $nm;
@@ -454,7 +454,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             } elseif (str_starts_with($tok, 'unlock=')) { if (unlock_entries((int)$u['id'], substr($tok, 7)) > 0) $lines[] = '📖 A new Almanac page'; }
             elseif (str_starts_with($tok, 'time=')) {   // 2.7.06: time=N = N more game minutes pass (a long sit-down, a slow walk): needs the sleep-days clock
                 $tm = max(1, min(480, (int)substr($tok, 5)));
-                if (function_exists('gclock_on') && gclock_on() && game_spend((int)$u['id'], $tm)) $lines[] = '⏱️ ' . ($tm >= 60 ? round($tm / 60, 1) . ' h' : $tm . ' min') . ' pass';
+                if (gclock_on() && game_spend((int)$u['id'], $tm)) $lines[] = '⏱️ ' . ($tm >= 60 ? round($tm / 60, 1) . ' h' : $tm . ' min') . ' pass';
             }
             elseif (trail_sight_b_token($tok)) $lines = array_merge($lines, trail_sight_b_pay($u, $loc, $tok, $now));   // 2.7.08 third pass B (rolls its own @chance)
             elseif (preg_match('/^(hint|title|page|fpto|fpall|disc|nxt|sec|nextkind)=/', $tok)) { if (trail_sight_chance_pass($tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); }   // 2.7.06: @chance now works on these too
@@ -503,7 +503,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     $text = $row['icon'] . ' ' . $said . ($lines ? ' (' . implode(', ', array_filter($lines)) . ')' : '');
     exp_log($exp, $text);
     foreach ($qlines as $ql) exp_log($exp, $ql);
-    if ($ok && array_filter($lines) && function_exists('session_status') && session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['event_box'])) {   // 2.7.06 (Josh): what a Sight gives (items, prizes, titles) shows as its own popup, not only a log line
+    if ($ok && array_filter($lines) && session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['event_box'])) {   // 2.7.06 (Josh): what a Sight gives (items, prizes, titles) shows as its own popup, not only a log line
         $_SESSION['event_box'] = ['icon' => (string)$row['icon'], 'title' => (string)$row['verb'], 'text' => $said, 'lines' => array_values(array_filter(array_map('strval', array_merge($lines, $qlines))))];
     }
     $route = (int)substr((string)$sc['row']['map_key'], 6);

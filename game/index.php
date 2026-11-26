@@ -8,7 +8,7 @@ $news = q('SELECT title, body, created_at FROM news WHERE published = 1 AND kind
 $freshNews = $news && strtotime($news[0]['created_at'] . ' UTC') > time() - 3 * 86400;
 $u = current_user();
 $today = $u && (int)($u['onboarded'] ?? 1) === 1;   // v0.7.48: a "Today" page for players
-// Next version: Today is the TODAY tab of the home page (gnome.php). Every old address lands there: index.php, ?today=1, and the
+// Today is the TODAY tab of the home page (gnome.php). Every old address lands there: index.php, ?today=1, and the
 // old ?t=out / ?t=hollow links on their part of it. Only ?news=all (every news post) still draws here.
 if (!$allNews && $u && $today) redirect('gnome.php' . (($_GET['t'] ?? '') === 'out' ? '#todaycards' : (($_GET['t'] ?? '') === 'hollow' ? '#hollowtoday' : '')));
 if ($allNews && $u) { require_once __DIR__ . '/includes/here_schema.php'; hub_seen_set((int)$u['id'], 'news'); }   // slim home: the news row's "!" goes once the list is opened

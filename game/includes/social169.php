@@ -2,14 +2,14 @@
 declare(strict_types=1);
 
 /**
- * v1.6.9, two no-typing social features on a friend's / any garden (visit.php):
- *  1. "Water for them": a friend waters the thirsty squares of a friend's garden, once per garden per helper per Hollow day,
+ * v1.6.9, two no-typing social features on any gnome's garden (visit.php):
+ *  1. "Water for them": any gnome waters the thirsty squares of another gnome's garden, once per garden per helper per Hollow day,
  *     at most social169_water_gardens gardens a day per helper. Costs the helper energy, nothing to the owner. Small XP + Petals to the helper.
  *  2. v1.7.0: the 🌻 👏 🐝 ✨ reactions are now gate stamps (the Guestbook, PAL_STAMPS in pals.php). Counts here come from garden_stamps.
- *     The owner gets ONE rolled-up notice per garden per Hollow day (stamps + friend watering), which grows while it is unread.
+ *     The owner gets ONE rolled-up notice per garden per Hollow day (stamps + watering), which grows while it is unread.
  *
  * Wiring: social169_settings() merged by settings_schema(); social169_schema() by schema.php; upgrade170.php copies old garden_reacts rows into garden_stamps.
- * Alt farming: the Petals come from the game, not from the owner; the helper must be past fresh_hold(), a friend (both accepted),
+ * Alt farming: the Petals come from the game, not from the owner; the helper must be past fresh_hold() (any gnome will do, no friendship check),
  * both in play, and the per-day cap bounds what any pair can earn. The day's claim is a UNIQUE row taken under a users-row lock.
  */
 
@@ -153,7 +153,7 @@ function social169_water(array $u, int $plotId): array
         foreach ($thirsty as $t) {
             // a plain conditional write: only if nobody watered that square in between
             save_growth($t);
-            $n = q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ? AND (last_watered IS NULL OR last_watered = ?)',
+            $n = q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_WATER_DAY_SQL . ' WHERE id = ? AND (last_watered IS NULL OR last_watered = ?)',
                 [now(), now(), $t['method'] === 'notill' ? min(100, max((int)$t['moisture'], 20) + 10) : min(60, (int)$t['moisture'] + 4), $t['id'], $t['last_watered']])->rowCount();
             $watered += $n;
         }

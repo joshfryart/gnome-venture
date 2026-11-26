@@ -462,7 +462,7 @@ function stop_happenings(): array
 }
 
 /**
- * What is going on at a stop today: one happening, the same for everyone at that stop all (UTC) day, from the stop's type and the time, season and weather.
+ * What is going on at a stop today: one happening, at that stop all of the gnome's game day (Hollow day when the clock is off), from the stop's type and the time, season and weather.
  * Deterministic from (stop, day): no table, no cron. $now = stop_now() without 'hp' (it is being made). Null = nothing special.
  */
 function stop_happening(array $loc, array $now): ?array
@@ -594,17 +594,6 @@ function stop_pool(array $loc, ?array $now = null, int $uid = 0): array
     $answer = array_slice($answer, 0, 2);
     $thread = $uid > 0 ? stop_thread_offer($uid, $loc) : null;
     return ['offer' => array_merge($special, $answer, $thread ? [$thread] : [], $hapActs, $core, $extra, $upgrades), 'later' => $later, 'tiers' => $lockedUp, 'happening' => $hap];
-}
-
-/** What's been done: [slugs this visit, number today at this stop, number today anywhere, rests today anywhere]. */
-function stop_state(int $uid, int $locId, string $visit): array
-{
-    $day = gclock_my_date();
-    $done = q('SELECT act FROM stop_log WHERE user_id = ? AND location_id = ? AND visit_key = ?', [$uid, $locId, $visit])->fetchAll(PDO::FETCH_COLUMN);
-    $here = (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND day = ?', [$uid, $locId, $day]);
-    $all = (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND day = ?', [$uid, $day]);
-    $rests = (int)q_val("SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND day = ? AND kind = 'rest'", [$uid, $day]);
-    return [$done, $here, $all, $rests];
 }
 
 /**
@@ -1069,7 +1058,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
         $msg = trim($msg);
     }
     if ($kind !== 'thread') $lines = array_merge($lines ?? [], stop_living_after($u, $loc, $a));   // v2.5.72: the place remembers
-    if (function_exists('calling_event')) calling_event($uid, 'townact', 'stop:' . $slug, 1, ['stop' => (string)$loc['slug']]);
+    calling_event($uid, 'townact', 'stop:' . $slug, 1, ['stop' => (string)$loc['slug']]);
     return [true, trim($msg . ($lines ? ' (' . implode(', ', $lines) . ')' : ''))];
 }
 

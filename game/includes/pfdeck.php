@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Puzzle combat, the v1 DECK MODEL (2.6.74, behind the admin setting pfight_v1; design: claude/design-deckbuilder-combat.md, handover: claude/handover-v1-stageB.md).
+ * Puzzle combat, the v1 DECK MODEL (2.6.74, setting pfight_v1; on for everyone since 2.7.57 (value admin still limits belts/repair kit to admins); design: claude/design-deckbuilder-combat.md, handover: claude/handover-v1-stageB.md).
  *
  * Part 1 (pure, no DB: also used by the tests and the balance sims): the data files, the layered creature deck, the player's deck built from a "sources" array.
  *   Data: data/pf_pieces.txt (player pieces), pf_class_base.txt (class base 4 + size extras), pf_creature_class.txt (slug=Class), pf_creature_pieces.txt (3 unique each), pf_region_pieces.txt.
@@ -566,6 +566,7 @@ function pfd_ensure(): bool
         try { foreach (pfd_schema() as $sql) db()->exec($sql); $ok = true; }
         catch (Throwable $e) { error_log('pfd_ensure: ' . $e->getMessage()); return $ok = false; }
     }
+    if (!defined('PFD_QCOL')) { define('PFD_QCOL', 1); try { q('SELECT quick_turns FROM pf_decks LIMIT 1'); } catch (Throwable $e) { try { db()->exec('ALTER TABLE pf_decks ADD COLUMN quick_turns INTEGER NOT NULL DEFAULT 0'); } catch (Throwable $e2) { error_log('pfd_ensure quick_turns: ' . $e2->getMessage()); } } }   // the quick-turns setting's column, added once to boxes made before it
     pfd_content_once();
     return $ok;
 }
@@ -609,7 +610,7 @@ function pfd_content_once(): void
 function pfd_schema(string $end = ''): array
 {
     return [
-        "CREATE TABLE IF NOT EXISTS pf_decks (user_id INTEGER NOT NULL PRIMARY KEY, starter INTEGER NOT NULL DEFAULT 0, auto_use INTEGER NOT NULL DEFAULT 0, belt_set INTEGER NOT NULL DEFAULT 0, ver INTEGER NOT NULL DEFAULT 1, made_at VARCHAR(20) NULL)$end",
+        "CREATE TABLE IF NOT EXISTS pf_decks (user_id INTEGER NOT NULL PRIMARY KEY, starter INTEGER NOT NULL DEFAULT 0, auto_use INTEGER NOT NULL DEFAULT 0, quick_turns INTEGER NOT NULL DEFAULT 0, belt_set INTEGER NOT NULL DEFAULT 0, ver INTEGER NOT NULL DEFAULT 1, made_at VARCHAR(20) NULL)$end",
         "CREATE TABLE IF NOT EXISTS pf_deck_pieces (user_id INTEGER NOT NULL, piece_key VARCHAR(48) NOT NULL, starter INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 1, pos INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (user_id, piece_key))$end",
         "CREATE TABLE IF NOT EXISTS pf_belts (user_id INTEGER NOT NULL, slot INTEGER NOT NULL, tool_type VARCHAR(20) NOT NULL, PRIMARY KEY (user_id, slot))$end",
         "CREATE TABLE IF NOT EXISTS pf_tool_wear (user_id INTEGER NOT NULL, tool_type VARCHAR(20) NOT NULL, wear INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (user_id, tool_type))$end",
@@ -944,6 +945,23 @@ function pfd_set_auto(int|array $u, bool $on): ?string
     return null;
 }
 
+/** "Quick turns": in a fight End turn fires by itself shortly after a piece is placed. Opt-in, Off by default. */
+function pfd_quick_on(int|array $u): bool
+{
+    $uid = (int)(is_array($u) ? $u['id'] : $u);
+    if (!pfd_ensure()) return false;
+    try { return (int)q_val('SELECT quick_turns FROM pf_decks WHERE user_id = ?', [$uid]) === 1; } catch (Throwable $e) { return false; }
+}
+
+function pfd_set_quick(int|array $u, bool $on): ?string
+{
+    $u = pfd_user($u);
+    if (!pfd_ensure()) return 'The Puzzle box is not ready yet. Try again in a moment.';
+    pfd_row((int)$u['id']);
+    try { q('UPDATE pf_decks SET quick_turns = ? WHERE user_id = ?', [$on ? 1 : 0, (int)$u['id']]); } catch (Throwable $e) { return 'Could not save that. Try again in a moment.'; }
+    return null;
+}
+
 /** Fight wear of every tool the gnome has or has worn: type => ['tier', 'max', 'wear', 'left', 'broken']. */
 function pfd_wear(int|array $u): array
 {
@@ -1027,6 +1045,7 @@ function pfd_end_fight(array $u, array $s): array
  *   do=pfd_unequip   tool=TYPE
  *   do=pfd_remove    tool=TYPE   (a broken or missing tool: off the belt, the item stays)
  *   do=pfd_auto      on=0|1
+ *   do=pfd_quick     on=0|1   (quick turns in fights)
  *   do=pfd_fix       tool=TYPE
  */
 function pfd_post(array $u, string $do, array $in): array
@@ -1039,9 +1058,10 @@ function pfd_post(array $u, string $do, array $in): array
         'pfd_unequip' => pfd_unequip($u, (string)($in['tool'] ?? '')),
         'pfd_remove' => pfd_remove_broken($u, (string)($in['tool'] ?? '')),
         'pfd_auto' => pfd_set_auto($u, (string)($in['on'] ?? '') === '1'),
+        'pfd_quick' => pfd_set_quick($u, (string)($in['on'] ?? '') === '1'),
         'pfd_fix' => pfd_fix($u, (string)($in['tool'] ?? '')),
         default => 'Unknown action.',
     };
-    $ok = ['pfd_starter' => 'Puzzle box packed.', 'pfd_toggle' => 'Deck changed.', 'pfd_swap' => 'Pieces swapped.', 'pfd_equip' => 'Tool on your belt.', 'pfd_unequip' => 'Tool off your belt.', 'pfd_remove' => 'Removed from your belt.', 'pfd_auto' => 'Saved.', 'pfd_fix' => 'Tool fixed.'];
+    $ok = ['pfd_starter' => 'Puzzle box packed.', 'pfd_toggle' => 'Deck changed.', 'pfd_swap' => 'Pieces swapped.', 'pfd_equip' => 'Tool on your belt.', 'pfd_unequip' => 'Tool off your belt.', 'pfd_remove' => 'Removed from your belt.', 'pfd_auto' => 'Saved.', 'pfd_quick' => 'Saved.', 'pfd_fix' => 'Tool fixed.'];
     return [$err === null, $err ?? ($ok[$do] ?? 'Done.')];
 }

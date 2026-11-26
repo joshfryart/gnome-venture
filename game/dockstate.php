@@ -9,4 +9,4 @@ header('Cache-Control: no-store');
 if (!current_user()) { http_response_code(401); echo '{}'; exit; }
 $u = current_user();
 $st = dock_status($u);
-echo json_encode(['plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'], 'tod' => $st['tod']], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+echo json_encode(['plate' => $st['plate'], 'rows' => $st['rows'], 'links' => $st['links'], 'tod' => $st['tod'], 'garden' => dock_garden_ready($u)], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);

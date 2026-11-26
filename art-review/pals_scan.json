@@ -1,0 +1,114 @@
+{
+ "pals": {
+  "n": 570,
+  "bytes": 2030557,
+  "sizes": [
+   [
+    "64x64",
+    570
+   ]
+  ],
+  "modes": {
+   "RGBA": 570
+  },
+  "maxcolors": 1153,
+  "medcolors": 398,
+  "semi_files": 0,
+  "empty": [],
+  "dupgroups": [],
+  "biggest": [
+   [
+    5896,
+    "pl-cnd-6.png"
+   ],
+   [
+    5971,
+    "pl-dlz-4.png"
+   ],
+   [
+    6165,
+    "pl-jdf-4.png"
+   ]
+  ],
+  "nonpng": []
+ },
+ "perch": {
+  "n": 570,
+  "bytes": 716296,
+  "sizes": [
+   [
+    "64x64",
+    356
+   ],
+   [
+    "36x36",
+    214
+   ]
+  ],
+  "modes": {
+   "RGBA": 570
+  },
+  "maxcolors": 48,
+  "medcolors": 31,
+  "semi_files": 0,
+  "empty": [],
+  "dupgroups": [],
+  "biggest": [
+   [
+    1767,
+    "pl-ambr-6.png"
+   ],
+   [
+    1788,
+    "pl-wpea-3.png"
+   ],
+   [
+    1840,
+    "pl-snw-6.png"
+   ]
+  ],
+  "nonpng": []
+ },
+ "puzzles_pals": {
+  "n": 571,
+  "bytes": 835421,
+  "sizes": [
+   [
+    "64x64",
+    571
+   ]
+  ],
+  "modes": {
+   "RGB": 1,
+   "RGBA": 570
+  },
+  "maxcolors": 96,
+  "medcolors": 27,
+  "semi_files": 0,
+  "empty": [],
+  "dupgroups": [],
+  "biggest": [
+   [
+    2270,
+    "rr-bromeliad-bolt.png"
+   ],
+   [
+    2356,
+    "pl-ffy-6.png"
+   ],
+   [
+    2401,
+    "pl-hcr-6.png"
+   ]
+  ],
+  "nonpng": []
+ },
+ "parity": {
+  "pals_not_perch": [],
+  "perch_not_pals": [],
+  "pals_not_puzzles": [],
+  "puzzles_not_pals": [
+   "_placeholder.png"
+  ]
+ }
+}

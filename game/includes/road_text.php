@@ -163,7 +163,7 @@ function road_text_catalog(): array
             $c['road.wonder.' . $slug . '.' . $p] = ['wonder', $p, 'Wonder ' . $f[0], ['intro' => 'shown above the approaches', 'success' => 'on success', 'fail' => 'on failure'][$p], $f[$at], ROAD_TEXT_MAX['wonder']];
         }
     }
-    // delve_rooms.txt (kind|cond|lands|text) may not exist: load defensively
+    // delve_rooms.txt (kind|cond|lands|text) optional data file: load defensively
     foreach (road_text_file_lines('delve_rooms.txt') as $line) {
         $line = trim($line);
         if ($line === '' || $line[0] === '#') continue;

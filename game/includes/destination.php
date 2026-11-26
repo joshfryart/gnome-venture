@@ -121,12 +121,6 @@ function dest_route_ids(array $u): array
     return $ids;
 }
 
-/** v1.0.4: places "Pause at towns" stops at: towns, the hub and every rest stop (road village) with its own Town page. */
-function dest_is_town(array $loc): bool
-{
-    return in_array($loc['kind'] ?? '', ['market', 'hub', 'village'], true);
-}
-
 /** v2.5.63: the GPS always stops at every stop, so there is nothing to choose any more: just say so. */
 function dest_opts_html(array $u): string
 {
@@ -262,7 +256,7 @@ function dest_chain_after_arrival(int $uid): ?array
     if ((int)$here['id'] === $destId) { dest_set($uid, 0); return null; }
     dest_trail_save($uid, array_merge(dest_trail($u), [(int)$here['id']]));   // v0.9.5: remember we passed here
     // v2.5.63: the GPS always stops at every stop (towns, rest stops and every pass-through place); the player taps Set off to go on.
-    // The old keep-walking / pause-at-towns options are gone (the columns stay in the schema, unused).
+    // The old keep-walking / pause-at-towns options are gone (the columns stay in the schema, written but no longer read).
     return [false, '🧭 Stopped at ' . $here['name'] . '. Look around, then tap Set off to go on.'];
 }
 

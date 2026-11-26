@@ -77,7 +77,7 @@ function user_building_level(int $uid, string $b): int
 
 /**
  * v0.9.5: stacking. What a building that helps YOU gives, summed over all of this gnome's gardens: the best garden's level counts
- * fully, every other garden's level adds a smaller stack_* rate (docs/building-stacking.md). Only the Kitchen helps you; every other
+ * fully, every other garden's level adds a smaller stack_* rate. Only the Kitchen helps you; every other
  * building returns just its best level (they are per garden, and the Tool Shed stays per garden too).
  * Returns: best (level), extra (levels in the other gardens), levels (all, high to low), and for the Kitchen
  * buff_pct / xp_pct (percent extra), pots (extra pots from other gardens), feasts (best is level 3).
@@ -644,7 +644,10 @@ function building_peek(array $plot, string $b): ?array
             if ($cooking) {
                 $palAt = gmdate('Y-m-d H:i:s', gclock_pal_now((int)$ownerId));   // a pal-tended pot is timed on the pal work clock (sleep-days: real time does not finish it)
                 $done = count(array_filter($cooking, fn($c) => $c['ready_tick'] !== null && $c['ready_tick'] !== '' ? (int)$c['ready_tick'] <= $ownTick : $c['ready_at'] <= ($c['pal_uid'] !== null && $c['pal_uid'] !== '' ? $palAt : now())));
-                $lines[] = 'Something is bubbling away: ' . $cooking[0]['name'] . ($done === count($cooking) ? ', all done and waiting to be collected' : '') . '. '
+                // 'Cook again' right after cooking: the smell is the dish still in the pot (one not yet done), not the earliest finished one
+                $still = null;
+                foreach ($cooking as $c) if ($c['ready_tick'] !== null && $c['ready_tick'] !== '' ? (int)$c['ready_tick'] > $ownTick : $c['ready_at'] > ($c['pal_uid'] !== null && $c['pal_uid'] !== '' ? $palAt : now())) { $still = $c; break; }
+                $lines[] = 'Something is bubbling away: ' . ($still ?? $cooking[0])['name'] . ($done === count($cooking) ? ', all done and waiting to be collected' : '') . '. '
                     . count($cooking) . ' pot' . (count($cooking) === 1 ? ' is' : 's are') . ' on the stove.';
             } else
             $lines[] = $dish

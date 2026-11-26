@@ -7,7 +7,7 @@ require_once __DIR__ . '/includes/almanac.php';
 $u = require_login();
 $uid = (int)$u['id'];
 
-// v0.7.61: Crafting is now a tab of the Satchel page. This file only does the "Make" button and old links.
+// v0.7.61: Crafting is now a tab of the Satchel page. This file only does the "Make" button, the pot and jar actions (collect, cook_again, pal_pot_recipe, pal_recall, jar_collect) and old links.
 $tab = (string)($_GET['c'] ?? 'cooking');
 if (!isset(CRAFT_CATEGORIES[$tab])) $tab = 'cooking';
 

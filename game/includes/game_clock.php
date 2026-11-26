@@ -3,7 +3,7 @@
  * Sleep-days: each gnome's personal game clock (design: claude/plan-sleep-days.md, section 13 and decisions 1-51).
  * users.game_day  = the day counter (+1 per sleep).
  * users.game_minute = minutes since 00:00 of the current game day (360 = 06:00 wake). May pass 1440 in a long action.
- * Nothing calls this yet; the real clock (hollow_clock.php) is unchanged.
+ * Live: started by the boot step sleep_days_start_2609 and used by gclock_rest_do (sleep, naps, resting); the real clock (hollow_clock.php) is unchanged.
  */
 
 const GAME_WAKE_MINUTE = 360;    // 06:00
@@ -24,6 +24,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'pal_real_at', 'INT NULL'],   // unix time the pal clocks were last held still (real time must not move pal work)
         ['users', 'pal_morning', 'INT NULL'],   // the game day of the last 06:00 whose pal work has been credited (one morning = one day of pal work, sleep or not)
+        ['users', 'crew_morning', 'INT NULL'],  // the game day of the last 06:00 the garden crew has worked (pcrew_mornings): one pass per morning, slept or stayed up
         ['news', 'kind', "VARCHAR(10) NOT NULL DEFAULT 'news'"],   // 'news' (hand-written) or 'notes' (release notes posted per version)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['shops', 'open_minute', 'INT NULL'], ['shops', 'close_minute', 'INT NULL'],          // closing hours (decision 41); NULL = default_open/close_minute
@@ -52,6 +53,13 @@ function gclock_state(array $u): array
         'hour' => intdiv($min, 60) % 24, 'dow' => (int)gmdate('w', hollow_day_number($date) * 86400),
         'tired' => $min >= GAME_TIRED_MINUTE,
     ];
+}
+
+/** The day number a player sees, everywhere (status pill, dock plate, hovel, rest summary, tour): the game clock's day, counted from 1.
+ *  users.game_day is 0-based inside the database; show this instead. Takes a users row or a gclock_state() result. */
+function gclock_day_no(array $s): int
+{
+    return max(0, (int)($s['day'] ?? $s['game_day'] ?? 0)) + 1;
 }
 
 /** The 'Y-m-d' personal systems pass to hollow_season / weather. */
@@ -125,6 +133,7 @@ function game_sleep(int $uid, int $energyPct = 100): ?array
     gclock_plot_clock(0, true);
     game_new_day($uid);
     gclock_heal($u, $energyPct);   // a night's sleep heals as much as it restores energy (a bench heals less)
+    if (function_exists('tour_after_sleep')) tour_after_sleep($uid);   // Wren's tour: one sleep ripens the radish and ends the sleep step (the dock's Rest piece posts the same form)
     return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE + $carry];
 }
 
@@ -146,11 +155,13 @@ function game_nap(int $uid): ?array
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Garden growth on game-days (decisions 12, 52, 53). Behind the setting game_clock_on (default off).
+// Garden growth on game-days (decisions 12, 52, 53). Behind the setting game_clock_on (default on).
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** SQL for "the game_day of the gnome who owns this tile's plot", for UPDATE plot_tiles ... SET grow_day = (...). */
 const GCLOCK_OWNER_DAY_SQL = '(SELECT u.game_day FROM plots pl JOIN users u ON u.id = pl.user_id WHERE pl.id = plot_tiles.plot_id)';
+/** "water_day = the owner's game_day", never lowering a later day: the garden crew's 06:00 pass while the gnome stayed up waters for the coming day (pcrew_mornings). */
+const GCLOCK_WATER_DAY_SQL = '(CASE WHEN water_day IS NOT NULL AND water_day > ' . GCLOCK_OWNER_DAY_SQL . ' THEN water_day ELSE ' . GCLOCK_OWNER_DAY_SQL . ' END)';
 
 function gclock_on(): bool
 {
@@ -232,14 +243,14 @@ function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
         if (!empty($fx['nip'])) $t['nipped'] = 1;
     }
     $t['growth_seconds'] = min($gs, $need);
-    $t['grow_day'] = $today;
+    $t['grow_day'] = $from === $today + 1 ? $from : $today;   // the garden crew's 06:00 pass while the gnome stayed up settles one day ahead (pcrew_mornings): a look before the sleep must not undo it, or that day would grow twice
     $t['owed_days'] = $owed;
     return $t;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Where a gnome can rest (decisions 21-25, 26-28, 30-33). Settings: inn_fee_petals 110, inn_chore_minutes 240,
-// bench_sleep_energy_pct 30, villager_sleep_friend_level 3 (index in FRIEND_LEVELS), camping_gear_nap_charges 2.
+// bench_sleep_energy_pct 30, villager_sleep_friend_level 4 (index in FRIEND_LEVELS), camping_gear_nap_charges 2.
 // ---------------------------------------------------------------------------------------------------------------------
 
 function gclock_setting_int(string $name, int $default): int
@@ -317,10 +328,8 @@ function gclock_rest_options(array $u): array
     $need = gclock_setting_int('villager_sleep_friend_level', 4);
     $host = null;
     require_once __DIR__ . '/friends.php';
-    if (function_exists('friend_level')) {
-        foreach (q('SELECT n.name, f.points FROM npcs n JOIN npc_friends f ON f.npc_id = n.id AND f.user_id = ? WHERE n.home_location_id = ?', [$uid, (int)$u['location_id']])->fetchAll() as $r) {
-            if (friend_level((int)$r['points'])['index'] >= $need) { $host = $r['name']; break; }
-        }
+    foreach (q('SELECT n.name, f.points FROM npcs n JOIN npc_friends f ON f.npc_id = n.id AND f.user_id = ? WHERE n.home_location_id = ?', [$uid, (int)$u['location_id']])->fetchAll() as $r) {
+        if (friend_level((int)$r['points'])['index'] >= $need) { $host = $r['name']; break; }
     }
     $opt('villager', $host ? 'Stay with ' . $host : 'Stay with a friendly villager', 'sleep', 'free', $host !== null, 'A villager here must be a ' . (FRIEND_LEVELS[$need][1] ?? 'closer friend') . ' first.');
     return $out;
@@ -494,10 +503,10 @@ function game_new_day(int $uid): void
 {
     if (!gclock_on()) return;
     gclock_freeze_pals_real($uid);
-    gclock_pal_mornings($uid, true);   // 2.7.xx: pal work is credited per 06:00 morning, not per sleep; a sleep lands on one new 06:00
+    gclock_pal_mornings($uid, true);   // pal work is credited per 06:00 morning, not per sleep; a sleep lands on one new 06:00
     require_once __DIR__ . '/pal_crew.php';
     pcrew_save_report($uid, (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]), ['slept' => true]);   // v2.6.40: the Hovel Today tab opens on this
-    pcrew_night($uid);   // v2.6.40: the garden crew works the night (water, weed, pests, harvest)
+    pcrew_mornings($uid, true);   // the garden crew works this morning, unless it already did at this 06:00 while the gnome stayed up (once per morning, not per sleep)
     // a helper tending this gnome's garden through a player job works the new day (paid pro rata)
     require_once __DIR__ . '/player_jobs.php';
     foreach (q("SELECT * FROM player_jobs WHERE poster_id = ? AND kind = 'tend' AND status = 'taken' AND ends_day IS NOT NULL", [$uid])->fetchAll() as $pj) pjob_replay_days($pj);
@@ -512,6 +521,27 @@ function gclock_freeze_pals(int $uid): void
     if (!gclock_on()) return;
     gclock_freeze_pals_real($uid);
     gclock_pal_mornings($uid);   // and every 06:00 the clock has reached since the last look gives the pals a whole day of work (whether the gnome slept or not)
+}
+
+/**
+ * Page-load hook (bootstrap): the garden crew works a 06:00 the gnome reached by staying up, without waiting for a sleep (Josh 2026-11-26: "should pick in the
+ * morning for that day, so you don't need to do anything"). Cheap: reads the users row it is given and loads the crew code only when a morning is due.
+ * True when the crew worked (the caller re-reads the users row).
+ */
+function gclock_crew_mornings(array $u): bool
+{
+    if (!gclock_on() || !empty($u['guest']) || empty($u['id'])) return false;
+    if (!array_key_exists('crew_morning', $u)) { require_once __DIR__ . '/pal_crew.php'; pcrew_boot(); return false; }   // the column comes with "Upgrade database"; pcrew_boot adds it
+    if ($u['crew_morning'] !== null && $u['crew_morning'] !== '' && gclock_crew_day($u) <= (int)$u['crew_morning']) return false;
+    require_once __DIR__ . '/pal_crew.php';
+    return pcrew_mornings((int)$u['id']);
+}
+
+/** The morning the garden crew works for a users row (game_day, game_minute): the latest 06:00 reached, at most one day past game_day (the garden's own day only moves at a sleep). */
+function gclock_crew_day(array $u): int
+{
+    $s = gclock_state($u);
+    return min((int)floor(($s['tick'] - GAME_WAKE_MINUTE) / 1440), $s['day'] + 1);
 }
 
 /** The game day of the latest 06:00 this gnome's clock has reached: a sleep lands on 06:00 of the next day, and staying up past 06:00 reaches it on its own. */
@@ -708,9 +738,9 @@ function gclock_pill(array $u, bool $line = false): string
     $s = gclock_state($u);
     $t = sprintf('%02d:%02d', intdiv($s['minute'], 60) % 24, $s['minute'] % 60);
     $carry = max(0, (int)($u['carry_minutes'] ?? 0));
-    $title = 'Day ' . $s['day'] . ', ' . $t . ($s['tired'] ? ' (tired: +' . game_surcharge_pct($u) . '% energy)' : '') . ($carry > 0 ? '; ' . round($carry / 60, 1) . ' h of work waits for tomorrow' : '') . '. Open the Rest page to nap or sleep.';
-    if ($line) return '<a class="stl gclkl' . ($s['tired'] ? ' tired' : '') . '" href="' . e(url('hovel.php')) . '" title="' . e($title) . '">🕐 <b>' . $t . '</b> <small>day ' . $s['day'] . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a>';
-    return '<span class="st gclk' . ($s['tired'] ? ' tired' : '') . '" title="' . e($title) . '"><a href="' . e(url('hovel.php')) . '">🕐 <b>' . $t . '</b> <small>day ' . $s['day'] . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a></span>';
+    $title = 'Day ' . gclock_day_no($s) . ', ' . $t . ($s['tired'] ? ' (tired: +' . game_surcharge_pct($u) . '% energy)' : '') . ($carry > 0 ? '; ' . round($carry / 60, 1) . ' h of work waits for tomorrow' : '') . '. Open the Rest page to nap or sleep.';
+    if ($line) return '<a class="stl gclkl' . ($s['tired'] ? ' tired' : '') . '" href="' . e(url('hovel.php')) . '" title="' . e($title) . '">🕐 <b>' . $t . '</b> <small>day ' . gclock_day_no($s) . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a>';
+    return '<span class="st gclk' . ($s['tired'] ? ' tired' : '') . '" title="' . e($title) . '"><a href="' . e(url('hovel.php')) . '">🕐 <b>' . $t . '</b> <small>day ' . gclock_day_no($s) . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a></span>';
 }
 
 // Drying racks: like pantry jars, ready after N sleeps (the real dry_hours read as days, minimum 1).
@@ -773,7 +803,7 @@ function gclock_settings(): array
 }
 
 /**
- * THE ONE-TIME START (run only when Josh says; nothing calls it). Puts a gnome's game date on today's Hollow date (so festival windows,
+ * THE ONE-TIME START (called once by the boot step sleep_days_start_2609 (bootstrap.php:616)). Puts a gnome's game date on today's Hollow date (so festival windows,
  * stop_log days and seasons line up at the moment the flag is turned on) at 06:00, and clears any carried work.
  * Returns the number of gnomes changed. Safe to run twice (it sets, it does not add).
  */
@@ -974,7 +1004,7 @@ function gclock_rest_summary(array $before, array $after, int $hpGain = 0): stri
 {
     $fmt = fn(int $m): string => sprintf('%02d:%02d', intdiv($m, 60) % 24, $m % 60);
     $spent = ((int)$after['game_day'] * 1440 + (int)$after['game_minute']) - ((int)$before['game_day'] * 1440 + (int)$before['game_minute']);
-    $day = (int)$after['game_day'] !== (int)$before['game_day'] ? 'Day ' . ((int)$after['game_day'] + 1) . ', ' : '';
+    $day = (int)$after['game_day'] !== (int)$before['game_day'] ? 'Day ' . gclock_day_no($after) . ', ' : '';
     $bits = [$day . $fmt((int)$after['game_minute']) . ' (+' . gclock_span_text(max(0, $spent)) . ')'];
     $bits[] = '⚡ ' . (int)$before['energy'] . ' → ' . (int)$after['energy'] . ' (' . ((int)$after['energy'] >= (int)$before['energy'] ? '+' : '') . ((int)$after['energy'] - (int)$before['energy']) . ')';
     if ($hpGain > 0) $bits[] = '❤️ +' . $hpGain . ' health';

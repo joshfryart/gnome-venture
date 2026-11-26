@@ -19,6 +19,29 @@ if (!is_post() && in_array($T, ['orders', 'errands'], true)) redirect('jobs.php?
 if (!is_post() && $T === 'quests') redirect('jobs.php?t=journey' . ($hub ? '&hub=1' : ''));   // the Quests tab is now Journey
 if (!in_array($T, ['jobs', 'journey', 'requests'], true)) $T = 'jobs';
 if (!isset(JOB_PERIODS[$tab]) && $tab !== 'post') $tab = 'daily';
+if (!is_post() && !isset($_GET['t']) && !isset($_GET['p']) && !isset($_GET['s'])) {   // opens where something is ready; an explicit tab or period is never overridden
+    $rdyP = '';
+    foreach (array_keys(JOB_PERIODS) as $pk) {
+        $cj = current_job($uid, $pk);
+        if (!$cj || $cj['status'] !== 'active') continue;
+        if ($cj['kind'] === 'rebuild') {
+            require_once __DIR__ . '/includes/rebuild.php';
+            $rdy = !array_filter(rebuild_stage_status($u, min(4, (int)$cj['progress'] + 1)), fn($x) => $x[2] < $x[1]);
+        } elseif ((int)$cj['progress'] >= (int)$cj['qty'] && (int)$cj['stages'] <= 1) $rdy = true;
+        elseif ($cj['kind'] === 'deliver_part') $rdy = job_deliver_stock($uid, $cj)['have'] > 0;
+        elseif ((str_starts_with((string)$cj['kind'], 'deliver') || $cj['kind'] === 'p_deliver') && $cj['target_item_id'])
+            $rdy = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $cj['target_item_id']]) > 0;
+        else $rdy = false;
+        if ($rdy) { $rdyP = $pk; break; }
+    }
+    if ($rdyP !== '') { $T = 'jobs'; $tab = $rdyP; }
+    else {
+        require_once __DIR__ . '/includes/quests_view.php';
+        $cn0 = tasks_counts($u, $hub);
+        if (!empty($cn0['journey'])) $T = 'journey';   // a chapter or repair ready to hand in
+        elseif (!empty($cn0['orders'])) $T = 'requests';   // an order you can already fill (errands in flight do not count as ready)
+    }
+}
 
 if (is_post()) {
     csrf_check();

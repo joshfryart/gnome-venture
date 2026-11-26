@@ -145,7 +145,7 @@ function pantry_quality(array $u, array $r): int
     $days = max(1, (int)round((int)$r['cook_minutes'] / 1440));
     $kl = user_building_bonus((int)$u['id'], 'kitchen')['best'];
     $kinds = count(json_decode((string)$r['ingredients'], true) ?: []);
-    $luck = function_exists('eff_mod') ? min(4, max(0, eff_mod($u, 'luck'))) : 0;
+    $luck = min(4, max(0, eff_mod($u, 'luck')));
     return (int)max(0, min(100, 38 + min(20, $days * 2) + 3 * $kl + 3 * min(4, $kinds) + $luck + random_int(-3, 3)));
 }
 

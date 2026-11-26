@@ -40,12 +40,6 @@ function hubp_chip(string $verb, string $note = ''): string
     return $note === '' ? $verb : $verb . ' · ' . $note;
 }
 
-/** A card body: a paragraph, optional extra html, and the open-the-page button. */
-function hubp_card(string $text, string $linkHref, string $linkLabel, string $extra = ''): string
-{
-    return '<p>' . $text . '</p>' . $extra . '<p><a class="btn" href="' . e($linkHref) . '">' . $linkLabel . '</a></p>';
-}
-
 // ------------------------------------------------------------------ Crafting workshop
 
 /** The workshop: every crafting section is a hotspot (the sections of CRAFT_CATEGORIES). Returns the scene html. */
@@ -314,7 +308,6 @@ function yard_view(array $u, string $open = ''): string
             'card' => '<div class="yardsite">' . $caps . ($js ? '<p>' . count($js) . ' here now. The ledger has the countdowns.</p>' : '') . pjv_post($c, $kind) . '</div>']);
     }
     $hurt = array_filter($pals, fn($p) => $p['status'] === 'home' && $p['hp'] < $p['max']);
-    $low = array_filter($hurt, fn($p) => $p['hp'] < (int)ceil($p['max'] * 0.4));
     hubp_add($hot, $L, 'sick', ['label' => 'Sick bay', 'emoji' => '🩹', 'chip' => hubp_chip('Tend', $hurt ? count($hurt) . ' hurt' : ''), 'href' => url('palyard.php?o=sick'),
         'card' => '<div class="yardsite"><p>' . ($hurt ? count($hurt) . ' pal' . (count($hurt) === 1 ? ' is' : 's are') . ' hurt. A Healing Potion fixes them up.' : 'Nobody is hurt.') . '</p>' . pjv_home($c) . '</div>']);
     $anyReady = count(array_filter($jobs, fn($j) => $j['state'] === 'ready'));

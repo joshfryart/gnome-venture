@@ -99,7 +99,7 @@ page_header('Picture layouts', true);
 <?php endforeach; endforeach; ?>
 </svg>
 <p class="help"><?= $art ? 'Art: ' . e($file) : 'No art file yet (' . e($file) . '): a drawn sky and ground is shown.' ?> · size <input type="number" name="w" value="<?= $W ?>" min="64" max="4000" aria-label="Width"> × <input type="number" name="h" value="<?= $H ?>" min="64" max="4000" aria-label="Height"> · horizon y <input type="number" name="horizon" value="<?= $hz ?>" min="0" max="<?= $H ?>" aria-label="Horizon"></p>
-<?php foreach ($GROUPS as $g => $title): $rows = $L[$g] ?? []; if (!$rows && !in_array($g, ['stand', 'spots', 'exits', 'houses', 'pals'], true)) continue; $rows[] = ['x' => '', 'y' => '']; ?>
+<?php foreach ($GROUPS as $g => $title): $rows = $L[$g] ?? []; $rows[] = ['x' => '', 'y' => '']; ?>
 <h3 class="hg-<?= $g ?>"><?= e($title) ?></h3>
 <table class="heretab"><tr><?php if ($g === 'exits' || $g === 'spots'): ?><th><?= $g === 'exits' ? 'Anchor' : 'Name' ?></th><?php endif; ?><th>x</th><th>y</th><th>Remove</th></tr>
 <?php foreach ($rows as $i => $p): $new = $p['x'] === ''; ?><tr data-g="<?= $g ?>" data-i="<?= $i ?>">

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * Delve family layer (2.7.01): "Torch bar" (proposal-route-sights.md, delve end pieces). Above a section that has a delve Sight (a mark whose slug starts `end-delve-`) a dark strip
  * shows (1) how far your torch reaches (a ring and five pips, in words too): full by day, 4 at dusk and dawn, and at night only as much as the MOON gives (new moon 1 .. full moon 4), plus 1 for
  * every mouth of the section that is lit, (2) a torch per delve mouth of the section: lit (used this cooldown) or unlit (ready), the Lamplighter's Round live (a lantern-line mouth lit counts), and
- * (3) the Torchbearer tally (data: every `end-delve-*` row tallies `delve-torches`, coins from the 3rd, a title at 12, a sense buff at a dark moon night) and up to 2 villager chips
+ * (3) the Torchbearer tally (data: every `end-delve-*` row tallies `delve-torches`, coins from the 3rd, a title at 12, a sense buff at a new or crescent moon night) and up to 2 villager chips
  * from npc_cw_sight_lines. Pure function of the clock (ctx['clock'] = [dow, hour, day index], moon.php). Style: assets/style.css "Delve family" block. No JS. Text says it; colour alone never does.
  */
 

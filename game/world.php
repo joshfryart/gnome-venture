@@ -15,6 +15,7 @@ if (is_post()) {
     if ($do === 'travel') {
         [$ok, $msg] = travel_to($u, (int)($_POST['region_id'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
+        if ($ok) redirect('here.php');   // landed: show the place you arrived in
     } elseif ($do === 'deed') {
         [$ok, $msg] = buy_land_deed($u, player_node($u));
         flash($msg, $ok ? 'ok' : 'err');

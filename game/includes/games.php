@@ -25,7 +25,6 @@ function game_day(): string
     return job_period_key('daily');
 }
 
-/** v0.9.1a: a little energy for playing: +1 (+2 for a good game), at most games_energy_cap a game day. Returns ' ⚡+1' or ''. */
 /** v2.0.88: game XP with the Puzzle Pals tinker perk (+1% per unit, cap +6%). The same number when take-along is off. */
 function games_pal_xp(int $uid, int $xp): int
 {
@@ -34,6 +33,7 @@ function games_pal_xp(int $uid, int $xp): int
     return ppal_xp($uid, $xp);
 }
 
+/** v0.9.1a: a little energy for playing: +1 (+2 for a good game), at most games_energy_cap a game day. Returns ' ⚡+1' or ''. */
 function game_energy(int $uid, bool $good): string
 {
     $cap = (int)setting('games_energy_cap');
@@ -142,7 +142,7 @@ const GAMES_PAGE = "When the garden is growing on its own, try the [b]Games[/b] 
     . "🗺️ [b]Lost Letters:[/b] a daily riddle describes a town or village. Work out which, walk there and lift the stone to find the letter.\n"
     . "🪰 [b]Pest Patrol:[/b] a plant grows and pests pop up on its leaves. Tap to flick them off before they chew a leaf away, and don't tap bare leaves: they bruise. Quick clean flicks build a combo. A bug net in your satchel lets you catch a passing butterfly.\n"   // v1.4.8:
     . "⚖️ [b]Guess the Weight:[/b] Old Moss grows a giant crop every day. Guess its weight exactly to win the growing jackpot.\n\n"
-    . "The [b]🏆 Contests[/b] tab has the Village Show, Garden of the Month, the Grand Harvest Fair and, in October, pumpkin carving.";   // v0.8.8: all seven games
+    . "The [b]🏆 Contests[/b] tab has the Village Show, Garden of the Month, the Grand Harvest Fair and, in October, pumpkin carving.";   // v0.8.8: all eight games
 
 const WORM_SIZE = 6;
 /** What can be in a square: [label, icon, item slug or null, score] */

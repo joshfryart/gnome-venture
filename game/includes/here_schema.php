@@ -11,7 +11,7 @@ function here_settings(): array
 {
     return [
         'gnav_on' => ['label' => 'Picture navigation: the Here page, and Here in the bottom bar and menu (off = today’s game exactly)', 'type' => 'bool', 'default' => '0'],
-        'gnav_tiles' => ['label' => 'Picture navigation: walk the Trail as tile sections (needs the above; not built yet)', 'type' => 'bool', 'default' => '0'],
+        'gnav_tiles' => ['label' => 'Picture navigation: walk the Trail as tile sections (needs the above)', 'type' => 'bool', 'default' => '0'],
         'trail_enc_pct' => ['label' => 'Trail walks: base chance of a random fight on each tile walked (%). Rough ground is 2.5x, Sneak 40%, Hunt 250% of it.', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'fight_scene' => ['label' => 'Fights play on the tilted fight stage (animated gnome and creature, buttons under it) instead of the popover picture. Off = today’s popover.', 'type' => 'bool', 'default' => '1'],
         'gnav_enter_energy' => ['label' => 'Picture navigation: energy to step onto the Trail from a place (tile walks only; the number shown is the number charged)', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 100],

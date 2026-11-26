@@ -972,6 +972,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $data['guide'] = pf_guide_on((int)$u['id']);   // 2.7.01 guided first turns (the script shows them on the opening and turns 1-2)
         $data['hints'] = max(0, pf_hint_n() - (int)($enc['hints'] ?? 0)); $data['hintmax'] = pf_hint_n();   // 2.7.01 the Hint button: free hints left in this fight
         $st = setting('pfight_stall_turn'); $data['stall'] = $st === '' ? 8 : max(0, (int)$st);   // 2.7.01 the stall nudge: from this turn while the bar is under half (0 = never)
+        require_once __DIR__ . '/pfdeck.php'; $data['quick'] = pfd_quick_on($u);   // quick turns (opt-in player setting, Off by default)
         $data['box'] = url('puzzlebox.php'); $data['turncap'] = PF_TURN_CAP; $data['toolwear'] = PFB_TOOL_WEAR; $data['fires'] = PFB_FOE_FIRES;
         $data['tools'] = (object)[];
         if (!empty((array)$v['wear']) || array_filter(array_column($data['hand'], 'tool'))) {

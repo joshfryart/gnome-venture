@@ -4,7 +4,7 @@ declare(strict_types=1);
  * v2.0.67: the item square (approved mockup 4, claude/art-variants/mockup4). ONE renderer for every item grid: Satchel, trek pack,
  * shop Buy / Sell and every shop_tile() user (market, market day, festival, village stalls, landmarks, Curio Cabinet, Dye Pot).
  * Wave 2 (crafting ingredient chips, the gift picker, garden / town pickers) reuses it as it is. CSS: the .itm block in
- * assets/style.css (source claude/build/css-items.css); art: assets/img/items/ plus img/acts (felt-off, badges) and img/town (star).
+ * assets/style.css (the .gvs-tint and .itm blocks); art: assets/img/items/ plus img/acts (felt-off, badges) and img/town (star).
  * Classes only, never a style attribute (strict CSP).
  *
  * item_square(array $o): string returns ONE element, the square itself (.itm). The caller wraps it when it needs a cell:
@@ -13,7 +13,7 @@ declare(strict_types=1);
  *   picker      <button class="itm pcard gcard" data-id=".." aria-pressed="false">...</button>   (wave 2: no wrapper needed)
  * and puts the squares in item_grid(): <div class="itmwrap"><div class="itms">...</div></div> (3 / 4 / 5 / 6 columns by the grid's own width).
  * Wave 2 users: crafting ingredients (tag 'div', class 'ccing'), gift_picker_html() (friends.php), garden picker_html() (its counter and steps ride in 'vh'),
- * town_pickers() (place_ui.php), market-day basket picks (tag 'span' inside <label class="mkopt itmcell"> with the checkbox). CSS: claude/build/css-items2.css.
+ * town_pickers() (place_ui.php), market-day basket picks (tag 'span' inside <label class="mkopt itmcell"> with the checkbox). CSS: assets/style.css.
  *
  * Options (all optional except item or name):
  *   item        array   an items row (id, slug, name, category, effects, rarity, image): picture, rarity and name come from it
@@ -100,6 +100,7 @@ function item_square(array $o): string
         ? '<b class="itm__n"><span class="vh">' . e((string)($o['countLabel'] ?? 'You have')) . ' </span>×' . number_format((int)$o['count']) . '</b>' : '';
 
     $priceH = '';
+    $wantB = '';
     $foot = $rl !== 'C' ? '<span class="itm__rar">' . e(RARITY_WORDS[$rl]) . '</span>' : '';
     if ($kind !== '') $foot .= '<span class="itm__kind' . (in_array($kind, ['Seeds', 'Seed packet', 'Seedling', 'Cutting'], true) ? ' itm__kind--quiet' : '') . '">' . e($kind) . '<span class="vh"> (' . e($full) . ')</span></span>';
     if (isset($o['price']) && $o['price'] !== null) {
@@ -111,6 +112,7 @@ function item_square(array $o): string
     foreach ((array)($o['chips'] ?? []) as $c) {
         $k = (string)($c[0] ?? 'note');
         if (!in_array($k, ['want', 'inb', 'use', 'ok', 'short', 'note', 'taste', 'kind'], true)) $k = 'note';
+        if ($k === 'want') { $wantB = '<span class="itm__want" role="img" title="Wanted" aria-label="Wanted"><span aria-hidden="true">W</span></span>'; continue; }   // a small W badge in the bottom left corner, not a foot chip
         $foot .= '<span class="itm__' . $k . '"' . (!empty($c[2]) ? ' hidden' : '') . '>' . (string)($c[1] ?? '') . '</span>';
     }
     if ($rl === 'C') $foot .= '<span class="vh">Common</span>';
@@ -118,7 +120,7 @@ function item_square(array $o): string
 
     $flag = (string)($o['flag'] ?? '');
     $inner = '<span class="itm__win">' . $icon . '<i class="itm__gem" aria-hidden="true"></i></span>'
-        . $priceH . '<span class="itm__stack"><span class="itm__mid"><span class="itm__foot">' . $foot . '</span>' . $count . '</span>'
+        . $priceH . $wantB . '<span class="itm__stack"><span class="itm__mid"><span class="itm__foot">' . $foot . '</span>' . $count . '</span>'
         . '<span class="itm__rib"><span class="itm__name">' . e($base) . '</span></span></span>'
         . ($flag !== '' ? '<span class="itm__flag' . (($o['flagClass'] ?? '') === 'taste' ? ' itm__flag--taste' : '') . '">' . e($flag) . '</span>' : '');
 

@@ -17,7 +17,6 @@ const PPAL_PERKS = ['gather', 'road', 'finder', 'tinker', 'bloom', 'shine'];
 /** The perk a pal brings when its row says "-": by calling. */
 const PPAL_CALLING_PERK = ['rootwarden' => 'road', 'bloomcaller' => 'bloom', 'thornblade' => 'road', 'seedkeeper' => 'tinker', 'wayfinder' => 'finder', 'brewroot' => 'gather'];
 const PPAL_KNOBS = ['round', 'keyhole', 'peg', 'tri', 'double', 'hook'];
-const PPAL_SHAPES = ['corner-TT', 'corner-TB', 'corner-BB', 'edge-TTB', 'edge-TBB', 'edge-TBT', 'edge-BTB', 'inner-TTTT', 'inner-BBBB', 'inner-TBTB', 'inner-TTBB', 'inner-TTTB', 'inner-TBBB'];
 const PPAL_COLS = 14;   // pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
 const PPAL_STATS_TOTAL = ['common' => [3, 4], 'uncommon' => [5, 5], 'rare' => [6, 6]];
 const PPAL_PLACE_KINDS = ['haven', 'wonder', 'delve', 'lair'];

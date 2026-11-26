@@ -222,7 +222,17 @@ body.dock-on .cbed { cursor: pointer; }
 /* dock layout, landscape: the page's own selected-squares panel repeats the dock's Pick and Then strips; the tour bubble sits top right so it never covers the strips */
 @media (orientation: landscape) {
   body.dock-on .selbar .selon { display: none; }
-  body.dock-on.tourbub #wrentour.tour-on { top: 44px; bottom: auto; left: auto; right: 8px; width: min(380px, 46vw); max-height: calc(100vh - var(--dock-h, 106px) - 60px); }
+  body.dock-on.tourbub #wrentour.tour-on, html.js body.dock-on #wrentour { top: 44px; bottom: auto; left: auto; right: 8px; width: min(340px, 42vw); max-height: calc(100vh - var(--dock-h, 106px) - 60px); }
+  html.js body.dock-on #wrentour::after { display: none; }
+  html.js body.dock-on #wrentour.tour-l { left: 8px; right: auto; }
+  html.js body.dock-on #wrentour.tour-min .tbtext, html.js body.dock-on #wrentour.tour-min .tourlist, html.js body.dock-on #wrentour.tour-min .tourbox > .bird { display: none; }
+  body.dock-on:has(.dockroot [aria-expanded="true"]) #wrentour { z-index: 44; }
+  html.js body.dock-on #wrentour .tourcur h3 { cursor: pointer; }
+  /* tour-away: the step points at the dock (or nothing): a small chip bottom left above the dock, never over the page's buttons; tap the title to open the full card */
+  html.js body.dock-on.tourbub #wrentour.tour-away:not(.tour-open) { top: auto; right: auto; left: 8px; bottom: calc(var(--dock-h, 106px) + env(safe-area-inset-bottom, 0px) + 8px); width: min(210px, 34vw); max-height: none; padding: 4px 8px; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tbtext, html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourlist, html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourgo, html.js body.dock-on #wrentour.tour-away:not(.tour-open) p:has(> .tourgo), html.js body.dock-on #wrentour.tour-away:not(.tour-open) form:has(.skip), html.js body.dock-on #wrentour.tour-away:not(.tour-open) .skip, html.js body.dock-on #wrentour.tour-away:not(.tour-open) .bird { display: none; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) h3 { font-size: 12px; margin: 0; }
+  html.js body.dock-on #wrentour.tour-away:not(.tour-open) .tourhint { font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* dock layout, landscape: the big pictures fit the screen above the dock, so the page is not mostly scrolling past them. --imgh is the height left for a picture;
@@ -302,7 +312,10 @@ body.dock-on .cbed { cursor: pointer; }
 
 /* dock layout, landscape: a picture page with no side list (the Treehouse, the yard) centres its picture and makes it large: its height is the space above the dock plus 30 px */
 @media (orientation: landscape) {
-  body.dock-on .hubscene.chrome:not(:has(> .hubstreet)) > .hubstage { grid-column: 1 / -1; justify-self: center; width: calc((100dvh - var(--dock-h, 106px) + 30px) * 1.769); max-width: 100%; }   /* a bit taller than the space above the dock: the page scrolls the rest */
+  body.dock-on .hubscene.chrome:not(:has(> .hubstreet)) > .hubstage { grid-column: 1 / -1; justify-self: center; width: calc((100dvh - var(--dock-h, 106px) - var(--hs-top, 104px)) * 1.769); max-width: 100%; }   /* v2.8.72: fits above the dock (was +30px and scroll) */
+}
+@media (orientation: landscape) and (max-height: 300px) {
+  body.dock-on .hubscene.chrome:not(:has(> .hubstreet)) { --hs-top: 16px; }
 }
 
 /* dock layout, landscape: the villagers list is a dense grid of small cards (portrait left, words right), not tall cards */
@@ -496,6 +509,7 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 
 /* the status plate: energy and health show their numbers (x/y) */
 .dockroot .dk-pc.dk-plate .dk-bn{flex:none;font-size:10px;font-weight:700;color:var(--dk-ink);min-width:3.2em;text-align:right}
+@media (orientation: landscape) { .dockroot .dk-pc.dk-plate .dk-bn { font-size: 12px; min-width: 3em; } }
 .dockroot .dk-pc.dk-plate progress.dk-hp::-webkit-progress-value{background:#c0392b}
 .dockroot .dk-pc.dk-plate progress.dk-hp::-moz-progress-bar{background:#c0392b}
 
@@ -668,10 +682,10 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
 
 /* survey: inventory.php?tab=craft&c=* (crafting area pages) */
 @media (orientation: landscape) {
-  body.dock-on main:has(> figure.cmap-scene) { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 0 14px; align-items: start; }
-  body.dock-on main:has(> figure.cmap-scene) > * { grid-column: 1 / -1; }
-  body.dock-on main:has(> figure.cmap-scene) > figure.cmap-scene { grid-column: 1; grid-row: 4 / span 4; width: 100%; margin: 0; }
-  body.dock-on main:has(> figure.cmap-scene) > .pantry2 { grid-column: 2; grid-row: 4; }
+  body.dock-on main:has(> figure.cmap-scene) { display: grid; grid-template-columns: min(360px, calc((100dvh - var(--dock-h, 106px) - 28px) * 1.5)) minmax(0, 1fr); gap: 0 14px; align-items: start; }
+  body.dock-on main:has(> figure.cmap-scene) > :not(figure.cmap-scene) { grid-column: 2; }
+  body.dock-on main:has(> figure.cmap-scene) > figure.cmap-scene { grid-column: 1; grid-row: 1 / span 12; width: 100%; margin: 0; position: sticky; top: 8px; }
+  body.dock-on main:has(> figure.cmap-scene) > .pantry2 { grid-column: 2; grid-row: auto; }
 }
 
 /* survey: inventory.php?tab=craft (area index) */
@@ -1155,6 +1169,7 @@ body.dock-rail .dockroot .dk-msg { bottom: 42px; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > * { grid-column: 1 / -1; min-width: 0; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > nav.tabs { grid-column: 1; grid-row: 3; align-self: start; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shophelp { grid-column: 1; grid-row: 4; }
+  body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopwlegend { grid-column: 1; grid-row: 4; margin: 4px 0 0; }   /* "W = Wanted" under the Buy / Sell tabs, beside the banner */
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > header.ph { grid-column: 2; grid-row: 3 / span 2; margin: 0; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .shopintro { grid-row: 2; }
   body.dock-on main:has(> header.ph):has(> nav.tabs):has(> .shopwrap) > .crumbs { grid-row: 1; }
@@ -1372,7 +1387,7 @@ body.dock-on .bookwide .hitlist > li { break-inside: avoid; }
   body.dock-on .shopwrap .itms .itm__win { height: 40px; }
   body.dock-on .shopwrap .itms .itm__ic, body.dock-on .shopwrap .itms .itm__svg, body.dock-on .shopwrap .itms .itm__svg > svg { width: 36px; height: 36px; }
   body.dock-on .shopwrap .itms .itm__rib { min-height: 22px; margin: 0 -4px; }
-  body.dock-on .shopwrap .itms .itm__name, body.dock-on .shopwrap .itms .itm--long .itm__name, body.dock-on .shopwrap .itms .itm--xlong .itm__name { font-size: 10px; line-height: 1.1; }
+  body.dock-on .shopwrap .itms .itm__name, body.dock-on .shopwrap .itms .itm--long .itm__name, body.dock-on .shopwrap .itms .itm--xlong .itm__name { font-size: 11.5px; line-height: 1.1; }
 }
 body.dock-on .shopwrap .shopcats { margin: 2px 0 4px; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; z-index: 20; }
 body.dock-on main > .shophelp { display: none; }
@@ -1583,7 +1598,7 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on .gardenwrap { grid-template-columns: max-content minmax(0, 290px); justify-content: start; gap: 0 8px; }
   body.dock-on .gardenwrap > div:first-child { align-items: flex-start; }
   body.dock-on .gardenwrap .yardwrap { margin-left: 0; margin-right: 0; }
-  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 290px - 24px) / var(--cw, 12))); }
+  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 290px - 24px) / var(--cw, 12)), calc((100vh - var(--dock-h, 106px) - 120px) / var(--ch, 4))); }
   body.dock-on .gardenwrap > .panel.box { max-width: 290px; }
   body.dock-on .gardenwrap > .legend { text-align: left; }
 }
@@ -1867,4 +1882,85 @@ body:has(.dk-fs) .gvfs { display: none !important; }
   body.dock-on .tfm-svg, body.dock-on .tfc-svg, body.dock-on .tfg-svg, body.dock-on .tfi-svg { height: 52px; width: auto; max-width: 100%; margin: 2px 0; }
   body.dock-on .tfmountain .tfm-note, body.dock-on .tfmountain .tfm-chip { font-size: 12px; line-height: 1.25; margin: 2px 0; }
   body.dock-on .tfmountain .tfm-h { font-size: 14px; gap: 4px; }
+}
+
+/* ===== v2.8.72: landscape legibility and fit pass (G1-G10) ===== */
+/* G1: dock chip text */
+@media (orientation: landscape) {
+  .dockroot .dk-pc .dk-chip, .dockroot .dockslip .dk-pc .dk-chip { font-size: 11px; line-height: 13px; top: -11px; }
+}
+/* G2: marketday item names */
+@media (orientation: landscape) {
+  body.dock-on .itm__name { font-size: 12px; line-height: 1.15; }
+  body.dock-on .itm--long .itm__name { font-size: 11.5px; line-height: 1.15; }
+  body.dock-on .itm--xlong .itm__name { font-size: 11px; line-height: 1.15; }
+}
+/* G3: crafting strip */
+@media (orientation: landscape) {
+  body.dock-on .cmap-strip { display: flex; flex-wrap: wrap; justify-content: center; max-width: 100%; gap: 4px; }   /* pills as wide as their words: the fixed 76px grid columns made the full labels run into each other */
+  body.dock-on .cmap-strip a { width: auto; min-width: 44px; min-height: 32px; padding-inline: 6px; justify-content: center; font-size: 12px; }
+  body.dock-on .cmap-strip a span { white-space: nowrap; overflow: visible; max-width: none; }
+  body.dock-on .cmap-strip img { width: 68px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  body.dock-on .cmap-strip { flex-wrap: nowrap; justify-content: flex-start; align-self: stretch; overflow-x: auto; scrollbar-width: none; }   /* one row of word pills that slides sideways */
+  body.dock-on .cmap-strip img { display: none; }
+}
+/* G6: keep titles clear of the fixed full screen button */
+@media (orientation: landscape) {
+  body.dock-on:has(.gvfs:not([hidden])):not(:has(.dk-fs)) main > h1:first-of-type,
+  body.dock-on:has(.gvfs:not([hidden])):not(:has(.dk-fs)) main > :is(div, header, .box):first-child:has(h1) { padding-inline-end: 42px; box-sizing: border-box; }
+}
+/* G7: pals checkbox target */
+@media (orientation: landscape) {
+  body.dock-on main label:has(> input[name="pulse_show"]) { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; }   /* pals.php only: a rule for every checkbox broke label.itmcell (market day), .sw, .bok */
+  body.dock-on main input[name="pulse_show"] { width: 22px; height: 22px; margin: 0; }
+}
+/* G8: villagers event box */
+@media (orientation: landscape) {
+  body.dock-on .eventbox .evkicker { font-size: 12px; }
+  body.dock-on .evclose { width: 32px; height: 32px; top: 2px; right: 2px; line-height: 32px; }
+}
+/* G9: hovel sleep panel */
+@media (orientation: landscape) {
+  body.dock-on .hov-hero { padding: 2px 12px; gap: 4px 12px; }
+  body.dock-on .hov-note { margin: 2px auto; font-size: 12px; line-height: 1.3; }
+  body.dock-on .hov-camp { margin: 2px 0 4px; }
+  body.dock-on .hov-opt { margin: 2px auto; }
+  body.dock-on .hov-cols { gap: 4px 10px; }
+}
+/* G10: short single-form pages */
+@media (orientation: landscape) and (max-height: 300px) {
+  body.dock-on main:has(> .box.narrow) > .box.narrow { padding: 6px 12px; }
+  body.dock-on .box.narrow > :is(h1, h2) { margin: 0 0 4px; font-size: 18px; line-height: 1.15; }
+  body.dock-on .box.narrow form.form label { margin: 2px 0; }
+  body.dock-on .pestbox { padding: 4px 8px 6px; }
+  body.dock-on .pestbox > p { margin: 2px 0; }
+  body.dock-on form.inline.renamer .btn { min-height: 32px; padding-block: 2px; }
+}
+@media (orientation: landscape) and (max-height: 380px) {
+  body.dock-on .regionmapbox > .maphelp { font-size: 12px; line-height: 1.25; margin: 0; }
+}
+
+/* landscape, short screens: tour bubble compact, first-fight card fits above the dock, toasts top left, bell clear of the fight card */
+body.dock-on:has(#pfight.pf-v1, #pfi:not([hidden])) .dockroot .dk-msg { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  html body.dock-on.game .toasts:not(#_), html body.dock-on.game .toasts.phone:not(#_) { top: 8px; bottom: auto; left: 8px; right: auto; transform: none; width: min(46vw, 420px); }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #wrentour .tourbox > div { display: flex; flex-direction: column; }
+  #wrentour h3 { order: -3; font-size: 13px; }
+  #wrentour .tourhint { order: -2; }
+  #wrentour .tourbtns, #wrentour p:has(> .tourgo), #wrentour .tourgot, #wrentour .tournext { order: -1; }
+  #wrentour .tbtext, #wrentour .tourlist { order: 1; font-size: 12px; }
+  #wrentour form:has(.skip) { order: 2; }
+  #wrentour .bird { display: none; }
+  body.dock-on .pfi { align-items: center; padding: 4px; }
+  body.dock-on .pfi-card { max-height: 100%; max-width: min(760px, 96vw); padding: 8px 12px; display: flex; flex-direction: column; }
+  body.dock-on .pfi-js .pfi-step { min-height: 0; }
+  body.dock-on .pfi-steps { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  body.dock-on .pfi-act { position: sticky; bottom: 0; margin: 4px 0 0; background: inherit; }
+  body.dock-on .pfi-dots { margin-top: 4px; }
+  body.dock-on .pfi-foot { display: none; }
+  body.dock-on .pfi .pfi-head h2 { font-size: 16px; }
 }

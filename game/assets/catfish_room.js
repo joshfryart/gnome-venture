@@ -148,8 +148,17 @@
     /* ---- wand, fish, lure ---- */
     var wand = { fr: 1, t: 0, seq: [], hold: 0 };   // fr 1..6 = cf-wand-cast-N
     var WAND_X = 216;                                 // wand image x (centre 240)
-    function wandAttach() { var f = M && M.wand.frames[wand.fr - 1]; return f ? { x: WAND_X + f.attach[0], y: f.attach[1] } : { x: 240, y: 52 }; }
-    var fish = D.fish.map(function (k, i) { return { k: k, i: i, ang: 0, vel: 0, len: [26, 34, 28][i], dx: [-26, 0, 26][i], cool: 0, pop: 0, popV: 0, x: 0, y: 0 }; });
+    /* The four Rod upgrades (the old stage showed them with CATFISH_ROD_CLASSES; v2.8.73 draws them here too): Longer string = the fish hang 8 px lower,
+       Springy rod = each fish bobs 3 px (stepped), Rod motor = the resting wand turns +-4 degrees about its ceiling pivot (6 steps in 2.4 s), Double rod = a second
+       wand, mirrored, to the right with a slack line to the first. Bob and turn stop under reduced motion, as on the old stage. */
+    var ROD = { str: owned.string > 0, spr: owned.spring > 0, mot: owned.motor > 0, dbl: owned.double > 0 }, WAND2_X = 288;
+    function wandTurn() { return ROD.mot && !reduced() && wand.fr === 1 ? [-4, -1.33, 1.33, 4, 1.33, -1.33][Math.floor((now % 2400) / 400)] * Math.PI / 180 : 0; }
+    function wandAttach() {
+      var f = M && M.wand.frames[wand.fr - 1]; if (!f) return { x: 240, y: 52 };
+      var a = wandTurn(), px = M.wand.pivot[0], py = M.wand.pivot[1], ax = f.attach[0] - px, ay = f.attach[1] - py;
+      return { x: WAND_X + px + ax * Math.cos(a) - ay * Math.sin(a), y: py + ax * Math.sin(a) + ay * Math.cos(a) };
+    }
+    var fish = D.fish.map(function (k, i) { return { k: k, i: i, ang: 0, vel: 0, len: [26, 34, 28][i] + (ROD.str ? 8 : 0), dx: [-26, 0, 26][i], cool: 0, pop: 0, popV: 0, x: 0, y: 0 }; });
     var lure = null;       // { x0,y0,x1,y1,u,d,t,T,state:'fly'|'land'|'idle'|'reel', fr, ft, size }
     var pops = [], dusts = [], zs = [];
     var lastThrow = 0, catchesIn20 = [], nextZoom = FAST ? 6000 : between(40000, 80000), nextTag = FAST ? 5000 : between(20000, 40000), nextTree = FAST ? 4000 : between(20000, 40000);
@@ -341,14 +350,23 @@
       if (im) ctx.drawImage(im, Math.round(lx - sz.px), Math.round(ly - sz.py));
     }
     function drawWand() {
-      var im = okImg('props/cf-wand-cast-' + wand.fr + '.png'); if (im) ctx.drawImage(im, WAND_X, 0);
-      var a = wandAttach(), t = now / 1000;
+      var im = okImg('props/cf-wand-cast-' + wand.fr + '.png'), tr = wandTurn(), a = wandAttach(), t = now / 1000;
+      if (ROD.dbl) {   // Double rod: the second wand (rest frame, mirrored) and a slack line from its tip to the first wand's line
+        var w2 = okImg('props/cf-wand-cast-1.png'), f1 = M && M.wand.frames[0];
+        if (w2 && f1) {
+          var tx = WAND2_X + w2.naturalWidth - f1.attach[0], ty = f1.attach[1];
+          ctx.save(); ctx.translate(WAND2_X + w2.naturalWidth, 0); ctx.scale(-1, 1); ctx.drawImage(w2, 0, 0); ctx.restore();
+          ctx.strokeStyle = '#74462a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(Math.round(a.x) + 0.5, Math.round(a.y) + 0.5); ctx.quadraticCurveTo((a.x + tx) / 2, Math.max(a.y, ty) + 10, Math.round(tx) + 0.5, Math.round(ty) + 0.5); ctx.stroke();
+        }
+      }
+      if (im) { if (tr) { var px = WAND_X + M.wand.pivot[0], py = M.wand.pivot[1]; ctx.save(); ctx.translate(px, py); ctx.rotate(tr); ctx.drawImage(im, -M.wand.pivot[0], -py); ctx.restore(); } else ctx.drawImage(im, WAND_X, 0); }
       fish.forEach(function (f) {
         f.vel += (-f.ang * 14 - f.vel * 1.6) * 0.016; f.ang += f.vel * 0.016 + Math.sin(t * 1.3 + f.i * 2) * 0.0012;
         var bx = a.x + f.dx * 0.5, by = a.y + 2, ang = f.ang + (wand.fr === 3 ? -0.25 : (wand.fr === 5 ? 0.25 : 0)), fx = bx + Math.sin(ang) * f.len + f.dx * 0.6, fy = by + Math.cos(ang) * f.len;
         f.x = fx; f.y = fy;
         ctx.strokeStyle = '#74462a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(Math.round(bx) + 0.5, Math.round(by) + 0.5); ctx.lineTo(Math.round(fx) + 0.5, Math.round(fy - 10) + 0.5); ctx.stroke();
-        var fi = fishImg(f.k); if (fi) ctx.drawImage(fi, Math.round(fx - 12), Math.round(fy - 12), 24, 24);
+        var bob = ROD.spr && !reduced() ? [0, -2, -3, -2][Math.floor(((now + f.i * 400) % 1200) / 300)] : 0;
+        var fi = fishImg(f.k); if (fi) ctx.drawImage(fi, Math.round(fx - 12), Math.round(fy - 12 + bob), 24, 24);
       });
     }
     function drawPops() {
@@ -435,7 +453,7 @@
         else { var f = fish[(+b.getAttribute('data-fish') || 1) - 1]; if (f) swatFish(f, null); }
       });
     });
-    window.CFRoom = { zoom: function () { nextZoom = 0; }, state: function () { return { cats: cats.map(function (c) { return { id: c.id, st: c.st, x: Math.round(c.x), y: Math.round(c.y), set: c.set, fi: c.fi, vis: c.vis, caught: c.caught }; }), lure: lure ? lure.state : null, M: !!M, pending: pendingLoads }; }, cast: castTo };
+    window.CFRoom = { zoom: function () { nextZoom = 0; }, state: function () { return { cats: cats.map(function (c) { return { id: c.id, st: c.st, x: Math.round(c.x), y: Math.round(c.y), set: c.set, fi: c.fi, vis: c.vis, caught: c.caught }; }), lure: lure ? lure.state : null, M: !!M, pending: pendingLoads, fish: fish.map(function (f) { return [Math.round(f.x), Math.round(f.y)]; }) }; }, cast: castTo };
 
     manifest(function () { loadRoom(); raf = requestAnimationFrame(tick); });
     return {

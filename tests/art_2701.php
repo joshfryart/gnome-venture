@@ -30,7 +30,8 @@ foreach ($rows as $r) {
     if ([$gs[0], $gs[1]] !== $want) $bad[] = "$dst is {$gs[0]}x{$gs[1]}, want {$want[0]}x{$want[1]}";
     // 2026-11-21: a non-whimsy pal's yard picture (pals/<key>.png) is now the creature cut into a jigsaw piece; the approved bytes live on in aseprite-source/v3/pals-creature/
     $cre = (preg_match('~^pals/([a-z0-9-]+)\.png$~', $dst, $mm)) ? $repo . '/aseprite-source/v3/pals-creature/' . $mm[1] . '.png' : '';
-    if (!(int)$w && md5_file($cre !== '' && is_file($cre) ? $cre : $g) !== md5_file($s)) $bad[] = "$dst is not the approved file $src";
+    // 2026-11-26: the redrawn Puzzle Pals (art-review/redo, owner-approved swap) replace every pals/perch sprite, so those bytes are no longer the 2.7.01 ones; size and art_path() are still checked
+    if (!(int)$w && strpos($dst, 'pals/perch/') !== 0 && md5_file($cre !== '' && is_file($cre) ? $cre : $g) !== md5_file($s)) $bad[] = "$dst is not the approved file $src";
     if (art_path('assets/img/' . $dst) === '') $bad[] = "art_path() does not find assets/img/$dst";
 }
 ok('every file is at its game path, the size of what it replaces, the approved bytes, and art_path() finds it', !$bad, implode('; ', array_slice($bad, 0, 6)));

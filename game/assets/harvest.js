@@ -125,10 +125,29 @@
         if (f && f.focus) f.focus({ preventScroll: true });
       }
     }
+    /* Auto-close: about 3 s after the picture is finished, about 6 s when it shows a level-up or mastery line, a little longer for a lot of text.
+       Touching, hovering or focusing inside the box stops the clock for good (the button, backdrop tap or Escape still close); a hidden tab waits. */
+    var autoT = null, autoOn = false, held = false;
+    function autoMs() {
+      var big = lvl > 0 || notes.some(function (m) { return /mastery|mastered|master of/i.test(m); });
+      var chars = notes.join('').length + (seeds || '').length;
+      return Math.min(12000, (big ? 6000 : 3000) + Math.max(0, chars - 80) * 25);
+    }
+    function autoArm(ms) {
+      clearTimeout(autoT);
+      if (closed || held || !autoOn) return;
+      autoT = setTimeout(function () { if (document.hidden) autoArm(1000); else close(); }, ms);
+    }
+    function hold() { held = true; clearTimeout(autoT); }
+    box.addEventListener('pointerdown', hold);
+    box.addEventListener('focusin', function (ev) { if (ev.target !== ok) hold(); });
+    box.addEventListener('pointerenter', function (ev) { if (ev.pointerType === 'mouse' && autoOn) clearTimeout(autoT); });
+    box.addEventListener('pointerleave', function (ev) { if (ev.pointerType === 'mouse' && autoOn && !held) autoArm(Math.max(1500, autoMs() / 2)); });
     function finish() {
       if (done) return;
       done = true;
       timers.forEach(clearTimeout);
+      timers = [];
       cells.forEach(function (c) { c.classList.add('in', 'gone', 'pick'); });
       heap.classList.add('on');
       root.classList.add('hv-done');
@@ -136,6 +155,7 @@
       if (!sum.firstChild) buildSummary();
       title.textContent = doneHeading;
       live.textContent = summary;
+      if (!autoOn) { autoOn = true; autoArm(autoMs()); }
     }
     root.addEventListener('cancel', function (ev) { ev.preventDefault(); close(); });
     root.addEventListener('keydown', function (ev) { if (ev.key === 'Tab') { ev.preventDefault(); ok.focus(); } });

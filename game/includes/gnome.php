@@ -220,7 +220,7 @@ function eff_stat(array $u, string $stat): int
 /** The Hovel kettle: the day key a cup is drunk on (users.tea_day): the game day while the game clock is on, else the Hollow date. */
 function gnome_tea_day(array $u): string
 {
-    return function_exists('gclock_on') && gclock_on() ? (string)(int)($u['game_day'] ?? 0) : hollow_date('Y-m-d');
+    return gclock_on() ? (string)(int)($u['game_day'] ?? 0) : hollow_date('Y-m-d');
 }
 
 /** The Hovel kettle: today's tea as stat => points ([] when there is none, or the gnome has slept since). Its own slot (users.tea / tea_day), beside the meal, lucky moments and town drink. */
@@ -235,7 +235,7 @@ function gnome_tea_buff(array $u): array
 /** "until you sleep" (game clock on) or "until tomorrow" (off: the cup ends with the Hollow day). */
 function gnome_tea_ends(): string
 {
-    return function_exists('gclock_on') && gclock_on() ? 'until you sleep' : 'until tomorrow';
+    return gclock_on() ? 'until you sleep' : 'until tomorrow';
 }
 
 /** 2.7.08 third pass A: the second lucky moment (users.ev2_*, Sight token buff2=) as the first slot's field names, for gnome_ev_slept(). */
@@ -620,7 +620,7 @@ function eat_item(array $u, int $itemId, ?bool $confirm = null): array
         } else {
             $max = max_energy($u);
             $n = (int)$fx['energy'];
-            if ($homeCooked) $n = dish_energy($n);   // v0.9.4: the 1.5x seed-to-plate knob (home-cooked only)
+            if ($homeCooked) $n = dish_energy($n);   // v0.9.4: the cook_energy_percent knob (default 115) (home-cooked only)
             require_once __DIR__ . '/player_perks.php';
             if ($homeCooked && ($sn = player_perk_pct($uid, 'seasoned', 'perk_seasoned')) > 0) $n += max(1, (int)round($n * $sn / 100));   // 2.6.33
             $pct = ($item['category'] === 'food' && strncmp((string)$item['slug'], 'bought-', 7) !== 0) ? calling_perk($u, 'meal_energy_pct') : 0;   // v0.9.1 (v0.9.4: a percent, not +1): home-cooked meals only
@@ -662,7 +662,6 @@ function nice_minutes(int $m): string
     return $m >= 120 ? round($m / 60, 1) . ' hours' : $m . ' minutes';
 }
 
-/** Small round hat in the calling colour (or plain grey before a calling is chosen). */
 /** Starting hat colours a new gnome can pick. A calling's hat colour replaces it from level 5. */
 const HAT_COLORS = ['#c0392b' => 'Poppy red', '#2e7d4f' => 'Moss green', '#2f5d9e' => 'Bluebell', '#e0a526' => 'Buttercup',
     '#7d4fa0' => 'Violet', '#d9773a' => 'Pumpkin', '#5b4636' => 'Bark brown', '#8a8370' => 'Pebble grey'];
@@ -759,6 +758,7 @@ function gnome_scarf_svg(array $u, string $uid = ''): string
         . '<path d="M47 73 L50 90 L58 88 L54 71 Z" fill="' . e($c) . '" ' . $edge . '/></g>';
 }
 
+/** Small round hat in the calling colour (or plain grey before a calling is chosen). */
 function gnome_hat(array $u): string
 {
     $color = gnome_hat_color($u);

@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""dw-mirage-moon "Mirage Moon" (rare, whimsy-moon, keyhole).
+Concept: a fat cream crescent moon opening to the right IS the piece: keyhole tab out of its round back (W),
+keyhole blank cut into its lower-left belly. Sleepy felt face on the thick back,
+purple night-cloud wisp from the cell (0-0) tucked into the crescent's mouth, tiny star at the upper tip."""
+import sys
+sys.path.insert(0, '/home/user/gnome-venture/art-review/kit')
+import pal_kit as K
+
+MOON = K.ramp('#fef0bf')
+MOON = ('#fbe6a8', '#d4a650', '#fffbe8')
+CLOUD = K.ramp('#6a4a92')
+SKY = '#3d2a62'
+GLOW = '#f6d878'
+
+
+def fn(c):
+    s = 1.15 if c.small else 1.0
+    import math
+    outer = K.ell(35, 33, 25, 25)
+    inner = K.ell(51, 27, 17, 21)
+
+    def on(deg):
+        t = math.radians(deg)
+        return 35 + 25 * math.cos(t), 33 + 25 * math.sin(t), math.cos(t), math.sin(t)
+    tabW = K.knob('T', 'keyhole', *on(178), r=4.5 * s, nw=2.5)
+    blankS = K.knob('B', 'keyhole', *on(126), r=4.3 * s, nw=2.5)
+    moon = c.m(outer, tabW, minus=(inner, blankS))
+    c.add(moon, MOON, stitch='#e6d394')
+    # purple cloud wisp from the cell, resting in the crescent's mouth
+    cloud = c.m(K.ell(52, 52, 7, 3.2), K.ell(57, 49.5, 4.5, 3.0))
+    c.add(cloud, CLOUD)
+    c.edge(cloud, CLOUD[1])
+    # star near the upper tip
+    sx, sy = c.P(55, 9)
+    star = c.m(K.ell(55, 9, 2.6, 2.6) if c.small else K.poly([(55, 4.5), (56.3, 7.7), (59.5, 9), (56.3, 10.3), (55, 13.5), (53.7, 10.3), (50.5, 9), (53.7, 7.7)]))
+    c.add(star, (GLOW, '#d8a840', '#fff6c8'))
+    # craters (soft glow ramp dots)
+    for (x, y, r) in ((22, 19, 1.8), (38, 52, 1.5), (31, 13, 1.4)):
+        cx, cy = c.P(x, y)
+        rr = 1 if c.small else int(r)
+        for dx in range(-rr, rr + 1):
+            for dy in range(-rr, rr + 1):
+                if dx * dx + dy * dy <= rr * rr:
+                    c.px(cx + dx, cy + dy, '#ead08a')
+    # sleepy face on the thick back, looking toward the mouth
+    if c.small:
+        for (ex, ey) in ((17, 29), (26, 28)):
+            x, y = c.P(ex, ey)
+            c.px(x, y, K.UMBER); c.px(x + 1, y + 1, K.UMBER); c.px(x + 2, y, K.UMBER)
+    else:
+        for (ex, ey) in ((18, 30), (27, 29)):
+            x, y = c.P(ex, ey)
+            for dx, dy in ((-2, 0), (-1, 1), (0, 1), (1, 1), (2, 0)):
+                c.px(x + dx, y + dy, K.UMBER)
+            c.px(x - 2, y - 1, K.UMBER2); c.px(x + 2, y - 1, K.UMBER2)
+    c.blush(15, 34)
+    c.blush(29.5, 33)
+    c.smile(22.5, 35)
+
+
+if __name__ == '__main__':
+    rep = K.render_pal(fn, 'dw-mirage-moon', 'Mirage Moon', '/home/user/gnome-venture/art-review/redo/out',
+                       cellfile='/home/user/gnome-venture/art-review/redo/_src/dw-mirage-moon-cell.png',
+                       oldfile='/home/user/gnome-venture/game/assets/img/puzzles/pals/dw-mirage-moon.png')
+    print(rep)

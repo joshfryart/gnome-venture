@@ -43,7 +43,7 @@ function fresh_start_columns(): array
         'ev_disc' => null, 'hp' => null, 'hp_at' => null, 'satchel_skin' => null, 'road_recent' => null, 'pmentor_open' => 0,
         'trek_ch' => 1, 'trek_pet_day' => null, 'trek_pet_today' => 0, 'trek_item_day' => null, 'trek_item_today' => 0,
         'ppal_at' => null, 'ppal_day' => null, 'ppal_count' => 0, 'ppal_spawn_day' => null,
-        'game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'pal_real_at' => null, 'pal_morning' => null, 'camp_naps' => 0,   // game_minute 360 = GAME_WAKE_MINUTE
+        'game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'pal_real_at' => null, 'pal_morning' => null, 'crew_morning' => null, 'camp_naps' => 0,   // game_minute 360 = GAME_WAKE_MINUTE
     ];
 }
 

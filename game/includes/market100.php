@@ -21,7 +21,6 @@ const MARKET_GRADES = [[88, 'S'], [75, 'A'], [60, 'B'], [45, 'C'], [30, 'D'], [0
 /** Seasons a crop is "in season" when the plant row has none set (Admin → Plants → Seasons overrides this). */
 const MARKET_KIND_SEASONS = ['vegetable' => 'summer,autumn', 'tuber' => 'autumn,winter', 'legume' => 'spring,summer', 'grain' => 'summer,autumn',
     'fruit' => 'summer,autumn', 'tree' => 'autumn', 'nut' => 'autumn,winter', 'herb' => 'spring,summer', 'spice' => 'summer'];
-const MARKET_SELLABLE = "('produce','flower','food','part','forage','arrangement','packet')";
 const MARKET_WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function market100_settings(): array
@@ -204,7 +203,7 @@ function market_item_seasons(int $itemId): ?string
     if ($map === null) {
         $map = [];
         $flower = [];
-        if (is_file(__DIR__ . '/flower_art.php')) { require_once __DIR__ . '/flower_art.php'; if (function_exists('flower_looks')) $flower = flower_looks(); }
+        if (is_file(__DIR__ . '/flower_art.php')) { require_once __DIR__ . '/flower_art.php'; $flower = flower_looks(); }
         $codes = ['sp' => 'spring', 'su' => 'summer', 'au' => 'autumn', 'wi' => 'winter'];
         foreach (q('SELECT slug, kind, seasons, seed_item_id, produce_item_id FROM plants')->fetchAll() as $p) {
             $csv = strtolower(trim((string)($p['seasons'] ?? '')));

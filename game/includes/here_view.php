@@ -461,8 +461,8 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
             }
         }
         $add('shops', here_shop_fronts($u, $node, count($want['shops'] ?? [])), '🏪', url('town.php?view=shops'));
-        // 'homes' (Residential) comes in a later release; the spot stays hidden until residential.php exists
-        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
+        // 'homes' (Residential): shown where villagers are homed
+        if (npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
     } elseif ($kind === 'village' || $kind === 'stop' || $kind === '') {   // '' = a plain place: the generic picture
         $add('do', here_do_fronts($u, $node, $back, count($want['do'] ?? []), $stall !== []), '🎯', url('town.php'));
         if ($stall) $add('shops', $stall, '🛒', url('town.php'));
@@ -470,7 +470,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         foreach ($hot as &$hp) if (str_starts_with((string)$hp['id'], 's-people')) $hp['hl'] = 'street';   // v2.5.39: tapping it lights up the villagers standing under the picture
         unset($hp);
         $add('stop', 'Rest stop', '🪧', url('town.php?view=passport'), here_lazy_card(url('town.php?view=passport&frag=1'), url('town.php'), '', '') . '<p class="vmore"><a href="' . e(url('town.php?view=passport')) . '">Full passport ›</a></p>');
-        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
+        if (npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
         if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $add('garden', 'Your garden', '🌱', url('garden.php'));
     } elseif (in_array($kind, ['haven', 'wonder', 'delve', 'lair'], true)) {
         $lm = landmark_at((int)$node['id']);
@@ -668,6 +668,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts);
     if ($gate && $canWander) $h .= '<form method="post" action="' . e(url('adventure.php')) . '" id="wanderform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="explore"></form>';
     if ($more) $h .= '<p><a class="btn alt" href="' . e($more['href']) . '">' . e($more['label']) . '</a></p>';
+    if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $h .= '<p class="herehovel"><a class="btn alt" href="' . e(url('hovel.php')) . '">🏠 Hovel</a></p>';   // your home village: the way into your hovel
     return $h . here_extra_do($u, $node, $back, $spots);
 }
 
@@ -678,7 +679,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
  */
 function here_extra_do(array $u, array $node, string $back, array $spots): string
 {
-    if ((string)$node['kind'] !== 'village' || !function_exists('dock_on') || !dock_on($u)) return '';
+    if ((string)$node['kind'] !== 'village' || !dock_on($u)) return '';
     require_once __DIR__ . '/local.php';
     $fronts = 0; $stall = false;
     foreach ($spots as $sp) { if (str_starts_with((string)$sp['id'], 's-do')) $fronts++; elseif (str_starts_with((string)$sp['id'], 's-shops')) $stall = true; }

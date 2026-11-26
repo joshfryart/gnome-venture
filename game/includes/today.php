@@ -103,7 +103,7 @@ function today_data(array $u): array
         foreach ($bd as $nm) $vill[] = ['🎂', $nm . '’s birthday', 'A friend’s day', ''];
         if ($away || $back) $vill[] = ['🚶', $away ? 'Away today: ' . implode(', ', $away) : 'Everyone you know is about', $back ? 'Back: ' . implode(', ', $back) : '', ''];
         elseif ($known) $vill[] = ['🚶', 'Everyone you know is about.', '', ''];
-        if (function_exists('market_day_on') && market_day_on($today)) $vill[] = ['🛒', 'Market day today', 'The stalls are open', $link('market.php')];
+        if (market_day_on($today)) $vill[] = ['🛒', 'Market day today', 'The stalls are open', $link('market.php')];
     } catch (Throwable $e) {}
     return ['need' => $need, 'night' => $night, 'village' => $vill];
 }

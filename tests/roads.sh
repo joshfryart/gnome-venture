@@ -39,7 +39,9 @@ echo "  side route $SIDE from $(db "SELECT a_id FROM routes WHERE id=$SIDE") (I'
 curl -s -b $C -c $C $BASE/world.php > /tmp/r.html; curl -s -b $C -c $C -X POST $BASE/adventure.php --data-urlencode "csrf=$(csrf /tmp/r.html)" -d do=start -d route_id=$SIDE -o /dev/null; curl -s -b $C $BASE/world.php | grep -oE 'flash err">[^<]*'
 echo "== walk back home, then discover a hidden place"
 BACK=$(db "SELECT id FROM routes WHERE kind='road' AND ((a_id=$NOW AND b_id=$HOME) OR (a_id=$HOME AND b_id=$NOW))"); [ -n "$BACK" ] && walkto $BACK >/dev/null
-NOW=$(db "SELECT location_id FROM users WHERE id=$SID"); SIDE=$(db "SELECT id FROM routes WHERE kind='side' AND a_id=$NOW LIMIT 1"); DEST=$(db "SELECT b_id FROM routes WHERE id=$SIDE")
+NOW=$(db "SELECT location_id FROM users WHERE id=$SID"); SIDE=$(db "SELECT id FROM routes WHERE kind='side' AND a_id=$NOW LIMIT 1")
+if [ -z "$SIDE" ]; then SIDE=$(db "SELECT r.id FROM routes r JOIN locations l ON l.id=r.a_id WHERE r.kind='side' AND l.kind='village' AND r.a_id IN (SELECT a_id FROM routes WHERE kind='road' AND (a_id=$NOW OR b_id=$NOW) UNION SELECT b_id FROM routes WHERE kind='road' AND (a_id=$NOW OR b_id=$NOW)) LIMIT 1"); NOW=$(db "SELECT a_id FROM routes WHERE id=$SIDE"); dbx "UPDATE users SET location_id=$NOW WHERE id=$SID"; fi
+DEST=$(db "SELECT b_id FROM routes WHERE id=$SIDE")
 echo "  at $(db "SELECT name FROM locations WHERE id=$NOW"); side path to $(db "SELECT name||' ('||kind||')' FROM locations WHERE id=$DEST")"
 curl -s -b $C $BASE/world.php | grep -c "Side path" | sed 's/^/  side paths shown before: /'
 SLUG=$(db "SELECT slug FROM locations WHERE id=$DEST"); KIND=$(db "SELECT kind FROM locations WHERE id=$DEST"); KEY=$([ "$KIND" = village ] && echo village:$SLUG || echo landmark:$SLUG)

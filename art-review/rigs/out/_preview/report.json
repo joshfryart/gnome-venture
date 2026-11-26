@@ -1,0 +1,242 @@
+[
+ {
+  "slug": "bog-pike",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   824,
+   112
+  ],
+  "cols": 8,
+  "fw": 103,
+  "fh": 56,
+  "mountedSlug": "bog-pike",
+  "errors": []
+ },
+ {
+  "slug": "bog-pike",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   824,
+   112
+  ],
+  "cols": 8,
+  "fw": 103,
+  "fh": 56,
+  "mountedSlug": "bog-pike",
+  "errors": []
+ },
+ {
+  "slug": "will-o-wisp",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   180,
+   140
+  ],
+  "cols": 4,
+  "fw": 45,
+  "fh": 70,
+  "mountedSlug": "will-o-wisp",
+  "errors": []
+ },
+ {
+  "slug": "will-o-wisp",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   180,
+   140
+  ],
+  "cols": 4,
+  "fw": 45,
+  "fh": 70,
+  "mountedSlug": "will-o-wisp",
+  "errors": []
+ },
+ {
+  "slug": "cloud-leopard",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   712,
+   102
+  ],
+  "cols": 8,
+  "fw": 89,
+  "fh": 51,
+  "mountedSlug": "cloud-leopard",
+  "errors": []
+ },
+ {
+  "slug": "cloud-leopard",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   712,
+   102
+  ],
+  "cols": 8,
+  "fw": 89,
+  "fh": 51,
+  "mountedSlug": "cloud-leopard",
+  "errors": []
+ },
+ {
+  "slug": "clam-lurker",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   244,
+   90
+  ],
+  "cols": 4,
+  "fw": 61,
+  "fh": 45,
+  "mountedSlug": "clam-lurker",
+  "errors": []
+ },
+ {
+  "slug": "clam-lurker",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   244,
+   90
+  ],
+  "cols": 4,
+  "fw": 61,
+  "fh": 45,
+  "mountedSlug": "clam-lurker",
+  "errors": []
+ },
+ {
+  "slug": "crew-wren",
+  "kind": "old",
+  "served": "shipped",
+  "real": false,
+  "natural": [
+   351,
+   114
+  ],
+  "cols": 9,
+  "fw": 39,
+  "fh": 57,
+  "mountedSlug": "crew-wren",
+  "errors": []
+ },
+ {
+  "slug": "crew-wren",
+  "kind": "new",
+  "served": "staged",
+  "real": false,
+  "natural": [
+   351,
+   114
+  ],
+  "cols": 9,
+  "fw": 39,
+  "fh": 57,
+  "mountedSlug": "crew-wren",
+  "errors": []
+ },
+ {
+  "slug": "ptarmigan-flock",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   329,
+   82
+  ],
+  "cols": 7,
+  "fw": 47,
+  "fh": 41,
+  "mountedSlug": "ptarmigan-flock",
+  "errors": []
+ },
+ {
+  "slug": "ptarmigan-flock",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   329,
+   82
+  ],
+  "cols": 7,
+  "fw": 47,
+  "fh": 41,
+  "mountedSlug": "ptarmigan-flock",
+  "errors": []
+ },
+ {
+  "slug": "bullfrog",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   330,
+   80
+  ],
+  "cols": 6,
+  "fw": 55,
+  "fh": 40,
+  "mountedSlug": "bullfrog",
+  "errors": []
+ },
+ {
+  "slug": "bullfrog",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   330,
+   80
+  ],
+  "cols": 6,
+  "fw": 55,
+  "fh": 40,
+  "mountedSlug": "bullfrog",
+  "errors": []
+ },
+ {
+  "slug": "giant-bumblebee",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   1001,
+   128
+  ],
+  "cols": 11,
+  "fw": 91,
+  "fh": 64,
+  "mountedSlug": "giant-bumblebee",
+  "errors": []
+ },
+ {
+  "slug": "giant-bumblebee",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   1001,
+   128
+  ],
+  "cols": 11,
+  "fw": 91,
+  "fh": 64,
+  "mountedSlug": "giant-bumblebee",
+  "errors": []
+ }
+]

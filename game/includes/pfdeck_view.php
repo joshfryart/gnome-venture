@@ -87,12 +87,6 @@ function pfv_pc(array $p, array $o = []): string
 
 function pfv_slot(string $txt): string { return '<li><div class="slot">' . $txt . '</div></li>'; }
 
-function pfv_cap_pips(int $n, int $max, string $cls, string $lab): string
-{
-    $h = ''; for ($i = 0; $i < $max; $i++) $h .= '<i' . ($i < $n ? ' class="on"' : '') . '></i>';
-    return '<span class="capp ' . $cls . '" role="img" aria-label="' . $lab . ' ' . $n . ' of ' . $max . '" title="' . $lab . ' ' . $n . ' of ' . $max . '">' . $h . '</span>';
-}
-
 function pfv_durbar(int $left, int $max): string
 {
     $f = $max > 0 ? $left / $max : 0;
@@ -471,6 +465,10 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
         $h .= '<form method="post" class="pfv-autof pbx-auto">' . csrf_field() . '<input type="hidden" name="do" value="pfd_auto"><input type="hidden" name="on" value="' . ($on ? '0' : '1') . '">' . $back
             . '<label class="sw"><span><b>Use this deck in every fight</b><small>' . ($on ? 'Auto deck is on: this deck goes into every fight as it is. You still see the creature first.' : 'Off: before each fight you can swap pieces.') . '</small></span><input type="checkbox" id="pfv-auto"' . ($on ? ' checked' : '') . '></label>'
             . '<noscript><button class="btn small">' . ($on ? 'Turn off' : 'Turn on') . '</button></noscript></form>';
+        $q = pfd_quick_on((int)$u['id']);
+        $h .= '<form method="post" class="pfv-autof pbx-auto pbx-quick">' . csrf_field() . '<input type="hidden" name="do" value="pfd_quick"><input type="hidden" name="on" value="' . ($q ? '0' : '1') . '">' . $back
+            . '<label class="sw"><span><b>Quick turns</b><small>' . ($q ? 'On: in a fight, End turn fires by itself a moment after you place a piece. Tap Undo in that moment to change it.' : 'Off: you tap End turn yourself.') . '</small></span><input type="checkbox" id="pfv-quick"' . ($q ? ' checked' : '') . '></label>'
+            . '<noscript><button class="btn small">' . ($q ? 'Turn off' : 'Turn on') . '</button></noscript></form>';
     }
     $h .= '<p class="pbx-toast" id="pbx-toast" role="status" hidden></p>';
     return $h . pfv_form($back) . '</div>' . pfv_assets();
@@ -538,7 +536,7 @@ function pfv_prefight_html(array $u, array $exp, array $c): string
 /** The POST actions of the starter and pre-fight screens on the adventure page (do = pfd_* or pfv_go). The caller holds the transaction; $exp is saved by the caller. */
 function pfv_adv_post(array $u, array &$exp, array $enc, string $do): void
 {
-    if (!empty($enc['pf'])) { if ($do !== 'pfd_auto') { flash('The fight has started. The deck is locked until it is over.', 'err'); return; } }
+    if (!empty($enc['pf'])) { if (!in_array($do, ['pfd_auto', 'pfd_quick'], true)) { flash('The fight has started. The deck is locked until it is over.', 'err'); return; } }
     if ($do === 'pfv_go') {
         if (!pfd_deck($u)['starter']) { flash('Pack your first Puzzle box before the fight.', 'err'); return; }
         $enc['pfgo'] = 1; $exp['encounter'] = json_encode($enc);
@@ -603,9 +601,14 @@ function pfv_result_html(array $r, string $actions = ''): string
 }
 
 /** The summary of a fight that just ended (kept in the session by pfight_do for a loss, a run or a stall: the encounter is gone by the next page). Shown once. */
-function pfv_result_take(): string
+function pfv_result_take(?array $exp = null): string
 {
     $r = $_SESSION['pfv_res'] ?? null; unset($_SESSION['pfv_res']);
     if (!is_array($r) || (int)($r['at'] ?? 0) < time() - 900) return '';
-    return pfv_result_html($r) . pfv_assets(false);
+    $act = '';
+    if (($r['how'] ?? '') === 'run' && $exp && ($exp['kind'] ?? '') === 'explore') {   // after a run-away on an explore (wander) walk: the page's own deeper / return forms, right on the card
+        $f = fn(string $do, string $cls, string $label) => '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="btn ' . $cls . '">' . $label . '</button></form>';
+        $act = $f('deeper', 'primary', '🌿 Go deeper') . $f('return', '', '🛣️ To the road');
+    }
+    return pfv_result_html($r, $act) . pfv_assets(false);
 }

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.8.70');
+define('APP_VERSION', '2.8.72');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -68,7 +68,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/inventory.php';   // inventory domain (give_item, unlock_entries, starter/home seeds)
 require_once __DIR__ . '/here_schema.php';   // graphical navigation flag helpers (gnav_on, gnav_start_here)
-require_once __DIR__ . '/game_clock.php';   // sleep-days: personal game clock (not wired to anything yet)
+require_once __DIR__ . '/game_clock.php';   // sleep-days: personal game clock
 require_once __DIR__ . '/upgrade100.php';   // v1.0.0: guarded upgrade steps
 require_once __DIR__ . '/social.php';   // v1.0.0 wave 3: settings, tables, the welcome-back note
 require_once __DIR__ . '/market100.php';   // v1.0.0 wave 2b: orders, market day, price drift
@@ -137,7 +137,7 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
         });
         boot_step('tea_crops_ensure', function () {
             require_once __DIR__ . '/catalog.php';
-            tea_crops_ensure();     // next release: lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise (crop, seed, plant, shop stock, Almanac page); adds only what is missing
+            tea_crops_ensure();     // ensures the tea crops: lemon balm, peppermint, lemon verbena, garden sage, tulsi, star anise (crop, seed, plant, shop stock, Almanac page); adds only what is missing
         });
         boot_step('rope_stock_ensure', function () {
             require_once __DIR__ . '/trail_sights_5.php';
@@ -251,7 +251,7 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
         });
         boot_step('ensure_calling_quests', function () {
             require_once __DIR__ . '/calling_quests.php';
-            ensure_calling_quests(); // v0.9.4: calling chapters (Journeyman and Master), from data/calling_quests.txt
+            ensure_calling_quests(); // v0.9.4: calling chapters (Journeyman and Master), from includes/data/calling_quests.txt
         });
         boot_step('market176_almanac', function () {
             require_once __DIR__ . '/market100.php';
@@ -261,7 +261,7 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             require_once __DIR__ . '/catalog.php';
             require_once __DIR__ . '/adventure_data.php';
             $stats = ['items' => 0, 'pages' => 0];
-            import_pf_creatures($stats);   // 2.7.01: the creature pass: variants and extra drops from data/pf_creatures.txt (adds only what is missing)
+            import_pf_creatures($stats);   // 2.7.01: the creature pass: variants and extra drops from includes/data/pf_creatures.txt (adds only what is missing)
         });
         boot_step('ensure_treks', function () {
             require_once __DIR__ . '/trek_data.php';
@@ -593,11 +593,11 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?) WHERE unlock_key = ?', [$c['name'] . ', level ' . $was . '.', $c['name'] . ', level ' . $lv . '.', 'landmark:' . $loc['slug']]);
             }
         });
-        boot_step('creature_windows_2708', function () {   // 2.7.08: the 8 base creatures with no region window get a new level / an added land (CREATURE_WINDOWS_2708 in includes/adventure_data.php; a fresh world: data/creatures.txt). Only a creature still at the old value is changed
+        boot_step('creature_windows_2708', function () {   // 2.7.08: the 8 base creatures with no region window get a new level / an added land (CREATURE_WINDOWS_2708 in includes/adventure_data.php; a fresh world: includes/data/creatures.txt). Only a creature still at the old value is changed
             require_once __DIR__ . '/adventure_data.php';
             creature_windows_2708();
         });
-        boot_step('creature_window_drops_1119', function () {   // 2026-11-19: the regional drop of arctic-fox, desert-tortoise, glacier-bear and lichen-reindeer was gated to regions outside their 2.7.08 window; its gate moves into the window (CREATURE_WINDOW_DROPS_1119 in includes/adventure_data.php; a fresh world: data/pf_creatures.txt). Only a drop still at the old gate is changed
+        boot_step('creature_window_drops_1119', function () {   // 2026-11-19: the regional drop of arctic-fox, desert-tortoise, glacier-bear and lichen-reindeer was gated to regions outside their 2.7.08 window; its gate moves into the window (CREATURE_WINDOW_DROPS_1119 in includes/adventure_data.php; a fresh world: includes/data/pf_creatures.txt). Only a drop still at the old gate is changed
             require_once __DIR__ . '/adventure_data.php';
             creature_window_drops_1119();
         });
@@ -717,6 +717,7 @@ send_security_headers();
 start_secure_session();
 
 $CURRENT_USER = load_current_user();
+if ($CURRENT_USER && gclock_crew_mornings($CURRENT_USER)) $CURRENT_USER = load_current_user();   // the garden crew works a 06:00 the gnome stayed up past (pal_crew.php pcrew_mornings)
 require_once __DIR__ . '/action_log.php';
 action_log_boot();   // 2.6.27: last 100 actions per player (admin-only view)
 

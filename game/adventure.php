@@ -143,8 +143,9 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
-        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_stay', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp', 'gather', 'sight', 'sightgive', 'sightchat', 'sightgift', 'trail_mapscrap', 'trail_chalk'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+        } elseif (in_array($do, ['trail_go', 'trail_walkon', 'trail_next', 'trail_prev', 'trail_stay', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp', 'gather', 'sight', 'sightgive', 'sightchat', 'sightgift', 'trail_mapscrap', 'trail_chalk'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
             if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
+            elseif ($do === 'trail_walkon') [$tok, $tmsg] = trail_walk_on($u, $exp);
             elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
             elseif ($do === 'trail_prev') [$tok, $tmsg] = trail_prev($u, $exp);
             elseif ($do === 'trail_stay') [$tok, $tmsg] = trail_stay($u, $exp);
@@ -303,7 +304,7 @@ function wander_card_html(array $u, array $exp, array $last, array $log, array $
 page_header('On the mycelium');
 $pfStageRes = '';
 $pfRes = '';
-if (!empty($_SESSION['pfv_res'])) { require_once __DIR__ . '/includes/pfdeck_view.php'; $pfRes = pfv_result_take(); }   // 2.6.74 v1: the result card of a puzzle fight that was lost or left (never set with pfight_v1 off); shown below, over the map's place when pfight_stage is on (a Trail map, the map behind a wander off the Trail, or a wander with no map: the window)
+if (!empty($_SESSION['pfv_res'])) { require_once __DIR__ . '/includes/pfdeck_view.php'; $pfRes = pfv_result_take($exp ?: null); }   // 2.6.74 v1: the result card of a puzzle fight that was lost or left (never set with pfight_v1 off); shown below, over the map's place when pfight_stage is on (a Trail map, the map behind a wander off the Trail, or a wander with no map: the window)
 // graphical navigation 2d: Wander off the Trail plays in a popover over the Trail's section; when the wander ends the walk is picked up again
 $wanderView = null;
 if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);
@@ -366,6 +367,7 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
     <?php if (empty($exp['encounter'])) foreach (trail_sights_here($u, $trailSc) as [$sgRow, $sgLeft, $sgWhy]): /* v2.6.68: next to a big set piece: its own button (data/trail_sights.txt) */ ?><?php if ((trail_sight_pick_info($sgRow) || trail_sight_choose_info($sgRow)) && $sgLeft > 0): ?><a class="btn trailsight" data-pop="hubpop-tsights" href="<?= e(url('adventure.php?sg=1')) ?>"><?= e($sgRow['icon']) ?> <?= e($sgRow['verb']) ?> <small>choose</small></a><?php else: ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="<?= e($sgRow['slug']) ?>"><button class="btn trailsight"<?= $sgLeft < 1 ? ' disabled title="' . e($sgWhy) . '"' : '' ?>><?= e($sgRow['icon']) ?> <?= e($sgRow['verb']) ?> <small><?= $sgLeft < 1 ? e($sgWhy) : '⚡' . (int)$sgRow['energy'] ?></small></button></form><?php endif; ?><?php endforeach; ?>
     <?= sights5_trailfoot_html($u, $exp, $trailSc) ?>
     <?php if (on_road((int)$exp['from_id'])): ?><a class="btn alt" data-pop="hubpop-twander" href="<?= e(url('adventure.php?w=1')) ?>">🌿 Wander off <small>⚡1</small></a><?php endif; ?>
+    <?php if (empty($exp['encounter']) && (string)($trailSc['st']['phase'] ?? '') === 'section'): /* Walk to the way on: the stretch's own tile walk, so fights and tolls still stop it */ ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_walkon"><button class="btn alt trailwalkon">🚶 Walk to the way on <small>free</small></button></form><?php endif; ?>
     <?php $stance = (string)($trailSc['st']['stance'] ?? ''); foreach (empty($exp['encounter']) ? ['sneak' => '🤫 Sneak', 'hunt' => '🏹 Hunt'] : [] as $sm => $sl): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stance"><input type="hidden" name="mode" value="<?= $sm ?>"><button class="btn<?= $stance === $sm ? '' : ' alt' ?>" aria-pressed="<?= $stance === $sm ? 'true' : 'false' ?>"><?= $sl ?></button></form><?php endforeach; ?>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>
   </div>

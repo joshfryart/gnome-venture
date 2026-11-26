@@ -378,6 +378,8 @@
       });
       var auto = root.querySelector('#pfv-auto');
       if (auto) auto.addEventListener('change', function () { var fm = auto.closest('form'); if (fm) send(fm); });
+      var quick = root.querySelector('#pfv-quick');
+      if (quick) quick.addEventListener('change', function () { var fm = quick.closest('form'); if (fm) send(fm); });
     });
   }
   if (window.__pfvOff) window.__pfvOff();

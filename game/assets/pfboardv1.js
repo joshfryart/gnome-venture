@@ -674,6 +674,19 @@
     var li = document.createElement('li'); li.className = 'pf-plan-aim'; li.textContent = '\uD83C\uDFAF ' + txt; planEl.appendChild(li); planEl.classList.add('pf-hasaim');
     if (why) { var lw = document.createElement('li'); lw.textContent = why; planEl.appendChild(lw); }   // the reasons show when the plan line is opened
   }
+  // ---- quick turns (opt-in player setting, data.quick): End turn fires by itself ~0.7 s after a piece is placed. Undo (or any new pick) inside that window cancels it; it never fires with a choice open, a cost warning pending, a rewind, the opening, or a won fight.
+  var quickT = null, quickFor = null;
+  function quickStop() { if (quickT) { clearTimeout(quickT); quickT = null; } quickFor = null; }
+  function quickArm(busy) {
+    var m = moves[0];
+    var ok = data.quick && !busy && !data.start && !data.won && !redrawMode && !rewind && !playing && !submitted && moves.length === 1 && m && (m.k === 'p' || m.k === 'c')
+      && selected === null && (!optsEl || optsEl.hidden) && go && !go.disabled && go.getAttribute('form') !== 'pf-pform' && !(COSTW && !costOk && planFree && costPlaced());
+    if (!ok) { quickStop(); return; }
+    if (quickFor === m) { prev.textContent += ' Ending the turn\u2026 tap Undo to change it.'; return; }   // already counting down for this very move
+    quickStop(); quickFor = m;
+    prev.textContent += ' Ending the turn\u2026 tap Undo to change it.';
+    quickT = setTimeout(function () { quickT = null; if (quickFor === m && moves[0] === m && !go.disabled && !playing && !submitted) go.click(); }, 700);
+  }
   function passMode(busy) {   // a free pass: with nothing placed or picked, End turn says Pass and posts the pass form (no second button)
     if (!FREEP || !go) return;
     var pm = !busy && !data.start && !data.won && !redrawMode && !data.held && moves.length === 0 && selected === null;
@@ -1248,6 +1261,7 @@
       : moves.length === 0 ? (fits ? (!anyFits() ? 'No piece fits this way up. Pick one and Flip it.' : MUSTL && !mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? (data.opened ? 'The creature opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') + '. ' : '') + (ONE ? 'Hurt and Charm both fill the ' + YIELD + ' bar; when it is full the fight ends.' : 'Hurt empties its health, Charm fills the bar.') : 'Pick a piece, then a lit spot. One piece a turn.' + (FREEP ? ' Or tap Pass.' : '')) : (FREEP ? 'No piece fits. Tap Pass to skip your turn.' : 'No piece fits. Tap End turn to pass.'))
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : costPlaced() || 'Placed. End turn when ready.';
+    quickArm(busy);
     prev.classList.toggle('pfv-costwarn', !!costPlaced());
     prev.title = prev.textContent;
     if (rewind) { var rc = boardEl.querySelector('.pfb-cell[data-id="' + rewind.id + '"]'); if (rc) rc.classList.add('pfb-scoring'); }

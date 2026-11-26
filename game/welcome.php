@@ -95,7 +95,7 @@ if (!isset($STEPS[$step]) || !in_array($step, $ok, true)) {
 $preview = ['hat_color' => $wf['hat'], 'beard_color' => $wf['beard'], 'gnome_name' => $wf['name'], 'username' => $u['username']];
 $region = $wf['region_id'] ? q_one('SELECT * FROM regions WHERE id = ?', [$wf['region_id']]) : null;
 
-/** Seed chips: "🫛 Soybean ×2" (kept for callers outside the redesigned welcome flow) */
+/** Seed chips for the place and garden steps */
 function seed_chips(array $list): string
 {
     $out = '';
@@ -184,7 +184,7 @@ page_header('Welcome to the Hollow');
     }
     $ids = array_map(fn($v) => (int)$v['id'], $cards);
     if (!in_array($default, $ids, true) && $ids) $default = $ids[0];
-    $short = 'Lovely to meet you, <b>' . e($wf['name']) . '</b>! Where shall we plant your first garden in the <b>' . e($region['gnomish_name']) . '</b>?';
+    $short = 'Lovely to meet you, <b>' . e($wf['name']) . '</b>! Where shall we plant your first garden in <b>' . e($region['gnomish_name']) . '</b>?';
     $more = '<p>Every gnome’s journey starts here in <b>' . e($region['gnomish_name']) . '</b>. Its villages sit along the mycelium roads between the towns, and the roads here are gentle. '
         . 'Further out, the world gets wilder: each region has a recommended level, and once you’ve walked somewhere you can travel straight back any time.</p>'
         . '<p>The locals send you off with: <span class="chips small">' . seed_chips(home_seed_list((int)$region['id'])) . '</span></p>'; ?>

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/tilemap.php';   // tm_h() / tm_n(): tk_h() and tk_n() delegate to them
-// v1.8.10: the Treks map art. ONE inline SVG for the visible window (colours only from assets/img/ph/palette.json).
+// v1.8.10: the Treks map art. ONE inline SVG for the visible window (colours from the TK_P constants, matching assets/img/ph/palette.json).
 // Open zones: "Hedge Knit, Black Rows" (grey hedge bands that join their neighbours, inset beds). Underground zones: "Root Knot".
 // Every layer is a single <path> per colour (rounded blocks and bars of the same winding, so they merge into one smooth shape).
 // The tile buttons sit on top of it as a transparent grid (see trek_map_html in trek.php).
@@ -79,7 +79,7 @@ function tk_dot(float $cx, float $cy, float $r): string
 /**
  * The SVG backdrop for a window of $cols x $rows tiles from ($x0,$y0).
  * $tokens = [[x, y, icon, ring ('gold'|'ember'), done]]; $walk = ['p' => [[x,y],...], 'd' => [x,y]] or null.
- * Returns the <svg> markup. Each layer is one path; $stats (by reference) counts them.
+ * Returns the <svg> markup. Each layer is one path.
  */
 function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $rows, array $tokens, ?array $walk, string $me = '', string $sfx = ''): string
 {
@@ -87,7 +87,7 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
     $P = TK_P;
     $px = (int)$run['x'];
     $py = (int)$run['y'];
-    // --- what is each tile? '' void (fog / off the map), W wall, C chasm, F floor, M mud, R roots, B blight, = bridge, P pool (mud in the Dew Pools)
+    // --- what is each tile? '' void (fog / off the map), W wall, C chasm, F floor, M mud, R roots, B blight, = bridge, P pool (mud in the Dew Pools), K wet clay, H high water, D drained, L loose clay, G glow crystal
     $kc = [];
     $zc = [];
     $zone = function (int $x, int $y) use (&$zc, $ch): string {

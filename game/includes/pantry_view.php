@@ -150,7 +150,7 @@ echo craft_pop_html($tab, $popAll, $popSlug); ?>
 <div class="pantry2">
 <div class="p2head">
   <h2 class="p2title" id="shelves">🫙 Pantry <small><?= count($jarsList) ?> jars in use · <?= $jarLimit ?> in each room</small></h2>
-  <details class="helpfold p2help"><summary>❓ How the Pantry works</summary><p class="help">One jar holds one batch, and every kind (jam, chutney, pickles, ferments, cordials) has its own room of jars, so a full jam room never stops a pickle. Timers run in real days, even while you are away, and nothing spoils. Jam takes 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14. A recipe appears once you’ve collected every ingredient.</p></details>
+  <details class="helpfold p2help"><summary>❓ How the Pantry works</summary><p class="help">One jar holds one batch, and every kind (jam, chutney, pickles, ferments, cordials) has its own room of jars, so a full jam room never stops a pickle. Timers follow your game clock when it is on (counted in sleeps), and nothing spoils. Jam takes 1 sleep, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14. A recipe appears once you’ve collected every ingredient.</p></details>
 </div>
 
 <?php if ($jarLimit > 0): ?>

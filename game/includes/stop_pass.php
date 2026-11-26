@@ -137,7 +137,7 @@ function stop_stamp(int $uid, array $loc): array
     if ($new) {
         $msgs[] = '🛂 New stamp for your passport!';
         foreach (stop_sets_check($uid) as $m) $msgs[] = $m;
-        if (function_exists('calling_event')) calling_event($uid, 'page', 'stop:' . $loc['slug'], 1);
+        calling_event($uid, 'page', 'stop:' . $loc['slug'], 1);
     }
     return [$new, $msgs];
 }

@@ -75,7 +75,7 @@ function stext(string $key): string
     if (!str_contains($s, '{')) return $s;
     $vars ??= [
         '{site}' => (string)setting('site_name'),
-        '{start_region}' => (string)(q_val('SELECT gnomish_name FROM regions WHERE id = ?', [function_exists('start_region_id') ? start_region_id() : 0]) ?: 'the first region'),
+        '{start_region}' => (string)(q_val('SELECT gnomish_name FROM regions WHERE id = ?', [start_region_id()]) ?: 'the first region'),
         '{energy_minutes}' => rtrim(rtrim(number_format(energy_tick()[1] / 60, 1), '0'), '.'),
         '{energy_rate}' => energy_rate_text(),   // v0.9.0
         '{native}' => (string)(int)setting('native_bonus_percent'),

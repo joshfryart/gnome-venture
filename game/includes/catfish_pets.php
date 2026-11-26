@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Cat Fish pet shops (2.2.x, unreleased): 11 shops in regions 4 and up, 55 Petal-bought room things, 8 scene slots. Design: claude/plan-catfish-petshops.md.
+ * Cat Fish pet shops (v2.2.x): 11 shops in regions 4 and up, 55 Petal-bought room things, 8 scene slots. Design: claude/plan-catfish-petshops.md.
  * Data (no logic) lives in data/catfish_pets.php. Every name here starts catfish_pet_ or petshop_. Loaded by includes/catfish.php (the Kibble, away, rare fish, Catnip, Cat Show and play hooks call
  * catfish_pet_bonus()), so everything below runs only when a function is called: nothing happens on load but the data constants.
  *

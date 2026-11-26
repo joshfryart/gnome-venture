@@ -31,7 +31,7 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect(pfcx_url(in_array($cz, ['small', 'medium', 'large', 'boss'], true) ? $cz : 'all', $cs));
     }
-    if (str_starts_with($do, 'pfd_') && pfight_v1_on($u)) {   // 2.6.74, v1 deck model (admin setting pfight_v1): starter, switch a piece, belt, auto-use, fix a tool (includes/pfdeck.php, pfd_post). The page for them is the UI stage
+    if (str_starts_with($do, 'pfd_') && pfight_v1_on($u)) {   // 2.6.74, while pfight_v1 is on (default for everyone): starter, switch a piece, belt, auto-use, fix a tool (includes/pfdeck.php, pfd_post). The page for them is the UI stage
         require_once __DIR__ . '/includes/pfdeck.php';
         require_once __DIR__ . '/includes/pfdeck_view.php';
         [$ok, $msg] = pfv_post($u, $do, $_POST);   // stage C: pfd_post plus the carry-over of an old box when the starter is packed
@@ -50,7 +50,7 @@ if (is_post()) {
     redirect('puzzlebox.php');
 }
 
-if (($_GET['pfd'] ?? '') === 'json' && pfight_v1_on($u)) {   // 2.6.74 debug helper (v1 deck model, admins while pfight_v1 = admin): the whole deck as JSON, for the UI stage and the tests
+if (($_GET['pfd'] ?? '') === 'json' && pfight_v1_on($u)) {   // 2.6.74 debug helper (while pfight_v1 is on (default for everyone)): the whole deck as JSON, for the UI stage and the tests
     require_once __DIR__ . '/includes/pfdeck.php';
     header('Content-Type: application/json'); header('Cache-Control: no-store');
     echo json_encode(pfd_deck($u) + ['wear' => pfd_wear($u)], JSON_UNESCAPED_UNICODE);

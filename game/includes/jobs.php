@@ -2,12 +2,12 @@
 declare(strict_types=1);
 /**
  * The Job Board (v0.7.8). Daily, weekly and monthly jobs from NPCs.
- * - Each player sees 5 daily, 5 weekly and 3 monthly offers, picked by a seeded random per player and period,
+ * - Each player sees 3 daily, 3 weekly and 2 monthly offers, picked by a seeded random per player and period,
  *   so offers are never stored. Taking one copies it into user_jobs.
  * - One job per period at a time; once a period's job is finished, the next comes after the reset.
  * - Progress comes from job_event() calls in the game (harvest, water, gather, cook, craft, defeat, grade);
  *   delivery jobs are handed in on the board.
- * - Player-posted jobs (v0.7.9) will share the same table and slots.
+ * - Player-posted jobs share the same table and slots.
  */
 
 require_once __DIR__ . '/player_jobs.php';

@@ -12,7 +12,7 @@ $u = require_login();
 // A link to another gnome's page goes to their public profile: other players only ever see the gnome part, never your Today.
 if (isset($_GET['id']) && (int)$_GET['id'] !== (int)$u['id']) redirect('profile.php?id=' . (int)$_GET['id']);
 
-/* Next version: Today and My Gnome are one home page. Two tabs under a shared header: TODAY (the default: news, the cards, the Hollow line)
+/* Slim home (home_slim flag, default off): Today and My Gnome are one home page. Two tabs under a shared header: TODAY (the default: news, the cards, the Hollow line)
    and MY GNOME (level, health, pals along, and tiles to the sub-pages Stats, Calling, Pals, Foods, Villagers, Gardens, which keep their old
    ?tab= addresses and get a back link). Every tab is a plain link (?tab=), so it works without script; in-place loads via AJAX_PAGES. */
 $palsOn = ppal_open() && !is_guest($u);

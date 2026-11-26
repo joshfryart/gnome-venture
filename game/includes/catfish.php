@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * A cat is ONE integer seed; every trait comes from a seeded RNG, so a cat is never stored beyond (user_id, seed, name).
  * The shelter shows 3 cats a day per gnome: seed = crc32(user_id|date|slot), re-derived on the server at adoption time.
- * Kibble is earned on the server clock only (catfish_tick): 100% while the page is polling, 50% when away, capped at CATFISH_OFFLINE_CAP seconds.
+ * Kibble is earned on the server clock only (catfish_tick): 100% while the page is polling, 50% when away, capped by catfish_offline_cap() (8 h base plus upgrades).
  */
 
 const CATFISH_BASE_KPH = 600;           // kibble per hour with nothing bought
@@ -341,7 +341,8 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
 function catfish_scene_key(array $cats, ?array $active, array $owned, array $pets = []): string
 {
     return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active)) . '|' . catfish_rod_classes($owned)
-        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats)) . (catfish_pet_key($pets) !== '' ? '|' . catfish_pet_key($pets) : '')), 0, 12);
+        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats)) . (catfish_pet_key($pets) !== '' ? '|' . catfish_pet_key($pets) : '')
+        . (catfish_room2_on() ? '|r2:' . implode(',', array_keys(array_filter($owned, fn($n) => (int)$n > 0))) : '')), 0, 12);   // room2 draws every owned upgrade from its own art, so the key must not hang on the old cf-room-*.png overlays
 }
 
 /**

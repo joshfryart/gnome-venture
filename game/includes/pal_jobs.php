@@ -342,14 +342,6 @@ function pj_pack_words(array $pack): string
     return implode(', ', $o);
 }
 
-/** Take n potions out of the satchel for a job. False = not enough. */
-function pj_take_potions(int $uid, int $n): bool
-{
-    if ($n <= 0) return true;
-    $id = pj_potion_id();
-    return $id > 0 && give_item($uid, $id, -$n);
-}
-
 // ---------------- garden duty ----------------
 
 /** v2.3.3: every pal waters, weeds and harvests from Gardening 1. Level shows in pj_garden_step (more visits) and pj_garden_extra_pct (extra crops). */
@@ -554,7 +546,7 @@ function pj_tools(int $uid): array
 
 /**
  * Roll a whole trip now. Returns ['rounds' => done, 'items' => [[item_id, qty, name]...], 'hp' => left, 'potions_used' => n, 'fainted' => bool, 'log' => [lines]].
- * Each round (30 minutes of the trip): a danger roll, then a find roll. Rare finds need Adventuring 5. A hurt pal drinks a potion at 40% HP; 0 HP ends the trip.
+ * Each round (30 minutes of the trip): a danger roll, then a find roll. Rare find odds grow with Adventuring. A hurt pal drinks a potion at 40% HP; 0 HP ends the trip.
  */
 function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hours, int|array $potions, string $seed, int $luckBonus = 0): array
 {
@@ -662,7 +654,7 @@ function pj_station_object(string $area, string $obj): ?array
     return null;
 }
 
-/** Every station (area + object) with its label, for the board: [ 'cooking:stove' => ['Cooking', 'Stove'], ... ]. Pantry is later; Potions have no building so are included. */
+/** Every station (area + object) with its label, for the board: [ 'cooking:stove' => ['Cooking', 'Stove'], ... ]. Potions have no building so are included. */
 function pj_station_list(): array
 {
     require_once __DIR__ . '/craft_map.php';
@@ -702,7 +694,7 @@ function pj_pantry_send(array $u, string $palUid, int $hours, bool $unequip): ar
     return [true, $p['name'] . ' takes over the Pantry ' . ($full ? 'full time' : 'for ' . $hours . ' h') . ': it fills free jars from your satchel (new preserves first) and collects the ready ones, every game morning at 6am (whether or not you sleep).'];
 }
 
-/** 2.7.xx: a pal tending the Pantry checks the jars whenever you look at them (the Pantry page, the craft map, the Kitchen card), not only on the Jobs page: collect what is ready, refill what is free. */
+/** A pal tending the Pantry checks the jars whenever you look at them (the Pantry page, the craft map, the Kitchen card), not only on the Jobs page: collect what is ready, refill what is free. */
 function pj_settle_pantry(int $uid): void
 {
     static $done = [];
@@ -810,7 +802,7 @@ function pj_station_recipes(int $uid, string $area, array $globs): array
 /**
  * Man a station: the pal works for $hours and makes what its object makes (mode 'all') or the chosen known recipes (up to 5), one make per
  * pj_station_minutes(). No energy is spent. Ingredients are taken NOW (one ledger, so recipes that share an item cannot both spend it); the output is
- * fixed now and arrives when the shift is collected. Cooking holds one of your pots. Pantry is not included yet.
+ * fixed now and arrives when the shift is collected. Cooking holds one of your pots.
  */
 function pj_station_send(array $u, string $palUid, string $area, string $obj, string $mode, array $recipeIds, int $hours, bool $unequip = false, int $keep = 0): array
 {

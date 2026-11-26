@@ -56,7 +56,7 @@ function fair_prev_month(): string
 /**
  * Quality score 0–100 for one harvest. Called with the tile as it was BEFORE harvest.
  *   base     = 0.35 × fertility + 0.25 × the crop's own nutrient + 0.20 × soil life   (0–80; nutrient 50 if the crop has none)
- *   grade    = soil grade points: the no-till grade index, 0 (F) to 10 (S); tilled: 0.6 per soil care star (0–10)
+ *   grade    = soil grade points: the no-till grade index, 0 (F) to 10 (S); tilled: 0.6 per soil care star (0–3)
  *   native   = +5 if the crop is native to this region                                (0 or 5)
  *   luck     = 1 point per Luck modifier, up to 4                                     (0–4)
  *   wobble   = random −3 to +3

@@ -40,13 +40,14 @@ function page_header(string $title, bool $admin = false): void
         if (!is_post() && !tour_active($u)) maybe_random_event($u);   // rare little surprises (v0.7.19)
         $eventHtml = event_box_html();
     }
-    if (!$admin && $tourStep > 0 && isset(TOUR_PAGES[$page]) && !($page === 'gnome.php' && !empty($GLOBALS['gv_today_page']))) {   // next version: the home page's TODAY tab is not "meeting your gnome"; its MY GNOME tab is
+    if (!$admin && $tourStep > 0 && isset(TOUR_PAGES[$page]) && !($page === 'gnome.php' && !empty($GLOBALS['gv_today_page']))) {   // the home page's TODAY tab is not "meeting your gnome"; its MY GNOME tab is
         $before = $tourStep;
         $tourStep = tour_event((int)$u['id'], TOUR_PAGES[$page]);
         if ($tourStep !== $before) $tourArrived = $before;   // v2.4.97: the visit step this page just finished: its words show in the bubble
         foreach (tour_messages() as $m) flash($m);
     }
     $tourAsk = $u ? (int)($u['tour_ask'] ?? 0) : 0;
+    if (!$admin && !$onboarding && $tourStep > 0 && $tourAsk === 0) $tourStep = tour_settle((int)$u['id'], $tourStep);   // the sleep step never dead-ends (clock off, or already slept)
     if ($tourStep > 0 && $tourAsk === 2 && empty($_SESSION['tour_later']) && !$admin) {   // v2.4.97: said "later" in an earlier login: ask again
         q('UPDATE users SET tour_ask = 1 WHERE id = ? AND tour_ask = 2', [$u['id']]);
         $tourAsk = 1;
@@ -134,7 +135,7 @@ function page_header(string $title, bool $admin = false): void
     <div class="userbar">
 <?php if (!$admin && !$onboarding): [$hdrE, $hdrMax] = current_energy($u); ?>
 <?php if (gclock_on() && empty($GLOBALS['gv_home_slim'])): $hs = gclock_state($u);   /* slim home: the time is on the banner's tag */ $ht = sprintf('%02d:%02d', intdiv($hs['minute'], 60) % 24, $hs['minute'] % 60); ?>
-      <a class="hdr-pill hdr-clock<?= $hs['tired'] ? ' tired' : '' ?>" href="<?= e(url(home_slim_menu() ? 'gnome.php' : 'hovel.php')) ?>" title="Game clock: day <?= (int)$hs['day'] ?>, <?= e($ht) ?>. Tap to rest."><span aria-hidden="true">🕐</span> <b><?= e($ht) ?></b> <small>day <?= (int)$hs['day'] ?></small></a>
+      <a class="hdr-pill hdr-clock<?= $hs['tired'] ? ' tired' : '' ?>" href="<?= e(url(home_slim_menu() ? 'gnome.php' : 'hovel.php')) ?>" title="Game clock: day <?= gclock_day_no($hs) ?>, <?= e($ht) ?>. Tap to rest."><span aria-hidden="true">🕐</span> <b><?= e($ht) ?></b> <small>day <?= gclock_day_no($hs) ?></small></a>
 <?php endif; ?>
       <span class="hdr-pill hdr-energy<?= (int)$hdrE <= 0 ? ' empty' : '' ?>" role="img" title="<?= e(energy_line($u)) ?>" aria-label="Energy <?= $hdrE ?> of <?= $hdrMax ?>">⚡ <?= $hdrE ?>/<?= $hdrMax ?></span>
       <span class="hdr-pill hdr-coins" role="img" aria-label="<?= e(money((int)$u['coins'])) ?>">🪙 <?= number_format((int)$u['coins']) ?></span>
@@ -584,7 +585,7 @@ function nav_sheet(array $u, string $page): string
         . '<button type="button" class="navx" aria-label="Close the menu">✕</button></div>'
         . '<div class="navrow"><p class="navstatus' . ($ds ? '' : ' nodest') . '"><span class="navpetals">' . money((int)$u['coins']) . ($ds ? ' · ' : '') . '</span>'   // v2.4.91: Petals hidden from 721px (the header pill shows them)
         . ($ds ? '🏁 ' . e(dest_name($uid, $ds[0])) . ', ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') : '') . '</p>'
-        . '<a class="navhome' . ($page === 'gnome.php' ? ' on" aria-current="page' : '') . '" href="' . e(url('gnome.php')) . '"><span class="nti">' . (!empty($slimNav) ? nav_icon('hovel', '🛏️', 20) : nav_icon('today', '🏠', 20)) . '</span> ' . (!empty($slimNav) ? 'Hovel' : 'Home') . '</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to it   // v1.0.0.1: one row on a phone   // next version: the one menu entry for the home page (Today + My Gnome); the My Gnome tile is gone
+        . '<a class="navhome' . ($page === 'gnome.php' ? ' on" aria-current="page' : '') . '" href="' . e(url('gnome.php')) . '"><span class="nti">' . (!empty($slimNav) ? nav_icon('hovel', '🛏️', 20) : nav_icon('today', '🏠', 20)) . '</span> ' . (!empty($slimNav) ? 'Hovel' : 'Home') . '</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to it   // v1.0.0.1: one row on a phone   // the one menu entry for the home page (Today + My Gnome); the My Gnome tile is gone
     foreach ($groups as $name => $tiles) {
         // menu icons: the groups stay open on every screen (no folding any more)
         $tl = '';
@@ -654,7 +655,7 @@ function nav_groups(array $u, string $page): array
         if (pfight_on($u) && pfight_v1_on($u) && !is_guest($u)) $groups['Hobbies'][] = ['puzzlebox.php', '🧩', 'Puzzle box', '', 'puzzlebox'];   // 2.6.75: under Hobbies
     }
     if (!is_guest($u)) { try { require_once __DIR__ . '/wearables.php'; if (wear_live($u) && tailor_has($uid)) $groups['You'][] = ['tailor.php', '🧵', 'Tailor', '', 'tailor']; } catch (Throwable $e) {} }   // 2.7.00: the Tailor's page once a Tailor is built in one of your gardens
-    require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
+    require_once __DIR__ . '/gourmand.php';   // a Gourmand tile once he is open (admins always)
     if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
     if (gclock_on() && !home_slim_menu()) array_splice($groups['You'], 0, 0, [['hovel.php', '🛏️', 'Hovel', '', 'hovel']]);   // sleep-days: the Rest page (sleep, nap, inn) is a menu tile (slim home: the Home entry is the hovel)
     if (tour_active($u) && (int)$u['level'] < 5) array_unshift($groups['You'], ['welcome.php', '🌱', 'Getting started', '', 'start']);   // v1.7.0 menu: only while the tour runs and below level 5
@@ -673,7 +674,7 @@ function right_rail(array $u): string
     require_once __DIR__ . '/crafting.php';
     $uid = (int)$u['id'];
     $onToday = !empty($GLOBALS['gv_today_page']) || !empty($GLOBALS['gv_home_slim']);   // slim home: the banner tag has the weather, the Gnome tab the boosts   // v1.9.2: the Today page already shows weather, boosts and jobs, so its rail keeps only Messages, Market and Pots
-    // next version: no "Go to Today" box any more (Today is the home page: the logo and the menu's Home go there)
+    // no "Go to Today" box any more (Today is the home page: the logo and the menu's Home go there)
     $h = '<aside class="rail" aria-label="Right now"><div class="railsrv">' . ($onToday ? '' : hollow_rail_section(hollow_user_region($u))) . market_rail_section();   // v1.0.0 (+ wave 2b: market)
     $pots = cook_pots_list($uid);
     if ($pots) {

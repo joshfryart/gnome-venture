@@ -71,7 +71,7 @@ q('UPDATE users SET game_day = 10, game_minute = 360, energy = 5 WHERE id = ?', 
 $before = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant['produce_item_id']]);
 ok('the sleep ran', game_sleep($uid) !== null);
 $t = fn(int $id) => q_one('SELECT * FROM plot_tiles WHERE id = ?', [$id]);
-ok('dry bed: watered for the day that ended (water_day 10)', (string)$t($tDry)['water_day'] === '10', json_encode($t($tDry)));
+ok('dry bed: watered for the new day, in the morning (water_day 11, not thirsty today)', (string)$t($tDry)['water_day'] === '11' && !tile_info(annotate_tile($t($tDry), $plant), $plant)['thirsty'], json_encode($t($tDry)));
 ok('pests: picked off', $t($tPest)['pest'] === null || $t($tPest)['pest'] === '');
 ok('weeds: pulled', (int)$t($tWeed)['weeds'] === 0);
 $after = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant['produce_item_id']]);
@@ -161,7 +161,7 @@ $dayBefore = (int)urow($uid)['game_day'];
 game_sleep($uid);
 $D = $dayBefore + 1;
 ok('bed A got its own seed back', (int)$t($tA)['plant_id'] === (int)$plant['id'], json_encode($t($tA)));
-ok('growth starts on the day that ended; no Water pal, so not watered', (int)$t($tA)['grow_day'] === $D - 1 && ($t($tA)['water_day'] === null || $t($tA)['water_day'] === ''), json_encode($t($tA)));
+ok('growth starts on the new day (like a bed planted by hand that morning); no Water pal, so not watered', (int)$t($tA)['grow_day'] === $D && ($t($tA)['water_day'] === null || $t($tA)['water_day'] === ''), json_encode($t($tA)));
 ok('the remembered seed ran out: bed D falls back to the ticked seed', (int)$t($tD)['plant_id'] === (int)$plant2['id'], json_encode($t($tD)));
 ok('bed B (no memory) uses the ticked seed too', (int)$t($tB)['plant_id'] === (int)$plant2['id']);
 ok('hands-off bed C stays empty', empty($t($tC)['plant_id']));
@@ -248,6 +248,142 @@ q('UPDATE plot_tiles SET plant_id = NULL WHERE id = ?', [$hB]); q('DELETE FROM g
 game_sleep($uid);
 $pr = array_values(array_filter((pcrew_latest_report($uid)[1]['crew'] ?? []), fn($c) => $c['role'] === 'plant'))[0] ?? [];
 ok('no memory, nothing ticked: the report tells you to tick seeds', str_contains((string)($pr['warn'] ?? ''), 'tick'), json_encode($pr));
+
+echo "== the crew works the MORNING for that day: nothing left to do after a sleep (Josh 2026-11-26)\n";
+require_once APP_ROOT . '/includes/dock.php';
+q('DELETE FROM garden_pal_slots WHERE plot_id = ?', [$plot]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM garden_pal_rest WHERE user_id = ?', [$uid]);
+q('DELETE FROM garden_pal_memory WHERE tile_id IN (' . implode(',', $tiles) . ')');
+q('UPDATE users SET active_plot_id = ? WHERE id = ?', [$plot, $uid]);
+$crop3 = q_one("SELECT * FROM plants WHERE grow_minutes > 60 AND grow_minutes <= 120 AND kind NOT IN ('cover','flower') AND (perennial IS NULL OR perennial = 0) AND produce_item_id IS NOT NULL ORDER BY id LIMIT 1");
+q('UPDATE plants SET seasons = NULL WHERE id = ?', [$crop3['id']]);
+$need3 = (int)$crop3['grow_minutes'] * 60; $share3 = intdiv($need3, gclock_grow_sleeps($crop3));
+$X = (int)urow($uid)['game_day'];
+$setBeds = function () use ($tiles, $crop3, $need3, $share3, $X) {   // ripe now; one share short and watered by hand today; one share short and dry; fresh and dry
+    foreach ([$need3, $need3 - $share3, $need3 - $share3, 0] as $i => $g)
+        q('UPDATE plot_tiles SET tilled = 1, method = ?, plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, grow_day = ?, owed_days = 0, water_day = ?, last_watered = NULL, pest = NULL, pest_at = NULL, weeds = 0, nipped = 0 WHERE id = ?',
+            ['till', $crop3['id'], now(), $g, now(), $X, $i === 1 ? $X : null, $tiles[$i]]);
+};
+$nag = function () use ($uid, $tiles, $crop3): array {   // what the garden still asks for: [ripe (Today list), ripe (settled, like the garden page), thirsty, dock badge]
+    gclock_plot_day(0, true);
+    $ripe = 0; $thirsty = 0;
+    foreach ($tiles as $id) {
+        $raw = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$id]);
+        if (!$raw['plant_id']) continue;
+        $ti = tile_info(gclock_tile_grow(annotate_tile($raw, $crop3), $crop3), $crop3);
+        $ripe += $ti['ready'] ? 1 : 0; $thirsty += $ti['thirsty'] ? 1 : 0;
+    }
+    $todayRipe = (bool)array_filter(today_data(urow($uid))['need'], fn($n) => str_contains($n[1], 'ripe'));
+    return [$todayRipe, $ripe, $thirsty, dock_garden_ready(urow($uid))];
+};
+$crops = fn() => (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $crop3['produce_item_id']]);
+// no crew: a sleep leaves the beds exactly as they were (the player does the work)
+$setBeds();
+$rows0 = q('SELECT id, plant_id, growth_seconds, grow_day, water_day, owed_days FROM plot_tiles WHERE id IN (' . implode(',', $tiles) . ') ORDER BY id')->fetchAll();
+$c0 = $crops();
+game_sleep($uid);
+$rows1 = q('SELECT id, plant_id, growth_seconds, grow_day, water_day, owed_days FROM plot_tiles WHERE id IN (' . implode(',', $tiles) . ') ORDER BY id')->fetchAll();
+ok('no crew: the sleep does not touch the beds or pick anything', $rows0 == $rows1 && $crops() === $c0, json_encode([$rows0, $rows1]));
+[$tr, $rp] = $nag();
+ok('no crew: the ripe crop still waits for the player (Today lists it)', $tr && $rp >= 1, json_encode($nag()));
+// Water + Harvest crew: after every sleep nothing is ripe and nothing is thirsty
+$X = (int)urow($uid)['game_day']; $setBeds();
+$u = urow($uid);
+pcrew_assign($u, $plot, 'water', $p0, 'full', 0); pcrew_assign($u, $plot, 'harvest', $p1, 'full', 0);
+$c0 = $crops(); $picked = 0; $clean = true; $seen = [];
+for ($i = 1; $i <= 4; $i++) {
+    $ready = [];
+    foreach ($tiles as $id) { $raw = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$id]); if ($raw['plant_id']) $ready[$id] = annotate_tile($raw, $crop3); }
+    game_sleep($uid);
+    $picked += (int)(array_values(array_filter(pcrew_latest_report($uid)[1]['crew'] ?? [], fn($c) => $c['role'] === 'harvest'))[0]['n'] ?? 0);
+    $seen[$i] = $nag();
+    if ($seen[$i] !== [false, 0, 0, 0]) $clean = false;
+    foreach ($ready as $id => $old) if (!q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$id])) {   // the crew picked it: the player cannot pick it again
+        $again = 'paid again';
+        try { db()->beginTransaction(); do_harvest(urow($uid), $old, $crop3); db()->commit(); } catch (Throwable $e) { if (db()->inTransaction()) db()->rollBack(); $again = 'refused'; }
+        ok("sleep $i: a bed the crew picked cannot be harvested a second time", $again === 'refused');
+    }
+}
+ok('after every sleep: nothing ripe (Today, garden, dock badge) and nothing thirsty', $clean, json_encode($seen));
+ok('the crew picked the ripe crop and the ones that ripened later (' . $picked . ' crops)', $picked >= 3, (string)$picked);
+$got = $crops() - $c0;
+ok('paid once: produce matches the crops picked', $got >= $picked * (int)$crop3['yield_min'] && $got <= $picked * ((int)$crop3['yield_max'] + 4), "$picked picked, +$got");
+q('DELETE FROM garden_pal_slots WHERE plot_id = ?', [$plot]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM garden_pal_rest WHERE user_id = ?', [$uid]);
+
+echo "== weeds and pests on the same bed: both are done in one pass\n";
+$u = urow($uid);
+pcrew_assign($u, $plot, 'weed', $p2, 'full', 0); pcrew_assign($u, $plot, 'pests', $P[3]['uid'], 'full', 0);
+q("UPDATE plot_tiles SET plant_id = ?, growth_seconds = 0, method = 'notill', weeds = 6, pest = 'aphids', pest_at = ? WHERE id = ?", [$crop3['id'], now(), $tiles[0]]);
+game_sleep($uid);
+$tw = q_one('SELECT weeds, pest FROM plot_tiles WHERE id = ?', [$tiles[0]]);
+ok('a bed with pests and weeds: pests picked AND weeds pulled the same night', (int)$tw['weeds'] === 0 && empty($tw['pest']), json_encode($tw));
+q('DELETE FROM garden_pal_slots WHERE plot_id = ?', [$plot]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM garden_pal_rest WHERE user_id = ?', [$uid]);
+
+echo "== staying up past 06:00: the crew works that morning without a sleep, once (Josh 2026-11-26)\n";
+$crewHome = function () use ($plot, $uid) { q('DELETE FROM garden_pal_slots WHERE plot_id = ?', [$plot]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM garden_pal_rest WHERE user_id = ?', [$uid]); };
+$crewHome();
+$setBedsAt = function (int $X) use ($tiles, $crop3, $need3) {   // ripe now; a minute short and watered on X (ripe once day X counts); a minute short and dry; fresh and dry
+    foreach ([$need3, $need3 - 60, $need3 - 60, 0] as $i => $g)
+        q('UPDATE plot_tiles SET tilled = 1, method = ?, plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, grow_day = ?, owed_days = 0, water_day = ?, last_watered = NULL, pest = NULL, pest_at = NULL, weeds = 0, nipped = 0 WHERE id = ?',
+            ['till', $crop3['id'], now(), $g, now(), $X, $i === 1 ? $X : null, $tiles[$i]]);
+};
+$X = (int)urow($uid)['game_day'];
+q('UPDATE users SET game_minute = 600, crew_morning = ? WHERE id = ?', [$X, $uid]);   // 10:00 on day X; this morning's pass is done
+$setBedsAt($X);   // [ripe, one share short + watered on X, one share short + dry, fresh + dry]
+$u = urow($uid);
+pcrew_assign($u, $plot, 'water', $p0, 'full', 0); pcrew_assign($u, $plot, 'harvest', $p1, 'full', 0); pcrew_assign($u, $plot, 'pests', $p2, 'timed', 3);
+$c0 = $crops();
+q('UPDATE users SET game_minute = 1799 WHERE id = ?', [$uid]);   // 05:59 of the next morning, still up
+ok('stay-up: before 06:00 no crew pass', gclock_crew_mornings(urow($uid)) === false && $crops() === $c0);
+q('UPDATE users SET game_minute = 1830 WHERE id = ?', [$uid]);   // 06:30 of morning X+1, no sleep
+$run1 = gclock_crew_mornings(urow($uid)); $run2 = gclock_crew_mornings(urow($uid));   // two page loads in the same morning
+ok('stay-up past 06:00: the crew works once (second page load does nothing)', $run1 === true && $run2 === false, json_encode([$run1, $run2]));
+ok('stay-up: the gnome\'s own day has not moved (no sleep)', (int)urow($uid)['game_day'] === $X && (int)urow($uid)['crew_morning'] === $X + 1);
+$rep = pcrew_latest_report($uid);
+$hv = array_values(array_filter($rep[1]['crew'] ?? [], fn($c) => $c['role'] === 'harvest'))[0] ?? [];
+ok('stay-up: report saved for morning X+1; Harvest pal picked the ripe crop and the one watered yesterday (2)', $rep && $rep[0] === $X + 1 && (int)($hv['n'] ?? 0) === 2, json_encode($rep));
+$paid1 = $crops() - $c0;
+ok('stay-up: the picked crops are in the satchel', $paid1 >= 2 * (int)$crop3['yield_min'], (string)$paid1);
+ok('stay-up: Water pal watered the two beds still growing for X+1', (int)$t($tiles[2])['water_day'] === $X + 1 && (int)$t($tiles[3])['water_day'] === $X + 1, json_encode([$t($tiles[2]), $t($tiles[3])]));
+load_plot($uid);   // the garden page looks (and saves growth) before the sleep: it must not wind the beds back a day
+$g2 = (int)$t($tiles[2])['growth_seconds']; $g3 = (int)$t($tiles[3])['growth_seconds'];
+ok('stay-up: a look at the garden keeps the crew\'s day (grow_day X+1)', (int)$t($tiles[2])['grow_day'] === $X + 1 && (int)$t($tiles[3])['grow_day'] === $X + 1, json_encode([$t($tiles[2]), $t($tiles[3])]));
+ok('stay-up: nothing left to do (Today, garden, thirsty, dock badge)', $nag() === [false, 0, 0, 0], json_encode($nag()));
+q('UPDATE plot_tiles SET water_day = ' . GCLOCK_WATER_DAY_SQL . ' WHERE id = ?', [$tiles[2]]);   // a rain event or a hand watering now
+ok('stay-up: a watering at game day X does not lower the crew\'s water_day X+1', (int)$t($tiles[2])['water_day'] === $X + 1);
+$sl = pcrew_slots($plot);
+ok('stay-up: one morning counted on each slot (timed 3 at 1)', (int)$sl['water']['done'] === 1 && (int)$sl['harvest']['done'] === 1 && (int)$sl['pests']['done'] === 1, json_encode($sl));
+// the sleep after: lands on the same 06:00, so no second pass
+$c1 = $crops();
+game_sleep($uid);
+$sl = pcrew_slots($plot);
+ok('sleep after staying up: day X+1 at 06:00, morning not worked again', (int)urow($uid)['game_day'] === $X + 1 && (int)urow($uid)['crew_morning'] === $X + 1);
+ok('sleep after staying up: no second pay', $crops() === $c1, ($crops() - $c1) . ' more');
+ok('sleep after staying up: no extra morning counted (timed 3 still at 1)', (int)$sl['water']['done'] === 1 && (int)$sl['pests']['done'] === 1, json_encode($sl));
+ok('sleep after staying up: no growth counted twice for day X', (int)$t($tiles[2])['growth_seconds'] === $g2 && (int)$t($tiles[3])['growth_seconds'] === $g3 && (int)$t($tiles[3])['grow_day'] === $X + 1, json_encode([$g2, $g3, $t($tiles[2]), $t($tiles[3])]));
+$rep2 = pcrew_latest_report($uid);
+ok('sleep after staying up: the morning report keeps the crew lines and is marked slept', $rep2[0] === $X + 1 && !empty($rep2[1]['slept']) && count($rep2[1]['crew'] ?? []) === 3, json_encode($rep2));
+ok('sleep after staying up: still nothing to do', $nag() === [false, 0, 0, 0], json_encode($nag()));
+// next sleep: morning X+2 is worked (night 2), then stay up past 06:00 of X+3: night 3 ends the 3-morning job
+game_sleep($uid);
+ok('next sleep: morning X+2 worked (night 2)', (int)pcrew_slots($plot)['pests']['done'] === 2 && (int)urow($uid)['crew_morning'] === $X + 2);
+q('UPDATE users SET game_minute = 1800 WHERE id = ?', [$uid]);
+gclock_crew_mornings(urow($uid));
+ok('timed 3 mornings: the 3rd morning (stayed up) ends the job, the pal is home and resting until the next sleep', !isset(pcrew_slots($plot)['pests']) && pj_pal($uid, $p2)['status'] === 'home' && pcrew_is_resting($uid, $p2, $X + 2) && !pcrew_is_resting($uid, $p2, $X + 3));
+game_sleep($uid);
+ok('timed 3 mornings: the sleep after is not a 4th morning', (int)pcrew_slots($plot)['water']['done'] === 3 && (int)urow($uid)['crew_morning'] === $X + 3, json_encode(pcrew_slots($plot)));
+// no crew: staying up past 06:00 leaves the garden alone
+$crewHome();
+$X = (int)urow($uid)['game_day']; $setBedsAt($X);
+$rows0 = q('SELECT id, plant_id, growth_seconds, grow_day, water_day, owed_days FROM plot_tiles WHERE id IN (' . implode(',', $tiles) . ') ORDER BY id')->fetchAll();
+$c0 = $crops();
+q('UPDATE users SET game_minute = 1830 WHERE id = ?', [$uid]);
+gclock_crew_mornings(urow($uid));
+$rows1 = q('SELECT id, plant_id, growth_seconds, grow_day, water_day, owed_days FROM plot_tiles WHERE id IN (' . implode(',', $tiles) . ') ORDER BY id')->fetchAll();
+ok('no crew: staying up past 06:00 does not touch the beds or pick anything', $rows0 == $rows1 && $crops() === $c0, json_encode([$rows0, $rows1]));
+game_sleep($uid);
+$rows2 = q('SELECT id, plant_id, growth_seconds, grow_day, water_day, owed_days FROM plot_tiles WHERE id IN (' . implode(',', $tiles) . ') ORDER BY id')->fetchAll();
+ok('no crew: nor does the sleep after', $rows0 == $rows2 && $crops() === $c0);
+$crewHome();
 
 echo "== hired helpers retire with a refund\n";
 q("INSERT INTO helpers (name, species, icon, bio, skills, wage, active) VALUES ('Testy', 'mole', '🦔', 'x', 'water,weed,harvest', 20, 1)");

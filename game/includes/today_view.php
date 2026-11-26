@@ -106,6 +106,11 @@ function today_html(array $u, array $c, array $o = []): string
         $cards[] = ['fwcard wbcard', '👋 Welcome back!', 'See what grew while you were away.', 'Open →', 'back.php'];
     } elseif ($slot === 'fw' && ($fw = first_week_today_card($uid))) {
         $nDone = count(array_filter($fw['tasks'], fn($t) => $t[4]));
+        if ($fw['done']) {   // ready: claim it right here, back to this page
+            $slotHtml = '<div class="box tcard fwcard"><h3>🐦 First Week</h3><p>Day ' . (int)$fw['day'] . ': ' . $nDone . ' of ' . count($fw['tasks']) . ' done · <b>🎁 ready!</b></p><span class="tacts">'
+                . '<form method="post" action="' . e(url('firstweek.php')) . '" class="inline">' . csrf_field() . '<input type="hidden" name="day" value="' . (int)$fw['day'] . '"><input type="hidden" name="back" value="' . e(basename((string)($_SERVER['SCRIPT_NAME'] ?? 'gnome.php'))) . '"><button class="btn small gold">🎁 Take the reward</button></form>'
+                . ' <a class="linkbtn" href="' . e(url('firstweek.php')) . '">All the cards →</a></span></div>';
+        } else
         $cards[] = ['fwcard', '🐦 First Week', 'Day ' . (int)$fw['day'] . ': ' . $nDone . ' of ' . count($fw['tasks']) . ' done' . ($fw['done'] ? ' · <b>🎁 ready!</b>' : ''), $fw['done'] ? 'Reward →' : 'All the cards →', 'firstweek.php'];
     } elseif ($slot === 'daily' && ($dc = daily_card($u))) {
         if ($dc['done']) $cards[] = ["dailycard htdaily done", '🌤️ Today', e($dc['closer']), 'Your Almanac →', 'book.php'];

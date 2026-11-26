@@ -609,7 +609,6 @@ function hovel_gnome_lines(array $u, string $hello, ?array $s): array
     return [$hello . '!', $mood];
 }
 
-/** Is the lamp lit? By itself at dusk and at night; ?lamp=on / ?lamp=off is the no-script switch (a look only, nothing is saved). */
 /**
  * True on the first look at the Today room in a game day (per login session), false after: the bed's pulse and the "tap things" hint
  * show once a day, not on every load. No session (CLI) = every look is a first look.
@@ -623,6 +622,7 @@ function hovel_first_look(array $u): bool
     return true;
 }
 
+/** Is the lamp lit? By itself at dusk and at night; ?lamp=on / ?lamp=off is the no-script switch (a look only, nothing is saved). */
 function hovel_lamp_on(string $dp): bool
 {
     $g = (string)($_GET['lamp'] ?? '');

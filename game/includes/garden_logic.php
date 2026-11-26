@@ -656,6 +656,142 @@ function cellar_replant(int $uid, int $cellarId, int $x, int $y): array
 }
 
 /**
+ * The plant a bed grew last (what the Plant pal would put back), 0 if it never grew anything. Reads garden_pal_memory.
+ */
+function garden_bed_memory_plant(int $tileId): int
+{
+    try {
+        require_once __DIR__ . '/pal_crew.php';
+        pcrew_boot();
+        return (int)q_val('SELECT plant_id FROM garden_pal_memory WHERE tile_id = ?', [$tileId]);
+    } catch (Throwable $e) { return 0; }
+}
+
+/** The plant most recently put in the ground in this garden (still growing), 0 if the garden is bare. */
+function garden_last_planted_plant(int $plotId): int
+{
+    return (int)q_val('SELECT plant_id FROM plot_tiles WHERE plot_id = ? AND plant_id IS NOT NULL AND planted_at IS NOT NULL ORDER BY planted_at DESC, id DESC LIMIT 1', [$plotId]);
+}
+
+/**
+ * The seed to have ready for a bed: its own last seed, else the last one planted in the garden, skipping seeds the soil cannot take
+ * ($fertility vs the seed's min_soil) and seeds that are not held. $seeds is the satchel list garden.php builds (id, plant_id, qty, min_soil).
+ * Returns the seed item id, or 0 for "no suggestion".
+ */
+function garden_default_seed(array $seeds, int $plotId, int $tileId = 0, int $fertility = 100): int
+{
+    $cands = [];
+    if ($tileId) $cands[] = garden_bed_memory_plant($tileId);
+    $cands[] = garden_last_planted_plant($plotId);
+    foreach ($cands as $pid) {
+        if ($pid < 1) continue;
+        foreach ($seeds as $s) {
+            if ((int)($s['plant_id'] ?? 0) === $pid && (int)($s['qty'] ?? 0) > 0 && (int)($s['min_soil'] ?? 0) <= $fertility) return (int)$s['id'];
+        }
+    }
+    return 0;
+}
+
+/**
+ * The item (seed, else sapling) this gnome holds for a plant, or 0. For "replant the same crop".
+ */
+function garden_held_seed_for_plant(int $uid, array $plant): int
+{
+    $sid = (int)($plant['seed_item_id'] ?? 0);
+    if ($sid && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $sid]) > 0) return $sid;
+    foreach (q("SELECT i.id, i.effects FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'sapling'", [$uid])->fetchAll() as $it) {
+        if ((int)((json_decode((string)$it['effects'], true) ?: [])['sapling'] ?? 0) === (int)$plant['id']) return (int)$it['id'];
+    }
+    return 0;
+}
+
+/**
+ * Beds "Replant all" would do: empty beds that remember a crop (and can be tilled or planted now). [[tile row, plant row, needsTill], ...]
+ */
+function garden_replant_beds(int $uid, int $plotId): array
+{
+    try {
+        require_once __DIR__ . '/pal_crew.php';
+        pcrew_boot();
+        $rows = q('SELECT t.*, m.plant_id AS mem_plant FROM plot_tiles t JOIN garden_pal_memory m ON m.tile_id = t.id
+                   WHERE t.plot_id = ? AND t.user_id = ? AND t.plant_id IS NULL AND m.plant_id > 0 ORDER BY t.y, t.x', [$plotId, $uid])->fetchAll();
+    } catch (Throwable $e) { return []; }
+    $out = [];
+    $plants = [];
+    foreach ($rows as $r) {
+        $pl = $plants[(int)$r['mem_plant']] ??= q_one('SELECT * FROM plants WHERE id = ?', [(int)$r['mem_plant']]);
+        if (!$pl) continue;
+        if ((int)$r['tilled'] === 1) $need = false;
+        elseif ($r['method'] !== 'notill') $need = true;
+        else continue;   // a no-till bed is never tilled for you
+        $out[] = [$r, $pl, $need];
+    }
+    return $out;
+}
+
+/** The most energy "Replant all" can cost (plant, plus till where a bed needs it), for the button label. */
+function garden_replant_cost(int $uid, array $beds): int
+{
+    $c = 0;
+    foreach ($beds as [, , $need]) $c += action_cost($uid, 'plant') + ($need ? action_cost($uid, 'till') : 0);
+    return $c;
+}
+
+/**
+ * Replant all / Till & replant: each empty bed that remembers a crop is tilled again if it needs it, then planted with the same seed
+ * (the Plant pal's rule, but by hand: the same energy and seed as doing it square by square, through garden_action). Stops politely
+ * when energy or seeds run out. Returns [ok, messages].
+ */
+function garden_replant_all(int $uid): array
+{
+    $plotId = active_plot_id($uid);
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    if (!$u) return [false, ['Nobody to plant.']];
+    refresh_energy($u);
+    $beds = garden_replant_beds($uid, $plotId);
+    if (!$beds) return [false, ['No emptied beds remember a crop to put back.']];
+    $planted = [];   // plant name => count
+    $tilled = 0;
+    $skip = [];      // reason => count
+    $stop = null;
+    foreach ($beds as [$t, $pl, $need]) {
+        $x = (int)$t['x']; $y = (int)$t['y'];
+        $item = garden_held_seed_for_plant($uid, $pl);
+        if (!$item) { $skip['no ' . strtolower($pl['name']) . ' seeds left'] = ($skip['no ' . strtolower($pl['name']) . ' seeds left'] ?? 0) + 1; continue; }
+        if ((int)$t['fertility'] + ($need ? 5 : 0) < (int)$pl['min_soil']) { $skip[$pl['name'] . ' needs richer soil'] = ($skip[$pl['name'] . ' needs richer soil'] ?? 0) + 1; continue; }
+        $cost = action_cost($uid, 'plant') + ($need ? action_cost($uid, 'till') : 0);
+        $have = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
+        if ($have < $cost) { $stop = 'You are too tired to go on (⚡' . $have . ' left). The beds you finished stay finished.'; break; }
+        if ($need) {
+            [$ok, $m] = garden_action($uid, 'till', $x, $y);
+            if (!$ok) {
+                $err = (string)end($m);
+                if (str_contains($err, 'too tired') || str_contains($err, 'tilling tool') || str_contains($err, 'busy')) { $stop = $err; break; }
+                $skip[$err] = ($skip[$err] ?? 0) + 1;
+                continue;
+            }
+            $tilled++;
+        }
+        [$ok, $m] = garden_action($uid, 'plant', $x, $y, $item);
+        if ($ok) { $planted[$pl['name']] = ($planted[$pl['name']] ?? 0) + 1; continue; }
+        $err = (string)end($m);
+        if (str_contains($err, 'too tired')) { $stop = $err; break; }
+        $skip[$err] = ($skip[$err] ?? 0) + 1;
+    }
+    $msgs = [];
+    $n = array_sum($planted);
+    if ($n) {
+        $bits = [];
+        foreach ($planted as $nm => $c) $bits[] = $c . ' × ' . $nm;
+        $msgs[] = '🌰 Replanted ' . $n . ' bed' . ($n === 1 ? '' : 's') . ' (' . implode(', ', $bits) . ')' . ($tilled ? ', tilling ' . $tilled . ' first' : '') . '. Don’t forget to water them!';
+    }
+    foreach ($skip as $why => $c) $msgs[] = 'Skipped ' . $c . ' bed' . ($c === 1 ? '' : 's') . ': ' . $why . '.';
+    if ($stop) $msgs[] = $stop;
+    if (!$msgs) $msgs[] = 'Nothing to replant.';
+    return [$n > 0, $msgs];
+}
+
+/**
  * v0.7.61: perennials live for a while, then give a last harvest. Age counts from planted_at
  * (paused in the root cellar). Harvests shrink slowly to life_end_yield % by the end.
  * Returns null for annuals and cover crops, else [age days, life days, yield %, days left, old (bool)].
@@ -1270,7 +1406,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 // Watering also tops up a no-till bed's moisture.
                 // v0.7.27: tilled ground holds a little more water after each drink too (it used to never change)
                 $newM = $t['method'] === 'notill' ? clamp100(max((int)$t['moisture'], 20) + 10) : min(60, (int)$t['moisture'] + 4);
-                q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ?', [$p ? now() : null, now(), $newM, $t['id']]);
+                q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_WATER_DAY_SQL . ' WHERE id = ?', [$p ? now() : null, now(), $newM, $t['id']]);
                 $msgs[] = $p ? 'You water the ' . $p['name'] . '.' : 'You water the bed to keep its soil life happy.';
                 if ($p) job_event($uid, 'water', '', 1);
                 break;

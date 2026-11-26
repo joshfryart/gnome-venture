@@ -1834,6 +1834,34 @@ B1=$(cfapi -d do=tick -d play=4 -d seq=910002 -d rod=4 | jp view.play.paid)
 B2=$(cfapi -d do=tick -d play=4 -d seq=910003 -d far=4 | jp view.play.paid)
 B3=$(cfapi -d do=tick -d play=4 -d seq=910004 -d rod=99 -d far=99 | jp view.play.paid)
 ok "room2 payout: a rod batch pays more than a plain one, a far batch pays in between, and an inflated claim pays no more than all-rod" "$(php -r 'echo ($argv[2] > $argv[1] ? 1 : 0), ($argv[3] > $argv[1] && $argv[3] < $argv[2] ? 1 : 0), ($argv[4] <= $argv[2] ? 1 : 0);' "$B0" "$B1" "$B2" "$B3")" "111"
+# room2 upgrades (2.8.73, "the visual upgrades don't apply since the new room"): every upgrade but the plain fish has a picture in the canvas room.
+# Each key resolves to a manifest furn entry (upgrade = the shop key, its PNG present), or the engine draws it itself from D.owned (sunbeam and window plates, the four Rod upgrades),
+# or it adds a fish kind. Every furn 'upgrade' is base, pets or a real shop key (a misspelt key would never show).
+ok "room2 upgrades: each visual shop key resolves to room2 art or engine code, and every manifest furn upgrade is a real key" "$(php -r '
+function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return "";}
+require $argv[1]; $art = $argv[2]; $js = file_get_contents($argv[3]); $m = json_decode(file_get_contents("$art/manifest.json"), true); $bad = [];
+foreach (array_keys(CATFISH_UPGRADES) as $k) { if ($k === "fish") continue;
+  $furn = array_filter($m["furn"], fn($f) => ($f["upgrade"] ?? "") === $k && is_file("$art/furn/" . $f["file"]));
+  $code = str_contains($js, "owned.$k > 0");
+  $fish = catfish_fish_kinds([$k => 1]) !== catfish_fish_kinds([]);
+  if (!$furn && !$code && !$fish) $bad[] = $k; }
+foreach (["room/cf-room2-p5-sunbeam.png", "room/cf-room2-window.png", "props/cf-wand-cast-1.png"] as $f) if (!is_file("$art/$f")) $bad[] = $f;
+foreach ($m["furn"] as $n => $f) if (!in_array($f["upgrade"] ?? "", ["base", "pets"], true) && !isset(CATFISH_UPGRADES[$f["upgrade"] ?? ""])) $bad[] = "furn $n upgrade " . ($f["upgrade"] ?? "?");
+echo $bad ? implode(",", $bad) : "all";' "$GAME/includes/catfish.php" "$CFART/room2" "$GAME/assets/catfish_room.js")" all
+# buying each visual upgrade answers with a new scene key and the room2 stage, whose data block lists it as owned (with only the room2 art installed:
+# the key must not depend on the old cf-room-*.png overlays)
+dbx "UPDATE catfish_state SET upgrades='{\"fish\":1}', kibble=900000000000, last_tick=$(date +%s) WHERE user_id=$UID_"
+cfreset; SK=$(cfapi -d do=tick -d scene=none | jp scene); R2BAD=""
+for k in silk catnip glitter string spring motor double sunbeam rug scratch window bowl toybox cattree catflap; do
+  R=$(cfapi -d do=buy -d key=$k -d scene=$SK); NK=$(echo "$R" | jp scene)
+  echo "$R" | jp stage_html | grep -q "class=\"cfr2data\">[^<]*\"$k\":1" || R2BAD="$R2BAD $k:owned"
+  [ -n "$NK" ] && [ "$NK" != "$SK" ] || R2BAD="$R2BAD $k:key"
+  SK=$NK
+done
+ok "room2 buy: each visual upgrade changes the scene key and the new stage's data block owns it" "${R2BAD:-all}" all
+if node -e "require('playwright')" 2>/dev/null; then
+  DBFILE=$GAME/data/game.sqlite SQL_UPS="UPDATE catfish_state SET upgrades='{UPS}', naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" NODE_PATH=${NODE_PATH:-} node tests/catfish_room2.js $BASE 2>&1
+else echo "skip room2 rod browser check (no playwright)"; fi
 setg catfish_room2 0
 
 # cleanup

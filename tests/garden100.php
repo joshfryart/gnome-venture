@@ -582,5 +582,37 @@ ok('flag on turns the game clock on (garden growth then follows game days: see t
 cfg(['game_clock_on' => 0]);
 ok('flag off restores the real-time garden', !gclock_on());
 
+echo "== replant all / default seed\n";
+cfg(['season_force' => '', 'weather_force' => '']);
+$plotR = mkplot(); q('UPDATE users SET active_plot_id = ?, energy = 500 WHERE id = ?', [$plotR, $uid]);
+$rad = plant('radish'); $rsid = (int)$rad['seed_item_id'];
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rsid]);
+give_item($uid, $rsid, 5);
+foreach ([[0, 0], [1, 0], [2, 0]] as [$rx, $ry]) { q('UPDATE plot_tiles SET tilled = 1 WHERE plot_id = ? AND x = ? AND y = ?', [$plotR, $rx, $ry]); [$okp] = garden_action($uid, 'plant', $rx, $ry, $rsid); if (!$okp) ok('setup plant', false); }
+ok('planting remembers the bed seed', garden_bed_memory_plant((int)tile($plotR, 0, 0)['id']) === (int)$rad['id']);
+ok('last planted plant is the radish', garden_last_planted_plant($plotR) === (int)$rad['id']);
+$sl = [['id' => $rsid, 'plant_id' => $rad['id'], 'qty' => 3, 'min_soil' => 0], ['id' => 99999, 'plant_id' => 12345, 'qty' => 3, 'min_soil' => 0]];
+ok('default seed is the bed\'s last seed', garden_default_seed($sl, $plotR, (int)tile($plotR, 0, 0)['id'], 50) === $rsid);
+ok('default seed skips a seed the soil cannot take', garden_default_seed([['id' => $rsid, 'plant_id' => $rad['id'], 'qty' => 3, 'min_soil' => 90]], $plotR, 0, 50) === 0);
+// harvest two of the three and leave bare ground; the third keeps growing
+foreach ([[0, 0], [1, 0]] as [$rx, $ry]) { q('UPDATE plot_tiles SET growth_seconds = 999999, last_watered = ?, growth_updated_at = ? WHERE plot_id = ? AND x = ? AND y = ?', [now(), now(), $plotR, $rx, $ry]); [$okh] = garden_action($uid, 'harvest', $rx, $ry); ok("harvest $rx", $okh); }
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rsid]);
+$rb = garden_replant_beds($uid, $plotR);
+ok('replant lists the two emptied beds', count($rb) === 2, 'got ' . count($rb));
+[$okr, $mr] = garden_replant_all($uid);
+ok('replant with no seeds plants nothing and says why', !$okr && str_contains(implode(' ', $mr), 'seeds left'), implode(' | ', $mr));
+give_item($uid, $rsid, 1);
+q('UPDATE users SET energy = 500 WHERE id = ?', [$uid]);
+$e0 = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
+[$okr, $mr] = garden_replant_all($uid);
+$planted = (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ? AND plant_id IS NOT NULL', [$plotR]);
+ok('replant uses the seeds it has (1 of 2 beds) and stops politely', $okr && $planted === 2 && (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rsid]) === 0, implode(' | ', $mr));
+ok('replant spent energy like by hand', (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) < $e0);
+give_item($uid, $rsid, 4);
+q('UPDATE users SET energy = 0 WHERE id = ?', [$uid]);
+[$okr, $mr] = garden_replant_all($uid);
+ok('replant with no energy stops with a tired message and plants nothing', !$okr && str_contains(implode(' ', $mr), 'tired') && (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ? AND plant_id IS NOT NULL', [$plotR]) === 2, implode(' | ', $mr));
+q('UPDATE users SET energy = 500 WHERE id = ?', [$uid]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);

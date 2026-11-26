@@ -289,7 +289,7 @@ function gb_make(int $seed, int $n): array
             $reg[$x] = $b;
         }
     }
-    return $best[1] ?? ['n' => $n, 'reg' => [], 'sol' => []];   // not reached for sizes 5 to 9 in practice (tests check)
+    return $best[1] ?? ['n' => $n, 'reg' => [], 'sol' => []];   // not reached for sizes 6 to 9 in practice (tests check)
 }
 
 /** gb_make() with a small file cache (data/pzcache): a garden can take a second to build and start, hint and finish all need it. */

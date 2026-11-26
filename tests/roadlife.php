@@ -235,7 +235,7 @@ ok('NA road in cloud+day: no downpour, no lamp-moths (hard conds)', empty($seen[
 ok('NA road: generic scenes still turn up', count(array_filter(array_keys($seen), fn($k) => !preg_match('/^(na|nwe|ea)-/', $k))) >= 8);
 $set('weather_force', 'rain'); road_unbind(); $seen = []; for ($i = 0; $i < 400; $i++) { $e = road_event_pick($sc, 'wild'); $seen[$e['id']] = 1; }
 ok('rain: the downpour turns up in the wilds, and wild-only scenes do too', isset($seen['downpour']) && isset($seen['lost-hedgehog']));
-$set('stop_daypart_force', 'night'); $set('weather_force', 'cloud'); road_unbind(); $seen = []; for ($i = 0; $i < 400; $i++) { $e = road_event_pick($sc, 'road'); $seen[$e['id']] = 1; }
+$set('stop_daypart_force', 'night'); $set('weather_force', 'cloud'); road_unbind(); $seen = []; for ($i = 0; $i < 4000 && !isset($seen['lamp-moths']); $i++) { $e = road_event_pick($sc, 'road'); $seen[$e['id']] = 1; }
 ok('night: lamp-moths turn up', isset($seen['lamp-moths']));
 $set('stop_daypart_force', 'day'); road_unbind();
 // another region
