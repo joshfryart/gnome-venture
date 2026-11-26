@@ -19,8 +19,10 @@ G = R.ground
 def leg(pid, ramp):
     p = R.part(pid)
     x, y = R.pv(pid)
-    p.add(p.m(capsule([(x, y + .5), (x + .3, G - .5)], 2.2, 1.8)), ramp, flat=True)
-    p.add(p.m(capsule([(x - 2.6, G + .3), (x + 4.4, G + .3)], 1.6), capsule([(x + 1, G), (x + 4.4, G + .6)], 1.6)), ramp, flat=True)
+    p.add(p.m(rect(int(x) - 1, y, int(x) + 1, G)), ramp, flat=True)                     # 2 px shank
+    p.add(p.m(rect(int(x) - 3, G - 1, int(x) + 5, G + 1)), ramp, flat=True)            # long toes on the ground
+    p.cut |= {(int(x) - 1, G - 1), (int(x) + 2, G - 1), (int(x) + 3, G - 1), (int(x) + 4, G - 1), (int(x) - 3, G - 1)}
+    p.px(int(x) + 1, G, ramp[3]); p.px(int(x) - 2, G, ramp[3])
     p.add(p.m(ell(x, y + 1, 2.4, 2.6)), darker(CROW) if pid == 'legB' else CROW, local=True)   # feathered thigh top
 
 
@@ -45,7 +47,8 @@ p.pxs([(31, 25), (28, 26), (34, 23)], CROW[3])
 # wing: folded, primaries crossing past the rump
 p = R.part('wing')
 w = poly([(20, 12.5), (27, 12), (32, 14.5), (32.5, 18), (28, 22), (20, 24.5), (11, 26), (9.5, 25), (15, 20)])
-p.add(p.m(w), CROW, stitch=None)
+wm = p.add(p.m(w), CROW, stitch=None)
+p.edge(wm, CROW[3], sides=((0, -1),))                                                  # a dark seam where the wing sits on the back
 p.add(p.m(inter(w, poly([(20, 12), (28, 11.5), (33, 15), (24, 17.5), (17, 16.5)]))), (SHEEN[0], SHEEN[1], SHEEN[2], SHEEN[3]))   # covert shoulder
 for a, b in (((28, 19), (12, 24.5)), ((26, 17.5), (14, 22)), ((30, 16.5), (19, 19.5))):
     p.line([a, b], CROW[3])
@@ -69,9 +72,9 @@ p.pxs([(33, 13), (31, 11), (34, 12)], CROW[0])                                  
 # eyes: a pale clever eye with a sly lid
 p = R.part('eyes')
 ex, ey = 37, 6
-p.add(p.m(ell(ex + .5, ey + .5, 2.2, 2.0)), (CREAM,) * 4, flat=True)
+p.add(p.m(ell(ex + 1, ey + 1, 2.0, 2.0)), (BILL[0],) * 4, flat=True)                  # pale grey ring
 p.add(p.m(rect(ex, ey, ex + 2, ey + 2)), (INK,) * 4, flat=True)
-p.px(ex + 1, ey, CREAM)
-p.line([(ex - 2, ey - 1), (ex + 2, ey - 2)], CROW[3])
+p.px(ex, ey, CREAM)
+p.line([(ex - 2, ey - 2), (ex + 2, ey - 2)], CROW[3])                                 # a sly flat lid
 
 R.save()
