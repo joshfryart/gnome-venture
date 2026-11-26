@@ -22,6 +22,16 @@
     }
     return null;
   }
+  function minGet() { try { return sessionStorage.getItem('tourmin') === '1'; } catch (e) { return false; } }
+  function minSet(on) { try { sessionStorage.setItem('tourmin', on ? '1' : '0'); } catch (e) {} }
+  function dodge(box) {   // landscape dock: the bubble must not sit on the thing it points at
+    if (!(document.body.classList.contains('dock-on') && window.innerWidth > window.innerHeight) || !hl || (hl.closest && hl.closest('#dockroot'))) return;
+    var r = hl.getBoundingClientRect(), b;
+    box.classList.toggle('tour-l', (r.left + r.right) / 2 > window.innerWidth / 2);
+    box.classList.toggle('tour-min', minGet());
+    b = box.getBoundingClientRect();
+    if (r.width && b.left < r.right && b.right > r.left && b.top < r.bottom && b.bottom > r.top) box.classList.add('tour-min');
+  }
   function clear() { if (hl) { hl.classList.remove('tourhl'); hl = null; } }
   function aim() {
     if (busy) return; busy = true;
@@ -48,6 +58,8 @@
       if (hint && hint.textContent !== (m ? m[1] : '')) hint.textContent = m ? m[1] : '';   // only when it changed: a same-text write is a DOM mutation, and the dock redraws on those
       if (!m) return;
       hl = m[0]; hl.classList.add('tourhl');
+      box.classList.toggle('tour-min', minGet());
+      dodge(box);
       var key = (box.getAttribute('data-step') || '') + '|' + (hl.id || hl.className || hl.tagName) + '|' + location.pathname + location.search;
       if (key !== lastKey) {   // scroll once per target so the player's own scrolling is not fought
         lastKey = key;
@@ -55,10 +67,16 @@
         var top = 60, bottom = (bub.height ? window.innerHeight - bub.height - 70 : window.innerHeight - 120);
         if (r.top < top || r.bottom > bottom) {
           try { hl.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } catch (e) { hl.scrollIntoView(); }
+          setTimeout(function () { if (hl && box.isConnected) dodge(box); }, 400);
         }
       }
     } finally { busy = false; }
   }
+  document.addEventListener('click', function (e) {   // the title bar folds the bubble down to a strip and back
+    var h = e.target.closest && e.target.closest('#wrentour .tourcur h3, #wrentour .tourask h3'), box = document.getElementById('wrentour');
+    if (!h || !box) return;
+    var on = !box.classList.contains('tour-min'); box.classList.toggle('tour-min', on); minSet(on);
+  });
   function soon() { clearTimeout(soon.t); soon.t = setTimeout(aim, 60); }
   document.addEventListener('gv:swapped', soon);
   document.addEventListener('gv:dockdrawn', soon);

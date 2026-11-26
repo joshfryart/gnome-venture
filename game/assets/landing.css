@@ -248,3 +248,13 @@ body[data-area] main .lp .lh-hero h1, .lh-hero h1 { margin: 0; padding: 0; borde
   .lh-dish, .lh-roster img, .lh-itm__win::before, .lh-itm__win::after, .lh-tfloat.go { animation: none; }
   .lh-tile b { display: none; }
 }
+
+/* short landscape (a phone on its side): the hero picture and the words sit side by side, the picture capped, so Claim your plot is on the first screen */
+@media (orientation: landscape) and (max-height: 520px) {
+  .lh-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 12px; padding: 8px 10px; margin-bottom: 16px; align-items: center; }
+  .lh-hero .lh-scene { max-height: 45vh; }
+  .lh-hero .lh-scene .lh-svg { max-height: calc(45vh - 8px); width: 100%; height: auto; }
+  body[data-area] main .lp .lh-hero h1, .lh-hero h1 { font-size: 26px; }
+  .lh-hero .lh-cta { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .lh-hero .lh-cta a.btn { width: auto; min-width: 0; min-height: 44px; }
+}

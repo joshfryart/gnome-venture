@@ -192,7 +192,7 @@ function dock_status(array $u): array
             $gs = gclock_state($u);
             $plate['time'] = sprintf('%02d:%02d', intdiv($gs['minute'], 60) % 24, $gs['minute'] % 60);
             $plate['day'] = (int)$gs['day'];
-            $rows[] = ['🕐', 'Day ' . (int)$gs['day'], $plate['time']];
+            $rows[] = ['🕐', 'Day ' . ((int)$gs['day'] + 1), $plate['time']];
         }
         require_once __DIR__ . '/health.php';
         if (hp_on()) { [$hp, $hpm] = hp_display($u); $rows[] = ['❤️', 'Health', $hp . '/' . $hpm]; $plate['hp'] = [(int)$hp, (int)$hpm]; }
@@ -424,9 +424,11 @@ function dock_page_spec(string $page): array
                 if ($page === 'gnome.php' && gclock_on() && !(function_exists('home_slim_menu') && home_slim_menu())) $R = dock_action('Hovel', 'hovel', $u('hovel.php'));   // classic home: the Rest buttons are on hovel.php, so the piece is the way there (slim home has them on this page; clock off: hovel.php bounces back)
                 elseif (gclock_on()) {
                     $rest = [];
-                    foreach (gclock_rest_options($u0) as $o) {
-                        $nm = preg_replace('/ \(.*$/', '', (string)$o['label']);
-                        $rest[] = dock_remote($nm, $o['kind'] === 'nap' ? '💤' : '🌙', ['sel' => 'main button[name="do"][value="' . $o['key'] . '"]']);
+                    $ropts = gclock_rest_options($u0);
+                    $nNap = count(array_filter($ropts, fn($o) => $o['kind'] === 'nap')); $one = $nNap === 1 && count($ropts) - $nNap === 1;   // one sleep and one nap: short names
+                    foreach ($ropts as $o) {
+                        $nm = $one ? ($o['kind'] === 'nap' ? 'Nap' : 'Sleep') : preg_replace('/ \(.*$/', '', (string)$o['label']);
+                        $rest[] = dock_remote($nm, $o['kind'] === 'nap' ? '💤' : '🌙', ['sel' => 'main button[name="do"][value="' . $o['key'] . '"]', 'href' => $u($page === 'gnome.php' ? 'gnome.php' : 'hovel.php?t=sleep')]);
                     }
                     if ($rest) $R = dock_action('Rest', '🛏️', '', $rest, '', '', 'Rest');
                 }

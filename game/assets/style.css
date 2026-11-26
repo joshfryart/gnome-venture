@@ -5648,7 +5648,7 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 .itm__trend { font-weight: 800; }
 .itm__pet { display: inline-block; width: 9px; height: 10px; margin-left: 2px; vertical-align: -1px; background: url(img/items/petal.png) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
 .itm__kind { padding: 0 2px; font-weight: 700; letter-spacing: .01em; white-space: normal; }
-.itm__want { background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }
+.itm__want { white-space: nowrap; background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }
 .itm__inb, .itm__use, .itm__ok { background: var(--itm-ok); color: var(--itm-ok-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 .itm__short { background: var(--itm-short); color: var(--itm-short-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 .itm__note { padding: 0 2px; font-weight: 600; white-space: normal; text-wrap: balance; overflow-wrap: break-word; }
@@ -7062,16 +7062,16 @@ a.tile:focus-visible, .wcta a:focus-visible, .wmore summary:focus-visible, .wpac
 .tournext { margin: 0 0 4px; }
 .tourhint { margin: 0 0 6px; font-weight: 700; }
 .tourhint:empty { display: none; }
-body.game.tourbub { padding-bottom: calc(var(--bar) + var(--sab) + 240px); }
-body.tourbub #wrentour.tour-on { position: fixed; left: 8px; right: 8px; bottom: calc(var(--bar) + var(--sab) + 10px); z-index: 60; max-height: 46vh; overflow-y: auto;
+body.game.tourbub, html.js body.game:has(#wrentour) { padding-bottom: calc(var(--bar) + var(--sab) + 240px); }
+body.tourbub #wrentour.tour-on, html.js #wrentour { position: fixed; left: 8px; right: 8px; bottom: calc(var(--bar) + var(--sab) + 10px); z-index: 60; max-height: 46vh; overflow-y: auto;
   background: var(--surface); border: 2px solid var(--accent-line); border-radius: var(--radius); box-shadow: var(--shadow-2); }
-body.tourbub #wrentour.tour-on .tourbox { margin: 0; border: 0; background: transparent; padding: 8px 12px 4px; }
-body.tourbub #wrentour.tour-on .tourchip { margin: 0; border: 0; background: transparent; }
-body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 22px; bottom: -9px; width: 14px; height: 14px; background: var(--surface);
+body.tourbub #wrentour.tour-on .tourbox, html.js #wrentour .tourbox { margin: 0; border: 0; background: transparent; padding: 8px 12px 4px; }
+body.tourbub #wrentour.tour-on .tourchip, html.js #wrentour .tourchip { margin: 0; border: 0; background: transparent; }
+body.tourbub #wrentour.tour-on::after, html.js #wrentour::after { content: ""; position: absolute; left: 22px; bottom: -9px; width: 14px; height: 14px; background: var(--surface);
   border-right: 2px solid var(--accent-line); border-bottom: 2px solid var(--accent-line); transform: rotate(45deg); }
 @media (min-width: 721px) {
-  body.game.tourbub { padding-bottom: 260px; }
-  body.tourbub #wrentour.tour-on { left: auto; right: 20px; bottom: 20px; width: 400px; }
+  body.game.tourbub, html.js body.game:has(#wrentour) { padding-bottom: 260px; }
+  body.tourbub #wrentour.tour-on, html.js #wrentour { left: auto; right: 20px; bottom: 20px; width: 400px; }
 }
 .tourhl { outline: 4px solid #ffcb2e; outline-offset: 3px; border-radius: 6px; position: relative; z-index: 5; animation: tourpulse 1.2s ease-in-out infinite; }
 .tourhl::before { content: "👆"; position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); font-size: 22px; line-height: 1; pointer-events: none; animation: tourpoint 1.2s ease-in-out infinite; }
@@ -9048,3 +9048,20 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
   /* Today cards: the main line may take 3 lines (a rest stop line such as "Market hamlet: 7 things to do" was clipped at 2) */
   .todaygrid .tcard p:not(.muted) { -webkit-line-clamp: 3; line-clamp: 3; }
 }
+
+/* landscape, short screens: welcome village step, harvest modal, shop chip */
+@media (orientation: landscape) and (max-height: 520px) {
+  .welcomeflow { max-width: min(860px, 100%); }
+  .wcta { flex-direction: row; justify-content: center; gap: 12px; padding: 4px var(--gut) calc(4px + var(--sab)); }
+  .wcta .btn { width: auto; min-height: 40px; font-size: 15px; padding: 0 20px; }
+  .vcards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .vcard .vil { height: 64px; width: auto; }
+  .hvov { padding: 6px; }
+  .hvov .hv-box { width: min(100%, 560px); padding: 8px 12px 0; }
+  .hvov .hv-title { margin: 0 0 4px; }
+  .hvov .hv-field { min-height: 0; padding-top: 6px; }
+  .hvov .hv-ok { position: sticky; bottom: 0; width: 100%; margin: 6px 0 0; }
+  .itm__want { font-size: 10px; }
+}
+label.check { min-height: 44px; align-items: center; }
+label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }

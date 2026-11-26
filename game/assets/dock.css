@@ -222,7 +222,12 @@ body.dock-on .cbed { cursor: pointer; }
 /* dock layout, landscape: the page's own selected-squares panel repeats the dock's Pick and Then strips; the tour bubble sits top right so it never covers the strips */
 @media (orientation: landscape) {
   body.dock-on .selbar .selon { display: none; }
-  body.dock-on.tourbub #wrentour.tour-on { top: 44px; bottom: auto; left: auto; right: 8px; width: min(380px, 46vw); max-height: calc(100vh - var(--dock-h, 106px) - 60px); }
+  body.dock-on.tourbub #wrentour.tour-on, html.js body.dock-on #wrentour { top: 44px; bottom: auto; left: auto; right: 8px; width: min(340px, 42vw); max-height: calc(100vh - var(--dock-h, 106px) - 60px); }
+  html.js body.dock-on #wrentour::after { display: none; }
+  html.js body.dock-on #wrentour.tour-l { left: 8px; right: auto; }
+  html.js body.dock-on #wrentour.tour-min .tbtext, html.js body.dock-on #wrentour.tour-min .tourlist, html.js body.dock-on #wrentour.tour-min .tourbox > .bird { display: none; }
+  body.dock-on:has(.dockroot [aria-expanded="true"]) #wrentour { z-index: 44; }
+  html.js body.dock-on #wrentour .tourcur h3 { cursor: pointer; }
 }
 
 /* dock layout, landscape: the big pictures fit the screen above the dock, so the page is not mostly scrolling past them. --imgh is the height left for a picture;
@@ -1587,7 +1592,7 @@ body.dock-on .vunmetline { margin: 6px 0; }
   body.dock-on .gardenwrap { grid-template-columns: max-content minmax(0, 290px); justify-content: start; gap: 0 8px; }
   body.dock-on .gardenwrap > div:first-child { align-items: flex-start; }
   body.dock-on .gardenwrap .yardwrap { margin-left: 0; margin-right: 0; }
-  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 290px - 24px) / var(--cw, 12))); }
+  body.dock-on .gardenwrap .yard:not(.mini) { --cell: min(46px, calc((100vw - 48px - 290px - 24px) / var(--cw, 12)), calc((100vh - var(--dock-h, 106px) - 120px) / var(--ch, 4))); }
   body.dock-on .gardenwrap > .panel.box { max-width: 290px; }
   body.dock-on .gardenwrap > .legend { text-align: left; }
 }
@@ -1929,4 +1934,27 @@ body:has(.dk-fs) .gvfs { display: none !important; }
 }
 @media (orientation: landscape) and (max-height: 380px) {
   body.dock-on .regionmapbox > .maphelp { font-size: 12px; line-height: 1.25; margin: 0; }
+}
+
+/* landscape, short screens: tour bubble compact, first-fight card fits above the dock, toasts top left, bell clear of the fight card */
+body.dock-on:has(#pfight.pf-v1, #pfi:not([hidden])) .dockroot .dk-msg { display: none; }
+@media (orientation: landscape) {
+  html body.dock-on.game .toasts:not(#_), html body.dock-on.game .toasts.phone:not(#_) { top: 8px; bottom: auto; left: 8px; right: auto; transform: none; width: min(46vw, 420px); }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #wrentour .tourbox > div { display: flex; flex-direction: column; }
+  #wrentour h3 { order: -3; font-size: 13px; }
+  #wrentour .tourhint { order: -2; }
+  #wrentour .tourbtns, #wrentour p:has(> .tourgo), #wrentour .tourgot, #wrentour .tournext { order: -1; }
+  #wrentour .tbtext, #wrentour .tourlist { order: 1; font-size: 12px; }
+  #wrentour form:has(.skip) { order: 2; }
+  #wrentour .bird { display: none; }
+  body.dock-on .pfi { align-items: center; padding: 4px; }
+  body.dock-on .pfi-card { max-height: 100%; max-width: min(760px, 96vw); padding: 8px 12px; display: flex; flex-direction: column; }
+  body.dock-on .pfi-js .pfi-step { min-height: 0; }
+  body.dock-on .pfi-steps { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  body.dock-on .pfi-act { position: sticky; bottom: 0; margin: 4px 0 0; background: inherit; }
+  body.dock-on .pfi-dots { margin-top: 4px; }
+  body.dock-on .pfi-foot { display: none; }
+  body.dock-on .pfi .pfi-head h2 { font-size: 16px; }
 }
