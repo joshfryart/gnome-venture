@@ -2,6 +2,9 @@
 
 Rules: add new items here only. Tick or delete when done, and MOVE finished blocks to `claude/todo_history.md` (newest on top). STANDING RULE (Josh, 2026-11-05): after every change or release, update this file. Items marked (2.7.x) were carried from older lists and not re-verified: check before building.
 
+## 2.8.73 SHIPPED 2026-11-26 (PR 84 merged to main; slim zip `releases/GnomeVenture-2.8.73-web-update.zip` built against 2.8.70, goes on 2.8.70 or newer, includes 2.8.71 + 2.8.72)
+- Open from it: shops-street hotspots unchecked by eye; route cards lost the gnome (ask if wanted back) and the lair card keeps its eyes; stoptiers mill-1, workshop-1..4, spring-3 kept as before (redraws were broken); `mini-<slug>.png` rigs old; zip not test-installed over a real 2.8.70.
+
 ## A. Owner picks / decisions waiting
 - Stop art: DONE and swapped in 2.8.73 (flagged: shops-street hotspots not checked by eye; 6 stoptiers kept as before; route cards no longer show the gnome: ask if wanted back; lair route card still has glowing eyes).
 - Fair dock Enter: CUT by owner. "Visitor can smell it" reading (still-cooking dish vs last-cooked): ask.
