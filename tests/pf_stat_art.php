@@ -56,4 +56,17 @@ chk('board_script_redraws_hand_icons_that_came_late', str_contains($bv, 'functio
 // 2.8.63 (owner: "Played pieces sometimes revert to default icons and then back"): the page data gives a held group's stat pieces their ik and st, and the icon keys of the draw pile (sorted) so they load before a piece is drawn
 chk('fight_page_data_held_group_keeps_st_and_ik', str_contains($pg, "\$data['held']['pcs'][\$i] += ['st' => (string)(\$ht['st'] ?? ''), 'ik' => (string)(\$ht['ik'] ?? '')]"));
 chk('fight_page_data_draw_pile_icons_sorted', str_contains($pg, "foreach (['draw', 'discard', 'hand'] as \$pile)") && str_contains($pg, "ksort(\$dik); \$data['dik'] = array_keys(\$dik);"));
+// 2.8.64: the replay snapshot (pfb_snap) carries st for a stat piece (the JS passes p.st to P.piece); a pre-2.8.61 fight's tiles get ik backfilled
+$sn = pfb_snap($fs); $snIk = []; foreach ($sn as $q) $snIk[$q['ik']] = $q;
+foreach ($keys as $k) chk('replay_snap_has_ik_and_st_' . $k, isset($snIk[$k]) && ($snIk[$k]['st'] ?? '') === pfd_stat_pieces()[$k]['stat'], $snIk[$k] ?? null);
+chk('snap_plain_piece_has_no_st', !array_key_exists('st', pfb_snap(['round' => 1, 'pcs' => [1 => ['id' => 1, 'by' => 'me', 'x' => 0, 'y' => 0, 'tile' => pf_make_tile('swing', ['level' => 1]), 'born' => 1]]])[0]));
+require_once __DIR__ . '/../game/includes/pfight_game.php';
+$old = $fs; $strip = function ($t) { unset($t['ik']); return $t; };
+$old['me']['hand'] = array_map($strip, $fs['me']['hand']); $old['me']['draw'] = [$strip($tiles[0]), pf_make_tile('swing', ['level' => 1])]; $old['me']['discard'] = [];
+foreach ($old['pcs'] as $id => $q) $old['pcs'][$id]['tile'] = $strip($q['tile']);
+$nw = pfight_backfill_ik($old);
+foreach ($keys as $i => $k) chk('backfill_hand_' . $k, ($nw['me']['hand'][$i]['ik'] ?? '') === $k);
+chk('backfill_board_pieces', ($nw['pcs'][900]['tile']['ik'] ?? '') === $keys[0]);
+chk('backfill_draw_stat_only', ($nw['me']['draw'][0]['ik'] ?? '') === $keys[0] && !isset($nw['me']['draw'][1]['ik']));
+chk('backfill_keeps_existing_ik', ($nw['me']['hand'][0]['ik'] ?? '') === $keys[0] && pfight_backfill_ik($fs) === $fs);
 echo $bad ? "pf_stat_art: $bad of $n FAILED\n" : "pf_stat_art: $n ok\n"; exit($bad ? 1 : 0);

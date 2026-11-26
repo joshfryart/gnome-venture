@@ -1368,7 +1368,7 @@ function pfb_place_group(array &$s, string $who, int $ox, int $oy): ?array
 /** The board as it stands right now (for rewinding the history): the pieces with everything the page needs to draw and describe them. */
 function pfb_snap(array $s): array
 {
-    return array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'ik' => (string)($p['tile']['ik'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born']], $s['pcs']));
+    return array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'ik' => (string)($p['tile']['ik'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born']] + (($p['tile']['src'] ?? '') === 'stat' ? ['st' => (string)($p['tile']['st'] ?? '')] : []), $s['pcs']));   // st: a stat piece's corner badge in the replay
 }
 
 function pfb_check_after(array $s, int $id): int

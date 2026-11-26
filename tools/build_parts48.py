@@ -112,7 +112,9 @@ def main():
     json.dump(atlas, open(os.path.join(OUT, 'atlas.json'), 'w'), indent=1)
     for f in SHARED: shutil.copy(os.path.join(OLD, f), os.path.join(OUT, f))
     if os.path.isdir(os.path.join(OLD, 'marks')):
-        shutil.rmtree(os.path.join(OUT, 'marks'), ignore_errors=True); shutil.copytree(os.path.join(OLD, 'marks'), os.path.join(OUT, 'marks'), ignore=shutil.ignore_patterns('*preview*'))
+        os.makedirs(os.path.join(OUT, 'marks'), exist_ok=True)   # only add what is missing: marks/ in the kit has its own tag-*.png and marks.json, never delete or overwrite them
+        for f in os.listdir(os.path.join(OLD, 'marks')):
+            if 'preview' not in f and not os.path.exists(os.path.join(OUT, 'marks', f)): shutil.copy(os.path.join(OLD, 'marks', f), os.path.join(OUT, 'marks', f))
     shutil.rmtree(tmp, ignore_errors=True)
     print('parts48:', sorted(os.listdir(OUT)))
 

@@ -109,7 +109,8 @@ GREEN=$(db "SELECT id FROM town_spots WHERE slug='hub-green'")
 echo "== crafting ingredients (inventory.php?tab=craft)"
 curl -s -b $J "$BASE/inventory.php?tab=craft&c=cooking&show=ready" > $H
 # Shelves: a known recipe's panel lists its ingredients as You have / Still need lines (the squares stay for recipes still to discover)
-I=$(n '<li class="(ok|short)"><span class="p2ic"' $H)
+# (a recipe still to discover lists its ingredients as "found / not found yet" since 2.7.06: no counts there, so those lines are not counted)
+I=$(( $(n '<li class="(ok|short)"><span class="p2ic"' $H) - $(n '<b>((✔|<img [^>]*>) found|not found yet)</b></li>' $H) ))
 echo "  ingredient lines: $I"; [ "$I" -ge 4 ] || echo "FAIL too few ingredient lines ($I)"
 chk "every line says have / need" "$(n '<b>(✔|✖|<img [^>]*>) [0-9,]+/[0-9,]+</b>' $H)" "$I"
 has "have / need counts (the tick may be drawn as an icon)" '<b>\(✔\|<img [^>]*>\) 14/3</b>' $H
