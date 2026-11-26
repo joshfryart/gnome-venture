@@ -2,7 +2,7 @@
 """dust-sidewinder "Dust Sidewinder" (snake rig, 87 x 46, 8 parts, medium lv 15, desert, heat/sun): "Travels sideways, which is somehow more alarming."
 A pale dusty felt sidewinder lying low and slanted in a flat S across the sand: the thin tail tip with a dark button end (s1),
 a short stout pale-sand body (s2..s5) carrying a row of cocoa saddle blotches down the back and a cream belly, a low neck (s6)
-barely lifted. head = a broad flat arrowhead head, with the two little horns standing up over the eyes that give the sidewinder
+barely lifted. head = a short, broad, blunt arrowhead head with swollen jaw corners, the two little horns tipped back standing up over the eyes that give the sidewinder
 its look, a pink forked tongue. eyes = a squinting amber eye with a slit pupil under the horn's heavy brow."""
 import importlib, math, os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -44,24 +44,26 @@ P, REF, out = S.snake(R, TIP, W, SIDE, BACK, BELLY, mid=MID, pattern=marks, back
 # head: broad, flat arrowhead (wide jaw corners behind, pointed snout), two little horns over the eye, pink forked tongue
 p = R.part('head')
 hp = P['head']
-neck = capsule([hp, (62.5, 14.5)], 7, 7.5)
-skull = poly([(58.2, 11.2), (61.5, 8.4), (66, 7.8), (73, 8.6), (78.6, 11.2), (78.4, 12.6), (72, 15), (64.5, 17), (60.5, 18.6), (57.6, 16.4)])
-hornF = poly([(68.2, 8.6), (69.4, 4.6), (70.4, 4.4), (71.2, 8.8)])   # far horn, a step darker
-hornN = poly([(64.6, 8.4), (65.6, 3.4), (66.8, 3.2), (68.0, 8.4)])   # near horn
+neck = capsule([hp, (62, 15)], 8, 9)
+skull = poly([(57.2, 12.4), (60.2, 9.4), (64.5, 8.4), (70.5, 8.8), (74.6, 10.0), (76.8, 11.6), (76.8, 13.4), (73, 15.6), (66.5, 18.4), (61, 20.6), (56.6, 18.8)])
+hornF = poly([(68.4, 9.0), (68.6, 7.0), (69.4, 6.6), (71.0, 9.0)])   # far horn, a step darker, a nub
+hornN = poly([(64.6, 9.0), (63.6, 5.6), (64.2, 5.0), (66.4, 6.4), (68.4, 9.0)])   # near horn: a stout pointed scale over the eye, tipped back
 p.add(p.m(union(neck, skull)), SIDE)
-p.add(p.m(inter(skull, lambda x, y: y < 10.6)), BACK)
+p.add(p.m(inter(skull, lambda x, y: y < 11.4 - (x - 60) * .02)), BACK)
 p.add(p.m(hornF), darker(BACK), local=True)
 p.add(p.m(hornN), BACK, local=True)
-p.fill(p.m(inter(hornF, lambda x, y: y < 6)), BLOT[3])
-p.fill(p.m(inter(hornN, lambda x, y: y < 5)), BLOT[3])
-p.add(p.m(inter(skull, lambda x, y: y > 13.6 and x > 61)), BELLY, local=True)
-p.line([(77.5, 12.4), (71, 14.2), (64, 15.8)], BLOT[2])               # the wide mouth seam
-p.add(p.m(inter(skull, rell(62.6, 12.4, 3.4, .75, 22))), (BLOT[1],) * 4, flat=True)   # dark stripe behind the eye, down to the jaw corner
-p.px(76, 10, BLOT[3])                                                  # nostril
-S.tongue(p, (79, 12), 2, col=PETAL[2])
+p.fill(p.m(inter(hornF, lambda x, y: y < 7.6)), BLOT[2])
+p.fill(p.m(inter(hornN, lambda x, y: y < 6.4)), BLOT[2])
+p.add(p.m(inter(skull, lambda x, y: y > 14.4 - (x - 70) * .1 and x > 60)), BELLY, local=True)
+p.line([(76, 13.6), (71, 15.2), (65, 17.2), (61.5, 18.2)], BLOT[2])    # the wide mouth seam to the swollen jaw corner
+p.add(p.m(inter(skull, rell(62.2, 13.2, 3.6, .8, 28))), (BLOT[1],) * 4, flat=True)   # dark stripe behind the eye, down to the jaw corner
+p.add(p.m(inter(skull, rell(70.5, 11.6, 1.8, .7, 0))), (BLOT[0],) * 4, flat=True)      # a cocoa blotch on the snout
+p.px(75, 11, BLOT[3])                                                  # nostril
+p.px(62, 15.5, BLUSH)
+S.tongue(p, (77, 13), 2, col=PETAL[2])
 
 # eyes: squinting amber slit eye under a heavy brow, between the horns
 p = R.part('eyes')
-S.eyeball(p, 67, 10.5, 1.3, '#f5cf6a', lid=BACK[2], lidcut=10.0)
+S.eyeball(p, 66.6, 10.8, 1.4, '#f5cf6a', lid=BLOT[1], lidcut=10.0)
 
 R.save()

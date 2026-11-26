@@ -1,242 +1,332 @@
 [
  {
-  "slug": "bog-pike",
+  "slug": "bramble-wolf",
   "kind": "old",
   "served": "shipped",
   "real": true,
   "natural": [
-   824,
-   112
+   760,
+   116
   ],
   "cols": 8,
-  "fw": 103,
-  "fh": 56,
-  "mountedSlug": "bog-pike",
+  "fw": 95,
+  "fh": 58,
+  "mountedSlug": "bramble-wolf",
   "errors": []
  },
  {
-  "slug": "bog-pike",
+  "slug": "bramble-wolf",
   "kind": "new",
   "served": "staged",
   "real": true,
   "natural": [
-   824,
-   112
+   760,
+   116
   ],
   "cols": 8,
-  "fw": 103,
-  "fh": 56,
-  "mountedSlug": "bog-pike",
+  "fw": 95,
+  "fh": 58,
+  "mountedSlug": "bramble-wolf",
   "errors": []
  },
  {
-  "slug": "will-o-wisp",
+  "slug": "badger",
   "kind": "old",
   "served": "shipped",
   "real": true,
   "natural": [
-   180,
-   140
+   632,
+   92
   ],
-  "cols": 4,
-  "fw": 45,
-  "fh": 70,
-  "mountedSlug": "will-o-wisp",
+  "cols": 8,
+  "fw": 79,
+  "fh": 46,
+  "mountedSlug": "badger",
   "errors": []
  },
  {
-  "slug": "will-o-wisp",
+  "slug": "badger",
   "kind": "new",
   "served": "staged",
   "real": true,
   "natural": [
-   180,
-   140
+   632,
+   92
   ],
-  "cols": 4,
-  "fw": 45,
-  "fh": 70,
-  "mountedSlug": "will-o-wisp",
+  "cols": 8,
+  "fw": 79,
+  "fh": 46,
+  "mountedSlug": "badger",
   "errors": []
  },
  {
-  "slug": "cloud-leopard",
+  "slug": "giant-anteater",
   "kind": "old",
   "served": "shipped",
   "real": true,
   "natural": [
-   712,
+   888,
    102
   ],
   "cols": 8,
-  "fw": 89,
+  "fw": 111,
   "fh": 51,
-  "mountedSlug": "cloud-leopard",
+  "mountedSlug": "giant-anteater",
   "errors": []
  },
  {
-  "slug": "cloud-leopard",
+  "slug": "giant-anteater",
   "kind": "new",
   "served": "staged",
   "real": true,
   "natural": [
-   712,
+   888,
    102
   ],
   "cols": 8,
-  "fw": 89,
+  "fw": 111,
   "fh": 51,
-  "mountedSlug": "cloud-leopard",
+  "mountedSlug": "giant-anteater",
   "errors": []
  },
  {
-  "slug": "clam-lurker",
+  "slug": "dust-sidewinder",
   "kind": "old",
   "served": "shipped",
   "real": true,
   "natural": [
-   244,
-   90
+   696,
+   92
   ],
-  "cols": 4,
-  "fw": 61,
-  "fh": 45,
-  "mountedSlug": "clam-lurker",
+  "cols": 8,
+  "fw": 87,
+  "fh": 46,
+  "mountedSlug": "dust-sidewinder",
   "errors": []
  },
  {
-  "slug": "clam-lurker",
+  "slug": "dust-sidewinder",
   "kind": "new",
   "served": "staged",
   "real": true,
   "natural": [
-   244,
-   90
+   696,
+   92
   ],
-  "cols": 4,
-  "fw": 61,
-  "fh": 45,
-  "mountedSlug": "clam-lurker",
+  "cols": 8,
+  "fw": 87,
+  "fh": 46,
+  "mountedSlug": "dust-sidewinder",
   "errors": []
  },
  {
-  "slug": "crew-wren",
+  "slug": "cistern-newt",
   "kind": "old",
   "served": "shipped",
-  "real": false,
+  "real": true,
   "natural": [
-   351,
-   114
+   568,
+   68
+  ],
+  "cols": 8,
+  "fw": 71,
+  "fh": 34,
+  "mountedSlug": "cistern-newt",
+  "errors": []
+ },
+ {
+  "slug": "cistern-newt",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   568,
+   68
+  ],
+  "cols": 8,
+  "fw": 71,
+  "fh": 34,
+  "mountedSlug": "cistern-newt",
+  "errors": []
+ },
+ {
+  "slug": "ashen-ant",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   513,
+   78
   ],
   "cols": 9,
-  "fw": 39,
-  "fh": 57,
-  "mountedSlug": "crew-wren",
+  "fw": 57,
+  "fh": 39,
+  "mountedSlug": "ashen-ant",
   "errors": []
  },
  {
-  "slug": "crew-wren",
+  "slug": "ashen-ant",
   "kind": "new",
   "served": "staged",
-  "real": false,
+  "real": true,
   "natural": [
-   351,
-   114
+   513,
+   78
   ],
   "cols": 9,
-  "fw": 39,
+  "fw": 57,
+  "fh": 39,
+  "mountedSlug": "ashen-ant",
+  "errors": []
+ },
+ {
+  "slug": "dune-scorpion",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   810,
+   114
+  ],
+  "cols": 10,
+  "fw": 81,
   "fh": 57,
-  "mountedSlug": "crew-wren",
+  "mountedSlug": "dune-scorpion",
   "errors": []
  },
  {
-  "slug": "ptarmigan-flock",
-  "kind": "old",
-  "served": "shipped",
-  "real": true,
-  "natural": [
-   329,
-   82
-  ],
-  "cols": 7,
-  "fw": 47,
-  "fh": 41,
-  "mountedSlug": "ptarmigan-flock",
-  "errors": []
- },
- {
-  "slug": "ptarmigan-flock",
+  "slug": "dune-scorpion",
   "kind": "new",
   "served": "staged",
   "real": true,
   "natural": [
-   329,
-   82
+   810,
+   114
   ],
-  "cols": 7,
-  "fw": 47,
-  "fh": 41,
-  "mountedSlug": "ptarmigan-flock",
+  "cols": 10,
+  "fw": 81,
+  "fh": 57,
+  "mountedSlug": "dune-scorpion",
   "errors": []
  },
  {
-  "slug": "bullfrog",
+  "slug": "bellcap-beetle",
   "kind": "old",
   "served": "shipped",
   "real": true,
   "natural": [
-   330,
-   80
+   504,
+   102
   ],
-  "cols": 6,
-  "fw": 55,
-  "fh": 40,
-  "mountedSlug": "bullfrog",
+  "cols": 8,
+  "fw": 63,
+  "fh": 51,
+  "mountedSlug": "bellcap-beetle",
   "errors": []
  },
  {
-  "slug": "bullfrog",
+  "slug": "bellcap-beetle",
   "kind": "new",
   "served": "staged",
   "real": true,
   "natural": [
-   330,
-   80
+   504,
+   102
   ],
-  "cols": 6,
-  "fw": 55,
-  "fh": 40,
-  "mountedSlug": "bullfrog",
+  "cols": 8,
+  "fw": 63,
+  "fh": 51,
+  "mountedSlug": "bellcap-beetle",
   "errors": []
  },
  {
-  "slug": "giant-bumblebee",
+  "slug": "gnat-cloud",
   "kind": "old",
   "served": "shipped",
   "real": true,
   "natural": [
-   1001,
-   128
+   693,
+   98
   ],
   "cols": 11,
-  "fw": 91,
-  "fh": 64,
-  "mountedSlug": "giant-bumblebee",
+  "fw": 63,
+  "fh": 49,
+  "mountedSlug": "gnat-cloud",
   "errors": []
  },
  {
-  "slug": "giant-bumblebee",
+  "slug": "gnat-cloud",
   "kind": "new",
   "served": "staged",
   "real": true,
   "natural": [
-   1001,
-   128
+   693,
+   98
   ],
   "cols": 11,
-  "fw": 91,
-  "fh": 64,
-  "mountedSlug": "giant-bumblebee",
+  "fw": 63,
+  "fh": 49,
+  "mountedSlug": "gnat-cloud",
+  "errors": []
+ },
+ {
+  "slug": "ember-beetle",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   488,
+   90
+  ],
+  "cols": 8,
+  "fw": 61,
+  "fh": 45,
+  "mountedSlug": "ember-beetle",
+  "errors": []
+ },
+ {
+  "slug": "ember-beetle",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   488,
+   90
+  ],
+  "cols": 8,
+  "fw": 61,
+  "fh": 45,
+  "mountedSlug": "ember-beetle",
+  "errors": []
+ },
+ {
+  "slug": "grub-beetle",
+  "kind": "old",
+  "served": "shipped",
+  "real": true,
+  "natural": [
+   568,
+   90
+  ],
+  "cols": 8,
+  "fw": 71,
+  "fh": 45,
+  "mountedSlug": "grub-beetle",
+  "errors": []
+ },
+ {
+  "slug": "grub-beetle",
+  "kind": "new",
+  "served": "staged",
+  "real": true,
+  "natural": [
+   568,
+   90
+  ],
+  "cols": 8,
+  "fw": 71,
+  "fh": 45,
+  "mountedSlug": "grub-beetle",
   "errors": []
  }
 ]

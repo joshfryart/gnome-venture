@@ -33,7 +33,7 @@ while len(spots) < 22:
     if all((x + dx, y + dy) in cl for dx in (-2, 0, 2) for dy in (-2, 0, 2)) and all(abs(x - a) + abs(y - b) > 5 for a, b in spots):
         spots.append((x, y))
 for x, y in spots:                                    # tiny gnats: a dark dot body and a pale wing tick
-    p.px(x, y, GNAT[1]); p.px(x + 1, y, GNAT[1]); p.px(x, y - 1, '#ffffff')
+    p.px(x, y, GNAT[2]); p.px(x + 1, y, GNAT[1]); p.px(x - 1, y - 1, '#ffffff'); p.px(x + 1, y - 1, '#ffffff')   # a wing pair over each
 for x, y in ((3, 13), (59, 7), (57, 24), (11, 4), (6, 26)):   # strays outside the fog
     p.add(p.m(rect(x, y, x + 2, y + 1)), GNAT, flat=True)
     p.add(p.m(rect(x, y - 1, x + 1, y)), (GLASS[1],) * 4, flat=True)

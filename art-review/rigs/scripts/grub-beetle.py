@@ -25,8 +25,8 @@ for pid, knee, foot in (('leg1', (19.5, 31.5), (16.5, 38.5)), ('leg2', (35.5, 32
 
 # body: the key under the flap, the shoulder shield, the long glossy case
 p = R.part('body')
-p.add(p.m(ell(9.5, 27, 3.6, 3.6), capsule([(12, 29.5), (20, 30.5)], 2.2), rect(16, 30, 18, 33), rect(19, 30, 20.5, 32.5)), KEY, local=True, crescent=0)
-p.fill(p.m(ell(9.5, 27, 1.4, 1.4)), GLOSS[3])                                    # the cellar key, slipping out under the flap
+p.add(p.m(ell(9, 26.5, 4.2, 4.2), capsule([(12, 29), (21, 30.5)], 2.4), rect(15.5, 30, 17.5, 33.5), rect(18.5, 30, 20.5, 32.5)), KEY, local=True, crescent=0)
+p.fill(p.m(ell(9, 26.5, 1.9, 1.9)), GLOSS[3])                                    # the cellar key, slipping out under the flap
 p.px(8, 25, '#ffffff')
 shield = rell(44, 22.5, 7.5, 8, 0)
 p.add(p.m(shield), GLOSS, local=True)
@@ -43,7 +43,7 @@ p.fill(p.m(ell(44, 18, 3, 1.2)), GLOSS[0])                                      
 p = R.part('head')
 hd = union(rell(52, 24.5, 7.8, 5.6, 6), capsule([R.pv('head'), (49, 24)], 7, 7))
 p.add(p.m(hd), GLOSS)
-mand = union(capsule([(57, 26.5), (61.5, 26), (63, 23.5)], 2.6, 1.4), capsule([(56, 28.5), (60.5, 29.5), (62.5, 28)], 2.4, 1.3))
+mand = union(capsule([(57, 26.5), (62, 25.5), (64, 22.5)], 3, 1.5), capsule([(56, 28.5), (61, 29.8), (63.5, 27.8)], 2.8, 1.4))
 p.add(p.m(mand), darker(GLOSS), local=True, crescent=0)
 p.fill(p.m(ell(51, 20.8, 3.2, 1)), GLOSS[0])
 p.add(p.m(ell(55.5, 27, 1.3, 1)), (BLUSH,) * 4, flat=True)

@@ -31,16 +31,16 @@ H.blob(p, p.m(inter(ell(21, 21, 12, 8.5), dome)), WARM)               # the felt
 heart = poly([(15, 19), (18, 15.5), (23, 16.5), (27, 15), (28.5, 19.5), (25, 23.5), (19, 24), (16, 22.5)])
 H.blob(p, p.m(heart), (HOT[1], GLOW[0], GLOW[1], GLOW[2]))             # a split where the coal shows
 p.fill(p.m(ell(22, 19.3, 3.5, 2)), HOT[1])
-for pts in ([(8, 22), (12, 21), (15, 22.5)], [(27, 16), (30, 13), (33, 14), (36, 11.5)], [(18, 15.5), (17, 11), (19, 8.5)],
-            [(25, 23.5), (28, 26), (33, 25.5), (35, 28)], [(17, 23.5), (14, 27), (10, 27.5)], [(28.5, 19.5), (32, 20), (35, 19)]):
-    p.line(pts, GLOW[1])                                                          # glowing cracks running out of the split
+for pts in ([(16, 21), (12, 21.5), (8.5, 23.5)], [(26.5, 16), (29.5, 12.5), (33, 11.5)], [(19, 15.8), (18, 11.5), (20, 9)],
+            [(24, 23.5), (26, 27), (30, 28)], [(17.5, 23.5), (14.5, 27.5)]):
+    p.fill(p.m(inter(capsule(pts, 1.8, 1.1), dome)), GLOW[1])                 # glowing cracks running out of the split
     p.pxs(pts[1:2], HOT[1])
 p.line([(36, 12), (34, 18), (30, 24), (27, 29)], CHAR[3])                     # the wing-case seam
 p.fill(p.m(inter(dome, lambda x, y: y > 28.5)), CHAR[2])      # the rim of the case
 flame = poly([(20, 9.5), (19, 5.5), (21.5, 2.5), (22, 5), (24, 1.5), (25.5, 6), (27, 4), (27.5, 9.5)])
 p.add(p.m(flame), (HOT[0], HOT[2], GLOW[1], GLOW[2]), local=True, crescent=0)
 p.add(p.m(ell(23.5, 8, 1.8, 2)), (HOT[0], HOT[1], HOT[1], HOT[1]), flat=True)
-p.add(p.m(ell(38.5, 19, 2.5, 1.6)), (GLOW[0], GLOW[1], GLOW[1], GLOW[1]), flat=True)    # an ember on the plate
+p.add(p.m(ell(38.5, 20, 1.6, 1.3)), (GLOW[0], GLOW[1], GLOW[1], GLOW[1]), flat=True)    # an ember on the plate
 
 # head: round, a warm cheek, a little pincer
 p = R.part('head')

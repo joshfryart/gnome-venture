@@ -1,104 +1,108 @@
 #!/usr/bin/env python3
 """bramble-wolf "Bramble Wolf" (quad.canid rig, 95 x 58, 8 parts): "Woven from thorny vines, it hunts by the smell of fresh soil."
-(large, forest, L22; Bramble Pelt, Thorn Fang; Howl)
-A big wolf sewn from twisted bramble: a heavy body with high hunched shoulders, wrapped in braided vine strands (diagonal felt
-seams in two greens), a crest of hooked bark-cream thorns along the back and bigger hackle thorns on the shoulders, two red
-rose hips (body); legs as twisted vine bundles ending in clawed paws (far legs a dark step down); a vine-whip tail with thorns
-and a leaf at the tip (tail, sprung); a long heavy wolf head with leaf-shaped ears, a thorn ruff, a sniffing nose, a jaw of
-cream thorn fangs (head), and a glowing amber eye under a heavy brow (eyes). The biggest, darkest, spikiest of the batch."""
+(large, forest, L22; drops Bramble Pelt, Thorn Fang; Howl)
+A lean, long-legged wolf sewn from bramble canes: wine-red felt twisted into rope bands (pale-edged wrap seams) over a deep chest,
+tucked waist and high hackled shoulders, a crest of hooked cream thorns down the spine, a ruff of green bramble leaves at the
+neck and two red berries (body). Legs as twisted canes, hind legs with a proper wolf hock, cream thorn claws (legs, far pair one
+step darker). A raised, hooked whip of a tail with thorns and a leaf tuft at the end (tail, sprung). A long wolf head with tall
+pointed ears lined in leaf green, a pale muzzle, a black nose and a snarl of cream thorn fangs (head); one amber eye under a heavy
+brow (eyes). The tallest, spikiest silhouette of the batch."""
 import importlib.util, os, sys
-_s = importlib.util.spec_from_file_location('qk', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_quad_arctic-fox.py'))
-qk = importlib.util.module_from_spec(_s); _s.loader.exec_module(qk)
+_s = importlib.util.spec_from_file_location('qb', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_quad_bramble-wolf.py'))
+Q = importlib.util.module_from_spec(_s); _s.loader.exec_module(Q)
 from rigkit import *  # noqa
 
 R = Rig('bramble-wolf')
-VINE = ('#6a9f4e', '#3f7436', '#2f5a2a', '#1a3318')
-FARV = ('#3f7436', '#2f5a2a', '#244a22', '#1a3318')
-THORN = ('#fff3c8', '#e0c690', '#c9a96e', '#9a6b3f')
-LEAF = ('#c8d09f', '#9aa860', '#6b7a3a', '#3f4a22')
-PALE = ('#f2f2d0', '#d8dca8', '#a8b070', '#6b7a3a')
-HIP = ('#f08a4a', '#dd3a2a', '#a8241f', '#6e2038')
+CANE = ('#c0705a', '#8e3e3e', '#6a2a34', '#45192a')
+FARC = darker(CANE)
+WRAP = '#b8605a'
+LEAF = ('#a8d070', '#6aa048', '#3f7436', '#244a22')
+THORN = ('#fff3c8', '#f2e4c0', '#c9a96e', '#9a6b3f')
+MUZ = ('#f2e4c0', '#d8b89a', '#b08070', '#6a2a34')
+BERRY = ('#f08a4a', '#dd3a2a', '#a8241f', '#6e2038')
+g = R.ground
 
 
-def weave(p, mask, step=5, slope=1.0, col=VINE[3], hi=VINE[0]):
-    """braided vine strands: broken diagonal seams with a light thread beside them"""
-    for (x, y) in mask:
-        k = (x + y * slope) % step
-        if k < 1 and (y // 4 + x // 9) % 3 == 0:
-            p.px(x, y, col)
-        elif 1 <= k < 2 and (y // 4 + x // 9) % 3 == 0:
-            p.px(x, y, hi)
+def thorns(p, pts, hs, lean=-1.0, ramp=THORN):
+    """hooked thorns: a broad base on the skin, the tip raked back"""
+    for (x, y), h in zip(pts, hs):
+        p.add(p.m(poly([(x - 3, y + 1.5), (x - 1.6, y - h * .45), (x + lean * h * .45, y - h), (x + .6, y - h * .45), (x + 3, y + 1.5)])), ramp, local=True, crescent=1)
 
 
-def thorns(p, pts, h, ramp=THORN, lean=-1.2):
-    """hooked bramble thorns: a narrow base on the skin, the tip leaning back"""
-    for (x, y), hh in zip(pts, h):
-        tip = (x + lean * hh * .45, y - hh)
-        p.add(p.m(poly([(x - 2, y + 1.5), (x - 1, y - hh * .4), tip, (x + 2, y + 1.5)])), ramp, local=True)
-        p.px(tip[0] + .5, tip[1] + .5, ramp[1]); p.px(tip[0] + 1, tip[1] + 1.2, ramp[1])
+def leaf(p, x, y, L, deg, ramp=LEAF):
+    m = p.add(p.m(rell(x, y, L, L * .45, deg)), ramp, local=True, crescent=1)
+    import math
+    c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+    p.line([(x - c * L * .6, y - s * L * .6), (x + c * L * .5, y + s * L * .5)], ramp[2])
+    return m
 
 
-def tufts(p, pts, ramp, d=(-1, 1.2), L=4):
-    """shaggy ruff tufts: little pointed flaps hanging back and down from each point"""
-    for (x, y) in pts:
-        p.add(p.m(poly([(x - 1.8, y - 1.5), (x + d[0] * L, y + d[1] * L), (x + 2, y + 1.2)])), ramp)
+def cane_leg(pid, pts, w0, w1, paw, ramp, against=()):
+    p, m = Q.limb(R, pid, pts, w0, w1, ramp, paw=paw)
+    for k in range(2):                                            # twisted-cane wrap: diagonal seams down the leg
+        Q.strand(p, m, [(pts[0][0] - 4, pts[0][1] + 5 + k * 9), (pts[0][0] + 4, pts[0][1] + 8 + k * 9)], ramp[2], 1)
+    Q.claws(p, (int(paw[0] + paw[1] - 1), int(paw[0] + paw[1] - 3)), g, THORN[1])
+    if against:
+        Q.seam(p, R, m, against, ramp[3])
+    return p, m
 
 
-for pid, ramp, back in (('legBF', FARV, True), ('legFF', FARV, False)):
-    g = qk.hind(R, pid, ramp, 6.5, 4.5, back=3.5) if back else qk.leg(R, pid, R.pv(pid)[0] + 1, ramp, 5.5, 4.5)
-    weave(g, qk.sil(R, pid), 5, -1.0, ramp[3], ramp[0])
+# far legs (behind the body)
+cane_leg('legBF', [(36, 30), (38.5, 40), (34, 46.5), (35, 50)], 7, 3.6, (36.3, 3.2, 2), FARC)
+cane_leg('legFF', [(61.2, 30), (62.3, 44), (63, 50)], 5.5, 3.8, (64.3, 3.1, 2), FARC)
 
-# tail: a bushy tangle of vine held back and up, tapering to a point, thorns along it and a leaf caught in it
+# tail: a raised whip of braided cane, hooking forward at the end, thorns on the outer curve, a tuft of leaves on the tip
 p = R.part('tail')
-path = [(29, 28), (22.5, 25.5), (16.5, 20.5), (12.5, 14.5), (11, 9)]
-tl = p.m(capsule(path, 6, 3), capsule(path[:4], 6, 9), qk.fluff([(23, 29.5), (17, 26), (11.5, 21), (8.5, 15.5)], 2, 2.6))
-p.add(tl, VINE)
-weave(p, tl, 4, -1.0)
-thorns(p, [(23, 22.5), (18.5, 18), (15, 13)], [3, 3, 3], lean=-1.2)
-p.add(p.m(rell(19.5, 26.5, 1.8, 3.2, 60)), LEAF, local=True)                          # one leaf caught in the tangle
+path = [(28.5, 27.5), (22, 24), (16.5, 18.5), (14, 12.5), (16, 8)]
+tm = p.add(p.m(capsule(path, 7, 5), Q.fluff(path[1:4], 3.4, 2.6)), CANE)
+Q.strand(p, tm, [(27, 25.5), (20.5, 22), (16, 16.5), (15, 11)], CANE[2], 1)          # the cane twisting along the brush
+for a, b in (((23, 21.5), (21.5, 27)), ((17, 15.5), (12.5, 19.5))):
+    Q.strand(p, tm, [a, b], CANE[3], 1)
+thorns(p, [(20, 19), (15.5, 13.5), (25.5, 22.5)], [5, 4.5, 4], lean=-1.4)
+for x, y, d in ((16, 6.5, -70), (19.5, 8, -15), (12.8, 8, -120)):
+    leaf(p, x, y, 3.4, d)
 
-# body: hunched shoulders, deep chest, tucked waist, braided vine wrap, thorn crest and hackles, rose hips
+# body: deep chest, tucked waist, high hackled shoulders; rope bands, spine thorns, leaf ruff, berries
 p = R.part('body')
-torso = union(ell(57.5, 26, 9.5, 9.5), ell(45, 28, 14, 6.5), ell(33, 28.5, 8, 7))
-thorns(p, [(29, 21.5), (35, 21.5), (41, 22), (47, 21), (52, 18), (57, 16), (62, 16)], [4, 4, 4, 4.5, 5.5, 6.5, 6.5])
-mt = p.m(torso)
-p.add(mt, VINE, stitch=None)
-weave(p, mt, 5, 1.0)
-p.add(p.m(inter(torso, lambda x, y: y > 31.5 and 44 < x < 66)), (VINE[1], VINE[2], VINE[3], VINE[3]))   # dark under-belly
-tufts(p, [(66.5, 26), (67, 30), (65, 33), (61.5, 34.5), (57.5, 34.5)], PALE, d=(-.2, 1), L=5)                         # pale chest ruff
-for cx, cy in ((51, 26.5), (40, 31)):
-    p.add(p.m(ell(cx, cy, 2.1, 2.1)), HIP, local=True); p.px(cx - 1, cy - 1, HIP[0]); p.px(cx, cy - 2, VINE[3])
-p.add(p.m(rell(46.5, 25, 1.6, 3, 50)), LEAF, local=True)
+torso = union(ell(32.5, 28, 8, 7.5), ell(45, 26.5, 13, 6.2), ell(58.5, 25.5, 9.8, 11),
+              poly([(30, 21), (44, 20.5), (54, 15.5), (61, 14.5), (66, 22), (64, 36.5), (55, 37), (45, 32), (34, 34.5)]))
+thorns(p, [(30.5, 22), (37, 21), (43.5, 21), (49.5, 19.5), (54.5, 16.5), (59, 15)], [5, 5.5, 5.5, 6, 7.5, 8])
+bm = p.add(p.m(torso), CANE)
+Q.strand(p, bm, [(27, 26), (36, 24.5), (46, 25), (54, 21.5), (62, 19)], CANE[2], 1.2)   # canes running along the flank
+Q.strand(p, bm, [(30, 32), (40, 30), (50, 31), (58, 29), (64, 30)], CANE[2], 1.2)
+for a, b in (((35, 21.5), (31.5, 33.5)), ((47.5, 21), (43.5, 32)), ((58, 15.5), (55, 35.5))):
+    Q.strand(p, bm, [a, (a[0] - 1, (a[1] + b[1]) / 2), b], CANE[3], 1.1, hi=WRAP, side=(-1, 0))   # binding wraps
+p.add(p.m(inter(torso, lambda x, y: y > 31.5 and 40 < x < 60)), (CANE[2], CANE[2], CANE[3], CANE[3]), local=True)   # dark tucked belly
+for x, y, d in ((62.5, 17.5, -70), (66, 21.5, -30), (66.5, 26.5, 10), (65, 31, 40), (62, 34.5, 70), (59.5, 20, -100), (63, 24.5, -10)):
+    leaf(p, x, y, 3.6, d)                                                    # the leafy ruff at the neck and chest
+for cx, cy in ((47.5, 25.5), (38, 28.5)):
+    p.add(p.m(ell(cx, cy, 1.8, 1.8)), BERRY, local=True, crescent=1); p.px(cx - 1, cy - 1, BERRY[0])
 
-for pid, ramp, back, ag in (('legBN', VINE, True, ('legBF', 'body')), ('legFN', VINE, False, ('legFF', 'body'))):
-    g = (qk.hind(R, pid, ramp, 7.5, 5, back=3.5, against=ag, seamcol=VINE[3]) if back
-         else qk.leg(R, pid, R.pv(pid)[0] + 1, ramp, 6, 5, against=ag, seamcol=VINE[3]))
-    weave(g, qk.sil(R, pid), 5, -1.0, ramp[3], ramp[0])
-    fx = R.pv(pid)[0] + (0 if back else 1)
-    for dx in (0, 2.5, 5):
-        g.px(fx + dx - .5, R.ground, THORN[2])                                         # claws
+# near legs (over the body)
+cane_leg('legBN', [(30.6, 30), (33.5, 40), (28.5, 46.5), (29.5, 50)], 8, 4, (30.8, 3.4, 2.1), CANE, against=('legBF', 'body'))
+cane_leg('legFN', [(56.1, 30), (57, 44), (57.8, 50)], 6.2, 4.2, (59.2, 3.3, 2.1), CANE, against=('legFF', 'body'))
 
-# head: long heavy wolf head, leaf ears, thorn ruff, cream thorn fangs
+# head: long wolf head, tall pointed ears lined in leaf, pale muzzle, snarl of thorn fangs
 p = R.part('head')
-skull = ell(68, 17.5, 8.5, 7)
-snout = poly([(71, 12), (77, 14), (83.5, 16), (86, 17.5), (86, 22), (79, 24), (70, 25)])
-jaw = poly([(70, 22), (82, 22), (81, 25), (76, 27), (69, 27)])
-neck = capsule([R.pv('head'), (66, 20)], 11, 11)
-thorns(p, [(64, 10.5)], [4], lean=-2.5)
-ears = union(poly([(61, 13), (61.5, 2.5), (67, 11)]), poly([(65.5, 11), (69.5, 2), (72.5, 12)]))
-p.add(p.m(ears), VINE, local=True)
-p.add(p.m(union(poly([(62.5, 11.5), (62.5, 5.5), (65.5, 10.5)]), poly([(67.5, 10.5), (69.5, 5), (71, 11)]))), LEAF, flat=True)
-p.add(p.m(skull, snout, neck, jaw), VINE)
-p.add(p.m(inter(union(snout, jaw, skull), below((64, 23), (87, 20.5), 0))), PALE)          # pale muzzle and jaw
-tufts(p, [(62, 18), (61.5, 22), (63, 25.5)], PALE, d=(-1, .7), L=4.5)                         # pale cheek ruff
-weave(p, p.m(minus(union(skull, neck), below((64, 23), (87, 20.5), 0))), 5, 1.0)
-qk.nose(p, 84.5, 17)
-p.line([(85.5, 21.5), (80, 22.5), (77, 23.5)], INK)                                       # mouth
-for x, y in ((80, 23), (83, 22)):
-    p.px(x, y, THORN[0]); p.px(x, y + 1, THORN[1])              # thorn fangs hanging from the lip
-p.line([(67, 13), (74, 14.5)], VINE[3])                                             # heavy brow
+skull = ell(70, 16.5, 7, 6.3)
+snout = poly([(72, 11.5), (79, 13.5), (85.5, 15.5), (87, 17.5), (85.5, 20.5), (77, 21.5), (70, 22)])
+jaw = poly([(71, 21), (83, 20.5), (82, 23.5), (75, 25), (69, 24.5)])
+neck = capsule([R.pv('head'), (67, 18)], 11, 11)
+ears = union(poly([(63, 12.5), (64, 3.5), (69.5, 10)]), poly([(67.5, 10.5), (71.5, 3.5), (74, 12)]))
+p.add(p.m(ears), CANE, local=True)
+p.add(p.m(union(poly([(64.5, 10.5), (65, 5.5), (68, 10)]), poly([(69.5, 10.5), (71.5, 5.5), (72.5, 11)]))), LEAF, flat=True)
+hm = p.add(p.m(skull, snout, neck, jaw), CANE)
+p.add(p.m(inter(union(snout, jaw), below((70, 19.5), (88, 18), 0))), MUZ)          # pale muzzle and jaw
+p.add(p.m(inter(snout, lambda x, y: x > 78, minus(lambda x, y: True, below((70, 19.5), (88, 18), 0)))), (CANE[0], CANE[1], CANE[2], CANE[3]), local=True)
+Q.strand(p, hm, [(64, 15), (61, 23)], CANE[3], 1, hi=WRAP, side=(-1, 0))
+p.add(p.m(ell(85.8, 16.4, 1.7, 1.4)), (INK,) * 4, flat=True); p.px(85, 15, '#6a5648')   # nose
+p.line([(86, 20), (80, 21), (74.5, 22)], INK)                                       # the snarl
+for x in (79, 82):
+    p.px(x, 21, THORN[0]); p.px(x, 22, THORN[1])                                   # upper thorn fangs
+p.px(76, 21, THORN[0]); p.px(84, 20, THORN[0])
+p.line([(67, 12.5), (74, 14)], CANE[3])                                            # heavy brow
 
 p = R.part('eyes')
-qk.eye(p, 70.8, 17.1, iris='#f5cf6a')
+Q.bead(p, 71.2, 17.2, r=1.3, iris='#f5cf6a')
 
 R.save()
