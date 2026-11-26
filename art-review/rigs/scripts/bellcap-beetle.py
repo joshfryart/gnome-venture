@@ -22,9 +22,12 @@ for pid, pts in (('leg1', [(20.7, 32.1), (15.5, 38.5), (13.5, 45)]),
                  ('leg2', [(30.3, 32.1), (33.5, 38.5), (31.5, 45)]),
                  ('leg3', [(39.9, 32.1), (46.5, 37.5), (51, 45)])):
     p = R.part(pid)
-    p.add(p.m(capsule(pts, 3.4, 2.4)), HEAD, crescent=0)
+    p.add(p.m(capsule(pts[:2], 4.6, 3.6), capsule(pts[1:], 3.2, 2.4)), HEAD, crescent=0)      # thick felt thigh, slimmer shin
+    kx, ky = pts[1]
+    p.add(p.m(ell(kx, ky, 2.1, 2.1)), DARK, local=True, crescent=0)                           # knee button
     fx, fy = pts[-1]
-    p.add(p.m(ell(fx + (1.2 if pid != 'leg1' else -1.2), fy, 2, 1)), HEAD, local=True, crescent=0)
+    p.add(p.m(ell(fx + (1.4 if pid != 'leg1' else -1.4), fy, 2.4, 1.2)), DARK, local=True, crescent=0)
+    p.px(int(fx + (3 if pid != 'leg1' else -3)), int(fy) - 1, DARK[0])                        # a little hooked toe
 
 # body: the bell
 p = R.part('body')

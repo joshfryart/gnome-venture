@@ -54,7 +54,8 @@ dbx "UPDATE users SET location_id=$LID WHERE id=$SID"
 mv "$GAME/assets/img/wonders" "$GAME/assets/img/wonders.off"
 get world.php >/dev/null
 chk "page loads without the folder" "$([ "$(get world.php)" = 200 ] && echo 1)"
-chk "no lmscene img without art" "$(grep -q 'class="lmscene' $H && echo 0 || echo 1)"
+chk "no lmscene img without art" "$(grep -q 'class="lmscene pix' $H && echo 0 || echo 1)"
+chk "route card stands in without art (2.8.73)" "$(grep -q 'class="lmscene-card pix' $H && echo 1 || echo 0)"
 chk "wonder panel still there" "$(grep -q 'wonderintro\|How will you investigate' $H && echo 1)"
 mv "$GAME/assets/img/wonders.off" "$GAME/assets/img/wonders"
 echo; [ $FAILS = 0 ] && echo "all landmark scene checks passed" || { echo "$FAILS FAILED"; exit 1; }

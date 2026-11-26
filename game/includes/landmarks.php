@@ -609,7 +609,10 @@ function landmark_scene(array $lm, bool $ruined = false): string
     $drawn = false;   // 2.7.00: a ruined place with its own ruin picture (assets/img/wonders/ruin/<same name>) shows that instead of the greyed live picture
     $rel = $ruined ? art_path('assets/img/wonders/ruin/' . $file) : '';
     if ($rel !== '') $drawn = true; else $rel = art_path('assets/img/wonders/' . $file);
-    if ($rel === '') return '';
+    if ($rel === '') {   // 2.8.73: no scene of its own yet: the felt route card of its kind (assets/img/town/route-<kind>.png, 144x108) stands in
+        $card = art_path('assets/img/town/route-' . $kind . '.png');
+        return $card === '' ? '' : '<img class="lmscene-card pix" src="' . e(url($card)) . '" width="144" height="108" alt="' . e((string)$lm['name']) . '" loading="lazy" decoding="async">';
+    }
     return '<img class="lmscene pix' . ($ruined && !$drawn ? ' lmscene-ruin' : '') . '" src="' . e(url($rel)) . '" width="480" height="270" alt="' . e((string)$lm['name']) . '" loading="lazy" decoding="async">';
 }
 

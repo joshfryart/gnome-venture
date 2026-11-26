@@ -132,7 +132,7 @@ function pcrew_assign(array $u, int $plotId, string $role, string $palUid, strin
         return [false, 'That slot already has a pal.'];
     }
     $len = $mode === 'full' ? 'full time' : $nights . ' sleep' . ($nights > 1 ? 's' : '');
-    return [true, $p['name'] . ' takes the ' . strtolower(PCREW_ROLES[$role][1]) . ' job (' . $len . '). They start working when you sleep.'];
+    return [true, $p['name'] . ' takes the ' . strtolower(PCREW_ROLES[$role][1]) . ' job (' . $len . '). They work every morning at 06:00.'];
 }
 
 /** Call a pal home early. It rests until the next sleep. */

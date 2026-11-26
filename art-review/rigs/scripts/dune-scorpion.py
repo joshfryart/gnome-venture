@@ -25,11 +25,15 @@ for pid, knee, foot in (('leg1', (12.5, 37), (3.5, 51)), ('leg2', (21, 40.5), (1
 p = R.part('tail')                                                                          # a question mark of felt beads
 beads = [((29.5, 31), 4.6), ((27, 25.5), 4.4), ((25.5, 19.5), 4.2), ((26.5, 13.5), 4), ((30, 8.5), 3.8), ((35.5, 5.5), 3.7), ((41, 6), 3.6)]
 p.add(p.m(capsule([b[0] for b in beads], 7, 6)), SAND, crescent=1)
-for k, (c, r) in enumerate(beads[1:]):                                                      # beads, warming toward the sting
-    p.add(p.m(ell(c[0], c[1], r, r)), SAND if k < 3 else ('#fbe0a0', '#e4b060', '#b87e3e', '#7a5028'), local=True, crescent=1)
-p.add(p.m(ell(44.5, 11.5, 4.2, 4.6)), AMBER, local=True)                                    # the venom bulb
-p.add(p.m(poly([(42.5, 14), (45, 15.5), (43, 19.5), (40.5, 21.5), (41.5, 17.5)])), STING, local=True, crescent=0)   # the hooked sting
-p.px(44, 10, AMBER[0])
+BEAD2 = ('#f5dc98', '#d8ac60', '#ac7c40', '#7a5028')
+for k, (c, r) in enumerate(beads[1:]):                                                      # beads, alternating felt, warming toward the sting
+    p.add(p.m(ell(c[0], c[1], r, r)), (SAND if k % 2 else BEAD2) if k < 4 else ('#fbe0a0', '#e4b060', '#b87e3e', '#7a5028'), local=True, crescent=1)
+    p.px(int(c[0] - r * .35), int(c[1] - r * .45), '#fff8dc')                               # a sheen dot on each bead
+p.add(p.m(poly([(41.5, 13.5), (46, 14.5), (45, 18.5), (42, 22.5), (39.5, 23.5), (40.5, 19.5)])), STING, local=True, crescent=0)   # the hooked sting
+p.add(p.m(ell(44.5, 11, 4.6, 4.8)), AMBER, local=True, crescent=1)                           # the venom bulb
+p.pxs([(43, 9), (42, 10)], AMBER[0])
+p.line([(41.5, 15.5), (46, 13)], AMBER[3])                                                  # seam where the sting is sewn on
+p.px(40, 22, '#fff3c8')                                                                     # a cream glint on the tip
 
 p = R.part('body')
 mound = poly([(31, 37), (33.5, 29.5), (37, 27.5), (44, 27.5), (47.5, 29.5), (50, 37)])
