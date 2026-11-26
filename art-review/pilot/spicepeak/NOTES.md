@@ -13,8 +13,8 @@ How I read the shape codes (`claude/plan-puzzle-pals.md` section 6, `PPAL_SHAPES
 **sp-yak-yonder, Yak Yonder** (edge-TTB, double). A laden yak, seen from the front. Its hooves stand on the flat S side. The N double tab is two orange bundles roped on its back, and the E double tab is a saddlebag. The W double blank is cut into its shaggy side. Cream horns break out at the top corners. Palette: cell 5-5's tiger moth (orange with a cream zigzag, on the packs and the chest blanket) on yak brown from the bridge yak.
 *Verdict: squint PASS, name PASS (the strongest of the six), picture PASS.*
 
-**sp-chilli-chime, Chilli Chime** (inner-TBTB, peg). *Round 2.* A square chilli-bundle body, built the same way as the Yak. It is a flat, glossy red square under a smooth green calyx cap. The N peg tab is the stalk, with a curl. The S peg tab is a small brass chime bell. The square peg blanks E and W are cut into its sides. A souk garland hangs across its middle: a gold thread with three orange chillies. I removed the stitch line and the leafy zigzag cap, because those made it read as a strawberry. Palette: cell 9-6 (chilli red, spice orange and gold, green stalk).
-*Verdict: squint PASS (the peg piece outline is now unmistakable), name PARTIAL (the stalk curl and the chilli garland say chilli, but on its own the red square could pass for a bell pepper or tomato; it is the weakest name of the six), picture PASS for colour (the cell's brown shelving is not used).*
+**sp-chilli-chime, Chilli Chime** (inner-TBTB, peg). *Round 3.* A hanging bunch of three long, tapered chillies (deep red, red at the front with the face, and orange-red), tied at the top. The bunch is the piece. The three pods pack into the square body, with shelf-maroon shadow between them. The N peg tab is the tied green stalks, with a gold cord wrap and one curled stalk end. The S peg tab is a brass chime bell hanging from the front pod's tip. The square peg blanks E and W bite into the outer pods. Below the blanks the pod tips taper off, so the bottom edge is three points, not a flat line. Palette: cell 9-6 (chilli-garland red, spice gold, shelf maroon-brown, green stalks).
+*Verdict: name PASS (reads as a bunch of chillies at 64 and 36 px; no longer a strawberry or tomato), picture PASS, squint PASS but the weakest square of the inner pieces (peg top, bell bottom and both square notches are clear, but the pointed pod tips make the lower outline jagged rather than straight).*
 
 **sp-stupa-snug, Stupa Snug** (inner-TTTT Plus, double). A small white stupa. The N double tab is the gold finial, with a thin spire. The E and W double tabs are lavender mitts, and the S double tab is two lavender feet. It has the painted stupa eyes with arched lids and the little red curl nose, the gold zigzag band, base windows, and a string of five prayer flags over the dome. Palette: cell 8-2 (stupa white, lavender mountain, flag red, blue, green and yellow, gold zigzag).
 *Verdict: squint PASS (a clear plus shape; the side tabs look a bit like dog bones), name PASS, picture PASS.*
@@ -25,14 +25,15 @@ How I read the shape codes (`claude/plan-puzzle-pals.md` section 6, `PPAL_SHAPES
 **sp-lofty-kite, Lofty Kite** (rare, whimsy-kite, tri). A diamond kite. The whimsy shape is the kite itself, with tri tabs on its NW and SE edges and tri blanks on its NE and SW edges. It has cross spars, a ribbon tail with two bow ties, and eyes that look down ("looks down on everything"). The top half is saffron and orange like the kite over the ridge; the bottom half is sky teal, because cell 4-0 is mostly sky.
 *Verdict: squint WEAK (knobs on diagonal edges make the outline busy, a bit like a star, and the tabs read as ears more than as jigsaw tabs), name PASS (diamond, spars and tail say kite), picture PASS.*
 
-Summary after round 2: Yak, Stupa, Saffron and Ferry pass all three tests. Chilli passes squint and picture but is only partial on name (it can read as a red pepper). Kite is still weak on squint. Yak, Stupa and Kite were not changed in round 2.
+Summary after round 3: Yak, Stupa, Saffron and Ferry pass all three tests. Chilli passes name and picture, and passes squint with a jagged lower edge. Kite is still weak on squint. Round 3 changed only Chilli.
 
 ## Checks (run by the script, last run)
 - Sizes: 64 x 64 and 36 x 36, RGBA. Alpha is only 0 or 255 in all 12 files. No #000000 pixel. The outline is umber #2a1a10, 1 px, 4-adjacent.
-- Colours per file: 13 to 22 (limit about 40). Saffron 17/19, Yak 15/16, Chilli 17/15, Stupa 20/19, Ferry 21/20, Kite 22/21.
+- Colours per file: 13 to 22 (limit about 40). Saffron 17/19, Yak 15/16, Chilli 19/18, Stupa 20/19, Ferry 21/20, Kite 22/21.
 - Silhouettes: all 6 are unique at both sizes. The most alike pairs are Chilli vs Ferry at 64 px (IoU 0.68) and Saffron vs Ferry at 36 px (IoU 0.70).
 - Looked at `compare.png` across 4 iterations. Fixes: crocus petals (a flat purple slab became pointed petals), chilli (strawberry, then a taller tapered pod), ferry (box, then canopy + hull + river; hook blanks no longer leave islands), kite (smaller tri knobs, sky-teal bottom, tabs coloured like their quadrant), stupa (spire added, mitts made lavender).
 - Round 2 (owner feedback): I redrew Chilli, Ferry and Saffron and looked at `compare.png` and zoomed sheets 3 more times. Fixes: the stigma "V" competed with the face, so the face moved to the leaves; the chilli stitch and zigzag cap read as strawberry seeds and leaves, so I removed them and made the garland chillies orange so they show; the ferry's S blank in the river looked like legs, so I rotated the tabs to E and S (anchor).
+- Round 3: I redrew Chilli as a hanging bunch and reviewed it 3 times (zoom, `compare.png`, dark background). Fixes: the outer pods were too thin around the blanks and read as a "T", so I widened the body and moved the blanks down and made them smaller; two stalk curls read as antennae, so I kept one.
 
 ## Pipeline
 - Script: `art-review/pilot/spicepeak/draw_pilot.py`. Python 3 + Pillow only, deterministic. Each pal is one function of about 30 to 50 lines, built from shape predicates (rect, ellipse, polygon, thick path, and a generic `knob(kind, style, point, normal)` that also works on diagonal edges for whimsy shapes). Parts are painted in order. The renderer adds rim light, a lower-right crescent shade, the dashed felt stitch (64 px only), eyes, mouth and blush helpers, and the umber outline. The same functions draw at 64 and 36 px, with small-size branches (`c.small`).
@@ -46,3 +47,38 @@ Summary after round 2: Yak, Stupa, Saffron and Ferry pass all three tests. Chill
 3. Automate the squint test: downscale the silhouette to 18 px and check that each tab and blank still changes the outline; flag rosters where any pair has IoU above about 0.75.
 4. Make one review sheet per picture, and have the owner pass or fail it, so failures go back as single-pal rework.
 5. Risks: subjects that do not fit a rectangle (people, animals in profile; the yak only works face-on); knobs on diagonal whimsy edges (see Kite) need their own rules, for example knobs only on the two longest edges; 36 px loses mouths and small props, so the core idea has to be in the silhouette and the main colour blocks; style drift across about 95 pictures unless the kit stays fixed; and gameplay sizing, since the old perch art is 36 px and the old yard art is 64 px, and these files would replace both.
+
+## Kit for scale-up (how one agent draws one pal)
+
+Everything lives in `draw_pilot.py` and needs only Pillow. Copy the kit part (everything above `# ===... the six pals`) into a shared module, for example `aseprite-source/pals/mergedkit.py`, then write one function per pal.
+
+**Geometry. All coordinates are in 64-unit space**, so the same code rasterises at 64 and 36 px:
+- `rect(x0, y0, x1, y1)`, `ell(cx, cy, rx, ry)`, `poly(points)`, `thick_path(points, width)`. Each returns a predicate f(x, y) -> bool.
+- `knob(kind, style, mx, my, nx, ny, r=4.5, nw=2.6, flip=False)`: a tab (`'T'`, union it) or blank (`'B'`, pass it in `minus=`). It sits on the side line through (mx, my), with outward unit normal (nx, ny), so it also works on diagonal whimsy edges. Styles: round, peg, tri, double, hook. Keyhole is not implemented yet; port it from `palib.knob_shape`. A tab reaches about 2r + 2 units out, and a blank cuts about 2r + 3 units in, so leave that much body behind every blank.
+- Side order in a shape code is free. Rotate the T/B pattern to whichever sides suit the creature.
+
+**Canvas `C(n)`**:
+- `c.small` is True at 36 px. Multiply knob radii by `K = 1.15 if c.small else 1.0`.
+- `c.m(*preds, minus=(...))` returns a pixel set.
+- `c.add(mask, ramp, stitch=None)` paints a part. Later parts paint over earlier ones; the union of all parts is the silhouette. A ramp is (base, dark, light), taken from the picture's `jigsaw_<slug>.py`.
+- `c.edge(mask, col)` draws an inner contour where one part sits on another.
+- `c.line(points, col)`, `c.px(x, y, col)` (pixel coords) and `c.P(x, y)` (64-unit to pixel) are for details.
+- `c.eye(x, y, disc=False, look=(dx, dy))`, `c.smile(x, y)` and `c.blush(x, y)` have separate 64 px and 36 px versions; that is where the 36 px "reduction" happens. Use `disc=True` on dark bodies.
+- `render()` adds the rim light (upper left), the crescent shade (lower right, 2 px, or 1 px at 36), the dashed stitch (64 px only), the overlays, and the 1 px umber outline (4-adjacent). The output has hard alpha.
+
+**Checks**: `check(img)` (size, alpha only 0 or 255, colour count, no #000000). `main()` also checks that silhouettes are unique and reports the most alike pair (IoU) per roster, and `compare()` builds the review sheet. Keep both in every run, and fail a roster if the IoU is above about 0.75.
+
+**Recipe per pal (about 40 lines)**: (1) write one line first: thing + which side is which tab or blank + motif from the cell; (2) build the core and knobs, then `body = c.m(core, tabs..., minus=blanks)`; (3) paint 3 to 6 parts with picture ramps; (4) add the face last, on the biggest calm area; (5) run the script, look at a 6x zoom at 64 and 36 px on light and dark backgrounds, and fix; (6) record an honest verdict for each test.
+
+**Failure modes seen in this pilot (check for these first)**:
+1. Creature-shaped blob: the outline follows the creature and the piece disappears (Chilli round 1). Keep a square-ish core with straight sides between knobs.
+2. Piece with a picture on it: a box with a face, and the thing only in the paint (Ferry rounds 1 and 2). The thing's main cue (hull curve, cup, horns) must reach the outline or fill the body.
+3. Spikes at corners read as ears or a crown (Saffron round 1). Round the tips, and make the signature detail (stigmas) larger than the shape gimmick.
+4. Decor that reads as something else: dashed stitches on red read as strawberry seeds, and a zigzag green cap reads as strawberry leaves (Chilli round 2). Leave the stitch off small busy bodies.
+5. A blank cut into a narrow band reads as legs (Ferry round 2, water band). Put blanks into the large mass and rotate the shape if needed.
+6. A ring-shaped hook blank leaves a floating island of body. The kit now cuts hook blanks as a solid comma.
+7. A face next to a V-shaped detail becomes a beak or owl (Saffron round 2). Keep the face away from strong lines.
+8. Knobs on diagonal whimsy edges make the outline busy (Kite). Use smaller knobs, or put them on only two edges.
+9. At 36 px: 1 px threads vanish (use width 2.6 or more units), stitches are dropped, and mouths shrink to 4 px. The idea has to live in the silhouette and the big colour blocks.
+10. The umber outline disappears on the dark #2a1a10 background. That is by design (same as the old stickers), but judge the silhouette on the light sheet.
+

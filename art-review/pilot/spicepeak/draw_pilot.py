@@ -124,6 +124,7 @@ class C:
         self.parts = []          # (mask, ramp, stitch colour or None)
         self.over = {}           # pixel -> colour, drawn after shading
         self.cut = set()         # pixels forced transparent (holes)
+        self.edges = {}          # inner contours: drawn only where the pixel is not on the outer silhouette edge
 
     def m(self, *preds, minus=()):
         n, k = self.n, self.k
@@ -198,6 +199,12 @@ class C:
             self.px(cx + 1, cy + 1, col)
             self.px(cx + 2, cy, col)
 
+    def edge(self, mask, col):
+        """Inner contour: colour the pixels of mask that touch a pixel outside it (but still inside the silhouette, so the outline stays umber)."""
+        for (x, y) in mask:
+            if any((x + dx, y + dy) not in mask for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                self.edges[(x, y)] = col
+
     def blush(self, x, y):
         cx, cy = self.P(x, y)
         self.px(cx, cy, BLUSH)
@@ -238,6 +245,9 @@ class C:
                 for (x, y) in e2 - e3:
                     if ((x + y) // 2) % 2 == 0:
                         cols[(x, y)] = st
+        for (x, y), c in self.edges.items():
+            if (x, y) in sil and all((x + dx, y + dy) in sil for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                cols[(x, y)] = c
         for p, c in self.over.items():
             if p in sil:
                 cols[p] = c
@@ -375,23 +385,38 @@ def yak_yonder(c):
 
 
 def chilli_chime(c):
-    """Inner-TBTB, peg: a chilli bundle, square like the Yak. A square glossy red body under a green calyx cap; the N peg tab is the stalk
-    (with its curl), the S peg tab is a brass chime bell, square peg blanks E + W. Across its middle hangs a souk garland of little chillies
-    on a gold thread (cell 9-6: the chilli garlands, the spice golds)."""
+    """Inner-TBTB, peg: a hanging bunch of three long red chillies, tied at the stalks. The bunch IS the piece: the three pods pack into a
+    square body (dark maroon shadow between them), the N peg tab is the tied green stalks with a gold cord wrap (where the garland hangs from),
+    the S peg tab is a brass chime bell hanging off the middle pod's tip, square peg blanks E + W bite into the outer pods.
+    The outer pod tips round off the bottom corners. Souk reds, cord gold, shelf maroon (cell 9-6)."""
     K = 1.15 if c.small else 1.0
-    core = rect(12, 17, 52, 53)
-    rounded = lambda x, y: y >= 47 and ((x < 18 and not ell(18, 47, 6, 6)(x, y)) or (x >= 46 and not ell(46, 47, 6, 6)(x, y)))
-    blankE = knob('B', 'peg', 52, 35, 1, 0, r=4.0 * K)
-    blankW = knob('B', 'peg', 12, 35, -1, 0, r=4.0 * K)
-    tabN = knob('T', 'peg', 32, 17, 0, -1, r=4.4 * K)
-    tabS = knob('T', 'peg', 32, 53, 0, 1, r=4.4 * K)
-    body = c.m(core, minus=(blankE, blankW, rounded))
-    c.add(body, CHILLI)
-    # calyx cap: a smooth green cap with a rounded rim (no leafy points: those read as a strawberry)
-    cap = body & c.m(lambda x, y: y < 20.5 + 3 * (1 - ((x - 32) / 20) ** 2))
-    c.add(c.m(tabN) | cap, TEA)
-    c.add(c.m(thick_path([(32, 9), (36, 6.5), (39, 8)], 2.4 if not c.small else 3.0)), TEA)    # stalk curl
-    bell = c.m(tabS, minus=(lambda x, y: y < 54,))
+    podL = poly([(11, 18), (25, 18), (25, 34), (23, 43), (19.5, 50.5), (15.5, 54), (12.5, 49.5), (11, 41)])
+    podM = poly([(23.5, 18), (40.5, 18), (40.5, 36), (39, 45), (36.5, 55), (27.5, 55), (25, 45), (23.5, 36)])
+    podR = poly([(39, 18), (53, 18), (53, 41), (51.5, 49.5), (48.5, 54), (44.5, 50.5), (41, 43), (39, 34)])
+    blankE = knob('B', 'peg', 53, 30, 1, 0, r=3.0 * K)
+    blankW = knob('B', 'peg', 11, 30, -1, 0, r=3.0 * K)
+    tabN = knob('T', 'peg', 32, 18, 0, -1, r=4.4 * K)
+    tabS = knob('T', 'peg', 32, 55, 0, 1, r=3.8 * K)
+    cut = (blankE, blankW)
+    body = c.m(podL, podM, podR, rect(11, 18, 53, 38), minus=cut)
+    c.add(body, ('#5e1c28', '#3a1018', '#8e2a3a'))                    # shadow inside the bunch (shelf maroon)
+    mL = c.m(podL, minus=cut)
+    mR = c.m(podR, minus=cut)
+    mM = c.m(podM, minus=cut)
+    c.add(mL, ('#a8241f', '#7a1418', '#d6322b'))
+    c.add(mR, SAFFRED)
+    c.add(mM, CHILLI)
+    c.edge(mM, '#7a1418')                                             # inner contour: the front pod sits on the other two
+    # green calyx caps, the tied stalks (N peg) and the gold cord wrap
+    caps = c.m(lambda x, y: y < 22 + (1.2 if (x // 3) % 2 else 0)) & body
+    c.add(caps | c.m(tabN, minus=(rect(0, 18, 64, 64),)), TEA)
+    c.add(c.m(thick_path([(33, 8), (35.5, 4.5), (39, 4.5), (40.5, 7.5)], 2.2 if not c.small else 2.8)), TEA)   # the tied stalks' curl
+    c.add(c.m(rect(26, 13, 38, 15.6)), GOLD)
+    if not c.small:
+        c.line([(19, 21), (21, 19), (25, 18.5)], TEA[1])                # stalk curls running up into the tie
+        c.line([(45, 21), (43, 19), (39, 18.5)], TEA[1])
+    # brass chime bell hanging off the middle tip
+    bell = c.m(tabS, minus=(lambda x, y: y < 56,))
     c.add(bell, GOLD)
     by = max(y for (x, y) in bell)
     xs = sorted(x for (x, y) in bell if y == by)
@@ -399,36 +424,16 @@ def chilli_chime(c):
         for x in range(xs[0], xs[-1] + 1):
             c.px(x, by - 1, GOLD[1])
     c.px((xs[0] + xs[-1]) // 2, by - (3 if not c.small else 1), UMBER2)
-    # gloss (a chilli is shiny): a long light stripe down the left, a glint top right
-    c.add(body & c.m(rect(15, 25, 17.5, 46)), ('#e0483a', '#e0483a', '#f08a4a'))
-    c.line([(46, 25), (47, 28)], '#f08a4a')
-    # souk garland: a gold thread with three hanging chillies (umber-edged so they read on the red body)
-    gy = 41
-    c.line([(14, gy), (24, gy + 1.5), (32, gy + 2), (40, gy + 1.5), (50, gy)], SAFF[0])
-    for gx in (21, 32, 43):
-        if not c.small:
-            mc = c.m(poly([(gx - 2, gy + 3), (gx + 2, gy + 3), (gx + 2, gy + 7.5), (gx + 4, gy + 10.5), (gx + 0.5, gy + 9.5), (gx - 2, gy + 6.5)]))
-            for (x, y) in mc:
-                c.px(x, y, '#f8d060' if (x - 1, y) not in mc and (x, y - 1) in mc else '#f08a24')
-            for (x, y) in mc:
-                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                    q = (x + dx, y + dy)
-                    if q not in mc and q in body and q not in c.over:
-                        c.over[q] = UMBER2
-            x, y = c.P(gx, gy + 2)
-            for dx in (-1, 0, 1):
-                c.px(x + dx, y, TEA[0])
-        else:
-            x, y = c.P(gx, gy + 2)
-            c.px(x, y, TEA[0])
-            c.px(x, y + 1, '#f08a24')
-            c.px(x, y + 2, '#f08a24')
-            c.px(x + 1, y + 3, '#f08a24')
-    c.eye(25.5, 31)
-    c.eye(38.5, 31)
+    # gloss down the left of each pod
+    c.line([(13.5, 24), (13.5, 42)], '#d6322b')
+    c.line([(26.5, 24), (26.5, 44)], '#e0483a')
+    c.line([(41.5, 24), (41.5, 38)], '#f08a4a')
+    c.eye(29, 31)
+    c.eye(35.5, 31)
     c.smile(32, 36)
-    c.blush(21, 35.5)
-    c.blush(43, 35.5)
+    if not c.small:
+        c.blush(26.5, 35)
+        c.blush(37, 35)
 
 
 def stupa_snug(c):
