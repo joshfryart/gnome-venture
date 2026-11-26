@@ -1,4 +1,7 @@
-# Gnome Venture handoff (current as of 2026-11-25; main = 2.8.63, 2.8.64 on branch `ccr-6aa7b252-jbqae7`; MASTER TO-DO is `claude/todo.md` (one file, read it first); blocks below the 2.8.48 note are old history)
+# Gnome Venture handoff (ONE file, old handoffs merged at the bottom; current as of 2026-11-26; main = 2.8.72; MASTER TO-DO is `claude/todo.md`, read it first)
+
+**2.8.66 to 2.8.72 (2026-11-26), 2.8.72 on main (PR 83)**: see `CHANGELOG.md` 2.8.71 and 2.8.72 for the full list. Dock L/R actions on ~29 pages, mobile/landscape dock fixes, tutorial radish needs a sleep in the hovel, game days, shop W badge, fewer clicks (W1a), event banners to the bell (landscape/desktop), garden crew works the new morning and every 06:00 (users.crew_morning, `pcrew_mornings`; Plant step grow_day = D), Cat Fish rod upgrades in room2, art fold (20 scenes, 570 pals, 124 fight rigs). Zip: `bash tests/build_update.sh 2.8.72 2.8.70 $PWD/releases slim` (live site was on 2.8.70). Workflows (Workflow tool) did W1-W5 and the rig redraw. Rig pipeline: `art-review/rigs/` (FORMAT.md, swap_test.sh, preview.sh); open items in todo.md. Stop hook demands commit+push: WIP commits to the dev branch are fine. Test caveat: headless Chromium / SQLite only, nothing seen on a real phone or MySQL.
+
 
 **2.8.65 (2026-11-25), BUILT on branch `ccr-45e6dd21-8icyjv`**: hole rim of puzzle pieces is the dark outline, not pink / lavender / yellow. Source `aseprite-source/pfight/v47/scripts/socks.lua`, kits parts47 / parts48 rebuilt. Art only. Slim zip `releases/GnomeVenture-2.8.65-web-update.zip` (needs 2.8.53+). See CHANGELOG 2.8.65.
 
@@ -341,3 +344,649 @@ Mockups go in scratchpad only (not in project).
 - Balance watch: crops lose money on bought seed; cooking 115%, order board 3, price drift, stop rewards, hybrid odds, mentor XP share, animal gifts. Stall prices uncapped. Cosmetic sinks no level gate.
 - Tooltips still hover-only (minor, left): games.php tile blurb, race.php, weather label, ability buttons, yard edit tiles, community bed %, inventory tool purpose, adventure odds, region climate, guestbook.
 - Ideas not built: growing villages; caravans; more festivals; mines; Hall of Fame; public region pages (SEO); inbox (parked); player search; trade price history; admin view-as-player / time-skip; admin 2FA; CAPTCHA; equipment slots; postcards / follow-a-trail / seed lineage; Satchel split by quality.
+
+---
+
+<!-- merged from claude/handoff-archive.md -->
+## Handoff archive (moved out of handoff.md on 2026-10-28, 2.0.81)
+
+<!-- moved 2026-10-30 (2.2.1): Cat Fish 2.1.00 to 2.2.x blocks -->
+**2.2.x (UNRELEASED, branch `ccr-d4955a91-j50rxx`, pushed, not on main, `APP_VERSION` still 2.1.14, no zip):** read `claude/todo.md` top block first, then `claude/plan-catfish-petshops.md`. Joshua asked (terse, via Claude Code on the web) for: a Cat Fish page layout pass (tabs, folds, hub), a long list of Yarn sinks (full list in the todo block), flipped fight panels (you under your gnome), Puzzle Pals beside the gnome on the Adventure stage, and design work for pet shops and long-cooldown scene events (designs only). Code: `game/catfish.php` (page, POST dispatch for every Yarn action, Yarn panel), `game/includes/catfish.php` (all the `catfish_*` Yarn functions, constants `CATFISH_*`; meta keys listed in todo), `game/assets/catfish.js` (tabs, hub, buy x1/x10, built from server markup; no `innerHTML` allowed by a test), `game/assets/catfish.css` (2.2.0 block at the end; some rules sit above the "2.1.06 room life" comment on purpose because a test greps below it for `blur|filter`), `game/includes/gnome.php` (`gnome_scarf_svg`), `game/includes/scene.php` (pals on the stage), `game/adventure.php` + `includes/layout.php` + `includes/adventure.php` (panel order), `game/festival.php` (bunting button), `game/book.php` (Yarn titles in the Almanac). Tests: `bash tests/ci_suites.sh catfish` (about 3 min; run suites one at a time). `social100` fails on the base commit too. Working method that Joshua liked: mockups first (artifact with 5 variants), he picks by letter, then build; Fable/Opus agents for idea lists, Sonnet for code; ideas he picks get built, others stay in the todo.
+
+**2.1.07 (latest BUILT, slim zip `releases/GnomeVenture-2.1.07-web-update.zip`, needs 2.0.47+, same branch, not on main):** Cat Fish buy flow. `catfish.js`: optimistic cost on click, pressed button off, `-N` pop (`#cf-spend`), pending taps ride the buy (`play`, `seq`; `whenFree` queue = one request at a time), refusal/failure restore the number. `catfish_api.php`: `do=buy` runs `catfish_play` then `catfish_buy` in one `catfish_locked`; buy and tick answer `scene` (key, `catfish_scene_key`) and `stage_html` (`catfish_scene`) when the page's key differs; `catfish.js` `swapScene` swaps `.cfstagewrap` via DOMParser and fires `cfscene`; the animation block is `init()`/`stop()` (timers wrapped in `T()` with a `dead` flag). News: ONE post, key `2.1.07`, covers 2.1.05 to 2.1.07 (the 2.1.0x entries live in the `$todo` literal and dedupe by title). Tests: `tests/catfish.sh` (buy API, scene), `tests/catfish_anim.js` (buy flow). Art follow-ups: bird sprite has a 1 px outline the overlay robin lacks; rolling yarn sprite lacks thread and contact shadow; side-cat nap/bored spots are static. Also carries the fight-card phone scroll (`gvFightScroll` in site.js; branch ccr-103a3178-10sv83 rolled in).
+**2.1.06 (latest BUILT, slim zip `releases/GnomeVenture-2.1.06-web-update.zip`, needs 2.0.47+, same branch, not on main):** Cat Fish S4: idle variety (yawn, stretch, wash; `catfish.js` `schedVariety`, `vtok` cancels it on a tap), window bird (`catfish_room_extras_html`, `.cfbird`, `.is-bird` hides the overlay robin), yarn roll (`.cfyarn`, `CATFISH_YARN_ROLL`), dust motes (`catfish_ambience_html`, CSS), rug wobble (`.cfl-rug.is-wobble`). `CATFISH_FRAMES_LAZY` is 11 frames. `?cffast=1` shortens variety and bird waits (tests only). Remaining ideas: side-cat nap/bored frames moving, a 'watch' head turn; art follow-ups in `claude/todo.md`.
+
+**2.1.05 (previously BUILT, slim zip `releases/GnomeVenture-2.1.05-web-update.zip`, needs 2.0.47+, same branch, not on main):** Cat Fish animation S2/S3 wired: tap loop swatA 120 / swatB 200 / catch 600 / happy 500; jump arc (combo 5, or the top fish twice in 1.5 s); blink, tailflick, eartwitch while idle; floating z on napping cats; sparkles; seeded side-cat alternation and a side stalk. `catfish_cat_layers` + `CATFISH_FRAME_BASE`/`CATFISH_FRAME_OWN` compose alias frames (mirror of `frames-alias-s2/s3.json`, test-checked); the stage inlines 8 frame groups and `catfish.js` builds the other 7 from the `#cf-frames` JSON manifest. Art: 1281 PNGs (`tools/catfish_build_art.py --install`). **NEXT 2.1.06:** yawn/stretch/wash idle variety (art installed), window bird flit, yarn roll, dust motes, rug wobble.
+
+**2.1.04 (previously BUILT, slim zip `releases/GnomeVenture-2.1.04-web-update.zip`, needs 2.0.47+, same branch, not on main):** Cat Fish active play: the three fish are buttons, a tap bounces the fish and the cat plays (stalk 150 / pounce 350 / catch 600 ms), and pays `max(1, floor(kph x 5 / 3600 x tier))` Kibble, validated by `catfish_play` (token bucket 15, +1 per 2 s; 360 taps a Hollow day at x1/x0.5/x0.25; `n` 0..40; replayed `seq` pays 0; meta keys pb pt pd pc pq pe; no new columns) inside `do=tick`. Plan and numbers: `claude/plan-catfish.md` "Active play"; `claude/catfish-sim.php` third argument. **NEXT:** animation catalogue slices S2..S4: swatA, swatB, blink first (new frames), then S3, S4.
+
+**2.1.03 (previously BUILT, hotfix, slim zip `releases/GnomeVenture-2.1.03-web-update.zip`, needs 2.0.47+, same branch, not on main):** Cat Fish strings reach the fish: each drop has `cfk-N` (fish kind) and `catfish.css` `--cfn` per kind (8/7/4/11/11 px, first opaque row of the PNG in string columns 23/24) added to the string height; `tests/catfish.sh` recomputes it from the PNGs. Re-measure `--cfn` if a fish PNG changes.
+
+**2.1.02 (previously BUILT, slim zip `releases/GnomeVenture-2.1.02-web-update.zip`, needs 2.0.47+, branch claude/cat-fish-game-art-2c5q76 with main 2.1.01 merged, not on main):** Cat Fish room is one scene: `catfish_stage_html` (stage, wand, fish, active cat with 8 frames, side cats), `assets/catfish.js` state machine (`data-frame`), CSS position classes from `room-layout.json`, centred layout, 614 art PNGs (idleB/wiggle/bored overlays). Old rod box/room markup stays as the no-art fallback.
+
+**2.1.00 (previously BUILT, slim zip `releases/GnomeVenture-2.1.00-web-update.zip`, needs 2.0.47+, branch claude/cat-fish-game-art-2c5q76 with main 2.0.99 merged, not on main):** Cat Fish art (440 PNGs in `assets/img/catfish`, emoji fallback), layered renderer `catfish_cat_html`, lilac coat, tools `catfish_recolor.py` / `catfish_build_art.py`. ON for everyone by default (`catfish_open` default On; boot step `catfish_open_210` flips existing sites on once at upgrade; admins can set Off in Admin > Settings). Known art gaps (idleB, wiggle, bored lack ear/tail/pattern art): `claude/catfish-art-brief.md`. News 2.1.00 announces Cat Fish plus main's 2.0.97-99 changes.
+
+
+**2.0.80 (branch `ccr-825131e7-zk8c9y`, zips built in `releases/`, NOT on main; push main only on Joshua's word):** road cards for all 14 regions (25 each for the 12 others, 300 cards) + the art AI's first-pass drawn art merged (branch `claude/art-first-pass`: stage icons, stop tiers, folk, act pictures for all 810 activities, road/journal icons; all UNAPPROVED by Joshua, list in `claude/todo-art-variety.md`). Next: Joshua reviews cards (no review artifact yet) and art; build-plan waves (`build_plans.txt` for the other 12 regions); leftover build verbs; per-sketch-page art.
+
+**START HERE (2026-10-28 session, 2.0.76 to 2.0.79):** read `claude/todo.md` top blocks, `claude/plan-variety.md` and `claude/todo-art-variety.md`. Variety project: build plans per landmark (2.0.76, pilot CA+CB, `data/build_plans.txt`), themed stop upgrades + regional materials (2.0.77), villager overlay (2.0.77), stop activity kinds craft/collect/tend/contest + 810 activities, 35 per stop kind and 35 per region, no repeats (2.0.78, `data/stop_acts*.txt`, `tools/lint_stop_acts.py`, `tools/dedupe_stop_acts.py`), road card kinds + Road Journal (2.0.79, pilot NA+CA, `tools/lint_road_events.py`). On main: up to 2.0.78. **2.0.79 is only on branch `ccr-7e2dadf5-mxypd7` (no zip yet; push main only on Joshua's word, then `bash tests/build_update.sh 2.0.79 2.0.47 /home/user/gnome-venture/releases`, keep latest 4 in releases/).** Next: road card waves for the other 12 regions (50 per wave, Opus medium writers, lint + repeat check, review artifact), build-plan waves (`build_plans.txt` for the other 12 regions), Aseprite art (all placeholders are red-bordered; lists in `todo-art-variety.md`). Owner rules: terse replies, concise updates at the end only, placeholder art = red border + THIS IS PLACEHOLDER, Worm Hunt/Snail Race are full games not step checks.
+
+**ART NOTE (2.0.78+):** every rest-stop activity should get its own Aseprite scene `game/assets/img/acts/act-<slug>.png` (144x108): brief in `claude/todo-art-variety.md` ("ART TODO FOR A FUTURE AI"), list with `python3 tools/missing_act_art.py`. Applies to all future content waves too.
+**Session summary 2026-10-28 (2.0.69-2.0.75, all on main; read `claude/todo.md` NOW block first):** Puzzles hub + GIFsaw (`gifsaw.php`), Rain Barrel + Gnome Beds (shared `includes/puzzle_games.php`, `puzzle_game_api.php`, tables `puzzle_runs`/`puzzle_wins`, gardens cached in `data/pzcache`), Jeff the Puzzler (title; 8 new poses + tour front page with real screenshots via `tests/shots.sh`), guest gardens (`includes/guest.php`, `guest.php`, `customise.php`; users.guest/guest_ip; off by default). Joshua's rules held: mockup first (approved the Jeff tour mockup), terse replies, push main only on his word (he said it for 2.0.68-2.0.75), cheap models draw/code, Opus plans/reviews (Opus high = ideas/plans, Opus medium drew the poses, Fable low plotted guest mode). Files for plans: `claude/plan-puzzle-games.md`, `claude/plan-guest-mode.md`, `claude/jeff-poses.md`. Art: `aseprite-source/HANDOFF.md` section 6e.
+**2.0.75:** Guest gardens, setting `guest_open` (default 0). A guest = real `users` row with `guest=1`, fake email `<hex>@guest.invalid`, ready-made gnome 'Guest Patch' via `onboard_create()` (shared with welcome.php). `require_login()` calls `guest_gate($page)` (lists `GUEST_BLOCKED_PAGES`, `GUEST_POST_BLOCKED_PAGES` + jobs/market-day/tournament special cases) which renders Jeff's key card (403) or turns a POST back. `gnome_in_play_sql()` has `guest = 0` (boards, draws, visits, profiles). `fresh_hold()` refuses guests; `show_measure`/`fair_keep_best` skip guests; `send_mail` skips @guest.invalid. `load_current_user` expires idle guests (`guest_ttl_hours`) and sweeps; `guest_purge()` discovers per-user tables from the live schema (columns in `GUEST_COLUMNS`). Convert = `register.php` while guest -> `guest_convert()` same row -> `customise.php` (session flag). Counters `guest_made_total`/`guest_converted_total` on Admin > Usage. New table columns need adding to `GUEST_COLUMNS` only if they name a user in a new way. Suite `tests/guest.sh`. Known: `walk` as a ci_suites entry reports INSTALL FAILED (installed twice); run walk.sh directly.\n**2.0.74:** Jeff poses live: files `game/assets/img/puzzles/cast/jeff-{point,key,sleep,oops,gnomehat,water,snail,trophy}[-dark].png` (scripts `aseprite-source/extras-pixel/scripts/cast-jeff-<slug>.lua`, helpers `K.jeffBody/jeffFace` in cast-common.lua, render: extract AppImage to /tmp/aseq, `AppRun -b --script-param out=<dir>/ --script <lua>`, then `tools/darken.py in out`). Wiring: index.php (`$tourPose`, key on closing card), rainbarrel.php/gnomebeds.php (host pose, `#rboops` shown by `say(t,true)` on errors, sleep next to Today done), gifsaw.php (`$gold` trophy), puzzles.php (snail on coming-soon card). tada/bye drawn, not shipped. Ideas in `claude/jeff-poses.md`.\n**2.0.73:** logged-out front page = Jeff's tour (`index.php` logged-out branch, CSS block at end of `assets/landing.css`, texts `home.jeff/tourbtn/tour.N/try/gate` in `includes/site_text.php`). Screenshots: `tests/shots.sh` (walk.sh install + `tests/shot_seed.php` + `tests/shots.js` Playwright 412px 2x, PIL quantise 160 colours, ~35 KB each) -> `game/assets/img/landing/shot-<stop>[-dark].png` + `tests/manifests/shots.txt`; `tests/shots_stale.sh` (run by `tests/landing.sh`, in CI list) fails on missing/wrong size/older than 12 releases. Re-run shots.sh whenever Garden/Satchel/World/Town/Games/Almanac change look. Jeff poses used: host, cheer, think (new poses in `claude/jeff-poses.md`). Guest mode next (`claude/plan-guest-mode.md`; button 'Play as a guest' not shown until built).\n**2.0.72:** Gnome Beds (`gnomebeds.php`, `assets/gnomebeds.js`): `gb_make` (seeded placement + bed growth + move-a-border-cell until unique), `gb_solutions`, `gb_valid`, `gb_get` (file cache `data/pzcache`), `pz_beds_start/hint/finish`; hand-in = columns per row (-1 empty). Shared helpers `pz_run_start/open/hint/finish` now carry the run logic for every game (add a game = sizes const + start/hint/finish trio + `puzzle_game_api.php` map + `PUZZLE_GAMES` row + page/js + hub gets it free). Setting `pz_beds_open`. Next: Snail Trail.
+**2.0.71:** Rain Barrel (`rainbarrel.php`, `assets/rainbarrel.js`, `puzzle_game_api.php`, `includes/puzzle_games.php`: PUZZLE_GAMES registry, `pz_rng` = mulberry32 PHP port, `rb_make/rb_valid/rb_apply`, `pz_barrel_start/hint/finish`). Server deals from seed (daily seed = crc32 of game|day|size), client gets dealt tiles only; hand-in = quarter-turns per tile, server re-checks, own clock, min-time reject, daily reward once via `puzzle_wins` UNIQUE. Settings `pz_barrel_open` (0), `pz_daily_petals` (15). To add Gnome Beds/Snail Trail: add to PUZZLE_GAMES + a `pz_<game>_*` trio and a page; hub card in `puzzles.php`. Gotchas hit: `puzzle_games.php` must require jobs.php (game_day), `wait` in test scripts must name PIDs (the php server is a child), stale php servers on CI ports give phantom failures.
+**2.0.70:** logged-out `index.php` has a "Try a puzzle" section (3 pictures, `#pz` + `includes/gifsaw_play.php`, `$GLOBALS['gv_front_demo']` makes layout.php load puzzles.css/js; setting `puzzles_front`, default on). Client-only demo, no API. Rain Barrel = 2.0.71.
+**2.0.69 (on main):** `puzzles.php` = Puzzles hub (cards: GIFsaw + Rain Barrel / Gnome Beds / Snail Trail coming soon); jigsaw = `gifsaw.php` (old `puzzles.php?t=`/`?seed=` 302 there, hash links via `assets/puzzlehub.js`). `puzzles_api.php`, `puzzles.js`, `puzzles.css`, `admin/puzzles.php` keep names. Layout loads puzzles.css on both pages, puzzles.js on gifsaw only. Next: `claude/plan-puzzle-games.md` (2.0.70 Rain Barrel). 2.0.68 live and OK.
+**2.0.68 (LIVE and OK):** Puzzles rework. Cast: Jeff (green piece, host, MAIN), Ffej (upside-down evil twin, hijinks), Old Wizard (helper). Approved designs: `aseprite-source/extras-pixel/scripts/jeff-v2.lua`, `ffej-v1.lua`, `wizard-v1.lua` (pngs in `extras-pixel/{jeff,ffej,wizard}/`; the very first `jeff.lua` attempt is superseded). 16 cast images in `game/assets/img/puzzles/cast/` (scripts `extras-pixel/scripts/cast-*.lua`, shared `cast-common.lua` stickers and `cast-lib.lua` scenes, .aseprite in `extras-pixel/cast/`); -dark versions = `aseprite-source/tools/darken.py` recolour (black border -> cream halo) or dusk scene param; rendered by `puzzle_cast()` as `.lt`/`.dk` img pairs (CSP blocks inline style). Code: `includes/puzzles.php` (pics, GIF checks, tournaments, settle), `admin/puzzles.php` (Library/Upload/Tournaments), `puzzles_api.php` (start/finish, server clock, single-use token, too-fast reject), seeded scramble `?seed=` in `assets/puzzles.js`, tables `puzzle_pics`/`puzzle_tournaments`/`puzzle_attempts`, settings `puzzles_open` + `puzzles_tournaments` (off by default), prize = cosmetic badges (also on profile Awards). Pieces animate again: `content-visibility:auto` removed from `.piece` (it skipped painting GIF pieces). Play-bar speaker icon removed (took a phone row). Suites: puzzles, puzzles_upload, puzzles_tourney (in CI). Owner choices: cosmetic prizes only, best time counts, admin-only uploads, simple GIFs (prefer drawn via the Aseprite process), dark art for items 1-9, tournaments not reachable while puzzles closed. Not done: delete uploaded pictures, MySQL run. Art workflow used: Fable low drew, Opus low polished, run Aseprite headless from the AppImage (`--appimage-extract`, `squashfs-root/AppRun -b --script x.lua`). Owner wants brief replies, shows images as contact sheets.
+**2.0.67 (built, not uploaded):** Gather satchel panel (`gather_scene_html`, `gather_card_html` in includes/gathering.php; CSS scoped `.gx`; find shown once via `$_SESSION['gather_reveal']`), gather mini-game removed (boot_step `upgrade_2067_drop_gather_games`; old files linger on live servers, unused), Do-tab felt cards (`local_act_card`, `stop_act_art`), town page felt cards, 5-tab strip, Shops and Orders views (`main_stop_tabs_html`, `town_place_card`, `town_shops_html`, `town_orders_html`; classes `.placecard`, `.vlcard`), stage art 9 lands x (v1, v2, v3, 9 weathers) with `stage-weather-<land>.json` and `scene_stage_key()` (weather + daypart, `DAYPART_STAGE_ART`, new tint layer in stage.js), `shop-dyes.png`. Art generators: `aseprite-source/scenes-pil/stages_*.py`. Mockups and variant art: `claude/art-variants/` (mockup2 = Gather/Do, mockup3 = town). Leftovers: old `.vrow/.todaybox/.spotcard/.st-tile` CSS unused; felt PNGs duplicated in img/acts and img/gather; rest-stop Do/Villagers/Stop tab row still old style; 22 special places share one fallback vignette; no force-daypart setting for the stage; wind direction differs between land groups; no New (unvisited) place state (game does not track visits).
+**2.0.65-2.0.66 (on main):** see CHANGELOG and the first bullets of `claude/todo.md`. Art for stops/shops is generated with PIL (no Aseprite on the cloud box): `aseprite-source/scenes-pil/`. Also in 2.0.66: GPS route card redesign (`dest_panel` in `includes/destination.php`: thread, pills, option chips, pinned Set off) and the trip strip on every page (`dest_strip_html`, hidden on world.php/adventure.php; suite `tests/tripstrip.sh`). 2.0.65: shared `villager_row_html()`, 12 unique rest-stop scenes (`stop_art_file()`), shop art, felt-sign headers (`place_header_html`), unique seed shop names (`SEED_SHOP_NAMES`, one-time rename `upgrade_2065_seed_shop_names`). Red `.newart` outline removed.
+**Open for Joshua (after 2.0.66 upload, back up first):** check 2.0.60-2.0.66 on phone: route card + pinned Set off, trip strip mid-walk, villager rows, shop pages, rest-stop art, seed shop names; first CI run (see todo). Unmade: unique names for the 14 "X Market" locations and 14 regional towns (Joshua said leave main place names); stop art for stop types added later falls back to market.
+**2.0.61-2.0.64 (on main):** consolidation review build (World Go/Map/Gather/Shops, main-stop Stop tab, rest-stop Do/Villagers/Stop, place switcher + header art with temporary red `.newart` outline, `includes/place_ui.php`); 2.0.62 header chips + wide-screen Go column; puzzles still frames + Motion button; 2.0.64 pixel-art world/region maps default with fixed region layout (`includes/region_layout.php`, `tools/map_layout.php`). Open work: `claude/todo.md` NOW block. The "In progress ... not shipped" consolidation line below is outdated.
+**2.0.63 (Treks):** Ch III a+b open by default (`trek_chapters_open` default 3; saved values win). Hush Bell has `failopen=1`: `trek_act_riddle` now grants the prize item via `$give()` on failopen too; text `ch3.spot.bell.out` draft/brief changed. No news entry (Joshua: none). No schema change. Tests adjusted: trek_ch3b (bell gives clapper), trek_ch2 (Ch III open by default), trek_ch2b/trek_audit_ch2 (set setting 2 before shut-gate asserts). Full treks.sh was green except the trek_ch2 line, since fixed (not re-run). Pushed to main on Joshua's word only; he wants no pushes until he says.
+**2.0.60 (hardening, built from an outside review):** `db_migrate` (includes/db.php) ignores only "index already exists" (MySQL 1061 / SQLite text) and logs every other index failure into `$gv_migrate_errors`, which keeps `db_version` from advancing. `give_item` now lives in `includes/inventory.php` (with unlock_entries, unlock_reason, starter_item_list, home_seed_list), rethrows non-duplicate PDOExceptions. Updater (`includes/updater.php`): `update_install` turns `maintenance_mode` on (remembers old value, releases in finally + shutdown fn), `update_write_files` journals + pre-image copies each file into `data/backups/preimage-*`, `update_rollback` restores, `update_verify` checks sha256 of every file against the zip; a hard process kill could leave the lock on (admin clears it in Game settings). CI: `.github/workflows/ci.yml` (static lint, sqlite matrix 8.1/latest, upgrade check against an older release zip, MySQL 8). NOT yet run on GitHub. `tests/ci_suites.sh` runs suites serially; `treks` is excluded (~335s). Version lives in `bootstrap.php` only; `bash tools/check_versions.sh` guards drift. MIT license covers code and art. Pushing to main: Joshua said push all to main for this release.
+Zip: `bash tests/build_update.sh 2.0.60 2.0.47 /home/user/gnome-venture/releases`; zips in `releases/` (he said leave that folder alone: do not prune or untrack).
+**(Resolved in 2.0.61-2.0.66)** The World / Town / Stops consolidation shipped; see the top lines of this file and `claude/todo.md`.
+Latest built and on main: **2.0.59** (explore/road-walk layout rework, see `claude/todo.md` NOW). Road walks: heading, status line, route strip and both route maps are replaced by `route_ribbon_html()` (felt strip, pin per space, token, thorn pin before a fight, goal/stops left/danger on one line) and a closed `route_fold_html()` (stop list + Travel options) in `game/includes/maps.php`; `journey_stops()` is the shared lookup. Explore keeps `hoop_map_html`, delve/lair keep their own maps. Latest result is built in an output buffer in `adventure.php` and shown at the top of `.encounter` (not during a fight). Phone fights: ribbon/fold fade once (`routefade` keyframes, `gvRouteFade()` in site.js, class `rf-done`), tighter fight card, round log = last round, small "Show all" tag. Journal on phone shows the newest line while closed (`.jpeek`).
+Owner rules this session: terse replies; zips go to `releases/` (keep latest 4 versions, archive the rest); show a mockup before big UI changes (he approved the A/C route design); pushing to main only when he says so (he said "push as main" for 2.0.54 and has kept shipping each release to main since). Tests for this area: tests/adventure.sh (SHOT=dir for screenshots), roads.sh, walk.sh, explore.sh, scene_smoke.php. A road-walk screenshot script is easy to rebuild from adventure.sh (install, register, onboard, POST do=start route_id=<road route>, GET adventure.php).
+Latest built: **2.0.25** (Almanac pictures via `almanac_pic()`, icons thermometer/link/gloves/ruler, `data-sh` for stop hue: style-src blocks style attributes). Before: **2.0.24** (JS/CSS emoji second pass, creature art in duel/lair; see changelog). Before: **2.0.23**, LIVE (Joshua uploaded 2026-10-21; merged to main f33b6b6): emoji swapped for own icons at render, art & style guide PDF in Admin; see changelog, Art section and the "NEXT SESSION" + "Working notes" blocks at the top of claude/todo.md (read them first). Before: **2.0.22** (art restyle only). Before: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden by `trek_chapters_open` 2, camps = full rest, friendship per fights, text passes 7+8; see changelog). Before: **2.0.19** (trek POST tap brake + Treks news entry; Joshua turns on `trek_open` at upload). Before: **2.0.18** (Treks play-test fixes; see changelog). Before: **2.0.17** (last row-style shops now picture tiles). Before: **2.0.16** (II-b Fallen Shelf, road roll settings, Tumble lines pass 6). Before: **2.0.15** (join card Trek Lv, foe level dropped, Juniper pot at nookB, Tumble own effect; 2.0.13 desktop layout + 2.0.14 live and OK). Before: **2.0.12** (branch trek-fight-touches, on top of 2.0.11: combined foe pop-over, "!" over the token after a walk into a fight, fight animations in every mode, Treks text fixes + pass 5, Lanternroot TODO fix; see changelog). Before: **2.0.11** (camp pop-over: Camp button opens a dialog with party health, 💬 Talk, rest choice, kit shop, trailmate swap; auto-opens at camp tiles; no schema change; includes/trek_camp_ui.php + assets/trekcamp.js; 2.0.10 = (map camera follows the token on walks: Treks + delve/lair maps; no schema change; 2.0.9 = (ALL Treks story text as talk pop-over, Party-member-joined card, pop-up toggle; 2.0.8 = pop-over + log under the map; 2.0.7 = Treks text fixes; 2.0.6 = delve + lair maps). Versions are three-part again (2.0.3–2.0.6); the four-part rule that started at 2.0.0.1 is over. Always go UP past whatever Joshua last got. Numbering (Joshua 2026-10-20): 2.0.10–2.0.19 then 2.0.20 (he writes it 2.0.2); NEVER ship a number below the last one (updater refuses, version_compare 2.0.2 < 2.0.10).
+ALSO built, newest: **2.0.30** (Ch III-b, hidden; merged onto main 2.0.29; spec claude/trek-chapter3b.md). Before: **2.0.21** (security audit fixes). Before: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden by `trek_chapters_open` 2, camps = full rest, friendship per fights, text passes 7+8; see changelog). Before: **2.0.19** (trek POST tap brake + Treks news entry; Joshua turns on `trek_open` at upload). Before: **2.0.18** (Treks play-test fixes; see changelog). Before: **2.0.17** (last row-style shops now picture tiles). Before: **2.0.16** (II-b Fallen Shelf, road roll settings, Tumble lines pass 6). Before: **2.0.15** (join card Trek Lv, foe level dropped, Juniper pot at nookB, Tumble own effect; 2.0.13 desktop layout + 2.0.14 live and OK). Before: **2.0.12** (branch trek-fight-touches, on top of 2.0.11: combined foe pop-over, "!" over the token after a walk into a fight, fight animations in every mode, Treks text fixes + pass 5, Lanternroot TODO fix; see changelog). Before: **2.0.11** (camp pop-over: Camp button opens a dialog with party health, 💬 Talk, rest choice, kit shop, trailmate swap; auto-opens at camp tiles; no schema change; includes/trek_camp_ui.php + assets/trekcamp.js; 2.0.10 = (map camera follows the token on walks: Treks + delve/lair maps; no schema change; 2.0.9 = (ALL Treks story text as talk pop-over, Party-member-joined card, pop-up toggle; 2.0.8 = pop-over + log under the map; 2.0.7 = Treks text fixes; 2.0.6 = delve + lair maps). Versions are three-part again (2.0.3–2.0.6); the four-part rule that started at 2.0.0.1 is over. Always go UP past whatever Joshua last got. Numbering (Joshua 2026-10-20): 2.0.10–2.0.19 then 2.0.20 (he writes it 2.0.2); NEVER ship a number below the last one (updater refuses, version_compare 2.0.2 < 2.0.10).
+
+
+---
+
+<!-- merged from claude/handoff-2.4.93.md -->
+## Handoff: 2.4.90 to 2.4.93 (2026-11-03)
+
+Branch `ccr-7fffb36a-izdaey`, merged to main. Slim zips in `releases/` (each needs 2.4.71+). Source of truth for what changed: CHANGELOG.md 2.4.90 to 2.4.93.
+
+### How this was planned
+Three passes (survey, proposals, final plan) produced `scratchpad` notes that are not in the repo. Final plan, tiers and decisions:
+- **Tier 1 (2.4.90):** T1.1 bed curve (`bed_add_cost($plot, $n)`, 20% growth, 6x cap, per-bed pricing; full 144 beds about 31.6k Petals and 320 planks); T1.2 quiet weeks (fewer than `fair_min_entries` = 3 entrants: everyone gets 100 Petals + 10 XP, no ribbon; Guess the Weight jackpot cap 10,000, growth 500); T1.3 tour 100 XP, First Week XP 40/40/50/50/30/30/60; T1.4 streak copy; T1.5 First Week day 5 asks `talk2`.
+- **Tier 2 (2.4.90):** T2.1 one Show page (Arrangements is its second class), 3-class Fair (Produce, Flowers, Preserves; old keys in `FAIR_CATS_OLD`, `upg249_faircats` merges this month's rows); T2.2 Tasks tabs Jobs / Journey / Requests, `JOB_PERIODS` 3/3/2.
+- **Tier 3 cancelled:** Joshua plays the whole site; puzzles, Jigsaw, Puzzle Pals, Pal Jobs, Treks and delve v2 are live. Nothing frozen or cut.
+- **Do not touch:** the games energy cap (removed on purpose in v1.6.2, `includes/upgrade140.php:27`).
+
+### What else shipped
+- 2.4.91: Potions box removed from My Gnome (potions are used from the Satchel); Petal icon (`ico-petal`); Petals once on desktop (hidden in the menu status line from 721px); Satchel tiles crisper; Journey tab rename; docs and help text fixed.
+- 2.4.92: `gnome.php` is home: shared header, then TODAY (default) and MY GNOME tabs. Today rendering is in `includes/today_view.php`. `index.php` and `?today=1` redirect. Another gnome's view is `profile.php` (no tabs); `gnome.php?id=` redirects there. Menu has one "Home" entry. Tour step 7 ticks on MY GNOME only. New `tests/redirects.sh`.
+- 2.4.93: Calling card shows "Not started: visit <Trainer> in <Region>"; free trip button (`do=trip` on `mentor.php`, `travel_blocked()`, fires no travel, arrive or walk event); home header wraps instead of overflowing; `explore_come_back()` sends the depth event.
+
+### Gotchas
+- Upgrade steps in `includes/upgrade249.php` run once `APP_VERSION` is bumped; they rewrite a setting only while it holds the old default.
+- Event calling tasks count from the moment a chapter is taken; state tasks read the game as it is.
+- `tests/beds.sh` has 5 older kitchen-pot failures. `tests/emoji_icons.php` has 1 older failure.
+- craft.sh, polish_audit.js, MySQL and upgrade_check.sh were not run in the build container.
+
+### Next
+Phone check, then see the OPEN list in `claude/todo.md`.
+
+
+---
+
+<!-- merged from claude/handoff-2.4.96.md -->
+## Handoff: 2.4.94 to 2.4.96 (2026-11-03)
+
+Main is 2.4.96 (`aea11f3a`). Slim zip `releases/GnomeVenture-2.4.96-web-update.zip` needs 2.4.93+ and carries everything since. Notes in CHANGELOG.md 2.4.94 to 2.4.96.
+
+### 2.4.94 and 2.4.95 (built outside this repo)
+Josh supplied the two slim zips; they were imported as one commit (their code is byte-identical to the repo, except for the 2.4.96 edits to `style.css`, `layout.php` and `bootstrap.php`). 2.4.94: admin "Start counting again" for XP sources (clears `xp_log`), Usage and Retention (settings `stats_reset_<area>`, `stats_usage_snap`); helpers in `includes/admin_helpers.php`. 2.4.95: `fresh_start.php` also clears lazily created tables (`FRESH_LAZY_TABLES`). 2.4.94 set `xp_steep_percent` to 20 and 2.4.95 put it back to 15 (the repo has 15). The CHANGELOG entries for both were rebuilt from the diff: check them.
+
+### 2.4.96: Welcome flow
+- `welcome.php`: helpers `welcome_progress()`, `welcome_wren()`, `welcome_cta()` and the three steps. Form fields and `do` values unchanged. `includes/onboard.php`: `pack_icon()`, `pack_slots()`, `swatch_tile()`. `assets/welcome.js` swaps the basket (all baskets are in the page; the checked one is server-rendered visible). `layout.php` loads it on `welcome.php`.
+- CSS: block at the end of `style.css` ("v2.4.96 Welcome flow"). `.gnomemaker`, `.avatarcol`, `.swatches` stay (used by `customise.php`, `sinks.php`).
+- Art: 11 PNGs from the design handoff. Village art path is `assets/img/villages/<slugify(name)>.png`, not the DB slug (`v-na-1-1`).
+- Source brief and mockup: Josh's `welcome-handoff.zip` (not in the repo). Art sources and the gnome rig are only in that zip.
+
+### Gotchas
+- Local `main` in the build container was an old unrelated branch; push with `git push origin <branch>:main`.
+- Region name "The Maplewold" makes the Wren line read "in the The Maplewold" (old data quirk, same as before).
+- Build: `bash tests/build_update.sh 2.4.96 2.4.93 <outdir>`.
+
+
+---
+
+<!-- merged from claude/handoff-ai1-art.md -->
+## Handoff for AI-1: art packages P1, P2, P3 (2026-11-05)
+
+Repo: joshfryart/gnome-venture. Art lives in `aseprite-source/v3/`. Plan: `claude/plan-art-AB.md`. Another AI (AI-2) does P4 and P7 (gather scenes, big pictures) in parallel: do not touch those. Catfish is excluded.
+
+### Read first (in this order)
+1. `aseprite-source/v3/HANDOFF.md`
+2. `aseprite-source/v3/ROLLOUT-STATE.md`
+3. `aseprite-source/art-style-guide-v3.md`
+4. `aseprite-source/v3/lib/CHEATSHEET.md` and `lib/README.md`
+5. `claude/todo-art-v3.md`
+
+### Setup
+Aseprite 1.3.18 CLI + Lua. If `/tmp/aseq` is missing:
+`mkdir -p /tmp/aseq && cp aseprite-source/Aseprite_1.3.18.6-x64.AppImage /tmp/aseq/ && cd /tmp/aseq && chmod +x *.AppImage && ./Aseprite_1.3.18.6-x64.AppImage --appimage-extract`
+Run: `/tmp/aseq/squashfs-root/AppRun -b --script-param out=<dir>/ --script file.lua`
+
+### Style rules
+Hard pixels, no semi-transparent pixels, no pure black or white. 1 px ink outline `#2b1c26`. Colour is not capped. Items slim, 5-6 tone ramps, material cues, one quirk each, every image visually unique. No human villagers anywhere. Single pass, no fix round. Model: Sonnet at medium effort.
+
+### P1: redo 179 weak items + Ginseng Seed (180)
+- List: `aseprite-source/v3/rollout/weak.txt` (one `folder/name` per line). Includes tiny/near-invisible seeds, look-alikes (tangelo~tangor, yerba-mate~yuzu), stage-* series, stone-wall-*, muddy materials. Each look-alike pair must differ at a glance.
+- Ginseng Seed: leaf reads as cannabis. Redraw (e.g. forked three-prong root-crown leaf, rounded leaflets, red berry cluster). It has never been exported; old picture stays live until you do.
+- Seeds: `rollout/items-seed.js` (hybrid, params only for `items/seedgen/seedgen.lua`, about 10k tokens each, groups of 12).
+- Other 64x64: `rollout/items-lean.js` (no draft step, cheat sheet `lib/CHEATSHEET.md`, about 22-25k each, groups of 6).
+- Do NOT use `items-run.js` with a draft step (45k per item).
+- Workflow scripts cannot read files or import: pass item lists through `args`. Launch with the Workflow tool, only if Josh allows it. Otherwise use subagents in groups.
+- When an item is fixed, remove its line from `weak.txt`.
+
+### P2: flower heads (19 files)
+12 shapes x 3 layers: `-petals` (neutral grey, to be tinted in game), `-centre`, full. Plus vase, jar, basket (back and front) and a packet. Needs the tintable rig: read `handoff-codechangesforart.md` section 4 first. It may need a small code change in `game/`. Keep it minimal and say exactly what you changed. Check how existing `game/assets/img/flowers/` files are named and sized, and match them.
+
+### P3: odd-size UI (41)
+`items/` 21, `fx/` 6, `steps/` 5, `roadkinds/` 5, `ui/` 4 under `game/assets/img/`. Keep each file's CURRENT pixel size and name. Check each size before drawing (`file` or PIL). Same style rules.
+
+### Delivery for each package
+1. Outputs in `aseprite-source/v3/...` as `.lua`, `.png`, `.aseprite`.
+2. From `aseprite-source/v3`: `python3 rollout/export_game.py` (copies into `game/assets/img/...`; weak ones get a pink #ff2bd6 2 px border via `weak.txt`).
+3. Do not claim an item is done from file existence alone: check that its Lua has the Opus/Sonnet marker and its PNG changed.
+4. Put every new or changed PNG in a NEW zip in `upload-zips/` named `gnome-venture-images-v3-<package>-<date>.zip`, flat `<slug>.png` entries. Admin uploads (`uploads/items/<slug>.png`) beat `assets/img/ph/`, so the zip is how the art reaches the live site.
+5. Add a CHANGELOG.md entry (list changed files or counts) and update `claude/todo-art-v3.md`.
+
+### Rules
+- Branch: new branch off main. Do not push to main. No PR unless Josh asks.
+- Commit and push often. `git add -A aseprite-source` plus the game files you changed.
+- Never delete shared files. Agents share the scratchpad: use your own subfolders.
+- Report cost per package (tokens) and what failed. A container restart kills background workflows; relaunch only the unfinished items (compute them).
+- Ask Josh before any big spend.
+
+
+---
+
+<!-- merged from claude/handoff-art-2.6.52.md -->
+## Art handoff (2026-11-11), branch ccr-0535d2f5-2dlln2. See the prompt Josh pasted; facts below.
+Done: weak items, 570 pal perches (`assets/img/pals/`), 81 unique doors (`scenes/door-<slug>.png`). Generators: `aseprite-source/v3/perch/` (block pals: build_params.py + perch_gen.lua; whimsy: `whimsy/`), `aseprite-source/v3/doors-unique/` (pilot + w1..w4 generators). Aseprite: extract `aseprite-source/Aseprite_1.3.18.6-x64.AppImage` to /tmp/aseq.
+Open: stop looks for 7 unmapped regions; weak whimsy perches (pl-dlz-6, pl-wgor-6, mt-bill-brolly, pl-wcof-6, pl-flfm-6); release 2.6.52 and merge to main (Josh must approve).
+
+
+---
+
+<!-- merged from claude/handoff-catfish-restyle.md -->
+## Handoff: fold the Cat Fish restyle into the next update
+
+Repo: joshfryart/gnome-venture. Branch with the work: `claude/catfish-code-review-6tmc22` (pushed). Current app version: 2.7.37 (`APP_VERSION` in `game/includes/bootstrap.php`).
+
+### What to do
+Fold this branch into the next release: bump the version, add a CHANGELOG entry, run the checks, and package per the repo's release process (see root README and `game/README.md`). Do not redo the work; review the three commits, fix only what breaks.
+
+### What is on the branch
+1. **Tap count fix** (`game/assets/catfish.js`, `game/includes/catfish.php`)
+   - Bug: tap a fish, reload, Kibble was lower than shown. Cause 1: the page counted every tap, but the server pays from a bucket of 15 taps refilling 1 per 2 s. Cause 2: taps waited up to 30 s before reaching the server, and a reload raced the pagehide beacon.
+   - Fix: `catfish_play_view` now returns `tok` (whole taps in the bucket). The JS mirrors the bucket (`tokens()`) and only adds Kibble for taps the server will pay. A tap schedules a sync 2 to 10 s later (never more than one per 10 s; the tick limit is 60 per 10 min).
+   - The corner "×N" is the combo counter. It is cosmetic only (×5 jump, ×10 sparkles), no Kibble. Not a bug.
+2. **Toy-Shop Shelf restyle** (`game/catfish.php`, `game/assets/catfish.css`; `catfish.js` untouched)
+   - Top banner removed; a visually hidden `<h1 class="cfsr">Cat Fish</h1>` stays for screen readers.
+   - Stage and Kibble counter are wrapped in `.cfdock` (pinned on phones, 2x zoom on desktop). The counter paragraph is built once into `$cfCount` and printed inside the dock when the stage exists, else in the old card.
+   - Upgrades are cream tiles with red price tags (CSS only, same markup and ids). The More hub is a row of drawers.
+   - All new CSS is one block at the end of `catfish.css`, headed `2.7.38 Toy-Shop Shelf`.
+3. **Dark mode for the restyle** (same CSS block)
+   - Colours come from `--cf-*` variables on `.cfpage`, overridden under `:root[data-theme="dark"] .cfpage`. Light theme is unchanged in look.
+
+### Verified
+- `php -l` and a JS syntax check pass.
+- Ran the real page (PHP built-in server, SQLite) in dark and light at 390 px and 1280 px. No sideways scroll. Opened all 7 hub drawers and all 4 upgrade tabs in both themes; no wrongly bright backgrounds in dark mode.
+- Screenshots and the A/B/C mockups are in `claude/mockups/` on the session machine only (git-ignored, not on the branch). Ask the owner for them if needed.
+
+### Not verified, check these
+- `tests/catfish.sh` could not run in the build sandbox (no database set up). Run it, and `tests/catfish_anim.js` and `tests/catfish_pets.js`. The tests may assert on banner markup (`cfbanner`) or the order of the stage and counter; update them if they do, since the banner removal is intended.
+- Click-through: tap fish (counter matches after reload, including fast tapping), buy x1 and x10, tab switching, Nap, a scene swap after a buy (`swapScene` replaces only `.cfstagewrap`, which is inside `.cfdock`; confirm the dock survives it).
+- Keyboard focus and screen reader: the page has no visible h1 now.
+- The pinned dock takes about 250 px of a phone screen; judge on a real device.
+
+### Known gaps (not done on purpose)
+- No two-column desktop layout: the page only has a 640 px centre column between the site's side panels.
+- The Room things map from mockup C is not in the real page; hub panels are only recoloured.
+- Code size was not reduced. The big parts are the animation block in `catfish.js` and `catfish.php`; trimming them would change how the game looks, so ask the owner first.
+
+### Rules
+- Do not commit `config.php` or `data/*.sqlite`.
+- Do not open a pull request unless asked.
+- End commits with the attribution lines the session gives.
+
+
+---
+
+<!-- merged from claude/handoff-ci-2026-11-17.md -->
+## Handoff: CI repair (2026-11-17)
+
+Branch `ccr-a129a4e0-yqecgt` (not merged; no PR opened). Last run 44003007619 = all green, ~13 min (was ~35, always red).
+
+### What was wrong (all fixed on the branch)
+- `tests/fight_scene.js`: screenshots written to `/` when no shot dir (2 unguarded calls). Hit `fight_scene`, `fight_scene_trail`.
+- `tests/ci_suites.sh`: `catfish` opens a 2nd server on PORT+1 = next suite's port, so `puzzle_pals` could not install. Now 10 ports a suite, and `pkill -f "$T/game"` after each suite.
+- `tests/catfish.sh`: hard-coded `/home/user/gnome-venture/...` path; recolor errors were hidden. CI needs numpy + Pillow as SYSTEM packages (`apt python3-numpy python3-pil`; tests run `python3 -I`, which ignores pip --user).
+- PHP "latest" is 8.5 on CI: `game/includes/pal_jobs_view.php` used null array keys (cast to string); `tests/here.php`, `tests/gnome_wear.php` called `imagedestroy` (removed).
+- PHP 8.4+ `round()` no longer pre-rounds: `tests/pfengine_js.*` skip float-noise-near-.5 samples on PHP >= 8.4. REAL RISK: if production runs PHP >= 8.4, PHP and the JS port can differ by 1 on such values in fights. Not investigated.
+- `tests/pantry.sh`: charm bonus gives +11 not +10; test accepts both.
+- `tests/pbox_v1.sh`: compared pages differ by first-view unread-message marks (`msglog top hasnew`, `mlnew`, ` new"`); now normalised. A folded diff prints as `diag` lines on failure.
+
+### New CI shape (`.github/workflows/ci.yml`, `tests/ci_suites.sh`)
+- SQLite job = matrix php [8.1, latest] x shard [1..4]; env `SHARD`, `SHARDS=4` pick every 4th suite of the list.
+- `RETRY_SUITES`: a failing suite in the list runs once more; a pass prints `ok   <s> (passed on retry: flaky)` and does not fail the run. Two failures = red.
+- MySQL, upgrade, lint jobs unchanged.
+
+### Still flaky (hidden by the retry; causes NOT found)
+- `cook`: "shop-bought: no bonus" got 5 want 3 (once).
+- `trail_mini`: a random wandering encounter replaces the intended fight.
+- `tour`: till / compost steps, passed on retry once.
+- `pfv1_charm`: replay-vs-result-card timing in a browser (failed twice once, then passed).
+- `pbox_v1`: was the diff above; check it stays green.
+- Suites also on the retry list for browser load: `fight_scene`, `fight_scene_trail`, `here`, `heredo`, `catfish`, `pfboard_v1_page`, `pfengine_js`, `gnome_wear`, `puzzle_pals`, `gourmand`, `pfdeck_v1`.
+Real fix for each = make the test deterministic (seed the encounter / charm / clock), then drop it from `RETRY_SUITES`.
+
+### Next
+1. Open a PR from the branch, let CI run once more, merge on Josh's word.
+2. Read the `flaky` lines in the first few runs; fix and un-retry one by one.
+3. Check production PHP version against the `round()` note.
+4. Old todo item "SQLite suites RED on main" is replaced by the CI line in `claude/todo.md`.
+
+
+---
+
+<!-- merged from claude/handoff-games-pals-tree.md -->
+## Handoff: Treehouse, Puzzle Pals, Pal Yard as pictures (Phase 5) + their art (2026-11-05)
+
+Repo `joshfryart/gnome-venture`, branch `ccr-0a395161-w8rs7y` (latest `3b8d5c0e`). Never push to `main`, no PRs unless Josh asks, do NOT change `APP_VERSION` or `CHANGELOG.md` (Josh releases). Josh wants short, exact replies. Original brief: `claude/prompt-games-pals-build.md`; plan: `claude/plan-graphical-nav.md` Phase 5 (10a/10b/10c).
+
+### State: built, tested, pushed. Everything is behind setting `gnav_tree` (default 0; needs `gnav_on`). Flag off = today's pages. Admins can always preview `treehouse.php` / `palyard.php`.
+
+### What exists (read these)
+- **Engine chrome** `game/includes/hub_scene.php`: opt-in `'chrome' => true` (only treehouse + yard use it; Here page untouched). `hub_hotspot_box()` (hit rect from layout `box`, else 56x56; centred tag; gold brackets on tap/focus/`.on`; shutters for `cls=locked`), `hub_sprite_chrome()` (src, else `crop`, else `sil`, else nothing; `away` = empty dashed perch + tag; `new` = sparkle; `bar` = progress rect; `collect` bubble), `hub_navbuttons()` (compass + globe, bottom-right, inside `.hubstage`), `dress` layers, `nav` cards. No circles anywhere. CSS block "Chrome picture pages" in `assets/style.css`; `assets/hubscene.js` adds `.on` on tap.
+- **Pages** `game/includes/hub_pages.php`: `treehouse_view()`, `yard_view()`, `hubp_nav()`, `treehouse_game_card()`, `treehouse_pal_pic()`, `treehouse_pal_card()`. Data: `includes/data/treehouse_rooms.php` (room => [label, emoji, game keys]; a new game = one word). `treehouse.php`, `palyard.php` are thin pages.
+- **Treehouse rules:** perch = pal's index in found order (append-only, never moves); party pal sits on layout `party` slots, not duplicated; pal on a job = empty perch + "away <time>"; sparkle via `hub_seen` (`found_at > seen_at`, or last 24 h if never seen); dressing at 5/10/20/40 pals from layout `dress`; 0 pals = hint; more than perches = "+N in the yard"; `ppal_open()` off or guest = pal parts hidden, games still shown; one `pj_pals` + one `ppal_found_map` per page. Pal popover POSTs to `puzzlepals.php` with `back=treehouse`.
+- **Yard:** `includes/pal_jobs_view.php` (NEW) holds the Pal Jobs markup as `pjv_ctx($u,'yard')`, `pjv_ledger`, `pjv_home`, `pjv_post($c,$kind)`; `paljobs.php` now uses it (output unchanged). Site popovers hold the REAL job forms; they post `back=palyard` and `paljobs.php` redirects back to `palyard.php` (only when `gnav_page_open('gnav_tree')`). `pj_*`, POSTs, caps, level gate untouched. `layout.php` loads `puzzles.css` + `paljobs.js` for `palyard.php`; the yard is wrapped in `.pjpage data-pj-now` so the countdown JS works.
+- **games.php:** with `gnav_on` + `gnav_tree` real flag it redirects to `treehouse.php`; `?view=list` = old tile grid (remembered per gnome via `hub_seen` scene `pref:gameslist`), `?view=tree` forgets it, `?from=treehouse` always returns to the picture, `?tab=contests` stays. Games' "← All games" links therefore return to the tree.
+- **Schema:** `includes/here_schema.php` adds table `hub_seen(user_id, scene, seen_at)` + `hub_seen_get/set/clear` (self-creating).
+- **Layouts** `includes/data/here_layouts.json` (`treehouse`, `yard`): `spots[{k,x,y,box}]`, `pals` (24 perches), `party`, `dress[{at,k,name,x,y,w,h}]`, `stand`, `compass_clear` [366,218,480,270]. `here_layout.php`: `here_hit_box()`, `here_compass_clear()`; lint now flags overlapping boxes and anything in the compass corner. The admin editor (`admin/here_layout.php`) preserves a spot's `box`; it does not edit `party`/`dress`/`compass_clear` (kept as is).
+- **Art (done, first pass):** `game/assets/img/scenes/tree-house.png`, `yard-pals.png`, `tree-dress-{rug,lights,telescope,banner}.png`. Sources: `aseprite-source/v3/tree-yard/` (`common.lua`, `treehouse.lua`, `yard.lua`, `dress.lua`, `*.layout.json`, `out/`). Run: `mkdir -p /tmp/aseq && cp aseprite-source/Aseprite_1.3.18.6-x64.AppImage /tmp/aseq/ && cd /tmp/aseq && chmod +x *.AppImage && ./Aseprite*.AppImage --appimage-extract`, then `/tmp/aseq/squashfs-root/AppRun -b --script-param out=<dir>/ --script treehouse.lua`. If the layout boxes/perches change, redraw to match. Schema documented at the bottom of `claude/art-brief-here.md`.
+- `tools/gen_here_placeholders.py` draws boxes/perches/party/dress/compass slots (squares, no circles) if you need placeholders again.
+
+### Tests (all green at hand-off)
+`tests/ci_suites.sh here paljobs pjobs puzzle_pals games2 games140 puzzles css_lint`, plus `php tools/lint_here.php`. New coverage lives in `tests/here.php` ("Phase 5" blocks: chrome rules, perches, sparkle, dressing, away/party, overflow, locked rooms, yard forms/Collect/sick bay, list pref) and `tests/here.sh` (flag off/on page checks, redirects, `back=palyard`). Baseline was green before the work. NOT run: MySQL, `upgrade_check.sh`, full CI, a real phone.
+
+### Open / next
+1. **Josh phone check (412 px, light + dark):** tap every room, pal and site; tags/brackets; compass + globe bottom-right (two 44 px buttons are a bit wider than 100x40 px, so the clear zone is 114x52 units); send a pal from a yard popover and land back on the yard; Back from a game returns to the tree. I only viewed one dark-theme treehouse screenshot and flat renders of the yard and layers.
+2. **Pal perch sprites not drawn** (pals use the sticker, then piece crop, then silhouette). Optional `assets/img/pals/<pal-key>.png`, ~36 px, feet bottom-centre.
+3. **Art polish:** single Opus-style pass, no fix round; no animation layers; rug now sits on the grass at (120,244) (Josh may want it elsewhere).
+4. **Known limits:** a removed pal key shifts later perches by one; no tournament-trophy art; `plan-graphical-nav.md` status line still says Phase 5 is "plan only" (update it); `claude/todo.md` has a NOW block for this work (add the art line).
+5. Release mechanics (version, CHANGELOG, zip, MySQL check) are Josh's.
+
+### Pitfalls
+- Don't rewrite `here_layouts.json` by hand-formatting: it round-trips with `json.dumps(indent=1, ensure_ascii=False)`.
+- Tests that need a DB run in a copy of `game/` via `tests/ci_suites.sh`; `walk.sh` installs player `sprout`.
+- Any new picture rule goes in the shared engine only behind `chrome`, so Here and the other scenes keep working.
+
+
+---
+
+<!-- merged from claude/handoff-non-puzzle-2026-11-15.md -->
+## Handoff: non-puzzle todo cleanup + Josh's decisions (2026-11-14/15)
+
+Branch `ccr-fb812cec-kj1m4j` (pushed, clean; NO PR, NOT on main, no version bump, no zips, no CHANGELOG change: Josh releases). Puzzle combat untouched. Read `claude/todo.md` first (sections 3-6 are current); old text is in `claude/todo-archive.md` ("Moved from todo.md 2026-11-14").
+
+### Done (commit)
+- todo.md cleaned: 224 to ~95 lines; non-puzzle blocks archived verbatim, open items shortened (f43c97d5, 703c3150).
+- Villagers with no `dp=` get default hours by role (718701a5, 86343d14): travellers (merchant, minstrel, naturalist, gourmand) follow their circuit, on a region's Trail ~4 days a week (3 stops before to 4 after); shop-hours roles DAY ONLY; inn/watch/light/signal any time; pedlar/pilgrim/wanderer/scout/porter/sack-carrier dawn+day. Code `trail_sight_extras.php`, rule in `claude/sights/GRAMMAR.md`, tests `tests/trail_sights.php`.
+- Almanac Sights pages stay out of counts: already true + tested. No rope tool: docs fixed (6ab3a5dc).
+- `upload-zips/gnome-venture-trail-ground-*.zip` (55, 310 MB) git-rm'd (66c30480). Zips rebuilt only at release.
+- Gates review of 230 routes: `claude/reviews-2026-11-14/trail-gates-review.md` (24 locks, 14 short cuts, 52 mini-bosses; no lock on 327 CA, 448 EA). Tables show state BEFORE the tier change.
+- Early-region gates now tier 2 (Sturdy): NA CA NWE CB SE SA EE (17 gates moved); MENA EA CSA SEA WCA ESA OC stay tier 3 (16ded02d). Rule in `lint_maplewold_extras.gate_tier`; data-only, no re-bake.
+- `decor` field (ef9a6cec, 7d88c81c): all 665 sections carry looks/kinds/zones/prop hints (`tools/trail_decor.py --write|--check`; `trail_decor()`/`trail_decor_at()` in `trail_art.php`). Engine draws a coloured tile FALLBACK only where the ground picture is missing; look with pictures unchanged. Plan `claude/plan-trail-decor.md`.
+- 15 weak Sights items redrawn (6d27d2f8) by new `tools/gen_sight_item_art_f.py` (PIL, like gens a-e); before/after `claude/reviews-2026-11-14/sights-items-redraw-before-after.png`. Weakest still: vine twine (coil reads as a turtle). An admin upload `uploads/items/<slug>.png` hides new art.
+- Almanac data calls (7c7fc2a5): Lotus, Banana, Cannonball Tree text (region unchanged, Spicepeak), Mossbottom 5 shops, 4 bare lairs, 146 distinct village pages. Upgrade step `ensure_almanac_fixes_1114` (marker `almanac1114fix`, exact-text replace). Shell Meal P and tortoise greens deliberately left.
+- Lair levels: Silverback Spider = Lv 20 (route 18-22; boot step `silverback_lair_level_1114`, 8e2d61a2). Late medium-zone lairs = region level + 4, route level -2..+2: CSA 27, SEA 30, ESA 36, OC 39 (`LAIR_LEVEL_1115` in `roads.php`, boot step `medium_lair_levels_1115`, e21c8d65). Boot steps run on the next release (`db_version != APP_VERSION`).
+
+### Tests run (each alone)
+trail_sights, trail_sights_lint, trail_mini, trail_back, trail_bendy, trail_authored, village_desc, almanac_pages (fresh + simulated upgrade), adventure, landmarks, fight_scene_trail: pass. `health.sh` fails 4 checks, same on code before these changes: add to the known-failing list (stops100, stopkinds, here, pantry, css_lint, here_bang, animals120, calling, contest, market100, delvemap, flowers, sinks097).
+NOT run: full CI, MySQL, a browser check (new item art, fallback look, gates), a real phone.
+
+### Still open
+- Josh: tune Sights rewards after play; pacing of vertical N/S route sections (18 tall).
+- Josh: hard-zone lairs sit at Lv 30 in early regions (CA 4, NWE 6, CB 8, SE 10, EE 14, MENA 17, EA 20): deliberate? Den of the Great White Owl (NA) Lv 10 vs region 1. OC keeper Lv 39 exceeds every creature in data (max 37).
+- Decor next slices (need Josh's word): Admin editing, baking from decor, exact prop spots, decor in tile labels. Do NOT re-bake ground pictures (bake is not bit-for-bit repeatable).
+- Other todo.md non-puzzle items not decided: Sights engine gaps, Trek content, road kinds, art list (section 5).
+- Nav chrome only on Here/stops; craft-map canvas 480x270 final (recorded, no work).
+
+### Rules to keep
+Update todo.md after every change. Commit footers: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` + `Claude-Session: https://claude.ai/code/session_01PZZqg7jpRpSANvaVSCNSdA`. Push only to this branch; "Cannot update this protected ref" can be noise, check `git status -sb`. Repo is 3 GB: no extra worktrees.
+
+
+---
+
+<!-- merged from claude/handoff-route-map-bends.md -->
+## Handoff: route map bends (state 2026-11-07, main = 020289e4 + this note)
+
+Plan and decisions: `claude/plan-route-map-bends.md`, `claude/todo.md` ("Route map bends"). Read those first.
+
+### What exists (all on main)
+- **Rules, generator, lint, preview:** `tools/bend_rules.py`, `gen_bendy_trail_proto.py`, `lint_trail_bends.py`, `preview_bend_proto.py`. `--variety` adds land stamps (`tools/bend_stamps.py`), ponds and streams from region water (`tools/bend_water.py`). Output: `claude/bend-prototype/` (plain) and `claude/bend-prototype-v2/` (variety, all 246 routes, lint 0 problems, README there).
+- **Water ways, all 14 regions, hand-drawn:** Maplewold `tools/maplewold_waterways.py`; the other 13 `tools/region_waterways.py` (lines drawn over `game/assets/img/scenes/map-<CODE>.png`; `python3 tools/bend_water.py --write` -> `claude/bend-prototype-v2/waterways.json`).
+- **16 hand-tuned Maplewold routes:** `claude/maplewold-bendy-maps/` (README there). Built by `python3 tools/build_maplewold_bendy.py <ids>` from `tools/maplewold_bendy_specs.py` (road turtle strings, stamps, hints); deterministic; edit the specs, not the JSON. Lint: `python3 tools/lint_trail_bends.py claude/maplewold-bendy-maps/route-*.json` and `python3 tools/lint_maplewold_extras.py ...` (both 0 problems). Pictures: `tools/preview_maplewold_water.py` (water, gates, extra mini-bosses).
+- **Gates** (data, field `gates`): tool type + tier from `game/includes/tools.php` (Worn 1, Sturdy 2, Fine 3, Masterwork 4); rule min tier = region level + 1 (Maplewold = 2). 313 tunnel mouth lantern (lock), 315 slope staff (lock), 315 bridge pick (lock), 314 causeway staff (shortcut). **Extra mini-boss spots** (field `extra_minibosses`, data only): 312 Bramble Wolf 22, 314 Clam Lurker 23, 310 Wolverine 21, 309 Arctic Fox 17; 228/232/236/311/316 stay fight-free.
+- **Engine (source only, NO version bump, not released):** `game/includes/trail_art.php` (`trail_authored_valid` any size, `9` on any edge, `entry` key for sections without S, gates validated, `trail_gates_closed`), `trail_tiles.php` (`trail_gate`, `trail_gate_message`, gate check in `trail_go`). Tests: `php tests/trail_bendy.php`, `php tests/trail_authored.php`; live suites `bash tests/ci_suites.sh trail_back fight_scene_trail` passed. Data for the engine: `python3 tools/bendy_to_trail_maps.py` -> `claude/maplewold-bendy-maps/trail_maps_maplewold_30x18.json` (not in `game/includes/data`).
+- **Mockup:** a private artifact (six sections painted from the data, walker tries the gates); procedural art, not the baked pictures.
+
+### Rich painter and bake (2026-11-10, branch `ccr-0b462c90-quvi1t`)
+- Josh: the rich painter (`tools/render_bendy_rich.py`, looks in `tools/maplewold_rich_specs.py`) is the target art. Step 1 below is done as a STAGING bake: `python3 -I tools/bake_trail_rich.py [--proof]` -> `claude/maplewold-bendy-maps/bake/` (ground pictures, 348 raised sprites, authored-map json with objs `[x, y, key, jit, jy]`); `tools/bake_trail_art.py` was not changed. `trail_art_svg` reads `jy`. Not installed in the game. Details: `claude/todo.md` (RICH BAKE).
+- All 246 routes have rich mockups (`claude/bend-prototype-v2/rich-overview/`); mountain, wetland, desert, rainforest have own ground art in the painter (`ground_own()`); island uses coast art.
+
+### Next, in order
+1. **Art bake:** `tools/bake_trail_art.py` is still 22 x 7 with `9` on the east edge (its `--check` too). Teach it 30 x 18 and any-edge entry/exit, bake ground pictures for the 41 Maplewold sections under a NEW version (rule: delete `game/assets/img/trail/obj/lm-*.png` before re-baking sprites; never rebuild art under the same version), then copy the 30 x 18 json into `game/includes/data/trail_maps/` and extend `tests/trail_authored.php` (it still asserts 7 rows, entry on the left edge for the shipped data).
+2. **Engine:** read `extra_minibosses` (a fixed fight on a middle section; now only `E` on the last section of delve/lair routes is fixed), a visible gate mark on the tile picture, a live browser walk of a bendy route on a phone, release (version bump, `CHANGELOG.md`, zips per the release rules in `claude/handoff.md`).
+3. **Generator:** fold `--variety`, water, gates into `tools/gen_trail_maps.py` (shared SETS, captions, `--all`); wire both lints into `tests/`; gates and extra mini-bosses for the other regions (use the same tier rule, +1 per region level, cap 4).
+4. Landmark names and sprites for new rows; side-trail heading rule and region-map art sync (plan items 8 and 9); phone check.
+
+### Open for Josh
+- N/S sections are 18 tall: how should a vertical section be paced? The hand-drawn water lines for CSA, ESA and OC have no drawn water to follow: check them against the art.
+
+### Rules to keep
+Square tiles, 8 headings, road runs <= 6 (one <= 10 per section), no shortcut under 80%, thicket 12 to 45%, `E` only on the last section of 313 and 315 (on the road, 4 steps before the exit), no new tile characters. Do not edit `tools/bend_rules.py` or the lints to make a map pass. Owner rules: terse replies; push main only on Josh's word.
+
+### 2.6.39 (2026-11-10): all routes baked
+All 246 routes are in the game as 30 x 18 rich maps. Remaining from 'Next, in order': engine reads `extra_minibosses`; visible gate mark on the tile picture; gates and extra mini-bosses for the other regions (tier = region level + 1, cap 4; ask Josh); region-map art sync; real phone check. See `claude/todo.md` (2.6.39).
+
+
+---
+
+<!-- merged from claude/HANDOFF-clockwork-families-npc25.md -->
+## HANDOFF: NPC Clockwork, Trail map families, 2.5D villager sprites (2.7.01, branch `ccr-b949e7ad-nuu8lw`, NOT released, no version bump)
+
+### Prompt for the next AI (paste this)
+You are taking over work on Gnome Venture (plain PHP 8.1 + vanilla JS, SQLite tests, no framework; repo root has `game/` web root, `tests/`, `aseprite-source/`, `claude/` notes). Branch `ccr-b949e7ad-nuu8lw` holds three finished pieces. Do not push to main and do not open a PR unless Josh asks. Josh wants short, exact, caveman-brief replies. Read first: `claude/HANDOFF-clockwork-families-npc25.md` (this file), `claude/plan-npc-clockwork.md`, `claude/proposal-route-sights.md`, `claude/sights/FAMILY-BRIEF.md`, `aseprite-source/npc25/PATHWAY.md`. Rules: strict CSP (no inline style/script in pages, `tests/here.sh` checks the Trail page), one CSS file `game/assets/style.css` (append blocks, dark theme under `:root[data-theme="dark"]`), `bash tests/ci_suites.sh <suite...>` runs SQLite suites (use `PORT_BASE=NNNN` if ports clash; do not run while files are being edited: copies of `game/` are made), never skip a failing test, commit and push often. Your open tasks, in order: (1) the Open list at the bottom of this file; (2) ask Josh before any release (bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG, `bash tools/check_versions.sh`, slim zip via `tests/build_update.sh`).
+
+### What was built
+#### 1. NPC Clockwork (`game/includes/npc_clockwork.php`, setting `npc_clockwork`, test `tests/npc_clockwork.sh`)
+- Every villager (key `s<id>` stop villager, `n<id>` town NPC; travellers keep their circuit in `npc_life.php`) has a computed week of 2-3 doings: stroll, sit with neighbours, tend a patch (stay home), walk to the next stop, market in the road's town, visit a Trail Sight. Days, hours and place are scattered by seed; 1 h per leg, home by midnight. No new tables.
+- Reach rolled once per villager: ~45% never leave, 40% next stop or other town spot, 15% far. Modes: `fixed` (calling mentors + `fixed|Name` lines in `game/includes/data/npc_clockwork.txt`: never leave), `post` (innkeeper, keeper, watcher...: stay at post), `free`.
+- Sight appointments: villagers named in `data/trail_sight_folk*.txt` get `sight` doings (they cycle their Sights week by week; arrival matches the row's `dp=`). Forecast API `npc_cw_forecast`, card block `npc_cw_sight_card_html` (24 h strip + next game day), quest beat needs `npc=Name` (a miss tells when they are next, no penalty).
+- Shops: keeper doings dodge the shift; otherwise `npc_cw_shop_cover` picks a free local NPC; `staff_on_duty` (world.php) and `npc_now` (npc_life.php) show "minding". Stop villagers away from their stop are hidden from stop pictures; stop Villagers tab has a "Right now" list (local.php).
+- Test hooks: `$GLOBALS['gv_cw_time']=[dow,hour,dayIndex]`, `gv_cw_out`, `gv_sights_reload`.
+
+#### 2. Moon and tides (`game/includes/moon.php`)
+- 28-game-day month (day index from `npc_cw_clock()[2]`), 8 phases, spring tides at new/full, neap at quarters, ~53 min later each day, level continuous over midnight. Sight conditions `mo=<phase>` and `ti=low|high|rising|falling` (in `trail_sight_extras.php` and `TRAIL_SIGHT_COND_RE` in `trail_sights.php`). Coast tide pools use `ti=low`.
+
+#### 3. Trail map families (`game/includes/trail_families.php` hook; `trail_fam_<name>.php` per family)
+- All 14: maplewold, coast, forest, grassland, mountain, desert, rainforest, wetland, island, tundra, haven, wonder, delve, lair. Each = a picture layer above the Trail map + game rows (edits in `data/trail_sights_*.txt`) + a quest line (`data/trail_sight_quests_fam_<name>.txt`, folk rows `trail_sight_folk_fam_<name>.txt`) + test `tests/trail_fam_<name>.sh` + notes `claude/sights/family-<name>.md` (read these for each family's known gaps).
+
+#### 4. Walkers and 2.5D villager sprites
+- `game/includes/npc25.php`: strips `game/assets/img/npc25/<species>-<front|back|side>.png` (512x80, 8 frames of 64x80: 1-2 idle, 3-8 walk) for all 25 species (hedgehog, tortoise, field-mouse, wood-mouse, shrew, mole, dormouse, gecko, cricket, frog, grasshopper, hare, toad, beetle, ladybird, stag-beetle, stick-insect, snail, bumblebee, butterfly, dragonfly, firefly, moth, wren, bat) and `gnome-<npc slug>-<view>.png` for the 11 gnome NPCs (drawn from the player gnome rig with their own colours/worn pieces: `php tools/gen_gnome_npcs.php`).
+- Wired: Here scene (`here_sprite`, `here_sprites`), spot faces (`spot_card.php`), Trail map villagers at Sights (`trail_sight_folk_pic`, `trail_art.php` draws strips with CSS frame animation `.tmwalk` / `.tmidle`), and `game/includes/trail_walkers.php`: villagers on a road errand are drawn walking on the right section, facing their way, tap = card. Missing strip = old folk sprite / emoji fallback. Test `tests/npc25_wire.sh`, `tests/trail_walkers.sh`.
+- Art pathway (haiku spec -> sonnet scaffold/checker -> opus draw -> haiku verify): `aseprite-source/npc25/` (`PATHWAY.md`, `BATCHES.md`, `STATUS.md`, `run.sh <species>`, `check.py <species>`; Aseprite runs headless via `xvfb-run` and the AppImage). Add a species: write `specs/<name>.md`, `lib/species_<name>.lua`, draw `S.draw_figure`, `bash aseprite-source/npc25/run.sh <name>`, copy PNGs to `game/assets/img/npc25/`.
+
+### Tests
+`PORT_BASE=9700 bash tests/ci_suites.sh trail_fam_coast trail_fam_delve trail_fam_desert trail_fam_forest trail_fam_grassland trail_fam_haven trail_fam_island trail_fam_lair trail_fam_maplewold trail_fam_mountain trail_fam_rainforest trail_fam_tundra trail_fam_wetland trail_fam_wonder trail_sights trail_sights_270 trail_sights_lint npc_clockwork npc25_wire trail_walkers villagers stops100 adventure calling mentors120 clock social100 here heredo` (all passed at handoff). Older Sights tests (`trail_sights`, `trail_sights_270`) switch the clockwork OFF at the top; the quest runner turns it on only for `npc=` beats.
+
+### Open (known gaps)
+- Walkers only for stop villagers on road errands/market (not on the way to a Sight, not town NPCs); no per-NPC hand-authored routes (`doing|` lines in `data/npc_clockwork.txt` are not parsed).
+- Villagers at Sights show the front idle frames of their strip; they do not turn or animate beyond idle. Strips are single-look (the 3 folk colour looks per species are not used yet).
+- Sprite weak spots (see `aseprite-source/npc25/STATUS.md`): snail reads like a pillar, stick-insect fades at 1x, ladybird merges with its shadow, hedgehog lantern is tiny, tortoise side view has a gap.
+- Families: Lantern Relay (forest) counts lifetime not per game day (needs a daily-reset tally token); island ferry and mountain echo delay are approximations; grassland weather letters can take weeks (clockwork ignores weather); `npc_cw_forecast` ignores a row's `when` (dp/se/we); a villager with 3+ Sight rows appears at 2 of them per week (rotation), so quests with several `npc=` beats can take ~2 game weeks. Item art needed: `ph/well-water.png`, `ph/firefly-light.png` (and others named in `claude/sights/family-*.md`).
+- Mentor rows still exist in the Sight folk data files but are ignored by the engine (they never travel); quest givers that are mentors stay at home.
+- Tides are the moon's, but the game has no moon display outside the Coast strip: a Today/almanac moon line is a cheap add.
+- Nothing is released: version bump, CHANGELOG, `tools/check_versions.sh`, slim zip, Upgrade database not needed (no new tables).
+
+
+---
+
+<!-- merged from claude/art-handoff-overhaul.md -->
+## Art handoff: scene overhaul (read this first)
+
+For the art AI. Josh Fry, Gnome Venture. Date 2026-10-23. Game version **2.0.46**, branch `ccr-2c29e6c4-nssqf5`.
+
+### What you are making
+Pictures for a new set of screens: a **stage** (your party standing on a scene, foes opposite), **place banners**, **home and shop interiors**, **toy miniatures** for the characters, a **hoop map** kit, and a few fight effects. The code is built and live. **Every picture is optional**: a missing file falls back to plain colour bands or the old sticker, so deliver in small batches and nothing breaks.
+
+### Read in this order
+1. `claude/art-style-guide.md` **Part D** (Stitched Toy, Aseprite) then **Part E** (scene art addendum: Aseprite rules, black border rules, toy miniatures). Part E wins where it differs.
+2. `claude/art-spec-overhaul.md` the full file list, sizes and counts (98 files plus miniatures).
+3. This page: how the game uses the files, and the test run.
+
+### Five rules that matter most (details in Part E)
+1. **Aseprite only.** Lua script with `gvlib`, or by hand. No 3D tools, no renders, no imported or AI-generated images. Keep the `.lua` and `.aseprite` with each PNG (`aseprite-source/final/aseprite/scenes/` or the matching existing folder).
+2. **Hard pixels**: alpha 0 or 255, no blends, gradients, dither, blur. Palette from Part A and Part D only. Max colours per file type are in the Part E table.
+3. **Black border (1 px `#000000`)** on sprites only: miniatures, creatures, busts, the pin and landmark icons. **No border** on backdrops, banners, maps, interiors, effects. Black is used for nothing else.
+4. **Scenes are drawn small and exported 2x nearest-neighbour** (backdrop 240x135 -> 480x270, banner 240x60 -> 480x120). Do not draw the outline at export size.
+5. **Sprites face right.** The game flips them for foes. Feet on the bottom row, centred.
+
+### How the game uses your files (so you can draw for it)
+- **Stage backdrop 480x270.** Shown 1:1, 2x on a wide screen. On phones and on the Trek and Adventure pages it is **cropped to the band y 60 to 230**, so keep the figures and the ground line inside it. Ground line at y 190 to 215. Left third and right third calm (party left, foes right). Keep the centre readable.
+- **Slots:** party stands left (x about 60, then 20, 120, 80), foes right (mirror). Each slot is 80 x 100 px, feet at y 215 for the front row, y 195 for the back row. Back-row figures are drawn behind and above, so leave some floor visible.
+- **Miniatures keep their own size** (64x80, 56x64, 80x80, 112x112) and sit on their own round base. No separate shadow is drawn for them.
+- **Banners 480x120** sit under a page title, full width, 2 px umber frame added by CSS.
+- **Interiors:** the villager (80x100 bust, cut off at the bottom) stands left-centre, so **put a counter or half-wall across y 215 to 270 on the left** to hide the cut. Your gnome stands on the left, the villager on the right slot.
+- **Hit flash, lunge, KO tilt, floating numbers and HP bars are done in code.** You do not need to draw poses or bars.
+- Dusk and night are not drawn: day lighting only.
+
+### Where files go (exact names)
+| What | Path |
+|---|---|
+| Stage backdrops (9 lands) | `game/assets/img/scenes/stage-<land>.png` land = grassland forest mountain wetland tundra desert island coast rainforest |
+| Trek backdrops | `game/assets/img/scenes/trek-<chapter>-<scene>.png` chapter 1, 2, 3 (3b uses 3); scene = path, fight, camp (boss later) |
+| Banners | `game/assets/img/scenes/banner-<key>.png` key = village haven wonder delve lair market, or a region code NA CA CB SA NWE SE EE MENA WCA ESA CSA EA SEA OC, or a land |
+| Home interiors | `game/assets/img/scenes/home-<cottage|burrow|treehouse|hut|stone|boat>.png` |
+| Shop interiors | `game/assets/img/scenes/shop-general.png` first, then `shop-<type>.png` (types listed once the shop types are confirmed) |
+| Rest stop interiors | `game/assets/img/scenes/stop-<camp|ferry|herb|inn|jetty|market|mill|orchard|shrine|spring>.png` (not wired yet) |
+| Maps | `game/assets/img/scenes/map-world.png`, `map-world-regions.png`, `map-<REGION>.png` (not wired yet) |
+| Miniatures: creatures | `game/assets/img/mini/mini-<creature-slug>.png` slugs match `game/assets/img/animals/<slug>.png` and the creatures table |
+| Miniatures: Trek crew | `game/assets/img/mini/mini-crew-<crewkey>.png` keys from `game/includes/trek_data.php` |
+| Miniatures: villagers | `game/assets/img/mini/mini-npc-<slug>.png` slug = the `npc-<slug>` bust name |
+| Unknown villager | `game/assets/img/ph/npc-unknown.png` (80x100 silhouette) |
+| Hoop map kit | `game/assets/img/map/hoop.png` (240x240), `pin.png` (16), `landmark-medium|hard|wild|deep.png` (16) |
+| Fight effects | `game/assets/img/fx/` (not wired yet) |
+The player's own gnome is not a file: the code draws their customised gnome (hat, beard colour). Do not draw the gnome as one picture.
+
+### TEST ART RUN (do this first, 9 files, then stop for review)
+Goal: prove the whole pipeline (Aseprite -> export -> naming -> in game) before the big batch. Deliver exactly these, in one zip with the real folder paths:
+1. `scenes/stage-grassland.png` backdrop 480x270 (the most-seen scene).
+2. `scenes/stage-forest.png` backdrop 480x270 (a second land, to check they read as a family).
+3. `scenes/banner-market.png` 480x120 (Town Square header).
+4. `scenes/home-cottage.png` 480x270 with the counter strip bottom-left.
+5. `scenes/shop-general.png` 480x120.
+6. `mini/mini-aphid-swarm.png` a **small enemy miniature** 56x64 on its round soil base (the Trek and Adventure test fight uses this creature).
+7. `map/pin.png` 16x16 gold stitched button.
+8. `map/landmark-wild.png` 16x16 red skull flag, 1 px black border.
+9. `ph/npc-unknown.png` 80x100 villager silhouette.
+Check each with the Part E checklist (size exact, alpha, colours under the cap, black only on the sprite border, `.lua` and `.aseprite` saved).
+
+**What Josh/Claude does with the test run:**
+- Copy the files into `game/assets/img/...` and run `tests/trekshell.sh`, `tests/adventure.sh` and `tests/scenes.sh` with `SHOT=<dir>` (needs playwright) to get screenshots of the stage, the Town Square banner, the shop, the home scene and a fight. Look at: does the backdrop read at 1x and cropped on a phone, do figures stand on the ground line, does the miniature's base match the ground, is the black border visible on the dark theme, do the two backdrops feel like one world.
+- Feedback goes back as a short list of changes. **Only then** start the full batch.
+
+### Full batch order after the test run
+1. The remaining 7 stage backdrops, then Trek 1-path, 1-fight, 1-camp (then chapters 2 and 3).
+2. Party: Trek crew miniatures (crew keys from `trek_data.php`).
+3. Top 15 enemy miniatures (list from Claude on request), bosses after.
+4. Banners (kinds, then regions), homes, shops, rest stops.
+5. Hoop kit leftovers, fight effects, maps (the maps need a Claude step first: pins and region mask hit-testing are not built).
+6. Villager miniatures last.
+
+### Known gaps (not your problem, so you do not wonder)
+- World and region maps, rest stop interiors, camp and boss scenes and fight effects are not wired into the game yet. Draw them after the test run if asked; they will not show until Claude wires them.
+- Shop types: only `shop-general` is requested until the list of shop types is confirmed.
+- Hoop map: the game already reads `map/landmark-<tier>.png`. It does **not** yet read `hoop.png`, `pin.png` or felt textures (code draws those for now). Tell Claude when they exist and it will wire them.
+
+### Contacts and process
+- Questions go to Josh. Do not push to the repo; deliver zips. Claude merges and tests.
+- If a rule here and Part E disagree, Part E wins. If Part E and Part D disagree, Part E wins for these files.
+
+
+---
+
+<!-- merged from claude/stat-pieces-handoff.md -->
+## Handoff prompt: stat pieces (copy everything below into the next AI)
+
+You take over "stat pieces" work in repo joshfryart/gnome-venture, branch `ccr-0f0301f6-22ielh` (the only branch you may push to; no PR unless asked). User style: terse, exact, save tokens.
+
+### Goal
+Each gnome auto-owns unique stat pieces by stat points: stats Nimble, Lore, Luck, Sense (NOT Grit/Hardiness/Charm); tiers 0 (everyone), 10, 15, 20, 25, 30. Packed into the deck by choice, like counter knacks. 24 pieces built: 4 base plus 20 shortlisted. Numbers: a = 1 + points/5, b = ceil(a/2). Shared Luck roll = min(90, 50 + 2 x Luck)% rolled once per firing and cached. All behind admin setting `pfight_statpieces` (Off / Admins only / Everyone, default Off). With Off, fights must stay byte-for-byte unchanged (md5 tests in `tests/pfdeck_v1.php`).
+
+### Read first
+- `claude/stat-pieces-design/code-brief.md`: full coding brief and rules. Its "SP/..." paths now live in `claude/stat-pieces-design/`.
+- `claude/stat-pieces-design/stat24.json`: the 24 piece specs (text, fx, engine_cost, motif).
+- `claude/stat-pieces-design/tiers2-<stat>.json`: all 60 designed pieces (36 are reserve, not built).
+- `claude/stat-pieces-design/art-brief.md`; art notes in `game/assets/img/pfight/stat/README.md`.
+- `claude/stat-pieces-design/motifs/`: draft pfanim edge-effect motif code per stat (`stat_nimble.js`, `luck_pieces.js`, `lore_pieces.js`, `sense_pieces.js`, `stat_pieces.js`). Mockup code, NOT yet in the real build.
+- `claude/todo.md`: standing rule is to update it after every change (its header is stale: says main 2.7.47).
+
+### Done and committed (branch, newest first; pushed up to ac4360b6f)
+- ac4360b6f Nimble slice (6 pieces); 487ac4a61 Luck slice (6); 027126c66 art (24 icons 32px + 20px `-s`, in `game/assets/img/pfight/pieces/ico-stat-*.png`, `game/assets/img/pfight/stat/`, sources in `aseprite-source/pfight/piece-icons/stat/` and `.../stat-kit/`); 3c29c1fc8 plumbing (setting, `game/includes/data/pf_stat_pieces.txt`, ownership, numbers, shared Luck roll).
+- Earlier: test fixes for main 2.7.57 (all pushed).
+- Tests: `tests/pf_stat_pieces.{php,sh}`, `tests/pf_stat_luck.php`, `tests/pf_stat_nimble.php`. Run: `PORT_BASE=<20000..29000> bash tests/ci_suites.sh <suite>` (suite names in `.github/workflows/ci.yml`).
+
+### In flight: Lore slice committed as WIP snapshot (pf_stat_pieces and pf_stat_lore tests pass; parity suite and full run not rechecked). A background workflow may still add commits: check `git log` first
+A Claude Workflow (run `whtw8o5q3`) was building slices in order: Lore, Sense, UI/layout, anim motifs into real pfanim build, art wiring, 3 reviewers, fixer plus full test run plus docs. At handoff the working tree held UNCOMMITTED Lore work: `game/includes/pfboard.php`, `game/includes/pfdeck.php`, `game/includes/data/pf_stat_pieces.txt`, `tools/pfengine.js`, `game/assets/pfboardv1.js` (1 line), `tests/pf_stat_pieces.*`, `tests/pfengine_js.{js,php}`, untracked `tests/pf_stat_lore.php`. If the workflow is dead or the tree is unchanged for a while, finish the Lore slice yourself (run its tests, `git add` explicit paths, commit). Do not clobber a running agent's edits.
+
+### Unfinished (in order)
+1. Lore slice: finish, test, commit.
+2. Sense slice (Sharp Eye held shows the creature's next piece after its aim; others per stat24.json).
+3. UI/layout: pack/own UI for stat pieces (like counter knacks); board-UI changes for pieces needing them (hand edit `game/assets/pfboardv1.js`, see warning).
+4. Anim: port motifs from `claude/stat-pieces-design/motifs/` into `claude/pf-anim/motifs/*.js`, run `tools/build_pfanim.py` (builds `game/assets/pfanim-data.json`); animations should match the approved mockups (dice pops from the piece, trapdoor lid, shake on landing, 32%-opacity empowered overlay).
+5. Art wiring: hook `ico-stat-*` icons and kit art into the renderer (`game/assets/pfparts47.js`, kit 48). Redraw weak icons (Knot of Twine, Lucky Streak, Nimble 20px) after seeing them in game. Art ink is `#2a1a10`.
+6. Docs: new top section in `claude/todo.md`, write `claude/stat-pieces-spec.md`.
+7. Full test run, then push.
+
+### Warnings
+- DO NOT run `tools/build_pfboardv1.py`: it overwrites hand edits in `game/assets/pfboardv1.js`. Known failing check `pbox_v1` "pfboardv1.js is what build_pfboardv1.py builds" (pre-existing; fix means porting hand edits back into `game/assets/pfboard.js`; not yet requested).
+- `tools/pfengine.js` must stay in parity with `game/includes/pfboard.php` (`tests/pfengine_js.sh`).
+- v1 rules: no set-aside/grouping, flipping free, any fitting cell legal, one placement a round, one shared Yield bar. Nothing may be pointless under them.
+- Commit with explicit `git add <paths>` (never `-A`). Commit trailers: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>` and `Claude-Session: https://claude.ai/code/session_01PZZqg5mc1uztXauYQagDRB`.
+- Browser tests: Playwright, `NODE_PATH=/opt/node-tools/node_modules`, chromium `/opt/pw-browsers/chromium`, args `['--no-sandbox']`. Tests set `pfight_intro` 0.
+- Optional later: animate the 36 reserve pieces from `tiers2-*.json`.
+
+
+---
+
+<!-- merged from handoff-codechangesforart.md -->
+## Code changes needed to use the new pixel art
+
+Companion to `HANDOFF.md` (section 6c). The art is drawn and zipped; **no game code has been changed**. This file lists what has to change in the game repo (`github.com/joshfryart/gnome-venture`, folder `game/`) so the art shows up, and how to do it without breaking anything. Line numbers refer to the repo as cloned on 2026-10-22 (sparse clone at `C:\Users\hello\AppData\Local\Temp\gv\`).
+
+Work in a branch. No pushing or publishing without Josh's say-so.
+
+### 0. Rules for every change
+
+- **Additive, with fallback.** Check for the new file first, fall back to the old SVG/inline drawing if it is missing. Nothing breaks if a file is absent, and Josh can roll back by deleting files.
+- **CSP is strict:** `default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'` (`includes/functions.php:158`). No inline `style=""`, no external hosts. SVG presentation **attributes** (`image-rendering`, `filter`, `color`) are fine; `<style>` blocks and `style=` are not.
+- **Pixel art must scale crisply.** Every `<img>`/`<image>` showing a pixel PNG needs `image-rendering: pixelated` (CSS class in `assets/style.css`, or the `image-rendering="pixelated"` attribute inside SVG). Display sizes are not integer multiples of the canvas (64px art shown at 24/40/64 px), so expect some unevenness at 24 and 40; note it, do not blur.
+- Test every page that shows the thing, at the real sizes, in dark and light themes if the site has both.
+
+### 1. Getting the files onto the server
+
+Two zips in `upload-zips\`:
+
+| Zip | How | What it does |
+|---|---|---|
+| `gnome-venture-images-part1of3 / 2of3 / 3of3.zip` | Admin → Images, one at a time | 1,434 `ph` PNGs. The uploader (`includes/art_upload.php`) only accepts item/creature/NPC/nav-icon/building slugs and saves them under `uploads/items|creatures|npcs|nav|buildings|skins|yard/`. Everything else (`banner-*`, `stage-*`, `broken-*`, `tile-*`, ...) comes back "unmatched" by design; those are the ones that need section 2. |
+| `gnome-venture-game-folder-overlay.zip` | Unzip over the game folder | 71 files under `game/`: `assets/img/flowers-pixel/`, `assets/img/gnome/`, `assets/img/puzzles/*.gif`, `assets/img/chest*.png`, icons, `share-card.*`, and `favicon.ico`. New art goes in **new folders**, so nothing existing is overwritten except the same-name GIFs, icons, favicon and share card. |
+
+The full set (1,826 PNGs mirroring the repo folders) is in `final\png\`. The folders other than `ph` (`ico`, `animals`, `flowers`, `games`, `gather`, `landing`, `stops`) are **not** in the zips yet; they are static files the code references by path (section 2).
+
+### 2. Static art: .svg references to .png (the big one)
+
+About 90 `.svg` references in 20 files. The loaders:
+
+- `includes/items.php:134` `art_path()`: whitelists `uploads/` or `assets/img/` **png/jpg/webp**, plus `.svg` only under `assets/img/animals/` and `assets/img/ph/`. So PNGs elsewhere under `assets/img/` already pass; `ph/*.png` and `animals/*.png` do **not**.
+- `items.php:154` `ph_path()`: hard-codes `'assets/img/ph/' . $name . '.svg'`.
+- `includes/emoji_icons.php`: the `ico/` icon set (274 files) swapped in for emoji; it scans `ico_dir()`.
+- `includes/stop_pass.php:19`: reads a `stops/*.svg` file and **inlines** it (`preg_replace('/^<svg /'...)`), so it needs an `<img>` path instead.
+- Other files with `.svg`: `assets/gather-games.js`, `pest.js`, `site.js`, `style.css`, `tilemap.js`, `trekmap.js`, `includes/admin_resources.php`, `almanac.php`, `animals120.php`, `animals140.php`, `friends.php`, `games.php`, `garden_critters.php`, `garden_world.php`, `yard.php`, `index.php`.
+
+**Recommended approach (one helper, then mechanical swaps):**
+
+1. Add `art_url(string $relNoExt): string` that returns `<rel>.png` if the file exists, else `<rel>.svg`. Use it in `ph_path()`, the emoji swap, `stop_pass.php` (emit `<img>` when PNG), and the JS/CSS spots.
+2. Widen `art_path()` regex to allow `png` under `assets/img/ph/` and `assets/img/animals/`.
+3. Add the pixelated CSS class to `<img>` output of `art_img()`, `ph_img()`, and the emoji swap's `<img>`.
+4. Upload the remaining folders from `final\png\` to the matching `assets/img/` paths **as PNGs next to the SVGs** (do not delete the SVGs yet).
+5. Check each of the 20 files above: grep `\.svg`, replace via the helper, load the page.
+
+Hand-check these specifically: busts (NPC portraits were 400×500 in the original SVG pipeline; ours are **80×100**, so the displayed size needs an integer-friendly scale or leave as is), banners/tiles/scenes that are drawn at half size and written at 2×, and anything rendered as a CSS `background-image` in `assets/style.css`.
+
+Unchanged and safe: `ph/palette.json` (never touch).
+
+### 3. Same-name drop-ins (no code needed)
+
+- `assets/img/puzzles/*.gif` (7): same names, same sizes, same frame counts and timings.
+- `icon-32/192/512.png`, `apple-touch-icon.png`, `favicon.ico`, `share-card.jpg` (plus an extra `icon-16.png` and `share-card.png`). Same names and sizes. Check `manifest.json` and the `<head>` icon/og:image tags still point at them; clear caches (`url()` adds a `?v=` itself). The favicon holds 16 and 32 only (the original also had 48 and 64).
+
+### 4. Flowers (needs real code, not just file swaps)
+
+Files: `includes/flower_art.php`, `assets/arrange.js` (JS mirror of the same maths), `assets/style.css` (`.flsvg*`), `data/flower_looks.txt` (shape + tint per flower).
+
+Today the heads are SVG files whose petals use `currentColor`; each is inlined into an SVG with `color="<tint>"` (`flower_head_g()` line 116). The PNGs are not recolourable that way, so:
+
+**New files** (`flowers-pixel/`): for each of the 12 shapes `daisy rose tulip lily sunflower bell star pom orchid poppy spike cluster`: `<shape>.png` (full, for preview), `<shape>-petals.png` (**neutral grey, tint this**), `<shape>-centre.png` (fixed colour, draw untinted on top). All 64×64. Also `vase|jar|basket-back.png` and `-front.png` (200×150, same canvas as the old `viewBox="0 -30 200 150"`), `sprig-leaf|fern|eucalyptus.png` (64×96, stem base at (32,96), tip (32,8) as before), `packet.png` (64×64, label panel left empty).
+
+**How to tint without breaking the CSP:** inside the inline SVG, use `<image href=".../x-petals.png" width="64" height="64" image-rendering="pixelated" filter="url(#tint-RRGGBB)"/>` with a per-tint filter in `<defs>`:
+
+```
+<filter id="tint-d9773a" color-interpolation-filters="sRGB">
+  <feColorMatrix type="matrix" values="R 0 0 0 0  0 G 0 0 0  0 0 B 0 0  0 0 0 1 0"/>
+</filter>
+```
+
+where R,G,B = tint channel / 255 (this is an exact multiply for the grey petals). Notes:
+- The current code says "no ids, so any number can share a page". Filter ids break that rule, so name them by tint hex (`tint-<hex>`); duplicates on one page have identical content and are harmless. Emit each filter once per SVG, or once per page.
+- The petals multiply to about **80% of the swatch colour** (bases are mid-light grey). Multiply the matrix gain by about 1.25 (values may exceed 1; they clamp) to land on the swatch colour, or lighten the petal bases in the art. Josh's call (open question in HANDOFF).
+- `flower_dried_tint()` and `flower_mix()` already compute the tint hex; reuse them unchanged.
+- Draw order per head: `-petals` (tinted), then `-centre` (untinted).
+- Position: the old head `<g transform>` still works; put the image at x=0,y=0,w=64,h=64 inside it.
+
+**Arrangements** (`arrangement_inner()` line 157, mirrored in `assets/arrange.js` line 37): change vessel back/front, sprigs and heads to the `<image>` versions. Vessel images go at x=0,y=-30,w=200,h=150 inside the existing `translate(0, my-16)` group. Sprig images at x=0,y=0,w=64,h=96 inside the existing `translate(-32 -96)` group. The `$seed`/crc32 maths and slot positions stay identical so PHP and JS still draw the same picture. `flower_vessel_parts()` currently splits one SVG on `<!--front-->`; replace with two images.
+
+**Still vector after this:** the stems and the little leaves (`#3f8f4f`, `#4f9d5d` paths) are drawn in code. They will look flat next to pixel heads. Options: leave, or ask for pixel stem/leaf pieces as a follow-up art job.
+
+**Seed packet:** `flower_packet_svg()` replaces `<!--HEAD-->` inside the packet SVG with a tinted head. With `packet.png`, draw the packet image, then the tinted head (scaled to about 0.5, centred in the label panel at roughly x17..47, y26..51).
+
+Keep the old SVGs as the fallback when a PNG is missing.
+
+### 5. Gnome builder (`gnome_avatar()`)
+
+`includes/gnome.php:531`. Draws one 80×100 SVG from paths with `data-part="hat"|"beard"|"band"|"star"` and colours from `gnome_hat_color()`, the beard colour/dye, and `calling_tier()`. Used in 17 places (`gnome.php`, `profile.php`, `town.php`, `welcome.php` preview, `back.php`, `index.php`, `adventure.php`, `layout.php`, `sinks.php`, and **`trek.php:351` and `trek_art.php:316`**, which regex-extract the inner SVG markup and re-embed it at 24px, so the new markup must keep being a single `<svg ...>...</svg>` with a `viewBox="0 0 80 100"`).
+
+**New files** (`assets/img/gnome/`, all 80×100, stack at 0,0): `gnome-shadow`, `gnome-body`, `gnome-face`, `gnome-beard` (tint), `gnome-hat` (tint), `gnome-band`, `gnome-star`.
+
+Draw order: shadow, body, face, beard (tinted), hat (tinted), band if tier ≥ 2, star if tier ≥ 3. Same SVG wrapper, same width/height maths, `<image ... image-rendering="pixelated">` for each layer, and the same tint filter as section 4 using `gnome_hat_color()` and the beard colour. Dyes and the 8 hat / 6 beard swatches keep working because they only produce a hex.
+
+Known art notes: the hat/beard outlines are dark neutral grey, so deep tints go very dark (about 80% of swatch, see the gain note above). The star sits 2 px lower than the old SVG. Ears were added to the face. If the PNG layers are missing, fall back to the existing vector avatar.
+
+### 6. Chest (`assets/chest.js`)
+
+Line 12 holds the chest as an inline SVG string with classes `cs-svg`, `cs-bodyg`, `cs-lid`, `cs-glow`, `cs-inside`, animated by CSS/JS (lid opens, glow). New art: `chest.png` (closed, full), `chest-body.png`, `chest-lid.png` (64×64, same canvas, stack exactly). Replace the string with an SVG that contains `<image>` for body, a `<g class="cs-lid">` wrapping the lid `<image>`, and keep a vector/CSS glow ellipse. The lid's rotation origin must be moved to the hinge (back edge of the lid, around y≈30 in the 64-grid): check the existing `transform-origin` in CSS. The lid has not been tried rotating, and has no halo below its rim band; verify it does not show a gap when open. Fall back to the old string if the images fail to load.
+
+### 7. Admin (optional)
+
+`admin/images.php` / `includes/art_upload.php`: nothing is required. If Josh wants the admin page to accept flower or gnome art later, add new `art_match()` kinds (`flower-<shape>[-petals|-centre]`, `gnome-<part>`) saving to `uploads/...`. Not needed if the overlay zip is used.
+
+### 8. Code-drawn art NOT yet converted (decide per item)
+
+These are generated by PHP/JS as vector shapes and were left alone on purpose. Replacing them means new sprite/tile art plus new drawing code. Suggested order by visibility/effort, each as an additive "if pixel set exists use it":
+
+1. `includes/yard.php` fence/wall/hedge pieces (`fz-*`): note the **piece PNGs `{slug}-{end|straight|corner|tee|cross|gate}.png` already exist in the admin zips and the uploader supports them**; this may be only a render check.
+2. Goals jar (`hollow_goals.php:295`), letter envelope (`letters.php:247`), weighing scale (`games.php:837`), sink graphics (`sinks.php:369`): small single objects; draw sprites, swap the `<svg>` for an `<img>`.
+3. Maps (`maps.php`, `maps_myc.php`), tilemap backgrounds (`tilemap.php`), delve map, trek minimap, and trek tile art (`trek_art.php`): big procedural scenes. Needs a tileset plus a tile-placement renderer; a design job, not a swap. Ask Josh before starting.
+4. `welcome.php`, `puzzles.php`, `arrange.php`, `site.js`: check what each draws before deciding.
+
+### 9. Test checklist
+
+- A page with each changed thing, at its real sizes: Gnome page, Profile, Town list, Welcome preview, Trek screen (24px avatar), Arranging screen (PHP and JS must match), Almanac, Garden, Games, Chest opening, a puzzle with each GIF, the share card via a link preview, the favicon in a fresh tab.
+- Missing-file fallback: temporarily rename a PNG and confirm the old SVG/vector shows.
+- Strict CSP: open the console, confirm no CSP violations.
+- Hard reload (cache-busting `?v=` is added by `url()`, but old SVG may be cached).
+- Rollback = delete the new folders/PNGs; fallbacks restore the old look.
+
+### 10. Open questions for Josh
+
+1. Tint darkness: scale the filter gain by about 1.25 (code), or lighten the hat/beard bases (art)?
+2. Should stems and leaves in bouquets get pixel art too?
+3. `pig.gif` has a thin umber ring around the locked eye; keep or remove?
+4. NPC portraits are 80×100 (not 400×500): fine if scaled by CSS?
+5. Convert the code-drawn maps/tiles/trek art, and in what order?
+6. Switch all static `.svg` references to `.png` (section 2), then remove the SVGs, or keep both?
+
+### 10. Update 2026-10-27 (route art)
+New pixel art for the road-walk ribbon is in `game/assets/img/route/` (felt strip, pins, thread, gnome token, goal flag, danger pips, thorn pin); sources in `aseprite-source/route-mockups/` (Lua scripts draw them with the Aseprite CLI). The code that uses them is `route_ribbon_html()` and `route_fold_html()` in `game/includes/maps.php`. Still unused art: `scenes/map-world*.png`, `map-*.png`, `stop-*.png`. Big procedural maps (section 8, item 3) still need Josh's go-ahead.
+

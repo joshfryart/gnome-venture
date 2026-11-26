@@ -1,8 +1,15 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-25; main = 2.8.63, 2.8.64 on branch `ccr-6aa7b252-jbqae7`; landscape dock launched for everyone in 2.8.23). PRs 55, 52, 8 closed unmerged (stale 2.7.x))
+# Gnome Venture: MASTER TO-DO (ONE file, incl. archive and side lists at the bottom; updated 2026-11-26; main = 2.8.72; landscape dock launched for everyone in 2.8.23)
 
-Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md`. Detail lists for art stay in their own files, linked below, but their OPEN items are copied here. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
+Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and the "merged" sections at the bottom of this file. Old side lists (art, sights, archive) were merged into the bottom of this file on 2026-11-26. STANDING RULE (Josh, 2026-11-05): after every change or release, update this file (and `handoff.md` if needed) before ending the turn.
 
-## 2026-11-26 2.8.72 BUILT (zip in releases/), PR + merge to main requested by owner
+## 2026-11-26 2.8.72 SHIPPED (PR 83 merged to main; slim zip `releases/GnomeVenture-2.8.72-web-update.zip` built against 2.8.70, goes on 2.8.70 or newer)
+- Includes 116 more Stitched Toy fight rigs (swapped into game/). OPEN art: 6 rigs still old (bramble-wolf, badger, giant-anteater, dust-sidewinder, gnat-cloud, dune-scorpion); 5 weak per reviewer (cistern-newt, ashen-ant, bellcap-beetle, ember-beetle, grub-beetle): keep or redo?; `mini-<slug>.png` still old; `aseprite-source/v3/creature25/gen.lua` would overwrite swapped rigs (don't rerun blind).
+- OPEN, owner picks: stop-art mockup (`scratchpad/stopart/mockup.html`), fair dock Enter (tick vs strike), "visitor can smell it" reading, 69 weaker pals pick-list.
+- Update tutorial wording "They start working when you sleep" (crew now also works at 06:00).
+- Fixed fight tests: smoke.js + fight_scene pass with all rigs. Pre-existing failures: pbox_v1, puzzle_pals, gourmand, tea, guest, treks, pfparts48 (ci_suites only), pfv1_newfight.
+
+
+## 2026-11-26 2.8.72 (earlier notes, now shipped)
 - DONE: W1b, W2, W3, W4 fixes, W1 review, W1a ticked items, tutorial radish sleep + game days, shop W badge, trek + pals Find dock pieces. CHANGELOG 2.8.72 written, APP_VERSION 2.8.72. To ship: `bash tests/build_update.sh 2.8.72 2.8.71 $PWD/releases slim`, send zip, push, PR, merge only on the owner's word.
 - OPEN, owner decisions: fair dock R Enter (ticked AND struck: ask), "visitor can smell" reading (still-cooking dish vs last-cooked), W4 route-id offset bug (roads.php lay_roads + live-world renumber), gourmand nav tile double count, stale trail_maps.json, off-road pin clamp, rl_trail_heading, W3 shop/village card asks, W2 residuals (hovel tabs under dock at 640x260, tour "Show me now" at 640x260, dock labels ~8px under 340px high).
 - CUT by owner: gourmand dock Serve, show option B, Satchel Sell carries item / Set as Quick.
@@ -357,3 +364,2111 @@ Combat intent/Guard, KO cost on road fights, Inbox, test environment, growing vi
 - Josh's answers 2026-11-19, built: tent cape left as is; `fpall` cap 10; full shared Sights (setting `sights_shared_on` default OFF, `sights_shared_text` on; Admin > Content > `sights_shared.php`; flip on only when Josh says; blocklist `sights_shared_block` is short); sleeper choice, Smuggler's rope (stocked at Twigg's by boot step `rope_stock_ensure`, price my guess), Auroracamp bread, Kettletree tea swaps (Sights sixth pass A, `trail_sights_284`). Marrowby / Lyra parked.
 - OPEN: Cairn Token at milestones; Admin "ban author"; shared Sights Satchel / Trail forms and Admin page not seen in a browser; Ulric's old 20% cornbread drop is gone (replaced by the choice); `trail_sights_reach` has no `.sh`; `hub_pages.php` / `home_slim.php` pal countdowns still real time.
 - **2.7.32 fix (built 2026-11-19):** live log 'PDOException: There is no active transaction in /adventure.php:180' (POST, 19:16 UTC, before 2.7.31): the closing `db()->commit()` was unguarded; now `if (db()->inTransaction())` in `adventure.php` and the `set_region` commit in `world.php`. ROOT CAUSE OPEN: which action ended the transaction early is not known (likely a MySQL DDL / nested commit; the Sights table ensure functions run CREATE TABLE at runtime). If it recurs, log the `do` value.
+
+---
+
+<!-- merged from claude/todo-archive.md -->
+## To-do archive (moved out of todo.md on 2026-10-28, 2.0.81)
+Old blocks, kept for reference. Current list: `claude/todo.md`.
+
+<!-- moved 2026-10-30 (2.2.1): Cat Fish 2.1.00 to 2.2.0 blocks; 2.2.0 shipped, see CHANGELOG.md -->
+### NOW (2.2.x, 2026-10-29, UNRELEASED: `APP_VERSION` still 2.1.14, no zip): Cat Fish layout + Yarn sinks, fight panels, pals on the stage. Branch `ccr-d4955a91-j50rxx` (pushed, not on main). Joshua decides when to bump, news-post and zip.
+- **Built (all tested in `tests/catfish.sh`; `adventure`, `explore`, `fix100`, `rewards`, `prog`, `sinks097`, `puzzle_pals` pass):** page layout: Upgrades as 4 branch tabs with cost-only buy buttons; Shelter fold (closed header = the day's 3 cats + cost + timer); six-panel hub (Nap, Yarn (renamed from Home), Milestones, Cat Show, Your cats, Cat Book; JS builds it from `.cfpanel`, no JS shows all stacked, open panel kept in sessionStorage); slim cat rows (rename, bio, collar behind the pencil, Play, Buddy); Cat Book pattern tabs with labelled tiles. Yarn sinks (Yarn panel, three folds): Buy x10 (3), Longer naps away (4/8/16, +1 h each), titles Cat Person 15 and Napmaster 30 (Almanac picker via `catfish_titles()`), Hold a cat (2/day), Stakeout (3/day), second show entry (5, best of two), Buddy cat (12, +10% Kibble), Keepsake (10/20/40), yarn ball colours (1 each), Yarn scarf (12, on the gnome everywhere), Yarn bunting (1, +3 festival jar, 3/day), Rod Tune-up (4/run), Catnip Hour (1/day, taps x2 for an hour), Mood Treat (2/day), cat bio line (1/cat, then free), collar tint (2 per cat per colour), seasonal room (3 per season). Profile ribbon shelf. Adventure: fight panels swapped (you left under your gnome, foe right; fight card, open-bar duel, Fight on replay); equipped Puzzle Pals stand beside the gnome on the Adventure stage (not treks).
+- **Joshua to check on his phone (dark):** hub tiles and tabs, the folds in the Yarn panel, the scarf on the gnome (the scarf is now the pixel layer), collar rings, seasonal bits (force a season with setting `season_force`), flipped fight panels in a real fight, pals on the stage with 1 to 3 pals equipped (I could not seed pals; only lint plus the suites ran).
+- **Known:** `tests/social100.sh` fails 8 checks on the untouched base commit too (tier 1 pay, Today cards): not caused by this work, not investigated. Cat Fish meta keys added: `bulk away titles hold stake show2on buddyon buddy keepsake ball balls bunting scarfown scarf tune catnip treat bios collars seasons` and `show.cat2`; `cats` columns `bio`, `collar` (added by `catfish_ensure`). Do not reuse `keep` (tests use it for play meta).
+- **Pet shops BUILT (2026-10-30, server + UI + tests; art installed the same day):** 11 shops beside the regional markets of CB..OC (`petshops_ensure()` in `includes/catfish_pets.php`, run by boot step `petshops_220`, by `seed.php`, and lazily per request until the flag `petshops220` is set, since `APP_VERSION` is not bumped), 55 items in table `catfish_items`, 8 slots (rectangles in `room-layout.json` `pet_slots`, CSS `.cfpet-sN`), Room things panel as the seventh hub tile, shop page per pet shop (`shop.php`, type `pets`, `do=pet_buy`), `do=petslot|petuse|petunlock` in `catfish_api.php`, ten admin settings `catfish_pet_*`. Tests: `tests/catfish.sh` (about 100 new checks) + `tests/catfish_pets.js`; `claude/catfish-sim.php 120 10 0 1` fills every Kibble spot (+9% for 19,200 Petals: Yarn after 10 naps +11% at 2 h runs, +50% at 8 h runs; prices left as they are). **Art status: INSTALLED** (55 `cf-pet-<key>.png` + 11 `banner-<CODE>-pets.png` in `game/assets/img/catfish/`, 11 busts `npc-<keeper-with-hyphens>.png` in `game/assets/img/ph/`, which `npc_portrait()` finds with no admin upload; `tools/catfish_build_art.py --install` does all three, its check counts 1414 + 11 busts). History, kept for the record: they were drawn (`aseprite-source/catfish/art22/out/`, all exactly slot size, alpha 0/255) but not installed: `tools/catfish_build_art.py` does not know `cf-pet-*`, `banner-*-pets` or `npc-*` yet (its check counts 1348 files), so the install step must teach it (items to `game/assets/img/catfish/cf-pet-<key>.png`, banners to `game/assets/img/catfish/banner-<CODE>-pets.png`, busts renamed `npc-<name_with_underscores>.png` to `npc-<name-with-hyphens>.png` and uploaded in Admin > Images (sets `npcs.image`)). Without them the page shows red-outlined placeholders.
+- **Joshua to check on his phone (dark):** the Room things panel (long: 8 spots), a pet shop page (travel to the Sunsprinkle Isles market to buy), the stage with things in all 8 spots, tapping a ready thing on the stage (small 20 px things have a 44 px target that overlaps its neighbour), the seventh hub tile. Not built: the Tea Tray only hops the cats (no happy frames yet), Brass Lantern is a warm wash, Rain Stick rain is a CSS overlay, the Hammock/Bell/Gecko etc. animations are art-side.
+- **NEXT, Joshua picks (designs in `claude/plan-catfish-petshops.md`):** (1) ~~pet shops~~ built (see above). (2) long-cooldown scene events (warm patch, flap visitor, tree lookout first). (3) short scene taps (yarn ball, bird shoo, combo burst). (4) Yarn ideas not chosen: Judge's Preview, guestbook stamp, open house, cheer a friend, fair registration, Nap for the Hollow.
+- **Art for 2.2.x (drawn and wired 2026-10-29: scarf, collars, seasons, yarn balls, redrawn bird/yarn, Yarn icons; pet shops still open; no PNG = old placeholder):**
+  - [x] **Yarn scarf**: tintable pixel layer `game/assets/img/gnome/gnome-scarf.png` (80x100, same canvas as `gnome-hat.png`). Today `gnome_scarf_svg()` in `includes/gnome.php` draws a flat SVG with a red dashed outline (`data-placeholder="1"`). Swap to `pixel_image()` with the scarf tint and drop the outline when the PNG exists.
+  - [x] **Collar**: today a CSS ring (`.cfcol-<colour>` in `catfish.css`). Real: a neck-band layer on the 4 key frames x 6 colours (or one grey band recoloured by `tools/catfish_recolor.py`).
+  - [x] **Seasonal room bits**: today 8 CSS dots (`.cfseason`, `.cfs-sp/su/au/wi`). Real: petal, firefly, leaf and flake sprites (about 4-6 px) and optionally a season tint of the room.
+  - [x] **Yarn ball colours**: today a CSS tint of the grey ball (`.cfball-*`, needs `sepia + hue`, so it is also the one place `catfish.css` uses a CSS colour filter, kept above the "2.1.06 room life" marker because a test forbids that word below it). Real: recoloured `cf-yarn-1..4.png` per colour.
+  - [x] **Yarn panel icons**: the new rows use emoji icons (hold, stakeout, show2, buddy, keepsake, tune, catnip, treat, bio, collar, season, scarf, bunting, balls, titles). 16 x 64 px `cf-up-*`-style icons would match the upgrade rows.
+  - [x] **Pet shops (art installed 2026-10-30)**: 55 item sprites, 11 shop banners, 11 shopkeeper busts are in `aseprite-source/catfish/art22/out/`; the 8 slot positions are in `room-layout.json` `pet_slots`; the install step (see the Pet shops BUILT line above) is open. List in `claude/plan-catfish-petshops.md` section 7.
+  - [ ] Pals on the stage use the equipped pal PNGs as they are (no new art), 40 px; check they sit well beside the gnome.
+### NOW (2.1.07, 2026-10-29): Cat Fish buy flow fixed: instant cost with `-N`, taps flushed with the buy, scene refreshed in place (`stage_html`), one news post for 2.1.05 to 2.1.07. Also carries the fight-card phone scroll (`gvFightScroll`, branch ccr-103a3178-10sv83 rolled in). Slim zip in `releases/`.
+- **NEXT:** art follow-ups: bird sprite 1 px outline vs the overlay robin; rolling yarn sprite lacks thread and contact shadow; side-cat nap/bored spots are static (could move).
+
+### NOW (2.1.06, 2026-10-29): Cat Fish S4 wired. Idle variety yawn / stretch / wash (15-30 s, from idleA only), window bird sprite (hop 150, wings 200, 6-14 s; replaces the overlay robin while animating), yarn roll on swatB/pounce (`CATFISH_YARN_ROLL = true`), dust motes in the sunbeam, rug wobble. `?cffast=1` test hook. Slim zip in `releases/`.
+- **NEXT (remaining animation ideas):** side-cat nap/bored frames moving, a 'watch' head turn, art follow-ups: the bird sprites carry a 1 px dark outline the overlay robin lacks; the rolling yarn lacks the base ball's thread and contact shadow.
+
+### Earlier (2.1.05, 2026-10-29): Cat Fish animation slices S2/S3 wired. Tap = swatA 120, swatB 200 (fish bounce), catch 600, happy 500; jump (combo 5 or top fish twice in 1.5 s); blink, tailflick, eartwitch idle variety; z on napping cats; sparkles (glitter fish, combo 10); side cats alternate idleA/idleB and the nearest stalks. Alias frames via `CATFISH_FRAME_BASE`/`CATFISH_FRAME_OWN` (test-checked against `frames-alias-s2/s3.json`); 7 frames lazy-built by `catfish.js` from the `#cf-frames` manifest; 1281 PNGs installed. Slim zip in `releases/`.
+
+### NOW (2.1.04, 2026-10-29): Cat Fish active play. Tap a fish: it bounces, the cat stalks/pounces/catches, extra Kibble (5 s of income a tap, 360 taps a Hollow day, x1 / x0.5 / x0.25 tiers at 120 / 240, bucket 15 + 1 per 2 s). Server `catfish_play` in `do=tick` (`play`, `seq`), meta keys pb pt pd pc pq pe, no new columns; details in `claude/plan-catfish.md` "Active play". Slim zip in `releases/`.
+- **NEXT (animation catalogue, plan slices S2..S4):** S2 first: new cat frames `swatA`, `swatB` and `blink` (art, then wire them into `catfish.js`: the tap reaction can use swat instead of stalk/pounce/catch); then S3 and S4 from the animation catalogue plan. This slice used only the existing 8 frames.
+- Known gaps: play pops show the last server `v` (a rapid clicker can see `+N` for taps the bucket later refuses, the counter corrects at the next tick); the hint bubble is shown until the first tap or the first paid sync.
+
+### NOW (2.1.03, 2026-10-29): hotfix, Cat Fish fishing lines now reach the fish (`cfk-N` + `--cfn` per fish kind). If a fish PNG changes, update `--cfn` (test fails otherwise). Slim zip in `releases/`.
+
+### NOW (2.1.02, 2026-10-29): Cat Fish room is one play scene. Built on branch claude/cat-fish-game-art-2c5q76 (main 2.1.01 merged), slim zip in `releases/`.
+- **In it:** `catfish_stage_html` (centred 320x200 stage: room, wand on the ceiling hook, 3 swaying fish, active cat with 8 frame groups, up to 3 side cats), `assets/catfish.js` frame state machine (decorative, reduced-motion aware), centred layout, idleB/wiggle/bored now have patterns/ears/tails (614 PNGs). Coordinates: `aseprite-source/catfish/room-layout.json` (test checks CSS/PHP against it).
+- **Known gaps:** nap frame only after a Nap button press or a fresh run (the game has no lasting nap state); stage is 1x only (no 2x on big screens).
+
+### NOW (2.1.00, 2026-10-29): Cat Fish art + code. Built on branch claude/cat-fish-game-art-2c5q76 (main merged in, 2.0.99), slim zip in `releases/`. Cat Fish is ON for everyone (Joshua's decision). Joshua merges to main.
+- **In it:** 440 hand-drawn PNGs in `assets/img/catfish` (8 coats x 5 patterns, eyes, ears, tails, room, fish, rod, icons, badges, ribbons, banner, tile, Cat Book heads), layered cat renderer `catfish_cat_html`, lilac coat, tools `catfish_recolor.py` / `catfish_build_art.py`, tests.
+- **On by default:** `catfish_open` default is On; boot step `catfish_open_210` flips existing sites on once (db_version below 2.1.00); admins can turn it Off in Admin > Settings. `catfish_petal_cap` default 100/week. News 2.1.00 announces Cat Fish.
+- **Known art gaps:** idleB / wiggle / bored frames lack ear, tail and pattern art; see `claude/catfish-art-brief.md` "Known art gaps".
+
+
+### ART: first pass of the 64 placeholders is DRAWN on branch `claude/art-first-pass` (not pushed; stage icons, 48 stop tiers, 11 folk; see `claude/todo-art-variety.md`). Act scenes: checklist of all 810 activities in `claude/todo-art-acts.md`. Still open below:
+### ART FOR A FUTURE AI: one Aseprite scene per stop activity
+Full brief in `claude/todo-art-variety.md` (section "ART TODO FOR A FUTURE AI"). Short version: draw `game/assets/img/acts/act-<slug>.png` (144x108) for every activity in `stop_acts*.txt` and every future wave; `python3 tools/missing_act_art.py` lists what is missing; no code change needed.
+
+### VARIETY PROJECT (started 2.0.76): plan `claude/plan-variety.md`, art list `claude/todo-art-variety.md`
+**2.0.76 built (build plans, pilot CA + CB; not yet released as a zip, not yet checked by Joshua).** Joshua checks: upload, then on phone take on a repair at e.g. Cenote of Echoes (needs the place in ruins: Admin > Places or wait for `ensure_ruins`; ruins are 1 in 3 by name, never in the start region NA) and walk the 4 stages: gather, clear (Work here today, 2 days), haul, gather + Petals. The five verb icons are PLACEHOLDER (red border): real art listed in `claude/todo-art-variety.md`.
+**Decisions (Joshua):** building first, then stops, then road; plans hand-written per landmark; Worm Hunt / Snail Race are full games, NOT reused as step checks; 2 regions per release.
+**2.0.77 built (themed adopt upgrades, 12 kinds x 4 tiers, regional materials, 48 themed acts, placeholder tier art in `assets/img/stoptiers/`).** Joshua checks: adopt a stop on the phone, read the upgrade list, hand in a regional material, see the themed rest at tier 1, Admin > Themed upgrades by kind of stop.
+**2.0.78 built (stop act kinds craft/collect/tend/contest, `region` column, 14 pilot regional acts for NA + CA, kind-diversity rule, 4 placeholder cards).** Joshua checks: Do tab at a Maplewold or Maizehollow stop, open each new kind; Admin > Stop activities region field.
+**Content waves DONE in 2.0.78:** 35+ plain activities for every stop kind, 35 regional for every region (810 activities in all, no repeats: `tools/dedupe_stop_acts.py`). Review pages: wave 1 approved, the other 691 on the review artifact (notes to apply next release). Joshua checks: a few rest stops in different regions; Admin > Stop activities (list is long: filter by Region/Kind).
+**2.0.79 built (road card kinds fork/riddle/trade/chain/sketch, Road Journal, 48 pilot cards NA + CA, placeholder icons).** Joshua checks: walk a road in the Maplewold and Maizehollow, meet each kind; Town > Stop for the Road Journal; Admin > Road text lists the new cards. Next: road card waves for the other 12 regions (50 per wave, lint `tools/lint_road_events.py`, repeat check by eye + id/text), then toll/beat/sketch art, then the leftover build verbs.
+**Road card waves ALL DONE (on branch, no version bump/zip yet): 25 cards for each of the 12 other regions (MENA EA CB SA NWE SE EE WCA ESA CSA SEA OC), all 14 regions now have 25-ish new cards and 6 journal pages; linted, tests roadkinds/roadlife/roadtext pass. Not yet reviewed by Joshua (no review artifact). 2.0.80 bumped, zipped, art-first-pass merged. Next: Joshua review, then build-plan waves.**
+**Old next list (after 2.0.78):** festival act kind, `cookalong`/`tune`/`teach` kinds, regional acts for the other 12 regions in the content waves (2 regions per release), then 2.0.79 road kinds. Old line: 2.0.78 stop act kinds + `region` column + kind-diversity; 2.0.79 road kinds + Road Journal; 2.0.80+ content waves of 2 regions (plans for the other 12 regions: MENA, ESA, WCA, SE, NWE, EE, CSA, EA, SEA, OC, SA, NA). Left over from 2.0.76: verbs `befriend` (landmark places have no stop folk yet: needs folk at landmarks), `carry`, `trial`, `vigil`, `wait`, `decorate`; an Admin > Build plans page (read-only list first); before/after pictures per place; plan tests for new regions are covered by the data lint in `tests/buildplans.sh`.
+
+### NOW (2026-10-28, after 2.0.75): Joshua checks + what is next
+**On main, not yet uploaded/checked by Joshua: 2.0.69 to 2.0.75** (slim zips in `releases/`, each needs 2.0.47+; upload the latest, 2.0.75 covers all). Back up first. Everything new is OFF for players until he flips a setting:
+1. **Puzzles:** `puzzles_open` + `pz_barrel_open` (Rain Barrel) + `pz_beds_open` (Gnome Beds) in Admin > Game settings. Play a daily on phone light + dark: reward lands once (`pz_daily_petals` 15), hints +20s, board, sleep/oops Jeff beside status/errors. Look at the new tables on MySQL (`puzzle_runs`, `puzzle_wins`) and that `data/pzcache` is writable (Gnome Beds caches built gardens there).
+2. **Front page (logged out, always on):** Jeff's tour with real screenshots, GIFsaw demo (`puzzles_front`, default on). Check on phone light + dark, desktop. Re-run `bash tests/shots.sh` after any look change to Garden/Satchel/World/Town/Games/Almanac pages (`tests/shots_stale.sh` fails after 12 releases).
+3. **Guest gardens:** `guest_open` (default off). Play as a guest on phone (strip, blocked card, front-page button), register from a guest (garden kept, make-your-gnome step), Admin > Usage guest line, DB growth, idle purge (24h) on MySQL (`guest_purge` finds tables from information_schema: untested on MySQL).
+4. GIFsaw: 2.0.68 checks still apply (GD for uploads, tournaments test with 2 accounts).
+**Next candidates (Joshua picks):** Snail Trail (3rd puzzle game, plan `claude/plan-puzzle-games.md`: drag one trail through numbered stones, backbite generator; trio `pz_snail_*` in `includes/puzzle_games.php`, page, js, hub card flips from coming-soon automatically via `PUZZLE_GAMES`); redo Jeff `tada` (weak at 38px) and use `bye`; Jeff poses on more screens; guest-friendly treks (blocked in v1); delete uploaded GIF pictures; open Puzzles to players once checked; Seed Picross as a 4th game (needs small pixel pictures).
+**Releases done this session:** 2.0.69 hub + GIFsaw move, 2.0.70 front-page puzzle demo, 2.0.71 Rain Barrel, 2.0.72 Gnome Beds, 2.0.73 Jeff tour + screenshot pipeline, 2.0.74 eight Jeff poses, 2.0.75 guest gardens. Plans/notes: `claude/plan-puzzle-games.md`, `claude/plan-guest-mode.md` (built), `claude/jeff-poses.md`.
+**Working notes learned this session:** (a) test servers: kill stale `php -d session.save_path` servers before re-running suites (a leftover on a CI port gives phantom failures); (b) in bash test scripts `wait` must name PIDs (the php server is a child); (c) `ci_suites.sh walk` reports INSTALL FAILED (it installs first): run `bash tests/walk.sh` directly; (d) never `pkill -f` a pattern that appears in your own command; (e) `puzzle_games.php` needs `jobs.php` for `game_day()`; (f) PHP `.` binds tighter than `??`: parenthesise `($a ?? 'x')` inside concatenations; (g) Playwright needs `bypassCSP: true` to inject CSS and the theme toggle is hidden on phones (click via evaluate); (h) commit the Jeff/Aseprite WIP to the feature branch to satisfy the stop hook; (i) Joshua: "push main" = fast-forward `git push origin HEAD:main`, only on his word; zips go to `releases/` keep 4, archive the rest.
+
+
+### 2.0.60 hardening release (Joshua to upload + test; still open)
+
+Built from an external review. Done and on main: db_migrate index errors no longer silent; give_item rethrows non-duplicate errors (moved to includes/inventory.php); updater auto-maintenance lock + per-file rollback + hash check (tests/updrollback.sh); MIT LICENSE; SECURITY.md; version single source (tools/check_versions.sh); CI workflow; 21 stale suites repaired (all green run one at a time).
+
+Joshua checks: upload 2.0.60 via Admin -> Update on a BACKED-UP live MySQL site (updater changes only apply to the NEXT update after this one, the old updater installs this release); open the Actions tab and fix the first CI run (MySQL job, PHP 8.1 leg, action versions never run); confirm upgrade shows no migrate errors in the error log.
+
+Open from the review: `releases/` stays in git on purpose (Joshua's call); big files (garden.php, trek.php, bootstrap, functions) still to split incrementally (inventory.php is the first cut; next candidates: rewards, migrations); `treks` suite too slow for CI; suites share fixed /tmp files (use mktemp, then CI could parallelise); MySQL race test (12 parallel inserts) in tests/db_errors.php never run on real MySQL.
+
+### Shipped since 2.0.60 (all on main, see CHANGELOG.md)
+- **2.0.75** Guest gardens (`guest_open` default OFF; Joshua turns on after checking on phone). `includes/guest.php`, `includes/onboard.php`, `guest.php`, `customise.php`, `tests/guest.sh`. Joshua checks: back up, upload, set `guest_open` on, play as guest on phone (strip, blocked card, front-page button), register from a guest (garden kept, make-your-gnome step), watch Admin > Usage guest line and DB size. NEXT: Snail Trail, tada redo, more Jeff screens, guest-friendly treks later. 
+- **2.0.74** (on main) 8 Jeff poses shipped (point, key, sleep, oops, gnomehat, water, snail, trophy) + wired (tour, closing card, Rain Barrel, Gnome Beds, tournament winner, Snail Trail card). Not shipped: tada (weak at 38px, redo), bye.
+- **2.0.73** (on main) Jeff-the-Puzzler tour front page (logged out): 6 stops with real screenshots (`bash tests/shots.sh` regenerates; `tests/shots_stale.sh`; `tests/landing.sh`). Words editable: `home.jeff`, `home.tourbtn`, `home.tour.1..6`, `home.try`, `home.gate`. Old `assets/img/landing/*.png|svg` tiles now unused.
+- **2.0.72** (on main) Gnome Beds (`gnomebeds.php`, `assets/gnomebeds.js`, `gb_*` in `includes/puzzle_games.php`, `data/pzcache`), shared `pz_run_*` helpers. Closed to players: `pz_beds_open`.
+- **2.0.71** (on main) Rain Barrel + shared puzzle-game parts (`includes/puzzle_games.php`, `puzzle_game_api.php`, tables `puzzle_runs`/`puzzle_wins`). Closed to players: Joshua sets `pz_barrel_open` (and `puzzles_open`).
+- **2.0.70** (on main) logged-out front page "Try a puzzle" GIFsaw demo (`puzzles_front`, default on; `includes/gifsaw_play.php` shared). Next: Rain Barrel becomes 2.0.71.
+- **2.0.69** (on main) Puzzles hub + jigsaw moved to GIFsaw (`gifsaw.php`), 3 coming-soon cards.
+- **2.0.68** (LIVE and OK, Joshua 2026-10-28) Puzzles rework: Jeff/Ffej/Old Wizard cast, `puzzle_pics` + Admin > Puzzles (Library / Upload / Tournaments), seeded scramble, tournaments (`puzzles_tournaments`, off by default). Joshua checks: upload a GIF on live (GD present?), turn it on, run a short test tournament with 2 accounts, check the cast art light/dark on phone, then decide whether to open Puzzles/tournaments to players. Open: real host `.htaccess` already serves `uploads/puzzles/*.gif|png` (images only); no delete for uploaded pictures yet; tournament times are entered in Hollow time. Cast art (16 images + dark versions, Jeff main) is polished once; tournament badges/trophy/tourney-banner have no dark version. Ideas: delete uploaded pictures, MySQL run of puzzles_tourney, more Jeff poses, redraw dark variants in Aseprite instead of tools/darken.py recolour, run new GIF uploads through the Aseprite process.
+- **2.0.67** (Joshua to upload and check on phone if not yet) Gather satchel panel, mini-game removed, Do-tab and town felt cards, stage art by weather and time of day, Dye Pot shop art. Leftovers: see the 2.0.67 block in handoff.md.
+- **2.0.66** GPS route card redesign (`dest_panel`, thread + pinned Set off) and trip strip on every page (`dest_strip_html`, `tests/tripstrip.sh`). **2.0.65** shared villager row (`villager_row_html`), 12 unique rest-stop scenes (`stop_art_file()`, generator `aseprite-source/scenes-pil/stops.py`), redrawn shop art (`shops.py`), felt-sign place headers, unique seed shop names (`SEED_SHOP_NAMES`), red `.newart` outline removed. Consolidation block below is essentially DONE: left = visual pass leftovers and the checks listed there.
+- **2.0.64** pixel-art world + 14 region maps are the default (`map_style` only picks the fallback); fixed region layout `includes/region_layout.php` (dump: `tools/map_layout.php`); zoom controls above the map. **2.0.63** Treks Ch III open by default, Hush Bell fails open. **2.0.62** World Go right column 1600px+, header chips, 3-button switcher, main-stop Villagers = who is in town. **2.0.61** consolidation review build + puzzle stills/Motion button (`tests/puzzles.sh`, new `-still.png` per GIF via `tests/gen_puzzle_stills.py`).
+- Joshua checks still open: 2.0.60 live upload (see below), then 2.0.61-2.0.64 on phone: World tabs Go/Map/Gather/Shops, Stop tab, place switcher, bottom bar "Here", region maps zoom, puzzles Motion.
+
+### World / Town / Stops consolidation: SHIPPED (2.0.61-2.0.66); only leftovers below
+Plan PDF: `docs/ui-consolidation-plan.pdf`. Files: `game/world.php`, `game/town.php`, `includes/place_ui.php`, `includes/local.php`, `includes/villagers.php`, `assets/style.css`.
+**Joshua's decisions (2026-10-27):** main-stop Villagers = only who is in town now; "Here" top-level + phone bottom bar OK; Orders tab back in town (5th main-stop tab, "try it out"); stop-*/map-* art on place headers with RED OUTLINE (`.newart`, style.css ~5325) until he reviews; Mossbottom reachable from anywhere; no land purchasing at main stops (deeds village-only).
+**Structure now:** World tabs Go, Map, Gather, Shops. Main stop tabs Square, Villagers, Shops, Orders, Stop. Rest stop tabs Do, Villagers, Stop. Helpers in `includes/place_ui.php`. Old `?t=`, `?view=`, `?tab=travel|seasons|here`, `?go=` URLs still land.
+**Left:** (1) shared villager list: rest-stop (`stop_folk`) and main-stop (`$present`/`$homeIn`) lists still differ, errand forms post to town.php, villager panel to villagers.php: keep both working; (2) DONE 2.0.65: shared villager row and `.newart` outline removed; (3) visual pass leftovers (felt/stitch, light/dark, CSP no inline styles, desktop right column); (4) check links in index.php:126, shop.php:103, marketday.php:38 and the `$back` regex in gather.php; (5) run tests/scene_smoke, roads.sh, walk.sh, explore.sh (not run since 2.0.50) via `bash tests/ci_suites.sh <names>`; (6) release 2.0.65+, CHANGELOG, slim zip. Mockup to Joshua before big UI changes.
+
+### Earlier: explore / road-walk layout rework (2.0.50 to 2.0.59)
+Plan was reviewed by Opus; phases 1-4 are done. Joshua checks still open: tests/roads.sh, walk.sh, explore.sh not run; a road fight on his phone (fade once, stays out, comes back after); light theme; 10+ stop road; Snack picker / Auto-win rows in the tightened phone fight.
+- 2.0.50: Joshua's web-update zip reconciled into git (a parallel take on the 2.0.49 mobile layout). 2.0.51: phase 1 CSS cleanup. 2.0.52: phases 2-3 (route ribbon = felt strip, Route fold, one route display, phone Journal shows newest line only). 2.0.53: phase 4 (Latest result inside the action card, World map link replaces the fold) + stale scene_smoke banner test fixed. 2.0.54: route info fades out in phone fights. 2.0.55: slimmer ribbon on phone. 2.0.56: tighter phone fight card/buttons. 2.0.57: fade plays once per fight (sessionStorage `gvRouteFaded`, class `rf-done`). 2.0.58: phone fight log = last round only. 2.0.59: compact "Show all" tag.
+- Design chosen: mockup A (felt strip) with C's danger marker (thorn pin on the space where a fight waits). Mockups live in `mockups/route/` and `mockups/page/` (gitignored); Aseprite sources and Lua are in `aseprite-source/route-mockups/`; game sprites in `game/assets/img/route/`.
+- Slim zip rule: build with `bash tests/build_update.sh <v> 2.0.47 /home/user/gnome-venture/releases` (absolute out dir; base manifest must exist, latest is 2.0.47). Zips go in `releases/` (keep latest 4 versions, rest to `releases/archive/`), NOT `upload-zips/` (that is for art).
+
+#### Next ideas (not started, ask Joshua)
+1. The phone Journal peek repeats the Latest line (Latest now sits in the action card): drop the peek or the Latest strip on phones?
+2. "After this stop..." arrival help text is still in the action card, not in the Route fold.
+3. Phone fight: the ability / Fight on / Snack description lines are hidden; add a one-line version or a tap-for-info if he misses them.
+4. Explore (hoop map), delve and lair pages still carry the old heading + status line; same ribbon treatment could follow (explore keeps the hoop).
+5. Unused art: `assets/img/scenes/map-world*.png`, `map-*.png` regions and `stop-*.png` have no code using them; natural slot is rest-stop / destination scenes. Map art is an "ask Josh first" item.
+6. Remaining CSS duplication on the adventure page: `.advgrid .encounter` max-width (3 places), `.advlatest` (3), 900-999px double layout, fight rules per breakpoint.
+
+### Older notes (from 2026-10-21)
+
+Built + shipped: **2.0.29** (logged-out homepage + How to play rework). Joshua: check on phone logged out; a logged-in Today page render and Firefox Android were not tested.
+
+Built + shipped: **2.0.28** (art only: clap, party, watering-can, flatbread, boat, grain redrawn). Checked 2026-10-21 and closed: JS/CSS emoji leftovers (all mapped, only SVG pop text and `<option>` stay emoji); missing space after icon in summaries (fixed 2.0.25 with flex gap); town.php CSP console error does not reproduce (no inline styles left in source). Still weak, optional: path, dove, nav festival/friends/villagers/arranging at 24px, account on dark.
+
+Built: **2.0.27** (docs + guide PDF only: `claude/art-style-guide.md` now exists, generated from `tests/guide_src/text.py`; no original Project doc was found, so there is nothing left to compare).
+
+Built: **2.0.26** (ruler icon size fix + guide PDF rebuild; supersedes 2.0.25). The PDF Joshua uploaded 2026-10-21 is the 2.0.23 build and still carries the reconstructed art-rule text: the real `art-style-guide.md` is still needed to compare.
+
+Built: **2.0.25** (Almanac real pictures, 4 new + 4 redrawn icons, summary icon spacing, stop-tint CSP fix; Joshua: upload; check on phone: Almanac tabs Plants/Flowers/Recipes/Creatures/Villages/Landmarks/Regions show pictures, heat weather chip, a rest stop page tints). Left on purpose: pest.js SVG pop text emoji (cannot hold an img), `<option>` emoji (sort labels), 🃏 on Seed Memory, colour-swatch squares, one-off emoji marked SKIP in ico_map_source.json. Still weak: party, bouquet (cones), dove, grain, boat, telescope, nav festival/friends/villagers/arranging at 24px. Trek foes (12 creatures) and cover crops (clover, rye) have no art in the Almanac yet. Art guide text vs Project doc: NOT compared (Projects doc not readable from this session; Joshua: paste `claude/art-style-guide.md` into the repo or the chat).
+
+Built: **2.0.24** (JS/CSS emoji pass + creature art in duel/lair; Joshua: upload; check on phone: chest prize, Mushroom win, Pest chips, Spit gnome, harvest toast, duel + lair boss pictures). Remaining from the emoji list: season/weather/daypart emoji (hollow_clock.php) and yard decor tray print emoji (already swapped by the PHP pass, no art fallback), unmapped Satchel/Book emoji, composer toolbar 🔗/🖼, Pest pop text. NPC portraits for `npc_icon()`: DECIDED not worth it (portraits 400x500 per NPC, sites are species text).
+
+Built + LIVE and OK (Joshua uploaded 2026-10-21): **2.0.23** (emoji swapped for our own icons at render, 269 `ico-*` icons, Admin → Art & style guide PDF; see handoff Art). main = f33b6b6. Next version: 2.0.24 or higher (check bootstrap.php first).
+
+### NEXT SESSION: start here (2026-10-21)
+1. **DONE in 2.0.24 except the leftovers named at the top.** Emoji second pass (old list below): `gvIco()` JS helper, 2 CSS `content:` emoji, unmapped Satchel/Book emoji, `npc_icon()` ignores the real `ph/npc-*.svg` portraits (26 call sites; shown as emoji directly) and `creature_icon()` (trek_fight.php, layout.php:432, landmarks.php:615, adventure.php:832), season/weather/daypart emoji (hollow_clock.php), yard decor tray icons: these print emoji straight, no art fallback. Fix = use the portrait/art when it exists.
+2. **Weak icons to redraw when time allows** (Opus rounds 1-3; none misleading now): clap (can read as bread at 24px), path (egg-shaped mound), flatbread (looks like a cookie), pancakes (boxy), party and bouquet (both cones), watering-can (looks like a kettle), dove (cream wing relies on outline on light), grain, boat, telescope (small at 16px). Withheld on purpose: prayer, handshake (`WITHHOLD` in tests/ico_build.py). Nav icons at 24px: festival, friends, villagers, arranging are mush; account is low contrast on dark; ember-beetle eyes hard to read (large placeholders).
+3. **Joshua checks still open:** Satchel/Book pages for stray emoji; `/assets/guides/` must be blocked by .htaccess (PHP built-in server ignored it in tests); Admin → Art & style guide downloads.
+4. Small known bugs: pre-existing CSP "refused inline style" console error on town.php (also with swap off, not found yet); two headings lack a space after the icon ("Other times here" on town, "Seasons & weather:" on world; the space is missing in the PHP).
+5. The guide PDF's art-rule text was RECONSTRUCTED from tests/hearth.py (the subagent could not read the Project doc). Compare with Project `claude/art-style-guide.md` and edit `tests/guide_src/text.py`, then `python3 tests/build_guide.py`. The Project doc itself lacks the new `ico-` section (halo 6.0u / outline 3.4u, 16-24px, plain sources in tests/ico_src, `tests/ico_build.py`): add it or point to the PDF.
+6. Sizes: ph set is 265% of the old size (3.3 MB) and the PDF 3.5 MB: fine, watch only.
+
+#### Working notes learned 2026-10-21 (for the next Claude)
+- Subagents may not have the Projects tool: they cannot read Project docs; give them what they need in the prompt or have them read repo files. The lead (this chat) can read Project docs.
+- The stop hook "no remote branch / N unpushed" can be stale: verify with `git ls-remote --heads origin <branch>` against `git rev-parse HEAD` before assuming a push failed. Uncommitted files while agents run = WIP; commit WIP only on feature branches (never on main).
+- The auto-mode classifier denied pushing a release to main until Joshua said "Ship". Ask for an explicit go before merging/pushing main; feature branches are fine.
+- Start the work in the SAME turn you announce it (ending a turn after "building X" wastes hours; Joshua scolded this).
+- Never `pkill -f` a pattern that matches your own shell.
+- Version drift: another session shipped 2.0.21 (security) while this one worked. Always `git fetch` and read APP_VERSION before bumping.
+- Icon pipeline: draw plain SVG (viewBox 64, no halo) in tests/ico_src/ico-<slug>.svg, `PYTHONHASHSEED=1 python3 tests/ico_build.py restyle` (never for a single slug in parallel runs: use the gen_ico_fix_*.py pattern), add a row in tests/ico_map_source.json, `python3 tests/ico_map_build.py`, `python3 tests/build_guide.py`. Review sheets: scratchpad sheet.py (SVGDIR PREFIX COLS). Opus reviews the 16/24px sheets before shipping.
+
+
+### Emoji leftovers (2.0.23 swap is PHP-only; JS/CSS second pass is NEXT)
+- Add `gvIco(slug)` helper to `site.js` (loaded on every page; other files call it if present; base path via a data attribute on body from layout.php). Only innerHTML sinks can take an img; textContent/alert/confirm/title stay emoji.
+- 10 JS files: chest.js (44,45), fighton.js (7,41,84), gather-games.js (14 lines), mushroom.js 106, pest.js (662,750), puzzles.js 463, spit.js (142,153), site.js (33 lines: menu toggle, toasts, composer toolbar, pickers; biggest win), tilemap.js 143, trekfight.js (7 lines), trekscene.js (129,187). Plain symbols (arrows, check, cross) stay.
+- style.css `content:` emoji: ~line 1337 `.yard.editing .tile.fixed::after` pin -> background-image ico-pushpin; ~line 2620 `.memboard .card.matched .pk::after` leaf -> ico-leaf. Check-glyph contents are text symbols: leave.
+- Unmapped emoji (still emoji): in Satchel/Book 📦 🔤 🪱 🧰 and others; find with the list from `php tests/emoji_icons.php game`. Add icons via handoff Art recipe.
+- `<option>` and `<title>` emoji stay (cannot hold an img).
+- Full detail: scratchpad `ico/js_css_leftovers.md` (session file, may be gone).
+
+Built: **2.0.22** (art only: all placeholder SVGs Hearthlight-restyled; new placeholders need the restyle pass last, see handoff Art line). Optional polish: ember-beetle eyes hard to read; nav festival/friends/villagers/arranging mush at 24px; nav account low contrast on dark.
+
+Built: **2.0.30** (Ch III-b "The Knock Below", hidden like III-a; merged onto main 2.0.29). `trek_chapters_open` 3 opens ALL of Ch III (a + b) at once: there is no separate III-b switch.
+- Joshua decides: (1) Holler numbers: two sim runs median 86.0 / 85.7, worst 70.7 / 74.7, best ~99; zone means 87-91, worst single parties 62-80 (real dice swing). OK? (2) Hush Bell has no failopen (fail twice = no bell); fallback is 3 Bellcap Beetle kills in the Gallery give the clapper. Keep, or make the bell failopen? (3) Play-test III-a + III-b on phone as admin (Lodge Camp Talk, Hush Bell, Mere Wheel, Holler fight card, finish screen). (4) When to set `trek_chapters_open` 3 (then add a news entry).
+- Art later: npc-pip-dustwing, items warden-scute / echo-stone / bell-clapper (emoji fallback now).
+
+Built: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden, camps = full rest, friendship per fights; details in the 2.0.20 section below). Joshua: upload it.
+
+Built: **2.0.19** (trek tap brake 400/5 min, news entry "Treks are open!"). Joshua: upload it, then Admin → Settings → "Treks: open" = on. News post goes out at upload even if you wait: set the switch right after. Watch the first days: Admin → Usage (treks row), error log.
+
+Built: **2.0.18** (Treks phone play-test fixes: spot-text pop-overs, fight feed cap, obstacle bypass fixed, compact party cards, Ch II rest-site camp pop-over, Ch II sluices closer). Check on phone: walk to Burdock (cart now blocks: dig it), back out of a fight/duel and try to walk on (refused), Ch II oldcamps + Cushion Corner open the camp pop-over with free rest, sluice turn shows water change. DECIDED 2026-10-20: first cart dig keeps +8 fatigue (no change; free dig would make the Grit heave pointless; 8 is far under Tired 60 and Lantern Stump camp resets it); sluice text pass done in the next release (text pass 7; the freeze is lifted). Ideas: short CSS pulse on drained tiles; Clay Slide can skip the Shelf (left).
+
+Built: **2.0.17** (picture-tile shops done: Curio, Dye Pot, festival stalls, haven pantry, village stalls). Check on phone: each opens a sheet, buy works, centred. Watch: CSP inline-style console error on town.php (pre-existing).
+
+Built: **2.0.16** (II-b Fallen Shelf stop, road roll admin settings, Tumble lines pass 6, .tkfoelv CSS gone). Check: Admin → Settings → advanced "Road:" four weights; II-b shelf at the Dim (dc 11, camp kit). The II-b held list is DONE (Tumble brief fixed in the next release).
+
+Live and OK (Joshua 2026-10-20): **2.0.15** (join card Trek Lv, foe level dropped, Juniper pot at nookB, Tumble own effect), 2.0.14, 2.0.13 desktop layout. Overdue Book "gap" was not real (Sorrel takes it in II-a).
+II-b held items: ALL CLOSED. II-b skill-check stop, road roll settings, `.tkfoelv` CSS: done 2.0.16. Silverfin Sorrel line fixed 2.0.4. `thrum.harden` and the Tumble interlude are fine. Trailmates 4-6 are built; Wren is the 7th, in Ch III.
+
+
+Built: **2.0.11** (camp pop-over; check on phone: Camp button opens it, Talk cycles, Rest runs, it reopens after the story pop-over, auto-open switch works; add `chN.banter.<crew>.3/.4` text slots for more Talk lines). Before: 2.0.10 (map camera follows the token while walking, Treks + delves; check on phone: no jump at the end of a walk). 
+
+Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + pop-up toggle). Before: 2.0.8 (talk pop-over + log under the map). Before: 2.0.7 (Treks text fixes + party-full note). Before: 2.0.6 (Phase 3: delve/lair maps; 2.0.5 = Phase 2: shop tiles, rewards wrapper, combat_math; 2.0.4 = Phase 1; 2.0.3 = Usage page) (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.6). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+
+**Standing orders (Joshua 2026-10-20):** ~~Puzzles = ignore until he says~~ (lifted 2026-10-28: Joshua asked for GIFsaw, the new games, Jeff and guest mode). **Treks are OPEN (`trek_open` on) since 2.0.19, and the Treks text freeze is LIFTED** (text may be changed again; rows Joshua edited keep his words).
+
+### 2.0.12 (built 2026-10-20, branch trek-fight-touches)
+- Check on phone as admin: start a fight by walking: "!" over the gnome, then one pop-over with all foes side by side; hit shake / −N numbers in Fight round, Auto 1, plan-each-turn, Auto replay. Does the 2-foe pop-over feel too long (~2.2 s)? Is the map block "Where it began" good or too tall?
+- Idea parked: fight as a bottom sheet over the map (phone: map top 35%). Cost ~1 release, medium risk; needs all other dialogs converted to modal. Decide after the phone test.
+- Not tested live: creature pictures in the pop-over (only emoji in tests). Last foe KO fade only in Auto replay.
+- Fable text review: Ch I + II-a work. Fixed 7 of 8 issues. Left: ch2.spot.crossroads.locked is unreachable (leave).
+
+### 2.0.13 desktop fight layout: BUILT (see claude/plan-trek-desktop-layout.md)
+- Desktop map screen: log + Sneak/Camp/Leave under the map; fight screen keeps the inert map left and cross-fades the right column to the fight panel and back. Waiting for Joshua's "go" after the 2.0.12 phone test. One Sonnet task + Opus review.
+
+### 2.0.20 (Opus review 2026-10-20)
+- Shipped: Knacks (11 slots to Lv22, minor/major sidegrades, change filled slots at camp/hub), trek level cap 23, Whole map fold, friendship +1 per 20 won fights (cap `trek_friend_daily` 3/day), Ch II first-fight lesson, text pass 7, Drum Door label, feed keeps last lines. Ch III-a built but HIDDEN (`trek_chapters_open` 2; admins bypass).
+- Balance watch: camps are now full rest (kits + old camps stronger). Levers: `trek_oldcamp_ambush_pct`, `trek_campkit_price`.
+- Joshua checks (phone): Party tab knack selects (pick, Save, change at camp only), Whole map fold under the map, a 20th won fight shows "X likes you a little more", Ch II sluice lines.
+- Joshua decides: Old Gneiss median ~90 (target 78-88; worst 72, best 98); knack numbers (sims: builds add +7 to +9 avg win on Pinch/Thrum, test limit 8); knacks at Lv22 = 11 select rows (~800px on phone: fold?); Mushroom Camp beetle shells (pack first?); Lanternroot crop; when to set `trek_chapters_open` 3.
+
+### Now: Joshua
+0. Treks are open (`trek_open` on since 2.0.19). Watch Admin → Usage (treks row), the error log, and players' first runs.
+1. Upload **2.0.20** (covers 2.0.19; adds text pass 7: sluice lines name the water and clay layer, Ch II stash/shrine lines, Drum Door says "Open the door"). Rows you edited keep your words. Then play Ch III-a as admin on phone (hidden from players).
+2. Get players (slow going). Read Admin → Retention and Admin → Usage after a week or two: they decide the gated cuts.
+3. Art in progress (Admin → Images).
+- Email: Joshua says OK, drop it.
+
+#### Joshua decides
+- **Mushroom Camp beetle shells:** should Mushroom Camp take them from the pack first, then the Satchel? (~10 lines in `trek_events.php` `trek_act_mush`.)
+- **Lanternroot as a real crop:** the seed exists; the crop is not built.
+
+### Plan 2026-10-20: see claude/plan-consolidation.md (Phase 0 usage page 2.0.3, Phase 1 2.0.4; next: read Admin → Usage; gated cuts wait for the numbers; Phase 3 done in 2.0.6; NEXT: read Admin → Usage, decision gate on maps (roads strip/town hub only if delve maps get played), gated cuts, more picture-tile shops (Curio/Dye Pot, festival, pantry, local))
+
+
+### Treks: done in 2.0.1 (decided 2026-10-18)
+- Party wall fixed (all 20 parties 76–95%). Watch: Silverfin Lv11 93–99% (above 92 target), Bu+Zi+Br Silverfin Lv10 74.5%.
+- Riddles 2 tries; orphan slots shown; trek_items_daily setting (off); old campsites + KO checkpoint; Bracken OK.
+- Still open: no rate limit on trek POSTs (low). Crossroads locked text only reachable by unusual paths.
+
+
+---
+## Old todo.md, frozen 2026-11-05 at 2.5.62 (replaced by the master todo.md)
+
+### Gnome Venture: to-do (updated 2026-11-05, main = 2.5.62, slim zip `releases/GnomeVenture-2.5.62-web-update.zip` (needs 2.5.40+); live was 2.5.49 when last confirmed)
+
+### STATE (2026-11-05, main 2.5.62; everything is on `main`, the ccr branches are merged)
+- **Done since 2.5.49:** gather layers (2.5.50, all nine landscapes, satchel skins, dusk/night, weather); `paljobs` fixed (test used a 6 h crop that a 9 h replay could finish; no game bug); `treks` finishes (about 9 min, no FAIL); Trail tile walk camera follows the gnome (2.5.51); fewer finds on Trail maps (0-1 random, about a third of authored); select-squares quick picks wrap (2.5.51); art installed: workshop, 6 doors, 3 streets, 5 trophies, wander-step (2.5.51); Rest stop card on Here: popover, stamp on arrival, Take hold here, Garden here, hand-in inside the card, monthly upkeep for fully built stops (no adopting; unpaid month = one tier lost, `STOP_UPKEEP_PCT`), tabs Hold/Upkeep/Garden (2.5.52 to 2.5.59).
+- **Art installed 2.5.60 to 2.5.62 (all on main):** 81 wonder pictures (delve/haven/lair/wonder, polish-pass redraws of the weak ones in 2.5.62), 29 banners, gather small art (8 slots, 6 vignettes, 4 flourishes as 4-frame 96px sparkle sheets, badges, felt, ribbons), 14 journal emblems, 7 landing pictures, 14 region maps (same layout, repainted; `map-world` restyled; `map-world-regions` left as the old flat mask), 46 trek tiles. Sources: `aseprite-source/v3/finish2` (first pass), `finish3` (journal, landing, maps, trek), `finish4` (polish pass; the `finish3/weak` redraws are superseded). All same filenames and sizes, drop-in. Josh has NOT phone-checked any of it.
+- **Art weak spots left:** `lair-snowcrown-peak` (regular pyramid), turtle shell scutes read as a brick grid (`haven-turtle-nesting-beach`, `haven-kava-circle`, kava interior dark), `banner-desert` blocky mesa, `trek-me` hat tip clipped by ring (still a gnome in a gold ring; footprints are gold paw prints), `vig-pick` head reads as a worm at 1x, `map-world` props small, stylistic sameness in some creature shapes. Check the flourishes against the satchel backdrop (dark outline).
+- **Art P7 not done:** homes (6), tiers, village pictures, craftmap 14, the 1,667 acts, the landing `shot-*` screenshots (824x1120), `map/` 16px tiles, animation layers.
+- **Josh to phone-check:** Trail walk camera; select bar; Rest stop card (tabs, stamp, adopt a non-maxed stop, hand-in, upkeep chip-in, buy deed); the new doors/streets/workshop pictures; 2.5.59 as a whole.
+- **Open decisions:** who owes upkeep (adopter only or anyone, built as anyone); notice to the adopter when a stop drops a tier; approve the new stage art (montages sent) then install `aseprite-source/v3/p7/out/derived-<land>/` into `assets/img/scenes/`; P7 order (wonders 81 first, or banners/trek scenes/region maps); craftmap 14 scenes skip?; redraw all 1,667 acts or only used; 480x270 canvas final?
+- **Art owners:** me: P7 remaining (homes, tiers, village pictures, craftmap, acts; see above). P4 and the rest of P7 are done. AI-1 (paused for usage): P1 weak items 180, P2 flower heads 19, P3 odd-size UI 41 (`claude/handoff-ai1-art.md`).
+- **Still not done (code/art):** animation layers (`<art>-anim-*.png`), `wander-step-back.png`, workshop/street/door animation, real Trail ground art for other regions, hand-polish of procedural yard pieces, animal homes pre-v3, Ginseng Seed v3, planted soil for no-till beds, satchel item/`satchel_skin` column, season variants, MySQL `upgrade_check.sh` and the full CI list (never run on this line), phone checks.
+- **Rest stop notes:** the Here picture stamps the passport on arrival (`here_view`); the card is `stop_slim_card_html()` in `includes/place_ui.php`, served by `town.php?view=passport&frag=1` and posts `card=stop`; upkeep code is in `includes/stop_adopt.php` (columns `stop_adoptions.upkeep_month`, `upkeep_pool`).
+
+### LEFT (2026-11-05, after 2.5.49; built on the 2.5.48 line, branch `ccr-6df4dc5d-2sof6n`; git `origin/main` is still 2.3.2, the 2.5.x line lives on the ccr branches)
+**Built in 2.5.49 (CHANGELOG):** corner pieces (4 per yard square), paths and coverings flush into beds, wet tilled soil in rain, visitors see thirsty squares when friend watering is on, touch-checked designer; shops popovers on stops/havens, verb chips, nav chrome on workshop/street/door, Lanternroot crop, Strong/Grand potions on pal trips, Select all free pals, compact garden select bar, Welcome village fallback test; trail loader for any region, 2.5D gnome on authored trails, trail bottom fade; treehouse trophy/animation layers; docs; news for 2.3.91/2.3.93/2.5.49; stale tests fixed. Version stays 2.5.49 until Josh says otherwise. No zip was built.
+- **Josh:** phone-check yard corner pieces (Shape, drag near a corner), paths against beds, wet beds in rain, visitor thirst; Here pages (stall/pantry popovers, icon row on workshop/street/door); Pal Jobs Select all; garden select bar in the LIGHT theme (only dark was seen); decide whether tile walks should really give ~40% more fights than timer walks (`tests/balance_sim.php` Walks section); decide the art stand-ins for new-region Trail maps (`ART_LAND`: desert/island to coast, rainforest/wetland to forest, mountain to tundra); send route maps for the other regions (`claude/prompt-route-maps.md`); an Admin upload (`uploads/items/<slug>.png`) shadows `assets/img/ph/`.
+- **Code, not done / unverified (OLD, see STATE above: paljobs and treks are resolved):** `paljobs` failed 2 hired-helper checks (Pip Dewfoot: "pal does only what the helper left", "ready square harvested exactly once") on the untouched 2.5.48 commit too; it passed at ~12:40 UTC and failed from 13:01 UTC on 2026-11-05, so it depends on the clock (Hollow date/season replay in `helper_water_tile`/`tile_grow`); pinning weather_force=sun and season_force=spring did not fix it, cause not found. `treks` never finished here: it hit its 600 s limit in `trek_knacks.php`/`trek_friend.php` three times with no FAIL line (probably load; not compared with the base). Step-off strip and treehouse trophy/animation layers were only tested with generated stand-in images, never seen with real art. Designer corner placement only picks a corner for pieces whose shape is already a corner form (a fresh tray piece is whole-square until Shape is set). Folk walk frames: nothing in the game walks folk, so nothing to animate. Cover squares are not recomputed live in the designer when a bed moves (server only). Different path materials meet with a straight edge (looked fine, not phone-checked). MySQL path for corner pieces: no schema or SQL change (shape column already exists), static check only.
+- **Art, not done:** `scenes/wander-step.png` (+ optional `wander-step-back.png`), `tree-trophy-*.png`, `<art>-anim-*.png` layers, workshop/street/door pictures (still red placeholders), real art for the other regions' Trail grounds, hand-polish of the procedural yard pieces (`tools/bake_*_art.py`), animal homes pre-v3, Ginseng Seed v3, planted soil for no-till beds.
+- **Not run, ever on this line:** MySQL `upgrade_check.sh` (no MySQL server in this environment), the full CI list, a real phone. Suites run on 2.5.49: see CHANGELOG/report (yard, garden100, here, adventure, explore, css_lint, craft, beds, stops100, roads097, redirects, gather150, folkoverlay pass; paljobs fails as above).
+- **Method that worked:** throwaway SQLite install (copy `game/`, delete `data/`, run `tests/walk.sh` to install, `php -S` with `tests/router.php`), `render_yard()` into a static HTML linking `/assets/style.css`, screenshot with Playwright; touch drag via CDP `Input.dispatchTouchEvent` with a `hasTouch` context. Run suites with a unique `PORT_BASE` (default 8811 clashes when several run at once) and keep scratch files in your own folder (shared scratch folders get overwritten).
+
+### LEFT (2026-11-05, 2.5.50 built on branch ccr-0358827d-mgop4k (merged with the 2.5.49 code work from ccr-6df4dc5d-2sof6n)): gather scene layers
+- **Built:** all nine landscape scenes + 3 satchel skins + dusk/night + weather overlays (see CHANGELOG 2.5.49). Not built: slim zip (ask Josh), phone check. Josh to check: scene quality per landscape, dusk/night look, weather overlays, found item still lands in the satchel mouth, dark theme.
+- **Not done:** a satchel item/column (`satchel_skin`) to pick canvas/patchwork; a generic `scene3-` (unknown landscape falls back to old `scene.png`); the 8 slots, 6 vignettes, flourishes, badges, felt and ribbons in `assets/img/gather` are still old art (P4 rest); season variants; P7 (wonders 81 etc.); known art weak spots: rainforest monstera/orchids, grassland windmill base, island palm crowns and coconuts, desert/island sand blotchy.
+
+### LEFT (2026-11-05, after 2.5.48; main = 2.5.48 at `c72ee23d`, branch `ccr-dedeb4af-hjr0wy` = main)
+**Built since 2.5.42 (see CHANGELOG 2.5.43 to 2.5.48; each slim zip was built on base 2.5.40 and the next one replaced it in `releases/` (2.5.43 to 2.5.47 zips are gone, upload 2.5.48); Josh uploads):** 2.5.43 blended yard paths + crops 1.25x + ripe crops show their own harvest picture; 2.5.44 untilled coverings (lawn, clover, wildflowers, weeds, dry, leaves, moss, dirt) on a 256 px yard turf; 2.5.45 soil-state tiles (planted, thirsty, ready); 2.5.46 stepping stones / log seats / toadstool rings / flower pots as joinable families with Shape + Size in the designer; 2.5.47 animal homes use their PNGs in the yard (they were served as old SVGs), Tortoise Run redrawn; 2.5.48 35 v3 pictures from batches 1 and 2 finally exported (incl. Butterfly House, Carrot, Corn, Pumpkin, Watermelon, 11 seeds).
+- **Josh:** phone-check 2.5.43 to 2.5.48 (garden yard: paths, coverings, soil states, designer Shape/Size, crop sizes, ripe crop pictures); if an item still shows old art after the zip, an Admin upload (`uploads/items/<slug>.png`) is shadowing it (those beat `assets/img/ph/`); upload-zips were NOT rebuilt for the 35 new pictures.
+- **Code, not done:** more than one piece per yard square (four small corner pieces: needs corner occupancy in `yard_fits`/`yard_mark`); path squares and cover squares do not blend with bed squares (tilled, planted) yet; `tile-tilled-wet.png` is still unused; thirsty soil only checked on a sheet (the yard shows thirsty to the owner only); different path materials side by side were not looked at live; designer drag of paths/families was only checked by script (Playwright on a throwaway SQLite install), not on a phone.
+- **Art, not done:** hand-polish in Aseprite of the procedural pieces (`tools/bake_fam_art.py`, `bake_cover_art.py`, `bake_path_art.py`, `bake_soil_art.py`, `draw_fix_art.py` Tortoise Run); animal homes (`assets/img/animals/*.png`) are pre-v3 (no v3 folder for them); Ginseng Seed v3 (leaf reads as cannabis) was NOT exported, old picture stays; planted soil for no-till beds shares the tilled-based soil.
+- **Tests:** `yard` and `garden100` pass on this line. `beds` fails 5 checks (pots 4, status chips, tired chip) on the untouched main too (not from these releases). Not run, ever on this line: MySQL `upgrade_check.sh`, full CI, real phone.
+- **Method that worked:** throwaway SQLite install (copy `game/`, delete `data/`, `php -S` with `tests/router.php`, install via curl, `create_garden()` from a PHP CLI script, insert `garden_objects`/`user_items` rows, session cookie is `garden_sess`), render `render_yard()` into a static HTML that links `/assets/style.css`, screenshot with Playwright. Gotcha: `active_plot_id` follows `users.active_plot_id`; `load_plot()` withers out-of-season plants, so fake plants in memory instead of the DB.
+
+### LEFT (2026-11-05, after 2.5.39; main = 2.5.39, art branch `ccr-4352abc3-t2n2rj` = main)
+**Live-ish and done since 2.5.18 (see CHANGELOG 2.5.19 to 2.5.39):** pictures for every place type (11 stop types, village, haven, wonder, delve, lair, generic) with named pills; town shop fronts named per shop (last = Mossbottom Shops), shop popovers in place; stop "Do here" fronts named per activity (weather/season/hour first) with in-place buttons; stop folk stand under the picture with v3 sprites + portraits (20 species x 3 looks) and in-place chat/gift/errand; Villagers pill lights up the street; World page opens on the world map (no banner, no GPS, centred on you); 2.5D gnome on Trail, My Gnome, Today and every avatar (no ring, shadow, smooth glide); fight backdrops (3), wander art + icons wired; Trail tiles (2.5.37, other session): 16 authored Maplewold routes (`trail_maps.json`), random-encounter fights, still behind `gnav_tiles`.
+- **Josh:** phone-check 2.5.35 to 2.5.39 (Do here names + popovers, folk line, Villagers highlight, Maplewold trail tiles); decide section counts for the other regions' route maps (`claude/prompt-route-maps.md`, `claude/route-list.md`; current data 2 to 5 sections following `routes.steps`) and send the next AI's output; flags `gnav_on`, `gnav_tree`, `gnav_tiles` still default 0.
+- **Code, not done:** Shops/Homes popover on non-town stop types; verb chips; step-off/step-back strip; Lost Letters + landmark panel on the World page (old Go stack only at `?tab=go`); town villagers as street line is done, but folk art for town NPC sprites missing for some; nav chrome on other picture pages; gnome walk-frame animation (strips have 8 frames, only idle shown; folk strips have 4); `balance_sim` for `gnav_enter_energy`; trail tile bottom edge (tiles are baked PNGs); loader for routes outside Maplewold.
+- **Art, not done:** repaint weak spots (camp flames, ferry dock, wild-trail trees...); village + haven hero scenes; delve scenes; Maplewold `special2` (Beaver Pond) front; town repaints if disliked; the 179 weak items (`claude/todo-art-v3.md`).
+- **Not run, ever on this line:** MySQL `upgrade_check.sh`, full CI, real phone. Full + source zips for 2.5.34 are only on disk in the session (not in git on main).
+- **Known:** `stops100` fails 2 night-fishing checks (time of day, same on main). A 2.5.34 slip put an 83 MB source zip and 34 MB FULL zip into `ccr-4352abc3-code` history (not on main).
+
+### NOW (gate-view scene lookup + wander art hooks, 2026-11-05, branch ccr-4352abc3-code (based on the Phase 5 branch + main), BUILT as 2.5.18, not on main)
+- Built: `here_layout_find()` takes a ctx (town by region code `town-<code>`, `town-hub`; stops by `stop-<type>-<landscape>_<style>`, any look of that type + landscape by slug hash, `stop-<type>-<landscape>`, `stop-<type>`, then the old chain), `includes/data/stop_looks.php` (region code to style), gate-view pictures (`"view":"gate"`) render in chrome mode with no exits: compass opens the Routes list (every route, GPS leg first, nearest next, one `Set off` form each via the shared `here_route_info()`), globe opens World map + Open region map. Spots may carry `as` (behaviour) and `box`; `special1`/`special2` = the region's own town places; the id follows the behaviour (`s-wild`). Lint: box edges for stand slots. `tools/import_gate_layouts.py` imported 12 towns + Maplewold + 2 market-stop looks (Blossomreach, Monsoon Tangle, Coralscatter not yet imported: run the tool again when their PNGs are on the branch).
+- Wander card: optional banner/tier badge/move icons/found marker (`wander_art()` in `adventure.php`): nothing is drawn when a file is missing. Names in `claude/art-brief-here.md`. Not built: the step-off/step-back strip.
+- Tests: `here` (new lookup, lint and gate-view checks, wander art hooks), `adventure`, `explore`, `css_lint` green. `stops100` fails 2 night-fishing checks (time of day, same on main). Not run: MySQL, `upgrade_check.sh`, full CI, phone.
+- Gaps: Maplewold v5 has no front for its second town place (Beaver Pond skating, `special2`); town tags use the DB place names; market stops only (other stop types fall back to the placeholder `stop`).
+
+### NOW (Phase 5 build, 2026-11-05, branch ccr-0a395161-w8rs7y, not released): TREEHOUSE + PUZZLE PALS + PAL YARD as pictures, flag `gnav_tree` (default 0)
+- Built: chrome mode in `hub_scene.php` (box hit areas from the layout, centred tags, gold brackets, no circles, compass + globe cards, perspective 0.55-0.95, sparkle, dressing layers); treehouse rooms with game cards, Puzzle Room / Cat Fish shutters, Contest hall (high scores, trophies), Pal Book, Yard door, pals on stable perches (found order), party pal by the door, away tag + return time, pal popover (Take along / Send home via puzzlepals.php `back=treehouse`, Send on a job), 0-pals hint, +N in the yard, `hub_seen` table (arrival sparkle, list preference); `games.php` redirects to the treehouse when on, `?view=list` is the remembered text twin, `from=treehouse`; Pal Yard sites open the REAL job forms (new `includes/pal_jobs_view.php`, `paljobs.php` now uses it; forms post `back=palyard`), ledger popover keeps the countdown JS, pals at their site with a progress bar and a Collect bubble, sick bay, caps shown. Lint checks boxes. Art schema in `claude/art-brief-here.md`.
+- Tests: `here` (new Phase 5 blocks and here.sh checks), `paljobs`, `pjobs`, `puzzle_pals`, `games2`, `games140`, `puzzles`, `css_lint` green. Not run: MySQL, upgrade_check, full CI, real phone.
+- Art (first pass, single Opus-style pass, no fix round): `scenes/tree-house.png`, `yard-pals.png`, `tree-dress-{rug,lights,telescope,banner}.png`; sources `aseprite-source/v3/tree-yard/`. Perch fix: a perch is now the pal's place in the raw found order (counting pals later removed from the data), so removing a pal key no longer shifts the others.
+- Not done: pal perch sprites (`assets/img/pals/<pal-key>.png`, ~36 px, optional), animation layers, tournament-trophy art, phone check.
+
+### NOW (2.5.05, 2026-11-04): Trail strip + GPS hand-off + workshop popover DONE (slim zip 2.5.05, needs 2.5.04; 2.5.04 is Josh art). Still open: balance_sim for gnav_enter_energy, docs (artguide/README/DESIGN), treehouse trophies/dressing, animation layers, MySQL upgrade_check, phone checks, real art.
+
+### NOW (nav A + 2d + editor + pictures, 2.5.03, 2026-11-04): GRAPHICAL NAVIGATION. everything is in the **2.5.03** slim zip (`releases/GnomeVenture-2.5.03-web-update.zip`, needs 2.5.02+; 2.5.01 and 2.5.02 are Josh's art releases; an early nav-only test zip was briefly called 2.5.01 and is superseded). Branch `claude/new-session-c6u77m` merged with main (2.5.02).
+- **In 2.5.01 (release A, flag `gnav_on`, default 0):** Phases 0, 1, 2a, 2b, 2c. Here page `here.php` + `includes/here_view.php`, scene engine `includes/hub_scene.php` + `assets/hubscene.js`, layouts `includes/data/here_layouts.json` (12), `here_layout.php` helpers, `here_schema.php` (settings, `here_layouts`, `users.start_page`, `gnav_on()`), login/welcome-back to Here + Account "Start on", bottom bar/menu, World + Here Fast travel/GPS dialogs, `route_enter_cost()` (preview never rolls the staff die), `landmark.php` back to Here, `tools/gen_here_placeholders.py`, tests `tests/here.php` + `here.sh` (in CI list).
+- **Built after 2.5.01, not in a zip (added 2026-11-04, second pass):** (a) Trail footer, centered text: Gather here (popover with the existing gather box), Wander off the Trail (existing `explore_start`, 1 energy, only from a road place; the walk is put away in the session and "Resume" on Here/adventure brings back the SAME section, no energy; seed kept in state `sx`), Turn back. (b) Every encounter on a tile map (Trail, delve and lair maps, dv2 floors) is a modal popover (`dialog.trailpop`, cannot be dismissed with Esc until settled): full screen on a phone (100dvh, scrolls inside), a centred 640 px card from 721 px; all fight options (Attack, ability, pal skills, snack, Run, Fight on, Auto-win) are inside it. Top of the popover is a battle picture (`scenes/fight-<land>.png`, else red-border placeholder `fight-generic.png`), buttons are small stylized tiles (stepped pixel corners, bevel; moss Attack, rust Run, bark others), CSS only, scoped to `dialog.trailpop`. (c) Phases 4 and 5 as pictures, flags `gnav_craft` (workshop) and `gnav_tree` (treehouse + pal yard), both need `gnav_on`, admins preview: `workshop.php` (7 crafting sections, cards link into `inventory.php?tab=craft&c=`), `treehouse.php` (rooms from `includes/data/treehouse_rooms.php`, Puzzle Room, Cat Fish nook, Contest hall, Pal Book, Pal Yard door, found pals on 24 perches, overflow chip), `palyard.php` (sites link to `paljobs.php#pjt-<kind>`, pals drawn at their site, sick bay, noticeboard); infrastructure `includes/hub_pages.php`, `gnav_page_open()`, layouts `workshop`/`treehouse`/`yard` (new `pals` perch group in lint and editor), menu entries switch to the pictures when the flags are on. Placeholders (red border): `craft-workshop.png`, `tree-house.png`, `yard-pals.png`. Workshop cards now load the real crafting section into the popover (`workshop.php?frag=<key>` json, `assets/workshop.js`: Make/Collect forms post with fetch, redirect not followed, section reloads; filters and the area strip reload in place; 'All areas' closes the card; a locked section keeps only its link). Not done for 4/5: no animation layers, no trophy shelf, no dressing layers for 5/10/20/40 pals, no `hub_seen` arrival sparkle.
+- **Built earlier after 2.5.01:** (0) Phase 3 Residential + Door: `residential.php`, `door.php`, `includes/residential.php` (`npcs_homed_at`, street pages of 4/6/8, lit/dark windows via `npc_now()['home']`, Knock only when home, `npc_gift_door()` = `npc_gift($u,$id,$item,true)`: no `npc_here`, half friendship, once a day shared with handed gifts); 'Homes' spot on Here when a place has homes; tests in `here.php`/`here.sh`. Red-bordered PLACEHOLDER pictures (17 PNGs: `scenes/here-*.png`, `resid-4/6/8.png`, `door-<homekey>.png` x6) from `tools/gen_here_placeholders.py` are in `game/assets/img/scenes`: replace each with real art of the same name and size (`php tools/lint_here.php` checks sizes), listed here so none ships by accident. (1) 2d Trail tiles, flag `gnav_tiles` (needs `gnav_on`): `includes/trail_tiles.php`, hooks in `adventure.php` and `start_expedition` (1 energy to step on, free Continue, event rolled once with compare-and-swap, Turn back free, per-walk decision so a walk in progress keeps its mode). (2) Admin layout editor `admin/here_layout.php` + `assets/hereedit.js`, `tools/lint_here.php`. (3) `claude/art-brief-here.md`. (4) `hubscene.js` loads on every page when `gnav_on`. Tests cover all of it.
+- **Tests:** `here` green. 32-suite regression ran with flags off and with both defaulted on: only `redirects`, `roads097`, `stops100` fail (same on the base commit) and `treks` is a random-threshold flake; with tiles defaulted on `roads097` also fails "arrival in 3 minutes" (expects timer walk, expected). Not run: MySQL, `upgrade_check.sh`, full CI, real phone.
+- **NOT BUILT, still to do:** HP/energy strip and slim footer from plan 2d-e; GPS hand-off to the next "Head into" popover (2d-f); `balance_sim.php` run for the energy change; Phase 4 Crafting workshop; Phase 5 Treehouse / Pal Yard; Phase 6 leftovers: `admin/artguide.php` and `tests/build_guide*.py` catalogue entries, README Key systems, `DESIGN.md` (Here/door pictures); Phase 7 release mechanics.
+- **Known risks / notes:** section maps come from a seed + `trail_map_make()`: changing that function changes walks in progress (leave it, or version the seed). Orphan `walk_scene` rows are purged on the next walk start. `tests/tour.sh` copy untouched (no step names Here). Plan file `claude/plan-graphical-nav.md` still says "not built, plan only": update its status line. No real art: engine draws a sky and ground when `scenes/here-<key>.png` is missing; 151 villager sprites do not exist (mini/bust/emoji fallback). MySQL path for `here_layouts` / `users.start_page` unchecked (`here_ensure_schema()` also adds the column on first Account save).
+- **Josh checks on the phone (412 px, light + dark):** `gnav_on` = 1: login lands on Here; tap each hotspot (card opens/closes with Esc, outside tap, ✕; a tap never spends anything); Set off from an exit card; haven Rest/Stay and wonder/delve cards come back to Here; Fast travel and GPS on Here and World; Account → Start on → Home; bottom bar Here; keyboard pass; no horizontal scroll. After the next zip, `gnav_tiles` = 1: step onto a Trail (1 energy), tap tiles, fight/find tokens, reach the door, Continue, Turn back, Head into; admin Picture layouts editor drag + Save + Reset.
+
+### NOW (2.4.98, 2026-11-04): HEARTH POP ART RELEASE. BUILT, slim zip `releases/GnomeVenture-2.4.98-web-update.zip` (needs 2.4.96+; also carries 2.4.97), manifest `tests/manifests/2.4.98.txt`. Joshua uploads.
+- **DONE:** 1,662 item and icon PNGs replaced with v3 art, same names (`assets/img/ph`, `games`, `ico`); the game already prefers `.png`. 179 weak ones carry a pink 2 px border (`aseprite-source/v3/rollout/weak.txt`, regenerate with `python3 rollout/export_game.py` from `aseprite-source/v3`). No code or schema change.
+- **IMPORTANT (why old art still shows):** items with art uploaded in Admin → Images (`uploads/items/<slug>.png`, `items.image` set) always beat `assets/img/ph/`. After uploading the 2.4.98 zip, also upload `upload-zips/gnome-venture-images-v3-part1of4..4of4.zip` in Admin → Images (replaces the old art; names that match nothing are reported as unmatched, harmless). No admin setting to toggle. Re-run after any art change: `export_game.py` then rebuild these zips.
+- **OPEN (art):** all in `claude/todo-art-v3.md` (redo the 179 weak, flower heads, portraits, models, scenes, plus the new pictures the navigation plan needs). Method for all: Sonnet medium.
+- **OPEN (build):** the graphical-navigation plan `claude/plan-graphical-nav.md` (Phases 0-7, flags `gnav_on` / `gnav_tiles` / `gnav_craft` / `gnav_tree`; ships as releases A: Here + sprites + nav, B: Trail tiles, C: Residential + Door, D: Crafting + Treehouse + Pal Yard). Starts after the art above lands; Phase 0 is recon only.
+- **Not run for 2.4.98:** MySQL, `upgrade_check.sh`, full CI, real-phone check of the new art (check item art at 24/40/64 px display sizes, dark theme, `image-rendering: pixelated` present on every `<img>`).
+- Art pipeline history and state: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`.
+
+### PLANNED (consolidated, in order)
+1. Josh reviews the pink-bordered art on the live site; list fixes in `weak.txt`.
+2. Art: see `claude/todo-art-v3.md` (A redo, B left out, C new pictures for navigation).
+3. Build the graphical navigation (`claude/plan-graphical-nav.md`): Phase 1 foundations, 2a-2c Here + sprites + nav (release A), 2d Trail tiles (B), 3 Residential + Door (C), 4 Crafting workshop + 5 Treehouse / Pal Yard (D), 6 admin layout editor + art briefs, 7 release mechanics.
+4. Open items from the older blocks below (phone checks, MySQL/`upgrade_check.sh`, README screenshots, UI consolidation) stay open until ticked off.
+
+### NOW (2.4.96, 2026-11-03): WELCOME FLOW REDESIGN + 2.4.94/95. BUILT and LIVE, slim zip `releases/GnomeVenture-2.4.96-web-update.zip` (needs 2.4.93+; also carries 2.4.94 and 2.4.95), manifest `tests/manifests/2.4.96.txt`. Full notes: `claude/handoff-2.4.96.md`.
+- **DONE (CHANGELOG 2.4.94 to 2.4.96):** new-player Welcome flow (progress tiles, Wren bubble with "More", stage, village cards, top-down basket, pack cards, sticky bar; 11 PNGs in `assets/img/welcome/` and `assets/img/villages/`); admin "Start counting again" on XP sources, Usage and Retention (2.4.94); fresh start clears lazily created tables (2.4.95).
+- **OPEN (Welcome):** Josh decides on long Wren copy behind "More" and basket capacity above 6 items (scrolls inside the basket now). Villages other than Poppyburrow and Honeybrook need a 160x100 scene at `assets/img/villages/<slugified name>.png` (fallback: landscape emoji card). Item slots still show emoji (Hearth Pop item art later). Recolourable gnome rig (`optional/gnome-rig/` in the handoff zip) is not wired into `gnome_avatar()`. No dark-theme art variants.
+- Not run for 2.4.96: MySQL, `upgrade_check.sh`, full CI, real-phone check. Run: walk, redirects, fix100, security190, calling (all pass).
+
+### PREVIOUS (2.4.93, 2026-11-03): BALANCE + CONSOLIDATION PASS. BUILT, slim zips `releases/GnomeVenture-2.4.90..93-web-update.zip` (each needs 2.4.71+; 2.4.93 alone covers all), manifests `tests/manifests/2.4.90..93.txt`. Joshua uploads 2.4.93. Full notes: `claude/handoff-2.4.93.md`.
+- **DONE (CHANGELOG 2.4.90 to 2.4.93):** bed curve softened and capped (T1.1); no placings or prizes with under 3 entrants, Guess the Weight jackpot 10k (T1.2); tour 100 XP and First Week XP up (T1.3); streak copy honest (T1.4); First Week day 5 `talk2` (T1.5); Orders+Errands merged into the Requests tab, Tasks = Jobs / Journey / Requests, job offers 3/3/2 (T2.2); Arrangements show folded into the Village Show, arranging workshop in Satchel > Arrange, Fair has 3 classes (T2.1); My Gnome Potions box removed; Petal icon for Petals; Satchel tiles crisper; Petals once on desktop; gnome.php is the home page with TODAY / MY GNOME tabs (index.php and `?today=1` redirect); Calling start state and free trip to the trainer; header text overflow fixed; depth fix for "Reach N steps off the road".
+- **OPEN / ideas:**
+  - Joshua phone check: Home tabs, Calling card + free trip, Requests / Journey / Arrange tabs, Show page Arrangements, bed prices, boost potion from the Satchel.
+  - Event tasks (depth, wonders, havens) count only after a chapter is taken. Option: credit past deepest depth on start. Not done.
+  - README screenshots `docs/screens/*today*.png` are stale (run `tests/readme_shots.sh`). `tests/build_guide.py` not re-run (petal icon missing from the style guide catalogue).
+  - Opus plan Tier 3 cancelled: the puzzle/pal chain, Treks and delve v2 are live and played. See `claude/handoff-2.4.93.md` for the rest of the plan.
+  - Menu label "Home" and the 'Journey' tab name are open to change.
+- **Not run:** MySQL, `craft.sh` (needs a server), `upgrade_check.sh`, `polish_audit.js` (needs a browser), full CI, phone. `tests/emoji_icons.php` has 1 failure ("5 real entries swapped") that predates this work; `tests/beds.sh` has 5 kitchen-pot failures that also predate it.
+
+### NOW (2.4.70, 2026-11-02): PAL PASSIVE COOKING + RECALL. BUILT, on main (`db90e6dd`) and branch `ccr-02b9002a-63vq2o`. Slim zips `releases/GnomeVenture-2.4.69-web-update.zip` (needs 2.4.66+) and `-2.4.70-` (needs 2.4.68+), manifests `tests/manifests/2.4.69.txt`, `2.4.70.txt`. Joshua uploads. Older zips moved to `releases/archive/`.
+- **DONE (CHANGELOG 2.4.69, 2.4.70):** cooking shifts are passive only: one pal per free pot, pot locked to the gnome, no ingredients up front; every 10 min (real time, lazy on page load, max 60 caught up) the pal serves a finished dish and starts one batch of its chosen recipe (`result.plan`). Pot card shows "{pal} is tending this pot" (shelf, rail). Tap it for a pop-up: cooking now, **Cooks next** picker (kept until changed or shift ends), **Send home early**. **Call home** on every active job (Pal Jobs page): trips/delves keep 50% of time-done loot (blocked under 10%); pot: served dishes stay, the cook in the pot loses half, pot freed; garden no loss. Column `cook_pots.pal_uid`. Tests: `tests/paljobs.php` (new blocks "station shifts" and "v2.4.70").
+- **OPEN / ideas:**
+  - Joshua to check on phone: pot pop-up open/close, picker Set, Send home early, Call home boxes on Pal Jobs; a pal at a pot while other pot is player's.
+  - Ticks only run on page load (no cron): a pal can start a dish up to 10 min after its pot frees. A real timer would need a cron.
+  - Auto-serve gives cooking XP to the gnome at once (alternative: dishes wait in pot until shift end).
+  - `pj_max_away` still caps pals out at once (default 3), so pots-many-pals is limited by it; raise setting if wanted. Cooking skips the daily station cap.
+  - Old up-front cooking shifts (tool NULL) still collect as before and show as locked pot rows; none are created now.
+  - Non-cooking stations unchanged (up-front, one pal per station).
+- **Not run:** MySQL (`cook_pots.pal_uid` via the column list in schema.php), `upgrade_check.sh`, full CI, phone.
+
+
+### NOW (2.4.66, 2026-11-02): STUDIO REVIEW FOLLOW-UP. BUILT: slim zip releases/GnomeVenture-2.4.66-web-update.zip (needs 2.4.65+, 44 files), manifest tests/manifests/2.4.66.txt. Joshua uploads
+- **Prepared, not built. Not committed. No zip (ask Joshua first).** No gameplay changes. Version set in `bootstrap.php` only.
+- **DONE (CHANGELOG 2.4.66):** phone header menu button hidden (More opens the same menu); status-line links 44 px tap areas; Satchel repeated heading and Belt link removed, tile labels and badges larger; 182 unused CSS rules removed (~14 KB); `item_id_by_slug()` replaces 51 identical lookups; `site.js` zoom and pan share one factory; petals and burst shared in `gvFx`.
+- **OPEN:**
+  - P2-1: desktop (1200 px+) strip duplicates (petals in header pill and sidebar). Needs a live check first.
+  - ~380 hex literals skipped on purpose (dark-mode risk).
+  - Breakpoint consolidation (17, ratchet in `tests/css_lint.sh`).
+  - Button and tab family unification (design decision).
+  - `catfish.css` radii (8/12/999 px vs `--radius 0`) and its greys.
+  - Remaining ~24 inline slug lookups with different query text; the bootstrap and seed upgrade lists differ.
+  - `letters.js` petals and worms burst differ (not merged).
+  - Hyphen-prefix CSS classes are kept alive, so ~30 rules may still be dead.
+  - Ask Joshua before building the zip.
+- **Joshua to check on phone:** header has no duplicate menu; More opens the menu; status links easy to tap; Satchel tiles legible ('Materials' at 13px in an 84px tile is unverified); World, region and mycelium map zoom and pinch (mycelium Ctrl-wheel and two-finger pinch not exercised); memory and mushroom games petals.
+- **Not run:** MySQL, `upgrade_check.sh`, full CI, phone.
+
+### NOW (2.4.65, 2026-11-02): STUDIO REVIEW CLEANUP. BUILT, merged with 2.4.64, branch ccr-c58baef6-w75eu7; slim zip releases/GnomeVenture-2.4.65-web-update.zip (needs 2.3.97+, 51 files), manifest tests/manifests/2.4.65.txt. Joshua uploads
+- **No gameplay changes. No zip built (ask Joshua first). Not committed.** Version numbering is Joshua's call; 2.4.64 belongs to branch ccr-183e3f79-k0661b and may need merging first.
+- **What changed (CHANGELOG 2.4.65):** contrast fixes to 4.5:1 (selected recipe tab and filter chip, puzzle chip, warn/low/effect chips); undefined tokens `--bg-2 --good --bad --card --panel` now defined; 8 duplicate CSS rules removed; 15 hex literals to tokens; shared JS helpers in `window.gvFx` (early.js); 21 unused PHP functions removed (`git show cb4c4a3c`); `trek_item_id`/`tk_h`/`tk_n` now delegate.
+- **Reports:** `docs/studio-review/` (ux-review.md, style-review.md, code-review.md, mockups/ index.html with before/after mockups).
+- **DONE:** the items above. Commits `90acc43d`, `d4997383`, `ab96a526` (reports), `5271fd68` (JS), `04c2496f` (CSS), `cb4c4a3c` (PHP).
+- **OPEN (not yet applied):**
+  - UX P1-1: duplicate phone menu button (two buttons open the same menu).
+  - UX P1-3: status line hit areas about 18 px on a phone (target 44 px).
+  - UX P1-4 / P2-2: Satchel tiles use 10.6-11.8 px text at 35-45% opacity; Satchel heading repeats its name; Belt link.
+  - UX P2-1: desktop (1200 px+) strip duplicates (petals in header pill and sidebar). Confirm on the live page first.
+  - Dead selectors: 213 high-confidence rules (~16 KB) in style.css; verify before deleting (token grep incl. tests/, claude/*.html, BBCode renderer; crawl; screenshot diff at 412 and 1280).
+  - ~380 hex literals skipped on purpose (dark-mode risk).
+  - Breakpoint consolidation (12 stragglers in style.css, plus puzzles, catfish, landing); needs screenshots at 360, 412, 521, 768, 1024, 1280.
+  - 4 button families and 12+ tab families (design decision).
+  - catfish.css radii (8/12/999 px vs `--radius 0`) and its greys.
+  - Remaining code P3+: `item_id_by_slug()` helper (82 lookups), petals/burst merges (memory, mushroom, letters), site.js zoom factory (three zoom blocks), upgrade call sequence dedupe (optional).
+- **Joshua to check on phone:** selected tabs and chips legible in light and dark; reduced motion on memory, mushroom, worms, marrow and race pages; nothing else changed.
+- **Not run:** full CI, MySQL, `upgrade_check.sh`, phone.
+- **Toolkit note:** the Studio toolkit is installed in `.claude/` (agents, skills and rules pinned to sonnet/haiku). Hooks and settings.json were deliberately NOT installed. `.claude/` is gitignored, so it was force-added.
+- **update_news:** none needed (no player-visible features).
+
+### NOW (2.4.61, 2026-11-01): BUILT, on main (`b5b9b100`). Slim zip `releases/GnomeVenture-2.4.61-web-update.zip` (needs 2.3.97+, 23 files), manifest `tests/manifests/2.4.61.txt`. Joshua uploads. Rule from Joshua: ASK before building any zip. Version numbers are Joshua's call (2.4.6 then 2.4.61, not 2.5.0).
+- **What 2.4.x added since 2.3.93** (details in CHANGELOG): playtest fixes + double-submit guard (2.3.94, 2.3.96 fixed it swallowing confirm buttons); Pal Jobs multi-send, Collect all, per-pal Where/Tool, Send always visible, tools only where they work (2.3.94-2.3.99); crafting scene popovers (Can craft / Missing / Unknown, craft inline), honest Ready rule, food energy+buff text (2.4.0); crafting pages tidy, closed recipe fold, green ! on craftable objects, Potions popovers (2.4.1); slim trip strip (2.4.2); slimmer My Gnome + Today link, area strip fits (2.4.3); square pot tiles (2.4.4); pantry jars on shelves (2.4.5); Satchel as 8 tiles with sheets (2.4.6); pals man crafting stations + Satchel Food tile (2.4.61).
+- **Joshua to check on the phone:** popovers on every area incl. Pantry and Potions; green ! only where something is craftable; Pantry shelves and pot tiles; Satchel tiles + sheets (search, chips, sort, use an item, untasted badge on Food); My Gnome Health line + Today link; Pal Jobs > Man a station (chosen recipes fold with a long list, per-pal station, collect: dishes + XP split); garden square panel (chips, Next line, N-P-K badges).
+- **Not run for any of these:** full CI list, MySQL, `upgrade_check.sh`, phone checks. Suites run per change: craft, cook, walk, beds, garden100, yard, pantry, itemsq, health, paljobs, pjobs, puzzle_pals, tripstrip, market100, security190, animals120.
+- **Open / next:** compact the garden select-mode bar (46 to 343 px); Pal Jobs "select all free pals" + a `claude/paljobs-sim.php` station case; stations: Pantry jars (real-day timers) not included; pal crafts do NOT count for Job Board or calling quests (decision: XP split only, half gnome half pal); landing "N ready" badge counts ingredients only (not building/energy); Crafting "You have..." lines not found/removed; Belt tab unchanged (Haiku said broken list repeats, code says it is only on Mend); Satchel "Use on..." shortcut for soil not built; page still looks wider than the phone on the crafting page (header cut at the right in one screenshot, cause not found).
+- **Plans and notes:** `claude/plan-craft-popover.md`, `claude/soil-display-assessment.md`, `claude/plan-satchel-layout.md`, `claude/brainstorm-pal-crafting.md`, `claude/playtest-report.md`.
+
+### DONE-ish (2026-11-01): worm "6/4"
+- Not overfeeding: the feeder cap is `critter_meals_cap` (6, tested in `tests/garden100.php`), the worm needs 4 per gift, and the card showed meals/needed ("6/4"). Card now reads `6/6 · 4 scraps per gift`. Feeding when full is already refused ("Everyone is full already"). If Joshua wants the cap itself lower (e.g. one gift = 4), say so: change the setting or cap per animal at `meals_per`.
+
+### DONE (2026-11-01, branch ccr-d94095b7-jl5g1g): Pal Jobs, several pals at once
+- Send forms use checkboxes (`pals[]`), one send per ticked pal with the same options; each send keeps its own rules (slots, runs/day, one gardener per garden, one delve re-run/day), result "N of M pals sent" plus a line per pal. "Collect all (N)" button shows when 2+ jobs are ready, one combined receipt. `tests/paljobs.sh` covers both. NOT checked in a real browser (JS: button says "Send N pals", Cancel/Esc clear all ticks). Not done: a "select all free pals" shortcut; `claude/paljobs-sim.php` case.
+
+### NOW (2.3.93, 2026-11-01): polish release. BUILT on branch `ccr-6b3ba1b1-2c15cp` (not merged to main), slim zip `releases/GnomeVenture-2.3.93-web-update.zip` (needs 2.3.91+, manifest `tests/manifests/2.3.93.txt`). Joshua uploads. Plan `claude/plan-polish.md`, findings `claude/polish-audit.md`, changelog entry 2.3.93. Not run: MySQL, `upgrade_check.sh`, phone.
+- **Joshua to check (phone, dark and light):** status strip (wraps at tablet and desktop widths), World header at 768 px, menu labels (no "Whisker Po..."), "Whisker Pond" tile gone and Games lit on Cat Fish / puzzle pages, Friends rename, My Gnome tabs on two rows, Pal Book + Pal Jobs tab row, 430 px phone header and tabs, Almanac at 721-760 px, map keyboard focus ring.
+- **Joshua to answer:** is `PRODUCT.md` right (items marked "(confirm)")? Keep the two swipe rows (Crafting quick bar, World route line) or make them wrap?
+- **Left on purpose:** colour tokens (572 literal colour uses, dark-mode risk), splitting `style.css` (see `claude/css-map.md`), merging Here into World, Satchel + Crafting fold, Puzzle Pals tile, player news entry for 2.3.91 and 2.3.93.
+- **Open follow-ups:** breakpoints 17 (ratchet in `tests/css_lint.sh`; 801, 1500, 1600, 380, 600/601 are single-component), CSS lint for focus rings only covers the three map types, `tests/combat_math_golden.php` fails `php -l` (it declares a `random_int()` stub on purpose, harmless).
+
+### NOW (2.3.91, 2026-10-31): merge + two fixes. ON MAIN (`d9e3ab3e`), slim zip BUILT `releases/GnomeVenture-2.3.91-web-update.zip` (needs 2.3.7+, manifest `tests/manifests/2.3.91.txt`), Joshua uploads; it replaces the 2.3.9 zip, which lacks the Stamp passport. Not run: full CI, MySQL, phone check.
+- **Merged** the 2.3.9 branch (Boons, health bars, Pantry rooms) with main's 2.3.8 (Stamp passport); changelog keeps both.
+- **Pal active skills stack:** the same active from two pals = ONE fight button at double value (`ppal_actives()` groups by active; shield/gust carry their value in `enc.psv`/`enc.pgv`). Snare, daze, rouse are on/off, so no extra. Test in `tests/puzzle_pals_party.php`. Player news entry for 2.3.91 not added.
+- **Waiting Puzzle Pal also shows on the Here page** (`town.php`, rest stop and town square), not only World > Go.
+- **Next small ones:** player-news entry for 2.3.91; full CI + MySQL on merged main; phone check of the Here-page pal card and the stacked button; delve v2 fight card still has no pal skill buttons.
+- **PARKED (Joshua: skip for now): road-stop "do" activities rework.** He dislikes "come back, 1 of 3" tasks (kind `tend`, `stops.php:864`, `local.php:149,249`; `collect` shows "N of M"). Options (Opus review): A tend as a one-visit scene of 2-3 beats; **B richer checks (recommended)**: option tokens that spend an item, favour a calling, use a pal perk, or take a risky bet, then convert the 88 tend rows to checks with 3 approaches (no schema change; update `tools/lint_stop_acts.py`, `tests/stopkinds.sh`, leftover `stop_prog` tend rows); C villager requests from the satchel (new `ask` kind); D hide the counter only. Move collect's "N of M" to the passport/almanac. Data: `includes/data/stop_acts*.txt` (~860 rows), resolver `stop_do()` `stops.php:723`.
+
+### NOW (2.3.8, 2026-10-31): Stamp passport shorter. BUILT, on main `e2c038d1`, slim zip `releases/GnomeVenture-2.3.8-web-update.zip` (needs 2.3.6+). Joshua uploads.
+- **Joshua to check (phone and desktop):** Town > Stop tab: summary, Next up, folds (Titles earned, All sets, Stops by kind, Road Journal), current region opens, Not started yet fold, long stamp names wrap, bottom nav does not cover the end of the page, dark and light.
+- **Open follow-ups:** desktop region grid leaves an empty cell beside an opened left-column region (kept for keyboard order); status strip overflows at 768px site-wide (not this change); `PRODUCT.md` / `DESIGN.md` still do not exist for impeccable (`init` / `document`).
+
+### 2.3.9 (2026-10-31): BUILT, slim zip `releases/GnomeVenture-2.3.9-web-update.zip` (needs 2.3.4+, manifest `tests/manifests/2.3.9.txt`). Joshua uploads. Branch `claude/gnome-pantry-puzzle-pals-qjg3nd`, not merged to main.
+- **DONE (all four of Joshua's 2026-10-31 todos):** (1) My Gnome HP bar fixed (progress element, live expedition value via `hp_display`); (4) HP bar beside the level bar in the top bar; (2) Pantry rooms: each kind has its own jars, same count as before per room (`PANTRY_KINDS`); (3) Puzzle Pal Boons for all 570 pals (OFF, `ppal_boons`), design in `claude/brainstorm-pal-rosters.md`.
+- **Joshua to check (phone):** top bar health bar (desktop pill and phone line, dark and light), My Gnome bar while out on a trip, Pantry tab room counts and a full jam room not blocking pickles; with `ppal_party` + `ppal_boons` on: pal skills on My Gnome / Pal Book, Strike and other active buttons in a fight.
+- **Open:** B2 sim for all 16 effects and two-pal parties, player news and Pal Book wording for Boons, B6 flip, delve v2 fight card has no pal skill buttons, MySQL and the full CI list not run, golden combat test `road` section differs on base too (pre-existing), pantry suite had unrelated old text expectations updated.
+
+### NOW (2.3.7, 2026-10-31): merge release. BUILT, on main, slim zip `releases/GnomeVenture-2.3.7-web-update.zip` (needs 2.3.4+, manifest `tests/manifests/2.3.7.txt`). Joshua uploads. CI (SQLite) clean: `claude/ci-2.3.7.md`. Not run: MySQL (`ppal_jobs`, `ppal_found` columns), `reset`. Known base failures: `gather150`, `catfish`.
+- **Shipped:** Alchemy: 7 new potions (`includes/alchemy.php`), every one usable by the gnome (Satchel Drink, Garden Tonic on a plot), B icon set. Crafting map: scene objects open their own recipes (`?o=`, tag globs in `craft_scenes.php`, `tests/craft_tags.php` fails on untagged recipes); landing badges use one recipe pass. Pantry: 11 B icons, hidden Brewroot Pomeroy task (needs `gourmand_open`), walk/images tests honour TMPDIR. Puzzle Pals: page mode removed (map only), "pal arrived" notice. Pal Jobs: no level gates (level scales yield), Risky tag for delve jobs below Adventuring 5, pals work after hired garden help (no refusal), "N pals home with loot" pill on Today and My Gnome, clearer Collect receipt, sim `claude/paljobs-sim.php`. Delve v2 (still OFF): per-delve hazards with real effects, wandering creatures (`dv_enc_steps` 6, `dv_enc_chance` 25, `dv_enc_cap` 2), torch fuel 30/45/50, pal re-runs walk the gnome's route, 26 authored floors (names DRAFT).
+- **Joshua to check (phone):** Risky tag + warning, pal after hired help line in the jobs list, home-with-loot pill, Satchel Drink buttons, Crafting object taps and "Showing X" line, Pantry B icons; with `delve_v2` on: hazards, wandering fights, torch.
+- **Joshua to decide / draw:** 14 hazard ground icons (one per delve: shallow water, drip pool, tidal mud, brine puddle, spring pool, reedy creek, rock pool, seawater, cistern water, rotten planks, embers, ice patch, loose stones, soft sand; emoji placeholders now); names, titles and rule lines of the 26 floors; how many authored floors the other 11 delves get; delve-only loot names and art (Q5); optional marker for wandering creatures.
+- **Open follow-ups:** Strong and Grand potions cannot be packed on pal trips; shop shelves for the new potions; table upgrades, batch craft, potion stock strip; pal balance (Joshua left 8 h trips and caps as is; garden duty stays the weakest job); mark crafting scene redraws (sheets only, not merged: `claude/craftmap-redraw-*.png` on branch `worktree-agent-abc8f4925c73545c7`) as declined unless he asks; weak Pantry B art (A tamales, A bamboo cap were only in A); other test suites still use fixed `/tmp` names (town, puzzles, modr, roadkinds); `help` suite fails on base (PHP fatals in its own queries); old unused columns `users.ppal_at`, `ppal_day`, `ppal_count` kept.
+- **Process note:** agents here cannot spawn subagents, so the Sonnet-writes-script / Opus-draws split did not happen for art; Opus wrote and drew in Aseprite Lua with 2 polish passes, A and B kept.
+
+### NOW (2.3.6, 2026-10-31): Crafting area map. BUILT, on main (`d7734e6b`), slim zip `releases/GnomeVenture-2.3.6-web-update.zip` (needs 2.3.4+, manifest `tests/manifests/2.3.6.txt`). Joshua uploads. Not run: full CI, MySQL, phone check.
+- **Shipped:** `inventory.php?tab=craft` with no `c` = picture map (7 cards: scene thumb, `<progress>` bar, badge Locked / N ready / N jars done). Inside an area: "All areas" button, picture strip, scene with 5 tappable objects (plain links to `?c=<area>&q=<word>` or the Pantry's `?k=<kind>`, then `#shelves`). Make dropdown removed from `craft_shelves.php` and `pantry_view.php` (hidden `c` stays). Files: `includes/craft_map.php`, `includes/data/craft_scenes.php` (hotspot % boxes + search word per object), `assets/img/craftmap/<area>.png` (900x600) and `<area>-t.png` (450x300), 2.3.6 block at the end of `style.css` (hotspot boxes are `.hs-<area>-<id>` rules because the CSP blocks inline styles; so is `<progress>` instead of a width style). Test: `tests/craft.sh` "area map" section.
+- **Art:** Stitched Toy scenes, 300x200 grid at 6x. Cooking, Potions = impeccable (medium); Pantry = medium (cheese redrawn); Tools, Garden, Building, Yard & decor = Opus high + impeccable, then a polish pass on Tools/Garden/Building. Scripts `aseprite-source/scenes-pil/craft_{imp,med,low}_*.py`; outputs and hotspot json `aseprite-source/craftmap/scenes/{imp,med,low}/`; brief `claude/craftmap-scene-brief.md`; contact sheets `claude/craftmap-*.png`. Mockup artifact generator: `aseprite-source/craftmap/build.py` + `tpl.html`.
+- **Joshua to check (phone):** hotspot labels on touch (shown at 92% opacity when `hover: none`), tap targets, scene height on a small phone, Pantry locked card, dark and light theme.
+- **Follow-ups:** hotspot words are weak for some objects (Potions: all 5 open "potion" since one recipe; Garden seeds = "meal"; Pantry cheese and kraut match 1-2 recipes), better a per-object recipe tag; known weak art: Yard & decor stepping stones plain, Building palest scene, Tools sledge small; the 64x64 pilot tile icons (`aseprite-source/craftmap/out/`) are unused (cards use scene thumbs), Garden/Building/Decor tile icons never drawn; Pal Jobs "N Potions" chip could link to the Alchemy scene; area-map badges cost 6 `craft_recipes()` calls on the landing (cache if slow).
+- **Impeccable experiment verdict (Joshua picked it):** one hero object per scene, quiet wall, sparkle only on the hero scans best at phone size; the plain Opus medium variant had richer colour; low drew the busiest scenes with a gnome but clipped objects.
+
+### NOW (2.3.0 to 2.3.2, 2026-10-31): Pal jobs. ALL BUILT, on main (`7f1419c1`), slim zips `releases/GnomeVenture-2.3.{0,1,2}-web-update.zip`. 2.3.0 slim zip `releases/GnomeVenture-2.3.0-web-update.zip` (needs 2.2.6+). Joshua uploads. Open from gnome level 10 when `ppal_open` is on (`pj_open`, `pj_min_level`).
+- **Shipped:** `includes/pal_jobs.php` + `paljobs.php`, table `ppal_jobs`, `ppal_found` columns (16-hex `pal_uid`, `g_xp`, `a_xp`, `hp`, `hp_at`, `status`, `eq_since`). Garden duty (one pal per garden, no Tool Shed slot, water / weed from Gardening 3 / harvest at 9, hooked into `load_plot` via `pj_garden_hires`), gathering trips (tool, land, 1/3/8 h, potions), re-runs of delves the gnome cleared (about 60% of a clear, once a day per delve). Rolled at start from a seed; Collect pays once. 0 HP goes home early. Duplicate find +15 XP each kind; equipped pal 1 XP each kind an hour. Healing Potion (craft Meadowsweet x2 + Sphagnum, shop at Twigg's). Caps: `pj_max_away` 3, `pj_runs_per_day` 6. `tests/paljobs.sh`.
+- **Joshua to check (phone):** Pal Book "Pal jobs" button, the page, send forms, Collect flash lines; trip and delve payout feel (numbers are a first guess); a pal tending a real garden over a few visits.
+- **2.3.2 BUILT (slim zip, needs 2.3.1+, manifest `tests/manifests/2.3.2.txt`):** sending an equipped pal needs a tick on "Take it off my party" (`pj_can_send` `$unequip`). Phone check it.
+- **2.3.1 BUILT (slim zip `releases/GnomeVenture-2.3.1-web-update.zip`, needs 2.3.0+; manifest `tests/manifests/2.3.1.txt`; no player news; not run on MySQL):** Pal Jobs redesign: Out / At home / Jobs tabs, ledger with live countdown, "Send a pal" unfold, one-line counts row (Potions chip links to Crafting). Files: `paljobs.php`, `assets/paljobs.js` (new), `puzzles.css` pj block, `layout.php` (script tag, community area). `tests/paljobs.sh` passes. Joshua to check on phone: tabs, unfold, Back/F5 after send, error flash lands on Jobs tab. Mockups + notes: `claude/paljobs-final.html`, `claude/paljobs-integration.md`.
+- **Pal jobs follow-ups:** Alchemy Table (see below), `PRODUCT.md` / `DESIGN.md` via impeccable `init` / `document` (none yet), a "pals home with loot" notice on Today, loot-per-hour balance sim, Collect receipt wording, MySQL run of `ppal_jobs`.
+- **Follow-ups DONE on a branch (not built, no version bump, labelled v2.3.3 in comments):** "N pals home with loot · Collect" pill on Today and My Gnome (`pj_home_count`, `pj_home_notice_html`; trips/delves due, gardens never; CSS block at the end of `style.css`); Collect receipt: `pj_collect` returns `[ok, lines, head]`, head "Bramble is back from the forest." / "came home early from …", faint line first, "No finds this time", "Drank 1 potion, 1 back in your satchel.", "+N Adventuring XP: now level N!". MySQL: static checks in `tests/paljobs.php` (reserved words, no TEXT default, NOT NULL adds have defaults, VARCHAR widths fit, no SQLite-only SQL): all clean, nothing to change. Still never run on a real MySQL.
+- **Balance sim:** `php claude/paljobs-sim.php INSTALLED_GAME_DIR [seeds] [away] [runs]` (uses the real roll functions). Numbers (sell value): trips 16-47 an hour, flat across 1/3/8 h, so value per RUN is about 6x for 8 h; a day at the caps (3 away, 6 runs, 8 h trips) is about 850 (A1) / 1350 (A5) / 1700 (A10) for an uncommon pal at tool tier 2. Delve re-runs (delves are level 10-20) pay 130-180 a run at A10 = 60-65% of a real clear (OK), but an A1 pal faints 94-99% even at level 10 and A5 faints 67-90% at 15-20 without potions. Garden duty is worth 1.7-7.5 an hour (hired help wage). Proposals, NOT applied (no setting covers them): (a) delves are an Adventuring 5+ job: mark the delve post "risky" for pals below A5, and/or soften the foe `lvl + r` to `intdiv(lvl, 2) + r + 3` (helps A5-A9; A1 stays weak); (b) trips: cap 8 h value or count an 8 h trip as 2 runs, if 1.3-1.7k a day passive is too much (Joshua's call); (c) a Gardening-level bonus (e.g. small chance of an extra crop) so garden duty is not the weakest choice. Settings (`pj_runs_per_day`, `pj_max_away`) can trim (b) without code.
+- **Joshua's calls on the proposals (DONE on the branch):** (1) delve post tags pals below Adventuring 5 "Risky" (`PJ_DELVE_SAFE`) and shows a warning when one is picked (CSS `:has`, small print says it too); not blocked. (2) 8 h trips and caps unchanged. (3) No level gates: every pal waters, weeds and harvests from Gardening 1 (`pj_garden_skills`); level scales output: visits every 4/3/2 h (`pj_garden_step`), +1 crop on 4% x (G-1) of its harvests (`pj_garden_extra_pct`, hook `pj_garden_extra` in `load_plot`), rares on trips and in delve chests at `pj_rare_mult(A)` = 0.36 (A1) / 1.0 (A5, the old gate) / 1.4 (A10). Sim after: A1 tier-3 8 h trip 141 -> 169, A10 380 -> 404; tier 2 unchanged; garden G1 now worth 7.5/h (was 1.7). Gnome level 10 gate kept (blocks nothing here). (4) Hired help and pals work TOGETHER (Joshua, second call): a pal can always be sent and keeps all three tasks; `load_plot` runs the hired helpers first, then the pal on whatever is still undone at its own visit times (dry squares, weeds, ripe crops). Each action once (a dry-only water, one weeding a load, a harvested square is skipped); the pal's XP and extra crops come only from its own work; helper wage unchanged. Messages and the jobs list say "working after your hired help" (`pj_garden_task_text`, `pj_garden_has_help`). Friend waterings, player jobs and the watering event only act where needed. Tests in `tests/paljobs.php`: each of the 4 roster helpers plus a pal; an all-three helper on the same schedule (pal 0 tasks), the same helper not due (pal does the leftovers, crop paid once), a second load does nothing twice; a friend after a pal.
+- **NEXT:** Joshua to check on phone: the Risky tag and warning, garden ledger line "waters, weeds and harvests"; Pal job tab/notice on Today ("2 pals home with loot"); not run: `puzzle_pals.sh` and the full CI list on this change, MySQL (`ppal_jobs`, new `ppal_found` columns); the 2.2.6 to 2.2.61 test failures `gather150`, `folkoverlay` are old.
+
+### BUILT, not released (no version bump): Alchemy Table, more potions
+- **7 new potions** (8 in all), `includes/alchemy.php` (items, `ALCHEMY_HEAL` tiers), recipes in `data/crafts.txt`: Strong Healing Potion (pal +24 HP, gnome 75%), Grand Healing Elixir (full / 100%), Lucky Draught (drink: Luck +6 90 min; or pack one on a pal gathering trip: pal Luck +4), Sage's Draught (Lore +4, Sense +2), Stoneskin Brew (Hardiness +4, Grit +2), Swiftfoot Elixir (Nimble +4, Sense +2), Garden Tonic (soil improver, makes 2). Drinks use the meal-buff slot (eat_item, "Drink" button). Prices 1.1x to 1.5x ingredients (test checks it).
+- **Wired:** Pal Jobs At home heal buttons per tier, trip form "Pack a Lucky Draught" box (`pj_trip_send(..., $luck)`), My Gnome Health box lists every tier (`hp_use`). Potions scene objects open per-object words: cauldron healing, shelf draught, mortar tonic, spellbook elixir, still brew.
+- **Tests:** `tests/craft.sh` Alchemy section + `tests/alchemy.php`. craft, paljobs, health, pjobs, images pass.
+- **Player use for every potion:** Satchel "🧪 Drink (+N% health)" on healing tiers (`inventory.php` do=drink_heal), Satchel Drink on the 4 boosts, My Gnome "🧪 Potions" box under Health (boost Drink buttons, `gnome.php` do=drink, `alchemy_card_html`), Garden Tonic: Satchel "Pour on a garden square" link, used by the garden soil action.
+- **Art: Joshua picked B, INSTALLED** in `game/assets/img/ph/<slug>.png` (8 icons incl. the Healing Potion). A stays on `claude/potions-A.png` for the record. Sources `aseprite-source/img-redraw-full/scripts/potions-{A,B}/potions_*.lua` (gvlib), PNGs `aseprite-source/img-redraw-full/out-potions/{A,B}/`.
+- **Not done:** build/upgrade the table, batch craft, potion stock strip, Strong/Grand packing for trips (trips still pack Healing Potions only), shop shelves for new potions, MySQL run, player news.
+
+### NEXT BIG: Delve redo (2.3.3 built, OFF; flip `delve_v2` to test): `claude/plan-delves.md`, checklist `claude/checklist-delves.md`
+Route menu (pick the next stage) + tile-map floors (fog, torch, pickups, pal strip), each stage 5 min at most, each delve has its own pool of about 12 floors (`data/delve_floors.txt`, 168 total). Mockups on branch `ccr-5e82e48d-1d6u8o` (`claude/delve-mockups/`), gallery https://claude.ai/artifact/TWQYNTxPecKASSqhSsx6ye. First (plan v2 in the plan file, flag `delve_v2`): floor format + lint, route generator, M step (existing 5 rooms as tile floors with torch + fog + route menu), then author 3 delves. Joshua's 7 open questions are at the end of the plan file.
+
+### NOW (2.2.2 to 2.2.4, 2026-10-30): Puzzle Pals on the map, bigger perks, combat skills. BUILT, on main (`79a83035`), slim zips in `releases/`. Joshua uploads. Still OFF for players (`ppal_open`; `ppal_party` for take along, perks, skills).
+- **Shipped:** perks 8/15/30% (road 1/2/4); pals wait at places on the map in level bands (rares a stretch above you), kept until collected, topped up daily to 3; Places pals at their own place; sticker + rarity ring on region maps, 🧩 badge on world maps; World Go chip + "Say hello" card; Pal Book "Waiting on the map"; 6 passive combat skills; My Gnome shows skills; Cat Fish pal Kibble by rarity; admin Test a pal find puts a pal on the admin's map. Details and function names: `handoff.md` "2.2.2 to 2.2.4".
+- **Joshua to check (phone, dark and light):** pal stickers on the region map (both styles), the World Go "Say hello" card, the Pal Book waiting list, skills on My Gnome, a rare actually waiting in a tougher place; does 3 waiting a day feel right (`ppal_spawn_count`)?
+- **NEXT (Joshua picks):**
+  1. Balance pass on the numbers: perks 8/15/30, Sip 10/20/40%, Cat Fish pal Kibble 4/8/16% (cap +50%); a second perk for rares (planned, not built).
+  2. Skills for Treks (not wanted so far); an active skill button (rejected for now: needs fight state and golden-test care).
+  3. Not checked: dark theme and wide screens for the new markers, the mycelium map by screenshot, the Say hello button in a real browser, MySQL CI (`ppal_spawns` + `users.ppal_spawn_day`), the full CI list on main. Known failing on base: `gather150`, `folkoverlay`.
+  4. DONE (2026-10-31, branch, not released, APP_VERSION unchanged): page mode removed, Joshua settled on map mode. See handoff.md "Map mode only".
+  5. DONE (same branch): the daily top-up sends a notice "N Puzzle Pals have arrived on your map" (not after a fresh release, not for the admin test).
+
+
+### NOW (2.2.1, 2026-10-30): BUILT, now on main (merged with 2.2.2). Was on the work branch `ccr-b73ceb76-4mtdt1`. Slim + FULL + source zips in `releases/`. Joshua uploads (Admin > Update) and decides when main gets it.
+- **Shipped:** 137 new Pantry preserves (17 -> 154) + 16 Pomeroy recipes (156 total), 155+ new item icons; the Gourmand (Pomeroy Crumbworth), OFF; `give_item`/`item_quality` fix; Pantry/market balance (stale-cache preserve pricing + one-time reprice of six jars, stall rarity multiplier, preserve time curve, 5 recipes, `dried-*` filter); quick-jar spoon bars 42/49/55. SCHEMA change (additive, self-migrating): table `gourmand_ledger`, column `cook_pots.score`. Slim needs 2.2.0. Player news has ONE entry (Pantry recipes + fixes; nothing about Pomeroy).
+- **Docs:** `claude/plan-gourmand.md`, `decisions-gourmand.md`, `review-gourmand.md`, `review-gourmand-rewards.md`, `proposal-gourmand.md`, `balance-pantry.md`, `art-pantry-estimate.md`. Art specs: `aseprite-source/img-redraw-full/specs/ph/<slug>.md`.
+- **Turn the Gourmand on:** Admin > Settings, `gourmand_open` = 1. Players see Pomeroy only after playing through a region. Off = no menu, no news, no recipes shown to players.
+- **Tests (run ONE suite at a time, they share /tmp files):** see handoff.md "2.2.1" for the table. Known failures on the BASE commit too: `gather150`, `social100`, `catfish`, `folkoverlay`; the reset-install check fails on base. `pantry` is flaky when suites overlap.
+- **NEXT (Joshua picks):**
+  1. DONE (branch, not on main): Brewroot Master task "Serve Pomeroy 5 courses at two spoons or better" (`brewroot-2`). `calling_tasks()` hides kind `serve` while `gourmand_open` is not 1 (not shown, not needed to finish); `calling_add_serve_tasks()` adds it to old worlds before the hand-in, with progress rows for gnomes mid-chapter. Tests at the end of `tests/gourmand.php`.
+  2. Still-weak 16 px art: REDRAWN as two versions; Joshua picked B, INSTALLED in `game/assets/img/ph/` (branch, not on main). Sheets: `claude/pantry-redraw-AB.png` (+ `-A`, `-B`, `-dark`). PNGs `aseprite-source/img-redraw-full/redraw-2.2.1/{A,B}/`, scripts `scripts/ph-redraw-{A,B}/`. To install a pick: render with `--script-param out=game/assets/img/ph/`. Slugs: tamarind-chutney, tahini, candied-chestnuts, natto, doenjang, radish-kimchi, cured-olives, pickled-bamboo-shoots, palusami, bean-tamales, hibiscus-cordial.
+  3. 14 art banners and the camp sprite were cut from P1 (not drawn).
+  4. MySQL CI job NOT run for these changes (new table + column); full CI list NOT re-run on the merged main.
+  5. DONE: `balance-pantry.md` jam rows now use the 42/49/55 quick-jar bars.
+  6. DONE for walk.sh, mwalk43.sh, images.sh (honour TMPDIR; ci_suites.sh passes TMPDIR=$T to walk.sh too). Other suites (town, puzzles, modr, roadkinds, ...) still write fixed /tmp names.
+  7. Cat Fish ideas from 2.2.x (scene events, short taps) are in `claude/plan-catfish-petshops.md`; the 2.1.x/2.2.0 todo blocks are in `todo-archive.md`.
+
+
+### NOW (2.0.94, 2026-10-29): My Gnome home page. Built, slim zip in `releases/`, on main. Joshua uploads.
+- **Done:** index.php redirects players to gnome.php (`?today=1` keeps Today); login goes to gnome.php; My Gnome tabs load in place (`main nav.gvtabs a` in site.js).
+- **Joshua to check (phone, dark):** tabs swap without reload and Back/forward work; Today link reachable; logo/Home link lands on My Gnome; welcome-back page still first after days away.
+- **Maybe:** rename "Today" labels if My Gnome is now "Home"; tests that expect `index.php` Today for logged-in players (`tests/*.sh`) not re-run, check CI.
+
+### NOW (2.0.93, 2026-10-29): Cat Fish. Built, tested, OFF for players (`catfish_open`). 2.0.92 is on main with a slim zip; 2.0.93 (game clock) is on branch ccr-12f7bb05-4plve4, no zip yet.
+- **Art todo: `claude/catfish-art-brief.md`.** About 80 hand-drawn pieces (cat body 8 frames, 20 pattern overlays, ears/tail 8, fish + rod 6, room 5, 16 upgrade icons, 9 badges + 5 ribbons, 5 small UI). Colours are made by script. **The 3 style decisions are approved (2026-10-29):** ring-tinted cat eyes, palette-swap script for the 8 coats, layered cat PNGs. Art lands one piece at a time: `catfish_img()` shows `assets/img/catfish/cf-<kind>-<name>.png` when it exists, else the emoji.
+- **Art status:** drawn as test art in `aseprite-source/catfish/test/`; code is wired with fallbacks (rod, fish, icons, banner, room, Cat Book heads, layered cats). To switch on: `python3 tools/catfish_build_art.py --install` and review. Gaps: `claude/catfish-art-brief.md` "Known art gaps".
+- **Plan and state:** `claude/plan-catfish.md` (all four weeks ticked; Opus reviewed every week). Tests: `tests/catfish.sh` (182 checks, in CI). Balance sim: `claude/catfish-sim.php`.
+- **Time (done, 2.0.93):** Cat Fish days and weeks follow `game_timezone` (Halifax) via `catfish_today()` / `catfish_week()`; no UTC date maths (a test guards it).
+- **Open decisions (Joshua):** (1) Rare Shelter 2 + 3 swaps a day shows a legendary on about 42% of days: lower `CATFISH_REROLL_MAX`? (3) switch `catfish_open` on when ready; `catfish_petal_cap` default 100 a week.
+
+### NOW (2.0.88 BUILT 2026-10-29): Puzzle Pals. (SUPERSEDED in 2.2.2 to 2.2.4: finds are on the map, perks are 8/15/30%, level gate 15 is gone since 2.0.91; read the block above first. The rest of this block is history.) Version bumped, zips in `releases/` (slim needs 2.0.47+). Branch ccr-95ceb3bf-h5hdxf, NOT on main yet. All behind `ppal_open` / `ppal_party` (off; Joshua flips them).
+- **Built (code, steps 1 to 4):** `includes/puzzle_pals.php` (data, roster generator, art gate `ppal_art_ready`, release on Advanced solve via `ppal_on_solve`, Expert TROPHY + pal buff record, find lane `ppal_maybe_find`/`ppal_claim`, book queries, badges, `ppal_piece_html`), `puzzlepals.php` (Pal Book + hub card + Jigsaw pip + win-card text + profile shelf), find lane in `events.php` (`random_event_roll`, `ppal_lane`, box variant `ppalfind`), `PPAL_QUIET_PAGES` in layout.php, admin/tools.php "Test a pal find", schema `ppal_releases`/`ppal_found`/`ppal_trophies` + `users.ppal_*`, 7 settings "Puzzle Pals: ...". Tests `tests/puzzle_pals.sh` (in ci.yml DEFAULT_SUITES). Plans: `claude/plan-puzzle-pals.md`, `claude/plan-places-pals.md`.
+- **Step 4 BUILT (2026-10-29):** Take along (max `ppal_party_max` = 2 at gnome level 15+, Pal Book party strip + Take along / Swap / Send home), `ppal_perks` (gather, road, finder, tinker, bloom, shine; hooks in gathering.php, `gnome_combat($u, true)` for road/lair/delve only, games.php `games_pal_xp`, garden harvest luck, the find lane), `gnome_avatar_pals` (wrapper in includes/gnome.php; used at gnome, today, back, customise, sinks, town, profile, nav head, road fight cards), Expert-trophy buff = +1 perk unit per equipped pal of that picture. All behind `ppal_open` + `ppal_party` (0). Tests `tests/puzzle_pals.sh` + `tests/puzzle_pals_party.php`. Follower sticker stretch not built.
+- **Step 5 BUILT (2026-10-29):** Admin > Jigsaw > Pals tab (read only: 95 pictures, roster + art-ready, found/released/trophy counts, ppal_* settings, link to Test a pal find), `tests/jigsaw.sh` + `events.sh` extended, news entry + CHANGELOG 2.0.88, version bump, zips. Suites run: jigsaw, events, puzzle_pals pass (sqlite). Full CI list, upgrade check and MySQL NOT run.
+- **NOT in 2.0.88:** weekly Jigsaw Schedule tab (NOT started, moved later); follower sticker (not built); lair/delve art polish pending (draft-state sets); weak pals list is in the contact sheets (`claude/pals-sheets/`). The 2.0.88 news entry posts to players on upgrade even though pals stay off until `ppal_open` is flipped (drop it from `update_news.php` before shipping if that is unwanted).
+- **Pal art (UPDATE: all 570 pals drawn, 84 gallery + 486 Places; older note below), was 252 of 486 drawn (Opus, 64x64 stickers, `aseprite-source/pals/`):** 14 gallery pictures (84), 14 lairs (84), 14 delves (84). Contact sheets: `claude/pals-sheets/pals_all_{gallery,lair,delve}.png`. Scripts `pals_<set>.py` (gallery) and `pals_pl_<code>.py` (Places), helpers `palib.py`, lair parts `kit_lair.py`. Outputs `game/assets/img/puzzles/pals/<key>.png`. Re-run a set: `PAL_SHEET=<png> python3 -B aseprite-source/pals/pals_pl_<code>.py`. Checks: `tools/pal_unique_check.py`, `tools/lint_puzzle_pals.py`, `tools/dedupe_puzzle_pals.py`, `tools/pal_briefs.py --brief-kind <kind>`.
+- **Rosters:** `includes/data/puzzle_pals.txt` = 252 authored pals (14 gallery + 14 lair + 14 delve pictures x 6 = 3 common/2 uncommon/1 rare). Places haven (18) and wonder (35) are NOT authored: they would get generated names (`ppal_place_roster`) and have NO art, so they release nothing. Per `claude/plan-places-pals.md`: author them with Haiku draft + Opus review (see `claude/drafts/places_*_review.md` for the model and lessons), Joshua approves names BEFORE art, then Opus art 9 to 20 agents at once (Joshua allowed up to 20), unique pals (distinct colour/accessory/silhouette/face), mirror-symmetric blanks on Ring/Plus/hook pals (NO swastika/pinwheel read, Joshua rule), kit parts are blocks not pals. Cost about 45k to 135k tokens per place.
+- **Known art weak spots (Joshua may want polish passes):** gallery sets polished once (Opus low); lair and delve sets NOT polished yet (the delve run was killed by a container restart, 11 sets are draft-state). Per-set notes in the agent reports are summarised in `claude/handoff.md`.
+- **Decisions (Joshua 2026-10-28):** Expert (216) gives a trophy and a buff to that picture's pals if found; 6 per roster 3/2/1; finds 1 in 60 views, 30 min cooldown, 4/day; roster-complete reward cosmetic only; no trading/gifting; Places rosters authored (not generated), names reviewed first; follower sticker = stretch; art path: Opus draws, Sonnet codes/scripts, Haiku drafts rosters; art approved ("looks good") for gallery sets; every pal unique; pals are puzzle pieces, Treks have NO pals.
+
+### 2.0.87 (shipped, on main, zips in `releases/`): Jigsaw
+- Shipped: Jigsaw section (3 fixed tiers 24 / 96 / 216, 3:2 pictures), 14 region pictures (3-pass method), Places (81 unique-location scenes unlock on first visit; admins see all, players only what they unlocked), free-play bests, save and resume, tournaments + three-tier cups, Admin > Jigsaw, new cast art and icons, README screenshots (`bash tests/readme_shots.sh`). Changelog is the top entry. Plans: `claude/plan-jigsaw.md`, art process `claude/jigsaw-art-process.md`. OFF for players until Joshua sets `puzzles_open`, `jigsaw_open` (and `jigsaw_tournaments`) in Admin > Settings; admins see it now. Joshua playtested 2.0.87: looks OK.
+- Known gaps: Tidy button (rows) not built; `ico-piece` is a blob at 16 px and `jeff-piece` reads as a card at 38 px; `ico-piece`, `ico-cup`, `ico-jigsaw-box` exist but are not used anywhere yet; style-guide PDF not rebuilt (needs Chromium); `tests/emoji_icons.php` 1 failure and `landing` suite (stale 2.0.73 screenshots) fail on main too; upload hosts may need `uploads/jigsaw/` allowed and PHP `upload_max_filesize` above 3 MB; full CI list, upgrade check and MySQL not run for 2.0.87.
+- Earlier decisions: tier sizes 24 / 96 / 216; weekly Schedule tab is 2.0.88; Treks are standalone stories and get NO pals; party = 2 equipped pals, passive perks, shown wherever the gnome shows (gnome level 15+), no fighting pals; gallery pictures use the 3-pass method.
+
+### Earlier: what is done and approved
+- **Variety project, content (Joshua approved the road cards and the art, 2026-10-28):** build plans for 2 regions (2.0.76), themed stop upgrades + regional materials (2.0.77), villager overlay (2.0.77), stop activity kinds + 810 activities (2.0.78), road card kinds + Road Journal + 25 cards in every region (2.0.79 to 2.0.80), first-pass art for every variety placeholder (stage icons, 48 stop tiers, 11 folk, 810 activity scenes, road icons, 14 journal pictures). Plan: `claude/plan-variety.md`; art list and what is drawn: `claude/todo-art-variety.md`, `claude/todo-art-acts.md`.
+- **2.0.80/2.0.81 small fixes:** villager faces/names open the chat pop-over (Who's here, Orders, passport known list) with a "See full details" link; craft button text shows no raw tags; rest-stop daily cap 8 (migration `stopcap8` in `upgrade140.php`); stall above the activity cards, cards three across; shop card ink dark in both themes.
+- **2.0.82 / 2.0.84: popover art is animated (done, Joshua confirmed it plays).** Only inside the open activity popover (`dialog.isheet.dosheet[open]`), never on the page cards or shop-tile popovers. CSS motion (`gv-pop-bob/breathe/hop/wiggle/blink`, steps(), transform-only, inside `prefers-reduced-motion: no-preference`) covers every activity and the option icons incl. emoji in buttons. Real frame strips: `game/assets/img/acts/act-<slug>-anim.png` (6 frames of 144x108, 6fps) for all 829 scenes and `img/ico/ico-<name>-anim.png` (6 frames of 64x64) for 7 stat icons; `gvAnimArt()` in site.js plays them, `stop_act_anim()`/`anim_strip_attrs()` in PHP add `data-anim` (popover only, only when the file exists). Optional sidecar `<file>.png.json` `{frames,fps}`. Test: `tests/popart.sh` (in ci.yml DEFAULT_SUITES).
+- **Strip sources:** 15 hand-made in Aseprite (`aseprite-source/anim/*.aseprite`, scripts `animlib.lua`/`scenes.lua`/`icons.lua`, run `Aseprite.exe -b --script X`); the other 814 generated by `aseprite-source/anim/scripts/bulk.py` (Pillow+numpy, ~1 min, skips slugs with a pilot .aseprite; `bulk_verify.py` checks frame 1 == still, palette, 2px grid; `bulk_zoom.py` crops; README there). Never overwrite the 15 pilot strips.
+- Joshua still has to check on his phone: Road Journal pages in a few regions, a fork/riddle/trade/chain card, the 3-across activity cards, shop cards in dark mode.
+
+### NEXT (Joshua picks; suggested order)
+1. **Build plans for the other 12 regions** (`game/includes/data/build_plans.txt`, 4 stages per landmark, never the same 4 verbs twice in a region; tests in `tests/buildplans.sh`). 2 regions per release, Opus writers, review artifact for Joshua.
+2. **Leftover build verbs:** `befriend` (landmarks need stop folk first), `carry`, `trial`, `vigil`, `wait`, `decorate`; Admin > Build plans page (read-only list first); before/after pictures per place.
+3. **Stop acts:** `cookalong` / `tune` / `teach` / festival kinds; regional acts already done (35 per region). Review notes for the 691 acts on the review artifact are still to apply.
+4. **Road:** toll/beat/weather kinds (not built), a picture per sketch page (6 per region), "Birds of the Maplewold" style collection pages.
+5a. **Popover animation polish:** 11 scenes are glint-only (gnome hat not detected: night_fishing, r_sa_frost_potatoes, r_ea_snow_monkeys, r_na_toboggan, w2_ice_paddles, w3_politest_bow, w5_bathers_hats +4; list via `bulk.py --report`); generator does NOT animate flags/bunting/cloth, foliage/grass, water, sun/moon (best next effects); pilot eyes-icon blink is rough; closer look at multi-gnome scenes (r_csa_courtyard_ragas, r_na_stump_rings, r_na_toboggan); animate more icons than the 7 stats (wits etc.); full `ci_suites.sh` not run on 2.0.82-2.0.84 (only popart); hand-draw the most-seen scenes (kind fallbacks, w5) over the generated ones.
+5. **Art polish:** weakest drawn icons are listed in `claude/todo-art-variety.md` (trade, chain road icons). Stop header picture per adopt tier (not wired).
+6. **Puzzles etc. (older, see archive):** Snail Trail 3rd puzzle game, Jeff `tada` redo, guest-friendly treks, open Puzzles to players once checked.
+
+### Working notes
+- Waves: a writer subagent per region drafts into the scratchpad, lint (`tools/lint_road_events.py DRAFT claude/drafts/item_slugs.txt --region X --prefix x-`, `tools/lint_stop_acts.py`), then merge into the data file and fix the pack-count tests (`tests/roadlife.php`, `tests/roadkinds.php`).
+- Releases on Windows: `build_update.sh` breaks on a space in the repo path, a relative/unix output dir (MiKTeX zip) and CRLF in its file list. Run a patched copy (strip CR in the `while read` loop) with a space-free Windows-style out dir (e.g. `C:/Users/hello/gvzips`), then move the zips into `releases/`. Upstream may drop/redo a version number: `git fetch` first.
+- Releases: `bash tests/build_update.sh <ver> 2.0.47 /home/user/gnome-venture/releases`, keep latest 4 versions in `releases/`, older to `releases/archive/`. The web updater skips a zip whose version is already installed: never rebuild a zip under the same version, bump instead (2.0.80 to 2.0.81 lesson).
+- Push main = `git push origin HEAD:main`, only on Joshua's word. Do not push `git status` clean-ups of old branches without asking (see `claude/branches.md`).
+- `choice_row()` escapes its text: pass plain text, never HTML.
+- Anchors with `color: inherit` inside felt cards pick up the light page text on dark: use `--gx-felt-ink`.
+
+### Explore: next (from `claude/explore-review.md`; 1-5, 7, 10 done)
+- Region packs for the other 11 regions. 6 traces of other players, 9 festival/goal chips, 11 calling/animal lines, 12 delve room text, 8 Tales.
+- Also: road_lines admin editor (draft status like trek text); 146 villages share 9 descriptions; 4 stop personalities lack chat lines; Haven text promises shops that don't exist; tundra thin.
+
+### Treks: next
+- Scenes next: Gloomtooth intro, Sorrel's door, signpost riddle as pop-overs (need speaker-tagged text); gnome reply lines are drafts.
+- II-b watch: only 2 new crew moments. Road data files have no admin editor (road roll % settings done 2.0.16).
+- Not built: Ch IV to VI, Thorny/Bramble, respec, Lanternroot real crop, hats/stamp/trophy, trailmates 8 (4-7 built).
+
+
+### Next (ideas, Joshua picks)
+- No-typing social: preset postcards; follow a friend's trail; seed lineage.
+- How-to-play "Folk & friendship" title still says Folk (title is DB key in ensure_almanac_howto; needs guarded migration).
+- Satchel split stacks by quality; then turn `orders_food_quality` back on.
+- Crops lose money on bought seed (radish sells ~4, seed 8-13). Look at seed price / yield / sell %. Quick option: `price_base_pct` 60 → 70.
+- Later: cPanel cron for reminder emails; test site /testvault/ (code ready, skipped).
+
+### Small / watch
+- `walk_scene` row is deleted when a delve ends, so delve completion is not recorded anywhere; the plan's gate after the maps has no data source until a count is added (Usage has no map line).
+- Trek map: open-zone walls flat grey; long walks enter from phone-window edge.
+- "Community garden" tab wraps on phone. Sign/skin Buy buttons small.
+- Friend watering duplicates garden water logic. Nudge crops-ready approximate; SMTP untested live.
+- Seasons + hammer nav icons roughest.
+- Travel card "via X" truncates at 390px with long names.
+- Test noise: social100 2 FAIL on pristine (mid-tour); cook.sh map checks stale; games2.sh doesn't test payouts; walk.sh "INSTALL FAILED" flake under parallel runs.
+- Balance (audit 2026-10-17): week 1 ~8.5k earned vs ~7k sinks (mild). Days 1-3 flush. Cosmetics no level check. Harvests ~73% of XP.
+- MySQL watch: trek_ms table (1.8.9, untested on MySQL), trek_flag_set duplicate-insert catch on InnoDB.
+
+### Parked (Joshua said not now)
+- Combat intent/Guard, KO cost on road fights. Inbox. Test environment.
+- Growing villages · caravans · more festivals · Duck Pond animal.
+
+### Art
+- Placeholders game/assets/img/ph/*.svg, palette ph/palette.json, guide = "Gnome Venture Art Guide" artifact.
+- Names: `{item-slug}`, `creature-{slug}`, `npc-{slug}` (400×500), `{building}-{1..3}`, `{building}-{mossy|painted|lantern}`, `{fence}-{end|straight|corner|tee|cross|gate}`, `tile-{...}`, `stage-{kind}-{1..4}`, `land-{...}`, `banner-{code}`, `hat-{calling}`, `lm-{haven|wonder|delve|lair}`, `logo`, `nav-{gnome|almanac|satchel|crafting|garden|arranging|world|town|villagers|seasons|passport|games|trading|together|tasks|friends|account|today|festival|start|feedback|treks}`.
+- Trek art needed: creature-{slug} for trek creatures (Ch I + Ch II incl. Silverfin), npc for Sorrel Inkcap + innkeeper (name TBD).
+
+### Moved from todo.md 2026-11-14 (non-puzzle blocks, verbatim, old line numbers dropped)
+- 2.6.73 (2026-11-12, MERGED to main, zip `releases/GnomeVenture-2.6.73-web-update.zip`, needs 2.6.70+, no DB change): Wander works from havens, dens, delves and wonders (`can_wander_from()`). NOT checked in a browser.
+- 2.6.72 (2026-11-12, MERGED to main, zip `releases/GnomeVenture-2.6.72-web-update.zip`, needs 2.6.70+, no DB change): fix: Back to exploring / Back to the road on the Here page for a place found while wandering; round Wander button on the Here page. NOT checked in a browser.
+- 2.6.65 (2026-11-11, branch `ccr-1d2f289f-evpn8r`, zip `releases/GnomeVenture-2.6.65-web-update.zip`, needs 2.6.64+, no DB upgrade): list pages redone: Village Show tabs + podium, Trading Post stall cards + gifts inbox, Satchel tool cards, Almanac section tiles + chapter chips, Fair class squares + sheets. NOT checked: phone, real pages with data (only php -l).
+- 2.6.70 (2026-11-12, MERGED to main, zip `releases/GnomeVenture-2.6.70-web-update.zip`, needs 2.6.63+, no DB change): Trail Sights follow-ups: villager card Walk over button, villagers never under/over landmark sprites, journal line when a villager left, lighter Trail pages (one use query per stretch), give-an-item one row, lint `take=` / `cd=0`; test suite fixed (it had died silently at the villager-on-map block). In-game Release notes added for 2.6.68 / 2.6.69 / 2.6.70 (`update_news.php`; 2.6.66 / 2.6.67 notes SKIPPED by Josh 2026-11-12, board is admin-gated).
+- 2.6.69 (2026-11-12, MERGED to main, zip `releases/GnomeVenture-2.6.69-web-update.zip` 1.7 MB, 298 files, needs 2.6.63+, no DB upgrade): fix: the ! over a villager follows the town Orders board when Orders are on (it used the retired weekly favours: a ! with nothing to hand in, reported by a player on Juniper Kettleby). `tests/here_bang.php` (in CI). NOT checked: a real phone.
+- 2.6.68 (2026-11-12, MERGED to main, zip `releases/GnomeVenture-2.6.68-web-update.zip` 1.7 MB, 307 files, needs 2.6.63+, upgrade makes 6 new tables): TRAIL SIGHTS. All 219 landmarks are usable (gold !, Sights button + cards, villagers out and about on the map with tap card + walk-on, 25 quest lines, 104 new items with art, Almanac chapter Sights (NOT counted in the Almanac page counts / percentages), Admin > Trail sights). Plan and grammar: `claude/plan-trail-sights.md`, `claude/sights/GRAMMAR.md`; independent review `claude/sights/REVIEW-opus.md` (HIGH and most MEDIUM fixed; open LOW: map render query count, villager tile takes over tap-to-walk). Tests: `trail_sights` (+ `tests/trail_sights_lint.sh`). Known fails unchanged: stops100, stopkinds, here (contest hall link), pantry (Fair class), css_lint. NOT checked: MySQL, real phone, balance in play, decor in a real yard.
+- 2.6.64 (2026-11-11, MERGED to main, zip `releases/GnomeVenture-2.6.64-web-update.zip`, needs 2.6.63+, no DB upgrade): Contest hall pop-up = Contests squares tab first + Leaderboards tab (`hub_pages.php`, `.chsq`/`.chg` css, `[data-chtab]` in site.js); shop menus fix: gift sort chips no longer close the pop-up (in-place nav handler skips `#` links and links in a dialog), basket survives page swaps (`gvBaskets`), sheet shows basket qty, gift picker opens fresh. NOT checked: phone, real pop-up.
+- 2.6.62 (2026-11-11, MERGED to main, zip `releases/GnomeVenture-2.6.62-web-update.zip`, needs 2.6.60+, no DB upgrade): pal delve re-runs run on REAL time; trips/stations/garden stays stay game time (`gclock_shift_pal_clocks` skips `kind='delve'`). Delves already running were shifted before, so they finish on whatever clock they have. NOT checked: in browser.
+- 2.6.61 (2026-11-11, MERGED to main, zip `releases/GnomeVenture-2.6.61-web-update.zip`, needs 2.6.60+, no DB upgrade; zip must include index.php): tour "Water it" step no longer stuck when rain already waters the plant (`tour_waiting_for()` in `includes/tour.php`, used in `garden_action`). NOT checked: real rain day in browser, full CI.
+- 2.6.52 (2026-11-11, MERGED to main, zip `releases/GnomeVenture-2.6.52-web-update.zip` 3.8 MB, 700 files, needs 2.6.50+, DB upgrade: new table `user_hovel_decor` created by the migrator): Slim Home behind `home_slim` (off; Today/Furnish/Gnome tabs, hovel banner, decor) with its art (room, gnome, 21 layers); 570 pal perches, 81 unique villager doors, 5 whimsy perches redrawn. Stop looks: skipped (existing stops cover the regions; pilot in `aseprite-source/v3/here-gate/pilot-*`). Tests: 7 suites fail the same on the pre-merge branch (animals120 calling flowers sinks097 stops100 stopkinds css_lint); catfish and puzzle_pals are flaky, pass alone.
+- 2.6.51 (2026-11-10, MERGED to main, zip `releases/GnomeVenture-2.6.51-web-update.zip` 0.2 MB, needs 2.6.49+, no DB upgrade): wattle fence set redrawn (7 PNGs, `tools/gen_wattle_art.py`; yard now prefers PNG placeholders over SVG, so picket/other fence placeholders switch to their PNGs too); single Pal Jobs Collect plays the chest animation. NOT checked: browser look in the yard, phone, MySQL, full CI. Zip sent to Josh; Josh uploads. Aseprite sources for wattle not updated (re-export would overwrite the PNGs).
+- 2.6.50 (2026-11-10, MERGED to main, zip `releases/GnomeVenture-2.6.50-web-update.zip` 0.4 MB, needs 2.6.47+, no DB upgrade): Pal Jobs page Garden crew rows fit a phone; Trail open-gate 🔓 mark; tests fixed (`animals140` flag-on, `games2` payouts, `walk` server wait, `folkoverlay` deterministic; `cook` was already fine). Opus review: no blockers. NOT checked: phone, MySQL, full CI. Almanac market pages: NOT needed (every landmark has a page; only 5 markets exist in data, mossbottom-market is a Place). Zip sent to Josh 2026-11-10; Josh uploads. Still open (need Josh / browser): other pal roles honouring bed picks, 315 gate tier, rope tool type, Flee confirm.
+- 2.6.49 (2026-11-10, MERGED to main, zip `releases/GnomeVenture-2.6.49-web-update.zip`, needs 2.6.47+, no DB upgrade) =: (1) Hovel > Pals tab list no longer runs off the right edge on a phone (`.hov-tl` single `minmax(0,1fr)` column, text wraps). (2) Pal jobs page, 'Tend a garden' post with sleep-days on: pick a job (Water/Weed/Pests/Harvest/Plant) and 1/3/7 sleeps or FULL TIME; it puts the pal on a crew slot (`pj_crew_send_post()`); old real-day garden stays stay off. (3) Garden > Crew > Plant pal 'Seeds and beds': a tab per garden, each bed has check (work, `garden_pal_memory.skip` 2) and x (avoid, skip 1); any check means the Plant pal plants ONLY checked beds; x beds never. Plant pal only (water/weed/pests/harvest still do every bed): ask Josh if the other roles should honour it. Tests `pal_crew`, `paljobs`. NOT browser/phone-checked.
+- 2.6.48 (2026-11-10, MERGED to main, zip `releases/GnomeVenture-2.6.48-web-update.zip` 0.2 MB, needs 2.6.46+, no DB upgrade): 9 popover scenes redrawn in 2.5D + new loops (bow bows). NOT checked: phone, real popover, MySQL, full CI.
+- 2.6.47 (2026-11-10, MERGED to main `e64ebdd3`, zip built `releases/GnomeVenture-2.6.47-web-update.zip` 0.5 MB, needs 2.6.45+, no DB upgrade): build-plan wording, messages wait for the fight end scene before it starts, flaky `pal_hours_per_sleep` test fixed. NOT checked: phone, MySQL, full CI; end-scene toast fix not run in a browser.
+- 2.6.46 (2026-11-10, MERGED to main, zip built `releases/GnomeVenture-2.6.46-web-update.zip` 0.5 MB, needs 2.6.44+, run Upgrade database once): craft mastery, sleep-days leftovers (festival days left, repair pay after sleep, tend pay per day, deliver deadline in sleeps), uncaught UserError caught, festival jar, almanac pages + data fixes, trail gate locks, yard live cover + no-till planted + satchel picker, build plans fixed + scaled by region level, pal makes count toward mastery, flag-on test rewrites. See CHANGELOG 2.6.46. NOT checked: phone, MySQL, full CI, browser look of the yard cover redraw and the satchel picker.
+- 2.6.45 (2026-11-10, on main, zip built, not yet live): Seed Spitting redone with the player's 2.5D gnome rig on the canvas (wind-up, ptoo, hop or slump, spring beard/scarf/hat), hangups fixed (spit_min_ms to JS, touch scroll trap, retry after dropped submit), Guess the Weight duplicate energy rule, game pages share the community area hue, Market day market hue. See CHANGELOG 2.6.45. NOT checked: phone touch grab zone, live site, MySQL. Open art item: a cheer pose with arms up needs an arm-up cut of the gnome sheet (the shoulder sits under the chin, so straight up hides the face).
+- 2.6.44 (2026-11-10, on main, zip built and sent to Josh, not yet uploaded; CI list: 70 pass, same 16 known fails, no new): Almanac pass (7 new pages, stale + wrong text fixed, dead unlocks removed), easy-road extra mini-boss drawn as a find, snack-tier jam costs 1 energy. See CHANGELOG 2.6.44.
+- 2.6.43 (2026-11-10, code review fixes, on main, live): trade negative-amount free transfer closed; Garden of the Month / carving late settle; carving vote guards; delve flee ends delve; community garden shift cap; pal collect transaction; daily puzzles use first solve; double-tap guard per form; auto-upgrade retry wait; sprite / login / account-delete hardening. Details in `CHANGELOG.md`.
+- 2.6.42 (2026-11-10, on main, live): all creatures (117) + 7 crew redrawn in 2.5D and rigged, 69 villager minis redrawn.
+- 2.6.41 (2026-11-10, on main, live): Trail walk from a route's b end runs in reverse; 2.6.40 garden crew + Trail maps merged.
+- 2.6.40 COMBINED (2026-11-10): garden crew (Water/Weed/Pests/Harvest/Plant slots, tiredness, Hovel Today + Pals tabs, helpers retired) + Trail line (all 246 routes 30x18 rich maps, gates, extra mini-bosses) merged on `claude/zealous-cerf-7nix6e`. Built: slim zip `releases/GnomeVenture-2.6.40-web-update.zip` (376 files, 1.8 MB, needs 2.6.37+, no ground pictures) and 43 Admin > Images zips `upload-zips/gnome-venture-trail-ground-r3-partNof43.zip` (624 pictures, about 249 MB, Maplewold's 41 left out). Merged to main in 2.6.41. Tested: lint, trail_bendy, trail_authored, ci_suites trail_back trail_mini fight_scene_trail adventure pal_crew, game_clock.sh. NOT run: MySQL, phone, light theme, browser on the Trail pictures.
+- DECIDED 2026-11-10 (Josh, pal garden crew; mockups in `pal_garden_mockups.html`): per-garden pal slots Water / Weed / Pests / Harvest / Plant, all open for every garden from the start. Pals work WHILE YOU SLEEP (per sleep, not real time), fixed order pests > weeds > harvest > plant > water > growth. Time modes: 1/3/7 sleeps or full time until recalled; counting starts at the next sleep. Tiredness: 100% for 7 days on the same slot, 60% at day 14 (then 50%); ! on the pal + note on day 14; a different job or a rest day resets it. A recalled pal rests at home one game day and cannot be assigned until the next sleep; a timed slot that ends sends the pal home to rest. Plant: same seed as before, or seeds ticked in a grid of seeds the player holds (never rare seeds, seeds a job/order needs, or out-of-season seeds). Pal harvest counts for jobs, quests, orders; reduced gnome XP; no streaks / grade jobs / contests. Pal Gardening XP reduced (draft 40%) with a daily cap. Hired helpers retire: active contracts refunded pro rata and the player told once. Weeding is its own slot (pests too: weeding no longer removes pests). Hovel tabs: Today | Sleep | Tasks | Pals | Costs. Today = what changed since sleep (needs-you ! first, overnight, village: birthdays of Acquaintance+, who is away / back via `gclock_npc_away`, market day, tomorrow's weather); a `sleep_report` row per sleep, last 3 kept. Phases: 1 pal time per sleep (already how it works: `gclock_shift_pal_clocks` at 8 h/sleep; only the old garden stay is odd: 1 day = 3 sleeps, replaced by phase 2), 2 slots water/weed/pests/harvest + timed, 3 planting + seed grid (BUILT 2026-11-10), 4 full time + tiredness + rest days + UI + Today tab. NOT built yet.
+- 2.6.39 (2026-11-10): Workshop picture: green ! on sections with something to do, popover cards wide + scrolling + no repeated page chrome, Make x2/x5/All fixed (pressed button was not sent), picture refreshes after an action. Delve route menu prettier and the whole route stays shown (taken path lit with a tick, passed rooms greyed). Slim zip `releases/GnomeVenture-2.6.39-web-update.zip` needs 2.6.36+. NOT browser-checked. JOSH to check: workshop ! and popovers, Make x5, a delve across two floors. Open: wire recipe pills in workshop cards in place (gvShelves for fragments).
+- 2.6.37 (2026-11-10): Messages (admin replies to feedback, player answers in Together > Messages, yellow ! on tile/tab/More), Tools badge shows error-log count, Admin > Page code (view/edit game files, password + syntax check + backups in `data/code-backups/`), Shop staffing off the Dashboard. Slim zip `releases/GnomeVenture-2.6.37-web-update.zip` needs 2.6.35+. Tables self-add on first use. Tested: `tests/messages.php`, headless browser (phone + desktop). NOT tested: MySQL, the hosted site, light theme. Admin-panel suggestions not built: listed in `claude/handoff.md` (2.6.37 block).
+- 2.6.35 (2026-11-10): fix: `landmark.php` and `gather.php` catch `UserError` ("still busy with a long job", `carry_minutes` > 0) and flash it; `repair_work()` checks `gclock_busy_minutes` before writing; Gather refused at a place still in ruins for that gnome. Slim zip `releases/GnomeVenture-2.6.35-web-update.zip` needs 2.6.33+. JOSH to check: sweep the Mirror Salt Flat busy and after sleeping. DONE 2026-11-10 (no version yet): general catch in the bootstrap exception handler: an uncaught `UserError` is flashed + redirected back on POST, JSON `{ok:false,message}` on ajax, a small "Not now" page on GET (no more 500 page). Checked on a stub, not in the full game.
+- 2.6.33 (2026-11-09): player tend jobs on the owner's sleeps. A "Tend my garden" job lasts 1/3/7 of the owner's game days (`player_jobs.ends_day`; real `ends_at` = days + 7 backstop). Each owner sleep (`game_new_day`), on opening the Tending page, and at the job end, `pjob_replay_days()` waters every thirsty bed for the owner days not yet done (`player_jobs.tend_day`), counts each watering as one job done and pays pro rata from escrow; the taker gets a notice. Weeding and harvesting stay by hand. Deliver jobs, listing expiry and the one-job-per-poster-per-week rule still real time. Run Upgrade database once. Slim zip `releases/GnomeVenture-2.6.33-web-update.zip` needs 2.6.31+. Joshua uploads. Test: `tests/game_clock.php` tend sections; `pjobs jobs help` suites pass (flag as installed). NOT phone-checked.
+- Still open from 2.6.33: replay pays waterings only (a bed already wet that day pays nothing); a tend job with no thirsty beds can end with low pay (poster gets the escrow back); deliver-job deadlines are still real hours. Ask Josh if either should change.
+- 2.6.27 (2026-11-08): Admin > Game clocks (`admin/gameclock.php`: each player's game day/date/time/tired, last 100 POST actions per player in `player_actions`, pruned on insert, `ACTION_LOG_KEEP`; admin only; run Upgrade database once). 2.6.28: villagers away today are hidden (Here pictures, stop Villagers tab, no chat/gift/errand/favour); ! over villagers: 2.6.28 showed it for any open request, 2.6.29 back to hand-in-now only (goods held, or parcel/escort for them) and stop folk fixed (were looked up in the wrong table); slim 2.6.29 needs 2.6.26+. Slim zip 2.6.28 needs 2.6.26+. Wander level leak checked: not found (resume keeps route level); Josh withdrew it. Before that: main = 2.6.26. Sleep-days is LIVE (flag `game_clock_on` default 1; start step ran at 2.6.09). 2.6.09 to 2.6.23: pal jobs on game time, header clock pill + phone line, craft batch times, 2.5D gnome on Welcome, guide/almanac text, Hovel tile and slim Hovel page, watering-guard fix, gather 10 min and 2-3 items, Hovel crash fix (FRIEND_LEVELS), away villagers hidden in town, News / Release notes tabs (`news.kind`; all old posts moved to notes) incl. tabbed Today card, compact Shops tab on phones, Shops in the Here World popover (2.6.24), Perks card live refresh (2.6.25), ! over villagers with a request to hand in (2.6.26; Journey and market-order hand-ins not marked yet). Listing writeup + images in `claude/listing/`.
+- 2.6.31: Energy trickle in sleep-days: +1 per 5 min up to 50% of max (settings `trickle_energy_cap_pct` 50, `trickle_energy_seconds` 300; cap 0 = off); sleep gives the rest. Also fixes the regen SQL cap (CAST). Slim zip `releases/GnomeVenture-2.6.31-web-update.zip` needs 2.6.29+. No DB upgrade. Joshua uploads.
+- 2.6.30: Trail finds (✨ F tokens) stay gone 5.5 game days per route stretch after you take them (`trail_pickups`, setting `trail_pickup_tenths` 55; real days with clock off); fights / bosses unchanged. Upgrade database once. Slim 2.6.30 needs 2.6.29+.
+- DONE 2026-11-08: Josh said 2.6.30 "Works" (uploaded, Upgrade database run). Treat 2.6.27 to 2.6.30 items below as PASSED: Game clocks, away villagers, ! only on hand-in, Trail finds respawn 5.5 game days.
+- Still open (not built, Josh undecided): festival "left" display, repair reward timing, paid inn nap. DONE 2026-11-10: tests `cook`, `paljobs`, `catfish`, `social100` rewritten to pass flag-on; `garden100` is PINNED to `game_clock_on=0` (its checks are real-time rules; flag-on garden is covered by `tests/game_clock.php`). Fixed: `festival.php` now makes the festival jar itself on a first visit (`festival_ensure_goals()`), asserted in `tests/social100.sh`. `game_clock.sh` is occasionally flaky (`pal_hours_per_sleep`).
+- 2.5.90 to 2.5.96: authored maps for all 230 other routes (generated, stand-in art), Admin > Tools Trail maps check, ground pictures upload via Images, on-the-road bar removed, pals beside the gnome on maps and in fights, Trail fight menu = Fight / Item / Flee command column (Design C). Details in `claude/handoff.md`.
+- 2.5.66: route landmarks (82 large hand-drawn sprites on all 16 Maplewold trail maps, path layer, contact shadows), GPS stops at every stop, no tap dots on trail maps.
+- 2.5.68: build plans for all 94 havens/wonders/delves (58 new, text not yet reviewed by Josh); status-strip energy bar updates live.
+- 2.5.67: Do here and Stall results show in the popover; header energy and Petals pills update live (icon kept, number only).
+- 2.5.63 to 2.5.65 (art): 133 weak items redrawn, all 387 seeds are packets, 4 kind cards, scene fixes (camp flames, ferry dock, wild-trail trees, Snowcrown, turtle scutes, kava circle, banner-desert, trek-me, vig-pick), world + region maps richer, desert/adobe stop looks, hero-scale village/haven/delve/lair, Beaver Pond front, hedgehogs redrawn, gnome eye rim.
+- 2.5.60 to 2.5.62: 81 wonders, 29 banners, gather small art, 14 journal emblems, 7 landing, 14 region maps, 46 trek tiles installed.
+- DONE 2026-11-10 (Josh said): tool gates work, Trail phone walk done, yard checked (cover redraw, satchel picker). Treat as PASSED.
+- DONE 2026-11-10 (Josh said done): 2.6.45 checks (phone touch grab zone, live site, MySQL), 2.6.44 zip upload, 2.6.07 stage events / riddles phone check, pal garden crew phases 1-4 (treat as built and passed).
+- DONE 2026-11-10: Josh said phone checks done and live is good. Treat ALL phone checks through 2.6.43 as PASSED, including 2.6.07 stage events / riddles.
+- DONE 2026-11-07: Josh said "All my checks ok". Treat everything listed here before 2.6.07 as PASSED: 2.5.97 to 2.6.06 (delve/wander fights, flee/KO, pal skills, 2x speed-up, walk back, Extras tab, toast fixes, Hat button).
+- DONE 2026-11-12: Josh said phone checks cleared. Treat ALL phone checks through 2.6.70 as PASSED (incl. Trail Sights 2.6.68-2.6.70, 2.6.65 list pages, 2.6.07 stage events).
+- DONE 2026-11-06: Josh said "Phone checks done good". Treat everything previously listed here as PASSED: 2.5.90 to 2.5.96 (ground zips, new-region routes, pals, Fight / Item / Flee menu, no bar under banner), 2.5.81 to 2.5.89 fight scene, 2.5.72 (Do tab meters, perks, notice board, happenings, stories, Sneak/Hunt, workshop), 2.5.60 to 2.5.71 items, yard, Here pages, Maplewold tiles. Not itemised, so per-item "not phone-checked" notes in section 4 are now stale.
+- DONE 2026-11-06 (2.5.97, not phone-checked): pal skills in the fight scene are acted by the pal on the stage (strike/sap: it hops at the foe; others: it cheers, then the effect lands; patch heals with no gnome pose; shield shows "shielded"). `fight_pal_events` / `fight_pal_slot` in `includes/adventure.php`, engine move `mend`. A pal not drawn on the stage (no art, 4th pal) keeps the old gnome animation.
+& speeds it up 2x (was 40x), in `fightscene.js`; reduced motion still runs at 40x.
+- DONE 2026-11-06: `fight_scene` is ON by default (released 2.5.97; a site that saved 0 stays off).
+
+
+- BUILT 2026-11-10 (on branch `ccr-7e101808-pyrflf`, NO version bump yet, next release picks it up; needs Upgrade database once for `landmark_repairs.settle_day`): the four decisions below. Festival page shows game days left (`festival_active()['left_days']`, `festival_left_text($s, $gameDays)`); repair last-day work that carries past 22:00 pays after the next sleep (`repair_settle()` in `rebuild.php`); tend replay pays per owner day (qty/days actions per day) even with no thirsty bed. Tested: `tests/game_clock.sh` all ok (new blocks), `pjobs` ok. NOT run: `rebuild.sh` (no ruins in test DB), MySQL, phone.
+- DECIDED 2026-11-10 (Josh, answers to the open list): (1) festival "left" shows game days left; (2) repair reward pays when the job finishes, not at the click; (3) paid inn nap: skip; (4) tend job pays per owner-day tended (flat, wet bed or not), not per watering. DONE 2026-11-10: deliver-job deadline is the taker's sleeps (1 or 7; `player_jobs.ends_day` on the taker clock, `settle_player_jobs()`, real ends_at a 7-day backstop; jobs taken before this keep real time). 315 gate tier already tier 1 in 2.6.40 (Walking Stick).
+- DECIDED 2026-11-07 (sleep-days, design `claude/plan-sleep-days.md`): the game moves by DAYS the player chooses by sleeping in the hovel (unlimited, no brake); sleep = full energy refill; timed 1/min regen removed; garden, pantry jars, pal jobs (fewer slots, longer), Cat Fish cap (7 sleeps), NPC chat/gifts (NPCs move on) and festivals run on game-days (per-player calendar); minigame Petals, shared goals, contests, visits stay real-time; NPC shop sell-bucket per crop per player (size = base x beds, real-time drain, 75/50/25% steps, meter), stalls/gifts/trades untouched. Accepted risks are in section 8 of the plan. Design only, nothing built.
+- DECIDED 2026-11-08 (sleep-days, plan sections 10-13, decisions 1-28): each player has a PERSONAL GAME CLOCK (`game_day`, `game_minute`; day = 06:00 to 22:00, tired after 22:00 but never locked). Energy and time are two budgets. Actions of 10+ min spend game minutes (travel 10 min/section, florist shift and landmark repair 8 h, nap 2 h). Sleep jumps to 06:00, nap needs a seat or bed. Sleep places: home, inn (110 Petals or 4 h chores, plain timer), town (bench / rented room / villager's house), road with camping gear (buy or craft, one use). Cooking, job board, puzzle pal spawn, town calendar, festivals, free mends, order deadlines, stops run on game time; first-week onboarding, caps and stamps, shared systems stay real; admin weather/season force applies to every player. Craft mastery per recipe (time, materials down to a floor) and per category (yield, energy, buff). Treks left out of the first build. Design only, nothing built.
+- DECIDED 2026-11-06: art uploads go through Admin > Images (never Update); the on-the-road bar and the fight bar are gone from other pages; the Trail fight menu is Design C and closes after every action; Puzzle Pals stand beside the gnome on maps and in fights.
+- DECIDED 2026-11-07 (route map bends, plan `claude/plan-route-map-bends.md`): square tiles stay (hexagons deferred), 8 compass headings, wandering road in bigger sections (30 x 18, up from 22 x 7), straight run of the road at most 6 tiles (one per section up to 10), thickets close in on bends. Still open for Josh: tool-quality gates, extra mini-boss spots (Maplewold lists in the plan), tall 18 x 30 sections for N/S. DECIDED later 2026-11-07: gates use the game's tool types and tiers (Worn, Sturdy, Fine, Masterwork), min tier = region level + 1 (Maplewold: Sturdy), 314 causeway is a shortcut (long way round open), 314 extra mini-boss is Clam Lurker.
+- Open: trail fight menu list can cover the foe while open (accepted for now); borrowed ground art (section 5) waits for art (the set pieces are drawn).
+- FIXED 2026-11-10 (Josh approved calls 1-9, 11, 12; no version yet): build plans (67 plans, 14 lairs have none): Trek-only items replaced (camping-gear, silk-thread), wrong-land finds swapped, Sky City barrows cut, costs scale with region level (items x (1+(L-1)/40), coins +5/level), monastery rewritten. `game/includes/data/build_plans.txt` is GENERATED: edit `claude/build-plans-base.txt` then `python3 tools/scale_build_plans.py`. DONE 2026-11-10: items 10, 13, 14, 15, 17 closed (6 clear texts reworded; no version yet). Details `claude/build-plans-review.md`.
+- DECIDED 2026-11-05: upkeep: anyone can pay it, no one owes it; stop just degrades if not paid (see section 4). Tile walks: keep ~40% extra fights, add Sneak and Hunt buttons (section 4). Region maps: Josh sends real route maps (section 3 line below). Pet shops and Puzzles: already open, so lane E is unblocked.
+- Stage art APPROVED 2026-11-05 (contact sheet). `derived-<land>/` files are byte-identical to `game/assets/img/scenes/`, so already installed; nothing to copy.
+- DECIDED: craftmap 14 scenes: DRAW (not started). Acts: do not redraw all 1,667, keep stills, draw ~15 state props + 4 kind cards (see living-stops plan). Still open: P7 art order; 480x270 canvas final?
+- Route maps for all 230 other routes are now GENERATED (tools/gen_trail_maps.py, claude/*-trail-maps/, baked into trail_maps.json, 22 wide, ART_LAND stand-ins, no landmark sprites). They are placeholder-quality layouts: Josh can replace any region with hand-made maps from claude/prompt-route-maps.md and re-bake with --route=N; every section now has a landmark slot with a STAND-IN sprite (claude/trail-landmarks/, claude/tile-art-v3-proposal/landmarks_setpieces.py); real art needed for 137 shared set pieces, see claude/trail-setpiece-art-notes.md.
+
+- TRAIL SIGHTS (2026-11-12): (1) give villagers default hours by role (shopkeepers in shop hours, travellers by their circuit) so rows without a time of day are not there all day? (2) the Almanac Sights pages are NOT counted in page counts / percentages: keep? (3) Sights data balance: play it and say which rewards feel too big or small (rewards are in `trail_sights_*.txt`, Admin > Trail sights edits one row at a time). (4) Which of the weak item pictures / set pieces to redraw first. (5) Write player Release notes for 2.6.66 / 2.6.67 (puzzle board blank-centre opening, numbers on lit spots; the board is admin-gated)? Not posted today.
+
+- TRAIL SIGHTS (BUILT, LIVE in 2.6.68; plan `claude/plan-trail-sights.md`, grammar `claude/sights/GRAMMAR.md`, review `claude/sights/REVIEW-opus.md`). OPEN, in order:
+  - Review leftovers DONE 2026-11-12 (branch, no version yet, next release): one `trail_sight_uses` query per stretch (request cache, reset after a use), the villager list asked once per request, give-an-item keeps one row per villager row (day number, nothing piles up), old use rows pruned (120 days), lint refuses `take=` with a condition / first: / chance and `cd=0`, the villager card has a 👣 Walk over button (so tapping their tile never traps you). LOW fixes done too: a villager is never put under / over a landmark sprite (sprite width taken into account; 1 of 706 landmarks has no free spot and shows nobody), and a chat with a villager who has left also writes a journal line. NOTE: `tests/trail_sights.php` had silently died at its villager-on-map block (an undefined helper) between 2.6.68 and this fix, so the later blocks had not run; fixed, and `trail_sights.sh` / `here_bang.sh` now fail when the test does not reach its last line or prints PHP warnings.
+  - Engine gaps listed per set in `claude/sights/*-p2-todo.md`: lines that change with the destination; true tide / snore-count / first-room hints; shop discounts; buffs that last only in a delve or lair or until sleep; "every 7th day" / market-day timing; choose-your-reward; quest time limits; a villager's own stat check; escorts; effects on game time or the next section; "any nut / any feather" takes; tool-tier odds; loans; festival days; streaks.
+  - Items: 104 have 64x64 art. Weak ones to redraw: toffee, daisy-chain-crown, glowcap-repair-kit, pine-snow-cone, barnacle-giggle, pocket-whistle, cave-echo-shell, vine-twine, amber-seed, white-clover-sprig, crab-gavel, hush-page, feather-pillow, scree-xylophone, bridgewardens-badge. Decor items need a check in a REAL yard / hovel (effects JSON only tested in the DB).
+  - Data weak spots: shared forest-the-glow-moss-grotto, mountain-the-echo-wall, desert-the-mirage-pool; end-wonder-2-forest, end-haven-2-grassland, end-lair-1-mountain; Maplewold 311-taprow, 236-beanpoles, 316-starstones. Balance in play is untested (value per energy ~ one Gather).
+  - Villagers: map sprite only when their row is in effect now (rows with no `dp=` show all day: add default hours per role?); tap a villager opens their card but chat / gift only work while they are there; Pomeroy rows hidden until the Gourmand opens.
+  - Next Sights work, if wanted: redraw the weak item pictures; play the data and tune rewards; default villager hours by role; decor items in a real yard; Sights for other lands' set-piece pictures re-bake check. `tests/trail_sights.php` (405 checks) is the safety net: its `.sh` fails if the test does not reach its last line.
+  - Not checked: MySQL, a real phone, balance, the Almanac Sights chapter on the live site (266 locked pages, not counted in the Almanac totals / percentages).
+**Sleep-days (design `claude/plan-sleep-days.md`, BUILT and live; read sections 10 to 13 and the decision log first)**
+- DONE 2026-11-08 (design only): `hollow_date(` audit (144 calls, 59 files in `game/`) sorted personal / shared / cap (plan section 10); wrapper callers `hollow_today/now/hour/dow` sorted (section 12); time-cost table draft (section 11); spec for the player game state (section 13, checked against code in 13.8).
+- DECIDED 2026-11-08 (sleep-days decisions 29-48, all open questions closed): bench sleep 30% no bad event; villager house at friend level 3; camping gear shop 100 / craft ~60 Petals, 2 nap charges or 1 full sleep, one camp cook pot ready at wake; tired surcharge +10% energy per hour past 22:00; nap 2 h = 40%; long actions split across days and lock the gnome; cook pots x4 game time (12/60/180 min); pal HP regrow on game clock; mastery tiers per recipe 10/50/200 (materials -10/-25/-50%, floor 50%), per category 100/500/2000 (+5% yield, -5% energy, +5% buff, buff on food and potions only), mastery + `calling_perk` add, cap +50%; sell-bucket kept; closing hours per place (default 06:00-22:00, inns all night); section 11 table accepted. Leftovers closed (decisions 49-51: camp pot on nap, gear = rope + metal pins + canvas sheet + wood + camping pot, equip XP on game clock cap 24 game h). Next: ask Josh before the build.
+- BUILT 2026-11-08 (sleep-days steps 14-30, merged to main, flag `game_clock_on` still OFF): garden leftovers, closing hours (admin fields), personal systems on the game date, villagers away on some days (`npc_away_pct`), header clock pill and cost lines / guide / button tags, racks, equip XP + pal HP, health from sleep / naps / potions / all food (`hp_crop_heal`, `hp_dish_heal`), no-till + soil feeding + compost / mulch timing on a virtual game clock (`amend_game_multiplier`, `mulch_game_multiplier`), hired helpers by game day, rain barrel carry-over, compost bin / hive / garden animals / perennials on game time, admin settings (`gclock_settings`), `gclock_start_all()` (NOT run). See the Step lines in `claude/plan-sleep-days.md` (steps 14-30).
+- DONE 2026-11-08 (2.6.18, Josh): gather = 10 game min and 2-3 items per find at base tool (flag on); baskets etc. add on top.
+- DONE 2026-11-08 (2.6.09): flag `game_clock_on` default 1 + one-time start step (`sleep_days_start_2609`, marker setting `gclock_started`) + version bump, together. Pal jobs now game time only (`gclock_freeze_pals`). Josh decided: dish heal 2/3/4 kept; daily compost stays 1 per sleep; treks stay real time. Smoke with flag ON: `cook`, `paljobs`, `garden100`, `catfish` fail on real-time assumptions (expected: pots x4, growth by sleeps; catfish also fails flag-off); `craft pjobs events help market100 walk` pass.
+- DECIDED 2026-11-08 (Josh: my choice): mulch keeps `mulch_game_multiplier` 1 (listed hours = game hours, straw 6 sleeps); weeds and dry days stay 1 per sleep, no new settings. OPEN for Josh (sleep-days): Not decided (left as is): `festival_active()['left']` real seconds; repair reward pays at the click; paid inn nap not offered. The flag-on versions of `cook`, `paljobs`, `garden100` tests need rewriting for game time.
+- DONE (built, see steps 14-30 and 2.6.09 above): TODO (build, in order): 1) `includes/game_clock.php` + `users.game_day`/`game_minute` (start at days from epoch to today); 2) `hollow_now(?string $region, ?array $state)` and `hollow_game_date($u)`; 3) garden growth on game-days behind a flag (default off), rewrite `garden_fx.php` timestamp-to-date walks (lines ~124, 161, 325, 370); 4) the sleep action + hovel page + `refresh_energy()` no-op then remove regen (29 callers, `current_energy`, `layout.php:290-304`); 5) `spend_energy()` tired surcharge; 6) pantry, cook pots (`ready_tick`), pal jobs, job board; 7) the rest per plan section 11.
+- DONE (checked vs code 2026-11-10): sleep-days new content: hovel page, inns (`inn_fee_petals`, `inn_chore_minutes`), benches, villager homes, camping gear (item, recipe in `crafts.txt`, price), closing hours (`shops.open_minute/close_minute`), NPC away (`npc_away_pct`), festivals follow the game clock. Not checked: Almanac text in game-days (`includes/almanac.php`).
+- BUILT 2026-11-10 (no version yet): craft mastery. `includes/craft_mastery.php`: per-recipe tiers 10/50/200 from `user_recipes.made` (materials -10/-25/-50%, min 1), per-category tiers 100/500/2000 (+5% yield, -5% energy a tier); settings `mastery_*` in Admin (gclock_settings). Wired into `craft()`, cooking (`cook_start`, stock + energy), pantry (stock), `craft_recipes` card quantities, recipe card line. Buff: category tier gives +5% buff TIME a tier on cooked dishes, jars and potions (`craft_mastery_buff_pct`, via `buff_minutes($u,$base,$itemId)`; shows in recipe cards, pantry card, item page, and when eaten; shop tiles show the base). Also done: cooking and pantry yield (+5% a tier, per pot / jar), pantry energy cut, camp cooking stock. Pal station and passive cooking jobs follow the owner's mastery too (`pj_mastered_need`, `pj_make_units` in `pal_jobs.php`: lighter materials, category yield + the pal's own extra chance, capped at double the output; pal makes DO add to the owner's counters: passive pal pots through `cook_collect_one`, station shifts through `pj_count_makes()` when the shift is collected, a recalled shift keeps half). Tests in `tests/game_clock.php` 'craft mastery'. `pantry` and `gourmand` suites rewritten to pass flag-on (2026-11-10).
+- (old line) OPEN (checked vs code 2026-11-10): craft mastery counters per recipe / category NOT built (only `includes/food_mastery.php`, food eaten + harvested); materials floor and NPC shop sell-bucket NOT found in code (only the older buy-back cap in `world.php`); `calling_perk` exists, stack rule with boons unchecked. Original: craft mastery counters (per recipe, per category), milestone numbers, materials floor, stack rule with `calling_perk` boons; NPC shop sell-bucket (plan section 6).
+- OPEN questions for Josh: bench rest strength; friendship level for a villager's house; camping gear materials and price; road naps (gear or trail rest stop); long action past midnight; mastery numbers; whether the market bucket is still needed now time is a budget.
+- Tests to write first: plan section 13.7. Retarget `tests/garden100.php`, `market100.php`, `clock.php` when `hollow_now` changes.
+- Dropped: migration script (single player; the one-time start sets `game_day`).
+**Trail / Here**
+- Route map bends (plan `claude/plan-route-map-bends.md`; branch `ccr-02431734-o54a5z`, merged to main 2026-11-07). DONE: prototype (generator, lint, preview, rules); all 246 routes in `claude/bend-prototype/`; **all 246 again with landscape variety** in `claude/bend-prototype-v2/` (`gen_bendy_trail_proto.py --all --variety`: land stamps from `tools/bend_stamps.py`, ponds read from region pictures by `tools/bend_water.py`); **the 16 hand-tuned Maplewold routes** in `claude/maplewold-bendy-maps/` (README there; built by `tools/build_maplewold_bendy.py` from `tools/maplewold_bendy_specs.py`; set pieces per section, tight forest, varied terrain per land, water ways derived from the region map `tools/maplewold_waterways.py`, `waterways.json`; lint 0 problems); **gates** (4: 313 tunnel mouth lantern, 315 slope axe, 315 bridge pick, 314 causeway staff shortcut; field `gates` with `tool_type`, `min_tier`, `tool_name`; rule: min tier = region level + 1, Maplewold = Sturdy (2), +1 per region level, cap 4 Masterwork; `tools/lint_maplewold_extras.py`); **extra mini-boss spots** (data only, field `extra_minibosses`: 312 Bramble Wolf 22, 314 Clam Lurker 23, 310 Grumpy Wolverine 21, 309 Arctic Fox 17; starters 228/232/236 and havens 311/316 stay free); **engine in source, no version bump, not released** (`trail_authored_valid` any size and `9` on any edge, `entry` key for sections without S, gates validated and enforced in `trail_go`; camera clamp already worked both ways; `tests/trail_bendy.php`, `tools/bendy_to_trail_maps.py`; `trail_authored`, `trail_back`, `fight_scene_trail` pass). OPEN, in order: (1) Josh reviews the samples (`bend-prototype-v2`, `maplewold-bendy-maps/*.png`); (2) `tools/bake_trail_art.py` for 30 x 18 and any-edge ends (its `--check` still wants 22 x 7 and `9` on the east edge), new ground pictures under a NEW version (delete `obj/lm-*.png` first), then copy `trail_maps_maplewold_30x18.json` into `game/includes/data/trail_maps/`; (3) engine: read `extra_minibosses` (a fixed fight in a middle section), a gate mark on the tile picture, live browser walk of a bendy route, release + version bump + changelog; (4) fold the rest into `tools/gen_trail_maps.py` (shared SETS, captions, `--all`) and wire `lint_trail_bends.py` and `lint_maplewold_extras.py` into the tests; gates / extra mini-bosses for the other regions (water ways are hand-drawn for all 14 regions in `tools/maplewold_waterways.py` and `tools/region_waterways.py`, 3 to 14 routes per region cross a stream; check the lines against the art once more); (5) landmark names and sprites for the new rows; (6) side-trail heading rule and region map art sync; (7) phone check. Open for Josh: rope is not a tool type (the 315 slope uses an axe; add a rope tool type?); how a vertical section is paced (N/S sections are 18 tall).
+- Route map bends, RICHNESS PASS (2026-11-10, branch `ccr-0b462c90-quvi1t`, mockup only, no game data, no version): `tools/render_bendy_rich.py <id>` paints a hand-tuned Maplewold route with the game's tile art plus decor sprites; looks per section in `tools/maplewold_rich_specs.py` (only 228 filled in); pictures `claude/maplewold-bendy-maps/rich/route-228-s1..3.png`, sprites `decor-sheet.png`. Two passes done on 228 (pass 2: wandering water banks, maple-colour trees, second tree row, side trails, vegetable plots, tulip beds, topiary, boat, jetty, animals). The `ford` landmark sprite is drawn at 9,7 (data says 11,6): `lm_at`, mockup only. 2026-11-10 later: ALL 16 routes painted (41 sections, `rich/route-<id>-s<n>.png`; run with no id = all). Forest, coast and tundra got their own looks, rough kinds, scatter and props; looks are derived from the builder's stamps (`auto()` in the specs file) plus a hand sketch per section (`RICH`); prop hints snap to the nearest free tile; gates show as posts, `E` as a red pennant, extra mini-bosses as paw prints. Only 228 was looked at closely (two passes); the other 15 got one pass, checked on small contact sheets only. PASS 3 (all 16): rough ground painted as wandering patches (not squares), smoother deep water, wet-sand band on the coast, dune row behind the coast top edge, flowers / ferns / shells / drifts in clusters, a little garden round every landmark, milestones by the road, ripples, frozen reeds, an ice-fishing spot on frozen lakes, fireflies, more props per section (`more_props` in the specs). Checked on small contact sheets for 232, 308, 312, 315 and full size for 313 s1, 307 s1 only. OPEN: Josh reviews; decide if the looks become game data (a `decor` field) and feed the 30 x 18 bake.
+- Route map bends, RICH BUILD-OUT of the other 230 routes (2026-11-10, same branch, mockup only): `python3 -I tools/render_bendy_rich.py --all` painted all 624 sections of `claude/bend-prototype-v2/` (0 errors); looks are guessed from the tiles by `infer()` in `tools/maplewold_rich_specs.py` (the generator's stamps are not stored; do NOT rerun the generator, its output is not reproducible). Full-size PNGs go to `claude/bend-prototype-v2/rich/` (263 MB, git-ignored; re-render to get them); committed: one small JPG per route in `claude/bend-prototype-v2/rich-overview/` (`--all --overview`, 25 MB). Art lands are only grassland/forest/coast/tundra, so desert and island use coast art, mountain uses tundra art (looks like tundra), rainforest and wetland use forest art (wetland = forest with mud and pools). OWN GROUND ART added in the painter (not in the game art `gen2.py`) for mountain (rock, alpine meadow, crags, dark pines), wetland (peat, standing water), desert (dune sand, cracked clay, red rock), rainforest (deep green floor, broad leaves, red earth road): `ground_own()` in `tools/render_bendy_rich.py`; the 103 routes of those lands were re-rendered. Island still uses coast art. Open: only samples were looked at, not all 230.
+- Route map bends, RICH BAKE (2026-11-10, same branch, staging only, NOT in the game, no version): Josh decided: rich painter = the target art; island stays on coast art for now; props are decor only; 315 slope gate = `staff` tier 2 (Hiking Staff) instead of the axe. `python3 -I tools/bake_trail_rich.py [ids] [--proof]` bakes the 16 Maplewold routes (41 sections) into `claude/maplewold-bendy-maps/bake/`: `ground/<route>-<section>.png` (1920 x 1192, all flat things in it), `obj/` (348 sprites: `x-<name>-<args>` 64 x 96, `lm-<name>`), `trail_maps_maplewold_30x18.json` (authored-map file with objs `[x, y, key, jit, jy]`). Engine (source only): `trail_art_svg` reads the optional 5th obj value `jy`. `--proof` puts a section together the way the game does (checked by eye: 228 s1, 313 s1, 314 s2, 315 s2). NEXT: install = copy `bake/ground` + `bake/obj` into `game/assets/img/trail/` and the json into `game/includes/data/trail_maps/` under a NEW version (delete old `lm-*.png` first), extend `tests/trail_authored.php`, engine reads `extra_minibosses`, live phone walk, release. Not in the pictures (the game draws them): finds, boss mark; mini-boss marks are not drawn at all yet.
+- Trail FISHING BY WATER (2026-11-10, same branch, source only, no version; shows in the game once the 30 x 18 maps are installed): the bake writes per section `wet` (rows of 0/1: streams, fords, ponds, sea, ice of the picture; 30 of 41 Maplewold sections have water, 29 with a walkable tile beside it). `trail_water_tiles()`, `trail_water_near()` (`trail_art.php`), `trail_fish_here()` (`trail_tiles.php`): on or beside water (8 neighbours) a `🎣 Fish ⚡1` button appears in the row under the Trail map (`adventure.php`, posts `do=gather tool=rod`, the existing gather: needs a rod, 1 energy); in a land with no fish of its own (desert) it catches wetland fish. The rod in the Gather here popover is unchanged (still works away from water). Tests in `tests/trail_bendy.php`. NOT checked in a browser. Note: re-baking changed 13 of 41 ground pictures by a few pixels (the bake is not bit-for-bit repeatable): bake once per version, then leave the files alone. Branch has main 2.6.37 merged in.
+- **2.6.38 RELEASED on branch `ccr-0b462c90-quvi1t` (2026-11-10, NOT on main yet: Josh's word needed)**: the rich bake is installed: `game/includes/data/trail_maps/maplewold_30x18.json` (16 Maplewold routes, 30 x 18, `pic: r`), 348 sprites in `assets/img/trail/obj/`, 41 ground pictures `assets/img/trail/ground/<route>-<section>-r.png` (in the repo, cut out of the slim zip; Josh uploads `upload-zips/gnome-venture-trail-ground-r-part{1,2,3}of3.zip` in Admin > Images). Slim zip `releases/GnomeVenture-2.6.38-web-update.zip` (0.8 MB, needs 2.6.36+). Tool gates live (315 slope = staff tier 2), Fish button live, Gather here untouched (Josh). Checked: `trail_bendy.php`, `trail_authored.php`, suites `trail_back fight_scene_trail adventure`, and a Playwright walk at 412 px on route 228 (map draws, walking works, Fish button appears by the river and goes when walking off; no rod = 'You need a fishing rod'). NOT checked: a real phone, a catch with a rod, the gates in a browser, the Images upload of the -r zips, full CI. Open: `extra_minibosses` not read; staff gate tier 1 or 2 (Josh said 'walking stick' = the tier 1 name; data has tier 2); the other 230 routes (generator not reproducible).
+- DONE 2026-11-06 (2.5.97, not phone-checked): fights on delve floors (v1 and v2) and in a wander off the Trail now play on the map like the Trail (stage over the map, dock, end scenes for win / flee; KO on the result page). Shared helper `fight_map_over()` in `includes/fight_scene.php`, used by `trail_view_html`, `dm_view_html`, `dv2_floor_html`; the simple list view (no map) keeps the stage + dock under it and plays end scenes on a stage of its own. Before this, with fight_scene on by default, a wander off the Trail showed NO fight at all (the stage sat in the hidden `.wanderhide`).
+- DONE 2026-11-06 (2.5.98): the Fight list in the fight menu is Attack, the calling's ability and the pals' skills only; Fight on and Auto-win removed from the menu (still in the plain list when `fight_scene` is off), so the list is shorter. `fight_dock_html()`.
+- DONE 2026-11-06 (2.5.99, not phone-checked): Rest stop popover has a new **✨ Extras** tab (`stop_slim_extras()` in `includes/place_ui.php`, css `.st-extras`, 4-tab css): the stop's upgrade activities with their buttons (posted in place, back on the tab), open while the stop is built even when it only needs upkeep (a line says cared for / needs upkeep / built to tier N / not built up), other-time ones and the ones still to build listed under it. The Do tab and Here fronts are unchanged. Test in `tests/stops100.php`.
+- DONE 2026-11-06 (2.5.99, not phone-checked): (1) `world.php?tab=map` (the Map tab, GPS "Pick a place on the map") opens on the region you are in first when graphical nav is on; `?w=1` and plain `world.php` stay the world map; the Trail's "World map →" link is now "Region map →". (2) `here.php` is in `AJAX_PAGES`: its buttons (rest at a haven, wonders, GPS forget, wander, set off) post in place and their messages show as toasts instead of after a reload. (3) New `window.gvRefresh()` in `site.js`: the flee end scene and closing a villager card refresh the page in place instead of `location.reload()`. Tests in `tests/here.sh`. Still unknown: which other notifications Josh sees only after a reload (asked).
+- FIX 2026-11-06 (2.6.00): buttons with a name (a check's answer, a pick, a power) did nothing inside the Rest stop popover (the card answered "Pick how to go about it.") because the in-place form post in `hubscene.js` did not send the pressed button. Now it does (also disables every button of the form while it posts). Test: `tests/stop_extras.js` run from `tests/here.sh` (seen failing on the old script).
+- FIX 2026-11-06 (2.6.01): Library (and any Town spot / Do here card) results that queue other messages (new Almanac pages, prizes, flashes) showed them only after a reload. `take_toasts()` (functions.php, built on `msglog_render()`) now rides in the JSON of the spot card, Rest stop card and Do-here replies as `toasts`; `hubscene.js` `gvToastsFrom()` shows them. Test: `tests/stops100.php` (toasts block). Not covered yet: other popover/page posts that still redirect.
+- FIX 2026-11-06 (2.6.02): on a Trail tile page "Latest: ..." was a second fixed box (top: 70px) lying over the message bar and the status strip. It now joins the one toast box (`data-gvtoast` carrier in `adventure.php`, read in `site.js`) AND floats up over the gnome on the map (`.tmpop`, css at the end of style.css) so finds show where they happen. Tests: `tests/fight_scene_trail.sh` (carrier, no `.trailtoast`) + `tests/trail_pop.js`. Not yet done: the same map pop-up for delve/wander maps; the item/prize results of Trail acts are not separate pop-ups (they use the same line).
+- FIX 2026-11-06 (2.6.03): 2.6.02 read the `data-gvtoast` carrier only on a full page load, so walking onto an item (an in-place page swap) showed no notification. Now `gvPageToasts()` (site.js) runs after both in-place swap paths too. Test: `tests/trail_pop.js` walks a tile (seen failing on the old site.js).
+- DONE 2026-11-06 (2.6.05): (1) Trail camera clamp `tm_window_clamped()` (`tilemap.php`) + `data-clamp` in `tilemap.js` (the 7x7 never shows empty ground past an edge; tests in `trail_back.php`, `trail_pop.js`). (2) Delve map pages use the same toast + map pop-up carrier as the Trail (`$gvCarrier` in `adventure.php`); the wander card is a popover over the map, so it keeps its own result line. (3) Players see their own delve/lair runs: `landmark_runs_html()` (`landmarks.php`) in the World landmark panel and the Here delve/lair card (test in `stops100.php`). (4) Toasts wait while a fight's end scene plays (`gvShowToasts`, `fs-hold`), and the map pop-up skips a map with a fight scene on it. (5) `delvemap` test fixed (the on-the-road bar was removed in 2.5.94, test now asserts it is gone).
+- FIX 2026-11-06 (2.6.04): the map pop-up/toast repeated "You find Four-leaf Clover." on every step because "Latest" is just the last journal line. The `data-gvtoast` carrier now holds `walkid:lines:crc` and `gvPageToasts()` announces a line only when that key changed (kept in sessionStorage `gvlatest`). Test: `tests/trail_pop.js`.
+- Trail fight menu (2.5.96): `fight_dock_html()` + `fightscene.js` tap logic. Dock for delve / wander / list fights: DONE 2026-11-06 (2.5.97, not phone-checked): off the Trail the Fight / Item / Flee menu sits right under the stage (`fight_dock_html(..., 'b', false)`, css `.fsd-b`), the plain button list only shows with `fight_scene` off. TODO: Flee confirm is "tap again"; if the list covers the foe, consider opening it upward only when there is room.
+- Fight scene (2.5.81 to 2.5.89, setting `fight_scene`, default 0, Trail map only): engine `game/assets/fightengine.js/.css`, adapter `fightscene.js`, PHP `includes/fight_scene.php`, recorder `fight_ev*` in `includes/adventure.php`. Fights play over the real map where the gnome stands, dock under the map, health pills under feet, hat flag/pickup, end scene (XP/loot float over the gnome's head while he jumps, then sink in; map locked until done). Tests: suites `fight_events fight_scene fight_scene_trail trail_back` (run ONE AT A TIME, they clash on ports), `node tools/fight/smoke.js` (slow, ~3 min, alone). Plan `claude/fight-wiring-proposal.md`. NOT phone-checked.
+  - Step 5: DONE 2026-11-07 (2.6.07, not phone-checked): events / skill checks stand on the stage where there is no map (`fight_event_html`; map pages never had the popover). DECIDED 2026-11-10: keep the popover code and `fighton.js` as the fallback. Step 6: DONE (phone pass passed, default flipped to 1, released in 2.5.97).
+  - DONE 2026-11-06 (2.5.97, not phone-checked): flee and KO end scenes. Flee: the gnome runs off over the map, then the page reloads so the map draws him back. KO: the fall plays on a stage above the "Knocked out!" result (no map, the walk is over). Tests in `tests/fight_scene_trail.sh`, `tests/fight_events.php`.
+  - TODO: reduced motion loot: DONE released in 2.5.97 (rewards sit still with names ~1.8 s, tap skips; not phone-checked); seed and Gardening Guide drops now carry their pictures (🎁 only for a plain find or art-less item); Milestone box and Almanac toast can cover the end scene; more creature rigs. (Map camera clamp DONE 2.6.05; messages now wait for the end scene.)
+- Trail random fights (2.5.88): flat chance per tile, setting `trail_enc_pct` (default 3%, rough ground x2.5, Sneak x0.4, Hunt x2.5, no cap per section, first/last 3 tiles safe). Josh confirmed 3% OK (2026-11-06). `balance_sim.php` Walks checked 2026-11-06: it already rolls `trail_encounter_index`, so it follows `trail_enc_pct` (mean fights timer 1.08 vs tile 1.06).
+- Trail walk back (2.5.87): DONE (2.5.97): walking back lands on the exit in the confirm card (Continue offered), new "Not yet" (`trail_stay`) leaves the confirm to roam, tapping the exit you stand on re-opens it. Delve and wander already have their own way back: the wander card has Step back / Back to the Trail, a delve has Slip back out (checked 2026-11-06, no map walk-back needed).
+- `here` suite: FIXED (2.5.97): `stops.php:327` slug warning guarded; test sets `fight_scene` 0 for the popover checks.
+- Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71; tests added 2026-11-06 in `tests/stops100.php` (month roll: first look, unpaid, paid, two months; coin hand-in), released in 2.5.97; not tried live.
+- Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
+- Trail: yellow square round the walker's tile removed (`.tm-trail .tmt.here`), released 2.5.72, not phone-checked; delve/lair maps keep theirs.
+- Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
+- DONE (checked 2026-11-06, all were already built; this line was stale): Shops (stall) and Homes popovers on non-town stops (`here_layouts.json` has `homes`; stall via `here_stall_fronts`), step-off/step-back strip code (`wander_step_once`, draws only when `wander-step*.png` art exists), Lost Letters + landmark panel on the World Map tab (`world.php`). Gnome walk-frame animation: DONE (tilemap.js plays strip frames 2-7 while walking; Josh confirmed 2026-11-07). `balance_sim` for `gnav_enter_energy`: DONE (its Walks section, both modes). STILL OPEN: nav chrome on other picture pages (not defined: ask Josh which pages).
+- Delve/lair run records: BUILT, released 2.5.71. New table `landmark_runs` (one row per run: cleared / ko / left, level, depth, stages, route seed, picked nodes, start and end), written by `landmark_run_record()` in `save_exp` before the map row is dropped; in `fresh_start` wipe list; test in `tests/delve2.sh`. Admin page DONE 2026-11-06 (2.5.97): Admin > World > Delve and lair runs (`landmark_runs` resource, list + filters kind/outcome, test in `tests/stops100.sh`). A player-facing journal view is still undecided. `tests/landmarks.sh` fails here with a DB-open error unrelated to this change.
+**Yard / garden**
+- Satchel picker BUILT 2026-11-10 (no version yet): `gather_satchel_picker_html()` under the Gather scene (World > Gather), shows once a canvas or patchwork satchel is owned; posts `do=satchel_skin` to `gather.php`; tests `satchel.php`, `gather150.sh`; NOT browser-checked (screenshot attempt failed on the login selectors). Designer: (corner pick already only for corner-shaped pieces: `isCorner()` guards every `cornerFor()` call in `site.js`, read in code, not tried on a phone); BUILT 2026-11-10 (no version yet, NOT browser/phone-checked): cover squares recompute live when a bed or path moves (`coverAll()` in `site.js`, beds carry `data-cov` in edit mode); planted no-till beds keep the no-till soil under the crop (css `.tile.planted.nt`, thirsty/ripe keep the old soils, no no-till variant drawn); `users.satchel_skin` column + `gather_set_satchel_skin()` (no UI to pick a skin yet; tests `satchel`, `yard`).
+**Content**
+ - Build plans: all 94 havens/wonders/delves have plans (2.5.68; reviewed + fixed 2026-11-10, see section 3). Leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
+- Perk button (released 2.5.74): a round Perks button (medal) next to World in the row under the Here picture (`stop_perk_nav()`, card `hubpop-perks`, `stop_perk_body()`), shown once a meter has moved or a perk runs; the plain stop page (town.php) has a circle by the 🌍 in its trail (`stop_perk_chip()`). Not phone-checked.
+- Stop acts: `claude/plan-living-stops.md`. CODE DONE, released 2.5.72, fixes 2.5.73 (UTC perk date, daily rotation of answer acts, perks stack): steps 2-4 and 6 (happenings, per-player meters + perk, needs/moves, calendar, 3 stories, notice board, Admin > Living stops read-only preview). Josh: finish code before art. Left: step 5 prop overlays + kind cards (ART, later); phone check; more happenings/stories/calendar rows (data files only); Admin editor is read-only (edit `data/stop_*.txt`).
+- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; village descriptions: FIXED, released 2.5.71 (each village = a blurb + a new quirk line from `village_quirks.txt`, fixed clash-free order; `tests/village_desc.php` checks 146 distinct; shows only where `village_blurb()` is used, i.e. the World page; stored text unchanged); stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), released 2.5.71; Haven text (10 havens reworded in `landmarks.txt` + upgrade step `haven_text_2571` for existing sites; released 2.5.71, not tested on a real upgrade); tundra thin.
+- Delve redo: `delve_v2` is ON and works (Josh, 2026-11-10); `claude/plan-delves.md`, `claude/checklist-delves.md`. DECIDED 2026-11-10 (Josh): all optional admin flags are on; keep `fighton.js` and the popover code as the fallback (do not delete).
+- Popover animation polish (2026-11-10, branch only, no version bump, NOT checked on phone): DONE `bulk.py` extras for glint-only scenes (water dash shimmer, loose cloud drift, foliage tip sway, lone flakes/bubbles/stars; frame 1 static, no new colours, `bulk_verify.py` 0 failures, only these strips changed); 9 of 11 now move: night_fishing, r_ea_snow_monkeys, r_esa_rift_cichlids, r_na_toboggan, w2_ice_paddles, w3_politest_bow, w3_snowy_lanterns, w4_frost_pots, w5_bathers_hats. OPEN: r_ee_stove_ledge (fire is a plus shape in a stove) and r_sa_frost_potatoes (no sky motion found) still glint-only, need hand strips; cichlid fish, steam wisps, torii cloud (touches frame) still; no flags or sun in these 11, so none animated; the 541 breath+glint scenes could take the same extras later. **2026-11-10 redraw**: those 9 scenes are REDRAWN in the newest style (Hearth Pop v3 2.5D: the game's gnome25 rig as figures, 1 px ink outline, 1x pixels, no semi-transparency) with hand-made 6-frame strips, sources `aseprite-source/v3/acts/<slug>/<slug>.lua` + `actlib.lua` + `install.py`, review `aseprite-source/v3/acts/review-9-scenes.png`; w3_politest_bow now moves the BOW (both gnomes bend from the hip, the right one a beat later; no pine sway). `bulk.py` skips slugs with a v3/acts folder. `bulk_verify.py` 0 failures (unchanged), `ci_suites.sh popart images` ok. DONE on branch; NOT phone-checked, not seen in the game popover; Josh to judge (weakest: frost_pots smoke faint, snow_monkeys monkeys simple, toboggan riders crowded, ice_paddles mallet reads as a stick). They now look different from the other ~1,650 old 2x acts. Icons: still only the 7 hand-made stat strips (`icons.lua`, Aseprite; script has a Windows path); more need drawing by eye, not done.
+- Snail Trail 3rd puzzle game; Jeff `tada` redo; guest-friendly treks.
+- Treks: scenes (Gloomtooth intro, Sorrel's door, signpost riddle); Ch IV to VI, Thorny/Bramble, respec, Lanternroot crop, hats/stamp/trophy, trailmates 8 (4-7 built).
+- Ideas: preset postcards, follow a friend's trail, seed lineage, satchel split stacks by quality (then re-enable `orders_food_quality`), crop economy (radish sells ~4, seed 8-13; maybe `price_base_pct` 60 to 70), cPanel cron for reminder emails, /testvault/.
+- How-to-play "Folk & friendship": DONE/stale (checked 2026-11-07: the title has been "Folk & friendship" since the page was added in 88e8b80c, so there is nothing to migrate).
+
+**Almanac review (2026-11-10, fresh SQLite install, 1,275 entries; text edits go in Admin > Texts or seed/upgrade code)**
+- FIXED 2026-11-10 (after the review): stale pages (Hired help, Pests, Pantry, Pots, Energy & food, Dried flowers, Town squares, Job Board) rewritten in source and in existing worlds (`ALMANAC_2644_FIXES`); 7 new pages added (`includes/almanac_pages.php`); dead unlocks `npc:`, `flowers`, `yard`, `gotm` removed. Florists: game time (Josh), text fixed. Still open: market landmarks have no pages, Haiku + Sonnet entry review results to apply. Old list: STALE text: "Hired help" page (helpers retired in 2.6.40; delete or rewrite as the pal garden crew); "Pests & companions" lines on hired helpers; "Pantry": "Real days: timers run in real time" (jars follow sleeps now); "Pots": minutes only (check against game-time); "Energy & food": nothing on hovel / inn / camp / tired; "The florists": "a real half hour" and "Job Board" daily reset (check if still real time); "Town squares" "Hollow keeps its own clock" (now personal game clock).
+- MISSING pages: sleep-days (hovel, nap, inn, camping, tired after 22:00, game date), Pal garden crew (Water/Weed/Pests/Harvest/Plant slots, tiredness), Messages (2.6.37), Workshop picture ! (2.6.39), Trail walk back / reverse (2.6.41), Pals / Puzzle Pals, perks/stops, creatures redrawn have no text change needed.
+- FILLED 2026-11-10 (no version yet): the dead keys `flowers`, `yard`, `gotm` now have pages (`ALMANAC_2646_PAGES` in `almanac_pages.php`: Flowers at a glance, Yard size and undo, Garden of the Month rules) unlocked on first use (opening Arrange, the yard designer, entering Garden of the Month; `almanac_unlock_2646()` creates the page first). Test `tests/almanac_pages.sh`. Not checked: the gotm hook over HTTP. `npc:<slug>` stays unused (the Folk chapter covers villagers; calls were removed). Old note: DEAD unlocks (code calls `unlock_entries` but no entry has the key): `npc:<slug>` (81 NPCs, 6 call sites: shop.php, trek.php, road_life.php, friends.php), `flowers` (flowers.php x3), `yard` (yard.php), `gotm` (yard.php). Either add the pages or drop the calls.
+- Almanac entry review (Haiku + Sonnet, 2026-11-10): FIXED: "butterflys" (27), doubled parentheses in Native-to, "A island" (10), empty "Can drop: ." (7), birds eat caterpillars (not slugs), Pots 3/4/5, Roads wild from step 7, crew order incl. plant, Puzzle Pals party 2, pilaf almonds. STILL OPEN (design / data calls): Cannonball Tree (#352) native region; Lotus Root "water lily rhizome"; Banana "fruits once" vs perennial stats; shell meal gives P (real: calcium); Coir Chips recipe makes Wood Chips (same text as #1067); Silverback Spider lair level 30 vs 16 in zone 3; Silverfin cause "weeping clay" (creature page) vs "blight" (trek page); Glazed Garden Pot clay (one vs two); "every townsfolk likes preserves" vs favourites rule; C #900 truncated sentence; Garden Honey / Harvest Sack / Earthworm have no source entry; 16 soil recipes say "over 10 minutes" vs guide "about a day"; 146 villages share 56 descriptions; lair pages are a bare "Boss lair."; spinach/lettuce suggested for tortoises; Mossbottom lists 3 shops. Full lists: scratchpad `review-haiku.md`, `review-sonnet.md` (temp, not in repo).
+- Almanac nits FIXED 2026-11-10 (no version; one-time step `ensure_almanac_fixes_2646`, marker `almanac2646fix`, exact-text replace only): Pickled Onions truncated sentence; Coir Chips page now says what it is; 16 soil-improver pages + item texts say game hours (listed minutes x 96) not "over 10 minutes"; Silverfin cause = the blight (as her trek page); bare lair pages now name the keeper + level. Test: `tests/almanac_pages.sh`. CHECKED and left (already consistent with code): Glazed Garden Pot (2 glaze + 2 river clay everywhere), "every townsfolk likes preserves" (code: +10, loved still wins, beats dislike). LEFT, design/content calls: Silverback lair level 30 (comes from its side route level; the "16" was not found), Shell Meal gives P (the game's nutrients are N/P/K only), tortoise greens list (lettuce, spinach, kale, bok choy is the game data). `animals140` suite fails flag-on on clean HEAD too (real-time waits).
+- DONE 2026-11-10 (checked): market landmarks DO have pages (Landmarks chapter, `adventure_data.php`, one per `landmarks.txt` row; only 5 are markets). `mossbottom-market` is a Place (seed.php), not a landmark. Nothing to add.
+- OK: every plant (388), recipe (323), village (146), creature (137) has a page and no page is orphaned; 14 region + 4 soil + pages/percent milestones all match.
+
+Audited 2026-11-10 against the real files: `claude/art-audit.md` (table, evidence). Most of the old list was already drawn.
+- DONE (moved out, see the audit): Here scenes (46), residential streets + homes, 6 shared doors, 81 villager sprites, treehouse + dressing, Pal Yard picture, Cat Fish lane E (pet shops, art installed 2026-10-30), weak items (4 of 179 left), Maplewold landmarks, own ground art for desert / mountain / rainforest / wetland (island borrows coast on purpose), homes, tiers, craftmap, acts (1,667 + 829 anim), landing shots, craft-anim layers.
+**Open for real**
+- DONE 2026-11-11/12: all 137 shared + end set pieces are drawn for real (`landmarks_endpieces.py`, `landmarks_shared.py`, sprites in `obj/`, version 2.6.68). Weakest: end-lair-2 (flat ring). The ground pictures were NOT re-baked (sprites are bigger than the old stand-ins: check overlap with the baked shadow / path on a real map).
+- Pal sprites (perch + yard size) for the Puzzle Pals: no `assets/img/pals/`, the game falls back to the puzzle GIF still (`hub_pages.php` `treehouse_pal_pic`).
+- Trail event / hotspot icons 32x32.
+- Stop looks: maplewold-style looks for the 11 other stop types (only market done) and styles for EA, SA, SEA, WCA, CB, SE, OC (`stop_looks.php` maps just maplewold and adobe; fallback works today).
+- Animation: `wander-step-back.png`, street / door animation, scene season variants. Cat Fish lane F (moving side-cat, eye pixels on catch / nap), optional.
+- Variety: before / after pictures for 9 pilot places, progress picture, stop header per adopt tier (`claude/todo-art-variety.md`).
+- The last 4 weak items (ginseng, stone-wall-end, tomato, stuffed-peppers-goat); 2.5.66 landmark nits (wall trees overdraw, faint 315 den feathers, 312 larder squirrel belly, 311 syrup muddy).
+- Optional, Josh's call: per-villager doors, per-village pictures (only 2 exist), animal homes pre-v3 and procedural yard pieces polish, town repaints (coralscatter dome + tea house, monsoontangle, thornacre arch, blossomreach parasol), `map/` 16px tiles (unclear what the plan meant), island own ground, more than 3 street styles.
+- Rules kept: delete `obj/lm-*.png` before re-baking after editing sprites; method for AI art in `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`, `claude/todo-art-v3.md` METHOD.
+
+- FIXED 2.6.50: `folkoverlay` made deterministic (`npc_away_pct=0`, one villager pinned in town, Chat row always checked). Old note: `folkoverlay` suite: PASSED on 2026-11-07 (run alone via `tests/ci_suites.sh`); the failure was intermittent, probably when no villager is out in town (the check is skipped then). It failed before with: "Chat is a link to the villager page AND opens the overlay" (town villagers view). Also fails on commit 6cd6259e, so not from 2.6.x work; not investigated.
+- Trek map: open-zone walls flat grey; long walks enter from phone-window edge. (Community garden / My stall tabs wrap to two lines on a phone: looks fine.) Travel card "via X" truncates at 390px.
+- Friend watering duplicates garden water logic; nudge crops-ready approximate; SMTP untested live.
+- Test noise FIXED 2.6.50: `games2` payout tests added, `walk.sh` waits for the server, `animals140` passes flag-on, `cook.sh` map checks were already fine. (`beds`, `stops100`, `social100` pass as of 2.5.68.)
+- Balance: week 1 ~8.5k earned vs ~7k sinks; days 1-3 flush; cosmetics have no level check; harvests ~73% of XP.
+
+Combat intent/Guard, KO cost on road fights, Inbox, test environment, growing villages, caravans, more festivals, Duck Pond animal.
+
+- **2.6.39 RELEASED on branch `ccr-0b462c90-quvi1t` (2026-11-10, merged to main in 2.6.41)**: the other 230 routes (624 sections) are 30 x 18 rich maps too: all 246 routes bendy. Data: `game/includes/data/trail_maps/<region>_30x18.json` (`ca cb csa ea ee esa mena na nwe oc sa se sea wca`; `na` = 3 routes of region NA outside the hand-tuned 16), made by `python3 -I tools/bake_trail_rich.py <ids> --jobs 4` (staging `claude/trail-rich-bake/`, git-ignored; 45 min on 4 cores) then `--install --all`. Tools generalised: `bake_trail_rich.py` (`--region CODE`, `--all`, `--install --all`, `--jobs N`; group 'MW' = hand-tuned Maplewold, staged in the old `bake/`), `bendy_to_trail_maps.py` ART knows 9 lands (desert, island -> coast; mountain -> tundra; rainforest, wetland -> forest). v2 data was fine (lint 0 problems, all 624 landmark names resolve, boss/land/section count equal the old file). 60 new sprites in `obj/`, 624 new ground pictures `ground/<route>-<section>-r.png` in `game/assets` (239 MB, in git). Slim zip `releases/GnomeVenture-2.6.39-web-update.zip` (1.5 MB, needs 2.6.37+, ground pictures cut out with `zip -d`). **Josh uploads 43 zips** `upload-zips/gnome-venture-trail-ground-r2-part{1..43}of43.zip` (4-6 MB each) in Admin > Images; until then a section without its picture shows the old random tile look. Tests: `tests/trail_bendy.php` (new block 'the other regions': 230 routes / 624 sections vs the old file; wet grids), `tests/trail_authored.php` (246 routes / 665 sections; the old 22 x 7 path is tested on route 260 from the old `trail_maps.json`, kept in the game as reference). CI: `trail_back fight_scene_trail adventure` pass. Live walk at 412 px on route 241 (island): map draws (`241-1-r.png`), walking works, Fish button beside the river, 'You need a fishing rod' without a rod. Admin > Tools check text updated. NOT checked: a real phone, a catch with a rod, gates in a browser, full CI, look of all 624 pictures (9 lands sampled: 229 241 244 250 257 260 269 319 357 look right). Old 665 `NNN-N.png` pictures in `game/assets/img/trail/ground/` are dead weight now (78 MB; not used by any route): delete? Open for Josh: 315 gate tier; merge 2.6.38 + 2.6.39 to main; `extra_minibosses` not read by the engine (build?); gates and extra mini-bosses outside the Maplewold not made (ask first); 250 MB of ground pictures (2 copies in git: game/assets and upload-zips): shrink?
+- **2.6.40 on branch `ccr-0b462c90-quvi1t` (2026-11-10, merged to main in 2.6.41)**: (1) old 665 `NNN-N.png` ground pictures deleted; (2) engine reads `extra_minibosses`: token `M` (`trail_art.php` `trail_map_authored`; `trail_extra_mini`, `trail_extra_mini_creature`, `trail_token_event(..., $mini)` in `trail_tiles.php`), shown as ⚔️, 'A fight waits in the way' message when a fixed fight (E or M) is the only way; test `tests/trail_mini.php`+`.sh` (added to `.github/workflows/ci.yml`); (3) 315 slope gate = tier 1 Walking Stick (spec `tier=1`, lint `TIER_OVERRIDE`, data in all 4 places); (4) `tools/add_trail_extras.py`: gates + extra mini-bosses for the 230 generated routes, written into `claude/bend-prototype-v2/route-*.json` (idempotent; 90 routes changed): locks on 24 boss routes (327 CA and 448 EA: no lock fits), 14 short-cut gates (1 per region), 52 mini-bosses. TIER CAP IS 3 not 4: staff, lantern, pick, axe only go to tier 3 (tools.php), a tier 4 gate could never open; so NA 2, every other region 3 (Fine). 38 routes re-baked (gate walls change rows and the picture; `rebake` list = routes with a new gate), the rest patched data-only with `bake_trail_rich.py --patch-extras`, then `--install --all`. **The 43 `upload-zips/...r2-part*.zip` and the 2.6.39 slim zip are deleted (stale: 38 routes' pictures changed). Whoever builds the release: make new Admin > Images zips of the 624 `-r` pictures of routes 229+ (all `game/assets/img/trail/ground/*-r.png` except the 41 Maplewold ones: routes 228 232 236 304-316) and the slim zip (`build_update.sh 2.6.40 2.6.37 $PWD/releases slim`, then `zip -d ... 'game/assets/img/trail/ground/*-r.png'`); 38 changed pictures also differ from anything uploaded earlier.** DONE 2026-11-10 (no version): a shut gate now draws an amber 🔒 tile on its middle tile (`trail_view_html`, `trail_art_svg`), every gate tile's aria-label says 'Blocked: ... Bring a <tool> or a better one', and the legend adds '🔒 Needs a tool' while a gate is shut; the lock goes once the gnome has the tool tier. Extra mini-bosses (M) were already drawn as the red ⚔️ tile (checked). Checked in a browser at 412 px on route 313 (gate), tests in `trail_mini.php`. Open: real phone; gates gone-open show no mark. real phone; gates/mini-bosses outside Maplewold are a first pass (check feel, count); the two routes with no lock.
+- **2.6.41 BUILT on branch `claude/peaceful-gates-8xkiic` and merged to main (2026-11-10)**: (1) a Trail walk from a route's b end runs the stretches in reverse and enters each at its far end (scene state `rev`, `trail_seed()`, `trail_phys_sec()`, `trail_map_flip()`; test `tests/trail_reverse.sh`, in CI); (2) workshop picture redrawn (mockup A, source `aseprite-source/v3/workshop/a/`), 13 `craft-anim-*.png` ready layers that play only while their section has "!" (layout `anim[].for`), "!" badge on the box corner. Slim zip `releases/GnomeVenture-2.6.41-web-update.zip` (1.47 MB, needs 2.6.38+, no Trail ground pictures: those are the 2.6.38 / 2.6.40 Admin > Images zips). CHECK ON LIVE: an admin-edited `workshop` row in `here_layouts` would hide the new spots and layers. (3) logged-out landing card + How to play built in (`includes/landing_view.php`, `assets/landing.js`; mockup https://claude.ai/artifact/8WJBirG9YRNShAtgMGNC8c), zip rebuilt. 2.6.41 IS ON MAIN (Josh said merge, 2026-11-10).
+- **2.6.42 BUILT and merged to main (2026-11-10)**: every creature (117) + the 7 crew redrawn in the gnome's 2.5D style and rigged from the new drawings (generator `aseprite-source/v3/creature25/gen.lua`, run with `GV_ROOT=$PWD/ RIG=1 C25NPC=1 ... --script-param game=1`), the 69 villager minis redrawn with the crew routine, gnome re-rig and engine bone tree shipped. Slim zip `releases/GnomeVenture-2.6.42-web-update.zip` (1.0 MB, needs 2.6.40+, holds all 318 pictures: art is in the update zip this time, nothing to upload in Admin > Images). Art zips for Josh (copies, not needed by the site): `upload-zips/gnome-venture-art-2.6.42-{fight-rigs,creature-and-crew-minis,villager-minis,source}.zip`. Tests: smoke (124 rigs), ci suites fight_scene fight_scene_trail adventure scenes treks trekshell villagers here heredo landing_home trail_reverse trail_mini. **Open**: Josh's red-circle review of the art (page https://claude.ai/artifact/1URUjHssJUASzARgWtwYd7); motion only spot-checked (attack of fox, hawk, dune wyrm, stag beetle); pages with the new stills (lists, Trek stage, village streets) not looked at in a browser; Trek fights still use still pictures (not the animated engine: ask Josh if wanted); phone performance unmeasured; aphid swarm still one picture; weakest drawings: blight-mother, wasp legs, leeches, basalt-borer, clam head, butterfly/moth villager faces, tortoise villager shell.
+
+### Built 2026-11-14 (non-puzzle decisions of Josh, branch `ccr-fb812cec-kj1m4j`, no version bump, no zip)
+- Villager default hours by role (`trail_sight_extras.php` `trail_sight_folk_role_hours`, `trail_sight_folk_role_kind`, `trail_sight_shop_dayparts`; `trail_sight_now` adds `towns` = the walk's start and end regions). A folk row whose `when` has no `dp=`: travelling NPCs (merchant, minstrel, naturalist, gourmand) only on the Trail of the region they are in or walking to (`traveller_stop` town / next), any time; town NPCs unless their schedule has them at home (`npc_now`); stop villagers by role: Innkeeper, Keeper, Watcher, Lighthouse keeper, Signaller, Moth-watcher, Lair-watcher, Well-dweller, Scarecrow any time; Pedlar, Pilgrim, Wanderer, Scout, Porter, Sack-carrier dawn + day; every other role shop hours = dawn, day, dusk (the day parts at least half inside 06:00-22:00). 79 of 194 folk rows had no `dp=`. Tests: `tests/trail_sights.php` block "villagers' default hours by role"; the map block now forces day (`stop_daypart_force`). Commit 718701a5.
+- Almanac Sights pages out of the counts: already true (`almanac_counts`, `site_text.php` `{pages}`), tested at `tests/trail_sights.php` ('the Almanac totals leave out the Sights pages'). No change.
+- No rope tool type: gate data has staff 10, lantern 9, pick 11, axe 12; `claude/plan-route-map-bends.md` items 11/12 updated. Commit 6ab3a5dc.
+- `upload-zips/gnome-venture-trail-ground-*.zip` removed: r-part1..3 (Maplewold), r3-part1..43 (stale since 2.6.40) and the old partNof9 (pictures deleted in 2.6.40); nothing in tests/tools read them. Commit 66c30480.
+- Gates review: `claude/reviews-2026-11-14/trail-gates-review.md` (per region and per route). Commits 6ce4699a, 5bd5b77a.
+- Decor field (first slice): `tools/trail_decor.py`, `trail_decor()` / `trail_decor_at()`, plan `claude/plan-trail-decor.md`. Commit ef9a6cec.
+- Silverback lair: NOT changed. Data: creature `boss-lm-wca-3-lair-hollow-of-the-silverback-spider` Lv 30, route Lv 30 (28-32), zone WCA 3 "The Greatcanopy Deep" `hard` (DIFFICULTY_LEVELS 20-30), its wonders Gorilla Glade 20 and Canopy Bridges 22, WCA region level 29 (`REGION_LEVELS`). All lairs: hard zones 30 (CA, NWE, CB, SE, EE, MENA, EA, WCA), medium zones 16 (SA, CSA, SEA, ESA, OC), the Owl 10 (moved in 2.6.75). Question to Josh in todo.md.
+- 15 weak Sights items redrawn with the repo's method for these items (PIL generators, not Aseprite): `tools/gen_sight_item_art_f.py` (imports gen e's helpers and render step); the 15 slugs taken out of the a..e ITEMS lists. Commit 6d27d2f8.
+- Almanac data calls: `ensure_almanac_fixes_1114` (marker `almanac1114fix`, called from `ensure_almanac_pages_2646`), source data `crops.txt`, `flowers.txt`, `landmarks.txt`, `almanac_notes.php`, `village_page_body()` in `adventure_data.php`. Tests `tests/almanac_pages.sh` (fresh + simulated upgrade), `tests/village_desc.php`. Commit 7c7fc2a5.
+- Tests run 2026-11-14: trail_sights, trail_sights_lint, trail_mini, trail_back, adventure, fight_scene_trail (ci_suites, one at a time): all ok; almanac_pages.sh all ok; php tests/trail_bendy.php, tests/trail_authored.php, tests/village_desc.php ok. Not run: the full CI list, MySQL, a browser look at the new item pictures in the game.
+- Follow-up 2026-11-14/15 (Josh's answers): Silverback lair Lv 20 (commit 8e2d61a2; test in `tests/almanac_pages.sh`, fresh + upgrade); travellers about 4 days a week (`trail_sight_circuit_near`, `TRAIL_SIGHT_CIRCUIT_WINDOW` [3, 4] = 8 of 14 stops of 12 h; the first version was the stop and the one before: about 1 day a week, not ~2 as first reported) and shop-hours roles day only (commit 86343d14); gates tier 2 for NA CA NWE CB SE SA EE (`lint_maplewold_extras.gate_tier`, 17 gates, commit 16ded02d); decor slice 2, fallback look (commit 7d88c81c). Tests: almanac_pages.sh, trail_sights, trail_sights_lint, trail_mini, trail_back, fight_scene_trail (ci_suites), php tests/trail_bendy.php, tests/trail_authored.php, both lints (0 problems).
+
+### Moved from todo.md 2026-11-16 (2.7.01 merged)
+- 2.7.01 WORK (2026-11-15, branch `ccr-4ff6eb76-rhf11y`, not merged, APP_VERSION still 2.7.00; see CHANGELOG 2.7.01): DONE code items: Tailor L3 text fixed (craft only); `pfdeck_v1` tool-piece flake fixed (test mover prefers a tool piece); CI: Playwright installed for browser suites, `pf_round()` (PHP 8.3 rounding in every PHP version, matches JS port) in pfight/pfboard/pfight_game/pfdeck*, upgrade job builds old release from git history; wearables as Sight rewards (5 rows, gated by `pfight_v1`); learner rules for a gnome's first 3 fights (`pfight_learner_n`, table `pf_learn`, rule `nothorn`); ruin pictures were ALREADY wired in `landmark_scene()` (todo line was stale). ALSO DONE (orchestrator run): costly cell (red edge, named cause, End turn asks once in the first 5 fights, `pfight_costwarn_n`), "New today" card, help-sheet rows (win/lose, lit-spot numbers, combos, own marks), Bramble wording (engine read: Yield bar +10% / you -10% health), `pf_play.php` class-rule line, 3 stale tests fixed, Tailor sims (`claude/sims-tailor-2.7.01.md`), real-choice study (`claude/realchoice-2.7.01.md`: 16%, best lever 22%, keep rules, re-define the target), player notes draft (`claude/release-notes-2.7.00-2.7.01.md`). ALSO DONE (learn.md rest): fixed first fight (Garden Snail, Bold kit, seed 4, no box screen), learner creature cap + full health + no knock-out, guided first turns (`pf_learn.guide_off`), Hint button (3 free a fight), stall nudge, defeat recap, free retry (first 5 fights); settings `pfight_first_fixed/first_seed/guide_n/hint_n/stall_turn/retry_n`; suite `pfv1_guide`. STILL OPEN: staged unlocks B-D (learn.md item 8, engine), aim total live (item 9), rules card / vocabulary pass, Josh: Rare cap drops belt tools before wearables (sims-tailor sim 6), real-choice target, 14 tag icons, art items (ground re-bake; the Opus art of art-2701 batches 1-3 is INSTALLED 2026-11-15: 14 tag icons, wear icons + 3 avatar strips + boots over tunic, 14 pals yard+perch, 9 creatures, 15 Trail markers (only fight + camp drawn on the map), 8 Maplewold stop looks + layouts; STEP 2 INSTALLED 2026-11-16: 128 more pals, all 33 wear icons (travel-cloak-b redrawn, batch5), rest/signpost/hazard markers (rest + signpost wired, hazard not), Maplewold inn/ferry/spring looks; still open: back/side wboots rim, ~428 pals, hazard marker data, Josh to upload `upload-zips/gnome-venture-images-v3-2.7.01.zip` (33 icons); see section 5), rebuild demo artifact, phone checks.
+- NEXT AI START HERE (2026-11-15, 2.7.00 RELEASED): main = 2.7.00. Slim zip `releases/GnomeVenture-2.7.00-web-update.zip` (needs 2.6.989+; boot steps `road_kind_items_2700`, `wearables_2700`; new table `wear_lined`), manifest `tests/manifests/2.7.00.txt`, art zip `upload-zips/gnome-venture-images-v3-2.7.00.zip` (33 wearable icons + tailor-1/2/3). FULL and source zips are too big for git (build with `bash tests/build_update.sh 2.7.00 2.6.989 <abs path>`; never `git add -A` over `releases/`: it picks up the 300 MB zips and GitHub rejects the push). Direct pushes to main are refused for AI sessions: open a PR and merge it.
+  - IN 2.7.00: road kinds, camp spots, Sights reward pass, Admin > Trail decor, 9 ruin pictures, chain order + no free creature piece (new fights), garden crew panel, Tailor + 6 wearables (levelled, Fine-as-Lined, free first craft at level 3, commission above power 6), 15 avatar layers, 13 stale suites fixed. See CHANGELOG 2.7.00.
+  - NOT DONE (carry on from here): (1) browser/phone look at the Puzzle box with wearables and the gnome picture with wearables on (tailor.php was checked at phone width and is fine); (2) wearables as Sights / road rewards; (3) the 10 simulations from `claude/review-tailor-2.7.00.md`; (4) Trail icons 32x32, Pal sprites, 77 stop looks, the last 4 weak items; (5) the ground-picture RE-BAKE (last, then Admin > Images zips of `*-r.png`); (6) demo artifact rebuild (rulebook tab, new-system tab at 2.6.990 rules, fix slow load + missing animation); (7) player release notes; (8) weak art: boots barely read as tall on the avatar, front pack shows only shoulder corners, cloak icon boxy, back glove thumb, cut-b patches look like gems; (9) Josh to decide when wearables go live (setting `pfight_v1`).
+  - CI NOTES: GitHub CI (PHP 8.1 + latest) fails suites that pass locally: browser suites (`fight_scene`, `fight_scene_trail`, `here`: no `playwright` module on the runner), `pfengine_js` (PHP 8.4+ `round()` differs from JS), `catfish`, `puzzle_pals`, the "Upgrade from an older release" job (also failing on the earlier main). `pfdeck_v1` "tool pieces were played in the fight" is a flaky random-fight check (1 in 3 here, 1 in 6 on old main). MySQL 8 job passes. Lint skips `fight_events.php` and `combat_math_golden.php` (they redefine random_int on purpose). `pbox_v1` normalises the Almanac totals and any 2.x version.
+- RULE BOOKS FOR 2.7.00 DONE (2026-11-15, branch `ccr-d816d32a-umvwpq`, files in `claude/reviews-2026-11-13/rulebook/`): (1) full book `puzzle-combat-rulebook.pdf`, 60 pages, third edition: new chain order (5.4), no free creature piece in new fights (6.1), Keepsake slots 1/2/3/4 (3.6), wearables + Tailor (3.8), six stale spots fixed (combo wording, figures 7 and 8, Swarm, 10.17, Tailor free craft, Lined +2); built with `./make.sh`. (2) quick rules `puzzle-combat-quick-rules.pdf`, 10 pages, player version (Opus condensed, Fable laid out); built with `python3 build_short.py`. NOT REDONE: the 4 appendix fights and the 684 policy runs are still 2.6.990 (old order, free piece on); no 2.7.00 replay or sim. OPEN: (a) Josh to read both; (b) game text in `gardens.php` says the level 3 Tailor frees 'lining or craft', the code frees only the craft (`tailor_craft`): fix the text or the code; (c) replay the appendix fights and re-run the sims on 2.7.00 if Josh wants {P} figures current; (d) rebuild the demo artifact (see PLANNED below) and add the quick rules as a tab.
+- NON-PUZZLE 2026-11-14 (branch `ccr-fb812cec-kj1m4j`, MERGED into 2.7.00 branch 2026-11-15, no version): Josh's 2026-11-14 decisions and his 4 answers built, see section 3 (DONE / PARTIAL lines).
+- CLAIMED (Claude session ccr-5ab5d805-qaj0kv, 2026-11-15, branch `ccr-5ab5d805-qaj0kv`): ART variety, RUIN pictures for the 9 pilot places (Chilies market, Seed Temple, Cenote, Jaguar Root Caves, Driftwood Tavern, Galleon, Singing Waterfall, Mangrove Maze, Turtle Beach). Art only, no code wiring. DONE 2026-11-15 (branch only, not merged, no version): all 9 ruin pictures drawn (generator `tools/gen_ruin_art.py` + `tools/ruin_places/*.py`, sources `aseprite-source/v3/wonders/ruin/{png,ase}/`, installed copies `game/assets/img/wonders/ruin/<kind>-<slug>.png`). NOT wired: the game still shows the live picture with the `.lmscene-ruin` css filter (`landmark_scene()` in `landmarks.php` would pick `wonders/ruin/` for a ruined place). Josh to judge by eye first. Not claimed: progress picture, stop header per tier.
+- NEXT AI START HERE (2026-11-15): main = 2.6.989 (slim zip `releases/GnomeVenture-2.6.989-web-update.zip`, needs 2.6.97+, no DB change; the 2.6.98 to 2.6.988 zips are superseded, each had a bug). Since 2.6.97 (all in CHANGELOG 2.6.98 to 2.6.987): environment places 1 piece a round; class rules ON (Critter Swarm, Bird Two aims, Beast Grudge, Water Current, Plant Grows, Reptile Venom trail, Boss Two turns); the Blank starts on a random inner cell (`blankrand`); aim strike built but OFF (`aimhit` 0: Josh: a piece on its planned spot must make it pick again, not be removed); `keepmine`/`useroot` built but OFF (bake-off `claude/reviews-2026-11-13/t15-bakeoff.md`: keepmine makes fights too short); replay fixes (Plant Bramble / Water push / used-up creature pieces wait for their step); no free piece after a strike; aim total covers the whole creature turn (Swarm, Quick); piece info scrolls. Rule book for review: `claude/reviews-2026-11-13/rulebook/puzzle-combat-rulebook.pdf` (42 pages, from a Fable playthrough). Demo artifact https://claude.ai/artifact/SCVTp8FLRTbibtA7vNWC2S has two tabs (old 2.6.78 rules, new system 2.6.985 with notes; rebuild with `PFDEMO_GAME_REF=HEAD python3 tools/build_pf_demo_v1.py`, it is at 2.6.985, not 2.6.987). Real choice (CHOICE=1) is still 14-20%, target 50%: NOT met.
+- OPEN after 2.6.987: (a) Josh to read the rule book and play 2.6.987 on his phone (rule chip, second-aim mark, venom cells, replay order with Swarm / Plant / Water creatures, the random Blank, scrolling piece info); (b) DECIDED 2026-11-15 and built in 2.6.988: Swarm GROWS (one piece, +1 Hurt per 2 other pieces, max +2), poison ticks flat, Evade stops poison ticks, Trip/Lull kept. Still open: Quick does nothing for your pieces under full redraw; (c) the play harness `tests/pf_play.php` does not print the class rule line yet; (d) first-fight teaching (`learn.md`: learner rules for fights 1-3, staged unlocks, costly-cell warning) not started; (e) the real-choice metric: no week-2 change moved it, next lever is unknown (a different design for a board that lasts? fewer dead cells?); (f) the 2.6.97 todo items below still apply (pf_env.txt Bramble wording, stale pfdeck_v1 7x5 test is fixed, tag icons, real phone / Android back / delve and wander entry paths).
+- PIECE SOURCES STEP 1 BUILT in 2.6.989 (Larder 3/4/5 crop slots, Keepsake slots 2/3 built but no keepsake pieces yet, new pieces arrive off with a NEW mark; creature heal now acts on the Yield bar). NEXT: one piece per crop with a UNIQUE EFFECT (Josh asked for a proposal first, nothing built), then per dish, Gourmand + mentors, trophies. Original decision text (Josh decided 2026-11-14, proposals in `claude/reviews-2026-11-13/fable/piece-sources.md` and `piece-effects.md`; NOTHING built): (1) Larder slots (crop + food pieces 3 / 4 at level 10 / 5 at level 20) + Keepsake slots (friend, Gourmand, trophy pieces 2 / 3 at level 15) and NEW pieces arrive switched off; (2) one generated piece per FOOD (dish) and per crop (crops are one per KIND today, all 241 dishes share Hot Soup); (3) Gourmand 3 pieces + the 6 calling mentors at Best friend (mentors only, not every villager); (4) lair-boss trophy pieces. Josh also wants pieces to differ by EFFECT: effects proposed in `piece-effects.md` (Keeper, Plenty = 6-piece hand, Simmer, built-in knack, Pairs, Sturdy); under the redraw rule 'draw' only means a bigger next hand, keep-through-redraw or a second placement. Check the open items there (townsfolk NPC count, Gourmand thresholds, boss to lair map) before writing rows.
+- OLDER STATE (2026-11-14, superseded by the line above): main was 2.6.97 (slim zip `releases/GnomeVenture-2.6.97-web-update.zip`, needs 2.6.95+, no DB change). Since 2.6.94 (all in CHANGELOG 2.6.95-2.6.97): ONE shared bar (damage + charm fill one bar, the creature's bar is called YIELD), set-aside / Teamwork / per-piece life / Wind / Mud cut and must-link + the refused pass off for NEW fights (every cut is a key of the fight config read through `pfb_v1r`, PRE = the 2.6.94 rule: fights started before keep their rules), flip unlimited, the whole hand redrawn every round, the aim shows its TRUE total with reasons and lights the pieces its chain would fire, replay up to 8.46 s (tap = skip), Bold default kit with 4 Hurt in every kit, harmony meter out, retune (chain at level 79/80/82/78), piece text pass (every piece says what it does), v48 piece art with symbols on enemy pieces, fight shown over the site (not blanking it), the new-fight-shows-old-fight bug fixed, belt Remove for broken tools (keeps the item), the enemy's free board piece is a named replay step. Reviews, plan and evidence: `claude/reviews-2026-11-13/` (plan-week1-2.md, critique.md, rules.md, turnflow.md, deck.md, learn.md, balance/difficulty/strategy, multiplay.md, art-pass/, layout/, enemy-plays/). Repo rules: GitHub ruleset `nomeanies` guards `ccr-*` and main; Josh added himself to the bypass list so pushes work (a push that says 'Bypassed rule violations' is fine). Disk: the repo is 3 GB, never keep more than one extra worktree/game copy.
+- PUZZLE COMBAT WEEK 2: BUILT in 2.6.98 to 2.6.987 (see the first line; T14-T22 of `claude/reviews-2026-11-13/plan-week1-2.md` done except the harness line and the real-choice gate, which is not met). Playing several pieces a turn was measured earlier: NO for now (`multiplay.md`).
+### 0. CLAIMED: 2.7.00 (Claude session ccr-71ac9959-ahxmmu, 2026-11-15; branch `ccr-71ac9959-ahxmmu`)
+Base = this branch + origin/main (2.6.990, the combat handoff Josh pasted 2026-11-15) + handoff branch `ccr-fb812cec-kj1m4j`. Other AIs: do NOT start these without asking Josh. Full decisions: `claude/plan-2.7.00.md`. Status key: IN PROGRESS / PLANNED (decided, not started) / WAITING (needs Josh or bot).
+- DONE 2026-11-15: puzzle combat rulebook rebuilt for 2.6.990 (58 pages) in `claude/reviews-2026-11-13/rulebook/` on this branch; `CHANGES.md` there lists 20 wrong claims and new findings (Finisher counts only the hurt part; harness decks thinner since 2.6.989; Oat Cake takes a Larder slot; Swarm bonus also inside your own chain). DONE: wearables proposal `claude/proposal-wearables-2.7.00.md` (6 wearables, all existing tags; WAITING on Josh's answers to its section 7).
+- DONE 2026-11-15 on this branch: Keepsake slots 1/2/3/4 at Lv 1/15/25/40 (`pfd_slots`, test `pfdeck_v1`, seen failing before); handoff branch + origin/main merged; lair levels (all lairs region +4 via extended boot step `medium_lair_levels_1115` / `LAIR_LEVEL_1115`, OC Lv 37, Owl den Lv 10, Silverback Lv 20; test `tests/lair_levels.sh`, seen failing on the old code, in CI list).
+- PLANNED: Sights full reward pass + engine gaps (7th-day timing, choose-reward / shop discount / tool-tier odds, villager stat checks); admin decor editing (section fields); road kinds ferry / tunnel / pass / toll / overgrown / flooded (hand list drafted for Josh to veto, tier per route); one camp spot per route (Sleep / Nap / Wait menu on the Trail map); Keepsake slots 1 / 2 / 3 / 4 at Lv 1 / 15 / 25 / 40; wearables as Keepsakes (boots, hat, gloves, cloak, pack, scarf) + Tailor spot (workshop section); items (toll receipt, camp kit, flood boots) + short Almanac pages; Trail icons 32x32; Pal sprites (all pals, 2.5D); 77 stop looks (11 types x 7 styles, by region); last 4 weak items + landmark nits + vine twine; fix the 13 known failing suites; full re-bake LAST (new Admin > Images zips); version 2.7.00 bump, CHANGELOG, full zip, player Release notes.
+- TAILOR + WEARABLES BUILT (2026-11-15, branch `ccr-5ab5d805-qaj0kv`, NOT released, no version bump; plan `claude/plan-tailor-2.7.00.md`, review `claude/review-tailor-2.7.00.md`, Josh's answers above): `game/includes/wearables.php` (6 wearables, 11 cuts, 33 item slugs `<base>[-b][-lined|-fine]`, `wear_pieces`, Tailor power / chance, `tailor_craft` / `tailor_line` / `tailor_recut`, Tailor's Thread `tailors-thread`), garden building `tailor` (garden level 6, 1800 Petals, levels 2 and 3 in `gardens.php`), page `game/tailor.php` + a 'Tailor' menu tile once one is built (`layout.php`), wearables as Keepsake pieces in the Puzzle box (`pfdeck.php`: source `wear`, key `w:<base>[-b]` the same at every rank, in `PFD_KEEP_SRC`; `pfboard.php` / `tools/pfengine.js` `PFB_SRC` + family body; 🧵 filter in `pfdeck_view.php`), Hat + Pack sold at Twigg's, boot step `wearables_2700`, Almanac page 'Wearables and the Tailor' (opens on the first Tailor visit), Flood Boots CARRIED (`wear_has_boots`: any cut or rank). Rules: lining roll 30% + 8% a Tailor power point (cap 78%), failed = 1 Thread, 5 Threads = sure thing; re-cut 1 Thread (free with a level 2 Tailor); level 3 free first craft each day is TEXT ONLY (NOT built); power above 6 paying commission is NOT built (the page says so); 'wear Fine as Lined' is NOT built. Tests `tests/wearables.sh`, `tests/tailor.sh`, `tests/tailor_page.sh` (all watched fail on a mutation, in ci.yml). NOT done: ART (Tailor building picture, 6 wearable item icons, avatar layers: one new back layer for Cloak + Pack, Boots and Gloves palette swaps, small Hat overlay, in 3 views plus the rig: all 2.7.00 per Josh), wearables as Sights / road rewards, simulation of the six pieces (list in the review), a browser / phone look at tailor.php.
+- RUIN PICTURES WIRED (2026-11-15): `landmark_scene()` shows `assets/img/wonders/ruin/<name>.png` for a ruined place that has one (the nine pilot places), the greyed live picture for the rest; test `tests/ruin_scene.sh`. SIGHTS SCALE: default `sights_flat_pct_per_level` = 3 (approved), setting in Admin.
+- FULL CI RUN 2026-11-15 (108 suites, before the Tailor): 103 ok; health, pfv1_charm, roads097 FIXED after (health pinned, pfv1_finalturn expects env pieces first, roads097 ignores the 2.7.00 upgrade items); `tour` passed alone (flaky under load); `upgrade_check` needs a release zip base (not runnable here).
+- TAILOR REVISED after the Fable review (`claude/review-tailor-2.7.00.md`; Josh's answers 2026-11-15): (1) the tier roll applies to the LINING only (base craft is always Common) with a pity: a failed roll gives 1 Thread, 5 Threads guarantee a step up; a Fine wearable may be worn 'as Lined' so luck never costs a slot under the 3 Rare cap; (2) TWO CUTS per wearable, chosen at craft time on the same art (Boots hold, Hat thorns?, Gloves bash, Cloak thorns: exact list in the review, check each tag in `pf_apply`); (3) the Hat is GUARD 2 with THORNS, 'Brim Down' (no second Charm; the Scarf is the only Charm wearable); (4) ART: share and recolour: ONE new back layer shared by Cloak and Pack (Pack over Cloak), Boots and Gloves are palette swaps of existing layers, a small Hat overlay, rank and dye are palette only; (5) my defaults, not asked (change if wrong): Hat and Pack stay shop items (Twigg's) but their second cut and their Lined / Fine need a Tailor; Tailor power above 6 gives +5% commission Petals per point (Fable) instead of nothing. Revised six: Puddle Hop Guard 3 evade (Boots), Brim Down Guard 2 thorns (Hat), Firm Grip Hurt 3 leech (Gloves), Wrap Up Guard 3 mend (Cloak), Rummage Trick 2 pluck (Pack), Yarn Wrap Charm 3 plain (Scarf).
+- TAILOR (Josh 2026-11-15, plan `claude/plan-tailor-2.7.00.md`, NOT built): a GARDEN BUILDING; one must be built in at least one garden to craft wearables; the yield bonus is +1 per Tailor level (more gardens with a Tailor add up) and it raises the better-Fine-tier chance. My reading (sum of levels, +8% a point, cap 48%) waits for Josh to confirm.
+- WEARABLES: JOSH'S ANSWERS (2026-11-15, section 7 of `claude/proposal-wearables-2.7.00.md`; NOT built yet): (1) Flood Boots CARRIED (already built that way: any pair in the satchel halves the flooded slowdown; the fight piece needs a Keepsake slot); (2) Scarf = fixed Charm 3, colour is style only; (3) Trail Pack becomes a TRICK (not Item 2); (4) avatar art: EVERYTHING in 2.7.00 (item icons AND the three avatar layers in three views plus the rig); (5) Fine = Rare, cap wearables at Lined only if they crowd out the legendary crop pieces; (6) Hat and Pack ship admin-only (`pfight_v1`) until Josh has played them on a phone; (7) the Tailor NEEDS A BUILDING (not 'like Garden supplies': needs a plan: where, cost, build steps); (8) REMOVE the overlap with friend pieces: wearables get other effects than Keeper / Plenty. APPROVED 2026-11-15: Sights flat reward scale 3% per region level; wire the 9 ruin pictures into `landmark_scene()`.
+- THE 13 FAILING SUITES FIXED (2026-11-15, branch `ccr-5ab5d805-qaj0kv`): here_bang (orders_board_max set to 1 so some townsfolk have no order), pantry + contest (the Fair class squares of 2.6.65), calling (weather forced to sun: rain waters the bed), css_lint (one min-width 720 that clashed with max-width 720 became 721; breakpoints 340 -> 380 and 600 -> 640 merged: the Contest hall squares go single column at 380 not 340, the toolkit drawer sheet at 640 not 600: LOOK at those on a phone), flowers + animals120 (pinned to game_clock_on 0 like garden100), market100 (12 extra townsfolk so a feast order turns up), delvemap (REAL BUG: `$lm['slug']` undefined in `lair_victory`, landmarks.php), sinks097 (avatars are now `gnome_sprite.php?v=front&h=&b=`), stopkinds + stops100 (every try at 06:00: the stop was closed for the day; the retired per-stop perk bonus), here (the first road is a toll road now; the Contest hall card is tabs), almanac_pages (Reef keeper Lv 37). Only `delvemap` and the css were code fixes; the rest were stale tests. NOT run: the FULL CI list, MySQL, a browser.
+- ADMIN DECOR EDITING BUILT (2026-11-15, branch `ccr-5ab5d805-qaj0kv`, NOT released): Admin > Trail decor (`game/admin/trail_decor.php`, menu entry in `admin_menu.php`): pick a route and a section, edit looks / rough / floor rectangles (`kind x0 y0 x1 y1`), props (`kind x y`), rough default and tree as plain lines, no preview. Saved to the new table `trail_decor_edits` (schema.php; the page also makes it on first use) and laid over the map data in `trail_authored_section()` (`trail_decor_edit()`); 'Back to the map data' deletes the edit. Parsing / checking in `game/includes/trail_decor_edit.php` (bounds, overlaps, name format, 400 entries). Tests `tests/trail_decor_edit.sh` (fails without the overlay), `tests/trail_decor_page.sh` (installs, logs in as admin, saves / refuses / restores). The decor still only feeds the fallback look (tints) until a re-bake: that is the plan's last step. NOT done: a preview (by design), looks for a section whose ground picture is baked (needs the re-bake), MySQL.
+- SIGHTS ENGINE GAPS BUILT (2026-11-15, branch `ccr-5ab5d805-qaj0kv`, NOT released): grammar additions in `game/includes/trail_sights.php` / `trail_sight_extras.php` (docs: add to `claude/sights/GRAMMAR.md` is TODO): condition `gd=M:R` (every Mth game day, day mod M = R: e.g. Captain Spurwing `gd=7:0`), reward `choose=A;B;C` (the card shows one button per option; refused without a choice), reward `disc=rest|shop:pct:minutes` (real minutes; column `users.ev_disc`; applied in `shop_price` and the inn room `gclock_inn_fee`), tool-tier odds `item=x:1@5/15/30/50` (chance by the tier of the Sight's tool), villager row token `check=stat:dc` (fail = they pay nothing). Test `tests/trail_sights_270.sh` (new, fails on the old code, in ci.yml). NOT done: no data row uses the new grammar yet (the rows listed in the `*-p2-todo.md` files still use plain chances: a data pass to use gd / choose / disc where the design wanted them), the free shop peek, walk-time effects. REWARDS PASS: `claude/sights-rewards-2.7.00.md` proposes +3% per region level on the 71 flat xp / Petals tokens; code is in (`trail_sight_flat_scale`, setting `sights_flat_pct_per_level`, default 0 = OFF) and waits for Josh to say "approve 3".
+- CAMP SPOTS BUILT (2026-11-15, branch `ccr-5ab5d805-qaj0kv`, NOT released, no version bump): one camp tile per route (246) in `game/includes/data/trail_camps.json` (made by `tools/gen_trail_camps.py`, middle stretch, floor, 6+ tiles from entry and exit, off finds / gates / water / sprites; the game draws the tile as a 🏕️ mark, NO re-bake of ground pictures was needed), engine `game/includes/trail_camps.php` (`trail_camp`: Sleep free and safe, Nap 2 h free and safe, Wait 10/20/30/45/60 min: +1 energy per 2 min, fight chance 25% over 30 min and 5% up to 30, halved on a paid toll road, no daily cap), camp card in the Trail strip while standing on the tile (a dropdown, not a separate popover), action `trail_camp` in `adventure.php`. Test `tests/trail_camps.sh` (new, fails without the hooks, in ci.yml). NOT done: a drawn camp sprite (emoji mark for now: art list), the card on a phone, camp use in a delve or wander (Trail only), release notes, a camp kit item (the plan lists one; the free Sleep makes it unnecessary: ask Josh).
+- ROAD KINDS BUILT (2026-11-15, Josh approved all 84 routes, branch `ccr-5ab5d805-qaj0kv`, NOT released, no version bump): data `game/includes/data/road_kinds.txt` (id|kind|tier; `tools/draft_road_kinds.py` made it, `ROADKINDS_DATA=1`; the file is the truth now), engine `game/includes/road_kinds.php`, hooks in `start_expedition` (gate check, ferry fare, overgrown / flooded minutes; toll time is charged when the toll is answered), `trail_toll` + strip card + toll scene state in `trail_tiles.php`, `trail_toll` action in `adventure.php`, route-card chip in `place_ui.php`, Flood Boots + Toll Receipt items (boot step `road_kind_items_2700`, boots on sale in the Home & curios shops at 80 Petals), Almanac page 'Special roads' (opens on the first kind road walked). Rules as in plan item 5. Tests `tests/road_kinds.sh` (new, fails on the old code, in ci.yml); `trail_back` updated (its first road is a toll road); `adventure`, `trail_mini`, `trail_reverse`, `fight_scene_trail`, `game_clock`, `trail_sights`, `roadkinds` pass. NOT done: art (Trail icons for the kinds, Flood Boots / Toll Receipt pictures use the placeholder), the walk card text on phone not looked at, Almanac Flood Boots source if the shop stock is empty, MySQL, browser check, release notes. `almanac_pages.sh` fails 3 Reef of the Box Jelly Queen checks (expects the old Lv 39: stale after the lair-level commit, not from this work: fix the test).
+- WAITING on Josh: route list veto (road kinds, tier per route); Sights reward numbers approval; "Merge push main" before any push to main.
+- PLANNED after the rulebook: rebuild the demo artifact https://claude.ai/artifact/SCVTp8FLRTbibtA7vNWC2S (new system tab at 2.6.990 rules, add rulebook tab, fix slow load / no animation in the artifact).
+- NOT claimed (still open for anyone, ask Josh): Trek content, decor slices beyond admin editing, bots valuing Keeper / Plenty / Simmer, 42-legend balance sim, per-dish / Gourmand / mentor / trophy pieces, first-fight teaching, real-choice metric.
+- OLDER STATE (2026-11-13, evening; superseded by the line above): branch `ccr-78af9a8e-34vlpw` = 2.6.94 (4x4 board default for all sizes; balance multipliers still per-size, re-tune) (NOT merged to main; main = 2.6.80 plus whatever Josh merged; Josh uploads slim zips `releases/GnomeVenture-<v>-web-update.zip`, the live site was on 2.6.88 when 2.6.89 to 2.6.93 were built, base 2.6.88). Puzzle combat v1 (flag `pfight_v1`, Admins) still admin-gated. **Done this session (all confirmed on Josh's phone unless noted):** End turn "reload" = the fight panel replayed a fade-in (2.6.84), background blink (2.6.86), health follows the replay and the final turn no longer replays the round before (2.6.88), charm bar capped (2.6.85); the debug log `?pfdebug=1` (assets/pfdebug.js) stays in; **jigsaw pieces are live** (2.6.89): new Aseprite art `aseprite-source/pfight/v47/` (56x47 body, 13 px tabs, README + check.py + history sheets) -> `tools/build_parts47.py` -> `game/assets/img/pfight/parts47/` (needs the Aseprite CLI once) -> renderer `assets/pfparts47.js` (v1 pages only; old `pfparts.js` untouched), `includes/pfparts_url.php`, setting `pfight_jigsaw = 0` goes back to the old pieces; piece card smaller, card + set-aside side by side (the set-aside choices are a 2-row grid, no scrolling, 2.6.92), calmer top of the fight (2.6.90); **pal delve re-runs on Game Time** (2.6.91, `gclock_shift_pal_clocks`); **test board** (2.6.93): `adventure.php?pfboard=4x4` (session, any 3x3 to 9x9, `?pfboard=off`) or setting `pfight_board_test = 4x4` gives every fight that STARTS afterwards that board (`pfb_v1_cfg`). **Next, in Josh's words:** the C2 layout in the real fight and box (fewer words, one primary button, the last plays behind a log button, a creature card with an aim badge; mockup `claude/mockups/combat-redesign-2026-11/mockups-C2-jigsaw.html`, briefs beside it), finish the art (foe thorns on left/right edges, stitch line around holes, picked ring that follows the knobs, hand tabs redrawn at hand size, claw glyph and lock/land badges), **pal jobs "still need help"** (Josh did not say what: ask),  Old open items: `here` suite fails 3 checks (contest hall link x2, 'Continue before the exit is refused'), check vs the known 13 CI failures; pfdeck_v1 flaky; pal add/remove and belt buying in box; upgrade offers on v1 box; old-board dark-on-dark text in light theme; Mud/boss/Thornburst red flags; 18 vs 19 tool types; MySQL/full CI unchecked; demo artifact (https://claude.ai/artifact/SCVTp8FLRTbibtA7vNWC2S) is at 2.6.78, rebuild via `tools/build_pf_demo_v1.py` with PFDEMO_GAME_REF; scratchpad of the old session was 6GB (disk nearly full). Docs: `claude/design-deckbuilder-combat.md`, `claude/design-board-strategy.md`, `claude/handover-v1-*.md`.
+- 2.6.80 (2026-11-13, MERGED to main with 2.6.79; slim zip needs 2.6.79+, no DB change): the Trail fight dialog (modal #trailpop) now stays the same open element across End turn / Pass / Undo / Flip / the result (site.js keepTrailPop; hubscene.js no close() flash), tests/pfv1_trail.js; Charm meter shows N/100 (100 only on the win).
+- 2.6.79 (2026-11-13, MERGED to main; slim zip needs 2.6.78+, no DB change): End turn no longer flashes (the "reload" Josh saw was the in-place swap leaving the board empty for a moment: the old fight now stays frozen over the new one until it is drawn; site.js never sends a fight form the plain way), tests/pfv1_endturn.js (emulated phone); the environment places 2 pieces every turn on isolated empty cells far from the action (Josh), creature values and bars retuned (chain 74/70/68/71, smart 100).
+- 2.6.78 (2026-11-13, MERGED to main; slim zip needs 2.6.77+, no DB change): the fight end plays its last turn in full before the result card (win, charm and loss; the replay was skipped on the ending turn), a lost fight waits for a Continue button, the charm bar and the engine agree at the edge (compared as shown, fill never drawn full early), the environment places on cells that link to nothing first (Josh's rule; sims not retuned), tests/pfv1_charm.sh.
+- 2.6.77 (2026-11-13, branch `ccr-ceeffa10-7jr64a`, NOT merged to main: Josh decides; slim zip needs 2.6.76+, no DB change): fight board never stretched (uniform scale, cells keep the art's 56x40 proportion), spare height goes to a bigger hand, a docked piece card (never over the board), 44px+ buttons, gaps; your guard fades at the start of your turn (Hold keeps what is left, used-up Hold no longer returns) with fade / hold notices. OPEN: Josh to check on his phone (412x915): the board look, the docked card, the guard notices.
+- 2.6.76 (2026-11-13, branch `ccr-ceeffa10-7jr64a`, NOT merged to main: Josh decides; ZIP NOT BUILT YET on Josh's word (`releases/GnomeVenture-2.6.76-web-update.zip` + `tests/manifests/2.6.76.txt` come last; needs 2.6.75+, no DB change)): fight screen fills the full height (board rows grow, no dead bands), piece card overlay, notices (Quick / lost creature turn / trip / opening / chain owner / no piece fits), Puzzle box piece detail SHEET. OPEN: (a) Josh to check on his phone: board look with the taller rows, the sheet in the box, the notices; (b) boxes of 2.6.75 OPEN list still apply.
+- 2.6.75 (2026-11-12/13, branch `ccr-ceeffa10-7jr64a`, NOT merged to main: Josh decides; zip `releases/GnomeVenture-2.6.75-web-update.zip` 0.16 MB, 13 files, needs 2.6.74+, no new tables; the Den route step runs on the first request): PUZZLE COMBAT v1, ENVIRONMENT AS PIECES (behind `pfight_v1`; flag-off pages byte for byte 2.6.73, checked) + the UI fixes after Josh's test of 2.6.74. Environment pieces (Sun, Bramble, Rain, Wind, Mud, Thornburst) replace ground cells and forecast marks in new fights; 2 a round; the NEXT 2 are shown face up in a slim strip; texts and numbers in `claude/design-board-strategy.md` ("Sim 5" / "Sim 5b"), engine in `claude/handover-v1-envpieces.md`, UI in `claude/handover-v1-stageC.md` + the E2 notes below. UI fixes: fight never scrolls (390x844, 360x640, 1280x720), smaller Flip / buttons, Puzzle box under Hobbies, belt tools as a button grid, auto-deck collapsed on the pre-fight screen. Flip now one request without a page load (root cause of "reloads and does nothing" NOT confirmed). Den of the Great White Owl route Lv 28-32 -> 8-12 (`den_owl_route_level_2675` boot step + `link_hidden_places()` for fresh worlds; both checked on SQLite, idempotent). No player-facing release-notes post (admin-gated). Tests: pfboard_v1, pfboard_v1_page, pfdeck_v1, pbox_v1 (rewritten, incl. 360x640 / 1280x720), pfengine_js and the old pf suites pass; CI list (89 suites besides the pf ones, run in chunks): the same 13 fail as on 2.6.74 (stops100, stopkinds, here, pantry, css_lint, here_bang, animals120, calling, contest, market100, delvemap, flowers, sinks097), no new failure; pfdeck_v1 flaked once (known). NOT checked: MySQL, a real phone, a human play session.
+  - HOW JOSH TESTS 2.6.75: (1) upload the zip in Admin > Update (site on 2.6.74 or newer); (2) the first page load upgrades (Den route); (3) `pfight_open` = Admins only, `pfight_v1` = Admins only; (4) Puzzle box (menu under Hobbies), pack a starter if not done; (5) meet a creature on a road: Let's fight. Look at: the Environment strip above the hand (tap a piece: name, what it does, whoever fires it), the environment pieces on the board (dashed frame, icon, badge, life pips), the glow on pieces your picked piece would fire, the ENVIRONMENT TURN banner and the pieces growing in, a Wind push, the ? help, Flip, no page scroll on your phone, the result card. A fight started under 2.6.74 keeps its old terrain. Switch off: `pfight_v1` = Off.
+  - OPEN (2.6.75): (a) red flags to play-test: Mud's teeth weaken creature pieces far more often than yours, boss fights, Thornburst (the creature rarely fires it, you often are forced to); (b) pals add / remove and belt buying inside the box (still links); (c) waiting upgrade offers on the v1 box; (d) set-aside chips ("Or set aside with") still offered in a v1 fight; (e) OLD board's text dark on dark in the light theme (flag-off page, untouched for parity); (f) the glow on fire-able environment pieces and the Wind slide were judged by eye in screenshots only; (g) region variants of the pieces not authored; (h) MySQL, phone, human session.
+- 2.6.74 (2026-11-12, branch `ccr-ceeffa10-7jr64a`, NOT merged to main, NOT pushed to main: Josh decides; zip `releases/GnomeVenture-2.6.74-web-update.zip` 0.35 MB, 34 files, needs 2.6.70+; DB upgrade: 4 new tables `pf_decks`, `pf_deck_pieces`, `pf_belts`, `pf_tool_wear`, made by the normal upgrade on the first request, or Admin > Upgrade database once; safe to repeat): PUZZLE COMBAT v1 behind the admin setting `pfight_v1` (Off / Admins only, default Off; needs `pfight_open` on too). Stage A board rules (size by creature size, ground, terrain turn + forecast events, use-up at 3+, aim, Teamwork, authored edges + flip, piece life), stage B deck model (deck from sources, starter, fight belt, tool wear + Tool Repair Kit, harmony; 88 creatures in 6 classes with layered decks and tags), stage C pages (Puzzle box, starter pick, pre-fight, fight board `pfboardv1.js`, result card). Handovers: `claude/handover-v1-stageA.md`, `-stageB.md`, `-stageC.md`. With the setting Off the pages are byte for byte those of 2.6.73 (`tests/pbox_v1.sh` compares with commit `b2c83466`), and no item, shelf or recipe is made (stage D change: `pfd_live`, `pfd_content_once` in `pfdeck.php`; the belts at Twigg's, the Tool Repair Kit and its recipe + Almanac page appear for EVERYONE the first time the Puzzle box is used with the setting on, and stay). No in-game Release notes post (admin-gated, like 2.6.66 / 2.6.67). Tests: 14 puzzle-fight suites pass (`pfboard_v1`, `pfboard_v1_page`, `pfdeck_v1`, `pbox_v1` with the browser pass, `pfengine_js`, the old pf suites, `craft`); the rest of the CI list (88 suites) run once: 13 fail, all 13 the same way as on 2.6.73 (the known `stops100`, `stopkinds`, `here`, `pantry`, `css_lint`, and `here_bang`, `animals120`, `calling`, `contest`, `market100`, `delvemap`, `flowers`, `sinks097`, checked on a 2.6.73 worktree); no new failure. `tests/upgrade_check.sh` from 2.6.73 on SQLite: no migrate errors, schema = fresh install (1987 objects). NOT checked: MySQL, a real phone, a human play session, GitHub CI.
+  - HOW JOSH TURNS IT ON AND TESTS: (1) upload `GnomeVenture-2.6.74-web-update.zip` in Admin > Update (site must be on 2.6.70 or newer); (2) Admin > Upgrade database once (the first page load does it too); (3) Admin > Settings: `pfight_open` = Admins only (or Everyone), `pfight_v1` = Admins only; (4) as the admin gnome: Hovel > Gnome tab > Puzzle box (or the menu, under You), pack a starter (one-tap kit or 6 picks), look at the Kit / Belt / Pals tabs; (5) go out on a road (or a lair, a delve) until a creature appears: pre-fight screen, Let's fight, play (try Flip, tap a ground cell, a forecast mark, the ? help, the speed chip), then the result card. To switch it off again: `pfight_v1` = Off (fights under way keep their rules).
+- NON-PUZZLE VERSION NOTES 2.6.27 to 2.6.73 (and 2.5.x) moved verbatim to `claude/todo-archive.md`, section 'Moved from todo.md 2026-11-14'. Open items from them are in sections 2 to 6 below.
+- PUZZLE BOARD HANDOVER: read `claude/handover-puzzle-board.md` (state, file map, tests, findings, ranked next steps, decisions). Data and sims are in the repo (`docs/playtest-data/`, `tools/pfsim/`).
+- 2.6.67 (2026-11-11, MERGED to main, zip `releases/GnomeVenture-2.6.67-web-update.zip`, needs 2.6.66+, no DB upgrade): puzzle fights no longer draw the battle backdrop banner in the map-page fight pop-up (`game/adventure.php` `trailpop`, skipped when `$pfAct`). NOT checked in a browser (page test does not reach the pop-up).
+- 2.6.66 (2026-11-11, MERGED to main, zip `releases/GnomeVenture-2.6.66-web-update.zip`, needs 2.6.65+, no DB upgrade): PUZZLE BOARD blank-centre opening is the live default for new board fights (admin setting `pfight_blank`=0 turns it off; `pfight_do` turns the posted `i,x,y` next to the blank into `pfb_start`); numbers per lit spot (`pfb_cell_preview`, action `pfb_cells`, `.pfb-num` in pfboard.js); `PFB_BLANK_FOE_MULT` 1.0, join/add guard `PFB_SETASIDE_GUARD` 1.0, 3-piece group x2.0 (proposals P2, P1 numbers, P4). NOT done: P1's x0.5 hurt-link rule (A3), P7 clarity items, demo artifact not republished. NOT checked: full CI, MySQL, phone, a human play session.
+- 2.6.63 (2026-11-11, MERGED to main, zip `releases/GnomeVenture-2.6.63-web-update.zip`, needs 2.6.60+, no DB upgrade): PUZZLE BOARD fire budget (a creature piece falls away after it has fired twice; yours are not limited; creature values x1.15; "x1" badge, info text; `PFB_FOE_FIRES`, `PFB_FOE_FIRE_MULT` in `pfboard.php`) plus the 2.6.60 playtest fixes: creature start piece never Hurt, hostile Charm x0.6, boss pieces x1.2, 3-piece group x1.5, Charm wins also roll seed/guide drops, engine notes `reshuf`/`cut`/`spent`, `pass` refused before a blank-centre start. Blank-centre opening exists in the engine, the JS demo engine and the demo page only (opt-in `pfb_new(..., ['blank' => true])`; the live page does not use it). Tools: `tests/pf_play.php`, `tests/pfboard_tune.php`, `tests/pfboard_fixes.php`; notes and proposals in `docs/puzzle-board-*.md` (P1-P8 not built: self-hurt numbers on cells, blank multiplier 1.0, join/add guard, group x2.0). NOT checked: full CI, MySQL, a human play session. `pfboard.sh` failed once in 12 runs (random fight did not end; passed on rerun).
+- 2.6.60 (2026-11-11, branch `ccr-dea0abf9-eaakqa`, zip `releases/GnomeVenture-2.6.60-web-update.zip`, needs 2.6.50+, no DB upgrade): PUZZLE COMBAT board mode (admin `pfight_open` Off/Admins/Everyone, `pfight_mode` chain|board; Treks still use the old fight). Rules now: one action a turn; you MUST connect (linked joint) unless nothing can; creature plays one piece, AFTER yours resolves; each side's whole chain resolves before the other's turn (events carry `ta`); creature starts with 1 piece (boss 2) and a piece is spawned if it has under 2; Hurt takes creature HEALTH (red bar, 0 = seen off), the pink bar is CHARM only (full = charmed; bosses cannot be charmed); guard resets when your turn starts; pieces expire after 3 rounds (after scoring). UI: turn banners (show, hold 1 s, fade, then play), history bar chips with tap-to-rewind, guard bar under your head, set-aside group row under the board, End fight button + chest scene, no picture banner/About fold. Engine copy for the shareable demo: `tools/pfengine.js` (parity-tested `tests/pfengine_js.sh`), demo built by `python3 tools/build_pf_artifact.py OUT.html` (published at claude.ai artifact FjaGvVxbVatzsW4MDy3oCz). Merged main (Slim home) in; the hovel page redirects to Home when `home_slim` is on (by design).
+- DECIDED 2026-11-14 (Josh, non-puzzle). BUILT 2026-11-14 on branch `ccr-fb812cec-kj1m4j` (no version bump, no zip; detail in `claude/todo-archive.md` 'Built 2026-11-14'):
+  - DONE Villagers with no `dp=` keep default hours by role (`trail_sight_folk_role_hours`; grammar in `claude/sights/GRAMMAR.md`). Josh's answers built: travelling NPCs on a region's Trail about 4 days a week (3 circuit stops before to 4 after), shop-hours roles in the day only.
+  - DONE (no change needed) Almanac Sights pages stay OUT of page counts / percentages (`almanac_counts`, `site_text` `{pages}`; tested in `tests/trail_sights.php`).
+  - DONE No rope tool type (315 slope stays staff tier 1); `claude/plan-route-map-bends.md` says so.
+  - DONE `upload-zips` copies of the Trail ground pictures removed (55 zips, 310 MB); Admin > Images zips of `game/assets/img/trail/ground/*-r.png` are made only at release.
+  - DONE Gates / extra mini-bosses outside Maplewold: review `claude/reviews-2026-11-14/trail-gates-review.md` (24 locks, 14 short cuts, 52 extra mini-bosses; no lock on 327 CA, 448 EA). Josh's answer built: the lower-level half of the regions (NA CA NWE CB SE SA EE) gate at tier 2 Sturdy, MENA .. OC at tier 3 Fine (17 gates 3 -> 2, data only, no re-bake).
+  - PARTIAL `decor` data field: slice 1 (data in all 665 sections, engine reader) and slice 2 (the fallback look takes decor colours where a ground picture is missing; with pictures the look is identical) built. Left, needs Josh: Admin editing, baking from decor, exact prop spots, decor in tile labels (`claude/plan-trail-decor.md`).
+  - Island keeps coast ground art. Delve / lair run records stay admin only. (nothing to build)
+  - Pal jobs 'still need help': dropped. Only the Plant pal honours bed picks. (nothing to build)
+  - DONE Silverback Spider lair level -> 20 (Josh): route 18-22, keeper Lv 20; fresh worlds `roads.php`, existing worlds boot step `silverback_lair_level_1114` (runs on the next version's upgrade).
+  - Shell Meal P wording and tortoise greens list: leave (left).
+  - Craft-map canvas 480x270 is final. Nav chrome: Here / stops only. (recorded; nothing to build)
+  - DONE (JOSH to judge by eye) Redrew all 15 weak Sights items (`tools/gen_sight_item_art_f.py`, sheet `claude/reviews-2026-11-14/sights-items-redraw-before-after.png`).
+  - DONE Almanac data calls: Cannonball Tree (text says it is from the Amazon, region kept), Lotus Root, Banana, 146 village pages now 146 texts, Mossbottom lists its 5 shops, the 4 bare lair pages; upgrade step `ensure_almanac_fixes_1114` (marker `almanac1114fix`).
+  - Josh answered the 4 questions on 2026-11-14 (Silverback 20; early regions tier 2; travellers about 4 days a week; shopkeepers day only): all built. 2026-11-15: the late-region medium-zone lairs raised to region level + 4 (Temple of the Tiger Moth 27, Dragonlizard Den 30, Snowcrown Peak 36, Box Jelly Queen 39; boot step `medium_lair_levels_1115`). Still a gap, not changed (Josh's call): lairs vs region level: Silverback 20 in WCA (region 29, Josh chose 20); hard-zone lairs at 30 sit far ABOVE early regions (CA 4, NWE 6, CB 8, SE 10: +20 to +26). `tests/health.sh` fails 4 checks on clean HEAD too (not in the known-fail list).
+- PUZZLE BOARD (2026-11-11, details `claude/handover-puzzle-board.md`): (1) blank multiplier 1.2 -> 1.0 (agents find blank much harder than classic); (2) show numbers (damage, HP cost, chain length) on cells instead of the bare `!`; (3) hidden or revealed creature start piece; (4) allow `pass` anyway (measured as a trap); (5) Charm on bosses; (6) does the blank-centre opening go into the live page (demo only now; the pick barely matters); (7) which creature tiles stick longer than 2 firings; (8) hostile Charm 0.6 -> 0.75.
+- DONE (2.7.00): wearable art approved by Josh: 15 avatar layers (game/assets/img/gnome25/), 33 icons + tailor-1/2/3 (game/assets/img/ph/). Weak spots: boots barely tall, front pack corners only, cloak icon boxy, back glove thumb.
+- BUILT (2.7.00): Tailor level 3 free first craft each game day (festival_flags tailor-free); commission Petals for Tailor power over 6 (5% of the wearable price per point, min 1) on craft and lining. BUILT: wear Fine as Lined (table wear_lined, button on Tailor page, not a Rare piece when Lined). NOT built: wearables as Sights/road rewards.
+- NOTE: pfdeck_v1 "tool pieces were played in the fight (wear counted)" is flaky (random fight; also fails ~1 in 6 on main). Full CI at this point: 112 suites, only that one failed.
+- RELEASED 2.7.00 (2026-11-15, merged to main on Josh word): slim zip releases/GnomeVenture-2.7.00-web-update.zip (needs 2.6.989+; boot steps road_kind_items_2700, wearables_2700; new table wear_lined), FULL + source zips built but too big for git (given to Josh directly), art zip upload-zips/gnome-venture-images-v3-2.7.00.zip (33 wearable icons + tailor-1/2/3 for Admin > Images). Wearables + Tailor stay behind pfight_v1 (Off/Admins only). NOT in 2.7.00: Trail icons, Pal sprites, 77 stop looks, ground re-bake, demo artifact rebuild.
+- (2026-11-15, Josh, notes for the combat AI; NOT built, puzzle combat is in the 2.7.00 claim, ask first) (a) DONE on branch `ccr-5ab5d805-qaj0kv` 2026-11-15 (NOT released, no version bump yet; rule keys `order` 1 / `spawn` 0 in new fights, old fights keep 0 / 1; PHP `pfb_fire_order` + `pfb_rank` in `pfboard.php`, JS port in `tools/pfengine.js`, replay reveal via `cs` / `rid` on the chain's first event, `tools/build_pfboardv1.py` updated, tests `tests/pfboard_v1_order.php`; `pfboard_v1`, `pfengine_js`, `pfboard_js`, `pfboard_sim`, `pfboard_fixes`, `pfdeck_v1` pass; NOT run: browser replay tests `tests/pfv1_*.js`, a human play) ACTIVATION ORDER after a play, Josh votes: 1 environment pieces attached to the played piece, 2 defensive pieces in the chain, 3 augments in the chain, 4 Hurt / Charm pieces in the chain, 5 healing in the chain. (b) BUG 2.6.990: sometimes an enemy piece appears just before the end of my resolution; it must not. DONE on the same branch as far as the code shows: the only enemy piece that pops in at the END of the replay is the board's free creature piece (`pfb_spawn`, the replay's last step); new fights get rule `spawn` 0 (none). Environment and Plant pieces were already held back until their own step. NOT reproduced in play: if you still see it, say what the piece was and when. (c) RULE IDEA to weigh: start a fight with ALL pieces of the puzzle box active, no draw and no discard, and when they are used up reshuffle everything back into the hand (pros / cons given in chat; not decided). (d) DONE on branch `ccr-5ab5d805-qaj0kv` 2026-11-15, not released: the crew panel is grouped by garden, shows the pal picture, and a job whose pal is not found says 'Pal not found' with a Free the job button (`pcrew_free_slot`, action `crew_free` in `paljobs.php`, css `.pjcrewgarden`; tests `pal_crew`, `paljobs` pass; not looked at on a phone; the cause of the missing pals on Josh's site is still unknown: ask for his `garden_pal_slots` rows) PAL JOBS Garden crew panel looked wrong (screenshot): 4 rows say 'A pal' (the slot's pal is not found: `pjv_ledger` in `game/includes/pal_jobs_view.php` falls back to 'A pal' when `pj_pal()` returns null, so those slots point at a pal that is gone or has a bad `pal_uid`), rows are a flat list with no pal picture and no garden grouping, and every row says 'full time'. Not fixed: needs the real `garden_pal_slots` rows from Josh's site. Suggest: show a gone-pal slot as 'Empty slot (pal gone)' with a Free button, group rows by garden, show the pal picture.
+- (2026-11-14) After playing 2.6.97: (a) large 4-under is 60% (floor 67) and boss 4-under 50% (was 73): touch the level curve or accept? (b) Wind and Mud are cut for new fights: bring back as staged unlocks (`learn.md`) or leave out? (c) charm is only a real route with a Charm-heavy deck (plain chain bot charms 0% at medium and up): is the ending right for rewards? (d) the creature gets a free board piece in 47% of rounds (`pfb_spawn`, now announced): keep? (e) environment 1 piece a round instead of 2 (sim: wins +-5, fights +0.2-1.3 turns, no retune): do it? (f) removing a 'gone' belt tool leaves its old wear on record: clear it? (g) Soothe text 'Its next hits do # less damage in all': change to 'Next creature hit does # less'? (h) start week 2 and the first-fight teaching (learn.md)?
+- Not checked anywhere: MySQL (`upgrade_check.sh`, `trek_ms` table, `trek_flag_set` duplicate catch), full CI list, a real phone. Known fails: the 13 CI suites listed in the 2.6.75 block above (stops100, stopkinds, here, pantry, css_lint, here_bang, animals120, calling, contest, market100, delvemap, flowers, sinks097); flaky: `game_clock.sh` (`pal_hours_per_sleep`), `pfdeck_v1`, `catfish`, `puzzle_pals`.
+- (2026-11-14) SMALL OPEN after 2.6.97: `game/includes/data/pf_env.txt` still says Bramble costs 'a tenth of its health' (say Yield); `tests/pfdeck_v1.sh` fails 'board is the large one (7x5)' on unchanged code (stale since 2.6.94's 4x4: fix the test); the 14 tag icons of named pieces (Jab, Smash, Pierce...) are not redrawn in the v48 kit and a creature's named piece shows its type glyph; creature tint dropped from its pieces; pieces at ~1280x720 have soft pixel borders (board 301 px wide: needs a whole-number scale or more room); blank centre / lit-spot ghost / life pips still painted by the page; the dotted 'it fires this' bait ring has no screenshot; the dock hides its 'Next in the environment' line after an in-place 'Let's fight' (layout state `pfv-docks`, a reload shows it); the replay test reaches the second fight by `gvRefresh`, not a real Trail step; `unflipPrev` page code only runs for 2.6.94-rules fights; real phone / Android back / delve and wander entry paths for the layout change are unchecked; sims use the deck model, the harness (`tests/pf_play.php`) now deals real decks too (T1).
+- INSTALLED (2.7.01, `tools/install_art_2701.py`, 386 rows; Josh: Opus rich, do ALL the art): 14 tag icons; all 33 wearable icons hand-drawn (derive_icons.py PROTECTED = all 33) + 3 avatar strips; 142 Puzzle Pals yard + perch (14 first install + 128 of art-2701-pals-all c00..c15); 9 creature minis / folk portraits; 18 Trail markers (fight camp road kinds haven wonder delve lair market sight villager + rest (way on into a village) + signpost (side path, first stretch); hazard installed but NOT wired: no Trail hazard data); Maplewold stop looks for all 12 stop types with layouts. Josh: upload `upload-zips/gnome-venture-images-v3-2.7.01.zip` (33 icons).
+
+
+---
+
+<!-- merged from claude/todo-art-v3.md -->
+## ART TODO (single list). Updated 2026-11-11.
+Replaces `todo-art-variety.md` and `todo-art-catfish.md` (now stubs). `todo-art-acts.md` stays as the generated per-activity checklist (810/810 drawn).
+Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-STATE.md`). Style: `aseprite-source/art-style-guide-v3.md`.
+
+### RULES
+- No human villagers (Josh 2026-11-04): every NPC portrait and sprite is a creature, or a gnome clearly unlike the player. Player gnome needs front/back/side + 6-frame walk (test: `aseprite-source/v3/gnome-dir/`).
+- Scene and picture art = ONE pass by Opus medium. No draft-then-rich pass.
+- Ask Josh before drawing at scale: cost estimate, first batch, one contact sheet.
+- No text, circles, people or animals painted into scenes. Placeholders (red border, THIS IS PLACEHOLDER) never ship as final.
+- Real art replaces a placeholder by the SAME file name and size.
+- Weak images get a pink 2 px border in the live copy: list `aseprite-source/v3/rollout/weak.txt`, re-run `rollout/export_game.py`, then bump version and run `tests/build_update.sh`.
+
+### HOW TO RUN (cheapest measured)
+- Seeds: `rollout/items-seed.js` (hybrid, ~10k tokens each, groups of 12).
+- Other 64x64 items: `rollout/items-lean.js` (cheat sheet `lib/CHEATSHEET.md`, ~22-25k each, Sonnet medium, groups of 6). Not `items-run.js` with a draft step.
+- Gate-view scenes: single Opus-medium pass, ~110-150k each, read only CHEATSHEET + scenes part of README + 1-2 reference PNGs.
+- Per scene output: `.lua/.png/.aseprite` + `.layout.json` {w,h,horizon,view,spots[{k,name,x,y,box}],stand[],compass_clear}.
+- Look: gate view, one-point perspective to ~(240,112), 480x270, hero scale (props 80-140 px near, 56+ far, 12+ px gaps), 1 px dark edge in own tone, warm light upper left, cool-violet shade, road 150+ px wide at bottom, bottom-right 100x40 plain, 4-6 visible quirks.
+- Stops are parametric: one script per stop type, look via `--script-param pal=<landscape_region>` from a PALETTES table. Pilot `v3/here-gate/pilot-market.lua`. New look = one new table entry.
+
+### DONE (do not redo)
+- `-anim` strips, odd-size UI and puzzles closed (Josh 2026-11-11).
+- Cat Fish lane E pet shops: 55 `cf-pet-*` items, 11 `banner-<CODE>-pets`, 11 shopkeeper busts, `pet_slots` (CHANGELOG 991-992).
+- Creatures and minis: 117 creatures + 7 Trek crew redrawn and rigged (CHANGELOG 70; `mini/` and `folk/` files dated 2026-11-07/11); animal homes pixel art in the yard (CHANGELOG 492). Species/folk portraits and sprites done (CHANGELOG 526). Josh confirmed 2026-11-11.
+- Gather: `scene3-<land>` x 9 landscapes x day/dusk/night, satchel back/front x 3 skins, slots, vignettes, flourishes, badges, felt, ribbons, weather (checked 2026-11-11). Old `scene-<land>.png` (9) + `scene.png` are fallbacks only.
+- Acts (Josh: close enough) and big pictures (regions, banners, wonders, landing, map, journal) done 2026-11-11.
+- 1,662 items/icons 64x64 (v3 rollout); 35 batch1/2 pictures exported (2.5.48).
+- 179 weak items redrawn (2.4.98+, art pass 2.5); hedgehogs redrawn; gnome 1px eye rim for dark skin.
+- All NPC art done (portraits, `ph/npc-*`, 81 `sprite/npc-*.png`; Josh 2026-11-11).
+- Flower heads done (Josh 2026-11-11). Home/house art done (Josh 2026-11-11).
+- Treehouse checked 2026-11-11: layout has 8 room spots (parlour, loft, cellar, puzzles, catfish, contests, books, yard), 24 pal perches, 4 dress layers, 5 trophies; Pal Yard 6 job sites.
+- Here scenes: 46 `scenes/here-*` (15 regional towns + hub, village, haven, delve, lair, wonder, 11 stop types in default + `desert_adobe`).
+- Workshop picture + 13 `craft-anim-*` layers; treehouse (`tree-house`, 4 dress layers, trophies); `yard-pals.png`; `resid-4/6/8`; 6 shared doors.
+- Acts: 810/810 scenes + animated strips; 4 kind cards (act-craft/collect/tend/contest) drawn.
+- Stage verb icons (5), stop tier pictures (12x4), folk species (11), road kind icons (5), journal pictures (14), Jeff poses.
+- Cat Fish lanes A-D (scarf, collars, seasons, yarn, yarn-panel icons).
+
+### A. REDO (weak)
+1. Done 2026-11-11 (pending Josh review): ginseng, ginseng-seed, stone-wall-end, tomato, stuffed-peppers-goat redrawn; `weak.txt` empty.
+2. Repaint if Josh dislikes: coralscatter wave dome + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box. Stuffed peppers busy at 64 px; ginseng 3 px margins.
+
+### B. NEXT: graphical navigation (`claude/plan-graphical-nav.md`, brief `claude/art-brief-here.md`)
+1. DONE 2026-11-18: stop looks for every landscape x type (9 x 12; see `claude/todo.md` section 5). Open: hotspot check in the game; half-fixed weak spots.
+2. Village/haven at hero scale per region; folk wiring.
+4. Doors: DONE 2026-11-11, 81 unique `door-<slug>.png` + 6 shared (no night variant; lit window comes from the hotspot chips).
+5. 2.5D villager sprites: SUPERSEDED. Species strips (`npc25/`, 30 species incl. squirrel, scarecrow, hermit-crab, crab, beaver 2026-11-18) are used first by `here_sprite`; only gnome NPCs without a `gnome-<slug>` strip and any new species are open. The old per-NPC `sprite/npc-*.png` (81) is the fallback.
+6. Treehouse: nothing open (done). Optional: `scenes/wander-step-back.png`.
+7. Pal pictures as puzzle pieces (2026-11-21): the 64 px `pals/<key>.png` of all 570 pals is now the creature cut into its own jigsaw piece (`aseprite-source/v3/perch/piece_cut.py` with `PIECE_YARD=1`; plain-creature originals kept in `aseprite-source/v3/pals-creature/`); the 36 px `pals/perch/` stay plain creatures. The 95 whimsy pals are cut into a plain inner piece (shape picked by key hash) too, so all 570 are pieces; whimsy plain-creature originals are in `pals-creature/` as well.
+7. Pal perch sprites: DONE 2026-11-21, all 570 have `pals/perch/<key>.png` (36x36): 142 hand-drawn, 356 block pals from `aseprite-source/v3/perch/perch_gen.lua`, 72 whimsy downscaled from the 64 px art by `aseprite-source/v3/perch/whimsy_downscale.py` (Josh: eyeball, redraw weak ones by hand). Older note: PARTLY DONE (audited 2026-11-19: all 570 keys have a unique 64x64 `pals/<key>.png`; only 142 have a perch-size `pals/perch/<key>.png`, 428 do not; Josh: pals not done). Earlier note said "DONE 2026-11-11, all 570 in `assets/img/pals/`" (files there may be fallbacks) (475 block pals generator-drawn, 95 whimsy hand-drawn). Optional: found-pal arrival sparkle. Weaker whimsy: pl-dlz-6 (lizard reads turtle), pl-wgor-6 (gorilla blob), mt-bill-brolly, pl-wcof-6, pl-flfm-6.
+8. Trail tile sets per landscape (code-generated today, art optional); event/hotspot icons 32x32; nav icons.
+9. Canvas 480x270 treated as settled (code reads size from layout JSON).
+
+### C. LEFT OUT OF v3 (counts = files in `game/assets/img` on 2026-11-11)
+| Group | Count / note |
+|---|---|
+| Craftmap | `craftmap/` 14: unused leftovers (workshop picture replaced it); delete or ignore |
+| Catfish | `catfish/` (1,414 files mostly part frames), plan `claude/plan-catfish.md` |
+
+### D. FROM OLD VARIETY LIST (not made)
+- Build-stage verb icons `steps/stage-<verb>.png`: carry, befriend, trial, vigil, wait, decorate, craft_on_site, fetch_lore. Add a placeholder when each verb ships.
+- Stop header picture that changes per tier (`<kind>-<tier>.png` exist, header not wired).
+- Per-activity closer pictures for regional acts; "Birds of the Maplewold" journal page picture per collection.
+- Road Journal: a picture per sketch page (6 per region).
+- Before/after pictures for 9 pilot places: Market of a Thousand Chilies, Stepped Seed Temple, Cenote of Echoes, Jaguar Root Caves, Driftwood Tavern, Sunken Gnome Galleon, Singing Waterfall, Mangrove Root Maze, Turtle Nesting Beach. Not wired.
+- Progress picture for clear stages (1/3, 2/3, 3/3).
+
+### E. CAT FISH (open)
+- Lane F, optional polish only: side-cat nap/bored frames that move; a 'watch' head turn; catch and nap frames have no eye pixels (odd-eyed shows nothing there). Not verified fixed.
+- Rest of `catfish/` (1,414 files: cats, patterns, tails, collars, ups, icons, pets) is done. Plan: `claude/plan-catfish.md`.
+- Tools: `tools/catfish_recolor.py`, `tools/catfish_build_art.py`, `tools/gen_placeholder_art.py`; sources `aseprite-source/catfish/`.
+
+### F. ORDER
+1. Section A (4 items + ginseng).
+2. B1-B2 (stop looks, village/haven), B5 (sprites).
+3. B7 (pal sprites).
+4. C (craftmap cleanup only). D and E only when asked.
+
+
+---
+
+<!-- merged from claude/todo-art-acts.md -->
+## Act scenes: one picture per stop activity (checklist)
+> Open art todos live in `claude/todo-art-v3.md` (this file is the generated checklist; all 810 drawn).
+
+> Cat Fish (2.0.92) has its own art todo: `claude/catfish-art-brief.md`.
+
+**810 of 810 drawn.** Animated popover strips (`act-<slug>-anim.png`) exist for all of them since 2.0.84 (15 hand-made, 814 from `aseprite-source/anim/scripts/bulk.py`); redrawing a still means re-running the generator for that slug.
+Generated from the three activity data files; tick = `game/assets/img/acts/act-<slug>.png` exists in the repo (first pass drawn, not approved by Joshua). Brief for each = its blurb: `python3 tools/missing_act_art.py` (or open the data row). Scene rules and how-to: `claude/todo-art-variety.md` section "ART TODO FOR A FUTURE AI". `tt_*` upgrade acts are skipped.
+The wave + regional data comes with release 2.0.78 (branch `ccr-7e2dadf5-mxypd7`, 2e7c5e67, not on main when this list was made). Regenerate this list after merging.
+
+### Kind cards: DONE
+(all four drawn, files exist; audited 2026-11-19) - [x] act-craft  - [x] act-collect  - [x] act-tend  - [x] act-contest
+
+### Existing activities (stop_acts.txt): 55/55 drawn
+- [x] `chores` A helping hand (check; any; -)
+- [x] `snack` The bake stall (snack; market,mill,inn,orchard,camp,ferry; -)
+- [x] `seedswap` Seed swap (seedswap; market,herb,orchard,mill; -)
+- [x] `gossip` Gossip on the bench (gossip; inn,camp,tower,ferry,market; -)
+- [x] `shells` Find the acorn (pick; market,ferry,camp,inn; -)
+- [x] `ringtoss` Ring toss (power; market,orchard,mill,jetty,workshop; -)
+- [x] `haggle` Haggle at the stalls (check; market; -)
+- [x] `notice_riddle` Riddle on the notice post (check; market,inn,tower; -)
+- [x] `porter` Carry sacks (check; market,mill,ferry,workshop; -)
+- [x] `grind` Turn the millstone (check; mill; -)
+- [x] `mill_swap` Compost swap (swap; mill,orchard,herb; -)
+- [x] `wind_sails` Fly the sails (check; mill; we=wind,storm)
+- [x] `tall_tale` Tall tales by the hearth (lore; inn; dp=dusk,night)
+- [x] `rainy_stories` Rainy-day stories (check; inn,camp,shrine; we=rain,storm,snow)
+- [x] `room_rest` A hot bath and a soft bed (rest; inn; -)
+- [x] `night_supper` Late supper by lamplight (buy; inn; dp=night)
+- [x] `cards` Snail cards (pick; inn,camp; -)
+- [x] `make_wish` Make an offering (check; shrine; -)
+- [x] `quiet_hour` Sit in silence (rest; shrine,spring,tower; -)
+- [x] `moss_tend` Tend the moss (check; shrine,herb; -)
+- [x] `star_vigil` Star vigil (check; shrine,tower; dp=night)
+- [x] `dawn_bell` Ring the dawn bell (check; shrine; dp=dawn)
+- [x] `cast_a_line` Cast a line (check; jetty,ferry; -)
+- [x] `night_fishing` Night fishing (check; jetty,ferry; dp=night,dusk)
+- [x] `ice_hole` Ice-hole fishing (check; jetty,ferry,camp; se=winter/we=frost,snow,cloud,sun,fog,wind)
+- [x] `skim_stones` Skim stones (power; jetty,ferry,spring; -)
+- [x] `pick_herbs` Gather herbs (check; herb,orchard; -)
+- [x] `herb_tea` Herbal tea tasting (buy; herb,inn,spring; -)
+- [x] `drying_day` Drying day (check; herb,orchard,mill; we=sun,heat,wind)
+- [x] `mushroom_rain` After-rain mushrooms (check; herb,orchard,camp,shrine; we=rain,fog)
+- [x] `tinker` Mend something (check; workshop; -)
+- [x] `saw_planks` Saw planks (check; workshop,mill; -)
+- [x] `dress_stone` Dress stone (check; workshop,tower; -)
+- [x] `twist_rope` Twist rope (check; workshop,jetty,ferry; -)
+- [x] `shake_tree` Shake the tree (check; orchard; -)
+- [x] `pie_contest` Harvest pie contest (check; orchard,market,inn; se=autumn)
+- [x] `blossom_walk` Blossom walk (check; orchard,shrine,herb; se=spring)
+- [x] `oar_ferry` Take an oar (check; ferry; -)
+- [x] `toll_talk` Chat with the toll-keeper (check; ferry,tower; -)
+- [x] `lantern_boats` Lantern boats (pick; ferry,jetty; dp=dusk,night)
+- [x] `scan_horizon` Scan the horizon (check; tower; -)
+- [x] `signal_fire` Light the beacon (check; tower; dp=dusk,night)
+- [x] `storm_watch` Storm watch (check; tower; we=storm,fog)
+- [x] `soak` A long soak (rest; spring; -)
+- [x] `snow_soak` Snow soak (rest; spring; se=winter/we=snow,frost)
+- [x] `egg_boil` Boil an egg (buy; spring,camp; -)
+- [x] `firewood` Collect firewood (check; camp,shrine,herb; -)
+- [x] `campfire_story` Campfire story (lore; camp; dp=dusk,night)
+- [x] `kettle` Kettle on the fire (rest; camp; -)
+- [x] `frost_fair` Frost fair stalls (pick; market,inn,camp,orchard; se=winter/we=frost,snow,cloud,sun)
+- [x] `bench_rest` The new bench (rest; any; -)
+- [x] `trader_stall` Adopters’ stall (buy; any; -)
+- [x] `lantern_post` Lantern-post walk (check; any; dp=dusk,night)
+- [x] `wishing_well` The wishing well (check; any; -)
+- [x] `long_table` The long table (rest; any; -)
+
+### Wave activities (stop_acts_waves.txt): 265/265 drawn
+- [x] `w1_net_mending` Mend the nets (check; jetty; -)
+- [x] `w1_gull_standoff` Stare down the gull (contest; jetty,ferry; -)
+- [x] `w1_wriggle_bucket` Which bucket wriggles? (pick; jetty; -)
+- [x] `w1_dry_kelp` Dry the kelp (craft; jetty,spring; -)
+- [x] `w1_jetty_knots` Knots of the jetty (collect; jetty,ferry,workshop; -)
+- [x] `w1_bail_dinghy` Bail the dinghy (check; jetty; we=rain,storm)
+- [x] `w1_whetstone` Sharpen the tools (check; workshop; -)
+- [x] `w1_cart_wheel` Rebuild the cart wheel (tend; workshop,mill; -)
+- [x] `w1_plane_boards` Plane the pine boards (craft; workshop,camp; -)
+- [x] `w1_inventors_duel` Inventors’ duel (contest; workshop; -)
+- [x] `w1_anvil_bell` Strike the anvil bell (power; workshop,market; -)
+- [x] `w1_forge_tales` Tales by the banked forge (lore; workshop; dp=night)
+- [x] `w1_egg_pick` Which egg is done? (pick; spring,camp; -)
+- [x] `w1_spring_pickle` Pickle spring eggs (craft; spring,inn; -)
+- [x] `w1_scrub_stones` Scrub the bath stones (tend; spring; -)
+- [x] `w1_splash_duel` Splash duel (contest; spring,jetty; -)
+- [x] `w1_star_float` Float under the stars (check; spring; dp=night)
+- [x] `w1_toe_dip` Toes in the runoff (rest; spring; -)
+- [x] `w1_guess_weight` Guess the marrow’s weight (check; market; -)
+- [x] `w1_bread_shapes` Bread shapes (collect; market,mill,inn; -)
+- [x] `w1_stall_shout` Stallholders’ shout-off (contest; market; -)
+- [x] `w1_awning_mend` Patch the awnings (tend; market; we=rain,storm,wind)
+- [x] `w1_griddle_cakes` Griddle cakes (craft; mill,inn; -)
+- [x] `w1_sweep_loft` Sweep the flour loft (check; mill; dp=dawn)
+- [x] `w1_cat_sack` Which sack has the cat? (pick; mill; -)
+- [x] `w1_wheel_tales` Tales of the wheel (lore; mill; we=rain,storm)
+- [x] `w1_shrine_lanterns` Lanterns of the steps (collect; shrine,tower,inn; -)
+- [x] `w1_rake_gravel` Rake the gravel (tend; shrine; dp=dawn)
+- [x] `w1_leaf_sweep` Sweep the leaves (check; shrine,herb; se=autumn)
+- [x] `w1_pilgrim_tales` Pilgrims’ tales (lore; shrine,inn; -)
+- [x] `w1_meadowsweet_tea` Steep meadowsweet tea (craft; herb,spring; -)
+- [x] `w1_moth_count` Moth count (check; herb,orchard; dp=dusk,night)
+- [x] `w1_leaf_shapes` Leaf shapes (collect; herb,orchard,camp; -)
+- [x] `w1_sniff_jars` Sniff the jars (pick; herb,market; -)
+- [x] `w1_fog_horn` Sound the fog horn (check; tower,jetty; we=fog)
+- [x] `w1_flag_duel` Signal flag duel (contest; tower; -)
+- [x] `w1_beacon_winch` Haul the beacon basket (power; tower; -)
+- [x] `w1_redraw_map` Redraw the old map (tend; tower,inn; -)
+- [x] `w1_supper_rush` The supper rush (check; inn; dp=dusk)
+- [x] `w1_spoon_game` Mug, spoon and saucer (contest; inn,camp; dp=dusk,night)
+- [x] `w1_leek_soup` Simmer leek soup (craft; inn,camp; -)
+- [x] `w1_prop_branches` Prop the laden branches (tend; orchard; se=summer,autumn)
+- [x] `w1_windfall_toss` Windfall toss (power; orchard,camp; -)
+- [x] `w1_wassail` Wassail the trees (check; orchard; se=winter/dp=dusk,night)
+- [x] `w1_umbrella_duty` Umbrella duty (check; ferry,jetty; we=rain,storm)
+- [x] `w1_crate_mixup` Whose crate is it? (pick; ferry,market; -)
+- [x] `w1_river_drift` Things the river brings (collect; ferry,jetty; -)
+- [x] `w1_dawn_tales` Wanderers’ dawn tales (lore; camp; dp=dawn)
+- [x] `w1_pitch_tent` Pitch a tent in the wind (check; camp; we=wind,rain,storm)
+- [x] `w1_ash_flatbread` Ash-baked flatbread (craft; camp,inn; -)
+- [x] `w2_runaway_cabbages` Chase the runaway cabbages (check; market; -)
+- [x] `w2_dawn_carts` Unload the dawn carts (check; market; dp=dawn)
+- [x] `w2_mind_stall` Mind the stall a minute (check; market; -)
+- [x] `w2_tot_takings` Tot up the takings (check; market; dp=dusk)
+- [x] `w2_chestnut_brazier` Roast chestnuts on the brazier (check; market; se=autumn,winter)
+- [x] `w2_kraut_crock` Pound cabbage into the kraut crock (craft; market; -)
+- [x] `w2_chutney_pot` Pot a batch of chutney (craft; market; -)
+- [x] `w2_level_trestles` Level the wobbly trestles (tend; market; -)
+- [x] `w2_stall_signs` Repaint the stall signs (tend; market; -)
+- [x] `w2_juggle_match` Pedlars’ juggling match (contest; market; -)
+- [x] `w2_taster_showdown` Tasters’ table showdown (contest; market; -)
+- [x] `w2_bunting_patterns` Bunting over the lanes (collect; market; -)
+- [x] `w2_stamped_weight` Find the stamped weight (pick; market; se=summer)
+- [x] `w2_honest_scale` The honest scale (pick; market; -)
+- [x] `w2_cheese_roll` Roll the cheese down the lane (power; market; -)
+- [x] `w2_weigher_memory` What the weigher remembers (lore; market; -)
+- [x] `w2_bargains_of_old` Bargains of old (lore; market; dp=dusk,night)
+- [x] `w2_branch_wheel` Free the wheel from a branch (check; mill; we=rain,storm)
+- [x] `w2_sift_flour` Sift the morning flour (check; mill; -)
+- [x] `w2_grease_cogs` Grease the great cogs (check; mill; -)
+- [x] `w2_granary_mice` Shoo the granary mice (check; mill; dp=night)
+- [x] `w2_ice_paddles` Chip ice off the paddles (check; mill; we=frost,snow)
+- [x] `w2_millrace_cornbread` Bake cornbread by the millrace (craft; mill; -)
+- [x] `w2_oat_porridge` Stir the miller’s porridge (craft; mill; dp=dawn)
+- [x] `w2_carrot_cake` Bake the sack-carriers’ carrot cake (craft; mill; -)
+- [x] `w2_millrace_weed` Clear weed from the millrace (tend; mill; se=summer)
+- [x] `w2_tar_paddles` Re-tar the wheel paddles (tend; mill; -)
+- [x] `w2_stick_race` Sluice-stick race (contest; mill; -)
+- [x] `w2_flour_puff` Flour-puff duel (contest; mill; -)
+- [x] `w2_hopper_grains` Grains through the hopper (collect; mill; -)
+- [x] `w2_sack_stamps` Stamps on the sacks (collect; mill; -)
+- [x] `w2_bean_loaf` The bean in the loaf (pick; mill; se=winter)
+- [x] `w2_finest_flour` Finest flour by touch (pick; mill; -)
+- [x] `w2_sluice_gate` Lift the sluice gate (power; mill; -)
+- [x] `w2_miller_ledger` The miller’s old ledger (lore; mill; -)
+- [x] `w2_sackcarrier_sayings` Sayings of the sack-carriers (lore; mill; dp=dusk)
+- [x] `w2_make_beds` Make up the guest beds (check; inn; -)
+- [x] `w2_late_coach` Rooms for the late coach (check; inn; dp=night)
+- [x] `w2_dry_cloaks` Dry the travellers’ cloaks (check; inn; we=rain,storm)
+- [x] `w2_apple_crumble` Crumble for the common room (craft; inn; -)
+- [x] `w2_early_eggs` Early-rider scrambled eggs (craft; inn; dp=dawn)
+- [x] `w2_air_mattresses` Air the feather mattresses (tend; inn; -)
+- [x] `w2_creaky_stair` Fix the creaky stair (tend; inn; -)
+- [x] `w2_song_off` Fireside song-off (contest; inn; dp=dusk,night)
+- [x] `w2_hat_pegs` Hats on the inn pegs (collect; inn; -)
+- [x] `w2_room_keys` The muddled room keys (pick; inn; -)
+- [x] `w2_hearth_bellows` Work the hearth bellows (power; inn; we=frost,snow)
+- [x] `w2_guestbook` The guestbook’s oddest entries (lore; inn; -)
+- [x] `w3_shrine_cat` Coax the cat off the roof (check; shrine; -)
+- [x] `w3_snowy_lanterns` Brush snow from the lanterns (check; shrine; se=winter/we=snow)
+- [x] `w3_fog_pilgrim` Lead a pilgrim through fog (check; shrine; we=fog)
+- [x] `w3_worn_carvings` Puzzle out the worn carvings (check; shrine; -)
+- [x] `w3_basin_water` Carry water up the steps (check; shrine; dp=day)
+- [x] `w3_paper_birds` Fold paper birds (check; shrine; -)
+- [x] `w3_dip_tapers` Dip beeswax tapers (craft; shrine; -)
+- [x] `w3_shell_chime` Thread a shell chime (craft; shrine; -)
+- [x] `w3_moss_cushion` Raise a moss cushion (craft; shrine; -)
+- [x] `w3_gift_house` Re-thatch the gift-house (tend; shrine; -)
+- [x] `w3_shrine_rill` Clear the little rill (tend; shrine; se=spring,autumn)
+- [x] `w3_sunken_stones` Lift the sunken stepping stones (tend; shrine; -)
+- [x] `w3_politest_bow` The politest bow (contest; shrine; -)
+- [x] `w3_pebble_stack` Pebble-stacking bout (contest; shrine; -)
+- [x] `w3_small_gifts` Small gifts on the stone (collect; shrine; -)
+- [x] `w3_shrine_mosses` Mosses of the old shrine (collect; shrine; -)
+- [x] `w3_ringing_stone` The stone that rings (pick; shrine; -)
+- [x] `w3_lit_lantern` Find the lit lantern (pick; shrine; dp=dusk,night)
+- [x] `w3_moss_roller` Push the moss roller (power; shrine; -)
+- [x] `w3_moss_remembers` What the moss remembers (lore; shrine; dp=night)
+- [x] `w3_bellringer_hours` The bell-ringer’s small hours (lore; shrine; dp=dawn)
+- [x] `w3_landing_net` Hold the landing net (check; jetty; dp=dusk)
+- [x] `w3_read_tide` Read the turning tide (check; jetty; dp=dawn)
+- [x] `w3_sprat_rack` Guard the sprat rack (check; jetty; -)
+- [x] `w3_gale_moor` Double-moor the boats (check; jetty; we=wind,storm)
+- [x] `w3_dropped_kettle` Dive for the dropped kettle (check; jetty; se=summer)
+- [x] `w3_smoke_trout` Smoke trout over oak (craft; jetty; -)
+- [x] `w3_samphire_salad` Toss a samphire salad (craft; jetty; -)
+- [x] `w3_crab_shell_meal` Crush crab shells for the beds (craft; jetty; -)
+- [x] `w3_tar_rowboat` Tar the old rowboat (tend; jetty; -)
+- [x] `w3_loose_planks` Fix the loose jetty planks (tend; jetty; -)
+- [x] `w3_shadow_puppets` Lantern shadow puppets (contest; jetty; dp=night)
+- [x] `w3_coracle_race` Coracle race (contest; jetty; -)
+- [x] `w3_jetty_boats` Boats at the jetty (collect; jetty; -)
+- [x] `w3_bobbing_float` Which float will bob? (pick; jetty; -)
+- [x] `w3_reed_oar` The oar in the reeds (pick; jetty; we=fog)
+- [x] `w3_crab_pot` Haul up the crab pot (power; jetty; -)
+- [x] `w3_upturned_boat` Yarns on the upturned boat (lore; jetty; dp=dusk)
+- [x] `w3_swarm_home` Coax the swarm home (check; herb; se=summer)
+- [x] `w3_pot_cuttings` Pot up the cuttings (check; herb; se=spring)
+- [x] `w3_mystery_weed` Name the mystery weed (check; herb; -)
+- [x] `w3_frost_cloches` Cloche the seedlings (check; herb; we=frost)
+- [x] `w3_nettle_sting` Soothe a nettle sting (check; herb; -)
+- [x] `w3_goat_in_sage` Shoo the goat from the sage (check; herb; -)
+- [x] `w3_honeycomb_press` Press the honeycomb (craft; herb; -)
+- [x] `w3_ramson_pesto` Pound ramson pesto (craft; herb; se=spring)
+- [x] `w3_dill_jars` Jar the dill-seed pickles (craft; herb; se=autumn)
+- [x] `w3_bee_hotel` Build a bee hotel (tend; herb; -)
+- [x] `w3_herb_spiral` Rebuild the herb spiral (tend; herb; -)
+- [x] `w3_bee_dance` Bee dance-off (contest; herb; -)
+- [x] `w3_snail_derby` Snail derby (contest; herb; we=rain)
+- [x] `w3_croft_bees` Bees in the borders (collect; herb; -)
+- [x] `w3_seed_drawers` The seed drawers (collect; herb; -)
+- [x] `w3_bees_next_flower` The bee’s next flower (pick; herb; -)
+- [x] `w3_sprouting_pot` Spot the sprouting pot (pick; herb; -)
+- [x] `w3_garden_pump` Work the garden pump (power; herb; -)
+- [x] `w3_telling_bees` Telling the bees (lore; herb; -)
+- [x] `w3_remedy_mishaps` Remedies gone sideways (lore; herb; dp=dusk)
+- [x] `w4_hinge_oil` Oil the squeaky hinges (check; workshop; -)
+- [x] `w4_spring_drawer` Untangle the spring drawer (check; workshop; -)
+- [x] `w4_flying_trial` Test the flying machine (check; workshop; we=wind)
+- [x] `w4_lost_spectacles` Find the tinker’s spectacles (check; workshop; dp=dawn)
+- [x] `w4_glue_pot` Warm the glue pot (check; workshop; we=frost,snow)
+- [x] `w4_wobbly_stool` Clamp the wobbly stool (check; workshop; -)
+- [x] `w4_bird_box` Nail up a bird box (craft; workshop; -)
+- [x] `w4_snail_glaze` Glaze a pot with snail shine (craft; workshop; dp=dusk,night)
+- [x] `w4_turn_dibber` Turn a dibber on the lathe (craft; workshop; -)
+- [x] `w4_rocking_horse` Carve a rocking horse (tend; workshop; -)
+- [x] `w4_rain_catcher` Rig the rain-catcher (tend; workshop; we=rain)
+- [x] `w4_dovetail_lesson` Learn the dovetail joint (tend; workshop; -)
+- [x] `w4_kettle_whistleoff` Kettle whistle-off (contest; workshop; -)
+- [x] `w4_paper_gliders` Paper glider trials (contest; workshop; -)
+- [x] `w4_clock_wall` The wall of clocks (collect; workshop; -)
+- [x] `w4_pegboard_tools` Tools on the pegboard (collect; workshop; -)
+- [x] `w4_screw_drawer` Which drawer has the screws? (pick; workshop; -)
+- [x] `w4_padlock_key` The ring of keys (pick; workshop; -)
+- [x] `w4_hoop_driver` Drive the barrel hoops home (power; workshop; dp=day)
+- [x] `w4_rope_walk_yarns` Yarns from the rope walk (lore; workshop; -)
+- [x] `w4_apprentice_tales` The apprentices’ first jobs (lore; workshop; dp=night)
+- [x] `w4_ladder_steady` Steady the picker’s ladder (check; orchard; -)
+- [x] `w4_wasp_windfalls` Shoo wasps from the windfalls (check; orchard; se=summer,autumn)
+- [x] `w4_cherry_net` Net the cherry tree (check; orchard; se=summer)
+- [x] `w4_frost_pots` Light the frost pots (check; orchard; we=frost)
+- [x] `w4_bruise_sort` Sort the bruised apples (check; orchard; -)
+- [x] `w4_apple_chutney` Stir apple chutney (craft; orchard; -)
+- [x] `w4_currant_tart` Bake a currant tart in the bothy oven (craft; orchard; -)
+- [x] `w4_ginger_cordial` Press ginger-apple cordial (craft; orchard; -)
+- [x] `w4_graft_pear` Graft the old pear (tend; orchard; se=spring)
+- [x] `w4_thin_fruitlets` Thin the young apples (tend; orchard; -)
+- [x] `w4_pip_spitting` Pip-spitting match (contest; orchard; -)
+- [x] `w4_apple_bobbing` Bobbing for apples (contest; orchard; dp=dusk/se=autumn)
+- [x] `w4_apple_kinds` Apples of the old rows (collect; orchard; -)
+- [x] `w4_ripe_pear` Ripe or not, pear? (pick; orchard; -)
+- [x] `w4_cider_barrel` The cider barrel shuffle (pick; orchard; -)
+- [x] `w4_top_apple` Hook the topmost apple (power; orchard; -)
+- [x] `w4_oldest_tree` Under the oldest tree (lore; orchard; dp=dusk)
+- [x] `w4_cider_shed_tales` Whispers in the cider shed (lore; orchard; dp=night)
+- [x] `w4_cow_aboard` Coax the cow aboard (check; ferry; dp=dawn,day)
+- [x] `w4_fog_reading` Read the river in fog (check; ferry; we=fog)
+- [x] `w4_mooring_line` Catch the mooring line (check; ferry; -)
+- [x] `w4_trim_cargo` Trim the cargo (check; ferry; -)
+- [x] `w4_toll_count` Count the day’s tolls (check; ferry; dp=dusk)
+- [x] `w4_mussel_broth` Cook the porters’ mussel broth (craft; ferry; -)
+- [x] `w4_smoke_trout` Smoke trout in the toll-house (craft; ferry; -)
+- [x] `w4_caulk_seams` Caulk the ferry seams (tend; ferry; -)
+- [x] `w4_ferry_pup` Train the ferry pup (tend; ferry; -)
+- [x] `w4_rope_tug` Rope tug with the porter (contest; ferry; -)
+- [x] `w4_toll_goose` Bargain with the toll goose (contest; ferry; -)
+- [x] `w4_passenger_hats` Hats of the passengers (collect; ferry; -)
+- [x] `w4_lost_ticket` Whose ticket is this? (pick; ferry; -)
+- [x] `w4_loose_plank` Find the loose plank (pick; ferry; -)
+- [x] `w4_chain_winch` Wind the ferry winch (power; ferry; dp=day,dusk)
+- [x] `w4_strange_fares` The ferryman’s strangest fares (lore; ferry; dp=dusk)
+- [x] `w4_toll_ledger` The toll-keeper’s ledger (lore; ferry; dp=night)
+- [x] `w5_weathervane_oil` Oil the stuck weathervane (check; tower; -)
+- [x] `w5_count_carts` Count carts on three roads (check; tower; -)
+- [x] `w5_rain_gauge` Read the rain gauge (check; tower; we=rain)
+- [x] `w5_hundred_rungs` Climb the hundred rungs (check; tower; dp=dawn)
+- [x] `w5_lost_spectacles` Find the cartographer’s spectacles (check; tower; -)
+- [x] `w5_pigeon_post` Send word by pigeon (check; tower; -)
+- [x] `w5_sift_beacon_ash` Sift the beacon ash (craft; tower; -)
+- [x] `w5_watchers_cocoa` Watcher’s cocoa (craft; tower; -)
+- [x] `w5_wind_harp` String a wind harp (craft; tower; -)
+- [x] `w5_rethatch_lookout` Re-thatch the lookout roof (tend; tower; -)
+- [x] `w5_spyglass_lens` Fit the new spyglass lens (tend; tower; -)
+- [x] `w5_swift_gnat` Swifts-and-gnats hand game (contest; tower; we=wind)
+- [x] `w5_beacon_shadows` Shadow puppets by the beacon (contest; tower; dp=night)
+- [x] `w5_seen_from_top` Things seen from the top (collect; tower; -)
+- [x] `w5_cloud_names` Name that cloud (collect; tower; we=cloud)
+- [x] `w5_focused_spyglass` Which spyglass is focused? (pick; tower; -)
+- [x] `w5_map_drawer` Hunt the map drawer (pick; tower; -)
+- [x] `w5_tower_clock` Wind the tower clock (power; tower; -)
+- [x] `w5_watcher_night` Watcher’s night tales (lore; tower; dp=night)
+- [x] `w5_map_corners` Corners of the old maps (lore; tower; -)
+- [x] `w5_elbow_test` Test the water with an elbow (check; spring; -)
+- [x] `w5_lost_sandal` Fish out the lost sandal (check; spring; -)
+- [x] `w5_towel_mountain` Fold the towel mountain (check; spring; dp=dusk)
+- [x] `w5_mud_masks` Mineral mud masks (check; spring; -)
+- [x] `w5_snowy_path` Clear the snowy bath path (check; spring; we=snow)
+- [x] `w5_steam_fortune` Read fortunes in the steam (check; spring; dp=dawn)
+- [x] `w5_warm_curds` Curdle warm goat cheese (craft; spring; -)
+- [x] `w5_mineral_silt` Sieve the mineral silt (craft; spring; -)
+- [x] `w5_buried_cornbread` Bury a pot of cornbread (craft; spring; -)
+- [x] `w5_pool_wall` Restack the pool wall (tend; spring; -)
+- [x] `w5_darn_robes` Darn the bath robes (tend; spring; se=winter)
+- [x] `w5_towel_flick` Towel-flick challenge (contest; spring; -)
+- [x] `w5_steam_singing` Hum, yodel or gargle (contest; spring; -)
+- [x] `w5_pool_crusts` Crusts and colours of the pools (collect; spring; -)
+- [x] `w5_bathers_hats` Bathers’ hats (collect; spring; -)
+- [x] `w5_just_right_pool` The just-right pool (pick; spring; -)
+- [x] `w5_dry_towel` Which towel is dry? (pick; spring; we=rain)
+- [x] `w5_spring_pump` Pump water to the top pool (power; spring; -)
+- [x] `w5_steam_stories` Stories in the steam (lore; spring; dp=night)
+- [x] `w5_spring_origins` How the springs got warm (lore; spring; -)
+- [x] `w5_rainy_fire` Keep the fire going in the rain (check; camp; we=rain)
+- [x] `w5_toast_stick` Toast bread on a stick (check; camp; -)
+- [x] `w5_trail_signs` Follow the scout’s trail signs (check; camp; dp=day)
+- [x] `w5_snoring_tent` Settle the snoring tent (check; camp; dp=night)
+- [x] `w5_whittle_stick` Whittle a walking stick (craft; camp; -)
+- [x] `w5_three_sisters` Three-sisters stew pot (craft; camp; se=autumn)
+- [x] `w5_fire_pit_ring` Build the fire-pit ring (tend; camp; -)
+- [x] `w5_patch_tent` Patch the patchwork tent (tend; camp; -)
+- [x] `w5_pinecone_game` Pinecone, twig, acorn (contest; camp; -)
+- [x] `w5_scout_badges` Scout badges (collect; camp; -)
+- [x] `w5_tent_hide_seek` Hide-and-seek among the tents (pick; camp; -)
+- [x] `w5_puff_embers` Puff the embers awake (power; camp; dp=dawn)
+- [x] `w5_never_out_fire` Tales of the fire that never went out (lore; camp; se=winter)
+
+### Regional activities (stop_acts_regional.txt): 490/490 drawn
+- [x] `na_birch_planks` Split the birch (craft; workshop,camp,orchard,mill,inn; -)
+- [x] `na_pitch_candles` Pitch candles (craft; shrine,camp,herb,tower; -)
+- [x] `na_prairie_birds` Birds of the Maplewold (collect; jetty,camp,tower,ferry,herb,orchard; -)
+- [x] `na_beaver_dam` Patch the beaver dam (tend; jetty,ferry,mill,camp; -)
+- [x] `na_pumpkin_roll` Pumpkin roll (contest; orchard,market,inn,camp; se=autumn,summer)
+- [x] `na_full_bucket` Which bucket is full? (pick; orchard,mill,camp,herb; -)
+- [x] `na_aurora_watch` Watch the aurora (check; camp,tower,shrine,jetty; dp=night)
+- [x] `ca_tortilla_press` Press tortillas (craft; market,mill,inn,camp; -)
+- [x] `ca_cocoa_grind` Grind the cocoa (craft; market,herb,inn,workshop; -)
+- [x] `ca_quetzal_trail` The quetzal trail (collect; tower,herb,shrine,orchard,jetty; -)
+- [x] `ca_milpa_row` Tend the milpa (tend; orchard,herb,market,mill; -)
+- [x] `ca_hip_ball` Hip-ball (contest; tower,market,camp,orchard,shrine; -)
+- [x] `ca_chili_guess` Which chili is hottest? (pick; market,herb; -)
+- [x] `ca_cenote_dip` Dip in the cenote (check; jetty,spring,shrine,ferry; -)
+- [x] `r_na_test_ice` Test the river ice (check; ferry,jetty; se=winter/we=frost,snow)
+- [x] `r_na_moose_lane` Wait out the moose (check; camp,ferry; -)
+- [x] `r_na_trim_wick` Trim the lighthouse wick (check; tower,jetty; dp=dusk,night)
+- [x] `r_na_knock_rice` Knock the wild rice (check; jetty,ferry; se=autumn)
+- [x] `r_na_dig_out` Dig out the front door (check; inn,market,mill; we=snow)
+- [x] `r_na_owl_hoot` Answer the great white owl (check; tower,shrine; -)
+- [x] `r_na_sky_read` Read the prairie sky (check; tower,mill; we=storm,wind)
+- [x] `r_na_stump_rings` Count the Thousand Rings (check; shrine,workshop; -)
+- [x] `r_na_fiddlehead_fry` Fry the fiddleheads (craft; herb,camp; se=spring)
+- [x] `r_na_cattail_fritters` Cattail fritters (craft; jetty,camp; -)
+- [x] `r_na_crowberry_cordial` Crowberry cordial (craft; spring,herb; -)
+- [x] `r_na_bog_jam` Bog-berry jam (craft; orchard,market; -)
+- [x] `r_na_rail_fence` Rebuild the zigzag fence (tend; orchard,camp; -)
+- [x] `r_na_hop_bines` Train the hop bines (tend; herb,orchard; -)
+- [x] `r_na_root_cellar` Stock the root cellar (tend; inn,mill; se=autumn)
+- [x] `r_na_toboggan` Toboggan race (contest; camp,tower; se=winter)
+- [x] `r_na_ring_board` Flick the ring-board (contest; inn,workshop; -)
+- [x] `r_na_loon_calls` Loon-call contest (contest; jetty,spring; dp=dusk,dawn)
+- [x] `r_na_quilt_blocks` Quilt blocks by the stove (collect; inn,market,workshop; -)
+- [x] `r_na_shallows_pools` Tidepools of the Shallows (collect; jetty,ferry; -)
+- [x] `r_na_trail_tracks` Tracks along the trail (collect; camp,herb,shrine; -)
+- [x] `r_na_beaver_tunnels` Which tunnel goes home? (pick; mill,jetty; -)
+- [x] `r_na_gopher_holes` Which hole pops? (pick; camp,orchard; -)
+- [x] `r_na_bale_toss` Heave the hay bale (power; mill,market; -)
+- [x] `r_na_pond_stone` Slide the pond stone (power; jetty,ferry; se=winter)
+- [x] `r_na_sugar_yarns` Sugar shack yarns (lore; inn,camp; se=winter,spring)
+- [x] `r_na_lantern_legends` Legends of the Lost Lantern (lore; tower,ferry; -)
+- [x] `r_na_woodstove_mitts` Mitts on the woodstove rail (rest; inn,workshop; -)
+- [x] `r_ca_smoke_reading` Read the Smokecap plume (check; tower,camp; -)
+- [x] `r_ca_cistern_share` Share out the cistern (check; spring,camp; we=heat)
+- [x] `r_ca_seedling_rescue` Rescue the seedling trays (check; herb,orchard; we=rain,storm)
+- [x] `r_ca_howler_dawn` Count the howler chorus (check; jetty,ferry; dp=dawn)
+- [x] `r_ca_nopal_spines` De-spine the cactus pads (check; market,herb; -)
+- [x] `r_ca_vanilla_bloom` Hand-pollinate the vanilla (check; orchard,herb; se=spring/dp=dawn)
+- [x] `r_ca_dugout_pole` Pole the dugout canoe (check; ferry,jetty; -)
+- [x] `r_ca_flats_kites` Launch the giant kite (check; tower,mill; se=autumn/we=wind)
+- [x] `r_ca_three_sisters` Cook a three sisters pot (craft; inn,camp; -)
+- [x] `r_ca_fruit_bowl` Slice a mamey and papaya bowl (craft; orchard,market; -)
+- [x] `r_ca_bean_pot` Coil a clay bean pot (craft; workshop,market; -)
+- [x] `r_ca_vanilla_tapers` Dip vanilla tapers (craft; shrine,workshop; -)
+- [x] `r_ca_terrace_stones` Restack the terrace walls (tend; shrine,orchard,mill; -)
+- [x] `r_ca_cacao_shade` Thin the cacao shade trees (tend; orchard,herb; -)
+- [x] `r_ca_palm_rethatch` Rethatch the palm landing hut (tend; ferry,jetty; we=rain)
+- [x] `r_ca_top_spinning` Spinning-top showdown (contest; market,inn; -)
+- [x] `r_ca_hawk_lizard` Hawk, lizard, cactus (contest; tower,camp; -)
+- [x] `r_ca_drum_off` Boatmen’s drum-off (contest; ferry,inn; -)
+- [x] `r_ca_chili_stalls` Chilies of a Thousand Stalls (collect; market,herb; -)
+- [x] `r_ca_barrens_cacti` Cacti of the Barrens (collect; camp,tower,spring; -)
+- [x] `r_ca_smokecap_stones` Stones of Smokecap (collect; spring,workshop,tower; -)
+- [x] `r_ca_husk_parcel` Which husk has the bean? (pick; inn,mill; -)
+- [x] `r_ca_rattle_gourd` Which gourd still rattles? (pick; herb,workshop; -)
+- [x] `r_ca_paper_star` Swing at the paper star (power; inn,camp; dp=dusk)
+- [x] `r_ca_vine_swing` Swing the river vine (power; jetty,ferry; -)
+- [x] `r_ca_caldera_tales` Tales of the sleepy caldera (lore; spring,tower; dp=night)
+- [x] `r_ca_seed_steps` Legends of the stepped seed temple (lore; shrine,mill; -)
+- [x] `r_ca_shade_hammock` Hammock under the mango leaves (rest; orchard,camp; we=heat)
+- [x] `r_cb_hatchling_guard` Guard the turtle hatchlings (check; camp,jetty; dp=night)
+- [x] `r_cb_batten_shutters` Batten the hurricane shutters (check; inn,market; we=storm,wind)
+- [x] `r_cb_palm_shin` Shin up the coconut palm (check; orchard,camp; -)
+- [x] `r_cb_galleon_peek` Peek into the sunken galleon (check; jetty,ferry; -)
+- [x] `r_cb_mangrove_punt` Pole through the root maze (check; ferry,herb; we=fog)
+- [x] `r_cb_cane_press` Feed the cane press (check; mill,market; se=winter,spring)
+- [x] `r_cb_sulphur_mud` Wallow in the sulphur mud (check; spring; -)
+- [x] `r_cb_squall_dash` Beat the afternoon squall (check; market,ferry; we=rain)
+- [x] `r_cb_whale_spouts` Count the whale spouts (check; tower,ferry; se=winter)
+- [x] `r_cb_fish_pot` Haul the wicker fish pot (check; jetty; dp=dawn)
+- [x] `r_cb_rice_peas` Cook a pot of rice and peas (craft; inn,mill,camp; -)
+- [x] `r_cb_coir_rope` Twist coconut coir (craft; workshop,jetty; -)
+- [x] `r_cb_fruit_platter` Slice a guava and soursop platter (craft; market,orchard; -)
+- [x] `r_cb_fish_tea` Simmer reef fish broth (craft; inn,jetty,camp; -)
+- [x] `r_cb_mango_chutney` Spoon up mango chutney (craft; herb,market; -)
+- [x] `r_cb_tin_pan` Hammer the tin pan into tune (tend; workshop,market; -)
+- [x] `r_cb_mangrove_seedlings` Plant the mangrove seedlings (tend; herb,ferry; -)
+- [x] `r_cb_nutmeg_racks` Turn the nutmeg racks (tend; herb,orchard,workshop; -)
+- [x] `r_cb_frond_thatch` Weave a palm-frond roof (tend; inn,shrine; -)
+- [x] `r_cb_clap_circle` Clapping-circle game (contest; market,camp; -)
+- [x] `r_cb_kite_duel` Trade-wind kite duel (contest; tower,orchard; we=wind)
+- [x] `r_cb_marble_ring` Marbles by the ferry steps (contest; ferry,inn; -)
+- [x] `r_cb_crab_derby` Hermit crab derby (contest; jetty,spring; -)
+- [x] `r_cb_cay_shells` Shells of Sunsprinkle Cay (collect; jetty,camp,market; -)
+- [x] `r_cb_reef_fish` Fish of Coralteeth Reef (collect; jetty,ferry,tower; -)
+- [x] `r_cb_tree_frogs` Tree frogs of Greenmist (collect; herb,spring,shrine; dp=dusk,night)
+- [x] `r_cb_thump_breadfruit` Thump the ripe breadfruit (pick; orchard,market; -)
+- [x] `r_cb_humming_conch` Which conch hums the sea? (pick; tower,shrine; -)
+- [x] `r_cb_juicy_lime` The juiciest lime in the bowl (pick; market,inn; -)
+- [x] `r_cb_seine_haul` Haul the beach seine (power; jetty,camp; -)
+- [x] `r_cb_sandbar_shove` Shove the ferry off the sandbar (power; ferry; -)
+- [x] `r_cb_tavern_yarns` Yarns of the Driftwood Tavern (lore; inn,camp; dp=night)
+- [x] `r_cb_waterfall_tales` What the Singing Waterfall sings (lore; shrine,spring; we=rain)
+- [x] `r_cb_crab_legends` The Hurricane Crab’s doings (lore; tower,camp; we=wind)
+- [x] `r_cb_hammock_heat` Hammock in the midday heat (rest; spring,camp; we=heat)
+- [x] `r_sa_pampero_hats` Hold your hat in the pampero (check; market,camp; we=wind)
+- [x] `r_sa_flood_ferry` Pole through the flooded forest (check; ferry; we=rain)
+- [x] `r_sa_salt_crossing` Cross the white flat at sunrise (check; tower,spring; dp=dawn)
+- [x] `r_sa_cloud_path` Find the path in the cloud forest (check; shrine,tower; we=fog)
+- [x] `r_sa_rhea_roundup` Round up the rheas (check; camp,market; -)
+- [x] `r_sa_dolphin_whistle` Whistle for the pink dolphins (check; jetty,ferry; -)
+- [x] `r_sa_condor_thermals` Watch the condors circle (check; tower,camp; we=sun)
+- [x] `r_sa_ruin_steps` Climb the sky-city stairs (check; shrine,tower; -)
+- [x] `r_sa_mate_round` Pass the mate gourd (check; inn,camp; dp=dawn)
+- [x] `r_sa_anaconda_length` Measure the sleeping anaconda (check; jetty,herb; -)
+- [x] `r_sa_quinoa_bread` Quinoa bread with peanut paste (craft; mill,inn; -)
+- [x] `r_sa_acai_bowl` Mash an açaí bowl (craft; orchard,market; se=summer)
+- [x] `r_sa_red_clay_pot` Coil a red-clay pot (craft; workshop,camp; -)
+- [x] `r_sa_humus_sift` Sift the rainroot humus (craft; herb,orchard; -)
+- [x] `r_sa_spring_oven` Bury roots by the hot spring (craft; spring,camp; -)
+- [x] `r_sa_terrace_wall` Rebuild a terrace wall (tend; orchard,mill; -)
+- [x] `r_sa_latex_cups` Empty the rubber-tree cups (tend; workshop,herb; -)
+- [x] `r_sa_frost_potatoes` Tread the frost potatoes (tend; mill,market; se=winter/we=frost)
+- [x] `r_sa_salt_channel` Chip the salt from the spring (tend; spring,workshop; -)
+- [x] `r_sa_ombu_hands` Ombú, wind and thistle (contest; camp,tower; -)
+- [x] `r_sa_ant_leaf_rain` Ant, leaf, raindrop (contest; herb,orchard; we=rain)
+- [x] `r_sa_panpipe_echo` Panpipe echo-off (contest; shrine,inn; -)
+- [x] `r_sa_mirror_poses` Mirror-flat pose-off (contest; spring,ferry; we=rain)
+- [x] `r_sa_potato_kinds` Potatoes of the Cloudstair (collect; market,mill,inn; -)
+- [x] `r_sa_frog_calls` Frog calls after dark (collect; jetty,herb,ferry; dp=dusk,night)
+- [x] `r_sa_weave_patterns` Blanket patterns of the heights (collect; workshop,market,tower; -)
+- [x] `r_sa_ripe_cherimoya` Which cherimoya is ripe? (pick; orchard,market; -)
+- [x] `r_sa_bromeliad_frog` The frog in the bromeliad (pick; herb,shrine; -)
+- [x] `r_sa_armadillo_door` Find the armadillo’s door (pick; camp,tower; dp=dusk)
+- [x] `r_sa_nut_pod_crack` Crack the brazil-nut pod (power; workshop,orchard; -)
+- [x] `r_sa_raft_launch` Push off the balsa raft (power; ferry,jetty; -)
+- [x] `r_sa_dolphin_tales` Tales from the dolphin pools (lore; ferry,jetty; dp=dusk)
+- [x] `r_sa_ranch_tales` Ranch-fire tall tales (lore; camp,inn; dp=night)
+- [x] `r_sa_salt_tales` Stories of the mirror flat (lore; spring,tower; -)
+- [x] `r_sa_canopy_hammock` Swing in a palm-cord hammock (rest; orchard,camp; -)
+- [x] `r_nwe_hedge_laying` Lay the hedgerow (check; orchard,herb; se=winter)
+- [x] `r_nwe_peat_cut` Cut peat on the moor (check; camp,workshop; -)
+- [x] `r_nwe_seal_skerry` Count the seals on the skerry (check; jetty,tower; -)
+- [x] `r_nwe_cloudberry_bog` Cloudberries on the bog (check; herb,camp; se=summer)
+- [x] `r_nwe_jam_or_cream` The jam-or-cream question (check; inn,market; -)
+- [x] `r_nwe_stones_sunrise` Sunrise through the Standing Stones (check; shrine,tower; se=summer/dp=dawn)
+- [x] `r_nwe_geese_home` Whistle the geese home (check; orchard,mill; -)
+- [x] `r_nwe_bracken_fog` Find the way through the bracken (check; camp,herb; we=fog)
+- [x] `r_nwe_frost_toad` Tiptoe past the Frost Toad (check; shrine,camp; -)
+- [x] `r_nwe_sea_cave_tide` Beat the tide through the sea cave (check; jetty,ferry; -)
+- [x] `r_nwe_rye_pancakes` Rye drop scones (craft; mill,inn; -)
+- [x] `r_nwe_dill_beets` Dill-pickled beetroot crock (craft; herb,spring; -)
+- [x] `r_nwe_lingonberry_jam` Lingonberry and blackcurrant jam (craft; orchard,market; -)
+- [x] `r_nwe_peat_trout` Peat-smoke the trout (craft; camp,workshop; -)
+- [x] `r_nwe_mussel_broth` Fjord mussel broth (craft; jetty,inn; -)
+- [x] `r_nwe_drystone_gap` Rebuild the drystone gap (tend; workshop,orchard; -)
+- [x] `r_nwe_mill_leat` Clear the mill leat (tend; mill,spring; se=autumn)
+- [x] `r_nwe_rethatch` Re-thatch the tearoom roof (tend; inn,workshop; -)
+- [x] `r_nwe_forced_rhubarb` Force the rhubarb (tend; herb,orchard; se=winter,spring)
+- [x] `r_nwe_hazel_conkers` Hazelnut on a string (contest; orchard,camp; se=autumn)
+- [x] `r_nwe_twig_race` Twig race off the ferry rail (contest; ferry,jetty; -)
+- [x] `r_nwe_puddle_jump` Puddle-jumping match (contest; market,inn; we=rain)
+- [x] `r_nwe_downs_kites` Kites over the downs (contest; tower,orchard; we=wind)
+- [x] `r_nwe_hedge_flowers` Flowers in the hedgerow (collect; herb,orchard,market; -)
+- [x] `r_nwe_fell_lichens` Lichens on the fell boulders (collect; camp,tower; -)
+- [x] `r_nwe_fairy_ring` Toadstools of the fairy ring (collect; herb,shrine; -)
+- [x] `r_nwe_tea_cosy` Under which tea cosy? (pick; inn,market; -)
+- [x] `r_nwe_puffin_burrows` Puffin burrows (pick; jetty,tower; -)
+- [x] `r_nwe_humming_stone` Listen at the Standing Stones (pick; shrine,tower; -)
+- [x] `r_nwe_welly_fling` Fling the welly (power; market,camp; -)
+- [x] `r_nwe_chain_ferry` Haul the fjord ferry (power; ferry,jetty; -)
+- [x] `r_nwe_sauna_tales` Steam stories in the sauna (lore; spring; dp=night)
+- [x] `r_nwe_smuggler_tales` What the smugglers smuggled (lore; jetty,inn; -)
+- [x] `r_nwe_long_night_tales` Tales of the Long Night (lore; tower,camp; se=winter)
+- [x] `r_nwe_peat_fire` Steam your socks by the peat fire (rest; inn,camp; we=rain)
+- [x] `r_se_goats_home` Bring the bell-goats home (check; camp,tower; dp=dusk)
+- [x] `r_se_cliff_capers` Pick capers off the cliff wall (check; herb,tower; -)
+- [x] `r_se_whistlewind` Shutter up for the Whistlewind (check; inn,market; we=wind)
+- [x] `r_se_sponge_dive` Dive for sea sponges (check; jetty,ferry; se=summer)
+- [x] `r_se_cinder_smoke` Read the smoke on Cinderpeak (check; tower,camp; -)
+- [x] `r_se_mud_pot` Try the mud-pot facial (check; spring,camp; -)
+- [x] `r_se_goat_ferry` Ferry the goats across (check; ferry; -)
+- [x] `r_se_prickly_chestnuts` Gather chestnuts, mind the prickles (check; orchard,camp; se=autumn)
+- [x] `r_se_frost_braziers` Light braziers in the lemon grove (check; orchard,herb; we=frost)
+- [x] `r_se_fig_guard` Guard the drying figs (check; herb,mill; we=heat)
+- [x] `r_se_hill_cheese` Hang curds in the hill hut (craft; camp,market,inn; -)
+- [x] `r_se_sardine_grill` Grill sardines on the quay (craft; jetty,inn; -)
+- [x] `r_se_fig_tart` Bake a fig and cheese tart (craft; inn,orchard; -)
+- [x] `r_se_cork_planter` Shape a cork-bark planter (craft; workshop,market; -)
+- [x] `r_se_cinder_grit` Sift cinder grit for the vines (craft; workshop,mill; -)
+- [x] `r_se_caprifig_strings` Hang caprifigs in the fig trees (tend; orchard,herb; -)
+- [x] `r_se_whitewash_light` Whitewash the harbour light (tend; tower,ferry; se=spring)
+- [x] `r_se_olive_nets` Spread the olive nets (tend; orchard,mill; se=autumn)
+- [x] `r_se_lemon_channel` Clear the lemon-grove channel (tend; spring,herb; -)
+- [x] `r_se_piazza_bowls` Bowls on the piazza (contest; market,inn; -)
+- [x] `r_se_whistle_duel` Goatherds’ whistle duel (contest; camp,tower; -)
+- [x] `r_se_grape_stomp` Grape-treading race (contest; mill,orchard; -)
+- [x] `r_se_cicada_chorus` Out-sing the cicadas (contest; orchard,herb; -)
+- [x] `r_se_maquis_flowers` Flowers of the scrubland (collect; herb,shrine,tower; -)
+- [x] `r_se_sunwall_critters` Critters of the sunny wall (collect; orchard,shrine,spring; -)
+- [x] `r_se_olive_kinds` Olives of the press piazza (collect; market,mill,inn; -)
+- [x] `r_se_ripe_fig` Which fig is ready? (pick; orchard,market; -)
+- [x] `r_se_gull_hoard` The pirate-gulls’ hoard (pick; jetty,ferry; -)
+- [x] `r_se_labyrinth_turn` Left or right in the Labyrinth? (pick; ferry,shrine; -)
+- [x] `r_se_olive_press` Crank the olive press (power; mill,workshop; -)
+- [x] `r_se_forge_bellows` Pump the cinder forge bellows (power; workshop,camp; -)
+- [x] `r_se_wyrm_bedtime` The Cinder Wyrm’s bedtime (lore; camp,spring; dp=night)
+- [x] `r_se_lemon_grove_tales` Stories under the lemon trees (lore; herb,shrine; dp=dawn)
+- [x] `r_se_drifting_isles` Ferry yarns of the drifting isles (lore; ferry,inn,jetty; dp=dusk)
+- [x] `r_se_noon_shade` Nap in the noon shade (rest; orchard,inn; dp=day/we=heat)
+- [x] `r_ee_stork_return` Welcome the storks home (check; tower,inn; se=spring)
+- [x] `r_ee_birch_sap` Tap the birch for sap (check; herb,orchard,camp; se=spring)
+- [x] `r_ee_sunflower_stakes` Hold up the sunflowers (check; orchard,market; we=storm,wind)
+- [x] `r_ee_amber_polish` Polish a lump of amber (check; workshop,market; -)
+- [x] `r_ee_steam_whisk` Birch whisk in the steam hut (check; spring; we=snow,frost)
+- [x] `r_ee_salt_grade` Grade the rock salt (check; market,workshop; -)
+- [x] `r_ee_ridge_howl` Answer the ridge howl (check; tower,camp; dp=night)
+- [x] `r_ee_reed_punt` Pole the reed punt (check; ferry,jetty; -)
+- [x] `r_ee_beaver_post` Talk the beaver off the ferry post (check; ferry,jetty; se=autumn)
+- [x] `r_ee_black_earth` Squeeze the black earth (check; market,herb,mill; -)
+- [x] `r_ee_buckwheat_kasha` Cook buckwheat porridge (craft; mill,inn; -)
+- [x] `r_ee_plum_butter` Stir the plum butter (craft; orchard,market; se=autumn)
+- [x] `r_ee_elder_cordial` Brew elderberry cordial (craft; herb,spring; -)
+- [x] `r_ee_sunflower_toast` Toast sunflower seeds (craft; camp,mill; -)
+- [x] `r_ee_stuffed_peppers` Stuff the bell peppers (craft; inn,camp; -)
+- [x] `r_ee_wax_egg` Wax-paint a patterned egg (tend; workshop,inn; -)
+- [x] `r_ee_stork_wheel` Raise a wheel for the storks (tend; tower,mill; -)
+- [x] `r_ee_hay_rick` Build the hay rick (tend; orchard,camp; se=summer)
+- [x] `r_ee_reed_thatch` Thatch the boathouse roof (tend; jetty,ferry; -)
+- [x] `r_ee_stork_frog_reed` Stork, frog and reed (contest; jetty,herb; -)
+- [x] `r_ee_wolf_goat_cabbage` Wolf, goat or cabbage (contest; ferry,market; -)
+- [x] `r_ee_snow_fort` Snow fort skirmish (contest; camp,inn; se=winter)
+- [x] `r_ee_bark_whistle` Birch-bark whistle duel (contest; herb,orchard; -)
+- [x] `r_ee_egg_patterns` Patterns of the painted eggs (collect; workshop,market,inn; -)
+- [x] `r_ee_amber_inclusions` Things caught in amber (collect; workshop,herb,camp; -)
+- [x] `r_ee_marsh_calls` Sounds of the Reedmarsh (collect; jetty,ferry,tower; -)
+- [x] `r_ee_walnut_rattle` The rattling walnut (pick; orchard,market; -)
+- [x] `r_ee_salt_tunnels` Pick a salt gallery (pick; camp,tower; -)
+- [x] `r_ee_lucky_dumpling` The lucky dumpling (pick; inn,market; -)
+- [x] `r_ee_skittle_town` Knock down the skittle town (power; camp,market; -)
+- [x] `r_ee_birch_swing` Swing the great birch swing (power; orchard,spring; -)
+- [x] `r_ee_wolf_king` Tales of the Grey Wolf King (lore; camp,tower; dp=night)
+- [x] `r_ee_salt_whispers` Whispers in the salt galleries (lore; shrine,workshop; -)
+- [x] `r_ee_sunflower_whispers` What the sunflowers said (lore; shrine,mill; dp=dusk)
+- [x] `r_ee_stove_ledge` Nap on the stove ledge (rest; inn; we=frost,snow)
+- [x] `r_mena_sand_wind_shutters` Shutter the stalls for the sand wind (check; market,inn; we=wind,storm)
+- [x] `r_mena_goats_in_almonds` Coax the goats out of the almonds (check; orchard,herb; -)
+- [x] `r_mena_follow_oasis` Follow the oasis that moves (check; camp,spring; dp=dawn)
+- [x] `r_mena_fog_nets` Wring the fog-catcher nets (check; tower,jetty; we=fog)
+- [x] `r_mena_saffron_dawn` Pick saffron before the sun (check; herb,orchard; se=autumn/dp=dawn)
+- [x] `r_mena_dune_stars` Steer by the dune stars (check; camp,tower; dp=night)
+- [x] `r_mena_cistern_hum` Hum into the old cistern (check; spring,shrine; -)
+- [x] `r_mena_lateen_sail` Trim the slanting sail (check; ferry,jetty; we=wind)
+- [x] `r_mena_cedar_hugs` Measure the cedar in hugs (check; shrine,tower; -)
+- [x] `r_mena_terrace_turns` Share the water down the terraces (check; orchard,mill; we=heat)
+- [x] `r_mena_chickpea_cumin` Simmer chickpeas with cumin (craft; inn,market; -)
+- [x] `r_mena_ember_sage` Brew desert sage on the embers (craft; camp,herb; -)
+- [x] `r_mena_sweating_jar` Throw a sweating water jar (craft; workshop,market; -)
+- [x] `r_mena_sand_glass` Melt pink sand into glass (craft; workshop,jetty; -)
+- [x] `r_mena_high_pour` Pour mint tea from on high (craft; inn,herb; -)
+- [x] `r_mena_palm_mulch` Mulch the date palm rings (tend; orchard,spring; we=heat)
+- [x] `r_mena_wind_catcher` Patch the wind-catcher (tend; tower,inn; -)
+- [x] `r_mena_groaning_wheel` Grease the groaning waterwheel (tend; mill,ferry; -)
+- [x] `r_mena_well_sand` Dig the sand out of the well (tend; spring,camp; -)
+- [x] `r_mena_pit_pebbles` Pebbles in the pits (contest; inn,workshop; -)
+- [x] `r_mena_dune_boards` Dune-board race (contest; camp,tower; -)
+- [x] `r_mena_date_stones` Date-stone flicking (contest; orchard,market; -)
+- [x] `r_mena_drum_duel` Goblet-drum duel (contest; inn,market; dp=dusk,night)
+- [x] `r_mena_souk_spices` Sniffs of the Spice Souk (collect; market,herb; -)
+- [x] `r_mena_dune_shapes` Dune shapes from the watchtower (collect; camp,tower; dp=dawn)
+- [x] `r_mena_tile_patterns` Patterns of the tile-cutter (collect; workshop,shrine; -)
+- [x] `r_mena_thump_melons` Thump the melons (pick; market,ferry; -)
+- [x] `r_mena_coolest_jar` The coolest jar in the arch (pick; spring,inn; -)
+- [x] `r_mena_scarab_dune` Where did the scarab go? (pick; camp,tower; -)
+- [x] `r_mena_shaduf_swing` Swing the shaduf (power; orchard,ferry; -)
+- [x] `r_mena_oven_slap` Slap bread on the oven wall (power; mill,inn; -)
+- [x] `r_mena_dune_whispers` What the dunes whisper (lore; camp; dp=night)
+- [x] `r_mena_cedar_snow` Snow on the cedar crown (lore; shrine,tower; se=winter)
+- [x] `r_mena_hanging_garden` The garden that hung in the air (lore; herb,orchard; -)
+- [x] `r_mena_courtyard_nap` Nap in the courtyard shade (rest; inn,spring; -)
+- [x] `r_wca_weaverbirds` Shoo the weaverbirds (check; orchard,herb; se=summer,autumn)
+- [x] `r_wca_hippo_count` Count hippos at the crossing (check; ferry,jetty; dp=dawn,dusk)
+- [x] `r_wca_canopy_bridge` Cross the canopy bridges (check; tower,camp; -)
+- [x] `r_wca_dust_mats` Beat the dust from the mats (check; inn,market; we=wind)
+- [x] `r_wca_market_drum` Keep the market drum going (check; market; -)
+- [x] `r_wca_mangrove_maze` Pole through the mangroves (check; ferry,jetty; we=fog)
+- [x] `r_wca_surf_launch` Launch the canoe through surf (check; jetty; -)
+- [x] `r_wca_gorilla_glade` Sit still at Gorilla Glade (check; camp,tower; dp=dawn)
+- [x] `r_wca_rain_gourds` Catch rain in gourds (check; spring,camp; we=rain)
+- [x] `r_wca_indigo_vat` Dip cloth in the indigo vat (check; workshop,market; -)
+- [x] `r_wca_shea_butter` Knead shea butter (craft; herb,mill; -)
+- [x] `r_wca_shell_egusi` Shell egusi seeds for sowing (craft; workshop,spring; -)
+- [x] `r_wca_ember_yams` Roast yams in the embers (craft; camp,inn; -)
+- [x] `r_wca_egusi_soup` Stir an egusi soup (craft; inn,market; -)
+- [x] `r_wca_roselle_cordial` Brew a roselle cordial (craft; herb,spring; -)
+- [x] `r_wca_mud_walls` Replaster the mud walls (tend; shrine,tower; -)
+- [x] `r_wca_yam_mounds` Hoe up the yam mounds (tend; orchard,herb; -)
+- [x] `r_wca_rainy_weeds` Outpace the rainy-season weeds (tend; herb,orchard; we=rain)
+- [x] `r_wca_smoke_kiln` Rebuild the fish-smoking kiln (tend; jetty,camp; -)
+- [x] `r_wca_seed_pits` Seeds-in-the-pits game (contest; inn,market; -)
+- [x] `r_wca_clap_jump` Clap-and-jump game (contest; camp,spring; -)
+- [x] `r_wca_paddle_race` Dugout paddle race (contest; ferry,jetty; -)
+- [x] `r_wca_spin_tops` Spin the seed-pod tops (contest; workshop,market; -)
+- [x] `r_wca_canopy_calls` Calls of the canopy (collect; tower,camp,herb; -)
+- [x] `r_wca_talking_drum` Talking-drum phrases (collect; market,workshop; -)
+- [x] `r_wca_goldsand_shells` Goldsand beach shells (collect; jetty,ferry; -)
+- [x] `r_wca_ripe_shea` Find the ripe shea fruit (pick; orchard,herb; se=summer)
+- [x] `r_wca_tuned_shaker` Find the tuned shaker (pick; workshop,market; -)
+- [x] `r_wca_pangolin_hollow` Which hollow hides the pangolin? (pick; camp,orchard; dp=night)
+- [x] `r_wca_pound_yam` Pound the yam (power; mill,market; -)
+- [x] `r_wca_haul_dugout` Haul the canoes above the tide (power; jetty,ferry; we=storm)
+- [x] `r_wca_spider_stories` Stories from the Spider’s Hollow (lore; camp,inn; dp=night)
+- [x] `r_wca_library_roof` Tales on the library roof (lore; shrine,tower; dp=dusk)
+- [x] `r_wca_baobab_tales` Under the old baobab (lore; market,inn; -)
+- [x] `r_wca_cool_jar` A drink from the cool jar (rest; spring,inn; we=heat)
+- [x] `r_esa_roast_beans` Roast beans for the ceremony (check; shrine,inn; -)
+- [x] `r_esa_flamingo_pose` Stand with the flamingos (check; jetty,spring; -)
+- [x] `r_esa_herd_crossing` Wait for the herds to cross (check; ferry,tower; se=summer,autumn)
+- [x] `r_esa_coffeecloud_path` Find the path through the cloud (check; orchard,tower; we=fog)
+- [x] `r_esa_first_rains` Catch the first long rains (check; market,spring; we=rain)
+- [x] `r_esa_wrap_stoneplants` Wrap the little stone plants (check; herb,camp; we=frost/dp=dawn)
+- [x] `r_esa_snowcrown_dawn` Glimpse the Snowcrown at dawn (check; tower,shrine; dp=dawn)
+- [x] `r_esa_weaver_nest` Rehang the weaver’s nest (check; orchard,workshop; -)
+- [x] `r_esa_honeyguide` Follow the honeyguide (check; herb,camp; -)
+- [x] `r_esa_thumb_piano` Tune the thumb piano (check; workshop,inn; -)
+- [x] `r_esa_teff_injera` Spiral injera on the clay griddle (craft; workshop,market; -)
+- [x] `r_esa_sorghum_porridge` Stir sorghum porridge (craft; mill,inn; -)
+- [x] `r_esa_enset_fibre` Scrape the enset stems (craft; workshop,ferry; -)
+- [x] `r_esa_fruit_bowl` Slice melon and banana (craft; orchard,market; -)
+- [x] `r_esa_peanut_collards` Peanut and collard stew (craft; camp,inn; -)
+- [x] `r_esa_winnow_teff` Winnow the teff (tend; mill,market; -)
+- [x] `r_esa_shade_terraces` Plant shade on the coffee terraces (tend; orchard,herb; -)
+- [x] `r_esa_rethatch` Rethatch the round roof (tend; inn,camp; se=spring,autumn)
+- [x] `r_esa_firebreak` Clear the fynbos firebreak (tend; herb,tower; se=summer)
+- [x] `r_esa_seed_pits` Seeds in the pits (contest; inn,market; -)
+- [x] `r_esa_clap_song` Clapping-song circle (contest; camp,orchard; -)
+- [x] `r_esa_hippo_heron` Hippo, heron, fish (contest; jetty,ferry; -)
+- [x] `r_esa_hand_shadows` Shadow animals by lamplight (contest; camp,inn; dp=dusk,night)
+- [x] `r_esa_migration` Herds of the Great Migration (collect; tower,camp; -)
+- [x] `r_esa_fynbos` Fynbos in flower (collect; herb,shrine; -)
+- [x] `r_esa_rift_cichlids` Cichlids of the Rift Lakes (collect; jetty,ferry; -)
+- [x] `r_esa_cool_gourd` Which gourd is coolest? (pick; camp,spring; we=heat)
+- [x] `r_esa_termite_mound` Which termite mound hums? (pick; camp,tower; -)
+- [x] `r_esa_baobab_pod` The rattling baobab pod (pick; orchard,market; -)
+- [x] `r_esa_windpump` Pump the windmill trough (power; mill,spring; we=wind)
+- [x] `r_esa_pound_sorghum` Pound sorghum in the tall mortar (power; mill,market; -)
+- [x] `r_esa_baobab_tales` Stories in the baobab’s hollow (lore; inn,orchard; -)
+- [x] `r_esa_coffee_smoke` What the coffee smoke remembers (lore; shrine,herb; -)
+- [x] `r_esa_flamingo_tales` Ferry yarns at Flamingo Shallows (lore; ferry,jetty; dp=dusk)
+- [x] `r_esa_acacia_shade` Doze under the flat-top acacia (rest; camp,orchard; we=heat,sun)
+- [x] `r_csa_flower_boat` Pole the flower boat (check; market,ferry; dp=dawn)
+- [x] `r_csa_two_leaves` Two leaves and a bud (check; orchard,herb; dp=dawn/se=spring)
+- [x] `r_csa_spice_mats` Save the spice mats (check; herb,market; we=rain,storm)
+- [x] `r_csa_yak_pass` Lead the yak over the pass (check; tower,camp; we=snow,wind)
+- [x] `r_csa_leopard_spot` Spot a snow leopard (check; tower,spring; -)
+- [x] `r_csa_buffalo_ramp` Coax the buffalo ashore (check; ferry,jetty; -)
+- [x] `r_csa_turmeric_grate` Grate the fresh turmeric (check; herb,inn; -)
+- [x] `r_csa_threshing_floor` Winnow on the threshing floor (check; mill; we=wind)
+- [x] `r_csa_monkey_sandal` Bargain with the monkey (check; shrine,orchard; -)
+- [x] `r_csa_dip_net` Lower the great dip-net (check; jetty; -)
+- [x] `r_csa_mango_chutney` Stir mango chutney (craft; market,inn; -)
+- [x] `r_csa_mung_dal` Simmer yellow dal (craft; mill,camp; -)
+- [x] `r_csa_jackfruit_carve` Open a jackfruit (craft; orchard,inn; se=summer)
+- [x] `r_csa_silkworm_trays` Feed the silkworm trays (craft; orchard,workshop; -)
+- [x] `r_csa_reel_silk` Reel the silk (craft; workshop,market; -)
+- [x] `r_csa_courtyard_ragas` Ragas in the courtyard (collect; market,inn; -)
+- [x] `r_csa_caravan_bells` Bells of the caravans (collect; camp,tower; -)
+- [x] `r_csa_block_prints` Block-print patterns (collect; workshop,herb; -)
+- [x] `r_csa_rooftop_apricots` Dry apricots on the flat roofs (tend; orchard,tower; -)
+- [x] `r_csa_delta_bank` Shore up the delta bank (tend; ferry,jetty; we=rain,storm)
+- [x] `r_csa_felt_roll` Roll a felt rug (tend; camp,workshop; -)
+- [x] `r_csa_snowmelt` Clear the snowmelt channels (tend; spring,mill; se=spring)
+- [x] `r_csa_kite_duel` Kite duel on the ridge (contest; tower,camp; we=wind)
+- [x] `r_csa_carrom_board` Carrom on the woodcarver’s board (contest; workshop,market; -)
+- [x] `r_csa_seven_stones` Seven-stone tumble (contest; orchard,camp; -)
+- [x] `r_csa_apricot_stones` Apricot-stone flicks (contest; inn,ferry; -)
+- [x] `r_csa_jackfruit_thump` Thump for the ripe one (pick; orchard,market; -)
+- [x] `r_csa_lotus_pods` Rattle the lotus pods (pick; jetty,ferry; -)
+- [x] `r_csa_tea_hide` Hide-and-seek in the tea bushes (pick; herb,shrine; -)
+- [x] `r_csa_banyan_swing` Push the banyan swing (power; orchard,camp; -)
+- [x] `r_csa_butter_tea` Churn the butter tea (power; inn,tower; we=snow,frost)
+- [x] `r_csa_caravan_tales` Night under the caravan arches (lore; inn,market; -)
+- [x] `r_csa_moth_temple` Hush of the Tiger Moth (lore; shrine; dp=dusk,night)
+- [x] `r_csa_ledge_tales` Tales from the high ledges (lore; tower,spring; we=snow)
+- [x] `r_csa_cloud_pool` A pool above the clouds (rest; spring; -)
+- [x] `r_ea_terrace_sluice` Open the terrace sluices (check; orchard,mill; se=spring)
+- [x] `r_ea_duck_paddy` Herd the paddy ducks (check; orchard,mill; -)
+- [x] `r_ea_bamboo_talk` Hear the bamboo talking (check; camp,herb; we=wind)
+- [x] `r_ea_pearl_dive` Dive at Pearl Diver Cove (check; jetty,ferry; -)
+- [x] `r_ea_long_wall` Walk a stretch of the Long Wall (check; tower,camp; -)
+- [x] `r_ea_typhoon_shutters` Bar the typhoon shutters (check; inn,tower; we=storm,wind)
+- [x] `r_ea_moon_rabbit` Find the rabbit in the moon (check; tower,spring; dp=night/se=autumn)
+- [x] `r_ea_gobi_well` Find the well in the Gobi (check; camp,spring; we=heat)
+- [x] `r_ea_snow_monkeys` Share the pool with snow monkeys (check; spring,camp; se=winter/we=snow)
+- [x] `r_ea_whisk_tea` Whisk the teahouse tea (check; inn,herb; -)
+- [x] `r_ea_kimchi` Pack the cabbage kimchi (craft; market,inn; -)
+- [x] `r_ea_daikon_pickle` Brine the daikon (craft; inn,camp; -)
+- [x] `r_ea_bokchoy_rice` Toss bok choy fried rice (craft; inn,camp; -)
+- [x] `r_ea_redbean_rice` Steam red bean rice (craft; mill,market; -)
+- [x] `r_ea_reel_silk` Reel silk from cocoons (craft; workshop,mill; -)
+- [x] `r_ea_dragonfly_kite` Build a dragon-fly kite (tend; workshop,tower; -)
+- [x] `r_ea_pine_belts` Belt the pines with straw (tend; orchard,camp; -)
+- [x] `r_ea_teahouse_screens` Repaper the sliding screens (tend; inn,shrine; -)
+- [x] `r_ea_persimmon_strings` Hang the persimmon strings (tend; orchard,market; se=autumn)
+- [x] `r_ea_shuttle_kick` Kick the feather shuttle (contest; market,camp; -)
+- [x] `r_ea_spinning_tops` Spinning top battle (contest; inn,workshop; -)
+- [x] `r_ea_paddle_race` Race the long paddle-boats (contest; ferry,jetty; se=summer)
+- [x] `r_ea_knucklebones` Knucklebone horses (contest; camp,market; -)
+- [x] `r_ea_whisperwood_beasts` Creatures of the Whisperwood (collect; herb,camp,orchard; -)
+- [x] `r_ea_pearlwave_shells` Shells of Pearlwave Shore (collect; jetty,ferry; -)
+- [x] `r_ea_terrace_kites` Kites over the terraces (collect; tower,market; -)
+- [x] `r_ea_jujube_bun` Which bun has the jujube? (pick; inn,market; -)
+- [x] `r_ea_lotus_pods` Which lotus pod is ripe? (pick; herb,jetty; se=summer)
+- [x] `r_ea_cricket_cages` Which cricket sings loudest? (pick; market,camp; -)
+- [x] `r_ea_pound_ricecake` Pound the rice cakes (power; mill,market; -)
+- [x] `r_ea_pole_rapids` Pole the raft up the gorge (power; ferry,jetty; -)
+- [x] `r_ea_jade_dragonfly` The Jade Dragon-fly’s legend (lore; camp,tower; dp=night)
+- [x] `r_ea_blossom_fall` Tales under the falling blossom (lore; inn,orchard; se=spring)
+- [x] `r_ea_thousand_gates` Whispers at the Thousand Gates (lore; shrine,tower; -)
+- [x] `r_ea_quilt_table` Toes under the quilted table (rest; inn,camp; we=frost,snow)
+- [x] `r_sea_plant_seedlings` Plant out the rice seedlings (check; mill,orchard; we=rain)
+- [x] `r_sea_mangosteen_count` Count the mangosteen’s segments (check; orchard,camp; -)
+- [x] `r_sea_firefly_paddle` Paddle to the firefly trees (check; ferry,jetty; dp=night)
+- [x] `r_sea_bamboo_gutters` Clear the bamboo gutters (check; inn,workshop; we=rain,storm)
+- [x] `r_sea_buffalo_wallow` Coax the buffalo off the ramp (check; ferry,mill; -)
+- [x] `r_sea_volcano_plume` Read the volcano’s plume (check; tower,herb; -)
+- [x] `r_sea_gecko_calls` Count the gecko’s calls (check; inn,camp; dp=night)
+- [x] `r_sea_hail_boat` Hail a drifting stall boat (check; market,jetty; dp=dawn)
+- [x] `r_sea_judge_durian` Judge the durian (check; market,orchard; se=summer)
+- [x] `r_sea_flooded_causeway` Wade the flooded causeway (check; shrine,ferry; we=rain,storm)
+- [x] `r_sea_beat_husks` Beat the coconut husks (craft; jetty,workshop; -)
+- [x] `r_sea_lemongrass_curry` Pound a lemongrass curry (craft; inn,camp; -)
+- [x] `r_sea_wok_rice` Toss the morning fried rice (craft; inn,market; -)
+- [x] `r_sea_fruit_bowl` Peel a market fruit bowl (craft; market,orchard; -)
+- [x] `r_sea_paddy_pot` Coil a paddy-clay pot (craft; workshop,mill; -)
+- [x] `r_sea_paddy_bunds` Shore up the paddy bunds (tend; mill,orchard; -)
+- [x] `r_sea_ease_roots` Ease the roots off the steps (tend; shrine; dp=dawn)
+- [x] `r_sea_thatch_stilt` Re-thatch the stilt house (tend; inn,jetty; -)
+- [x] `r_sea_hornbill_figs` Carry figs to the hornbill nest (tend; tower,herb; -)
+- [x] `r_sea_rattan_ball` Rattan ball keep-up (contest; market,camp; -)
+- [x] `r_sea_spinning_tops` Spinning-top clash (contest; inn,workshop; -)
+- [x] `r_sea_moon_kites` Moon-kite tangle (contest; tower,camp; we=wind)
+- [x] `r_sea_pantun_trade` Trade pantun verses (contest; shrine,inn; -)
+- [x] `r_sea_market_boats` Boats of the floating market (collect; market,ferry,jetty; -)
+- [x] `r_sea_tangle_orchids` Orchids of the Tangle (collect; herb,market,spring; -)
+- [x] `r_sea_forest_sounds` Songs of the Hornbill Deep (collect; camp,tower,shrine; -)
+- [x] `r_sea_leaf_parcels` The sweet leaf parcel (pick; inn,market; -)
+- [x] `r_sea_lily_frog` Find the frog’s lily pad (pick; spring,herb; -)
+- [x] `r_sea_cave_breeze` The tunnel with a breeze (pick; camp,spring; -)
+- [x] `r_sea_rabbit_grater` Ride the rabbit-stool grater (power; mill,workshop; -)
+- [x] `r_sea_pole_raft` Pole off the sandbar (power; ferry,jetty; -)
+- [x] `r_sea_lantern_river` What the lanterns carried (lore; ferry,jetty; dp=dusk,night)
+- [x] `r_sea_dragonlizard` The dragonlizard’s long naps (lore; tower,camp; -)
+- [x] `r_sea_root_whispers` Whispers in the fig roots (lore; shrine,herb; -)
+- [x] `r_sea_rain_hammock` Doze through the downpour (rest; camp,spring; we=rain)
+- [x] `r_oc_reef_flat` Wade the reef flat at low tide (check; jetty,ferry; dp=dawn)
+- [x] `r_oc_cyclone_shutters` Batten the cyclone shutters (check; inn,market; we=storm,wind)
+- [x] `r_oc_glowworm_hush` Hush for the glowworms (check; shrine,spring; dp=night)
+- [x] `r_oc_star_steering` Steer by the rising stars (check; tower,ferry; dp=dawn,night)
+- [x] `r_oc_creek_soak` Dig for the dry-creek soak (check; spring,camp; we=heat)
+- [x] `r_oc_seal_on_ramp` Coax the seal off the slipway (check; jetty,ferry; -)
+- [x] `r_oc_fernmist_path` Find the track in the fernmist (check; herb,camp; we=fog)
+- [x] `r_oc_cockatoo_watch` Guard the nut trees from cockatoos (check; orchard,market; -)
+- [x] `r_oc_watcher_shadows` Time the Watchers’ shadows (check; tower,shrine; -)
+- [x] `r_oc_billy_swing` Swing the billycan (check; camp,inn; -)
+- [x] `r_oc_coir_cord` Roll coir cord on your knee (craft; workshop,jetty; -)
+- [x] `r_oc_earth_oven` Taro in coconut cream (craft; camp,inn; -)
+- [x] `r_oc_sago_pancakes` Sago and banana pancakes (craft; mill,market; -)
+- [x] `r_oc_finger_lime_pot` Finger-lime fish pot (craft; jetty,inn; -)
+- [x] `r_oc_warrigal_salad` Blanch the warrigal greens (craft; herb,orchard; -)
+- [x] `r_oc_windpump` Coax the old windpump (tend; mill,spring; -)
+- [x] `r_oc_turtle_nests` Fence the turtle nests (tend; jetty,camp; se=summer)
+- [x] `r_oc_outrigger_lashing` Relash the outrigger (tend; ferry,workshop; -)
+- [x] `r_oc_taro_pond` Keep the taro pond brimming (tend; orchard,mill; -)
+- [x] `r_oc_husking_race` Coconut husking race (contest; market,camp; -)
+- [x] `r_oc_cowrie_knucklebones` Cowrie knucklebones (contest; inn,market; -)
+- [x] `r_oc_leaf_kites` Breadfruit-leaf kite duel (contest; tower,orchard; we=wind)
+- [x] `r_oc_laugh_off` Kookaburra laugh-off (contest; camp,orchard; dp=dawn)
+- [x] `r_oc_string_figures` String figures (collect; inn,ferry,camp; -)
+- [x] `r_oc_lagoon_swimmers` Swimmers of the lagoon ring (collect; jetty,ferry,spring; -)
+- [x] `r_oc_night_voices` Night voices of the gullies (collect; herb,shrine,camp; dp=dusk,night)
+- [x] `r_oc_sloshing_coconut` Shake for the sloshing coconut (pick; orchard,market; -)
+- [x] `r_oc_crab_holes` Peek in the crab holes (pick; jetty,ferry; -)
+- [x] `r_oc_thorny_devil` Spot the thorny devil (pick; camp,tower; -)
+- [x] `r_oc_macadamia_crack` Crack a macadamia (power; workshop,orchard; -)
+- [x] `r_oc_reef_gap` Paddle through the reef gap (power; ferry,jetty; -)
+- [x] `r_oc_watcher_tales` What the Watchers saw (lore; shrine,tower; -)
+- [x] `r_oc_jelly_queen` The Box Jelly Queen’s manners (lore; jetty,inn; we=storm)
+- [x] `r_oc_red_rock_tales` Tales as the red rock glows (lore; camp,spring; dp=dusk)
+- [x] `r_oc_palm_hammock` Hammock between two palms (rest; jetty,orchard; -)
+
+
+---
+
+<!-- merged from claude/pfight-art-todo.md -->
+## Puzzle combat: ART TODO
+
+Audit 2026-11-19 (files in `game/assets/img/pfight/`): DONE = tile icons `ico-<type>` and `-s` for all 7 types and for jab, pierce, sting, trip, bash, smash, brace, roll, thornhide, mending, hum, lull, bond, pluck (named `ico-<name>`, not `ico-hurt-<name>`); tile frames, edge and socket pieces; combo stamps (6); end-charmed (4); open-end; ico-gift; popover-header. STILL OPEN: the 12x12 `tag-*.png` marks (none exist), upgrade corner gems, rarity trim, strip-bg, bar-frame, intent-bubble.
+
+The fight card works with emoji and CSS borders now. Pixel art to replace them (same style as the existing ico/ set; files under game/assets/img/pfight/, all optional: a missing file keeps the emoji, so nothing breaks).
+
+### Tile type icons, 24x24 px (ico/pfight-<type>.png)
+hurt (swing/claw), guard (shield/leaf), heal (green heart/herb), charm (flower), soothe (calm face/dove), trick (mask/feather), item (snack/jar).
+
+### Tile frames, 80x56 px, 9-slice friendly (pfight/tile-<type>.png)
+One per type. Left edge has a HOLE (notch), right edge has a KNOB (bump). The knob and hole come in 3 shapes so fit reads without colour:
+- Body: round knob / round hole
+- Mind: keyhole knob / keyhole hole
+- Craft: triangle knob / triangle hole
+Flat edge variant for wild tiles (corner/edge pal pieces). Also a "picked" (raised) look and a "foe" tint.
+Sheet idea: pfight/sockets.png, 3 shapes x (knob, hole) x 16x16 px, drawn over the frame ends.
+
+### Strip and scene
+- pfight/strip-bg.png: a stone/wood rail the played tiles sit on (tileable horizontally, 24 px high).
+- Open-end marker: a glowing ring/arrow 24x24 (pfight/open-end.png).
+- Foe intent icons: same 7 type icons, small (16x16) with a speech-bubble background (pfight/intent-bubble.png).
+- Resolve bar: empty/full frame, 96x12 (pfight/bar-frame.png), with a heart-ish fill for Hurt side and a flower fill for Charm side.
+
+### Combo stamps, 32x32 each (pfight/combo-<name>.png)
+ambush, riposte, double-swing, calm-charm, win-over, bait. Used as a pop when a combo fires and on the Almanac pages.
+
+### Outcome art
+- "Charmed" end card: the creature with a flower (per size is enough: small/medium/large/boss), 64x64.
+- Gift box icon, 24x24.
+
+### Added: Hurt tile variants (needs art)
+The Hurt type now has six tiles that play differently. Each needs its own 32x32 hand icon (and 20x20 strip icon) instead of the generic Hurt icon, plus a tiny 12x12 tag mark shown next to the name:
+- Jab (quick: a fast light poke) / tag mark: lightning
+- Pierce (ignores guard: a needle or thorn through a shield) / tag mark: pin
+- Sting (poison: a bee/thorn with a drip) / tag mark: flask or drip
+- Trip (creature plays a tile fewer: a rope or root across the path) / tag mark: knot
+- Shield Bash (uses your guard: a shield swung at the foe) / tag mark: small shield
+- Smash (heavy, last in chain: a mallet or boulder) / tag mark: rock
+Names: `ico-hurt-<jab|pierce|sting|trip|bash|smash>.png`, `ico-hurt-<name>-s.png`, `tag-<quick|pierce|poison|trip|bash|heavy>.png`. They must stay distinguishable from each other in grayscale (different silhouettes).
+
+### Added: defence, charm and stealing tiles, and Puzzle upgrades (needs art)
+New tile icons (32x32 hand + 20x20 strip each, own silhouette in grayscale) and a 12x12 tag mark each:
+- Guards: Brace (anchor/stump, tag: anchor), Roll (a tumbling gnome, tag: whoosh), Thorn Hide (a prickly shield, tag: cactus), Mending (a plaster/leaf bandage, tag: plaster)
+- Charms: Hum (musical note, tag: note), Lull (a crescent moon, tag: moon), Bond (two hands or two sprouts, tag: handshake)
+- Trick: Pluck (a pinching hand with a small item, tag: pinch)
+Names: `ico-<brace|roll|thornhide|mending|hum|lull|bond|pluck>.png` and `-s.png`, `tag-<hold|evade|thorns|mend|hum|lull|bond|pluck>.png`.
+
+Puzzle upgrades: a 12x12 corner gem on any upgraded tile (shown on hand tiles and the Puzzle box), one mark per upgrade so they stay tell-apart without colour: Sticky (magnet), Swift (feather), Hardy (bricks), Tender (heart), Leech (drop), Spiky (hedgehog), Soft touch (wing), Warm (flame), Finisher (target), Lucky (clover), Steady (scales). `mod-<sticky|swift|hardy|tender|leech|spiky|soft|warm|finisher|lucky|steady>.png`.
+Plus: a 96x96 popover header picture for "Choose an upgrade" (a jigsaw piece with a spark) and rarity trim for common/uncommon/rare (not colour only: 1, 2, 3 stitches or pips).
+
+
+---
+
+<!-- merged from claude/sights/end-art-todo.md -->
+## End pieces: art for the new items (64x64 PNG, `game/assets/img/ph/<slug>.png`)
+
+Status: DONE (2026-11-19): every listed item has its PNG in `game/assets/img/ph/`.
+
+Items made in pass 2 (`game/includes/data/trail_sight_items_end.txt`):
+- `gate-rubbing` Gate Rubbing: a curled leaf-paper with a dark crayon rubbing of a carved arch and one wavy line of writing.
+- `hush-page` Hush Page: a small cream page with a few faint pencil lines and a "shh" finger doodle in the corner.
+- `snore-note` Snore Note: a torn scrap of music stave with one fat round note and three little "z"s.
+- `lucky-wick` Lucky Wick: a short twist of wick with a tiny gold flame and a clover tied on with thread.
+- `scouts-spyglass` Scout's Spyglass: a pocket spyglass of brown card tubes with a shiny green beetle-wing lens.
+- `book-of-hushes` Book of Hushes: a thick book bound in moss-green cloth with a ribbon bookmark and a quiet silver moon on the cover.
+- `lullaby-song-sheet` Big Friends Lullaby: a framed song sheet, a few notes on a stave, a sleepy toad and moth drawn in the margin.
+
+Still needed from pass 1 (base file, end set): sauna-bun, mirror-salt-crystal, amber-seed, flamingo-feather, taper (see `items-todo.md`).
+
+
+---
+
+<!-- merged from claude/sights/end-p2-todo.md -->
+## End pieces Trail Sights: what still cannot be done (engine gaps)
+
+Status: checked line by line 2026-11-19 (Sights fourth pass, `claude/trail-2.7.08-notes.md` "Fourth pass"). DONE = in the engine (and in the data where it says so); OPEN = still not possible, with what it needs. Rows `trail_sights_end.txt` (43), folk `trail_sight_folk_end.txt` (50), quests `trail_sight_quests_end.txt` (8 lines), items `trail_sight_items_end.txt` (7), pages `trail_sight_pages_end.txt` (7), newfolk `trail_sight_newfolk_end.txt` (7). Lint clean. Ideas: `ideas-end-pieces.md`. Grammar: `GRAMMAR.md`.
+
+### Test gap (not data)
+- DONE (checked 2026-11-19): `tests/trail_sights.php` passes the right pick, knows `anylast` / `firstlast`, hands over `needs` items, runs gated lines after their gate and counts only `sight:` pages; every end line runs to its end.
+
+### Per-destination text (one slug stands before several places)
+- DONE 2.7.08 (engine): `to=` and `{cond}` line variants. Written for end-wonder-2-forest (5 places), end-haven-2-grassland (5), end-lair-1-mountain (2).
+- OPEN (writing only, no engine work): per-place lines for haven-1-grassland / wetland, haven-2-coast, wonder-1-coast / grassland / mountain / rainforest, wonder-2 coast / desert / grassland / island / mountain / rainforest / wetland, delve-1-desert / rainforest, delve-2-rainforest / desert, lair-2-mountain.
+
+### State hints
+- DONE 2.7.08: `hint=tide`, `hint=moon`; a line can depend on the weather (`{we=sun}`), so the Dragonlizard sun line can be written (a data line).
+- DONE 2.7.08 third pass A: first room of a delve (`hint=firstroom`), glow-pulse / snore / web hum / rut width (`hint=glow|snore|webhum|rut`).
+- OPEN: current channel / ledge count (the delve map has no such value: needs a delve fact to read), the Oasis's village today (wonder-2-desert: needs the Oasis schedule exposed as a hint), which seed can be dug today (wonder-1-forest: needs a per-day seed pick), the real first turn of the Labyrinth (its pick is a random per-day pick, not a map).
+- OPEN: lair stat hints ("Nimble will matter") stay fixed text. Needs: a hint kind that reads the lair boss's strongest stat.
+
+### Effects outside the Sight
+- Shop effects: DONE 2.7.00 `disc=rest|shop`; in the data 2026-11-19: rest price -10% (`end-haven-1-grassland` `disc=rest:10:180`) and -25% (`end-haven-1-island` `disc=rest:25:180`), for 180 real minutes rather than "today". DONE fifth pass: a discount scoped to an item category (`disc=shop:20:60:seed`). OPEN: free shop peek of today's shelf, the tavern bar peek (need a read-only shop / tavern view from the Trail), Lyra's half-price song (a discount on one NPC service: the song has no price in the code to discount), DONE sixth pass A: the smuggler's half-price rope (`disc=shop:50:120:rope`, a discount scoped to one item slug; rope is put on the shelf of Twigg's by the boot step `rope_stock_ensure`).
+- Walk time: DONE 2.7.08 third pass A (`nxt=quick`, `nxt=skip`); in the data 2026-11-19: `end-wonder-2-island` `nxt=quick:10` (name the first star), the boat gnome at `end-haven-1-wetland` `nxt=skip` (ride along). `nxt=skip` now never jumps past a fight that waits. Not changed: haven-1-coast, wonder-1-mountain (keep `reveal`; the ideas give no time). OPEN: "your NEXT walk is shorter": needs an effect kept past the walk's end (`sec=` can aim at a named stretch of a named route, not at "whatever walk comes next").
+- Delve- or lair-scoped buffs: DONE 2.7.06 `buff=stat:N:delve`; in the data 2026-11-19: `end-delve-2-forest` and `-rainforest` `buff=sense:1:delve`, `end-delve-2-wetland` `buff=luck:1:delve`. DONE `buff2=` (a second buff in a row). OPEN: Charm "for the wonder" (needs a wonder scope), one fewer wrong turn / a dry first room / a safer first bridge / a firefly that counts as a lantern (need delve hooks: `delve_v2`), the Sneak bonus inside a lair (Hushed Steps: needs a stance modifier in the lair code), the Scout's Spyglass "+1 Sense on every end-piece scout" (needs a carried-item effect on Sight checks).
+- OPEN: pick difficulty by time (a pick has no difficulty; the night `nocheck` villager stays). A stat check can now depend on the time: `charm:11?dp=night:9` (fourth pass).
+- DONE 2.7.08 third pass B: letters (`letter=<key>`; Tuck Bumbleby at end-wonder-2-wetland).
+- OPEN: Almanac lines per firefly named (delve-2-rainforest): needs free text from the player (a name field), an owner decision (moderation).
+
+### Villager timing words
+- DONE 2.7.00 `gd=7:0` ("every 7th game day"). NOT in the data: Captain Spurwing at lair-2-mountain is a mentor / fixed villager, the clockwork never lets him travel and the lint refuses the row (tried 2026-11-19). Needs: a mentor allowed out on a given day (clockwork), or another villager for the tip.
+- DONE (role hours, 2026-11-14): "when Lyra is in the Sunsprinkle Isles" = a travelling NPC row with no `dp=` follows her circuit (haven-2-island). DONE 2.7.08 `mk=yes` (market days).
+- DONE fifth pass: "or toss a sardine" as a second way past the gulls' Grit check (`end-delve-2-island` `grit:11+item:sardine`: an item as a check alternative, `item:slug[:qty]`). DONE fifth pass: "any seed" for the caravan swap (`end-wonder-2-grassland`: Orla swaps 2 dried figs for any seed, `give=any-seed:1`; any-of over an item category). DONE sixth pass A: the sleeper at haven-2-grassland (a `choose=Label~rewards;...` on the villager row: sleep = Luck, wake = cornbread).
+- DONE 2.7.08: a Sight row's `take=` may carry `?cond`.
+
+### Quest gaps
+- Q1 "all five lanterns lit inside one season": DONE fifth pass: the 11th `Q|` column takes `season` (= the season length in game days, setting `season_days`); set on `lamplighters-round`. JOSH to note: a late line drops its progress and starts again (as every timed line does).
+- Q2 finale: DONE 2.7.08 third pass B (`@green`). OPEN: the Hushed Steps buff (Sneak easier at every lair for 3 game days): needs a lair-stance modifier; the reward stays Nimble +1 240 min.
+- Q4 / Q5 "start at X": DONE 2.7.08 second pass (`firstlast`); in the data 2026-11-19: `gate-rubbings` and `book-of-hushes` are `firstlast` (they were `anylast`).
+- Q6: BY DESIGN: Pomeroy is hidden until the Gourmand opens; his line still runs. No work.
+
+
+---
+
+<!-- merged from claude/sights/folk-todo.md -->
+## Trail Sights: villager points still open
+
+Status: TODO list (2026-11-12). Rows: `game/includes/data/trail_sight_folk.txt` (161 rows on 160 Sights: 46 Maplewold, 72 shared land, all 43 end pieces; one villager point per Sight, 306-dripgrotto has 2). Designs: `claude/sights/ideas-*.md`, `*-p2-todo.md`.
+Every name was checked against a fresh install (stop_folk made for every village + npcs). Generic design villagers ("a Shy local") became a real villager of that personality from a region the Sight stands in. The kind or role is changed where none fits (noted below).
+
+### Skipped design points (no row)
+- **Pomeroy Crumbworth** (coast-the-kelp-line, desert-the-salt-flat, rainforest-the-mist-pool, island-the-coconut-grove): the folk code now skips him while hidden. Maplewold DONE (2026-11-12: 236-haywagon, 311-pancakelane rows).
+- Maplewold DONE (2026-11-12): 306-mosslog / 306-mossgate Nettle Cobblefield@v-na-2-3; Beaver Foreman (313-beaverdam), Mrs Whorl the hermit-crab sorter (314-shellpile), Keeper Marram (314-lanternrocks) and Mister Plink (232-well) are new villagers in `trail_sight_newfolk_maplewold.txt`. Maplewold errands, swaps and "no roll with them" are `give=` / `nocheck` rows; what is still impossible is in `maplewold-p2-todo.md`.
+- **desert-the-trader-s-tent-poles**: Old Marrowby (after TRADER) does not exist as a villager.
+- **island-the-hammock-palms**: Pinchwell is a crab in a quest letter, not a villager.
+
+### Name twins (rows written; check later)
+Posy Thistledown, Moss Sedgemoor, Basil Teaspoon, Fennel Crumblewick, Hazel Nettlebed, Yarrow Mossgrove, Willa Gillyflower, Wick Kettleby, Elm Wickerby, Nettle Cobblefield also live in other regions. `trail_sight_folk_id()` gives the friendship to the lowest stop_folk id. In a fresh install the Maplewold one is first (lowest location ids), but on a site where another region's village made its folk first, the friendship goes to the twin. Fix: prefer the twin of the walk's region, or `name@village`. All shared / end rows use names that are unique.
+
+### Kind / role swaps (no exact villager of that kind on the Sight's routes)
+- forest-the-woodcutter-s-stump: "Proud retired woodcutter" -> Linden Honeycomb (Cheerful carpenter, Blossomreach).
+- forest-the-lantern-branch: Sleepy "Wick-Keeper" -> Alder Thistledown (Sleepy storyteller, Mistmoor grassland).
+- wetland-the-mud-skipper-flats: Eager bookie -> Rook Acorncap (Chatty, Birchbramble).
+- wetland-the-dragonfly-bend: Fussy seamstress -> Pip Oakenpot (Fussy weigher, Greatcanopy).
+- coast-the-lighthouse-shadow: "the Keeper (new, Generous mole)" -> Basil Burrowby (Sleepy cartographer, Blossomreach coast).
+- coast-the-stranded-rowboat: Grumpy old fisher -> Ferrin Pennywhistle (Grumpy cook, Mistmoor; also the Grumpy regular at end-haven-1-tundra).
+- coast-the-driftwood-arch: Cheerful -> Ulric Puddlefoot (Eager cook, Olivewhistle).
+- desert-the-red-rock-arch: Dreamy -> Ivy Brambleby (Dunewhisper shopkeeper npc).
+- end-wonder-1-wetland: Cheerful feather-crafter -> Marigold Gillyflower (Generous, Thornacre).
+- end-delve-1-coast: Grumpy retired smuggler -> Fig Windlass (Fussy porter, Mistmoor).
+- end-delve-2-island: Generous fisher -> Dew Dewberry (Generous Olivewhistle shopkeeper npc).
+- end-lair-1-desert: Proud lair-watcher -> Linden Thistledown (Grumpy scout, Blossomreach).
+- end-lair-2-forest / tundra-the-aurora-rise / end-lair-1-island: Dreamy / Sleepy locals -> shopkeeper npcs Tumble Seedwell, Thistle Leafwhisker, Moss Petalwing (no stop villager of that kind in the region).
+- end-lair-2-wetland: Eager crab-sitter -> Fig Gillyflower (Generous scout, Sunsprinkle).
+
+### Parts of the designs the folk rows cannot do (rows pay fp + a small goodie instead)
+- **Away days / traveller days**: "on away days", "on her Maplewold half-days", "between towns", "every 7th game day" (Bracken), "when she is in the Sunsprinkle Isles" (Lyra): no `when` word for these, so rows use dp/se/we only.
+- **Market rest days / festival days** (hedgerow Clover Puddlejump): no condition word.
+- **Errands and escorts**: Dorrit Snailwick escort (ford), Clover Brambleby's parcel for Bunty (232-logbridge), Dorrit Thistledown's 3 wheat (236-beanpoles), Bramble's first errand (232-picnicrise), mossy-stair basket.
+- **"No roll with them"** (ford hop together, beehive with Mabel, logbridge with a villager): the villager is rolled after a successful use, so they cannot skip the check.
+- **Once per week / season / once ever** goodies (Yarrow's stew, Sorrel Rushworth's oak log / plank, Hazel's beeswax, Dorrit Snailwick's toad jewel, Wick-Keeper's lantern): rows use a low chance instead.
+- **Choices and takes**: leave a white clover (apple), bring meadowsweet (beehive), give a spiral shell, give desert glass, bring blue mussels, goat cheese for the guide, share food: folk rows never take items.
+- **Shop effects**: Tobias's seed without town / 10% off his seed, Alder's punnet swap, Moss Windlass selling sea salt, Bunty's 10% inn voucher, Lyra's half-price song, a shop peek of today's shelf (end-haven-1-grassland), the next market hint.
+- **Forecast / hint effects**: Fennick's sale tip, Basil's bee flower (+10% growth), Elm's +20% chanterelle, fish-shoal tip (+1 catch), Lyra coaching next crossing +2, riddle hints, Thornblade tip, hay-ride skip of 10 minutes, the boat-gnome short hop.
+- **Almanac**: sign giggle (beehive), Willa's five-part tale, record stone, flag lessons, tide note, Fennick's wish, Lyra's "Grotto Waltz", firefly naming, a named sea-bird, the book recommendation: needs `unlock=` (P3).
+- **Two buffs**: rows keep the Sight's own buff and add none where the Sight already pays one (wind-combed meadow, bluebell glade, dune grass, vine bridge, shell-bell tree, dripgrotto Lyra, delve-1-desert songline, haven-2-grassland luck).
+- Letters: end-wonder-2-wetland letter from a friend villager (`letters.php` hook).
+
+### New items wished for (none exist; rows use a near item or none)
+(Maplewold: white clover is `white-clover-sprig`, map scrap is paid by Burdock; lantern oil refill and room voucher stay impossible: maplewold-p2-todo.md) Root-Race Ribbon, The Clover Ledger, Blue-Stitch Hat Patch, Waterfall Sketch, Dare Pebble, Orchid Cutting (-> `cut-moth-orchid`), Fir Ornament, Flamingo Feather (-> `pretty-feather`), Lucky Wick (-> `beeswax-candles`), rope-cattail (-> `rope`), custard tart slice is real (`custard-tart`).
+
+
+---
+
+<!-- merged from claude/sights/items-todo.md -->
+## Trail Sights items: what was made, what was skipped, what still needs doing
+
+Status: 2026-11-12, source only. Items: `game/includes/data/trail_sight_items.txt` (62 items, made once by `trail_sights_ensure_items()` on the first Sight use or in Admin > Trail sights). Rows: the `rewards` column of 60 rows in `trail_sights_maplewold.txt` (12), `trail_sights_shared.txt` (42), `trail_sights_end.txt` (6). `bash tests/trail_sights_lint.sh`: 0 problems.
+
+**Maplewold DONE (2026-11-12):** effects added to maple-syrup, toffee, marshmallow (short buffs) and glowcap-garden-light, star-chart, message-bottle, snowman-scarf (decor); 9 new Maplewold items in `trail_sight_items_maplewold.txt` (art list: `maplewold-art-todo.md`). Still no use: flour, maple-sap (quest hand-in only), map-scrap, lost-mitten (now a give to Posy), glowcap-repair-kit.
+
+### Art needed: DONE (audited 2026-11-19, every slug listed below has game/assets/img/ph/<slug>.png). Was: all 62 had no art
+Maplewold: flour, maple-sap, maple-syrup, toffee, marshmallow, message-bottle, map-scrap, snowman-scarf, lost-mitten, glowcap-repair-kit, glowcap-garden-light, star-chart.
+Shared land: lost-sock, grumpys-hedge-shears, tuft-of-fleece, daisy-chain-crown, dew-pearl, root-race-ribbon, glow-moss-nightlight, bookmark-snail, fern-drip-hat-charm, squirrels-spare-key, toadstool-stool, brass-button, teeny-axe, mudskipper-medal, willow-withies, icicle-chime, bog-pressed-bookmark, herons-programme-notes, pine-snow-cone, pocket-whistle, bottled-rainbow, visitors-book-page, echo-pebble, gulls-medal, barnacle-giggle, dream-souvenir, old-river-pebble, mirage-marble, cactus-bloom, marrowbys-wooden-coin, wishing-coin, giant-fern-spores, vine-twine, giants-bark-curl, raindrop-bead, lantern-fruit, soup-mist-jar, cave-echo-shell, bell-shell, beach-ball, lagoon-glass-bead, aurora-ribbon, frost-window-pane, squeaky-ice-chip, stargazers-chalk.
+End pieces: sauna-bun, mirror-salt-crystal, amber-seed, flamingo-feather, taper.
+
+### Other follow-ups for the new items
+- **DONE 2026-11-19: decor items placeable.** The ten decor items already carry `effects` decor JSON in `trail_sight_items.txt` and `trail_sights_ensure_items()` writes the effects column for new installs. Existing installs made them with NULL effects, so boot_step `sight_item_effects_2719` runs `trail_sights_backfill_effects()` (fills only NULL / empty effects; an Admin edit stands). Test: bell-shell set to NULL, backfilled once, second run 0.
+- **DONE 2026-11-19: uses wired.** Already there: teeny-axe (axe +1) and squirrels-spare-key (forage +1) as keepsakes; fern-drip-hat-charm (hardiness), pocket-whistle (charm), daisy-chain-crown (charm) as short-buff items. New: glowcap-repair-kit mends a worn / broken lantern for free in `mend_tool()` (tools.php) and is used up; recipes windmill-loaf, maple-flapjacks, toffee-apple, maple-sap-tea (recipes.txt, so flour, maple-sap, maple-syrup, toffee are now ingredients; `import_recipes()` makes the Sights items first). Dish art needed: ph/windmill-loaf, maple-flapjacks, toffee-apple, maple-sap-tea.
+- **DONE (fifth pass, `trail_sights_5.php`):** fern-drip-hat-charm keeps rain off, map-scrap marks a find, star-chart opens a season page, stargazers-chalk marks the stones, message-bottle reads a bottle-post note, maple-syrup and flour swaps (`hv=` + `take=`). OPEN (P4): other players' bottle notes and chalk marks (shared table + moderation). The next bullet is the OLD list.
+- **Still needs engine work (skipped, old list):** fern-drip-hat-charm "keeps rain off" (no weather-effect hook; today a hardiness buff), map-scrap marks a Trail find, star-chart Almanac page per season, stargazers-chalk P4 mark, message-bottle P4 real note, maple-syrup 3-sap swap and flour 2-wheat swap (need an optional `take=` gate on a row).
+- **Win lines that now read oddly** (not my column; the text owner should adjust): `311-taprow` ("The Sugar Shack buys it on the spot": now pays maple sap, not coins); `grassland-the-sleepy-windmill` ("pay you ... in crumbs and coins": now pays flour).
+- **Approximations** (the idea is a minigame, villager or counter; the row pays a small plain chance instead): grumpys-hedge-shears 5% dp=day, daisy-chain-crown 3%, root-race-ribbon 10% dp=day (on the nimble win), squirrels-spare-key 3% se=autumn, glowcap-garden-light 3% (idea: hush 3 times), snowman-scarf 3% se=winter (idea: give the snowman a carrot), map-scrap 10% dp=dawn (idea: Burdock gives it), maple-syrup 10% (idea: swap 3 maple sap; an optional `take=` would gate the whole row), flour (idea: 2 wheat -> flour; same reason), star-chart 30% dp=night (idea: every chart), lantern-fruit 40% (the picked glow), sauna-bun 10% (a Q6 smell beat), mirage-marble replaces the row's `find=1@10`.
+- `first:` used for the once-per-player gifts: `310-sledtrack` lost-mitten (return to Posy Thistledown is TODO), `forest-the-woodcutter-s-stump` teeny-axe (first win), `end-delve-2-forest` taper (Burdock hands it over).
+- Merged: Shiny Button (end-delve-2-island) and Brass Button (forest-the-mossy-stair) are one item, `brass-button`. Picnic Flour (shared windmill) and flour (Maplewold windmill) are one item, `flour`.
+
+### Used an existing item instead of a new one
+- white clover (Maplewold `305-sunclearing`): `white-clover-seed` 25% (a `white-clover` crop exists, so no item with that slug). `apple`'s white clover is a villager take (Moss Sedgemoor), left for the villager work.
+- Flat Salt: stays `sea-salt` (same thing). Orchid Cutting: stays `cut-moth-orchid`. Bluebell Bulb: stays `bluebell-seed`. Green bean pods: stays `green-bean`.
+
+### Skipped (not an item, or not worth one yet)
+- **Quest tokens / quest rewards** (belong to `trail_sight_quests.txt`): Gate Rubbing, Snore Note, Hush Page, Echo Map, Spoons, Book of Hushes (Q finale), Scout's Spyglass (Q reward), the titles (Stargazer, Lamplighter, Good Nose, Gate Gazer, Echo Reader, Flapjack Friend, Derby Marshal, Bridgewarden ...), and the shared quest rewards (Kite-String Spool, Runaway Kite, Hatter's Thimble, Bridgewarden's Badge, Seaside Stationery, Pocket Star-Wheel, Patchwork Picnic Blanket, Song Sheet, Marrowby's Old Price Book, Feather Pillow).
+- **Buffs / flags, not items**: Lucky Wick (row keeps its Luck buff), Sleep-Counter, Hushed Steps, spare tin bucket loan (a borrow flag), lantern oil refill (tool wear -1).
+- **Folk / Almanac, not items**: Mister Plink, Keeper Marram, Hazel Fluster, Sir Barnaby, Pinchwell, Old Marrowby, the Keeper mole; the Almanac constellation page (end-wonder-1-coast), the Striped Minnow sighting, the red-maple leaf Road Journal sketch.
+- **Seeds that must really grow** (an inert item would be worse than the working stand-in): Tiny Thank-You Seed (row keeps `seed=1@8`), Lantern Fruit Seed (row keeps `lanternroot`). Make them as real seeds with a crop later.
+- **Rows I may not edit** (`trail_sights.txt` example rows): Clover Ledger, Five-Leaf Clover, Left-Handed Spiral, Starfish Friend, Knot Book / Bridge Knots, Milestone Collector.
+- **Minigame / villager prizes the todo lists did not ask for** (ideas-shared-land.md): Plank's Gratitude, Blue-Stitch Hat Patch, Scree Xylophone, Waterfall Sketch, Crab Gavel, Arch Shell Mobile, Dare Pebble, Salt Sign, River's Postcard, Mirror Pebble, Snow-Fort Banner, Fir Ornament, Parrot Phrasebook, Cairn Token (P4). Good candidates for a second pass once minigames / villager points exist.
+
+
+---
+
+<!-- merged from claude/sights/maplewold-art-todo.md -->
+## Maplewold Sights: new items that need art
+
+Status: DONE (2026-11-19): every listed item has its PNG in `game/assets/img/ph/`.
+
+64x64 PNG at `game/assets/img/ph/<slug>.png`. Items: `game/includes/data/trail_sight_items_maplewold.txt` (made 2026-11-12, P2b upgrade).
+
+- `white-clover-sprig` White Clover Sprig: a small sprig of white clover, three round leaves and one fluffy white-pink flower head.
+- `mixed-up-letter` Mixed-up Letter: a cream envelope with a red wax seal and "N. Cobblefield?" scrawled on it, a question mark big and wobbly.
+- `honey-parcel` Bramble's Honey Parcel: a little honey pot wrapped in a big green dock leaf, tied with grass string.
+- `bunty-parcel` Parcel for Bunty: a brown-paper parcel with criss-cross string and a biscuit crumb on top.
+- `owl-letter` Letter for the Owl: a thick white envelope with a blue snowflake seal and very large capital letters.
+- `sticky-spoon` Very Sticky Spoon: a wooden spoon dripping amber maple syrup, with a shiny highlight.
+- `spider-hammock` Spider-Silk Hammock: a tiny silvery web hammock strung between two twigs, gently sagging.
+- `derby-rosette` Derby Marshal's Rosette: a red and white ribbon rosette with two tails and a little sled in the middle.
+- `beaver-badge` Beaver-approved Badge: a round wooden badge with a dark paw print stamped in the middle.
+
+
+---
+
+<!-- merged from claude/sights/maplewold-p2-todo.md -->
+## Maplewold Trail Sights: what the data still cannot do (engine gaps)
+
+Status: checked line by line 2026-11-19 (Sights fourth pass, `claude/trail-2.7.08-notes.md` "Fourth pass"). DONE = in the engine (and in the data where it says so); OPEN = still not possible, with what it needs. Data: `game/includes/data/trail_sights_maplewold.txt`, `trail_sight_folk_maplewold.txt`, `trail_sight_quests_maplewold.txt`, `trail_sight_items_maplewold.txt`, `trail_sight_pages_maplewold.txt`, `trail_sight_newfolk_maplewold.txt`. Lint: 219 rows, 0 problems. Art: `maplewold-art-todo.md`. Grammar: `GRAMMAR.md`.
+NOTE: many tokens built in 2.7.00 to 2.7.08 were never put into the rows; the rows changed on 2026-11-19 are named below, the rest is a data pass.
+
+### Engine / lint gaps found in the P2b pass
+- DONE (checked 2.7.08): the lint and `trail_sight_pay` take `fpto=Name@village:N`.
+- DONE (2.7.01): `tally=key?cond` counts only when it holds; `tn=key:N` pays once. Data pass left: the scarecrow / charts rows could count seasons.
+- DONE (checked 2.7.08): a `nocheck` villager settles a pick too.
+- BY DESIGN: a wrong pick spends the use; the quest-beat pick Sights have 2 uses. No work.
+- DONE (checked 2026-11-19, `trail_sight_give`): a `give=` row pays once per villager row and game day (tally `give~...`), not as often as the gnome has the item.
+- DONE 2.7.08 second pass: quest beats can give items (7th `B|` column).
+
+### Per idea
+- **Game time and walk effects**:
+  - DONE 2.7.06 `time=N`; in the data 2026-11-19: `haybales` `time=60` (the nap costs 1 game hour), `236-windmill` `time=30` when there is no wind, `314-causeway` `time=20`.
+  - DONE 2.7.08 third pass A `nxt=quick:N`; in the data 2026-11-19: `310-driftpass` `nxt=quick:10`, `313-stickgate` `nxt=quick:15` (its "1 step shorter"; `nxt=skip` would jump a whole stretch).
+  - DONE: `314-causeway` "impatient: -1 energy" = the `fail_en` column, but the row has no check to lose (it is a wait). OPEN: needs a Cancel button on a Sight (a card change).
+  - OPEN: `309-icecave` no energy for the next 3 steps, `315-bridge` free step: walking the Trail costs no energy per step (the walk is paid at its start), so there is nothing to waive. Needs: a design decision on what a "free step" gives (energy back = `en=1` is the nearest).
+- **Next-section / map outputs**:
+  - DONE 2.7.08 third pass A; in the data 2026-11-19: `236-dandelions` `nxt=find@40`, `306-toadsteps` `nxt=peek`.
+  - DONE 2026-11-19 (fourth pass, `sec=<route>.<stretch>:<effect>`, a named stretch): `305-birchtunnel` names a stretch (`sec=305.2:find@40`, in fog also `sec=312.1:find@40`), `307-shellhollow` night secret (`sec=314.2:find@50?dp=night`), `316-starstones` winter-night secret (`sec=309.2:find?dp=night/se=winter`).
+  - OPEN: `314-gullparliament` "shows a hidden find" and map-scrap marking: a stretch's finds are all shown on entry, so there is no hidden find to show (the row keeps `find=1`). Needs: finds that start hidden (the new fog does that for a whole stretch) and a per-find reveal.
+  - OPEN: `305-birchtunnel` "a find is RARER today on that stretch" (the built form adds a find). Needs: a per-day find-odds table per stretch.
+- **Buffs with other lengths or targets**: DONE 2.7.06 "until you sleep" (`:sleep`), "until the next section" (`:section`), a delve / lair buff (`:delve`); DONE 2.7.08 `buff=all` (in the data 2026-11-19: `312-toadring` `buff=all:1:10`) and `buff2=` (in the data: `314-lanternrocks` `buff2=luck:1:120?we=fog`). OPEN: "until dark ends" (needs a length that ends at the next dawn), "+5% Charm in the Den only" (needs a buff scoped to one place and a percent, the slots hold whole points).
+- **Choice of reward in a pick**: DONE 2.7.08 second pass (a free pick: `pick:N` + `choose=` with N options). Not in the data: `314-driftwood`, `316-skyhill`, `309-snowmen` need their N rewards written (a data / balance choice per label).
+- **Hidden button**: OPEN. `310-icicurtain` "Lick" needs a second, unlisted action on a Sight card (a card and POST change).
+- **Streaks and "in a row"**: DONE 2.7.06 (`streak=`, `sk=`). The four rows (`228-pondmill`, `312-ringlog`, `236-haywagon`, `314-driftwood`) still use private tallies: a data pass.
+- DONE 2.7.08: destination lines (`to=` + `{cond}`), market day (`mk=`), tide / moon hints, conditional takes.
+- **Any-of takes**: DONE 2.7.06 (`take=any-<kind>`). In the data 2026-11-19: `312-larder` `take=any-nut:1`, `315-cairns` `take=any-feather:1`. DONE fifth pass: `any-<item category>[+<kind>]` (`take=any-seed:1`, `take=any-produce+flower:1`); in the data: `scarecrow` any crop or flower, `236-haywagon` any seed (Feed now costs a seed). DONE sixth pass A: `316-auroracamp` any bread (optional take `take=any-bread:1?hv=any-bread:1`, word list `bread`) and `316-kettletree` any tea (word list `tea`; a tea swap with Tobias). Was: `316-auroracamp` any bread (the design makes the bread an OPTIONAL extra over the free toast: needs a take that is paid only if the gnome holds the item; and bread slugs end in `bread` without a hyphen, so `any-bread` needs a category or a word list), `316-kettletree` tea swaps (needs a tea category or word list). `232-picnicrise` "eat any snack here, double buff": needs the eat code to know where the gnome stands.
+- **Tool-tier odds**: DONE 2.7.00 (`@a/b/c/d` with a tool column). Not in the data (hedgerow, combridge, ringlog, axe-only logs): each row needs a tool column, which also makes the tool REQUIRED; a data / design choice.
+- **Time-limited loans and flags**: DONE 2.7.06 `lend=` / `repay=`. OPEN: Mister Plink's pebble for a day (an item that goes back by itself: needs an expiry on a satchel item), lantern oil refill (needs a tool-wear token), muddy gnome (a cosmetic state), the seal pup's gift only after Q4 (possible now: `?qd=<Q4 slug>`, a data line), "preened 3 times = the Owl fight starts Calm" and the woodpecker's beat (need a hook into the fight start).
+- **Villager timing words**: DONE: away days (an away villager is not there, 2.7.00), every Nth day (`gd=`), market days (`mk=`), festival days (`fd=`), travellers by their circuit (role hours). In the data 2026-11-19: Tobias's 10% discount (`232-crossroads`, `disc=shop:10:60`: every shop for an hour, not seeds only), Bunty's inn voucher (`307-sandcastle` give row, `disc=rest:25:240`). DONE fifth pass: Tobias's seeds-only discounts (`232-crossroads` `disc=shop:20:60:seed`, `316-kettletree` `disc=shop:10:180:seed`). OPEN: Basil's flower +10% growth, Elm's +20% chanterelle (need a garden / gather modifier token), Fennick's sale tip (needs the shop sale state), Moss Windlass selling sea salt for Petals (needs a buy action at a Sight).
+- **Birthday**: DONE 2.7.08 third pass B (`bd=`, `bday=`). `236-dandelions` still has its tally page; a `bday=1` there is a data line.
+- **Quest starts and rewards**: DONE Notice Board starts (`board`, `quest=`). OPEN: "Sap to Stack" waiting for Wren's Journey chapter "The Sugar Shack" (needs a gate on a Journey chapter: `gate` knows only `quest:<sight line>`), Q8 half-price build-plan stage (needs a build-plan discount), the Den boss hint card (kept `hint=creature`), the Q6 Tansy clue for Wren's Journey (needs a Journey hook), after-quest parcels between the Nettles (possible with `qd=` + `give=`: a data line).
+- **Real other players' notes**: DONE sixth pass B (`trail_sights_6.php`, setting `sights_shared_on`, default off). Single-player bottle post is DONE (`bottle=1`).
+
+
+---
+
+<!-- merged from claude/sights/quests-todo.md -->
+## Trail Sight quest lines: what the data could not do yet
+
+Status 2026-11-12. All 25 designed lines are in `game/includes/data/trail_sight_quests.txt` (8 Maplewold, 9 shared land, 8 end pieces; 140 beats). Lint: `php tests/trail_sights_lint.php <game dir>` shows no `BAD quest` lines.
+NOTE for the lint script: `tests/trail_sights_lint.sh` rsyncs with `--exclude data`, which also skips `includes/data/`, and then copies only `trail_sights*.txt`, so a scratch install that already exists keeps an OLD `trail_sight_quests.txt` (and info / items / folk files). Copy them in by hand, or make the script copy `trail_sight_*.txt` too.
+
+### Engine gaps (each line keeps the beat as "use that Sight")
+
+**Maplewold DONE (2026-11-12):** all 8 lines are `anylast`; beat needs (sap-to-stack `wheat:2` + `maple-sap:2`, which-nettle `mixed-up-letter`, lost-lantern `mackerel`, owl-letter `owl-letter`, sled-derby `acorn-cap:3`, beaver-paperwork `birch-log`); titles Flapjack Friend / Derby Marshal / Beaver-approved; Almanac pages for every line; both Nettles and both Wickerbys get friendship (`fpto`); Keeper Marram and Beaver Foreman are villagers now (`fp=2`); Sap to Stack is gated on Bramble's Picnic List. Leftovers: `maplewold-p2-todo.md`. The notes below about Maplewold lines are history.
+
+- **"Any order, but this one last" (the design's `→`).** Every Maplewold line is "any order, the → beat last". The engine has only `seq` or `any`. Chosen: `any` for Bramble's Picnic List (it must start on whichever Market road a new player takes first; the picnic can now be done before the other six) and Wren's Woodland Census (the stump hand-in can come early); `seq` (in design order) for the six story lines. Wish: an order `last` (any order, final beat last). Same wish for end pieces Q4 Gate Rubbings and Q5 Book of Hushes (fixed first and last beat, any middle; made `any`), and Q1/Q2/Q6 (made `any`).
+- **A Sight twice in one line cannot work** (`trail_sight_quest_hook` finds the first beat with that slug and skips a Sight already done). Shared lines HAT, PICNIC, LADDER start and end at the same Sight: the closing beat was dropped and folded into the outro (HAT 4 beats, PICNIC 5, LADDER 4).
+- **Taking an item at a beat** (no `take=` on beats): picnic-list beat 5 (an item for the scarecrow: the Sight row already takes one) and beat 7 (eat a snack with Bramble), sap-to-stack (2 `wheat` -> flour, sap -> syrup), lost-lantern beat 4 (`sardine` or `mackerel` for the seal pup), owl-letter (the letter itself; any feather for the cairn), sled-derby, beaver-paperwork beat 3 (`birch-log`), HAT beat 2 (`hen-feather`), KITE beat 4 (`bright-feather`), BRIDGE beats 3-4 (`timber-plank`, `rope`), end Q1 beat 2 (`beeswax-candles`), end Q7 (`red-ochre`: a beat at `desert-the-red-rock-arch` stands in for "bring red ochre").
+- **Errands to a villager**: picnic-list "carry the leftover `garden-honey` to Alder Pennywhistle in Honeybrook" (dropped); which-nettle "each Nettle sends the other a parcel once a season" (dropped).
+- **A villager beside you at a beat**: Bramble at the picnic (sunny day, after beats 1-6), Pomeroy rating pancakes, Sorrel Rushworth at the oak arch, Wren at the dusk gate, Tobias at the tavern turn. Could come from `trail_sight_folk.txt` rows tied to an open quest.
+- **Non-Sight beats**: end Q3 "defeat or befriend one of the three bosses" (replaced by `end-lair-2-mountain` Read the footprints); end Q6 finale "eat a home-cooked meal at a haven" (dropped, 5 beats left); end Q1 "all five lit inside one season" (no time limit).
+- **"Best when" / "easier when" conditions** were not made hard rules: sap-to-stack windmill `we=wind`, hollow-round bluebells `se=spring`, star-wheel aurora `se=winter`. Star-wheel eagle beat "not fog" is written as every weather but fog.
+- **Rewards the grammar cannot give**: titles (Flapjack Friend, Derby Marshal, Wind Reader, Bridgewarden, Lamplighter, Gate Gazer, Good Nose, Echo Reader), Almanac pages ("My first picnic", "Clover smiled", "Which Nettle?", lantern, owl, census), friendship with BOTH Wickerbys / both Nettles (only the giver gets `fp`), the Den boss hint card and +Charm in that lair only (owl-letter gives a plain `buff=charm:1:120`), half-price Beaverdam build stage and the "Beaver-approved" delve buff, the Wren's Journey Tansy clue, after-effects (seal pup gift, crows' trinket every 7 days, Pinchwell's weekly cowrie, Marrowby's autumn stall, knoll feast buff, stilt-house nap Sight, meadow weather forecast, Lyra's green song), "+10 friendship with every villager of that town" (PICNIC) and "+40 friendship" (HELLO: `fp=3`).
+- **Givers who are not villagers yet** (their `fp` would go nowhere, so those lines have no `fp`): Keeper Marram (lost-lantern), Beaver Foreman (beaver-paperwork). Pomeroy Crumbworth has `fp=2` but is not an active row in `npcs` on a fresh install: check that it lands.
+- **Givers named by personality in the shared-land design**, picked from the fresh-install villagers: KITE Dreamy -> Mabel Pennywhistle, HAT Fussy -> Moss Windlass, BRIDGE Proud -> Sorrel Rushworth, HELLO Shy -> Bunty Windlass, PICNIC Generous -> Yarrow Mossgrove, LADDER Sleepy -> Posy Thistledown. Which-nettle uses "Nettle Cobblefield" (two villagers share the name; `fp` goes to the first). sled-derby giver is Rue Wickerby (Elm is co-giver in the design).
+- **How a line starts**: the designs start lines from a villager's request (Notice Board favour, road cards `na-owl-letter`, Journey chapter "The Sugar Shack" for Clover). The engine starts a line at its first beat Sight. Sap to Stack should wait for the Sugar Shack chapter.
+
+### Wished-for items (stand-ins used now)
+
+| Line | Wished (new) | Stand-in in the data |
+|---|---|---|
+| sap-to-stack | maple sap, flour (beats), title | `pancakes` x3 + `maple-syrup` (from trail_sight_items.txt) |
+| lost-lantern | (none) | `stone-lantern`, `sea-glass` x2 as designed |
+| owl-letter | Den hint card | `owl-feather` |
+| woodland-census | old NA seed | `seed=1` (a seed of the start region) |
+| sled-derby | (title only) | `birch-log` x3, `timber-plank` |
+| runaway-kite | Kite-String Spool, the Runaway Kite (hovel decor) | `silk-bunting` |
+| sunday-hat | Hatter's Thimble | `shiny-trinket` |
+| bridgewarden | Bridgewarden's Badge | `stepping-stones` x2 |
+| hello-letters | Seaside Stationery | `cowrie-shell` x3 |
+| star-wheel | Pocket Star-Wheel | `sundial` + `seed=1` |
+| picnic-for-everyone | Picnic Flour, Patchwork Picnic Blanket | `garden-honey` x2 |
+| hollow-round | Song Sheet: The Hollow Round | `wind-chime` |
+| trader-went-home | Marrowby's Old Price Book | `woven-basket` + more coins |
+| walking-ladder | Feather Pillow | `hammock` |
+| lamplighters-round | taper; design reward `glowcap-lantern` (exists, but price 2000 and a tier-30 tool: too rich) | `tin-lantern` |
+| big-friends-lullaby | Snore Notes, Big Friends Lullaby song, Hushed Steps buff | `firefly-jar` + `buff=nimble:1:240` |
+| scouts-field-notes | Scout's Spyglass | `pretty-feather` + `buff=sense:1:240` |
+| gate-rubbings | Gate Rubbing tokens, old-world seed | `seed=1` |
+| book-of-hushes | Hush Pages, Book of Hushes (decor) | `sages-draught` (as designed) |
+| follow-your-nose | Spoons, sauna buns | `feast-berry-honey-cake` (as designed) |
+| rest-here-repainted | (none) | `scute-wind-chime`, c=80 (design c=120) |
+| echo-map | Echo Map (first room preview) | `hiking-staff` (as designed) |
+
+
+---
+
+<!-- merged from claude/sights/shared-art-todo.md -->
+## Shared land Trail Sights: new item art needed
+
+Status: DONE (2026-11-19, every listed item has its PNG in game/assets/img/ph/). Was TODO (2026-11-12). Items in `game/includes/data/trail_sight_items_shared.txt`; each needs a 64x64 PNG `game/assets/img/ph/<slug>.png` (the game shows its placeholder until then).
+
+### Sight keepsakes and minigame prizes
+- `five-leaf-clover` Five-Leaf Clover: a bright green clover with five round leaves, a tiny snail trail on one.
+- `clover-ledger` The Clover Ledger: a small clipboard with rows of ticked clover leaves and a pencil on a string.
+- `left-handed-spiral` Left-Handed Spiral: a cream spiral shell twisting the wrong way, with a little sparkle.
+- `starfish-friend` Starfish Friend: a small orange starfish with a cheerful face, one arm raised in a wave.
+- `crab-gavel` Crab Gavel: a tiny driftwood gavel with a crab claw mark on the handle.
+- `mirror-pebble` Mirror Pebble: a flat silvery-blue pebble reflecting a smiling face.
+- `dare-pebble` Dare Pebble: a speckled sea pebble with a white stripe round it.
+- `rivers-postcard` River's Postcard: a flat sandy stone with wavy blue lines scratched on it like writing.
+- `blue-stitch-hat-patch` Blue-Stitch Hat Patch: a round cloth patch stitched in shiny dragonfly blue.
+- `parrot-phrasebook` Parrot Phrasebook: a small green booklet with a red parrot feather as a bookmark.
+- `planks-gratitude` Plank's Gratitude: a round wooden coaster carved with a little smiling plank.
+- `scree-xylophone` Scree Xylophone: seven grey stones of different sizes hung on a string frame.
+- `waterfall-sketch` Waterfall Sketch: a tiny framed painting of a misty white waterfall.
+- `arch-shell-mobile` Arch Shell Mobile: shells hanging on strings from a driftwood twig.
+- `salt-sign` Salt Sign: a white crunchy salt slab with letters pressed into it.
+- `snow-fort-banner` Snow-Fort Banner: a tatty red flag on a stick with a snowball stuck to it.
+- `fir-ornament` Fir Ornament: a small painted bauble, red with a white star, on a ribbon loop.
+
+### Quest line rewards
+- `runaway-kite` The Runaway Kite: a diamond kite of patched colours with a painted eye and a long ribbon tail.
+- `hatters-thimble` Hatter's Thimble: a small silver thimble with a hat engraved on it.
+- `bridgewardens-badge` Bridgewarden's Badge: a round brass badge showing a little arched bridge, on a blue ribbon.
+- `seaside-stationery` Seaside Stationery: a stack of paper with wavy blue edges and a shell paperweight.
+- `pocket-star-wheel` Pocket Star-Wheel: a round brass disc of stars with a small lens in the middle.
+- `patchwork-picnic-blanket` Patchwork Picnic Blanket: a folded quilt of bright squares with a basket on top.
+- `hollow-round-song-sheet` Song Sheet: The Hollow Round: a framed sheet of music with a frog, a shell and a raindrop doodled in the margin.
+- `marrowbys-price-book` Marrowby's Old Price Book: a battered brown book with a tortoise on the cover and notes sticking out.
+- `feather-pillow` Feather Pillow: a plump white pillow with a feather poking out of one corner.
+
+
+---
+
+<!-- merged from claude/sights/shared-p2-todo.md -->
+## Shared land Trail Sights: what still cannot be done (engine gaps)
+
+Status: checked line by line 2026-11-19 (Sights fourth pass, `claude/trail-2.7.08-notes.md` "Fourth pass"). DONE = in the engine (and in the data where it says so); OPEN = still not possible, with what it needs. Data: `trail_sights_shared.txt` + the 5 example rows in `trail_sights.txt`, `trail_sight_folk_shared.txt`, `trail_sight_quests_shared.txt`, `trail_sight_items_shared.txt`, `trail_sight_pages_shared.txt`, `trail_sight_newfolk_shared.txt`. Ideas: `ideas-shared-land.md`. Art: `shared-art-todo.md`. Grammar: `GRAMMAR.md`.
+
+### Test harness (tests/trail_sights.php)
+- DONE (checked 2026-11-19): the all-routes walk passes the right `pick` for every `pick:` Sight.
+- DONE (checked 2026-11-19): the quest walk hands over beat `needs` items (`trail_sight_beat_need`), follows `anylast` / `firstlast` through `trail_sight_beat_open`, fires @boss / @meal / @friend / @green events and takes board lines first; all lines run to the end.
+- DONE (checked 2026-11-19): "one page per Sight" counts only `unlock_key LIKE 'sight:%'`, so the extra `page=` pages do not break it.
+- DONE 2026-11-19: the all-routes walk took a stale scene after a Sight that saves the walk state itself (`nxt=`, `sec=`), so the next Sight was refused "You need to be next to it"; it reloads the scene now, and hands over an item for `take=any-<kind>`.
+- OPEN (by choice): `grassland-the-clover-patch` is the tests' fixture row (no check, win line with "thorough"), so it keeps no luck check (design: luck 12). Needs: the tests moved to another fixture row first.
+
+### Grammar gaps
+- DONE 2.7.06: `@chance` on `fpto=`, `hint=`, `title=`, `page=`, `disc=`; `?cond` on `tally=` (2.7.01).
+- DONE 2.7.01: `tn=key:N` = exactly N (a milestone that pays once).
+- DONE (checked 2.7.08): `nocheck` settles a `pick:` Sight too.
+- DONE (`qd=<quest slug>`, built before 2.7.08, documented in GRAMMAR.md "second pass"): a condition for "this quest line is done". In the data 2026-11-19: the meadow forecast after KITE (`grassland-the-wind-combed-meadow` `hint=weather?qd=runaway-kite`), Marrowby's weekly stall (`desert-the-trader-s-tent-poles`, a third Old Marrowby row `gd=7:0/qd=trader-went-home`). OPEN, each a row to write with `qd=` (writing, no engine work): stilt-house nap Sight, knoll feast buff, crows' trinket every 7 days, Pinchwell's weekly letter. OPEN: Lyra's Hollow Round buff "whenever she is on a green": needs a town-Green hook that pays a buff when Lyra is there (town.php), not a Sight token.
+- DONE 2.7.06: either / or checks (`stat:dc+stat:dc`). DONE fifth pass: boardwalk "plank OR nimble 9" (`nimble:9+item:timber-plank`, an item as a check alternative). (Its Bridgewarden quest beat still takes a plank of its own.)
+- DONE 2026-11-19 (fourth pass): a season- (or weather-, time-) dependent DC: `stat:dc?cond:dc2`. In the data: `forest-the-bluebell-glade` `sense:11?se=spring:9`.
+- DONE 2026-11-19 (fourth pass): penalty tokens `lose:time= / lose:nxt= / lose:sec=` (paid on a lost check). The wind notch has no check, so its headwind is a plain conditional cost: `mountain-the-wind-notch` `time=15?we=storm` with a storm line (the Nimble buff is now `we=wind` only).
+- DONE 2.7.06 (`time=N`, 1-480 game minutes): "rest N game hours". In the data 2026-11-19: `mountain-the-stone-hut` `time=60`, `desert-the-shade-awning` `time=120`. Not changed: hammock and bones (the ideas give no hours). JOSH: the two rows pay the same energy as before and now cost game time.
+- Folk rows:
+  - DONE 2.7.01 (`check=stat:dc` in a villager row's rewards): a stat check for the villager's own ask. DONE fifth pass: `line // miss line` (the miss line is said on a miss; a give= row rolls before it takes the item) and in the data on all 14 shared ask rows (plank footbridge, sleepy windmill, root tangle, mushroom ring, willow curtain, frog choir, wind notch, eagle's rest, net rack, sea-stack gap, bones, mirage pool, mist pool, sand spit; difficulty 8 or 9). JOSH to note: they pay less often now.
+  - DONE 2.7.06: `escort=Name` (needs an eye check); `lend=` / `repay=`.
+  - DONE 2.7.00 (`disc=shop|rest:percent:minutes`): shop effects as a percent off every shop. DONE fifth pass: Tobias "20% off seeds only" (`disc=shop:20:60:seed`, scoped to an item category; `mountain-the-switchback-bend`, `232-crossroads`). OPEN: Marrowby's price book "better prices at travellers" (a standing item perk on a shop kind: Marrowby's Old Price Book does not exist as an item and "travellers' shops" has no definition in the shop code: needs Josh's definition), Lyra's free song (an NPC service with no price).
+  - DONE 2026-11-19: Mabel's hay-ride (`grassland-the-hay-cart-ruts`, `nxt=quick:10`).
+- Effects that are not tokens:
+  - DONE 2026-11-19: rowboat short hop (`coast-the-stranded-rowboat` `nxt=skip?dp=dawn/ti=high`); Lantern Path no-fog night (`rainforest-the-lantern-fruit` `nxt=lit?dp=night`: one night pick lights the path; "3 picks in one night" is not possible with 1 use per cooldown). Fog itself: `nxt=fog`, and foggy weather behind the setting `trail_fog_weather` (default off).
+  - DONE 2.7.08 third pass B (keepsakes): Squirrel's Spare Key (forage +1), Teeny Axe (axe +1, every axe find, not only the bramble gap).
+  - DONE fifth pass: Sight kinds (`data/trail_sight_kinds.txt`) and `nextkind=<kind>:+N|fish=N`: next fishing Sight +1 catch (Keeper Loamwick, `coast-the-lighthouse-shadow`), next crossing +2 (the lily-pad frog, `wetland-the-lily-pad-ford`). OPEN: Hatter's Thimble on gifts only, Parrot Phrasebook with travellers only: need item effects read by the gift / traveller code (item effects: another worker). Pocket Star-Wheel night markers: needs a map layer. Bridgewarden's Badge +2 on crossings, Feather Pillow +1 energy on naps: the kinds exist now (`crossing`, `rest`); they need a carried-item effect that `trail_sight_do` reads by kind (an item-effect change, left to the item-effects worker).
+- OPEN (owner decision): charms that cannot be buffs without changing `edible` (fern-drip-hat-charm, pocket-whistle, daisy-chain-crown stay keepsakes). Needs: Josh's yes to set `edible` 1 on them, or a "use" action for non-food items.
+- DONE 2.7.08 (`fpall=N`, 1-9, every villager of the walk's START place): "+friendship with the whole town". Not in the PICNIC reward: the idea says +10 (over the token's 9) for "that town" (the token knows only the walk's start place). DONE sixth pass A: the limit is 10 and `picnic-for-everyone` pays `fpall=10`. OPEN: "Wish Delivery" (a thank-you in the next town 3 days later): needs a delayed-delivery queue (no token).
+- DONE sixth pass B (shared across players, `trail_sights_6.php`, setting `sights_shared_on`, default off): cairn pass stone count (shared), other players' bottle-post notes, stargazer's chalk marks (words visible to others). Cairn Token at milestones still OPEN.
+- DONE 2.7.08 third pass B: quests that start from a Notice Board favour (`board` column, `quest=<slug>`). Only Wren's Woodland Census uses it; the shared lines still begin at their first beat (set `board` per line if wanted).
+- DONE 2.7.08 third pass B: seeds that must grow (Tiny Thank-You Seed, Lantern Fruit Seed: `trail_sight_seeds.txt`).
+
