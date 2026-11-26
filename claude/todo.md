@@ -32,7 +32,7 @@ Open: nothing browser-tested (Closet, avatar art); front cloak / pack art weak; 
 ## D. Art open
 Method: `aseprite-source/v3/HANDOFF.md`, `claude/art-audit.md`, Hearth Pop / Stitched Toy. Delete `obj/lm-*.png` before re-baking.
 - Trail ground for the other 11 regions is stand-in (coast / tundra / forest ground reused); landmark sprites mostly drawn. Lair sleeper bright purple; taprow syrup thin; stop-look weak spots (coast market no quay, wetland / tundra animals small, rainforest tower roof). Depth-order overdraw is FIXED.
-- Weak items: tomato kept on purpose (Josh may swap); ginseng seed keeps old picture; check wasp legs / clam head in the new 2.8.72 rigs; butterfly / moth villager faces and tortoise villager shell still open.
+- Weak items: tomato kept on purpose (Josh may swap); ginseng seed keeps old picture (looked fine on review). DONE, unreleased (on branch after 2.8.74, needs a release + zip): moth villager 1, butterfly villager 1 and tortoise villager shells 1-3 redrawn (portraits + sprites; staging in `aseprite-source/v3/folk/redo-*`, `tools/install_art_2701.py` rows and `art_2701` pins updated; `art_2701` + `villagers` pass). Checked: wasp legs and clam head are fine (wasp legs already 2-3px, rig check passes). Open: moth 1 eyes are plain dark discs unlike the ringed eyes of moth 2/3; its antenna barbs are busy and its sprite ruff a bit tall; unseen on a real phone.
 - Optional: wander-step-back, street / door animation, season variants, Cat Fish lane F, cheer pose (needs arm-up gnome cut), glint-only popover scenes r_ee_stove_ledge / r_sa_frost_potatoes, more stat icons, per-villager doors, per-village pictures (2 exist), town repaints, `map/` 16px tiles.
 
 ## 6. WATCH / SMALL
