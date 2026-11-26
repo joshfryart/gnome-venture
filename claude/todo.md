@@ -1,6 +1,8 @@
-# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.73). History: `claude/todo_history.md`
+# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.73, branch ccr-d3df1991-3zcfye = 2.8.74). History: `claude/todo_history.md`
 
 Rules: add new items here only. Tick or delete when done, and MOVE finished blocks to `claude/todo_history.md` (newest on top). STANDING RULE (Josh, 2026-11-05): after every change or release, update this file. Items marked (2.7.x) were carried from older lists and not re-verified: check before building.
+## 2.8.74 BUILT 2026-11-26 (branch, not yet on main): slim zip `releases/GnomeVenture-2.8.74-web-update.zip` (8 files, goes on 2.8.73). Route-id fix is for NEW worlds only; live needs `tools/renumber_routes_239.php` only if its routes read `245 | 472 | 1`. Zip not test-installed over a real 2.8.73.
+
 
 ## 2.8.73 SHIPPED 2026-11-26 (PR 84 merged to main; slim zip `releases/GnomeVenture-2.8.73-web-update.zip` built against 2.8.70, goes on 2.8.70 or newer, includes 2.8.71 + 2.8.72)
 - Open from it: shops-street hotspots unchecked by eye; route cards lost the gnome (ask if wanted back) and the lair card keeps its eyes; stoptiers mill-1, workshop-1..4, spring-3 kept as before (redraws were broken); `mini-<slug>.png` rigs old; zip not test-installed over a real 2.8.70.

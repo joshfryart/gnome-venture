@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (after 2.8.73)
+## 2.8.74
 - **Garden badge counts crops that finished overnight:** the dock, the menu sheet and `dockstate.php` counted ripe crops from the stored growth only, so after a sleep (sleep-days clock) the Garden count lagged until the garden page was opened. New `garden_ready_count()` (`includes/garden_logic.php`) settles growth in memory (nothing saved) and is used by `dock_garden_ready()` and `nav_groups()`. Dock tiles now carry a `slug`, and `dock.js` patches the Garden badge by slug, not by the label. `tests/dock_badges.php` covers it.
 - **Route ids (W4 bug):** a fresh install numbered routes one lower from 239 up, so 234 routes picked up the neighbouring route's trail map, camp and road kind. `lay_roads` now burns the dead-end leg's id again. New suite `tests/route_ids.sh`. Worlds installed after commit e21c8d65 and before this fix keep shifted ids (needs a manual renumber).
 - **Very short landscape (640x260):** the hovel tabs stay on one row above the dock, and the tour "Show me now / Later" card no longer clips its top (`dock.css`).
