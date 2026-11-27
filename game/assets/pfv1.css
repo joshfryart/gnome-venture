@@ -1155,7 +1155,7 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   html body #pfight.pf-v1.pfv-fit > .pfc-top { order: 1; }
   html body #pfight.pf-v1.pfv-fit > .pfv-guide { display: none; }   /* the tip line: the tapped piece's card says it */
   html body #pfight.pf-v1.pfv-fit > .pfv-row { order: 3; flex-wrap: nowrap; overflow: hidden; min-height: 24px; max-height: 26px; }
-  html body #pfight.pf-v1.pfv-fit > .pfv-legend { order: 4; display: flex; flex-wrap: wrap; overflow: visible; min-height: 26px; gap: 3px; }
+  html body #pfight.pf-v1.pfv-fit > .pfv-legend { order: 4; display: flex; flex-wrap: nowrap; overflow: hidden; min-height: 26px; gap: 3px; }
   html body #pfight.pf-v1.pfv-fit > .pfc-histrow { order: 5; }
   html body #pfight.pf-v1.pfv-fit > .pfv-dock, html body #pfight.pf-v1.pfv-fit > .pfv-pair { order: 6; }
   html body #pfight.pf-v1.pfv-fit > .pf-form { order: 99; margin: 0; }
@@ -1166,6 +1166,16 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   html body #pfight.pf-v1.pfv-fit > .pf-buttons #pf-go { flex: 2 1 96px; order: -1; min-height: 44px; }
   html body #pfight.pf-v1.pfv-fit > .pf-buttons .btn { flex: 1 1 0; min-height: 44px; }
   html body #pfight.pf-v1.pfv-fit > .pf-extra { order: 9; }
+  /* 2.8.78: less busy (Josh: "too busy"): one status line, one weather line, no Next strip (the Environment chip opens it), no class-rule or tool-wear chips here */
+  html body #pfight.pf-v1.pfv-fit > .pfv-pair { display: none; }
+  html body #pfight.pf-v1.pfv-fit .pfv-row .tg.kind, html body #pfight.pf-v1.pfv-fit .pfv-row .tg.wear { display: none; }
+  html body #pfight.pf-v1.pfv-fit .pfv-row .tg.aim { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html body #pfight.pf-v1.pfv-fit :is(.pfv-row, .pfv-legend) .tg { min-height: 26px; height: 26px; padding: 0 6px; font-size: 11px; }
+  html body #pfight.pf-v1.pfv-fit .pfv-legend { flex-wrap: nowrap; overflow: hidden; gap: 3px; }
+  html body #pfight.pf-v1.pfv-fit .pfv-legend .el { display: none; }
+  html body #pfight.pf-v1.pfv-fit .pfv-legend .es { display: inline; }
+  html body #pfight.pf-v1.pfv-fit .pfv-legend .tg.envp .fn { display: none; }
+  html body #pfight.pf-v1.pfv-fit .pfv-legend .tg svg { width: 16px; height: 16px; }
   html body #pfight.pf-v1.pfv-fit .pfc-top { padding: 2px 4px; }
   html body #pfight.pf-v1.pfv-fit .pfv-guide { max-height: 40px; overflow: hidden; font-size: 12px; line-height: 1.2; min-height: 0; padding-block: 2px; }
   html body #pfight.pf-v1.pfv-fit .pfv-dock { height: var(--pfv-dock, 46px); }
