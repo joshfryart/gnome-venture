@@ -260,6 +260,15 @@
     mo.observe(document.body, { childList: true, subtree: true });
   }
   document.addEventListener('gv:swapped', function () { try { check(); } catch (e) {} });
+  /* 2.8.78: a turned phone or a resized window while the pieces are held: the jigsaw is rebuilt to the new window (all pieces in place), so it always fits */
+  var refitT = 0;
+  function refit() {
+    if (!layer || entering || accepting || !held) return;
+    var b = fullBox(), g = grid(b); pieces = jig(b.w, b.h, g[0], g[1], icoOf(b));
+    while (layer.firstChild) layer.removeChild(layer.firstChild);
+    pieces.forEach(function (q) { layer.appendChild(q.svg); });
+  }
+  window.addEventListener('resize', function () { clearTimeout(refitT); refitT = setTimeout(function () { try { refit(); } catch (e) {} }, 150); });
   window.addEventListener('resize', function () { var d = dlg(); if (d) place(d); else { var nb = curBox(); if (nb) lastBox = nb; } });
   window.addEventListener('pageshow', function (ev) { if (!ev.persisted) return; var d = dlg(); if (d) { dropLayer(); dropTop(); place(d); d.classList.add('pfst-on'); } });   // a page restored from the back-forward cache only (pageshow also fires after every normal load)
 
