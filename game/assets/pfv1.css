@@ -1189,26 +1189,33 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview, html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview-x { display: none; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-plan { grid-row: 5; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > :is(.pf-form, .pf-extra, .pf-data) { display: none; }
-  /* the buttons are jigsaw pieces that fit together, each its own colour: Undo, End turn and Flip in the first row, Box, Hint and Run under them.
-     A piece's right edge has a knob (::after, a half disc), the next piece's left edge a hole (a half disc drawn into its background), and the knob sits in it. Labels are ::before. */
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons { grid-row: 6 / 8; align-self: end; margin: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 5px 0; padding-right: 9px; --pfk-bg: #1d120a; }
+  /* the buttons look like the playing pieces and fit together, each its own colour: Undo, End turn and Flip in the first row, Box, Hint and Run under them.
+     Like a playing piece: a body with a darker rim, a light top edge and a shaded foot, rounded outer corners, a round knob on a short neck in another colour (the next piece's left edge has the round hole it fits into). */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons { grid-row: 6 / 8; align-self: end; margin: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px 0; padding-right: 14px; --pfk-bg: #1d120a; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > * { min-height: 44px; margin: 0; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-go, html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .btn { min-height: 44px; }   /* (dock.css gives the End turn button 38 px on a short window) */
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-undo { grid-column: 1 / span 3; grid-row: 1; z-index: 3; --pc: #d99a1f; --pi: #2a1a10; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-go { grid-column: 4 / span 6; grid-row: 1; z-index: 2; --pc: #2f8a3e; --pi: #f6ecd2; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-flip { grid-column: 10 / span 3; grid-row: 1; z-index: 1; --pc: #2a6fa8; --pi: #f6ecd2; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-box { grid-column: 1 / span 4; grid-row: 2; z-index: 3; --pc: #7a5aa8; --pi: #f6ecd2; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint { grid-column: 5 / span 4; grid-row: 2; z-index: 2; --pc: #c46a9b; --pi: #2a1a10; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-undo { grid-column: 1 / span 3; grid-row: 1; z-index: 3; --pc: #e0a321; --pd: #8a5f0b; --pi: #2a1a10; --kc: #d9483b; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-go { grid-column: 4 / span 6; grid-row: 1; z-index: 2; --pc: #2fa05a; --pd: #165a30; --pi: #fbf3dc; --kc: #8a6ad0; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-flip { grid-column: 10 / span 3; grid-row: 1; z-index: 1; --pc: #3a86c8; --pd: #1a4c7c; --pi: #fbf3dc; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-box { grid-column: 1 / span 4; grid-row: 2; z-index: 3; --pc: #8d68c8; --pd: #4a2f7a; --pi: #fbf3dc; --kc: #e8a317; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint { grid-column: 5 / span 4; grid-row: 2; z-index: 2; --pc: #d77aa8; --pd: #86335f; --pi: #2a1a10; --kc: #d9483b; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf { grid-column: 9 / span 4; grid-row: 2; display: flex; z-index: 1; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf .btn { flex: 1; --pc: #c4551f; --pi: #f6ecd2; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, #pf-flip, .pf-box, #pf-hint, .pf-runf .btn) { position: relative; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 6px 0 12px; width: auto; max-width: none; border: 2px solid #2a1a10; border-radius: 0; box-shadow: none; color: var(--pi, #f6ecd2); font-weight: 800; background: radial-gradient(circle at 0 50%, var(--pfk-bg) 0 11px, transparent 11.5px), var(--pc, #3d2a1c); }
-  /* the first piece of a row has no hole; the last has no knob */
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, .pf-box) { background: var(--pc); padding-left: 6px; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, .pf-box, #pf-hint)::after { content: ''; position: absolute; left: 100%; top: calc(50% - 9px); width: 13px; height: 18px; box-sizing: border-box; background: var(--pc); border: 2px solid #2a1a10; border-left: 0; border-radius: 0 9px 9px 0; pointer-events: none; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, #pf-flip, .pf-box, #pf-hint, .pf-runf .btn)[disabled] { opacity: .5; filter: saturate(.6); }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-box::before { content: 'Box'; order: 3; font-size: 12px; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint::before { content: 'Hint'; order: 3; font-size: 12px; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf .btn::before { content: 'Run'; order: 3; font-size: 12px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf .btn { flex: 1; --pc: #d9642a; --pd: #8a3510; --pi: #fbf3dc; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, #pf-flip, .pf-box, #pf-hint, .pf-runf .btn) { position: relative; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 8px 0 16px; width: auto; max-width: none; border: 3px solid var(--pd); border-radius: 0; color: var(--pi, #fbf3dc); font-weight: 800; letter-spacing: .01em; text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
+    background: radial-gradient(circle at 0 50%, var(--pfk-bg) 0 12px, var(--pd) 12.5px 14px, transparent 14.5px), var(--pc, #3d2a1c); box-shadow: inset 0 3px 0 rgba(255, 255, 255, .3), inset 0 -4px 0 rgba(0, 0, 0, .22), 0 0 0 1px #1a0f08; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, #pf-hint, .pf-box) { text-shadow: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-hint) { text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
+  /* outer corners rounded like a piece; the first piece of a row has no hole, the last no knob */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, .pf-box) { background: var(--pc); padding-left: 8px; border-radius: 8px 0 0 8px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-flip, .pf-runf .btn) { border-radius: 0 8px 8px 0; }
+  /* the knob: a round head on a short neck, in another colour, over the seam into the next piece's hole */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, .pf-box, #pf-hint)::after { content: ''; position: absolute; left: calc(100% - 3px); top: calc(50% - 10px); width: 22px; height: 20px; pointer-events: none;
+    background: radial-gradient(circle at 15px 50%, var(--kc) 0 5.5px, var(--pd) 6px 8px, transparent 8.5px), linear-gradient(var(--kc), var(--kc)) 0 50% / 9px 6px no-repeat, linear-gradient(var(--pd), var(--pd)) 0 50% / 10px 10px no-repeat; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, #pf-flip, .pf-box, #pf-hint, .pf-runf .btn)[disabled] { opacity: .55; filter: saturate(.6); }
+  /* the label is a small dark plate, like the number plate on a playing piece */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(.pf-box, #pf-hint, .pf-runf .btn)::before { order: 3; padding: 1px 6px; background: #1d120a; color: #fbf3dc; border-radius: 3px; font-size: 12px; line-height: 1.3; text-shadow: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-box::before { content: 'Box'; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint::before { content: 'Hint'; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf .btn::before { content: 'Run'; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint .xp, html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint > span { color: inherit; }
   html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-top { padding: 2px 4px; }
   html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-pair .pfv-dock { height: var(--pfv-dock, 52px); }
