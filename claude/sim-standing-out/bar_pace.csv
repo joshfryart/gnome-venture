@@ -1,67 +1,67 @@
 region,policy,acts,stop,type,Repairs_p10,Repairs_p50,Repairs_p90,Larder_p10,Larder_p50,Larder_p90,Cheer_p10,Cheer_p50,Cheer_p90,all3_p10,all3_p50,all3_p90
-NA,list,5,Maplewold Market,market,6,6,7,6,6,7,6,6,7,6,7,7
-NA,list,5,Poppyburrow,inn,5,6,7,6,7,7,7,7,8,7,7,8
-NA,list,5,Honeybrook,herb,6,6,8,7,7,7,7,8,9,7,8,9
-NA,list,5,Cloverholt,mill,6,6,8,6,6,8,7,8,8,7,8,8
-NA,list,5,Acornby,camp,6,7,7,7,8,8,6,7,8,7,8,8
-NA,list,5,Birchhollow,workshop,5,5,6,6,7,7,6,7,8,6,7,8
-NA,list,5,Mossgate,shrine,5,6,6,6,7,9,6,7,8,7,7,9
-NA,list,5,Shellhollow,jetty,6,7,7,7,7,9,7,7,9,7,8,10
-NA,list,5,Pebblestead,ferry,6,7,8,7,8,10,7,8,9,7,8,10
-NA,list,5,Cattailmere,herb,5,7,7,6,7,7,7,7,9,7,7,9
-NA,list,5,Iciclecrest,tower,5,6,7,7,8,9,7,7,8,8,8,9
-NA,list,5,Snowcombe,spring,5,5,6,7,7,9,5,5,6,7,7,9
-NA,list,5,Granitegate,tower,5,6,7,7,8,8,7,8,8,8,8,8
-NA,list,5,The Sugar Shack,orchard,5,7,8,6,7,8,7,7,8,7,8,8
-NA,list,5,Aurora Camp,camp,6,7,8,8,8,9,7,7,8,8,8,9
-NA,list,5,Larkbrook,inn,6,7,7,6,6,7,6,7,8,7,7,8
-NA,list,5,Windbottom,tower,5,6,7,6,7,8,6,7,8,6,7,8
-NA,list,5,Honeythorpe,orchard,5,7,9,7,7,8,7,8,10,7,8,10
-NA,bars,5,Maplewold Market,market,5,5,6,5,5,6,6,6,7,6,6,7
-NA,bars,5,Poppyburrow,inn,5,5,7,5,5,7,5,6,6,6,6,7
-NA,bars,5,Honeybrook,herb,5,6,7,4,5,6,6,7,7,7,7,7
-NA,bars,5,Cloverholt,mill,5,5,5,5,6,6,6,6,7,6,6,7
-NA,bars,5,Acornby,camp,4,4,5,6,6,7,5,6,6,6,6,7
-NA,bars,5,Birchhollow,workshop,4,5,5,6,6,7,5,6,8,6,6,8
-NA,bars,5,Mossgate,shrine,4,5,6,6,6,7,5,6,6,6,6,7
-NA,bars,5,Shellhollow,jetty,5,6,6,5,6,6,5,6,7,6,6,7
-NA,bars,5,Pebblestead,ferry,4,5,5,7,7,8,7,7,8,7,7,8
-NA,bars,5,Cattailmere,herb,5,6,7,5,5,6,6,7,7,7,7,7
-NA,bars,5,Iciclecrest,tower,4,5,5,6,7,7,5,6,6,6,7,7
-NA,bars,5,Snowcombe,spring,5,5,6,7,7,8,5,5,6,7,7,8
-NA,bars,5,Granitegate,tower,4,4,5,6,7,7,6,6,7,6,7,7
-NA,bars,5,The Sugar Shack,orchard,5,6,6,5,6,6,6,6,7,6,6,7
-NA,bars,5,Aurora Camp,camp,4,5,6,6,7,7,5,5,6,6,7,7
-NA,bars,5,Larkbrook,inn,5,6,6,5,6,6,5,6,6,6,6,6
-NA,bars,5,Windbottom,tower,4,5,6,6,6,6,5,6,7,6,6,7
-NA,bars,5,Honeythorpe,orchard,5,6,7,5,5,6,6,7,8,6,7,8
-NA,list,3,Maplewold Market,market,10,10,11,9,10,11,8,9,10,10,10,11
-NA,list,3,Poppyburrow,inn,15,20,21,11,12,16,8,9,10,15,20,21
-NA,list,3,Honeybrook,herb,12,14,21,8,9,11,13,14,17,13,14,21
-NA,list,3,Cloverholt,mill,11,13,15,8,9,11,13,13,15,13,13,16
-NA,list,3,Acornby,camp,16,17,23,15,16,20,9,9,10,17,19,23
-NA,list,3,Birchhollow,workshop,6,7,9,10,10,11,9,9,10,10,10,11
-NA,list,3,Mossgate,shrine,10,11,16,12,15,20,9,10,12,12,16,20
-NA,list,3,Shellhollow,jetty,10,13,15,13,16,27,10,11,14,13,16,27
-NA,list,3,Pebblestead,ferry,9,11,14,14,16,19,10,13,16,15,16,19
-NA,list,3,Cattailmere,herb,8,11,15,8,9,10,12,14,17,14,14,17
-NA,list,3,Iciclecrest,tower,11,14,20,16,18,23,8,9,10,16,18,23
-NA,list,3,Snowcombe,spring,6,7,9,10,12,14,8,9,10,10,12,14
-NA,list,3,Granitegate,tower,9,15,18,11,17,22,8,9,10,12,17,22
-NA,list,3,The Sugar Shack,orchard,15,19,27,8,8,10,11,14,15,15,19,27
-NA,list,3,Aurora Camp,camp,16,18,21,12,16,20,8,8,9,16,19,22
-NA,list,3,Larkbrook,inn,15,17,22,9,11,13,9,9,11,15,17,22
-NA,list,3,Windbottom,tower,10,12,15,11,14,18,7,9,10,11,16,18
-NA,list,3,Honeythorpe,orchard,20,45,53,8,9,10,15,20,21,20,45,53
-CA,list,5,Maizehollow Market,market,6,6,7,6,6,7,5,7,7,6,7,7
-CA,list,5,Poppynook,mill,5,6,7,6,6,8,7,7,8,7,7,8
-CA,list,5,Meadowmere,inn,6,6,7,6,6,7,6,7,7,7,7,7
-CA,list,5,Jadedell,shrine,6,6,8,7,7,8,7,7,8,7,8,8
-CA,list,5,Frondthorpe,orchard,5,7,7,7,7,8,7,8,9,7,8,9
-CA,list,5,Orchiddell,herb,6,6,7,6,7,7,8,9,10,8,9,10
+NA,list,5,Maplewold Market,market,5,6,7,6,7,7,6,7,7,6,7,7
+NA,list,5,Poppyburrow,inn,5,6,7,6,7,8,6,7,8,7,7,8
+NA,list,5,Honeybrook,herb,5,6,8,6,7,8,7,8,9,7,8,9
+NA,list,5,Cloverholt,mill,6,7,8,6,7,8,7,8,9,7,8,9
+NA,list,5,Acornby,camp,5,6,8,6,8,9,6,7,8,7,8,9
+NA,list,5,Birchhollow,workshop,5,5,6,6,7,8,6,7,8,6,7,8
+NA,list,5,Mossgate,shrine,5,6,7,7,8,9,7,7,8,7,8,9
+NA,list,5,Shellhollow,jetty,6,7,8,7,8,9,7,8,9,7,8,9
+NA,list,5,Pebblestead,ferry,6,7,8,7,8,9,7,8,9,8,8,9
+NA,list,5,Cattailmere,herb,5,6,8,6,7,8,7,8,9,7,8,9
+NA,list,5,Iciclecrest,tower,5,6,7,7,8,9,7,8,9,7,8,9
+NA,list,5,Snowcombe,spring,5,6,7,7,8,9,5,6,7,7,8,9
+NA,list,5,Granitegate,tower,5,6,7,7,8,9,7,8,8,7,8,9
+NA,list,5,The Sugar Shack,orchard,5,7,8,6,7,8,7,8,9,7,8,9
+NA,list,5,Aurora Camp,camp,5,7,8,6,7,9,6,7,8,7,8,9
+NA,list,5,Larkbrook,inn,5,7,8,6,7,8,6,7,8,7,7,8
+NA,list,5,Windbottom,tower,5,6,7,6,7,8,6,7,8,7,7,8
+NA,list,5,Honeythorpe,orchard,5,7,8,6,7,8,7,8,9,7,8,9
+NA,bars,5,Maplewold Market,market,4,5,6,4,5,6,5,6,7,6,6,7
+NA,bars,5,Poppyburrow,inn,5,6,6,4,5,6,5,6,6,5,6,6
+NA,bars,5,Honeybrook,herb,5,6,6,4,5,6,6,7,8,6,7,8
+NA,bars,5,Cloverholt,mill,4,5,6,5,6,6,6,6,7,6,7,7
+NA,bars,5,Acornby,camp,4,4,5,5,6,7,5,6,6,6,6,7
+NA,bars,5,Birchhollow,workshop,4,5,5,6,6,7,6,6,7,6,7,7
+NA,bars,5,Mossgate,shrine,4,5,6,5,6,7,5,6,6,6,6,7
+NA,bars,5,Shellhollow,jetty,4,5,6,5,6,6,5,6,7,6,6,7
+NA,bars,5,Pebblestead,ferry,4,5,5,6,7,8,6,7,7,7,7,8
+NA,bars,5,Cattailmere,herb,5,6,7,4,5,6,6,7,8,6,7,8
+NA,bars,5,Iciclecrest,tower,4,5,6,6,7,8,5,6,6,6,7,8
+NA,bars,5,Snowcombe,spring,4,5,6,6,7,8,4,5,6,6,7,8
+NA,bars,5,Granitegate,tower,4,5,6,6,7,8,5,6,7,6,7,8
+NA,bars,5,The Sugar Shack,orchard,5,6,7,4,5,6,6,7,8,6,7,8
+NA,bars,5,Aurora Camp,camp,4,5,6,6,7,7,5,6,6,6,7,7
+NA,bars,5,Larkbrook,inn,5,5,6,5,6,7,5,6,6,6,6,7
+NA,bars,5,Windbottom,tower,4,5,6,5,6,7,5,6,7,6,6,7
+NA,bars,5,Honeythorpe,orchard,5,6,7,4,5,6,6,7,8,6,7,8
+NA,list,3,Maplewold Market,market,8,10,12,8,10,11,8,9,10,9,10,13
+NA,list,3,Poppyburrow,inn,15,21,28,10,12,15,9,10,11,15,21,28
+NA,list,3,Honeybrook,herb,11,14,19,8,9,10,11,15,18,12,16,20
+NA,list,3,Cloverholt,mill,9,11,14,8,10,12,11,14,18,12,14,18
+NA,list,3,Acornby,camp,13,17,22,13,17,22,8,9,10,15,19,23
+NA,list,3,Birchhollow,workshop,6,7,9,8,10,12,8,9,10,9,10,12
+NA,list,3,Mossgate,shrine,10,13,16,11,13,17,10,11,13,12,14,17
+NA,list,3,Shellhollow,jetty,11,14,17,14,18,24,10,11,13,15,18,24
+NA,list,3,Pebblestead,ferry,8,10,12,14,17,22,12,14,17,14,17,22
+NA,list,3,Cattailmere,herb,10,14,19,7,9,10,12,15,18,12,16,20
+NA,list,3,Iciclecrest,tower,11,15,20,14,18,23,8,9,11,14,18,23
+NA,list,3,Snowcombe,spring,7,9,11,9,11,13,7,9,10,9,11,13
+NA,list,3,Granitegate,tower,11,15,20,14,18,23,8,9,10,14,19,24
+NA,list,3,The Sugar Shack,orchard,16,22,31,8,9,10,12,15,19,16,22,31
+NA,list,3,Aurora Camp,camp,13,17,22,13,17,22,8,9,10,14,18,23
+NA,list,3,Larkbrook,inn,12,15,21,9,12,14,8,10,11,12,15,21
+NA,list,3,Windbottom,tower,8,11,14,11,14,18,8,9,10,11,14,18
+NA,list,3,Honeythorpe,orchard,26,42,61,7,8,9,14,18,22,26,42,61
+CA,list,5,Maizehollow Market,market,5,6,7,5,6,7,6,7,7,6,7,8
+CA,list,5,Poppynook,mill,6,7,8,5,6,7,6,7,8,7,7,8
+CA,list,5,Meadowmere,inn,6,7,8,6,7,8,6,7,8,7,7,8
+CA,list,5,Jadedell,shrine,5,6,7,7,8,9,6,7,8,7,8,9
+CA,list,5,Frondthorpe,orchard,5,7,8,6,7,8,7,8,9,7,8,9
+CA,list,5,Orchiddell,herb,5,7,8,6,7,8,7,9,10,8,9,10
 CA,list,5,Saffroncrest,tower,5,6,7,7,8,9,6,7,8,7,8,9
-CA,list,5,Scorchburrow,camp,6,7,7,7,7,9,6,6,7,7,7,9
-CA,list,5,Stonethorpe,spring,5,6,7,6,7,8,5,6,6,6,7,8
-CA,list,5,Flintcove,workshop,5,6,6,7,8,8,6,7,8,7,8,8
-CA,list,5,Market of a Thousand Chilies,market,6,6,7,6,6,7,5,6,7,6,7,7
-CA,list,5,Larkbrook,inn,6,7,8,6,7,8,6,7,7,7,7,8
+CA,list,5,Scorchburrow,camp,6,7,8,6,8,9,6,7,8,7,8,9
+CA,list,5,Stonethorpe,spring,5,6,7,7,8,9,5,6,7,7,8,9
+CA,list,5,Flintcove,workshop,5,6,6,6,8,9,6,7,7,7,8,9
+CA,list,5,Market of a Thousand Chilies,market,5,6,7,5,6,7,6,6,7,6,7,7
+CA,list,5,Larkbrook,inn,5,7,8,6,7,8,6,7,8,7,7,8
