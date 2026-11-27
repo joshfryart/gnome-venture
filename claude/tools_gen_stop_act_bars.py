@@ -224,21 +224,78 @@ NATURE = {
 }
 
 
+# Suggested hand overrides (word-tag noise): slug -> bar. Reviewed by hand from the NOISE list and a read of every tag-driven row.
+SUGGESTED = {
+    'make_wish': 'Cheer',
+    'tt_shrine_3': 'Cheer',
+    'tt_mill_3': 'Cheer',
+    'cast_a_line': 'Larder',
+    'ca_cenote_dip': 'Cheer',
+    'r_na_trim_wick': 'Repairs',
+    'r_ca_nopal_spines': 'Larder',
+    'r_cb_galleon_peek': 'Cheer',
+    'r_sa_dolphin_whistle': 'Cheer',
+    'r_sa_anaconda_length': 'Cheer',
+    'r_nwe_drystone_gap': 'Repairs',
+    'r_nwe_mill_leat': 'Repairs',
+    'r_se_mud_pot': 'Cheer',
+    'r_se_fig_guard': 'Larder',
+    'r_ee_stork_return': 'Cheer',
+    'r_ee_salt_grade': 'Larder',
+    'r_ee_black_earth': 'Larder',
+    'r_mena_sand_wind_shutters': 'Repairs',
+    'r_mena_groaning_wheel': 'Repairs',
+    'r_wca_weaverbirds': 'Larder',
+    'r_wca_mangrove_maze': 'Cheer',
+    'r_wca_surf_launch': 'Cheer',
+    'r_wca_rain_gourds': 'Larder',
+    'r_wca_indigo_vat': 'Repairs',
+    'r_wca_shell_egusi': 'Larder',
+    'r_esa_first_rains': 'Larder',
+    'r_esa_honeyguide': 'Larder',
+    'r_csa_flower_boat': 'Cheer',
+    'r_csa_threshing_floor': 'Larder',
+    'r_csa_rooftop_apricots': 'Larder',
+    'r_ea_typhoon_shutters': 'Repairs',
+    'r_ea_teahouse_screens': 'Repairs',
+    'r_sea_bamboo_gutters': 'Repairs',
+    'r_sea_volcano_plume': 'Cheer',
+    'r_sea_gecko_calls': 'Cheer',
+    'w1_dry_kelp': 'Larder',
+    'w1_bail_dinghy': 'Repairs',
+    'w1_star_float': 'Cheer',
+    'w1_moth_count': 'Cheer',
+    'w1_leaf_sweep': 'Repairs',
+    'w1_prop_branches': 'Repairs',
+    'w1_wassail': 'Cheer',
+    'w2_runaway_cabbages': 'Larder',
+    'w2_dawn_carts': 'Repairs',
+    'w2_tot_takings': 'Cheer',
+    'w2_grease_cogs': 'Repairs',
+    'w2_millrace_weed': 'Repairs',
+    'w3_paper_birds': 'Cheer',
+    'w3_read_tide': 'Cheer',
+    'w3_crab_shell_meal': 'Larder',
+    'w4_spring_drawer': 'Repairs',
+    'w4_glue_pot': 'Repairs',
+    'w4_wobbly_stool': 'Repairs',
+    'w4_cow_aboard': 'Larder',
+    'w4_toll_count': 'Cheer',
+    'w5_steam_fortune': 'Cheer',
+    'w5_snowy_path': 'Repairs',
+    'w5_snoring_tent': 'Cheer',
+    'tt_herb_3': 'Larder',
+    'w3_nettle_sting': 'Larder',
+}
+
+
 def nature(name, matchers_nature):
     toks = set(re.findall(r"[a-z]+", name.lower().replace('’', '').replace("'", '')))
     hits = {b: sorted(toks & m) for b, m in matchers_nature.items()}
     return {b: h for b, h in hits.items() if h}
 
 
-def main():
-    write = '--check' not in sys.argv
-    words = read_tag_words()
-    matchers = build_matchers(words)
-    mnature = {b: set().union(*(forms(w) for w in ws)) for b, ws in NATURE.items()}
-    food = load_food()
-    ov = load_overrides()
-    acts = load_acts()
-
+def run(acts, matchers, mnature, food, ov):
     rows = []                     # (slug, type, first, second, B)
     share = {t: Counter() for t in TYPES}
     second_n = Counter()
@@ -274,13 +331,8 @@ def main():
                 nb = next(iter(nat))
                 bad = sorted({t for t, r in tag_driven if r[0] != nb})
                 if bad and len(bad) == len(tag_driven):
-                    f = res[bad[0]][0]
-                    noise.append((a['slug'], a['name'], a['kind'], f, nb, ','.join(nat[nb]), res[bad[0]][2]))
-
-    # ------------------------------------------------------------ report
-    lines = []
-    lines.append('Per-type share of first bars (acts that can appear at the type; "any" acts count at every type)')
-    lines.append('type      acts   R%  L%  C%  2nd%')
+                    noise.append((a['slug'], a['name'], a['kind'], res[bad[0]][0], nb, ','.join(nat[nb]), res[bad[0]][2]))
+    lines = ['type      acts   R%  L%  C%  2nd%']
     for t in TYPES:
         n = per_type_n[t]
         r, l, c = (round(100 * share[t][b] / n) for b in BARS)
@@ -289,10 +341,33 @@ def main():
     for t in TYPES:
         tot.update(share[t])
     N = sum(per_type_n.values())
-    lines.append(f'{"all":<9} {N:>4}  ' + ' '.join(f'{round(100 * tot[b] / N):>3}' for b in BARS) + f'  {round(100 * sum(second_n.values()) / N):>3}')
-    report = '\n'.join(lines)
-    print(report)
-    print(f'\n{len(acts)} acts, {len(rows)} rows, {len(ov)} override rows, {len(noise)} rows flagged as word-tag noise')
+    lines.append(f'{"all":<9} {N:>4}  ' + ' '.join(f'{round(100 * tot[b] / N):>3}' for b in BARS)
+                 + f'  {round(100 * sum(second_n.values()) / N):>3}')
+    return rows, lines, noise
+
+
+def main():
+    write = '--check' not in sys.argv
+    matchers = build_matchers(read_tag_words())
+    mnature = {b: set().union(*(forms(w) for w in ws)) for b, ws in NATURE.items()}
+    food = load_food()
+    ov = load_overrides()
+    acts = load_acts()
+    known = {a['slug'] for a in acts}
+    bad = [k for k in SUGGESTED if k not in known or k in ov]
+    if bad:
+        sys.exit('SUGGESTED has unknown or already-overridden slugs: ' + ', '.join(bad))
+
+    rows, lines, noise = run(acts, matchers, mnature, food, ov)
+    ov2 = dict(ov)
+    ov2.update({k: [v] for k, v in SUGGESTED.items()})
+    _, lines2, _ = run(acts, matchers, mnature, food, ov2)
+
+    head1 = 'Per-type share of first bars, rules as written (acts that can appear at the type; "any" acts count at every type)'
+    head2 = f'Same, with the {len(SUGGESTED)} suggested overrides below applied'
+    print(head1 + '\n' + '\n'.join(lines) + '\n\n' + head2 + '\n' + '\n'.join(lines2))
+    print(f'\n{len(acts)} acts, {len(rows)} rows, {len(ov)} override rows, {len(noise)} rows flagged by the noise check, '
+          f'{len(SUGGESTED)} suggested overrides')
     for n in noise:
         print('  NOISE', ' | '.join(n))
 
@@ -303,12 +378,20 @@ def main():
             fh.write('# slug | stop type | first bar | second bar or - | base points\n')
             fh.write('#   stop type "*" = an "any" act whose result is the same at all 12 types; otherwise one row per type.\n')
             fh.write('#   base points = B by energy cost (0=6, 1=9, 2=12, 3+=15), before D/W/F/V. The second bar gets floor(pts/2), least 1.\n')
+            fh.write('#   Rows are the rules as written on the current data: the suggested overrides at the end are NOT applied.\n')
             fh.write(f'# {len(acts)} acts, {len(rows)} rows.\n#\n')
-            for l in lines:
+            for l in [head1] + lines + ['', head2] + lines2:
                 fh.write('# ' + l + '\n')
             fh.write('#\n')
-            for s, t, f, sec, B in rows:
-                fh.write(f'{s} | {t} | {f} | {sec or "-"} | {B}\n')
+            for sl, t, f, sec, B in rows:
+                fh.write(f'{sl} | {t} | {f} | {sec or "-"} | {B}\n')
+            fh.write('#\n# ---- Suggested hand overrides (word-tag noise), stop_act_state.txt format: slug | needs | moves\n')
+            fh.write('# The +10 is ignored by the mark formula (step 0 takes the bar only); it keeps the row valid for today\'s meters.\n')
+            byslug = {a['slug']: a for a in acts}
+            for k, v in SUGGESTED.items():
+                a = byslug[k]
+                was = assign(a, ([t for t in a['types'] if t in TYPES] or TYPES)[0], matchers, food, ov)[0]
+                fh.write(f'# {k}|-|meter:{v.lower()}+10        # {a["name"]}: was {was}\n')
     return noise
 
 

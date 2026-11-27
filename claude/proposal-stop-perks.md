@@ -3,9 +3,11 @@
 Status: proposal only, no game code changed. 2026-11-27.
 Read for this: `docs/stop-perk-ideas.md`, `includes/player_perks.php`, `stop_living.php`, `stops.php`, `stop_adopt.php`, `data/stops.txt`, `stop_tiers.txt`, `stop_act_state.txt`, the four `stop_acts*.txt` files (860 acts), `claude/proposal-story-1-base.md`, `claude/proposal-maplewold-bands-and-seals.md`, `claude/route-list.md`.
 
+Pass 2 (same day): the full act-to-bar table is generated (`claude/tools_gen_stop_act_bars.py` writes `claude/proposal-stop-act-bars.txt`), the numbers below are from that run, and the doc was checked against the code. See the review log at the end.
+
 Three things found while reading, which change the plan:
-- **The Maplewold list has 16 stops, not 15** (1 town, 3 road, 7 off-road, 3 road-out, 2 havens). All 16 are done below: 48 perks.
-- **The town and the two havens are not stops in code today.** `stop_do`, `stop_perk_body`, `stop_adopt` all require `kind = 'village'`. The town is `market`, the havens are `haven` (and the Sugar Shack is closed until its Journey chapter). They need a small gate change (section 8) before they can have bars.
+- **The Maplewold roads have 16 stops, not 15**: 13 in the Maplewold itself (1 town, 3 road villages, 7 off-road villages, 2 havens; `zones.txt` NA = 10 villages) and 3 border villages at the far end of the roads out, which belong to the next region (Larkbrook = Maizehollow, Windbottom = Mistmoor, Honeythorpe = Blossomreach; `claude/route-list.md` lists their own routes under those regions). All 16 are done below: 48 perks (39 in the Maplewold, 9 at the border villages, which count toward their own region).
+- **The town and the two havens are not stops in code today.** `stop_do` (`stops.php:813`), `stop_perk_data` and `stop_perk_body` (`stop_living.php:339, 360`) and `stop_adopt` (`stop_adopt.php:236`) all require `kind = 'village'`, and `stop_assign_all` (`stops.php:386`) gives a stop type to villages only. The town is `market`, the havens are `haven` (and the Sugar Shack is closed until its Journey chapter). They need a gate change and a stop type (section 8) before they can have bars.
 - **Acts can already be done only once a game day per stop** (2.8.64). So "repeats small" is defined per bar per day, not per act (section 2).
 
 ## 1. The rule
@@ -14,8 +16,8 @@ Three things found while reading, which change the plan:
 |---|---|---|
 | Full bar | Perk for 7 game days, random from a pool, max 3, bar restarts at 30 | **Lasting mark**: the bar stays full and its perk is on for good |
 | Whose | Player, works everywhere | Player, per stop, per bar. Works everywhere unless the perk text names a place |
-| Which perk | Seeded pick from 9 | Fixed: that stop's own perk for that bar (section 5), else its type's default (section 6) |
-| Limit | 3 at once | None. Balance comes from family caps (section 4) |
+| Which perk | Seeded pick from 9 | Fixed: that stop's own perk for that bar. Every stop has 3 perks no other stop has: hand-written (section 5) or its type's template made for that stop (section 6) |
+| Limit | 3 at once | None. Balance comes from scope and family caps (section 4), set up so every mark adds something (4.1) |
 | Decay | 3 a day | **None (recommended).** See below |
 
 **Bars while filling: remove decay.** A bar is a high-water mark, like Standing in the story proposal. Reasons: the game is at leisure with no fail states; a bar now takes days of visits, so losing 3 a day at 16 stops punishes travelling; and "latched" plus "decays" is two rules where one will do. Kept as a setting (`mark_decay`, default 0) so it can be switched on for unfilled bars only. A filled bar never moves.
@@ -26,9 +28,11 @@ After a bar is full: its acts still pay their normal rewards. Each one adds 1 to
 
 Every act feeds one bar. Some feed a second at half. The generator script reads the act files and writes `data/stop_act_bars.txt` (`slug | stop type | bar | second`). Steps, in order, first match wins.
 
-**Step 0. Override.** A row in `stop_act_state.txt` "moves" names the bar(s). Its numbers are ignored; points come from the formula.
+**Done (pass 2):** `python3 claude/tools_gen_stop_act_bars.py` implements steps 0 to 4 exactly and writes `claude/proposal-stop-act-bars.txt` (860 acts, 1511 rows, `slug | stop type | first bar | second bar or - | base points`; an `any` act is one `*` row when all 12 types agree, else 12 rows). It is deterministic; the game does not read it yet.
 
-**Step 1. Tags.** As `stop_act_tags`, with two fixes: match at the start of a whole word (today "pier" counts as "pie"), and tags from the name rank before tags from the blurb. Inside each, this order: `fix > craft > cook > gather > tend > trade > play > lore > rest`. Bars: fix, craft = Repairs. cook, gather, tend = Larder. trade, play, lore, rest = Cheer.
+**Step 0. Override.** A row in `stop_act_state.txt` "moves" names the bar(s), first listed = first bar, second listed = second bar (only `host_table` names two). Its numbers are ignored; points come from the formula. 186 acts have such a row today.
+
+**Step 1. Tags.** As `stop_act_tags` (`stops.php:501`, words in `STOP_TAG_WORDS`), with two fixes. (a) A tag word matches at the start of a whole word: the word itself, the word plus a plain ending (s, es, ed, ing, er, y, ies), or a compound that goes on with 4 or more letters ("bakehouse"). So "pie" and "pies" count, "pier" does not (today `str_contains` counts "pier", "spiel" and "copied" as pie). (b) Tags from the name rank before tags from the blurb. Inside each, this order: `fix > craft > cook > gather > tend > trade > play > lore > rest`. Add `fry, broth, cordial, porridge, pickle` to the cook words. Bars: fix, craft = Repairs. cook, gather, tend = Larder. trade, play, lore, rest = Cheer. "Makes food" (step 2, craft) = the output slug is a dish in `recipes.txt`, or `garden-honey`.
 
 **Step 2. First bar, by act kind.**
 
@@ -44,22 +48,25 @@ Every act feeds one bar. Some feed a second at half. The generator script reads 
 | thread | The type's signature bar |
 | anything else (default) | The type's lean |
 
-**Step 3. Stop type.** Signature = the bar the type is proud of. Lean = where untagged work goes. Moves apply to game kinds only. Share = how the 860 acts split per type under these rules (script run, Repairs / Larder / Cheer %).
+**Step 3. Stop type.** Signature = the bar the type is proud of. Lean = where untagged work goes. Moves apply to game kinds only. Share = how the acts that can appear at each type split by first bar (full script run; an act listed for several types counts at each, `any` acts count at all 12: 1621 act-type pairs). "Fixed" = the same with the 60 suggested overrides applied (below). "2nd" = acts with a second bar.
 
-| Type | Signature | Lean | Moves | Share R/L/C |
-|---|---|---|---|---|
-| market | Larder | Larder | pick > Larder, power > Repairs | 20/37/43 |
-| mill | Larder | Repairs | power > Repairs | 29/44/28 |
-| inn | Cheer | Larder | power > Repairs, collect > Larder | 17/37/46 |
-| shrine | Cheer | Repairs | pick > Larder | 25/19/57 |
-| jetty | Larder | Repairs | power > Larder, pick > Larder | 27/26/46 |
-| herb | Larder | Larder | collect > Larder | 16/55/29 |
-| workshop | Repairs | Repairs | power > Repairs, pick > Repairs | 50/15/35 |
-| orchard | Larder | Larder | power > Larder | 15/47/38 |
-| ferry | Repairs | Repairs | power > Repairs, pick > Larder | 30/21/49 |
-| tower | Repairs | Larder | power > Repairs, pick > Larder | 15/20/65 |
-| spring | Cheer | Repairs | pick > Larder | 18/27/55 |
-| camp | Cheer | Larder | power > Repairs, pick > Larder | 18/31/51 |
+| Type | Signature | Lean | Moves | Acts | Share R/L/C | Fixed R/L/C | 2nd |
+|---|---|---|---|---|---|---|---|
+| market | Larder | Larder | pick > Larder, power > Repairs | 160 | 12/45/42 | 14/47/39 | 52% |
+| mill | Larder | Repairs | power > Repairs | 106 | 28/45/26 | 31/43/25 | 29% |
+| inn | Cheer | Larder | power > Repairs, collect > Larder | 156 | 13/41/46 | 15/40/46 | 37% |
+| shrine | Cheer | Repairs | pick > Larder | 103 | 25/17/57 | 23/16/61 | 25% |
+| jetty | Larder | Repairs | power > Larder, pick > Larder | 137 | 28/27/45 | 25/27/48 | 34% |
+| herb | Larder | Larder | collect > Larder | 134 | 7/62/31 | 6/64/30 | 32% |
+| workshop | Repairs | Repairs | power > Repairs, pick > Repairs | 110 | 51/15/35 | 55/13/32 | 41% |
+| orchard | Larder | Larder | power > Larder | 153 | 8/55/37 | 7/54/39 | 37% |
+| ferry | Repairs | Repairs | power > Repairs, pick > Larder | 128 | 32/21/47 | 30/19/51 | 34% |
+| tower | Repairs | Larder | power > Repairs, pick > Larder | 141 | 16/20/65 | 16/20/65 | 30% |
+| spring | Cheer | Repairs | pick > Larder | 107 | 14/31/55 | 11/32/57 | 40% |
+| camp | Cheer | Larder | power > Repairs, pick > Larder | 186 | 15/33/52 | 13/34/53 | 35% |
+| all | | | | 1621 | 20/35/45 | 19/35/46 | 36% |
+
+Pass 1 had market 20/37/43, herb 16/55/29, orchard 15/47/38: the real Repairs share there is 7 to 12%, so those three types lean even harder on the answer acts. Tower stays the most Cheer-heavy (65%).
 
 The thin bar at each type is covered by the four "answer" acts at every stop (`mend_board`, `tidy_yard` Repairs; `fill_shelf` Larder; `hang_lanterns` Cheer). Change their needs from `meter<60` to "bar not full", so every unfilled bar has a feeder every day.
 
@@ -70,7 +77,7 @@ The thin bar at each type is covered by the four "answer" acts at every stop (`m
 4. contest, pick, power, collect: the type's lean, if different.
 5. lore, gossip, thread: never. Otherwise none.
 
-Result: 28% to 56% of acts per type have a second bar.
+Rule 5 is checked first in practice: lore, gossip and thread never get a second bar. Result (script run): 25% (shrine) to 52% (market) of acts per type have a second bar, 36% overall.
 
 **Points.** `pts = max(1, floor(B x D x W x F)) + V`
 
@@ -85,7 +92,7 @@ Result: 28% to 56% of acts per type have a second bar.
 | Second bar | floor(pts / 2), least 1. Does not count for D |
 | Same act again the same day | Not possible now. If that rule is ever lifted: 1 point |
 
-A bar is 100 points. One day at a workshop: Mend something 11 R, Plane the boards 6 R + 3 C, Strike the anvil bell 3 R + 1 C, Tales by the forge 8 C, Forge stall 8 L + 4 C, full round +5 L. Day total R 20, L 13, C 16. So **about 6 to 10 visit-days per bar**, and all three bars at one stop in about the same days if you spread your acts. First mark in the first week; all 48 in the Maplewold is roughly two months of steady play.
+A bar is 100 points. One day at a workshop: Mend something 11 R, Plane the boards 6 R + 3 C, Strike the anvil bell 3 R + 1 C, Tales by the forge 8 C, Forge stall 8 L + 4 C, full round +5 L. Day total R 20, L 13, C 16. So **about 5 to 8 visit-days per bar** (100 / 20, 13, 16), and all three bars at one stop in about the same days if you spread your acts. First mark in the first week; all 48 in the Maplewold is roughly two months of steady play.
 
 **Worked examples** (real acts; points = first of that bar that day, before variety).
 
@@ -102,7 +109,7 @@ A bar is 100 points. One day at a workshop: Mend something 11 R, Plane the board
 | mill | Bakehouse table | rest 0 | cook in name | Larder 6 | |
 | inn | Tall tales by the hearth | lore 0 | kind | Cheer 6 | |
 | inn | Late supper by lamplight | buy 0 | kind | Larder 6 | Cheer 3 |
-| inn | Snail cards | pick 0 | kind, lean second | Cheer 6 | Larder 3 |
+| inn | Snail cards | pick 0 | kind, tag gather ("Pick your card") | Cheer 6 | Larder 3 |
 | inn | Stock the root cellar | tend 1 | override row | Larder 9 | |
 | shrine | Sit in silence | rest 0 | kind | Cheer 6 | |
 | shrine | Rake the gravel | tend 1 | no tag, lean | Repairs 9 | |
@@ -143,63 +150,76 @@ A bar is 100 points. One day at a workshop: Mend something 11 R, Plane the board
 
 Skim stones shows the stop type at work: Larder at a jetty, Repairs at a ferry, Cheer at a spring.
 
-Known noise: word tags misfire on a few acts (in the trial run "Fry the fiddleheads" lands on Repairs because "fry" is not a cook word; "Make an offering" reads as craft). Add `fry, broth, cordial, porridge, pickle` to the cook words, and expect about 5% of rows to need a hand override. The script should print the per-type share table above so outliers show.
+All 49 worked examples above match the script's output (checked in pass 2). "Bakehouse table" only reaches Larder because of the compound rule in step 1.
+
+Known noise: word tags misfire. With `fry` added, "Fry the fiddleheads" is Larder; "Make an offering" still reads as craft (Repairs). The script prints the share table and runs a name check that flags 41 acts whose first bar came from a word tag but whose name reads as another bar. A read of all 349 tag-driven rows gives **60 suggested overrides (7% of the 860 acts)**, appended to `proposal-stop-act-bars.txt` in `stop_act_state.txt` format (`slug|-|meter:<bar>+10`). Typical ones: Make an offering, Make a wish at the pool, Wish in the flour loft (Repairs or Larder, should be Cheer); Cast a line, Listen at the hives, Grade the rock salt (Cheer, should be Larder); Grease the great cogs, Clear weed from the millrace, Sweep the leaves, Rebuild the drystone gap (Larder, should be Repairs); Count the gecko's calls, Fold paper birds, Wassail the trees (Repairs, should be Cheer). They are not applied in the rows; Josh accepts them by pasting them into `stop_act_state.txt`.
 
 ## 3. Perk rules
 
 - Size: +1% or +2%, or +1 of a small unit, or one small convenience. Nothing else.
-- A perk row is `family | size | scope`. Scope narrows where it counts and reuses the act "when" grammar: `dp=` day part, `we=` weather, `se=` season, plus `land=`, `region=`, `type=` (stop type), `from=` (stop), `items=` (item group).
-- Marks of one family add up, then the family cap cuts the total (section 4).
-- Info and looks perks (flags) are only for hand-written stops. Type defaults are always stackable families, so a second inn is never a blank.
+- A perk row is `family | size | scope`. Scope narrows where it counts and reuses the act "when" grammar: `dp=` day part, `we=` weather, `se=` season, plus `land=`, `region=`, `type=` (stop type), `from=` (at this stop, or a walk that starts here), `to=` (a walk that ends here, NEW), `items=` (item group, or `local:<stop>` = that stop's local crops from `stop_local_crops()`).
+- Two classes (4.1): **world perks** (no `from=`/`to=`/`region=`/`items=local:`) add up across the world and the family cap cuts the total; **place perks** (those four scopes) count only at their place and are never cut by another stop's mark.
+- Info and looks perks (flags) are only for hand-written stops. Type templates (section 6) are place perks made unique to each stop, so a second inn is never a blank and never a copy.
 
 ## 4. Effect catalogue and caps
 
-29 families. "NA" = perks in the Maplewold set (count, summed size). "Types" = default type perks feeding the family. World today: 178 stops (146 villages, 14 towns, 18 havens) = 534 marks; 162 stops outside the Maplewold, about 13 per type.
+29 families. "Cap" = the most all **world** perks of the family can add together. "NA world" = world perks in the 48 Maplewold-road perks (count, summed size) = how much of the cap the Maplewold set uses. "NA place" = Maplewold place perks (count). "Tmpl" = type templates (section 6) feeding the family; they are all place perks. World today: 178 stops (146 villages, 14 towns, 18 havens; checked against `zones.txt`, `towns.txt`, `landmarks.txt`) = 534 marks; 162 stops outside the Maplewold roads, about 13 per type. Hooks were checked against the code in pass 2 (file:line = the line the bonus goes on; **NEW** = no such hook yet).
 
-| # | Family | Effect | Hook | Per perk | **Cap** | NA | Types |
-|---|---|---|---|---|---|---|---|
-| F01 | sell | Shop sell price | `world.php` `sell_price_with_bonus` | +1% | **+5%** | 2 (2) | 1 |
-| F02 | buy | Shop prices | `world.php:415` `shop_price` | -1% | **-5%** | 1 (1) | 2 |
-| F03 | xp | Gnome XP | `gnome.php:308` `add_xp` | +1% or +2% scoped | **+5%** | 2 (3) | 3 |
-| F04 | gxp | Garden XP | `gnome.php:355` `add_garden_xp` | +1% | **+5%** | 1 (1) | 1 |
-| F05 | walk | Walk time | `adventure.php:192` | -1% or -2% scoped | **-6%** | 3 (4) | 1 |
-| F06 | cook | Pot time | `crafting.php:465` | -1% or -2% scoped | **-6%** | 2 (4) | 1 |
-| F07 | meal | Energy from dishes | `gnome.php:625` | +1% or +2% scoped | **+5%** | 1 (2) | 1 |
-| F08 | buff | Boost length | `gnome.php:439` | +2% | **+8%** | 2 (4) | 2 |
-| F09 | heal | Healing | `health.php:130`, `adventure.php:1280` `rest_heal` | +2% | **+8%** | 2 (4) | 2 |
-| F10 | harvest | Chance of one extra | `garden_logic.php:1598` | +1% | **+4%** | 2 (2) | 1 |
-| F11 | gather | Chance of one extra find | `gathering.php` `gather_on_walk`, `gather_here` | +1% | **+4%** | 1 (1) | 2 |
-| F12 | water | Watering lasts | `garden_logic.php:865` `water_seconds` | +2% | **+8%** | 1 (2) | 1 |
-| F13 | seed | Chance of a seed back | `garden_logic.php:1634` | +1% | **+4%** | 1 (1) | 1 |
-| F14 | friend | Chance of +1 friendship | `friends.php:56` `friend_add` | +2% | **+8%** | 1 (2) | 2 |
-| F15 | stopcoin | Coins from stop acts | `stops.php:670` `stop_rewards` | +2% | **+8%** | 1 (2) | 2 |
-| F16 | check | Stop check chance | `stops.php:742` `stop_check` | +1% | **+4%** | 1 (1) | 1 |
-| F17 | pest | Pest chance | `garden_fx.php:281` `pest_chances` | -2% | **-8%** | 1 (2) | 1 |
-| F18 | travel | Fast travel cost | `world.php:282` | -1% | **-5%** | 1 (1) | 1 |
-| F19 | spot | Spot hidden things | `explore.php:222` | +1% | **+4%** | 1 (1) | 1 |
-| F20 | hp | Max health | `health.php:46` `hp_max` | +1 point | **+4** | 0 | 1 |
-| F21 | torch | Delve torch steps | `delve_v2.php:37` `dv2_fuel` | +1 step | **+5** | 1 (1) | 1 |
-| F22 | restenergy | Energy from rest acts | `stops.php` `stop_do`, rest kind | +1 | **+3** | 2 (2) | 1 |
-| F23 | trailseed | Seed found on travel | `world.php:292` | +1% | **+4%** | 0 | 1 |
-| A1 | dayfree | A first action of the day is free or 1 cheaper | `garden_logic.php:554` water, `:1317` weed, `adventure.php:208` walk, `world.php:283` | 1 a day | **3 a day** | 2 | 2 |
-| A2 | dayback | Something lost comes back once a day | seed drop, `stops.php:748` re-roll, `adventure.php:237` staff, `crafting.php:529` | 1 a day | **3 a day** | 3 | 1 |
-| A3 | daygift | One common item a day | first visit (`place_ui.php:306`), first food buy | 1 item | **3 items a day** | 3 | 1 |
-| A4 | daycoin | A few flat coins | `adventure.php:447` `give_find`, `sell_to_shop` | up to 3 coins | **10 coins a day** | 1 | 1 |
-| A5 | info | Shows something you could not see | UI only | flag | no power. 1 per stop at most | 6 | 0 |
-| A6 | looks | Cosmetic | UI only | flag | no power. 1 per stop at most | 3 | 0 |
+| # | Family | Effect | Hook | Per perk | **Cap** | NA world | NA place | Tmpl |
+|---|---|---|---|---|---|---|---|---|
+| F01 | sell | Shop sell price | `world.php:519` `sell_price_with_bonus` (from `sell_to_shop`, `:536`) | +1% (+2% place) | **+5%** | 2 (2) | 0 | 1 |
+| F02 | buy | Shop prices | `world.php:415` in `shop_price` (`:392`) | -1% (-2% place) | **-5%** | 1 (1) | 0 | 2 |
+| F03 | xp | Gnome XP | `gnome.php:308` in `add_xp` (`:303`) | +1% or +2% scoped | **+5%** | 2 (3) | 0 | 3 |
+| F04 | gxp | Garden XP | `gnome.php:355` `add_garden_xp` | +1% (+2% place) | **+5%** | 1 (1) | 0 | 1 |
+| F05 | walk | Walk time | `adventure.php:192` in `route_walk_minutes` | -1% or -2% scoped | **-6%** | 2 (2) | 1 | 2 |
+| F06 | cook | Pot time | `crafting.php:465` in `cook_seconds` | -1% or -2% scoped | **-6%** | 2 (4) | 0 | 2 |
+| F07 | meal | Energy from dishes | `gnome.php:625` in `eat_item` | +1% or +2% scoped | **+5%** | 1 (2) | 0 | 1 |
+| F08 | buff | Boost length | `gnome.php:439` in `buff_minutes` | +2% | **+8%** | 2 (4) | 0 | 1 |
+| F09 | heal | Healing | `health.php:130` in `hp_heal_points`; `adventure.php:1280` `rest_heal`; stop rest acts `stops.php:969` | +2% | **+8%** | 2 (4) | 0 | 3 |
+| F10 | harvest | Chance of one extra | `garden_logic.php:1598` in `do_harvest` | +1% | **+4%** | 2 (2) | 0 | 1 |
+| F11 | gather | Chance of one extra find | `gathering.php:78` `gather_on_walk`, `:181` `gather_here` | +1% | **+4%** | 1 (1) | 0 | 1 |
+| F12 | water | Watering lasts | `garden_logic.php:865` `water_seconds` | +2% | **+8%** | 1 (2) | 0 | 1 |
+| F13 | seed | Chance of a seed back | `garden_logic.php:1634` in `do_harvest` | +1% | **+4%** | 1 (1) | 0 | 1 |
+| F14 | friend | Chance of +1 friendship | `friends.php:56` `friend_add` (the extra roll is NEW inside it) | +2% | **+8%** | 1 (2) | 0 | 3 |
+| F15 | stopcoin | Coins from stop acts | `stops.php:670` `stop_rewards` | +2% | **+8%** | 1 (2) | 0 | 2 |
+| F16 | check | Stop check chance | `stops.php:742` `stop_check` (roll at `:748`) | +1% (+2% place) | **+4%** | 1 (1) | 0 | 1 |
+| F17 | pest | Pest chance | `garden_fx.php:281` `pest_chances` | -2% | **-8%** | 1 (2) | 0 | 1 |
+| F18 | travel | Fast travel cost | `world.php:282` in `travel_to` | -1% | **-5%** | 1 (1) | 0 | 0 |
+| F19 | spot | Spot hidden things | `explore.php:222` in `explore_deeper` | +1% (+2% place) | **+4%** | 1 (1) | 0 | 1 |
+| F20 | hp | Max health | `adventure.php:81` in `gnome_combat` (read by `health.php:46` `hp_max`) | +1 point | **+3** | 0 | 0 | 0 |
+| F21 | torch | Delve torch steps | `delve_v2.php:37` `dv2_fuel` | +1 step | **+3** | 0 | 1 | 0 |
+| F22 | restenergy | Energy from rest acts | `stops.php:969` `stop_do`, case `rest` | +1 | **+2** | 2 (2) | 0 | 1 |
+| F23 | trailseed | Seed found on fast travel | `world.php:292` in `travel_to` | +1% | **+4%** | 0 | 0 | 0 |
+| A1 | dayfree | A first action of the day is free or 1 cheaper | `garden_logic.php:554` `garden_claim_free_water`; `:1317` weed in `garden_action`; `adventure.php:208` in `route_energy`; `world.php:283` in `travel_to` | 1 a day | one charge per perk | 2 | 0 | 1 |
+| A2 | dayback | Something lost comes back once a day | planting: **NEW** in `garden_action` (plant); check re-roll: `stops.php:748`; staff wear: `adventure.php:237` in `start_expedition`; tool wear at a stop: **NEW** in `stop_random_find` (`stops.php:637`); craft input back: **NEW** in `stop_do` case `craft` | 1 a day | one charge per perk | 3 | 0 | 1 |
+| A3 | daygift | One common item a day | first visit: `stop_stamp` (`stop_pass.php:119`, called from `place_ui.php:306` and `here_view.php:639`); first food buy: `world.php:356` `buy_from_shop` | 1 item | one charge per perk | 1 | 2 | 3 |
+| A4 | daycoin | A few flat coins | `adventure.php:447` `give_find`, `world.php:536` `sell_to_shop` | up to 2 coins | **10 coins a day** in all | 1 | 0 | 1 |
+| A5 | info | Shows something you could not see | UI only | flag | no power. 1 per stop at most | 6 | 0 | 0 |
+| A6 | looks | Cosmetic | UI only | flag | no power. 1 per stop at most | 3 | 0 | 0 |
 
-**The maths.**
-- Maplewold alone (48 marks, 30 with numbers): no family goes over its cap. Largest sums: walk 4 of 6, cook 4 of 6, buff 4 of 8, dayback 3 of 3, daygift 3 of 3. And scoped perks rarely all apply at once.
-- Whole world on type defaults: a family fed by k type perks gets about 13 x k marks. XP has k = 3: 39 marks, +39% uncapped, **capped at +5%**. Sell has k = 1: 13 marks, +13% uncapped, capped at +5%. Every percent family reaches its cap after 3 to 5 marks.
-- So the most a gnome can ever hold, with all 534 marks: each row of the Cap column, once. Sell +5%, buy -5%, XP +5%, walk -6%, pots -6%, and so on.
-- Compare today: three 7-day perks at once can be XP +10%, pots -20%, walk -15%. **The forever maximum is under half of today's temporary one.**
-- At cap, a new mark of that family adds nothing more. The perk row then reads "as good as it gets"; the stamp, plaque and count still land (open question 2).
+Cap changes in pass 2: hp +4 to **+3** (max health is 20 + 3 x level + ..., so +4 was up to 17% at level 1), torch +5 to **+3** (a floor starts with 30 to 50 steps), rest energy +3 to **+2** (rest acts give 3 or 5 energy). A1 to A3: no shared daily cap; each perk is its own once-a-day charge with its own trigger (two world perks may not share a trigger), so the old "3 a day" cap never cut a different perk.
 
-Caps are rows in `data/stop_perk_fx.txt`, editable in Admin.
+### 4.1 Every mark counts (fix for open question 2)
 
-## 5. The Maplewold: 16 stops, 48 perks
+Pass 1 used one stackable default perk per type and bar for the other 162 stops. That broke two of the fixed requirements: those stops shared perks (13 inns, one perk), and a family fed by k defaults hit its cap after 3 to 5 marks, so most later marks added nothing. The fix:
 
-Stop types to set in Admin > Places:
+1. **World perks are a budget, not a pile.** The cap of a family is also the most the whole world may ever hand out in world perks of that family. The Maplewold set uses the "NA world" column; what is left (cap minus that) is all any later hand-written region may use, and Admin refuses a world perk that would go over. So the sum of all world perks equals the cap at most, and every world mark adds its full size.
+2. **Everything else is a place perk.** Type templates (section 6) are always scoped to their own stop (`from=`, `to=`, `items=local:`). A place perk never shares a total with another stop's mark: one perk per family per stop by construction, and for `items=local:` the family cap applies per crop (two herb stops with the same local crop add up to the cap at most). Each new mark makes one more place better, so it always adds something.
+3. **Daily charges do not share a cap** (A1 to A3: one charge per perk, own trigger). A4 keeps a 10-coins-a-day ceiling.
+4. **Flags never cap** (A5, A6).
+
+**The maths (recomputed in pass 2).**
+- Maplewold world use per family (of cap): sell 2 of 5, buy 1 of 5, XP 3 of 5, garden XP 1 of 5, walk 2 of 6, pots 4 of 6, meal 2 of 5, buff 4 of 8, heal 4 of 8, harvest 2 of 4, gather 1 of 4, water 2 of 8, seed 1 of 4, friend 2 of 8, stop coins 2 of 8, check 1 of 4, pest 2 of 8, travel 1 of 5, spot 1 of 4, hp 0 of 3, rest energy 2 of 2 (full: later rest-energy perks must be place perks). No family over its cap. Of the 48: 30 have a number (28 world, 2 place: the Straightened Signpost and the Beacon Basket), 9 are daily charges (7 world, 2 place: the Cloverholt oatcake and the Snowcombe egg), 9 are flags.
+- Templates add 0 to any world total. The 162 other stops carry 486 template perks, all place perks.
+- So the most a gnome can ever hold **everywhere at once** is each family's cap, once (sell +5%, buy -5%, XP +5%, walk -6%, pots -6%, ...). **At one place** it is that plus the matching place perks: walk -6% world, -2% for a walk that starts at a marked stop, -2% more if it ends at another (ferry/camp `to=`) = -10% at most; XP +5% + 2% (acts at a marked inn, or walks from a marked tower, or harvests of one orchard stop's local crop; one XP gain matches one of these at most) = +7%; pots -6% + -2% (one mill's local crop) + -2% (a marked camp's pot) = -10%.
+- Compare today: one 7-day perk is XP +10% (Bright Mood), pots -20% (Slow Simmer), walk -15% (Spring in Step), all at once with three. **Per family, the forever maximum is about half or less of today's temporary one** (walk -10 vs -15, pots -10 vs -20, XP +7 vs +10). Across families it is wider (all 23 at once), which is the point of a forever reward; every single piece stays at 1 to 2%.
+- A capped world family can only happen if Josh raises a size by hand; the perk row then reads "as good as it gets".
+
+Caps and budgets are rows in `data/stop_perk_fx.txt` (`family | unit | cap | label`), editable in Admin; Admin shows "world budget left" per family.
+
+## 5. The Maplewold roads: 16 stops, 48 perks
+
+13 stops in the Maplewold (NA) and the 3 border villages at the ends of its roads out, which are in their neighbours' regions (all names checked against `claude/route-list.md`; NA zones hold exactly the 10 villages listed). The town and the two havens need `stop_is_place` and a stop type (section 8) before their bars can open. Stop types to set in Admin > Places:
 
 | Stop | Type | Why |
 |---|---|---|
@@ -214,9 +234,9 @@ Stop types to set in Admin > Places:
 | Pebblestead | ferry | Coast crossing |
 | Iciclecrest | tower | A crest in the tundra, a beacon |
 | Snowcombe | spring | Hot pools in the snow |
-| Larkbrook | inn | Border inn on the Maizehollow road |
-| Windbottom | tower | Gate beacon on the Mistmoor road (Warden Hobb's wish) |
-| Honeythorpe | orchard | Hop yard and fruit, toward Blossomreach |
+| Larkbrook | inn | Border inn on the Maizehollow road (region CA) |
+| Windbottom | tower | Gate beacon on the Mistmoor road (Warden Hobb's wish; region NWE) |
+| Honeythorpe | orchard | Hop yard and fruit, toward Blossomreach (region EA) |
 | The Sugar Shack | orchard | A maple sugar bush |
 | Aurora Camp | camp | By name |
 
@@ -225,7 +245,7 @@ Stop types to set in Admin > Places:
 | Maplewold Market | Repairs | ⚖️ Level Scales | Maplewold-native crops sell for 1% more | +1% | F01 |
 | | Larder | 🥯 Baker's Thirteenth | Once a day, the first food you buy in a shop comes with one extra | 1 a day | A3 |
 | | Cheer | 🧺 Known at the Stalls | Shop shelves put a small leaf on anything you have never owned | flag | A5 |
-| Poppyburrow | Repairs | 🪧 The Straightened Signpost | Walks that start at Poppyburrow take 2% less time | -2% | F05 |
+| Poppyburrow | Repairs | 🪧 The Straightened Signpost | Walks between Poppyburrow and any of its six neighbours take 2% less time, both ways | -2% | F05 |
 | | Larder | 🥞 Second Breakfast | Home-cooked dishes eaten at dawn give 2% more energy | +2% | F07 |
 | | Cheer | 🛏️ A Bed With Your Name On | Rest acts at any inn give 1 more energy | +1 | F22 |
 | Honeybrook | Repairs | 🐝 Tidy Skeps | Pests are 2% less likely on flowering plants | -2% | F17 |
@@ -266,52 +286,54 @@ Stop types to set in Admin > Places:
 | | Cheer | 🍻 Hop-Yard Hum | Gifts of food or drink: 2% chance of +1 friendship | +2% | F14 |
 | The Sugar Shack | Repairs | 🪓 Stacked Birch | Syrups and sweets cook 2% faster | -2% | F06 |
 | | Larder | 🪣 Brim-Full Bucket | Tree and sap harvests: 1% chance of one extra | +1% | F10 |
-| | Cheer | 🍁 Sticky Fingers | The first seed you drop each day is returned | 1 a day | A2 |
+| | Cheer | 🍁 Sticky Fingers | Once a day, the first seed you plant is not used up | 1 a day | A2 |
 | Aurora Camp | Repairs | ⛺ Pegged Tents | Once a day, a failed stop check is rolled again | 1 a day | A2 |
 | | Larder | 💧 Meltwater Can | The first watering each day costs no energy | 1 a day | A1 |
 | | Cheer | 🌌 Sky-Dazzled | On clear nights a faint aurora shows over your garden (looks only) | flag | A6 |
 
-Item names (oatcake, boiled egg) and item groups (fish, sweets, bakes, tree crops) must be mapped to real slugs and categories at build time.
+Item names (oatcake, boiled egg) and item groups (fish, sweets, bakes, tree crops) must be mapped to real slugs and categories at build time. Pass 2: Sticky Fingers said "the first seed you drop", but the game has no seed drop; it now uses planting (hook NEW in `garden_action`). The Straightened Signpost (`from=`/`to=` Poppyburrow; pass 1's text was the same as the jetty template) and the Beacon Basket (`region=NA`) are place perks; the other numeric ones are world perks and fit their budgets (4.1).
 
-## 6. Default type perks (other regions)
+## 6. Type templates (every other stop)
 
-Used when a stop has no perk of its own. Admin can override per stop. All stackable, all unscoped or lightly scoped.
+Pass 1 gave every other stop its type's shared default. Pass 2 (Josh's rule: every stop has its own 3 perks) replaces that with **templates**: each type has 3, and each is made for one stop by its scope (`from=` / `to=` that stop, or `items=local:` its local crops) and its name ("Honest Weights of Haynook"). No two stops get the same effect, and since every template is a place perk (4.1) a new mark always adds a new place where the gnome is better. Admin can replace any of a stop's three with a hand-written perk (Maplewold style); a hand-written world perk must fit the family's budget.
 
 | Type | Repairs | Larder | Cheer |
 |---|---|---|---|
-| market | 🪙 Honest Weights: everything sells for 1% more (F01) | 🥬 Heaped Stall: food in shops costs 1% less (F02) | 🗣️ Good Banter: trade and haggle acts pay 2% more coins (F15) |
-| mill | 🛢️ Oiled Cogs: pots cook 1% faster (F06) | 🧺 Full Sacks: harvests have a 1% chance of one extra (F10) | 🥖 Flour on the Nose: baked dishes give 1% more energy (F07) |
-| inn | 🪟 Fixed Shutters: rest acts at stops give 1 more energy (F22) | 🍲 Stew That Remembers You: boosts from bought meals last 2% longer (F08) | 📖 Told at the Hearth: 1% more XP from stop acts (F03) |
-| shrine | 🪨 Raked Gravel: 1% better chance to spot hidden things (F19) | 🌱 Left a Little, Got a Little: 1% more chance of a seed back (F13) | 🔔 Bell-Calm: stop checks are 1% kinder (F16) |
-| jetty | 🛶 Sound Planks: fast travel costs 1% less (F18) | 🦀 A Bucket at Every Post: gathering at a place has a 1% chance of one extra (F11) | 🐠 The One That Got Away: chats have a 2% chance of +1 friendship (F14) |
-| herb | 🧵 Mended Drying Racks: pests are 2% less likely (F17) | 🌿 More Herbs Than Names: watering lasts 2% longer (F12) | 🐞 Bee-Loud: 1% more garden XP (F04) |
-| workshop | 🔩 Spare Nail: +1 torch step in delves (F21) | 🫙 Glue Pot: once a day, a craft gives one ingredient back (A2) | 🛠️ Contraption Approved: craft acts at stops pay 2% more coins (F15) |
-| orchard | 🧤 Sound Ladders: the first weeding each day is free (A1) | 🍎 Windfall: 1% more chance to find a seed on your travels (F23) | 🍐 Picker's Whistle: 1% more XP from harvesting (F03) |
-| ferry | ⚓ Tight Ropes: walking takes 1% less time (F05) | 🧾 Toll Paid in Kind: tools and gear cost 1% less (F02) | 🛎️ Rung the Bell: the first sale each day pays 2 coins more (A4) |
-| tower | 🧱 Sound Rungs: +1 max health (F20) | 🥠 Watcher's Biscuit Tin: first visit to this tower each day: one biscuit (A3) | 🧭 Seen It Coming: 1% more XP from walking and exploring (F03) |
-| spring | 🛁 Mended Pools: healing is 2% stronger (F09) | 🧪 Egg Basket: potion boosts last 2% longer (F08) | 🧖 Steam in the Whiskers: gifts have a 2% chance of +1 friendship (F14) |
-| camp | 🏕️ Ring of Stones: resting on any trail heals 2% more (F09) | 🍳 Shared Pot: gathering on a walk has a 1% chance of one extra (F11) | 🎶 Harmonica Somewhere: the first road walk each day costs 1 less energy (A1) |
+| market | 🪙 Honest Weights: {stop}'s stall pays 2% more for what you sell (F01) | 🥬 Heaped Stall: food at {stop}'s stall costs 2% less (F02) | 🗣️ Good Banter: trade and haggle acts at {stop} pay 2% more coins (F15) |
+| mill | 🛢️ Oiled Cogs: dishes with {stop}'s local crops cook 2% faster (F06) | 🧺 Full Sacks: {stop}'s local crops have a 1% chance of one extra at harvest (F10) | 🥖 Flour on the Nose: first visit to {stop} each day: one loaf (A3) |
+| inn | 🪟 Fixed Shutters: rest acts at {stop} give 1 more energy (F22) | 🍲 Stew That Remembers You: boosts from meals bought at {stop} last 2% longer (F08) | 📖 Told at the Hearth: 2% more XP from acts at {stop} (F03) |
+| shrine | 🪨 Raked Gravel: healing from rest acts at {stop} is 2% stronger (F09) | 🌱 Left a Little, Got a Little: {stop}'s local crops have 1% more chance of a seed back (F13) | 🔔 Bell-Calm: checks at {stop} are 2% kinder (F16) |
+| jetty | 🛶 Sound Planks: walks that start at {stop} take 2% less time (F05) | 🦀 A Bucket at Every Post: gathering on walks from {stop} has a 1% chance of one extra (F11) | 🐠 The One That Got Away: chats with {stop}'s folk have a 2% chance of +1 friendship (F14) |
+| herb | 🧵 Mended Drying Racks: pests are 2% less likely on {stop}'s local crops (F17) | 🌿 More Herbs Than Names: watering lasts 2% longer on {stop}'s local crops (F12) | 🐞 Bee-Loud: 2% more garden XP from {stop}'s local crops (F04) |
+| workshop | 🔩 Spare Nail: the first tool use at {stop} each day takes no wear (A2) | 🫙 Glue Pot: once a day, a craft act at {stop} gives one ingredient back (A2) | 🛠️ Contraption Approved: craft acts at {stop} pay 2% more coins (F15) |
+| orchard | 🧤 Sound Ladders: the first walk each day that starts at {stop} costs 1 less energy (A1) | 🍎 Windfall: first visit to {stop} each day: one windfall fruit (A3) | 🍐 Picker's Whistle: 2% more XP from harvesting {stop}'s local crops (F03) |
+| ferry | ⚓ Tight Ropes: walks that end at {stop} take 2% less time (F05) | 🧾 Toll Paid in Kind: tools and gear at {stop}'s stall cost 2% less (F02) | 🛎️ Rung the Bell: the first sale each day at {stop}'s stall pays 2 coins more (A4) |
+| tower | 🧱 Sound Rungs: walks that start at {stop} have a 2% better chance to spot hidden places (F19) | 🥠 Watcher's Biscuit Tin: first visit to {stop} each day: one biscuit (A3) | 🧭 Seen It Coming: 2% more XP from walks that start at {stop} (F03) |
+| spring | 🛁 Mended Pools: resting on walks that start at {stop} heals 2% more (F09) | 🧪 Egg Basket: dishes eaten at {stop} give 2% more energy (F07) | 🧖 Steam in the Whiskers: gifts to {stop}'s folk have a 2% chance of +1 friendship (F14) |
+| camp | 🏕️ Ring of Stones: resting on walks that end at {stop} heals 2% more (F09) | 🍳 Shared Pot: pots cooked at {stop}'s campfire cook 2% faster (F06) | 🎶 Harmonica Somewhere: lore acts at {stop} have a 2% chance of +1 friendship (F14) |
 
-All 84 names and effects in sections 5 and 6 are different from each other.
+Sizes: every template is 1% or 2%, +1 energy, or one daily charge. Where a stop has no stall or no local crops, Admin picks another template of the same bar (the generator warns). The hooks are the family hooks in section 4 with the scope test added; `to=` and `items=local:` are new scope keys.
+
+All 48 hand-written names and effects (section 5) and the 36 template names and effects are different from each other (84 checked by script in pass 2; templates differ from each other in effect text even before `{stop}` is filled in).
 
 ## 7. UI
 
 **Perks page: "Lasting marks" card** (replaces "Your perks (work everywhere)").
 ```
-🏅 Lasting marks   7 of 48 in the Maplewold · 9 in all
- 🪧 The Straightened Signpost   Poppyburrow · Repairs    Walks from Poppyburrow 2% faster
+🏅 Lasting marks   7 of 48 on the Maplewold roads · 9 in all
+ 🪧 The Straightened Signpost   Poppyburrow · Repairs    Walks to or from Poppyburrow 2% faster
  🍯 Honey in the Tea            Honeybrook · Larder      Tea boosts last 2% longer
  ...
- Adds up to:  walk -3% (most -6%) · sell +2% (most +5%) · 2 of 3 daily freebies
+ Adds up to:  walk -2% everywhere (most -6%) · sell +2% (most +5%) · 3 daily charges · 4 places
 ```
-One row per mark, grouped by region, newest first. The last line is the family totals against their caps. A capped row says "as good as it gets".
+One row per mark, grouped by region, newest first. The last line is the world-perk totals against their caps, the daily charges, and how many place perks (each named in its row). A capped row says "as good as it gets" (only possible if a size is raised by hand, 4.1).
 
 **Stop page.**
 - Full bar: the meter turns gold with a stamp in the stop's hue (`stops.txt` hue): `🔨 Repairs  [ MENDED ✔ ]`. Words: Mended, Stocked, Merry. The plant tile stays in bloom (stage 4).
 - Unfilled bar: shows its perk greyed, so you know what you are working for: `🧺 Larder 62% · 🥞 Second Breakfast`.
 - Plaque line under the stop name, one per mark, beside the adopter's plaque: *"The signpost stands straight. {gnome} saw to it. Kept up 12 times."*
 - Three marks at one stop: the three medals in the banner go gold, and the passport stamp for that stop gets a gold rim.
-- On filling: `🌟 Repairs is mended at Poppyburrow, for good. 🪧 The Straightened Signpost: walks from here take 2% less time.`
+- On filling: `🌟 Repairs is mended at Poppyburrow, for good. 🪧 The Straightened Signpost: walks to and from here take 2% less time.`
 
 ## 8. Build notes
 
@@ -320,11 +342,11 @@ One row per mark, grouped by region, newest first. The last line is the family t
 stop_marks      user_id INT, location_id INT, bar VARCHAR(8), perk_key VARCHAR(40),
                 filled_on DATE, kept INT DEFAULT 0
                 PRIMARY KEY (user_id, location_id, bar), KEY (user_id, perk_key)
-stop_mark_use   user_id INT, day DATE, family VARCHAR(16), used INT
-                PRIMARY KEY (user_id, day, family)            -- daily charges, A1 to A4
-locations       + perk_repairs, perk_larder, perk_cheer VARCHAR(40) NULL   -- NULL = the type's default
+stop_mark_use   user_id INT, day DATE, perk_key VARCHAR(40), used INT
+                PRIMARY KEY (user_id, day, perk_key)          -- daily charges, one per perk (A1 to A4)
+locations       + perk_repairs, perk_larder, perk_cheer VARCHAR(40) NULL   -- NULL = the type's template, made for this stop
 ```
-Bars stay in `stop_prog` (`meter:<name>`, 0 to 100). The per-day counts for D and V come from `stop_log` (it has act, kind, day). `perk_key` is stored at fill time: what you earned stays what you earned.
+Bars stay in `stop_prog` (`meter:<name>`, 0 to 100). Today `stop_meter_get` (`stop_living.php:35`) clamps to 99 and `stop_meter_add` (`:44`) resets a full bar to `STOP_METER_AFTER` (30) and writes a `perk:<meter>` row: both change (a latched bar reads 100 and stays). The constants `STOP_METER_DECAY`, `STOP_METER_AFTER`, `STOP_PERK_DAYS` (`stop_living.php:20-22`) become the `mark_*` settings or go. The per-day counts for D and V come from `stop_log` (it has act, kind, day). `perk_key` is stored at fill time: what you earned stays what you earned.
 
 **Data files**
 - `data/stop_perks.txt`: `key | owner (type:inn or stop:<slug>) | bar | icon | name | family | size | scope | text`
@@ -332,11 +354,11 @@ Bars stay in `stop_prog` (`meter:<name>`, 0 to 100). The per-day counts for D an
 - `data/stop_act_bars.txt` (generated): `slug | type | bar | second`. `stop_act_state.txt` keeps its needs column.
 
 **Hooks** (new `includes/stop_marks.php`)
-- `stop_mark_fx(int $uid, string $family, array $ctx = []): int` capped sum of the player's marks in a family whose scope fits `$ctx`. One cached query per request. Replaces every `player_perk_pct()` call site (9 today) and goes in at the hook column of section 4.
+- `stop_mark_fx(int $uid, string $family, array $ctx = []): int` the player's world marks in the family (capped) plus the place marks whose scope fits `$ctx` (4.1). One cached query per request. Replaces every `player_perk_pct()` call site (9 today: `gnome.php:308, 439, 625`, `garden_logic.php:1598`, `health.php:130`, `world.php:415`, `adventure.php:192, 208`, `crafting.php:465`) and goes in at the hook column of section 4.
 - `stop_mark_flag(int $uid, string $perkKey): bool` for A5 and A6.
-- `stop_mark_charge(int $uid, string $family, string $what): bool` takes one daily charge if any is left.
-- `stop_mark_latch(int $uid, array $loc, string $bar): array` called from `stop_meter_add` at 100.
-- `stop_is_place(array $loc): bool` = village, or a market or haven with a stop type set. Replaces the `kind === 'village'` tests in `stops.php:813`, `stop_living.php:339, 360`, `here_view.php:372`. A haven's bars open when the haven is open to that player.
+- `stop_mark_charge(int $uid, string $perkKey): bool` takes that perk's daily charge if it is still unused today.
+- `stop_mark_latch(int $uid, array $loc, string $bar): array` called from `stop_meter_add` at 100, in place of `player_perk_grant` (called today from `stop_living_after`, `stop_living.php:153`).
+- `stop_is_place(array $loc): bool` = village, or a market or haven with a stop type set. Replaces the `kind === 'village'` tests in `stops.php:813` (`stop_do`), `stop_living.php:339, 360`, `here_view.php:322, 372, 389, 562, 639, 682`, `place_ui.php:306` (the visit stamp). `stop_assign_all` (`stops.php:386`) and `stop_type_of` stay village-only; a market or haven gets its type from Admin. Adoption (`stop_adopt.php:236`) stays village-only. A haven's bars open when the haven is open to that player.
 
 **Admin settings**
 
@@ -358,14 +380,36 @@ Plus: Admin > Stop perks (the perk rows), Admin > Stop perk effects (the caps), 
 **Migration**
 1. Bars: work out each bar's value one last time with the old decay, store it, stop decaying. **Every bar keeps what it has; a bar at 30 or more stays as it is.** No bar is raised and no mark is given for a past fill.
 2. Running 7-day perks: left to run out on their own date (7 days at most). No new ones are granted. They do not turn into marks. Until the last one ends, a call site reads the old perk or the new family, whichever is larger, never both.
-3. `stop_prog` rows `perk:<meter>`: deleted (already unused).
+3. `stop_prog` rows `perk:<meter>`: stop writing them at once (`stop_living.php:53`); they are still shown today ("was full here", `stop_living.php:300`), so delete them when the last 7-day perk ends, with the old display.
 4. After 7 days: remove `player_perks.php` reads and the old settings; keep the table one release for safety.
 5. Update news: say plainly that the big 7-day perks are gone and what replaces them.
 
+Checked in pass 2: nothing in steps 1 to 5 gives a mark or a perk for free. A stored meter is at most 99 (`stop_meter_get` clamps), so no bar latches on migration; the next real act is needed. Running perks end on their date and are never turned into marks.
+
 ## 9. Open questions for Josh
 
-1. **16 stops, and three are not stops yet.** The list has 16 names. The town and both havens need the `stop_is_place` change and a stop type. OK to do that, or should havens fill their bars through their build plans instead?
-2. **Caps make later marks of the same family add nothing.** On type defaults a family is full after 3 to 5 marks. Is "as good as it gets, but the stamp still counts" enough, or should every region get its own written set like the Maplewold (about 534 perks in all, with far more info and looks perks)?
-3. **Pace.** About 6 to 10 visit-days per bar, two months for the whole Maplewold. Right, or faster?
+1. **16 stops, and three are not stops yet.** 13 are in the Maplewold, 3 are border villages of CA, NWE and EA (their 9 perks count toward those regions). The town and both havens need the `stop_is_place` change and a stop type. OK to do that, or should havens fill their bars through their build plans instead?
+2. **Caps make later marks add nothing: fixed in pass 2** (4.1, section 6). World perks are a budget equal to the cap, templates are place perks unique to each stop, daily charges are per perk. Left for Josh: are templates enough for the other 13 regions, or should each region get a hand-written set like the Maplewold (within the world budget left)?
+3. **Pace.** About 5 to 8 visit-days per bar (the sample workshop day gives R 20, L 13, C 16), two months for all 48 on the Maplewold roads. Right, or faster?
 4. **Standing.** Should marks count toward a region's Standing and Seal ("12 lasting marks in the Maplewold"), or stay a separate layer?
-5. **The step down.** Players lose XP +10%, pots -20% and walk -15% and get 1% to 2% pieces back. Fine as it is, or soften it (for example one free mark of their choice at a stop where they are already a Local)?
+5. **The step down.** Players lose XP +10%, pots -20% and walk -15% and get 1% to 2% pieces back. Pass 1 offered "one free mark" as a softener; that breaks the no-free-perks rule and is withdrawn. Fine with only the news post, or soften another way (for example a festival week where bar points are doubled)?
+
+## Pass 2 review log
+
+Checked against the code and Josh's fixed rules (marks latch for good, no expiry, no max-3, no decay of a full bar; 3 unique perks per stop; each perk 1 to 2% or a small extra; caps hold; no free perks).
+
+**What was wrong, and what was fixed in place**
+1. **The per-act table did not exist.** Now generated: `claude/tools_gen_stop_act_bars.py` -> `claude/proposal-stop-act-bars.txt` (860 acts, 1511 rows, deterministic). All 49 worked examples match it. Section 2 share table replaced with the real run (pass 1 overstated Repairs at market, herb and orchard by 7 to 8 points); second-bar range is 25 to 52%, not 28 to 56%. Step 1's "start of a whole word" would still count "pier" as "pie": made precise (word + plain ending, or a 4+ letter compound). 60 hand overrides suggested (7%, not 5%), in the txt.
+2. **Type defaults broke "every stop has its own 3 perks"** (13 inns shared one perk) **and made later marks useless** (open question 2). Replaced by stop-scoped templates (section 6) and the world-budget / place-perk rule (4.1). Daily charges are per perk now, not a shared 3-a-day cap. Cap maths redone: no family over its cap; worst case at one place is walk -10%, pots -10%, XP +7%, against today's -15%, -20%, +10%.
+3. **"16 Maplewold stops" is 13 + 3.** Larkbrook (CA), Windbottom (NWE) and Honeythorpe (EA) are their regions' border villages (route list). The town (`market`) and havens (`haven`) are not stops in code; the list of `kind === 'village'` gates was incomplete (added `here_view.php` x6, `place_ui.php:306`, `stop_adopt.php:236`, `stops.php:386`).
+4. **Hooks.** Most file:line refs were right. Fixed: hp is `adventure.php:81` `gnome_combat` (not `hp_max`); rest energy is `stops.php:969`; first-visit gift is `stop_stamp` (`stop_pass.php:119`); `crafting.php:529` is the extra-dish roll, so "ingredient back" is NEW; there is no seed drop in the game, so Sticky Fingers now works on planting (NEW in `garden_action`). Every NEW hook is marked.
+5. **Sizes and duplicates.** Caps cut where a +1 was more than about 2%: hp +4 to +3, torch +5 to +3, rest energy +3 to +2. Script check of all 84 names and effects: no duplicate names; one duplicate effect (the Straightened Signpost had the jetty template's text) rewritten.
+6. **Migration.** `perk:<meter>` rows are still written and shown today (not "unused"); now retired with the last 7-day perk. Pass 1's "one free mark" softener broke the no-free-perks rule and is withdrawn. No step gives a mark: stored meters are at most 99.
+
+**Left for Josh (max 6)**
+1. Accept the 60 suggested act overrides (paste from the end of `proposal-stop-act-bars.txt` into `stop_act_state.txt`), or edit them.
+2. Templates for the other 13 regions, or hand-written sets within the world budget left?
+3. Town and havens as stops (`stop_is_place`), and their stop types.
+4. Pace: 5 to 8 visit-days a bar, about two months for the Maplewold roads.
+5. Marks toward Standing and Seals, or a separate layer?
+6. Market, herb and orchard stops have only 7 to 14% Repairs acts: is the answer-act cover enough, or should their lean move to Repairs?
