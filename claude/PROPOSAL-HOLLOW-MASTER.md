@@ -6,7 +6,7 @@ Date 2026-11-27. Consolidates every `claude/proposal-*` file listed in section 0
 
 | Status | What |
 |---|---|
-| **DECIDED (Josh)** | Bands 1-15 / 15-25 / 25-35 / 35-45 / 45-55. Maplewold alone is 1-15. 80% Standing = Seal. Both tier 2 Seals open tier 3. A Seal is the only hard block (no level lock). Creatures added above Lv 37. No Trek story, no Tansy / Hollowheart. Journey = fill Wren's Almanac. No new crops (the 14 signature crops exist). Puzzle Pals are released by jigsaw only (Advanced or Expert). The Maplewold jigsaw is chapter M1 step 2, Lv 1. Pals spawn only where the gnome has access. Stop perks latch for good, 3 unique minor perks per stop, no max, no decay of a full bar, no free perks |
+| **DECIDED (Josh)** | Bands 1-15 / 15-25 / 25-35 / 35-45 / 45-55. Maplewold alone is 1-15. 80% Standing = Seal. Both tier 2 Seals open tier 3. A Seal is the only hard block (no level lock). Creatures added above Lv 37. No Trek story, no Tansy / Hollowheart. Journey = fill Wren's Almanac. No new crops (the 14 signature crops exist). Puzzle Pals are released by jigsaw only (Advanced or Expert). The Maplewold jigsaw is chapter M1 step 2, Lv 1. Pals spawn only where the gnome has access. Stop perks latch for good, 3 unique minor perks per stop, no max, no decay of a full bar, no free perks. **Section 14 (2026-11-27):** the Fens and the Ridge get one village each (Cattailmere, Granitegate: 12 Maplewold villages, 18 stops, 54 perks); lit is full at 60% of N (7 of 12), raised at an average of tier 1; marks are a layer apart from Standing; the town and havens are stops; no real-day cap on dailies |
 | **DECIDED (Claude's answers, Josh may veto)** | The 8 answers at the end of `proposal-story-4-review.md`: two new roads (CB-WCA, SA-ESA); any village can be adopted (off-road cap tier 2); tier 5 through Spicepeak or SA-OC; first adoption in an area free; tier 4 upkeep kept as flavour, steps and Standing latch; happening errands are acts; Stranger has no tie to Wren; sim before any number is locked |
 | **CODE DONE** | Puzzle Pal access filter only: `game/includes/puzzle_pals.php` (`ppal_spawn_nodes`, `ppal_spawn_prune`, `ppal_spawns`, `ppal_spawn_refresh`), `game/includes/progression.php` (`accessible_regions`, `region_gate_open` = always true until Seals ship, `record_region_visit` clears `ppal_spawn_day`), `tests/puzzle_pals_map.php` |
 | **PROPOSAL ONLY** | Everything else in this file. Every number (Standing weights, Petals, XP, hand-ins, bar points, pacing) is unsimulated |
@@ -93,16 +93,18 @@ Shortest road to Lv 55: NA, CA + NWE, EE (or SE then MENA-CSA), CSA, EA or SEA =
 | 1 | Bramblesweep Prairie | grassland | 1-4 | exists | Poppyburrow (inn), Honeybrook (herb), Cloverholt (mill): the 3 road villages |
 | 2 | Old Maplewood | forest | 4-7 | exists | Acornby (camp), Birchhollow (workshop), Mossgate (shrine) |
 | 3 | Foghorn Shallows | coast | 7-10 | exists | Shellhollow (jetty), Pebblestead (ferry) |
-| 4 | Beaverdam Fens | wetland | 8-11 | NEW | none. Heron Stilt Village (haven), Dam Debt (wonder), Beaverdam Tunnels (delve) |
+| 4 | Beaverdam Fens | wetland | 8-11 | NEW | **Cattailmere (herb)**, NEW, off-road: the causeway croft that keeps the wild-rice paddy. Also Heron Stilt Village (haven), Dam Debt (wonder), Beaverdam Tunnels (delve) |
 | 5 | The Frostbitten North | tundra | 11-13 | exists | Iciclecrest (tower), Snowcombe (spring). Aurora Camp (haven) |
-| 6 | Cairnback Ridge | mountain | 12-15 | NEW | none. Cairnback Pass (wonder), Cairn Keeper's Hut (haven), Hollow Peak (delve) |
+| 6 | Cairnback Ridge | mountain | 12-15 | NEW | **Granitegate (tower)**, NEW, off-road: the watchtower village at the foot of the Climb (the door stop). Also Cairnback Pass (wonder), Cairn Keeper's Hut (haven), Hollow Peak (delve) |
 
 Capstone: Den of the Great White Owl, Lv 15. Town: the Maplewold Market. Other haven: the Sugar Shack (closed until M1's Repair).
 
+**12 villages** (decision 2, section 14): 3 on the roads (prairie) and 9 off-road, tier cap 2. The two new ones are ordinary villages (`kind = 'village'`, adoptable, three bars), named from the game's own word lists (`LANDSCAPES` wetland "Cattail", mountain "Granite" + `VILLAGE_ENDINGS`; neither name is in use in any region). Both are off-road like the other 7: each hangs off a road village by the first leg of its side path, the way Acornby hangs off Poppyburrow. At build time `zones.txt` gets two NA rows, `wetland | Beaverdam Fens | medium | 1 village` and `mountain | Cairnback Ridge | medium | 1 village` (zone numbers as in the table above; today the North is zone 4), and the two names are set by hand, not rolled.
+
 | Route | From | Lv | Holds | Opens |
 |---|---|---|---|---|
-| Fen Path | NA-NWE road, village 2 | 8-11 | Fens places, loops to the Shallows | open |
-| Cairnback Climb | NA-CA road, village 3 | 12-15 | Ridge places; ends in the Smokecap foothills (CA) | high road end: Maplewold Seal |
+| Fen Path | NA-NWE road, at Honeybrook | 8-11 | leg 1 Honeybrook to **Cattailmere** (wetland, 2 sections); then Heron Stilt Village, the Dam Debt, Beaverdam Tunnels; loops to the Shallows at Pebblestead | open |
+| Cairnback Climb | NA-CA road, at Poppyburrow | 12-15 | leg 1 Poppyburrow to **Granitegate** (mountain, 2 sections); then the Cairn Keeper's Hut, Cairnback Pass, Hollow Peak; ends in the Smokecap foothills (CA) | to Granitegate and the Pass: open. High road end: Maplewold Seal (Hobb's gate is at Granitegate) |
 | Aurora Road | Frostbitten North | 11-15 | Aurora Camp, Owl's Den | open |
 | Northern Rim Pass | past the Den, to Long Night Fells (NWE) | 15-18 | hard route | Maplewold Seal |
 | Tide Track | Foghorn Shallows | 7-10 | Lantern Lighthouse, Ferry Landing | ferry to CB: tier 3 gate |
@@ -116,14 +118,15 @@ Assumptions (each one is a guess to be replaced by a sim):
 - A1. One game day = one sleep = 960 awake minutes. A touring day covers 3 to 4 stops (5 acts x 15 min each + about 30 min walking between neighbours). A "visit-day" = one game day on which that stop gets its acts.
 - A2. A bar fills in **6 to 10 visit-days** (the perk doc's sample workshop day gives 5 to 8; thin bars such as Repairs at a herb stop take longer). The three bars of one stop fill side by side.
 - A3. Garden: 6 beds on the signature crop, watered every game day. Yield per bed: annual 1-3 (taken as 2), tree 2-5 (3.5), regrowth 75%, regrow time = a third of the grow time (`catalog.php:247-251`).
-- A4. Petals are not modelled. The Stops row needs about 3,100 Petals in the Maplewold (section 4). Assumed not to be the bottleneck. This is the largest unknown.
+- A4. Petals are not modelled. The Stops row needs about 3,600 Petals in the Maplewold (section 4; it was 3,100 with 10 villages). Assumed not to be the bottleneck. This is the largest unknown.
 - A5. Friend (100 points): 6 to 12 game days of chat and gifts. Three threads of 4 to 6 beats, run side by side: 6 to 10 game days.
 - A6. XP budget as proposed: completing an area pays about 85% of what the band needs, so the band top arrives near 100% completion plus about 15% grinding. Level-top days = Seal days x 1.3.
 - A7. In a band with two required areas (tier 2) the gnome plays both side by side (x0.8 of doing them in turn).
+- A8. Maplewold with 12 villages (section 14): the two new villages sit on side paths the chapters walk anyway (M4 Fen Path, M6 Cairnback Climb), so being a Regular there costs no extra game day. The seventh lamp costs 500 Petals more (200 + 300 fee) and no day, as long as A4 holds. The floors are unchanged: 10 crop sleeps, 6 to 12 game days for a Friend, 6 to 10 for three threads. So the 20-35 range stays; if Petals do bind (A4 wrong), the seventh lamp is the first thing to add days.
 
 | Band | Areas needed for the next door | Seed Bed floor, sleeps (section 8) | Stops work | Game days to 80% Standing, per area | Game days to the band top (level), required areas |
 |---|---|---|---|---|---|
-| 1 (1-15) | Maplewold | 10 (16 wild rice, 2 crops of 5 sleeps); apple for the Grown row 10 | Regular at 10 villages, 6 lit, Hearth tier 2 | **20-35** | **26-46** |
+| 1 (1-15) | Maplewold | 10 (16 wild rice, 2 crops of 5 sleeps); apple for the Grown row 10 | 7 of the 12 villages lit and you a Regular there (Cattailmere among them, for the bed), Hearth tier 2 | **20-35** | **26-46** |
 | 2 (15-25) | Maizehollow **and** Mistmoor | amaranth 6, barley 15 (25 each) | 2 adoptions, 2 stalls each | **18-30** each; both 30-50 | **39-65** |
 | 3 (25-35) | any one | buckwheat 6; breadfruit, yerba mate, olive 14 (36 each) | Hearth tier 3, 50% lit | **22-36** | **29-47** |
 | 4 (35-45) | any one (Spicepeak for EA/SEA) | fonio 8, teff 12, date 18, turmeric 20 (45 each) | Hearth tier 4, 60% lit | **26-42** | **34-55** |
@@ -139,7 +142,7 @@ Assumptions (each one is a guess to be replaced by a sim):
 | **Lv 45** | **128-213** |
 | **Lv 55** | **167-275** |
 | All 14 Seals at 80% | about 340-550 in turn, about 270-440 with sibling areas played side by side |
-| All 48 marks on the Maplewold roads | 30-45 (16 stops, 3-4 stops a day, 6-10 visit-days each). A separate layer: marks do not count for Standing |
+| All 54 marks on the Maplewold roads | 34-51 (18 stops, 3-4 stops a day, 6-10 visit-days each: the 16-stop figure of 30-45 x 18/16; the two new villages are at the end of side paths, so a touring day that takes them in may hold 3 stops, not 4). A separate layer: marks do not count for Standing |
 
 Notes: game days are not real days (a gnome may sleep several times a real day, or once a week). The floors that cannot be bought are the crop sleeps, one thread beat a day and one go at each act a day. Everything else is effort and Petals.
 
@@ -149,8 +152,8 @@ The one Standing table (sums to 100). Shown on the area's Wren page. Every row i
 
 | Part | Weight | Counted as |
 |---|---|---|
-| Stops: lit | 14 | 14 x min(1, L / 0.6N). L = villages at tier 1+ where you are a Regular (whoever raised them). N = the area's adoptable villages |
-| Stops: raised | 10 | 10 x min(1, sum of those villages' tiers / N) |
+| Stops: lit | 14 | 14 x min(1, L / round(0.6 N)). L = villages at tier 1+ where you are a Regular (whoever raised them). N = the area's adoptable villages. Full at 60% of N, rounded to a whole village: N = 12 needs 7 (N = 10 needed 6, N = 3 needs 2) |
+| Stops: raised | 10 | 10 x min(1, sum of those villages' tiers / N). Full at an average of tier 1: Maplewold = a tier sum of 12 |
 | Stops: Hearth | 6 | your best stop here (adopted now or as founder, or upkeep paid): tier 1 = 1, 2 = 2, 3 = 4, 4 = 6 |
 | Wren's flagship Repair | 15 | the area's chapter stages done |
 | Places found | 10 | road villages and off-road places (`find`) |
@@ -166,10 +169,10 @@ The one Standing table (sums to 100). Shown on the area's Wren page. Every row i
 | **Total** | **100** | |
 
 - **80% = the area's Seal.** Wren binds the section: region guide, the area benefit, her desk at the Hearth stop, the next door(s). A Seal is never lost.
-- N is all adoptable villages (decision 2: any village; off-road cap tier 2; a tier 4 road stop cannot be adopted, only kept up). Maplewold N = 10. The lit and raised formulas above are the master's fix for N = 10 (section 12, line 3): 6 of 10 lit is full marks.
-- Checks: no stops = 70 at most (the Seal needs the road). No fighting = 90 (95 with a peaceful lair act). Maplewold non-fighter with 6 lit, Hearth at tier 2, all else done = 83 (88 with the Owl's three evenings).
-- Maplewold Petal cost of that: 6 x 200 (tier 1) + 5 x 300 (fee, first adoption free) + 400 (tier 2) = 3,100, plus 28 stone, 30 planks, 3 rope. Slots 1 to 3: light, hand back, walk on (a released stop keeps its tier).
-- Marks (section 7) are not in the table.
+- N is all adoptable villages (decision 2: any village; off-road cap tier 2; a tier 4 road stop cannot be adopted, only kept up). **Maplewold N = 12** (10 + Cattailmere + Granitegate). The lit and raised formulas above are Josh's answer to question 1 (section 14), recomputed for 12: **7 of 12 lit is full marks** (round(7.2) = 7; each lit village is worth 2 points up to 7), and each tier is worth 10 / 12 = 0.83 on the raised row. The same `round(0.6 N)` is what the `raise lit:60%` step reads.
+- Checks: no stops = 70 at most (the Seal needs the road). No fighting = 90 (95 with a peaceful lair act). **Maplewold non-fighter, N = 12:** 7 lit (6 at tier 1, the Hearth at tier 2), all else done but the delve and the lair = lit 14 + raised 10 x 8/12 = 6.7 + Hearth 2 + Repair 15 + places 10 + folk 15 + garden 15 + pages 5 = **82.7** (87.7 with the Owl's three evenings, which is a main-line step: M7 step 3). With N = 10 it was 83 / 88, so the two villages cost 0.3. Slack over 80: 2.7 without the Owl, 7.7 with it. Each extra lamp adds 0.83 (8 lit = 83.5); with 6 lit only it is 79.8 (84.8 with the Owl). The Seal stays reachable with no fight.
+- Maplewold Petal cost of that (worst case: the gnome lights all 7 alone; a village someone else lit costs nothing): 7 x 200 (tier 1) + 6 x 300 (fee, first adoption free) + 400 (tier 2) = **3,600** (was 3,100 for 6 of 10), plus 32 stone, 34 planks, 3 rope (`stop_tiers.txt`: tier 1 = 4 stone + 4 planks, tier 2 = 4 stone + 6 planks + 3 rope). Slots 1 to 3: light, hand back, walk on (a released stop keeps its tier).
+- Marks (section 7) are not in the table and never will be (decision 5): a separate layer.
 
 ## 5. STORY
 
@@ -255,10 +258,10 @@ Modifiers: `opt=1`, `alt=kind:spec:qty`. Rules: steps latch; no main step needs 
 | **M1 The First Lamp** | Prairie, 1-4, Clover Puddlejump | 1 reach, cover note (`visit`). 2 **finish the Maplewold jigsaw (`jig-maplewold`) on Advanced or Expert; its Puzzle Pals start waiting on the map** (`puzzle`). 3 harvest 2 staples (oats, lentil). 4 three things at the dark hamlet, adopt it, free (`adopt zone:1`). 5 Bench & lantern post (`raise tier:1`). 6 lost lamb (`escort`). 7 Sugar Shack, 3 stages. 8 Prairie leaf |
 | **M2 Hand It Back** | Old Maplewood, 4-7, Bodkin and Thrum | 1 Thousand Rings Stump + Regular at a Maplewood village. 2 release the first stop, adopt a second village. 3 two lamps lit. 4 barn rat in the mill sacks (alt: 2 meals). 5 mend the sluice, 2 stages. 6 3 apples or hops for bake day. 7 leaf |
 | **M3 The Lost Lantern** | Foghorn Shallows, 7-10, Fenna | 1 find the Lighthouse. 2 Regular at a Shallows village. 3 stranded fisher (`escort`). 4 a Little stall at a stop you hold (tier 2). 5 carry 2 Beeswax to the lighthouse. 6 relight the lamp, 2 stages. 7 goldenrod in bloom, walk the Tide Track (Hobb's first "not yet"), leaf |
-| **M4 The Dam Debt** | Beaverdam Fens, 8-11, Tully Sedgewick | 1 find Heron Stilt Village and the Dam Debt. 2 errand `na-dam-debt`. 3 sluice gate, 1 stage. 4 adopt and light a third village; Heron Stilt Village found is what opens the paddy. 5 Seed Bed hand-in 1 (3 wild rice). 6 optional: any stop to tier 3. 7 leaf |
+| **M4 The Dam Debt** | Beaverdam Fens, 8-11, Tully Sedgewick | 1 find Heron Stilt Village and the Dam Debt. 2 errand `na-dam-debt`. 3 sluice gate, 1 stage. 4 Regular at **Cattailmere** (`regular zone:4`) and a third village adopted and lit (Cattailmere is the natural one: its lamp opens the paddy; `alt=regular` if someone else lit it). 5 Seed Bed hand-in 1 at the Cattailmere paddy (3 wild rice). 6 optional: any road stop to tier 3. 7 leaf |
 | **M5 Three Chairs Short** | Frostbitten North, 11-13, Ottilie | 1 find Aurora Camp. 2 Regular at Iciclecrest or Snowcombe. 3 camp lamps, 2 stages. 4 the cook's wolf (alt: 2 meals). 5 hand-in 2 (5). 6 3 home-cooked meals for the supper. 7 leaf |
-| **M6 One Stone a Year** | Cairnback Ridge, 12-15, Hobb | 1 find Cairnback Pass and the Keeper's Hut. 2 three things at the Keeper's Hut (haven). 3 escort Garrow with this year's stone. 4 cairns, 3 stages. 5 hand-in 3 (8): the bed is full. 6 Hearth at tier 2 (hall optional). 7 leaf |
-| **M7 The Lighting** | whole area, 15, Wren | 1 60% of Maplewold villages lit (6 of 10). 2 a Friend. 3 the Owl: beat, charm, or answer it three evenings from Aurora Camp (3 game days). 4 a wild-rice dish and an apple dish to the Hearth. 5 **Seal** at 80% |
+| **M6 One Stone a Year** | Cairnback Ridge, 12-15, Hobb | 1 find Cairnback Pass and the Keeper's Hut. 2 Regular at **Granitegate**, the watchtower village (`regular zone:6`). 3 escort Garrow with this year's stone. 4 cairns, 3 stages. 5 hand-in 3 (8): the bed is full. 6 Hearth at tier 2 (hall optional). 7 leaf |
+| **M7 The Lighting** | whole area, 15, Wren | 1 60% of Maplewold villages lit (7 of 12). 2 a Friend. 3 the Owl: beat, charm, or answer it three evenings from Aurora Camp (3 game days). 4 a wild-rice dish and an apple dish to the Hearth. 5 **Seal** at 80% |
 
 **Side quests: 80 + 20 = 100.**
 | Group | Count |
@@ -318,15 +321,15 @@ The four answer acts (`mend_board`, `tidy_yard`, `fill_shelf`, `hang_lanterns`) 
 | dish energy | +5% | stop check | +4% | seed on fast travel | +4% |
 | boost length | +8% | healing | +8% | daycoin (A4) | 10 coins a game day |
 
-Daily families: A1 first action free, A2 something lost comes back, A3 one common item, A4 a few coins. Flags: A5 info, A6 looks (one of each per stop at most). Most at one place: walk -10%, pots -10%, XP +7% (today's 7-day perks give -15%, -20%, +10%).
+Daily families: A1 first action free, A2 something lost comes back, A3 one common item, A4 a few coins. Flags: A5 info, A6 looks (one of each per stop at most). Most at one place: walk -10%, pots -10%, XP +7% (today's 7-day perks give -15%, -20%, +10%); max health +4 on Cairnback Ridge (cap +3 and Granitegate's place perk).
 
-### 7.5 The Maplewold roads: 16 stops, 48 perks
-13 stops in the Maplewold (town, 10 villages, 2 havens) + 3 border villages that belong to the next region. W = world, P = place, D = daily charge, F = flag.
+### 7.5 The Maplewold roads: 18 stops, 54 perks
+15 stops in the Maplewold (town, 12 villages, 2 havens) + 3 border villages that belong to the next region. W = world, P = place, D = daily charge, F = flag.
 
 | Stop | Type | Repairs | Larder | Cheer |
 |---|---|---|---|---|
 | Maplewold Market (town) | market | Level Scales: Maplewold crops sell +1% (W) | Baker's Thirteenth: first shop food each day +1 (D) | Known at the Stalls: leaf on never-owned goods (F) |
-| Poppyburrow | inn | Straightened Signpost: walks to and from its six neighbours -2% time (P) | Second Breakfast: home-cooked dishes at dawn +2% energy (W) | A Bed With Your Name On: rest acts at inns +1 energy (W) |
+| Poppyburrow | inn | Straightened Signpost: walks to and from its seven neighbours -2% time (P) | Second Breakfast: home-cooked dishes at dawn +2% energy (W) | A Bed With Your Name On: rest acts at inns +1 energy (W) |
 | Honeybrook | herb | Tidy Skeps: pests -2% on flowering plants (W) | Honey in the Tea: tea boosts +2% longer (W) | The Bees Know You: a bee visits your garden (F) |
 | Cloverholt | mill | Greased Wheel: breads and bakes cook 2% faster (W) | Miller's Pinch: oats and lentil +1% extra harvest (W) | Oatcake for the Road: first visit each day, one oatcake (D, P) |
 | Acornby | camp | Dry Woodpile: resting on forest trails heals +2% (W) | Squirrel's Arithmetic: forest gathering +1% extra (W) | Fireside Regular: checks at camps +1% (W) |
@@ -336,13 +339,17 @@ Daily families: A1 first action free, A2 something lost comes back, A3 one commo
 | Pebblestead | ferry | Beaver-Tight Hull: coast fast travel -1% (W) | Porter's Crate: coast shops -1% (W) | Pebble in the Boot: 1 in 20 road walks turn up a coin (A4) |
 | Iciclecrest | tower | Beacon Basket, Refilled: +1 torch step in Maplewold delves (P) | Watcher's Flask: walking in snow or frost -1% time (W) | Three Roads and a Long Way: route menu shows what is on at the far stop (F) |
 | Snowcombe | spring | Scrubbed Pools: rest acts at hot springs +1 energy (W) | Spring-Boiled Egg: first visit each day, one egg (D, P) | Warm to the Bones: healing +2% while it snows (W) |
+| **Cattailmere** (Fens, new) | herb | Cleared Channels: first weeding each day costs no energy (D) | Rice in the Turn-Ups: fast travel +1% chance to turn up a seed (W) | Frog on the Gatepost: on rainy days a frog sits on your garden gate (F) |
+| **Granitegate** (Ridge, new) | tower | This Year's Stone: +1 max health on the Maplewold's mountain trails (P) | Goat-Track Pickings: gathering on the Maplewold's mountain trails +1% extra (P) | Counted From the Top: the Maplewold map shows, zone by zone, how many places you have not found yet (F) |
 | The Sugar Shack (haven) | orchard | Stacked Birch: syrups and sweets cook 2% faster (W) | Brim-Full Bucket: tree and sap harvests +1% extra (W) | Sticky Fingers: first seed planted each day not used up (D) |
 | Aurora Camp (haven) | camp | Pegged Tents: one failed stop check a day rolled again (D) | Meltwater Can: first watering each day free (D) | Sky-Dazzled: faint aurora over your garden (F) |
 | Larkbrook (CA border) | inn | Border Lamp: night walking -1% time (W) | Packed by the Cook: boosts from your own dishes +2% longer (W) | Up With the Lark: +1% XP at dawn (W) |
 | Windbottom (NWE border) | tower | Answered Beacon: world map shows your three bars per stop (F) | Signaller's Ration: first fast travel each day -1 energy (D) | Tailwind: +2% XP on windy days (W) |
 | Honeythorpe (EA border) | orchard | Propped Boughs: fruit and tree crops +1% garden XP (W) | Grafter's Label: satchel shows seed ages (F) | Hop-Yard Hum: food or drink gifts 2% chance of +1 friendship (W) |
 
-Count: 30 with a number (28 W, 2 P), 9 daily charges, 9 flags. No family over its cap; rest energy uses its whole budget (2 of 2). The town and the two havens are not stops in code today (`kind = 'village'` tests): they need `stop_is_place()` and a stop type set in Admin.
+Count: 33 with a number (29 W, 4 P), 10 daily charges, 11 flags = 54. No family over its cap; rest energy uses its whole budget (2 of 2). The town and the two havens are not stops in code today (`kind = 'village'` tests): they need `stop_is_place()` and a stop type set in Admin (decision 6: yes).
+
+The 6 new perks and the budgets (`proposal-stop-perks.md` 4.1): because the world budget of each family is now shared with 13 hand-written regions (decision 7), the two villages take **one** world number, from a family nobody had used: Rice in the Turn-Ups = seed on fast travel (F23), 1 of 4. Cleared Channels is a daily charge (A1, trigger = weeding, used by no other perk; no cap to share). This Year's Stone (max health, F20) and Goat-Track Pickings (gather, F11) are place perks (`region=NA` + `land=mountain`), so they use 0 of the world budgets (hp stays 0 of 3, gather stays 1 of 4). The two flags have no power (A6 looks, A5 info; one of each per stop at most). Poppyburrow gains a seventh neighbour (Granitegate), so its Signpost, a place perk, reads seven. All 54 names and effects differ from each other and from the 36 templates.
 
 ### 7.6 The 36 type templates (every other stop; all place perks, made for that stop by scope and name)
 | Type | Repairs | Larder | Cheer |
@@ -370,7 +377,7 @@ Count: 30 with a number (28 W, 2 P), 9 daily charges, 9 flags. No family over it
 
 ## 8. GARDENING THREAD
 
-No new crops. Each area has one signature crop (staple or uncommon, never a rare find), one native flower, and one Seed Bed (3 hand-ins) at a garden-type stop, else the Hearth stop. The bed follows the lamp: the first hand-in needs the bed's stop at tier 1. A full bed stocks the signature seed in that stop's swap, puts the crop on the area's tier 2 stalls, and turns on the bed's garden happenings for everybody.
+No new crops. Each area has one signature crop (staple or uncommon, never a rare find), one native flower, and one Seed Bed (3 hand-ins) at a garden-type stop, else the Hearth stop. The bed follows the lamp: the first hand-in needs the bed's stop at tier 1 (whoever raised it). **The Maplewold bed is the wild-rice paddy at Cattailmere** (herb, Beaverdam Fens; decision 2), not Honeybrook: wild rice is a wetland crop, the paddy is in the Fens, and M4 already walks there. Lamp, hand-ins, seed swap and garden happenings are all Cattailmere's. A full bed stocks the signature seed in that stop's swap, puts the crop on the area's tier 2 stalls, and turns on the bed's garden happenings for everybody.
 
 Sleeps = `grow_days_by_tier` (default 1,2,3,5,7,10) for the crop's tier in `crops.txt` / `flowers.txt`. Each counts only on a watered or rained game day. Trees are perennial: first harvest after 10 sleeps, then about every 4 sleeps (hops 3) at 75%.
 
@@ -431,14 +438,14 @@ Code changes needed: `REGION_LEVELS` to band floors + `min_level` migration; `LA
 |---|---|---|---|
 | 0 | Puzzle Pal access filter | `puzzle_pals.php`, `progression.php`, `tests/puzzle_pals_map.php` | **done** |
 | 1 | Balance sim: Standing weights, XP budget, Petals per game day, bar pace, Lv 45 and 55 fights. Method as `balance-2.7.27-sims.md` | `claude/` sim script only | next |
-| 2 | Stop marks: latch, no decay, bar points per game day, 16 Maplewold stops, templates, caps, Admin, migration | new `stop_marks.php`, `stop_living.php`, `stops.php`, `player_perks.php` call sites (9), `data/stop_perks.txt`, `stop_perk_fx.txt`, `stop_act_bars.txt`, schema `stop_marks`, `stop_mark_use` | next (stands alone) |
+| 2 | Stop marks: latch, no decay, bar points per game day, 18 Maplewold stops, templates, caps, Admin, migration | new `stop_marks.php`, `stop_living.php`, `stops.php`, `player_perks.php` call sites (9), `data/stop_perks.txt`, `stop_perk_fx.txt`, `stop_act_bars.txt`, schema `stop_marks`, `stop_mark_use` | next (stands alone) |
 | 3 | `stop_is_place()`: town and havens as stops | `stops.php:813`, `stop_living.php:339, 360`, `here_view.php` x6, `place_ui.php:306` | with 2 |
 | 4 | Bands as config: `REGION_LEVELS`, lairs at band top, `route_danger` clamp, `min_level` migration | `progression.php`, `roads.php`, `adventure.php`, boot step | after 1 |
 | 5 | Off-road adoption (drop `on_road`, cap tier 2), first adoption in an area free | `place_ui.php`, `stop_adopt.php` | after 1 |
 | 6 | Standing meter on Wren's page, read only | new `standing.php`, `journey.php` | after 5 |
 | 7 | Chapters as data + new step kinds with latching; letters | `journey.php`, `data/journey_chapters.txt`, `journey_letters.txt`, `quest_tasks` | after 6 |
 | 8 | Seed Beds | `data/seed_beds.txt`, stop card | with 7 |
-| 9 | Maplewold: 2 zones, routes, places; chapters M1-M7 incl. the `puzzle` step; 11 side quests | `zones.txt`, `landmarks.txt`, routes, trail maps (art brief) | after 7 |
+| 9 | Maplewold: 2 zones, their 2 villages (Cattailmere, Granitegate: names and stop types set by hand), routes, places; chapters M1-M7 incl. the `puzzle` step; 11 side quests | `zones.txt`, `landmarks.txt`, routes, trail maps (art brief) | after 7 |
 | 10 | Errands, cast threads, happening acts | `data/journey_errands.txt`, `stop_threads.txt`, `stop_acts*.txt` | with 9 |
 | 11 | Seals, Wardens, gates: fill in `region_gate_open()`; grandfather by `region_visits` | `progression.php`, `roads.php`, `world.php` (fast travel) | after 9 |
 | 12 | Maizehollow, Mistmoor, The Crossing | data | after 11 |
@@ -463,13 +470,13 @@ Code changes needed: `REGION_LEVELS` to band floors + `min_level` migration; `LA
 | # | Conflict | Ruling (this file) |
 |---|---|---|
 | 1 | "A day" is read as a Hollow day at Halifax midnight in the brief, PRODUCT.md and the comment on `ppal_spawn_refresh`; the code keys stops, happenings, calendar, threads and pal top-up on `gclock_my_date()`, which turns on **sleep** | Game day = the gnome's sleep-day. Halifax midnight is only the clock-off fallback and the shared systems (section 1) |
-| 2 | Stop counts: bands doc and story docs "3 adoptable Maplewold stops"; review decision 2 "any village, Maplewold counts 10"; perks doc "16 stops, not 15" | Three numbers, three meanings: 10 adoptable villages (Standing N), 13 stops with bars in the Maplewold, 16 on the Maplewold roads (48 perks) |
-| 3 | Standing Stops row was written for N = 3. With N = 10 a gnome who never fights tops out under 80 unless all 10 are lit, against "80 has slack" and "a few dark gaps" | Weights unchanged (14 / 10 / 6). Lit is full at 60% of N, raised is full at an average of tier 1 (section 4). Needs the sim |
-| 4 | M7 step 1 "60% lit (2 of 3)"; M2 and M4 "the second / third prairie road stop"; C2, N2 "road stop" | 60% of adoptable villages (6 of 10). `adopt` and `raise` steps take any village; road stop is flavour |
+| 2 | Stop counts: bands doc and story docs "3 adoptable Maplewold stops"; review decision 2 "any village, Maplewold counts 10"; perks doc "16 stops, not 15" | Three numbers, three meanings: 12 adoptable villages (Standing N; 10 + Cattailmere + Granitegate, section 14), 15 stops with bars in the Maplewold, 18 on the Maplewold roads (54 perks) |
+| 3 | Standing Stops row was written for N = 3. With N = 10 a gnome who never fights tops out under 80 unless all 10 are lit, against "80 has slack" and "a few dark gaps" | Weights unchanged (14 / 10 / 6). Lit is full at 60% of N, raised is full at an average of tier 1 (section 4). Confirmed by Josh (section 14); with N = 12 that is 7 lit and a non-fighter at 82.7. Needs the sim |
+| 4 | M7 step 1 "60% lit (2 of 3)"; M2 and M4 "the second / third prairie road stop"; C2, N2 "road stop" | 60% of adoptable villages (7 of 12). `adopt` and `raise` steps take any village; road stop is flavour |
 | 5 | Story 1 section 4 and flavor section 4: "off-road villages have no tiers"; "only road villages can be adopted" | Superseded by decision 2: every village has tiers 0-2, road villages 0-4. Dark / lit text applies to all villages. Seed Bed: its stop at tier 1 |
-| 6 | M4 and M6 ask for `regular zone:4` / `zone:6`, but the two new zones have no villages (`zones.txt`); the Seed Bed "at the Fens stop" has no stop | No new villages. M4: the paddy opens when Heron Stilt Village is found; M6: three things at the Cairn Keeper's Hut (haven). The Maplewold bed belongs to Honeybrook (herb) for lamp and hand-in; the paddy is its place in the Fens |
+| 6 | M4 and M6 ask for `regular zone:4` / `zone:6`, but the two new zones have no villages (`zones.txt`); the Seed Bed "at the Fens stop" has no stop | **Overruled by Josh (section 14, question 2): one village each.** Cattailmere (herb, Fens) and Granitegate (tower, Ridge). M4 and M6 keep their `regular zone:4` / `zone:6` steps at those villages; the haven fallback is dropped. The Maplewold Seed Bed is the paddy at Cattailmere (lamp and hand-in), not Honeybrook |
 | 7 | Story stop types per zone (mill and workshop in the Maplewood; shrine and spring in the North) vs the perks doc's types (Cloverholt mill is prairie; Mossgate shrine is in the Maplewood) | The perks doc's types are the real ones (section 2.3). Story types were flavour |
-| 8 | Bar pace: perks doc "5 to 8 visit-days", "first mark in the first week", "two months" | 6 to 10 visit-days per bar; 30 to 45 game days for the 48. No weeks or months in pacing |
+| 8 | Bar pace: perks doc "5 to 8 visit-days", "first mark in the first week", "two months" | 6 to 10 visit-days per bar; 34 to 51 game days for the 54. No weeks or months in pacing |
 | 9 | Perks doc migration "after 7 days", bands doc "monthly" and "weekly" wording | Old perks end on each gnome's own game date; old code goes at a release, not after a count of days |
 | 10 | Tier 4 upkeep runs on a real UTC month (`gmdate('Y-m')`): neither the game day nor the Hollow (Halifax) month | Kept as is (shared between gnomes, so real clock). It can never undo a step, Standing or a mark. Aligning it to the Hollow month is a small separate fix |
 | 11 | Quests doc still lists `unlock=pal` extras on `na-s08`, `nwe-s08`, `cb-s05`, `esa-s05`, "4 companions" in 4.2 and 5.1, and a `puzzle_pals.txt` change | No pal rewards. Those four pay a stop theme instead (12 themes become 16). No change to `puzzle_pals.txt` |
@@ -480,7 +487,7 @@ Code changes needed: `REGION_LEVELS` to band floors + `min_level` migration; `LA
 | 16 | Bands doc section 6 "Seals at the 5 tier 3 doors" only; review lists 7 gated roads | Gates per section 2.2: all tier-crossing roads, incl. the two new ones and Clovercove |
 | 17 | Band edges: creature file headers "tier 4 (38-45)", "tier 5 (46-55)" vs bands 35-45, 45-55 | Bands are 35-45 and 45-55. The file only starts at 38 because existing creatures reach 37 |
 | 18 | Lair level: `LAIR_LEVEL_1115` and old text "region level + 4" vs "band top" | Band top everywhere |
-| 19 | Perk numbers vs caps (recounted): every family's Maplewold world total is at or under its cap; 30 / 9 / 9 = 48 | Holds. Rest energy is at its cap: later rest-energy perks must be place perks |
+| 19 | Perk numbers vs caps (recounted): every family's Maplewold world total is at or under its cap; 33 / 10 / 11 = 54 (was 30 / 9 / 9 = 48) | Holds. The 6 new perks add one world number (seed on fast travel 1 of 4). Rest energy is at its cap: later rest-energy perks must be place perks |
 | 20 | XP budget "area completion pays 85% of the band's XP" with 2 to 4 sibling areas per band: finishing every sibling would overshoot the band by 10+ levels | 85% of the band, shared over the areas the road needs (1, 2, 1, 1, 1). Other siblings pay the same and are over-level, at-leisure content. Needs the sim (question 3) |
 | 21 | Quests doc: `puzzle` is used as a step kind in M1 but is missing from the step-kind table; M1 has 8 steps against "5-7" | `puzzle` added (section 6); chapters are 5-8 steps |
 | 22 | Bands doc section 5 (first story sketch) and its 4-row "Seven regions in L1-14" state | Superseded by sections 2 and 5 here |
@@ -499,13 +506,13 @@ Code changes needed: `REGION_LEVELS` to band floors + `min_level` migration; `LA
 ## 14. DECISIONS ON THE 8 OPEN QUESTIONS (Josh, 2026-11-27)
 | # | Question | Answer | What follows |
 |---|---|---|---|
-| 1 | Standing with 10 villages | 6 of 10 lit = full; average tier 1 = full | As section 4. With Q2 the Maplewold has 12 villages: recompute "lit full at 60% of N" (7 of 12) and the Petal estimate. |
-| 2 | Fens and Ridge | **Add a village each** | 12 Maplewold villages, 18 stops, **54 perks**. Needs 2 new village names, zone, stop type, 6 new perks. M4 and M6 `regular` steps go back to a village in the zone (drop the haven fallback). Wild-rice bed can sit in the Fens village. |
+| 1 | Standing with 10 villages | 6 of 10 lit = full; average tier 1 = full | As section 4. **Done:** N = 12, lit full at round(0.6 N) = 7, raised full at a tier sum of 12; non-fighter 82.7 (87.7 with the Owl); 3,600 Petals. |
+| 2 | Fens and Ridge | **Add a village each** | 12 Maplewold villages, 18 stops, **54 perks**. **Done:** Cattailmere (herb, wetland, Beaverdam Fens, off-road, Fen Path leg 1 from Honeybrook) and Granitegate (tower, mountain, Cairnback Ridge, off-road, Cairnback Climb leg 1 from Poppyburrow); 6 perks in 7.5. M4 and M6 `regular` steps are at those villages (haven fallback dropped). The wild-rice bed is the Cattailmere paddy (section 8). |
 | 3 | Sibling area XP | Share the band's XP over the required areas | As section 4. |
 | 4 | Many sleeps a day | No real-day cap | Dailies follow the game day only. |
-| 5 | Marks and Standing | Separate layer | Marks never count for Standing. |
+| 5 | Marks and Standing | Separate layer | Marks never count for Standing (section 4, section 3 marks row). |
 | 6 | Town and havens as stops | Yes | Build `stop_is_place()` and a stop type each. |
 | 7 | Other 13 regions | **Hand-written set per region** | Replaces the 36 type templates as the main plan (templates stay as fallback for stops not yet written). Large writing job: each region's stops x 3 perks, unique, inside the family caps (the world budget per family is shared, so check it). |
 | 8 | Perk step down | News post only | No launch festival. |
 
-Follow-up work: (a) add the 2 villages and their 6 perks to sections 2, 6 and 7; (b) recompute Standing and pacing for 12 villages; (c) write the per-region perk sets (13 regions), checking the family caps.
+Follow-up work: (a) **DONE 2026-11-27**: the 2 villages and their 6 perks are in sections 2.3, 6, 7.5 and 8 (and in `proposal-stop-perks.md` 4, 4.1, 5; `proposal-story-2-quests.md` M4, M6, M7; bands doc section 3). (b) **DONE 2026-11-27**: Standing (section 4) and pacing (section 3, A8) recomputed for 12 villages: 7 lit = full, non-fighter 82.7 / 87.7, 3,600 Petals, Seal still 20-35 game days, 54 marks in 34-51. All unsimulated. (c) open: write the per-region perk sets (13 regions), checking the family caps; world budget left after the Maplewold is in `proposal-stop-perks.md` 4.1.

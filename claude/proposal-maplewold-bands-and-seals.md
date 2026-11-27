@@ -1,7 +1,7 @@
 # PROPOSAL: Level bands, new routes, Seals and Wren's Journey rewrite
 
 Status: PROPOSAL ONLY (2026-11-27). No code. Josh to veto/pick.
-Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 2 (two new roads, gates), section 4 (Standing with N = 10 villages), section 1 (game days), section 12 (rulings).
+Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 2 (two new roads, gates), section 4 (Standing with N = 12 villages: one new village each in the Fens and on the Ridge, master section 14), section 1 (game days), section 12 (rulings).
 Pass 4 review (2026-11-27): corrected in place, see `claude/proposal-story-4-review.md`. Section 5 is superseded by `proposal-story-1-base.md` / `proposal-story-2-quests.md`; the Standing table in section 4 now matches the base story.
 Reading: "Mapleworld" = The Maplewold (NA). "First three areas" = Maplewold + its two road neighbours (Maizehollow CA, Mistmoor NWE).
 Builds on: `includes/progression.php` (REGION_LEVELS), `includes/roads.php` (ROAD_PAIRS), `includes/journey.php` (Wren's Journey), `data/zones.txt`, `data/landmarks.txt`.
@@ -42,7 +42,7 @@ Notes:
 | Frostbitten North | 11-13 | exists |
 | **Cairnback Ridge** (mountain) | 12-15 | NEW |
 Capstone: Den of the Great White Owl, Lv 15.
-Note: the new zones' places (Fens, Ridge) are off-road, so they hold no adoptable stops unless adoption is opened to off-road villages (review, open item 2).
+Note (updated 2026-11-27, master section 14): each new zone gets one village, both off-road and adoptable to tier 2: **Cattailmere** (herb, Beaverdam Fens) and **Granitegate** (tower, Cairnback Ridge). The Maplewold then has 12 villages (3 road, 9 off-road).
 
 ### Twin neighbours 15-25
 Each of CA and NWE runs 15-25 over its 4 zones (15-17, 18-20, 21-23, 24-25 + lair). Player alternates or finishes one. Both are "Tier 2": finishing both is what opens tier 3 fully (see section 4).
@@ -51,8 +51,8 @@ Each of CA and NWE runs 15-25 over its 4 zones (15-17, 18-20, 21-23, 24-25 + lai
 Rule: a new route hangs off a road village or a zone, never replaces a road. Roads stay gentle. New routes = side/wild kind, level from the band.
 
 ### Maplewold
-1. **Fen Path**. Off the NA-NWE road, village 2 (check which region that village is in; road villages alternate). Beaverdam Fens. Hidden: Heron Stilt Village (haven), Dam Debt (wonder), Beaverdam Tunnels delve moves here (now floats). Loops back to Foghorn Shallows. L8-11.
-2. **Cairnback Climb**. Off the NA-CA road, village 3. Cairnback Ridge. Cairnback Pass (wonder), Cairn Keeper's Hut (haven), Hollow Peak delve. L12-15. End: Smokecap foothills in CA = the "high road" shortcut (opens after Maplewold Seal).
+1. **Fen Path**. Off the NA-NWE road at Honeybrook (the NA road village on that road; Windbottom, the next one, is Mistmoor's). Beaverdam Fens. Leg 1: Honeybrook -> **Cattailmere** (village, herb, wetland, off-road, 2 sections, L8): the causeway croft with the wild-rice paddy (the Maplewold Seed Bed). Then hidden: Heron Stilt Village (haven), Dam Debt (wonder), Beaverdam Tunnels delve moves here (now floats). Loops back to Foghorn Shallows at Pebblestead. L8-11.
+2. **Cairnback Climb**. Off the NA-CA road at Poppyburrow (the NA road village on that road; Larkbrook is Maizehollow's). Cairnback Ridge. Leg 1: Poppyburrow -> **Granitegate** (village, tower, mountain, off-road, 2 sections, L12): the watchtower village, the door stop where Hobb's Warden stands. Then Cairn Keeper's Hut (haven), Cairnback Pass (wonder), Hollow Peak delve. L12-15. End: Smokecap foothills in CA = the "high road" shortcut (opens after Maplewold Seal; the gate is at Granitegate).
 3. **Aurora Road**. Frostbitten North -> Aurora Camp -> Owl's Den. L11-15. Past the Den: **Northern Rim Pass** to Long Night Fells (NWE). Hard route, L15-18, opens after the Owl.
 4. **Tide Track**. Foghorn Shallows -> Lantern Lighthouse -> **Ferry Landing**. Ferry to Sunsprinkle (CB) shown but tide-locked. Opens at tier 3 gate.
 5. Clovercove (existing dead end to Blossomreach): stays closed beyond the village. Gains a "Clovercove Gatehouse" Wren note: "too far, come back at 45".

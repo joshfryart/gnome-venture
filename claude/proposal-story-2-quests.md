@@ -2,6 +2,7 @@
 
 Status: PROPOSAL ONLY (2026-11-27). No code. Pass 2 of the story.
 Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 6 (M4, M6, M7 steps; `puzzle` step kind; no `unlock=pal` extras), section 2.2 (CB-WCA and SA-ESA doors), section 12 (rulings 4, 6, 11, 14, 15, 21).
+Updated 2026-11-27 (master section 14): the Fens and the Ridge have one village each, **Cattailmere** (herb, Beaverdam Fens) and **Granitegate** (tower, Cairnback Ridge). M4 and M6 `regular` steps are at those villages (no haven fallback), the wild-rice Seed Bed is the Cattailmere paddy, and M7 counts 7 of 12 villages.
 Builds on: `claude/proposal-story-1-base.md` (the Round, cast, stops as story, Standing, signature crops), `claude/proposal-maplewold-bands-and-seals.md` (bands, routes, Seals), `includes/journey.php`, `data/stop_threads.txt`, `data/stop_happenings.txt`, `data/calling_quests.txt`, `data/creatures.txt`.
 Fixed: no Trek story, no Tansy, Wren's Almanac is the main quest, stops are the spine, gardening in every area, no timers, no fail states.
 Creatures: bands 1-3 use `data/creatures.txt`; bands 4-5 use `claude/proposal-creatures-38-55.txt` (proposal list, slugs as written there).
@@ -48,7 +49,7 @@ Pass 4 rules that make every main step doable:
 - **Only road villages can be adopted** (`on_road`), so `adopt` and `raise` steps name road stops only. Zones with no road village use `regular zone:N` instead.
 - **Every `adopt` step has `alt=regular` at a tier 1+ road stop of the same zone or area**, for a busy world where every road stop is held by someone else or already a Hall (a tier 4 stop cannot be adopted).
 - A stop type in a step (mill, inn, jetty...) is flavour: any road stop of the zone counts. Havens and wonders (Baobab Inn, Kava Circle, Thatchtop Tearoom, Cherry Blossom Teahouse, Market of a Thousand Chilies, Olive Press Piazza, Floating Market...) are landmarks, not stops: "<haven> stop" means the road stop its side path leaves from.
-- The Seed Bed hand-in needs the bed's stop lit if it is a road stop, or you a Regular there if it is an off-road village.
+- The Seed Bed hand-in needs the bed's stop at tier 1 (lit, whoever raised it) and you a Regular there. Off-road villages have tiers 0 to 2 (master ruling 5), so this holds for the Cattailmere paddy too.
 
 ### 1.3 Reward vocabulary (reuse first)
 | Token | Status | Meaning |
@@ -130,9 +131,9 @@ Leaf note: "The old book calls it the Lost Lantern. I have left the name. It sui
 | 1 | Find Heron Stilt Village and the Dam Debt | `find` 2 | 8-9 |
 | 2 | Settle the Dam Debt: hear both sides, bring the council what it is owed (errand `na-dam-debt`: talk x2, deliver 3 Birch Log) | `help errand:na-dam-debt` | 8-10 |
 | 3 | Build the agreed sluice gate (4 Timber Planks, 2 Rope, 200 Petals) | `stage` | 9-10 |
-| 4 | Adopt and light the third prairie road stop (the last dark lamp on the home road), and become a Regular at the causeway croft that owns the paddy | `adopt`, `raise tier:1`, `regular zone:4` | 9-10 |
-| 5 | Grow wild rice and make the first Seed Bed hand-in (3) | `plant bed:1` | 10-11 |
-| 6 | Optional: raise any Maplewold stop to its Wishing well (tier 3): it hums four notes | `raise tier:3`, `opt=1` | 10-11 |
+| 4 | Become a Regular at Cattailmere, the causeway croft that owns the paddy (the Fens village, first stop on the Fen Path), and adopt and light a third village. Cattailmere is the natural one: its lamp is what opens the paddy. If someone else has lit it, being a Regular there counts | `regular zone:4`, `adopt` (`alt=regular`), `raise tier:1` | 9-10 |
+| 5 | Grow wild rice and make the first Seed Bed hand-in (3) at the Cattailmere paddy | `plant bed:1` | 10-11 |
+| 6 | Optional: raise any Maplewold road stop to its Wishing well (tier 3; off-road villages stop at tier 2): it hums four notes | `raise tier:3`, `opt=1` | 10-11 |
 | 7 | Fens leaf | `seal leaf` | 11 |
 Optional: Beaverdam Tunnels delve; thread "The singing well".
 Leaf note: "The old book says the beavers 'trespassed upon the road'. Crossed out. They kept the water when no one kept the sluice."
@@ -144,7 +145,7 @@ Leaf note: "The old book says the beavers 'trespassed upon the road'. Crossed ou
 | 2 | Become a Regular at a North village (hot spring or moss shrine) | `regular zone:5` | 11-12 |
 | 3 | Hang the camp lamps (4 Beeswax, 3 Rope; then 250 Petals) | `stage` x2 | 11-12 |
 | 4 | The cook's wolf (Bramble Wolf scaled to 12): shoo, charm, or leave 2 meals at the tree line | `defeat creature:bramble-wolf`, alt `deliver meal:2` | 12 |
-| 5 | Second Seed Bed hand-in (5 wild rice) | `plant bed:2` | 12-13 |
+| 5 | Second Seed Bed hand-in (5 wild rice) at the Cattailmere paddy | `plant bed:2` | 12-13 |
 | 6 | Cook for Ottilie's first supper (3 home-cooked meals, one with raspberry or wild rice) | `stage meal:3` | 13 |
 | 7 | North leaf | `seal leaf` | 13 |
 Optional: thread "The stranger with no name" (tea paid with a button).
@@ -154,19 +155,19 @@ Leaf note: "The old book lists nine at the camp table. Ottilie counted six. I ha
 | # | Step | Kind | Lv |
 |---|---|---|---|
 | 1 | Find Cairnback Pass and the Cairn Keeper's Hut | `find` 2 | 12-13 |
-| 2 | Become a Regular at the watchtower village (the door stop) | `regular zone:6` | 12-13 |
+| 2 | Become a Regular at Granitegate, the watchtower village at the foot of the Climb (the door stop, Hobb's post) | `regular zone:6` | 12-13 |
 | 3 | Walk old keeper Garrow Stonecount (new local) from the Hut up to the Pass with this year's stone | `escort who:garrow,from:hut,to:pass` | 13 |
 | 4 | Rebuild the cairns (6 Dressed Stone; 4 Flint + 300; one stone of your own: 1 uncommon find) | `stage` x3 | 13-14 |
-| 5 | Third Seed Bed hand-in (8 wild rice): the bed is full | `plant bed:3` | 14 |
+| 5 | Third Seed Bed hand-in (8 wild rice) at the Cattailmere paddy: the bed is full | `plant bed:3` | 14 |
 | 6 | Your Hearth stop has a Little stall (tier 2; a stop you founded counts). A Long-table hall is optional | `raise tier:2,hearth`; `raise tier:4,hearth` `opt=1` | 14-15 |
-| 7 | Ridge leaf: from the tower at night, the road you lit | `seal leaf` | 15 |
+| 7 | Ridge leaf: from Granitegate's tower at night, the road you lit | `seal leaf` | 15 |
 Optional: Hollow Peak delve.
 Leaf note: "The old book says 'a stone for every walker, every year'. The newest stone is older than I am. There is a new one on top."
 
 **M7. The Lighting** (capstone). Whole Maplewold, Lv 15. Giver: Wren.
 | # | Step | Kind | Lv |
 |---|---|---|---|
-| 1 | The road glows end to end: 60% of Maplewold road stops lit (2 of 3) | `raise lit:60%` | 13-15 |
+| 1 | The road glows end to end: 60% of Maplewold villages lit and you a Regular there (7 of 12; `lit:60%` = round(0.6 N)) | `raise lit:60%` | 13-15 |
 | 2 | Make a Friend among the Maplewold's townsfolk | `friend` 2 | any |
 | 3 | The Great White Owl: beat, charm, or answer it three evenings from Aurora Camp (`r_na_owl_hoot`). Same terms each way: the Aurora Road stays lampless and the Owl guards it | `defeat lair:great-white-owl`, alt stop act x3 | 15 |
 | 4 | Bring a wild-rice dish and an apple dish to your Hearth stop for the supper | `deliver meal:2,to:hearth` | 15 |
@@ -364,8 +365,8 @@ A few at a time: at most 3 errands on offer per area, picked from those whose tr
 | `na-s05` The Jam Jar | T (4 beats) | Professor Puff Morelby, herb or mill | Thousand Rings Stump found, Regular at a Maplewood stop | count the rings (`r_na_stump_rings`); jar by a bare bed; jar by a planted bed; the thin rings | thread pay | `page=waythread-first-guess` |
 | `na-s06` Oil for the Lost Lantern (R) | D | lighthouse keeper, tower | chapter M3 done | bring 2 Beeswax, trim the wick (`r_na_trim_wick`) | c=25:5, xp=12:2, fp=1 | `unlock=theme:lantern-glass-post` (tier 1, jetty and ferry) |
 | `na-s07` Gulls on the Catch | C | Fisher, jetty | a jetty at tier 2 | Herring Gull x2 (or a Sea Otter Bandit): fight, charm; alt: build a scare-gnome (2 Rope, 2 Straw Mulch) | c=80, xp=70 | `unlock=shop:smokehouse-rack` (smoked fish at Shallows stalls) |
-| `na-s08` The Heron Who Kept the Toll | T (4 beats) | stilt-villager, any Fens stop | Heron Stilt Village found, Regular at a Fens stop | a Grey Heron stands on the causeway; what it wants; a fish a day; it steps aside for good | thread pay | `unlock=pal:mw-toll-heron` |
-| `na-s09` Goldenrod by the Paddy | G | herb croft | Seed Bed first hand-in | grow 3 goldenrod to bloom, hand them in at the paddy | c=70, xp=60 | `unlock=place:drowned-paddy-boardwalk` + treasure seed (cranberry) x1 |
+| `na-s08` The Heron Who Kept the Toll | T (4 beats) | stilt-villager, Cattailmere (or Heron Stilt Village once havens are stops) | Heron Stilt Village found, Regular at Cattailmere | a Grey Heron stands on the causeway; what it wants; a fish a day; it steps aside for good | thread pay | `unlock=pal:mw-toll-heron` |
+| `na-s09` Goldenrod by the Paddy | G | herb croft, Cattailmere | Seed Bed first hand-in | grow 3 goldenrod to bloom, hand them in at the paddy | c=70, xp=60 | `unlock=place:drowned-paddy-boardwalk` + treasure seed (cranberry) x1 |
 | `na-s10` The Bather in the Snow | L | attendant, hot spring | a North stop at tier 1 | find a gnome who took the wrong path from the spring (Aurora Road); escort back | c=90, xp=80 | `unlock=recipe:snowshoe-stew` |
 | `na-s11` Snow Gnome Day *act* | H | anyone, any North stop | `hp=snow_day` or `snow_gnome` | build the snow gnome (act), carry 1 meal to the next stop | c=20:5, xp=10:2, fp=1 | `title=Snow Neighbour` |
 | `na-s12` The Cairn Count | T (5 beats) | Garrow Stonecount, Cairn Keeper's Hut | chapter M6 done | read the oldest stone; count down the years; the gap; the newest old stone; its mark is a button | thread pay + item=building-stone:2 | `page=cairn-count` + `unlock=place:walkers-bivouac` |
