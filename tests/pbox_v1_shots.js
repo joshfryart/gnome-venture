@@ -59,12 +59,11 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
 
     // ---- 3. the pre-fight screen: auto off (free swaps), auto on (read-only)
     seed('fight', 'medium'); await open('/adventure.php');
-    await p.locator('#pfv-pre .pc.L-uni').first().click(); await p.locator('#pfv-pre .pc[data-a=tog]').nth(2).click();
+    await p.click('#pfb2-t1'); await p.locator('#pfv-pre .pc.L-uni').first().click(); await p.click('#pfb2-t0'); await p.locator('#pfv-pre .pc[data-a=tog]').nth(2).click();   // 2.8.78: its pieces are in their own tab
     ck(T('pre-fight, auto off: creature piece detail, a deck piece offers Take out, a bench is there'), [/plays ×2/.test(await p.locator('#pfv-cinfo').innerText()), await n('.pfv-dsheet [data-pfv-act]'), await p.locator('#pfv-pre').innerText().then(t => /BENCH/i.test(t))], [true, 1, true]);
     await shot('3-prefight-auto-off');
     seed('fight', 'boss', 'auto'); await open('/adventure.php');
-    ck(T('pre-fight, auto on: one strip (N pieces), Turn off and edit, no swaps, the deck in a closed fold, Let\'s fight on screen'), [/Auto deck is active: \d+ pieces/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-pre .pc[data-a=tog]'), await p.evaluate(() => document.getElementById('pfv-deckfold').open), await p.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), await p.locator('#pfv-deckfold .pc').first().isVisible()], [true, 0, false, true, false]);
-    await p.click('#pfv-deckfold summary'); ck(T('pre-fight, auto on: Show deck opens the read-only deck'), await p.locator('#pfv-deckfold .pc').first().isVisible(), true); await p.click('#pfv-deckfold summary');
+    ck(T('pre-fight, auto on: one strip (N pieces), Turn off and edit, no swaps, the read-only deck in the Your deck tab, Let\'s fight on screen'), [/Auto deck is active: \d+ pieces/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-pre .pc[data-a=tog]'), await p.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), await p.locator('#pfv-pre .pfb2-p0 .pc').first().isVisible()], [true, 0, true, true]);
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
     await p.waitForSelector('#pfb-board .gc', { timeout: 8000 }).catch(() => {});
