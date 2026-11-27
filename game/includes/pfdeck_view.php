@@ -509,6 +509,38 @@ function pfv_foe_card(array $c, string $region): string
 }
 
 /** The pre-fight screen (a creature is in front of you, the fight is not dealt yet): the creature card, your deck (read-only with Auto deck on, free swaps without), Let's fight. */
+/**
+ * 2.8.78 the creature's side of the pre-fight screen in parts (Face-off layout): ['img', 'name', 'lv', 'chips', 'rule', 'tally', 'cells'].
+ * The same data as pfv_foe_card, split so the page can put the creature beside the gnome and its pieces in their own tab.
+ */
+function pfv_foe_parts(array $c, string $region): array
+{
+    require_once __DIR__ . '/items.php';
+    $row = pfd_foe_row($c, $region); $size = (string)($c['size'] ?? 'small'); $dims = PFB_SIZE[$size] ?? [5, 5]; $cl = (string)$row['class'];
+    $cim = creature_image((string)($c['slug'] ?? ''), true);
+    $img = $cim !== '' ? art_img($cim, 'lg', (string)$c['name']) : creature_icon((string)$c['name'], $size);
+    $rn = $region !== '' ? (string)(q_val('SELECT gnomish_name FROM regions WHERE code = ?', [$region]) ?: $region) : '';
+    $by = []; $cells = ''; $lean = (string)$row['lean'];
+    foreach (pfd_foe_pieces($c, $region) as $p) {
+        $by[$p['layer']] = ($by[$p['layer']] ?? 0) + 1; $v = pfv_foe_v($c, (int)$p['v']);
+        $q = ['n' => $p['n'], 't' => $p['t'], 'v' => $v, 'tag' => $p['tag'], 'life' => $p['life'], 'src' => 'creature', 'ik' => (string)($p['ik'] ?? ''), 'e' => pfb_author_edges(['t' => $p['t'], 'r' => $p['r']], (string)$p['col'])];
+        $d = (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . $v . ' · ' . PFD_LAYERS[$p['layer']] . ' · stays ' . PFB_LIFE . ' rounds · plays ×' . PFB_FOE_FIRES . (isset(PFV_FOE_TAG[$p['tag']]) ? '. ' . PFV_FOE_TAG[$p['tag']] : '') . '.';
+        $cells .= pfv_pc($q, ['owner' => 'foe', 'cls' => 'L-' . $p['layer'], 'a' => 'info', 'd' => $d, 'x' => ' data-info="pfv-cinfo"']);
+    }
+    $tally = '';
+    foreach (PFD_LAYERS as $L => $name) if (!empty($by[$L])) $tally .= '<span class="L-' . $L . '" data-f="' . $by[$L] . '" title="' . e($name) . ' ' . $by[$L] . '">' . ($by[$L] < 2 ? '+' . $by[$L] : e(explode(' ', $name)[0]) . ' ' . $by[$L]) . '</span>';
+    $charm = $size === 'boss' ? 'cannot be charmed' : (pf_temper($c) === 'gentle' ? 'gentle' : 'wary');
+    $chips = '<span class="chip">' . (PFV_CLASS_ICON[$cl] ?? '🐾') . ' ' . e($cl) . '</span>' . ($rn !== '' ? '<span class="chip">' . e($rn) . '</span>' : '') . '<span class="chip"><i class="szd ' . e($size) . '"></i>' . e($size) . ' · ' . $dims[0] . '×' . $dims[1] . '</span><span class="chip">' . $charm . '</span><span class="chip">leans ' . e($lean) . '</span>';
+    $kr = PFB_KIND_TEXT[pfb_kind_of(['class' => $cl], $size)] ?? null;
+    $rule = ($kr && !empty(pfb_v1_cfg($size, [], max(1, (int)($c['level'] ?? 1)))['kinds'])) ? '<p class="foerule"><b>' . e($kr[0]) . ':</b> ' . e($kr[1]) . '</p>' : '';
+    return ['img' => $img, 'name' => (string)$c['name'], 'lv' => (int)$c['level'], 'chips' => $chips, 'rule' => $rule, 'tally' => $tally, 'cells' => $cells, 'n' => array_sum($by)];
+}
+
+/**
+ * The pre-fight screen, "Face-off" layout (2.8.78): you and the creature side by side with your bars; below, one tab at a time (Your deck, Its pieces, Rules).
+ * A wide, tall window (desktop) shows all three at once; a phone held sideways puts you and the creature in a left column and the tabs on the right.
+ * assets/pfv1box.js switches the tabs (.pfb2-tabs [data-pfb2-tab]); CSS: the .pfb2 block at the end of assets/pfv1.css. Ids and data attributes of the deck are unchanged.
+ */
 function pfv_prefight_html(array $u, array $exp, array $c): string
 {
     $d = pfd_deck($u); $P = pfv_entries($u, $d['pieces']); $auto = !empty($d['auto']); $region = pfd_exp_region($exp);
@@ -517,19 +549,41 @@ function pfv_prefight_html(array $u, array $exp, array $c): string
         if ($p['on'] && $p['out'] === '') { $n++; $deck .= pfv_pc($p, $auto ? ['cls' => 'fixed lock', 'a' => 'info', 'd' => pfv_desc($p, 'locked (Auto deck)')] : ['a' => $p['gear'] ? 'info' : 'tog', 'd' => pfv_desc($p, $p['gear'] ? 'gear: change it in the box' : ''), 'x' => ' data-on="1"']); }
         elseif (!$p['gear'] && !$auto) $bench .= pfv_pc($p, ['a' => 'tog', 'd' => pfv_desc($p, $p['out'] !== '' ? 'over the rarity cap' : ''), 'x' => ' data-on="' . ($p['on'] ? '1' : '0') . '"', 'cls' => $p['out'] !== '' ? 'out' : '']);
     }
-    $h = '<div class="box pfv" id="pfv-pre"><div class="pfv-scroll">' . pfv_foe_card($c, $region);
+    $F = pfv_foe_parts($c, $region);
+    $hp = max(1, (int)$exp['hp']); $mx = max(1, (int)$exp['max_hp']);
     $go = '<div class="actrow pfv-act"><a class="btn ghost" href="' . e(url('puzzlebox.php')) . '">🧩 Box</a><form method="post" class="grow pfv-gof">' . csrf_field() . '<input type="hidden" name="do" value="pfv_go"><button class="btn primary" id="pfv-go">⚔️ Let’s fight</button></form></div>';
-    if ($auto) {   // 2.6.75: Auto deck on: the creature, one strip, Let's fight; the read-only deck waits in a fold under the button
-        $h .= '<div class="pinfo pfv-autostrip" id="pfv-info" aria-live="polite" data-hint="Auto deck is active."><span><b>Auto deck is active:</b> ' . $n . ' pieces · ❤️ ' . max(1, (int)$exp['hp']) . '/' . (int)$exp['max_hp'] . '</span>'
+    $me = '<div class="pfb2-side pfb2-me"><div class="pfb2-pic">' . gnome_avatar_pals($u, 64) . '</div><div class="pfb2-nm"><small>You</small><b>' . e(gnome_name($u)) . '</b></div>'
+        . '<div class="pfb2-meter"><span>Health <b>' . $hp . '/' . $mx . '</b></span><span class="pfb2-bar hp" role="img" aria-label="Health ' . $hp . ' of ' . $mx . '"><i data-w="' . (int)pf_round(100 * $hp / $mx) . '"></i></span></div>'
+        . '<p class="pfb2-sub">' . $n . ' piece' . ($n === 1 ? '' : 's') . ' packed' . ($auto ? ' · Auto deck' : '') . '</p></div>';
+    $foe = '<div class="pfb2-side pfb2-foe"><div class="pfb2-pic">' . $F['img'] . '</div><div class="pfb2-nm"><small>lv ' . (int)$F['lv'] . '</small><b>' . e($F['name']) . '</b></div>'
+        . '<div class="pfb2-meter"><span>Yield bar <b>empty</b></span><span class="pfb2-bar yd" role="img" aria-label="Yield bar: empty. Hurt and charm fill it"><i data-w="0"></i></span></div>'
+        . '<div class="chips small pfb2-chips">' . $F['chips'] . '</div></div>';
+    $vs = '<div class="pfb2-vs">' . $me . '<div class="pfb2-vsmark" aria-hidden="true">VS</div>' . $foe . '</div>';
+    $tabs = '<div class="pfb2-tabs" role="tablist" aria-label="Before the fight">'
+        . '<button type="button" role="tab" id="pfb2-t0" aria-selected="true" aria-controls="pfb2-p0" data-pfb2-tab="0">Your deck</button>'
+        . '<button type="button" role="tab" id="pfb2-t1" aria-selected="false" aria-controls="pfb2-p1" data-pfb2-tab="1">Its pieces <small>' . (int)$F['n'] . '</small></button>'
+        . '<button type="button" role="tab" id="pfb2-t2" aria-selected="false" aria-controls="pfb2-p2" data-pfb2-tab="2">Rules</button></div>';
+    // pane 0: your deck
+    if ($auto) {
+        $p0 = '<div class="pinfo pfv-autostrip" id="pfv-info" aria-live="polite" data-hint="Auto deck is active."><span><b>Auto deck is active:</b> ' . $n . ' pieces · ❤️ ' . $hp . '/' . $mx . '</span>'
             . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="pfd_auto"><input type="hidden" name="on" value="0"><button class="btn ghost">Turn off and edit</button></form></div>'
-            . '</div>' . $go
-            . '<details class="pfv-deckfold" id="pfv-deckfold"><summary>Show deck <span>' . $n . ' pieces, read-only</span></summary>' . pfv_deckbar($d, true) . '<ul class="pcg c5">' . $deck . '</ul></details>';
+            . '<div class="sl">Your deck <span>' . $n . ' pieces, locked</span></div>' . pfv_deckbar($d, true) . '<ul class="pcg c5">' . $deck . '</ul>';
     } else {
-        $h .= '<div class="sl">Your deck <span>' . $n . ' pieces · ❤️ ' . max(1, (int)$exp['hp']) . '/' . (int)$exp['max_hp'] . '</span></div>' . pfv_deckbar($d, true) . '<ul class="pcg c5">' . $deck . '</ul>'
+        $p0 = '<div class="sl">Packed <span>' . $n . ' pieces · tap one to take it out</span></div>' . pfv_deckbar($d, true) . '<ul class="pcg c5">' . $deck . '</ul>'
             . '<div class="sl">Bench <span>tap to add</span></div><ul class="pcg c5">' . ($bench ?: pfv_slot('none')) . '</ul>'
             . '<div class="pinfo" id="pfv-info" aria-live="polite" data-hint="Tap a deck piece to take it out, a bench piece to add it.">' . ($d['err'] !== null ? '<span><b>' . e((string)$d['err']) . '</b> Until then the standard kit plays.</span>' : '<span>Tap a deck piece to take it out, a bench piece to add it. Nothing changes once the fight starts.</span>') . '</div>'
-            . pfv_auto_html(false) . '</div>' . $go;
+            . pfv_auto_html(false);
     }
+    // pane 1: its pieces; pane 2: the rules in four lines
+    $p1 = '<div class="sl">Its pieces <span>each plays up to ' . PFB_FOE_FIRES . ' times</span></div><div class="tally" role="img" aria-label="' . (int)$F['n'] . ' pieces in layers">' . $F['tally'] . '</div><ul class="pcg c5" data-pico="' . e(url('assets/img/pfight/pieces/')) . '">' . $F['cells'] . '</ul>'
+        . '<div class="pinfo" id="pfv-cinfo" aria-live="polite"><span>Tap one of its pieces to see what it does.</span></div>';
+    $p2 = '<div class="sl">How the fight works</div><ul class="pfb2-rules"><li>Take turns placing pieces. Edges that fit make a chain, and the chain fires.</li><li>Hurt and charm fill its Yield bar. Full bar wins; more charm than hurt wins it over.</li><li>Its guard soaks your hits first. Weather pieces change what a chain does.</li><li>Your deck is locked once the fight starts.</li></ul>' . $F['rule']
+        . '<p class="pfb2-more"><button type="button" class="btn ghost" data-pfintro="1">Full guide</button></p>';
+    $h = '<div class="box pfv pfb2" id="pfv-pre"><div class="pfb2-in">' . $vs . $tabs
+        . '<section class="pfb2-pane pfb2-p0 on" id="pfb2-p0" role="tabpanel" aria-labelledby="pfb2-t0" data-pane="0">' . $p0 . '</section>'
+        . '<section class="pfb2-pane pfb2-p1" id="pfb2-p1" role="tabpanel" aria-labelledby="pfb2-t1" data-pane="1">' . $p1 . '</section>'
+        . '<section class="pfb2-pane pfb2-p2" id="pfb2-p2" role="tabpanel" aria-labelledby="pfb2-t2" data-pane="2">' . $p2 . '</section>'
+        . $go . '</div>';
     return $h . pfv_form() . '</div>' . pfv_assets();
 }
 
@@ -592,12 +646,15 @@ function pfv_result_html(array $r, string $actions = ''): string
     }
     $broke = (bool)array_filter((array)$r['wear'], fn($x) => $x['broke']);
     $hp = max(0, (int)$r['hp']); $max = max(1, (int)$r['max']);
-    return '<div class="box res pfv" id="pfv-res"><span class="resbadge badge-' . $T[0] . '">' . ($T[0] === 'lose' ? 'lost' : $T[0]) . '</span><h2>' . $T[1] . '</h2><div class="pic">' . $img . '</div><p class="big">' . $T[2] . '</p>'
-        . '<div class="rows"><div class="row"><b>You</b><span class="gvbar"><i data-w="' . (int)pf_round(100 * $hp / $max) . '"></i><span>' . $hp . '/' . $max . '</span></span></div>'
-        . '<div class="row"><b>Fight</b><span>' . (int)$r['turns'] . ' turn' . ((int)$r['turns'] === 1 ? '' : 's') . '</span></div></div>'
+    $turns = (int)$r['turns']; $pct = (int)pf_round(100 * $hp / $max); $nw = count((array)$r['wear']);
+    $tone = $T[0] === 'lose' ? 'lose' : $T[0];   // win | charm | lose
+    return '<div class="box res pfv pfb2r k-' . $tone . '" id="pfv-res"><div class="pfb2r-in">'
+        . '<header class="pfb2r-hero"><span class="resbadge badge-' . $T[0] . '">' . ($T[0] === 'lose' ? 'lost' : $T[0]) . '</span><div class="pic">' . $img . '</div><h2>' . $T[1] . '</h2><p class="big">' . $T[2] . '</p></header>'
+        . '<div class="pfb2r-body"><div class="pfb2r-stats"><div class="rows"><div class="row"><b>You</b><span class="gvbar"><i data-w="' . $pct . '"></i><span>' . $hp . '/' . $max . '</span></span></div></div>'
+        . '<div class="pfb2r-tiles"><div class="st"><b>' . $turns . '</b><span>turn' . ($turns === 1 ? '' : 's') . '</span></div><div class="st"><b>' . $hp . '/' . $max . '</b><span>health left</span></div><div class="st' . ($broke ? ' warn' : '') . '"><b>' . ($broke ? 'Broke' : $nw) . '</b><span>' . ($broke ? 'a tool' : 'tool' . ($nw === 1 ? '' : 's') . ' worn') . '</span></div></div></div>'
         . (!empty($r['recap']) ? '<p class="hint pfv-recap" id="pfv-recap">' . e((string)$r['recap']) . '</p>' : '')   // 2.7.01 defeat recap: where your health went
         . '<div class="sl">Tool wear <span>' . PFB_TOOL_WEAR . ' durability each time its piece is played</span></div>' . ($w !== '' ? '<ul class="tools">' . $w . '</ul>' : '<p class="hint">No tool piece was played.</p>')
-        . '<div class="actrow"><a class="btn' . ($broke ? ' gold' : ' ghost') . '" href="' . e(url('puzzlebox.php?t=belt')) . '">' . ($broke ? '🔧 Fix in the box' : '🧩 Puzzle box') . '</a>' . $actions . '</div></div>';
+        . '<div class="actrow"><a class="btn' . ($broke ? ' gold' : ' ghost') . '" href="' . e(url('puzzlebox.php?t=belt')) . '">' . ($broke ? '🔧 Fix in the box' : '🧩 Puzzle box') . '</a>' . $actions . '</div></div></div></div>';
 }
 
 /** The summary of a fight that just ended (kept in the session by pfight_do for a loss, a run or a stall: the encounter is gone by the next page). Shown once. */
