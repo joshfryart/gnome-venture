@@ -1,4 +1,4 @@
-# Puzzle combat: every animation time and wait, in seconds (2.8.80)
+# Puzzle combat: every animation time and wait, in seconds (2.8.81)
 
 Source: `tools/pfboardv1_part.js` (+ `tools/build_pfboardv1.py`) -> `game/assets/pfboardv1.js`; `game/assets/pfv1.css`, `pfight.css`, `pfanim.js`, `pfstage.js/css`.
 Speed button: 1x, 1.25x, 2x, Skip (`SPD` = 1 / 1.25 / 2 / 0).
@@ -16,7 +16,7 @@ Code: `T1(ms at 1x, ms at 2x)` in `tools/pfboardv1_part.js`. RF = squeeze factor
 | board puts a piece out for the creature (last step) | 1.35 x RF | 1.08 | 0.95 |
 | expired pieces leave after the replay | 1.35 x RF | 1.08 | 0.80 |
 | replay cap (all steps; the banner wait and first wait count as fixed) | 16.92 | 13.54 | 8.46 |
-| "Your turn" banner (taps work while it shows since 2.8.80) | 2.35 | 1.88 | 1.45 |
+| "Your turn" banner (taps work while it shows since 2.8.81) | 2.35 | 1.88 | 1.45 |
 | ... its CSS animation | 2.30 | 1.83 | 1.40 |
 Skip: no replay, no banner.
 Measured, one medium-board turn from End turn to the last step: 6.7 s at 1x, 5.4 s at 1.25x, 4.7 s at 2x.

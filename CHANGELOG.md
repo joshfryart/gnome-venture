@@ -1,9 +1,11 @@
 # Changelog
 
-## 2.8.80
-- **Stray pink dots on big boards fixed:** the Knot of Twine pieces' "any" holes had a 1 px rim in the three strand colours (red, violet, gold); on a desktop-size board it read as pink specks around the notches. The rim is plain ink now (`pfparts47.js`). The twine knob keeps its strands.
+## 2.8.81
 - **Replay times set for 1x (Josh):** first wait 0.13 s, piece step 1.35 s, creature banner wait 1.15 s, use-up step 1.35 s, expired pieces leave 1.35 s, "Your turn" banner 2.35 s, replay cap 16.9 s. 2x keeps its old times; 1.25x is the 1x time / 1.25 (`T1()` in `tools/pfboardv1_part.js`). A medium-board turn replays in about 6.7 s at 1x, 5.4 s at 1.25x, 4.7 s at 2x.
 - **Taps work during the "Your turn" banner (Josh):** the hand and board no longer ignore taps while the banner shows (2.7.06 held input for 1.45 s; at 1x that was 2.35 s), and the banner lets taps through (`pfight.css`).
+
+## 2.8.80
+- **Stray pink dots on big boards fixed:** the Knot of Twine pieces' "any" holes had a 1 px rim in the three strand colours (red, violet, gold); on a desktop-size board it read as pink specks around the notches. The rim is plain ink now (`pfparts47.js`). The twine knob keeps its strands.
 - **Puzzle combat timings:** every animation time and wait, in seconds, at 1x / 1.25x / 2x: `claude/puzzle-combat-timings.md`.
 
 ## 2.8.79
