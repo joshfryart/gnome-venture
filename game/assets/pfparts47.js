@@ -224,6 +224,7 @@
       for (y = r[1]; y < r[3]; y++) for (x = r[0]; x < r[2]; x++) {
         var p = (y * W + x) * 4; if (!sk[p + 3]) continue;
         if (sk[p] === E[0] && sk[p + 1] === E[1] && sk[p + 2] === E[2]) d[p + 3] = 0;   // the hole: a real cut-out
+        else if (any && k === 1) { d[p] = 42; d[p + 1] = 26; d[p + 2] = 16; d[p + 3] = 255; }   // 2.8.79: the any-hole's 1 px rim in the three strand colours showed as stray pink dots at the notch on a big (desktop) board: the rim is plain ink now
         else { d[p] = sk[p]; d[p + 1] = sk[p + 1]; d[p + 2] = sk[p + 2]; d[p + 3] = 255; }
       }
     });

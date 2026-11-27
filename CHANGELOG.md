@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.80
+- **Stray pink dots on big boards fixed:** the Knot of Twine pieces' "any" holes had a 1 px rim in the three strand colours (red, violet, gold); on a desktop-size board it read as pink specks around the notches. The rim is plain ink now (`pfparts47.js`). The twine knob keeps its strands.
+- **Puzzle combat timings:** every animation time and wait, in seconds, at 1x / 1.25x / 2x: `claude/puzzle-combat-timings.md`.
+
 ## 2.8.79
 - **Puzzle fight speed: new 1.25x.** The speed button now goes 1x, 1.25x, 2x, Skip (and the help sheet lists all four). 1.25x is a quarter faster than 1x (measured: a medium-board turn replays in about 9.2 s at 1x, 7.4 s at 1.25x, 4.7 s at 2x). Saved per device like before (`pfvspd`). Source: `tools/pfboardv1_part.js`.
 
