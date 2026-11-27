@@ -299,7 +299,8 @@
 .pf-play li.foe { color: #f0a58a; }
 #pf-skip { font-size: .7rem; padding: .2rem .6rem; min-height: 0; }
 .pf-playing .pf-hand, .pf-playing .pf-held { pointer-events: none; opacity: .6; }
-.pf-turnhold .pf-hand, .pf-turnhold .pf-held, .pf-turnhold .pf-board, .pf-turnhold .pfb-board { pointer-events: none; }   /* 2.7.06: input is held while the "Your turn" banner shows (1.45 s) */
+/* 2.8.80 (Josh): the hand and board take taps while the "Your turn" banner shows (2.7.06 held input for 1.45 s; at 1x that became 2.35 s). The banner itself lets taps through. */
+.pf-turn { pointer-events: none; }
 .pfb-tap { cursor: pointer; }
 .pfb-tap:focus-visible { outline: 3px solid Highlight; outline-offset: 1px; }
 .pfb-cell.pfb-scoring { z-index: 8; animation: pfb-score .5s ease-out; }

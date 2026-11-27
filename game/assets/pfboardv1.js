@@ -1409,7 +1409,6 @@
     turnEl.style.animationDuration = ((T1(ban1, banMs) - 50) / 1000) + 's';
     turnEl.style.top = Math.max(4, boardEl.offsetTop + boardEl.offsetHeight / 2 - 18) + 'px';
     void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
-    root.classList.toggle('pf-turnhold', who === 'me');   // 2.7.06 (Josh): the hand and board ignore taps while "Your turn" shows
     turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; root.classList.remove('pf-turnhold'); }, T1(ban1, banMs));
   }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
