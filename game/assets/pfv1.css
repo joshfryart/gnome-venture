@@ -1139,45 +1139,70 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 }
 @media (max-height: 520px) { .pfb2r-hero .pic { width: 72px; height: 54px; } .pfb2r-hero .pic img { max-width: 64px; max-height: 46px; } .pfb2r-hero h2 { font-size: 19px; } .pfb2r-hero { padding: 10px; gap: 3px; } }
 
-/* ============ 2.8.78 thumb rails: the fight on a phone held sideways (landscape, under 600 px high, at least 560 wide) ============
-   Left edge: your hand, one piece per fifth of the height. Middle: the board. Right edge: bars, whose turn, the weather, the last plays, the tapped piece, then the buttons at the foot.
-   The three columns are one block at most 1080 px wide, centred, so a bigger window (932 x 430) keeps hand and board together in the middle. Sizes: assets/pfboardv1.js fitRails().
-   (Desktop, from 1000 x 600, keeps its own layout; the dock's old two-column landscape rule in dock.css is overridden here.) */
+/* ============ 2.8.78 thumb rails (sideways phone) and the calmer right edge (sideways phone and desktop) ============
+   Sideways phone (landscape, under 600 px high, at least 560 wide): left edge your hand, middle the board, right edge the bars. Sizes: assets/pfboardv1.js fitRails().
+   The three columns are one block at most 1080 px wide, centred, so a bigger window keeps hand and board together in the middle.
+   The right edge, top to bottom, on the sideways phone AND on a desktop window (from 1000 x 600): the creature and your bars, one status line (turn, chain dots, aim, status),
+   then TWO columns: the history (a list that scrolls, newest at the top) and the environment (its chip, the pieces it has coming, help, speed, the piles),
+   then the tapped piece's card, then the buttons: Undo, End turn and Flip in one row, Box, Hint and Run under them. */
 @media (orientation: landscape) and (max-height: 599px) and (min-width: 560px) {
-  html body #pfight.pf-v1.pfv-fit { width: min(100vw, 1080px); display: grid; grid-template-columns: var(--pfr-hand, 84px) var(--pfr-board, minmax(0, 1fr)) clamp(250px, 34vw, 330px); grid-template-rows: repeat(8, auto) minmax(0, 1fr) auto; grid-auto-flow: row; column-gap: 10px; row-gap: 0; align-content: stretch; justify-content: center; padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)); }
-  html body #pfight.pf-v1.pfv-fit > * { grid-column: 3; margin: 0 0 2px; min-width: 0; }
+  html body #pfight.pf-v1.pfv-fit { --pc1: 3; width: min(100vw, 1080px); display: grid; grid-template-columns: var(--pfr-hand, 84px) var(--pfr-board, minmax(0, 1fr)) clamp(125px, 17vw, 165px) clamp(125px, 17vw, 165px); grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; grid-auto-flow: row; column-gap: 10px; row-gap: 0; align-content: stretch; justify-content: center; padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)); }
   html body #pfight.pf-v1.pfv-fit > :is(.pfv-bwrap, .pfb-board) { grid-column: 2; grid-row: 1 / -1; align-self: stretch; justify-self: stretch; margin: 0; min-height: 0; display: grid; place-items: center; }
   html body #pfight.pf-v1.pfv-fit > .pf-tray { grid-column: 1; grid-row: 1 / -1; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
   html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand { flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 6px; padding: 0; overflow: visible; }
   html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand .pf-tile { margin: 0; flex: none; }
   html body #pfight.pf-v1.pfv-fit .pf-tray > :not(.pf-hand) { display: none; }
-  /* the right edge, top to bottom */
-  html body #pfight.pf-v1.pfv-fit > .pfc-top { order: 1; }
-  html body #pfight.pf-v1.pfv-fit > .pfv-guide { display: none; }   /* the tip line: the tapped piece's card says it */
-  html body #pfight.pf-v1.pfv-fit > .pfv-row { order: 3; flex-wrap: nowrap; overflow: hidden; min-height: 24px; max-height: 26px; }
-  html body #pfight.pf-v1.pfv-fit > .pfv-legend { order: 4; display: flex; flex-wrap: nowrap; overflow: hidden; min-height: 26px; gap: 3px; }
-  html body #pfight.pf-v1.pfv-fit > .pfc-histrow { order: 5; }
-  html body #pfight.pf-v1.pfv-fit > .pfv-dock, html body #pfight.pf-v1.pfv-fit > .pfv-pair { order: 6; }
-  html body #pfight.pf-v1.pfv-fit > .pf-form { order: 99; margin: 0; }
-  html body #pfight.pf-v1.pfv-fit > .pf-rewind { order: 7; }
-  html body #pfight.pf-v1.pfv-fit > .pf-preview, html body #pfight.pf-v1.pfv-fit > .pf-preview-x { display: none; }
-  html body #pfight.pf-v1.pfv-fit > .pf-plan { order: 8; }
-  html body #pfight.pf-v1.pfv-fit > .pf-buttons { grid-row: 10; align-self: end; margin-bottom: 0; display: flex; flex-wrap: wrap; gap: 4px; }
-  html body #pfight.pf-v1.pfv-fit > .pf-buttons #pf-go { flex: 2 1 96px; order: -1; min-height: 44px; }
-  html body #pfight.pf-v1.pfv-fit > .pf-buttons .btn { flex: 1 1 0; min-height: 44px; }
-  html body #pfight.pf-v1.pfv-fit > .pf-extra { order: 9; }
-  /* 2.8.78: less busy (Josh: "too busy"): one status line, one weather line, no Next strip (the Environment chip opens it), no class-rule or tool-wear chips here */
-  html body #pfight.pf-v1.pfv-fit > .pfv-pair { display: none; }
-  html body #pfight.pf-v1.pfv-fit .pfv-row .tg.kind, html body #pfight.pf-v1.pfv-fit .pfv-row .tg.wear { display: none; }
-  html body #pfight.pf-v1.pfv-fit .pfv-row .tg.aim { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  html body #pfight.pf-v1.pfv-fit :is(.pfv-row, .pfv-legend) .tg { min-height: 26px; height: 26px; padding: 0 6px; font-size: 11px; }
-  html body #pfight.pf-v1.pfv-fit .pfv-legend { flex-wrap: nowrap; overflow: hidden; gap: 3px; }
-  html body #pfight.pf-v1.pfv-fit .pfv-legend .el { display: none; }
-  html body #pfight.pf-v1.pfv-fit .pfv-legend .es { display: none; }   /* the Environment chip is its icon alone: the weather chips need the room */
-  html body #pfight.pf-v1.pfv-fit .pfv-legend .tg { flex: 0 1 auto; min-width: 0; }
-  html body #pfight.pf-v1.pfv-fit .pfv-legend .tg.envp .fn { display: none; }
-  html body #pfight.pf-v1.pfv-fit .pfv-legend .tg svg { width: 16px; height: 16px; }
-  html body #pfight.pf-v1.pfv-fit .pfc-top { padding: 2px 4px; }
-  html body #pfight.pf-v1.pfv-fit .pfv-guide { max-height: 40px; overflow: hidden; font-size: 12px; line-height: 1.2; min-height: 0; padding-block: 2px; }
-  html body #pfight.pf-v1.pfv-fit .pfv-dock { height: var(--pfv-dock, 46px); }
+}
+@media (min-width: 1000px) and (min-height: 600px) {
+  html body.game #pfight.pf-v1.pf-v1 { --pc1: 2; grid-template-columns: minmax(0, 1fr) clamp(170px, 15.5vw, 260px) clamp(170px, 15.5vw, 260px); grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto; }
+  html body.game #pfight.pf-v1.pf-v1 > :is(.pfv-bwrap, .pfb-board) { grid-row: 1 / 7; }
+  html body.game #pfight.pf-v1.pf-v1 > .pf-tray { grid-column: 1; grid-row: 7; }
+}
+@media (orientation: landscape) and (max-height: 599px) and (min-width: 560px), (min-width: 1000px) and (min-height: 600px) {
+  html body #pfight.pf-v1.pf-v1.pf-v1 > :where(:not(.pfv-bwrap, .pfb-board, .pf-tray)) { grid-column: var(--pc1) / span 2; margin: 0 0 3px; min-width: 0; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfc-top { grid-row: 1; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-guide { display: none; }   /* the tip line: the tapped piece's card says it */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-row { grid-row: 2; display: flex; flex-wrap: nowrap; overflow: hidden; min-height: 26px; max-height: 28px; gap: 3px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg.kind, html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg.wear { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg.aim { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg { min-height: 26px; height: 26px; padding: 0 6px; font-size: 11px; }
+  /* the history: its own column, a list that scrolls, the newest chip at the top (the server writes it newest first) */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfc-histrow { display: contents; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pf-hist { grid-column: var(--pc1); grid-row: 3 / 5; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 3px; margin: 0 0 3px; padding: 0 2px 0 0; overflow-x: hidden; overflow-y: auto; min-height: 0; list-style: none; scrollbar-width: thin; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pf-hist .pf-chip { flex: none; min-height: 30px; height: auto; max-width: none; width: 100%; white-space: normal; overflow: hidden; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pf-hist .pfh-txt { display: inline; overflow-wrap: anywhere; }
+  /* the environment: its own column */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-legend { grid-column: calc(var(--pc1) + 1); grid-row: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 4px; overflow-x: hidden; overflow-y: auto; min-height: 0; margin: 0 0 3px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg { flex: 1 1 100%; min-height: 32px; height: auto; justify-content: flex-start; padding: 2px 8px; font-size: 12px; min-width: 0; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.qm, html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.spd { flex: 1 1 40%; justify-content: center; min-height: 36px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .el { display: inline; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .es { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg svg { width: 18px; height: 18px; flex: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pfc-piles { grid-column: calc(var(--pc1) + 1); grid-row: 4; display: flex; justify-content: space-around; align-items: center; gap: 6px; margin: 0 0 3px; padding: 2px 4px; background: rgba(0, 0, 0, .22); border: 1px solid rgba(232, 163, 23, .35); }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > #pf-skip { grid-column: calc(var(--pc1) + 1); grid-row: 4; min-height: 36px; margin: 0 0 3px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1.pf-playing .pfc-piles { display: none; }
+  /* the tapped piece's card (the dock) and the rewind panel share a row; the rewind replaces the card */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-pair { grid-row: 5; display: block; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-rewind { grid-row: 5; }
+  html body #pfight.pf-v1.pf-v1.pf-v1.pf-rewound > .pfv-pair { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-pair:not(:has(#pf-inspect:not([hidden]))) { display: none; }   /* idle, the card only repeated the history: the room goes to the lists */
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.envlab { order: 1; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.qm { order: 2; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.spd { order: 3; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.envp { order: 4; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview, html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview-x { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-plan { grid-row: 5; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > :is(.pf-form, .pf-extra, .pf-data) { display: none; }
+  /* the buttons: Undo, End turn (wide), Flip in the first row; Box, Hint, Run under them, all 44 px or more */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons { grid-row: 6 / 8; align-self: end; margin: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > * { min-height: 44px; margin: 0; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-undo { grid-column: 1 / span 3; grid-row: 1; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-go { grid-column: 4 / span 6; grid-row: 1; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-flip { grid-column: 10 / span 3; grid-row: 1; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-box { grid-column: 1 / span 4; grid-row: 2; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint { grid-column: 5 / span 4; grid-row: 2; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf { grid-column: 9 / span 4; grid-row: 2; display: flex; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf .btn { flex: 1; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .btn { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 6px; width: auto; max-width: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-box::after { content: 'Box'; font-size: 12px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint::after { content: 'Hint'; font-size: 12px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf .btn::after { content: 'Run'; font-size: 12px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-top { padding: 2px 4px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-pair .pfv-dock { height: var(--pfv-dock, 52px); }
 }
