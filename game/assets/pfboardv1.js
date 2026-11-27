@@ -1355,7 +1355,7 @@
     if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g); setFoeGuard(c.dataset.fg);
     var rt = c.querySelector('.pfh-txt'); if (rwT) rwT.textContent = 'Rewound to: ' + (c.classList.contains('foe') ? (data.foe || 'Creature') : 'You') + ', ' + (rt ? rt.textContent : 'a move') + '.';
     var rd = document.getElementById('pf-rw-d');
-    if (rd) {   // 2.8.78: what the replay said at that step, not just the board
+    if (rd) {
       rd.textContent = '';
       var addD = function (cls, txt) { var d = document.createElement('div'); d.className = cls; if (txt) d.textContent = txt; rd.appendChild(d); return d; };
       if (c.dataset.ln) addD('rw-ln', c.dataset.ln);
