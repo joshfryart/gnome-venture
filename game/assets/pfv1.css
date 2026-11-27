@@ -1018,3 +1018,12 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 :root:not([data-theme="dark"]) #pfv-pre.pfv .foecard h3 small { color: var(--muted); }
 :root:not([data-theme="dark"]) #pfv-pre.pfv .foerule { color: var(--purple-ink); }
 :root:not([data-theme="dark"]) #pfv-pre.pfv .foerule b { color: var(--ink); }
+
+/* 2.8.78 rewind detail: the panel under the history bar says what the replay said (line, piece, numbers, what the piece does) */
+.pf-rewind { flex-wrap: wrap; }
+.pf-rewind .pf-rw-d { flex: 1 0 100%; display: grid; gap: 4px; font-weight: 500; line-height: 1.35; }
+.pf-rewind .pf-rw-d:empty { display: none; }
+.pf-rw-d .rw-ln { font-weight: 700; font-size: .82rem; }
+.pf-rw-d .rw-st { display: flex; flex-wrap: wrap; gap: 4px; }
+.pf-rw-d .rw-st span { background: rgba(42, 26, 16, .14); padding: 1px 6px; font-size: .74rem; white-space: nowrap; }
+.pf-rw-d .rw-pc { font-size: .76rem; }

@@ -25,7 +25,9 @@ dialog.trailpop.pfst.pfst-fade .pickbox { animation: pfstfade .4s ease-out both;
 @keyframes pfstfade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { dialog.trailpop.pfst.pfst-fade .pickbox { animation: none; } }
 /* the jigsaw layer: under the card, over the map; the ghost of the old card and the second set of pieces (Let's fight) are over everything and let taps through */
-.pfst-layer, .pfst-ghost, .pfst-top { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.pfst-ghost { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+/* 2.8.78: the jigsaw veils cover the whole window (fixed), not the card's box */
+.pfst-layer, .pfst-top { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
 .pfst-layer { z-index: 0; }
 .pfst-ghost { z-index: 3; }
 .pfst-top { z-index: 4; }
@@ -33,7 +35,7 @@ dialog.trailpop.pfst.pfst-fade .pickbox { animation: pfstfade .4s ease-out both;
 dialog.trailpop.pfst.pfst-wait .pickbox { visibility: hidden; }
 .pfst-layer svg { position: absolute; overflow: visible; will-change: transform; }
 /* the cover for the way out (End match): a manual popover, so it sits above the modal dialog in the top layer */
-.pfst-cover { position: absolute; inset: auto; left: var(--pfx, 0px); top: var(--pfy, 0px); width: var(--pfw, 0px); height: var(--pfh, 0px); margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; pointer-events: auto; }
+.pfst-cover { position: fixed; inset: 0; width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; pointer-events: auto; }
 .pfst-cover svg { position: absolute; overflow: visible; will-change: transform; }
 /* 2.8.44, a desktop-size window (the same test as pfstage.js desk(): at least 1000 x 600): the fight is not tied to the map's box. pfstage.js gives the dialog one fixed box for the
    pre-fight card, the combat and the result card: the visible window less a gutter, centred. The page behind is dimmed and does not scroll; the cards inside keep a readable width. */

@@ -137,14 +137,18 @@
     var diag = Math.hypot(b.w, b.h), k = Math.max(1, Math.min(1.35, Math.sqrt(diag / 900))), span = Math.max(1, n);
     return { dist: function () { return diag * (0.16 + Math.random() * 0.08); }, dur: k, step: function (p, inward) { return (p.c + p.r) / span * (inward ? 340 : 300); } };
   }
+  /* 2.8.78: the jigsaw is a full-window veil on every screen size (it used to be the map's / desktop card's box and left the rest of a desktop window bare), and it fades with the pieces */
+  function fullBox() { return { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight, fixed: true }; }
   function fly(pcs, inward, b) {
-    var mx = 0; pcs.forEach(function (p) { mx = Math.max(mx, p.c + p.r); });
+    b = fullBox();
+    var host = pcs[0] && pcs[0].svg.parentNode, mx = 0; pcs.forEach(function (p) { mx = Math.max(mx, p.c + p.r); });
     var mo = motion(b, mx);
     var anims = pcs.map(function (p) {
       var dist = mo.dist(), off = 'translate(' + (p.vx * dist) + 'px,' + (p.vy * dist) + 'px) rotate(' + (Math.random() * 100 - 50) + 'deg) scale(.7)';
       var kf = inward ? [{ transform: off, opacity: 0 }, { opacity: 1, offset: 0.3 }, { transform: 'none', opacity: 1 }] : [{ transform: 'none', opacity: 1 }, { transform: off, opacity: 0 }];
       return p.svg.animate(kf, { duration: Math.round((inward ? 430 : 420) * mo.dur), delay: Math.round(mo.step(p, inward)), easing: inward ? 'cubic-bezier(.3,1.3,.5,1)' : 'cubic-bezier(.6,0,.9,.5)', fill: 'both' });
     });
+    if (host && host.animate) { var tot = Math.round(430 * mo.dur) + 400; host.animate(inward ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 1, offset: 0.55 }, { opacity: 0 }], { duration: inward ? 300 : tot + 260, easing: 'ease-out', fill: 'both' }); }
     return Promise.all(anims.map(function (a) { return a.finished; }));
   }
 
@@ -152,7 +156,7 @@
   function mkLayer(d, b) {
     dropLayer();
     layer = document.createElement('div'); layer.className = 'pfst-layer'; layer.setAttribute('aria-hidden', 'true');
-    var g = grid(b); pieces = jig(b.w, b.h, g[0], g[1], icoOf(b));
+    b = fullBox(); var g = grid(b); pieces = jig(b.w, b.h, g[0], g[1], icoOf(b));
     pieces.forEach(function (p) { layer.appendChild(p.svg); });
     d.insertBefore(layer, d.firstChild);
   }
@@ -224,7 +228,7 @@
   function mkCover(b) {
     dropCover();
     cover = document.createElement('div'); cover.className = 'pfst-cover'; cover.setAttribute('popover', 'manual'); cover.setAttribute('aria-hidden', 'true'); setBox(cover, b);
-    var g = grid(b); cpieces = jig(b.w, b.h, g[0], g[1], icoOf(b)); cpieces.forEach(function (p) { cover.appendChild(p.svg); });
+    b = fullBox(); var g = grid(b); cpieces = jig(b.w, b.h, g[0], g[1], icoOf(b)); cpieces.forEach(function (p) { cover.appendChild(p.svg); });
     document.body.appendChild(cover); cover.showPopover();
   }
   function dropCover() { if (cover) { try { cover.hidePopover(); } catch (e) {} if (cover.parentNode) cover.parentNode.removeChild(cover); } cover = null; cpieces = null; coverUp = false; }
@@ -279,7 +283,7 @@
       var cl = pre.cloneNode(true); cl.removeAttribute('id'); Array.prototype.forEach.call(cl.querySelectorAll('[id]'), function (e) { e.removeAttribute('id'); }); Array.prototype.forEach.call(cl.querySelectorAll('form, script'), function (e) { e.parentNode.removeChild(e); });
       ghost.appendChild(cl); d1.appendChild(ghost);
       top = document.createElement('div'); top.className = 'pfst-top'; top.setAttribute('aria-hidden', 'true');
-      var g = grid(bx); tpieces = jig(bx.w, bx.h, g[0], g[1], icoOf(bx)); tpieces.forEach(function (q) { top.appendChild(q.svg); }); d1.appendChild(top);
+      bx = fullBox(); var g = grid(bx); tpieces = jig(bx.w, bx.h, g[0], g[1], icoOf(bx)); tpieces.forEach(function (q) { top.appendChild(q.svg); }); d1.appendChild(top);
       d1.classList.add('pfst-wait'); accepting = true; topReady = false;
       topIn = fly(tpieces, true, bx).then(function () { topReady = true; });
       ghostTimer = setTimeout(function () { dropTop(); dropLayer(); var d9 = dlg(); if (d9) { d9.classList.remove('pfst-wait'); d9.classList.add('pfst-on'); } }, 9000);   // the board never came (an error shows its own message)
