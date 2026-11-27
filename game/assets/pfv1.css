@@ -1112,7 +1112,8 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 @media (max-height: 600px) and (min-width: 640px) { html body #pfv-pre.pfb2.pfv-fit:not(dialog.pfst *) { width: 100vw; } }
 
 /* ---- the result card ---- */
-.pfv.pfb2r { padding: 0; display: block; text-align: left; overflow: hidden; }
+.pfv.pfb2r, #pfight.pf-v1.pfv-fit > .pfv.pfb2r { padding: 0; display: block; text-align: left; }   /* (the fight's own .res rules make it a grid: the card is one block with the .pfb2r-in grid inside) */
+.pfv.pfb2r { overflow: hidden; }
 .pfv.pfb2r { container: pfb2r / inline-size; }
 .pfb2r-in { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; box-sizing: border-box; }
 .pfb2r-hero { display: grid; justify-items: center; gap: 6px; padding: 16px 14px 14px; text-align: center; border-bottom: 2px dashed var(--accent, #e8a317); background: var(--surface-2, #f2e4c0); }
@@ -1151,6 +1152,9 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   html body #pfight.pf-v1.pfv-fit > .pf-tray { grid-column: 1; grid-row: 1 / -1; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
   html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand { flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 6px; padding: 0; overflow: visible; }
   html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand .pf-tile { margin: 0; flex: none; }
+  /* 2.8.80 (Josh: "end screen on horizontal mobile needs fixing"): the result card covers the whole fight panel, centred, two columns (outcome left, numbers and buttons right), the card scrolls and its buttons stay in view */
+  html body #pfight.pf-v1.pf-v1.pf-v1.pfv-fit > .pfv.res { grid-column: 1 / -1; grid-row: 1 / -1; position: absolute; inset: 6px; left: 6px; right: 6px; top: 6px; bottom: 6px; margin: auto; width: min(780px, calc(100% - 12px)); max-width: none; height: fit-content; max-height: calc(100% - 12px); overflow-y: auto; z-index: 20; }
+  html body #pfight.pf-v1.pfv-fit .pfb2r-body { padding: 8px 12px 10px; gap: 6px; } html body #pfight.pf-v1.pfv-fit .pfb2r-tiles .st { padding: 4px 3px; } html body #pfight.pf-v1.pfv-fit .pfb2r-tiles .st b { font-size: 16px; } html body #pfight.pf-v1.pfv-fit .pfb2r .toolrow { min-height: 0; padding: 3px 6px; } html body #pfight.pf-v1.pfv-fit .pfb2r .actrow { padding-bottom: 8px; }
   html body #pfight.pf-v1.pfv-fit .pf-tray > :not(.pf-hand) { display: none; }
   html body #pfight.pf-v1.pfv-fit.pf-v1.pf-v1 > .pf-preview { display: none; }   /* the tapped piece's card says it */
 }

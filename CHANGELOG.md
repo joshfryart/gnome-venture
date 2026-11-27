@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.83
+- **End screen on a sideways phone (Josh):** the result card covers the whole fight panel, centred, in two columns (outcome on the left; turns, health, tool wear and the Collect / Fix buttons on the right). It was squeezed into the right-hand column with its buttons cut off. The card is a plain block again (the fight's own `.res` rules had made it a grid that squeezed the Face-off layout, on portrait and desktop too). (`pfv1.css`)
+- **Pink dots:** not reproduced beyond the any-hole rim fixed in 2.8.80. A scan of all 1300 creature piece icons, all environment pieces and every edge type at both sizes found no stray pink in the built pieces; ask for a zoomed screenshot of the piece if it persists.
+
 ## 2.8.82
 - **Hotfix: handing in a part-family job on the Job Board died** (`Call to undefined function craft_take()` at `includes/jobs.php:397`): `deliver_job()` now loads `includes/crafting.php` itself (`/jobs.php` never did). Regression test `tests/jobs_craft_take.php` (fails on the old code, passes now).
 
