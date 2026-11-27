@@ -198,6 +198,11 @@ function visible_routes(array $u, int $locId): array
     foreach (routes_from($locId) as $r) {
         if (($r['kind'] ?? 'road') === 'side' && !on_road((int)$r['to']['id']) && !place_known((int)$u['id'], $r['to'])) continue;
         [$r['walk_min'], $r['quick']] = route_walk_minutes($u, $r);   // v0.9.7: minutes for this gnome, and whether it is a quick walk
+        $r['gate'] = '';   // 2.8.85: the Warden's words when a Seal door closes this road (the card still shows; the walk is refused with this text)
+        if (setting('seals_open') === '1' && !empty($r['to']['region_id'])) {
+            $fromRegion = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$locId]);
+            if ($fromRegion && $fromRegion !== (int)$r['to']['region_id']) { require_once __DIR__ . '/seals.php'; $r['gate'] = seal_warden_message((int)$u['id'], $fromRegion, (int)$r['to']['region_id']); }
+        }
         $out[] = $r;
     }
     return $out;

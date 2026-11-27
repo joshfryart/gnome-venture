@@ -71,6 +71,7 @@ function go_panel_html(array $u, array $node, string $here, callable $badge, arr
               <?php if (gclock_on()): ?><span class="pchip" title="Game time: <?= (int)gclock_time_cost('travel') ?> min per section">🕐 <?= e(gclock_span_text(gclock_time_cost('travel') * max(1, function_exists('trail_sections') ? trail_sections($r) : (int)$r['steps']))) ?></span><?php endif; ?>
               <?php require_once __DIR__ . '/road_kinds.php'; if ($rkc = rk_of((int)$r['id'])): ?><span class="pchip pchip--kind" title="<?= e(rk_text($rkc['kind'], $rkc['tier'])) ?>"><?= e(rk_label($rkc)) ?></span><?php endif; /* 2.7.00 road kinds */ ?>
               <?php if (!empty($r['quick'])): ?><span class="pchip">💨 <?= e(nice_time((int)$r['walk_min'] * 60)) ?></span><?php endif; ?>
+              <?php if (!empty($r['gate'])): ?><span class="pchip pchip--gate" title="<?= e($r['gate']) ?>">🛡️ Seal door</span><?php endif; /* 2.8.85: the Warden says what is missing when you try */ ?>
               <?= go_level_chip($lvl, $dMin, $dMax) ?>
             </span>
             <span class="rcard__go" aria-hidden="true">Go ›</span>

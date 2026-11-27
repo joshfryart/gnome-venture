@@ -270,6 +270,10 @@ function travel_to(array $u, int $regionId): array
     $target =q_one('SELECT * FROM regions WHERE id = ?', [$regionId]);
     if (!$target) return [false, 'There’s no such place.'];
     if ($target['gnomish_name'] === player_location($u)) return [false, 'You’re already here.'];
+    if (setting('seals_open') === '1') {   // 2.8.85: a Seal-locked door still needs the Seal (home, gardens and places already reached stay open)
+        require_once __DIR__ . '/seals.php';
+        if (($warden = seal_region_warden_message((int)$u['id'], (int)$target['id'])) !== '') return [false, $warden];
+    }
     if (!can_fast_travel($u, (int)$target['id'])) {   // v0.7.43: walk there once first
         return [false, 'You haven’t been to ' . $target['gnomish_name'] . ' yet. Walk the roads there once (recommended level ' . region_min_level((int)$target['id']) . '), then you can travel straight there any time.'];
     }

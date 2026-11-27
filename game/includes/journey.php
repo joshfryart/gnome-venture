@@ -314,6 +314,7 @@ function journey_hand_in(array $u, int $chapterId): array
         return [false, 'That stage is already done.'];
     }
     db()->commit();
+    if (setting('seals_open') === '1') { require_once __DIR__ . '/seals.php'; region_seal_check($uid, (int)$ch['region_id']); }   // 2.8.85: a stage moves the Repair row of Standing
     $nextSt = journey_status(q_one('SELECT * FROM users WHERE id = ?', [$uid]) ?: $u, $ch);   // v1.0.0: say what comes next
     $tail = $nextSt['complete'] ? ' Everything is built: finish the chapter!' : ($nextSt['next_stage'] ? ' Next: ' . preg_replace('/\s*\(.*\)$/', '', (string)$nextSt['next_stage']['label']) . '.' : '');
     return [true, $ch['project_icon'] . ' ' . preg_replace('/\s*\(.*\)$/', '', (string)$stage['label']) . ': done!' . $tail];
@@ -364,6 +365,7 @@ function journey_finish(array $u, int $chapterId): array
         $started = journey_row($uid, $nx);
         $lines[] = '🧭 Next chapter: ' . $nx['region'] . ($started ? '.' : '. Wren’s letter says how to get there.');
     }
+    if (setting('seals_open') === '1') { require_once __DIR__ . '/seals.php'; if (region_seal_check($uid, (int)$ch['region_id'])) $lines[] = '🔏 The ' . seal_area_name((int)$ch['region_id']) . ' Seal is yours!'; }   // 2.8.85
     prize('🧭', 'Chapter complete: ' . $ch['title'], 'Wren has written to you. Read the letter in your Almanac → Journey.', $lines);
     return [true, ''];
 }

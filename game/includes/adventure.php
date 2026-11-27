@@ -225,6 +225,13 @@ function start_expedition(array $u, int $routeId): array
         $dest = q_one('SELECT * FROM locations WHERE id = ?', [$to]);
         if (!$dest || (!on_road($to) && !place_known((int)$u['id'], $dest))) return [false, 'You don’t know the way there yet. Explore off the road to find it.'];
     }
+    if (setting('seals_open') === '1') {   // 2.8.85: a Seal door on the border (the way back is never closed: seals.php)
+        $toRegion = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$to]);
+        if ($toRegion && (int)($here['region_id'] ?? 0) && $toRegion !== (int)$here['region_id']) {
+            require_once __DIR__ . '/seals.php';
+            if (($warden = seal_warden_message((int)$u['id'], (int)$here['region_id'], $toRegion)) !== '') return [false, $warden];
+        }
+    }
     require_once __DIR__ . '/road_kinds.php';   // 2.7.00: ferry, tunnel, pass, toll, overgrown, flooded roads
     if (($rkWhy = rk_start_check($u, $route)) !== null) return [false, $rkWhy];
     require_once __DIR__ . '/trail_tiles.php';   // graphical navigation 2d
@@ -1344,6 +1351,10 @@ function arrive(array $u, array &$exp): void
         $rg = q_one('SELECT gnomish_name FROM regions WHERE id = ?', [$to['region_id']]);
         exp_log($exp, '🗺️ You’ve reached ' . ($rg['gnomish_name'] ?? 'a new region') . ' for the first time! You can now travel straight here from anywhere.');
         add_xp((int)$u['id'], 10 + location_min_level((int)$to['id']));
+    }
+    if ($to['region_id'] && setting('seals_open') === '1') {   // 2.8.85: Standing may have moved on the way (a new place, a page): award the area's Seal if it is due
+        require_once __DIR__ . '/seals.php';
+        if (region_seal_check((int)$u['id'], (int)$to['region_id'])) exp_log($exp, '🔏 Wren binds a new section of her Almanac: the ' . seal_area_name((int)$to['region_id']) . ' Seal is yours!');
     }
     $routeKind = (string)q_val('SELECT kind FROM routes WHERE id = ?', [$exp['route_id']]); calling_event((int)$u['id'], 'arrive', (string)$to['slug'], 1, ['kind' => (string)$to['kind']]); if ($routeKind !== '') calling_event((int)$u['id'], 'walk', $routeKind, 1, ['kind' => $routeKind]);   // v0.9.4 N1: one event per leg
     $walkXp = 2 + intdiv((int)q_val('SELECT level FROM routes WHERE id = ?', [$exp['route_id']]), 2);
