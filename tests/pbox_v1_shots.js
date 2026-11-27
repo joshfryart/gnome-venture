@@ -226,7 +226,8 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       await Promise.all([q.waitForNavigation(), q.press('input[name=password]', 'Enter')]);
       const V = (s) => `${theme} ${vp[0]}x${vp[1]}: ${s}`;
       for (const size of ['small', 'medium', 'large', 'boss']) {
-        seed('fight', size); seed('midfight', '8', '2', 'soft');
+        const sd = process.env.PFRULES === 'new' ? seedNew : seed;   // PFRULES=new: the rules a new fight has (no set-aside row, no Teamwork)
+        sd('fight', size); sd('midfight', '8', '2', 'soft');
         await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(700);
         const pct0 = await q.evaluate(() => Math.round(document.getElementById('pfb-board').getBoundingClientRect().height * 100 / innerHeight));   // before a piece is picked (picking adds the set-aside row)
         const pk = q.locator('#pf-hand .pf-tile:not(.pfv-off)'); if (await pk.count()) { await pk.first().click({ timeout: 3000 }); await q.waitForTimeout(500); }
