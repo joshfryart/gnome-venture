@@ -765,6 +765,29 @@ function home_slim_news_html(int $uid): string
 }
 
 /** The TODAY tab: Needs you, the news row; the Hollow line on the side. */
+/** 2.8.77: Wren's Journey card for the slim Today tab (the old Today had it as a card): the current chapter with its progress and next hint, or the next locked chapter. */
+function home_slim_journey_html(array $u): string
+{
+    require_once __DIR__ . '/journey.php';
+    $jc = journey_current($u);
+    if ($jc) {
+        $jst = journey_status($u, $jc);
+        $jn = count(array_filter($jst['tasks'], fn($t) => $t[3])); $jr = journey_ready($u, $jst); $jh = journey_next_hint($u, $jc, $jst);
+        $ic = (string)$jc['project_icon']; $tt = (string)$jc['region'];
+        $sm = $jn . ' of ' . count($jst['tasks']) . ' done' . ($jr === 'finish' ? ' · finish!' : ($jr === 'stage' ? ' · hand in' : ''));
+        $hint = $jh ? '👉 ' . $jh[0] : '';
+        $href = 'book.php?ch=Journey&j=' . (int)$jc['id'];
+    } else {
+        $jl = journey_next_locked($u);
+        $ic = '🧭'; $tt = $jl ? (string)$jl['region'] : 'All chapters';
+        $sm = $jl ? 'Next (level ' . (int)$jl['min_level'] . '). Starts when you walk there.' : 'Every chapter is finished.';
+        $hint = ''; $href = 'book.php?ch=Journey';
+    }
+    return '<section class="box hs-needs hs-journey" aria-labelledby="hs-jr-h"><h2 id="hs-jr-h">🧭 Wren’s Journey</h2>'
+        . '<a class="hs-wide" href="' . e(url($href)) . '"><span class="hs-ni" aria-hidden="true">' . e($ic) . '</span><span class="hs-tx"><b>' . e($tt) . '</b><small>' . e($sm) . '</small>'
+        . ($hint !== '' ? '<small class="jhint">' . e($hint) . '</small>' : '') . '</span><span class="hs-go">Your Journey →</span></a></section>';
+}
+
 function home_slim_today_html(array $u, array $needs): string
 {
     $uid = (int)$u['id'];
@@ -795,6 +818,7 @@ function home_slim_today_html(array $u, array $needs): string
     }
     if ($needs['quiet']) $h .= '<p class="hs-quiet">' . e(implode(' ', $needs['quiet'])) . '</p>';
     $h .= '</section>';
+    $h .= home_slim_journey_html($u);   // 2.8.77 (Josh): Wren's Journey is on the slim Today tab again
     $night = home_slim_overnight($u);
     if ($night['n'] > 0) {   // 2.7.17: every pal job in one box (garden crew, stations, trips and delves)
         $grp = fn(string $ic, string $lab, string $href, string $go): string => '<div class="hs-grp"><span><span aria-hidden="true">' . $ic . '</span> ' . e($lab) . '</span><a href="' . e($href) . '">' . e($go) . ' →</a></div>';

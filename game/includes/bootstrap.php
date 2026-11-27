@@ -530,7 +530,7 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             if (version_compare((string)setting('db_version'), '2.8.49', '<')) { set_setting('tea_open', 'everyone'); set_setting('gnav_garden', '1'); }   // v2.8.49 (Josh): the tea kettle is open for everyone and the Garden Yard picture flag is on (it still needs gnav_on); an admin can set either back
         });
         boot_step('flags_on_2877', function () {
-            if (version_compare((string)setting('db_version'), '2.8.77', '<')) { foreach (['sights_shared_on', 'gnav_on', 'gnav_tree', 'gnav_tiles', 'home_slim'] as $f) set_setting($f, '1'); }   // v2.8.77 (Josh): Shared Sights, picture navigation (Here, Treehouse, tile walks) and the slim Home launch for everyone once; an admin can set any back to 0 and it is kept
+            if (version_compare((string)setting('db_version'), '2.8.77', '<')) { foreach (['sights_shared_on', 'gnav_on', 'gnav_tree', 'gnav_tiles', 'home_slim', 'gnav_craft'] as $f) set_setting($f, '1'); }   // v2.8.77 (Josh): Shared Sights, picture navigation (Here, Treehouse, tile walks, the Crafting workshop) and the slim Home launch for everyone once; an admin can set any back to 0 and it is kept
         });
         boot_step('hollow_jar_2850', function () {
             if (version_compare((string)setting('db_version'), '2.8.50', '<') && setting('goal_tier_coins') === '100,200,300,500') set_setting('goal_tier_coins', '150,300,450,700');   // v2.8.50 (Josh): the new default, only where nobody changed the old one
