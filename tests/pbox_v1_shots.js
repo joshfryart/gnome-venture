@@ -218,7 +218,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await c.close();
 
     // ---- 2.6.75: the fight never scrolls: every board size at phone, small phone and desktop sizes; the pre-fight screen keeps Let's fight on screen; the menu has the link under Hobbies
-    for (const vp of [[390, 844], [360, 640], [412, 915], [1280, 720]]) {
+    for (const vp of (process.env.PFVP ? JSON.parse(process.env.PFVP) : [[390, 844], [360, 640], [412, 915], [1280, 720]])) {   // PFVP='[[780,360]]': only these windows (2.8.78: phones held sideways)
       const c2 = await b.newContext({ viewport: { width: vp[0], height: vp[1] }, deviceScaleFactor: vp[0] > 1000 ? 1 : 2 }); const q = await c2.newPage(); const e2 = [];
       q.on('pageerror', e => e2.push(String(e))); q.on('console', m => { if (m.type() === 'error') e2.push(m.text()); });
       await q.addInitScript(() => { try { localStorage.setItem('pfvspd', '0'); } catch (e) {} });
