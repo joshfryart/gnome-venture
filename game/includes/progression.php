@@ -92,17 +92,20 @@ function accessible_regions(int $uid): array
     return array_values(array_filter($ids, fn($rid) => region_gate_open($uid, $rid)));
 }
 
-/** Seal gate hook: is the road into this region open for this gnome? Always true until the Seals ship. */
+/** Seal gate (2.8.85, seals.php): can this gnome go into this region? Always true while seals_open is 0, for tier 1-2 regions, guests and grandfathered regions. */
 function region_gate_open(int $uid, int $regionId): bool
 {
-    return true;
+    if (setting('seals_open') !== '1') return true;
+    require_once __DIR__ . '/seals.php';
+    return seal_region_gate_open($uid, $regionId);
 }
 
 /** Can this gnome fast-travel straight to a region? Home, any region with one of their gardens, or anywhere they've walked to. */
 function can_fast_travel(array $u, int $regionId): bool
 {
-    if (setting('travel_needs_visit') !== '1') return true;
     if ((int)($u['region_id'] ?? 0) === $regionId) return true;
+    if (!region_gate_open((int)($u['id'] ?? 0), $regionId)) return false;   // 2.8.85: a Seal-locked door still needs the Seal
+    if (setting('travel_needs_visit') !== '1') return true;
     if (q_val('SELECT 1 FROM plots WHERE user_id = ? AND region_id = ?', [$u['id'], $regionId])) return true;
     return (bool)q_val('SELECT 1 FROM region_visits WHERE user_id = ? AND region_id = ?', [$u['id'], $regionId]);
 }
@@ -120,6 +123,7 @@ function next_region_suggestion(array $u): ?array
         foreach ([[$a, $b], [$b, $a]] as [$from, $to]) {
             if (!isset($byCode[$from], $byCode[$to])) continue;
             if (!in_array((int)$byCode[$from]['id'], $been, true) || in_array((int)$byCode[$to]['id'], $been, true)) continue;
+            if (!region_gate_open((int)$u['id'], (int)$byCode[$to]['id'])) continue;   // 2.8.85: not behind a closed Seal door
             $cand = $byCode[$to] + ['via' => $byCode[$from]['gnomish_name']];
             if (!$best || (int)$cand['min_level'] < (int)$best['min_level']) $best = $cand;
         }

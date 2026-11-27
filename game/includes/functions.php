@@ -783,6 +783,8 @@ function settings_schema(): array
         'friend_loved_xp'    => ['label' => 'Townsfolk: XP for a loved gift', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 1000],   // v0.9.1
 
         'travel_needs_visit' => ['label' => 'Travel: only fast-travel to regions a gnome has already walked to', 'type' => 'bool', 'default' => '1'],
+        'seals_open' => ['label' => 'Seals and Expedition Standing: area Seals at the Standing threshold, Warden gates on the tier 3 to 5 doors (road walks and fast travel), the Standing card on Wren\'s Journey. Off = no gates, no Seals, as before. Gnomes keep every region they have already been to (2.8.85)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'seal_threshold' => ['label' => 'Seals: Expedition Standing (percent) that earns an area\'s Seal (2.8.85)', 'type' => 'int', 'default' => '80', 'min' => 1, 'max' => 100],
         'gotm_thanks'        => ['label' => 'Garden of the Month: Petals for every other entry', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 1000000],
     ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + hp_settings() + gclock_settings() + ico_settings() + here_settings() + dock_settings() + sights6_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
 }

@@ -1263,6 +1263,23 @@ function schema_statements(string $driver): array
         first_at DATETIME NOT NULL,
         UNIQUE (user_id, region_id)
     )$END";
+    // 2.8.85: area Seals (seals.php; master doc section 4): one row per gnome and area, for good
+    $t[] = "CREATE TABLE IF NOT EXISTS region_seals (
+        id $PK,
+        user_id $ID NOT NULL,
+        region_id $ID NOT NULL,
+        earned_at DATETIME NOT NULL,
+        UNIQUE (user_id, region_id)
+    )$END";
+    // 2.8.85: Expedition Standing high-water marks: the best points (x100) a gnome reached on each row of an area's Standing table
+    $t[] = "CREATE TABLE IF NOT EXISTS region_standing_best (
+        user_id $ID NOT NULL,
+        region_id $ID NOT NULL,
+        row_key VARCHAR(16) NOT NULL,
+        pts100 INT NOT NULL DEFAULT 0,
+        updated_at DATETIME NOT NULL,
+        PRIMARY KEY (user_id, region_id, row_key)
+    )$END";
 
     // ---------- Adventuring ----------
     $t[] = "CREATE TABLE IF NOT EXISTS routes (
