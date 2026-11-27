@@ -82,6 +82,7 @@ dbx "UPDATE expeditions SET hp=7 WHERE user_id=$SID AND status='active'"
 chk "out adventuring the bars show the LIVE expedition health (7), not the stored one" "$([ "$(PHPR 'echo hp_display($u)[0];')" = 7 ] && echo 1)"
 get 'gnome.php?tab=gnome' >/dev/null
 chk "My Gnome health bar is a <progress> carrying the value (no inline style)" "$(grep -q '<progress class="hpbar" aria-label="Health" max="[0-9]*" value="7"' $H && ! grep -q '<i style=' $H && echo 1)"
+get 'garden.php' >/dev/null   # 2.8.77: home_slim is ON by default; the slim Home moves health to its Gnome tab (layout.php statusstrip), so the top bar is checked on another page
 chk "the top bar has a health bar next to the level bar" "$(grep -q 'class="st hp"' $H && grep -q 'progress class="hpbar hpbar-s"' $H && echo 1)"
 
 echo "== walking home keeps the damage; a knock-out wakes at half"

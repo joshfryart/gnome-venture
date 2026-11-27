@@ -23,6 +23,8 @@ echo "== a visitor (not logged in)"
 chk "index.php is the front page" "$(to index.php)" "200 "
 chk "gnome.php asks to log in" "$(to gnome.php | cut -c1-3)" 302
 
+# 2.8.77: flag is ON by default now; this suite tests the old page
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('home_slim','0')"
 dbx "UPDATE users SET tour_step = 0, tour_ask = 0 WHERE username = 'sprout'"
 get login.php >/dev/null; post login.php -d username=sprout -d 'password=TestPass123!' >/dev/null
 echo "== a player: the old addresses"
