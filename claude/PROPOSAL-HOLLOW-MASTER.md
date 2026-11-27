@@ -495,3 +495,17 @@ Code changes needed: `REGION_LEVELS` to band floors + `min_level` migration; `LA
 6. **Town and havens as stops** (`stop_is_place` + a stop type each), so the 16-stop set works. Yes?
 7. **Other 13 regions:** type templates only, or a hand-written set per region inside the world budget left?
 8. **The step down.** The 7-day perks (XP +10%, pots -20%, walk -15%) go and 1-2% marks come. News post only, or one festival week of doubled bar points at launch?
+
+## 14. DECISIONS ON THE 8 OPEN QUESTIONS (Josh, 2026-11-27)
+| # | Question | Answer | What follows |
+|---|---|---|---|
+| 1 | Standing with 10 villages | 6 of 10 lit = full; average tier 1 = full | As section 4. With Q2 the Maplewold has 12 villages: recompute "lit full at 60% of N" (7 of 12) and the Petal estimate. |
+| 2 | Fens and Ridge | **Add a village each** | 12 Maplewold villages, 18 stops, **54 perks**. Needs 2 new village names, zone, stop type, 6 new perks. M4 and M6 `regular` steps go back to a village in the zone (drop the haven fallback). Wild-rice bed can sit in the Fens village. |
+| 3 | Sibling area XP | Share the band's XP over the required areas | As section 4. |
+| 4 | Many sleeps a day | No real-day cap | Dailies follow the game day only. |
+| 5 | Marks and Standing | Separate layer | Marks never count for Standing. |
+| 6 | Town and havens as stops | Yes | Build `stop_is_place()` and a stop type each. |
+| 7 | Other 13 regions | **Hand-written set per region** | Replaces the 36 type templates as the main plan (templates stay as fallback for stops not yet written). Large writing job: each region's stops x 3 perks, unique, inside the family caps (the world budget per family is shared, so check it). |
+| 8 | Perk step down | News post only | No launch festival. |
+
+Follow-up work: (a) add the 2 villages and their 6 perks to sections 2, 6 and 7; (b) recompute Standing and pacing for 12 villages; (c) write the per-region perk sets (13 regions), checking the family caps.
