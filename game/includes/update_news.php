@@ -930,6 +930,8 @@ function post_update_news(string $from): void
         . "[*][b]Buttons[/b] are puzzle pieces that fit together.\n"
         . "[*][b]Slower replays[/b]: a turn now plays at half the old speed. Pick 2x for the old pace.\n"
         . "[*][b]History[/b]: tap a past move to see the whole story of that turn.[/list]"],
+    '2.8.85' => ['🔏 Update 2.8.85: behind the scenes for Seals',
+        "Behind the scenes: Wren is getting ready to bind her Almanac one area at a time. Nothing changes in play yet. When this opens, an area's [b]Expedition Standing[/b] and its [b]Seal[/b] will show on Wren's Journey, and you will always keep every place you have already been."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
