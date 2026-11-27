@@ -2,6 +2,12 @@
 
 Live list: `claude/todo.md`. Newest first for release blocks; archives below.
 
+## 2.8.78 to 2.8.84 SHIPPED 2026-11-27 (PR 95, merged to main 9d0ec8a0; Josh tested on a test site)
+- 2.8.78: puzzle fight Face-off pre-fight and result card (phone, sideways phone, desktop); sideways-phone combat "thumb rails" (hand left, board middle, bars right, grouped in the middle of wide windows); two-list right edge (history newest first beside the environment) also on desktop; jigsaw-piece buttons (Box / Hint / Run a smaller row); half-speed replay (old 1x is 2x); full-window jigsaw veil with fade and refit; history chips say more on rewind; `pfboardv1.js` is generated (edit `tools/pfboardv1_part.js` and `tools/build_pfboardv1.py`). `tools/build_test_site.sh` builds a private test copy.
+- 2.8.79: speed 1.25x. 2.8.80: any-hole rim is ink (pink dots), timings list. 2.8.81: replay times set for 1x (first wait 0.13, step 1.35, banner 1.15, use-up 1.35, leave 1.35, Your turn 2.35); taps work during the Your turn banner.
+- 2.8.82: hotfix `deliver_job()` loads `crafting.php` (`craft_take()` undefined on /jobs.php; `tests/jobs_craft_take.php`). 2.8.83: end screen on a sideways phone. 2.8.84: cut-out key tolerance.
+- Release lesson: rebuilding the same version number leaves browsers on cached `?v=` scripts; bump the version for every zip Josh installs.
+
 ## 2.8.77 SHIPPED 2026-11-27 (PR 93; Josh confirmed live works)
 - SHIPPED in 2.8.77: `sights_shared_on`, `gnav_on`, `gnav_tree`, `gnav_tiles`, `home_slim` and `gnav_craft` (the Crafting workshop picture) default ON (Josh, 2026-11-27): schema defaults + one-time boot step `flags_on_2877` (db_version < 2.8.77 sets all six to 1; an admin can set any back to 0 and it is kept). First request after upload flips live. Real bug found by it and fixed: slim Today "Your pals" bar had an inline `style=""` (CSP), now a `<progress class="hs-bar">`. 54 related suites pass; 15 older suites pinned to the old pages or adapted (see `tests/`, comments "2.8.77"). Open: slim Today has no Wren's Journey card (reachable at `book.php?ch=Journey`; deliberate slimming?); `gourmand` once failed by 25 coins in a wide parallel sweep and could not be reproduced (probably overlapping ports); pre-existing failures on main: `puzzles`, `puzzles_daily`, `security190`.
 - 2.8.76 hotfix (PR 89): live-only `first_week.php` called `craft_link_fix()`; `first_week.php` shipped again plus a harmless stand-in in `here_schema.php`.
