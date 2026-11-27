@@ -7,6 +7,7 @@
 - **Half-speed replay:** the old 1x is now 2x, the new 1x is half the old speed (replay cap 16.9 s at 1x). `SLOW` in the fight script.
 - **Piece jigsaw veil:** the pieces that cover the fight in and out now cover the whole window at any size, fade, refit on resize or rotation.
 - **History chips say more:** a chip tapped for a rewind shows the full line the replay gave, the move, the numbers at that step and what the piece does (new `ln` / `nm` on a history chip).
+- **Private test site:** `bash tools/build_test_site.sh <outdir>` builds the packages for a separate test copy (e.g. test.gnomeventure.ca): the site zip (with `install.php`, a `robots.txt` that blocks search engines, a noindex header and `TEST-SITE-README.txt`) and the trail ground art in parts. Later updates go on through the test site's Admin > Update.
 - **Build sources:** `game/assets/pfboardv1.js` is generated; the changes above live in `tools/pfboardv1_part.js` and `tools/build_pfboardv1.py`.
 
 ## 2.8.77
