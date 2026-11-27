@@ -1,6 +1,7 @@
 # PROPOSAL: Lasting marks (rest-stop perks rework)
 
 Status: proposal only, no game code changed. 2026-11-27.
+Audit 2026-11-27: all 540 perks (this file + regions A, B, C) checked and fixed by `python3 claude/tools_audit_stop_perks.py` (corrections in `claude/tools_audit_stop_perks_fixes.py`); rules P2 to P4 added to 4.1; section "Hook list" before section 9.
 Updated 2026-11-27 for Josh's decisions (master section 14): the Maplewold has 12 villages (Cattailmere in the Fens, Granitegate on the Ridge), so the set is **18 stops, 54 perks**; sections 4, 4.1, 5 and 7 carry the new numbers. Older text below that says 16 / 48 (the pass 2 notes and review log) is history.
 Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 3 and 7.3 (pace 6 to 10 visit-days per bar, counted in game days), section 7.7 and 12 (rulings 8, 9: no weeks or months; old perks end on each gnome's game date).
 Read for this: `docs/stop-perk-ideas.md`, `includes/player_perks.php`, `stop_living.php`, `stops.php`, `stop_adopt.php`, `data/stops.txt`, `stop_tiers.txt`, `stop_act_state.txt`, the four `stop_acts*.txt` files (860 acts), `claude/proposal-story-1-base.md`, `claude/proposal-maplewold-bands-and-seals.md`, `claude/route-list.md`.
@@ -209,6 +210,9 @@ Pass 1 used one stackable default perk per type and bar for the other 162 stops.
 2. **Everything else is a place perk.** Type templates (section 6) are always scoped to their own stop (`from=`, `to=`, `items=local:`). A place perk never shares a total with another stop's mark: one perk per family per stop by construction, and for `items=local:` the family cap applies per crop (two herb stops with the same local crop add up to the cap at most). Each new mark makes one more place better, so it always adds something.
 3. **Daily charges do not share a cap** (A1 to A3: one charge per perk, own trigger). A4 keeps a 10-coins-a-day ceiling.
 4. **Flags never cap** (A5, A6).
+5. **Rule P2, the place-stack ceiling** (audit 2026-11-27). For one event (one walk, one dish, one harvest, one act), the place and crop perks of a family that match add up to at most **+4%** (XP: **+2%**, one place perk; max health, torch steps, rest energy: **+1**) on top of the world total. So the most at one event is the cap + that ceiling: walk -10%, pots -10%, XP +7%, sell +9%, max health +4, torch +4, rest energy +3. `stop_mark_fx` applies it.
+6. **Rule P3, crop perks** (audit 2026-11-27). `stop_local_crops()` (`stops.php:628`) returns the whole region's crops, and a crop is grown, cooked and eaten in the gnome's own garden and kitchen, not at the stop. So a perk that names crops (`items=` named crop slugs; `items=local:<stop>` is retired) acts wherever those crops are, like a small world perk narrowed to a few crops. It is not counted in the world cap; instead: **at most one crop perk per crop per family across all sets** (a harvest-extra daily charge counts as F10), only crops native to its own region (`region_crops.txt`), and P2 above. Region-wide perks (`region=`) are one per family per region.
+7. **Rule P4, daily triggers.** No two world daily charges share a trigger, and a place daily charge never repeats a world one's trigger (rod wear, staff wear, weeding, watering, planting, fast travel, the first shop food, a failed stop check are each one perk's).
 
 **The maths (recomputed in pass 2; again for 18 stops / 54 perks on 2026-11-27).**
 - Maplewold world use per family (of cap): sell 2 of 5, buy 1 of 5, XP 3 of 5, garden XP 1 of 5, walk 2 of 6, pots 4 of 6, meal 2 of 5, buff 4 of 8, heal 4 of 8, harvest 2 of 4, gather 1 of 4, water 2 of 8, seed 1 of 4, friend 2 of 8, stop coins 2 of 8, check 1 of 4, pest 2 of 8, travel 1 of 5, spot 1 of 4, hp 0 of 3, torch 0 of 3, seed on fast travel 1 of 4 (new: Cattailmere), rest energy 2 of 2 (full: later rest-energy perks must be place perks). No family over its cap. Of the 54: 33 have a number (29 world; 4 place: the Straightened Signpost, the Beacon Basket, This Year's Stone, Goat-Track Pickings), 10 are daily charges (8 world, 2 place: the Cloverholt oatcake and the Snowcombe egg), 11 are flags.
@@ -259,7 +263,7 @@ Caps and budgets are rows in `data/stop_perk_fx.txt` (`family | unit | cap | lab
 | | Cheer | 🌼 The Bees Know You | A Honeybrook bee visits your garden now and then (looks only) | flag | A6 |
 | Cloverholt | Repairs | ⚙️ Greased Wheel | Breads and bakes cook 2% faster | -2% | F06 |
 | | Larder | 🌾 Miller's Pinch | Oat and lentil harvests: 1% chance of one extra | +1% | F10 |
-| | Cheer | 🍪 Oatcake for the Road | First visit to Cloverholt each day: one oatcake | 1 a day | A3 |
+| | Cheer | 🍪 Oatcake for the Road | First visit to Cloverholt each day: one handful of oats (`oats`) | 1 a day | A3 |
 | Acornby | Repairs | 🪵 Dry Woodpile | Resting on a forest trail heals 2% more | +2% | F09 |
 | | Larder | 🐿️ Squirrel's Arithmetic | Gathering in forest: 1% chance of one extra | +1% | F11 |
 | | Cheer | 🔥 Fireside Regular | Checks at camp stops are 1% kinder | +1% | F16 |
@@ -272,14 +276,14 @@ Caps and budgets are rows in `data/stop_perk_fx.txt` (`family | unit | cap | lab
 | Shellhollow | Repairs | 🕸️ Sound Nets | Acts at jetties and ferries pay 2% more coins | +2% | F15 |
 | | Larder | 🐟 Catch of the Day | Fish sell for 1% more | +1% | F01 |
 | | Cheer | 🎣 An Opinion on Every Fish | The Today page shows tomorrow's weather | flag | A5 |
-| Pebblestead | Repairs | 🦫 Beaver-Tight Hull | Fast travel to or from the coast costs 1% less | -1% | F18 |
+| Pebblestead | Repairs | 🦫 Beaver-Tight Hull | Fast travel that starts at a coast stop costs 1% less | -1% | F18 |
 | | Larder | 📦 Porter's Crate | Shops on the coast charge 1% less | -1% | F02 |
 | | Cheer | 🪨 Pebble in the Boot | 1 in 20 chance a road walk turns up a coin | 1 coin | A4 |
 | Iciclecrest | Repairs | 🧯 Beacon Basket, Refilled | +1 torch step in Maplewold delves | +1 step | F21 |
 | | Larder | 🫖 Watcher's Flask | Walking in snow or frost takes 1% less time | -1% | F05 |
 | | Cheer | 🔭 Three Roads and a Long Way | The route menu shows if something is on at the far stop today | flag | A5 |
 | Snowcombe | Repairs | ♨️ Scrubbed Pools | Rest acts at any hot spring give 1 more energy | +1 | F22 |
-| | Larder | 🥚 Spring-Boiled Egg | First visit to Snowcombe each day: one boiled egg | 1 a day | A3 |
+| | Larder | 🥚 Spring-Boiled Egg | First visit to Snowcombe each day: one hen's egg (`hen-egg`) | 1 a day | A3 |
 | | Cheer | 🧣 Warm to the Bones | Healing is 2% stronger while it snows | +2% | F09 |
 | Cattailmere | Repairs | 🪷 Cleared Channels | The first weeding each day costs no energy | 1 a day | A1 |
 | | Larder | 🥾 Rice in the Turn-Ups | Fast travel has 1% more chance to turn up a seed | +1% | F23 |
@@ -303,7 +307,7 @@ Caps and budgets are rows in `data/stop_perk_fx.txt` (`family | unit | cap | lab
 | | Larder | 💧 Meltwater Can | The first watering each day costs no energy | 1 a day | A1 |
 | | Cheer | 🌌 Sky-Dazzled | On clear nights a faint aurora shows over your garden (looks only) | flag | A6 |
 
-Item names (oatcake, boiled egg) and item groups (fish, sweets, bakes, tree crops) must be mapped to real slugs and categories at build time. Pass 2: Sticky Fingers said "the first seed you drop", but the game has no seed drop; it now uses planting (hook NEW in `garden_action`). The Straightened Signpost (`from=`/`to=` Poppyburrow; pass 1's text was the same as the jetty template), the Beacon Basket (`region=NA`), This Year's Stone and Goat-Track Pickings (`region=NA` + `land=mountain`) are place perks; the other numeric ones are world perks and fit their budgets (4.1). New villages, build notes: Cleared Channels uses the weed hook already listed for A1 (`garden_logic.php:1317`); Rice in the Turn-Ups is the first use of F23 (`world.php:292`); Counted From the Top is UI only and counts places, it does not say where they are (check at build that the map does not already show this count).
+Gifts name real item slugs (audit 2026-11-27: `oats`, `hen-egg`); item groups (fish, sweets, bakes, tree crops) map to item categories or recipe tags at build time. Pass 2: Sticky Fingers said "the first seed you drop", but the game has no seed drop; it now uses planting (hook NEW in `garden_action`). The Straightened Signpost (`from=`/`to=` Poppyburrow; pass 1's text was the same as the jetty template), the Beacon Basket (`region=NA`), This Year's Stone and Goat-Track Pickings (`region=NA` + `land=mountain`) are place perks; the other numeric ones are world perks and fit their budgets (4.1). New villages, build notes: Cleared Channels uses the weed hook already listed for A1 (`garden_logic.php:1317`); Rice in the Turn-Ups is the first use of F23 (`world.php:292`); Counted From the Top is UI only and counts places, it does not say where they are (check at build that the map does not already show this count).
 
 ## 6. Type templates (every other stop)
 
@@ -326,7 +330,7 @@ Pass 1 gave every other stop its type's shared default. Pass 2 (Josh's rule: eve
 
 Sizes: every template is 1% or 2%, +1 energy, or one daily charge. Where a stop has no stall or no local crops, Admin picks another template of the same bar (the generator warns). The hooks are the family hooks in section 4 with the scope test added; `to=` and `items=local:` are new scope keys.
 
-All 54 hand-written names and effects (section 5) and the 36 template names and effects are different from each other (84 checked by script in pass 2, the 6 new ones checked against those 84 by name and by effect on 2026-11-27; templates differ from each other in effect text even before `{stop}` is filled in).
+Since master decision 7 every stop has a hand-written set (this file section 5 and `proposal-stop-perks-regions-A.md`, `-B.md`, `-C.md`); the templates are only a fallback for a stop added later, and a template's `items=local:` becomes named crops under rule P3. All 54 hand-written names and effects (section 5) and the 36 template names and effects are different from each other (84 checked by script in pass 2, the 6 new ones checked against those 84 by name and by effect on 2026-11-27; templates differ from each other in effect text even before `{stop}` is filled in).
 
 ## 7. UI
 
@@ -398,7 +402,128 @@ Plus: Admin > Stop perks (the perk rows), Admin > Stop perk effects (the caps), 
 
 Checked in pass 2: nothing in steps 1 to 5 gives a mark or a perk for free. A stored meter is at most 99 (`stop_meter_get` clamps), so no bar latches on migration; the next real act is needed. Running perks end on their date and are never turned into marks.
 
+## Hook list (all 540 perks, deduplicated; audit 2026-11-27)
+
+Generated by `python3 claude/tools_audit_stop_perks.py --fix` from the perk rows of this file and the three region files (540 perks). One resolver does the work: `stop_mark_fx($uid, $family, $ctx)` (NEW, `includes/stop_marks.php`, section 8) adds the world marks of the family (capped) and the place marks whose scope fits `$ctx`, then applies the place-stack ceiling (4.1 rule P2). So the per-family work is: call it at the existing hook and pass the context keys below. Everything marked NEW is new code; the rest exists today.
+
+**Families (number perks).** Count = perks that use the scope key.
+
+| Family | Hook point (exists) | Context keys the perks need (count) |
+|---|---|---|
+| F01 sell | `world.php:519` `sell_price_with_bonus` (from `sell_to_shop` `:536`) | `at` 12, `group` 8, `none` 3, `dp` 2, `we` 1, `region` 1 |
+| F02 buy | `world.php:415` in `shop_price` (`:392`) | `at` 7, `group` 6, `none` 3, `dp` 1, `region` 1, `we` 1 |
+| F03 xp | `gnome.php:308` in `add_xp` (`:303`) | `kind` 5, `at` 4, `dp` 2, `we` 1 |
+| F04 garden xp | `gnome.php:355` `add_garden_xp` | `items` 12, `we` 1 |
+| F05 walk time | `adventure.php:192` in `route_walk_minutes` (`:187`) | `we` 12, `from` 9, `dp` 6, `to` 5, `region` 4, `land` 2, `at` 2, `none` 1 |
+| F06 pot time | `crafting.php:465` in `cook_seconds` (`:459`) | `items` 13, `group` 4, `we` 2, `dp` 1, `region` 1 |
+| F07 dish energy | `gnome.php:625` in `eat_item` (`:509`) | `items` 8, `dp` 6, `region` 3, `at` 2, `we` 2, `group` 2 |
+| F08 boost length | `gnome.php:439` in `buff_minutes` (`:434`) | `group` 10, `items` 4, `none` 2, `we` 2, `region` 2, `at` 2, `se` 1 |
+| F09 healing | `health.php:130` `hp_heal_points`; `adventure.php:1280` `rest_heal`; `stops.php:969` rest acts | `we` 8, `at` 6, `land` 5, `dp` 5, `region` 4, `from` 2, `to` 1 |
+| F10 harvest extra | `garden_logic.php:1598` in `do_harvest` (`:1474`) | `items` 20, `none` 1, `we` 1 |
+| F11 gather extra | `gathering.php:78` `gather_on_walk`, `:181` `gather_here` | `land` 6, `region` 4, `from` 3, `at` 2, `dp` 2, `none` 2, `we` 1, `to` 1 |
+| F12 watering lasts | `garden_logic.php:865` `water_seconds` | `items` 14, `we` 5 |
+| F13 seed back | `garden_logic.php:1634` in `do_harvest` | `items` 12, `none` 1, `se` 1 |
+| F14 friendship chance | `friends.php:56` `friend_add` (extra roll NEW inside it) | `dp` 4, `at` 3, `region` 3, `none` 2, `items` 1, `we` 1 |
+| F15 stop coins | `stops.php:670` `stop_rewards` | `at` 4, `kind` 4, `none` 3, `fest` 1, `we` 1 |
+| F16 stop check | `stops.php:742` `stop_check` (roll `:748`) | `kind` 6, `at` 5, `dp` 2, `none` 1, `se` 1, `we` 1 |
+| F17 pest | `garden_fx.php:281` `pest_chances` | `items` 13, `none` 1 |
+| F18 fast travel cost | `world.php:282` in `travel_to` (`:267`) | `from` 10, `dp` 5, `to` 2, `we` 2, `none` 1, `se` 1 |
+| F19 spot hidden | `explore.php:222` in `explore_deeper` (`:187`) | `to` 4, `from` 2, `we` 2, `none` 1, `region` 1, `land` 1 |
+| F20 max health | `adventure.php:81` in `gnome_combat` (`:71`) | `route` 5, `from` 4, `region` 2, `land` 2, `at` 1 |
+| F21 torch steps | `delve_v2.php:37` `dv2_fuel` | `delve` 9, `region` 4 |
+| F22 rest energy | `stops.php:969` `stop_do` case rest | `at` 7, `dp` 6, `we` 5, `none` 1 |
+| F23 seed on fast travel | `world.php:292` in `travel_to` | `from` 2, `none` 1, `dp` 1 |
+
+Context keys, where each comes from (all NEW as `$ctx` entries; the data exists):
+
+- `from`: stop the walk / act / fast travel starts at (`$route` from, `users.location_id`)
+- `to`: stop the walk ends at (`$route` to); fast travel ends only at a region town
+- `at`: the stop the gnome stands at (`users.location_id`)
+- `region`: region of the place (and `land=` where named)
+- `items`: named crops (crop slug list), resolved per event: dish ingredients, harvested or watered crop
+- `dp`: `gclock_my_hour()` day part
+- `we`: `gclock_my_weather()`
+- `se`: season of the gnome's date
+- `kind`: act kind of the stop act (`stop_do` `$kind`)
+- `fest`: stop festival day (`stop_calendar`)
+- `land`: landscape of the route / place
+- `delve`: delve landmark id
+- `route`: route id (lair road)
+- `group`: item group (category or recipe tag: fish, tea, soup, bread...)
+
+**Daily charges (A1 to A4): trigger -> hook point.** One `stop_mark_charge($uid, $perkKey)` (NEW) call at each.
+
+| Trigger | Perks | Hook point |
+|---|---|---|
+| first visit to the stop | 34 | `stop_stamp` (`stop_pass.php:119`), exists |
+| first act (of a kind) at the stop | 10 | `stop_do` (`stops.php:810`) energy / reward step, NEW charge test |
+| first walk from / to the stop | 9 | `route_energy` (`adventure.php:202`) / `start_expedition`; arrival: NEW in the walk-end step |
+| first rest act at the stop | 7 | `stop_do` case rest (`stops.php:969`) |
+| first sale at the stop's stall | 3 | `sell_to_shop` (`world.php:536`) + stall stop id, NEW test |
+| first harvest of a named crop | 2 | `do_harvest` (`garden_logic.php:1474`), NEW charge test |
+| first find of a kind on a walk / gather here | 2 | `gather_on_walk` / `gather_here` (`gathering.php:78, 181`), NEW charge test |
+| first dish eaten / cooked at the stop | 2 | `eat_item` (`gnome.php:509`) / `cook_seconds` stop ctx, NEW charge test |
+| lost contest replay | 2 | NEW in `stop_do` case contest (`stops.php:953`) |
+| torch step in a named delve | 2 | NEW in the delve step cost (`delve_v2.php`, beside `dv2_fuel`) |
+| first food bought in a shop | 1 | `buy_from_shop` (`world.php:356`), exists |
+| staff wear | 1 | `start_expedition` (`adventure.php:237`), exists |
+| coin on a road walk | 1 | `give_find` (`adventure.php:447`) |
+| weeding | 1 | `garden_action` weed (`garden_logic.php:1317`), exists |
+| fast travel | 1 | `travel_to` (`world.php:283`), exists |
+| planting | 1 | NEW in `garden_action` plant (`garden_logic.php:1197`) |
+| failed stop check re-roll | 1 | `stop_check` roll (`stops.php:748`), exists |
+| watering | 1 | `garden_claim_free_water` (`garden_logic.php:554`), exists |
+| rock-pick wear | 1 | NEW in the tool-wear step of `gather_on_walk` (`gathering.php`) |
+| first dish cooked with a named crop | 1 | `crafting.php:529` extra-dish roll, NEW charge test |
+| rod wear | 1 | NEW in the tool-wear step of `gather_on_walk` / `gather_here` (`gathering.php`; limits `tools.php:285`) |
+| failed check at a wonder | 1 | NEW in `wonder_try` (`landmarks.php:228`) |
+| first buy at the stop's stall | 1 | `buy_from_shop` (`world.php:356`) + stall stop id, NEW test |
+| first gift to the stop's folk | 1 | NEW in `stop_gift` (`stop_folk.php:181`) |
+| craft ingredients back | 1 | NEW in `stop_do` case craft |
+| bug-net wear | 1 | NEW in the tool-wear step of `gather_on_walk` (`gathering.php`) |
+| first tea brewed | 1 | NEW in the Hovel kettle (`tea.php`) |
+| an empty walk find | 1 | NEW in `give_find` (`adventure.php:447`) |
+
+**Flags (A5 info, A6 looks): page -> file.** One `stop_mark_flag($uid, $perkKey)` (NEW) test in each view; no game rule changes.
+
+| Page | Flags | File |
+|---|---|---|
+| garden | 30 | `garden.php` / `garden_logic.php` view |
+| Today page | 21 | `today_view.php` |
+| gnome / home | 16 | `profile.php`, `hovel.php`, `gnome.php` |
+| stop page | 13 | `here_view.php` stop card / `stop_living.php` |
+| route menu | 11 | `here_view.php` routes block |
+| satchel | 10 | `inventory.php` |
+| walk view (route maps) | 10 | `adventure.php` walk view, trail maps |
+| world map | 6 | `maps.php` |
+| shops | 5 | `shop.php`, `world.php` |
+| kitchen / recipes / tea | 5 | `kitchen.php`, `tea_view.php` |
+| delve | 4 | `delve_v2.php` view |
+| passport | 4 | `passport.php`, `stop_pass.php` |
+| friends | 2 | `friends.php`, `villagers.php` |
+| seed packets | 1 | `inventory.php` |
+
+**NEW, deduplicated** (everything the 540 perks need that is not in the code today):
+
+1. `includes/stop_marks.php`: `stop_mark_fx`, `stop_mark_flag`, `stop_mark_charge`, `stop_mark_latch`, `stop_is_place` (section 8), tables `stop_marks`, `stop_mark_use`.
+2. `$ctx` at the 23 family hooks: pass `stop` / `from` / `to` / `region` / `land` / `items` / `kind` / `group` where the call site knows them (route, location, dish ingredients, harvested crop, act kind, item category). Day part, weather, season and festival are read inside the resolver from the gnome's clock.
+3. Named-crop scope (`items=crop1,crop2`), replacing `items=local:<stop>`: `stop_local_crops()` returns the whole region, so a crop perk is one per crop per family (4.1 rule P3).
+4. F14 friendship: the extra +1 roll inside `friend_add` (`friends.php:56`), with the gift or chat context from `stop_gift` (`stop_folk.php:181`) and the stop chat.
+5. F18 / F23 fast travel: `from` = the stop the gnome stands at when `travel_to` runs, `to` = the target region's town only.
+6. F20 max health on a named lair road or a region's land: route id and landscape passed into `gnome_combat` (`adventure.php:71`) from the expedition.
+7. F21 torch: delve landmark id passed into `dv2_fuel` (`delve_v2.php:37`).
+8. A1 energy: a charge test in `stop_do` (first act of a kind at a stop) and in the walk-end step (first walk that ends at a stop).
+9. A2 things back: planting in `garden_action`; tool wear in `gathering.php`; craft ingredients in `stop_do` case craft; contest replay in `stop_do` case contest (`stops.php:953`); wonder check re-roll in `wonder_try` (`landmarks.php:228`); an empty walk find in `give_find`; a delve torch step beside `dv2_fuel`; a gift kept in `stop_gift`; tea ingredient back in `tea.php`.
+10. A3 gifts at a stall buy or sale (`buy_from_shop`, `sell_to_shop`) and at a first rest, lore or craft act (`stop_do`); every gift is a real item slug (crop, gatherable, snack or preserve).
+11. A4 coins: the 10-coins-a-game-day ceiling as one `stop_mark_use` row (`perk_key` = `a4`).
+12. Flags: one `stop_mark_flag` test per view (table above). Info flags read data the game keeps (weather, moon, tool wear, recipes, `stop_log`, `region_visits`, landmark runs); none adds a new game rule.
+
+**Cut as unrealistic in the audit** (rewritten in place, see the audit log in `PROPOSAL-HOLLOW-MASTER.md`): fast travel "to" a village (`travel_to` only lands at a region's town, `world.php:283`); fast travel inside one region (refused as "already here"); wonder states the game does not keep (where the Oasis That Moves is, whether the Great Migration passes, panda shoots today); a walk "ridden" for no energy (a free walk, not a 1-energy convenience).
+
 ## 9. Open questions for Josh
+
+All answered by Josh on 2026-11-27 (`PROPOSAL-HOLLOW-MASTER.md` section 14): town and havens are stops; a hand-written set per region (done: the three region files, 540 perks in all); pace 6 to 10 visit-days a bar; marks never count for Standing; news post only. Kept below as asked.
+
 
 1. **16 stops (18 since master section 14), and three are not stops yet.** 13 (now 15) are in the Maplewold, 3 are border villages of CA, NWE and EA (their 9 perks count toward those regions). The town and both havens need the `stop_is_place` change and a stop type. OK to do that, or should havens fill their bars through their build plans instead?
 2. **Caps make later marks add nothing: fixed in pass 2** (4.1, section 6). World perks are a budget equal to the cap, templates are place perks unique to each stop, daily charges are per perk. Left for Josh: are templates enough for the other 13 regions, or should each region get a hand-written set like the Maplewold (within the world budget left)?

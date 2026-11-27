@@ -80,13 +80,13 @@ Stop types to set in Admin > Places:
 |  |  | Larder | Crates on the Quay | 📦 | Once a day, the first seed you buy at Driftmead's stall comes with one extra | 1 a day | D | A3 daygift |
 |  |  | Cheer | Harbour-Master's Log | 📒 | The route menu shows, for each road, the game day you last walked it | flag | F | A5 info |
 | Sprayglen | jetty | Repairs | Grotto Lantern Hook | 🔦 | +1 torch step in the Pirate-gull Grottoes | +1 step | P | F21 torch |
-|  |  | Larder | Squid-Ink Bucket | 🦑 | Gathering at Sprayglen has a 1% chance of one extra | +1% | P | F11 gather |
+|  |  | Larder | Squid-Ink Bucket | 🦑 | Gathering at Sprayglen with a tide bucket has a 1% chance of one extra | +1% | P | F11 gather |
 |  |  | Cheer | Gull-Proof Hat | 🪶 | Gulls on your route map circle your gnome but never land (looks only) | flag | F | A6 looks |
 | Cliffbrook | mill | Repairs | Goat-Proof Sluice | 🐐 | Acts at Cliffbrook that cost 2 or more energy pay 2% more coins | +2% | P | F15 stopcoin |
-|  |  | Larder | Miller's Flatbread | 🫓 | First visit to Cliffbrook each day: one herb flatbread | 1 a day | D | A3 daygift |
-|  |  | Cheer | Counted Goatbells | 🔔 | The route menu shows how many trail sights you have not yet found on each road | flag | F | A5 info |
+|  |  | Larder | Miller's Flatbread | 🫓 | First visit to Cliffbrook each day: one windmill loaf (`windmill-loaf`) | 1 a day | D | A3 daygift |
+|  |  | Cheer | Counted Goatbells | 🔔 | Your satchel shows the landscapes each gatherable is found in | flag | F | A5 info |
 | Screebottom | workshop | Repairs | Terrace Walls | 🧱 | Watering lasts 2% longer on Screebottom's local crops on hot days | +2% | P | F12 water |
-|  |  | Larder | Cheese-Cave Shelf | 🧀 | First visit to Screebottom each day: one wedge of goat cheese | 1 a day | D | A3 daygift |
+|  |  | Larder | Cheese-Cave Shelf | 🧀 | First visit to Screebottom each day: one wedge of goat cheese (`goat-cheese`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Mason's Eye | 📐 | Craft and mend checks at Screebottom are 2% kinder | +2% | P | F16 check |
 | Screemere | shrine | Repairs | Reset Stepping Stones | 🪜 | Walks that end at Screemere have a 2% better chance to spot hidden things | +2% | P | F19 spot |
 |  |  | Larder | Chestnut in the Bowl | 🌰 | Screemere's local crops have 1% more chance of a seed back in autumn | +1% | P | F13 seed |
@@ -95,19 +95,19 @@ Stop types to set in Admin > Places:
 |  |  | Larder | Sun-Dried on the Roof | 🍋 | Boosts from dishes eaten at Atollmead last 2% longer | +2% | P | F08 buff |
 |  |  | Cheer | Sundial on the Quay | ☀️ | Your garden shows how long each bed's watering will last, in hours | flag | F | A5 info |
 | Turtlenook | camp | Repairs | Roped-Off Nests | 🚩 | Rest acts at Turtlenook heal 2% more at night | +2% | P | F09 heal |
-|  |  | Larder | Beachcomber's Pot | 🐚 | Once a day, the first time you gather at Turtlenook you also find a shell | 1 a day | D | A3 daygift |
+|  |  | Larder | Beachcomber's Pot | 🐚 | Once a day, the first time you gather at Turtlenook you also find a spiral shell (`spiral-shell`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Borrowed Shell | 🦀 | Now and then a hermit crab wanders across your satchel page (looks only) | flag | F | A6 looks |
-| Cragholt | spring | Repairs | Relaid Basalt Steps | 🌋 | Fast travel to Cragholt costs 1% less | -1% | P | F18 travel |
+| Cragholt | spring | Repairs | Relaid Basalt Steps | 🌋 | Fast travel that starts at Cragholt at dusk or night costs 1% less | -1% | P | F18 travel |
 |  |  | Larder | Ash-Baked Eggs | 🥚 | Once a day, the first dish you eat at Cragholt also heals 1 health | 1 a day | D | A3 daygift |
 |  |  | Cheer | Steam Up to the Chin | ♨️ | Rest acts at Cragholt give 1 more energy in cold or rainy weather | +1 | P | F22 restenergy |
-| Echonook | tower | Repairs | Restrung Echo Horn | 📯 | The route menu shows the level of the creature waiting at a lair before you set out | flag | F | A5 info |
-|  |  | Larder | Lookout's Fava Pouch | 🫛 | Fast travel to Echonook has a 1% chance to turn up a seed on the way | +1% | P | F23 trailseed |
+| Echonook | tower | Repairs | Restrung Echo Horn | 📯 | A brass echo horn stands in a corner of your hovel (looks only) | flag | F | A6 looks |
+|  |  | Larder | Lookout's Fava Pouch | 🫛 | Fast travel that starts at Echonook at night has a 1% better chance to turn up a seed | +1% | P | F23 trailseed |
 |  |  | Cheer | Says It Back Twice | 🗣️ | Once a day, a lost contest at Echonook is tried again | 1 a day | D | A2 dayback |
 | Olive Press Piazza (haven) | mill | Repairs | Press Stones Rolled Home | 🫒 | Bread and oil at the Olive Press Piazza's stall cost 2% less | -2% | P | F02 buy |
-|  |  | Larder | Heel of Bread, Dipped | 🍞 | First visit to the Olive Press Piazza each day: one heel of bread dipped in new oil | 1 a day | D | A3 daygift |
+|  |  | Larder | Heel of Bread, Dipped | 🍞 | First visit to the Olive Press Piazza each day: one handful of olives (`olive`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Piazza Lamps | 🏮 | At night, the stop page of every stop where all three of your bars are full is strung with small lamps (looks only) | flag | F | A6 looks |
 | Lemon Grove Monastery (haven) | herb | Repairs | Cloister Roof, No Crates | 🏚️ | Pests are 2% less likely on the Lemon Grove Monastery's local crops while it rains | -2% | P | F17 pest |
-|  |  | Larder | Lemon-Verbena Tisane | 🍵 | Lore boosts gained at the Lemon Grove Monastery last 2% longer | +2% | P | F08 buff |
+|  |  | Larder | Lemon-Verbena Tisane | 🍵 | Boosts from dishes and teas with lemon verbena last 2% longer | +2% | P | F08 buff |
 |  |  | Cheer | A Vow Against Repeating Yourself | 🤫 | Chat lines you have already heard are shown in grey | flag | F | A5 info |
 
 ## 3. Birchbramble Steppe (EE): 12 stops, 36 perks
@@ -134,21 +134,21 @@ Stop types to set in Admin > Places:
 | Stop | Type | Bar | Perk | Icon | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|---|
 | Birchbramble Steppe Market | market | Repairs | Sunflower-Husk Sweep | 🌻 | The stalls of Birchbramble Steppe Market pay 2% more for pickles and preserves | +2% | P | F01 sell |
-|  |  | Larder | Dumpling for the Queue | 🥟 | First visit to Birchbramble Steppe Market each day: one dumpling | 1 a day | D | A3 daygift |
+|  |  | Larder | Sauerkraut for the Queue | 🥬 | First visit to Birchbramble Steppe Market each day: one jar of sauerkraut (`sauerkraut`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Cross-Stitch Awning | 🧵 | Your Perks page gets a red and black cross-stitch border (looks only) | flag | F | A6 looks |
 | Thistleburrow | inn | Repairs | Salt-Miner's Lamp Shelf | ⛏️ | +1 torch step in the Salt Mine Galleries | +1 step | P | F21 torch |
 |  |  | Larder | Beet Soup, Sour Cream | 🍲 | Soups and stews eaten at Thistleburrow give 2% more energy | +2% | P | F07 meal |
 |  |  | Cheer | Samovar Never Cold | 🫖 | Once a day, the first act at Thistleburrow that costs energy costs 1 less | 1 a day | D | A1 dayfree |
 | Haynook | mill | Repairs | Patched Sails | 🌬️ | Walks that start at Haynook take 2% less time on windy days | -2% | P | F05 walk |
 |  |  | Larder | Buckwheat Bin | 🌾 | Grain harvests among Haynook's local crops: 1% chance of one extra | +1% | P | F10 harvest |
-|  |  | Cheer | Pancake Morning | 🥞 | First visit to Haynook each day: one buckwheat pancake | 1 a day | D | A3 daygift |
+|  |  | Cheer | Pancake Morning | 🥞 | First visit to Haynook each day: one bag of buckwheat (`buckwheat`) | 1 a day | D | A3 daygift |
 | Tussockgate | tower | Repairs | Wolf-Watch Rail | 🐺 | +1 max health on the road from Tussockgate to the Lair of the Grey Wolf King | +1 point | P | F20 hp |
 |  |  | Larder | Watcher's Onion String | 🧅 | Gathering on walks that start at Tussockgate has a 1% chance of one extra | +1% | P | F11 gather |
 |  |  | Cheer | Steppe Beacon Chain | 🔥 | The world map shows today's weather in every region where you hold a mark | flag | F | A5 info |
 | Hazelthorpe | orchard | Repairs | Wasp Jars on the Boughs | 🪤 | Pests are 2% less likely on the fruit crops among Hazelthorpe's local crops | -2% | P | F17 pest |
-|  |  | Larder | Plum-Butter Crock | 🫙 | First visit to Hazelthorpe each day: one plum | 1 a day | D | A3 daygift |
-|  |  | Cheer | Cherry-Stone Champion | 🍒 | Contests at Hazelthorpe are 2% kinder | +2% | P | F16 check |
-| Mossknoll | shrine | Repairs | Birch-Bark Shingles | 🛖 | Fast travel to Mossknoll costs 1% less | -1% | P | F18 travel |
+|  |  | Larder | Plum-Butter Crock | 🫙 | First visit to Hazelthorpe each day: one plum (`plum`) | 1 a day | D | A3 daygift |
+|  |  | Cheer | Cherry-Stone Champion | 🍒 | Contests at Hazelthorpe are 2% kinder in summer | +2% | P | F16 check |
+| Mossknoll | shrine | Repairs | Birch-Bark Shingles | 🛖 | Fast travel that starts at Mossknoll in autumn costs 1% less | -1% | P | F18 travel |
 |  |  | Larder | Bowl Under the Bridge | 🥛 | Once a day, the first gift of a common local crop to one of Mossknoll's folk is not used up | 1 a day | D | A2 dayback |
 |  |  | Cheer | Amber Bead on a String | 🟠 | Your walking staff gets an amber bead that glows at dusk (looks only) | flag | F | A6 looks |
 | Fernford | herb | Repairs | Ford Stones Set Straight | 🪨 | Walks that end at Fernford take 2% less time in rain | -2% | P | F05 walk |
@@ -158,13 +158,13 @@ Stop types to set in Admin > Places:
 |  |  | Larder | Toll Paid in Gherkins | 🥒 | The first act each day at Miregate pays 1 coin more | 1 coin | D | A4 daycoin |
 |  |  | Cheer | Poled Every Channel | 🛶 | The route menu marks roads you have never walked with a small reed | flag | F | A5 info |
 | Reedby | jetty | Repairs | Stork Wheel, Back on the Pole | 🪹 | A stork nests on your chimney at home in spring and summer (looks only) | flag | F | A6 looks |
-|  |  | Larder | Smoke-Rack of Marsh Fish | 🎣 | Reedby's stall pays 2% more for fish | +2% | P | F01 sell |
-|  |  | Cheer | Frogs Have the Last Word | 🐸 | Chats with Reedby's folk at dusk have a 2% chance of +1 friendship | +2% | P | F14 friend |
+|  |  | Larder | Smoke-Rack of Marsh Fish | 🎣 | Reedby's stall pays 2% more for perch and minnows (`perch`, `minnow`) | +2% | P | F01 sell |
+|  |  | Cheer | Frogs Have the Last Word | 🐸 | Chats with Reedby's folk in fog have a 2% chance of +1 friendship | +2% | P | F14 friend |
 | Echohollow | spring | Repairs | Re-Caulked Wooden Tubs | 🛁 | Rest acts at Echohollow heal 2% more in snow or frost | +2% | P | F09 heal |
 |  |  | Larder | Kefir Jug in the Cold Stream | 🏺 | Once a day, the first rest act at Echohollow gives 1 more energy | 1 a day | D | A3 daygift |
-|  |  | Cheer | The Hollow Tells You Twice | 👂 | Stop pages show which bar each act feeds before you do it | flag | F | A5 info |
+|  |  | Cheer | The Hollow Tells You Twice | 👂 | Rest acts show the energy and health they will give before you choose one | flag | F | A5 info |
 | Flintknoll | camp | Repairs | Flint and Dry Tinder | 🪓 | Pots cooked at Flintknoll's fire in wind, snow or frost cook 2% faster | -2% | P | F06 cook |
-|  |  | Larder | Potatoes in the Embers | 🥔 | First visit to Flintknoll each day: one ember-baked potato | 1 a day | D | A3 daygift |
+|  |  | Larder | Potatoes in the Embers | 🥔 | First visit to Flintknoll each day: one potato for the embers (`potato`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Ridge-Top Stories | 🌠 | 2% more XP from lore acts at Flintknoll | +2% | P | F03 xp |
 | Painted Egg House (haven) | workshop | Repairs | One Very Small Brush | 🖌️ | Craft and paint checks at the Painted Egg House are 2% kinder | +2% | P | F16 check |
 |  |  | Larder | Pickled-Egg Shelf | 🥚 | Egg dishes eaten at the Painted Egg House give 2% more energy | +2% | P | F07 meal |
@@ -199,15 +199,15 @@ Stop types to set in Admin > Places:
 |  |  | Cheer | The Amber Hour | 🌆 | At dusk your Today page turns a warm amber (looks only) | flag | F | A6 looks |
 | Gullwell | inn | Repairs | Scarab Charm Over the Door | 🪲 | +1 max health on the road from Gullwell to the Tomb of the Sand Scarab | +1 point | P | F20 hp |
 |  |  | Larder | Drink First, Question Second | 💧 | First visit to Gullwell each day: 1 energy from the well | 1 a day | D | A3 daygift |
-|  |  | Cheer | Rooftop Bed Under the Stars | 🛏️ | Rest acts at Gullwell at night give 1 more energy | +1 | P | F22 restenergy |
+|  |  | Cheer | Rooftop Bed Under the Stars | 🛏️ | Rest acts at Gullwell give 1 more energy on windy days | +1 | P | F22 restenergy |
 | Gullstead | jetty | Repairs | Net Floats Re-Corked | 🪝 | Walks that start at Gullstead at dawn take 2% less time | -2% | P | F05 walk |
 |  |  | Larder | Octopus on the Line | 🐙 | Gathering with a rod at Gullstead has a 1% chance of one extra | +1% | P | F11 gather |
 |  |  | Cheer | Blue Door, Fresh Paint | 🚪 | Your home gets a blue-painted door (looks only) | flag | F | A6 looks |
-| Brineburrow | ferry | Repairs | Ballast of Salt Blocks | ⚓ | Fast travel to Brineburrow costs 1% less | -1% | P | F18 travel |
+| Brineburrow | ferry | Repairs | Ballast of Salt Blocks | ⚓ | Fast travel from Brineburrow to the Greatcanopy (its town) costs 1% less at dawn, when the salt boats sail | -1% | P | F18 travel |
 |  |  | Larder | Preserved-Lemon Jar | 🧂 | Sea salt and jars at Brineburrow's stall cost 2% less | -2% | P | F02 buy |
-|  |  | Cheer | Oasis Rumour | 🏝️ | The route menu tells you which village the Oasis That Moves is at today | flag | F | A5 info |
+|  |  | Cheer | Oasis Rumour | 🏝️ | A mirage shimmers at the edge of your desert route maps on hot days (looks only) | flag | F | A6 looks |
 | Meadowbrook | mill | Repairs | Canyon-Guide's Lamp | 🪔 | +1 torch step in the Rose-red Canyon City | +1 step | P | F21 torch |
-|  |  | Larder | Sesame Round | 🥯 | First visit to Meadowbrook each day: one sesame flatbread | 1 a day | D | A3 daygift |
+|  |  | Larder | Sesame Round | 🥯 | First visit to Meadowbrook each day: one handful of sesame (`sesame`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Fritters While You Wait | 🧆 | 2% more XP from craft and cook acts at Meadowbrook | +2% | P | F03 xp |
 | Windford | orchard | Repairs | Palm-Climber's Belt | 🌴 | Tree harvests among Windford's local crops: 1% chance of one extra | +1% | P | F10 harvest |
 |  |  | Larder | Pomegranate Press | 🧃 | Boosts from juices and sherbets bought at Windford last 2% longer | +2% | P | F08 buff |
@@ -222,7 +222,7 @@ Stop types to set in Admin > Places:
 |  |  | Larder | Brass Pot on the Bench | 🥘 | Dishes eaten at Cragmead by day give 2% more energy | +2% | P | F07 meal |
 |  |  | Cheer | Inlaid Game Board | 🎲 | Pick and contest acts at Cragmead pay 2% more coins | +2% | P | F15 stopcoin |
 | Ambercrest | tower | Repairs | Sand-Swept Stair | 🧗 | Walks that start at Ambercrest at dusk or night take 2% less time | -2% | P | F05 walk |
-|  |  | Larder | Shade Jar of Chickpeas | 🫘 | First visit to Ambercrest each day: one handful of roasted chickpeas | 1 a day | D | A3 daygift |
+|  |  | Larder | Shade Jar of Chickpeas | 🫘 | First visit to Ambercrest each day: one handful of chickpeas (`chickpea`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Star-Counter's Chart | 🌟 | The world map shows how many game days it is since you last visited each stop | flag | F | A5 info |
 | Amberholt | spring | Repairs | Tiled Pool, Regrouted | 🚿 | Rest acts at Amberholt heal 2% more in heat | +2% | P | F09 heal |
 |  |  | Larder | Mint in the Steam | 🌿 | Boosts from teas drunk at Amberholt last 2% longer | +2% | P | F08 buff |
@@ -231,7 +231,7 @@ Stop types to set in Admin > Places:
 |  |  | Larder | Supper Buried in Hot Sand | 🍢 | Pots cooked at Sandbottom's fire at night cook 2% faster | -2% | P | F06 cook |
 |  |  | Cheer | What the Dunes Said | 👣 | On desert walks your gnome leaves footprints on the route map that fade behind you (looks only) | flag | F | A6 looks |
 | Spice Souk (haven) | market | Repairs | Roof Cloth, Stretched Tight | 🧶 | Haggle checks at the Spice Souk are 2% kinder | +2% | P | F16 check |
-|  |  | Larder | Pinch From Every Basket | 🌶️ | First visit to the Spice Souk each day: one pinch of cumin | 1 a day | D | A3 daygift |
+|  |  | Larder | Pinch From Every Basket | 🌶️ | First visit to the Spice Souk each day: one pinch of cumin (`cumin`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | No Bargain Without Tea | 🫖 | Shop pages show what you paid the last time you bought each thing | flag | F | A5 info |
 
 ## 5. The Greatcanopy (WCA): 13 stops, 39 perks
@@ -259,14 +259,14 @@ Stop types to set in Admin > Places:
 | Stop | Type | Bar | Perk | Icon | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|---|
 | The Greatcanopy Market | market | Repairs | Laterite Kerb Stones | 🧱 | The stalls of the Greatcanopy Market pay 2% more for roots and tubers | +2% | P | F01 sell |
-|  |  | Larder | Groundnut Twist | 🥜 | First visit to the Greatcanopy Market each day: one paper twist of roasted groundnuts | 1 a day | D | A3 daygift |
+|  |  | Larder | Groundnut Twist | 🥜 | First visit to the Greatcanopy Market each day: one paper twist of bambara groundnuts (`bambara`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Wax-Print Awnings | 👘 | Your satchel gets a wax-print cloth lining; the pattern changes with each new mark in the Greatcanopy (looks only) | flag | F | A6 looks |
 | Cloverbottom | inn | Repairs | Web-Brushed Rafters | 🕸️ | +1 max health on the road from Cloverbottom to the Hollow of the Silverback Spider | +1 point | P | F20 hp |
 |  |  | Larder | Groundnut Stew, Second Ladle | 🍲 | Boosts from meals bought at Cloverbottom in rain last 2% longer | +2% | P | F08 buff |
 |  |  | Cheer | A Story From the Spider | 🕷️ | Stop pages put a small web on lore acts you have not heard yet | flag | F | A5 info |
 | Thistleholt | mill | Repairs | Mortar and Tall Pestle | 🪵 | Power acts at Thistleholt pay 2% more coins | +2% | P | F15 stopcoin |
 |  |  | Larder | Fonio Sieve | 🌾 | 2% more garden XP from the grains among Thistleholt's local crops | +2% | P | F04 gxp |
-|  |  | Cheer | Porridge at First Light | 🥣 | First visit to Thistleholt each day: one bowl of millet porridge | 1 a day | D | A3 daygift |
+|  |  | Cheer | Porridge at First Light | 🥣 | First visit to Thistleholt each day: one scoop of millet (`millet`) | 1 a day | D | A3 daygift |
 | Hayglen | orchard | Repairs | Bridge-Walker's Lamp | 🌉 | +1 torch step in the Canopy Bridges | +1 step | P | F21 torch |
 |  |  | Larder | Shea Butter Pot | 🧈 | Nut harvests among Hayglen's local crops: 1% chance of one extra | +1% | P | F10 harvest |
 |  |  | Cheer | Kola Nut, Split and Shared | 🌰 | Chats with Hayglen's folk at dawn have a 2% chance of +1 friendship | +2% | P | F14 friend |
@@ -275,7 +275,7 @@ Stop types to set in Admin > Places:
 |  |  | Cheer | Paddle-Beat Song | 🎶 | Once a day, the first power act at Fenmead costs 1 less energy | 1 a day | D | A1 dayfree |
 | Fenwell | jetty | Repairs | Stilt Legs, Re-Footed | 🏗️ | Walks that start at Fenwell in rain have a 2% better chance to spot hidden places | +2% | P | F19 spot |
 |  |  | Larder | Crayfish Pots | 🦐 | The pod crops among Fenwell's local crops have 1% more chance of a seed back | +1% | P | F13 seed |
-|  |  | Cheer | Heron on Every Post | 🦢 | A heron stands by your garden's water butt on rainy days (looks only) | flag | F | A6 looks |
+|  |  | Cheer | Reed Mats on the Paths | 🪹 | Woven reed mats line the paths of your garden (looks only) | flag | F | A6 looks |
 | Heronwick | herb | Repairs | Rain-Gutter Reeds | 🌧️ | Once a day, the first tend act at Heronwick costs 1 less energy | 1 a day | D | A1 dayfree |
 |  |  | Larder | Hibiscus Steep | 🌺 | Watering lasts 2% longer on Heronwick's local crops on windy days | +2% | P | F12 water |
 |  |  | Cheer | Night-Scented Bed | 🦗 | Your garden marks the beds that will need weeding by the next game day | flag | F | A5 info |
@@ -283,16 +283,16 @@ Stop types to set in Admin > Places:
 |  |  | Larder | Leaf-Plate Offering | 🍃 | Gathering at Vineden at dawn has a 1% chance of one extra | +1% | P | F11 gather |
 |  |  | Cheer | Polite as a Gorilla | 🦍 | Charm checks at Vineden are 2% kinder | +2% | P | F16 check |
 | Lianawick | workshop | Repairs | Liana Rope, Triple-Plaited | 🧗 | 2% more XP from craft and mend acts at Lianawick | +2% | P | F03 xp |
-|  |  | Larder | Yam Chips in a Leaf Cone | 🍠 | First visit to Lianawick each day: one cone of yam chips | 1 a day | D | A3 daygift |
+|  |  | Larder | Yam Chips in a Leaf Cone | 🍠 | First visit to Lianawick each day: one yam (`yam`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Tin-Roof Drumming | 🥁 | When it rains, your Today page shows rain running off a tin roof (looks only) | flag | F | A6 looks |
 | Mistcrest | spring | Repairs | Mossy Pool Lip, Scrubbed | 🧽 | Rest acts at Mistcrest give 1 more energy at dawn, while the mist is in | +1 | P | F22 restenergy |
 |  |  | Larder | Pepper Soup in a Leaf Cup | 🥬 | Dishes eaten at Mistcrest in rain give 2% more energy | +2% | P | F07 meal |
 |  |  | Cheer | Steam-Room Recipes | 📖 | Your satchel shows how many recipes you know use each ingredient | flag | F | A5 info |
 | Driftglen | camp | Repairs | Palm-Thatch Windbreak | 🛖 | Pots cooked at Driftglen's fire with fish in them cook 2% faster | -2% | P | F06 cook |
 |  |  | Larder | Grilled-Fish Night | 🐠 | The first fish you sell each day at Driftglen's stall pays 2 coins more | 2 coins | D | A4 daycoin |
-|  |  | Cheer | Goldsand in the Turn-Ups | ✨ | Passport stamps from coast stops get a gold-sand shimmer (looks only) | flag | F | A6 looks |
-| Pebblenook | tower | Repairs | Palm-Oil Beacon | 🪔 | Fast travel to Pebblenook costs 1% less | -1% | P | F18 travel |
-|  |  | Larder | Cowpea Fritter Tin | 🧆 | First visit to Pebblenook each day: one cowpea fritter | 1 a day | D | A3 daygift |
+|  |  | Cheer | Goldsand in the Turn-Ups | ✨ | A little gold sand spills out when you open your satchel after a coast walk (looks only) | flag | F | A6 looks |
+| Pebblenook | tower | Repairs | Palm-Oil Beacon | 🪔 | Fast travel that starts at Pebblenook on windy days costs 1% less | -1% | P | F18 travel |
+|  |  | Larder | Cowpea Fritter Tin | 🧆 | First visit to Pebblenook each day: one handful of cowpeas (`cowpea`) | 1 a day | D | A3 daygift |
 |  |  | Cheer | Canoes Counted Home | 🌊 | The route menu shows what kind of land each stretch of a road crosses | flag | F | A5 info |
 | Drum Circle Market (haven) | camp | Repairs | Drum Skins Pulled Tight | 🪘 | Acts at the Drum Circle Market pay 2% more coins on festival days | +2% | P | F15 stopcoin |
 |  |  | Larder | Stew for Whoever Comes | 🍛 | Rest acts at the Drum Circle Market give 1 more energy at dusk, when the stew is ladled | +1 | P | F22 restenergy |
@@ -308,7 +308,7 @@ Stop types to set in Admin > Places:
 | The Greatcanopy (WCA) | 13 | 39 | 0 | 23 | 7 | 9 | 0 (every share is 0) |
 | **All four** | **51** | **153** | **0** | **89** | **29** | **35** | **0** |
 
-Perks per family, all four regions (every numbered one is a place perk): F01 sell 6, F02 buy 4, F03 xp 3, F04 gxp 3, F05 walk 6, F06 cook 3, F07 meal 5, F08 buff 6, F09 heal 4, F10 harvest 3, F11 gather 4, F12 water 3, F13 seed 3, F14 friend 3, F15 stopcoin 5, F16 check 6, F17 pest 3, F18 travel 4, F19 spot 2, F20 hp 4, F21 torch 4, F22 restenergy 4, F23 trailseed 1, A1 dayfree 5, A2 dayback 3, A3 daygift 19, A4 daycoin 2, A5 info 17, A6 looks 18.
+Perks per family, all four regions (every numbered one is a place perk; after the audit of 2026-11-27): F01 sell 6, F02 buy 4, F03 xp 3, F04 gxp 3, F05 walk 6, F06 cook 3, F07 meal 5, F08 buff 6, F09 heal 4, F10 harvest 3, F11 gather 4, F12 water 3, F13 seed 3, F14 friend 3, F15 stopcoin 5, F16 check 6, F17 pest 3, F18 travel 4, F19 spot 2, F20 hp 4, F21 torch 4, F22 restenergy 4, F23 trailseed 1, A1 dayfree 5, A2 dayback 3, A3 daygift 19, A4 daycoin 2, A5 info 15, A6 looks 20.
 
 Daily charges: 29 perks, each with its own trigger, and every one is tied to its own stop (first visit, first act of a kind there, first sale or buy at its stall, a walk that ends there). So none can share a trigger with a world daily perk, in the Maplewold or in another region. (A first draft had "the first weed you pull in rain" at Heronwick; the Maplewold's Cleared Channels at Cattailmere now owns the weeding trigger, so it was replaced.)
 
@@ -318,7 +318,7 @@ Build notes (as section 5 of `proposal-stop-perks.md`): item names (herb flatbre
 
 Run on the rows of this file by a scratch Python script (`genB.py`, not in the repo; it holds the hand-written rows and wrote the tables):
 - **Names and effects: all 153 are unique** within this file, and none equals any of the 90 existing ones (54 Maplewold perks of section 5 + 36 type templates of section 6, read from `proposal-stop-perks.md` as it stands now; the brief said 84, the file has grown by the 6 perks of Cattailmere and Granitegate). Compared in lower case with punctuation removed.
-- Against the other two region files: checked against `proposal-stop-perks-regions-C.md` as it stood when this file was finished: no perk name or effect of this file appears as a table cell there. Three flags that read too close to a C perk (moon phase, a kite on windy days, a turtle crossing a page) were rewritten by hand. `proposal-stop-perks-regions-A.md` did not exist yet; rerun the check when it lands.
+- Against the other two region files: checked against `proposal-stop-perks-regions-C.md` as it stood when this file was finished: no perk name or effect of this file appears as a table cell there. Three flags that read too close to a C perk (moon phase, a kite on windy days, a turtle crossing a page) were rewritten by hand. `proposal-stop-perks-regions-A.md` did not exist yet. **Rerun 2026-11-27** across all four files (`python3 claude/tools_audit_stop_perks.py`): 0 errors after fixes. Changed here: the four "fast travel to <village>" perks (fast travel only lands at a region town; they also had one text) now count from the stop with a condition; Echonook's seed-on-travel likewise; Reedby's fish stall, Cliffbrook's unfound places, Echohollow's bar preview, Fenwell's heron, Echonook's lair level and Driftglen's stamp tint clashed with file A and were rewritten; the Oasis rumour (no such daily data) became a looks flag; "lore boosts" (not a thing) became lemon-verbena boosts; every gift names a real item slug and no gift is a meal; Sprayglen's gathering, Hazelthorpe's contests, Reedby's chats and Gullwell's rest had the same target and condition as an A perk and now differ (tide bucket, summer, fog, wind).
 - Each stop has exactly three perks, one per bar, in three different families; no stop has two flags.
 - No number above 2%; every +1 is energy, a torch step or a health point; every daily perk is one charge.
 - At most one local-crop perk per family per region.

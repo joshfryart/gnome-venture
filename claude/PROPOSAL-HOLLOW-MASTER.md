@@ -277,7 +277,14 @@ Modifiers: `opt=1`, `alt=kind:spec:qty`. Rules: steps latch; no main step needs 
 
 ## 7. REST STOPS
 
-Full rules, hooks and migration: `proposal-stop-perks.md`. Act table: `proposal-stop-act-bars.txt`.
+Full rules, hooks and migration: `proposal-stop-perks.md` (with the deduplicated **Hook list**). Act table: `proposal-stop-act-bars.txt`.
+
+**Every stop has a hand-written set: 180 stops, 540 perks.** The Maplewold roads (18 stops, 54 perks) are in `proposal-stop-perks.md` section 5 and 7.5 below; the other 13 regions are in three files:
+- `proposal-stop-perks-regions-A.md`: Maizehollow (CA) 11 stops, Mistmoor (NWE) 12, the Sunsprinkle Isles (CB) 13, the Rainroot Reaches (SA) 13: 49 stops, 147 perks.
+- `proposal-stop-perks-regions-B.md`: Olivewhistle Shore (SE) 13, Birchbramble Steppe (EE) 12, the Dunewhisper (MENA) 13, the Greatcanopy (WCA) 13: 51 stops, 153 perks.
+- `proposal-stop-perks-regions-C.md`: Thornacre Savanna (ESA) 12, Spicepeak (CSA) 13, Blossomreach (EA) 11, the Monsoon Tangle (SEA) 13, the Coralscatter (OC) 13: 62 stops, 186 perks.
+
+Larkbrook (CA), Windbottom (NWE) and Honeythorpe (EA) are counted once, in the Maplewold set. Of the 540: 29 world perks (all in the Maplewold set; every regional share of the world budget rounds to 0), 282 place perks, 91 daily charges, 138 flags. Checked by `python3 claude/tools_audit_stop_perks.py` (0 errors; audit log 7.8).
 
 ### 7.1 Bars
 Three bars per stop per gnome: **Repairs, Larder, Cheer**, 0 to 100. A bar that reaches 100 **latches**: it stays full and its perk is on for good ("lasting mark"; stamps Mended / Stocked / Merry). No expiry, no limit on how many, no decay (also none for unfilled bars). Acts at a full bar still pay as normal and add 1 to a "kept up" count (flavour).
@@ -321,7 +328,10 @@ The four answer acts (`mend_board`, `tidy_yard`, `fill_shelf`, `hang_lanterns`) 
 | dish energy | +5% | stop check | +4% | seed on fast travel | +4% |
 | boost length | +8% | healing | +8% | daycoin (A4) | 10 coins a game day |
 
-Daily families: A1 first action free, A2 something lost comes back, A3 one common item, A4 a few coins. Flags: A5 info, A6 looks (one of each per stop at most). Most at one place: walk -10%, pots -10%, XP +7% (today's 7-day perks give -15%, -20%, +10%); max health +4 on Cairnback Ridge (cap +3 and Granitegate's place perk).
+Daily families: A1 first action free, A2 something lost comes back, A3 one common item (a real crop, gatherable, snack or preserve slug; never a meal), A4 a few coins. Flags: A5 info, A6 looks (one of each per stop at most).
+- **Place-stack ceiling (P2):** for one event, the place and crop perks of a family add at most +4% (XP +2%; max health, torch, rest energy +1) on top of the world total.
+- **Crop perks (P3):** `stop_local_crops()` is region-wide and crops are grown in the gnome's own garden, so a perk naming crops acts wherever they are: one crop perk per crop per family across all sets, native crops only, outside the world cap, inside P2. `region=` perks: one per family per region.
+- **Daily triggers (P4):** no daily charge repeats a world daily charge's trigger. Fast travel lands only at a region's town (`travel_to`), so travel perks count from the stop or to a town. Most at one place: walk -10%, pots -10%, XP +7% (today's 7-day perks give -15%, -20%, +10%); max health +4 on Cairnback Ridge (cap +3 and Granitegate's place perk).
 
 ### 7.5 The Maplewold roads: 18 stops, 54 perks
 15 stops in the Maplewold (town, 12 villages, 2 havens) + 3 border villages that belong to the next region. W = world, P = place, D = daily charge, F = flag.
@@ -331,12 +341,12 @@ Daily families: A1 first action free, A2 something lost comes back, A3 one commo
 | Maplewold Market (town) | market | Level Scales: Maplewold crops sell +1% (W) | Baker's Thirteenth: first shop food each day +1 (D) | Known at the Stalls: leaf on never-owned goods (F) |
 | Poppyburrow | inn | Straightened Signpost: walks to and from its seven neighbours -2% time (P) | Second Breakfast: home-cooked dishes at dawn +2% energy (W) | A Bed With Your Name On: rest acts at inns +1 energy (W) |
 | Honeybrook | herb | Tidy Skeps: pests -2% on flowering plants (W) | Honey in the Tea: tea boosts +2% longer (W) | The Bees Know You: a bee visits your garden (F) |
-| Cloverholt | mill | Greased Wheel: breads and bakes cook 2% faster (W) | Miller's Pinch: oats and lentil +1% extra harvest (W) | Oatcake for the Road: first visit each day, one oatcake (D, P) |
+| Cloverholt | mill | Greased Wheel: breads and bakes cook 2% faster (W) | Miller's Pinch: oats and lentil +1% extra harvest (W) | Oatcake for the Road: first visit each day, a handful of oats (D, P) |
 | Acornby | camp | Dry Woodpile: resting on forest trails heals +2% (W) | Squirrel's Arithmetic: forest gathering +1% extra (W) | Fireside Regular: checks at camps +1% (W) |
 | Birchhollow | workshop | Birch-Bark Patch: first staff wear each day skipped (D) | Sawdust Mulch: watering +2% longer on hot or windy days (W) | Measured Twice: checks show exact odds (F) |
 | Mossgate | shrine | Swept Steps: spot hidden things in forest +1% (W) | What You Leave Comes Back: Maplewold crops +1% seed back (W) | Glow-Moss in the Pocket: green glow when the torch runs out (F) |
 | Shellhollow | jetty | Sound Nets: acts at jetties and ferries +2% coins (W) | Catch of the Day: fish sell +1% (W) | An Opinion on Every Fish: Today page shows the next game day's weather (F) |
-| Pebblestead | ferry | Beaver-Tight Hull: coast fast travel -1% (W) | Porter's Crate: coast shops -1% (W) | Pebble in the Boot: 1 in 20 road walks turn up a coin (A4) |
+| Pebblestead | ferry | Beaver-Tight Hull: fast travel from a coast stop -1% (W) | Porter's Crate: coast shops -1% (W) | Pebble in the Boot: 1 in 20 road walks turn up a coin (A4) |
 | Iciclecrest | tower | Beacon Basket, Refilled: +1 torch step in Maplewold delves (P) | Watcher's Flask: walking in snow or frost -1% time (W) | Three Roads and a Long Way: route menu shows what is on at the far stop (F) |
 | Snowcombe | spring | Scrubbed Pools: rest acts at hot springs +1 energy (W) | Spring-Boiled Egg: first visit each day, one egg (D, P) | Warm to the Bones: healing +2% while it snows (W) |
 | **Cattailmere** (Fens, new) | herb | Cleared Channels: first weeding each day costs no energy (D) | Rice in the Turn-Ups: fast travel +1% chance to turn up a seed (W) | Frog on the Gatepost: on rainy days a frog sits on your garden gate (F) |
@@ -367,13 +377,22 @@ The 6 new perks and the budgets (`proposal-stop-perks.md` 4.1): because the worl
 | spring | Mended Pools | Egg Basket | Steam in the Whiskers |
 | camp | Ring of Stones | Shared Pot | Harmonica Somewhere |
 
-162 other stops x 3 = 486 template perks; they add nothing to any world total. Admin can replace any with a hand-written perk inside the world budget left.
+Since decision 7 the other 162 stops have hand-written sets (section 7 top); the templates are only a fallback for a stop added later (their `items=local:` becomes named crops, rule P3). They add nothing to any world total.
 
 ### 7.7 Game-day mechanics of perks
 - A daily charge is one row `(user_id, day, perk_key)` in `stop_mark_use`, `day` = `gclock_my_date()`. It is taken on use, never banked, and comes back on the next sleep.
 - "First visit each day", "first watering each day", "at dawn", "at night", "on windy days", "while it snows" all read the gnome's own clock and weather (`gclock_my_hour`, `gclock_my_weather`).
 - `filled_on` is the gnome's game date. Nothing reads it for an expiry.
 - Old 7-day perks end on their own game date (`until`); a gnome who does not sleep keeps one until the release that removes the old code. They are never turned into marks.
+
+### 7.8 Regional perk audit log (2026-11-27)
+The three region files were written in parallel and checked only against the Maplewold set. One script (`claude/tools_audit_stop_perks.py`, corrections table `tools_audit_stop_perks_fixes.py`) now parses all 540 perks; about 107 were rewritten, always in the later file. For Josh:
+1. **Stops and counts are right**: every town, village and haven of `route-list.md` has exactly 3 perks, one per bar; nothing missing or invented. 54 + 147 + 153 + 186 = **540**.
+2. **Clashes between the files**: 11 effects were the same text once the place name was taken out, 10 more had the same family, target and condition, and 26 flags repeated an idea from another file (weather at the far end, lair level, which bar an act feeds, a heron, a seal, a kite, a turtle...). All rewritten; 0 left.
+3. **Fast travel**: 12 perks priced or seeded fast travel "to" a village or inside one region, which the game cannot do (`travel_to` lands at a region's town). They now count from the stop or to a town, and are 1% (three were 2%).
+4. **Crop perks act region-wide in code**, so they were nearer world perks than place perks. New rules: one crop perk per crop per family, native crops only, and a place-stack ceiling (one event gets at most cap + 4%, XP +2%). One breach fixed (apricot).
+5. **Power and items**: a lost game paid as a win and a free ridden walk were cut; nothing is above 2% or +1. 44 daily gifts named items that do not exist (oatcake, tortilla, scone, roti...) or were full meals; each now names a real slug. Three daily charges shared a trigger (rod and tool wear) and were split.
+6. **Hooks**: wonder data the game does not keep (where the Oasis is, the Migration, panda shoots) and "lore boosts" were rewritten. The deduplicated hook list (23 family hooks + context keys, 28 daily triggers, 14 pages, 12 NEW pieces) is in `proposal-stop-perks.md`.
 
 ## 8. GARDENING THREAD
 
@@ -438,7 +457,7 @@ Code changes needed: `REGION_LEVELS` to band floors + `min_level` migration; `LA
 |---|---|---|---|
 | 0 | Puzzle Pal access filter | `puzzle_pals.php`, `progression.php`, `tests/puzzle_pals_map.php` | **done** |
 | 1 | Balance sim: Standing weights, XP budget, Petals per game day, bar pace, Lv 45 and 55 fights. Method as `balance-2.7.27-sims.md` | `claude/` sim script only | next |
-| 2 | Stop marks: latch, no decay, bar points per game day, 18 Maplewold stops, templates, caps, Admin, migration | new `stop_marks.php`, `stop_living.php`, `stops.php`, `player_perks.php` call sites (9), `data/stop_perks.txt`, `stop_perk_fx.txt`, `stop_act_bars.txt`, schema `stop_marks`, `stop_mark_use` | next (stands alone) |
+| 2 | Stop marks: latch, no decay, bar points per game day, all 180 stops / 540 perks (Maplewold + region files A, B, C), caps and rules P2-P4, Admin, migration; hooks as the Hook list in `proposal-stop-perks.md` | new `stop_marks.php`, `stop_living.php`, `stops.php`, `player_perks.php` call sites (9), `data/stop_perks.txt`, `stop_perk_fx.txt`, `stop_act_bars.txt`, schema `stop_marks`, `stop_mark_use` | next (stands alone) |
 | 3 | `stop_is_place()`: town and havens as stops | `stops.php:813`, `stop_living.php:339, 360`, `here_view.php` x6, `place_ui.php:306` | with 2 |
 | 4 | Bands as config: `REGION_LEVELS`, lairs at band top, `route_danger` clamp, `min_level` migration | `progression.php`, `roads.php`, `adventure.php`, boot step | after 1 |
 | 5 | Off-road adoption (drop `on_road`, cap tier 2), first adoption in an area free | `place_ui.php`, `stop_adopt.php` | after 1 |
@@ -512,7 +531,7 @@ Code changes needed: `REGION_LEVELS` to band floors + `min_level` migration; `LA
 | 4 | Many sleeps a day | No real-day cap | Dailies follow the game day only. |
 | 5 | Marks and Standing | Separate layer | Marks never count for Standing (section 4, section 3 marks row). |
 | 6 | Town and havens as stops | Yes | Build `stop_is_place()` and a stop type each. |
-| 7 | Other 13 regions | **Hand-written set per region** | Replaces the 36 type templates as the main plan (templates stay as fallback for stops not yet written). Large writing job: each region's stops x 3 perks, unique, inside the family caps (the world budget per family is shared, so check it). |
+| 7 | Other 13 regions | **Hand-written set per region** | Replaces the 36 type templates as the main plan (templates stay as fallback for stops not yet written). **Done:** 162 stops, 486 perks in three region files (section 7), unique, inside the family caps. |
 | 8 | Perk step down | News post only | No launch festival. |
 
-Follow-up work: (a) **DONE 2026-11-27**: the 2 villages and their 6 perks are in sections 2.3, 6, 7.5 and 8 (and in `proposal-stop-perks.md` 4, 4.1, 5; `proposal-story-2-quests.md` M4, M6, M7; bands doc section 3). (b) **DONE 2026-11-27**: Standing (section 4) and pacing (section 3, A8) recomputed for 12 villages: 7 lit = full, non-fighter 82.7 / 87.7, 3,600 Petals, Seal still 20-35 game days, 54 marks in 34-51. All unsimulated. (c) open: write the per-region perk sets (13 regions), checking the family caps; world budget left after the Maplewold is in `proposal-stop-perks.md` 4.1.
+Follow-up work: (a) **DONE 2026-11-27**: the 2 villages and their 6 perks are in sections 2.3, 6, 7.5 and 8 (and in `proposal-stop-perks.md` 4, 4.1, 5; `proposal-story-2-quests.md` M4, M6, M7; bands doc section 3). (b) **DONE 2026-11-27**: Standing (section 4) and pacing (section 3, A8) recomputed for 12 villages: 7 lit = full, non-fighter 82.7 / 87.7, 3,600 Petals, Seal still 20-35 game days, 54 marks in 34-51. All unsimulated. (c) **DONE 2026-11-27**: the per-region perk sets for the 13 regions are written (`proposal-stop-perks-regions-A.md`, `-B.md`, `-C.md`; 162 stops, 486 perks; with the Maplewold 180 stops, 540 perks), audited across all four files and fixed in place (`claude/tools_audit_stop_perks.py`, 0 errors); no family over its cap, no region uses world budget; audit log in 7.8, hooks in `proposal-stop-perks.md` "Hook list".
