@@ -767,10 +767,28 @@
   var fitBusy = false, dockEl = null, dockOn = false, dockMo = null, pairEl = null;
   function handAR() { var P = window.PFParts, S = P && P.ok && P.atlas && P.atlas.sizes && P.atlas.sizes.strip; return S && P.atlas.version === 47 ? S.piece[1] / S.piece[0] : 52 / 74; }   // 2.6.89: the hand shows the strip-size piece; the jigsaw piece is 82 x 73, the old one 74 x 52
   var HAND_W = function () { return window.innerWidth <= 560 ? 74 : 112; };
-  function fitVars(v) { var st = root.style; ['--pfv-gap', '--pfv-btn', '--pfv-hw', '--pfv-hh', '--pfv-dock', '--pfv-leg'].forEach(function (k) { if (v && v[k] !== undefined) st.setProperty(k, v[k]); else st.removeProperty(k); }); }
+  function fitVars(v) { var st = root.style; ['--pfv-gap', '--pfv-btn', '--pfv-hw', '--pfv-hh', '--pfv-dock', '--pfv-leg', '--pfr-hand', '--pfr-board'].forEach(function (k) { if (v && v[k] !== undefined) st.setProperty(k, v[k]); else st.removeProperty(k); }); }
   function setDock(on) {
     if (on === dockOn || !dockEl) return; dockOn = on; root.classList.toggle('pfv-dockon', on);
     if (insp) { if (on) dockEl.insertBefore(insp, dockEl.firstChild); else if (wrapEl) wrapEl.appendChild(insp); }   // the card docks under the board (in the flow) or, with no room to spare, lies over the board room
+  }
+  /* 2.8.78 (Josh: "go with thumb rails"): a phone held sideways (landscape, under 600 px high) lays the fight out in three columns: your hand down the left edge, the board in the middle,
+     the bars, tips and buttons down the right edge (assets/pfv1.css, the .pfv-fit grid under the same media test). The hand pieces are sized to the column's height (one piece per fifth of it), the board to its column.
+     A bigger window keeps the three columns together in the middle (the panel is at most 1080 px wide and centred). */
+  var railsMq = window.matchMedia ? window.matchMedia('(orientation: landscape) and (max-height: 599px) and (min-width: 560px)') : null;
+  function railsFit() { return !!(railsMq && railsMq.matches && document.body.classList.contains('game')); }
+  function fitRails() {
+    var ar = fitTW / fitTH, n = Math.max(1, tiles.filter(function (t) { return !t.hidden; }).length || tiles.length || 5), cs = getComputedStyle(root);
+    var H = root.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0), gap = 6, k = handAR();
+    var hh = Math.floor((H - gap * (n - 1)) / n), hw = Math.round(hh / k), cap = Math.round(Math.min(120, root.clientWidth * 0.14));
+    if (hw > cap) { hw = cap; hh = Math.round(hw * k); }
+    fitVars({ '--pfv-btn': '44px', '--pfv-gap': '4px', '--pfv-leg': '30px', '--pfv-dock': '54px', '--pfv-hw': hw + 'px', '--pfv-hh': hh + 'px', '--pfr-hand': (hw + 4) + 'px' });
+    setDock(true); wrapEl.style.flex = ''; wrapEl.style.height = '';
+    var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
+    var w = Math.floor(Math.min(r.width - 4, (r.height - 4) * ar, fitTW * 4.5)), h = Math.round(w / ar);
+    boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = fitTW + ' / ' + fitTH; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
+    root.style.setProperty('--pfr-board', (w + 4) + 'px');   // the board's column shrinks to the board, so hand, board and rail sit together in the middle of a wide window
+    if (dockOn) { root.classList.toggle('pfv-docks', true); if (insp && !insp.hidden && selected === null && picked === null) insp.hidden = true; dockEl.style.setProperty('--pfv-dockh', dockEl.clientHeight + 'px'); dockFill(); }
   }
   function fitBoard() {
     if (fitBusy || !wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;

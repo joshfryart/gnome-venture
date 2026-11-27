@@ -199,6 +199,9 @@ rep("    if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound')
     }
     if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
   }""")
+# --- 2.8.78 thumb rails: a phone held sideways (hand left, board middle, bars and buttons right): its own fit; the hand does not fan in a column
+rep("    if (deskFit()) { try { fitDesk(); } finally { fitBusy = false; } fan(); return; }", "    if (railsFit()) { try { fitRails(); } finally { fitBusy = false; } fan(); return; }\n    if (deskFit()) { try { fitDesk(); } finally { fitBusy = false; } fan(); return; }")
+rep("    var avail = handEl.clientWidth, w = vis[0].offsetWidth || 112, m = window.innerWidth <= 560 ? 3 : 6;", "    if (railsFit()) { vis.forEach(function (t) { t.style.marginLeft = '0'; t.style.zIndex = t.classList.contains('pf-picked') ? '6' : '1'; }); return; }   // 2.8.78: a column, no overlap\n    var avail = handEl.clientWidth, w = vis[0].offsetWidth || 112, m = window.innerWidth <= 560 ? 3 : 6;")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')

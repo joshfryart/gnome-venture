@@ -1138,3 +1138,35 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   .pfb2r-hero { border-bottom: 0; border-right: 2px dashed var(--accent, #e8a317); align-content: center; padding: 18px 14px; }
 }
 @media (max-height: 520px) { .pfb2r-hero .pic { width: 72px; height: 54px; } .pfb2r-hero .pic img { max-width: 64px; max-height: 46px; } .pfb2r-hero h2 { font-size: 19px; } .pfb2r-hero { padding: 10px; gap: 3px; } }
+
+/* ============ 2.8.78 thumb rails: the fight on a phone held sideways (landscape, under 600 px high, at least 560 wide) ============
+   Left edge: your hand, one piece per fifth of the height. Middle: the board. Right edge: bars, whose turn, the weather, the last plays, the tapped piece, then the buttons at the foot.
+   The three columns are one block at most 1080 px wide, centred, so a bigger window (932 x 430) keeps hand and board together in the middle. Sizes: assets/pfboardv1.js fitRails().
+   (Desktop, from 1000 x 600, keeps its own layout; the dock's old two-column landscape rule in dock.css is overridden here.) */
+@media (orientation: landscape) and (max-height: 599px) and (min-width: 560px) {
+  html body #pfight.pf-v1.pfv-fit { width: min(100vw, 1080px); display: grid; grid-template-columns: var(--pfr-hand, 84px) var(--pfr-board, minmax(0, 1fr)) clamp(230px, 31vw, 320px); grid-template-rows: repeat(8, auto) minmax(0, 1fr) auto; grid-auto-flow: row; column-gap: 10px; row-gap: 0; align-content: stretch; justify-content: center; padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)); }
+  html body #pfight.pf-v1.pfv-fit > * { grid-column: 3; margin: 0 0 2px; min-width: 0; }
+  html body #pfight.pf-v1.pfv-fit > :is(.pfv-bwrap, .pfb-board) { grid-column: 2; grid-row: 1 / -1; align-self: stretch; justify-self: stretch; margin: 0; min-height: 0; display: grid; place-items: center; }
+  html body #pfight.pf-v1.pfv-fit > .pf-tray { grid-column: 1; grid-row: 1 / -1; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+  html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand { flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 6px; padding: 0; overflow: visible; }
+  html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand .pf-tile { margin: 0; flex: none; }
+  html body #pfight.pf-v1.pfv-fit .pf-tray > :not(.pf-hand) { display: none; }
+  /* the right edge, top to bottom */
+  html body #pfight.pf-v1.pfv-fit > .pfc-top { order: 1; }
+  html body #pfight.pf-v1.pfv-fit > .pfv-guide { display: none; }   /* the tip line: the tapped piece's card says it */
+  html body #pfight.pf-v1.pfv-fit > .pfv-row { order: 3; flex-wrap: nowrap; overflow: hidden; min-height: 24px; max-height: 26px; }
+  html body #pfight.pf-v1.pfv-fit > .pfv-legend { order: 4; display: flex; flex-wrap: nowrap; overflow-x: auto; min-height: 26px; }
+  html body #pfight.pf-v1.pfv-fit > .pfc-histrow { order: 5; }
+  html body #pfight.pf-v1.pfv-fit > .pfv-dock, html body #pfight.pf-v1.pfv-fit > .pfv-pair { order: 6; }
+  html body #pfight.pf-v1.pfv-fit > .pf-form { order: 99; margin: 0; }
+  html body #pfight.pf-v1.pfv-fit > .pf-rewind { order: 7; }
+  html body #pfight.pf-v1.pfv-fit > .pf-preview, html body #pfight.pf-v1.pfv-fit > .pf-preview-x { display: none; }
+  html body #pfight.pf-v1.pfv-fit > .pf-plan { order: 8; }
+  html body #pfight.pf-v1.pfv-fit > .pf-buttons { grid-row: 10; align-self: end; margin-bottom: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+  html body #pfight.pf-v1.pfv-fit > .pf-buttons #pf-go { flex: 2 1 96px; order: -1; min-height: 44px; }
+  html body #pfight.pf-v1.pfv-fit > .pf-buttons .btn { flex: 1 1 0; min-height: 44px; }
+  html body #pfight.pf-v1.pfv-fit > .pf-extra { order: 9; }
+  html body #pfight.pf-v1.pfv-fit .pfc-top { padding: 2px 4px; }
+  html body #pfight.pf-v1.pfv-fit .pfv-guide { max-height: 40px; overflow: hidden; font-size: 12px; line-height: 1.2; min-height: 0; padding-block: 2px; }
+  html body #pfight.pf-v1.pfv-fit .pfv-dock { height: var(--pfv-dock, 54px); }
+}
