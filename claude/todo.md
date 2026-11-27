@@ -4,9 +4,9 @@ Rules: add new items here only. Tick or delete when done, and MOVE finished bloc
 ## Latest: 2.8.76 hotfix SHIPPED 2026-11-26 (PR 89 merged to main; slim zip `releases/GnomeVenture-2.8.76-web-update.zip`, 95 files, goes on 2.8.73 or newer, replaces the 2.8.75 zip). Live Home died on `craft_link_fix()` in a live-only `first_week.php` (not in this repo or its history): 2.8.76 ships `first_week.php` again and adds a harmless `craft_link_fix()` stand-in in `here_schema.php`. Open: find out why live has a different `first_week.php` (hand edit? another upload?) and diff the live `includes/` against the zip. Release blocks 2.8.73 to 2.8.75 are in `claude/todo_history.md`.
 
 ## A. Owner picks / decisions waiting
-- Stop art: DONE and swapped in 2.8.73 (flagged: shops-street hotspots not checked by eye; 6 stoptiers kept as before; route cards no longer show the gnome: ask if wanted back; lair route card still has glowing eyes).
-- Fair dock Enter: CUT by owner. "Visitor can smell it" reading (still-cooking dish vs last-cooked): ask.
-- Rigs: all 124 redrawn and swapped (2.8.73); `mini-<slug>.png` still old; cistern-newt unchanged; dung-beetle fails rigkit pivot lint (harness). 69 weaker pals: pick-list?
+- Stop art: DECIDED (Josh, 2026-11-27): route cards stay without the gnome; the lair route card keeps its glowing eyes. Still open: shops-street hotspots not checked by eye; 6 stoptiers (mill-1, workshop-1..4, spring-3) kept as before (their redraws were broken).
+- DONE unreleased (after 2.8.76, in `gardens.php` `building_peek`, `tests/cook.sh` updated, cook 158 ok): a visitor smells the LAST-COOKED dish (Josh, 2026-11-27): kitchen peek reads "Something is bubbling away and it smells of <last-cooked dish>"; the pot's own dish is only the fallback when no dish was cooked yet. Note `users.last_cooked_id` is set when a dish is collected. Fair dock Enter: CUT by owner.
+- Rigs: all 124 redrawn and swapped (2.8.73). DECIDED (Josh, 2026-11-27): leave the 69 weaker pals and the old `mini-<slug>.png` rigs as they are. Harness notes: cistern-newt unchanged; dung-beetle fails the rigkit pivot lint.
 - Confirm on the live world: 8 base creature rows got region windows (boot step `creature_windows_2708`, code done); Hollow jar second-week sizing check; `sights_shared_on` is still OFF by default (Josh ticked it as reviewed; flip in Admin if wanted); `gnav_on` / `gnav_tree` / `gnav_tiles` / `home_slim` default OFF (check Admin).
 
 ## B. Code / bugs open
