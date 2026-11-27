@@ -40,3 +40,13 @@ Checked and fine: gardening is a required step in every Maplewold, Maizehollow a
 6. **Happening errands as acts**: OK that the 14 `H` errands are acts that keep their extras, not quests?
 7. **Standing weights** (new table) and all Petal/XP/hand-in numbers are unsimulated; sim before locking, together with the XP budget and fights at Lv 45 and 55 (d20 maths stops mattering there; flee is near impossible at 55).
 8. **Puzzle Pals as companions** (4 extras) and the Stranger with no tie to Wren: confirm.
+
+## Decisions on the 8 open items (2026-11-27, Claude's answers for Josh to veto)
+1. **Dead ends.** Add two sea/land roads so tier 3 leads on: Sunsprinkle to Greatcanopy (CB-WCA) and Rainroot to Thornacre (SA-ESA). They match the Seal letters. SA-OC stays, gated by any tier 4 Seal.
+2. **Off-road adoption.** Yes: any village can be adopted. Off-road villages cap at tier 2 (no Hall). Standing N counts adoptable stops, so the Maplewold counts 10, not 3. Re-check the Stops row maths.
+3. **Tier 5 via Spicepeak.** OK. Tier 5 also opens through SA-OC (any tier 4 Seal).
+4. **Adoption fee.** First adoption in an area free; the 300 fee applies to re-adoption.
+5. **Upkeep.** Keep tier 4 monthly loss as flavour. Steps and Standing latch. Tiers 1-3 never decay.
+6. **Happening errands.** Yes: one-off stop acts that keep their extras.
+7. **Companions and the Stranger.** Puzzle Pals as companion rewards: yes. Stranger has no tie to Wren: yes.
+8. **Crops and numbers.** The 14 signature crops are confirmed. Run the balance sim (Standing, XP, Petals, Lv 45-55 fights) before any weight is locked.
