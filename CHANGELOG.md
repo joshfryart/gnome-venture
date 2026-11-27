@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.79
+- **Puzzle fight speed: new 1.25x.** The speed button now goes 1x, 1.25x, 2x, Skip (and the help sheet lists all four). 1.25x is a quarter faster than 1x (measured: a medium-board turn replays in about 9.2 s at 1x, 7.4 s at 1.25x, 4.7 s at 2x). Saved per device like before (`pfvspd`). Source: `tools/pfboardv1_part.js`.
+
 ## 2.8.78
 - **Puzzle fight, before and after:** the pre-fight screen is a "Face-off": you and the creature side by side with your bars, then tabs (Your deck / Its pieces / Rules), Let's fight pinned at the foot. A phone held sideways puts you and the creature on the left and the tabs on the right; a desktop shows all three at once. The result card is a coloured outcome hero with three number tiles, the tool wear and pinned buttons (two columns when wide). Tests follow the new markup (`tests/pbox_v1.sh`, `tests/pbox_v1_shots.js`).
 - **Sideways phone combat (thumb rails):** hand down the left edge, board in the middle, bars and buttons down the right edge, all grouped in the middle of a wider window. The right edge is two lists under one status line: the history (scrolls, newest at the top) beside the environment (its chip, what it has coming, help, speed, the piles). Desktop windows get the same two-list right edge. The tapped piece's card shows only when a piece is tapped. New `tests/pbox_v1_shots.js` switches: `PFVP='[[780,360]]'` (windows), `PFRULES=new` (fights with the rules a new fight has), `PFSKIPBOX=1`.

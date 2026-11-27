@@ -33,7 +33,7 @@
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var costOk = false, planFree = false, COSTW = !!data.costwarn;   // 2.7.01 costly cell: End turn asked once (costOk); a lit spot that costs nothing was open for the placed piece (planFree); the ask is on (first fights)
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
-  var SLOW = 2, SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
+  var SLOW = 2, SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '1.25' ? 1.25 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
     trip: 'Trip: you draw 1 fewer next round', heal: 'Heal: empties some of its Yield bar', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
@@ -400,7 +400,7 @@
     rowEl.innerHTML = h;
     Array.prototype.forEach.call(rowEl.querySelectorAll('.tg.ev'), function (bt) { var e = dispEnvs()[+bt.dataset.ev]; if (e && e.kind === 'gust') { var sv = bt.querySelector('svg'); if (sv) sv.style.transform = 'rotate(' + ROT[e.dir] + 'deg)'; } });
   }
-  function spdLabel() { return '▶ ' + (SPD === 2 ? '2×' : SPD === 0 ? 'skip' : '1×'); }
+  function spdLabel() { return '▶ ' + (SPD === 2 ? '2×' : SPD === 1.25 ? '1.25×' : SPD === 0 ? 'skip' : '1×'); }
   function stripItems() {
     if (phase === 'pre' && PREV && PREV.env) return (PREV.env.next || []).map(function (it, i) { return { it: it, i: i }; }).filter(function (o) { return stripRem.indexOf(o.i) < 0; }).map(function (o) { return o.it; });
     return ENVD.next || [];
@@ -414,7 +414,7 @@
     });
     if (!items.length) h += '<span class="tg envnone">all on the board</span>';
     h += '<button type="button" class="tg qm" data-a="help" aria-label="Help: how the board and the environment work">?</button>'
-      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
+      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 1.25 ? 'a quarter faster' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
     if (h !== lastLegend) { lastLegend = h; legendEl.innerHTML = h; }
   }
   function drawLegend() {
@@ -422,7 +422,7 @@
     if (ENV) { drawStrip(); return; }
     legendEl.innerHTML = [['sun', '\u00d7' + V1.sun, 'Sunny: counts ' + times(V1.sun)], ['br', '\u2212' + pc100(V1.bramble || 0), 'Bramble: \u2212' + pc100(V1.bramble || 0) + ' a round'], ['mud', 'no links', 'Mud: no links']].map(function (q) { return '<button type="button" class="tg lg-' + q[0] + '" data-ter="' + q[0] + '" aria-label="' + q[2] + '. Press for more" title="' + q[2] + '">' + svg(q[0]) + q[1] + '</button>'; }).join('')
       + '<button type="button" class="tg" data-a="turn" aria-label="Terrain turn: what happens in a round">Turn</button><button type="button" class="tg qm" data-a="help" aria-label="Help: how the board works">?</button>'
-      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
+      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 1.25 ? 'a quarter faster' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
   }
 
   // ---- popover over the board (a ground cell, a forecast mark, a legend chip) and the help sheet
@@ -472,7 +472,7 @@
       + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].filter(function (k) { return !(NOWM && (k === 'wind' || k === 'mud')); }).map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
-      + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
+      + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['1.25', '1.25×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
       + '<div class="sl">Piece effects</div><div class="spdrow pfa-row">' + [['full', 'Full'], ['light', 'Light'], ['off', 'Off']].map(function (o) { return '<button type="button" class="btn small' + (pfaMode() === o[0] ? ' primary' : ' ghost') + '" data-pfx="' + o[0] + '" aria-pressed="' + (pfaMode() === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'
       + '<p class="hint">How the pieces land and fire in the replay. Light: they land with a wiggle, no edge effects. Off: none.' + (pfaRm() && !pfaChosen() ? ' Your device asks for less motion, so they are off until you pick one.' : '') + '</p>'
       + '</div></div>';
@@ -516,7 +516,7 @@
       if (p) PFAnim.fire(ev, p, pfaChain(ev.id), pfaCtx(step));
     } catch (e) {}
   }
-  function setSpd(v) { SPD = v === 2 ? 2 : v === 0 ? 0 : 1; try { window.localStorage.setItem('pfvspd', String(SPD)); } catch (e) {} drawLegend(); if (!SPD && playing) stopPlay(true); }
+  function setSpd(v) { SPD = v === 2 ? 2 : v === 1.25 ? 1.25 : v === 0 ? 0 : 1; try { window.localStorage.setItem('pfvspd', String(SPD)); } catch (e) {} drawLegend(); if (!SPD && playing) stopPlay(true); }
   function onKey(ev) { if (ev.key === 'Escape') { if (sheetEl) closeSheet(); else closePop(); } }
 
   // ---- the replay: it starts from the ground, forecast and aim as they stood before the turn; each terrain event flashes its mark and what it hit; used-up pieces leave after their side's chain
@@ -785,7 +785,7 @@
       else if (b.dataset.ter) showPop({ t: 'ter', k: b.dataset.ter, y: null });
       else if (b.dataset.a === 'turn') showPop({ t: 'turn', k: 'turn', y: null });
       else if (b.dataset.a === 'help') helpSheet();
-      else if (b.dataset.a === 'spd') setSpd(SPD === 1 ? 2 : SPD === 2 ? 0 : 1);
+      else if (b.dataset.a === 'spd') setSpd(SPD === 1 ? 1.25 : SPD === 1.25 ? 2 : SPD === 2 ? 0 : 1);
     });
     if (flipBtn) flipBtn.addEventListener('click', doFlip);
     wrapEl = document.createElement('div'); wrapEl.className = 'pfv-bwrap'; boardEl.parentNode.insertBefore(wrapEl, boardEl); wrapEl.appendChild(boardEl);   // the board takes the room that is left: the fight fits the window
