@@ -189,7 +189,8 @@ give onion 60; setE 0; m=$(cookit $SOUP 1); has "too tired" "$m" "no energy: ref
 echo "-- who sees what"
 setE 60; cookit $SOUP 1 >/dev/null
 PEEK=$(php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/gardens.php"; $r=building_peek(q_one("SELECT * FROM plots WHERE id='$P'"),"kitchen"); echo $r ? implode(" ", (array)$r[1]) : "none";' 2>&1)
-has "bubbling away: Green Pea Soup" "$PEEK" "kitchen peek says what is cooking"
+LASTD=$(db "SELECT i.name FROM users u JOIN items i ON i.id = u.last_cooked_id WHERE u.id=$UID_")   # 2.8.77: a visitor smells the LAST-COOKED dish (Josh), not the dish in the pot
+has "bubbling away and it smells of $LASTD" "$PEEK" "kitchen peek: bubbling, smells of the last-cooked dish"
 echo "bad csrf collect: $(curl -s -b $C -X POST "$BASE/crafting.php" -d csrf=x -d do=collect_all -o /dev/null -w '%{http_code}')"; collectall >/dev/null
 echo "-- Brewroot III: half time, +1 pot, +20% energy, extra dish stored per pot"
 dbx "UPDATE users SET level=30, calling='brewroot', calling_chapter=NULL, calling_qt=2 WHERE id=$UID_"; setE 100

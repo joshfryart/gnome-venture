@@ -644,10 +644,11 @@ function building_peek(array $plot, string $b): ?array
             if ($cooking) {
                 $palAt = gmdate('Y-m-d H:i:s', gclock_pal_now((int)$ownerId));   // a pal-tended pot is timed on the pal work clock (sleep-days: real time does not finish it)
                 $done = count(array_filter($cooking, fn($c) => $c['ready_tick'] !== null && $c['ready_tick'] !== '' ? (int)$c['ready_tick'] <= $ownTick : $c['ready_at'] <= ($c['pal_uid'] !== null && $c['pal_uid'] !== '' ? $palAt : now())));
-                // 'Cook again' right after cooking: the smell is the dish still in the pot (one not yet done), not the earliest finished one
+                // 2.8.77 (Josh): a visitor smells the LAST-COOKED dish (users.last_cooked_id, set when the cook starts); the pot's own dish is only the fallback when that is unset.
+                // Before: the dish still in the pot (one not yet done), not the earliest finished one
                 $still = null;
                 foreach ($cooking as $c) if ($c['ready_tick'] !== null && $c['ready_tick'] !== '' ? (int)$c['ready_tick'] > $ownTick : $c['ready_at'] > ($c['pal_uid'] !== null && $c['pal_uid'] !== '' ? $palAt : now())) { $still = $c; break; }
-                $lines[] = 'Something is bubbling away: ' . ($still ?? $cooking[0])['name'] . ($done === count($cooking) ? ', all done and waiting to be collected' : '') . '. '
+                $lines[] = 'Something is bubbling away' . ($dish ? ' and it smells of ' . $dish : ': ' . ($still ?? $cooking[0])['name']) . ($done === count($cooking) ? ', all done and waiting to be collected' : '') . '. '
                     . count($cooking) . ' pot' . (count($cooking) === 1 ? ' is' : 's are') . ' on the stove.';
             } else
             $lines[] = $dish
