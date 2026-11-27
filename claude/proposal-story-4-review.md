@@ -1,6 +1,7 @@
 # Story pass 4: review log
 
 Status: REVIEW (2026-11-27). No game code changed. Corrections are made in place in `proposal-maplewold-bands-and-seals.md`, `proposal-story-1-base.md`, `proposal-story-2-quests.md`, `proposal-story-3-flavor.md` and `proposal-creatures-38-55.txt` (each has a "Pass 4" line at the top).
+Superseded in part by `PROPOSAL-HOLLOW-MASTER.md` section 12 (ruling 3: Stops row maths for N = 10; ruling 12: no Puzzle Pal rewards).
 Checked against: `roads.php` (ROAD_PAIRS, LAIR_LEVEL_1115, on_road, lay_roads), `progression.php` (REGION_LEVELS), `stop_adopt.php`, `place_ui.php`, `stop_living.php`, `landmarks.php` (ensure_lair_bosses), `adventure.php` (route_danger), `data/{creatures,pf_creatures,landmarks,zones,region_crops,flowers,stop_tiers}.txt`, `claude/route-list.md`.
 
 ## What was wrong, and the fix

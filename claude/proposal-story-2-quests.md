@@ -1,6 +1,7 @@
 # PROPOSAL: Story pass 2, main quest line and side quests
 
 Status: PROPOSAL ONLY (2026-11-27). No code. Pass 2 of the story.
+Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 6 (M4, M6, M7 steps; `puzzle` step kind; no `unlock=pal` extras), section 2.2 (CB-WCA and SA-ESA doors), section 12 (rulings 4, 6, 11, 14, 15, 21).
 Builds on: `claude/proposal-story-1-base.md` (the Round, cast, stops as story, Standing, signature crops), `claude/proposal-maplewold-bands-and-seals.md` (bands, routes, Seals), `includes/journey.php`, `data/stop_threads.txt`, `data/stop_happenings.txt`, `data/calling_quests.txt`, `data/creatures.txt`.
 Fixed: no Trek story, no Tansy, Wren's Almanac is the main quest, stops are the spine, gardening in every area, no timers, no fail states.
 Creatures: bands 1-3 use `data/creatures.txt`; bands 4-5 use `claude/proposal-creatures-38-55.txt` (proposal list, slugs as written there).

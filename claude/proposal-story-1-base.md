@@ -1,6 +1,7 @@
 # PROPOSAL: Story pass 1, the base story ("The Round")
 
 Status: PROPOSAL ONLY (2026-11-27). No code. Pass 1 of the story: premise, cast, structure, themes, arc per band.
+Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 4 (Standing formulas; any village can be adopted, N = 10 in the Maplewold), section 2.3 (real stop types per zone), section 12 (rulings 3, 5, 6, 7).
 Pass 4 review: corrected in place (adoption facts, Standing table, Hearth tier, ceremony name). See `claude/proposal-story-4-review.md`.
 Builds on: `claude/proposal-maplewold-bands-and-seals.md` (bands, Standing, Seals, "Hollow in Disrepair"), `includes/journey.php`, `includes/stops.php`, `stop_adopt.php`, `stop_living.php`, `stop_folk.php`, `data/stop*.txt`.
 Fixed and not reopened: no Trek story, no Tansy / Hollowheart, Journey = fill the Almanac, Wren = guide and letter-writer, bands and Seal rules as settled.

@@ -1,6 +1,7 @@
 # PROPOSAL: Lasting marks (rest-stop perks rework)
 
 Status: proposal only, no game code changed. 2026-11-27.
+Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 3 and 7.3 (pace 6 to 10 visit-days per bar, counted in game days), section 7.7 and 12 (rulings 8, 9: no weeks or months; old perks end on each gnome's game date).
 Read for this: `docs/stop-perk-ideas.md`, `includes/player_perks.php`, `stop_living.php`, `stops.php`, `stop_adopt.php`, `data/stops.txt`, `stop_tiers.txt`, `stop_act_state.txt`, the four `stop_acts*.txt` files (860 acts), `claude/proposal-story-1-base.md`, `claude/proposal-maplewold-bands-and-seals.md`, `claude/route-list.md`.
 
 Pass 2 (same day): the full act-to-bar table is generated (`claude/tools_gen_stop_act_bars.py` writes `claude/proposal-stop-act-bars.txt`), the numbers below are from that run, and the doc was checked against the code. See the review log at the end.

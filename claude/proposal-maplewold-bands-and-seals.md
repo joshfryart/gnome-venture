@@ -1,6 +1,7 @@
 # PROPOSAL: Level bands, new routes, Seals and Wren's Journey rewrite
 
 Status: PROPOSAL ONLY (2026-11-27). No code. Josh to veto/pick.
+Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 2 (two new roads, gates), section 4 (Standing with N = 10 villages), section 1 (game days), section 12 (rulings).
 Pass 4 review (2026-11-27): corrected in place, see `claude/proposal-story-4-review.md`. Section 5 is superseded by `proposal-story-1-base.md` / `proposal-story-2-quests.md`; the Standing table in section 4 now matches the base story.
 Reading: "Mapleworld" = The Maplewold (NA). "First three areas" = Maplewold + its two road neighbours (Maizehollow CA, Mistmoor NWE).
 Builds on: `includes/progression.php` (REGION_LEVELS), `includes/roads.php` (ROAD_PAIRS), `includes/journey.php` (Wren's Journey), `data/zones.txt`, `data/landmarks.txt`.

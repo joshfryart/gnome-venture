@@ -1,6 +1,7 @@
 # PROPOSAL: Story pass 3, flavor text
 
 Status: PROPOSAL ONLY (2026-11-27). No code. Pass 3 of the story: player-facing text drafts.
+Superseded in part by `PROPOSAL-HOLLOW-MASTER.md`: section 12, rulings 5 (off-road villages have tiers 0-2) and 15 (Sunsprinkle to Greatcanopy and Rainroot to Thornacre roads are added).
 Builds on: `claude/proposal-story-1-base.md` (the Round, cast, stops, signature crops), `claude/proposal-story-2-quests.md` (chapters, errands, file formats).
 Voice matched to: `includes/journey.php` (Wren's letters), `data/stops.txt` (ambience), `data/stop_threads.txt`, `stop_chat.txt`, `stop_happenings.txt`, `stop_tier_themes.txt`, `road_lines.txt`, `village_blurbs.txt`, `creatures.txt`.
 
