@@ -45,6 +45,8 @@ curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: no Cat Fish link while off
 setg festivals_on 0   # a running festival doubles Yarn from a Nap; keep the checks date-independent
 setg catfish_open 1
 setg catfish_room2 0   # these checks are about the old page; the room2 page has its own checks at the end
+# 2.8.77: flag is ON by default now; this suite tests the old page (games.php tiles)
+setg gnav_tree 0
 ok "gate on: player gets the page" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
 curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: Cat Fish tile shows (the menu has its own Whisker Pond link too, so count the tile)" "$(grep -c 'class="gtile[^"]*" href="[^"]*catfish.php"' $W/h.html)" 1
 

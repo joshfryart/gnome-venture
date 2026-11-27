@@ -53,7 +53,8 @@ m=$(post $GP $GP -d do=pantry_buy); has "Kitchen" "$m" "no Kitchen: refused"; ch
 page "$PT"; has "need a" "$(grep -o 'You need a <b>[^<]*</b>' /tmp/pk.html | head -1)" "tab says a Kitchen is needed"
 dbx "INSERT INTO garden_buildings (plot_id,building,built_at,last_collect) VALUES ($P,'kitchen',datetime('now'),datetime('now'))"
 page "$PT"; has "Pantry" "$(grep -o 'You need a <b>[^<]*Pantry</b>' /tmp/pk.html | head -1)" "tab says a Pantry is needed"; chk "no jar strip yet" "$(grep -c 'jarstrip' /tmp/pk.html)" 0
-page "$GP?t=bld"; has "Add a Pantry" "$(grep -o 'Add a Pantry · [0-9,]* Petals' /tmp/pk.html | head -1)" "Kitchen tile offers the add-on with its price"
+# 2.8.77: the Yard picture is the default Buildings view now (gnav_on is ON); the Kitchen tiles live on the list version, ?list=1
+page "$GP?t=bld&list=1"; has "Add a Pantry" "$(grep -o 'Add a Pantry · [0-9,]* Petals' /tmp/pk.html | head -1)" "Kitchen tile offers the add-on with its price"
 dbx "UPDATE users SET coins=100 WHERE id=$UID_"; m=$(post $GP $GP -d do=pantry_buy); has "costs" "$m" "100 Petals: refused"; chk "pantry still 0" "$(db "SELECT pantry FROM garden_buildings WHERE plot_id=$P")" 0; chk "planks untouched (rolled back)" "$(qty timber-plank)" 10
 dbx "UPDATE users SET coins=5000 WHERE id=$UID_"; give timber-plank 2; m=$(post $GP $GP -d do=pantry_buy); has "Timber Plank" "$m" "2 planks: refused"; chk "pantry still 0" "$(db "SELECT pantry FROM garden_buildings WHERE plot_id=$P")" 0; chk "Petals untouched (rolled back)" "$(coins)" 5000
 give timber-plank 10; m=$(post $GP $GP -d do=pantry_buy); has "You fit a Pantry" "$m" "bought"
@@ -61,7 +62,7 @@ chk "pantry = 1" "$(db "SELECT pantry FROM garden_buildings WHERE plot_id=$P")" 
 m=$(post $GP $GP -d do=pantry_buy); has "already has" "$m" "second purchase refused"; chk "no double charge" "$(coins)" 4400
 chk "Almanac: both pages unlocked" "$(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id=ue.entry_id WHERE ue.user_id=$UID_ AND e.unlock_key='pantry'")" 2
 dbx "DELETE FROM garden_buildings WHERE plot_id=$P AND building='kitchen'"; dbx "INSERT INTO garden_buildings (plot_id,building,built_at,last_collect,pantry) VALUES ($P,'kitchen',datetime('now'),datetime('now'),1)"
-page "$GP?t=bld"; has "0 jars in use (5 in each" "$(grep -o '[0-9]* jars in use (5 in each' /tmp/pk.html | head -1)" "Kitchen tile: Pantry with 5 jars"; has "3 pots" "$(grep -o '3 pots · 🫙 5' /tmp/pk.html | head -1)" "tile status shows pots and jars"
+page "$GP?t=bld&list=1"; has "0 jars in use (5 in each" "$(grep -o '[0-9]* jars in use (5 in each' /tmp/pk.html | head -1)" "Kitchen tile: Pantry with 5 jars"; has "3 pots" "$(grep -o '3 pots · 🫙 5' /tmp/pk.html | head -1)" "tile status shows pots and jars"
 echo "bad csrf buy: $(curl -s -b $C -X POST "$BASE/garden.php" -d csrf=x -d do=pantry_buy -o /dev/null -w '%{http_code}')"
 
 echo "== jars: 5 to start, a jar per batch, energy 1 a batch"
@@ -81,7 +82,7 @@ m=$(post crafting.php "$PT" -d do=jar_collect_all); has "No jar is ready" "$m" "
 J1=$(db "SELECT id FROM pantry_jars WHERE collected_at IS NULL ORDER BY id LIMIT 1")
 m=$(post crafting.php "$PT" -d do=jar_collect -d jar_id=$J1); has "ready yet" "$m" "single collect early refused"; chk "jar kept" "$(jars)" 5
 dbx "UPDATE pantry_jars SET ready_at=datetime('now','-1 minute'), ready_day=CASE WHEN ready_day IS NULL THEN NULL ELSE 0 END WHERE recipe_id=(SELECT id FROM recipes WHERE slug='strawberry-jam')"
-page "garden.php?t=bld"; has "🫙 3 ready" "$(grep -o '🫙 [0-9]* ready' /tmp/pk.html | head -1)" "status strip: 3 jars ready"
+page "garden.php?t=bld&list=1"; has "🫙 3 ready" "$(grep -o '🫙 [0-9]* ready' /tmp/pk.html | head -1)" "status strip: 3 jars ready"
 JB=$(db "SELECT id FROM user_jobs LIMIT 1"); dbx "DELETE FROM user_jobs WHERE user_id=$UID_"
 JK=$(TZ=America/Halifax date +%F)   # v1.4.0: days turn over at Hollow midnight (1.2.2)
 [ "$(db "SELECT value FROM settings WHERE name='game_clock_on'")" = "0" ] || JK="g$(db "SELECT game_day FROM users WHERE id=$UID_")"   # sleep-days: the board's daily key is the gnome's game day
