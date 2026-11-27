@@ -33,6 +33,8 @@ php -d display_errors=1 -d error_reporting=-1 "$HERE/pal_crew.php" "$GAME" 2>&1 
 chk "pal_crew.php exit code" "$RC" 0
 chk "pal_crew.php ran to the end" "$(tail -1 $OUT)" "all ok"   # an uncaught error in the script can still exit 0
 echo "== pages"
+# 2.8.77: flag is ON by default now; this suite tests the old page
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('home_slim','0')"
 dbx "UPDATE users SET level = 10 WHERE username='sprout'"
 chk "garden crew tab" "$(get 'garden.php?t=help')" 200
 grep -q 'Garden crew' $H && echo "  ok   crew panel shows" || { echo "  FAIL crew panel"; FAILS=$((FAILS+1)); }

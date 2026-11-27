@@ -43,12 +43,16 @@ dbx "UPDATE users SET level=28, easy_roads=0, energy=200, tour_step=0 WHERE user
 FAR=$(db "SELECT r.id||'|'||r.a_id||'|'||r.b_id FROM routes r JOIN locations a ON a.id=r.a_id JOIN locations b ON b.id=r.b_id WHERE r.kind='road' AND a.kind='village' AND b.kind='village' AND r.a_id<>$VID AND r.b_id<>$VID ORDER BY r.id LIMIT 1")
 RIDF=${FAR%%|*}; REST=${FAR#*|}; FA=${REST%%|*}; FB=${REST#*|}
 dbx "UPDATE users SET location_id=$FA WHERE username='sprout'"
-get world.php >/dev/null; grep -q 'quick walk' $H && echo "  ok   quick walk on the route card" || { echo "  FAIL no quick walk on the card"; FAIL=1; }
+# 2.8.77: gnav_on is ON by default: world.php opens on the map; the Go stack (route cards) is ?tab=go
+get 'world.php?tab=go' >/dev/null; grep -q 'quick walk' $H && echo "  ok   quick walk on the route card" || { echo "  FAIL no quick walk on the card"; FAIL=1; }
 get "world.php?go=$FB" >/dev/null; grep -q 'quick walk' $H && echo "  ok   quick walk in the route plan" || { echo "  FAIL not in the plan"; FAIL=1; }
-get world.php >/dev/null; post adventure.php -d do=start -d route_id=$RIDF >/dev/null
+# 2.8.77: gnav_tiles is ON by default (a walk is tile sections, arrive_at = now); this check is about the old minutes-long walk, so pin the flag off
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('gnav_tiles','0')"
+get 'world.php?tab=go' >/dev/null; post adventure.php -d do=start -d route_id=$RIDF >/dev/null
 chk "arrival in 3 minutes (half of 6)" "$(db "SELECT CAST(ROUND((julianday(arrive_at)-julianday(started_at))*1440) AS INT) FROM expeditions WHERE user_id=(SELECT id FROM users WHERE username='sprout') ORDER BY id DESC LIMIT 1")" 3
 get adventure.php >/dev/null; grep -qE 'quick walk' $H && echo "  ok   adventure page mentions the quick walk" || { echo "  FAIL adventure page"; FAIL=1; }
 dbx "UPDATE expeditions SET status='done'"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('gnav_tiles','1')"
 echo "== upgrade from 0.9.5 (new creatures come back, higher gnomes get easy roads off, nothing else touched)"
 NEW270=$(php -r 'require "'$GAME'/includes/wearables.php"; echo "\x27".implode("\x27,\x27", array_merge(array_keys(wear_items()), ["tailors-thread", "toll-receipt"]))."\x27";')   # the items 2.7.00 makes on an upgrade boot (wearables, Thread, Toll Receipt) are not what this check is about
 ITEMS=$(db "SELECT COUNT(*) FROM items WHERE slug NOT IN ($NEW270)"); CRE=$(db "SELECT COUNT(*) FROM creatures")

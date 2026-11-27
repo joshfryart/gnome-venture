@@ -201,5 +201,6 @@ dbx "DELETE FROM settings WHERE name='upg140_animals'"
 php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/upgrade140.php"; upgrade_140_run(); upgrade_140_run();'
 chk "restored through upgrade_140_run" "$(CNT)" "2/4/2/4"
 chk "no duplicate recipes by slug" "$(db "SELECT COUNT(*) FROM (SELECT slug FROM recipes GROUP BY slug HAVING COUNT(*)>1)")" 0
-page "garden.php?t=bld"; has "garden page still renders" "Tap a building for details"   # v1.4.0: buildings have their own tab
+# 2.8.77: gnav_on is ON by default now, so ?t=bld is the Yard picture; this suite tests the list version of the Buildings tab (?t=bld&list=1)
+page "garden.php?t=bld&list=1"; has "garden page still renders" "Tap a building for details"   # v1.4.0: buildings have their own tab
 echo "php log errors: $(grep -ciE 'fatal|warning|notice|deprecated' /tmp/animals140-php.log)  error-log: $(cat $GAME/data/error-log.txt 2>/dev/null | wc -l)"

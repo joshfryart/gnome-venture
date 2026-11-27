@@ -72,7 +72,8 @@ chk "curio_count setting 4 -> four curios" "$(dbx "INSERT OR REPLACE INTO settin
 dbx "DELETE FROM settings WHERE name='curio_count'"
 
 echo "== building looks"
-curl -s -b $A -c $A "$BASE/garden.php?t=bld" > /tmp/s97.html
+# 2.8.77: gnav_on is ON by default: Buildings is the Yard picture; the list (with the Looks sections) is ?t=bld&list=1
+curl -s -b $A -c $A "$BASE/garden.php?t=bld&list=1" > /tmp/s97.html
 chk "Looks section on both buildings" "$(grep -c 'class="skinbox"' /tmp/s97.html)" 2
 echo -n "  buy Mossy kitchen: "; C0=$(coins); postf $A garden.php garden.php -d do=skin_buy -d building=kitchen -d skin=mossy
 chk "1500 taken" "$(coins)" "$((C0 - 1500))"
@@ -137,8 +138,9 @@ chk "hat dye saved" "$(db "SELECT hat_dye FROM users WHERE id=$SID")" "#e75480"
 chk "beard saved" "$(db "SELECT beard_color FROM users WHERE id=$SID")" "#d4af37"
 curl -s -b $A "$BASE/gnome.php?tab=stats" > /tmp/s97.html
 # 2.6.x: avatars are the 2.5D gnome sprite (gnome_sprite.php?v=front&h=<hat>&b=<beard>): the dye shows up as the h= and b= colours of every avatar drawn (header, nav, picker)
-chk "avatars drawn with the hat dye and beard dye (3 avatars)" "$(grep -o 'gnome_sprite.php?v=front&amp;h=e75480' /tmp/s97.html | wc -l)|$(grep -o 'gnome_sprite.php?v=front&amp;h=[0-9a-f]*&amp;b=d4af37' /tmp/s97.html | wc -l)" "3|3"
-chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php?tab=stats" | grep -o 'gnome_sprite.php?v=front&amp;h=e75480' | wc -l)" 3
+# 2.8.77: slim Home (ON by default) draws 2 avatars on the Stats page, the old page drew a third
+chk "avatars drawn with the hat dye and beard dye (2 avatars)" "$(grep -o 'gnome_sprite.php?v=front&amp;h=e75480' /tmp/s97.html | wc -l)|$(grep -o 'gnome_sprite.php?v=front&amp;h=[0-9a-f]*&amp;b=d4af37' /tmp/s97.html | wc -l)" "2|2"
+chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php?tab=stats" | grep -o 'gnome_sprite.php?v=front&amp;h=e75480' | wc -l)" 2
 dbx "UPDATE users SET calling=NULL WHERE id=$SID"
 chk "other gnomes see the dye (profile)" "$(curl -s -b $B "$BASE/profile.php?id=$SID" | grep -o 'gnome_sprite.php?v=front&amp;h=e75480' | wc -l)" 1
 echo -n "  back to no dye + a starter beard colour: "; postf $A gnome.php gnome.php -d do=dye -d hat=none -d beard='#f4f1ea'

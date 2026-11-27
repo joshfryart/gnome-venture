@@ -208,11 +208,11 @@ ok('shop street: local pills get a dashed leader, hub pills do not', $out[0]['st
 echo "== settings and schema\n";
 require_once $game . '/includes/here_schema.php';
 $s = here_settings();
-ok('four settings with the planned defaults', ($s['gnav_on']['default'] ?? null) === '0' && ($s['gnav_tiles']['default'] ?? null) === '0' && ($s['gnav_enter_energy']['default'] ?? null) === '1' && ($s['gnav_login_here']['default'] ?? null) === '1');
+ok('four settings with the planned defaults', ($s['gnav_on']['default'] ?? null) === '1' && ($s['gnav_tiles']['default'] ?? null) === '1' && ($s['gnav_enter_energy']['default'] ?? null) === '1' && ($s['gnav_login_here']['default'] ?? null) === '1');
 [$t, $i, $c] = here_schema('INTEGER PRIMARY KEY AUTOINCREMENT', 'INTEGER', '');
 ok('here_layouts table and users.start_page', str_contains($t[0], 'here_layouts') && $c === [['users', 'start_page', 'VARCHAR(8) NULL']]);
 if ($withDb) {
-    ok('gnav_on is off by default in a live game', setting('gnav_on') === '0');
+    ok('gnav_on is on by default in a live game (2.8.77)', setting('gnav_on') === '1');
     ok('settings reach settings_schema()', isset(settings_schema()['gnav_on']));
     ok('here_layouts table exists', (function () { try { q('SELECT 1 FROM here_layouts LIMIT 1'); return true; } catch (Throwable $e) { return false; } })());
     ok('users.start_page exists', (function () { try { q('SELECT start_page FROM users LIMIT 1'); return true; } catch (Throwable $e) { return false; } })());
@@ -310,6 +310,7 @@ if ($withDb) {
     q("UPDATE users SET community_shift_until = NULL WHERE username = 'sprout'");
 
     echo "== energy preview = energy charged (gnav_tiles off)\n";
+    sset('gnav_tiles', '0');   // 2.8.77: the flag is on by default now; this block tests the old (steps/3) cost
     $u = put($town, ['ev_quickwalk' => 0]);
     $r = visible_routes($u, $town)[0];
     ok('route_enter_cost equals route_energy for a plain walk', route_enter_cost($u, $r) === route_energy($u, $r));

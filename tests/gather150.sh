@@ -17,6 +17,8 @@ C=$T/ck; curl -s -c $C -b $C $BASE/login.php > $T/l.html; curl -s -c $C -b $C -X
 SID=$(db "SELECT id FROM users WHERE username='sprout'")
 [ -n "$SID" ] || { echo "FAIL no sprout user"; exit 1; }
 dbx "UPDATE users SET onboarded=1, tour_step=0, energy=60, level=6, community_shift_until=NULL WHERE id=$SID"; dbx "UPDATE expeditions SET status='done' WHERE user_id=$SID"
+# 2.8.77: flag is ON by default now; this suite tests the old page (games.php tiles)
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('gnav_tree','0')"
 # a Worn knife, a Sturdy net, a Worn pick; no axe, rod, bucket or basket
 dbx "DELETE FROM user_items WHERE user_id=$SID AND item_id IN (SELECT id FROM items WHERE category='tool' AND (effects LIKE '%\"tool\":\"basket\"%' OR effects LIKE '%\"tool\":\"axe\"%' OR effects LIKE '%\"tool\":\"rod\"%' OR effects LIKE '%\"tool\":\"bucket\"%' OR effects LIKE '%\"tool\":\"forage\"%' OR effects LIKE '%\"tool\":\"net\"%' OR effects LIKE '%\"tool\":\"pick\"%'))"
 for s in foraging-knife fine-mesh-net rock-pick; do dbx "INSERT OR IGNORE INTO user_items (user_id,item_id,qty) SELECT $SID,id,1 FROM items WHERE slug='$s'"; done

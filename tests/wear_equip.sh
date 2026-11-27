@@ -21,7 +21,7 @@ has() { if grep -q "$2" $H; then echo "  ok   $1"; else echo "  FAIL $1 (no '$2'
 hasnt() { if grep -q "$2" $H; then echo "  FAIL $1 (has '$2')"; FAILS=$((FAILS+1)); else echo "  ok   $1"; fi; }
 curl -s -c $A -b $A $BASE/login.php > $H; curl -s -c $A -b $A -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
 SID=$(db "SELECT id FROM users WHERE username='sprout'")
-dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('wear_open','1'); INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_v1','1'); INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1'); DELETE FROM user_wear_slots WHERE user_id=$SID"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('wear_open','1'); INSERT OR REPLACE INTO settings (name,value) VALUES ('home_slim','0'); INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_v1','1'); INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1'); DELETE FROM user_wear_slots WHERE user_id=$SID"
 dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) SELECT $SID, id, 1 FROM items WHERE slug='work-gloves'"
 echo "== the page: My Gnome"
 chk "My Gnome opens" "$(curl -s -c $A -b $A "$BASE/gnome.php?tab=gnome" -o $H -w '%{http_code}')" 200

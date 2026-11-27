@@ -800,7 +800,7 @@ function home_slim_today_html(array $u, array $needs): string
         $grp = fn(string $ic, string $lab, string $href, string $go): string => '<div class="hs-grp"><span><span aria-hidden="true">' . $ic . '</span> ' . e($lab) . '</span><a href="' . e($href) . '">' . e($go) . ' →</a></div>';
         $row = function (array $r): string {
             $in = '<span class="hs-ni" aria-hidden="true">' . e($r[0]) . '</span><span class="hs-tx"><b>' . e($r[1]) . '</b><small>' . e($r[2]) . '</small>'
-                . (isset($r[4]) ? '<span class="hs-bar" aria-hidden="true"><i style="width:' . (int)$r[4] . '%"></i></span>' : '') . '</span>';
+                . (isset($r[4]) ? '<progress class="hs-bar" aria-hidden="true" max="100" value="' . (int)$r[4] . '"></progress>' : '') . '</span>';
             return '<li><a href="' . e($r[3]) . '">' . $in . '</a></li>';
         };
         $h .= '<section class="box hs-needs hs-night" aria-labelledby="hs-night-h"><h2 id="hs-night-h">Your pals' . home_slim_bang($night['n'], $night['n'] . ' pal' . ($night['n'] === 1 ? '' : 's')) . '</h2>';

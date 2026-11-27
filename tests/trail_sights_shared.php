@@ -25,7 +25,8 @@ $wipe = function () use ($A, $B, $C, $setBottles) { foreach ([$A, $B, $C] as $x)
 
 echo "== the feature is off by default\n";
 $wipe();
-ok('setting sights_shared_on defaults to 0', setting('sights_shared_on') === '0' && !sights6_on());
+ok('setting sights_shared_on defaults to 1 (2.8.77)', setting('sights_shared_on') === '1' && sights6_on());
+set_setting('sights_shared_on', '0'); setting('__reload__');   // the off-path tests below start from off
 [$a, $m] = sights6_note_send($row($A), 'hello there');
 ok('off: a note cannot be sent, no bottle used', !$a && $qty($A, 'message-bottle') === 5, $m);
 ok('off: the cairn hook adds nothing', sights6_tally_hook($row($A), 'cairn-stones') === [] && sights6_tally('cairn-pass') === 0);

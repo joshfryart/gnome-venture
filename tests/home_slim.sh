@@ -28,6 +28,7 @@ dbx "INSERT INTO news (title, body, published, kind, created_at) VALUES ('Slim n
 get login.php >/dev/null; post login.php -d username=sprout -d 'password=TestPass123!' >/dev/null
 
 echo "== flag off: the old pages"
+dbx "INSERT OR REPLACE INTO settings (name, value) VALUES ('home_slim', '0')"   # 2.8.77: the flag is on by default now
 get gnome.php >/dev/null; has "TODAY tab as before" 'class="tabs hometabs"'; hasnt "...no slim banner" 'class="hs-banner"'
 chk "Furnish is not a tab" "$(get 'gnome.php?tab=furnish' >/dev/null; grep -c 'hs-slots' $H)" "0"
 get hovel.php >/dev/null; has "the Hovel page shows" 'hov-tabs'

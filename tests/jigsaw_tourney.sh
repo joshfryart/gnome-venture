@@ -27,6 +27,8 @@ done_run() { dbx "INSERT INTO puzzle_attempts (tournament_id,user_id,token,seed,
 login $W/a admin TestPassword123
 login $W/p sprout 'TestPass123!'
 setg puzzles_open 1; setg jigsaw_open 1; setg jigsaw_tournaments 1; setg puzzles_tournaments 0
+# 2.8.77: flag is ON by default now; this suite tests the old page (games.php tiles)
+setg gnav_tree 0
 UID_=$(dbv "SELECT id FROM users WHERE username='sprout'")
 curl -s -b $W/a "$BASE/admin/jigsaw.php?tab=tournaments" > $W/t.html; T=$(csrf $W/t.html)
 adm() { curl -s -b $W/a -o /dev/null -w '%{http_code}' -X POST $BASE/admin/jigsaw.php --data-urlencode "csrf=$T" "$@"; }

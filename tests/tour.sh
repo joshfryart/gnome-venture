@@ -82,7 +82,7 @@ page garden.php
 chk "clock on, not slept yet: stays on the sleep step" "$(st)" "10/0"
 has 'Sleep in your hovel' "card title"; has 'Go to my hovel' "link button to the hovel"; has 'hovel.php?t=sleep' "link goes to the sleep tab"; has 'home_sleep' "sleep target in the data"
 hasnt 'minutes of watered' "no minutes-of-growing wording"
-postto hovel.php hovel.php -d do=home_sleep
+postto hovel.php gnome.php -d do=home_sleep   # 2.8.77: slim Home is ON by default: hovel.php redirects (no form), the sleep form is on gnome.php
 chk "one sleep moves the tour on" "$(st)" "11/0"
 chk "the radish is ripe after that sleep" "$(db "SELECT growth_seconds >= grow_minutes*60 FROM plot_tiles t JOIN plants p ON p.id=t.plant_id WHERE t.id=$TILE")" "1"
 chk "game day went up by one" "$(db "SELECT game_day FROM users WHERE id=$UID_")" "$((GD + 1))"

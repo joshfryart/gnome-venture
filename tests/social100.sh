@@ -49,6 +49,8 @@ php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->setAttribute(PDO::ATT
  }'
 dbx "UPDATE users SET level=5, coins=5000, energy=50, tour_step=0 WHERE username='sprout'"
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('fresh_hold_days','0')"   # v1.0.1: these accounts are brand new; the fresh-gnome hold has its own test (fresh_hold.sh)
+# 2.8.77: flag is ON by default now; this suite tests the old page (Today cards, tab bar)
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('home_slim','0')"
 dbx "UPDATE users SET garden_public=0 WHERE username='quiet'"
 SID=$(db "SELECT id FROM users WHERE username='sprout'"); BID=$(db "SELECT id FROM users WHERE username='bloom'"); TID=$(db "SELECT id FROM users WHERE username='thistle'"); QID=$(db "SELECT id FROM users WHERE username='quiet'")
 BPLOT=$(db "SELECT id FROM plots WHERE user_id=$BID"); TPLOT=$(db "SELECT id FROM plots WHERE user_id=$TID"); QPLOT=$(db "SELECT id FROM plots WHERE user_id=$QID"); SPLOT=$(db "SELECT id FROM plots WHERE user_id=$SID")
@@ -273,7 +275,8 @@ ok "another gnome's address on gnome.php goes to their profile" "$(curl -s -b $A
 get $B "profile.php?id=$SID" >/dev/null; hasnt "their profile: no tabs, no Today" $H 'hometabs\|todaycards\|hollowtoday'
 
 echo "== 7. pages render in both modes, no PHP errors"
-for pg in gnome.php 'gnome.php?tab=gnome' 'gnome.php?tab=stats' 'community.php?t=jar' 'community.php?t=about' pals.php 'pals.php?tab=requests' 'pals.php?tab=find' 'pals.php?tab=blocked' firstweek.php festival.php show.php fair.php gotm.php race.php carve.php 'profile.php?id='$BID 'profile.php?id='$QID "visit.php?g=$BPLOT" 'book.php?ch=Journey' games.php; do
+for pg in gnome.php 'gnome.php?tab=gnome' 'gnome.php?tab=stats' 'community.php?t=jar' 'community.php?t=about' pals.php 'pals.php?tab=requests' 'pals.php?tab=find' 'pals.php?tab=blocked' firstweek.php festival.php show.php fair.php gotm.php race.php carve.php 'profile.php?id='$BID 'profile.php?id='$QID "visit.php?g=$BPLOT" 'book.php?ch=Journey' 'games.php?view=list'; do  # 2.8.77: gnav_tree is ON by default: games.php alone redirects to the treehouse picture; ?view=list is the page
+
   code=$(get $A "$pg"); [ "$code" = 200 ] && echo "  ok   $pg" || { echo "  FAIL $pg -> $code"; FAILS=$((FAILS+1)); }
 done
 echo "== php errors"
