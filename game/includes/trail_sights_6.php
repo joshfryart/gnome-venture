@@ -7,7 +7,7 @@ declare(strict_types=1);
  *   (c) stargazers-chalk marks: a short word chalked on the star-chart stones is shown to others who stand there.
  * Everything is anonymous: the receiver never sees a name. Free text is cleaned (tags stripped, links / emails / numbers refused, 80 characters),
  * rate limited per gnome per day, reportable (a note hides at the first report, a mark at the second) and listed in Admin > Shared Sights.
- * Settings: sights_shared_on (the whole feature, default OFF), sights_shared_text (free text on, default on; off = only the counts), sights_shared_block (words refused).
+ * Settings: sights_shared_on (the whole feature, default ON since 2.8.77), sights_shared_text (free text on, default on; off = only the counts), sights_shared_block (words refused).
  * No other player = no change: a bottle with no stranger's note uses the old bottle post. New tables: sights_shared_items, sights_shared_reports, sights_shared_tally.
  * Hooks elsewhere (one line each): schema.php, functions.php settings, trail_sights.php require, trail_sight_extras.php tally, trail_sights_5.php chalk / bottle / foot, shelves.php.
  */
@@ -29,7 +29,7 @@ const SIGHTS6_DEFAULT_BLOCK = 'fuck,shit,bitch,cunt,dick,nazi,rape,sex,porn,kill
 function sights6_settings(): array
 {
     return [
-        'sights_shared_on' => ['label' => 'Shared Sights: other players’ notes in the message bottle, chalk words on the stones, the shared cairn count (off = everything stays private, as before)', 'type' => 'bool', 'default' => '0'],
+        'sights_shared_on' => ['label' => 'Shared Sights: other players’ notes in the message bottle, chalk words on the stones, the shared cairn count (off = everything stays private, as before)', 'type' => 'bool', 'default' => '1'],
         'sights_shared_text' => ['label' => 'Shared Sights: players may write notes and chalk words (off = only the shared counts, no free text)', 'type' => 'bool', 'default' => '1'],
         'sights_shared_block' => ['label' => 'Shared Sights: words and phrases a note or mark may not contain (comma separated, any case)', 'type' => 'text', 'default' => SIGHTS6_DEFAULT_BLOCK],
     ];
