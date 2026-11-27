@@ -9,7 +9,9 @@
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var costOk = false, planFree = false, COSTW = !!data.costwarn;   // 2.7.01 costly cell: End turn asked once (costOk); a lit spot that costs nothing was open for the placed piece (planFree); the ask is on (first fights)
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
-  var SLOW = 2, SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '1.25' ? 1.25 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
+  /* 2.8.80 (Josh): the times of the replay are set for 1x; 2x keeps the old (2.8.77 1x) times; 1.25x is the 1x time / 1.25. T1(ms at 1x, ms at 2x). */
+  function T1(ms1x, ms2x) { return SPD >= 2 ? ms2x : ms1x / SPD; }
+  var SPD = 1, banMs = 1450, ban1 = 2350, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '1.25' ? 1.25 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
     trip: 'Trip: you draw 1 fewer next round', heal: 'Heal: empties some of its Yield bar', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
@@ -91,7 +93,7 @@
   function spawnStep(tt) {
     var sp = hideSpawn ? spawnPiece() : null; if (!sp || data.won) return tt;
     playTimers.push(setTimeout(function () { hideSpawn = false; animateSpawn = true; flashIds = {}; fxPop = null; stepNow = 1; stepNote = 'The board puts out ' + sp.n + ' for the ' + (data.foe || 'creature') + ' (it had under 2 pieces out). Its chain can use it next turn.'; render(); animateSpawn = false; }, tt));
-    return tt + 950 * RF * SLOW / SPD;
+    return tt + T1(1350 * RF, 950 * RF);
   }
   function foeSub() { var q = (data.replay || []).filter(function (e) { return e.note === 'quick' || e.note === 'slow'; })[0]; return q ? (q.note === 'slow' ? 'loses its turn' : (q.n ? q.n + ': ' : '') + 'Quick, plays a second piece') : ''; }
   function meSub() { return data.tripped ? 'Tripped: you drew 1 fewer piece' : (data.opened && root.dataset.turn === '1' ? 'the ' + (data.foe || 'creature') + ' opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') : ''); }
@@ -502,7 +504,7 @@
     Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
     (data.replay || []).forEach(function (ev) { if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined && typeof ev.moved.fx === 'number') movedBack[ev.moved.id] = { x: ev.moved.fx, y: ev.moved.fy }; });   // 2.6.985: a Water current pushes your piece at its own step, not before
   }
-  function replayDone() { qAim = null; root.classList.remove('pf-turnhold'); banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
+  function replayDone() { qAim = null; root.classList.remove('pf-turnhold'); banMs = 1450; ban1 = 2350; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
     fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; aoeFlash = false; aoeLanded = false; }
   function envStepE(ev) {   // one step of the environment's own events: a piece fires in a chain, the environment places, finds no place, pieces fade
     var K = envKind(ev.kind);
@@ -545,20 +547,21 @@
     if (flashEnv !== null) { var done = flashEnv; playTimers.push(setTimeout(function () { envDone[done] = 1; }, 10)); }   // its mark stays for this step, then it is gone
   }
   /** the replay takes at most REPLAY_MS (16.9 s at 1x, 8.46 s at 2x since 2.8.78: 1x is half the old speed) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
-  var REPLAY_MS = 8460;   // Josh: the replay is too fast to follow at 4.6 s, 8.46 s at 1x (half at 2x)
+  var REPLAY_MS = 8460, REPLAY_MS1 = 16920;   // Josh: the replay is too fast to follow at 4.6 s, 8.46 s at 1x (half at 2x)
   function replayScale() {
     var n = (data.replay || []).length, ups = 0, g = data.gone || [];
     if (g.some(function (x) { return x.used === 'me'; })) ups++;
     if (g.some(function (x) { return x.used === 'foe' || (x.fell && !x.used && x.by === 'foe'); })) ups++;
-    var fixed = 200 + 700, vary = (n + (hideSpawn && spawnPiece() ? 1 : 0)) * 950 + ups * 850;   // after 2.6.96: the board's piece for the creature is a step too
-    return Math.max(0.1, Math.min(1, (REPLAY_MS - fixed) / Math.max(1, vary)));
+    var steps = n + (hideSpawn && spawnPiece() ? 1 : 0);   // after 2.6.96: the board's piece for the creature is a step too
+    if (SPD >= 2) return Math.max(0.1, Math.min(1, (REPLAY_MS - (200 + 700)) / Math.max(1, steps * 950 + ups * 850)));   // 2x: the old numbers
+    return Math.max(0.1, Math.min(1, (REPLAY_MS1 - (130 + 1150)) / Math.max(1, (steps + ups) * 1350)));   // 1x (and 1.25x, same shape, all / SPD): the cap is 16.9 s at 1x
   }
   function useUpStep(side, tt) {
     var ids = (data.gone || []).filter(function (g) { return g.used === side || (side === 'foe' && g.fell && !g.used && g.by === 'foe'); }).map(function (g) { return g.id; });
     if (!ids.length) return tt;
     playTimers.push(setTimeout(function () { ids.forEach(function (id) { leavingUsed[id] = 1; }); flashEnv = null; flashIds = {}; stepNote = side === 'me' ? 'A chain of ' + (V1.limit || 3) + ' or more: the pieces that fired are used up.' : 'Pieces that fired their last time, or in a chain of ' + (V1.limit || 3) + ', fall away.'; render(); }, tt));
-    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + 800 * RF * SLOW / SPD));
-    return tt + 850 * RF * SLOW / SPD;
+    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + T1(1270 * RF, 800 * RF)));
+    return tt + T1(1350 * RF, 850 * RF);
   }
 
   /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */

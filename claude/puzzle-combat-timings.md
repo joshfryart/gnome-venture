@@ -1,24 +1,25 @@
 # Puzzle combat: every animation time and wait, in seconds (2.8.80)
 
 Source: `tools/pfboardv1_part.js` (+ `tools/build_pfboardv1.py`) -> `game/assets/pfboardv1.js`; `game/assets/pfv1.css`, `pfight.css`, `pfanim.js`, `pfstage.js/css`.
-Speed button: 1x, 1.25x, 2x, Skip. Code: `SLOW = 2` (1x is half the old speed), `SPD` = 1 / 1.25 / 2 / 0. A "scaled" time = base x `SLOW` / `SPD`, so the three columns below are x2, x1.6, x1.
-RF = squeeze factor (1 when the replay is short). It shrinks piece steps so a whole replay never passes the cap.
+Speed button: 1x, 1.25x, 2x, Skip (`SPD` = 1 / 1.25 / 2 / 0).
 
-## 1. Replay after End turn (scaled by speed)
-| what | base | 1x | 1.25x | 2x |
-|---|---|---|---|---|
-| wait before the first step (NOT scaled) | 0.20 | 0.20 | 0.20 | 0.20 |
-| one piece step (place + fire + its line, bars move) | 0.95 x RF | 1.90 | 1.52 | 0.95 |
-| creature turn banner: wait added before its pieces | 0.70 | 1.40 | 1.12 | 0.70 |
-| creature banner on screen (CSS pf-turn, 0.65 s less than hold) | 0.65 | 1.30 | 1.04 | 0.65 |
-| use-up step (chain of 3+: fired pieces leave), step length | 0.85 x RF | 1.70 | 1.36 | 0.85 |
-| ... pieces fade away inside it | 0.80 x RF | 1.60 | 1.28 | 0.80 |
-| board puts a piece out for the creature (last step) | 0.95 x RF | 1.90 | 1.52 | 0.95 |
-| expired pieces leave after the replay | 0.80 x RF | 1.60 | 1.28 | 0.80 |
-| replay cap (whole replay, all steps) | 8.46 | 16.92 | 13.54 | 8.46 |
-| "Your turn" banner, taps ignored while it shows (pf-turnhold) | 1.45 | 2.90 | 2.32 | 1.45 |
-| ... its CSS animation | 1.40 | 2.80 | 2.24 | 1.40 |
+## 1. Replay after End turn (set for 1x; 2x keeps the old numbers; 1.25x = the 1x time / 1.25)
+Code: `T1(ms at 1x, ms at 2x)` in `tools/pfboardv1_part.js`. RF = squeeze factor (1 when the replay is short): it shrinks piece steps so a whole replay never passes the cap.
+| what | 1x | 1.25x | 2x |
+|---|---|---|---|
+| wait before the first step (same at every speed) | 0.13 | 0.13 | 0.13 |
+| one piece step (place + fire + its line, bars move) | 1.35 x RF | 1.08 | 0.95 |
+| creature turn banner: wait added before its pieces | 1.15 | 0.92 | 0.70 |
+| creature banner on screen (CSS pf-turn, 0.05 s less than the hold) | 1.10 | 0.87 | 0.65 |
+| use-up step (chain of 3+: fired pieces leave), step length | 1.35 x RF | 1.08 | 0.85 |
+| ... pieces fade away inside it | 1.27 x RF | 1.02 | 0.80 |
+| board puts a piece out for the creature (last step) | 1.35 x RF | 1.08 | 0.95 |
+| expired pieces leave after the replay | 1.35 x RF | 1.08 | 0.80 |
+| replay cap (all steps; the banner wait and first wait count as fixed) | 16.92 | 13.54 | 8.46 |
+| "Your turn" banner, taps ignored while it shows (pf-turnhold) | 2.35 | 1.88 | 1.45 |
+| ... its CSS animation | 2.30 | 1.83 | 1.40 |
 Skip: no replay, no banner.
+Measured, one medium-board turn from End turn to the last step: 6.7 s at 1x, 5.4 s at 1.25x, 4.7 s at 2x.
 
 ## 2. Fixed times (not changed by the speed button)
 | what | seconds |
