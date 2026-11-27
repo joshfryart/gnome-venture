@@ -848,7 +848,7 @@
   function fitRails() {
     var ar = fitTW / fitTH, n = Math.max(1, tiles.filter(function (t) { return !t.hidden; }).length || tiles.length || 5), cs = getComputedStyle(root);
     var H = root.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0), gap = 6, k = handAR();
-    var hh = Math.floor((H - 8 - gap * (n - 1)) / n), hw = Math.round(hh / k), cap = Math.round(Math.min(120, root.clientWidth * 0.14));
+    var hh = Math.floor((H - 20 - gap * (n - 1)) / n), hw = Math.round(hh / k), cap = Math.round(Math.min(120, root.clientWidth * 0.14));
     if (hw > cap) { hw = cap; hh = Math.round(hw * k); }
     fitVars({ '--pfv-btn': '44px', '--pfv-gap': '4px', '--pfv-leg': '30px', '--pfv-dock': '46px', '--pfv-hw': hw + 'px', '--pfv-hh': hh + 'px', '--pfr-hand': (hw + 4) + 'px' });
     setDock(true); wrapEl.style.flex = ''; wrapEl.style.height = '';
