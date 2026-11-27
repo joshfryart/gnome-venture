@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.77
+- **On by default:** Shared Sights (`sights_shared_on`), picture navigation (`gnav_on`: Here page, `gnav_tree`: Treehouse, `gnav_tiles`: tile walks), the slim Home (`home_slim`) and the Crafting workshop picture (`gnav_craft`). One boot step turns all six on once for an existing site; an admin can set any back to 0 and it is kept.
+- **Slim Today:** Wren's Journey card is back (current chapter, progress, next hint). The "Your pals" bar no longer uses an inline style (CSP): it is a `<progress>`.
+- **Visitor smell:** the kitchen peek says "bubbling away and it smells of" the last-cooked dish.
+- **Tests:** suites that assumed the old pages are pinned or adapted (marked 2.8.77).
+
 ## 2.8.76
 - **Hotfix:** a live `first_week.php` called `craft_link_fix()`, which this repo never had, so Home (`gnome.php`) died with a fatal error. `first_week.php` is shipped again (it replaces the live copy) and `craft_link_fix()` exists as a harmless stand-in in `here_schema.php`.
 

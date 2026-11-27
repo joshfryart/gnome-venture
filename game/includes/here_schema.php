@@ -15,7 +15,7 @@ function here_settings(): array
         'trail_enc_pct' => ['label' => 'Trail walks: base chance of a random fight on each tile walked (%). Rough ground is 2.5x, Sneak 40%, Hunt 250% of it.', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'fight_scene' => ['label' => 'Fights play on the tilted fight stage (animated gnome and creature, buttons under it) instead of the popover picture. Off = today’s popover.', 'type' => 'bool', 'default' => '1'],
         'gnav_enter_energy' => ['label' => 'Picture navigation: energy to step onto the Trail from a place (tile walks only; the number shown is the number charged)', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 100],
-        'gnav_craft' => ['label' => 'Picture navigation: the Crafting workshop picture (needs gnav_on; the old crafting pages stay)', 'type' => 'bool', 'default' => '0'],
+        'gnav_craft' => ['label' => 'Picture navigation: the Crafting workshop picture (needs gnav_on; the old crafting pages stay)', 'type' => 'bool', 'default' => '1'],
         'gnav_garden' => ['label' => 'Picture navigation: the Garden Yard picture, a Yard tab on the garden page (needs gnav_on; the Buildings tab stays as the list version) (2.7.33; on by default since 2.8.49)', 'type' => 'bool', 'default' => '1'],
         'gnav_tree' => ['label' => 'Picture navigation: the Treehouse (Games, Puzzle Pals) and the Pal Yard pictures (needs gnav_on; the old pages stay)', 'type' => 'bool', 'default' => '1'],
         'home_slim' => ['label' => 'Slim Home: Today, My Gnome and the Hovel become one Home page (hovel banner with Sleep and Nap, then Today / Furnish / Gnome tabs). Off = today’s pages exactly; admins always see it', 'type' => 'bool', 'default' => '1'],
