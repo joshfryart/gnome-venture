@@ -1041,7 +1041,10 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 .pfb2-pic img, .pfb2-pic svg { max-height: 58px; max-width: 100%; width: auto; height: auto; image-rendering: pixelated; }
 .pfb2-me .pfb2-pic { height: 64px; }
 .pfb2-nm { display: grid; line-height: 1.15; min-width: 0; }
-.pfb2-nm small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.pfb2-nm small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2, #4a2c1a); opacity: 1; }
+.pfb2-nchips { display: none; margin: 0 0 6px; gap: 2px; }
+.pfb2-nchips .chip { font-size: 11px; padding: 0 5px; margin: 1px; }
+@container pfb2 (max-width: 619px) { .pfb2-vs .pfb2-chips, .pfb2-vs .pfb2-sub { display: none; } .pfb2-nchips { display: flex; flex-wrap: wrap; } .pfb2-pic { height: 54px; } .pfb2-pic img, .pfb2-pic svg { max-height: 48px; } }
 .pfb2-nm b { font-size: 15px; overflow-wrap: anywhere; }
 .pfb2-meter { display: grid; gap: 2px; font-size: 12px; }
 .pfb2-meter > span:first-child { display: flex; justify-content: space-between; gap: 4px; color: var(--ink-2, #4a2c1a); }

@@ -575,7 +575,7 @@ function pfv_prefight_html(array $u, array $exp, array $c): string
             . pfv_auto_html(false);
     }
     // pane 1: its pieces; pane 2: the rules in four lines
-    $p1 = '<div class="sl">Its pieces <span>each plays up to ' . PFB_FOE_FIRES . ' times</span></div><div class="tally" role="img" aria-label="' . (int)$F['n'] . ' pieces in layers">' . $F['tally'] . '</div><ul class="pcg c5" data-pico="' . e(url('assets/img/pfight/pieces/')) . '">' . $F['cells'] . '</ul>'
+    $p1 = '<div class="chips small pfb2-nchips">' . $F['chips'] . '</div><div class="sl">Its pieces <span>each plays up to ' . PFB_FOE_FIRES . ' times</span></div><div class="tally" role="img" aria-label="' . (int)$F['n'] . ' pieces in layers">' . $F['tally'] . '</div><ul class="pcg c5" data-pico="' . e(url('assets/img/pfight/pieces/')) . '">' . $F['cells'] . '</ul>'
         . '<div class="pinfo" id="pfv-cinfo" aria-live="polite"><span>Tap one of its pieces to see what it does.</span></div>';
     $p2 = '<div class="sl">How the fight works</div><ul class="pfb2-rules"><li>Take turns placing pieces. Edges that fit make a chain, and the chain fires.</li><li>Hurt and charm fill its Yield bar. Full bar wins; more charm than hurt wins it over.</li><li>Its guard soaks your hits first. Weather pieces change what a chain does.</li><li>Your deck is locked once the fight starts.</li></ul>' . $F['rule']
         . '<p class="pfb2-more"><button type="button" class="btn ghost" data-pfintro="1">Full guide</button></p>';
