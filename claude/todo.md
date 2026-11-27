@@ -1,7 +1,7 @@
-# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.77, live = 2.8.77). History: `claude/todo_history.md`
+# Gnome Venture: LIVE TO-DO (open items only; reviewed for stale 2026-11-26; main = 2.8.84, live = unconfirmed (Josh tests 2.8.78 to 2.8.84 on a test site)). History: `claude/todo_history.md`
 
 Rules: add new items here only. Tick or delete when done, and MOVE finished blocks to `claude/todo_history.md` (newest on top). STANDING RULE (Josh, 2026-11-05): after every change or release, update this file. Items marked (2.7.x) were carried from older lists and not re-verified: check before building.
-## Latest: 2.8.77 on main and live (2026-11-27; Josh confirmed it works on live). Slim zip `releases/GnomeVenture-2.8.77-web-update.zip` (99 files, goes on 2.8.73 or newer). Release blocks 2.8.73 to 2.8.77 are in `claude/todo_history.md`. Open from this run: find why live had a different `first_week.php` (it called `craft_link_fix()`, fixed by 2.8.76); nothing seen on a real phone or MySQL.
+## Latest: 2.8.84 on main (2026-11-27, PR 95; slim zip `releases/GnomeVenture-2.8.84-web-update.zip`, 7 files, built against 2.8.79 so it goes on 2.8.79 or newer and carries 2.8.80 to 2.8.84). 2.8.78 to 2.8.84 are in `claude/todo_history.md`. CI was still queued when PR 95 merged: no CI suite has run on it. Test site: `bash tools/build_test_site.sh <outdir>` (Josh used the first test zip, "looks good").
 
 ## A. Owner picks / decisions waiting
 - Stop art: DECIDED (Josh, 2026-11-27): route cards stay without the gnome; the lair route card keeps its glowing eyes. Still open: shops-street hotspots not checked by eye; 6 stoptiers (mill-1, workshop-1..4, spring-3) kept as before (their redraws were broken).
@@ -11,6 +11,9 @@ Rules: add new items here only. Tick or delete when done, and MOVE finished bloc
 
 ## B. Code / bugs open
 - DECIDED (Josh, 2026-11-26): keep `game/includes/data/trail_maps.json` (old 22x7 reference for tests; not live, all 246 routes overridden by `data/trail_maps/*_30x18.json`). Known: Admin "Trail maps check" reports it as live; silent 22x7 fallback if a region file fails validation.
+- Puzzle combat 2.8.78 to 2.8.84, open: (1) pink dots on pieces on Josh's desktop: NOT reproduced; 2.8.80 made the any-hole rim ink, 2.8.84 matches the cut-out key with a tolerance (`isKey()`); if they persist get a zoomed screenshot, OS and screen scaling, and try Piece effects Off. (2) Result card tool-durability bars show empty in tests (6/28 should show a fill): cause not found. (3) Quick turns is Off by default in code; Josh may have it on for his account; no reset was done (decide). (4) The Puzzle box page at sideways phone sizes was never checked (a test timed out there; `PFSKIPBOX=1` skips it). (5) Not run: CI suites, MySQL, a real phone. (6) `tests/pbox_v1.sh` full run is about 10 minutes with `PFVP` / `PFRULES=new` / `PFSKIPBOX=1`.
+- Puzzle combat timings are set for 1x (Josh): `claude/puzzle-combat-timings.md`; speeds 1x, 1.25x, 2x, Skip (1.25x = 1x / 1.25, 2x = the old times); taps work during the Your turn banner. The "Your turn" banner is 2.35 s at 1x.
+- Trail Hunt (Josh asked): 7.5% per tile on floor, 18.75% on rough, Sneak 1.2%, no pity counter (`quiet` is counted but unused); Josh said it is fine as is.
 - `aseprite-source/v3/creature25/gen.lua` would overwrite swapped rigs: do not rerun blind.
 - treks: passes locally (0 FAIL) but takes about 7.5 minutes (`trek_audit_ch3b.php` is most of it) against `ci_suites.sh`'s `timeout 600`: watch for load timeouts, lower `AUDIT_N` or split if it bites. puzzle_pals dock fix greys the Pals entry as "soon" when closed or for guests (owner may prefer omitting it).
 - Flaky under load: sinks097, game_clock.sh, catfish, puzzle_pals, tour, roads, pfboard, pfdeck_v1. Do not add to `RETRY_SUITES` without telling Josh.
@@ -34,7 +37,7 @@ Method: `aseprite-source/v3/HANDOFF.md`, `claude/art-audit.md`, Hearth Pop / Sti
 - Balance: week 1 ~8.5k earned vs ~7k sinks; days 1-3 flush; cosmetics have no level check; harvests ~73% of XP.
 
 ## 7. PARKED (Josh: not now)
-Combat intent/Guard, KO cost on road fights, Inbox, test environment, growing villages, caravans, more festivals, Duck Pond animal.
+Combat intent/Guard, KO cost on road fights, Inbox, growing villages, caravans, more festivals, Duck Pond animal.
 
 ## 8. WORKING NOTES
 - Playwright test method: throwaway SQLite install (copy `game/`, delete `data/`, run `tests/walk.sh`, `php -S` with `tests/router.php`); unique `PORT_BASE` per suite run; session cookie `garden_sess`; touch drag via CDP `Input.dispatchTouchEvent`.
