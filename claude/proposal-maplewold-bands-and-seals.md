@@ -1,16 +1,18 @@
 # PROPOSAL: Level bands, new routes, Seals and Wren's Journey rewrite
 
 Status: PROPOSAL ONLY (2026-11-27). No code. Josh to veto/pick.
+Pass 4 review (2026-11-27): corrected in place, see `claude/proposal-story-4-review.md`. Section 5 is superseded by `proposal-story-1-base.md` / `proposal-story-2-quests.md`; the Standing table in section 4 now matches the base story.
 Reading: "Mapleworld" = The Maplewold (NA). "First three areas" = Maplewold + its two road neighbours (Maizehollow CA, Mistmoor NWE).
 Builds on: `includes/progression.php` (REGION_LEVELS), `includes/roads.php` (ROAD_PAIRS), `includes/journey.php` (Wren's Journey), `data/zones.txt`, `data/landmarks.txt`.
 
 ## 1. What is here now
 - Levels: NA 1, CA 4, NWE 6, CB 8, SE 10, SA 12, EE 14, MENA 17, EA 20, CSA 23, SEA 26, WCA 29, ESA 32, OC 35. Seven regions in L1-14.
 - Gate: none. Level is a "recommended" badge. Roads are always open. Fast travel needs one walk there.
-- Maplewold: 4 zones (Prairie, Old Maplewood, Foghorn Shallows, Frostbitten North), 10 villages, 6 landmarks. Roads: NA-CA, NA-NWE, NA-EA (dead end Clovercove).
+- Maplewold: 4 zones (Prairie, Old Maplewood, Foghorn Shallows, Frostbitten North), 10 villages, 6 landmarks. Only 3 villages are on a road (Poppyburrow, Honeybrook, Cloverholt, all Bramblesweep Prairie; `lay_roads` takes starter-zone villages first). The other 7 are off-road. Only road villages can be adopted (`place_ui.php` checks `on_road`), so the Maplewold has 3 adoptable stops; most areas have 3 to 7. Roads: NA-CA, NA-NWE, NA-EA (dead end Clovercove).
 - Journey: 4 chapters only (NA, CA, NWE, CB). Each = 4 tasks + 3 build stages. 14 regions, 10 chapters missing.
 - XP (xp_for_level, steep from L10, +15%): total XP to L5 2,000 · L10 16,500 · L15 75,650 · L25 625,700 · L35 2.51M · L45 7.04M.
-- Creature data tops at Lv 37 (roads.php note). Lairs sit at region level + 4.
+- Creature data tops at Lv 37 (roads.php note). Lairs sit at region level + 4 (`LAIR_LEVEL_1115`, roads.php), except the Owl (10) and the Silverback Spider (20).
+- Fixed routes are clamped to Lv 40 (`route_danger`, adventure.php ~179).
 
 ## 2. Bands (the spine)
 Rule: a band = the levels you earn by finishing that area. Bands of ~10 levels. Siblings share a band and can be done in any order.
@@ -24,9 +26,10 @@ Rule: a band = the levels you earn by finishing that area. Bands of ~10 levels. 
 | 5 Edge | Blossomreach (EA), Monsoon Tangle (SEA), Coralscatter (OC) | 45-55 | 16M |
 
 Notes:
-- Map graph already fits: CA gives CB+SA, NWE gives SE+EE, those give MENA/CSA/ESA/WCA, then EA/SEA/OC.
+- Map graph (`ROAD_PAIRS`, checked in pass 4): it does **not** fully fit. Tier 2 to 3: CA-CB, CA-SA, NWE-SE, NWE-EE (good). Tier 3 to 4: only SE-MENA and EE-CSA. **Sunsprinkle (CB) and Rainroot (SA) have no road to any tier 4 area.** Inside tier 4: MENA-WCA, MENA-CSA, WCA-ESA, ESA-CSA. Tier 4 to 5: only CSA-EA and CSA-SEA. **SA-OC joins tier 3 straight to tier 5.** NA-EA is the Clovercove dead end. Inside tier 5: EA-SEA, SEA-OC.
+  - Consequences: every tier 5 area is reached through Spicepeak (or the SA-OC road); WCA and ESA are side pockets of tier 4; CB and SA lead on only to OC. Fixes are in section 4 (gates) and open item 1 of the review.
 - Tier 4-5 go past the Lv 37 creature cap: add creatures 38-55 (settled).
-- Inside an area, zones ladder: zone 1 = band floor, last zone + lair = band top. Lair = band top (Owl 15, not 10).
+- Inside an area, zones ladder: zone 1 = band floor, last zone + lair = band top. **Lair rule (one rule, pass 4): lair = band top.** Owl 15, tier 2 lairs 25, tier 3 35, tier 4 45, tier 5 55. The creature list (`proposal-creatures-38-55.txt`) uses the same rule. This replaces "region level + 4" in `LAIR_LEVEL_1115`.
 
 ### Maplewold 1-15 (6 zones, was 4)
 | Zone | Lv | Status |
@@ -38,6 +41,7 @@ Notes:
 | Frostbitten North | 11-13 | exists |
 | **Cairnback Ridge** (mountain) | 12-15 | NEW |
 Capstone: Den of the Great White Owl, Lv 15.
+Note: the new zones' places (Fens, Ridge) are off-road, so they hold no adoptable stops unless adoption is opened to off-road villages (review, open item 2).
 
 ### Twin neighbours 15-25
 Each of CA and NWE runs 15-25 over its 4 zones (15-17, 18-20, 21-23, 24-25 + lair). Player alternates or finishes one. Both are "Tier 2": finishing both is what opens tier 3 fully (see section 4).
@@ -46,7 +50,7 @@ Each of CA and NWE runs 15-25 over its 4 zones (15-17, 18-20, 21-23, 24-25 + lai
 Rule: a new route hangs off a road village or a zone, never replaces a road. Roads stay gentle. New routes = side/wild kind, level from the band.
 
 ### Maplewold
-1. **Fen Path**. Off the NA-NWE road, village 2. Beaverdam Fens. Hidden: Heron Stilt Village (haven), Dam Debt (wonder), Beaverdam Tunnels delve moves here (now floats). Loops back to Foghorn Shallows. L8-11.
+1. **Fen Path**. Off the NA-NWE road, village 2 (check which region that village is in; road villages alternate). Beaverdam Fens. Hidden: Heron Stilt Village (haven), Dam Debt (wonder), Beaverdam Tunnels delve moves here (now floats). Loops back to Foghorn Shallows. L8-11.
 2. **Cairnback Climb**. Off the NA-CA road, village 3. Cairnback Ridge. Cairnback Pass (wonder), Cairn Keeper's Hut (haven), Hollow Peak delve. L12-15. End: Smokecap foothills in CA = the "high road" shortcut (opens after Maplewold Seal).
 3. **Aurora Road**. Frostbitten North -> Aurora Camp -> Owl's Den. L11-15. Past the Den: **Northern Rim Pass** to Long Night Fells (NWE). Hard route, L15-18, opens after the Owl.
 4. **Tide Track**. Foghorn Shallows -> Lantern Lighthouse -> **Ferry Landing**. Ferry to Sunsprinkle (CB) shown but tide-locked. Opens at tier 3 gate.
@@ -69,22 +73,28 @@ Counts: Maplewold +4 routes, +2 zones, ~8 new places. CA/NWE +4 and +3 routes, ~
 ## 4. Completion and Seals (the gate)
 Each area has an **Expedition Standing** (0-100%) on its Wren page. Count what already exists:
 
-| Part | Weight | Source (exists) |
+Pass 4: the table below is the one in `proposal-story-1-base.md` section 4 (the only Standing table; keep them identical). Sums to 100. A gnome who never fights can reach 90 (95 where the lair has a peaceful act), so 80 has slack.
+
+| Part | Weight | Source |
 |---|---|---|
-| Wren chapter done | 20 | `user_quests` |
-| Road villages and off-road places found | 25 | explore / `find` task |
-| Townsfolk at Friend (not just Acquaintance) | 10 | friends.php |
-| Staple and native crops harvested | 10 | `grow` task |
-| Delve cleared | 15 | delves |
-| Lair beaten or charmed | 15 | lairs |
-| Almanac pages for the area | 5 | encyclopedia |
+| Stops: lit 14, raised 10, Hearth 6 | 30 | stops, Regular count |
+| Wren's flagship Repair done | 15 | chapter stages |
+| Road villages and off-road places found | 10 | explore / `find` |
+| Folk: Friend 5, stop threads 5, errands 5 | 15 | friends.php, threads, errand log |
+| Gardening: grown 5, signature bed 6, in flower 4 | 15 | harvest log, Seed Bed |
+| Delve cleared | 5 | delves |
+| Lair beaten, charmed, or its peaceful act | 5 | lairs |
+| Almanac pages for the area (places, crops, folk; not creature pages) | 5 | encyclopedia |
 
 - **80% Standing = Area Seal** (Wren's bound Almanac section). Items: Maplewold Seal, Maizehollow Seal, Mistmoor Seal, ...
 - Gates:
   - Tier 1 and 2: open roads. Level badge only. (Josh: "past the first three" is the first lock.)
-  - Tier 3 doors (Isthmus, Ferry Cove, Fell Pass, Smugglers' Tide, Tide Track) need **both** Maizehollow and Mistmoor Seals (settled). Settled: both tier 2 Seals.
-  - Tier 4+: the Seal of the area you leave (settled for 3 only; confirm).
-- Each gate has a Warden NPC (a gnome at the last village) with a line from Wren. No seal: they tell you what is missing ("Fens 62%: the Dam Debt, 2 hidden places").
+  - Tier 3 doors need **both** Maizehollow and Mistmoor Seals (settled). The doors are the four **existing** roads CA-CB (Ferry Cove), CA-SA (Isthmus Track), NWE-SE (Smugglers' Tide), NWE-EE (Fell Pass), gated at their last tier 2 village, plus the new Tide Track ferry (NA-CB). The names are the gate stretches of those roads, not extra roads; otherwise the open roads would bypass the gate.
+  - The Seal is checked the moment both are held. Nothing else (no chapter, no ceremony step) stands between the two Seals and the doors.
+  - Tier 4 doors (only SE-MENA and EE-CSA exist): the Seal of the area you leave. Roads between siblings of the same tier (CB-SA, MENA-WCA, MENA-CSA, WCA-ESA, ESA-CSA, EA-SEA, SEA-OC) are open once you are in that tier.
+  - Tier 5 doors: CSA-EA and CSA-SEA need the Spicepeak Seal. **SA-OC** skips tier 4: proposed, it needs any one tier 4 Seal (to confirm, review open item 1).
+  - Clovercove (NA-EA): needs all 14 Seals (the final chapter).
+- Each gate has a Warden NPC (Hobb Stiles's Wardens, a gnome at the last village) with a line from Wren. No seal: they tell you what is missing ("Fens 62%: the Dam Debt, 2 hidden places").
 - Fast travel: unchanged (walk once), but a Seal-locked door still needs the Seal.
 - Level fix: do **not** hard-block by level. The XP budget does that (below).
 
@@ -95,6 +105,7 @@ Each area has an **Expedition Standing** (0-100%) on its Wren page. Count what a
 - Numbers (Maplewold 75.7k to L15) need a sim before locking: see `claude/balance-2.7.27-sims.md` for method. I did not run a sim.
 
 ## 5. Story: The Hollow in Disrepair (replaces the Tansy / Hollowheart spine)
+Pass 4: superseded in detail by `proposal-story-1-base.md` and `proposal-story-2-quests.md`; kept as the first sketch.
 Josh decisions (2026-11-27): no Trek story; no Tansy hunt. Keep the main Journey quest = **fill the Almanac** (Wren's field guide). The Hollow is run down; the gnome fixes it and helps its folk, at leisure.
 
 ### Spine
@@ -133,7 +144,7 @@ Wren's cover note, the guide (crops, soil), then three tabs: Repairs ✔/☐, Fo
 ## 6. Delivery order
 1. Config only: new REGION_LEVELS bands, Owl Lv 15, region `min_level` update + migration step for existing gnomes.
 2. Standing meter on Wren's page (read-only, no gates).
-3. Seals + Wardens at the 5 tier 3 doors.
+3. Seals + Wardens at the 5 tier 3 doors (gating the four existing tier 2-3 roads plus the Tide Track ferry).
 4. New Maplewold zones/routes (data + art brief).
 5. Act I chapters 2-7 (data).
 6. Act II routes and chapters.
@@ -145,7 +156,8 @@ Existing worlds: players already in tier 3+ keep access (grandfather via region_
 - Journey data is currently code (`journey_seed`). 40 chapters in code is heavy: move to a `data/journey_chapters.txt`.
 - New zones need trail maps and landscapes; none drawn.
 - Grandfathering: don't lock gnomes already past the doors.
-- Creature cap 37.
+- Creature cap 37 (list for 38-55 drafted). Route clamp 40 in `route_danger` must go to at least 57; `REGION_LEVELS` and `LAIR_LEVEL_1115` need the new bands.
+- Graph: CB and SA have no tier 4 road; SA-OC skips tier 4 (section 2).
 
 ## 8. Decisions (settled 2026-11-27)
 1. Maplewold alone is L1-15: yes.
