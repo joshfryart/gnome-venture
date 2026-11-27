@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * Standing: 0-100 per gnome and area, from the rows of STANDING_ROWS. Every row is a high-water mark (region_standing_best):
  * a stop that loses a tier, a released adoption, anything that goes down, never lowers a row once reached.
- * At `seal_threshold` (default 80) the gnome earns that area's Seal (region_seals), once, for good.
+ * At `seal_threshold` (default 78) the gnome earns that area's Seal (region_seals), once, for good.
  *
  * Gates: a region of tier 3 or above opens when the gnome holds the Seal(s) GATE_NEEDS names for it, or is grandfathered
  * (home region, a garden there, walked there before, standing there now). Walking between two regions of the same tier, or down a tier,

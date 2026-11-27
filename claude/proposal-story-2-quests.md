@@ -76,13 +76,13 @@ Pass 4 rules that make every main step doable:
 | 4 | c=600, xp=1,200 | c=70:10, xp=60:6, fp=1 | c=300:30, xp=600:40 | 10 / 15 / 20 |
 | 5 | c=900, xp=2,000 | c=90:12, xp=90:8, fp=1 | c=450:40, xp=1,000:60 | 12 / 18 / 24 |
 
-Chapter XP rule: the chapters of an area pay about 35% of that band's XP between them, split by level span. Chapter Petals: band 1 150 to 600 rising by zone, band 2 600 to 1,300, band 3 2,600, band 4 5,000, band 5 7,500, final 10,000. The area benefit and region guide are paid once, at the Seal.
+Chapter XP rule: the chapters of an area pay about 40% of that band's XP between them, split by level span. Chapter Petals: band 1 150 to 600 rising by zone, band 2 600 to 1,300, band 3 2,600, band 4 5,000, band 5 7,500, final 10,000. The area benefit and region guide are paid once, at the Seal.
 
 Titles by Seal count (order-free, reuses the existing four): 1 Seal **Lamplighter** (new), 3 **Field Hand**, 5 **Pathfinder**, 7 **Hollow Ranger**, 9 **Wren's Companion**, 12 **Keeper** (new), final chapter **Roundwalker**.
 
 ## 2. Main line: Wren's Almanac (28 chapters)
 
-Every chapter has: (a) an adopt/raise step, (b) a gardening step, (c) a folk step, (d) a Leaf or Seal step. Zone chapters end in a **Leaf** (Wren binds that zone's leaf into the section, all earlier steps done). The area's last chapter ends in the **Seal** (Standing 80%). Chapters of an area can be started in any order once the zone is reached; steps inside a chapter are ordered only where one needs the other (the bed follows the lamp). "Optional" items never block.
+Every chapter has: (a) an adopt/raise step, (b) a gardening step, (c) a folk step, (d) a Leaf or Seal step. Zone chapters end in a **Leaf** (Wren binds that zone's leaf into the section, all earlier steps done). The area's last chapter ends in the **Seal** (Standing 78%). Chapters of an area can be started in any order once the zone is reached; steps inside a chapter are ordered only where one needs the other (the bed follows the lamp). "Optional" items never block.
 
 Slot note (pass 4, checked against `stop_adopt.php`): `raise` counts stops raised by anybody, and the Hearth counts a stop you founded, so "light it, hand it back, walk on" works with one slot. The Maplewold main line adopts 3 times (the 3 prairie road stops), Maizehollow and Mistmoor 2 times each. No main step needs two adoptions at once or a tier 4 before band 4.
 
@@ -171,7 +171,7 @@ Leaf note: "The old book says 'a stone for every walker, every year'. The newest
 | 2 | Make a Friend among the Maplewold's townsfolk | `friend` 2 | any |
 | 3 | The Great White Owl: beat, charm, or answer it three evenings from Aurora Camp (`r_na_owl_hoot`). Same terms each way: the Aurora Road stays lampless and the Owl guards it | `defeat lair:great-white-owl`, alt stop act x3 | 15 |
 | 4 | Bring a wild-rice dish and an apple dish to your Hearth stop for the supper | `deliver meal:2,to:hearth` | 15 |
-| 5 | Maplewold Seal: Standing 80%. Hobb fires the Cairnback beacon, Wren arrives on foot and binds the section | `seal standing:80` | 15 |
+| 5 | Maplewold Seal: Standing 78%. Hobb fires the Cairnback beacon, Wren arrives on foot and binds the section | `seal standing:78` | 15 |
 Reward: Maplewold Seal, region guide, `native_plus:10`, title Lamplighter, Wren's desk at the Hearth stop. Opens: Cairnback Climb high road, Northern Rim Pass.
 Seal letter: "The old book said the Maplewold's lamps 'are lit each dusk'. I have crossed it out and written: lit, by a friend, who came back. Also, friend: the last page of the old book has been cut out. I had never noticed."
 
@@ -225,7 +225,7 @@ Leaf note: "The old book says water 'is found here'. It is carried here. I have 
 | 4 | Third Seed Bed hand-in (12 amaranth): tier 2 stalls now sell it | `plant bed:3` | 24-25 |
 | 5 | Stalls open along the road: 2 Maizehollow road stops at tier 2 (C2's counts as one) and your Hearth among them | `raise tier:2` x2, one `hearth` | 24-25 |
 | 6 | Build the beacon brazier (6 Flint, 4 Dressed Stone, 500 Petals) | `stage` | 25 |
-| 7 | Maizehollow Seal: Standing 80% | `seal standing:80` | 25 |
+| 7 | Maizehollow Seal: Standing 78% | `seal standing:78` | 25 |
 Optional: Smokecap Caldera lair (the fire salamander), beat or charm.
 Reward: Seal, guide, `sell_bonus:10`.
 Seal letter: "The old book said Maizehollow 'wants for nothing'. I have written what it wanted, and that it has it. Pell showed me letters marked 'The Walker, wherever met'. Nobody has collected one in his lifetime."
@@ -279,7 +279,7 @@ Leaf note: "The old book has no smugglers in it at all. I have added one, under 
 | 4 | Third Seed Bed hand-in (12 barley): the stalls have barley bread | `plant bed:3` | 24-25 |
 | 5 | A lamp in sight of the next: 60% of Mistmoor road stops lit | `raise lit:60%` | 24-25 |
 | 6 | Build the twin beacon (6 Flint, 4 Timber Planks, 500 Petals) | `stage` | 25 |
-| 7 | Mistmoor Seal: Standing 80% | `seal standing:80` | 25 |
+| 7 | Mistmoor Seal: Standing 78% | `seal standing:78` | 25 |
 Optional: Barrow of the Frost Toad lair, beat or charm.
 Reward: Seal, guide, `free_travel`.
 Seal letter: "The old book said the moor 'cannot be crossed in fog'. I have written: it can, lamp to lamp, and here is where they are. Somebody has been leaving one lamp lit on the Fells for years. Nobody here will own to it."
@@ -308,7 +308,7 @@ Seven step slots, the same in every area. Flagship Repair, its giver and its thr
 | S4 Repair | `stage` x3 | 29-32 | 39-42 | 49-52 | flagship |
 | S5 Reach | `find` 2 + `raise lit:P%` | 31-33 | 41-43 | 51-53 | the band's network problem |
 | S6 Hearth | `raise tier:T,hearth` | 33-35 | 43-45 | 53-55 | band 3 = tier 3 (well or pool), bands 4-5 = tier 4 (hall) |
-| S7 Seal | `seal standing:80` | 35 | 45 | 55 | ceremony per base story |
+| S7 Seal | `seal standing:78` | 35 | 45 | 55 | ceremony per base story |
 Optional in every area: its delve and its lair (beat or charm).
 
 **Band 3, "Across the water"** (S5: `lit:50%` of the area's road stops; the ferry, jetty and tower flavour is not a type requirement).

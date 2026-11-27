@@ -6,7 +6,7 @@ Date 2026-11-27. Consolidates every `claude/proposal-*` file listed in section 0
 
 | Status | What |
 |---|---|
-| **DECIDED (Josh)** | Bands 1-15 / 15-25 / 25-35 / 35-45 / 45-55. Maplewold alone is 1-15. 80% Standing = Seal. Both tier 2 Seals open tier 3. A Seal is the only hard block (no level lock). Creatures added above Lv 37. No Trek story, no Tansy / Hollowheart. Journey = fill Wren's Almanac. No new crops (the 14 signature crops exist). Puzzle Pals are released by jigsaw only (Advanced or Expert). The Maplewold jigsaw is chapter M1 step 2, Lv 1. Pals spawn only where the gnome has access. Stop perks latch for good, 3 unique minor perks per stop, no max, no decay of a full bar, no free perks. **Section 14 (2026-11-27):** the Fens and the Ridge get one village each (Cattailmere, Granitegate: 12 Maplewold villages, 18 stops, 54 perks); lit is full at 60% of N (7 of 12), raised at an average of tier 1; marks are a layer apart from Standing; the town and havens are stops; no real-day cap on dailies |
+| **DECIDED (Josh)** | Bands 1-15 / 15-25 / 25-35 / 35-45 / 45-55. Maplewold alone is 1-15. 78% Standing = Seal. Both tier 2 Seals open tier 3. A Seal is the only hard block (no level lock). Creatures added above Lv 37. No Trek story, no Tansy / Hollowheart. Journey = fill Wren's Almanac. No new crops (the 14 signature crops exist). Puzzle Pals are released by jigsaw only (Advanced or Expert). The Maplewold jigsaw is chapter M1 step 2, Lv 1. Pals spawn only where the gnome has access. Stop perks latch for good, 3 unique minor perks per stop, no max, no decay of a full bar, no free perks. **Section 14 (2026-11-27):** the Fens and the Ridge get one village each (Cattailmere, Granitegate: 12 Maplewold villages, 18 stops, 54 perks); lit is full at 60% of N (7 of 12), raised at an average of tier 1; marks are a layer apart from Standing; the town and havens are stops; no real-day cap on dailies |
 | **DECIDED (Claude's answers, Josh may veto)** | The 8 answers at the end of `proposal-story-4-review.md`: two new roads (CB-WCA, SA-ESA); any village can be adopted (off-road cap tier 2); tier 5 through Spicepeak or SA-OC; first adoption in an area free; tier 4 upkeep kept as flavour, steps and Standing latch; happening errands are acts; Stranger has no tie to Wren; sim before any number is locked |
 | **CODE DONE** | Puzzle Pal access filter only: `game/includes/puzzle_pals.php` (`ppal_spawn_nodes`, `ppal_spawn_prune`, `ppal_spawns`, `ppal_spawn_refresh`), `game/includes/progression.php` (`accessible_regions`, `region_gate_open` = always true until Seals ship, `record_region_visit` clears `ppal_spawn_day`), `tests/puzzle_pals_map.php` |
 | **PROPOSAL ONLY** | Everything else in this file. Every number (Standing weights, Petals, XP, hand-ins, bar points, pacing) is unsimulated |
@@ -124,7 +124,7 @@ Assumptions (each one is a guess to be replaced by a sim):
 - A7. In a band with two required areas (tier 2) the gnome plays both side by side (x0.8 of doing them in turn).
 - A8. Maplewold with 12 villages (section 14): the two new villages sit on side paths the chapters walk anyway (M4 Fen Path, M6 Cairnback Climb), so being a Regular there costs no extra game day. The seventh lamp costs 500 Petals more (200 + 300 fee) and no day, as long as A4 holds. The floors are unchanged: 10 crop sleeps, 6 to 12 game days for a Friend, 6 to 10 for three threads. So the 20-35 range stays; if Petals do bind (A4 wrong), the seventh lamp is the first thing to add days.
 
-| Band | Areas needed for the next door | Seed Bed floor, sleeps (section 8) | Stops work | Game days to 80% Standing, per area | Game days to the band top (level), required areas |
+| Band | Areas needed for the next door | Seed Bed floor, sleeps (section 8) | Stops work | Game days to 78% Standing, per area | Game days to the band top (level), required areas |
 |---|---|---|---|---|---|
 | 1 (1-15) | Maplewold | 10 (16 wild rice, 2 crops of 5 sleeps); apple for the Grown row 10 | 7 of the 12 villages lit and you a Regular there (Cattailmere among them, for the bed), Hearth tier 2 | **20-35** | **26-46** |
 | 2 (15-25) | Maizehollow **and** Mistmoor | amaranth 6, barley 15 (25 each) | 2 adoptions, 2 stalls each | **18-30** each; both 30-50 | **39-65** |
@@ -141,7 +141,7 @@ Assumptions (each one is a guess to be replaced by a sim):
 | **Lv 35** | **94-158** |
 | **Lv 45** | **128-213** |
 | **Lv 55** | **167-275** |
-| All 14 Seals at 80% | about 340-550 in turn, about 270-440 with sibling areas played side by side |
+| All 14 Seals at 78% | about 340-550 in turn, about 270-440 with sibling areas played side by side |
 | All 54 marks on the Maplewold roads | 34-51 (18 stops, 3-4 stops a day, 6-10 visit-days each: the 16-stop figure of 30-45 x 18/16; the two new villages are at the end of side paths, so a touring day that takes them in may hold 3 stops, not 4). A separate layer: marks do not count for Standing |
 
 Notes: game days are not real days (a gnome may sleep several times a real day, or once a week). The floors that cannot be bought are the crop sleeps, one thread beat a day and one go at each act a day. Everything else is effort and Petals.
@@ -168,7 +168,7 @@ The one Standing table (sums to 100). Shown on the area's Wren page. Every row i
 | Almanac pages | 5 | places, crops, folk (not creature pages) |
 | **Total** | **100** | |
 
-- **80% = the area's Seal.** Wren binds the section: region guide, the area benefit, her desk at the Hearth stop, the next door(s). A Seal is never lost.
+- **78% = the area's Seal.** Wren binds the section: region guide, the area benefit, her desk at the Hearth stop, the next door(s). A Seal is never lost.
 - N is all adoptable villages (decision 2: any village; off-road cap tier 2; a tier 4 road stop cannot be adopted, only kept up). **Maplewold N = 12** (10 + Cattailmere + Granitegate). The lit and raised formulas above are Josh's answer to question 1 (section 14), recomputed for 12: **7 of 12 lit is full marks** (round(7.2) = 7; each lit village is worth 2 points up to 7), and each tier is worth 10 / 12 = 0.83 on the raised row. The same `round(0.6 N)` is what the `raise lit:60%` step reads.
 - Checks: no stops = 70 at most (the Seal needs the road). No fighting = 90 (95 with a peaceful lair act). **Maplewold non-fighter, N = 12:** 7 lit (6 at tier 1, the Hearth at tier 2), all else done but the delve and the lair = lit 14 + raised 10 x 8/12 = 6.7 + Hearth 2 + Repair 15 + places 10 + folk 15 + garden 15 + pages 5 = **82.7** (87.7 with the Owl's three evenings, which is a main-line step: M7 step 3). With N = 10 it was 83 / 88, so the two villages cost 0.3. Slack over 80: 2.7 without the Owl, 7.7 with it. Each extra lamp adds 0.83 (8 lit = 83.5); with 6 lit only it is 79.8 (84.8 with the Owl). The Seal stays reachable with no fight.
 - Maplewold Petal cost of that (worst case: the gnome lights all 7 alone; a village someone else lit costs nothing): 7 x 200 (tier 1) + 6 x 300 (fee, first adoption free) + 400 (tier 2) = **3,600** (was 3,100 for 6 of 10), plus 32 stone, 34 planks, 3 rope (`stop_tiers.txt`: tier 1 = 4 stone + 4 planks, tier 2 = 4 stone + 6 planks + 3 rope). Slots 1 to 3: light, hand back, walk on (a released stop keeps its tier).
@@ -553,3 +553,7 @@ Build plan 6 and 11 in code: `game/includes/seals.php` (Standing with high-water
 - XP (Q3) CONCERN: chapters sized on the wrong total would put a gnome at Lv 18-19 by the Seal. Recommend chapters pay 40% of the real band XP (7,350 for M1-M7).
 - Bars (Q4) PASS: 7 visit-days per bar, 41 game days for all 54 marks, only with the four answer acts and 5 acts a visit.
 - Maizehollow (Q5) PASS: Petals stop mattering from tier 2 (1,170-1,420 a day).
+
+## 16. DECISIONS AFTER THE SIM (Josh, 2026-11-27)
+- **Seal threshold lowered from 80 to 78** (`seal_threshold` default 78 in code; docs updated). Gives a non-fighter about 2 points of slack.
+- **Chapter XP = about 40% of the band's real XP** (quests doc 1.4). With the real totals this is 7,350 XP across M1-M7. Per-chapter XP in the quests doc was sized on the wrong total: rescale each chapter's `xp` when the data files are written (target: chapters sum to 40% of band XP, split by level span).

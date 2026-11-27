@@ -87,7 +87,7 @@ Pass 4: the table below is the one in `proposal-story-1-base.md` section 4 (the 
 | Lair beaten, charmed, or its peaceful act | 5 | lairs |
 | Almanac pages for the area (places, crops, folk; not creature pages) | 5 | encyclopedia |
 
-- **80% Standing = Area Seal** (Wren's bound Almanac section). Items: Maplewold Seal, Maizehollow Seal, Mistmoor Seal, ...
+- **78% Standing = Area Seal** (Wren's bound Almanac section). Items: Maplewold Seal, Maizehollow Seal, Mistmoor Seal, ...
 - Gates:
   - Tier 1 and 2: open roads. Level badge only. (Josh: "past the first three" is the first lock.)
   - Tier 3 doors need **both** Maizehollow and Mistmoor Seals (settled). The doors are the four **existing** roads CA-CB (Ferry Cove), CA-SA (Isthmus Track), NWE-SE (Smugglers' Tide), NWE-EE (Fell Pass), gated at their last tier 2 village, plus the new Tide Track ferry (NA-CB). The names are the gate stretches of those roads, not extra roads; otherwise the open roads would bypass the gate.
@@ -113,7 +113,7 @@ Josh decisions (2026-11-27): no Trek story; no Tansy hunt. Keep the main Journey
 - Wren is finishing the Almanac, one area at a time. Her letters and the area guide stay. The Almanac is the progress book: every page you earn is a thing you did, found or fixed.
 - The Hollow is in disrepair: roofs, bridges, wells, lamps, roads. Each area has a Repair List. Mending things wakes the area (more folk out, shops restock, new places show).
 - No big villain. No race. Everything is optional and in any order inside an area. Leisure first: nothing times out, no failure state.
-- Seal (80% Standing) = "the area's Almanac section is complete": Wren binds the section and the next road door opens.
+- Seal (78% Standing) = "the area's Almanac section is complete": Wren binds the section and the next road door opens.
 
 ### Three kinds of Almanac content per area
 1. **Repairs** (the build stages, kept from `journey_seed`): hand in materials, a place reopens. Sugar Shack, Granary, Footbridge, Lighthouse stay as the first repair of their area. Add 4-6 more per area (well, mill, noticeboard, ferry steps, lamp posts). Each reopened place gets a daily action (JOURNEY_SPOTS already does this).

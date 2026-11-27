@@ -23,7 +23,7 @@ The mystery that runs under it: the old Almanac's last page (the old Roll) is mi
 - **Letters, per area (3, all delivered by Pell the post-gnome, section 3)**:
   1. **Cover note** (on first arrival): what the old Almanac said about this area, one thing she doubts, the first dark stop to look at. Replaces the chapter intro.
   2. **First-lamp note** (the first stop in the area that you raise to tier 1): two or three lines, thanks, and one local tip. Short on purpose.
-  3. **Seal letter** (at 80% Standing): four fixed parts. (a) thanks, naming a real thing you did (your Hearth stop and its plaque line, a villager you befriended); (b) one **correction**: "The old book said X. I have crossed it out and written Y."; (c) one piece of the Roll mystery (band-level, section 5); (d) which doors are now open and what the next area lacks. Then the bound section, the region guide and the benefit, as `journey_finish` does now.
+  3. **Seal letter** (at 78% Standing): four fixed parts. (a) thanks, naming a real thing you did (your Hearth stop and its plaque line, a villager you befriended); (b) one **correction**: "The old book said X. I have crossed it out and written Y."; (c) one piece of the Roll mystery (band-level, section 5); (d) which doors are now open and what the next area lacks. Then the bound section, the region guide and the benefit, as `journey_finish` does now.
 - **Form of address** grows with the bands, reusing the existing titles: "Dear friend" (band 1), Field Hand / Pathfinder (band 2-3), "Dear Companion" (band 4), "Dear Keeper" (band 5 and the end).
 
 ## 3. Core cast (recurring, they travel)

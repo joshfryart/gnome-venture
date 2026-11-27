@@ -35,7 +35,7 @@ ok('every area has a tier', count(REGION_TIERS) === 14 && !array_diff(array_keys
 ok('every tier 3-5 area has a door in GATE_NEEDS', !array_diff(array_keys(array_filter(REGION_TIERS, fn($t) => $t >= 3)), array_keys(GATE_NEEDS)));
 
 echo "== seals_open = 0: everything as before\n";
-ok('setting defaults to 0 on a fresh install', setting('seals_open') === '0' && setting('seal_threshold') === '80');
+ok('setting defaults to 0 on a fresh install', setting('seals_open') === '0' && setting('seal_threshold') === '78');
 setg('seals_open', '0');
 $allOpen = true; foreach ($R as $c => $id) if (!region_gate_open($uid, $id)) $allOpen = false;
 ok('every region is open', $allOpen);
@@ -182,7 +182,7 @@ ok('no Seal while off, even at ' . $st['total'] . '%', !region_seal_check($uid, 
 setg('seals_open', '1');
 setg('seal_threshold', '95');
 ok('seal_threshold 95: not yet', !region_seal_check($uid, $naId) && !seal_held($uid, $naId));
-setg('seal_threshold', '80');
+setg('seal_threshold', '78');
 ok('at the default 80: the Seal is awarded', region_seal_check($uid, $naId) && seal_held($uid, $naId));
 ok('...only once (idempotent)', !region_seal_check($uid, $naId) && (int)q_val('SELECT COUNT(*) FROM region_seals WHERE user_id = ? AND region_id = ?', [$uid, $naId]) === 1);
 ok('...with one notice', (int)q_val("SELECT COUNT(*) FROM notices WHERE user_id = ? AND text LIKE '%Maplewold Seal is yours%'", [$uid]) === 1);
