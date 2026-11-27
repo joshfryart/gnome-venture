@@ -129,6 +129,7 @@ function almanac_region_notes(array $u, string $code): string
             . ($row && $row['done_at'] ? '✔ finished' : ($row ? 'in progress' : 'starts when you arrive'));
     }
     if (q_val('SELECT 1 FROM plots WHERE user_id = ? AND region_id = ?', [$uid, $r['id']])) $L[] = '🏡 You have a garden here.';
+    if (setting('seals_open') === '1') { require_once __DIR__ . '/seals.php'; if (($sl = seal_almanac_line($uid, (int)$r['id'])) !== '') $L[] = $sl; }   // 2.8.85: the area's Seal or its Standing
     return almanac_notes_box($L);
 }
 

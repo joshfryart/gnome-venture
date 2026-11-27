@@ -56,6 +56,7 @@ function journey_chapter_box(array $u, array $ch, array $st, string $back = ''):
     ?>
       <div class="box jdetail">
         <h3><?= e((string)$ch['project_icon']) ?> <?= e($ch['region']) ?>: <?= e($ch['title']) ?></h3>
+        <?php if ($row && setting('seals_open') === '1') { require_once __DIR__ . '/seals.php'; echo standing_card_html($u, (int)$ch['region_id']); }   // 2.8.85: Expedition Standing and the area's Seal ?>
         <?php if ($row && !$row['done_at'] && ($hint = journey_next_hint($u, $ch, $st))): ?>
           <p class="jnext">👉 <b>Next:</b> <?= e($hint[0]) ?></p>
         <?php endif; ?>

@@ -1344,6 +1344,15 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
 .jtasks .jwhy { flex-basis: 100%; color: var(--ink-2); }
 .jneeds .chip { font-size: 13px; padding: 1px 8px; }
 .jneeds .chip.good { background: var(--brand-soft); } .jneeds .chip.bad { background: var(--danger-soft); }
+/* 2.8.85: Expedition Standing card (seals.php) */
+.jstanding { margin: 8px 0; }
+.jstanding h4 { margin: 0 0 6px; }
+.jstanding h4 small { color: var(--muted); font-weight: 400; }
+.jstanding .jstbar { width: 100%; height: 10px; accent-color: var(--brand); }
+.jstanding .jsttbl { font-size: 13px; margin: 6px 0; }
+.jstanding .jsttbl td { padding: 4px 8px; }
+.jstanding .jsttbl tr.full td { color: var(--muted); }
+.pchip--gate { background: var(--danger-soft); }
 
 /* ---- Crafting ---- */
 
