@@ -1,6 +1,7 @@
 # PROPOSAL: Stop perks, regions C (Thornacre Savanna, Spicepeak, Blossomreach, The Monsoon Tangle, The Coralscatter)
 
 Status: proposal only, no game code changed. 2026-11-27.
+Impact pass 2026-11-27 (`proposal-perk-impact.md`): 107 perk rows of this file have a wider trigger or a bigger size (`RAISES` in `tools_audit_stop_perks_fixes.py`). The perk tables are current; prose notes below may still describe a perk's first, narrower scope.
 Follows `proposal-stop-perks.md` (rules, families, caps, section 5 format) and `PROPOSAL-HOLLOW-MASTER.md` section 7 and 14 (ruling 7: a hand-written set per region). Stops are from `claude/route-list.md`; zones and havens from `zones.txt` and `landmarks.txt`; stop types from `stops.txt`; crops from `region_crops.txt`.
 
 62 stops, 186 perks: every stop has its own three (Repairs, Larder, Cheer). Honeythorpe (Blossomreach) already has its three in the Maplewold set and is not rewritten.
@@ -11,17 +12,17 @@ Share = (cap - what the Maplewold set uses) / 13 regions, rounded down. "Maplewo
 
 | Family | Effect | Cap | Maplewold use | Left | Share per region | In this file |
 |---|---|---|---|---|---|---|
-| F01 | sell | +5% | 2 | 3 | **0** | 7 place |
+| F01 | sell | +5% | 3 | 2 | **0** | 7 place |
 | F02 | buy | -5% | 1 | 4 | **0** | 4 place |
 | F03 | XP | +5% | 3 | 2 | **0** | 3 place |
 | F04 | garden XP | +5% | 1 | 4 | **0** | 5 place |
-| F05 | walk time | -6% | 2 | 4 | **0** | 8 place |
+| F05 | walk time | -6% | 3 | 3 | **0** | 8 place |
 | F06 | pot time | -6% | 4 | 2 | **0** | 7 place |
 | F07 | dish energy | +5% | 2 | 3 | **0** | 7 place |
 | F08 | boost length | +8% | 4 | 4 | **0** | 4 place |
 | F09 | healing | +8% | 4 | 4 | **0** | 6 place |
-| F10 | harvest extra | +4% | 2 | 2 | **0** | 9 place |
-| F11 | gather extra | +4% | 1 | 3 | **0** | 4 place |
+| F10 | harvest extra | +4% | 4 | 0 | **0** | 9 place |
+| F11 | gather extra | +4% | 2 | 2 | **0** | 4 place |
 | F12 | watering lasts | +8% | 2 | 6 | **0** | 5 place |
 | F13 | seed back | +4% | 1 | 3 | **0** | 5 place |
 | F14 | friendship chance | +8% | 2 | 6 | **0** | 4 place |
@@ -43,7 +44,7 @@ Rules kept in every row:
 - `region=` perks: at most one per family per region, so region-wide place perks never stack inside a region. `items=local` perks: no crop gets the same family twice in a region (family cap per crop, 4.1 rule 2).
 - **D** = daily charge, one per perk per game day (comes back on sleep, never at midnight, never banked). Every D here is tied to its stop, its region or a regional crop, and no two share a trigger. The two A4 perks pay 2 coins each and sit under the 10-coins-a-game-day ceiling.
 - **F** = flag (A5 information, A6 looks). No power. At most one A5 and one A6 per stop.
-- Sizes: 1% or 2%, +1 energy, +1 torch step, one item, 2 coins. Nothing above 2%. One perk per family per stop.
+- Sizes: 1% or 2%, +1 energy, +1 torch step, one item, 2 coins. Nothing above 2%. One perk per family per stop. Impact pass 2026-11-27: every % family may be 2% a perk, and the narrow place perks on the veto list of `proposal-perk-impact.md` are at 3%.
 - Stop types are explicit and each suits its landscape in `stops.txt`; set them in Admin > Places. The town and the havens need `stop_is_place()` first (ruling 6).
 
 ## 2. Thornacre Savanna (ESA): 12 stops, 36 perks
@@ -67,40 +68,40 @@ Zones: Thornacre Plains (grassland), Coffeecloud Highlands (mountain), Rift Lake
 
 | Stop | Type | Bar | Perk | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|
-| Thornacre Savanna Market | market | Repairs | 🧱 Red-Ochre Stall Posts | The Thornacre market stall pays 2% more for Savanna crops you sell there | +2% | P from= | F01 |
+| Thornacre Savanna Market | market | Repairs | 🧱 Red-Ochre Stall Posts | Stalls in Thornacre Savanna's grassland and desert zones pay 2% more for what you sell | +2% | P region=ESA | F01 |
 |  |  | Larder | 🫓 Injera Off the Griddle | First visit to the Thornacre market each day: one sack of teff (`teff`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🧺 Woven Basket Lid | A woven Savanna basket sits on your hovel shelf, filled with whatever you last harvested (looks only) | flag | F | A6 |
-| Meadowden | herb | Repairs | 🌿 Mended Rooibos Racks | Pests are 2% less likely on rooibos and collard | -2% | P items=local | F17 |
-|  |  | Larder | 🍵 Red Bush Brew | Tea boosts drunk anywhere in the Savanna last 2% longer | +2% | P region=ESA | F08 |
+| Meadowden | herb | Repairs | 🌿 Mended Rooibos Racks | Pests are 2% less likely on collard greens, rooibos, teff and banana | -2% | P items=local | F17 |
+|  |  | Larder | 🍵 Red Bush Brew | Boosts from anything eaten or drunk in Thornacre Savanna's grassland and mountain zones last 2% longer | +2% | P region=ESA | F08 |
 |  |  | Cheer | 🦒 Tall Neighbours | At dusk a giraffe looks over your garden fence (looks only) | flag | F | A6 |
 | Clovergate | mill | Repairs | ⚙️ Dressed Teff Stones | Dishes made with teff or sorghum cook 2% faster | -2% | P items=local | F06 |
-|  |  | Larder | 🌾 Sweepings of the Threshing Floor | Teff and sorghum harvests: 1% chance of one extra | +1% | P items=local | F10 |
+|  |  | Larder | 🌾 Sweepings of the Threshing Floor | Teff, sorghum and collard greens harvests: 2% chance of one extra | +2% | P items=local | F10 |
 |  |  | Cheer | 🐓 Guinea-Fowl Alarm | The garden page marks every plot that had a pest in the last game day | flag | F | A5 |
-| Meadowbottom | orchard | Repairs | 🪜 Banana-Leaf Thatch | The first walk each day that ends at Meadowbottom in rain costs 1 less energy | 1 a day | D to= | A1 |
-|  |  | Larder | 🍌 A Whole Hand of Bananas | Banana and tamarind harvests give 2% more garden XP | +2% | P items=local | F04 |
+| Meadowbottom | orchard | Repairs | 🪜 Banana-Leaf Thatch | The first walk each day on a grassland road of the Savanna costs 1 less energy (shade from Meadowbottom) | 1 a day | D to= | A1 |
+|  |  | Larder | 🍌 A Whole Hand of Bananas | Banana, tamarind, teff and collard greens give 2% more garden XP | +2% | P items=local | F04 |
 |  |  | Cheer | 🦩 Pink on the Horizon | Your gnome wears a flamingo feather in the hat on the profile page (looks only) | flag | F | A6 |
 | Summitglen | tower | Repairs | 🧯 Fire-Watch Basket | Once a day, the first torch step in the Fynbos Fire Trails is not used up | 1 a day | D to= | A2 |
-|  |  | Larder | 🥜 Lookout's Tamarind Twist | Walking in the mountains of the Savanna takes 1% less time | -1% | P region=ESA | F05 |
+|  |  | Larder | 🥜 Lookout's Tamarind Twist | Walks in Thornacre Savanna's grassland and desert zones take 2% less time | -2% | P region=ESA | F05 |
 |  |  | Cheer | 🦓 Counting the Herds | Zebra stripes run along the border of your grassland route maps in the Savanna (looks only) | flag | F | A6 |
-| Pinecombe | spring | Repairs | ♨️ Relined Rift Pool | Rest acts at Pinecombe give 1 more energy at dusk and at night | +1 | P from= | F22 |
-|  |  | Larder | 🌱 Steam-Bed Ensete | Ensete harvests: 1% more chance of a seed back | +1% | P items=local | F13 |
-|  |  | Cheer | 🐒 The Baboon Has Your Towel | Once a day, a lost contest at Pinecombe can be played again | 1 a day | D from= | A2 |
+| Pinecombe | spring | Repairs | ♨️ Relined Rift Pool | Rest acts at Pinecombe give 1 more energy after dawn | +1 | P from= | F22 |
+|  |  | Larder | 🌱 Steam-Bed Ensete | Enset, teff, collard greens and banana harvests: 2% more chance of a seed back | +2% | P items=local | F13 |
+|  |  | Cheer | 🐒 The Baboon Has Your Towel | Once a day, a lost contest at Pinecombe or anywhere else in the Savanna can be played again | 1 a day | D from= | A2 |
 | Echoford | shrine | Repairs | 🔔 Rehung Echo Bell | Stop checks name the stat they will test before you choose | flag | F | A5 |
 |  |  | Larder | 🥣 Pilgrim's Sorghum Bowl | First visit to Echoford each day: one bowl of sorghum (`sorghum`) | 1 a day | D from= | A3 |
-|  |  | Cheer | 🗣️ It Says It Back | Lore acts at Echoford give 2% more XP | +2% | P from= | F03 |
-| Bogmead | jetty | Repairs | 🛶 Papyrus Raft, Rebound | Gathering on wetland walks in the Savanna: 1% chance of one extra | +1% | P region=ESA | F11 |
-|  |  | Larder | 🐟 Tilapia on a Reed | Bogmead's stall pays 2% more for golden carp and trout (`golden-carp`, `trout`) | +2% | P from= | F01 |
+|  |  | Cheer | 🗣️ It Says It Back | Acts at stops in Thornacre Savanna's grassland and mountain zones give 2% more XP | +2% | P region=ESA | F03 |
+| Bogmead | jetty | Repairs | 🛶 Papyrus Raft, Rebound | Gathering in Thornacre Savanna's grassland and wetland zones: 2% chance of one extra | +2% | P region=ESA | F11 |
+|  |  | Larder | 🐟 Tilapia on a Reed | Bogmead's stall pays 3% more for golden carp and trout (`golden-carp`, `trout`) | +3% | P from= | F01 |
 |  |  | Cheer | 🦛 Yawn Across the Water | At dusk a hippo's ears and eyes drift along the foot of the Today page (looks only) | flag | F | A6 |
-| Newtcombe | ferry | Repairs | 🥅 Net Mended by the Ferryman | Once a day, the first wear on your bug net on a walk from Newtcombe is skipped | 1 a day | D from= | A2 |
-|  |  | Larder | 🥬 Collards on the Punt | Watering lasts 2% longer on collard and watermelon | +2% | P items=local | F12 |
+| Newtcombe | ferry | Repairs | 🥅 Net Mended by the Ferryman | Once a day, the first wear on your bug net anywhere in the Savanna is skipped | 1 a day | D from= | A2 |
+|  |  | Larder | 🥬 Collards on the Punt | Watering lasts 2% longer on collard greens, watermelon, teff and banana | +2% | P items=local | F12 |
 |  |  | Cheer | 🧾 Return Ticket | The route menu shows the energy cost of the walk back beside the walk out | flag | F | A5 |
-| Emberhollow | workshop | Repairs | 🔥 Flint in the Tinderbox | Mend acts at Emberhollow pay 2% more coins on hot days | +2% | P from= | F15 |
+| Emberhollow | workshop | Repairs | 🔥 Flint in the Tinderbox | Acts at stops in Thornacre Savanna's grassland and desert zones pay 2% more coins | +2% | P region=ESA | F15 |
 |  |  | Larder | 🍉 Melon in the Quench Trough | First craft act at Emberhollow each day: one cool watermelon (`watermelon`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🎨 Ochre Thumbprint | Your gnome wears two stripes of red ochre on the profile page (looks only) | flag | F | A6 |
-| Amberburrow | camp | Repairs | 🌵 Thorn-Fence Boma | Resting on desert trails in the Savanna heals 2% more | +2% | P region=ESA | F09 |
+| Amberburrow | camp | Repairs | 🌵 Thorn-Fence Boma | Rest acts and trail rests in Thornacre Savanna's grassland and desert zones heal 2% more | +2% | P region=ESA | F09 |
 |  |  | Larder | 🌿 Sage on the Coals | First rest act at Amberburrow each day: one sprig of desert sage (`desert-sage`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🌠 Karoo Sky | On clear nights the Milky Way arches over your garden (looks only) | flag | F | A6 |
-| Baobab Inn | inn | Repairs | 🌳 Lantern in the Hollow Trunk | Fast travel that starts at the Baobab Inn by day costs 1% less | -1% | P from= | F18 |
+| Baobab Inn | inn | Repairs | 🌳 Lantern in the Hollow Trunk | Fast travel that starts in Thornacre Savanna's grassland and mountain zones costs 2% less | -2% | P region=ESA | F18 |
 |  |  | Larder | 🥤 Baobab-Shade Lunch | Dishes eaten in the Savanna at midday give 2% more energy | +2% | P region=ESA | F07 |
 |  |  | Cheer | 📖 Guest Book in the Bark | Your passport shows the game date of your first visit to each stop | flag | F | A5 |
 
@@ -126,43 +127,43 @@ Zones: Lotus Delta (wetland), Silkroad Steppe (grassland), Tigerstripe Jungle (f
 
 | Stop | Type | Bar | Perk | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|
-| Spicepeak Market | market | Repairs | 🧵 Restrung Awnings | The Spicepeak market stall pays 2% more for spices and herbs | +2% | P from= | F01 |
+| Spicepeak Market | market | Repairs | 🧵 Restrung Awnings | Stalls in Spicepeak's grassland and mountain zones pay 2% more for what you sell | +2% | P region=CSA | F01 |
 |  |  | Larder | 🫚 Thumb of Ginger | First sale each day at the Spicepeak market: the stallholder adds one piece of ginger (`ginger`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🌶️ Nose for Masala | Recipes mark every dish you can cook right now from your satchel with a small ladle | flag | F | A5 |
-| Newtdell | ferry | Repairs | 🛶 Caulked Delta Boat | The first walk each day between Newtdell and Rushdell costs 1 less energy, either way | 1 a day | D from= | A1 |
-|  |  | Larder | 🥣 Boatman's Mung Dal | Dishes made with mung bean give 2% more energy | +2% | P items=local | F07 |
+| Newtdell | ferry | Repairs | 🛶 Caulked Delta Boat | The first walk each day on a wetland road of Spicepeak costs 1 less energy (poled from Newtdell) | 1 a day | D from= | A1 |
+|  |  | Larder | 🥣 Boatman's Mung Dal | Dishes with mung bean or fenugreek give 2% more energy | +2% | P items=local | F07 |
 |  |  | Cheer | 🐸 Frog on the Tiller | A small frog rides on the corner of your wetland route maps (looks only) | flag | F | A6 |
-| Rushdell | jetty | Repairs | 🎋 Rebound Reed Jetty | Walks from Rushdell to Cliffmead or Prayer-flag Pass: 2% better chance to spot hidden things | +2% | P from= | F19 |
-|  |  | Larder | 🐠 Fish in Mustard | Fish dishes you cook while in Spicepeak cook 2% faster | -2% | P region=CSA | F06 |
+| Rushdell | jetty | Repairs | 🎋 Rebound Reed Jetty | Walks in Spicepeak's grassland and mountain zones: 2% better chance to spot hidden things | +2% | P region=CSA | F19 |
+|  |  | Larder | 🐠 Fish in Mustard | Pots you cook while in Spicepeak's grassland and mountain zones cook 2% faster | -2% | P region=CSA | F06 |
 |  |  | Cheer | 🪤 Reed Fish-Trap | A reed fish-trap leans against your hovel wall (looks only) | flag | F | A6 |
 | Heronby | inn | Repairs | 🏮 Lamp at the Caravan Gate | Once a day, the first torch step on the Snowleopard Ledges is not used up | 1 a day | D to= | A2 |
 |  |  | Larder | 🍛 Dal for the Dusty | First rest act at Heronby each day: one handful of mung beans (`mung-bean`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 📜 News from Three Roads | Heronby's notice board shows today's weather in the Dunewhisper and on the Steppe | flag | F | A5 |
-| Cloverburrow | mill | Repairs | 🪨 Chakki Stones, Re-cut | Dishes made with wheat cook 2% faster | -2% | P items=local | F06 |
-|  |  | Larder | 🌾 Gleaner's Corner | Wheat and fenugreek harvests: 1% chance of one extra | +1% | P items=local | F10 |
+| Cloverburrow | mill | Repairs | 🪨 Chakki Stones, Re-cut | Dishes with wheat or mung bean in them cook 2% faster | -2% | P items=local | F06 |
+|  |  | Larder | 🌾 Gleaner's Corner | Wheat, fenugreek, turmeric, mango and tulsi harvests: 3% chance of one extra | +3% | P items=local | F10 |
 |  |  | Cheer | 🫓 Roti Puffed on the Coals | First visit to Cloverburrow each day: one sack of flour (`flour`) | 1 a day | D from= | A3 |
 | Windstead | tower | Repairs | 🚩 Mended Wind Vane | A weathercock on your hovel roof turns with the wind (looks only) | flag | F | A6 |
-|  |  | Larder | 🥭 Mango on the Sill | Watering lasts 2% longer on mango and melon | +2% | P items=local | F12 |
-|  |  | Cheer | 🌬️ Leaning Into It | Walks that end at Windstead take 2% less time on windy days | -2% | P to= | F05 |
-| Poppythorpe | camp | Repairs | 🐫 Picketed Caravan Line | Seeds cost 2% less at Poppythorpe's stall and at the Silk Road Caravanserai | -2% | P from= | F02 |
+|  |  | Larder | 🥭 Mango on the Sill | Watering lasts 2% longer on mango, melon, wheat, mung bean and fenugreek | +2% | P items=local | F12 |
+|  |  | Cheer | 🌬️ Leaning Into It | Walks in Spicepeak's grassland and mountain zones take 2% less time | -2% | P region=CSA | F05 |
+| Poppythorpe | camp | Repairs | 🐫 Picketed Caravan Line | Stalls in Spicepeak's grassland and mountain zones charge 2% less | -2% | P region=CSA | F02 |
 |  |  | Larder | 🫖 Caravan Kettle | Once a day, the first tea you brew in Spicepeak gives one ingredient back | 1 a day | D region=CSA | A2 |
-|  |  | Cheer | 🎲 Dice on a Saddle Blanket | Chats with Poppythorpe's folk at night have a 2% chance of +1 friendship | +2% | P from= | F14 |
-| Leafmead | herb | Repairs | 🪴 Re-staked Tulsi Beds | Pests are 2% less likely on tulsi and turmeric | -2% | P items=local | F17 |
-|  |  | Larder | 🍃 Two Leaves and a Bud | Tulsi, turmeric and ginger give 2% more garden XP | +2% | P items=local | F04 |
+|  |  | Cheer | 🎲 Dice on a Saddle Blanket | Chats with Poppythorpe's folk at night have a 3% chance of +1 friendship | +3% | P from= | F14 |
+| Leafmead | herb | Repairs | 🪴 Re-staked Tulsi Beds | Pests are 2% less likely on turmeric, tulsi, wheat, mung bean and fenugreek | -2% | P items=local | F17 |
+|  |  | Larder | 🍃 Two Leaves and a Bud | Ginger, turmeric, tulsi, wheat and mung bean give 2% more garden XP | +2% | P items=local | F04 |
 |  |  | Cheer | ⏲️ First Flush | The tea menu shows the minutes left on your running boost beside each tea | flag | F | A5 |
-| Hollowby | orchard | Repairs | 🎍 Bamboo Picking Poles | Mango, jackfruit and mulberry harvests: 1% more chance of a seed back | +1% | P items=local | F13 |
-|  |  | Larder | 🫐 Purple to the Elbows | The first mulberry harvest each day gives one extra mulberry | 1 a day | D items=local | A3 |
+| Hollowby | orchard | Repairs | 🎍 Bamboo Picking Poles | Mango, jackfruit, mulberry, wheat, mung bean and fenugreek harvests: 2% more chance of a seed back | +2% | P items=local | F13 |
+|  |  | Larder | 🫐 Purple to the Elbows | The first mulberry or jackfruit harvest each day gives one extra of that crop | 1 a day | D items=local | A3 |
 |  |  | Cheer | 🐅 Stripes in the Shade | Now and then a striped tail slips out of sight at the edge of your garden (looks only) | flag | F | A6 |
 | Cliffmead | shrine | Repairs | 🎏 Restrung Prayer Flags | On windy days prayer flags flutter over your garden gate (looks only) | flag | F | A6 |
-|  |  | Larder | 🧈 Butter-Tea Offering | Dishes eaten in the mountains of Spicepeak give 2% more energy | +2% | P region=CSA | F07 |
-|  |  | Cheer | 🙏 A Wish on the Wind | Stop checks at Cliffmead are 2% kinder on windy days | +2% | P from= | F16 |
+|  |  | Larder | 🧈 Butter-Tea Offering | Dishes eaten in Spicepeak's grassland and mountain zones give 2% more energy | +2% | P region=CSA | F07 |
+|  |  | Cheer | 🙏 A Wish on the Wind | Stop checks in Spicepeak's grassland and mountain zones are 2% kinder | +2% | P region=CSA | F16 |
 | Pinecrest | workshop | Repairs | 🔧 Tinker's Squint | Your satchel puts a small spanner on any tool that is close to wearing out | flag | F | A5 |
-|  |  | Larder | 🍑 Apricot Kernels in the Apron | Apricot harvests: 1% chance of one extra | +1% | P items=local | F10 |
+|  |  | Larder | 🍑 Apricot Kernels in the Apron | Apricot, mung bean, ginger, melon, cinnamon, tea and black pepper harvests: 3% chance of one extra | +3% | P items=local | F10 |
 |  |  | Cheer | 🐆 Whittled Snow Leopard | A small carved snow leopard sits on your hovel windowsill (looks only) | flag | F | A6 |
-| Screeden | spring | Repairs | 🧱 Slate-Lined Pool | Resting on mountain trails in Spicepeak heals 2% more | +2% | P region=CSA | F09 |
-|  |  | Larder | 🥚 Eggs in Turmeric Water | Dishes with turmeric give 2% more energy | +2% | P items=local | F07 |
-|  |  | Cheer | ☔ Shared Steam, Shared Umbrella | Chats with villagers anywhere in Spicepeak while it rains: 2% chance of +1 friendship | +2% | P region=CSA | F14 |
-| Floating Flower Market | market | Repairs | 🚤 Bailed-Out Flower Boat | The Floating Flower Market pays 2% more for flowers you sell | +2% | P from= | F01 |
+| Screeden | spring | Repairs | 🧱 Slate-Lined Pool | Rest acts and trail rests in Spicepeak's wetland and mountain zones heal 2% more | +2% | P region=CSA | F09 |
+|  |  | Larder | 🥚 Eggs in Turmeric Water | Dishes with turmeric, wheat or ginger give 2% more energy | +2% | P items=local | F07 |
+|  |  | Cheer | ☔ Shared Steam, Shared Umbrella | Chats and gifts with folk in Spicepeak's grassland and mountain zones: 2% chance of +1 friendship | +2% | P region=CSA | F14 |
+| Floating Flower Market | market | Repairs | 🚤 Bailed-Out Flower Boat | The Floating Flower Market pays 3% more for flowers you sell | +3% | P from= | F01 |
 |  |  | Larder | 🌼 Marigold for the Teapot | First visit to the Floating Flower Market each day: one marigold (`marigold`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 💐 Garland Round the Plaque | Every plaque you hold in Spicepeak wears a marigold garland (looks only) | flag | F | A6 |
 
@@ -188,37 +189,37 @@ Zones: Ricestep Terraces (grassland), Bamboo Whisperwood (forest), Pearlwave Sho
 | Stop | Type | Bar | Perk | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|
 | Blossomreach Market | market | Repairs | 🏮 Re-papered Lanterns | A paper lantern glows on your hovel door at night (looks only) | flag | F | A6 |
-|  |  | Larder | 🥬 Napa by the Cartload | Dishes made with napa cabbage or daikon sell for 2% more at any Blossomreach stall | +2% | P region=EA | F01 |
-|  |  | Cheer | 🧧 Red Envelope | The first festival act you do each day in Blossomreach pays 2 coins more | 2 coins | D region=EA | A4 |
-| Clovercove | mill | Repairs | 💧 Cleared Terrace Sluice | Watering lasts 2% longer on napa cabbage and bok choy | +2% | P items=local | F12 |
-|  |  | Larder | 🫘 Polished Adzuki | Dishes made with adzuki cook 2% faster | -2% | P items=local | F06 |
+|  |  | Larder | 🥬 Napa by the Cartload | Stalls in Blossomreach's grassland and forest zones pay 2% more for what you sell | +2% | P region=EA | F01 |
+|  |  | Cheer | 🧧 Red Envelope | The first act you do each day in Blossomreach pays 2 coins more | 2 coins | D region=EA | A4 |
+| Clovercove | mill | Repairs | 💧 Cleared Terrace Sluice | Watering lasts 2% longer on napa cabbage, bok choy and daikon | +2% | P items=local | F12 |
+|  |  | Larder | 🫘 Polished Adzuki | Dishes with adzuki bean or napa cabbage in them cook 2% faster | -2% | P items=local | F06 |
 |  |  | Cheer | 🎏 Carp in the Millpond | A carp's shadow circles in your garden's water butt (looks only) | flag | F | A6 |
 | Poppywell | camp | Repairs | 🪣 New Rope on the Well | Once a day, the first cook or craft act at Poppywell costs 1 less energy | 1 a day | D from= | A1 |
-|  |  | Larder | 🎍 Shoots from the Panda's Share | Bamboo-shoot harvests: 1% chance of one extra | +1% | P items=local | F10 |
+|  |  | Larder | 🎍 Shoots from the Panda's Share | Bamboo shoot, napa cabbage, adzuki bean, peach, lotus root and lychee harvests: 2% chance of one extra | +2% | P items=local | F10 |
 |  |  | Cheer | 🐼 Black-and-White Visitor | On rainy days a panda naps in a corner of your garden (looks only) | flag | F | A6 |
-| Bramblebrook | herb | Repairs | 🌿 Perilla Under Netting | Pests are 2% less likely on perilla and star anise | -2% | P items=local | F17 |
-|  |  | Larder | 🫙 Seed Saved in the Pickling Crock | Perilla and daikon harvests: 1% more chance of a seed back | +1% | P items=local | F13 |
+| Bramblebrook | herb | Repairs | 🌿 Perilla Under Netting | Pests are 2% less likely on perilla, star anise, napa cabbage, daikon and adzuki bean | -2% | P items=local | F17 |
+|  |  | Larder | 🫙 Seed Saved in the Pickling Crock | Daikon, perilla, napa cabbage and adzuki bean harvests: 2% more chance of a seed back | +2% | P items=local | F13 |
 |  |  | Cheer | 🦋 Swallowtail Hour | At midday a swallowtail rests on your tallest plant (looks only) | flag | F | A6 |
 | Birchford | workshop | Repairs | 🕯️ Wall-Walker's Lamp | +1 torch step on the Long Wall Walk | +1 step | P to= | F21 |
 |  |  | Larder | 🏷️ Rice-Paper Labels | Your recipe book marks the dishes you have never cooked | flag | F | A5 |
-|  |  | Cheer | 🪭 Fan-Maker's Breeze | Walking on hot days in Blossomreach takes 1% less time | -1% | P region=EA | F05 |
-| Brambleburrow | shrine | Repairs | ⛩️ Fresh Vermilion | Walks that end at Brambleburrow in fog or rain have a 2% better chance to spot hidden things | +2% | P to= | F19 |
-|  |  | Larder | 🍑 Peach Left for the Fox | Peach and persimmon harvests give 2% more garden XP | +2% | P items=local | F04 |
+|  |  | Cheer | 🪭 Fan-Maker's Breeze | Walks in Blossomreach's forest and desert zones take 2% less time | -2% | P region=EA | F05 |
+| Brambleburrow | shrine | Repairs | ⛩️ Fresh Vermilion | Walks in Blossomreach's grassland and forest zones: 2% better chance to spot hidden things | +2% | P region=EA | F19 |
+|  |  | Larder | 🍑 Peach Left for the Fox | Peach, persimmon, napa cabbage, daikon and adzuki bean give 2% more garden XP | +2% | P items=local | F04 |
 |  |  | Cheer | 🦊 The Fox Comes Back | At dusk a fox sits by your garden path (looks only) | flag | F | A6 |
-| Sprayholt | jetty | Repairs | 🪢 Spliced Mooring Lines | Gathering on coast walks in Blossomreach: 1% chance of one extra | +1% | P region=EA | F11 |
-|  |  | Larder | 🦪 Mussel Rack at Low Tide | First visit to Sprayholt at dawn or dusk each day: one handful of mussels (`blue-mussels`) | 1 a day | D from= | A3 |
+| Sprayholt | jetty | Repairs | 🪢 Spliced Mooring Lines | Gathering in Blossomreach's forest and coast zones: 2% chance of one extra | +2% | P region=EA | F11 |
+|  |  | Larder | 🦪 Mussel Rack at Low Tide | First visit to Sprayholt each day: one handful of mussels (`blue-mussels`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🌙 Wave-Watcher's Almanac | The Today page shows the phase of the moon | flag | F | A5 |
-| Tidecombe | ferry | Repairs | ⛴️ Tarred Flat-Bottom | Walks between Tidecombe and Poppywell take 2% less time, both ways | -2% | P from= | F05 |
-|  |  | Larder | 🧂 Sea-Salt Pans | Tidecombe's stall charges 2% less for sea salt (`sea-salt`) | -2% | P from= | F02 |
+| Tidecombe | ferry | Repairs | ⛴️ Tarred Flat-Bottom | Walks between Tidecombe and Poppywell take 3% less time, both ways | -3% | P from= | F05 |
+|  |  | Larder | 🧂 Sea-Salt Pans | Stalls in Blossomreach's forest and coast zones charge 2% less | -2% | P region=EA | F02 |
 |  |  | Cheer | 🐚 Pearl-Diver's String | A string of pearl-white shells hangs in your hovel window (looks only) | flag | F | A6 |
-| Coppergate | tower | Repairs | 🛎️ Polished Gate Gong | Stop checks at Coppergate are 2% kinder at dawn | +2% | P from= | F16 |
+| Coppergate | tower | Repairs | 🛎️ Polished Gate Gong | Stop checks in Blossomreach's forest and desert zones are 2% kinder | +2% | P region=EA | F16 |
 |  |  | Larder | 🥮 Sentry's Red-Bean Bun | First visit to Coppergate each day: one red-bean bun (`red-bean-buns`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🧭 A Long Way in Both Directions | The route menu shows the level needed for the place at the far end | flag | F | A5 |
-| Dunewick | spring | Repairs | 🏜️ Tamarisk Windbreak | Healing of any kind at Dunewick is 2% stronger on hot days | +2% | P from= | F09 |
-|  |  | Larder | 🍵 Jujube Tea in the Shade | Jujube harvests: 1% chance of one extra | +1% | P items=local | F10 |
+| Dunewick | spring | Repairs | 🏜️ Tamarisk Windbreak | Rest acts and trail rests in Blossomreach's forest and desert zones heal 2% more | +2% | P region=EA | F09 |
+|  |  | Larder | 🍵 Jujube Tea in the Shade | Jujube, daikon, bok choy, perilla, persimmon and star anise harvests: 2% chance of one extra | +2% | P items=local | F10 |
 |  |  | Cheer | 🪰 Jade Wings Over the Water | A jade dragonfly hovers over the last plot you watered (looks only) | flag | F | A6 |
 | Cherry Blossom Teahouse | inn | Repairs | 🌸 Screens Re-papered | In spring, cherry petals drift across your garden (looks only) | flag | F | A6 |
-|  |  | Larder | 🍶 Second Pour | Boosts from teas drunk at the Cherry Blossom Teahouse in spring last 2% longer | +2% | P from= | F08 |
+|  |  | Larder | 🍶 Second Pour | Boosts from anything eaten or drunk in Blossomreach's grassland and forest zones last 2% longer | +2% | P region=EA | F08 |
 |  |  | Cheer | 🖌️ The Best View in the Hollow | Your Tea Journal shows how many named teas you have still to find | flag | F | A5 |
 
 ## 5. The Monsoon Tangle (SEA): 13 stops, 39 perks
@@ -243,45 +244,45 @@ Zones: Paddy Patchwork (wetland), Longtail Lagoons (coast), Spice Scatter (islan
 
 | Stop | Type | Bar | Perk | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|
-| The Monsoon Tangle Market | market | Repairs | ⛱️ Patched Tarpaulins | Shops in the Monsoon Tangle charge 2% less while it rains | -2% | P region=SEA | F02 |
-|  |  | Larder | 🍜 Noodles Sold from the Wok | The first dish you sell each day at the Monsoon Tangle market pays 2 coins more | 2 coins | D from= | A4 |
+| The Monsoon Tangle Market | market | Repairs | ⛱️ Patched Tarpaulins | Stalls in the Monsoon Tangle's coast and rainforest zones charge 2% less | -2% | P region=SEA | F02 |
+|  |  | Larder | 🍜 Noodles Sold from the Wok | The first dish you sell each day at any stall in the Monsoon Tangle pays 2 coins more | 2 coins | D from= | A4 |
 |  |  | Cheer | 🛺 Knows Every Alley | Stalls show how many of each thing you already carry | flag | F | A5 |
-| Marshcrest | mill | Repairs | 🐃 Buffalo-Turned Stone | Dishes made with rice cook 2% faster | -2% | P items=local | F06 |
-|  |  | Larder | 🍚 Second Threshing | Rice harvests: 1% chance of one extra | +1% | P items=local | F10 |
+| Marshcrest | mill | Repairs | 🐃 Buffalo-Turned Stone | Dishes with rice or water spinach in them cook 2% faster | -2% | P items=local | F06 |
+|  |  | Larder | 🍚 Second Threshing | Rice, lemongrass, dragon fruit, moringa, durian and mangosteen harvests: 2% chance of one extra | +2% | P items=local | F10 |
 |  |  | Cheer | 🪶 Egret on the Buffalo | After rain an egret stands in your wettest plot (looks only) | flag | F | A6 |
-| Rushglen | herb | Repairs | 🧺 Re-woven Drying Trays | Watering lasts 2% longer on lemongrass and kangkong | +2% | P items=local | F12 |
-|  |  | Larder | 🍋 Bruised Lemongrass | Tea boosts last 2% longer on rainy days in the Monsoon Tangle | +2% | P region=SEA | F08 |
+| Rushglen | herb | Repairs | 🧺 Re-woven Drying Trays | Watering lasts 2% longer on water spinach, lemongrass and rice | +2% | P items=local | F12 |
+|  |  | Larder | 🍋 Bruised Lemongrass | Boosts from anything eaten or drunk in the Monsoon Tangle's wetland and coast zones last 2% longer | +2% | P region=SEA | F08 |
 |  |  | Cheer | ✨ Followed Home by Fireflies | In the Firefly Caves a few fireflies trail behind your gnome (looks only) | flag | F | A6 |
-| Lilyby | inn | Repairs | 🛏️ Dry Bedding in the Wet | Rest acts at Lilyby give 1 more energy in a storm | +1 | P from= | F22 |
-|  |  | Larder | 🍙 Sticky Rice in a Leaf | First visit to Lilyby after dusk each day: one parcel of rice (`rice`) | 1 a day | D from= | A3 |
+| Lilyby | inn | Repairs | 🛏️ Dry Bedding in the Wet | Rest acts at Lilyby give 1 more energy in any weather but clear sun | +1 | P from= | F22 |
+|  |  | Larder | 🍙 Sticky Rice in a Leaf | First visit to Lilyby each day: one parcel of rice (`rice`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🪔 Lantern Set on the River | The Today page counts the game days left in this season | flag | F | A5 |
-| Sandpiperglen | jetty | Repairs | 🚤 Longtail Prop, Straightened | Fast travel that starts at Sandpiperglen at dawn costs 1% less | -1% | P from= | F18 |
-|  |  | Larder | 🦐 Shrimp-Paste Jar | Gathering on coast walks that end at Sandpiperglen: 1% chance of one extra | +1% | P to= | F11 |
+| Sandpiperglen | jetty | Repairs | 🚤 Longtail Prop, Straightened | Fast travel that starts in the Monsoon Tangle's coast and rainforest zones costs 2% less | -2% | P region=SEA | F18 |
+|  |  | Larder | 🦐 Shrimp-Paste Jar | Gathering on coast walks that end at Sandpiperglen: 3% chance of one extra | +3% | P to= | F11 |
 |  |  | Cheer | 🛥️ Longtail Wake | A longtail boat's wake trails behind your gnome on coast route maps (looks only) | flag | F | A6 |
-| Shellnook | ferry | Repairs | ⛵ Outrigger Lashed Tight | Walks between Shellnook and Turtleburrow take 2% less time in wind or storm, both ways | -2% | P from= | F05 |
-|  |  | Larder | 📦 Crated Starfruit | Shellnook's stall pays 2% more for fruit | +2% | P from= | F01 |
+| Shellnook | ferry | Repairs | ⛵ Outrigger Lashed Tight | Walks between Shellnook and Turtleburrow take 3% less time in wind or storm, both ways | -3% | P from= | F05 |
+|  |  | Larder | 📦 Crated Starfruit | Stalls in the Monsoon Tangle's coast, rainforest and island zones pay 2% more for what you sell | +2% | P region=SEA | F01 |
 |  |  | Cheer | 🦎 Lizard on the Bollard | The fast-travel list shows the energy you will have left on arrival | flag | F | A5 |
-| Sandpiperhollow | tower | Repairs | 🗼 Storm Lamp, Trimmed | Walking in rain in the Monsoon Tangle takes 1% less time | -1% | P region=SEA | F05 |
-|  |  | Larder | 🥘 Keeper's Bitter-Melon Fry | Dishes made with bitter melon give 2% more energy | +2% | P items=local | F07 |
+| Sandpiperhollow | tower | Repairs | 🗼 Storm Lamp, Trimmed | Walks in the Monsoon Tangle's coast and rainforest zones take 2% less time | -2% | P region=SEA | F05 |
+|  |  | Larder | 🥘 Keeper's Bitter-Melon Fry | Dishes with bitter melon or rice give 2% more energy | +2% | P items=local | F07 |
 |  |  | Cheer | 🌧️ Smells Rain Coming | The Today page shows how many hours are left until the weather changes | flag | F | A5 |
-| Spindriftbottom | spring | Repairs | 🌋 Re-dug Volcano Pool | Healing is 2% stronger anywhere on the islands of the Monsoon Tangle | +2% | P region=SEA | F09 |
+| Spindriftbottom | spring | Repairs | 🌋 Re-dug Volcano Pool | Rest acts and trail rests in the Monsoon Tangle's coast, rainforest and island zones heal 2% more | +2% | P region=SEA | F09 |
 |  |  | Larder | 🥚 Eggs Boiled Black | First rest act at Spindriftbottom each day: one salted egg (`salted-eggs`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🐵 Monkey Has the Soap | Now and then a monkey runs off with a bar of soap across your Today page (looks only) | flag | F | A6 |
-| Reefden | orchard | Repairs | 🌴 Notched Palm Ladder | Gathering on island walks in the Monsoon Tangle: 1% chance of one extra | +1% | P region=SEA | F11 |
-|  |  | Larder | 🍒 Rambutan by the Armful | Rambutan, longan and starfruit harvests: 1% chance of one extra | +1% | P items=local | F10 |
-|  |  | Cheer | 🎁 Fruit for the Neighbours | Gifts of fruit to anyone in the Monsoon Tangle: 2% chance of +1 friendship | +2% | P region=SEA | F14 |
-| Canopyford | camp | Repairs | 🌉 Re-roped Bridge | Rainforest walks in the Monsoon Tangle: 1% better chance to spot hidden things | +1% | P region=SEA | F19 |
-|  |  | Larder | 🍃 Supper on a Banana Leaf | Once a day, a dish cooked at Canopyford's fire gives one ingredient back | 1 a day | D from= | A2 |
+| Reefden | orchard | Repairs | 🌴 Notched Palm Ladder | Gathering in the Monsoon Tangle's coast, rainforest and island zones: 2% chance of one extra | +2% | P region=SEA | F11 |
+|  |  | Larder | 🍒 Rambutan by the Armful | Rambutan, longan, starfruit, water spinach and bitter melon harvests: 2% chance of one extra | +2% | P items=local | F10 |
+|  |  | Cheer | 🎁 Fruit for the Neighbours | Chats and gifts with folk in the Monsoon Tangle's coast, rainforest and island zones: 2% chance of +1 friendship | +2% | P region=SEA | F14 |
+| Canopyford | camp | Repairs | 🌉 Re-roped Bridge | Walks in the Monsoon Tangle's coast and rainforest zones: 2% better chance to spot hidden things | +2% | P region=SEA | F19 |
+|  |  | Larder | 🍃 Supper on a Banana Leaf | Once a day, a dish cooked at Canopyford's fire or at any other stop fire in the Monsoon Tangle gives one ingredient back | 1 a day | D from= | A2 |
 |  |  | Cheer | 🐦 Hornbill Overhead | A hornbill flies across the top of your rainforest route maps (looks only) | flag | F | A6 |
-| Monsoonburrow | shrine | Repairs | 🧹 Swept Before the Rains | Pests are 2% less likely on kangkong and bitter melon | -2% | P items=local | F17 |
-|  |  | Larder | 🥄 First Bowl to the Spirits | Rice harvests: 1% more chance of a seed back | +1% | P items=local | F13 |
-|  |  | Cheer | 🌈 After the Downpour | 2% more XP from acts at Monsoonburrow while it rains | +2% | P from= | F03 |
-| Parrotden | orchard | Repairs | 🦜 Parrot-Proof Netting | Pests are 2% less likely on dragon fruit, rambutan and longan | -2% | P items=local | F17 |
-|  |  | Larder | 🐉 What the Parrots Missed | Moringa and dragon fruit give 2% more garden XP | +2% | P items=local | F04 |
+| Monsoonburrow | shrine | Repairs | 🧹 Swept Before the Rains | Pests are 2% less likely on water spinach, bitter melon, starfruit, moringa, durian and mangosteen | -2% | P items=local | F17 |
+|  |  | Larder | 🥄 First Bowl to the Spirits | Rice, water spinach and lemongrass harvests: 2% more chance of a seed back | +2% | P items=local | F13 |
+|  |  | Cheer | 🌈 After the Downpour | Acts at stops in the Monsoon Tangle's coast and rainforest zones give 2% more XP | +2% | P region=SEA | F03 |
+| Parrotden | orchard | Repairs | 🦜 Parrot-Proof Netting | Pests are 2% less likely on dragon fruit, rambutan, longan, rice and lemongrass | -2% | P items=local | F17 |
+|  |  | Larder | 🐉 What the Parrots Missed | Dragon fruit, moringa, rice, water spinach and lemongrass give 2% more garden XP | +2% | P items=local | F04 |
 |  |  | Cheer | 💬 The Parrot Repeats It | Stop pages show which of the stop's folk you have not chatted with this game day | flag | F | A5 |
-| Floating Market | market | Repairs | 🚣 Bailed and Balanced | The Floating Market's boats pay 2% more for dishes you sell | +2% | P from= | F01 |
+| Floating Market | market | Repairs | 🚣 Bailed and Balanced | The Floating Market's boats pay 3% more for dishes you sell | +3% | P from= | F01 |
 |  |  | Larder | 🥢 Lemongrass From the Boat | First visit to the Floating Market each day: one bundle of lemongrass (`lemongrass`) | 1 a day | D from= | A3 |
-|  |  | Cheer | 🛶 Haggled from the Prow | Checks in trade and haggle acts at the Floating Market are 2% kinder | +2% | P from= | F16 |
+|  |  | Cheer | 🛶 Haggled from the Prow | Stop checks in the Monsoon Tangle's wetland and coast zones are 2% kinder | +2% | P region=SEA | F16 |
 
 ## 6. The Coralscatter (OC): 13 stops, 39 perks
 
@@ -308,42 +309,42 @@ Zones: Lagoon Ring Atolls (island), Kelpwhisker Coast (coast), Fernmist Gullies 
 | The Coralscatter Market | market | Repairs | ⚖️ Shell-Weight Scales | Your satchel shows what each thing would sell for at the shop you are in | flag | F | A5 |
 |  |  | Larder | 🥥 Husked While You Wait | First visit to the Coralscatter market each day: one coconut (`coconut`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🌺 Flower Behind the Ear | Your gnome wears a frangipani behind one ear on the profile page (looks only) | flag | F | A6 |
-| Palmgate | ferry | Repairs | 🛶 Re-lashed Outrigger | Fast travel from Palmgate to the Rainroot Reaches (its town) costs 1% less at night | -1% | P from= | F18 |
+| Palmgate | ferry | Repairs | 🛶 Re-lashed Outrigger | Fast travel that starts in the Coralscatter's island and desert zones costs 2% less | -2% | P region=OC | F18 |
 |  |  | Larder | 🐟 Reef Fish in Coconut | Dishes made with coconut cook 2% faster | -2% | P items=local | F06 |
 |  |  | Cheer | ⭐ Steering by Stars | On clear nights the Southern Cross hangs over your garden (looks only) | flag | F | A6 |
-| Reefknoll | orchard | Repairs | 🌴 Notches Up the Palm | Coconut and pandanus harvests: 1% chance of one extra | +1% | P items=local | F10 |
-|  |  | Larder | 🍍 Pandanus Keys | Pandanus and noni give 2% more garden XP | +2% | P items=local | F04 |
-|  |  | Cheer | 🦀 Coconut Crab Referee | Contest acts at Reefknoll pay 2% more coins | +2% | P from= | F15 |
+| Reefknoll | orchard | Repairs | 🌴 Notches Up the Palm | Coconut, pandanus and kava harvests: 2% chance of one extra | +2% | P items=local | F10 |
+|  |  | Larder | 🍍 Pandanus Keys | Pandanus, noni and taro give 2% more garden XP | +2% | P items=local | F04 |
+|  |  | Cheer | 🦀 Coconut Crab Referee | Acts at stops in the Coralscatter's coast and desert zones pay 2% more coins | +2% | P region=OC | F15 |
 | Turtleburrow | shrine | Repairs | 🐢 Raked Hatchling Run | A small stone shrine stands at the head of your garden path (looks only) | flag | F | A6 |
-|  |  | Larder | 🥗 Greens Above the Tideline | Warrigal greens and taro harvests: 1% more chance of a seed back | +1% | P items=local | F13 |
-|  |  | Cheer | 🌅 Quiet as Low Tide | Rest acts at Turtleburrow heal 2% more at dawn | +2% | P from= | F09 |
-| Brineglen | inn | Repairs | 🪟 Salt-Proof Shutters | Walks that start at Brineglen take 2% less time in fog | -2% | P from= | F05 |
+|  |  | Larder | 🥗 Greens Above the Tideline | Taro, warrigal greens and coconut harvests: 2% more chance of a seed back | +2% | P items=local | F13 |
+|  |  | Cheer | 🌅 Quiet as Low Tide | Rest acts at Turtleburrow heal 3% more at dawn | +3% | P from= | F09 |
+| Brineglen | inn | Repairs | 🪟 Salt-Proof Shutters | Walks that start at Brineglen take 3% less time in fog | -3% | P from= | F05 |
 |  |  | Larder | 🍇 Sea Grapes by the Door | First rest act at Brineglen each day: one handful of sea grapes (`sea-grapes`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🗿 One Question Each | Friends pages show the game day you last spoke to each villager | flag | F | A5 |
-| Shellknoll | tower | Repairs | 🗼 Whitewashed Light | Coast walks in the Coralscatter take 1% less time at night | -1% | P region=OC | F05 |
-|  |  | Larder | 🫖 Billy on the Boil | Dishes eaten on the Coralscatter coast at night give 2% more energy | +2% | P region=OC | F07 |
+| Shellknoll | tower | Repairs | 🗼 Whitewashed Light | Walks in the Coralscatter's island, coast and desert zones take 2% less time | -2% | P region=OC | F05 |
+|  |  | Larder | 🫖 Billy on the Boil | Dishes eaten in the Coralscatter's coast and desert zones give 2% more energy | +2% | P region=OC | F07 |
 |  |  | Cheer | 🐋 Thar She Blows | The world map shows which way the wind blows today | flag | F | A5 |
-| Salthollow | jetty | Repairs | 🪢 Pandanus-Rope Rails | Fishing and gathering acts at Salthollow pay 2% more coins | +2% | P from= | F15 |
-|  |  | Larder | 🧂 Salt-Crusted Catch | Once a day, the first fish you find on a walk from Salthollow comes with one pinch of sea salt (`sea-salt`) | 1 a day | D from= | A3 |
+| Salthollow | jetty | Repairs | 🪢 Pandanus-Rope Rails | Fishing and gathering acts at Salthollow pay 3% more coins | +3% | P from= | F15 |
+|  |  | Larder | 🧂 Salt-Crusted Catch | Once a day, the first thing you find on a walk from Salthollow comes with one pinch of sea salt (`sea-salt`) | 1 a day | D from= | A3 |
 |  |  | Cheer | ✨ Salt on the Rim | Salt crystals sparkle along the rim of your coast route maps (looks only) | flag | F | A6 |
-| Mossby | mill | Repairs | ⚙️ Fern-Cleared Race | Dishes made with sago cook 2% faster | -2% | P items=local | F06 |
-|  |  | Larder | 🥣 Sago Pearls, Sieved | Sago and taro harvests: 1% chance of one extra | +1% | P items=local | F10 |
+| Mossby | mill | Repairs | ⚙️ Fern-Cleared Race | Dishes with sago palm or taro in them cook 2% faster | -2% | P items=local | F06 |
+|  |  | Larder | 🥣 Sago Pearls, Sieved | Taro, sago palm, noni, kiwifruit and warrigal greens harvests: 2% chance of one extra | +2% | P items=local | F10 |
 |  |  | Cheer | ⏳ Mill-Clock Regular | Your recipe book shows how long each dish takes in the pot before you start | flag | F | A5 |
-| Toadstoolbrook | herb | Repairs | 🍄 Re-thatched Fern House | Pests are 2% less likely on kiwi and warrigal greens | -2% | P items=local | F17 |
-|  |  | Larder | 🥝 Fuzzy Fruit, Shady Vine | Watering lasts 2% longer on kiwi and noni | +2% | P items=local | F12 |
+| Toadstoolbrook | herb | Repairs | 🍄 Re-thatched Fern House | Pests are 2% less likely on kiwifruit, warrigal greens, taro and coconut | -2% | P items=local | F17 |
+|  |  | Larder | 🥝 Fuzzy Fruit, Shady Vine | Watering lasts 2% longer on noni, kiwifruit, taro and coconut | +2% | P items=local | F12 |
 |  |  | Cheer | 🐛 Glow in the Gully | In Coralscatter delves your torch burns blue-green (looks only) | flag | F | A6 |
-| Miragewell | spring | Repairs | 🚰 Capped Bore, No Leaks | Rest acts at Miragewell give 1 more energy on hot days | +1 | P from= | F22 |
+| Miragewell | spring | Repairs | 🚰 Capped Bore, No Leaks | Rest acts at Miragewell give 1 more energy on hot, sunny or cloudy days | +1 | P from= | F22 |
 |  |  | Larder | 🍞 Bush Jam on Damper | First visit to Miragewell each day: one pot of wild berry jam (`wild-berry-jam`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🦎 Drinks Through Its Feet | Your passport shows how many stamps are left to fill each region's page | flag | F | A5 |
-| Oasiswick | workshop | Repairs | 🪃 Trued Boomerang | Once a day, when a walk from Oasiswick finds nothing, your gnome looks once more | 1 a day | D from= | A2 |
-|  |  | Larder | 🌰 Seed Tin with a Tight Lid | Seeds cost 2% less at Oasiswick's stall in heat | -2% | P from= | F02 |
-|  |  | Cheer | 🎵 Clapsticks | Craft acts at Oasiswick give 2% more XP | +2% | P from= | F03 |
-| Ambercove | camp | Repairs | 🏕️ Swag Rolled Tight | Resting on desert trails in the Coralscatter at night heals 2% more | +2% | P region=OC | F09 |
+| Oasiswick | workshop | Repairs | 🪃 Trued Boomerang | Once a day, when a walk in the Coralscatter finds nothing, your gnome looks once more (Oasiswick's boomerang comes back) | 1 a day | D from= | A2 |
+|  |  | Larder | 🌰 Seed Tin with a Tight Lid | Stalls in the Coralscatter's island and desert zones charge 2% less | -2% | P region=OC | F02 |
+|  |  | Cheer | 🎵 Clapsticks | Acts at stops in the Coralscatter's island and desert zones give 2% more XP | +2% | P region=OC | F03 |
+| Ambercove | camp | Repairs | 🏕️ Swag Rolled Tight | Rest acts and trail rests in the Coralscatter's island and desert zones heal 2% more | +2% | P region=OC | F09 |
 |  |  | Larder | 🍠 Coals Under the Sand | First lore act at Ambercove each day: one taro for the coals (`taro`) | 1 a day | D from= | A3 |
 |  |  | Cheer | 🎶 Songline Hummed Back | On the Red Rock Songlines, forks you have already walked are marked with dots | flag | F | A5 |
-| Kava Circle | camp | Repairs | 🥣 Re-carved Kava Bowl | Boosts from drinks shared at the Kava Circle last 2% longer | +2% | P from= | F08 |
+| Kava Circle | camp | Repairs | 🥣 Re-carved Kava Bowl | Boosts from anything eaten or drunk in the Coralscatter's island and coast zones last 2% longer | +2% | P region=OC | F08 |
 |  |  | Larder | ♨️ Earth Oven Opened | Dishes made with taro give 2% more energy | +2% | P items=local | F07 |
-|  |  | Cheer | 🤝 Clap Once, Drink, Clap Thrice | Gifts to anyone in the Coralscatter at dusk: 2% chance of +1 friendship | +2% | P region=OC | F14 |
+|  |  | Cheer | 🤝 Clap Once, Drink, Clap Thrice | Chats and gifts with folk in the Coralscatter's island and desert zones: 2% chance of +1 friendship | +2% | P region=OC | F14 |
 
 ## 7. Counts
 

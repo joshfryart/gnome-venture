@@ -279,6 +279,12 @@ Modifiers: `opt=1`, `alt=kind:spec:qty`. Rules: steps latch; no main step needs 
 
 Full rules, hooks and migration: `proposal-stop-perks.md` (with the deduplicated **Hook list**). Act table: `proposal-stop-act-bars.txt`.
 
+**Impact model: `proposal-perk-impact.md`** (one line per perk in `proposal-perk-impact.csv`; unsimulated, 2026-11-27).
+- Each perk has an estimated boost per game day: baseline of the day x how much of it the perk's scope reaches x size, in its own unit and in value points (1 VP = 1 Petal).
+- Meaningful = about 1% of the day's activity in the perk's own domain, or a daily charge used at least once in 4 game days. By that test 312 of the 540 perks were LOW (2% on one stop in one weather = 0.02 to 0.05% of the day).
+- All 312 were raised: 216 by a wider trigger alone (crop perks cover about half of the beds, one place perk per family per region is region-wide on half of its landscapes, daily charges lost a narrow condition), 60 also by size (to 2% at most), 36 narrow place perks to 3%, which are on a veto list for Josh.
+- After: 511 ok, 29 still LOW at 3% (the second perk of a family in a region; rule P3 gives one region-wide slot). No family is over its world cap (sell 3 of 5, walk 3 of 6, harvest extra 4 of 4, gather extra 2 of 4); audit 0 errors.
+
 **Every stop has a hand-written set: 180 stops, 540 perks.** The Maplewold roads (18 stops, 54 perks) are in `proposal-stop-perks.md` section 5 and 7.5 below; the other 13 regions are in three files:
 - `proposal-stop-perks-regions-A.md`: Maizehollow (CA) 11 stops, Mistmoor (NWE) 12, the Sunsprinkle Isles (CB) 13, the Rainroot Reaches (SA) 13: 49 stops, 147 perks.
 - `proposal-stop-perks-regions-B.md`: Olivewhistle Shore (SE) 13, Birchbramble Steppe (EE) 12, the Dunewhisper (MENA) 13, the Greatcanopy (WCA) 13: 51 stops, 153 perks.
@@ -314,7 +320,7 @@ The four answer acts (`mend_board`, `tidy_yard`, `fill_shelf`, `hang_lanterns`) 
 "Today" = the gnome's game day; D and V are read from `stop_log` (act, kind, day). Sample workshop day: R 20, L 13, C 16. Planning pace: **6 to 10 visit-days per bar.** Sleeping resets D; a nap does not.
 
 ### 7.4 Perks: rules, families, caps
-- Size: +1% or +2%, +1 of a small unit, one once-a-game-day convenience, or a flag (information or looks). Nothing bigger.
+- Size: +1% or +2%, +1 of a small unit, one once-a-game-day convenience, or a flag (information or looks). Nothing bigger, except the 36 narrow place perks raised to 3% by the impact pass, each on a veto list (`proposal-perk-impact.md`).
 - **World perks** work everywhere and add up; each family has a cap, and the cap is also the whole world's budget for that family (Admin refuses a world perk that would pass it). **Place perks** (scoped to one stop, its walks or its local crops) never share a total. **Daily charges**: one charge per perk per game day, each with its own trigger. **Flags** have no power.
 
 | Family | Cap | Family | Cap | Family | Cap |
@@ -338,24 +344,24 @@ Daily families: A1 first action free, A2 something lost comes back, A3 one commo
 
 | Stop | Type | Repairs | Larder | Cheer |
 |---|---|---|---|---|
-| Maplewold Market (town) | market | Level Scales: Maplewold crops sell +1% (W) | Baker's Thirteenth: first shop food each day +1 (D) | Known at the Stalls: leaf on never-owned goods (F) |
-| Poppyburrow | inn | Straightened Signpost: walks to and from its seven neighbours -2% time (P) | Second Breakfast: home-cooked dishes at dawn +2% energy (W) | A Bed With Your Name On: rest acts at inns +1 energy (W) |
-| Honeybrook | herb | Tidy Skeps: pests -2% on flowering plants (W) | Honey in the Tea: tea boosts +2% longer (W) | The Bees Know You: a bee visits your garden (F) |
-| Cloverholt | mill | Greased Wheel: breads and bakes cook 2% faster (W) | Miller's Pinch: oats and lentil +1% extra harvest (W) | Oatcake for the Road: first visit each day, a handful of oats (D, P) |
-| Acornby | camp | Dry Woodpile: resting on forest trails heals +2% (W) | Squirrel's Arithmetic: forest gathering +1% extra (W) | Fireside Regular: checks at camps +1% (W) |
-| Birchhollow | workshop | Birch-Bark Patch: first staff wear each day skipped (D) | Sawdust Mulch: watering +2% longer on hot or windy days (W) | Measured Twice: checks show exact odds (F) |
-| Mossgate | shrine | Swept Steps: spot hidden things in forest +1% (W) | What You Leave Comes Back: Maplewold crops +1% seed back (W) | Glow-Moss in the Pocket: green glow when the torch runs out (F) |
-| Shellhollow | jetty | Sound Nets: acts at jetties and ferries +2% coins (W) | Catch of the Day: fish sell +1% (W) | An Opinion on Every Fish: Today page shows the next game day's weather (F) |
-| Pebblestead | ferry | Beaver-Tight Hull: fast travel from a coast stop -1% (W) | Porter's Crate: coast shops -1% (W) | Pebble in the Boot: 1 in 20 road walks turn up a coin (A4) |
-| Iciclecrest | tower | Beacon Basket, Refilled: +1 torch step in Maplewold delves (P) | Watcher's Flask: walking in snow or frost -1% time (W) | Three Roads and a Long Way: route menu shows what is on at the far stop (F) |
-| Snowcombe | spring | Scrubbed Pools: rest acts at hot springs +1 energy (W) | Spring-Boiled Egg: first visit each day, one egg (D, P) | Warm to the Bones: healing +2% while it snows (W) |
+| Maplewold Market (town) | market | Level Scales: everything you sell in a shop +1% (W) | Baker's Thirteenth: first shop food each day +1 (D) | Known at the Stalls: leaf on never-owned goods (F) |
+| Poppyburrow | inn | Straightened Signpost: walks on the Maplewold's forest, grassland and wetland roads -2% time (P) | Second Breakfast: home-cooked dishes at dawn or by day +2% energy (W) | A Bed With Your Name On: rest acts at inns +1 energy (W) |
+| Honeybrook | herb | Tidy Skeps: pests -2% on flowers, herbs and fruit crops (W) | Honey in the Tea: boosts from teas, other drinks and sweets +2% longer (W) | The Bees Know You: a bee visits your garden (F) |
+| Cloverholt | mill | Greased Wheel: anything with grain in it cooks 2% faster (W) | Miller's Pinch: oats, lentil, soybean and kidney bean +2% extra harvest (W) | Oatcake for the Road: first visit each day, a handful of oats (D, P) |
+| Acornby | camp | Dry Woodpile: resting on any trail heals +2% (W) | Squirrel's Arithmetic: forest and grassland gathering +2% extra (W) | Fireside Regular: stop checks +1% (W) |
+| Birchhollow | workshop | Birch-Bark Patch: first staff wear each day skipped (D) | Sawdust Mulch: watering +2% longer in dry weather (W) | Measured Twice: checks show exact odds (F) |
+| Mossgate | shrine | Swept Steps: spot hidden things +1% (W) | What You Leave Comes Back: every crop +1% seed back (W) | Glow-Moss in the Pocket: green glow when the torch runs out (F) |
+| Shellhollow | jetty | Sound Nets: acts that cost energy +2% coins (W) | Catch of the Day: fish, gathered finds and dishes sell +2% (W) | An Opinion on Every Fish: Today page shows the next game day's weather (F) |
+| Pebblestead | ferry | Beaver-Tight Hull: fast travel -1% (W) | Porter's Crate: shops -1% (W) | Pebble in the Boot: 1 in 20 road walks turn up a coin (A4) |
+| Iciclecrest | tower | Beacon Basket, Refilled: +1 torch step in Maplewold delves (P) | Watcher's Flask: walking in rain, storm, snow, frost, fog or wind -2% time (W) | Three Roads and a Long Way: route menu shows what is on at the far stop (F) |
+| Snowcombe | spring | Scrubbed Pools: rest acts at hot springs +1 energy (W) | Spring-Boiled Egg: first visit each day, one egg (D, P) | Warm to the Bones: healing +2% in rain, storm, snow, frost, fog or wind (W) |
 | **Cattailmere** (Fens, new) | herb | Cleared Channels: first weeding each day costs no energy (D) | Rice in the Turn-Ups: fast travel +1% chance to turn up a seed (W) | Frog on the Gatepost: on rainy days a frog sits on your garden gate (F) |
-| **Granitegate** (Ridge, new) | tower | This Year's Stone: +1 max health on the Maplewold's mountain trails (P) | Goat-Track Pickings: gathering on the Maplewold's mountain trails +1% extra (P) | Counted From the Top: the Maplewold map shows, zone by zone, how many places you have not found yet (F) |
-| The Sugar Shack (haven) | orchard | Stacked Birch: syrups and sweets cook 2% faster (W) | Brim-Full Bucket: tree and sap harvests +1% extra (W) | Sticky Fingers: first seed planted each day not used up (D) |
+| **Granitegate** (Ridge, new) | tower | This Year's Stone: +1 max health on the Maplewold's mountain and tundra trails (P) | Goat-Track Pickings: gathering on the Maplewold's mountain, tundra, coast and wetland trails +2% extra (P) | Counted From the Top: the Maplewold map shows, zone by zone, how many places you have not found yet (F) |
+| The Sugar Shack (haven) | orchard | Stacked Birch: syrups, sweets, preserves and drinks cook 2% faster (W) | Brim-Full Bucket: harvests from anything that regrows +2% extra (W) | Sticky Fingers: first seed planted each day not used up (D) |
 | Aurora Camp (haven) | camp | Pegged Tents: one failed stop check a day rolled again (D) | Meltwater Can: first watering each day free (D) | Sky-Dazzled: faint aurora over your garden (F) |
-| Larkbrook (CA border) | inn | Border Lamp: night walking -1% time (W) | Packed by the Cook: boosts from your own dishes +2% longer (W) | Up With the Lark: +1% XP at dawn (W) |
-| Windbottom (NWE border) | tower | Answered Beacon: world map shows your three bars per stop (F) | Signaller's Ration: first fast travel each day -1 energy (D) | Tailwind: +2% XP on windy days (W) |
-| Honeythorpe (EA border) | orchard | Propped Boughs: fruit and tree crops +1% garden XP (W) | Grafter's Label: satchel shows seed ages (F) | Hop-Yard Hum: food or drink gifts 2% chance of +1 friendship (W) |
+| Larkbrook (CA border) | inn | Border Lamp: walking -1% time (W) | Packed by the Cook: boosts from your own dishes +2% longer (W) | Up With the Lark: +1% XP (W) |
+| Windbottom (NWE border) | tower | Answered Beacon: world map shows your three bars per stop (F) | Signaller's Ration: first fast travel each day -1 energy (D) | Tailwind: +2% XP in wind, storm, rain, snow, frost or fog (W) |
+| Honeythorpe (EA border) | orchard | Propped Boughs: +1% garden XP (W) | Grafter's Label: satchel shows seed ages (F) | Hop-Yard Hum: food or drink gifts 2% chance of +1 friendship (W) |
 
 Count: 33 with a number (29 W, 4 P), 10 daily charges, 11 flags = 54. No family over its cap; rest energy uses its whole budget (2 of 2). The town and the two havens are not stops in code today (`kind = 'village'` tests): they need `stop_is_place()` and a stop type set in Admin (decision 6: yes).
 

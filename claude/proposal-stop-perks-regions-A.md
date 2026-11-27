@@ -1,6 +1,7 @@
 # PROPOSAL: Hand-written stop perks, regions A (Maizehollow, Mistmoor, the Sunsprinkle Isles, the Rainroot Reaches)
 
 Status: proposal only, no game code changed. 2026-11-27.
+Impact pass 2026-11-27 (`proposal-perk-impact.md`): 90 perk rows of this file have a wider trigger or a bigger size (`RAISES` in `tools_audit_stop_perks_fixes.py`). The perk tables are current; prose notes below may still describe a perk's first, narrower scope.
 Follows `proposal-stop-perks.md` (rules, families, caps, section 5 format) and `PROPOSAL-HOLLOW-MASTER.md` section 7 and section 14 ruling 7 (a hand-written set per region). Stops are every town, village and haven of the four regions in `claude/route-list.md`. Wonders, delves and lairs are not stops.
 
 Every stop below has its own three perks, one per bar. **49 stops, 147 perks.** The two border villages already written in the Maplewold set (Larkbrook in Maizehollow, Windbottom in Mistmoor) keep those perks and are not repeated.
@@ -11,17 +12,17 @@ Share = (cap minus what the Maplewold set uses) / 13 other regions, rounded down
 
 | Family | Effect | Cap | Maplewold uses | Left | Share per region (left / 13, rounded down) | So in this file |
 |---|---|---|---|---|---|---|
-| F01 | sell | 5 | 2 | 3 | **0** | place-scoped only |
+| F01 | sell | 5 | 3 | 2 | **0** | place-scoped only |
 | F02 | buy | 5 | 1 | 4 | **0** | place-scoped only |
 | F03 | XP | 5 | 3 | 2 | **0** | place-scoped only |
 | F04 | garden XP | 5 | 1 | 4 | **0** | place-scoped only |
-| F05 | walk time | 6 | 2 | 4 | **0** | place-scoped only |
+| F05 | walk time | 6 | 3 | 3 | **0** | place-scoped only |
 | F06 | pot time | 6 | 4 | 2 | **0** | place-scoped only |
 | F07 | dish energy | 5 | 2 | 3 | **0** | place-scoped only |
 | F08 | boost length | 8 | 4 | 4 | **0** | place-scoped only |
 | F09 | healing | 8 | 4 | 4 | **0** | place-scoped only |
-| F10 | harvest extra | 4 | 2 | 2 | **0** | place-scoped only |
-| F11 | gather extra | 4 | 1 | 3 | **0** | place-scoped only |
+| F10 | harvest extra | 4 | 4 | 0 | **0** | place-scoped only |
+| F11 | gather extra | 4 | 2 | 2 | **0** | place-scoped only |
 | F12 | watering lasts | 8 | 2 | 6 | **0** | place-scoped only |
 | F13 | seed back | 4 | 1 | 3 | **0** | place-scoped only |
 | F14 | friendship chance | 8 | 2 | 6 | **0** | place-scoped only |
@@ -44,7 +45,7 @@ Rules used for the place perks (stricter than section 4.1 where that was open):
 - Scope is always one of: `from=` / `to=` this stop (its acts, its stall, its walks, fast travel to or from it); `items=local:` narrowed to one or two **named** crops native to the region; or `region=` for one delve or one kind of road.
 - One perk per family per stop. One perk per family per crop in a region (script-checked), so a crop never gets the same bonus twice from this file. `stop_local_crops()` returns the whole region's crops, so the type templates' "local crops" overlap with these; the per-crop family cap of 4.1 still applies.
 - No `region=` perk in XP, walk time or pot time, so the worst case at one place stays as in 4.1 (walk -10%, pots -10%, XP +7%).
-- Size: 1% or 2%, +1 energy, +1 torch step, +1 max health. Nothing above 2%.
+- Size: 1% or 2%, +1 energy, +1 torch step, +1 max health. Nothing above 2%. Impact pass 2026-11-27: every % family may be 2% a perk, and the narrow place perks on the veto list of `proposal-perk-impact.md` are at 3%.
 - Daily charges: one per perk per game day (back after sleep, not at midnight, never banked). "D here" = the trigger only happens at that stop or on its walks. "D" = works anywhere, with a trigger no other perk uses.
 - A4 coins: one perk (Scorchburrow), 2 coins, at the stop only; it stays under the ceiling of 10 coins a game day.
 - Flags: at most one info (A5) and one looks (A6) per stop.
@@ -73,39 +74,39 @@ Stop types to set in Admin > Places:
 
 | Stop | Type | Bar | Perk | Icon | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|---|
-| Maizehollow Market | market | Repairs | Relaid Cobbles | 🧱 | Fast travel that ends at Maizehollow Market costs 1% less | -1% | P `to=` | F18 |
-|  |  | Larder | Thirteen Ears to the Dozen | 🌽 | Corn sells for 2% more at Maizehollow Market's stalls | +2% | P `from=` | F01 |
+| Maizehollow Market | market | Repairs | Relaid Cobbles | 🧱 | Fast travel that starts in Maizehollow's grassland and rainforest zones costs 2% less | -2% | P `region=CA` | F18 |
+|  |  | Larder | Thirteen Ears to the Dozen | 🌽 | Stalls in Maizehollow's grassland and rainforest zones pay 2% more for what you sell | +2% | P `region=CA` | F01 |
 |  |  | Cheer | Brass on the Bandstand | 🎺 | The Today page names any Maizehollow stop that has a festival on | flag | F | A5 |
-| Poppynook | mill | Repairs | Dressed Grindstone | 🪨 | Dishes with corn in them cook 2% faster | -2% | P `items=local:` corn | F06 |
+| Poppynook | mill | Repairs | Dressed Grindstone | 🪨 | Dishes with maize or black bean in them cook 2% faster | -2% | P `items=local:` corn, black-bean | F06 |
 |  |  | Larder | First Off the Griddle | 🫓 | First visit to Poppynook each day: one piece of cornbread (`cornbread`) | 1 a day | D here | A3 |
 |  |  | Cheer | Poppies on the Sill | 🌺 | A pot of red poppies sits by your garden gate (looks only) | flag | F | A6 |
-| Meadowmere | inn | Repairs | Restrung Hammocks | 🪢 | Rest acts at Meadowmere from dusk on give 1 more energy | +1 | P `from=` `dp=dusk,night` | F22 |
-|  |  | Larder | Beans in the Pot Since Tuesday | 🫘 | Dishes with black beans give 2% more energy | +2% | P `items=local:` black-bean | F07 |
+| Meadowmere | inn | Repairs | Restrung Hammocks | 🪢 | Rest acts at Meadowmere give 1 more energy in spring and summer | +1 | P `from=` `se=spring,summer` | F22 |
+|  |  | Larder | Beans in the Pot Since Tuesday | 🫘 | Dishes with black bean or maize give 2% more energy | +2% | P `items=local:` black-bean, corn | F07 |
 |  |  | Cheer | Five Roads' Worth of Gossip | 🧭 | In Meadowmere the route menu shows the weather at the far end of each road | flag | F | A5 |
-| Jadedell | shrine | Repairs | Reset Temple Steps | 🪜 | Walks from Jadedell to the Stepped Seed Temple take 2% less time | -2% | P `from=` | F05 |
-|  |  | Larder | Seed Left on the Altar | 🌱 | Tomatillo harvests: 1% more chance of a seed back | +1% | P `items=local:` tomatillo | F13 |
+| Jadedell | shrine | Repairs | Reset Temple Steps | 🪜 | Walks in Maizehollow's grassland and rainforest zones take 2% less time | -2% | P `region=CA` | F05 |
+|  |  | Larder | Seed Left on the Altar | 🌱 | Tomatillo, maize and black bean harvests: 2% more chance of a seed back | +2% | P `items=local:` tomatillo, corn, black-bean | F13 |
 |  |  | Cheer | Jade in the Ink | 🟢 | Your Maizehollow passport stamps print in jade green (looks only) | flag | F | A6 |
-| Frondthorpe | orchard | Repairs | Shored-Up Terraces | 🪵 | Watering lasts 2% longer on avocado and papaya | +2% | P `items=local:` avocado, papaya | F12 |
-|  |  | Larder | Two From One Stone | 🥑 | Once a day, your first avocado harvest gives one extra avocado | 1 a day | D | A3 |
+| Frondthorpe | orchard | Repairs | Shored-Up Terraces | 🪵 | Watering lasts 2% longer on avocado, papaya, maize, black bean and amaranth | +2% | P `items=local:` avocado, papaya, corn, black-bean, amaranth | F12 |
+|  |  | Larder | Two From One Stone | 🥑 | Once a day, your first avocado or papaya harvest gives one extra of that crop | 1 a day | D | A3 |
 |  |  | Cheer | Paw Prints in the Mud | 🐆 | After rain, jaguar paw prints cross your rainforest route maps (looks only) | flag | F | A6 |
-| Orchiddell | herb | Repairs | Retied Orchid Stakes | 🧵 | Pests are 2% less likely on chayote and amaranth | -2% | P `items=local:` chayote, amaranth | F17 |
-|  |  | Larder | Chayote Up the Trellis | 🫛 | Chayote harvests: 1% chance of one extra | +1% | P `items=local:` chayote | F10 |
+| Orchiddell | herb | Repairs | Retied Orchid Stakes | 🧵 | Pests are 2% less likely on chayote, amaranth, maize, black bean and chili pepper | -2% | P `items=local:` chayote, amaranth, corn, black-bean, chili-pepper | F17 |
+|  |  | Larder | Chayote Up the Trellis | 🫛 | Chayote, maize, tomatillo, amaranth, vanilla and cardamom harvests: 3% chance of one extra | +3% | P `items=local:` chayote, corn, tomatillo, amaranth, vanilla, cardamom | F10 |
 |  |  | Cheer | Hummingbird at the Window | 🦋 | A hummingbird hovers over your garden while something is in flower (looks only) | flag | F | A6 |
-| Saffroncrest | tower | Repairs | Polished Signal Mirror | 🪞 | On sunny days, walks that start at Saffroncrest take 2% less time | -2% | P `from=` `we=sun` | F05 |
+| Saffroncrest | tower | Repairs | Polished Signal Mirror | 🪞 | On sunny days, walks that start at Saffroncrest take 3% less time | -3% | P `from=` `we=sun` | F05 |
 |  |  | Larder | Nopal Off the Parapet | 🌵 | First visit to Saffroncrest each day: one nopal pad (`nopal`) | 1 a day | D here | A3 |
 |  |  | Cheer | Counts the Shadows | 🌅 | The route menu shows the day part you will arrive in | flag | F | A5 |
-| Scorchburrow | camp | Repairs | Mended Water Jars | 🏺 | Watering lasts 2% longer on chili peppers and tomatillos in heat | +2% | P `items=local:` chili-pepper, tomatillo `we=heat` | F12 |
-|  |  | Larder | Supper After Sundown | 🌮 | Dishes eaten at Scorchburrow at night give 2% more energy | +2% | P `from=` `dp=night` | F07 |
-|  |  | Cheer | A Wish per Shooting Star | 🌠 | First rest act at Scorchburrow each night: 2 coins turn up in the sand | 2 coins, 1 a day | D here | A4 |
-| Stonethorpe | spring | Repairs | Relined Ash Pools | ♨️ | Healing from rest acts at Stonethorpe is 2% stronger at dawn and dusk | +2% | P `from=` `dp=dawn,dusk` | F09 |
-|  |  | Larder | Ash for the Beds | 🌋 | 2% more garden XP from black beans | +2% | P `items=local:` black-bean | F04 |
+| Scorchburrow | camp | Repairs | Mended Water Jars | 🏺 | Watering lasts 2% longer on chili pepper, tomatillo, chayote, prickly pear cactus and mamey sapote | +2% | P `items=local:` chili-pepper, tomatillo, chayote, nopal, mamey | F12 |
+|  |  | Larder | Supper After Sundown | 🌮 | Dishes eaten in Maizehollow's grassland and desert zones give 2% more energy | +2% | P `region=CA` | F07 |
+|  |  | Cheer | A Wish per Shooting Star | 🌠 | First rest act at Scorchburrow each day: 2 coins turn up in the sand | 2 coins, 1 a day | D here | A4 |
+| Stonethorpe | spring | Repairs | Relined Ash Pools | ♨️ | Rest acts and trail rests in Maizehollow's grassland and mountain zones heal 2% more | +2% | P `region=CA` | F09 |
+|  |  | Larder | Ash for the Beds | 🌋 | Black bean, maize and chili pepper give 2% more garden XP | +2% | P `items=local:` black-bean, corn, chili-pepper | F04 |
 |  |  | Cheer | Steam on Cold Mornings | 🌫️ | A wisp of steam curls from your cooking pot while it is busy (looks only) | flag | F | A6 |
-| Flintcove | workshop | Repairs | Knapped a Fresh Edge | 🔪 | Once a day, the first wear on your rock pick on a walk that starts at Flintcove is skipped | 1 a day | D here | A2 |
-|  |  | Larder | Comal Hammered Flat | 🍳 | Dishes with tomatillo in them cook 2% faster | -2% | P `items=local:` tomatillo | F06 |
+| Flintcove | workshop | Repairs | Knapped a Fresh Edge | 🔪 | Once a day, the first wear on your rock pick anywhere in Maizehollow is skipped | 1 a day | D here | A2 |
+|  |  | Larder | Comal Hammered Flat | 🍳 | Dishes with tomatillo or chili pepper in them cook 2% faster | -2% | P `items=local:` tomatillo, chili-pepper | F06 |
 |  |  | Cheer | Sees Itself in Obsidian | 🖤 | Stop pages show how many points each act will add to a bar before you do it | flag | F | A5 |
-| Market of a Thousand Chilies | market | Repairs | Repainted Stall Numbers | 🪧 | Spices and chilies cost 2% less at the Thousand Chilies stalls | -2% | P `from=` | F02 |
-|  |  | Larder | The Thousand-and-First | 🌶️ | Chili pepper harvests: 1% chance of one extra | +1% | P `items=local:` chili-pepper | F10 |
-|  |  | Cheer | Tried the Hot One | 🥵 | Boosts from dishes with chili pepper last 2% longer | +2% | P `items=local:` chili-pepper | F08 |
+| Market of a Thousand Chilies | market | Repairs | Repainted Stall Numbers | 🪧 | Stalls in Maizehollow's grassland and rainforest zones charge 2% less | -2% | P `region=CA` | F02 |
+|  |  | Larder | The Thousand-and-First | 🌶️ | Chili pepper, black bean, prickly pear cactus, mamey sapote and cacao harvests: 3% chance of one extra | +3% | P `items=local:` chili-pepper, black-bean, nopal, mamey, cacao | F10 |
+|  |  | Cheer | Tried the Hot One | 🥵 | Dishes with chili pepper or maize give boosts that last 2% longer | +2% | P `items=local:` chili-pepper, corn | F08 |
 
 ## 3. Mistmoor (NWE): 12 stops, 36 perks
 
@@ -130,41 +131,41 @@ Stop types to set in Admin > Places:
 
 | Stop | Type | Bar | Perk | Icon | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|---|
-| Mistmoor Market | market | Repairs | Patched Awnings | ☂️ | On rainy days, Mistmoor Market's stalls pay 2% more for what you sell | +2% | P `from=` `we=rain` | F01 |
-|  |  | Larder | Leek by the Yard | 🧅 | Leeks cost 2% less at Mistmoor Market's stalls | -2% | P `from=` | F02 |
+| Mistmoor Market | market | Repairs | Patched Awnings | ☂️ | Stalls in Mistmoor's grassland and coast zones pay 2% more for what you sell | +2% | P `region=NWE` | F01 |
+|  |  | Larder | Leek by the Yard | 🧅 | Stalls in Mistmoor's grassland and forest zones charge 2% less | -2% | P `region=NWE` | F02 |
 |  |  | Cheer | Town Crier's Second Wind | 📯 | The Today page lists the Mistmoor stops you have not visited this game day | flag | F | A5 |
-| Windburrow | mill | Repairs | Reset Sails | 🌬️ | On windy days, dishes with rye or barley cook 2% faster | -2% | P `items=local:` rye, barley `we=wind` | F06 |
+| Windburrow | mill | Repairs | Reset Sails | 🌬️ | Dishes with rye or barley in them cook 2% faster | -2% | P `items=local:` rye, barley | F06 |
 |  |  | Larder | Baker's Peel | 🍞 | Once a day, the first bread or bake you cook with rye comes out with one extra | 1 a day | D | A3 |
 |  |  | Cheer | Kite Day | 🪁 | A small kite flies over your garden on windy days (looks only) | flag | F | A6 |
-| Larkden | inn | Repairs | Trimmed Wicks | 🕯️ | Healing from rest acts at Larkden is 2% stronger when it rains | +2% | P `from=` `we=rain` | F09 |
-|  |  | Larder | Sprouts Done Properly | 🥬 | Dishes with brussels sprouts give 2% more energy | +2% | P `items=local:` brussels-sprouts | F07 |
-|  |  | Cheer | Fiddle in the Corner | 🎻 | 2% more XP from acts at Larkden from dusk on | +2% | P `from=` `dp=dusk,night` | F03 |
-| Hollowknoll | shrine | Repairs | Righted Waymarker | 🪦 | Walks that end at Hollowknoll in fog or rain take 2% less time | -2% | P `to=` `we=fog,rain` | F05 |
-|  |  | Larder | One for the Stones | 🍄 | In fog or after rain, gathering on walks out of Hollowknoll has a 1% chance of one extra | +1% | P `from=` `we=fog,rain` | F11 |
+| Larkden | inn | Repairs | Trimmed Wicks | 🕯️ | Rest acts and trail rests in Mistmoor's forest and coast zones heal 2% more | +2% | P `region=NWE` | F09 |
+|  |  | Larder | Sprouts Done Properly | 🥬 | Dishes with brussels sprouts or rye give 2% more energy | +2% | P `items=local:` brussels-sprouts, rye | F07 |
+|  |  | Cheer | Fiddle in the Corner | 🎻 | Acts at stops in Mistmoor's forest and coast zones give 2% more XP | +2% | P `region=NWE` | F03 |
+| Hollowknoll | shrine | Repairs | Righted Waymarker | 🪦 | Walks in Mistmoor's grassland and coast zones take 2% less time | -2% | P `region=NWE` | F05 |
+|  |  | Larder | One for the Stones | 🍄 | Gathering in Mistmoor's grassland and forest zones: 2% chance of one extra | +2% | P `region=NWE` | F11 |
 |  |  | Cheer | The Stones Hum Back | 🎶 | At dusk a faint ring of standing stones shows on the horizon of your Today page (looks only) | flag | F | A6 |
-| Fernden | camp | Repairs | Dry Kindling Under Cover | 🪓 | Once a day, the first act you do at Fernden in the rain costs 1 less energy | 1 a day | D here | A1 |
-|  |  | Larder | Hedgerow Pudding | 🫐 | Lingonberry harvests: 1% chance of one extra | +1% | P `items=local:` lingonberry | F10 |
+| Fernden | camp | Repairs | Dry Kindling Under Cover | 🪓 | Once a day, the first check act you do at Fernden costs 1 less energy | 1 a day | D here | A1 |
+|  |  | Larder | Hedgerow Pudding | 🫐 | Lingonberry, rye, leek, blackcurrant and kohlrabi harvests: 2% chance of one extra | +2% | P `items=local:` lingonberry, rye, leek, blackcurrant, kohlrabi | F10 |
 |  |  | Cheer | Ring of Toadstools | 🧚 | After rain, a ring of small mushrooms shows in a corner of your garden (looks only) | flag | F | A6 |
 | Hazelmere | orchard | Repairs | Stile Over the Hedge | 🚪 | Once a day, the first walk that ends at Hazelmere costs 1 less energy | 1 a day | D here | A1 |
-|  |  | Larder | Jam Pan Scoured | 🫙 | Dishes with rhubarb or blackcurrant cook 2% faster | -2% | P `items=local:` rhubarb, blackcurrant | F06 |
-|  |  | Cheer | Conker Champion | 🌰 | Contests at Hazelmere pay 2% more coins | +2% | P `from=` kind contest | F15 |
+|  |  | Larder | Jam Pan Scoured | 🫙 | Dishes with rhubarb, blackcurrant or leek in them cook 2% faster | -2% | P `items=local:` rhubarb, blackcurrant, leek | F06 |
+|  |  | Cheer | Conker Champion | 🌰 | Acts at stops in Mistmoor's grassland and forest zones pay 2% more coins | +2% | P `region=NWE` | F15 |
 | Spraywell | jetty | Repairs | Storm Lantern Rehung | 🏮 | +1 torch step in the Sea-cave Smugglers' Run | +1 step | P `region=NWE` (that delve) | F21 |
-|  |  | Larder | Smoked Over Alder | 🐟 | Fish sell for 2% more at Spraywell's stall | +2% | P `from=` | F01 |
+|  |  | Larder | Smoked Over Alder | 🐟 | Fish sell for 3% more at Spraywell's stall | +3% | P `from=` | F01 |
 |  |  | Cheer | Reads the Tide Table | 🌊 | The Today page shows the hour of the next low tide | flag | F | A5 |
-| Brinehollow | ferry | Repairs | Greased Winch | ⛓️ | Fast travel that starts at Brinehollow in fog or rain costs 1% less | -1% | P `from=` `we=fog,rain` | F18 |
-|  |  | Larder | Pickle Crock Under the Bench | 🥒 | Boosts from dishes with kohlrabi last 2% longer | +2% | P `items=local:` kohlrabi | F08 |
+| Brinehollow | ferry | Repairs | Greased Winch | ⛓️ | Fast travel that starts in Mistmoor's forest and coast zones costs 2% less | -2% | P `region=NWE` | F18 |
+|  |  | Larder | Pickle Crock Under the Bench | 🥒 | Dishes with kohlrabi, rye or barley give boosts that last 2% longer | +2% | P `items=local:` kohlrabi, rye, barley | F08 |
 |  |  | Cheer | Seal Off the Slipway | 🦭 | A seal's head bobs at the edge of your Today page when you wake on a coast (looks only) | flag | F | A6 |
-| Froststead | workshop | Repairs | Waxed Runners | 🛷 | Walks that start at Froststead take 2% less time in snow or frost | -2% | P `from=` `we=snow,frost` | F05 |
-|  |  | Larder | Sweeter After Frost | ❄️ | Brussels sprouts harvested in frost: 1% chance of one extra | +1% | P `items=local:` brussels-sprouts `we=frost` | F10 |
+| Froststead | workshop | Repairs | Waxed Runners | 🛷 | Walks that start at Froststead take 3% less time in snow or frost | -3% | P `from=` `we=snow,frost` | F05 |
+|  |  | Larder | Sweeter After Frost | ❄️ | Brussels sprouts, barley, rhubarb, asparagus, cloudberry and gooseberry harvests: 2% chance of one extra | +2% | P `items=local:` brussels-sprouts, barley, rhubarb, asparagus, cloudberry, gooseberry | F10 |
 |  |  | Cheer | Knitted While You Waited | 🧤 | Your gnome wears mittens in its portrait while it snows (looks only) | flag | F | A6 |
 | Sleetford | tower | Repairs | Windbreak Rebuilt | 🛡️ | +1 max health in fights on Mistmoor's tundra roads | +1 | P `region=NWE` `land=tundra` | F20 |
-|  |  | Larder | Berries Under the Snow | 🍒 | Gathering at Sleetford itself: 1% chance of one extra | +1% | P `from=` (gather here) | F11 |
+|  |  | Larder | Berries Under the Snow | 🍒 | Gathering at Sleetford itself: 3% chance of one extra | +3% | P `from=` (gather here) | F11 |
 |  |  | Cheer | Cartographer's Corrections | 🗺️ | The world map draws the Mistmoor roads you have walked in a darker line | flag | F | A5 |
-| Thatchtop Tearoom | herb | Repairs | Reglazed Cold Frame | 🪴 | Watering lasts 2% longer on rhubarb and asparagus | +2% | P `items=local:` rhubarb, asparagus | F12 |
+| Thatchtop Tearoom | herb | Repairs | Reglazed Cold Frame | 🪴 | Watering lasts 2% longer on rhubarb, asparagus, rye, barley and leek | +2% | P `items=local:` rhubarb, asparagus, rye, barley, leek | F12 |
 |  |  | Larder | Second Cup, Same Pot | 🫖 | First visit to the Thatchtop Tearoom each day: one cup of mint tea (`mint-tea`) | 1 a day | D here | A3 |
 |  |  | Cheer | Reads the Leaves | 🫖 | Stop pages mark the act that would add most to your lowest unfilled bar | flag | F | A5 |
-| Northern Lights Sauna | spring | Repairs | Split Birch for the Stove | 🪵 | Rest acts at the Northern Lights Sauna give 1 more energy at night | +1 | P `from=` `dp=night` | F22 |
-|  |  | Larder | Rye Porridge After the Plunge | 🥣 | Dishes eaten at the Northern Lights Sauna while it snows give 2% more energy | +2% | P `from=` `we=snow` | F07 |
+| Northern Lights Sauna | spring | Repairs | Split Birch for the Stove | 🪵 | Rest acts at the Northern Lights Sauna give 1 more energy outside summer | +1 | P `from=` `se=autumn,winter,spring` | F22 |
+|  |  | Larder | Rye Porridge After the Plunge | 🥣 | Dishes eaten in Mistmoor's forest and tundra zones give 2% more energy | +2% | P `region=NWE` | F07 |
 |  |  | Cheer | The Cold Plunge | 🧊 | Once a day, after a rest act at the Northern Lights Sauna your next walk costs 1 less energy | 1 a day | D here | A1 |
 
 ## 4. The Sunsprinkle Isles (CB): 13 stops, 39 perks
@@ -191,44 +192,44 @@ Stop types to set in Admin > Places:
 
 | Stop | Type | Bar | Perk | Icon | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|---|
-| The Sunsprinkle Isles Market | market | Repairs | Restitched Sailcloth Shade | ⛱️ | In the day part "day", fruit sells for 2% more at the Isles Market's stalls | +2% | P `from=` `dp=day` | F01 |
-|  |  | Larder | Lime With Everything | 🍋 | Dishes with lime give 2% more energy | +2% | P `items=local:` lime | F07 |
+| The Sunsprinkle Isles Market | market | Repairs | Restitched Sailcloth Shade | ⛱️ | Stalls in the Sunsprinkle Isles' island and coast zones pay 2% more for what you sell | +2% | P `region=CB` | F01 |
+|  |  | Larder | Lime With Everything | 🍋 | Dishes with lime or sweet potato give 2% more energy | +2% | P `items=local:` lime, sweet-potato | F07 |
 |  |  | Cheer | Steel Pans on the Quay | 🥁 | Stalls on the Isles show whether a price is above or below the item's usual price | flag | F | A5 |
-| Shoreford | ferry | Repairs | Caulked Dugout | 🛶 | Fast travel from Shoreford to Maizehollow (its town) costs 1% less | -1% | P `from=` `to=CA` | F18 |
+| Shoreford | ferry | Repairs | Caulked Dugout | 🛶 | Fast travel that starts in the Sunsprinkle Isles' island and coast zones costs 2% less | -2% | P `region=CB` | F18 |
 |  |  | Larder | Fried Plantain at the Landing | 🍌 | First visit to Shoreford each day: one plantain (`plantain`) | 1 a day | D here | A3 |
 |  |  | Cheer | Post by Canoe | 📮 | A tiny canoe with a mailbag crosses the foot of your Today page each morning (looks only) | flag | F | A6 |
-| Breezehollow | orchard | Repairs | Windbreak Replanted | 🎋 | Pests are 2% less likely on lime and guava | -2% | P `items=local:` lime, guava | F17 |
-|  |  | Larder | Guava Jelly Cooling | 🍈 | Guava harvests: 1% chance of one extra | +1% | P `items=local:` guava | F10 |
+| Breezehollow | orchard | Repairs | Windbreak Replanted | 🎋 | Pests are 2% less likely on lime, guava, plantain, soursop and grapefruit | -2% | P `items=local:` lime, guava, plantain, soursop, grapefruit | F17 |
+|  |  | Larder | Guava Jelly Cooling | 🍈 | Guava, sweet potato, plantain, breadfruit and grapefruit harvests: 2% chance of one extra | +2% | P `items=local:` guava, sweet-potato, plantain, breadfruit, grapefruit | F10 |
 |  |  | Cheer | Hammock Between Two Limes | 🏝️ | A hammock hangs in a corner of your garden (looks only) | flag | F | A6 |
-| Palmknoll | inn | Repairs | Rethatched Palm Roof | 🌴 | Healing from rest acts at Palmknoll is 2% stronger in heat (siesta) | +2% | P `from=` `we=heat` | F09 |
-|  |  | Larder | Peas and No Hurry | 🍲 | Dishes with pigeon peas cook 2% faster | -2% | P `items=local:` pigeon-pea | F06 |
+| Palmknoll | inn | Repairs | Rethatched Palm Roof | 🌴 | Rest acts and trail rests in the Sunsprinkle Isles' island and coast zones heal 2% more | +2% | P `region=CB` | F09 |
+|  |  | Larder | Peas and No Hurry | 🍲 | Dishes with pigeon pea or plantain in them cook 2% faster | -2% | P `items=local:` pigeon-pea, plantain | F06 |
 |  |  | Cheer | Conch Telegraph | 🐚 | The Today page shows the sea on the Isles as calm, choppy or rough, from the game day's wind | flag | F | A5 |
-| Sandpipergate | tower | Repairs | Lighthouse Lamp Relit | 💡 | Walks that end at Sandpipergate at night take 2% less time | -2% | P `to=` `dp=night` | F05 |
-|  |  | Larder | Rock Pools at First Light | 🦀 | Gathering on walks from Sandpipergate at dawn: 1% chance of one extra | +1% | P `from=` `dp=dawn` | F11 |
+| Sandpipergate | tower | Repairs | Lighthouse Lamp Relit | 💡 | Walks in the Sunsprinkle Isles' island and coast zones take 2% less time | -2% | P `region=CB` | F05 |
+|  |  | Larder | Rock Pools at First Light | 🦀 | Gathering in the Sunsprinkle Isles' island and coast zones: 2% chance of one extra | +2% | P `region=CB` | F11 |
 |  |  | Cheer | Sandpipers in the Margins | 🐦 | Sandpiper footprints trail across your passport pages (looks only) | flag | F | A6 |
 | Foamknoll | jetty | Repairs | Replanked to the End | 🎣 | Once a day, the first wear on your fishing rod is skipped | 1 a day | D | A2 |
-|  |  | Larder | Reef Fish on the Coals | 🐠 | Fish cost 2% less at Foamknoll's stall | -2% | P `from=` | F02 |
-|  |  | Cheer | Sundowner on the Planks | 🍹 | Chats with Foamknoll's folk at dusk: 2% chance of +1 friendship | +2% | P `from=` `dp=dusk` | F14 |
-| Saltgate | market | Repairs | Scoured Salt Scales | 🧂 | Saltgate's stall pays 2% more for sea salt and shells (`sea-salt`, `spiral-shell`) | +2% | P `from=` | F01 |
-|  |  | Larder | Baked in a Salt Crust | 🍠 | Sweet potato harvests: 1% more chance of a seed back | +1% | P `items=local:` sweet-potato | F13 |
+|  |  | Larder | Reef Fish on the Coals | 🐠 | Stalls in the Sunsprinkle Isles' island and coast zones charge 2% less | -2% | P `region=CB` | F02 |
+|  |  | Cheer | Sundowner on the Planks | 🍹 | Chats and gifts with folk in the Sunsprinkle Isles' island and coast zones: 2% chance of +1 friendship | +2% | P `region=CB` | F14 |
+| Saltgate | market | Repairs | Scoured Salt Scales | 🧂 | Saltgate's stall pays 3% more for sea salt and shells (`sea-salt`, `spiral-shell`) | +3% | P `from=` | F01 |
+|  |  | Larder | Baked in a Salt Crust | 🍠 | Sweet potato, pigeon pea and plantain harvests: 2% more chance of a seed back | +2% | P `items=local:` sweet-potato, pigeon-pea, plantain | F13 |
 |  |  | Cheer | Dominoes Under the Sea Grape | 🎲 | A set of dominoes sits on a table in your garden, laid out in your last winning line (looks only) | flag | F | A6 |
-| Lianacombe | spring | Repairs | Retied Liana Bridge | 🌉 | Walks that start at Lianacombe take 2% less time in rain | -2% | P `from=` `we=rain` | F05 |
-|  |  | Larder | Soursop Leaf Tea | 🍵 | Boosts from dishes with soursop last 2% longer | +2% | P `items=local:` soursop | F08 |
-|  |  | Cheer | Tree Frogs at Bath Time | 🐸 | Rest acts at Lianacombe give 1 more energy while it rains | +1 | P `from=` `we=rain` | F22 |
-| Canopybottom | shrine | Repairs | Unblocked Spring Runnel | 🪷 | Watering lasts 2% longer on plantain and breadfruit | +2% | P `items=local:` plantain, breadfruit | F12 |
-|  |  | Larder | First Fruits on the Ledge | 🍃 | 2% more garden XP from breadfruit | +2% | P `items=local:` breadfruit | F04 |
+| Lianacombe | spring | Repairs | Retied Liana Bridge | 🌉 | Walks that start at Lianacombe take 3% less time in rain | -3% | P `from=` `we=rain` | F05 |
+|  |  | Larder | Soursop Leaf Tea | 🍵 | Dishes with soursop, sweet potato or pigeon pea give boosts that last 2% longer | +2% | P `items=local:` soursop, sweet-potato, pigeon-pea | F08 |
+|  |  | Cheer | Tree Frogs at Bath Time | 🐸 | Rest acts at Lianacombe give 1 more energy under cloud, in rain, storm or fog | +1 | P `from=` `we=cloud,rain,storm,fog` | F22 |
+| Canopybottom | shrine | Repairs | Unblocked Spring Runnel | 🪷 | Watering lasts 2% longer on plantain, breadfruit, sweet potato and pigeon pea | +2% | P `items=local:` plantain, breadfruit, sweet-potato, pigeon-pea | F12 |
+|  |  | Larder | First Fruits on the Ledge | 🍃 | Breadfruit, sweet potato, pigeon pea and plantain give 2% more garden XP | +2% | P `items=local:` breadfruit, sweet-potato, pigeon-pea, plantain | F04 |
 |  |  | Cheer | The Waterfall Carries a Tune | 🎐 | The route menu shows whether a wonder on the Isles has something new for you this game day | flag | F | A5 |
-| Heronholt | mill | Repairs | Trued Cane Rollers | ⚙️ | Dishes with pineapple or grapefruit cook 2% faster | -2% | P `items=local:` pineapple, grapefruit | F06 |
+| Heronholt | mill | Repairs | Trued Cane Rollers | ⚙️ | Dishes with pineapple, grapefruit or sweet potato in them cook 2% faster | -2% | P `items=local:` pineapple, grapefruit, sweet-potato | F06 |
 |  |  | Larder | Cane Juice by the Cup | 🧃 | First visit to Heronholt each day: one jar of cane syrup (`cane-syrup`) | 1 a day | D here | A3 |
 |  |  | Cheer | Heron on One Leg | 🦩 | On rainy days a heron stands beside your garden (looks only) | flag | F | A6 |
 | Mireburrow | herb | Repairs | Root-Lantern Rehung | 🔦 | +1 torch step in the Mangrove Root Maze | +1 step | P `region=CB` (that delve) | F21 |
-|  |  | Larder | Beds Above the Tide | 🌿 | Pests are 2% less likely on sweet potato and pigeon peas | -2% | P `items=local:` sweet-potato, pigeon-pea | F17 |
+|  |  | Larder | Beds Above the Tide | 🌿 | Pests are 2% less likely on sweet potato, pigeon pea, breadfruit, pineapple, ackee and nutmeg | -2% | P `items=local:` sweet-potato, pigeon-pea, breadfruit, pineapple, ackee, nutmeg | F17 |
 |  |  | Cheer | Smudge Pot | 🦟 | The Today page warns you when pests are likelier than usual this game day | flag | F | A5 |
-| Driftwood Tavern | inn | Repairs | Bar Top Planed Smooth | 🪑 | Checks at the Driftwood Tavern are 2% kinder from dusk on, while the band plays | +2% | P `from=` `dp=dusk,night` | F16 |
+| Driftwood Tavern | inn | Repairs | Bar Top Planed Smooth | 🪑 | Stop checks in the Sunsprinkle Isles' island and coast zones are 2% kinder | +2% | P `region=CB` | F16 |
 |  |  | Larder | Lime and Something | 🥤 | First rest act at the Driftwood Tavern each day: one lime cordial (`lime-cordial`) | 1 a day | D here | A3 |
 |  |  | Cheer | Knows the Chorus | 🎵 | A line of music notes drifts over your Today page on festival days (looks only) | flag | F | A6 |
-| Turtle Nesting Beach | camp | Repairs | Driftwood Fence Mended | 🚧 | Once a day, the first act you do at Turtle Nesting Beach at night costs 1 less energy | 1 a day | D here | A1 |
-|  |  | Larder | Pineapple in the Cool Sand | 🍍 | Pineapple harvests: 1% chance of one extra | +1% | P `items=local:` pineapple | F10 |
+| Turtle Nesting Beach | camp | Repairs | Driftwood Fence Mended | 🚧 | Once a day, the first tend or mend act you do at Turtle Nesting Beach costs 1 less energy | 1 a day | D here | A1 |
+|  |  | Larder | Pineapple in the Cool Sand | 🍍 | Pineapple, pigeon pea, lime, soursop, ackee and nutmeg harvests: 2% chance of one extra | +2% | P `items=local:` pineapple, pigeon-pea, lime, soursop, ackee, nutmeg | F10 |
 |  |  | Cheer | Walked One to the Sea | 🐢 | A baby turtle crosses your garden path now and then (looks only) | flag | F | A6 |
 
 ## 5. The Rainroot Reaches (SA): 13 stops, 39 perks
@@ -255,45 +256,45 @@ Stop types to set in Admin > Places:
 
 | Stop | Type | Bar | Perk | Icon | Effect | Size | Scope | Family |
 |---|---|---|---|---|---|---|---|---|
-| The Rainroot Reaches Market | market | Repairs | Rehung Weavers' Rails | 🧶 | Fast travel that starts at the Rainroot Reaches Market costs 1% less | -1% | P `from=` | F18 |
+| The Rainroot Reaches Market | market | Repairs | Rehung Weavers' Rails | 🧶 | Fast travel that starts in the Rainroot Reaches' mountain and rainforest zones costs 2% less | -2% | P `region=SA` | F18 |
 |  |  | Larder | Peanuts in a Paper Cone | 🥜 | First visit to the Rainroot Reaches Market each day: one handful of peanuts (`peanut`) | 1 a day | D here | A3 |
 |  |  | Cheer | Reads the Weave | 🧵 | Your satchel shows which region each crop is native to | flag | F | A5 |
-| Barleyglen | inn | Repairs | Glazed Against the Pampas Wind | 🪟 | Healing from rest acts at Barleyglen is 2% stronger on windy days | +2% | P `from=` `we=wind` | F09 |
+| Barleyglen | inn | Repairs | Glazed Against the Pampas Wind | 🪟 | Rest acts and trail rests in the Rainroot Reaches' grassland and rainforest zones heal 2% more | +2% | P `region=SA` | F09 |
 |  |  | Larder | Flatbread for the Pocket | 🫓 | First walk that starts at Barleyglen each day: one mesquite flatbread (`mesquite-flatbread`) in your satchel | 1 a day | D here | A3 |
-|  |  | Cheer | Passed the Gourd | 🧉 | Gifts of yerba mate: 2% chance of +1 friendship | +2% | P `items=local:` yerba-mate | F14 |
-| Windwell | mill | Repairs | Wind Pump Regreased | 🛢️ | Watering lasts 2% longer on quinoa and peanut on windy days | +2% | P `items=local:` quinoa, peanut `we=wind` | F12 |
+|  |  | Cheer | Passed the Gourd | 🧉 | Gifts of yerba mate, quinoa, cassava, peanut, passion fruit, cherimoya, feijoa, naranjilla, tree tomato, brazil nut or cashew: 3% chance of +1 friendship | +3% | P `items=local:` yerba-mate, quinoa, cassava, peanut, passion-fruit, cherimoya, feijoa, naranjilla, tamarillo, brazil-nut, cashew | F14 |
+| Windwell | mill | Repairs | Wind Pump Regreased | 🛢️ | Watering lasts 3% longer on quinoa and peanut | +3% | P `items=local:` quinoa, peanut | F12 |
 |  |  | Larder | Rinsed Twice | 🌾 | Dishes with quinoa cook 2% faster | -2% | P `items=local:` quinoa | F06 |
 |  |  | Cheer | Tin Windmill on the Fence | 🎏 | A small tin windmill spins on your garden fence, faster on windy days (looks only) | flag | F | A6 |
-| Thistlebottom | shrine | Repairs | Refitted Stone Stair | 🧗 | 2% better chance to spot hidden places on walks that end at Thistlebottom | +2% | P `to=` | F19 |
-|  |  | Larder | Terrace Offering | 🪴 | Quinoa harvests: 1% more chance of a seed back | +1% | P `items=local:` quinoa | F13 |
-|  |  | Cheer | Head in the Clouds | ☁️ | Once a day, a failed Lore check at the Sky City Ruins is rolled again | 1 a day | D here | A2 |
+| Thistlebottom | shrine | Repairs | Refitted Stone Stair | 🧗 | Walks in the Rainroot Reaches' mountain and rainforest zones: 2% better chance to spot hidden things | +2% | P `region=SA` | F19 |
+|  |  | Larder | Terrace Offering | 🪴 | Quinoa and cassava harvests: 3% more chance of a seed back | +3% | P `items=local:` quinoa, cassava | F13 |
+|  |  | Cheer | Head in the Clouds | ☁️ | Once a day, a failed Lore check at the Sky City Ruins or at any other wonder or delve of the Rainroot Reaches is rolled again | 1 a day | D here | A2 |
 | Flintburrow | tower | Repairs | Re-roped Crag Path | 🪢 | +1 max health in fights on the road to Condor's Crag | +1 | P `from=` (that road) | F20 |
-|  |  | Larder | Watcher's Trail Mix | 🎒 | Once a day, the first walk of 4 sections or more that starts at Flintburrow costs 1 less energy | 1 a day | D here | A1 |
+|  |  | Larder | Watcher's Trail Mix | 🎒 | Once a day, the first walk that starts at Flintburrow or runs along the road to Condor's Crag costs 1 less energy | 1 a day | D here | A1 |
 |  |  | Cheer | Sized Up the Condor | 🦅 | The route menu shows a lair boss's level before you set out | flag | F | A5 |
-| Highcove | spring | Repairs | Recut Stone Tubs | 🛁 | Rest acts at Highcove give 1 more energy at dawn | +1 | P `from=` `dp=dawn` | F22 |
-|  |  | Larder | Cooling in the Stream | 🍊 | Naranjilla and tamarillo harvests: 1% chance of one extra | +1% | P `items=local:` naranjilla, tamarillo | F10 |
-|  |  | Cheer | The Dolphins Said So | 🐬 | Fast travel that starts at Highcove: 1% more chance to turn up a seed | +1% | P `from=` | F23 |
-| Stoneden | camp | Repairs | Windbreak of Stacked Slate | 🧱 | Resting on mountain walks that start at Stoneden heals 2% more at night | +2% | P `from=` `dp=night` | F09 |
+| Highcove | spring | Repairs | Recut Stone Tubs | 🛁 | Rest acts at Highcove give 1 more energy before dusk | +1 | P `from=` `dp=dawn,day` | F22 |
+|  |  | Larder | Cooling in the Stream | 🍊 | Naranjilla, tree tomato, quinoa and cassava harvests: 2% chance of one extra | +2% | P `items=local:` naranjilla, tamarillo, quinoa, cassava | F10 |
+|  |  | Cheer | The Dolphins Said So | 🐬 | Fast travel that starts in the Rainroot Reaches' grassland and rainforest zones: 2% more chance to turn up a seed | +2% | P `region=SA` | F23 |
+| Stoneden | camp | Repairs | Windbreak of Stacked Slate | 🧱 | Resting on mountain walks that start at Stoneden heals 3% more at night | +3% | P `from=` `dp=night` | F09 |
 |  |  | Larder | Cassava in the Embers | 🥘 | Dishes with cassava give 2% more energy | +2% | P `items=local:` cassava | F07 |
 |  |  | Cheer | Condor Country | 🪶 | A condor's shadow glides across your Today page on sunny days (looks only) | flag | F | A6 |
-| Figknoll | orchard | Repairs | Lashed Bamboo Ladders | 🎍 | Pests are 2% less likely on passion fruit and cherimoya | -2% | P `items=local:` passion-fruit, cherimoya | F17 |
+| Figknoll | orchard | Repairs | Lashed Bamboo Ladders | 🎍 | Pests are 2% less likely on passion fruit, cherimoya, quinoa and cassava | -2% | P `items=local:` passion-fruit, cherimoya, quinoa, cassava | F17 |
 |  |  | Larder | One for the Picker | 🧺 | First visit to Figknoll each day: one passion fruit (`passion-fruit`) | 1 a day | D here | A3 |
 |  |  | Cheer | Parrot on the Ladder | 🦜 | A green parrot perches on your garden gate while any fruit is ripe (looks only) | flag | F | A6 |
-| Frondstead | herb | Repairs | Drying Loft Reroofed | 🏚️ | Watering lasts 2% longer on yerba mate and feijoa | +2% | P `items=local:` yerba-mate, feijoa | F12 |
-|  |  | Larder | Topped Up, Never Stirred | 🍶 | Boosts from dishes or drinks with yerba mate last 2% longer | +2% | P `items=local:` yerba-mate | F08 |
-|  |  | Cheer | Nothing to Do but Talk | 🐒 | Chats with Frondstead's folk while it rains: 2% chance of +1 friendship | +2% | P `from=` `we=rain` | F14 |
-| Canopyglen | jetty | Repairs | Patched Dugouts | 🚣 | Resting on walks that end at Canopyglen heals 2% more in rain or storm | +2% | P `to=` `we=rain,storm` | F09 |
-|  |  | Larder | Wrapped in Leaves | 🐡 | Gathering with a rod on walks from Canopyglen: 1% chance of one extra | +1% | P `from=` tool rod | F11 |
+| Frondstead | herb | Repairs | Drying Loft Reroofed | 🏚️ | Watering lasts 2% longer on feijoa, yerba mate, cassava, passion fruit, cherimoya, naranjilla, tree tomato, brazil nut and cashew | +2% | P `items=local:` feijoa, yerba-mate, cassava, passion-fruit, cherimoya, naranjilla, tamarillo, brazil-nut, cashew | F12 |
+|  |  | Larder | Topped Up, Never Stirred | 🍶 | Dishes with yerba mate or quinoa give boosts that last 2% longer | +2% | P `items=local:` yerba-mate, quinoa | F08 |
+|  |  | Cheer | Nothing to Do but Talk | 🐒 | Chats and gifts with folk in the Rainroot Reaches' grassland and rainforest zones: 2% chance of +1 friendship | +2% | P `region=SA` | F14 |
+| Canopyglen | jetty | Repairs | Patched Dugouts | 🚣 | Resting on walks that end at Canopyglen heals 3% more in rain or storm | +3% | P `to=` `we=rain,storm` | F09 |
+|  |  | Larder | Wrapped in Leaves | 🐡 | Gathering in the Rainroot Reaches' grassland and rainforest zones: 2% chance of one extra | +2% | P `region=SA` | F11 |
 |  |  | Cheer | Otters Ride Along | 🦦 | A river otter pops up beside the route map on rainforest walks in the Reaches (looks only) | flag | F | A6 |
 | Scorchby | workshop | Repairs | Reblown Lamp Glass | 🪔 | +1 torch step in the Anaconda Hollows | +1 step | P `region=SA` (that delve) | F21 |
-|  |  | Larder | Grown Under Glass | 🔆 | 2% more garden XP from peanut | +2% | P `items=local:` peanut | F04 |
+|  |  | Larder | Grown Under Glass | 🔆 | Peanut, quinoa and cassava give 2% more garden XP | +2% | P `items=local:` peanut, quinoa, cassava | F04 |
 |  |  | Cheer | Seen Through Clear Glass | 🔍 | Stop pages put a small dot on acts you have never done | flag | F | A5 |
-| Duneford | market | Repairs | Salt Blocks Squared | 📦 | Duneford's stall pays 2% more at dawn, when the caravans load | +2% | P `from=` `dp=dawn` | F01 |
-|  |  | Larder | Caravan Sacks | 🛍️ | Peanuts and quinoa cost 2% less at Duneford's stall | -2% | P `from=` | F02 |
+| Duneford | market | Repairs | Salt Blocks Squared | 📦 | Stalls in the Rainroot Reaches' grassland, mountain and desert zones pay 2% more for what you sell | +2% | P `region=SA` | F01 |
+|  |  | Larder | Caravan Sacks | 🛍️ | Stalls in the Rainroot Reaches' grassland, mountain and desert zones charge 2% less | -2% | P `region=SA` | F02 |
 |  |  | Cheer | Sky Underfoot | 🪩 | After rain, the sky is mirrored along the foot of your Today page (looks only) | flag | F | A6 |
-| Gaucho Gnome Ranch | camp | Repairs | Saddle on the Rail | 🐴 | Once a day, the first walk from the Gaucho Gnome Ranch to Windwell costs 1 less energy | 1 a day | D here | A1 |
-|  |  | Larder | Saved for Sowing | 🪹 | Peanut harvests: 1% more chance of a seed back | +1% | P `items=local:` peanut | F13 |
-|  |  | Cheer | Guitar on the Porch | 🎸 | Contests at the Gaucho Gnome Ranch are 2% kinder | +2% | P `from=` kind contest | F16 |
+| Gaucho Gnome Ranch | camp | Repairs | Saddle on the Rail | 🐴 | Once a day, the first walk on a grassland or desert road of the Rainroot Reaches costs 1 less energy (saddled at the Gaucho Gnome Ranch) | 1 a day | D here | A1 |
+|  |  | Larder | Saved for Sowing | 🪹 | Peanut, passion fruit, cherimoya, feijoa, naranjilla, yerba mate, tree tomato, brazil nut and cashew harvests: 2% more chance of a seed back | +2% | P `items=local:` peanut, passion-fruit, cherimoya, feijoa, naranjilla, yerba-mate, tamarillo, brazil-nut, cashew | F13 |
+|  |  | Cheer | Guitar on the Porch | 🎸 | Stop checks in the Rainroot Reaches' grassland and rainforest zones are 2% kinder | +2% | P `region=SA` | F16 |
 
 ## 6. Counts
 

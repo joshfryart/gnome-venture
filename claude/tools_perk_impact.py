@@ -149,36 +149,36 @@ GOODS = [  # goods named at a stall -> share of the trade there
     (r'`[a-z-]+`|leeks|corn\b|peanuts and quinoa|flowers|sea salt', 0.1),
 ]
 # World perks of the Maplewold set: share of the day's domain, set by hand from the effect text (the audit has no scope cell there)
-WORLD_SHARE = {
-    'Level Scales': (0.63, 'crops are 70% of shop sales, 90% of them native while in the Maplewold'),
-    'Second Breakfast': (None, 'day part'),
-    'A Bed With Your Name On': (0.15, 'inns hold about 15% of the rest acts'),
-    'Tidy Skeps': (0.3, 'flowering plants: 30% of the beds'),
-    'Honey in the Tea': (0.3, 'teas: 30% of the boost minutes'),
-    'Greased Wheel': (0.3, 'breads and bakes: 30% of the pot minutes'),
-    "Miller's Pinch": (0.35, 'two of four staples'),
-    'Dry Woodpile': (0.3 * 0.5, 'forest trails x half of the healing is trail rests'),
-    "Squirrel's Arithmetic": (0.3, 'forest'),
-    'Fireside Regular': (0.12, 'camps: about 1 stop in 8'),
-    'Sawdust Mulch': (None, 'weather'),
-    'Swept Steps': (0.3, 'forest'),
-    'What You Leave Comes Back': (0.9, 'native crops while in the Maplewold'),
-    'Sound Nets': (0.17, 'jetties and ferries: 2 stop types of 12'),
-    'Catch of the Day': (0.2, 'fish: 20% of shop sales'),
-    'Beaver-Tight Hull': (0.25, 'coast stops'),
-    "Porter's Crate": (0.25, 'coast shops'),
-    "Watcher's Flask": (None, 'weather'),
-    'Scrubbed Pools': (0.08, 'hot springs: about 1 stop in 12'),
-    'Warm to the Bones': (None, 'weather'),
-    'Rice in the Turn-Ups': (1.0, 'every fast travel'),
-    'Border Lamp': (None, 'day part'),
-    'Packed by the Cook': (0.7, 'own dishes: 70% of the boost minutes'),
-    'Up With the Lark': (None, 'day part'),
-    'Tailwind': (None, 'weather'),
-    'Propped Boughs': (0.3, 'fruit and tree crops'),
-    'Hop-Yard Hum': (0.5, 'gifts are half of the friendship events'),
-    'Stacked Birch': (0.15, 'syrups and sweets'),
-    'Brim-Full Bucket': (0.2, 'tree and sap harvests'),
+WORLD_SHARE = {   # name -> [(words in the effect text, share, why)]; the first row whose words are in the text is used
+    'Level Scales': [('native', 0.45, 'crops are half of shop sales, 90% of them native while in the Maplewold'), ('', 1.0, 'everything sold in a shop')],
+    'Second Breakfast': [('', None, 'day part')],
+    'A Bed With Your Name On': [('', 0.15, 'inns hold about 15% of the rest acts')],
+    'Tidy Skeps': [('herbs', 0.6, 'flowers, herbs and fruit crops: 60% of the beds (assumption)'), ('', 0.3, 'flowering plants: 30% of the beds (assumption)')],
+    'Honey in the Tea': [('sweets', 0.5, 'teas, drinks and sweets: half of the boost minutes (assumption)'), ('', 0.3, 'teas: 30% of the boost minutes (assumption)')],
+    'Greased Wheel': [('grain', 0.5, 'grain dishes: half of the pot minutes (assumption)'), ('', 0.3, 'breads and bakes: 30% of the pot minutes (assumption)')],
+    "Miller's Pinch": [('soybean', 0.7, 'the four Maplewold staples: 70% of the harvests'), ('', 0.35, 'two of the four staples')],
+    'Dry Woodpile': [('any trail', 0.5, 'trail rests: half of the healing'), ('', 0.125, 'forest trails (a quarter of the Maplewold) x trail rests (half of the healing)')],
+    "Squirrel's Arithmetic": [('grassland', 0.5, 'forest and grassland: 6 of 12 Maplewold villages (`zones.txt`)'), ('', 0.25, 'forest: 3 of 12 Maplewold villages')],
+    'Fireside Regular': [('camp', 0.12, 'camps: about 1 stop in 8'), ('', 1.0, 'every stop check')],
+    'Sawdust Mulch': [('', None, 'weather')],
+    'Swept Steps': [('forest', 0.25, 'forest'), ('', 1.0, 'every roll')],
+    'What You Leave Comes Back': [('native', 0.9, 'native crops while in the Maplewold'), ('', 1.0, 'every crop')],
+    'Sound Nets': [('jetties', 0.17, 'jetties and ferries: 2 stop types of 12'), ('', 0.5, 'acts that cost energy: half of the paying acts (assumption)')],
+    'Catch of the Day': [('dishes', 0.5, 'fish 15%, finds 15%, dishes 20% of shop sales (assumption)'), ('', 0.15, 'fish: 15% of shop sales (assumption)')],
+    'Beaver-Tight Hull': [('coast', 0.17, 'coast stops: 2 of 12'), ('', 1.0, 'every fast travel')],
+    "Porter's Crate": [('coast', 0.17, 'coast shops: 2 of 12'), ('', 1.0, 'every shop')],
+    "Watcher's Flask": [('', None, 'weather')],
+    'Scrubbed Pools': [('', 0.08, 'hot springs: about 1 stop in 12')],
+    'Warm to the Bones': [('', None, 'weather')],
+    'Rice in the Turn-Ups': [('', 1.0, 'every fast travel')],
+    'Border Lamp': [('', None, 'day part')],
+    'Packed by the Cook': [('', 0.7, 'own dishes: 70% of the boost minutes')],
+    'Up With the Lark': [('', None, 'day part')],
+    'Tailwind': [('', None, 'weather')],
+    'Propped Boughs': [('fruit', 0.3, 'fruit and tree crops: 30% of the harvests'), ('', 1.0, 'every harvest')],
+    'Hop-Yard Hum': [('', 0.5, 'gifts are half of the friendship events')],
+    'Stacked Birch': [('preserves', 0.5, 'syrups, sweets, preserves and drinks: half of the pot minutes (assumption)'), ('', 0.15, 'syrups and sweets (assumption)')],
+    'Brim-Full Bucket': [('regrows', 0.5, 'perennials: half of the harvests (assumption)'), ('', 0.2, 'tree and sap harvests (assumption)')],
 }
 THRESH_R = 0.0095      # "about 1%" of the day's activity in the perk's own domain
 THRESH_FELT = 0.25     # a clearly felt event at least once in 4 game days = about every visit to the stop (V = 0.28)
@@ -240,8 +240,8 @@ def cond_factor(e):
     we = set()
     if re.search(r'in dry weather|dry weather', low):
         we = {'sun', 'cloud', 'wind', 'heat'}
-    elif re.search(r'when it is not raining|outside the rain', low):
-        we = set(WEATHER) - {'rain', 'storm'}
+    elif re.search(r'any weather but clear sun', low):
+        we = set(WEATHER) - {'sun'}
     else:
         for k, rx in (('rain', r'\brain(y|s)?\b'), ('storm', r'\bstorms?\b'), ('wind', r'\bwind(y)?\b'), ('fog', r'\bfog\b'),
                       ('snow', r'\bsnow(s)?\b'), ('frost', r'\bfrost\b'), ('heat', r'\b(heat|hot)\b'), ('sun', r'\b(sunny|clear)\b'),
@@ -314,7 +314,7 @@ def est_number(p, b):
     rel = n / 100.0
     s = None
     if p.cls == 'W':
-        ws, why = WORLD_SHARE.get(p.name, (1.0, 'everywhere'))
+        ws, why = next(((x, w) for needle, x, w in WORLD_SHARE.get(p.name, [('', 1.0, 'everywhere')]) if needle in p.effect.lower()))
         s = cf if ws is None else ws * cf
         notes.insert(0, 'world: ' + why)
     dom = {'F01': 'sold', 'F02': 'spent', 'F03': 'act_xp', 'F04': 'gxp', 'F05': 'walk_min', 'F06': 'pot_min', 'F07': 'dish_energy',
@@ -593,14 +593,25 @@ DAILY_RULES = [   # (regex on the effect, probability the trigger fires on a gam
     (r'fishing rod', lambda b: 0.6, 'rod days'),
     (r'first food you buy in a shop', lambda b: 0.5, 'food bought on half the days'),
     (r'road walk turns up a coin', lambda b: 0.25, '5 walks x 1 in 20'),
+    (r'(rock pick|bug net).* anywhere in', lambda b: 0.6, 'days the tool is used, region-wide'),
     (r'(rock pick|bug net)', lambda b: V * 0.5, 'visit day x tool used on that walk 0.5'),
+    (r'wonder or delve', lambda b: 0.35, 'wonder and delve days'),
     (r'lore check at', lambda b: 0.1, 'wonder days'),
+    (r'lost contest .*anywhere', lambda b: 1 - 0.65 ** 3.5, 'region-wide: 3.5 contests a day, 35% lost'),
+    (r'craft act .*anywhere.*fails', lambda b: 0.35, 'region-wide: one craft act a day, 35% fail'),
+    (r'first dish you eat anywhere in', lambda b: 1.0, 'region-wide: a dish every day'),
+    (r'gift .*to anyone in', lambda b: 0.9, 'region-wide: gift days'),
+    (r'dish cooked at .*any other stop fire', lambda b: 0.3, 'region-wide: days a pot goes on a stop fire'),
+    (r'walk in .*finds nothing', lambda b: 0.8, 'region-wide: an empty find on most days'),
+    (r'first (seed|tool).*buy at any stall', lambda b: 0.6, 'region-wide: seed-buying days'),
+    (r'first (fish|dish) you sell each day at any stall', lambda b: 0.5, 'region-wide: days a dish is sold'),
+    (r'first walk .*on an? [a-z ]+ road of', None, 'land road'),
     (r'torch step', lambda b: base('floors', b) / 2 if base('floors', b) < 1 else 0.5, 'delve days'),
     (r'lost (contest|game)|contest .*(tried|played) again', lambda b: V * 0.6 * 0.35, 'visit day x contest played 0.6 x lost 0.35'),
     (r'craft act .*fails', lambda b: V * 0.6 * 0.35, 'visit day x craft act 0.6 x failed 0.35'),
     (r'first tea you brew in', lambda b: 0.5, 'tea days'),
     (r'first festival act', lambda b: 1.0, 'region-wide (festival share in the conditions)'),
-    (r'first act you do each day in [A-Z]|first act each day in [A-Z]', lambda b: 1.0, 'region-wide'),
+    (r'first act you do each day in ', lambda b: 1.0, 'region-wide'),
     (r'first (seed|tool).*buy at', lambda b: V * 0.4, 'visit day x seed bought there 0.4'),
     (r'first (fish|dish) you sell', lambda b: V * 0.25, 'visit day x that good sold there 0.25'),
     (r'first (thing you sell|sale)', lambda b: V * 0.9, 'visit day x something sold there 0.9'),
@@ -637,7 +648,11 @@ def daily_row(p, b):
     else:
         for rx, fn, w in DAILY_RULES:
             if re.search(rx, low):
-                prob, why = fn(b), w
+                if fn is None:   # the first walk of the day on a road of the named landscapes, anywhere in the region
+                    x = land_share(p.region, e)
+                    prob, why = 1 - (1 - x) ** base('walks', b), 'region-wide: a walk on that land that day (land %.2f, 5 walks)' % x
+                else:
+                    prob, why = fn(b), w
                 break
     if prob is None:
         prob, why = V, 'visit day (default)'
@@ -664,8 +679,9 @@ def daily_row(p, b):
     elif fam == 'A3':
         if re.search(r'energy', low) and not re.search(r'`', e):
             vp1, what = VP_ENERGY * units, '%d energy' % units
-        elif re.search(r'heals? 1 health', low):
-            vp1, what = VP_HP, '1 health'
+        elif re.search(r'heals? (\d) health', low):
+            hn = int(re.search(r'heals? (\d) health', low).group(1))
+            vp1, what = VP_HP * hn, '%d health' % hn
         else:
             vp1, what = VP_ITEM * units, '%d item%s' % (units, 's' if units > 1 else '')
     else:

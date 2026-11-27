@@ -1,0 +1,28 @@
+region,stop,type,stop_level,petals_per_act,spent_per_act,xp_per_act,energy_per_act
+NA,Maplewold Market,market,1,9.53,0.0,4.77,1.11
+NA,Poppyburrow,inn,1,8.86,0.25,5.13,0.94
+NA,Honeybrook,herb,1,6.92,0.0,4.49,1.15
+NA,Cloverholt,mill,1,10.12,0.0,5.02,1.2
+NA,Acornby,camp,1,6.94,0.0,5.27,1.0
+NA,Birchhollow,workshop,1,7.68,0.0,4.34,1.23
+NA,Mossgate,shrine,1,8.56,0.0,5.59,1.15
+NA,Shellhollow,jetty,1,8.2,0.0,4.64,1.17
+NA,Pebblestead,ferry,1,8.41,0.0,4.51,1.17
+NA,Cattailmere,herb,1,6.8,0.31,4.41,1.14
+NA,Iciclecrest,tower,1,7.86,0.0,4.81,1.21
+NA,Snowcombe,spring,1,7.17,0.07,4.24,1.05
+NA,Granitegate,tower,1,7.7,0.0,4.73,1.18
+NA,The Sugar Shack,orchard,1,9.89,0.0,5.45,1.15
+NA,Aurora Camp,camp,1,7.16,0.0,5.1,0.98
+CA,Maizehollow Market,market,15,37.92,0.0,14.95,1.14
+CA,Poppynook,mill,15,35.18,0.0,14.02,1.2
+CA,Meadowmere,inn,15,33.45,0.37,13.36,0.93
+CA,Jadedell,shrine,15,35.47,0.0,17.59,1.1
+CA,Frondthorpe,orchard,15,38.84,0.0,17.01,1.18
+CA,Orchiddell,herb,15,31.0,0.01,14.24,1.18
+CA,Saffroncrest,tower,15,29.12,0.0,13.49,1.15
+CA,Scorchburrow,camp,15,29.63,0.0,14.35,1.03
+CA,Stonethorpe,spring,15,31.16,0.07,15.02,1.09
+CA,Flintcove,workshop,15,30.95,0.0,13.35,1.24
+CA,Market of a Thousand Chilies,market,15,36.41,0.0,14.62,1.14
+CA,Larkbrook,inn,15,32.61,0.27,13.04,0.94

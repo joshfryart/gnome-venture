@@ -4,7 +4,8 @@
 Proposal tooling only: reads the four perk files, claude/route-list.md and the game's data files; writes nothing under game/.
 
     python3 claude/tools_audit_stop_perks.py          # audit only, prints the report, exit 1 on any error
-    python3 claude/tools_audit_stop_perks.py --fix    # apply the FIXES table to the .md files, write the Hook list, then audit
+    python3 claude/tools_audit_stop_perks.py --fix    # apply the FIXES and RAISES tables to the .md files, write the Hook list, then audit
+    python3 claude/tools_audit_stop_perks.py --unraise  # take the impact raises (RAISES) out again: the set as it was before them
 
 Files: claude/proposal-stop-perks.md (Maplewold 18 stops, section 5; 36 templates, section 6),
        claude/proposal-stop-perks-regions-A.md (CA NWE CB SA), -B.md (SE EE MENA WCA), -C.md (ESA CSA EA SEA OC).
@@ -18,8 +19,9 @@ Checks
   3. Caps: world (W) use per family against its cap; A4 coins against the 10-a-game-day ceiling; crop rule
      (at most one crop-scoped perk per crop per effect family, all files); region rule (one region= perk per
      family per region); place-stack ceiling (see PLACE_STACK).
-  4. Sizes: nothing above 2% / +1 unit / one daily charge; power words in D perks; A3 gifts are a crop, a
-     gatherable or a snack, never a meal.
+  4. Sizes: nothing above 2% / +1 unit / one daily charge, except the narrow place perks raised to 3% by the impact pass
+     (VETO3 in the fixes file: every one is listed for Josh's veto in proposal-perk-impact.md); the size cell and the
+     number in the effect text agree; power words in D perks; A3 gifts are a crop, a gatherable or a snack, never a meal.
   5. Hooks: every perk mapped to a family hook + scope keys + daily trigger / UI page; NEW hooks deduplicated
      (written as section "Hook list" into proposal-stop-perks.md with --fix).
   6. Items: every gift names a real item slug (`slug` in back-quotes) found in game data; named crops are real
@@ -66,20 +68,20 @@ FAM = {
     'F07': ('dish energy', '%', 5, 2, '`gnome.php:625` in `eat_item` (`:509`)'),
     'F08': ('boost length', '%', 8, 2, '`gnome.php:439` in `buff_minutes` (`:434`)'),
     'F09': ('healing', '%', 8, 2, '`health.php:130` `hp_heal_points`; `adventure.php:1280` `rest_heal`; `stops.php:969` rest acts'),
-    'F10': ('harvest extra', '%', 4, 1, '`garden_logic.php:1598` in `do_harvest` (`:1474`)'),
-    'F11': ('gather extra', '%', 4, 1, '`gathering.php:78` `gather_on_walk`, `:181` `gather_here`'),
+    'F10': ('harvest extra', '%', 4, 2, '`garden_logic.php:1598` in `do_harvest` (`:1474`)'),
+    'F11': ('gather extra', '%', 4, 2, '`gathering.php:78` `gather_on_walk`, `:181` `gather_here`'),
     'F12': ('watering lasts', '%', 8, 2, '`garden_logic.php:865` `water_seconds`'),
-    'F13': ('seed back', '%', 4, 1, '`garden_logic.php:1634` in `do_harvest`'),
+    'F13': ('seed back', '%', 4, 2, '`garden_logic.php:1634` in `do_harvest`'),
     'F14': ('friendship chance', '%', 8, 2, '`friends.php:56` `friend_add` (extra roll NEW inside it)'),
     'F15': ('stop coins', '%', 8, 2, '`stops.php:670` `stop_rewards`'),
     'F16': ('stop check', '%', 4, 2, '`stops.php:742` `stop_check` (roll `:748`)'),
     'F17': ('pest', '%', 8, 2, '`garden_fx.php:281` `pest_chances`'),
-    'F18': ('fast travel cost', '%', 5, 1, '`world.php:282` in `travel_to` (`:267`)'),
+    'F18': ('fast travel cost', '%', 5, 2, '`world.php:282` in `travel_to` (`:267`)'),
     'F19': ('spot hidden', '%', 4, 2, '`explore.php:222` in `explore_deeper` (`:187`)'),
     'F20': ('max health', 'pt', 3, 1, '`adventure.php:81` in `gnome_combat` (`:71`)'),
     'F21': ('torch steps', 'step', 3, 1, '`delve_v2.php:37` `dv2_fuel`'),
     'F22': ('rest energy', 'energy', 2, 1, '`stops.php:969` `stop_do` case rest'),
-    'F23': ('seed on fast travel', '%', 4, 1, '`world.php:292` in `travel_to`'),
+    'F23': ('seed on fast travel', '%', 4, 2, '`world.php:292` in `travel_to`'),
 }
 DAILY = {'A1': 'dayfree', 'A2': 'dayback', 'A3': 'daygift', 'A4': 'daycoin'}
 FLAGS = {'A5': 'info', 'A6': 'looks'}
@@ -150,29 +152,37 @@ SNACK_OK = {k for k, v in RECIPE_TIER.items() if v in ('snack', 'preserve')}
 
 
 # ------------------------------------------------------------------ fixes
-def apply_fixes():
-    from tools_audit_stop_perks_fixes import FIXES   # noqa: E402  (kept beside this script)
-    texts = {p: read(p) for p in ORDER}
+VETO3 = set()   # perk keys (file:stop:bar) allowed at 3%: narrow place perks raised by the impact pass, listed for Josh's veto
+
+
+def apply_fixes(raise_too=True):
+    """Corrections (FIXES), then the impact raises (RAISES). Re-runnable: the raises are taken out first (new -> old, last row
+    first), so every correction finds its text again; then the corrections and the raises are put back in order."""
+    import tools_audit_stop_perks_fixes as fx   # noqa: E402  (kept beside this script)
+    files = {'main': F_MAIN, 'A': F_A, 'B': F_B, 'C': F_C, 'master': os.path.join(CL, 'PROPOSAL-HOLLOW-MASTER.md')}
+    texts = {k: read(p) for k, p in files.items()}
+    raises = list(getattr(fx, 'RAISES', []))
+    undone = 0
+    for fkey, old, new, why in reversed(raises):
+        if texts[fkey].count(new) == 1 and (old in new or old not in texts[fkey]):   # old in new: a row that only adds text
+            texts[fkey] = texts[fkey].replace(new, old)
+            undone += 1
     applied = skipped = 0
-    for fkey, old, new, why in FIXES:
-        p = {'main': F_MAIN, 'A': F_A, 'B': F_B, 'C': F_C, 'master': os.path.join(CL, 'PROPOSAL-HOLLOW-MASTER.md')}[fkey]
-        t = texts.get(p) if p in texts else read(p)
-        n = t.count(old)
-        if n == 1:
-            t = t.replace(old, new)
-            applied += 1
-        elif n == 0 and new in t:
-            skipped += 1
-        else:
-            err(f'FIX not applicable ({fkey}, found {n}x): {old[:90]!r} [{why}]')
-            continue
-        if p in texts:
-            texts[p] = t
-        else:
-            write(p, t)
-    for p, t in texts.items():
-        write(p, t)
-    print(f'fixes: {applied} applied, {skipped} already in place, of {len(FIXES)}')
+    for label, table in (('fixes', fx.FIXES), ('raises', raises if raise_too else [])):
+        applied = skipped = 0
+        for fkey, old, new, why in table:
+            t = texts[fkey]
+            n = t.count(old)
+            if new in t and (n == 0 or old in new):
+                skipped += 1
+            elif n == 1:
+                texts[fkey] = t.replace(old, new)
+                applied += 1
+            else:
+                err(f'{label[:-1].upper()} not applicable ({fkey}, found {n}x): {old[:90]!r} [{why}]')
+        print(f'{label}: {applied} applied, {skipped} already in place, of {len(table)}')
+    for k, p in files.items():
+        write(p, texts[k])
 
 
 # ------------------------------------------------------------------ parsing
@@ -668,13 +678,18 @@ def audit(write_hooks):
     for p in perks:
         u, n = size_of(p.size)
         if p.fam in FAM:
-            if u == '%' and n > 2:
-                err(f'over 2%: {p.key()} {p.size}')
+            if u == '%' and n > 2 and not (n == 3 and p.cls == 'P' and p.key() in VETO3):
+                err(f'over 2% (3% only for a narrow place perk on the veto list): {p.key()} {p.size}')
+            if p.key() in VETO3 and not (u == '%' and n == 3 and p.cls == 'P'):
+                err(f'veto list names a perk that is not a 3% place perk: {p.key()} {p.size}')
+            m = re.search(r'(\d+)\s*%', p.effect)
+            if u == '%' and m and int(m.group(1)) != n:
+                err(f'size cell {p.size} and effect text {m.group(1)}% differ: {p.key()}')
             if u in ('unit',) and n > 1:
                 err(f'over +1: {p.key()} {p.size}')
             if u == 'daily':
                 err(f'family {p.fam} but daily size: {p.key()}')
-            if n > FAM[p.fam][3] and u in ('%', 'unit'):
+            if n > FAM[p.fam][3] and u in ('%', 'unit') and p.key() not in VETO3:
                 err(f'{p.fam} perk above its per-perk size {FAM[p.fam][3]}: {p.key()} {p.size}')
         if p.fam in DAILY and u not in ('daily', 'coin', 'unit'):
             if not (p.fam == 'A4'):
@@ -688,7 +703,7 @@ def audit(write_hooks):
         for rx in POWER_WORDS:
             if re.search(rx, p.effect, re.I) and p.key() not in POWER_OK:
                 err(f'power word /{rx}/: {p.key()} "{p.effect}"')
-        if re.search(r'\b([3-9]|\d\d)\s*%', p.effect):
+        if re.search(r'\b([3-9]|\d\d)\s*%', p.effect) and p.key() not in VETO3:
             err(f'effect text names >2%: {p.key()}')
 
     for rx in THEMES:
@@ -868,9 +883,12 @@ UNREAL = [r'Oasis That Moves is', r'Great Migration is passing', r'shoots to sha
 
 def main():
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    fix = '--fix' in sys.argv
+    fix = '--fix' in sys.argv or '--unraise' in sys.argv
+    import tools_audit_stop_perks_fixes as fx
+    if '--unraise' not in sys.argv:
+        VETO3.update(getattr(fx, 'VETO3', ()))
     if fix:
-        apply_fixes()
+        apply_fixes(raise_too='--unraise' not in sys.argv)
     audit(fix)
     print('\n== Result')
     for w in warns:
